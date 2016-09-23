@@ -12,13 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPolygonBuilder -builds a polygon from a set of abstract triangles (represented by index triplets)
-//
-// .SECTION Description
-//  The polygon output is the boundary of the union of the triangles.
-//  It is assumed that the input triangles form a simple polygon. It is
-//  currently used to compute polygons for slicing.
-//
+/**
+ * @class   vtkPolygonBuilder
+ *
+ *
+ *  The polygon output is the boundary of the union of the triangles.
+ *  It is assumed that the input triangles form a simple polygon. It is
+ *  currently used to compute polygons for slicing.
+ *
+*/
 
 #ifndef vtkPolygonBuilder_h
 #define vtkPolygonBuilder_h
@@ -39,18 +41,21 @@ class VTKCOMMONMISC_EXPORT vtkPolygonBuilder
 public:
   vtkPolygonBuilder();
 
-  // Description:
-  // Insert a triangle as a triplet of point IDs.
+  /**
+   * Insert a triangle as a triplet of point IDs.
+   */
   void InsertTriangle(vtkIdType* abc);
 
-  // Description:
-  // Populate polys with lists of polygons, defined as sequential external
-  // vertices. It is the responsibility of the user to delete these generated
-  // lists in order to avoid memory leaks.
+  /**
+   * Populate polys with lists of polygons, defined as sequential external
+   * vertices. It is the responsibility of the user to delete these generated
+   * lists in order to avoid memory leaks.
+   */
   void GetPolygons(vtkIdListCollection* polys);
 
-  // Description:
-  // Prepare the builder for a new set of inputs.
+  /**
+   * Prepare the builder for a new set of inputs.
+   */
   void Reset();
 
 private:

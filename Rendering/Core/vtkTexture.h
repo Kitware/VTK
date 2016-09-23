@@ -12,32 +12,36 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTexture - handles properties associated with a texture map
-// .SECTION Description
-// vtkTexture is an object that handles loading and binding of texture
-// maps. It obtains its data from an input image data dataset type.
-// Thus you can create visualization pipelines to read, process, and
-// construct textures. Note that textures will only work if texture
-// coordinates are also defined, and if the rendering system supports
-// texture.
-//
-// Instances of vtkTexture are associated with actors via the actor's
-// SetTexture() method. Actors can share texture maps (this is encouraged
-// to save memory resources.)
-
-// .SECTION Caveats
-// Currently only 2D texture maps are supported, even though the data pipeline
-// supports 1,2, and 3D texture coordinates.
-//
-// Some renderers such as old OpenGL require that the texture map dimensions
-// are a power of two in each direction. If a non-power of two texture map is
-// used, it is automatically resampled to a power of two in one or more
-// directions, at the cost of an expensive computation. If the OpenGL
-// implementation is recent enough (OpenGL>=2.0 or
-// extension GL_ARB_texture_non_power_of_two exists) there is no such
-// restriction and no extra computational cost.
-// .SECTION See Also
-// vtkActor vtkRenderer vtkOpenGLTexture
+/**
+ * @class   vtkTexture
+ * @brief   handles properties associated with a texture map
+ *
+ * vtkTexture is an object that handles loading and binding of texture
+ * maps. It obtains its data from an input image data dataset type.
+ * Thus you can create visualization pipelines to read, process, and
+ * construct textures. Note that textures will only work if texture
+ * coordinates are also defined, and if the rendering system supports
+ * texture.
+ *
+ * Instances of vtkTexture are associated with actors via the actor's
+ * SetTexture() method. Actors can share texture maps (this is encouraged
+ * to save memory resources.)
+ *
+ * @warning
+ * Currently only 2D texture maps are supported, even though the data pipeline
+ * supports 1,2, and 3D texture coordinates.
+ *
+ * @warning
+ * Some renderers such as old OpenGL require that the texture map dimensions
+ * are a power of two in each direction. If a non-power of two texture map is
+ * used, it is automatically resampled to a power of two in one or more
+ * directions, at the cost of an expensive computation. If the OpenGL
+ * implementation is recent enough (OpenGL>=2.0 or
+ * extension GL_ARB_texture_non_power_of_two exists) there is no such
+ * restriction and no extra computational cost.
+ * @sa
+ * vtkActor vtkRenderer vtkOpenGLTexture
+*/
 
 #ifndef vtkTexture_h
 #define vtkTexture_h
@@ -64,54 +68,69 @@ public:
   vtkTypeMacro(vtkTexture, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Renders a texture map. It first checks the object's modified time
-  // to make sure the texture maps Input is valid, then it invokes the
-  // Load() method.
+  /**
+   * Renders a texture map. It first checks the object's modified time
+   * to make sure the texture maps Input is valid, then it invokes the
+   * Load() method.
+   */
   virtual void Render(vtkRenderer* ren);
 
-  // Description:
-  // Cleans up after the texture rendering to restore the state of the
-  // graphics context.
+  /**
+   * Cleans up after the texture rendering to restore the state of the
+   * graphics context.
+   */
   virtual void PostRender(vtkRenderer*) {}
 
-  // Description:
-  // Release any graphics resources that are being consumed by this texture.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
+  /**
+   * Release any graphics resources that are being consumed by this texture.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
   virtual void ReleaseGraphicsResources(vtkWindow*) {}
 
-  // Description:
-  // Abstract interface to renderer. Each concrete subclass of
-  // vtkTexture will load its data into graphics system in response
-  // to this method invocation.
+  /**
+   * Abstract interface to renderer. Each concrete subclass of
+   * vtkTexture will load its data into graphics system in response
+   * to this method invocation.
+   */
   virtual void Load(vtkRenderer*) {}
 
-  // Description:
-  // Turn on/off the repetition of the texture map when the texture
-  // coords extend beyond the [0,1] range.
+  //@{
+  /**
+   * Turn on/off the repetition of the texture map when the texture
+   * coords extend beyond the [0,1] range.
+   */
   vtkGetMacro(Repeat, int);
   vtkSetMacro(Repeat, int);
   vtkBooleanMacro(Repeat, int);
+  //@}
 
-  // Description:
-  // Turn on/off the clamping of the texture map when the texture
-  // coords extend beyond the [0,1] range.
-  // Only used when Repeat is off, and edge clamping is supported by
-  // the graphics card.
+  //@{
+  /**
+   * Turn on/off the clamping of the texture map when the texture
+   * coords extend beyond the [0,1] range.
+   * Only used when Repeat is off, and edge clamping is supported by
+   * the graphics card.
+   */
   vtkGetMacro(EdgeClamp, int);
   vtkSetMacro(EdgeClamp, int);
   vtkBooleanMacro(EdgeClamp, int);
+  //@}
 
-  // Description:
-  // Turn on/off linear interpolation of the texture map when rendering.
+  //@{
+  /**
+   * Turn on/off linear interpolation of the texture map when rendering.
+   */
   vtkGetMacro(Interpolate, int);
   vtkSetMacro(Interpolate, int);
   vtkBooleanMacro(Interpolate, int);
+  //@}
 
-  // Description:
-  // Force texture quality to 16-bit or 32-bit.
-  // This might not be supported on all machines.
+  //@{
+  /**
+   * Force texture quality to 16-bit or 32-bit.
+   * This might not be supported on all machines.
+   */
   vtkSetMacro(Quality, int);
   vtkGetMacro(Quality, int);
   void SetQualityToDefault()
@@ -120,45 +139,61 @@ public:
     { this->SetQuality(VTK_TEXTURE_QUALITY_16BIT); }
   void SetQualityTo32Bit()
     { this->SetQuality(VTK_TEXTURE_QUALITY_32BIT); }
+  //@}
 
-  // Description:
-  // Turn on/off the mapping of color scalars through the lookup table.
-  // The default is Off. If Off, unsigned char scalars will be used
-  // directly as texture. If On, scalars will be mapped through the
-  // lookup table to generate 4-component unsigned char scalars.
-  // This ivar does not affect other scalars like unsigned short, float,
-  // etc. These scalars are always mapped through lookup tables.
+  //@{
+  /**
+   * Turn on/off the mapping of color scalars through the lookup table.
+   * The default is Off. If Off, unsigned char scalars will be used
+   * directly as texture. If On, scalars will be mapped through the
+   * lookup table to generate 4-component unsigned char scalars.
+   * This ivar does not affect other scalars like unsigned short, float,
+   * etc. These scalars are always mapped through lookup tables.
+   */
   vtkGetMacro(MapColorScalarsThroughLookupTable, int);
   vtkSetMacro(MapColorScalarsThroughLookupTable, int);
   vtkBooleanMacro(MapColorScalarsThroughLookupTable, int);
+  //@}
 
-  // Description:
-  // Get the input as a vtkImageData object.  This method is for
-  // backwards compatibility.
+  /**
+   * Get the input as a vtkImageData object.  This method is for
+   * backwards compatibility.
+   */
   vtkImageData* GetInput();
 
-  // Description:
-  // Specify the lookup table to convert scalars if necessary
+  //@{
+  /**
+   * Specify the lookup table to convert scalars if necessary
+   */
   void SetLookupTable(vtkScalarsToColors *);
   vtkGetObjectMacro(LookupTable, vtkScalarsToColors);
+  //@}
 
-  // Description:
-  // Get Mapped Scalars
+  //@{
+  /**
+   * Get Mapped Scalars
+   */
   vtkGetObjectMacro(MappedScalars, vtkUnsignedCharArray);
+  //@}
 
-  // Description:
-  // Map scalar values into color scalars.
+  /**
+   * Map scalar values into color scalars.
+   */
   unsigned char* MapScalarsToColors(vtkDataArray* scalars);
 
-  // Description:
-  // Set a transform on the texture which allows one to scale,
-  // rotate and translate the texture.
+  //@{
+  /**
+   * Set a transform on the texture which allows one to scale,
+   * rotate and translate the texture.
+   */
   void SetTransform(vtkTransform *transform);
   vtkGetObjectMacro(Transform, vtkTransform);
+  //@}
 
-  // Description:
-  // Used to specify how the texture will blend its RGB and Alpha values
-  // with other textures and the fragment the texture is rendered upon.
+  /**
+   * Used to specify how the texture will blend its RGB and Alpha values
+   * with other textures and the fragment the texture is rendered upon.
+   */
   enum VTKTextureBlendingMode
   {
     VTK_TEXTURE_BLENDING_MODE_NONE = 0,
@@ -170,38 +205,49 @@ public:
     VTK_TEXTURE_BLENDING_MODE_SUBTRACT
   };
 
-  // Description:
-  // Used to specify how the texture will blend its RGB and Alpha values
-  // with other textures and the fragment the texture is rendered upon.
+  //@{
+  /**
+   * Used to specify how the texture will blend its RGB and Alpha values
+   * with other textures and the fragment the texture is rendered upon.
+   */
   vtkGetMacro(BlendingMode, int);
   vtkSetMacro(BlendingMode, int);
+  //@}
 
-  // Description:
-  // Whether the texture colors are premultiplied by alpha.
-  // Initial value is false.
+  //@{
+  /**
+   * Whether the texture colors are premultiplied by alpha.
+   * Initial value is false.
+   */
   vtkGetMacro(PremultipliedAlpha, bool);
   vtkSetMacro(PremultipliedAlpha, bool);
   vtkBooleanMacro(PremultipliedAlpha, bool);
+  //@}
 
-  // Description:
-  // When the texture is forced to be a power of 2, the default behavior is
-  // for the "new" image's dimensions  to be greater than or equal to with
-  // respects to the original.  Setting RestrictPowerOf2ImageSmaller to be
-  // 1 (or ON) with force the new image's dimensions to be less than or equal
-  // to with respects to the original.
+  //@{
+  /**
+   * When the texture is forced to be a power of 2, the default behavior is
+   * for the "new" image's dimensions  to be greater than or equal to with
+   * respects to the original.  Setting RestrictPowerOf2ImageSmaller to be
+   * 1 (or ON) with force the new image's dimensions to be less than or equal
+   * to with respects to the original.
+   */
   vtkGetMacro(RestrictPowerOf2ImageSmaller, int);
   vtkSetMacro(RestrictPowerOf2ImageSmaller, int);
   vtkBooleanMacro(RestrictPowerOf2ImageSmaller, int);
+  //@}
 
-  // Description:
-  // Is this Texture Translucent?
-  // returns false (0) if the texture is either fully opaque or has
-  // only fully transparent pixels and fully opaque pixels and the
-  // Interpolate flag is turn off.
+  /**
+   * Is this Texture Translucent?
+   * returns false (0) if the texture is either fully opaque or has
+   * only fully transparent pixels and fully opaque pixels and the
+   * Interpolate flag is turn off.
+   */
   virtual int IsTranslucent();
 
-  // Description:
-  // Return the texture unit used for this texture
+  /**
+   * Return the texture unit used for this texture
+   */
   virtual int GetTextureUnit() { return 0; }
 
 protected:

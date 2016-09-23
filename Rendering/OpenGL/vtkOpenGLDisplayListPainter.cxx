@@ -40,37 +40,37 @@ public:
   vtkTimeStamp BuildTime;
 
   void ReleaseAllLists()
-    {
+  {
     vtkOpenGLClearErrorMacro();
     DisplayListMapType::iterator iter;
     for (iter = this->DisplayListMap.begin(); iter != this->DisplayListMap.end();
       iter++)
-      {
+    {
       glDeleteLists(iter->second, 1);
-      }
+    }
     this->DisplayListMap.clear();
     vtkOpenGLStaticCheckErrorMacro("failed after ReleaseAllLists");
-    }
+  }
 
   void ReleaseList(unsigned long key)
-    {
+  {
     vtkOpenGLClearErrorMacro();
     DisplayListMapType::iterator iter = this->DisplayListMap.find(key);
     if (iter != this->DisplayListMap.end())
-      {
+    {
       glDeleteLists(iter->second, 1);
       this->DisplayListMap.erase(iter);
-      }
-    vtkOpenGLStaticCheckErrorMacro("failed after ReleaseList");
     }
+    vtkOpenGLStaticCheckErrorMacro("failed after ReleaseList");
+  }
 
   void UpdateBuildTime()
-    {
+  {
     if (this->DisplayListMap.size() == 1)
-      {
+    {
       this->BuildTime.Modified();
-      }
     }
+  }
 };
 
 //-----------------------------------------------------------------------------
@@ -83,9 +83,9 @@ vtkOpenGLDisplayListPainter::vtkOpenGLDisplayListPainter()
 vtkOpenGLDisplayListPainter::~vtkOpenGLDisplayListPainter()
 {
   if (this->LastWindow)
-    {
+  {
     this->ReleaseGraphicsResources(this->LastWindow);
-    }
+  }
   delete this->Internals;
   this->Internals = 0;
 }
@@ -94,10 +94,10 @@ vtkOpenGLDisplayListPainter::~vtkOpenGLDisplayListPainter()
 void vtkOpenGLDisplayListPainter::ReleaseGraphicsResources(vtkWindow* win)
 {
   if (win && win->GetMapped())
-    {
+  {
     win->MakeCurrent();
     this->Internals->ReleaseAllLists();
-    }
+  }
   this->Internals->DisplayListMap.clear();
   this->Superclass::ReleaseGraphicsResources(win);
   this->LastWindow = NULL;
@@ -115,21 +115,21 @@ void vtkOpenGLDisplayListPainter::RenderInternal(vtkRenderer *renderer,
   // the old window, if the old window is still valid.
   if (this->LastWindow &&
     (renderer->GetRenderWindow() != this->LastWindow.GetPointer()))
-    {
+  {
     this->ReleaseGraphicsResources(this->LastWindow);
     renderer->GetRenderWindow()->MakeCurrent();
-    }
+  }
 
   if (this->ImmediateModeRendering)
-    {
+  {
     // don't use display lists at all.
     if (!forceCompileOnly)
-      {
+    {
       this->Superclass::RenderInternal(renderer, actor, typeflags,
         forceCompileOnly);
-      }
-    return;
     }
+    return;
+  }
 
   this->TimeToDraw = 0.0;
 
@@ -147,15 +147,15 @@ void vtkOpenGLDisplayListPainter::RenderInternal(vtkRenderer *renderer,
     actor->GetProperty()->GetMTime() > this->Internals->BuildTime ||
     // mapper information was modified
     this->Information->GetMTime() > this->Internals->BuildTime)
-    {
+  {
     this->Internals->ReleaseAllLists();
     this->LastWindow = 0;
-    }
+  }
 
   vtkInternals::DisplayListMapType::iterator iter =
     this->Internals->DisplayListMap.find(typeflags);
   if (iter == this->Internals->DisplayListMap.end())
-    {
+  {
     GLuint list = glGenLists(1);
 
     glNewList(list, GL_COMPILE);
@@ -169,10 +169,10 @@ void vtkOpenGLDisplayListPainter::RenderInternal(vtkRenderer *renderer,
 
     this->LastWindow = renderer->GetRenderWindow();
     iter = this->Internals->DisplayListMap.find(typeflags);
-    }
+  }
 
   if (!forceCompileOnly)
-    {
+  {
     // Time the actual drawing.
     this->Timer->StartTimer();
     // render the display list.
@@ -183,7 +183,7 @@ void vtkOpenGLDisplayListPainter::RenderInternal(vtkRenderer *renderer,
     // till OpenGL finishes.
     this->Timer->StopTimer();
     this->TimeToDraw += this->Timer->GetElapsedTime();
-    }
+  }
 
   vtkOpenGLCheckErrorMacro("failed after RenderInternal");
 }

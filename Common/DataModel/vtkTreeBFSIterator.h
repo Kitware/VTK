@@ -13,17 +13,20 @@
 
 =========================================================================*/
 
-// .NAME vtkTreeBFSIterator - breadth first search iterator through a vtkTree
-//
-// .SECTION Description
-// vtkTreeBFSIterator performs a breadth first search traversal of a tree.
-//
-// After setting up the iterator, the normal mode of operation is to
-// set up a <code>while(iter->HasNext())</code> loop, with the statement
-// <code>vtkIdType vertex = iter->Next()</code> inside the loop.
-//
-// .SECTION Thanks
-// Thanks to David Doria for submitting this class.
+/**
+ * @class   vtkTreeBFSIterator
+ * @brief   breadth first search iterator through a vtkTree
+ *
+ *
+ * vtkTreeBFSIterator performs a breadth first search traversal of a tree.
+ *
+ * After setting up the iterator, the normal mode of operation is to
+ * set up a <code>while(iter->HasNext())</code> loop, with the statement
+ * <code>vtkIdType vertex = iter->Next()</code> inside the loop.
+ *
+ * @par Thanks:
+ * Thanks to David Doria for submitting this class.
+*/
 
 #ifndef vtkTreeBFSIterator_h
 #define vtkTreeBFSIterator_h
@@ -52,11 +55,11 @@ protected:
   vtkIntArray* Color;
 
   enum ColorType
-    {
+  {
     WHITE,
     GRAY,
     BLACK
-    };
+  };
 
 private:
   vtkTreeBFSIterator(const vtkTreeBFSIterator &) VTK_DELETE_FUNCTION;

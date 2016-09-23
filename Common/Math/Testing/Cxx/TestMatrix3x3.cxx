@@ -25,57 +25,57 @@ int TestMatrix3x3(int,char *[])
   vtkNew<vtkMatrix3x3> matrix;
   cout << "Testing vtkMatrix3x3..." << endl;
   if (!matrix->IsIdentity())
-    {
+  {
     vtkGenericWarningMacro("Matrix should be initialized to identity.");
     return 1;
-    }
+  }
   matrix->Invert();
   if (!matrix->IsIdentity())
-    {
+  {
     vtkGenericWarningMacro("Inverse of identity should be identity.");
     return 1;
-    }
+  }
   // Check copying and comparison
   vtkNew<vtkMatrix3x3> matrix2;
   matrix2->DeepCopy(matrix.GetPointer());
   for (int i = 0; i < 3; ++i)
-    {
+  {
     for (int j = 0; j < 3; ++j)
     if (matrix->GetElement(i, j) != matrix2->GetElement(i, j))
-      {
+    {
       vtkGenericWarningMacro("DeepCopy of vtkMatrix3x3 failed.");
       return 1;
-      }
     }
+  }
   matrix2->SetElement(0, 0, 5.0);
   if (!vtkMathUtilities::FuzzyCompare(matrix2->GetElement(0, 0), 5.0))
-    {
+  {
     vtkGenericWarningMacro("Value not stored in matrix properly.");
     return 1;
-    }
+  }
   matrix2->SetElement(1, 2, 42.0);
   if (!vtkMathUtilities::FuzzyCompare(matrix2->GetElement(1, 2), 42.0))
-    {
+  {
     vtkGenericWarningMacro("Value not stored in matrix properly.");
     return 1;
-    }
+  }
 
   // Test matrix transpose
   matrix2->Transpose();
   if (!vtkMathUtilities::FuzzyCompare(matrix2->GetElement(0, 0), 5.0) ||
       !vtkMathUtilities::FuzzyCompare(matrix2->GetElement(2, 1), 42.0))
-    {
+  {
     vtkGenericWarningMacro("vtkMatrix::Transpose failed.");
     return 1;
-    }
+  }
 
   matrix2->Invert();
   if (!vtkMathUtilities::FuzzyCompare(matrix2->GetElement(0, 0), 0.2) ||
       !vtkMathUtilities::FuzzyCompare(matrix2->GetElement(2, 1), -42.0))
-    {
+  {
     vtkGenericWarningMacro("vtkMatrix::Invert failed.");
     return 1;
-    }
+  }
 
   // Multiply a coordinate by this matrix.
   double inout[3] = {12.3, 45.6, 78.9};
@@ -84,10 +84,10 @@ int TestMatrix3x3(int,char *[])
   if (!vtkMathUtilities::FuzzyCompare(inout[0], 2.46, 1e-5) ||
       !vtkMathUtilities::FuzzyCompare(inout[1], 45.6, 1e-5) ||
       !vtkMathUtilities::FuzzyCompare(inout[2], -1836.3, 1e-5))
-    {
+  {
     vtkGenericWarningMacro("vtkMatrix::MultiplyPoint failed.");
     return 1;
-    }
+  }
 
   // Not test the 2D transform with some 2D points
   vtkNew<vtkTransform2D> transform;
@@ -100,70 +100,70 @@ int TestMatrix3x3(int,char *[])
 
   transform->TransformPoints(points.GetPointer(), points2.GetPointer());
   for (int i = 0; i < 3; ++i)
-    {
+  {
     double p1[2], p2[2];
     points->GetPoint(i, p1);
     points2->GetPoint(i, p2);
     if (!vtkMathUtilities::FuzzyCompare(p1[0], p2[0], 1e-5) ||
         !vtkMathUtilities::FuzzyCompare(p1[1], p2[1], 1e-5))
-      {
+    {
       vtkGenericWarningMacro("Identity transform moved points."
                              << " Delta: "
                              << p1[0] - (p2[0]-2.0)
                              << ", "
                              << p1[1] - (p2[1]-6.9));
       return 1;
-      }
     }
+  }
   transform->Translate(2.0, 6.9);
   transform->TransformPoints(points.GetPointer(), points2.GetPointer());
   for (int i = 0; i < 3; ++i)
-    {
+  {
     double p1[2], p2[2];
     points->GetPoint(i, p1);
     points2->GetPoint(i, p2);
     if (!vtkMathUtilities::FuzzyCompare(p1[0], p2[0] - 2.0, 1e-5) ||
         !vtkMathUtilities::FuzzyCompare(p1[1], p2[1] - 6.9, 1e-5))
-      {
+    {
       vtkGenericWarningMacro("Translation transform failed. Delta: "
                              << p1[0] - (p2[0]-2.0)
                              << ", "
                              << p1[1] - (p2[1]-6.9));
 
       return 1;
-      }
     }
+  }
   transform->InverseTransformPoints(points2.GetPointer(), points2.GetPointer());
   for (int i = 0; i < 3; ++i)
-    {
+  {
     double p1[2], p2[2];
     points->GetPoint(i, p1);
     points2->GetPoint(i, p2);
     if (!vtkMathUtilities::FuzzyCompare(p1[0], p2[0], 1e-5) ||
         !vtkMathUtilities::FuzzyCompare(p1[1], p2[1], 1e-5))
-      {
+    {
       vtkGenericWarningMacro("Inverse transform did not return original points."
                              << " Delta: "
                              << p1[0] - (p2[0]-2.0)
                              << ", "
                              << p1[1] - (p2[1]-6.9));
       return 1;
-      }
     }
+  }
 
   // Zero out the matrix.
   matrix->Zero();
   for (int i = 0; i < 3; i++)
-    {
+  {
     for (int j = 0; j < 3; j++)
-      {
+    {
       if (matrix->GetElement(i, j) != 0.0)
-        {
+      {
         vtkGenericWarningMacro("vtkMatrix::Zero failed.");
         return 1;
-        }
       }
     }
+  }
 
   return 0;
 }

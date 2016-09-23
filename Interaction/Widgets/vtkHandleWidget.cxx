@@ -69,25 +69,25 @@ vtkHandleWidget::~vtkHandleWidget()
 void vtkHandleWidget::CreateDefaultRepresentation()
 {
   if ( ! this->WidgetRep )
-    {
+  {
     this->WidgetRep = vtkPointHandleRepresentation3D::New();
-    }
+  }
 }
 
 //-------------------------------------------------------------------------
 void vtkHandleWidget::SetCursor(int cState)
 {
   if ( this->ManagesCursor )
-    {
+  {
     switch (cState)
-      {
+    {
       case vtkHandleRepresentation::Outside:
         this->RequestCursorShape(VTK_CURSOR_DEFAULT);
         break;
       default:
         this->RequestCursorShape(VTK_CURSOR_HAND);
-      }
     }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -100,15 +100,15 @@ void vtkHandleWidget::SelectAction(vtkAbstractWidget *w)
 
   self->WidgetRep->ComputeInteractionState(X, Y);
   if ( self->WidgetRep->GetInteractionState() == vtkHandleRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // We are definitely selected
   if ( ! self->Parent )
-    {
+  {
     self->GrabFocus(self->EventCallbackCommand);
-    }
+  }
   double eventPos[2];
   eventPos[0] = static_cast<double>(X);
   eventPos[1] = static_cast<double>(Y);
@@ -132,9 +132,9 @@ void vtkHandleWidget::TranslateAction(vtkAbstractWidget *w)
 
   self->WidgetRep->StartWidgetInteraction(eventPos);
   if ( self->WidgetRep->GetInteractionState() == vtkHandleRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // We are definitely selected
   self->WidgetState = vtkHandleWidget::Active;
@@ -150,7 +150,7 @@ void vtkHandleWidget::ScaleAction(vtkAbstractWidget *w)
   vtkHandleWidget *self = reinterpret_cast<vtkHandleWidget*>(w);
 
   if (self->AllowHandleResize)
-    {
+  {
 
     double eventPos[2];
     eventPos[0] = static_cast<double>(self->Interactor->GetEventPosition()[0]);
@@ -158,9 +158,9 @@ void vtkHandleWidget::ScaleAction(vtkAbstractWidget *w)
 
     self->WidgetRep->StartWidgetInteraction(eventPos);
     if ( self->WidgetRep->GetInteractionState() == vtkHandleRepresentation::Outside )
-      {
+    {
       return;
-      }
+    }
 
     // We are definitely selected
     self->WidgetState = vtkHandleWidget::Active;
@@ -168,7 +168,7 @@ void vtkHandleWidget::ScaleAction(vtkAbstractWidget *w)
       SetInteractionState(vtkHandleRepresentation::Scaling);
 
     self->GenericAction(self);
-    }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -181,13 +181,13 @@ void vtkHandleWidget::GenericAction(vtkHandleWidget *self)
 
   // Check to see whether motion is constrained
   if ( self->Interactor->GetShiftKey() && self->EnableAxisConstraint )
-    {
+  {
     reinterpret_cast<vtkHandleRepresentation*>(self->WidgetRep)->ConstrainedOn();
-    }
+  }
   else
-    {
+  {
     reinterpret_cast<vtkHandleRepresentation*>(self->WidgetRep)->ConstrainedOff();
-    }
+  }
 
   // Highlight as necessary
   self->WidgetRep->Highlight(1);
@@ -204,9 +204,9 @@ void vtkHandleWidget::EndSelectAction(vtkAbstractWidget *w)
   vtkHandleWidget *self = reinterpret_cast<vtkHandleWidget*>(w);
 
   if ( self->WidgetState != vtkHandleWidget::Active )
-    {
+  {
     return;
-    }
+  }
 
   // Return state to not selected
   self->WidgetState = vtkHandleWidget::Start;
@@ -216,9 +216,9 @@ void vtkHandleWidget::EndSelectAction(vtkAbstractWidget *w)
 
   // stop adjusting
   if ( ! self->Parent )
-    {
+  {
     self->ReleaseFocus();
-    }
+  }
   self->EventCallbackCommand->SetAbortFlag(1);
   self->EndInteraction();
   self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
@@ -237,18 +237,18 @@ void vtkHandleWidget::MoveAction(vtkAbstractWidget *w)
 
   // Set the cursor appropriately
   if ( self->WidgetState == vtkHandleWidget::Start )
-    {
+  {
     int state = self->WidgetRep->GetInteractionState();
     self->WidgetRep->ComputeInteractionState(X, Y);
     self->SetCursor(self->WidgetRep->GetInteractionState());
     // Must rerender if we change appearance
     if ( reinterpret_cast<vtkHandleRepresentation*>(self->WidgetRep)->GetActiveRepresentation() &&
          state != self->WidgetRep->GetInteractionState() )
-      {
+    {
       self->Render();
-      }
-    return;
     }
+    return;
+  }
 
   // Okay, adjust the representation
   double eventPosition[2];

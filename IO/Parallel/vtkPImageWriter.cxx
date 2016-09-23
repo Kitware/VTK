@@ -23,12 +23,12 @@
 
 #define vtkPIWCloseFile \
     if (file && fileOpenedHere) \
-      { \
+    { \
       this->WriteFileTrailer(file,cache); \
       file->close(); \
       delete file; \
       file = NULL; \
-      } \
+    } \
 
 vtkStandardNewMacro(vtkPImageWriter);
 
@@ -56,9 +56,9 @@ vtkPImageWriter::vtkPImageWriter()
 vtkPImageWriter::~vtkPImageWriter()
 {
   if (this->SizeEstimator)
-    {
+  {
     this->SizeEstimator->Delete();
-    }
+  }
 }
 
 
@@ -84,24 +84,24 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
 
   // if we need to open another slice, do it
   if (!file && (axis + 1) == this->FileDimensionality)
-    {
+  {
     // determine the name
     if (this->FileName)
-      {
+    {
       sprintf(this->InternalFileName,"%s",this->FileName);
-      }
+    }
     else
-      {
+    {
       if (this->FilePrefix)
-        {
+      {
         sprintf(this->InternalFileName, this->FilePattern,
                 this->FilePrefix, this->FileNumber);
-        }
-      else
-        {
-        sprintf(this->InternalFileName, this->FilePattern,this->FileNumber);
-        }
       }
+      else
+      {
+        sprintf(this->InternalFileName, this->FilePattern,this->FileNumber);
+      }
+    }
     // Open the file
 #ifdef _WIN32
     file = new ofstream(this->InternalFileName, ios::out | ios::binary);
@@ -110,17 +110,17 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
 #endif
     fileOpenedHere = 1;
     if (file->fail())
-      {
+    {
       vtkErrorMacro("RecursiveWrite: Could not open file " <<
                     this->InternalFileName);
       delete file;
       return;
-      }
+    }
 
     // Subclasses can write a header with this method call.
     this->WriteFileHeader(file, cache, inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
     ++this->FileNumber;
-    }
+  }
 
   // Get the pipeline information for the input
   vtkAlgorithm *inAlg = this->GetInputAlgorithm();
@@ -144,7 +144,7 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   // will the current request fit into memory
   // if so the just get the data and write it out
   if ( inputMemorySize < this->MemoryLimit )
-    {
+  {
 #ifndef NDEBUG
     int *ext = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 #endif
@@ -154,7 +154,7 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
     this->RecursiveWrite(axis,cache,data,inInfo,file);
     vtkPIWCloseFile;
     return;
-    }
+  }
 
   // if the current request did not fit into memory
   // the we will split the current axis
@@ -166,18 +166,18 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
         << ", Limit: " << this->MemoryLimit << endl);
 
   if (min == max)
-    {
+  {
     if (axis > 0)
-      {
+    {
       this->RecursiveWrite(axis - 1,cache, inInfo, file);
-      }
+    }
     else
-      {
+    {
       vtkWarningMacro("MemoryLimit too small for one pixel of information!!");
-      }
+    }
     vtkPIWCloseFile;
     return;
-    }
+  }
 
   mid = (min + max) / 2;
 
@@ -185,7 +185,7 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
 
   // if it is the y axis then flip by default
   if (axis == 1 && !this->FileLowerLeft)
-    {
+  {
     // first half
     cache->SetAxisUpdateExtent(axis, mid+1, max, updateExtent, axisUpdateExtent);
     inInfo->Set(
@@ -197,9 +197,9 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
     inInfo->Set(
       vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), axisUpdateExtent, 6);
     this->RecursiveWrite(axis,cache,inInfo,file);
-    }
+  }
   else
-    {
+  {
     // first half
     cache->SetAxisUpdateExtent(axis, min, mid, updateExtent, axisUpdateExtent);
     inInfo->Set(
@@ -211,7 +211,7 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
     inInfo->Set(
       vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), axisUpdateExtent, 6);
     this->RecursiveWrite(axis,cache,inInfo,file);
-    }
+  }
 
   // restore original extent
   cache->SetAxisUpdateExtent(axis, min, max, updateExtent, axisUpdateExtent);

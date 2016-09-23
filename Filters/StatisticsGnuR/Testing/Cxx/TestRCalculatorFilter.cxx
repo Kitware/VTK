@@ -45,11 +45,11 @@ namespace
 #define test_expression(expression) \
 { \
   if(!(expression)) \
-    { \
+  { \
     std::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
     throw std::runtime_error(buffer.str()); \
-    } \
+  } \
 }
 
 bool integerEquals(int left, int right) {
@@ -69,7 +69,7 @@ bool stringEquals(const char * left, const char * right) {
 int TestRCalculatorFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     int i;
     vtkCylinderSource* cs = vtkCylinderSource::New();
     vtkRCalculatorFilter* rf = vtkRCalculatorFilter::New();
@@ -97,24 +97,24 @@ int TestRCalculatorFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     rda = (vtkDoubleArray*) pd->GetArray("Normalsnew");
 
     for(i=0;i<da->GetNumberOfTuples();i++)
-      {
+    {
       double* itup = da->GetTuple3(i);
       double* rtup = rda->GetTuple3(i);
       test_expression(doubleEquals(rtup[0],pow(itup[0],2),0.0001));
       test_expression(doubleEquals(rtup[1],pow(itup[1],2),0.0001));
       test_expression(doubleEquals(rtup[2],pow(itup[2],2),0.0001));
-      }
+    }
 
     da = (vtkDoubleArray*) pd->GetArray("TCoords");
     rda = (vtkDoubleArray*) pd->GetArray("TCoordsnew");
 
     for(i=0;i<da->GetNumberOfTuples();i++)
-      {
+    {
       double* itup = da->GetTuple2(i);
       double* rtup = rda->GetTuple2(i);
       test_expression(doubleEquals(rtup[0],itup[0]+itup[0],0.0001));
       test_expression(doubleEquals(rtup[1],itup[1]+itup[1],0.0001));
-      }
+    }
 
     rts->SetNumberOfRows(20);
     rts->SetStatisticalDistributionForColumn(vtkRRandomTableSource::NORMAL,0.0,1.0,0.0,"Variable One",0);
@@ -152,14 +152,14 @@ int TestRCalculatorFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(dense_array);
 
     for(i=0;i<table->GetNumberOfColumns();i++)
-      {
+    {
       int ind0 = table->GetValue(i,0).ToInt();
       int ind1 = table->GetValue(i,1).ToInt();
       int ind2 = table->GetValue(i,2).ToInt();
       double table_val = rts->GetOutput()->GetValue(i,3).ToDouble();
       double dense_val = dense_array->GetValue(vtkArrayCoordinates(ind0,ind1,ind2));
       test_expression(doubleEquals(sqrt(table_val + 5.0),dense_val,0.0001));
-      }
+    }
 
     //-----  test PutTree() and GetTree()
     // 1) construct a vtkTree
@@ -195,10 +195,10 @@ int TestRCalculatorFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     vtkSmartPointer<vtkTree> itree = vtkSmartPointer<vtkTree>::New();
     if ( ! itree->CheckedDeepCopy(graph.GetPointer()))
-      {
+    {
       std::cout<<"Edges do not create a valid tree."<<std::endl;
       return 1;
-      };
+    };
 
     rf3->AddInputData(0,itree);
     rf3->AddInputConnection(0,source->GetOutputPort());
@@ -217,18 +217,18 @@ int TestRCalculatorFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     //check edge data
     double v_weights[5] = {0.0,2.0,3.0,1.0,1.0};
     for (i = 0; i < outTree->GetNumberOfEdges(); i++)
-      {
+    {
       vtkDoubleArray * t_weights = vtkArrayDownCast<vtkDoubleArray>(outTree->GetEdgeData()->GetArray("weight"));
       test_expression(doubleEquals(t_weights->GetValue(i),double( v_weights[i]), 0.001));
-      }
+    }
 
     //check vertex data
     const char *  t_names[] ={"a","b","c","","",""};
     for (i = 0; i < outTree->GetNumberOfVertices(); i++)
-      {
+    {
       vtkStringArray * v_names = vtkArrayDownCast<vtkStringArray>(outTree->GetVertexData()->GetAbstractArray("node name"));
       test_expression(stringEquals(v_names->GetValue(i).c_str(), t_names[i] ));
-      }
+    }
 
     cs->Delete();
     rts->Delete();
@@ -237,11 +237,11 @@ int TestRCalculatorFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     rf3->Delete();
 
     return 0;
-    }
+  }
   catch( std::exception& e )
-    {
+  {
     cerr << e.what()
          << "\n";
     return 1;
-    }
+  }
 }

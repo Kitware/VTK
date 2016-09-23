@@ -308,28 +308,28 @@ int TestOrientationMarkerWidget( int, char *[] )
 
   int i = 0;
   do
-    {
+  {
     points->InsertPoint( i, 0.1*cos(t), x, 0.1*sin(t) );
     line->InsertCellPoint( i );
     t += dt;
-    }
+  }
   while( ++i < 40 );
 
   do
-    {
+  {
     points->InsertPoint( i, 0.1*cos(t), x, 0.1*sin(t) );
     line->InsertCellPoint(i);
     t += dt;
     x += dx;
-    }
+  }
   while( ++i < nPoints + 40 );
 
   do
-    {
+  {
     points->InsertPoint( i, 0.1*cos(t), x, 0.1*sin(t) );
     line->InsertCellPoint( i );
     t += dt;
-    }
+  }
   while( ++i < nPoints + 80 );
 
   vtkSmartPointer<vtkPolyData> wiggle =
@@ -378,17 +378,17 @@ int TestOrientationMarkerWidget( int, char *[] )
   int nprops = props->GetNumberOfItems();
 
   for ( i = 0; i < nprops; i++ )
-    {
+  {
     vtkActor *node = vtkActor::SafeDownCast( props->GetNextProp( sit ) );
 
     // the first prop in the collection will be the cube outline, the last
     // will be the text outlines
     //
     if ( node && (i == 0 || i == (nprops - 1)) )
-      {
+    {
       vtkPolyData* poly = vtkPolyData::SafeDownCast(node->GetMapper()->GetInput());
       if ( poly )
-        {
+      {
         transformFilter->SetInputConnection( node->GetMapper()->GetInputConnection(0, 0) );
         transform->Identity();
         transform->SetMatrix( node->GetMatrix() );
@@ -399,9 +399,9 @@ int TestOrientationMarkerWidget( int, char *[] )
           vtkSmartPointer<vtkPolyData>::New();
         newpoly->DeepCopy( transformFilter->GetOutput() );
         append->AddInputData( newpoly );
-        }
       }
     }
+  }
 
   append->Update();
 

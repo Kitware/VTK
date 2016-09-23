@@ -25,14 +25,14 @@ static bool RunTemplate2Macro1(int tIn, void* pIn,
                                int tOut, void* pOut)
 {
   switch (vtkTemplate2PackMacro(tIn, tOut))
-    {
+  {
     // Test implicit deduction of multiple template arguments.
     vtkTemplate2Macro(myFunc1(static_cast<VTK_T1*>(pIn),
                               static_cast<VTK_T2*>(pOut)));
     default:
       // Unknown input or output VTK type id.
       return false;
-    }
+  }
   return true;
 }
 
@@ -46,13 +46,13 @@ static bool RunTemplate2Macro2(int tIn, void* pIn,
                                int tOut, void* pOut)
 {
   switch (vtkTemplate2PackMacro(tIn, tOut))
-    {
+  {
     // Test explicit specification of multiple template arguments.
     vtkTemplate2Macro((myFunc2<VTK_T1,VTK_T2>(pIn, pOut)));
     default:
       // Unknown input or output VTK type id.
       return false;
-    }
+  }
   return true;
 }
 

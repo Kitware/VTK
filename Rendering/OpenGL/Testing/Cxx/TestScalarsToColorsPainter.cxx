@@ -84,9 +84,9 @@ int TestScalarsToColorsPainter(int argc, char* argv[])
   // Compare image
   int retVal = vtkRegressionTestImage(renWin.GetPointer());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

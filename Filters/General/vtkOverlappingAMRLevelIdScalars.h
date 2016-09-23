@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOverlappingAMRLevelIdScalars - generate scalars from levels.
-// .SECTION Description
-// vtkOverlappingAMRLevelIdScalars is a filter that generates scalars using
-// the level number for each level. Note that all datasets within a level get
-// the same scalar. The new scalars array is named \c LevelIdScalars.
+/**
+ * @class   vtkOverlappingAMRLevelIdScalars
+ * @brief   generate scalars from levels.
+ *
+ * vtkOverlappingAMRLevelIdScalars is a filter that generates scalars using
+ * the level number for each level. Note that all datasets within a level get
+ * the same scalar. The new scalars array is named \c LevelIdScalars.
+*/
 
 #ifndef vtkOverlappingAMRLevelIdScalars_h
 #define vtkOverlappingAMRLevelIdScalars_h

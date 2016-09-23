@@ -52,10 +52,10 @@ vtkSpanTreeLayoutStrategy::vtkSpanTreeLayoutStrategy()
 vtkSpanTreeLayoutStrategy::~vtkSpanTreeLayoutStrategy()
 {
   if (this->TreeLayout)
-    {
+  {
     this->TreeLayout->Delete();
     this->TreeLayout = NULL;
-    }
+  }
 }
 
 // Edges that cross levels more than one level of the layout
@@ -119,21 +119,21 @@ void vtkSpanTreeLayoutStrategy::Layout()
   nrEdges = this->Graph->GetNumberOfEdges();
 
   if (nrNodes == 0 || nrEdges == 0 || !this->TreeLayout)
-    {
+  {
     if (nrNodes == 0)
-      {
+    {
       vtkErrorMacro(<< "Cannot execute - no nodes in input." );
-      }
-    if (nrEdges == 0)
-      {
-      vtkErrorMacro(<< "Cannot execute - no edges in input." );
-      }
-    if (!this->TreeLayout)
-      {
-      vtkErrorMacro(<< "Cannot execute - no tree layout strategy." );
-      }
-    return;
     }
+    if (nrEdges == 0)
+    {
+      vtkErrorMacro(<< "Cannot execute - no edges in input." );
+    }
+    if (!this->TreeLayout)
+    {
+      vtkErrorMacro(<< "Cannot execute - no tree layout strategy." );
+    }
+    return;
+  }
 
   // Compute a spanning tree from the graph.  This is done inline here
   // rather than via a Boost class so we can offer a choice of spanning
@@ -145,64 +145,64 @@ void vtkSpanTreeLayoutStrategy::Layout()
 
   // Initialize spanning tree with all vertices of the graph.
   for (vtkIdType v = 0; v < nrNodes; v++)
-    {
+  {
     spanningDAG->AddVertex();
     marks[v] = 0;
-    }
+  }
 
   // Strategy: iterate over the vertices of the graph.
   // As each unvisited vertex is found, we perform a traversal starting
   // from that vertex.  The result is technically a spanning forest.
   for (vtkIdType v = 0; v < nrNodes; v++)
-    {
+  {
     if (!marks[v])           // not visited
-      {
+    {
       front = back = 0;
       queue[back++] = v;     // push node v
       level[v] = 0;
       marks[v] = 1;          // mark as visited
       while (back != front)
-        {
+      {
         vtkIdType src;
         if (this->DepthFirstSpanningTree)
-          {
+        {
           src = queue[--back];    // stack discipline = depth-first traversal
-          }
+        }
         else
-          {
+        {
           src = queue[front++];   // queue discipline = breadth-first traversal
-          }
+        }
         // Look at outgoing edges from this node,
         // adding any unseen targets to the queue,
         // and edges to the spanning tree.
         this->Graph->GetOutEdges(src, outEdges);
         while (outEdges->HasNext())
-          {
+        {
           vtkIdType dst = outEdges->Next().Target;
           if (marks[dst] == 0) // not seen or done
-            {
+          {
             level[dst] = level[src]+1;
             queue[back++] = dst;
             spanningDAG->AddGraphEdge(src,dst);
             marks[dst] = 1;  //seen
-            }
           }
+        }
         // Look at incoming edges: as per outgoing edges.
         this->Graph->GetInEdges(src, inEdges);
         while (inEdges->HasNext())
-          {
+        {
           vtkIdType origin = inEdges->Next().Source;
           if (marks[origin] == 0) // not seen or done
-            {
+          {
             level[origin] = level[src]+1;
             queue[back++] = origin;
             spanningDAG->AddGraphEdge(src,origin);
             marks[origin] = 1;  //seen
-            }
           }
-        } // while back != front
-      } // if !marks[v]
-    } // for each vertex
+        }
+      } // while back != front
+    } // if !marks[v]
+  } // for each vertex
 
 
   // Check each edge to see if it spans more than one level of
@@ -214,32 +214,32 @@ void vtkSpanTreeLayoutStrategy::Layout()
   editlist = new _vtkBridge_s[nrEdges];
   this->Graph->GetEdges(edges);
   while (edges->HasNext())
-    {
+  {
     link.edge = edges->Next();
     // Loop ...
     if (link.edge.Source == link.edge.Target)
-      {
+    {
       link.anchor[0] = spanningDAG->AddVertex();
       spanningDAG->AddEdge(link.edge.Source,link.anchor[0]);
       editlist[editsize++] = link;
       continue;
-      }
+    }
     // If the difference in level between the start and end nodes
     // is greater than one, this edge, by definition, is not
     // present in the layout tree.
     link.delta = level[link.edge.Target] - level[link.edge.Source];
     if (abs(static_cast<int>(link.delta)) > 1)
-      {
+    {
       link.anchor[0] = spanningDAG->AddVertex();
       spanningDAG->AddEdge(link.delta > 0 ? link.edge.Source : link.edge.Target, link.anchor[0]);
       if (abs(static_cast<int>(link.delta)) > 2)
-        {
+      {
         link.anchor[1] = spanningDAG->AddVertex();
         spanningDAG->AddEdge(link.anchor[0], link.anchor[1]);
-        }
-      editlist[editsize++] = link;
       }
+      editlist[editsize++] = link;
     }
+  }
 
   //  Layout the tree using the layout filter provided.
   layoutWorker->SetLayoutStrategy(this->TreeLayout);
@@ -251,17 +251,17 @@ void vtkSpanTreeLayoutStrategy::Layout()
   // graph from the layout tree to the output positions.
   points->SetNumberOfPoints(nrNodes);
   for (i = 0; i < nrNodes; i++)
-    {
+  {
     points->SetPoint(i, layout->GetPoint(i));
-    }
+  }
 
   // Now run through the edit list, computing the position for
   // each of the edge points
   for (i = 0; i < editsize; i++)
-    {
+  {
     link = editlist[i];
     if (link.delta == 0)
-      {
+    {
       // Loop: Each loop is drawn as an edge with 2 edge points.  The x & y
       // coordinates have been fixed by the layout.  The z coordinates are
       // scaled to that the edge points are 1/3 of the distance between
@@ -273,9 +273,9 @@ void vtkSpanTreeLayoutStrategy::Layout()
       edgePoints[2] = pointS[2] + (pointA[2]-pointS[2])/3.0;
       edgePoints[5] = pointS[2] - (pointA[2]-pointS[2])/3.0;
       this->Graph->SetEdgePoints(link.edge.Id, 2, edgePoints);
-      }
+    }
     else if (link.delta > 1)
-      {
+    {
       layout->GetPoint(link.edge.Source, pointS);
       layout->GetPoint(link.edge.Target, pointT);
       layout->GetPoint(link.anchor[0],   pointA);
@@ -283,20 +283,20 @@ void vtkSpanTreeLayoutStrategy::Layout()
       edgePoints[1] = pointA[1];
       edgePoints[2] = pointS[2] + (pointT[2] - pointS[2])/link.delta;
       if (link.delta > 2)
-        {
+      {
         layout->GetPoint(link.anchor[1], pointA);
         edgePoints[3] = edgePoints[0];
         edgePoints[4] = edgePoints[1];
         edgePoints[5] = pointS[2] + (link.delta-1)*(pointT[2] - pointS[2])/link.delta;
         this->Graph->SetEdgePoints(link.edge.Id, 2, edgePoints);
-        }
-      else
-        {
-        this->Graph->SetEdgePoints(link.edge.Id, 1, edgePoints);
-        }
       }
-    else if (link.delta < -1)
+      else
       {
+        this->Graph->SetEdgePoints(link.edge.Id, 1, edgePoints);
+      }
+    }
+    else if (link.delta < -1)
+    {
       int delta = -link.delta;
       layout->GetPoint(link.edge.Source, pointS);
       layout->GetPoint(link.edge.Target, pointT);
@@ -305,19 +305,19 @@ void vtkSpanTreeLayoutStrategy::Layout()
       edgePoints[1] = pointA[1];
       edgePoints[2] = pointS[2] + (pointT[2] - pointS[2])/delta;
       if (link.delta < -2)
-        {
+      {
         layout->GetPoint(link.anchor[1], pointA);
         edgePoints[3] = edgePoints[0];
         edgePoints[4] = edgePoints[1];
         edgePoints[5] = pointS[2] + (delta-1)*(pointT[2] - pointS[2])/delta;
         this->Graph->SetEdgePoints(link.edge.Id, 2, edgePoints);
-        }
+      }
       else
-        {
+      {
         this->Graph->SetEdgePoints(link.edge.Id, 1, edgePoints);
-        }
       }
     }
+  }
 
   // Clean up temporary storage.
   delete [] editlist;
@@ -334,9 +334,9 @@ void vtkSpanTreeLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
   vtkGraphLayoutStrategy::PrintSelf(os,indent);
   os << indent << "TreeLayout: " << (this->TreeLayout ? "" : "(none)") << endl;
   if (this->TreeLayout)
-    {
+  {
     this->TreeLayout->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   os << indent << "DepthFirstSpanningTree: " << (this->DepthFirstSpanningTree ? "On" : "Off") << endl;
 }
 

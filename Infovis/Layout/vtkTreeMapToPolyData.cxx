@@ -78,28 +78,28 @@ int vtkTreeMapToPolyData::RequestData(
 
   vtkDataArray* coordArray = this->GetInputArrayToProcess(0, inputTree);
   if (!coordArray)
-    {
+  {
     vtkErrorMacro("Area array not found.");
     return 0;
-    }
+  }
   vtkDataArray* levelArray = this->GetInputArrayToProcess(1, inputTree);
 
   // Now set the point coordinates, normals, and insert the cell
   for (int i = 0; i < inputTree->GetNumberOfVertices(); i++)
-    {
+  {
     // Grab coords from the input
     double coords[4];
     coordArray->GetTuple(i,coords);
 
     double z = 0;
     if (levelArray)
-      {
+    {
       z = this->LevelDeltaZ * levelArray->GetTuple1(i);
-      }
+    }
     else
-      {
+    {
       z = this->LevelDeltaZ * inputTree->GetLevel(i);
-      }
+    }
 
     int index = i*4;
     outputPoints->SetPoint(index,   coords[0], coords[2], z);
@@ -131,7 +131,7 @@ int vtkTreeMapToPolyData::RequestData(
     // Create the cell that uses these points
     vtkIdType cellConn[] = {index, index+1, index+2, index+3};
     outputCells->InsertNextCell(4, cellConn);
-    }
+  }
 
   // Pass the input point data to the output cell data :)
   outputPoly->GetCellData()->PassData(inputTree->GetVertexData());

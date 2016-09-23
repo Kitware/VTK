@@ -35,19 +35,19 @@ void vtkUnstructuredGridBase::DeepCopy(vtkDataObject *src)
   this->Superclass::DeepCopy(src);
 
   if (vtkDataSet *ds = vtkDataSet::SafeDownCast(src))
-    {
+  {
     vtkSmartPointer<vtkCellIterator> cellIter =
         vtkSmartPointer<vtkCellIterator>::Take(ds->NewCellIterator());
     for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal();
          cellIter->GoToNextCell())
-      {
+    {
       this->InsertNextCell(cellIter->GetCellType(),
                            cellIter->GetNumberOfPoints(),
                            cellIter->GetPointIds()->GetPointer(0),
                            cellIter->GetNumberOfFaces(),
                            cellIter->GetFaces()->GetPointer(0));
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------

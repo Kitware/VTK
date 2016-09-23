@@ -12,28 +12,30 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkProp3DButtonRepresentation - defines a representation for a vtkButtonWidget
-// .SECTION Description
-// This class implements one type of vtkButtonRepresentation. Each button
-// state can be represented with a separate instance of vtkProp3D. Thus
-// buttons can be represented with vtkActor, vtkImageActor, volumes (e.g.,
-// vtkVolume) and/or any other vtkProp3D. Also, the class invokes events when
-// highlighting occurs (i.e., hovering, selecting) so that appropriate action
-// can be taken to highlight the button (if desired).
-//
-// To use this representation, always begin by specifying the number of
-// button states.  Then provide, for each state, an instance of vtkProp3D.
-//
-// This widget representation uses the conventional placement method. The
-// button is placed inside the bounding box defined by PlaceWidget by translating
-// and scaling the vtkProp3D to fit (each vtkProp3D is transformed). Therefore,
-// you must define the number of button states and each state (i.e., vtkProp3D)
-// prior to calling vtkPlaceWidget.
-
-// .SECTION See Also
-// vtkButtonWidget vtkButtonRepresentation vtkButtonSource vtkEllipticalButtonSource
-// vtkRectangularButtonSource
-
+/**
+ * @class   vtkProp3DButtonRepresentation
+ * @brief   defines a representation for a vtkButtonWidget
+ *
+ * This class implements one type of vtkButtonRepresentation. Each button
+ * state can be represented with a separate instance of vtkProp3D. Thus
+ * buttons can be represented with vtkActor, vtkImageActor, volumes (e.g.,
+ * vtkVolume) and/or any other vtkProp3D. Also, the class invokes events when
+ * highlighting occurs (i.e., hovering, selecting) so that appropriate action
+ * can be taken to highlight the button (if desired).
+ *
+ * To use this representation, always begin by specifying the number of
+ * button states.  Then provide, for each state, an instance of vtkProp3D.
+ *
+ * This widget representation uses the conventional placement method. The
+ * button is placed inside the bounding box defined by PlaceWidget by translating
+ * and scaling the vtkProp3D to fit (each vtkProp3D is transformed). Therefore,
+ * you must define the number of button states and each state (i.e., vtkProp3D)
+ * prior to calling vtkPlaceWidget.
+ *
+ * @sa
+ * vtkButtonWidget vtkButtonRepresentation vtkButtonSource vtkEllipticalButtonSource
+ * vtkRectangularButtonSource
+*/
 
 #ifndef vtkProp3DButtonRepresentation_h
 #define vtkProp3DButtonRepresentation_h
@@ -49,44 +51,61 @@ class vtkPropArray; //PIMPLd
 class VTKINTERACTIONWIDGETS_EXPORT vtkProp3DButtonRepresentation : public vtkButtonRepresentation
 {
 public:
-  // Description:
-  // Instantiate the class.
+  /**
+   * Instantiate the class.
+   */
   static vtkProp3DButtonRepresentation *New();
 
-  // Description:
-  // Standard methods for instances of the class.
+  //@{
+  /**
+   * Standard methods for instances of the class.
+   */
   vtkTypeMacro(vtkProp3DButtonRepresentation,vtkButtonRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // Add the ith texture corresponding to the ith button state.
-  // The parameter i should be (0 <= i < NumberOfStates).
+  //@{
+  /**
+   * Add the ith texture corresponding to the ith button state.
+   * The parameter i should be (0 <= i < NumberOfStates).
+   */
   void SetButtonProp(int i, vtkProp3D *prop);
   vtkProp3D *GetButtonProp(int i);
+  //@}
 
-  // Description:
-  // Specify whether the button should always face the camera. If enabled,
-  // the button reorients itself towards the camera as the camera moves.
+  //@{
+  /**
+   * Specify whether the button should always face the camera. If enabled,
+   * the button reorients itself towards the camera as the camera moves.
+   */
   vtkSetMacro(FollowCamera,int);
   vtkGetMacro(FollowCamera,int);
   vtkBooleanMacro(FollowCamera,int);
+  //@}
 
-  // Description:
-  // Extend the vtkButtonRepresentation::SetState() method.
+  /**
+   * Extend the vtkButtonRepresentation::SetState() method.
+   */
   virtual void SetState(int state);
 
-  // Description:
-  // Provide the necessary methods to satisfy the vtkWidgetRepresentation API.
+  //@{
+  /**
+   * Provide the necessary methods to satisfy the vtkWidgetRepresentation API.
+   */
   virtual int ComputeInteractionState(int X, int Y, int modify=0);
   virtual void BuildRepresentation();
+  //@}
 
-  // Description:
-  // This method positions (translates and scales the props) into the
-  // bounding box specified. Note all the button props are scaled.
+  /**
+   * This method positions (translates and scales the props) into the
+   * bounding box specified. Note all the button props are scaled.
+   */
   virtual void PlaceWidget(double bounds[6]);
 
-  // Description:
-  // Provide the necessary methods to satisfy the rendering API.
+  //@{
+  /**
+   * Provide the necessary methods to satisfy the rendering API.
+   */
   virtual void ShallowCopy(vtkProp *prop);
   virtual double *GetBounds();
   virtual void GetActors(vtkPropCollection *pc);
@@ -95,6 +114,7 @@ public:
   virtual int RenderVolumetricGeometry(vtkViewport*);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int HasTranslucentPolygonalGeometry();
+  //@}
 
 protected:
   vtkProp3DButtonRepresentation();

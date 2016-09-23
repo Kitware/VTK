@@ -88,38 +88,38 @@ unsigned long vtkBase64Utilities::Encode(const unsigned char *input,
   // Encode complete triplet
 
   while ((end - ptr) >= 3)
-    {
+  {
     vtkBase64Utilities::EncodeTriplet(ptr[0], ptr[1], ptr[2],
                                       &optr[0], &optr[1], &optr[2], &optr[3]);
     ptr += 3;
     optr += 4;
-    }
+  }
 
   // Encodes a 2-byte ending into 3 bytes and 1 pad byte and writes.
 
   if (end - ptr == 2)
-    {
+  {
     vtkBase64Utilities::EncodePair(ptr[0], ptr[1],
                                    &optr[0], &optr[1], &optr[2], &optr[3]);
     optr += 4;
-    }
+  }
 
   // Encodes a 1-byte ending into 2 bytes and 2 pad bytes
 
   else if (end - ptr == 1)
-    {
+  {
     vtkBase64Utilities::EncodeSingle(ptr[0],
                                      &optr[0], &optr[1], &optr[2], &optr[3]);
     optr += 4;
-    }
+  }
 
   // Do we need to mark the end
 
   else if (mark_end)
-    {
+  {
     optr[0] = optr[1] = optr[2] = optr[3] = '=';
     optr += 4;
-    }
+  }
 
   return optr - output;
 }
@@ -187,9 +187,9 @@ int vtkBase64Utilities::DecodeTriplet(unsigned char i0,
   // Make sure all characters were valid
 
   if (d0 == 0xFF || d1 == 0xFF || d2 == 0xFF || d3 == 0xFF)
-    {
+  {
     return 0;
-    }
+  }
 
   // Decode the 3 bytes
 
@@ -200,13 +200,13 @@ int vtkBase64Utilities::DecodeTriplet(unsigned char i0,
   // Return the number of bytes actually decoded
 
   if (i2 == '=')
-    {
+  {
     return 1;
-    }
+  }
   if (i3 == '=')
-    {
+  {
     return 2;
-    }
+  }
   return 3;
 }
 
@@ -225,56 +225,56 @@ unsigned long vtkBase64Utilities::Decode(const unsigned char *input,
   // Decode complete triplet
 
   if (max_input_length)
-    {
+  {
     const unsigned char *end = input + max_input_length;
     while (ptr < end)
-      {
+    {
       int len =
         vtkBase64Utilities::DecodeTriplet(ptr[0], ptr[1], ptr[2], ptr[3],
                                           &optr[0], &optr[1], &optr[2]);
       optr += len;
       if(len < 3)
-        {
+      {
         return optr - output;
-        }
-      ptr += 4;
       }
+      ptr += 4;
     }
+  }
   else
-    {
+  {
     unsigned char *oend = output + length;
     while ((oend - optr) >= 3)
-      {
+    {
       int len =
         vtkBase64Utilities::DecodeTriplet(ptr[0], ptr[1], ptr[2], ptr[3],
                                           &optr[0], &optr[1], &optr[2]);
       optr += len;
       if(len < 3)
-        {
+      {
         return optr - output;
-        }
-      ptr += 4;
       }
+      ptr += 4;
+    }
 
     // Decode the last triplet
 
     unsigned char temp;
     if (oend - optr == 2)
-      {
+    {
       int len =
         vtkBase64Utilities::DecodeTriplet(ptr[0], ptr[1], ptr[2], ptr[3],
                                           &optr[0], &optr[1], &temp);
       optr += (len > 2 ? 2 : len);
-      }
+    }
     else if (oend - optr == 1)
-      {
+    {
       unsigned char temp2;
       int len =
         vtkBase64Utilities::DecodeTriplet(ptr[0], ptr[1], ptr[2], ptr[3],
                                           &optr[0], &temp, &temp2);
       optr += (len > 2 ? 2 : len);
-      }
     }
+  }
 
   return optr - output;
 }
@@ -291,14 +291,14 @@ size_t vtkBase64Utilities::DecodeSafely(const unsigned char *input,
 
   // Nonsense small input or no space for any output
   if ((inputLen < 4) || (outputLen == 0))
-    {
+  {
     return 0;
-    }
+  }
 
   // Consume 4 ASCII chars of input at a time, until less than 4 left
   size_t inIdx = 0, outIdx = 0;
   while (inIdx <= inputLen-4)
-    {
+  {
     // Decode 4 ASCII characters into 0, 1, 2, or 3 bytes
     unsigned char o0, o1, o2;
     int bytesDecoded = vtkBase64Utilities::DecodeTriplet(
@@ -307,29 +307,29 @@ size_t vtkBase64Utilities::DecodeSafely(const unsigned char *input,
     assert((bytesDecoded >= 0) && (bytesDecoded <= 3));
 
     if ((bytesDecoded >= 1) && (outIdx < outputLen))
-      {
+    {
       output[outIdx++] = o0;
-      }
+    }
     if ((bytesDecoded >= 2) && (outIdx < outputLen))
-      {
+    {
       output[outIdx++] = o1;
-      }
+    }
     if ((bytesDecoded >= 3) && (outIdx < outputLen))
-      {
+    {
       output[outIdx++] = o2;
-      }
+    }
 
     // If fewer than 3 bytes resulted from decoding (in this pass),
     // then the input stream has nothing else decodable, so end.
     if (bytesDecoded < 3)
-      {
+    {
       return outIdx;
-      }
+    }
 
     // Consumed a whole 4 of input and got 3 bytes of output, continue
     inIdx += 4;
     assert(bytesDecoded == 3);
-    }
+  }
 
   return outIdx;
 }

@@ -34,9 +34,9 @@ public:
   static vtkCWCallback *New()
     { return new vtkCWCallback; }
   void Execute(vtkObject *, unsigned long eventId, void*) VTK_OVERRIDE
-    {
+  {
       switch (eventId)
-        {
+      {
         case vtkCommand::StartInteractionEvent:
           this->CheckerboardWidget->StartCheckerboardInteraction();
           break;
@@ -46,8 +46,8 @@ public:
         case vtkCommand::EndInteractionEvent:
           this->CheckerboardWidget->EndCheckerboardInteraction();
           break;
-        }
-    }
+      }
+  }
   vtkCWCallback():SliderNumber(0),CheckerboardWidget(0) {}
   int SliderNumber; //the number of the currently active slider
   vtkCheckerboardWidget *CheckerboardWidget;
@@ -113,40 +113,40 @@ vtkCheckerboardWidget::~vtkCheckerboardWidget()
 void vtkCheckerboardWidget::CreateDefaultRepresentation()
 {
   if ( ! this->WidgetRep )
-    {
+  {
     this->WidgetRep = vtkCheckerboardRepresentation::New();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
 void vtkCheckerboardWidget::SetEnabled(int enabling)
 {
   if ( ! this->Interactor )
-    {
+  {
     vtkErrorMacro(<<"The interactor must be set prior to enabling/disabling widget");
     return;
-    }
+  }
 
   if ( enabling ) //----------------
-    {
+  {
     vtkDebugMacro(<<"Enabling checkerboard widget");
 
     if ( this->Enabled ) //already enabled, just return
-      {
+    {
       return;
-      }
+    }
 
     if ( ! this->CurrentRenderer )
-      {
+    {
       this->SetCurrentRenderer(
         this->Interactor->FindPokedRenderer(
           this->Interactor->GetLastEventPosition()[0],
           this->Interactor->GetLastEventPosition()[1]));
       if (this->CurrentRenderer == NULL)
-        {
+      {
         return;
-        }
       }
+    }
 
     // Everything is ok, enable the representation
     this->Enabled = 1;
@@ -181,16 +181,16 @@ void vtkCheckerboardWidget::SetEnabled(int enabling)
 
     // Add the actors
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
-    }
+  }
 
   else //disabling------------------
-    {
+  {
     vtkDebugMacro(<<"Disabling checkerboard widget");
 
     if ( ! this->Enabled ) //already disabled, just return
-      {
+    {
       return;
-      }
+    }
 
     this->Enabled = 0;
 
@@ -204,7 +204,7 @@ void vtkCheckerboardWidget::SetEnabled(int enabling)
 
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
     this->SetCurrentRenderer(NULL);
-    }
+  }
 
   this->Render();
 }
@@ -238,40 +238,40 @@ void vtkCheckerboardWidget::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->TopSlider )
-    {
+  {
     os << indent << "Top Slider: " << this->TopSlider << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Top Slider: (none)\n";
-    }
+  }
 
   if ( this->BottomSlider )
-    {
+  {
     os << indent << "Bottom Slider: " << this->BottomSlider << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Bottom Slider: (none)\n";
-    }
+  }
 
   if ( this->BottomSlider )
-    {
+  {
     os << indent << "Bottom Slider: " << this->BottomSlider << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Bottom Slider: (none)\n";
-    }
+  }
 
   if ( this->LeftSlider )
-    {
+  {
     os << indent << "Left Slider: " << this->LeftSlider << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Left Slider: (none)\n";
-    }
+  }
 
 
 }

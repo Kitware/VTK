@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLStructuredDataWriter - Superclass for VTK XML structured data writers.
-// .SECTION Description
-// vtkXMLStructuredDataWriter provides VTK XML writing functionality that
-// is common among all the structured data formats.
+/**
+ * @class   vtkXMLStructuredDataWriter
+ * @brief   Superclass for VTK XML structured data writers.
+ *
+ * vtkXMLStructuredDataWriter provides VTK XML writing functionality that
+ * is common among all the structured data formats.
+*/
 
 #ifndef vtkXMLStructuredDataWriter_h
 #define vtkXMLStructuredDataWriter_h
@@ -33,29 +36,41 @@ public:
   vtkTypeMacro(vtkXMLStructuredDataWriter,vtkXMLWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get/Set the number of pieces used to stream the image through the
-  // pipeline while writing to the file.
+  //@{
+  /**
+   * Get/Set the number of pieces used to stream the image through the
+   * pipeline while writing to the file.
+   */
   vtkSetMacro(NumberOfPieces, int);
   vtkGetMacro(NumberOfPieces, int);
+  //@}
 
-  // Description:
-  // Get/Set the piece to write to the file.  If this is
-  // negative, all pieces will be written.
+  //@{
+  /**
+   * Get/Set the piece to write to the file.  If this is
+   * negative, all pieces will be written.
+   */
   vtkSetMacro(WritePiece, int);
   vtkGetMacro(WritePiece, int);
+  //@}
 
-  // Description:
-  // Get/Set the ghost level used to pad each piece.
+  //@{
+  /**
+   * Get/Set the ghost level used to pad each piece.
+   */
   vtkSetMacro(GhostLevel, int);
   vtkGetMacro(GhostLevel, int);
+  //@}
 
-  // Description:
-  // Get/Set the extent of the input that should be treated as the
-  // WholeExtent in the output file.  The default is the WholeExtent
-  // of the input.
+  //@{
+  /**
+   * Get/Set the extent of the input that should be treated as the
+   * WholeExtent in the output file.  The default is the WholeExtent
+   * of the input.
+   */
   vtkSetVector6Macro(WriteExtent, int);
   vtkGetVector6Macro(WriteExtent, int);
+  //@}
 
 protected:
   vtkXMLStructuredDataWriter();

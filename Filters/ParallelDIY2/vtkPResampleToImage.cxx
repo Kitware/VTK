@@ -105,7 +105,7 @@ inline void ExtractFieldMetaData(vtkDataSetAttributes *data,
   metadata->resize(numFields);
 
   for (std::size_t i = 0; i < numFields; ++i)
-    {
+  {
     FieldMetaData &md = (*metadata)[i];
     vtkDataArray *da = data->GetArray(static_cast<int>(i));
 
@@ -113,7 +113,7 @@ inline void ExtractFieldMetaData(vtkDataSetAttributes *data,
     md.DataType = da->GetDataType();
     md.NumComponents = da->GetNumberOfComponents();
     md.AttributeType = data->IsArrayAnAttribute(static_cast<int>(i));
-    }
+  }
 }
 
 inline void InitializeFieldData(const std::vector<FieldMetaData> &metadata,
@@ -122,7 +122,7 @@ inline void InitializeFieldData(const std::vector<FieldMetaData> &metadata,
 {
   std::size_t numFields = metadata.size();
   for (std::size_t i = 0; i < numFields; ++i)
-    {
+  {
     const FieldMetaData &md = metadata[i];
     vtkDataArray *da = vtkDataArray::CreateDataArray(md.DataType);
     da->SetName(md.Name.c_str());
@@ -131,17 +131,17 @@ inline void InitializeFieldData(const std::vector<FieldMetaData> &metadata,
 
     double null_value = 0.0;
     for (int j = 0; j < da->GetNumberOfComponents(); ++j)
-      {
+    {
       da->FillComponent(j, null_value);
-      }
+    }
     data->AddArray(da);
     da->Delete();
 
     if (md.AttributeType >= 0)
-      {
+    {
       data->SetActiveAttribute(static_cast<int>(i), md.AttributeType);
-      }
     }
+  }
 }
 
 
@@ -158,9 +158,9 @@ public:
   {
     vtkDataArrayAccessor<ArrayType> accessor(array);
     for (int i = 0; i < this->NumComponents; ++i)
-      {
+    {
       diy::save(*this->Buffer, accessor.Get(this->Tuple, i));
-      }
+    }
   }
 
 private:
@@ -174,16 +174,16 @@ inline void SerializeFieldData(vtkFieldData *field, vtkIdType tuple,
 {
   int numFields = field->GetNumberOfArrays();
   for (int i = 0; i < numFields; ++i)
-    {
+  {
     vtkDataArray *da = field->GetArray(i);
     std::size_t numComponents = static_cast<std::size_t>(da->GetNumberOfComponents());
     SerializeWorklet worklet(tuple, numComponents, bb);
     if (!vtkArrayDispatch::Dispatch::Execute(da, worklet))
-      {
+    {
       vtkGenericWarningMacro(<< "Dispatch failed, fallback to vtkDataArray Get/Set");
       worklet(da);
-      }
     }
+  }
 }
 
 class DeserializeWorklet
@@ -198,11 +198,11 @@ public:
   {
     vtkDataArrayAccessor<ArrayType> accessor(array);
     for (int i = 0; i < this->NumComponents; ++i)
-      {
+    {
       typename vtkDataArrayAccessor<ArrayType>::APIType val;
       diy::load(*this->Buffer, val);
       accessor.Set(this->Tuple, i, val);
-      }
+    }
   }
 
 private:
@@ -216,16 +216,16 @@ inline void DeserializeFieldData(diy::MemoryBuffer &bb, vtkFieldData *field,
 {
   int numFields = field->GetNumberOfArrays();
   for (int i = 0; i < numFields; ++i)
-    {
+  {
     vtkDataArray *da = field->GetArray(i);
     std::size_t numComponents = static_cast<std::size_t>(da->GetNumberOfComponents());
     DeserializeWorklet worklet(tuple, numComponents, bb);
     if (!vtkArrayDispatch::Dispatch::Execute(da, worklet))
-      {
+    {
       vtkGenericWarningMacro(<< "Dispatch failed, fallback to vtkDataArray Get/Set");
       worklet(da);
-      }
     }
+  }
 }
 
 
@@ -283,9 +283,9 @@ inline void GetPointsFromImage(vtkImageData *img, const char *maskArrayName,
                                PointList *points)
 {
   if (img->GetNumberOfPoints() <= 0)
-    {
+  {
     return;
-    }
+  }
 
   vtkPointData *pd = img->GetPointData();
   vtkCharArray *maskArray = vtkArrayDownCast<vtkCharArray>(pd->GetArray(maskArrayName));
@@ -297,23 +297,23 @@ inline void GetPointsFromImage(vtkImageData *img, const char *maskArrayName,
   int extent[6];
   img->GetExtent(extent);
   for (int k = extent[4]; k <= extent[5]; ++k)
-    {
+  {
     for (int j = extent[2]; j <= extent[3]; ++j)
-      {
+    {
       for (int i = extent[0]; i <= extent[1]; ++i)
-        {
+      {
         int ijk[3] = { i, j, k };
         vtkIdType id = img->ComputePointId(ijk);
         if (mask[id])
-          {
+        {
           PointList::IndexType idx;
           std::copy(ijk, ijk + 3, idx.data());
           points->Indices.push_back(idx);
           SerializeFieldData(pd, id, bb);
-          }
         }
       }
     }
+  }
   points->Data.swap(bb.buffer); // get the serialized data buffer
 }
 
@@ -329,10 +329,10 @@ void SetPointsToImage(const std::vector<FieldMetaData> &fieldMetaData,
   bb.buffer.swap(points.Data);
   std::size_t numPoints = points.Indices.size();
   for (std::size_t i = 0; i < numPoints; ++i)
-    {
+  {
     vtkIdType id = img->ComputePointId(points.Indices[i].data());
     DeserializeFieldData(bb, pd, id);
-    }
+  }
 
   points.Indices.clear(); // reset the points structure to a valid empty state
 }
@@ -343,10 +343,10 @@ inline void ComputeGlobalBounds(diy::mpi::communicator &comm,
 {
   Array<double, 3> localBoundsMin, localBoundsMax;
   for (std::size_t i = 0; i < 3; ++i)
-    {
+  {
     localBoundsMin[i] = lbounds[2*i];
     localBoundsMax[i] = lbounds[2*i + 1];
-    }
+  }
 
   Array<double, 3> globalBoundsMin, globalBoundsMax;
   diy::mpi::all_reduce(comm, localBoundsMin, globalBoundsMin,
@@ -355,10 +355,10 @@ inline void ComputeGlobalBounds(diy::mpi::communicator &comm,
                        diy::mpi::maximum<double>());
 
   for (std::size_t i = 0; i < 3; ++i)
-    {
+  {
     gbounds[2*i] = globalBoundsMin[i];
     gbounds[2*i + 1] = globalBoundsMax[i];
-    }
+  }
 }
 
 inline void GetGlobalFieldMetaData(diy::mpi::communicator &comm,
@@ -375,16 +375,16 @@ inline void GetGlobalFieldMetaData(diy::mpi::communicator &comm,
   diy::mpi::all_reduce(comm, rank, source, diy::mpi::minimum<int>());
 
   if (source < comm.size()) // atleast one process has field meta data
-    {
+  {
     diy::MemoryBuffer bb;
     if (comm.rank() == source)
-      {
+    {
       diy::save(bb, local);
       bb.reset();
-      }
+    }
     diy::mpi::broadcast(comm, bb.buffer, source);
     diy::load(bb, *metadata);
-    }
+  }
 }
 
 
@@ -398,9 +398,9 @@ void Redistribute(void* blockp, const diy::ReduceProxy& srp,
   // step 1: dequeue all the incoming points and add them to this block's vector
   diy::Master::IncomingQueues &in = *srp.incoming();
   for (diy::Master::IncomingQueues::iterator i = in.begin(); i != in.end(); ++i)
-    {
+  {
     while (i->second)
-      {
+    {
       PointList::IndexType idx;
       srp.dequeue(i->first, idx);
       b->Points.Indices.push_back(idx);
@@ -408,25 +408,25 @@ void Redistribute(void* blockp, const diy::ReduceProxy& srp,
       std::size_t beg = b->Points.Data.size();
       b->Points.Data.resize(beg + b->Points.DataSize);
       srp.dequeue(i->first, &b->Points.Data[beg], b->Points.DataSize);
-      }
     }
+  }
 
   // final round
   if (srp.out_link().size() == 0)
-    {
+  {
     return;
-    }
+  }
 
   // find this block's position in the group
   int groupSize = srp.out_link().size();
   int myPos = 0;
   for (; myPos < groupSize; ++myPos)
-    {
+  {
     if (srp.out_link().target(myPos).gid == srp.gid())
-      {
+    {
       break;
-      }
     }
+  }
 
   // step 2: redistribute this block's points among the blocks in the group
   int axis = partners.dim(round);
@@ -438,7 +438,7 @@ void Redistribute(void* blockp, const diy::ReduceProxy& srp,
   myPoints.DataSize = b->Points.DataSize; // initilize myPoints
   std::size_t numPoints = b->Points.Indices.size();
   for (size_t i = 0; i < numPoints; ++i)
-    {
+  {
     PointList::IndexType idx = b->Points.Indices[i];
     const char *data = &b->Points.Data[i * b->Points.DataSize];
 
@@ -447,25 +447,25 @@ void Redistribute(void* blockp, const diy::ReduceProxy& srp,
 
     // duplicate shared point
     if (((idx[axis] - minIdx)%length == 0) && (loc[0] != 0))
-      {
+    {
       loc[1] = loc[0] - 1;
       ++nlocs;
-      }
+    }
 
     for (int j = 0; j < nlocs; ++j)
-      {
+    {
       if (loc[j] == myPos)
-        {
+      {
         myPoints.Indices.push_back(idx);
         myPoints.Data.insert(myPoints.Data.end(), data, data + myPoints.DataSize);
-        }
+      }
       else
-        {
+      {
         srp.enqueue(srp.out_link().target(loc[j]), idx);
         srp.enqueue(srp.out_link().target(loc[j]), data, myPoints.DataSize);
-        }
       }
     }
+  }
   swap(b->Points, myPoints);
 
   // step 3: readjust extents for next round
@@ -503,9 +503,9 @@ void vtkPResampleToImage::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   if (this->Controller)
-    {
+  {
     this->Controller->PrintSelf(os, indent);
-    }
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -515,9 +515,9 @@ int vtkPResampleToImage::RequestData(vtkInformation *request,
 {
   vtkMPIController *mpiCont = vtkMPIController::SafeDownCast(this->Controller);
   if (!mpiCont || mpiCont->GetNumberOfProcesses() == 1)
-    {
+  {
     return this->Superclass::RequestData(request, inputVector, outputVector);
-    }
+  }
 
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
@@ -536,13 +536,13 @@ int vtkPResampleToImage::RequestData(vtkInformation *request,
 
   double samplingBounds[6];
   if (this->UseInputBounds)
-    {
+  {
     ComputeGlobalBounds(comm, localBounds, samplingBounds);
-    }
+  }
   else
-    {
+  {
     std::copy(this->SamplingBounds, this->SamplingBounds + 6, samplingBounds);
-    }
+  }
 
   vtkNew<vtkImageData> mypiece;
   this->PerformResampling(input, samplingBounds, true, localBounds,
@@ -560,10 +560,10 @@ int vtkPResampleToImage::RequestData(vtkInformation *request,
   int *updateExtent = this->GetUpdateExtent();
   diy::DiscreteBounds domain;
   for (int i = 0; i < 3; ++i)
-    {
+  {
     domain.min[i] = updateExtent[2*i];
     domain.max[i] = updateExtent[2*i + 1];
-    }
+  }
 
   diy::Master master(comm, 1, -1, &CreateBlock, &DestroyBlock);
 

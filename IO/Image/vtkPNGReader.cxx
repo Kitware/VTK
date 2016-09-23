@@ -60,19 +60,19 @@ public:
     png_get_text(png_ptr, info_ptr, &text_ptr, &num_text);
     this->TextKeyValue.clear();
     for (int i = 0; i < num_text; ++i)
-      {
+    {
       if (
         // we don't deal with compressed text yet
         text_ptr[i].compression != PNG_TEXT_COMPRESSION_NONE ||
         // we don't deal with international text yet
         text_ptr[i].text_length == 0
           )
-        {
+      {
         continue;
-        }
+      }
       this->TextKeyValue.push_back(std::pair<std::string, std::string>(
                                      text_ptr[i].key, text_ptr[i].text));
-      }
+    }
     std::sort(this->TextKeyValue.begin(), this->TextKeyValue.end(),
               CompareFirst());
   }
@@ -106,61 +106,61 @@ void vtkPNGReader::ExecuteInformation()
   vtkInternals* impl = this->Internals;
   this->ComputeInternalFileName(this->DataExtent[4]);
   if (this->InternalFileName == NULL)
-    {
+  {
     return;
-    }
+  }
 
   FILE *fp = fopen(this->InternalFileName, "rb");
   if (!fp)
-    {
+  {
     vtkErrorMacro("Unable to open file " << this->InternalFileName);
     return;
-    }
+  }
   unsigned char header[8];
   if (fread(header, 1, 8, fp) != 8)
-    {
+  {
     vtkErrorMacro ("PNGReader error reading file."
                    << " Premature EOF while reading header.");
     fclose (fp);
     return;
-    }
+  }
   int is_png = !png_sig_cmp(header, 0, 8);
   if (!is_png)
-    {
+  {
     vtkErrorMacro(<<"Unknown file type! Not a PNG file!");
     fclose(fp);
     return;
-    }
+  }
 
   png_structp png_ptr = png_create_read_struct
     (PNG_LIBPNG_VER_STRING, (png_voidp)NULL,
      NULL, NULL);
   if (!png_ptr)
-    {
+  {
     vtkErrorMacro(<< "Out of memory." );
     fclose(fp);
     return;
-    }
+  }
 
   png_infop info_ptr = png_create_info_struct(png_ptr);
   if (!info_ptr)
-    {
+  {
     png_destroy_read_struct(&png_ptr,
                             (png_infopp)NULL, (png_infopp)NULL);
     vtkErrorMacro(<< "Out of memory.");
     fclose(fp);
     return;
-    }
+  }
 
   png_infop end_info = png_create_info_struct(png_ptr);
   if (!end_info)
-    {
+  {
     png_destroy_read_struct(&png_ptr, &info_ptr,
                             (png_infopp)NULL);
     vtkErrorMacro(<<"Unable to read PNG file!");
     fclose(fp);
     return;
-    }
+  }
 
   // Set error handling
   if (setjmp (png_jmpbuf(png_ptr)))
@@ -189,25 +189,25 @@ void vtkPNGReader::ExecuteInformation()
   // set-up the transformations
   // convert palettes to RGB
   if (color_type == PNG_COLOR_TYPE_PALETTE)
-    {
+  {
     png_set_palette_to_rgb(png_ptr);
-    }
+  }
 
   // minimum of a byte per pixel
   if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8)
-    {
+  {
 #if PNG_LIBPNG_VER >= 10400
     png_set_expand_gray_1_2_4_to_8(png_ptr);
 #else
     png_set_gray_1_2_4_to_8(png_ptr);
 #endif
-    }
+  }
 
   // add alpha if any alpha found
   if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
-    {
+  {
     png_set_tRNS_to_alpha(png_ptr);
-    }
+  }
 
   // update the info now that we have defined the filters
   png_read_update_info(png_ptr, info_ptr);
@@ -218,13 +218,13 @@ void vtkPNGReader::ExecuteInformation()
   this->DataExtent[3] = height - 1;
 
   if (bit_depth <= 8)
-    {
+  {
     this->SetDataScalarTypeToUnsignedChar();
-    }
+  }
   else
-    {
+  {
     this->SetDataScalarTypeToUnsignedShort();
-    }
+  }
   this->SetNumberOfScalarComponents(
     png_get_channels(png_ptr, info_ptr));
   this->vtkImageReader2::ExecuteInformation();
@@ -244,49 +244,49 @@ void vtkPNGReader::vtkPNGReaderUpdate2(
   int i;
   FILE *fp = fopen(this->GetInternalFileName(), "rb");
   if (!fp)
-    {
+  {
     return;
-    }
+  }
   unsigned char header[8];
   if (fread(header, 1, 8, fp) != 8)
-    {
+  {
     vtkGenericWarningMacro ("PNGReader error reading file: " << this->GetInternalFileName()
                    << " Premature EOF while reading header.");
     fclose (fp);
     return;
-    }
+  }
   int is_png = !png_sig_cmp(header, 0, 8);
   if (!is_png)
-    {
+  {
     fclose(fp);
     return;
-    }
+  }
 
   png_structp png_ptr = png_create_read_struct
     (PNG_LIBPNG_VER_STRING, (png_voidp)NULL, NULL, NULL);
   if (!png_ptr)
-    {
+  {
     fclose(fp);
     return;
-    }
+  }
 
   png_infop info_ptr = png_create_info_struct(png_ptr);
   if (!info_ptr)
-    {
+  {
     png_destroy_read_struct(&png_ptr,
                             (png_infopp)NULL, (png_infopp)NULL);
     fclose(fp);
     return;
-    }
+  }
 
   png_infop end_info = png_create_info_struct(png_ptr);
   if (!end_info)
-    {
+  {
     png_destroy_read_struct(&png_ptr, &info_ptr,
                             (png_infopp)NULL);
     fclose(fp);
     return;
-    }
+  }
 
   // Set error handling
   if (setjmp (png_jmpbuf(png_ptr)))
@@ -314,32 +314,32 @@ void vtkPNGReader::vtkPNGReaderUpdate2(
   // set-up the transformations
   // convert palettes to RGB
   if (color_type == PNG_COLOR_TYPE_PALETTE)
-    {
+  {
     png_set_palette_to_rgb(png_ptr);
-    }
+  }
 
   // minimum of a byte per pixel
   if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8)
-    {
+  {
 #if PNG_LIBPNG_VER >= 10400
     png_set_expand_gray_1_2_4_to_8(png_ptr);
 #else
     png_set_gray_1_2_4_to_8(png_ptr);
 #endif
-    }
+  }
 
   // add alpha if any alpha found
   if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
-    {
+  {
     png_set_tRNS_to_alpha(png_ptr);
-    }
+  }
 
   if (bit_depth > 8)
-    {
+  {
 #ifndef VTK_WORDS_BIGENDIAN
     png_set_swap(png_ptr);
 #endif
-    }
+  }
 
   // have libpng handle interlacing
   //int number_of_passes = png_set_interlace_handling(png_ptr);
@@ -350,9 +350,9 @@ void vtkPNGReader::vtkPNGReaderUpdate2(
   unsigned char *tempImage = new unsigned char [rowbytes*height];
   png_bytep *row_pointers = new png_bytep [height];
   for (ui = 0; ui < height; ++ui)
-    {
+  {
     row_pointers[ui] = tempImage + rowbytes*ui;
-    }
+  }
   png_read_image(png_ptr, row_pointers);
 
   // copy the data into the outPtr
@@ -360,10 +360,10 @@ void vtkPNGReader::vtkPNGReaderUpdate2(
   outPtr2 = outPtr;
   long outSize = pixSize*(outExt[1] - outExt[0] + 1);
   for (i = outExt[2]; i <= outExt[3]; ++i)
-    {
+  {
     memcpy(outPtr2,row_pointers[height - i - 1] + outExt[0]*pixSize,outSize);
     outPtr2 += outInc[1];
-    }
+  }
   delete [] tempImage;
   delete [] row_pointers;
 
@@ -392,14 +392,14 @@ void vtkPNGReader::vtkPNGReaderUpdate(
   outPtr2 = outPtr;
   int idx2;
   for (idx2 = outExtent[4]; idx2 <= outExtent[5]; ++idx2)
-    {
+  {
     this->ComputeInternalFileName(idx2);
     // read in a PNG file
     this->vtkPNGReaderUpdate2(outPtr2, outExtent, outIncr, pixSize);
     this->UpdateProgress((idx2 - outExtent[4])/
                          (outExtent[5] - outExtent[4] + 1.0));
     outPtr2 += outIncr[2];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -411,10 +411,10 @@ void vtkPNGReader::ExecuteDataWithInformation(vtkDataObject *output,
   vtkImageData *data = this->AllocateOutputData(output, outInfo);
 
   if (this->InternalFileName == NULL)
-    {
+  {
     vtkErrorMacro(<< "Either a FileName or FilePrefix must be specified.");
     return;
-    }
+  }
 
   data->GetPointData()->GetScalars()->SetName("PNGImage");
 
@@ -426,11 +426,11 @@ void vtkPNGReader::ExecuteDataWithInformation(vtkDataObject *output,
   // Call the correct templated function for the input
   outPtr = data->GetScalarPointer();
   switch (data->GetScalarType())
-    {
+  {
     vtkTemplateMacro(this->vtkPNGReaderUpdate(data, (VTK_TT *)(outPtr)));
     default:
       vtkErrorMacro(<< "UpdateFromFile: Unknown data type");
-    }
+  }
 }
 
 
@@ -439,47 +439,47 @@ int vtkPNGReader::CanReadFile(const char* fname)
 {
   FILE* fp = fopen(fname, "rb");
   if(!fp)
-    {
+  {
     return 0;
-    }
+  }
   unsigned char header[8];
   if (fread(header, 1, 8, fp) != 8)
-    {
+  {
     fclose(fp);
     return 0;
-    }
+  }
   int is_png = !png_sig_cmp(header, 0, 8);
   if(!is_png)
-    {
+  {
     fclose(fp);
     return 0;
-    }
+  }
   png_structp png_ptr = png_create_read_struct
     (PNG_LIBPNG_VER_STRING, (png_voidp)NULL,
      NULL, NULL);
   if (!png_ptr)
-    {
+  {
     fclose(fp);
     return 0;
-    }
+  }
 
   png_infop info_ptr = png_create_info_struct(png_ptr);
   if (!info_ptr)
-    {
+  {
     png_destroy_read_struct(&png_ptr,
                             (png_infopp)NULL, (png_infopp)NULL);
     fclose(fp);
     return 0;
-    }
+  }
 
   png_infop end_info = png_create_info_struct(png_ptr);
   if (!end_info)
-    {
+  {
     png_destroy_read_struct(&png_ptr, &info_ptr,
                             (png_infopp)NULL);
     fclose(fp);
     return 0;
-    }
+  }
   png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
 
   fclose(fp);

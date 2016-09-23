@@ -740,44 +740,44 @@ int TestGPURayCastThreeComponentsIndependent(int argc, char *argv[])
   sphere3->SetRadius(radius);
 
   for (int z = 0; z < dims[2]; ++z)
-    {
+  {
     for (int y = 0; y < dims[1]; ++y)
-      {
+    {
       for (int x = 0; x < dims[0]; ++x)
-        {
+      {
         // Set first component
         if (sphere1->EvaluateFunction(x, y, z) > 0)
-          {
+        {
           // point outside sphere 1
           *ptr++ = 0.0;
-          }
+        }
         else
-          {
+        {
           *ptr++ = 0.33;
-          }
+        }
         // Set second component
         if (sphere2->EvaluateFunction(x, y, z) > 0)
-          {
+        {
           // point outside sphere 2
           *ptr++ = 0.0;
-          }
+        }
         else
-          {
+        {
           *ptr++ = 0.33;
-          }
+        }
         // Set third component
         if (sphere3->EvaluateFunction(x, y, z) > 0)
-          {
+        {
           // point outside sphere 2
           *ptr++ = 0.0;
-          }
+        }
         else
-          {
+        {
           *ptr++ = 0.33;
-          }
         }
       }
     }
+  }
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(301, 300); // Intentional NPOT size

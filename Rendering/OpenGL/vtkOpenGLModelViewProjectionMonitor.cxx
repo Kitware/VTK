@@ -34,17 +34,17 @@ void vtkOpenGLModelViewProjectionMonitor::Set##_name(float *val)     \
 {                                                    \
   int changed = 0;                                   \
   for (int i=0; i<_n; ++i)                           \
-    {                                                \
+  {                                                \
     if ( fabs( val[i] - this->_name[i] ) > 1e-5f )   \
-      {                                              \
+    {                                              \
       changed=1;                                     \
       this->_name[i] = val[i];                       \
-      }                                              \
-    }                                                \
+    }                                              \
+  }                                                \
   if ( changed )                                     \
-    {                                                \
+  {                                                \
     this->UpTime += 1;                               \
-    }                                                \
+  }                                                \
 }
 vtkOpenGLModelViewProjectionMonitorSetVectorMacro(Projection, 16)
 vtkOpenGLModelViewProjectionMonitorSetVectorMacro(ModelView, 16)
@@ -74,15 +74,15 @@ void vtkOpenGLModelViewProjectionMonitor::PrintSelf(ostream &os, vtkIndent inden
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Projection=";
   for (int q=0; q<16; ++q)
-    {
+  {
     os << this->Projection[q] << " ";
-    }
+  }
   os << endl;
   os << indent << "ModelView=";
   for (int q=0; q<16; ++q)
-    {
+  {
     os << this->ModelView[q] << " ";
-    }
+  }
   os << endl;
   os << indent << "UpTime=" << this->UpTime << endl;
 }

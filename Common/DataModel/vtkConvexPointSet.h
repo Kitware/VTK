@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkConvexPointSet - a 3D cell defined by a set of convex points
-// .SECTION Description
-// vtkConvexPointSet is a concrete implementation that represents a 3D cell
-// defined by a convex set of points. An example of such a cell is an octant
-// (from an octree). vtkConvexPointSet uses the ordered triangulations
-// approach (vtkOrderedTriangulator) to create triangulations guaranteed to
-// be compatible across shared faces. This allows a general approach to
-// processing complex, convex cell types.
-
-// .SECTION See Also
-// vtkHexahedron vtkPyramid vtkTetra vtkVoxel vtkWedge
+/**
+ * @class   vtkConvexPointSet
+ * @brief   a 3D cell defined by a set of convex points
+ *
+ * vtkConvexPointSet is a concrete implementation that represents a 3D cell
+ * defined by a convex set of points. An example of such a cell is an octant
+ * (from an octree). vtkConvexPointSet uses the ordered triangulations
+ * approach (vtkOrderedTriangulator) to create triangulations guaranteed to
+ * be compatible across shared faces. This allows a general approach to
+ * processing complex, convex cell types.
+ *
+ * @sa
+ * vtkHexahedron vtkPyramid vtkTetra vtkVoxel vtkWedge
+*/
 
 #ifndef vtkConvexPointSet_h
 #define vtkConvexPointSet_h
@@ -43,107 +46,127 @@ public:
   vtkTypeMacro(vtkConvexPointSet,vtkCell3D);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // See vtkCell3D API for description of this method.
+  /**
+   * See vtkCell3D API for description of this method.
+   */
   virtual int HasFixedTopology() {return 0;}
 
-  // Description:
-  // See vtkCell3D API for description of these methods.
+  /**
+   * See vtkCell3D API for description of these methods.
+   */
   void GetEdgePoints(int vtkNotUsed(edgeId), int* &vtkNotUsed(pts)) VTK_OVERRIDE {}
   void GetFacePoints(int vtkNotUsed(faceId), int* &vtkNotUsed(pts)) VTK_OVERRIDE {}
   double *GetParametricCoords() VTK_OVERRIDE;
 
-  // Description:
-  // See the vtkCell API for descriptions of these methods.
+  /**
+   * See the vtkCell API for descriptions of these methods.
+   */
   int GetCellType() VTK_OVERRIDE {return VTK_CONVEX_POINT_SET;}
 
-  // Description:
-  // This cell requires that it be initialized prior to access.
+  /**
+   * This cell requires that it be initialized prior to access.
+   */
   int RequiresInitialization() VTK_OVERRIDE {return 1;}
   void Initialize() VTK_OVERRIDE;
 
-  // Description:
-  // A convex point set has no explicit cell edge or faces; however
-  // implicitly (after triangulation) it does. Currently the method
-  // GetNumberOfEdges() always returns 0 while the GetNumberOfFaces() returns
-  // the number of boundary triangles of the triangulation of the convex
-  // point set. The method GetNumberOfFaces() triggers a triangulation of the
-  // convex point set; repeated calls to GetFace() then return the boundary
-  // faces. (Note: GetNumberOfEdges() currently returns 0 because it is a
-  // rarely used method and hard to implement. It can be changed in the future.
+  //@{
+  /**
+   * A convex point set has no explicit cell edge or faces; however
+   * implicitly (after triangulation) it does. Currently the method
+   * GetNumberOfEdges() always returns 0 while the GetNumberOfFaces() returns
+   * the number of boundary triangles of the triangulation of the convex
+   * point set. The method GetNumberOfFaces() triggers a triangulation of the
+   * convex point set; repeated calls to GetFace() then return the boundary
+   * faces. (Note: GetNumberOfEdges() currently returns 0 because it is a
+   * rarely used method and hard to implement. It can be changed in the future.
+   */
   int GetNumberOfEdges() VTK_OVERRIDE {return 0;}
   vtkCell *GetEdge(int) VTK_OVERRIDE {return NULL;}
   int GetNumberOfFaces() VTK_OVERRIDE;
   vtkCell *GetFace(int faceId) VTK_OVERRIDE;
+  //@}
 
-  // Description:
-  // Satisfy the vtkCell API. This method contours by triangulating the
-  // cell and then contouring the resulting tetrahedra.
+  /**
+   * Satisfy the vtkCell API. This method contours by triangulating the
+   * cell and then contouring the resulting tetrahedra.
+   */
   void Contour(double value, vtkDataArray *cellScalars,
                vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd) VTK_OVERRIDE;
 
-  // Description:
-  // Satisfy the vtkCell API. This method contours by triangulating the
-  // cell and then adding clip-edge intersection points into the
-  // triangulation; extracting the clipped region.
+  /**
+   * Satisfy the vtkCell API. This method contours by triangulating the
+   * cell and then adding clip-edge intersection points into the
+   * triangulation; extracting the clipped region.
+   */
   void Clip(double value, vtkDataArray *cellScalars,
                     vtkIncrementalPointLocator *locator, vtkCellArray *connectivity,
                     vtkPointData *inPd, vtkPointData *outPd,
                     vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
                     int insideOut) VTK_OVERRIDE;
 
-  // Description:
-  // Satisfy the vtkCell API. This method determines the subId, pcoords,
-  // and weights by triangulating the convex point set, and then
-  // determining which tetrahedron the point lies in.
+  /**
+   * Satisfy the vtkCell API. This method determines the subId, pcoords,
+   * and weights by triangulating the convex point set, and then
+   * determining which tetrahedron the point lies in.
+   */
   int EvaluatePosition(double x[3], double* closestPoint,
                        int& subId, double pcoords[3],
                        double& dist2, double *weights) VTK_OVERRIDE;
 
-  // Description:
-  // The inverse of EvaluatePosition.
+  /**
+   * The inverse of EvaluatePosition.
+   */
   void EvaluateLocation(int& subId, double pcoords[3], double x[3],
                         double *weights) VTK_OVERRIDE;
 
-  // Description:
-  // Triangulates the cells and then intersects them to determine the
-  // intersection point.
+  /**
+   * Triangulates the cells and then intersects them to determine the
+   * intersection point.
+   */
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
                         double x[3], double pcoords[3], int& subId) VTK_OVERRIDE;
 
-  // Description:
-  // Triangulate using methods of vtkOrderedTriangulator.
+  /**
+   * Triangulate using methods of vtkOrderedTriangulator.
+   */
   int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) VTK_OVERRIDE;
 
-  // Description:
-  // Computes derivatives by triangulating and from subId and pcoords,
-  // evaluating derivatives on the resulting tetrahedron.
+  /**
+   * Computes derivatives by triangulating and from subId and pcoords,
+   * evaluating derivatives on the resulting tetrahedron.
+   */
   void Derivatives(int subId, double pcoords[3], double *values,
                    int dim, double *derivs) VTK_OVERRIDE;
 
-  // Description:
-  // Returns the set of points forming a face of the triangulation of these
-  // points that are on the boundary of the cell that are closest
-  // parametrically to the point specified.
+  /**
+   * Returns the set of points forming a face of the triangulation of these
+   * points that are on the boundary of the cell that are closest
+   * parametrically to the point specified.
+   */
   int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) VTK_OVERRIDE;
 
-  // Description:
-  // Return the center of the cell in parametric coordinates.
+  /**
+   * Return the center of the cell in parametric coordinates.
+   */
   int GetParametricCenter(double pcoords[3]) VTK_OVERRIDE;
 
-  // Description:
-  // A convex point set is triangulated prior to any operations on it so
-  // it is not a primary cell, it is a composite cell.
+  /**
+   * A convex point set is triangulated prior to any operations on it so
+   * it is not a primary cell, it is a composite cell.
+   */
   int IsPrimaryCell() VTK_OVERRIDE {return 0;}
 
-  // Description:
-  // Compute the interpolation functions/derivatives
-  // (aka shape functions/derivatives)
+  //@{
+  /**
+   * Compute the interpolation functions/derivatives
+   * (aka shape functions/derivatives)
+   */
   void InterpolateFunctions(double pcoords[3], double *sf) VTK_OVERRIDE;
   void InterpolateDerivs(double pcoords[3], double *derivs) VTK_OVERRIDE;
+  //@}
 
 protected:
   vtkConvexPointSet();

@@ -32,10 +32,10 @@
 int TestGDALRasterPalette(int argc, char** argv)
 {
   if (argc < 3)
-    {
+  {
     std::cerr << "Expected TestName -D InputFile.tif" << std::endl;
     return -1;
-    }
+  }
 
   std::string inputFileName(argv[2]);
 
@@ -47,32 +47,32 @@ int TestGDALRasterPalette(int argc, char** argv)
 
   // Check that reader generated point scalars
   if (image->GetPointData()->GetNumberOfArrays() < 1)
-    {
+  {
     std::cerr << "ERROR: Missing point data scalars" << std::endl;
     return 1;
-    }
+  }
   if (image->GetPointData()->GetScalars()->GetSize() == 0)
-    {
+  {
     std::cerr << "ERROR: Point data scalars empty" << std::endl;
     return 1;
-    }
+  }
   //image->GetPointData()->GetScalars()->Print(std::cout);
 
   // Check that reader generated color table
   vtkLookupTable *colorTable =
     image->GetPointData()->GetScalars()->GetLookupTable();
   if (!colorTable)
-    {
+  {
     std::cerr << "ERROR: Missing color table" << std::endl;
     return 1;
-    }
+  }
   if (colorTable->GetNumberOfAvailableColors() != 256)
-    {
+  {
     std::cerr << "ERROR: Color table does not have 256 colors."
               << " Instead has " <<  colorTable->GetNumberOfAvailableColors()
               << std::endl;
     return 1;
-    }
+  }
   //colorTable->Print(std::cout);
 
   // Create a renderer and actor
@@ -100,9 +100,9 @@ int TestGDALRasterPalette(int argc, char** argv)
 
   int retVal = vtkRegressionTestImage(renderWindow.GetPointer());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renderWindowInteractor->Start();
-    }
+  }
 
   return !retVal;
 }

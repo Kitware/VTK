@@ -70,13 +70,13 @@ void vtkVolume16Reader::SetDataByteOrderToLittleEndian()
 void vtkVolume16Reader::SetDataByteOrder(int byteOrder)
 {
   if ( byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN )
-    {
+  {
     this->SetDataByteOrderToBigEndian();
-    }
+  }
   else
-    {
+  {
     this->SetDataByteOrderToLittleEndian();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -84,22 +84,22 @@ int vtkVolume16Reader::GetDataByteOrder()
 {
 #ifdef VTK_WORDS_BIGENDIAN
   if ( this->SwapBytes )
-    {
+  {
     return VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN;
-    }
+  }
   else
-    {
+  {
     return VTK_FILE_BYTE_ORDER_BIG_ENDIAN;
-    }
+  }
 #else
   if ( this->SwapBytes )
-    {
+  {
     return VTK_FILE_BYTE_ORDER_BIG_ENDIAN;
-    }
+  }
   else
-    {
+  {
     return VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN;
-    }
+  }
 #endif
 }
 
@@ -108,22 +108,22 @@ const char *vtkVolume16Reader::GetDataByteOrderAsString()
 {
 #ifdef VTK_WORDS_BIGENDIAN
   if ( this->SwapBytes )
-    {
+  {
     return "LittleEndian";
-    }
+  }
   else
-    {
+  {
     return "BigEndian";
-    }
+  }
 #else
   if ( this->SwapBytes )
-    {
+  {
     return "BigEndian";
-    }
+  }
   else
-    {
+  {
     return "LittleEndian";
-    }
+  }
 #endif
 }
 
@@ -171,36 +171,36 @@ int vtkVolume16Reader::RequestData(
 
   // Validate instance variables
   if (this->FilePrefix == NULL)
-    {
+  {
     vtkErrorMacro(<< "FilePrefix is NULL");
     return 1;
-    }
+  }
 
   if (this->HeaderSize < 0)
-    {
+  {
     vtkErrorMacro(<< "HeaderSize " << this->HeaderSize << " must be >= 0");
     return 1;
-    }
+  }
 
   dim = this->DataDimensions;
 
   if (dim[0] <= 0 || dim[1] <= 0)
-    {
+  {
     vtkErrorMacro(<< "x, y dimensions " << dim[0] << ", " << dim[1]
                   << "must be greater than 0.");
     return 1;
-    }
+  }
 
   if ( (this->ImageRange[1]-this->ImageRange[0]) <= 0 )
-    {
+  {
     this->ReadImage(this->ImageRange[0], newScalars);
-    }
+  }
   else
-    {
+  {
     first = this->ImageRange[0];
     last = this->ImageRange[1];
     this->ReadVolume(first, last, newScalars);
-    }
+  }
 
   // calculate dimensions of output from data dimensions and transform
   this->ComputeTransformedDimensions (dimensions);
@@ -231,25 +231,25 @@ vtkImageData *vtkVolume16Reader::GetImage(int ImageNumber)
 
   // Validate instance variables
   if (this->FilePrefix == NULL)
-    {
+  {
     vtkErrorMacro(<< "FilePrefix is NULL");
     return NULL;
-    }
+  }
 
   if (this->HeaderSize < 0)
-    {
+  {
     vtkErrorMacro(<< "HeaderSize " << this->HeaderSize << " must be >= 0");
     return NULL;
-    }
+  }
 
   dim = this->DataDimensions;
 
   if (dim[0] <= 0 || dim[1] <= 0)
-    {
+  {
     vtkErrorMacro(<< "x, y dimensions " << dim[0] << ", " << dim[1]
                   << "must be greater than 0.");
     return NULL;
-    }
+  }
 
   result = vtkImageData::New();
   newScalars = vtkUnsignedShortArray::New();
@@ -260,10 +260,10 @@ vtkImageData *vtkVolume16Reader::GetImage(int ImageNumber)
   result->SetSpacing(this->DataSpacing);
   result->SetOrigin(this->DataOrigin);
   if ( newScalars )
-    {
+  {
     result->GetPointData()->SetScalars(newScalars);
     newScalars->Delete();
-    }
+  }
   return result;
 }
 
@@ -279,18 +279,18 @@ void vtkVolume16Reader::ReadImage(int sliceNumber,
 
   // build the file name. if there is no prefix, just use the slice number
   if (this->FilePrefix)
-    {
+  {
     sprintf (filename, this->FilePattern, this->FilePrefix, sliceNumber);
-    }
+  }
   else
-    {
+  {
     sprintf (filename, this->FilePattern, sliceNumber);
-    }
+  }
   if ( !(fp = fopen(filename,"rb")) )
-    {
+  {
     vtkErrorMacro(<<"Can't open file: " << filename);
     return;
-    }
+  }
 
   numPts = this->DataDimensions[0] * this->DataDimensions[1];
 
@@ -342,22 +342,22 @@ void vtkVolume16Reader::ReadVolume(int first, int last,
 
   // build each file name and read the data from the file
   for (fileNumber = first; fileNumber <= last; fileNumber++)
-    {
+  {
     // build the file name. if there is no prefix, just use the slice number
     if (this->FilePattern)
-      {
+    {
       sprintf (filename, this->FilePattern, this->FilePrefix, fileNumber);
-      }
+    }
     else
-      {
+    {
       sprintf (filename, this->FilePattern, fileNumber);
-      }
+    }
     if ( !(fp = fopen(filename,"rb")) )
-      {
+    {
       vtkErrorMacro(<<"Can't find file: " << filename);
       delete [] slice;
       return;
-      }
+    }
 
     vtkDebugMacro ( << "Reading " << filename );
 
@@ -368,13 +368,13 @@ void vtkVolume16Reader::ReadVolume(int first, int last,
     fclose (fp);
 
     if (status == 0)
-      {
+    {
       break;
-      }
+    }
 
     // transform slice
     this->TransformSlice (slice, pixels, fileNumber - first, dimensions, bounds);
-    }
+  }
 
   delete []slice;
 }
@@ -387,43 +387,43 @@ int vtkVolume16Reader:: Read16BitImage (FILE *fp, unsigned short *pixels, int xs
   int numShorts = xsize * ysize;
 
   if (skip)
-    {
+  {
     fseek (fp, skip, 0);
-    }
+  }
 
   shortPtr = pixels;
   shortPtr += xsize*(ysize - 1);
   for (int j=0; j<ysize; j++, shortPtr -= xsize)
-    {
+  {
     if ( ! fread(shortPtr,sizeof (unsigned short),xsize,fp) )
-      {
+    {
       vtkErrorMacro(<<"Error reading raw pgm data!");
       return 0;
-      }
     }
+  }
 
   if (swapBytes)
-    {
+  {
     unsigned char *bytes = (unsigned char *) pixels;
     unsigned char tmp;
     int i;
     for (i = 0; i < numShorts; i++, bytes += 2)
-      {
+    {
       tmp = *bytes;
       *bytes = *(bytes + 1);
       *(bytes + 1) = tmp;
-      }
     }
+  }
 
   if (this->DataMask != 0x0000 )
-    {
+  {
     unsigned short *dataPtr = pixels;
     int i;
     for (i = 0; i < numShorts; i++, dataPtr++)
-      {
+    {
       *dataPtr &= this->DataMask;
-      }
     }
+  }
 
   return 1;
 }
@@ -432,46 +432,46 @@ int vtkVolume16Reader:: Read16BitImage (FILE *fp, unsigned short *pixels, int xs
 void vtkVolume16Reader::ComputeTransformedSpacing (double spacing[3])
 {
   if (!this->Transform)
-    {
+  {
     memcpy (spacing, this->DataSpacing, 3 * sizeof (double));
-    }
+  }
   else
-    {
+  {
     double transformedSpacing[4];
     memcpy (transformedSpacing, this->DataSpacing, 3 * sizeof (double));
     transformedSpacing[3] = 1.0;
     this->Transform->MultiplyPoint (transformedSpacing, transformedSpacing);
 
     for (int i = 0; i < 3; i++)
-      {
+    {
       spacing[i] = transformedSpacing[i];
-      }
+    }
     vtkDebugMacro("Transformed Spacing " <<
       spacing[0] << ", " << spacing[1] << ", " << spacing[2]);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkVolume16Reader::ComputeTransformedOrigin (double origin[3])
 {
   if (!this->Transform)
-    {
+  {
     memcpy (origin, this->DataOrigin, 3 * sizeof (double));
-    }
+  }
   else
-    {
+  {
     double transformedOrigin[4];
     memcpy (transformedOrigin, this->DataOrigin, 3 * sizeof (double));
     transformedOrigin[3] = 1.0;
     this->Transform->MultiplyPoint (transformedOrigin, transformedOrigin);
 
     for (int i = 0; i < 3; i++)
-      {
+    {
       origin[i] = transformedOrigin[i];
-      }
+    }
     vtkDebugMacro("Transformed Origin " <<
       origin[0] << ", " << origin[1] << ", " << origin[2]);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -479,13 +479,13 @@ void vtkVolume16Reader::ComputeTransformedDimensions (int dimensions[3])
 {
   double transformedDimensions[4];
   if (!this->Transform)
-    {
+  {
     dimensions[0] = this->DataDimensions[0];
     dimensions[1] = this->DataDimensions[1];
     dimensions[2] = this->ImageRange[1] - this->ImageRange[0] + 1;
-    }
+  }
   else
-    {
+  {
     transformedDimensions[0] = this->DataDimensions[0];
     transformedDimensions[1] = this->DataDimensions[1];
     transformedDimensions[2] = this->ImageRange[1] - this->ImageRange[0] + 1;
@@ -495,21 +495,21 @@ void vtkVolume16Reader::ComputeTransformedDimensions (int dimensions[3])
     dimensions[1] = (int) transformedDimensions[1];
     dimensions[2] = (int) transformedDimensions[2];
     if (dimensions[0] < 0)
-      {
+    {
       dimensions[0] = -dimensions[0];
-      }
+    }
     if (dimensions[1] < 0)
-      {
+    {
       dimensions[1] = -dimensions[1];
-      }
+    }
     if (dimensions[2] < 0)
-      {
+    {
       dimensions[2] = -dimensions[2];
-      }
+    }
     vtkDebugMacro(<< "Transformed dimensions are:" << dimensions[0] << ", "
                                                    << dimensions[1] << ", "
                                                    << dimensions[2]);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -518,16 +518,16 @@ void vtkVolume16Reader::ComputeTransformedBounds (int bounds[6])
   double transformedBounds[4];
 
   if (!this->Transform)
-    {
+  {
     bounds[0] = 0;
     bounds[1] = this->DataDimensions[0] - 1;
     bounds[2] = 0;
     bounds[3] = this->DataDimensions[1] - 1;
     bounds[4] = 0;
     bounds[5] = this->ImageRange[1] - this->ImageRange[0];
-    }
+  }
   else
-    {
+  {
     transformedBounds[0] = 0;
     transformedBounds[1] = 0;
     transformedBounds[2] = 0;
@@ -547,19 +547,19 @@ void vtkVolume16Reader::ComputeTransformedBounds (int bounds[6])
     // put bounds in correct order
     int tmp;
     for (int i = 0; i < 6; i += 2)
-      {
+    {
       if (bounds[i + 1] < bounds[i])
-        {
+      {
         tmp = bounds[i];
         bounds[i] = bounds[i + 1];
         bounds[i + 1] = tmp;
-        }
       }
+    }
     vtkDebugMacro(<< "Transformed bounds are: "
                 << bounds[0] << ", " << bounds[1] << ", "
                 << bounds[2] << ", " << bounds[3] << ", "
                 << bounds[4] << ", " << bounds[5]);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -567,13 +567,13 @@ void vtkVolume16Reader::AdjustSpacingAndOrigin (int dimensions[3], double spacin
   double origin[3])
 {
   for (int i = 0; i < 3; i++)
-    {
+  {
     if (spacing[i] < 0)
-      {
+    {
       origin[i] = origin[i] + spacing[i] * dimensions[i];
       spacing[i] = -spacing[i];
-      }
     }
+  }
   vtkDebugMacro("Adjusted Spacing " << spacing[0] << ", " << spacing[1] << ", " << spacing[2]);
   vtkDebugMacro("Adjusted origin " << origin[0] << ", " << origin[1] << ", " << origin[2]);
 }
@@ -585,11 +585,11 @@ void vtkVolume16Reader::TransformSlice (unsigned short *slice, unsigned short *p
   int jSize = this->DataDimensions[1];
 
   if (!this->Transform)
-    {
+  {
     memcpy (pixels + iSize * jSize * k, slice, iSize * jSize * sizeof (unsigned short));
-    }
+  }
   else
-    {
+  {
     double transformedIjk[4], ijk[4];
     int i, j;
     int xyz[3];
@@ -602,10 +602,10 @@ void vtkVolume16Reader::TransformSlice (unsigned short *slice, unsigned short *p
     ijk[2] = k;
     ijk[3] = 1.0;
     for (j = 0; j < jSize; j++)
-      {
+    {
       ijk[1] = j;
       for (i = 0; i < iSize; i++, slice++)
-        {
+      {
         ijk[0] = i;
         this->Transform->MultiplyPoint (ijk, transformedIjk);
         xyz[0] = (int) ((double)transformedIjk[0] - bounds[0]);
@@ -615,9 +615,9 @@ void vtkVolume16Reader::TransformSlice (unsigned short *slice, unsigned short *p
                 xyz[1] * xSize +
                 xyz[2] * xySize;
         *(pixels + index) = *slice;
-        }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -632,12 +632,12 @@ void vtkVolume16Reader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Data Mask: " << this->DataMask << "\n";
 
   if ( this->Transform )
-    {
+  {
     os << indent << "Transform:\n";
     this->Transform->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Transform: (None)\n";
-    }
+  }
 }

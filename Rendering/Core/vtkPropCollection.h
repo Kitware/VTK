@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPropCollection - a list of Props
-// .SECTION Description
-// vtkPropCollection represents and provides methods to manipulate a list of
-// Props (i.e., vtkProp and subclasses). The list is unsorted and duplicate
-// entries are not prevented.
-
-// .SECTION see also
-// vtkProp vtkCollection
+/**
+ * @class   vtkPropCollection
+ * @brief   a list of Props
+ *
+ * vtkPropCollection represents and provides methods to manipulate a list of
+ * Props (i.e., vtkProp and subclasses). The list is unsorted and duplicate
+ * entries are not prevented.
+ *
+ * @sa
+ * vtkProp vtkCollection
+*/
 
 #ifndef vtkPropCollection_h
 #define vtkPropCollection_h
@@ -35,28 +38,33 @@ class VTKRENDERINGCORE_EXPORT vtkPropCollection : public vtkCollection
   static vtkPropCollection *New();
   vtkTypeMacro(vtkPropCollection,vtkCollection);
 
-  // Description:
-  // Add an Prop to the list.
+  /**
+   * Add an Prop to the list.
+   */
   void AddItem(vtkProp *a);
 
-  // Description:
-  // Get the next Prop in the list.
+  /**
+   * Get the next Prop in the list.
+   */
   vtkProp *GetNextProp();
 
-  // Description:
-  // Get the last Prop in the list.
+  /**
+   * Get the last Prop in the list.
+   */
   vtkProp *GetLastProp();
 
-  // Description:
-  // Get the number of paths contained in this list. (Recall that a
-  // vtkProp can consist of multiple parts.) Used in picking and other
-  // activities to get the parts of composite entities like vtkAssembly
-  // or vtkPropAssembly.
+  /**
+   * Get the number of paths contained in this list. (Recall that a
+   * vtkProp can consist of multiple parts.) Used in picking and other
+   * activities to get the parts of composite entities like vtkAssembly
+   * or vtkPropAssembly.
+   */
   int GetNumberOfPaths();
 
-  // Description:
-  // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth.
+  /**
+   * Reentrant safe way to get an object in a collection. Just pass the
+   * same cookie back and forth.
+   */
   vtkProp *GetNextProp(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkProp *>(this->GetNextItemAsObject(cookie));};
 
@@ -87,13 +95,13 @@ inline vtkProp *vtkPropCollection::GetNextProp()
 inline vtkProp *vtkPropCollection::GetLastProp()
 {
   if ( this->Bottom == NULL )
-    {
+  {
     return NULL;
-    }
+  }
   else
-    {
+  {
     return static_cast<vtkProp *>(this->Bottom->Item);
-    }
+  }
 }
 
 #endif

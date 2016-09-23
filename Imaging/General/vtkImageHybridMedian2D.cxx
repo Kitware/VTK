@@ -73,28 +73,28 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
   target++;
 
   for (idx2 = min2; idx2 <= max2; ++idx2)
-    {
+  {
     inPtr1 = inPtr2;
     outPtr1 = outPtr2;
 
     for (idx1 = min1; !self->AbortExecute && idx1 <= max1; ++idx1)
-      {
+    {
       if (!id)
-        {
+      {
         if (!(count%target))
-          {
+        {
           self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
         }
+        count++;
+      }
       inPtr0 = inPtr1;
       outPtr0 = outPtr1;
       for (idx0 = min0; idx0 <= max0; ++idx0)
-        {
+      {
         inPtrC = inPtr0;
         outPtrC = outPtr0;
         for (idxC = 0; idxC < numComps; ++idxC)
-          {
+        {
           // compute median of + neighborhood
           // note that y axis direction is up in vtk images, not down
           // as in screen coordinates
@@ -105,51 +105,51 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
           // left
           ptr = inPtrC;
           if (idx0 > wholeMin0)
-            {
+          {
             ptr -= inInc0;
             array.push_back( *ptr );
-            }
+          }
           if (idx0 - 1 > wholeMin0)
-            {
+          {
             ptr -= inInc0;
             array.push_back( *ptr );
-            }
+          }
           // right
           ptr = inPtrC;
           if (idx0 < wholeMax0)
-            {
+          {
             ptr += inInc0;
             array.push_back( *ptr );
-            }
+          }
           if (idx0 + 1 < wholeMax0)
-            {
+          {
             ptr += inInc0;
             array.push_back( *ptr );
-            }
+          }
           // down
           ptr = inPtrC;
           if (idx1 > wholeMin1)
-            {
+          {
             ptr -= inInc1;
             array.push_back( *ptr );
-            }
+          }
           if (idx1 - 1 > wholeMin1)
-            {
+          {
             ptr -= inInc1;
             array.push_back( *ptr );
-            }
+          }
           // up
           ptr = inPtrC;
           if (idx1 < wholeMax1)
-            {
+          {
             ptr += inInc1;
             array.push_back( *ptr );
-            }
+          }
           if (idx1 + 1 < wholeMax1)
-            {
+          {
             ptr += inInc1;
             array.push_back( *ptr );
-            }
+          }
 
           std::sort(array.begin(),array.end());
           median1 = array[static_cast<unsigned int>(0.5*array.size())];
@@ -163,86 +163,86 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
           array.push_back( *ptr );
           // lower left
           if (idx0 > wholeMin0 && idx1 > wholeMin1)
-            {
+          {
             ptr -= inInc0 + inInc1;
             array.push_back( *ptr );
-            }
+          }
           if (idx0-1 > wholeMin0 && idx1-1 > wholeMin1)
-            {
+          {
             ptr -= inInc0 + inInc1;
             array.push_back( *ptr );
-            }
+          }
           // upper right
           ptr = inPtrC;
           if (idx0 < wholeMax0 && idx1 < wholeMax1)
-            {
+          {
             ptr += inInc0 + inInc1;
             array.push_back( *ptr );
-            }
+          }
           if (idx0+1 < wholeMax0 && idx1+1 < wholeMax1)
-            {
+          {
             ptr += inInc0 + inInc1;
             array.push_back( *ptr );
-            }
+          }
           // upper left
           ptr = inPtrC;
           if (idx0 > wholeMin0 && idx1 < wholeMax1)
-            {
+          {
             ptr += -inInc0 + inInc1;
             array.push_back( *ptr );
-            }
+          }
           if (idx0-1 > wholeMin0 && idx1+1 < wholeMax1)
-            {
+          {
             ptr += -inInc0 + inInc1;
             array.push_back( *ptr );
-            }
+          }
           // lower right
           ptr = inPtrC;
           if (idx0 < wholeMax0 && idx1 > wholeMin1)
-            {
+          {
             ptr += inInc0 - inInc1;
             array.push_back( *ptr );
-            }
+          }
           if (idx0+1 < wholeMax0 && idx1-1 > wholeMin1)
-            {
+          {
             ptr += inInc0 - inInc1;
             array.push_back( *ptr );
-            }
+          }
 
           std::sort(array.begin(),array.end());
           median2 = array[static_cast<unsigned int>(0.5*array.size())];
 
           // Compute the median of the three. (med1, med2 and center)
           if (median1 > median2)
-            {
+          {
             temp = median1;
             median1 = median2;
             median2 = temp;
-            }
+          }
           if (*inPtrC < median1)
-            {
+          {
             *outPtrC = median1;
-            }
+          }
           else if (*inPtrC < median2)
-            {
+          {
             *outPtrC = *inPtrC;
-            }
+          }
           else
-            {
+          {
             *outPtrC = median2;
-            }
+          }
           ++inPtrC;
           ++outPtrC;
-          }
+        }
         inPtr0 += inInc0;
         outPtr0 += outInc0;
-        }
+      }
       inPtr1 += inInc1;
       outPtr1 += outInc1;
-      }
+    }
     inPtr2 += inInc2;
     outPtr2 += outInc2;
-    }
+  }
 }
 
 // This method contains the first switch statement that calls the correct
@@ -263,15 +263,15 @@ void vtkImageHybridMedian2D::ThreadedRequestData(
 
   // this filter expects the output type to be same as input
   if (outData[0]->GetScalarType() != inData[0][0]->GetScalarType())
-    {
+  {
     vtkErrorMacro(<< "Execute: output ScalarType, "
       << vtkImageScalarTypeNameMacro(outData[0]->GetScalarType())
       << " must match input scalar type");
     return;
-    }
+  }
 
   switch (inData[0][0]->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageHybridMedian2DExecute( this, inData[0][0],
                                      static_cast<VTK_TT *>(inPtr), outData[0],
@@ -281,5 +281,5 @@ void vtkImageHybridMedian2D::ThreadedRequestData(
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
-    }
+  }
 }

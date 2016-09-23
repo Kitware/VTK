@@ -19,7 +19,7 @@
 vtkStandardNewMacro(vtkParametricCatalanMinimal);
 //----------------------------------------------------------------------------//
 vtkParametricCatalanMinimal::vtkParametricCatalanMinimal()
-  {
+{
   // Preset triangulation parameters
   this->MinimumU = -4.*vtkMath::Pi();
   this->MinimumV = -1.5;
@@ -32,16 +32,16 @@ vtkParametricCatalanMinimal::vtkParametricCatalanMinimal()
   this->TwistV = 0;
   this->ClockwiseOrdering = 1;
   this->DerivativesAvailable = 1;
-  }
+}
 
 //----------------------------------------------------------------------------//
 vtkParametricCatalanMinimal::~vtkParametricCatalanMinimal()
-  {
-  }
+{
+}
 
 //----------------------------------------------------------------------------//
 void vtkParametricCatalanMinimal::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
-  {
+{
   // Copy the parameters out of the vector, for the sake of convenience.
   double u = uvw[0];
   double v = uvw[1];
@@ -66,16 +66,16 @@ void vtkParametricCatalanMinimal::Evaluate(double uvw[3], double Pt[3], double D
   Dv[0] = sin(u)*sinh(v);
   Dv[1] = -cos(u)*sinh(v);
   Dv[2] = 2.*sin(u/2.)*cosh(v/2.);
-  }
+}
 
 //----------------------------------------------------------------------------//
 double vtkParametricCatalanMinimal::EvaluateScalar(double *, double *, double *)
-  {
+{
   return 0;
-  }
+}
 
 //----------------------------------------------------------------------------//
 void vtkParametricCatalanMinimal::PrintSelf(ostream& os, vtkIndent indent)
-  {
+{
   this->Superclass::PrintSelf(os,indent);
-  }
+}

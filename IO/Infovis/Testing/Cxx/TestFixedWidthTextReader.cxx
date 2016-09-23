@@ -32,17 +32,17 @@
   { \
   std::string expectedMsg(msg); \
   if (!observer->GetError()) \
-    { \
+  { \
     std::cout << "ERROR: Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
-    } \
+  } \
   else \
-    { \
+  { \
     std::string gotMsg(observer->GetErrorMessage()); \
     if (gotMsg.find(expectedMsg) == std::string::npos) \
-      { \
+    { \
       std::cout << "ERROR: Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-      } \
     } \
+  } \
   } \
   observer->Clear()
 
@@ -79,33 +79,33 @@ int TestFixedWidthTextReader(int argc, char *argv[])
   std::cout << "Column names: " << std::endl;
 
   for (i = 0; i < table->GetNumberOfColumns(); ++i)
-    {
+  {
     std::cout << "\tColumn " << i << ": "
               << table->GetColumn(i)->GetName() << std::endl;
-    }
+  }
 
   std::cout << "Table contents:" << std::endl;
 
   for (i = 0; i < table->GetNumberOfRows(); ++i)
-    {
+  {
     vtkVariantArray *row = table->GetRow(i);
 
     for (j = 0; j < row->GetNumberOfTuples(); ++j)
-      {
+    {
       std::cout << "Row " << i << " column " << j << ": ";
 
       vtkVariant value = row->GetValue(j);
       if (! value.IsValid())
-        {
+      {
         std::cout << "invalid value" << std::endl;
-        }
+      }
       else
-        {
+      {
         std::cout << "type " << value.GetTypeAsString() << " value "
              << value.ToString() << std::endl;
-        }
       }
     }
+  }
 
   reader->Delete();
   delete [] filename;
@@ -137,32 +137,32 @@ int TestFixedWidthTextReader(int argc, char *argv[])
        << " columns" << std::endl;
   std::cout << "Column names: " << std::endl;
   for (i = 0; i < table->GetNumberOfColumns(); ++i)
-    {
+  {
     std::cout << "\tColumn " << i << ": " << table->GetColumn(i)->GetName() << std::endl;
-    }
+  }
 
   std::cout << "Table contents:" << std::endl;
 
   for (i = 0; i < table->GetNumberOfRows(); ++i)
-    {
+  {
     vtkVariantArray *row = table->GetRow(i);
 
     for (j = 0; j < row->GetNumberOfTuples(); ++j)
-      {
+    {
       std::cout << "Row " << i << " column " << j << ": ";
 
       vtkVariant value = row->GetValue(j);
       if (! value.IsValid())
-        {
+      {
         std::cout << "invalid value" << std::endl;
-        }
+      }
       else
-        {
+      {
         std::cout << "type " << value.GetTypeAsString() << " value "
              << value.ToString() << std::endl;
-        }
       }
     }
+  }
 
   reader->Delete();
   delete [] filename;

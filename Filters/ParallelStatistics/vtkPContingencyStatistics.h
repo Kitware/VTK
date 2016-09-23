@@ -17,22 +17,25 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
-// .NAME vtkPContingencyStatistics - A class for parallel bivariate contingency statistics
-// .SECTION Description
-// vtkPContingencyStatistics is vtkContingencyStatistics subclass for parallel datasets.
-// It learns and derives the global statistical model on each node, but assesses each
-// individual data points on the node that owns it.
-
-// .NOTE: It is assumed that the keys in the contingency table be contained in the set {0,...,n-1}
-// of successive integers, where n is the number of rows of the summary table.
-// If this requirement is not fulfilled, then the outcome of the parallel update of contingency
-// tables is unpredictable but will most likely be a crash.
-// Note that this requirement is consistent with the way contingency tables are constructed
-// by the (serial) superclass and thus, if you are using this class as it is intended to be ran,
-// then you do not have to worry about this requirement.
-
-// .SECTION Thanks
-// Thanks to Philippe Pebay from Sandia National Laboratories for implementing this class.
+/**
+ * @class   vtkPContingencyStatistics
+ * @brief   A class for parallel bivariate contingency statistics
+ *
+ * vtkPContingencyStatistics is vtkContingencyStatistics subclass for parallel datasets.
+ * It learns and derives the global statistical model on each node, but assesses each
+ * individual data points on the node that owns it.
+ *
+ * .NOTE: It is assumed that the keys in the contingency table be contained in the set {0,...,n-1}
+ * of successive integers, where n is the number of rows of the summary table.
+ * If this requirement is not fulfilled, then the outcome of the parallel update of contingency
+ * tables is unpredictable but will most likely be a crash.
+ * Note that this requirement is consistent with the way contingency tables are constructed
+ * by the (serial) superclass and thus, if you are using this class as it is intended to be ran,
+ * then you do not have to worry about this requirement.
+ *
+ * @par Thanks:
+ * Thanks to Philippe Pebay from Sandia National Laboratories for implementing this class.
+*/
 
 #ifndef vtkPContingencyStatistics_h
 #define vtkPContingencyStatistics_h
@@ -52,14 +55,18 @@ public:
   vtkTypeMacro(vtkPContingencyStatistics, vtkContingencyStatistics);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get/Set the multiprocess controller. If no controller is set,
-  // single process is assumed.
+  //@{
+  /**
+   * Get/Set the multiprocess controller. If no controller is set,
+   * single process is assumed.
+   */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
 
-  // Description:
-  // Execute the parallel calculations required by the Learn option.
+  /**
+   * Execute the parallel calculations required by the Learn option.
+   */
   virtual void Learn( vtkTable*,
                       vtkTable*,
                       vtkMultiBlockDataSet* );
@@ -68,8 +75,9 @@ protected:
   vtkPContingencyStatistics();
   ~vtkPContingencyStatistics();
 
-  // Description:
-  // Reduce the collection of local contingency tables to the global one
+  /**
+   * Reduce the collection of local contingency tables to the global one
+   */
   bool Reduce( vtkIdType&,
                char*,
                vtkStdString&,
@@ -77,8 +85,9 @@ protected:
                vtkIdType*,
                std::vector<vtkIdType>& );
 
-  // Description:
-  // Broadcast reduced contingency table to all processes
+  /**
+   * Broadcast reduced contingency table to all processes
+   */
   bool Broadcast( vtkIdType,
                   vtkStdString&,
                   std::vector<vtkStdString>&,

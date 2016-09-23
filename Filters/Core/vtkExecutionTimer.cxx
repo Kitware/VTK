@@ -56,14 +56,14 @@ vtkExecutionTimer::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Observed Filter: ";
   if (this->Filter)
-    {
+  {
     os << "\n";
     this->Filter->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(null)\n";
-    }
+  }
   os << indent << "Most recent CPU start time: " << this->CPUStartTime << "\n";
   os << indent << "Most recent CPU end time: " << this->CPUStartTime << "\n";
   os << indent << "Most recent CPU elapsed time: " << this->ElapsedCPUTime << "\n";
@@ -79,20 +79,20 @@ void
 vtkExecutionTimer::SetFilter(vtkAlgorithm* filter)
 {
   if (this->Filter)
-    {
+  {
     this->Filter->RemoveObserver(this->Callback);
     this->Filter->RemoveObserver(this->Callback);
     this->Filter->UnRegister(this);
     this->Filter = 0;
-    }
+  }
 
   if (filter)
-    {
+  {
     this->Filter = filter;
     this->Filter->Register(this);
     this->Filter->AddObserver(vtkCommand::StartEvent, this->Callback);
     this->Filter->AddObserver(vtkCommand::EndEvent, this->Callback);
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -106,19 +106,19 @@ vtkExecutionTimer::EventRelay(vtkObject* vtkNotUsed(caller),
   vtkExecutionTimer* receiver = static_cast<vtkExecutionTimer*>(clientData);
 
   if (eventType == vtkCommand::StartEvent)
-    {
+  {
     receiver->StartTimer();
-    }
+  }
   else if (eventType == vtkCommand::EndEvent)
-    {
+  {
     receiver->StopTimer();
-    }
+  }
   else
-    {
+  {
     vtkGenericWarningMacro("WARNING: Unknown event type "
                            << eventType
                            << " in vtkExecutionTimer::EventRelay.  This shouldn't happen.");
-    }
+  }
 }
 
 // ----------------------------------------------------------------------

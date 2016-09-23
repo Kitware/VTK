@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWarpLens - deform geometry by applying lens distortion
-// .SECTION Description
-// vtkWarpLens is a filter that modifies point coordinates by moving
-// in accord with a lens distortion model.
+/**
+ * @class   vtkWarpLens
+ * @brief   deform geometry by applying lens distortion
+ *
+ * vtkWarpLens is a filter that modifies point coordinates by moving
+ * in accord with a lens distortion model.
+*/
 
 #ifndef vtkWarpLens_h
 #define vtkWarpLens_h
@@ -30,50 +33,71 @@ public:
   vtkTypeMacro(vtkWarpLens,vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify second order symmetric radial lens distortion parameter.
-  // This is obsoleted by newer instance variables.
+  //@{
+  /**
+   * Specify second order symmetric radial lens distortion parameter.
+   * This is obsoleted by newer instance variables.
+   */
   void SetKappa(double kappa);
   double GetKappa();
+  //@}
 
-  // Description:
-  // Specify the center of radial distortion in pixels.
-  // This is obsoleted by newer instance variables.
+  //@{
+  /**
+   * Specify the center of radial distortion in pixels.
+   * This is obsoleted by newer instance variables.
+   */
   void SetCenter(double centerX, double centerY);
   double *GetCenter();
+  //@}
 
-  // Description:
-  // Specify the calibrated principal point of the camera/lens
+  //@{
+  /**
+   * Specify the calibrated principal point of the camera/lens
+   */
   vtkSetVector2Macro(PrincipalPoint,double);
   vtkGetVectorMacro(PrincipalPoint,double,2);
+  //@}
 
-  // Description:
-  // Specify the symmetric radial distortion parameters for the lens
+  //@{
+  /**
+   * Specify the symmetric radial distortion parameters for the lens
+   */
   vtkSetMacro(K1,double);
   vtkGetMacro(K1,double);
   vtkSetMacro(K2,double);
   vtkGetMacro(K2,double);
+  //@}
 
-  // Description:
-  // Specify the decentering distortion parameters for the lens
+  //@{
+  /**
+   * Specify the decentering distortion parameters for the lens
+   */
   vtkSetMacro(P1,double);
   vtkGetMacro(P1,double);
   vtkSetMacro(P2,double);
   vtkGetMacro(P2,double);
+  //@}
 
-  // Description:
-  // Specify the imager format width / height in mm
+  //@{
+  /**
+   * Specify the imager format width / height in mm
+   */
   vtkSetMacro(FormatWidth,double);
   vtkGetMacro(FormatWidth,double);
   vtkSetMacro(FormatHeight,double);
   vtkGetMacro(FormatHeight,double);
+  //@}
 
-  // Description:
-  // Specify the image width / height in pixels
+  //@{
+  /**
+   * Specify the image width / height in pixels
+   */
   vtkSetMacro(ImageWidth,int);
   vtkGetMacro(ImageWidth,int);
   vtkSetMacro(ImageHeight,int);
   vtkGetMacro(ImageHeight,int);
+  //@}
 
   int FillInputPortInformation(int port, vtkInformation *info);
 

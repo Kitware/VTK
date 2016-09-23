@@ -34,9 +34,9 @@ vtkImageIdealLowPass::vtkImageIdealLowPass()
 void vtkImageIdealLowPass::SetXCutOff(double cutOff)
 {
   if (cutOff == this->CutOff[0])
-    {
+  {
     return;
-    }
+  }
   this->CutOff[0] = cutOff;
   this->Modified();
 }
@@ -44,9 +44,9 @@ void vtkImageIdealLowPass::SetXCutOff(double cutOff)
 void vtkImageIdealLowPass::SetYCutOff(double cutOff)
 {
   if (cutOff == this->CutOff[1])
-    {
+  {
     return;
-    }
+  }
   this->CutOff[1] = cutOff;
   this->Modified();
 }
@@ -54,9 +54,9 @@ void vtkImageIdealLowPass::SetYCutOff(double cutOff)
 void vtkImageIdealLowPass::SetZCutOff(double cutOff)
 {
   if (cutOff == this->CutOff[2])
-    {
+  {
     return;
-    }
+  }
   this->CutOff[2] = cutOff;
   this->Modified();
 }
@@ -90,17 +90,17 @@ void vtkImageIdealLowPass::ThreadedRequestData(
 
   // Error checking
   if (inData[0][0]->GetNumberOfScalarComponents() != 2)
-    {
+  {
     vtkErrorMacro("Expecting 2 components not "
                   << inData[0][0]->GetNumberOfScalarComponents());
     return;
-    }
+  }
   if (inData[0][0]->GetScalarType() != VTK_DOUBLE ||
       outData[0]->GetScalarType() != VTK_DOUBLE)
-    {
+  {
     vtkErrorMacro("Expecting input and output to be of type double");
     return;
-    }
+  }
 
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
   inData[0][0]->GetSpacing(spacing);
@@ -117,29 +117,29 @@ void vtkImageIdealLowPass::ThreadedRequestData(
   mid1 = static_cast<double>(wholeExtent[2] + wholeExtent[3] + 1) / 2.0;
   mid2 = static_cast<double>(wholeExtent[4] + wholeExtent[5] + 1) / 2.0;
   if ( this->CutOff[0] == 0.0)
-    {
+  {
     norm0 = VTK_DOUBLE_MAX;
-    }
+  }
   else
-    {
+  {
     norm0 = 1.0 / ((spacing[0] * 2.0 * mid0) * this->CutOff[0]);
-    }
+  }
   if ( this->CutOff[1] == 0.0)
-    {
+  {
     norm1 = VTK_DOUBLE_MAX;
-    }
+  }
   else
-    {
+  {
     norm1 = 1.0 / ((spacing[1] * 2.0 * mid1) * this->CutOff[1]);
-    }
+  }
   if ( this->CutOff[2] == 0.0)
-    {
+  {
     norm2 = VTK_DOUBLE_MAX;
-    }
+  }
   else
-    {
+  {
     norm2 = 1.0 / ((spacing[2] * 2.0 * mid2) * this->CutOff[2]);
-    }
+  }
 
   target = static_cast<unsigned long>(
     (ext[5]-ext[4]+1)*(ext[3]-ext[2]+1)/50.0);
@@ -147,74 +147,74 @@ void vtkImageIdealLowPass::ThreadedRequestData(
 
   // loop over all the pixels (keeping track of normalized distance to origin.
   for (idx2 = ext[4]; idx2 <= ext[5]; ++idx2)
-    {
+  {
     // distance to min (this axis' contribution)
     temp2 = static_cast<double>(idx2);
     // Wrap back to 0.
     if (temp2 > mid2)
-      {
+    {
       temp2 = mid2 + mid2 - temp2;
-      }
+    }
     // Convert location into normalized cycles/world unit
     temp2 = temp2 * norm2;
 
     for (idx1 = ext[2]; !this->AbortExecute && idx1 <= ext[3]; ++idx1)
-      {
+    {
       if (!id)
-        {
+      {
         if (!(count%target))
-          {
+        {
           this->UpdateProgress(count/(50.0*target));
-          }
-        count++;
         }
+        count++;
+      }
       // distance to min (this axis' contribution)
       temp1 = static_cast<double>(idx1);
       // Wrap back to 0.
       if (temp1 > mid1)
-        {
+      {
         temp1 = mid1 + mid1 - temp1;
-        }
+      }
       // Convert location into cycles / world unit
       temp1 = temp1 * norm1;
       sum1 = temp2 * temp2 + temp1 * temp1;
 
       for (idx0 = min0; idx0 <= max0; ++idx0)
-        {
+      {
         // distance to min (this axis' contribution)
         temp0 = static_cast<double>(idx0);
         // Wrap back to 0.
         if (temp0 > mid0)
-          {
+        {
           temp0 = mid0 + mid0 - temp0;
-          }
+        }
         // Convert location into cycles / world unit
         temp0 = temp0 * norm0;
         sum0 = sum1 + temp0 * temp0;
 
         if (sum0 > 1.0)
-          {
+        {
           // real component
           *outPtr++ = 0.0;
           ++inPtr;
           // imaginary component
           *outPtr++ = 0.0;
           ++inPtr;
-          }
-        else
-          {
-          // real component
-          *outPtr++ = *inPtr++;
-          // imaginary component
-          *outPtr++ = *inPtr++;
-          }
         }
+        else
+        {
+          // real component
+          *outPtr++ = *inPtr++;
+          // imaginary component
+          *outPtr++ = *inPtr++;
+        }
+      }
       inPtr += inInc1;
       outPtr += outInc1;
-      }
+    }
     inPtr += inInc2;
     outPtr += outInc2;
-    }
+  }
 }
 
 void vtkImageIdealLowPass::PrintSelf(ostream& os, vtkIndent indent)

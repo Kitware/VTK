@@ -55,23 +55,23 @@ vtkXMLHierarchicalBoxDataFileConverter::~vtkXMLHierarchicalBoxDataFileConverter(
 bool vtkXMLHierarchicalBoxDataFileConverter::Convert()
 {
   if (!this->InputFileName)
-    {
+  {
     vtkErrorMacro("Missing InputFileName.");
     return false;
-    }
+  }
 
   if (!this->OutputFileName)
-    {
+  {
     vtkErrorMacro("Missing OutputFileName.");
     return false;
-    }
+  }
 
   vtkSmartPointer<vtkXMLDataElement> dom;
   dom.TakeReference(this->ParseXML(this->InputFileName));
   if (!dom)
-    {
+  {
     return false;
-    }
+  }
 
   // Ensure this file we can convert.
   if (dom->GetName() == NULL ||
@@ -80,10 +80,10 @@ bool vtkXMLHierarchicalBoxDataFileConverter::Convert()
     strcmp(dom->GetAttribute("type"), "vtkHierarchicalBoxDataSet") != 0 ||
     dom->GetAttribute("version") == NULL ||
     strcmp(dom->GetAttribute("version"), "1.0") != 0)
-    {
+  {
     vtkErrorMacro("Cannot convert the input file: " << this->InputFileName);
     return false;
-    }
+  }
 
   dom->SetAttribute("version", "1.1");
   dom->SetAttribute("type", "vtkOverlappingAMR");
@@ -92,10 +92,10 @@ bool vtkXMLHierarchicalBoxDataFileConverter::Convert()
   vtkXMLDataElement* ePrimary =
     dom->FindNestedElementWithName("vtkHierarchicalBoxDataSet");
   if (!ePrimary)
-    {
+  {
     vtkErrorMacro("Failed to locate primary element.");
     return false;
-    }
+  }
 
   ePrimary->SetName("vtkOverlappingAMR");
 
@@ -104,13 +104,13 @@ bool vtkXMLHierarchicalBoxDataFileConverter::Convert()
   std::string filePath = this->InputFileName;
   std::string::size_type pos = filePath.find_last_of("/\\");
   if (pos != filePath.npos)
-    {
+  {
     filePath = filePath.substr(0, pos);
-    }
+  }
   else
-    {
+  {
     filePath = "";
-    }
+  }
   this->SetFilePath(filePath.c_str());
 
   // We need origin for level 0, and spacing for all levels.
@@ -120,11 +120,11 @@ bool vtkXMLHierarchicalBoxDataFileConverter::Convert()
   int gridDescription = this->GetOriginAndSpacing(
     ePrimary, origin, spacing);
   if (gridDescription < VTK_XY_PLANE || gridDescription > VTK_XYZ_GRID)
-    {
+  {
     delete [] spacing;
     vtkErrorMacro("Failed to determine origin/spacing/grid description.");
     return false;
-    }
+  }
 
 //  cout << "Origin: " << origin[0] <<", " << origin[1] << ", " << origin[2]
 //    << endl;
@@ -133,7 +133,7 @@ bool vtkXMLHierarchicalBoxDataFileConverter::Convert()
 
   const char* grid_description = "XYZ";
   switch (gridDescription)
-    {
+  {
   case VTK_XY_PLANE:
     grid_description = "XY";
     break;
@@ -143,20 +143,20 @@ bool vtkXMLHierarchicalBoxDataFileConverter::Convert()
   case VTK_YZ_PLANE:
     grid_description = "YZ";
     break;
-    }
+  }
 
   ePrimary->SetAttribute("grid_description", grid_description);
   ePrimary->SetVectorAttribute("origin", 3, origin);
 
   // Now iterate over all "<Block>" elements and update them.
   for (int cc=0; cc < ePrimary->GetNumberOfNestedElements(); cc++)
-    {
+  {
     int level = 0;
     vtkXMLDataElement* block = ePrimary->GetNestedElement(cc);
     // iterate over all <DataSet> inside the current block
     // and replace the folder for the file attribute.
     for (int i = 0; i < block->GetNumberOfNestedElements(); ++i)
-      {
+    {
       vtkXMLDataElement* dataset = block->GetNestedElement(i);
       std::string file(dataset->GetAttribute("file"));
       std::string fileNoDir (vtksys::SystemTools::GetFilenameName(file));
@@ -164,20 +164,20 @@ bool vtkXMLHierarchicalBoxDataFileConverter::Convert()
         vtksys::SystemTools::GetFilenameWithoutLastExtension(
           this->OutputFileName));
       dataset->SetAttribute("file", (dir + '/' + fileNoDir).c_str());
-      }
+    }
     if (block && block->GetName() &&
       strcmp(block->GetName(), "Block") == 0 &&
       block->GetScalarAttribute("level", level) &&
       level >= 0)
-      {
-      }
+    {
+    }
     else
-      {
+    {
       continue;
-      }
+    }
     block->SetVectorAttribute("spacing", 3, &spacing[3*level]);
     block->RemoveAttribute("refinement_ratio");
-    }
+  }
   delete [] spacing;
 
   // now save the xml out.
@@ -194,10 +194,10 @@ vtkXMLDataElement* vtkXMLHierarchicalBoxDataFileConverter::ParseXML(
   vtkNew<vtkXMLDataParser> parser;
   parser->SetFileName(fname);
   if (!parser->Parse())
-    {
+  {
     vtkErrorMacro("Failed to parse input XML: " << fname);
     return NULL;
-    }
+  }
 
   vtkXMLDataElement* element = parser->GetRootElement();
   element->Register(this);
@@ -212,7 +212,7 @@ int vtkXMLHierarchicalBoxDataFileConverter::GetOriginAndSpacing(
   std::map<int, std::set<std::string> > filenames;
 
   for (int cc=0; cc < ePrimary->GetNumberOfNestedElements(); cc++)
-    {
+  {
     int level = 0;
 
     vtkXMLDataElement* child = ePrimary->GetNestedElement(cc);
@@ -220,34 +220,34 @@ int vtkXMLHierarchicalBoxDataFileConverter::GetOriginAndSpacing(
       strcmp(child->GetName(), "Block") == 0 &&
       child->GetScalarAttribute("level", level) &&
       level >= 0)
-      {
-      }
+    {
+    }
     else
-      {
+    {
       continue;
-      }
+    }
 
     for (int kk=0; kk < child->GetNumberOfNestedElements(); kk++)
-      {
+    {
       vtkXMLDataElement* dsElement = child->GetNestedElement(cc);
       if (dsElement && dsElement->GetName() &&
         strcmp(dsElement->GetName(), "DataSet") == 0 &&
         dsElement->GetAttribute("file") != 0)
-        {
+      {
         std::string file = dsElement->GetAttribute("file");
         if (file.c_str()[0] != '/' && file.c_str()[1] != ':')
-          {
+        {
           std::string prefix = this->FilePath;
           if (prefix.length())
-            {
+          {
             prefix += "/";
-            }
-          file = prefix + file;
           }
-        filenames[level].insert(file);
+          file = prefix + file;
         }
+        filenames[level].insert(file);
       }
     }
+  }
 
   vtkBoundingBox bbox;
   int gridDescription = VTK_UNCHANGED;
@@ -257,36 +257,36 @@ int vtkXMLHierarchicalBoxDataFileConverter::GetOriginAndSpacing(
   // Now read all the datasets at level 0.
   for (std::set<std::string>::iterator iter = filenames[0].begin();
     iter != filenames[0].end(); ++iter)
-    {
+  {
     vtkNew<vtkXMLImageDataReader> imageReader;
     imageReader->SetFileName((*iter).c_str());
     imageReader->Update();
 
     vtkImageData* image = imageReader->GetOutput();
     if (image && vtkMath::AreBoundsInitialized(image->GetBounds()))
-      {
+    {
       if (!bbox.IsValid())
-        {
+      {
         gridDescription = vtkStructuredData::GetDataDescription(
           image->GetDimensions());
-        }
-      bbox.AddBounds(image->GetBounds());
       }
+      bbox.AddBounds(image->GetBounds());
     }
+  }
 
   if (bbox.IsValid())
-    {
+  {
     bbox.GetMinPoint(origin[0], origin[1], origin[2]);
-    }
+  }
 
   // Read 1 dataset from each level to get information about spacing.
   for (std::map<int, std::set<std::string> >::iterator iter =
     filenames.begin(); iter != filenames.end(); ++iter)
-    {
+  {
     if (iter->second.size() == 0)
-      {
+    {
       continue;
-      }
+    }
 
     std::string filename = (*iter->second.begin());
     vtkNew<vtkXMLImageDataReader> imageReader;
@@ -295,11 +295,11 @@ int vtkXMLHierarchicalBoxDataFileConverter::GetOriginAndSpacing(
     vtkInformation* outInfo =
       imageReader->GetExecutive()->GetOutputInformation(0);
     if (outInfo->Has(vtkDataObject::SPACING()))
-      {
+    {
       assert(outInfo->Length(vtkDataObject::SPACING()) == 3);
       outInfo->Get(vtkDataObject::SPACING(), &spacing[3*iter->first]);
-      }
     }
+  }
 
   return gridDescription;
 }

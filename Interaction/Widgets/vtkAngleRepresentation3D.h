@@ -12,19 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAngleRepresentation3D - represent the vtkAngleWidget
-// .SECTION Description
-// The vtkAngleRepresentation3D is a representation for the
-// vtkAngleWidget. This representation consists of two rays and three
-// vtkHandleRepresentations to place and manipulate the three points defining
-// the angle representation. (Note: the three points are referred to as Point1,
-// Center, and Point2, at the two end points (Point1 and Point2) and Center
-// (around which the angle is measured). This particular implementation is a
-// 3D representation, meaning that it draws in the overlay plane.
-
-// .SECTION See Also
-// vtkAngleWidget vtkHandleRepresentation
-
+/**
+ * @class   vtkAngleRepresentation3D
+ * @brief   represent the vtkAngleWidget
+ *
+ * The vtkAngleRepresentation3D is a representation for the
+ * vtkAngleWidget. This representation consists of two rays and three
+ * vtkHandleRepresentations to place and manipulate the three points defining
+ * the angle representation. (Note: the three points are referred to as Point1,
+ * Center, and Point2, at the two end points (Point1 and Point2) and Center
+ * (around which the angle is measured). This particular implementation is a
+ * 3D representation, meaning that it draws in the overlay plane.
+ *
+ * @sa
+ * vtkAngleWidget vtkHandleRepresentation
+*/
 
 #ifndef vtkAngleRepresentation3D_h
 #define vtkAngleRepresentation3D_h
@@ -45,23 +47,30 @@ class vtkTextProperty;
 class VTKINTERACTIONWIDGETS_EXPORT vtkAngleRepresentation3D : public vtkAngleRepresentation
 {
 public:
-  // Description:
-  // Instantiate class.
+  /**
+   * Instantiate class.
+   */
   static vtkAngleRepresentation3D *New();
 
-  // Description:
-  // Standard VTK methods.
+  //@{
+  /**
+   * Standard VTK methods.
+   */
   vtkTypeMacro(vtkAngleRepresentation3D,vtkAngleRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // Satisfy the superclasses API. Angle returned is in radians.
+  /**
+   * Satisfy the superclasses API. Angle returned is in radians.
+   */
   virtual double GetAngle();
 
-  // Description:
-  // Methods to Set/Get the coordinates of the two points defining
-  // this representation. Note that methods are available for both
-  // display and world coordinates.
+  //@{
+  /**
+   * Methods to Set/Get the coordinates of the two points defining
+   * this representation. Note that methods are available for both
+   * display and world coordinates.
+   */
   virtual void GetPoint1WorldPosition(double pos[3]);
   virtual void GetCenterWorldPosition(double pos[3]);
   virtual void GetPoint2WorldPosition(double pos[3]);
@@ -74,32 +83,43 @@ public:
   virtual void GetPoint1DisplayPosition(double pos[3]);
   virtual void GetCenterDisplayPosition(double pos[3]);
   virtual void GetPoint2DisplayPosition(double pos[3]);
+  //@}
 
-  // Description:
-  // Set/Get the three leaders used to create this representation.
-  // By obtaining these leaders the user can set the appropriate
-  // properties, etc.
+  //@{
+  /**
+   * Set/Get the three leaders used to create this representation.
+   * By obtaining these leaders the user can set the appropriate
+   * properties, etc.
+   */
   vtkGetObjectMacro(Ray1,vtkActor);
   vtkGetObjectMacro(Ray2,vtkActor);
   vtkGetObjectMacro(Arc,vtkActor);
   vtkGetObjectMacro(TextActor,vtkFollower);
+  //@}
 
-  // Description:
-  // Scale text.
+  //@{
+  /**
+   * Scale text.
+   */
   virtual void SetTextActorScale( double scale[3] );
   virtual double * GetTextActorScale();
+  //@}
 
-  // Description:
-  // Method defined by vtkWidgetRepresentation superclass and
-  // needed here.
+  /**
+   * Method defined by vtkWidgetRepresentation superclass and
+   * needed here.
+   */
   void BuildRepresentation();
 
-  // Description:
-  // Methods required by vtkProp superclass.
+  //@{
+  /**
+   * Methods required by vtkProp superclass.
+   */
   virtual void ReleaseGraphicsResources(vtkWindow *w);
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int HasTranslucentPolygonalGeometry();
+  //@}
 
 protected:
   vtkAngleRepresentation3D();

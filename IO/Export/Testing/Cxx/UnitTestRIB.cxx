@@ -36,19 +36,19 @@
   { \
   std::string expectedMsg(msg); \
   if (!errorObserver->GetError()) \
-    { \
+  { \
     std::cout << "Failed to catch any error. Expected the error message to contain \"" << expectedMsg << "\"" << std::endl; \
     status++; \
-    } \
+  } \
   else \
-    { \
+  { \
     std::string gotMsg(errorObserver->GetErrorMessage()); \
     if (gotMsg.find(expectedMsg) == std::string::npos) \
-      { \
+    { \
       std::cout << "Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
       status++; \
-      } \
     } \
+  } \
   } \
   errorObserver->Clear()
 
@@ -56,31 +56,31 @@
   { \
   std::string expectedMsg(msg); \
   if (!warningObserver->GetWarning()) \
-    { \
+  { \
     std::cout << "Failed to catch any warning. Expected the warning message to contain \"" << expectedMsg << "\"" << std::endl; \
     status++; \
-    } \
+  } \
   else \
-    { \
+  { \
     std::string gotMsg(warningObserver->GetWarningMessage()); \
     if (gotMsg.find(expectedMsg) == std::string::npos) \
-      { \
+    { \
       std::cout << "Warning message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
       status++; \
-      } \
     } \
+  } \
   } \
   warningObserver->Clear()
 
 #define TEST_SET_GET_VALUE( variable, command ) \
   if( variable != command )   \
-    {   \
+  {   \
     std::cout << "Error in " << #command << std::endl; \
     std::cout << "  In " __FILE__ ", line " << __LINE__ << std::endl;   \
     std::cout << "Expected |" << variable << "|" << std::endl;           \
     std::cout << "but got  |" << command << "|" << std::endl;            \
     status += 1; \
-    }
+  }
 
 static int TestRIBProperty();
 static int TestRIBLight();
@@ -94,13 +94,13 @@ int UnitTestRIB (int, char *[])
   status += TestRIBExporter();
 
   if (status != 0)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
   else
-    {
+  {
     return EXIT_SUCCESS;
-    }
+  }
 }
 
 int TestRIBProperty()
@@ -254,7 +254,7 @@ int TestRIBExporter()
   exporter->GetSize(sizeGot);
   if (sizeExpected[0] != sizeGot[0] ||
       sizeExpected[1] != sizeGot[1])
-    {
+  {
     std::cout << "Error in " << "GetSize" << std::endl;
     std::cout << "  In " __FILE__ ", line " << __LINE__ << std::endl;
     std::cout << "Expected |"
@@ -264,7 +264,7 @@ int TestRIBExporter()
               << sizeGot[0] << ", " << sizeGot[1]
               << "|" << std::endl;
     status += 1;
-    }
+  }
 
   int samplesExpected[2] = {2, 3};
   int samplesGot[2];
@@ -272,7 +272,7 @@ int TestRIBExporter()
   exporter->GetPixelSamples(samplesGot);
   if (samplesExpected[0] != samplesGot[0] ||
       samplesExpected[1] != samplesGot[1])
-    {
+  {
     std::cout << "Error in " << "GetPixelSamples" << std::endl;
     std::cout << "  In " __FILE__ ", line " << __LINE__ << std::endl;
     std::cout << "Expected |"
@@ -282,7 +282,7 @@ int TestRIBExporter()
               << samplesGot[0] << ", " << samplesGot[1]
               << "|" << std::endl;
     status += 1;
-    }
+  }
 
   std::cout << ".PASSED" << std::endl;
   }

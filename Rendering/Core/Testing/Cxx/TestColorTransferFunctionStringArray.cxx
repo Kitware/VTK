@@ -36,9 +36,9 @@ int TestColorTransferFunctionStringArray(int vtkNotUsed(argc), char* vtkNotUsed(
   sArray->SetValue(5, category1.ToString());
 
   for (int i = 0; i < sArray->GetNumberOfValues(); ++i)
-    {
+  {
     std::cout << sArray->GetValue(i) << "\n";
-    }
+  }
 
   vtkSmartPointer<vtkColorTransferFunction> tfer = vtkSmartPointer<vtkColorTransferFunction>::New();
   tfer->IndexedLookupOn();
@@ -64,14 +64,14 @@ int TestColorTransferFunctionStringArray(int vtkNotUsed(argc), char* vtkNotUsed(
     {0, 0, 0, 255}};
 
   for (int i = 0; i < sArray->GetNumberOfValues(); ++i)
-    {
+  {
     unsigned char color[4];
     colors->GetTypedTuple(i, color);
     if (expectedColors[i][0] != color[0] ||
         expectedColors[i][1] != color[1] ||
         expectedColors[i][2] != color[2] ||
         expectedColors[i][3] != color[3])
-      {
+    {
       std::cerr << "Color for string " << i << " ("
                 << static_cast<int>(color[0]) << ", "
                 << static_cast<int>(color[1]) << ", "
@@ -83,8 +83,8 @@ int TestColorTransferFunctionStringArray(int vtkNotUsed(argc), char* vtkNotUsed(
                 << static_cast<int>(expectedColors[i][2]) << ", "
                 << static_cast<int>(expectedColors[i][3]) << std::endl;
       return EXIT_FAILURE;
-      }
     }
+  }
 
   colors->Delete();
 

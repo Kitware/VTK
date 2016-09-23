@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMaskFields - Allow control of which fields get passed
-// to the output
-// .SECTION Description
-// vtkMaskFields is used to mark which fields in the input dataset
-// get copied to the output.  The output will contain only those fields
-// marked as on by the filter.
-
-// .SECTION See Also
-// vtkFieldData vtkDataSet vtkDataObjectToDataSetFilter
-// vtkDataSetAttributes vtkDataArray vtkRearrangeFields
-// vtkSplitField vtkMergeFields vtkAssignAttribute
+/**
+ * @class   vtkMaskFields
+ * @brief   Allow control of which fields get passed
+ * to the output
+ *
+ * vtkMaskFields is used to mark which fields in the input dataset
+ * get copied to the output.  The output will contain only those fields
+ * marked as on by the filter.
+ *
+ * @sa
+ * vtkFieldData vtkDataSet vtkDataObjectToDataSetFilter
+ * vtkDataSetAttributes vtkDataArray vtkRearrangeFields
+ * vtkSplitField vtkMergeFields vtkAssignAttribute
+*/
 
 #ifndef vtkMaskFields_h
 #define vtkMaskFields_h
@@ -40,57 +43,63 @@ public:
   vtkTypeMacro(vtkMaskFields,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Create a new vtkMaskFields.
+  /**
+   * Create a new vtkMaskFields.
+   */
   static vtkMaskFields *New();
 
-  // Description:
-  // Turn on/off the copying of the field or specified by name.
-  // During the copying/passing, the following rules are followed for each
-  // array:
-  // 1. If the copy flag for an array is set (on or off), it is applied
-  //    This overrides rule 2.
-  // 2. If CopyAllOn is set, copy the array.
-  //    If CopyAllOff is set, do not copy the array
-  // A field name and a location must be specified. For example:
-  // @verbatim
-  // maskFields->CopyFieldOff(vtkMaskFields::CELL_DATA, "foo");
-  // @endverbatim
-  // causes the field "foo" on the input cell data to not get copied
-  // to the output.
+  /**
+   * Turn on/off the copying of the field or specified by name.
+   * During the copying/passing, the following rules are followed for each
+   * array:
+   * 1. If the copy flag for an array is set (on or off), it is applied
+   * This overrides rule 2.
+   * 2. If CopyAllOn is set, copy the array.
+   * If CopyAllOff is set, do not copy the array
+   * A field name and a location must be specified. For example:
+   * @verbatim
+   * maskFields->CopyFieldOff(vtkMaskFields::CELL_DATA, "foo");
+   * @endverbatim
+   * causes the field "foo" on the input cell data to not get copied
+   * to the output.
+   */
   void CopyFieldOn(int fieldLocation, const char* name) { this->CopyFieldOnOff(fieldLocation, name, 1); }
   void CopyFieldOff(int fieldLocation, const char* name) { this->CopyFieldOnOff(fieldLocation, name, 0); }
 
 
-  // Description:
-  // Turn on/off the copying of the attribute or specified by vtkDataSetAttributes:AttributeTypes.
-  // During the copying/passing, the following rules are followed for each
-  // array:
-  // 1. If the copy flag for an array is set (on or off), it is applied
-  //    This overrides rule 2.
-  // 2. If CopyAllOn is set, copy the array.
-  //    If CopyAllOff is set, do not copy the array
-  // An attribute type and a location must be specified. For example:
-  // @verbatim
-  // maskFields->CopyAttributeOff(vtkMaskFields::POINT_DATA, vtkDataSetAttributes::SCALARS);
-  // @endverbatim
-  // causes the scalars on the input point data to not get copied
-  // to the output.
+  /**
+   * Turn on/off the copying of the attribute or specified by vtkDataSetAttributes:AttributeTypes.
+   * During the copying/passing, the following rules are followed for each
+   * array:
+   * 1. If the copy flag for an array is set (on or off), it is applied
+   * This overrides rule 2.
+   * 2. If CopyAllOn is set, copy the array.
+   * If CopyAllOff is set, do not copy the array
+   * An attribute type and a location must be specified. For example:
+   * @verbatim
+   * maskFields->CopyAttributeOff(vtkMaskFields::POINT_DATA, vtkDataSetAttributes::SCALARS);
+   * @endverbatim
+   * causes the scalars on the input point data to not get copied
+   * to the output.
+   */
   void CopyAttributeOn(int attributeLocation, int attributeType) { this->CopyAttributeOnOff(attributeLocation, attributeType, 1); }
   void CopyAttributeOff(int attributeLocation, int attributeType) { this->CopyAttributeOnOff(attributeLocation, attributeType, 0); }
 
-  // Description:
-  // Convenience methods which operate on all field data or
-  // attribute data.  More specific than CopyAllOn or CopyAllOff
+  /**
+   * Convenience methods which operate on all field data or
+   * attribute data.  More specific than CopyAllOn or CopyAllOff
+   */
   void CopyFieldsOff() { this->CopyFields = 0; }
   void CopyAttributesOff() { this->CopyAttributes = 0; }
 
   void CopyFieldsOn() { this->CopyFields = 1; }
   void CopyAttributesOn() { this->CopyAttributes = 1; }
 
-  // Description:
-  // Helper methods used by other language bindings. Allows the caller to
-  // specify arguments as strings instead of enums.
+  //@{
+  /**
+   * Helper methods used by other language bindings. Allows the caller to
+   * specify arguments as strings instead of enums.
+   */
   void CopyAttributeOn(const char* attributeLoc,
                        const char* attributeType);
   void CopyAttributeOff(const char* attributeLoc,
@@ -99,33 +108,36 @@ public:
                    const char* name);
   void CopyFieldOff(const char* fieldLoc,
                     const char* name);
+  //@}
 
-  // Description:
-  // Turn on copying of all data.
-  // During the copying/passing, the following rules are followed for each
-  // array:
-  // 1. If the copy flag for an array is set (on or off), it is applied
-  //    This overrides rule 2.
-  // 2. If CopyAllOn is set, copy the array.
-  //    If CopyAllOff is set, do not copy the array
+  /**
+   * Turn on copying of all data.
+   * During the copying/passing, the following rules are followed for each
+   * array:
+   * 1. If the copy flag for an array is set (on or off), it is applied
+   * This overrides rule 2.
+   * 2. If CopyAllOn is set, copy the array.
+   * If CopyAllOff is set, do not copy the array
+   */
   virtual void CopyAllOn();
 
-  // Description:
-  // Turn off copying of all data.
-  // During the copying/passing, the following rules are followed for each
-  // array:
-  // 1. If the copy flag for an array is set (on or off), it is applied
-  //    This overrides rule 2.
-  // 2. If CopyAllOn is set, copy the array.
-  //    If CopyAllOff is set, do not copy the array
+  /**
+   * Turn off copying of all data.
+   * During the copying/passing, the following rules are followed for each
+   * array:
+   * 1. If the copy flag for an array is set (on or off), it is applied
+   * This overrides rule 2.
+   * 2. If CopyAllOn is set, copy the array.
+   * If CopyAllOff is set, do not copy the array
+   */
   virtual void CopyAllOff();
 
   enum FieldLocation
-    {
+  {
       OBJECT_DATA=0,
       POINT_DATA=1,
       CELL_DATA=2
-    };
+  };
 
 protected:
   vtkMaskFields();

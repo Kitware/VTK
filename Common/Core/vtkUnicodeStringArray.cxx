@@ -85,10 +85,10 @@ void vtkUnicodeStringArray::SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray*
 {
   vtkUnicodeStringArray* const array = vtkArrayDownCast<vtkUnicodeStringArray>(source);
   if(!array)
-    {
+  {
     vtkWarningMacro("Input and output array data types do not match.");
     return;
-    }
+  }
 
   this->Internal->Storage[i] = array->Internal->Storage[j];
   this->DataChanged();
@@ -98,10 +98,10 @@ void vtkUnicodeStringArray::InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArr
 {
   vtkUnicodeStringArray* const array = vtkArrayDownCast<vtkUnicodeStringArray>(source);
   if(!array)
-    {
+  {
     vtkWarningMacro("Input and output array data types do not match.");
     return;
-    }
+  }
 
   if(static_cast<vtkIdType>(this->Internal->Storage.size()) <= i)
     this->Internal->Storage.resize(i + 1);
@@ -116,36 +116,36 @@ void vtkUnicodeStringArray::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
   vtkUnicodeStringArray* const array =
       vtkArrayDownCast<vtkUnicodeStringArray>(source);
   if(!array)
-    {
+  {
     vtkWarningMacro("Input and output array data types do not match.");
     return;
-    }
+  }
 
   vtkIdType numIds = dstIds->GetNumberOfIds();
   if (srcIds->GetNumberOfIds() != numIds)
-    {
+  {
     vtkWarningMacro("Input and output id array sizes do not match.");
     return;
-    }
+  }
 
   // Find maximum destination id and resize if needed
   vtkIdType maxDstId = 0;
   for (vtkIdType idIndex = 0; idIndex < numIds; ++idIndex)
-    {
+  {
     maxDstId = std::max(maxDstId, dstIds->GetId(idIndex));
-    }
+  }
 
   if (static_cast<vtkIdType>(this->Internal->Storage.size()) <= maxDstId)
-    {
+  {
     this->Internal->Storage.resize(maxDstId + 1);
-    }
+  }
 
   // Copy data
   for (vtkIdType idIndex = 0; idIndex < numIds; ++idIndex)
-    {
+  {
     this->Internal->Storage[dstIds->GetId(idIndex)] =
         array->Internal->Storage[srcIds->GetId(idIndex)];
-    }
+  }
 
   this->DataChanged();
 }
@@ -157,36 +157,36 @@ void vtkUnicodeStringArray::InsertTuples(vtkIdType dstStart, vtkIdType n,
 {
   vtkUnicodeStringArray* sa = vtkArrayDownCast<vtkUnicodeStringArray>(source);
   if (!sa)
-    {
+  {
     vtkWarningMacro("Input and outputs array data types do not match.");
     return ;
-    }
+  }
 
   if (this->NumberOfComponents != source->GetNumberOfComponents())
-    {
+  {
     vtkWarningMacro("Input and output component sizes do not match.");
     return;
-    }
+  }
 
   vtkIdType srcEnd = srcStart + n;
   if (srcEnd > source->GetNumberOfTuples())
-    {
+  {
     vtkWarningMacro("Source range exceeds array size (srcStart=" << srcStart
                     << ", n=" << n << ", numTuples="
                     << source->GetNumberOfTuples() << ").");
     return;
-    }
+  }
 
   for (vtkIdType i = 0; i < n; ++i)
-    {
+  {
     vtkIdType numComp = this->NumberOfComponents;
     vtkIdType srcLoc = (srcStart + i) * this->NumberOfComponents;
     vtkIdType dstLoc = (dstStart + i) * this->NumberOfComponents;
     while (numComp-- > 0)
-      {
+    {
       this->InsertValue(dstLoc++, sa->GetValue(srcLoc++));
-      }
     }
+  }
 
   this->DataChanged();
 }
@@ -195,10 +195,10 @@ vtkIdType vtkUnicodeStringArray::InsertNextTuple(vtkIdType j, vtkAbstractArray* 
 {
   vtkUnicodeStringArray* const array = vtkArrayDownCast<vtkUnicodeStringArray>(source);
   if(!array)
-    {
+  {
     vtkWarningMacro("Input and output array data types do not match.");
     return 0;
-    }
+  }
 
   this->Internal->Storage.push_back(array->Internal->Storage[j]);
   this->DataChanged();
@@ -224,10 +224,10 @@ void vtkUnicodeStringArray::DeepCopy(vtkAbstractArray* da)
 
   vtkUnicodeStringArray* const array = vtkArrayDownCast<vtkUnicodeStringArray>(da);
   if(!array)
-    {
+  {
     vtkWarningMacro("Input and output array data types do not match.");
     return;
-    }
+  }
 
   this->Internal->Storage = array->Internal->Storage;
   this->DataChanged();
@@ -237,17 +237,17 @@ void vtkUnicodeStringArray::InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
     vtkAbstractArray* source,  double* weights)
 {
   if(this->GetDataType() != source->GetDataType())
-    {
+  {
     vtkErrorMacro("Cannot CopyValue from array of type "
       << source->GetDataTypeAsString());
     return;
-    }
+  }
 
   if (ptIndices->GetNumberOfIds() == 0)
-    {
+  {
     // nothing to do.
     return;
-    }
+  }
 
   // We use nearest neighbour for interpolating strings.
   // First determine which is the nearest neighbour using the weights-
@@ -255,13 +255,13 @@ void vtkUnicodeStringArray::InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
   vtkIdType nearest = ptIndices->GetId(0);
   double max_weight = weights[0];
   for (int k=1; k < ptIndices->GetNumberOfIds(); k++)
-    {
+  {
     if (weights[k] > max_weight)
-      {
+    {
       nearest = ptIndices->GetId(k);
       max_weight = weights[k];
-      }
     }
+  }
 
   this->InsertTuple(i, nearest, source);
 }
@@ -272,21 +272,21 @@ void vtkUnicodeStringArray::InterpolateTuple(vtkIdType i,
 {
   if (source1->GetDataType() != this->GetDataType() ||
     source2->GetDataType() != this->GetDataType())
-    {
+  {
     vtkErrorMacro("All arrays to InterpolateValue() must be of same type.");
     return;
-    }
+  }
 
   if (t >= 0.5)
-    {
+  {
     // Use p2
     this->InsertTuple(i, id2, source2);
-    }
+  }
   else
-    {
+  {
     // Use p1.
     this->InsertTuple(i, id1, source1);
-    }
+  }
 }
 
 void vtkUnicodeStringArray::Squeeze()
@@ -316,10 +316,10 @@ unsigned long vtkUnicodeStringArray::GetActualMemorySize()
 {
   unsigned long count = 0;
   for(Implementation::StorageT::size_type i = 0; i != this->Internal->Storage.size(); ++i)
-    {
+  {
     count += static_cast<unsigned long>(this->Internal->Storage[i].byte_count());
     count += static_cast<unsigned long>(sizeof(vtkUnicodeString));
-    }
+  }
   return count;
 }
 
@@ -344,10 +344,10 @@ vtkIdType vtkUnicodeStringArray::LookupValue(vtkVariant value)
   const vtkUnicodeString search_value = value.ToUnicodeString();
 
   for(Implementation::StorageT::size_type i = 0; i != this->Internal->Storage.size(); ++i)
-    {
+  {
     if(this->Internal->Storage[i] == search_value)
       return i;
-    }
+  }
 
   return -1;
 }
@@ -358,10 +358,10 @@ void vtkUnicodeStringArray::LookupValue(vtkVariant value, vtkIdList* ids)
 
   ids->Reset();
   for(Implementation::StorageT::size_type i = 0; i != this->Internal->Storage.size(); ++i)
-    {
+  {
     if(this->Internal->Storage[i] == search_value)
       ids->InsertNextId(i);
-    }
+  }
 }
 
 void vtkUnicodeStringArray::SetVariantValue(vtkIdType id, vtkVariant value)

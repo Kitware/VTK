@@ -70,16 +70,16 @@ public:
   static Command* New() {  return new Command(); }
   void Execute(vtkObject *caller, unsigned long eventId,
                        void *callData) VTK_OVERRIDE
-    {
+  {
     if (this->Target)
-      {
-      this->Target->ProcessEvents(caller, eventId, callData);
-      }
-    }
-  void SetTarget(vtkDataRepresentation* t)
     {
-    this->Target = t;
+      this->Target->ProcessEvents(caller, eventId, callData);
     }
+  }
+  void SetTarget(vtkDataRepresentation* t)
+  {
+    this->Target = t;
+  }
 private:
   Command() { this->Target = 0; }
   vtkDataRepresentation* Target;
@@ -147,24 +147,24 @@ void vtkDataRepresentation::ProcessEvents(vtkObject *caller, unsigned long event
   // After the algorithm executes, if the release data flag is on,
   // clear the input shallow copy cache.
   if (caller == this && eventId == vtkCommand::EndEvent)
-    {
+  {
     // Release input data if requested.
     for (int i = 0; i < this->GetNumberOfInputPorts(); ++i)
-      {
+    {
       for (int j = 0; j < this->GetNumberOfInputConnections(i); ++j)
-        {
+      {
         vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(i, j);
         vtkDataObject* dataObject = inInfo->Get(vtkDataObject::DATA_OBJECT());
         if (dataObject && (dataObject->GetGlobalReleaseDataFlag() ||
             inInfo->Get(vtkDemandDrivenPipeline::RELEASE_DATA())))
-          {
+        {
           std::pair<int, int> p(i, j);
           this->Implementation->InputInternal.erase(p);
           this->Implementation->ConvertDomainInternal.erase(p);
-          }
         }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -172,11 +172,11 @@ vtkAlgorithmOutput* vtkDataRepresentation::GetInternalOutputPort(int port, int c
 {
   if (port >= this->GetNumberOfInputPorts() ||
     conn >= this->GetNumberOfInputConnections(port))
-    {
+  {
     vtkErrorMacro("Port " << port << ", connection "
       << conn << " is not defined on this representation.");
     return 0;
-    }
+  }
 
   // The cached shallow copy is out of date when the input data object
   // changed, or the shallow copy modified time is less than the
@@ -188,7 +188,7 @@ vtkAlgorithmOutput* vtkDataRepresentation::GetInternalOutputPort(int port, int c
       this->Implementation->InputInternal.end() ||
       this->Implementation->InputInternal[p].first != input ||
       this->Implementation->InputInternal[p].second->GetMTime() < inputDObj->GetMTime())
-    {
+  {
     this->Implementation->InputInternal[p].first = input;
     vtkDataObject* copy = inputDObj->NewInstance();
     copy->ShallowCopy(inputDObj);
@@ -197,7 +197,7 @@ vtkAlgorithmOutput* vtkDataRepresentation::GetInternalOutputPort(int port, int c
     copy->Delete();
     this->Implementation->InputInternal[p].second = tp;
     tp->Delete();
-    }
+  }
 
   return this->Implementation->InputInternal[p].second->GetOutputPort();
 }
@@ -208,20 +208,20 @@ vtkAlgorithmOutput* vtkDataRepresentation::GetInternalAnnotationOutputPort(
 {
   if (port >= this->GetNumberOfInputPorts() ||
     conn >= this->GetNumberOfInputConnections(port))
-    {
+  {
     vtkErrorMacro("Port " << port << ", connection "
       << conn << " is not defined on this representation.");
     return 0;
-    }
+  }
 
   // Create a new filter in the cache if necessary.
   std::pair<int, int> p(port, conn);
   if (this->Implementation->ConvertDomainInternal.find(p) ==
     this->Implementation->ConvertDomainInternal.end())
-    {
+  {
     this->Implementation->ConvertDomainInternal[p] =
       vtkSmartPointer<vtkConvertSelectionDomain>::New();
-    }
+  }
 
   // Set up the inputs to the cached filter.
   vtkConvertSelectionDomain* domain = this->Implementation->ConvertDomainInternal[p];
@@ -243,18 +243,18 @@ vtkAlgorithmOutput* vtkDataRepresentation::GetInternalSelectionOutputPort(
 {
   // First make sure the convert domain filter is up to date.
   if (!this->GetInternalAnnotationOutputPort(port, conn))
-    {
+  {
     return 0;
-    }
+  }
 
   // Output port 1 of the convert domain filter is the current selection
   // that was contained in the linked annotation.
   std::pair<int, int> p(port, conn);
   if (this->Implementation->ConvertDomainInternal.find(p) !=
     this->Implementation->ConvertDomainInternal.end())
-    {
+  {
     return this->Implementation->ConvertDomainInternal[p]->GetOutputPort(1);
-    }
+  }
   return NULL;
 }
 
@@ -263,17 +263,17 @@ void vtkDataRepresentation::Select(
   vtkView* view, vtkSelection* selection, bool extend)
 {
   if (this->Selectable)
-    {
+  {
     vtkSelection* converted = this->ConvertSelection(view, selection);
     if (converted)
-      {
+    {
       this->UpdateSelection(converted, extend);
       if (converted != selection)
-        {
+      {
         converted->Delete();
-        }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -287,9 +287,9 @@ vtkSelection* vtkDataRepresentation::ConvertSelection(
 void vtkDataRepresentation::UpdateSelection(vtkSelection* selection, bool extend)
 {
   if (extend)
-    {
+  {
     selection->Union(this->AnnotationLinkInternal->GetCurrentSelection());
-    }
+  }
   this->AnnotationLinkInternal->SetCurrentSelection(selection);
   this->InvokeEvent(vtkCommand::SelectionChangedEvent, reinterpret_cast<void*>(selection));
 }
@@ -301,13 +301,13 @@ void vtkDataRepresentation::Annotate(
 {
   vtkAnnotationLayers* converted = this->ConvertAnnotations(view, annotations);
   if (converted)
-    {
+  {
     this->UpdateAnnotations(converted, extend);
     if (converted != annotations)
-      {
+    {
       converted->Delete();
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -321,29 +321,29 @@ vtkAnnotationLayers* vtkDataRepresentation::ConvertAnnotations(
 void vtkDataRepresentation::UpdateAnnotations(vtkAnnotationLayers* annotations, bool extend)
 {
   if (extend)
-    {
+  {
     // Append the annotations to the existing set of annotations on the link
     vtkAnnotationLayers* currentAnnotations = this->AnnotationLinkInternal->GetAnnotationLayers();
     for(unsigned int i=0; i<annotations->GetNumberOfAnnotations(); ++i)
-      {
-      currentAnnotations->AddAnnotation(annotations->GetAnnotation(i));
-      }
-    this->InvokeEvent(vtkCommand::AnnotationChangedEvent, reinterpret_cast<void*>(currentAnnotations));
-    }
-  else
     {
+      currentAnnotations->AddAnnotation(annotations->GetAnnotation(i));
+    }
+    this->InvokeEvent(vtkCommand::AnnotationChangedEvent, reinterpret_cast<void*>(currentAnnotations));
+  }
+  else
+  {
     this->AnnotationLinkInternal->SetAnnotationLayers(annotations);
     this->InvokeEvent(vtkCommand::AnnotationChangedEvent, reinterpret_cast<void*>(annotations));
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkDataRepresentation::SetSelectionArrayName(const char* name)
 {
   if (!this->SelectionArrayNames)
-    {
+  {
     this->SelectionArrayNames = vtkStringArray::New();
-    }
+  }
   this->SelectionArrayNames->Initialize();
   this->SelectionArrayNames->InsertNextValue(name);
 }
@@ -353,9 +353,9 @@ const char* vtkDataRepresentation::GetSelectionArrayName()
 {
   if (this->SelectionArrayNames &&
       this->SelectionArrayNames->GetNumberOfTuples() > 0)
-    {
+  {
     return this->SelectionArrayNames->GetValue(0);
-    }
+  }
   return 0;
 }
 
@@ -365,14 +365,14 @@ void vtkDataRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "AnnotationLink: " << (this->AnnotationLinkInternal ? "" : "(null)") << endl;
   if (this->AnnotationLinkInternal)
-    {
+  {
     this->AnnotationLinkInternal->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   os << indent << "Selectable: " << this->Selectable << endl;
   os << indent << "SelectionType: " << this->SelectionType << endl;
   os << indent << "SelectionArrayNames: " << (this->SelectionArrayNames ? "" : "(null)") << endl;
   if (this->SelectionArrayNames)
-    {
+  {
     this->SelectionArrayNames->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
 }

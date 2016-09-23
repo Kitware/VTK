@@ -13,13 +13,16 @@
 
 =========================================================================*/
 
-// .NAME vtkCPExodusIINodalCoordinatesTemplate - Map native Exodus II coordinate
-// arrays into the vtkDataArray interface.
-//
-// .SECTION Description
-// Map native Exodus II coordinate arrays into the vtkDataArray interface. Use
-// the vtkCPExodusIIInSituReader to read an Exodus II file's data into this
-// structure.
+/**
+ * @class   vtkCPExodusIINodalCoordinatesTemplate
+ * @brief   Map native Exodus II coordinate
+ * arrays into the vtkDataArray interface.
+ *
+ *
+ * Map native Exodus II coordinate arrays into the vtkDataArray interface. Use
+ * the vtkCPExodusIIInSituReader to read an Exodus II file's data into this
+ * structure.
+*/
 
 #ifndef vtkCPExodusIINodalCoordinatesTemplate_h
 #define vtkCPExodusIINodalCoordinatesTemplate_h
@@ -42,9 +45,10 @@ public:
 
   typedef typename Superclass::ValueType ValueType;
 
-  // Description:
-  // Set the raw scalar arrays for the coordinate set. This class takes
-  // ownership of the arrays and deletes them with delete[].
+  /**
+   * Set the raw scalar arrays for the coordinate set. This class takes
+   * ownership of the arrays and deletes them with delete[].
+   */
   void SetExodusScalarArrays(Scalar *x, Scalar *y, Scalar *z,
                              vtkIdType numPoints);
 
@@ -66,9 +70,11 @@ public:
   ValueType& GetValueReference(vtkIdType idx);
   void GetTypedTuple(vtkIdType idx, Scalar *t) const;
 
-  // Description:
-  // This container is read only -- this method does nothing but print a
-  // warning.
+  //@{
+  /**
+   * This container is read only -- this method does nothing but print a
+   * warning.
+   */
   int Allocate(vtkIdType sz, vtkIdType ext);
   int Resize(vtkIdType numTuples);
   void SetNumberOfTuples(vtkIdType number);
@@ -102,6 +108,7 @@ public:
   void SetValue(vtkIdType idx, Scalar value);
   vtkIdType InsertNextValue(Scalar v);
   void InsertValue(vtkIdType idx, Scalar v);
+  //@}
 
 protected:
   vtkCPExodusIINodalCoordinatesTemplate();

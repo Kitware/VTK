@@ -26,11 +26,11 @@ int CheckIfIDExists(vtkTextProperty* property, std::set<size_t> & ids)
   size_t id;
   vtkFreeTypeTools::GetInstance()->MapTextPropertyToId(property, &id);
   if (ids.size() > 0 && ids.find(id) != ids.end())
-    {
+  {
     std::cout << "ID " << id
               << " already exists for other vtkTextProperty settings\n";
     return EXIT_FAILURE;
-    }
+  }
   ids.insert(id);
 
   return EXIT_SUCCESS;

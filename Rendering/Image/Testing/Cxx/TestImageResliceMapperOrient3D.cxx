@@ -56,7 +56,7 @@ int TestImageResliceMapperOrient3D(int argc, char* argv[])
   delete[] fname;
 
   for (int i = 0; i < 4; i++)
-    {
+  {
     vtkRenderer *renderer = vtkRenderer::New();
     vtkCamera *camera = renderer->GetActiveCamera();
     renderer->SetBackground(0.1, 0.2, 0.4);
@@ -84,15 +84,15 @@ int TestImageResliceMapperOrient3D(int argc, char* argv[])
     camera->ParallelProjectionOn();
     camera->SetParallelScale(120.0);
     if (i != 2)
-      {
+    {
       camera->SetViewUp(0.0, 0.0,-1.0);
-      }
+    }
 
     if (i == 3)
-      {
+    {
       camera->Azimuth(30);
       camera->Elevation(40);
-      }
+    }
 
     vtkImageSlice *image = vtkImageSlice::New();
     image->SetMapper(imageMapper);
@@ -103,16 +103,16 @@ int TestImageResliceMapperOrient3D(int argc, char* argv[])
     image->GetProperty()->SetColorLevel(1000);
 
     image->Delete();
-    }
+  }
 
   renWin->SetSize(400,400);
 
   renWin->Render();
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
+  {
     iren->Start();
-    }
+  }
   iren->Delete();
 
   reader->Delete();

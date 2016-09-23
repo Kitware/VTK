@@ -39,7 +39,7 @@ void vtkFXAAOptions::PrintSelf(std::ostream &os, vtkIndent indent)
 
   os << indent << "DebugOptionValue: ";
   switch (this->DebugOptionValue)
-    {
+  {
     default:
     case vtkFXAAOptions::FXAA_NO_DEBUG:
       os << "FXAA_NO_DEBUG\n";
@@ -65,7 +65,7 @@ void vtkFXAAOptions::PrintSelf(std::ostream &os, vtkIndent indent)
     case vtkFXAAOptions::FXAA_DEBUG_ONLY_EDGE_AA:
       os << "FXAA_DEBUG_ONLY_EDGE_AA\n";
       break;
-    }
+  }
 }
 
 //------------------------------------------------------------------------------

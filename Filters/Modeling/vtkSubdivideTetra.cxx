@@ -68,10 +68,10 @@ int vtkSubdivideTetra::RequestData(
 
   if (input->IsHomogeneous() == 0 ||
       input->GetCellType(0) != VTK_TETRA)
-    {
+  {
     vtkErrorMacro(<<"all cells must be tetrahedra.");
     return 1;
-    }
+  }
 
   // Copy original points and point data
   newPts = vtkPoints::New();
@@ -85,17 +85,17 @@ int vtkSubdivideTetra::RequestData(
   locator->InitPointInsertion (newPts, input->GetBounds());
 
   for (ptId=0; ptId < numPts; ptId++)
-    {
+  {
     locator->InsertNextPoint(inPts->GetPoint(ptId));
     outputPD->CopyData(pd,ptId,ptId);
-    }
+  }
 
   cell = vtkGenericCell::New();
 
   // loop over tetrahedra, generating sixteen new ones for each. This is
   // done by introducing mid-edge nodes and a single mid-tetra node.
   for(cellId=0; cellId < numCells; cellId++)
-    {
+  {
     input->GetCell(cellId, cell);
 
     // get tetra points
@@ -112,58 +112,58 @@ int vtkSubdivideTetra::RequestData(
     // compute center point
     weights[0] = weights[1] = weights[2] = weights[3] = 0.25;
     for (i=0; i<3; i++)
-      {
+    {
       x[i] = 0.25*(x0[i] + x1[i] + x2[i] + x3[i]);
-      }
+    }
     center = locator->InsertNextPoint(x);
     outputPD->InterpolatePoint(pd, center, cell->PointIds, weights);
 
     // compute edge points
     // edge 0-1
     for (i=0; i<3; i++)
-      {
+    {
       x[i] = 0.5 * (x1[i] + x0[i]);
-      }
+    }
     e01 = locator->InsertNextPoint(x);
     outputPD->InterpolateEdge(pd, e01, p0, p1, 0.5);
 
     // edge 1-2
     for (i=0; i<3; i++)
-      {
+    {
       x[i] = 0.5 * (x2[i] + x1[i]);
-      }
+    }
     e12 = locator->InsertNextPoint(x);
     outputPD->InterpolateEdge(pd, e12, p1, p2, 0.5);
 
     // edge 2-0
     for (i=0; i<3; i++)
-      {
+    {
       x[i] = 0.5 * (x2[i] + x0[i]);
-      }
+    }
     e02 = locator->InsertNextPoint(x);
     outputPD->InterpolateEdge(pd, e02, p2, p0, 0.5);
 
     // edge 0-3
     for (i=0; i<3; i++)
-      {
+    {
       x[i] = 0.5 * (x3[i] + x0[i]);
-      }
+    }
     e03 = locator->InsertNextPoint(x);
     outputPD->InterpolateEdge(pd, e03, p0, p3, 0.5);
 
     // edge 1-3
     for (i=0; i<3; i++)
-      {
+    {
       x[i] = 0.5 * (x3[i] + x1[i]);
-      }
+    }
     e13 = locator->InsertNextPoint(x);
     outputPD->InterpolateEdge(pd, e13, p1, p3, 0.5);
 
     // edge 2-3
     for (i=0; i<3; i++)
-      {
+    {
       x[i] = 0.5 * (x3[i] + x2[i]);
-      }
+    }
     e23 = locator->InsertNextPoint(x);
     outputPD->InterpolateEdge(pd, e23, p2, p3, 0.5);
 
@@ -228,7 +228,7 @@ int vtkSubdivideTetra::RequestData(
     pts[3] = e03;
     output->InsertNextCell(VTK_TETRA, 4, pts);
 
-    } //for all cells
+  } //for all cells
   cell->Delete();
 
   vtkDebugMacro(<<"Subdivided " << numCells << " cells");

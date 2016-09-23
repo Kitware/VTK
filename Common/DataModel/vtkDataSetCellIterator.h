@@ -12,8 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDataSetCellIterator - Implementation of vtkCellIterator using
-// vtkDataSet API.
+/**
+ * @class   vtkDataSetCellIterator
+ * @brief   Implementation of vtkCellIterator using
+ * vtkDataSet API.
+*/
 
 #ifndef vtkDataSetCellIterator_h
 #define vtkDataSetCellIterator_h

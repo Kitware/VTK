@@ -46,40 +46,40 @@ void vtkKMeansDistanceFunctorCalculator::operator() (
   distance = 0.0;
   vtkIdType nv = clusterCoord->GetNumberOfValues();
   if ( nv != dataCoord->GetNumberOfValues() )
-    {
+  {
     cout << "The dimensions of the cluster and data do not match." << endl;
     distance = -1;
     return;
-    }
+  }
 
   if ( ! this->DistanceExpression )
-    {
+  {
     distance = -1;
     return;
-    }
+  }
 
   this->FunctionParser->SetFunction( this->DistanceExpression );
   if ( this->TupleSize != nv )
-    { // Need to update the scalar variable names as well as values...
+  { // Need to update the scalar variable names as well as values...
     this->FunctionParser->RemoveScalarVariables();
     for ( vtkIdType i = 0; i < nv; ++ i )
-      {
+    {
       std::ostringstream xos;
       std::ostringstream yos;
       xos << "x" << i;
       yos << "y" << i;
       this->FunctionParser->SetScalarVariableValue( xos.str().c_str(), clusterCoord->GetValue( i ).ToDouble() );
       this->FunctionParser->SetScalarVariableValue( yos.str().c_str(), dataCoord->GetValue( i ).ToDouble() );
-      }
     }
+  }
   else
-    { // Use faster integer comparisons to set values...
+  { // Use faster integer comparisons to set values...
     for ( vtkIdType i = 0; i < nv; ++ i )
-      {
+    {
       this->FunctionParser->SetScalarVariableValue( 2 * i, clusterCoord->GetValue( i ).ToDouble() );
       this->FunctionParser->SetScalarVariableValue( 2 * i + 1, dataCoord->GetValue( i ).ToDouble() );
-      }
     }
+  }
   distance = this->FunctionParser->GetScalarResult();
   /*
   cout << "f([";

@@ -97,9 +97,9 @@ int TestOSPRayWindow( int argc, char *argv[] )
   renderWindow->Render();
   int retVal = vtkRegressionTestImage(renderWindow.Get());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renderWindowInteractor->Start();
-    }
+  }
 
   return !retVal;
 }

@@ -34,34 +34,34 @@ void VerifyType(const T& DefaultNull, const T& AlternateNull)
 
   // Verify that the default NULL value is iniitialized correctly ...
   if(array->GetNullValue() != DefaultNull)
-    {
+  {
     throw std::runtime_error("Incorrect default NULL value for " + std::string(array->GetClassName()));
-    }
+  }
 
   // Verify that GetValue() returns the default NULL value for NULL elements ...
   if(array->GetValue(1) != DefaultNull)
-    {
+  {
     throw std::runtime_error("Empty value did not return default NULL for " + std::string(array->GetClassName()));
-    }
+  }
 
   // Verify that we can override the default NULL value ...
   array->SetNullValue(AlternateNull);
   if(array->GetNullValue() != AlternateNull)
-    {
+  {
     throw std::runtime_error("Error overriding NULL value for " + std::string(array->GetClassName()));
-    }
+  }
 
   // Verify that GetValue() returns the alternate NULL value forr NULL elements ...
   if(array->GetValue(1) != AlternateNull)
-    {
+  {
     throw std::runtime_error("Empty value did not overridden NULL for " + std::string(array->GetClassName()));
-    }
+  }
 }
 
 int TestArrayNullValues(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     VerifyType<vtkTypeInt8>(0, 1);
     VerifyType<vtkTypeUInt8>(0, 1);
     VerifyType<vtkTypeInt16>(0, 1);
@@ -74,10 +74,10 @@ int TestArrayNullValues(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     VerifyType<vtkStdString>(vtkStdString(""), vtkStdString("foo"));
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }

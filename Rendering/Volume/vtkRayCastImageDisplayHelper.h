@@ -13,14 +13,17 @@
 
 =========================================================================*/
 
-// .NAME vtkRayCastImageDisplayHelper - helper class that draws the image to the screen
-// .SECTION Description
-// This is a helper class for drawing images created from ray casting on the screen.
-// This is the abstract device-independent superclass.
-
-// .SECTION see also
-// vtkVolumeRayCastMapper vtkUnstructuredGridVolumeRayCastMapper
-// vtkOpenGLRayCastImageDisplayHelper
+/**
+ * @class   vtkRayCastImageDisplayHelper
+ * @brief   helper class that draws the image to the screen
+ *
+ * This is a helper class for drawing images created from ray casting on the screen.
+ * This is the abstract device-independent superclass.
+ *
+ * @sa
+ * vtkVolumeRayCastMapper vtkUnstructuredGridVolumeRayCastMapper
+ * vtkOpenGLRayCastImageDisplayHelper
+*/
 
 #ifndef vtkRayCastImageDisplayHelper_h
 #define vtkRayCastImageDisplayHelper_h
@@ -65,24 +68,29 @@ public:
   vtkBooleanMacro( PreMultipliedColors, int );
 
 
-  // Description:
-  // Set / Get the pixel scale to be applied to the image before display.
-  // Can be set to scale the incoming pixel values - for example the
-  // fixed point mapper uses the unsigned short API but with 15 bit
-  // values so needs a scale of 2.0.
+  //@{
+  /**
+   * Set / Get the pixel scale to be applied to the image before display.
+   * Can be set to scale the incoming pixel values - for example the
+   * fixed point mapper uses the unsigned short API but with 15 bit
+   * values so needs a scale of 2.0.
+   */
   vtkSetMacro( PixelScale, float );
   vtkGetMacro( PixelScale, float );
+  //@}
 
-  // Description:
-  // Derived class should implemen this if needed
+  /**
+   * Derived class should implemen this if needed
+   */
   virtual void ReleaseGraphicsResources(vtkWindow *) { }
 
 protected:
   vtkRayCastImageDisplayHelper();
   ~vtkRayCastImageDisplayHelper();
 
-  // Description:
-  // Have the colors already been multiplied by alpha?
+  /**
+   * Have the colors already been multiplied by alpha?
+   */
   int PreMultipliedColors;
 
   float PixelScale;

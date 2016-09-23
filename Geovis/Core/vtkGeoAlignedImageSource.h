@@ -17,15 +17,18 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGeoAlignedImageSource - Splits hi-res image into tiles.
-//
-// .SECTION Description
-// vtkGeoAlignedImageSource uses a high resolution image to generate tiles
-// at multiple resolutions in a hierarchy. It should be used as a source in
-// vtkGeoAlignedImageRepresentation.
-
-// .SECTION See Also
-// vtkGeoAlignedImageRepresentation vtkGeoView vtkGeoView2D
+/**
+ * @class   vtkGeoAlignedImageSource
+ * @brief   Splits hi-res image into tiles.
+ *
+ *
+ * vtkGeoAlignedImageSource uses a high resolution image to generate tiles
+ * at multiple resolutions in a hierarchy. It should be used as a source in
+ * vtkGeoAlignedImageRepresentation.
+ *
+ * @sa
+ * vtkGeoAlignedImageRepresentation vtkGeoView vtkGeoView2D
+*/
 
 #ifndef vtkGeoAlignedImageSource_h
 #define vtkGeoAlignedImageSource_h
@@ -44,36 +47,50 @@ public:
   vtkTypeMacro(vtkGeoAlignedImageSource, vtkGeoSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Fetch the root image.
+  /**
+   * Fetch the root image.
+   */
   virtual bool FetchRoot(vtkGeoTreeNode* node);
 
-  // Description:
-  // Fetch a child image.
+  /**
+   * Fetch a child image.
+   */
   virtual bool FetchChild(vtkGeoTreeNode* parent, int index, vtkGeoTreeNode* child);
 
-  // Description:
-  // The high-resolution image to be used to cover the globe.
+  //@{
+  /**
+   * The high-resolution image to be used to cover the globe.
+   */
   vtkGetObjectMacro(Image, vtkImageData);
   virtual void SetImage(vtkImageData* image);
+  //@}
 
-  // Description:
-  // The range of the input hi-res image.
+  //@{
+  /**
+   * The range of the input hi-res image.
+   */
   vtkSetVector2Macro(LatitudeRange, double);
   vtkGetVector2Macro(LatitudeRange, double);
   vtkSetVector2Macro(LongitudeRange, double);
   vtkGetVector2Macro(LongitudeRange, double);
+  //@}
 
-  // Description:
-  // The overlap of adjacent tiles.
+  //@{
+  /**
+   * The overlap of adjacent tiles.
+   */
   vtkSetClampMacro(Overlap, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Overlap, double);
+  //@}
 
-  // Description:
-  // Whether to force image sizes to a power of two.
+  //@{
+  /**
+   * Whether to force image sizes to a power of two.
+   */
   vtkSetMacro(PowerOfTwoSize, bool);
   vtkGetMacro(PowerOfTwoSize, bool);
   vtkBooleanMacro(PowerOfTwoSize, bool);
+  //@}
 
 protected:
   vtkGeoAlignedImageSource();

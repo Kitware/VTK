@@ -78,13 +78,13 @@ vtkRectilinearWipeRepresentation::vtkRectilinearWipeRepresentation()
 vtkRectilinearWipeRepresentation::~vtkRectilinearWipeRepresentation()
 {
   if ( this->RectilinearWipe )
-    {
+  {
     this->RectilinearWipe->Delete();
-    }
+  }
   if ( this->ImageActor )
-    {
+  {
     this->ImageActor->Delete();
-    }
+  }
 
   this->Points->Delete();
   this->Lines->Delete();
@@ -102,7 +102,7 @@ int vtkRectilinearWipeRepresentation::ComputeInteractionState(int X, int Y, int 
   // Check if the widget is initialized, ie BuildRepresentation has been
   // invoked at least once
   if (this->ActiveParts != -1)
-    {
+  {
 
     // Start by grabbing the five points that define the horizontal and vertical
     // panes, plus the center point
@@ -128,30 +128,30 @@ int vtkRectilinearWipeRepresentation::ComputeInteractionState(int X, int Y, int 
     double tol = this->Tolerance * this->Tolerance;
     if ( (this->ActiveParts & 16) &&
          vtkMath::Distance2BetweenPoints(xyz,this->DP8) <= tol )
-      {
+    {
       this->InteractionState = vtkRectilinearWipeRepresentation::MovingCenter;
-      }
+    }
     else if ( (this->ActiveParts & 1) &&
               vtkLine::DistanceToLine(xyz,this->DP8,this->DP4,t,closest) <= tol )
-      {
+    {
       this->InteractionState = vtkRectilinearWipeRepresentation::MovingVPane;
-      }
+    }
     else if ( (this->ActiveParts & 2) &&
       vtkLine::DistanceToLine(xyz,this->DP8,this->DP5,t,closest) <= tol )
-      {
+    {
       this->InteractionState = vtkRectilinearWipeRepresentation::MovingHPane;
-      }
+    }
     else if ( (this->ActiveParts & 4) &&
               vtkLine::DistanceToLine(xyz,this->DP8,this->DP6,t,closest) <= tol )
-      {
+    {
       this->InteractionState = vtkRectilinearWipeRepresentation::MovingVPane;
-      }
+    }
     else if ( (this->ActiveParts & 8) &&
       vtkLine::DistanceToLine(xyz,this->DP8,this->DP7,t,closest) <= tol )
-      {
+    {
       this->InteractionState = vtkRectilinearWipeRepresentation::MovingHPane;
-      }
     }
+  }
 
   return this->InteractionState;
 }
@@ -164,9 +164,9 @@ void vtkRectilinearWipeRepresentation::StartWidgetInteraction(double startEventP
   this->StartEventPosition[1] = startEventPos[1];
 
   if ( ! this->RectilinearWipe )
-    {
+  {
     return;
-    }
+  }
   int pos[2];
   this->RectilinearWipe->GetPosition(pos);
   this->StartWipePosition[0] = static_cast<double>(pos[0]);
@@ -185,10 +185,10 @@ void vtkRectilinearWipeRepresentation::WidgetInteraction(double newEventPos[2])
   int i;
   double v75[3], v46[3];
   for (i=0; i<3; i++)
-    {
+  {
     v75[i] = this->DP5[i] - this->DP7[i];
     v46[i] = this->DP6[i] - this->DP4[i];
-    }
+  }
   double l75 = vtkMath::Normalize(v75);
   double l46 = vtkMath::Normalize(v46);
 
@@ -204,7 +204,7 @@ void vtkRectilinearWipeRepresentation::WidgetInteraction(double newEventPos[2])
   newPosition[1] = static_cast<int>(this->StartWipePosition[1]);
 
   switch ( this->InteractionState )
-    {
+  {
     case MovingVPane:
       newPosition[0] += static_cast<int>(xPixels + 0.5);
       break;
@@ -214,7 +214,7 @@ void vtkRectilinearWipeRepresentation::WidgetInteraction(double newEventPos[2])
     case MovingCenter:
       newPosition[0] += static_cast<int>(xPixels + 0.5);
       newPosition[1] += static_cast<int>(yPixels + 0.5);
-    }
+  }
 
   newPosition[0] = (newPosition[0] < 0 ? 0 : newPosition[0] );
   newPosition[0] = (newPosition[0] >= this->Dims[this->I] ?
@@ -235,10 +235,10 @@ void vtkRectilinearWipeRepresentation::WidgetInteraction(double newEventPos[2])
 void vtkRectilinearWipeRepresentation::BuildRepresentation()
 {
   if ( ! this->RectilinearWipe || ! this->ImageActor )
-    {
+  {
     vtkWarningMacro(<<"Must define both image rectilinear wipe and image actor");
     return;
-    }
+  }
 
   // get the necessary image information
   double bounds[6], o[3], sp[3];
@@ -259,7 +259,7 @@ void vtkRectilinearWipeRepresentation::BuildRepresentation()
   double p0[3], p1[3], p2[3], p3[3];
 
   if ( orthoAxis == 0 ) //x-axis
-    {
+  {
     this->I = 1;
     this->J = 2;
     s = static_cast<double>(pos[0]+0.5)/(this->Dims[1]-1);
@@ -270,9 +270,9 @@ void vtkRectilinearWipeRepresentation::BuildRepresentation()
     p3[0] = bounds[0]; p3[1] = bounds[2]; p3[2] = bounds[5];
     this->Points->SetPoint(8, bounds[0],
                            p0[1] + s*(p1[1]-p0[1]), p1[2] + t*(p2[2]-p1[2]));
-    }
+  }
   else if ( orthoAxis == 1 ) //y-axis
-    {
+  {
     this->I = 0;
     this->J = 2;
     s = static_cast<double>(pos[0]+0.5)/(this->Dims[0]-1);
@@ -283,9 +283,9 @@ void vtkRectilinearWipeRepresentation::BuildRepresentation()
     p3[0] = bounds[0]; p3[1] = bounds[2]; p3[2] = bounds[5];
     this->Points->SetPoint(8, p0[0] + s*(p1[0]-p0[0]), bounds[2],
                            p1[2] + t*(p2[2]-p1[2]));
-    }
+  }
   else // if( orthoAxis == 2 ) //z-axis
-    {
+  {
     this->I = 0;
     this->J = 1;
     s = static_cast<double>(pos[0]+0.5)/(this->Dims[0]-1);
@@ -296,7 +296,7 @@ void vtkRectilinearWipeRepresentation::BuildRepresentation()
     p3[0] = bounds[0]; p3[1] = bounds[3]; p3[2] = bounds[4];
     this->Points->SetPoint(8, p0[0] + s*(p1[0]-p0[0]), p1[1] + t*(p2[1]-p1[1]),
                            bounds[4]);
-    }
+  }
 
   // corners
   this->Points->SetPoint(0, p0);
@@ -328,7 +328,7 @@ void vtkRectilinearWipeRepresentation::BuildRepresentation()
   int wipe = this->RectilinearWipe->GetWipe();
   this->ActiveParts = 0;
   if ( wipe == VTK_WIPE_QUAD )
-    {
+  {
     this->ActiveParts |= 1;  //activate center to bottom edge
     this->ActiveParts |= 2;  //activate center to right edge
     this->ActiveParts |= 4;  //activate center to top edge
@@ -340,25 +340,25 @@ void vtkRectilinearWipeRepresentation::BuildRepresentation()
     this->Lines->InsertNextCell(2);
     this->Lines->InsertCellPoint(5);
     this->Lines->InsertCellPoint(7);
-    }
+  }
   else if ( wipe == VTK_WIPE_VERTICAL )
-    {
+  {
     this->ActiveParts |= 2;
     this->ActiveParts |= 8;
     this->Lines->InsertNextCell(2);
     this->Lines->InsertCellPoint(5);
     this->Lines->InsertCellPoint(7);
-    }
+  }
   else if ( wipe == VTK_WIPE_HORIZONTAL )
-    {
+  {
     this->ActiveParts |= 1;
     this->ActiveParts |= 4;
     this->Lines->InsertNextCell(2);
     this->Lines->InsertCellPoint(4);
     this->Lines->InsertCellPoint(6);
-    }
+  }
   else if ( wipe == VTK_WIPE_LOWER_LEFT )
-    {
+  {
     this->ActiveParts |= 1;
     this->ActiveParts |= 8;
     this->ActiveParts |= 16;
@@ -366,9 +366,9 @@ void vtkRectilinearWipeRepresentation::BuildRepresentation()
     this->Lines->InsertCellPoint(4);
     this->Lines->InsertCellPoint(8);
     this->Lines->InsertCellPoint(7);
-    }
+  }
   else if ( wipe == VTK_WIPE_LOWER_RIGHT )
-    {
+  {
     this->ActiveParts |= 1;
     this->ActiveParts |= 2;
     this->ActiveParts |= 16;
@@ -376,9 +376,9 @@ void vtkRectilinearWipeRepresentation::BuildRepresentation()
     this->Lines->InsertCellPoint(4);
     this->Lines->InsertCellPoint(8);
     this->Lines->InsertCellPoint(5);
-    }
+  }
   else if ( wipe == VTK_WIPE_UPPER_LEFT )
-    {
+  {
     this->ActiveParts |= 4;
     this->ActiveParts |= 8;
     this->ActiveParts |= 16;
@@ -386,9 +386,9 @@ void vtkRectilinearWipeRepresentation::BuildRepresentation()
     this->Lines->InsertCellPoint(7);
     this->Lines->InsertCellPoint(8);
     this->Lines->InsertCellPoint(6);
-    }
+  }
   else //if ( wipe == VTK_WIPE_UPPER_RIGHT )
-    {
+  {
     this->ActiveParts |= 2;
     this->ActiveParts |= 4;
     this->ActiveParts |= 16;
@@ -396,7 +396,7 @@ void vtkRectilinearWipeRepresentation::BuildRepresentation()
     this->Lines->InsertCellPoint(6);
     this->Lines->InsertCellPoint(8);
     this->Lines->InsertCellPoint(5);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -444,32 +444,32 @@ void vtkRectilinearWipeRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->ImageActor )
-    {
+  {
     os << indent << "Image Actor: " << this->ImageActor << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Image Actor: (none)\n";
-    }
+  }
 
   if ( this->RectilinearWipe )
-    {
+  {
     os << indent << "RectilinearWipe: " << this->RectilinearWipe << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Image RectilinearWipe: (none)\n";
-    }
+  }
 
   if ( this->Property )
-    {
+  {
     os << indent << "Property:\n";
     this->Property->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Property: (none)\n";
-    }
+  }
 
   os << indent << "Tolerance: " << this->Tolerance << "\n";
 }

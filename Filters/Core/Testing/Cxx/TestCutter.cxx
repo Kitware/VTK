@@ -31,14 +31,14 @@ bool TestStructured(int type)
 
   vtkSmartPointer<vtkAlgorithm>  filter;
   if(type==0)
-    {
+  {
     filter = imageSource;
-    }
+  }
   else
-    {
+  {
     filter = vtkSmartPointer<vtkImageDataToPointSet>::New();
     filter->SetInputConnection(imageSource->GetOutputPort());
-    }
+  }
 
   vtkSmartPointer<vtkCutter> cutter = vtkSmartPointer<vtkCutter>::New();
   vtkSmartPointer<vtkPlane> p3d = vtkSmartPointer<vtkPlane>::New();
@@ -52,17 +52,17 @@ bool TestStructured(int type)
   cutter->Update();
   vtkPolyData* output = vtkPolyData::SafeDownCast(cutter->GetOutputDataObject(0));
   if(output->GetNumberOfCells()!=4 || output->CheckAttributes())
-    {
+  {
     return false;
-    }
+  }
 
   cutter->SetGenerateTriangles(1);
   cutter->Update();
   output = vtkPolyData::SafeDownCast(cutter->GetOutputDataObject(0));
   if(output->GetNumberOfCells()!=7 || output->CheckAttributes())
-    {
+  {
     return false;
-    }
+  }
   return true;
 }
 
@@ -89,36 +89,36 @@ bool TestUnstructured()
   cutter->Update();
   vtkPolyData* output = vtkPolyData::SafeDownCast(cutter->GetOutputDataObject(0));
   if(output->GetNumberOfCells()!=7)
-    {
+  {
     return false;
-    }
+  }
 
   cutter->SetGenerateTriangles(1);
   cutter->Update();
   output = vtkPolyData::SafeDownCast(cutter->GetOutputDataObject(0));
   if(output->GetNumberOfCells()!=10)
-    {
+  {
     return false;
-    }
+  }
   return true;
 }
 
 int TestCutter(int, char *[])
 {
   for(int type=0; type<2; type++)
-    {
+  {
     if(!TestStructured(type))
-      {
+    {
       cerr<<"Cutting Structured failed"<<endl;
       return EXIT_FAILURE;
-      }
     }
+  }
 
   if(!TestUnstructured())
-    {
+  {
     cerr<<"Cutting Unstructured failed"<<endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

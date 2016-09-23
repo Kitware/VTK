@@ -81,7 +81,7 @@ int TestImageConnectivityFilter(int argc, char *argv[])
 
   // Generate a grid of renderers for the various tests
   for (int i = 0; i < 9; i++)
-    {
+  {
     int j = 2 - i / 3;
     int k = i % 3;
     vtkSmartPointer<vtkRenderer> renderer =
@@ -96,72 +96,72 @@ int TestImageConnectivityFilter(int argc, char *argv[])
     connectivity->SetInputConnection(reader->GetOutputPort());
 
     if (i == 0)
-      {
+    {
       connectivity->GenerateRegionExtentsOn();
       connectivity->SetScalarRange(800, 1200);
       // No seeds
       // Default extraction mode
       // Default label mode
-      }
+    }
     else if (i == 1)
-      {
+    {
       connectivity->SetScalarRange(800, 1200);
       // No seeds
       connectivity->SetExtractionModeToLargestRegion();
       // Default label mode
-      }
+    }
     else if (i == 2)
-      {
+    {
       connectivity->SetScalarRange(800, 1200);
       // No seeds
       connectivity->SetSizeRange(10, 99);
       // Default label mode
-      }
+    }
     else if (i == 3)
-      {
+    {
       connectivity->SetScalarRange(800, 1200);
       connectivity->SetSeedData(seedData);
       // Default extraction mode
       // Default label mode (use seed scalars)
-      }
+    }
     else if (i == 4)
-      {
+    {
       connectivity->SetScalarRange(800, 1200);
       connectivity->SetSeedData(seedData);
       connectivity->SetExtractionModeToAllRegions();
       connectivity->SetLabelModeToSizeRank();
-      }
+    }
     else if (i == 5)
-      {
+    {
       // Seeds with no scalars
       connectivity->SetScalarRange(800, 1200);
       seedData->GetPointData()->SetScalars(NULL);
       connectivity->SetSeedData(seedData);
-      }
+    }
     else if (i == 6)
-      {
+    {
       connectivity->SetScalarRange(1200, 4095);
-      }
+    }
     else if (i == 7)
-      {
+    {
       connectivity->SetScalarRange(0, 800);
-      }
+    }
     else if (i == 8)
-      {
+    {
       // use default scalar range
-      }
+    }
 
     if (i == 0)
-      {
+    {
       // Test OutputExtent != InputExtent
       int extent[6] = { 0, 63, 0, 63, 3, 3 };
       connectivity->UpdateExtent(extent);
-      }
+    }
     else
-      {
+    {
       // Test updating whole extent
       connectivity->Update();
-      }
+    }
 
     // Test getting info about the output regions
     vtkIdTypeArray *sizeArray = connectivity->GetExtractedRegionSizes();
@@ -172,23 +172,23 @@ int TestImageConnectivityFilter(int argc, char *argv[])
     std::cout << "\nTest Case: " << i << std::endl;
     std::cout << "number of regions: " << rn << std::endl;
     for (vtkIdType r = 0; r < rn; r++)
-      {
+    {
       std::cout << "region: " << r << ","
                 << " seed: " << idArray->GetValue(r) << ","
                 << " label: " << labelArray->GetValue(r) << ","
                 << " size: " << sizeArray->GetValue(r) << ","
                 << " extent: [";
       if (connectivity->GetGenerateRegionExtents())
-        {
+      {
          std::cout << extentArray->GetValue(6*r) << ","
                    << extentArray->GetValue(6*r+1) << ","
                    << extentArray->GetValue(6*r+2) << ","
                    << extentArray->GetValue(6*r+3) << ","
                    << extentArray->GetValue(6*r+4) << ","
                    << extentArray->GetValue(6*r+5);
-        }
-      std::cout << "]" << std::endl;
       }
+      std::cout << "]" << std::endl;
+    }
 
     vtkSmartPointer<vtkImageSliceMapper> imageMapper =
       vtkSmartPointer<vtkImageSliceMapper>::New();
@@ -211,7 +211,7 @@ int TestImageConnectivityFilter(int argc, char *argv[])
     image->GetProperty()->SetColorWindow(6);
     image->GetProperty()->SetColorLevel(3);
     renderer->AddViewProp(image);
-    }
+  }
 
   renWin->SetSize(192, 256);
 

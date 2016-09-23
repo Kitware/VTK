@@ -70,25 +70,25 @@ void vtkXMLImageDataReader::SetOutputExtent(int* extent)
 int vtkXMLImageDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 {
   if (!this->Superclass::ReadPrimaryElement(ePrimary))
-    {
+  {
     return 0;
-    }
+  }
 
   // Get the image's origin.
   if (ePrimary->GetVectorAttribute("Origin", 3, this->Origin) != 3)
-    {
+  {
     this->Origin[0] = 0;
     this->Origin[1] = 0;
     this->Origin[2] = 0;
-    }
+  }
 
   // Get the image's spacing.
   if (ePrimary->GetVectorAttribute("Spacing", 3, this->Spacing) != 3)
-    {
+  {
     this->Spacing[0] = 1;
     this->Spacing[1] = 1;
     this->Spacing[2] = 1;
-    }
+  }
 
   return 1;
 }
@@ -112,13 +112,13 @@ void vtkXMLImageDataReader::CopyOutputInformation(vtkInformation *outInfo, int p
   vtkInformation *localInfo =
     this->GetExecutive()->GetOutputInformation(port);
   if (localInfo->Has(vtkDataObject::ORIGIN()))
-    {
+  {
     outInfo->CopyEntry(localInfo, vtkDataObject::ORIGIN());
-    }
+  }
   if (localInfo->Has(vtkDataObject::SPACING()))
-    {
+  {
     outInfo->CopyEntry(localInfo, vtkDataObject::SPACING());
-    }
+  }
 }
 
 

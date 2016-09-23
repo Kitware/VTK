@@ -86,21 +86,21 @@ int vtkCutMaterial::RequestData(
 
   // Check to see if we have the required field arrays.
   if (this->MaterialArrayName == NULL || this->ArrayName == NULL)
-    {
+  {
     vtkErrorMacro("Material and Array names must be set.");
     return 0;
-    }
+  }
 
   if (input->GetCellData()->GetArray(this->MaterialArrayName) == NULL)
-    {
+  {
     vtkErrorMacro("Could not find cell array " << this->MaterialArrayName);
     return 0;
-    }
+  }
   if (input->GetCellData()->GetArray(this->ArrayName) == NULL)
-    {
+  {
     vtkErrorMacro("Could not find cell array " << this->ArrayName);
     return 0;
-    }
+  }
 
   // It would be nice to get rid of this in the future.
   thresh = vtkThreshold::New();
@@ -145,10 +145,10 @@ void vtkCutMaterial::ComputeNormal()
   double mag;
 
   if (this->UpVector[0] == 0.0 && this->UpVector[1] == 0.0 && this->UpVector[2] == 0.0)
-    {
+  {
     vtkErrorMacro("Zero magnitude UpVector.");
     this->UpVector[2] = 1.0;
-    }
+  }
 
   tmp[0] = this->MaximumPoint[0] - this->CenterPoint[0];
   tmp[1] = this->MaximumPoint[1] - this->CenterPoint[1];
@@ -157,13 +157,13 @@ void vtkCutMaterial::ComputeNormal()
   mag = vtkMath::Normalize(this->Normal);
   // Rare singularity
   while (mag == 0.0)
-    {
+  {
     tmp[0] = vtkMath::Random();
     tmp[1] = vtkMath::Random();
     tmp[2] = vtkMath::Random();
     vtkMath::Cross(tmp, this->UpVector, this->Normal);
     mag = vtkMath::Normalize(this->Normal);
-    }
+  }
 }
 
 void vtkCutMaterial::ComputeMaximumPoint(vtkDataSet *input)
@@ -177,29 +177,29 @@ void vtkCutMaterial::ComputeMaximumPoint(vtkDataSet *input)
   // Find the maximum value.
   data = input->GetCellData()->GetArray(this->ArrayName);
   if (data == NULL)
-    {
+  {
     vtkErrorMacro("What happened to the array " << this->ArrayName);
     return;
-    }
+  }
 
   num = data->GetNumberOfTuples();
   if (num <= 0)
-    {
+  {
     vtkErrorMacro("No values in array " << this->ArrayName);
     return;
-    }
+  }
 
   best = data->GetComponent(0, 0);
   bestIdx = 0;
   for (idx = 1; idx < num; ++idx)
-    {
+  {
     comp = data->GetComponent(idx, 0);
     if (comp > best)
-      {
+    {
       best = comp;
       bestIdx = idx;
-      }
     }
+  }
 
   // Get the cell with the larges value.
   cell = input->GetCell(bestIdx);
@@ -221,13 +221,13 @@ void vtkCutMaterial::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ArrayName: ";
   if ( this->ArrayName)
-    {
+  {
     os << this->ArrayName << endl;
-    }
+  }
   else
-    {
+  {
     os << "(None)" << endl;
-    }
+  }
   os << indent << "MaterialArrayName: " << this->MaterialArrayName << endl;
   os << indent << "Material: " << this->Material << endl;
 

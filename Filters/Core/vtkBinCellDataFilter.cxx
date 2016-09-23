@@ -49,16 +49,16 @@ int MostFrequentId(vtkIdType* idList, vtkIdType nIds)
 {
   IdMap idMap;
   for (vtkIdType i = 0; i < nIds; i++)
-    {
+  {
     if (idList[i] != -1)
-      {
-      idMap[idList[i]]++;
-      }
-    }
-  if (idMap.empty())
     {
-    return -1;
+      idMap[idList[i]]++;
     }
+  }
+  if (idMap.empty())
+  {
+    return -1;
+  }
   return std::max_element(idMap.begin(), idMap.end(),
                           CompareIdMapCounts)->first;
 }
@@ -124,9 +124,9 @@ void vtkBinCellDataFilter::SetSourceData(vtkDataObject *input)
 vtkDataObject *vtkBinCellDataFilter::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
-    {
+  {
     return NULL;
-    }
+  }
 
   return this->GetExecutive()->GetInputData(1, 0);
 }
@@ -151,9 +151,9 @@ int vtkBinCellDataFilter::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (!source)
-    {
+  {
     return 0;
-    }
+  }
 
   // get the bins
   int numBins = this->GetNumberOfBins();
@@ -162,24 +162,24 @@ int vtkBinCellDataFilter::RequestData(
   // is there data to process?
   vtkDataArray *sourceScalars = this->GetInputArrayToProcess(0, inputVector);
   if (!sourceScalars)
-    {
+  {
     return 1;
-    }
+  }
 
   // Initialize cell count array.
   vtkNew<vtkIdTypeArray> binnedData;
   binnedData->SetNumberOfComponents(numBins+1);
   binnedData->SetNumberOfTuples(input->GetNumberOfCells());
-    {
+  {
     std::stringstream s;
     s << "binned_" << sourceScalars->GetName();
     binnedData->SetName(s.str().c_str());
-    }
+  }
 
   for (int i = 0; i < numBins + 1; i++)
-    {
+  {
     binnedData->FillComponent(i, 0);
-    }
+  }
 
   // pass point and cell data
   output->CopyStructure(input);
@@ -193,9 +193,9 @@ int vtkBinCellDataFilter::RequestData(
   vtkIdType inputIds[VTK_CELL_SIZE];
 
   if (!this->CellLocator)
-    {
+  {
     this->CreateDefaultLocator();
-    }
+  }
   this->CellLocator->SetDataSet(input);
   this->CellLocator->BuildLocator();
 
@@ -208,9 +208,9 @@ int vtkBinCellDataFilter::RequestData(
   // iterate over each cell in the source mesh
   for (srcIt->InitTraversal(); !srcIt->IsDoneWithTraversal();
        srcIt->GoToNextCell())
-    {
+  {
     if (this->CellOverlapMethod == vtkBinCellDataFilter::CELL_CENTROID)
-      {
+    {
       // identify the centroid of the source cell
       srcIt->GetCell(sourceCell.GetPointer());
       sourceCell->GetParametricCenter(pcoords);
@@ -221,49 +221,49 @@ int vtkBinCellDataFilter::RequestData(
                                            pcoords, weights);
 
       if (this->ComputeTolerance && cellId >= 0)
-        {
+      {
         // compute a tolerance proportional to the cell length.
         double dist2;
         double closestPoint[3];
         inputCell->EvaluatePosition(coords, closestPoint, subId, pcoords, dist2,
                                     weights);
         if (dist2 > (inputCell->GetLength2() * CELL_TOLERANCE_FACTOR_SQR))
-          {
+        {
           cellId = -1;
-          }
         }
       }
+    }
     else
-      {
+    {
       vtkPoints *points = srcIt->GetPoints();
       for (vtkIdType i = 0; i < points->GetNumberOfPoints(); i++)
-        {
+      {
         points->GetPoint(i, coords);
         inputIds[i] = this->CellLocator->FindCell(coords, tol2,
                                                   inputCell.GetPointer(),
                                                   pcoords, weights);
-        }
-      cellId = MostFrequentId(inputIds, points->GetNumberOfPoints());
       }
+      cellId = MostFrequentId(inputIds, points->GetNumberOfPoints());
+    }
 
     // if the source cell centroid is within an input cell, bin the source
     // cell's value and increment the associated bin count.
     if (cellId >= 0)
-      {
+    {
       double value = sourceScalars->GetComponent(srcIt->GetCellId(),
                                                  this->ArrayComponent);
       int bin = GetBinId(value, values, numBins);
       binnedData->SetTypedComponent(
         cellId, bin, binnedData->GetTypedComponent(cellId, bin) + 1);
-      }
     }
+  }
   srcIt->Delete();
 
   // add binned data to the output mesh
   output->GetCellData()->AddArray(binnedData.GetPointer());
 
   if (this->StoreNumberOfNonzeroBins)
-    {
+  {
     // Initialize # of nonzero bins array.
     vtkNew<vtkIdTypeArray> numNonzeroBins;
     numNonzeroBins->SetNumberOfComponents(1);
@@ -273,19 +273,19 @@ int vtkBinCellDataFilter::RequestData(
                             "NumberOfNonzeroBins");
 
     for (vtkIdType i = 0; i < binnedData->GetNumberOfTuples(); i++)
-      {
+    {
         vtkIdType nBins = 0;
         for (vtkIdType j = 0; j < binnedData->GetNumberOfComponents(); j++)
-          {
+        {
           if (binnedData->GetTypedComponent(i,j) > 0)
-            {
+          {
             nBins++;
-            }
-          numNonzeroBins->SetTypedComponent(i, 0, nBins);
           }
-      }
-    output->GetCellData()->AddArray(numNonzeroBins.GetPointer());
+          numNonzeroBins->SetTypedComponent(i, 0, nBins);
+        }
     }
+    output->GetCellData()->AddArray(numNonzeroBins.GetPointer());
+  }
 
   return 1;
 }
@@ -314,16 +314,16 @@ int vtkBinCellDataFilter::RequestInformation(
   // Make sure that the scalar type and number of components
   // are propagated from the source not the input.
   if (vtkImageData::HasScalarType(sourceInfo))
-    {
+  {
     vtkImageData::SetScalarType(vtkImageData::GetScalarType(sourceInfo),
                                 outInfo);
-    }
+  }
   if (vtkImageData::HasNumberOfScalarComponents(sourceInfo))
-    {
+  {
     vtkImageData::SetNumberOfScalarComponents(
       vtkImageData::GetNumberOfScalarComponents(sourceInfo),
       outInfo);
-    }
+  }
 
   return 1;
 }
@@ -348,32 +348,32 @@ int vtkBinCellDataFilter::RequestUpdateExtent(
   if (output &&
       (!strcmp(output->GetClassName(), "vtkUnstructuredGrid") ||
        !strcmp(output->GetClassName(), "vtkPolyData")))
-    {
+  {
     usePiece = 1;
-    }
+  }
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
 
   sourceInfo->Remove(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
   if (sourceInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
-    {
+  {
     sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
       sourceInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 6);
-    }
+  }
 
   if ( ! this->SpatialMatch)
-    {
+  {
     sourceInfo->Set(
       vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
     sourceInfo->Set(
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
     sourceInfo->Set(
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
-    }
+  }
   else if (this->SpatialMatch == 1)
-    {
+  {
     if (usePiece)
-      {
+    {
       // Request an extra ghost level because the probe
       // gets external values with computation prescision problems.
       // I think the probe should be changed to have an epsilon ...
@@ -386,17 +386,17 @@ int vtkBinCellDataFilter::RequestUpdateExtent(
       sourceInfo->Set(
         vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
         outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS())+1);
-      }
+    }
     else
-      {
+    {
       sourceInfo->Set(
         vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
         outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()), 6);
-      }
     }
+  }
 
   if (usePiece)
-    {
+  {
     inInfo->Set(
       vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
@@ -406,18 +406,18 @@ int vtkBinCellDataFilter::RequestUpdateExtent(
     inInfo->Set(
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
-    }
+  }
   else
-    {
+  {
     inInfo->Set(
       vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()), 6);
-    }
+  }
 
   // Use the whole input in all processes, and use the requested update
   // extent of the output to divide up the source.
   if (this->SpatialMatch == 2)
-    {
+  {
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
@@ -430,7 +430,7 @@ int vtkBinCellDataFilter::RequestUpdateExtent(
     sourceInfo->Set(
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
-    }
+  }
   return 1;
 }
 

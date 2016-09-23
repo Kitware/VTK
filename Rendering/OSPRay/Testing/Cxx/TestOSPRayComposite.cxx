@@ -47,13 +47,13 @@ public:
   virtual void Execute();
 
   void SetArgs(int argc, char *argv[])
-    {
+  {
       this->Argc = argc;
       this->Argv = argv;
-    }
+  }
 
   void CreatePipeline(vtkRenderer *renderer)
-    {
+  {
     int num_procs = this->Controller->GetNumberOfProcesses();
     int my_id = this->Controller->GetLocalProcessId();
 
@@ -73,7 +73,7 @@ public:
     pdm->SetNumberOfPieces(num_procs);
     actor->SetMapper(pdm);
     renderer->AddActor(actor);
-    }
+  }
 
 protected:
   MyProcess() { this->Argc = 0; this->Argv = NULL; }
@@ -114,28 +114,28 @@ void MyProcess::Execute()
   prm->SetController(this->Controller);
 
   if (my_id == 0)
-    {
+  {
     prm->ResetAllCameras();
 
     this->ReturnValue =
       vtkRegressionTester::Test(this->Argc, this->Argv, renWin, 10);
     if (this->ReturnValue == vtkRegressionTester::DO_INTERACTOR)
-      {
+    {
       renWin->Render();
       prm->StartInteractor();
-      }
+    }
 
     this->Controller->TriggerBreakRMIs();
     this->Controller->Barrier();
-    }
+  }
   else
-    {
+  {
     prm->StartServices();
     this->Controller->Barrier();
 
     // No testing is done here so mark it passed
     this->ReturnValue = vtkTesting::PASSED;
-    }
+  }
 
   renderer->Delete();
   renWin->Delete();
@@ -162,11 +162,11 @@ int TestOSPRayComposite(int argc, char *argv[])
   int numProcs = contr->GetNumberOfProcesses();
 
   if (numProcs < 2 && false)
-    {
+  {
     cout << "This test requires at least 2 processes" << endl;
     contr->Delete();
     return retVal;
-    }
+  }
 
   vtkMultiProcessController::SetGlobalController(contr);
 

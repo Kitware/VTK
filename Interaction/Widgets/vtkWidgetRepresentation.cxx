@@ -56,9 +56,9 @@ vtkWidgetRepresentation::~vtkWidgetRepresentation()
 void vtkWidgetRepresentation::SetRenderer(vtkRenderer *ren)
 {
   if ( ren == this->Renderer )
-    {
+  {
     return;
-    }
+  }
 
   this->UnRegisterPickers();
   this->Renderer = ren;
@@ -82,9 +82,9 @@ void vtkWidgetRepresentation::UnRegisterPickers()
 {
   vtkPickingManager* pm = this->GetPickingManager();
   if (!pm)
-    {
+  {
     return;
-    }
+  }
 
   pm->RemoveObject(this);
 }
@@ -94,9 +94,9 @@ void vtkWidgetRepresentation::PickersModified()
 {
   vtkPickingManager* pm = this->GetPickingManager();
   if (!pm)
-    {
+  {
     return;
-    }
+  }
 
   this->UnRegisterPickers();
   this->RegisterPickers();
@@ -109,9 +109,9 @@ vtkPickingManager* vtkWidgetRepresentation::GetPickingManager()
       !this->Renderer->GetRenderWindow() ||
       !this->Renderer->GetRenderWindow()->GetInteractor() ||
       !this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager())
-    {
+  {
     return 0;
-    }
+  }
 
   return
     this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager();
@@ -123,10 +123,10 @@ GetAssemblyPath(double X, double Y, double Z, vtkAbstractPropPicker* picker)
 {
   vtkPickingManager* pm = this->GetPickingManager();
   if (!pm)
-    {
+  {
     picker->Pick(X, Y, Z, this->Renderer);
     return picker->GetPath();
-    }
+  }
 
   return pm->GetAssemblyPath(X, Y, 0., picker, this->Renderer, this);
 }
@@ -152,10 +152,10 @@ void vtkWidgetRepresentation::ShallowCopy(vtkProp *prop)
 {
   vtkWidgetRepresentation *rep = vtkWidgetRepresentation::SafeDownCast(prop);
   if ( rep )
-    {
+  {
     this->SetPlaceFactor(rep->GetPlaceFactor());
     this->SetHandleSize(rep->GetHandleSize());
-    }
+  }
   this->Superclass::ShallowCopy(prop);
 }
 
@@ -175,11 +175,11 @@ double vtkWidgetRepresentation::SizeHandlesInPixels(double factor,
 
   if ( !this->ValidPick || !(renderer=this->Renderer) ||
        !renderer->GetActiveCamera() )
-    {
+  {
     return (this->HandleSize * factor * this->InitialLength);
-    }
+  }
   else
-    {
+  {
     double radius, z;
     double lowerLeft[4], upperRight[4];
     double focalPoint[4];
@@ -198,12 +198,12 @@ double vtkWidgetRepresentation::SizeHandlesInPixels(double factor,
     vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer,x,y,z,upperRight);
 
     for (radius=0.0, i=0; i<3; i++)
-      {
+    {
       radius += (upperRight[i] - lowerLeft[i]) *
         (upperRight[i] - lowerLeft[i]);
-      }
-    return (factor * (sqrt(radius) / 2.0));
     }
+    return (factor * (sqrt(radius) / 2.0));
+  }
 }
 
 //----------------------------------------------------------------------
@@ -215,11 +215,11 @@ double vtkWidgetRepresentation::SizeHandlesRelativeToViewport(double factor,
 
   if ( !this->ValidPick || !(renderer=this->Renderer) ||
        !renderer->GetActiveCamera() )
-    {
+  {
     return (this->HandleSize * factor * this->InitialLength);
-    }
+  }
   else
-    {
+  {
     double radius, z;
     double windowLowerLeft[4], windowUpperRight[4];
     double *viewport = renderer->GetViewport();
@@ -240,13 +240,13 @@ double vtkWidgetRepresentation::SizeHandlesRelativeToViewport(double factor,
     vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer,x,y,z,windowUpperRight);
 
     for (radius=0.0, i=0; i<3; i++)
-      {
+    {
       radius += (windowUpperRight[i] - windowLowerLeft[i]) *
         (windowUpperRight[i] - windowLowerLeft[i]);
-      }
+    }
 
     return (sqrt(radius) * factor * this->HandleSize);
-    }
+  }
 }
 
 //----------------------------------------------------------------------

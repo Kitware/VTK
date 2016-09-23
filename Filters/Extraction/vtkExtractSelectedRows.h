@@ -17,14 +17,17 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkExtractSelectedRows - return selected rows of a table
-//
-// .SECTION Description
-// The first input is a vtkTable to extract rows from.
-// The second input is a vtkSelection containing the selected indices.
-// The third input is a vtkAnnotationLayers containing selected indices.
-// The field type of the input selection is ignored when converted to row
-// indices.
+/**
+ * @class   vtkExtractSelectedRows
+ * @brief   return selected rows of a table
+ *
+ *
+ * The first input is a vtkTable to extract rows from.
+ * The second input is a vtkSelection containing the selected indices.
+ * The third input is a vtkAnnotationLayers containing selected indices.
+ * The field type of the input selection is ignored when converted to row
+ * indices.
+*/
 
 #ifndef vtkExtractSelectedRows_h
 #define vtkExtractSelectedRows_h
@@ -40,24 +43,30 @@ public:
   vtkTypeMacro(vtkExtractSelectedRows,vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // A convenience method for setting the second input (i.e. the selection).
+  /**
+   * A convenience method for setting the second input (i.e. the selection).
+   */
   void SetSelectionConnection(vtkAlgorithmOutput* in);
 
-  // Description:
-  // A convenience method for setting the third input (i.e. the annotation layers).
+  /**
+   * A convenience method for setting the third input (i.e. the annotation layers).
+   */
   void SetAnnotationLayersConnection(vtkAlgorithmOutput* in);
 
-  // Description:
-  // Specify the first vtkGraph input and the second vtkSelection input.
+  /**
+   * Specify the first vtkGraph input and the second vtkSelection input.
+   */
   int FillInputPortInformation(int port, vtkInformation* info);
 
-  // Description:
-  // When set, a column named vtkOriginalRowIds will be added to the output.
-  // False by default.
+  //@{
+  /**
+   * When set, a column named vtkOriginalRowIds will be added to the output.
+   * False by default.
+   */
   vtkSetMacro(AddOriginalRowIdsArray, bool);
   vtkGetMacro(AddOriginalRowIdsArray, bool);
   vtkBooleanMacro(AddOriginalRowIdsArray, bool);
+  //@}
 
 protected:
   vtkExtractSelectedRows();

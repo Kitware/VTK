@@ -138,16 +138,16 @@ vtkResliceCursorRepresentation::~vtkResliceCursorRepresentation()
   this->SetThicknessLabelFormat(0);
   this->ImageActor->Delete();
   if (this->Reslice)
-    {
+  {
     this->Reslice->Delete();
-    }
+  }
   this->PlaneSource->Delete();
   this->ResliceAxes->Delete();
   this->NewResliceAxes->Delete();
   if ( this->LookupTable )
-    {
+  {
     this->LookupTable->UnRegister(this);
-    }
+  }
   this->ColorMap->Delete();
   this->Texture->Delete();
   this->TexturePlaneActor->Delete();
@@ -160,9 +160,9 @@ void vtkResliceCursorRepresentation::SetLookupTable(vtkScalarsToColors *l)
   vtkSetObjectBodyMacro(LookupTable, vtkScalarsToColors, l);
   this->LookupTable = l;
   if (this->ColorMap)
-    {
+  {
     this->ColorMap->SetLookupTable(this->LookupTable);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -189,10 +189,10 @@ void vtkResliceCursorRepresentation::GetWorldThicknessLabelPosition(double pos[3
   double viewportPos[3], worldPos[4];
   pos[0] = pos[1] = pos[2] = 0.0;
   if (!this->Renderer)
-    {
+  {
     vtkErrorMacro("GetWorldLabelPosition: no renderer!");
     return;
-    }
+  }
 
   this->ThicknessTextActor->GetPositionCoordinate()->GetValue(viewportPos);
   this->Renderer->ViewportToNormalizedViewport(viewportPos[0], viewportPos[1]);
@@ -202,15 +202,15 @@ void vtkResliceCursorRepresentation::GetWorldThicknessLabelPosition(double pos[3
   this->Renderer->GetWorldPoint(worldPos);
 
   if (worldPos[3] != 0.0)
-    {
+  {
     pos[0] = worldPos[0]/worldPos[3];
     pos[1] = worldPos[1]/worldPos[3];
     pos[2] = worldPos[2]/worldPos[3];
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro("GetWorldLabelPosition: world position at index 3 is 0, not dividing by 0");
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -233,9 +233,9 @@ void vtkResliceCursorRepresentation::BuildRepresentation()
 
   // Update the reslice plane if the plane is being manipulated
   if (this->GetManipulationMode() != WindowLevelling )
-    {
+  {
     this->UpdateReslicePlane();
-    }
+  }
 
   this->ImageActor->SetDisplayExtent(this->ColorMap->GetOutput()->GetExtent());
 
@@ -247,9 +247,9 @@ void vtkResliceCursorRepresentation::BuildRepresentation()
 void vtkResliceCursorRepresentation::InitializeReslicePlane()
 {
   if ( !this->GetResliceCursor()->GetImage())
-    {
+  {
     return;
-    }
+  }
 
   // this->GetResliceCursor()->GetImage()->UpdateInformation();
 
@@ -271,7 +271,7 @@ void vtkResliceCursorRepresentation::ResetCamera()
   // the cursor center is
 
   if (this->Renderer)
-    {
+  {
     double center[3], camPos[3], n[3];
     this->GetResliceCursor()->GetCenter(center);
     this->Renderer->GetActiveCamera()->SetFocalPoint(center);
@@ -284,7 +284,7 @@ void vtkResliceCursorRepresentation::ResetCamera()
     // Reset the camera in response to changes.
     this->Renderer->ResetCamera();
     this->Renderer->ResetCameraClippingRange();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -354,9 +354,9 @@ void vtkResliceCursorRepresentation::ComputeReslicePlaneOrigin()
   // if we resliced in awkward places.
 
   for (int i = 0; i < 3; i++)
-    {
+  {
     offset[i] = -fabs(center[i] - imageCenter[i]);
-    }
+  }
 
   // Now resize the plane based on these offsets.
 
@@ -367,23 +367,23 @@ void vtkResliceCursorRepresentation::ComputeReslicePlaneOrigin()
   // at least completely cover the viewed region
 
   if ( planeOrientation == 1 )
-    {
+  {
     this->PlaneSource->SetOrigin(bounds[0]+offset[0],center[1],bounds[4]+offset[2]);
     this->PlaneSource->SetPoint1(bounds[1]-offset[0],center[1],bounds[4]+offset[2]);
     this->PlaneSource->SetPoint2(bounds[0]+offset[0],center[1],bounds[5]-offset[2]);
-    }
+  }
   else if ( planeOrientation == 2 )
-    {
+  {
     this->PlaneSource->SetOrigin(bounds[0]+offset[0],bounds[2]+offset[1],center[2]);
     this->PlaneSource->SetPoint1(bounds[1]-offset[0],bounds[2]+offset[1],center[2]);
     this->PlaneSource->SetPoint2(bounds[0]+offset[0],bounds[3]-offset[1],center[2]);
-    }
+  }
   else if ( planeOrientation == 0 )
-    {
+  {
     this->PlaneSource->SetOrigin(center[0],bounds[2]+offset[1],bounds[4]+offset[2]);
     this->PlaneSource->SetPoint1(center[0],bounds[3]-offset[1],bounds[4]+offset[2]);
     this->PlaneSource->SetPoint2(center[0],bounds[2]+offset[1],bounds[5]-offset[2]);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -391,16 +391,16 @@ void vtkResliceCursorRepresentation::UpdateReslicePlane()
 {
   if ( !this->GetResliceCursor()->GetImage() ||
        !this->TexturePlaneActor->GetVisibility() )
-    {
+  {
     return;
-    }
+  }
 
   // Reinitialize the reslice plane.. We will recompute everything here.
   if (this->PlaneSource->GetPoint1()[0] == 0.5 &&
       this->PlaneSource->GetOrigin()[0] == -0.5)
-    {
+  {
     this->InitializeReslicePlane();
-    }
+  }
 
   // Calculate appropriate pixel spacing for the reslicing
   //
@@ -413,17 +413,17 @@ void vtkResliceCursorRepresentation::UpdateReslicePlane()
   this->GetResliceCursor()->GetImage()->GetExtent(extent);
 
   for (int i = 0; i < 3; i++)
-    {
+  {
     if (extent[2*i] > extent[2*i + 1])
-      {
+    {
       vtkErrorMacro("Invalid extent ["
                     << extent[0] << ", " << extent[1] << ", "
                     << extent[2] << ", " << extent[3] << ", "
                     << extent[4] << ", " << extent[5] << "]."
                     << " Perhaps the input data is empty?");
       break;
-      }
     }
+  }
 
   const int planeOrientation =
     this->GetCursorAlgorithm()->GetReslicePlaneNormal();
@@ -460,11 +460,11 @@ void vtkResliceCursorRepresentation::UpdateReslicePlane()
 
   this->NewResliceAxes->Identity();
   for ( int i = 0; i < 3; i++ )
-     {
+  {
      this->NewResliceAxes->SetElement(0,i,planeAxis1[i]);
      this->NewResliceAxes->SetElement(1,i,planeAxis2[i]);
      this->NewResliceAxes->SetElement(2,i,normal[i]);
-     }
+  }
 
   const double spacingX = fabs(planeAxis1[0]*spacing[0])+
                           fabs(planeAxis1[1]*spacing[1])+
@@ -503,57 +503,57 @@ void vtkResliceCursorRepresentation::UpdateReslicePlane()
   // * if realExtentX is too large, extentX will wrap
   // * if spacingX is 0, things will blow up.
   if (realExtentX > (VTK_INT_MAX >> 1))
-    {
+  {
     vtkErrorMacro(<<"Invalid X extent: " << realExtentX);
     extentX = 0;
-    }
+  }
   else
-    {
+  {
     extentX = 1;
     while (extentX < realExtentX)
-      {
+    {
       extentX = extentX << 1;
-      }
     }
+  }
 
   // make sure extentY doesn't wrap during padding
   double realExtentY = ( spacingY == 0 ) ? VTK_INT_MAX : planeSizeY / spacingY;
 
   if (realExtentY > (VTK_INT_MAX >> 1))
-    {
+  {
     vtkErrorMacro(<<"Invalid Y extent: " << realExtentY);
     extentY = 0;
-    }
+  }
   else
-    {
+  {
     extentY = 1;
     while (extentY < realExtentY)
-      {
+    {
       extentY = extentY << 1;
-      }
     }
+  }
 
   double outputSpacingX = (extentX == 0) ? 1.0 : planeSizeX/extentX;
   double outputSpacingY = (extentY == 0) ? 1.0 : planeSizeY/extentY;
 
   bool modify = false;
   for (int i = 0; i < 4; i++)
-    {
+  {
     for (int j = 0; j < 4; j++)
-      {
+    {
       double d = this->NewResliceAxes->GetElement(i,j);
       if (d != this->ResliceAxes->GetElement(i,j))
-        {
+      {
         this->ResliceAxes->SetElement(i,j,d);
         modify = true;
-        }
       }
     }
+  }
 
   if (modify)
-    {
+  {
     this->ResliceAxes->Modified();
-    }
+  }
 
   this->SetResliceParameters( outputSpacingX, outputSpacingY,
       extentX, extentY );
@@ -569,10 +569,10 @@ void vtkResliceCursorRepresentation::ComputeOrigin(vtkMatrix4x4 *m)
   m->MultiplyPoint(center, centerTransformed);
 
   for (int i = 0; i < 3; i++)
-    {
+  {
     m->SetElement(i, 3,
         m->GetElement(i,3) + center[i] - centerTransformed[i]);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -583,7 +583,7 @@ void vtkResliceCursorRepresentation
   vtkImageReslice *reslice = vtkImageReslice::SafeDownCast(this->Reslice);
 
   if (reslice)
-    {
+  {
     // Set the default color the minimum scalar value
     double range[2];
     vtkImageData::SafeDownCast(reslice->GetInput())->
@@ -597,7 +597,7 @@ void vtkResliceCursorRepresentation
     reslice->SetOutputSpacing(outputSpacingX, outputSpacingY, 1);
     reslice->SetOutputOrigin(0.5*outputSpacingX, 0.5*outputSpacingY, 0);
     reslice->SetOutputExtent(0, extentX-1, 0, extentY-1, 0, 0);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -605,23 +605,23 @@ void vtkResliceCursorRepresentation
 ::SetWindowLevel(double window, double level, int copy)
 {
   if ( copy )
-    {
+  {
     this->CurrentWindow = window;
     this->CurrentLevel = level;
     return;
-    }
+  }
 
   if ( this->CurrentWindow == window && this->CurrentLevel == level )
-    {
+  {
     return;
-    }
+  }
 
   // if the new window is negative and the old window was positive invert table
   if ( (( window < 0 && this->CurrentWindow > 0 ) ||
         ( window > 0 && this->CurrentWindow < 0 )) )
-    {
+  {
     this->InvertTable();
-    }
+  }
 
   this->CurrentWindow = window;
   this->CurrentLevel = level;
@@ -644,9 +644,9 @@ void vtkResliceCursorRepresentation::GetWindowLevel(double wl[2])
 void vtkResliceCursorRepresentation::WindowLevel(double X, double Y)
 {
   if ( !this->Renderer )
-    {
+  {
     return;
-    }
+  }
 
   int *size = this->Renderer->GetSize();
   double window = this->InitialWindow;
@@ -660,32 +660,32 @@ void vtkResliceCursorRepresentation::WindowLevel(double X, double Y)
   // Scale by current values
 
   if ( fabs( window ) > 0.01 )
-    {
+  {
     dx = dx * window;
-    }
+  }
   else
-    {
+  {
     dx = dx * ( window < 0 ? -0.01 : 0.01 );
-    }
+  }
   if ( fabs( level ) > 0.01 )
-    {
+  {
     dy = dy * level;
-    }
+  }
   else
-    {
+  {
     dy = dy * ( level < 0 ? -0.01 : 0.01 );
-    }
+  }
 
   // Abs so that direction does not flip
 
   if ( window < 0.0 )
-    {
+  {
     dx = -1 * dx;
-    }
+  }
   if ( level < 0.0 )
-    {
+  {
     dy = -1 * dy;
-    }
+  }
 
   // Compute new window level
 
@@ -693,19 +693,19 @@ void vtkResliceCursorRepresentation::WindowLevel(double X, double Y)
   double newLevel = level - dy;
 
   if ( fabs( newWindow ) < 0.01 )
-    {
+  {
     newWindow = 0.01 * ( newWindow < 0 ? -1 : 1 );
-    }
+  }
   if ( fabs( newLevel ) < 0.01 )
-    {
+  {
     newLevel = 0.01 * ( newLevel < 0 ? -1 : 1 );
-    }
+  }
 
   if (( newWindow < 0 && this->CurrentWindow > 0 ) ||
       ( newWindow > 0 && this->CurrentWindow < 0 ))
-    {
+  {
     this->InvertTable();
-    }
+  }
 
   double rmin = newLevel - 0.5*fabs( newWindow );
   double rmax = rmin + fabs( newWindow );
@@ -713,10 +713,10 @@ void vtkResliceCursorRepresentation::WindowLevel(double X, double Y)
 
   if (this->DisplayText && (this->CurrentWindow != newWindow ||
         this->CurrentLevel != newLevel) )
-    {
+  {
     this->CurrentWindow = newWindow;
     this->CurrentLevel = newLevel;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -725,24 +725,24 @@ void vtkResliceCursorRepresentation::InvertTable()
   vtkLookupTable *lut = vtkLookupTable::SafeDownCast(this->LookupTable);
 
   if ( lut )
-    {
+  {
     int index = lut->GetNumberOfTableValues();
     unsigned char swap[4];
     size_t num = 4*sizeof(unsigned char);
     vtkUnsignedCharArray* table = lut->GetTable();
     for ( int count = 0; count < --index; count++ )
-      {
+    {
       unsigned char *rgba1 = table->GetPointer(4*count);
       unsigned char *rgba2 = table->GetPointer(4*index);
       memcpy( swap,  rgba1, num );
       memcpy( rgba1, rgba2, num );
       memcpy( rgba2, swap,  num );
-      }
+    }
 
     // force the lookuptable to update its InsertTime to avoid
     // rebuilding the array
     lut->SetTableValue( 0, lut->GetTableValue( 0 ) );
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -751,9 +751,9 @@ void vtkResliceCursorRepresentation::CreateDefaultResliceAlgorithm()
   // Allows users to optionally use their own reslice filters or other
   // algorithms here.
   if (!this->Reslice)
-    {
+  {
     this->Reslice = vtkImageReslice::New();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -782,23 +782,23 @@ void vtkResliceCursorRepresentation::ActivateText(int i)
 void vtkResliceCursorRepresentation::ManageTextDisplay()
 {
   if ( !this->DisplayText )
-    {
+  {
     return;
-    }
+  }
 
   if ( this->ManipulationMode ==
        vtkResliceCursorRepresentation::WindowLevelling )
-    {
+  {
     sprintf(this->TextBuff,"Window, Level: ( %g, %g )",
             this->CurrentWindow, this->CurrentLevel );
-    }
+  }
   else if (this->ManipulationMode ==
       vtkResliceCursorRepresentation::ResizeThickness )
-    {
+  {
     // For now all the thickness' are the same anyway.
     sprintf(this->TextBuff,"Reslice Thickness: %g mm",
             this->GetResliceCursor()->GetThickness()[0] );
-    }
+  }
 
   this->TextActor->SetInput(this->TextBuff);
   this->TextActor->Modified();
@@ -845,13 +845,13 @@ void vtkResliceCursorRepresentation::GenerateText()
 #define vtkPrintMemberObjectMacro( obj, os, indent ) \
   os << indent << #obj << ": "; \
   if (this->obj) \
-    { \
+  { \
     os << this->obj << "\n"; \
-    } \
+  } \
   else \
-    { \
+  { \
     os << "(null)\n"; \
-    }
+  }
 
 //----------------------------------------------------------------------
 void vtkResliceCursorRepresentation::PrintSelf(ostream& os, vtkIndent indent)
@@ -863,9 +863,9 @@ void vtkResliceCursorRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Thickness Label Text: " << this->GetThicknessLabelText() << "\n";
   os << indent << "PlaneSource: " << this->PlaneSource << "\n";
   if (this->PlaneSource)
-    {
+  {
     this->PlaneSource->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   os << indent << "PlaneSource: " << this->PlaneSource << "\n";
   vtkPrintMemberObjectMacro( ThicknessLabelFormat, os, indent );
   vtkPrintMemberObjectMacro( Reslice, os, indent );

@@ -12,21 +12,24 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInteractorStyleJoystickActor - manipulate objects in the scene independently of one another
-// .SECTION Description
-// The class vtkInteractorStyleJoystickActor allows the user to interact
-// with (rotate, zoom, etc.) separate objects in the scene independent of
-// each other.  The position of the mouse relative to the center of the
-// object determines the speed of the object's motion.  The mouse's velocity
-// detemines the acceleration of the object's motion, so the object will
-// continue moving even when the mouse is not moving.
-// For a 3-button mouse, the left button is for rotation, the right button
-// for zooming, the middle button for panning, and ctrl + left button for
-// spinning.  (With fewer mouse buttons, ctrl + shift + left button is
-// for zooming, and shift + left button is for panning.)
-// .SECTION See Also
-// vtkInteractorStyleJoystickCamera vtkInteractorStyleTrackballActor
-// vtkInteractorStyleTrackballCamera
+/**
+ * @class   vtkInteractorStyleJoystickActor
+ * @brief   manipulate objects in the scene independently of one another
+ *
+ * The class vtkInteractorStyleJoystickActor allows the user to interact
+ * with (rotate, zoom, etc.) separate objects in the scene independent of
+ * each other.  The position of the mouse relative to the center of the
+ * object determines the speed of the object's motion.  The mouse's velocity
+ * detemines the acceleration of the object's motion, so the object will
+ * continue moving even when the mouse is not moving.
+ * For a 3-button mouse, the left button is for rotation, the right button
+ * for zooming, the middle button for panning, and ctrl + left button for
+ * spinning.  (With fewer mouse buttons, ctrl + shift + left button is
+ * for zooming, and shift + left button is for panning.)
+ * @sa
+ * vtkInteractorStyleJoystickCamera vtkInteractorStyleTrackballActor
+ * vtkInteractorStyleTrackballCamera
+*/
 
 #ifndef vtkInteractorStyleJoystickActor_h
 #define vtkInteractorStyleJoystickActor_h
@@ -46,9 +49,11 @@ public:
   vtkTypeMacro(vtkInteractorStyleJoystickActor,vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Event bindings controlling the effects of pressing mouse buttons
-  // or moving the mouse.
+  //@{
+  /**
+   * Event bindings controlling the effects of pressing mouse buttons
+   * or moving the mouse.
+   */
   virtual void OnMouseMove();
   virtual void OnLeftButtonDown();
   virtual void OnLeftButtonUp();
@@ -56,6 +61,7 @@ public:
   virtual void OnMiddleButtonUp();
   virtual void OnRightButtonDown();
   virtual void OnRightButtonUp();
+  //@}
 
   // These methods for the different interactions in different modes
   // are overridden in subclasses to perform the correct motion. Since

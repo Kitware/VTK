@@ -13,19 +13,22 @@
 
 =========================================================================*/
 
-// .NAME vtkOpenGL2ContextDevice2DPrivate - Private class with storage and
-// utility functions for the vtkOpenGLContextDevice2D.
-//
-// .SECTION Description
-// This class is for internal use only, it should not be included from anything
-// outside of the vtkCharts kit. It provides a shared private class that can be
-// used by vtkOpenGLContextDevice2D and derived classes.
-//
-// .Section Caveats
-// Internal use only.
-//
-// .Section See Also
-// vtkOpenGLContextDevice2D vtkOpenGL2ContextDevice2D
+/**
+ * @class   vtkOpenGL2ContextDevice2DPrivate
+ * @brief   Private class with storage and
+ * utility functions for the vtkOpenGLContextDevice2D.
+ *
+ *
+ * This class is for internal use only, it should not be included from anything
+ * outside of the vtkCharts kit. It provides a shared private class that can be
+ * used by vtkOpenGLContextDevice2D and derived classes.
+ *
+ * @warning
+ * Internal use only.
+ *
+ * @sa
+ * vtkOpenGLContextDevice2D vtkOpenGL2ContextDevice2D
+*/
 
 #ifndef vtkOpenGLContextDevice2DPrivate_h
 #define vtkOpenGLContextDevice2DPrivate_h
@@ -61,8 +64,10 @@ public:
     int TextHeight;
   };
 
-  // Description:
-  // CacheElement associates a unique key to some cache.
+  //@{
+  /**
+   * CacheElement associates a unique key to some cache.
+   */
   struct CacheElement: public std::pair<Key, CacheData>
   {
     // Default constructor
@@ -85,63 +90,77 @@ public:
       return this->first == other.first;
     }
   };
+  //@}
 
-  // Description:
-  // Construct a texture image cache with a maximum number of texture of 50.
+  /**
+   * Construct a texture image cache with a maximum number of texture of 50.
+   */
   vtkTextureImageCache()
   {
     this->MaxSize = 50;
   }
 
-  // Description:
-  // Search the cache list to see if a given key already exists. Returns true
-  // if the key is found, false otherwise.
+  /**
+   * Search the cache list to see if a given key already exists. Returns true
+   * if the key is found, false otherwise.
+   */
   bool IsKeyInCache(const Key& key)const
   {
     return std::find(this->Cache.begin(), this->Cache.end(), key) != this->Cache.end();
   }
 
-  // Description:
-  // Return the cache associated to a key. If the key doesn't exist yet in the
-  // cache list, create a new cache.
-  // The returned cache is moved at the beginning of the cache list for faster
-  // search next time. The most use cache is faster to be searched.
+  /**
+   * Return the cache associated to a key. If the key doesn't exist yet in the
+   * cache list, create a new cache.
+   * The returned cache is moved at the beginning of the cache list for faster
+   * search next time. The most use cache is faster to be searched.
+   */
   CacheData& GetCacheData(const Key& key);
 
-  // Description:
-  // Release all the OpenGL Pixel Buffer Object(PBO) associated with the
-  // textures of the cache list.
+  //@{
+  /**
+   * Release all the OpenGL Pixel Buffer Object(PBO) associated with the
+   * textures of the cache list.
+   */
   void ReleaseGraphicsResources(vtkWindow* window)
   {
     typename std::list<CacheElement >::iterator it;
     for (it = this->Cache.begin(); it != this->Cache.end(); ++it)
-      {
+    {
       it->second.Texture->ReleaseGraphicsResources(window);
-      }
+    }
   }
+  //@}
 
 protected:
-  // Description:
-  // Add a new cache entry into the cache list. Enforce the MaxSize size of the
-  // list by removing the least used cache if needed.
+  //@{
+  /**
+   * Add a new cache entry into the cache list. Enforce the MaxSize size of the
+   * list by removing the least used cache if needed.
+   */
   CacheData& AddCacheData(const Key& key, const CacheData& cacheData)
   {
     assert(!this->IsKeyInCache(key));
     if (this->Cache.size() >= this->MaxSize)
-      {
+    {
       this->Cache.pop_back();
-      }
+    }
     this->Cache.push_front(CacheElement(key, cacheData));
     return this->Cache.begin()->second;
   }
+  //@}
 
-  // Description:
-  // List of a pair of key and cache data.
+  /**
+   * List of a pair of key and cache data.
+   */
   std::list<CacheElement > Cache;
-  // Description:
-  // Maximum size the cache list can be.
+  //@{
+  /**
+   * Maximum size the cache list can be.
+   */
   size_t MaxSize;
 };
+  //@}
 
 template<class Key>
 typename vtkTextureImageCache<Key>::CacheData& vtkTextureImageCache<Key>
@@ -150,9 +169,9 @@ typename vtkTextureImageCache<Key>::CacheData& vtkTextureImageCache<Key>
   typename std::list<CacheElement>::iterator it =
     std::find(this->Cache.begin(), this->Cache.end(), CacheElement(key));
   if (it != this->Cache.end())
-    {
+  {
     return it->second;
-    }
+  }
   CacheData cacheData;
   cacheData.ImageData = vtkSmartPointer<vtkImageData>::New();
   cacheData.Texture = vtkSmartPointer<vtkTexture>::New();
@@ -168,8 +187,10 @@ typename vtkTextureImageCache<Key>::CacheData& vtkTextureImageCache<Key>
 template <class StringType>
 struct TextPropertyKey
 {
-  // Description:
-  // Transform a text property into an unsigned long
+  //@{
+  /**
+   * Transform a text property into an unsigned long
+   */
   static unsigned int GetIdFromTextProperty(vtkTextProperty* textProperty)
   {
     size_t id;
@@ -177,9 +198,12 @@ struct TextPropertyKey
     // Truncation on 64-bit machines! The id is a pointer.
     return static_cast<unsigned int>(id);
   }
+  //@}
 
-  // Description:
-  // Creates a TextPropertyKey.
+  //@{
+  /**
+   * Creates a TextPropertyKey.
+   */
   TextPropertyKey(vtkTextProperty* textProperty, const StringType& text,
                   int dpi)
   {
@@ -194,10 +218,12 @@ struct TextPropertyKey
     this->Text = text;
     this->DPI = dpi;
   }
+  //@}
 
-  // Description:
-  // Compares two TextPropertyKeys with each other. Returns true if they are
-  // identical: same text and text property
+  /**
+   * Compares two TextPropertyKeys with each other. Returns true if they are
+   * identical: same text and text property
+   */
   bool operator==(const TextPropertyKey& other)const
   {
     return this->TextPropertyId == other.TextPropertyId &&
@@ -250,15 +276,15 @@ public:
   ~Private()
   {
     if (this->Texture)
-      {
+    {
       this->Texture->Delete();
       this->Texture = NULL;
-      }
+    }
     if (this->SpriteTexture)
-      {
+    {
       this->SpriteTexture->Delete();
       this->SpriteTexture = NULL;
-      }
+    }
   }
 
   void SaveGLState(bool colorBuffer = false)
@@ -267,13 +293,13 @@ public:
     this->SavedDepthTest = glIsEnabled(GL_DEPTH_TEST);
 
     if (colorBuffer)
-      {
+    {
       this->SavedAlphaTest = glIsEnabled(GL_ALPHA_TEST);
       this->SavedStencilTest = glIsEnabled(GL_STENCIL_TEST);
       this->SavedBlend = glIsEnabled(GL_BLEND);
       glGetFloatv(GL_COLOR_CLEAR_VALUE, this->SavedClearColor);
       glGetIntegerv(GL_DRAW_BUFFER, &this->SavedDrawBuffer);
-      }
+    }
   }
 
   void RestoreGLState(bool colorBuffer = false)
@@ -282,42 +308,42 @@ public:
     this->SetGLCapability(GL_DEPTH_TEST, this->SavedDepthTest);
 
     if (colorBuffer)
-      {
+    {
       this->SetGLCapability(GL_ALPHA_TEST, this->SavedAlphaTest);
       this->SetGLCapability(GL_STENCIL_TEST, this->SavedStencilTest);
       this->SetGLCapability(GL_BLEND, this->SavedBlend);
 
       if(this->SavedDrawBuffer != GL_BACK_LEFT)
-        {
+      {
         glDrawBuffer(this->SavedDrawBuffer);
-        }
+      }
 
       int i = 0;
       bool colorDiffer = false;
       while(!colorDiffer && i < 4)
-        {
+      {
         colorDiffer=this->SavedClearColor[i++] != 0.0;
-        }
+      }
       if(colorDiffer)
-        {
+      {
         glClearColor(this->SavedClearColor[0],
                      this->SavedClearColor[1],
                      this->SavedClearColor[2],
                      this->SavedClearColor[3]);
-        }
       }
+    }
   }
 
   void SetGLCapability(GLenum capability, GLboolean state)
   {
     if (state)
-      {
+    {
       glEnable(capability);
-      }
+    }
     else
-      {
+    {
       glDisable(capability);
-      }
+    }
   }
 
   float* TexCoords(float* f, int n)
@@ -327,71 +353,71 @@ public:
     float maxX = f[0]; float maxY = f[1];
     float* fptr = f;
     for(int i = 0; i < n; ++i)
-      {
+    {
       minX = fptr[0] < minX ? fptr[0] : minX;
       maxX = fptr[0] > maxX ? fptr[0] : maxX;
       minY = fptr[1] < minY ? fptr[1] : minY;
       maxY = fptr[1] > maxY ? fptr[1] : maxY;
       fptr+=2;
-      }
+    }
     fptr = f;
     if (this->TextureProperties & vtkContextDevice2D::Repeat)
-      {
+    {
       double* textureBounds = this->Texture->GetInput()->GetBounds();
       float rangeX = (textureBounds[1] - textureBounds[0]) ?
         textureBounds[1] - textureBounds[0] : 1.;
       float rangeY = (textureBounds[3] - textureBounds[2]) ?
         textureBounds[3] - textureBounds[2] : 1.;
       for (int i = 0; i < n; ++i)
-        {
+      {
         texCoord[i*2] = (fptr[0]-minX) / rangeX;
         texCoord[i*2+1] = (fptr[1]-minY) / rangeY;
         fptr+=2;
-        }
       }
+    }
     else // this->TextureProperties & vtkContextDevice2D::Stretch
-      {
+    {
       float rangeX = (maxX - minX)? maxX - minX : 1.f;
       float rangeY = (maxY - minY)? maxY - minY : 1.f;
       for (int i = 0; i < n; ++i)
-        {
+      {
         texCoord[i*2] = (fptr[0]-minX)/rangeX;
         texCoord[i*2+1] = (fptr[1]-minY)/rangeY;
         fptr+=2;
-        }
       }
+    }
     return texCoord;
   }
 
   vtkVector2i FindPowerOfTwo(const vtkVector2i& size)
-    {
+  {
     vtkVector2i pow2(1, 1);
     for (int i = 0; i < 2; ++i)
-      {
+    {
       while (pow2[i] < size[i])
-        {
+      {
         pow2[i] *= 2;
-        }
       }
-    return pow2;
     }
+    return pow2;
+  }
 
   GLuint TextureFromImage(vtkImageData *image, vtkVector2f& texCoords)
-    {
+  {
     if (image->GetScalarType() != VTK_UNSIGNED_CHAR)
-      {
+    {
       cout << "Error = not an unsigned char..." << endl;
       return 0;
-      }
+    }
     int bytesPerPixel = image->GetNumberOfScalarComponents();
     int size[3];
     image->GetDimensions(size);
     vtkVector2i newImg = this->FindPowerOfTwo(vtkVector2i(size[0], size[1]));
 
     for (int i = 0; i < 2; ++i)
-      {
+    {
       texCoords[i] = size[i] / float(newImg[i]);
-      }
+    }
 
     unsigned char *dataPtr =
         new unsigned char[newImg[0] * newImg[1] * bytesPerPixel];
@@ -399,24 +425,24 @@ public:
         static_cast<unsigned char*>(image->GetScalarPointer());
 
     for (int i = 0; i < newImg[0]; ++i)
-      {
+    {
       for (int j = 0; j < newImg[1]; ++j)
-        {
+      {
         for (int k = 0; k < bytesPerPixel; ++k)
-          {
+        {
           if (i < size[0] && j < size[1])
-            {
+          {
             dataPtr[i * bytesPerPixel + j * newImg[0] * bytesPerPixel + k] =
                 origPtr[i * bytesPerPixel + j * size[0] * bytesPerPixel + k];
-            }
+          }
           else
-            {
+          {
             dataPtr[i * bytesPerPixel + j * newImg[0] * bytesPerPixel + k] =
                 k == 3 ? 0 : 255;
-            }
           }
         }
       }
+    }
 
     GLuint tmpIndex(0);
     GLint glFormat = bytesPerPixel == 3 ? GL_RGB : GL_RGBA;
@@ -446,15 +472,15 @@ public:
     glEnable(GL_TEXTURE_2D);
     delete [] dataPtr;
     return tmpIndex;
-    }
+  }
 
   GLuint TextureFromImage(vtkImageData *image)
   {
     if (image->GetScalarType() != VTK_UNSIGNED_CHAR)
-      {
+    {
       cout << "Error = not an unsigned char..." << endl;
       return 0;
-      }
+    }
     int bytesPerPixel = image->GetNumberOfScalarComponents();
     int size[3];
     image->GetDimensions(size);
@@ -511,12 +537,15 @@ public:
   bool GLSL;
   bool PowerOfTwoTextures;
 
-  // Description:
-  // Cache for text images. Generating texture for strings is expensive,
-  // we cache the textures here for a faster reuse.
+  //@{
+  /**
+   * Cache for text images. Generating texture for strings is expensive,
+   * we cache the textures here for a faster reuse.
+   */
   mutable vtkTextureImageCache<UTF16TextPropertyKey> TextTextureCache;
   mutable vtkTextureImageCache<UTF8TextPropertyKey> MathTextTextureCache;
 };
+  //@}
 
 #endif // VTKOPENGLCONTEXTDEVICE2DPRIVATE_H
 // VTK-HeaderTest-Exclude: vtkOpenGLContextDevice2DPrivate.h

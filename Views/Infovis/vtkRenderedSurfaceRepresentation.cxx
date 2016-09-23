@@ -108,10 +108,10 @@ bool vtkRenderedSurfaceRepresentation::AddToView(vtkView* view)
 {
   vtkRenderView* rv = vtkRenderView::SafeDownCast(view);
   if (!rv)
-    {
+  {
     vtkErrorMacro("Can only add to a subclass of vtkRenderView.");
     return false;
-    }
+  }
   rv->GetRenderer()->AddActor(this->Actor);
   return true;
 }
@@ -121,9 +121,9 @@ bool vtkRenderedSurfaceRepresentation::RemoveFromView(vtkView* view)
 {
   vtkRenderView* rv = vtkRenderView::SafeDownCast(view);
   if (!rv)
-    {
+  {
     return false;
-    }
+  }
   rv->GetRenderer()->RemoveActor(this->Actor);
   return true;
 }
@@ -138,26 +138,26 @@ vtkSelection* vtkRenderedSurfaceRepresentation::ConvertSelection(
 
   // Extract the selection for the right prop
   if (selection->GetNumberOfNodes() > 1)
-    {
+  {
     for (unsigned int i = 0; i < selection->GetNumberOfNodes(); i++)
-      {
+    {
       vtkSelectionNode* node = selection->GetNode(i);
       vtkProp* prop = vtkProp::SafeDownCast(
         node->GetProperties()->Get(vtkSelectionNode::PROP()));
       if (prop == this->Actor)
-        {
+      {
         vtkSmartPointer<vtkSelectionNode> nodeCopy =
           vtkSmartPointer<vtkSelectionNode>::New();
         nodeCopy->ShallowCopy(node);
         nodeCopy->GetProperties()->Remove(vtkSelectionNode::PROP());
         propSelection->AddNode(nodeCopy);
-        }
       }
     }
+  }
   else
-    {
+  {
     propSelection->ShallowCopy(selection);
-    }
+  }
 
   // Start with an empty selection
   vtkSelection* converted = vtkSelection::New();
@@ -170,17 +170,17 @@ vtkSelection* vtkRenderedSurfaceRepresentation::ConvertSelection(
   converted->AddNode(node);
   // Convert to the correct type of selection
   if (this->GetInput())
-    {
+  {
     vtkDataObject* obj = this->GetInput();
     if (obj)
-      {
+    {
       vtkSelection* index = vtkConvertSelection::ToSelectionType(
         propSelection, obj, this->SelectionType,
         this->SelectionArrayNames);
       converted->ShallowCopy(index);
       index->Delete();
-      }
     }
+  }
 
   return converted;
 }

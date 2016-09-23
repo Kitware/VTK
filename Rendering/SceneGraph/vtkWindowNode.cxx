@@ -53,31 +53,31 @@ void vtkWindowNode::PrintSelf(ostream& os, vtkIndent indent)
 void vtkWindowNode::Build(bool prepass)
 {
   if (prepass)
-    {
+  {
     vtkRenderWindow *mine = vtkRenderWindow::SafeDownCast
       (this->GetRenderable());
     if (!mine)
-      {
+    {
       return;
-      }
+    }
 
     this->PrepareNodes();
     this->AddMissingNodes(mine->GetRenderers());
     this->RemoveUnusedNodes();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkWindowNode::Synchronize(bool prepass)
 {
   if (prepass)
-    {
+  {
     vtkRenderWindow *mine = vtkRenderWindow::SafeDownCast
       (this->GetRenderable());
     if (!mine)
-      {
+    {
       return;
-      }
+    }
     /*
       GetAAFrames()   vtkRenderWindow virtual
       GetActualSize() vtkWindow
@@ -109,5 +109,5 @@ void vtkWindowNode::Synchronize(bool prepass)
       GetTileViewport()       vtkWindow       virtual
       GetUseConstantFDOffsets()       vtkRenderWindow virtual
     */
-    }
+  }
 }

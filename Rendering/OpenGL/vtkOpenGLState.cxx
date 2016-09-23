@@ -90,99 +90,99 @@ void vtkOpenGLState::Update()
 
   if (this->TCPU != 0 &&
      this->TCPU->size() != static_cast<size_t>(this->MaxTextureCoords))
-    {
+  {
     delete this->TCPU;
     this->TIU = 0;
-    }
+  }
   if (this->TCPU == 0)
-    {
+  {
     this->TCPU = new std::vector<vtkOpenGLTextureCoordinateProcessingUnit>(
       static_cast<size_t>(this->MaxTextureCoords));
-    }
+  }
 
   unsigned int i = 0;
   while (i<static_cast<size_t>(this->MaxTextureCoords))
-    {
+  {
     vtkgl::ActiveTexture(vtkgl::TEXTURE0+i);
     glGetFloatv(GL_TEXTURE_MATRIX,
                 (*this->TCPU)[i].CurrentMatrix);
     glGetIntegerv(GL_TEXTURE_STACK_DEPTH,
                   &(*this->TCPU)[i].MatrixStackDepth);
     ++i;
-    }
+  }
 
   if (this->TIU!=0 && this->TIU->size()!=static_cast<size_t>(
        this->MaxCombinedTextureImageUnits))
-    {
+  {
     delete this->TIU;
     this->TIU = 0;
-    }
+  }
   if (this->TIU == 0)
-    {
+  {
     this->TIU = new std::vector<vtkOpenGLTextureImageUnit>(
       static_cast<size_t>(this->MaxCombinedTextureImageUnits));
-    }
+  }
 
   i = 0;
   while (i<static_cast<size_t>(this->MaxCombinedTextureImageUnits))
-    {
+  {
     vtkgl::ActiveTexture(vtkgl::TEXTURE0+i);
     glGetIntegerv(GL_TEXTURE_BINDING_1D, &(*this->TIU)[i].TextureBinding1D);
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &(*this->TIU)[i].TextureBinding2D);
     glGetIntegerv(vtkgl::TEXTURE_BINDING_3D, &(*this->TIU)[i].TextureBinding3D);
     glGetIntegerv(vtkgl::TEXTURE_BINDING_CUBE_MAP, &(*this->TIU)[i].TextureBindingCubeMap);
     ++i;
-    }
+  }
 
   glGetIntegerv(GL_MAX_CLIP_PLANES, &this->MaxClipPlanes);
   if (this->ClipPlanes!=0 &&
      this->ClipPlanes->size()!=static_cast<size_t>(this->MaxClipPlanes))
-    {
+  {
     delete this->ClipPlanes;
     this->ClipPlanes = 0;
-    }
+  }
   if (this->ClipPlanes == 0)
-    {
+  {
     this->ClipPlanes = new std::vector<vtkOpenGLClipPlaneState>(
       static_cast<size_t>(this->MaxClipPlanes));
-    }
+  }
 
   glGetIntegerv(GL_MAX_LIGHTS, &this->MaxLights);
   if (this->FixedPipeline.LightEnabled !=0 &&
     this->FixedPipeline.LightEnabled->size() != static_cast<size_t>(this->MaxLights))
-    {
+  {
     delete this->FixedPipeline.LightEnabled;
     this->FixedPipeline.LightEnabled = 0;
 
     delete Lights;
     this->Lights = 0;
-    }
+  }
   if (this->FixedPipeline.LightEnabled == 0)
-    {
+  {
     this->FixedPipeline.LightEnabled =
       new std::vector<GLboolean>(static_cast<size_t>(this->MaxLights));
     this->Lights=
       new std::vector<vtkOpenGLLightState>(
         static_cast<size_t>(this->MaxLights));
-    }
+  }
 
   if (this->FixedPipeline.TextureImageUnitEnabled != 0 &&
      this->FixedPipeline.TextureImageUnitEnabled->size() !=
      static_cast<size_t>(this->MaxTextureUnits))
-    {
+  {
     delete this->FixedPipeline.TextureImageUnitEnabled;
     this->FixedPipeline.TextureImageUnitEnabled = 0;
-    }
+  }
   if (this->FixedPipeline.TextureImageUnitEnabled == 0)
-    {
+  {
     this->FixedPipeline.TextureImageUnitEnabled =
       new std::vector<vtkOpenGLTextureImageUnitFixedPipelineState>(
         static_cast<size_t>(this->MaxTextureUnits));
-    }
+  }
 
   i = 0;
   while (i < static_cast<size_t>(this->MaxTextureUnits))
-    {
+  {
     vtkgl::ActiveTexture(vtkgl::TEXTURE0 + i);
     (*this->FixedPipeline.TextureImageUnitEnabled)[i].Texture1DEnabled =
       glIsEnabled(GL_TEXTURE_1D);
@@ -193,7 +193,7 @@ void vtkOpenGLState::Update()
     (*this->FixedPipeline.TextureImageUnitEnabled)[i].TextureCubeMapEnabled =
       glIsEnabled(vtkgl::TEXTURE_CUBE_MAP);
     ++i;
-    }
+  }
 
   // Restore real active texture
   vtkgl::ActiveTexture(this->ActiveTexture);
@@ -273,10 +273,10 @@ void vtkOpenGLState::Update()
     static_cast<size_t>(this->MaxDrawBuffers));
   i = 0;
   while (i < static_cast<size_t>(this->MaxDrawBuffers))
-    {
+  {
     glGetIntegerv(vtkgl::DRAW_BUFFER0+i, &(*this->DrawBuffers)[i]);
     ++i;
-    }
+  }
 
   glGetIntegerv(GL_INDEX_WRITEMASK, &this->IndexWriteMask);
   glGetBooleanv(GL_COLOR_WRITEMASK, this->ColorWriteMask);
@@ -318,7 +318,7 @@ void vtkOpenGLState::Update()
   this->PixelUnpackBufferBinding=static_cast<GLenum>(ivalues[0]);
 
   if (this->PixelPackBufferBinding>0)
-    {
+  {
     this->PixelPackBufferObject.Id=this->PixelPackBufferBinding;
     vtkgl::GetBufferParameteriv(vtkgl::PIXEL_PACK_BUFFER, vtkgl::BUFFER_SIZE,
                                 &this->PixelPackBufferObject.Size);
@@ -351,9 +351,9 @@ void vtkOpenGLState::Update()
                                 vtkgl::BUFFER_MAP_LENGTH,
                                 &this->PixelPackBufferObject.MapLength);
 #endif
-    }
+  }
   if (this->PixelUnpackBufferBinding>0)
-    {
+  {
     this->PixelUnpackBufferObject.Id=PixelUnpackBufferBinding;
     this->PixelUnpackBufferObject.Id=this->PixelUnpackBufferBinding;
     vtkgl::GetBufferParameteriv(vtkgl::PIXEL_UNPACK_BUFFER, vtkgl::BUFFER_SIZE,
@@ -387,7 +387,7 @@ void vtkOpenGLState::Update()
                                 vtkgl::BUFFER_MAP_LENGTH,
                                 &this->PixelUnpackBufferObject.MapLength);
 #endif
-    }
+  }
 
   glGetFloatv(GL_RED_SCALE, &this->RedTransform.Scale);
   glGetFloatv(GL_RED_BIAS, &this->RedTransform.Bias);
@@ -416,13 +416,13 @@ void vtkOpenGLState::Update()
   glGetIntegerv(GL_LIST_BASE, &this->ListBase);
   glGetIntegerv(GL_LIST_INDEX, &this->ListIndex);
   if (this->ListIndex!=0)
-    {
+  {
     glGetIntegerv(GL_LIST_MODE, &this->ListMode);
-    }
+  }
   else
-    {
+  {
     this->ListMode=0; // not relevant
-    }
+  }
 
   glGetIntegerv(GL_RENDER_MODE, &this->RenderMode);
 }
@@ -437,7 +437,7 @@ void vtkOpenGLState::UpdateCurrentProgram()
   glGetIntegerv(vtkgl::CURRENT_PROGRAM, ivalues);
   this->CurrentProgram=static_cast<GLuint>(ivalues[0]);
   if (this->CurrentProgram!=0)
-    {
+  {
     this->CurrentProgramState=new vtkOpenGLProgramState;
     this->CurrentProgramState->Id=this->CurrentProgram;
     GLuint progId=this->CurrentProgramState->Id;
@@ -479,7 +479,7 @@ void vtkOpenGLState::UpdateCurrentProgram()
     this->CurrentProgramState->HasVertexShader=false;
     this->CurrentProgramState->HasFragmentShader=false;
     while (i<static_cast<size_t>(numberOfShaders))
-      {
+    {
       (*this->CurrentProgramState->AttachedShaders)[i].Id=shaders[i];
       this->UpdateShader(i);
       this->CurrentProgramState->HasVertexShader=
@@ -491,7 +491,7 @@ void vtkOpenGLState::UpdateCurrentProgram()
         (*this->CurrentProgramState->AttachedShaders)[i].Type
         ==vtkgl::FRAGMENT_SHADER;
       ++i;
-      }
+    }
 
     delete[] shaders;
 
@@ -506,7 +506,7 @@ void vtkOpenGLState::UpdateCurrentProgram()
 
 
     // Active uniforms
-    }
+  }
 }
 
 void vtkOpenGLState::UpdateShader(size_t i)
@@ -546,24 +546,24 @@ void vtkOpenGLState::PrintSelf(ostream &os,
 
   os << indent << "FrameBufferBinding (drawFB and readFB)=";
   if (this->FrameBufferBinding==0)
-    {
+  {
     os << "0 (default framebuffer)" << endl;
-    }
+  }
   else
-    {
+  {
     os << this->FrameBufferBinding << endl;
-    }
+  }
 
   os << indent << "CurrentProgram=";
   if (this->CurrentProgram==0)
-    {
+  {
     os << "0 (fixed-pipeline)" << endl;
-    }
+  }
   else
-    {
+  {
     os << this->CurrentProgram << endl;
     this->CurrentProgramState->PrintSelf(os, indent);
-    }
+  }
 
   os << indent << "ModelViewMatrix=" << endl;
   this->PrintMatrix(os, indent, this->ModelViewMatrix);
@@ -576,21 +576,21 @@ void vtkOpenGLState::PrintSelf(ostream &os,
   size_t i;
 
   if (this->CurrentProgram==0 || !this->CurrentProgramState->HasVertexShader)
-    {
+  {
     i=0;
     while (i<static_cast<size_t>(this->MaxTextureCoords))
-      {
+    {
       os << indent << "TextureCoordinateProcessingUnit " << i << ":" <<endl;
       this->PrintMatrix(os, indent, (*this->TCPU)[i].CurrentMatrix);
       os << indent << "TextureStackDepth=" << (*this->TCPU)[i].MatrixStackDepth
          << endl;
       ++i;
-      }
     }
+  }
 
   i=0;
   while (i<static_cast<size_t>(this->MaxCombinedTextureImageUnits))
-    {
+  {
     // only display texture unit with at least one binding, otherwise it is
     // too verbose.
 
@@ -598,36 +598,36 @@ void vtkOpenGLState::PrintSelf(ostream &os,
        (*this->TIU)[i].TextureBinding2D!=0 ||
        (*this->TIU)[i].TextureBinding3D!=0 ||
        (*this->TIU)[i].TextureBindingCubeMap!=0)
-      {
+    {
       os << indent << "TextureImageUnit " << i << ":" <<endl;
       os << indent << " Binding1D=" << (*this->TIU)[i].TextureBinding1D << endl;
       os << indent << " Binding2D=" << (*this->TIU)[i].TextureBinding2D << endl;
       os << indent << " Binding3D=" << (*this->TIU)[i].TextureBinding3D << endl;
       os << indent << " BindingCubeMap=" << (*this->TIU)[i].TextureBindingCubeMap << endl;
-      }
-      ++i;
     }
+      ++i;
+  }
 
   if (this->CurrentProgram==0 || !this->CurrentProgramState->HasVertexShader)
-    {
+  {
     os << indent << "fixed-pipeline vertex shader flags:" << endl;
     os << indent << " LightingEnabled=" << static_cast<bool>(this->FixedPipeline.LightingEnabled==GL_TRUE) << endl;
     os << indent << " ColorSumEnabled=" << static_cast<bool>(this->FixedPipeline.ColorSumEnabled==GL_TRUE) << endl;
-    }
+  }
 
   if (this->CurrentProgram==0 || !this->CurrentProgramState->HasFragmentShader)
-    {
+  {
     os << indent << " fixed-pipeline texture flags:" <<endl;
     i=0;
     while (i<static_cast<size_t>(this->MaxTextureUnits))
-      {
+    {
       // only display texture unit with at least one enabled flag,
       // otherwise it is too verbose.
       if ((*this->FixedPipeline.TextureImageUnitEnabled)[i].Texture1DEnabled==GL_TRUE||
          (*this->FixedPipeline.TextureImageUnitEnabled)[i].Texture2DEnabled==GL_TRUE||
          (*this->FixedPipeline.TextureImageUnitEnabled)[i].Texture3DEnabled==GL_TRUE||
          (*this->FixedPipeline.TextureImageUnitEnabled)[i].TextureCubeMapEnabled==GL_TRUE)
-        {
+      {
         os << indent << " TextureImageUnitFixedFlag" << i<< ":" << endl;
         os << indent << "  Texture1DEnabled=" <<
           static_cast<bool>((*this->FixedPipeline.TextureImageUnitEnabled)[i].Texture1DEnabled==GL_TRUE)
@@ -641,10 +641,10 @@ void vtkOpenGLState::PrintSelf(ostream &os,
         os << indent << "  TextureCubeMapEnabled=" <<
           static_cast<bool>((*this->FixedPipeline.TextureImageUnitEnabled)[i].TextureCubeMapEnabled==GL_TRUE)
            << endl;
-        }
-      ++i;
       }
+      ++i;
     }
+  }
 
   os << indent << "Viewport=" << this->Viewport[0] << ", "
      << this->Viewport[1] << ", " << this->Viewport[2] << ", "
@@ -725,12 +725,12 @@ void vtkOpenGLState::PrintSelf(ostream &os,
   os << indent << "MaxDrawBuffers=" << this->MaxDrawBuffers << endl;
   i=0;
   while (i<static_cast<size_t>(this->MaxDrawBuffers))
-    {
+  {
     os << indent << "DrawBuffer[" << i <<"]=";
     this->ColorBufferToStream(os, (*this->DrawBuffers)[static_cast<size_t>(i)]);
     os << endl;
     ++i;
-    }
+  }
 
   os << indent << "IndexWriteMask=" << this->IndexWriteMask << endl;
   os << indent << "ColorWriteMask=" << static_cast<bool>(this->ColorWriteMask[0]==GL_TRUE) << ", " << static_cast<bool>(this->ColorWriteMask[1]==GL_TRUE)<< ", " << static_cast<bool>(this->ColorWriteMask[2]==GL_TRUE) << ", " << static_cast<bool>(this->ColorWriteMask[3]==GL_TRUE) << endl;
@@ -753,15 +753,15 @@ void vtkOpenGLState::PrintSelf(ostream &os,
   os << indent << "PixelPackBufferBinding=" << this->PixelPackBufferBinding << endl;
 
   if (this->PixelPackBufferBinding>0)
-    {
+  {
     this->PixelPackBufferObject.PrintSelf(os, indent);
-    }
+  }
 
   os << indent << "PixelUnpackBufferBinding=" << this->PixelUnpackBufferBinding << endl;
  if (this->PixelUnpackBufferBinding>0)
-    {
+ {
     this->PixelUnpackBufferObject.PrintSelf(os, indent);
-    }
+ }
 
 
   os << indent << "RedTransform:";
@@ -802,21 +802,21 @@ void vtkOpenGLProgramState::PrintSelf(ostream &os,
                                       vtkIndent indent)
 {
   if (this->HasVertexShader)
-    {
+  {
     os << indent << "customized verter shader" << endl;
-    }
+  }
   else
-    {
+  {
     os << indent << "fixed-pipeline verter shader" << endl;
-    }
+  }
   if (this->HasFragmentShader)
-    {
+  {
     os << indent << "customized fragment shader" << endl;
-    }
+  }
   else
-    {
+  {
     os << indent << "fixed-pipeline fragment shader" << endl;
-    }
+  }
 
   os << indent << "DeleteStatus=" << static_cast<bool>(this->DeleteStatus==GL_TRUE)
      << endl;
@@ -839,10 +839,10 @@ void vtkOpenGLProgramState::PrintSelf(ostream &os,
 
   size_t i=0;
   while (i<static_cast<size_t>(this->NumberOfAttachedShaders))
-    {
+  {
     (*this->AttachedShaders)[i].PrintSelf(os, indent.GetNextIndent());
     ++i;
-    }
+  }
 }
 
 void vtkOpenGLShaderState::PrintSelf(ostream &os,
@@ -895,55 +895,55 @@ void vtkOpenGLBufferObjectState::BufferAccessFlagsToStream(ostream &os)
 {
   bool firstFlag=true;
   if ((this->AccessFlags&vtkgl::MAP_READ_BIT)!=0)
-    {
+  {
     os << "GL_MAP_READ_BIT";
     firstFlag=false;
-    }
+  }
   if ((this->AccessFlags&vtkgl::MAP_WRITE_BIT)!=0)
-    {
+  {
     if (!firstFlag)
-      {
+    {
       os << "|";
-      }
+    }
     os << "GL_MAP_WRITE_BIT";
     firstFlag=false;
-    }
+  }
   if ((this->AccessFlags&vtkgl::MAP_INVALIDATE_RANGE_BIT)!=0)
-    {
+  {
     if (!firstFlag)
-      {
+    {
       os << "|";
-      }
+    }
     os << "GL_MAP_INVALIDATE_RANGE_BIT";
     firstFlag=false;
-    }
+  }
   if ((this->AccessFlags&vtkgl::MAP_INVALIDATE_BUFFER_BIT)!=0)
-    {
+  {
     if (!firstFlag)
-      {
+    {
       os << "|";
-      }
+    }
     os << "GL_MAP_INVALIDATE_BUFFER_BIT";
     firstFlag=false;
-    }
+  }
    if ((this->AccessFlags&vtkgl::MAP_FLUSH_EXPLICIT_BIT)!=0)
-    {
+   {
     if (!firstFlag)
-      {
+    {
       os << "|";
-      }
+    }
     os << "GL_MAP_FLUSH_EXPLICIT_BIT";
     firstFlag=false;
-    }
+   }
 
    if ((this->AccessFlags&vtkgl::MAP_UNSYNCHRONIZED_BIT)!=0)
-    {
+   {
     if (!firstFlag)
-      {
+    {
       os << "|";
-      }
-    os << "GL_MAP_UNSYNCHRONIZED_BIT";
     }
+    os << "GL_MAP_UNSYNCHRONIZED_BIT";
+   }
 }
 
 static int BufferUsageValueTable[9]={
@@ -1299,23 +1299,23 @@ void vtkOpenGLState::ColorBufferToStream(ostream &os,
 {
   GLint auxBuffer=colorBuffer-GL_AUX0;
   if (auxBuffer>=0 && auxBuffer<this->AuxBuffers)
-    {
+  {
     os << "GL_AUX" << auxBuffer;
-    }
+  }
   else
-    {
+  {
     GLint colorAttachment=static_cast<int>(static_cast<unsigned int>(colorBuffer)
                                            -vtkgl::COLOR_ATTACHMENT0);
     if (colorAttachment>=0 && colorAttachment<this->MaxColorAttachments)
-      {
+    {
       os << "GL_COLOR_ATTACHMENT" << colorAttachment;
-      }
+    }
     else
-      {
+    {
       os << this->ValueToString(colorBuffer, ColorBufferValueTable,
                                 ColorBufferStringTable, 10);
-      }
     }
+  }
 }
 
 const char *vtkOpenGLState::ErrorCodeToString()
@@ -1346,14 +1346,14 @@ const char *vtkOpenGLState::ListModeToString()
 {
   const char*result;
   if (this->ListMode==0)
-    {
+  {
     result=NA;
-    }
+  }
   else
-    {
+  {
     result=this->ValueToString(this->ListMode, ListModeValueTable,
                                ListModeStringTable, 2);
-    }
+  }
   return result;
 }
 
@@ -1420,18 +1420,18 @@ const char *ValueToString(GLint value,
   bool found=false;
   int i=0;
   while (!found && i<tableSize)
-    {
+  {
     found=valueTable[i]==value;
     ++i;
-    }
+  }
   if (!found)
-    {
+  {
     result=UnknownValue;
-    }
+  }
   else
-    {
+  {
     result=stringTable[i-1];
-    }
+  }
   return result;
 }
 
@@ -1460,15 +1460,15 @@ void vtkOpenGLState::PrintMatrix(ostream &os,
   // a3 ...
   int row=0;
   while (row<4)
-    {
+  {
     os << indent;
     int column=0;
     while (column<4)
-      {
+    {
       os << matrix[column*4+row] << ", ";
       ++column;
-      }
+    }
     os << endl;
     ++row;
-    }
+  }
 }

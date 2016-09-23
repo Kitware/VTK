@@ -31,17 +31,17 @@
   { \
   std::string expectedMsg(msg); \
   if (!observer->GetError()) \
-    { \
+  { \
     std::cout << "ERROR: Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
-    } \
+  } \
   else \
-    { \
+  { \
     std::string gotMsg(observer->GetErrorMessage()); \
     if (gotMsg.find(expectedMsg) == std::string::npos) \
-      { \
+    { \
       std::cout << "ERROR: Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-      } \
     } \
+  } \
   } \
   observer->Clear()
 
@@ -54,7 +54,7 @@
 int TestSparseArrayValidation(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     // Create an array ...
     vtkSmartPointer<vtkSparseArray<double> > array = vtkSmartPointer<vtkSparseArray<double> >::New();
     test_expression(array->Validate());
@@ -85,10 +85,10 @@ int TestSparseArrayValidation(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(!array->Validate());
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }

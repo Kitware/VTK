@@ -75,7 +75,7 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
                                               volumeProperty.GetPointer());
   int retVal;
   if (valid)
-    {
+  {
 
     vtkNew<vtkTimerLog> timer;
     timer->StartTimer();
@@ -86,21 +86,21 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
 
     int numRenders = 20;
     for (int i = 0; i < numRenders; ++i)
-      {
+    {
       renderer->GetActiveCamera()->Azimuth(1);
       renderer->GetActiveCamera()->Elevation(1);
       renderWindow->Render();
-      }
+    }
 
     timer->StartTimer();
     numRenders = 100;
     for (int i = 0; i < numRenders; ++i)
-      {
+    {
       renderer->GetActiveCamera()->Azimuth(1);
       renderer->GetActiveCamera()->Elevation(1);
       renderer->GetActiveCamera()->OrthogonalizeViewUp();
       renderWindow->Render();
-      }
+    }
     timer->StopTimer();
     double elapsed = timer->GetElapsedTime();
     cerr << "Interactive Render Time: " << elapsed / numRenders << endl;
@@ -117,15 +117,15 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
 
     retVal = vtkRegressionTestImage( renderWindow.GetPointer() );
     if( retVal == vtkRegressionTester::DO_INTERACTOR)
-      {
-      iren->Start();
-      }
-    }
-  else
     {
+      iren->Start();
+    }
+  }
+  else
+  {
     retVal = vtkTesting::PASSED;
     cout << "Required extensions not supported." << endl;
-    }
+  }
 
   return !((retVal == vtkTesting::PASSED) ||
            (retVal == vtkTesting::DO_INTERACTOR));

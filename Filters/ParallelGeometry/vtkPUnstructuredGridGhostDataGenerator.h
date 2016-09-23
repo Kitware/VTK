@@ -12,27 +12,29 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkPUnstructuredGridGhostDataGenerator -- Builds ghost zones for a
-//  distributed unstructured grid dataset.
-//
-// .SECTION Description
-//  This filter uses internally the vtkPUnstructuredGridConnectivity helper
-//  class to construct ghost zones for a distributed unstructured grid.
-// @deprecated Not maintained as of VTK 7.0 and will be removed eventually.
-// Use vtkPUnstructuredGridGhostCellsGenerator instead.
-//
-// .SECTION Caveats
-//  <ul>
-//    <li> The code currently assumes one grid per rank. </li>
-//    <li> GlobalID information must be provided as a PointData array
-//         with the name, "GlobalID" </li>
-//    <li> The grid must be globally conforming, i.e., no hanging nodes. </li>
-//    <li> Only topologically face-adjacent ghost cells are considered. </li>
-//    <li> PointData and CellData must match across partitions/processes. </li>
-//  </ul>
-//
-// .SECTION See Also
-//  vtkPUnstructuredGridConnectivity vtkPUnstructuredGridGhostCellsGenerator
+/**
+ * @class   vtkPUnstructuredGridGhostDataGenerator
+ *  distributed unstructured grid dataset.
+ *
+ *
+ *  This filter uses internally the vtkPUnstructuredGridConnectivity helper
+ *  class to construct ghost zones for a distributed unstructured grid.
+ * @deprecated Not maintained as of VTK 7.0 and will be removed eventually.
+ * Use vtkPUnstructuredGridGhostCellsGenerator instead.
+ *
+ * @warning
+ *  <ul>
+ *    <li> The code currently assumes one grid per rank. </li>
+ *    <li> GlobalID information must be provided as a PointData array
+ *         with the name, "GlobalID" </li>
+ *    <li> The grid must be globally conforming, i.e., no hanging nodes. </li>
+ *    <li> Only topologically face-adjacent ghost cells are considered. </li>
+ *    <li> PointData and CellData must match across partitions/processes. </li>
+ *  </ul>
+ *
+ * @sa
+ *  vtkPUnstructuredGridConnectivity vtkPUnstructuredGridGhostCellsGenerator
+*/
 
 #ifndef vtkPUnstructuredGridGhostDataGenerator_h
 #define vtkPUnstructuredGridGhostDataGenerator_h

@@ -12,9 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGDAL - Shared data for GDAL classes
-// .SECTION Description
-// .SECTION See Also
+/**
+ * @class   vtkGDAL
+ * @brief   Shared data for GDAL classes
+ *
+*/
 
 #ifndef vtkGDAL_h
 #define vtkGDAL_h

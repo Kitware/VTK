@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkQtLabelRenderStrategy - Renders labels with Qt
-//
-// .SECTION Description
-// This class uses Qt to render labels and compute sizes. The labels are
-// rendered to a QImage, then EndFrame() converts that image to a vtkImageData
-// and textures the image onto a quad spanning the render area.
+/**
+ * @class   vtkQtLabelRenderStrategy
+ * @brief   Renders labels with Qt
+ *
+ *
+ * This class uses Qt to render labels and compute sizes. The labels are
+ * rendered to a QImage, then EndFrame() converts that image to a vtkImageData
+ * and textures the image onto a quad spanning the render area.
+*/
 
 #ifndef vtkQtLabelRenderStrategy_h
 #define vtkQtLabelRenderStrategy_h
@@ -41,17 +44,20 @@ class VTKRENDERINGQT_EXPORT vtkQtLabelRenderStrategy : public vtkLabelRenderStra
   vtkTypeMacro(vtkQtLabelRenderStrategy, vtkLabelRenderStrategy);
   static vtkQtLabelRenderStrategy* New();
 
-  // Description:
-  // Compute the bounds of a label. Must be performed after the renderer is set.
+  /**
+   * Compute the bounds of a label. Must be performed after the renderer is set.
+   */
   virtual void ComputeLabelBounds(vtkTextProperty* tprop, vtkStdString label,
                                   double bds[4])
     { this->Superclass::ComputeLabelBounds(tprop, label, bds); }
   virtual void ComputeLabelBounds(vtkTextProperty* tprop, vtkUnicodeString label,
                                   double bds[4]);
 
-  // Description:
-  // Render a label at a location in world coordinates.
-  // Must be performed between StartFrame() and EndFrame() calls.
+  //@{
+  /**
+   * Render a label at a location in world coordinates.
+   * Must be performed between StartFrame() and EndFrame() calls.
+   */
   virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label)
     { this->Superclass::RenderLabel(x, tprop, label); }
   virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label,
@@ -61,19 +67,23 @@ class VTKRENDERINGQT_EXPORT vtkQtLabelRenderStrategy : public vtkLabelRenderStra
                            vtkUnicodeString label);
   virtual void RenderLabel(int x[2], vtkTextProperty* tprop,
                            vtkUnicodeString label, int maxWidth);
+  //@}
 
-  // Description:
-  // Start a rendering frame. Renderer must be set.
+  /**
+   * Start a rendering frame. Renderer must be set.
+   */
   virtual void StartFrame();
 
-  // Description:
-  // End a rendering frame.
+  /**
+   * End a rendering frame.
+   */
   virtual void EndFrame();
 
-  // Description:
-  // Release any graphics resources that are being consumed by this strategy.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
+  /**
+   * Release any graphics resources that are being consumed by this strategy.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
   virtual void ReleaseGraphicsResources(vtkWindow *window);
 
 protected:

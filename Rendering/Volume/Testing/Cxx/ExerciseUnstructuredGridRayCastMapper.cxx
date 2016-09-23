@@ -117,17 +117,17 @@ void vtkClassifyVolume::Classify(vtkDataSetAttributes *inAttrib,
   if (!scalars) return;
 
   if (scalars->GetNumberOfComponents() != 1)
-    {
+  {
     vtkErrorMacro(<< "Only 1-tuple scalars are supported now.");
     return;
-    }
+  }
   vtkIdType numScalars = scalars->GetNumberOfTuples();
 
   vtkDoubleArray *colors = vtkDoubleArray::New();
   colors->SetName(scalars->GetName());
 
   if (this->TransferFunction->GetColorChannels() == 3)
-    {
+  {
     colors->SetNumberOfComponents(4);
     colors->SetNumberOfTuples(numScalars);
 
@@ -136,18 +136,18 @@ void vtkClassifyVolume::Classify(vtkDataSetAttributes *inAttrib,
     vtkPiecewiseFunction *alpha = this->TransferFunction->GetScalarOpacity();
 
     for (vtkIdType i = 0; i < numScalars; i++)
-      {
+    {
       double c[4];
       double x = scalars->GetComponent(i, 0);
       rgb->GetColor(x, c);
       c[3] = alpha->GetValue(x);
       colors->SetTuple(i, c);
-      }
     }
+  }
   else
-    {
+  {
     vtkErrorMacro(<< "Gray values are not supported now.");
-    }
+  }
 
   outAttrib->SetScalars(colors);
   colors->Delete();
@@ -181,7 +181,7 @@ static vtkRenderer *NewTestViewport(RayCastFunctionCreator NewFunction,
   vtkArrayCalculator *calc = NULL;
   vtkAssignAttribute *assign = NULL;
   if (UseMultipleTransferFunctions)
-    {
+  {
     calc = vtkArrayCalculator::New();
     calc->AddScalarArrayName("Iterations");
     calc->SetResultArrayName("Result");
@@ -194,55 +194,55 @@ static vtkRenderer *NewTestViewport(RayCastFunctionCreator NewFunction,
                    vtkAssignAttribute::POINT_DATA);
     assign->SetInputConnection(0, outputPort);
     outputPort = assign->GetOutputPort(0);
-    }
+  }
 
   // Convert to cell centered data if requested.
   vtkPointDataToCellData *celldata = NULL;
   if (UseCellData)
-    {
+  {
     celldata = vtkPointDataToCellData::New();
     celldata->SetInputConnection(0, outputPort);
     celldata->PassPointDataOff();
     outputPort = celldata->GetOutputPort(0);
-    }
+  }
 
   // Classify the data if testing dependent components.
   vtkClassifyVolume *classify = NULL;
   if (UseDependentComponents)
-    {
+  {
     classify = vtkClassifyVolume::New();
     classify->SetTransferFunction(volumeProperty);
     classify->SetInputConnection(0, outputPort);
     outputPort = classify->GetOutputPort(0);
-    }
+  }
 
   // Set up the mapper.
   vtkUnstructuredGridVolumeRayCastMapper *mapper
     = vtkUnstructuredGridVolumeRayCastMapper::New();
   mapper->SetInputConnection(0, outputPort);
   if (NewFunction)
-    {
+  {
     vtkUnstructuredGridVolumeRayCastFunction *function = NewFunction();
     mapper->SetRayCastFunction(function);
     function->Delete();
-    }
+  }
   if (NewIntegrator)
-    {
+  {
     vtkUnstructuredGridVolumeRayIntegrator *integrator = NewIntegrator();
     mapper->SetRayIntegrator(integrator);
     integrator->Delete();
-    }
+  }
 
   // The volume holds the mapper and property and can be used to position/orient
   // the volume.
   vtkVolume *volume = vtkVolume::New();
   volume->SetMapper(mapper);
   if (!UseDependentComponents)
-    {
+  {
     volume->SetProperty(volumeProperty);
-    }
+  }
   else
-    {
+  {
     // Set up a volume property that does not have the transfer function.
     vtkVolumeProperty *vp = vtkVolumeProperty::New();
     vp->SetShade(volumeProperty->GetShade());
@@ -252,7 +252,7 @@ static vtkRenderer *NewTestViewport(RayCastFunctionCreator NewFunction,
     vp->IndependentComponentsOff();
     volume->SetProperty(vp);
     vp->Delete();
-    }
+  }
 
   // Add the volume to the renderer.
   ren->AddVolume(volume);
@@ -451,17 +451,17 @@ int ExerciseUnstructuredGridRayCastMapper(int argc, char *argv[],
   viewport->Delete();
 
   if (TestDependentComponents)
-    {
+  {
     // RGBA dependent components.
     volumeProperty = NewRGBVolumeProperty();
     viewport = NewTestViewport(NewFunction, NewIntegrator, volumeProperty,
                                UseCellData, 1, 0);
     volumeProperty->Delete();
-    }
+  }
   else
-    {
+  {
     viewport = NewPlaceholderViewport();
-    }
+  }
   if (!viewport) return -1;
   viewport->SetViewport(0.0, 0.5, 0.5, 1.0);
   renWin->AddRenderer(viewport);
@@ -479,9 +479,9 @@ int ExerciseUnstructuredGridRayCastMapper(int argc, char *argv[],
 
   int retVal = vtkRegressionTestImageThreshold(renWin, 70);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Delete objects.
   renWin->Delete();

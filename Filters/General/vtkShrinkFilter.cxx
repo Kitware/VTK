@@ -69,10 +69,10 @@ int vtkShrinkFilter::RequestData(vtkInformation*,
   vtkIdType numCells = input->GetNumberOfCells();
   vtkIdType numPts = input->GetNumberOfPoints();
   if(numCells < 1 || numPts < 1)
-    {
+  {
     vtkDebugMacro("No data to shrink!");
     return 1;
-    }
+  }
 
   // Allocate working space for new and old cell point lists.
   vtkSmartPointer<vtkIdList> ptIds = vtkSmartPointer<vtkIdList>::New();
@@ -103,38 +103,38 @@ int vtkShrinkFilter::RequestData(vtkInformation*,
   // Traverse all cells, obtaining node coordinates.  Compute "center"
   // of cell, then create new vertices shrunk towards center.
   for(vtkIdType cellId = 0; cellId < numCells && !abort; ++cellId)
-    {
+  {
     // Get the list of points for this cell.
     input->GetCellPoints(cellId, ptIds);
     vtkIdType numIds = ptIds->GetNumberOfIds();
 
     // Periodically update progress and check for an abort request.
     if(cellId % tenth == 0)
-      {
+    {
       this->UpdateProgress((cellId+1)*numCellsInv);
       abort = this->GetAbortExecute();
-      }
+    }
 
     // Compute the center of mass of the cell points.
     double center[3] = {0,0,0};
     for(vtkIdType i=0; i < numIds; ++i)
-      {
+    {
       double p[3];
       input->GetPoint(ptIds->GetId(i), p);
       for(int j=0; j < 3; ++j)
-        {
-        center[j] += p[j];
-        }
-      }
-    for(int j=0; j < 3; ++j)
       {
-      center[j] /= numIds;
+        center[j] += p[j];
       }
+    }
+    for(int j=0; j < 3; ++j)
+    {
+      center[j] /= numIds;
+    }
 
     // Create new points for this cell.
     newPtIds->Reset();
     for(vtkIdType i=0; i < numIds; ++i)
-      {
+    {
       // Get the old point location.
       double p[3];
       input->GetPoint(ptIds->GetId(i), p);
@@ -142,9 +142,9 @@ int vtkShrinkFilter::RequestData(vtkInformation*,
       // Compute the new point location.
       double newPt[3];
       for(int j=0; j < 3; ++j)
-        {
+      {
         newPt[j] = center[j] + this->ShrinkFactor*(p[j] - center[j]);
-        }
+      }
 
       // Create the new point for this cell.
       vtkIdType newId = newPts->InsertNextPoint(newPt);
@@ -154,26 +154,26 @@ int vtkShrinkFilter::RequestData(vtkInformation*,
       outPD->CopyData(inPD, oldId, newId);
 
       pointMap[oldId] = newId;
-      }
+    }
 
     // special handling for polyhedron cells
     if (vtkUnstructuredGrid::SafeDownCast(input) &&
         input->GetCellType(cellId) == VTK_POLYHEDRON)
-      {
+    {
       vtkUnstructuredGrid::SafeDownCast(input)->GetFaceStream(cellId, newPtIds);
       vtkUnstructuredGrid::ConvertFaceStreamPointIds(newPtIds, pointMap);
-      }
+    }
     else
-      {
+    {
       for(vtkIdType i=0; i < numIds; ++i)
-        {
+      {
         newPtIds->InsertId(i, pointMap[ptIds->GetId(i)]);
-        }
       }
+    }
 
     // Store the new cell in the output.
     output->InsertNextCell(input->GetCellType(cellId), newPtIds);
-    }
+  }
 
   // Store the new set of points in the output.
   output->SetPoints(newPts);

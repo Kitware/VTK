@@ -12,13 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageInPlaceFilter - Filter that operates in place.
-// .SECTION Description
-// vtkImageInPlaceFilter is a filter super class that
-// operates directly on the input region.  The data is copied
-// if the requested region has different extent than the input region
-// or some other object is referencing the input region.
-
+/**
+ * @class   vtkImageInPlaceFilter
+ * @brief   Filter that operates in place.
+ *
+ * vtkImageInPlaceFilter is a filter super class that
+ * operates directly on the input region.  The data is copied
+ * if the requested region has different extent than the input region
+ * or some other object is referencing the input region.
+*/
 
 #ifndef vtkImageInPlaceFilter_h
 #define vtkImageInPlaceFilter_h

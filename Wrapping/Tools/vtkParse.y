@@ -182,7 +182,7 @@ static unsigned int vtkParseTypeMap[] =
 
 /* Define the kinds of [[attributes]] to collect */
 enum
-  {
+{
   VTK_PARSE_ATTRIB_NONE,
   VTK_PARSE_ATTRIB_DECL,  /* modify a declaration */
   VTK_PARSE_ATTRIB_ID,    /* modify an id */
@@ -190,7 +190,7 @@ enum
   VTK_PARSE_ATTRIB_FUNC,  /* modify a function or method */
   VTK_PARSE_ATTRIB_ARRAY, /* modify an array size specifier */
   VTK_PARSE_ATTRIB_CLASS  /* modify class, struct, union, or enum */
-  };
+};
 
 #define vtkParseDebug(s1, s2) \
   if ( parseDebug ) { fprintf(stderr, "   %s %s\n", s1, s2); }
@@ -289,9 +289,9 @@ static const char *vtkstrndup(const char *in, size_t n)
 static const char *vtkstrdup(const char *in)
 {
   if (in)
-    {
+  {
     in = vtkParse_CacheString(data->Strings, in, strlen(in));
-    }
+  }
 
   return in;
 }
@@ -305,24 +305,24 @@ static const char *vtkstrncat(size_t n, const char **str)
   size_t m = 0;
 
   for (i = 0; i < n; i++)
-    {
+  {
     j[i] = 0;
     if (str[i])
-      {
+    {
       j[i] = strlen(str[i]);
       m += j[i];
-      }
     }
+  }
   cp = vtkParse_NewString(data->Strings, m);
   m = 0;
   for (i = 0; i < n; i++)
-    {
+  {
     if (j[i])
-      {
+    {
       strncpy(&cp[m], str[i], j[i]);
       m += j[i];
-      }
     }
+  }
   cp[m] = '\0';
 
   return cp;
@@ -468,9 +468,9 @@ void clearComment()
 {
   commentLength = 0;
   if (commentText)
-    {
+  {
     commentText[commentLength] = '\0';
-    }
+  }
   commentState = 0;
   commentType = DOX_COMMAND_OTHER;
 }
@@ -479,7 +479,7 @@ void clearComment()
 void setCommentState(int state)
 {
   switch (state)
-    {
+  {
     case 0:
       closeComment();
       break;
@@ -487,7 +487,7 @@ void setCommentState(int state)
       closeComment();
       clearComment();
       break;
-    }
+  }
 
   commentState = state;
 }
@@ -500,29 +500,29 @@ const char *getComment()
   size_t l = commentLength;
 
   if (commentText != NULL && commentState != 0)
-    {
+  {
     /* strip trailing blank lines */
     while (l > 0 && (cp[l-1] == ' ' || cp[l-1] == '\t' ||
                      cp[l-1] == '\r' || cp[l-1] == '\n'))
-      {
+    {
       if (cp[l-1] == '\n')
-        {
+      {
         commentLength = l;
-        }
-      l--;
       }
+      l--;
+    }
     commentText[commentLength] = '\0';
     /* strip leading blank lines */
     while (*cp == ' ' || *cp == '\t' || *cp == '\r' || *cp == '\n')
-      {
+    {
       if (*cp == '\n')
-        {
+      {
         text = cp + 1;
-        }
-      cp++;
       }
-    return text;
+      cp++;
     }
+    return text;
+  }
 
   return NULL;
 }
@@ -532,12 +532,12 @@ parse_dox_t checkDoxygenCommand(const char *text, size_t n)
 {
   struct DoxygenCommandInfo *info;
   for (info = doxygenCommands; info->name; info++)
-    {
+  {
     if (info->length == n && strncmp(text, info->name, n) == 0)
-      {
+    {
       return info->type;
-      }
     }
+  }
   return DOX_COMMAND_OTHER;
 }
 
@@ -548,105 +548,105 @@ void addCommentLine(const char *line, size_t n, int type)
   parse_dox_t t = DOX_COMMAND_OTHER;
 
   if (type == DoxygenComment || commentState == DoxygenComment)
-    {
+  {
     if (type == DoxygenComment)
-      {
+    {
       /* search for '@' and backslash */
       for (i = 0; i+1 < n; i++)
-        {
+      {
         if (line[i] == '@' || line[i] == '\\')
-          {
+        {
           j = ++i;
           while (i < n && line[i] >= 'a' && line[i] <= 'z')
-            {
+          {
             i++;
-            }
+          }
           if (line[i-1] == '@' && (line[i] == '{' || line[i] == '}'))
-            {
+          {
             if (line[i] == '{')
-              {
+            {
               commentGroupDepth++;
-              }
+            }
             else
-              {
+            {
               --commentGroupDepth;
-              }
+            }
             closeComment();
             return;
-            }
+          }
           else
-            {
+          {
             /* record the type of this comment */
             t = checkDoxygenCommand(&line[j], i-j);
             if (t != DOX_COMMAND_OTHER)
-              {
+            {
               while (i < n && line[i] == ' ')
-                {
+              {
                 i++;
-                }
+              }
               j = i;
               while (i < n && vtkParse_CharType(line[i], CPRE_XID))
-                {
+              {
                 i++;
-                }
+              }
               commentTarget = vtkstrndup(&line[j], i-j);
               /* remove this line from the comment */
               n = 0;
-              }
             }
           }
         }
       }
+    }
     else if (commentState == DoxygenComment)
-      {
-      return;
-      }
-    if (commentState != type)
-      {
-      setCommentState(type);
-      }
-    if (t != DOX_COMMAND_OTHER)
-      {
-      commentType = t;
-      }
-    }
-  else if (type == TrailingComment)
     {
-    if (commentState != type)
-      {
-      setCommentState(type);
-      }
+      return;
     }
+    if (commentState != type)
+    {
+      setCommentState(type);
+    }
+    if (t != DOX_COMMAND_OTHER)
+    {
+      commentType = t;
+    }
+  }
+  else if (type == TrailingComment)
+  {
+    if (commentState != type)
+    {
+      setCommentState(type);
+    }
+  }
   else if (commentState == 0 ||
            commentState == StickyComment ||
            commentState == ClosedComment)
-    {
+  {
     clearComment();
     return;
-    }
+  }
 
   if (commentText == NULL)
-    {
+  {
     commentAllocatedLength = n+80;
     commentText = (char *)malloc(commentAllocatedLength);
     commentLength = 0;
     commentText[0] = '\0';
-    }
+  }
   else if (commentLength + n + 2 > commentAllocatedLength)
-    {
+  {
     commentAllocatedLength = commentAllocatedLength + commentLength + n + 2;
     commentText = (char *)realloc(commentText, commentAllocatedLength);
     if (!commentText)
-      {
+    {
       fprintf(stderr, "Wrapping: out of memory\n");
       exit(1);
-      }
     }
+  }
 
   if (n > 0)
-    {
+  {
     memcpy(&commentText[commentLength], line, n);
-    }
+  }
   commentLength += n;
   commentText[commentLength++] = '\n';
   commentText[commentLength] = '\0';
@@ -662,22 +662,22 @@ void storeComment()
   info->Comment = vtkstrdup(getComment());
 
   if (commentType >= DOX_COMMAND_DEFGROUP)
-    {
+  {
     /* comment has no scope, it is global to the project */
     vtkParse_AddCommentToNamespace(data->Contents, info);
-    }
+  }
   else
-    {
+  {
     /* comment is scoped to current namespace */
     if (currentClass)
-      {
+    {
       vtkParse_AddCommentToClass(currentClass, info);
-      }
-    else
-      {
-      vtkParse_AddCommentToNamespace(currentNamespace, info);
-      }
     }
+    else
+    {
+      vtkParse_AddCommentToNamespace(currentNamespace, info);
+    }
+  }
 }
 
 /* Apply a doxygen trailing comment to the previous item */
@@ -689,43 +689,43 @@ void applyComment(ClassInfo *cls)
 
   i = cls->NumberOfItems;
   if (i > 0)
-    {
+  {
     item = &cls->Items[--i];
     if (item->Type == VTK_NAMESPACE_INFO)
-      {
+    {
       cls->Namespaces[item->Index]->Comment = comment;
-      }
+    }
     else if (item->Type == VTK_CLASS_INFO ||
              item->Type == VTK_STRUCT_INFO ||
              item->Type == VTK_UNION_INFO)
-      {
+    {
       cls->Classes[item->Index]->Comment = comment;
-      }
-    else if (item->Type == VTK_ENUM_INFO)
-      {
-      cls->Enums[item->Index]->Comment = comment;
-      }
-    else if (item->Type == VTK_FUNCTION_INFO)
-      {
-      cls->Functions[item->Index]->Comment = comment;
-      }
-    else if (item->Type == VTK_VARIABLE_INFO)
-      {
-      cls->Variables[item->Index]->Comment = comment;
-      }
-    else if (item->Type == VTK_CONSTANT_INFO)
-      {
-      cls->Constants[item->Index]->Comment = comment;
-      }
-    else if (item->Type == VTK_TYPEDEF_INFO)
-      {
-      cls->Typedefs[item->Index]->Comment = comment;
-      }
-    else if (item->Type == VTK_USING_INFO)
-      {
-      cls->Usings[item->Index]->Comment = comment;
-      }
     }
+    else if (item->Type == VTK_ENUM_INFO)
+    {
+      cls->Enums[item->Index]->Comment = comment;
+    }
+    else if (item->Type == VTK_FUNCTION_INFO)
+    {
+      cls->Functions[item->Index]->Comment = comment;
+    }
+    else if (item->Type == VTK_VARIABLE_INFO)
+    {
+      cls->Variables[item->Index]->Comment = comment;
+    }
+    else if (item->Type == VTK_CONSTANT_INFO)
+    {
+      cls->Constants[item->Index]->Comment = comment;
+    }
+    else if (item->Type == VTK_TYPEDEF_INFO)
+    {
+      cls->Typedefs[item->Index]->Comment = comment;
+    }
+    else if (item->Type == VTK_USING_INFO)
+    {
+      cls->Usings[item->Index]->Comment = comment;
+    }
+  }
 }
 
 /* This is called when a comment block ends */
@@ -735,7 +735,7 @@ void closeComment()
   size_t l;
 
   switch (commentState)
-    {
+  {
     case ClosedComment:
       clearComment();
       break;
@@ -749,9 +749,9 @@ void closeComment()
       l = strlen(cp);
       while (l > 0 &&
              (cp[l-1] == '\n' || cp[l-1] == '\r' || cp[l-1] == ' '))
-        {
+      {
         l--;
-        }
+      }
       data->NameComment = vtkstrndup(cp, l);
       clearComment();
       break;
@@ -769,51 +769,51 @@ void closeComment()
       break;
     case DoxygenComment:
       if (commentType == DOX_COMMAND_OTHER)
-        {
+      {
         /* Apply only to next item unless within a member group */
         commentState = (commentMemberGroup ? StickyComment : ClosedComment);
-        }
+      }
       else
-        {
+      {
         /* Comment might not apply to next item, so store it */
         storeComment();
         clearComment();
-        }
+      }
       break;
     case TrailingComment:
       if (currentClass)
-        {
+      {
         applyComment(currentClass);
-        }
+      }
       else
-        {
+      {
         applyComment(currentNamespace);
-        }
+      }
       clearComment();
       break;
-    }
+  }
 }
 
 /* This is called when a blank line occurs in the header file */
 void commentBreak()
 {
   if (!commentMemberGroup && commentState == StickyComment)
-    {
+  {
     clearComment();
-    }
+  }
   else if (commentState == DoxygenComment)
-    {
+  {
     /* blank lines only end targeted doxygen comments */
     if (commentType != DOX_COMMAND_OTHER)
-      {
-      closeComment();
-      }
-    }
-  else
     {
+      closeComment();
+    }
+  }
+  else
+  {
     /* blank lines end VTK comments */
     closeComment();
-    }
+  }
 }
 
 /* This is called when doxygen @{ or @} are encountered */
@@ -832,7 +832,7 @@ void assignComments(ClassInfo *cls)
   const char *comment;
 
   for (i = 0; i < cls->NumberOfComments; i++)
-    {
+  {
     t = cls->Comments[i]->Type;
     name = cls->Comments[i]->Name;
     comment = cls->Comments[i]->Comment;
@@ -840,105 +840,105 @@ void assignComments(ClassInfo *cls)
     if (t == DOX_COMMAND_CLASS ||
         t == DOX_COMMAND_STRUCT ||
         t == DOX_COMMAND_UNION)
-      {
+    {
       for (j = 0; j < cls->NumberOfClasses; j++)
-        {
+      {
         if (cls->Classes[j]->Name && name &&
             strcmp(cls->Classes[j]->Name, name) == 0)
-          {
+        {
           cls->Classes[j]->Comment = comment;
           break;
-          }
-        }
-      }
-    else if (t == DOX_COMMAND_ENUM)
-      {
-      for (j = 0; j < cls->NumberOfEnums; j++)
-        {
-        if (cls->Enums[j]->Name && name &&
-            strcmp(cls->Enums[j]->Name, name) == 0)
-          {
-          cls->Enums[j]->Comment = comment;
-          break;
-          }
-        }
-      }
-    else if (t == DOX_COMMAND_TYPEDEF)
-      {
-      for (j = 0; j < cls->NumberOfTypedefs; j++)
-        {
-        if (cls->Typedefs[j]->Name && name &&
-            strcmp(cls->Typedefs[j]->Name, name) == 0)
-          {
-          cls->Typedefs[j]->Comment = comment;
-          break;
-          }
-        }
-      }
-    else if (t == DOX_COMMAND_FN)
-      {
-      for (j = 0; j < cls->NumberOfFunctions; j++)
-        {
-        if (cls->Functions[j]->Name && name &&
-            strcmp(cls->Functions[j]->Name, name) == 0)
-          {
-          cls->Functions[j]->Comment = comment;
-          break;
-          }
-        }
-      }
-    else if (t == DOX_COMMAND_VAR)
-      {
-      for (j = 0; j < cls->NumberOfVariables; j++)
-        {
-        if (cls->Variables[j]->Name && name &&
-            strcmp(cls->Variables[j]->Name, name) == 0)
-          {
-          cls->Variables[j]->Comment = comment;
-          break;
-          }
-        }
-      for (j = 0; j < cls->NumberOfConstants; j++)
-        {
-        if (cls->Constants[j]->Name && name &&
-            strcmp(cls->Constants[j]->Name, name) == 0)
-          {
-          cls->Constants[j]->Comment = comment;
-          break;
-          }
-        }
-      }
-    else if (t == DOX_COMMAND_NAMESPACE)
-      {
-      for (j = 0; j < cls->NumberOfNamespaces; j++)
-        {
-        if (cls->Namespaces[j]->Name && name &&
-            strcmp(cls->Namespaces[j]->Name, name) == 0)
-          {
-          cls->Namespaces[j]->Comment = comment;
-          break;
-          }
         }
       }
     }
+    else if (t == DOX_COMMAND_ENUM)
+    {
+      for (j = 0; j < cls->NumberOfEnums; j++)
+      {
+        if (cls->Enums[j]->Name && name &&
+            strcmp(cls->Enums[j]->Name, name) == 0)
+        {
+          cls->Enums[j]->Comment = comment;
+          break;
+        }
+      }
+    }
+    else if (t == DOX_COMMAND_TYPEDEF)
+    {
+      for (j = 0; j < cls->NumberOfTypedefs; j++)
+      {
+        if (cls->Typedefs[j]->Name && name &&
+            strcmp(cls->Typedefs[j]->Name, name) == 0)
+        {
+          cls->Typedefs[j]->Comment = comment;
+          break;
+        }
+      }
+    }
+    else if (t == DOX_COMMAND_FN)
+    {
+      for (j = 0; j < cls->NumberOfFunctions; j++)
+      {
+        if (cls->Functions[j]->Name && name &&
+            strcmp(cls->Functions[j]->Name, name) == 0)
+        {
+          cls->Functions[j]->Comment = comment;
+          break;
+        }
+      }
+    }
+    else if (t == DOX_COMMAND_VAR)
+    {
+      for (j = 0; j < cls->NumberOfVariables; j++)
+      {
+        if (cls->Variables[j]->Name && name &&
+            strcmp(cls->Variables[j]->Name, name) == 0)
+        {
+          cls->Variables[j]->Comment = comment;
+          break;
+        }
+      }
+      for (j = 0; j < cls->NumberOfConstants; j++)
+      {
+        if (cls->Constants[j]->Name && name &&
+            strcmp(cls->Constants[j]->Name, name) == 0)
+        {
+          cls->Constants[j]->Comment = comment;
+          break;
+        }
+      }
+    }
+    else if (t == DOX_COMMAND_NAMESPACE)
+    {
+      for (j = 0; j < cls->NumberOfNamespaces; j++)
+      {
+        if (cls->Namespaces[j]->Name && name &&
+            strcmp(cls->Namespaces[j]->Name, name) == 0)
+        {
+          cls->Namespaces[j]->Comment = comment;
+          break;
+        }
+      }
+    }
+  }
 
   /* recurse into child classes */
   for (i = 0; i < cls->NumberOfClasses; i++)
-    {
+  {
     if (cls->Classes[i])
-      {
+    {
       assignComments(cls->Classes[i]);
-      }
     }
+  }
 
   /* recurse into child namespaces */
   for (i = 0; i < cls->NumberOfNamespaces; i++)
-    {
+  {
     if (cls->Namespaces[i])
-      {
+    {
       assignComments(cls->Namespaces[i]);
-      }
     }
+  }
 }
 
 /*----------------------------------------------------------------
@@ -953,10 +953,10 @@ int macroEnded = 0;
 const char *getMacro()
 {
   if (macroUsed == 0)
-    {
+  {
     macroUsed = macroEnded;
     return macroName;
-    }
+  }
   return NULL;
 }
 
@@ -978,22 +978,22 @@ void pushNamespace(const char *name)
   NamespaceInfo *oldNamespace = currentNamespace;
 
   for (i = 0; i < oldNamespace->NumberOfNamespaces; i++)
-    {
+  {
     /* see if the namespace already exists */
     if (strcmp(name, oldNamespace->Namespaces[i]->Name) == 0)
-      {
+    {
       currentNamespace = oldNamespace->Namespaces[i];
-      }
     }
+  }
 
   /* create a new namespace */
   if (i == oldNamespace->NumberOfNamespaces)
-    {
+  {
     currentNamespace = (NamespaceInfo *)malloc(sizeof(NamespaceInfo));
     vtkParse_InitNamespace(currentNamespace);
     currentNamespace->Name = name;
     vtkParse_AddNamespaceToNamespace(oldNamespace, currentNamespace);
-    }
+  }
 
   namespaceStack[namespaceDepth++] = oldNamespace;
 }
@@ -1052,9 +1052,9 @@ void startTemplate()
 void clearTemplate()
 {
   if (currentTemplate)
-    {
+  {
     free(currentTemplate);
-    }
+  }
   currentTemplate = NULL;
 }
 
@@ -1112,9 +1112,9 @@ size_t getSigLength()
 void resetSig(size_t n)
 {
   if (n < sigLength)
-    {
+  {
     sigLength = n;
-    }
+  }
 }
 
 /* reallocate Signature if n chars cannot be appended */
@@ -1123,20 +1123,20 @@ void checkSigSize(size_t n)
   const char *ccp;
 
   if (sigAllocatedLength == 0)
-    {
+  {
     sigLength = 0;
     sigAllocatedLength = 80 + n;
     signature = vtkParse_NewString(data->Strings, sigAllocatedLength);
     signature[0] = '\0';
-    }
+  }
   else if (sigLength + n > sigAllocatedLength)
-    {
+  {
     sigAllocatedLength += sigLength + n;
     ccp = signature;
     signature = vtkParse_NewString(data->Strings, sigAllocatedLength);
     strncpy(signature, ccp, sigLength);
     signature[sigLength] = '\0';
-    }
+  }
 }
 
 /* close the signature, i.e. allow no more additions to it */
@@ -1155,33 +1155,33 @@ void openSig()
 void preSig(const char *arg)
 {
   if (!sigClosed)
-    {
+  {
     size_t n = strlen(arg);
     checkSigSize(n);
     if (n > 0)
-      {
+    {
       memmove(&signature[n], signature, sigLength);
       strncpy(signature, arg, n);
       sigLength += n;
-      }
-    signature[sigLength] = '\0';
     }
+    signature[sigLength] = '\0';
+  }
 }
 
 /* append text to the end of the signature */
 void postSig(const char *arg)
 {
   if (!sigClosed)
-    {
+  {
     size_t n = strlen(arg);
     checkSigSize(n);
     if (n > 0)
-      {
+    {
       strncpy(&signature[sigLength], arg, n);
       sigLength += n;
-      }
-    signature[sigLength] = '\0';
     }
+    signature[sigLength] = '\0';
+  }
 }
 
 /* set a mark in the signature for later operations */
@@ -1189,9 +1189,9 @@ void markSig()
 {
   sigMark[sigMarkDepth] = 0;
   if (signature)
-    {
+  {
     sigMark[sigMarkDepth] = sigLength;
-    }
+  }
   sigMarkDepth++;
 }
 
@@ -1200,13 +1200,13 @@ const char *copySig()
 {
   const char *cp = NULL;
   if (sigMarkDepth > 0)
-    {
+  {
     sigMarkDepth--;
-    }
+  }
   if (signature)
-    {
+  {
     cp = &signature[sigMark[sigMarkDepth]];
-    }
+  }
   return vtkstrdup(cp);
 }
 
@@ -1215,15 +1215,15 @@ const char *cutSig()
 {
   const char *cp = NULL;
   if (sigMarkDepth > 0)
-    {
+  {
     sigMarkDepth--;
-    }
+  }
   if (signature)
-    {
+  {
     sigLength = sigMark[sigMarkDepth];
     cp = vtkstrdup(&signature[sigLength]);
     signature[sigLength] = 0;
-    }
+  }
   return cp;
 }
 
@@ -1231,11 +1231,11 @@ const char *cutSig()
 void swapSig()
 {
   if (sigMarkDepth > 0)
-    {
+  {
     sigMarkDepth--;
-    }
+  }
   if (signature && sigMark[sigMarkDepth] > 0)
-    {
+  {
     size_t i, m, n, nn;
     char c;
     char *cp;
@@ -1244,34 +1244,34 @@ void swapSig()
     m = sigMark[sigMarkDepth];
     nn = m/2;
     for (i = 0; i < nn; i++)
-      {
+    {
       c = cp[i]; cp[i] = cp[m-i-1]; cp[m-i-1] = c;
-      }
+    }
     nn = (n-m)/2;
     for (i = 0; i < nn; i++)
-      {
+    {
       c = cp[i+m]; cp[i+m] = cp[n-i-1]; cp[n-i-1] = c;
-      }
+    }
     nn = n/2;
     for (i = 0; i < nn; i++)
-      {
+    {
       c = cp[i]; cp[i] = cp[n-i-1]; cp[n-i-1] = c;
-      }
     }
+  }
 }
 
 /* chop the last space from the signature */
 void chopSig(void)
 {
   if (signature)
-    {
+  {
     size_t n = sigLength;
     if (n > 0 && signature[n-1] == ' ')
-      {
+    {
       signature[n-1] = '\0';
       sigLength--;
-      }
     }
+  }
 }
 
 /*----------------------------------------------------------------
@@ -1335,7 +1335,7 @@ unsigned int buildTypeBase(unsigned int a, unsigned int b)
   unsigned int basemod = (b & VTK_PARSE_BASE_TYPE);
 
   switch (base)
-    {
+  {
     case 0:
       base = basemod;
       break;
@@ -1345,65 +1345,65 @@ unsigned int buildTypeBase(unsigned int a, unsigned int b)
     case VTK_PARSE_INT:
       base = basemod;
       if (base == VTK_PARSE_CHAR)
-        {
+      {
         base = VTK_PARSE_SIGNED_CHAR;
-        }
+      }
       break;
     case VTK_PARSE_CHAR:
       if (basemod == VTK_PARSE_INT)
-        {
+      {
         base = VTK_PARSE_SIGNED_CHAR;
-        }
+      }
       else if (basemod == VTK_PARSE_UNSIGNED_INT)
-        {
+      {
         base = VTK_PARSE_UNSIGNED_CHAR;
-        }
+      }
       break;
     case VTK_PARSE_SHORT:
       if (basemod == VTK_PARSE_UNSIGNED_INT)
-        {
+      {
         base = VTK_PARSE_UNSIGNED_SHORT;
-        }
+      }
       break;
     case VTK_PARSE_LONG:
       if (basemod == VTK_PARSE_UNSIGNED_INT)
-        {
+      {
         base = VTK_PARSE_UNSIGNED_LONG;
-        }
+      }
       else if (basemod == VTK_PARSE_LONG)
-        {
+      {
         base = VTK_PARSE_LONG_LONG;
-        }
+      }
       else if (basemod == VTK_PARSE_DOUBLE)
-        {
+      {
         base = VTK_PARSE_LONG_DOUBLE;
-        }
+      }
       break;
     case VTK_PARSE_UNSIGNED_LONG:
       if (basemod == VTK_PARSE_LONG)
-        {
+      {
         base = VTK_PARSE_UNSIGNED_LONG_LONG;
-        }
+      }
       break;
     case VTK_PARSE_LONG_LONG:
       if (basemod == VTK_PARSE_UNSIGNED_INT)
-        {
+      {
         base = VTK_PARSE_UNSIGNED_LONG_LONG;
-        }
+      }
       break;
     case VTK_PARSE___INT64:
       if (basemod == VTK_PARSE_UNSIGNED_INT)
-        {
+      {
         base = VTK_PARSE_UNSIGNED___INT64;
-        }
+      }
       break;
     case VTK_PARSE_DOUBLE:
       if (basemod == VTK_PARSE_LONG)
-        {
+      {
         base = VTK_PARSE_LONG_DOUBLE;
-        }
+      }
       break;
-    }
+  }
 
   return ((a & ~(unsigned int)(VTK_PARSE_BASE_TYPE)) | base);
 }
@@ -1439,9 +1439,9 @@ void pushArrayFront(const char *size)
   vtkParse_AddStringToArray(&arrayDimensions, &numberOfDimensions, 0);
 
   for (i = numberOfDimensions-1; i > 0; i--)
-    {
+  {
     arrayDimensions[i] = arrayDimensions[i-1];
-    }
+  }
 
   arrayDimensions[0] = size;
 }
@@ -1456,9 +1456,9 @@ int getArrayNDims()
 const char **getArray()
 {
   if (numberOfDimensions > 0)
-    {
+  {
     return arrayDimensions;
-    }
+  }
   return NULL;
 }
 
@@ -1521,9 +1521,9 @@ void clearTypeId(void)
 void setTypeId(const char *text)
 {
   if (currentId == NULL)
-    {
+  {
     currentId = text;
-    }
+  }
 }
 
 /* set the signature and type together */
@@ -1533,9 +1533,9 @@ void typeSig(const char *text)
   postSig(" ");
 
   if (currentId == 0)
-    {
+  {
     setTypeId(text);
-    }
+  }
 }
 
 /* return the current Id */
@@ -1556,13 +1556,13 @@ int pointerScopeDepth = 0;
 void scopeSig(const char *scope)
 {
   if (scope && scope[0] != '\0')
-    {
+  {
     postSig(scope);
-    }
+  }
   else
-    {
+  {
     scope = NULL;
-    }
+  }
   pointerScopeStack[pointerScopeDepth++] = vtkstrdup(scope);
 }
 
@@ -1590,9 +1590,9 @@ void pushFunction()
   currentFunction = (FunctionInfo *)malloc(sizeof(FunctionInfo));
   vtkParse_InitFunction(currentFunction);
   if (!functionStack[functionDepth])
-    {
+  {
     startSig();
-    }
+  }
   functionVarNameStack[functionDepth] = getVarName();
   functionTypeIdStack[functionDepth] = getTypeId();
   pushType();
@@ -1611,14 +1611,14 @@ void popFunction()
   currentFunction = functionStack[functionDepth];
   clearVarName();
   if (functionVarNameStack[functionDepth])
-    {
+  {
     setVarName(functionVarNameStack[functionDepth]);
-    }
+  }
   clearTypeId();
   if (functionTypeIdStack[functionDepth])
-    {
+  {
     setTypeId(functionTypeIdStack[functionDepth]);
-    }
+  }
   popType();
 
   functionStack[functionDepth+1] = newFunction;
@@ -1669,37 +1669,37 @@ void prepend_scope(char *cp, const char *arg)
   while (i > 0 &&
          (vtkParse_CharType(cp[i-1], CPRE_XID) ||
           cp[i-1] == ':' || cp[i-1] == '>'))
-    {
+  {
     i--;
     if (cp[i] == '>')
-      {
+    {
       depth = 1;
       while (i > 0)
-        {
+      {
         i--;
         if (cp[i] == '<')
-          {
+        {
           if (--depth == 0)
-            {
-            break;
-            }
-          }
-        if (cp[i] == '>')
           {
-          depth++;
+            break;
           }
+        }
+        if (cp[i] == '>')
+        {
+          depth++;
         }
       }
     }
+  }
 
   for (j = m; j > i; j--)
-    {
+  {
     cp[j+n+1] = cp[j-1];
-    }
+  }
   for (j = 0; j < n; j++)
-    {
+  {
     cp[j+i] = arg[j];
-    }
+  }
   cp[n+i] = ':'; cp[n+i+1] = ':';
   cp[m+n+2] = '\0';
 }
@@ -1719,28 +1719,28 @@ unsigned int add_indirection(unsigned int type1, unsigned int type2)
 
   /* if there are two ampersands, it is an rvalue reference */
   if ((type1 & type2 & VTK_PARSE_REF) != 0)
-    {
+  {
     result |= VTK_PARSE_RVALUE;
-    }
+  }
 
   while (ptr2)
-    {
+  {
     reverse = ((reverse << 2) | (ptr2 & VTK_PARSE_POINTER_LOWMASK));
     ptr2 = ((ptr2 >> 2) & VTK_PARSE_POINTER_MASK);
-    }
+  }
 
   while (reverse)
-    {
+  {
     ptr1 = ((ptr1 << 2) | (reverse & VTK_PARSE_POINTER_LOWMASK));
     reverse = ((reverse >> 2) & VTK_PARSE_POINTER_MASK);
 
     /* make sure we don't exceed the VTK_PARSE_POINTER bitfield */
     if ((ptr1 & VTK_PARSE_POINTER_MASK) != ptr1)
-      {
+    {
       ptr1 = VTK_PARSE_BAD_INDIRECT;
       break;
-      }
     }
+  }
 
   return (ptr1 | result);
 }
@@ -1753,24 +1753,24 @@ unsigned int add_indirection_to_array(unsigned int type)
   unsigned int reverse = 0;
 
   if ((type & VTK_PARSE_INDIRECT) == VTK_PARSE_BAD_INDIRECT)
-    {
+  {
     return (result | VTK_PARSE_BAD_INDIRECT);
-    }
+  }
 
   while (ptrs)
-    {
+  {
     reverse = ((reverse << 2) | (ptrs & VTK_PARSE_POINTER_LOWMASK));
     ptrs = ((ptrs >> 2) & VTK_PARSE_POINTER_MASK);
-    }
+  }
 
   /* I know the reversal makes no difference, but it is still
    * nice to add the pointers in the correct order, just in
    * case const pointers are thrown into the mix. */
   while (reverse)
-    {
+  {
     pushArrayFront("");
     reverse = ((reverse >> 2) & VTK_PARSE_POINTER_MASK);
-    }
+  }
 
   return result;
 }
@@ -2057,10 +2057,10 @@ class_specifier:
       popType();
       clearTypeId();
       if (name)
-        {
+      {
         setTypeId(name);
         setTypeBase(guess_id_type(name));
-        }
+      }
       end_class();
     }
 
@@ -2207,10 +2207,10 @@ enum_specifier:
       popType();
       clearTypeId();
       if ($<str>1 != NULL)
-        {
+      {
         setTypeId($<str>1);
         setTypeBase(guess_id_type($<str>1));
-        }
+      }
       end_enum();
     }
 
@@ -2320,29 +2320,29 @@ typedef_declarator_id:
       handle_complex_type(item, getType(), $<integer>1, getSig());
 
       if (currentTemplate)
-        {
+      {
         item->Template = currentTemplate;
         currentTemplate = NULL;
-        }
+      }
 
       if (getVarName())
-        {
+      {
         item->Name = getVarName();
         item->Comment = vtkstrdup(getComment());
-        }
+      }
 
       if (item->Class == NULL)
-        {
+      {
         vtkParse_FreeValue(item);
-        }
+      }
       else if (currentClass)
-        {
+      {
         vtkParse_AddTypedefToClass(currentClass, item);
-        }
+      }
       else
-        {
+      {
         vtkParse_AddTypedefToNamespace(currentNamespace, item);
-        }
+      }
     }
 
 
@@ -2383,17 +2383,17 @@ alias_declaration:
       item->Comment = vtkstrdup(getComment());
 
       if (currentTemplate)
-        {
+      {
         vtkParse_FreeValue(item);
-        }
+      }
       else if (currentClass)
-        {
+      {
         vtkParse_AddTypedefToClass(currentClass, item);
-        }
+      }
       else
-        {
+      {
         vtkParse_AddTypedefToNamespace(currentNamespace, item);
-        }
+      }
     }
 
 /*
@@ -2645,13 +2645,13 @@ structor_declaration:
       postSig(";");
       closeSig();
       if (getType() & VTK_PARSE_VIRTUAL)
-        {
+      {
         currentFunction->IsVirtual = 1;
-        }
+      }
       if (getType() & VTK_PARSE_EXPLICIT)
-        {
+      {
         currentFunction->IsExplicit = 1;
-        }
+      }
       currentFunction->Name = $<str>1;
       currentFunction->Comment = vtkstrdup(getComment());
       vtkParseDebug("Parsed func", currentFunction->Name);
@@ -2699,9 +2699,9 @@ parameter_declaration:
       add_legacy_parameter(currentFunction, param);
 
       if (getVarName())
-        {
+      {
         param->Name = getVarName();
-        }
+      }
 
       vtkParse_AddParameterToFunction(currentFunction, param);
     }
@@ -2709,9 +2709,9 @@ parameter_declaration:
     {
       int i = currentFunction->NumberOfParameters-1;
       if (getVarValue())
-        {
+      {
         currentFunction->Parameters[i]->Value = getVarValue();
-        }
+      }
     }
 
 opt_initializer:
@@ -2751,63 +2751,63 @@ init_declarator_id:
       handle_complex_type(var, type, $<integer>1, getSig());
 
       if (currentTemplate)
-        {
+      {
         var->Template = currentTemplate;
         currentTemplate = NULL;
-        }
+      }
 
       var->Name = getVarName();
       var->Comment = vtkstrdup(getComment());
 
       if (getVarValue())
-        {
+      {
         var->Value = getVarValue();
-        }
+      }
 
       /* Is this a typedef? */
       if ((type & VTK_PARSE_TYPEDEF) != 0)
-        {
+      {
         var->ItemType = VTK_TYPEDEF_INFO;
         if (var->Class == NULL)
-          {
+        {
           vtkParse_FreeValue(var);
-          }
-        else if (currentClass)
-          {
-          vtkParse_AddTypedefToClass(currentClass, var);
-          }
-        else
-          {
-          vtkParse_AddTypedefToNamespace(currentNamespace, var);
-          }
         }
+        else if (currentClass)
+        {
+          vtkParse_AddTypedefToClass(currentClass, var);
+        }
+        else
+        {
+          vtkParse_AddTypedefToNamespace(currentNamespace, var);
+        }
+      }
       /* Is this a constant? */
       else if (((type & VTK_PARSE_CONST) != 0) && var->Value != NULL &&
           (((type & VTK_PARSE_INDIRECT) == 0) ||
            ((type & VTK_PARSE_INDIRECT) == VTK_PARSE_ARRAY)))
-        {
+      {
         var->ItemType = VTK_CONSTANT_INFO;
         if (currentClass)
-          {
+        {
           vtkParse_AddConstantToClass(currentClass, var);
-          }
-        else
-          {
-          vtkParse_AddConstantToNamespace(currentNamespace, var);
-          }
         }
+        else
+        {
+          vtkParse_AddConstantToNamespace(currentNamespace, var);
+        }
+      }
       /* This is a true variable i.e. not constant */
       else
-        {
+      {
         if (currentClass)
-          {
+        {
           vtkParse_AddVariableToClass(currentClass, var);
-          }
-        else
-          {
-          vtkParse_AddVariableToNamespace(currentNamespace, var);
-          }
         }
+        else
+        {
+          vtkParse_AddVariableToNamespace(currentNamespace, var);
+        }
+      }
     }
 
 opt_declarator_list:
@@ -2828,13 +2828,13 @@ direct_abstract_declarator:
     opt_ellipsis opt_declarator_id opt_array_or_parameters
     {
       if ($<integer>3 == VTK_PARSE_FUNCTION)
-        {
+      {
         $<integer>$ = (VTK_PARSE_FUNCTION_PTR | $<integer>1);
-        }
+      }
       else
-        {
+      {
         $<integer>$ = $<integer>1;
-        }
+      }
     }
   | lp_or_la ref_attribute_specifier_seq abstract_declarator ')'
     { postSig(")"); } opt_array_or_parameters
@@ -2842,15 +2842,15 @@ direct_abstract_declarator:
       const char *scope = getScope();
       unsigned int parens = add_indirection($<integer>1, $<integer>3);
       if ($<integer>6 == VTK_PARSE_FUNCTION)
-        {
+      {
         if (scope) { scope = vtkstrndup(scope, strlen(scope) - 2); }
         getFunction()->Class = scope;
         $<integer>$ = (parens | VTK_PARSE_FUNCTION);
-        }
+      }
       else if ($<integer>6 == VTK_PARSE_ARRAY)
-        {
+      {
         $<integer>$ = add_indirection_to_array(parens);
-        }
+      }
     }
 
 /* for variables, the declarator_id is mandatory */
@@ -2863,15 +2863,15 @@ direct_declarator:
       const char *scope = getScope();
       unsigned int parens = add_indirection($<integer>1, $<integer>2);
       if ($<integer>5 == VTK_PARSE_FUNCTION)
-        {
+      {
         if (scope) { scope = vtkstrndup(scope, strlen(scope) - 2); }
         getFunction()->Class = scope;
         $<integer>$ = (parens | VTK_PARSE_FUNCTION);
-        }
+      }
       else if ($<integer>5 == VTK_PARSE_ARRAY)
-        {
+      {
         $<integer>$ = add_indirection_to_array(parens);
-        }
+      }
     }
 
 lp_or_la:
@@ -3238,13 +3238,13 @@ ptr_cv_qualifier_seq:
   | cv_qualifier_seq
     {
       if (($<integer>1 & VTK_PARSE_CONST) != 0)
-        {
+      {
         $<integer>$ = VTK_PARSE_CONST_POINTER;
-        }
+      }
       if (($<integer>1 & VTK_PARSE_VOLATILE) != 0)
-        {
+      {
         $<integer>$ = VTK_PARSE_BAD_INDIRECT;
-        }
+      }
     }
 
 /* "VTK_BAD_INDIRECT" occurs when the bitfield fills up */
@@ -3256,9 +3256,9 @@ pointer_seq:
       unsigned int n;
       n = (($<integer>1 << 2) | $<integer>2);
       if ((n & VTK_PARSE_INDIRECT) != n)
-        {
+      {
         n = VTK_PARSE_BAD_INDIRECT;
-        }
+      }
       $<integer>$ = n;
     }
 
@@ -3753,7 +3753,7 @@ common_bracket_item_no_scope_operator:
       if ((($<str>1)[0] == '+' || ($<str>1)[0] == '-' ||
            ($<str>1)[0] == '*' || ($<str>1)[0] == '&') &&
           ($<str>1)[1] == '\0')
-        {
+      {
         int c1 = 0;
         size_t l;
         const char *cp;
@@ -3762,21 +3762,21 @@ common_bracket_item_no_scope_operator:
         l = getSigLength();
         if (l != 0) { c1 = cp[l-1]; }
         if (c1 != 0 && c1 != '(' && c1 != '[' && c1 != '=')
-          {
+        {
           postSig(" ");
-          }
+        }
         postSig($<str>1);
         if (vtkParse_CharType(c1, (CPRE_XID|CPRE_QUOTE)) ||
             c1 == ')' || c1 == ']')
-          {
-          postSig(" ");
-          }
-        }
-       else
         {
+          postSig(" ");
+        }
+      }
+       else
+       {
         postSig($<str>1);
         postSig(" ");
-        }
+       }
     }
   | ':' { postSig(":"); postSig(" "); } | '.' { postSig("."); }
   | keyword { postSig($<str>1); postSig(" "); }
@@ -3792,16 +3792,16 @@ common_bracket_item_no_scope_operator:
       l = getSigLength();
       if (l != 0) { c1 = cp[l-1]; }
       while (vtkParse_CharType(c1, CPRE_XID) && l != 0)
-        {
+      {
         --l;
         c1 = cp[l-1];
-        }
+      }
       if (l < 2 || cp[l-1] != ':' || cp[l-2] != ':')
-        {
+      {
         cp = add_const_scope(&cp[l]);
         resetSig(l);
         postSig(cp);
-        }
+      }
       postSig(" ");
     }
 
@@ -3926,11 +3926,11 @@ ignored_left_parenthesis:
 const char *type_class(unsigned int type, const char *classname)
 {
   if (classname)
-    {
+  {
     if (classname[0] == '\0')
-      {
+    {
       switch ((type & VTK_PARSE_BASE_TYPE))
-        {
+      {
         case 0:
           classname = "auto";
           break;
@@ -3997,9 +3997,9 @@ const char *type_class(unsigned int type, const char *classname)
         case VTK_PARSE_UNSIGNED___INT64:
           classname = "unsigned __int64";
           break;
-        }
       }
     }
+  }
 
   return classname;
 }
@@ -4013,50 +4013,50 @@ void start_class(const char *classname, int is_struct_or_union)
   vtkParse_InitClass(currentClass);
   currentClass->Name = classname;
   if (is_struct_or_union == 1)
-    {
+  {
     currentClass->ItemType = VTK_STRUCT_INFO;
-    }
+  }
   if (is_struct_or_union == 2)
-    {
+  {
     currentClass->ItemType = VTK_UNION_INFO;
-    }
+  }
 
   if (classname && classname[0] != '\0')
-    {
+  {
     /* if name of class being defined contains "::" or "<..>", then skip it */
     const char *cp = classname;
     while (*cp != '\0' && *cp != ':' && *cp != '>')
-      {
+    {
       cp++;
-      }
+    }
     if (*cp == '\0')
-      {
+    {
       if (outerClass)
-        {
+      {
         vtkParse_AddClassToClass(outerClass, currentClass);
-        }
+      }
       else
-        {
+      {
         vtkParse_AddClassToNamespace(currentNamespace, currentClass);
-        }
       }
     }
+  }
 
   /* template information */
   if (currentTemplate)
-    {
+  {
     currentClass->Template = currentTemplate;
     currentTemplate = NULL;
-    }
+  }
 
   /* comment, if any */
   currentClass->Comment = vtkstrdup(getComment());
 
   access_level = VTK_ACCESS_PRIVATE;
   if (is_struct_or_union)
-    {
+  {
     access_level = VTK_ACCESS_PUBLIC;
-    }
+  }
 
   vtkParse_InitFunction(currentFunction);
   startSig();
@@ -4080,11 +4080,11 @@ void add_base_class(ClassInfo *cls, const char *name, int al,
   if (cls && al == VTK_ACCESS_PUBLIC &&
       (extra & VTK_PARSE_VIRTUAL) == 0 &&
       (extra & VTK_PARSE_PACK) == 0)
-    {
+  {
     vtkParse_AddStringToArray(&cls->SuperClasses,
                               &cls->NumberOfSuperClasses,
                               name);
-    }
+  }
 }
 
 /* add a using declaration or directive */
@@ -4096,27 +4096,27 @@ void add_using(const char *name, int is_namespace)
   item = (UsingInfo *)malloc(sizeof(UsingInfo));
   vtkParse_InitUsing(item);
   if (is_namespace)
-    {
+  {
     item->Name = NULL;
     item->Scope = name;
-    }
+  }
   else
-    {
+  {
     i = strlen(name);
     while (i > 0 && name[i-1] != ':') { i--; }
     item->Name = vtkstrdup(&name[i]);
     while (i > 0 && name[i-1] == ':') { i--; }
     item->Scope = vtkstrndup(name, i);
-    }
+  }
 
   if (currentClass)
-    {
+  {
     vtkParse_AddUsingToClass(currentClass, item);
-    }
+  }
   else
-    {
+  {
     vtkParse_AddUsingToNamespace(currentNamespace, item);
-    }
+  }
 }
 
 /* start a new enum */
@@ -4130,12 +4130,12 @@ void start_enum(const char *name, int is_scoped,
   currentEnumValue = NULL;
 
   if (type == 0 && is_scoped)
-    {
+  {
     type = VTK_PARSE_INT;
-    }
+  }
 
   if (name)
-    {
+  {
     currentEnumName = name;
     item = (EnumInfo *)malloc(sizeof(EnumInfo));
     vtkParse_InitEnum(item);
@@ -4144,36 +4144,36 @@ void start_enum(const char *name, int is_scoped,
     item->Access = access_level;
 
     if (currentClass)
-      {
+    {
       vtkParse_AddEnumToClass(currentClass, item);
-      }
+    }
     else
-      {
+    {
       vtkParse_AddEnumToNamespace(currentNamespace, item);
-      }
+    }
 
     if (type)
-      {
+    {
       vtkParse_AddStringToArray(&item->SuperClasses,
                                 &item->NumberOfSuperClasses,
                                 type_class(type, basename));
-      }
+    }
 
     if (is_scoped)
-      {
+    {
       pushClass();
       currentClass = item;
-      }
     }
+  }
 }
 
 /* finish the enum */
 void end_enum()
 {
   if (currentClass && currentClass->ItemType == VTK_ENUM_INFO)
-    {
+  {
     popClass();
-    }
+  }
 
   currentEnumName = NULL;
   currentEnumValue = NULL;
@@ -4187,12 +4187,12 @@ void add_enum(const char *name, const char *value)
   long j;
 
   if (value)
-    {
+  {
     strcpy(text, value);
     currentEnumValue = value;
-    }
+  }
   else if (currentEnumValue)
-    {
+  {
     i = strlen(text);
     while (i > 0 && text[i-1] >= '0' &&
            text[i-1] <= '9') { i--; }
@@ -4200,26 +4200,26 @@ void add_enum(const char *name, const char *value)
     if (i == 0 || text[i-1] == ' ' ||
         (i > 1 && text[i-2] == ' ' &&
          (text[i-1] == '-' || text[i-1] == '+')))
-      {
+    {
       if (i > 0 && text[i-1] != ' ')
-        {
+      {
         i--;
-        }
+      }
       j = (int)strtol(&text[i], NULL, 10);
       sprintf(&text[i], "%li", j+1);
-      }
+    }
     else
-      {
+    {
       i = strlen(text);
       strcpy(&text[i], " + 1");
-      }
-    currentEnumValue = vtkstrdup(text);
     }
+    currentEnumValue = vtkstrdup(text);
+  }
   else
-    {
+  {
     strcpy(text, "0");
     currentEnumValue = "0";
-    }
+  }
 
   add_constant(name, currentEnumValue, currentEnumType, currentEnumName, 2);
 }
@@ -4233,59 +4233,59 @@ unsigned int guess_constant_type(const char *valstring)
   int is_name = 0;
 
   if (valstring == NULL || valstring[0] == '\0')
-    {
+  {
     return 0;
-    }
+  }
 
   k = vtkParse_SkipId(valstring);
   if (valstring[k] == '\0')
-    {
+  {
     is_name = 1;
-    }
+  }
 
   if (strcmp(valstring, "true") == 0 || strcmp(valstring, "false") == 0)
-    {
+  {
     return VTK_PARSE_BOOL;
-    }
+  }
 
   if (strcmp(valstring, "nullptr") == 0 || strcmp(valstring, "NULL") == 0)
-    {
+  {
     return VTK_PARSE_NULLPTR_T;
-    }
+  }
 
   if (valstring[0] == '\'')
-    {
+  {
     return VTK_PARSE_CHAR;
-    }
+  }
 
   if (strncmp(valstring, "VTK_TYPE_CAST(", 14) == 0 ||
       strncmp(valstring, "static_cast<", 12) == 0 ||
       strncmp(valstring, "const_cast<", 11) == 0 ||
       strncmp(valstring, "(", 1) == 0)
-    {
+  {
     const char *cp;
     size_t n;
     int is_unsigned = 0;
 
     cp = &valstring[1];
     if (valstring[0] == 'c')
-      {
+    {
       cp = &valstring[11];
-      }
+    }
     else if (valstring[0] == 's')
-      {
+    {
       cp = &valstring[12];
-      }
+    }
     else if (valstring[0] == 'V')
-      {
+    {
       cp = &valstring[14];
-      }
+    }
 
     if (strncmp(cp, "unsigned ", 9) == 0)
-      {
+    {
       is_unsigned = 1;
       cp += 9;
-      }
+    }
 
     n = strlen(cp);
     for (k = 0; k < n && cp[k] != ',' &&
@@ -4314,92 +4314,92 @@ unsigned int guess_constant_type(const char *valstring)
       { valtype = VTK_PARSE_CHAR_PTR; }
 
     if (is_unsigned)
-      {
+    {
       if (valtype == 0) { valtype = VTK_PARSE_INT; }
       valtype = (valtype | VTK_PARSE_UNSIGNED);
-      }
+    }
 
     if (valtype != 0)
-      {
+    {
       return valtype;
-      }
     }
+  }
 
   /* check the current scope */
   if (is_name)
-    {
+  {
     NamespaceInfo *scope = currentNamespace;
     if (namespaceDepth > 0)
-      {
+    {
       scope = namespaceStack[0];
-      }
+    }
 
     for (i = 0; i < scope->NumberOfConstants; i++)
-      {
+    {
       if (strcmp(scope->Constants[i]->Name, valstring) == 0)
-        {
+      {
         return scope->Constants[i]->Type;
-        }
       }
     }
+  }
 
   /* check for preprocessor macros */
   if (is_name)
-    {
+  {
     MacroInfo *macro = vtkParsePreprocess_GetMacro(
       preprocessor, valstring);
 
     if (macro && !macro->IsFunction)
-      {
+    {
       return guess_constant_type(macro->Definition);
-      }
     }
+  }
 
   /* fall back to the preprocessor to evaluate the constant */
-    {
+  {
     preproc_int_t val;
     int is_unsigned;
     int result = vtkParsePreprocess_EvaluateExpression(
       preprocessor, valstring, &val, &is_unsigned);
 
     if (result == VTK_PARSE_PREPROC_DOUBLE)
-      {
+    {
       return VTK_PARSE_DOUBLE;
-      }
+    }
     else if (result == VTK_PARSE_PREPROC_FLOAT)
-      {
+    {
       return VTK_PARSE_FLOAT;
-      }
+    }
     else if (result == VTK_PARSE_PREPROC_STRING)
-      {
+    {
       return VTK_PARSE_CHAR_PTR;
-      }
+    }
     else if (result == VTK_PARSE_OK)
-      {
+    {
       if (is_unsigned)
-        {
+      {
         if ((preproc_uint_t)val <= VTK_UNSIGNED_INT_MAX)
-          {
-          return VTK_PARSE_UNSIGNED_INT;
-          }
-        else
-          {
-          return VTK_PARSE_UNSIGNED_LONG_LONG;
-          }
-        }
-      else
         {
-        if (val >= VTK_INT_MIN && val <= VTK_INT_MAX)
-          {
-          return VTK_PARSE_INT;
-          }
+          return VTK_PARSE_UNSIGNED_INT;
+        }
         else
-          {
+        {
+          return VTK_PARSE_UNSIGNED_LONG_LONG;
+        }
+      }
+      else
+      {
+        if (val >= VTK_INT_MIN && val <= VTK_INT_MAX)
+        {
+          return VTK_PARSE_INT;
+        }
+        else
+        {
           return VTK_PARSE_LONG_LONG;
-          }
         }
       }
     }
+  }
 
   return 0;
 }
@@ -4418,12 +4418,12 @@ void add_constant(const char *name, const char *value,
   con->Class = type_class(type, typeclass);
 
   if (flag == 2)
-    {
+  {
     con->IsEnum = 1;
-    }
+  }
 
   if (flag == 1)
-    {
+  {
     /* actually a macro, need to guess the type */
     ValueInfo **cptr = data->Contents->Constants;
     int n = data->Contents->NumberOfConstants;
@@ -4431,37 +4431,37 @@ void add_constant(const char *name, const char *value,
 
     con->Access = VTK_ACCESS_PUBLIC;
     if (con->Type == 0)
-      {
+    {
       con->Type = guess_constant_type(con->Value);
-      }
+    }
 
     for (i = 0; i < n; i++)
-      {
+    {
       if (strcmp(cptr[i]->Name, con->Name) == 0)
-        {
+      {
         break;
-        }
       }
+    }
 
     if (i == n)
-      {
-      vtkParse_AddConstantToNamespace(data->Contents, con);
-      }
-    else
-      {
-      vtkParse_FreeValue(con);
-      }
-    }
-  else if (currentClass)
     {
+      vtkParse_AddConstantToNamespace(data->Contents, con);
+    }
+    else
+    {
+      vtkParse_FreeValue(con);
+    }
+  }
+  else if (currentClass)
+  {
     con->Access = access_level;
     vtkParse_AddConstantToClass(currentClass, con);
-    }
+  }
   else
-    {
+  {
     con->Access = VTK_ACCESS_PUBLIC;
     vtkParse_AddConstantToNamespace(currentNamespace, con);
-    }
+  }
 }
 
 /* if the name is a const in this namespace, the scope it */
@@ -4475,41 +4475,41 @@ const char *add_const_scope(const char *name)
   strcpy(text, name);
 
   if (currentClass)
-    {
+  {
     for (j = 0; j < currentClass->NumberOfConstants; j++)
-      {
+    {
       if (strcmp(currentClass->Constants[j]->Name, text) == 0)
-        {
+      {
         prepend_scope(text, currentClass->Name);
         addscope = 1;
+      }
+    }
+  }
+  i = namespaceDepth;
+  while (scope && scope->Name)
+  {
+    if (addscope)
+    {
+      prepend_scope(text, scope->Name);
+    }
+    else
+    {
+      for (j = 0; j < scope->NumberOfConstants; j++)
+      {
+        if (strcmp(scope->Constants[j]->Name, text) == 0)
+        {
+          prepend_scope(text, scope->Name);
+          addscope = 1;
         }
       }
     }
-  i = namespaceDepth;
-  while (scope && scope->Name)
-    {
-    if (addscope)
-      {
-      prepend_scope(text, scope->Name);
-      }
-    else
-      {
-      for (j = 0; j < scope->NumberOfConstants; j++)
-        {
-        if (strcmp(scope->Constants[j]->Name, text) == 0)
-          {
-          prepend_scope(text, scope->Name);
-          addscope = 1;
-          }
-        }
-      }
 
     scope = 0;
     if (i > 0)
-      {
+    {
       scope = namespaceStack[--i];
-      }
     }
+  }
 
   return text;
 }
@@ -4520,7 +4520,7 @@ unsigned int guess_id_type(const char *cp)
   unsigned int t = 0;
 
   if (cp)
-    {
+  {
     size_t i;
     const char *dp;
 
@@ -4530,27 +4530,27 @@ unsigned int guess_id_type(const char *cp)
 
     if (strcmp(dp, "vtkStdString") == 0 ||
         strcmp(cp, "std::string") == 0)
-      {
+    {
       t = VTK_PARSE_STRING;
-      }
+    }
     else if (strcmp(dp, "vtkUnicodeString") == 0)
-      {
+    {
       t = VTK_PARSE_UNICODE_STRING;
-      }
+    }
     else if (strncmp(dp, "vtk", 3) == 0)
-      {
+    {
       t = VTK_PARSE_OBJECT;
-      }
+    }
     else if (strncmp(dp, "Q", 1) == 0 ||
              strncmp(cp, "Qt::", 4) == 0)
-      {
+    {
       t = VTK_PARSE_QOBJECT;
-      }
-    else
-      {
-      t = VTK_PARSE_UNKNOWN;
-      }
     }
+    else
+    {
+      t = VTK_PARSE_UNKNOWN;
+    }
+  }
 
   return t;
 }
@@ -4578,12 +4578,12 @@ void add_parameter(FunctionInfo *func, unsigned int type,
   param->Class = type_class(type, typeclass);
 
   if (count)
-    {
+  {
     param->Count = count;
     sprintf(text, "%i", count);
     vtkParse_AddStringToArray(&param->Dimensions, &param->NumberOfDimensions,
                               vtkstrdup(text));
-    }
+  }
 
   add_legacy_parameter(func, param);
 
@@ -4602,12 +4602,12 @@ void set_return(FunctionInfo *func, unsigned int type,
   val->Class = type_class(type, typeclass);
 
   if (count)
-    {
+  {
     val->Count = count;
     sprintf(text, "%i", count);
     vtkParse_AddStringToArray(&val->Dimensions, &val->NumberOfDimensions,
                               vtkstrdup(text));
-    }
+  }
 
   func->ReturnValue = val;
 
@@ -4627,25 +4627,25 @@ int count_from_dimensions(ValueInfo *val)
   /* count is the product of the dimensions */
   count = 0;
   if (val->NumberOfDimensions)
-    {
+  {
     count = 1;
     for (i = 0; i < val->NumberOfDimensions; i++)
-      {
+    {
       n = 0;
       cp = val->Dimensions[i];
       if (cp[0] != '\0')
-        {
+      {
         while (*cp != '\0' && *cp >= '0' && *cp <= '9') { cp++; }
         while (*cp != '\0' && (*cp == 'u' || *cp == 'l' ||
                                *cp == 'U' || *cp == 'L')) { cp++; }
         if (*cp == '\0')
-          {
+        {
           n = (int)strtol(val->Dimensions[i], NULL, 0);
-          }
         }
-      count *= n;
       }
+      count *= n;
     }
+  }
 
   return count;
 }
@@ -4662,14 +4662,14 @@ void handle_complex_type(
 
   /* remove the pack specifier caused by "..." */
   if ((extra & VTK_PARSE_PACK) != 0)
-    {
+  {
     val->IsPack = 1;
     extra ^= VTK_PARSE_PACK;
-    }
+  }
 
   /* if "extra" was set, parentheses were involved */
   if ((extra & VTK_PARSE_BASE_TYPE) == VTK_PARSE_FUNCTION)
-    {
+  {
     /* the current type becomes the function return type */
     func = getFunction();
     func->ReturnValue = (ValueInfo *)malloc(sizeof(ValueInfo));
@@ -4688,55 +4688,55 @@ void handle_complex_type(
     clearTypeId();
     setTypeId(func->Class ? "method" : "function");
     datatype = (extra & (VTK_PARSE_UNQUALIFIED_TYPE | VTK_PARSE_RVALUE));
-    }
+  }
   else if ((extra & VTK_PARSE_INDIRECT) == VTK_PARSE_BAD_INDIRECT)
-    {
+  {
     datatype = (datatype | VTK_PARSE_BAD_INDIRECT);
-    }
+  }
   else if ((extra & VTK_PARSE_INDIRECT) != 0)
-    {
+  {
     extra = (extra & (VTK_PARSE_INDIRECT | VTK_PARSE_RVALUE));
 
     if ((extra & VTK_PARSE_REF) != 0)
-      {
+    {
       datatype = (datatype | (extra & (VTK_PARSE_REF | VTK_PARSE_RVALUE)));
       extra = (extra & ~(VTK_PARSE_REF | VTK_PARSE_RVALUE));
-      }
+    }
 
     if (extra != 0 && getArrayNDims() > 0)
-      {
+    {
       /* pointer represents an unsized array bracket */
       datatype = add_indirection(datatype, VTK_PARSE_ARRAY);
       extra = ((extra >> 2) & VTK_PARSE_POINTER_MASK);
-      }
+    }
 
     datatype = add_indirection(datatype, extra);
-    }
+  }
 
   if (getArrayNDims() == 1)
-    {
+  {
     if ((datatype & VTK_PARSE_POINTER_LOWMASK) != VTK_PARSE_ARRAY)
-      {
+    {
       /* turn the first set of brackets into a pointer */
       datatype = add_indirection(datatype, VTK_PARSE_POINTER);
-      }
-    else
-      {
-      pushArrayFront("");
-      }
     }
-  else if (getArrayNDims() > 1)
+    else
     {
+      pushArrayFront("");
+    }
+  }
+  else if (getArrayNDims() > 1)
+  {
     if ((datatype & VTK_PARSE_POINTER_LOWMASK) != VTK_PARSE_ARRAY)
-      {
+    {
       /* turn the first set of brackets into a pointer */
       datatype = add_indirection(datatype, VTK_PARSE_ARRAY);
-      }
-    else
-      {
-      pushArrayFront("");
-      }
     }
+    else
+    {
+      pushArrayFront("");
+    }
+  }
 
   /* get the data type */
   val->Type = datatype;
@@ -4761,48 +4761,48 @@ void handle_attribute(const char *att, int pack)
   const char *args = NULL;
 
   if (!att)
-    {
+  {
     return;
-    }
+  }
 
   /* search for arguments */
   l = vtkParse_SkipId(att);
   while (att[l] == ':' && att[l+1] == ':')
-    {
+  {
     l += 2;
     l += vtkParse_SkipId(&att[l]);
-    }
+  }
   if (att[l] == '(')
-    {
+  {
     args = &att[l];
-    }
+  }
 
   /* check for namespace */
   if (strncmp(att, "vtk::", 5) == 0)
-    {
+  {
     if (args)
-      {
+    {
       /* no current vtk attributes use arguments */
       print_parser_error("attribute takes no args", att, l);
       exit(1);
-      }
+    }
     else if (pack)
-      {
+    {
       /* no current vtk attributes use '...' */
       print_parser_error("attribute takes no ...", att, l);
       exit(1);
-      }
+    }
     else if (strcmp(att, "vtk::newinstance") == 0 &&
              role == VTK_PARSE_ATTRIB_DECL)
-      {
+    {
       setTypeMod(VTK_PARSE_NEWINSTANCE);
-      }
+    }
     else
-      {
+    {
       print_parser_error("attribute cannot be used here", att, l);
       exit(1);
-      }
     }
+  }
 }
 
 /* add a parameter to the legacy part of the FunctionInfo struct */
@@ -4812,7 +4812,7 @@ void add_legacy_parameter(FunctionInfo *func, ValueInfo *param)
   int i = func->NumberOfArguments;
 
   if (i < MAX_ARGS)
-    {
+  {
     func->NumberOfArguments = i + 1;
     func->ArgTypes[i] = param->Type;
     func->ArgClasses[i] = param->Class;
@@ -4820,21 +4820,21 @@ void add_legacy_parameter(FunctionInfo *func, ValueInfo *param)
 
     /* legacy wrappers need VTK_PARSE_FUNCTION without POINTER */
     if (param->Type == VTK_PARSE_FUNCTION_PTR)
-      {
+    {
       /* check for signature "void (*func)(void *)" */
       if (param->Function->NumberOfParameters == 1 &&
           param->Function->Parameters[0]->Type == VTK_PARSE_VOID_PTR &&
           param->Function->Parameters[0]->NumberOfDimensions == 0 &&
           param->Function->ReturnValue->Type == VTK_PARSE_VOID)
-        {
+      {
         func->ArgTypes[i] = VTK_PARSE_FUNCTION;
-        }
       }
     }
+  }
   else
-    {
+  {
     func->ArrayFailure = 1;
-    }
+  }
 #endif
 }
 
@@ -4858,137 +4858,137 @@ void output_function()
   /* reject template specializations */
   n = strlen(currentFunction->Name);
   if (currentFunction->Name[n-1] == '>')
-    {
+  {
     /* make sure there is a matching angle bracket */
     while (n > 0 && currentFunction->Name[n-1] != '<') { n--; }
     if (n > 0)
-      {
+    {
       reject_function();
       return;
-      }
     }
+  }
 
   /* friend */
   if (currentFunction->ReturnValue &&
       currentFunction->ReturnValue->Type & VTK_PARSE_FRIEND)
-    {
+  {
     currentFunction->ReturnValue->Type ^= VTK_PARSE_FRIEND;
     output_friend_function();
     return;
-    }
+  }
 
   /* typedef */
   if (currentFunction->ReturnValue &&
       currentFunction->ReturnValue->Type & VTK_PARSE_TYPEDEF)
-    {
+  {
     /* for now, reject it instead of turning a method into a typedef */
     currentFunction->ReturnValue->Type ^= VTK_PARSE_TYPEDEF;
     reject_function();
     return;
-    }
+  }
 
   /* static */
   if (currentFunction->ReturnValue &&
       currentFunction->ReturnValue->Type & VTK_PARSE_STATIC)
-    {
+  {
     currentFunction->IsStatic = 1;
-    }
+  }
 
   /* virtual */
   if (currentFunction->ReturnValue &&
       currentFunction->ReturnValue->Type & VTK_PARSE_VIRTUAL)
-    {
+  {
     currentFunction->IsVirtual = 1;
-    }
+  }
 
   /* the signature */
   if (!currentFunction->Signature)
-    {
+  {
     currentFunction->Signature = getSig();
-    }
+  }
 
   /* template information */
   if (currentTemplate)
-    {
+  {
     currentFunction->Template = currentTemplate;
     currentTemplate = NULL;
-    }
+  }
 
   /* a void argument is the same as no parameters */
   if (currentFunction->NumberOfParameters == 1 &&
       (currentFunction->Parameters[0]->Type & VTK_PARSE_UNQUALIFIED_TYPE) ==
       VTK_PARSE_VOID)
-    {
+  {
     currentFunction->NumberOfParameters = 0;
-    }
+  }
 
   /* is it defined in a legacy macro? */
   if (macro && strcmp(macro, "VTK_LEGACY") == 0)
-    {
+  {
     currentFunction->IsLegacy = 1;
-    }
+  }
 
   /* set public, protected */
   if (currentClass)
-    {
+  {
     currentFunction->Access = access_level;
-    }
+  }
   else
-    {
+  {
     currentFunction->Access = VTK_ACCESS_PUBLIC;
-    }
+  }
 
 #ifndef VTK_PARSE_LEGACY_REMOVE
   /* a void argument is the same as no parameters */
   if (currentFunction->NumberOfArguments == 1 &&
       (currentFunction->ArgTypes[0] & VTK_PARSE_UNQUALIFIED_TYPE) ==
       VTK_PARSE_VOID)
-    {
+  {
     currentFunction->NumberOfArguments = 0;
-    }
+  }
 
   /* if return type is void, set return class to void */
   if (currentFunction->ReturnClass == NULL &&
       (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE) ==
        VTK_PARSE_VOID)
-    {
+  {
     currentFunction->ReturnClass = "void";
-    }
+  }
 
   /* set legacy flags */
   if (currentClass)
-    {
+  {
     currentFunction->IsPublic = (access_level == VTK_ACCESS_PUBLIC);
     currentFunction->IsProtected = (access_level == VTK_ACCESS_PROTECTED);
-    }
+  }
   else
-    {
+  {
     currentFunction->IsPublic = 1;
     currentFunction->IsProtected = 0;
-    }
+  }
 
   /* check for too many parameters */
   if (currentFunction->NumberOfParameters > MAX_ARGS)
-    {
+  {
     currentFunction->ArrayFailure = 1;
-    }
+  }
 
   for (i = 0; i < currentFunction->NumberOfParameters; i++)
-    {
+  {
     ValueInfo *param = currentFunction->Parameters[i];
     /* tell old wrappers that multi-dimensional arrays are bad */
     if ((param->Type & VTK_PARSE_POINTER_MASK) != 0)
-      {
+    {
       if (((param->Type & VTK_PARSE_INDIRECT) == VTK_PARSE_BAD_INDIRECT) ||
           ((param->Type & VTK_PARSE_POINTER_LOWMASK) != VTK_PARSE_POINTER))
-        {
+      {
         currentFunction->ArrayFailure = 1;
-        }
       }
+    }
 
     /* allow only "void (*func)(void *)" as a valid function pointer */
     if ((param->Type & VTK_PARSE_BASE_TYPE) == VTK_PARSE_FUNCTION)
-      {
+    {
       if (i != 0 || param->Type != VTK_PARSE_FUNCTION_PTR ||
           currentFunction->NumberOfParameters != 2 ||
           currentFunction->Parameters[1]->Type != VTK_PARSE_VOID_PTR ||
@@ -4996,68 +4996,68 @@ void output_function()
           param->Function->Parameters[0]->Type != VTK_PARSE_VOID_PTR ||
           param->Function->Parameters[0]->NumberOfDimensions != 0 ||
           param->Function->ReturnValue->Type != VTK_PARSE_VOID)
-        {
+      {
         currentFunction->ArrayFailure = 1;
-        }
       }
     }
+  }
 #endif /* VTK_PARSE_LEGACY_REMOVE */
 
   if (currentClass)
-    {
+  {
     /* is it a delete function */
     if (currentFunction->Name && !strcmp("Delete",currentFunction->Name))
-      {
+    {
       currentClass->HasDelete = 1;
-      }
+    }
 
     currentFunction->Class = currentClass->Name;
     vtkParse_AddFunctionToClass(currentClass, currentFunction);
 
     currentFunction = (FunctionInfo *)malloc(sizeof(FunctionInfo));
-    }
+  }
   else
-    {
+  {
     /* make sure this function isn't a repeat */
     match = 0;
     for (i = 0; i < currentNamespace->NumberOfFunctions; i++)
-      {
+    {
       if (currentNamespace->Functions[i]->Name &&
           strcmp(currentNamespace->Functions[i]->Name,
                  currentFunction->Name) == 0)
-        {
+      {
         if (currentNamespace->Functions[i]->NumberOfParameters ==
             currentFunction->NumberOfParameters)
-          {
+        {
           for (j = 0; j < currentFunction->NumberOfParameters; j++)
-            {
+          {
             if (currentNamespace->Functions[i]->Parameters[j]->Type ==
                 currentFunction->Parameters[j]->Type)
-              {
+            {
               if (currentFunction->Parameters[j]->Type == VTK_PARSE_OBJECT &&
                   strcmp(currentNamespace->Functions[i]->Parameters[j]->Class,
                          currentFunction->Parameters[j]->Class) == 0)
-                {
+              {
                 break;
-                }
               }
             }
+          }
           if (j == currentFunction->NumberOfParameters)
-            {
+          {
             match = 1;
             break;
-            }
           }
         }
       }
+    }
 
     if (!match)
-      {
+    {
       vtkParse_AddFunctionToNamespace(currentNamespace, currentFunction);
 
       currentFunction = (FunctionInfo *)malloc(sizeof(FunctionInfo));
-      }
     }
+  }
 
   vtkParse_InitFunction(currentFunction);
   startSig();
@@ -5095,15 +5095,15 @@ void outputSetVectorMacro(const char *var, unsigned int paramType,
   postSig("(");
   postSig(typeText);
   for (i = 1; i < n; i++)
-    {
+  {
     postSig(", ");
     postSig(typeText);
-    }
+  }
   postSig(");");
   for (i = 0; i < n; i++)
-    {
+  {
     add_parameter(currentFunction, paramType, getTypeId(), 0);
-    }
+  }
   set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
   output_function();
 
@@ -5142,13 +5142,13 @@ void outputGetVectorMacro(const char *var, unsigned int paramType,
 void vtkParse_SetRecursive(int option)
 {
   if (option)
-    {
+  {
     Recursive = 1;
-    }
+  }
   else
-    {
+  {
     Recursive = 0;
-    }
+  }
 }
 
 /* Set the global variable that stores the current executable */
@@ -5180,37 +5180,37 @@ FileInfo *vtkParse_ParseFile(
 
   /* add include files specified on the command line */
   for (i = 0; i < NumberOfIncludeDirectories; i++)
-    {
+  {
     vtkParsePreprocess_IncludeDirectory(preprocessor, IncludeDirectories[i]);
-    }
+  }
 
   /* add macros specified on the command line */
   for (i = 0; i < NumberOfDefinitions; i++)
-    {
+  {
     const char *cp = Definitions[i];
 
     if (*cp == 'U')
-      {
+    {
       vtkParsePreprocess_RemoveMacro(preprocessor, &cp[1]);
-      }
+    }
     else if (*cp == 'D')
-      {
+    {
       const char *definition = &cp[1];
       while (*definition != '=' && *definition != '\0')
-        {
+      {
         definition++;
-        }
-      if (*definition == '=')
-        {
-        definition++;
-        }
-      else
-        {
-        definition = NULL;
-        }
-      vtkParsePreprocess_AddMacro(preprocessor, &cp[1], definition);
       }
+      if (*definition == '=')
+      {
+        definition++;
+      }
+      else
+      {
+        definition = NULL;
+      }
+      vtkParsePreprocess_AddMacro(preprocessor, &cp[1], definition);
     }
+  }
 
   /* should explicitly check for vtkConfigure.h, or even explicitly load it */
 #ifdef VTK_USE_64BIT_IDS
@@ -5235,18 +5235,18 @@ FileInfo *vtkParse_ParseFile(
 
   parseDebug = 0;
   if (getenv("DEBUG") != NULL)
-    {
+  {
     parseDebug = 1;
-    }
+  }
 
   yyset_in(ifile);
   yyset_out(errfile);
   ret = yyparse();
 
   if (ret)
-    {
+  {
     return NULL;
-    }
+  }
 
   free(currentFunction);
   yylex_destroy();
@@ -5255,31 +5255,31 @@ FileInfo *vtkParse_ParseFile(
   i = strlen(filename);
   j = i;
   while (i > 0)
-    {
+  {
     --i;
     if (filename[i] == '.')
-      {
+    {
       j = i;
-      }
+    }
     if (filename[i] == '/' || filename[i] == '\\')
-      {
+    {
       i++;
       break;
-      }
     }
+  }
   main_class = (char *)malloc(j-i+1);
   strncpy(main_class, &filename[i], j-i);
   main_class[j-i] = '\0';
 
   /* special treatment of the main class in the file */
   for (i = 0; i < currentNamespace->NumberOfClasses; i++)
-    {
+  {
     if (strcmp(currentNamespace->Classes[i]->Name, main_class) == 0)
-      {
+    {
       data->MainClass = currentNamespace->Classes[i];
       break;
-      }
     }
+  }
   free(main_class);
 
   /* assign doxygen comments to their targets */
@@ -5314,13 +5314,13 @@ int vtkParse_ReadHints(FileInfo *file_info, FILE *hfile, FILE *errfile)
   /* read each hint line in succession */
   while ((n = fscanf(hfile,"%s %s %x %i", h_cls, h_func, &h_type, &h_value))
          != EOF)
-    {
+  {
     lineno++;
     if (n < 4)
-      {
+    {
       fprintf(errfile, "Wrapping: error parsing hints file line %i\n", lineno);
       exit(1);
-      }
+    }
 
     /* erase "ref" and qualifiers from hint type */
     type = ((h_type & VTK_PARSE_BASE_TYPE) |
@@ -5328,24 +5328,24 @@ int vtkParse_ReadHints(FileInfo *file_info, FILE *hfile, FILE *errfile)
 
     /* find the matching class */
     for (i = 0; i < contents->NumberOfClasses; i++)
-      {
+    {
       class_info = contents->Classes[i];
 
       if (strcmp(h_cls, class_info->Name) == 0)
-        {
+      {
         /* find the matching function */
         for (j = 0; j < class_info->NumberOfFunctions; j++)
-          {
+        {
           func_info = class_info->Functions[j];
 
           if ((strcmp(h_func, func_info->Name) == 0) &&
               func_info->ReturnValue &&
               (type == ((func_info->ReturnValue->Type & ~VTK_PARSE_REF) &
                         VTK_PARSE_UNQUALIFIED_TYPE)))
-            {
+          {
             /* types that hints are accepted for */
             switch (func_info->ReturnValue->Type & VTK_PARSE_UNQUALIFIED_TYPE)
-              {
+            {
               case VTK_PARSE_FLOAT_PTR:
               case VTK_PARSE_VOID_PTR:
               case VTK_PARSE_DOUBLE_PTR:
@@ -5363,9 +5363,9 @@ int vtkParse_ReadHints(FileInfo *file_info, FILE *hfile, FILE *errfile)
               case VTK_PARSE_SIGNED_CHAR_PTR:
               case VTK_PARSE_UNSIGNED_CHAR_PTR:
               case VTK_PARSE_CHAR_PTR:
-                {
+              {
                 if (func_info->ReturnValue->NumberOfDimensions == 0)
-                  {
+                {
                   char text[64];
                   sprintf(text, "%i", h_value);
                   func_info->ReturnValue->Count = h_value;
@@ -5378,20 +5378,20 @@ int vtkParse_ReadHints(FileInfo *file_info, FILE *hfile, FILE *errfile)
                   func_info->HaveHint = 1;
                   func_info->HintSize = h_value;
 #endif
-                  }
-                break;
                 }
+                break;
+              }
               default:
-                {
+              {
                 fprintf(errfile,
                         "Wrapping: unhandled hint type %#x\n", h_type);
-                }
               }
             }
           }
         }
       }
     }
+  }
 
   return 1;
 }
@@ -5413,9 +5413,9 @@ void vtkParse_DefineMacro(const char *name, const char *definition)
   char *cp;
 
   if (definition == NULL)
-    {
+  {
     definition = "";
-    }
+  }
 
   l = n + strlen(definition) + 2;
   cp = (char *)malloc(l + 1);
@@ -5423,10 +5423,10 @@ void vtkParse_DefineMacro(const char *name, const char *definition)
   strncpy(&cp[1], name, n);
   cp[n+1] = '\0';
   if (definition[0] != '\0')
-    {
+  {
     cp[n+1] = '=';
     strcpy(&cp[n+2], definition);
-    }
+  }
   cp[l] = '\0';
 
   vtkParse_AddStringToArray(&Definitions, &NumberOfDefinitions, cp);
@@ -5454,13 +5454,13 @@ void vtkParse_IncludeDirectory(const char *dirname)
   int i;
 
   for (i = 0; i < NumberOfIncludeDirectories; i++)
-    {
+  {
     if (strncmp(IncludeDirectories[i], dirname, n) == 0 &&
         IncludeDirectories[i][n] == '\0')
-      {
+    {
       return;
-      }
     }
+  }
 
   cp = (char *)malloc(n+1);
   strcpy(cp, dirname);
@@ -5479,9 +5479,9 @@ const char *vtkParse_FindIncludeFile(const char *filename)
 
   /* add include files specified on the command line */
   for (i = 0; i < NumberOfIncludeDirectories; i++)
-    {
+  {
     vtkParsePreprocess_IncludeDirectory(&info, IncludeDirectories[i]);
-    }
+  }
 
   return vtkParsePreprocess_FindIncludeFile(&info, filename, 0, &val);
 }

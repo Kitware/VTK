@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkApproximatingSubdivisionFilter - generate a subdivision surface using an Approximating Scheme
-// .SECTION Description
-// vtkApproximatingSubdivisionFilter is an abstract class that defines
-// the protocol for Approximating subdivision surface filters.
-
-// .SECTION Thanks
-// This work was supported by PHS Research Grant No. 1 P41 RR13218-01
-// from the National Center for Research Resources.
+/**
+ * @class   vtkApproximatingSubdivisionFilter
+ * @brief   generate a subdivision surface using an Approximating Scheme
+ *
+ * vtkApproximatingSubdivisionFilter is an abstract class that defines
+ * the protocol for Approximating subdivision surface filters.
+ *
+ * @par Thanks:
+ * This work was supported by PHS Research Grant No. 1 P41 RR13218-01
+ * from the National Center for Research Resources.
+*/
 
 #ifndef vtkApproximatingSubdivisionFilter_h
 #define vtkApproximatingSubdivisionFilter_h
@@ -40,10 +43,13 @@ public:
   vtkTypeMacro(vtkApproximatingSubdivisionFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set/get the number of subdivisions.
+  //@{
+  /**
+   * Set/get the number of subdivisions.
+   */
   vtkSetMacro(NumberOfSubdivisions,int);
   vtkGetMacro(NumberOfSubdivisions,int);
+  //@}
 
 protected:
   vtkApproximatingSubdivisionFilter();

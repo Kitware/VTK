@@ -64,34 +64,34 @@ PyObject *PyVTKSpecialObject_Repr(PyObject *self)
   const char *name = Py_TYPE(self)->tp_name;
 
   while (type->tp_base && !type->tp_str)
-    {
+  {
     type = type->tp_base;
-    }
+  }
 
   // use str() if available
   PyObject *s = NULL;
   if (type->tp_str && type->tp_str != (&PyBaseObject_Type)->tp_str)
-    {
+  {
     PyObject *t = type->tp_str(self);
     if (t == NULL)
-      {
+    {
       Py_XDECREF(s);
       s = NULL;
-      }
+    }
     else
-      {
+    {
 #ifdef VTK_PY3K
       s = PyString_FromFormat("(%.80s)%S", name, t);
 #else
       s = PyString_FromFormat("(%.80s)%s", name, PyString_AsString(t));
 #endif
-      }
     }
+  }
   // otherwise just print address of object
   else if (obj->vtk_ptr)
-    {
+  {
     s = PyString_FromFormat("(%.80s)%p", name, obj->vtk_ptr);
-    }
+  }
 
   return s;
 }
@@ -107,30 +107,30 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
   if (Py_TYPE(self)->tp_as_sequence &&
       Py_TYPE(self)->tp_as_sequence->sq_item != NULL &&
       Py_TYPE(self)->tp_as_sequence->sq_ass_item == NULL)
-    {
+  {
     bracket = "(...)";
-    }
+  }
 
   i = Py_ReprEnter(self);
   if (i < 0)
-    {
+  {
     return NULL;
-    }
+  }
   else if (i > 0)
-    {
+  {
     return PyString_FromString(bracket);
-    }
+  }
 
   n = PySequence_Size(self);
   if (n >= 0)
-    {
+  {
     comma = PyString_FromString(", ");
     s = PyString_FromStringAndSize(bracket, 1);
 
     for (i = 0; i < n && s != NULL; i++)
-      {
+    {
       if (i > 0)
-        {
+      {
 #ifdef VTK_PY3K
         PyObject *tmp = PyUnicode_Concat(s, comma);
         Py_DECREF(s);
@@ -138,16 +138,16 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
 #else
         PyString_Concat(&s, comma);
 #endif
-        }
+      }
       o = PySequence_GetItem(self, i);
       t = NULL;
       if (o)
-        {
+      {
         t = PyObject_Repr(o);
         Py_DECREF(o);
-        }
+      }
       if (t)
-        {
+      {
 #ifdef VTK_PY3K
         PyObject *tmp = PyUnicode_Concat(s, t);
         Py_DECREF(s);
@@ -156,17 +156,17 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
 #else
         PyString_ConcatAndDel(&s, t);
 #endif
-        }
+      }
       else
-        {
+      {
         Py_DECREF(s);
         s = NULL;
-        }
-      n = PySequence_Size(self);
       }
+      n = PySequence_Size(self);
+    }
 
     if (s)
-      {
+    {
 #ifdef VTK_PY3K
       PyObject *tmp1 = PyString_FromStringAndSize(&bracket[4], 1);
       PyObject *tmp2 = PyUnicode_Concat(s, tmp1);
@@ -177,10 +177,10 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
       PyString_ConcatAndDel(&s,
         PyString_FromStringAndSize(&bracket[4], 1));
 #endif
-      }
+    }
 
     Py_DECREF(comma);
-    }
+  }
 
   Py_ReprLeave(self);
 
@@ -214,12 +214,12 @@ PyObject *PyVTKSpecialObject_CopyNew(const char *classname, const void *ptr)
   PyVTKSpecialType *info = vtkPythonUtil::FindSpecialType(classname);
 
   if (info == 0)
-    {
+  {
     char buf[256];
     sprintf(buf,"cannot create object of unknown type \"%s\"",classname);
     PyErr_SetString(PyExc_ValueError,buf);
     return NULL;
-    }
+  }
 
   PyVTKSpecialObject *self = PyObject_New(PyVTKSpecialObject, info->py_type);
 
@@ -243,16 +243,16 @@ PyVTKSpecialType *PyVTKSpecialType_Add(PyTypeObject *pytype,
       pytype, methods, constructors, copyfunc);
 
   if (info == 0)
-    {
+  {
     // The type was already in the map, so do nothing
     return info;
-    }
+  }
 
   // Create the dict
   if (pytype->tp_dict == 0)
-    {
+  {
     pytype->tp_dict = PyDict_New();
-    }
+  }
 
   // Add the docstring to the type
   PyObject *doc = vtkPythonUtil::BuildDocString(docstring);
@@ -261,11 +261,11 @@ PyVTKSpecialType *PyVTKSpecialType_Add(PyTypeObject *pytype,
 
   // Add all of the methods
   for (PyMethodDef *meth = methods; meth && meth->ml_name; meth++)
-    {
+  {
     PyObject *func = PyVTKMethodDescriptor_New(pytype, meth);
     PyDict_SetItemString(pytype->tp_dict, meth->ml_name, func);
     Py_DECREF(func);
-    }
+  }
 
   return info;
 }

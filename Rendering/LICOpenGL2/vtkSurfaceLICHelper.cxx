@@ -50,38 +50,38 @@ void vtkSurfaceLICHelper::StreamingFindMinMax(
   vtkStaticCheckFrameBufferStatusMacro(GL_FRAMEBUFFER);
   std::vector<vtkPixelBufferObject*> pbos(nBlocks, NULL);
   for (size_t e=0; e<nBlocks; ++e)
-    {
+  {
     pbos[e] = fbo->Download(
           blockExts[e].GetData(),
           VTK_FLOAT,
           4,
           GL_FLOAT,
           GL_RGBA);
-    }
+  }
   fbo->RemoveTexColorAttachment(GL_DRAW_FRAMEBUFFER, 0U);
   fbo->RemoveTexColorAttachment(GL_DRAW_FRAMEBUFFER, 1U);
   fbo->DeactivateDrawBuffers();
   fbo->DeactivateReadBuffer();
   // map search and release each region
   for (size_t e=0; e<nBlocks; ++e)
-    {
+  {
     vtkPixelBufferObject *&pbo = pbos[e];
     float *pColors = (float*)pbo->MapPackedBuffer();
 
     size_t n = blockExts[e].Size();
     for (size_t i = 0; i<n; ++i)
-      {
+    {
       if (pColors[4*i+3] != 0.0f)
-        {
+      {
         float L = pColors[4*i+2];
         min = min > L ? L : min;
         max = max < L ? L : max;
-        }
       }
+    }
     pbo->UnmapPackedBuffer();
     pbo->Delete();
     pbo = NULL;
-    }
+  }
   #if vtkSurfaceLICMapperDEBUG >= 1
   cerr << "min=" << min << " max=" << max << endl;
   #endif
@@ -112,17 +112,17 @@ vtkSurfaceLICHelper::~vtkSurfaceLICHelper()
   this->ReleaseGraphicsResources(NULL);
 
   if (this->ColorPass)
-    {
+  {
     delete this->ColorPass;
-    }
+  }
   if (this->ColorEnhancePass)
-    {
+  {
     delete this->ColorEnhancePass;
-    }
+  }
   if (this->CopyPass)
-    {
+  {
     delete this->CopyPass;
-    }
+  }
   this->ColorPass = NULL;
   this->ColorEnhancePass = NULL;
   this->CopyPass = NULL;
@@ -135,10 +135,10 @@ vtkSurfaceLICHelper::~vtkSurfaceLICHelper()
 bool vtkSurfaceLICHelper::IsSupported(vtkOpenGLRenderWindow *context)
 {
   if (context == NULL)
-    {
+  {
     vtkGenericWarningMacro("OpenGL render window required");
     return false;
-    }
+  }
 
   bool lic2d = vtkLineIntegralConvolution2D::IsSupported(context);
 
@@ -148,14 +148,14 @@ bool vtkSurfaceLICHelper::IsSupported(vtkOpenGLRenderWindow *context)
   bool support = lic2d && floatFormats;
 
   if (!support)
-    {
+  {
     vtkGenericWarningMacro(
       << "SurfaceLIC is not supported" << endl
       << context->GetClassName() << endl
       << "LIC support = " << lic2d << endl
       << "floating point texture formats = " << floatFormats);
     return false;
-    }
+  }
   return true;
 }
 
@@ -164,17 +164,17 @@ bool vtkSurfaceLICHelper::IsSupported(vtkOpenGLRenderWindow *context)
 void vtkSurfaceLICHelper::ReleaseGraphicsResources(vtkWindow *win)
 {
   if (this->ColorEnhancePass)
-    {
+  {
     this->ColorEnhancePass->ReleaseGraphicsResources(win);
-    }
+  }
   if (this->ColorPass)
-    {
+  {
     this->ColorPass->ReleaseGraphicsResources(win);
-    }
+  }
   if (this->CopyPass)
-    {
+  {
     this->CopyPass->ReleaseGraphicsResources(win);
-    }
+  }
 
   this->ClearTextures();
 
@@ -225,7 +225,7 @@ void vtkSurfaceLICHelper::AllocateTexture(
       int filter)
 {
   if ( !tex )
-    {
+  {
     vtkTextureObject * newTex = vtkTextureObject::New();
     newTex->SetContext(context);
     newTex->SetBaseLevel(0);
@@ -239,7 +239,7 @@ void vtkSurfaceLICHelper::AllocateTexture(
     newTex->SetAutoParameters(0);
     tex = newTex;
     newTex->Delete();
-    }
+  }
 }
 
 // Description:
@@ -250,14 +250,14 @@ void vtkSurfaceLICHelper::AllocateDepthTexture(
       vtkSmartPointer<vtkTextureObject> &tex)
 {
   if ( !tex )
-    {
+  {
     vtkTextureObject * newTex = vtkTextureObject::New();
     newTex->SetContext(context);
     newTex->AllocateDepth(viewsize[0], viewsize[1], vtkTextureObject::Float32);
     newTex->SetAutoParameters(0);
     tex = newTex;
     newTex->Delete();
-    }
+  }
 }
 
 // Description:
@@ -349,7 +349,7 @@ bool vtkSurfaceLICHelper::VisibilityTest(double ndcBBox[24])
   // check all points in the direction d
   // at the same time.
   for (int d=0; d<3; ++d)
-    {
+  {
     if (((ndcBBox[     d] < -1.0)
       && (ndcBBox[3  + d] < -1.0)
       && (ndcBBox[6  + d] < -1.0)
@@ -366,10 +366,10 @@ bool vtkSurfaceLICHelper::VisibilityTest(double ndcBBox[24])
       && (ndcBBox[15 + d] > 1.0)
       && (ndcBBox[18 + d] > 1.0)
       && (ndcBBox[21 + d] > 1.0)) )
-      {
+    {
       return false;
-      }
     }
+  }
   return true;
 }
 
@@ -402,7 +402,7 @@ bool vtkSurfaceLICHelper::ProjectBounds(
   // normalized device coordinate bounding box
   double ndcBBox[24];
   for (int q = 0; q<8; ++q)
-    {
+  {
     int qq = 3*q;
     // bounding box corner
     double wx = bounds[bbIds[qq  ]];
@@ -419,23 +419,23 @@ bool vtkSurfaceLICHelper::ProjectBounds(
     // we need to do something more robust. this ensures
     // the correct result but its inefficient
     if (ndcw < 0.0)
-      {
+    {
       screenExt = vtkPixelExtent(viewsize[0], viewsize[1]);
       //cerr << "W<0!!!!!!!!!!!!!" << endl;
       return true;
-      }
+    }
 
     // to normalized device coordinates
     ndcw = (ndcw == 0.0 ? 1.0 : 1.0/ndcw);
     ndcBBox[qq  ] *= ndcw;
     ndcBBox[qq+1] *= ndcw;
     ndcBBox[qq+2] *= ndcw;
-    }
+  }
 
   // compute screen extent only if the object
   // is inside the view frustum.
   if (VisibilityTest(ndcBBox))
-    {
+  {
     // these bounds are visible. compute screen
     // space exents
     double vx  = viewsize[0] - 1.0;
@@ -444,7 +444,7 @@ bool vtkSurfaceLICHelper::ProjectBounds(
     double vy2 = viewsize[1] * 0.5;
     vtkBoundingBox box;
     for (int q=0; q<8; ++q)
-      {
+    {
       int qq = 3*q;
       double sx = (ndcBBox[qq  ] + 1.0) * vx2;
       double sy = (ndcBBox[qq+1] + 1.0) * vy2;
@@ -452,7 +452,7 @@ bool vtkSurfaceLICHelper::ProjectBounds(
         vtkMath::ClampValue(sx, 0.0, vx),
         vtkMath::ClampValue(sy, 0.0, vy),
         0.0);
-      }
+    }
     // to screen extent
     const double *s0 = box.GetMinPoint();
     const double *s1 = box.GetMaxPoint();
@@ -461,7 +461,7 @@ bool vtkSurfaceLICHelper::ProjectBounds(
     screenExt[2] = static_cast<int>(s0[1]);
     screenExt[3] = static_cast<int>(s1[1]);
     return true;
-    }
+  }
 
   // these bounds aren't visible
   return false;
@@ -491,16 +491,16 @@ int vtkSurfaceLICHelper::ProjectBounds(
   oglCam->GetKeyMatrices(ren,wcvc,norms,vcdc,wcdc);
 
   if (!actor->GetIsIdentity())
-    {
+  {
     vtkMatrix4x4 *mcwc;
     vtkMatrix3x3 *anorms;
     ((vtkOpenGLActor *)actor)->GetKeyMatrices(mcwc,anorms);
     vtkMatrix4x4::Multiply4x4(mcwc, wcdc, tmpMatrix.GetPointer());
-    }
+  }
   else
-    {
+  {
     tmpMatrix->DeepCopy(wcdc);
-    }
+  }
 /*
   for ( int c = 0; c < 4; c ++ )
     {
@@ -517,58 +517,58 @@ int vtkSurfaceLICHelper::ProjectBounds(
   // dataset case
   vtkDataSet* ds = dynamic_cast<vtkDataSet*>(dobj);
   if (ds && ds->GetNumberOfCells())
-    {
+  {
     double bounds[6];
     ds->GetBounds(bounds);
     if ( vtkBoundingBox::IsValid(bounds)
       && this->ProjectBounds(tmpMatrix->Element[0], viewsize, bounds, dataExt) )
-      {
+    {
       // the dataset is visible
       // add its extent
       blockExts.push_back(dataExt);
       return 1;
-      }
+    }
     //cerr << "ds " << ds << " not visible " << endl;
     return 0;
-    }
+  }
   // composite dataset case
   vtkCompositeDataSet* cd = dynamic_cast<vtkCompositeDataSet*>(dobj);
   if (cd)
-    {
+  {
     // process each block's bounds
     vtkBoundingBox bbox;
     vtkCompositeDataIterator* iter = cd->NewIterator();
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-      {
+    {
       ds = dynamic_cast<vtkDataSet*>(iter->GetCurrentDataObject());
       if (ds && ds->GetNumberOfCells())
-        {
+      {
         double bounds[6];
         ds->GetBounds(bounds);
         vtkPixelExtent screenExt;
         if ( vtkBoundingBox::IsValid(bounds)
           && this->ProjectBounds(tmpMatrix->Element[0], viewsize, bounds, screenExt) )
-          {
+        {
           // this block is visible
           // save it's screen extent
           // and accumulate its bounds
           blockExts.push_back(screenExt);
           bbox.AddBounds(bounds);
-          }
-        //else { cerr << "leaf " << ds << " not visible " << endl << endl;}
         }
+        //else { cerr << "leaf " << ds << " not visible " << endl << endl;}
       }
+    }
     iter->Delete();
     // process accumulated dataset bounds
     double bounds[6];
     bbox.GetBounds(bounds);
     if ( vtkBoundingBox::IsValid(bounds)
       && this->ProjectBounds(tmpMatrix->Element[0], viewsize, bounds, dataExt) )
-      {
+    {
       return 1;
-      }
-    return 0;
     }
+    return 0;
+  }
   //cerr << "ds " << ds << " no cells " << endl;
   return 0;
 }
@@ -579,18 +579,18 @@ void vtkSurfaceLICHelper::GetPixelBounds(float *rgba, int ni, vtkPixelExtent &ex
 {
   vtkPixelExtent text;
   for (int j=ext[2]; j<=ext[3]; ++j)
-    {
+  {
     for (int i=ext[0]; i<=ext[1]; ++i)
-      {
+    {
       if (rgba[4*(j*ni+i)+3] > 0.0f)
-        {
+      {
         text[0] = text[0] > i ? i : text[0];
         text[1] = text[1] < i ? i : text[1];
         text[2] = text[2] > j ? j : text[2];
         text[3] = text[3] < j ? j : text[3];
-        }
       }
     }
+  }
   ext = text;
 }
 
@@ -604,12 +604,12 @@ void vtkSurfaceLICHelper::GetPixelBounds(float *rgba, int ni,
   blockExts.clear();
   size_t nBlocks = tmpExts.size();
   for (size_t b=0; b<nBlocks; ++b)
-    {
+  {
     vtkPixelExtent &tmpExt = tmpExts[b];
     GetPixelBounds(rgba, ni, tmpExt);
     if (!tmpExt.Empty())
-      {
+    {
       blockExts.push_back(tmpExt);
-      }
     }
+  }
 }

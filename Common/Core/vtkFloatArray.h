@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkFloatArray - dynamic, self-adjusting array of float
-// .SECTION Description
-// vtkFloatArray is an array of values of type float.  It provides
-// methods for insertion and retrieval of values and will
-// automatically resize itself to hold new data.
+/**
+ * @class   vtkFloatArray
+ * @brief   dynamic, self-adjusting array of float
+ *
+ * vtkFloatArray is an array of values of type float.  It provides
+ * methods for insertion and retrieval of values and will
+ * automatically resize itself to hold new data.
+*/
 
 #ifndef vtkFloatArray_h
 #define vtkFloatArray_h
@@ -47,19 +50,22 @@ public:
   vtkCreateWrappedArrayInterface(float);
 #endif
 
-  // Description:
-  // A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+  /**
+   * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+   */
   static vtkFloatArray* FastDownCast(vtkAbstractArray *source)
   {
     return static_cast<vtkFloatArray*>(Superclass::FastDownCast(source));
   }
 
-  // Description:
-  // Get the minimum data value in its native type.
+  /**
+   * Get the minimum data value in its native type.
+   */
   static float GetDataTypeValueMin() { return VTK_FLOAT_MIN; }
 
-  // Description:
-  // Get the maximum data value in its native type.
+  /**
+   * Get the maximum data value in its native type.
+   */
   static float GetDataTypeValueMax() { return VTK_FLOAT_MAX; }
 
 

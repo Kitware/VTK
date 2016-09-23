@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkContextView - provides a view of the vtkContextScene.
-//
-// .SECTION Description
-// This class is derived from vtkRenderViewBase and provides a view of a
-// vtkContextScene, with a default interactor style, renderer etc. It is
-// the simplest way to create a vtkRenderWindow and display a 2D scene inside
-// of it.
-//
-// By default the scene has a white background.
+/**
+ * @class   vtkContextView
+ * @brief   provides a view of the vtkContextScene.
+ *
+ *
+ * This class is derived from vtkRenderViewBase and provides a view of a
+ * vtkContextScene, with a default interactor style, renderer etc. It is
+ * the simplest way to create a vtkRenderWindow and display a 2D scene inside
+ * of it.
+ *
+ * By default the scene has a white background.
+*/
 
 #ifndef vtkContextView_h
 #define vtkContextView_h
@@ -40,20 +43,24 @@ public:
 
   static vtkContextView* New();
 
-  // Description:
-  // Set the vtkContext2D for the view.
+  /**
+   * Set the vtkContext2D for the view.
+   */
   virtual void SetContext(vtkContext2D *context);
 
-  // Description:
-  // Get the vtkContext2D for the view.
+  /**
+   * Get the vtkContext2D for the view.
+   */
   virtual vtkContext2D* GetContext();
 
-  // Description:
-  // Set the scene object for the view.
+  /**
+   * Set the scene object for the view.
+   */
   virtual void SetScene(vtkContextScene *scene);
 
-  // Description:
-  // Get the scene of the view.
+  /**
+   * Get the scene of the view.
+   */
   virtual vtkContextScene* GetScene();
 
 protected:

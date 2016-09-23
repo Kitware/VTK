@@ -12,10 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageMagnitude - Colapses components with magnitude function..
-// .SECTION Description
-// vtkImageMagnitude takes the magnitude of the components.
-
+/**
+ * @class   vtkImageMagnitude
+ * @brief   Colapses components with magnitude function..
+ *
+ * vtkImageMagnitude takes the magnitude of the components.
+*/
 
 #ifndef vtkImageMagnitude_h
 #define vtkImageMagnitude_h

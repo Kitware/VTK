@@ -18,33 +18,36 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// .NAME vtkRRandomTableSource - Generates vtkTables with columns of random numbers using Gnu R.
-//
-// .SECTION Description
-//
-// Note - An installation of Gnu R is required to build and use this class.
-//
-// vtkRRandomTableSource uses the Gnu R math C language API for statistical distributions to generate
-// vtkTables with columns of random numbers selected from a chosen distribution. The available
-// distributions are as follows:
-//
-//   Normal, Cauchy, F, Student T, Poisson, Chi-Square, Exponential, Binomial, Beta, Geometric,
-//   Uniform, Gamma, Log-Normal, Logistic, Hyper-Geometric, Weibull, Negative Binomial, Wilcox
-//
-// The default output for the class is a table of one column with ten rows of random numbers chosen
-// from a Normal distribution of mean 0.0 and standard deviation of 1.0.
-//
-// Use SetNumberOfRows() to set the number of rows (random numbers) in the output table.
-//
-// See comments for SetStatisticalDistributionForColumn() to set the distribution output for a particular
-// column or all columns in the output table.
-//
-// .SECTION See Also
-// vtkRInterface
-//
-// .SECTION Thanks
-// Developed by Thomas J. Otahal (tjotaha@sandia.gov) at Sandia National Laboratories.
-//
+/**
+ * @class   vtkRRandomTableSource
+ * @brief   Generates vtkTables with columns of random numbers using Gnu R.
+ *
+ *
+ *
+ * Note - An installation of Gnu R is required to build and use this class.
+ *
+ * vtkRRandomTableSource uses the Gnu R math C language API for statistical distributions to generate
+ * vtkTables with columns of random numbers selected from a chosen distribution. The available
+ * distributions are as follows:
+ *
+ *   Normal, Cauchy, F, Student T, Poisson, Chi-Square, Exponential, Binomial, Beta, Geometric,
+ *   Uniform, Gamma, Log-Normal, Logistic, Hyper-Geometric, Weibull, Negative Binomial, Wilcox
+ *
+ * The default output for the class is a table of one column with ten rows of random numbers chosen
+ * from a Normal distribution of mean 0.0 and standard deviation of 1.0.
+ *
+ * Use SetNumberOfRows() to set the number of rows (random numbers) in the output table.
+ *
+ * See comments for SetStatisticalDistributionForColumn() to set the distribution output for a particular
+ * column or all columns in the output table.
+ *
+ * @sa
+ * vtkRInterface
+ *
+ * @par Thanks:
+ * Developed by Thomas J. Otahal (tjotaha@sandia.gov) at Sandia National Laboratories.
+ *
+*/
 
 #ifndef vtkRRandomTableSource_h
 #define vtkRRandomTableSource_h
@@ -63,30 +66,37 @@ public:
   vtkTypeMacro(vtkRRandomTableSource,vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set and Get the number of rows in the output table (random numbers).
+  //@{
+  /**
+   * Set and Get the number of rows in the output table (random numbers).
+   */
   void SetNumberOfRows(int nrows);
   int GetNumberOfRows();
+  //@}
 
-  // Description:
-  // Returns number of columns in the output table.
+  /**
+   * Returns number of columns in the output table.
+   */
   int GetNumberOfColumns();
 
-  // Description:
-  // Clears table output to zero output columns.  Number of table rows
-  // is unchanged.
+  /**
+   * Clears table output to zero output columns.  Number of table rows
+   * is unchanged.
+   */
   void ClearTableOutput();
 
-  // Description:
-  // Set the random seed used by Gnu R to generate output.  The default is to use
-  // the random seed provided by Gnu R based on the current time.
+  /**
+   * Set the random seed used by Gnu R to generate output.  The default is to use
+   * the random seed provided by Gnu R based on the current time.
+   */
   void SetRandGenSeed(const int seed);
 
-  // Description:
-  // Available statistical distribution output types.  Depending on the distribution type, up to three
-  // parameters (param1, param2, param3) must be specified when using SetStatisticalDistributionForColumn().
+  /**
+   * Available statistical distribution output types.  Depending on the distribution type, up to three
+   * parameters (param1, param2, param3) must be specified when using SetStatisticalDistributionForColumn().
+   */
   typedef enum
-    {
+  {
 
     WILCOXONRANKSUM = 0,    // Wilcoxon rank sum
                             // param1 - number of observations in the first sample
@@ -185,14 +195,15 @@ public:
 
   } StatDistType;
 
-  // Description:
-  // Set the statistical distribution to generate random numbers for a particular column or all
-  // columns in the output table.  Use the above documented distribution types, for example
-  // use vtkRRandomTableSource::Normal for a Normal distribution.  Set unused parameter values to 0.0.
-  // For example, a Normal distribution uses only param1 and param2 as the mean and the standard deviation
-  // respectively.  Set param3 to 0.0.
-  // If column_index equals the current number of columns in the output table, a new column will be
-  // added to the output table and initialized with the input distribution parameters.
+  /**
+   * Set the statistical distribution to generate random numbers for a particular column or all
+   * columns in the output table.  Use the above documented distribution types, for example
+   * use vtkRRandomTableSource::Normal for a Normal distribution.  Set unused parameter values to 0.0.
+   * For example, a Normal distribution uses only param1 and param2 as the mean and the standard deviation
+   * respectively.  Set param3 to 0.0.
+   * If column_index equals the current number of columns in the output table, a new column will be
+   * added to the output table and initialized with the input distribution parameters.
+   */
   void SetStatisticalDistributionForColumn(vtkRRandomTableSource::StatDistType t,
                                            double param1,
                                            double param2,
@@ -200,8 +211,9 @@ public:
                                            const char* ColumnName,
                                            int column_index);
 
-  // Description:
-  // Python wrapped version of above method.  Use integer equivalent of StatDistType.
+  /**
+   * Python wrapped version of above method.  Use integer equivalent of StatDistType.
+   */
   void SetStatisticalDistributionForColumn(int StatDistType,
                                            double param1,
                                            double param2,

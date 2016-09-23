@@ -12,10 +12,13 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkHierarchicalBoxDataIterator.h--Empty class for backwards compatibility
-//
-// .SECTION Description
-//  Empty class for backwards compatibility.
+/**
+ * @class   vtkHierarchicalBoxDataIterator
+ *
+ *
+ *  Empty class for backwards compatibility.
+*/
+
 #ifndef vtkHierarchicalBoxDataIterator_h
 #define vtkHierarchicalBoxDataIterator_h
 

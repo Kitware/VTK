@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkParallelopipedRepresentation - Default representation for vtkParallelopipedWidget
-// .SECTION Description
-// This class provides the default geometrical representation for
-// vtkParallelopipedWidget. As a result of interactions of the widget, this
-// representation can take on of the following shapes:
-// <p>1) A parallelopiped. (8 handles, 6 faces)
-// <p>2) Paralleopiped with a chair depression on any one handle. (A chair
-// is a depression on one of the handles that carves inwards so as to allow
-// the user to visualize cuts in the volume). (14 handles, 9 faces).
-//
-// .SECTION See Also
-// vtkParallelopipedWidget
+/**
+ * @class   vtkParallelopipedRepresentation
+ * @brief   Default representation for vtkParallelopipedWidget
+ *
+ * This class provides the default geometrical representation for
+ * vtkParallelopipedWidget. As a result of interactions of the widget, this
+ * representation can take on of the following shapes:
+ * <p>1) A parallelopiped. (8 handles, 6 faces)
+ * <p>2) Paralleopiped with a chair depression on any one handle. (A chair
+ * is a depression on one of the handles that carves inwards so as to allow
+ * the user to visualize cuts in the volume). (14 handles, 9 faces).
+ *
+ * @sa
+ * vtkParallelopipedWidget
+*/
 
 #ifndef vtkParallelopipedRepresentation_h
 #define vtkParallelopipedRepresentation_h
@@ -48,100 +51,131 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkParallelopipedRepresentation
                               : public vtkWidgetRepresentation
 {
 public:
-  // Description:
-  // Instantiate the class.
+  /**
+   * Instantiate the class.
+   */
   static vtkParallelopipedRepresentation *New();
 
-  // Description:
-  // Standard methods for instances of this class.
+  //@{
+  /**
+   * Standard methods for instances of this class.
+   */
   vtkTypeMacro(vtkParallelopipedRepresentation,vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // Methods to satisfy the superclass.
+  /**
+   * Methods to satisfy the superclass.
+   */
   virtual void GetActors(vtkPropCollection *pc);
 
-  // Description:
-  // Place the widget in the scene. You can use either of the two APIs :
-  // 1) PlaceWidget( double bounds[6] )
-  //      Creates a cuboid conforming to the said bounds.
-  // 2) PlaceWidget( double corners[8][3] )
-  //      Creates a parallelopiped with corners specified. The order in
-  //      which corners are specified must obey the following rule:
-  //      Corner 0 - 1 - 2 - 3 - 0  forms a face
-  //      Corner 4 - 5 - 6 - 7 - 4  forms a face
-  //      Corner 0 - 4 - 5 - 1 - 0  forms a face
-  //      Corner 1 - 5 - 6 - 2 - 1  forms a face
-  //      Corner 2 - 6 - 7 - 3 - 2  forms a face
-  //      Corner 3 - 7 - 4 - 0 - 3  forms a face
+  //@{
+  /**
+   * Place the widget in the scene. You can use either of the two APIs :
+   * 1) PlaceWidget( double bounds[6] )
+   * Creates a cuboid conforming to the said bounds.
+   * 2) PlaceWidget( double corners[8][3] )
+   * Creates a parallelopiped with corners specified. The order in
+   * which corners are specified must obey the following rule:
+   * Corner 0 - 1 - 2 - 3 - 0  forms a face
+   * Corner 4 - 5 - 6 - 7 - 4  forms a face
+   * Corner 0 - 4 - 5 - 1 - 0  forms a face
+   * Corner 1 - 5 - 6 - 2 - 1  forms a face
+   * Corner 2 - 6 - 7 - 3 - 2  forms a face
+   * Corner 3 - 7 - 4 - 0 - 3  forms a face
+   */
   virtual void PlaceWidget(double corners[8][3]);
   virtual void PlaceWidget(double bounds[6]);
+  //@}
 
-  // Description:
-  // The interaction state may be set from a widget (e.g., PointWidget)
-  // or other object. This controls how the interaction with the
-  // widget proceeds.
+  //@{
+  /**
+   * The interaction state may be set from a widget (e.g., PointWidget)
+   * or other object. This controls how the interaction with the
+   * widget proceeds.
+   */
   vtkSetMacro(InteractionState,int);
+  //@}
 
-  // Description:
-  // Get the bounding planes of the object. The first 6 planes will
-  // be bounding planes of the parallelopiped. If in chair mode, three
-  // additional planes will be present. The last three planes will be those
-  // of the chair. The normals of all the planes will point into the object.
+  /**
+   * Get the bounding planes of the object. The first 6 planes will
+   * be bounding planes of the parallelopiped. If in chair mode, three
+   * additional planes will be present. The last three planes will be those
+   * of the chair. The normals of all the planes will point into the object.
+   */
   void GetBoundingPlanes( vtkPlaneCollection *pc );
 
-  // Description:
-  // The parallelopiped polydata.
+  /**
+   * The parallelopiped polydata.
+   */
   void GetPolyData(vtkPolyData *pd);
 
-  // Description:
-  // The parallelopiped polydata.
+  /**
+   * The parallelopiped polydata.
+   */
   virtual double *GetBounds();
 
-  // Description:
-  // Set/Get the handle properties.
+  //@{
+  /**
+   * Set/Get the handle properties.
+   */
   virtual void SetHandleProperty           (vtkProperty *);
   virtual void SetHoveredHandleProperty    (vtkProperty *);
   virtual void SetSelectedHandleProperty   (vtkProperty *);
   vtkGetObjectMacro(HandleProperty,         vtkProperty  );
   vtkGetObjectMacro(HoveredHandleProperty,  vtkProperty  );
   vtkGetObjectMacro(SelectedHandleProperty, vtkProperty  );
+  //@}
 
   void SetHandleRepresentation(vtkHandleRepresentation *handle);
   vtkHandleRepresentation* GetHandleRepresentation(int index);
 
-  // Description:
-  // Turns the visibility of the handles on/off. Sometimes they may get in
-  // the way of visualization.
+  //@{
+  /**
+   * Turns the visibility of the handles on/off. Sometimes they may get in
+   * the way of visualization.
+   */
   void HandlesOn();
   void HandlesOff();
+  //@}
 
-  // Description:
-  // Get the face properties. When a face is being translated, the face gets
-  // highlighted with the SelectedFaceProperty.
+  //@{
+  /**
+   * Get the face properties. When a face is being translated, the face gets
+   * highlighted with the SelectedFaceProperty.
+   */
   vtkGetObjectMacro(FaceProperty,vtkProperty);
   vtkGetObjectMacro(SelectedFaceProperty,vtkProperty);
+  //@}
 
-  // Description:
-  // Get the outline properties. These are the properties with which the
-  // parallelopiped wireframe is rendered.
+  //@{
+  /**
+   * Get the outline properties. These are the properties with which the
+   * parallelopiped wireframe is rendered.
+   */
   vtkGetObjectMacro(OutlineProperty,vtkProperty);
   vtkGetObjectMacro(SelectedOutlineProperty,vtkProperty);
+  //@}
 
-  // Description:
-  // This actually constructs the geometry of the widget from the various
-  // data parameters.
+  /**
+   * This actually constructs the geometry of the widget from the various
+   * data parameters.
+   */
   virtual void BuildRepresentation();
 
-  // Description:
-  // Methods required by vtkProp superclass.
+  //@{
+  /**
+   * Methods required by vtkProp superclass.
+   */
   virtual void ReleaseGraphicsResources(vtkWindow *w);
   virtual int  RenderOverlay(vtkViewport *viewport);
   virtual int  RenderOpaqueGeometry(vtkViewport *viewport);
+  //@}
 
-  // Description:
-  // Given and x-y display coordinate, compute the interaction state of
-  // the widget.
+  /**
+   * Given and x-y display coordinate, compute the interaction state of
+   * the widget.
+   */
   virtual int ComputeInteractionState(int X, int Y, int modify=0);
 
   // Manage the state of the widget
@@ -168,37 +202,46 @@ public:
   virtual void Translate( int X, int Y );
   virtual void Scale( int X, int Y );
 
-  // Description:
-  // Synchronize the parallelopiped handle positions with the
-  // Polygonal datastructure.
+  /**
+   * Synchronize the parallelopiped handle positions with the
+   * Polygonal datastructure.
+   */
   virtual void PositionHandles();
 
-  // Description:
-  // Minimum thickness for the parallelopiped. User interactions cannot make
-  // any individual axis of the parallopiped thinner than this value.
-  // Default is 0.05 expressed as a fraction of the diagonal of the bounding
-  // box used in the PlaceWidget() invocation.
+  //@{
+  /**
+   * Minimum thickness for the parallelopiped. User interactions cannot make
+   * any individual axis of the parallopiped thinner than this value.
+   * Default is 0.05 expressed as a fraction of the diagonal of the bounding
+   * box used in the PlaceWidget() invocation.
+   */
   vtkSetMacro( MinimumThickness, double );
   vtkGetMacro( MinimumThickness, double );
+  //@}
 
 protected:
   vtkParallelopipedRepresentation();
   ~vtkParallelopipedRepresentation();
 
-  // Description:
-  // Translate the nth PtId (0 <= n <= 15) by the specified amount.
+  /**
+   * Translate the nth PtId (0 <= n <= 15) by the specified amount.
+   */
   void TranslatePoint( int n, const double motionVector[3] );
 
-  // Description:
-  // Set the highlight state of a handle.
-  // If handleIdx is -1, the property is applied to all handles.
+  /**
+   * Set the highlight state of a handle.
+   * If handleIdx is -1, the property is applied to all handles.
+   */
   void SetHandleHighlight( int handleIdx, vtkProperty *property );
 
-  // Description:
-  // Highlight face defined by the supplied ptids with the specified property.
+  //@{
+  /**
+   * Highlight face defined by the supplied ptids with the specified property.
+   */
   void SetFaceHighlight( vtkCellArray * face, vtkProperty * );
   void HighlightAllFaces();
   void UnHighlightAllFaces();
+  //@}
 
   // Node can be a value within [0,7]. This will create a chair one one of
   // the handle corners. '0 < InitialChairDepth < 1' value dicates the starting

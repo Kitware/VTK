@@ -17,15 +17,18 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
-// .NAME vtkSCurveSpline - computes an interpolating spline using a
-// a SCurve basis.
-
-// .SECTION Description
-// vtkSCurveSpline is a concrete implementation of vtkSpline using a
-// SCurve basis.
-
-// .SECTION See Also
-// vtkSpline vtkKochanekSpline
+/**
+ * @class   vtkSCurveSpline
+ * @brief   computes an interpolating spline using a
+ * a SCurve basis.
+ *
+ *
+ * vtkSCurveSpline is a concrete implementation of vtkSpline using a
+ * SCurve basis.
+ *
+ * @sa
+ * vtkSpline vtkKochanekSpline
+*/
 
 #ifndef vtkSCurveSpline_h
 #define vtkSCurveSpline_h
@@ -41,16 +44,19 @@ public:
   vtkTypeMacro(vtkSCurveSpline,vtkSpline);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description
-  // Compute SCurve Splines for each dependent variable
+  /**
+   * Compute SCurve Splines for each dependent variable
+   */
   void Compute ();
 
-  // Description:
-  // Evaluate a 1D SCurve spline.
+  /**
+   * Evaluate a 1D SCurve spline.
+   */
   virtual double Evaluate (double t);
 
-  // Description:
-  // Deep copy of SCurve spline data.
+  /**
+   * Deep copy of SCurve spline data.
+   */
   virtual void DeepCopy(vtkSpline *s);
 
   vtkSetMacro(NodeWeight,double);

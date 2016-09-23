@@ -130,22 +130,22 @@ int TestTemporalCacheTemporal(int , char *[])
   int i;
   int j;
   for (j = 0; j < 5; ++j)
-    {
+  {
     for (i = 0; i < 11; ++i)
-      {
+    {
       time = i/2.0;
       info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), time);
       mapper->Modified();
       renderer->ResetCameraClippingRange();
       renWin->Render();
-      }
     }
+  }
 
   vtkAlgorithm::SetDefaultExecutivePrototype(0);
 
   if (executecb->Count == 8)
-    {
+  {
     return 0;
-    }
+  }
   return 1;
 }

@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOBBDicer - divide dataset into spatially aggregated pieces
-// .SECTION Description
-// vtkOBBDicer separates the cells of a dataset into spatially
-// aggregated pieces using a Oriented Bounding Box (OBB). These pieces
-// can then be operated on by other filters (e.g., vtkThreshold). One
-// application is to break very large polygonal models into pieces and
-// performing viewing and occlusion culling on the pieces.
-//
-// Refer to the superclass documentation (vtkDicer) for more information.
-
-// .SECTION See Also
-// vtkDicer vtkConnectedDicer
+/**
+ * @class   vtkOBBDicer
+ * @brief   divide dataset into spatially aggregated pieces
+ *
+ * vtkOBBDicer separates the cells of a dataset into spatially
+ * aggregated pieces using a Oriented Bounding Box (OBB). These pieces
+ * can then be operated on by other filters (e.g., vtkThreshold). One
+ * application is to break very large polygonal models into pieces and
+ * performing viewing and occlusion culling on the pieces.
+ *
+ * Refer to the superclass documentation (vtkDicer) for more information.
+ *
+ * @sa
+ * vtkDicer vtkConnectedDicer
+*/
 
 #ifndef vtkOBBDicer_h
 #define vtkOBBDicer_h
@@ -42,8 +45,9 @@ public:
   vtkTypeMacro(vtkOBBDicer,vtkDicer);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Instantiate an object.
+  /**
+   * Instantiate an object.
+   */
   static vtkOBBDicer *New();
 
 protected:

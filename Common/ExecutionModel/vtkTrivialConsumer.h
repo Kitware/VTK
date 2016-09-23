@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTrivialConsumer - Consumer to consume data off of a pipeline.
-// .SECTION Description
-// vtkTrivialConsumer caps off a pipeline so that no output data is left
-// hanging around when a pipeline executes when data is set to be released (see
-// vtkDataObject::SetGlobalReleaseDataFlag). This is intended to be used for
-// tools such as Catalyst and not end users.
+/**
+ * @class   vtkTrivialConsumer
+ * @brief   Consumer to consume data off of a pipeline.
+ *
+ * vtkTrivialConsumer caps off a pipeline so that no output data is left
+ * hanging around when a pipeline executes when data is set to be released (see
+ * vtkDataObject::SetGlobalReleaseDataFlag). This is intended to be used for
+ * tools such as Catalyst and not end users.
+*/
 
 #ifndef vtkTrivialConsumer_h
 #define vtkTrivialConsumer_h

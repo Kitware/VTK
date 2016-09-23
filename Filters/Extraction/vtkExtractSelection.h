@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractSelection - extract a subset from a vtkDataSet.
-// .SECTION Description
-// vtkExtractSelection extracts some subset of cells and points from
-// its input dataset. The dataset is given on its first input port.
-// The subset is described by the contents of the vtkSelection on its
-// second input port. Depending on the content of the vtkSelection,
-// this will use either a vtkExtractSelectedIds, vtkExtractSelectedFrustum
-// vtkExtractSelectedLocations or a vtkExtractSelectedThreshold to perform
-// the extraction.
-// .SECTION See Also
-// vtkSelection vtkExtractSelectedIds vtkExtractSelectedFrustum
-// vtkExtractSelectedLocations vtkExtractSelectedThresholds
+/**
+ * @class   vtkExtractSelection
+ * @brief   extract a subset from a vtkDataSet.
+ *
+ * vtkExtractSelection extracts some subset of cells and points from
+ * its input dataset. The dataset is given on its first input port.
+ * The subset is described by the contents of the vtkSelection on its
+ * second input port. Depending on the content of the vtkSelection,
+ * this will use either a vtkExtractSelectedIds, vtkExtractSelectedFrustum
+ * vtkExtractSelectedLocations or a vtkExtractSelectedThreshold to perform
+ * the extraction.
+ * @sa
+ * vtkSelection vtkExtractSelectedIds vtkExtractSelectedFrustum
+ * vtkExtractSelectedLocations vtkExtractSelectedThresholds
+*/
 
 #ifndef vtkExtractSelection_h
 #define vtkExtractSelection_h
@@ -48,20 +51,26 @@ public:
   vtkTypeMacro(vtkExtractSelection, vtkExtractSelectionBase);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // When On, this returns an unstructured grid that outlines selection area.
-  // Off is the default. Applicable only to Frustum selection extraction.
+  //@{
+  /**
+   * When On, this returns an unstructured grid that outlines selection area.
+   * Off is the default. Applicable only to Frustum selection extraction.
+   */
   vtkSetMacro(ShowBounds,int);
   vtkGetMacro(ShowBounds,int);
   vtkBooleanMacro(ShowBounds,int);
+  //@}
 
-  // Description:
-  // When On, vtkProbeSelectedLocations is used for extracting selections of
-  // content type vtkSelection::LOCATIONS. Default is off and then
-  // vtkExtractSelectedLocations is used.
+  //@{
+  /**
+   * When On, vtkProbeSelectedLocations is used for extracting selections of
+   * content type vtkSelection::LOCATIONS. Default is off and then
+   * vtkExtractSelectedLocations is used.
+   */
   vtkSetMacro(UseProbeForLocations, int);
   vtkGetMacro(UseProbeForLocations, int);
   vtkBooleanMacro(UseProbeForLocations, int);
+  //@}
 
 protected:
   vtkExtractSelection();

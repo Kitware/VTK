@@ -28,9 +28,9 @@ WriteError::WriteError(const std::string& msg)
 : std::runtime_error(msg.empty() ? adios_get_last_errmsg() : msg)
 {
   if(msg.empty())
-    {
+  {
     adios_clear_error();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -75,7 +75,7 @@ INSTANTIATE(std::string, adios_string)
 size_t SizeOf(ADIOS_DATATYPES ta)
 {
   switch(ta)
-    {
+  {
     case adios_byte: return 1;
     case adios_short: return 2;
     case adios_integer: return 4;
@@ -90,7 +90,7 @@ size_t SizeOf(ADIOS_DATATYPES ta)
     case adios_double_complex: return 16;
     case adios_string: return 1;
     default: return 0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

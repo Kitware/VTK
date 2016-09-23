@@ -79,10 +79,10 @@ void vtkSphereWidget2::SelectAction(vtkAbstractWidget *w)
   // Okay, make sure that the pick is in the current renderer
   if ( !self->CurrentRenderer ||
        !self->CurrentRenderer->IsInViewport(X,Y) )
-    {
+  {
     self->WidgetState = vtkSphereWidget2::Start;
     return;
-    }
+  }
 
   // Begin the widget interaction which has the side effect of setting the
   // interaction state.
@@ -92,9 +92,9 @@ void vtkSphereWidget2::SelectAction(vtkAbstractWidget *w)
   self->WidgetRep->StartWidgetInteraction(e);
   int interactionState = self->WidgetRep->GetInteractionState();
   if ( interactionState == vtkSphereRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // We are definitely selected
   self->WidgetState = vtkSphereWidget2::Active;
@@ -104,19 +104,19 @@ void vtkSphereWidget2::SelectAction(vtkAbstractWidget *w)
   // The SetInteractionState has the side effect of highlighting the widget
   if ( interactionState == vtkSphereRepresentation::OnSphere ||
        self->Interactor->GetShiftKey() || self->Interactor->GetControlKey() )
-    {
+  {
     // If  translation is disabled, do it
     if ( self->TranslationEnabled )
-      {
+    {
       reinterpret_cast<vtkSphereRepresentation*>(self->WidgetRep)->
         SetInteractionState(vtkSphereRepresentation::Translating);
-      }
     }
+  }
   else
-    {
+  {
     reinterpret_cast<vtkSphereRepresentation*>(self->WidgetRep)->
       SetInteractionState(interactionState);
-    }
+  }
 
   // start the interaction
   self->EventCallbackCommand->SetAbortFlag(1);
@@ -133,9 +133,9 @@ void vtkSphereWidget2::TranslateAction(vtkAbstractWidget *w)
 
   // If  translation is disabled, get out of here
   if ( ! self->TranslationEnabled )
-    {
+  {
     return;
-    }
+  }
 
   // Get the event position
   int X = self->Interactor->GetEventPosition()[0];
@@ -144,10 +144,10 @@ void vtkSphereWidget2::TranslateAction(vtkAbstractWidget *w)
   // Okay, make sure that the pick is in the current renderer
   if ( !self->CurrentRenderer ||
        !self->CurrentRenderer->IsInViewport(X,Y) )
-    {
+  {
     self->WidgetState = vtkSphereWidget2::Start;
     return;
-    }
+  }
 
   // Begin the widget interaction which has the side effect of setting the
   // interaction state.
@@ -157,9 +157,9 @@ void vtkSphereWidget2::TranslateAction(vtkAbstractWidget *w)
   self->WidgetRep->StartWidgetInteraction(e);
   int interactionState = self->WidgetRep->GetInteractionState();
   if ( interactionState == vtkSphereRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // We are definitely selected
   self->WidgetState = vtkSphereWidget2::Active;
@@ -182,9 +182,9 @@ void vtkSphereWidget2::ScaleAction(vtkAbstractWidget *w)
 
   // If  scaling is disabled, get out of here
   if ( ! self->ScalingEnabled )
-    {
+  {
     return;
-    }
+  }
 
   // Get the event position
   int X = self->Interactor->GetEventPosition()[0];
@@ -193,10 +193,10 @@ void vtkSphereWidget2::ScaleAction(vtkAbstractWidget *w)
   // Okay, make sure that the pick is in the current renderer
   if ( !self->CurrentRenderer ||
        !self->CurrentRenderer->IsInViewport(X,Y) )
-    {
+  {
     self->WidgetState = vtkSphereWidget2::Start;
     return;
-    }
+  }
 
   // Begin the widget interaction which has the side effect of setting the
   // interaction state.
@@ -206,9 +206,9 @@ void vtkSphereWidget2::ScaleAction(vtkAbstractWidget *w)
   self->WidgetRep->StartWidgetInteraction(e);
   int interactionState = self->WidgetRep->GetInteractionState();
   if ( interactionState == vtkSphereRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // We are definitely selected
   self->WidgetState = vtkSphereWidget2::Active;
@@ -230,9 +230,9 @@ void vtkSphereWidget2::MoveAction(vtkAbstractWidget *w)
 
   // See whether we're active
   if ( self->WidgetState == vtkSphereWidget2::Start )
-    {
+  {
     return;
-    }
+  }
 
   // compute some info we need for all cases
   int X = self->Interactor->GetEventPosition()[0];
@@ -255,9 +255,9 @@ void vtkSphereWidget2::EndSelectAction(vtkAbstractWidget *w)
 {
   vtkSphereWidget2 *self = reinterpret_cast<vtkSphereWidget2*>(w);
   if ( self->WidgetState == vtkSphereWidget2::Start )
-    {
+  {
     return;
-    }
+  }
 
   // Return state to not active
   self->WidgetState = vtkSphereWidget2::Start;
@@ -275,9 +275,9 @@ void vtkSphereWidget2::EndSelectAction(vtkAbstractWidget *w)
 void vtkSphereWidget2::CreateDefaultRepresentation()
 {
   if ( ! this->WidgetRep )
-    {
+  {
     this->WidgetRep = vtkSphereRepresentation::New();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

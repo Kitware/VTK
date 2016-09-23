@@ -28,29 +28,29 @@ class vtkScenePickerSelectionRenderCommand : public vtkCommand
 public:
   vtkScenePicker * m_Picker;
   static vtkScenePickerSelectionRenderCommand *New()
-    {
+  {
     return new vtkScenePickerSelectionRenderCommand;
-    }
+  }
 
   void Execute(vtkObject *vtkNotUsed(o), unsigned long event, void*) VTK_OVERRIDE
-    {
+  {
     if (event == vtkCommand::StartInteractionEvent)
-      {
+    {
       this->InteractiveRender = true;
-      }
-    else if (event == vtkCommand::EndInteractionEvent)
-      {
-      this->InteractiveRender = false;
-      }
-    else if (event == vtkCommand::EndEvent)
-      {
-      if (!this->InteractiveRender)
-        {
-        m_Picker->PickRender();
-        }
-      this->m_Picker->SetRenderer(this->m_Picker->Renderer);
-      }
     }
+    else if (event == vtkCommand::EndInteractionEvent)
+    {
+      this->InteractiveRender = false;
+    }
+    else if (event == vtkCommand::EndEvent)
+    {
+      if (!this->InteractiveRender)
+      {
+        m_Picker->PickRender();
+      }
+      this->m_Picker->SetRenderer(this->m_Picker->Renderer);
+    }
+  }
 
 protected:
   vtkScenePickerSelectionRenderCommand()
@@ -90,35 +90,35 @@ void vtkScenePicker::SetRenderer( vtkRenderer * r )
 {
   vtkRenderWindowInteractor *rwi = NULL;
   if (r && r->GetRenderWindow())
-    {
+  {
     rwi = r->GetRenderWindow()->GetInteractor();
-    }
+  }
   this->SetInteractor(rwi);
 
   if (this->Renderer == r)
-    {
+  {
     return;
-    }
+  }
   if (r && !r->GetRenderWindow())
-    {
+  {
     vtkErrorMacro( << "Renderer: " << this->Renderer
                    << " does not have its render window set." );
     return;
-    }
+  }
 
   if (this->Renderer)
-    {
+  {
     this->Renderer->GetRenderWindow()->RemoveObserver(
                         this->SelectionRenderCommand );
-    }
+  }
 
   vtkSetObjectBodyMacro( Renderer, vtkRenderer, r );
 
   if (this->Renderer)
-    {
+  {
     this->Renderer->GetRenderWindow()->AddObserver( vtkCommand::EndEvent,
           this->SelectionRenderCommand, 0.01 );
-    }
+  }
 
   this->Selector->SetRenderer(this->Renderer);
 }
@@ -128,23 +128,23 @@ void vtkScenePicker::SetInteractor(
                          vtkRenderWindowInteractor *rwi )
 {
   if (this->Interactor == rwi)
-    {
+  {
     return;
-    }
+  }
   if (this->Interactor)
-    {
+  {
     this->Interactor->RemoveObserver( this->SelectionRenderCommand );
-    }
+  }
 
   vtkSetObjectBodyMacro( Interactor, vtkRenderWindowInteractor, rwi );
 
   if (this->Interactor)
-    {
+  {
     this->Interactor->AddObserver( vtkCommand::StartInteractionEvent,
           this->SelectionRenderCommand, 0.01 );
     this->Interactor->AddObserver( vtkCommand::EndInteractionEvent,
           this->SelectionRenderCommand, 0.01 );
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -162,9 +162,9 @@ void vtkScenePicker::SetInteractor(
 void vtkScenePicker::PickRender()
 {
   if (!this->Renderer || !this->Renderer->GetRenderWindow())
-    {
+  {
     return;
-    }
+  }
 
   double vp[4];
   this->Renderer->GetViewport( vp );
@@ -188,21 +188,21 @@ void vtkScenePicker::PickRender(
       this->SelectionRenderCommand );
 
   if (this->EnableVertexPicking)
-    {
+  {
     this->Selector->SetFieldAssociation(
       vtkDataObject::FIELD_ASSOCIATION_POINTS);
-    }
+  }
   else
-    {
+  {
     this->Selector->SetFieldAssociation(
       vtkDataObject::FIELD_ASSOCIATION_CELLS);
-    }
+  }
   cout << "Area: " << x0 << ", " << y0 << ", " << x1 << ", " << y1 << endl;
   this->Selector->SetArea(x0,y0,x1,y1);
   if (!this->Selector->CaptureBuffers())
-    {
+  {
     vtkErrorMacro("Failed to capture buffers.");
-    }
+  }
   this->NeedToUpdate = true;
   this->PickRenderTime.Modified();
   this->Renderer->GetRenderWindow()->AddObserver(
@@ -213,9 +213,9 @@ void vtkScenePicker::PickRender(
 vtkIdType vtkScenePicker::GetCellId( int displayPos[2] )
 {
   if (this->EnableVertexPicking)
-    {
+  {
     return -1;
-    }
+  }
   this->Update( displayPos );
   return this->CellId;
 }
@@ -231,9 +231,9 @@ vtkProp * vtkScenePicker::GetViewProp( int displayPos[2] )
 vtkIdType vtkScenePicker::GetVertexId( int displayPos[2] )
 {
   if (!this->EnableVertexPicking)
-    {
+  {
     return -1;
-    }
+  }
   this->Update( displayPos );
   return this->CellId;
 }
@@ -242,28 +242,28 @@ vtkIdType vtkScenePicker::GetVertexId( int displayPos[2] )
 void vtkScenePicker::Update( int displayPos[2] )
 {
   if (this->PickRenderTime <= this->GetMTime())
-    {
+  {
     this->PickRender();
-    }
+  }
 
   if (this->NeedToUpdate ||
       this->LastQueriedDisplayPos[0] != displayPos[0] ||
       this->LastQueriedDisplayPos[1] != displayPos[1])
-    {
+  {
     this->Prop = 0;
     unsigned int dpos[2] = {0, 0};
     if (displayPos[0] >= 0 && displayPos[1] >= 0)
-      {
+    {
       dpos[0] = static_cast<unsigned int>(displayPos[0]);
       dpos[1] = static_cast<unsigned int>(displayPos[1]);
       vtkHardwareSelector::PixelInformation info = this->Selector->GetPixelInformation(dpos);
       this->CellId = info.AttributeID;
       this->Prop = info.Prop;
-      }
+    }
     this->LastQueriedDisplayPos[0] = displayPos[0];
     this->LastQueriedDisplayPos[1] = displayPos[1];
     this->NeedToUpdate             = false;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

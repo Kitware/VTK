@@ -43,7 +43,7 @@ static bool close_enough(const double lhs, const double rhs)
 int ArrayNormalizeMatrixVectors(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     vtkSmartPointer<vtkDiagonalMatrixSource> source = vtkSmartPointer<vtkDiagonalMatrixSource>::New();
     source->SetExtents(3);
     source->SetArrayType(vtkDiagonalMatrixSource::SPARSE);
@@ -109,11 +109,11 @@ int ArrayNormalizeMatrixVectors(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(close_enough(normalized->GetValue(vtkArrayCoordinates(2, 2)), 0.89442719099991586));
 
     return EXIT_SUCCESS;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 }
 

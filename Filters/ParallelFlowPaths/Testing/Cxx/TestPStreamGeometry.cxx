@@ -47,13 +47,13 @@ inline double ComputeLength(vtkIdList* poly, vtkPoints* pts)
   double p[3];
   pts->GetPoint(poly->GetId(0),p);
   for(int j=1; j<n;j++)
-    {
+  {
     int pIndex = poly->GetId(j);
     double q[3];
     pts->GetPoint(pIndex,q);
     s+= sqrt( vtkMath::Distance2BetweenPoints(p,q));
     Vec3::copy(p,q);
-    }
+  }
   return s;
 }
 
@@ -90,14 +90,14 @@ int TestPStreamGeometry( int argc, char* argv[] )
   tracer->SetInitialIntegrationStep(stepSize);
   double start[2] = {radius*cos(angle),radius*sin(angle)};
   vtkNew<vtkPolyData> seeds;
-    {
+  {
     vtkNew<vtkPoints> seedPoints;
     double dt =  numTraces==1? 0 :1.8/(numTraces-1);
     for(int i=0; i<numTraces;i++)
       seedPoints->InsertNextPoint(start[0],numTraces==1? 0: -0.9+dt*i,start[1]);
     seedPoints->InsertNextPoint(-2,-2,-2); //out of bound point
     seeds->SetPoints(seedPoints.GetPointer());
-    }
+  }
   tracer->SetInputData(1,seeds.GetPointer());
   tracer->SetMaximumPropagation(maximumPropagation);
 
@@ -114,10 +114,10 @@ int TestPStreamGeometry( int argc, char* argv[] )
   double totalLength(0);
   lines->InitTraversal();
   while(lines->GetNextCell(polyLine.GetPointer()))
-    {
+  {
     double d = ComputeLength(polyLine.GetPointer(),out->GetPoints());
     totalLength+=d;
-    }
+  }
 
   double totalLengthAll(0);
   c->Reduce(&totalLength,&totalLengthAll,1,vtkCommunicator::SUM_OP,0);
@@ -125,21 +125,21 @@ int TestPStreamGeometry( int argc, char* argv[] )
 
   bool res(true);
   if(myRank==0)
-    {
+  {
     double err = fabs(totalLengthAll - maximumPropagation)/maximumPropagation  ;
     PRINT("Error in length is: "<<err)
     res = err<0.02;
-    }
+  }
 
   // Test IntegrationTime
   tracer->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Velocity");
   vtkNew<vtkPolyData> singleSeed;
-    {
+  {
     vtkNew<vtkPoints> seedPoints;
     seedPoints->InsertNextPoint(.1, .1, 0);
     singleSeed->SetPoints(seedPoints.GetPointer());
-    }
+  }
   tracer->SetInputData(1,singleSeed.GetPointer());
   tracer->SetIntegrationDirectionToBoth();
   traceMapper->Update();
@@ -147,16 +147,16 @@ int TestPStreamGeometry( int argc, char* argv[] )
   vtkDoubleArray* integrationTime =
     vtkArrayDownCast<vtkDoubleArray>(out->GetPointData()->GetArray("IntegrationTime"));
   for(vtkIdType i=0;i<out->GetNumberOfPoints();i++)
-    {
+  {
     double coord[3];
     out->GetPoint(i, coord);
     double diff = std::abs(coord[2] - integrationTime->GetValue(i));
     if(diff != 0 && diff > std::abs(coord[2])*.0001)
-      {
+    {
       PRINT("Bad integration time at z-coord "<< coord[2] << " " << integrationTime->GetValue(i))
       res = false;
-      }
     }
+  }
 
   c->Finalize();
 

@@ -90,33 +90,33 @@ int ValidateSphere::ProcessRequest(vtkInformation* request,
     vtkMultiProcessController::GetGlobalController();
 
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
+  {
     vtkInformation *inInfo = input[0]->GetInformationObject(0);
     if(!inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
-      {
+    {
       vtkErrorMacro("No time steps are present");
       request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
       this->Valid = false;
       return 0;
-      }
+    }
     int numSteps = inInfo->Length(
       vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     if(numSteps != this->NumSteps)
-      {
+    {
       vtkErrorMacro("Unexpected number of steps");
       request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
       this->Valid = false;
       return 0;
-      }
+    }
     double *steps = inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     this->TimeSteps.clear();
     this->TimeSteps.reserve(numSteps);
     this->TimeSteps.insert(this->TimeSteps.begin(), steps, steps+numSteps);
     this->CurrentTimeStepIndex = 0;
-    }
+  }
 
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
-    {
+  {
     vtkInformation *inInfo = input[0]->GetInformationObject(0);
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
       controller->GetNumberOfProcesses());
@@ -127,10 +127,10 @@ int ValidateSphere::ProcessRequest(vtkInformation* request,
       this->TimeSteps[this->CurrentTimeStepIndex]);
 
     return 1;
-    }
+  }
 
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
+  {
     std::cout << "Validating time step " << this->CurrentTimeStepIndex
               << std::endl;
 
@@ -138,42 +138,42 @@ int ValidateSphere::ProcessRequest(vtkInformation* request,
     vtkMultiBlockDataSet *mbInput = vtkMultiBlockDataSet::SafeDownCast(input);
 
     if(mbInput->GetNumberOfBlocks() != 1)
-      {
+    {
       vtkErrorMacro("Incorrect number of blocks");
       request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
       this->Valid = false;
       return 0;
-      }
+    }
 
     vtkMultiPieceDataSet *mpInput =
       vtkMultiPieceDataSet::SafeDownCast(mbInput->GetBlock(0));
     if(mpInput->GetNumberOfPieces() != controller->GetNumberOfProcesses())
-      {
+    {
       vtkErrorMacro("Number of pieces read != number of pieces written");
       request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
       this->Valid = false;
       return 0;
-      }
+    }
 
     // Adjust Phi and Theta resolutions for multi-piece
     int piece = controller->GetLocalProcessId();
     int numPieces = mpInput->GetNumberOfPieces();
     if (numPieces > this->ThetaResolution)
-      {
+    {
       numPieces = this->ThetaResolution;
-      }
+    }
     if (piece >= numPieces)
-      {
+    {
       return 1;
-      }
+    }
 
     int localThetaResolution = this->ThetaResolution;
     double localStartTheta = this->StartTheta;
     double localEndTheta = this->EndTheta;
     while (localEndTheta < localStartTheta)
-      {
+    {
       localEndTheta += 360.0;
-      }
+    }
     double deltaTheta = (localEndTheta - localStartTheta) / localThetaResolution;
 
     int start, end, numPoles;
@@ -187,26 +187,26 @@ int ValidateSphere::ProcessRequest(vtkInformation* request,
 
     numPoles = 0;
     if(this->StartPhi <= 0.0)
-      {
+    {
       ++numPoles;
-      }
+    }
     if(this->EndPhi >= 180.0)
-      {
+    {
       ++numPoles;
-      }
+    }
 
     vtkPolyData *pdInput = vtkPolyData::SafeDownCast(mpInput->GetPiece(piece));
 
     int numPolys = localThetaResolution *
                    (numPoles + 2*(this->PhiResolution - numPoles - 1));
     if(pdInput->GetNumberOfCells() != numPolys)
-      {
+    {
       vtkErrorMacro("Number of cells " << pdInput->GetNumberOfCells() << ","
                     << " != " << numPolys);
       request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
       this->Valid = false;
       return 0;
-      }
+    }
 
 
     // Not sure how to calculate the number of expected points
@@ -226,15 +226,15 @@ int ValidateSphere::ProcessRequest(vtkInformation* request,
     // Advance to the next time step
     ++this->CurrentTimeStepIndex;
     if(CurrentTimeStepIndex >= this->TimeSteps.size())
-      {
+    {
       request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
-      }
-    else
-      {
-      request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
-      }
-    return 1;
     }
+    else
+    {
+      request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
+    }
+    return 1;
+  }
 
   return this->Superclass::ProcessRequest(request, input, output);
 }
@@ -244,7 +244,7 @@ int ValidateSphere::ProcessRequest(vtkInformation* request,
 int TestADIOSSphereWR(int argc, char *argv[])
 {
   bool Success = true;
-    {
+  {
     vtkNew<vtkMPIController> controller;
     controller->Initialize(&argc, &argv, 0);
     vtkMultiProcessController::SetGlobalController(controller.GetPointer());
@@ -264,13 +264,13 @@ int TestADIOSSphereWR(int argc, char *argv[])
 
       sphere->SetThetaResolution(13);
       for(int t = 0; t < 10; ++t)
-        {
+      {
         double r = 10+t;
         sphere->SetPhiResolution(r);
 
         std::cout << "Writing time step" << std::endl;
         writer->Update();
-        }
+      }
       }
       std::cout << "End vtkADIOSWriter test" << std::endl;
 
@@ -293,6 +293,6 @@ int TestADIOSSphereWR(int argc, char *argv[])
 
     vtkMultiProcessController::SetGlobalController(NULL);
     controller->Finalize();
-    }
+  }
   return Success ? 0 : 1;
 }

@@ -12,11 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageSinusoidSource - Create an image with sinusoidal pixel values.
-// .SECTION Description
-// vtkImageSinusoidSource just produces images with pixel values determined
-// by a sinusoid.
-
+/**
+ * @class   vtkImageSinusoidSource
+ * @brief   Create an image with sinusoidal pixel values.
+ *
+ * vtkImageSinusoidSource just produces images with pixel values determined
+ * by a sinusoid.
+*/
 
 #ifndef vtkImageSinusoidSource_h
 #define vtkImageSinusoidSource_h
@@ -31,32 +33,45 @@ public:
   vtkTypeMacro(vtkImageSinusoidSource,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set/Get the extent of the whole output image.
+  /**
+   * Set/Get the extent of the whole output image.
+   */
   void SetWholeExtent(int xMinx, int xMax, int yMin, int yMax,
                       int zMin, int zMax);
 
-  // Description:
-  // Set/Get the direction vector which determines the sinusoidal
-  // orientation. The magnitude is ignored.
+  //@{
+  /**
+   * Set/Get the direction vector which determines the sinusoidal
+   * orientation. The magnitude is ignored.
+   */
   void SetDirection(double,double,double);
   void SetDirection(double dir[3]);
   vtkGetVector3Macro(Direction, double);
+  //@}
 
-  // Description:
-  // Set/Get the period of the sinusoid in pixels.
+  //@{
+  /**
+   * Set/Get the period of the sinusoid in pixels.
+   */
   vtkSetMacro(Period, double);
   vtkGetMacro(Period, double);
+  //@}
 
-  // Description:
-  // Set/Get the phase: 0->2Pi.  0 => Cosine, pi/2 => Sine.
+  //@{
+  /**
+   * Set/Get the phase: 0->2Pi.  0 => Cosine, pi/2 => Sine.
+   */
   vtkSetMacro(Phase, double);
   vtkGetMacro(Phase, double);
+  //@}
 
-  // Description:
-  // Set/Get the magnitude of the sinusoid.
+  //@{
+  /**
+   * Set/Get the magnitude of the sinusoid.
+   */
   vtkSetMacro(Amplitude, double);
   vtkGetMacro(Amplitude, double);
+  //@}
 
 protected:
   vtkImageSinusoidSource();

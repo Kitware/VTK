@@ -45,10 +45,10 @@ void vtkSphericalTransform::InternalDeepCopy(vtkAbstractTransform *transform)
 
   // copy the inverse flag, which is used
   if (this->InverseFlag != sphericalTransform->InverseFlag)
-    {
+  {
     this->InverseFlag = sphericalTransform->InverseFlag;
     this->Modified();
-    }
+  }
 }
 
 vtkAbstractTransform *vtkSphericalTransform::MakeTransform()
@@ -71,7 +71,7 @@ void vtkSphericalToRectangular(const T inPoint[3], T outPoint[3],
   outPoint[2] = r*cosphi;
 
   if (derivative)
-    {
+  {
     derivative[0][0] =    sinphi*costheta;
     derivative[0][1] =  r*cosphi*costheta;
     derivative[0][2] = -r*sinphi*sintheta;
@@ -83,7 +83,7 @@ void vtkSphericalToRectangular(const T inPoint[3], T outPoint[3],
     derivative[2][0] =    cosphi;
     derivative[2][1] = -r*sinphi;
     derivative[2][2] =    0;
-    }
+  }
 }
 
 template<class T>
@@ -98,22 +98,22 @@ void vtkRectangularToSpherical(const T inPoint[3], T outPoint[3])
 
   outPoint[0] = r;
   if (r == 0)
-    {
+  {
     outPoint[1] = 0;
-    }
+  }
   else
-    {
+  {
     outPoint[1] = acos(z/r);
-    }
+  }
   if (RR == 0)
-    {
+  {
     outPoint[2] = 0;
-    }
+  }
   else
-    {
+  {
     // Change range to [0, 2*Pi], otherwise the same as atan2(y, x)
     outPoint[2] = T(vtkMath::Pi()) + atan2(-y, -x);
-    }
+  }
 }
 
 void vtkSphericalTransform::ForwardTransformPoint(const float inPoint[3],

@@ -13,10 +13,13 @@
 
 =========================================================================*/
 
-// .NAME vtkChart2DHistogram - Chart for 2D histograms.
-//
-// .SECTION Description
-// This defines the interface for a 2D histogram chart.
+/**
+ * @class   vtkChart2DHistogram
+ * @brief   Chart for 2D histograms.
+ *
+ *
+ * This defines the interface for a 2D histogram chart.
+*/
 
 #ifndef vtkChartHistogram2D_h
 #define vtkChartHistogram2D_h
@@ -36,25 +39,29 @@ public:
   vtkTypeMacro(vtkChartHistogram2D, vtkChartXY);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Creates a 2D histogram chart
+  /**
+   * Creates a 2D histogram chart
+   */
   static vtkChartHistogram2D* New();
 
-  // Description:
-  // Perform any updates to the item that may be necessary before rendering.
-  // The scene should take care of calling this on all items before their
-  // Paint function is invoked.
+  /**
+   * Perform any updates to the item that may be necessary before rendering.
+   * The scene should take care of calling this on all items before their
+   * Paint function is invoked.
+   */
   virtual void Update();
 
   virtual void SetInputData(vtkImageData *data, vtkIdType z = 0);
   virtual void SetTransferFunction(vtkScalarsToColors *function);
 
-  // Description:
-  // Return true if the supplied x, y coordinate is inside the item.
+  /**
+   * Return true if the supplied x, y coordinate is inside the item.
+   */
   virtual bool Hit(const vtkContextMouseEvent &mouse);
 
-  // Description:
-  // Get the plot at the specified index, returns null if the index is invalid.
+  /**
+   * Get the plot at the specified index, returns null if the index is invalid.
+   */
   virtual vtkPlot* GetPlot(vtkIdType index);
 
 protected:
@@ -63,8 +70,9 @@ protected:
 
   vtkSmartPointer<vtkPlotHistogram2D> Histogram;
 
-  // Description:
-  // The point cache is marked dirty until it has been initialized.
+  /**
+   * The point cache is marked dirty until it has been initialized.
+   */
   vtkTimeStamp BuildTime;
 
   class Private;

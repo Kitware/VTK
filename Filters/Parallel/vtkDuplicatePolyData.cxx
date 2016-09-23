@@ -62,14 +62,14 @@ static inline int vtkDPDLog2(int j, int& exact)
   int counter=0;
   exact = 1;
   while(j)
-    {
+  {
     if ( ( j & 1 ) && (j >> 1) )
-      {
+    {
       exact = 0;
-      }
+    }
     j = j >> 1;
     counter++;
-    }
+  }
   return counter-1;
 }
 
@@ -80,88 +80,88 @@ void vtkDuplicatePolyData::InitializeSchedule(int numProcs)
   int *procFlags = NULL;
 
   if (this->NumberOfProcesses == numProcs)
-    {
+  {
     return;
-    }
+  }
 
   // Free old schedule.
   for (i = 0; i < this->NumberOfProcesses; ++i)
-    {
+  {
     delete [] this->Schedule[i];
     this->Schedule[i] = NULL;
-    }
+  }
   delete [] this->Schedule;
   this->Schedule = NULL;
 
   this->NumberOfProcesses = numProcs;
   if (numProcs == 0)
-    {
+  {
     return;
-    }
+  }
 
   i = vtkDPDLog2(numProcs, exact);
   if (!exact)
-    {
+  {
     ++i;
-    }
+  }
   this->ScheduleLength = vtkDPDPow2(i) - 1;
   this->Schedule = new int*[numProcs];
   for (i = 0; i < numProcs; ++i)
-    {
+  {
     this->Schedule[i] = new int[this->ScheduleLength];
     for (j = 0; j < this->ScheduleLength; ++j)
-      {
+    {
       this->Schedule[i][j] = -1;
-      }
     }
+  }
 
   // Temporary array to record which processes have been used.
   procFlags = new int[numProcs];
 
   for (j = 0; j < this->ScheduleLength; ++j)
-    {
+  {
     for (i = 0; i < numProcs; ++i)
-      {
+    {
       if (this->Schedule[i][j] == -1)
-        {
+      {
         // Try to find a available process that we have not paired with yet.
         for (k = 0; k < numProcs; ++k)
-          {
+        {
           procFlags[k] = 0;
-          }
+        }
         // Eliminate this process as a candidate.
         procFlags[i] = 1;
         // Eliminate procs already communicating during this cycle.
         for (k = 0; k < numProcs; ++k)
-          {
+        {
           if (this->Schedule[k][j] != -1)
-            {
+          {
             procFlags[this->Schedule[k][j]] = 1;
-            }
           }
+        }
         // Eliminate process we have already paired with.
         for (k = 0; k < j; ++k)
-          {
+        {
           if (this->Schedule[i][k] != -1)
-            {
+          {
             procFlags[this->Schedule[i][k]] = 1;
-            }
           }
+        }
         // Look for the first appropriate process.
         for (k = 0; k < numProcs; ++k)
-          {
+        {
           if (procFlags[k] == 0)
-            {
+          {
             // Set the pair in the schedule for communication.
             this->Schedule[i][j] = k;
             this->Schedule[k][j] = i;
             // Break the loop.
             k = numProcs;
-            }
           }
         }
       }
     }
+  }
 
   delete [] procFlags;
   procFlags = NULL;
@@ -207,22 +207,22 @@ int vtkDuplicatePolyData::RequestData(
   int idx;
 
   if (this->SocketController && this->ClientFlag)
-    {
+  {
     this->ClientExecute(output);
     return 1;
-    }
+  }
 
   if (this->Controller == NULL)
-    {
+  {
     output->CopyStructure(input);
     output->GetPointData()->PassData(input->GetPointData());
     output->GetCellData()->PassData(input->GetCellData());
     if (this->SocketController && ! this->ClientFlag)
-      {
+    {
       this->SocketController->Send(output, 1, 18732);
-      }
-    return 1;
     }
+    return 1;
+  }
 
   myId = this->Controller->GetLocalProcessId();
 
@@ -239,14 +239,14 @@ int vtkDuplicatePolyData::RequestData(
   pd->Delete();
 
   for (idx = 0; idx < this->ScheduleLength; ++idx)
-    {
+  {
     partner = this->Schedule[myId][idx];
     if (partner >= 0)
-      {
+    {
       // Matching the order may not be necessary and may slow things down,
       // but it is a reasonable precaution.
       if (partner > myId || ! this->Synchronous)
-        {
+      {
         this->Controller->Send(input, partner, 131767);
 
         pd = vtkPolyData::New();
@@ -254,9 +254,9 @@ int vtkDuplicatePolyData::RequestData(
         append->AddInputData(pd);
         pd->Delete();
         pd = NULL;
-        }
+      }
       else
-        {
+      {
         pd = vtkPolyData::New();
         this->Controller->Receive(pd, partner, 131767);
         append->AddInputData(pd);
@@ -264,9 +264,9 @@ int vtkDuplicatePolyData::RequestData(
         pd = NULL;
 
         this->Controller->Send(input, partner, 131767);
-        }
       }
     }
+  }
   append->Update();
   input = append->GetOutput();
 
@@ -278,9 +278,9 @@ int vtkDuplicatePolyData::RequestData(
   append = NULL;
 
   if (this->SocketController && ! this->ClientFlag)
-    {
+  {
     this->SocketController->Send(output, 1, 18732);
-    }
+  }
 
   this->MemorySize = output->GetActualMemorySize();
 
@@ -308,39 +308,39 @@ void vtkDuplicatePolyData::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Controller: (" << this->Controller << ")\n";
   if (this->SocketController)
-    {
+  {
     os << indent << "SocketController: (" << this->SocketController << ")\n";
     os << indent << "ClientFlag: " << this->ClientFlag << endl;
-    }
+  }
   os << indent << "Synchronous: " << this->Synchronous << endl;
 
   os << indent << "Schedule:\n";
   indent = indent.GetNextIndent();
   for (i = 0; i < this->NumberOfProcesses; ++i)
-    {
+  {
     os << indent << i << ": ";
     if (this->Schedule[i][0] >= 0)
-      {
+    {
       os << this->Schedule[i][0];
-      }
+    }
     else
-      {
+    {
       os << "X";
-      }
+    }
     for (j = 1; j < this->ScheduleLength; ++j)
-      {
+    {
       os << ", ";
       if (this->Schedule[i][j] >= 0)
-        {
+      {
         os << this->Schedule[i][j];
-        }
-      else
-        {
-        os << "X";
-        }
       }
-    os << endl;
+      else
+      {
+        os << "X";
+      }
     }
+    os << endl;
+  }
 
   os << indent << "MemorySize: " << this->MemorySize << endl;
 }

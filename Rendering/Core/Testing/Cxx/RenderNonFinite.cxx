@@ -75,32 +75,32 @@ static vtkSmartPointer<vtkPolyData> CreateData()
 
   VTK_CREATE(vtkPoints, points);
   for (int y = 0; y < pointsHigh; y++)
-    {
+  {
     for (int x = 0; x < 2; x++)
-      {
+    {
       points->InsertNextPoint(static_cast<double>(x),
                               static_cast<double>(y), 0.0);
-      }
     }
+  }
   polyData->SetPoints(points);
 
   VTK_CREATE(vtkCellArray, cells);
   for (int c = 0; c < cellsHigh; c++)
-    {
+  {
     cells->InsertNextCell(4);
     cells->InsertCellPoint(2*c);
     cells->InsertCellPoint(2*c+1);
     cells->InsertCellPoint(2*c+3);
     cells->InsertCellPoint(2*c+2);
-    }
+  }
   polyData->SetPolys(cells);
 
   VTK_CREATE(vtkDoubleArray, scalars);
   for (int height = 0; height < pointsHigh; height++)
-    {
+  {
     scalars->InsertNextTuple1(pointValues[height]);
     scalars->InsertNextTuple1(pointValues[height]);
-    }
+  }
   polyData->GetPointData()->SetScalars(scalars);
 
   return polyData;
@@ -226,13 +226,13 @@ int RenderNonFinite(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage(renwin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     VTK_CREATE(vtkRenderWindowInteractor, iren);
     iren->SetRenderWindow(renwin);
     iren->Initialize();
     iren->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   return (retVal == vtkRegressionTester::PASSED) ? 0 : 1;
 }

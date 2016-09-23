@@ -53,18 +53,18 @@ bool vtkViewNodeCollection::IsRenderablePresent(vtkObject *obj)
   it->InitTraversal();
   bool found = false;
   while (!found && !it->IsDoneWithTraversal())
-    {
+  {
     vtkViewNode *vn = vtkViewNode::SafeDownCast(it->GetCurrentObject());
     if (vn)
-      {
+    {
       vtkObject *nobj = vn->GetRenderable();
       if (nobj == obj)
-        {
+      {
         found = true;
-        }
-      it->GoToNextItem();
       }
+      it->GoToNextItem();
     }
+  }
   it->Delete();
 
   return found;

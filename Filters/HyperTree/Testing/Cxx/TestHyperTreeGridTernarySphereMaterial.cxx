@@ -114,9 +114,9 @@ int TestHyperTreeGridTernarySphereMaterial( int argc, char* argv[] )
 
   int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 110 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

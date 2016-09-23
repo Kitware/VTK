@@ -12,25 +12,27 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLFileOutputWindow - XML File Specific output window class
-// .SECTION Description
-// Writes debug/warning/error output to an XML file. Uses prefined XML
-// tags for each text display method. The text is processed to replace
-// XML markup characters.
-//
-//   DisplayText - <Text>
-//
-//   DisplayErrorText - <Error>
-//
-//   DisplayWarningText - <Warning>
-//
-//   DisplayGenericWarningText - <GenericWarning>
-//
-//   DisplayDebugText - <Debug>
-//
-// The method DisplayTag outputs the text unprocessed. To use this
-// class, instantiate it and then call SetInstance(this).
-
+/**
+ * @class   vtkXMLFileOutputWindow
+ * @brief   XML File Specific output window class
+ *
+ * Writes debug/warning/error output to an XML file. Uses prefined XML
+ * tags for each text display method. The text is processed to replace
+ * XML markup characters.
+ *
+ *   DisplayText - <Text>
+ *
+ *   DisplayErrorText - <Error>
+ *
+ *   DisplayWarningText - <Warning>
+ *
+ *   DisplayGenericWarningText - <GenericWarning>
+ *
+ *   DisplayDebugText - <Debug>
+ *
+ * The method DisplayTag outputs the text unprocessed. To use this
+ * class, instantiate it and then call SetInstance(this).
+*/
 
 #ifndef vtkXMLFileOutputWindow_h
 #define vtkXMLFileOutputWindow_h
@@ -46,18 +48,22 @@ public:
 
   static vtkXMLFileOutputWindow* New();
 
-  // Description:
-  // Put the text into the log file. The text is processed to
-  // replace &, <, > with &amp, &lt, and &gt.
-  // Each display method outputs a different XML tag.
+  //@{
+  /**
+   * Put the text into the log file. The text is processed to
+   * replace &, <, > with &amp, &lt, and &gt.
+   * Each display method outputs a different XML tag.
+   */
   void DisplayText(const char*) VTK_OVERRIDE;
   void DisplayErrorText(const char*) VTK_OVERRIDE;
   void DisplayWarningText(const char*) VTK_OVERRIDE;
   void DisplayGenericWarningText(const char*) VTK_OVERRIDE;
   void DisplayDebugText(const char*) VTK_OVERRIDE;
+  //@}
 
-  // Description:
-  // Put the text into the log file without processing it.
+  /**
+   * Put the text into the log file without processing it.
+   */
   virtual void DisplayTag(const char*);
 
 protected:

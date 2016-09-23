@@ -154,17 +154,17 @@ void vtkEnSightWriter::SetInputData(vtkUnstructuredGrid *input)
 vtkUnstructuredGrid *vtkEnSightWriter::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
-    {
+  {
     return NULL;
-    }
+  }
   else if (this->TmpInput)
-    {
+  {
     return this->TmpInput;
-    }
+  }
   else
-    {
+  {
     return (vtkUnstructuredGrid *)(this->Superclass::GetInput());
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -176,10 +176,10 @@ void vtkEnSightWriter::WriteData()
   std::list<int>::iterator iter;
 
   if (this->TmpInput)
-    {
+  {
     this->TmpInput->Delete();
     this->TmpInput = NULL;
-    }
+  }
 
   //figure out process ID
 
@@ -190,10 +190,10 @@ void vtkEnSightWriter::WriteData()
   vtkMultiProcessController *c = vtkMultiProcessController::GetGlobalController();
 
   if (c != NULL)
-    {
+  {
     this->ProcessNumber=c->GetLocalProcessId();
     this->NumberOfProcesses = c->GetNumberOfProcesses();
-    }
+  }
 #endif
 
   vtkUnstructuredGrid *input=this->GetInput();
@@ -201,7 +201,7 @@ void vtkEnSightWriter::WriteData()
 
   if (this->GhostLevel >
       inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()))
-    {
+  {
     // re-execute pipeline if necessary to obtain ghost cells
 
     this->GetInputAlgorithm()->UpdateInformation();
@@ -209,23 +209,23 @@ void vtkEnSightWriter::WriteData()
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
       this->GhostLevel);
     this->GetInputAlgorithm()->Update();
-    }
+  }
 
   //get the BlockID Cell Array
   vtkDataArray *BlockData=input->GetCellData()->GetScalars("BlockId");
 
   if (BlockData==NULL || strcmp(BlockData->GetName(),"BlockId"))
-    {
+  {
     BlockData=NULL;
-    }
+  }
 
   this->ComputeNames();
 
   if (!this->BaseName)
-    {
+  {
     vtkErrorMacro("A FileName or Path/BaseName must be specified.");
     return;
-    }
+  }
 
   this->SanitizeFileName(this->BaseName);
 
@@ -241,37 +241,37 @@ void vtkEnSightWriter::WriteData()
   //only if timestep 0 and not transient geometry or transient geometry
   FILE *fd=NULL;
   if (this->ShouldWriteGeometry())
-    {
+  {
     if (!(fd=OpenFile(charBuffer)))
       return;
-    }
+  }
 
   //Get the FILE's for Point Data Fields
   std::vector<FILE*> pointArrayFiles;
   int NumPointArrays=input->GetPointData()->GetNumberOfArrays();
   for (i=0;i<NumPointArrays;i++)
-    {
+  {
     strcpy(fileBuffer,input->GetPointData()->GetArray(i)->GetName());
     this->SanitizeFileName(fileBuffer);
     sprintf(charBuffer,"%s/%s.%d.%05d_n.%s",this->Path,this->BaseName,this->ProcessNumber,
       this->TimeStep,fileBuffer);
     FILE* ftemp=OpenFile(charBuffer);
     if (!ftemp)
-      {
+    {
       fclose(fd);
       return;
-      }
+    }
     pointArrayFiles.push_back(ftemp);
 
     //write the description line to the file
     WriteStringToFile(fileBuffer,ftemp);
-    }
+  }
 
   //Get the FILE's for Cell Data Fields
   std::vector<FILE*> cellArrayFiles;
   int NumCellArrays=input->GetCellData()->GetNumberOfArrays();
   for (i=0;i<NumCellArrays;i++)
-    {
+  {
 
     strcpy(fileBuffer,input->GetCellData()->GetArray(i)->GetName());
     this->SanitizeFileName(fileBuffer);
@@ -279,19 +279,19 @@ void vtkEnSightWriter::WriteData()
       this->TimeStep,fileBuffer);
     FILE* ftemp=OpenFile(charBuffer);
     if (!ftemp)
-      {
+    {
       fclose(fd);
       return;
-      }
+    }
     cellArrayFiles.push_back(ftemp);
 
     //write the description line to the file
     WriteStringToFile(fileBuffer,ftemp);
-    }
+  }
 
   //write the header information
   if (this->ShouldWriteGeometry())
-    {
+  {
     this->WriteStringToFile("C Binary",fd);
     this->WriteStringToFile("Written by VTK EnSight Writer",fd);
     //if (this->Title)
@@ -301,15 +301,15 @@ void vtkEnSightWriter::WriteData()
     //we will specify node and element ID's
     this->WriteStringToFile("node id given\n",fd);
     this->WriteStringToFile("element id given\n",fd);
-    }
+  }
 
   //get the Ghost Cell Array if it exists
   vtkDataArray *GhostData=input->GetCellData()->GetScalars(vtkDataSetAttributes::GhostArrayName());
   //if the strings are not the same then we did not get the ghostData array
   if (GhostData==NULL || strcmp(GhostData->GetName(), vtkDataSetAttributes::GhostArrayName()))
-    {
+  {
     GhostData=NULL;
-    }
+  }
 
 
   //data structure to get all the cells for a certain part
@@ -322,20 +322,20 @@ void vtkEnSightWriter::WriteData()
   //get all the part numbers in the unstructured grid and sort the cells
   //by part number
   for (i=0;i<input->GetNumberOfCells();i++)
-    {
+  {
     int key=1;
     if (BlockData)
       key=(int)(BlockData->GetTuple(i)[0]);
     else
       cout << "No BlockID was found\n";
     if (CellsByPart.count(key)==0)
-      {
+    {
       CellsByPart[key]=std::vector < int >() ;
-      }
+    }
     CellsByPart[key].push_back(i);
     partNumbers.push_back(key);
 
-    }
+  }
 
   //remove the duplicates from the partNumbers
   partNumbers.sort();
@@ -343,34 +343,34 @@ void vtkEnSightWriter::WriteData()
 
   //write out each part
   for (iter=partNumbers.begin();iter!=partNumbers.end();iter++)
-    {
+  {
     unsigned int j;
     std::list<int>::iterator iter2;
     int part=*iter;
 
     //write the part Header
     if (this->ShouldWriteGeometry())
-      {
+    {
       blockCount+=1;
       this->WriteStringToFile("part",fd);
       this->WriteIntToFile(part,fd);
       //cout << "part is " << part << endl;
       this->WriteStringToFile("VTK Part",fd);
       this->WriteStringToFile("coordinates",fd);
-      }
+    }
 
     //write the part header for data files
     for (j=0;j<pointArrayFiles.size();j++)
-      {
+    {
       this->WriteStringToFile("part",pointArrayFiles[j]);
       this->WriteIntToFile(part,pointArrayFiles[j]);
       this->WriteStringToFile("coordinates",pointArrayFiles[j]);
-      }
+    }
     for (j=0;j<cellArrayFiles.size();j++)
-      {
+    {
       this->WriteStringToFile("part",cellArrayFiles[j]);
       this->WriteIntToFile(part,cellArrayFiles[j]);
-      }
+    }
 
     //list of VTK Node Indices per part
     std::list<int> NodesPerPart;
@@ -380,14 +380,14 @@ void vtkEnSightWriter::WriteData()
 
     //get a list of all the nodes used for a particular part
     for (j=0;j<CellsByPart[part].size();j++)
-      {
+    {
       vtkCell* cell=input->GetCell(CellsByPart[part][j]);
       vtkIdList* points=cell->GetPointIds();
       for (int k=0;k<points->GetNumberOfIds();k++)
-        {
+      {
         NodesPerPart.push_back(points->GetId(k));
-        }
       }
+    }
 
     //remove the duplicate Node ID's
     NodesPerPart.sort();
@@ -395,7 +395,7 @@ void vtkEnSightWriter::WriteData()
 
     //write the number of nodes
     if (this->ShouldWriteGeometry())
-      {
+    {
       this->WriteIntToFile(static_cast<int>(NodesPerPart.size()),fd);
 
 
@@ -403,11 +403,11 @@ void vtkEnSightWriter::WriteData()
       //also set up the NodeID->order map
       int NodeCount=0;
       for (iter2=NodesPerPart.begin();iter2!=NodesPerPart.end();iter2++)
-        {
+      {
         this->WriteIntToFile(*iter2,fd);
         NodeIdToOrder[*iter2]=NodeCount+1;
         NodeCount++;
-        }
+      }
 
 
       //EnSight format requires all the X's, then all the Y's, then all the Z's
@@ -415,23 +415,23 @@ void vtkEnSightWriter::WriteData()
 
       vtkPoints* inputPoints=input->GetPoints();
       for (iter2=NodesPerPart.begin();iter2!=NodesPerPart.end();iter2++)
-        {
+      {
         this->WriteFloatToFile((float)(inputPoints->GetPoint(*iter2)[0]),fd);
-        }
-      for (iter2=NodesPerPart.begin();iter2!=NodesPerPart.end();iter2++)
-        {
-        this->WriteFloatToFile((float)(inputPoints->GetPoint(*iter2)[1]),fd);
-        }
-      for (iter2=NodesPerPart.begin();iter2!=NodesPerPart.end();iter2++)
-        {
-        this->WriteFloatToFile((float)(inputPoints->GetPoint(*iter2)[2]),fd);
-        }
-
       }
+      for (iter2=NodesPerPart.begin();iter2!=NodesPerPart.end();iter2++)
+      {
+        this->WriteFloatToFile((float)(inputPoints->GetPoint(*iter2)[1]),fd);
+      }
+      for (iter2=NodesPerPart.begin();iter2!=NodesPerPart.end();iter2++)
+      {
+        this->WriteFloatToFile((float)(inputPoints->GetPoint(*iter2)[2]),fd);
+      }
+
+    }
 
     //write the Node Data for this part
     for (j=0;j<pointArrayFiles.size();j++)
-      {
+    {
       vtkDataArray* DataArray=input->GetPointData()->GetArray(j);
       //figure out what type of data it is
       int DataSize=DataArray->GetNumberOfComponents();
@@ -439,17 +439,17 @@ void vtkEnSightWriter::WriteData()
       for (int CurrentDimension=0;
         CurrentDimension<DataSize;
         CurrentDimension++)
-        {
+      {
         for (std::list<int>::iterator k=NodesPerPart.begin();
           k!=NodesPerPart.end();k++)
-          {
+        {
           this->WriteFloatToFile((float)
             (DataArray->
              GetTuple(*k)[CurrentDimension]),
             pointArrayFiles[j]);
-          }
         }
       }
+    }
 
 
 
@@ -457,26 +457,26 @@ void vtkEnSightWriter::WriteData()
     //map is indexed by cell type has a vector of cell ID's
     std::map<int, std::vector<int> > CellsByElement;
     for (j=0;j<CellsByPart[part].size();j++)
-      {
+    {
       int CellType=input->GetCell(CellsByPart[part][j])->GetCellType();
       int ghostLevel=0;
       if (GhostData)
-        {
+      {
         ghostLevel=(int)(GhostData->GetTuple(CellsByPart[part][j])[0]);
         if (ghostLevel & vtkDataSetAttributes::DUPLICATECELL)
-          {
+        {
           ghostLevel=1;
-          }
         }
+      }
       //we want to sort out the ghost cells from the normal cells
       //so the element type will be ghostMultiplier*ghostLevel+elementType
       CellType+=ghostLevel*GhostLevelMultiplier;
       if (CellsByElement.count(CellType)==0)
-        {
+      {
         CellsByElement[CellType]=std::vector < int >() ;
-        }
-      CellsByElement[CellType].push_back(CellsByPart[part][j]);
       }
+      CellsByElement[CellType].push_back(CellsByPart[part][j]);
+    }
 
     //now we need to go through each element type that EnSight understands
     std::vector<int> elementTypes;
@@ -521,13 +521,13 @@ void vtkEnSightWriter::WriteData()
 
     //write out each type of element
     if (this->ShouldWriteGeometry())
-      {
+    {
       for (j=0;j<elementTypes.size();j++)
-        {
+      {
         unsigned int k;
         int elementType=elementTypes[j];
         if (CellsByElement.count(elementType)>0)
-          {
+        {
           //switch on element type to write correct type to file
           this->WriteElementTypeToFile(elementType,fd);
 
@@ -537,44 +537,44 @@ void vtkEnSightWriter::WriteData()
 
           //element ID's
           for (k=0;k<CellsByElement[elementType].size();k++)
-            {
+          {
             int CellId=CellsByElement[elementType][k];
             this->WriteIntToFile(CellId,fd);
-            }
+          }
 
           //element conenctivity information
           for (k=0;k<CellsByElement[elementType].size();k++)
-            {
+          {
             int CellId=CellsByElement[elementType][k];
             vtkIdList *PointIds=input->GetCell(CellId)->GetPointIds();
             for (int m=0;m<PointIds->GetNumberOfIds();m++)
-              {
+            {
               int PointId=PointIds->GetId(m);
               this->WriteIntToFile(NodeIdToOrder[PointId],fd);
-              }
             }
           }
         }
       }
+    }
 
     //write the Cell Data for this part
     for (j=0;j<cellArrayFiles.size();j++)
-      {
+    {
       vtkDataArray* DataArray=input->GetCellData()->GetArray(j);
       //figure out what type of data it is
       int DataSize=DataArray->GetNumberOfComponents();
 
       for (unsigned int k=0;k<elementTypes.size();k++)
-        {
+      {
         if (CellsByElement[elementTypes[k]].size()>0)
-          {
+        {
           this->WriteElementTypeToFile(elementTypes[k],
             cellArrayFiles[j]);
           for (unsigned int m=0;m<CellsByElement[elementTypes[k]].size();m++)
-            {
+          {
             for ( int CurrentDimension = 0; CurrentDimension < DataSize;
                      CurrentDimension ++ )
-              {
+            {
               this->WriteFloatToFile
                 (  (float)
                    (   DataArray
@@ -583,37 +583,37 @@ void vtkEnSightWriter::WriteData()
                    ),
                    cellArrayFiles[j]
                 );
-              }
             }
           }
         }
       }
     }
+  }
 
   //now write the empty blocks
   //use the block list in the exodus model if it exists, otherwise
   //use the BlockID list if that exists.
 
   if (this->BlockIDs)
-    {
+  {
     elementIDs=this->BlockIDs;
-    }
+  }
 
   if (elementIDs)
-    {
+  {
     //cout << "have " << this->NumberOfBlocks << " blocks " << endl;
     for (i=0;i<this->NumberOfBlocks;i++)
-      {
+    {
       unsigned int j;
       //figure out if the part was already written
       int part=elementIDs[i];
       if (   std::find(partNumbers.begin(), partNumbers.end(), part)
         == partNumbers.end() )
-        {
+      {
         //no information about the part was written to the output files
         //so write some empty information
         if (this->ShouldWriteGeometry())
-          {
+        {
           blockCount+=1;
           this->WriteStringToFile("part",fd);
           this->WriteIntToFile(part,fd);
@@ -622,51 +622,51 @@ void vtkEnSightWriter::WriteData()
             this->GetExodusModelIndex(elementIDs,this->NumberOfBlocks,part);
 
           if (exodusIndex!=-1 && blockNames)
-            {
+          {
             sprintf(charBuffer,"Exodus-%s-%d",blockNames[exodusIndex],part);
             this->WriteStringToFile(charBuffer,fd);
-            }
-          else
-            {
-            this->WriteStringToFile("VTK Part",fd);
-            }
           }
+          else
+          {
+            this->WriteStringToFile("VTK Part",fd);
+          }
+        }
 
         //write the part header for data files
         for (j=0;j<pointArrayFiles.size();j++)
-          {
+        {
           this->WriteStringToFile("part",pointArrayFiles[j]);
           this->WriteIntToFile(part,pointArrayFiles[j]);
-          }
+        }
         for (j=0;j<cellArrayFiles.size();j++)
-          {
+        {
           this->WriteStringToFile("part",cellArrayFiles[j]);
           this->WriteIntToFile(part,cellArrayFiles[j]);
-          }
         }
       }
     }
+  }
   //cout << "wrote " << blockCount << "parts\n";
   if (this->TmpInput)
-    {
+  {
     this->TmpInput->Delete();
     this->TmpInput = NULL;
-    }
+  }
 
   //close all the files
   if (fd)
-    {
+  {
     fclose(fd);
-    }
+  }
 
   for (ui=0;ui<cellArrayFiles.size();ui++)
-    {
+  {
     fclose(cellArrayFiles[ui]);
-    }
+  }
   for (ui=0;ui<pointArrayFiles.size();ui++)
-    {
+  {
     fclose(pointArrayFiles[ui]);
-    }
+  }
 
 }
 
@@ -680,10 +680,10 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
   this->ComputeNames();
 
   if (!this->BaseName)
-    {
+  {
     vtkErrorMacro("A FileName or Path/BaseName must be specified.");
     return;
-    }
+  }
 
   char charBuffer[512];
   sprintf(charBuffer,"%s/%s.%d.case",this->Path,this->BaseName,this->ProcessNumber);
@@ -691,9 +691,9 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
   //open the geometry file
   FILE *fd=NULL;
   if (!(fd=OpenFile(charBuffer)))
-    {
+  {
     return;
-    }
+  }
 
   this->WriteTerminatedStringToFile("FORMAT\n",fd);
   this->WriteTerminatedStringToFile("type: ensight gold\n\n",fd);
@@ -701,15 +701,15 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
 
   //write the geometry file
   if (!this->TransientGeometry)
-    {
+  {
     sprintf(charBuffer,"model: %s.%d.00000.geo\n",this->BaseName,this->ProcessNumber);
     this->WriteTerminatedStringToFile(charBuffer,fd);
-    }
+  }
   else
-    {
+  {
     sprintf(charBuffer,"model: 1 %s.%d.*****.geo\n",this->BaseName,this->ProcessNumber);
     this->WriteTerminatedStringToFile(charBuffer,fd);
-    }
+  }
 
   this->WriteTerminatedStringToFile("\nVARIABLE\n",fd);
 
@@ -717,27 +717,27 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
 
   //write the Node variable files
   for (i=0;i<input->GetPointData()->GetNumberOfArrays();i++)
-    {
+  {
 
     strcpy(fileBuffer,input->GetPointData()->GetArray(i)->GetName());
     // skip arrays that were not written
     if (strcmp(fileBuffer,"GlobalElementId")==0)
-      {
+    {
       continue;
-      }
+    }
     if (strcmp(fileBuffer,"GlobalNodeId")==0)
-      {
+    {
       continue;
-      }
+    }
     if (strcmp(fileBuffer,"BlockId")==0)
-      {
+    {
       continue;
-      }
+    }
     this->SanitizeFileName(fileBuffer);
     //figure out what kind of data it is
     char SmallBuffer[16];
     switch(input->GetPointData()->GetArray(i)->GetNumberOfComponents())
-      {
+    {
     case(1):
       strcpy(SmallBuffer,"scalar");
       break;
@@ -750,18 +750,18 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
     case(9):
       strcpy(SmallBuffer,"tensor9");
       break;
-      }
+    }
     if (TotalTimeSteps<=1)
-      {
+    {
       sprintf(charBuffer,"%s per node: %s_n %s.%d.00000_n.%s\n",
         SmallBuffer,
         fileBuffer,
         this->BaseName,
         this->ProcessNumber,
         fileBuffer);
-      }
+    }
     else
-      {
+    {
       sprintf(charBuffer,"%s per node: 1 %s_n %s.%d.*****_n.%s\n",
         SmallBuffer,
         fileBuffer,
@@ -770,33 +770,33 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
         fileBuffer);
 
 
-      }
-    this->WriteTerminatedStringToFile(charBuffer,fd);
     }
+    this->WriteTerminatedStringToFile(charBuffer,fd);
+  }
 
   //write the cell variable files
   for (i=0;i<input->GetCellData()->GetNumberOfArrays();i++)
-    {
+  {
     //figure out what kind of data it is
     char SmallBuffer[16];
 
     strcpy(fileBuffer,input->GetCellData()->GetArray(i)->GetName());
     // skip arrays that were not written
     if (strcmp(fileBuffer,"GlobalElementId")==0)
-      {
+    {
       continue;
-      }
+    }
     if (strcmp(fileBuffer,"GlobalNodeId")==0)
-      {
+    {
       continue;
-      }
+    }
     if (strcmp(fileBuffer,"BlockId")==0)
-      {
+    {
       continue;
-      }
+    }
     this->SanitizeFileName(fileBuffer);
     switch(input->GetCellData()->GetArray(i)->GetNumberOfComponents())
-      {
+    {
     case(1):
       strcpy(SmallBuffer,"scalar");
       break;
@@ -809,31 +809,31 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
     case(9):
       strcpy(SmallBuffer,"tensor9");
       break;
-      }
+    }
     if (TotalTimeSteps<=1)
-      {
+    {
       sprintf(charBuffer,"%s per element: %s_c %s.%d.00000_c.%s\n",
         SmallBuffer,
         fileBuffer,
         this->BaseName,
         this->ProcessNumber,
         fileBuffer);
-      }
+    }
     else
-      {
+    {
       sprintf(charBuffer,"%s per element: 1 %s_c %s.%d.*****_c.%s\n",
         SmallBuffer,
         fileBuffer,
         this->BaseName,
         this->ProcessNumber,
         fileBuffer);
-      }
-    this->WriteTerminatedStringToFile(charBuffer,fd);
     }
+    this->WriteTerminatedStringToFile(charBuffer,fd);
+  }
 
   //write time information if we have multiple timesteps
   if (TotalTimeSteps>1)
-    {
+  {
     this->WriteTerminatedStringToFile("\nTIME\n",fd);
     this->WriteTerminatedStringToFile("time set: 1\n",fd);
     sprintf(charBuffer,"number of steps: %d\n",TotalTimeSteps);
@@ -842,17 +842,17 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
     this->WriteTerminatedStringToFile("filename increment: 00001\n",fd);
     this->WriteTerminatedStringToFile("time values: \n",fd);
     for (i=0;i<TotalTimeSteps;i++)
-      {
+    {
       double timestep=i;
 
       sprintf(charBuffer,"%f ",timestep);
       this->WriteTerminatedStringToFile(charBuffer,fd);
       if (i%6==0 && i>0)
-        {
+      {
         this->WriteTerminatedStringToFile("\n",fd);
-        }
       }
     }
+  }
 
 
 }
@@ -863,10 +863,10 @@ void vtkEnSightWriter::WriteSOSCaseFile(int numProcs)
   this->ComputeNames();
 
   if (!this->BaseName)
-    {
+  {
     vtkErrorMacro("A FileName or Path/BaseName must be specified.");
     return;
-    }
+  }
 
   this->SanitizeFileName(this->BaseName);
 
@@ -888,7 +888,7 @@ void vtkEnSightWriter::WriteSOSCaseFile(int numProcs)
   //location and server name
   int i=0;
   for (i=0;i<numProcs;i++)
-    {
+  {
     sprintf(charBuffer, "#Server %d\n",i);
     this->WriteTerminatedStringToFile(charBuffer,fd);
     this->WriteTerminatedStringToFile("#-------\n",fd);
@@ -900,7 +900,7 @@ void vtkEnSightWriter::WriteSOSCaseFile(int numProcs)
     this->WriteTerminatedStringToFile(charBuffer,fd);
     sprintf(charBuffer,"casefile: %s.%d.case\n\n",this->BaseName,i);
     this->WriteTerminatedStringToFile(charBuffer,fd);
-    }
+  }
 
 
 }
@@ -945,9 +945,9 @@ void vtkEnSightWriter::WriteElementTypeToFile(int elementType,FILE* fd)
   int ghostLevel=elementType/GhostLevelMultiplier;
   elementType=elementType%GhostLevelMultiplier;
   if (ghostLevel==0)
-    {
+  {
     switch(elementType)
-      {
+    {
     case(VTK_VERTEX):
       this->WriteStringToFile("point",fd);
       break;
@@ -999,12 +999,12 @@ void vtkEnSightWriter::WriteElementTypeToFile(int elementType,FILE* fd)
     case(VTK_QUADRATIC_PYRAMID):
       this->WriteStringToFile("pyramid13",fd);
       break;
-      }
     }
+  }
   else
-    {
+  {
     switch(elementType)
-      {
+    {
     case(VTK_VERTEX):
       this->WriteStringToFile("g_point",fd);
       break;
@@ -1056,8 +1056,8 @@ void vtkEnSightWriter::WriteElementTypeToFile(int elementType,FILE* fd)
     case(VTK_QUADRATIC_PYRAMID):
       this->WriteStringToFile("g_pyramid13",fd);
       break;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1074,18 +1074,18 @@ void vtkEnSightWriter::SanitizeFileName(char* name)
   unsigned int i;
   int BufferPosition=0;
   for (i=0;i<strlen(name);i++)
-    {
+  {
     if (name[i]!='/')
-      {
+    {
       buffer[BufferPosition]=name[i];
       BufferPosition++;
-      }
     }
+  }
   buffer[BufferPosition]=0;
   for (i=0;i<strlen(buffer);i++)
-    {
+  {
     name[i]=buffer[i];
-    }
+  }
   name[strlen(buffer)]=0;
 
 }
@@ -1096,11 +1096,11 @@ FILE* vtkEnSightWriter::OpenFile(char* name)
   FILE * fd=fopen(name,"wb");
 
   if (fd == NULL)
-    {
+  {
     vtkErrorMacro("Error opening " << name
       << ": " << strerror(errno));
     return NULL;
-    }
+  }
   return fd;
 }
 
@@ -1109,10 +1109,10 @@ int vtkEnSightWriter::GetExodusModelIndex(int *elementArray,int numberElements,i
 {
   int i;
   for (i=0;i<numberElements;i++)
-    {
+  {
     if (elementArray[i]==partID)
       return i;
-    }
+  }
   return -1;
 }
 
@@ -1132,15 +1132,15 @@ void vtkEnSightWriter::DefaultNames()
 void vtkEnSightWriter::ComputeNames()
 {
   if (this->Path && this->BaseName)
-    {
+  {
     return;
-    }
+  }
 
   if (!this->FileName)
-    {
+  {
     this->DefaultNames();
     return;
-    }
+  }
 
   // FileName = Path/BaseName.digits.digits
 
@@ -1152,11 +1152,11 @@ void vtkEnSightWriter::ComputeNames()
   while (!isgraph(*f)) f++;  // find first printable character
 
   if (!*f)
-    {
+  {
     // FileName is garbage
     DefaultNames();
     return;
-    }
+  }
 
   char *buf = new char [strlen(f) + 1];
   strcpy(buf, f);
@@ -1164,19 +1164,19 @@ void vtkEnSightWriter::ComputeNames()
   char *slash = strrchr(buf, '/');  // final slash
 
   if (slash)
-    {
+  {
     *slash = 0;
     path = new char [strlen(buf) + 1];
     strcpy(path, buf);
     f = slash + 1;
-    }
+  }
   else
-    {
+  {
     path = new char [4];
     strcpy(path, "./");
 
     f = buf;
-    }
+  }
 
   char *firstChar = f;
   while (*f && (*f != '.')) f++;

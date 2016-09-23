@@ -44,21 +44,21 @@ int Interpolate(
   // Walk cells.
   vtkIdType currentIndex=0;
   for (vtkIdType cellId=0; cellId<nCellsUsg; ++cellId)
-    {
+  {
     // Point to the start of the data associated with this cell.
     if (indices!=NULL)
-      {
+    {
       indices[cellId]=static_cast<TI>(currentIndex);
-      }
+    }
     // Grab the cell's associated shape function definition.
     int cellType=usg->GetCellType(cellId);
     vtkQuadratureSchemeDefinition *def=dict[cellType];
     if (def==NULL)
-      {
+    {
       // no quadrature scheme been specified for this cell type
       // skipping the cell.
       continue;
-      }
+    }
     vtkIdType nNodes=def->GetNumberOfNodes();
     int nQPts=def->GetNumberOfQuadraturePoints();
     // Grab the cell's node ids.
@@ -66,29 +66,29 @@ int Interpolate(
     usg->GetCellPoints(cellId,nNodes,cellNodeIds);
     // Walk quadrature points.
     for (int qPtId=0; qPtId<nQPts; ++qPtId)
-      {
+    {
       // Grab the result and initialize.
       double *r=interpolated->WritePointer(currentIndex,nCompsV);
       for (int q=0; q<nCompsV; ++q)
-        {
+      {
         r[q]=0.0;
-        }
+      }
       // Grab shape function weights.
       const double *N=def->GetShapeFunctionWeights(qPtId);
       // Walk the cell's nodes.
       for (int j=0; j<nNodes; ++j)
-        {
+      {
         vtkIdType tupIdx=cellNodeIds[j]*nCompsV;
         // Apply shape function weights.
         for (int q=0; q<nCompsV; ++q)
-          {
+        {
           r[q]+=N[j]*pV[tupIdx+q];
-          }
         }
+      }
       // Update the result index.
       currentIndex+=nCompsV;
-      }
     }
+  }
   return 1;
 }
 
@@ -106,11 +106,11 @@ int Interpolate(
         int indexType)
 {
   switch(indexType)
-    {
+  {
     vtkTemplateMacro(
       return Interpolate(usg,nCellsUsg,pV,nCompsV,dict,interpolated,(VTK_TT*)indices);
       );
-    }
+  }
   return 0;
 }
 

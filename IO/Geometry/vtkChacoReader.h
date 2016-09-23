@@ -17,15 +17,18 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// .NAME vtkChacoReader - Read a Chaco file and create a vtkUnstructuredGrid.
-// .SECTION Description
-// vtkChacoReader is an unstructured grid source object that reads Chaco
-// files.  The reader DOES NOT respond to piece requests. Chaco
-// is a graph partitioning package developed at Sandia National Laboratories
-// in the early 1990s.  (http://www.cs.sandia.gov/~bahendr/chaco.html)
-//
-// Note that the Chaco "edges" become VTK "cells", and the Chaco
-// "vertices" become VTK "points".
+/**
+ * @class   vtkChacoReader
+ * @brief   Read a Chaco file and create a vtkUnstructuredGrid.
+ *
+ * vtkChacoReader is an unstructured grid source object that reads Chaco
+ * files.  The reader DOES NOT respond to piece requests. Chaco
+ * is a graph partitioning package developed at Sandia National Laboratories
+ * in the early 1990s.  (http://www.cs.sandia.gov/~bahendr/chaco.html)
+ *
+ * Note that the Chaco "edges" become VTK "cells", and the Chaco
+ * "vertices" become VTK "points".
+*/
 
 #ifndef vtkChacoReader_h
 #define vtkChacoReader_h
@@ -40,18 +43,20 @@ public:
   vtkTypeMacro(vtkChacoReader,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify the base name of the Chaco files.  The reader will try to
-  // open BaseName.coords and BaseName.graph.
+  /**
+   * Specify the base name of the Chaco files.  The reader will try to
+   * open BaseName.coords and BaseName.graph.
+   */
 
   vtkSetStringMacro(BaseName);
   vtkGetStringMacro(BaseName);
 
-  // Description:
-  // Indicate whether this reader should create a cell array containing
-  // global IDs for the cells in the output vtkUnstructuredGrid.  These cells
-  // represent the edges that were in the Chaco file.  Each edge is a vtkLine.
-  // Default is ON.
+  /**
+   * Indicate whether this reader should create a cell array containing
+   * global IDs for the cells in the output vtkUnstructuredGrid.  These cells
+   * represent the edges that were in the Chaco file.  Each edge is a vtkLine.
+   * Default is ON.
+   */
 
   vtkSetMacro(GenerateGlobalElementIdArray, int);
   vtkGetMacro(GenerateGlobalElementIdArray, int);
@@ -59,12 +64,13 @@ public:
 
   static const char *GetGlobalElementIdArrayName() { return "GlobalElementId"; }
 
-  // Description:
-  // Indicate whether this reader should create a point array of global IDs for
-  // the points in the output vtkUnstructuredGrid.  These points are the vertices
-  // that were in the Chaco file.  Global point IDs start at "1" for the first
-  // vertex in BaseName.coords and go up from there.
-  // Default is ON.
+  /**
+   * Indicate whether this reader should create a point array of global IDs for
+   * the points in the output vtkUnstructuredGrid.  These points are the vertices
+   * that were in the Chaco file.  Global point IDs start at "1" for the first
+   * vertex in BaseName.coords and go up from there.
+   * Default is ON.
+   */
 
   vtkSetMacro(GenerateGlobalNodeIdArray, int);
   vtkGetMacro(GenerateGlobalNodeIdArray, int);
@@ -72,74 +78,85 @@ public:
 
   static const char *GetGlobalNodeIdArrayName() { return "GlobalNodeId"; }
 
-  // Description:
-  // Indicate whether this reader should create a point array for each
-  // vertex weight in the Chaco file.
-  // Default is OFF.
+  /**
+   * Indicate whether this reader should create a point array for each
+   * vertex weight in the Chaco file.
+   * Default is OFF.
+   */
 
   vtkSetMacro(GenerateVertexWeightArrays, int);
   vtkGetMacro(GenerateVertexWeightArrays, int);
   vtkBooleanMacro(GenerateVertexWeightArrays, int);
 
-  // Description:
-  // Returns the number of weights per vertex in the Chaco file, whether or
-  // not GenerateVertexWeightArrays is ON.
+  /**
+   * Returns the number of weights per vertex in the Chaco file, whether or
+   * not GenerateVertexWeightArrays is ON.
+   */
 
   vtkGetMacro(NumberOfVertexWeights, int);
 
-  // Description:
-  // This method returns the name of the selected Vertex weight point
-  // array.  If you did not turn on GenerateVertexWeightArrays, or
-  // if the weight you requested is invalid, it returns NULL.
-  // Weights begin at one and go up to NumberOfVertexWeights.
-  // This is a pointer to our copy of the name, so don't "delete" it.
+  /**
+   * This method returns the name of the selected Vertex weight point
+   * array.  If you did not turn on GenerateVertexWeightArrays, or
+   * if the weight you requested is invalid, it returns NULL.
+   * Weights begin at one and go up to NumberOfVertexWeights.
+   * This is a pointer to our copy of the name, so don't "delete" it.
+   */
 
   const char *GetVertexWeightArrayName(int weight);
 
-  // Description:
-  // Each edge in the Chaco file connects two vertices.  The file may
-  // specify one or more weights for each edge.  (The weight for an
-  // edge from vertex A to vertex B equals the weight from B to A.)
-  // Indicate with the following parameter whether this reader should
-  // create a cell array for each weight for every edge.
-  // Default is OFF.
+  /**
+   * Each edge in the Chaco file connects two vertices.  The file may
+   * specify one or more weights for each edge.  (The weight for an
+   * edge from vertex A to vertex B equals the weight from B to A.)
+   * Indicate with the following parameter whether this reader should
+   * create a cell array for each weight for every edge.
+   * Default is OFF.
+   */
 
   vtkSetMacro(GenerateEdgeWeightArrays, int);
   vtkGetMacro(GenerateEdgeWeightArrays, int);
   vtkBooleanMacro(GenerateEdgeWeightArrays, int);
 
-  // Description:
-  // Returns the number of weights per edge in the Chaco file, whether or
-  // not GenerateEdgeWeightArrays is ON.
+  /**
+   * Returns the number of weights per edge in the Chaco file, whether or
+   * not GenerateEdgeWeightArrays is ON.
+   */
 
   vtkGetMacro(NumberOfEdgeWeights, int);
 
-  // Description:
-  // This method returns the name of the selected Edge weight cell
-  // array.  If you did not turn on GenerateEdgeWeightArrays, or
-  // if the weight you requested is invalid, it returns NULL.
-  // Weights begin at one and go up to NumberOfEdgeWeights.
-  // This is a pointer to our copy of the name, so don't "delete" it.
+  /**
+   * This method returns the name of the selected Edge weight cell
+   * array.  If you did not turn on GenerateEdgeWeightArrays, or
+   * if the weight you requested is invalid, it returns NULL.
+   * Weights begin at one and go up to NumberOfEdgeWeights.
+   * This is a pointer to our copy of the name, so don't "delete" it.
+   */
 
   const char *GetEdgeWeightArrayName(int weight);
 
-  // Description:
-  // Access to meta data generated by RequestInformation.
+  //@{
+  /**
+   * Access to meta data generated by RequestInformation.
+   */
   vtkGetMacro(Dimensionality, int);
   vtkGetMacro(NumberOfEdges, vtkIdType);
   vtkGetMacro(NumberOfVertices, vtkIdType);
+  //@}
 
-  // Description:
-  // After this filter executes, this method returns the number of
-  // cell arrays that were created to hold the edge weights.  It
-  // is equal to NumberOfEdgeWeights if GenerateEdgeWeightArrays was ON.
+  /**
+   * After this filter executes, this method returns the number of
+   * cell arrays that were created to hold the edge weights.  It
+   * is equal to NumberOfEdgeWeights if GenerateEdgeWeightArrays was ON.
+   */
 
   vtkGetMacro(NumberOfCellWeightArrays, int);
 
-  // Description:
-  // After this filter executes, this method returns the number of
-  // point arrays that were created to hold the vertex weights.  It
-  // is equal to NumberOfVertexWeights if GenerateVertexWeightArrays was ON.
+  /**
+   * After this filter executes, this method returns the number of
+   * point arrays that were created to hold the vertex weights.  It
+   * is equal to NumberOfVertexWeights if GenerateVertexWeightArrays was ON.
+   */
 
   vtkGetMacro(NumberOfPointWeightArrays, int);
 

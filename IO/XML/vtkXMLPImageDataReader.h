@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPImageDataReader - Read PVTK XML ImageData files.
-// .SECTION Description
-// vtkXMLPImageDataReader reads the PVTK XML ImageData file format.
-// This reads the parallel format's summary file and then uses
-// vtkXMLImageDataReader to read data from the individual ImageData
-// piece files.  Streaming is supported.  The standard extension for
-// this reader's file format is "pvti".
-
-// .SECTION See Also
-// vtkXMLImageDataReader
+/**
+ * @class   vtkXMLPImageDataReader
+ * @brief   Read PVTK XML ImageData files.
+ *
+ * vtkXMLPImageDataReader reads the PVTK XML ImageData file format.
+ * This reads the parallel format's summary file and then uses
+ * vtkXMLImageDataReader to read data from the individual ImageData
+ * piece files.  Streaming is supported.  The standard extension for
+ * this reader's file format is "pvti".
+ *
+ * @sa
+ * vtkXMLImageDataReader
+*/
 
 #ifndef vtkXMLPImageDataReader_h
 #define vtkXMLPImageDataReader_h
@@ -38,10 +41,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLPImageDataReader *New();
 
-  // Description:
-  // Get the reader's output.
+  //@{
+  /**
+   * Get the reader's output.
+   */
   vtkImageData *GetOutput();
   vtkImageData *GetOutput(int idx);
+  //@}
 
   // For the specified port, copy the information this reader sets up in
   // SetupOutputInformation to outInfo

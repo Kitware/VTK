@@ -52,31 +52,31 @@ void vtkOpenGLClipPlanesPainter::RenderInternal(vtkRenderer *renderer,
   clipPlanes = this->ClippingPlanes;
 
   if (clipPlanes == NULL)
-    {
+  {
     numClipPlanes = 0;
-    }
+  }
   else
-    {
+  {
     numClipPlanes = clipPlanes->GetNumberOfItems();
     if (numClipPlanes > 6)
-      {
+    {
       vtkErrorMacro(<< "OpenGL has a limit of 6 clipping planes");
       numClipPlanes = 6;
-      }
     }
+  }
 
   for (i = 0; i < numClipPlanes; i++)
-    {
+  {
     glEnable(static_cast<GLenum>(GL_CLIP_PLANE0+i));
-    }
+  }
 
   if ( clipPlanes )
-    {
+  {
     double *mat = *actor->GetMatrix()->Element;
     double origin[4], normal[3];
 
     for (i = 0; i < numClipPlanes; i++)
-      {
+    {
       plane = static_cast<vtkPlane *>(clipPlanes->GetItemAsObject(i));
 
       plane->GetOrigin(origin);
@@ -95,15 +95,15 @@ void vtkOpenGLClipPlanesPainter::RenderInternal(vtkRenderer *renderer,
       planeEquation[3] = v1*mat[3] + v2*mat[7] + v3*mat[11] + v4*mat[15];
 
       glClipPlane(static_cast<GLenum>(GL_CLIP_PLANE0+i), planeEquation);
-      }
     }
+  }
 
   this->Superclass::RenderInternal(renderer, actor, typeflags,forceCompileOnly);
 
   for (i = 0; i < numClipPlanes; i++)
-    {
+  {
     glDisable(static_cast<GLenum>(GL_CLIP_PLANE0+i));
-    }
+  }
 
   vtkOpenGLCheckErrorMacro("failed after RenderInternal");
 }

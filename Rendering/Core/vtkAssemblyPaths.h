@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAssemblyPaths - a list of lists of props representing an assembly hierarchy
-// .SECTION Description
-// vtkAssemblyPaths represents an assembly hierarchy as a list of
-// vtkAssemblyPath. Each path represents the complete path from the
-// top level assembly (if any) down to the leaf prop.
-
-// .SECTION see also
-// vtkAssemblyPath vtkAssemblyNode vtkPicker vtkAssembly vtkProp
+/**
+ * @class   vtkAssemblyPaths
+ * @brief   a list of lists of props representing an assembly hierarchy
+ *
+ * vtkAssemblyPaths represents an assembly hierarchy as a list of
+ * vtkAssemblyPath. Each path represents the complete path from the
+ * top level assembly (if any) down to the leaf prop.
+ *
+ * @sa
+ * vtkAssemblyPath vtkAssemblyNode vtkPicker vtkAssembly vtkProp
+*/
 
 #ifndef vtkAssemblyPaths_h
 #define vtkAssemblyPaths_h
@@ -37,31 +40,37 @@ public:
   static vtkAssemblyPaths *New();
   vtkTypeMacro(vtkAssemblyPaths, vtkCollection);
 
-  // Description:
-  // Add a path to the list.
+  /**
+   * Add a path to the list.
+   */
   void AddItem(vtkAssemblyPath *p);
 
-  // Description:
-  // Remove a path from the list.
+  /**
+   * Remove a path from the list.
+   */
   void RemoveItem(vtkAssemblyPath *p);
 
-  // Description:
-  // Determine whether a particular path is present. Returns its position
-  // in the list.
+  /**
+   * Determine whether a particular path is present. Returns its position
+   * in the list.
+   */
   int IsItemPresent(vtkAssemblyPath *p);
 
-  // Description:
-  // Get the next path in the list.
+  /**
+   * Get the next path in the list.
+   */
   vtkAssemblyPath *GetNextItem();
 
-  // Description:
-  // Override the standard GetMTime() to check for the modified times
-  // of the paths.
+  /**
+   * Override the standard GetMTime() to check for the modified times
+   * of the paths.
+   */
   virtual vtkMTimeType GetMTime();
 
-  // Description:
-  // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth.
+  /**
+   * Reentrant safe way to get an object in a collection. Just pass the
+   * same cookie back and forth.
+   */
   vtkAssemblyPath *GetNextPath(vtkCollectionSimpleIterator &cookie)
     { return static_cast<vtkAssemblyPath *>(this->GetNextItemAsObject(cookie)); }
 

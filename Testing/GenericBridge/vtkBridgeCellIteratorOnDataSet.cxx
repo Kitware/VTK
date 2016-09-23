@@ -48,10 +48,10 @@ vtkBridgeCellIteratorOnDataSet::vtkBridgeCellIteratorOnDataSet()
 vtkBridgeCellIteratorOnDataSet::~vtkBridgeCellIteratorOnDataSet()
 {
   if(this->DataSet!=0)
-    {
+  {
     this->DataSet->Delete();
     this->DataSet=0;
-    }
+  }
   this->Cell->Delete();
   this->Cell=0;
 }
@@ -120,19 +120,19 @@ void vtkBridgeCellIteratorOnDataSet::Next()
   this->Id++;
 
   if(this->Dim>=0) // skip cells of other dimensions than this->Dim
-    {
+  {
     found=0;
     while( (this->Id<size) && (!found) )
-      {
+    {
       c=this->DataSet->Implementation->GetCell(this->Id);
       found=c->GetCellDimension()==this->Dim;
       this->Id++;
-      }
-    if(found)
-      {
-      this->Id--;
-      }
     }
+    if(found)
+    {
+      this->Id--;
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------

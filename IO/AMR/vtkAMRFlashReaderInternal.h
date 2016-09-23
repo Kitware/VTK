@@ -12,13 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAMRFlashReaderInternal.hpp -- Low-level Flash Reader
-//
-// .SECTION Description
-//  Consists of the low-level Flash Reader used by the vtkAMRFlashReader.
-//
-// .SECTION See Also
-//  vtkAMRFlashReader
+/**
+ * @class   vtkAMRFlashReaderInternal
+ *
+ *
+ *  Consists of the low-level Flash Reader used by the vtkAMRFlashReader.
+ *
+ * @sa
+ *  vtkAMRFlashReader
+*/
 
 #ifndef vtkAMRFlashReaderInternal_h
 #define vtkAMRFlashReaderInternal_h
@@ -110,13 +112,13 @@ static std::string GetSeparatedParticleName( const std::string & variable )
   std::string sepaName = variable;
 
   if ( sepaName.length() > 9 && sepaName.substr(0,9) == "particle_" )
-    {
+  {
     sepaName = std::string( "Particles/" ) + sepaName.substr( 9 );
-    }
+  }
   else
-    {
+  {
     sepaName = std::string( "Particles/" ) + sepaName;
-    }
+  }
 
   return sepaName;
 }
@@ -171,11 +173,11 @@ public:
   void     Init();
   void     SetFileName( char * fileName ) { this->FileName = fileName; }
   const char* GetParticleName(char* variableName)
-   {
+  {
    static std::string particleName;
    particleName = GetSeparatedParticleName(std::string(variableName));
    return particleName.c_str();
-   }
+  }
 
   void     ReadMetaData();
   void     ReadProcessorIds();

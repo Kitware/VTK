@@ -28,10 +28,10 @@ void vtkInformationKeyLookup::PrintSelf(std::ostream &os, vtkIndent indent)
   indent = indent.GetNextIndent();
   KeyMap &keys = Keys();
   for (KeyMap::iterator i = keys.begin(), iEnd = keys.end(); i != iEnd; ++i)
-    {
+  {
     os << indent << i->first.first << "::" << i->first.second
        << " @" << i->second << " (" << i->second->GetClassName() << ")\n";
-    }
+  }
 }
 
 //------------------------------------------------------------------------------

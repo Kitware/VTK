@@ -94,7 +94,7 @@ void MyProcess::Execute()
   vtkRectilinearGrid *rg = NULL;
 
   if (me == 0)
-    {
+  {
     rgr = vtkRectilinearGridReader::New();
 
     char* fname =
@@ -113,15 +113,15 @@ void MyProcess::Execute()
     go = 1;
 
     if ((rg == NULL) || (rg->GetNumberOfCells() == 0))
-      {
+    {
       if (rg) cout << "Failure: input file has no cells" << endl;
       go = 0;
-      }
     }
+  }
   else
-    {
+  {
     rg = vtkRectilinearGrid::New();
-    }
+  }
 
   vtkMPICommunicator *comm =
     vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
@@ -129,15 +129,15 @@ void MyProcess::Execute()
   comm->Broadcast(&go, 1, 0);
 
   if (!go)
-    {
+  {
     if (rgr)
-      {
+    {
       rgr->Delete();
-      }
+    }
     rg->Delete();
     prm->Delete();
     return;
-    }
+  }
 
   // FILTER WE ARE TRYING TO TEST
   vtkTransmitRectilinearGridPiece *pass = vtkTransmitRectilinearGridPiece::New();
@@ -186,7 +186,7 @@ void MyProcess::Execute()
   const int MY_RETURN_VALUE_MESSAGE=0x11;
 
   if (me == 0)
-    {
+  {
     vtkCamera *camera = renderer->GetActiveCamera();
     //camera->UpdateViewport(renderer);
     camera->SetParallelScale(16);
@@ -199,17 +199,17 @@ void MyProcess::Execute()
     this->ReturnValue = vtkRegressionTester::Test(this->Argc, this->Argv, renWin, 10);
 
     for (i=1; i < numProcs; i++)
-      {
+    {
       this->Controller->Send(&this->ReturnValue, 1, i,MY_RETURN_VALUE_MESSAGE);
-      }
+    }
 
     prm->StopServices();
-    }
+  }
   else
-    {
+  {
     prm->StartServices();
     this->Controller->Receive(&this->ReturnValue, 1, 0,MY_RETURN_VALUE_MESSAGE);
-    }
+  }
 
   // CLEAN UP
   renWin->Delete();
@@ -220,9 +220,9 @@ void MyProcess::Execute()
   cf->Delete();
   pass->Delete();
   if (me == 0)
-    {
+  {
     rgr->Delete();
-    }
+  }
   rg->Delete();
   prm->Delete();
 }
@@ -251,24 +251,24 @@ int TransmitRectilinearGrid(int argc, char *argv[])
   int me = contr->GetLocalProcessId();
 
   if (numProcs != 2)
-    {
+  {
     if (me == 0)
-      {
+    {
       cout << "DistributedData test requires 2 processes" << endl;
-      }
+    }
     contr->Delete();
     return retVal;
-    }
+  }
 
   if (!contr->IsA("vtkMPIController"))
-    {
+  {
     if (me == 0)
-      {
+    {
       cout << "DistributedData test requires MPI" << endl;
-      }
+    }
     contr->Delete();
     return retVal;   // is this the right error val?   TODO
-    }
+  }
 
   MyProcess *p=MyProcess::New();
   p->SetArgs(argc,argv);

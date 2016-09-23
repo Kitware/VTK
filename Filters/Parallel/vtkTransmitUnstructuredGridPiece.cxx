@@ -64,22 +64,22 @@ int vtkTransmitUnstructuredGridPiece::RequestData(
   int procId;
 
   if (this->Controller == NULL)
-    {
+  {
     vtkErrorMacro("Could not find Controller.");
     return 1;
-    }
+  }
 
   procId = this->Controller->GetLocalProcessId();
   if (procId == 0)
-    {
+  {
     // cerr << "Root Execute\n";
     this->RootExecute(input, output, outInfo);
-    }
+  }
   else
-    {
+  {
     // cerr << "Satellite Execute " << procId << endl;
     this->SatelliteExecute(procId, output, outInfo);
-    }
+  }
 
   return 1;
 }
@@ -98,11 +98,11 @@ void vtkTransmitUnstructuredGridPiece::RootExecute(vtkUnstructuredGrid *input,
   int outPiece =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   if (outPiece != 0)
-    {
+  {
     vtkWarningMacro(<< "Piece " << outPiece
                     << " does not match process 0.  "
                     << "Altering request to try to avoid a deadlock.");
-    }
+  }
 
   vtkStreamingDemandDrivenPipeline *extractExecutive =
     vtkStreamingDemandDrivenPipeline::SafeDownCast(extract->GetExecutive());
@@ -135,14 +135,14 @@ void vtkTransmitUnstructuredGridPiece::RootExecute(vtkUnstructuredGrid *input,
   vtkFieldData*  inFd = extract->GetOutput()->GetFieldData();
   vtkFieldData* outFd = output->GetFieldData();
   if (inFd && outFd)
-    {
+  {
     outFd->PassData(inFd);
-    }
+  }
 
   // Now do each of the satellite requests.
   numProcs = this->Controller->GetNumberOfProcesses();
   for (i = 1; i < numProcs; ++i)
-    {
+  {
     this->Controller->Receive(ext, 3, i, 22341);
     extractOutInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
                         ext[1]);
@@ -152,7 +152,7 @@ void vtkTransmitUnstructuredGridPiece::RootExecute(vtkUnstructuredGrid *input,
                         ext[2]);
     extract->Update();
     this->Controller->Send(extract->GetOutput(), i, 22342);
-    }
+  }
   tmp->Delete();
   extract->Delete();
 }

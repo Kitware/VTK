@@ -118,27 +118,27 @@ vtkParallelCoordinatesView::PrepareForRendering()
   vtkParallelCoordinatesRepresentation *rep = vtkParallelCoordinatesRepresentation::SafeDownCast(this->GetRepresentation());
 
   if (rep)
-    {
+  {
     vtkRenderer *ren = this->GetRenderer();
 
     this->Superclass::PrepareForRendering();
 
     if (!ren->HasViewProp(this->HighlightActor))
-      {
+    {
       ren->AddActor(this->HighlightActor);
-      }
+    }
     if (!ren->HasViewProp(this->BrushActor))
-      {
+    {
       ren->AddActor(this->BrushActor);
-      }
+    }
 
     // this is a hack to make sure that the balloon hover text is sitting on top
     if (ren->HasViewProp(this->Balloon))
-      {
+    {
       this->Renderer->RemoveViewProp(this->Balloon);
       this->Renderer->AddViewProp(this->Balloon);
-      }
     }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -162,34 +162,34 @@ vtkParallelCoordinatesView::ProcessEvents(vtkObject* caller, unsigned long event
 
 //  if (caller == this->GetInteractor() || caller == this->GetInteractorStyle())
   if (caller == this->GetInteractorStyle())
-    {
+  {
     vtkParallelCoordinatesInteractorStyle* style = vtkParallelCoordinatesInteractorStyle::SafeDownCast(this->GetInteractorStyle());;
     vtkParallelCoordinatesRepresentation *rep = vtkParallelCoordinatesRepresentation::SafeDownCast(this->GetRepresentation());
 
     if (style && rep)
-      {
+    {
       int state = style->GetState();
 
       if (eventId == vtkCommand::UpdateEvent)
-        {
+      {
         rep->ResetAxes();
-        }
+      }
       else
-        {
+      {
         switch (state)
-          {
+        {
           case vtkParallelCoordinatesInteractorStyle::INTERACT_HOVER:
             this->Hover(eventId);
             break;
           case vtkParallelCoordinatesInteractorStyle::INTERACT_INSPECT:
             if (this->InspectMode == VTK_INSPECT_MANIPULATE_AXES)
-              {
+            {
               this->ManipulateAxes(eventId);
-              }
+            }
             else if (this->InspectMode == VTK_INSPECT_SELECT_DATA)
-              {
+            {
               this->SelectData(eventId);
-              }
+            }
             break;
           case vtkParallelCoordinatesInteractorStyle::INTERACT_ZOOM:
             this->Zoom(eventId);
@@ -197,12 +197,12 @@ vtkParallelCoordinatesView::ProcessEvents(vtkObject* caller, unsigned long event
           case vtkParallelCoordinatesInteractorStyle::INTERACT_PAN:
             this->Pan(eventId);
             break;
-          }
         }
+      }
 
       this->Render();
-      }
     }
+  }
 
   this->Superclass::ProcessEvents(caller, eventId, callData);
 }
@@ -215,18 +215,18 @@ vtkDataRepresentation* vtkParallelCoordinatesView::CreateDefaultRepresentation(v
   vtkTable* td = vtkTable::SafeDownCast(data);
 
   if (!td)
-    {
+  {
     rep->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS,vtkDataSetAttributes::SCALARS);
-    }
+  }
   else
-    {
+  {
     int ncols = td->GetNumberOfColumns();
     for (int i=0; i<ncols; i++)
-      {
+    {
       vtkAbstractArray* a = td->GetColumn(i);
       rep->SetInputArrayToProcess(i,0,0,vtkDataObject::FIELD_ASSOCIATION_ROWS,a->GetName());
-      }
     }
+  }
 
   return rep;
 }
@@ -243,45 +243,45 @@ int vtkParallelCoordinatesView::SetAxisHighlightPosition(vtkParallelCoordinatesR
   double xpos = rep->GetXCoordinateOfPosition(position);
 
   if (xpos < 0 || position < 0 || position >= numAxes)
-    {
+  {
     this->HighlightSource->SetBounds(-1,-1,-1,-1,-1,-1);
     this->HighlightActor->VisibilityOff();
     return -1;
-    }
+  }
   else
-    {
+  {
     double xmargin = .3 * p2[0] / static_cast<double>(numAxes);
     double ymargin = .05 * p2[1];
     if (this->AxisHighlightPosition == VTK_HIGHLIGHT_CENTER)
-      {
+    {
       this->HighlightSource->SetBounds(xpos - xmargin,
                                        xpos + xmargin,
                                        p1[1] + ymargin,
                                        p1[1] + p2[1] - ymargin,
                                        0,
                                        0);
-      }
+    }
     else if (this->AxisHighlightPosition == VTK_HIGHLIGHT_MIN)
-      {
+    {
       this->HighlightSource->SetBounds(xpos - xmargin,
                                        xpos + xmargin,
                                        p1[1] - ymargin,
                                        p1[1] + ymargin,
                                        0,
                                        0);
-      }
+    }
     else if (this->AxisHighlightPosition == VTK_HIGHLIGHT_MAX)
-      {
+    {
       this->HighlightSource->SetBounds(xpos - xmargin,
                                        xpos + xmargin,
                                        p1[1] + p2[1] - ymargin,
                                        p1[1] + p2[1] + ymargin,
                                        0,
                                        0);
-      }
+    }
     this->HighlightSource->Update();
     this->HighlightActor->VisibilityOn();
-    }
+  }
 
   return position;
 }
@@ -296,56 +296,56 @@ int vtkParallelCoordinatesView::SetAxisHighlightPosition(vtkParallelCoordinatesR
 void vtkParallelCoordinatesView::SetBrushMode(int mode)
 {
   if (mode < 0 || mode >= VTK_BRUSH_MODECOUNT)
-    {
+  {
     return;
-    }
+  }
   else
-    {
+  {
     this->BrushMode = mode;
 
     // if we made it into function mode but left early, clear the lines
     if (this->FirstFunctionBrushLineDrawn && this->BrushMode != VTK_BRUSH_FUNCTION)
-      {
+    {
       this->FirstFunctionBrushLineDrawn = 0;
       this->ClearBrushPoints();
       this->Render();
-      }
     }
+  }
 }
 
 void vtkParallelCoordinatesView::SetBrushOperator(int op)
 {
   if (op < 0 || op >= VTK_BRUSHOPERATOR_MODECOUNT)
-    {
+  {
     return;
-    }
+  }
   else
-    {
+  {
     this->BrushOperator = op;
-    }
+  }
 }
 
 void vtkParallelCoordinatesView::SetInspectMode(int mode)
 {
   if (mode < 0 || mode >= VTK_INSPECT_MODECOUNT)
-    {
+  {
     return;
-    }
+  }
   else
-    {
+  {
     this->InspectMode = mode;
 
     if (this->InspectMode != VTK_INSPECT_MANIPULATE_AXES)
-      {
+    {
       this->HighlightActor->VisibilityOff();
-      }
     }
+  }
 }
 
 void vtkParallelCoordinatesView::SetMaximumNumberOfBrushPoints(int num)
 {
   if ( num >= 2 && num != this->MaximumNumberOfBrushPoints )
-    {
+  {
     this->MaximumNumberOfBrushPoints = num;
 
     vtkSmartPointer<vtkPoints> pts = vtkSmartPointer<vtkPoints>::New();
@@ -361,15 +361,15 @@ void vtkParallelCoordinatesView::SetMaximumNumberOfBrushPoints(int num)
     // second line is for the spline used for angular brushing
     // third and fourth lines are for the splines used for function brushing
     for (int i=0; i<4; i++)
-      {
+    {
       lines->InsertNextCell ( this->MaximumNumberOfBrushPoints );
       for ( int j=0; j<this->MaximumNumberOfBrushPoints; j++ )
         lines->InsertCellPoint ( 0 );
-      }
+    }
 
     this->BrushData->SetPoints ( pts );
     this->BrushData->SetLines ( lines );
-    }
+  }
 }
 
 void vtkParallelCoordinatesView::ClearBrushPoints()
@@ -385,10 +385,10 @@ void vtkParallelCoordinatesView::ClearBrushPoints()
   // clear them for all of the lines
   for (this->BrushData->GetLines()->InitTraversal();
        this->BrushData->GetLines()->GetNextCell(npts,pts); cellNum++)
-    {
+  {
     for ( int j=0; j<npts; j++ )
       pts[j] = cellNum*this->MaximumNumberOfBrushPoints;
-    }
+  }
 
   this->BrushData->Modified();
 }
@@ -446,41 +446,41 @@ int vtkParallelCoordinatesView::SetBrushLine(int line, double *p1, double *p2)
   rep->GetXCoordinatesOfPositions(xs);
 
   if (p1x == p2x)
-    {
+  {
     delete [] xs;
     return 0;
-    }
+  }
 
   // swap, if necessary...I don't think the splines like being out of order
   if (p1x > p2x)
-    {
+  {
     double tmp;
     tmp = p1x; p1x = p2x; p2x = tmp;
     tmp = p1y; p1y = p2y; p2y = tmp;
-    }
+  }
 
   // find the axis to the left of p1
   int left = numAxes-1;
   for (int i=0; i<numAxes; i++)
-    {
+  {
     if (p1x > xs[i])
-      {
+    {
       left = i;
-      }
-    else
-      {
-      break;
-      }
     }
+    else
+    {
+      break;
+    }
+  }
 
   int right = left+1;
 
   // sanity check
   if (right >= numAxes || left < 0)
-    {
+  {
     delete [] xs;
     return 0;
-    }
+  }
 
   // find the points that line (p1-p2) intersects on the left/right axes
   double m = (double)(p2y-p1y)/(double)(p2x-p1x);
@@ -496,36 +496,36 @@ int vtkParallelCoordinatesView::SetBrushLine(int line, double *p1, double *p2)
 
   // sanity check
   if (p1x >= p2x)
-    {
+  {
     delete [] xs;
     return 0;
-    }
+  }
 
   int pointOffset = line*this->MaximumNumberOfBrushPoints;
 
   double dx = (double)(p2x-p1x)/(this->MaximumNumberOfBrushPoints-1);
 
   if (!rep->GetUseCurves())
-    {
+  {
     double dy = (double)(p2y-p1y) / (this->MaximumNumberOfBrushPoints-1);
 
     for (int i=0; i<this->MaximumNumberOfBrushPoints; i++)
-      {
-      this->BrushData->GetPoints()->SetPoint ( pointOffset+i,p1x+i*dx,p1y+i*dy,0 );
-      }
-    }
-  else
     {
+      this->BrushData->GetPoints()->SetPoint ( pointOffset+i,p1x+i*dx,p1y+i*dy,0 );
+    }
+  }
+  else
+  {
     vtkSmartPointer<vtkSCurveSpline> spline = vtkSmartPointer<vtkSCurveSpline>::New();
     spline->SetParametricRange(p1x,p2x);
     spline->AddPoint(p1x,p1y);
     spline->AddPoint(p2x,p2y);
 
     for (int i=0; i<this->MaximumNumberOfBrushPoints; i++)
-      {
+    {
       this->BrushData->GetPoints()->SetPoint ( pointOffset+i,p1x+(double)i*dx,spline->Evaluate(p1x+(double)i*dx),0 );
-      }
     }
+  }
 
   vtkIdType npts=0;
   vtkIdType *ptids=NULL;
@@ -547,12 +547,12 @@ void vtkParallelCoordinatesView::GetBrushLine(int line, vtkIdType &npts, vtkIdTy
   for (this->BrushData->GetLines()->InitTraversal();
        this->BrushData->GetLines()->GetNextCell(npts,ptids);
        cellNum++)
-    {
+  {
     if (cellNum == line)
-      {
+    {
       return;
-      }
     }
+  }
 }
 
 
@@ -571,7 +571,7 @@ void vtkParallelCoordinatesView::Hover(unsigned long eventId)
   // deal with hovering
   if (this->InspectMode == VTK_INSPECT_MANIPULATE_AXES &&
       eventId == vtkCommand::InteractionEvent)
-    {
+  {
     // if we're close to the representation
     if (cursorPosition[0] >= 0.0 &&
         cursorPosition[0] <= 1.0 &&
@@ -579,35 +579,35 @@ void vtkParallelCoordinatesView::Hover(unsigned long eventId)
         cursorPosition[1] <= 1.0 &&
         cursorPosition[0] > p1[0] - .05*p2[0] &&
         cursorPosition[0] < p1[0] + 1.05*p2[0])
-      {
+    {
 
       this->SelectedAxisPosition = rep->GetPositionNearXCoordinate(cursorPosition[0]);
       double xpos = rep->GetXCoordinateOfPosition(this->SelectedAxisPosition);
 
       if (fabs(xpos - cursorPosition[0]) > .05)
-        {
-        this->SelectedAxisPosition = -1;
-        }
-      else if (cursorPosition[1] < p1[1] + .05*p2[1])
-        {
-        this->AxisHighlightPosition = VTK_HIGHLIGHT_MIN;
-        }
-      else if (cursorPosition[1] > p1[1] + .95*p2[1])
-        {
-        this->AxisHighlightPosition = VTK_HIGHLIGHT_MAX;
-        }
-      else
-        {
-        this->AxisHighlightPosition = VTK_HIGHLIGHT_CENTER;
-        }
-      this->SetAxisHighlightPosition(rep,this->SelectedAxisPosition);
-      }
-    else
       {
+        this->SelectedAxisPosition = -1;
+      }
+      else if (cursorPosition[1] < p1[1] + .05*p2[1])
+      {
+        this->AxisHighlightPosition = VTK_HIGHLIGHT_MIN;
+      }
+      else if (cursorPosition[1] > p1[1] + .95*p2[1])
+      {
+        this->AxisHighlightPosition = VTK_HIGHLIGHT_MAX;
+      }
+      else
+      {
+        this->AxisHighlightPosition = VTK_HIGHLIGHT_CENTER;
+      }
+      this->SetAxisHighlightPosition(rep,this->SelectedAxisPosition);
+    }
+    else
+    {
       this->SelectedAxisPosition = -1;
       this->SetAxisHighlightPosition(rep,this->SelectedAxisPosition);
-      }
     }
+  }
 }
 
 void vtkParallelCoordinatesView::ManipulateAxes(unsigned long eventId)
@@ -624,40 +624,40 @@ void vtkParallelCoordinatesView::ManipulateAxes(unsigned long eventId)
   double dy = cursorPosition[1] - cursorLastPosition[1];
 
   if (eventId == vtkCommand::StartInteractionEvent)
-    {
-    }
+  {
+  }
   else if (eventId == vtkCommand::InteractionEvent)
-    {
+  {
     if (this->SelectedAxisPosition >= 0)
-      {
+    {
       if (AxisHighlightPosition == VTK_HIGHLIGHT_CENTER)
-        {
+      {
         double xpos = rep->GetXCoordinateOfPosition(this->SelectedAxisPosition);
         this->SelectedAxisPosition =
           rep->SetXCoordinateOfPosition(this->SelectedAxisPosition,xpos + dx);
         this->SetAxisHighlightPosition(rep,this->SelectedAxisPosition);
-        }
+      }
       else
-        {
+      {
         double range[] = {0.0,0.0};
         rep->GetRangeAtPosition(this->SelectedAxisPosition,range);
 
         if (AxisHighlightPosition == VTK_HIGHLIGHT_MAX)
-          {
+        {
           range[1] += dy * (range[1] - range[0]);
-          }
-        else if (AxisHighlightPosition == VTK_HIGHLIGHT_MIN)
-          {
-          range[0] += dy * (range[1] - range[0]);
-          }
-        rep->SetRangeAtPosition(this->SelectedAxisPosition,range);
         }
+        else if (AxisHighlightPosition == VTK_HIGHLIGHT_MIN)
+        {
+          range[0] += dy * (range[1] - range[0]);
+        }
+        rep->SetRangeAtPosition(this->SelectedAxisPosition,range);
       }
     }
+  }
   else if (eventId == vtkCommand::EndInteractionEvent)
-    {
+  {
     this->SelectedAxisPosition = -1;
-    }
+  }
 
 }
 
@@ -673,26 +673,26 @@ void vtkParallelCoordinatesView::SelectData(unsigned long eventId)
   // in lasso mode, the user sketches a curve. Lines that are
   // near that curve are selected.
   if (this->BrushMode == VTK_BRUSH_LASSO)
-    {
+  {
     if (eventId == vtkCommand::StartInteractionEvent)
-      {
+    {
       this->AddLassoBrushPoint(cursorPosition);
-      }
+    }
     else if (eventId == vtkCommand::InteractionEvent)
-      {
+    {
       this->AddLassoBrushPoint(cursorPosition);
-      }
+    }
     else if (eventId == vtkCommand::EndInteractionEvent)
-      {
+    {
       vtkIdType *ptids;
       vtkIdType npts;
       this->BrushData->GetLines()->GetCell(0,npts,ptids);
 
       vtkSmartPointer<vtkPoints> pts = vtkSmartPointer<vtkPoints>::New();
       for (int i=0; i<npts; i++)
-        {
+      {
         pts->InsertNextPoint(this->BrushData->GetPoints()->GetPoint(ptids[i]));
-        }
+      }
 
       rep->LassoSelect(this->CurrentBrushClass,this->BrushOperator,pts);
 /*
@@ -717,19 +717,19 @@ void vtkParallelCoordinatesView::SelectData(unsigned long eventId)
   rep->Select(this,sel);
 */
       this->ClearBrushPoints();
-      }
     }
+  }
   // in angle brush mode, the user clicks one point to start the
   // line.  the cursor position is the second endpoint of the line.
   else if (this->BrushMode == VTK_BRUSH_ANGLE)
-    {
+  {
     if (eventId == vtkCommand::StartInteractionEvent ||
         eventId == vtkCommand::InteractionEvent)
-      {
+    {
       this->SetAngleBrushLine(cursorStartPosition,cursorPosition);
-      }
+    }
     else if (eventId == vtkCommand::EndInteractionEvent)
-      {
+    {
       vtkIdType* ptids = NULL;
       vtkIdType npts = 0;
       this->GetBrushLine(1,npts,ptids);
@@ -760,32 +760,32 @@ void vtkParallelCoordinatesView::SelectData(unsigned long eventId)
   rep->Select(this,sel);
 */
       this->ClearBrushPoints();
-      }
     }
+  }
   // same as angle mode, but do two of them.
   else if (this->BrushMode == VTK_BRUSH_FUNCTION)
-    {
+  {
     if (eventId == vtkCommand::StartInteractionEvent ||
         eventId == vtkCommand::InteractionEvent)
-      {
+    {
       if (!this->FirstFunctionBrushLineDrawn)
-        {
-        this->SetFunctionBrushLine1(cursorStartPosition,cursorPosition);
-        }
-      else
-        {
-        this->SetFunctionBrushLine2(cursorStartPosition,cursorPosition);
-        }
-      }
-    else if (eventId == vtkCommand::EndInteractionEvent)
       {
+        this->SetFunctionBrushLine1(cursorStartPosition,cursorPosition);
+      }
+      else
+      {
+        this->SetFunctionBrushLine2(cursorStartPosition,cursorPosition);
+      }
+    }
+    else if (eventId == vtkCommand::EndInteractionEvent)
+    {
       // if the first line isn't finished, keep going with the second.
       if (!this->FirstFunctionBrushLineDrawn)
         {
         this->FirstFunctionBrushLineDrawn = 1;        }
       // the first line is finished, so do the selection
       else
-        {
+      {
         vtkIdType* ptids = NULL;
         vtkIdType npts = 0;
 
@@ -826,12 +826,12 @@ void vtkParallelCoordinatesView::SelectData(unsigned long eventId)
 
         this->FirstFunctionBrushLineDrawn = 0;
         this->ClearBrushPoints();
-        }
       }
     }
+  }
   else if (this->BrushMode == VTK_BRUSH_AXISTHRESHOLD)
-    {
-    }
+  {
+  }
 }
 
 void vtkParallelCoordinatesView::Zoom(unsigned long eventId)
@@ -857,10 +857,10 @@ void vtkParallelCoordinatesView::Zoom(unsigned long eventId)
   double dy = -(cursorPosition[1] - cursorLastPosition[1]);
 
   if (eventId == vtkCommand::StartInteractionEvent)
-    {
-    }
+  {
+  }
   else if (eventId == vtkCommand::InteractionEvent)
-    {
+  {
     double p1new[2] = {p1[0] + dy*v1[0],
                        p1[1] + dy*v1[1]};
     double p2new[2] = {p2[0] + dy*v2[0],// - p1new[0],
@@ -870,11 +870,11 @@ void vtkParallelCoordinatesView::Zoom(unsigned long eventId)
 
     rep->SetPositionAndSize(p1new,sizenew);
     this->SetAxisHighlightPosition(rep,this->SelectedAxisPosition);
-    }
+  }
   else if (eventId == vtkCommand::EndInteractionEvent)
-    {
+  {
 
-    }
+  }
 }
 
 void vtkParallelCoordinatesView::Pan(unsigned long eventId)
@@ -896,10 +896,10 @@ void vtkParallelCoordinatesView::Pan(unsigned long eventId)
   double dy = cursorPosition[1] - cursorLastPosition[1];
 
   if (eventId == vtkCommand::StartInteractionEvent)
-    {
-    }
+  {
+  }
   else if (eventId == vtkCommand::InteractionEvent)
-    {
+  {
     double p1new[2] = {p1[0]+dx,
                        p1[1]+dy};
     double p2new[2] = {p2[0]+dx,
@@ -909,11 +909,11 @@ void vtkParallelCoordinatesView::Pan(unsigned long eventId)
 
     rep->SetPositionAndSize(p1new,sizenew);
     this->SetAxisHighlightPosition(rep,this->SelectedAxisPosition);
-    }
+  }
   else if (eventId == vtkCommand::EndInteractionEvent)
-    {
+  {
 
-    }
+  }
 }
 
 void vtkParallelCoordinatesView::ApplyViewTheme(vtkViewTheme* theme)

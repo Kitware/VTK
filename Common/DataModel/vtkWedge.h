@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWedge - a 3D cell that represents a linear wedge
-// .SECTION Description
-// vtkWedge is a concrete implementation of vtkCell to represent a linear 3D
-// wedge. A wedge consists of two triangular and three quadrilateral faces
-// and is defined by the six points (0-5). vtkWedge uses the standard
-// isoparametric shape functions for a linear wedge. The wedge is defined
-// by the six points (0-5) where (0,1,2) is the base of the wedge which,
-// using the right hand rule, forms a triangle whose normal points outward
-// (away from the triangular face (3,4,5)).
-
-// .SECTION See Also
-// vtkConvexPointSet vtkHexahedron vtkPyramid vtkTetra vtkVoxel
+/**
+ * @class   vtkWedge
+ * @brief   a 3D cell that represents a linear wedge
+ *
+ * vtkWedge is a concrete implementation of vtkCell to represent a linear 3D
+ * wedge. A wedge consists of two triangular and three quadrilateral faces
+ * and is defined by the six points (0-5). vtkWedge uses the standard
+ * isoparametric shape functions for a linear wedge. The wedge is defined
+ * by the six points (0-5) where (0,1,2) is the base of the wedge which,
+ * using the right hand rule, forms a triangle whose normal points outward
+ * (away from the triangular face (3,4,5)).
+ *
+ * @sa
+ * vtkConvexPointSet vtkHexahedron vtkPyramid vtkTetra vtkVoxel
+*/
 
 #ifndef vtkWedge_h
 #define vtkWedge_h
@@ -44,13 +47,18 @@ public:
   vtkTypeMacro(vtkWedge,vtkCell3D);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // See vtkCell3D API for description of these methods.
+  //@{
+  /**
+   * See vtkCell3D API for description of these methods.
+   */
   void GetEdgePoints(int edgeId, int* &pts) VTK_OVERRIDE;
   void GetFacePoints(int faceId, int* &pts) VTK_OVERRIDE;
+  //@}
 
-  // Description:
-  // See the vtkCell API for descriptions of these methods.
+  //@{
+  /**
+   * See the vtkCell API for descriptions of these methods.
+   */
   int GetCellType() VTK_OVERRIDE {return VTK_WEDGE;}
   int GetCellDimension() VTK_OVERRIDE {return 3;}
   int GetNumberOfEdges() VTK_OVERRIDE {return 9;}
@@ -74,35 +82,45 @@ public:
   void Derivatives(int subId, double pcoords[3], double *values,
                    int dim, double *derivs) VTK_OVERRIDE;
   double *GetParametricCoords() VTK_OVERRIDE;
+  //@}
 
-  // Description:
-  // Return the center of the wedge in parametric coordinates.
+  /**
+   * Return the center of the wedge in parametric coordinates.
+   */
   int GetParametricCenter(double pcoords[3]) VTK_OVERRIDE;
 
-  // Description:
-  // @deprecated Replaced by vtkWedge::InterpolateFunctions as of VTK 5.2
+  /**
+   * @deprecated Replaced by vtkWedge::InterpolateFunctions as of VTK 5.2
+   */
   static void InterpolationFunctions(double pcoords[3], double weights[6]);
-  // Description:
-  // @deprecated Replaced by vtkWedge::InterpolateDerivs as of VTK 5.2
+  /**
+   * @deprecated Replaced by vtkWedge::InterpolateDerivs as of VTK 5.2
+   */
   static void InterpolationDerivs(double pcoords[3], double derivs[18]);
-  // Description:
-  // Compute the interpolation functions/derivatives
-  // (aka shape functions/derivatives)
+  //@{
+  /**
+   * Compute the interpolation functions/derivatives
+   * (aka shape functions/derivatives)
+   */
   void InterpolateFunctions(double pcoords[3], double weights[6]) VTK_OVERRIDE
-    {
+  {
     vtkWedge::InterpolationFunctions(pcoords,weights);
-    }
+  }
   void InterpolateDerivs(double pcoords[3], double derivs[18]) VTK_OVERRIDE
-    {
+  {
     vtkWedge::InterpolationDerivs(pcoords,derivs);
-    }
+  }
   int JacobianInverse(double pcoords[3], double **inverse, double derivs[18]);
+  //@}
 
-  // Description:
-  // Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
-  // Ids are related to the cell, not to the dataset.
+  //@{
+  /**
+   * Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
+   * Ids are related to the cell, not to the dataset.
+   */
   static int *GetEdgeArray(int edgeId);
   static int *GetFaceArray(int faceId);
+  //@}
 
 protected:
   vtkWedge();

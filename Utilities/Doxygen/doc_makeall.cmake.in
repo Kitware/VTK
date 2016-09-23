@@ -236,14 +236,30 @@ endforeach()
 # ----------------------------------------------------------------------------
 # Convert the VTK headers to the Doxygen format.
 
-step(1 "convert VTK headers to doxygen format")
-execute_process(COMMAND ${PERL}
-  "${PATH_TO_VTK_DOX_SCRIPTS}/doc_header2doxygen.pl"
-  --to "${INTERMEDIATE_DOX_DIR}"
-  --relativeto "${SOURCE_DIR}/${REL_PATH_TO_TOP}"
-  ${SOURCE_DIRECTORIES}
-  RESULT_VARIABLE rv
+step(1 "copy VTK headers to working directory")
+foreach(var
+  Accelerators
+  Charts
+  Common
+  Documentation
+  Domains
+  Filters
+  Geovis
+  GUISupport
+  Imaging
+  Infovis
+  Interaction
+  IO
+  Parallel
+  Rendering
+  Views
+  Web
 )
+  file(COPY "${SOURCE_DIR}/${var}"
+    DESTINATION "${INTERMEDIATE_DOX_DIR}"
+    FILES_MATCHING PATTERN "*.h"
+    )
+endforeach()
 
 # ----------------------------------------------------------------------------
 # Build the Events invocation list.

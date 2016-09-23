@@ -138,18 +138,18 @@ protected:
   // Description:
   // Empty implementation.
   void GetReductionRatio(double* ratio)
-    {
+  {
     ratio[0] = ratio[1] = ratio[2] = 1.0;
-    }
+  }
 
 
   // Description:
   // Empty implementation.
   virtual int IsRenderSupported(vtkRenderWindow *vtkNotUsed(window),
                                 vtkVolumeProperty *vtkNotUsed(property))
-    {
+  {
     return 1;
-    }
+  }
 
   double ReductionFactor;
   int    CurrentPass;

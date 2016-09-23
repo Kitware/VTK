@@ -60,10 +60,10 @@ int TestPixelExtent(int argc, char* argv[])
   cerr << C << " & " << D << " = " << tmp1 << endl;
 
   if (!tmp1.Empty())
-    {
+  {
     cerr << "Test empty intersection failed" << endl;
     testPass = false;
-    }
+  }
 
 
   tmp1 = A;
@@ -80,10 +80,10 @@ int TestPixelExtent(int argc, char* argv[])
   cerr << tmp1 << " & " << tmp2 << " = " << tmp3 << endl;
 
   if (!(tmp3 == vtkPixelExtent(6,6,6,6)))
-    {
+  {
     cerr << "Test intersection failed" << endl;
     testPass = false;
-    }
+  }
 
   // shift, grow, union
   tmp1 = C;
@@ -94,10 +94,10 @@ int TestPixelExtent(int argc, char* argv[])
   cerr << tmp1 << " | " << tmp2 << " = " << tmp3 << endl;
 
   if (!(tmp3 == B))
-    {
+  {
     cerr << "Test union fails" << endl;
     testPass = false;
-    }
+  }
 
   // subtraction
   deque<vtkPixelExtent> tmp4;
@@ -115,31 +115,31 @@ int TestPixelExtent(int argc, char* argv[])
 
   size_t n = tmp4.size();
   for (size_t i=0; i<n; ++i)
-    {
+  {
     if (!(tmp4[i] == tmp5[i]))
-      {
+    {
       cerr << "Test subtraction failed" << endl;
       testPass = false;
       break;
-      }
     }
+  }
 
   cerr << B << " - " << A << " = ";
   if (n)
-    {
+  {
     cerr << tmp4[0];
     for (size_t i=1; i<n; ++i)
-      {
+    {
       cerr << ", " << tmp4[i];
-      }
     }
+  }
   cerr << endl;
 
   if (!testPass)
-    {
+  {
     cerr << "Test fails" << endl;
     return 1;
-    }
+  }
 
   cerr << "Test passes" << endl;
   return 0;

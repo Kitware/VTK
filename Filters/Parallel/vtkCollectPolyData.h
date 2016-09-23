@@ -12,11 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCollectPolyData - Collect distributed polydata.
-// .SECTION Description
-// This filter has code to collect polydat from across processes onto node 0.
-// Collection can be turned on or off using the "PassThrough" flag.
-
+/**
+ * @class   vtkCollectPolyData
+ * @brief   Collect distributed polydata.
+ *
+ * This filter has code to collect polydat from across processes onto node 0.
+ * Collection can be turned on or off using the "PassThrough" flag.
+*/
 
 #ifndef vtkCollectPolyData_h
 #define vtkCollectPolyData_h
@@ -34,24 +36,33 @@ public:
   vtkTypeMacro(vtkCollectPolyData, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // By defualt this filter uses the global controller,
-  // but this method can be used to set another instead.
+  //@{
+  /**
+   * By defualt this filter uses the global controller,
+   * but this method can be used to set another instead.
+   */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
 
-  // Description:
-  // When this filter is being used in client-server mode,
-  // this is the controller used to communicate between
-  // client and server.  Client should not set the other controller.
+  //@{
+  /**
+   * When this filter is being used in client-server mode,
+   * this is the controller used to communicate between
+   * client and server.  Client should not set the other controller.
+   */
   virtual void SetSocketController(vtkSocketController*);
   vtkGetObjectMacro(SocketController, vtkSocketController);
+  //@}
 
-  // Description:
-  // To collect or just copy input to output. Off (collect) by default.
+  //@{
+  /**
+   * To collect or just copy input to output. Off (collect) by default.
+   */
   vtkSetMacro(PassThrough, int);
   vtkGetMacro(PassThrough, int);
   vtkBooleanMacro(PassThrough, int);
+  //@}
 
 protected:
   vtkCollectPolyData();

@@ -12,30 +12,33 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkObjectBase - abstract base class for most VTK objects
-// .SECTION Description
-// vtkObjectBase is the base class for all reference counted classes
-// in the VTK. These classes include vtkCommand classes, vtkInformationKey
-// classes, and vtkObject classes.
-//
-// vtkObjectBase performs reference counting: objects that are
-// reference counted exist as long as another object uses them. Once
-// the last reference to a reference counted object is removed, the
-// object will spontaneously destruct.
-//
-// Constructor and destructor of the subclasses of vtkObjectBase
-// should be protected, so that only New() and UnRegister() actually
-// call them. Debug leaks can be used to see if there are any objects
-// left with nonzero reference count.
-//
-// .SECTION Caveats
-// Note: Objects of subclasses of vtkObjectBase should always be
-// created with the New() method and deleted with the Delete()
-// method. They cannot be allocated off the stack (i.e., automatic
-// objects) because the constructor is a protected method.
-//
-// .SECTION See also
-// vtkObject vtkCommand vtkInformationKey
+/**
+ * @class   vtkObjectBase
+ * @brief   abstract base class for most VTK objects
+ *
+ * vtkObjectBase is the base class for all reference counted classes
+ * in the VTK. These classes include vtkCommand classes, vtkInformationKey
+ * classes, and vtkObject classes.
+ *
+ * vtkObjectBase performs reference counting: objects that are
+ * reference counted exist as long as another object uses them. Once
+ * the last reference to a reference counted object is removed, the
+ * object will spontaneously destruct.
+ *
+ * Constructor and destructor of the subclasses of vtkObjectBase
+ * should be protected, so that only New() and UnRegister() actually
+ * call them. Debug leaks can be used to see if there are any objects
+ * left with nonzero reference count.
+ *
+ * @warning
+ * Note: Objects of subclasses of vtkObjectBase should always be
+ * created with the New() method and deleted with the Delete()
+ * method. They cannot be allocated off the stack (i.e., automatic
+ * objects) because the constructor is a protected method.
+ *
+ * @sa
+ * vtkObject vtkCommand vtkInformationKey
+*/
 
 #ifndef vtkObjectBase_h
 #define vtkObjectBase_h
@@ -53,10 +56,11 @@ class vtkWeakPointerBaseToObjectBaseFriendship;
 
 class VTKCOMMONCORE_EXPORT vtkObjectBase
 {
-  // Description:
-  // Return the class name as a string. This method is overridden
-  // in all subclasses of vtkObjectBase with the vtkTypeMacro found
-  // in vtkSetGet.h.
+  /**
+   * Return the class name as a string. This method is overridden
+   * in all subclasses of vtkObjectBase with the vtkTypeMacro found
+   * in vtkSetGet.h.
+   */
   virtual const char* GetClassNameInternal() const { return "vtkObjectBase"; }
 public:
 
@@ -66,8 +70,9 @@ public:
 # define GetClassNameW GetClassName
 #endif
 
-  // Description:
-  // Return the class name as a string.
+  /**
+   * Return the class name as a string.
+   */
   const char* GetClassName() const;
 
 #ifdef VTK_WORKAROUND_WINDOWS_MANGLE
@@ -80,35 +85,40 @@ public:
 
 #endif
 
-  // Description:
-  // Return 1 if this class type is the same type of (or a subclass of)
-  // the named class. Returns 0 otherwise. This method works in
-  // combination with vtkTypeMacro found in vtkSetGet.h.
+  /**
+   * Return 1 if this class type is the same type of (or a subclass of)
+   * the named class. Returns 0 otherwise. This method works in
+   * combination with vtkTypeMacro found in vtkSetGet.h.
+   */
   static vtkTypeBool IsTypeOf(const char *name);
 
-  // Description:
-  // Return 1 if this class is the same type of (or a subclass of)
-  // the named class. Returns 0 otherwise. This method works in
-  // combination with vtkTypeMacro found in vtkSetGet.h.
+  /**
+   * Return 1 if this class is the same type of (or a subclass of)
+   * the named class. Returns 0 otherwise. This method works in
+   * combination with vtkTypeMacro found in vtkSetGet.h.
+   */
   virtual vtkTypeBool IsA(const char *name);
 
-  // Description:
-  // Delete a VTK object.  This method should always be used to delete
-  // an object when the New() method was used to create it. Using the
-  // C++ delete method will not work with reference counting.
+  /**
+   * Delete a VTK object.  This method should always be used to delete
+   * an object when the New() method was used to create it. Using the
+   * C++ delete method will not work with reference counting.
+   */
   virtual void Delete();
 
-  // Description:
-  // Delete a reference to this object.  This version will not invoke
-  // garbage collection and can potentially leak the object if it is
-  // part of a reference loop.  Use this method only when it is known
-  // that the object has another reference and would not be collected
-  // if a full garbage collection check were done.
+  /**
+   * Delete a reference to this object.  This version will not invoke
+   * garbage collection and can potentially leak the object if it is
+   * part of a reference loop.  Use this method only when it is known
+   * that the object has another reference and would not be collected
+   * if a full garbage collection check were done.
+   */
   virtual void FastDelete();
 
-  // Description:
-  // Create an object with Debug turned off, modified time initialized
-  // to zero, and reference counting on.
+  /**
+   * Create an object with Debug turned off, modified time initialized
+   * to zero, and reference counting on.
+   */
   static vtkObjectBase *New()
     {return new vtkObjectBase;}
 
@@ -118,43 +128,52 @@ public:
   void operator delete( void* p );
 #endif
 
-  // Description:
-  // Print an object to an ostream. This is the method to call
-  // when you wish to see print the internal state of an object.
+  /**
+   * Print an object to an ostream. This is the method to call
+   * when you wish to see print the internal state of an object.
+   */
   void Print(ostream& os);
 
-  // Description:
-  // Methods invoked by print to print information about the object
-  // including superclasses. Typically not called by the user (use
-  // Print() instead) but used in the hierarchical print process to
-  // combine the output of several classes.
+  //@{
+  /**
+   * Methods invoked by print to print information about the object
+   * including superclasses. Typically not called by the user (use
+   * Print() instead) but used in the hierarchical print process to
+   * combine the output of several classes.
+   */
   virtual void PrintSelf(ostream& os, vtkIndent indent);
   virtual void PrintHeader(ostream& os, vtkIndent indent);
   virtual void PrintTrailer(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // Increase the reference count (mark as used by another object).
+  /**
+   * Increase the reference count (mark as used by another object).
+   */
   virtual void Register(vtkObjectBase* o);
 
-  // Description:
-  // Decrease the reference count (release by another object). This
-  // has the same effect as invoking Delete() (i.e., it reduces the
-  // reference count by 1).
+  /**
+   * Decrease the reference count (release by another object). This
+   * has the same effect as invoking Delete() (i.e., it reduces the
+   * reference count by 1).
+   */
   virtual void UnRegister(vtkObjectBase* o);
 
-  // Description:
-  // Return the current reference count of this object.
+  /**
+   * Return the current reference count of this object.
+   */
   int GetReferenceCount()
   {
     return this->ReferenceCount;
   }
 
-  // Description:
-  // Sets the reference count. (This is very dangerous, use with care.)
+  /**
+   * Sets the reference count. (This is very dangerous, use with care.)
+   */
   void SetReferenceCount(int);
 
-  // Description:
-  // Legacy.  Do not call.
+  /**
+   * Legacy.  Do not call.
+   */
 #ifndef VTK_LEGACY_REMOVE
   void PrintRevisions(ostream&) {}
 #endif

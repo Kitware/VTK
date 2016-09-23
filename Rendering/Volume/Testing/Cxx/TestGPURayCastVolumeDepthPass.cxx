@@ -99,24 +99,24 @@ int TestGPURayCastVolumeDepthPass(int argc, char *argv[])
 
   int retVal;
   if (valid)
-    {
+  {
     renWin->Render();
 
     iren->Initialize();
 
     retVal = vtkRegressionTestImage( renWin.GetPointer() );
     if( retVal == vtkRegressionTester::DO_INTERACTOR)
-      {
+    {
       iren->Start();
-      }
+    }
 
     return !retVal;
-    }
+  }
   else
-    {
+  {
     retVal = vtkTesting::PASSED;
     cout << "Required extensions not supported" << endl;
-    }
+  }
 
   return !retVal;
 }

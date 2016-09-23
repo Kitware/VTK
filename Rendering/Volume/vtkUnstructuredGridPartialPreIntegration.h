@@ -22,19 +22,22 @@
  * statement of authorship are reproduced on all copies.
  */
 
-// .NAME vtkUnstructuredGridPartialPreIntegration - performs piecewise linear ray integration.
-//
-// .SECTION Description
-//
-// vtkUnstructuredGridPartialPreIntegration performs piecewise linear ray
-// integration.  This will give the same results as
-// vtkUnstructuredGridLinearRayIntegration (with potentially a error due to
-// table lookup quantization), but should be notably faster.  The algorithm
-// used is given by Moreland and Angel, "A Fast High Accuracy Volume
-// Renderer for Unstructured Data."
-//
-// This class is thread safe only after the first instance is created.
-//
+/**
+ * @class   vtkUnstructuredGridPartialPreIntegration
+ * @brief   performs piecewise linear ray integration.
+ *
+ *
+ *
+ * vtkUnstructuredGridPartialPreIntegration performs piecewise linear ray
+ * integration.  This will give the same results as
+ * vtkUnstructuredGridLinearRayIntegration (with potentially a error due to
+ * table lookup quantization), but should be notably faster.  The algorithm
+ * used is given by Moreland and Angel, "A Fast High Accuracy Volume
+ * Renderer for Unstructured Data."
+ *
+ * This class is thread safe only after the first instance is created.
+ *
+*/
 
 #ifndef vtkUnstructuredGridPartialPreIntegration_h
 #define vtkUnstructuredGridPartialPreIntegration_h
@@ -61,9 +64,11 @@ public:
                          vtkDataArray *farIntersections,
                          float color[4]);
 
-  // Description:
-  // Integrates a single ray segment.  \c color is blended with the result
-  // (with \c color in front).  The result is written back into \c color.
+  //@{
+  /**
+   * Integrates a single ray segment.  \c color is blended with the result
+   * (with \c color in front).  The result is written back into \c color.
+   */
   static void IntegrateRay(double length,
                            double intensity_front, double attenuation_front,
                            double intensity_back, double attenuation_back,
@@ -74,15 +79,19 @@ public:
                            const double color_back[3],
                            double attenuation_back,
                            float color[4]);
+  //@}
 
-  // Description:
-  // Looks up Psi (as defined by Moreland and Angel, "A Fast High Accuracy
-  // Volume Renderer for Unstructured Data") in a table.  The table must be
-  // created first, which happens on the first instantiation of this class
-  // or when BuildPsiTable is first called.
+  //@{
+  /**
+   * Looks up Psi (as defined by Moreland and Angel, "A Fast High Accuracy
+   * Volume Renderer for Unstructured Data") in a table.  The table must be
+   * created first, which happens on the first instantiation of this class
+   * or when BuildPsiTable is first called.
+   */
   static float Psi(float taufD, float taubD);
   static float *GetPsiTable(int &size);
   static void BuildPsiTable();
+  //@}
 
 protected:
   vtkUnstructuredGridPartialPreIntegration();

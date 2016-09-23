@@ -41,14 +41,14 @@ void vtkOpenGLContextActor::ReleaseGraphicsResources(vtkWindow *window)
   vtkOpenGLContextDevice2D *device =
       vtkOpenGLContextDevice2D::SafeDownCast(this->Context->GetDevice());
   if (device)
-    {
+  {
     device->ReleaseGraphicsResources(window);
-    }
+  }
 
   if(this->Scene.GetPointer())
-    {
+  {
     this->Scene->ReleaseGraphicsResources();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -60,26 +60,26 @@ void vtkOpenGLContextActor::Initialize(vtkViewport* viewport)
 
   vtkContextDevice2D *device = NULL;
   if (vtkOpenGL2ContextDevice2D::IsSupported(viewport))
-    {
+  {
     vtkDebugMacro("Using OpenGL 2 for 2D rendering.")
     device = vtkOpenGL2ContextDevice2D::New();
-    }
+  }
   else
-    {
+  {
     vtkDebugMacro("Using OpenGL 1 for 2D rendering.")
     device = vtkOpenGLContextDevice2D::New();
-    }
+  }
   if (device)
-    {
+  {
     this->Context->Begin(device);
     device->Delete();
     this->Initialized = true;
-    }
+  }
   else
-    {
+  {
     // Failed
     vtkErrorMacro("Error: failed to initialize the render device.")
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

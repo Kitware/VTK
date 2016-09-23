@@ -30,12 +30,12 @@ void vtkOpenSlideReader::ExecuteInformation()
   this->openslide_handle = openslide_open(this->GetFileName());
 
   if(this->openslide_handle == NULL || openslide_get_error(this->openslide_handle) != NULL)
-    {
+  {
     vtkErrorWithObjectMacro(this,
                             "File could not be opened by openslide"
                            );
     return;
-    }
+  }
 
   int64_t w, h;
   openslide_get_level0_dimensions(this->openslide_handle, &w, &h);
@@ -70,12 +70,12 @@ void vtkOpenSlideReader::ExecuteDataWithInformation(vtkDataObject *output,
   vtkImageData *data = this->AllocateOutputData(output, outInfo);
 
   if(this->openslide_handle == NULL)
-    {
+  {
     vtkErrorWithObjectMacro(this,
                             "File could not be read by openslide"
                            );
     return;
-    }
+  }
 
   //std::cout << "OpenSlideReader Extents: " << data->GetExtent() << std::endl;
 
@@ -100,31 +100,31 @@ void vtkOpenSlideReader::ExecuteDataWithInformation(vtkDataObject *output,
     );
 
   if(openslide_get_error(this->openslide_handle) != NULL)
-    {
+  {
     // Buffer is deleted by the openslide in case the error occurs
     // delete[] buffer;
     vtkErrorWithObjectMacro(this,
                             "File could not be read by openslide"
                            );
     return;
-    }
+  }
 
   unsigned char* outputPtr = (unsigned char*)(data->GetScalarPointer());
   unsigned char* bufPtr = (unsigned char*) buffer;
 
   // Order = RGBA
   for (long y=0; y < h; y++)
-    {
+  {
     for(long x=0; x < w; x++)
-      {
+    {
       unsigned char* rgba = &bufPtr[((h-1-y)*w + x) * 4];
       unsigned char* rgb =  &outputPtr[(y*w + x) * 3];
       // Convert from BGRA to RGB
       rgb[2] = rgba[0];
       rgb[1] = rgba[1];
       rgb[0] = rgba[2];
-      }
     }
+  }
 
   delete[] buffer;
   // openslide_close(this->openslide_handle);
@@ -141,30 +141,30 @@ int vtkOpenSlideReader::CanReadFile(const char* fname)
   this->openslide_handle = openslide_open(fname);
 
   if(this->openslide_handle == NULL || openslide_get_error(this->openslide_handle) != NULL)
-    {
+  {
     // Unable to open
     return 0;
-    }
+  }
   else
   {
     // Pretty sure
     if(this->openslide_handle != NULL)
-      {
+    {
       openslide_close(this->openslide_handle);
       this->openslide_handle = NULL;
-      }
+    }
     return 2;
   }
 }
 
 vtkOpenSlideReader::~vtkOpenSlideReader()
-  {
+{
   // Release openslide_handle if being used
   if(this->openslide_handle != NULL)
-    {
+  {
     openslide_close(this->openslide_handle);
-    }
   }
+}
 
 //----------------------------------------------------------------------------
 void vtkOpenSlideReader::PrintSelf(ostream& os, vtkIndent indent)

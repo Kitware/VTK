@@ -29,15 +29,15 @@ int TestMultiBlockExodusWrite (int argc, char *argv[])
   InputFile =
     vtkTestUtilities::ExpandDataFileName (argc, argv, "Data/edgeFaceElem.exii");
   if (!InputFile)
-    {
+  {
     return 1;
-    }
+  }
 
   VTK_CREATE (vtkExodusIIReader, reader);
   if (!reader->CanReadFile (InputFile))
-    {
+  {
     return 1;
-    }
+  }
   reader->SetFileName (InputFile);
   reader->SetGlobalResultArrayStatus ("CALIBER", 1);
   reader->SetGlobalResultArrayStatus ("GUNPOWDER", 1);
@@ -45,38 +45,38 @@ int TestMultiBlockExodusWrite (int argc, char *argv[])
 
   vtkMultiBlockDataSet* mbds = reader->GetOutput ();
   if (!mbds)
-    {
+  {
     return 1;
-    }
+  }
   vtkMultiBlockDataSet* elems = vtkMultiBlockDataSet::SafeDownCast (mbds->GetBlock (0));
   if (!elems)
-    {
+  {
     return 1;
-    }
+  }
   if (elems->GetNumberOfBlocks () != 2)
-    {
+  {
     return 1;
-    }
+  }
 
   vtkFieldData *ifieldData = elems->GetBlock(0)->GetFieldData ();
   int index;
   if (ifieldData->GetArray ("CALIBER", index) == 0)
-    {
+  {
     cerr << "Expected to find array CALIBER in original data set" << endl;
     return 1;
-    }
+  }
 
   if (ifieldData->GetArray ("GUNPOWDER", index) == 0)
-    {
+  {
     cerr << "Expected to find array GUNPOWDER in original data set" << endl;
     return 1;
-    }
+  }
 
   VTK_CREATE (vtkTesting, testing);
   for (int i = 0; i < argc; i ++)
-    {
+  {
     testing->AddArgument (argv[i]);
-    }
+  }
 
   vtkStdString OutputFile;
   OutputFile = testing->GetTempDirectory ();
@@ -95,9 +95,9 @@ int TestMultiBlockExodusWrite (int argc, char *argv[])
 
   VTK_CREATE (vtkExodusIIReader, outputReader);
   if (!outputReader->CanReadFile (OutputFile))
-    {
+  {
     return 1;
-    }
+  }
   outputReader->SetFileName (OutputFile);
   outputReader->SetGlobalResultArrayStatus ("CALIBER", 1);
   outputReader->SetGlobalResultArrayStatus ("GUNPOWDER", 1);
@@ -105,40 +105,40 @@ int TestMultiBlockExodusWrite (int argc, char *argv[])
 
   mbds = outputReader->GetOutput ();
   if (!mbds)
-    {
+  {
     return 1;
-    }
+  }
   elems = vtkMultiBlockDataSet::SafeDownCast (mbds->GetBlock (0));
   if (!elems)
-    {
+  {
     return 1;
-    }
+  }
   if (elems->GetNumberOfBlocks () != 2)
-    {
+  {
     return 1;
-    }
+  }
 
   ifieldData = elems->GetBlock(0)->GetFieldData ();
   if (ifieldData->GetArray ("CALIBER", index) == 0)
-    {
+  {
     cerr << "Array CALIBER was not written to output" << endl;
     return 1;
-    }
+  }
 
   if (ifieldData->GetArray ("GUNPOWDER", index) == 0)
-    {
+  {
     cerr << "Array GUNPOWDER was not written to output" << endl;
     return 1;
-    }
+  }
 
   vtkCompositeDataIterator* iter = mbds->NewIterator ();
   iter->InitTraversal ();
   vtkDataSet* ds = vtkDataSet::SafeDownCast (iter->GetCurrentDataObject ());
   iter->Delete ();
   if (!ds)
-    {
+  {
     return 1;
-    }
+  }
 
   VTK_CREATE (vtkDataSetMapper, mapper);
   mapper->SetInputData (ds);
@@ -164,11 +164,11 @@ int TestMultiBlockExodusWrite (int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage (renderWindow);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renderWindow->Render ();
     irenderWindow->Start ();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
 /*
   VTK_CREATE (vtkWindowToImageFilter, w2i);

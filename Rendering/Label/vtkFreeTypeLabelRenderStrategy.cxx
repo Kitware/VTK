@@ -60,35 +60,35 @@ void vtkFreeTypeLabelRenderStrategy::ComputeLabelBounds(
   vtkStdString str;
   label.utf8_str(str);
   if (str.length() == 0)
-    {
+  {
     bds[0] = 0;
     bds[1] = 0;
     bds[2] = 0;
     bds[3] = 0;
     return;
-    }
+  }
 
   if (!tprop)
-    {
+  {
     tprop = this->DefaultTextProperty;
-    }
+  }
   vtkSmartPointer<vtkTextProperty> copy = tprop;
   if (tprop->GetOrientation() != 0.0)
-    {
+  {
     copy = vtkSmartPointer<vtkTextProperty>::New();
     copy->ShallowCopy(tprop);
     copy->SetOrientation(0.0);
-    }
+  }
 
   int dpi = 72;
   if (this->Renderer && this->Renderer->GetVTKWindow())
-    {
+  {
     dpi = this->Renderer->GetVTKWindow()->GetDPI();
-    }
+  }
   else
-    {
+  {
     vtkWarningMacro(<<"No Renderer set. Assuming DPI of " << dpi << ".");
-    }
+  }
 
   int bbox[4];
   this->TextRenderer->GetBoundingBox(copy, label.utf8_str(), bbox, dpi);
@@ -146,14 +146,14 @@ void vtkFreeTypeLabelRenderStrategy::RenderLabel(
   //timer->StartTimer();
 
   if (!this->Renderer)
-    {
+  {
     vtkErrorMacro("Renderer must be set before rendering labels.");
     return;
-    }
+  }
   if (!tprop)
-    {
+  {
     tprop = this->DefaultTextProperty;
-    }
+  }
   this->Mapper->SetTextProperty(tprop);
   this->Mapper->SetInput(label.utf8_str());
   this->Actor->GetPositionCoordinate()->SetCoordinateSystemToDisplay();

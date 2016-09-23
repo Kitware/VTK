@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPPolyDataWriter - Write PVTK XML PolyData files.
-// .SECTION Description
-// vtkXMLPPolyDataWriter writes the PVTK XML PolyData file format.
-// One poly data input can be written into a parallel file format with
-// any number of pieces spread across files.  The standard extension
-// for this writer's file format is "pvtp".  This writer uses
-// vtkXMLPolyDataWriter to write the individual piece files.
-
-// .SECTION See Also
-// vtkXMLPolyDataWriter
+/**
+ * @class   vtkXMLPPolyDataWriter
+ * @brief   Write PVTK XML PolyData files.
+ *
+ * vtkXMLPPolyDataWriter writes the PVTK XML PolyData file format.
+ * One poly data input can be written into a parallel file format with
+ * any number of pieces spread across files.  The standard extension
+ * for this writer's file format is "pvtp".  This writer uses
+ * vtkXMLPolyDataWriter to write the individual piece files.
+ *
+ * @sa
+ * vtkXMLPolyDataWriter
+*/
 
 #ifndef vtkXMLPPolyDataWriter_h
 #define vtkXMLPPolyDataWriter_h
@@ -38,12 +41,14 @@ public:
   vtkTypeMacro(vtkXMLPPolyDataWriter,vtkXMLPUnstructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get/Set the writer's input.
+  /**
+   * Get/Set the writer's input.
+   */
   vtkPolyData* GetInput();
 
-  // Description:
-  // Get the default file extension for files written by this writer.
+  /**
+   * Get the default file extension for files written by this writer.
+   */
   const char* GetDefaultFileExtension();
 
 protected:

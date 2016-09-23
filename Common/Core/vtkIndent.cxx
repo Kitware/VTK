@@ -21,9 +21,9 @@ vtkIndent* vtkIndent::New()
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkObjectFactory::CreateInstance("vtkIndent");
   if(ret)
-    {
+  {
     return reinterpret_cast<vtkIndent*>(ret);
-    }
+  }
   // If the factory was unable to create the object, then create it here.
   return new vtkIndent;
 }
@@ -40,9 +40,9 @@ vtkIndent vtkIndent::GetNextIndent()
 {
   int indent = this->Indent + VTK_STD_INDENT;
   if ( indent > VTK_NUMBER_OF_BLANKS )
-    {
+  {
     indent = VTK_NUMBER_OF_BLANKS;
-    }
+  }
   return vtkIndent(indent);
 }
 

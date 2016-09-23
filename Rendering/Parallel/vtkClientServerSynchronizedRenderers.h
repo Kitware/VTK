@@ -12,10 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkClientServerSynchronizedRenderers
-// .SECTION Description
-// vtkClientServerSynchronizedRenderers is a vtkSynchronizedRenderers subclass
-// designed to be used in 2 processes, client-server mode.
+/**
+ * @class   vtkClientServerSynchronizedRenderers
+ *
+ * vtkClientServerSynchronizedRenderers is a vtkSynchronizedRenderers subclass
+ * designed to be used in 2 processes, client-server mode.
+*/
 
 #ifndef vtkClientServerSynchronizedRenderers_h
 #define vtkClientServerSynchronizedRenderers_h

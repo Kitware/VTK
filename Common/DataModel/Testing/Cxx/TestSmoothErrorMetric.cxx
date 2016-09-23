@@ -150,13 +150,13 @@ int TestSmoothErrorMetric(int argc, char* argv[])
 #endif
 
   if(geom->GetOutput()->GetPointData()!=0)
-    {
+  {
     if(geom->GetOutput()->GetPointData()->GetScalars()!=0)
-      {
+    {
       mapper->SetScalarRange( geom->GetOutput()->GetPointData()->
                               GetScalars()->GetRange());
-      }
     }
+  }
 
   vtkSmartPointer<vtkActor> actor =
     vtkSmartPointer< vtkActor>::New();
@@ -180,9 +180,9 @@ int TestSmoothErrorMetric(int argc, char* argv[])
   renWin->Render();
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

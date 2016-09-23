@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPDataReader - Superclass for PVTK XML file readers.
-// .SECTION Description
-// vtkXMLPDataReader provides functionality common to all PVTK XML
-// file readers.  Concrete subclasses call upon this functionality
-// when needed.
-
-// .SECTION See Also
-// vtkXMLDataReader
+/**
+ * @class   vtkXMLPDataReader
+ * @brief   Superclass for PVTK XML file readers.
+ *
+ * vtkXMLPDataReader provides functionality common to all PVTK XML
+ * file readers.  Concrete subclasses call upon this functionality
+ * when needed.
+ *
+ * @sa
+ * vtkXMLDataReader
+*/
 
 #ifndef vtkXMLPDataReader_h
 #define vtkXMLPDataReader_h
@@ -37,9 +40,12 @@ public:
   vtkTypeMacro(vtkXMLPDataReader,vtkXMLReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the number of pieces from the summary file being read.
+  //@{
+  /**
+   * Get the number of pieces from the summary file being read.
+   */
   vtkGetMacro(NumberOfPieces, int);
+  //@}
 
   // For the specified port, copy the information this reader sets up in
   // SetupOutputInformation to outInfo

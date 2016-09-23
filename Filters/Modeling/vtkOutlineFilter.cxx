@@ -35,10 +35,10 @@ vtkOutlineFilter::vtkOutlineFilter ()
 vtkOutlineFilter::~vtkOutlineFilter ()
 {
   if (this->OutlineSource != NULL)
-    {
+  {
     this->OutlineSource->Delete ();
     this->OutlineSource = NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

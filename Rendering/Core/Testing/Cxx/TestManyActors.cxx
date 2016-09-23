@@ -18,34 +18,34 @@ int TestManyActors(int argc, char* argv[])
   int numRenders = 100;
   bool interact = false;
   for (int i = 1; i < argc; ++i)
-    {
+  {
     if (!strcmp(argv[i], "-I"))
-      {
+    {
       interact = true;
       continue;
-      }
+    }
     if (!strcmp(argv[i], "-T") ||
         !strcmp(argv[i], "-V") ||
         !strcmp(argv[i], "-D"))
-      {
+    {
       ++i;
       continue;
-      }
+    }
     if (!strcmp(argv[i], "-N"))
-      {
+    {
       ++i;
       numActors = atoi(argv[i]);
       continue;
-      }
+    }
     if (!strcmp(argv[i], "-R"))
-      {
+    {
       ++i;
       numRenders = atoi(argv[i]);
       continue;
-      }
+    }
     cerr << argv[0] << " options:" << endl;
     cerr << " -N: Number of actors" << endl;
-    }
+  }
   vtkSmartPointer<vtkSphereSource> source =
     vtkSmartPointer<vtkSphereSource>::New();
   source->Update();
@@ -59,11 +59,11 @@ int TestManyActors(int argc, char* argv[])
     ceil(static_cast<double>(numActors)/side1/side2));
   int actorId = 0;
   for (int i = 0; i < side1; ++i)
-    {
+  {
     for (int j = 0; j < side2; ++j)
-      {
+    {
       for (int k = 0; k < side3; ++k)
-        {
+      {
         vtkSmartPointer<vtkPolyDataMapper> mapper =
           vtkSmartPointer<vtkPolyDataMapper>::New();
         mapper->StaticOn();
@@ -76,20 +76,20 @@ int TestManyActors(int argc, char* argv[])
         ren->AddActor(actor);
         ++actorId;
         if (actorId >= numActors)
-          {
-          break;
-          }
-        }
-      if (actorId >= numActors)
         {
-        break;
+          break;
         }
       }
-    if (actorId >= numActors)
+      if (actorId >= numActors)
       {
-      break;
+        break;
       }
     }
+    if (actorId >= numActors)
+    {
+      break;
+    }
+  }
   vtkSmartPointer<vtkRenderWindow> win =
     vtkSmartPointer<vtkRenderWindow>::New();
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
@@ -116,10 +116,10 @@ int TestManyActors(int argc, char* argv[])
 
   timer->StartTimer();
   for (int i = 0; i < numRenders; ++i)
-    {
+  {
     iren->SetEventPosition(100, 100 + i);
     iren->InvokeEvent(vtkCommand::MouseMoveEvent, 0);
-    }
+  }
   iren->InvokeEvent(vtkCommand::LeftButtonReleaseEvent, 0);
   timer->StopTimer();
   double elapsed = timer->GetElapsedTime();
@@ -127,9 +127,9 @@ int TestManyActors(int argc, char* argv[])
   cerr << "render time per actor: " << elapsed / numRenders / numActors << endl;
 
   if (interact)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return 0;
 }

@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkFixedPointVolumeRayCastHelper - An abstract helper that generates images for the volume ray cast mapper
-// .SECTION Description
-// This is the abstract superclass of all helper classes for the
-// vtkFixedPointVolumeRayCastMapper. This class should not be used directly.
-//
-// .SECTION see also
-// vtkFixedPointVolumeRayCastMapper
+/**
+ * @class   vtkFixedPointVolumeRayCastHelper
+ * @brief   An abstract helper that generates images for the volume ray cast mapper
+ *
+ * This is the abstract superclass of all helper classes for the
+ * vtkFixedPointVolumeRayCastMapper. This class should not be used directly.
+ *
+ * @sa
+ * vtkFixedPointVolumeRayCastMapper
+*/
 
 #ifndef vtkFixedPointVolumeRayCastHelper_h
 #define vtkFixedPointVolumeRayCastHelper_h
@@ -141,7 +144,7 @@
 
 #define VTKKWRCHelper_InterpolateScalarComponent( VAL, CIDX, COMPONENTS )               \
   for ( CIDX = 0; CIDX < COMPONENTS; CIDX++ )                                           \
-    {                                                                                   \
+  {                                                                                   \
     VAL[CIDX] =                                                                         \
     (0x7fff + ((A[CIDX]*((0x4000 + w1Xw1Y*w1Z)>>VTKKW_FP_SHIFT)) +                      \
                (B[CIDX]*((0x4000 + w2Xw1Y*w1Z)>>VTKKW_FP_SHIFT)) +                      \
@@ -151,11 +154,11 @@
                (F[CIDX]*((0x4000 + w2Xw1Y*w2Z)>>VTKKW_FP_SHIFT)) +                      \
                (G[CIDX]*((0x4000 + w1Xw2Y*w2Z)>>VTKKW_FP_SHIFT)) +                      \
                (H[CIDX]*((0x4000 + w2Xw2Y*w2Z)>>VTKKW_FP_SHIFT)))) >> VTKKW_FP_SHIFT;   \
-    }                                                                                   \
+  }                                                                                   \
 
 #define VTKKWRCHelper_InterpolateMagnitudeComponent( VAL, CIDX, COMPONENTS )            \
   for ( CIDX = 0; CIDX < COMPONENTS; CIDX++ )                                           \
-    {                                                                                   \
+  {                                                                                   \
     VAL[CIDX] =                                                                         \
     (0x7fff + ((mA[CIDX]*((0x4000 + w1Xw1Y*w1Z)>>VTKKW_FP_SHIFT)) +                     \
                (mB[CIDX]*((0x4000 + w2Xw1Y*w1Z)>>VTKKW_FP_SHIFT)) +                     \
@@ -165,7 +168,7 @@
                (mF[CIDX]*((0x4000 + w2Xw1Y*w2Z)>>VTKKW_FP_SHIFT)) +                     \
                (mG[CIDX]*((0x4000 + w1Xw2Y*w2Z)>>VTKKW_FP_SHIFT)) +                     \
                (mH[CIDX]*((0x4000 + w2Xw2Y*w2Z)>>VTKKW_FP_SHIFT)))) >> VTKKW_FP_SHIFT;  \
-    }
+  }
 
 #define VTKKWRCHelper_InterpolateShading( DTABLE, STABLE, COLOR )                                       \
   unsigned int _tmpDColor[3];                                                                           \
@@ -334,7 +337,7 @@
   {                                                                                                     \
   unsigned short _alpha;                                                                                \
   switch ( CMPS )                                                                                       \
-    {                                                                                                   \
+  {                                                                                                   \
     case 2:                                                                                             \
       _alpha = SCALAROPACITYTABLE[IDX[1]];                                                              \
       COLOR[0] = static_cast<unsigned short>                                                            \
@@ -352,7 +355,7 @@
       COLOR[2] = static_cast<unsigned short>((IDX[2]*_alpha + 0x7f)>>8 );                               \
       COLOR[3] = _alpha;                                                                                \
       break;                                                                                            \
-    }                                                                                                   \
+  }                                                                                                   \
   }
 
 #define VTKKWRCHelper_LookupColorGOUS( CTABLE, SOTABLE, GOTABLE, IDX, IDX2, COLOR )     \
@@ -390,12 +393,12 @@
   {for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                              \
     {                                                                                                                           \
     if ( _alpha[_idx] )                                                                                                         \
-      {                                                                                                                         \
+    {                                                                                                                         \
       _tmp[0] += static_cast<unsigned short>(((COLORTABLE[_idx][3*SCALAR[_idx]  ])*_alpha[_idx] + 0x7fff)>>(VTKKW_FP_SHIFT));   \
       _tmp[1] += static_cast<unsigned short>(((COLORTABLE[_idx][3*SCALAR[_idx]+1])*_alpha[_idx] + 0x7fff)>>(VTKKW_FP_SHIFT));   \
       _tmp[2] += static_cast<unsigned short>(((COLORTABLE[_idx][3*SCALAR[_idx]+2])*_alpha[_idx] + 0x7fff)>>(VTKKW_FP_SHIFT));   \
       _tmp[3] += ((_alpha[_idx]*_alpha[_idx])/_totalAlpha);                                                                     \
-      }                                                                                                                         \
+    }                                                                                                                         \
     }}                                                                                                                          \
   if ( !_tmp[3] ) {continue;}                                                                                                   \
   COLOR[0] = (_tmp[0]>32767)?(32767):(_tmp[0]);                                                                                 \
@@ -405,21 +408,21 @@
 
 #define VTKKWRCHelper_LookupAndCombineIndependentColorsMax( COLORTABLE, SCALAROPACITYTABLE,                             \
                                                             IDX, WEIGHTS, CMPS, COLOR )                                 \
-  {                                                                                                                     \
+{                                                                                                                     \
   unsigned int _tmp[4] = {0,0,0,0};                                                                                     \
   for ( int _idx = 0; _idx < CMPS; _idx++ )                                                                             \
-    {                                                                                                                   \
+  {                                                                                                                   \
     unsigned short _alpha = static_cast<unsigned short>(SCALAROPACITYTABLE[_idx][IDX[_idx]]*WEIGHTS[_idx]);             \
     _tmp[0] += static_cast<unsigned short>(((COLORTABLE[_idx][3*IDX[_idx]  ])*_alpha + 0x7fff)>>(VTKKW_FP_SHIFT));      \
     _tmp[1] += static_cast<unsigned short>(((COLORTABLE[_idx][3*IDX[_idx]+1])*_alpha + 0x7fff)>>(VTKKW_FP_SHIFT));      \
     _tmp[2] += static_cast<unsigned short>(((COLORTABLE[_idx][3*IDX[_idx]+2])*_alpha + 0x7fff)>>(VTKKW_FP_SHIFT));      \
     _tmp[3] += _alpha;                                                                                                  \
-    }                                                                                                                   \
+  }                                                                                                                   \
   COLOR[0] = (_tmp[0]>32767)?(32767):(_tmp[0]);                                                                         \
   COLOR[1] = (_tmp[1]>32767)?(32767):(_tmp[1]);                                                                         \
   COLOR[2] = (_tmp[2]>32767)?(32767):(_tmp[2]);                                                                         \
   COLOR[3] = (_tmp[3]>32767)?(32767):(_tmp[3]);                                                                         \
-  }
+}
 
 #define VTKKWRCHelper_LookupAndCombineIndependentColorsGOUS( COLORTABLE, SOTABLE,                                               \
                                                            GOTABLE,                                                             \
@@ -433,22 +436,22 @@
     {                                                                                                                           \
     _alpha[_idx] =  static_cast<unsigned short>(SOTABLE[_idx][SCALAR[_idx]]*WEIGHTS[_idx]);                                     \
     if ( _alpha[_idx] )                                                                                                         \
-      {                                                                                                                         \
+    {                                                                                                                         \
       _alpha[_idx] = static_cast<unsigned short>((_alpha[_idx]*GOTABLE[_idx][MAG[_idx]] + 0x7fff)>>(VTKKW_FP_SHIFT));           \
       _totalAlpha += _alpha[_idx];                                                                                              \
-      }                                                                                                                         \
+    }                                                                                                                         \
     }}                                                                                                                          \
                                                                                                                                 \
   if ( !_totalAlpha ) {continue;}                                                                                               \
   {for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                              \
     {                                                                                                                           \
     if ( _alpha[_idx] )                                                                                                         \
-      {                                                                                                                         \
+    {                                                                                                                         \
       _tmp[0] += static_cast<unsigned short>(((COLORTABLE[_idx][3*SCALAR[_idx]  ])*_alpha[_idx] + 0x7fff)>>(VTKKW_FP_SHIFT));   \
       _tmp[1] += static_cast<unsigned short>(((COLORTABLE[_idx][3*SCALAR[_idx]+1])*_alpha[_idx] + 0x7fff)>>(VTKKW_FP_SHIFT));   \
       _tmp[2] += static_cast<unsigned short>(((COLORTABLE[_idx][3*SCALAR[_idx]+2])*_alpha[_idx] + 0x7fff)>>(VTKKW_FP_SHIFT));   \
       _tmp[3] += ((_alpha[_idx]*_alpha[_idx])/_totalAlpha);                                                                     \
-      }                                                                                                                         \
+    }                                                                                                                         \
     }}                                                                                                                          \
   if ( !_tmp[3] ) {continue;};                                                                                                  \
   COLOR[0] = (_tmp[0]>32767)?(32767):(_tmp[0]);                                                                                 \
@@ -475,7 +478,7 @@
   {for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                              \
     {                                                                                                                           \
     if ( _alpha[_idx] )                                                                                                         \
-      {                                                                                                                         \
+    {                                                                                                                         \
       _tmpC[0] = static_cast<unsigned short>(((COLORTABLE[_idx][3*SCALAR[_idx]  ])*_alpha[_idx] + 0x7fff)>>(VTKKW_FP_SHIFT));   \
       _tmpC[1] = static_cast<unsigned short>(((COLORTABLE[_idx][3*SCALAR[_idx]+1])*_alpha[_idx] + 0x7fff)>>(VTKKW_FP_SHIFT));   \
       _tmpC[2] = static_cast<unsigned short>(((COLORTABLE[_idx][3*SCALAR[_idx]+2])*_alpha[_idx] + 0x7fff)>>(VTKKW_FP_SHIFT));   \
@@ -489,7 +492,7 @@
       _tmp[1] += _tmpC[1];                                                                                                      \
       _tmp[2] += _tmpC[2];                                                                                                      \
       _tmp[3] += ((_alpha[_idx]*_alpha[_idx])/_totalAlpha);                                                                     \
-      }                                                                                                                         \
+    }                                                                                                                         \
     }}                                                                                                                           \
   if ( !_tmp[3] ) {continue;}                                                                                                   \
                                                                                                                                 \
@@ -517,7 +520,7 @@
   {for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                              \
     {                                                                                                                           \
     if ( _alpha[_idx] )                                                                                                         \
-      {                                                                                                                         \
+    {                                                                                                                         \
       _tmpC[0] = static_cast<unsigned short>(((COLORTABLE[_idx][3*SCALAR[_idx]  ])*_alpha[_idx] + 0x7fff)>>(VTKKW_FP_SHIFT));   \
       _tmpC[1] = static_cast<unsigned short>(((COLORTABLE[_idx][3*SCALAR[_idx]+1])*_alpha[_idx] + 0x7fff)>>(VTKKW_FP_SHIFT));   \
       _tmpC[2] = static_cast<unsigned short>(((COLORTABLE[_idx][3*SCALAR[_idx]+2])*_alpha[_idx] + 0x7fff)>>(VTKKW_FP_SHIFT));   \
@@ -527,7 +530,7 @@
       _tmp[1] += _tmpC[1];                                                                                                      \
       _tmp[2] += _tmpC[2];                                                                                                      \
       _tmp[3] += ((_alpha[_idx]*_alpha[_idx])/_totalAlpha);                                                                     \
-      }                                                                                                                         \
+    }                                                                                                                         \
     }}                                                                                                                          \
   if (!_tmp[3]) {continue;}                                                                                                     \
   COLOR[0] = (_tmp[0]>32767)?(32767):(_tmp[0]);                                                                                 \
@@ -541,9 +544,9 @@
   COLOR[2] += (TMP[2]*REMAININGOPACITY+0x7fff)>>VTKKW_FP_SHIFT;                                 \
   REMAININGOPACITY = (REMAININGOPACITY*((~(TMP[3])&VTKKW_FP_MASK))+0x7fff)>>VTKKW_FP_SHIFT;     \
   if ( REMAININGOPACITY < 0xff )                                                                \
-    {                                                                                           \
+  {                                                                                           \
     break;                                                                                      \
-    }
+  }
 
 #define VTKKWRCHelper_LookupAndCombineIndependentColorsGOShadeUS( COLORTABLE, SOTABLE, GOTABLE,                                 \
                                                                 DTABLE, STABLE,                                                 \
@@ -558,10 +561,10 @@
     {                                                                                                                           \
     _alpha[_idx] =  static_cast<unsigned short>(SOTABLE[_idx][SCALAR[_idx]]*WEIGHTS[_idx]);                                     \
     if ( _alpha[_idx] )                                                                                                         \
-      {                                                                                                                         \
+    {                                                                                                                         \
       _alpha[_idx] = static_cast<unsigned short>((_alpha[_idx]*GOTABLE[_idx][MAG[_idx]] + 0x7fff)>>(VTKKW_FP_SHIFT));           \
       _totalAlpha += _alpha[_idx];                                                                                              \
-      }                                                                                                                         \
+    }                                                                                                                         \
     }}                                                                                                                          \
                                                                                                                                 \
   if ( !_totalAlpha ) {continue;}                                                                                               \
@@ -569,7 +572,7 @@
   {for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                              \
     {                                                                                                                           \
     if ( _alpha[_idx] )                                                                                                         \
-      {                                                                                                                         \
+    {                                                                                                                         \
       _tmpC[0] = static_cast<unsigned short>(((COLORTABLE[_idx][3*SCALAR[_idx]  ])*_alpha[_idx] + 0x7fff)>>(VTKKW_FP_SHIFT));   \
       _tmpC[1] = static_cast<unsigned short>(((COLORTABLE[_idx][3*SCALAR[_idx]+1])*_alpha[_idx] + 0x7fff)>>(VTKKW_FP_SHIFT));   \
       _tmpC[2] = static_cast<unsigned short>(((COLORTABLE[_idx][3*SCALAR[_idx]+2])*_alpha[_idx] + 0x7fff)>>(VTKKW_FP_SHIFT));   \
@@ -583,7 +586,7 @@
       _tmp[1] += _tmpC[1];                                                                                                      \
       _tmp[2] += _tmpC[2];                                                                                                      \
       _tmp[3] += ((_alpha[_idx]*_alpha[_idx])/_totalAlpha);                                                                     \
-      }                                                                                                                         \
+    }                                                                                                                         \
     }}                                                                                                                          \
   if ( !_tmp[3] ) {continue;}                                                                                                   \
   COLOR[0] = (_tmp[0]>32767)?(32767):(_tmp[0]);                                                                                 \
@@ -604,17 +607,17 @@
     {                                                                                                                           \
     _alpha[_idx] =  static_cast<unsigned short>(SOTABLE[_idx][SCALAR[_idx]]*WEIGHTS[_idx]);                                     \
     if ( _alpha[_idx] )                                                                                                         \
-      {                                                                                                                         \
+    {                                                                                                                         \
       _alpha[_idx] = static_cast<unsigned short>((_alpha[_idx]*GOTABLE[_idx][MAG[_idx]] + 0x7fff)>>(VTKKW_FP_SHIFT));           \
       _totalAlpha += _alpha[_idx];                                                                                              \
-      }                                                                                                                         \
+    }                                                                                                                         \
     }}                                                                                                                          \
                                                                                                                                 \
   if ( !_totalAlpha ) {continue;}                                                                                               \
   {for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                              \
     {                                                                                                                           \
     if ( _alpha[_idx] )                                                                                                         \
-      {                                                                                                                         \
+    {                                                                                                                         \
       _tmpC[0] = static_cast<unsigned short>(((COLORTABLE[_idx][3*SCALAR[_idx]  ])*_alpha[_idx] + 0x7fff)>>(VTKKW_FP_SHIFT));   \
       _tmpC[1] = static_cast<unsigned short>(((COLORTABLE[_idx][3*SCALAR[_idx]+1])*_alpha[_idx] + 0x7fff)>>(VTKKW_FP_SHIFT));   \
       _tmpC[2] = static_cast<unsigned short>(((COLORTABLE[_idx][3*SCALAR[_idx]+2])*_alpha[_idx] + 0x7fff)>>(VTKKW_FP_SHIFT));   \
@@ -624,7 +627,7 @@
       _tmp[1] += _tmpC[1];                                                                                                      \
       _tmp[2] += _tmpC[2];                                                                                                      \
       _tmp[3] += ((_alpha[_idx]*_alpha[_idx])/_totalAlpha);                                                                     \
-      }                                                                                                                         \
+    }                                                                                                                         \
     }}                                                                                                                           \
   if ( !_tmp[3] ) {continue;}                                                                                                   \
   COLOR[0] = (_tmp[0]>32767)?(32767):(_tmp[0]);                                                                                 \
@@ -641,39 +644,39 @@
 
 #define VTKKWRCHelper_MoveToNextSampleNN()                                      \
   if ( k < numSteps-1 )                                                         \
-    {                                                                           \
+  {                                                                           \
     mapper->FixedPointIncrement( pos, dir );                                    \
     mapper->ShiftVectorDown( pos, spos );                                       \
     dptr = data +  spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2];            \
-    }
+  }
 
 #define VTKKWRCHelper_MoveToNextSampleGONN()                            \
   if ( k < numSteps-1 )                                                 \
-    {                                                                   \
+  {                                                                   \
     mapper->FixedPointIncrement( pos, dir );                            \
     mapper->ShiftVectorDown( pos, spos );                               \
     dptr = data +  spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2];    \
     magPtr = gradientMag[spos[2]] + spos[0]*mInc[0] + spos[1]*mInc[1];  \
-    }
+  }
 
 #define VTKKWRCHelper_MoveToNextSampleShadeNN()                         \
   if ( k < numSteps-1 )                                                 \
-    {                                                                   \
+  {                                                                   \
     mapper->FixedPointIncrement( pos, dir );                            \
     mapper->ShiftVectorDown( pos, spos );                               \
     dptr = data +  spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2];    \
     dirPtr = gradientDir[spos[2]] + spos[0]*dInc[0] + spos[1]*dInc[1];  \
-    }
+  }
 
 #define VTKKWRCHelper_MoveToNextSampleGOShadeNN()                       \
   if ( k < numSteps-1 )                                                 \
-    {                                                                   \
+  {                                                                   \
     mapper->FixedPointIncrement( pos, dir );                            \
     mapper->ShiftVectorDown( pos, spos );                               \
     dptr = data +  spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2];    \
     magPtr = gradientMag[spos[2]] + spos[0]*mInc[0] + spos[1]*mInc[1];  \
     dirPtr = gradientDir[spos[2]] + spos[0]*dInc[0] + spos[1]*dInc[1];  \
-    }
+  }
 
 #define VTKKWRCHelper_InitializeVariables()                                                     \
   int i, j;                                                                                     \
@@ -708,11 +711,11 @@
                                                                                                 \
   int c;                                                                                        \
   for ( c = 0; c < 4; c++ )                                                                     \
-    {                                                                                           \
+  {                                                                                           \
     colorTable[c]         = mapper->GetColorTable(c);                                           \
     (void)(colorTable[c]);                                                                      \
     scalarOpacityTable[c] = mapper->GetScalarOpacityTable(c);                                   \
-    }                                                                                           \
+  }                                                                                           \
                                                                                                 \
   vtkIdType inc[3];                                                                             \
   inc[0] = components;                                                                          \
@@ -729,47 +732,47 @@
 #define VTKKWRCHelper_InitializeVariablesGO()                           \
   unsigned short *gradientOpacityTable[4];                              \
   for ( c = 0; c < 4; c++ )                                             \
-    {                                                                   \
+  {                                                                   \
     gradientOpacityTable[c] = mapper->GetGradientOpacityTable(c);       \
-    }                                                                   \
+  }                                                                   \
   unsigned char **gradientMag = mapper->GetGradientMagnitude();         \
                                                                         \
   vtkIdType mInc[3];                                                    \
   if ( vol->GetProperty()->GetIndependentComponents() )                 \
-    {                                                                   \
+  {                                                                   \
     mInc[0] = inc[0];                                                   \
     mInc[1] = inc[1];                                                   \
     mInc[2] = inc[2];                                                   \
-    }                                                                   \
+  }                                                                   \
   else                                                                  \
-    {                                                                   \
+  {                                                                   \
     mInc[0] = 1;                                                        \
     mInc[1] = mInc[0]*dim[0];                                           \
     mInc[2] = mInc[1]*dim[1];                                           \
-    }
+  }
 
 #define VTKKWRCHelper_InitializeVariablesShade()                        \
   unsigned short *diffuseShadingTable[4];                               \
   unsigned short *specularShadingTable[4];                              \
   for ( c = 0; c < 4; c++ )                                             \
-    {                                                                   \
+  {                                                                   \
     diffuseShadingTable[c] = mapper->GetDiffuseShadingTable(c);         \
     specularShadingTable[c] = mapper->GetSpecularShadingTable(c);       \
-    }                                                                   \
+  }                                                                   \
   unsigned short **gradientDir = mapper->GetGradientNormal();           \
   vtkIdType dInc[3];                                                    \
   if ( vol->GetProperty()->GetIndependentComponents() )                 \
-    {                                                                   \
+  {                                                                   \
     dInc[0] = inc[0];                                                   \
     dInc[1] = inc[1];                                                   \
     dInc[2] = inc[2];                                                   \
-    }                                                                   \
+  }                                                                   \
   else                                                                  \
-    {                                                                   \
+  {                                                                   \
     dInc[0] = 1;                                                        \
     dInc[1] = dInc[0]*dim[0];                                           \
     dInc[2] = dInc[1]*dim[1];                                           \
-    }
+  }
 
 #define VTKKWRCHelper_InitializeTrilinVariables() \
   vtkIdType Binc = components;                    \
@@ -783,13 +786,13 @@
 #define VTKKWRCHelper_InitializeTrilinVariablesGO()             \
   vtkIdType magOffset;                                          \
   if (  vol->GetProperty()->GetIndependentComponents() )        \
-    {                                                           \
+  {                                                           \
     magOffset = components;                                     \
-    }                                                           \
+  }                                                           \
   else                                                          \
-    {                                                           \
+  {                                                           \
     magOffset = 1;                                              \
-    }                                                           \
+  }                                                           \
                                                                 \
   vtkIdType mBFinc =                    magOffset;              \
   vtkIdType mCGinc = dim[0]*magOffset;                          \
@@ -798,13 +801,13 @@
 #define VTKKWRCHelper_InitializeTrilinVariablesShade()          \
   vtkIdType dirOffset;                                          \
   if (  vol->GetProperty()->GetIndependentComponents() )        \
-    {                                                           \
+  {                                                           \
     dirOffset = components;                                     \
-    }                                                           \
+  }                                                           \
   else                                                          \
-    {                                                           \
+  {                                                           \
     dirOffset = 1;                                              \
-    }                                                           \
+  }                                                           \
                                                                 \
   vtkIdType dBFinc =                    dirOffset;              \
   vtkIdType dCGinc = dim[0]*dirOffset;                          \
@@ -812,20 +815,20 @@
 
 #define VTKKWRCHelper_OuterInitialization()                             \
     if ( j%threadCount != threadID )                                    \
-      {                                                                 \
+    {                                                                 \
       continue;                                                         \
-      }                                                                 \
+    }                                                                 \
      if ( !threadID )                                                   \
-      {                                                                 \
+     {                                                                 \
       if ( renWin->CheckAbortStatus() )                                 \
-        {                                                               \
+      {                                                               \
         break;                                                          \
-        }                                                               \
-      }                                                                 \
+      }                                                               \
+     }                                                                 \
     else if ( renWin->GetAbortRender() )                                \
-      {                                                                 \
+    {                                                                 \
       break;                                                            \
-      }                                                                 \
+    }                                                                 \
     imagePtr = image + 4*(j*imageMemorySize[0] + rowBounds[j*2]);
 
 #define VTKKWRCHelper_InnerInitialization()             \
@@ -834,14 +837,14 @@
   unsigned int   dir[3];                                \
   mapper->ComputeRayInfo( i, j, pos, dir, &numSteps );  \
   if ( numSteps == 0 )                                  \
-    {                                                   \
+  {                                                   \
     *(imagePtr  ) = 0;                                  \
     *(imagePtr+1) = 0;                                  \
     *(imagePtr+2) = 0;                                  \
     *(imagePtr+3) = 0;                                  \
     imagePtr += 4;                                      \
     continue;                                           \
-    }                                                   \
+  }                                                   \
   unsigned int   spos[3];                               \
   unsigned int   k;
 
@@ -855,9 +858,9 @@
   T *dptr = data +  spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2];   \
   T maxValue[4] = {};                                                   \
   for ( c = 0; c < components; c++ )                                    \
-    {                                                                   \
+  {                                                                   \
     maxValue[c] = *(dptr+c);                                            \
-    }
+  }
 
 #define VTKKWRCHelper_InitializeMIPOneTrilin()          \
   T *dptr;                                              \
@@ -983,30 +986,30 @@
 #define VTKKWRCHelper_InitializationAndLoopStartNN()            \
   VTKKWRCHelper_InitializeVariables();                          \
   for ( j = 0; j < imageInUseSize[1]; j++ )                     \
-    {                                                           \
+  {                                                           \
     VTKKWRCHelper_OuterInitialization();                        \
     for ( i = rowBounds[j*2]; i <= rowBounds[j*2+1]; i++ )      \
-      {                                                         \
+    {                                                         \
       VTKKWRCHelper_InnerInitialization();
 
 #define VTKKWRCHelper_InitializationAndLoopStartGONN()          \
   VTKKWRCHelper_InitializeVariables();                          \
   VTKKWRCHelper_InitializeVariablesGO();                        \
   for ( j = 0; j < imageInUseSize[1]; j++ )                     \
-    {                                                           \
+  {                                                           \
     VTKKWRCHelper_OuterInitialization();                        \
     for ( i = rowBounds[j*2]; i <= rowBounds[j*2+1]; i++ )      \
-      {                                                         \
+    {                                                         \
       VTKKWRCHelper_InnerInitialization();
 
 #define VTKKWRCHelper_InitializationAndLoopStartShadeNN()       \
   VTKKWRCHelper_InitializeVariables();                          \
   VTKKWRCHelper_InitializeVariablesShade();                     \
   for ( j = 0; j < imageInUseSize[1]; j++ )                     \
-    {                                                           \
+  {                                                           \
     VTKKWRCHelper_OuterInitialization();                        \
     for ( i = rowBounds[j*2]; i <= rowBounds[j*2+1]; i++ )      \
-      {                                                         \
+    {                                                         \
       VTKKWRCHelper_InnerInitialization();
 
 #define VTKKWRCHelper_InitializationAndLoopStartGOShadeNN()     \
@@ -1014,20 +1017,20 @@
   VTKKWRCHelper_InitializeVariablesGO();                        \
   VTKKWRCHelper_InitializeVariablesShade();                     \
   for ( j = 0; j < imageInUseSize[1]; j++ )                     \
-    {                                                           \
+  {                                                           \
     VTKKWRCHelper_OuterInitialization();                        \
     for ( i = rowBounds[j*2]; i <= rowBounds[j*2+1]; i++ )      \
-      {                                                         \
+    {                                                         \
       VTKKWRCHelper_InnerInitialization();
 
 #define VTKKWRCHelper_InitializationAndLoopStartTrilin()        \
   VTKKWRCHelper_InitializeVariables();                          \
   VTKKWRCHelper_InitializeTrilinVariables();                    \
   for ( j = 0; j < imageInUseSize[1]; j++ )                     \
-    {                                                           \
+  {                                                           \
     VTKKWRCHelper_OuterInitialization();                        \
     for ( i = rowBounds[j*2]; i <= rowBounds[j*2+1]; i++ )      \
-      {                                                         \
+    {                                                         \
       VTKKWRCHelper_InnerInitialization();
 
 #define VTKKWRCHelper_InitializationAndLoopStartGOTrilin()      \
@@ -1036,10 +1039,10 @@
   VTKKWRCHelper_InitializeTrilinVariables();                    \
   VTKKWRCHelper_InitializeTrilinVariablesGO();                  \
   for ( j = 0; j < imageInUseSize[1]; j++ )                     \
-    {                                                           \
+  {                                                           \
     VTKKWRCHelper_OuterInitialization();                        \
     for ( i = rowBounds[j*2]; i <= rowBounds[j*2+1]; i++ )      \
-      {                                                         \
+    {                                                         \
       VTKKWRCHelper_InnerInitialization();
 
 #define VTKKWRCHelper_InitializationAndLoopStartShadeTrilin()   \
@@ -1048,10 +1051,10 @@
   VTKKWRCHelper_InitializeTrilinVariables();                    \
   VTKKWRCHelper_InitializeTrilinVariablesShade();               \
   for ( j = 0; j < imageInUseSize[1]; j++ )                     \
-    {                                                           \
+  {                                                           \
     VTKKWRCHelper_OuterInitialization();                        \
     for ( i = rowBounds[j*2]; i <= rowBounds[j*2+1]; i++ )      \
-      {                                                         \
+    {                                                         \
       VTKKWRCHelper_InnerInitialization();
 
 #define VTKKWRCHelper_InitializationAndLoopStartGOShadeTrilin() \
@@ -1062,40 +1065,40 @@
   VTKKWRCHelper_InitializeTrilinVariablesShade();               \
   VTKKWRCHelper_InitializeTrilinVariablesGO();                  \
   for ( j = 0; j < imageInUseSize[1]; j++ )                     \
-    {                                                           \
+  {                                                           \
     VTKKWRCHelper_OuterInitialization();                        \
     for ( i = rowBounds[j*2]; i <= rowBounds[j*2+1]; i++ )      \
-      {                                                         \
+    {                                                         \
       VTKKWRCHelper_InnerInitialization();
 
 #define VTKKWRCHelper_IncrementAndLoopEnd()                                             \
       imagePtr+=4;                                                                      \
       }                                                                                 \
     if ( (j/threadCount)%8 == 7 && threadID == 0)                                       \
-      {                                                                                 \
+    {                                                                                 \
       double fargs[1];                                                                  \
       fargs[0] = static_cast<double>(j)/static_cast<float>(imageInUseSize[1]-1);        \
       mapper->InvokeEvent( vtkCommand::VolumeMapperRenderProgressEvent, fargs );        \
-      }                                                                                 \
+    }                                                                                 \
     }
 
 #define VTKKWRCHelper_CroppingCheckTrilin( POS )        \
   if ( cropping )                                       \
-    {                                                   \
+  {                                                   \
     if ( mapper->CheckIfCropped( POS ) )                \
-      {                                                 \
+    {                                                 \
       continue;                                         \
-      }                                                 \
-    }
+    }                                                 \
+  }
 
 #define VTKKWRCHelper_CroppingCheckNN( POS )            \
   if ( cropping )                                       \
-    {                                                   \
+  {                                                   \
     if ( mapper->CheckIfCropped( POS ) )                \
-      {                                                 \
+    {                                                 \
       continue;                                         \
-      }                                                 \
-    }
+    }                                                 \
+  }
 
 #define VTKKWRCHelper_SpaceLeapSetup()          \
   unsigned int mmpos[3];                        \
@@ -1115,48 +1118,48 @@
   if ( pos[0] >> VTKKW_FPMM_SHIFT != mmpos[0] ||                \
        pos[1] >> VTKKW_FPMM_SHIFT != mmpos[1] ||                \
        pos[2] >> VTKKW_FPMM_SHIFT != mmpos[2] )                 \
-    {                                                           \
+  {                                                           \
     mmpos[0] = pos[0] >> VTKKW_FPMM_SHIFT;                      \
     mmpos[1] = pos[1] >> VTKKW_FPMM_SHIFT;                      \
     mmpos[2] = pos[2] >> VTKKW_FPMM_SHIFT;                      \
     mmvalid = mapper->CheckMinMaxVolumeFlag( mmpos, 0 );        \
-    }                                                           \
+  }                                                           \
                                                                 \
   if ( !mmvalid )                                               \
-    {                                                           \
+  {                                                           \
     continue;                                                   \
-    }
+  }
 
 #define VTKKWRCHelper_MIPSpaceLeapCheck( MAXIDX, MAXIDXDEF, FLIP )      \
   if ( pos[0] >> VTKKW_FPMM_SHIFT != mmpos[0] ||                        \
        pos[1] >> VTKKW_FPMM_SHIFT != mmpos[1] ||                        \
        pos[2] >> VTKKW_FPMM_SHIFT != mmpos[2] )                         \
-    {                                                                   \
+  {                                                                   \
     mmpos[0] = pos[0] >> VTKKW_FPMM_SHIFT;                              \
     mmpos[1] = pos[1] >> VTKKW_FPMM_SHIFT;                              \
     mmpos[2] = pos[2] >> VTKKW_FPMM_SHIFT;                              \
     mmvalid = (MAXIDXDEF)?                                              \
      (mapper->CheckMIPMinMaxVolumeFlag( mmpos, 0, MAXIDX, FLIP )):(1);  \
-    }                                                                   \
+  }                                                                   \
                                                                         \
   if ( !mmvalid )                                                       \
-    {                                                                   \
+  {                                                                   \
     continue;                                                           \
-    }
+  }
 
 #define VTKKWRCHelper_MIPSpaceLeapPopulateMulti( MAXIDX, FLIP )                   \
   if ( pos[0] >> VTKKW_FPMM_SHIFT != mmpos[0] ||                                  \
        pos[1] >> VTKKW_FPMM_SHIFT != mmpos[1] ||                                  \
        pos[2] >> VTKKW_FPMM_SHIFT != mmpos[2] )                                   \
-    {                                                                             \
+  {                                                                             \
     mmpos[0] = pos[0] >> VTKKW_FPMM_SHIFT;                                        \
     mmpos[1] = pos[1] >> VTKKW_FPMM_SHIFT;                                        \
     mmpos[2] = pos[2] >> VTKKW_FPMM_SHIFT;                                        \
     for ( c = 0; c < components; c++ )                                            \
-      {                                                                           \
+    {                                                                           \
       mmvalid[c] = mapper->CheckMIPMinMaxVolumeFlag( mmpos, c, MAXIDX[c], FLIP ); \
-      }                                                                           \
-    }
+    }                                                                           \
+  }
 
 #define VTKKWRCHelper_MIPSpaceLeapCheckMulti( COMP, FLIP )  mmvalid[COMP]
 

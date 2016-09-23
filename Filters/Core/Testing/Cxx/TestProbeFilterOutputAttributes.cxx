@@ -56,10 +56,10 @@ int TestProbeFilterOutputAttributes(int, char*[])
   std::cout << spherePointData->GetNormals() << " " << probePointData->GetNormals() << std::endl;
 
   if (probePointData->GetNormals() != spherePointData->GetNormals())
-    {
+  {
     std::cout << "The normals array does not match!\n";
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

@@ -52,28 +52,28 @@ struct UpdateConnectivityCount
 
   UpdateConnectivityCount(vtkDataSet *input, unsigned int *connPtr) :
     Input(input), ConnCount(connPtr)
-    {
-    }
+  {
+  }
 
   void Initialize()
-    {
+  {
     vtkIdList*& cellIds = this->CellIds.Local();
     cellIds->Allocate(128); //allocate some memory
-    }
+  }
 
   void operator() (vtkIdType ptId, vtkIdType endPtId)
-    {
+  {
       vtkIdList*& cellIds = this->CellIds.Local();
       for ( ; ptId < endPtId; ++ptId )
-        {
+      {
         this->Input->GetPointCells(ptId, cellIds);
         this->ConnCount[ptId] = cellIds->GetNumberOfIds();
-        }
-    }
+      }
+  }
 
   void Reduce()
-    {
-    }
+  {
+  }
 };
 
 } // end anon namespace
@@ -96,9 +96,9 @@ int vtkPointConnectivityFilter::RequestData(
   // Check input
   vtkIdType numPts;
   if ( input == NULL || (numPts=input->GetNumberOfPoints()) < 1 )
-    {
+  {
     return 1;
-    }
+  }
 
   // Create integral array and populate it
   vtkNew<vtkUnsignedIntArray> connCount;

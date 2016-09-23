@@ -116,10 +116,10 @@ int TestLabeledGeoView2D(int argc, char* argv[])
   view->Render();
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();
-    }
+  }
 
   terrainSource->ShutDown();
   imageSource->ShutDown();

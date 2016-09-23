@@ -13,11 +13,14 @@
 
 =========================================================================*/
 
-// .NAME vtkColor - templated type for storage of colors.
-//
-// .SECTION Description
-// This class is a templated data type for storing and manipulating fixed size
-// colors. It derives from the vtkVector templated data structure.
+/**
+ * @class   vtkColor
+ * @brief   templated type for storage of colors.
+ *
+ *
+ * This class is a templated data type for storing and manipulating fixed size
+ * colors. It derives from the vtkVector templated data structure.
+*/
 
 #ifndef vtkColor_h
 #define vtkColor_h
@@ -50,37 +53,46 @@ public:
     this->Data[2] = blue;
   }
 
-  // Description:
-  // Set the red, green and blue components of the color.
+  //@{
+  /**
+   * Set the red, green and blue components of the color.
+   */
   void Set(const T& red, const T& green, const T& blue)
   {
     this->Data[0] = red;
     this->Data[1] = green;
     this->Data[2] = blue;
   }
+  //@}
 
-  // Description:
-  // Set the red component of the color, i.e. element 0.
+  /**
+   * Set the red component of the color, i.e. element 0.
+   */
   void SetRed(const T& red) { this->Data[0] = red; }
 
-  // Description:
-  // Get the red component of the color, i.e. element 0.
+  /**
+   * Get the red component of the color, i.e. element 0.
+   */
   const T& GetRed() const { return this->Data[0]; }
 
-  // Description:
-  // Set the green component of the color, i.e. element 1.
+  /**
+   * Set the green component of the color, i.e. element 1.
+   */
   void SetGreen(const T& green) { this->Data[1] = green; }
 
-  // Description:
-  // Get the green component of the color, i.e. element 1.
+  /**
+   * Get the green component of the color, i.e. element 1.
+   */
   const T& GetGreen() const { return this->Data[1]; }
 
-  // Description:
-  // Set the blue component of the color, i.e. element 2.
+  /**
+   * Set the blue component of the color, i.e. element 2.
+   */
   void SetBlue(const T& blue) { this->Data[2] = blue; }
 
-  // Description:
-  // Get the blue component of the color, i.e. element 2.
+  /**
+   * Get the blue component of the color, i.e. element 2.
+   */
   const T& GetBlue() const { return this->Data[2]; }
 };
 
@@ -110,17 +122,22 @@ public:
     this->Data[3] = alpha;
   }
 
-  // Description:
-  // Set the red, green and blue components of the color.
+  //@{
+  /**
+   * Set the red, green and blue components of the color.
+   */
   void Set(const T& red, const T& green, const T& blue)
   {
     this->Data[0] = red;
     this->Data[1] = green;
     this->Data[2] = blue;
   }
+  //@}
 
-  // Description:
-  // Set the red, green, blue and alpha components of the color.
+  //@{
+  /**
+   * Set the red, green, blue and alpha components of the color.
+   */
   void Set(const T& red, const T& green, const T& blue, const T& alpha)
   {
     this->Data[0] = red;
@@ -128,42 +145,52 @@ public:
     this->Data[2] = blue;
     this->Data[3] = alpha;
   }
+  //@}
 
-  // Description:
-  // Set the red component of the color, i.e. element 0.
+  /**
+   * Set the red component of the color, i.e. element 0.
+   */
   void SetRed(const T& red) { this->Data[0] = red; }
 
-  // Description:
-  // Get the red component of the color, i.e. element 0.
+  /**
+   * Get the red component of the color, i.e. element 0.
+   */
   const T& GetRed() const { return this->Data[0]; }
 
-  // Description:
-  // Set the green component of the color, i.e. element 1.
+  /**
+   * Set the green component of the color, i.e. element 1.
+   */
   void SetGreen(const T& green) { this->Data[1] = green; }
 
-  // Description:
-  // Get the green component of the color, i.e. element 1.
+  /**
+   * Get the green component of the color, i.e. element 1.
+   */
   const T& GetGreen() const { return this->Data[1]; }
 
-  // Description:
-  // Set the blue component of the color, i.e. element 2.
+  /**
+   * Set the blue component of the color, i.e. element 2.
+   */
   void SetBlue(const T& blue) { this->Data[2] = blue; }
 
-  // Description:
-  // Get the blue component of the color, i.e. element 2.
+  /**
+   * Get the blue component of the color, i.e. element 2.
+   */
   const T& GetBlue() const { return this->Data[2]; }
 
-  // Description:
-  // Set the alpha component of the color, i.e. element 3.
+  /**
+   * Set the alpha component of the color, i.e. element 3.
+   */
   void SetAlpha(const T& alpha) { this->Data[3] = alpha; }
 
-  // Description:
-  // Get the alpha component of the color, i.e. element 3.
+  /**
+   * Get the alpha component of the color, i.e. element 3.
+   */
   const T& GetAlpha() const { return this->Data[3]; }
 };
 
-// Description:
-// Some derived classes for the different colors commonly used.
+/**
+ * Some derived classes for the different colors commonly used.
+ */
 class vtkColor3ub : public vtkColor3<unsigned char>
 {
 public:
@@ -173,8 +200,10 @@ public:
   explicit vtkColor3ub(const unsigned char* init)
     : vtkColor3<unsigned char>(init) {}
 
-  // Description:
-  // Construct a color from a hexadecimal representation such as 0x0000FF (blue).
+  //@{
+  /**
+   * Construct a color from a hexadecimal representation such as 0x0000FF (blue).
+   */
   explicit vtkColor3ub(int hexSigned)
   {
     unsigned int hex = static_cast<unsigned int>(hexSigned);
@@ -184,6 +213,7 @@ public:
     hex >>= 8;
     this->Data[0] = hex & 0xff;
   }
+  //@}
 
   vtkColor3ub(unsigned char r, unsigned char g, unsigned char b)
     : vtkColor3<unsigned char>(r, g, b) {}
@@ -216,9 +246,11 @@ public:
   explicit vtkColor4ub(const unsigned char* init)
     : vtkColor4<unsigned char>(init) {}
 
-  // Description:
-  // Construct a color from a hexadecimal representation such as 0x0000FFAA
-  // (opaque blue).
+  //@{
+  /**
+   * Construct a color from a hexadecimal representation such as 0x0000FFAA
+   * (opaque blue).
+   */
   explicit vtkColor4ub(int hexSigned)
   {
     unsigned int hex = static_cast<unsigned int>(hexSigned);
@@ -230,6 +262,7 @@ public:
     hex >>= 8;
     this->Data[0] = hex & 0xff;
   }
+  //@}
 
   vtkColor4ub(unsigned char r, unsigned char g,
               unsigned char b, unsigned char a = 255)

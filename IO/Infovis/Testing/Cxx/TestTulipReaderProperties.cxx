@@ -29,9 +29,9 @@ void TestValue(const value_t& Value, const value_t& ExpectedValue,
                const vtkStdString& ValueDescription, int& ErrorCount)
 {
   if(Value == ExpectedValue)
-    {
+  {
     return;
-    }
+  }
 
   cerr << ValueDescription << " is [" << Value << "] - expected ["
        << ExpectedValue << "]" << endl;
@@ -59,127 +59,127 @@ int TestTulipReaderProperties(int argc, char* argv[])
   vtkVariantArray *nodePedigree= vtkArrayDownCast<vtkVariantArray>(
       graph->GetVertexData()->GetPedigreeIds());
   if (nodePedigree)
-    {
+  {
     TestValue(nodePedigree->GetValue(0), vtkVariant(0),
               "Node 0 pedigree id property", error_count);
     TestValue(nodePedigree->GetValue(5), vtkVariant(5),
               "Node 5 pedigree id property", error_count);
     TestValue(nodePedigree->GetValue(11), vtkVariant(11),
               "Node 11 pedigree id property", error_count);
-    }
+  }
   else
-    {
+  {
     cerr << "Node pedigree id property not found." << endl;
     ++error_count;
-    }
+  }
 
   // Test a sample of the node string property
   vtkStringArray *nodeProperty1 = vtkArrayDownCast<vtkStringArray>(
       graph->GetVertexData()->GetAbstractArray("Node Name"));
   if (nodeProperty1)
-    {
+  {
     TestValue(nodeProperty1->GetValue(0), vtkStdString("Node A"),
               "Node 0 string property", error_count);
     TestValue(nodeProperty1->GetValue(5), vtkStdString("Node F"),
               "Node 5 string property", error_count);
     TestValue(nodeProperty1->GetValue(11), vtkStdString("Node L"),
               "Node 11 string property", error_count);
-    }
+  }
   else
-    {
+  {
     cerr << "Node string property 'Node Name' not found." << endl;
     ++error_count;
-    }
+  }
 
   // Test a sample of the node int property
   vtkIntArray *nodeProperty2 = vtkArrayDownCast<vtkIntArray>(
       graph->GetVertexData()->GetAbstractArray("Weight"));
   if (nodeProperty2)
-    {
+  {
     TestValue(nodeProperty2->GetValue(0), 100, "Node 0 int property",
               error_count);
     TestValue(nodeProperty2->GetValue(5), 105, "Node 5 int property",
               error_count);
     TestValue(nodeProperty2->GetValue(11), 111, "Node 11 int property",
               error_count);
-    }
+  }
   else
-    {
+  {
     cerr << "Node int property 'Weight' not found." << endl;
     ++error_count;
-    }
+  }
 
   // Test a sample of the node double property
   vtkDoubleArray *nodeProperty3 = vtkArrayDownCast<vtkDoubleArray>(
       graph->GetVertexData()->GetAbstractArray("Betweenness Centrality"));
   if (nodeProperty3)
-    {
+  {
     TestValue(nodeProperty3->GetValue(0), 0.0306061, "Node 0 double property",
               error_count);
     TestValue(nodeProperty3->GetValue(5), 0.309697, "Node 5 double property",
               error_count);
     TestValue(nodeProperty3->GetValue(11), 0.0306061, "Node 11 double property",
               error_count);
-    }
+  }
   else
-    {
+  {
     cerr << "Node double property 'Betweenness Centrality' not found." << endl;
     ++error_count;
-    }
+  }
 
   // Test a sample of the edge string property
   vtkStringArray *edgeProperty1 = vtkArrayDownCast<vtkStringArray>(
       graph->GetEdgeData()->GetAbstractArray("Edge Name"));
   if (edgeProperty1)
-    {
+  {
     TestValue(edgeProperty1->GetValue(0), vtkStdString("Edge A"),
               "Edge 0 string property", error_count);
     TestValue(edgeProperty1->GetValue(7), vtkStdString("Edge H"),
               "Edge 7 string property", error_count);
     TestValue(edgeProperty1->GetValue(16), vtkStdString("Edge Q"),
               "Edge 16 string property", error_count);
-    }
+  }
   else
-    {
+  {
     cerr << "Edge string property 'Edge Name' not found." << endl;
     ++error_count;
-    }
+  }
 
   // Test a sample of the edge int property
   vtkIntArray *edgeProperty2 = vtkArrayDownCast<vtkIntArray>(
       graph->GetEdgeData()->GetAbstractArray("Weight"));
   if (edgeProperty2)
-    {
+  {
     TestValue(edgeProperty2->GetValue(0), 100, "Edge 0 int property",
               error_count);
     TestValue(edgeProperty2->GetValue(7), 107, "Edge 7 int property",
               error_count);
     TestValue(edgeProperty2->GetValue(16), 116, "Edge 16 int property",
               error_count);
-    }
+  }
   else
-    {
+  {
     cerr << "Edge int property 'Weight' not found." << endl;
     ++error_count;
-    }
+  }
 
   // Test a sample of the edge pedigree id property
   vtkVariantArray *edgePedigree= vtkArrayDownCast<vtkVariantArray>(
       graph->GetEdgeData()->GetPedigreeIds());
   if (edgePedigree)
-    {
+  {
     TestValue(edgePedigree->GetValue(0), vtkVariant(0),
               "Edge 0 pedigree id property", error_count);
     TestValue(edgePedigree->GetValue(7), vtkVariant(7),
               "Edge 7 pedigree id property", error_count);
     TestValue(edgePedigree->GetValue(16), vtkVariant(16),
               "Edge 16 pedigree id property", error_count);
-    }
+  }
   else
-    {
+  {
     cerr << "Edge pedigree id property not found." << endl;
     ++error_count;
-    }
+  }
 
   cerr << error_count << " errors" << endl;
   return error_count;

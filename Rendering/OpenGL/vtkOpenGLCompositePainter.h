@@ -12,8 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLCompositePainter - composite painter for OpenGL.
-// .SECTION Description
+/**
+ * @class   vtkOpenGLCompositePainter
+ * @brief   composite painter for OpenGL.
+ *
+*/
 
 #ifndef vtkOpenGLCompositePainter_h
 #define vtkOpenGLCompositePainter_h
@@ -32,8 +35,9 @@ protected:
   vtkOpenGLCompositePainter();
   ~vtkOpenGLCompositePainter();
 
-  // Description:
-  // Overridden in vtkOpenGLCompositePainter to pass attributes to OpenGL.
+  /**
+   * Overridden in vtkOpenGLCompositePainter to pass attributes to OpenGL.
+   */
   virtual void UpdateRenderingState(
     vtkRenderWindow* window, vtkProperty* property, RenderBlockState& state);
 

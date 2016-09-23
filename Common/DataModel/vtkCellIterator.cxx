@@ -25,39 +25,39 @@ void vtkCellIterator::PrintSelf(ostream &os, vtkIndent indent)
 {
   os << indent << "CacheFlags: ";
   switch (this->CacheFlags)
-    {
+  {
     case UninitializedFlag:
       os << "UninitializedFlag" << endl;
       break;
     default:
-      {
+    {
       bool addSplit = false;
 
       if (this->CheckCache(CellTypeFlag))
-        {
+      {
         os << "CellTypeFlag";
         addSplit = true;
-        }
+      }
 
       if (this->CheckCache(PointIdsFlag))
-        {
+      {
         os << (addSplit ? " | " : "") << "PointIdsFlag";
         addSplit = true;
-        }
+      }
 
       if (this->CheckCache(PointsFlag))
-        {
+      {
         os << (addSplit ? " | " : "") << "PointsFlag";
         addSplit = true;
-        }
+      }
 
       if (this->CheckCache(FacesFlag))
-        {
+      {
         os << (addSplit ? " | " : "") << "FacesFlag";
-        }
-      os << endl;
       }
+      os << endl;
     }
+  }
 
   os << indent << "CellType: " << this->CellType << endl;
   os << indent << "Points:" << endl;
@@ -78,7 +78,7 @@ int vtkCellIterator::GetCellDimension()
   int cellType = this->GetCellType();
 
   switch (cellType)
-    {
+  {
     case VTK_EMPTY_CELL:
     case VTK_VERTEX:
     case VTK_POLY_VERTEX:
@@ -113,7 +113,7 @@ int vtkCellIterator::GetCellDimension()
       vtkNew<vtkGenericCell> cell;
       this->GetCell(cell.GetPointer());
       return cell->GetCellDimension();
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -124,18 +124,18 @@ void vtkCellIterator::GetCell(vtkGenericCell *cell)
   cell->SetPoints(this->GetPoints());
 
   if (cell->RequiresExplicitFaceRepresentation())
-    {
+  {
     vtkIdList *faces = this->GetFaces();
     if (faces->GetNumberOfIds() != 0)
-      {
+    {
       cell->SetFaces(faces->GetPointer(0));
-      }
     }
+  }
 
   if (cell->RequiresInitialization())
-    {
+  {
     cell->Initialize();
-    }
+  }
 }
 
 //------------------------------------------------------------------------------

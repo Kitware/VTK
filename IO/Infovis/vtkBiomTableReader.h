@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBiomTableReader - read vtkTable from a .biom input file
-// .SECTION Description
-// vtkBiomTableReader is a source object that reads ASCII biom data files.
-// The output of this reader is a single vtkTable data object.
-// .SECTION See Also
-// vtkTable vtkTableReader vtkDataReader
+/**
+ * @class   vtkBiomTableReader
+ * @brief   read vtkTable from a .biom input file
+ *
+ * vtkBiomTableReader is a source object that reads ASCII biom data files.
+ * The output of this reader is a single vtkTable data object.
+ * @sa
+ * vtkTable vtkTableReader vtkDataReader
+*/
 
 #ifndef vtkBiomTableReader_h
 #define vtkBiomTableReader_h
@@ -35,11 +38,14 @@ public:
   vtkTypeMacro(vtkBiomTableReader,vtkTableReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the output of this reader.
+  //@{
+  /**
+   * Get the output of this reader.
+   */
   vtkTable *GetOutput();
   vtkTable *GetOutput(int idx);
   void SetOutput(vtkTable *output);
+  //@}
 
 protected:
   vtkBiomTableReader();

@@ -51,13 +51,13 @@ int TestSpiderPlotActor( int argc, char * argv [] )
   oily->SetNumberOfTuples(numTuples);
 
   for (int i=0; i<numTuples; i++)
-    {
+  {
     bitter->SetTuple1(i, vtkMath::Random(1,10));
     crispy->SetTuple1(i, vtkMath::Random(-1,1));
     crunchy->SetTuple1(i, vtkMath::Random(1,100));
     salty->SetTuple1(i, vtkMath::Random(0,10));
     oily->SetTuple1(i, vtkMath::Random(5,25));
-    }
+  }
 
   vtkDataObject *dobj = vtkDataObject::New();
   dobj->GetFieldData()->AddArray(bitter);
@@ -85,12 +85,12 @@ int TestSpiderPlotActor( int argc, char * argv [] )
   actor->SetAxisRange(4,5,25);
   actor->GetLegendActor()->SetNumberOfEntries(numTuples);
   for (int i=0; i<numTuples; i++)
-    {
+  {
     double red=vtkMath::Random(0,1);
     double green=vtkMath::Random(0,1);
     double blue=vtkMath::Random(0,1);
     actor->SetPlotColor(i,red,green,blue);
-    }
+  }
   actor->LegendVisibilityOn();
 
   // Set text colors (same as actor for backward compat with test)
@@ -114,9 +114,9 @@ int TestSpiderPlotActor( int argc, char * argv [] )
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   bitter->Delete();
   crispy->Delete();

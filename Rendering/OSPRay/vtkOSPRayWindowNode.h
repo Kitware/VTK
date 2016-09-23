@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOSPRayWindowNode - links vtkRendererWindows to OSPRay
-// .SECTION Description
-// Translates vtkRenderWindow state into OSPRay rendering calls
+/**
+ * @class   vtkOSPRayWindowNode
+ * @brief   links vtkRendererWindows to OSPRay
+ *
+ * Translates vtkRenderWindow state into OSPRay rendering calls
+*/
 
 #ifndef vtkOSPRayWindowNode_h
 #define vtkOSPRayWindowNode_h
@@ -30,8 +33,9 @@ public:
   vtkTypeMacro(vtkOSPRayWindowNode, vtkWindowNode);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //Description:
-  //Make ospray calls to render me.
+  /**
+   * Make ospray calls to render me.
+   */
   virtual void Render(bool prepass);
 
 protected:

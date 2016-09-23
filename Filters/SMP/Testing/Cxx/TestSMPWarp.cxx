@@ -44,7 +44,7 @@ public:
     for (int k=begin; k<end; k++)
       for (int j=0; j<resolution; j++)
         for (int i=0; i<resolution; i++)
-          {
+        {
           *itr = i*spacing;
           itr++;
           *itr = j*spacing;
@@ -58,7 +58,7 @@ public:
           ditr++;
           *ditr = 10;
           ditr++;
-          }
+        }
   }
 };
 
@@ -73,26 +73,26 @@ public:
   double defaults[6];
 
   vtkBoundsFunctor()
-    {
+  {
       static const double adefaults[] = { VTK_DOUBLE_MAX, - VTK_DOUBLE_MAX,
                                           VTK_DOUBLE_MAX, - VTK_DOUBLE_MAX,
                                           VTK_DOUBLE_MAX, - VTK_DOUBLE_MAX};
       memcpy(defaults, adefaults, 6*sizeof(double));
       memcpy(bounds, adefaults, 6*sizeof(double));
-    }
+  }
 
   void Initialize()
-    {
+  {
       std::vector<double>& lbounds = tlBounds.Local();
       lbounds.resize(6);
       memcpy(&lbounds[0], defaults, 6*sizeof(double));
-    }
+  }
 
   void Reduce()
-    {
+  {
       TLSIter end = tlBounds.end();
       for (TLSIter itr = tlBounds.begin(); itr != end; ++itr)
-        {
+      {
         std::vector<double>& aBounds = *itr;
         bounds[0] = bounds[0] < aBounds[0] ? bounds[0] : aBounds[0];
         bounds[1] = bounds[1] > aBounds[1] ? bounds[1] : aBounds[1];
@@ -100,11 +100,11 @@ public:
         bounds[3] = bounds[3] > aBounds[3] ? bounds[3] : aBounds[3];
         bounds[4] = bounds[4] < aBounds[4] ? bounds[4] : aBounds[4];
         bounds[5] = bounds[5] > aBounds[5] ? bounds[5] : aBounds[5];
-        }
-    }
+      }
+  }
 
   void operator()(vtkIdType begin, vtkIdType end)
-    {
+  {
       std::vector<double>& bds = tlBounds.Local();
       double* lbounds = &bds[0];
 
@@ -118,7 +118,7 @@ public:
       float* x;
       float* fptr = pts->GetPointer(3*begin);
       for (vtkIdType i=begin; i<end; i++)
-        {
+      {
         //pts->GetTypedTuple(i, x);
         x = fptr;
         lbounds[0] = x[0] < lbounds[0] ? x[0] : lbounds[0];
@@ -128,8 +128,8 @@ public:
         lbounds[4] = x[2] < lbounds[4] ? x[2] : lbounds[4];
         lbounds[5] = x[2] > lbounds[5] ? x[2] : lbounds[5];
         fptr += 3;
-        }
-    }
+      }
+  }
 };
 
 /*
@@ -166,13 +166,13 @@ int TestSMPWarp(int argc, char* argv[])
 {
   int numThreads = 2;
   for(int argi=1; argi<argc; argi++)
-    {
+  {
     if(std::string(argv[argi])=="--numThreads")
-      {
+    {
       numThreads=atoi(argv[++argi]);
       break;
-      }
     }
+  }
   cout << "Num. threads: " << numThreads << endl;
   vtkSMPTools::Initialize(numThreads);
 
@@ -230,13 +230,13 @@ int TestSMPWarp(int argc, char* argv[])
        << calcBounds.bounds[4] << " " << calcBounds.bounds[5] << endl;
 
   for (int i=0; i<6; i++)
-    {
+  {
     if (calcBounds.bounds[i] != bounds[i])
-      {
+    {
       cout << "Bounds did not match after parallel bounds calculation" << endl;
       return EXIT_FAILURE;
-      }
     }
+  }
   // Release memory so that we can do more.
   vw->GetOutput()->Initialize();
 
@@ -260,13 +260,13 @@ int TestSMPWarp(int argc, char* argv[])
        << calcBounds.bounds[4] << " " << calcBounds.bounds[5] << endl;
 
   for (int i=0; i<6; i++)
-    {
+  {
     if (calcBounds.bounds[i] != bounds[i])
-      {
+    {
       cout << "Bounds did not match after parallel bounds calculation" << endl;
       return EXIT_FAILURE;
-      }
     }
+  }
 
   return EXIT_SUCCESS;
 }

@@ -59,15 +59,15 @@ int TestQuadraticPolygonFilters(int argc, char* argv[])
   double thetaStep = 4.0 * vtkMath::Pi() / npts;
   double theta;
   for (int i = 0; i < npts/2; i++)
-    {
+  {
     if (i < npts / 4)
-      {
+    {
       theta = thetaStep * i * 2;
-      }
+    }
     else
-      {
+    {
       theta = thetaStep * (i-npts/4) * 2 + thetaStep;
-      }
+    }
 
     double x = ray * cos(theta);
     double y = ray * sin(theta);
@@ -77,22 +77,22 @@ int TestQuadraticPolygonFilters(int argc, char* argv[])
     connectivityQuadPoly1[i] = i;
     connectivityQuadPoly2[i] = npts / 2 + i;
     if (i < npts / 4)
-      {
+    {
       connectivityQuads[4*i+0] = i;
       connectivityQuads[4*i+1] = (i + 1) % (npts / 4);
       connectivityQuads[4*i+2] = ((i + 1) % (npts / 4)) + npts / 2;
       connectivityQuads[4*i+3] = i + npts / 2;
-      }
     }
+  }
 
   vtkNew<vtkUnstructuredGrid> ugrid;
   ugrid->SetPoints(points.GetPointer());
   ugrid->InsertNextCell(VTK_QUADRATIC_POLYGON, npts/2, connectivityQuadPoly1);
   ugrid->InsertNextCell(VTK_QUADRATIC_POLYGON, npts/2, connectivityQuadPoly2);
   for (int i = 0; i < npts/4; i++)
-    {
+  {
     ugrid->InsertNextCell(VTK_QUAD,4,connectivityQuads + i * 4);
-    }
+  }
 
   delete[] connectivityQuadPoly1;
   delete[] connectivityQuadPoly2;
@@ -104,9 +104,9 @@ int TestQuadraticPolygonFilters(int argc, char* argv[])
   id->SetNumberOfComponents(1);
   id->SetNumberOfTuples(ugrid->GetNumberOfCells());
   for (int i = 0; i < ugrid->GetNumberOfCells(); i++)
-    {
+  {
     id->SetValue(i, i);
-    }
+  }
   ugrid->GetCellData()->AddArray(id.GetPointer());
 
   // Setup the scalars
@@ -199,16 +199,16 @@ int TestQuadraticPolygonFilters(int argc, char* argv[])
 
   // tests
   if (TestPicker(renWin.GetPointer(), ren.GetPointer()) == EXIT_FAILURE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   int retVal = vtkRegressionTestImage(renWin.GetPointer());
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
+  {
     iren->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   return (retVal == vtkRegressionTester::PASSED) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
@@ -239,15 +239,15 @@ int TestPicker(vtkRenderWindow *renWin, vtkRenderer *renderer)
                    340, 72,  0 };
 
   for (int i = 0; i < nbTests * 3; i += 3)
-    {
+  {
     if ( GetCellIdFromPickerPosition(renderer, values[i], values[i+1]) !=  values[i+2] )
-      {
+    {
       cerr << "ERROR:  selected cell type is "
            << GetCellIdFromPickerPosition(renderer, values[i], values[i+1])
            << ", should be " << values[i+2] << endl;
       return EXIT_FAILURE;
-      }
     }
+  }
 
   return EXIT_SUCCESS;
 }
@@ -262,11 +262,11 @@ vtkIdType GetCellIdFromPickerPosition(vtkRenderer *ren, int x, int y)
 
   vtkIdType cellId = -1;
   if (picker->GetDataSet())
-    {
+  {
       vtkIdTypeArray * ids = vtkArrayDownCast<vtkIdTypeArray>(
         picker->GetDataSet()->GetCellData()->GetArray("CellID"));
       cellId = ids->GetValue(picker->GetCellId());
-    }
+  }
 
   return cellId;
 }

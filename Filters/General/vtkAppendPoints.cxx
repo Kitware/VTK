@@ -60,68 +60,68 @@ int vtkAppendPoints::RequestData(vtkInformation *vtkNotUsed(request),
   bool first = true;
   std::set<std::string> arrayNames;
   for (int idx = 0; idx < numInputs; ++idx)
-    {
+  {
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(idx);
     vtkPolyData* input = vtkPolyData::SafeDownCast(
       inInfo->Get(vtkDataObject::DATA_OBJECT()));
     if (input && input->GetNumberOfPoints() > 0)
-      {
+    {
       totalPoints += input->GetNumberOfPoints();
       if (first)
-        {
+      {
         int numArrays = input->GetPointData()->GetNumberOfArrays();
         for (int a = 0; a < numArrays; ++a)
-          {
-          arrayNames.insert(input->GetPointData()->GetAbstractArray(a)->GetName());
-          }
-        first = false;
-        }
-      else
         {
+          arrayNames.insert(input->GetPointData()->GetAbstractArray(a)->GetName());
+        }
+        first = false;
+      }
+      else
+      {
         std::set<std::string> toErase;
         std::set<std::string>::iterator it, itEnd;
         itEnd = arrayNames.end();
         for (it = arrayNames.begin(); it != itEnd; ++it)
-          {
+        {
           if (!input->GetPointData()->GetAbstractArray(it->c_str()))
-            {
+          {
             toErase.insert(*it);
-            }
           }
+        }
         itEnd = toErase.end();
         for (it = toErase.begin(); it != itEnd; ++it)
-          {
+        {
           arrayNames.erase(*it);
-          }
         }
       }
     }
+  }
 
   std::vector<vtkSmartPointer<vtkPolyData> > inputs;
   for (int idx = 0; idx < numInputs; ++idx)
-    {
+  {
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(idx);
     vtkPolyData* input = vtkPolyData::SafeDownCast(
       inInfo->Get(vtkDataObject::DATA_OBJECT()));
     if (input && input->GetNumberOfPoints() > 0)
-      {
+    {
       vtkSmartPointer<vtkPolyData> copy =
         vtkSmartPointer<vtkPolyData>::New();
       copy->SetPoints(input->GetPoints());
       std::set<std::string>::iterator it, itEnd;
       itEnd = arrayNames.end();
       for (it = arrayNames.begin(); it != itEnd; ++it)
-        {
+      {
         copy->GetPointData()->AddArray(
           input->GetPointData()->GetAbstractArray(it->c_str()));
-        }
+      }
       inputs.push_back(copy);
-      }
-    else
-      {
-      inputs.push_back(0);
-      }
     }
+    else
+    {
+      inputs.push_back(0);
+    }
+  }
 
   vtkPointData* pd = 0;
   vtkIdType index = 0;
@@ -129,68 +129,68 @@ int vtkAppendPoints::RequestData(vtkInformation *vtkNotUsed(request),
 
   // Set the desired precision for the points in the output.
   if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
-    {
+  {
     // The points in distinct inputs may be of differing precisions.
     pts->SetDataType(VTK_FLOAT);
     for (size_t idx = 0; idx < inputs.size(); ++idx)
-      {
+    {
       vtkPolyData* input = inputs[idx];
 
       // Set the desired precision to VTK_DOUBLE if the precision of the
       // points in any of the inputs is VTK_DOUBLE.
       if(input && input->GetPoints() && input->GetPoints()->GetDataType() == VTK_DOUBLE)
-        {
+      {
         pts->SetDataType(VTK_DOUBLE);
         break;
-        }
       }
     }
+  }
   else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
-    {
+  {
     pts->SetDataType(VTK_FLOAT);
-    }
+  }
   else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     pts->SetDataType(VTK_DOUBLE);
-    }
+  }
 
   pts->SetNumberOfPoints(totalPoints);
   vtkSmartPointer<vtkIntArray> idArr;
   if (this->InputIdArrayName)
-    {
+  {
     idArr = vtkSmartPointer<vtkIntArray>::New();
     idArr->SetName(this->InputIdArrayName);
     idArr->SetNumberOfTuples(totalPoints);
-    }
+  }
   for (size_t idx = 0; idx < inputs.size(); ++idx)
-    {
+  {
     vtkPolyData* input = inputs[idx];
     if (input)
-      {
+    {
       vtkPointData* ipd = input->GetPointData();
       if (!pd)
-        {
+      {
         pd = output->GetPointData();
         pd->CopyAllocate(ipd, totalPoints);
-        }
+      }
       vtkIdType numPoints = input->GetNumberOfPoints();
       for (vtkIdType i = 0; i < numPoints; ++i)
-        {
+      {
         pd->CopyData(ipd, i, index);
         pts->InsertPoint(index, input->GetPoint(i));
         if (this->InputIdArrayName)
-          {
+        {
           idArr->InsertValue(index, static_cast<int>(idx));
-          }
-        ++index;
         }
+        ++index;
       }
     }
+  }
   output->SetPoints(pts);
   if (this->InputIdArrayName)
-    {
+  {
     output->GetPointData()->AddArray(idArr);
-    }
+  }
 
   return 1;
 }
@@ -209,9 +209,9 @@ void vtkAppendPoints::PrintSelf(ostream& os, vtkIndent indent)
 int vtkAppendPoints::FillInputPortInformation(int port, vtkInformation *info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
-    {
+  {
     return 0;
-    }
+  }
   info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
   info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
   return 1;

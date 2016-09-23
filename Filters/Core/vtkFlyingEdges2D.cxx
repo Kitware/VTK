@@ -105,11 +105,11 @@ public:
 
   // Adjust the origin to the lower-left corner of the volume (if necessary)
   void AdjustOrigin(int updateExt[6])
-    {
+  {
     this->Origin[0] = this->Origin[0] + this->Spacing[0]*updateExt[0];
     this->Origin[1] = this->Origin[1] + this->Spacing[1]*updateExt[2];
     this->Origin[2] = this->Origin[2] + this->Spacing[2]*updateExt[4];;
-    }
+  }
 
   // The three passes of the algorithm.
   void ProcessXEdge(double value, T* inPtr, vtkIdType row); //PASS 1
@@ -123,9 +123,9 @@ public:
   // Given the two x-edge cases defining this pixel, return the pixel case
   // number.
   unsigned char GetEdgeCase(unsigned char *ePtr0, unsigned char *ePtr1)
-    {
+  {
     return ( (*ePtr0) | ((*ePtr1)<<2) );
-    }
+  }
 
   // Return number of contouring primitives (line segments) for a particular case.
   unsigned char GetNumberOfPrimitives(unsigned char caseNum)
@@ -142,38 +142,38 @@ public:
   // Count edge intersections near image boundaries.
   void CountBoundaryYInts(unsigned char loc, unsigned char *edgeUses,
                           vtkIdType *eMD)
-    {
+  {
       if ( loc == 2 )
-        { //+x boundary
+      { //+x boundary
         eMD[1] += edgeUses[3];
-        }
-    }
+      }
+  }
 
   // Produce the line segments for this pixel cell.
   void GenerateLines(unsigned char eCase, unsigned char numLines, vtkIdType *eIds,
                     vtkIdType &lineId)
-    {
+  {
       vtkIdType *line;
       const unsigned char *edges = this->EdgeCases[eCase] + 1;
       for (int i=0; i < numLines; ++i, edges+=2)
-        {
+      {
         line = this->NewLines + 3*lineId++;
         line[0] = 2;
         line[1] = eIds[edges[0]];
         line[2] = eIds[edges[1]];
-        }
-    }
+      }
+  }
 
   // Interpolate along a pixel axes edge.
   void InterpolateAxesEdge(double value, T *s0, float x0[3], T* s1,
                            float x1[3], vtkIdType vId)
-    {
+  {
       double t = (value - *s0) / (*s1 - *s0);
       float *x = this->NewPoints + 3*vId;
       x[0] = x0[0] + t*(x1[0]-x0[0]);
       x[1] = x0[1] + t*(x1[1]-x0[1]);
       x[2] = this->Z;
-    }
+  }
 
   // Interpolate along an arbitrary edge, typically one that may be on the
   // volume boundary. This means careful computation of stuff requiring
@@ -188,73 +188,73 @@ public:
   // Helper function to set up the point ids on pixel edges.
   unsigned char InitPixelIds(unsigned char *ePtr0, unsigned char *ePtr1,
                              vtkIdType *eMD0, vtkIdType *eMD1, vtkIdType *eIds)
-    {
+  {
       unsigned char eCase = GetEdgeCase(ePtr0,ePtr1);
       eIds[0] = eMD0[0]; //x-edges
       eIds[1] = eMD1[0];
       eIds[2] = eMD0[1]; //y-edges
       eIds[3] = eIds[2] + this->EdgeUses[eCase][2];
       return eCase;
-    }
+  }
 
   // Helper function to advance the point ids along pixel rows.
   void AdvancePixelIds(unsigned char eCase, vtkIdType *eIds)
-    {
+  {
       eIds[0] += this->EdgeUses[eCase][0]; //x-edges
       eIds[1] += this->EdgeUses[eCase][1];
       eIds[2] += this->EdgeUses[eCase][2]; //y-edges
       eIds[3] = eIds[2] + this->EdgeUses[eCase][3];
-   }
+  }
 
   // Threading integration via SMPTools
   template <class TT> class Pass1
-    {
+  {
     public:
       Pass1(vtkFlyingEdges2DAlgorithm<TT> *algo, double value)
         { this->Algo = algo; this->Value = value;}
       vtkFlyingEdges2DAlgorithm<TT> *Algo;
       double Value;
       void  operator()(vtkIdType row, vtkIdType end)
-        {
+      {
         TT *rowPtr = this->Algo->Scalars + row*this->Algo->Inc1;
         for ( ; row < end; ++row)
-          {
+        {
           this->Algo->ProcessXEdge(this->Value, rowPtr, row);
           rowPtr += this->Algo->Inc1;
-          }//for all rows in this batch
-        }
-    };
+        }//for all rows in this batch
+      }
+  };
   template <class TT> class Pass2
-    {
+  {
     public:
       Pass2(vtkFlyingEdges2DAlgorithm<TT> *algo)
         { this->Algo = algo;}
       vtkFlyingEdges2DAlgorithm<TT> *Algo;
       void  operator()(vtkIdType row, vtkIdType end)
-        {
+      {
         for ( ; row < end; ++row)
-          {
+        {
           this->Algo->ProcessYEdges(row);
-          }//for all rows in this batch
-        }
-    };
+        }//for all rows in this batch
+      }
+  };
   template <class TT> class Pass4
-    {
+  {
     public:
       Pass4(vtkFlyingEdges2DAlgorithm<TT> *algo, double value)
         { this->Algo = algo; this->Value = value;}
       vtkFlyingEdges2DAlgorithm<TT> *Algo;
       double Value;
       void  operator()(vtkIdType row, vtkIdType end)
-        {
+      {
         T *rowPtr = this->Algo->Scalars + row*this->Algo->Inc1;
         for ( ; row < end; ++row)
-          {
+        {
           this->Algo->GenerateOutput(this->Value, rowPtr, row);
           rowPtr += this->Algo->Inc1;
-          }//for all rows in this batch
-        }
-    };
+        }//for all rows in this batch
+      }
+  };
 
   // Interface between VTK and templated functions
   static void ContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
@@ -292,29 +292,29 @@ vtkFlyingEdges2DAlgorithm():XCases(NULL),EdgeMetaData(NULL),Scalars(NULL),
 
   // Initialize
   for (eCase=0; eCase<16; ++eCase)
-    {
+  {
     for (j=0; j<4; ++j)
-      {
+    {
       this->EdgeUses[eCase][j] = 0;
-      }
-    this->IncludesAxes[eCase] = 0;
     }
+    this->IncludesAxes[eCase] = 0;
+  }
 
   // Populate
   for (eCase=0; eCase<16; ++eCase)
-    {
+  {
     edgeCase = this->EdgeCases[eCase];
     numLines = *edgeCase++;
 
     // Mark edges that are used by this case.
     for (j=0; j < numLines*2; ++j) //just loop over all edges
-      {
+    {
       this->EdgeUses[eCase][edgeCase[j]] = 1;
-      }
+    }
 
     this->IncludesAxes[eCase] = this->EdgeUses[eCase][0] |
       this->EdgeUses[eCase][2];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -326,9 +326,9 @@ InterpolateEdge(double value, T *s, float x[3],unsigned char edgeNum,
 {
   // if this edge is not used then get out
   if ( ! edgeUses[edgeNum] )
-    {
+  {
     return;
-    }
+  }
 
   // build the edge information
   const unsigned char *vertMap = this->VertMap[edgeNum];
@@ -364,24 +364,24 @@ GeneratePoints(double value, unsigned char loc, T *sPtr, float x[3],
   // Create a slightly faster path for pixel axes interior to the image.
   float x1[3];
   if ( edgeUses[0] ) //x axes edge
-    {
+  {
     x1[0] = x[0] + this->Spacing[this->Axis0];
     x1[1] = x[1];
     this->InterpolateAxesEdge(value, sPtr, x, sPtr+this->Inc0, x1, eIds[0]);
-    }
+  }
   if ( edgeUses[2] ) //y axes edge
-    {
+  {
     x1[0] = x[0];
     x1[1] = x[1] + this->Spacing[this->Axis1];
     this->InterpolateAxesEdge(value, sPtr, x, sPtr+this->Inc1, x1, eIds[2]);
-    }
+  }
 
   // Otherwise do more general gyrations. These are boundary situations where
   // the pixel axes is not fully formed. These situations occur on the
   // +x,+y image boundaries. (The other cases are handled by the default:
   // case and are expected.)
   switch (loc)
-    {
+  {
     case 2: //+x edge
       this->InterpolateEdge(value, sPtr, x, 3, edgeUses, eIds);
       break;
@@ -397,7 +397,7 @@ GeneratePoints(double value, unsigned char loc, T *sPtr, float x[3],
 
     default: //interior, or -x,-y boundary
       return;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -418,7 +418,7 @@ ProcessXEdge(double value, T* inPtr, vtkIdType row)
   //run along the entire x-edge computing edge cases
   std::fill_n(eMD, 5, 0);
   for (vtkIdType i=0; i < nxcells; ++i, ++ePtr)
-    {
+  {
     s0 = s1;
     s1 = static_cast<double>(*(inPtr + (i+1)*this->Inc0));
 
@@ -432,12 +432,12 @@ ProcessXEdge(double value, T* inPtr, vtkIdType row)
     // if edge intersects contour
     if ( edgeCase == vtkFlyingEdges2DAlgorithm::LeftAbove ||
          edgeCase == vtkFlyingEdges2DAlgorithm::RightAbove )
-      {
+    {
       eMD[0]++; //increment number of intersections along x-edge
       minInt = ( i < minInt ? i : minInt);
       maxInt = i + 1;
-      }//if contour interacts with this x-edge
-    }//for all x-cell edges along this x-edge
+    }//if contour interacts with this x-edge
+  }//for all x-cell edges along this x-edge
 
   // The beginning and ending of intersections along the edge is used for
   // computational trimming.
@@ -466,16 +466,16 @@ ProcessYEdges(vtkIdType row)
   // x-edge intersections, and there is no y-edge (any y-edge) then the
   // row is contour free.
   if ( (eMD0[0] | eMD1[0]) == 0 ) //any x-ints?
-    {
+  {
     if ( *ePtr0 == *ePtr1 )
-      {
+    {
       return; //there are no x- or y-ints, thus no contour, skip pixel row
-      }
-    else
-      {
-      xInts = 0; //there are y- edge ints however
-      }
     }
+    else
+    {
+      xInts = 0; //there are y- edge ints however
+    }
+  }
 
   // Determine proximity to the boundary of the image. This information is used
   // to count edge intersections in boundary situations.
@@ -487,31 +487,31 @@ ProcessYEdges(vtkIdType row)
   vtkIdType xL = ( (eMD0[3] < eMD1[3]) ? eMD0[3] : eMD1[3]);
   vtkIdType xR = ( (eMD0[4] > eMD1[4]) ? eMD0[4] : eMD1[4]);
   if ( xInts )
-    {
+  {
     if ( xL > 0 )
-      {
+    {
       ec0 = *(ePtr0 + xL);
       ec1 = *(ePtr1 + xL);
       if ( (ec0 & 0x1) != (ec1 & 0x1) )
-        {
-        xL = eMD0[3] = 0; //reset left trim
-        }
-      }
-    if ( xR < (this->Dims[0]-1) )
       {
+        xL = eMD0[3] = 0; //reset left trim
+      }
+    }
+    if ( xR < (this->Dims[0]-1) )
+    {
       ec0 = *(ePtr0 + xR);
       ec1 = *(ePtr1 + xR);
       if ( (ec0 & 0x2) != (ec1 & 0x2) )
-        {
+      {
         xR = eMD0[4] = this->Dims[0] - 1; //reset right trim
-        }
       }
     }
+  }
   else //contour cuts through without intersecting x-edges, reset trim edges
-    {
+  {
     xL = eMD0[3] = 0;
     xR = eMD0[4] = this->Dims[0]-1;
-    }
+  }
 
   // Okay run along the x-pixels and count the number of
   // y-intersections. Here we are just checking y edges that make up the
@@ -520,10 +520,10 @@ ProcessYEdges(vtkIdType row)
   ePtr0 += xL; ePtr1 += xL;
   vtkIdType i;
   for (i=xL; i < xR; ++i) //run along the trimmed x-pixels
-    {
+  {
     eCase = this->GetEdgeCase(ePtr0,ePtr1);
     if ( (numLines=this->GetNumberOfPrimitives(eCase)) > 0 )
-      {
+    {
       // Okay let's increment the triangle count.
       eMD0[2] += numLines;
 
@@ -534,14 +534,14 @@ ProcessYEdges(vtkIdType row)
       eMD0[1] += edgeUses[2]; //y-pixel axes edge always counted
       loc = yLoc | (i >= (this->Dims[0]-2) ? MaxBoundary : Interior);
       if ( loc != 0 )
-        {
+      {
         this->CountBoundaryYInts(loc,edgeUses,eMD0);
-        }
-      }//if cell contains contour
+      }
+    }//if cell contains contour
 
     // advance the two pointers along pixel row
     ePtr0++; ePtr1++;
-    }//for all pixels along this x-edge
+  }//for all pixels along this x-edge
 }
 
 //----------------------------------------------------------------------------
@@ -555,9 +555,9 @@ GenerateOutput(double value, T* rowPtr, vtkIdType row)
   vtkIdType *eMD1 = this->EdgeMetaData + (row+1)*5;
   // Return if there is nothing to do (i.e., no lines to generate)
   if ( eMD0[2] == eMD1[2] )
-    {
+  {
     return;
-    }
+  }
 
   //Get the trim edges and prepare to generate
   vtkIdType i;
@@ -590,9 +590,9 @@ GenerateOutput(double value, T* rowPtr, vtkIdType row)
   x[1] = this->Origin[this->Axis1] + row*this->Spacing[this->Axis1];
   x[2] = this->Z;
   for (i=xL; i < xR; ++i)
-    {
+  {
     if ( (numLines=this->GetNumberOfPrimitives(eCase)) > 0 )
-      {
+    {
       // Start by generating triangles for this case
       this->GenerateLines(eCase,numLines,eIds,lineId);
 
@@ -600,20 +600,20 @@ GenerateOutput(double value, T* rowPtr, vtkIdType row)
       // boundary into account.
       loc = yLoc | (i >= (this->Dims[0]-2) ? MaxBoundary : Interior);
       if ( this->CaseIncludesAxes(eCase) || loc != Interior )
-        {
+      {
         sPtr = rowPtr + i*this->Inc0;
         x[0] = this->Origin[this->Axis0] + i*this->Spacing[this->Axis0];
         edgeUses = this->GetEdgeUses(eCase);
         this->GeneratePoints(value, loc, sPtr, x, edgeUses, eIds);
-        }
+      }
 
       this->AdvancePixelIds(eCase,eIds);
-      }
+    }
 
     // advance along pixel row
     ePtr0++; ePtr1++;
     eCase = GetEdgeCase(ePtr0,ePtr1);
-    } //for all non-trimmed cells along this x-edge
+  } //for all non-trimmed cells along this x-edge
 }
 
 //----------------------------------------------------------------------------
@@ -646,7 +646,7 @@ ContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
   input->GetSpacing(algo.Spacing);
   algo.AdjustOrigin(updateExt);
   if (updateExt[4] == updateExt[5])
-    { // z collapsed
+  { // z collapsed
     algo.Axis0 = 0;
     algo.Min0 = updateExt[0];
     algo.Max0 = updateExt[1];
@@ -657,9 +657,9 @@ ContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
     algo.Inc1 = incs[1];
     algo.Z = algo.Origin[2] + (updateExt[4]*algo.Spacing[2]);
     algo.Axis2 = 2;
-    }
+  }
   else if (updateExt[2] == updateExt[3])
-    { // y collapsed
+  { // y collapsed
     algo.Axis0 = 0;
     algo.Min0 = updateExt[0];
     algo.Max0 = updateExt[1];
@@ -670,9 +670,9 @@ ContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
     algo.Inc1 = incs[2];
     algo.Z = algo.Origin[1] + (updateExt[2]*algo.Spacing[1]);
     algo.Axis2 = 1;
-    }
+  }
   else if (updateExt[0] == updateExt[1])
-    { // x collapsed
+  { // x collapsed
     algo.Axis0 = 1;
     algo.Min0 = updateExt[2];
     algo.Max0 = updateExt[3];
@@ -683,12 +683,12 @@ ContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
     algo.Inc1 = incs[2];
     algo.Z = algo.Origin[0] + (updateExt[0]*algo.Spacing[0]);
     algo.Axis2 = 0;
-    }
+  }
   else
-    {
+  {
     vtkGenericWarningMacro("Expecting 2D data.");
     return;
-    }
+  }
 
   // Now allocate working arrays. The XCases array tracks case# for each cell.
   algo.Dims[0] = algo.Max0 - algo.Min0 + 1;
@@ -717,7 +717,7 @@ ContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
 
   // Loop across each contour value. This encompasses all three passes.
   for (vidx = 0; vidx < numContours; vidx++)
-    {
+  {
     value = values[vidx];
 
     // PASS 1: Traverse all rows generating intersection points and building
@@ -742,7 +742,7 @@ ContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
     numOutYPts = startYPts;
     numOutLines = startLines;
     for (row=0; row < algo.Dims[1]; ++row)
-      {
+    {
       eMD = algo.EdgeMetaData + row*5;
       numXPts = eMD[0];
       numYPts = eMD[1];
@@ -753,34 +753,34 @@ ContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
       numOutXPts += numXPts;
       numOutYPts += numYPts;
       numOutLines += numLines;
-      }
+    }
 
     // Output can now be allocated.
     vtkIdType totalPts = numOutXPts + numOutYPts;
     if ( totalPts > 0 )
-      {
+    {
       newPts->GetData()->WriteVoidPointer(0,3*totalPts);
       algo.NewPoints = static_cast<float*>(newPts->GetVoidPointer(0));
       newLines->WritePointer(numOutLines,3*numOutLines);
       algo.NewLines = static_cast<vtkIdType*>(newLines->GetPointer());
       if (newScalars)
-        {
+      {
         newScalars->WriteVoidPointer(0,numOutXPts+numOutYPts);
         algo.NewScalars = static_cast<T*>(newScalars->GetVoidPointer(0));
         T TValue = static_cast<T>(value);
         std::fill_n(algo.NewScalars, totalPts, TValue);
-        }
+      }
 
       // PASS 4: Now process each x-row and produce the output primitives.
       Pass4<T> pass4(&algo,value);
       vtkSMPTools::For(0,algo.Dims[1]-1, pass4);
-      }//if output generated
+    }//if output generated
 
     // Handle multiple contours
     startXPts = numOutXPts;
     startYPts = numOutYPts;
     startLines = numOutLines;
-    }// for all contour values
+  }// for all contour values
 
   // Clean up and return
   delete [] algo.XCases;
@@ -843,18 +843,18 @@ int vtkFlyingEdges2D::RequestData( vtkInformation *vtkNotUsed(request),
     inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
   inScalars = this->GetInputArrayToProcess(0,inputVector);
   if ( inScalars == NULL )
-    {
+  {
     vtkErrorMacro(<<"Scalars must be defined for contouring");
     return 1;
-    }
+  }
 
   int numComps = inScalars->GetNumberOfComponents();
   if (this->ArrayComponent >= numComps)
-    {
+  {
     vtkErrorMacro("Scalars have " << numComps << " components. "
                   "ArrayComponent must be smaller than " << numComps);
     return 1;
-    }
+  }
 
   // Create necessary objects to hold output. We will defer the
   // actual allocation to a later point.
@@ -864,20 +864,20 @@ int vtkFlyingEdges2D::RequestData( vtkInformation *vtkNotUsed(request),
   vtkDataArray *newScalars = NULL;
 
   if (this->ComputeScalars)
-    {
+  {
     newScalars = inScalars->NewInstance();
     newScalars->SetNumberOfComponents(1);
     newScalars->SetName(inScalars->GetName());
-    }
+  }
 
   // Check data type and execute appropriate function
   void *scalars = inScalars->GetVoidPointer(0);
   switch (inScalars->GetDataType())
-    {
+  {
     vtkTemplateMacro(vtkFlyingEdges2DAlgorithm<VTK_TT>::
                      ContourImage(this,(VTK_TT *)scalars, newPts,
                       newScalars, newLines, input, ext));
-    }//switch
+  }//switch
 
   vtkDebugMacro(<<"Created: "
                 << newPts->GetNumberOfPoints() << " points, "
@@ -892,11 +892,11 @@ int vtkFlyingEdges2D::RequestData( vtkInformation *vtkNotUsed(request),
   newLines->Delete();
 
   if (newScalars)
-    {
+  {
     int idx = output->GetPointData()->AddArray(newScalars);
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
-    }
+  }
 
   return 1;
 }

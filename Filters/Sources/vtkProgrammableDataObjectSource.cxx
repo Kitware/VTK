@@ -42,9 +42,9 @@ vtkProgrammableDataObjectSource::~vtkProgrammableDataObjectSource()
 {
   // delete the current arg if there is one and a delete meth
   if ((this->ExecuteMethodArg)&&(this->ExecuteMethodArgDelete))
-    {
+  {
     (*this->ExecuteMethodArgDelete)(this->ExecuteMethodArg);
-    }
+  }
 }
 
 // Specify the function to use to generate the source data. Note
@@ -53,16 +53,16 @@ void vtkProgrammableDataObjectSource::SetExecuteMethod(
   void (*f)(void *), void *arg)
 {
   if ( f != this->ExecuteMethod || arg != this->ExecuteMethodArg )
-    {
+  {
     // delete the current arg if there is one and a delete meth
     if ((this->ExecuteMethodArg)&&(this->ExecuteMethodArgDelete))
-      {
+    {
       (*this->ExecuteMethodArgDelete)(this->ExecuteMethodArg);
-      }
+    }
     this->ExecuteMethod = f;
     this->ExecuteMethodArg = arg;
     this->Modified();
-    }
+  }
 }
 
 // Set the arg delete method. This is used to free user memory.
@@ -70,10 +70,10 @@ void vtkProgrammableDataObjectSource::SetExecuteMethodArgDelete(
   void (*f)(void *))
 {
   if ( f != this->ExecuteMethodArgDelete)
-    {
+  {
     this->ExecuteMethodArgDelete = f;
     this->Modified();
-    }
+  }
 }
 
 int vtkProgrammableDataObjectSource::RequestData(
@@ -85,9 +85,9 @@ int vtkProgrammableDataObjectSource::RequestData(
 
   // Now invoke the procedure, if specified.
   if ( this->ExecuteMethod != NULL )
-    {
+  {
     (*this->ExecuteMethod)(this->ExecuteMethodArg);
-    }
+  }
 
   return 1;
 }
@@ -97,11 +97,11 @@ void vtkProgrammableDataObjectSource::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->ExecuteMethod )
-    {
+  {
     os << indent << "An ExecuteMethod has been defined\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "An ExecuteMethod has NOT been defined\n";
-    }
+  }
 }

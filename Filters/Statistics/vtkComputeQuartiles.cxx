@@ -77,23 +77,23 @@ int vtkComputeQuartiles::GetInputFieldAssociation()
 vtkFieldData* vtkComputeQuartiles::GetInputFieldData(vtkDataObject* input)
 {
   if (!input)
-    {
+  {
     vtkErrorMacro(<<"Cannot extract fields from null input");
     return 0;
-    }
+  }
 
   if (vtkTable::SafeDownCast(input))
-    {
+  {
     this->FieldAssociation = vtkDataObject::FIELD_ASSOCIATION_ROWS;
-    }
+  }
 
   if (this->FieldAssociation < 0)
-    {
+  {
     this->FieldAssociation = this->GetInputFieldAssociation();
-    }
+  }
 
   switch (this->FieldAssociation)
-    {
+  {
     case vtkDataObject::FIELD_ASSOCIATION_POINTS:
     case vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS:
       return vtkDataSet::SafeDownCast(input)->GetPointData();
@@ -112,7 +112,7 @@ vtkFieldData* vtkComputeQuartiles::GetInputFieldData(vtkDataObject* input)
 
     case vtkDataObject::FIELD_ASSOCIATION_ROWS:
       return vtkTable::SafeDownCast(input)->GetRowData();
-    }
+  }
   return 0;
 }
 
@@ -128,21 +128,21 @@ int vtkComputeQuartiles::RequestData(vtkInformation* /*request*/,
 
   vtkCompositeDataSet *cdin = vtkCompositeDataSet::SafeDownCast(input);
   if (cdin)
-    {
+  {
     vtkCompositeDataIterator* iter = cdin->NewIterator();
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-      {
+    {
       vtkDataSet *o = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
       if (o)
-        {
+      {
         ComputeTable(o, outputTable, iter->GetCurrentFlatIndex());
-        }
       }
     }
+  }
   else if (vtkDataObject *o = vtkDataObject::SafeDownCast(input))
-    {
+  {
     ComputeTable(o, outputTable, -1);
-    }
+  }
 
   return 1;
 }
@@ -154,10 +154,10 @@ void vtkComputeQuartiles::ComputeTable(vtkDataObject* input,
   vtkFieldData *field = this->GetInputFieldData(input);
 
   if (!field || field->GetNumberOfArrays() == 0)
-    {
+  {
     vtkDebugMacro(<< "No field found!");
     return;
-    }
+  }
 
   // Fill table for descriptive statistics input.
   vtkNew<vtkTable> inDescStats;
@@ -165,29 +165,29 @@ void vtkComputeQuartiles::ComputeTable(vtkDataObject* input,
   os->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, inDescStats.GetPointer());
 
   for (int i = 0; i < field->GetNumberOfArrays(); i++)
-    {
+  {
     vtkDataArray *dataArray = field->GetArray(i);
     if (!dataArray || dataArray->GetNumberOfComponents() != 1)
-      {
+    {
       vtkDebugMacro(<< "Field " << i << " empty or not scalar");
       continue;
-      }
+    }
 
     // If field doesn't have a name, give a default one
     if (!dataArray->GetName())
-      {
+    {
       std::ostringstream s;
       s << "Field " << i;
       dataArray->SetName(s.str().c_str());
-      }
+    }
     inDescStats->AddColumn(dataArray);
     os->AddColumn(dataArray->GetName());
-    }
+  }
 
   if (inDescStats->GetNumberOfColumns() == 0)
-    {
+  {
     return;
-    }
+  }
 
   os->SetLearnOption(true);
   os->SetDeriveOption(true);
@@ -204,35 +204,35 @@ void vtkComputeQuartiles::ComputeTable(vtkDataObject* input,
   vtkTable* outputQuartiles =
     vtkTable::SafeDownCast(outputModelDS->GetBlock(nbq));
   if (!outputQuartiles || outputQuartiles->GetNumberOfColumns() < 2)
-    {
+  {
     return;
-    }
+  }
 
   vtkIdType currLen = outputTable->GetNumberOfColumns();
   vtkIdType outLen = outputQuartiles->GetNumberOfColumns() - 1;
 
   // Fill the table
   for (int j = 0; j < outLen; j++)
-    {
+  {
     vtkNew<vtkDoubleArray> ncol;
     ncol->SetNumberOfComponents(1);
     ncol->SetNumberOfValues(5);
     outputTable->AddColumn(ncol.GetPointer());
     if (blockId >= 0)
-      {
+    {
       std::stringstream ss;
       ss << inDescStats->GetColumnName(j) << "_Block_" << blockId;
       ncol->SetName(ss.str().c_str());
-      }
+    }
     else
-      {
+    {
       ncol->SetName(inDescStats->GetColumnName(j));
-      }
+    }
 
     vtkAbstractArray *col = outputQuartiles->GetColumnByName(inDescStats->GetColumnName(j));
     for (int k = 0; k < 5; k++)
-      {
+    {
       outputTable->SetValue(k, currLen + j, col ? col->GetVariantValue(k).ToDouble() : 0.0);
-      }
     }
+  }
 }

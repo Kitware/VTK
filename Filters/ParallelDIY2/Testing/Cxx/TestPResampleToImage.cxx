@@ -107,22 +107,22 @@ int TestPResampleToImage(int argc, char *argv[])
 
   int retVal;
   if (world.rank() == 0)
-    {
+  {
     prm->ResetAllCameras();
     renderer->GetActiveCamera()->Azimuth(90);
 
     renWin->Render();
     retVal = vtkRegressionTester::Test(argc, argv, renWin.GetPointer(), 10);
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
-      {
-      prm->StartInteractor();
-      }
-    controller->TriggerBreakRMIs();
-    }
-  else
     {
-    prm->StartServices();
+      prm->StartInteractor();
     }
+    controller->TriggerBreakRMIs();
+  }
+  else
+  {
+    prm->StartServices();
+  }
   world.barrier();
 
   diy::mpi::broadcast(world, retVal, 0);

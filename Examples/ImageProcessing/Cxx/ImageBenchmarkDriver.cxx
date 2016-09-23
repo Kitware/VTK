@@ -107,12 +107,12 @@ int main(int argc, char *argv[])
   std::string exename = argv[0];
   size_t l = 0;
   for (size_t j = 0; j != exename.length(); j++)
-    {
+  {
     if (exename[j] == '/' || exename[j] == '\\')
-      {
+    {
       l = j + 1;
-      }
     }
+  }
   exename = exename.substr(0, l) + "ImageBenchmark";
 
   // Go through the arguments to create args for ImageBenchmark
@@ -122,128 +122,128 @@ int main(int argc, char *argv[])
   args.push_back(exename.c_str());
   int argi = 1;
   while (argi < argc)
-    {
+  {
     std::string arg = argv[argi];
     if (arg == "-h" || arg == "-help" || arg == "--help")
-      {
+    {
       std::cout << HelpText;
       for (BenchParameter *p = Parameters; p->Parameter; p++)
-        {
+      {
         std::string opt = p->Parameter;
         for (BenchOption *o = p->Options; o->Option; o++)
-          {
+        {
           std::cout << "  " << opt << " " << o->Option << "    ("
                     << o->Name << ")\n";
-          }
-        std::cout << std::endl;
         }
-      return 0;
+        std::cout << std::endl;
       }
+      return 0;
+    }
     else if (arg == "--version")
-      {
+    {
       std::cout << "ImageBenchmarkDriver "
                 << vtkVersion::GetVTKVersion() << "\n";
       return 0;
-      }
+    }
     else if (arg == "--prefix")
-      {
+    {
       if (++argi < argc)
-        {
+      {
         prefix = argv[argi++];
-        }
-      }
-    else if (arg == "--enable-smp")
-      {
-      args.push_back(argv[argi++]);
-      if (argi < argc)
-        {
-        std::string s = argv[argi];
-        if (s == "on" || s == "yes" || s == "true")
-          {
-          useSMP = true;
-          }
-        else if (s == "off" || s == "no" || s == "false")
-          {
-          useSMP = false;
-          }
-        args.push_back(argv[argi++]);
-        }
-      }
-    else
-      {
-      args.push_back(argv[argi++]);
       }
     }
+    else if (arg == "--enable-smp")
+    {
+      args.push_back(argv[argi++]);
+      if (argi < argc)
+      {
+        std::string s = argv[argi];
+        if (s == "on" || s == "yes" || s == "true")
+        {
+          useSMP = true;
+        }
+        else if (s == "off" || s == "no" || s == "false")
+        {
+          useSMP = false;
+        }
+        args.push_back(argv[argi++]);
+      }
+    }
+    else
+    {
+      args.push_back(argv[argi++]);
+    }
+  }
 
   // Count the number of benchmarks to do
   int total = 1;
   std::vector<int> overrides;
   for (BenchParameter *p = Parameters; p->Parameter; p++)
-    {
+  {
     // Check if this parameter was overridden on the command line
     std::string arg = p->Parameter;
     bool overRidden = false;
     for (size_t j = 1; j < args.size(); j++)
-      {
+    {
       if (arg == args[j] ||
           (!useSMP && arg == "--bytes-per-piece"))
-        {
+      {
         overRidden = true;
         break;
-        }
       }
+    }
     overrides.push_back(overRidden);
     if (overRidden)
-      {
+    {
       continue;
-      }
+    }
 
     int count = 0;
     for (BenchOption *o = p->Options; o->Option; o++)
-      {
+    {
       count++;
-      }
-    total *= count;
     }
+    total *= count;
+  }
 
   for (int i = 0; i < total; i++)
-    {
+  {
     std::string filename = prefix;
     if (prefix.empty() ||
         prefix[prefix.length()-1] == '/' ||
         prefix[prefix.length()-1] == '\\')
-      {
+    {
       filename += (useSMP ? "SMP" : "MT");
-      }
+    }
 
     std::vector<const char *> commandLine;
     commandLine.push_back(args[0]);
     for (size_t j = 1; j < args.size(); j++)
-      {
+    {
       commandLine.push_back(args[j]);
-      }
+    }
 
     int part = 1;
     std::vector<int>::iterator skip = overrides.begin();
     for (BenchParameter *p = Parameters; p->Parameter; ++p, ++skip)
-      {
+    {
       if (*skip)
-        {
+      {
         continue;
-        }
+      }
 
       int count = 0;
       for (BenchOption *o = p->Options; o->Option; o++)
-        {
+      {
         count++;
-        }
+      }
       int k = (i/part) % count;
       commandLine.push_back(p->Parameter);
       commandLine.push_back(p->Options[k].Option);
       filename.push_back('_');
       filename += p->Options[k].Name;
       part *= count;
-      }
+    }
 
     commandLine.push_back("--slave");
     commandLine.push_back(NULL);
@@ -258,12 +258,12 @@ int main(int argc, char *argv[])
 
     int pipe;
     do
-      {
+    {
       char *cp;
       int length;
       pipe = vtksysProcess_WaitForData(process, &cp, &length, NULL);
       switch (pipe)
-        {
+      {
         case vtksysProcess_Pipe_STDOUT:
           outfile.write(cp, length);
           break;
@@ -271,23 +271,23 @@ int main(int argc, char *argv[])
         case vtksysProcess_Pipe_STDERR:
           std::cerr.write(cp, length);
           break;
-        }
       }
+    }
     while (pipe != vtksysProcess_Pipe_None);
 
     vtksysProcess_WaitForExit(process, NULL);
     int rval = vtksysProcess_GetExitValue(process);
     if (rval != 0)
-      {
+    {
       return rval;
-      }
+    }
 
     vtksysProcess_Delete(process);
 
     outfile.close();
 
     std::cout << (i + 1) << " of " << total << ": " << filename << std::endl;
-    }
+  }
 
   return 0;
 }

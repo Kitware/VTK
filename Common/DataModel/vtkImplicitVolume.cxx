@@ -43,10 +43,10 @@ vtkImplicitVolume::vtkImplicitVolume()
 vtkImplicitVolume::~vtkImplicitVolume()
 {
   if (this->Volume)
-    {
+  {
     this->Volume->Delete();
     this->Volume = NULL;
-    }
+  }
   this->PointIds->Delete();
 }
 
@@ -63,28 +63,28 @@ double vtkImplicitVolume::EvaluateFunction(double x[3])
   // See if a volume is defined
   if ( !this->Volume ||
   !(scalars = this->Volume->GetPointData()->GetScalars()) )
-    {
+  {
     vtkErrorMacro(<<"Can't evaluate function: either volume is missing or volume has no point data");
     return this->OutValue;
-    }
+  }
 
   // Find the cell that contains xyz and get it
   if ( this->Volume->ComputeStructuredCoordinates(x,ijk,pcoords) )
-    {
+  {
     this->Volume->GetCellPoints(this->Volume->ComputeCellId(ijk),this->PointIds);
     vtkVoxel::InterpolationFunctions(pcoords,weights);
 
     numPts = this->PointIds->GetNumberOfIds ();
     for (s=0.0, i=0; i < numPts; i++)
-      {
-      s += scalars->GetComponent(this->PointIds->GetId(i),0) * weights[i];
-      }
-    return s;
-    }
-  else
     {
-    return this->OutValue;
+      s += scalars->GetComponent(this->PointIds->GetId(i),0) * weights[i];
     }
+    return s;
+  }
+  else
+  {
+    return this->OutValue;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -94,10 +94,10 @@ vtkMTimeType vtkImplicitVolume::GetMTime()
   vtkMTimeType volumeMTime;
 
   if ( this->Volume != NULL )
-    {
+  {
     volumeMTime = this->Volume->GetMTime();
     mTime = ( volumeMTime > mTime ? volumeMTime : mTime );
-    }
+  }
 
   return mTime;
 }
@@ -115,14 +115,14 @@ void vtkImplicitVolume::EvaluateGradient(double x[3], double n[3])
   // See if a volume is defined
   if ( !this->Volume ||
        !(scalars = this->Volume->GetPointData()->GetScalars()) )
-    {
+  {
     vtkErrorMacro(<<"Can't evaluate gradient: either volume is missing or volume has no point data");
     for ( i=0; i < 3; i++ )
-      {
+    {
       n[i] = this->OutGradient[i];
-      }
-    return;
     }
+    return;
+  }
 
   gradient = vtkDoubleArray::New();
   gradient->SetNumberOfComponents(3);
@@ -130,27 +130,27 @@ void vtkImplicitVolume::EvaluateGradient(double x[3], double n[3])
 
   // Find the cell that contains xyz and get it
   if ( this->Volume->ComputeStructuredCoordinates(x,ijk,pcoords) )
-    {
+  {
     vtkVoxel::InterpolationFunctions(pcoords,weights);
     this->Volume->GetVoxelGradient(ijk[0], ijk[1], ijk[2], scalars, gradient);
 
     n[0] = n[1] = n[2] = 0.0;
     for (i=0; i < 8; i++)
-      {
+    {
       v = gradient->GetTuple(i);
       n[0] += v[0] * weights[i];
       n[1] += v[1] * weights[i];
       n[2] += v[2] * weights[i];
-      }
     }
+  }
 
   else
-    { // use outside value
+  { // use outside value
     for ( i=0; i < 3; i++ )
-      {
+    {
       n[i] = this->OutGradient[i];
-      }
     }
+  }
   gradient->Delete();
 }
 
@@ -165,11 +165,11 @@ void vtkImplicitVolume::PrintSelf(ostream& os, vtkIndent indent)
      << this->GetOutGradient()[2] << ")\n";
 
   if ( this->GetVolume() )
-    {
+  {
     os << indent << "Volume: " << this->GetVolume() << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Volume: (none)\n";
-    }
+  }
 }

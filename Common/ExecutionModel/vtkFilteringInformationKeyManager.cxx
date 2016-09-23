@@ -37,18 +37,18 @@ static vtkFilteringInformationKeyManagerKeysType* vtkFilteringInformationKeyMana
 vtkFilteringInformationKeyManager::vtkFilteringInformationKeyManager()
 {
   if(++vtkFilteringInformationKeyManagerCount == 1)
-    {
+  {
     vtkFilteringInformationKeyManager::ClassInitialize();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 vtkFilteringInformationKeyManager::~vtkFilteringInformationKeyManager()
 {
   if(--vtkFilteringInformationKeyManagerCount == 0)
-    {
+  {
     vtkFilteringInformationKeyManager::ClassFinalize();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -76,15 +76,15 @@ void vtkFilteringInformationKeyManager::ClassInitialize()
 void vtkFilteringInformationKeyManager::ClassFinalize()
 {
   if(vtkFilteringInformationKeyManagerKeys)
-    {
+  {
     // Delete information keys.
     for(vtkFilteringInformationKeyManagerKeysType::iterator i =
           vtkFilteringInformationKeyManagerKeys->begin();
         i != vtkFilteringInformationKeyManagerKeys->end(); ++i)
-      {
+    {
       vtkInformationKey* key = *i;
       delete key;
-      }
+    }
 
     // Delete the singleton storing pointers to information keys.  See
     // ClassInitialize above for why this is a free instead of a
@@ -92,5 +92,5 @@ void vtkFilteringInformationKeyManager::ClassFinalize()
     vtkFilteringInformationKeyManagerKeys->~vtkFilteringInformationKeyManagerKeysType();
     free(vtkFilteringInformationKeyManagerKeys);
     vtkFilteringInformationKeyManagerKeys = 0;
-    }
+  }
 }

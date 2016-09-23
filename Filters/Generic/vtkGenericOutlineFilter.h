@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGenericOutlineFilter - create wireframe outline for arbitrary
-// generic data set
-//
-// .SECTION Description
-// vtkGenericOutlineFilter is a filter that generates a wireframe outline of
-// any generic data set. The outline consists of the twelve edges of the
-// generic dataset bounding box.
-//
-// .SECTION See Also
-// vtkGenericDataSet
+/**
+ * @class   vtkGenericOutlineFilter
+ * @brief   create wireframe outline for arbitrary
+ * generic data set
+ *
+ *
+ * vtkGenericOutlineFilter is a filter that generates a wireframe outline of
+ * any generic data set. The outline consists of the twelve edges of the
+ * generic dataset bounding box.
+ *
+ * @sa
+ * vtkGenericDataSet
+*/
 
 #ifndef vtkGenericOutlineFilter_h
 #define vtkGenericOutlineFilter_h

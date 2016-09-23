@@ -29,9 +29,9 @@ class vtkFreeTypeStringToImage::Internals
 {
 public:
   Internals()
-    {
+  {
     this->FreeType = vtkFreeTypeTools::GetInstance();
-    }
+  }
   vtkFreeTypeTools *FreeType;
 };
 
@@ -58,9 +58,9 @@ vtkVector2i vtkFreeTypeStringToImage::GetBounds(vtkTextProperty *property,
   int tmp[4] = { 0, 0, 0, 0 };
   vtkVector2i recti(tmp);
   if (!property)
-    {
+  {
     return recti;
-    }
+  }
 
   this->Implementation->FreeType->GetBoundingBox(property, string, dpi, tmp);
 
@@ -78,9 +78,9 @@ vtkVector2i vtkFreeTypeStringToImage::GetBounds(vtkTextProperty *property,
   vtkVector2i recti(0, 0);
   int tmp[4];
   if (!property || string.empty())
-    {
+  {
     return recti;
-    }
+  }
 
   this->Implementation->FreeType->GetBoundingBox(property, string, dpi, tmp);
 

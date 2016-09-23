@@ -52,17 +52,17 @@ vtkFontConfigFreeTypeToolsFaceRequester(FTC_FaceID face_id,
 
   // Fall back to compiled fonts if lookup fails/compiled fonts are forced:
   if (!faceIsSet)
-    {
+  {
     faceIsSet = self->Superclass::LookupFace(tprop, lib, face);
-    }
+  }
 
   if (!faceIsSet)
-    {
+  {
     return static_cast<FT_Error>(1);
-    }
+  }
 
   if ( tprop->GetOrientation() != 0.0 )
-    {
+  {
     // FreeType documentation says that the transform should not be set
     // but we cache faces also by transform, so that there is a unique
     // (face, orientation) cache entry
@@ -73,7 +73,7 @@ vtkFontConfigFreeTypeToolsFaceRequester(FTC_FaceID face_id,
     matrix.yx = (FT_Fixed)( sin(angle) * 0x10000L);
     matrix.yy = (FT_Fixed)( cos(angle) * 0x10000L);
     FT_Set_Transform(*face, &matrix, NULL);
-    }
+  }
 
   return static_cast<FT_Error>(0);
 }
@@ -108,9 +108,9 @@ bool vtkFontConfigFreeTypeTools::LookupFaceFontConfig(vtkTextProperty *tprop,
                                                       FT_Face *face)
 {
   if (!FcInit())
-    {
+  {
     return false;
-    }
+  }
 
   // Query tprop
   const FcChar8 *family = reinterpret_cast<const FcChar8*>(
@@ -144,46 +144,46 @@ bool vtkFontConfigFreeTypeTools::LookupFaceFontConfig(vtkTextProperty *tprop,
   FcPatternDestroy(pattern);
   pattern = NULL;
   if (!fontMatches || fontMatches->nfont == 0)
-    {
+  {
     if (fontMatches)
-      {
+    {
       FcFontSetDestroy(fontMatches);
-      }
-    return false;
     }
+    return false;
+  }
 
   // Grab the first match that is scalable -- even though we've requested
   // scalable fonts in the match, FC seems to not weigh that option very heavily
   FcPattern *match = NULL;
   for (int i = 0; i < fontMatches->nfont; ++i)
-    {
+  {
     match = fontMatches->fonts[i];
 
     // Ensure that the match is scalable
     FcBool isScalable;
     if (FcPatternGetBool(match, FC_SCALABLE, 0, &isScalable) != FcResultMatch ||
         !isScalable)
-      {
+    {
       continue;
-      }
+    }
 
     FcCharSet *currentFontCharSet;
     if (FcPatternGetCharSet(match, FC_CHARSET, 0, &currentFontCharSet)
         != FcResultMatch ||
         FcCharSetIntersectCount(charSet, currentFontCharSet) == 0)
-      {
+    {
       continue;
-      }
-
-    break;
     }
 
+    break;
+  }
+
   if (!match)
-    {
+  {
     FcFontSetDestroy(fontMatches);
     FcCharSetDestroy(charSet);
     return false;
-    }
+  }
 
   // Get filename. Do not free the filename string -- it is owned by FcPattern
   // "match". Likewise, do not use the filename after match is freed.
@@ -194,11 +194,11 @@ bool vtkFontConfigFreeTypeTools::LookupFaceFontConfig(vtkTextProperty *tprop,
                                face);
 
   if (!error)
-    {
+  {
     vtkDebugWithObjectMacro(vtkFreeTypeTools::GetInstance(),
                             <<"Loading system font: "
                             << reinterpret_cast<const char*>(filename));
-    }
+  }
 
   FcCharSetDestroy(charSet);
   charSet = NULL;
@@ -206,9 +206,9 @@ bool vtkFontConfigFreeTypeTools::LookupFaceFontConfig(vtkTextProperty *tprop,
   fontMatches = NULL;
 
   if (error)
-    {
+  {
     return false;
-    }
+  }
 
   return true;
 }

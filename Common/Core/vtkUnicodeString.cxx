@@ -161,13 +161,13 @@ vtkUnicodeString vtkUnicodeString::from_utf8(const char* begin, const char* end)
 {
   vtkUnicodeString result;
   if(vtk_utf8::is_valid(begin, end))
-    {
+  {
     result.Storage = std::string(begin, end);
-    }
+  }
   else
-    {
+  {
     vtkGenericWarningMacro("vtkUnicodeString::from_utf8(): not a valid UTF-8 string.");
-    }
+  }
   return result;
 }
 
@@ -175,13 +175,13 @@ vtkUnicodeString vtkUnicodeString::from_utf8(const std::string& value)
 {
   vtkUnicodeString result;
   if(vtk_utf8::is_valid(value.begin(), value.end()))
-    {
+  {
     result.Storage = value;
-    }
+  }
   else
-    {
+  {
     vtkGenericWarningMacro("vtkUnicodeString::from_utf8(): not a valid UTF-8 string.");
-    }
+  }
   return result;
 }
 
@@ -190,20 +190,20 @@ vtkUnicodeString vtkUnicodeString::from_utf16(const vtkTypeUInt16* value)
   vtkUnicodeString result;
 
   if(value)
-    {
+  {
     size_type length = 0;
     while(value[length])
       ++length;
 
     try
-      {
+    {
       vtk_utf8::utf16to8(value, value + length, vtkUnicodeString::back_insert_iterator(result.Storage));
-      }
-    catch(vtk_utf8::invalid_utf16&)
-      {
-      vtkGenericWarningMacro(<< "vtkUnicodeString::from_utf16(): not a valid UTF-16 string.");
-      }
     }
+    catch(vtk_utf8::invalid_utf16&)
+    {
+      vtkGenericWarningMacro(<< "vtkUnicodeString::from_utf16(): not a valid UTF-16 string.");
+    }
+  }
 
   return result;
 }
@@ -299,13 +299,13 @@ vtkUnicodeString& vtkUnicodeString::operator+=(const vtkUnicodeString& rhs)
 void vtkUnicodeString::push_back(value_type character)
 {
   try
-    {
+  {
     vtk_utf8::append(character, vtkUnicodeString::back_insert_iterator(this->Storage));
-    }
+  }
   catch(vtk_utf8::invalid_code_point&)
-    {
+  {
     vtkGenericWarningMacro("vtkUnicodeString::push_back(): " << character << "is not a valid Unicode code point");
-    }
+  }
 }
 
 void vtkUnicodeString::append(const vtkUnicodeString& value)
@@ -316,13 +316,13 @@ void vtkUnicodeString::append(const vtkUnicodeString& value)
 void vtkUnicodeString::append(size_type count, value_type character)
 {
   try
-    {
+  {
     this->Storage.append(vtkUnicodeString(count, character).Storage);
-    }
+  }
   catch(vtk_utf8::invalid_code_point&)
-    {
+  {
     vtkGenericWarningMacro("vtkUnicodeString::append(): " << character << "is not a valid Unicode code point");
-    }
+  }
 }
 
 void vtkUnicodeString::append(const_iterator first, const_iterator last)
@@ -342,13 +342,13 @@ void vtkUnicodeString::assign(const vtkUnicodeString& value)
 void vtkUnicodeString::assign(size_type count, value_type character)
 {
   try
-    {
+  {
     this->Storage.assign(vtkUnicodeString(count, character).Storage);
-    }
+  }
   catch(vtk_utf8::invalid_code_point&)
-    {
+  {
     vtkGenericWarningMacro("vtkUnicodeString::assign(): " << character << "is not a valid Unicode code point");
-    }
+  }
 }
 
 void vtkUnicodeString::assign(const_iterator first, const_iterator last)
@@ -371,35 +371,35 @@ vtkUnicodeString vtkUnicodeString::fold_case() const
 
   static map_t map;
   if(map.empty())
-    {
+  {
     #include "vtkUnicodeCaseFoldData.h"
 
     for(value_type* i = &vtkUnicodeCaseFoldData[0]; *i; ++i)
-      {
+    {
       const value_type code = *i;
       vtkUnicodeString mapping;
       for(++i; *i; ++i)
-        {
+      {
         mapping.push_back(*i);
-        }
-      map.insert(std::make_pair(code, mapping));
       }
+      map.insert(std::make_pair(code, mapping));
     }
+  }
 
   vtkUnicodeString result;
 
   for(vtkUnicodeString::const_iterator source = this->begin(); source != this->end(); ++source)
-    {
+  {
     map_t::const_iterator target = map.find(*source);
     if(target != map.end())
-      {
+    {
       result.append(target->second);
-      }
-    else
-      {
-      result.push_back(*source);
-      }
     }
+    else
+    {
+      result.push_back(*source);
+    }
+  }
 
   return result;
 }

@@ -37,36 +37,36 @@ public:
   int ObjectId;
   int ArrayId;
   vtkExodusIICacheKey()
-    {
+  {
     Time = -1;
     ObjectType = -1;
     ObjectId = -1;
     ArrayId = -1;
-    }
+  }
   vtkExodusIICacheKey( int time, int objType, int objId, int arrId )
-    {
+  {
     Time = time;
     ObjectType = objType;
     ObjectId = objId;
     ArrayId = arrId;
-    }
+  }
   vtkExodusIICacheKey( const vtkExodusIICacheKey& src )
-    {
+  {
     Time = src.Time;
     ObjectType = src.ObjectType;
     ObjectId = src.ObjectId;
     ArrayId = src.ArrayId;
-    }
+  }
   vtkExodusIICacheKey& operator = ( const vtkExodusIICacheKey& src )
-    {
+  {
     Time = src.Time;
     ObjectType = src.ObjectType;
     ObjectId = src.ObjectId;
     ArrayId = src.ArrayId;
     return *this;
-    }
+  }
   bool match( const vtkExodusIICacheKey&other, const vtkExodusIICacheKey& pattern ) const
-    {
+  {
     if ( pattern.Time && this->Time != other.Time )
       return false;
     if ( pattern.ObjectType && this->ObjectType != other.ObjectType )
@@ -76,9 +76,9 @@ public:
     if ( pattern.ArrayId && this->ArrayId != other.ArrayId )
       return false;
     return true;
-    }
+  }
   bool operator < ( const vtkExodusIICacheKey& other ) const
-    {
+  {
     if ( this->Time < other.Time )
       return true;
     else if ( this->Time > other.Time )
@@ -94,7 +94,7 @@ public:
     if ( this->ArrayId < other.ArrayId )
       return true;
     return false;
-    }
+  }
 };
 
 class vtkExodusIICacheEntry;

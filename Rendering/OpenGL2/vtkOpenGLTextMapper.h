@@ -13,7 +13,10 @@
 
 =========================================================================*/
 
-// .NAME vtkOpenGLTextMapper - vtkTextMapper override for OpenGL2.
+/**
+ * @class   vtkOpenGLTextMapper
+ * @brief   vtkTextMapper override for OpenGL2.
+*/
 
 #ifndef vtkOpenGLTextMapper_h
 #define vtkOpenGLTextMapper_h

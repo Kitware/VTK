@@ -87,33 +87,33 @@ int TestExtractSelectedTree(int, char*[])
   filter1->Update();
 
   if (resultTree1->GetNumberOfVertices() == 5)
-    {
+  {
 
     vtkDataSetAttributes * vertexData = resultTree1->GetVertexData();
     vtkDataSetAttributes * edgeData = resultTree1->GetEdgeData();
     if (vertexData->GetNumberOfTuples() != 5)
-      {
+    {
       std::cerr << "vertex # =" << vertexData->GetNumberOfTuples() << std::endl;
       return EXIT_FAILURE;
-      }
+    }
     else
-      {
+    {
       vtkStringArray * nodename = vtkArrayDownCast<vtkStringArray>(vertexData->GetAbstractArray("node name"));
       vtkStdString n = nodename->GetValue(4);
       if (n.compare("d") != 0)
-        {
+      {
         std::cerr <<"The node name should be \'d\', but appear to be: "<< n.c_str() << std::endl;
         return EXIT_FAILURE;
-        }
       }
+    }
 
     if (edgeData->GetNumberOfTuples() != 4)
-      {
+    {
       std::cerr<<"edge # ="<<edgeData->GetNumberOfTuples()<<std::endl;
       return EXIT_FAILURE;
-      }
-    SUCCESS++;
     }
+    SUCCESS++;
+  }
 
   //subtest 2
   vtkNew<vtkExtractSelectedTree> filter2;
@@ -124,15 +124,15 @@ int TestExtractSelectedTree(int, char*[])
   filter2->Update();
 
   if (resultTree2->GetNumberOfVertices() == 3)
-    {
+  {
     SUCCESS++;
-    }
+  }
   else
-    {
+  {
     std::cerr<<"sub test 2: edge # ="<<resultTree2->GetNumberOfEdges()<<std::endl;
     std::cerr<<"vertex # ="<<resultTree2->GetNumberOfVertices()<<std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
 
@@ -155,20 +155,20 @@ int TestExtractSelectedTree(int, char*[])
   filter3->Update();
 
   if (resultTree3->GetNumberOfVertices() == 3)
-    {
+  {
     SUCCESS++;
-    }
+  }
   else
-    {
+  {
     std::cerr<<"sub test 3: edge # ="<<resultTree3->GetNumberOfEdges()<<std::endl;
     std::cerr<<"vertex # ="<<resultTree3->GetNumberOfVertices()<<std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if( SUCCESS == 3)
-    {
+  {
     return EXIT_SUCCESS;
-    }
+  }
 
   return EXIT_FAILURE;
 }

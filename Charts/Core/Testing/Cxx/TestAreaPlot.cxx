@@ -68,7 +68,7 @@ int TestAreaPlot( int, char * [] )
   float inc = 7.5 / (numPoints-1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
-    {
+  {
     table->SetValue(i, 0, i * inc + 0.01);
     table->SetValue(i, 1, cos(i * inc) + 0.01);
     table->SetValue(i, 2, sin(i * inc) + 0.01);
@@ -77,7 +77,7 @@ int TestAreaPlot( int, char * [] )
     table->SetValue(i, 5, 1.0);
 
     validMask->SetValue(i, (i > 30 && i < 40) ? 0 : 1);
-    }
+  }
 
   // Add multiple line plots, setting the colors etc
   vtkPlotArea* area = vtkPlotArea::SafeDownCast(chart->AddPlot(vtkChart::AREA));

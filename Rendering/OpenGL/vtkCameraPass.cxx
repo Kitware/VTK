@@ -40,9 +40,9 @@ vtkCameraPass::vtkCameraPass()
 vtkCameraPass::~vtkCameraPass()
 {
   if(this->DelegatePass!=0)
-    {
+  {
       this->DelegatePass->Delete();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -54,13 +54,13 @@ void vtkCameraPass::PrintSelf(ostream& os, vtkIndent indent)
     << endl;
   os << indent << "DelegatePass:";
   if(this->DelegatePass!=0)
-    {
+  {
     this->DelegatePass->PrintSelf(os,indent);
-    }
+  }
   else
-    {
+  {
     os << "(none)" <<endl;
-    }
+  }
 }
 
 void vtkCameraPass::GetTiledSizeAndOrigin(
@@ -87,7 +87,7 @@ void vtkCameraPass::Render(const vtkRenderState *s)
   vtkRenderer *ren=s->GetRenderer();
 
   if (!ren->IsActiveCameraCreated())
-    {
+  {
     vtkDebugMacro(<< "No cameras are on, creating one.");
     // the get method will automagically create a camera
     // and reset it since one hasn't been specified yet.
@@ -99,7 +99,7 @@ void vtkCameraPass::Render(const vtkRenderState *s)
     // this is ren->GetActiveCameraAndResetIfCreated();
     ren->GetActiveCamera();
     ren->ResetCamera();
-    }
+  }
 
   vtkCamera *camera=ren->GetActiveCamera();
 
@@ -111,7 +111,7 @@ void vtkCameraPass::Render(const vtkRenderState *s)
   vtkFrameBufferObjectBase *fbo=s->GetFrameBuffer();
 
   if(fbo==0)
-    {
+  {
     vtkOpenGLRenderWindow *win=vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
 
     // find out if we should stereo render
@@ -120,36 +120,36 @@ void vtkCameraPass::Render(const vtkRenderState *s)
 
     // if were on a stereo renderer draw to special parts of screen
     if(stereo)
-      {
+    {
       switch (win->GetStereoType())
-        {
+      {
         case VTK_STEREO_CRYSTAL_EYES:
           if (camera->GetLeftEye())
-            {
+          {
             if(win->GetDoubleBuffer())
-              {
+            {
               glDrawBuffer(static_cast<GLenum>(win->GetBackLeftBuffer()));
               glReadBuffer(static_cast<GLenum>(win->GetBackLeftBuffer()));
-              }
+            }
             else
-              {
+            {
               glDrawBuffer(static_cast<GLenum>(win->GetFrontLeftBuffer()));
               glReadBuffer(static_cast<GLenum>(win->GetFrontLeftBuffer()));
-              }
             }
+          }
           else
-            {
+          {
             if(win->GetDoubleBuffer())
-              {
+            {
               glDrawBuffer(static_cast<GLenum>(win->GetBackRightBuffer()));
               glReadBuffer(static_cast<GLenum>(win->GetBackRightBuffer()));
-              }
+            }
             else
-              {
+            {
               glDrawBuffer(static_cast<GLenum>(win->GetFrontRightBuffer()));
               glReadBuffer(static_cast<GLenum>(win->GetFrontRightBuffer()));
-              }
             }
+          }
           break;
         case VTK_STEREO_LEFT:
           camera->SetLeftEye(1);
@@ -159,12 +159,12 @@ void vtkCameraPass::Render(const vtkRenderState *s)
           break;
         default:
           break;
-        }
       }
+    }
     else
-      {
+    {
       if (win->GetDoubleBuffer())
-        {
+      {
         glDrawBuffer(static_cast<GLenum>(win->GetBackBuffer()));
 
         // Reading back buffer means back left. see OpenGL spec.
@@ -173,18 +173,18 @@ void vtkCameraPass::Render(const vtkRenderState *s)
         glReadBuffer(static_cast<GLenum>(win->GetBackBuffer()));
       }
       else
-        {
+      {
         glDrawBuffer(static_cast<GLenum>(win->GetFrontBuffer()));
 
         // Reading front buffer means front left. see OpenGL spec.
       // because one can write to two buffers at a time but can only read from
       // one buffer at a time.
         glReadBuffer(static_cast<GLenum>(win->GetFrontBuffer()));
-        }
       }
     }
+  }
   else
-    {
+  {
     // FBO size. This is the renderer size as a renderstate is per renderer.
     int size[2];
     fbo->GetLastSize(size);
@@ -193,7 +193,7 @@ void vtkCameraPass::Render(const vtkRenderState *s)
     lowerLeft[0]=0;
     lowerLeft[1]=0;
     // we assume the drawbuffer state is already initialized before.
-    }
+  }
 
   // Save the current viewport and camera matrices.
   GLint saved_matrix_mode;
@@ -218,25 +218,25 @@ void vtkCameraPass::Render(const vtkRenderState *s)
 
   glMatrixMode( GL_PROJECTION);
   if(usize && vsize)
-    {
+  {
     matrix->DeepCopy(camera->GetProjectionTransformMatrix(
                        aspectModification*usize/vsize, -1,1));
     matrix->Transpose();
-    }
+  }
   if(ren->GetIsPicking())
-    {
+  {
     int size[2]; size[0] = usize; size[1] = vsize;
     glLoadIdentity();
     vtkgluPickMatrix(ren->GetPickX(), ren->GetPickY(),
                      ren->GetPickWidth(), ren->GetPickHeight(),
                      lowerLeft, size);
     glMultMatrixd(matrix->Element[0]);
-    }
+  }
   else
-    {
+  {
     // insert camera view transformation
     glLoadMatrixd(matrix->Element[0]);
-    }
+  }
 
   glMatrixMode(GL_MODELVIEW);
 
@@ -250,9 +250,9 @@ void vtkCameraPass::Render(const vtkRenderState *s)
 
   if ((ren->GetRenderWindow())->GetErase() && ren->GetErase()
       && !ren->GetIsPicking())
-    {
+  {
     ren->Clear();
-    }
+  }
 
   matrix->Delete();
 
@@ -260,15 +260,15 @@ void vtkCameraPass::Render(const vtkRenderState *s)
   vtkOpenGLCheckErrorMacro("failed after camera initialization");
 
   if(this->DelegatePass!=0)
-    {
+  {
     this->DelegatePass->Render(s);
     this->NumberOfRenderedProps+=
       this->DelegatePass->GetNumberOfRenderedProps();
-    }
+  }
   else
-    {
+  {
     vtkWarningMacro(<<" no delegate.");
-    }
+  }
   vtkOpenGLCheckErrorMacro("failed after delegate pass");
 
   // Restore changed context.
@@ -277,13 +277,13 @@ void vtkCameraPass::Render(const vtkRenderState *s)
   glScissor(saved_scissor_box[0], saved_scissor_box[1], saved_scissor_box[2],
     saved_scissor_box[3]);
   if (saved_scissor_test)
-    {
+  {
     glEnable(GL_SCISSOR_TEST);
-    }
+  }
   else
-    {
+  {
     glDisable(GL_SCISSOR_TEST);
-    }
+  }
   glMatrixMode(GL_MODELVIEW);
   glLoadMatrixf(saved_modelview_matrix);
   glMatrixMode(GL_PROJECTION);
@@ -302,7 +302,7 @@ void vtkCameraPass::ReleaseGraphicsResources(vtkWindow *w)
 {
   assert("pre: w_exists" && w!=0);
   if(this->DelegatePass!=0)
-    {
+  {
     this->DelegatePass->ReleaseGraphicsResources(w);
-    }
+  }
 }

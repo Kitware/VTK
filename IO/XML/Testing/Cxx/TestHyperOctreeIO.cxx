@@ -64,84 +64,84 @@ int TestHyperOctreeIO(int argc, char* argv[])
 #endif
 
   if (argc > 1)
-    {
+  {
     for (int i = 0; i < argc; i++)
-      {
+    {
       if (!strcmp("-dim",argv[i]))
-        {
+      {
         i++;
         dimension = atoi(argv[i]);
         if (dimension < 1)
-          {
-          dimension = 1;
-          }
-        if (dimension > 3)
-          {
-          dimension = 3;
-          }
-        }
-      else if (!strcmp("-levels",argv[i]))
         {
+          dimension = 1;
+        }
+        if (dimension > 3)
+        {
+          dimension = 3;
+        }
+      }
+      else if (!strcmp("-levels",argv[i]))
+      {
         i++;
         levels = atoi(argv[i]);
         if (levels < 1)
-          {
+        {
           levels = 1;
-          }
+        }
         if (levels > 10)
-          {
+        {
           levels = 10;
-          }
         }
+      }
       else if (!strcmp("-skipreader",argv[i]))
-        {
+      {
         skipreader = 1;
-        }
+      }
       else if (!strcmp("-binary",argv[i]))
-        {
+      {
         binary = 1;
-        }
+      }
       else if (!strcmp("-appended",argv[i]))
-        {
+      {
         binary = 2;
-        }
+      }
       else if (!strcmp("-ncompressed",argv[i]))
-        {
+      {
         compressed = 0;
-        }
+      }
       else if (!strcmp("-rewrite",argv[i]))
-        {
+      {
         rewrite = 1;
-        }
+      }
       else if (!strcmp("-showsurface",argv[i]))
-        {
+      {
         showcontour = 0;
-        }
+      }
       else if (!strcmp("-ncontours",argv[i]))
-        {
+      {
         i++;
         ncontours = atoi(argv[i]);
         if (ncontours < 1)
-          {
+        {
           ncontours = 1;
-          }
-        if (ncontours > 3)
-          {
-          ncontours = 3;
-          }
         }
+        if (ncontours > 3)
+        {
+          ncontours = 3;
+        }
+      }
 #ifdef HYPEROCTREEIO_STANDALONE
       else if (!strcmp("-interactive",argv[i]))
-        {
+      {
         interactive = 1;
-        }
-      else if (i > 1)
-        {
-        cout << "Unrecognized argument " << argv[i] << endl;
-        }
-#endif
       }
+      else if (i > 1)
+      {
+        cout << "Unrecognized argument " << argv[i] << endl;
+      }
+#endif
     }
+  }
 
   //-----------------------------------------------------------------
   vtkTimerLog *timer=vtkTimerLog::New();
@@ -197,17 +197,17 @@ int TestHyperOctreeIO(int argc, char* argv[])
   writerX->SetFileName("HyperOctreeSample.vto");
   writerX->SetDataModeToAscii();
   if (binary==1)
-    {
+  {
     writerX->SetDataModeToBinary();
-    }
+  }
   if (binary==2)
-    {
+  {
     writerX->SetDataModeToAppended();
-    }
+  }
   if (!compressed)
-    {
+  {
     writerX->SetCompressor(NULL);
-    }
+  }
 
   cout<<"update writerX..."<<endl;
   timer->StartTimer();
@@ -231,27 +231,27 @@ int TestHyperOctreeIO(int argc, char* argv[])
   cout<<"readerX time="<<timer->GetElapsedTime()<<" s"<<endl;
 
   if (rewrite)
-    {
+  {
     writerX=vtkXMLHyperOctreeWriter::New();
     writerX->SetInputConnection(0,readerX->GetOutputPort(0));
     writerX->SetFileName("HyperOctreeSample2.vto");
     writerX->SetDataModeToAscii();
     if (binary==1)
-      {
+    {
       writerX->SetDataModeToBinary();
-      }
+    }
     if (binary==2)
-      {
+    {
       writerX->SetDataModeToAppended();
-      }
+    }
     if (!compressed)
-      {
+    {
       writerX->SetCompressor(NULL);
-      }
+    }
     writerX->Write();
     writerX->Delete();
     cout<<"HyperOctree written again"<<endl;
-    }
+  }
 
   // -----------------------------------------------------------------
   // Display the results with either contour or surface
@@ -259,27 +259,27 @@ int TestHyperOctreeIO(int argc, char* argv[])
   contour->SetNumberOfContours(ncontours);
   contour->SetValue(0,0.5);
   if (ncontours > 1)
-    {
+  {
     contour->SetValue(1,4.0);
-    }
+  }
   if (ncontours > 2)
-    {
+  {
     contour->SetValue(2,8.0);
-    }
+  }
 
   vtkMultiBlockDataSet *hds=vtkMultiBlockDataSet::New();
   hds->SetNumberOfBlocks(1);
 
   if (skipreader)
-    {
+  {
     hds->SetBlock(0, source->GetOutput());
     contour->SetInputConnection(0, source->GetOutputPort(0));
-    }
+  }
   else
-    {
+  {
     hds->SetBlock(0, readerX->GetOutput());
     contour->SetInputConnection(0, readerX->GetOutputPort(0));
-    }
+  }
 
   source->Delete();
   readerX->Delete();
@@ -315,25 +315,25 @@ int TestHyperOctreeIO(int argc, char* argv[])
   smapper->SetScalarModeToUseCellData();
 
   if(contour->GetOutput()->GetCellData()!=0)
-    {
+  {
     if(contour->GetOutput()->GetCellData()->GetScalars()!=0)
-      {
+    {
       smapper->SetScalarRange( contour->GetOutput()->GetCellData()->
                                GetScalars()->GetRange());
-      }
     }
+  }
   surface->Delete();
   contour->Delete();
 
   vtkActor *actor = vtkActor::New();
   if (showcontour)
-    {
+  {
     actor->SetMapper(cmapper);
-    }
+  }
   else
-    {
+  {
     actor->SetMapper(smapper);
-    }
+  }
   renderer->AddActor(actor);
 
   // Standard testing code.
@@ -347,21 +347,21 @@ int TestHyperOctreeIO(int argc, char* argv[])
 #ifdef HYPEROCTREEIO_STANDALONE
   int retVal = 1;
   if (interactive)
-    {
+  {
     iren->Start();
-    }
+  }
 #else
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
+  {
     iren->Start();
-    }
+  }
 
   if (retVal == 1)
-    {
+  {
     //test passed
     unlink("HyperOctreeSample.vto");
-    }
+  }
 #endif
 
   // Cleanup

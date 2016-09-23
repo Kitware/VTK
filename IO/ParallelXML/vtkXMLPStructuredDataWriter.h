@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPStructuredDataWriter - Superclass for PVTK XML structured data writers.
-// .SECTION Description
-// vtkXMLPStructuredDataWriter provides PVTK XML writing functionality
-// that is common among all the parallel structured data formats.
+/**
+ * @class   vtkXMLPStructuredDataWriter
+ * @brief   Superclass for PVTK XML structured data writers.
+ *
+ * vtkXMLPStructuredDataWriter provides PVTK XML writing functionality
+ * that is common among all the parallel structured data formats.
+*/
 
 #ifndef vtkXMLPStructuredDataWriter_h
 #define vtkXMLPStructuredDataWriter_h

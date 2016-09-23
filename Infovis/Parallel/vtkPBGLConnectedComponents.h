@@ -17,16 +17,19 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkPBGLConnectedComponents - Compute connected components for a
-// distributed vtkGraph. For directed graphs, this computes the connected
-// components; for undirected graphs, this computes the strongly-connected
-// components.
-//
-// .SECTION Description
-// This VTK class uses the Parallel BGL's implementation of connected
-// components and strongly-connectd components.
-//
-// @deprecated Not maintained as of VTK 6.2 and will be removed eventually.
+/**
+ * @class   vtkPBGLConnectedComponents
+ * @brief   Compute connected components for a
+ * distributed vtkGraph. For directed graphs, this computes the connected
+ * components; for undirected graphs, this computes the strongly-connected
+ * components.
+ *
+ *
+ * This VTK class uses the Parallel BGL's implementation of connected
+ * components and strongly-connectd components.
+ *
+ * @deprecated Not maintained as of VTK 6.2 and will be removed eventually.
+*/
 
 #ifndef vtkPBGLConnectedComponents_h
 #define vtkPBGLConnectedComponents_h
@@ -47,11 +50,14 @@ public:
   vtkTypeMacro(vtkPBGLConnectedComponents, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the name of the component number output array, which contains the
-  // component number of each vertex (a non-negative value). If no component
-  // array name is set then the name 'Component' is used.
+  //@{
+  /**
+   * Set the name of the component number output array, which contains the
+   * component number of each vertex (a non-negative value). If no component
+   * array name is set then the name 'Component' is used.
+   */
   vtkSetStringMacro(ComponentArrayName);
+  //@}
 
 protected:
   vtkPBGLConnectedComponents();

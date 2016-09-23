@@ -20,18 +20,21 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// .NAME vtkTableFFT - FFT for table columns
-//
-// .SECTION Description
-//
-// vtkTableFFT performs the Fast Fourier Transform on the columns of a table.
-// Internally, it shoves each column into an image data and then uses
-// vtkImageFFT to perform the actual FFT.
-//
-// .SECTION See Also
-//
-// vtkImageFFT
-//
+/**
+ * @class   vtkTableFFT
+ * @brief   FFT for table columns
+ *
+ *
+ *
+ * vtkTableFFT performs the Fast Fourier Transform on the columns of a table.
+ * Internally, it shoves each column into an image data and then uses
+ * vtkImageFFT to perform the actual FFT.
+ *
+ *
+ * @sa
+ * vtkImageFFT
+ *
+*/
 
 #ifndef vtkTableFFT_h
 #define vtkTableFFT_h
@@ -55,8 +58,9 @@ protected:
                           vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector);
 
-  // Description:
-  // Perform the FFT on the given data array.
+  /**
+   * Perform the FFT on the given data array.
+   */
   virtual vtkSmartPointer<vtkDataArray> DoFFT(vtkDataArray *input);
 
 private:

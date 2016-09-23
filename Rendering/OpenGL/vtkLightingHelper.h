@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkLightingHelper - helper to assist in simulating lighting similar
-//  to default OpenGL pipeline.
-//
-// .SECTION Description
-//  vtkLightingHelper is an helper to assist in simulating lighting similar
-//  to default OpenGL pipeline. Look at vtkLightingHelper_s for available
-//  GLSL functions.
-//
-// .SECTION see also
-//  vtkShaderProgram2
+/**
+ * @class   vtkLightingHelper
+ * @brief   helper to assist in simulating lighting similar
+ *  to default OpenGL pipeline.
+ *
+ *
+ *  vtkLightingHelper is an helper to assist in simulating lighting similar
+ *  to default OpenGL pipeline. Look at vtkLightingHelper_s for available
+ *  GLSL functions.
+ *
+ * @sa
+ *  vtkShaderProgram2
+*/
 
 #ifndef vtkLightingHelper_h
 #define vtkLightingHelper_h
@@ -43,16 +46,20 @@ public:
     VTK_MAX_LIGHTS=8
   };
 
-  // Description:
-  // Get/Set the shader program to which we want to add the lighting kernels.
-  // mode = VTK_SHADER_TYPE_VERTEX or VTK_SHADER_TYPE_FRAGMENT
-  // depending on whether the vertex lighting or fragment lighting is to be
-  // used.
+  //@{
+  /**
+   * Get/Set the shader program to which we want to add the lighting kernels.
+   * mode = VTK_SHADER_TYPE_VERTEX or VTK_SHADER_TYPE_FRAGMENT
+   * depending on whether the vertex lighting or fragment lighting is to be
+   * used.
+   */
   void Initialize(vtkShaderProgram2 *shader, vtkShader2Type mode);
   vtkGetObjectMacro(Shader, vtkShaderProgram2);
+  //@}
 
-  // Description:
-  // Encodes light state in diffuse component 3, where the shader looks for it.
+  /**
+   * Encodes light state in diffuse component 3, where the shader looks for it.
+   */
   void EncodeLightState(){ this->PrepareForRendering(); }
   void PrepareForRendering();
 

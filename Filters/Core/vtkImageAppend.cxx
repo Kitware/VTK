@@ -46,21 +46,21 @@ void vtkImageAppend::ReplaceNthInputConnection(int idx,
                                                vtkAlgorithmOutput *input)
 {
   if (idx < 0 || idx >= this->GetNumberOfInputConnections(0))
-    {
+  {
     vtkErrorMacro("Attempt to replace connection idx " << idx
                   << " of input port " << 0 << ", which has only "
                   << this->GetNumberOfInputConnections(0)
                   << " connections.");
     return;
-    }
+  }
 
   if (!input || !input->GetProducer())
-    {
+  {
     vtkErrorMacro("Attempt to replace connection index " << idx
                   << " for input port " << 0 << " with " <<
                   (!input ? "a null input." : "an input with no producer."));
     return;
-    }
+  }
 
   this->SetNthInputConnection(0, idx, input);
 }
@@ -78,9 +78,9 @@ void vtkImageAppend::SetInputData(int idx, vtkDataObject *input)
 vtkDataObject *vtkImageAppend::GetInput(int idx)
 {
   if (this->GetNumberOfInputConnections(0) <= idx)
-    {
+  {
     return 0;
-    }
+  }
   return vtkImageData::SafeDownCast(
     this->GetExecutive()->GetInputData(0, idx));
 }
@@ -114,61 +114,61 @@ int vtkImageAppend::RequestInformation (
   inExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   min = tmp = inExt[this->AppendAxis * 2];
   for (idx = 0; idx < this->GetNumberOfInputConnections(0); ++idx)
-    {
+  {
     inInfo = inputVector[0]->GetInformationObject(idx);
     inExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
     if (this->PreserveExtents)
-      {
+    {
       // Compute union for preserving extents.
       if (inExt[0] < unionExt[0])
-        {
-        unionExt[0] = inExt[0];
-        }
-      if (inExt[1] > unionExt[1])
-        {
-        unionExt[1] = inExt[1];
-        }
-      if (inExt[2] < unionExt[2])
-        {
-        unionExt[2] = inExt[2];
-        }
-      if (inExt[3] > unionExt[3])
-        {
-        unionExt[3] = inExt[3];
-        }
-      if (inExt[4] < unionExt[4])
-        {
-        unionExt[4] = inExt[4];
-        }
-      if (inExt[5] > unionExt[5])
-        {
-        unionExt[5] = inExt[5];
-        }
-      this->Shifts[idx] = 0;
-      }
-    else
       {
+        unionExt[0] = inExt[0];
+      }
+      if (inExt[1] > unionExt[1])
+      {
+        unionExt[1] = inExt[1];
+      }
+      if (inExt[2] < unionExt[2])
+      {
+        unionExt[2] = inExt[2];
+      }
+      if (inExt[3] > unionExt[3])
+      {
+        unionExt[3] = inExt[3];
+      }
+      if (inExt[4] < unionExt[4])
+      {
+        unionExt[4] = inExt[4];
+      }
+      if (inExt[5] > unionExt[5])
+      {
+        unionExt[5] = inExt[5];
+      }
+      this->Shifts[idx] = 0;
+    }
+    else
+    {
       // Compute shifts if we are not preserving extents.
       this->Shifts[idx] = tmp - inExt[this->AppendAxis*2];
       size = inExt[this->AppendAxis*2 + 1] - inExt[this->AppendAxis*2] + 1;
       tmp += size;
-      }
     }
+  }
 
   if (this->PreserveExtents)
-    {
+  {
     outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),unionExt,6);
-    }
+  }
   else
-    {
+  {
     inInfo = inputVector[0]->GetInformationObject(0);
     inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),outExt);
     max = tmp - 1;
     outExt[this->AppendAxis*2] = min;
     outExt[this->AppendAxis*2 + 1] = max;
     outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),outExt,6);
-    }
+  }
 
   return 1;
 }
@@ -184,23 +184,23 @@ void vtkImageAppend::InternalComputeInputUpdateExtent(
 
   shift = 0;
   if ( ! this->PreserveExtents)
-    {
+  {
     shift = this->Shifts[whichInput];
-    }
+  }
   min = inWextent[this->AppendAxis*2] + shift;
   max = inWextent[this->AppendAxis*2 + 1] + shift;
 
   // now clip the outExtent against the outExtent for this input (intersect)
   tmp = outExt[this->AppendAxis*2];
   if (min < tmp)
-    {
+  {
     min = tmp;
-    }
+  }
   tmp = outExt[this->AppendAxis*2 + 1];
   if (max > tmp)
-    {
+  {
     max = tmp;
-    }
+  }
 
   // now if min > max, we do not need the input at all.  I assume
   // the pipeline will interpret this extent this way.
@@ -212,16 +212,16 @@ void vtkImageAppend::InternalComputeInputUpdateExtent(
   // for robustness (in the execute method),
   // do not ask for more than the whole extent of the other axes.
   for (idx = 0; idx < 3; ++idx)
-    {
+  {
     if (inExt[idx*2] < inWextent[idx*2])
-      {
+    {
       inExt[idx*2] = inWextent[idx*2];
-      }
-    if (inExt[idx*2 + 1] > inWextent[idx*2 + 1])
-      {
-      inExt[idx*2 + 1] = inWextent[idx*2 + 1];
-      }
     }
+    if (inExt[idx*2 + 1] > inWextent[idx*2 + 1])
+    {
+      inExt[idx*2 + 1] = inWextent[idx*2 + 1];
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -241,7 +241,7 @@ int vtkImageAppend::RequestUpdateExtent(
 
   for (int whichInput = 0; whichInput < this->GetNumberOfInputConnections(0);
        whichInput++)
-    {
+  {
     int *inWextent;
 
     // Find the outMin/max of the appended axis for this input.
@@ -252,7 +252,7 @@ int vtkImageAppend::RequestUpdateExtent(
                                            inWextent, whichInput);
 
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt,6);
-    }
+  }
 
   return 1;
 }
@@ -271,39 +271,39 @@ static void vtkImageAppendGetContinuousIncrements
   incX = 0;
   e0 = sExtent[0];
   if (e0 < wExtent[0])
-    {
+  {
     e0 = wExtent[0];
-    }
+  }
   e1 = sExtent[1];
   if (e1 > wExtent[1])
-    {
+  {
     e1 = wExtent[1];
-    }
+  }
   e2 = sExtent[2];
   if (e2 < wExtent[2])
-    {
+  {
     e2 = wExtent[2];
-    }
+  }
   e3 = sExtent[3];
   if (e3 > wExtent[3])
-    {
+  {
     e3 = wExtent[3];
-    }
+  }
 
   int ptAdjust = (forCells?0:1);
   int idx;
   vtkIdType increments[3];
   int wholeJump;
   for (idx = 0; idx < 3; ++idx)
-    {
+  {
     increments[idx] = nComp;
     wholeJump = wExtent[idx*2+1] - wExtent[idx*2] + ptAdjust;
     if (wholeJump == 0)
-      {
+    {
       wholeJump = 1;
-      }
-    nComp *= wholeJump;
     }
+    nComp *= wholeJump;
+  }
 
   //cerr << "INCS "
   // << increments[0] << " " << increments[1] << " " << increments[2] << endl;
@@ -349,20 +349,20 @@ void vtkImageAppendExecute(vtkImageAppend *self, int id,
   // find the region to loop over
   maxX = inExt[1]-inExt[0]+ptAdjust;
   if (maxX == 0)
-    {
+  {
     maxX = 1;
-    }
+  }
   rowLength = maxX*numComp;
   maxY = inExt[3] - inExt[2] + ptAdjust;
   if (maxY == 0)
-    {
+  {
     maxY = 1;
-    }
+  }
   maxZ = inExt[5] - inExt[4] + ptAdjust;
   if (maxZ == 0)
-    {
+  {
     maxZ = 1;
-    }
+  }
   //cerr << "SETUP " << endl;
   //cerr << "IE0:" << inExt[0] << " IE1:" << inExt[1] << endl;
   //cerr << "IE2:" << inExt[2] << " IE2:" << inExt[3] << endl;
@@ -374,32 +374,32 @@ void vtkImageAppendExecute(vtkImageAppend *self, int id,
 
   // Loop through input pixels
   for (idxZ = 0; idxZ < maxZ; idxZ++)
-    {
+  {
     for (idxY = 0; !self->AbortExecute && idxY < maxY; idxY++)
-      {
+    {
       if (!id)
-        {
+      {
         if (!(count%target))
-          {
+        {
           self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
         }
+        count++;
+      }
       //cerr << "PTRS " << inPtr << " " << outPtr << endl;
       for (idxR = 0; idxR < rowLength; idxR++)
-        {
+      {
         // Pixel operation
         //cerr << idxZ << "," << idxY << "," << idxR << " " << *inPtr << endl;
         *outPtr = *inPtr;
         outPtr++;
         inPtr++;
-        }
+      }
       outPtr += outIncY;
       inPtr += inIncY;
-      }
+    }
     outPtr += outIncZ;
     inPtr += inIncZ;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -416,12 +416,12 @@ void vtkImageAppend::InitOutput(int outExt[6], vtkImageData *outData)
 
   vtkPointData* pd = outData->GetPointData();
   for (int arrayIdx=0; arrayIdx < pd->GetNumberOfArrays(); arrayIdx++)
-    {
+  {
     vtkDataArray* array = pd->GetArray(arrayIdx);
     if (!array)
-      {
+    {
       continue;
-      }
+    }
 
     typeSize = vtkDataArray::GetDataTypeSize(array->GetDataType());
     outPtrZ = static_cast<unsigned char *>(
@@ -444,16 +444,16 @@ void vtkImageAppend::InitOutput(int outExt[6], vtkImageData *outData)
 
     // Loop through input pixels
     for (idxZ = 0; idxZ <= maxZ; idxZ++)
-      {
+    {
       outPtrY = outPtrZ;
       for (idxY = 0; idxY <= maxY; idxY++)
-        {
+      {
         memset(outPtrY, 0, rowLength);
         outPtrY += outIncY;
-        }
-      outPtrZ += outIncZ;
       }
+      outPtrZ += outIncZ;
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -479,11 +479,11 @@ void vtkImageAppend::ThreadedRequestData (
   this->InitOutput(outExt, outData[0]);
 
   for (idx1 = 0; idx1 < this->GetNumberOfInputConnections(0); ++idx1)
-    {
+  {
     //cerr << "INPUT " << idx1 << endl;
 
     if (inData[0][idx1] != NULL)
-      {
+    {
       nArrays = inData[0][idx1]->GetPointData()->GetNumberOfArrays() +
         inData[0][idx1]->GetCellData()->GetNumberOfArrays();
 
@@ -514,7 +514,7 @@ void vtkImageAppend::ThreadedRequestData (
       if (inExt[0] <= inExt[1] &&
           inExt[2] <= inExt[3] &&
           inExt[4] <= inExt[5])
-        {
+      {
         vtkIdType ai;
         vtkDataArray *inArray;
         vtkDataArray *outArray;
@@ -524,7 +524,7 @@ void vtkImageAppend::ThreadedRequestData (
         for (ai = 0;
              ai < inData[0][idx1]->GetPointData()->GetNumberOfArrays();
              ai++)
-          {
+        {
           //cerr << "POINT ARRAY " << ai << endl;
 
           inArray = inData[0][idx1]->GetPointData()->GetArray(ai);
@@ -532,27 +532,27 @@ void vtkImageAppend::ThreadedRequestData (
 
           numComp = inArray->GetNumberOfComponents();
           if (numComp != outArray->GetNumberOfComponents())
-            {
+          {
             vtkErrorMacro("Components of the inputs do not match");
             return;
-            }
+          }
 
           // this filter expects that input is the same type as output.
           if (inArray->GetDataType() != outArray->GetDataType())
-            {
+          {
             vtkErrorMacro(<< "Execute: input" << idx1 << " ScalarType ("
                           << inArray->GetDataType()
                           << "), must match output ScalarType ("
                           << outArray->GetDataType() << ")");
             return;
-            }
+          }
 
           inPtr = inData[0][idx1]->GetArrayPointerForExtent(inArray, inExt);
           outPtr = outData[0]->GetArrayPointerForExtent(outArray, cOutExt);
 
           //cerr << "INITIAL PTRS " << inPtr << " " << outPtr << endl;
           switch (inArray->GetDataType())
-            {
+          {
             vtkTemplateMacro(
                              vtkImageAppendExecute(this, id,
                                                    inExt, inData[0][idx1],
@@ -565,14 +565,14 @@ void vtkImageAppend::ThreadedRequestData (
             default:
               vtkErrorMacro(<< "Execute: Unknown ScalarType");
               return;
-            }
           }
+        }
 
         //do cell associated arrays
         for (ai = 0;
              ai < inData[0][idx1]->GetCellData()->GetNumberOfArrays();
              ai++)
-          {
+        {
           //cerr << "CELL ARRAY " << ai << endl;
 
           inArray = inData[0][idx1]->GetCellData()->GetArray(ai);
@@ -580,20 +580,20 @@ void vtkImageAppend::ThreadedRequestData (
 
           numComp = inArray->GetNumberOfComponents();
           if (numComp != outArray->GetNumberOfComponents())
-            {
+          {
             vtkErrorMacro("Components of the inputs do not match");
             return;
-            }
+          }
 
           // this filter expects that input is the same type as output.
           if (inArray->GetDataType() != outArray->GetDataType())
-            {
+          {
             vtkErrorMacro(<< "Execute: input" << idx1 << " ScalarType ("
                           << inArray->GetDataType()
                           << "), must match output ScalarType ("
                           << outArray->GetDataType() << ")");
             return;
-            }
+          }
 
           vtkIdType cellId;
           cellId = vtkStructuredData::ComputeCellIdForExtent(inExt, c_in);
@@ -607,7 +607,7 @@ void vtkImageAppend::ThreadedRequestData (
           //     << outExt[4] << " " << outExt[5] << endl;
 
           switch (inArray->GetDataType())
-            {
+          {
             vtkTemplateMacro(
                              vtkImageAppendExecute(this, id,
                                                    inExt, inData[0][idx1],
@@ -620,11 +620,11 @@ void vtkImageAppend::ThreadedRequestData (
             default:
               vtkErrorMacro(<< "Execute: Unknown ScalarType");
               return;
-            }
           }
         }
       }
     }
+  }
 }
 
 
@@ -655,17 +655,17 @@ void vtkImageAppend::AllocateOutputData(vtkImageData *output,
   vtkIdType numpts = 1;
   vtkIdType numcells = 1;
   for (int i = 0; i < 3; i++)
-    {
+  {
     if (uExtent[i*2+1] >= uExtent[i*2])
-      {
+    {
       vtkIdType dim = uExtent[i*2+1]-uExtent[i*2];
       numpts = numpts*(dim+1);
       if (dim != 0)
-        {
+      {
         numcells = numcells*dim;
-        }
       }
     }
+  }
 
   //get a hold of any of my inputs to get arrays
   vtkImageData *in = vtkImageData::SafeDownCast(this->GetInputDataObject(0,0));
@@ -674,19 +674,19 @@ void vtkImageAppend::AllocateOutputData(vtkImageData *output,
   ifd = in->GetPointData();
   ofd = output->GetPointData();
   if (ifd && ofd)
-    {
+  {
     ofd->CopyAllOn();
     ofd->CopyAllocate(ifd, numpts);
     ofd->SetNumberOfTuples(numpts);
-    }
+  }
   ifd = in->GetCellData();
   ofd = output->GetCellData();
   if (ifd && ofd)
-    {
+  {
     ofd->CopyAllOn();
     ofd->CopyAllocate(ifd, numcells);
     ofd->SetNumberOfTuples(numcells);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -696,11 +696,11 @@ vtkImageData *vtkImageAppend::AllocateOutputData(vtkDataObject *output,
   // set the extent to be the update extent
   vtkImageData *out = vtkImageData::SafeDownCast(output);
   if (out)
-    {
+  {
     int* uExtent = outInfo->Get(
       vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
     this->AllocateOutputData(out, outInfo, uExtent);
-    }
+  }
   return out;
 }
 

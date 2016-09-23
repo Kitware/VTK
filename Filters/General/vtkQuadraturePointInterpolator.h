@@ -12,19 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkQuadraturePointInterpolator
-// .SECTION Description
-//
-// Interpolates each scalar/vector field in a vtkUnstrcturedGrid
-// on its input to a specific set of quadrature points. The
-// set of quadrature points is specified per array via a
-// dictionary (ie an instance of vtkInformationQuadratureSchemeDefinitionVectorKey).
-// contained in the array. The interpolated fields are placed
-// in FieldData along with a set of per cell indexes, that allow
-// random access to a given cells quadrature points.
-//
-// .SECTION See Also
-// vtkQuadratureSchemeDefinition, vtkQuadraturePointsGenerator, vtkInformationQuadratureSchemeDefinitionVectorKey
+/**
+ * @class   vtkQuadraturePointInterpolator
+ *
+ *
+ * Interpolates each scalar/vector field in a vtkUnstrcturedGrid
+ * on its input to a specific set of quadrature points. The
+ * set of quadrature points is specified per array via a
+ * dictionary (ie an instance of vtkInformationQuadratureSchemeDefinitionVectorKey).
+ * contained in the array. The interpolated fields are placed
+ * in FieldData along with a set of per cell indexes, that allow
+ * random access to a given cells quadrature points.
+ *
+ * @sa
+ * vtkQuadratureSchemeDefinition, vtkQuadraturePointsGenerator, vtkInformationQuadratureSchemeDefinitionVectorKey
+*/
 
 #ifndef vtkQuadraturePointInterpolator_h
 #define vtkQuadraturePointInterpolator_h
@@ -55,12 +57,15 @@ private:
   void operator=(const vtkQuadraturePointInterpolator &) VTK_DELETE_FUNCTION;
   //
   void Clear();
-  // Description:
-  // Generate field data arrays that have all scalar/vector
-  // fields interpolated to the quadrature points. The type
-  // of quadrature used is found in the dictionary stored as
-  // meta data in each data array.
+  //@{
+  /**
+   * Generate field data arrays that have all scalar/vector
+   * fields interpolated to the quadrature points. The type
+   * of quadrature used is found in the dictionary stored as
+   * meta data in each data array.
+   */
   int InterpolateFields(vtkUnstructuredGrid *usgOut);
 };
+  //@}
 
 #endif

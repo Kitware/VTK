@@ -12,19 +12,22 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageExport - Export VTK images to third-party systems.
-// .SECTION Description
-// vtkImageExport provides a way of exporting image data at the end
-// of a pipeline to a third-party system or to a simple C array.
-// Applications can use this to get direct access to the image data
-// in memory.  A callback interface is provided to allow connection
-// of the VTK pipeline to a third-party pipeline.  This interface
-// conforms to the interface of vtkImageImport.
-// In Python it is possible to use this class to write the image data
-// into a python string that has been pre-allocated to be the correct
-// size.
-// .SECTION See Also
-// vtkImageImport
+/**
+ * @class   vtkImageExport
+ * @brief   Export VTK images to third-party systems.
+ *
+ * vtkImageExport provides a way of exporting image data at the end
+ * of a pipeline to a third-party system or to a simple C array.
+ * Applications can use this to get direct access to the image data
+ * in memory.  A callback interface is provided to allow connection
+ * of the VTK pipeline to a third-party pipeline.  This interface
+ * conforms to the interface of vtkImageImport.
+ * In Python it is possible to use this class to write the image data
+ * into a python string that has been pre-allocated to be the correct
+ * size.
+ * @sa
+ * vtkImageImport
+*/
 
 #ifndef vtkImageExport_h
 #define vtkImageExport_h
@@ -39,84 +42,107 @@ public:
   vtkTypeMacro(vtkImageExport,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the number of bytes required for the output C array.
+  /**
+   * Get the number of bytes required for the output C array.
+   */
   vtkIdType GetDataMemorySize();
 
-  // Description:
-  // Get the (x,y,z) index dimensions of the data.  Please note
-  // that C arrays are indexed in decreasing order, i.e. array[z][y][x].
+  //@{
+  /**
+   * Get the (x,y,z) index dimensions of the data.  Please note
+   * that C arrays are indexed in decreasing order, i.e. array[z][y][x].
+   */
   void GetDataDimensions(int *ptr);
   int *GetDataDimensions() {
     this->GetDataDimensions(this->DataDimensions);
     return this->DataDimensions; }
+  //@}
 
-  // Description:
-  // Get the number of scalar components of the data.  Please note that
-  // when you index into a C array, the scalar component index comes
-  // last, i.e. array[z][y][x][c].
+  /**
+   * Get the number of scalar components of the data.  Please note that
+   * when you index into a C array, the scalar component index comes
+   * last, i.e. array[z][y][x][c].
+   */
   int GetDataNumberOfScalarComponents();
 
-  // Description:
-  // Get the scalar type of the data.  The scalar type of the C array
-  // must match the scalar type of the data.
+  /**
+   * Get the scalar type of the data.  The scalar type of the C array
+   * must match the scalar type of the data.
+   */
   int GetDataScalarType();
   const char *GetDataScalarTypeAsString() {
     return vtkImageScalarTypeNameMacro(this->GetDataScalarType()); }
 
-  // Description:
-  // Get miscellaneous additional information about the data.
+  //@{
+  /**
+   * Get miscellaneous additional information about the data.
+   */
   int *GetDataExtent();
   void GetDataExtent(int *ptr);
   double *GetDataSpacing();
   void GetDataSpacing(double *ptr);
   double *GetDataOrigin();
   void GetDataOrigin(double *ptr);
+  //@}
 
-  // Description:
-  // Get the input object from the image pipeline.
+  /**
+   * Get the input object from the image pipeline.
+   */
   vtkImageData *GetInput();
 
-  // Description:
-  // Set/Get whether the data goes to the exported memory starting
-  // in the lower left corner or upper left corner.  Default: On.
-  // When this flag is Off, the image will be flipped vertically
-  // before it is exported.
-  // WARNING: this flag is used only with the Export() method,
-  // it is ignored by GetPointerToData().
+  //@{
+  /**
+   * Set/Get whether the data goes to the exported memory starting
+   * in the lower left corner or upper left corner.  Default: On.
+   * When this flag is Off, the image will be flipped vertically
+   * before it is exported.
+   * WARNING: this flag is used only with the Export() method,
+   * it is ignored by GetPointerToData().
+   */
   vtkBooleanMacro(ImageLowerLeft, int);
   vtkGetMacro(ImageLowerLeft, int);
   vtkSetMacro(ImageLowerLeft, int);
+  //@}
 
-  // Description:
-  // Set the void pointer of the C array to export the data to.
-  // From python, you can specify a pointer to a string that is
-  // large enough to hold the data.
+  //@{
+  /**
+   * Set the void pointer of the C array to export the data to.
+   * From python, you can specify a pointer to a string that is
+   * large enough to hold the data.
+   */
   void SetExportVoidPointer(void *);
   void *GetExportVoidPointer() { return this->ExportVoidPointer; };
+  //@}
 
-  // Description:
-  // The main interface: update the pipeline and export the image
-  // to the memory pointed to by SetExportVoidPointer().  You can
-  // also specify a void pointer when you call Export().
+  //@{
+  /**
+   * The main interface: update the pipeline and export the image
+   * to the memory pointed to by SetExportVoidPointer().  You can
+   * also specify a void pointer when you call Export().
+   */
   void Export() { this->Export(this->ExportVoidPointer); };
   virtual void Export(void *);
+  //@}
 
-  // Description:
-  // An alternative to Export(): Use with caution.   Update the
-  // pipeline and return a pointer to the image memory.  The
-  // pointer is only valid until the next time that the pipeline
-  // is updated.
-  // WARNING: This method ignores the ImageLowerLeft flag.
+  /**
+   * An alternative to Export(): Use with caution.   Update the
+   * pipeline and return a pointer to the image memory.  The
+   * pointer is only valid until the next time that the pipeline
+   * is updated.
+   * WARNING: This method ignores the ImageLowerLeft flag.
+   */
   void *GetPointerToData();
 
-  // Description:
-  // Get the user data that should be passed to the callback functions.
+  /**
+   * Get the user data that should be passed to the callback functions.
+   */
   void* GetCallbackUserData();
 
-  // Description:
-  // These are function pointer types for the pipeline connection
-  // callbacks.  See furhter documentation in vtkImageImport.h.
+  //@{
+  /**
+   * These are function pointer types for the pipeline connection
+   * callbacks.  See furhter documentation in vtkImageImport.h.
+   */
   typedef void (*UpdateInformationCallbackType)(void*);
   typedef int (*PipelineModifiedCallbackType)(void*);
   typedef int* (*WholeExtentCallbackType)(void*);
@@ -128,9 +154,12 @@ public:
   typedef void (*UpdateDataCallbackType)(void*);
   typedef int* (*DataExtentCallbackType)(void*);
   typedef void* (*BufferPointerCallbackType)(void*);
+  //@}
 
-  // Description:
-  // Get pointers to the pipeline interface callbacks.
+  //@{
+  /**
+   * Get pointers to the pipeline interface callbacks.
+   */
   UpdateInformationCallbackType     GetUpdateInformationCallback() const;
   PipelineModifiedCallbackType      GetPipelineModifiedCallback() const;
   WholeExtentCallbackType           GetWholeExtentCallback() const;
@@ -142,6 +171,7 @@ public:
   UpdateDataCallbackType            GetUpdateDataCallback() const;
   DataExtentCallbackType            GetDataExtentCallback() const;
   BufferPointerCallbackType         GetBufferPointerCallback() const;
+  //@}
 
 protected:
   vtkImageExport();

@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGenericCell - provides thread-safe access to cells
-// .SECTION Description
-// vtkGenericCell is a class that provides access to concrete types of cells.
-// It's main purpose is to allow thread-safe access to cells, supporting
-// the vtkDataSet::GetCell(vtkGenericCell *) method. vtkGenericCell acts
-// like any type of cell, it just dereferences an internal representation.
-// The SetCellType() methods use \#define constants; these are defined in
-// the file vtkCellType.h.
-
-// .SECTION See Also
-// vtkCell vtkDataSet
+/**
+ * @class   vtkGenericCell
+ * @brief   provides thread-safe access to cells
+ *
+ * vtkGenericCell is a class that provides access to concrete types of cells.
+ * It's main purpose is to allow thread-safe access to cells, supporting
+ * the vtkDataSet::GetCell(vtkGenericCell *) method. vtkGenericCell acts
+ * like any type of cell, it just dereferences an internal representation.
+ * The SetCellType() methods use \#define constants; these are defined in
+ * the file vtkCellType.h.
+ *
+ * @sa
+ * vtkCell vtkDataSet
+*/
 
 #ifndef vtkGenericCell_h
 #define vtkGenericCell_h
@@ -33,25 +36,30 @@
 class VTKCOMMONDATAMODEL_EXPORT vtkGenericCell : public vtkCell
 {
 public:
-  // Description:
-  // Create handle to any type of cell; by default a vtkEmptyCell.
+  /**
+   * Create handle to any type of cell; by default a vtkEmptyCell.
+   */
   static vtkGenericCell *New();
 
   vtkTypeMacro(vtkGenericCell,vtkCell);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Set the points object to use for this cell. This updates the internal cell
-  // storage as well as the public member variable Points.
+  /**
+   * Set the points object to use for this cell. This updates the internal cell
+   * storage as well as the public member variable Points.
+   */
   void SetPoints(vtkPoints *points);
 
-  // Description:
-  // Set the point ids to use for this cell. This updates the internal cell
-  // storage as well as the public member variable PointIds.
+  /**
+   * Set the point ids to use for this cell. This updates the internal cell
+   * storage as well as the public member variable PointIds.
+   */
   void SetPointIds(vtkIdList *pointIds);
 
-  // Description:
-  // See the vtkCell API for descriptions of these methods.
+  //@{
+  /**
+   * See the vtkCell API for descriptions of these methods.
+   */
   void ShallowCopy(vtkCell *c) VTK_OVERRIDE;
   void DeepCopy(vtkCell *c) VTK_OVERRIDE;
   int GetCellType() VTK_OVERRIDE;
@@ -92,19 +100,24 @@ public:
   int GetParametricCenter(double pcoords[3]) VTK_OVERRIDE;
   double *GetParametricCoords() VTK_OVERRIDE;
   int IsPrimaryCell() VTK_OVERRIDE;
+  //@}
 
-  // Description:
-  // Compute the interpolation functions/derivatives
-  // (aka shape functions/derivatives)
+  //@{
+  /**
+   * Compute the interpolation functions/derivatives
+   * (aka shape functions/derivatives)
+   */
   void InterpolateFunctions(double pcoords[3], double *weights) VTK_OVERRIDE;
   void InterpolateDerivs(double pcoords[3], double *derivs) VTK_OVERRIDE;
+  //@}
 
-  // Description:
-  // This method is used to support the vtkDataSet::GetCell(vtkGenericCell *)
-  // method. It allows vtkGenericCell to act like any cell type by
-  // dereferencing an internal instance of a concrete cell type. When
-  // you set the cell type, you are resetting a pointer to an internal
-  // cell which is then used for computation.
+  /**
+   * This method is used to support the vtkDataSet::GetCell(vtkGenericCell *)
+   * method. It allows vtkGenericCell to act like any cell type by
+   * dereferencing an internal instance of a concrete cell type. When
+   * you set the cell type, you are resetting a pointer to an internal
+   * cell which is then used for computation.
+   */
   void SetCellType(int cellType);
   void SetCellTypeToEmptyCell() {this->SetCellType(VTK_EMPTY_CELL);}
   void SetCellTypeToVertex() {this->SetCellType(VTK_VERTEX);}
@@ -145,8 +158,9 @@ public:
   void SetCellTypeToBiQuadraticQuadraticHexahedron() {
     this->SetCellType(VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON);}
 
-  // Description:
-  // Instantiate a new vtkCell based on it's cell type value
+  /**
+   * Instantiate a new vtkCell based on it's cell type value
+   */
   static vtkCell* InstantiateCell(int cellType);
 
   vtkCell* GetRepresentativeCell() { return this->Cell; }

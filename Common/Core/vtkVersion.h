@@ -12,15 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkVersion - Versioning class for vtk
-// .SECTION Description
-// Holds methods for defining/determining the current vtk version
-// (major, minor, build).
-
-// .SECTION Caveats
-// This file will change frequently to update the VTKSourceVersion which
-// timestamps a particular source release.
-
+/**
+ * @class   vtkVersion
+ * @brief   Versioning class for vtk
+ *
+ * Holds methods for defining/determining the current vtk version
+ * (major, minor, build).
+ *
+ * @warning
+ * This file will change frequently to update the VTKSourceVersion which
+ * timestamps a particular source release.
+*/
 
 #ifndef vtkVersion_h
 #define vtkVersion_h
@@ -38,10 +40,11 @@ public:
   static vtkVersion *New();
   vtkTypeMacro(vtkVersion,vtkObject);
 
-  // Description:
-  // Return the version of vtk this object is a part of.
-  // A variety of methods are included. GetVTKSourceVersion returns a string
-  // with an identifier which timestamps a particular source tree.
+  /**
+   * Return the version of vtk this object is a part of.
+   * A variety of methods are included. GetVTKSourceVersion returns a string
+   * with an identifier which timestamps a particular source tree.
+   */
   static const char *GetVTKVersion() { return VTK_VERSION; }
   static int GetVTKMajorVersion() { return VTK_MAJOR_VERSION; }
   static int GetVTKMinorVersion() { return VTK_MINOR_VERSION; }

@@ -13,15 +13,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXdmf3ArraySelection - helper to identify requested arrays with
-// .SECTION Description
-// Used by ParaView GUI to mark arrays, sets, and blocks that reader
-// can optionally read in. Note: we use it for more than just arrays but
-// Paraview code requires "Array" name in the API.
-//
-// This file is a helper for the vtkXdmf3Reader and not intended to be
-// part of VTK public API
-// VTK-HeaderTest-Exclude: vtkXdmf3ArraySelection.h
+/**
+ * @class   vtkXdmf3ArraySelection
+ * @brief   helper to identify requested arrays with
+ *
+ * Used by ParaView GUI to mark arrays, sets, and blocks that reader
+ * can optionally read in. Note: we use it for more than just arrays but
+ * Paraview code requires "Array" name in the API.
+ *
+ * This file is a helper for the vtkXdmf3Reader and not intended to be
+ * part of VTK public API
+*/
 
 #ifndef vtkXdmf3ArraySelection_h
 #define vtkXdmf3ArraySelection_h
@@ -35,34 +37,46 @@ class VTKIOXDMF3_EXPORT vtkXdmf3ArraySelection
   : public std::map<std::string, bool>
 {
 public:
-  // Description:
-  // used in parallel to send of combine sets
+  /**
+   * used in parallel to send of combine sets
+   */
   void Merge(const vtkXdmf3ArraySelection& other);
 
-  // Description:
-  // add a new array to the set, with a particular status
+  /**
+   * add a new array to the set, with a particular status
+   */
   void AddArray(const char* name, bool status=true);
 
-  // Description:
-  // test if a particular array is enablled or not
+  /**
+   * test if a particular array is enablled or not
+   */
   bool ArrayIsEnabled(const char* name);
 
-  // Description:
-  // check if a particular array is in the set yet or not
+  /**
+   * check if a particular array is in the set yet or not
+   */
   bool HasArray(const char* name);
 
-  // Description:
-  // get/set user choice of whether a particular array is to be loaded
+  //@{
+  /**
+   * get/set user choice of whether a particular array is to be loaded
+   */
   void SetArrayStatus(const char* name, bool status);
   int GetArraySetting(const char* name);
+  //@}
 
-  // Description:
-  // get string name of a particular array
+  /**
+   * get string name of a particular array
+   */
   const char* GetArrayName(int index);
 
-  // Description:
-  // get number of arrays in the set
+  //@{
+  /**
+   * get number of arrays in the set
+   */
   int GetNumberOfArrays();
 };
+  //@}
 
 #endif //# vtkXdmf3ArraySelection_h
+// VTK-HeaderTest-Exclude: vtkXdmf3ArraySelection.h

@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageEuclideanToPolar - Converts 2D Euclidean coordinates to polar.
-// .SECTION Description
-// For each pixel with vector components x,y, this filter outputs
-// theta in component0, and radius in component1.
+/**
+ * @class   vtkImageEuclideanToPolar
+ * @brief   Converts 2D Euclidean coordinates to polar.
+ *
+ * For each pixel with vector components x,y, this filter outputs
+ * theta in component0, and radius in component1.
+*/
 
 #ifndef vtkImageEuclideanToPolar_h
 #define vtkImageEuclideanToPolar_h
@@ -32,12 +35,15 @@ public:
                        vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Theta is an angle. Maximum specifies when it maps back to 0.
-  // ThetaMaximum defaults to 255 instead of 2PI, because unsigned char
-  // is expected as input. The output type must be the same as input type.
+  //@{
+  /**
+   * Theta is an angle. Maximum specifies when it maps back to 0.
+   * ThetaMaximum defaults to 255 instead of 2PI, because unsigned char
+   * is expected as input. The output type must be the same as input type.
+   */
   vtkSetMacro(ThetaMaximum,double);
   vtkGetMacro(ThetaMaximum,double);
+  //@}
 
 protected:
   vtkImageEuclideanToPolar();

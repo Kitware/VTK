@@ -69,13 +69,13 @@ void vtkHyperOctreeFractalSource::SetProjectionAxes(int x, int y, int z)
   if (this->ProjectionAxes[0] != x ||
       this->ProjectionAxes[1] != y ||
       this->ProjectionAxes[2] != z )
-    {
+  {
     this->ProjectionAxes[0] = x;
     this->ProjectionAxes[1] = y;
     this->ProjectionAxes[2] = z;
 
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -98,21 +98,21 @@ int vtkHyperOctreeFractalSource::GetMaximumLevel()
 void vtkHyperOctreeFractalSource::SetMaximumLevel(int levels)
 {
   if (levels < 1)
-    {
+  {
     levels = 1;
-    }
+  }
 
   if (this->MaximumLevel == levels)
-    {
+  {
     return;
-    }
+  }
 
   this->Modified();
   this->MaximumLevel=levels;
   if(this->MinimumLevel>levels)
-    {
+  {
     this->MinimumLevel=levels;
-    }
+  }
 
   assert("post: is_set" && this->GetMaximumLevel()==levels);
   assert("post: min_is_valid" && this->GetMinimumLevel()<=this->GetMaximumLevel());
@@ -137,14 +137,14 @@ int vtkHyperOctreeFractalSource::GetMinimumLevel()
 void vtkHyperOctreeFractalSource::SetMinimumLevel(int minLevels)
 {
   if (minLevels < 1)
-    {
+  {
     minLevels = 1;
-    }
+  }
 
   if (this->MinimumLevel == minLevels)
-    {
+  {
     return;
-    }
+  }
 
   this->Modified();
   this->MinimumLevel = minLevels;
@@ -169,14 +169,14 @@ int vtkHyperOctreeFractalSource::RequestInformation (
   outInfo->Set(vtkHyperOctree::DIMENSION(),this->Dimension);
   int ii;
   for (ii = 0; ii < 3; ++ii)
-    {
+  {
     this->Size[ii] = this->SizeCX[this->ProjectionAxes[ii]];
     this->Origin[ii] = this->OriginCX[this->ProjectionAxes[ii]];
-    }
+  }
   if (this->Dimension == 2)
-    {
+  {
     this->Size[2] = 0.0;
-    }
+  }
   outInfo->Set(vtkHyperOctree::SIZES(),this->Size,3);
   outInfo->Set(vtkDataObject::ORIGIN(),this->Origin,3);
 
@@ -198,10 +198,10 @@ int vtkHyperOctreeFractalSource::RequestData(
   output->SetDimension(this->Dimension);
   int ii;
   for (ii = 0; ii < 3; ++ii)
-    {
+  {
     this->Size[ii] = this->SizeCX[this->ProjectionAxes[ii]];
     this->Origin[ii] = this->OriginCX[this->ProjectionAxes[ii]];
-    }
+  }
   output->SetSize(this->Size);
   output->SetOrigin(this->Origin);
 
@@ -224,24 +224,24 @@ int vtkHyperOctreeFractalSource::RequestData(
   float cornerVals[8];
   int numCorners = 1 << this->Dimension;
   for (ii = 0; ii < numCorners; ++ii)
-    {
+  {
     sample[0] = this->Origin[0];
     sample[1] = this->Origin[1];
     sample[2] = this->Origin[2];
     if (ii&1)
-      {
+    {
       sample[0] += this->Size[0];
-      }
-    if (ii&2)
-      {
-      sample[1] += this->Size[1];
-      }
-    if (ii&4)
-      {
-      sample[2] += this->Size[2];
-      }
-    cornerVals[ii] = this->EvaluateWorldPoint(sample);
     }
+    if (ii&2)
+    {
+      sample[1] += this->Size[1];
+    }
+    if (ii&4)
+    {
+      sample[2] += this->Size[2];
+    }
+    cornerVals[ii] = this->EvaluateWorldPoint(sample);
+  }
 
   this->Subdivide(cursor,1,output, this->Origin,this->Size, cornerVals);
 
@@ -268,33 +268,33 @@ void vtkHyperOctreeFractalSource::Subdivide(vtkHyperOctreeCursor *cursor,
   min = VTK_FLOAT_MAX;
   max = 0.0;
   for (ii = 0; ii < numCorners; ++ii)
-    {
+  {
     if (cornerVals[ii] < min)
-      {
-      min = cornerVals[ii];
-      }
-    if (cornerVals[ii] > max)
-      {
-      max = cornerVals[ii];
-      }
-    }
-  if (max-min <= this->SpanThreshold)
     {
-    subdivide = 0;
+      min = cornerVals[ii];
     }
+    if (cornerVals[ii] > max)
+    {
+      max = cornerVals[ii];
+    }
+  }
+  if (max-min <= this->SpanThreshold)
+  {
+    subdivide = 0;
+  }
 
   // Check for hard coded minimum and maximum level restrictions.
   if (level < this->MinimumLevel)
-    {
+  {
     subdivide = 1;
-    }
+  }
   if (level >= this->MaximumLevel)
-    {
+  {
     subdivide = 0;
-    }
+  }
 
   if (subdivide)
-    {
+  {
     output->SubdivideLeaf(cursor);
     double newOrigin[3];
     double newSize[3];
@@ -312,61 +312,61 @@ void vtkHyperOctreeFractalSource::Subdivide(vtkHyperOctreeCursor *cursor,
     values[6]  = cornerVals[2]; // 020
     values[8]  = cornerVals[3]; // 022
     if (this->Dimension == 3)
-      { // We could just fill these in with junk for 2d.
+    { // We could just fill these in with junk for 2d.
       values[18] = cornerVals[4]; // 200
       values[20] = cornerVals[5]; // 202
       values[24] = cornerVals[6]; // 220
       values[26] = cornerVals[7]; // 222
-      }
+    }
     // Find values for samples that have not been initialized.
     // edges, faces, and center.
     int valueIdx;
     int zNum = 3;
     if (this->Dimension == 2)
-      { // 1d not allowed for now.
+    { // 1d not allowed for now.
       zNum = 1;
-      }
+    }
     for (iz = 0; iz < zNum; ++iz)
-      {
+    {
       for (iy = 0; iy < 3; ++iy)
-        {
+      {
         for (ix = 0; ix < 3; ++ix)
-          {
+        {
           valueIdx = ix + 3*iy + 9*iz;
           if (values[valueIdx] == 0.0)
-            {
+          {
             double sample[3];
             sample[0] = origin[0] + newSize[0]*static_cast<double>(ix);
             sample[1] = origin[1] + newSize[1]*static_cast<double>(iy);
             sample[2] = origin[2] + newSize[2]*static_cast<double>(iz);
             values[valueIdx] = this->EvaluateWorldPoint(sample);
-            }
           }
         }
       }
+    }
     // Now traverse to children.
     for (ii = 0; ii < numCorners; ++ii)
-      {
+    {
       // extract the 8 2x2 corners from the grid of 27 3x3x3.
       int xStart = ii & 1;
       int yStart = (ii>>1) & 1;
       int zStart = (ii>>2) & 1;
       int zEnd = 2;
       if (this->Dimension == 2)
-        {
+      {
         zEnd = 1;
-        }
+      }
       for (iz = 0; iz < zEnd; ++iz)
-        {
+      {
         for (iy = 0; iy < 2; ++iy)
-          {
+        {
           for (ix = 0; ix < 2; ++ix)
-            {
+          {
             newCornerVals[ix + iy*2 + iz*4]
               = values[(xStart+ix)+(yStart+iy)*3 + (zStart+iz)*9];
-            }
           }
         }
+      }
       newOrigin[0] = origin[0] + static_cast<double>(xStart)*newSize[0];
       newOrigin[1] = origin[1] + static_cast<double>(yStart)*newSize[1];
       newOrigin[2] = origin[2] + static_cast<double>(zStart)*newSize[2];
@@ -375,23 +375,23 @@ void vtkHyperOctreeFractalSource::Subdivide(vtkHyperOctreeCursor *cursor,
       this->Subdivide(cursor,level+1,output,
                       newOrigin,newSize,newCornerVals);
       cursor->ToParent();
-      }
     }
+  }
   else
-    {
+  {
     double center[3];
     center[0] = origin[0] + 0.5*size[0];
     center[1] = origin[1] + 0.5*size[1];
     center[2] = origin[2];
     if (this->Dimension == 3)
-      {
+    {
       center[2] += 0.5*size[2];
-      }
+    }
     float val = this->EvaluateWorldPoint(center);
     // Weight cell values for smoother iso surface.
     float fVal = 0.0;
     if (this->Dimension == 3)
-      {
+    {
       fVal = (static_cast<float>(val) * 4
               + static_cast<float>(cornerVals[0])
               + static_cast<float>(cornerVals[1])
@@ -401,18 +401,18 @@ void vtkHyperOctreeFractalSource::Subdivide(vtkHyperOctreeCursor *cursor,
               + static_cast<float>(cornerVals[5])
               + static_cast<float>(cornerVals[6])
               + static_cast<float>(cornerVals[7])) / 12.0;
-      }
+    }
     else if (this->Dimension == 2)
-      {
+    {
       fVal = (static_cast<float>(val) * 2
               + static_cast<float>(cornerVals[0])
               + static_cast<float>(cornerVals[1])
               + static_cast<float>(cornerVals[2])
               + static_cast<float>(cornerVals[3])) / 6.0;
-      }
+    }
     vtkIdType id=cursor->GetLeafId();
     output->GetLeafData()->GetScalars()->InsertTuple1(id,fVal);
-    }
+  }
 }
 
 
@@ -451,7 +451,7 @@ float vtkHyperOctreeFractalSource::EvaluateSet(double p[4])
   v0 = 0.0;
   v1 = (zReal2 + zImag2);
   while ( v1 < 4.0 && count < this->MaximumNumberOfIterations)
-    {
+  {
     zImag = 2.0 * zReal * zImag + cImag;
     zReal = zReal2 - zImag2 + cReal;
     zReal2 = zReal * zReal;
@@ -459,12 +459,12 @@ float vtkHyperOctreeFractalSource::EvaluateSet(double p[4])
     ++count;
     v0 = v1;
     v1 = (zReal2 + zImag2);
-    }
+  }
 
   if (count == this->MaximumNumberOfIterations)
-    {
+  {
     return static_cast<float>(count);
-    }
+  }
 
   return static_cast<float>(count) + static_cast<float>((4.0 - v0)/(v1 - v0));
 }

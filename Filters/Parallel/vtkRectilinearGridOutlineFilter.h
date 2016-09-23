@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkRectilinearGridOutlineFilter - create wireframe outline for a rectilinear grid.
-// .SECTION Description
-// vtkRectilinearGridOutlineFilter works in parallel.  There is no reason.
-// to use this filter if you are not breaking the processing into pieces.
-// With one piece you can simply use vtkOutlineFilter.  This filter
-// ignores internal edges when the extent is not the whole extent.
+/**
+ * @class   vtkRectilinearGridOutlineFilter
+ * @brief   create wireframe outline for a rectilinear grid.
+ *
+ * vtkRectilinearGridOutlineFilter works in parallel.  There is no reason.
+ * to use this filter if you are not breaking the processing into pieces.
+ * With one piece you can simply use vtkOutlineFilter.  This filter
+ * ignores internal edges when the extent is not the whole extent.
+*/
 
 #ifndef vtkRectilinearGridOutlineFilter_h
 #define vtkRectilinearGridOutlineFilter_h

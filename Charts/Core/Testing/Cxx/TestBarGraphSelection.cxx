@@ -66,12 +66,12 @@ int TestBarGraphSelection(int , char * [])
 
   table->SetNumberOfRows(12);
   for (int i = 0; i < 12; i++)
-    {
+  {
     table->SetValue(i,0,i+1);
     table->SetValue(i,1,data_2008[i]);
     table->SetValue(i,2,data_2009[i]);
     table->SetValue(i,3,data_2010[i]);
-    }
+  }
 
   // Build a selection object.
   vtkNew<vtkIdTypeArray> selection;

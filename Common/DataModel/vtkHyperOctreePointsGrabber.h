@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHyperOctreePointsGrabber - An object used by filters to
-// store points computed on face or edge of an hyperoctant. It is an
-// abstract class. vtkClipHyperOctree and vtkHyperOctreeCutter use
-// vtkHyperOctreeClipCutPointsGrabber
-// vtkHyperOctreeContourFilter use an internal one:
-// vtkHyperOctreeContourFilterPointsGrabber.
-
-// .SECTION See Also
-// vtkHyperOctree, vtkHyperOctreeClipCutPointsGrabber,
-// vtkClipHyperOctree, vtkHyperOctreeCutter
+/**
+ * @class   vtkHyperOctreePointsGrabber
+ * @brief   An object used by filters to
+ * store points computed on face or edge of an hyperoctant. It is an
+ * abstract class. vtkClipHyperOctree and vtkHyperOctreeCutter use
+ * vtkHyperOctreeClipCutPointsGrabber
+ * vtkHyperOctreeContourFilter use an internal one:
+ * vtkHyperOctreeContourFilterPointsGrabber.
+ *
+ * @sa
+ * vtkHyperOctree, vtkHyperOctreeClipCutPointsGrabber,
+ * vtkClipHyperOctree, vtkHyperOctreeCutter
+*/
 
 #ifndef vtkHyperOctreePointsGrabber_h
 #define vtkHyperOctreePointsGrabber_h
@@ -35,45 +38,51 @@ public:
   vtkTypeMacro(vtkHyperOctreePointsGrabber,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Return the dimension of the hyperoctree.
-  // \post valid_result: (result==2 || result==3)
+  /**
+   * Return the dimension of the hyperoctree.
+   * \post valid_result: (result==2 || result==3)
+   */
   int GetDimension();
 
-  // Description:
-  // Set the dimension of the hyperoctree.
-  // \pre valid_dim: (dim==2 || dim==3)
-  // \post is_set: GetDimension()==dim
+  /**
+   * Set the dimension of the hyperoctree.
+   * \pre valid_dim: (dim==2 || dim==3)
+   * \post is_set: GetDimension()==dim
+   */
   virtual void SetDimension(int dim)=0;
 
-  // Description:
-  // Initialize the points insertion scheme.
-  // Actually, it is just a trick to initialize the IdSet from the filter.
-  // The IdSet class cannot be shared with the filter because it is a Pimpl.
-  // It is used by clip,cut and contour filters to build the points
-  // that lie on an hyperoctant.
-  // \pre only_in_3d: GetDimension()==3
+  /**
+   * Initialize the points insertion scheme.
+   * Actually, it is just a trick to initialize the IdSet from the filter.
+   * The IdSet class cannot be shared with the filter because it is a Pimpl.
+   * It is used by clip,cut and contour filters to build the points
+   * that lie on an hyperoctant.
+   * \pre only_in_3d: GetDimension()==3
+   */
   virtual void InitPointInsertion()=0;
 
 
-  // Description:
-  // Insert a point, assuming the point is unique and does not require a
-  // locator. Tt does not mean it does not use a locator. It just mean that
-  // some implementation may skip the use of a locator.
+  /**
+   * Insert a point, assuming the point is unique and does not require a
+   * locator. Tt does not mean it does not use a locator. It just mean that
+   * some implementation may skip the use of a locator.
+   */
   virtual void InsertPoint(vtkIdType ptId,
                            double pt[3],
                            double pcoords[3],
                            int ijk[3])=0;
 
-  // Description:
-  // Insert a point using a locator.
+  /**
+   * Insert a point using a locator.
+   */
   virtual void InsertPointWithMerge(vtkIdType ptId,
                                     double pt[3],
                                     double pcoords[3],
                                     int ijk[3])=0;
 
-  // Description:
-  // Insert a point in the quadtree case.
+  /**
+   * Insert a point in the quadtree case.
+   */
   virtual void InsertPoint2D(double pt[3],
                              int ijk[3])=0;
 

@@ -31,10 +31,10 @@
 int TestVASPAnimationReader(int argc, char *argv[])
 {
   if (argc < 2)
-    {
+  {
     std::cerr << "Missing test file argument." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   std::string fname(argv[1]);
 
@@ -46,10 +46,10 @@ int TestVASPAnimationReader(int argc, char *argv[])
   double *times = outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   int nTimes = outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   if (nTimes < 8)
-    {
+  {
     std::cerr << "Need at least 8 timesteps, only " << nTimes << " found.\n";
     return EXIT_FAILURE;
-    }
+  }
 
   // Show different time steps in each renderer:
   vtkNew<vtkRenderer> rens[4];
@@ -62,7 +62,7 @@ int TestVASPAnimationReader(int argc, char *argv[])
   vtkNew<vtkActor> actors[4];
   vtkNew<vtkRenderWindow> win;
   for (size_t i = 0; i < 4; ++i)
-    {
+  {
     // Render different timestamps for each:
     reader->UpdateTimeStep(times[2 * i]);
     vtkNew<vtkMolecule> mol;
@@ -77,7 +77,7 @@ int TestVASPAnimationReader(int argc, char *argv[])
     rens[i]->SetBackground(0.0, 0.0, 0.0);
     rens[i]->AddActor(actors[i].Get());
     win->AddRenderer(rens[i].Get());
-    }
+  }
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(win.GetPointer());
@@ -86,10 +86,10 @@ int TestVASPAnimationReader(int argc, char *argv[])
   win->Render();
 
   for (size_t i = 0; i < 4; ++i)
-    {
+  {
     rens[i]->GetActiveCamera()->Dolly(1.5);
     rens[i]->ResetCameraClippingRange();
-    }
+  }
   win->Render();
 
   // Finally render the scene and compare the image to a reference image

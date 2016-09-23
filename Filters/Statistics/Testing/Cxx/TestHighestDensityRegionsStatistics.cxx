@@ -65,13 +65,13 @@ int TestHighestDensityRegionsStatistics(int , char * [])
     };
 
   for (int i = 0; i < numPoints; ++i)
-    {
+  {
     table->SetValue(i, 0, i); // Known Test Values
     table->SetValue(i, 1, MathValue[i]);
     table->SetValue(i, 2, FrenchValue[i]);
     table->SetValue(i, 3, (MathValue[i] + FrenchValue[i]) / 2.0);
     table->SetValue(i, 4, MathValue[i] - FrenchValue[i]);
-    }
+  }
 
   // Run HDR
   // Set HDR statistics algorithm and its input data port
@@ -109,10 +109,10 @@ int TestHighestDensityRegionsStatistics(int , char * [])
   vtkDoubleArray* HDRArray = vtkArrayDownCast<vtkDoubleArray>(
     outputMetaLearn->GetColumnByName(ss.str().c_str()));
   if (!HDRArray)
-    {
+  {
     cout << "Fail! The HDR column is missing from the result table!" << endl;
     return EXIT_FAILURE;
-    }
+  }
   cout << "## Done." << endl;
 
   return EXIT_SUCCESS;

@@ -38,13 +38,13 @@ vtkPixel::vtkPixel()
   this->Points->SetNumberOfPoints(4);
   this->PointIds->SetNumberOfIds(4);
   for (i = 0; i < 4; i++)
-    {
+  {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
-    }
+  }
   for (i = 0; i < 4; i++)
-    {
+  {
     this->PointIds->SetId(i,0);
-    }
+  }
   this->Line = vtkLine::New();
 }
 
@@ -80,20 +80,20 @@ int vtkPixel::EvaluatePosition(double x[3], double* closestPoint,
   vtkPlane::ProjectPoint(x,pt1,n,cp);
 
   for (i=0; i<3; i++)
-    {
+  {
     p21[i] = pt2[i] - pt1[i];
     p31[i] = pt3[i] - pt1[i];
     p[i] = x[i] - pt1[i];
-    }
+  }
 
   if ( (l21=vtkMath::Norm(p21)) == 0.0 )
-    {
+  {
     l21 = 1.0;
-    }
+  }
   if ( (l31=vtkMath::Norm(p31)) == 0.0 )
-    {
+  {
     l31 = 1.0;
-    }
+  }
 
   pcoords[0] = vtkMath::Dot(p21,p) / (l21*l21);
   pcoords[1] = vtkMath::Dot(p31,p) / (l31*l31);
@@ -102,43 +102,43 @@ int vtkPixel::EvaluatePosition(double x[3], double* closestPoint,
 
   if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
   pcoords[1] >= 0.0 && pcoords[1] <= 1.0 )
-    {
+  {
     if (closestPoint)
-      {
+    {
       closestPoint[0] = cp[0];
       closestPoint[1] = cp[1];
       closestPoint[2] = cp[2];
       dist2 =
         vtkMath::Distance2BetweenPoints(closestPoint,x); //projection distance
-      }
-    return 1;
     }
+    return 1;
+  }
   else
-    {
+  {
     double pc[3], w[4];
     if (closestPoint)
-      {
+    {
       for (i=0; i<2; i++)
-        {
+      {
         if (pcoords[i] < 0.0)
         {
         pc[i] = 0.0;
         }
         else if (pcoords[i] > 1.0)
-          {
+        {
           pc[i] = 1.0;
-          }
-        else
-          {
-          pc[i] = pcoords[i];
-          }
         }
+        else
+        {
+          pc[i] = pcoords[i];
+        }
+      }
       this->EvaluateLocation(subId, pc, closestPoint,
                              static_cast<double *>(w));
       dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
-      }
-    return 0;
     }
+    return 0;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -155,10 +155,10 @@ void vtkPixel::EvaluateLocation(int& subId, double pcoords[3], double x[3],
   this->Points->GetPoint(2, pt3);
 
   for (i=0; i<3; i++)
-    {
+  {
     x[i] = pt1[i] + pcoords[0]*(pt2[i] - pt1[i]) +
                     pcoords[1]*(pt3[i] - pt1[i]);
-    }
+  }
 
   this->InterpolationFunctions(pcoords, weights);
 }
@@ -174,38 +174,38 @@ int vtkPixel::CellBoundary(int vtkNotUsed(subId), double pcoords[3], vtkIdList *
   // compare against two lines in parametric space that divide element
   // into four pieces.
   if ( t1 >= 0.0 && t2 >= 0.0 )
-    {
+  {
     pts->SetId(0,this->PointIds->GetId(0));
     pts->SetId(1,this->PointIds->GetId(1));
-    }
+  }
 
   else if ( t1 >= 0.0 && t2 < 0.0 )
-    {
+  {
     pts->SetId(0,this->PointIds->GetId(1));
     pts->SetId(1,this->PointIds->GetId(3));
-    }
+  }
 
   else if ( t1 < 0.0 && t2 < 0.0 )
-    {
+  {
     pts->SetId(0,this->PointIds->GetId(3));
     pts->SetId(1,this->PointIds->GetId(2));
-    }
+  }
 
   else //( t1 < 0.0 && t2 >= 0.0 )
-    {
+  {
     pts->SetId(0,this->PointIds->GetId(2));
     pts->SetId(1,this->PointIds->GetId(0));
-    }
+  }
 
   if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 ||
        pcoords[1] < 0.0 || pcoords[1] > 1.0 )
-    {
+  {
     return 0;
-    }
+  }
   else
-    {
+  {
     return 1;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -234,20 +234,20 @@ void vtkPixel::Contour(double value, vtkDataArray *cellScalars,
 
   // Build the case table
   for ( i=0, index = 0; i < 4; i++)
-    {
+  {
     if (cellScalars->GetComponent(i,0) >= value)
-      {
+    {
       index |= CASE_MASK[i];
-      }
     }
+  }
 
   lineCase = vtkMarchingSquaresLineCases::GetCases() + index;
   edge = lineCase->edges;
 
   for ( ; edge[0] > -1; edge += 2 )
-    {
+  {
     for (i=0; i<2; i++) // insert line
-      {
+    {
       vert = edges[edge[i]];
       t = (value - cellScalars->GetComponent(vert[0],0)) /
           (cellScalars->GetComponent(vert[1],0) -
@@ -255,26 +255,26 @@ void vtkPixel::Contour(double value, vtkDataArray *cellScalars,
       this->Points->GetPoint(vert[0], x1);
       this->Points->GetPoint(vert[1], x2);
       for (j=0; j<3; j++)
-        {
+      {
         x[j] = x1[j] + t * (x2[j] - x1[j]);
-        }
+      }
       if ( locator->InsertUniquePoint(x, pts[i]) )
-        {
+      {
         if ( outPd )
-          {
+        {
           int p1 = this->PointIds->GetId(vert[0]);
           int p2 = this->PointIds->GetId(vert[1]);
           outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
-          }
         }
       }
+    }
     // check for degenerate line
     if ( pts[0] != pts[1] )
-      {
+    {
       newCellId = lines->InsertNextCell(2,pts);
       outCd->CopyData(inCd,cellId,newCellId);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -359,30 +359,30 @@ int vtkPixel::IntersectWithLine(double p1[3], double p2[3], double tol, double& 
 
   n[0] = n[1] = n[2] = 0.0;
   for (i=0; i<3; i++)
-    {
+  {
     if ( (pt4[i] - pt1[i]) <= 0.0 )
-      {
+    {
       n[i] = 1.0;
       break;
-      }
     }
+  }
   //
   // Intersect plane of pixel with line
   //
   if ( ! vtkPlane::IntersectWithLine(p1,p2,n,pt1,t,x) )
-    {
+  {
     return 0;
-    }
+  }
   //
   // Use evaluate position
   //
   if (this->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights))
-    {
+  {
     if ( dist2 <= tol2 )
-      {
+    {
       return 1;
-      }
     }
+  }
 
   return 0;
 }
@@ -394,7 +394,7 @@ int vtkPixel::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
   ptIds->Reset();
 
   if ( (index % 2) )
-    {
+  {
     ptIds->InsertId(0,this->PointIds->GetId(0));
     pts->InsertPoint(0,this->Points->GetPoint(0));
     ptIds->InsertId(1,this->PointIds->GetId(1));
@@ -408,9 +408,9 @@ int vtkPixel::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
     pts->InsertPoint(4,this->Points->GetPoint(3));
     ptIds->InsertId(5,this->PointIds->GetId(2));
     pts->InsertPoint(5,this->Points->GetPoint(2));
-    }
+  }
   else
-    {
+  {
     ptIds->InsertId(0,this->PointIds->GetId(0));
     pts->InsertPoint(0,this->Points->GetPoint(0));
     ptIds->InsertId(1,this->PointIds->GetId(1));
@@ -424,7 +424,7 @@ int vtkPixel::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
     pts->InsertPoint(4,this->Points->GetPoint(3));
     ptIds->InsertId(5,this->PointIds->GetId(2));
     pts->InsertPoint(5,this->Points->GetPoint(2));
-    }
+  }
 
   return 1;
 }
@@ -446,25 +446,25 @@ void vtkPixel::Derivatives(int vtkNotUsed(subId),
 
   //figure which plane this pixel is in
   for (i=0; i < 3; i++)
-    {
+  {
     spacing[i] = x3[i] - x0[i];
-    }
+  }
 
   if ( spacing[0] > spacing[2] && spacing[1] > spacing[2] ) // z-plane
-    {
+  {
     plane = 2;
     idx[0] = 0; idx[1] = 1;
-    }
+  }
   else if ( spacing[0] > spacing[1] && spacing[2] > spacing[1] ) // y-plane
-    {
+  {
     plane = 1;
     idx[0] = 0; idx[1] = 2;
-    }
+  }
   else // x-plane
-    {
+  {
     plane = 0;
     idx[0] = 1; idx[1] = 2;
-    }
+  }
 
   spacing[0] = x1[idx[0]] - x0[idx[0]];
   spacing[1] = x2[idx[1]] - x0[idx[1]];
@@ -475,24 +475,24 @@ void vtkPixel::Derivatives(int vtkNotUsed(subId),
   // since two of the x-y-z axes are aligned with r-s axes, only need to scale
   // the derivative values by the data spacing.
   for (k=0; k < dim; k++) //loop over values per vertex
-    {
+  {
     for (jj=j=0; j < 3; j++) //loop over derivative directions
-      {
+    {
       if ( j == plane ) // 0-derivate values in this direction
-        {
+      {
         sum = 0.0;
-        }
-      else //compute derivatives
-        {
-        for (sum=0.0, i=0; i < 4; i++) //loop over interp. function derivatives
-          {
-          sum += functionDerivs[4*jj + i] * values[dim*i + k];
-          }
-        sum /= spacing[idx[jj++]];
-        }
-      derivs[3*k + j] = sum;
       }
+      else //compute derivatives
+      {
+        for (sum=0.0, i=0; i < 4; i++) //loop over interp. function derivatives
+        {
+          sum += functionDerivs[4*jj + i] * values[dim*i + k];
+        }
+        sum /= spacing[idx[jj++]];
+      }
+      derivs[3*k + j] = sum;
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -563,50 +563,50 @@ void vtkPixel::Clip(double value, vtkDataArray *cellScalars,
 
   // Build the index into the case table
   if ( insideOut )
-    {
+  {
     for ( i=0, index = 0; i < 4; i++)
-      {
+    {
       if (cellScalars->GetComponent(i,0) <= value)
-        {
+      {
         index |= CASE_MASK[i];
-        }
       }
+    }
     // Select case based on the index and get the list of edges for this case
     pixelCase = pixelCases + index;
-    }
+  }
   else
-    {
+  {
     for ( i=0, index = 0; i < 4; i++)
-      {
+    {
       if (cellScalars->GetComponent(i,0) > value)
-        {
+      {
         index |= CASE_MASK[i];
-        }
       }
+    }
     // Select case based on the index and get the list of edges for this case
     pixelCase = pixelCasesComplement + index;
-    }
+  }
 
   edge = pixelCase->edges;
 
   // generate each pixel
   for ( ; edge[0] > -1; edge += edge[0]+1 )
-    {
+  {
     for (i=0; i < edge[0]; i++) // insert pixel or triangle
-      {
+    {
       // vertex exists, and need not be interpolated
       if (edge[i+1] >= 100)
-        {
+      {
         vertexId = edge[i+1] - 100;
         this->Points->GetPoint(vertexId, x);
         if ( locator->InsertUniquePoint(x, pts[i]) )
-          {
+        {
           outPd->CopyData(inPd,this->PointIds->GetId(vertexId),pts[i]);
-          }
         }
+      }
 
       else //new vertex, interpolate
-        {
+      {
         vert = edges[edge[i+1]];
 
         // calculate a preferred interpolation direction
@@ -615,63 +615,63 @@ void vtkPixel::Clip(double value, vtkDataArray *cellScalars,
         deltaScalar = scalar1 - scalar0;
 
         if (deltaScalar > 0)
-          {
+        {
           e1 = vert[0]; e2 = vert[1];
           e1Scalar = scalar0;
-          }
+        }
         else
-          {
+        {
           e1 = vert[1]; e2 = vert[0];
           e1Scalar = scalar1;
           deltaScalar = -deltaScalar;
-          }
+        }
 
         // linear interpolation
         if (deltaScalar == 0.0)
-          {
+        {
           t = 0.0;
-          }
+        }
         else
-          {
+        {
           t = (value - e1Scalar) / deltaScalar;
-          }
+        }
 
         this->Points->GetPoint(e1, x1);
         this->Points->GetPoint(e2, x2);
 
         for (j=0; j<3; j++)
-          {
+        {
           x[j] = x1[j] + t * (x2[j] - x1[j]);
-          }
+        }
 
         if ( locator->InsertUniquePoint(x, pts[i]) )
-          {
+        {
           int p1 = this->PointIds->GetId(e1);
           int p2 = this->PointIds->GetId(e2);
           outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
-          }
         }
       }
+    }
     // check for degenerate output
     if ( edge[0] == 3 ) //i.e., a triangle
-      {
+    {
       if (pts[0] == pts[1] || pts[0] == pts[2] || pts[1] == pts[2] )
-        {
-        continue;
-        }
-      }
-    else // a pixel
       {
+        continue;
+      }
+    }
+    else // a pixel
+    {
       if ((pts[0] == pts[3] && pts[1] == pts[2]) ||
           (pts[0] == pts[1] && pts[3] == pts[2]) )
-        {
+      {
         continue;
-        }
       }
+    }
 
     newCellId = polys->InsertNextCell(edge[0],pts);
     outCd->CopyData(inCd,cellId,newCellId);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

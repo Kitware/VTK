@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHyperTreeGridGeometry - Hyper tree grid outer surface
-//
-// .SECTION See Also
-// vtkHyperTreeGrid
-//
-// .SECTION Thanks
-// This class was written by Philippe Pebay, Joachim Pouderoux and Charles Law,
-// Kitware 2013
-// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
+/**
+ * @class   vtkHyperTreeGridGeometry
+ * @brief   Hyper tree grid outer surface
+ *
+ * @sa
+ * vtkHyperTreeGrid
+ *
+ * @par Thanks:
+ * This class was written by Philippe Pebay, Joachim Pouderoux and Charles Law,
+ * Kitware 2013
+ * This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
+*/
 
 #ifndef vtkHyperTreeGridGeometry_h
 #define vtkHyperTreeGridGeometry_h

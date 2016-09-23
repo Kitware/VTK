@@ -62,9 +62,9 @@ void vtkBridgePointIteratorOnCell::PrintSelf(ostream& os, vtkIndent indent)
 void vtkBridgePointIteratorOnCell::Begin()
 {
   if(this->PtIds!=0)
-    {
+  {
     this->Cursor=0;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------

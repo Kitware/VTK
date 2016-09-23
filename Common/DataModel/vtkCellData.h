@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCellData - represent and manipulate cell attribute data
-// .SECTION Description
-// vtkCellData is a class that is used to represent and manipulate
-// cell attribute data (e.g., scalars, vectors, normals, texture
-// coordinates, etc.) Special methods are provided to work with filter
-// objects, such as passing data through filter, copying data from one
-// cell to another, and interpolating data given cell interpolation weights.
+/**
+ * @class   vtkCellData
+ * @brief   represent and manipulate cell attribute data
+ *
+ * vtkCellData is a class that is used to represent and manipulate
+ * cell attribute data (e.g., scalars, vectors, normals, texture
+ * coordinates, etc.) Special methods are provided to work with filter
+ * objects, such as passing data through filter, copying data from one
+ * cell to another, and interpolating data given cell interpolation weights.
+*/
 
 #ifndef vtkCellData_h
 #define vtkCellData_h

@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSMPWarpVector - multithreaded vtkWarpVector
-// .SECTION Description
-// Just like parent, but uses the SMP framework to do the work on many threads.
+/**
+ * @class   vtkSMPWarpVector
+ * @brief   multithreaded vtkWarpVector
+ *
+ * Just like parent, but uses the SMP framework to do the work on many threads.
+*/
 
 #ifndef vtkSMPWarpVector_h
 #define vtkSMPWarpVector_h
@@ -37,8 +40,9 @@ protected :
   ~vtkSMPWarpVector();
 
 
-  // Description:
-  // Overridden to use threads.
+  /**
+   * Overridden to use threads.
+   */
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
                   vtkInformationVector *);

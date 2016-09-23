@@ -20,19 +20,19 @@ int vtkContextMouseEvent::GetModifiers() const
 {
   int modifier = vtkContextMouseEvent::NO_MODIFIER;
   if (this->Interactor)
-    {
+  {
     if (this->Interactor->GetAltKey() > 0)
-      {
+    {
       modifier |= vtkContextMouseEvent::ALT_MODIFIER;
-      }
-    if (this->Interactor->GetShiftKey() > 0)
-      {
-      modifier |= vtkContextMouseEvent::SHIFT_MODIFIER;
-      }
-    if (this->Interactor->GetControlKey() > 0)
-      {
-      modifier |= vtkContextMouseEvent::CONTROL_MODIFIER;
-      }
     }
+    if (this->Interactor->GetShiftKey() > 0)
+    {
+      modifier |= vtkContextMouseEvent::SHIFT_MODIFIER;
+    }
+    if (this->Interactor->GetControlKey() > 0)
+    {
+      modifier |= vtkContextMouseEvent::CONTROL_MODIFIER;
+    }
+  }
   return modifier;
 }

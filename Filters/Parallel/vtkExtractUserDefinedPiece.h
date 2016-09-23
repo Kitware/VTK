@@ -17,18 +17,21 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// .NAME vtkExtractUserDefinedPiece - Return user specified piece with ghost cells
-//
-// .SECTION Description
-// Provided a function that determines which cells are zero-level
-// cells ("the piece"), this class outputs the piece with the
-// requested number of ghost levels.  The only difference between
-// this class and the class it is derived from is that the
-// zero-level cells are specified by a function you provide,
-// instead of determined by dividing up the cells based on cell Id.
-//
-// .SECTION See Also
-// vtkExtractUnstructuredGridPiece
+/**
+ * @class   vtkExtractUserDefinedPiece
+ * @brief   Return user specified piece with ghost cells
+ *
+ *
+ * Provided a function that determines which cells are zero-level
+ * cells ("the piece"), this class outputs the piece with the
+ * requested number of ghost levels.  The only difference between
+ * this class and the class it is derived from is that the
+ * zero-level cells are specified by a function you provide,
+ * instead of determined by dividing up the cells based on cell Id.
+ *
+ * @sa
+ * vtkExtractUnstructuredGridPiece
+*/
 
 #ifndef vtkExtractUserDefinedPiece_h
 #define vtkExtractUserDefinedPiece_h

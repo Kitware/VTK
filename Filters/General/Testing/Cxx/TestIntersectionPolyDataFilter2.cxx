@@ -68,10 +68,10 @@ int TestIntersectionPolyDataFilter2(int, char *[])
               << otherCellTri[3] << ", "
               << otherCellTri[6] << std::endl;
   if ( intersects )
-    {
+  {
     std::cerr << "Triangles with shared vertex should not be reported to intersect" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

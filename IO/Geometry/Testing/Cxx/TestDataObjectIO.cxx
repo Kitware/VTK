@@ -107,15 +107,15 @@ bool CompareData(vtkTable* Output, vtkTable* Input)
     return false;
 
   for(int column = 0; column != Input->GetNumberOfColumns(); ++column)
-    {
+  {
     for(int row = 0; row != Input->GetNumberOfRows(); ++row)
-      {
+    {
       if(Input->GetValue(row, column).ToDouble() != Output->GetValue(row, column).ToDouble())
-        {
+      {
         return false;
-        }
       }
     }
+  }
 
   return true;
 }
@@ -164,11 +164,11 @@ bool TestDataObjectSerialization()
   vtkDataObject *obj = reader->GetOutput();
   DataT* const input_data = DataT::SafeDownCast(obj);
   if(!input_data)
-    {
+  {
     reader->Delete();
     output_data->Delete();
     return false;
-    }
+  }
 
   const bool result = CompareData(output_data, input_data);
 
@@ -183,30 +183,30 @@ int TestDataObjectIO(int /*argc*/, char* /*argv*/[])
   int result = 0;
 
   if(!TestDataObjectSerialization<vtkPolyData>())
-    {
+  {
     cerr << "Error: failure serializing vtkPolyData" << endl;
     result = 1;
-    }
+  }
   if(!TestDataObjectSerialization<vtkRectilinearGrid>())
-    {
+  {
     cerr << "Error: failure serializing vtkRectilinearGrid" << endl;
     result = 1;
-    }
+  }
   if(!TestDataObjectSerialization<vtkStructuredGrid>())
-    {
+  {
     cerr << "Error: failure serializing vtkStructuredGrid" << endl;
     result = 1;
-    }
+  }
   if(!TestDataObjectSerialization<vtkTable>())
-    {
+  {
     cerr << "Error: failure serializing vtkTable" << endl;
     result = 1;
-    }
+  }
   if(!TestDataObjectSerialization<vtkUnstructuredGrid>())
-    {
+  {
     cerr << "Error: failure serializaing vtkUnstructuredGrid" << endl;
     result = 1;
-    }
+  }
 
   return result;
 }

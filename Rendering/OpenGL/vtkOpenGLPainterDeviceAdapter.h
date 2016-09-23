@@ -21,21 +21,24 @@
  * statement of authorship are reproduced on all copies.
  */
 
-// .NAME vtkOpenGLPainterDeviceAdapter - An adapter between a vtkPainter and a rendering device.
-//
-// .SECTION Description
-//
-// An adapter between vtkPainter and the OpenGL rendering system.  Only a
-// handful of attributes with special meaning are supported.  The OpenGL
-// attribute used for each attribute is given below.
-//
-// \verbatim
-// vtkDataSetAttributes::NORMALS          glNormal
-// vtkDataSetAttributes:::SCALARS         glColor
-// vtkDataSetAttributes::TCOORDS          glTexCoord
-// vtkDataSetAttributes::NUM_ATTRIBUTES   glVertex
-// \endverbatim
-//
+/**
+ * @class   vtkOpenGLPainterDeviceAdapter
+ * @brief   An adapter between a vtkPainter and a rendering device.
+ *
+ *
+ *
+ * An adapter between vtkPainter and the OpenGL rendering system.  Only a
+ * handful of attributes with special meaning are supported.  The OpenGL
+ * attribute used for each attribute is given below.
+ *
+ * \verbatim
+ * vtkDataSetAttributes::NORMALS          glNormal
+ * vtkDataSetAttributes:::SCALARS         glColor
+ * vtkDataSetAttributes::TCOORDS          glTexCoord
+ * vtkDataSetAttributes::NUM_ATTRIBUTES   glVertex
+ * \endverbatim
+ *
+*/
 
 #ifndef vtkOpenGLPainterDeviceAdapter_h
 #define vtkOpenGLPainterDeviceAdapter_h
@@ -58,63 +61,79 @@ public:
   static vtkOpenGLPainterDeviceAdapter *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Converts mode from VTK_* to GL_* and calls glBegin.
+  /**
+   * Converts mode from VTK_* to GL_* and calls glBegin.
+   */
   virtual void BeginPrimitive(int mode);
 
-  // Description:
-  // Calls glEnd.
+  /**
+   * Calls glEnd.
+   */
   virtual void EndPrimitive();
 
-  // Description:
-  // Returns if the given attribute type is supported by the device.
-  // Returns 1 is supported, 0 otherwise.
+  /**
+   * Returns if the given attribute type is supported by the device.
+   * Returns 1 is supported, 0 otherwise.
+   */
   virtual int IsAttributesSupported(int attribute);
 
-  // Description:
-  // Calls one of glVertex*, glNormal*, glColor*, or glTexCoord*.
+  /**
+   * Calls one of glVertex*, glNormal*, glColor*, or glTexCoord*.
+   */
   virtual void SendAttribute(int index, int components, int type,
                              const void *attribute, vtkIdType offset=0);
 
-  // Description:
-  // Calls glMultiTex
+  /**
+   * Calls glMultiTex
+   */
   virtual void SendMultiTextureCoords(int numcomp, int type, const void *attribute,
                                       int idx, vtkIdType offset);
 
-  // Description:
-  // Calls one of glVertexPointer, glNormalPointer, glColorPointer, or
-  // glTexCoordPointer.
+  /**
+   * Calls one of glVertexPointer, glNormalPointer, glColorPointer, or
+   * glTexCoordPointer.
+   */
   virtual void SetAttributePointer(int index, int numcomponents, int type,
                                    int stride, const void *pointer);
 
-  // Description:
-  // Calls glEnableClientState or glDisableClientState.
+  //@{
+  /**
+   * Calls glEnableClientState or glDisableClientState.
+   */
   virtual void EnableAttributeArray(int index);
   virtual void DisableAttributeArray(int index);
+  //@}
 
-  // Description:
-  // Calls glDrawArrays.  Mode is converted from VTK_* to GL_*.
+  /**
+   * Calls glDrawArrays.  Mode is converted from VTK_* to GL_*.
+   */
   virtual void DrawArrays(int mode, vtkIdType first, vtkIdType count);
 
-  // Description:
-  // Calls glDrawElements.  Mode and type are converted from VTK_* to GL_*.
+  /**
+   * Calls glDrawElements.  Mode and type are converted from VTK_* to GL_*.
+   */
   virtual void DrawElements(int mode, vtkIdType count, int type, void *indices);
 
-  // Description:
-  // Returns true if renderer is a vtkOpenGLRenderer.
+  /**
+   * Returns true if renderer is a vtkOpenGLRenderer.
+   */
   virtual int Compatible(vtkRenderer *renderer);
 
-  // Description:
-  // Turns emphasis of vertices on or off for vertex selection.
-  // When emphasized verts are drawn nearer to the camera and are drawn
-  // larger than normal to make selection of them more reliable.
+  /**
+   * Turns emphasis of vertices on or off for vertex selection.
+   * When emphasized verts are drawn nearer to the camera and are drawn
+   * larger than normal to make selection of them more reliable.
+   */
   virtual void MakeVertexEmphasis(bool mode);
 
-  // Description:
-  // Control use of the stencil buffer (for vertex selection).
+  //@{
+  /**
+   * Control use of the stencil buffer (for vertex selection).
+   */
   virtual void Stencil(int on);
   virtual void WriteStencil(vtkIdType value);
   virtual void TestStencil(vtkIdType value);
+  //@}
 
 protected:
   vtkOpenGLPainterDeviceAdapter();

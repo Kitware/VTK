@@ -55,93 +55,93 @@ int TestQuaternionSetGet() //use of vtkQuaternionf for this test
   qf.Set(zeroArrayf[0], zeroArrayf[1], zeroArrayf[2], zeroArrayf[3]);
 
   if (sizeof(qf) != sizeof(zeroArrayf))
-    {
+  {
     // The two should be the same size and memory layout - error out if not
     std::cerr << "vtkQuaternionf should be the same size as float[4]."
         << std::endl
         << "sizeof(vtkQuaternionf) = " << sizeof(qf) << std::endl
         << "sizeof(float[4]) = " << sizeof(zeroArrayf) << std::endl;
     ++retVal;
-    }
+  }
   if (qf.GetSize() != 4)
-    {
+  {
     std::cerr << "Incorrect size of vtkQuaternionf, should be 4, but is "
         << qf.GetSize() << std::endl;
     ++retVal;
-    }
+  }
 
   //
   // Test out vtkQuaternionf and ensure the various access methods are the same
   qf.Set(0.0f, 6.0f, 9.0f, 15.0f);
   if (qf.GetW() != qf[0]
       || !vtkMathUtilities::FuzzyCompare<float>(qf.GetW(), 0.0f))
-    {
+  {
     std::cerr << "qf.GetW() should equal qf.GetData()[0] which should equal 0."
       << "\nqf.W() = " << qf.GetW() << std::endl
       << "qf[0] = " << qf[0] << std::endl;
     ++retVal;
-    }
+  }
   if (qf.GetX() != qf[1]
       || !vtkMathUtilities::FuzzyCompare<float>(qf.GetX(), 6.0f))
-    {
+  {
     std::cerr << "qf.GetX() should equal qf.GetData()[1] "
       << "which should equal 6.0. \nqf.GetX() = " << qf.GetX() << std::endl
       << "qf[1] = " << qf[1] << std::endl;
     ++retVal;
-    }
+  }
   if (qf.GetY() != qf[2]
       || !vtkMathUtilities::FuzzyCompare<float>(qf.GetY(), 9.0f))
-    {
+  {
     std::cerr << "qf.GetY() should equal qf.GetData()[2]"
       <<" which should equal 9.0.\nqf.GetY() = " << qf.GetY() <<std:: endl
       << "qf[2] = " << qf[2] << std::endl;
     ++retVal;
-    }
+  }
   if (qf.GetZ() != qf[3]
       || !vtkMathUtilities::FuzzyCompare<float>(qf.GetZ(), 15.0f))
-    {
+  {
     std::cerr << "qf.GetZ() should equal qf.GetData()[3] "
       << "which should equal 15.0.\nqf.Z() = " << qf.GetZ() << std::endl
       << "qf[3] = " << qf[3] << std::endl;
     ++retVal;
-    }
+  }
 
   //
   // Assign the data to an float array and ensure the two ways of
   // referencing are the same.
   float *floatPtr = qf.GetData();
   for (int i = 0; i < 3; ++i)
-    {
+  {
     if (qf[i] != floatPtr[i] || qf(i) != qf[i])
-      {
+    {
       std::cerr << "Error: qf[i] != floatPtr[i]" << std::endl
           << "qf[i] = " << qf[i] << std::endl
           << "floatPtr[i] = " << floatPtr[i] << std::endl;
       ++retVal;
-      }
     }
+  }
 
   //To and from float[4]
   float setArray[4] = {1.0f, -38.0f, 42.0f, 0.0001f};
   qf.Set(setArray);
   if (!qf.Compare( vtkQuaternionf(1.0, -38.0, 42.0, 0.0001), 0.0001))
-    {
+  {
     std::cerr << "Error vtkQuaterniond::Set(float[4]) failed: "
       << qf << std::endl;
     ++retVal;
-    }
+  }
 
   float arrayToCompare[4];
   qf.Get(arrayToCompare);
   for (int i = 0; i < 4; ++i)
-    {
+  {
     if (!vtkMathUtilities::FuzzyCompare(setArray[i], arrayToCompare[i]))
-      {
+    {
       std::cerr << "Error vtkQuaterniond::Get(float[4]) failed: "
         << setArray[i] << "!= " << arrayToCompare[i] << std::endl;
       ++retVal;
-      }
     }
+  }
 
   return retVal;
 }
@@ -157,23 +157,23 @@ int TestQuaternionNormalization() //This test use vtkQuaterniond
   if (!normed.Compare(
         vtkQuaterniond(0.182574, 0.365148, 0.547723, 0.730297),
         0.0001))
-    {
+  {
     std::cerr << "Error vtkQuaterniond::Normalized() failed: "
       << normed << std::endl;
     ++retVal;
-    }
+  }
   normy.Normalize();
   if (!normy.Compare(normed, 0.0001))
-    {
+  {
     std::cerr << "Error vtkQuaterniond::Normalize() failed: "
       << normy << std::endl;
-    }
+  }
   if (!vtkMathUtilities::FuzzyCompare(normy.Norm(), 1.0, 0.0001))
-    {
+  {
     std::cerr << "Normalized length should always be ~= 1.0, value is "
          << normy.Norm() << std::endl;
     ++retVal;
-    }
+  }
 
   return retVal;
 }
@@ -194,45 +194,45 @@ int TestQuaternionConjugationAndInversion() //this test uses vtkQuaternionf
   if (!conjugate.Compare(
         vtkQuaternionf(2.0f, -2.0f, -2.0f, -2.0f),
         0.0001))
-    {
+  {
     std::cerr << "Error vtkQuaternionf::Conjugated() failed: "
       << conjugate << std::endl;
     ++retVal;
-    }
+  }
   float squaredNorm = conjugate.SquaredNorm();
   vtkQuaternionf invToConjugate = conjugate / squaredNorm;
   if (!invToConjugate.Compare(
         vtkQuaternionf(0.125f, -0.125f, -0.125f, -0.125f),
         0.0001))
-    {
+  {
     std::cerr << "Error vtkQuaternionf Divide by Scalar() failed: "
       << invToConjugate << std::endl;
     ++retVal;
-    }
+  }
 
   vtkQuaternionf shouldBeIdentity = invToConjugate * toConjugate;
   vtkQuaternionf identity;
   identity.ToIdentity();
   if (!shouldBeIdentity.Compare(identity, 0.0001))
-    {
+  {
     std::cerr << "Error vtkQuaternionf multiplication failed: "
       << shouldBeIdentity << std::endl;
     ++retVal;
-    }
+  }
   toConjugate.Invert();
   if (!invToConjugate.Compare(toConjugate, 0.0001))
-    {
+  {
     std::cerr << "Error vtkQuaternionf::Inverse failed: "
       << toConjugate << std::endl;
     ++retVal;
-    }
+  }
   shouldBeIdentity.Invert();
   if (!shouldBeIdentity.Compare(identity, 0.0001))
-    {
+  {
     std::cerr << "Error vtkQuaternionf::Inverse failed: "
       << shouldBeIdentity << std::endl;
     ++retVal;
-    }
+  }
 
   return retVal;
 }
@@ -253,11 +253,11 @@ int TestQuaternionRotation() //this test uses vtkQuaterniond
   if (!rotation.Compare(
         vtkQuaterniond(0.996195, 0.0290519, 0.0290519, 0.0290519),
         0.0001))
-    {
+  {
     std::cerr << "Error vtkQuaterniond::SetRotation Angle()"
       <<" and Axis() failed: "<< rotation << std::endl;
     ++retVal;
-    }
+  }
 
   vtkQuaterniond secondRotation;
   secondRotation.SetRotationAngleAndAxis(
@@ -266,11 +266,11 @@ int TestQuaternionRotation() //this test uses vtkQuaterniond
   if (!secondRotation.Compare(
         vtkQuaterniond(0.984808, -0.0578827, 0.0578827, -0.0578827),
         0.0001))
-    {
+  {
     std::cerr << "Error vtkQuaterniond::SetRotation Angle()"
       <<" and Axis() failed: "<< secondRotation << std::endl;
     ++retVal;
-    }
+  }
 
   vtkQuaterniond resultRotation = rotation * secondRotation;
   double axis[3];
@@ -280,18 +280,18 @@ int TestQuaternionRotation() //this test uses vtkQuaterniond
   if (!vtkMathUtilities::FuzzyCompare(axis[0], supposedAxis[0], 0.0001)
     || !vtkMathUtilities::FuzzyCompare(axis[1], supposedAxis[1], 0.0001)
     || !vtkMathUtilities::FuzzyCompare(axis[2], supposedAxis[2], 0.0001))
-    {
+  {
     std::cerr << "Error vtkQuaterniond::GetRotationAxis() failed: "
       << axis[0] << "  " << axis[1] << "  " << axis[2] << std::endl;
     ++retVal;
-    }
+  }
   if (!vtkMathUtilities::FuzzyCompare(
         vtkMath::DegreesFromRadians(angle), 11.121, 0.0001))
-    {
+  {
     std::cerr << "Error vtkQuaterniond::GetRotationAngle() failed: "
       << vtkMath::DegreesFromRadians(angle) << std::endl;
     ++retVal;
-    }
+  }
 
   return retVal;
 }
@@ -312,27 +312,27 @@ int TestQuaternionMatrixConversions() //this test uses vtkQuaternionf
   if (!(quat.Compare(
           vtkQuaternionf(-0.975744, 0.200069, 0.000338168, 0.0888578),
           0.001)))
-    {
+  {
     std::cerr << "Error vtkQuaternionf FromMatrix3x3 failed: "
       << quat << std::endl;
     ++retVal;
-    }
+  }
 
   //an easy one, just to make sure !
   float newM[3][3];
   quat.ToMatrix3x3(newM);
   for (int i = 0; i < 3; ++i)
-    {
+  {
     for (int j = 0; j < 3; ++j)
-      {
+    {
       if (!vtkMathUtilities::FuzzyCompare(M[i][j], newM[i][j], 0.001f))
-        {
+      {
         std::cerr << "Error vtkQuaternionf ToMatrix3x3 failed: "
           << M[i][j] <<" != " << newM[i][j] << std::endl;
         ++retVal;
-        }
       }
     }
+  }
 
   //Rotate -23 degrees around X
   M[0][0] = 1.0;  M[0][1] = 0.0;      M[0][2] = 0.0;
@@ -347,26 +347,26 @@ int TestQuaternionMatrixConversions() //this test uses vtkQuaternionf
   vtkQuaternionf newQuat;
   newQuat.FromMatrix3x3(M);
   if (!(newQuat.Compare(quat, 0.00001)))
-    {
+  {
     std::cerr << "Error vtkQuaternionf FromMatrix3x3 failed: "
       << newQuat <<" != " << quat << std::endl;
     ++retVal;
-    }
+  }
 
   //And compare again !
   quat.ToMatrix3x3(newM);
   for (int i = 0; i < 3; ++i)
-    {
+  {
     for (int j = 0; j < 3; ++j)
-      {
+    {
       if (!vtkMathUtilities::FuzzyCompare( M[i][j], newM[i][j], 0.001f))
-        {
+      {
         std::cerr << "Error vtkQuaternionf ToMatrix3x3 failed: "
           << M[i][j] <<" != " << newM[i][j] << std::endl;
         ++retVal;
-        }
       }
     }
+  }
 
   return retVal;
 }
@@ -383,41 +383,41 @@ int TestQuaternionConversions() //this test uses vtkQuaterniond
   logQuat = quat.UnitLog();
   if (!(logQuat.Compare(vtkQuaterniond(0, -0.19628, 0.13085, 0.00007),
                         0.00001)))
-    {
+  {
     std::cerr << "Error vtkQuaterniond UnitLogQuaternion() failed: "
       << logQuat << std::endl;
     ++retVal;
-    }
+  }
 
   // Exponential
   vtkQuaterniond expQuat = quat.UnitExp();
   if (!(expQuat.Compare(vtkQuaterniond(-0.89429, 0.37234, -0.24822, -0.00012),
                         0.00001)))
-    {
+  {
     std::cerr << "Error vtkQuaterniond UnitExpQuaternion() failed: "
       << expQuat << std::endl;
     ++retVal;
-    }
+  }
 
   // UnitExp(UnitLog(q)) on a normalized quaternion is an identity operation
   vtkQuaterniond normQuat = quat.Normalized();
   if (!(normQuat.Compare(logQuat.UnitExp(), 0.00001)))
-    {
+  {
     std::cerr << "Error vtkQuaterniond UnitExp(UnitLog(q)) is not identity: "
       << logQuat.UnitExp() << " vs. " << normQuat << std::endl;
     ++retVal;
-    }
+  }
 
   //To VTK
   vtkQuaterniond vtkQuat = quat.NormalizedWithAngleInDegrees();
   if (!(vtkQuat.Compare(
           vtkQuaterniond(55.709, -0.194461, 0.129641, 6.48204e-005),
           0.00001)))
-    {
+  {
     std::cerr << "Error vtkQuaterniond UnitForVTKQuaternion() failed: "
       << vtkQuat << std::endl;
     ++retVal;
-    }
+  }
 
   return retVal;
 }
@@ -438,11 +438,11 @@ int TestQuaternionSlerp() //this test uses vtkQuaternionf
 
   if (!(halfQ1.Compare(vtkQuaternionf(0.99444, 0.104907, -0.00254, 0.00883),
                         0.00001)))
-    {
+  {
     std::cerr << "Error vtkQuaternionf Slerp() failed: "
       << halfQ1 << std::endl;
     ++retVal;
-    }
+  }
 
   return retVal;
 }

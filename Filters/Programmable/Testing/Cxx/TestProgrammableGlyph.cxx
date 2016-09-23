@@ -34,9 +34,9 @@ void CalcGlyph(void *arg)
   vtkProgrammableGlyphFilter *glyphFilter = (vtkProgrammableGlyphFilter*) arg;
 
   if(!glyphFilter)
-    {
+  {
     std::cerr << "glyphFilter is not valid!" << std::endl;
-    }
+  }
   double pointCoords[3];
   glyphFilter->GetPoint(pointCoords);
 
@@ -48,15 +48,15 @@ void CalcGlyph(void *arg)
             << pointCoords[2] << std::endl;
 
   if(glyphFilter->GetPointId() == 0)
-    {
+  {
     // Normal use case: should produce cone
     vtkSmartPointer<vtkConeSource> coneSource =
       vtkSmartPointer<vtkConeSource>::New();
     coneSource->SetCenter(pointCoords);
     glyphFilter->SetSourceConnection(coneSource->GetOutputPort());
-    }
+  }
   else if(glyphFilter->GetPointId() == 1)
-    {
+  {
     // NULL SourceConnection, valid SourceData: should produce cube
     vtkSmartPointer<vtkCubeSource> cubeSource =
       vtkSmartPointer<vtkCubeSource>::New();
@@ -64,21 +64,21 @@ void CalcGlyph(void *arg)
     cubeSource->Update();
     glyphFilter->SetSourceConnection(NULL);
     glyphFilter->SetSourceData(cubeSource->GetOutput());
-    }
+  }
   else if(glyphFilter->GetPointId() == 2)
-    {
+  {
     // Normal use case: should produce sphere
     vtkSmartPointer<vtkSphereSource> sphereSource =
       vtkSmartPointer<vtkSphereSource>::New();
     sphereSource->SetCenter(pointCoords);
     glyphFilter->SetSourceConnection(sphereSource->GetOutputPort());
-    }
+  }
   else
-    {
+  {
     // NULL SourceConnection and NULL SourceData: should produce nothing
     glyphFilter->SetSourceConnection(NULL);
     glyphFilter->SetSourceData(NULL);
-    }
+  }
 }
 
 int TestProgrammableGlyph(int, char *[])

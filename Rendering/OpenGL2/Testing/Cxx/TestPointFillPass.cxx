@@ -130,11 +130,11 @@ int TestPointFillPass(int argc, char* argv[])
   timer->StartTimer();
   int numRenders = 4;
   for (int i = 0; i < numRenders; ++i)
-    {
+  {
     renderer->GetActiveCamera()->Azimuth(80.0/numRenders);
     renderer->GetActiveCamera()->Elevation(88.0/numRenders);
     renWin->Render();
-    }
+  }
   timer->StopTimer();
   double elapsed = timer->GetElapsedTime();
   cerr << "interactive render time: " << elapsed / numRenders << endl;
@@ -153,8 +153,8 @@ int TestPointFillPass(int argc, char* argv[])
   int retVal = vtkRegressionTestImage( renWin.Get() );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
   return !retVal;
 }

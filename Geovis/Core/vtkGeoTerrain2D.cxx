@@ -86,9 +86,9 @@ int vtkGeoTerrain2D::EvaluateNode(vtkGeoTerrainNode* cur)
   bool textureErrorOk = patchSize < maxPatchSize;
 
   if (!locationErrorOk || !textureErrorOk)
-    {
+  {
     return 1;
-    }
+  }
   return 0;
 }
 
@@ -104,9 +104,9 @@ void vtkGeoTerrain2D::PrintSelf(ostream & os, vtkIndent indent)
 vtkAbstractTransform* vtkGeoTerrain2D::GetTransform()
 {
   if(this->GeoSource != NULL)
-    {
+  {
     return this->GeoSource->GetTransform();
-    }
+  }
   return NULL;
 }
 

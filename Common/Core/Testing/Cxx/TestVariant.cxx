@@ -37,10 +37,10 @@ int TestVariant(int, char*[])
   int numTypes = 7;
 
   for (int i = 0; i < numTypes; i++)
-    {
+  {
     vtkVariant v;
     switch(type[i])
-      {
+    {
       case VTK_INT:
         v = static_cast<int>(value);
         break;
@@ -64,116 +64,116 @@ int TestVariant(int, char*[])
         break;
       default:
         continue;
-      }
+    }
     cerr << "v = " << v << " (" << vtkImageScalarTypeNameMacro(type[i]) << ")\n";
     for (int j = 0; j < numTypes; j++)
-      {
+    {
       vtkStdString str;
       switch(type[j])
-        {
+      {
         case VTK_INT:
-          {
+        {
           int conv = v.ToInt();
           if (conv != static_cast<int>(value))
-            {
+          {
             cerr << "conversion invalid ("
               << vtkImageScalarTypeNameMacro(type[i])
               << " " << conv << " != "
               << vtkImageScalarTypeNameMacro(type[j])
               << " " << static_cast<int>(value) << ")" << endl;
             errors++;
-            }
-          break;
           }
+          break;
+        }
         case VTK_UNSIGNED_INT:
-          {
+        {
           unsigned int conv = v.ToUnsignedInt();
           if (conv != static_cast<unsigned int>(value))
-            {
+          {
             cerr << "conversion invalid ("
               << vtkImageScalarTypeNameMacro(type[i])
               << " " << conv << " != "
               << vtkImageScalarTypeNameMacro(type[j])
               << " " << static_cast<unsigned int>(value) << ")" << endl;
             errors++;
-            }
-          break;
           }
+          break;
+        }
         case VTK_TYPE_INT64:
-          {
+        {
           vtkTypeInt64 conv = v.ToTypeInt64();
           if (conv != static_cast<vtkTypeInt64>(value))
-            {
+          {
             cerr << "conversion invalid ("
               << vtkImageScalarTypeNameMacro(type[i])
               << " " << conv << " != "
               << vtkImageScalarTypeNameMacro(type[j])
               << " " << static_cast<vtkTypeInt64>(value) << ")" << endl;
             errors++;
-            }
-          break;
           }
+          break;
+        }
         case VTK_TYPE_UINT64:
-          {
+        {
           vtkTypeUInt64 conv = v.ToTypeUInt64();
           if (conv != static_cast<vtkTypeUInt64>(value))
-            {
+          {
             cerr << "conversion invalid ("
               << vtkImageScalarTypeNameMacro(type[i])
               << " " << conv << " != "
               << vtkImageScalarTypeNameMacro(type[j])
               << " " << static_cast<vtkTypeUInt64>(value) << ")" << endl;
             errors++;
-            }
-          break;
           }
+          break;
+        }
         case VTK_FLOAT:
-          {
+        {
           float conv = v.ToFloat();
           if (conv != static_cast<float>(value))
-            {
+          {
             cerr << "conversion invalid ("
               << vtkImageScalarTypeNameMacro(type[i])
               << " " << conv << " != "
               << vtkImageScalarTypeNameMacro(type[j])
               << " " << static_cast<float>(value) << ")" << endl;
             errors++;
-            }
-          break;
           }
+          break;
+        }
         case VTK_DOUBLE:
-          {
+        {
           double conv = v.ToDouble();
           if (conv != static_cast<double>(value))
-            {
+          {
             cerr << "conversion invalid ("
               << vtkImageScalarTypeNameMacro(type[i])
               << " " << conv << " != "
               << vtkImageScalarTypeNameMacro(type[j])
               << " " << static_cast<double>(value) << ")" << endl;
             errors++;
-            }
-          break;
           }
+          break;
+        }
         case VTK_STRING:
-          {
+        {
           vtkStdString conv = v.ToString();
           if (conv != vtkStdString(strValue))
-            {
+          {
             cerr << "conversion invalid ("
               << vtkImageScalarTypeNameMacro(type[i])
               << " " << conv << " != "
               << vtkImageScalarTypeNameMacro(type[j])
               << " " << strValue << ")" << endl;
             errors++;
-            }
-          break;
           }
+          break;
+        }
         default:
           continue;
-        }
       }
     }
+  }
 
   vtkVariant flt(0.583f);
   vtkVariant dbl(0.583);
@@ -183,10 +183,10 @@ int TestVariant(int, char*[])
     !(str == dbl) || str < dbl || str > dbl ||
     !(flt == str) || flt < str || flt > str
     )
-    {
+  {
     cerr << "Comparison of dissimilar-precision floats failed.\n";
     errors++;
-    }
+  }
 
   return errors;
 }

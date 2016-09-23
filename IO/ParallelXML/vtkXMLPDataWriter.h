@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPDataWriter - Write data in a parallel XML format.
-// .SECTION Description
-// vtkXMLPDataWriter is the superclass for all XML parallel data set
-// writers.  It provides functionality needed for writing parallel
-// formats, such as the selection of which writer writes the summary
-// file and what range of pieces are assigned to each serial writer.
+/**
+ * @class   vtkXMLPDataWriter
+ * @brief   Write data in a parallel XML format.
+ *
+ * vtkXMLPDataWriter is the superclass for all XML parallel data set
+ * writers.  It provides functionality needed for writing parallel
+ * formats, such as the selection of which writer writes the summary
+ * file and what range of pieces are assigned to each serial writer.
+*/
 
 #ifndef vtkXMLPDataWriter_h
 #define vtkXMLPDataWriter_h
@@ -34,43 +37,59 @@ public:
   vtkTypeMacro(vtkXMLPDataWriter,vtkXMLWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get/Set the number of pieces that are being written in parallel.
+  //@{
+  /**
+   * Get/Set the number of pieces that are being written in parallel.
+   */
   vtkSetMacro(NumberOfPieces, int);
   vtkGetMacro(NumberOfPieces, int);
+  //@}
 
-  // Description:
-  // Get/Set the range of pieces assigned to this writer.
+  //@{
+  /**
+   * Get/Set the range of pieces assigned to this writer.
+   */
   vtkSetMacro(StartPiece, int);
   vtkGetMacro(StartPiece, int);
   vtkSetMacro(EndPiece, int);
   vtkGetMacro(EndPiece, int);
+  //@}
 
-  // Description:
-  // Get/Set the ghost level used for this writer's piece.
+  //@{
+  /**
+   * Get/Set the ghost level used for this writer's piece.
+   */
   vtkSetMacro(GhostLevel, int);
   vtkGetMacro(GhostLevel, int);
+  //@}
 
-  // Description:
-  // Get/Set whether the writer should write the summary file that
-  // refers to all of the pieces' individual files.
-  // This is on by default. Note that only the first process writes
-  // the summary file.
+  //@{
+  /**
+   * Get/Set whether the writer should write the summary file that
+   * refers to all of the pieces' individual files.
+   * This is on by default. Note that only the first process writes
+   * the summary file.
+   */
   virtual void SetWriteSummaryFile(int flag);
   vtkGetMacro(WriteSummaryFile, int);
   vtkBooleanMacro(WriteSummaryFile, int);
+  //@}
 
-  // Description:
-  // Controller used to communicate data type of blocks.
-  // By default, the global controller is used. If you want another
-  // controller to be used, set it with this.
+  //@{
+  /**
+   * Controller used to communicate data type of blocks.
+   * By default, the global controller is used. If you want another
+   * controller to be used, set it with this.
+   */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
 
 
-  // Description:
-  // Overridden to handle passing the CONTINUE_EXECUTING() flags to the
-  // executive.
+  /**
+   * Overridden to handle passing the CONTINUE_EXECUTING() flags to the
+   * executive.
+   */
   virtual int ProcessRequest(vtkInformation* request,
     vtkInformationVector** inputVector, vtkInformationVector* outputVector);
 
@@ -78,8 +97,9 @@ protected:
   vtkXMLPDataWriter();
   ~vtkXMLPDataWriter();
 
-  // Description:
-  // Overridden to make appropriate piece request from upstream.
+  /**
+   * Overridden to make appropriate piece request from upstream.
+   */
   virtual int RequestUpdateExtent(vtkInformation *request,
     vtkInformationVector **inputVector, vtkInformationVector *outputVector);
 
@@ -124,20 +144,25 @@ protected:
 
   vtkMultiProcessController* Controller;
 
-  // Description:
-  // Valid at end of WriteInternal to indicate if we're going to continue
-  // execution.
+  //@{
+  /**
+   * Valid at end of WriteInternal to indicate if we're going to continue
+   * execution.
+   */
   vtkGetMacro(ContinuingExecution, bool);
 private:
   vtkXMLPDataWriter(const vtkXMLPDataWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkXMLPDataWriter&) VTK_DELETE_FUNCTION;
+  //@}
 
-  // Description:
-  // Method used to delete all written files.
+  /**
+   * Method used to delete all written files.
+   */
   void DeleteFiles();
 
-  // Description:
-  // Initializes PieceFileNameExtension.
+  /**
+   * Initializes PieceFileNameExtension.
+   */
   void SetupPieceFileNameExtension();
 
   // Indicates the piece currently being written.

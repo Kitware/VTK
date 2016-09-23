@@ -32,12 +32,12 @@ vtkRenderWindowInteractor* vtkContextKeyEvent::GetInteractor() const
 char vtkContextKeyEvent::GetKeyCode() const
 {
   if (this->Interactor)
-    {
+  {
     return this->Interactor->GetKeyCode();
-    }
+  }
   else
-    {
+  {
     // This should never happen, perhaps there is a better return value?
     return 0;
-    }
+  }
 }

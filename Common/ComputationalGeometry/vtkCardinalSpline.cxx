@@ -36,34 +36,34 @@ double vtkCardinalSpline::Evaluate (double t)
 
   // check to see if we need to recompute the spline
   if (this->ComputeTime < this->GetMTime ())
-    {
+  {
     this->Compute ();
-    }
+  }
 
   // make sure we have at least 2 points
   int size = this->PiecewiseFunction->GetSize ();
   if (size < 2)
-    {
+  {
     return 0.0;
-    }
+  }
 
   intervals = this->Intervals;
   coefficients = this->Coefficients;
 
   if ( this->Closed )
-    {
+  {
     size = size + 1;
-    }
+  }
 
   // clamp the function at both ends
   if (t < intervals[0])
-    {
+  {
     t = intervals[0];
-    }
+  }
   if (t > intervals[size - 1])
-    {
+  {
     t = intervals[size - 1];
-    }
+  }
 
   // find pointer to cubic spline coefficient using bisection method
   index = this->FindIndex(size,t);
@@ -93,10 +93,10 @@ void vtkCardinalSpline::Compute ()
   size = this->PiecewiseFunction->GetSize ();
 
   if(size < 2)
-    {
+  {
     vtkErrorMacro("Cannot compute a spline with less than 2 points. # of points is: " << size);
     return;
-    }
+  }
 
   // copy the independent variables. Note that if the spline
   // is closed the first and last point are assumed repeated -
@@ -104,13 +104,13 @@ void vtkCardinalSpline::Compute ()
   delete [] this->Intervals;
 
   if ( !this->Closed )
-    {
+  {
     this->Intervals = new double[size];
     ts = this->PiecewiseFunction->GetDataPointer ();
     for (i = 0; i < size; i++)
-      {
+    {
       this->Intervals[i] = *(ts + 2*i);
-      }
+    }
 
     // allocate memory for work arrays
     work = new double[size];
@@ -128,33 +128,33 @@ void vtkCardinalSpline::Compute ()
     // get the dependent variable values
     xs = this->PiecewiseFunction->GetDataPointer () + 1;
     for (int j = 0; j < size; j++)
-      {
+    {
       *(dependent + j) = *(xs + 2*j);
-      }
+    }
 
     this->Fit1D (size, this->Intervals, dependent,
                  work, (double (*)[4])coefficients,
                  this->LeftConstraint, this->LeftValue,
                  this->RightConstraint, this->RightValue);
-    }
+  }
 
   else //add extra "fictitious" point to close loop
-    {
+  {
     size = size + 1;
     this->Intervals = new double[size];
     ts = this->PiecewiseFunction->GetDataPointer ();
     for (i = 0; i < size-1; i++)
-      {
+    {
       this->Intervals[i] = *(ts + 2*i);
-      }
+    }
     if ( this->ParametricRange[0] != this->ParametricRange[1] )
-      {
+    {
       this->Intervals[size-1] = this->ParametricRange[1];
-      }
+    }
     else
-      {
+    {
       this->Intervals[size-1] = this->Intervals[size-2] + 1.0;
-      }
+    }
 
     // allocate memory for work arrays
     work = new double[size];
@@ -172,14 +172,14 @@ void vtkCardinalSpline::Compute ()
     // get the dependent variable values
     xs = this->PiecewiseFunction->GetDataPointer () + 1;
     for (int j = 0; j < size-1; j++)
-      {
+    {
       *(dependent + j) = *(xs + 2*j);
-      }
+    }
     dependent[size-1] = *xs;
 
     this->FitClosed1D (size, this->Intervals, dependent,
                        work, (double (*)[4])coefficients);
-    }
+  }
 
   // free the work array and dependent variable storage
   delete [] work;
@@ -204,7 +204,7 @@ void vtkCardinalSpline::Fit1D (int size, double *x, double *y,
 
   // develop constraint at leftmost point.
   switch (leftConstraint)
-    {
+  {
     case 0:
       // desired slope at leftmost point is derivative from two points
       coefficients[0][1] = 1.0;
@@ -236,11 +236,11 @@ void vtkCardinalSpline::Fit1D (int size, double *x, double *y,
     default:
       assert("check: impossible case." && 0); // reaching this line is a bug.
       break;
-    }
+  }
 
     // develop body of band matrix.
   for (k = 1; k < size - 1; k++)
-    {
+  {
     xlk = x[k] - x[k-1];
     xlkp = x[k+1] - x[k];
     coefficients[k][0] = xlkp;
@@ -248,12 +248,12 @@ void vtkCardinalSpline::Fit1D (int size, double *x, double *y,
     coefficients[k][2] = xlk;
     work[k] = 3.0 * (((xlkp * (y[k] - y[k-1])) / xlk) +
                      ((xlk * (y[k+1] - y[k])) / xlkp));
-    }
+  }
 
 
   // develop constraint at rightmost point.
   switch (rightConstraint)
-    {
+  {
     case 0:
       // desired slope at leftmost point is derivative from two points
       coefficients[size - 1][0] = 0.0;
@@ -287,7 +287,7 @@ void vtkCardinalSpline::Fit1D (int size, double *x, double *y,
     default:
       assert("check: impossible case." && 0); // reaching this line is a bug.
       break;
-    }
+  }
 
   // solve resulting set of equations.
   coefficients[0][2] = coefficients[0][2] / coefficients[0][1];
@@ -295,25 +295,25 @@ void vtkCardinalSpline::Fit1D (int size, double *x, double *y,
   coefficients[size-1][2] = 0.0;
 
   for (k = 1; k < size; k++)
-    {
+  {
     coefficients[k][1] = coefficients[k][1] - (coefficients[k][0] *
                                                coefficients[k-1][2]);
     coefficients[k][2] = coefficients[k][2] / coefficients[k][1];
     work[k]  = (work[k] - (coefficients[k][0] * work[k-1]))
       / coefficients[k][1];
-    }
+  }
 
   for (k = size - 2; k >= 0; k--)
-    {
+  {
     work[k] = work[k] - (coefficients[k][2] * work[k+1]);
-    }
+  }
 
   // the column vector work now contains the first
   // derivative of the spline function at each joint.
   // compute the coefficients of the cubic between
   // each pair of joints.
   for (k = 0; k < size - 1; k++)
-    {
+  {
     b = x[k+1] - x[k];
     coefficients[k][0] = y[k];
     coefficients[k][1] = work[k];
@@ -321,7 +321,7 @@ void vtkCardinalSpline::Fit1D (int size, double *x, double *y,
       (work[k+1] + 2.0 * work[k]) / b;
     coefficients[k][3] = (2.0 * (y[k] - y[k+1])) / (b * b * b) +
       (work[k+1] + work[k]) / (b * b);
-    }
+  }
 
   // the coefficients of a fictitious nth cubic
   // are evaluated.  This may simplify
@@ -354,7 +354,7 @@ void vtkCardinalSpline::FitClosed1D (int size, double *x, double *y,
   // develop body of band matrix.
   //
   for (k = 1; k < N; k++)
-    {
+  {
     xlk = x[k] - x[k-1];
     xlkp = x[k+1] - x[k];
     coefficients[k][0] = xlkp;
@@ -362,7 +362,7 @@ void vtkCardinalSpline::FitClosed1D (int size, double *x, double *y,
     coefficients[k][2] = xlk;
     work[k] = 3.0 * (((xlkp * (y[k] - y[k-1])) / xlk) +
                      ((xlk * (y[k+1] - y[k])) / xlkp));
-    }
+  }
 
   xlk = x[N] - x[N-1];
   xlkp = x[1] - x[0];
@@ -379,7 +379,7 @@ void vtkCardinalSpline::FitClosed1D (int size, double *x, double *y,
   coefficients[0][3] = 1.0;
 
   for (k = 1; k <= N; k++)
-    {
+  {
     coefficients[k][1] = coefficients[k][1] -
       (coefficients[k][0] * coefficients[k-1][2]);
     coefficients[k][2] = coefficients[k][2] / coefficients[k][1];
@@ -387,33 +387,33 @@ void vtkCardinalSpline::FitClosed1D (int size, double *x, double *y,
       / coefficients[k][1];
     coefficients[k][3] = (-1.0 * coefficients[k][0] *
                           coefficients[k-1][3]) / coefficients[k][1];
-    }
+  }
 
   coefficients[N][0] = 1.0;
   coefficients[N][1] = 0.0;
 
   for (k = N - 1; k > 0; k--)
-    {
+  {
     coefficients[k][0] = coefficients[k][3] -
       coefficients[k][2] * coefficients[k+1][0];
     coefficients[k][1] = work[k] - coefficients[k][2] * coefficients[k+1][1];
-    }
+  }
 
   work[0] = work[N] = (dN - cN * coefficients[1][1] -
                        aN * coefficients[N-1][1]) / ( bN +
                        cN * coefficients[1][0] + aN * coefficients[N-1][0]);
 
   for (k=1; k < N; k++)
-    {
+  {
     work[k] = coefficients[k][0] * work[N] + coefficients[k][1];
-    }
+  }
 
   // the column vector work now contains the first
   // derivative of the spline function at each joint.
   // compute the coefficients of the cubic between
   // each pair of joints.
   for (k = 0; k < N; k++)
-    {
+  {
     b = x[k+1] - x[k];
     coefficients[k][0] = y[k];
     coefficients[k][1] = work[k];
@@ -421,7 +421,7 @@ void vtkCardinalSpline::FitClosed1D (int size, double *x, double *y,
       (work[k+1] + 2.0 * work[k]) / b;
     coefficients[k][3] = (2.0 * (y[k] - y[k+1])) / (b * b * b) +
       (work[k+1] + work[k]) / (b * b);
-    }
+  }
 
 
   // the coefficients of a fictitious nth cubic
@@ -439,9 +439,9 @@ void vtkCardinalSpline::DeepCopy(vtkSpline *s)
   vtkCardinalSpline *spline = vtkCardinalSpline::SafeDownCast(s);
 
   if ( spline != NULL )
-    {
+  {
     //nothing to do
-    }
+  }
 
   // Now do superclass
   this->vtkSpline::DeepCopy(s);

@@ -36,14 +36,14 @@ vtkOSPRayWindowNode::vtkOSPRayWindowNode()
   int ac = 1;
   const char* av[] = {"pvOSPRay\0"};
   try
-    {
+  {
     ospInit(&ac, av);
-    }
+  }
   catch (std::runtime_error &vtkNotUsed(e))
-    {
+  {
     //todo: request addition of ospFinalize() to ospray
     //cerr << "warning: double init" << endl;
-    }
+  }
   vtkOSPRayViewNodeFactory *fac = vtkOSPRayViewNodeFactory::New();
   this->SetMyFactory(fac);
   fac->Delete();
@@ -64,7 +64,7 @@ void vtkOSPRayWindowNode::PrintSelf(ostream& os, vtkIndent indent)
 void vtkOSPRayWindowNode::Render(bool prepass)
 {
   if (!prepass)
-    {
+  {
     //composite all renderers framebuffers together
     this->ColorBuffer->SetNumberOfComponents(4);
     this->ColorBuffer->SetNumberOfTuples(this->Size[0]*this->Size[1]);
@@ -83,22 +83,22 @@ void vtkOSPRayWindowNode::Render(bool prepass)
     int layer = 0;
     int count = 0;
     while (count < renderers->GetNumberOfItems())
-      {
+    {
       it->InitTraversal();
       while (!it->IsDoneWithTraversal())
-        {
+      {
         vtkOSPRayRendererNode *child =
           vtkOSPRayRendererNode::SafeDownCast(it->GetCurrentObject());
         vtkRenderer *ren = vtkRenderer::SafeDownCast(child->GetRenderable());
         if (ren->GetLayer() == layer)
-          {
+        {
           child->WriteLayer(rgba, z, this->Size[0], this->Size[1], layer);
           count++;
-          }
-        it->GoToNextItem();
         }
-      layer++;
+        it->GoToNextItem();
       }
-    it->Delete();
+      layer++;
     }
+    it->Delete();
+  }
 }

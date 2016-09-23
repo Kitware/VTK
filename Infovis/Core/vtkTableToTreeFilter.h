@@ -17,14 +17,17 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkTableToTreeFilter - Filter that converts a vtkTable to a vtkTree
-//
-// .SECTION Description
-//
-// vtkTableToTreeFilter is a filter for converting a vtkTable data structure
-// into a vtkTree datastructure.  Currently, this will convert the table into
-// a star, with each row of the table as a child of a new root node.
-// The columns of the table are passed as node fields of the tree.
+/**
+ * @class   vtkTableToTreeFilter
+ * @brief   Filter that converts a vtkTable to a vtkTree
+ *
+ *
+ *
+ * vtkTableToTreeFilter is a filter for converting a vtkTable data structure
+ * into a vtkTree datastructure.  Currently, this will convert the table into
+ * a star, with each row of the table as a child of a new root node.
+ * The columns of the table are passed as node fields of the tree.
+*/
 
 #ifndef vtkTableToTreeFilter_h
 #define vtkTableToTreeFilter_h

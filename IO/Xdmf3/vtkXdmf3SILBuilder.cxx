@@ -42,41 +42,41 @@ vtkXdmf3SILBuilder::vtkXdmf3SILBuilder()
 vtkXdmf3SILBuilder::~vtkXdmf3SILBuilder()
 {
   if (this->SIL)
-    {
+  {
     this->SIL->Delete();
-    }
+  }
   if (this->NamesArray)
-    {
+  {
     this->NamesArray->Delete();
-    }
+  }
   if (this->CrossEdgesArray)
-    {
+  {
     this->CrossEdgesArray->Delete();
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
 void vtkXdmf3SILBuilder::Initialize()
 {
   if (this->SIL)
-    {
+  {
     this->SIL->Delete();
-    }
+  }
   this->SIL = vtkMutableDirectedGraph::New();
   this->SIL->Initialize();
 
   if (this->NamesArray)
-    {
+  {
     this->NamesArray->Delete();
-    }
+  }
   this->NamesArray = vtkStringArray::New();
   this->NamesArray->SetName("Names");
   this->SIL->GetVertexData()->AddArray(this->NamesArray);
 
   if (this->CrossEdgesArray)
-    {
+  {
     this->CrossEdgesArray->Delete();
-    }
+  }
 
   this->CrossEdgesArray = vtkUnsignedCharArray::New();
   this->CrossEdgesArray->SetName("CrossEdges");

@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWarpTo - deform geometry by warping towards a point
-// .SECTION Description
-// vtkWarpTo is a filter that modifies point coordinates by moving the
-// points towards a user specified position.
+/**
+ * @class   vtkWarpTo
+ * @brief   deform geometry by warping towards a point
+ *
+ * vtkWarpTo is a filter that modifies point coordinates by moving the
+ * points towards a user specified position.
+*/
 
 #ifndef vtkWarpTo_h
 #define vtkWarpTo_h
@@ -30,22 +33,31 @@ public:
   vtkTypeMacro(vtkWarpTo,vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set/Get the value to scale displacement.
+  //@{
+  /**
+   * Set/Get the value to scale displacement.
+   */
   vtkSetMacro(ScaleFactor,double);
   vtkGetMacro(ScaleFactor,double);
+  //@}
 
-  // Description:
-  // Set/Get the position to warp towards.
+  //@{
+  /**
+   * Set/Get the position to warp towards.
+   */
   vtkGetVectorMacro(Position,double,3);
   vtkSetVector3Macro(Position,double);
+  //@}
 
-  // Description:
-  // Set/Get the Absolute ivar. Turning Absolute on causes scale factor
-  // of the new position to be one unit away from Position.
+  //@{
+  /**
+   * Set/Get the Absolute ivar. Turning Absolute on causes scale factor
+   * of the new position to be one unit away from Position.
+   */
   vtkSetMacro(Absolute,int);
   vtkGetMacro(Absolute,int);
   vtkBooleanMacro(Absolute,int);
+  //@}
 
   int FillInputPortInformation(int port, vtkInformation *info);
 

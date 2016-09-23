@@ -61,21 +61,21 @@ vtkGaussianBlurPass::vtkGaussianBlurPass()
 vtkGaussianBlurPass::~vtkGaussianBlurPass()
 {
   if(this->FrameBufferObject!=0)
-    {
+  {
     vtkErrorMacro(<<"FrameBufferObject should have been deleted in ReleaseGraphicsResources().");
-    }
+  }
    if(this->Pass1!=0)
-    {
+   {
     vtkErrorMacro(<<"Pass1 should have been deleted in ReleaseGraphicsResources().");
-    }
+   }
    if(this->Pass2!=0)
-    {
+   {
     vtkErrorMacro(<<"Pass2 should have been deleted in ReleaseGraphicsResources().");
-    }
+   }
    if(this->BlurProgram!=0)
-     {
+   {
      this->BlurProgram->Delete();
-     }
+   }
 }
 
 // ----------------------------------------------------------------------------
@@ -99,50 +99,50 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
   vtkRenderer *r=s->GetRenderer();
 
   if(this->DelegatePass!=0)
-    {
+  {
     if(!this->SupportProbed)
-      {
+    {
       this->SupportProbed=true;
       // Test for Hardware support. If not supported, just render the delegate.
       bool supported=vtkFrameBufferObject::IsSupported(r->GetRenderWindow());
 
       if(!supported)
-        {
+      {
         vtkErrorMacro("FBOs are not supported by the context. Cannot blur the image.");
-        }
+      }
       if(supported)
-        {
+      {
         supported=vtkTextureObject::IsSupported(r->GetRenderWindow());
         if(!supported)
-          {
+        {
           vtkErrorMacro("Texture Objects are not supported by the context. Cannot blur the image.");
-          }
         }
+      }
 
       if(supported)
-        {
+      {
         supported=
           vtkShaderProgram2::IsSupported(static_cast<vtkOpenGLRenderWindow *>(
                                            r->GetRenderWindow()));
         if(!supported)
-          {
+        {
           vtkErrorMacro("GLSL is not supported by the context. Cannot blur the image.");
-          }
         }
+      }
 
       if(supported)
-        {
+      {
         // FBO extension is supported. Is the specific FBO format supported?
         if(this->FrameBufferObject==0)
-          {
+        {
           this->FrameBufferObject=vtkFrameBufferObject::New();
           this->FrameBufferObject->SetContext(r->GetRenderWindow());
-          }
+        }
         if(this->Pass1==0)
-          {
+        {
           this->Pass1=vtkTextureObject::New();
           this->Pass1->SetContext(r->GetRenderWindow());
-          }
+        }
         this->Pass1->Create2D(64,64,4,VTK_UNSIGNED_CHAR,false);
         this->FrameBufferObject->SetColorBuffer(0,this->Pass1);
         this->FrameBufferObject->SetNumberOfRenderTargets(1);
@@ -153,26 +153,26 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
         glGetIntegerv(GL_DRAW_BUFFER,&savedCurrentDrawBuffer);
         supported=this->FrameBufferObject->StartNonOrtho(64,64,false);
         if(!supported)
-          {
+        {
           vtkErrorMacro("The requested FBO format is not supported by the context. Cannot blur the image.");
-          }
+        }
         else
-          {
+        {
           this->FrameBufferObject->UnBind();
           glDrawBuffer(static_cast<GLenum>(savedCurrentDrawBuffer));
-          }
         }
-
-      this->Supported=supported;
       }
 
+      this->Supported=supported;
+    }
+
     if(!this->Supported)
-      {
+    {
       this->DelegatePass->Render(s);
       this->NumberOfRenderedProps+=
         this->DelegatePass->GetNumberOfRenderedProps();
       return;
-      }
+    }
 
     GLint savedDrawBuffer;
     glGetIntegerv(GL_DRAW_BUFFER,&savedDrawBuffer);
@@ -192,16 +192,16 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
     int h=height+extraPixels*2;
 
     if(this->Pass1==0)
-      {
+    {
       this->Pass1=vtkTextureObject::New();
       this->Pass1->SetContext(r->GetRenderWindow());
-      }
+    }
 
     if(this->FrameBufferObject==0)
-      {
+    {
       this->FrameBufferObject=vtkFrameBufferObject::New();
       this->FrameBufferObject->SetContext(r->GetRenderWindow());
-      }
+    }
 
     this->RenderDelegate(s,width,height,w,h,this->FrameBufferObject,
                          this->Pass1);
@@ -249,18 +249,18 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
 
     // 3. Same FBO, but new color attachment (new TO).
     if(this->Pass2==0)
-      {
+    {
       this->Pass2=vtkTextureObject::New();
       this->Pass2->SetContext(this->FrameBufferObject->GetContext());
-      }
+    }
 
     if(this->Pass2->GetWidth()!=static_cast<unsigned int>(w) ||
        this->Pass2->GetHeight()!=static_cast<unsigned int>(h))
-      {
+    {
       this->Pass2->Create2D(static_cast<unsigned int>(w),
                             static_cast<unsigned int>(h),4,
                             VTK_UNSIGNED_CHAR,false);
-      }
+    }
 
     this->FrameBufferObject->SetColorBuffer(0,this->Pass2);
     this->FrameBufferObject->Start(w,h,false);
@@ -274,7 +274,7 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
     // (this->Pass2 is the fbo render target)
 
     if(this->BlurProgram==0)
-      {
+    {
       this->BlurProgram=vtkShaderProgram2::New();
       this->BlurProgram->SetContext(
         static_cast<vtkOpenGLRenderWindow *>(
@@ -285,7 +285,7 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
       shader->SetContext(this->BlurProgram->GetContext());
       this->BlurProgram->GetShaders()->AddItem(shader);
       shader->Delete();
-      }
+    }
 
     this->BlurProgram->Build();
 
@@ -299,14 +299,14 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
 #endif
 
     if(this->BlurProgram->GetLastBuildStatus()!=VTK_SHADER_PROGRAM2_LINK_SUCCEEDED)
-      {
+    {
       vtkErrorMacro("Couldn't build the shader program. At this point , it can be an error in a shader or a driver bug.");
 
       // restore some state.
       this->FrameBufferObject->UnBind();
       glDrawBuffer(static_cast<GLenum>(savedDrawBuffer));
       return;
-      }
+    }
 
     vtkUniformVariables *var=this->BlurProgram->GetUniformVariables();
     vtkTextureUnitManager *tu=
@@ -326,18 +326,18 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
     int i=0;
     float sum=0.0f;
     while(i<3)
-      {
+    {
       sum+=kernel[i];
       ++i;
-      }
+    }
 
     // kernel
     i=0;
     while(i<3)
-      {
+    {
       fvalues[i]=kernel[i]/sum;
       ++i;
-      }
+    }
     var->SetUniformf("coef[0]",1,fvalues);
     var->SetUniformf("coef[1]",1,fvalues+1);
     var->SetUniformf("coef[2]",1,fvalues+2);
@@ -360,9 +360,9 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
 #endif
 
     if(!this->BlurProgram->IsValid())
-      {
+    {
       vtkErrorMacro(<<this->BlurProgram->GetLastValidateLog());
-      }
+    }
 #ifdef VTK_GAUSSIAN_BLUR_PASS_DEBUG
     cout << "gauss finish3-" << endl;
     glFinish();
@@ -430,9 +430,9 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
 
     this->BlurProgram->SendUniforms();
     if(!this->BlurProgram->IsValid())
-      {
+    {
       vtkErrorMacro(<<this->BlurProgram->GetLastValidateLog());
-      }
+    }
 
 
     // Prepare blitting
@@ -456,11 +456,11 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
 #endif
 
     this->BlurProgram->Restore();
-    }
+  }
   else
-    {
+  {
     vtkWarningMacro(<<" no delegate.");
-    }
+  }
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
@@ -477,22 +477,22 @@ void vtkGaussianBlurPass::ReleaseGraphicsResources(vtkWindow *w)
   this->Superclass::ReleaseGraphicsResources(w);
 
   if(this->BlurProgram!=0)
-    {
+  {
     this->BlurProgram->ReleaseGraphicsResources();
-    }
+  }
   if(this->FrameBufferObject!=0)
-    {
+  {
     this->FrameBufferObject->Delete();
     this->FrameBufferObject=0;
-    }
+  }
    if(this->Pass1!=0)
-    {
+   {
     this->Pass1->Delete();
     this->Pass1=0;
-    }
+   }
    if(this->Pass2!=0)
-    {
+   {
     this->Pass2->Delete();
     this->Pass2=0;
-    }
+   }
 }

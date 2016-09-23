@@ -63,10 +63,10 @@ int TestKdTreeFunctions()
   double distance;
   vtkIdType id = kd->FindClosestPoint(0.5, 0.5, 0.5, distance);
   if (id != 3)
-    {
+  {
     cerr << "FindClosestPoint failed" << endl;
     retVal++;
-    }
+  }
 
   double area[6] =
     {
@@ -78,20 +78,20 @@ int TestKdTreeFunctions()
   kd->FindPointsInArea(area, ids);
   vtkIdType count = ids->GetNumberOfValues();
   if (count != 2)
-    {
+  {
     cerr << "FindPointsInArea failed" << endl;
     retVal++;
-    }
+  }
 
   double center[3] = {0.0, 0.0, 0.0};
   vtkSmartPointer<vtkIdList> idList = vtkSmartPointer<vtkIdList>::New();
   kd->FindPointsWithinRadius(10, center, idList);
   vtkIdType n = idList->GetNumberOfIds();
   if (n != 10)
-    {
+  {
     cerr << "FindPointsWithinRadius failed" << endl;
     retVal++;
-    }
+  }
 
   return retVal;
 }
@@ -123,10 +123,10 @@ int TestKdTreeRepresentation(int argc, char *argv[])
   points->SetNumberOfPoints( num_points );
   pointData->Allocate(num_points);
   for (vtkIdType i = 0; i < num_points; ++i)
-    {
+  {
     points->SetPoint( i, p[i] );
     pointData->InsertNextCell(VTK_VERTEX,1, &i);
-    }
+  }
   pointData->SetPoints(points);
 
   // create a kdtree
@@ -190,10 +190,10 @@ int TestKdTreeRepresentation(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage (win);
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
   retVal = !retVal;
   retVal += TestKdTreeFunctions();
   return retVal;

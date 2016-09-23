@@ -49,26 +49,26 @@ void vtkInformationIdTypeKey::Set(vtkInformation* info, vtkIdType value)
   if(vtkInformationIdTypeValue* oldv =
      static_cast<vtkInformationIdTypeValue *>
      (this->GetAsObjectBase(info)))
-    {
+  {
     if (oldv->Value != value)
-      {
+    {
       // Replace the existing value.
       oldv->Value = value;
       // Since this sets a value without call SetAsObjectBase(),
       // the info has to be modified here (instead of
       // vtkInformation::SetAsObjectBase()
       info->Modified(this);
-      }
-   }
+    }
+  }
   else
-    {
+  {
     // Allocate a new value.
     vtkInformationIdTypeValue* v = new vtkInformationIdTypeValue;
     this->ConstructClass("vtkInformationIdTypeValue");
     v->Value = value;
     this->SetAsObjectBase(info, v);
     v->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -84,13 +84,13 @@ vtkIdType vtkInformationIdTypeKey::Get(vtkInformation* info)
 void vtkInformationIdTypeKey::ShallowCopy(vtkInformation* from, vtkInformation* to)
 {
   if (this->Has(from))
-    {
+  {
     this->Set(to, this->Get(from));
-    }
+  }
   else
-    {
+  {
     this->SetAsObjectBase(to, 0); // doesn't exist in from, so remove the key
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -98,9 +98,9 @@ void vtkInformationIdTypeKey::Print(ostream& os, vtkInformation* info)
 {
   // Print the value.
   if(this->Has(info))
-    {
+  {
     os << this->Get(info);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -109,8 +109,8 @@ vtkIdType* vtkInformationIdTypeKey::GetWatchAddress(vtkInformation* info)
   if(vtkInformationIdTypeValue* v =
      static_cast<vtkInformationIdTypeValue *>
      (this->GetAsObjectBase(info)))
-    {
+  {
     return &v->Value;
-    }
+  }
   return 0;
 }

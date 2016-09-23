@@ -52,11 +52,11 @@ inline void vtkLinearTransformDerivative(T1 matrix[4][4],
   vtkLinearTransformPoint(matrix,in,out);
 
   for (int i = 0; i < 3; i++)
-    {
+  {
     derivative[0][i] = static_cast<T4>(matrix[0][i]);
     derivative[1][i] = static_cast<T4>(matrix[1][i]);
     derivative[2][i] = static_cast<T4>(matrix[2][i]);
-    }
+  }
 }
 
 //------------------------------------------------------------------------
@@ -98,11 +98,11 @@ inline void vtkLinearTransformPoints(
   T1 matrix[4][4], T2 *in, T3 *out, vtkIdType n)
 {
   for (vtkIdType i = 0; i < n; i++)
-    {
+  {
     vtkLinearTransformPoint(matrix, in, out);
     in += 3;
     out += 3;
-    }
+  }
 }
 
 //------------------------------------------------------------------------
@@ -111,11 +111,11 @@ inline void vtkLinearTransformVectors(
   T1 matrix[4][4], T2 *in, T3 *out, vtkIdType n)
 {
   for (vtkIdType i = 0; i < n; i++)
-    {
+  {
     vtkLinearTransformVector(matrix, in, out);
     in += 3;
     out += 3;
-    }
+  }
 }
 
 //------------------------------------------------------------------------
@@ -124,13 +124,13 @@ inline void vtkLinearTransformNormals(
   T1 matrix[4][4], T2 *in, T3 *out, vtkIdType n)
 {
   for (vtkIdType i = 0; i < n; i++)
-    {
+  {
     // matrix has been transposed & inverted, so use TransformVector
     vtkLinearTransformVector(matrix, in, out);
     vtkMath::Normalize(out);
     in += 3;
     out += 3;
-    }
+  }
 }
 
 //------------------------------------------------------------------------
@@ -207,13 +207,13 @@ void vtkLinearTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
 {
   this->TransformPoints(inPts, outPts);
   if (inNms)
-    {
+  {
     this->TransformNormals(inNms, outNms);
-    }
+  }
   if (inVrs)
-    {
+  {
     this->TransformVectors(inVrs, outVrs);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -235,38 +235,38 @@ void vtkLinearTransform::TransformPoints(vtkPoints *inPts,
   void *outPtr = outArray->WriteVoidPointer(3*m, 3*n);
 
   if (inType == VTK_FLOAT && outType == VTK_FLOAT)
-    {
+  {
     vtkLinearTransformPoints(matrix,
       static_cast<float *>(inPtr), static_cast<float *>(outPtr), n);
-    }
+  }
   else if (inType == VTK_FLOAT && outType == VTK_DOUBLE)
-    {
+  {
     vtkLinearTransformPoints(matrix,
       static_cast<float *>(inPtr), static_cast<double *>(outPtr), n);
-    }
+  }
   else if (inType == VTK_DOUBLE && outType == VTK_FLOAT)
-    {
+  {
     vtkLinearTransformPoints(matrix,
       static_cast<double *>(inPtr), static_cast<float *>(outPtr), n);
-    }
+  }
   else if (inType == VTK_DOUBLE && outType == VTK_DOUBLE)
-    {
+  {
     vtkLinearTransformPoints(matrix,
       static_cast<double *>(inPtr), static_cast<double *>(outPtr), n);
-    }
+  }
   else
-    {
+  {
     double point[3];
 
     for (vtkIdType i = 0; i < n; i++)
-      {
+    {
       inPts->GetPoint(i, point);
 
       vtkLinearTransformPoint(matrix, point, point);
 
       outPts->SetPoint(m + i, point);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -291,29 +291,29 @@ void vtkLinearTransform::TransformNormals(vtkDataArray *inNms,
   void *outPtr = outNms->WriteVoidPointer(3*m, 3*n);
 
   if (inType == VTK_FLOAT && outType == VTK_FLOAT)
-    {
+  {
     vtkLinearTransformNormals(matrix,
       static_cast<float *>(inPtr), static_cast<float *>(outPtr), n);
-    }
+  }
   else if (inType == VTK_FLOAT && outType == VTK_DOUBLE)
-    {
+  {
     vtkLinearTransformNormals(matrix,
       static_cast<float *>(inPtr), static_cast<double *>(outPtr), n);
-    }
+  }
   else if (inType == VTK_DOUBLE && outType == VTK_FLOAT)
-    {
+  {
     vtkLinearTransformNormals(matrix,
       static_cast<double *>(inPtr), static_cast<float *>(outPtr), n);
-    }
+  }
   else if (inType == VTK_DOUBLE && outType == VTK_DOUBLE)
-    {
+  {
     vtkLinearTransformNormals(matrix,
       static_cast<double *>(inPtr), static_cast<double *>(outPtr), n);
-    }
+  }
   else
-    {
+  {
     for (vtkIdType i = 0; i < n; i++)
-      {
+    {
       double norm[3];
 
       inNms->GetTuple(i, norm);
@@ -323,8 +323,8 @@ void vtkLinearTransform::TransformNormals(vtkDataArray *inNms,
       vtkMath::Normalize(norm);
 
       outNms->SetTuple(m + i, norm);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -345,29 +345,29 @@ void vtkLinearTransform::TransformVectors(vtkDataArray *inVrs,
   void *outPtr = outVrs->WriteVoidPointer(3*m, 3*n);
 
   if (inType == VTK_FLOAT && outType == VTK_FLOAT)
-    {
+  {
     vtkLinearTransformVectors(matrix,
       static_cast<float *>(inPtr), static_cast<float *>(outPtr), n);
-    }
+  }
   else if (inType == VTK_FLOAT && outType == VTK_DOUBLE)
-    {
+  {
     vtkLinearTransformVectors(matrix,
       static_cast<float *>(inPtr), static_cast<double *>(outPtr), n);
-    }
+  }
   else if (inType == VTK_DOUBLE && outType == VTK_FLOAT)
-    {
+  {
     vtkLinearTransformVectors(matrix,
       static_cast<double *>(inPtr), static_cast<float *>(outPtr), n);
-    }
+  }
   else if (inType == VTK_DOUBLE && outType == VTK_DOUBLE)
-    {
+  {
     vtkLinearTransformVectors(matrix,
       static_cast<double *>(inPtr), static_cast<double *>(outPtr), n);
-    }
+  }
   else
-    {
+  {
     for (vtkIdType i = 0; i < n; i++)
-      {
+    {
       double vec[3];
 
       inVrs->GetTuple(i, vec);
@@ -375,6 +375,6 @@ void vtkLinearTransform::TransformVectors(vtkDataArray *inVrs,
       vtkLinearTransformVector(matrix, vec, vec);
 
       outVrs->SetTuple(m + i, vec);
-      }
     }
+  }
 }

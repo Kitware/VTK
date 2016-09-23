@@ -12,9 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWebGLWidget
-// .SECTION Description
-// Widget representation for WebGL.
+/**
+ * @class   vtkWebGLWidget
+ *
+ * Widget representation for WebGL.
+*/
 
 #ifndef vtkWebGLWidget_h
 #define vtkWebGLWidget_h

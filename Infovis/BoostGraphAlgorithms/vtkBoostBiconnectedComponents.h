@@ -17,27 +17,30 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkBoostBiconnectedComponents - Find the biconnected components of a graph
-//
-// .SECTION Description
-// The biconnected components of a graph are maximal regions of the graph where
-// the removal of any single vertex from the region will not disconnect the
-// graph.  Every edge belongs to exactly one biconnected component.  The
-// biconnected component of each edge is given in the edge array named
-// "biconnected component".  The biconnected component of each vertex is also
-// given in the vertex array named "biconnected component".  Cut vertices (or
-// articulation points) belong to multiple biconnected components, and break
-// the graph apart if removed.  These are indicated by assigning a component
-// value of -1.  To get the biconnected components that a cut vertex belongs
-// to, traverse its edge list and collect the distinct component ids for its
-// incident edges.
-//
-// Self-loop edges that start and end at the same vertex are not
-// assigned a biconnected component, and are given component id -1.
-//
-// .SECTION Caveats
-// The boost graph bindings currently only support boost version 1.33.1.
-// There are apparently backwards-compatibility issues with later versions.
+/**
+ * @class   vtkBoostBiconnectedComponents
+ * @brief   Find the biconnected components of a graph
+ *
+ *
+ * The biconnected components of a graph are maximal regions of the graph where
+ * the removal of any single vertex from the region will not disconnect the
+ * graph.  Every edge belongs to exactly one biconnected component.  The
+ * biconnected component of each edge is given in the edge array named
+ * "biconnected component".  The biconnected component of each vertex is also
+ * given in the vertex array named "biconnected component".  Cut vertices (or
+ * articulation points) belong to multiple biconnected components, and break
+ * the graph apart if removed.  These are indicated by assigning a component
+ * value of -1.  To get the biconnected components that a cut vertex belongs
+ * to, traverse its edge list and collect the distinct component ids for its
+ * incident edges.
+ *
+ * Self-loop edges that start and end at the same vertex are not
+ * assigned a biconnected component, and are given component id -1.
+ *
+ * @warning
+ * The boost graph bindings currently only support boost version 1.33.1.
+ * There are apparently backwards-compatibility issues with later versions.
+*/
 
 #ifndef vtkBoostBiconnectedComponents_h
 #define vtkBoostBiconnectedComponents_h
@@ -52,10 +55,13 @@ public:
   vtkTypeMacro(vtkBoostBiconnectedComponents, vtkUndirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the output array name. If no output array name is
-  // set then the name "biconnected component" is used.
+  //@{
+  /**
+   * Set the output array name. If no output array name is
+   * set then the name "biconnected component" is used.
+   */
   vtkSetStringMacro(OutputArrayName);
+  //@}
 
 protected:
   vtkBoostBiconnectedComponents();

@@ -40,21 +40,21 @@ vtkPolyDataMapper::vtkPolyDataMapper()
 void vtkPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
 {
   if (this->Static)
-    {
+  {
     this->RenderPiece(ren,act);
     return;
-    }
+  }
 
   vtkInformation *inInfo = this->GetInputInformation();
   if (inInfo == NULL)
-    {
+  {
     vtkErrorMacro("Mapper has no input.");
     return;
-    }
+  }
 
   int nPieces = this->NumberOfPieces * this->NumberOfSubPieces;
   for (int i = 0; i < this->NumberOfSubPieces; i++)
-    {
+  {
     // If more than one pieces, render in loop.
     int currentPiece = this->NumberOfSubPieces * this->Piece + i;
     this->GetInputAlgorithm()->UpdateInformation();
@@ -66,7 +66,7 @@ void vtkPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
       this->GhostLevel);
     this->RenderPiece(ren, act);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -89,7 +89,7 @@ int vtkPolyDataMapper::ProcessRequest(vtkInformation* request,
                                       vtkInformationVector*)
 {
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
-    {
+  {
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
     int currentPiece = this->NumberOfSubPieces * this->Piece;
     inInfo->Set(
@@ -100,7 +100,7 @@ int vtkPolyDataMapper::ProcessRequest(vtkInformation* request,
     inInfo->Set(
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
       this->GhostLevel);
-    }
+  }
   return 1;
 }
 
@@ -111,35 +111,35 @@ double *vtkPolyDataMapper::GetBounds()
 {
   // do we have an input
   if ( !this->GetNumberOfInputConnections(0))
-    {
+  {
       vtkMath::UninitializeBounds(this->Bounds);
       return this->Bounds;
-    }
+  }
   else
-    {
+  {
     if (!this->Static)
-      {
+    {
       vtkInformation* inInfo = this->GetInputInformation();
       if (inInfo)
-        {
+      {
         this->GetInputAlgorithm()->UpdateInformation();
         int currentPiece = this->NumberOfSubPieces * this->Piece;
         this->GetInputAlgorithm()->UpdatePiece(currentPiece,
           this->NumberOfSubPieces * this->NumberOfPieces,
           this->GhostLevel);
-        }
       }
+    }
     this->ComputeBounds();
 
     // if the bounds indicate NAN and subpieces are being used then
     // return NULL
     if (!vtkMath::AreBoundsInitialized(this->Bounds)
         && this->NumberOfSubPieces > 1)
-      {
+    {
       return NULL;
-      }
-    return this->Bounds;
     }
+    return this->Bounds;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -153,12 +153,12 @@ void vtkPolyDataMapper::ShallowCopy(vtkAbstractMapper *mapper)
 {
   vtkPolyDataMapper *m = vtkPolyDataMapper::SafeDownCast(mapper);
   if (m != NULL)
-    {
+  {
     this->SetInputConnection(m->GetInputConnection(0, 0));
     this->SetGhostLevel(m->GetGhostLevel());
     this->SetNumberOfPieces(m->GetNumberOfPieces());
     this->SetNumberOfSubPieces(m->GetNumberOfSubPieces());
-    }
+  }
 
   // Now do superclass
   this->vtkMapper::ShallowCopy(mapper);
@@ -224,9 +224,9 @@ int vtkPolyDataMapper::FillInputPortInformation(
 void vtkPolyDataMapper::Update(int port)
 {
   if (this->Static)
-    {
+  {
     return;
-    }
+  }
   this->Superclass::Update(port);
 }
 
@@ -234,9 +234,9 @@ void vtkPolyDataMapper::Update(int port)
 void vtkPolyDataMapper::Update()
 {
   if (this->Static)
-    {
+  {
     return;
-    }
+  }
   this->Superclass::Update();
 }
 
@@ -244,9 +244,9 @@ void vtkPolyDataMapper::Update()
 int vtkPolyDataMapper::Update(int port, vtkInformationVector* requests)
 {
   if (this->Static)
-    {
+  {
     return 1;
-    }
+  }
   return this->Superclass::Update(port, requests);
 }
 
@@ -254,8 +254,8 @@ int vtkPolyDataMapper::Update(int port, vtkInformationVector* requests)
 int vtkPolyDataMapper::Update(vtkInformation* requests)
 {
   if (this->Static)
-    {
+  {
     return 1;
-    }
+  }
   return this->Superclass::Update(requests);
 }

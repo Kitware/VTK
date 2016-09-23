@@ -55,19 +55,19 @@ void vtkAMRDataInternals::Insert(unsigned int index, vtkUniformGrid* grid)
   this->Blocks.push_back(Block(index,grid));
   int i = static_cast<int>(this->Blocks.size())-2;
   while( i>=0 && this->Blocks[i].Index > this->Blocks[i+1].Index)
-    {
+  {
     std::swap(this->Blocks[i],this->Blocks[i+1]);
     i--;
-    }
+  }
 }
 
 vtkUniformGrid* vtkAMRDataInternals::GetDataSet(unsigned int compositeIndex)
 {
   unsigned int internalIndex(0);
   if(!this->GetInternalIndex(compositeIndex,internalIndex))
-    {
+  {
     return NULL;
-    }
+  }
   return this->Blocks[internalIndex].Grid;
 }
 
@@ -75,14 +75,14 @@ bool vtkAMRDataInternals::GetInternalIndex(unsigned int compositeIndex, unsigned
 {
   this->GenerateIndex();
   if (compositeIndex>=this->InternalIndex->size())
-    {
+  {
     return false;
-    }
+  }
   int idx = (*this->InternalIndex)[compositeIndex];
   if(idx<0)
-    {
+  {
     return false;
-    }
+  }
   internalIndex= static_cast<unsigned int>(idx);
   return true;
 }
@@ -90,35 +90,35 @@ bool vtkAMRDataInternals::GetInternalIndex(unsigned int compositeIndex, unsigned
 void vtkAMRDataInternals::GenerateIndex(bool force)
 {
   if(!force && this->InternalIndex)
-    {
+  {
     return;
-    }
+  }
   delete this->InternalIndex;
   this->InternalIndex = new std::vector<int>();
   std::vector<int>& internalIndex(*this->InternalIndex);
 
   for(unsigned i=0; i<this->Blocks.size();i++)
-    {
+  {
     unsigned int index = this->Blocks[i].Index;
     for(unsigned int j = static_cast<unsigned int>(internalIndex.size()); j<=index; j++)
-      {
+    {
       internalIndex.push_back(-1);
-      }
-    internalIndex[index] = static_cast<int>(i);
     }
+    internalIndex[index] = static_cast<int>(i);
+  }
 }
 
 void vtkAMRDataInternals::ShallowCopy(vtkObject *src)
 {
   if( src == this )
-    {
+  {
     return;
-    }
+  }
 
   if(vtkAMRDataInternals * hbds = vtkAMRDataInternals::SafeDownCast(src))
-    {
+  {
     this->Blocks = hbds->Blocks;
-    }
+  }
 
   this->Modified();
 }

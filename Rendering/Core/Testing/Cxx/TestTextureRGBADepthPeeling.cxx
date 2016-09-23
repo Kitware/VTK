@@ -77,22 +77,22 @@ int TestTextureRGBADepthPeeling(int argc, char *argv[])
   renWin->SetSize(400,400);
   renWin->Render();
   if(renderer->GetLastRenderingUsedDepthPeeling())
-    {
+  {
     cout<<"depth peeling was used"<<endl;
-    }
+  }
   else
-    {
+  {
     cout<<"depth peeling was not used (alpha blending instead)"<<endl;
-    }
+  }
 
   interactor->Initialize();
   renWin->Render();
 
   int retVal = vtkRegressionTestImage( renWin );
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     interactor->Start();
-    }
+  }
 
   renderer->Delete();
   renWin->Delete();

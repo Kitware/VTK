@@ -55,28 +55,28 @@ vtkWidgetCallbackMapper::~vtkWidgetCallbackMapper()
 {
   delete this->CallbackMap;
   if ( this->EventTranslator )
-    {
+  {
     this->EventTranslator->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkWidgetCallbackMapper::SetEventTranslator(vtkWidgetEventTranslator *t)
 {
   if ( this->EventTranslator != t )
-    {
+  {
     if (this->EventTranslator)
-      {
+    {
       this->EventTranslator->Delete();
-      }
+    }
     this->EventTranslator = t;
     if (this->EventTranslator)
-      {
+    {
       this->EventTranslator->Register(this);
-      }
+    }
 
     this->Modified();
-    }
+  }
 }
 
 
@@ -116,11 +116,11 @@ void vtkWidgetCallbackMapper::InvokeCallback(unsigned long widgetEvent)
 {
   vtkCallbackMap::CallbackMapIterator iter = this->CallbackMap->find(widgetEvent);
   if ( iter != this->CallbackMap->end() )
-    {
+  {
     vtkAbstractWidget *w = (*iter).second.Widget;
     CallbackType f = (*iter).second.Callback;
     (*f)(w);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -131,11 +131,11 @@ void vtkWidgetCallbackMapper::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Event Translator: ";
   if ( this->EventTranslator )
-    {
+  {
     os << this->EventTranslator << "\n";
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
 }

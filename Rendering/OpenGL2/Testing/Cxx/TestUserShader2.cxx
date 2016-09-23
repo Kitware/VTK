@@ -43,7 +43,7 @@ public:
     { return new vtkShaderCallback; }
   vtkRenderer *Renderer;
   void Execute(vtkObject *, unsigned long, void*cbo) VTK_OVERRIDE
-    {
+  {
     vtkOpenGLHelper *cellBO = reinterpret_cast<vtkOpenGLHelper*>(cbo);
 
     float diffuseColor[3];
@@ -60,7 +60,7 @@ public:
     cellBO->Program->SetUniform3f("diffuseColorUniform", diffuseColor);
 
     if (this->Renderer)
-      {
+    {
       inputHSV[0] = sin(twopi*fmod(theTime,5.0)/5.0)/4.0 + 0.75;
       inputHSV[1] = sin(twopi*fmod(theTime,7.0)/7.0)/2.0 + 0.5;
       inputHSV[2] = 0.5*(sin(twopi*fmod(theTime,17.0)/17.0)/2.0 + 0.5);
@@ -72,14 +72,14 @@ public:
       inputHSV[2] = 0.5*(sin(twopi*fmod(theTime,17.0)/17.0)/2.0 + 0.5);
       vtkMath::HSVToRGB(inputHSV,diffuseColor);
       this->Renderer->SetBackground2(diffuseColor[0], diffuseColor[1], diffuseColor[2]);
-      }
+    }
 #else
     diffuseColor[0] = 0.4;
     diffuseColor[1] = 0.7;
     diffuseColor[2] = 0.6;
     cellBO->Program->SetUniform3f("diffuseColorUniform", diffuseColor);
 #endif
-    }
+  }
 
   vtkShaderCallback() { this->Renderer = 0; }
 };
@@ -172,9 +172,9 @@ int TestUserShader2(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage( renderWindow.Get() );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return EXIT_SUCCESS;
 }

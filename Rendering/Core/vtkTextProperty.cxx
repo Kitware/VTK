@@ -70,9 +70,9 @@ vtkTextProperty::~vtkTextProperty()
 void vtkTextProperty::ShallowCopy(vtkTextProperty *tprop)
 {
   if (!tprop)
-    {
+  {
     return;
-    }
+  }
 
   this->SetColor(tprop->GetColor());
   this->SetOpacity(tprop->GetOpacity());

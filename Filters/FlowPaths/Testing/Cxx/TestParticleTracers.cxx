@@ -66,9 +66,9 @@ protected:
     this->SetNumberOfInputPorts(0);
     this->SetNumberOfOutputPorts(1);
     for(int i=0; i<10 ;i++)
-      {
+    {
       this->TimeSteps.push_back(i);
-      }
+    }
 
     this->Extent[0] = 0;
     this->Extent[1] = 1;
@@ -87,9 +87,9 @@ protected:
   void GetSpacing(double dx[3])
   {
     for(int i=0; i<3; i++)
-      {
+    {
       dx[i] = (this->BoundingBox[2*i+1]- this->BoundingBox[2*i]) / (this->Extent[2*i+1] - this->Extent[2*i]);
-      }
+    }
   }
   ~TestTimeSource() VTK_OVERRIDE
   {
@@ -101,15 +101,15 @@ protected:
   {
     // generate the data
     if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-      {
+    {
       return this->RequestData(request, inputVector, outputVector);
-      }
+    }
 
     // execute information
     if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-      {
+    {
       return this->RequestInformation(request, inputVector, outputVector);
-      }
+    }
     return this->Superclass::ProcessRequest(request, inputVector, outputVector);
   }
 
@@ -163,7 +163,7 @@ protected:
     // set the extent to be the update extent
     vtkImageData *outImage = vtkImageData::SafeDownCast(output);
     if (outImage)
-      {
+    {
       int* uExtent = outInfo->Get(
         vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 
@@ -171,11 +171,11 @@ protected:
       int scalarType = vtkImageData::GetScalarType(outInfo);
       int numComponents = vtkImageData::GetNumberOfScalarComponents(outInfo);
       outImage->AllocateScalars(scalarType, numComponents);
-      }
+    }
     else
-      {
+    {
       return 0 ;
-      }
+    }
 
     vtkDataArray* outArray = vtkArrayDownCast<vtkDataArray>(vtkAbstractArray::CreateArray(VTK_FLOAT));
     outArray->SetName("Gradients");
@@ -200,28 +200,28 @@ protected:
 
     double size[3];
     for(int i=0; i<3; i++)
-      {
+    {
       size[i] = this->BoundingBox[2*i+1]- this->BoundingBox[2*i];
-      }
+    }
 
     double speed =0.1*timeStep;
     for (int iz = extent[4]; iz<=extent[5]; iz++)
-      {
+    {
       for (int iy = extent[2]; iy<=extent[3]; iy++)
-        {
+      {
         for (int ix = extent[0]; ix<=extent[1]; ix++)
-          {
+        {
           double x = size[0]*((double)ix)/gridSize[0] + origin[0];
           //double y = size[1]*((double)iy)/gridSize[1] + origin[1];
           double z = size[2]*((double)iz)/gridSize[2] + origin[2];
           *(outPtr++) = -z *speed;
           *(outPtr++) = 0;
           *(outPtr++) = x *speed;
-          }
-        outPtr += stepY;
         }
+        outPtr += stepY;
+      }
       outPtr += stepZ;
-     }
+    }
     return 1;
   }
 
@@ -277,19 +277,19 @@ int TestParticlePathFilter()
 
   lines->InitTraversal();
   while(lines->GetNextCell(polyLine.GetPointer()))
-    {
+  {
     double s = 0;
     for(int j=1; j<polyLine->GetNumberOfIds();j++)
-      {
+    {
       int pIndex = polyLine->GetId(j-1);
       int qIndex = polyLine->GetId(j);
       double p[3],q[3];
       out->GetPoints()->GetPoint(pIndex,p);
       out->GetPoints()->GetPoint(qIndex,q);
       s+= sqrt( vtkMath::Distance2BetweenPoints(p,q));
-      }
-    EXPECT(fabs(s-baseLines[lineIndex++])<0.01,"Wrong particle path length "<<s);
     }
+    EXPECT(fabs(s-baseLines[lineIndex++])<0.01,"Wrong particle path length "<<s);
+  }
 
   int numRequestData = imageSource->GetNumRequestData();
 
@@ -308,19 +308,19 @@ int TestParticlePathFilter()
   lines->InitTraversal();
   lineIndex = 0;
   while(lines->GetNextCell(polyLine.GetPointer()))
-    {
+  {
     double s = 0;
     for(int j=1; j<polyLine->GetNumberOfIds();j++)
-      {
+    {
       int pIndex = polyLine->GetId(j-1);
       int qIndex = polyLine->GetId(j);
       double p[3],q[3];
       out->GetPoints()->GetPoint(pIndex,p);
       out->GetPoints()->GetPoint(qIndex,q);
       s+= sqrt( vtkMath::Distance2BetweenPoints(p,q));
-      }
-    EXPECT(fabs(s-baseLines1[lineIndex++])<0.01,"Wrong particle path length "<<s);
     }
+    EXPECT(fabs(s-baseLines1[lineIndex++])<0.01,"Wrong particle path length "<<s);
+  }
 
   filter->SetTerminationTime(0);
   filter->Update();
@@ -392,14 +392,14 @@ int TestStreaklineFilter()
 
   lines->InitTraversal();
   while(lines->GetNextCell(polyLine.GetPointer()))
-    {
+  {
     for(int j=1; j<polyLine->GetNumberOfIds();j++)
-      {
+    {
       int pIndex = polyLine->GetId(j-1);
       int qIndex = polyLine->GetId(j);
       EXPECT(particleAge->GetValue(pIndex)> particleAge->GetValue(qIndex), "Wrong point order");
-      }
     }
+  }
 
   filter->SetTerminationTime(4.0);
   filter->Update();
@@ -433,10 +433,10 @@ int TestParticleTracers(int, char*[])
   EXPECT(data_time==4.5,"Wrong time");
 
   if(numRequestData!=6)
-    {
+  {
     cerr<<"Wrong num requests\n";
     return EXIT_FAILURE;
-    }
+  }
 
   pts = vtkPolyData::SafeDownCast(filter->GetOutputDataObject(0))->GetPoints();
   pts->GetPoint(0,p);

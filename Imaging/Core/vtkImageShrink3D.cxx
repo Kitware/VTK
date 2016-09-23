@@ -39,61 +39,61 @@ vtkImageShrink3D::vtkImageShrink3D()
 void vtkImageShrink3D::SetMean (int value)
 {
   if (value != this->Mean)
-    {
+  {
     this->Mean = value;
     if (value == 1)
-      {
+    {
       this->Minimum = 0;
       this->Maximum = 0;
       this->Median = 0;
-      }
-    this->Modified();
     }
+    this->Modified();
+  }
 }
 
 void vtkImageShrink3D::SetMinimum (int value)
 {
   if (value != this->Minimum)
-    {
+  {
     this->Minimum = value;
     if (value == 1)
-      {
+    {
       this->Mean = 0;
       this->Maximum = 0;
       this->Median = 0;
-      }
-    this->Modified();
     }
+    this->Modified();
+  }
 }
 
 void vtkImageShrink3D::SetMaximum (int value)
 {
   if (value != this->Maximum)
-    {
+  {
     this->Maximum = value;
     if (value == 1)
-      {
+    {
       this->Minimum = 0;
       this->Mean = 0;
       this->Median = 0;
-      }
-    this->Modified();
     }
+    this->Modified();
+  }
 }
 
 void vtkImageShrink3D::SetMedian (int value)
 {
   if (value != this->Median)
-    {
+  {
     this->Median = value;
     if (value == 1)
-      {
+    {
       this->Minimum = 0;
       this->Maximum = 0;
       this->Mean = 0;
-      }
-    this->Modified();
     }
+    this->Modified();
+  }
 }
 
 void vtkImageShrink3D::SetAveraging (int value)
@@ -123,7 +123,7 @@ void vtkImageShrink3D::InternalRequestUpdateExtent(int *inExt, int *outExt)
   int idx;
 
   for (idx = 0; idx < 3; ++idx)
-    {
+  {
     // For Min.
     inExt[idx*2] = outExt[idx*2] * this->ShrinkFactors[idx]
       + this->Shift[idx];
@@ -132,10 +132,10 @@ void vtkImageShrink3D::InternalRequestUpdateExtent(int *inExt, int *outExt)
       + this->Shift[idx];
     // If we are not sub sampling, we need a little more
     if (this->Mean || this->Minimum || this->Maximum || this->Median)
-      {
+    {
       inExt[idx*2+1] += this->ShrinkFactors[idx] - 1;
-      }
     }
+  }
 }
 
 
@@ -180,7 +180,7 @@ int vtkImageShrink3D::RequestInformation (
   inInfo->Get(vtkDataObject::SPACING(), spacing);
 
   for (idx = 0; idx < 3; ++idx)
-    {
+  {
     // Avoid dividing by 0.
       if (this->ShrinkFactors[idx] == 0)
       {
@@ -196,12 +196,12 @@ int vtkImageShrink3D::RequestInformation (
      // make sure WholeExtent is valid when the ShrinkFactors are set on an
      // axis with no Extent beforehand
      if (wholeExtent[2*idx+1]<wholeExtent[2*idx])
-       {
+     {
        wholeExtent[2*idx+1] = wholeExtent[2*idx];
-       }
+     }
     // Change the data spacing
     spacing[idx] *= static_cast<double>(this->ShrinkFactors[idx]);
-    }
+  }
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wholeExtent,6);
   outInfo->Set(vtkDataObject::SPACING(),spacing,3);
@@ -217,14 +217,14 @@ int vtkiscompare(const T *y1,const T *y2)
 #endif
 {
   if ( *y1 <  *y2)
-    {
+  {
     return -1;
-    }
+  }
 
   if ( *y1 == *y2)
-    {
+  {
     return  0;
-    }
+  }
 
   return  1;
 }
@@ -274,9 +274,9 @@ void vtkImageShrink3DExecute(vtkImageShrink3D *self,
 
   // make sure we don't have a 3D shrinkfactor for a 2D image
   if (factor2>1 && inData && inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT())[5]==0)
-    {
+  {
     factor2=1;
-    }
+  }
 
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2);
@@ -292,274 +292,274 @@ void vtkImageShrink3DExecute(vtkImageShrink3D *self,
   target++;
 
   if (self->GetMean())
-    {
+  {
     norm = 1.0 / static_cast<double>(factor0 * factor1 * factor2);
     // Loop through output pixels
     for (idxC = 0; idxC < maxC; idxC++)
-      {
+    {
       tmpPtr2 = inPtr + idxC;
       outPtr2 = outPtr + idxC;
       for (outIdx2 = outExt[4]; outIdx2 <= outExt[5]; ++outIdx2)
-        {
+      {
         tmpPtr1 = tmpPtr2;
         for (outIdx1 = outExt[2];
              !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1)
-          {
+        {
           if (!id)
-            {
+          {
             if (!(count%target))
-              {
+            {
               self->UpdateProgress(count/(50.0*target));
-              }
-            count++;
             }
+            count++;
+          }
           tmpPtr0 = tmpPtr1;
           for (outIdx0 = 0; outIdx0 <= maxX; ++outIdx0)
-            {
+          {
             sum = 0.0;
             // Loop through neighborhood pixels
             inPtr2 = tmpPtr0;
             for (inIdx2 = 0; inIdx2 < factor2; ++inIdx2)
-              {
+            {
               inPtr1 = inPtr2;
               for (inIdx1 = 0; inIdx1 < factor1; ++inIdx1)
-                {
+              {
                 inPtr0 = inPtr1;
                 for (inIdx0 = 0; inIdx0 < factor0; ++inIdx0)
-                  {
+                {
                   sum += static_cast<double>(*inPtr0);
                   inPtr0 += inInc0;
-                  }
-                inPtr1 += inInc1;
                 }
-              inPtr2 += inInc2;
+                inPtr1 += inInc1;
               }
+              inPtr2 += inInc2;
+            }
             *outPtr2 = static_cast<T>(sum * norm);
             tmpPtr0 += tmpInc0;
             outPtr2 += maxC;
-            }
+          }
           tmpPtr1 += tmpInc1;
           outPtr2 += outInc1;
-          }
+        }
         tmpPtr2 += tmpInc2;
         outPtr2 += outInc2;
-        }
       }
     }
+  }
   else if (self->GetMinimum())
-    {
+  {
     T minValue;
     // Loop through output pixels
     for (idxC = 0; idxC < maxC; idxC++)
-      {
+    {
       tmpPtr2 = inPtr + idxC;
       outPtr2 = outPtr + idxC;
       for (outIdx2 = outExt[4]; outIdx2 <= outExt[5]; ++outIdx2)
-        {
+      {
         tmpPtr1 = tmpPtr2;
         for (outIdx1 = outExt[2];
              !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1)
-          {
+        {
           if (!id)
-            {
+          {
             if (!(count%target))
-              {
+            {
               self->UpdateProgress(count/(50.0*target));
-              }
-            count++;
             }
+            count++;
+          }
           tmpPtr0 = tmpPtr1;
           for (outIdx0 = 0; outIdx0 <= maxX; ++outIdx0)
-            {
+          {
             minValue = static_cast<T>(self->GetOutput()->GetScalarTypeMax());
             // Loop through neighborhood pixels
             inPtr2 = tmpPtr0;
             for (inIdx2 = 0; inIdx2 < factor2; ++inIdx2)
-              {
+            {
               inPtr1 = inPtr2;
               for (inIdx1 = 0; inIdx1 < factor1; ++inIdx1)
-                {
+              {
                 inPtr0 = inPtr1;
                 for (inIdx0 = 0; inIdx0 < factor0; ++inIdx0)
-                  {
+                {
                   if (*inPtr0 < minValue)
-                    {
+                  {
                     minValue = *inPtr0;
-                    }
-                  inPtr0 += inInc0;
                   }
-                inPtr1 += inInc1;
+                  inPtr0 += inInc0;
                 }
-              inPtr2 += inInc2;
+                inPtr1 += inInc1;
               }
+              inPtr2 += inInc2;
+            }
             *outPtr2 = minValue;
             tmpPtr0 += tmpInc0;
             outPtr2 += maxC;
-            }
+          }
           tmpPtr1 += tmpInc1;
           outPtr2 += outInc1;
-          }
+        }
         tmpPtr2 += tmpInc2;
         outPtr2 += outInc2;
-        }
       }
     }
+  }
   else if (self->GetMaximum())
-    {
+  {
     T maxValue;
     // Loop through output pixels
     for (idxC = 0; idxC < maxC; idxC++)
-      {
+    {
       tmpPtr2 = inPtr + idxC;
       outPtr2 = outPtr + idxC;
       for (outIdx2 = outExt[4]; outIdx2 <= outExt[5]; ++outIdx2)
-        {
+      {
         tmpPtr1 = tmpPtr2;
         for (outIdx1 = outExt[2];
              !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1)
-          {
+        {
           if (!id)
-            {
+          {
             if (!(count%target))
-              {
+            {
               self->UpdateProgress(count/(50.0*target));
-              }
-            count++;
             }
+            count++;
+          }
           tmpPtr0 = tmpPtr1;
           for (outIdx0 = 0; outIdx0 <= maxX; ++outIdx0)
-            {
+          {
             maxValue = static_cast<T>(self->GetOutput()->GetScalarTypeMin());
             // Loop through neighborhood pixels
             inPtr2 = tmpPtr0;
             for (inIdx2 = 0; inIdx2 < factor2; ++inIdx2)
-              {
+            {
               inPtr1 = inPtr2;
               for (inIdx1 = 0; inIdx1 < factor1; ++inIdx1)
-                {
+              {
                 inPtr0 = inPtr1;
                 for (inIdx0 = 0; inIdx0 < factor0; ++inIdx0)
-                  {
+                {
                   if (*inPtr0 > maxValue)
-                    {
+                  {
                     maxValue = *inPtr0;
-                    }
-                  inPtr0 += inInc0;
                   }
-                inPtr1 += inInc1;
+                  inPtr0 += inInc0;
                 }
-              inPtr2 += inInc2;
+                inPtr1 += inInc1;
               }
+              inPtr2 += inInc2;
+            }
             *outPtr2 = maxValue;
             tmpPtr0 += tmpInc0;
             outPtr2 += maxC;
-            }
+          }
           tmpPtr1 += tmpInc1;
           outPtr2 += outInc1;
-          }
+        }
         tmpPtr2 += tmpInc2;
         outPtr2 += outInc2;
-        }
       }
     }
+  }
   else if (self->GetMedian())
-    {
+  {
     T* kernel = new T [factor0 * factor1 * factor2];
     int index;
 
     // Loop through output pixels
     for (idxC = 0; idxC < maxC; idxC++)
-      {
+    {
       tmpPtr2 = inPtr + idxC;
       outPtr2 = outPtr + idxC;
       for (outIdx2 = outExt[4]; outIdx2 <= outExt[5]; ++outIdx2)
-        {
+      {
         tmpPtr1 = tmpPtr2;
         for (outIdx1 = outExt[2];
              !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1)
-          {
+        {
           if (!id)
-            {
+          {
             if (!(count%target))
-              {
+            {
               self->UpdateProgress(count/(50.0*target));
-              }
-            count++;
             }
+            count++;
+          }
           tmpPtr0 = tmpPtr1;
           for (outIdx0 = 0; outIdx0 <= maxX; ++outIdx0)
-            {
+          {
             // Loop through neighborhood pixels
             inPtr2 = tmpPtr0;
             index = 0;
             for (inIdx2 = 0; inIdx2 < factor2; ++inIdx2)
-              {
+            {
               inPtr1 = inPtr2;
               for (inIdx1 = 0; inIdx1 < factor1; ++inIdx1)
-                {
+              {
                 inPtr0 = inPtr1;
                 for (inIdx0 = 0; inIdx0 < factor0; ++inIdx0)
-                  {
+                {
                   kernel[index++] = *inPtr0;
 
                   inPtr0 += inInc0;
-                  }
-                inPtr1 += inInc1;
                 }
-              inPtr2 += inInc2;
+                inPtr1 += inInc1;
               }
+              inPtr2 += inInc2;
+            }
             qsort(kernel,index,sizeof(T),compareFn);
             *outPtr2 = *(kernel + index/2);
 
             tmpPtr0 += tmpInc0;
             outPtr2 += maxC;
-            }
+          }
           tmpPtr1 += tmpInc1;
           outPtr2 += outInc1;
-          }
+        }
         tmpPtr2 += tmpInc2;
         outPtr2 += outInc2;
-        }
       }
-    delete [] kernel;
     }
+    delete [] kernel;
+  }
   else // Just SubSample
-    {
+  {
     // Loop through output pixels
     for (idxC = 0; idxC < maxC; idxC++)
-      {
+    {
       tmpPtr2 = inPtr + idxC;
       outPtr2 = outPtr + idxC;
       for (outIdx2 = outExt[4]; outIdx2 <= outExt[5]; ++outIdx2)
-        {
+      {
         tmpPtr1 = tmpPtr2;
         for (outIdx1 = outExt[2];
              !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1)
-          {
+        {
           if (!id)
-            {
+          {
             if (!(count%target))
-              {
+            {
               self->UpdateProgress(count/(50.0*target));
-              }
-            count++;
             }
+            count++;
+          }
           tmpPtr0 = tmpPtr1;
           for (outIdx0 = 0; outIdx0 <= maxX; ++outIdx0)
-            {
+          {
             *outPtr2 = *tmpPtr0;
 
             tmpPtr0 += tmpInc0;
             outPtr2 += maxC;
-            }
+          }
           tmpPtr1 += tmpInc1;
           outPtr2 += outInc1;
-          }
+        }
         tmpPtr2 += tmpInc2;
         outPtr2 += outInc2;
-        }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -582,22 +582,22 @@ void vtkImageShrink3D::ThreadedRequestData(
   this->InternalRequestUpdateExtent(inExt, outExt);
   void *inPtr = inData[0][0]->GetScalarPointerForExtent(inExt);
   if (!inPtr)
-    {
+  {
     return;
-    }
+  }
 
   // this filter expects that input is the same type as output.
   if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
-    {
+  {
     vtkErrorMacro("Execute: input ScalarType, "
                   << inData[0][0]->GetScalarType()
                   << ", must match out ScalarType "
                   << outData[0]->GetScalarType());
     return;
-    }
+  }
 
   switch (inData[0][0]->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageShrink3DExecute(this,
                               inData[0][0],
@@ -610,5 +610,5 @@ void vtkImageShrink3D::ThreadedRequestData(
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
-    }
+  }
 }

@@ -11,10 +11,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLMoleculeMapper - An accelerated class for rendering molecules
-// .SECTION Description
-// A vtkMoleculeMapper that uses imposters to do the rendering. It uses
-// vtkOpenGLSphereMapper and vtkOpenGLStickMapper to do the rendering.
+/**
+ * @class   vtkOpenGLMoleculeMapper
+ * @brief   An accelerated class for rendering molecules
+ *
+ * A vtkMoleculeMapper that uses imposters to do the rendering. It uses
+ * vtkOpenGLSphereMapper and vtkOpenGLStickMapper to do the rendering.
+*/
 
 #ifndef vtkOpenGLMoleculeMapper_h
 #define vtkOpenGLMoleculeMapper_h
@@ -32,13 +35,17 @@ public:
   static vtkOpenGLMoleculeMapper* New();
   vtkTypeMacro(vtkOpenGLMoleculeMapper, vtkMoleculeMapper)
 
-  // Description:
-  // Reimplemented from base class
+  //@{
+  /**
+   * Reimplemented from base class
+   */
   virtual void Render(vtkRenderer *, vtkActor *);
   virtual void ReleaseGraphicsResources(vtkWindow *);
+  //@}
 
-  // Description:
-  // provide access to the underlying mappers
+  /**
+   * provide access to the underlying mappers
+   */
   vtkOpenGLSphereMapper *GetFastAtomMapper() {
       return this->FastAtomMapper.Get(); }
 
@@ -49,10 +56,13 @@ protected:
   virtual void UpdateAtomGlyphPolyData();
   virtual void UpdateBondGlyphPolyData();
 
-  // Description:
-  // Internal mappers
+  //@{
+  /**
+   * Internal mappers
+   */
   vtkNew<vtkOpenGLSphereMapper> FastAtomMapper;
   vtkNew<vtkOpenGLStickMapper> FastBondMapper;
+  //@}
 
 private:
   vtkOpenGLMoleculeMapper(const vtkOpenGLMoleculeMapper&) VTK_DELETE_FUNCTION;

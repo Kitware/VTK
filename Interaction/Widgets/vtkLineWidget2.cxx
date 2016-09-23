@@ -93,7 +93,7 @@ void vtkLineWidget2::SetEnabled(int enabling)
 
   // We defer enabling the handles until the selection process begins
   if ( enabling )
-    {
+  {
     // Don't actually turn these on until cursor is near the end points or the line.
     this->CreateDefaultRepresentation();
     this->Point1Widget->SetRepresentation(reinterpret_cast<vtkLineRepresentation*>
@@ -110,13 +110,13 @@ void vtkLineWidget2::SetEnabled(int enabling)
                                           (this->WidgetRep)->GetLineHandleRepresentation());
     this->LineHandle->SetInteractor(this->Interactor);
     this->LineHandle->GetRepresentation()->SetRenderer(this->CurrentRenderer);
-    }
+  }
   else
-    {
+  {
     this->Point1Widget->SetEnabled(0);
     this->Point2Widget->SetEnabled(0);
     this->LineHandle->SetEnabled(0);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -124,9 +124,9 @@ void vtkLineWidget2::SelectAction(vtkAbstractWidget *w)
 {
   vtkLineWidget2 *self = reinterpret_cast<vtkLineWidget2*>(w);
   if ( self->WidgetRep->GetInteractionState() == vtkLineRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // Get the event position
   int X = self->Interactor->GetEventPosition()[0];
@@ -151,27 +151,27 @@ void vtkLineWidget2::TranslateAction(vtkAbstractWidget *w)
 {
   vtkLineWidget2 *self = reinterpret_cast<vtkLineWidget2*>(w);
   if ( self->WidgetRep->GetInteractionState() == vtkLineRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // Modify the state, we are selected
   int state = self->WidgetRep->GetInteractionState();
   if ( state == vtkLineRepresentation::OnP1 )
-    {
+  {
     reinterpret_cast<vtkLineRepresentation*>(self->WidgetRep)->
       SetInteractionState(vtkLineRepresentation::TranslatingP1);
-    }
+  }
   else if ( state == vtkLineRepresentation::OnP2 )
-    {
+  {
     reinterpret_cast<vtkLineRepresentation*>(self->WidgetRep)->
       SetInteractionState(vtkLineRepresentation::TranslatingP2);
-    }
+  }
   else
-    {
+  {
     reinterpret_cast<vtkLineRepresentation*>(self->WidgetRep)->
       SetInteractionState(vtkLineRepresentation::OnLine);
-    }
+  }
 
   // Get the event position
   int X = self->Interactor->GetEventPosition()[0];
@@ -196,9 +196,9 @@ void vtkLineWidget2::ScaleAction(vtkAbstractWidget *w)
 {
   vtkLineWidget2 *self = reinterpret_cast<vtkLineWidget2*>(w);
   if ( self->WidgetRep->GetInteractionState() == vtkLineRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   reinterpret_cast<vtkLineRepresentation*>(self->WidgetRep)->
     SetInteractionState(vtkLineRepresentation::Scaling);
@@ -233,7 +233,7 @@ void vtkLineWidget2::MoveAction(vtkAbstractWidget *w)
 
   // See whether we're active
   if ( self->WidgetState == vtkLineWidget2::Start )
-    {
+  {
     self->Interactor->Disable(); //avoid extra renders
     self->Point1Widget->SetEnabled(0);
     self->Point2Widget->SetEnabled(0);
@@ -244,34 +244,34 @@ void vtkLineWidget2::MoveAction(vtkAbstractWidget *w)
     int changed;
     // Determine if we are near the end points or the line
     if ( state == vtkLineRepresentation::Outside )
-      {
+    {
       changed = self->RequestCursorShape(VTK_CURSOR_DEFAULT);
-      }
+    }
     else //must be near something
-      {
+    {
       changed = self->RequestCursorShape(VTK_CURSOR_HAND);
       if ( state == vtkLineRepresentation::OnP1 )
-        {
+      {
         self->Point1Widget->SetEnabled(1);
-        }
+      }
       else if ( state == vtkLineRepresentation::OnP2 )
-        {
+      {
         self->Point2Widget->SetEnabled(1);
-        }
+      }
       else //if ( state == vtkLineRepresentation::OnLine )
-        {
+      {
         self->LineHandle->SetEnabled(1);
         changed = 1; //movement along the line always needs render
-        }
-      }
-    self->Interactor->Enable(); //avoid extra renders
-    if ( changed || oldState != state )
-      {
-      self->Render();
       }
     }
-  else //if ( self->WidgetState == vtkLineWidget2::Active )
+    self->Interactor->Enable(); //avoid extra renders
+    if ( changed || oldState != state )
     {
+      self->Render();
+    }
+  }
+  else //if ( self->WidgetState == vtkLineWidget2::Active )
+  {
     // moving something
     double e[2];
     e[0] = static_cast<double>(X);
@@ -282,7 +282,7 @@ void vtkLineWidget2::MoveAction(vtkAbstractWidget *w)
     self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     self->EventCallbackCommand->SetAbortFlag(1);
     self->Render();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -290,9 +290,9 @@ void vtkLineWidget2::EndSelectAction(vtkAbstractWidget *w)
 {
   vtkLineWidget2 *self = reinterpret_cast<vtkLineWidget2*>(w);
   if ( self->WidgetState == vtkLineWidget2::Start )
-    {
+  {
     return;
-    }
+  }
 
   // Return state to not active
   self->WidgetState = vtkLineWidget2::Start;
@@ -308,9 +308,9 @@ void vtkLineWidget2::EndSelectAction(vtkAbstractWidget *w)
 void vtkLineWidget2::CreateDefaultRepresentation()
 {
   if ( ! this->WidgetRep )
-    {
+  {
     this->WidgetRep = vtkLineRepresentation::New();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

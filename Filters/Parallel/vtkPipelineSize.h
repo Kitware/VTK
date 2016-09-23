@@ -12,8 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPipelineSize - compute the memory required by a pipeline
-
+/**
+ * @class   vtkPipelineSize
+ * @brief   compute the memory required by a pipeline
+*/
 
 #ifndef vtkPipelineSize_h
 #define vtkPipelineSize_h
@@ -30,17 +32,19 @@ public:
   vtkTypeMacro(vtkPipelineSize,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Compute an estimate of how much memory a pipline will require in
-  // kibibytes (1024 bytes) This is only an estimate and the
-  // calculations in here do not take into account the specifics of many
-  // sources and filters.
+  /**
+   * Compute an estimate of how much memory a pipline will require in
+   * kibibytes (1024 bytes) This is only an estimate and the
+   * calculations in here do not take into account the specifics of many
+   * sources and filters.
+   */
   unsigned long GetEstimatedSize(vtkAlgorithm *input, int inputPort,
                                  int connection);
 
-  // Description:
-  // Determine how many subpieces a mapper should use to fit a target memory
-  // limit. This takes into account the mapper's Piece and NumberOfPieces.
+  /**
+   * Determine how many subpieces a mapper should use to fit a target memory
+   * limit. This takes into account the mapper's Piece and NumberOfPieces.
+   */
   unsigned long GetNumberOfSubPieces(unsigned long memoryLimit,
                                      vtkPolyDataMapper *mapper);
 

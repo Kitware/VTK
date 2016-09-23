@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDataObject - helper class to get VTK data object types as string and instantiate them
-// .SECTION Description
-// vtkDataObjectTypes is a helper class that supports conversion between
-// integer types defined in vtkType.h and string names as well as creation
-// of data objects from either integer or string types. This class has
-// to be updated every time a new data type is added to VTK.
-// .SECTION See Also
-// vtkDataObject
+/**
+ * @class   vtkDataObject
+ * @brief   helper class to get VTK data object types as string and instantiate them
+ *
+ * vtkDataObjectTypes is a helper class that supports conversion between
+ * integer types defined in vtkType.h and string names as well as creation
+ * of data objects from either integer or string types. This class has
+ * to be updated every time a new data type is added to VTK.
+ * @sa
+ * vtkDataObject
+*/
 
 #ifndef vtkDataObjectTypes_h
 #define vtkDataObjectTypes_h
@@ -37,30 +40,35 @@ public:
   vtkTypeMacro(vtkDataObjectTypes,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Given an int (as defined in vtkType.h) identifier for a class
-  // return it's classname.
+  /**
+   * Given an int (as defined in vtkType.h) identifier for a class
+   * return it's classname.
+   */
   static const char* GetClassNameFromTypeId(int typeId);
 
-  // Description:
-  // Given a data object classname, return it's int identified (as
-  // defined in vtkType.h)
+  /**
+   * Given a data object classname, return it's int identified (as
+   * defined in vtkType.h)
+   */
   static int GetTypeIdFromClassName(const char* classname);
 
-  // Description:
-  // Create (New) and return a data object of the given classname.
+  /**
+   * Create (New) and return a data object of the given classname.
+   */
   static vtkDataObject* NewDataObject(const char* classname);
 
-  // Description:
-  // Create (New) and return a data object of the given type id.
+  /**
+   * Create (New) and return a data object of the given type id.
+   */
   static vtkDataObject* NewDataObject(int typeId);
 
 protected:
   vtkDataObjectTypes() {}
   ~vtkDataObjectTypes() VTK_OVERRIDE {}
 
-  // Description:
-  // Method used to validate data object types, for testing purposes
+  /**
+   * Method used to validate data object types, for testing purposes
+   */
   static int Validate();
 
 private:

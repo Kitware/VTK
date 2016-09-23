@@ -22,20 +22,23 @@
  * statement of authorship are reproduced on all copies.
  */
 
-// .NAME vtkScalarBarRepresentation - represent scalar bar for vtkScalarBarWidget
-//
-// .SECTION Description
-//
-// This class represents a scalar bar for a vtkScalarBarWidget.  This class
-// provides support for interactively placing a scalar bar on the 2D overlay
-// plane.  The scalar bar is defined by an instance of vtkScalarBarActor.
-//
-// One specialty of this class is that if the scalar bar is moved near enough
-// to an edge, it's orientation is flipped to match that edge.
-//
-// .SECTION See Also
-// vtkScalarBarWidget vtkWidgetRepresentation vtkScalarBarActor
-//
+/**
+ * @class   vtkScalarBarRepresentation
+ * @brief   represent scalar bar for vtkScalarBarWidget
+ *
+ *
+ *
+ * This class represents a scalar bar for a vtkScalarBarWidget.  This class
+ * provides support for interactively placing a scalar bar on the 2D overlay
+ * plane.  The scalar bar is defined by an instance of vtkScalarBarActor.
+ *
+ * One specialty of this class is that if the scalar bar is moved near enough
+ * to an edge, it's orientation is flipped to match that edge.
+ *
+ * @sa
+ * vtkScalarBarWidget vtkWidgetRepresentation vtkScalarBarActor
+ *
+*/
 
 #ifndef vtkScalarBarRepresentation_h
 #define vtkScalarBarRepresentation_h
@@ -52,21 +55,29 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   static vtkScalarBarRepresentation *New();
 
-  // Description:
-  // The prop that is placed in the renderer.
+  //@{
+  /**
+   * The prop that is placed in the renderer.
+   */
   vtkGetObjectMacro(ScalarBarActor, vtkScalarBarActor);
   virtual void SetScalarBarActor(vtkScalarBarActor *);
+  //@}
 
-  // Description:
-  // Satisfy the superclass' API.
+  //@{
+  /**
+   * Satisfy the superclass' API.
+   */
   virtual void BuildRepresentation();
   virtual void WidgetInteraction(double eventPos[2]);
   virtual void GetSize(double size[2])
     {size[0]=2.0; size[1]=2.0;}
+  //@}
 
-  // Description:
-  // These methods are necessary to make this representation behave as
-  // a vtkProp.
+  //@{
+  /**
+   * These methods are necessary to make this representation behave as
+   * a vtkProp.
+   */
   virtual int GetVisibility();
   virtual void SetVisibility(int);
   virtual void GetActors2D(vtkPropCollection *collection);
@@ -75,25 +86,33 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int HasTranslucentPolygonalGeometry();
+  //@}
 
-  // Description:
-  // If true, the orientation will be updated based on the widget's position.
-  // Default is true.
+  //@{
+  /**
+   * If true, the orientation will be updated based on the widget's position.
+   * Default is true.
+   */
   vtkSetMacro(AutoOrient, bool)
   vtkGetMacro(AutoOrient, bool)
+  //@}
 
-  // Description:
-  // Get/Set the orientation.
+  //@{
+  /**
+   * Get/Set the orientation.
+   */
   void SetOrientation(int orient);
   int GetOrientation();
+  //@}
 
 protected:
   vtkScalarBarRepresentation();
   ~vtkScalarBarRepresentation();
 
-  // Description:
-  // Change horizontal <--> vertical orientation, rotate the corners of the
-  // bar to preserve size, and swap the resize handle locations.
+  /**
+   * Change horizontal <--> vertical orientation, rotate the corners of the
+   * bar to preserve size, and swap the resize handle locations.
+   */
   void SwapOrientation();
 
   vtkScalarBarActor *ScalarBarActor;

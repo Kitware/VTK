@@ -70,9 +70,9 @@ void vtkOpenVRRenderWindowInteractor::ConvertPoseToWorldCoordinates(
 {
   // get the position and orientation of the button press
   for (int i = 0; i < 3; i++)
-    {
+  {
     pos[i] = tdPose.mDeviceToAbsoluteTracking.m[i][3];
-    }
+  }
 
   vtkOpenVRCamera *cam =
     static_cast<vtkOpenVRCamera *>(ren->GetActiveCamera());
@@ -80,42 +80,42 @@ void vtkOpenVRRenderWindowInteractor::ConvertPoseToWorldCoordinates(
   double *trans = cam->GetTranslation();
 
   for (int i = 0; i < 3; i++)
-    {
+  {
     pos[i] = pos[i]*distance - trans[i];
-    }
+  }
 
   double ortho[3][3];
   for (int i = 0; i < 3; i++)
-    {
+  {
     ortho[0][i] = tdPose.mDeviceToAbsoluteTracking.m[0][i];
     ortho[1][i] = tdPose.mDeviceToAbsoluteTracking.m[1][i];
     ortho[2][i] = tdPose.mDeviceToAbsoluteTracking.m[2][i];
-    }
+  }
   if (vtkMath::Determinant3x3(ortho) < 0)
-    {
+  {
     ortho[0][2] = -ortho[0][2];
     ortho[1][2] = -ortho[1][2];
     ortho[2][2] = -ortho[2][2];
-    }
+  }
   vtkMath::Matrix3x3ToQuaternion(ortho, wxyz);
 
   // calc the return value wxyz
  double mag = sqrt( wxyz[1] * wxyz[1] + wxyz[2] * wxyz[2] + wxyz[3] * wxyz[3] );
 
   if ( mag != 0.0 )
-    {
+  {
     wxyz[0] = 2.0 * vtkMath::DegreesFromRadians( atan2( mag, wxyz[0] ) );
     wxyz[1] /= mag;
     wxyz[2] /= mag;
     wxyz[3] /= mag;
-    }
+  }
   else
-    {
+  {
     wxyz[0] = 0.0;
     wxyz[1] = 0.0;
     wxyz[2] = 0.0;
     wxyz[3] = 1.0;
-    }
+  }
 }
 
 void vtkOpenVRRenderWindowInteractor::UpdateTouchPadPosition(
@@ -126,14 +126,14 @@ void vtkOpenVRRenderWindowInteractor::UpdateTouchPadPosition(
   pHMD->GetControllerState(tdi,&cstate);
 
   for (unsigned int i = 0; i < vr::k_unControllerStateAxisCount; i++)
-    {
+  {
     if (pHMD->GetInt32TrackedDeviceProperty(tdi,
       static_cast<vr::ETrackedDeviceProperty>(vr::ETrackedDeviceProperty::Prop_Axis0Type_Int32 + i))
       == vr::EVRControllerAxisType::k_eControllerAxis_TrackPad)
-      {
+    {
       this->SetTouchPadPosition(cstate.rAxis[i].x,cstate.rAxis[i].y);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -150,9 +150,9 @@ void  vtkOpenVRRenderWindowInteractor::StartEventLoop()
   vtkRenderer *ren = renWin->GetRenderers()->GetNextRenderer(rit);
 
   while (!this->Done)
-    {
+  {
     this->DoOneEvent(renWin, ren);
-    }
+  }
 }
 
 void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, vtkRenderer *ren)
@@ -160,9 +160,9 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
   vr::IVRSystem *pHMD = renWin->GetHMD();
 
   if (!pHMD)
-    {
+  {
     return;
-    }
+  }
 
   vr::VREvent_t event;
 
@@ -172,7 +172,7 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
       sizeof(vr::VREvent_t));
 
   if (result)
-    {
+  {
     vr::TrackedDeviceIndex_t tdi = event.trackedDeviceIndex;
 
     // is it a controller button action?
@@ -180,7 +180,7 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
         vr::ETrackedDeviceClass::TrackedDeviceClass_Controller &&
           (event.eventType == vr::VREvent_ButtonPress ||
            event.eventType == vr::VREvent_ButtonUnpress))
-      {
+    {
       vr::ETrackedControllerRole role = pHMD->GetControllerRoleForTrackedDeviceIndex(tdi);
 
       this->UpdateTouchPadPosition(pHMD,tdi);
@@ -213,42 +213,42 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
       this->SetPointerIndex(pointerIndex);
 
       if (event.eventType == vr::VREvent_ButtonPress)
-        {
+      {
         if (event.data.controller.button == vr::EVRButtonId::k_EButton_Axis1)
-          {
+        {
           this->LeftButtonPressEvent();
-          }
-        if (event.data.controller.button == vr::EVRButtonId::k_EButton_Axis0)
-          {
-          this->RightButtonPressEvent();
-          }
-        if (event.data.controller.button == vr::EVRButtonId::k_EButton_ApplicationMenu)
-          {
-          this->Done = true;
-          }
         }
-      if (event.eventType == vr::VREvent_ButtonUnpress)
-        {
-        if (event.data.controller.button == vr::EVRButtonId::k_EButton_Axis1)
-          {
-          this->LeftButtonReleaseEvent();
-          }
         if (event.data.controller.button == vr::EVRButtonId::k_EButton_Axis0)
-          {
+        {
+          this->RightButtonPressEvent();
+        }
+        if (event.data.controller.button == vr::EVRButtonId::k_EButton_ApplicationMenu)
+        {
+          this->Done = true;
+        }
+      }
+      if (event.eventType == vr::VREvent_ButtonUnpress)
+      {
+        if (event.data.controller.button == vr::EVRButtonId::k_EButton_Axis1)
+        {
+          this->LeftButtonReleaseEvent();
+        }
+        if (event.data.controller.button == vr::EVRButtonId::k_EButton_Axis0)
+        {
           this->RightButtonReleaseEvent();
-          }
         }
       }
     }
+  }
   else
-    {
+  {
     // if pointers are down track the movement
     if (this->PointersDownCount)
-      {
+    {
       for (int i = 0; i < VTKI_MAX_POINTERS; i++)
-        {
+      {
         if (this->PointersDown[i])
-          {
+        {
           this->UpdateTouchPadPosition(pHMD,
            static_cast<vr::TrackedDeviceIndex_t>(this->PointerIndexLookup[i]));
           vr::TrackedDevicePose_t &tdPose =
@@ -272,11 +272,11 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
             tdPose.mDeviceToAbsoluteTracking.m[1][3],
             tdPose.mDeviceToAbsoluteTracking.m[2][3],
             i);
-          }
         }
-      this->MouseMoveEvent();
       }
+      this->MouseMoveEvent();
     }
+  }
   renWin->Render();
 }
 
@@ -286,14 +286,14 @@ void vtkOpenVRRenderWindowInteractor::Initialize()
 {
   // make sure we have a RenderWindow and camera
   if ( ! this->RenderWindow)
-    {
+  {
     vtkErrorMacro(<<"No renderer defined!");
     return;
-    }
+  }
   if (this->Initialized)
-    {
+  {
     return;
-    }
+  }
 
   vtkOpenVRRenderWindow *ren =
     vtkOpenVRRenderWindow::SafeDownCast(this->RenderWindow);
@@ -342,19 +342,19 @@ vtkOpenVRRenderWindowInteractor::SetClassExitMethod(void (*f)(void *),void *arg)
 {
   if ( f != vtkOpenVRRenderWindowInteractor::ClassExitMethod
        || arg != vtkOpenVRRenderWindowInteractor::ClassExitMethodArg)
-    {
+  {
     // delete the current arg if there is a delete method
     if ((vtkOpenVRRenderWindowInteractor::ClassExitMethodArg)
         && (vtkOpenVRRenderWindowInteractor::ClassExitMethodArgDelete))
-      {
+    {
       (*vtkOpenVRRenderWindowInteractor::ClassExitMethodArgDelete)
         (vtkOpenVRRenderWindowInteractor::ClassExitMethodArg);
-      }
+    }
     vtkOpenVRRenderWindowInteractor::ClassExitMethod = f;
     vtkOpenVRRenderWindowInteractor::ClassExitMethodArg = arg;
 
     // no call to this->Modified() since this is a class member function
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -363,11 +363,11 @@ void
 vtkOpenVRRenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void *))
 {
   if (f != vtkOpenVRRenderWindowInteractor::ClassExitMethodArgDelete)
-    {
+  {
     vtkOpenVRRenderWindowInteractor::ClassExitMethodArgDelete = f;
 
     // no call to this->Modified() since this is a class member function
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -381,13 +381,13 @@ void vtkOpenVRRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 void vtkOpenVRRenderWindowInteractor::ExitCallback()
 {
   if (this->HasObserver(vtkCommand::ExitEvent))
-    {
+  {
     this->InvokeEvent(vtkCommand::ExitEvent,NULL);
-    }
+  }
   else if (this->ClassExitMethod)
-    {
+  {
     (*this->ClassExitMethod)(this->ClassExitMethodArg);
-    }
+  }
 
   this->TerminateApp();
 }

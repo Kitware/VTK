@@ -36,12 +36,12 @@ int main()
   float pointdata[NTIMESTEPS][NPOINTS];
   /* Give different values for the pointdata: */
   for(i=0;i<NTIMESTEPS;i++)
-    {
+  {
     for(j=0; j<NPOINTS;j++)
-      {
+    {
       pointdata[i][j] = (float)i;
-      }
     }
+  }
 
   /* #define VTK_UNSTRUCTURED_GRID               4 */
   vtkXMLWriterC_SetDataObjectType(writer, 4);
@@ -55,12 +55,12 @@ int main()
   vtkXMLWriterC_SetNumberOfTimeSteps(writer, NTIMESTEPS);
   vtkXMLWriterC_Start(writer);
   for(i=0; i<NTIMESTEPS; i++)
-    {
+  {
     /* #define VTK_FLOAT          10 */
     vtkXMLWriterC_SetPointData(writer, "example data", 10, pointdata[i],
                                NPOINTS, 1, "SCALARS");
     vtkXMLWriterC_WriteNextTimeStep(writer, i);
-    }
+  }
   vtkXMLWriterC_Stop(writer);
   vtkXMLWriterC_Delete(writer);
   }

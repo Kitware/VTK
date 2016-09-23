@@ -64,13 +64,13 @@ int vtkBoundedPointSource::RequestData(
   vtkPoints *newPoints = vtkPoints::New();
   // Set the desired precision for the points in the output.
   if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     newPoints->SetDataType(VTK_DOUBLE);
-    }
+  }
   else
-    {
+  {
     newPoints->SetDataType(VTK_FLOAT);
-    }
+  }
 
   // Generate the points
   newPoints->SetNumberOfPoints(this->NumberOfPoints);
@@ -83,18 +83,18 @@ int vtkBoundedPointSource::RequestData(
 
   vtkMath *math = vtkMath::New();
   for (ptId=0; ptId<this->NumberOfPoints; ptId++)
-    {
+  {
     x[0] = math->Random(xmin,xmax);
     x[1] = math->Random(ymin,ymax);
     x[2] = math->Random(zmin,zmax);
     newPoints->SetPoint(ptId,x);
-    }
+  }
   output->SetPoints(newPoints);
   newPoints->Delete();
 
   // Generate the scalars if requested
   if ( this->ProduceRandomScalars )
-    {
+  {
     vtkFloatArray *scalars = vtkFloatArray::New();
     scalars->SetName("RandomScalars");
     scalars->SetNumberOfTuples(this->NumberOfPoints);
@@ -104,26 +104,26 @@ int vtkBoundedPointSource::RequestData(
     double sMax = (this->ScalarRange[0] < this->ScalarRange[1] ?
                    this->ScalarRange[1] : this->ScalarRange[0]);
     for (ptId=0; ptId<this->NumberOfPoints; ptId++)
-      {
+    {
       *s++ = math->Random(sMin,sMax);
-      }
+    }
     output->GetPointData()->SetScalars(scalars);
     scalars->Delete();
-    }
+  }
 
   // Generate the vertices if requested
   if ( this->ProduceCellOutput )
-    {
+  {
     vtkCellArray *newVerts = vtkCellArray::New();
     newVerts->Allocate(newVerts->EstimateSize(1,this->NumberOfPoints));
     newVerts->InsertNextCell(this->NumberOfPoints);
     for (ptId=0; ptId<this->NumberOfPoints; ptId++)
-      {
+    {
       newVerts->InsertCellPoint(ptId);
-      }
+    }
     output->SetVerts(newVerts);
     newVerts->Delete();
-    }
+  }
 
   math->Delete();
   return 1;
@@ -137,9 +137,9 @@ void vtkBoundedPointSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Points: " << this->NumberOfPoints << "\n";
 
   for(int i=0;i<6;i++)
-    {
+  {
     os << indent << "Bounds[" << i << "]: " << this->Bounds[i] << "\n";
-    }
+  }
 
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 

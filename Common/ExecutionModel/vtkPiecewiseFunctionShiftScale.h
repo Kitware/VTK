@@ -13,9 +13,11 @@
 
 =========================================================================*/
 
-// .NAME vtkPiecewiseFunctionShiftScale -
-//
-// .SECTION Description
+/**
+ * @class   vtkPiecewiseFunctionShiftScale
+ *
+ *
+*/
 
 #ifndef vtkPiecewiseFunctionShiftScale_h
 #define vtkPiecewiseFunctionShiftScale_h

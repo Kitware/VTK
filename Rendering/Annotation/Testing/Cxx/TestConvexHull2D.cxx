@@ -51,40 +51,40 @@ int TestConvexHull2D(int argc, char* argv[])
   inPoints->SetPoint(0, 0.0, 0.0, 0.0);
   vtkConvexHull2D::CalculateConvexHull(inPoints, outPoints, 2.0);
   if (outPoints->GetNumberOfPoints() != 4)
-    {
+  {
     std::cerr << "Error: Single point - expected 4 output points but got " <<
       outPoints->GetNumberOfPoints() << "." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   outPoints->GetPoint(0, retrievedPoint);
   expectedPoint[0] = -1.0; expectedPoint[1] = -1.0; expectedPoint[2] = 0.0;
   if (!fuzzyCompare2Dweak(expectedPoint, retrievedPoint))
-    {
+  {
     std::cerr << "Error: Single point - unexpected output value for point 0." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   outPoints->GetPoint(1, retrievedPoint);
   expectedPoint[0] = 1.0; expectedPoint[1] = -1.0; expectedPoint[2] = 0.0;
   if (!fuzzyCompare2Dweak(expectedPoint, retrievedPoint))
-    {
+  {
     std::cerr << "Error: Single point - unexpected output value for point 1." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   outPoints->GetPoint(2, retrievedPoint);
   expectedPoint[0] = 1.0; expectedPoint[1] = 1.0; expectedPoint[2] = 0.0;
   if (!fuzzyCompare2Dweak(expectedPoint, retrievedPoint))
-    {
+  {
     std::cerr << "Error: Single point - unexpected output value for point 2." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   outPoints->GetPoint(3, retrievedPoint);
   expectedPoint[0] = -1.0; expectedPoint[1] = 1.0; expectedPoint[2] = 0.0;
   if (!fuzzyCompare2Dweak(expectedPoint, retrievedPoint))
-    {
+  {
     std::cerr << "Error: Single point - unexpected output value for point 3." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   //---------------------------------------------------------------------------
   // Two points in a line - expected output is a 4x2 rectangle centred on the origin
@@ -96,40 +96,40 @@ int TestConvexHull2D(int argc, char* argv[])
   inPoints->SetPoint(1, 2.0, 0.0, 0.0);
   vtkConvexHull2D::CalculateConvexHull(inPoints, outPoints, 2.0);
   if (outPoints->GetNumberOfPoints() != 4)
-    {
+  {
     std::cerr << "Error: Two points in a line - expected 4 output points but got " <<
       outPoints->GetNumberOfPoints() << "." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   outPoints->GetPoint(0, retrievedPoint);
   expectedPoint[0] = -2.0; expectedPoint[1] = -1.0; expectedPoint[2] = 0.0;
   if (!fuzzyCompare2Dweak(expectedPoint, retrievedPoint))
-    {
+  {
     std::cerr << "Error: Two points in a line - unexpected output value for point 0." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   outPoints->GetPoint(1, retrievedPoint);
   expectedPoint[0] = 2.0; expectedPoint[1] = -1.0; expectedPoint[2] = 0.0;
   if (!fuzzyCompare2Dweak(expectedPoint, retrievedPoint))
-    {
+  {
     std::cerr << "Error: Two points in a line - unexpected output value for point 1." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   outPoints->GetPoint(2, retrievedPoint);
   expectedPoint[0] = 2.0; expectedPoint[1] = 1.0; expectedPoint[2] = 0.0;
   if (!fuzzyCompare2Dweak(expectedPoint, retrievedPoint))
-    {
+  {
     std::cerr << "Error: Two points in a line - unexpected output value for point 2." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   outPoints->GetPoint(3, retrievedPoint);
   expectedPoint[0] = -2.0; expectedPoint[1] = 1.0; expectedPoint[2] = 0.0;
   if (!fuzzyCompare2Dweak(expectedPoint, retrievedPoint))
-    {
+  {
     std::cerr << "Error: Two points in a line - unexpected output value for point 3." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   //---------------------------------------------------------------------------
   // Five points - expected output is a 2x2 rotated rectangle centred on the origin
@@ -144,40 +144,40 @@ int TestConvexHull2D(int argc, char* argv[])
   inPoints->SetPoint(4, 2.0, 2.0, 0.0);
   vtkConvexHull2D::CalculateConvexHull(inPoints, outPoints, 2.0);
   if (outPoints->GetNumberOfPoints() != 4)
-    {
+  {
     std::cerr << "Error: Five points - expected 4 output points but got " <<
       outPoints->GetNumberOfPoints() << "." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   outPoints->GetPoint(0, retrievedPoint);
   expectedPoint[0] = 2.0; expectedPoint[1] = 1.0; expectedPoint[2] = 0.0;
   if (!fuzzyCompare2Dweak(expectedPoint, retrievedPoint))
-    {
+  {
     std::cerr << "Error: Five points - unexpected output value for point 0." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   outPoints->GetPoint(1, retrievedPoint);
   expectedPoint[0] = 3.0; expectedPoint[1] = 2.0; expectedPoint[2] = 0.0;
   if (!fuzzyCompare2Dweak(expectedPoint, retrievedPoint))
-    {
+  {
     std::cerr << "Error: Five points - unexpected output value for point 1." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   outPoints->GetPoint(2, retrievedPoint);
   expectedPoint[0] = 2.0; expectedPoint[1] = 3.0; expectedPoint[2] = 0.0;
   if (!fuzzyCompare2Dweak(expectedPoint, retrievedPoint))
-    {
+  {
     std::cerr << "Error: Five points - unexpected output value for point 2." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   outPoints->GetPoint(3, retrievedPoint);
   expectedPoint[0] = 1.0; expectedPoint[1] = 2.0; expectedPoint[2] = 0.0;
   if (!fuzzyCompare2Dweak(expectedPoint, retrievedPoint))
-    {
+  {
     std::cerr << "Error: Five points - unexpected output value for point 3." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

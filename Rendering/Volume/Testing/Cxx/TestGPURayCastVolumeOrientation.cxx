@@ -104,21 +104,21 @@ int TestGPURayCastVolumeOrientation(int argc, char *argv[])
                                               volumeProperty.GetPointer());
   int retVal;
   if (valid)
-    {
+  {
     renWin->Render();
 
     iren->Initialize();
     retVal = vtkRegressionTestImage(renWin.GetPointer());
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
-      {
-      iren->Start();
-      }
-    }
-  else
     {
+      iren->Start();
+    }
+  }
+  else
+  {
     retVal = vtkTesting::PASSED;
     cout << "Required extensions not supported" << endl;
-    }
+  }
 
   return !retVal;
 }

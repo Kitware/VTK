@@ -57,21 +57,21 @@ struct Subsample
             vtkStaticPointLocator *loc, vtkInterpolationKernel *k,
             vtkIdType nBins, vtkIdType *binMap, T *outPts) :
     InPoints(inPts), Locator(loc), Kernel(k), BinMap(binMap), OutPoints(outPts)
-    {
+  {
       this->Arrays.AddArrays(nBins, inPD, outPD);
-    }
+  }
 
   // Just allocate a little bit of memory to get started.
   void Initialize()
-    {
+  {
     vtkIdList*& pIds = this->PIds.Local();
     pIds->Allocate(128); //allocate some memory
     vtkDoubleArray*& weights = this->Weights.Local();
     weights->Allocate(128);
-    }
+  }
 
   void operator() (vtkIdType binId, vtkIdType endBinId)
-    {
+  {
       T *px;
       T *py = this->OutPoints + 3*binId;
       const vtkIdType *map = this->BinMap;
@@ -83,19 +83,19 @@ struct Subsample
       vtkStaticPointLocator *loc = this->Locator;
 
       for ( ; binId < endBinId; ++binId )
-        {
+      {
         if ( map[binId] >= 0 )
-          {
+        {
           y[0] = y[1] = y[2] = 0.0;
           loc->GetBucketIds(binId,pIds);
           numIds = pIds->GetNumberOfIds();
           for (id=0; id < numIds; ++id)
-            {
+          {
             px = this->InPoints + 3*pIds->GetId(id);
             y[0] += *px++;
             y[1] += *px++;
             y[2] += *px;
-            }
+          }
           count = static_cast<double>(numIds);
           y[0] /= count;
           y[1] /= count;
@@ -108,21 +108,21 @@ struct Subsample
           numWeights = this->Kernel->ComputeWeights(y, pIds, weights);
           this->Arrays.Interpolate(numWeights, pIds->GetPointer(0),
                                    weights->GetPointer(0), binId);
-          }// if occupied bin
-        }//for all bins in this batch
-    }
+        }// if occupied bin
+      }//for all bins in this batch
+  }
 
   void Reduce()
-    {
-    }
+  {
+  }
 
   static void Execute(T *inPts, vtkPointData *inPD, vtkPointData *outPD,
                       vtkStaticPointLocator *loc, vtkInterpolationKernel *k,
                       vtkIdType numBins, vtkIdType *binMap, T *outPts)
-    {
+  {
       Subsample subsample(inPts, inPD, outPD, loc, k, numBins, binMap, outPts);
       vtkSMPTools::For(0, numBins, subsample);
-    }
+  }
 
 }; //Subsample
 
@@ -169,37 +169,37 @@ int vtkVoxelGrid::RequestData(
 
   // Check the input
   if ( !input || !output )
-    {
+  {
     return 1;
-    }
+  }
   vtkIdType numPts = input->GetNumberOfPoints();
   if ( numPts < 1 )
-    {
+  {
     return 1;
-    }
+  }
 
   // Make sure there is a kernel
   if ( !this->Kernel )
-    {
+  {
     vtkErrorMacro(<<"Interpolation kernel required\n");
     return 1;
-    }
+  }
 
   bool valid = 1;
   if ( this->LeafSize[0] <= 0.0 || this->LeafSize[1] <= 0.0 || this->LeafSize[2] <= 0.0 ||
        this->Divisions[0] < 1 || this->Divisions[1] < 1 || this->Divisions[2] < 1 )
-    {
+  {
     valid = false;
-    }
+  }
 
   // Configure and build the locator
   if ( valid && this->ConfigurationStyle == vtkVoxelGrid::MANUAL )
-    {
+  {
     this->Locator->AutomaticOff();
     this->Locator->SetDivisions(this->Divisions);
-    }
+  }
   else if ( valid && this->ConfigurationStyle == vtkVoxelGrid::SPECIFY_LEAF_SIZE )
-    {
+  {
     double bounds[6];
     int divs[3];
     this->Locator->AutomaticOff();
@@ -208,12 +208,12 @@ int vtkVoxelGrid::RequestData(
     divs[1] = (bounds[3]-bounds[2]) / this->LeafSize[1];
     divs[2] = (bounds[5]-bounds[4]) / this->LeafSize[2];
     this->Locator->SetDivisions(divs);
-    }
+  }
   else // this->ConfigurationStyle == vtkVoxelGrid::AUTOMATIC
-    {
+  {
     this->Locator->AutomaticOn();
     this->Locator->SetNumberOfPointsPerBucket(this->NumberOfPointsPerBin);
-    }
+  }
   this->Locator->SetDataSet(input);
   this->Locator->BuildLocator();
 
@@ -223,16 +223,16 @@ int vtkVoxelGrid::RequestData(
   vtkIdType binNum, numBins = this->Locator->GetNumberOfBuckets();
   vtkIdType *binMap = new vtkIdType [numBins];
   for ( binNum=0; binNum < numBins; ++binNum )
-    {
+  {
     if ( this->Locator->GetNumberOfPointsInBucket(binNum) > 0 )
-      {
+    {
       binMap[binNum] = numOutPts++;
-      }
-    else
-      {
-      binMap[binNum] = -1;
-      }
     }
+    else
+    {
+      binMap[binNum] = -1;
+    }
+  }
 
   // Grab the point data for interpolation
   vtkPointData *inPD = input->GetPointData();
@@ -250,17 +250,17 @@ int vtkVoxelGrid::RequestData(
   void *inPtr = input->GetPoints()->GetVoidPointer(0);
   void *outPtr = output->GetPoints()->GetVoidPointer(0);
   switch (output->GetPoints()->GetDataType())
-    {
+  {
     vtkTemplateMacro(Subsample<VTK_TT>::Execute((VTK_TT *)inPtr, inPD, outPD,
             this->Locator, this->Kernel, numBins, binMap, (VTK_TT *)outPtr));
-    }
+  }
 
   // Send attributes to output
   int numPtArrays = input->GetPointData()->GetNumberOfArrays();
   for (int i=0; i<numPtArrays; ++i)
-    {
+  {
     output->GetPointData()->AddArray(input->GetPointData()->GetArray(i));
-    }
+  }
 
   // Clean up
   points->Delete();

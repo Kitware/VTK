@@ -61,13 +61,13 @@ int TestGPURayCastCompositeShadeMask(int argc, char *argv[])
   // in the data.
   double distance=spacing[0];
   if(distance>spacing[1])
-    {
+  {
     distance=spacing[1];
-    }
+  }
   if(distance>spacing[2])
-    {
+  {
     distance=spacing[2];
-    }
+  }
   distance=distance/2.0;
 
   cout << "spacing[3]=" << spacing[0] << ", " << spacing[1] << "," << spacing[2] << endl;
@@ -185,7 +185,7 @@ int TestGPURayCastCompositeShadeMask(int argc, char *argv[])
 
   int retVal;
   if(mapper_support && driver_support)
-    {
+  {
     ren1->AddViewProp(volume);
     iren->Initialize();
     ren1->SetBackground(0.1,0.4,0.2);
@@ -195,15 +195,15 @@ int TestGPURayCastCompositeShadeMask(int argc, char *argv[])
 
     retVal = vtkTesting::Test(argc, argv, renWin, 75);
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
-      {
-      iren->Start();
-      }
-    }
-  else
     {
+      iren->Start();
+    }
+  }
+  else
+  {
     retVal=vtkTesting::PASSED;
     cout << "Required extensions not supported." << endl;
-    }
+  }
 
   volume->Delete();
   mapper->Delete();
@@ -216,11 +216,11 @@ int TestGPURayCastCompositeShadeMask(int argc, char *argv[])
   reader->Delete();
 
   if ((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR))
-    {
+  {
     return 0;
-    }
+  }
   else
-    {
+  {
     return 1;
-    }
+  }
 }

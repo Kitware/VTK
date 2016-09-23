@@ -50,10 +50,10 @@ bool vtkGeoFileTerrainSource::FetchRoot(vtkGeoTreeNode* r)
 {
   vtkGeoTerrainNode* root = 0;
   if (!(root = vtkGeoTerrainNode::SafeDownCast(r)))
-    {
+  {
     vtkErrorMacro(<< "Can only fetch terrain nodes from this source.");
     return false;
-    }
+  }
 
   this->ReadModel(0, 0, root);
   return true;
@@ -64,16 +64,16 @@ bool vtkGeoFileTerrainSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTre
 {
   vtkGeoTerrainNode* parent = 0;
   if (!(parent = vtkGeoTerrainNode::SafeDownCast(p)))
-    {
+  {
     vtkErrorMacro(<< "Can only fetch terrain nodes from this source.");
     return false;
-    }
+  }
   vtkGeoTerrainNode* child = 0;
   if (!(child = vtkGeoTerrainNode::SafeDownCast(c)))
-    {
+  {
     vtkErrorMacro(<< "Can only fetch terrain nodes from this source.");
     return false;
-    }
+  }
 
   int level = parent->GetLevel() + 1;
   int id = parent->GetId() | (index << (2*level-2));
@@ -95,13 +95,13 @@ bool vtkGeoFileTerrainSource::ReadModel(int level, int id, vtkGeoTerrainNode* no
   std::ifstream in;
   in.open(ss.str().c_str(), std::ifstream::in);
   if (in.fail())
-    {
+  {
     // Make a dummy polydata
     in.close();
     vtkSmartPointer<vtkPolyData> dummy = vtkSmartPointer<vtkPolyData>::New();
     node->SetModel(dummy);
     return false;
-    }
+  }
   in.close();
 
   // Read the file
@@ -115,12 +115,12 @@ bool vtkGeoFileTerrainSource::ReadModel(int level, int id, vtkGeoTerrainNode* no
   double xRange[2] = {0.0, 0.0};
   double yRange[2] = {0.0, 0.0};
   if (model->GetNumberOfPoints() > 0)
-    {
+  {
     model->GetPointData()->GetArray("LatLong")->GetRange(latRange, 0);
     model->GetPointData()->GetArray("LatLong")->GetRange(lonRange, 1);
     model->GetPoints()->GetData()->GetRange(xRange, 0);
     model->GetPoints()->GetData()->GetRange(yRange, 1);
-    }
+  }
   node->SetLatitudeRange(latRange);
   node->SetLongitudeRange(lonRange);
   node->SetProjectionBounds(xRange[0], xRange[1], yRange[0], yRange[1]);

@@ -60,63 +60,63 @@ void SetInputParameters( int& dim,
 {
   // Ensure that parsed dimensionality makes sense
   if ( dim > 3 )
-    {
+  {
     dim = 3;
-    }
+  }
   else if ( dim < 1 )
-    {
+  {
     dim = 1;
-    }
+  }
 
   // Ensure that parsed branch factor makes sense
   if ( branch > 3 )
-    {
+  {
     branch = 3;
-    }
+  }
   else if ( branch < 2 )
-    {
+  {
     branch = 2;
-    }
+  }
 
   // Ensure that parsed grid sizes make sense
   if ( nX < 1 )
-    {
+  {
     nX = 1;
-    }
+  }
   if ( nY < 1 )
-    {
+  {
     nY = 1;
-    }
+  }
   if ( nZ < 1 )
-    {
+  {
     nZ = 1;
-    }
+  }
 
   // Ensure that parsed grid sizes are consistent with dimensionality
   if ( dim < 3 )
-    {
+  {
     nZ = 1;
     if ( dim < 2 )
-      {
+    {
       nY = 1;
-      }
     }
+  }
 
   // Ensure that maximum level makes sense
   if ( max < 1 )
-    {
+  {
     max = 1;
-    }
+  }
 
   // Generate a descriptor if none was provided
   if ( str = "" )
-    {
+  {
     // Calculate refined block size
     int blockSize = branch;
     for ( int i = 1; i < dim; ++ i )
-      {
+    {
       blockSize *= branch;
-      }
+    }
 
     // Initialize character stream
     std::ostringstream stream;
@@ -129,60 +129,60 @@ void SetInputParameters( int& dim,
 
     // Iterate over refinement levels
     for ( int l = 0; l < max - 1; ++ l )
-      {
+    {
       // Initialize counters for this level
       int nRefined = 0;
       int nLeaves = 0;
 
       // Insert separator if not first level
       if ( l )
-        {
+      {
         stream << '|';
-        }
+      }
 
       // Iterate over entries in this level
       for ( int i = 0; i < cardLevel; ++ i )
-        {
+      {
         // Generate next character based on pseudo-random clause
         double u = vtkMath::Random();
         if ( u < .3 )
-          {
+        {
           // Refined cell
           stream << 'R';
           ++ nRefined;
-          } // if ( u < .1 )
+        } // if ( u < .1 )
         else
-          {
+        {
           // Leaf cell
           stream << '.';
           ++ nLeaves;
-          } // else
-        } // i
-      
-      // Update cardinality for next level 
+        } // else
+      } // i
+
+      // Update cardinality for next level
       cardLevel = nRefined * blockSize;
-      } // l
+    } // l
 
     // Last level contains only leaf cells
     if ( max > 1 )
-      {
+    {
       // Insert separator if not first level
       stream << '|';
-      }
+    }
     // Iterate over entries in this level
     for ( int i = 0; i < cardLevel; ++ i )
-      {
+    {
       stream << '.';
-      }
+    }
 
     // Finally dump stream into descriptor
     str = stream.str();
-    
-    } // if ( str = "" )
+
+  } // if ( str = "" )
 }
 
   int main( int argc, char* argv[] )
-{
+  {
   // Set default argument values and options
   vtkStdString descriptor = "";
   int dim = 3;
@@ -278,22 +278,22 @@ void SetInputParameters( int& dim,
 
   // If incorrect arguments were provided, provide some help and terminate in error.
   if ( ! clArgs.Parse() )
-    {
+  {
     cerr << "Usage: "
          << clArgs.GetHelp()
          << "\n";
     return 1;
-    }
+  }
 
   // Verify and set input parameters
   SetInputParameters( dim, branch, nX, nY, nZ, max, descriptor );
   if ( printDescriptor )
-    {
+  {
     cerr << "# Hyper tree grid descriptor: "
          << endl
          << descriptor
          << endl;
-    }
+  }
 
   // Create hyper tree grid source
   vtkNew<vtkHyperTreeGridSource> source;
@@ -311,7 +311,7 @@ void SetInputParameters( int& dim,
        << endl;
 
   if ( ! skipGeometry )
-    {
+  {
     cerr << "# Geometry" << endl;
     vtkNew<vtkHyperTreeGridGeometry> geometry;
     geometry->SetInputConnection( source->GetOutputPort() );
@@ -322,10 +322,10 @@ void SetInputParameters( int& dim,
     cerr << "  Number of surface cells: "
          << geometry->GetOutput()->GetNumberOfCells()
          << endl;
-    }
+  }
 
   if ( ! skipContour )
-    {
+  {
     cerr << "# Contour" << endl;
     vtkNew<vtkContourFilter> contour;
     contour->SetInputData( htGrid );
@@ -342,14 +342,14 @@ void SetInputParameters( int& dim,
     double resolution = ( range[1] - range[0] ) / ( nContours + 1. );
     double isovalue = resolution;
     for ( int i = 0; i < nContours; ++ i, isovalue += resolution )
-      {
+    {
       cerr << "    Contour "
            << i
            << " at iso-value: "
            << isovalue
            << endl;
       contour->SetValue( i, isovalue );
-      }
+    }
     vtkNew<vtkPolyDataWriter> writer0;
     writer0->SetFileName( "./hyperTreeGridContour.vtk" );
     writer0->SetInputConnection( contour->GetOutputPort() );
@@ -357,10 +357,10 @@ void SetInputParameters( int& dim,
     cerr << "  Number of cells in iso-contours: "
          << contour->GetOutput()->GetNumberOfCells()
          << endl;
-    }
+  }
 
   if ( ! skipShrink )
-    {
+  {
     cerr << "# Shrink" << endl;
     vtkNew<vtkShrinkFilter> shrink;
     shrink->SetInputData( htGrid );
@@ -372,13 +372,13 @@ void SetInputParameters( int& dim,
     cerr << "  Number of shrunk cells: "
          << shrink->GetOutput()->GetNumberOfCells()
          << endl;
-    }
+  }
 
   if ( ! skipAxisCut )
-    {
+  {
     // Axis-aligned cut works only in 3D for now
     if ( dim == 3 )
-      {
+    {
       cerr << "# HyperTreeGridAxisCut" << endl;
       vtkNew<vtkHyperTreeGridAxisCut> axisCut;
       axisCut->SetInputConnection( source->GetOutputPort() );
@@ -391,11 +391,11 @@ void SetInputParameters( int& dim,
       cerr << "  Number of cells in axis cut: "
            << axisCut->GetOutput()->GetNumberOfCells()
            << endl;
-      }
     }
+  }
 
   if ( ! skipCut )
-    {
+  {
     cerr << "# Cut" << endl;
     vtkNew<vtkCutter> cut;
     vtkNew<vtkPlane> plane;
@@ -410,7 +410,7 @@ void SetInputParameters( int& dim,
     cerr << "  Number of cells in generic cut: "
          << cut->GetOutput()->GetNumberOfCells()
          << endl;
-    }
+  }
 
   return 0;
-}
+  }

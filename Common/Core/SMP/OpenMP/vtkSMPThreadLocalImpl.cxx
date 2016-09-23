@@ -40,10 +40,10 @@ inline HashType GetHash(ThreadIdType id)
   unsigned char *be = bp + sizeof(id);
   HashType hval = offset_basis;
   while (bp < be)
-    {
+  {
     hval ^= static_cast<HashType>(*bp++);
     hval *= FNV_prime;
-    }
+  }
 
   return hval;
 }
@@ -55,14 +55,14 @@ public:
   LockGuard(omp_lock_t &lock, bool wait) : Lock(lock), Status(0)
   {
     if (wait)
-      {
+    {
       omp_set_lock(&this->Lock);
       this->Status = 1;
-      }
+    }
     else
-      {
+    {
       this->Status = omp_test_lock(&this->Lock);
-      }
+    }
   }
 
   bool Success() const
@@ -73,10 +73,10 @@ public:
   void Release()
   {
     if (this->Status)
-      {
+    {
       omp_unset_lock(&this->Lock);
       this->Status = 0;
-      }
+    }
   }
 
   ~LockGuard()
@@ -123,9 +123,9 @@ static Slot* LookupSlot(HashTableArray *array, ThreadIdType threadId,
                         size_t hash)
 {
   if (!array)
-    {
+  {
     return NULL;
-    }
+  }
 
   size_t mask = array->Size - 1u;
   Slot *slot = NULL;
@@ -133,19 +133,19 @@ static Slot* LookupSlot(HashTableArray *array, ThreadIdType threadId,
   // since load factor is maintained bellow 0.5, this loop should hit an
   // empty slot if the queried slot does not exist in this array
   for (size_t idx = hash & mask; ; idx = (idx + 1) & mask) // linear probing
-    {
+  {
     slot = array->Slots + idx;
     ThreadIdType slotThreadId = slot->ThreadId.load(); // atomic read
     if (!slotThreadId) // empty slot means threadId doesn't exist in this array
-      {
+    {
       slot = LookupSlot(array->Prev, threadId, hash);
       break;
-      }
-    else if (slotThreadId == threadId)
-      {
-      break;
-      }
     }
+    else if (slotThreadId == threadId)
+    {
+      break;
+    }
+  }
 
   return slot;
 }
@@ -161,29 +161,29 @@ static Slot* AcquireSlot(HashTableArray *array, ThreadIdType threadId,
   firstAccess = false;
 
   for (size_t idx = hash & mask; ; idx = (idx + 1) & mask)
-    {
+  {
     slot = array->Slots + idx;
     ThreadIdType slotThreadId = slot->ThreadId.load(); // atomic read
     if (!slotThreadId) // unused?
-      {
+    {
       // empty slot means threadId does not exist, try to acquire the slot
       LockGuard lguard(slot->ModifyLock, false); // try to get exclusive access
       if (lguard.Success())
-        {
+      {
         size_t size = ++array->NumberOfEntries; // atomic
         if ((size * 2) > array->Size) // load factor is above threshold
-          {
+        {
           --array->NumberOfEntries; // atomic revert
           return NULL; // indicate need for resizing
-          }
+        }
 
         if (!slot->ThreadId.load()) // not acquired in the meantime?
-          {
+        {
           slot->ThreadId.store(threadId); // atomically acquire
           // check previous arrays for the entry
           Slot *prevSlot = LookupSlot(array->Prev, threadId, hash);
           if (prevSlot)
-            {
+          {
             slot->Storage = prevSlot->Storage;
             // Do not clear PrevSlot's ThreadId as our technique of stopping
             // linear probing at empty slots relies on slots not being
@@ -192,21 +192,21 @@ static Slot* AcquireSlot(HashTableArray *array, ThreadIdType threadId,
             // ensure that it doesn't iterate over the same thread's storage
             // more than once.
             prevSlot->Storage = NULL;
-            }
+          }
           else // first time access
-            {
+          {
             slot->Storage = NULL;
             firstAccess = true;
-            }
-          break;
           }
+          break;
         }
       }
-    else if (slotThreadId == threadId)
-      {
-      break;
-      }
     }
+    else if (slotThreadId == threadId)
+    {
+      break;
+    }
+  }
 
   return slot;
 }
@@ -218,13 +218,13 @@ ThreadSpecific::ThreadSpecific(unsigned numThreads)
   // lastSetBit = floor(log2(numThreads))
   int lastSetBit = 0;
   for (int i = (sizeof(unsigned) * 8) - 1; i >= 0; --i)
-    {
+  {
     if (numThreads & (1u << i))
-      {
+    {
       lastSetBit = i;
       break;
-      }
     }
+  }
 
   // initial size should be more than twice the number of threads
   size_t initSizeLg = (lastSetBit + 2);
@@ -235,11 +235,11 @@ ThreadSpecific::~ThreadSpecific()
 {
   HashTableArray *array = this->Root;
   while (array)
-    {
+  {
     HashTableArray *tofree = array;
     array = array->Prev;
     delete tofree;
-    }
+  }
 }
 
 StoragePointerType& ThreadSpecific::GetStorage()
@@ -249,25 +249,25 @@ StoragePointerType& ThreadSpecific::GetStorage()
 
   Slot *slot = NULL;
   while (!slot)
-    {
+  {
     bool firstAccess = false;
     HashTableArray *array = this->Root.load();
     slot = AcquireSlot(array, threadId, hash, firstAccess);
     if (!slot) // not enough room, resize
-      {
+    {
 #     pragma omp critical (HashTableResize)
       if (this->Root == array)
-        {
+      {
         HashTableArray *newArray = new HashTableArray(array->SizeLg + 1);
         newArray->Prev = array;
         this->Root.store(newArray); // atomic copy
-        }
-      }
-    else if (firstAccess)
-      {
-      ++this->Count; // atomic increment
       }
     }
+    else if (firstAccess)
+    {
+      ++this->Count; // atomic increment
+    }
+  }
   return slot->Storage;
 }
 

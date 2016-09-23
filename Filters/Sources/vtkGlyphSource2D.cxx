@@ -67,13 +67,13 @@ int vtkGlyphSource2D::RequestData(
 
   // Set the desired precision for the points in the output.
   if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     pts->SetDataType(VTK_DOUBLE);
-    }
+  }
   else
-    {
+  {
     pts->SetDataType(VTK_FLOAT);
-    }
+  }
 
   pts->Allocate(6,6);
   vtkCellArray *verts = vtkCellArray::New();
@@ -91,23 +91,23 @@ int vtkGlyphSource2D::RequestData(
 
   //Special options
   if ( this->Dash )
-    {
+  {
     int filled = this->Filled;
     this->Filled = 0;
     this->CreateDash(pts,lines,polys,colors,this->Scale2);
     this->Filled = filled;
-    }
+  }
   if ( this->Cross )
-    {
+  {
     int filled = this->Filled;
     this->Filled = 0;
     this->CreateCross(pts,lines,polys,colors,this->Scale2);
     this->Filled = filled;
-    }
+  }
 
   //Call the right function
   switch (this->GlyphType)
-    {
+  {
     case VTK_NO_GLYPH:
       break;
     case VTK_VERTEX_GLYPH:
@@ -146,7 +146,7 @@ int vtkGlyphSource2D::RequestData(
     case VTK_EDGEARROW_GLYPH:
       this->CreateEdgeArrow(pts,lines,polys,colors);
       break;
-    }
+  }
 
   this->TransformGlyph(pts);
 
@@ -183,21 +183,21 @@ void vtkGlyphSource2D::TransformGlyph(vtkPoints *pts)
   vtkIdType numPts=pts->GetNumberOfPoints();
 
   if ( this->RotationAngle == 0.0 )
-    {
+  {
     for (i=0; i<numPts; i++)
-      {
+    {
       pts->GetPoint(i,x);
       x[0] = this->Center[0] + this->Scale * x[0];
       x[1] = this->Center[1] + this->Scale * x[1];
       pts->SetPoint(i,x);
-      }
     }
+  }
   else
-    {
+  {
     double angle = vtkMath::RadiansFromDegrees( this->RotationAngle );
     double xt;
     for (i=0; i<numPts; i++)
-      {
+    {
       pts->GetPoint(i,x);
       xt = x[0]*cos(angle) - x[1]*sin(angle);
       x[1] = x[0]*sin(angle) + x[1]*cos(angle);
@@ -205,8 +205,8 @@ void vtkGlyphSource2D::TransformGlyph(vtkPoints *pts)
       x[0] = this->Center[0] + this->Scale * x[0];
       x[1] = this->Center[1] + this->Scale * x[1];
       pts->SetPoint(i,x);
-      }
     }
+  }
 }
 
 void vtkGlyphSource2D::CreateVertex(vtkPoints *pts, vtkCellArray *verts,
@@ -227,11 +227,11 @@ void vtkGlyphSource2D::CreateCross(vtkPoints *pts, vtkCellArray *lines,
   vtkIdType ptIds[4];
 
   if ( this->Filled )
-    {
+  {
     this->CreateThickCross(pts,lines,polys,colors);
-    }
+  }
   else
-    {
+  {
     ptIds[0] = pts->InsertNextPoint(-0.5*scale, 0.0, 0.0);
     ptIds[1] = pts->InsertNextPoint( 0.5*scale, 0.0, 0.0);
     lines->InsertNextCell(2,ptIds);
@@ -244,14 +244,14 @@ void vtkGlyphSource2D::CreateCross(vtkPoints *pts, vtkCellArray *lines,
     colors->InsertNextValue(this->RGB[0]);
     colors->InsertNextValue(this->RGB[1]);
     colors->InsertNextValue(this->RGB[2]);
-    }
+  }
 }
 
 void vtkGlyphSource2D::CreateThickCross(vtkPoints *pts, vtkCellArray *lines,
                                         vtkCellArray *polys, vtkUnsignedCharArray *colors)
 {
   if ( this->Filled )
-    {
+  {
     vtkIdType ptIds[4];
     ptIds[0] = pts->InsertNextPoint(-0.5, -0.1, 0.0);
     ptIds[1] = pts->InsertNextPoint( 0.5, -0.1, 0.0);
@@ -269,9 +269,9 @@ void vtkGlyphSource2D::CreateThickCross(vtkPoints *pts, vtkCellArray *lines,
     colors->InsertNextValue(this->RGB[0]);
     colors->InsertNextValue(this->RGB[1]);
     colors->InsertNextValue(this->RGB[2]);
-    }
+  }
   else
-    {
+  {
     vtkIdType ptIds[13];
     ptIds[0] = pts->InsertNextPoint(-0.5, -0.1, 0.0);
     ptIds[1] = pts->InsertNextPoint(-0.1, -0.1, 0.0);
@@ -290,7 +290,7 @@ void vtkGlyphSource2D::CreateThickCross(vtkPoints *pts, vtkCellArray *lines,
     colors->InsertNextValue(this->RGB[0]);
     colors->InsertNextValue(this->RGB[1]);
     colors->InsertNextValue(this->RGB[2]);
-    }
+  }
 }
 
 void vtkGlyphSource2D::CreateTriangle(vtkPoints *pts, vtkCellArray *lines,
@@ -303,14 +303,14 @@ void vtkGlyphSource2D::CreateTriangle(vtkPoints *pts, vtkCellArray *lines,
   ptIds[2] = pts->InsertNextPoint( 0.375, -0.25, 0.0);
 
   if ( this->Filled )
-    {
+  {
     polys->InsertNextCell(3,ptIds);
-    }
+  }
   else
-    {
+  {
     ptIds[3] = ptIds[0];
     lines->InsertNextCell(4,ptIds);
-    }
+  }
   colors->InsertNextValue(this->RGB[0]);
   colors->InsertNextValue(this->RGB[1]);
   colors->InsertNextValue(this->RGB[2]);
@@ -327,14 +327,14 @@ void vtkGlyphSource2D::CreateSquare(vtkPoints *pts, vtkCellArray *lines,
   ptIds[3] = pts->InsertNextPoint(-0.5,  0.5, 0.0);
 
   if ( this->Filled )
-    {
+  {
     polys->InsertNextCell(4,ptIds);
-    }
+  }
   else
-    {
+  {
     ptIds[4] = ptIds[0];
     lines->InsertNextCell(5,ptIds);
-    }
+  }
   colors->InsertNextValue(this->RGB[0]);
   colors->InsertNextValue(this->RGB[1]);
   colors->InsertNextValue(this->RGB[2]);
@@ -352,21 +352,21 @@ void vtkGlyphSource2D::CreateCircle(vtkPoints *pts, vtkCellArray *lines,
   x[2] = 0.0;
   theta = 2.0 * vtkMath::Pi() / static_cast<double>(this->Resolution);
   for (int i=0; i<this->Resolution; i++)
-    {
+  {
     x[0] = 0.5 * cos(i*theta);
     x[1] = 0.5 * sin(i*theta);
     ptIds->SetId(i, pts->InsertNextPoint(x));
-    }
+  }
 
   ptIds->SetId(this->Resolution, ptIds->GetId(0));
   if ( this->Filled )
-    {
+  {
     polys->InsertNextCell(ptIds);
-    }
+  }
   else
-    {
+  {
     lines->InsertNextCell(ptIds);
-    }
+  }
   colors->InsertNextValue(this->RGB[0]);
   colors->InsertNextValue(this->RGB[1]);
   colors->InsertNextValue(this->RGB[2]);
@@ -385,14 +385,14 @@ void vtkGlyphSource2D::CreateDiamond(vtkPoints *pts, vtkCellArray *lines,
   ptIds[3] = pts->InsertNextPoint(-0.5,  0.0, 0.0);
 
   if ( this->Filled )
-    {
+  {
     polys->InsertNextCell(4,ptIds);
-    }
+  }
   else
-    {
+  {
     ptIds[4] = ptIds[0];
     lines->InsertNextCell(5,ptIds);
-    }
+  }
   colors->InsertNextValue(this->RGB[0]);
   colors->InsertNextValue(this->RGB[1]);
   colors->InsertNextValue(this->RGB[2]);
@@ -402,11 +402,11 @@ void vtkGlyphSource2D::CreateArrow(vtkPoints *pts, vtkCellArray *lines,
                                    vtkCellArray *polys, vtkUnsignedCharArray *colors)
 {
   if ( this->Filled ) //create two convex polygons
-    {
+  {
     this->CreateThickArrow(pts,lines,polys,colors);
-    }
+  }
   else
-    {
+  {
     //stem
     vtkIdType ptIds[3];
     ptIds[0] = pts->InsertNextPoint( -0.5, 0.0, 0.0);
@@ -424,7 +424,7 @@ void vtkGlyphSource2D::CreateArrow(vtkPoints *pts, vtkCellArray *lines,
     colors->InsertNextValue(this->RGB[0]);
     colors->InsertNextValue(this->RGB[1]);
     colors->InsertNextValue(this->RGB[2]);
-    }
+  }
 }
 
 void vtkGlyphSource2D::CreateThickArrow(vtkPoints *pts, vtkCellArray *lines,
@@ -441,7 +441,7 @@ void vtkGlyphSource2D::CreateThickArrow(vtkPoints *pts, vtkCellArray *lines,
   ptIds[6] = pts->InsertNextPoint( -0.5,  0.1, 0.0);
 
   if ( this->Filled ) //create two convex polygons
-    {
+  {
     polys->InsertNextCell(4);
     polys->InsertCellPoint(ptIds[0]);
     polys->InsertCellPoint(ptIds[1]);
@@ -455,22 +455,22 @@ void vtkGlyphSource2D::CreateThickArrow(vtkPoints *pts, vtkCellArray *lines,
     colors->InsertNextValue(this->RGB[0]);
     colors->InsertNextValue(this->RGB[1]);
     colors->InsertNextValue(this->RGB[2]);
-    }
+  }
   else
-    {
+  {
     ptIds[7] = ptIds[0];
     lines->InsertNextCell(8,ptIds);
     colors->InsertNextValue(this->RGB[0]);
     colors->InsertNextValue(this->RGB[1]);
     colors->InsertNextValue(this->RGB[2]);
-    }
+  }
 }
 
 void vtkGlyphSource2D::CreateHookedArrow(vtkPoints *pts, vtkCellArray *lines,
                                          vtkCellArray *polys, vtkUnsignedCharArray *colors)
 {
   if ( this->Filled )
-    {
+  {
     //create two convex polygons
     vtkIdType ptIds[4];
     ptIds[0] = pts->InsertNextPoint( -0.5,   -0.1, 0.0);
@@ -489,9 +489,9 @@ void vtkGlyphSource2D::CreateHookedArrow(vtkPoints *pts, vtkCellArray *lines,
     colors->InsertNextValue(this->RGB[0]);
     colors->InsertNextValue(this->RGB[1]);
     colors->InsertNextValue(this->RGB[2]);
-    }
+  }
   else
-    {
+  {
     vtkIdType ptIds[3];
     ptIds[0] = pts->InsertNextPoint( -0.5, 0.0, 0.0);
     ptIds[1] = pts->InsertNextPoint(  0.5, 0.0, 0.0);
@@ -500,7 +500,7 @@ void vtkGlyphSource2D::CreateHookedArrow(vtkPoints *pts, vtkCellArray *lines,
     colors->InsertNextValue(this->RGB[0]);
     colors->InsertNextValue(this->RGB[1]);
     colors->InsertNextValue(this->RGB[2]);
-    }
+  }
 }
 
 void vtkGlyphSource2D::CreateEdgeArrow(vtkPoints *pts, vtkCellArray *lines,
@@ -514,13 +514,13 @@ void vtkGlyphSource2D::CreateEdgeArrow(vtkPoints *pts, vtkCellArray *lines,
   ptIds[2] = pts->InsertNextPoint(-1.0,  -x, 0.0);
 
   if ( this->Filled )
-    {
+  {
     polys->InsertNextCell(3,ptIds);
-    }
+  }
   else
-    {
+  {
     lines->InsertNextCell(3,ptIds);
-    }
+  }
   colors->InsertNextValue(this->RGB[0]);
   colors->InsertNextValue(this->RGB[1]);
   colors->InsertNextValue(this->RGB[2]);
@@ -531,16 +531,16 @@ void vtkGlyphSource2D::CreateDash(vtkPoints *pts, vtkCellArray *lines,
                                                                   double scale)
 {
   if ( this->Filled )
-    {
+  {
     vtkIdType ptIds[4];
     ptIds[0] = pts->InsertNextPoint(-0.5, -0.1, 0.0);
     ptIds[1] = pts->InsertNextPoint( 0.5, -0.1, 0.0);
     ptIds[2] = pts->InsertNextPoint( 0.5,  0.1, 0.0);
     ptIds[3] = pts->InsertNextPoint(-0.5,  0.1, 0.0);
     polys->InsertNextCell(4,ptIds);
-    }
+  }
   else
-    {
+  {
     vtkIdType ptIds2D[2];
     ptIds2D[0] = pts->InsertNextPoint(-0.5*scale, 0.0, 0.0);
     ptIds2D[1] = pts->InsertNextPoint( 0.5*scale, 0.0, 0.0);
@@ -548,7 +548,7 @@ void vtkGlyphSource2D::CreateDash(vtkPoints *pts, vtkCellArray *lines,
     colors->InsertNextValue(this->RGB[1]);
     colors->InsertNextValue(this->RGB[2]);
     lines->InsertNextCell(2,ptIds2D);
-    }
+  }
   colors->InsertNextValue(this->RGB[0]);
   colors->InsertNextValue(this->RGB[1]);
   colors->InsertNextValue(this->RGB[2]);
@@ -576,7 +576,7 @@ void vtkGlyphSource2D::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Glyph Type";
   switch (this->GlyphType)
-    {
+  {
     case VTK_NO_GLYPH:
       os << "No Glyph\n";
       break;
@@ -616,7 +616,7 @@ void vtkGlyphSource2D::PrintSelf(ostream& os, vtkIndent indent)
     case VTK_EDGEARROW_GLYPH:
       os << "Edge Arrow\n";
       break;
-    }
+  }
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision
      << "\n";
 }

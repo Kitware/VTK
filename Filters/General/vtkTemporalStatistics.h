@@ -23,29 +23,31 @@
  * statement of authorship are reproduced on all copies.
  */
 
-// .NAME vtkTemporalStatistics - Compute statistics of point or cell data as it changes over time
-//
-// .SECTION Description
-//
-// Given an input that changes over time, vtkTemporalStatistics looks at the
-// data for each time step and computes some statistical information of how a
-// point or cell variable changes over time.  For example, vtkTemporalStatistics
-// can compute the average value of "pressure" over time of each point.
-//
-// Note that this filter will require the upstream filter to be run on every
-// time step that it reports that it can compute.  This may be a time consuming
-// operation.
-//
-// vtkTemporalStatistics ignores the temporal spacing.  Each timestep will be
-// weighted the same regardless of how long of an interval it is to the next
-// timestep.  Thus, the average statistic may be quite different from an
-// integration of the variable if the time spacing varies.
-//
-// .SECTION Thanks
-// This class was originally written by Kenneth Moreland (kmorel@sandia.gov)
-// from Sandia National Laboratories.
-//
-
+/**
+ * @class   vtkTemporalStatistics
+ * @brief   Compute statistics of point or cell data as it changes over time
+ *
+ *
+ *
+ * Given an input that changes over time, vtkTemporalStatistics looks at the
+ * data for each time step and computes some statistical information of how a
+ * point or cell variable changes over time.  For example, vtkTemporalStatistics
+ * can compute the average value of "pressure" over time of each point.
+ *
+ * Note that this filter will require the upstream filter to be run on every
+ * time step that it reports that it can compute.  This may be a time consuming
+ * operation.
+ *
+ * vtkTemporalStatistics ignores the temporal spacing.  Each timestep will be
+ * weighted the same regardless of how long of an interval it is to the next
+ * timestep.  Thus, the average statistic may be quite different from an
+ * integration of the variable if the time spacing varies.
+ *
+ * @par Thanks:
+ * This class was originally written by Kenneth Moreland (kmorel@sandia.gov)
+ * from Sandia National Laboratories.
+ *
+*/
 
 #ifndef vtkTemporalStatistics_h
 #define vtkTemporalStatistics_h
@@ -65,26 +67,35 @@ public:
   static vtkTemporalStatistics *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Turn on/off the computation of the average values over time.  On by
-  // default.  The resulting array names have "_average" appended to them.
+  //@{
+  /**
+   * Turn on/off the computation of the average values over time.  On by
+   * default.  The resulting array names have "_average" appended to them.
+   */
   vtkGetMacro(ComputeAverage, int);
   vtkSetMacro(ComputeAverage, int);
   vtkBooleanMacro(ComputeAverage, int);
+  //@}
 
-  // Description:
-  // Turn on/off the computation of the minimum values over time.  On by
-  // default.  The resulting array names have "_minimum" appended to them.
+  //@{
+  /**
+   * Turn on/off the computation of the minimum values over time.  On by
+   * default.  The resulting array names have "_minimum" appended to them.
+   */
   vtkGetMacro(ComputeMinimum, int);
   vtkSetMacro(ComputeMinimum, int);
   vtkBooleanMacro(ComputeMinimum, int);
+  //@}
 
-  // Description:
-  // Turn on/off the computation of the maximum values over time.  On by
-  // default.  The resulting array names have "_maximum" appended to them.
+  //@{
+  /**
+   * Turn on/off the computation of the maximum values over time.  On by
+   * default.  The resulting array names have "_maximum" appended to them.
+   */
   vtkGetMacro(ComputeMaximum, int);
   vtkSetMacro(ComputeMaximum, int);
   vtkBooleanMacro(ComputeMaximum, int);
+  //@}
 
   // Definition:
   // Turn on/off the computation of the standard deviation of the values over
@@ -153,11 +164,14 @@ private:
   vtkTemporalStatistics(const vtkTemporalStatistics &) VTK_DELETE_FUNCTION;
   void operator=(const vtkTemporalStatistics &) VTK_DELETE_FUNCTION;
 
-  // Description:
-  // Used to avoid multiple warnings for the same filter when
-  // the number of points or cells in the data set is changing
-  // between time steps.
+  //@{
+  /**
+   * Used to avoid multiple warnings for the same filter when
+   * the number of points or cells in the data set is changing
+   * between time steps.
+   */
   bool GeneratedChangingTopologyWarning;
 };
+  //@}
 
 #endif //_vtkTemporalStatistics_h

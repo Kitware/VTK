@@ -70,22 +70,22 @@ int vtkAddMembershipArray::FillInputPortInformation(
   int port, vtkInformation* info)
 {
   if(port == 0)
-    {
+  {
     info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
-    }
+  }
   else if(port == 1)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
-    }
+  }
   else if (port == 2)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkAnnotationLayers");
     return 1;
-    }
+  }
 
   return 1;
 }
@@ -108,38 +108,38 @@ int vtkAddMembershipArray::RequestData(
   output->ShallowCopy(input);
 
   if(!inputSelection)
-    {
+  {
     if(!this->InputArrayName || !this->InputValues)
       return 1;
 
     vtkDataSetAttributes* ds = 0;;
     switch(this->FieldType)
-      {
+    {
       case vtkAddMembershipArray::VERTEX_DATA:
         if(graph)
-          {
+        {
           ds = graph->GetVertexData();
-          }
+        }
         break;
       case vtkAddMembershipArray::EDGE_DATA:
         if(graph)
-          {
+        {
           ds = graph->GetEdgeData();
-          }
+        }
         break;
       case vtkAddMembershipArray::ROW_DATA:
         if(table)
-          {
+        {
           ds = table->GetRowData();
-          }
+        }
         break;
-      }
+    }
 
     if(!ds)
-      {
+    {
       vtkErrorMacro("Unsupported input field type.");
       return 0;
-      }
+    }
 
     vtkIntArray *vals = vtkIntArray::New();
     vals->SetNumberOfTuples(ds->GetNumberOfTuples());
@@ -149,65 +149,65 @@ int vtkAddMembershipArray::RequestData(
 
     vtkAbstractArray *inputArray = ds->GetAbstractArray(this->InputArrayName);
     if(inputArray && this->InputValues)
-      {
+    {
       for(vtkIdType i=0; i<inputArray->GetNumberOfTuples(); ++i)
-        {
+      {
         vtkVariant v(0);
         switch (inputArray->GetDataType())
-          {
+        {
           vtkExtraExtendedTemplateMacro(v = *static_cast<VTK_TT*>(inputArray->GetVoidPointer(i)));
-          }
+        }
         if(this->InputValues->LookupValue(v)>=0)
-          {
+        {
           vals->SetValue(i,1);
-          }
+        }
         else
-          {
+        {
           vals->SetValue(i,0);
-          }
         }
       }
+    }
 
     ds->AddArray(vals);
 
     vals->Delete();
 
     return 1;
-    }
+  }
 
   vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
   selection->DeepCopy(inputSelection);
 
   if(inputAnnotations)
-    {
+  {
     for(unsigned int i=0; i<inputAnnotations->GetNumberOfAnnotations(); ++i)
-      {
+    {
       vtkAnnotation* a = inputAnnotations->GetAnnotation(i);
       if (a->GetInformation()->Has(vtkAnnotation::ENABLE()) &&
           a->GetInformation()->Get(vtkAnnotation::ENABLE())==0)
-        {
+      {
         continue;
-        }
-      selection->Union(a->GetSelection());
       }
+      selection->Union(a->GetSelection());
     }
+  }
 
   vtkSmartPointer<vtkIdTypeArray> rowList = vtkSmartPointer<vtkIdTypeArray>::New();
   vtkSmartPointer<vtkIdTypeArray> edgeList = vtkSmartPointer<vtkIdTypeArray>::New();
   vtkSmartPointer<vtkIdTypeArray> vertexList = vtkSmartPointer<vtkIdTypeArray>::New();
 
   if(graph)
-    {
+  {
     vtkConvertSelection::GetSelectedVertices(selection, graph, vertexList);
     vtkConvertSelection::GetSelectedEdges(selection, graph, edgeList);
-    }
+  }
   else if(table)
-    {
+  {
     vtkConvertSelection::GetSelectedRows(selection, table, rowList);
-    }
+  }
 
   if (vertexList->GetNumberOfTuples() != 0)
-    {
+  {
     vtkSmartPointer<vtkIntArray> vals = vtkSmartPointer<vtkIntArray>::New();
     vals->SetNumberOfTuples(graph->GetVertexData()->GetNumberOfTuples());
     vals->SetNumberOfComponents(1);
@@ -215,14 +215,14 @@ int vtkAddMembershipArray::RequestData(
     vals->FillComponent(0,0);
     vtkIdType numSelectedVerts = vertexList->GetNumberOfTuples();
     for (vtkIdType i = 0; i < numSelectedVerts; ++i)
-      {
+    {
       vals->SetValue(vertexList->GetValue(i), 1);
-      }
-    graph->GetVertexData()->AddArray(vals);
     }
+    graph->GetVertexData()->AddArray(vals);
+  }
 
   if (edgeList->GetNumberOfTuples() != 0)
-    {
+  {
     vtkSmartPointer<vtkIntArray> vals = vtkSmartPointer<vtkIntArray>::New();
     vals->SetNumberOfTuples(graph->GetEdgeData()->GetNumberOfTuples());
     vals->SetNumberOfComponents(1);
@@ -230,14 +230,14 @@ int vtkAddMembershipArray::RequestData(
     vals->FillComponent(0,0);
     vtkIdType numSelectedEdges = edgeList->GetNumberOfTuples();
     for (vtkIdType i = 0; i < numSelectedEdges; ++i)
-      {
+    {
       vals->SetValue(edgeList->GetValue(i), 1);
-      }
-    graph->GetEdgeData()->AddArray(vals);
     }
+    graph->GetEdgeData()->AddArray(vals);
+  }
 
   if (rowList->GetNumberOfTuples() != 0)
-    {
+  {
     vtkSmartPointer<vtkIntArray> vals = vtkSmartPointer<vtkIntArray>::New();
     vals->SetNumberOfTuples(table->GetRowData()->GetNumberOfTuples());
     vals->SetNumberOfComponents(1);
@@ -245,11 +245,11 @@ int vtkAddMembershipArray::RequestData(
     vals->FillComponent(0,0);
     vtkIdType numSelectedRows = rowList->GetNumberOfTuples();
     for (vtkIdType i = 0; i < numSelectedRows; ++i)
-      {
+    {
       vals->SetValue(rowList->GetValue(i), 1);
-      }
-    table->GetRowData()->AddArray(vals);
     }
+    table->GetRowData()->AddArray(vals);
+  }
 
   return 1;
 }
@@ -264,17 +264,17 @@ void vtkAddMembershipArray::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "InputArrayName: "
     << (this->InputArrayName ? this->InputArrayName : "(none)") << endl;
   if(this->InputValues)
-    {
+  {
     os << indent << "Input Values :" << endl;
     int num = this->InputValues->GetNumberOfTuples();
     for (int idx = 0; idx < num; ++idx)
-      {
+    {
       vtkVariant v(0);
       switch (this->InputValues->GetDataType())
-        {
+      {
         vtkExtraExtendedTemplateMacro(v = *static_cast<VTK_TT*>(this->InputValues->GetVoidPointer(idx)));
-        }
-      os << v.ToString() << endl;
       }
+      os << v.ToString() << endl;
     }
+  }
 }

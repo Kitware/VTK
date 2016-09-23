@@ -22,30 +22,34 @@
 
 =========================================================================*/
 
-// .NAME vtkOpenGLExtensionManager - Interface class for querying and using OpenGL extensions.
-//
-// .SECTION Description
-//
-// vtkOpenGLExtensionManager acts as an interface to OpenGL extensions.  It
-// provides methods to query OpenGL extensions on the current or a given
-// render window and to load extension function pointers.  Currently does
-// not support GLU extensions since the GLU library is not linked to VTK.
-//
-// Before using vtkOpenGLExtensionManager, an OpenGL context must be created.
-// This is generally done with a vtkRenderWindow.  Note that simply creating
-// the vtkRenderWindow is not sufficient.  Usually you have to call Render
-// before the actual OpenGL context is created.  You can specify the
-// RenderWindow with the SetRenderWindow method.
-// \code
-// vtkOpenGLExtensionManager *extensions = vtkOpenGLExtensionManager::New();
-// extensions->SetRenderWindow(renwin);
-// \endcode
-// If no vtkRenderWindow is specified, the current OpenGL context (if any)
-// is used.
-//
-// Generally speaking, when using OpenGL extensions, you will need an
-// vtkOpenGLExtensionManager and the prototypes defined in vtkgl.h.
-// \code
+/**
+ * @class   vtkOpenGLExtensionManager
+ * @brief   Interface class for querying and using OpenGL extensions.
+ *
+ *
+ *
+ * vtkOpenGLExtensionManager acts as an interface to OpenGL extensions.  It
+ * provides methods to query OpenGL extensions on the current or a given
+ * render window and to load extension function pointers.  Currently does
+ * not support GLU extensions since the GLU library is not linked to VTK.
+ *
+ * Before using vtkOpenGLExtensionManager, an OpenGL context must be created.
+ * This is generally done with a vtkRenderWindow.  Note that simply creating
+ * the vtkRenderWindow is not sufficient.  Usually you have to call Render
+ * before the actual OpenGL context is created.  You can specify the
+ * RenderWindow with the SetRenderWindow method.
+ * \code
+ * vtkOpenGLExtensionManager *extensions = vtkOpenGLExtensionManager::New();
+ * extensions->SetRenderWindow(renwin);
+ * \endcode
+ * If no vtkRenderWindow is specified, the current OpenGL context (if any)
+ * is used.
+ *
+ * Generally speaking, when using OpenGL extensions, you will need an
+ * vtkOpenGLExtensionManager and the prototypes defined in vtkgl.h.
+ * \code
+*/
+
 #include "vtkRenderingOpenGLModule.h" // For export macro
 // #include "vtkOpenGLExtensionManager.h"
 // #include "vtkgl.h"
@@ -144,199 +148,234 @@ public:
   static vtkOpenGLExtensionManager *New();
   void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Set/Get the render window to query extensions on.  If set to null,
-  // justs queries the current render window.
+  //@{
+  /**
+   * Set/Get the render window to query extensions on.  If set to null,
+   * justs queries the current render window.
+   */
   vtkRenderWindow* GetRenderWindow();
   virtual void SetRenderWindow(vtkRenderWindow *renwin);
+  //@}
 
-  // Description:
-  // Updates the extensions string.
+  /**
+   * Updates the extensions string.
+   */
   virtual void Update();
 
-  // Description:
-  // Returns a string listing all available extensions.  Call Update first
-  // to validate this string.
+  //@{
+  /**
+   * Returns a string listing all available extensions.  Call Update first
+   * to validate this string.
+   */
   vtkGetStringMacro(ExtensionsString);
+  //@}
 
-  // Description:
-  // Returns true if the extension is supported, false otherwise.
+  /**
+   * Returns true if the extension is supported, false otherwise.
+   */
   virtual int ExtensionSupported(const char *name);
 
-  // Description:
-  // Returns a function pointer to the OpenGL extension function with the
-  // given name.  Returns NULL if the function could not be retrieved.
+  /**
+   * Returns a function pointer to the OpenGL extension function with the
+   * given name.  Returns NULL if the function could not be retrieved.
+   */
   virtual vtkOpenGLExtensionManagerFunctionPointer GetProcAddress(
     const char *fname);
 
-  // Description:
-  // Loads all the functions associated with the given extension into the
-  // appropriate static members of vtkgl. This method emits a warning if the
-  // requested extension is not supported. It emits an error if the extension
-  // does not load successfully.
+  /**
+   * Loads all the functions associated with the given extension into the
+   * appropriate static members of vtkgl. This method emits a warning if the
+   * requested extension is not supported. It emits an error if the extension
+   * does not load successfully.
+   */
   virtual void LoadExtension(const char *name);
 
-  // Description:
-  // Returns true if the extension is supported and loaded successfully,
-  // false otherwise. This method will "fail silently/gracefully" if the
-  // extension is not supported or does not load properly. It emits neither
-  // warnings nor errors. It is up to the caller to determine if the
-  // extension loaded properly by paying attention to the return value.
+  /**
+   * Returns true if the extension is supported and loaded successfully,
+   * false otherwise. This method will "fail silently/gracefully" if the
+   * extension is not supported or does not load properly. It emits neither
+   * warnings nor errors. It is up to the caller to determine if the
+   * extension loaded properly by paying attention to the return value.
+   */
   virtual int LoadSupportedExtension(const char *name);
 
 
-  // Description:
-  // Loads all the functions associated with the given core-promoted extension
-  // into the appropriate static members of vtkgl associated with the OpenGL
-  // version that promoted the extension as a core feature. This method emits a
-  // warning if the requested extension is not supported. It emits an error if
-  // the extension does not load successfully.
-  //
-  // For instance, extension GL_ARB_multitexture was promoted as a core
-  // feature into OpenGL 1.3. An implementation that uses this
-  // feature has to (IN THIS ORDER), check if OpenGL 1.3 is supported
-  // with ExtensionSupported("GL_VERSION_1_3"), if true, load the extension
-  // with LoadExtension("GL_VERSION_1_3"). If false, test for the extension
-  // with ExtensionSupported("GL_ARB_multitexture"),if true load the extension
-  // with this method LoadCorePromotedExtension("GL_ARB_multitexture").
-  // If any of those loading stage succeeded, use vtgl::ActiveTexture() in
-  // any case, NOT vtgl::ActiveTextureARB().
-  // This method avoids the use of if statements everywhere in implementations
-  // using core-promoted extensions.
-  // Without this method, the implementation code should look like:
-  // \code
-  // int opengl_1_3=extensions->ExtensionSupported("GL_VERSION_1_3");
-  // if(opengl_1_3)
-  // {
-  //   extensions->LoadExtension("GL_VERSION_1_3");
-  // }
-  // else
-  // {
-  //  if(extensions->ExtensionSupported("GL_ARB_multitexture"))
-  //  {
-  //   extensions->LoadCorePromotedExtension("GL_ARB_multitexture");
-  //  }
-  //  else
-  //  {
-  //   vtkErrorMacro("Required multitexture feature is not supported!");
-  //  }
-  // }
-  // ...
-  // if(opengl_1_3)
-  // {
-  //  vtkgl::ActiveTexture(vtkgl::TEXTURE0)
-  // }
-  // else
-  // {
-  //  vtkgl::ActiveTextureARB(vtkgl::TEXTURE0_ARB)
-  // }
-  // \endcode
-  // Thanks to this method, the code looks like:
-  // \code
-  // int opengl_1_3=extensions->ExtensionSupported("GL_VERSION_1_3");
-  // if(opengl_1_3)
-  // {
-  //   extensions->LoadExtension("GL_VERSION_1_3");
-  // }
-  // else
-  // {
-  //  if(extensions->ExtensionSupported("GL_ARB_multitexture"))
-  //  {
-  //   extensions->LoadCorePromotedExtension("GL_ARB_multitexture");
-  //  }
-  //  else
-  //  {
-  //   vtkErrorMacro("Required multitexture feature is not supported!");
-  //  }
-  // }
-  // ...
-  // vtkgl::ActiveTexture(vtkgl::TEXTURE0);
-  // \endcode
+  /**
+   * Loads all the functions associated with the given core-promoted extension
+   * into the appropriate static members of vtkgl associated with the OpenGL
+   * version that promoted the extension as a core feature. This method emits a
+   * warning if the requested extension is not supported. It emits an error if
+   * the extension does not load successfully.
+
+   * For instance, extension GL_ARB_multitexture was promoted as a core
+   * feature into OpenGL 1.3. An implementation that uses this
+   * feature has to (IN THIS ORDER), check if OpenGL 1.3 is supported
+   * with ExtensionSupported("GL_VERSION_1_3"), if true, load the extension
+   * with LoadExtension("GL_VERSION_1_3"). If false, test for the extension
+   * with ExtensionSupported("GL_ARB_multitexture"),if true load the extension
+   * with this method LoadCorePromotedExtension("GL_ARB_multitexture").
+   * If any of those loading stage succeeded, use vtgl::ActiveTexture() in
+   * any case, NOT vtgl::ActiveTextureARB().
+   * This method avoids the use of if statements everywhere in implementations
+   * using core-promoted extensions.
+   * Without this method, the implementation code should look like:
+   * \code
+   * int opengl_1_3=extensions->ExtensionSupported("GL_VERSION_1_3");
+   * if(opengl_1_3)
+   * {
+   * extensions->LoadExtension("GL_VERSION_1_3");
+   * }
+   * else
+   * {
+   * if(extensions->ExtensionSupported("GL_ARB_multitexture"))
+   * {
+   * extensions->LoadCorePromotedExtension("GL_ARB_multitexture");
+   * }
+   * else
+   * {
+   * vtkErrorMacro("Required multitexture feature is not supported!");
+   * }
+   * }
+   * ...
+   * if(opengl_1_3)
+   * {
+   * vtkgl::ActiveTexture(vtkgl::TEXTURE0)
+   * }
+   * else
+   * {
+   * vtkgl::ActiveTextureARB(vtkgl::TEXTURE0_ARB)
+   * }
+   * \endcode
+   * Thanks to this method, the code looks like:
+   * \code
+   * int opengl_1_3=extensions->ExtensionSupported("GL_VERSION_1_3");
+   * if(opengl_1_3)
+   * {
+   * extensions->LoadExtension("GL_VERSION_1_3");
+   * }
+   * else
+   * {
+   * if(extensions->ExtensionSupported("GL_ARB_multitexture"))
+   * {
+   * extensions->LoadCorePromotedExtension("GL_ARB_multitexture");
+   * }
+   * else
+   * {
+   * vtkErrorMacro("Required multitexture feature is not supported!");
+   * }
+   * }
+   * ...
+   * vtkgl::ActiveTexture(vtkgl::TEXTURE0);
+   * \endcode
+   */
   virtual void LoadCorePromotedExtension(const char *name);
 
-  // Description:
-  // Similar to LoadCorePromotedExtension().
-  // It loads an EXT extension into the pointers of its ARB equivalent.
+  /**
+   * Similar to LoadCorePromotedExtension().
+   * It loads an EXT extension into the pointers of its ARB equivalent.
+   */
   virtual void LoadAsARBExtension(const char *name);
 
-  // Description:
-  // Return the driver's version parts. This may be used for
-  // fine grained feature testing.
+  /**
+   * Return the driver's version parts. This may be used for
+   * fine grained feature testing.
+   */
   virtual int GetDriverVersionMajor(){ return this->DriverVersionMajor; }
   virtual int GetDriverVersionMinor(){ return this->DriverVersionMinor; }
   virtual int GetDriverVersionPatch(){ return this->DriverVersionPatch; }
 
-  // Description:
-  // Get GL API version that the driver provides. This is
-  // often different than the GL version that VTK recognizes
-  // so only use this for identifying a specific driver.
+  /**
+   * Get GL API version that the driver provides. This is
+   * often different than the GL version that VTK recognizes
+   * so only use this for identifying a specific driver.
+   */
   virtual int GetDriverGLVersionMajor(){ return this->DriverGLVersionMajor; }
   virtual int GetDriverGLVersionMinor(){ return this->DriverGLVersionMinor; }
   virtual int GetDriverGLVersionPatch(){ return this->DriverGLVersionPatch; }
 
-  // Description:
-  // Test's for common implementors of rendering drivers. This may be used for
-  // fine grained feature testing. Note: DriverIsMesa succeeds for OS Mesa,
-  // use DriverGLRendererIsOSMessa to differentiate.
+  //@{
+  /**
+   * Test's for common implementors of rendering drivers. This may be used for
+   * fine grained feature testing. Note: DriverIsMesa succeeds for OS Mesa,
+   * use DriverGLRendererIsOSMessa to differentiate.
+   */
   virtual bool DriverIsATI();
   virtual bool DriverIsNvidia();
   virtual bool DriverIsIntel();
   virtual bool DriverIsMesa();
   virtual bool DriverIsMicrosoft();
+  //@}
 
-  // Description:
-  // Test for a specific driver version.
+  //@{
+  /**
+   * Test for a specific driver version.
+   */
   virtual bool DriverVersionIs(int major);
   virtual bool DriverVersionIs(int major, int minor);
   virtual bool DriverVersionIs(int major, int minor, int patch);
+  //@}
 
-  // Description:
-  // Test for driver version greater than or equal
-  // to the named version.
+  //@{
+  /**
+   * Test for driver version greater than or equal
+   * to the named version.
+   */
   virtual bool DriverVersionAtLeast(int major);
   virtual bool DriverVersionAtLeast(int major, int minor);
   virtual bool DriverVersionAtLeast(int major, int minor, int patch);
+  //@}
 
-  // Description:
-  // Test for the driver's GL version as reported in
-  // its GL_VERSION string. This is intended for driver
-  // identification only, use ExtensionSuppported
-  // to test for VTK support of a specific GL version.
+  //@{
+  /**
+   * Test for the driver's GL version as reported in
+   * its GL_VERSION string. This is intended for driver
+   * identification only, use ExtensionSuppported
+   * to test for VTK support of a specific GL version.
+   */
   virtual bool DriverGLVersionIs(int major, int minor, int patch);
   virtual bool DriverGLVersionIs(int major, int minor);
+  //@}
 
-  // Description:
-  // Test for a specific renderer. This could be used
-  // in some cases to identify the graphics card or
-  // specific driver. Use HasToken to prevent false
-  // matches eg. avoid GeForce4 matching GeForce400
+  //@{
+  /**
+   * Test for a specific renderer. This could be used
+   * in some cases to identify the graphics card or
+   * specific driver. Use HasToken to prevent false
+   * matches eg. avoid GeForce4 matching GeForce400
+   */
   virtual bool DriverGLRendererIs(const char *str);
   virtual bool DriverGLRendererHas(const char *str);
   virtual bool DriverGLRendererHasToken(const char *str);
+  //@}
 
-  // Description:
-  // Test for Mesa's offscreen renderer.
+  /**
+   * Test for Mesa's offscreen renderer.
+   */
   virtual bool DriverGLRendererIsOSMesa();
 
-  // Description:
-  // Get the OpenGL version, vendor and renderer strings. These can
-  // be used to idnetify a specific driver.
+  /**
+   * Get the OpenGL version, vendor and renderer strings. These can
+   * be used to idnetify a specific driver.
+   */
   virtual const char *GetDriverGLVendor(){ return this->DriverGLVendor.c_str(); }
   virtual const char *GetDriverGLVersion(){ return this->DriverGLVersion.c_str(); }
   virtual const char *GetDriverGLRenderer(){ return this->DriverGLRenderer.c_str(); }
 
-  // Description:
-  // When set known driver bugs are ignored during driver feature
-  // detection. This is used to evaluate the status of a new driver
-  // release to see if the bugs have been fixed. The function takes
-  // a description argument which, is sent to VTK's warning stream
-  // when the ignore flag is set. This makes the test output searchable
-  // for tests which have problems with certain drivers. The CMakeLists
-  // variable VTK_IGNORE_GLDRIVER_BUGS can be used to set this at
-  // build time. Default OFF.
+  //@{
+  /**
+   * When set known driver bugs are ignored during driver feature
+   * detection. This is used to evaluate the status of a new driver
+   * release to see if the bugs have been fixed. The function takes
+   * a description argument which, is sent to VTK's warning stream
+   * when the ignore flag is set. This makes the test output searchable
+   * for tests which have problems with certain drivers. The CMakeLists
+   * variable VTK_IGNORE_GLDRIVER_BUGS can be used to set this at
+   * build time. Default OFF.
+   */
   bool GetIgnoreDriverBugs(const char *description);
   vtkSetMacro(IgnoreDriverBugs, bool);
   vtkBooleanMacro(IgnoreDriverBugs, bool);
+  //@}
 
 protected:
   vtkOpenGLExtensionManager();
@@ -358,14 +397,14 @@ protected:
   int DriverVersionMinor;
   int DriverVersionPatch;
   enum DriverGLVendorIdType
-    {
+  {
     DRIVER_VENDOR_UNKNOWN=0,
     DRIVER_VENDOR_ATI,
     DRIVER_VENDOR_NVIDIA,
     DRIVER_VENDOR_INTEL,
     DRIVER_VENDOR_MESA,
     DRIVER_VENDOR_MICROSOFT
-    };
+  };
   DriverGLVendorIdType DriverGLVendorId;
   bool IgnoreDriverBugs;
 
@@ -373,11 +412,12 @@ protected:
 
   virtual void ReadOpenGLExtensions();
 
-  // Description:
-  // Wrap around the generated vtkgl::LoadExtension to deal with OpenGL 1.2
-  // and its optional part GL_ARB_imaging. Also functions like
-  // glBlendEquation() or glBlendColor() are optional in OpenGL 1.2 or 1.3 and
-  // provided by the GL_ARB_imaging but there are core features in OpenGL 1.4.
+  /**
+   * Wrap around the generated vtkgl::LoadExtension to deal with OpenGL 1.2
+   * and its optional part GL_ARB_imaging. Also functions like
+   * glBlendEquation() or glBlendColor() are optional in OpenGL 1.2 or 1.3 and
+   * provided by the GL_ARB_imaging but there are core features in OpenGL 1.4.
+   */
   virtual int SafeLoadExtension(const char *name);
 
 private:

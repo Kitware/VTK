@@ -47,40 +47,40 @@ bool vtkPDirectory::Load(const std::string& name)
 
   long numFiles = 0;
   if(controller->GetLocalProcessId() == 0)
-    {
+  {
     vtksys::Directory dir;
     if (dir.Load(name) == false)
-      {
+    {
       numFiles = -1; // failure
       controller->Broadcast(&numFiles, 1, 0);
       return false;
-      }
+    }
 
     for(unsigned long i=0;i<dir.GetNumberOfFiles();i++)
-      {
+    {
       this->Files->InsertNextValue(dir.GetFile(i));
-      }
+    }
     numFiles = static_cast<long>(dir.GetNumberOfFiles());
     controller->Broadcast(&numFiles, 1, 0);
     for(long i=0;i<numFiles;i++)
-      {
-      vtkPSystemTools::BroadcastString(this->Files->GetValue(i), 0);
-      }
-    }
-  else
     {
+      vtkPSystemTools::BroadcastString(this->Files->GetValue(i), 0);
+    }
+  }
+  else
+  {
     controller->Broadcast(&numFiles, 1, 0);
     if(numFiles == -1)
-      {
+    {
       return false;
-      }
+    }
     for(long i=0;i<numFiles;i++)
-      {
+    {
       std::string str;
       vtkPSystemTools::BroadcastString(str, 0);
       this->Files->InsertNextValue(str);
-      }
     }
+  }
 
   this->Path = name;
   return true;
@@ -102,9 +102,9 @@ vtkIdType vtkPDirectory::GetNumberOfFiles() const
 const char* vtkPDirectory::GetFile(vtkIdType index) const
 {
   if ( index >= this->Files->GetNumberOfTuples() )
-    {
+  {
     return NULL;
-    }
+  }
   return this->Files->GetValue(index).c_str();
 }
 
@@ -117,91 +117,91 @@ int vtkPDirectory::FileIsDirectory(const char *name)
   // return vtksys::SystemTools::FileIsDirectory(name);
 
   if (name == 0)
-    {
+  {
     return 0;
-    }
+  }
 
   int result = 0;
   vtkMultiProcessController* controller =
     vtkMultiProcessController::GetGlobalController();
 
   if(controller->GetLocalProcessId() == 0)
-    {
+  {
     int absolutePath = 0;
 #if defined(_WIN32)
     if (name[0] == '/' || name[0] == '\\')
-      {
+    {
       absolutePath = 1;
-      }
+    }
     else
-      {
+    {
       for (int i = 0; name[i] != '\0'; i++)
-        {
+      {
         if (name[i] == ':')
-          {
+        {
           absolutePath = 1;
           break;
-          }
+        }
         else if (name[i] == '/' || name[i] == '\\')
-          {
+        {
           break;
-          }
         }
       }
+    }
 #else
     if (name[0] == '/')
-      {
+    {
       absolutePath = 1;
-      }
+    }
 #endif
 
     char *fullPath;
 
     int n = 0;
     if (!absolutePath && !this->Path.empty())
-      {
+    {
       n = static_cast<int>(this->Path.size());
-      }
+    }
 
     int m = static_cast<int>(strlen(name));
 
     fullPath = new char[n+m+2];
 
     if (!absolutePath && !this->Path.empty())
-      {
+    {
       strcpy(fullPath, this->Path.c_str());
 #if defined(_WIN32)
       if (fullPath[n-1] != '/'
           && fullPath[n-1] != '\\')
-        {
+      {
 #if !defined(__CYGWIN__)
         fullPath[n++] = '\\';
 #else
         fullPath[n++] = '/';
 #endif
-        }
+      }
 #else
       if (fullPath[n-1] != '/')
-        {
+      {
         fullPath[n++] = '/';
-        }
-#endif
       }
+#endif
+    }
 
     strcpy(&fullPath[n], name);
 
     struct stat fs;
     if(stat(fullPath, &fs) == 0)
-      {
+    {
 #if defined(_WIN32)
       result = ((fs.st_mode & _S_IFDIR) != 0);
 #else
       result = S_ISDIR(fs.st_mode);
 #endif
-      }
+    }
 
     delete [] fullPath;
-    }
+  }
 
   controller->Broadcast(&result, 1, 0);
 
@@ -227,16 +227,16 @@ void vtkPDirectory::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Files:  (" << this->Files << ")\n";
   if(this->Path.empty())
-    {
+  {
     os << indent << "Directory not open\n";
     return;
-    }
+  }
 
   os << indent << "Directory for: " <<  this->Path << "\n";
   os << indent << "Contains the following files:\n";
   indent = indent.GetNextIndent();
   for(int i = 0; i < this->Files->GetNumberOfValues(); i++)
-    {
+  {
     os << indent << this->Files->GetValue(i) << "\n";
-    }
+  }
 }

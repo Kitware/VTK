@@ -13,19 +13,22 @@
 
 =========================================================================*/
 
-// .NAME vtkOpenGLGL2PSHelper - Helper functionality for GL2PS exporting.
-//
-// .SECTION Description
-// vtkOpenGLGL2PSHelper provides a number of static variables and methods that
-// are used during GL2PS exporting. The rational behind this class is that GL
-// does not include all of the information that GL2PS needs into its feedback
-// buffer, and in certain situations GL2PS function calls need to be made
-// alongside their GL equivalents, notably glLineWidth and glPointSize.
-//
-// The static variables in this class are set by vtkGL2PSUtilities at the
-// beginning of a GL2PS export render. This class fakes GL2PS calls like
-// gl2psLineWidth in order to keep GL2PS from being a module dependency for
-// vtkRenderingOpenGL.
+/**
+ * @class   vtkOpenGLGL2PSHelper
+ * @brief   Helper functionality for GL2PS exporting.
+ *
+ *
+ * vtkOpenGLGL2PSHelper provides a number of static variables and methods that
+ * are used during GL2PS exporting. The rational behind this class is that GL
+ * does not include all of the information that GL2PS needs into its feedback
+ * buffer, and in certain situations GL2PS function calls need to be made
+ * alongside their GL equivalents, notably glLineWidth and glPointSize.
+ *
+ * The static variables in this class are set by vtkGL2PSUtilities at the
+ * beginning of a GL2PS export render. This class fakes GL2PS calls like
+ * gl2psLineWidth in order to keep GL2PS from being a module dependency for
+ * vtkRenderingOpenGL.
+*/
 
 #ifndef vtkOpenGLGL2PSHelper_h
 #define vtkOpenGLGL2PSHelper_h
@@ -37,19 +40,24 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLGL2PSHelper
 {
 public:
 
-  // Description:
-  // Call alongside glLineWidth(lineWidth) to inform GL2PS of the change.
+  //@{
+  /**
+   * Call alongside glLineWidth(lineWidth) to inform GL2PS of the change.
+   */
   static void SetLineWidth(float lineWidth)
   {
     if (vtkOpenGLGL2PSHelper::InGL2PSRender)
-      {
+    {
       glPassThrough(vtkOpenGLGL2PSHelper::LineWidthToken);
       glPassThrough(vtkOpenGLGL2PSHelper::LineWidthFactor * lineWidth);
-      }
+    }
   }
+  //@}
 
-  // Description:
-  // Call alongside glPointSize(pointSize) to inform GL2PS of the change.
+  //@{
+  /**
+   * Call alongside glPointSize(pointSize) to inform GL2PS of the change.
+   */
   static void SetPointSize(float pointSize)
   {
     if (vtkOpenGLGL2PSHelper::InGL2PSRender)
@@ -58,10 +66,13 @@ public:
       glPassThrough(vtkOpenGLGL2PSHelper::PointSizeFactor * pointSize);
     }
   }
+  //@}
 
-  // Description:
-  // Call alongside glEnable(GL_LINE_STIPPLE) to inform GL2PS of the change.
-  // This must be called *after* calling glLineStipple(factor, pattern).
+  //@{
+  /**
+   * Call alongside glEnable(GL_LINE_STIPPLE) to inform GL2PS of the change.
+   * This must be called *after* calling glLineStipple(factor, pattern).
+   */
   static void EnableStipple()
   {
     if (vtkOpenGLGL2PSHelper::InGL2PSRender)
@@ -74,9 +85,11 @@ public:
       glPassThrough(static_cast<GLfloat>(tmp));
     }
   }
+  //@}
 
-  // Description:
-  // Call alongside glDisable(GL_LINE_STIPPLE) to inform GL2PS of the change.
+  /**
+   * Call alongside glDisable(GL_LINE_STIPPLE) to inform GL2PS of the change.
+   */
   static void DisableStipple()
   {
     if (vtkOpenGLGL2PSHelper::InGL2PSRender)

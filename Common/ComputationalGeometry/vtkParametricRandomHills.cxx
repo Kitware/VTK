@@ -92,9 +92,9 @@ void vtkParametricRandomHills::Evaluate(double uvw[3], double Pt[3], double Duvw
 {
   // If parameters have changed then regenerate the hills.
   if (this->ParametersChanged())
-    {
+  {
     this->MakeTheHillData();
-    }
+  }
 
   double u = uvw[0];
   double v = uvw[1];
@@ -111,13 +111,13 @@ void vtkParametricRandomHills::Evaluate(double uvw[3], double Pt[3], double Duvw
   Pt[0] = u;
   Pt[1] = this->MaximumV - v; // Texturing is oriented OK if we do this.
   for ( int j = 0; j < NumberOfHills; ++j )
-    {
+  {
     double hillTuple[5]; // 0: mX, 1: mY, 2: VarX, 3: VarY, 4: Amplitude
     this->hillData->GetTuple(j,hillTuple);
     double x = (u - hillTuple[0])/hillTuple[2];
     double y = (v - hillTuple[1])/hillTuple[3];
     Pt[2] += hillTuple[4] * exp( -(x*x+y*y) / 2.0 );
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -139,10 +139,10 @@ void vtkParametricRandomHills::MakeTheHillData( void )
   double hillTuple[5]; // 0: mX, 1: mY, 2: VarX, 3: VarY, 4: Amplitude
   // Generate the centers of the Hills, standard deviations and amplitudes.
   if ( AllowRandomGeneration != 0 )
-    {
+  {
     InitRNG(this->RandomSeed);
     for (int i = 0; i < this->NumberOfHills; ++i)
-      {
+    {
       hillTuple[0] = MinimumU + Rand() * dU;
       hillTuple[1] = MinimumV + Rand() * dV;
       hillTuple[2] = this->HillXVariance *
@@ -152,10 +152,10 @@ void vtkParametricRandomHills::MakeTheHillData( void )
       hillTuple[4] = this->HillAmplitude *
                     (Rand() + this->AmplitudeScaleFactor);
       this->hillData->SetTuple(i, hillTuple);
-      }
     }
+  }
   else
-    {
+  {
     // Here the generation is nonrandom.
     // We put hills in a regular grid over the whole surface.
     double gridMax = sqrt(static_cast<double>(this->NumberOfHills));
@@ -170,76 +170,76 @@ void vtkParametricRandomHills::MakeTheHillData( void )
     hillTuple[3] = this->HillYVariance * this->YVarianceScaleFactor;
     hillTuple[4] = this->HillAmplitude * this->AmplitudeScaleFactor;
     for (int i = 0; i < static_cast<int>(gridMax); ++i)
-      {
+    {
       hillTuple[0] = MinimumU + shiftU + (i / gridMax) * dU;
       for ( int j = 0; j < static_cast<int>(gridMax); ++j )
-        {
+      {
         hillTuple[1] = MinimumV + shiftV + (j / gridMax) * dV;
         this->hillData->SetTuple(counter,hillTuple);
         ++counter;
-        }
       }
+    }
     // Zero out the variance and amplitude for the remaining hills.
     hillTuple[2] = 0;
     hillTuple[3] = 0;
     hillTuple[4] = 0;
     for (int k = counter; k < this->NumberOfHills; ++k)
-      {
+    {
       hillTuple[0] = MinimumU + midU;
       hillTuple[1] = MinimumV + midV;
       this->hillData->SetTuple(k,hillTuple);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
 bool vtkParametricRandomHills::ParametersChanged()
 {
   if (this->previousNumberOfHills != this->NumberOfHills)
-    {
+  {
     this->CopyParameters();
     return true;
-    }
+  }
   if (this->previousHillXVariance != this->HillXVariance)
-    {
+  {
     this->CopyParameters();
     return true;
-    }
+  }
   if (this->previousHillYVariance != this->HillYVariance)
-    {
+  {
     this->CopyParameters();
     return true;
-    }
+  }
   if (this->previousHillAmplitude != this->HillAmplitude)
-    {
+  {
     this->CopyParameters();
     return true;
-    }
+  }
   if (this->previousRandomSeed != this->RandomSeed)
-    {
+  {
     this->CopyParameters();
     return true;
-    }
+  }
   if (this->previousXVarianceScaleFactor != this->XVarianceScaleFactor)
-    {
+  {
     this->CopyParameters();
     return true;
-    }
+  }
   if (this->previousYVarianceScaleFactor != this->YVarianceScaleFactor)
-    {
+  {
     this->CopyParameters();
     return true;
-    }
+  }
   if (this->previousAmplitudeScaleFactor != this->AmplitudeScaleFactor)
-    {
+  {
     this->CopyParameters();
     return true;
-    }
+  }
   if (this->previousAllowRandomGeneration != this->AllowRandomGeneration)
-    {
+  {
     this->CopyParameters();
     return true;
-    }
+  }
   return false;
 }
 

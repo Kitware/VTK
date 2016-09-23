@@ -50,47 +50,47 @@ void vtkImageLogicExecute1(vtkImageLogic *self, vtkImageData *inData,
 
   // Loop through output pixels
   while (!outIt.IsAtEnd())
-    {
+  {
     T* inSI = inIt.BeginSpan();
     T* outSI = outIt.BeginSpan();
     T* outSIEnd = outIt.EndSpan();
     // Pixel operation
     switch (op)
-      {
+    {
       case VTK_NOT:
         while (outSI != outSIEnd)
-          {
+        {
           if ( ! *inSI)
-            {
+          {
             *outSI = trueValue;
-            }
+          }
           else
-            {
+          {
             *outSI = 0;
-            }
+          }
           outSI++;
           inSI++;
-          }
+        }
         break;
       case VTK_NOP:
         while (outSI != outSIEnd)
-          {
+        {
           if (*inSI)
-            {
+          {
             *outSI = trueValue;
-            }
+          }
           else
-            {
+          {
             *outSI = 0;
-            }
+          }
           outSI++;
           inSI++;
-          }
+        }
         break;
-      }
+    }
     inIt.NextSpan();
     outIt.NextSpan();
-    }
+  }
 }
 
 
@@ -110,99 +110,99 @@ void vtkImageLogicExecute2(vtkImageLogic *self, vtkImageData *in1Data,
 
   // Loop through output pixels
   while (!outIt.IsAtEnd())
-    {
+  {
     T* inSI1 = inIt1.BeginSpan();
     T* inSI2 = inIt2.BeginSpan();
     T* outSI = outIt.BeginSpan();
     T* outSIEnd = outIt.EndSpan();
     // Pixel operation
     switch (op)
-      {
+    {
       case VTK_AND:
         while (outSI != outSIEnd)
-          {
+        {
           if (*inSI1 && *inSI2)
-            {
+          {
             *outSI = trueValue;
-            }
+          }
           else
-            {
+          {
             *outSI = 0;
-            }
+          }
           outSI++;
           inSI1++;
           inSI2++;
-          }
+        }
         break;
       case VTK_OR:
         while (outSI != outSIEnd)
-          {
+        {
           if (*inSI1 || *inSI2)
-            {
+          {
             *outSI = trueValue;
-            }
+          }
           else
-            {
+          {
             *outSI = 0;
-            }
+          }
           outSI++;
           inSI1++;
           inSI2++;
-          }
+        }
         break;
       case VTK_XOR:
         while (outSI != outSIEnd)
-          {
+        {
           if (( ! *inSI1 && *inSI2) || (*inSI1 && ! *inSI2))
-            {
+          {
             *outSI = trueValue;
-            }
+          }
           else
-            {
+          {
             *outSI = 0;
-            }
+          }
           outSI++;
           inSI1++;
           inSI2++;
-          }
+        }
         break;
       case VTK_NAND:
         while (outSI != outSIEnd)
-          {
+        {
           if ( ! (*inSI1 && *inSI2))
-            {
+          {
             *outSI = trueValue;
-            }
+          }
           else
-            {
+          {
             *outSI = 0;
-            }
+          }
           outSI++;
           inSI1++;
           inSI2++;
-          }
+        }
         break;
       case VTK_NOR:
         while (outSI != outSIEnd)
-          {
+        {
           if ( ! (*inSI1 || *inSI2))
-            {
+          {
             *outSI = trueValue;
-            }
+          }
           else
-            {
+          {
             *outSI = 0;
-            }
+          }
           outSI++;
           inSI1++;
           inSI2++;
-          }
+        }
         break;
-      }
+    }
     inIt1.NextSpan();
     inIt2.NextSpan();
     outIt.NextSpan();
-    }
+  }
 }
 
 
@@ -221,25 +221,25 @@ void vtkImageLogic::ThreadedRequestData (
   int outExt[6], int id)
 {
   if (inData[0][0] == NULL)
-    {
+  {
     vtkErrorMacro(<< "Input " << 0 << " must be specified.");
     return;
-    }
+  }
 
   // this filter expects that input is the same type as output.
   if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
-    {
+  {
     vtkErrorMacro(<< "Execute: input ScalarType, "
                   << inData[0][0]->GetScalarType()
                   << ", must match out ScalarType "
                   << outData[0]->GetScalarType());
     return;
-    }
+  }
 
   if (this->Operation == VTK_NOT || this->Operation == VTK_NOP)
-    {
+  {
     switch (inData[0][0]->GetScalarType())
-      {
+    {
       vtkTemplateMacro(
         vtkImageLogicExecute1(this, inData[0][0],
                               outData[0], outExt, id,
@@ -247,39 +247,39 @@ void vtkImageLogic::ThreadedRequestData (
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return;
-      }
     }
+  }
   else
-    {
+  {
     if (inData[1][0] == NULL)
-      {
+    {
       vtkErrorMacro(<< "Input " << 1 << " must be specified.");
       return;
-      }
+    }
 
     // this filter expects that inputs that have the same type:
     if (inData[0][0]->GetScalarType() != inData[1][0]->GetScalarType())
-      {
+    {
       vtkErrorMacro(<< "Execute: input1 ScalarType, "
                     << inData[0][0]->GetScalarType()
                     << ", must match input2 ScalarType "
                     << inData[1][0]->GetScalarType());
       return;
-      }
+    }
 
     // this filter expects that inputs that have the same number of components
     if (inData[0][0]->GetNumberOfScalarComponents() !=
         inData[1][0]->GetNumberOfScalarComponents())
-      {
+    {
       vtkErrorMacro(<< "Execute: input1 NumberOfScalarComponents, "
                     << inData[0][0]->GetNumberOfScalarComponents()
                     << ", must match out input2 NumberOfScalarComponents "
                     << inData[1][0]->GetNumberOfScalarComponents());
       return;
-      }
+    }
 
     switch (inData[0][0]->GetScalarType())
-      {
+    {
       vtkTemplateMacro(
         vtkImageLogicExecute2( this, inData[0][0],
                                inData[1][0], outData[0], outExt, id,
@@ -287,17 +287,17 @@ void vtkImageLogic::ThreadedRequestData (
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
 int vtkImageLogic::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 1)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
-    }
+  }
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }

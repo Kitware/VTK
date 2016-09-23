@@ -13,13 +13,16 @@
 
 =========================================================================*/
 
-// .NAME vtkCPExodusIIResultsArrayTemplate - Map native Exodus II results arrays
-// into the vtkDataArray interface.
-//
-// .SECTION Description
-// Map native Exodus II results arrays into the vtkDataArray interface. Use
-// the vtkCPExodusIIInSituReader to read an Exodus II file's data into this
-// structure.
+/**
+ * @class   vtkCPExodusIIResultsArrayTemplate
+ * @brief   Map native Exodus II results arrays
+ * into the vtkDataArray interface.
+ *
+ *
+ * Map native Exodus II results arrays into the vtkDataArray interface. Use
+ * the vtkCPExodusIIInSituReader to read an Exodus II file's data into this
+ * structure.
+*/
 
 #ifndef vtkCPExodusIIResultsArrayTemplate_h
 #define vtkCPExodusIIResultsArrayTemplate_h
@@ -40,13 +43,16 @@ public:
 
   typedef typename Superclass::ValueType ValueType;
 
-  // Description:
-  // Set the arrays to be used and the number of tuples in each array.
-  // The save option can be set to true to indicate that this class
-  // should not delete the actual allocated memory. By default it will
-  // delete the array with the 'delete []' method.
+  //@{
+  /**
+   * Set the arrays to be used and the number of tuples in each array.
+   * The save option can be set to true to indicate that this class
+   * should not delete the actual allocated memory. By default it will
+   * delete the array with the 'delete []' method.
+   */
   void SetExodusScalarArrays(std::vector<Scalar*> arrays, vtkIdType numTuples);
   void SetExodusScalarArrays(std::vector<Scalar*> arrays, vtkIdType numTuples, bool save);
+  //@}
 
   // Reimplemented virtuals -- see superclasses for descriptions:
   void Initialize();
@@ -66,9 +72,11 @@ public:
   ValueType& GetValueReference(vtkIdType idx);
   void GetTypedTuple(vtkIdType idx, Scalar *t) const;
 
-  // Description:
-  // This container is read only -- this method does nothing but print a
-  // warning.
+  //@{
+  /**
+   * This container is read only -- this method does nothing but print a
+   * warning.
+   */
   int Allocate(vtkIdType sz, vtkIdType ext);
   int Resize(vtkIdType numTuples);
   void SetNumberOfTuples(vtkIdType number);
@@ -102,6 +110,7 @@ public:
   void SetValue(vtkIdType idx, Scalar value);
   vtkIdType InsertNextValue(Scalar v);
   void InsertValue(vtkIdType idx, Scalar v);
+  //@}
 
 protected:
   vtkCPExodusIIResultsArrayTemplate();
@@ -115,10 +124,13 @@ private:
 
   vtkIdType Lookup(const Scalar &val, vtkIdType startIndex);
   double *TempDoubleArray;
-  // Description: If Save is true then this class won't delete that memory.
-  // By default Save is false.
+  //@{
+  /**
+   * By default Save is false.
+   */
   bool Save;
 };
+  //@}
 
 #include "vtkCPExodusIIResultsArrayTemplate.txx"
 

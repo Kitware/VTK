@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkThreadedSynchronizedTemplatesCutter3D - generate cut surface from structured points
-
-// .SECTION Description
-// vtkThreadedSynchronizedTemplatesCutter3D is an implementation of the
-// synchronized template algorithm.
-
-// .SECTION See Also
-// vtkContourFilter vtkSynchronizedTemplates3D vtkThreadedSynchronizedTemplates3D vtkSynchronizedTemplatesCutter3D
+/**
+ * @class   vtkThreadedSynchronizedTemplatesCutter3D
+ * @brief   generate cut surface from structured points
+ *
+ *
+ * vtkThreadedSynchronizedTemplatesCutter3D is an implementation of the
+ * synchronized template algorithm.
+ *
+ * @sa
+ * vtkContourFilter vtkSynchronizedTemplates3D vtkThreadedSynchronizedTemplates3D vtkSynchronizedTemplatesCutter3D
+*/
 
 #ifndef vtkThreadedSynchronizedTemplatesCutter3D_h
 #define vtkThreadedSynchronizedTemplatesCutter3D_h
@@ -37,25 +40,33 @@ public:
   vtkTypeMacro(vtkThreadedSynchronizedTemplatesCutter3D,vtkThreadedSynchronizedTemplates3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Needed by templated functions.
+  /**
+   * Needed by templated functions.
+   */
   void ThreadedExecute(vtkImageData *data, vtkInformation *outInfo, int);
 
-  // Description
-  // Specify the implicit function to perform the cutting.
+  //@{
+  /**
+   * Specify the implicit function to perform the cutting.
+   */
   virtual void SetCutFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(CutFunction,vtkImplicitFunction);
+  //@}
 
-  // Description:
-  // Set/get the desired precision for the output types. See the documentation
-  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
-  // the available precision settings.
+  //@{
+  /**
+   * Set/get the desired precision for the output types. See the documentation
+   * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+   * the available precision settings.
+   */
   vtkSetClampMacro(OutputPointsPrecision, int, SINGLE_PRECISION, DEFAULT_PRECISION);
   vtkGetMacro(OutputPointsPrecision, int);
+  //@}
 
-  // Description:
-  // Override GetMTime because we delegate to vtkContourValues and refer to
-  // vtkImplicitFunction.
+  /**
+   * Override GetMTime because we delegate to vtkContourValues and refer to
+   * vtkImplicitFunction.
+   */
   vtkMTimeType GetMTime();
 
 protected:

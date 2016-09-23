@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageConstantPad - Makes image larger by padding with constant.
-// .SECTION Description
-// vtkImageConstantPad changes the image extent of its input.
-// Any pixels outside of the original image extent are filled with
-// a constant value (default is 0.0).
-
-// .SECTION See Also
-// vtkImageWrapPad vtkImageMirrorPad
+/**
+ * @class   vtkImageConstantPad
+ * @brief   Makes image larger by padding with constant.
+ *
+ * vtkImageConstantPad changes the image extent of its input.
+ * Any pixels outside of the original image extent are filled with
+ * a constant value (default is 0.0).
+ *
+ * @sa
+ * vtkImageWrapPad vtkImageMirrorPad
+*/
 
 #ifndef vtkImageConstantPad_h
 #define vtkImageConstantPad_h
@@ -36,10 +39,13 @@ public:
 
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set/Get the pad value.
+  //@{
+  /**
+   * Set/Get the pad value.
+   */
   vtkSetMacro(Constant, double);
   vtkGetMacro(Constant, double);
+  //@}
 
 
 protected:

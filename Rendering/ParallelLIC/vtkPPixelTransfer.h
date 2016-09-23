@@ -12,17 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPPixelTransfer -- For movement of pixel data described by extents
-// .SECTION Description
-// class to handle inter-process communication of pixel data from
-// non-contiguous regions of a shared index space. For example copying
-// a subset of one image to a subset of another. The class can be used
-// for purely local(no MPI) non-contigious data transfers by setting
-// the source and destination ranks to the same id. In that case
-// memcpy is used.
-//
-// .SECTION See also
-// vtkPixelExtent
+/**
+ * @class   vtkPPixelTransfer
+ *
+ * class to handle inter-process communication of pixel data from
+ * non-contiguous regions of a shared index space. For example copying
+ * a subset of one image to a subset of another. The class can be used
+ * for purely local(no MPI) non-contigious data transfers by setting
+ * the source and destination ranks to the same id. In that case
+ * memcpy is used.
+ *
+ * @sa
+ * vtkPixelExtent
+*/
 
 #ifndef vtkPPixelTransfer_h
 #define vtkPPixelTransfer_h
@@ -53,9 +55,10 @@ public:
     UseBlockingRecv(0)
     {}
 
-  // Description:
-  // Initialize a transaction from sub extent of source to sub extent
-  // of dest, where the subsets are different.
+  /**
+   * Initialize a transaction from sub extent of source to sub extent
+   * of dest, where the subsets are different.
+   */
   vtkPPixelTransfer(
         int srcRank,
         const vtkPixelExtent &srcWholeExt,
@@ -76,9 +79,10 @@ public:
     UseBlockingRecv(0)
     {}
 
-  // Description:
-  // Initialize a transaction from sub extent of source to sub extent
-  // of dest, where the subsets are the same.
+  /**
+   * Initialize a transaction from sub extent of source to sub extent
+   * of dest, where the subsets are the same.
+   */
   vtkPPixelTransfer(
         int srcRank,
         const vtkPixelExtent &srcWholeExt,
@@ -98,9 +102,10 @@ public:
     UseBlockingRecv(0)
     {}
 
-  // Description:
-  // Initialize a transaction from sub extent of source to sub extent
-  // of dest, both the whole and the subsets are the same.
+  /**
+   * Initialize a transaction from sub extent of source to sub extent
+   * of dest, both the whole and the subsets are the same.
+   */
   vtkPPixelTransfer(
         int srcRank,
         int destRank,
@@ -119,9 +124,10 @@ public:
     UseBlockingRecv(0)
     {}
 
-  // Description:
-  // Initialize a transaction from sub extent of source to sub extent
-  // of dest, both the whole and the subsets are the same.
+  /**
+   * Initialize a transaction from sub extent of source to sub extent
+   * of dest, both the whole and the subsets are the same.
+   */
   vtkPPixelTransfer(
         int srcRank,
         int destRank,
@@ -139,9 +145,10 @@ public:
     UseBlockingRecv(0)
     {}
 
-  // Description:
-  // Initialize a transaction from whole extent of source to whole extent
-  // of dest, where source and destination have different whole extents.
+  /**
+   * Initialize a transaction from whole extent of source to whole extent
+   * of dest, where source and destination have different whole extents.
+   */
   vtkPPixelTransfer(
         int srcRank,
         const vtkPixelExtent &srcWholeExt,
@@ -160,10 +167,11 @@ public:
     UseBlockingRecv(0)
     {}
 
-  // Description:
-  // Initialize a transaction from sub extent of source to sub extent
-  // of dest, where the subsets are different. This is a local
-  // operation there will be no communication.
+  /**
+   * Initialize a transaction from sub extent of source to sub extent
+   * of dest, where the subsets are different. This is a local
+   * operation there will be no communication.
+   */
   vtkPPixelTransfer(
         const vtkPixelExtent &srcWholeExt,
         const vtkPixelExtent &srcExt,
@@ -183,9 +191,10 @@ public:
 
   ~vtkPPixelTransfer(){}
 
-  // Description:
-  // Set/Get the MPI rank of source and destination
-  // processes.
+  /**
+   * Set/Get the MPI rank of source and destination
+   * processes.
+   */
   void SetSourceRank(int rank)
   { this->SrcRank=rank; }
 
@@ -198,18 +207,20 @@ public:
   int GetDestinationRank() const
   { return this->DestRank; }
 
-  // Description:
-  // Tests to determine a given rank's role in this transaction.
-  // If both Sender and Receiver are true then the operation
-  // is local and no mpi calls are made.
+  /**
+   * Tests to determine a given rank's role in this transaction.
+   * If both Sender and Receiver are true then the operation
+   * is local and no mpi calls are made.
+   */
   bool Sender(int rank) const { return (this->SrcRank == rank); }
   bool Receiver(int rank) const { return (this->DestRank == rank); }
   bool Local(int rank) const
   { return (this->Sender(rank) && this->Receiver(rank)); }
 
-  // Description:
-  // Set/Get the source extent. This is the extent of the
-  // array that data will be coppied from.
+  /**
+   * Set/Get the source extent. This is the extent of the
+   * array that data will be coppied from.
+   */
   void SetSourceWholeExtent(vtkPixelExtent &srcExt)
   { this->SrcWholeExt=srcExt; }
 
@@ -219,9 +230,10 @@ public:
   const vtkPixelExtent &GetSourceWholeExtent() const
   { return this->SrcWholeExt; }
 
-  // Description:
-  // Set/Get the source extent. This is the subset extent in the
-  // array that data will be coppied from.
+  /**
+   * Set/Get the source extent. This is the subset extent in the
+   * array that data will be coppied from.
+   */
   void SetSourceExtent(vtkPixelExtent &srcExt)
   { this->SrcExt=srcExt; }
 
@@ -231,9 +243,10 @@ public:
   const vtkPixelExtent &GetSourceExtent() const
   { return this->SrcExt; }
 
-  // Description:
-  // Set/get the destination extent. This is the extent
-  // of array that will recveive the data.
+  /**
+   * Set/get the destination extent. This is the extent
+   * of array that will recveive the data.
+   */
   void SetDestinationWholeExtent(vtkPixelExtent &destExt)
   { this->DestWholeExt=destExt; }
 
@@ -243,9 +256,10 @@ public:
   const vtkPixelExtent &GetDestinationWholeExtent() const
   { return this->DestWholeExt; }
 
-  // Description:
-  // Set/get the destination extent. This is the subset extent
-  // in the array that will recveive the data.
+  /**
+   * Set/get the destination extent. This is the subset extent
+   * in the array that will recveive the data.
+   */
   void SetDestinationExtent(vtkPixelExtent &destExt)
   { this->DestExt=destExt; }
 
@@ -255,16 +269,18 @@ public:
   const vtkPixelExtent &GetDestinationExtent() const
   { return this->DestExt; }
 
-  // Description:
-  // Set/get the transaction id.
+  /**
+   * Set/get the transaction id.
+   */
   void SetTransactionId(int id)
   { this->Id=id; }
 
   int GetTransactionId() const
   { return this->Id; }
 
-  // Description:
-  // Enable/diasable non-blocking communication
+  /**
+   * Enable/diasable non-blocking communication
+   */
   void SetUseBlockingSend(int val)
   { this->UseBlockingSend=val; }
 
@@ -277,8 +293,9 @@ public:
   int GetUseBlockingRecv() const
   { return this->UseBlockingRecv; }
 
-  // Description:
-  // Transfer data from source to destination.
+  /**
+   * Transfer data from source to destination.
+   */
   template<typename SOURCE_TYPE, typename DEST_TYPE>
   int Execute(
         MPI_Comm comm,
@@ -290,9 +307,10 @@ public:
         std::deque<MPI_Datatype> &types,
         int tag);
 
-  // Description:
-  // Transfer data from source to destination. convenience for working
-  // with vtk data type enum rather than c types.
+  /**
+   * Transfer data from source to destination. convenience for working
+   * with vtk data type enum rather than c types.
+   */
   int Execute(
         MPI_Comm comm,
         int rank,
@@ -305,8 +323,9 @@ public:
         std::deque<MPI_Datatype> &types,
         int tag);
 
-  // Description:
-  // Block transfer for local memory to memory transfers, without using mpi.
+  /**
+   * Block transfer for local memory to memory transfers, without using mpi.
+   */
   int Blit(
          int nComps,
          int srcType,
@@ -355,7 +374,7 @@ int vtkPPixelTransfer::Execute(
 {
   // second layer of dispatch
   switch(destType)
-    {
+  {
     vtkTemplateMacro(
         return this->Execute(
             comm,
@@ -366,7 +385,7 @@ int vtkPPixelTransfer::Execute(
             reqs,
             types,
             tag));
-    }
+  }
   return 0;
 }
 
@@ -384,7 +403,7 @@ int vtkPPixelTransfer::Execute(
 {
   int iErr = 0;
   if ((comm == MPI_COMM_NULL) || (this->Local(rank)))
-    {
+  {
     // transaction is local, bypass mpi in favor of memcpy
     return vtkPixelTransfer::Blit(
             this->SrcWholeExt,
@@ -395,15 +414,15 @@ int vtkPPixelTransfer::Execute(
             srcData,
             nComps,
             destData);
-    }
+  }
 
   if (rank == this->DestRank)
-    {
+  {
     // use mpi to receive the data
     if (destData == NULL)
-      {
+    {
       return -1;
-      }
+    }
 
     MPI_Datatype subarray;
     iErr = vtkMPIPixelViewNew<DEST_TYPE>(
@@ -412,12 +431,12 @@ int vtkPPixelTransfer::Execute(
           nComps,
           subarray);
     if (iErr)
-      {
+    {
       return -4;
-      }
+    }
 
     if (this->UseBlockingRecv)
-      {
+    {
       MPI_Status stat;
       iErr = MPI_Recv(
             destData,
@@ -427,9 +446,9 @@ int vtkPPixelTransfer::Execute(
             tag,
             comm,
             &stat);
-      }
+    }
     else
-      {
+    {
       reqs.push_back(MPI_REQUEST_NULL);
       iErr = MPI_Irecv(
             destData,
@@ -439,7 +458,7 @@ int vtkPPixelTransfer::Execute(
             tag,
             comm,
             &reqs.back());
-      }
+    }
 
     #define HOLD_RECV_TYPES
     #ifdef HOLD_RECV_YPES
@@ -449,18 +468,18 @@ int vtkPPixelTransfer::Execute(
     #endif
 
     if (iErr)
-      {
+    {
       return -5;
-      }
     }
+  }
 
   if (rank == this->SrcRank)
-    {
+  {
     // use mpi to send the data
     if (srcData == NULL)
-      {
+    {
       return -1;
-      }
+    }
 
     MPI_Datatype subarray;
     iErr = vtkMPIPixelViewNew<SOURCE_TYPE>(
@@ -469,12 +488,12 @@ int vtkPPixelTransfer::Execute(
           nComps,
           subarray);
     if (iErr)
-      {
+    {
       return -2;
-      }
+    }
 
     if (this->UseBlockingSend)
-      {
+    {
       iErr = MPI_Ssend(
             srcData,
             1,
@@ -482,9 +501,9 @@ int vtkPPixelTransfer::Execute(
             this->DestRank,
             tag,
             comm);
-      }
+    }
     else
-      {
+    {
       MPI_Request req;
       iErr = MPI_Isend(
             srcData,
@@ -500,7 +519,7 @@ int vtkPPixelTransfer::Execute(
       #else
       MPI_Request_free(&req);
       #endif
-      }
+    }
 
     #define HOLD_SEND_TYPES
     #ifdef HOLD_SEND_TYPES
@@ -510,10 +529,10 @@ int vtkPPixelTransfer::Execute(
     #endif
 
     if (iErr)
-      {
+    {
       return -3;
-      }
     }
+  }
 
   return iErr;
 }

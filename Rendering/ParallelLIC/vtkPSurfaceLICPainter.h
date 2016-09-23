@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPSurfaceLICPainter - parallel parts of the vtkSurfaceLICPainter
-//
-// .SECTION Description
-// Parallel parts of the vtkSurfaceLICPainter, see that class for
-// documentation.
+/**
+ * @class   vtkPSurfaceLICPainter
+ * @brief   parallel parts of the vtkSurfaceLICPainter
+ *
+ *
+ * Parallel parts of the vtkSurfaceLICPainter, see that class for
+ * documentation.
+*/
 
 #ifndef vtkPSurfaceLICPainter_h
 #define vtkPSurfaceLICPainter_h
@@ -34,45 +37,52 @@ public:
   vtkTypeMacro(vtkPSurfaceLICPainter, vtkSurfaceLICPainter);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Methods used for parallel benchmarks. Use cmake to define
-  // vtkSurfaceLICPainterTIME to enable benchmarks. During each
-  // update timing information is stored, it can be written to
-  // disk by calling WriteLog.
+  /**
+   * Methods used for parallel benchmarks. Use cmake to define
+   * vtkSurfaceLICPainterTIME to enable benchmarks. During each
+   * update timing information is stored, it can be written to
+   * disk by calling WriteLog.
+   */
   virtual void WriteTimerLog(const char *fileName);
 
 protected:
   vtkPSurfaceLICPainter();
   ~vtkPSurfaceLICPainter();
 
-  // Description:
-  // Get the min/max across all ranks. min/max are in/out.
-  // In serial operation this is a no-op, in parallel it
-  // is a global collective reduction.
+  /**
+   * Get the min/max across all ranks. min/max are in/out.
+   * In serial operation this is a no-op, in parallel it
+   * is a global collective reduction.
+   */
   virtual void GetGlobalMinMax(
         vtkPainterCommunicator *comm,
         float &min,
         float &max);
 
-  // Description:
-  // Creates a new communicator with/without the calling processes
-  // as indicated by the passed in flag, if not 0 the calling process
-  // is included in the new communicator. In parallel this call is mpi
-  // collective on the world communicator. In serial this is a no-op.
+  /**
+   * Creates a new communicator with/without the calling processes
+   * as indicated by the passed in flag, if not 0 the calling process
+   * is included in the new communicator. In parallel this call is mpi
+   * collective on the world communicator. In serial this is a no-op.
+   */
   virtual vtkPainterCommunicator *CreateCommunicator(int include);
 
-  // Description:
-  // Ensure that if any rank udpates the communicator they all
-  // do. This is a global collective operation.
+  /**
+   * Ensure that if any rank udpates the communicator they all
+   * do. This is a global collective operation.
+   */
   virtual bool NeedToUpdateCommunicator();
 
-  // Description:
-  // Methods used for parallel benchmarks. Use cmake to define
-  // vtkSurfaceLICPainterTIME to enable benchmarks. During each
-  // update timing information is stored, it can be written to
-  // disk by calling WriteLog.
+  //@{
+  /**
+   * Methods used for parallel benchmarks. Use cmake to define
+   * vtkSurfaceLICPainterTIME to enable benchmarks. During each
+   * update timing information is stored, it can be written to
+   * disk by calling WriteLog.
+   */
   virtual void StartTimerEvent(const char *name);
   virtual void EndTimerEvent(const char *name);
+  //@}
 
 private:
   std::string LogFileName;

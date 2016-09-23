@@ -70,7 +70,7 @@ void AddKernelToPlot(vtkSmartPointer<T> kernel, vtkSmartPointer<vtkChartXY> char
   // Fill in the table with function values
   table->SetNumberOfRows(res);
   for (int i=0; i < res; ++i)
-    {
+  {
     r = static_cast<double>(i) * inc;
     fVal = kernel->GetNormFactor() * kernel->ComputeFunctionWeight(r);
     dVal = kernel->GetNormFactor() * kernel->ComputeDerivWeight(r);
@@ -78,7 +78,7 @@ void AddKernelToPlot(vtkSmartPointer<T> kernel, vtkSmartPointer<vtkChartXY> char
     table->SetValue(i, 0, r);
     table->SetValue(i, numCols, fVal);
     table->SetValue(i, numCols+1, dVal);
-    }
+  }
 
   vtkPlot *line = chart->AddPlot(vtkChart::LINE);
   line->SetInputData(table, 0, numCols);

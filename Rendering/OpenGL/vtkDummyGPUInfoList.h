@@ -13,12 +13,15 @@
 
 =========================================================================*/
 
-// .NAME vtkDummyGPUInfoList - Do thing during Probe()
-// .SECTION Description
-// vtkDummyGPUInfoList implements Probe() by just setting the count of
-// GPUs to be zero. Useful when an OS specific implementation is not available.
-// .SECTION See Also
-// vtkGPUInfo vtkGPUInfoList
+/**
+ * @class   vtkDummyGPUInfoList
+ * @brief   Do thing during Probe()
+ *
+ * vtkDummyGPUInfoList implements Probe() by just setting the count of
+ * GPUs to be zero. Useful when an OS specific implementation is not available.
+ * @sa
+ * vtkGPUInfo vtkGPUInfoList
+*/
 
 #ifndef vtkDummyGPUInfoList_h
 #define vtkDummyGPUInfoList_h
@@ -33,16 +36,20 @@ public:
   vtkTypeMacro(vtkDummyGPUInfoList, vtkGPUInfoList);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Build the list of vtkInfoGPU if not done yet.
-  // \post probed: IsProbed()
+  /**
+   * Build the list of vtkInfoGPU if not done yet.
+   * \post probed: IsProbed()
+   */
   virtual void Probe();
 
 protected:
-  // Description:
-  // Default constructor.
+  //@{
+  /**
+   * Default constructor.
+   */
   vtkDummyGPUInfoList();
   virtual ~vtkDummyGPUInfoList();
+  //@}
 
 private:
   vtkDummyGPUInfoList(const vtkDummyGPUInfoList&) VTK_DELETE_FUNCTION;

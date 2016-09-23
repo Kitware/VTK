@@ -50,9 +50,9 @@ int TestSortDataArray(int, char *[])
   keys->SetNumberOfComponents(1);
   keys->SetNumberOfTuples(ARRAY_SIZE);
   for (i = 0; i < ARRAY_SIZE; i++)
-    {
+  {
     keys->SetComponent(i,0,static_cast<int>(vtkMath::Random(0, ARRAY_SIZE*4)));
-    }
+  }
 
   cout << "Sorting array" << endl;
   timer->StartTimer();
@@ -62,14 +62,14 @@ int TestSortDataArray(int, char *[])
   cout << "Time to sort array: " << timer->GetElapsedTime() << " sec" << endl;
 
   for (i = 0; i < ARRAY_SIZE-1; i++)
-    {
+  {
     if (keys->GetComponent(i, 0) > keys->GetComponent(i+1, 0))
-      {
+    {
       cout << "Array not properly sorted!" << endl;
       retVal = 1;
       break;
-      }
     }
+  }
   cout << "Array consistency check finished\n" << endl;
 
   cout << "Sorting sorted array" << endl;
@@ -80,14 +80,14 @@ int TestSortDataArray(int, char *[])
   cout << "Time to sort array: " << timer->GetElapsedTime() << " sec" << endl;
 
   for (i = 0; i < ARRAY_SIZE-1; i++)
-    {
+  {
     if (keys->GetComponent(i, 0) > keys->GetComponent(i+1, 0))
-      {
+    {
       cout << "Array not properly sorted!" << endl;
       retVal = 1;
       break;
-      }
     }
+  }
   cout << "Array consistency check finished\n" << endl;
 
   //---------------------------------------------------------------------------
@@ -96,9 +96,9 @@ int TestSortDataArray(int, char *[])
   vtkIdList *ids = vtkIdList::New();
   ids->SetNumberOfIds(ARRAY_SIZE);
   for (i = 0; i < ARRAY_SIZE; i++)
-    {
+  {
     ids->SetId(i,static_cast<vtkIdType>(vtkMath::Random(0, ARRAY_SIZE*4)));
-    }
+  }
 
   cout << "Sorting ids" << endl;
   timer->StartTimer();
@@ -108,14 +108,14 @@ int TestSortDataArray(int, char *[])
   cout << "Time to sort ids: " << timer->GetElapsedTime() << " sec" << endl;
 
   for (i = 0; i < ARRAY_SIZE-1; i++)
-    {
+  {
     if (ids->GetId(i) > ids->GetId(i+1))
-      {
+    {
       cout << "Id list not properly sorted!" << endl;
       retVal = 1;
       break;
-      }
     }
+  }
   cout << "Id list consistency check finished\n" << endl;
 
 
@@ -124,9 +124,9 @@ int TestSortDataArray(int, char *[])
   cout << "Building id list (descending order)----------" << endl;
   ids->SetNumberOfIds(ARRAY_SIZE);
   for (i = 0; i < ARRAY_SIZE; i++)
-    {
+  {
     ids->SetId(i,static_cast<vtkIdType>(vtkMath::Random(0, ARRAY_SIZE*4)));
-    }
+  }
 
   cout << "Sorting ids" << endl;
   timer->StartTimer();
@@ -136,14 +136,14 @@ int TestSortDataArray(int, char *[])
   cout << "Time to sort ids: " << timer->GetElapsedTime() << " sec" << endl;
 
   for (i = 0; i < ARRAY_SIZE-1; i++)
-    {
+  {
     if (ids->GetId(i) < ids->GetId(i+1))
-      {
+    {
       cout << "Id list not properly sorted!" << endl;
       retVal = 1;
       break;
-      }
     }
+  }
   cout << "Id list consistency check finished\n" << endl;
 
 
@@ -154,12 +154,12 @@ int TestSortDataArray(int, char *[])
   values->SetNumberOfComponents(2);
   values->SetNumberOfTuples(ARRAY_SIZE);
   for (i = 0; i < ARRAY_SIZE; i++)
-    {
+  {
     keys->SetComponent(i,0,static_cast<int>(vtkMath::Random(0, ARRAY_SIZE*4)));
     values->SetComponent(i, 0, i);
     values->SetComponent(i,1,
                          static_cast<int>(vtkMath::Random(0, ARRAY_SIZE*4)));
-    }
+  }
   vtkIntArray *saveKeys = vtkIntArray::New();
   saveKeys->DeepCopy(keys);
   vtkIntArray *saveValues = vtkIntArray::New();
@@ -173,27 +173,27 @@ int TestSortDataArray(int, char *[])
   cout << "Time to sort array: " << timer->GetElapsedTime() << " sec" << endl;
 
   for (i = 0; i < ARRAY_SIZE-1; i++)
-    {
+  {
     int lookup = static_cast<int>(values->GetComponent(i, 0));
     if (keys->GetComponent(i, 0) > keys->GetComponent(i+1, 0))
-      {
+    {
       cout << "Array not properly sorted!" << endl;
       retVal = 1;
       break;
-      }
-    if (keys->GetComponent(i, 0) != saveKeys->GetComponent(lookup, 0))
-      {
-      cout << "Values array not consistent with keys array!" << endl;
-      retVal = 1;
-      break;
-      }
-    if (values->GetComponent(i, 1) != saveValues->GetComponent(lookup, 1))
-      {
-      cout << "Values array not consistent with keys array!" << endl;
-      retVal = 1;
-      break;
-      }
     }
+    if (keys->GetComponent(i, 0) != saveKeys->GetComponent(lookup, 0))
+    {
+      cout << "Values array not consistent with keys array!" << endl;
+      retVal = 1;
+      break;
+    }
+    if (values->GetComponent(i, 1) != saveValues->GetComponent(lookup, 1))
+    {
+      cout << "Values array not consistent with keys array!" << endl;
+      retVal = 1;
+      break;
+    }
+  }
   cout << "Array consistency check finished\n" << endl;
 
   cout << "Sorting sorted arrays" << endl;
@@ -204,27 +204,27 @@ int TestSortDataArray(int, char *[])
   cout << "Time to sort array: " << timer->GetElapsedTime() << " sec" << endl;
 
   for (i = 0; i < ARRAY_SIZE-1; i++)
-    {
+  {
     int lookup = static_cast<int>(values->GetComponent(i, 0));
     if (keys->GetComponent(i, 0) > keys->GetComponent(i+1, 0))
-      {
+    {
       cout << "Array not properly sorted!" << endl;
       retVal = 1;
       break;
-      }
-    if (keys->GetComponent(i, 0) != saveKeys->GetComponent(lookup, 0))
-      {
-      cout << "Values array not consistent with keys array!" << endl;
-      retVal = 1;
-      break;
-      }
-    if (values->GetComponent(i, 1) != saveValues->GetComponent(lookup, 1))
-      {
-      cout << "Values array not consistent with keys array!" << endl;
-      retVal = 1;
-      break;
-      }
     }
+    if (keys->GetComponent(i, 0) != saveKeys->GetComponent(lookup, 0))
+    {
+      cout << "Values array not consistent with keys array!" << endl;
+      retVal = 1;
+      break;
+    }
+    if (values->GetComponent(i, 1) != saveValues->GetComponent(lookup, 1))
+    {
+      cout << "Values array not consistent with keys array!" << endl;
+      retVal = 1;
+      break;
+    }
+  }
   cout << "Array consistency check finished\n" << endl;
 
   //---------------------------------------------------------------------------
@@ -234,11 +234,11 @@ int TestSortDataArray(int, char *[])
   fvalues->SetNumberOfComponents(3);
   fvalues->SetNumberOfTuples(ARRAY_SIZE);
   for (i = 0; i < ARRAY_SIZE; i++)
-    {
+  {
     fvalues->SetComponent(i,0, i);
     fvalues->SetComponent(i,1, static_cast<float>(vtkMath::Random(0, ARRAY_SIZE*4)));
     fvalues->SetComponent(i,2, i);
-    }
+  }
   vtkFloatArray *saveFValues = vtkFloatArray::New();
   saveFValues->DeepCopy(fvalues);
 
@@ -250,20 +250,20 @@ int TestSortDataArray(int, char *[])
   cout << "Time to sort data array: " << timer->GetElapsedTime() << " sec" << endl;
 
   for (i = 0; i < ARRAY_SIZE-1; i++)
-    {
+  {
     if (fvalues->GetComponent(i, 1) > fvalues->GetComponent(i+1, 1))
-      {
+    {
       cout << "Data array sorted incorrectly!" << endl;
       retVal = 1;
       break;
-      }
+    }
     if (fvalues->GetComponent(i, 0) != fvalues->GetComponent(i, 2))
-      {
+    {
       cout << "Data array tuples inconsistent!" << endl;
       retVal = 1;
       break;
-      }
     }
+  }
   cout << "Data array consistency check finished\n" << endl;
 
   //---------------------------------------------------------------------------
@@ -274,11 +274,11 @@ int TestSortDataArray(int, char *[])
   vtkStringArray *sarray = vtkStringArray::New();
   sarray->SetNumberOfTuples(ARRAY_SIZE);
   for (i = 0; i < ARRAY_SIZE; ++i)
-    {
+  {
     ostr.str(""); //clear it out
     ostr << static_cast<int>(vtkMath::Random(0,ARRAY_SIZE*4));
     sarray->SetValue(i,ostr.str());
-    }
+  }
 
   cout << "Sorting string array" << endl;
   timer->StartTimer();
@@ -288,18 +288,18 @@ int TestSortDataArray(int, char *[])
 
   vtkStdString s1, s2;
   for (i = 0; i < ARRAY_SIZE-1; ++i)
-    {
+  {
     // s1 = std::stoi(sarray->GetValue(i));
     // s2 = std::stoi(sarray->GetValue(i+1));
     s1 = sarray->GetValue(i);
     s2 = sarray->GetValue(i+1);
     if ( s1 < s2 )
-      {
+    {
       cout << "String array sorted incorrectly!" << endl;
       retVal = 1;
       break;
-      }
     }
+  }
   cout << "String array consistency check finished\n" << endl;
 
 

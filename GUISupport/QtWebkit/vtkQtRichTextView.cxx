@@ -146,61 +146,61 @@ void vtkQtRichTextView::Update()
 
   // Set the proxy (if needed)
   if(this->ProxyURL && this->ProxyPort >=0)
-    {
+  {
     if(this->ProxyPort > 65535)
-      {
+    {
       vtkWarningMacro(<<"Proxy port number, "<<this->ProxyPort<<", > 65535 (max for TCP/UDP)");
-      }
+    }
     QNetworkProxy proxy(QNetworkProxy::HttpCachingProxy, ProxyURL, ProxyPort);
     QNetworkProxy::setApplicationProxy(proxy);
-    }
+  }
   else
-    {
+  {
     QNetworkProxy proxy(QNetworkProxy::NoProxy);
     QNetworkProxy::setApplicationProxy(proxy);
-    }
+  }
 
   // Make sure the input connection is up to date ...
   vtkDataRepresentation* const representation = this->GetRepresentation();
   if(!representation)
-    {
+  {
     this->Internal->UI.WebView->setHtml("");
     this->Internal->UI.Title->setText("");
     return;
-    }
+  }
   representation->Update();
 
   if(this->Internal->DataObjectToTable->GetTotalNumberOfInputConnections() == 0
       || this->Internal->DataObjectToTable->GetInputConnection(0, 0) != representation->GetInternalOutputPort(0))
-    {
+  {
     this->Internal->DataObjectToTable->SetInputConnection(0, representation->GetInternalOutputPort(0));
-    }
+  }
   this->Internal->DataObjectToTable->Update();
 
   // Get our input table ...
   vtkTable* const table = this->Internal->DataObjectToTable->GetOutput();
   if(!table)
-    {
+  {
     this->Internal->UI.WebView->setHtml("");
     this->Internal->UI.Title->setText("");
     return;
-    }
+  }
 
   // Special-case: if the table is empty, we're done ...
   if(table->GetNumberOfRows() == 0)
-    {
+  {
     this->Internal->UI.WebView->setHtml("");
     this->Internal->UI.Title->setText("");
     return;
-    }
+  }
 
   vtkAlgorithmOutput *annConn = representation->GetInternalAnnotationOutputPort();
   if(!annConn)
-    {
+  {
     this->Internal->UI.WebView->setHtml("");
     this->Internal->UI.Title->setText("");
     return;
-    }
+  }
 
   annConn->GetProducer()->Update();
   vtkAnnotationLayers* a = vtkAnnotationLayers::SafeDownCast(annConn->GetProducer()->GetOutputDataObject(0));
@@ -211,22 +211,22 @@ void vtkQtRichTextView::Update()
     s, table, vtkSelectionNode::INDICES, 0, vtkSelectionNode::ROW));
 
   if(!selection.GetPointer() || selection->GetNumberOfNodes() == 0)
-    {
+  {
     this->Internal->UI.WebView->setHtml("");
     this->Internal->UI.Title->setText("");
     return;
-    }
+  }
 
   this->Internal->UI.WebView->history()->clear(); // Workaround for a quirk in QWebHistory
 
   vtkIdTypeArray* selectedRows = vtkArrayDownCast<vtkIdTypeArray>(selection->GetNode(0)->GetSelectionList());
   if(selectedRows->GetNumberOfTuples() == 0)
-    {
+  {
     this->Internal->UI.WebView->setHtml("");
     this->Internal->UI.Title->setText("");
-    }
+  }
   else// if(selectedRows->GetNumberOfTuples() == 1)
-    {
+  {
     vtkIdType row = selectedRows->GetValue(0);
     this->Internal->Content = table->GetValueByName(row, this->ContentColumnName).ToUnicodeString();
 
@@ -234,10 +234,10 @@ void vtkQtRichTextView::Update()
     QString url = this->Internal->UI.WebView->url().toString();
 
     if(this->TitleColumnName)
-      {
+    {
       this->Internal->UI.Title->setText(table->GetValueByName(row, this->TitleColumnName).ToString().c_str());
-      }
     }
+  }
   /*
   else
     {
@@ -258,20 +258,20 @@ void vtkQtRichTextView::onBack()
 {
   // This logic is a workaround for a quirk in QWebHistory
   if(this->Internal->UI.WebView->history()->currentItemIndex() <= 1)
-    {
+  {
     this->Internal->UI.WebView->back();
     this->Internal->UI.WebView->setHtml(QString::fromUtf8(this->Internal->Content.utf8_str()));
     //this->Internal->UI.WebView->history()->clear();
-    }
+  }
   else
-    {
+  {
     this->Internal->UI.WebView->back();
-    }
+  }
 
   if(!this->Internal->UI.WebView->history()->canGoBack())
-    {
+  {
     this->Internal->UI.BackButton->setEnabled(false);
-    }
+  }
 
   this->Internal->UI.ForwardButton->setEnabled(true);
 }
@@ -281,9 +281,9 @@ void vtkQtRichTextView::onForward()
   this->Internal->UI.WebView->forward();
 
   if(!this->Internal->UI.WebView->history()->canGoForward())
-    {
+  {
     this->Internal->UI.ForwardButton->setEnabled(false);
-    }
+  }
 
   this->Internal->UI.BackButton->setEnabled(true);
 }

@@ -30,21 +30,21 @@ void vtkImageAppendComponents::ReplaceNthInputConnection(int idx,
                                                 vtkAlgorithmOutput *input)
 {
   if (idx < 0 || idx >= this->GetNumberOfInputConnections(0))
-    {
+  {
     vtkErrorMacro("Attempt to replace connection idx " << idx
                   << " of input port " << 0 << ", which has only "
                   << this->GetNumberOfInputConnections(0)
                   << " connections.");
     return;
-    }
+  }
 
   if (!input || !input->GetProducer())
-    {
+  {
     vtkErrorMacro("Attempt to replace connection index " << idx
                   << " for input port " << 0 << " with " <<
                   (!input ? "a null input." : "an input with no producer."));
     return;
-    }
+  }
 
   this->SetNthInputConnection(0, idx, input);
 }
@@ -62,9 +62,9 @@ void vtkImageAppendComponents::SetInputData(int idx, vtkDataObject *input)
 vtkDataObject *vtkImageAppendComponents::GetInput(int idx)
 {
   if (this->GetNumberOfInputConnections(0) <= idx)
-    {
+  {
     return 0;
-    }
+  }
   return vtkImageData::SafeDownCast(
     this->GetExecutive()->GetInputData(0, idx));
 }
@@ -83,16 +83,16 @@ int vtkImageAppendComponents::RequestInformation (
   int idx1, num;
   num = 0;
   for (idx1 = 0; idx1 < this->GetNumberOfInputConnections(0); ++idx1)
-    {
+  {
     inScalarInfo = vtkDataObject::GetActiveFieldInformation(
       inputVector[0]->GetInformationObject(idx1),
       vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
     if (inScalarInfo &&
       inScalarInfo->Has( vtkDataObject::FIELD_NUMBER_OF_COMPONENTS() ) )
-      {
+    {
       num += inScalarInfo->Get( vtkDataObject::FIELD_NUMBER_OF_COMPONENTS() );
-      }
     }
+  }
 
   vtkDataObject::SetPointDataActiveScalarInfo(outInfo, -1, num);
   return 1;
@@ -115,24 +115,24 @@ void vtkImageAppendComponentsExecute(vtkImageAppendComponents *self,
 
   // Loop through output pixels
   while (!outIt.IsAtEnd())
-    {
+  {
     T* inSI = inIt.BeginSpan();
     T* outSI = outIt.BeginSpan() + outComp;
     T* outSIEnd = outIt.EndSpan();
     while (outSI < outSIEnd)
-      {
+    {
       // now process the components
       for (i = 0; i < numIn; ++i)
-        {
+      {
         *outSI = *inSI;
         ++outSI;
         ++inSI;
-        }
-      outSI = outSI + numSkip;
       }
+      outSI = outSI + numSkip;
+    }
     inIt.NextSpan();
     outIt.NextSpan();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -160,20 +160,20 @@ void vtkImageAppendComponents::ThreadedRequestData (
 
   outComp = 0;
   for (idx1 = 0; idx1 < this->GetNumberOfInputConnections(0); ++idx1)
-    {
+  {
     if (inData[0][idx1] != NULL)
-      {
+    {
       // this filter expects that input is the same type as output.
       if (inData[0][idx1]->GetScalarType() != outData[0]->GetScalarType())
-        {
+      {
         vtkErrorMacro(<< "Execute: input" << idx1 << " ScalarType ("
                       << inData[0][idx1]->GetScalarType()
                       << "), must match output ScalarType ("
                       << outData[0]->GetScalarType() << ")");
         return;
-        }
+      }
       switch (inData[0][idx1]->GetScalarType())
-        {
+      {
         vtkTemplateMacro(
           vtkImageAppendComponentsExecute ( this,
                                             inData[0][idx1], outData[0],
@@ -182,9 +182,9 @@ void vtkImageAppendComponents::ThreadedRequestData (
        default:
          vtkErrorMacro(<< "Execute: Unknown ScalarType");
          return;
-       }
-      outComp += inData[0][idx1]->GetNumberOfScalarComponents();
       }
+      outComp += inData[0][idx1]->GetNumberOfScalarComponents();
     }
+  }
 }
 

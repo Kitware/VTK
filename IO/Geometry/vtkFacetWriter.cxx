@@ -65,27 +65,27 @@ int vtkFacetWriter::RequestData(
 
   int cleanStream = 0;
   if ( !this->OutputStream )
-    {
+  {
     if ( !this->FileName )
-      {
+    {
       vtkErrorMacro("File name not specified");
       return 0;
-      }
+    }
 
     this->OutputStream = new ofstream(this->FileName);
     if ( !this->OutputStream )
-      {
+    {
       vtkErrorMacro("Error opening file: " << this->FileName << " for writing");
       return 0;
-      }
-    cleanStream = 1;
     }
+    cleanStream = 1;
+  }
 
   if ( !this->OutputStream )
-    {
+  {
     vtkErrorMacro("No output stream");
     return 0;
-    }
+  }
 
   int cc;
   int len = inputVector[0]->GetNumberOfInformationObjects();
@@ -93,25 +93,25 @@ int vtkFacetWriter::RequestData(
     << len << endl;
 
   for ( cc =0; cc < len; cc ++ )
-    {
+  {
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(cc);
     vtkPolyData *input =
       vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
     if ( !this->WriteDataToStream(this->OutputStream, input) )
-      {
+    {
       if ( cleanStream )
-        {
+      {
         delete this->OutputStream;
         this->OutputStream = 0;
-        }
-      return 0;
       }
+      return 0;
     }
+  }
   if ( cleanStream )
-    {
+  {
     delete this->OutputStream;
     this->OutputStream = 0;
-    }
+  }
   return 1;
 }
 
@@ -138,11 +138,11 @@ int vtkFacetWriter::WriteDataToStream(ostream* ost, vtkPolyData* data)
     << data->GetNumberOfPoints() << " 0 0" << endl;
   vtkIdType point;
   for ( point = 0; point < data->GetNumberOfPoints(); point ++ )
-    {
+  {
     double xyz[3];
     data->GetPoint(point, xyz);
     *ost << xyz[0] << " " << xyz[1] << " " << xyz[2] << endl;
-    }
+  }
   *ost << "1" << endl
     << "Element" << data << endl;
   int written = 0;
@@ -154,7 +154,7 @@ int vtkFacetWriter::WriteDataToStream(ostream* ost, vtkPolyData* data)
   vtkIdType cc;
 
   if ( data->GetVerts()->GetNumberOfCells() )
-    {
+  {
     // This test is needed if another cell type is written above this
     // block.  We must remove it here because it produces an
     // unreachable code warning.
@@ -170,68 +170,68 @@ int vtkFacetWriter::WriteDataToStream(ostream* ost, vtkPolyData* data)
     vtkIdType *pts = NULL;
     ca->InitTraversal();
     while ( ca->GetNextCell( numPts, pts ) )
-      {
+    {
       // Each vertex is one cell
       for ( cc = 0; cc < numPts; cc ++ )
-        {
+      {
         totalCells ++;
-        }
       }
+    }
     *ost << totalCells << " 1" << endl;
     ca->InitTraversal();
     while ( ca->GetNextCell( numPts, pts ) )
-      {
+    {
       for ( cc = 0; cc < numPts; cc ++ )
-        {
+      {
         // Indices of point starts with 1
         vtkIdType pointIndex = pts[cc] + 1;
         *ost << pointIndex << " " << material << " " << part << endl;
-        }
       }
-    written = 1;
     }
+    written = 1;
+  }
 
   if ( data->GetLines()->GetNumberOfCells() )
-    {
+  {
     if ( written )
-      {
+    {
       vtkErrorMacro("Multiple different cells in the poly data");
       return 0;
-      }
+    }
     ca = data->GetLines();
     numCells = ca->GetNumberOfCells();
     vtkIdType numPts = 0;
     vtkIdType *pts = NULL;
     ca->InitTraversal();
     while ( ca->GetNextCell( numPts, pts ) )
-      {
+    {
       // One line per cell
       for ( cc = 1; cc < numPts; cc ++ )
-        {
+      {
         totalCells ++;
-        }
       }
+    }
     *ost << totalCells << " 2" << endl;
     ca->InitTraversal();
     while ( ca->GetNextCell( numPts, pts ) )
-      {
+    {
       for ( cc = 1; cc < numPts; cc ++ )
-        {
+      {
         vtkIdType point1 = pts[cc-1] + 1;
         vtkIdType point2 = pts[cc] + 1;
         *ost << point1 << " " << point2 << " " << material << " " << part << endl;
-        }
       }
-    written = 1;
     }
+    written = 1;
+  }
 
   if ( data->GetPolys()->GetNumberOfCells() )
-    {
+  {
     if ( written )
-      {
+    {
       vtkErrorMacro("Multiple different cells in the poly data");
       return 0;
-      }
+    }
     ca = data->GetPolys();
     numCells = ca->GetNumberOfCells();
     vtkIdType numPts = 0;
@@ -241,65 +241,65 @@ int vtkFacetWriter::WriteDataToStream(ostream* ost, vtkPolyData* data)
     totalCells ++;
     vtkIdType numPoints = numPts;
     while ( ca->GetNextCell( numPts, pts ) )
-      {
+    {
       if ( numPts != numPoints )
-        {
+      {
         vtkErrorMacro("Found polygons with different order");
         return 0;
-        }
-      totalCells ++;
       }
+      totalCells ++;
+    }
     *ost << totalCells << " " << numPoints << endl;
     ca->InitTraversal();
     int cnt = 0;
     while ( ca->GetNextCell( numPts, pts ) )
-      {
+    {
       for ( cc = 0; cc < numPts; cc ++ )
-        {
+      {
         vtkIdType pointindex = pts[cc] + 1;
         *ost << pointindex << " ";
-        }
+      }
       *ost << material << " " << part << endl;
       cnt ++;
-      }
+    }
     cout << "Written: " << cnt  << " / " << numCells << " / " << totalCells << endl;
     written = 1;
-    }
+  }
 
   if ( data->GetStrips()->GetNumberOfCells() )
-    {
+  {
     if ( written )
-      {
+    {
       vtkErrorMacro("Multiple different cells in the poly data");
       return 0;
-      }
+    }
     ca = data->GetStrips();
     numCells = ca->GetNumberOfCells();
     vtkIdType numPts = 0;
     vtkIdType *pts = NULL;
     ca->InitTraversal();
     while ( ca->GetNextCell( numPts, pts ) )
-      {
+    {
       // One triangle per cell
       for ( cc = 2; cc < numPts; cc ++ )
-        {
+      {
         totalCells ++;
-        }
       }
+    }
     *ost << totalCells << " 3" << endl;
     ca->InitTraversal();
     while ( ca->GetNextCell( numPts, pts ) )
-      {
+    {
       for ( cc = 2; cc < numPts; cc ++ )
-        {
+      {
         vtkIdType point1 = pts[cc-2] + 1;
         vtkIdType point2 = pts[cc-1] + 1;
         vtkIdType point3 = pts[cc] + 1;
         *ost << point1 << " " << point2 << " " << point3 << " " << material << " " << part << endl;
-        }
       }
-    written = 1;
     }
+    written = 1;
+  }
 
  return 1;
 }
@@ -308,9 +308,9 @@ int vtkFacetWriter::WriteDataToStream(ostream* ost, vtkPolyData* data)
 int vtkFacetWriter::FillInputPortInformation(int port, vtkInformation *info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
-    {
+  {
     return 0;
-    }
+  }
   info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
   return 1;
 }

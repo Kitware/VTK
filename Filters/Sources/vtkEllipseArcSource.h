@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkEllipseArcSource - create an elliptical arc
-
-// .SECTION Description
-// vtkEllipseArcSource is a source object that creates an elliptical arc
-// defined by a normal, a center and the major radius vector.
-// You can define an angle to draw only a section of the ellipse. The number of
-// segments composing the polyline is controlled by setting the object
-// resolution.
-
-// .SECTION See Also
-// vtkArcSource
+/**
+ * @class   vtkEllipseArcSource
+ * @brief   create an elliptical arc
+ *
+ *
+ * vtkEllipseArcSource is a source object that creates an elliptical arc
+ * defined by a normal, a center and the major radius vector.
+ * You can define an angle to draw only a section of the ellipse. The number of
+ * segments composing the polyline is controlled by setting the object
+ * resolution.
+ *
+ * @sa
+ * vtkArcSource
+*/
 
 #ifndef vtkEllipseArcSource_h
 #define vtkEllipseArcSource_h
@@ -37,58 +40,82 @@ public:
   vtkTypeMacro(vtkEllipseArcSource, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set position of the center of the ellipse that define the arc.
-  // Default is 0, 0, 0.
+  //@{
+  /**
+   * Set position of the center of the ellipse that define the arc.
+   * Default is 0, 0, 0.
+   */
   vtkSetVector3Macro(Center, double);
   vtkGetVectorMacro(Center, double, 3);
+  //@}
 
-  // Description:
-  // Set normal vector. Represents the plane in which the ellipse will be drawn.
-  // Default 0, 0, 1.
+  //@{
+  /**
+   * Set normal vector. Represents the plane in which the ellipse will be drawn.
+   * Default 0, 0, 1.
+   */
   vtkSetVector3Macro(Normal, double);
   vtkGetVectorMacro(Normal, double, 3);
+  //@}
 
-  // Description:
-  // Set Major Radius Vector. It defines the origin of polar angle and the major
-  // radius size.
-  // Default is 1, 0, 0.
+  //@{
+  /**
+   * Set Major Radius Vector. It defines the origin of polar angle and the major
+   * radius size.
+   * Default is 1, 0, 0.
+   */
   vtkSetVector3Macro(MajorRadiusVector, double);
   vtkGetVectorMacro(MajorRadiusVector, double, 3);
+  //@}
 
-  // Description:
-  // Set the start angle. The angle where the plot begins.
-  // Default is 0.
+  //@{
+  /**
+   * Set the start angle. The angle where the plot begins.
+   * Default is 0.
+   */
   vtkSetClampMacro(StartAngle, double, -360.0, 360.0);
   vtkGetMacro(StartAngle, double);
+  //@}
 
-  // Description:
-  // Angular sector occupied by the arc, beginning at Start Angle
-  // Default is 90.
+  //@{
+  /**
+   * Angular sector occupied by the arc, beginning at Start Angle
+   * Default is 90.
+   */
   vtkSetClampMacro(SegmentAngle, double, 0.0, 360.0);
   vtkGetMacro(SegmentAngle, double);
+  //@}
 
-  // Description:
-  // Divide line into resolution number of pieces.
-  // Note: if Resolution is set to 1 the arc is a
-  // straight line. Default is 100.
+  //@{
+  /**
+   * Divide line into resolution number of pieces.
+   * Note: if Resolution is set to 1 the arc is a
+   * straight line. Default is 100.
+   */
   vtkSetClampMacro(Resolution, int, 1, VTK_INT_MAX);
   vtkGetMacro(Resolution, int);
+  //@}
 
-  // Description:
-  // Set/get the desired precision for the output points.
-  // vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point,
-  // This is the default.
-  // vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+  //@{
+  /**
+   * Set/get the desired precision for the output points.
+   * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point,
+   * This is the default.
+   * vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+   */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
+  //@}
 
-  // Description:
-  // Set the ratio of the ellipse, i.e. the ratio b/a _ b: minor radius;
-  // a: major radius
-  // default is 1.
+  //@{
+  /**
+   * Set the ratio of the ellipse, i.e. the ratio b/a _ b: minor radius;
+   * a: major radius
+   * default is 1.
+   */
   vtkSetClampMacro(Ratio, double, 0.001, 100.0);
   vtkGetMacro(Ratio, double);
+  //@}
 
 protected:
   vtkEllipseArcSource();

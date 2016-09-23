@@ -62,14 +62,14 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   pointSet->GetPointData()->SetScalars(iconIndex);
 
   for(double i = 1.0; i < 8; i++)
-    {
+  {
     points->InsertNextPoint(i * 26.0, 26.0, 0.0);
-    }
+  }
 
   for(int i = 0; i < points->GetNumberOfPoints(); i++)
-    {
+  {
     iconIndex->InsertNextTuple1(i);
-    }
+  }
 
   int size[] = {24, 24};
 
@@ -99,14 +99,14 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   pointSet2->GetPointData()->SetScalars(iconIndex2);
 
   for(double i = 1.0; i < 8; i++)
-    {
+  {
     points2->InsertNextPoint(i * 26.0, 52.0, 0.0);
-    }
+  }
 
   for(int i = 0; i < points2->GetNumberOfPoints(); i++)
-    {
+  {
     iconIndex2->InsertNextTuple1(i + 8);
-    }
+  }
 
   vtkSmartPointer<vtkIconGlyphFilter>  iconFilter2 =
     vtkSmartPointer<vtkIconGlyphFilter>::New();
@@ -134,14 +134,14 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   pointSet3->GetPointData()->SetScalars(iconIndex3);
 
   for(double i = 1.0; i < 8; i++)
-    {
+  {
     points3->InsertNextPoint(i * 26.0, 78.0, 0.0);
-    }
+  }
 
   for(int i = 0; i < points3->GetNumberOfPoints(); i++)
-    {
+  {
     iconIndex3->InsertNextTuple1(i + 16);
-    }
+  }
 
   vtkSmartPointer<vtkIconGlyphFilter>  iconFilter3 =
     vtkSmartPointer<vtkIconGlyphFilter>::New();
@@ -169,14 +169,14 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   pointSet4->GetPointData()->SetScalars(iconIndex4);
 
   for(double i = 1.0; i < 8; i++)
-    {
+  {
     points4->InsertNextPoint(i * 26.0, 104.0, 0.0);
-    }
+  }
 
   for(int i = 0; i < points4->GetNumberOfPoints(); i++)
-    {
+  {
     iconIndex4->InsertNextTuple1(i + 24);
-    }
+  }
 
   vtkSmartPointer<vtkIconGlyphFilter>  iconFilter4 =
     vtkSmartPointer<vtkIconGlyphFilter>::New();
@@ -204,14 +204,14 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   pointSet5->GetPointData()->SetScalars(iconIndex5);
 
   for(double i = 1.0; i < 8; i++)
-    {
+  {
     points5->InsertNextPoint(i * 26.0, 130.0, 0.0);
-    }
+  }
 
   for(int i = 0; i < points5->GetNumberOfPoints(); i++)
-    {
+  {
     iconIndex5->InsertNextTuple1(i + 32);
-    }
+  }
 
   vtkSmartPointer<vtkIconGlyphFilter>  iconFilter5 =
     vtkSmartPointer<vtkIconGlyphFilter>::New();
@@ -239,14 +239,14 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   pointSet6->GetPointData()->SetScalars(iconIndex6);
 
   for(double i = 1.0; i < 8; i++)
-    {
+  {
     points6->InsertNextPoint(i * 26.0, 156.0, 0.0);
-    }
+  }
 
   for(int i = 0; i < points6->GetNumberOfPoints(); i++)
-    {
+  {
     iconIndex6->InsertNextTuple1(i + 40);
-    }
+  }
 
   vtkSmartPointer<vtkIconGlyphFilter>  iconFilter6 =
     vtkSmartPointer<vtkIconGlyphFilter>::New();
@@ -274,14 +274,14 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   pointSet7->GetPointData()->SetScalars(iconIndex7);
 
   for(double i = 1.0; i < 8; i++)
-    {
+  {
     points7->InsertNextPoint(i * 26.0, 182.0, 0.0);
-    }
+  }
 
   for(int i = 0; i < points7->GetNumberOfPoints(); i++)
-    {
+  {
     iconIndex7->InsertNextTuple1(i + 48);
-    }
+  }
 
   vtkSmartPointer<vtkIconGlyphFilter>  iconFilter7 =
     vtkSmartPointer<vtkIconGlyphFilter>::New();
@@ -309,14 +309,14 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   pointSet8->GetPointData()->SetScalars(iconIndex8);
 
   for(double i = 1.0; i < 8; i++)
-    {
+  {
     points8->InsertNextPoint(i * 26.0, 208.0, 0.0);
-    }
+  }
 
   for(int i = 0; i < points8->GetNumberOfPoints(); i++)
-    {
+  {
     iconIndex8->InsertNextTuple1(i + 56);
-    }
+  }
 
   vtkSmartPointer<vtkIconGlyphFilter>  iconFilter8 =
     vtkSmartPointer<vtkIconGlyphFilter>::New();
@@ -344,14 +344,14 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   pointSet9->GetPointData()->SetScalars(iconIndex9);
 
   for(double i = 1.0; i < 8; i++)
-    {
+  {
     points9->InsertNextPoint(i * 26.0, 234.0, 0.0);
-    }
+  }
 
   for(int i = 0; i < points9->GetNumberOfPoints(); i++)
-    {
+  {
     iconIndex9->InsertNextTuple1(i + 64);
-    }
+  }
 
   vtkSmartPointer<vtkIconGlyphFilter>  iconFilter9 =
     vtkSmartPointer<vtkIconGlyphFilter>::New();

@@ -1104,15 +1104,15 @@ int TestCellCentersPointPlacer(int argc, char *argv[])
     vtkSmartPointer<vtkCellCentersPointPlacer>::New();
 
   for(int row = 0; row < gridDimensions; row++)
-    {
+  {
     for(int col = 0; col < gridDimensions; col++)
-      {
+    {
       int index = row * gridDimensions + col;
 
       if(index > static_cast< int >(actors.size() - 1))
-        {
+      {
         continue;
-        }
+      }
 
       vtkSmartPointer< vtkTransformFilter > transformFilter =
         vtkSmartPointer< vtkTransformFilter >::New();
@@ -1135,8 +1135,8 @@ int TestCellCentersPointPlacer(int argc, char *argv[])
 
       renderer->AddActor(actors[index]);
       pointPlacer->AddProp(actors[index]);
-      }
     }
+  }
 
   // Default colors
   actors[0]->GetProperty()->SetColor(1,0,0.5);

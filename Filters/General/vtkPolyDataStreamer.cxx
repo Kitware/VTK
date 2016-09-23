@@ -48,9 +48,9 @@ vtkPolyDataStreamer::~vtkPolyDataStreamer()
 void vtkPolyDataStreamer::SetNumberOfStreamDivisions(int num)
 {
   if (this->NumberOfPasses == (unsigned int)num)
-    {
+  {
     return;
-    }
+  }
 
   this->Modified();
   this->NumberOfPasses = num;
@@ -96,7 +96,7 @@ int vtkPolyDataStreamer::ExecutePass(
   this->Append->AddInputData(copy);
 
   if (this->ColorByPiece)
-    {
+  {
     int inPiece = inInfo->Get(
       vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
     vtkFloatArray *pieceColors = vtkFloatArray::New();
@@ -104,13 +104,13 @@ int vtkPolyDataStreamer::ExecutePass(
     vtkIdType numCells = input->GetNumberOfCells();
     pieceColors->SetNumberOfTuples(numCells);
     for (vtkIdType j = 0; j < numCells; ++j)
-      {
+    {
       pieceColors->SetValue(j, inPiece);
-      }
+    }
     int idx = copy->GetCellData()->AddArray(pieceColors);
     copy->GetCellData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     pieceColors->Delete();
-    }
+  }
 
   copy->Delete();
 

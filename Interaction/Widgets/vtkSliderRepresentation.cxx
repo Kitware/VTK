@@ -55,33 +55,33 @@ vtkSliderRepresentation::~vtkSliderRepresentation()
 void vtkSliderRepresentation::SetMinimumValue(double minValue)
 {
   if ( minValue == this->MinimumValue )
-    {
+  {
     return;
-    }
+  }
 
   if ( minValue >= this->MaximumValue )
-    {
+  {
     this->MaximumValue = minValue + 1;
-    }
+  }
 
   this->MinimumValue = minValue;
 
   if ( this->Value < this->MinimumValue )
-    {
+  {
     this->Value = this->MinimumValue;
     this->CurrentT = 0.0;
-    }
+  }
   else if ( this->Value > this->MaximumValue )
-    {
+  {
     this->Value = this->MaximumValue;
     this->CurrentT = 1.0;
-    }
+  }
 
   this->InvokeEvent(vtkCommand::WidgetValueChangedEvent,NULL);
   if ( this->Renderer )
-    {
+  {
     this->BuildRepresentation();
-    }
+  }
   this->Modified();
 }
 
@@ -89,33 +89,33 @@ void vtkSliderRepresentation::SetMinimumValue(double minValue)
 void vtkSliderRepresentation::SetMaximumValue(double maxValue)
 {
   if ( maxValue == this->MaximumValue )
-    {
+  {
     return;
-    }
+  }
 
   if ( maxValue <= this->MinimumValue )
-    {
+  {
     this->MinimumValue = maxValue - 1;
-    }
+  }
 
   this->MaximumValue = maxValue;
 
   if ( this->Value < this->MinimumValue )
-    {
+  {
     this->Value = this->MinimumValue;
     this->CurrentT = 0.0;
-    }
+  }
   else if ( this->Value > this->MaximumValue )
-    {
+  {
     this->Value = this->MaximumValue;
     this->CurrentT = 1.0;
-    }
+  }
 
   this->InvokeEvent(vtkCommand::WidgetValueChangedEvent,NULL);
   if ( this->Renderer )
-    {
+  {
     this->BuildRepresentation();
-    }
+  }
   this->Modified();
 }
 
@@ -123,28 +123,28 @@ void vtkSliderRepresentation::SetMaximumValue(double maxValue)
 void vtkSliderRepresentation::SetValue(double value)
 {
   if ( value == this->Value )
-    {
+  {
     return;
-    }
+  }
 
   if ( value < this->MinimumValue )
-    {
+  {
     value = this->MinimumValue;
-    }
+  }
 
   if ( value > this->MaximumValue )
-    {
+  {
     value = this->MaximumValue;
-    }
+  }
 
   this->Value = value;
   this->CurrentT = (value - this->MinimumValue) / (this->MaximumValue - this->MinimumValue);
 
   this->InvokeEvent(vtkCommand::WidgetValueChangedEvent,NULL);
   if ( this->Renderer )
-    {
+  {
     this->BuildRepresentation();
-    }
+  }
   this->Modified();
 }
 

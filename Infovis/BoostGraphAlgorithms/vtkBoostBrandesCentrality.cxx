@@ -104,22 +104,22 @@ int vtkBoostBrandesCentrality::RequestData(
 
   vtkSmartPointer<vtkDataArray> edgeWeight (0);
   if(this->UseEdgeWeightArray && this->EdgeWeightArrayName)
-    {
+  {
     if(!this->InvertEdgeWeightArray)
-      {
+    {
       edgeWeight = input->GetEdgeData()->GetArray(this->EdgeWeightArrayName);
-      }
+    }
     else
-      {
+    {
       vtkDataArray* weights =
           input->GetEdgeData()->GetArray(this->EdgeWeightArrayName);
 
       if(!weights)
-        {
+      {
         vtkErrorMacro(<<"Error: Edge weight array " << this->EdgeWeightArrayName
                       << " is set but not found or not a data array.\n");
         return 0;
-        }
+      }
 
       edgeWeight.TakeReference(
         vtkDataArray::CreateDataArray(weights->GetDataType()));
@@ -128,59 +128,59 @@ int vtkBoostBrandesCentrality::RequestData(
       weights->GetRange(range);
 
       if(weights->GetNumberOfComponents() > 1)
-        {
+      {
         return 0;
-        }
-
-      for(int i=0; i < weights->GetDataSize(); ++i)
-        {
-        edgeWeight->InsertNextTuple1(range[1] - weights->GetTuple1(i));
-        }
       }
 
-    if(!edgeWeight)
+      for(int i=0; i < weights->GetDataSize(); ++i)
       {
-      vtkErrorMacro(<<"Error: Edge weight array " << this->EdgeWeightArrayName
-                    << " is set but not found or not a data array.\n");
-      return 0;
+        edgeWeight->InsertNextTuple1(range[1] - weights->GetTuple1(i));
       }
     }
 
+    if(!edgeWeight)
+    {
+      vtkErrorMacro(<<"Error: Edge weight array " << this->EdgeWeightArrayName
+                    << " is set but not found or not a data array.\n");
+      return 0;
+    }
+  }
+
   // Is the graph directed or undirected
   if (vtkDirectedGraph::SafeDownCast(output))
-    {
+  {
     vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(output);
     if(edgeWeight)
-      {
+    {
       vtkGraphEdgePropertyMapHelper<vtkDataArray*> helper2(edgeWeight);
       brandes_betweenness_centrality(g,
         centrality_map(vertexCMap).edge_centrality_map(
           helper).vertex_index_map(imap).weight_map(helper2));
-      }
+    }
     else
-      {
+    {
       brandes_betweenness_centrality(g,
         centrality_map(vertexCMap).edge_centrality_map(
           helper).vertex_index_map(imap));
-      }
     }
+  }
   else
-    {
+  {
     vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(output);
     if(edgeWeight)
-      {
+    {
       vtkGraphEdgePropertyMapHelper<vtkDataArray*> helper2(edgeWeight);
       brandes_betweenness_centrality(g,
              centrality_map(vertexCMap).edge_centrality_map(
                helper).vertex_index_map(imap).weight_map(helper2));
-      }
+    }
     else
-      {
+    {
       brandes_betweenness_centrality(g,
              centrality_map(vertexCMap).edge_centrality_map(
                helper).vertex_index_map(imap));
-      }
     }
+  }
 
   // Add the arrays to the output and dereference
   output->GetVertexData()->AddArray(vertexCMap);

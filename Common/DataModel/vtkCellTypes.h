@@ -12,23 +12,26 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCellTypes - object provides direct access to cells in vtkCellArray and type information
-// .SECTION Description
-// This class is a supplemental object to vtkCellArray to allow random access
-// into cells as well as representing cell type information.  The "location"
-// field is the location in the vtkCellArray list in terms of an integer
-// offset.  An integer offset was used instead of a pointer for easy storage
-// and inter-process communication. The type information is defined in the
-// file vtkCellType.h.
-//
-// .SECTION Caveats
-// Sometimes this class is used to pass type information independent of the
-// random access (i.e., location) information. For example, see
-// vtkDataSet::GetCellTypes(). If you use the class in this way, you can use
-// a location value of -1.
-//
-// .SECTION See Also
-// vtkCellArray vtkCellLinks
+/**
+ * @class   vtkCellTypes
+ * @brief   object provides direct access to cells in vtkCellArray and type information
+ *
+ * This class is a supplemental object to vtkCellArray to allow random access
+ * into cells as well as representing cell type information.  The "location"
+ * field is the location in the vtkCellArray list in terms of an integer
+ * offset.  An integer offset was used instead of a pointer for easy storage
+ * and inter-process communication. The type information is defined in the
+ * file vtkCellType.h.
+ *
+ * @warning
+ * Sometimes this class is used to pass type information independent of the
+ * random access (i.e., location) information. For example, see
+ * vtkDataSet::GetCellTypes(). If you use the class in this way, you can use
+ * a location value of -1.
+ *
+ * @sa
+ * vtkCellArray vtkCellLinks
+*/
 
 #ifndef vtkCellTypes_h
 #define vtkCellTypes_h
@@ -47,83 +50,100 @@ public:
   vtkTypeMacro(vtkCellTypes,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Allocate memory for this array. Delete old storage only if necessary.
+  /**
+   * Allocate memory for this array. Delete old storage only if necessary.
+   */
   int Allocate(int sz=512, int ext=1000);
 
-  // Description:
-  // Add a cell at specified id.
+  /**
+   * Add a cell at specified id.
+   */
   void InsertCell(int id, unsigned char type, int loc);
 
-  // Description:
-  // Add a cell to the object in the next available slot.
+  /**
+   * Add a cell to the object in the next available slot.
+   */
   vtkIdType InsertNextCell(unsigned char type, int loc);
 
-  // Description:
-  // Specify a group of cell types.
+  /**
+   * Specify a group of cell types.
+   */
   void SetCellTypes(int ncells, vtkUnsignedCharArray *cellTypes, vtkIntArray *cellLocations);
 
-  // Description:
-  // Return the location of the cell in the associated vtkCellArray.
+  /**
+   * Return the location of the cell in the associated vtkCellArray.
+   */
   vtkIdType GetCellLocation(int cellId) { return this->LocationArray->GetValue(cellId);};
 
-  // Description:
-  // Delete cell by setting to NULL cell type.
+  /**
+   * Delete cell by setting to NULL cell type.
+   */
   void DeleteCell(vtkIdType cellId) { this->TypeArray->SetValue(cellId, VTK_EMPTY_CELL);};
 
-  // Description:
-  // Return the number of types in the list.
+  /**
+   * Return the number of types in the list.
+   */
   vtkIdType GetNumberOfTypes() { return (this->MaxId + 1);};
 
-  // Description:
-  // Return 1 if type specified is contained in list; 0 otherwise.
+  /**
+   * Return 1 if type specified is contained in list; 0 otherwise.
+   */
   int IsType(unsigned char type);
 
-  // Description:
-  // Add the type specified to the end of the list. Range checking is performed.
+  /**
+   * Add the type specified to the end of the list. Range checking is performed.
+   */
   vtkIdType InsertNextType(unsigned char type){return this->InsertNextCell(type,-1);};
 
-  // Description:
-  // Return the type of cell.
+  /**
+   * Return the type of cell.
+   */
   unsigned char GetCellType(int cellId) { return this->TypeArray->GetValue(cellId);};
 
-  // Description:
-  // Reclaim any extra memory.
+  /**
+   * Reclaim any extra memory.
+   */
   void Squeeze();
 
-  // Description:
-  // Initialize object without releasing memory.
+  /**
+   * Initialize object without releasing memory.
+   */
   void Reset();
 
-  // Description:
-  // Return the memory in kibibytes (1024 bytes) consumed by this cell type array.
-  // Used to support streaming and reading/writing data. The value
-  // returned is guaranteed to be greater than or equal to the memory
-  // required to actually represent the data represented by this object.
-  // The information returned is valid only after the pipeline has
-  // been updated.
+  /**
+   * Return the memory in kibibytes (1024 bytes) consumed by this cell type array.
+   * Used to support streaming and reading/writing data. The value
+   * returned is guaranteed to be greater than or equal to the memory
+   * required to actually represent the data represented by this object.
+   * The information returned is valid only after the pipeline has
+   * been updated.
+   */
   unsigned long GetActualMemorySize();
 
-  // Description:
-  // Standard DeepCopy method.  Since this object contains no reference
-  // to other objects, there is no ShallowCopy.
+  /**
+   * Standard DeepCopy method.  Since this object contains no reference
+   * to other objects, there is no ShallowCopy.
+   */
   void DeepCopy(vtkCellTypes *src);
 
-  // Description:
-  // Given an int (as defined in vtkCellType.h) identifier for a class
-  // return it's classname.
+  /**
+   * Given an int (as defined in vtkCellType.h) identifier for a class
+   * return it's classname.
+   */
   static const char* GetClassNameFromTypeId(int typeId);
 
-  // Description:
-  // Given a data object classname, return it's int identified (as
-  // defined in vtkCellType.h)
+  /**
+   * Given a data object classname, return it's int identified (as
+   * defined in vtkCellType.h)
+   */
   static int GetTypeIdFromClassName(const char* classname);
 
-  // Description:
-  // This convenience method is a fast check to determine if a cell type
-  // represents a linear or nonlinear cell.  This is generally much more
-  // efficient than getting the appropriate vtkCell and checking its IsLinear
-  // method.
+  /**
+   * This convenience method is a fast check to determine if a cell type
+   * represents a linear or nonlinear cell.  This is generally much more
+   * efficient than getting the appropriate vtkCell and checking its IsLinear
+   * method.
+   */
   static int IsLinear(unsigned char type);
 
 protected:
@@ -148,12 +168,12 @@ inline int vtkCellTypes::IsType(unsigned char type)
   vtkIdType numTypes=this->GetNumberOfTypes();
 
   for (vtkIdType i=0; i<numTypes; i++)
-    {
+  {
     if ( type == this->GetCellType(i))
-      {
+    {
       return 1;
-      }
     }
+  }
   return 0;
 }
 

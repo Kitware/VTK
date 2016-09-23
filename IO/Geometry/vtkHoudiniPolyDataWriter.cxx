@@ -152,13 +152,13 @@ namespace
       std::size_t i = 0;
       out << "\'";
       for (; i < (t.size() < 32 ? t.size() : 32); i++)
-        {
+      {
         out << t[i];
-        }
+      }
       for (; i < 32; i++)
-        {
+      {
         out << " ";
-        }
+      }
       out << "\'";
     }
   };
@@ -185,10 +185,10 @@ namespace
       out << s << " " << this->Array->GetNumberOfComponents() << " "
           << trait.Name() << " " << trait.Default();
       for (int i = 1; i < this->Array->GetNumberOfComponents(); i++)
-        {
+      {
         out << " ";
         AttributeTrait<AttributeId>::Stream(out, trait.Default());
-        }
+      }
     }
 
     void StreamData(std::ostream& out, vtkIdType index) const
@@ -199,10 +199,10 @@ namespace
       AttributeTrait<AttributeId>::Stream(out, this->Value[0]);
 
       for (int i = 1; i < this->Array->GetNumberOfComponents(); i++)
-        {
+      {
           out << " ";
         AttributeTrait<AttributeId>::Stream(out, this->Value[i]);
-        }
+      }
     }
 
   protected:
@@ -225,10 +225,10 @@ namespace
       {
         for (Attributes::AttIt it=header.Atts->AttVec.begin();
              it != header.Atts->AttVec.end(); ++it)
-          {
+        {
           (*it)->StreamHeader(out);
           out << endl;
-          }
+        }
         return out;
       }
     public:
@@ -250,14 +250,14 @@ namespace
       {
         for (Attributes::AttIt it=component.Atts->AttVec.begin();
              it != component.Atts->AttVec.end(); ++it)
-          {
+        {
           (*it)->StreamData(out, component.Index);
 
           if (it + 1 != component.Atts->AttVec.end())
-            {
+          {
             out << " ";
-            }
           }
+        }
         return out;
       }
     };
@@ -266,9 +266,9 @@ namespace
     virtual ~Attributes()
     {
       for (AttIt it=this->AttVec.begin(); it != this->AttVec.end(); ++it)
-        {
+      {
         delete *it;
-        }
+      }
     }
 
     Header& GetHeader() { return this->Hdr; }
@@ -313,22 +313,22 @@ void vtkHoudiniPolyDataWriter::WriteData()
   // Grab the input data
   vtkPolyData* input = vtkPolyData::SafeDownCast(this->GetInput());
   if (!input)
-    {
+  {
     vtkErrorMacro(<< "Missing input polydata!");
     return;
-    }
+  }
 
   // Open the file for streaming
   std::ofstream file(this->FileName, std::ofstream::out);
 
   if (file.fail())
-    {
+  {
     vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
     return;
-    }
+  }
 
   vtkIdType nPrims = 0;
-    {
+  {
     nPrims += input->GetNumberOfVerts();
     nPrims += input->GetNumberOfLines();
     nPrims += input->GetNumberOfPolys();
@@ -338,10 +338,10 @@ void vtkHoudiniPolyDataWriter::WriteData()
 
     stripArray->InitTraversal();
     while (stripArray->GetNextCell(nPts, pts))
-      {
+    {
       nPrims += nPts - 2;
-      }
     }
+  }
 
   // Write generic header info
   file << "PGEOMETRY V2" << endl;
@@ -374,56 +374,56 @@ void vtkHoudiniPolyDataWriter::WriteData()
   // Construct Attributes instance for points
   Attributes pointAttributes;
   for (vtkIdType i = 0; i < input->GetPointData()->GetNumberOfArrays(); i++)
-    {
+  {
     vtkAbstractArray* array = input->GetPointData()->GetAbstractArray(i);
     switch (array->GetDataType())
-      {
+    {
       vtkHoudiniTemplateMacro(pointAttributes, array);
 #if 0
     case VTK_STRING: { AddAttribute<VTK_STRING>(pointAttributes, array); }; break;
 #endif
     default:
       vtkGenericWarningMacro(<<"Unsupported data type!");
-      }
     }
+  }
 
   // Write point attributes header info
   if (input->GetPointData()->GetNumberOfArrays() != 0)
-    {
+  {
     file << "PointAttrib" << endl;
     file << pointAttributes.GetHeader();
-    }
+  }
 
   // Write point data
   vtkPoints* points = input->GetPoints();
   double xyz[3];
   for (vtkIdType i = 0; i < input->GetNumberOfPoints(); i++)
-    {
+  {
     points->GetPoint(i, xyz);
     file << xyz[0] << " " << xyz[1] << " " << xyz[2] << " "
          << 1;
     if (input->GetPointData()->GetNumberOfArrays() != 0)
-      {
+    {
       file << " (" << pointAttributes[i] << ")";
-      }
-    file << endl;
     }
+    file << endl;
+  }
 
   // Construct Attributes instance for cells
   Attributes cellAttributes;
   for (vtkIdType i = 0; i < input->GetCellData()->GetNumberOfArrays(); i++)
-    {
+  {
     vtkAbstractArray* array = input->GetCellData()->GetAbstractArray(i);
     switch (array->GetDataType())
-      {
+    {
       vtkHoudiniTemplateMacro(cellAttributes, array);
 #if 0
     case VTK_STRING: { AddAttribute<VTK_STRING>(cellAttributes, array); }; break;
 #endif
     default:
       vtkGenericWarningMacro(<<"Unsupported data type!");
-      }
     }
+  }
 
 #undef vtkHoudiniTemplateMacro
 #undef vtkHoudiniTemplateMacroCase
@@ -431,46 +431,46 @@ void vtkHoudiniPolyDataWriter::WriteData()
   // Write cell attributes header info
   if (input->GetCellData()->GetNumberOfArrays() != 0 &&
       input->GetNumberOfCells() != 0)
-    {
+  {
     file << "PrimitiveAttrib" << endl;
     file << cellAttributes.GetHeader();
-    }
+  }
 
   if (input->GetNumberOfVerts() != 0)
-    {
+  {
     // Write vertex data as a particle system
     vtkCellArray* vertArray = input->GetVerts();
     vtkIdType nPts, *pts, cellId;
 
     if (input->GetNumberOfVerts() > 1)
-      {
+    {
       file << "Run " << input->GetNumberOfVerts() << " Part" << endl;
-      }
+    }
     else
-      {
+    {
       file << "Part ";
-      }
+    }
     cellId = 0;
 
     vertArray->InitTraversal();
     while (vertArray->GetNextCell(nPts, pts))
-      {
+    {
       file << nPts;
       for (vtkIdType i = 0; i < nPts; i++)
-        {
+      {
         file << " " << pts[i];
-        }
+      }
       if (input->GetCellData()->GetNumberOfArrays() != 0)
-        {
+      {
         file << " [" << cellAttributes[cellId] << "]";
-        }
+      }
       file << endl;
       cellId++;
-      }
     }
+  }
 
   if (input->GetNumberOfLines() != 0)
-    {
+  {
     // Write line data as open polygons
     file << "Run " << input->GetNumberOfLines() << " Poly" <<endl;
 
@@ -481,22 +481,22 @@ void vtkHoudiniPolyDataWriter::WriteData()
 
     lineArray->InitTraversal();
     while (lineArray->GetNextCell(nPts, pts))
-      {
+    {
       file << nPts << " : " << pts[0];
       for (vtkIdType i = 1; i < nPts; i++)
-        {
+      {
         file << " " << pts[i];
-        }
-      if (input->GetCellData()->GetNumberOfArrays() != 0)
-        {
-        file << " [" << cellAttributes[cellId++] << "]";
-        }
-      file << endl;
       }
+      if (input->GetCellData()->GetNumberOfArrays() != 0)
+      {
+        file << " [" << cellAttributes[cellId++] << "]";
+      }
+      file << endl;
     }
+  }
 
   if (input->GetNumberOfPolys() != 0)
-    {
+  {
     // Write polygon data
     file << "Run " << input->GetNumberOfPolys() << " Poly" <<endl;
 
@@ -507,22 +507,22 @@ void vtkHoudiniPolyDataWriter::WriteData()
 
     polyArray->InitTraversal();
     while (polyArray->GetNextCell(nPts, pts))
-      {
+    {
       file << nPts << " < " << pts[0];
       for (vtkIdType i = 1; i < nPts; i++)
-        {
+      {
         file << " " << pts[i];
-        }
-      if (input->GetCellData()->GetNumberOfArrays() != 0)
-        {
-        file << " [" << cellAttributes[cellId++] << "]";
-        }
-      file << endl;
       }
+      if (input->GetCellData()->GetNumberOfArrays() != 0)
+      {
+        file << " [" << cellAttributes[cellId++] << "]";
+      }
+      file << endl;
     }
+  }
 
   if (input->GetNumberOfStrips() != 0)
-    {
+  {
     // Write triangle strip data as polygons
     vtkCellArray* stripArray = input->GetStrips();
     vtkIdType nPts, *pts, cellId;
@@ -533,37 +533,37 @@ void vtkHoudiniPolyDataWriter::WriteData()
 
     stripArray->InitTraversal();
     while (stripArray->GetNextCell(nPts, pts))
-      {
+    {
       if (nPts > 3)
-        {
+      {
         file << "Run " << nPts - 2 << " Poly" << endl;
-        }
+      }
       else
-        {
+      {
         file << "Poly ";
-        }
+      }
 
       for (vtkIdType i = 2; i < nPts; i++)
-        {
+      {
         if (i%2 == 0)
-          {
+        {
           file << "3 < "
                << pts[i - 2] << " " << pts[i - 1] << " " << pts[i];
-          }
+        }
         else
-          {
+        {
           file << "3 < "
                << pts[i - 1] << " " << pts[i - 2] << " " << pts[i];
-          }
-        if (input->GetCellData()->GetNumberOfArrays() != 0)
-          {
-          file << " [" << cellAttributes[cellId] << "]";
-          }
-        file << endl;
         }
-      cellId++;
+        if (input->GetCellData()->GetNumberOfArrays() != 0)
+        {
+          file << " [" << cellAttributes[cellId] << "]";
+        }
+        file << endl;
       }
+      cellId++;
     }
+  }
 
   file << "beginExtra" << endl;
   file << "endExtra" << endl;

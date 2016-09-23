@@ -46,14 +46,14 @@ bool HasPrintableAttributes(vtkDataSetAttributes *attrs)
 {
   int numArrays = attrs->GetNumberOfArrays();
   for (int arrayIndex = 0; arrayIndex < numArrays; ++arrayIndex)
-    {
+  {
     vtkAbstractArray *array = attrs->GetAbstractArray(arrayIndex);
     const char* name = attrs->GetArrayName(arrayIndex);
     if (name && *name)
-      {
+    {
       return true;
-      }
     }
+  }
   return false;
 }
 
@@ -62,43 +62,43 @@ void PrintAttributes(vtkDataSetAttributes *attrs, vtkIdType index)
   bool printedAttr = false;
   int numArrays = attrs->GetNumberOfArrays();
   for (int arrayIndex = 0; arrayIndex < numArrays; ++arrayIndex)
-    {
+  {
     vtkAbstractArray *array = attrs->GetAbstractArray(arrayIndex);
     const char *name = attrs->GetArrayName(arrayIndex);
     if (name && *name)
-      {
+    {
       if (!printedAttr)
-        {
+      {
         cerr << " [";
         printedAttr = true;
-        }
+      }
       else
-        {
+      {
         cerr << ", ";
-        }
+      }
 
       cerr << name << " = \"" << array->GetVariantValue(index).ToString()
            << "\"";
-      }
     }
+  }
 
   if (printedAttr)
-    {
+  {
     cerr << "]";
-    }
+  }
 }
 
 void PrintGraph(vtkGraph *graph)
 {
   bool isDirected = vtkDirectedGraph::SafeDownCast(graph) != 0;
   if (isDirected)
-    {
+  {
     cerr << "digraph G {" << endl;
-    }
+  }
   else
-    {
+  {
     cerr << "graph G {" << endl;
-    }
+  }
 
   vtkDataSetAttributes *vertexData = graph->GetVertexData();
   vtkDataSetAttributes *edgeData = graph->GetEdgeData();
@@ -108,43 +108,43 @@ void PrintGraph(vtkGraph *graph)
     = vtkSmartPointer<vtkVertexListIterator>::New();
   graph->GetVertices(vertices);
   while (vertices->HasNext())
-    {
+  {
     vtkIdType u = vertices->Next();
 
     if (hasVertexAttributes)
-      {
+    {
       // Print vertex attributes
       cerr << "  " << u;
       PrintAttributes(vertexData, u);
       cerr << ";" << endl;
-      }
+    }
 
     vtkSmartPointer<vtkOutEdgeIterator> outEdges
       = vtkSmartPointer<vtkOutEdgeIterator>::New();
 
     graph->GetOutEdges(u, outEdges);
     while (outEdges->HasNext())
-      {
+    {
       // Print edge
       vtkOutEdgeType e = outEdges->Next();
       if (isDirected)
-        {
+      {
         cerr << "  " << u << " -> " << e.Target;
-        }
+      }
       else
-        {
+      {
         cerr << "  " << u << " -- " << e.Target;
-        }
+      }
 
       // Print edge attributes
       if (hasEdgeAttributes)
-        {
+      {
         // Print edge attributes
         PrintAttributes(edgeData, e.Id);
-        }
-      cerr << ";" << endl;
       }
+      cerr << ";" << endl;
     }
+  }
 
   cerr << "}" << endl;
 }
@@ -164,14 +164,14 @@ int TestPBGLCollectGraph(int argc, char* argv[])
   int errors = 0;
 
   if (argc > 6)
-    {
+  {
     wantVertices = boost::lexical_cast<vtkIdType>(argv[1]);
     wantEdges = boost::lexical_cast<vtkIdType>(argv[2]);
     A = boost::lexical_cast<double>(argv[3]);
     B = boost::lexical_cast<double>(argv[4]);
     C = boost::lexical_cast<double>(argv[5]);
     D = boost::lexical_cast<double>(argv[6]);
-    }
+  }
 
   // Set up a random graph source
   VTK_CREATE(vtkPBGLRMATGraphSource, source);
@@ -189,21 +189,21 @@ int TestPBGLCollectGraph(int argc, char* argv[])
 
   vtkGraph* output = vtkGraph::SafeDownCast(collect->GetOutput());
   if (world.rank() == 0)
-    {
+  {
     if (output->GetNumberOfVertices() != source->GetNumberOfVertices())
-      {
+    {
       cerr << "Output graph has the wrong number of vertices." << endl;
       ++errors;
-      }
+    }
 
     if (output->GetNumberOfEdges() != source->GetNumberOfEdges())
-      {
+    {
       cerr << "Output graph has the wrong number of edges." << endl;
       ++errors;
-      }
+    }
 
     PrintGraph(output);
-    }
+  }
 
   return 0;
 }

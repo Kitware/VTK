@@ -94,9 +94,9 @@ vtkOpenGLProjectedAAHexahedraMapper::~vtkOpenGLProjectedAAHexahedraMapper()
   this->ConvertedPoints->Delete();
   this->ConvertedScalars->Delete();
   if(this->Shader!=0)
-    {
+  {
     this->Shader->Delete();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -152,34 +152,34 @@ void vtkOpenGLProjectedAAHexahedraMapper::Initialize(
   bool result=texture3D && multiTexture && glsl && geometry_shader;
 
   if(result)
-    {
+  {
     if(gl12)
-      {
+    {
       e->LoadExtension("GL_VERSION_1_2");
-      }
+    }
     else
-      {
+    {
       e->LoadCorePromotedExtension("GL_EXT_texture3D");
-      }
+    }
     if(gl13)
-      {
+    {
       e->LoadExtension("GL_VERSION_1_3");
-      }
+    }
     else
-      {
+    {
       e->LoadCorePromotedExtension("GL_ARB_multitexture");
-      }
+    }
     if(gl20)
-      {
+    {
       e->LoadExtension("GL_VERSION_2_0");
-      }
+    }
     else
-      {
+    {
       e->LoadCorePromotedExtension("GL_ARB_shading_language_100");
       e->LoadCorePromotedExtension("GL_ARB_shader_objects");
       e->LoadCorePromotedExtension("GL_ARB_vertex_shader");
       e->LoadCorePromotedExtension("GL_ARB_fragment_shader");
-      }
+    }
     e->LoadExtension("GL_EXT_geometry_shader4");
 
     this->Initialized=true;
@@ -188,7 +188,7 @@ void vtkOpenGLProjectedAAHexahedraMapper::Initialize(
     min_points = new float[3*max_points];
     node_data1 = new float[4*max_points];
     node_data2 = new float[4*max_points];
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -199,9 +199,9 @@ void vtkOpenGLProjectedAAHexahedraMapper::Render(vtkRenderer *renderer,
   vtkOpenGLClearErrorMacro();
 
   if ( !this->Initialized )
-    {
+  {
     this->Initialize(renderer, volume);
-    }
+  }
   vtkUnstructuredGridBase *input = this->GetInput();
   vtkVolumeProperty *property = volume->GetProperty();
 
@@ -210,33 +210,33 @@ void vtkOpenGLProjectedAAHexahedraMapper::Render(vtkRenderer *renderer,
   // Check to see if input changed.
   if (   (this->InputAnalyzedTime < this->MTime)
          || (this->InputAnalyzedTime < input->GetMTime()) )
-    {
+  {
     this->GaveError = 0;
 
     if (input->GetNumberOfCells() == 0)
-      {
+    {
       // Apparently, the input has no cells.  Just do nothing.
       return;
-      }
+    }
 
     vtkIdType npts, *pts;
     vtkSmartPointer<vtkCellIterator> cellIter =
         vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
     for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal();
          cellIter->GoToNextCell())
-      {
+    {
       npts = cellIter->GetNumberOfPoints();
       pts = cellIter->GetPointIds()->GetPointer(0);
       int j;
       if (npts != 8)
-        {
+      {
         if (!this->GaveError)
-          {
+        {
           vtkErrorMacro("Encountered non-hexahedral cell!");
           this->GaveError = 1;
-          }
-        continue;
         }
+        continue;
+      }
 
       double p[3];
       input->GetPoint(pts[0], p);
@@ -244,84 +244,84 @@ void vtkOpenGLProjectedAAHexahedraMapper::Render(vtkRenderer *renderer,
         max[3] = {p[0],p[1],p[2]};
 
         for(j = 1; j < npts; j++)
-          {
+        {
           input->GetPoint(pts[j], p);
 
           if (p[0]<min[0])
-            {
+          {
             min[0] = p[0];
-            }
-          if (p[1]<min[1])
-            {
-            min[1] = p[1];
-            }
-          if (p[2]<min[2])
-            {
-            min[2] = p[2];
-            }
-          if (p[0]>max[0])
-            {
-            max[0] = p[0];
-            }
-          if (p[1]>max[1])
-            {
-            max[1] = p[1];
-            }
-          if (p[2]>max[2])
-            {
-            max[2] = p[2];
-            }
           }
+          if (p[1]<min[1])
+          {
+            min[1] = p[1];
+          }
+          if (p[2]<min[2])
+          {
+            min[2] = p[2];
+          }
+          if (p[0]>max[0])
+          {
+            max[0] = p[0];
+          }
+          if (p[1]>max[1])
+          {
+            max[1] = p[1];
+          }
+          if (p[2]>max[2])
+          {
+            max[2] = p[2];
+          }
+        }
 
         float size = static_cast<float>(
           vtkMath::Distance2BetweenPoints(min, max));
         if (size > this->MaxCellSize)
-          {
+        {
           this->MaxCellSize = size;
-          }
-      }
+        }
+    }
 
     this->InputAnalyzedTime.Modified();
-    }
+  }
 
   if (renderer->GetRenderWindow()->CheckAbortStatus() || this->GaveError)
-    {
+  {
     return;
-    }
+  }
 
   // Check to see if we need to rebuild preintegartion texture.
   if (   !this->PreintTexture
          || (last_max_cell_size != this->MaxCellSize)
          || (this->LastProperty != property)
          || (this->PreintTextureTime < property->GetMTime()) )
-    {
+  {
     if (!this->PreintTexture)
-      {
+    {
       GLuint texid;
       glGenTextures(1, &texid);
       this->PreintTexture = texid;
-      }
+    }
     vtkDataArray *scalars = this->GetScalars(input, this->ScalarMode,
                                              this->ArrayAccessMode,
                                              this->ArrayId, this->ArrayName,
                                              this->UsingCellColors);
     if (!scalars)
-      {
+    {
       vtkErrorMacro(<< "Can't use projected tetrahedra without scalars!");
       return;
-      }
+    }
 
     this->UpdatePreintegrationTexture(volume, scalars);
 
     this->PreintTextureTime.Modified();
 
     this->LastProperty = property;
-    }
+  }
 
   if (renderer->GetRenderWindow()->CheckAbortStatus())
-    {
+  {
     return;
-    }
+  }
 
   this->Timer->StartTimer();
 
@@ -500,10 +500,10 @@ void vtkOpenGLProjectedAAHexahedraMapper::RenderHexahedron(float vmin[3],
 
   // need to flush?
   if (num_points >= max_points)
-    {
+  {
     glDrawArrays(GL_POINTS, 0, num_points);
     num_points=0;
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -513,10 +513,10 @@ void vtkOpenGLProjectedAAHexahedraMapper::UnsetState()
 
   // flush what remains of our points
   if (this->num_points>0)
-    {
+  {
     glDrawArrays(GL_POINTS, 0, this->num_points);
     this->num_points = 0;
-    }
+  }
 
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_COLOR_ARRAY);
@@ -542,9 +542,9 @@ void vtkOpenGLProjectedAAHexahedraMapperConvertScalars(
   float *out_scalars)
 {
   for(int i=0;i<num_scalars;i++)
-    {
+  {
     out_scalars[i] = static_cast<float>(in_scalars[i]);
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -555,13 +555,13 @@ float* vtkOpenGLProjectedAAHexahedraMapper::ConvertScalars(
   this->ConvertedScalars->SetNumberOfComponents(1);
   this->ConvertedScalars->SetNumberOfTuples(inScalars->GetNumberOfTuples());
   switch (inScalars->GetDataType())
-    {
+  {
     vtkTemplateMacro(vtkOpenGLProjectedAAHexahedraMapperConvertScalars(
                        static_cast<const VTK_TT *>(
                          inScalars->GetVoidPointer(0)),
                        inScalars->GetNumberOfTuples(),
                        this->ConvertedScalars->GetPointer(0) ) );
-    }
+  }
   return this->ConvertedScalars->GetPointer(0);
 }
 
@@ -573,9 +573,9 @@ void vtkOpenGLProjectedAAHexahedraMapperConvertPoints(
   float *out_points)
 {
   for(int i=0;i<num_points*3;i++)
-    {
+  {
     out_points[i] = static_cast<float>(in_points[i]);
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -585,13 +585,13 @@ float* vtkOpenGLProjectedAAHexahedraMapper::ConvertPoints(vtkPoints* inPoints)
   this->ConvertedPoints->SetNumberOfComponents(3);
   this->ConvertedPoints->SetNumberOfTuples(inPoints->GetNumberOfPoints());
   switch (inPoints->GetDataType())
-    {
+  {
     vtkTemplateMacro(vtkOpenGLProjectedAAHexahedraMapperConvertPoints(
                        static_cast<const VTK_TT *>(
                          inPoints->GetVoidPointer(0)),
                        inPoints->GetNumberOfPoints(),
                        this->ConvertedPoints->GetPointer(0) ) );
-    }
+  }
   return this->ConvertedPoints->GetPointer(0);
 }
 
@@ -621,9 +621,9 @@ void vtkOpenGLProjectedAAHexahedraMapper::ProjectHexahedra(
                                                    this->UsingCellColors) );
 
   if (renderer->GetRenderWindow()->CheckAbortStatus())
-    {
+  {
     return;
-    }
+  }
 
   this->SetState(observer);
 
@@ -635,17 +635,17 @@ void vtkOpenGLProjectedAAHexahedraMapper::ProjectHexahedra(
   for (vtkIdTypeArray *sorted_cell_ids = this->VisibilitySort->GetNextCells();
        sorted_cell_ids != NULL;
        sorted_cell_ids = this->VisibilitySort->GetNextCells())
-    {
+  {
     this->UpdateProgress(static_cast<double>(numcellsrendered)/
                          static_cast<double>(totalnumcells));
     if (renderer->GetRenderWindow()->CheckAbortStatus())
-      {
+    {
       break;
-      }
+    }
     vtkIdType *cell_ids = sorted_cell_ids->GetPointer(0);
     vtkIdType num_cell_ids = sorted_cell_ids->GetNumberOfTuples();
     for (vtkIdType i = 0; i < num_cell_ids; i++)
-      {
+    {
       vtkIdType cell = cell_ids[i];
       input->GetCellPoints(cell, cellPtIds.GetPointer());
 
@@ -660,35 +660,35 @@ void vtkOpenGLProjectedAAHexahedraMapper::ProjectHexahedra(
 
         int j;
         for(j = 1; j < 8; j++)
-          {
+        {
           index = cellPtIds->GetId(j);
 
           p = points + 3 * index;
           if (p[0]<vmin[0])
-            {
+          {
             vmin[0] = p[0];
-            }
-          if (p[1]<vmin[1])
-            {
-            vmin[1] = p[1];
-            }
-          if (p[2]<vmin[2])
-            {
-            vmin[2] = p[2];
-            }
-          if (p[0]>vmax[0])
-            {
-            vmax[0] = p[0];
-            }
-          if (p[1]>vmax[1])
-            {
-            vmax[1] = p[1];
-            }
-          if (p[2]>vmax[2])
-            {
-            vmax[2] = p[2];
-            }
           }
+          if (p[1]<vmin[1])
+          {
+            vmin[1] = p[1];
+          }
+          if (p[2]<vmin[2])
+          {
+            vmin[2] = p[2];
+          }
+          if (p[0]>vmax[0])
+          {
+            vmax[0] = p[0];
+          }
+          if (p[1]>vmax[1])
+          {
+            vmax[1] = p[1];
+          }
+          if (p[2]>vmax[2])
+          {
+            vmax[2] = p[2];
+          }
+        }
 
 
         float s = static_cast<float>(
@@ -700,47 +700,47 @@ void vtkOpenGLProjectedAAHexahedraMapper::ProjectHexahedra(
         corner_scalars[0] = s;
 
         for(j = 0; j < 8; j++)
-          {
+        {
           index = cellPtIds->GetId(j);
 
           p = points + 3 * index;
           int corner = 0;
           if (p[0]==vmax[0])
-            {
+          {
             corner += 4;
-            }
+          }
           if (p[1]==vmax[1])
-            {
+          {
             corner += 2;
-            }
+          }
           if (p[2]==vmax[2])
-            {
+          {
             corner += 1;
-            }
+          }
           static const int corner_tbl[] = {0, 4, 1, 5, 3, 7, 2, 6};
 
           s = static_cast<float>(
             (scalars[index] * this->ScalarScale + this->ScalarShift + 0.5)
             /this->ScalarResolution);
           if (s < mins)
-            {
+          {
             mins = s;
-            }
+          }
           if (s > maxs)
-            {
+          {
             maxs = s;
-            }
+          }
 
           corner_scalars[corner_tbl[corner]] = s;
 
-          }
+        }
 
         this->RenderHexahedron(vmin,vmax,corner_scalars);
 
-      }
+    }
 
     numcellsrendered += num_cell_ids;
-    }
+  }
 
   this->UnsetState();
 
@@ -752,23 +752,23 @@ void vtkOpenGLProjectedAAHexahedraMapper::ReleaseGraphicsResources(
   vtkWindow *win)
 {
   if (this->PreintTexture)
-    {
+  {
     GLuint texid = this->PreintTexture;
     glDeleteTextures(1, &texid);
     vtkOpenGLCheckErrorMacro("failed at glDeleteTextures");
     this->PreintTexture = 0;
-    }
+  }
   this->Superclass::ReleaseGraphicsResources(win);
   if(this->Initialized)
-    {
+  {
     delete[] pos_points;
     delete[] min_points;
     delete[] node_data1;
     delete[] node_data2;
     this->Initialized=false;
-    }
+  }
   if(this->Shader!=0)
-    {
+  {
     this->Shader->ReleaseGraphicsResources();
-    }
+  }
 }

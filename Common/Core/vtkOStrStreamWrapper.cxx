@@ -33,9 +33,9 @@ vtkOStrStreamWrapper::vtkOStrStreamWrapper()
 vtkOStrStreamWrapper::~vtkOStrStreamWrapper()
 {
   if(!this->Frozen)
-    {
+  {
     delete [] this->Result;
-    }
+  }
   delete &this->ostr;
 }
 
@@ -43,12 +43,12 @@ vtkOStrStreamWrapper::~vtkOStrStreamWrapper()
 char* vtkOStrStreamWrapper::str()
 {
   if(!this->Result)
-    {
+  {
     std::string s = static_cast<ostringstream*>(&this->ostr)->str();
     this->Result = new char[s.length()+1];
     strcpy(this->Result, s.c_str());
     this->freeze();
-    }
+  }
   return this->Result;
 }
 

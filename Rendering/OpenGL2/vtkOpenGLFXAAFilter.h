@@ -13,26 +13,29 @@
 
 =========================================================================*/
 
-// .NAME vtkOpenGLFXAAFilter - Perform FXAA antialiasing on the current
-// framebuffer.
-//
-// .SECTION Description
-// Call Execute() to run a FXAA antialiasing pass on the current OpenGL
-// framebuffer. See method documentation for tunable parameters.
-//
-// Based on the following implementation and description:
-//
-// Whitepaper:
-// http://developer.download.nvidia.com/assets/gamedev/files/sdk/11/FXAA_WhitePaper.pdf
-//
-// Sample implementation:
-// https://github.com/NVIDIAGameWorks/GraphicsSamples/blob/master/samples/es3-kepler/FXAA/FXAA3_11.h
-//
-// TODO there are currently some "banding" artifacts on some edges, particularly
-// single pixel lines. These seem to be caused by using a linear RGB input,
-// rather than a gamma-correct sRGB input. Future work should combine this pass
-// with a gamma correction pass to correct this. Bonus points for precomputing
-// luminosity into the sRGB's alpha channel to save cycles in the FXAA shader!
+/**
+ * @class   vtkOpenGLFXAAFilter
+ * @brief   Perform FXAA antialiasing on the current
+ * framebuffer.
+ *
+ *
+ * Call Execute() to run a FXAA antialiasing pass on the current OpenGL
+ * framebuffer. See method documentation for tunable parameters.
+ *
+ * Based on the following implementation and description:
+ *
+ * Whitepaper:
+ * http://developer.download.nvidia.com/assets/gamedev/files/sdk/11/FXAA_WhitePaper.pdf
+ *
+ * Sample implementation:
+ * https://github.com/NVIDIAGameWorks/GraphicsSamples/blob/master/samples/es3-kepler/FXAA/FXAA3_11.h
+ *
+ * TODO there are currently some "banding" artifacts on some edges, particularly
+ * single pixel lines. These seem to be caused by using a linear RGB input,
+ * rather than a gamma-correct sRGB input. Future work should combine this pass
+ * with a gamma correction pass to correct this. Bonus points for precomputing
+ * luminosity into the sRGB's alpha channel to save cycles in the FXAA shader!
+*/
 
 #ifndef vtkOpenGLFXAAFilter_h
 #define vtkOpenGLFXAAFilter_h
@@ -56,23 +59,28 @@ public:
   vtkTypeMacro(vtkOpenGLFXAAFilter, vtkObject)
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Perform FXAA on the current render buffer in @a ren.
+  /**
+   * Perform FXAA on the current render buffer in @a ren.
+   */
   void Execute(vtkOpenGLRenderer *ren);
 
-  // Description:
-  // Release all OpenGL state.
+  /**
+   * Release all OpenGL state.
+   */
   void ReleaseGraphicsResources();
 
-  // Description:
-  // Copy the configuration values from @a opts into this filter. Note that
-  // this copies the configuration values from opts -- it does not save the
-  // @a opts pointer.
+  /**
+   * Copy the configuration values from @a opts into this filter. Note that
+   * this copies the configuration values from opts -- it does not save the
+   * @a opts pointer.
+   */
   void UpdateConfiguration(vtkFXAAOptions *opts);
 
-  // Description:
-  // Parameter for tuning the FXAA implementation. See vtkFXAAOptions for
-  // details and suggested values.
+  //@{
+  /**
+   * Parameter for tuning the FXAA implementation. See vtkFXAAOptions for
+   * details and suggested values.
+   */
   vtkSetClampMacro(RelativeContrastThreshold, float, 0.f, 1.f)
   vtkGetMacro(RelativeContrastThreshold, float)
   vtkSetClampMacro(HardContrastThreshold, float, 0.f, 1.f)
@@ -88,6 +96,7 @@ public:
   vtkGetMacro(EndpointSearchIterations, int)
   virtual void SetDebugOptionValue(vtkFXAAOptions::DebugOption opt);
   vtkGetMacro(DebugOptionValue, vtkFXAAOptions::DebugOption)
+  //@}
 
 protected:
   vtkOpenGLFXAAFilter();

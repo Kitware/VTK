@@ -104,11 +104,11 @@ int TestMath(int,char *[])
   float correct[3] = {25.f/26.f, 5.f/26.f, 0.f};
   vtkMath::ProjectVector(a,b,projection);
   if(!fuzzyCompare3D(projection,correct))
-    {
+  {
     std::cerr << "ProjectVector failed! Should be (25./26., 5./26., 0) but it is ("
                   <<projection[0] << " " << projection[1] << " " << projection[2] << ")" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   }
 
   // Test ProjectVector2D float
@@ -120,11 +120,11 @@ int TestMath(int,char *[])
   float correct[3] = {25.f/26.f, 5.f/26.f};
   vtkMath::ProjectVector2D(a,b,projection);
   if(!fuzzyCompare2D(projection,correct))
-    {
+  {
     std::cerr << "ProjectVector failed! Should be (25./26., 5./26.) but it is ("
                   <<projection[0] << " " << projection[1] << ")" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   }
 
   // Test ProjectVector double
@@ -136,11 +136,11 @@ int TestMath(int,char *[])
   double correct[3] = {25./26., 5./26., 0};
   vtkMath::ProjectVector(a,b,projection);
   if(!fuzzyCompare3D(projection,correct))
-    {
+  {
     std::cerr << "ProjectVector failed! Should be (25./26., 5./26., 0) but it is ("
                   <<projection[0] << " " << projection[1] << " " << projection[2] << ")" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   }
 
   // Test ProjectVector2D double
@@ -152,11 +152,11 @@ int TestMath(int,char *[])
   double correct[3] = {25./26., 5./26.};
   vtkMath::ProjectVector2D(a,b,projection);
   if(!fuzzyCompare2D(projection,correct))
-    {
+  {
     std::cerr << "ProjectVector failed! Should be (25./26., 5./26.) but it is ("
                   <<projection[0] << " " << projection[1] << ")" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   }
 
   // Tests for AngleBetweenVectors()
@@ -168,29 +168,29 @@ int TestMath(int,char *[])
   double expected = vtkMath::RadiansFromDegrees(90.0);
   double angle = vtkMath::AngleBetweenVectors(v1, v2);
   if (!fuzzyCompare1D(angle, expected))
-    {
+  {
     vtkGenericWarningMacro("AngleBetweenVectors(2,0,0 , 0,5,0) = " << expected << "  != " << angle);
     return EXIT_FAILURE;
-    }
+  }
 
   std::cout << "  * 0,0,0 vector, vector along y-axis" << std::endl;
   v1[0] = 0.0;
   expected = 0.0;
   angle = vtkMath::AngleBetweenVectors(v1, v2);
   if (!fuzzyCompare1D(angle, expected))
-    {
+  {
     vtkGenericWarningMacro("AngleBetweenVectors(0,0,0 , 0,5,0) = " << expected << "  != " << angle);
     return EXIT_FAILURE;
-    }
+  }
 
   std::cout << "  * 0,0,0 vector, 0,0,0 vector" << std::endl;
   v2[1] = 0.0;
   angle = vtkMath::AngleBetweenVectors(v1, v2);
   if (!fuzzyCompare1D(angle, expected))
-    {
+  {
     vtkGenericWarningMacro("AngleBetweenVectors(0,0,0 , 0,0,0) = " << expected << "  != " << angle);
     return EXIT_FAILURE;
-    }
+  }
 
   std::cout << "  * z unit vector, negative z vector" << std::endl;
   v1[2] = 1.0;
@@ -198,16 +198,16 @@ int TestMath(int,char *[])
   expected = vtkMath::RadiansFromDegrees(180.0);
   angle = vtkMath::AngleBetweenVectors(v1, v2);
   if (!fuzzyCompare1D(angle, expected))
-    {
+  {
     vtkGenericWarningMacro("AngleBetweenVectors(z unit , neg z) = " << expected << "  != " << angle);
     return EXIT_FAILURE;
-    }
+  }
   angle = vtkMath::AngleBetweenVectors(v2, v1);
   if (!fuzzyCompare1D(angle, expected))
-    {
+  {
     vtkGenericWarningMacro("AngleBetweenVectors(neg z , z unit) = " << expected << "  != " << angle);
     return EXIT_FAILURE;
-    }
+  }
 
   std::cout << "  * z unit vector, 4,4,4" << std::endl;
   v2[0] = 4.0;
@@ -216,10 +216,10 @@ int TestMath(int,char *[])
   expected = 0.9553166181245093; // vtkMath::RadiansFromDegrees(54.735610317245346);
   angle = vtkMath::AngleBetweenVectors(v1, v2);
   if (!fuzzyCompare1D(angle, expected))
-    {
+  {
     vtkGenericWarningMacro("AngleBetweenVectors(z unit , 4,4,4) = " << expected << "  != " << angle);
     return EXIT_FAILURE;
-    }
+  }
 
   std::cout << "  * y unit vector, 4,4,4" << std::endl;
   v1[0] = 0.0;
@@ -227,10 +227,10 @@ int TestMath(int,char *[])
   v1[2] = 0.0;
   angle = vtkMath::AngleBetweenVectors(v1, v2);
   if (!fuzzyCompare1D(angle, expected))
-    {
+  {
     vtkGenericWarningMacro("AngleBetweenVectors(y unit , 4,4,4) = " << expected << "  != " << angle);
     return EXIT_FAILURE;
-    }
+  }
 
   std::cout << "  * x unit vector, 4,4,4" << std::endl;
   v1[0] = 1.0;
@@ -238,38 +238,38 @@ int TestMath(int,char *[])
   v1[2] = 0.0;
   angle = vtkMath::AngleBetweenVectors(v1, v2);
   if (!fuzzyCompare1D(angle, expected))
-    {
+  {
     vtkGenericWarningMacro("AngleBetweenVectors(x unit , 4,4,4) = " << expected << "  != " << angle);
     return EXIT_FAILURE;
-    }
+  }
   }
 
   // Tests for GaussianAmplitude(double,double)
   {
   double gaussianAmplitude = vtkMath::GaussianAmplitude(1.0, 0);
   if (!fuzzyCompare1DWeak(gaussianAmplitude, 0.39894))
-    {
+  {
     vtkGenericWarningMacro("GaussianAmplitude(1,0) = 0.39894 " <<" != " << gaussianAmplitude);
     return EXIT_FAILURE;
-    }
+  }
   }
 
   {
   double gaussianAmplitude = vtkMath::GaussianAmplitude(2.0, 0);
   if (!fuzzyCompare1DWeak(gaussianAmplitude, 0.28209))
-    {
+  {
     vtkGenericWarningMacro("GaussianAmplitude(2,0) = 0.28209 " <<" != " << gaussianAmplitude);
     return EXIT_FAILURE;
-    }
+  }
   }
 
   {
   double gaussianAmplitude = vtkMath::GaussianAmplitude(1.0, 1.0);
   if (!fuzzyCompare1DWeak(gaussianAmplitude, 0.24197))
-    {
+  {
     vtkGenericWarningMacro("GaussianAmplitude(1,2) = 0.24197 " <<" != " << gaussianAmplitude);
     return EXIT_FAILURE;
-    }
+  }
   }
 
   // Tests for GaussianAmplitude(double,double,double)
@@ -277,47 +277,47 @@ int TestMath(int,char *[])
   {
   double gaussianAmplitude = vtkMath::GaussianAmplitude(0, 1.0, 1.0);
   if (!fuzzyCompare1DWeak(gaussianAmplitude, 0.24197))
-    {
+  {
     vtkGenericWarningMacro("GaussianAmplitude(0,1,1) = 0.24197 " <<" != " << gaussianAmplitude);
     return EXIT_FAILURE;
-    }
+  }
   }
 
   {
   double gaussianAmplitude = vtkMath::GaussianAmplitude(1.0, 1.0, 2.0);
   if (!fuzzyCompare1DWeak(gaussianAmplitude, 0.24197))
-    {
+  {
     vtkGenericWarningMacro("GaussianAmplitude(1,1,2) = 0.24197 " <<" != " << gaussianAmplitude);
     return EXIT_FAILURE;
-    }
+  }
   }
 
   // Tests for GaussianWeight(double,double)
   {
   double gaussianWeight = vtkMath::GaussianWeight(1.0, 0);
   if (!fuzzyCompare1DWeak(gaussianWeight, 1.0))
-    {
+  {
     vtkGenericWarningMacro("GaussianWeight(1,0) = 1.0 " <<" != " << gaussianWeight);
     return EXIT_FAILURE;
-    }
+  }
   }
 
   {
   double gaussianWeight = vtkMath::GaussianWeight(2.0, 0);
   if (!fuzzyCompare1DWeak(gaussianWeight, 1.0))
-    {
+  {
     vtkGenericWarningMacro("GaussianWeight(2,0) = 1.0 " <<" != " << gaussianWeight);
     return EXIT_FAILURE;
-    }
+  }
   }
 
   {
   double gaussianWeight = vtkMath::GaussianWeight(1.0, 1.0);
   if (!fuzzyCompare1DWeak(gaussianWeight, 0.60653))
-    {
+  {
     vtkGenericWarningMacro("GaussianWeight(1,1) = 0.60653 " <<" != " << gaussianWeight);
     return EXIT_FAILURE;
-    }
+  }
   }
 
   // Tests for GaussianWeight(double,double,double)
@@ -325,43 +325,43 @@ int TestMath(int,char *[])
   {
   double gaussianWeight = vtkMath::GaussianWeight(0, 1.0, 1.0);
   if (!fuzzyCompare1DWeak(gaussianWeight, 0.60653))
-    {
+  {
     vtkGenericWarningMacro("GaussianWeight(0,1,1) = 0.60653 " <<" != " << gaussianWeight);
     return EXIT_FAILURE;
-    }
+  }
   }
 
   {
   double gaussianWeight = vtkMath::GaussianWeight(1.0, 1.0, 2.0);
   if (!fuzzyCompare1DWeak(gaussianWeight, 0.60653))
-    {
+  {
     vtkGenericWarningMacro("GaussianWeight(1,1,2) = 0.60653 " <<" != " << gaussianWeight);
     return EXIT_FAILURE;
-    }
+  }
   }
 
   int testIntValue;
 
   testIntValue = vtkMath::Factorial(5);
   if ( testIntValue != 120 )
-    {
+  {
     vtkGenericWarningMacro("Factorial(5) = "<<testIntValue<<" != 120");
     return 1;
-    }
+  }
 
   testIntValue = vtkMath::Binomial(8,3);
   if ( testIntValue != 56 )
-    {
+  {
     vtkGenericWarningMacro("Binomial(8,3) = "<<testIntValue<<" != 56");
     return 1;
-    }
+  }
 
   testIntValue = vtkMath::Binomial(5,3);
   if ( testIntValue != 10 )
-    {
+  {
     vtkGenericWarningMacro("Binomial(5,3) = "<<testIntValue<<" != 10");
     return 1;
-    }
+  }
 
   // test CeilLog2
   const static vtkTypeUInt64 testCeilLog2Inputs[7] = {
@@ -370,46 +370,46 @@ int TestMath(int,char *[])
   const static int testCeilLog2Outputs[7] = {
     0, 0, 5, 5, 6, 63, 64};
   for (int cl2 = 0; cl2 < 7; cl2++)
-    {
+  {
     int po2v = vtkMath::CeilLog2(testCeilLog2Inputs[cl2]);
     if (po2v != testCeilLog2Outputs[cl2])
-      {
+    {
       vtkGenericWarningMacro("CeilLog2(" <<
         testCeilLog2Inputs[cl2] << ") = " << po2v << " != " <<
         testCeilLog2Outputs[cl2]);
       return 1;
-      }
     }
+  }
 
   // test Min
   int iMin = 0;
   int iMax = 1;
   if (iMin != vtkMath::Min(iMin, iMax))
-    {
+  {
     vtkGenericWarningMacro("Min(" << iMin << ", " << iMax << " != " << iMin);
     return 1;
-    }
+  }
 
   double dMin = 3.0;
   double dMax = 4.1;
   if (dMin != vtkMath::Min(dMin, dMax))
-    {
+  {
     vtkGenericWarningMacro("Min(" << dMin << ", " << dMax << " != " << dMin);
     return 1;
-    }
+  }
 
   // test Max
   if (iMax != vtkMath::Max(iMin, iMax))
-    {
+  {
     vtkGenericWarningMacro("Max(" << iMin << ", " << iMax << " != " << iMax);
     return 1;
-    }
+  }
 
   if (dMax != vtkMath::Max(dMin, dMax))
-    {
+  {
     vtkGenericWarningMacro("Max(" << dMin << ", " << dMax << " != " << dMax);
     return 1;
-    }
+  }
 
   // test is-power-of-two
   const static vtkTypeUInt64 isPowerOfTwoInputs[16] = {
@@ -418,16 +418,16 @@ int TestMath(int,char *[])
   const static int isPowerOfTwoOutputs[16] = {
     0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0 };
   for (int ip2 = 0; ip2 < 10; ip2++)
-    {
+  {
     int ip2v = vtkMath::IsPowerOfTwo(isPowerOfTwoInputs[ip2]);
     if (ip2v ^ isPowerOfTwoOutputs[ip2])
-      {
+    {
       vtkGenericWarningMacro("IsPowerOfTwo(" <<
         isPowerOfTwoInputs[ip2] << ") = " << ip2v << " != " <<
         isPowerOfTwoOutputs[ip2]);
       return 1;
-      }
     }
+  }
 
   // test nearest-power-of-two
   const static int testPowerOfTwoInputs[10] = {
@@ -435,16 +435,16 @@ int TestMath(int,char *[])
   const static int testPowerOfTwoOutputs[10] = {
     1, 1, 32, 32, 64, 1, 1, VTK_INT_MIN, 1073741824, VTK_INT_MIN };
   for (int po2 = 0; po2 < 10; po2++)
-    {
+  {
     int po2v = vtkMath::NearestPowerOfTwo(testPowerOfTwoInputs[po2]);
     if (po2v != testPowerOfTwoOutputs[po2])
-      {
+    {
       vtkGenericWarningMacro("NearestPowerOfTwo(" <<
         testPowerOfTwoInputs[po2] << ") = " << po2v << " != " <<
         testPowerOfTwoOutputs[po2]);
       return 1;
-      }
     }
+  }
 
   // test Floor and Ceil
   const static double fcInputs[19] = {
@@ -462,24 +462,24 @@ int TestMath(int,char *[])
     0, 0, 1,  1, 1, 2,  2, 2, 3,  -1, -1, 0,  -2, -2, -1,
     VTK_INT_MAX, VTK_INT_MAX,  VTK_INT_MIN, VTK_INT_MIN+1 };
   for (int fcc = 0; fcc < 19; fcc++)
-    {
+  {
     int floorOut = vtkMath::Floor(fcInputs[fcc]);
     int ceilOut = vtkMath::Ceil(fcInputs[fcc]);
     if (floorOut != floorOutputs[fcc])
-      {
+    {
       vtkGenericWarningMacro("Floor(" <<
         fcInputs[fcc] << ") = " << floorOut << " != " <<
         floorOutputs[fcc]);
       return 1;
-      }
+    }
     if (ceilOut != ceilOutputs[fcc])
-      {
+    {
       vtkGenericWarningMacro("Ceil(" <<
         fcInputs[fcc] << ") = " << ceilOut << " != " <<
         ceilOutputs[fcc]);
       return 1;
-      }
     }
+  }
 
   // Test add, subtract, scalar multiplication.
   double a[3] = {1.0, 2.0, 3.0};
@@ -497,41 +497,41 @@ int TestMath(int,char *[])
 
   vtkMath::Add(a, b, c);
   if (!fuzzyCompare3D(c, ans1))
-    {
+  {
     vtkGenericWarningMacro("Double addition failed.");
     return 1;
-    }
+  }
   vtkMath::Subtract(a, b, c);
   if (!fuzzyCompare3D(c, ans2))
-    {
+  {
     vtkGenericWarningMacro("Double subtraction failed.");
     return 1;
-    }
+  }
   vtkMath::MultiplyScalar(a, 3.0);
   if (!fuzzyCompare3D(a, ans3))
-    {
+  {
     vtkGenericWarningMacro("Double scalar multiplication failed.");
     return 1;
-    }
+  }
   vtkMath::Add(af, bf, cf);
   if (!fuzzyCompare3D(cf, ans1f))
-    {
+  {
     vtkGenericWarningMacro("Float addition failed.");
 	cout << "Result: { " << cf[0] << ", " << cf[1] << ", " << cf[2] << " }" << endl;
     return 1;
-    }
+  }
   vtkMath::Subtract(af, bf, cf);
   if (!fuzzyCompare3D(cf, ans2f))
-    {
+  {
     vtkGenericWarningMacro("Float subtraction failed.");
     return 1;
-    }
+  }
   vtkMath::MultiplyScalar(af, 3.0f);
   if (!fuzzyCompare3D(af, ans3f))
-    {
+  {
     vtkGenericWarningMacro("Float scalar multiplication failed.");
     return 1;
-    }
+  }
 
   // Test color conversion.
   int colorsPassed = 1;
@@ -557,9 +557,9 @@ int TestMath(int,char *[])
                                    Triple(0.0, 0.0, 0.0));            // CIELAB
 
   if (!colorsPassed)
-    {
+  {
     return 1;
-    }
+  }
 
   if (!TestSpecialDoubles(0, false, false)) return 1;
   if (!TestSpecialDoubles(5, false, false)) return 1;
@@ -568,15 +568,15 @@ int TestMath(int,char *[])
   if (!TestSpecialDoubles(vtkMath::Nan(), false, true)) return 1;
 
   if (!(0 < vtkMath::Inf()))
-    {
+  {
     vtkGenericWarningMacro(<< "Odd comparison for infinity.");
     return 1;
-    }
+  }
   if (!(0 > vtkMath::NegInf()))
-    {
+  {
     vtkGenericWarningMacro(<< "Odd comparison for negative infinity.");
     return 1;
-    }
+  }
 
   return 0;
 }
@@ -595,11 +595,11 @@ static int TestColorConvert(const Triple &rgb, const Triple &hsv,
 
 #define COMPARE(testname, target, dest) \
   if (target != dest)                              \
-    { \
+  { \
     vtkGenericWarningMacro(<< "Incorrect " #testname " conversion.  Got " \
                            << dest << " expected " << target); \
     return 0; \
-    }
+  }
 
   // Test conversion between RGB and HSV.
   vtkMath::RGBToHSV(rgb(), result1());
@@ -682,16 +682,16 @@ static int TestSpecialDoublesReal(double value, const char *name,
   cout << "Testing comparison of " << name << " to non-finite values." << endl;
   cout << "  * IsNan test." << endl;
   if (vtkMath::IsNan(value) != static_cast<int>(nantest))
-    {
+  {
     cout << value << " failed the IsNan test." << endl;
     return 0;
-    }
+  }
   cout << "  * IsInf test." << endl;
   if (vtkMath::IsInf(value) != static_cast<int>(inftest))
-    {
+  {
     cout << value << " failed the IsInf test." << endl;
     return 0;
-    }
+  }
   cout << "  * Tests passed." << endl;
 
   return 1;

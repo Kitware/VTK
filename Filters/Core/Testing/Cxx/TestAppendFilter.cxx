@@ -50,9 +50,9 @@ void FillComponentWithRandom(vtkIntArray* array, int component)
   int numberOfComponents = array->GetNumberOfComponents();
   int* values = static_cast<int*>(array->GetVoidPointer(0));
   for (vtkIdType i = 0; i < array->GetNumberOfTuples(); ++i)
-    {
+  {
     values[i*numberOfComponents + component] = vtkMath::Random()*100000;
-    }
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -63,52 +63,52 @@ void CreateDataset(vtkPolyData* dataset,
                    int numberOfCells, const std::vector<DataArrayInfo> & cellArrayInfo)
 {
   for (size_t i = 0; i < pointArrayInfo.size(); ++i)
-    {
+  {
     vtkSmartPointer<vtkIntArray> array = vtkSmartPointer<vtkIntArray>::New();
     if (pointArrayInfo[i].Name != "(null)")
-      {
+    {
       array->SetName(pointArrayInfo[i].Name.c_str());
-      }
+    }
     array->SetNumberOfComponents(pointArrayInfo[i].NumberOfComponents);
     array->SetNumberOfTuples(numberOfPoints);
     for (size_t c = 0; c < pointArrayInfo[i].Value.size(); ++c)
-      {
+    {
       FillComponentWithRandom(array, static_cast<int>(c));
-      }
-    dataset->GetPointData()->AddArray(array);
     }
+    dataset->GetPointData()->AddArray(array);
+  }
 
   for (size_t i = 0; i < cellArrayInfo.size(); ++i)
-    {
+  {
     vtkSmartPointer<vtkIntArray> array = vtkSmartPointer<vtkIntArray>::New();
     if (cellArrayInfo[i].Name != "(null)")
-      {
+    {
       array->SetName(cellArrayInfo[i].Name.c_str());
-      }
+    }
     array->SetNumberOfComponents(cellArrayInfo[i].NumberOfComponents);
     array->SetNumberOfTuples(numberOfCells);
     for (size_t c = 0; c < cellArrayInfo[i].Value.size(); ++c)
-      {
+    {
       FillComponentWithRandom(array, static_cast<int>(c));
-      }
-    dataset->GetCellData()->AddArray(array);
     }
+    dataset->GetCellData()->AddArray(array);
+  }
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   vtkNew<vtkIdList> ids;
   dataset->Allocate(numberOfPoints);
   for (vtkIdType i = 0; i < numberOfPoints; ++i)
-    {
+  {
     points->InsertNextPoint( vtkMath::Random(), vtkMath::Random(), vtkMath::Random() );
     ids->InsertId(0, i);
-    }
+  }
 
   for (vtkIdType i = 0; i < numberOfCells; ++i)
-    {
+  {
     // Repeat references to points if needed.
     vtkIdType pointId = i % numberOfPoints;
     dataset->InsertNextCell(VTK_VERTEX, 1, &pointId);
-    }
+  }
 
   dataset->SetPoints( points );
 }
@@ -121,9 +121,9 @@ void CreateDataset(vtkPolyData* dataset,
 int strcmp_null(const char* s1, const char* s2)
 {
   if (s1 == NULL)
-    {
+  {
     return (s2 != NULL);
-    }
+  }
 
   return strcmp(s1, s2);
 }
@@ -138,7 +138,7 @@ int PrintAndCheck(const std::vector<vtkPolyData*>& inputs, vtkDataSet* output,
   std::cout << "Evaluating '" << dataArrays->GetClassName() << "'\n";
 
   for (int arrayIndex = 0; arrayIndex < dataArrays->GetNumberOfArrays(); ++arrayIndex)
-    {
+  {
     vtkIntArray* outputArray = vtkArrayDownCast<vtkIntArray>(dataArrays->GetArray(arrayIndex));
     const char* outputArrayName = outputArray->GetName();
     std::cout << "Array " << arrayIndex << " - ";
@@ -146,184 +146,184 @@ int PrintAndCheck(const std::vector<vtkPolyData*>& inputs, vtkDataSet* output,
     int numTuples = outputArray->GetNumberOfTuples();
     int numComponents = outputArray->GetNumberOfComponents();
     for (int i = 0; i < numTuples; ++i)
-      {
+    {
       if (numComponents > 1) std::cout << "(";
       for (int j = 0; j < numComponents; ++j)
-        {
+      {
         std::cout << outputArray->GetComponent(i, j);
         if (j < numComponents-1) std::cout << ", ";
-        }
+      }
       if (numComponents > 1) std::cout << ")";
       if (i < numTuples - 1) std::cout << ", ";
-      }
-    std::cout << " ]\n";
     }
+    std::cout << " ]\n";
+  }
 
   // Test the output
   for (int arrayIndex = 0; arrayIndex < dataArrays->GetNumberOfArrays(); ++arrayIndex)
-    {
+  {
     vtkIntArray* outputArray = vtkArrayDownCast<vtkIntArray>(dataArrays->GetArray(arrayIndex));
     const char* arrayName = outputArray->GetName();
     if (arrayName == NULL)
-      {
+    {
       // Arrays with NULL names can only come out of the filter if they are designated an attribute.
       // We'll check those later.
       continue;
-      }
+    }
 
     // Check that the number of tuples in the output match the sum of
     // the number of tuples in the input.
     vtkIdType numInputTuples = 0;
     for (size_t inputIndex = 0; inputIndex < inputs.size(); ++inputIndex)
-      {
+    {
       vtkDataArray* array = selector(inputs[inputIndex])->GetArray(arrayName);
       if (!array)
-        {
+      {
         std::cerr << "No array named '" << arrayName << "' in input " << inputIndex << "\n";
         return 0;
-        }
-      numInputTuples += array->GetNumberOfTuples();
       }
+      numInputTuples += array->GetNumberOfTuples();
+    }
     if (numInputTuples != outputArray->GetNumberOfTuples())
-      {
+    {
       std::cerr << "Number of tuples in output does not match total number of tuples in input arrays\n";
       return 0;
-      }
+    }
 
     // Now check that the filter placed the tuples in the correct order
     vtkIdType offset = 0;
     for (size_t inputIndex = 0; inputIndex < inputs.size(); ++inputIndex)
-      {
+    {
       vtkDataArray* array = selector(inputs[inputIndex])->GetArray(arrayName);
       for (int i = 0; i < array->GetNumberOfTuples(); ++i)
-        {
+      {
         for (int j = 0; j < array->GetNumberOfComponents(); ++j)
-          {
+        {
           if (array->GetComponent(i, j) != outputArray->GetComponent(i + offset, j))
-            {
+          {
             std::cerr << "Mismatched output at output tuple " << i << " component " << j
                       << " in input " << arrayIndex << "\n";
             return 0;
-            }
           }
         }
-      offset += array->GetNumberOfTuples();
       }
+      offset += array->GetNumberOfTuples();
     }
+  }
 
 
   for (int attributeIndex = 0; attributeIndex < vtkDataSetAttributes::NUM_ATTRIBUTES; ++attributeIndex)
-    {
+  {
     const char* attributeName = vtkDataSetAttributes::GetAttributeTypeAsString(attributeIndex);
 
     // Check if all of the inputs have an attribute
     vtkDataArray* outputAttributeArray = dataArrays->GetAttribute(attributeIndex);
     if (outputAttributeArray)
-      {
+    {
       std::cout << "Active attribute '" << attributeName << "' in output: "
                 << (outputAttributeArray->GetName() ?
                     outputAttributeArray->GetName() : "(null)")
                 << "\n";
-      }
+    }
 
     for (size_t inputIndex = 0; inputIndex < inputs.size(); ++inputIndex)
-      {
+    {
       vtkAbstractArray* inputAttributeArray =
         selector(inputs[inputIndex])->GetAbstractAttribute(attributeIndex);
 
       if (outputAttributeArray && !inputAttributeArray)
-        {
+      {
         std::cerr << "Output had attribute array for '" << attributeName
                   << "' but input " << inputIndex << " did not.\n";
         return 0;
-        }
+      }
       else if (outputAttributeArray && inputAttributeArray &&
                strcmp_null(outputAttributeArray->GetName(), inputAttributeArray->GetName()) != 0)
-        {
+      {
         std::cerr << "Output had array '"
                   << (outputAttributeArray->GetName() ? outputAttributeArray->GetName() : "(null)")
                   << "' specified as attribute '" << attributeName << "'\n";
         return 0;
-        }
       }
+    }
 
     // Now check whether we should a) have an output array if there isn't one specified
     // and b) the output array has the same name as the input attribute array names (maybe NULL)
     bool allInputsHaveAttribute = true;
     bool allInputsHaveSameName = true;
     for (size_t inputIndex = 0; inputIndex < inputs.size(); ++inputIndex)
-      {
+    {
       vtkAbstractArray* inputAttributeArray =
         selector(inputs[inputIndex])->GetAbstractAttribute(attributeIndex);
       if (!inputAttributeArray)
-        {
+      {
         allInputsHaveAttribute = false;
         break;
-        }
       }
+    }
     if (allInputsHaveAttribute)
-      {
+    {
       vtkAbstractArray* firstAttributeArray =
         selector(inputs[0])->GetAbstractAttribute(attributeIndex);
       for (size_t inputIndex = 1; inputIndex < inputs.size(); ++inputIndex)
-        {
+      {
         vtkAbstractArray* inputAttributeArray =
           selector(inputs[inputIndex])->GetAbstractAttribute(attributeIndex);
         if (strcmp_null(firstAttributeArray->GetName(), inputAttributeArray->GetName()) != 0)
-          {
+        {
           allInputsHaveSameName = false;
           break;
-          }
         }
       }
+    }
 
     if (allInputsHaveAttribute && allInputsHaveSameName)
-      {
+    {
       const char* attributeArrayName =
         selector(inputs[0])->GetAbstractAttribute(attributeIndex)->GetName();
       if (!outputAttributeArray)
-        {
+      {
         std::cerr << "Inputs all have the attribute '" << attributeName << "' set to the name '"
                   << (attributeArrayName ? attributeArrayName : "(null)") << "', but the output does not "
                   << "have this attribute\n";
         return 0;
-        }
+      }
       else if (strcmp_null(outputAttributeArray->GetName(), attributeArrayName) != 0)
-        {
+      {
         std::cerr << "Inputs have attribute '" << attributeName << "' set to the name '"
                   << (attributeArrayName ? attributeArrayName : "(null)") << "', but the output attribute "
                   << "has the attribute set to the name '"
                   << (outputAttributeArray->GetName() ? outputAttributeArray->GetName() : "(null)") << "\n";
         return 0;
-        }
+      }
       else
-        {
+      {
         // Output attribute array exists and has the right name. Now check the contents
         vtkIdType offset = 0;
         for (size_t inputIndex = 0; inputIndex < inputs.size(); ++inputIndex)
-          {
+        {
           vtkDataArray* attributeArray = selector(inputs[inputIndex])->GetAttribute(attributeIndex);
           if (!attributeArray)
-            {
+          {
             continue;
-            }
+          }
           for (int i = 0; i < attributeArray->GetNumberOfTuples(); ++i)
-            {
+          {
             for (int j = 0; j < attributeArray->GetNumberOfComponents(); ++j)
-              {
+            {
               if (attributeArray->GetComponent(i, j) != outputAttributeArray->GetComponent(i + offset, j))
-                {
+              {
                 std::cerr << "Mismatched output in attribute at output tuple " << i
                           << "component " << j << " in input " << inputIndex << "\n";
                 return 0;
-                }
               }
             }
-          offset += attributeArray->GetNumberOfTuples();
           }
+          offset += attributeArray->GetNumberOfTuples();
         }
       }
     }
+  }
 
   return 1;
 }
@@ -335,9 +335,9 @@ int PrintAndCheck(const std::vector<vtkPolyData*>& inputs, vtkDataSet* output,
 vtkDataSetAttributes* PointDataSelector(vtkDataSet* ds)
 {
   if (ds)
-    {
+  {
     return ds->GetPointData();
-    }
+  }
 
   return NULL;
 }
@@ -345,9 +345,9 @@ vtkDataSetAttributes* PointDataSelector(vtkDataSet* ds)
 vtkDataSetAttributes* CellDataSelector(vtkDataSet* ds)
 {
   if (ds)
-    {
+  {
     return ds->GetCellData();
-    }
+  }
 
   return NULL;
 }
@@ -360,20 +360,20 @@ int AppendDatasetsAndPrint(const std::vector<vtkPolyData*>& inputs)
 {
   vtkNew<vtkAppendFilter> append;
   for (size_t inputIndex = 0; inputIndex < inputs.size(); ++inputIndex)
-    {
+  {
     append->AddInputData( inputs[inputIndex] );
-    }
+  }
   append->Update();
   vtkUnstructuredGrid * output = append->GetOutput();
   if (!PrintAndCheck(inputs, output, PointDataSelector))
-    {
+  {
     return 0;
-    }
+  }
 #if 1
   if (!PrintAndCheck(inputs, output, CellDataSelector))
-    {
+  {
     return 0;
-    }
+  }
 #endif
 
   return 1;
@@ -438,10 +438,10 @@ int TestAppendFilter( int, char* [])
   inputs[0] = d1.GetPointer();
   inputs[1] = d2.GetPointer();
   if (!AppendDatasetsAndPrint(inputs))
-    {
+  {
     std::cerr << "vtkAppendFilter failed with no active scalars\n";
     return EXIT_FAILURE;
-    }
+  }
 
   // Set the active scalars in the first dataset to "A" and the active scalars in
   // the second dataset to "B".
@@ -453,10 +453,10 @@ int TestAppendFilter( int, char* [])
   std::cout << "===========================================================\n";
   std::cout << "Append result with 'A' active scalar in D1, 'B' active scalar in D2: " << std::endl;
   if (!AppendDatasetsAndPrint(inputs))
-    {
+  {
     std::cerr << "vtkAppendFilter failed with active scalar 'A' in D1, active scalar 'B' in D2\n";
     return EXIT_FAILURE;
-    }
+  }
 
   // Set the active scalars in the first dataset to "B" and the active scalars in
   // the second dataset to "A".
@@ -468,10 +468,10 @@ int TestAppendFilter( int, char* [])
   std::cout << "===========================================================\n";
   std::cout << "Append result with 'B' active scalar in D1, 'A' active scalar in D2: " << std::endl;
   if (!AppendDatasetsAndPrint(inputs))
-    {
+  {
     std::cerr << "vtkAppendFilter failed with active scalar 'B' in D1, active scalar 'A' in D2\n";
     return EXIT_FAILURE;
-    }
+  }
 
   // Set the active scalars in both datasets to "A"
   d1->GetPointData()->SetActiveScalars( "A" );
@@ -482,10 +482,10 @@ int TestAppendFilter( int, char* [])
   std::cout << "===========================================================\n";
   std::cout << "Append result with A active scalar in D1 and D2: " << std::endl;
   if (!AppendDatasetsAndPrint(inputs))
-    {
+  {
     std::cerr << "vtkAppendFilter failed with active scalar 'A' in D1, active scalar 'A' in D2\n";
     return EXIT_FAILURE;
-    }
+  }
 
   // Set the active scalars in both datasets to "B"
   d1->GetPointData()->SetActiveScalars( "B" );
@@ -496,10 +496,10 @@ int TestAppendFilter( int, char* [])
   std::cout << "===========================================================\n";
   std::cout << "Append result with B active scalar in D1 and D2: " << std::endl;
   if (!AppendDatasetsAndPrint(inputs))
-    {
+  {
     std::cerr << "vtkAppendFilter failed with active scalar 'B' in D1, active scalar 'B' in D2\n";
     return EXIT_FAILURE;
-    }
+  }
 
   std::vector<DataArrayInfo> d3PointInfo(3, DataArrayInfo());
   d3PointInfo[0].Name = "3";
@@ -529,10 +529,10 @@ int TestAppendFilter( int, char* [])
   inputs[0] = d1.GetPointer();
   inputs[1] = d3.GetPointer();
   if (!AppendDatasetsAndPrint(inputs))
-    {
+  {
     std::cerr << "vtkAppendFilter failed with no common array names and no active scalars\n";
     return EXIT_FAILURE;
-    }
+  }
 
   // Test appending of NULL array names with active scalars
   std::vector<DataArrayInfo> d4PointInfo(2, DataArrayInfo());
@@ -586,10 +586,10 @@ int TestAppendFilter( int, char* [])
   inputs[0] = d4.GetPointer();
   inputs[1] = d5.GetPointer();
   if (!AppendDatasetsAndPrint(inputs))
-    {
+  {
     std::cerr << "vtkAppendFilter failed with scalar arrays with NULL names\n";
     return EXIT_FAILURE;
-    }
+  }
 
   std::vector<DataArrayInfo> d6PointInfo(1, DataArrayInfo());
   d6PointInfo[0].Name = "Q";
@@ -626,10 +626,10 @@ int TestAppendFilter( int, char* [])
   inputs[0] = d6.GetPointer();
   inputs[1] = d7.GetPointer();
   if (!AppendDatasetsAndPrint(inputs))
-    {
+  {
     std::cerr << "vtkAppendFilter failed with scalar arrays with 2 components\n";
     return EXIT_FAILURE;
-    }
+  }
 
   std::vector<DataArrayInfo> d8PointInfo(1, DataArrayInfo());
   d8PointInfo[0].Name = "Q";
@@ -649,10 +649,10 @@ int TestAppendFilter( int, char* [])
   inputs[0] = d7.GetPointer();
   inputs[1] = d8.GetPointer();
   if (!AppendDatasetsAndPrint(inputs))
-    {
+  {
     std::cerr << "vtkAppendFilter failed with scalar arrays with same name but different components\n";
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

@@ -120,8 +120,8 @@ int TestLabeledContourMapperWithActorMatrix(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage(win.GetPointer());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
   return !retVal;
 }

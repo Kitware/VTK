@@ -228,10 +228,10 @@ int vtkFLUENTReader::RequestData(
   vtkInformationVector *outputVector)
 {
   if (!this->FileName)
-    {
+  {
     vtkErrorMacro("FileName has to be specified!");
     return 0;
-    }
+  }
 
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
@@ -246,12 +246,12 @@ int vtkFLUENTReader::RequestData(
   grid.resize(this->CellZones->value.size());
 
   for(int test=0; test < (int)this->CellZones->value.size(); test++)
-    {
+  {
     grid[test] = vtkUnstructuredGrid::New();
-    }
+  }
 
   for (int i = 0; i < (int)this->Cells->value.size(); i++)
-    {
+  {
     int location =
       std::find(this->CellZones->value.begin(),
                    this->CellZones->value.end(),
@@ -259,78 +259,78 @@ int vtkFLUENTReader::RequestData(
       this->CellZones->value.begin();
                                     ;
     if (this->Cells->value[i].type == 1 )
-      {
+    {
       for (int j = 0; j < 3; j++)
-        {
+      {
         this->Triangle->GetPointIds()->SetId(j, this->Cells->value[i].nodes[j]);
-        }
+      }
       grid[location]->InsertNextCell(this->Triangle->GetCellType(),
                                      this->Triangle->GetPointIds());
-      }
+    }
     else if (this->Cells->value[i].type == 2 )
-      {
+    {
       for (int j = 0; j < 4; j++)
-        {
+      {
         this->Tetra->GetPointIds()->SetId(j, Cells->value[i].nodes[j]);
-        }
+      }
       grid[location]->InsertNextCell(this->Tetra->GetCellType(),
                                      this->Tetra->GetPointIds());
-      }
+    }
     else if (this->Cells->value[i].type == 3 )
-      {
+    {
       for (int j = 0; j < 4; j++)
-        {
+      {
         this->Quad->GetPointIds()->SetId(j, this->Cells->value[i].nodes[j]);
-        }
+      }
       grid[location]->InsertNextCell(this->Quad->GetCellType(),
                                      this->Quad->GetPointIds());
-      }
+    }
     else if (this->Cells->value[i].type == 4 )
-      {
+    {
       for (int j = 0; j < 8; j++)
-        {
+      {
         this->Hexahedron->GetPointIds()->
               SetId(j, this->Cells->value[i].nodes[j]);
-        }
+      }
       grid[location]->InsertNextCell(this->Hexahedron->GetCellType(),
                                      this->Hexahedron->GetPointIds());
-      }
+    }
     else if (this->Cells->value[i].type == 5 )
-      {
+    {
       for (int j = 0; j < 5; j++)
-        {
+      {
         this->Pyramid->GetPointIds()->SetId(j, this->Cells->value[i].nodes[j]);
-        }
+      }
       grid[location]->InsertNextCell(this->Pyramid->GetCellType(),
                                      this->Pyramid->GetPointIds());
-      }
+    }
     else if (this->Cells->value[i].type == 6 )
-      {
+    {
       for (int j = 0; j < 6; j++)
-        {
+      {
         this->Wedge->GetPointIds()->SetId(j, this->Cells->value[i].nodes[j]);
-        }
+      }
       grid[location]->InsertNextCell(this->Wedge->GetCellType(),
                                      this->Wedge->GetPointIds());
-      }
+    }
     else if (this->Cells->value[i].type == 7 )
-      {
+    {
       this->ConvexPointSet->GetPointIds()->
             SetNumberOfIds(this->Cells->value[i].nodes.size());
       for (int j = 0; j < (int)this->Cells->value[i].nodes.size(); j++)
-        {
+      {
         this->ConvexPointSet->GetPointIds()->
               SetId(j, this->Cells->value[i].nodes[j]);
-        }
+      }
       grid[location]->InsertNextCell(this->ConvexPointSet->GetCellType(),
                                      this->ConvexPointSet->GetPointIds());
-      }
     }
+  }
 //  this->Cells->value.clear();
 
   //Scalar Data
   for (int l = 0; l < (int)this->ScalarDataChunks->value.size(); l++)
-    {
+  {
     int location =
       std::find(this->CellZones->value.begin(),
                    this->CellZones->value.end(),
@@ -340,21 +340,21 @@ int vtkFLUENTReader::RequestData(
     vtkDoubleArray *v = vtkDoubleArray::New();
     for (int m = 0; m <
          (int)this->ScalarDataChunks->value[l].scalarData.size(); m++)
-      {
+    {
       v->InsertValue(m, this->ScalarDataChunks->value[l].scalarData[m]);
-      }
+    }
     //v->SetName(this->ScalarVariableNames->
     //           value[l/this->CellZones->value.size()].c_str());
     v->SetName(this->VariableNames->
       value[this->ScalarDataChunks->value[l].subsectionId].c_str());
     grid[location]->GetCellData()->AddArray(v);
     v->Delete();
-    }
+  }
   this->ScalarDataChunks->value.clear();
 
   //Vector Data
   for (int l = 0; l < (int)this->VectorDataChunks->value.size(); l++)
-    {
+  {
     int location =
       std::find(this->CellZones->value.begin(),
                    this->CellZones->value.end(),
@@ -364,29 +364,29 @@ int vtkFLUENTReader::RequestData(
     v->SetNumberOfComponents(3);
     for (int m = 0;
          m < (int)this->VectorDataChunks->value[l].iComponentData.size(); m++)
-      {
+    {
       v->InsertComponent(m, 0,
                          this->VectorDataChunks->value[l].iComponentData[m]);
       v->InsertComponent(m, 1,
                          this->VectorDataChunks->value[l].jComponentData[m]);
       v->InsertComponent(m, 2,
                          this->VectorDataChunks->value[l].kComponentData[m]);
-      }
+    }
     //v->SetName(this->VectorVariableNames->
     //           value[l/this->CellZones->value.size()].c_str());
     v->SetName(this->VariableNames->
       value[this->VectorDataChunks->value[l].subsectionId].c_str());
     grid[location]->GetCellData()->AddArray(v);
     v->Delete();
-    }
+  }
   this->VectorDataChunks->value.clear();
 
   for(int addTo = 0; addTo < (int)this->CellZones->value.size(); addTo++)
-    {
+  {
     grid[addTo]->SetPoints(Points);
     output->SetBlock(addTo, grid[addTo]);
     grid[addTo]->Delete();
-    }
+  }
   return 1;
 }
 
@@ -406,22 +406,22 @@ int vtkFLUENTReader::RequestInformation(
   vtkInformationVector *vtkNotUsed(outputVector))
 {
   if (!this->FileName)
-    {
+  {
     vtkErrorMacro("FileName has to be specified!");
     return 0;
-    }
+  }
 
   if(!this->OpenCaseFile(this->FileName))
-    {
+  {
     vtkErrorMacro("Unable to open cas file.");
     return 0;
-    }
+  }
 
   int dat_file_opened = this->OpenDataFile(this->FileName);
   if(!dat_file_opened)
-    {
+  {
     vtkWarningMacro("Unable to open dat file.");
-    }
+  }
 
   this->LoadVariableNames();
   this->ParseCaseFile();  // Reads Necessary Information from the .cas file.
@@ -431,29 +431,29 @@ int vtkFLUENTReader::RequestInformation(
   this->NumberOfScalars = 0;
   this->NumberOfVectors = 0;
   if(dat_file_opened)
-    {
+  {
     this->ParseDataFile();
-    }
+  }
   for (int i = 0; i < (int)this->SubSectionIds->value.size(); i++)
-    {
+  {
     if (this->SubSectionSize->value[i] == 1)
-      {
+    {
       this->CellDataArraySelection->AddArray(this->VariableNames->value[this->
                                              SubSectionIds->value[i]].c_str());
       this->ScalarVariableNames->value.
         push_back(this->VariableNames->value[this->SubSectionIds->value[i]]);
       this->ScalarSubSectionIds->value.push_back(this->SubSectionIds->value[i]);
-      }
+    }
     else if (this->SubSectionSize->value[i] == 3)
-      {
+    {
       this->CellDataArraySelection->
             AddArray(this->VariableNames->
                      value[this->SubSectionIds->value[i]].c_str());
       this->VectorVariableNames->value.push_back(this->VariableNames->value[
                                             this->SubSectionIds->value[i]]);
       this->VectorSubSectionIds->value.push_back(this->SubSectionIds->value[i]);
-      }
     }
+  }
   this->NumberOfCells = (int)this->Cells->value.size();
   return 1;
 }
@@ -470,13 +470,13 @@ bool vtkFLUENTReader::OpenCaseFile(const char *filename)
 #endif
 
   if (!this->FluentCaseFile->fail())
-    {
+  {
     return true;
-    }
+  }
   else
-    {
+  {
     return false;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -501,13 +501,13 @@ int vtkFLUENTReader::GetCellArrayStatus(const char* name)
 void vtkFLUENTReader::SetCellArrayStatus(const char* name, int status)
 {
   if(status)
-    {
+  {
     this->CellDataArraySelection->EnableArray(name);
-    }
+  }
   else
-    {
+  {
     this->CellDataArraySelection->DisableArray(name);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -540,13 +540,13 @@ bool vtkFLUENTReader::OpenDataFile(const char *filename)
 #endif
 
   if (this->FluentDataFile->fail())
-    {
+  {
     return false;
-    }
+  }
   else
-    {
+  {
     return true;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -558,13 +558,13 @@ int vtkFLUENTReader::GetCaseChunk ()
   // Look for beginning of chunk
   //
   while(this->FluentCaseFile->peek() != '(')
-    {
+  {
     this->FluentCaseFile->get();
     if (this->FluentCaseFile->eof())
-      {
+    {
       return 0;
-      }
     }
+  }
 
   //
   // Figure out whether this is a binary or ascii chunk.
@@ -572,16 +572,16 @@ int vtkFLUENTReader::GetCaseChunk ()
   //
   std::string index;
   while(this->FluentCaseFile->peek() != ' ')
-    {
+  {
     //index.push_back(this->FluentCaseFile->peek());
         index += this->FluentCaseFile->peek();
         //this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
         this->CaseBuffer->value += this->FluentCaseFile->get();
     if (this->FluentCaseFile->eof())
-      {
+    {
       return 0;
-      }
     }
+  }
 
   index.erase(0,1);  // Get rid of the "("
 
@@ -592,7 +592,7 @@ int vtkFLUENTReader::GetCaseChunk ()
   //
 
   if (index.size() > 2)
-    {  // Binary Chunk
+  {  // Binary Chunk
     char end[120];
     strcpy(end, "End of Binary Section   ");
     strcat(end, index.c_str());
@@ -601,44 +601,44 @@ int vtkFLUENTReader::GetCaseChunk ()
 
     // Load the case buffer enough to start comparing to the end std::string.
     while (this->CaseBuffer->value.size() < len)
-      {
+    {
       //this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
       this->CaseBuffer->value += this->FluentCaseFile->get();
-      }
+    }
 
     //while (CaseBuffer.compare(CaseBuffer.size()-strlen(end),
     //strlen(end), end))
     while (strcmp(this->CaseBuffer->value.c_str()+
                    (this->CaseBuffer->value.size()-len), end))
-      {
+    {
       //this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
       this->CaseBuffer->value += this->FluentCaseFile->get();
-      }
-
     }
+
+  }
   else
-    {  // Ascii Chunk
+  {  // Ascii Chunk
     int level = 0;
     while ((this->FluentCaseFile->peek() != ')') || (level != 0) )
-      {
+    {
       //this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
       this->CaseBuffer->value += this->FluentCaseFile->get();
       if (this->CaseBuffer->value.at(this->CaseBuffer->value.length()-1) == '(')
-        {
+      {
         level++;
-        }
-      if (this->CaseBuffer->value.at(this->CaseBuffer->value.length()-1) == ')')
-        {
-        level--;
-        }
-      if (this->FluentCaseFile->eof())
-        {
-        return 0;
-        }
       }
+      if (this->CaseBuffer->value.at(this->CaseBuffer->value.length()-1) == ')')
+      {
+        level--;
+      }
+      if (this->FluentCaseFile->eof())
+      {
+        return 0;
+      }
+    }
     //this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
     this->CaseBuffer->value += this->FluentCaseFile->get();
-    }
+  }
   return 1;
 }
 
@@ -649,10 +649,10 @@ int vtkFLUENTReader::GetCaseIndex()
 
   int i = 1;
   while (this->CaseBuffer->value.at(i) != ' ')
-    {
+  {
     //sindex.push_back(this->CaseBuffer->value.at(i++));
     sindex += this->CaseBuffer->value.at(i++);
-    }
+  }
   return atoi(sindex.c_str());
 }
 
@@ -662,27 +662,27 @@ void vtkFLUENTReader::GetNumberOfCellZones()
   int match;
 
   for (int i = 0; i < (int)this->Cells->value.size(); i++)
-    {
+  {
     if (this->CellZones->value.size() == 0)
-      {
+    {
       this->CellZones->value.push_back(this->Cells->value[i].zone);
-      }
+    }
     else
-      {
+    {
       match = 0;
       for (int j = 0; j < (int)this->CellZones->value.size(); j++)
-        {
+      {
         if (this->CellZones->value[j] == this->Cells->value[i].zone)
-          {
-          match = 1;
-          }
-        }
-      if (match == 0)
         {
-        this->CellZones->value.push_back(this->Cells->value[i].zone);
+          match = 1;
         }
       }
+      if (match == 0)
+      {
+        this->CellZones->value.push_back(this->Cells->value[i].zone);
+      }
     }
+  }
 }
 
 
@@ -693,10 +693,10 @@ int vtkFLUENTReader::GetDataIndex()
 
   int i = 1;
   while (this->DataBuffer->value.at(i) != ' ')
-    {
+  {
     //sindex.push_back(this->DataBuffer->value.at(i++));
     sindex += this->DataBuffer->value.at(i++);
-    }
+  }
   return atoi(sindex.c_str());
 }
 
@@ -708,13 +708,13 @@ int vtkFLUENTReader::GetDataChunk ()
   // Look for beginning of chunk
   //
   while(this->FluentDataFile->peek() != '(')
-    {
+  {
     this->FluentDataFile->get();
     if (this->FluentDataFile->eof())
-      {
+    {
       return 0;
-      }
     }
+  }
 
   //
   // Figure out whether this is a binary or ascii chunk.
@@ -722,16 +722,16 @@ int vtkFLUENTReader::GetDataChunk ()
   //
   std::string index;
   while(this->FluentDataFile->peek() != ' ')
-    {
+  {
     //index.push_back(this->FluentDataFile->peek());
     index += this->FluentDataFile->peek();
     //this->DataBuffer->value.push_back(this->FluentDataFile->get());
     this->DataBuffer->value += this->FluentDataFile->get();
     if (this->FluentDataFile->eof())
-      {
+    {
       return 0;
-      }
     }
+  }
 
   index.erase(0,1);  // Get rid of the "("
 
@@ -741,7 +741,7 @@ int vtkFLUENTReader::GetDataChunk ()
   //  a binary chunk.
   //
   if (index.size() > 3)
-    {  // Binary Chunk
+  {  // Binary Chunk
     //it may be in our best interest to do away with the index portion of the
     //"end" string - we have found a dataset, that although errant, does work
     //fine in ensight and the index does not match - maybe just an end string
@@ -755,44 +755,44 @@ int vtkFLUENTReader::GetDataChunk ()
 
     // Load the data buffer enough to start comparing to the end std::string.
     while (this->DataBuffer->value.size() < len)
-      {
+    {
       //this->DataBuffer->value.push_back(this->FluentDataFile->get());
       this->DataBuffer->value += this->FluentDataFile->get();
-      }
+    }
 
     //while (DataBuffer.compare(DataBuffer.size()-strlen(end),
     //strlen(end), end))
     while (strcmp(this->DataBuffer->value.c_str()+
                   (this->DataBuffer->value.size()-len), end))
-      {
+    {
       //this->DataBuffer->value.push_back(this->FluentDataFile->get());
       this->DataBuffer->value += this->FluentDataFile->get();
-      }
-
     }
+
+  }
   else
-    {  // Ascii Chunk
+  {  // Ascii Chunk
     int level = 0;
     while ((this->FluentDataFile->peek() != ')') || (level != 0) )
-      {
+    {
       //this->DataBuffer->value.push_back(this->FluentDataFile->get());
       this->DataBuffer->value += this->FluentDataFile->get();
       if (this->DataBuffer->value.at(this->DataBuffer->value.length()-1) == '(')
-        {
+      {
         level++;
-        }
-      if (this->DataBuffer->value.at(this->DataBuffer->value.length()-1) == ')')
-        {
-        level--;
-        }
-      if (this->FluentDataFile->eof())
-        {
-        return 0;
-        }
       }
+      if (this->DataBuffer->value.at(this->DataBuffer->value.length()-1) == ')')
+      {
+        level--;
+      }
+      if (this->FluentDataFile->eof())
+      {
+        return 0;
+      }
+    }
     //this->DataBuffer->value.push_back(this->FluentDataFile->get());
     this->DataBuffer->value += this->FluentDataFile->get();
-    }
+  }
 
   return 1;
 }
@@ -2352,11 +2352,11 @@ void vtkFLUENTReader::ParseCaseFile()
   this->FluentCaseFile->seekg (0, ios::beg);
 
   while (this->GetCaseChunk())
-    {
+  {
 
     int index = this->GetCaseIndex();
     switch (index)
-      {
+    {
       case 0:
         break;
       case 1:
@@ -2472,8 +2472,8 @@ void vtkFLUENTReader::ParseCaseFile()
       default:
         //cout << "Undefined Section = " << index << endl;
         break;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -2494,13 +2494,13 @@ void vtkFLUENTReader::GetLittleEndianFlag()
   sscanf(info.c_str(), "%d", &flag);
 
   if (flag == 60)
-    {
+  {
     this->SetDataByteOrderToLittleEndian();
-    }
+  }
   else
-    {
+  {
     this->SetDataByteOrderToBigEndian();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -2515,11 +2515,11 @@ void vtkFLUENTReader::GetNodesAscii()
                                          &type, &nd);
 
   if (this->CaseBuffer->value.at(5) == '0')
-    {
+  {
     this->Points->Allocate(lastIndex);
-    }
+  }
   else
-    {
+  {
     size_t dstart = this->CaseBuffer->value.find('(', 5);
     size_t dend = this->CaseBuffer->value.find(')', dstart+1);
     std::string pdata = this->CaseBuffer->
@@ -2528,25 +2528,25 @@ void vtkFLUENTReader::GetNodesAscii()
 
     double x, y, z;
     if (this->GridDimension == 3)
-      {
+    {
       for (unsigned int i = firstIndex; i <= lastIndex; i++)
-        {
+      {
         pdatastream >> x;
         pdatastream >> y;
         pdatastream >> z;
         this->Points->InsertPoint(i-1, x, y, z);
-        }
       }
+    }
     else
-      {
+    {
       for (unsigned int i = firstIndex; i <= lastIndex; i++)
-        {
+      {
         pdatastream >> x;
         pdatastream >> y;
         this->Points->InsertPoint(i-1, x, y, 0.0);
-        }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -2564,9 +2564,9 @@ void vtkFLUENTReader::GetNodesSinglePrecision()
 
   double x, y, z;
   if (this->GridDimension == 3)
-    {
+  {
     for (unsigned int i = firstIndex; i <= lastIndex; i++)
-      {
+    {
       x = this->GetCaseBufferFloat( static_cast< int >(ptr) );
       ptr = ptr + 4;
 
@@ -2576,12 +2576,12 @@ void vtkFLUENTReader::GetNodesSinglePrecision()
       z = this->GetCaseBufferFloat( static_cast< int >(ptr) );
       ptr = ptr + 4;
       this->Points->InsertPoint(i-1, x, y, z);
-      }
     }
+  }
   else
-    {
+  {
     for (unsigned int i = firstIndex; i <= lastIndex; i++)
-      {
+    {
       x = this->GetCaseBufferFloat( static_cast< int >(ptr) );
       ptr = ptr + 4;
 
@@ -2591,8 +2591,8 @@ void vtkFLUENTReader::GetNodesSinglePrecision()
       z = 0.0;
 
       this->Points->InsertPoint(i-1, x, y, z);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -2609,9 +2609,9 @@ void vtkFLUENTReader::GetNodesDoublePrecision()
   size_t ptr = dstart+1;
 
   if (this->GridDimension == 3)
-    {
+  {
     for (unsigned int i = firstIndex; i <= lastIndex; i++)
-      {
+    {
       double x = this->GetCaseBufferDouble( static_cast< int >(ptr) );
       ptr = ptr + 8;
 
@@ -2621,12 +2621,12 @@ void vtkFLUENTReader::GetNodesDoublePrecision()
       double z = this->GetCaseBufferDouble( static_cast< int >(ptr) );
       ptr = ptr + 8;
       this->Points->InsertPoint(i-1, x, y, z);
-      }
     }
+  }
   else
-    {
+  {
     for (unsigned int i = firstIndex; i <= lastIndex; i++)
-      {
+    {
       double x = this->GetCaseBufferDouble( static_cast< int >(ptr) );
       ptr = ptr + 8;
 
@@ -2634,15 +2634,15 @@ void vtkFLUENTReader::GetNodesDoublePrecision()
       ptr = ptr + 8;
 
       this->Points->InsertPoint(i-1, x, y, 0.0);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkFLUENTReader::GetCellsAscii()
 {
   if (this->CaseBuffer->value.at(5) == '0')
-    { // Cell Info
+  { // Cell Info
     size_t start = this->CaseBuffer->value.find('(', 1);
     size_t end = this->CaseBuffer->value.find(')',1);
     std::string info = this->CaseBuffer->value.substr(start+1,end-start-1 );
@@ -2651,9 +2651,9 @@ void vtkFLUENTReader::GetCellsAscii()
     sscanf(info.c_str(), "%x %x %x %d", &zoneId, &firstIndex, &lastIndex,
                                         &type);
     this->Cells->value.resize(lastIndex);
-    }
+  }
   else
-    { // Cell Definitions
+  { // Cell Definitions
     size_t start = this->CaseBuffer->value.find('(', 1);
     size_t end = this->CaseBuffer->value.find(')',1);
     std::string info = this->CaseBuffer->value.substr(start+1,end-start-1 );
@@ -2663,31 +2663,31 @@ void vtkFLUENTReader::GetCellsAscii()
                                            &type, &elementType);
 
     if (elementType == 0)
-      {
+    {
       size_t dstart = this->CaseBuffer->value.find('(', 5);
       size_t dend = this->CaseBuffer->value.find(')', dstart+1);
       std::string pdata = this->CaseBuffer->
                                    value.substr(dstart+1, dend-start-1);
       std::stringstream pdatastream(pdata);
       for (unsigned int i = firstIndex; i <= lastIndex; i++)
-        {
+      {
         pdatastream >> this->Cells->value[i-1].type;
         this->Cells->value[i-1].zone = zoneId;
         this->Cells->value[i-1].parent = 0;
         this->Cells->value[i-1].child  = 0;
-        }
       }
+    }
     else
-      {
+    {
       for (unsigned int i = firstIndex; i <= lastIndex; i++)
-        {
+      {
         this->Cells->value[i-1].type = elementType;
         this->Cells->value[i-1].zone = zoneId;
         this->Cells->value[i-1].parent = 0;
         this->Cells->value[i-1].child  = 0;
-        }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -2701,29 +2701,29 @@ void vtkFLUENTReader::GetCellsBinary()
                                          &type, &elementType);
 
   if (elementType == 0)
-    {
+  {
     size_t dstart = this->CaseBuffer->value.find('(', 7);
     size_t ptr = dstart + 1;
     for (unsigned int i = firstIndex; i <= lastIndex; i++)
-      {
+    {
       this->Cells->value[i-1].type =
         this->GetCaseBufferInt( static_cast< int >(ptr) );
       ptr = ptr +4;
       this->Cells->value[i-1].zone = zoneId;
       this->Cells->value[i-1].parent = 0;
       this->Cells->value[i-1].child  = 0;
-      }
     }
+  }
   else
-    {
+  {
     for (unsigned int i = firstIndex; i <= lastIndex; i++)
-      {
+    {
       this->Cells->value[i-1].type = elementType;
       this->Cells->value[i-1].zone = zoneId;
       this->Cells->value[i-1].parent = 0;
       this->Cells->value[i-1].child  = 0;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -2731,7 +2731,7 @@ void vtkFLUENTReader::GetFacesAscii()
 {
 
   if (this->CaseBuffer->value.at(5) == '0')
-    { // Face Info
+  { // Face Info
     size_t start = this->CaseBuffer->value.find('(', 1);
     size_t end = this->CaseBuffer->value.find(')',1);
     std::string info = this->CaseBuffer->value.substr(start+1,end-start-1 );
@@ -2740,9 +2740,9 @@ void vtkFLUENTReader::GetFacesAscii()
                                         &bcType);
 
     this->Faces->value.resize(lastIndex);
-    }
+  }
   else
-    { // Face Definitions
+  { // Face Definitions
     size_t start = this->CaseBuffer->value.find('(', 1);
     size_t end = this->CaseBuffer->value.find(')',1);
     std::string info = this->CaseBuffer->value.substr(start+1,end-start-1 );
@@ -2758,21 +2758,21 @@ void vtkFLUENTReader::GetFacesAscii()
 
     int numberOfNodesInFace = 0;
     for (unsigned int i = firstIndex; i <= lastIndex; i++)
-      {
+    {
       if (faceType == 0 || faceType == 5)
-        {
+      {
         pdatastream >> numberOfNodesInFace;
-        }
+      }
       else
-        {
+      {
         numberOfNodesInFace = faceType;
-        }
+      }
       this->Faces->value[i-1].nodes.resize(numberOfNodesInFace);
       for (int j = 0; j<numberOfNodesInFace; j++)
-        {
+      {
         pdatastream >> hex >> this->Faces->value[i-1].nodes[j];
         this->Faces->value[i-1].nodes[j]--;
-        }
+      }
       pdatastream >> hex >> this->Faces->value[i-1].c0;
       pdatastream >> hex >> this->Faces->value[i-1].c1;
       this->Faces->value[i-1].c0--;
@@ -2787,15 +2787,15 @@ void vtkFLUENTReader::GetFacesAscii()
       this->Faces->value[i-1].ncgChild = 0;
       this->Faces->value[i-1].interfaceFaceChild = 0;
       if (this->Faces->value[i-1].c0 >= 0)
-        {
+      {
         this->Cells->value[this->Faces->value[i-1].c0].faces.push_back(i-1);
-        }
+      }
       if (this->Faces->value[i-1].c1 >= 0)
-        {
+      {
         this->Cells->value[this->Faces->value[i-1].c1].faces.push_back(i-1);
-        }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -2811,26 +2811,26 @@ void vtkFLUENTReader::GetFacesBinary()
   int numberOfNodesInFace = 0;
   size_t ptr = dstart + 1;
   for (unsigned int i = firstIndex; i <= lastIndex; i++)
-    {
+  {
     if ((faceType == 0) || (faceType == 5))
-      {
+    {
       numberOfNodesInFace = this->GetCaseBufferInt( static_cast< int >(ptr) );
       ptr = ptr + 4;
-      }
+    }
     else
-      {
+    {
       numberOfNodesInFace = faceType;
-      }
+    }
 
     this->Faces->value[i-1].nodes.resize(numberOfNodesInFace);
 
     for (int k = 0; k<numberOfNodesInFace; k++)
-      {
+    {
       this->Faces->value[i-1].nodes[k] =
         this->GetCaseBufferInt(static_cast< int >(ptr));
       this->Faces->value[i-1].nodes[k]--;
       ptr = ptr + 4;
-      }
+    }
 
     this->Faces->value[i-1].c0 =
       this->GetCaseBufferInt( static_cast< int >(ptr) );
@@ -2850,14 +2850,14 @@ void vtkFLUENTReader::GetFacesBinary()
     this->Faces->value[i-1].ncgChild = 0;
     this->Faces->value[i-1].interfaceFaceChild = 0;
     if (this->Faces->value[i-1].c0 >= 0)
-      {
+    {
       this->Cells->value[this->Faces->value[i-1].c0].faces.push_back(i-1);
-      }
-    if (this->Faces->value[i-1].c1 >= 0)
-      {
-      this->Cells->value[this->Faces->value[i-1].c1].faces.push_back(i-1);
-      }
     }
+    if (this->Faces->value[i-1].c1 >= 0)
+    {
+      this->Cells->value[this->Faces->value[i-1].c1].faces.push_back(i-1);
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -2877,11 +2877,11 @@ void vtkFLUENTReader::GetPeriodicShadowFacesAscii()
 
   int faceIndex1, faceIndex2;
   for (unsigned int i = firstIndex; i <= lastIndex; i++)
-    {
+  {
     pdatastream >> hex >> faceIndex1;
     pdatastream >> hex >> faceIndex2;
     this->Faces->value[faceIndex1].periodicShadow = 1;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -2899,14 +2899,14 @@ void vtkFLUENTReader::GetPeriodicShadowFacesBinary()
 
   //int faceIndex1, faceIndex2;
   for (unsigned int i = firstIndex; i <= lastIndex; i++)
-    {
+  {
     //faceIndex1 = this->GetCaseBufferInt(ptr);
     this->GetCaseBufferInt( static_cast< int >(ptr) );
     ptr = ptr + 4;
     //faceIndex2 = this->GetCaseBufferInt(ptr);
     this->GetCaseBufferInt( static_cast< int >(ptr) );
     ptr = ptr + 4;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -2926,15 +2926,15 @@ void vtkFLUENTReader::GetCellTreeAscii()
 
   int numberOfKids, kid;
   for (unsigned int i = cellId0; i <= cellId1; i++)
-    {
+  {
     this->Cells->value[i-1].parent = 1;
     pdatastream >> hex >> numberOfKids;
     for (int j = 0; j < numberOfKids; j++)
-      {
+    {
       pdatastream >> hex >> kid;
       this->Cells->value[kid-1].child = 1;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -2953,17 +2953,17 @@ void vtkFLUENTReader::GetCellTreeBinary()
 
   int numberOfKids, kid;
   for (unsigned int i = cellId0; i <= cellId1; i++)
-    {
+  {
     this->Cells->value[i-1].parent = 1;
     numberOfKids = this->GetCaseBufferInt( static_cast< int >(ptr) );
     ptr = ptr + 4;
     for (int j = 0; j < numberOfKids; j++)
-      {
+    {
       kid = this->GetCaseBufferInt( static_cast< int >(ptr) );
       ptr = ptr + 4;
       this->Cells->value[kid-1].child = 1;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -2983,15 +2983,15 @@ void vtkFLUENTReader::GetFaceTreeAscii()
 
   int numberOfKids, kid;
   for (unsigned int i = faceId0; i <= faceId1; i++)
-    {
+  {
     this->Faces->value[i-1].parent = 1;
     pdatastream >> hex >> numberOfKids;
     for (int j = 0; j < numberOfKids; j++)
-      {
+    {
       pdatastream >> hex >> kid;
       this->Faces->value[kid-1].child = 1;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -3009,17 +3009,17 @@ void vtkFLUENTReader::GetFaceTreeBinary()
 
   int numberOfKids, kid;
   for (unsigned int i = faceId0; i <= faceId1; i++)
-    {
+  {
     this->Faces->value[i-1].parent = 1;
     numberOfKids = this->GetCaseBufferInt( static_cast< int >(ptr) );
     ptr = ptr + 4;
     for (int j = 0; j < numberOfKids; j++)
-      {
+    {
       kid = this->GetCaseBufferInt( static_cast< int >(ptr) );
       ptr = ptr + 4;
       this->Faces->value[kid-1].child = 1;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -3038,13 +3038,13 @@ void vtkFLUENTReader::GetInterfaceFaceParentsAscii()
 
   int parentId0, parentId1;
   for (unsigned int i = faceId0; i <= faceId1; i++)
-    {
+  {
     pdatastream >> hex >> parentId0;
     pdatastream >> hex >> parentId1;
     this->Faces->value[parentId0-1].interfaceFaceParent = 1;
     this->Faces->value[parentId1-1].interfaceFaceParent = 1;
     this->Faces->value[i-1].interfaceFaceChild = 1;
-    }
+  }
 
 }
 
@@ -3062,7 +3062,7 @@ void vtkFLUENTReader::GetInterfaceFaceParentsBinary()
 
   int parentId0, parentId1;
   for (unsigned int i = faceId0; i <= faceId1; i++)
-    {
+  {
     parentId0 = this->GetCaseBufferInt( static_cast< int >(ptr) );
     ptr = ptr + 4;
     parentId1 = this->GetCaseBufferInt( static_cast< int >(ptr) );
@@ -3070,7 +3070,7 @@ void vtkFLUENTReader::GetInterfaceFaceParentsBinary()
     this->Faces->value[parentId0-1].interfaceFaceParent = 1;
     this->Faces->value[parentId1-1].interfaceFaceParent = 1;
     this->Faces->value[i-1].interfaceFaceChild = 1;
-    }
+  }
 
 }
 
@@ -3090,12 +3090,12 @@ void vtkFLUENTReader::GetNonconformalGridInterfaceFaceInformationAscii()
 
   int child, parent;
   for (int i = 0; i < numberOfFaces; i++)
-    {
+  {
     pdatastream >> hex >> child;
     pdatastream >> hex >> parent;
     this->Faces->value[child-1].ncgChild = 1;
     this->Faces->value[parent-1].ncgParent = 1;
-    }
+  }
 
 }
 
@@ -3113,14 +3113,14 @@ void vtkFLUENTReader::GetNonconformalGridInterfaceFaceInformationBinary()
 
   int child, parent;
   for (int i = 0; i < numberOfFaces; i++)
-    {
+  {
     child = this->GetCaseBufferInt( static_cast< int >(ptr) );
     ptr = ptr + 4;
     parent = this->GetCaseBufferInt( static_cast< int >(ptr) );
     ptr = ptr + 4;
     this->Faces->value[child-1].ncgChild = 1;
     this->Faces->value[parent-1].ncgParent = 1;
-    }
+  }
 
 }
 
@@ -3130,7 +3130,7 @@ void vtkFLUENTReader::CleanCells()
 
   std::vector<int> t;
   for (int i = 0; i < (int)Cells->value.size(); i++)
-    {
+  {
 
     if ( ((this->Cells->value[i].type == 1)&&
           (this->Cells->value[i].faces.size() != 3))||
@@ -3144,39 +3144,39 @@ void vtkFLUENTReader::CleanCells()
           (this->Cells->value[i].faces.size() != 5))||
          ((this->Cells->value[i].type == 6)&&
           (this->Cells->value[i].faces.size() != 5)) )
-      {
+    {
 
       // Copy faces
       t.clear();
       for (int j = 0; j < (int)this->Cells->value[i].faces.size(); j++)
-        {
+      {
         t.push_back(this->Cells->value[i].faces[j]);
-        }
+      }
 
       // Clear Faces
       this->Cells->value[i].faces.clear();
 
       // Copy the faces that are not flagged back into the cell
       for (int j = 0; j < (int)t.size(); j++)
-        {
+      {
         if ( (this->Faces->value[t[j]].child == 0 ) &&
              (this->Faces->value[t[j]].ncgChild == 0 ) &&
              (this->Faces->value[t[j]].interfaceFaceChild == 0 ))
-          {
+        {
           this->Cells->value[i].faces.push_back(t[j]);
-          }
         }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkFLUENTReader::PopulateCellNodes()
 {
   for (int i = 0; i < (int)this->Cells->value.size(); i++)
-    {
+  {
     switch (this->Cells->value[i].type)
-      {
+    {
       case 1:  // Triangle
         this->PopulateTriangleCell(i);
         break;
@@ -3204,30 +3204,30 @@ void vtkFLUENTReader::PopulateCellNodes()
       case 7:  // Polyhedron
         this->PopulatePolyhedronCell(i);
         break;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
 int vtkFLUENTReader::GetCaseBufferInt(int ptr)
 {
   union mix_i
-    {
+  {
     int i;
     char c[4];
-    } mi = {1};
+  } mi = {1};
 
   for (int j = 0; j < 4; j++)
-    {
+  {
     if (this->GetSwapBytes())
-      {
+    {
       mi.c[3 - j] = this->CaseBuffer->value.at(ptr+j);
-      }
-    else
-      {
-      mi.c[j] = this->CaseBuffer->value.at(ptr+j);
-      }
     }
+    else
+    {
+      mi.c[j] = this->CaseBuffer->value.at(ptr+j);
+    }
+  }
   return mi.i;
 }
 
@@ -3235,22 +3235,22 @@ int vtkFLUENTReader::GetCaseBufferInt(int ptr)
 float vtkFLUENTReader::GetCaseBufferFloat(int ptr)
 {
   union mix_f
-    {
+  {
     float f;
     char c[4];
-    } mf = {1.0};
+  } mf = {1.0};
 
   for (int j = 0; j < 4; j++)
-    {
+  {
     if (this->GetSwapBytes())
-      {
+    {
       mf.c[3 - j] = this->CaseBuffer->value.at(ptr+j);
-      }
-    else
-      {
-      mf.c[j] = this->CaseBuffer->value.at(ptr+j);
-      }
     }
+    else
+    {
+      mf.c[j] = this->CaseBuffer->value.at(ptr+j);
+    }
+  }
   return mf.f;
 }
 
@@ -3258,22 +3258,22 @@ float vtkFLUENTReader::GetCaseBufferFloat(int ptr)
 double vtkFLUENTReader::GetCaseBufferDouble(int ptr)
 {
   union mix_i
-    {
+  {
     double d;
     char c[8];
-    } md = {1.0};
+  } md = {1.0};
 
   for (int j = 0; j < 8; j++)
-    {
+  {
     if (this->GetSwapBytes())
-      {
+    {
       md.c[7 - j] = this->CaseBuffer->value.at(ptr+j);
-      }
-    else
-      {
-      md.c[j] = this->CaseBuffer->value.at(ptr+j);
-      }
     }
+    else
+    {
+      md.c[j] = this->CaseBuffer->value.at(ptr+j);
+    }
+  }
   return md.d;
 }
 
@@ -3282,33 +3282,33 @@ void vtkFLUENTReader::PopulateTriangleCell(int i)
 {
   this->Cells->value[i].nodes.resize(3);
   if (this->Faces->value[this->Cells->value[i].faces[0]].c0 == i)
-    {
+  {
     this->Cells->value[i].nodes[0] =
       this->Faces->value[this->Cells->value[i].faces[0]].nodes[0];
     this->Cells->value[i].nodes[1] =
       this->Faces->value[this->Cells->value[i].faces[0]].nodes[1];
-    }
+  }
   else
-    {
+  {
     this->Cells->value[i].nodes[1] =
       this->Faces->value[this->Cells->value[i].faces[0]].nodes[0];
     this->Cells->value[i].nodes[0] =
       this->Faces->value[this->Cells->value[i].faces[0]].nodes[1];
-    }
+  }
 
   if (this->Faces->value[this->Cells->value[i].faces[1]].nodes[0]!=
       this->Cells->value[i].nodes[0]
       && this->Faces->value[this->Cells->value[i].faces[1]].nodes[0]!=
          this->Cells->value[i].nodes[1])
-    {
+  {
     this->Cells->value[i].nodes[2] =
       this->Faces->value[this->Cells->value[i].faces[1]].nodes[0];
-    }
+  }
   else
-    {
+  {
     this->Cells->value[i].nodes[2] =
       this->Faces->value[this->Cells->value[i].faces[1]].nodes[1];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -3317,23 +3317,23 @@ void vtkFLUENTReader::PopulateTetraCell(int i)
   this->Cells->value[i].nodes.resize(4);
 
   if (this->Faces->value[this->Cells->value[i].faces[0]].c0 == i)
-    {
+  {
     this->Cells->value[i].nodes[0] =
       this->Faces->value[this->Cells->value[i].faces[0]].nodes[0];
     this->Cells->value[i].nodes[1] =
       this->Faces->value[this->Cells->value[i].faces[0]].nodes[1];
     this->Cells->value[i].nodes[2] =
       this->Faces->value[this->Cells->value[i].faces[0]].nodes[2];
-    }
+  }
   else
-    {
+  {
     this->Cells->value[i].nodes[2] =
       this->Faces->value[this->Cells->value[i].faces[0]].nodes[0];
     this->Cells->value[i].nodes[1] =
       this->Faces->value[this->Cells->value[i].faces[0]].nodes[1];
     this->Cells->value[i].nodes[0] =
       this->Faces->value[this->Cells->value[i].faces[0]].nodes[2];
-    }
+  }
 
   if (this->Faces->value[this->Cells->value[i].faces[1]].nodes[0]!=
         this->Cells->value[i].nodes[0]
@@ -3341,25 +3341,25 @@ void vtkFLUENTReader::PopulateTetraCell(int i)
          this->Cells->value[i].nodes[1]
       && this->Faces->value[this->Cells->value[i].faces[1]].nodes[0] !=
          this->Cells->value[i].nodes[2] )
-    {
+  {
     this->Cells->value[i].nodes[3] =
       this->Faces->value[this->Cells->value[i].faces[1]].nodes[0];
-    }
+  }
   else if (this->Faces->value[this->Cells->value[i].faces[1]].nodes[1] !=
               this->Cells->value[i].nodes[0] &&
             this->Faces->value[this->Cells->value[i].faces[1]].nodes[1] !=
               this->Cells->value[i].nodes[1] &&
             this->Faces->value[this->Cells->value[i].faces[1]].nodes[1] !=
               this->Cells->value[i].nodes[2])
-    {
+  {
     this->Cells->value[i].nodes[3] =
       this->Faces->value[this->Cells->value[i].faces[1]].nodes[1];
-    }
+  }
   else
-    {
+  {
     this->Cells->value[i].nodes[3] =
       this->Faces->value[this->Cells->value[i].faces[1]].nodes[2];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -3368,19 +3368,19 @@ void vtkFLUENTReader::PopulateQuadCell(int i)
   this->Cells->value[i].nodes.resize(4);
 
   if (this->Faces->value[this->Cells->value[i].faces[0]].c0 == i)
-    {
+  {
     this->Cells->value[i].nodes[0] =
       this->Faces->value[this->Cells->value[i].faces[0]].nodes[0];
     this->Cells->value[i].nodes[1] =
       this->Faces->value[this->Cells->value[i].faces[0]].nodes[1];
-    }
+  }
   else
-    {
+  {
     this->Cells->value[i].nodes[1] =
       this->Faces->value[this->Cells->value[i].faces[0]].nodes[0];
     this->Cells->value[i].nodes[0] =
       this->Faces->value[this->Cells->value[i].faces[0]].nodes[1];
-    }
+  }
 
   if ((this->Faces->value[this->Cells->value[i].faces[1]].nodes[0] !=
          this->Cells->value[i].nodes[0] &&
@@ -3390,22 +3390,22 @@ void vtkFLUENTReader::PopulateQuadCell(int i)
          this->Cells->value[i].nodes[0] &&
        this->Faces->value[this->Cells->value[i].faces[1]].nodes[1] !=
          this->Cells->value[i].nodes[1]))
-    {
+  {
     if (this->Faces->value[this->Cells->value[i].faces[1]].c0 == i)
-      {
+    {
       this->Cells->value[i].nodes[2] =
         this->Faces->value[this->Cells->value[i].faces[1]].nodes[0];
       this->Cells->value[i].nodes[3] =
         this->Faces->value[this->Cells->value[i].faces[1]].nodes[1];
-      }
-    else
-      {
-      this->Cells->value[i].nodes[3] =
-        this->Faces->value[this->Cells->value[i].faces[1]].nodes[0];
-      this->Cells->value[i].nodes[2] =
-        this->Faces->value[this->Cells->value[i].faces[1]].nodes[1];
-      }
     }
+    else
+    {
+      this->Cells->value[i].nodes[3] =
+        this->Faces->value[this->Cells->value[i].faces[1]].nodes[0];
+      this->Cells->value[i].nodes[2] =
+        this->Faces->value[this->Cells->value[i].faces[1]].nodes[1];
+    }
+  }
   else if ((this->Faces->value[this->Cells->value[i].faces[2]].nodes[0] !=
               this->Cells->value[i].nodes[0] &&
             this->Faces->value[this->Cells->value[i].faces[2]].nodes[0] !=
@@ -3414,39 +3414,39 @@ void vtkFLUENTReader::PopulateQuadCell(int i)
               this->Cells->value[i].nodes[0] &&
             this->Faces->value[this->Cells->value[i].faces[2]].nodes[1] !=
               this->Cells->value[i].nodes[1]))
-    {
+  {
     if (this->Faces->value[this->Cells->value[i].faces[2]].c0 == i)
-      {
-      this->Cells->value[i].nodes[2] =
-        this->Faces->value[this->Cells->value[i].faces[2]].nodes[0];
-      this->Cells->value[i].nodes[3] =
-        this->Faces->value[this->Cells->value[i].faces[2]].nodes[1];
-      }
-    else
-      {
-      this->Cells->value[i].nodes[3] =
-        this->Faces->value[this->Cells->value[i].faces[2]].nodes[0];
-      this->Cells->value[i].nodes[2] =
-        this->Faces->value[this->Cells->value[i].faces[2]].nodes[1];
-      }
-    }
-  else
     {
-    if (this->Faces->value[this->Cells->value[i].faces[3]].c0 == i)
-      {
       this->Cells->value[i].nodes[2] =
-        this->Faces->value[this->Cells->value[i].faces[3]].nodes[0];
+        this->Faces->value[this->Cells->value[i].faces[2]].nodes[0];
       this->Cells->value[i].nodes[3] =
-        this->Faces->value[this->Cells->value[i].faces[3]].nodes[1];
-      }
-    else
-      {
-      this->Cells->value[i].nodes[3] =
-        this->Faces->value[this->Cells->value[i].faces[3]].nodes[0];
-      this->Cells->value[i].nodes[2] =
-        this->Faces->value[this->Cells->value[i].faces[3]].nodes[1];
-      }
+        this->Faces->value[this->Cells->value[i].faces[2]].nodes[1];
     }
+    else
+    {
+      this->Cells->value[i].nodes[3] =
+        this->Faces->value[this->Cells->value[i].faces[2]].nodes[0];
+      this->Cells->value[i].nodes[2] =
+        this->Faces->value[this->Cells->value[i].faces[2]].nodes[1];
+    }
+  }
+  else
+  {
+    if (this->Faces->value[this->Cells->value[i].faces[3]].c0 == i)
+    {
+      this->Cells->value[i].nodes[2] =
+        this->Faces->value[this->Cells->value[i].faces[3]].nodes[0];
+      this->Cells->value[i].nodes[3] =
+        this->Faces->value[this->Cells->value[i].faces[3]].nodes[1];
+    }
+    else
+    {
+      this->Cells->value[i].nodes[3] =
+        this->Faces->value[this->Cells->value[i].faces[3]].nodes[0];
+      this->Cells->value[i].nodes[2] =
+        this->Faces->value[this->Cells->value[i].faces[3]].nodes[1];
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -3455,28 +3455,28 @@ void vtkFLUENTReader::PopulateHexahedronCell(int i)
   this->Cells->value[i].nodes.resize(8);
 
   if (this->Faces->value[this->Cells->value[i].faces[0]].c0 == i)
-    {
+  {
     for (int j = 0; j < 4; j++)
-      {
+    {
       this->Cells->value[i].nodes[j] =
         this->Faces->value[this->Cells->value[i].faces[0]].nodes[j];
-      }
     }
+  }
   else
-    {
+  {
     for (int j = 3; j >=0; j--)
-      {
+    {
       this->Cells->value[i].nodes[3-j]=
         this->Faces->value[this->Cells->value[i].faces[0]].nodes[j];
-      }
     }
+  }
 
   //  Look for opposite face of hexahedron
   for (int j = 1; j < 6; j++)
-    {
+  {
     int flag = 0;
     for (int k = 0; k < 4; k++)
-      {
+    {
       if ( (this->Cells->value[i].nodes[0] ==
               this->Faces->value[this->Cells->value[i].faces[j]].nodes[k]) ||
            (this->Cells->value[i].nodes[1] ==
@@ -3485,123 +3485,123 @@ void vtkFLUENTReader::PopulateHexahedronCell(int i)
               this->Faces->value[this->Cells->value[i].faces[j]].nodes[k]) ||
            (this->Cells->value[i].nodes[3] ==
               this->Faces->value[this->Cells->value[i].faces[j]].nodes[k]) )
-        {
-        flag = 1;
-        }
-      }
-    if (flag == 0)
       {
+        flag = 1;
+      }
+    }
+    if (flag == 0)
+    {
       if (this->Faces->value[this->Cells->value[i].faces[j]].c1 == i)
-        {
+      {
         for (int k = 4; k < 8; k++)
-          {
+        {
           this->Cells->value[i].nodes[k] =
             this->Faces->value[this->Cells->value[i].faces[j]].nodes[k-4];
-          }
         }
+      }
       else
-        {
+      {
         for (int k = 7; k >= 4; k--)
-          {
+        {
           this->Cells->value[i].nodes[k] =
             this->Faces->value[this->Cells->value[i].faces[j]].nodes[7-k];
-          }
         }
       }
     }
+  }
 
   //  Find the face with points 0 and 1 in them.
   int f01[4] = {-1, -1, -1, -1};
   for (int j = 1; j < 6; j++)
-    {
+  {
     int flag0 = 0;
     int flag1 = 0;
     for (int k = 0; k < 4; k++)
-      {
+    {
       if (this->Cells->value[i].nodes[0] ==
           this->Faces->value[this->Cells->value[i].faces[j]].nodes[k])
-        {
+      {
         flag0 = 1;
-        }
+      }
       if (this->Cells->value[i].nodes[1] ==
           this->Faces->value[this->Cells->value[i].faces[j]].nodes[k])
-        {
+      {
         flag1 = 1;
+      }
+    }
+    if ((flag0 == 1) && (flag1 == 1))
+    {
+      if (this->Faces->value[this->Cells->value[i].faces[j]].c0 == i)
+      {
+        for (int k=0; k<4; k++)
+        {
+          f01[k] = this->Faces->value[this->Cells->value[i].faces[j]].nodes[k];
         }
       }
-    if ((flag0 == 1) && (flag1 == 1))
-      {
-      if (this->Faces->value[this->Cells->value[i].faces[j]].c0 == i)
-        {
-        for (int k=0; k<4; k++)
-          {
-          f01[k] = this->Faces->value[this->Cells->value[i].faces[j]].nodes[k];
-          }
-        }
       else
-        {
+      {
         for (int k=3; k>=0; k--)
-          {
+        {
           f01[k] = this->Faces->value[this->Cells->value[i].faces[j]].nodes[k];
-          }
         }
       }
     }
+  }
 
   //  Find the face with points 0 and 3 in them.
   int f03[4] =  {-1, -1, -1, -1};
   for (int j = 1; j < 6; j++)
-    {
+  {
     int flag0 = 0;
     int flag1 = 0;
     for (int k = 0; k < 4; k++)
-      {
+    {
       if (this->Cells->value[i].nodes[0] ==
           this->Faces->value[this->Cells->value[i].faces[j]].nodes[k])
-        {
+      {
         flag0 = 1;
-        }
+      }
       if (this->Cells->value[i].nodes[3] ==
           this->Faces->value[this->Cells->value[i].faces[j]].nodes[k])
-        {
+      {
         flag1 = 1;
-        }
       }
+    }
 
     if ((flag0 == 1) && (flag1 == 1))
-      {
+    {
       if (this->Faces->value[this->Cells->value[i].faces[j]].c0 == i)
-        {
+      {
         for (int k=0; k<4; k++)
-          {
-          f03[k] = this->Faces->value[this->Cells->value[i].faces[j]].nodes[k];
-          }
-        }
-      else
         {
-        for (int k=3; k>=0; k--)
-          {
           f03[k] = this->Faces->value[this->Cells->value[i].faces[j]].nodes[k];
-          }
+        }
+      }
+      else
+      {
+        for (int k=3; k>=0; k--)
+        {
+          f03[k] = this->Faces->value[this->Cells->value[i].faces[j]].nodes[k];
         }
       }
     }
+  }
 
   // What point is in f01 and f03 besides 0 ... this is point 4
   int p4 = 0;
   for (int k = 0; k < 4; k++)
-    {
+  {
     if ( f01[k] != this->Cells->value[i].nodes[0])
-      {
+    {
       for (int n = 0; n < 4; n++)
-        {
+      {
         if (f01[k] == f03[n])
-          {
+        {
           p4 = f01[k];
-          }
         }
       }
     }
+  }
 
   // Since we know point 4 now we check to see if points
   //  4, 5, 6, and 7 are in the correct positions.
@@ -3611,26 +3611,26 @@ void vtkFLUENTReader::PopulateHexahedronCell(int i)
   t[6] = this->Cells->value[i].nodes[6];
   t[7] = this->Cells->value[i].nodes[7];
   if (p4 == this->Cells->value[i].nodes[5])
-    {
+  {
     this->Cells->value[i].nodes[5] = t[6];
     this->Cells->value[i].nodes[6] = t[7];
     this->Cells->value[i].nodes[7] = t[4];
     this->Cells->value[i].nodes[4] = t[5];
-    }
+  }
   else if (p4 == Cells->value[i].nodes[6])
-    {
+  {
     this->Cells->value[i].nodes[5] = t[7];
     this->Cells->value[i].nodes[6] = t[4];
     this->Cells->value[i].nodes[7] = t[5];
     this->Cells->value[i].nodes[4] = t[6];
-    }
+  }
   else if (p4 == Cells->value[i].nodes[7])
-    {
+  {
     this->Cells->value[i].nodes[5] = t[4];
     this->Cells->value[i].nodes[6] = t[5];
     this->Cells->value[i].nodes[7] = t[6];
     this->Cells->value[i].nodes[4] = t[7];
-    }
+  }
   // else point 4 was lined up so everything was correct.
 }
 
@@ -3640,35 +3640,35 @@ void vtkFLUENTReader::PopulatePyramidCell(int i)
   this->Cells->value[i].nodes.resize(5);
   //  The quad face will be the base of the pyramid
   for (int j = 0; j < (int)this->Cells->value[i].faces.size(); j++)
-    {
+  {
     if ( this->Faces->value[this->Cells->value[i].faces[j]].nodes.size() == 4)
-      {
+    {
       if (this->Faces->value[this->Cells->value[i].faces[j]].c0 == i)
-        {
+      {
         for (int k = 0; k < 4; k++)
-          {
+        {
           this->Cells->value[i].nodes[k] =
             this->Faces->value[this->Cells->value[i].faces[j]].nodes[k];
-          }
         }
+      }
       else
-        {
+      {
         for (int k = 0; k < 4; k++)
-          {
+        {
           this->Cells->value[i].nodes[3-k] =
             this->Faces->value[this->Cells->value[i].faces[j]].nodes[k];
-          }
         }
       }
     }
+  }
 
   // Just need to find point 4
   for (int j = 0; j < (int)this->Cells->value[i].faces.size(); j++)
-    {
+  {
     if ( this->Faces->value[this->Cells->value[i].faces[j]].nodes.size() == 3)
-      {
+    {
       for (int k = 0; k < 3; k ++)
-        {
+      {
         if ( (this->Faces->value[this->Cells->value[i].faces[j]].nodes[k] !=
                 this->Cells->value[i].nodes[0]) &&
              (this->Faces->value[this->Cells->value[i].faces[j]].nodes[k] !=
@@ -3677,13 +3677,13 @@ void vtkFLUENTReader::PopulatePyramidCell(int i)
                 this->Cells->value[i].nodes[2]) &&
              (this->Faces->value[this->Cells->value[i].faces[j]].nodes[k] !=
                 this->Cells->value[i].nodes[3]) )
-          {
+        {
           this->Cells->value[i].nodes[4] =
             this->Faces->value[this->Cells->value[i].faces[j]].nodes[k];
-          }
         }
       }
     }
+  }
 
 }
 
@@ -3696,140 +3696,140 @@ void vtkFLUENTReader::PopulateWedgeCell(int i)
   int base = 0;
   int first = 0;
   for (int j = 0; j < (int)this->Cells->value[i].faces.size(); j++)
-    {
+  {
     if ((this->Faces->value[this->Cells->value[i].faces[j]].type == 3) &&
         (first == 0))
-      {
+    {
       base = this->Cells->value[i].faces[j];
       first = 1;
-      }
     }
+  }
 
   //  Find the second triangle face and make it the top.
   int top = 0;
   int second = 0;
   for (int j = 0; j < (int)this->Cells->value[i].faces.size(); j++)
-    {
+  {
     if ((this->Faces->value[this->Cells->value[i].faces[j]].type == 3) &&
         (second == 0) && (this->Cells->value[i].faces[j] != base))
-      {
+    {
       top = this->Cells->value[i].faces[j];
       second = 1;
-      }
     }
+  }
 
   // Load Base nodes into the nodes std::vector
   if (this->Faces->value[base].c0 == i)
-    {
+  {
     for (int j = 0; j < 3; j++)
-      {
-      this->Cells->value[i].nodes[j] = this->Faces->value[base].nodes[j];
-      }
-    }
-  else
     {
-    for (int j = 2; j >=0; j--)
-      {
-      this->Cells->value[i].nodes[2-j] = this->Faces->value[base].nodes[j];
-      }
+      this->Cells->value[i].nodes[j] = this->Faces->value[base].nodes[j];
     }
+  }
+  else
+  {
+    for (int j = 2; j >=0; j--)
+    {
+      this->Cells->value[i].nodes[2-j] = this->Faces->value[base].nodes[j];
+    }
+  }
   // Load Top nodes into the nodes std::vector
   if (this->Faces->value[top].c1 == i)
-    {
+  {
     for (int j = 3; j < 6; j++)
-      {
+    {
       this->Cells->value[i].nodes[j] = this->Faces->value[top].nodes[j-3];
-      }
     }
+  }
   else
-    {
+  {
     for (int j = 3; j < 6; j++)
-      {
+    {
       this->Cells->value[i].nodes[j] = this->Faces->value[top].nodes[5-j];
-      }
     }
+  }
 
   //  Find the quad face with points 0 and 1 in them.
   int w01[4] = {-1, -1, -1, -1};
   for (int j = 0; j < (int)this->Cells->value[i].faces.size(); j++)
-    {
+  {
     if (this->Cells->value[i].faces[j] != base &&
       this->Cells->value[i].faces[j] != top)
-      {
+    {
       int wf0 = 0;
       int wf1 = 0;
       for (int k = 0; k < 4; k++)
-        {
+      {
         if (this->Cells->value[i].nodes[0] ==
               this->Faces->value[this->Cells->value[i].faces[j]].nodes[k])
-          {
+        {
           wf0 = 1;
-          }
+        }
         if (this->Cells->value[i].nodes[1] ==
               this->Faces->value[this->Cells->value[i].faces[j]].nodes[k])
-          {
+        {
           wf1 = 1;
-          }
+        }
         if ((wf0 == 1) && (wf1 == 1))
-          {
+        {
           for (int n=0; n<4; n++)
-            {
+          {
             w01[n]=this->Faces->value[this->Cells->value[i].faces[j]].nodes[n];
-            }
           }
         }
       }
     }
+  }
 
   //  Find the quad face with points 0 and 2 in them.
   int w02[4] = {-1, -1, -1, -1};
   for (int j = 0; j < (int)this->Cells->value[i].faces.size(); j++)
-    {
+  {
     if (this->Cells->value[i].faces[j] != base &&
       this->Cells->value[i].faces[j] != top)
-      {
+    {
       int wf0 = 0;
       int wf2 = 0;
       for (int k = 0; k < 4; k++)
-        {
+      {
         if (this->Cells->value[i].nodes[0] ==
               this->Faces->value[this->Cells->value[i].faces[j]].nodes[k])
-          {
+        {
           wf0 = 1;
-          }
+        }
         if (this->Cells->value[i].nodes[2] ==
               this->Faces->value[this->Cells->value[i].faces[j]].nodes[k])
-          {
+        {
           wf2 = 1;
-          }
+        }
         if ((wf0 == 1) && (wf2 == 1))
-          {
+        {
           for (int n=0; n<4; n++)
-            {
+          {
             w02[n]=this->Faces->value[this->Cells->value[i].faces[j]].nodes[n];
-            }
           }
         }
       }
     }
+  }
 
   // Point 3 is the point that is in both w01 and w02
 
   // What point is in f01 and f02 besides 0 ... this is point 3
   int p3 = 0;
   for (int k = 0; k < 4; k++)
-    {
+  {
     if ( w01[k] != this->Cells->value[i].nodes[0])
-      {
+    {
       for (int n = 0; n < 4; n++)
-        {
+      {
         if (w01[k] == w02[n])
-          {
+        {
           p3 = w01[k];
-          }
         }
       }
     }
+  }
 
   // Since we know point 3 now we check to see if points
   //  3, 4, and 5 are in the correct positions.
@@ -3838,17 +3838,17 @@ void vtkFLUENTReader::PopulateWedgeCell(int i)
   t[4] = this->Cells->value[i].nodes[4];
   t[5] = this->Cells->value[i].nodes[5];
   if (p3 == this->Cells->value[i].nodes[4])
-    {
+  {
     this->Cells->value[i].nodes[3] = t[4];
     this->Cells->value[i].nodes[4] = t[5];
     this->Cells->value[i].nodes[5] = t[3];
-    }
+  }
   else if (p3 == this->Cells->value[i].nodes[5])
-    {
+  {
     this->Cells->value[i].nodes[3] = t[5];
     this->Cells->value[i].nodes[4] = t[3];
     this->Cells->value[i].nodes[5] = t[4];
-    }
+  }
   // else point 3 was lined up so everything was correct.
 
 }
@@ -3865,43 +3865,43 @@ void vtkFLUENTReader::PopulatePolyhedronCell(int i)
   //cout << "number of faces in cell = " << Cells[i].faces.size() << endl;
 
   for (int j = 0; j < (int)this->Cells->value[i].faces.size(); j++)
-    {
+  {
     //cout << "number of nodes in face = " <<
     //Faces[Cells[i].faces[j]].nodes.size() << endl;
     int k;
     for(k=0; k < (int)this->Faces->value[this->Cells->value[i].faces[j]].
                             nodes.size(); k++)
-      {
+    {
       int flag;
       flag = 0;
       // Is the node already in the cell?
       for (int n = 0; n < (int)Cells->value[i].nodes.size(); n++)
-        {
+      {
         if (this->Cells->value[i].nodes[n] ==
               this->Faces->value[this->Cells->value[i].faces[j]].nodes[k])
-          {
-          flag = 1;
-          }
-        }
-      if (flag == 0)
         {
+          flag = 1;
+        }
+      }
+      if (flag == 0)
+      {
         //No match - insert node into cell.
         this->Cells->value[i].nodes.
               push_back(this->Faces->
                         value[this->Cells->value[i].faces[j]].nodes[k]);
-        }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkFLUENTReader::ParseDataFile()
 {
   while (this->GetDataChunk())
-    {
+  {
     int index = this->GetDataIndex();
     switch (index)
-      {
+    {
       case 0:
         //cout << "Comment Section" << endl;
         break;
@@ -3960,30 +3960,30 @@ void vtkFLUENTReader::ParseDataFile()
       default:
         //cout << "Data Undefined Section = " << index << endl;
         break;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
 int vtkFLUENTReader::GetDataBufferInt(int ptr)
 {
   union mix_i
-    {
+  {
     int i;
     char c[4];
-    } mi = {1};
+  } mi = {1};
 
   for (int j = 0; j < 4; j++)
-    {
+  {
     if (this->GetSwapBytes())
-      {
+    {
       mi.c[3 - j] = this->DataBuffer->value.at(ptr+j);
-      }
-    else
-      {
-      mi.c[j] = this->DataBuffer->value.at(ptr+j);
-      }
     }
+    else
+    {
+      mi.c[j] = this->DataBuffer->value.at(ptr+j);
+    }
+  }
   return mi.i;
 }
 
@@ -3991,22 +3991,22 @@ int vtkFLUENTReader::GetDataBufferInt(int ptr)
 float vtkFLUENTReader::GetDataBufferFloat(int ptr)
 {
   union mix_f
-    {
+  {
     float f;
     char c[4];
-    } mf = {1.0};
+  } mf = {1.0};
 
   for (int j = 0; j < 4; j++)
-    {
+  {
     if (this->GetSwapBytes())
-      {
+    {
       mf.c[3 - j] = this->DataBuffer->value.at(ptr+j);
-      }
-    else
-      {
-      mf.c[j] = this->DataBuffer->value.at(ptr+j);
-      }
     }
+    else
+    {
+      mf.c[j] = this->DataBuffer->value.at(ptr+j);
+    }
+  }
   return mf.f;
 }
 
@@ -4014,22 +4014,22 @@ float vtkFLUENTReader::GetDataBufferFloat(int ptr)
 double vtkFLUENTReader::GetDataBufferDouble(int ptr)
 {
   union mix_i
-    {
+  {
     double d;
     char c[8];
-    } md = {1.0};
+  } md = {1.0};
 
   for (int j = 0; j < 8; j++)
-    {
+  {
     if (this->GetSwapBytes())
-      {
+    {
       md.c[7 - j] = this->DataBuffer->value.at(ptr+j);
-      }
-    else
-      {
-      md.c[j] = this->DataBuffer->value.at(ptr+j);
-      }
     }
+    else
+    {
+      md.c[j] = this->DataBuffer->value.at(ptr+j);
+    }
+  }
   return md.d;
 }
 
@@ -4047,15 +4047,15 @@ void vtkFLUENTReader::GetData(int dataType)
   // Is this a cell zone?
   int zmatch = 0;
   for (int i = 0; i < (int)this->CellZones->value.size(); i++)
-    {
+  {
     if (this->CellZones->value[i] == zoneId)
-      {
+    {
       zmatch = 1;
-      }
     }
+  }
 
   if (zmatch)
-    {
+  {
 
     // Set up stream or pointer to data
     size_t dstart = this->DataBuffer->value.find('(', 7);
@@ -4068,25 +4068,25 @@ void vtkFLUENTReader::GetData(int dataType)
     // Is this a new variable?
     int match = 0;
     for (int i = 0; i < (int)this->SubSectionIds->value.size(); i++)
-      {
+    {
       if (subSectionId == this->SubSectionIds->value[i])
-        {
+      {
         match = 1;
-        }
       }
+    }
 
     if ((match == 0) && (size < 4))
-      { // new variable
+    { // new variable
       this->SubSectionIds->value.push_back(subSectionId);
       this->SubSectionSize->value.push_back(size);
       this->SubSectionZones->
             value.resize(this->SubSectionZones->value.size()+1);
       this->SubSectionZones->
             value[this->SubSectionZones->value.size()-1].push_back(zoneId);
-      }
+    }
 
     if (size == 1)
-      {
+    {
       this->NumberOfScalars++;
       this->ScalarDataChunks->
         value.resize(this->ScalarDataChunks->value.size() + 1);
@@ -4096,28 +4096,28 @@ void vtkFLUENTReader::GetData(int dataType)
       this->ScalarDataChunks->
             value[this->ScalarDataChunks->value.size()-1].zoneId = zoneId;
       for (int i=firstId; i<=lastId; i++)
-        {
+      {
         double temp;
         if (dataType == 1)
-          {
+        {
           pdatastream >> temp;
-          }
+        }
         else if (dataType == 2)
-          {
+        {
           temp = this->GetDataBufferFloat( static_cast< int >(ptr) );
           ptr = ptr + 4;
-          }
+        }
         else
-          {
+        {
           temp = this->GetDataBufferDouble( static_cast< int >(ptr) );
           ptr = ptr + 8;
-          }
+        }
         this->ScalarDataChunks->value[this->ScalarDataChunks->value.size()-1].
                                 scalarData.push_back(temp);
-        }
       }
+    }
     else if (size == 3)
-      {
+    {
       this->NumberOfVectors++;
       this->VectorDataChunks->
         value.resize(this->VectorDataChunks->value.size() + 1);
@@ -4127,46 +4127,46 @@ void vtkFLUENTReader::GetData(int dataType)
       this->VectorDataChunks->
             value[this->VectorDataChunks->value.size()-1].zoneId = zoneId;
       for (int i=firstId; i<=lastId; i++)
-        {
+      {
         double tempx, tempy, tempz;
 
         if (dataType == 1)
-          {
+        {
           pdatastream >> tempx;
           pdatastream >> tempy;
           pdatastream >> tempz;
-          }
+        }
         else if (dataType == 2)
-          {
+        {
           tempx = this->GetDataBufferFloat( static_cast< int >(ptr) );
           ptr = ptr + 4;
           tempy = this->GetDataBufferFloat( static_cast< int >(ptr) );
           ptr = ptr + 4;
           tempz = this->GetDataBufferFloat( static_cast< int >(ptr) );
           ptr = ptr + 4;
-          }
+        }
         else
-          {
+        {
           tempx = this->GetDataBufferDouble( static_cast< int >(ptr) );
           ptr = ptr + 8;
           tempy = this->GetDataBufferDouble( static_cast< int >(ptr) );
           ptr = ptr + 8;
           tempz = this->GetDataBufferDouble( static_cast< int >(ptr) );
           ptr = ptr + 8;
-          }
+        }
         this->VectorDataChunks->value[this->VectorDataChunks->value.size()-1].
                                 iComponentData.push_back(tempx);
         this->VectorDataChunks->value[this->VectorDataChunks->value.size()-1].
                                 jComponentData.push_back(tempy);
         this->VectorDataChunks->value[this->VectorDataChunks->value.size()-1].
                                 kComponentData.push_back(tempz);
-        }
-      }
-    else
-      {
-      //cout << "Weird Variable Size = " << size << endl;
       }
     }
+    else
+    {
+      //cout << "Weird Variable Size = " << size << endl;
+    }
+  }
 }
 //----------------------------------------------------------------------------
 void vtkFLUENTReader::SetDataByteOrderToBigEndian()
@@ -4190,35 +4190,35 @@ void vtkFLUENTReader::SetDataByteOrderToLittleEndian()
 void vtkFLUENTReader::SetDataByteOrder(int byteOrder)
 {
   if ( byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN )
-    {
+  {
     this->SetDataByteOrderToBigEndian();
-    }
+  }
   else
-    {
+  {
     this->SetDataByteOrderToLittleEndian();
-    }
+  }
 }
 //----------------------------------------------------------------------------
 int vtkFLUENTReader::GetDataByteOrder()
 {
 #ifdef VTK_WORDS_BIGENDIAN
   if ( this->SwapBytes )
-    {
+  {
     return VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN;
-    }
+  }
   else
-    {
+  {
     return VTK_FILE_BYTE_ORDER_BIG_ENDIAN;
-    }
+  }
 #else
   if ( this->SwapBytes )
-    {
+  {
     return VTK_FILE_BYTE_ORDER_BIG_ENDIAN;
-    }
+  }
   else
-    {
+  {
     return VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN;
-    }
+  }
 #endif
 }
 //----------------------------------------------------------------------------
@@ -4226,22 +4226,22 @@ const char *vtkFLUENTReader::GetDataByteOrderAsString()
 {
 #ifdef VTK_WORDS_BIGENDIAN
   if ( this->SwapBytes )
-    {
+  {
     return "LittleEndian";
-    }
+  }
   else
-    {
+  {
     return "BigEndian";
-    }
+  }
 #else
   if ( this->SwapBytes )
-    {
+  {
     return "BigEndian";
-    }
+  }
   else
-    {
+  {
     return "LittleEndian";
-    }
+  }
 #endif
 }
 //------------------------------------------------------------------------------
@@ -4251,7 +4251,7 @@ void vtkFLUENTReader::GetSpeciesVariableNames()
   std::string variables = this->CaseBuffer->value;
   size_t startPos = variables.find("(species (names (") +17;
   if (startPos != std::string::npos)
-    {
+  {
     variables.erase( 0, startPos);
 
     size_t endPos = variables.find(")");
@@ -4262,7 +4262,7 @@ void vtkFLUENTReader::GetSpeciesVariableNames()
     int iterator = 0;
 
     while ( !tokenizer.eof() )
-      {
+    {
       std::string temp;
       tokenizer >> temp;
 
@@ -4276,6 +4276,6 @@ void vtkFLUENTReader::GetSpeciesVariableNames()
       this->VariableNames->value[1250 + iterator] = "CREV_" + temp;
 
       iterator++;
-      }
     }
+  }
 }

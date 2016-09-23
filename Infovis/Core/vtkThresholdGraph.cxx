@@ -41,43 +41,43 @@ int vtkThresholdGraph::RequestData(vtkInformation* vtkNotUsed(request),
                                    vtkInformationVector* outputVector)
 {
   if(!inputVector[0])
-    {
+  {
     vtkErrorMacro("Error: NULL or invalid input vtkInformationVector.");
     return 1;
-    }
+  }
 
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if(!inInfo)
-    {
+  {
     vtkErrorMacro("Error: NULL or invalid input vtkInformation.");
     return 1;
-    }
+  }
 
   vtkDataObject* inDataObj = inInfo->Get(vtkDataObject::DATA_OBJECT());
   if(!inDataObj)
-    {
+  {
     vtkErrorMacro("Error: NULL or invalid input data object.");
     return 1;
-    }
+  }
 
   if(!outputVector)
-    {
+  {
     vtkErrorMacro("Error: NULL or invalid output vtkInformationVector.");
     return 1;
-    }
+  }
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   if(!outInfo)
-    {
+  {
     vtkErrorMacro("Error: NULL of invalid output vtkInformation.")
-    }
+  }
 
   vtkDataObject* outDataObj = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if(!outDataObj)
-    {
+  {
     vtkErrorMacro("Error: NULL or invalid output data object.");
     return 1;
-    }
+  }
 
   vtkSmartPointer<vtkExtractSelectedGraph> extractThreshold (
     vtkSmartPointer<vtkExtractSelectedGraph>::New());
@@ -91,36 +91,36 @@ int vtkThresholdGraph::RequestData(vtkInformation* vtkNotUsed(request),
     this->GetInformation()->Get(INPUT_ARRAYS_TO_PROCESS());
 
   if (!inArrayVec)
-    {
+  {
     vtkErrorMacro("Problem finding array to process");
     return 1;
-    }
+  }
   vtkInformation* inArrayInfo = inArrayVec->GetInformationObject(0);
   if (!inArrayInfo)
-    {
+  {
     vtkErrorMacro("Problem getting name of array to process.");
     return 1;
-    }
+  }
   if ( ! inArrayInfo->Has(vtkDataObject::FIELD_NAME()))
-    {
+  {
     vtkErrorMacro("Missing field name.");
     return 1;
-    }
+  }
   const char* arrayNameToProcess =
     inArrayInfo->Get(vtkDataObject::FIELD_NAME());
 
   if(!arrayNameToProcess)
-    {
+  {
     vtkErrorMacro("Unable to find valid array.");
     return 1;
-    }
+  }
 
   int fieldAssociation(-1);
   if(!inArrayInfo->Has(vtkDataObject::FIELD_ASSOCIATION()))
-    {
+  {
     vtkErrorMacro("Unable to query field association for the scalar.");
     return 1;
-    }
+  }
   fieldAssociation = inArrayInfo->Get(vtkDataObject::FIELD_ASSOCIATION());
 
   thresholdArr->SetName(arrayNameToProcess);
@@ -131,19 +131,19 @@ int vtkThresholdGraph::RequestData(vtkInformation* vtkNotUsed(request),
   thresholdNode->SetContentType(vtkSelectionNode::THRESHOLDS);
 
   if(fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_EDGES)
-    {
+  {
     thresholdNode->SetFieldType(vtkSelectionNode::EDGE);
-    }
+  }
   else if(fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_VERTICES)
-    {
+  {
     thresholdNode->SetFieldType(vtkSelectionNode::VERTEX);
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro("Array selected should be associated with vertex or " <<
                   "edge data.");
     return 1;
-    }
+  }
 
   threshold->AddNode(thresholdNode);
 
@@ -159,10 +159,10 @@ int vtkThresholdGraph::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDataObject* output = extractThreshold->GetOutputDataObject(0);
 
   if(!output)
-    {
+  {
     vtkErrorMacro("NULL or invalid output.");
     return 1;
-    }
+  }
 
   outDataObj->ShallowCopy(output);
 

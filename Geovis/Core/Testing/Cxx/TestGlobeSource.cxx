@@ -80,7 +80,7 @@ int TestGlobeSource(int argc, char* argv[])
   // Lower values of lat / long will correspond to
   // texture coordinate = 0 (for both s & t).
   for(int i=0; i < array->GetNumberOfTuples(); ++i)
-    {
+  {
 
      array->GetTypedTuple(i, val);
 
@@ -89,7 +89,7 @@ int TestGlobeSource(int argc, char* argv[])
      newVal[0] = (longRange[0] - val[1]) / range[1];
 
      textureCoords->InsertNextTuple(newVal);
-    }
+  }
 
   globeSource->GetOutput(0)->GetPointData()->SetTCoords(textureCoords);
   mapper->SetInputConnection( globeSource->GetOutputPort() );
@@ -121,9 +121,9 @@ int TestGlobeSource(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage( renWin );
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renWinInt->Start();
-    }
+  }
 
   delete []image;
   return !retVal;

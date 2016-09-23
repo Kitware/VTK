@@ -57,19 +57,19 @@ public:
   void GetColor(const vtkStdString & name, vtkColor4ub & color)
   {
     for(int i = 0; i < 3; ++i)
-      {
+    {
       color[i] = 0;
-      }
+    }
     color[3] = 255;
     if ( !name.empty() )
-      {
+    {
       vtkStdString s = this->ToLowercase(name);
       std::map<vtkStdString, vtkColor4ub>::iterator p = this->colorMap.find(s);
       if ( p != this->colorMap.end() )
-        {
+      {
         color = p->second;
-        }
       }
+    }
   }
 
   //-----------------------------------------------------------------------------
@@ -82,9 +82,9 @@ public:
     vtkColor4ub c;
     this->GetColor(name,c);
     for(int i = 0; i < c.GetSize(); ++i)
-      {
+    {
       color[i] = static_cast<double>(c[i] / 255.0);
-      }
+    }
   }
 
   //-----------------------------------------------------------------------------
@@ -97,9 +97,9 @@ public:
     vtkColor4ub c;
     this->GetColor(name,c);
     for(int i = 0; i < color.GetSize(); ++i)
-      {
+    {
       color[i] = c[i];
-      }
+    }
   }
 
   //-----------------------------------------------------------------------------
@@ -112,9 +112,9 @@ public:
     vtkColor4d c;
     this->GetColor(name,c);
     for(int i = 0; i < color.GetSize(); ++i)
-      {
+    {
       color[i] = c[i];
-      }
+    }
   }
 
   //-----------------------------------------------------------------------------
@@ -125,10 +125,10 @@ public:
   void SetColor(const vtkStdString & name, const vtkColor4ub & color)
   {
     if ( !name.empty() && color.GetSize() == 4 )
-      {
+    {
       vtkStdString s = this->ToLowercase(name);
       this->colorMap[s] = color;
-      }
+    }
   }
 
   //-----------------------------------------------------------------------------
@@ -139,7 +139,7 @@ public:
   void SetColor(const vtkStdString & name, const vtkColor4d & color)
   {
     if ( !name.empty() && color.GetSize() == 4 )
-      {
+    {
       vtkStdString s = this->ToLowercase(name);
       unsigned char r, g, b, a;
       r = static_cast<unsigned char>(color.GetRed() * 255.0);
@@ -147,7 +147,7 @@ public:
       b = static_cast<unsigned char>(color.GetBlue() * 255.0);
       a = static_cast<unsigned char>(color.GetAlpha() * 255.0);
       this->colorMap[s] = vtkColor4ub(r,g,b,a);
-      }
+    }
   }
 
   //-----------------------------------------------------------------------------
@@ -159,9 +159,9 @@ public:
   {
     vtkColor4ub c;
     for(int i = 0; i < 3; ++i)
-      {
+    {
       c[i] = color[i];
-      }
+    }
     c[3] = 255;
     this->SetColor(name,c);
   }
@@ -175,9 +175,9 @@ public:
   {
     vtkColor4d c;
     for(int i = 0; i < 3; ++i)
-      {
+    {
         c[i] = color[i];
-      }
+    }
     c[3] = 1.0;
     this->SetColor(name,c);
   }
@@ -188,14 +188,14 @@ public:
   void RemoveColor(const vtkStdString & name)
   {
     if (!name.empty())
-      {
+    {
       vtkStdString s = this->ToLowercase(name);
       std::map<vtkStdString, vtkColor4ub>::iterator p = this->colorMap.find(s);
       if ( p != this->colorMap.end() )
-        {
+      {
         this->colorMap.erase(p);
-        }
       }
+    }
   }
 
   //-----------------------------------------------------------------------------
@@ -214,9 +214,9 @@ std::vector<vtkStdString> GetColorNames()
   for(std::map<vtkStdString, vtkColor4ub>::const_iterator p =
     this->GetColorMap()->begin();
     p != this->GetColorMap()->end(); ++p )
-    {
+  {
     colorNames.push_back(p->first);
-    }
+  }
   return colorNames;
 }
 
@@ -230,50 +230,50 @@ std::vector<std::vector<vtkStdString> > GetSynonyms()
   std::map<vtkStdString, std::vector<vtkStdString> > synonyms;
   for ( std::vector<vtkStdString>::const_iterator p =
     cn.begin(); p != cn.end(); ++p )
-    {
+  {
     vtkColor4ub vu;
     this->GetColor(*p,vu);
     std::vector<vtkStdString> duplicates;
     for ( std::map<vtkStdString, vtkColor4ub>::const_iterator
       q = this->GetColorMap()->begin();
       q != this->GetColorMap()->end(); ++q )
-      {
+    {
       if( *p != q->first && vu.Compare( q->second, 1 ) )
-        {
-        duplicates.push_back(q->first);
-        }
-      }
-    if ( !duplicates.empty() )
       {
+        duplicates.push_back(q->first);
+      }
+    }
+    if ( !duplicates.empty() )
+    {
       bool alreadyInMap = false;
       for( std::vector<vtkStdString>::const_iterator r =
         duplicates.begin(); r != duplicates.end(); ++r)
-        {
+      {
         if( synonyms.find(*r) != synonyms.end() )
-          {
+        {
           alreadyInMap = true;
           break;
-          }
-        }
-      if ( !alreadyInMap )
-        {
-        synonyms[*p] = duplicates;
         }
       }
+      if ( !alreadyInMap )
+      {
+        synonyms[*p] = duplicates;
+      }
     }
+  }
   std::vector<std::vector<vtkStdString> > retVec;
   for(std::map<vtkStdString,std::vector<vtkStdString> >::const_iterator p =
     synonyms.begin(); p != synonyms.end(); ++p)
-    {
+  {
     std::vector<vtkStdString> vstr;
     vstr.push_back(p->first);
     for(std::vector<vtkStdString>::const_iterator q =
       p->second.begin(); q!= p->second.end(); ++q)
-      {
+    {
       vstr.push_back(*q);
-      }
-    retVec.push_back(vstr);
     }
+    retVec.push_back(vstr);
+  }
   return retVec;
 }
 
@@ -659,7 +659,7 @@ static const char *colorTable[] =
     // Here we fill the color map.
     size_t colorTableSz = sizeof(colorTable)/sizeof(colorTable[0]);
     for (size_t i = 0; i < colorTableSz; ++i)
-      {
+    {
       std::vector<unsigned char> color;
       vtkStdString s = colorTable[i];
       size_t idx = s.find(',');
@@ -682,7 +682,7 @@ static const char *colorTable[] =
       t = s.substr(start,s.size() - start); // Alpha
       color.push_back(static_cast<unsigned char>(atoi(t.c_str())));
       this->colorMap[name] = vtkColor4ub(color[0],color[1],color[2],color[3]);
-      }
+    }
   }
 
 private:
@@ -762,36 +762,36 @@ bool vtkColorStringParser::Parse(const vtkStdString& colorString)
   this->StateGood = (pos != vtkStdString::npos);
 
   if (this->StateGood)
-    {
+  {
     if (color[pos] == '#')
-      {
+    {
       // Trim trailing spaces.
       vtkStdString::size_type last = color.find_last_not_of(" \t");
       this->HexStringToRGBA(color.substr(pos + 1, last - pos));
-      }
+    }
     else if (color.compare(pos, 4, "rgba") == 0)
-      {
+    {
       this->RGBAFuncStringToRGBA(color, pos+4, 4);
-      }
+    }
     else if (color.compare(pos, 3, "rgb") == 0)
-      {
+    {
       this->RGBAFuncStringToRGBA(color, pos+3, 3);
       this->Color[3] = 255;
-      }
+    }
     else
-      {
+    {
       this->StateGood = this->NamedColors->ColorExists(color);
       if (this->StateGood)
-          {
+      {
           this->NamedColors->GetColor(color, this->Color);
-          }
       }
     }
+  }
 
   if (!this->StateGood)
-    {
+  {
     this->Color.Set(0, 0, 0, 0);
-    }
+  }
   return this->StateGood;
 }
 
@@ -799,13 +799,13 @@ bool vtkColorStringParser::Parse(const vtkStdString& colorString)
 unsigned char clip(long int value)
 {
   if (value < 0)
-    {
+  {
     value = 0;
-    }
+  }
   else if (value > 255)
-    {
+  {
     value = 255;
-    }
+  }
   return static_cast<unsigned char>(value);
 }
 
@@ -813,13 +813,13 @@ unsigned char clip(long int value)
 double clip(double value)
 {
   if (value < 0.0)
-    {
+  {
     value = 0.0;
-    }
+  }
   else if (value > 1.0)
-    {
+  {
     value = 1.0;
-    }
+  }
   return value;
 }
 
@@ -840,25 +840,25 @@ void vtkColorStringParser::HexStringToRGBA(vtkStdString color)
   this->StateGood = (pos == vtkStdString::npos);
 
   if (this->StateGood)
-    {
+  {
     if (color.size() == 3) // #RGB -> #RRGGBB
-      {
+    {
       color.resize(6);
       vtkStdString::size_type i = 3, j = 6;
       do
-        {
+      {
         color[--j] = color[--i];
         color[--j] = color[i];
-        } while (i != 0);
-      }
+      } while (i != 0);
+    }
     else if (color.size() != 6)
-      {
+    {
       this->StateGood = false;
-      }
+    }
 
     // Parse hex bytes.
     if (this->StateGood)
-      {
+    {
       std::istringstream istr;
       int c;
       for (unsigned int i = 0; i < 3; ++i)
@@ -869,8 +869,8 @@ void vtkColorStringParser::HexStringToRGBA(vtkStdString color)
         istr.clear();
       }
       this->Color[3] = 255;
-      }
     }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -895,13 +895,13 @@ void vtkColorStringParser::RGBAFuncStringToRGBA(vtkStdString color,
   for (vtkStdString::size_type i = pos + 1;
        (delimiterCount < argCount) && (i < color.size());
        ++i)
-    {
+  {
     if (color[i] == ',')
-      {
+    {
       color[i] = ' ';
       ++delimiterCount;
-      }
     }
+  }
   this->StateGood = (delimiterCount + 1 == argCount);
 
   // Parse arguments.
@@ -910,50 +910,50 @@ void vtkColorStringParser::RGBAFuncStringToRGBA(vtkStdString color,
   char** final = &end;
 
   if (!usePercentage)
-    {
+  {
     long int value;
     for (unsigned int i = 0; this->StateGood && (i < 3); ++i)
-      {
+    {
       value = strtol(start, final, 10);
       this->Color[i] = clip(value);
       this->StateGood = (start != end);
       start = end;
-      }
     }
+  }
   else
-    {
+  {
     double value;
     for (unsigned int i = 0; this->StateGood && (i < 3); ++i)
-      {
+    {
       value = strtod(start, final);
       this->Color[i] = static_cast<unsigned char>(255 * clipPercentage(value));
       this->StateGood = (start != end && *end == '%');
       start = ++end;
-      }
     }
+  }
 
   // Parse the alpha value if needed.
   if (this->StateGood && argCount == 4)
-    {
+  {
     double value = strtod(start, final);
     this->Color[3] = static_cast<unsigned char>(255 * clip(value));
     this->StateGood = (start != end);
-    }
+  }
 
   // Parse ')'.
   if (this->StateGood)
-    {
+  {
     pos = end - color.c_str();
     pos = color.find_first_not_of(" \t", pos);
     this->StateGood = (pos != vtkStdString::npos && color[pos] == ')');
-    }
+  }
 
   // Left characters must be only trailing spaces or the string is not valid.
   if (this->StateGood)
-    {
+  {
     pos = color.find_first_not_of(" \t", pos + 1);
     this->StateGood = (pos == vtkStdString::npos);
-    }
+  }
 }
 
 
@@ -982,19 +982,19 @@ void vtkNamedColors::PrintSelf(ostream &os, vtkIndent indent)
   for ( std::map<vtkStdString, vtkColor4ub >::const_iterator p =
     this->Colors->GetColorMap()->begin();
     p != this->Colors->GetColorMap()->end(); ++p )
-    {
+  {
     os << indent << ": " << p->first << "(";
     if (p->second.GetSize() == 4)
-      {
+    {
       int r = p->second.GetRed();
       int g = p->second.GetGreen();
       int b = p->second.GetBlue();
       int a = p->second.GetAlpha();
       os << setw(3) << r << "," << setw(3) << g
         << ","<< setw(3) << b <<"," << setw(3) << a;
-      }
-      os << ")" << endl;
     }
+      os << ")" << endl;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1008,13 +1008,13 @@ vtkStdString vtkNamedColors::GetColorNames()
   // Now just iterate through the map getting the color names.
   for(std::vector<vtkStdString>::const_iterator p =
     cnv.begin(); p != cnv.end(); ++p )
-    {
+  {
     colorNames += *p;
     if (p != lastItr)
-      {
+    {
       colorNames += "\n";
-      }
     }
+  }
   return colorNames;
 }
 
@@ -1025,9 +1025,9 @@ void vtkNamedColors::GetColorNames(vtkStringArray * colorNames)
   // Now just iterate through the map getting the color names.
   for(std::vector<vtkStdString>::const_iterator p =
     cnv.begin(); p != cnv.end(); ++p )
-    {
+  {
     colorNames->InsertNextValue(*p);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1039,25 +1039,25 @@ vtkStdString vtkNamedColors::GetSynonyms()
   --synLast;
   for(std::vector<std::vector<vtkStdString> >::const_iterator p =
     syn.begin(); p != syn.end(); ++p)
-    {
+  {
     // Get the last element in the vector.
     std::vector<vtkStdString>::const_iterator strLast =
       p->end();
     --strLast;
     for(std::vector<vtkStdString>::const_iterator q =
       p->begin(); q!= p->end(); ++q)
-      {
+    {
       synonyms += *q;
       if(q != strLast)
-        {
-        synonyms += "\n";
-        }
-      }
-    if (p != synLast)
       {
-      synonyms += "\n\n";
+        synonyms += "\n";
       }
     }
+    if (p != synLast)
+    {
+      synonyms += "\n\n";
+    }
+  }
   return synonyms;
 }
 
@@ -1107,9 +1107,9 @@ void vtkNamedColors::GetColor(const vtkStdString & name, unsigned char rgba[4])
   vtkColor4ub color;
   this->Colors->GetColor(name,color);
   for(int i = 0; i < color.GetSize(); ++i)
-    {
+  {
     rgba[i] = color[i];
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1144,9 +1144,9 @@ void vtkNamedColors::GetColor(const vtkStdString & name, double rgba[4])
   vtkColor4d color;
   this->Colors->GetColor(name,color);
   for(int i = 0; i < color.GetSize(); ++i)
-    {
+  {
     rgba[i] = color[i];
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1188,9 +1188,9 @@ void vtkNamedColors::GetColorRGB(const vtkStdString & name, double rgb[3])
   vtkColor3d color;
   this->Colors->GetColor(name,color);
   for(int i = 0; i < color.GetSize(); ++i)
-    {
+  {
     rgb[i] = color[i];
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1224,9 +1224,9 @@ void vtkNamedColors::SetColor(const vtkStdString & name,
 {
   vtkColor4ub v;
   for ( int i = 0; i < v.GetSize(); ++i )
-    {
+  {
     v[i] = rgba[i];
-    }
+  }
   this->Colors->SetColor(name,v);
 }
 
@@ -1262,9 +1262,9 @@ void vtkNamedColors::SetColor(const vtkStdString & name, const double rgba[4])
 {
   vtkColor4d v;
   for ( int i = 0; i < v.GetSize(); ++i )
-    {
+  {
     v[i] = rgba[i];
-    }
+  }
   this->Colors->SetColor(name,v);
 }
 
@@ -1274,9 +1274,9 @@ void vtkNamedColors::SetColor(const vtkStdString & name,
 {
   vtkColor4d v;
   for ( int i = 0; i < v.GetSize(); ++i )
-    {
+  {
     v[i] = rgba[i];
-    }
+  }
   this->Colors->SetColor(name,v);
 }
 
@@ -1291,9 +1291,9 @@ void vtkNamedColors::SetColor(const vtkStdString & name,
 void vtkNamedColors::RemoveColor(const vtkStdString & name)
 {
   if (!name.empty())
-    {
+  {
     this->Colors->RemoveColor(name);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1319,14 +1319,14 @@ void vtkNamedColors::SetColor(const vtkStdString & name,
                               const vtkStdString & htmlString)
 {
   if (!name.empty())
-    {
+  {
     vtkColor4ub noColor(0, 0, 0, 0);
     vtkColor4ub color = this->HTMLColorToRGBA(htmlString);
     if (color != noColor)
-      {
+    {
       this->SetColor(name, color);
-      }
     }
+  }
 }
 
 //-----------------------------------------------------------------------------

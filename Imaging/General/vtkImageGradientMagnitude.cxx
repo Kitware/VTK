@@ -66,14 +66,14 @@ int vtkImageGradientMagnitude::RequestInformation (
               extent);
 
   if ( ! this->HandleBoundaries)
-    {
+  {
     // shrink output image extent.
     for (idx = 0; idx < this->Dimensionality; ++idx)
-      {
+    {
       extent[idx*2] += 1;
       extent[idx*2 + 1] -= 1;
-      }
     }
+  }
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                extent, 6);
@@ -104,22 +104,22 @@ int vtkImageGradientMagnitude::RequestUpdateExtent (
 
   // grow input whole extent.
   for (idx = 0; idx < this->Dimensionality; ++idx)
-    {
+  {
     inUExt[idx*2] -= 1;
     inUExt[idx*2+1] += 1;
     if (this->HandleBoundaries)
-      {
+    {
       // we must clip extent with whole extent is we hanlde boundaries.
       if (inUExt[idx*2] < wholeExtent[idx*2])
-        {
+      {
         inUExt[idx*2] = wholeExtent[idx*2];
-        }
+      }
       if (inUExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
-        {
+      {
         inUExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
-        }
       }
     }
+  }
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inUExt, 6);
 
   return 1;
@@ -180,27 +180,27 @@ void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
 
   // Loop through output pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
-    {
+  {
     useZMin = ((idxZ + outExt[4]) <= wholeExtent[4]) ? 0 : -inIncs[2];
     useZMax = ((idxZ + outExt[4]) >= wholeExtent[5]) ? 0 : inIncs[2];
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
-      {
+    {
       if (!id)
-        {
+      {
         if (!(count%target))
-          {
+        {
           self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
         }
+        count++;
+      }
       useYMin = ((idxY + outExt[2]) <= wholeExtent[2]) ? 0 : -inIncs[1];
       useYMax = ((idxY + outExt[2]) >= wholeExtent[3]) ? 0 : inIncs[1];
       for (idxX = 0; idxX <= maxX; idxX++)
-        {
+      {
         useXMin = ((idxX + outExt[0]) <= wholeExtent[0]) ? 0 : -inIncs[0];
         useXMax = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];
         for (idxC = 0; idxC < maxC; idxC++)
-          {
+        {
           // do X axis
           d = static_cast<double>(inPtr[useXMin]);
           d -= static_cast<double>(inPtr[useXMax]);
@@ -212,24 +212,24 @@ void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
           d *= r[1]; // multiply by the data spacing
           sum += (d * d);
           if (axesNum == 3)
-            {
+          {
             // do z axis
             d = static_cast<double>(inPtr[useZMin]);
             d -= static_cast<double>(inPtr[useZMax]);
             d *= r[2]; // multiply by the data spacing
             sum += (d * d);
-            }
+          }
           *outPtr = static_cast<T>(sqrt(sum));
           outPtr++;
           inPtr++;
-          }
         }
+      }
       outPtr += outIncY;
       inPtr += inIncY;
-      }
+    }
     outPtr += outIncZ;
     inPtr += inIncZ;
-    }
+  }
 }
 
 
@@ -247,16 +247,16 @@ void vtkImageGradientMagnitude::ThreadedExecute (vtkImageData *inData,
 
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
-    {
+  {
     vtkErrorMacro(<< "Execute: input data type, "
                   << inData->GetScalarType()
                   << ", must match out ScalarType "
                   << outData->GetScalarType());
     return;
-    }
+  }
 
   switch (inData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageGradientMagnitudeExecute(this,
                                        inData, static_cast<VTK_TT *>(inPtr),
@@ -266,7 +266,7 @@ void vtkImageGradientMagnitude::ThreadedExecute (vtkImageData *inData,
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
-    }
+  }
 }
 
 

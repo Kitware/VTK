@@ -19,12 +19,15 @@
 
 =========================================================================*/
 
-// .NAME vtkUnicodeStringArray - Subclass of vtkAbstractArray that holds vtkUnicodeStrings
-//
-// .SECTION Description
-//
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+/**
+ * @class   vtkUnicodeStringArray
+ * @brief   Subclass of vtkAbstractArray that holds vtkUnicodeStrings
+ *
+ *
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+*/
 
 #ifndef vtkUnicodeStringArray_h
 #define vtkUnicodeStringArray_h

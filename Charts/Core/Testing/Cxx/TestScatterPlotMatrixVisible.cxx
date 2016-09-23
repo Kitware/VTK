@@ -55,13 +55,13 @@ int TestScatterPlotMatrixVisible(int, char * [])
   float inc = 7.5 / (numPoints-1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
-    {
+  {
     table->SetValue(i, 0, i * inc);
     table->SetValue(i, 1, cos(i * inc));
     table->SetValue(i, 2, sin(i * inc));
     table->SetValue(i, 3, sin(i * inc) + 0.5);
     table->SetValue(i, 4, tan(i * inc));
-    }
+  }
 
   // Select a few columns in the table to analyze.
   matrix->SetInput(table.GetPointer());

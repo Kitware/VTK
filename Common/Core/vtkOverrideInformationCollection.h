@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOverrideInformationCollection - maintain a list of override information objects
-// .SECTION Description
-// vtkOverrideInformationCollection is an object that creates and manipulates
-// lists of objects of type vtkOverrideInformation.
-// .SECTION See Also
-// vtkCollection
+/**
+ * @class   vtkOverrideInformationCollection
+ * @brief   maintain a list of override information objects
+ *
+ * vtkOverrideInformationCollection is an object that creates and manipulates
+ * lists of objects of type vtkOverrideInformation.
+ * @sa
+ * vtkCollection
+*/
 
 #ifndef vtkOverrideInformationCollection_h
 #define vtkOverrideInformationCollection_h
@@ -33,17 +36,20 @@ public:
   vtkTypeMacro(vtkOverrideInformationCollection,vtkCollection);
   static vtkOverrideInformationCollection *New();
 
-  // Description:
-  // Add a OverrideInformation to the list.
+  /**
+   * Add a OverrideInformation to the list.
+   */
   void AddItem(vtkOverrideInformation *);
 
-  // Description:
-  // Get the next OverrideInformation in the list.
+  /**
+   * Get the next OverrideInformation in the list.
+   */
   vtkOverrideInformation *GetNextItem();
 
-  // Description:
-  // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth.
+  /**
+   * Reentrant safe way to get an object in a collection. Just pass the
+   * same cookie back and forth.
+   */
   vtkOverrideInformation *GetNextOverrideInformation(
     vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkOverrideInformation *>(

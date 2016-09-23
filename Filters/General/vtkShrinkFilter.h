@@ -12,20 +12,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkShrinkFilter - shrink cells composing an arbitrary data set
-// .SECTION Description
-// vtkShrinkFilter shrinks cells composing an arbitrary data set
-// towards their centroid. The centroid of a cell is computed as the
-// average position of the cell points. Shrinking results in
-// disconnecting the cells from one another. The output of this filter
-// is of general dataset type vtkUnstructuredGrid.
-
-// .SECTION Caveats
-// It is possible to turn cells inside out or cause self intersection
-// in special cases.
-
-// .SECTION See Also
-// vtkShrinkPolyData
+/**
+ * @class   vtkShrinkFilter
+ * @brief   shrink cells composing an arbitrary data set
+ *
+ * vtkShrinkFilter shrinks cells composing an arbitrary data set
+ * towards their centroid. The centroid of a cell is computed as the
+ * average position of the cell points. Shrinking results in
+ * disconnecting the cells from one another. The output of this filter
+ * is of general dataset type vtkUnstructuredGrid.
+ *
+ * @warning
+ * It is possible to turn cells inside out or cause self intersection
+ * in special cases.
+ *
+ * @sa
+ * vtkShrinkPolyData
+*/
 
 #ifndef vtkShrinkFilter_h
 #define vtkShrinkFilter_h
@@ -40,10 +43,13 @@ public:
   vtkTypeMacro(vtkShrinkFilter,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get/Set the fraction of shrink for each cell. The default is 0.5.
+  //@{
+  /**
+   * Get/Set the fraction of shrink for each cell. The default is 0.5.
+   */
   vtkSetClampMacro(ShrinkFactor, double, 0.0, 1.0);
   vtkGetMacro(ShrinkFactor, double);
+  //@}
 
 protected:
   vtkShrinkFilter();

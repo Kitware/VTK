@@ -13,14 +13,17 @@
 
 =========================================================================*/
 
-// .NAME vtkUnstructuredGridVolumeRayCastFunction - a superclass for ray casting functions
-
-// .SECTION Description
-// vtkUnstructuredGridVolumeRayCastFunction is a superclass for ray casting functions that
-// can be used within a vtkUnstructuredGridVolumeRayCastMapper.
-
-// .SECTION See Also
-// vtkUnstructuredGridVolumeRayCastMapper vtkUnstructuredGridVolumeRayIntegrator
+/**
+ * @class   vtkUnstructuredGridVolumeRayCastFunction
+ * @brief   a superclass for ray casting functions
+ *
+ *
+ * vtkUnstructuredGridVolumeRayCastFunction is a superclass for ray casting functions that
+ * can be used within a vtkUnstructuredGridVolumeRayCastMapper.
+ *
+ * @sa
+ * vtkUnstructuredGridVolumeRayCastMapper vtkUnstructuredGridVolumeRayIntegrator
+*/
 
 #ifndef vtkUnstructuredGridVolumeRayCastFunction_h
 #define vtkUnstructuredGridVolumeRayCastFunction_h
@@ -42,10 +45,11 @@ public:
 
   virtual void Finalize( )=0;
 
- // Description:
-  // Returns a new object that will iterate over all the intersections of a
-  // ray with the cells of the input.  The calling code is responsible for
-  // deleting the returned object.
+ /**
+  * Returns a new object that will iterate over all the intersections of a
+  * ray with the cells of the input.  The calling code is responsible for
+  * deleting the returned object.
+  */
   VTK_NEWINSTANCE
   virtual vtkUnstructuredGridVolumeRayCastIterator *NewIterator() = 0;
 

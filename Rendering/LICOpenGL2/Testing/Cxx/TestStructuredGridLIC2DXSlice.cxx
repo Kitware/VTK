@@ -32,9 +32,9 @@ int TestStructuredGridLIC2DXSlice(int argc, char* argv[])
 
   char** new_argv = new char*[argc+12];
   for (int cc=0; cc < argc; cc++)
-    {
+  {
     new_argv[cc] = vtksys::SystemTools::DuplicateString(argv[cc]);
-    }
+  }
   new_argv[argc++] = vtksys::SystemTools::DuplicateString(filename.c_str());
   new_argv[argc++] = vtksys::SystemTools::DuplicateString(noise.c_str());
   new_argv[argc++] = vtksys::SystemTools::DuplicateString("--mag=8");
@@ -46,9 +46,9 @@ int TestStructuredGridLIC2DXSlice(int argc, char* argv[])
   new_argv[argc++] = vtksys::SystemTools::DuplicateString("--test-mode=1");
   int status = vtkStructuredGridLIC2DTestDriver(argc, new_argv);
   for (int kk=0; kk < argc; kk++)
-    {
+  {
     delete [] new_argv[kk];
-    }
+  }
   delete [] new_argv;
 
   return status;

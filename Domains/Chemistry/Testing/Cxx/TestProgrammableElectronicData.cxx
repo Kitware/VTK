@@ -19,12 +19,12 @@
 
 #define CHECK_MO(num) \
   if (ed->GetMO(num) != mo##num.GetPointer()) \
-    {   \
+  {   \
     cerr << "MO number " << (num) << " has changed since being set: " \
          << "Expected @" << mo##num.GetPointer() \
          << ", got @" << ed->GetMO(num) << ".\n"; \
     return EXIT_FAILURE;  \
-    }
+  }
 
 
 int TestProgrammableElectronicData(int, char *[])
@@ -62,10 +62,10 @@ int TestProgrammableElectronicData(int, char *[])
   CHECK_MO(8);
 
   if (ed->GetElectronDensity() != density.GetPointer())
-    {
+  {
     cerr << "Electron density has changed since being set.";
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

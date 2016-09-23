@@ -40,7 +40,7 @@ int TestBareScalarsToColors(int argc, char *argv[])
   // Make the four sets of test scalars
   vtkSmartPointer<vtkUnsignedCharArray> inputs[4];
   for (int ncomp = 1; ncomp <= 4; ncomp++)
-    {
+  {
     inputs[ncomp-1] = vtkSmartPointer<vtkUnsignedCharArray>::New();
     vtkUnsignedCharArray *arr = inputs[ncomp-1].GetPointer();
 
@@ -57,11 +57,11 @@ int TestBareScalarsToColors(int argc, char *argv[])
     unsigned char cval[4];
     vtkIdType i = 0;
     for (int j = 0; j < 16; j++)
-      {
+    {
       for (int jj = 0; jj < 5; jj++)
-        {
+      {
         for (int k = 0; k < 16; k++)
-          {
+        {
           cval[0] = ((k >> 2) & 3)*f;
           cval[1] = (k & 3)*f;
           cval[2] = ((j >> 2) & 3)*f;
@@ -71,13 +71,13 @@ int TestBareScalarsToColors(int argc, char *argv[])
           cval[0] = (ncomp > 2 ? cval[0] : lc);
           cval[1] = (ncomp > 2 ? cval[1] : cval[3]);
           for (int kk = 0; kk < 5; kk++)
-            {
+          {
             arr->SetTypedTuple(i++, cval);
-            }
           }
         }
       }
     }
+  }
 
   vtkNew<vtkScalarsToColors> table2;
   vtkNew<vtkScalarsToColors> table;
@@ -92,7 +92,7 @@ int TestBareScalarsToColors(int argc, char *argv[])
   // Make the 64 sets of output scalars
   vtkSmartPointer<vtkUnsignedCharArray> outputs[64];
   for (int i = 0; i < 64; i++)
-    {
+  {
     int j = (i & 7);
     int k = ((i >> 3) & 7);
     double alpha = 0.5*(2 - (j & 1));
@@ -106,26 +106,26 @@ int TestBareScalarsToColors(int argc, char *argv[])
     table->SetAlpha(alpha);
 
     if (inputc == 1 || inputc == 3)
-      {
+    {
       table->SetVectorModeToMagnitude();
-      }
+    }
     else if (inputc == 4)
-      {
+    {
       table->SetVectorModeToRGBColors();
-      }
+    }
     else
-      {
+    {
       table->SetVectorModeToComponent();
-      }
+    }
 
     // coverage
     unsigned char *color = table->MapValue(0.5*(range[0] + range[1]));
     if (color[0] != 128)
-      {
+    {
       cout << "Expected greyscale 128: ";
       cout << color[0] << ", " << color[1] << ", " << color[2] << ", "
            << color[3] << std::endl;
-      }
+    }
 
     outputs[i] = vtkSmartPointer<vtkUnsignedCharArray>::New();
     outputs[i]->SetNumberOfComponents(outputc);
@@ -174,14 +174,14 @@ int TestBareScalarsToColors(int argc, char *argv[])
                     (pos[0] + 80)/640.0, (pos[1] + 80)/640.0);
 
     renWin->AddRenderer(ren.GetPointer());
-    }
+  }
 
   renWin->Render();
   int retVal = vtkRegressionTestImage(renWin.GetPointer());
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

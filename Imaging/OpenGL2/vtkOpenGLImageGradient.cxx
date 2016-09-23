@@ -44,10 +44,10 @@ vtkOpenGLImageGradient::vtkOpenGLImageGradient()
 vtkOpenGLImageGradient::~vtkOpenGLImageGradient()
 {
   if (this->Helper)
-    {
+  {
     this->Helper->Delete();
     this->Helper = 0;
-    }
+  }
 }
 
 void vtkOpenGLImageGradient::SetRenderWindow(vtkRenderWindow *renWin)
@@ -71,13 +71,13 @@ class vtkOpenGLGradientCB : public vtkOpenGLImageAlgorithmCallback
 public:
   // initialize the spacing
   virtual void InitializeShaderUniforms(vtkShaderProgram *program)
-    {
+  {
     float sp[3];
     sp[0] = this->Spacing[0];
     sp[1] = this->Spacing[1];
     sp[2] = this->Spacing[2];
     program->SetUniform3f("spacing", sp);
-    }
+  }
 
   // no uniforms change on a per slice basis so empty
   virtual void UpdateShaderUniforms(
@@ -111,16 +111,16 @@ void vtkOpenGLImageGradient::ThreadedRequestData(
 
   // The ouptut scalar type must be double to store proper gradients.
   if(outData[0]->GetScalarType() != VTK_DOUBLE)
-    {
+  {
     vtkErrorMacro("Execute: output ScalarType is "
                   << outData[0]->GetScalarType() << "but must be double.");
     return;
-    }
+  }
 
   // Gradient makes sense only with one input component.  This is not
   // a Jacobian filter.
   if(inArray->GetNumberOfComponents() != 1)
-    {
+  {
     vtkErrorMacro(
       "Execute: input has more than one component. "
       "The input to gradient should be a single component image. "
@@ -128,7 +128,7 @@ void vtkOpenGLImageGradient::ThreadedRequestData(
       "run it though RGBToHSV then ExtractComponents to get the V "
       "components. That's probably what you want anyhow.");
     return;
-    }
+  }
 
   vtkOpenGLGradientCB cb;
   cb.Spacing = inData[0][0]->GetSpacing();
@@ -153,20 +153,20 @@ void vtkOpenGLImageGradient::ThreadedRequestData(
     ;
 
   if (this->Dimensionality == 3)
-    {
+  {
     fragShader +=
       "  float dz = textureOffset(inputTex1, vec3(tcoordVSOutput, zPos), ivec3(0,0,1)).r\n"
       "    - textureOffset(inputTex1, vec3(tcoordVSOutput, zPos), ivec3(0,0,-1)).r;\n"
       "  dz = inputScale*0.5*dz/spacing.z;\n"
       "  gl_FragData[0] = vec4(dx, dy, dz, 1.0);\n"
       "}\n";
-    }
+  }
   else
-    {
+  {
     fragShader +=
       "  gl_FragData[0] = vec4(dx, dy, 0.0, 1.0);\n"
       "}\n";
-    }
+  }
 
   // call the helper to execte this code
   this->Helper->Execute(&cb,

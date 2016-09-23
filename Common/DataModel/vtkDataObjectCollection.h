@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDataObjectCollection - maintain an unordered list of data objects
-// .SECTION Description
-// vtkDataObjectCollection is an object that creates and manipulates lists of
-// data objects. See also vtkCollection and subclasses.
+/**
+ * @class   vtkDataObjectCollection
+ * @brief   maintain an unordered list of data objects
+ *
+ * vtkDataObjectCollection is an object that creates and manipulates lists of
+ * data objects. See also vtkCollection and subclasses.
+*/
 
 #ifndef vtkDataObjectCollection_h
 #define vtkDataObjectCollection_h
@@ -31,34 +34,38 @@ public:
   static vtkDataObjectCollection *New();
   vtkTypeMacro(vtkDataObjectCollection,vtkCollection);
 
-  // Description:
-  // Add a data object to the list.
+  /**
+   * Add a data object to the list.
+   */
   void AddItem(vtkDataObject *ds)
-    {
+  {
       this->vtkCollection::AddItem(ds);
-    }
+  }
 
-  // Description:
-  // Get the next data object in the list.
+  /**
+   * Get the next data object in the list.
+   */
   vtkDataObject *GetNextItem()
-    {
+  {
       return static_cast<vtkDataObject *>(this->GetNextItemAsObject());
-    }
+  }
 
-  // Description:
-  // Get the ith data object in the list.
+  /**
+   * Get the ith data object in the list.
+   */
   vtkDataObject *GetItem(int i)
-    {
+  {
       return static_cast<vtkDataObject *>(this->GetItemAsObject(i));
-    }
+  }
 
-  // Description:
-  // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth.
+  /**
+   * Reentrant safe way to get an object in a collection. Just pass the
+   * same cookie back and forth.
+   */
   vtkDataObject *GetNextDataObject(vtkCollectionSimpleIterator &cookie)
-    {
+  {
       return static_cast<vtkDataObject *>(this->GetNextItemAsObject(cookie));
-    }
+  }
 
 protected:
   vtkDataObjectCollection() {}

@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInformationIntegerVectorKey - Key for integer vector values.
-// .SECTION Description
-// vtkInformationIntegerVectorKey is used to represent keys for integer
-// vector values in vtkInformation.h
+/**
+ * @class   vtkInformationIntegerVectorKey
+ * @brief   Key for integer vector values.
+ *
+ * vtkInformationIntegerVectorKey is used to represent keys for integer
+ * vector values in vtkInformation.h
+*/
 
 #ifndef vtkInformationIntegerVectorKey_h
 #define vtkInformationIntegerVectorKey_h
@@ -35,19 +38,22 @@ public:
                                  int length=-1);
   ~vtkInformationIntegerVectorKey() VTK_OVERRIDE;
 
-  // Description:
-  // This method simply returns a new vtkInformationIntegerVectorKey, given a
-  // name, a location and a required length. This method is provided for
-  // wrappers. Use the constructor directly from C++ instead.
+  /**
+   * This method simply returns a new vtkInformationIntegerVectorKey, given a
+   * name, a location and a required length. This method is provided for
+   * wrappers. Use the constructor directly from C++ instead.
+   */
   static vtkInformationIntegerVectorKey* MakeKey(const char* name, const char* location,
     int length=-1)
-    {
+  {
     return new vtkInformationIntegerVectorKey(name, location, length);
-    }
+  }
 
-  // Description:
-  // Get/Set the value associated with this key in the given
-  // information object.
+  //@{
+  /**
+   * Get/Set the value associated with this key in the given
+   * information object.
+   */
   void Append(vtkInformation* info, int value);
   void Set(vtkInformation* info, const int* value, int length);
   void Set(vtkInformation* info);
@@ -55,25 +61,29 @@ public:
   int  Get(vtkInformation* info, int idx);
   void Get(vtkInformation* info, int* value);
   int Length(vtkInformation* info);
+  //@}
 
-  // Description:
-  // Copy the entry associated with this key from one information
-  // object to another.  If there is no entry in the first information
-  // object for this key, the value is removed from the second.
+  /**
+   * Copy the entry associated with this key from one information
+   * object to another.  If there is no entry in the first information
+   * object for this key, the value is removed from the second.
+   */
   void ShallowCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
 
-  // Description:
-  // Print the key's value in an information object to a stream.
+  /**
+   * Print the key's value in an information object to a stream.
+   */
   void Print(ostream& os, vtkInformation* info) VTK_OVERRIDE;
 
 protected:
   // The required length of the vector value (-1 is no restriction).
   int RequiredLength;
 
-  // Description:
-  // Get the address at which the actual value is stored.  This is
-  // meant for use from a debugger to add watches and is therefore not
-  // a public method.
+  /**
+   * Get the address at which the actual value is stored.  This is
+   * meant for use from a debugger to add watches and is therefore not
+   * a public method.
+   */
   int* GetWatchAddress(vtkInformation* info);
 
 private:

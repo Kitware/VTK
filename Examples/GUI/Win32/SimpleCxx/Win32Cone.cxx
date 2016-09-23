@@ -54,7 +54,7 @@ int PASCAL WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
   WNDCLASS    wndclass ;
 
   if (!hPrevInstance)
-    {
+  {
     wndclass.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
     wndclass.lpfnWndProc   = WndProc ;
     wndclass.cbClsExtra    = 0 ;
@@ -66,7 +66,7 @@ int PASCAL WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
     wndclass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
     wndclass.lpszClassName = szAppName;
     RegisterClass (&wndclass);
-    }
+  }
 
   hinst = hInstance;
   hwnd = CreateWindow ( szAppName,
@@ -83,10 +83,10 @@ int PASCAL WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
   ShowWindow (hwnd, nCmdShow);
   UpdateWindow (hwnd);
   while (GetMessage (&msg, NULL, 0, 0))
-    {
+  {
     TranslateMessage (&msg);
     DispatchMessage (&msg);
-    }
+  }
   return msg.wParam;
 }
 
@@ -96,9 +96,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
   static myVTKApp *theVTKApp;
 
   switch (message)
-    {
+  {
     case WM_CREATE:
-      {
+    {
       ewin = CreateWindow("button","Exit",
                           WS_CHILD | WS_VISIBLE | SS_CENTER,
                           0,400,400,60,
@@ -107,17 +107,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                           NULL);
       theVTKApp = new myVTKApp(hwnd);
       return 0;
-      }
+    }
 
     case WM_COMMAND:
       switch (wParam)
-        {
+      {
         case 2:
           PostQuitMessage (0);
           delete theVTKApp;
           theVTKApp = NULL;
           break;
-        }
+      }
       return 0;
 
     case WM_DESTROY:
@@ -125,7 +125,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
       delete theVTKApp;
       theVTKApp = NULL;
       return 0;
-    }
+  }
   return DefWindowProc (hwnd, message, wParam, lParam);
 }
 

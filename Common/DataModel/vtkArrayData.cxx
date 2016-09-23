@@ -62,10 +62,10 @@ void vtkArrayData::PrintSelf(ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   for(unsigned int i = 0; i != this->Implementation->Arrays.size(); ++i)
-    {
+  {
     os << indent << "Array: " << this->Implementation->Arrays[i] << endl;
     this->Implementation->Arrays[i]->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
 }
 
 vtkArrayData* vtkArrayData::GetData(vtkInformation* info)
@@ -81,10 +81,10 @@ vtkArrayData* vtkArrayData::GetData(vtkInformationVector* v, int i)
 void vtkArrayData::AddArray(vtkArray* array)
 {
   if(!array)
-    {
+  {
     vtkErrorMacro(<< "Cannot add NULL array.");
     return;
-    }
+  }
 
   // See http://developers.sun.com/solaris/articles/cmp_stlport_libCstd.html
   // Language Feature: Partial Specializations
@@ -100,10 +100,10 @@ void vtkArrayData::AddArray(vtkArray* array)
 #endif
 
   if(n!=0)
-    {
+  {
     vtkErrorMacro(<< "Cannot add array twice.");
     return;
-    }
+  }
 
   this->Implementation->Arrays.push_back(array);
   array->Register(0);
@@ -114,9 +114,9 @@ void vtkArrayData::AddArray(vtkArray* array)
 void vtkArrayData::ClearArrays()
 {
   for(unsigned int i = 0; i != this->Implementation->Arrays.size(); ++i)
-    {
+  {
     this->Implementation->Arrays[i]->Delete();
-    }
+  }
 
   this->Implementation->Arrays.clear();
 
@@ -132,10 +132,10 @@ vtkArray* vtkArrayData::GetArray(vtkIdType index)
 {
   if(index < 0 ||
      static_cast<size_t>(index) >= this->Implementation->Arrays.size())
-    {
+  {
     vtkErrorMacro(<< "Array index out-of-range.");
     return 0;
-    }
+  }
 
   return this->Implementation->Arrays[static_cast<size_t>(index)];
 }
@@ -143,36 +143,36 @@ vtkArray* vtkArrayData::GetArray(vtkIdType index)
 vtkArray* vtkArrayData::GetArrayByName(const char *name)
 {
   if(!name || name[0]=='\0')
-    {
+  {
     vtkErrorMacro(<< "No name passed into routine.");
     return 0;
-    }
+  }
 
   vtkArray *temp = 0;
   for (vtkIdType ctr=0; ctr<this->GetNumberOfArrays(); ctr++)
-    {
+  {
     temp = this->GetArray(ctr);
     if (temp && !strcmp(name, temp->GetName()))
-      {
+    {
       break;
-      }
-    temp = 0;
     }
+    temp = 0;
+  }
   return temp;
 }
 
 void vtkArrayData::ShallowCopy(vtkDataObject* other)
 {
   if(vtkArrayData* const array_data = vtkArrayData::SafeDownCast(other))
-    {
+  {
     this->ClearArrays();
     this->Implementation->Arrays = array_data->Implementation->Arrays;
     for(size_t i = 0;i != this->Implementation->Arrays.size();++i)
-      {
+    {
       this->Implementation->Arrays[i]->Register(this);
-      }
-    this->Modified();
     }
+    this->Modified();
+  }
 
   Superclass::ShallowCopy(other);
 }
@@ -180,15 +180,15 @@ void vtkArrayData::ShallowCopy(vtkDataObject* other)
 void vtkArrayData::DeepCopy(vtkDataObject* other)
 {
   if(vtkArrayData* const array_data = vtkArrayData::SafeDownCast(other))
-    {
+  {
     this->ClearArrays();
     for(size_t i = 0;i != array_data->Implementation->Arrays.size();++i)
-      {
+    {
       this->Implementation->Arrays.push_back(
         array_data->Implementation->Arrays[i]->DeepCopy());
-      }
-    this->Modified();
     }
+    this->Modified();
+  }
 
   Superclass::DeepCopy(other);
 }

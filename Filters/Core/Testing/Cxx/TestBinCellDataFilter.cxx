@@ -53,9 +53,9 @@ ConstructDelaunay3DSphere(vtkIdType numberOfPoints, vtkMersenneTwister* seq,
   source->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
   source->SetRandomSequence(seq);
   if (sampleShellOnly)
-    {
+  {
     source->SetDistributionToShell();
-    }
+  }
 
   // Clean the polydata. This will remove overlapping points that may be
   // present in the input data.
@@ -85,7 +85,7 @@ ConstructDelaunay3DSphere(vtkIdType numberOfPoints, vtkMersenneTwister* seq,
   vtkNew<vtkGenericCell> cell;
   vtkCellIterator *it = ug->NewCellIterator();
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
-    {
+  {
     it->GetCell(cell.GetPointer());
     cell->GetParametricCenter(pcoords);
     cell->EvaluateLocation(subId, pcoords, coords, weights);
@@ -93,7 +93,7 @@ ConstructDelaunay3DSphere(vtkIdType numberOfPoints, vtkMersenneTwister* seq,
     r = std::sqrt(coords[0]*coords[0] + coords[1]*coords[1] +
                   coords[2]*coords[2]);
     radius->SetTypedTuple(it->GetCellId(), &r);
-    }
+  }
   it->Delete();
 
   ug->GetCellData()->SetScalars(radius);
@@ -133,27 +133,27 @@ int TestBinCellDataFilter(int, char*[])
     binDataFilter->GetOutput()->GetCellData()->GetArray("binned_radius"));
 
   if (!binnedData)
-    {
+  {
     cerr << "No binned data!" << endl;
     return 1;
-    }
+  }
 
   for (vtkIdType i = 0; i < binnedData->GetNumberOfTuples(); i++)
-    {
+  {
     cout << "cell # "<<i << endl;
     cout << "[ < "<<binDataFilter->GetValue(0) << " ]:\t\t"
          << binnedData->GetTypedComponent(i,0) << endl;
     for (vtkIdType j = 1; j < binDataFilter->GetNumberOfBins(); j++)
-      {
+    {
       cout << "[ " << binDataFilter->GetValue(j-1) << " - "
                 << binDataFilter->GetValue(j) << " ]:\t"
                 << binnedData->GetTypedComponent(i,j) << endl;
-      }
+    }
     cout << "[ > "<<binDataFilter->GetValue(binDataFilter->GetNumberOfBins())
          << " ]:\t\t" << binnedData->
       GetTypedComponent(i,binDataFilter->GetNumberOfBins()) << endl;
     cout << endl;
-    }
+  }
 
   vtkIdType expectedBins[17][4] = {{0,0,0,62},
                                    {0,0,7,134},
@@ -174,31 +174,31 @@ int TestBinCellDataFilter(int, char*[])
                                    {0,122,117,6}};
 
   if (binnedData->GetNumberOfTuples() != 17)
-    {
+  {
     cerr << "Number of cells has deviated from expected value " << 17 << endl;
     return 1;
-    }
+  }
 
   if (binnedData->GetNumberOfComponents() != 4)
-    {
+  {
     cerr << "Number of bin values has deviated from expected value "<< 4
          << endl;
     return 1;
-    }
+  }
 
   for (vtkIdType i = 0; i < binnedData->GetNumberOfTuples(); i++)
-    {
+  {
     for (vtkIdType j = 0; j < binnedData->GetNumberOfComponents(); j++)
-      {
+    {
       if (binnedData->GetTypedComponent(i,j) != expectedBins[i][j])
-        {
+      {
         cerr << "Bin value (" << i << "," << j
              << ") has deviated from expected value " << expectedBins[i][j]
              << endl;
         return 1;
-        }
       }
     }
+  }
   }
 
   binDataFilter->SetCellOverlapMethod(vtkBinCellDataFilter::CELL_POINTS);
@@ -209,27 +209,27 @@ int TestBinCellDataFilter(int, char*[])
     binDataFilter->GetOutput()->GetCellData()->GetArray("binned_radius"));
 
   if (!binnedData)
-    {
+  {
     cerr << "No binned data!" << endl;
     return 1;
-    }
+  }
 
   for (vtkIdType i = 0; i < binnedData->GetNumberOfTuples(); i++)
-    {
+  {
     cout << "cell # "<< i << endl;
     cout << "[ < " << binDataFilter->GetValue(0) << " ]:\t\t"
              <<binnedData->GetTypedComponent(i,0) << endl;
     for (vtkIdType j = 1; j < binDataFilter->GetNumberOfBins(); j++)
-      {
+    {
       cout << "[ " << binDataFilter->GetValue(j-1) << " - "
            << binDataFilter->GetValue(j) << " ]:\t"
            << binnedData->GetTypedComponent(i,j) << endl;
-      }
+    }
     cout << "[ > " << binDataFilter->GetValue(binDataFilter->GetNumberOfBins())
          << " ]:\t\t" << binnedData->
       GetTypedComponent(i,binDataFilter->GetNumberOfBins()) << endl;
     cout << endl;
-    }
+  }
 
   vtkIdType expectedBins[17][4] = {{0,0,0,165},
                                    {0,0,6,282},
@@ -250,31 +250,31 @@ int TestBinCellDataFilter(int, char*[])
                                    {0,106,204,11}};
 
   if (binnedData->GetNumberOfTuples() != 17)
-    {
+  {
     cerr << "Number of cells has deviated from expected value " << 17 << endl;
     return 1;
-    }
+  }
 
   if (binnedData->GetNumberOfComponents() != 4)
-    {
+  {
     cerr << "Number of bin values has deviated from expected value " << 4
          << endl;
     return 1;
-    }
+  }
 
   for (vtkIdType i = 0; i < binnedData->GetNumberOfTuples(); i++)
-    {
+  {
     for (vtkIdType j = 0; j < binnedData->GetNumberOfComponents(); j++)
-      {
+    {
       if (binnedData->GetTypedComponent(i,j) != expectedBins[i][j])
-        {
+      {
         cerr << "Bin value (" << i << "," << j
              << ") has deviated from expected value "
              << expectedBins[i][j] << endl;
         return 1;
-        }
       }
     }
+  }
   }
 
   return EXIT_SUCCESS;

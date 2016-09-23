@@ -39,11 +39,11 @@ int TestRemoveIsolatedVertices(int, char *[])
   filter->Update();
 
   if(filter->GetOutput()->GetNumberOfVertices() != 2)
-    {
+  {
     std::cerr << "There are " << filter->GetOutput()->GetNumberOfVertices()
               << " vertices but there should be 2." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

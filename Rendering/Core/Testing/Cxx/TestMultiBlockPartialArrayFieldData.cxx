@@ -63,7 +63,7 @@ int TestMultiBlockPartialArrayFieldData(int argc, char* argv[])
   double radius = 10.0;
   double deltaTheta = 2.0*3.1415926 / numBlocks;
   for (int i = 0; i < numBlocks; ++i)
-    {
+  {
     double theta = i * deltaTheta;
     double x = radius * cos(theta);
     double y = radius * sin(theta);
@@ -72,13 +72,13 @@ int TestMultiBlockPartialArrayFieldData(int argc, char* argv[])
 
     // Every third block does not have the color array
     if (i % 3 == 0)
-      {
+    {
       sphereSource->SetCenter(x, y, 0.0);
       sphereSource->Update();
       pd->DeepCopy(sphereSource->GetOutput());
-      }
+    }
     else
-      {
+    {
       cylinderSource->SetCenter(x, y, 0.0);
       cylinderSource->Update();
       pd->DeepCopy(cylinderSource->GetOutput());
@@ -92,10 +92,10 @@ int TestMultiBlockPartialArrayFieldData(int argc, char* argv[])
 
       pd->GetFieldData()->AddArray(dataArray);
 
-      }
+    }
     data->SetBlock(i, pd);
     pd->Delete();
-    }
+  }
 
   vtkNew<vtkColorTransferFunction> lookupTable;
   lookupTable->AddRGBPoint(0.0, 1.0, 1.0, 1.0);
@@ -127,9 +127,9 @@ int TestMultiBlockPartialArrayFieldData(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImageThreshold( win.GetPointer(),15);
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

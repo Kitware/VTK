@@ -41,10 +41,10 @@ int TestContourTriangulator(int argc, char* argv[])
     vtkSmartPointer<vtkTesting>::New();
   testHelper->AddArguments(argc, argv);
   if (!testHelper->IsFlagSpecified("-D"))
-    {
+  {
     std::cerr << "Error: -D /path/to/data was not specified.";
     return EXIT_FAILURE;
-    }
+  }
 
   std::string dataRoot = testHelper->GetDataRoot();
   std::string tempDir = testHelper->GetTempDirectory();
@@ -54,10 +54,10 @@ int TestContourTriangulator(int argc, char* argv[])
   vtkSmartPointer<vtkPNGReader> reader =
     vtkSmartPointer<vtkPNGReader>::New();
   if (!reader->CanReadFile(inputFileName.c_str()))
-    {
+  {
     std::cerr << "Error: Could not read " << inputFileName << ".\n";
     return EXIT_FAILURE;
-    }
+  }
   reader->SetFileName(inputFileName.c_str());
   reader->Update();
 

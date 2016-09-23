@@ -12,9 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWebGLExporter
-// .SECTION Description
-// vtkWebGLExporter export the data of the scene to be used in the WebGL.
+/**
+ * @class   vtkWebGLExporter
+ *
+ * vtkWebGLExporter export the data of the scene to be used in the WebGL.
+*/
 
 #ifndef vtkWebGLExporter_h
 #define vtkWebGLExporter_h
@@ -40,7 +42,7 @@ typedef enum {
   VTK_ONLYCAMERA = 0,
   VTK_ONLYWIDGET = 1,
   VTK_PARSEALL   = 2
-  } VTKParseType;
+} VTKParseType;
 
 class VTKWEBGLEXPORTER_EXPORT vtkWebGLExporter : public vtkObject
 {
@@ -49,8 +51,10 @@ public:
   vtkTypeMacro(vtkWebGLExporter, vtkObject)
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get all the needed information from the vtkRenderer
+  //@{
+  /**
+   * Get all the needed information from the vtkRenderer
+   */
   void parseScene(vtkRendererCollection* renderers, const char* viewId, int parseType);
   // Generate and return the Metadata
   void exportStaticScene(vtkRendererCollection* renderers, int width, int height, std::string path);
@@ -62,6 +66,7 @@ public:
   void SetCenterOfRotation(float a1, float a2, float a3);
   void SetMaxAllowedSize(int mesh, int lines);
   void SetMaxAllowedSize(int size);
+  //@}
 
   static void ComputeMD5(const unsigned char* content, int size, std::string &hash);
 protected:

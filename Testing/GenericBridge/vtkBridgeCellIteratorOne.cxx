@@ -55,22 +55,22 @@ vtkBridgeCellIteratorOne::vtkBridgeCellIteratorOne()
 vtkBridgeCellIteratorOne::~vtkBridgeCellIteratorOne()
 {
   if((this->Cell!=0)&&((this->DataSet!=0)||(this->InternalCell!=0)))
-    {
+  {
     // dataset mode or points mode
     this->Cell->Delete();
     this->Cell=0;
-    }
+  }
   if(this->DataSet!=0)
-    {
+  {
     this->DataSet->Delete();
     this->DataSet=0;
-    }
+  }
 
   if(this->InternalCell!=0)
-    {
+  {
     this->InternalCell->Delete();
     this->InternalCell=0;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -102,20 +102,20 @@ void vtkBridgeCellIteratorOne::GetCell(vtkGenericAdaptorCell *c)
 
   vtkBridgeCell *c2=static_cast<vtkBridgeCell *>(c);
   if(this->DataSet!=0)
-    {
+  {
     c2->Init(this->DataSet,this->Id);
-    }
+  }
   else
-    {
+  {
     if(this->InternalCell!=0)
-      {
+    {
       c2->InitWithCell(this->InternalCell,this->Id);
-      }
-    else
-      {
-      c2->DeepCopy(this->Cell);
-      }
     }
+    else
+    {
+      c2->DeepCopy(this->Cell);
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -158,17 +158,17 @@ void vtkBridgeCellIteratorOne::InitWithOneCell(vtkBridgeDataSet *ds,
   assert("pre: valid_id" && ((cellid>=0)&&(cellid<=ds->GetNumberOfCells())));
 
   if((this->Cell!=0)&&(this->DataSet==0)&&(this->InternalCell==0))
-    {
+  {
     // previous mode was InitWithOneCell(vtkBridgeCell *c)
 //    this->Cell->Delete();
     this->Cell=0;
-    }
+  }
 
   if(this->Cell==0)
-    {
+  {
     // first init or previous mode was InitWithOneCell(vtkBridgeCell *c)
     this->Cell=vtkBridgeCell::New();
-    }
+  }
 
   vtkSetObjectBodyMacro(InternalCell,vtkCell,0);
   vtkSetObjectBodyMacro(DataSet,vtkBridgeDataSet,ds);
@@ -186,10 +186,10 @@ void vtkBridgeCellIteratorOne::InitWithOneCell(vtkBridgeCell *c)
   assert("pre: c_exists" && c!=0);
 
   if((this->Cell!=0)&&((this->DataSet!=0)||(this->InternalCell!=0)))
-    {
+  {
     // dataset mode or points mode
     this->Cell->Delete();
-    }
+  }
   vtkSetObjectBodyMacro(InternalCell,vtkCell,0);
   vtkSetObjectBodyMacro(DataSet,vtkBridgeDataSet,0);
 
@@ -219,55 +219,55 @@ void vtkBridgeCellIteratorOne::InitWithPoints(vtkPoints *coords,
 
 
   if((this->DataSet==0)&&(this->InternalCell==0))
-    {
+  {
     // previous mode was InitWithOneCell(vtkBridgeCell *c)
 //    this->Cell->Delete();
     this->Cell=0;
-    }
+  }
 
   if(this->Cell==0)
-    {
+  {
     // first init or previous mode was InitWithOneCell(vtkBridgeCell *c)
     this->Cell=vtkBridgeCell::New();
-    }
+  }
 
   vtkCell *cell=0;
 
   switch(dim)
-    {
+  {
     case 2:
       if (pts->GetNumberOfIds()==3)
-        {
+      {
         cell=vtkTriangle::New();
-        }
+      }
       else
-        {
+      {
         cell=vtkPolygon::New();
-        }
+      }
       break;
     case 1:
       // line or polyline
       if(pts->GetNumberOfIds()==2)
-        {
+      {
         cell=vtkLine::New();
-        }
+      }
       else
-        {
+      {
         cell=vtkPolyLine::New();
-        }
+      }
       break;
     case 0:
       // vertex polyvertex
       if(pts->GetNumberOfIds()==1)
-        {
+      {
         cell=vtkVertex::New();
-        }
+      }
       else
-        {
+      {
         cell=vtkPolyVertex::New();
-        }
+      }
       break;
-    }
+  }
   cell->Points=coords;
   cell->PointIds=pts;
   vtkSetObjectBodyMacro(InternalCell,vtkCell,cell);

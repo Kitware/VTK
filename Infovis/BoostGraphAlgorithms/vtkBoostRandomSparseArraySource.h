@@ -19,10 +19,13 @@
 
 =========================================================================*/
 
-// .NAME vtkBoostRandomSparseArraySource - generates a sparse N-way array containing random values.
-//
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+/**
+ * @class   vtkBoostRandomSparseArraySource
+ * @brief   generates a sparse N-way array containing random values.
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+*/
 
 #ifndef vtkBoostRandomSparseArraySource_h
 #define vtkBoostRandomSparseArraySource_h
@@ -38,40 +41,57 @@ public:
   vtkTypeMacro(vtkBoostRandomSparseArraySource, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Sets the extents (dimensionality and size) of the output array
+  /**
+   * Sets the extents (dimensionality and size) of the output array
+   */
   void SetExtents(const vtkArrayExtents&);
 
-  // Description:
-  // Returns the extents (dimensionality and size) of the output array
+  /**
+   * Returns the extents (dimensionality and size) of the output array
+   */
   vtkArrayExtents GetExtents();
 
-  // Description:
-  // Stores a random-number-seed for determining which elements within
-  // the output matrix will have non-zero values
+  //@{
+  /**
+   * Stores a random-number-seed for determining which elements within
+   * the output matrix will have non-zero values
+   */
   vtkGetMacro(ElementProbabilitySeed, vtkTypeUInt32);
   vtkSetMacro(ElementProbabilitySeed, vtkTypeUInt32);
+  //@}
 
-  // Description:
-  // Stores the probability (in the range [0, 1]) that an element within
-  // the output matrix will have a non-zero value
+  //@{
+  /**
+   * Stores the probability (in the range [0, 1]) that an element within
+   * the output matrix will have a non-zero value
+   */
   vtkGetMacro(ElementProbability, double);
   vtkSetMacro(ElementProbability, double);
+  //@}
 
-  // Description:
-  // Stores a random-number-seed for computing random element values
+  //@{
+  /**
+   * Stores a random-number-seed for computing random element values
+   */
   vtkGetMacro(ElementValueSeed, vtkTypeUInt32);
   vtkSetMacro(ElementValueSeed, vtkTypeUInt32);
+  //@}
 
-  // Description:
-  // Stores the minimum value of any element
+  //@{
+  /**
+   * Stores the minimum value of any element
+   */
   vtkGetMacro(MinValue, double);
   vtkSetMacro(MinValue, double);
+  //@}
 
-  // Description:
-  // Stores the maximum value of any element
+  //@{
+  /**
+   * Stores the maximum value of any element
+   */
   vtkGetMacro(MaxValue, double);
   vtkSetMacro(MaxValue, double);
+  //@}
 
 protected:
   vtkBoostRandomSparseArraySource();

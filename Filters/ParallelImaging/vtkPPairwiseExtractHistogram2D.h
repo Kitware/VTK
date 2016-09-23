@@ -17,26 +17,30 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkPPairwiseExtractHistogram2D - compute a 2D histogram between
-//  all adjacent columns of an input vtkTable in parallel.
-//
-// .SECTION Description
-//  This class does exactly the same this as vtkPairwiseExtractHistogram2D,
-//  but does it in a multi-process environment.  After each node
-//  computes their own local histograms, this class does an AllReduce
-//  that distributes the sum of all local histograms onto each node.
-//
-//  Because vtkPairwiseExtractHistogram2D is a light wrapper around a series
-//  of vtkExtractHistogram2D classes, this class just overrides the function
-//  that instantiates new histogram filters and returns the parallel version
-//  (vtkPExtractHistogram2D).
-//
-// .SECTION See Also
-//  vtkExtractHistogram2D vtkPairwiseExtractHistogram2D vtkPExtractHistogram2D
-//
-// .SECTION Thanks
-//  Developed by David Feng and Philippe Pebay at Sandia National Laboratories
-//------------------------------------------------------------------------------
+/**
+ * @class   vtkPPairwiseExtractHistogram2D
+ * @brief   compute a 2D histogram between
+ *  all adjacent columns of an input vtkTable in parallel.
+ *
+ *
+ *  This class does exactly the same this as vtkPairwiseExtractHistogram2D,
+ *  but does it in a multi-process environment.  After each node
+ *  computes their own local histograms, this class does an AllReduce
+ *  that distributes the sum of all local histograms onto each node.
+ *
+ *  Because vtkPairwiseExtractHistogram2D is a light wrapper around a series
+ *  of vtkExtractHistogram2D classes, this class just overrides the function
+ *  that instantiates new histogram filters and returns the parallel version
+ *  (vtkPExtractHistogram2D).
+ *
+ * @sa
+ *  vtkExtractHistogram2D vtkPairwiseExtractHistogram2D vtkPExtractHistogram2D
+ *
+ * @par Thanks:
+ *  Developed by David Feng and Philippe Pebay at Sandia National Laboratories
+ *------------------------------------------------------------------------------
+*/
+
 #ifndef vtkPPairwiseExtractHistogram2D_h
 #define vtkPPairwiseExtractHistogram2D_h
 
@@ -62,8 +66,9 @@ protected:
 
   vtkMultiProcessController* Controller;
 
-  // Description:
-  // Generate a new histogram filter, but actually generate a parallel one this time.
+  /**
+   * Generate a new histogram filter, but actually generate a parallel one this time.
+   */
   virtual vtkExtractHistogram2D* NewHistogramFilter();
 
 private:

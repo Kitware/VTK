@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCommonInformationKeyManager - Manages key types in vtkCommon.
-// .SECTION Description
-// vtkCommonInformationKeyManager is included in the header of any
-// subclass of vtkInformationKey defined in the vtkCommon library.
-// It makes sure that the table of keys is created before and
-// destroyed after it is used.
+/**
+ * @class   vtkCommonInformationKeyManager
+ * @brief   Manages key types in vtkCommon.
+ *
+ * vtkCommonInformationKeyManager is included in the header of any
+ * subclass of vtkInformationKey defined in the vtkCommon library.
+ * It makes sure that the table of keys is created before and
+ * destroyed after it is used.
+*/
 
 #ifndef vtkCommonInformationKeyManager_h
 #define vtkCommonInformationKeyManager_h
@@ -35,11 +38,12 @@ public:
   vtkCommonInformationKeyManager();
   ~vtkCommonInformationKeyManager();
 
-  // Description:
-  // Called by constructors of vtkInformationKey subclasses defined in
-  // vtkCommon to register themselves with the manager.  The
-  // instances will be deleted when vtkCommon is unloaded on
-  // program exit.
+  /**
+   * Called by constructors of vtkInformationKey subclasses defined in
+   * vtkCommon to register themselves with the manager.  The
+   * instances will be deleted when vtkCommon is unloaded on
+   * program exit.
+   */
   static void Register(vtkInformationKey* key);
 
 private:

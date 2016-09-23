@@ -58,14 +58,14 @@ void vtkOpenVRRenderer::ResetCamera(double bounds[6])
 
   this->GetActiveCamera();
   if ( this->ActiveCamera != NULL )
-    {
+  {
     this->ActiveCamera->GetViewPlaneNormal(vn);
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro(<< "Trying to reset non-existant camera");
     return;
-    }
+  }
 
   // Reset the perspective zoom factors, otherwise subsequent zooms will cause
   // the view angle to become very small and cause bad depth sorting.
@@ -111,28 +111,28 @@ void vtkOpenVRRenderer::ResetCamera(double bounds[6])
   this->GetAspect(aspect);
 
   if(aspect[0]>=1.0) // horizontal window, deal with vertical angle|scale
-    {
+  {
     if(this->ActiveCamera->GetUseHorizontalViewAngle())
-      {
-      angle=2.0*atan(tan(angle*0.5)/aspect[0]);
-      }
-    }
-  else // vertical window, deal with horizontal angle|scale
     {
-    if(!this->ActiveCamera->GetUseHorizontalViewAngle())
-      {
-      angle=2.0*atan(tan(angle*0.5)*aspect[0]);
-      }
+      angle=2.0*atan(tan(angle*0.5)/aspect[0]);
     }
+  }
+  else // vertical window, deal with horizontal angle|scale
+  {
+    if(!this->ActiveCamera->GetUseHorizontalViewAngle())
+    {
+      angle=2.0*atan(tan(angle*0.5)*aspect[0]);
+    }
+  }
   distance =radius/sin(angle*0.5);
 
   // check view-up vector against view plane normal
   vup = this->ActiveCamera->GetViewUp();
   if ( fabs(vtkMath::Dot(vup,vn)) > 0.999 )
-    {
+  {
     vtkWarningMacro(<<"Resetting view-up since view plane normal is parallel");
     this->ActiveCamera->SetViewUp(-vup[2], vup[0], vup[1]);
-    }
+  }
 
   // update the camera
   this->ActiveCamera->SetFocalPoint(center[0],center[1],center[2]);

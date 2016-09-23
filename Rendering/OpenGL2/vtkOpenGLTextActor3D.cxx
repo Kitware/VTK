@@ -41,17 +41,17 @@ int vtkOpenGLTextActor3D::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
 {
   vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
   if (gl2ps)
-    {
+  {
     switch (gl2ps->GetActiveState())
-      {
+    {
       case vtkOpenGLGL2PSHelper::Capture:
         return this->RenderGL2PS(vp, gl2ps);
       case vtkOpenGLGL2PSHelper::Background:
         return 0; // No render.
       case vtkOpenGLGL2PSHelper::Inactive:
         break; // normal render.
-      }
     }
+  }
 
   return this->Superclass::RenderTranslucentPolygonalGeometry(vp);
 }
@@ -72,10 +72,10 @@ int vtkOpenGLTextActor3D::RenderGL2PS(vtkViewport *vp,
 {
   vtkRenderer *ren = vtkRenderer::SafeDownCast(vp);
   if (!ren)
-    {
+  {
     vtkWarningMacro("Viewport is not a renderer.");
     return 0;
-    }
+  }
 
   // Get path
   std::string input = this->Input && this->Input[0] ? this->Input : "";
@@ -83,19 +83,19 @@ int vtkOpenGLTextActor3D::RenderGL2PS(vtkViewport *vp,
 
   vtkTextRenderer *tren = vtkTextRenderer::GetInstance();
   if (!tren)
-    {
+  {
     vtkWarningMacro(<<"Cannot generate path data from 3D text string '"
                     << input << "': Text renderer unavailable.");
     return 0;
-    }
+  }
 
   if (!tren->StringToPath(this->TextProperty, input, textPath.GetPointer(),
                           vtkTextActor3D::GetRenderedDPI()))
-    {
+  {
     vtkWarningMacro(<<"Failed to generate path data from 3D text string '"
                     << input << "': StringToPath failed.");
     return 0;
-    }
+  }
 
   // Get actor info
   vtkMatrix4x4 *actorMatrix = this->GetMatrix();
@@ -114,7 +114,7 @@ int vtkOpenGLTextActor3D::RenderGL2PS(vtkViewport *vp,
 
   // Draw the background quad as a path:
   if (this->TextProperty->GetBackgroundOpacity() > 0.f)
-    {
+  {
     double *bgColord = this->TextProperty->GetBackgroundColor();
     unsigned char bgColor[4] = {
       static_cast<unsigned char>(bgColord[0] * 255),
@@ -139,7 +139,7 @@ int vtkOpenGLTextActor3D::RenderGL2PS(vtkViewport *vp,
     vtkTextRenderer::Metrics metrics;
     if (tren->GetMetrics(this->TextProperty, input, metrics,
                          vtkTextActor3D::GetRenderedDPI()))
-      {
+    {
       vtkNew<vtkPath> bgPath;
       bgPath->InsertNextPoint(static_cast<double>(metrics.TopLeft.GetX()),
                               static_cast<double>(metrics.TopLeft.GetY()),
@@ -162,8 +162,8 @@ int vtkOpenGLTextActor3D::RenderGL2PS(vtkViewport *vp,
               << input << "'.";
       gl2ps->Draw3DPath(bgPath.GetPointer(), actorMatrix, bgPos, bgColor, ren,
                         bgLabel.str().c_str());
-      }
     }
+  }
 
   // Draw the text path:
   std::ostringstream label;

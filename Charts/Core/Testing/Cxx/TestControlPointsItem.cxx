@@ -39,59 +39,59 @@ int TestControlPointsItem(int, char*[])
   controlPoints->SetColorTransferFunction(transferFunction.GetPointer());
 
   if (controlPoints->GetColorTransferFunction() != transferFunction.GetPointer())
-    {
+  {
     std::cerr << "vtkColorTransferControlPointsItem::GetColorTransferFunction "
               << "failed, bad pointer: "
               << controlPoints->GetColorTransferFunction() << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (controlPoints->GetNumberOfPoints() != 4 ||
       controlPoints->GetNumberOfSelectedPoints() != 0)
-    {
+  {
     std::cerr << "vtkColorTransferControlPointsItem::SetColorTransferFunction "
               << "failed, wrong number of points: "
               << controlPoints->GetNumberOfPoints() << ", "
               << controlPoints->GetNumberOfSelectedPoints() << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   vtkNew<vtkIdTypeArray> ids;
   controlPoints->GetControlPointsIds(ids.GetPointer(), true);
 
   if (ids->GetSize() != controlPoints->GetNumberOfPoints() - 2 ||
       ids->GetValue(0) != 1 || ids->GetValue(1) != 2)
-    {
+  {
     std::cerr << "vtkControlPointsItem::GetControlPointsIds"
               << "failed, bad array: " << ids->GetSize() << ", "
               << ids->GetValue(0) << ", " << ids->GetValue(1) << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   controlPoints->GetControlPointsIds(ids.GetPointer());
 
   if (ids->GetSize() != controlPoints->GetNumberOfPoints() ||
       ids->GetValue(0) != 0 || ids->GetValue(1) != 1 ||
       ids->GetValue(2) != 2 || ids->GetValue(3) != 3)
-    {
+  {
     std::cerr << "vtkControlPointsItem::GetControlPointsIds"
               << "failed, bad array: " << ids->GetSize() << ", "
               << ids->GetValue(0) << ", " << ids->GetValue(1) << ", "
               << ids->GetValue(2) << ", " << ids->GetValue(3) << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   double bounds[4];
   controlPoints->GetBounds(bounds);
   if (bounds[0] != 50. || bounds[1] != 200. ||
       bounds[2] != 0.5 || bounds[3] != 0.5)
-    {
+  {
     std::cerr << "vtkColorTransferControlPointsItem::GetBounds"
               << "failed, wrong bounds: "
               << bounds[0] << ", " << bounds[1] << ", "
               << bounds[2] << ", " << bounds[3] << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // MovePoints
   controlPoints->MovePoints(vtkVector2f(1.,0.), ids.GetPointer());
@@ -103,13 +103,13 @@ int TestControlPointsItem(int, char*[])
   controlPoints->GetControlPoint(3, point3);
   if (point0[0] != 51. || point1[0] != 86. ||
       point2[0] != 171. || point3[0] != 200.)
-    {
+  {
     std::cerr << "vtkColorTransferControlPointsItem::MovePoints"
               << "failed, wrong pos: "
               << point0[0] << ", " << point1[0] << ", "
               << point2[0] << ", " << point3[0] << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // SpreadPoints
   controlPoints->SpreadPoints(1., ids.GetPointer());
@@ -120,13 +120,13 @@ int TestControlPointsItem(int, char*[])
   controlPoints->GetControlPoint(3, point3);
   if (point0[0] != 51. || point1[0] >= 86. ||
       point2[0] <= 171. || point3[0] != 200.)
-    {
+  {
     std::cerr << "vtkColorTransferControlPointsItem::SpreadPoints(1)"
               << "failed, wrong pos: "
               << point0[0] << ", " << point1[0] << ", "
               << point2[0] << ", " << point3[0] << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   controlPoints->SpreadPoints(-1., ids.GetPointer());
 
@@ -138,13 +138,13 @@ int TestControlPointsItem(int, char*[])
       point1[0] <= 86. || point1[0] >= 87. ||
       point2[0] <= 170. || point2[0] >= 171.||
       point3[0] != 199.)
-    {
+  {
     std::cerr << "vtkColorTransferControlPointsItem::SpreadPoints(-1)"
               << "failed, wrong pos: "
               << point0[0] << ", " << point1[0] << ", "
               << point2[0] << ", " << point3[0] << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

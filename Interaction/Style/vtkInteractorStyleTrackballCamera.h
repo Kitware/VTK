@@ -12,22 +12,25 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInteractorStyleTrackballCamera - interactive manipulation of the camera
-// .SECTION Description
-// vtkInteractorStyleTrackballCamera allows the user to interactively
-// manipulate (rotate, pan, etc.) the camera, the viewpoint of the scene.  In
-// trackball interaction, the magnitude of the mouse motion is proportional
-// to the camera motion associated with a particular mouse binding. For
-// example, small left-button motions cause small changes in the rotation of
-// the camera around its focal point. For a 3-button mouse, the left button
-// is for rotation, the right button for zooming, the middle button for
-// panning, and ctrl + left button for spinning.  (With fewer mouse buttons,
-// ctrl + shift + left button is for zooming, and shift + left button is for
-// panning.)
-
-// .SECTION See Also
-// vtkInteractorStyleTrackballActor vtkInteractorStyleJoystickCamera
-// vtkInteractorStyleJoystickActor
+/**
+ * @class   vtkInteractorStyleTrackballCamera
+ * @brief   interactive manipulation of the camera
+ *
+ * vtkInteractorStyleTrackballCamera allows the user to interactively
+ * manipulate (rotate, pan, etc.) the camera, the viewpoint of the scene.  In
+ * trackball interaction, the magnitude of the mouse motion is proportional
+ * to the camera motion associated with a particular mouse binding. For
+ * example, small left-button motions cause small changes in the rotation of
+ * the camera around its focal point. For a 3-button mouse, the left button
+ * is for rotation, the right button for zooming, the middle button for
+ * panning, and ctrl + left button for spinning.  (With fewer mouse buttons,
+ * ctrl + shift + left button is for zooming, and shift + left button is for
+ * panning.)
+ *
+ * @sa
+ * vtkInteractorStyleTrackballActor vtkInteractorStyleJoystickCamera
+ * vtkInteractorStyleJoystickActor
+*/
 
 #ifndef vtkInteractorStyleTrackballCamera_h
 #define vtkInteractorStyleTrackballCamera_h
@@ -42,9 +45,11 @@ public:
   vtkTypeMacro(vtkInteractorStyleTrackballCamera,vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Event bindings controlling the effects of pressing mouse buttons
-  // or moving the mouse.
+  //@{
+  /**
+   * Event bindings controlling the effects of pressing mouse buttons
+   * or moving the mouse.
+   */
   virtual void OnMouseMove();
   virtual void OnLeftButtonDown();
   virtual void OnLeftButtonUp();
@@ -54,6 +59,7 @@ public:
   virtual void OnRightButtonUp();
   virtual void OnMouseWheelForward();
   virtual void OnMouseWheelBackward();
+  //@}
 
   // These methods for the different interactions in different modes
   // are overridden in subclasses to perform the correct motion. Since
@@ -64,10 +70,13 @@ public:
   virtual void Pan();
   virtual void Dolly();
 
-  // Description:
-  // Set the apparent sensitivity of the interactor style to mouse motion.
+  //@{
+  /**
+   * Set the apparent sensitivity of the interactor style to mouse motion.
+   */
   vtkSetMacro(MotionFactor,double);
   vtkGetMacro(MotionFactor,double);
+  //@}
 
 protected:
   vtkInteractorStyleTrackballCamera();

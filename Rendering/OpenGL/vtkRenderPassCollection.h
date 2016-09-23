@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkRenderPassCollection - a list of RenderPasses
-// .SECTION Description
-// vtkRenderPassCollection represents a list of RenderPasses
-// (i.e., vtkRenderPass and subclasses) and provides methods to manipulate the
-// list. The list is unsorted and duplicate entries are not prevented.
-
-// .SECTION see also
-// vtkRenderPass vtkCollection
+/**
+ * @class   vtkRenderPassCollection
+ * @brief   a list of RenderPasses
+ *
+ * vtkRenderPassCollection represents a list of RenderPasses
+ * (i.e., vtkRenderPass and subclasses) and provides methods to manipulate the
+ * list. The list is unsorted and duplicate entries are not prevented.
+ *
+ * @sa
+ * vtkRenderPass vtkCollection
+*/
 
 #ifndef vtkRenderPassCollection_h
 #define vtkRenderPassCollection_h
@@ -36,21 +39,25 @@ class VTKRENDERINGOPENGL_EXPORT vtkRenderPassCollection : public vtkCollection
   vtkTypeMacro(vtkRenderPassCollection,vtkCollection);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Add an RenderPass to the list.
+  /**
+   * Add an RenderPass to the list.
+   */
   void AddItem(vtkRenderPass *pass);
 
-  // Description:
-  // Get the next RenderPass in the list.
+  /**
+   * Get the next RenderPass in the list.
+   */
   vtkRenderPass *GetNextRenderPass();
 
-  // Description:
-  // Get the last RenderPass in the list.
+  /**
+   * Get the last RenderPass in the list.
+   */
   vtkRenderPass *GetLastRenderPass();
 
-  // Description:
-  // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth.
+  /**
+   * Reentrant safe way to get an object in a collection. Just pass the
+   * same cookie back and forth.
+   */
   vtkRenderPass *GetNextRenderPass(vtkCollectionSimpleIterator &cookie);
 
 protected:

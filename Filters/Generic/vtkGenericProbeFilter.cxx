@@ -57,9 +57,9 @@ void vtkGenericProbeFilter::SetSourceData(vtkGenericDataSet *input)
 vtkGenericDataSet *vtkGenericProbeFilter::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
-    {
+  {
     return NULL;
-    }
+  }
 
   return vtkGenericDataSet::SafeDownCast(
     this->GetExecutive()->GetInputData(1, 0));
@@ -79,16 +79,16 @@ int vtkGenericProbeFilter::RequestInformation(
   // Make sure that the scalar type and number of components
   // are propagated from the source not the input.
   if (vtkImageData::HasScalarType(sourceInfo))
-    {
+  {
     vtkImageData::SetScalarType(vtkImageData::GetScalarType(sourceInfo),
                                 outInfo);
-    }
+  }
   if (vtkImageData::HasNumberOfScalarComponents(sourceInfo))
-    {
+  {
     vtkImageData::SetNumberOfScalarComponents(
       vtkImageData::GetNumberOfScalarComponents(sourceInfo),
       outInfo);
-    }
+  }
   return 1;
 }
 
@@ -121,10 +121,10 @@ int vtkGenericProbeFilter::RequestData(
   vtkDebugMacro(<<"Probing data");
 
   if (source == NULL)
-    {
+  {
     vtkErrorMacro (<< "Source is NULL.");
     return 1;
-    }
+  }
 
 
   // First, copy the input to the output as a starting point
@@ -149,17 +149,17 @@ int vtkGenericProbeFilter::RequestData(
   double *tuples = new double[attributes->GetMaxNumberOfComponents()];
 
   for(int i = 0; i<c; ++i)
-    {
+  {
     attribute=attributes->GetAttribute(i);
     attributeType=attribute->GetType();
     if(attribute->GetCentering()==vtkPointCentered)
-      {
+    {
       dsAttributes=outputPD;
-      }
+    }
     else // vtkCellCentered
-      {
+    {
       dsAttributes=outputCD;
-      }
+    }
     attributeArray=vtkDataArray::CreateDataArray(attribute->GetComponentType());
     attributeArray->SetNumberOfComponents(attribute->GetNumberOfComponents());
     attributeArray->SetName(attribute->GetName());
@@ -167,10 +167,10 @@ int vtkGenericProbeFilter::RequestData(
     attributeArray->Delete();
 
     if(dsAttributes->GetAttribute(attributeType)==0)
-      {
+    {
       dsAttributes->SetActiveAttribute(dsAttributes->GetNumberOfArrays()-1,attributeType);
-      }
     }
+  }
 
 
   // Use tolerance as a function of size of source data
@@ -187,51 +187,51 @@ int vtkGenericProbeFilter::RequestData(
 
   vtkIdType progressInterval=numPts/20 + 1;
   for (ptId=0; ptId < numPts && !abort; ptId++)
-    {
+  {
     if ( !(ptId % progressInterval) )
-      {
+    {
       this->UpdateProgress(static_cast<double>(ptId)/numPts);
       abort = GetAbortExecute();
-      }
+    }
 
     // Get the xyz coordinate of the point in the input dataset
     input->GetPoint(ptId, x);
 
     // Find the cell that contains xyz and get it
     if(source->FindCell(x,cellIt,tol2,subId,pcoords))
-      {
+    {
       vtkGenericAdaptorCell *cellProbe = cellIt->GetCell();
 
       // for each cell-centered attribute: copy the value
       for(int attrib = 0; attrib<c; ++attrib)
-        {
+      {
         if(attributes->GetAttribute(attrib)->GetCentering()==vtkCellCentered)
-          {
+        {
           vtkDataArray *array=outputCD->GetArray(attributes->GetAttribute(attrib)->GetName());
           double *values=attributes->GetAttribute(attrib)->GetTuple(cellProbe);
           array->InsertNextTuple(values);
-          }
         }
+      }
 
       // for each point-centered attribute: interpolate the value
       int j=0;
       for(int attribute_idx = 0; attribute_idx<c; ++attribute_idx)
-        {
+      {
         vtkGenericAttribute *a = attributes->GetAttribute(attribute_idx);
         if(a->GetCentering()==vtkPointCentered)
-          {
+        {
           cellProbe->InterpolateTuple(a,pcoords,tuples);
           outputPD->GetArray(j)->InsertTuple(ptId,tuples);
           ++j;
-          }
         }
+      }
       this->ValidPoints->InsertNextValue(ptId);
-      }
-    else
-      {
-      outputPD->NullPoint(ptId);
-      }
     }
+    else
+    {
+      outputPD->NullPoint(ptId);
+    }
+  }
   cellIt->Delete();
   delete[] tuples;
 
@@ -256,16 +256,16 @@ int vtkGenericProbeFilter::FillInputPortInformation(
   vtkInformation* info)
 {
   if(!this->Superclass::FillInputPortInformation(port, info))
-    {
+  {
     return 0;
-    }
+  }
   if(port==1)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGenericDataSet");
-    }
+  }
   else
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
-    }
+  }
   return 1;
 }

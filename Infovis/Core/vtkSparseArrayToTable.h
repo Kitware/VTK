@@ -19,21 +19,24 @@
 
 =========================================================================*/
 
-// .NAME vtkSparseArrayToTable - Converts a sparse array to a vtkTable.
-//
-// .SECTION Description
-// Converts any sparse array to a vtkTable containing one row for each value
-// stored in the array.  The table will contain one column of coordinates for each
-// dimension in the source array, plus one column of array values.  A common use-case
-// for vtkSparseArrayToTable would be converting a sparse array into a table
-// suitable for use as an input to vtkTableToGraph.
-//
-// The coordinate columns in the output table will be named using the dimension labels
-// from the source array,  The value column name can be explicitly set using
-// SetValueColumn().
-//
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+/**
+ * @class   vtkSparseArrayToTable
+ * @brief   Converts a sparse array to a vtkTable.
+ *
+ *
+ * Converts any sparse array to a vtkTable containing one row for each value
+ * stored in the array.  The table will contain one column of coordinates for each
+ * dimension in the source array, plus one column of array values.  A common use-case
+ * for vtkSparseArrayToTable would be converting a sparse array into a table
+ * suitable for use as an input to vtkTableToGraph.
+ *
+ * The coordinate columns in the output table will be named using the dimension labels
+ * from the source array,  The value column name can be explicitly set using
+ * SetValueColumn().
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+*/
 
 #ifndef vtkSparseArrayToTable_h
 #define vtkSparseArrayToTable_h
@@ -48,11 +51,14 @@ public:
   vtkTypeMacro(vtkSparseArrayToTable, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify the name of the output table column that contains array values.
-  // Default: "value"
+  //@{
+  /**
+   * Specify the name of the output table column that contains array values.
+   * Default: "value"
+   */
   vtkGetStringMacro(ValueColumn);
   vtkSetStringMacro(ValueColumn);
+  //@}
 
 protected:
   vtkSparseArrayToTable();

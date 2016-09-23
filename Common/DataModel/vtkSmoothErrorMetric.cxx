@@ -47,28 +47,28 @@ void vtkSmoothErrorMetric::SetAngleTolerance(double value)
 {
 //  assert("pre: positive_value" && value>90 && value<180);
   if(this->AngleTolerance!=value)
-    {
+  {
     // Clamp the value
     if(value<=90)
-      {
+    {
       vtkWarningMacro(<< "value " << value << " out of range ]90,180[, clamped to 90.1" );
       this->AngleTolerance=90.1;
-      }
+    }
     else
-      {
+    {
       if(value>=180)
-        {
+      {
         vtkWarningMacro(<< "value " << value << " out of range ]90,180[, clamped to 179.9" );
         this->AngleTolerance=179.9;
-        }
-      else
-        {
-        this->AngleTolerance=value;
-        }
       }
+      else
+      {
+        this->AngleTolerance=value;
+      }
+    }
     this->CosTolerance = cos( vtkMath::RadiansFromDegrees( this->AngleTolerance ) );
     this->Modified();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -83,10 +83,10 @@ int vtkSmoothErrorMetric::RequiresEdgeSubdivision(double *leftPoint,
   assert( "pre: rightPoint_exists" && rightPoint != 0 );
 //  assert( "pre: clamped_alpha" && alpha>0 && alpha < 1. ); // or else true
   if( this->GenericCell->IsGeometryLinear() )
-    {
+  {
     //don't need to do anything:
     return 0;
-    }
+  }
 
   double a[3];
   double b[3];
@@ -104,13 +104,13 @@ int vtkSmoothErrorMetric::RequiresEdgeSubdivision(double *leftPoint,
   double cosa;
 
   if( dota == 0 || dotb == 0 )
-    {
+  {
     cosa = -1.;
-    }
+  }
   else
-    {
+  {
     cosa = vtkMath::Dot( a, b ) / sqrt( dota * dotb );
-    }
+  }
 
   int result = ( cosa > this->CosTolerance );
 
@@ -135,10 +135,10 @@ double vtkSmoothErrorMetric::GetError(double *leftPoint,
   assert( "pre: rightPoint_exists" && rightPoint != 0 );
 //  assert( "pre: clamped_alpha" && alpha > 0. && alpha < 1. );
   if( this->GenericCell->IsGeometryLinear() )
-    {
+  {
     //don't need to do anything:
     return 0.;
-    }
+  }
 
   double a[3];
   double b[3];
@@ -156,22 +156,22 @@ double vtkSmoothErrorMetric::GetError(double *leftPoint,
   double cosa;
 
   if( dota == 0. || dotb==0. )
-    {
+  {
     cosa = -1.;
-    }
+  }
   else
-    {
+  {
     cosa = vtkMath::Dot( a, b ) / sqrt( dota * dotb );
-    }
+  }
 
   if( cosa > 1.)
-    {
+  {
     cosa = 1.;
-    }
+  }
   else if( cosa < -1. )
-    {
+  {
     cosa = -1.;
-    }
+  }
   double result = 180. - vtkMath::RadiansFromDegrees( acos( cosa ) );
   assert( "post: positive_result" && result >= 0. );
   return result;

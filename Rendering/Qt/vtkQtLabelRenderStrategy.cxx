@@ -63,29 +63,29 @@ struct vtkQtLabelMapValue
 };
 
 bool operator <(const vtkQtLabelMapEntry& a, const vtkQtLabelMapEntry& other)
-  {
+{
   if (a.Text != other.Text)
-    {
+  {
     return a.Text < other.Text;
-    }
-  if (a.Color.red() != other.Color.red())
-    {
-    return a.Color.red() < other.Color.red();
-    }
-  if (a.Color.green() != other.Color.green())
-    {
-    return a.Color.green() < other.Color.green();
-    }
-  if (a.Color.blue() != other.Color.blue())
-    {
-    return a.Color.blue() < other.Color.blue();
-    }
-  if (a.Color.alpha() != other.Color.alpha())
-    {
-    return a.Color.alpha() < other.Color.alpha();
-    }
-  return a.Font < other.Font;
   }
+  if (a.Color.red() != other.Color.red())
+  {
+    return a.Color.red() < other.Color.red();
+  }
+  if (a.Color.green() != other.Color.green())
+  {
+    return a.Color.green() < other.Color.green();
+  }
+  if (a.Color.blue() != other.Color.blue())
+  {
+    return a.Color.blue() < other.Color.blue();
+  }
+  if (a.Color.alpha() != other.Color.alpha())
+  {
+    return a.Color.alpha() < other.Color.alpha();
+  }
+  return a.Font < other.Font;
+}
 } // End of anonymous namespace
 
 class vtkQtLabelRenderStrategy::Internals
@@ -96,23 +96,23 @@ public:
   QMap<vtkQtLabelMapEntry, vtkQtLabelMapValue> Cache;
 
   QFont TextPropertyToFont(vtkTextProperty* tprop)
-    {
+  {
     QFont fontSpec(tprop->GetFontFamilyAsString());
     fontSpec.setBold(tprop->GetBold());
     fontSpec.setItalic(tprop->GetItalic());
     fontSpec.setPixelSize(tprop->GetFontSize());
     return fontSpec;
-    }
+  }
 
   QColor TextPropertyToColor(double* fc, double opacity)
-    {
+  {
     QColor textColor(
       static_cast<int>(fc[0]*255),
       static_cast<int>(fc[1]*255),
       static_cast<int>(fc[2]*255),
       static_cast<int>(opacity*255));
     return textColor;
-    }
+  }
 };
 
 //----------------------------------------------------------------------------
@@ -175,16 +175,16 @@ void vtkQtLabelRenderStrategy::StartFrame()
   //timer->StartTimer();
 
   if (!this->Renderer)
-    {
+  {
     vtkErrorMacro("Renderer must be set.");
     return;
-    }
+  }
 
   if (!this->Renderer->GetRenderWindow())
-    {
+  {
     vtkErrorMacro("RenderWindow must be set.");
     return;
-    }
+  }
 
   int *size = this->Renderer->GetRenderWindow()->GetSize();
   int width = size[0];
@@ -194,7 +194,7 @@ void vtkQtLabelRenderStrategy::StartFrame()
 
   if (this->Implementation->Image->width() != width ||
       this->Implementation->Image->height() != height)
-    {
+  {
     this->Implementation->Painter->end();
     delete this->Implementation->Image;
     this->Implementation->Image = new QImage(width, height,
@@ -207,7 +207,7 @@ void vtkQtLabelRenderStrategy::StartFrame()
     this->QImageToImage->SetQImage(this->Implementation->Image);
     this->PlaneSource->SetPoint1(width, 0, 0);
     this->PlaneSource->SetPoint2(0, height, 0);
-    }
+  }
 
   this->Implementation->Image->fill(qRgba(0,0,0,0));
   this->QImageToImage->Modified();
@@ -228,30 +228,30 @@ void vtkQtLabelRenderStrategy::ComputeLabelBounds(
   vtkTextProperty* tprop, vtkUnicodeString label, double bds[4])
 {
   if (!QApplication::instance())
-    {
+  {
     vtkErrorMacro("You must initialize a QApplication before using this class.");
     return;
-    }
+  }
 
   //vtkTimerLog* timer = vtkTimerLog::New();
   //timer->StartTimer();
 
   if (!tprop)
-    {
+  {
     tprop = this->DefaultTextProperty;
-    }
+  }
 
   QFont fontSpec = this->Implementation->TextPropertyToFont(tprop);
 
   // This is the recommended Qt way of controlling text antialiasing.
   if (this->AntialiasText)
-    {
+  {
     fontSpec.setStyleStrategy(QFont::PreferAntialias);
-    }
+  }
   else
-    {
+  {
     fontSpec.setStyleStrategy(QFont::NoAntialias);
-    }
+  }
 
   QString text = QString::fromUtf8(label.utf8_str());
   QColor textColor = this->Implementation->TextPropertyToColor(tprop->GetColor(),
@@ -263,16 +263,16 @@ void vtkQtLabelRenderStrategy::ComputeLabelBounds(
 
   QRectF rect;
   if (this->Implementation->Cache.contains(key))
-    {
+  {
     rect = this->Implementation->Cache[key].Bounds;
-    }
+  }
   else
-    {
+  {
     QPainterPath path;
     path.addText(0, 0, fontSpec, text);
     rect = path.boundingRect();
     this->Implementation->Cache[key].Bounds = rect;
-    }
+  }
 
   bds[0] = 0;
   bds[1] = rect.width();
@@ -327,10 +327,10 @@ void vtkQtLabelRenderStrategy::RenderLabel(
   int x[2], vtkTextProperty* tprop, vtkUnicodeString label, int maxWidth)
 {
   if (!QApplication::instance())
-    {
+  {
     vtkErrorMacro("You must initialize a QApplication before using this class.");
     return;
-    }
+  }
 
   //vtkTimerLog* timer = vtkTimerLog::New();
   //timer->StartTimer();
@@ -341,21 +341,21 @@ void vtkQtLabelRenderStrategy::RenderLabel(
 
   // This is the recommended Qt way of controlling text antialiasing.
   if (this->AntialiasText)
-    {
+  {
     fontSpec.setStyleStrategy(QFont::PreferAntialias);
-    }
+  }
   else
-    {
+  {
     fontSpec.setStyleStrategy(QFont::NoAntialias);
-    }
+  }
 
   QFontMetrics fontMetric(fontSpec);
   QString text = fontMetric.elidedText(origText, Qt::ElideRight, maxWidth);
   if (origText.length() >= 8 && text.length() < 8)
-    {
+  {
     // Too small to render.
     return;
-    }
+  }
 
   // Get properties from text property
   double rotation = -tprop->GetOrientation();
@@ -376,7 +376,7 @@ void vtkQtLabelRenderStrategy::RenderLabel(
   double delta_x = 0., delta_y = 0.;
 
   switch( tprop->GetJustification() )
-    {
+  {
     case VTK_TEXT_LEFT:
       break;
     case VTK_TEXT_CENTERED:
@@ -385,9 +385,9 @@ void vtkQtLabelRenderStrategy::RenderLabel(
     case VTK_TEXT_RIGHT:
       delta_x = -bounds.width();
       break;
-    }
+  }
   switch (tprop->GetVerticalJustification())
-    {
+  {
     case VTK_TEXT_TOP:
       delta_y = bounds.height() - bounds.bottom();
       break;
@@ -397,7 +397,7 @@ void vtkQtLabelRenderStrategy::RenderLabel(
     case VTK_TEXT_BOTTOM:
       delta_y = -bounds.bottom();
       break;
-    }
+  }
 
   QPainter* painter = this->Implementation->Painter;
   painter->save();
@@ -407,12 +407,12 @@ void vtkQtLabelRenderStrategy::RenderLabel(
   painter->translate(0., line_offset);
 
   if (tprop->GetShadow())
-    {
+  {
     painter->save();
     painter->translate(shOff[0], -shOff[1]);
     painter->fillPath(path, shadowColor);
     painter->restore();
-    }
+  }
 
   painter->fillPath(path, textColor);
   painter->restore();
@@ -431,16 +431,16 @@ void vtkQtLabelRenderStrategy::RenderLabel(
   int x[2], vtkTextProperty* tprop, vtkUnicodeString label)
 {
   if (!QApplication::instance())
-    {
+  {
     vtkErrorMacro("You must initialize a QApplication before using this class.");
     return;
-    }
+  }
 
   if (!this->Renderer)
-    {
+  {
     vtkErrorMacro("Renderer must be set.");
     return;
-    }
+  }
 
   //vtkTimerLog* timer = vtkTimerLog::New();
   //timer->StartTimer();
@@ -450,13 +450,13 @@ void vtkQtLabelRenderStrategy::RenderLabel(
 
   // This is the recommended Qt way of controlling text antialiasing.
   if (this->AntialiasText)
-    {
+  {
     fontSpec.setStyleStrategy(QFont::PreferAntialias);
-    }
+  }
   else
-    {
+  {
     fontSpec.setStyleStrategy(QFont::NoAntialias);
-    }
+  }
 
   double rotation = -tprop->GetOrientation();
   QColor textColor = this->Implementation->TextPropertyToColor(tprop->GetColor(), tprop->GetOpacity());
@@ -475,12 +475,12 @@ void vtkQtLabelRenderStrategy::RenderLabel(
   key.Text = text;
   key.Color = textColor;
   if (this->Implementation->Cache.contains(key) && this->Implementation->Cache[key].Image.width() > 0)
-    {
+  {
     img = &this->Implementation->Cache[key].Image;
     bounds = this->Implementation->Cache[key].Bounds;
-    }
+  }
   else
-    {
+  {
     QPainterPath path;
     path.addText(0, 0, fontSpec, text);
     bounds = path.boundingRect();
@@ -500,7 +500,7 @@ void vtkQtLabelRenderStrategy::RenderLabel(
     p.setRenderHint(QPainter::Antialiasing, this->AntialiasText);
 
     if (tprop->GetShadow())
-      {
+    {
       p.save();
       p.translate(shOff[0], -shOff[1]);
       double sc[3];
@@ -508,16 +508,16 @@ void vtkQtLabelRenderStrategy::RenderLabel(
       QColor shadowColor = this->Implementation->TextPropertyToColor(sc, tprop->GetOpacity());
       p.fillPath(path, shadowColor);
       p.restore();
-      }
+    }
 
     p.fillPath(path, textColor);
-    }
+  }
 
   QPainter* painter = this->Implementation->Painter;
 
   double delta_x = 0.;
   switch( tprop->GetJustification() )
-    {
+  {
     case VTK_TEXT_LEFT:
       delta_x = bounds.width()/2.0;
       break;
@@ -526,11 +526,11 @@ void vtkQtLabelRenderStrategy::RenderLabel(
     case VTK_TEXT_RIGHT:
       delta_x = -bounds.width()/2.0;
       break;
-    }
+  }
 
   double delta_y = pixelPadding / 2.0;
   switch (tprop->GetVerticalJustification())
-    {
+  {
     case VTK_TEXT_TOP:
       delta_y += bounds.height()/2.0;
       break;
@@ -539,7 +539,7 @@ void vtkQtLabelRenderStrategy::RenderLabel(
     case VTK_TEXT_BOTTOM:
       delta_y += -bounds.height()/2.0;
       break;
-    }
+  }
 
   int *size = this->Renderer->GetRenderWindow()->GetSize();
   double h = size[1]-1;

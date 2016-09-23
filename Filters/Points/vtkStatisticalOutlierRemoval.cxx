@@ -50,12 +50,12 @@ struct ComputeMeanDistance
 
   ComputeMeanDistance(T *points, vtkAbstractPointLocator *loc, int size, float *d) :
     Points(points), Locator(loc), SampleSize(size), Distance(d), Mean(0.0)
-    {
-    }
+  {
+  }
 
   // Just allocate a little bit of memory to get started.
   void Initialize()
-    {
+  {
     vtkIdList*& pIds = this->PIds.Local();
     pIds->Allocate(128); //allocate some memory
 
@@ -64,12 +64,12 @@ struct ComputeMeanDistance
 
     vtkIdType &threadCount = this->ThreadCount.Local();
     threadCount = 0;
-    }
+  }
 
   // Compute average distance for each point, plus accumlate summation of
   // mean distances and count (for averaging in the Reduce() method).
   void operator() (vtkIdType ptId, vtkIdType endPtId)
-    {
+  {
       const T *px = this->Points + 3*ptId;
       const T *py;
       double x[3], y[3];
@@ -78,7 +78,7 @@ struct ComputeMeanDistance
       vtkIdType &threadCount = this->ThreadCount.Local();
 
       for ( ; ptId < endPtId; ++ptId)
-        {
+      {
         x[0] = static_cast<double>(*px++);
         x[1] = static_cast<double>(*px++);
         x[2] = static_cast<double>(*px++);
@@ -91,63 +91,63 @@ struct ComputeMeanDistance
         double sum = 0.0;
         vtkIdType nei;
         for (int sample=0; sample < numPts; ++sample)
-          {
+        {
           nei = pIds->GetId(sample);
           if ( nei != ptId ) //exclude ourselves
-            {
+          {
             py = this->Points + 3*nei;
             y[0] = static_cast<double>(*py++);
             y[1] = static_cast<double>(*py++);
             y[2] = static_cast<double>(*py);
             sum += sqrt( vtkMath::Distance2BetweenPoints(x,y) );
-            }
-          }//sum the lengths of all samples exclusing current point
+          }
+        }//sum the lengths of all samples exclusing current point
 
         // Average the lengths; again exclude ourselves
         if ( numPts > 0 )
-          {
+        {
           this->Distance[ptId] = sum / static_cast<double>(numPts-1);
           threadMean += this->Distance[ptId];
           threadCount++;
-          }
-        else //ignore if no points are found, something bad has happened
-          {
-          this->Distance[ptId] = VTK_FLOAT_MAX; //the effect is to eliminate it
-          }
         }
-    }
+        else //ignore if no points are found, something bad has happened
+        {
+          this->Distance[ptId] = VTK_FLOAT_MAX; //the effect is to eliminate it
+        }
+      }
+  }
 
   // Compute the mean by compositing all threads
   void Reduce()
-    {
+  {
       double mean=0.0;
       vtkIdType count=0;
 
       vtkSMPThreadLocal<double>::iterator mItr;
       vtkSMPThreadLocal<double>::iterator mEnd = this->ThreadMean.end();
       for ( mItr=this->ThreadMean.begin(); mItr != mEnd; ++mItr )
-        {
+      {
         mean += *mItr;
-        }
+      }
 
       vtkSMPThreadLocal<vtkIdType>::iterator cItr;
       vtkSMPThreadLocal<vtkIdType>::iterator cEnd = this->ThreadCount.end();
       for ( cItr=this->ThreadCount.begin(); cItr != cEnd; ++cItr )
-        {
+      {
         count += *cItr;
-        }
+      }
 
       this->Mean = mean / static_cast<double>(count);
-    }
+  }
 
   static void Execute(vtkStatisticalOutlierRemoval *self, vtkIdType numPts,
                       T *points, float *distances, double& mean)
-    {
+  {
       ComputeMeanDistance compute(points, self->GetLocator(),
                                   self->GetSampleSize(), distances);
       vtkSMPTools::For(0, numPts, compute);
       mean = compute.Mean;
-    }
+  }
 
 }; //ComputeMeanDistance
 
@@ -162,68 +162,68 @@ struct ComputeStdDev
   vtkSMPThreadLocal<vtkIdType> ThreadCount;
 
   ComputeStdDev(float *d, double mean) : Distances(d), Mean(mean), StdDev(0.0)
-    {
-    }
+  {
+  }
 
   void Initialize()
-    {
+  {
     double &threadSigma = this->ThreadSigma.Local();
     threadSigma = 0.0;
 
     vtkIdType &threadCount = this->ThreadCount.Local();
     threadCount = 0;
-    }
+  }
 
   void operator() (vtkIdType ptId, vtkIdType endPtId)
-    {
+  {
       double &threadSigma = this->ThreadSigma.Local();
       vtkIdType &threadCount = this->ThreadCount.Local();
       float d;
 
       for ( ; ptId < endPtId; ++ptId)
-        {
+      {
         d = this->Distances[ptId];
         if ( d < VTK_FLOAT_MAX )
-          {
+        {
           threadSigma += (this->Mean - d) * (this->Mean - d);
           threadCount++;
-          }
-        else
-          {
-          continue; //skip bad point
-          }
         }
-    }
+        else
+        {
+          continue; //skip bad point
+        }
+      }
+  }
 
   void Reduce()
-    {
+  {
       double sigma=0.0;
       vtkIdType count=0;
 
       vtkSMPThreadLocal<double>::iterator sItr;
       vtkSMPThreadLocal<double>::iterator sEnd = this->ThreadSigma.end();
       for ( sItr=this->ThreadSigma.begin(); sItr != sEnd; ++sItr )
-        {
+      {
         sigma += *sItr;
-        }
+      }
 
       vtkSMPThreadLocal<vtkIdType>::iterator cItr;
       vtkSMPThreadLocal<vtkIdType>::iterator cEnd = this->ThreadCount.end();
       for ( cItr=this->ThreadCount.begin(); cItr != cEnd; ++cItr )
-        {
+      {
         count += *cItr;
-        }
+      }
 
       this->StdDev = sqrt( sigma / static_cast<double>(count) );
-    }
+  }
 
   static void Execute(vtkIdType numPts, float *distances,
                       double mean, double& sigma)
-    {
+  {
       ComputeStdDev stdDev(distances, mean);
       vtkSMPTools::For(0, numPts, stdDev);
       sigma = stdDev.StdDev;
-    }
+  }
 
 }; //ComputeStdDev
 
@@ -238,27 +238,27 @@ struct RemoveOutliers
 
   RemoveOutliers(double mean, double sigma, float *distances, vtkIdType *map) :
     Mean(mean), Sigma(sigma), Distances(distances), PointMap(map)
-    {
-    }
+  {
+  }
 
   void operator() (vtkIdType ptId, vtkIdType endPtId)
-    {
+  {
       vtkIdType *map = this->PointMap + ptId;
       float *d = this->Distances + ptId;
       double mean=this->Mean, sigma=this->Sigma;
 
       for ( ; ptId < endPtId; ++ptId)
-        {
+      {
         *map++ = ( fabs(*d++ - mean) <= sigma ? 1 : -1 );
-        }
-    }
+      }
+  }
 
   static void Execute(vtkIdType numPts, float *distances, double mean,
                       double sigma, vtkIdType *map)
-    {
+  {
       RemoveOutliers remove(mean, sigma, distances, map);
       vtkSMPTools::For(0, numPts, remove);
-    }
+  }
 
 }; //RemoveOutliers
 
@@ -294,10 +294,10 @@ int vtkStatisticalOutlierRemoval::FilterPoints(vtkPointSet *input)
   // Perform the point removal
   // Start by building the locator
   if ( !this->Locator )
-    {
+  {
     vtkErrorMacro(<<"Point locator required\n");
     return 0;
-    }
+  }
   this->Locator->SetDataSet(input);
   this->Locator->BuildLocator();
 
@@ -308,10 +308,10 @@ int vtkStatisticalOutlierRemoval::FilterPoints(vtkPointSet *input)
   void *inPtr = input->GetPoints()->GetVoidPointer(0);
   double mean=0.0, sigma=0.0;
   switch (input->GetPoints()->GetDataType())
-    {
+  {
     vtkTemplateMacro(ComputeMeanDistance<VTK_TT>::
                      Execute(this, numPts, (VTK_TT *)inPtr, dist, mean));
-    }
+  }
 
   // At this point the mean distance for each point, and across the point
   // cloud is known. Now compute global standard deviation.

@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageCroppingRegionsWidget - widget for cropping an image
-// .SECTION Description
-// This widget displays a set of axis aligned lines that can be interactively
-// manipulated to crop a volume. The region to be cropped away is displayed
-// in a different highlight. Much like the vtkVolumeMapper, this widget
-// supports 27 possible configurations of cropping planes. (See
-// CroppingRegionFlags). If a volume mapper is set, the cropping planes
-// are directly propagated to the volume mapper. The widget invokes a
-// CroppingPlanesPositionChangedEvent when the position of any of the
-// cropping planes is changed. The widget also invokes an InteractionEvent
-// in response to user interaction.
+/**
+ * @class   vtkImageCroppingRegionsWidget
+ * @brief   widget for cropping an image
+ *
+ * This widget displays a set of axis aligned lines that can be interactively
+ * manipulated to crop a volume. The region to be cropped away is displayed
+ * in a different highlight. Much like the vtkVolumeMapper, this widget
+ * supports 27 possible configurations of cropping planes. (See
+ * CroppingRegionFlags). If a volume mapper is set, the cropping planes
+ * are directly propagated to the volume mapper. The widget invokes a
+ * CroppingPlanesPositionChangedEvent when the position of any of the
+ * cropping planes is changed. The widget also invokes an InteractionEvent
+ * in response to user interaction.
+*/
 
 #ifndef vtkImageCroppingRegionsWidget_h
 #define vtkImageCroppingRegionsWidget_h
@@ -40,23 +43,32 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkImageCroppingRegionsWidget : public vtk3DW
 {
 public:
 
-  // Description:
-  // Standard VTK methods.
+  //@{
+  /**
+   * Standard VTK methods.
+   */
   static vtkImageCroppingRegionsWidget *New();
   vtkTypeMacro(vtkImageCroppingRegionsWidget, vtk3DWidget);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // Place/Adjust widget within bounds
+  //@{
+  /**
+   * Place/Adjust widget within bounds
+   */
   using vtk3DWidget::PlaceWidget;
   virtual void PlaceWidget(double bounds[6]);
+  //@}
 
-  // Description:
-  // Enable/disable the widget
+  /**
+   * Enable/disable the widget
+   */
   virtual void SetEnabled(int enabling);
 
-  // Description:
-  // Set/Get the plane positions that represent the cropped region.
+  //@{
+  /**
+   * Set/Get the plane positions that represent the cropped region.
+   */
   vtkGetVector6Macro(PlanePositions, double);
   virtual void SetPlanePositions(double pos[6])
     {this->SetPlanePositions(pos[0], pos[1], pos[2], pos[3], pos[4], pos[5]);}
@@ -65,14 +77,19 @@ public:
   virtual void SetPlanePositions(double xMin, double xMax,
                                  double yMin, double yMax,
                                  double zMin, double zMax);
+  //@}
 
-  // Description:
-  // Set/Get the cropping region flags
+  //@{
+  /**
+   * Set/Get the cropping region flags
+   */
   virtual void SetCroppingRegionFlags(int flags);
   vtkGetMacro(CroppingRegionFlags, int);
+  //@}
 
-  // Description:
-  // Set/get the slice orientation
+  /**
+   * Set/get the slice orientation
+   */
 
   enum
   {
@@ -90,52 +107,72 @@ public:
   virtual void SetSliceOrientationToXZ()
     { this->SetSliceOrientation(vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_XZ); };
 
-  // Description:
-  // Set/Get the slice number
+  //@{
+  /**
+   * Set/Get the slice number
+   */
   virtual void SetSlice(int num);
   vtkGetMacro(Slice, int);
+  //@}
 
-  // Description:
-  // Set/Get line 1 color
+  //@{
+  /**
+   * Set/Get line 1 color
+   */
   virtual void SetLine1Color(double r, double g, double b);
   virtual void SetLine1Color(double rgb[3])
     { this->SetLine1Color(rgb[0], rgb[1], rgb[2]); }
   virtual double *GetLine1Color();
   virtual void GetLine1Color(double rgb[3]);
+  //@}
 
-  // Description:
-  // Set/Get line 2 color
+  //@{
+  /**
+   * Set/Get line 2 color
+   */
   virtual void SetLine2Color(double r, double g, double b);
   virtual void SetLine2Color(double rgb[3])
     { this->SetLine2Color(rgb[0], rgb[1], rgb[2]); }
   virtual double *GetLine2Color();
   virtual void GetLine2Color(double rgb[3]);
+  //@}
 
-  // Description:
-  // Set/Get line 3 color
+  //@{
+  /**
+   * Set/Get line 3 color
+   */
   virtual void SetLine3Color(double r, double g, double b);
   virtual void SetLine3Color(double rgb[3])
     { this->SetLine3Color(rgb[0], rgb[1], rgb[2]); }
   virtual double *GetLine3Color();
   virtual void GetLine3Color(double rgb[3]);
+  //@}
 
-  // Description:
-  // Set/Get line 4 color
+  //@{
+  /**
+   * Set/Get line 4 color
+   */
   virtual void SetLine4Color(double r, double g, double b);
   virtual void SetLine4Color(double rgb[3])
     { this->SetLine4Color(rgb[0], rgb[1], rgb[2]); }
   virtual double *GetLine4Color();
   virtual void GetLine4Color(double rgb[3]);
+  //@}
 
-  // Description:
-  // Set/Get the input volume mapper
-  // Update the widget according to its mapper
+  //@{
+  /**
+   * Set/Get the input volume mapper
+   * Update the widget according to its mapper
+   */
   virtual void SetVolumeMapper(vtkVolumeMapper *mapper);
   vtkGetObjectMacro(VolumeMapper, vtkVolumeMapper);
   virtual void UpdateAccordingToInput();
+  //@}
 
-  // Description:
-  // Callbacks for user interaction.
+  //@{
+  /**
+   * Callbacks for user interaction.
+   */
   void MoveHorizontalLine();
   void MoveVerticalLine();
   void MoveIntersectingLines();
@@ -143,13 +180,15 @@ public:
   void OnButtonPress();
   void OnButtonRelease();
   void OnMouseMove();
+  //@}
 
-  // Description:
-  // Events invoked by this widget
+  /**
+   * Events invoked by this widget
+   */
   enum WidgetEventIds
-    {
+  {
     CroppingPlanesPositionChangedEvent = 10050
-    };
+  };
 
 protected:
 

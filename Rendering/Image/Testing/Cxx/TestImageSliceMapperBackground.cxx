@@ -52,7 +52,7 @@ int TestImageSliceMapperBackground(int argc, char* argv[])
   delete[] fname;
 
   for (int i = 0; i < 4; i++)
-    {
+  {
     vtkRenderer *renderer = vtkRenderer::New();
     vtkCamera *camera = renderer->GetActiveCamera();
     renderer->SetBackground(0.1,0.2,0.4);
@@ -88,28 +88,28 @@ int TestImageSliceMapperBackground(int argc, char* argv[])
     renderer->AddViewProp(image);
 
     if ((i&1))
-      {
+    {
       image->GetMapper()->BorderOn();
-      }
+    }
     if ((i&2))
-      {
+    {
       image->GetMapper()->BackgroundOn();
-      }
+    }
 
     image->GetProperty()->SetColorWindow(255.0);
     image->GetProperty()->SetColorLevel(127.5);
 
     image->Delete();
-    }
+  }
 
   renWin->SetSize(400,400);
 
   renWin->Render();
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
+  {
     iren->Start();
-    }
+  }
   iren->Delete();
 
   reader->Delete();

@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkActorCollection - a list of actors
-// .SECTION Description
-// vtkActorCollection represents and provides methods to manipulate a list of
-// actors (i.e., vtkActor and subclasses). The list is unsorted and duplicate
-// entries are not prevented.
-
-// .SECTION see also
-// vtkActor vtkCollection
+/**
+ * @class   vtkActorCollection
+ * @brief   a list of actors
+ *
+ * vtkActorCollection represents and provides methods to manipulate a list of
+ * actors (i.e., vtkActor and subclasses). The list is unsorted and duplicate
+ * entries are not prevented.
+ *
+ * @sa
+ * vtkActor vtkCollection
+*/
 
 #ifndef vtkActorCollection_h
 #define vtkActorCollection_h
@@ -37,32 +40,40 @@ public:
   vtkTypeMacro(vtkActorCollection,vtkPropCollection);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Add an actor to the list.
+  /**
+   * Add an actor to the list.
+   */
   void AddItem(vtkActor *a);
 
-  // Description:
-  // Get the next actor in the list.
+  /**
+   * Get the next actor in the list.
+   */
   vtkActor *GetNextActor();
 
-  // Description:
-  // Get the last actor in the list.
+  /**
+   * Get the last actor in the list.
+   */
   vtkActor *GetLastActor();
 
-  // Description:
-  // Access routines that are provided for compatibility with previous
-  // version of VTK.  Please use the GetNextActor(), GetLastActor() variants
-  // where possible.
+  //@{
+  /**
+   * Access routines that are provided for compatibility with previous
+   * version of VTK.  Please use the GetNextActor(), GetLastActor() variants
+   * where possible.
+   */
   vtkActor *GetNextItem();
   vtkActor *GetLastItem();
+  //@}
 
-  // Description:
-  // Apply properties to all actors in this collection.
+  /**
+   * Apply properties to all actors in this collection.
+   */
   void ApplyProperties(vtkProperty *p);
 
-  // Description:
-  // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth.
+  /**
+   * Reentrant safe way to get an object in a collection. Just pass the
+   * same cookie back and forth.
+   */
   vtkActor *GetNextActor(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkActor *>(this->GetNextItemAsObject(cookie));};
 
@@ -94,13 +105,13 @@ inline vtkActor *vtkActorCollection::GetNextActor()
 inline vtkActor *vtkActorCollection::GetLastActor()
 {
   if ( this->Bottom == NULL )
-    {
+  {
     return NULL;
-    }
+  }
   else
-    {
+  {
     return static_cast<vtkActor *>(this->Bottom->Item);
-    }
+  }
 }
 
 inline vtkActor *vtkActorCollection::GetNextItem()

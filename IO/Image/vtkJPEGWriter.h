@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkJPEGWriter - Writes JPEG files.
-// .SECTION Description
-// vtkJPEGWriter writes JPEG files. It supports 1 and 3 component data of
-// unsigned char. It relies on the IJG's libjpeg.  Thanks to IJG for
-// supplying a public jpeg IO library.
-
-// .SECTION See Also
-// vtkJPEGReader
+/**
+ * @class   vtkJPEGWriter
+ * @brief   Writes JPEG files.
+ *
+ * vtkJPEGWriter writes JPEG files. It supports 1 and 3 component data of
+ * unsigned char. It relies on the IJG's libjpeg.  Thanks to IJG for
+ * supplying a public jpeg IO library.
+ *
+ * @sa
+ * vtkJPEGReader
+*/
 
 #ifndef vtkJPEGWriter_h
 #define vtkJPEGWriter_h
@@ -37,32 +40,45 @@ public:
   vtkTypeMacro(vtkJPEGWriter,vtkImageWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // The main interface which triggers the writer to start.
+  /**
+   * The main interface which triggers the writer to start.
+   */
   virtual void Write();
 
-  // Description:
-  // Compression quality. 0 = Low quality, 100 = High quality
+  //@{
+  /**
+   * Compression quality. 0 = Low quality, 100 = High quality
+   */
   vtkSetClampMacro(Quality, int, 0, 100);
   vtkGetMacro(Quality, int);
+  //@}
 
-  // Description:
-  // Progressive JPEG generation.
+  //@{
+  /**
+   * Progressive JPEG generation.
+   */
   vtkSetMacro(Progressive, unsigned int);
   vtkGetMacro(Progressive, unsigned int);
   vtkBooleanMacro(Progressive, unsigned int);
+  //@}
 
-  // Description:
-  // Write the image to memory (a vtkUnsignedCharArray)
+  //@{
+  /**
+   * Write the image to memory (a vtkUnsignedCharArray)
+   */
   vtkSetMacro(WriteToMemory, unsigned int);
   vtkGetMacro(WriteToMemory, unsigned int);
   vtkBooleanMacro(WriteToMemory, unsigned int);
+  //@}
 
-  // Description:
-  // When writing to memory this is the result, it will be NULL until the
-  // data is written the first time
+  //@{
+  /**
+   * When writing to memory this is the result, it will be NULL until the
+   * data is written the first time
+   */
   virtual void SetResult(vtkUnsignedCharArray*);
   vtkGetObjectMacro(Result, vtkUnsignedCharArray);
+  //@}
 
 protected:
   vtkJPEGWriter();

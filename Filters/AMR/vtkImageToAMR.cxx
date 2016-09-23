@@ -44,54 +44,54 @@ namespace
     //the cartesian product A[0][0..n[0]] X A[1][0..n[1] X A[2][0..n[2]] is the refined grid
     int A[3][3], n[3];
     for(int d=0; d<3; d++)
-      {
+    {
       A[d][0] = lo[d]-1;
       A[d][2] = hi[d];
       if(inBox.EmptyDimension(d))
-        {
+      {
         n[d]=1;
         A[d][1] = hi[d];
-        }
+      }
       else
-        {
+      {
         n[d]=2;
         A[d][1] = (lo[d]+hi[d])/2;
-        }
       }
+    }
 
     //create the refined boxes and push them to the output stack
     int numOut(0);
     for(int i=0; i<n[0]; i++)
-      {
+    {
       for(int j=0; j<n[1]; j++)
-        {
+      {
         for(int k=0; k<n[2]; k++)
-          {
+        {
           vtkAMRBox box;
           box.SetDimensions( A[0][i]+1,  A[1][j]+1,  A[2][k]+1,
                              A[0][i+1],  A[1][j+1],  A[2][k+1]);
           out.push_back(box);
           numOut++;
-          }
         }
       }
+    }
     return numOut;
   }
 
   int ComputeTreeHeight(int maxNumNodes, int degree)
   {
     if(maxNumNodes<=0)
-      {
+    {
       return 0;
-      }
+    }
     //could have used a formula, but this is more clear
     int height = 1;
     int numNodes= 1;
     while(numNodes<=maxNumNodes)
-      {
+    {
       numNodes = numNodes + degree*numNodes;
       height++;
-      }
+    }
     height--;
     return height;
   }
@@ -112,26 +112,26 @@ namespace
     int numTreeLevels= std::min(numLevels,ComputeTreeHeight(maxNumBlocks-(numLevels-1), treeDegree))-1; //minus one because root already has one
     int level=1;
     for(; level<numLevels-numTreeLevels; level++)
-      {
+    {
       out.push_back(std::vector<vtkAMRBox>());
       const std::vector<vtkAMRBox>& parentBoxes = out[level-1];
       std::vector<vtkAMRBox>& childBoxes = out[level];
       vtkAMRBox child = parentBoxes.back();
       child.Refine(refinementRatio);
       childBoxes.push_back(child);
-      }
+    }
 
     for(; level<numLevels;level++)
-      {
+    {
       out.push_back(std::vector<vtkAMRBox>());
       const std::vector<vtkAMRBox>& parentBoxes = out[level-1];
       std::vector<vtkAMRBox>& childBoxes = out[level];
       for(size_t i = 0;i<parentBoxes.size();i++)
-        {
+      {
         const vtkAMRBox& parent = parentBoxes[i];
         SplitXYZ(parent,refinementRatio,childBoxes);
-        }
       }
+    }
   };
 
   //create a grid by sampling from input using the indices in box
@@ -160,11 +160,11 @@ namespace
     const int *lo=box.GetLoCorner();
 
     for( int iz=0; iz<numPoints[2]; iz++ )
-      {
+    {
       for( int iy=0; iy<numPoints[1]; iy++ )
-        {
+      {
         for( int ix=0; ix<numPoints[0]; ix++ )
-          {
+        {
           int ijkDst[3] = {ix,iy,iz};
           vtkIdType idDst =  grid->ComputePointId(ijkDst);
 
@@ -175,22 +175,22 @@ namespace
           vtkIdType idSrc = input->ComputePointId(ijkSrc);
 
           outPD->CopyData(inPD,idSrc, idDst);
-          }
         }
       }
+    }
 
     int numCells[3];
     for(int d=0; d<3; d++)
-      {
+    {
       numCells[d] = std::max(numPoints[d]-1,1);
-      }
+    }
 
     for( int iz=0; iz<numCells[2]; iz++ )
-      {
+    {
       for( int iy=0; iy<numCells[1]; iy++ )
-        {
+      {
         for( int ix=0; ix<numCells[0]; ix++ )
-          {
+        {
           int ijkDst[3] = {ix,iy,iz};
           vtkIdType idDst =  grid->ComputeCellId(ijkDst);
 
@@ -201,9 +201,9 @@ namespace
           vtkIdType idSrc = input->ComputeCellId(ijkSrc);
 
           outCD->CopyData(inCD,idSrc, idDst);
-          }
         }
       }
+    }
 
     return grid;
   }
@@ -243,10 +243,10 @@ int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
   vtkOverlappingAMR* amr = vtkOverlappingAMR::GetData(outputVector);
 
   if(input->GetDataDimension()<2)
-    {
+  {
     vtkErrorMacro("Image dimension must be at least two.");
     return 0;
-    }
+  }
 
 
   int whole_extent[6];
@@ -271,28 +271,28 @@ int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
   int dims0[3];
   double spacing0[3];
   for(int d=0; d<3; d++)
-    {
+  {
     if(dims[d]<=1)
-      {
+    {
       if(dims[d]==0)
-        {
+      {
         vtkWarningMacro("Zero dimension? Really?");
-        }
+      }
       dims0[d] = 1;
       spacing0[d] = 1.0;
-      }
+    }
     else
-      {
+    {
       int r = (int)(pow(static_cast<double>(this->RefinementRatio),this->NumberOfLevels-1));
       if((dims[d]-1)%r!=0)
-        {
+      {
         vtkErrorMacro("Image cannot be refined");
         return 0;
-        }
+      }
       dims0[d] = 1+(dims[d]-1)/r;
       spacing0[d] = r*inputSpacing[d];
-      }
     }
+  }
 
   vtkAMRBox rootBox(inputOrigin, dims0, spacing0, inputOrigin, gridDescription);
 
@@ -301,9 +301,9 @@ int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
 
   std::vector<int> blocksPerLevel;
   for(size_t i=0; i<amrBoxes.size();i++)
-    {
+  {
     blocksPerLevel.push_back(static_cast<int>(amrBoxes[i].size()));
-    }
+  }
 
   unsigned int numLevels = static_cast<unsigned int>(blocksPerLevel.size());
 
@@ -313,38 +313,38 @@ int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
 
   double spacingi[3] = {spacing0[0],spacing0[1],spacing0[2]};
   for(unsigned int i=0; i<numLevels; i++)
-    {
+  {
     amr->SetSpacing(i,spacingi);
     for(int d=0;d<3;d++)
-      {
+    {
       spacingi[d]/=this->RefinementRatio;
-      }
     }
+  }
 
   for(unsigned int level = 0; level<numLevels; level++)
-    {
+  {
     const std::vector<vtkAMRBox>& boxes = amrBoxes[level];
     for(size_t i=0; i<boxes.size();i++)
-      {
+    {
       amr->SetAMRBox(level,static_cast<unsigned int>(i), boxes[i]);
-      }
     }
+  }
 
   for(unsigned int level = 0; level< numLevels; level++)
-    {
+  {
     double spacing[3];
     amr->GetSpacing(level, spacing);
     int coarsenRatio = (int)pow( static_cast<double>(this->RefinementRatio), static_cast<int>(numLevels- 1 - level));//againt the finest level
     for(size_t i=0; i<amr->GetNumberOfDataSets(level);i++)
-      {
+    {
       const vtkAMRBox& box = amr->GetAMRBox(level,static_cast<unsigned int>(i));
       double origin[3];
       vtkAMRBox::GetBoxOrigin(box,inputOrigin,spacing,origin);
       vtkUniformGrid* grid = ConstructGrid(input,box,coarsenRatio,origin,spacing);
       amr->SetDataSet(level,static_cast<unsigned int>(i), grid);
       grid->Delete();
-      }
     }
+  }
 
   vtkAMRUtilities::BlankCells(amr);
   return 1;

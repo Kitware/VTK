@@ -35,18 +35,18 @@ public:
   vtkTypeMacro(vtkXdmfReaderTester, vtkXMLParser);
   static vtkXdmfReaderTester* New();
   int TestReadFile()
-    {
+  {
       this->Valid = 0;
       if(!this->FileName)
-        {
+      {
         return 0;
-        }
+      }
 
       ifstream inFile(this->FileName);
       if(!inFile)
-        {
+      {
         return 0;
-        }
+      }
 
       this->SetStream(&inFile);
       this->Done = 0;
@@ -54,26 +54,26 @@ public:
       this->Parse();
 
       if(this->Done && this->Valid )
-        {
+      {
         return 1;
-        }
+      }
       return 0;
-    }
+  }
   void StartElement(const char* name, const char**)
-    {
+  {
       this->Done = 1;
       if(strcmp(name, "Xdmf") == 0)
-        {
+      {
         this->Valid = 1;
-        }
-    }
+      }
+  }
 
 protected:
   vtkXdmfReaderTester()
-    {
+  {
       this->Valid = 0;
       this->Done = 0;
-    }
+  }
 
 private:
   void ReportStrayAttribute(const char*, const char*, const char*) {}
@@ -145,9 +145,9 @@ int vtkXdmfReader::ProcessRequest(vtkInformation *request,
 {
   // create the output
   if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
-    {
+  {
     return this->RequestDataObject(outputVector);
-    }
+  }
 
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
@@ -158,75 +158,75 @@ bool vtkXdmfReader::PrepareDocument()
   // Calling this method repeatedly is okay. It does work only when something
   // has changed.
   if (this->GetReadFromInputString())
-    {
+  {
     const char* data=0;
     unsigned int data_length=0;
     if (this->InputArray)
-      {
+    {
       data = this->InputArray->GetPointer(0);
       data_length = static_cast<unsigned int>(
         this->InputArray->GetNumberOfTuples()*
         this->InputArray->GetNumberOfComponents());
-      }
+    }
     else if (this->InputString)
-      {
+    {
       data = this->InputString;
       data_length = this->InputStringLength;
-      }
+    }
     else
-      {
+    {
       vtkErrorMacro("No input string specified");
       return false;
-      }
+    }
     if (!this->XdmfDocument->ParseString(data, data_length))
-      {
+    {
       vtkErrorMacro("Failed to parse xmf.");
       return false;
-      }
     }
+  }
   else
-    {
+  {
     // Parse the file...
     if (!this->FileName )
-      {
+    {
       vtkErrorMacro("File name not set");
       return false;
-      }
+    }
 
     // First make sure the file exists.  This prevents an empty file
     // from being created on older compilers.
     if (!vtksys::SystemTools::FileExists(this->FileName))
-      {
+    {
       vtkErrorMacro("Error opening file " << this->FileName);
       return false;
-      }
+    }
 
     if (!this->XdmfDocument->Parse(this->FileName))
-      {
+    {
       vtkErrorMacro("Failed to parse xmf file: " << this->FileName);
       return false;
-      }
     }
+  }
 
   if (this->DomainName)
-    {
+  {
     if (!this->XdmfDocument->SetActiveDomain(this->DomainName))
-      {
+    {
       vtkErrorMacro("Invalid domain: " << this->DomainName);
       return false;
-      }
     }
+  }
   else
-    {
+  {
     this->XdmfDocument->SetActiveDomain(static_cast<int>(0));
-    }
+  }
 
   if (this->XdmfDocument->GetActiveDomain() &&
     this->XdmfDocument->GetActiveDomain()->GetSIL()->GetMTime() >
     this->GetMTime())
-    {
+  {
     this->SILUpdateStamp++;
-    }
+  }
 
   this->LastTimeIndex = 0; // reset time index when the file changes.
   return (this->XdmfDocument->GetActiveDomain() != 0);
@@ -236,28 +236,28 @@ bool vtkXdmfReader::PrepareDocument()
 int vtkXdmfReader::RequestDataObject(vtkInformationVector *outputVector)
 {
   if (!this->PrepareDocument())
-    {
+  {
     return 0;
-    }
+  }
 
   int vtk_type = this->XdmfDocument->GetActiveDomain()->GetVTKDataType();
   if (this->XdmfDocument->GetActiveDomain()->GetSetsSelection()->
      GetNumberOfArrays() > 0)
-    {
+  {
     // if the data has any sets, then we are forced to using multiblock.
     vtk_type = VTK_MULTIBLOCK_DATA_SET;
-    }
+  }
 
   vtkDataObject* output = vtkDataObject::GetData(outputVector, 0);
   if (!output || output->GetDataObjectType() != vtk_type)
-    {
+  {
     output = vtkDataObjectTypes::NewDataObject(vtk_type);
     outputVector->GetInformationObject(0)->Set(
         vtkDataObject::DATA_OBJECT(), output );
     this->GetOutputPortInformation(0)->Set(
       vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
     output->Delete();
-    }
+  }
   return 1;
 }
 
@@ -266,9 +266,9 @@ int vtkXdmfReader::RequestInformation(vtkInformation *, vtkInformationVector **,
   vtkInformationVector *outputVector)
 {
   if (!this->PrepareDocument())
-    {
+  {
     return 0;
-    }
+  }
 
   // Pass any cached user-selections to the active domain.
   this->PassCachedSelections();
@@ -289,7 +289,7 @@ int vtkXdmfReader::RequestInformation(vtkInformation *, vtkInformationVector **,
   if (domain->GetNumberOfGrids() == 1 &&
     domain->IsStructured(domain->GetGrid(0)) &&
     domain->GetSetsSelection()->GetNumberOfArrays() == 0)
-    {
+  {
     xdmf2::XdmfGrid* xmfGrid = domain->GetGrid(0);
     // just in the case the top-level grid is a temporal collection, then pick
     // the sub-grid to fetch the extents etc.
@@ -297,7 +297,7 @@ int vtkXdmfReader::RequestInformation(vtkInformation *, vtkInformationVector **,
       domain->GetTimeForIndex(this->LastTimeIndex));
     int whole_extent[6];
     if (domain->GetWholeExtent(xmfGrid, whole_extent))
-      {
+    {
       // re-scale the whole_extent using the stride.
       whole_extent[1] /= this->Stride[0];
       whole_extent[3] /= this->Stride[1];
@@ -305,18 +305,18 @@ int vtkXdmfReader::RequestInformation(vtkInformation *, vtkInformationVector **,
 
       outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
         whole_extent, 6);
-      }
+    }
     double origin[3];
     double spacing[3];
     if (domain->GetOriginAndSpacing(xmfGrid, origin, spacing))
-      {
+    {
       spacing[0] *= this->Stride[0];
       spacing[1] *= this->Stride[1];
       spacing[2] *= this->Stride[2];
       outInfo->Set(vtkDataObject::ORIGIN(), origin, 3);
       outInfo->Set(vtkDataObject::SPACING(), spacing, 3);
-      }
     }
+  }
 
   // * Publish the SIL which provides information about the grid hierarchy.
   outInfo->Set(vtkDataObject::SIL(), domain->GetSIL());
@@ -326,19 +326,19 @@ int vtkXdmfReader::RequestInformation(vtkInformation *, vtkInformationVector **,
   std::vector<double> time_steps(ts.size());
   std::map<int, XdmfFloat64>::const_iterator it = ts.begin();
   for (int i = 0; it != ts.end(); i++, ++it)
-    {
+  {
     time_steps[i] = it->second;
-    }
+  }
 
   if (time_steps.size() > 0)
-    {
+  {
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
       &time_steps[0], static_cast<int>(time_steps.size()));
     double timeRange[2];
     timeRange[0] = time_steps.front();
     timeRange[1] = time_steps.back();
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
-    }
+  }
 
   return 1;
 }
@@ -348,9 +348,9 @@ int vtkXdmfReader::RequestData(vtkInformation *, vtkInformationVector **,
   vtkInformationVector *outputVector)
 {
   if (!this->PrepareDocument())
-    {
+  {
     return 0;
-    }
+  }
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
@@ -360,27 +360,27 @@ int vtkXdmfReader::RequestData(vtkInformation *, vtkInformationVector **,
   int ghost_levels = 0;
   if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) &&
     outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()))
-    {
+  {
     updatePiece = static_cast<unsigned int>(
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
     updateNumPieces =  static_cast<unsigned int>(
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
-    }
+  }
   if (outInfo->Has(
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()))
-    {
+  {
     ghost_levels = outInfo->Get(
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
-    }
+  }
 
   // will be set for structured datasets only.
   int update_extent[6] = {0, -1, 0, -1, 0, -1};
   if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()))
-    {
+  {
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
       update_extent);
     if (outInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
-      {
+    {
       int wholeExtent[6];
       outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
       vtkNew<vtkExtentTranslator> et;
@@ -390,14 +390,14 @@ int vtkXdmfReader::RequestData(vtkInformation *, vtkInformationVector **,
       et->SetGhostLevel(ghost_levels);
       et->PieceToExtent();
       et->GetExtent(update_extent);
-      }
     }
+  }
 
   this->LastTimeIndex = this->ChooseTimeStep(outInfo);
   if (this->LastTimeIndex == 0)
-    {
+  {
     this->ClearDataSetCache();
-    }
+  }
 
   vtkXdmfHeavyData dataReader(this->XdmfDocument->GetActiveDomain(), this);
   dataReader.Piece = updatePiece;
@@ -417,31 +417,31 @@ int vtkXdmfReader::RequestData(vtkInformation *, vtkInformationVector **,
 
   vtkDataObject* data = dataReader.ReadData();
   if (!data)
-    {
+  {
     vtkErrorMacro("Failed to read data.");
     return 0;
-    }
+  }
 
   vtkDataObject* output = vtkDataObject::GetData(outInfo);
 
   if (!output->IsA(data->GetClassName()))
-    {
+  {
     // BUG #0013766: Just in case the data type expected doesn't match the
     // produced data type, we should print a warning.
     vtkWarningMacro("Data type generated (" << data->GetClassName() << ") "
       "does not match data type expected (" << output->GetClassName() << "). "
       "Reader may not produce valid data.");
-    }
+  }
   output->ShallowCopy(data);
   data->Delete();
 
   if (this->LastTimeIndex <
     this->XdmfDocument->GetActiveDomain()->GetTimeSteps().size())
-    {
+  {
     double time =
       this->XdmfDocument->GetActiveDomain()->GetTimeForIndex(this->LastTimeIndex);
     output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), time);
-    }
+  }
   return 1;
 }
 
@@ -449,13 +449,13 @@ int vtkXdmfReader::RequestData(vtkInformation *, vtkInformationVector **,
 int vtkXdmfReader::ChooseTimeStep(vtkInformation* outInfo)
 {
   if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
-    {
+  {
     // we do not support multiple timestep requests.
     double time =
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
 
     return this->XdmfDocument->GetActiveDomain()->GetIndexForTime(time);
-    }
+  }
 
   // if no timestep was requested, just return what we read last.
   return this->LastTimeIndex;
@@ -597,9 +597,9 @@ const char* vtkXdmfReader::GetSetName(int index)
 void vtkXdmfReader::PassCachedSelections()
 {
   if (!this->XdmfDocument->GetActiveDomain())
-    {
+  {
     return;
-    }
+  }
 
   this->GetPointArraySelection()->Merge(*this->PointArraysCache);
   this->GetCellArraySelection()->Merge(*this->CellArraysCache);
@@ -622,9 +622,9 @@ void vtkXdmfReader::PrintSelf(ostream& os, vtkIndent indent)
 vtkGraph* vtkXdmfReader::GetSIL()
 {
   if(vtkXdmfDomain* domain = this->XdmfDocument->GetActiveDomain())
-    {
+  {
     return domain->GetSIL();
-    }
+  }
   return 0;
 }
 
@@ -633,13 +633,13 @@ void vtkXdmfReader::ClearDataSetCache()
 {
   XdmfReaderCachedData::iterator it = this->DataSetCache.begin();
   while (it != this->DataSetCache.end())
-    {
+  {
     if (it->second.dataset != NULL)
-      {
+    {
       it->second.dataset->Delete();
-      }
-    ++it;
     }
+    ++it;
+  }
   this->DataSetCache.clear();
 }
 

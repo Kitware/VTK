@@ -12,8 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkX3DExporterFIWriter -
-// .SECTION Description
+/**
+ * @class   vtkX3DExporterFIWriter
+ *
+*/
 
 #ifndef vtkX3DExporterFIWriter_h
 #define vtkX3DExporterFIWriter_h
@@ -69,14 +71,17 @@ public:
   void SetField(int attributeID, int type, vtkCellArray* a);
   void SetField(int attributeID, const int* values, size_t size, bool image = false);
 
-  // Description:
-  // Use fastest instead of best compression
+  //@{
+  /**
+   * Use fastest instead of best compression
+   */
   vtkSetClampMacro(Fastest, int, 0, 1);
   vtkBooleanMacro(Fastest, int);
   vtkGetMacro(Fastest, int);
 protected:
   vtkX3DExporterFIWriter();
   ~vtkX3DExporterFIWriter();
+  //@}
 
 
 private:

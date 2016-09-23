@@ -13,12 +13,15 @@
 
 =========================================================================*/
 
-// .NAME vtkContextMapper2D - Abstract class for 2D context mappers.
-//
-// .SECTION Description
-//
-// This class provides an abstract base for 2D context mappers. They currently
-// only accept vtkTable objects as input.
+/**
+ * @class   vtkContextMapper2D
+ * @brief   Abstract class for 2D context mappers.
+ *
+ *
+ *
+ * This class provides an abstract base for 2D context mappers. They currently
+ * only accept vtkTable objects as input.
+*/
 
 #ifndef vtkContextMapper2D_h
 #define vtkContextMapper2D_h
@@ -38,31 +41,36 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   static vtkContextMapper2D *New();
 
-  // Description:
-  // Set/Get the input for this object - only accepts vtkTable as input.
+  //@{
+  /**
+   * Set/Get the input for this object - only accepts vtkTable as input.
+   */
   virtual void SetInputData(vtkTable *input);
   virtual vtkTable * GetInput();
+  //@}
 
-  // Description:
-  // Make the arrays accessible to the plot objects.
+  /**
+   * Make the arrays accessible to the plot objects.
+   */
   vtkDataArray *GetInputArrayToProcess(int idx,
                                        vtkDataObject* input)
-    {
+  {
     return this->vtkAlgorithm::GetInputArrayToProcess(idx, input);
-    }
+  }
 
   vtkAbstractArray *GetInputAbstractArrayToProcess(int idx,
                                        vtkDataObject* input)
-    {
+  {
     return this->vtkAlgorithm::GetInputAbstractArrayToProcess(idx, input);
-    }
+  }
 
 protected:
   vtkContextMapper2D();
   ~vtkContextMapper2D();
 
-  // Description:
-  // Specify the types of input we can handle.
+  /**
+   * Specify the types of input we can handle.
+   */
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:

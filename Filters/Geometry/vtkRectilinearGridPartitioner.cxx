@@ -98,17 +98,17 @@ void vtkRectilinearGridPartitioner::ExtractGridCoordinates(
   src_coords[2] = grd->GetZCoordinates();
 
   for(int dim=0; dim < 3; ++dim)
-    {
+  {
     coords[ dim ]->SetNumberOfComponents( 1 );
     coords[ dim ]->SetNumberOfTuples( ndims[ dim ] );
 
     for(int idx=subext[dim*2]; idx <= subext[dim*2+1]; ++idx)
-      {
+    {
       vtkIdType lidx = idx-subext[dim*2];
       coords[ dim ]->SetTuple1(lidx,src_coords[dim]->GetTuple1(idx));
-      } // END for all ids
+    } // END for all ids
 
-    } // END for all dimensions
+  } // END for all dimensions
 }
 
 //------------------------------------------------------------------------------
@@ -141,13 +141,13 @@ int vtkRectilinearGridPartitioner::RequestData(
   extentPartitioner->SetNumberOfPartitions( this->NumberOfPartitions );
   extentPartitioner->SetNumberOfGhostLayers( this->NumberOfGhostLayers );
   if( this->DuplicateNodes == 1 )
-    {
+  {
     extentPartitioner->DuplicateNodesOn();
-    }
+  }
   else
-    {
+  {
     extentPartitioner->DuplicateNodesOff();
-    }
+  }
 
   // STEP 4: Partition
   extentPartitioner->Partition();
@@ -162,7 +162,7 @@ int vtkRectilinearGridPartitioner::RequestData(
   int subext[6];
   unsigned int blockIdx = 0;
   for( ; blockIdx < multiblock->GetNumberOfBlocks(); ++blockIdx )
-    {
+  {
     extentPartitioner->GetPartitionExtent( blockIdx, subext );
     vtkRectilinearGrid *subgrid = vtkRectilinearGrid::New();
     subgrid->SetExtent( subext );
@@ -186,7 +186,7 @@ int vtkRectilinearGridPartitioner::RequestData(
 
     multiblock->SetBlock(blockIdx, subgrid);
     subgrid->Delete();
-    } // END for all blocks
+  } // END for all blocks
 
   extentPartitioner->Delete();
   return 1;

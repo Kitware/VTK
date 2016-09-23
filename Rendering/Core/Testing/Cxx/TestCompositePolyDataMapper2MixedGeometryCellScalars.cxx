@@ -45,9 +45,9 @@ int TestCompositePolyDataMapper2MixedGeometryCellScalars(int argc, char* argv[])
 {
   bool timeit = false;
   if (argc > 1 && argv[1] && !strcmp(argv[1], "-timeit"))
-    {
+  {
     timeit = true;
-    }
+  }
 
   vtkSmartPointer<vtkRenderWindow> win =
     vtkSmartPointer<vtkRenderWindow>::New();
@@ -98,10 +98,10 @@ int TestCompositePolyDataMapper2MixedGeometryCellScalars(int argc, char* argv[])
   vtkNew<vtkMultiBlockDataSet> data;
   int blocksPerLevel[3] = {1,8,16};
   if (timeit)
-    {
+  {
     blocksPerLevel[1] = 64;
     blocksPerLevel[2] = 256;
-    }
+  }
   std::vector<vtkSmartPointer<vtkMultiBlockDataSet> > blocks;
   blocks.push_back(data.GetPointer());
   unsigned levelStart = 0;
@@ -111,15 +111,15 @@ int TestCompositePolyDataMapper2MixedGeometryCellScalars(int argc, char* argv[])
   int numNodes = 0;
   vtkStdString blockName("Rolf");
   for (int level = 1; level < numLevels; ++level)
-    {
+  {
     int nblocks=blocksPerLevel[level];
     for (unsigned parent = levelStart; parent < levelEnd; ++parent)
-      {
+    {
       blocks[parent]->SetNumberOfBlocks(nblocks);
       for (int block=0; block < nblocks; ++block, ++numNodes)
-        {
+      {
         if (level == numLevels - 1)
-          {
+        {
           vtkNew<vtkPolyData> child;
           cyl->SetCenter(block*0.25, -0.3, parent*0.5);
           plane->SetCenter(block*0.25, 0.5, parent*0.5);
@@ -133,22 +133,22 @@ int TestCompositePolyDataMapper2MixedGeometryCellScalars(int argc, char* argv[])
             vtkCompositeDataSet::NAME(), blockName.c_str());
           // test not seting it on some
           if (block % 11)
-            {
-            mapper->SetBlockVisibility(parent+numLeaves, (block % 7) != 0);
-            }
-          ++numLeaves;
-          }
-        else
           {
+            mapper->SetBlockVisibility(parent+numLeaves, (block % 7) != 0);
+          }
+          ++numLeaves;
+        }
+        else
+        {
           vtkNew<vtkMultiBlockDataSet> child;
           blocks[parent]->SetBlock(block, child.GetPointer());
           blocks.push_back(child.GetPointer());
-          }
         }
       }
+    }
     levelStart = levelEnd;
     levelEnd = static_cast<unsigned>(blocks.size());
-    }
+  }
 
   mapper->SetInputData((vtkPolyData *)(data.GetPointer()));
   mapper->SetScalarModeToUseCellData();
@@ -182,26 +182,26 @@ int TestCompositePolyDataMapper2MixedGeometryCellScalars(int argc, char* argv[])
 
   int numFrames = (timeit ? 300 : 2);
   for (int i = 0; i <= numFrames; i++)
-    {
+  {
     ren->GetActiveCamera()->Elevation(15.0/numFrames);
     ren->GetActiveCamera()->Azimuth(-130.0/numFrames);
     ren->GetActiveCamera()->Zoom(pow(1.6,1.0/numFrames));
     ren->GetActiveCamera()->Roll(0.0/numFrames);
     win->Render();
-    }
+  }
 
   timer->StopTimer();
   if (timeit)
-    {
+  {
     double t =  timer->GetElapsedTime();
     cout << "Avg Frame time: " << t/numFrames << " Frame Rate: " << numFrames / t << "\n";
-    }
+  }
 
   int retVal = vtkRegressionTestImageThreshold( win.GetPointer(),15);
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

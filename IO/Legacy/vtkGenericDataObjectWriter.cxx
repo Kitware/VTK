@@ -64,7 +64,7 @@ void vtkGenericDataObjectWriter::WriteData()
 
   vtkAlgorithmOutput* input = this->GetInputConnection(0, 0);
   switch(this->GetInput()->GetDataObjectType())
-    {
+  {
     case VTK_COMPOSITE_DATA_SET:
       vtkErrorMacro(<< "Cannot write composite data set");
       return;
@@ -134,13 +134,13 @@ void vtkGenericDataObjectWriter::WriteData()
     case VTK_UNSTRUCTURED_GRID:
       writer = CreateWriter<vtkUnstructuredGridWriter>(input);
       break;
-    }
+  }
 
   if(!writer)
-    {
+  {
     vtkErrorMacro(<< "null data object writer");
     return;
-    }
+  }
 
   writer->SetFileName(this->FileName);
   writer->SetScalarsName(this->ScalarsName);
@@ -156,15 +156,15 @@ void vtkGenericDataObjectWriter::WriteData()
   writer->SetWriteToOutputString(this->WriteToOutputString);
   writer->Write();
   if (writer->GetErrorCode() == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-    }
+  }
   if (this->WriteToOutputString)
-    {
+  {
     delete [] this->OutputString;
     this->OutputStringLength = writer->GetOutputStringLength();
     this->OutputString = writer->RegisterAndGetOutputString();
-    }
+  }
   writer->Delete();
 }
 

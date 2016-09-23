@@ -77,7 +77,7 @@ public:
   , ValueRenderBO(NULL)
   , DepthRenderBO(NULL)
   , ValuePassResourcesAllocated(false)
-    {
+  {
     this->Values = vtkSmartPointer<vtkFloatArray>::New();
     this->Values->SetNumberOfComponents(1); /* GL_RED */
 
@@ -93,23 +93,23 @@ public:
     this->FloatImageExt[0] = 0; this->FloatImageExt[1] = 0;
     this->FloatImageExt[2] = 0; this->FloatImageExt[3] = 0;
     this->FloatImageExt[4] = 0; this->FloatImageExt[5] = 0;
-    }
+  }
 
   ~vtkInternals()
-    {
+  {
     if (this->ValueFrameBO)
-      {
+    {
       this->ValueFrameBO->Delete();
-      }
-    if (this->ValueRenderBO)
-      {
-      this->ValueRenderBO->Delete();
-      }
-    if (this->DepthRenderBO)
-      {
-      this->DepthRenderBO->Delete();
-      }
     }
+    if (this->ValueRenderBO)
+    {
+      this->ValueRenderBO->Delete();
+    }
+    if (this->DepthRenderBO)
+    {
+      this->DepthRenderBO->Delete();
+    }
+  }
 };
 
 // ----------------------------------------------------------------------------
@@ -138,13 +138,13 @@ void vtkValuePass::SetInputArrayToProcess(int fieldAssociation,
   if (!this->Internals->FieldNameSet ||
       this->Internals->FieldAssociation != fieldAssociation ||
       this->Internals->FieldName.compare(name) != 0)
-    {
+  {
     this->Internals->FieldAssociation = fieldAssociation;
     this->Internals->FieldName = name;
     this->Internals->FieldNameSet = true;
     this->Internals->ReloadData = true;
     this->Modified();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -154,24 +154,24 @@ void vtkValuePass::SetInputArrayToProcess(int fieldAssociation,
   if (this->Internals->FieldAssociation != fieldAssociation ||
       this->Internals->FieldAttributeType != fieldAttributeType ||
       this->Internals->FieldNameSet)
-    {
+  {
     this->Internals->FieldAssociation = fieldAssociation;
     this->Internals->FieldAttributeType = fieldAttributeType;
     this->Internals->FieldNameSet = false;
     this->Internals->ReloadData = true;
     this->Modified();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
 void vtkValuePass::SetInputComponentToProcess(int component)
 {
   if (this->Internals->Component != component)
-    {
+  {
     this->Internals->Component = component;
     this->Internals->ReloadData = true;
     this->Modified();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -179,12 +179,12 @@ void vtkValuePass::SetScalarRange(double min, double max)
 {
   if (this->Internals->ScalarRange[0] != min ||
       this->Internals->ScalarRange[1] != max)
-    {
+  {
     this->Internals->ScalarRange[0] = min;
     this->Internals->ScalarRange[1] = max;
     this->Internals->ScalarRangeSet = (max > min);
     this->Modified();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -216,22 +216,22 @@ void vtkValuePass::RenderOpaqueGeometry(const vtkRenderState *s)
   int c = s->GetPropArrayCount();
   int i = 0;
   while (i < c)
-    {
+  {
     vtkProp *p = s->GetPropArray()[i];
 
     // Cache scalar visibility state and turn it on
     vtkActor *a = vtkActor::SafeDownCast(p);
     if (a)
-      {
+    {
       scalarVisibilities.push_back(a->GetMapper()->GetScalarVisibility());
       a->GetMapper()->ScalarVisibilityOn();
-      }
+    }
 
     vtkSmartPointer<vtkInformation> keys = p->GetPropertyKeys();
     if (!keys)
-      {
+    {
       keys.TakeReference(vtkInformation::New());
-      }
+    }
 
     keys->Set(vtkValuePass::RENDER_VALUES(), this->RenderingMode);
     keys->Set(vtkValuePass::SCALAR_MODE(), this->Internals->FieldAssociation);
@@ -241,9 +241,9 @@ void vtkValuePass::RenderOpaqueGeometry(const vtkRenderState *s)
     keys->Set(vtkValuePass::ARRAY_COMPONENT(), this->Internals->Component);
     keys->Set(vtkValuePass::SCALAR_RANGE(), this->Internals->ScalarRange, 2);
     if (this->Internals->ReloadData)
-      {
+    {
       keys->Set(vtkValuePass::RELOAD_DATA(), 1);
-      }
+    }
 
     p->SetPropertyKeys(keys);
 
@@ -251,20 +251,20 @@ void vtkValuePass::RenderOpaqueGeometry(const vtkRenderState *s)
       p->RenderOpaqueGeometry(s->GetRenderer());
     this->NumberOfRenderedProps += rendered;
     ++i;
-    }
+  }
 
   // Remove set keys
   i = 0;
   while (i < c)
-    {
+  {
     vtkProp *p = s->GetPropArray()[i];
 
     // Restore scalar visibility state
     vtkActor *a = vtkActor::SafeDownCast(p);
     if (a)
-      {
+    {
       a->GetMapper()->SetScalarVisibility(scalarVisibilities[i]);
-      }
+    }
 
     vtkInformation *keys = p->GetPropertyKeys();
     keys->Remove(vtkValuePass::RENDER_VALUES());
@@ -275,14 +275,14 @@ void vtkValuePass::RenderOpaqueGeometry(const vtkRenderState *s)
     keys->Remove(vtkValuePass::ARRAY_COMPONENT());
     keys->Remove(vtkValuePass::SCALAR_RANGE());
     if (this->Internals->ReloadData)
-      {
+    {
       keys->Remove(vtkValuePass::RELOAD_DATA());
       this->Internals->ReloadData = false;
-      }
+    }
 
     p->SetPropertyKeys(keys);
     ++i;
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -293,15 +293,15 @@ void vtkValuePass::BeginPass(vtkRenderer* ren)
   case vtkValuePass::FLOATING_POINT:
     // Allocate if necessary and bind frame buffer.
     if (this->HasWindowSizeChanged(ren))
-      {
+    {
       this->ReleaseFloatingPointMode(ren);
-      }
+    }
 
     if (this->InitializeFloatingPointMode(ren))
-      {
+    {
       this->Internals->ValueFrameBO->SaveCurrentBindings();
       this->Internals->ValueFrameBO->Bind(GL_DRAW_FRAMEBUFFER);
-      }
+    }
     break;
 
   case vtkValuePass::INVERTIBLE_LUT:
@@ -338,9 +338,9 @@ void vtkValuePass::EndPass()
 bool vtkValuePass::HasWindowSizeChanged(vtkRenderer* ren)
 {
   if (!this->Internals->ValueFrameBO)
-    {
+  {
     return true;
-    }
+  }
 
   int* size = ren->GetSize();
   int* fboSize = this->Internals->ValueFrameBO->GetLastSize(false);
@@ -352,17 +352,17 @@ bool vtkValuePass::HasWindowSizeChanged(vtkRenderer* ren)
 bool vtkValuePass::InitializeFloatingPointMode(vtkRenderer* ren)
 {
   if (this->Internals->ValuePassResourcesAllocated)
-    {
+  {
     return true;
-    }
+  }
 
   vtkRenderWindow* renWin = ren->GetRenderWindow();
   if (!this->IsFloatFBOSupported(renWin))
-    {
+  {
     vtkWarningMacro("Switching to INVERTIBLE_LUT mode.");
     this->RenderingMode = vtkValuePass::INVERTIBLE_LUT;
     return false;
-    }
+  }
 
   int* size = ren->GetSize();
   // Allocate FBO's Color attachment target
@@ -390,11 +390,11 @@ bool vtkValuePass::InitializeFloatingPointMode(vtkRenderer* ren)
 
   // Verify FBO
   if(!this->Internals->ValueFrameBO->CheckFrameBufferStatus(GL_FRAMEBUFFER))
-    {
+  {
     vtkErrorMacro("Failed to attach FBO.");
     this->ReleaseFloatingPointMode(ren);
     return false;
-    }
+  }
 
   this->Internals->ValueFrameBO->UnBind(GL_FRAMEBUFFER);
   this->Internals->ValuePassResourcesAllocated = true;
@@ -406,9 +406,9 @@ bool vtkValuePass::InitializeFloatingPointMode(vtkRenderer* ren)
 void vtkValuePass::ReleaseFloatingPointMode(vtkRenderer* ren)
 {
   if (!this->Internals->ValuePassResourcesAllocated)
-    {
+  {
     return;
-    }
+  }
 
   vtkRenderWindow* renWin = ren->GetRenderWindow();
   renWin->MakeCurrent();
@@ -431,27 +431,27 @@ bool vtkValuePass::IsFloatFBOSupported(vtkRenderWindow *renWin)
 {
   vtkOpenGLRenderWindow *context = vtkOpenGLRenderWindow::SafeDownCast(renWin);
   if (!context)
-    {
+  {
     vtkErrorMacro(<< "Support for " << renWin->GetClassName()
       << " not implemented");
     return false;
-    }
+  }
 
 #if GL_ES_VERSION_2_0 != 1
   bool contextSupport = vtkOpenGLRenderWindow::GetContextSupportsOpenGL32();
   if (!contextSupport)
-    {
+  {
     vtkWarningMacro(<< "Context does not support OpenGL core profile 3.2. "
       << " Will check extension support.");
-    }
+  }
 
   bool extSupport = glewIsSupported("GL_EXT_framebuffer_object") &&
     glewIsSupported("GL_ARB_texture_float");
   if (!extSupport)
-    {
+  {
     vtkWarningMacro(<< "EXT_framebuffer_object or ARB_texture_float not"
       << " supported.");
-    }
+  }
 
   return contextSupport && extSupport;
 #else

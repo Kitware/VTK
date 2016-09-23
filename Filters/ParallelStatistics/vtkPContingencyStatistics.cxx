@@ -77,10 +77,10 @@ static void StringVectorToStringBuffer( const std::vector<vtkStdString>& strings
 
   for( std::vector<vtkStdString>::const_iterator it = strings.begin();
        it != strings.end(); ++ it )
-    {
+  {
     buffer.append( *it );
     buffer.push_back( 0 );
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -94,15 +94,15 @@ static bool StringArrayToStringBuffer( vtkTable* contingencyTab,
   vtkAbstractArray* valy = contingencyTab->GetColumnByName( "y" );
   vtkIdTypeArray* card = vtkArrayDownCast<vtkIdTypeArray>( contingencyTab->GetColumnByName( "Cardinality" ) );
   if ( ! keys || ! valx || ! valy || ! card )
-    {
+  {
     return true;
-    }
+  }
 
   std::vector<vtkStdString> xyValues; // consecutive (x,y) pairs
 
   vtkIdType nRowCont = contingencyTab->GetNumberOfRows();
   for ( vtkIdType r = 1; r < nRowCont; ++ r ) // Skip first row which is reserved for data set cardinality
-    {
+  {
     // Push back x and y to list of strings
     xyValues.push_back( valx->GetVariantValue( r ).ToString () );
     xyValues.push_back( valy->GetVariantValue( r ).ToString () );
@@ -110,7 +110,7 @@ static bool StringArrayToStringBuffer( vtkTable* contingencyTab,
     // Push back (X,Y) index and #(x,y) to list of strings
     kcValues.push_back( keys->GetValue( r ) );
     kcValues.push_back( card->GetValue( r ) );
-    }
+  }
 
   // Concatenate vector of strings into single string
   StringVectorToStringBuffer( xyValues, xyPacked );
@@ -127,17 +127,17 @@ static void StringBufferToStringVector( const vtkStdString& buffer,
   const char* const bufferEnd = &buffer[0] + buffer.size();
 
   for( const char* start = &buffer[0]; start != bufferEnd; ++ start )
-    {
+  {
     for( const char* finish = start; finish != bufferEnd; ++ finish )
-      {
+    {
       if( ! *finish )
-        {
+      {
         strings.push_back( vtkStdString( start ) );
         start = finish;
         break;
-        }
       }
     }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -151,13 +151,13 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
 #endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
   if ( ! outMeta )
-    {
+  {
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
   timer->Delete();
 #endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
     return;
-    }
+  }
 
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
   vtkTimerLog *timers=vtkTimerLog::New();
@@ -181,66 +181,66 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
   // Get a hold of the summary table
   vtkTable* summaryTab = vtkTable::SafeDownCast( outMeta->GetBlock( 0 ) );
   if ( ! summaryTab )
-    {
+  {
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
   timer->Delete();
 #endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
     return;
-    }
+  }
 
   // Determine how many (X,Y) variable pairs are present
   vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
   if ( nRowSumm <= 0 )
-    {
+  {
     // No statistics were calculated in serial.
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
   timer->Delete();
 #endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
     return;
-    }
+  }
 
   // Get a hold of the contingency table
   vtkTable* contingencyTab = vtkTable::SafeDownCast( outMeta->GetBlock( 1 ) );
   if ( ! contingencyTab )
-    {
+  {
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
   timer->Delete();
 #endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
     return;
-    }
+  }
 
   // Determine number of (x,y) realizations are present
   vtkIdType nRowCont = contingencyTab->GetNumberOfRows();
   if ( nRowCont <= 0 )
-    {
+  {
     // No statistics were calculated in serial.
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
   timer->Delete();
 #endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
     return;
-    }
+  }
 
   // Make sure that parallel updates are needed, otherwise leave it at that.
   int np = this->Controller->GetNumberOfProcesses();
   if ( np < 2 )
-    {
+  {
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
   timer->Delete();
 #endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
     return;
-    }
+  }
 
   // Get ready for parallel calculations
   vtkCommunicator* com = this->Controller->GetCommunicator();
   if ( ! com )
-    {
+  {
     vtkErrorMacro("No parallel communicator.");
-    }
+  }
 
   vtkIdType myRank = com->GetLocalProcessId();
 
@@ -248,13 +248,13 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
   vtkStdString xyPacked_l;
   std::vector<vtkIdType> kcValues_l;
   if ( StringArrayToStringBuffer( contingencyTab, xyPacked_l, kcValues_l ) )
-    {
+  {
     vtkErrorMacro("Packing error on process "
                   << myRank
                   << ".");
 
     return;
-    }
+  }
 
   // NB: Use process 0 as sole reducer for now
   vtkIdType rProc = 0;
@@ -282,22 +282,22 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
   vtkIdType kcSizeTotal = 0;
 
   for ( vtkIdType i = 0; i < np; ++ i )
-    {
+  {
     xyOffset[i] = xySizeTotal;
     kcOffset[i] = kcSizeTotal;
 
     xySizeTotal += xySize_g[i];
     kcSizeTotal += kcSize_g[i];
-    }
+  }
 
   // Allocate receive buffers on reducer process, based on the global sizes obtained above
   char* xyPacked_g = 0;
   vtkIdType* kcValues_g = 0;
   if ( myRank == rProc )
-    {
+  {
     xyPacked_g = new char[xySizeTotal];
     kcValues_g = new vtkIdType[kcSizeTotal];
-    }
+  }
 
   // Gather all xyPacked and kcValues on process rProc
   // NB: GatherV because the packets have variable lengths
@@ -307,7 +307,7 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
                        xySize_g,
                        xyOffset,
                        rProc ) )
-    {
+  {
     vtkErrorMacro("Process "
                   << myRank
                   << "could not gather (x,y) values.");
@@ -317,7 +317,7 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
     delete [] xyPacked_g;
     delete [] kcValues_g;
     return;
-    }
+  }
 
   if ( ! com->GatherV( &(*kcValues_l.begin()),
                        kcValues_g,
@@ -325,7 +325,7 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
                        kcSize_g,
                        kcOffset,
                        rProc ) )
-    {
+  {
     vtkErrorMacro("Process "
                   << myRank
                   << "could not gather (k,c) values.");
@@ -335,25 +335,25 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
     delete [] xyPacked_g;
     delete [] kcValues_g;
     return;
-    }
+  }
 
   // Reduce to global contingency table on process rProc
   if ( myRank == rProc )
-    {
+  {
     if ( this->Reduce( xySizeTotal,
                        xyPacked_g,
                        xyPacked_l,
                        kcSizeTotal,
                        kcValues_g,
                        kcValues_l ) )
-      {
+    {
       delete [] xyOffset;
       delete [] kcOffset;
       delete [] xyPacked_g;
       delete [] kcValues_g;
       return;
-      }
-    } // if ( myRank == rProc )
+    }
+  } // if ( myRank == rProc )
 
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
   vtkTimerLog *timerB=vtkTimerLog::New();
@@ -368,13 +368,13 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
                         kcSizeTotal,
                         kcValues_l,
                         rProc ) )
-    {
+  {
     delete [] xyOffset;
     delete [] kcOffset;
     delete [] xyPacked_g;
     delete [] kcValues_g;
     return;
-    }
+  }
 
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
   timerB->StopTimer();
@@ -399,25 +399,25 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
   // First replace existing rows
   // Start with row 1 and not 0 because of cardinality row (cf. superclass for a detailed explanation)
   for ( vtkIdType r = 1 ; r < nRowCont; ++ r, xyit += 2, kcit += 2 )
-    {
+  {
     row4->SetValue( 0, *kcit );
     row4->SetValue( 1, *xyit );
     row4->SetValue( 2, *(xyit + 1) );
     row4->SetValue( 3, *(kcit + 1) );
 
     contingencyTab->SetRow( r, row4 );
-    }
+  }
 
   // Then insert new rows
   for ( ; xyit != xyValues_l.end() ; xyit += 2, kcit += 2 )
-    {
+  {
     row4->SetValue( 0, *kcit );
     row4->SetValue( 1, *xyit );
     row4->SetValue( 2, *(xyit + 1) );
     row4->SetValue( 3, *(kcit + 1) );
 
    contingencyTab->InsertNextRow( row4 );
-   }
+  }
 
   // Clean up
   row4->Delete();
@@ -457,7 +457,7 @@ bool vtkPContingencyStatistics::Reduce( vtkIdType& xySizeTotal,
 
   // Second, check consistency: we must have the same number of xy and kc entries
   if ( vtkIdType( xyValues_g.size() ) != kcSizeTotal )
-    {
+  {
     vtkErrorMacro("Reduction error on process "
                   << this->Controller->GetCommunicator()->GetLocalProcessId()
                   << ": inconsistent number of (x,y) and (k,c) pairs: "
@@ -467,7 +467,7 @@ bool vtkPContingencyStatistics::Reduce( vtkIdType& xySizeTotal,
                   << ".");
 
     return true;
-    }
+  }
 
   // Third, reduce to the global contingency table
   typedef std::map<vtkStdString,vtkIdType> Distribution;
@@ -476,28 +476,28 @@ bool vtkPContingencyStatistics::Reduce( vtkIdType& xySizeTotal,
   vtkIdType i = 0;
   for ( std::vector<vtkStdString>::iterator vit = xyValues_g.begin();
         vit != xyValues_g.end(); vit += 2, i += 2 )
-    {
+  {
     contingencyTable
       [kcValues_g[i]]
       [*vit]
       [*(vit + 1)]
       += kcValues_g[i + 1];
-    }
+  }
 
   // Fourth, prepare send buffers of (global) xy and kc values
   std::vector<vtkStdString> xyValues_l;
   kcValues_l.clear();
   for ( std::map<vtkIdType,Bidistribution>::iterator ait = contingencyTable.begin();
         ait != contingencyTable.end(); ++ ait )
-    {
+  {
     Bidistribution bidi = ait->second;
     for ( Bidistribution::iterator bit = bidi.begin();
           bit != bidi.end(); ++ bit )
-      {
+    {
       Distribution di = bit->second;
       for ( Distribution::iterator dit = di.begin();
             dit != di.end(); ++ dit )
-        {
+      {
         // Push back x and y to list of strings
         xyValues_l.push_back( bit->first );  // x
         xyValues_l.push_back( dit->first );  // y
@@ -505,9 +505,9 @@ bool vtkPContingencyStatistics::Reduce( vtkIdType& xySizeTotal,
         // Push back (X,Y) index and #(x,y) to list of strings
         kcValues_l.push_back( ait->first );  // k
         kcValues_l.push_back( dit->second ); // c
-        }
       }
     }
+  }
   StringVectorToStringBuffer( xyValues_l, xyPacked_l );
 
   // Last, update xy and kc buffer sizes (which have changed because of the reduction)
@@ -532,24 +532,24 @@ bool vtkPContingencyStatistics::Broadcast( vtkIdType xySizeTotal,
   if ( ! com->Broadcast( &xySizeTotal,
                          1,
                          rProc ) )
-    {
+  {
     vtkErrorMacro("Process "
                   << com->GetLocalProcessId()
                   << " could not broadcast (x,y) buffer size.");
 
     return true;
-    }
+  }
 
   if ( ! com->Broadcast( &kcSizeTotal,
                          1,
                          rProc ) )
-    {
+  {
     vtkErrorMacro("Process "
                   << com->GetLocalProcessId()
                   << " could not broadcast (k,c) buffer size.");
 
     return true;
-    }
+  }
 
   // Resize vectors so they can receive the broadcasted xy and kc values
   xyPacked.resize( xySizeTotal );
@@ -559,24 +559,24 @@ bool vtkPContingencyStatistics::Broadcast( vtkIdType xySizeTotal,
   if ( ! com->Broadcast( &(*xyPacked.begin()),
                          xySizeTotal,
                          rProc ) )
-    {
+  {
     vtkErrorMacro("Process "
                   << com->GetLocalProcessId()
                   << " could not broadcast (x,y) values.");
 
     return true;
-    }
+  }
 
   if ( ! com->Broadcast( &(*kcValues.begin()),
                          kcSizeTotal,
                          rProc ) )
-    {
+  {
     vtkErrorMacro("Process "
                   << com->GetLocalProcessId()
                   << " could not broadcast (k,c) values.");
 
     return true;
-    }
+  }
 
   // Unpack the packet of strings
   StringBufferToStringVector( xyPacked, xyValues );

@@ -13,14 +13,17 @@
 
 =========================================================================*/
 
-// .NAME vtkMarkerUtilities - Utilities for generating marker images
-//
-// .SECTION Description
-// This class programmatically generates markers of a specified size
-// for various marker styles.
-//
-// .SECTION See Also
-// vtkPlotLine, vtkPlotPoints
+/**
+ * @class   vtkMarkerUtilities
+ * @brief   Utilities for generating marker images
+ *
+ *
+ * This class programmatically generates markers of a specified size
+ * for various marker styles.
+ *
+ * @sa
+ * vtkPlotLine, vtkPlotPoints
+*/
 
 #ifndef vtkMarkerUtilities_h
 #define vtkMarkerUtilities_h
@@ -37,8 +40,9 @@ public:
   vtkTypeMacro(vtkMarkerUtilities, vtkObject);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Enum containing various marker styles that can be used in a plot.
+  /**
+   * Enum containing various marker styles that can be used in a plot.
+   */
   enum {
     NONE = 0,
     CROSS,
@@ -48,8 +52,9 @@ public:
     DIAMOND
   };
 
-  // Description:
-  // Generate the requested symbol of a particular style and size.
+  /**
+   * Generate the requested symbol of a particular style and size.
+   */
   static void GenerateMarker(vtkImageData *data, int style, int width);
 
 protected:

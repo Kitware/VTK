@@ -11,10 +11,13 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenVRRenderer - OpenVR renderer
-// .SECTION Description
-// vtkOpenVRRenderer is a concrete implementation of the abstract class
-// vtkRenderer.  vtkOpenVRRenderer interfaces to the OpenVR rendering library.
+/**
+ * @class   vtkOpenVRRenderer
+ * @brief   OpenVR renderer
+ *
+ * vtkOpenVRRenderer is a concrete implementation of the abstract class
+ * vtkRenderer.  vtkOpenVRRenderer interfaces to the OpenVR rendering library.
+*/
 
 #ifndef vtkOpenVRRenderer_h
 #define vtkOpenVRRenderer_h
@@ -28,25 +31,28 @@ public:
   static vtkOpenVRRenderer *New();
   vtkTypeMacro(vtkOpenVRRenderer,vtkOpenGLRenderer);
 
-  // Description:
-  // Automatically set up the camera based on the visible actors.
-  // The camera will reposition itself to view the center point of the actors,
-  // and move along its initial view plane normal (i.e., vector defined from
-  // camera position to focal point) so that all of the actors can be seen.
+  /**
+   * Automatically set up the camera based on the visible actors.
+   * The camera will reposition itself to view the center point of the actors,
+   * and move along its initial view plane normal (i.e., vector defined from
+   * camera position to focal point) so that all of the actors can be seen.
+   */
   virtual void ResetCamera();
 
-  // Description:
-  // Automatically set up the camera based on a specified bounding box
-  // (xmin,xmax, ymin,ymax, zmin,zmax). Camera will reposition itself so
-  // that its focal point is the center of the bounding box, and adjust its
-  // distance and position to preserve its initial view plane normal
-  // (i.e., vector defined from camera position to focal point). Note: is
-  // the view plane is parallel to the view up axis, the view up axis will
-  // be reset to one of the three coordinate axes.
+  /**
+   * Automatically set up the camera based on a specified bounding box
+   * (xmin,xmax, ymin,ymax, zmin,zmax). Camera will reposition itself so
+   * that its focal point is the center of the bounding box, and adjust its
+   * distance and position to preserve its initial view plane normal
+   * (i.e., vector defined from camera position to focal point). Note: is
+   * the view plane is parallel to the view up axis, the view up axis will
+   * be reset to one of the three coordinate axes.
+   */
   virtual void ResetCamera(double bounds[6]);
 
-  // Description:
-  // Alternative version of ResetCamera(bounds[6]);
+  /**
+   * Alternative version of ResetCamera(bounds[6]);
+   */
   virtual void ResetCamera(double xmin, double xmax, double ymin, double ymax,
                    double zmin, double zmax);
 

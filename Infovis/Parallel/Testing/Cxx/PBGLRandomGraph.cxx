@@ -56,12 +56,12 @@ static const int ImmediateAddEdgeChance = 3;
 
 #define myassert(Cond)                                  \
   if (!(Cond))                                          \
-    {                                                   \
+  {                                                   \
       cerr << "error (" __FILE__ ":" << dec << __LINE__ \
            << ") assertion \"" #Cond "\" failed."       \
            << endl;                                     \
     MPI_Abort(MPI_COMM_WORLD, -1);                      \
-    }
+  }
 
 //----------------------------------------------------------------------------
 // Used to store information about an edge we have added to the graph
@@ -142,17 +142,17 @@ void ExchangeEdges(vtkGraph* graph,
   // Determine the number of incoming edges to send to each processor.
   vector<int> sendCounts(numProcs, 0);
   for (vector<AddedEdge>::size_type i = 0; i < outEdges.size(); ++i)
-    {
+  {
     ++sendCounts[source? helper->GetVertexOwner(outEdges[i].Source)
                        : helper->GetVertexOwner(outEdges[i].Target)];
-    }
+  }
   vector<int> offsetsSend(numProcs, 0);
   int count = 0;
   for (int p = 0; p < numProcs; ++p)
-    {
+  {
     offsetsSend[p] = count;
     count += sendCounts[p];
-    }
+  }
 
   // Swap counts with the other processors
   vector<int> recvCounts(numProcs);
@@ -164,10 +164,10 @@ void ExchangeEdges(vtkGraph* graph,
   vector<int> offsetsRecv(numProcs);
   count = 0;
   for (int p = 0; p < numProcs; ++p)
-    {
+  {
     offsetsRecv[p] = count;
     count += recvCounts[p];
-    }
+  }
 
   // Swap incoming edges with the other processors.
   inEdges.resize(count);
@@ -207,18 +207,18 @@ void TestDirectedGraph()
   vector<AddedEdge> generatedEdges;
 
   if (myRank == 0)
-    {
+  {
     (cout << "Build distributed directed graph (V=" << V*numProcs
           << ", E=" << E*numProcs << ")...").flush();
-    }
+  }
 
   for (vtkIdType v = 0; v < V; ++v)
-    {
+  {
     graph->AddVertex();
-    }
+  }
 
   for (vtkIdType e = 0; e < E; ++e)
-    {
+  {
     vtkIdType source = helper->MakeDistributedId(rand() % numProcs, rand() % V);
     vtkIdType target = helper->MakeDistributedId(rand() % numProcs, rand() % V);
 
@@ -228,19 +228,19 @@ void TestDirectedGraph()
       graph->LazyAddEdge(source, target);
 
     generatedEdges.push_back(AddedEdge(source, target));
-    }
+  }
 
   if (myRank == 0)
-    {
+  {
     (cout << " synchronizing... ").flush();
-    }
+  }
 
   // Synchronize the graph, so that everyone finishes adding edges.
   graph->GetDistributedGraphHelper()->Synchronize();
   if (myRank == 0)
-    {
+  {
     (cout << " done.\n").flush();
-    }
+  }
 
   // We know which edges we generated, but some of those edges were
   // actually added on other nodes. Do a large exchange so that
@@ -253,39 +253,39 @@ void TestDirectedGraph()
 
   // Test the vertex descriptors
   if (myRank == 0)
-    {
+  {
     (cout << "  Testing vertex descriptors...").flush();
-    }
+  }
   vtkIdType vExpected = helper->MakeDistributedId(myRank, 0);
   vtkSmartPointer<vtkVertexListIterator> vertices
     = vtkSmartPointer<vtkVertexListIterator>::New();
   graph->GetVertices(vertices);
   while (vertices->HasNext())
-    {
+  {
     vtkIdType vActual = vertices->Next();
     myassert(vActual == vExpected);
     ++vExpected;
-    }
+  }
   myassert(helper->GetVertexIndex(vExpected) == V);
   MPI_Barrier(MPI_COMM_WORLD);
   if (myRank == 0)
-    {
+  {
     (cout << "done.\n").flush();
-    }
+  }
 
   // Keep our list of the edges we added sorted by source.
   std::sort(addedEdges.begin(), addedEdges.end(), OrderEdgesBySource());
 
   // Test the outgoing edges of each local vertex
   if (myRank == 0)
-    {
+  {
     (cout << "  Testing out edges...").flush();
-    }
+  }
   typedef vector<AddedEdge>::iterator AddedEdgeIterator;
   vector<pair<AddedEdgeIterator, AddedEdgeIterator> > startPositions(V);
   graph->GetVertices(vertices);
   while (vertices->HasNext())
-    {
+  {
     vtkIdType u = vertices->Next();
     vtkSmartPointer<vtkOutEdgeIterator> outEdges
       = vtkSmartPointer<vtkOutEdgeIterator>::New();
@@ -308,7 +308,7 @@ void TestDirectedGraph()
 
     graph->GetOutEdges(u, outEdges);
     while (outEdges->HasNext())
-      {
+    {
       vtkOutEdgeType e = outEdges->Next();
 
       // Make sure we're expecting to find more out-edges
@@ -327,27 +327,27 @@ void TestDirectedGraph()
       // Check the source and target of the edge.
       myassert(u == graph->GetSourceVertex(e.Id));
       myassert(e.Target == graph->GetTargetVertex(e.Id));
-      }
+    }
 
     // Make sure that the constructed graph isn't missing any edges
     assert(myEdgesStart == myEdgesEnd);
-    }
+  }
   helper->Synchronize();
   if (myRank == 0)
-    {
+  {
     (cout << "done.\n").flush();
-    }
+  }
 
   // Test all of the local edges
   if (myRank == 0)
-    {
+  {
     (cout << "  Testing all edges...").flush();
-    }
+  }
   vtkSmartPointer<vtkEdgeListIterator> edges
     = vtkSmartPointer<vtkEdgeListIterator>::New();
   graph->GetEdges(edges);
   while (edges->HasNext())
-    {
+  {
       vtkEdgeType e = edges->Next();
       pair<AddedEdgeIterator, AddedEdgeIterator>& bracket
         = startPositions[helper->GetVertexIndex(e.Source)];
@@ -365,17 +365,17 @@ void TestDirectedGraph()
       // Move this edge out of the way, so we don't find it again
       --bracket.second;
       std::swap(*found, *bracket.second);
-    }
+  }
   // Ensure that all of the edges we added actually got added
   for (vtkIdType v = 0; v < V; ++v)
-    {
+  {
     myassert(startPositions[v].first == startPositions[v].second);
-    }
+  }
   MPI_Barrier(MPI_COMM_WORLD);
   if (myRank == 0)
-    {
+  {
     (cout << "done.\n").flush();
-    }
+  }
 
   // Let everyone know about the in-edges they should have.
   std::sort(addedEdges.begin(), addedEdges.end(), OrderEdgesByTarget());
@@ -384,13 +384,13 @@ void TestDirectedGraph()
 
   // Test the incoming edges of each local vertex
   if (myRank == 0)
-    {
+  {
     (cout << "  Testing in edges...").flush();
-    }
+  }
   std::sort(inEdges.begin(), inEdges.end(), OrderEdgesByTarget());
   graph->GetVertices(vertices);
   while (vertices->HasNext())
-    {
+  {
     vtkIdType u = vertices->Next();
 
     // Find bounds within the inEdges array where the incoming edges
@@ -411,7 +411,7 @@ void TestDirectedGraph()
       = vtkSmartPointer<vtkInEdgeIterator>::New();
     graph->GetInEdges(u, inEdges);
     while (inEdges->HasNext())
-      {
+    {
       vtkInEdgeType e = inEdges->Next();
 
       // Make sure we're expecting to find more in-edges
@@ -430,16 +430,16 @@ void TestDirectedGraph()
       // Check the source and target of the edge.
       myassert(e.Source == graph->GetSourceVertex(e.Id));
       myassert(u == graph->GetTargetVertex(e.Id));
-      }
+    }
 
     // Make sure that the constructed graph isn't missing any edges
     assert(myEdgesStart == myEdgesEnd);
-    }
+  }
   helper->Synchronize();
   if (myRank == 0)
-    {
+  {
     (cout << "done.\n").flush();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -473,10 +473,10 @@ void TestDirectedGraphProperties()
   vector<AddedEdge> generatedEdges;
 
   if (myRank == 0)
-    {
+  {
     (cout << "Build distributed directed graph w/ properties (V=" << V*numProcs
           << ", E=" << E*numProcs << ")...").flush();
-    }
+  }
 
   //  Create some vertex property arrays
   vtkVariantArray* vertexPropertyArr = vtkVariantArray::New();
@@ -511,19 +511,19 @@ void TestDirectedGraphProperties()
   const char *stringProp = vertexLabel[0];
   int veight;
   for (vtkIdType v = 0; v < V; ++v)
-    {
+  {
     stringProp = vertexLabel[rand() % 5];
     veight = rand() % 10;
 //    cout << myRank <<" vertex "<< v <<","<< stringProp <<","<<veight<< endl;
     vertexPropertyArr->SetValue(0,stringProp);
     vertexPropertyArr->SetValue(1,veight);
     graph->AddVertex(vertexPropertyArr);
-    }
+  }
 
   int prop0 = 13;
   double prop1 = 42.42;
   for (vtkIdType e = 0; e < E; ++e)
-    {
+  {
     vtkIdType source = helper->MakeDistributedId(rand() % numProcs, rand() % V);
     vtkIdType target = helper->MakeDistributedId(rand() % numProcs, rand() % V);
 
@@ -535,26 +535,26 @@ void TestDirectedGraphProperties()
 //    cout << myRank <<","<< prop0<<","<<prop1 << endl;
 
     generatedEdges.push_back(AddedEdge(source, target));
-    }
+  }
 
   if (myRank == 0)
-    {
+  {
     (cout << " synchronizing... ").flush();
-    }
+  }
 
   // Synchronize the graph, so that everyone finishes adding edges.
   graph->GetDistributedGraphHelper()->Synchronize();
   if (myRank == 0)
-    {
+  {
     (cout << " done.\n").flush();
-    }
+  }
 
 
   MPI_Barrier(MPI_COMM_WORLD);
   if (myRank == 0)
-    {
+  {
     (cout << "done.\n").flush();
-    }
+  }
 
 
 
@@ -569,39 +569,39 @@ void TestDirectedGraphProperties()
 
   // Test the vertex descriptors
   if (myRank == 0)
-    {
+  {
     (cout << "  Testing vertex descriptors...").flush();
-    }
+  }
   vtkIdType vExpected = helper->MakeDistributedId(myRank, 0);
   vtkSmartPointer<vtkVertexListIterator> vertices
     = vtkSmartPointer<vtkVertexListIterator>::New();
   graph->GetVertices(vertices);
   while (vertices->HasNext())
-    {
+  {
     vtkIdType vActual = vertices->Next();
     myassert(vActual == vExpected);
     ++vExpected;
-    }
+  }
   myassert(helper->GetVertexIndex(vExpected) == V);
   MPI_Barrier(MPI_COMM_WORLD);
   if (myRank == 0)
-    {
+  {
     (cout << "done.\n").flush();
-    }
+  }
 
   // Keep our list of the edges we added sorted by source.
   std::sort(addedEdges.begin(), addedEdges.end(), OrderEdgesBySource());
 
   // Test the outgoing edges of each local vertex
   if (myRank == 0)
-    {
+  {
     (cout << "  Testing out edges...").flush();
-    }
+  }
   typedef vector<AddedEdge>::iterator AddedEdgeIterator;
   vector<pair<AddedEdgeIterator, AddedEdgeIterator> > startPositions(V);
   graph->GetVertices(vertices);
   while (vertices->HasNext())
-    {
+  {
     vtkIdType u = vertices->Next();
     vtkSmartPointer<vtkOutEdgeIterator> outEdges
       = vtkSmartPointer<vtkOutEdgeIterator>::New();
@@ -624,7 +624,7 @@ void TestDirectedGraphProperties()
 
     graph->GetOutEdges(u, outEdges);
     while (outEdges->HasNext())
-      {
+    {
       vtkOutEdgeType e = outEdges->Next();
 
       // Make sure we're expecting to find more out-edges
@@ -639,27 +639,27 @@ void TestDirectedGraphProperties()
       // Move this edge out of the way, so we don't find it again
       --myEdgesEnd;
       std::swap(*found, *myEdgesEnd);
-      }
+    }
 
     // Make sure that the constructed graph isn't missing any edges
     assert(myEdgesStart == myEdgesEnd);
-    }
+  }
   MPI_Barrier(MPI_COMM_WORLD);
   if (myRank == 0)
-    {
+  {
     (cout << "done.\n").flush();
-    }
+  }
 
   // Test all of the local edges
   if (myRank == 0)
-    {
+  {
     (cout << "  Testing all edges...").flush();
-    }
+  }
   vtkSmartPointer<vtkEdgeListIterator> edges
     = vtkSmartPointer<vtkEdgeListIterator>::New();
   graph->GetEdges(edges);
   while (edges->HasNext())
-    {
+  {
       vtkEdgeType e = edges->Next();
       pair<AddedEdgeIterator, AddedEdgeIterator>& bracket
         = startPositions[helper->GetVertexIndex(e.Source)];
@@ -677,17 +677,17 @@ void TestDirectedGraphProperties()
       // Move this edge out of the way, so we don't find it again
       --bracket.second;
       std::swap(*found, *bracket.second);
-    }
+  }
   // Ensure that all of the edges we added actually got added
   for (vtkIdType v = 0; v < V; ++v)
-    {
+  {
     myassert(startPositions[v].first == startPositions[v].second);
-    }
+  }
   MPI_Barrier(MPI_COMM_WORLD);
   if (myRank == 0)
-    {
+  {
     (cout << "done.\n").flush();
-    }
+  }
 
   // Let everyone know about the in-edges they should have.
   std::sort(addedEdges.begin(), addedEdges.end(), OrderEdgesByTarget());
@@ -696,13 +696,13 @@ void TestDirectedGraphProperties()
 
   // Test the incoming edges of each local vertex
   if (myRank == 0)
-    {
+  {
     (cout << "  Testing in edges...").flush();
-    }
+  }
   std::sort(inEdges.begin(), inEdges.end(), OrderEdgesByTarget());
   graph->GetVertices(vertices);
   while (vertices->HasNext())
-    {
+  {
     vtkIdType u = vertices->Next();
 
     // Find bounds within the inEdges array where the incoming edges
@@ -723,7 +723,7 @@ void TestDirectedGraphProperties()
       = vtkSmartPointer<vtkInEdgeIterator>::New();
     graph->GetInEdges(u, inEdges);
     while (inEdges->HasNext())
-      {
+    {
       vtkInEdgeType e = inEdges->Next();
 
       // Make sure we're expecting to find more in-edges
@@ -738,16 +738,16 @@ void TestDirectedGraphProperties()
       // Move this edge out of the way, so we don't find it again
       --myEdgesEnd;
       std::swap(*found, *myEdgesEnd);
-      }
+    }
 
     // Make sure that the constructed graph isn't missing any edges
     assert(myEdgesStart == myEdgesEnd);
-    }
+  }
   MPI_Barrier(MPI_COMM_WORLD);
   if (myRank == 0)
-    {
+  {
     (cout << "done.\n").flush();
-    }
+  }
 }
 //----------------------------------------------------------------------------
 void TestUndirectedGraph()
@@ -777,18 +777,18 @@ void TestUndirectedGraph()
   const vtkIdType E = 100000;
   vector<AddedEdge> generatedEdges;
   if (myRank == 0)
-    {
+  {
     (cout << "Build distributed undirected graph with V=" << V*numProcs
           << ", E=" << E*numProcs << "...").flush();
-    }
+  }
 
   for (vtkIdType v = 0; v < V; ++v)
-    {
+  {
     graph->AddVertex();
-    }
+  }
 
   for (vtkIdType e = 0; e < E; ++e)
-    {
+  {
     vtkIdType source = helper->MakeDistributedId(rand() % numProcs, rand() % V);
     vtkIdType target = helper->MakeDistributedId(rand() % numProcs, rand() % V);
     if (rand() % 100 < ImmediateAddEdgeChance)
@@ -806,19 +806,19 @@ void TestUndirectedGraph()
       std::swap(source, target);
 
     generatedEdges.push_back(AddedEdge(source, target));
-    }
+  }
 
   if (myRank == 0)
-    {
+  {
     (cout << " synchronizing... ").flush();
-    }
+  }
 
   // Synchronize the graph, so that everyone finishes adding edges.
   graph->GetDistributedGraphHelper()->Synchronize();
   if (myRank == 0)
-    {
+  {
     (cout << " done.\n").flush();
-    }
+  }
 
   // We know which edges we generated, but some of those edges were
   // actually added on other nodes. Do a large exchange so that
@@ -831,25 +831,25 @@ void TestUndirectedGraph()
 
   // Test the vertex descriptors
   if (myRank == 0)
-    {
+  {
     (cout << "  Testing vertex descriptors...").flush();
-    }
+  }
   vtkIdType vExpected = helper->MakeDistributedId(myRank, 0);
   vtkSmartPointer<vtkVertexListIterator> vertices
     = vtkSmartPointer<vtkVertexListIterator>::New();
   graph->GetVertices(vertices);
   while (vertices->HasNext())
-    {
+  {
     vtkIdType vActual = vertices->Next();
     myassert(vActual == vExpected);
     ++vExpected;
-    }
+  }
   myassert(helper->GetVertexIndex(vExpected) == V);
   MPI_Barrier(MPI_COMM_WORLD);
   if (myRank == 0)
-    {
+  {
     (cout << "done.\n").flush();
-    }
+  }
 
   // Find all of the incoming edges
   vector<AddedEdge> inEdges;
@@ -866,22 +866,22 @@ void TestUndirectedGraph()
   allEdges.reserve(addedEdges.size() + inEdges.size());
   allEdges.insert(allEdges.end(), addedEdges.begin(), addedEdges.end());
   for (vector<AddedEdge>::iterator e = inEdges.begin(); e != inEdges.end(); ++e)
-    {
+  {
     allEdges.push_back(AddedEdge(e->Target, e->Source));
-    }
+  }
 
   // Keep this list of all edges sorted.
   std::sort(allEdges.begin(), allEdges.end(), OrderEdgesBySource());
 
   // Test the outgoing edges of each local vertex
   if (myRank == 0)
-    {
+  {
     (cout << "  Testing out edges...").flush();
-    }
+  }
   typedef vector<AddedEdge>::iterator AddedEdgeIterator;
   graph->GetVertices(vertices);
   while (vertices->HasNext())
-    {
+  {
     vtkIdType u = vertices->Next();
     vtkSmartPointer<vtkOutEdgeIterator> outEdges
       = vtkSmartPointer<vtkOutEdgeIterator>::New();
@@ -902,7 +902,7 @@ void TestUndirectedGraph()
 
     graph->GetOutEdges(u, outEdges);
     while (outEdges->HasNext())
-      {
+    {
       vtkOutEdgeType e = outEdges->Next();
 
       // Make sure we're expecting to find more out-edges
@@ -917,22 +917,22 @@ void TestUndirectedGraph()
       // Move this edge out of the way, so we don't find it again
       --myEdgesEnd;
       std::swap(*found, *myEdgesEnd);
-      }
+    }
 
     // Make sure that the constructed graph isn't missing any edges
     assert(myEdgesStart == myEdgesEnd);
-    }
+  }
   MPI_Barrier(MPI_COMM_WORLD);
   if (myRank == 0)
-    {
+  {
     (cout << "done.\n").flush();
-    }
+  }
 
   // Test all of the local edges
   if (myRank == 0)
-    {
+  {
     (cout << "  Testing all edges...").flush();
-    }
+  }
 
   // Find where each of the local vertices has edges stored in the
   // allEdges list.
@@ -940,21 +940,21 @@ void TestUndirectedGraph()
   vector<pair<AddedEdgeIterator, AddedEdgeIterator> > startPositions(V);
   AddedEdgeIterator position = addedEdges.begin();
   for (vtkIdType v = 0; v < V; ++v)
-    {
+  {
       vtkIdType vId = helper->MakeDistributedId(myRank, v);
       startPositions[v].first = position;
       while (position != addedEdges.end() && position->Source == vId)
-        {
+      {
         ++position;
-        }
+      }
       startPositions[v].second = position;
-    }
+  }
 
   vtkSmartPointer<vtkEdgeListIterator> edges
     = vtkSmartPointer<vtkEdgeListIterator>::New();
   graph->GetEdges(edges);
   while (edges->HasNext())
-    {
+  {
       vtkEdgeType e = edges->Next();
       pair<AddedEdgeIterator, AddedEdgeIterator>& bracket
         = startPositions[helper->GetVertexIndex(e.Source)];
@@ -972,37 +972,37 @@ void TestUndirectedGraph()
       // Move this edge out of the way, so we don't find it again
       --bracket.second;
       std::swap(*found, *bracket.second);
-    }
+  }
   // Ensure that all of the edges we added actually got added
   for (vtkIdType v = 0; v < V; ++v)
-    {
+  {
       if (startPositions[v].first != startPositions[v].second)
-        {
+      {
           cerr << "Edges rank " << myRank
                << " expected to find with vtkEdgeListIterator:\n";
           for (AddedEdgeIterator i = startPositions[v].first;
                i != startPositions[v].second; ++i)
-            {
+          {
             cerr << "  (" << hex << i->Source << ", " << i->Target << ")\n";
-            }
+          }
           cerr.flush();
-        }
+      }
     myassert(startPositions[v].first == startPositions[v].second);
-    }
+  }
   MPI_Barrier(MPI_COMM_WORLD);
   if (myRank == 0)
-    {
+  {
     (cout << "done.\n").flush();
-    }
+  }
 
   // Test the incoming edges of each local vertex
   if (myRank == 0)
-    {
+  {
     (cout << "  Testing in edges...").flush();
-    }
+  }
   graph->GetVertices(vertices);
   while (vertices->HasNext())
-    {
+  {
     vtkIdType v = vertices->Next();
     vtkSmartPointer<vtkInEdgeIterator> inEdges
       = vtkSmartPointer<vtkInEdgeIterator>::New();
@@ -1023,7 +1023,7 @@ void TestUndirectedGraph()
 
     graph->GetInEdges(v, inEdges);
     while (inEdges->HasNext())
-      {
+    {
       vtkInEdgeType e = inEdges->Next();
 
       // Make sure we're expecting to find more in-edges
@@ -1038,16 +1038,16 @@ void TestUndirectedGraph()
       // Move this edge out of the way, so we don't find it again
       --myEdgesEnd;
       std::swap(*found, *myEdgesEnd);
-      }
+    }
 
     // Make sure that the constructed graph isn't missing any edges
     assert(myEdgesStart == myEdgesEnd);
-    }
+  }
   MPI_Barrier(MPI_COMM_WORLD);
   if (myRank == 0)
-    {
+  {
     (cout << "done.\n").flush();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1078,10 +1078,10 @@ void TestUndirectedGraphProperties()
   const vtkIdType E = 100000;
   vector<AddedEdge> generatedEdges;
   if (myRank == 0)
-    {
+  {
     (cout << "Build distributed undirected graph, with properties, with V=" << V*numProcs
           << ", E=" << E*numProcs << "...").flush();
-    }
+  }
 
   //  Create some vertex property arrays
   vtkVariantArray* vertexPropertyArr = vtkVariantArray::New();
@@ -1116,7 +1116,7 @@ void TestUndirectedGraphProperties()
   const char *stringProp = vertexLabel[0];
   int veight;
   for (vtkIdType v = 0; v < V; ++v)
-    {
+  {
     stringProp = vertexLabel[rand() % 5];
     veight = rand() % 10;
 //    cout << myRank <<" vertex "<< v <<","<< stringProp <<","<<veight<< endl;
@@ -1124,10 +1124,10 @@ void TestUndirectedGraphProperties()
     vertexPropertyArr->SetValue(1,veight);
 
     graph->AddVertex(vertexPropertyArr);
-    }
+  }
 
   for (vtkIdType e = 0; e < E; ++e)
-    {
+  {
     vtkIdType source = helper->MakeDistributedId(rand() % numProcs, rand() % V);
     vtkIdType target = helper->MakeDistributedId(rand() % numProcs, rand() % V);
     if (rand() % 100 < ImmediateAddEdgeChance)
@@ -1145,19 +1145,19 @@ void TestUndirectedGraphProperties()
       std::swap(source, target);
 
     generatedEdges.push_back(AddedEdge(source, target));
-    }
+  }
 
   if (myRank == 0)
-    {
+  {
     (cout << " synchronizing... ").flush();
-    }
+  }
 
   // Synchronize the graph, so that everyone finishes adding edges.
   graph->GetDistributedGraphHelper()->Synchronize();
   if (myRank == 0)
-    {
+  {
     (cout << " done.\n").flush();
-    }
+  }
 
   // We know which edges we generated, but some of those edges were
   // actually added on other nodes. Do a large exchange so that
@@ -1170,25 +1170,25 @@ void TestUndirectedGraphProperties()
 
   // Test the vertex descriptors
   if (myRank == 0)
-    {
+  {
     (cout << "  Testing vertex descriptors...").flush();
-    }
+  }
   vtkIdType vExpected = helper->MakeDistributedId(myRank, 0);
   vtkSmartPointer<vtkVertexListIterator> vertices
     = vtkSmartPointer<vtkVertexListIterator>::New();
   graph->GetVertices(vertices);
   while (vertices->HasNext())
-    {
+  {
     vtkIdType vActual = vertices->Next();
     myassert(vActual == vExpected);
     ++vExpected;
-    }
+  }
   myassert(helper->GetVertexIndex(vExpected) == V);
   MPI_Barrier(MPI_COMM_WORLD);
   if (myRank == 0)
-    {
+  {
     (cout << "done.\n").flush();
-    }
+  }
 
   // Find all of the incoming edges
   vector<AddedEdge> inEdges;
@@ -1205,22 +1205,22 @@ void TestUndirectedGraphProperties()
   allEdges.reserve(addedEdges.size() + inEdges.size());
   allEdges.insert(allEdges.end(), addedEdges.begin(), addedEdges.end());
   for (vector<AddedEdge>::iterator e = inEdges.begin(); e != inEdges.end(); ++e)
-    {
+  {
     allEdges.push_back(AddedEdge(e->Target, e->Source));
-    }
+  }
 
   // Keep this list of all edges sorted.
   std::sort(allEdges.begin(), allEdges.end(), OrderEdgesBySource());
 
   // Test the outgoing edges of each local vertex
   if (myRank == 0)
-    {
+  {
     (cout << "  Testing out edges...").flush();
-    }
+  }
   typedef vector<AddedEdge>::iterator AddedEdgeIterator;
   graph->GetVertices(vertices);
   while (vertices->HasNext())
-    {
+  {
     vtkIdType u = vertices->Next();
     vtkSmartPointer<vtkOutEdgeIterator> outEdges
       = vtkSmartPointer<vtkOutEdgeIterator>::New();
@@ -1241,7 +1241,7 @@ void TestUndirectedGraphProperties()
 
     graph->GetOutEdges(u, outEdges);
     while (outEdges->HasNext())
-      {
+    {
       vtkOutEdgeType e = outEdges->Next();
 
       // Make sure we're expecting to find more out-edges
@@ -1256,22 +1256,22 @@ void TestUndirectedGraphProperties()
       // Move this edge out of the way, so we don't find it again
       --myEdgesEnd;
       std::swap(*found, *myEdgesEnd);
-      }
+    }
 
     // Make sure that the constructed graph isn't missing any edges
     assert(myEdgesStart == myEdgesEnd);
-    }
+  }
   MPI_Barrier(MPI_COMM_WORLD);
   if (myRank == 0)
-    {
+  {
     (cout << "done.\n").flush();
-    }
+  }
 
   // Test all of the local edges
   if (myRank == 0)
-    {
+  {
     (cout << "  Testing all edges...").flush();
-    }
+  }
 
   // Find where each of the local vertices has edges stored in the
   // allEdges list.
@@ -1279,21 +1279,21 @@ void TestUndirectedGraphProperties()
   vector<pair<AddedEdgeIterator, AddedEdgeIterator> > startPositions(V);
   AddedEdgeIterator position = addedEdges.begin();
   for (vtkIdType v = 0; v < V; ++v)
-    {
+  {
       vtkIdType vId = helper->MakeDistributedId(myRank, v);
       startPositions[v].first = position;
       while (position != addedEdges.end() && position->Source == vId)
-        {
+      {
         ++position;
-        }
+      }
       startPositions[v].second = position;
-    }
+  }
 
   vtkSmartPointer<vtkEdgeListIterator> edges
     = vtkSmartPointer<vtkEdgeListIterator>::New();
   graph->GetEdges(edges);
   while (edges->HasNext())
-    {
+  {
       vtkEdgeType e = edges->Next();
       pair<AddedEdgeIterator, AddedEdgeIterator>& bracket
         = startPositions[helper->GetVertexIndex(e.Source)];
@@ -1311,37 +1311,37 @@ void TestUndirectedGraphProperties()
       // Move this edge out of the way, so we don't find it again
       --bracket.second;
       std::swap(*found, *bracket.second);
-    }
+  }
   // Ensure that all of the edges we added actually got added
   for (vtkIdType v = 0; v < V; ++v)
-    {
+  {
       if (startPositions[v].first != startPositions[v].second)
-        {
+      {
           cerr << "Edges rank " << myRank
                << " expected to find with vtkEdgeListIterator:\n";
           for (AddedEdgeIterator i = startPositions[v].first;
                i != startPositions[v].second; ++i)
-            {
+          {
             cerr << "  (" << hex << i->Source << ", " << i->Target << ")\n";
-            }
+          }
           cerr.flush();
-        }
+      }
     myassert(startPositions[v].first == startPositions[v].second);
-    }
+  }
   MPI_Barrier(MPI_COMM_WORLD);
   if (myRank == 0)
-    {
+  {
     (cout << "done.\n").flush();
-    }
+  }
 
   // Test the incoming edges of each local vertex
   if (myRank == 0)
-    {
+  {
     (cout << "  Testing in edges...").flush();
-    }
+  }
   graph->GetVertices(vertices);
   while (vertices->HasNext())
-    {
+  {
     vtkIdType v = vertices->Next();
     vtkSmartPointer<vtkInEdgeIterator> inEdges
       = vtkSmartPointer<vtkInEdgeIterator>::New();
@@ -1362,7 +1362,7 @@ void TestUndirectedGraphProperties()
 
     graph->GetInEdges(v, inEdges);
     while (inEdges->HasNext())
-      {
+    {
       vtkInEdgeType e = inEdges->Next();
 
       // Make sure we're expecting to find more in-edges
@@ -1377,16 +1377,16 @@ void TestUndirectedGraphProperties()
       // Move this edge out of the way, so we don't find it again
       --myEdgesEnd;
       std::swap(*found, *myEdgesEnd);
-      }
+    }
 
     // Make sure that the constructed graph isn't missing any edges
     assert(myEdgesStart == myEdgesEnd);
-    }
+  }
   MPI_Barrier(MPI_COMM_WORLD);
   if (myRank == 0)
-    {
+  {
     (cout << "done.\n").flush();
-    }
+  }
 }
 
 }

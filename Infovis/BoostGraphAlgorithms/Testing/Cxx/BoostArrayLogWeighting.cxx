@@ -43,7 +43,7 @@ static bool close_enough(const double lhs, const double rhs)
 int BoostArrayLogWeighting(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     vtkSmartPointer<vtkDiagonalMatrixSource> source = vtkSmartPointer<vtkDiagonalMatrixSource>::New();
     source->SetExtents(3);
     source->SetArrayType(vtkDiagonalMatrixSource::SPARSE);
@@ -105,11 +105,11 @@ int BoostArrayLogWeighting(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(close_enough(weighted->GetValue(vtkArrayCoordinates(2, 2)), 1.38629436111989057));
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }
 

@@ -36,14 +36,14 @@ namespace {
 static int power(int number, int level)
 {
   if (level == 0)
-    {
+  {
     return 1;
-    }
+  }
   int num = number;
   for (int i = 1; i < level; i++)
-    {
+  {
     number = number * num;
-    }
+  }
   return number;
 }
 
@@ -53,9 +53,9 @@ static int GetLevelOffset(int level, int divs[3])
   int block = divs[0] * divs[1] * divs[2];
   int offset = 0;
   for (int i=0; i<level; ++i)
-    {
+  {
     offset += power( block, i);
-    }
+  }
   return offset;
 }
 
@@ -78,7 +78,7 @@ struct UniformBinning
   // Construction. Provide the current level, and the global binning
   // divisions, and the global bounds.
   UniformBinning(int level, int divs[3], double bounds[6])
-    {
+  {
       this->Level = level;
 
       this->Divs[0] = power( divs[0], level);
@@ -113,14 +113,14 @@ struct UniformBinning
       this->yD = this->Divs[1];
       this->zD = this->Divs[2];
       this->xyD = this->Divs[0] * this->Divs[1];
-    }
+  }
 
 
   //-----------------------------------------------------------------------------
   // Inlined for performance. These function invocations must be called after
   // BuildLocator() is invoked, otherwise the output is indeterminate.
   void GetBinIndices(const double *x, int ijk[3]) const
-    {
+  {
     // Compute point index. Make sure it lies within range of locator.
     ijk[0] = static_cast<int>(((x[0] - bX) * fX));
     ijk[1] = static_cast<int>(((x[1] - bY) * fY));
@@ -129,21 +129,21 @@ struct UniformBinning
     ijk[0] = (ijk[0] < 0 ? 0 : (ijk[0] >= xD ? xD-1 : ijk[0]));
     ijk[1] = (ijk[1] < 0 ? 0 : (ijk[1] >= yD ? yD-1 : ijk[1]));
     ijk[2] = (ijk[2] < 0 ? 0 : (ijk[2] >= zD ? zD-1 : ijk[2]));
-    }
+  }
 
   //-----------------------------------------------------------------------------
   // The bin offset is used to uniquefy the id across the hierarchy of binning grids
   vtkIdType GetBinIndex(const double *x) const
-    {
+  {
     int ijk[3];
     this->GetBinIndices(x, ijk);
     return (this->LevelOffset + ijk[0] + ijk[1]*xD + ijk[2]*xyD);
-    }
+  }
 
   //-----------------------------------------------------------------------------
   // Get the bounds for a particular bin at this level
   void GetBinBounds(int localBin, double bounds[6])
-    {
+  {
       int i = localBin % this->xD;
       int j = (localBin / this->xD) % this->yD;
       int k = localBin / this->xyD;
@@ -153,7 +153,7 @@ struct UniformBinning
       bounds[3] = bounds[2] + this->hY;
       bounds[4] = this->Bounds[4] + k * hZ;
       bounds[5] = bounds[4] + this->hZ;
-    }
+  }
 };
 
 } //anonymous namespace
@@ -181,7 +181,7 @@ struct vtkBinTree
   vtkBinTree(vtkIdType npts, vtkPoints *pts, int numLevels, int divs[3],
              double bounds[6], int offsetsType) :
     InPts(pts), NumPts(npts), NumLevels(numLevels), OffsetsType(offsetsType)
-    {
+  {
       this->Divs[0] = divs[0];
       this->Divs[1] = divs[1];
       this->Divs[2] = divs[2];
@@ -196,67 +196,67 @@ struct vtkBinTree
       // Build the levels. We create an extra one; it simplifies things later.
       this->NumBins = 0;
       for (int level=0; level < this->NumLevels; ++level)
-        {
+      {
         this->Tree[level] = new UniformBinning(level, divs, bounds);
         this->NumBins += this->Tree[level]->NumBins;
-        }
+      }
       this->Tree[this->NumLevels] = new UniformBinning(this->NumLevels, divs, bounds);
 
       this->BatchSize = 0;
 
       this->OffsetsType = offsetsType;
       this->OffsetsArray = NULL;
-    }
+  }
 
   // Virtual functions supporting convenience methods in templated subclass.
   virtual ~vtkBinTree()
-    {
+  {
       for (int i=0; i <= this->NumLevels; ++i)
-        {
+      {
         delete this->Tree[i];
-        }
+      }
       if ( this->OffsetsArray )
-        {
+      {
         this->OffsetsArray->Delete();
         this->OffsetsArray = NULL;
-        }
-    }
+      }
+  }
   virtual void Execute(vtkPointSet *input, vtkPolyData *output) = 0;
   int GetNumberOfGlobalBins()
-    {
+  {
       return this->NumBins;
-    }
+  }
   int GetNumberOfBins(int level)
-    {
+  {
       return this->Tree[level]->NumBins;
-    }
+  }
   virtual vtkIdType GetLevelOffset(int level, vtkIdType& npts) = 0;
   virtual vtkIdType GetBinOffset(int globalBin, vtkIdType& npts) = 0;
   virtual vtkIdType GetLocalBinOffset(int level, int localBin, vtkIdType& npts) = 0;
   // Sometimes the global bin needs to be expressed as a local bin number +
   // tree level.
   void TranslateGlobalBinToLocalBin(int globalBin, int& level, int& localBin)
-    {
+  {
       for ( level=this->NumLevels-1;
             globalBin < this->Tree[level]->LevelOffset; --level )
-        {
+      {
         ;
-        }
+      }
       localBin = globalBin - this->Tree[level]->LevelOffset;
-    }
+  }
   void GetBinBounds(int globalBin, double bounds[6])
-    {
+  {
       int level, localBin;
       this->TranslateGlobalBinToLocalBin(globalBin, level, localBin);
       return this->Tree[level]->GetBinBounds(localBin, bounds);
-    }
+  }
   void GetLocalBinBounds(int level, int localBin, double bounds[6])
-    {
+  {
       return this->Tree[level]->GetBinBounds(localBin, bounds);
-    }
+  }
 
   void ExportMetaData(vtkPolyData *output)
-    {
+  {
       this->OffsetsArray->SetName("BinOffsets");
       output->GetFieldData()->AddArray(this->OffsetsArray);
 
@@ -265,9 +265,9 @@ struct vtkBinTree
       da->SetName("BinBounds");
       da->SetNumberOfTuples(6);
       for (int i=0; i<6; ++i)
-        {
+      {
         da->SetValue(i,this->Bounds[i]);
-        }
+      }
       output->GetFieldData()->AddArray(da);
       da->Delete();
 
@@ -276,13 +276,13 @@ struct vtkBinTree
       ia->SetName("BinDivisions");
       ia->SetNumberOfTuples(3);
       for (int i=0; i<3; ++i)
-        {
+      {
         ia->SetValue(i,this->Divs[i]);
-        }
+      }
       output->GetFieldData()->AddArray(ia);
       ia->Delete();
 
-    }
+  }
 };
 
 //----------------------------------------------------------------------------
@@ -322,47 +322,47 @@ struct BinTree : public vtkBinTree
   BinTree(vtkIdType npts, vtkPoints *pts, int numLevels, int divs[3],
           double bounds[6], int offsetsType) :
     vtkBinTree(npts, pts, numLevels, divs, bounds, offsetsType)
-    {
+  {
       //one extra allocation to simplify traversal
       this->Map = new BinTuple<TIds>[this->NumPts+1];
       this->Map[this->NumPts].Bin = this->NumBins;
       if ( offsetsType == VTK_INT )
-        {
+      {
         this->OffsetsArray = vtkIntArray::New();
-        }
+      }
       else
-        {
+      {
         this->OffsetsArray = vtkIdTypeArray::New();
-        }
+      }
       this->OffsetsArray->SetNumberOfTuples(this->NumBins+1);
       this->Offsets = static_cast<TIds*>(this->OffsetsArray->GetVoidPointer(0));
       this->Offsets[this->NumBins] = this->NumPts;
-    }
+  }
 
   // Release allocated memory
   virtual ~BinTree()
-    {
+  {
       delete [] this->Map;
       //Offsets data array deleted by superclass
-    }
+  }
 
   // The number of point ids in a bin is determined by computing the
   // difference between the offsets into the sorted points array.
   vtkIdType GetNumberOfIds(vtkIdType binNum)
-    {
+  {
       return (this->Offsets[binNum+1] - this->Offsets[binNum]);
-    }
+  }
 
   // Given a bin number, return the point ids in that bin.
   const BinTuple<TIds> *GetIds(vtkIdType binNum)
-    {
+  {
       return this->Map + this->Offsets[binNum];
-    }
+  }
 
   // Explicit point representation (e.g., vtkPointSet), faster path
   template <typename T, typename TPts>
   class MapPoints
-    {
+  {
     public:
       BinTree<T> *Tree;
       const TPts *Points;
@@ -370,22 +370,22 @@ struct BinTree : public vtkBinTree
 
       MapPoints(BinTree<T> *tree, const TPts *pts) :
         Tree(tree), Points(pts)
-        {
+      {
           for (int i=0; i < this->Tree->NumLevels; ++i)
-            {
+          {
             this->Thresh[i] = this->Tree->Tree[i]->LevelOffset;
-            }
-        }
+          }
+      }
 
       void  operator()(vtkIdType ptId, vtkIdType end)
-        {
+      {
         double p[3];
         const TPts *x = this->Points + 3*ptId;
         BinTuple<T> *t = this->Tree->Map + ptId;
         int numLevels = this->Tree->NumLevels;
         int level, idx, numBins = this->Tree->NumBins;
         for ( ; ptId < end; ++ptId, x+=3, ++t )
-          {
+        {
           t->PtId = ptId;
           p[0] = static_cast<double>(x[0]);
           p[1] = static_cast<double>(x[1]);
@@ -393,13 +393,13 @@ struct BinTree : public vtkBinTree
           idx = ptId % numBins;
 
           for ( level=numLevels-1; idx < this->Thresh[level]; --level )
-            {
+          {
             ;
-            }
+          }
           t->Bin = this->Tree->Tree[level]->GetBinIndex(p);
-          }//for all points in this batch
-        }
-   };
+        }//for all points in this batch
+      }
+  };
 
   // A clever way to build offsets in parallel. Basically each thread builds
   // offsets across a range of the sorted map. Recall that offsets are an
@@ -407,7 +407,7 @@ struct BinTree : public vtkBinTree
   // reside in each bin.
   template <typename T>
   class MapOffsets
-    {
+  {
     public:
       BinTree<T> *Tree;
       vtkIdType NumPts;
@@ -415,15 +415,15 @@ struct BinTree : public vtkBinTree
       int BatchSize;
 
       MapOffsets(BinTree<T> *tree, int numBatches) : Tree(tree)
-        {
+      {
           this->NumPts = this->Tree->NumPts;
           this->NumBins = this->Tree->NumBins;
           this->BatchSize = ceil( static_cast<double>(this->NumPts) / numBatches);
-        }
+      }
 
       // Traverse sorted points (i.e., tuples) and update bin offsets.
       void  operator()(vtkIdType batch, vtkIdType batchEnd)
-        {
+      {
         T *offsets = this->Tree->Offsets;
         const BinTuple<T> *curPt =
           this->Tree->Map + batch*this->BatchSize;
@@ -438,37 +438,37 @@ struct BinTree : public vtkBinTree
         // the first point is in bin# N, then all bins up and including
         // N must refer to the first point.
         if ( curPt == this->Tree->Map )
-          {
+        {
           prevPt = this->Tree->Map;
           std::fill_n(offsets, curPt->Bin+1, 0); //point to the first points
-          }//at the very beginning of the map (sorted points array)
+        }//at the very beginning of the map (sorted points array)
 
         // We are entering this functor somewhere in the interior of the
         // mapped points array. All we need to do is point to the entry
         // position because we are interested only in prevPt->Bin.
         else
-          {
+        {
           prevPt = curPt;
-          }//else in the middle of a batch
+        }//else in the middle of a batch
 
         // Okay we have a starting point for a bin run. Now we can begin
         // filling in the offsets in this batch. A previous thread should
         // have/will have completed the previous and subsequent runs outside
         // of the [batch,batchEnd) range
         for ( curPt=prevPt; curPt < endBatchPt; )
-          {
+        {
           for ( ; curPt->Bin == prevPt->Bin && curPt <= endBatchPt;
                 ++curPt )
-            {
+          {
             ; //advance
-            }
+          }
           // Fill in any gaps in the offset array
           std::fill_n(offsets + prevPt->Bin + 1,
                       curPt->Bin - prevPt->Bin,
                       curPt - this->Tree->Map);
           prevPt = curPt;
-          }//for all batches in this range
-        }//operator()
+        }//for all batches in this range
+      }//operator()
   };
 
   //----------------------------------------------------------------------------
@@ -483,8 +483,8 @@ struct BinTree : public vtkBinTree
 
     ShufflePoints(BinTree<T> *tree, vtkIdType numPts, TPts *inPts, TPts *outPts) :
       Tree(tree), NumPts(numPts), InPoints(inPts), OutPoints(outPts)
-      {
-      }
+    {
+    }
 
     void operator() (vtkIdType ptId, vtkIdType endPtId)
     {
@@ -493,12 +493,12 @@ struct BinTree : public vtkBinTree
       TPts *px;
 
       for ( ; ptId < endPtId; ++ptId, ++map)
-        {
+      {
         px = this->InPoints + 3*map->PtId;
         *py++ = *px++;
         *py++ = *px++;
         *py++ = *px;
-        }
+      }
     }
   }; //ShufflePoints
 
@@ -515,8 +515,8 @@ struct BinTree : public vtkBinTree
 
     ShuffleArray(BinTree<T> *tree, vtkIdType numPts, int numComp, TA *in, TA *out) :
       Tree(tree), NumPts(numPts), NumComp(numComp), InArray(in), OutArray(out)
-      {
-      }
+    {
+    }
 
     void operator() (vtkIdType ptId, vtkIdType endPtId)
     {
@@ -526,47 +526,47 @@ struct BinTree : public vtkBinTree
       int i;
 
       for ( ; ptId < endPtId; ++ptId, ++map)
-        {
+      {
         x = this->InArray + this->NumComp*map->PtId;
         for (i=0; i<this->NumComp; ++i)
-          {
+        {
           *y++ = *x++;
-          }
         }
+      }
     }
 
     static void Execute(BinTree<TIds> *tree, vtkIdType numPts, int numComp,
                         TA *in, TA *out)
-      {
+    {
         ShuffleArray<TIds,TA> shuffle(tree,numPts,numComp,in,out);
         vtkSMPTools::For(0,numPts, shuffle);
-      }
+    }
 
   }; //ShuffleArray
 
   // Bin the points, produce output
   void Execute(vtkPointSet *input, vtkPolyData *output)
-    {
+  {
       vtkPoints *inPts = input->GetPoints();
       void *pts = inPts->GetVoidPointer(0);
       vtkPoints *outPts = output->GetPoints();
       int dataType = inPts->GetDataType();
 
       if ( dataType == VTK_FLOAT )
-        {
+      {
         MapPoints<TIds,float> mapper(this,static_cast<float*>(pts));
         vtkSMPTools::For(0,this->NumPts, mapper);
-        }
+      }
       else if ( dataType == VTK_DOUBLE )
-        {
+      {
         MapPoints<TIds,double> mapper(this,static_cast<double*>(pts));
         vtkSMPTools::For(0,this->NumPts, mapper);
-        }
+      }
       else
-        {
+      {
         vtkGenericWarningMacro("Type not supported\n");
         return;
-        }
+      }
 
       // Now gather the points into contiguous runs in bins
       //
@@ -587,19 +587,19 @@ struct BinTree : public vtkBinTree
 
       // Shuffle the points around
       if ( dataType == VTK_FLOAT )
-        {
+      {
         ShufflePoints<TIds,float>
           shuffle(this, this->NumPts, static_cast<float*>(inPts->GetVoidPointer(0)),
                   static_cast<float*>(outPts->GetVoidPointer(0)));
         vtkSMPTools::For(0,this->NumPts, shuffle);
-        }
+      }
       else if ( dataType == VTK_DOUBLE )
-        {
+      {
         ShufflePoints<TIds,double>
           shuffle(this, this->NumPts, static_cast<double*>(inPts->GetVoidPointer(0)),
                   static_cast<double*>(outPts->GetVoidPointer(0)));
         vtkSMPTools::For(0,this->NumPts, shuffle);
-        }
+      }
 
       // Now shuffle the data arrays
       vtkPointData *inPD = input->GetPointData();
@@ -611,22 +611,22 @@ struct BinTree : public vtkBinTree
       void *iD, *oD;
       int i, numComp, numArrays = inPD->GetNumberOfArrays();
       for (i=0; i < numArrays; ++i)
-        {
+      {
         iArray = inPD->GetArray(i);
         if ( iArray )
-          {
+        {
           name = iArray->GetName();
           numComp = iArray->GetNumberOfComponents();
           oArray = outPD->GetArray(name);
           if ( !oArray )
-            {
+          {
             continue;
-            }
+          }
           oArray->SetNumberOfTuples(this->NumPts);
           iD = iArray->GetVoidPointer(0);
           oD = oArray->GetVoidPointer(0);
           switch (iArray->GetDataType()) //template macro burps on multiple template parameters
-            {
+          {
             case VTK_FLOAT:
               ShuffleArray<TIds,float>::
                 Execute(this,this->NumPts,numComp,(float *)iD,(float *)oD); break;
@@ -653,10 +653,10 @@ struct BinTree : public vtkBinTree
                 Execute(this,this->NumPts,numComp,(unsigned short *)iD,(unsigned short *)oD); break;
             default:
               vtkGenericWarningMacro("Unsupported attribute type");
-            }//over all VTK types
-          }//have valid array
-         }//for each candidate array
-    }
+          }//over all VTK types
+        }//have valid array
+      }//for each candidate array
+  }
 
   virtual vtkIdType GetLevelOffset(int level, vtkIdType& npts)
   {
@@ -710,10 +710,10 @@ vtkHierarchicalBinningFilter::vtkHierarchicalBinningFilter()
 vtkHierarchicalBinningFilter::~vtkHierarchicalBinningFilter()
 {
   if ( this->Tree )
-    {
+  {
     delete this->Tree;
     this->Tree = NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -735,14 +735,14 @@ int vtkHierarchicalBinningFilter::RequestData(
 
   // Check the input
   if ( !input || !output )
-    {
+  {
     return 1;
-    }
+  }
   vtkIdType numPts = input->GetNumberOfPoints();
   if ( numPts < 1 )
-    {
+  {
     return 1;
-    }
+  }
 
   // Set up the binning operation
   vtkPoints *inPts = input->GetPoints();
@@ -759,7 +759,7 @@ int vtkHierarchicalBinningFilter::RequestData(
 
   // If automatic, try and create uniform-sized bins; cubes are ideal.
   if ( this->Automatic )
-    {
+  {
     inPts->GetBounds(this->Bounds);
     double h[3];
     h[0] = this->Bounds[1] - this->Bounds[0];
@@ -769,26 +769,26 @@ int vtkHierarchicalBinningFilter::RequestData(
     divs[min] = ( h[min] > 0.0 ? 2 : 1);
     h[min] = ( divs[min] == 1 ? 1.0 : h[min] );
     for (int i=0; i<3; ++i)
-      {
+    {
       if ( i != min )
-        {
+      {
         divs[i]  = vtkMath::Round( divs[min]*h[i]/h[min] ) ;
         divs[i] = ( divs[i] <= 0 ? 1 : divs[i] );
-        }
       }
     }
+  }
 
   // Bin the points, produce output
   if ( numPts >= VTK_INT_MAX )
-    {
+  {
     this->Tree = new BinTree<vtkIdType>(numPts,inPts,numLevels,divs,bounds,VTK_ID_TYPE);
     this->Tree->Execute(input,output);
-    }
+  }
   else
-    {
+  {
     this->Tree = new BinTree<int>(numPts,inPts,numLevels,divs,bounds,VTK_INT);
     this->Tree->Execute(input,output);
-    }
+  }
 
   return 1;
 }
@@ -798,13 +798,13 @@ int vtkHierarchicalBinningFilter::
 GetNumberOfGlobalBins()
 {
   if ( this->Tree )
-    {
+  {
     return this->Tree->GetNumberOfGlobalBins();
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -812,13 +812,13 @@ int vtkHierarchicalBinningFilter::
 GetNumberOfBins(int level)
 {
   if ( this->Tree )
-    {
+  {
     return this->Tree->GetNumberOfBins(level);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -826,13 +826,13 @@ vtkIdType vtkHierarchicalBinningFilter::
 GetLevelOffset(int level, vtkIdType& npts)
 {
   if ( this->Tree )
-    {
+  {
     return this->Tree->GetLevelOffset(level,npts);
-    }
+  }
   else
-    {
+  {
     return -1;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -840,13 +840,13 @@ vtkIdType vtkHierarchicalBinningFilter::
 GetBinOffset(int globalBin, vtkIdType& npts)
 {
   if ( this->Tree )
-    {
+  {
     return this->Tree->GetBinOffset(globalBin,npts);
-    }
+  }
   else
-    {
+  {
     return -1;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -854,13 +854,13 @@ vtkIdType vtkHierarchicalBinningFilter::
 GetLocalBinOffset(int level, int localBin, vtkIdType& npts)
 {
   if ( this->Tree )
-    {
+  {
     return this->Tree->GetLocalBinOffset(level,localBin,npts);
-    }
+  }
   else
-    {
+  {
     return -1;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -868,13 +868,13 @@ void vtkHierarchicalBinningFilter::
 GetBinBounds(int globalBin, double bounds[6])
 {
   if ( this->Tree )
-    {
+  {
     return this->Tree->GetBinBounds(globalBin,bounds);
-    }
+  }
   else
-    {
+  {
     return;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -882,13 +882,13 @@ void vtkHierarchicalBinningFilter::
 GetLocalBinBounds(int level, int localBin, double bounds[6])
 {
   if ( this->Tree )
-    {
+  {
     return this->Tree->GetLocalBinBounds(level,localBin,bounds);
-    }
+  }
   else
-    {
+  {
     return;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -911,9 +911,9 @@ void vtkHierarchicalBinningFilter::PrintSelf(ostream& os, vtkIndent indent)
      << (this->Automatic ? "On\n" : "Off\n");
 
   for(int i=0;i<6;i++)
-    {
+  {
     os << indent << "Bounds[" << i << "]: " << this->Bounds[i] << "\n";
-    }
+  }
 
   os << indent << "Divisions: ("
      << this->Divisions[0] << ","

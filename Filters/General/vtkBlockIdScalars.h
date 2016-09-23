@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBlockIdScalars - generates scalars from blocks.
-// .SECTION Description
-// vtkBlockIdScalars is a filter that generates scalars using the block index
-// for each block. Note that all sub-blocks within a block get the same scalar.
-// The new scalars array is named \c BlockIdScalars.
+/**
+ * @class   vtkBlockIdScalars
+ * @brief   generates scalars from blocks.
+ *
+ * vtkBlockIdScalars is a filter that generates scalars using the block index
+ * for each block. Note that all sub-blocks within a block get the same scalar.
+ * The new scalars array is named \c BlockIdScalars.
+*/
 
 #ifndef vtkBlockIdScalars_h
 #define vtkBlockIdScalars_h

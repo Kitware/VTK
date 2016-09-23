@@ -29,19 +29,19 @@
   { \
   std::string expectedMsg(msg); \
   if (!errorObserver->GetError()) \
-    { \
+  { \
     std::cout << "Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
     status++; \
-    } \
+  } \
   else \
-    { \
+  { \
     std::string gotMsg(errorObserver->GetErrorMessage()); \
     if (gotMsg.find(expectedMsg) == std::string::npos) \
-      { \
+    { \
       std::cout << "Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
       status++; \
-      } \
     } \
+  } \
   } \
   errorObserver->Clear()
 
@@ -52,10 +52,10 @@ int UnitTestSTLWriter(int argc,char *argv[])
   char *tempDir = vtkTestUtilities::GetArgOrEnvOrDefault(
     "-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   if (!tempDir)
-    {
+  {
     std::cout << "Could not determine temporary directory.\n";
     return EXIT_FAILURE;
-    }
+  }
   std::string testDirectory = tempDir;
   delete [] tempDir;
 
@@ -111,9 +111,9 @@ int UnitTestSTLWriter(int argc,char *argv[])
   int status1 = 0;
   CHECK_ERROR_MSG("No data to write", status1);
   if (status1)
-    {
+  {
     ++status;
-    }
+  }
 
   writer2->SetInputData(emptyPolyData);
   writer2->SetFileTypeToBinary();
@@ -121,9 +121,9 @@ int UnitTestSTLWriter(int argc,char *argv[])
   status1 = 0;
   CHECK_ERROR_MSG("No data to write", status);
   if (status1)
-    {
+  {
     ++status;
-    }
+  }
 
   writer2->SetFileName(NULL);
   writer2->SetInputConnection(sphere->GetOutputPort());
@@ -132,9 +132,9 @@ int UnitTestSTLWriter(int argc,char *argv[])
   status1 = 0;
   CHECK_ERROR_MSG("Please specify FileName to write", status);
   if (status1)
-    {
+  {
     ++status;
-    }
+  }
 
   writer2->SetFileName(NULL);
   writer2->SetInputConnection(sphere->GetOutputPort());
@@ -143,9 +143,9 @@ int UnitTestSTLWriter(int argc,char *argv[])
   status1 = 0;
   CHECK_ERROR_MSG("Please specify FileName to write", status);
   if (status1)
-    {
+  {
     ++status;
-    }
+  }
 
   writer2->SetFileName("/");
   writer2->SetInputConnection(sphere->GetOutputPort());
@@ -154,9 +154,9 @@ int UnitTestSTLWriter(int argc,char *argv[])
   status1 = 0;
   CHECK_ERROR_MSG("Couldn't open file: /", status);
   if (status1)
-    {
+  {
     ++status;
-    }
+  }
 
   writer2->SetFileName("/");
   writer2->SetInputConnection(sphere->GetOutputPort());
@@ -165,13 +165,13 @@ int UnitTestSTLWriter(int argc,char *argv[])
   status1 = 0;
   CHECK_ERROR_MSG("Couldn't open file: /", status);
   if (status1)
-    {
+  {
     ++status;
-    }
+  }
 
 
   if (vtksys::SystemTools::FileExists("/dev/full"))
-    {
+  {
     writer2->SetFileName("/dev/full");
     writer2->SetInputConnection(sphere->GetOutputPort());
     writer2->SetFileTypeToASCII();
@@ -179,18 +179,18 @@ int UnitTestSTLWriter(int argc,char *argv[])
     status1 = 0;
     CHECK_ERROR_MSG("Ran out of disk space; deleting file: /dev/full", status);
     if (status1)
-      {
+    {
       ++status;
-      }
+    }
 
     writer2->SetInputConnection(stripper->GetOutputPort());
     writer2->Update();
     status1 = 0;
     CHECK_ERROR_MSG("Ran out of disk space; deleting file: /dev/full", status);
     if (status1)
-      {
+    {
       ++status;
-      }
+    }
 
     writer2->SetFileName("/dev/full");
     writer2->SetInputConnection(sphere->GetOutputPort());
@@ -198,17 +198,17 @@ int UnitTestSTLWriter(int argc,char *argv[])
     writer2->Update();
     status1 = 0;
     CHECK_ERROR_MSG("Ran out of disk space; deleting file: /dev/full", status);    if (status1)
-      {
+    {
       ++status;
-      }
+    }
     writer2->SetInputConnection(stripper->GetOutputPort());
     writer2->Update();
     status1 = 0;
     CHECK_ERROR_MSG("Ran out of disk space; deleting file: /dev/full", status);    if (status1)
-      {
+    {
       ++status;
-      }
     }
+  }
   vtkSmartPointer<vtkPlaneSource> plane =
     vtkSmartPointer<vtkPlaneSource>::New();
   writer2->SetFileName("foo.stl");
@@ -219,18 +219,18 @@ int UnitTestSTLWriter(int argc,char *argv[])
   status1 = 0;
   CHECK_ERROR_MSG("STL file only supports triangles", status);
   if (status1)
-    {
+  {
     ++status;
-    }
+  }
 
   writer2->SetFileTypeToBinary();
   writer2->Update();
   status1 = 0;
   CHECK_ERROR_MSG("STL file only supports triangles", status);
   if (status1)
-    {
+  {
     ++status;
-    }
+  }
 
   writer2->SetInputConnection(sphere->GetOutputPort());
   writer2->SetFileTypeToBinary();
@@ -239,9 +239,9 @@ int UnitTestSTLWriter(int argc,char *argv[])
   status1 = 0;
   CHECK_ERROR_MSG("Invalid header for Binary STL file. Cannot start with \"solid\"", status1);
   if (status1)
-    {
+  {
     ++status;
-    }
+  }
 
   return status;
 }

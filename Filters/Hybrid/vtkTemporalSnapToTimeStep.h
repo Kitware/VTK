@@ -12,19 +12,22 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTemporalSnapToTimeStep - modify the time range/steps of temporal data
-// .SECTION Description
-// vtkTemporalSnapToTimeStep  modify the time range or time steps of
-// the data without changing the data itself. The data is not resampled
-// by this filter, only the information accompanying the data is modified.
-
-// .SECTION Thanks
-// John Bidiscombe of CSCS - Swiss National Supercomputing Centre
-// for creating and contributing this class.
-// For related material, please refer to :
-// John Biddiscombe, Berk Geveci, Ken Martin, Kenneth Moreland, David Thompson,
-// "Time Dependent Processing in a Parallel Pipeline Architecture",
-// IEEE Visualization 2007.
+/**
+ * @class   vtkTemporalSnapToTimeStep
+ * @brief   modify the time range/steps of temporal data
+ *
+ * vtkTemporalSnapToTimeStep  modify the time range or time steps of
+ * the data without changing the data itself. The data is not resampled
+ * by this filter, only the information accompanying the data is modified.
+ *
+ * @par Thanks:
+ * John Bidiscombe of CSCS - Swiss National Supercomputing Centre
+ * for creating and contributing this class.
+ * For related material, please refer to :
+ * John Biddiscombe, Berk Geveci, Ken Martin, Kenneth Moreland, David Thompson,
+ * "Time Dependent Processing in a Parallel Pipeline Architecture",
+ * IEEE Visualization 2007.
+*/
 
 #ifndef vtkTemporalSnapToTimeStep_h
 #define vtkTemporalSnapToTimeStep_h
@@ -57,8 +60,9 @@ protected:
   vtkTemporalSnapToTimeStep();
   ~vtkTemporalSnapToTimeStep();
 
-  // Description:
-  // see vtkAlgorithm for details
+  /**
+   * see vtkAlgorithm for details
+   */
   virtual int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector);

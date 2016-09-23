@@ -80,23 +80,23 @@ void vtkImageFourierCenter::ThreadedRequestData(
 
   // this filter expects that the input be doubles.
   if (inData->GetScalarType() != VTK_DOUBLE)
-    {
+  {
     vtkErrorMacro(<< "Execute: Input must be be type double.");
     return;
-    }
+  }
   // this filter expects that the output be doubles.
   if (outData->GetScalarType() != VTK_DOUBLE)
-    {
+  {
     vtkErrorMacro(<< "Execute: Output must be be type double.");
     return;
-    }
+  }
   // this filter expects input to have 1 or two components
   if (outData->GetNumberOfScalarComponents() != 1 &&
       outData->GetNumberOfScalarComponents() != 2)
-    {
+  {
     vtkErrorMacro(<< "Execute: Cannot handle more than 2 components");
     return;
-    }
+  }
 
   // Get stuff needed to loop through the pixel
   numberOfComponents = outData->GetNumberOfScalarComponents();
@@ -124,13 +124,13 @@ void vtkImageFourierCenter::ThreadedRequestData(
 
   // loop over the filtered axis first
   for (outIdx0 = min0; outIdx0 <= max0; ++outIdx0)
-    {
+  {
     // get the correct input pointer
     inIdx0 = outIdx0 + mid0;
     if (inIdx0 > wholeMax0)
-      {
+    {
       inIdx0 -= (wholeMax0 - wholeMin0 + 1);
-      }
+    }
     inCoords[this->Iteration] = inIdx0;
     inPtr0 = static_cast<double *>(inData->GetScalarPointer(inCoords));
 
@@ -138,34 +138,34 @@ void vtkImageFourierCenter::ThreadedRequestData(
     inPtr2 = inPtr0;
     outPtr2 = outPtr0;
     for (idx2 = min2; !this->AbortExecute && idx2 <= max2; ++idx2)
-      {
+    {
       if (!threadId)
-        {
+      {
         if (!(count%target))
-          {
+        {
           this->UpdateProgress(count/(50.0*target) + startProgress);
-          }
-        count++;
         }
+        count++;
+      }
       inPtr1 = inPtr2;
       outPtr1 = outPtr2;
       for (idx1 = min1; idx1 <= max1; ++idx1)
-        {
+      {
         // handle components (up to 2) explicitly
         *outPtr1 = *inPtr1;
         if (numberOfComponents == 2)
-          {
+        {
           outPtr1[1] = inPtr1[1];
-          }
+        }
 
         inPtr1 += inInc1;
         outPtr1 += outInc1;
-        }
+      }
       inPtr2 += inInc2;
       outPtr2 += outInc2;
-      }
-    outPtr0 += outInc0;
     }
+    outPtr0 += outInc0;
+  }
 }
 
 

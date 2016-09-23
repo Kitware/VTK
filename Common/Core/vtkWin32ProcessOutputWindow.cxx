@@ -50,9 +50,9 @@ vtkWin32ProcessOutputWindow::vtkWin32ProcessOutputWindow()
 vtkWin32ProcessOutputWindow::~vtkWin32ProcessOutputWindow()
 {
   if(this->OutputPipe)
-    {
+  {
     CloseHandle(this->OutputPipe);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -66,16 +66,16 @@ void vtkWin32ProcessOutputWindow::DisplayText(const char* text)
 {
   // Display the text if the pipe has not been broken.
   if(!this->Broken && text)
-    {
+  {
     const char* begin = text;
     while(const char* end = strchr(begin, '\n'))
-      {
+    {
       this->Write(begin, end-begin);
       this->Write("\r\n", 2);
       begin = end+1;
-      }
-    this->Write(begin, strlen(begin));
     }
+    this->Write(begin, strlen(begin));
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -89,9 +89,9 @@ int vtkWin32ProcessOutputWindow::Initialize()
   // Note that the returned path already has a trailing slash.
   DWORD length = GetTempPath(_MAX_PATH+1, tempDir);
   if(length <= 0 || length > _MAX_PATH)
-    {
+  {
     return 0;
-    }
+  }
 
   // Construct the executable name from the process id, pointer to
   // this output window instance, and a count.  This should be unique.
@@ -102,19 +102,19 @@ int vtkWin32ProcessOutputWindow::Initialize()
   size_t tdlen = strlen(tempDir);
   char* exeFullPath = (char*)malloc(tdlen + strlen(exeName) + 2);
   if(!exeFullPath)
-    {
+  {
     return 0;
-    }
+  }
 
   // Construct the full path to the executable.
   sprintf(exeFullPath, "%s%s", tempDir, exeName);
 
   // Try to write the executable to disk.
   if(!vtkEncodedArrayWin32OutputWindowProcessWrite(exeFullPath))
-    {
+  {
     free(exeFullPath);
     return 0;
-    }
+  }
 
   // Create a process and a pipe connected to its stdin.
   STARTUPINFO si;
@@ -130,21 +130,21 @@ int vtkWin32ProcessOutputWindow::Initialize()
      !DuplicateHandle(GetCurrentProcess(), si.hStdInput,
                       GetCurrentProcess(), &si.hStdInput,
                       0, TRUE, DUPLICATE_SAME_ACCESS | DUPLICATE_CLOSE_SOURCE))
-    {
+  {
     DeleteFile(exeFullPath);
     free(exeFullPath);
     return 0;
-    }
+  }
 
   // Create the child process.
   if(!CreateProcess(0, exeFullPath, 0, 0, TRUE,
                     NORMAL_PRIORITY_CLASS, 0, 0, &si, &pi))
-    {
+  {
     DeleteFile(exeFullPath);
     free(exeFullPath);
     CloseHandle(si.hStdInput);
     return 0;
-    }
+  }
 
   // We only need to keep the pipe write end.  Close all other handles.
   CloseHandle(si.hStdInput);
@@ -158,21 +158,21 @@ int vtkWin32ProcessOutputWindow::Initialize()
 void vtkWin32ProcessOutputWindow::Write(const char* data, size_t length)
 {
   if(data && length)
-    {
+  {
     // Initialize the output pipe the first time.
     if(this->Broken || (!this->OutputPipe && !this->Initialize()))
-      {
+    {
       this->Broken = 1;
       return;
-      }
+    }
 
     // Write the data to the pipe.  If it breaks, close the pipe.
     DWORD nWritten;
     if(!WriteFile(this->OutputPipe, data, (DWORD) length, &nWritten, 0))
-      {
+    {
       this->Broken = 1;
       CloseHandle(this->OutputPipe);
       this->OutputPipe = 0;
-      }
     }
+  }
 }

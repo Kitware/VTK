@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkADIOSWriter - Write ADIOS files.
-// .SECTION Description
-// vtkADIOSWriter is the base class for all ADIOS writers
+/**
+ * @class   vtkADIOSWriter
+ * @brief   Write ADIOS files.
+ *
+ * vtkADIOSWriter is the base class for all ADIOS writers
+*/
 
 #ifndef vtkADIOSWriter_h
 #define vtkADIOSWriter_h
@@ -55,13 +58,18 @@ public:
 
   const char* GetDefaultFileExtension();
 
-  // Description:
-  // Get/Set the output filename
+  //@{
+  /**
+   * Get/Set the output filename
+   */
   vtkGetStringMacro(FileName)
   vtkSetStringMacro(FileName)
+  //@}
 
-  // Description:
-  // Get/Set the ADIOS transport method.
+  //@{
+  /**
+   * Get/Set the ADIOS transport method.
+   */
   vtkGetMacro(TransportMethod, int);
   vtkSetClampMacro(TransportMethod, int,
                    static_cast<int>(ADIOS::TransportMethod_NULL),
@@ -77,15 +85,21 @@ public:
   void SetTransportMethodToFlexPath()     { this->SetTransportMethod(static_cast<int>(ADIOS::TransportMethod_FlexPath)); }
   void SetTransportMethodToPHDF5()        { this->SetTransportMethod(static_cast<int>(ADIOS::TransportMethod_PHDF5)); }
   void SetTransportMethodToNetCDF4()      { this->SetTransportMethod(static_cast<int>(ADIOS::TransportMethod_NetCDF4)); }
+  //@}
 
-  // Description:
-  // Get/Set arguments to the ADIOS transport method (default is "").  If
-  // called, it must be called BEFORE SetController
+  //@{
+  /**
+   * Get/Set arguments to the ADIOS transport method (default is "").  If
+   * called, it must be called BEFORE SetController
+   */
   vtkSetStringMacro(TransportMethodArguments)
   vtkGetStringMacro(TransportMethodArguments)
+  //@}
 
-  // Description:
-  // Get/Set the data transformation.
+  //@{
+  /**
+   * Get/Set the data transformation.
+   */
   vtkGetMacro(Transform, int);
   vtkSetClampMacro(Transform, int,
                    static_cast<int>(ADIOS::Transform_NONE),
@@ -94,33 +108,44 @@ public:
   void SetTransformToZLib()  { this->SetTransform(static_cast<int>(ADIOS::Transform_ZLIB)); }
   void SetTransformToBZip2() { this->SetTransform(static_cast<int>(ADIOS::Transform_BZLIB2)); }
   void SetTransformToSZip()  { this->SetTransform(static_cast<int>(ADIOS::Transform_SZIP)); }
+  //@}
 
-  //Description:
-  //Controls whether writer automatically writes all input time steps, or
-  //just the timestep that is currently on the input.
-  //Default is OFF.
+  //@{
+  /**
+   * Controls whether writer automatically writes all input time steps, or
+   * just the timestep that is currently on the input.
+   * Default is OFF.
+   */
   vtkSetMacro(WriteAllTimeSteps, bool);
   vtkGetMacro(WriteAllTimeSteps, bool);
   vtkBooleanMacro(WriteAllTimeSteps, bool);
+  //@}
 
-  // Description:
-  // Set the MPI controller.
+  //@{
+  /**
+   * Set the MPI controller.
+   */
   void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
 
-  // Description:
-  // The main interface which triggers the writer to start
+  /**
+   * The main interface which triggers the writer to start
+   */
   virtual int ProcessRequest(vtkInformation*, vtkInformationVector**,
     vtkInformationVector*);
 
-  // Description:
-  // Declare data if necessary and write the current step to the output stream
+  /**
+   * Declare data if necessary and write the current step to the output stream
+   */
   void Write() { return this->Update(); }
 
 protected:
 
-  // Description:
-  // Define a VTK data type
+  //@{
+  /**
+   * Define a VTK data type
+   */
   void Define(const std::string& path, const vtkAbstractArray* value);
   void Define(const std::string& path, const vtkDataArray* value);
   void Define(const std::string& path, const vtkCellArray* value);
@@ -129,17 +154,23 @@ protected:
   void Define(const std::string& path, const vtkImageData* value);
   void Define(const std::string& path, const vtkPolyData* value);
   void Define(const std::string& path, const vtkUnstructuredGrid* value);
+  //@}
 
-  // Description:
-  // Open a file and prepare for writing already defined variables.
-  // NOTE: The data is declared only once but the file must be opened and
-  // closed for every timestep.  Data is not guaranteed to be flushed until
-  // application exit and final ADIOS deconstruction.
+  //@{
+  /**
+   * Open a file and prepare for writing already defined variables.
+   * NOTE: The data is declared only once but the file must be opened and
+   * closed for every timestep.  Data is not guaranteed to be flushed until
+   * application exit and final ADIOS deconstruction.
+   */
   void OpenFile();
   void CloseFile();
+  //@}
 
-  // Description:
-  // Write a previously defined VTK data type
+  //@{
+  /**
+   * Write a previously defined VTK data type
+   */
   void Write(const std::string& path, const vtkAbstractArray* value);
   void Write(const std::string& path, const vtkDataArray* value);
   void Write(const std::string& path, const vtkCellArray* value);
@@ -148,6 +179,7 @@ protected:
   void Write(const std::string& path, const vtkImageData* value);
   void Write(const std::string& path, const vtkPolyData* value);
   void Write(const std::string& path, const vtkUnstructuredGrid* value);
+  //@}
 
   char *FileName;
   int TransportMethod;

@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTableToStructuredGrid - converts vtkTable to a vtkStructuredGrid.
-// .SECTION Description
-// vtkTableToStructuredGrid is a filter that converts an input
-// vtkTable to a vtkStructuredGrid. It provides API to select columns to use as
-// points in the output structured grid. The specified dimensions of the output
-// (specified using SetWholeExtent()) must match the number of rows in the input
-// table.
+/**
+ * @class   vtkTableToStructuredGrid
+ * @brief   converts vtkTable to a vtkStructuredGrid.
+ *
+ * vtkTableToStructuredGrid is a filter that converts an input
+ * vtkTable to a vtkStructuredGrid. It provides API to select columns to use as
+ * points in the output structured grid. The specified dimensions of the output
+ * (specified using SetWholeExtent()) must match the number of rows in the input
+ * table.
+*/
 
 #ifndef vtkTableToStructuredGrid_h
 #define vtkTableToStructuredGrid_h
@@ -35,47 +38,68 @@ public:
   vtkTypeMacro(vtkTableToStructuredGrid, vtkStructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get/Set the whole extents for the image to produce. The size of the image
-  // must match the number of rows in the input table.
+  //@{
+  /**
+   * Get/Set the whole extents for the image to produce. The size of the image
+   * must match the number of rows in the input table.
+   */
   vtkSetVector6Macro(WholeExtent, int);
   vtkGetVector6Macro(WholeExtent, int);
+  //@}
 
-  // Description:
-  // Set the name of the column to use as the X coordinate for the points.
+  //@{
+  /**
+   * Set the name of the column to use as the X coordinate for the points.
+   */
   vtkSetStringMacro(XColumn);
   vtkGetStringMacro(XColumn);
+  //@}
 
-  // Description:
-  // Specify the component for the column specified using SetXColumn() to
-  // use as the xcoordinate in case the column is a multi-component array.
-  // Default is 0.
+  //@{
+  /**
+   * Specify the component for the column specified using SetXColumn() to
+   * use as the xcoordinate in case the column is a multi-component array.
+   * Default is 0.
+   */
   vtkSetClampMacro(XComponent, int, 0, VTK_INT_MAX);
   vtkGetMacro(XComponent, int);
+  //@}
 
-  // Description:
-  // Set the name of the column to use as the Y coordinate for the points.
-  // Default is 0.
+  //@{
+  /**
+   * Set the name of the column to use as the Y coordinate for the points.
+   * Default is 0.
+   */
   vtkSetStringMacro(YColumn);
   vtkGetStringMacro(YColumn);
+  //@}
 
-  // Description:
-  // Specify the component for the column specified using SetYColumn() to
-  // use as the Ycoordinate in case the column is a multi-component array.
+  //@{
+  /**
+   * Specify the component for the column specified using SetYColumn() to
+   * use as the Ycoordinate in case the column is a multi-component array.
+   */
   vtkSetClampMacro(YComponent, int, 0, VTK_INT_MAX);
   vtkGetMacro(YComponent, int);
+  //@}
 
-  // Description:
-  // Set the name of the column to use as the Z coordinate for the points.
-  // Default is 0.
+  //@{
+  /**
+   * Set the name of the column to use as the Z coordinate for the points.
+   * Default is 0.
+   */
   vtkSetStringMacro(ZColumn);
   vtkGetStringMacro(ZColumn);
+  //@}
 
-  // Description:
-  // Specify the component for the column specified using SetZColumn() to
-  // use as the Zcoordinate in case the column is a multi-component array.
+  //@{
+  /**
+   * Specify the component for the column specified using SetZColumn() to
+   * use as the Zcoordinate in case the column is a multi-component array.
+   */
   vtkSetClampMacro(ZComponent, int, 0, VTK_INT_MAX);
   vtkGetMacro(ZComponent, int);
+  //@}
 
 protected:
   vtkTableToStructuredGrid();
@@ -83,17 +107,20 @@ protected:
 
   int Convert(vtkTable*, vtkStructuredGrid*, int extent[6]);
 
-  // Description:
-  // Overridden to specify that input must be a vtkTable.
+  /**
+   * Overridden to specify that input must be a vtkTable.
+   */
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
-  // Description:
-  // Convert input vtkTable to vtkStructuredGrid.
+  /**
+   * Convert input vtkTable to vtkStructuredGrid.
+   */
   virtual int RequestData(vtkInformation* request,
     vtkInformationVector** inputVector, vtkInformationVector* outputVector);
 
-  // Description:
-  // Request information -- pass whole extent to the pipeline.
+  /**
+   * Request information -- pass whole extent to the pipeline.
+   */
   virtual int RequestInformation(vtkInformation *vtkNotUsed(request),
     vtkInformationVector **vtkNotUsed(inputVector),
     vtkInformationVector *outputVector);

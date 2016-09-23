@@ -94,18 +94,18 @@ vtkAxisFollower::~vtkAxisFollower()
 void vtkAxisFollower::SetAxis(vtkAxisActor *axis)
 {
   if(!axis)
-    {
+  {
     vtkErrorMacro("Invalid or NULL axis\n");
     return;
-    }
+  }
 
   if(this->Axis != axis)
-    {
+  {
     // \NOTE: Don't increment the ref count of axis as it could lead to
     // circular references.
     this->Axis = axis;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -119,28 +119,28 @@ void vtkAxisFollower::CalculateOrthogonalVectors(double rX[3], double rY[3],
   double rZ[3], vtkAxisActor *axis, double *dop, vtkRenderer *ren)
 {
   if(!rX || !rY || !rZ)
-    {
+  {
     vtkErrorMacro("Invalid or NULL direction vectors\n");
     return;
-    }
+  }
 
   if(!axis)
-    {
+  {
     vtkErrorMacro("Invalid or NULL axis\n");
     return;
-    }
+  }
 
   if(!dop)
-    {
+  {
     vtkErrorMacro("Invalid or NULL direction of projection vector\n");
     return;
-    }
+  }
 
   if(!ren)
-    {
+  {
     vtkErrorMacro("Invalid or NULL renderer\n");
     return;
-    }
+  }
 
   vtkMatrix4x4* cameraMatrix = this->Camera->GetViewTransformMatrix();
 
@@ -180,7 +180,7 @@ void vtkAxisFollower::CalculateOrthogonalVectors(double rX[3], double rY[3],
 
   // If the text is upside down, we make a 180 rotation to keep it readable.
   if(this->IsTextUpsideDown(a, b))
-    {
+  {
     this->TextUpsideDown = 1;
     rX[0] = -rX[0];
     rX[1] = -rX[1];
@@ -188,11 +188,11 @@ void vtkAxisFollower::CalculateOrthogonalVectors(double rX[3], double rY[3],
     rZ[0] = -rZ[0];
     rZ[1] = -rZ[1];
     rZ[2] = -rZ[2];
-    }
+  }
   else
-    {
+  {
     this->TextUpsideDown = 0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -202,30 +202,30 @@ double vtkAxisFollower::AutoScale(vtkViewport *viewport, vtkCamera *camera,
   double newScale = 0.0;
 
   if(!viewport)
-    {
+  {
     std::cerr << "Invalid or NULL viewport \n";
     return newScale;
-    }
+  }
 
   if(!camera)
-    {
+  {
     std::cerr << "Invalid or NULL camera \n";
     return newScale;
-    }
+  }
 
   if(!position)
-    {
+  {
     std::cerr << "Invalid or NULL position \n";
     return newScale;
-    }
+  }
 
   double factor = 1;
   if (viewport->GetSize()[1] > 0)
-    {
+  {
     factor = 2.0 * screenSize
       * tan(vtkMath::RadiansFromDegrees(camera->GetViewAngle()/2.0))
       / viewport->GetSize()[1];
-    }
+  }
 
     double dist = sqrt(
           vtkMath::Distance2BetweenPoints(position,
@@ -239,15 +239,15 @@ double vtkAxisFollower::AutoScale(vtkViewport *viewport, vtkCamera *camera,
 void vtkAxisFollower::ComputeTransformMatrix(vtkRenderer *ren)
 {
   if(!this->Axis)
-    {
+  {
     vtkErrorMacro("ERROR: Invalid axis\n");
     return;
-    }
+  }
 
   // check whether or not need to rebuild the matrix
   if ( this->GetMTime() > this->MatrixMTime ||
        (this->Camera && this->Camera->GetMTime() > this->MatrixMTime) )
-    {
+  {
     this->GetOrientation();
     this->Transform->Push();
     this->Transform->Identity();
@@ -261,9 +261,9 @@ void vtkAxisFollower::ComputeTransformMatrix(vtkRenderer *ren)
     };
 
     if(this->AutoCenter)
-      {
+    {
       this->GetMapper()->GetCenter(pivotPoint);
-      }
+    }
 
     // Move pivot point to origin
     this->Transform->Translate(-pivotPoint[0],
@@ -281,7 +281,7 @@ void vtkAxisFollower::ComputeTransformMatrix(vtkRenderer *ren)
 
     double translation[3] = {0.0, 0.0, 0.0};
     if (this->Axis)
-      {
+    {
       vtkMatrix4x4 *matrix = this->InternalMatrix;
       matrix->Identity();
       double rX[3], rY[3], rZ[3];
@@ -303,7 +303,7 @@ void vtkAxisFollower::ComputeTransformMatrix(vtkRenderer *ren)
       matrix->Element[2][2] = rZ[2];
 
       this->Transform->Concatenate(matrix);
-      }
+    }
 
     this->Transform->Translate(this->Origin[0] + this->Position[0] + translation[0],
                                this->Origin[1] + this->Position[1] + translation[1],
@@ -311,15 +311,15 @@ void vtkAxisFollower::ComputeTransformMatrix(vtkRenderer *ren)
 
     // Apply user defined matrix last if there is one
     if (this->UserMatrix)
-      {
+    {
       this->Transform->Concatenate(this->UserMatrix);
-      }
+    }
 
     this->Transform->PreMultiply();
     this->Transform->GetMatrix(this->Matrix);
     this->MatrixMTime.Modified();
     this->Transform->Pop();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -347,17 +347,17 @@ void vtkAxisFollower::ComputeRotationAndTranlation(vtkRenderer *ren, double tran
   // only when we have projection direction aligned with our z directon
   // and when that happens it means that our Y is inverted.
   if(dotVal > 0)
-    {
+  {
     rY[0] = -rY[0];
     rY[1] = -rY[1];
     rY[2] = -rY[2];
-    }
+  }
 
   // Check visibility at current view angle.
   if(this->EnableViewAngleLOD)
-    {
+  {
     this->ExecuteViewAngleVisibility(rZ);
-    }
+  }
 
   // Since we already stored all the possible Y axes that are geometry aligned,
   // we compare our vertical vector with these vectors and if it aligns then we
@@ -368,13 +368,13 @@ void vtkAxisFollower::ComputeRotationAndTranlation(vtkRenderer *ren, double tran
   double vertDotVal2 = vtkMath::Dot(AxisAlignedY[this->Axis->GetAxisType()][axisPosition][1], origRy) ;
 
   if(fabs(vertDotVal1) > fabs(vertDotVal2))
-    {
+  {
     vertSign = (vertDotVal1 > 0 ? -1 : 1);
-    }
+  }
   else
-    {
+  {
     vertSign = (vertDotVal2 > 0 ? -1 : 1);
-    }
+  }
 
   int horizSign = this->TextUpsideDown ? -1 : 1;
   translation[0] =  origRy[0] * autoScaleVert * vertSign + origRx[0] * autoScaleHoriz * horizSign;
@@ -387,10 +387,10 @@ void vtkAxisFollower::ComputerAutoCenterTranslation(
   const double& vtkNotUsed(autoScaleFactor), double translation[3])
 {
   if(!translation)
-    {
+  {
     vtkErrorMacro("ERROR: Invalid or NULL translation\n");
     return;
-    }
+  }
 
   double *bounds = this->GetMapper()->GetBounds();
 
@@ -398,26 +398,26 @@ void vtkAxisFollower::ComputerAutoCenterTranslation(
   double halfWidth  = (bounds[1] - bounds[0]) * 0.5 * this->Scale[0];
 
   if(this->TextUpsideDown == 1)
-    {
+  {
     halfWidth  = -halfWidth;
-    }
+  }
 
   if(this->Axis->GetAxisType() == vtkAxisActor::VTK_AXIS_TYPE_X)
-    {
+  {
     translation[0] = translation[0] - halfWidth;
-    }
+  }
   else if(this->Axis->GetAxisType() == vtkAxisActor::VTK_AXIS_TYPE_Y)
-    {
+  {
     translation[1] = translation[1] - halfWidth;
-    }
+  }
   else if(this->Axis->GetAxisType() == vtkAxisActor::VTK_AXIS_TYPE_Z)
-    {
+  {
     translation[2] = translation[2] - halfWidth;
-    }
+  }
   else
-    {
+  {
     // Do nothing.
-    }
+  }
 
   return;
 }
@@ -426,7 +426,7 @@ void vtkAxisFollower::ComputerAutoCenterTranslation(
 int vtkAxisFollower::TestDistanceVisibility()
 {
   if(!this->Camera->GetParallelProjection())
-    {
+  {
     double cameraClippingRange[2];
 
     this->Camera->GetClippingRange(cameraClippingRange);
@@ -439,34 +439,34 @@ int vtkAxisFollower::TestDistanceVisibility()
                                                        this->Position));
 
     if(dist > maxVisibleDistanceFromCamera)
-      {
+    {
       // Need to make sure we are not looking at a flat axis and therefore should enable it anyway
       if(this->Axis)
-        {
+      {
         vtkBoundingBox bbox(this->Axis->GetBounds());
         return (bbox.GetDiagonalLength() > (cameraClippingRange[1] - cameraClippingRange[0])) ? 1 : 0;
-        }
+      }
       return 0;
-      }
+    }
     else
-      {
-      return 1;
-      }
-    }
-  else
     {
-    return 1;
+      return 1;
     }
+  }
+  else
+  {
+    return 1;
+  }
 }
 
 //----------------------------------------------------------------------
 void vtkAxisFollower::ExecuteViewAngleVisibility(double normal[3])
 {
   if(!normal)
-    {
+  {
     vtkErrorMacro("ERROR: Invalid or NULL normal\n");
     return;
-    }
+  }
 
   double *cameraPos = this->Camera->GetPosition();
   double  dir[3] = {this->Position[0] - cameraPos[0],
@@ -475,13 +475,13 @@ void vtkAxisFollower::ExecuteViewAngleVisibility(double normal[3])
   vtkMath::Normalize(dir);
   double dotDir = vtkMath::Dot(dir, normal);
   if( fabs(dotDir) < this->ViewAngleLODThreshold )
-    {
+  {
     this->VisibleAtCurrentViewAngle = 0;
-    }
+  }
   else
-    {
+  {
     this->VisibleAtCurrentViewAngle = 1;
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -497,13 +497,13 @@ void vtkAxisFollower::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ScreenOffsetVector: ("<< this->ScreenOffsetVector[0] << " "<< this->ScreenOffsetVector[1] << ")\n";
 
   if ( this->Axis )
-    {
+  {
     os << indent << "Axis: (" << this->Axis << ")\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Axis: (none)\n";
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -522,22 +522,22 @@ double vtkAxisFollower::GetScreenOffset()
 int vtkAxisFollower::RenderOpaqueGeometry(vtkViewport *vp)
 {
   if ( ! this->Mapper )
-    {
+  {
     return 0;
-    }
+  }
 
   if (!this->Property)
-    {
+  {
     // force creation of a property
     this->GetProperty();
-    }
+  }
 
   if (this->GetIsOpaque())
-    {
+  {
     vtkRenderer *ren = static_cast<vtkRenderer *>(vp);
     this->Render(ren);
     return 1;
-    }
+  }
   return 0;
 }
 
@@ -545,22 +545,22 @@ int vtkAxisFollower::RenderOpaqueGeometry(vtkViewport *vp)
 int vtkAxisFollower::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
 {
   if ( ! this->Mapper )
-    {
+  {
     return 0;
-    }
+  }
 
   if (!this->Property)
-    {
+  {
     // force creation of a property
     this->GetProperty();
-    }
+  }
 
   if (!this->GetIsOpaque())
-    {
+  {
     vtkRenderer *ren = static_cast<vtkRenderer *>(vp);
     this->Render(ren);
     return 1;
-    }
+  }
   return 0;
 }
 
@@ -568,26 +568,26 @@ int vtkAxisFollower::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
 void vtkAxisFollower::Render(vtkRenderer *ren)
 {
   if(this->EnableDistanceLOD && !this->TestDistanceVisibility())
-    {
+  {
     this->SetVisibility(0);
     return;
-    }
+  }
 
   this->Property->Render(this, ren);
 
   this->Device->SetProperty (this->Property);
   this->Property->Render(this, ren);
   if (this->BackfaceProperty)
-    {
+  {
     this->BackfaceProperty->BackfaceRender(this, ren);
     this->Device->SetBackfaceProperty(this->BackfaceProperty);
-    }
+  }
 
   /* render the texture */
   if (this->Texture)
-    {
+  {
     this->Texture->Render(ren);
-    }
+  }
 
   // make sure the device has the same matrix
   this->ComputeTransformMatrix(ren);
@@ -595,9 +595,9 @@ void vtkAxisFollower::Render(vtkRenderer *ren)
 
   this->SetVisibility(this->VisibleAtCurrentViewAngle);
   if(this->VisibleAtCurrentViewAngle)
-    {
+  {
     this->Device->Render(ren,this->Mapper);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -605,7 +605,7 @@ void vtkAxisFollower::ShallowCopy(vtkProp *prop)
 {
   vtkAxisFollower *f = vtkAxisFollower::SafeDownCast(prop);
   if ( f != NULL )
-    {
+  {
     this->SetAutoCenter(f->GetAutoCenter());
     this->SetEnableDistanceLOD(f->GetEnableDistanceLOD());
     this->SetDistanceLODThreshold(f->GetDistanceLODThreshold());
@@ -613,7 +613,7 @@ void vtkAxisFollower::ShallowCopy(vtkProp *prop)
     this->SetViewAngleLODThreshold(f->GetViewAngleLODThreshold());
     this->SetScreenOffsetVector(f->GetScreenOffsetVector());
     this->SetAxis(f->GetAxis());
-    }
+  }
 
   // Now do superclass
   this->Superclass::ShallowCopy(prop);

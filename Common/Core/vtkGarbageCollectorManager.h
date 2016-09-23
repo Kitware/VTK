@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGarbageCollectorManager - Manages the vtkGarbageCollector singleton.
-// .SECTION Description
-// vtkGarbageCollectorManager should be included in any translation unit
-// that will use vtkGarbageCollector or that implements the singleton
-// pattern.  It makes sure that the vtkGarbageCollector singleton is created
-// before and destroyed after it is used.
+/**
+ * @class   vtkGarbageCollectorManager
+ * @brief   Manages the vtkGarbageCollector singleton.
+ *
+ * vtkGarbageCollectorManager should be included in any translation unit
+ * that will use vtkGarbageCollector or that implements the singleton
+ * pattern.  It makes sure that the vtkGarbageCollector singleton is created
+ * before and destroyed after it is used.
+*/
 
 #ifndef vtkGarbageCollectorManager_h
 #define vtkGarbageCollectorManager_h

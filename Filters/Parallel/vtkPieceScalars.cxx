@@ -60,37 +60,37 @@ int vtkPieceScalars::RequestData(
   vtkIdType num;
 
   if (this->CellScalarsFlag)
-    {
+  {
     num = input->GetNumberOfCells();
-    }
+  }
   else
-    {
+  {
     num = input->GetNumberOfPoints();
-    }
+  }
 
   int piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
 
   if (this->RandomMode)
-    {
+  {
     pieceColors = this->MakeRandomScalars(piece, num);
-    }
+  }
   else
-    {
+  {
     pieceColors = this->MakePieceScalars(piece, num);
-    }
+  }
 
   output->ShallowCopy(input);
   pieceColors->SetName("Piece");
   if (this->CellScalarsFlag)
-    {
+  {
     output->GetCellData()->AddArray(pieceColors);
     output->GetCellData()->SetActiveScalars(pieceColors->GetName());
-    }
+  }
   else
-    {
+  {
     output->GetPointData()->AddArray(pieceColors);
     output->GetPointData()->SetActiveScalars(pieceColors->GetName());
-    }
+  }
 
   pieceColors->Delete();
 
@@ -107,9 +107,9 @@ vtkIntArray *vtkPieceScalars::MakePieceScalars(int piece, vtkIdType num)
   pieceColors->SetNumberOfTuples(num);
 
   for (i = 0; i < num; ++i)
-    {
+  {
     pieceColors->SetValue(i, piece);
-    }
+  }
 
   return pieceColors;
 }
@@ -128,9 +128,9 @@ vtkFloatArray *vtkPieceScalars::MakeRandomScalars(int piece, vtkIdType num)
   pieceColors->SetNumberOfTuples(num);
 
   for (i = 0; i < num; ++i)
-    {
+  {
     pieceColors->SetValue(i, randomValue);
-    }
+  }
 
   return pieceColors;
 }
@@ -142,11 +142,11 @@ void vtkPieceScalars::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "RandomMode: " << this->RandomMode << endl;
   if (this->CellScalarsFlag)
-    {
+  {
     os << indent << "ScalarMode: CellData\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "ScalarMode: PointData\n";
-    }
+  }
 }

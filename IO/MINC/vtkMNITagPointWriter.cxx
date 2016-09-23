@@ -110,12 +110,12 @@ vtkMNITagPointWriter::~vtkMNITagPointWriter()
   objects[5] = this->PatientIds;
 
   for (int i = 0; i < 6; i++)
-    {
+  {
     if (objects[i])
-      {
+    {
       objects[i]->Delete();
-      }
     }
+  }
 
   delete [] this->Comments;
 
@@ -161,16 +161,16 @@ vtkMTimeType vtkMNITagPointWriter::GetMTime()
   objects[5] = this->PatientIds;
 
   for (int i = 0; i < 6; i++)
-    {
+  {
     if (objects[i])
-      {
+    {
       vtkMTimeType m = objects[i]->GetMTime();
       if (m > mtime)
-        {
+      {
         mtime = m;
-        }
       }
     }
+  }
 
   return mtime;
 }
@@ -179,22 +179,22 @@ vtkMTimeType vtkMNITagPointWriter::GetMTime()
 void vtkMNITagPointWriter::SetPoints(int port, vtkPoints *points)
 {
   if (port < 0 || port > 1)
-    {
+  {
     return;
-    }
+  }
   if (this->Points[port] == points)
-    {
+  {
     return;
-    }
+  }
   if (this->Points[port])
-    {
+  {
     this->Points[port]->Delete();
-    }
+  }
   this->Points[port] = points;
   if (this->Points[port])
-    {
+  {
     this->Points[port]->Register(this);
-    }
+  }
   this->Modified();
 }
 
@@ -202,9 +202,9 @@ void vtkMNITagPointWriter::SetPoints(int port, vtkPoints *points)
 vtkPoints *vtkMNITagPointWriter::GetPoints(int port)
 {
   if (port < 0 || port > 1)
-    {
+  {
     return 0;
-    }
+  }
   return this->Points[port];
 }
 
@@ -231,100 +231,100 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
   ivarArrays[2] = this->PatientIds;
 
   for (int ii = 1; ii >= 0; --ii)
-    {
+  {
     points[ii] = 0;
     if (inputs[ii])
-      {
+    {
       points[ii] = inputs[ii]->GetPoints();
 
       vtkStringArray *stringArray = vtkArrayDownCast<vtkStringArray>(
         inputs[ii]->GetPointData()->GetAbstractArray("LabelText"));
       if (stringArray)
-        {
+      {
         labels = stringArray;
-        }
+      }
 
       for (int j = 0; j < 3; j++)
-        {
+      {
         vtkDataArray *dataArray =
           inputs[ii]->GetPointData()->GetArray(arrayNames[j]);
         if (dataArray)
-          {
+        {
           darray[j] = dataArray;
-          }
         }
       }
+    }
 
     if (this->Points[ii])
-      {
+    {
       points[ii] = this->Points[ii];
-      }
     }
+  }
 
   if (this->LabelText)
-    {
+  {
     labels = this->LabelText;
-    }
+  }
 
   for (int j = 0; j < 3; j++)
-    {
+  {
     if (ivarArrays[j])
-      {
+    {
       darray[j] = ivarArrays[j];
-      }
     }
+  }
 
   if (points[0] == 0)
-    {
+  {
     vtkErrorMacro("No input points have been provided");
     return;
-    }
+  }
 
   // numVolumes is 1 if there is only one set of points
   int numVolumes = 1;
   vtkIdType n = points[0]->GetNumberOfPoints();
   if (points[1])
-    {
+  {
     numVolumes = 2;
     if (points[1]->GetNumberOfPoints() != n)
-      {
+    {
       vtkErrorMacro("Input point counts do not match: " << n << " versus "
                     << points[1]->GetNumberOfPoints());
       return;
-      }
     }
+  }
 
   // labels is null if there are no labels
   if (labels && labels->GetNumberOfValues() != n)
-    {
+  {
     vtkErrorMacro("LabelText count does not match point count: "
                   << labels->GetNumberOfValues() << " versus " << n);
     return;
-    }
+  }
 
   // dataArrays is null if there are no data arrays
   vtkDataArray **dataArrays = 0;
   for (int jj = 0; jj < 3; jj++)
-    {
+  {
     if (darray[jj])
-      {
+    {
       dataArrays = darray;
       if (darray[jj]->GetNumberOfTuples() != n)
-        {
+      {
         vtkErrorMacro("" << arrayNames[jj]
                       << " count does not match point count: "
                       << darray[jj]->GetNumberOfTuples() << " versus " << n);
         return;
-        }
       }
     }
+  }
 
   // If we got this far, the data seems to be okay
   ostream *outfilep = this->OpenFile();
   if (!outfilep)
-    {
+  {
     return;
-    }
+  }
 
   ostream &outfile = *outfilep;
 
@@ -334,36 +334,36 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
 
   // Write user comments
   if (this->Comments)
-    {
+  {
     char *cp = this->Comments;
     while (*cp)
-      {
+    {
       if (*cp != '%')
-        {
+      {
         outfile << "% ";
-        }
+      }
       while (*cp && *cp != '\n')
-        {
+      {
         if (isprint(*cp) || *cp == '\t')
-          {
+        {
           outfile << *cp;
-          }
-        cp++;
         }
+        cp++;
+      }
       outfile << "\n";
       if (*cp == '\n')
-        {
-        cp++;
-        }
-      }
-    }
-  else
-    {
-    for (int k = 0; k < numVolumes; k++)
       {
-      outfile << "% Volume " << (k + 1) << " produced by VTK\n";
+        cp++;
       }
     }
+  }
+  else
+  {
+    for (int k = 0; k < numVolumes; k++)
+    {
+      outfile << "% Volume " << (k + 1) << " produced by VTK\n";
+    }
+  }
 
   // Add a blank line
   outfile << "\n";
@@ -373,52 +373,52 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
 
   char text[256];
   for (int i = 0; i < n; i++)
-    {
+  {
     for (int kk = 0; kk < 2; kk++)
-      {
+    {
       if (points[kk])
-        {
+      {
         double point[3];
         points[kk]->GetPoint(i, point);
         sprintf(text, " %.15g %.15g %.15g", point[0], point[1], point[2]);
         outfile << text;
-        }
       }
+    }
 
     if (dataArrays)
-      {
+    {
       double w = 0.0;
       int s = -1;
       int p = -1;
       if (dataArrays[0])
-        {
+      {
         w = dataArrays[0]->GetComponent(i, 0);
-        }
+      }
       if (dataArrays[1])
-        {
+      {
         s = static_cast<int>(dataArrays[1]->GetComponent(i, 0));
-        }
+      }
       if (dataArrays[2])
-        {
+      {
         p = static_cast<int>(dataArrays[2]->GetComponent(i, 0));
-        }
+      }
 
       sprintf(text, " %.15g %d %d", w, s, p);
       outfile << text;
-      }
+    }
 
     if (labels)
-      {
+    {
       vtkStdString l = labels->GetValue(i);
       outfile << " \"";
       for (std::string::iterator si = l.begin(); si != l.end(); ++si)
-        {
+      {
         if (isprint(*si) && *si != '\"' && *si != '\\')
-          {
+        {
           outfile.put(*si);
-          }
+        }
         else
-          {
+        {
           outfile.put('\\');
           char c = '\0';
           static char ctrltable[] = {
@@ -426,33 +426,33 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
             '\t', 't', '\v', 'v', '\\', '\\', '\"', '\"', '\0', '\0'
             };
           for (int ci = 0; ctrltable[ci] != '\0'; ci += 2)
-            {
+          {
             if (*si == ctrltable[ci])
-              {
+            {
               c = ctrltable[ci + 1];
               break;
-              }
-            }
-          if (c != '\0')
-            {
-            outfile.put(c);
-            }
-          else
-            {
-            sprintf(text, "x%2.2x", (static_cast<int>(*si) & 0x00ff));
-            outfile << text;
             }
           }
+          if (c != '\0')
+          {
+            outfile.put(c);
+          }
+          else
+          {
+            sprintf(text, "x%2.2x", (static_cast<int>(*si) & 0x00ff));
+            outfile << text;
+          }
         }
+      }
 
       outfile << "\"";
-      }
+    }
 
     if (i < n-1)
-      {
+    {
       outfile << "\n";
-      }
     }
+  }
 
   outfile << ";\n";
   outfile.flush();
@@ -462,11 +462,11 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
 
   // Delete the file if an error occurred
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     vtkErrorMacro("Ran out of disk space; deleting file: "
                   << this->FileName);
     unlink(this->FileName);
-    }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -495,27 +495,27 @@ int vtkMNITagPointWriter::RequestData(
 
   vtkMTimeType lastUpdateTime = 0;
   for (int idx = 0; idx < 2; ++idx)
-    {
+  {
     if (inInfo[idx])
-      {
+    {
       input[idx] = vtkPointSet::SafeDownCast(
         inInfo[idx]->Get(vtkDataObject::DATA_OBJECT()));
       if (input[idx])
-        {
+      {
         vtkMTimeType updateTime = input[idx]->GetUpdateTime();
         if (updateTime > lastUpdateTime)
-          {
+        {
           lastUpdateTime = updateTime;
-          }
         }
       }
     }
+  }
 
   if (lastUpdateTime < this->WriteTime && this->GetMTime() < this->WriteTime)
-    {
+  {
     // we are up to date
     return 1;
-    }
+  }
 
   this->InvokeEvent(vtkCommand::StartEvent, NULL);
   this->WriteData(input);
@@ -532,23 +532,23 @@ ostream *vtkMNITagPointWriter::OpenFile()
   ostream *fptr;
 
   if (!this->FileName )
-    {
+  {
     vtkErrorMacro(<< "No FileName specified! Can't write!");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return NULL;
-    }
+  }
 
   vtkDebugMacro(<<"Opening file for writing...");
 
   fptr = new ofstream(this->FileName, ios::out);
 
   if (fptr->fail())
-    {
+  {
     vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
     delete fptr;
     return NULL;
-    }
+  }
 
   return fptr;
 }

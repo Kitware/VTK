@@ -37,17 +37,17 @@ void vtkSPHQuinticKernel::
 Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds, vtkPointData *attr)
 {
   if ( this->Dimension == 1 )
-    {
+  {
     this->Sigma = 1.0 / 120.0;
-    }
+  }
   else if ( this->Dimension == 2 )
-    {
+  {
     this->Sigma = 7.0 / (478.0*vtkMath::Pi());
-    }
+  }
   else //if ( this->Dimension == 3 )
-    {
+  {
     this->Sigma = 1.0 / (120.0*vtkMath::Pi());
-    }
+  }
 
   // Sigma must be set before vtkSPHKernel::Initialize is invoked
   this->Superclass::Initialize(loc, ds, attr);

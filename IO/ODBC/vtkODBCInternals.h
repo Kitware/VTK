@@ -13,17 +13,20 @@
 
 =========================================================================*/
 
-// .NAME vtkODBCInternals - Simple class to hide ODBC structures
-//
-// .SECTION Description
-//
-// There is no .cxx file to go along with this header.  Its sole
-// purpose is to let vtkODBCQuery and vtkODBCDatabase share the
-// variables that describe a single connection.
-//
-// .SECTION See Also
-// vtkODBCDatabase vtkODBCQuery
-//
+/**
+ * @class   vtkODBCInternals
+ * @brief   Simple class to hide ODBC structures
+ *
+ *
+ *
+ * There is no .cxx file to go along with this header.  Its sole
+ * purpose is to let vtkODBCQuery and vtkODBCDatabase share the
+ * variables that describe a single connection.
+ *
+ * @sa
+ * vtkODBCDatabase vtkODBCQuery
+ *
+*/
 
 #ifndef vtkODBCInternals_h
 #define vtkODBCInternals_h
@@ -37,8 +40,8 @@ class vtkODBCInternals {
 public:
   vtkODBCInternals()
     : Environment(0), Connection(0)
-    {
-    };
+  {
+  };
 
 private:
   SQLHANDLE Environment;

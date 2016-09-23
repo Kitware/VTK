@@ -48,39 +48,39 @@ void vtkImageGaussianSource::SetWholeExtent(int xMin, int xMax,
   int modified = 0;
 
   if (this->WholeExtent[0] != xMin)
-    {
+  {
     modified = 1;
     this->WholeExtent[0] = xMin ;
-    }
+  }
   if (this->WholeExtent[1] != xMax)
-    {
+  {
     modified = 1;
     this->WholeExtent[1] = xMax ;
-    }
+  }
   if (this->WholeExtent[2] != yMin)
-    {
+  {
     modified = 1;
     this->WholeExtent[2] = yMin ;
-    }
+  }
   if (this->WholeExtent[3] != yMax)
-    {
+  {
     modified = 1;
     this->WholeExtent[3] = yMax ;
-    }
+  }
   if (this->WholeExtent[4] != zMin)
-    {
+  {
     modified = 1;
     this->WholeExtent[4] = zMin ;
-    }
+  }
   if (this->WholeExtent[5] != zMax)
-    {
+  {
     modified = 1;
     this->WholeExtent[5] = zMax ;
-    }
+  }
   if (modified)
-    {
+  {
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -123,9 +123,9 @@ int vtkImageGaussianSource::RequestData(
   vtkImageData *data = this->AllocateOutputData(output, outInfo);
 
   if (data->GetScalarType() != VTK_DOUBLE)
-    {
+  {
     vtkErrorMacro("Execute: This source only outputs doubles");
-    }
+  }
 
   outExt = data->GetExtent();
 
@@ -145,31 +145,31 @@ int vtkImageGaussianSource::RequestData(
   temp2 = 1.0 / (2.0 * this->StandardDeviation * this->StandardDeviation);
 
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
-    {
+  {
     zContrib = this->Center[2] - (idxZ + outExt[4]);
     zContrib = zContrib*zContrib;
     for (idxY = 0; !this->AbortExecute && idxY <= maxY; idxY++)
-      {
+    {
       if (!(count%target))
-        {
+      {
         this->UpdateProgress(count/(50.0*target));
-        }
+      }
       count++;
       yContrib = this->Center[1] - (idxY + outExt[2]);
       yContrib = yContrib*yContrib;
       for (idxX = 0; idxX <= maxX; idxX++)
-        {
+      {
         // Pixel operation
         sum = zContrib + yContrib;
         temp = this->Center[0] - (idxX + outExt[0]);
         sum = sum + (temp * temp);
         *outPtr = this->Maximum * exp(-sum * temp2);
         outPtr++;
-        }
-      outPtr += outIncY;
       }
-    outPtr += outIncZ;
+      outPtr += outIncY;
     }
+    outPtr += outIncZ;
+  }
 
   return 1;
 }

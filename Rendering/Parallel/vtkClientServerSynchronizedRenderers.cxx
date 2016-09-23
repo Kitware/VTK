@@ -42,11 +42,11 @@ void vtkClientServerSynchronizedRenderers::MasterEndRender()
   int header[4];
   this->ParallelController->Receive(header, 4, 1, 0x023430);
   if (header[0] > 0)
-    {
+  {
     rawImage.Resize(header[1], header[2], header[3]);
     this->ParallelController->Receive(rawImage.GetRawPtr(), 1, 0x023430);
     rawImage.MarkValid();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -66,9 +66,9 @@ void vtkClientServerSynchronizedRenderers::SlaveEndRender()
   // send the image to the client.
   this->ParallelController->Send(header, 4, 1, 0x023430);
   if (rawImage.IsValid())
-    {
+  {
     this->ParallelController->Send(rawImage.GetRawPtr(), 1, 0x023430);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

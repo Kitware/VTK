@@ -12,7 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME
 // .SECTION Description
 //
 //
@@ -29,14 +28,18 @@ class vtkRenderer;
 class VTKINTERACTIONWIDGETS_EXPORT vtkFocalPlanePointPlacer : public vtkPointPlacer
 {
 public:
-  // Description:
-  // Instantiate this class.
+  /**
+   * Instantiate this class.
+   */
   static vtkFocalPlanePointPlacer *New();
 
-  // Description:
-  // Standard methods for instances of this class.
+  //@{
+  /**
+   * Standard methods for instances of this class.
+   */
   vtkTypeMacro(vtkFocalPlanePointPlacer,vtkPointPlacer);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
   // Descirption:
   // Given a renderer and a display position, compute
@@ -51,40 +54,50 @@ public:
                             double worldPos[3],
                             double worldOrient[9] );
 
-  // Description:
-  // Given a renderer, a display position, and a reference
-  // world position, compute a new world position. The
-  // orientation will be the standard coordinate axes, and the
-  // computed world position will be created by projecting
-  // the display point onto a plane that is parallel to
-  // the focal plane and runs through the reference world
-  // position. This method is typically used to move existing
-  // points.
+  /**
+   * Given a renderer, a display position, and a reference
+   * world position, compute a new world position. The
+   * orientation will be the standard coordinate axes, and the
+   * computed world position will be created by projecting
+   * the display point onto a plane that is parallel to
+   * the focal plane and runs through the reference world
+   * position. This method is typically used to move existing
+   * points.
+   */
   int ComputeWorldPosition( vtkRenderer *ren,
                             double displayPos[2],
                             double refWorldPos[3],
                             double worldPos[3],
                             double worldOrient[9] );
 
-  // Description:
-  // Validate a world position. All world positions
-  // are valid so these methods always return 1.
+  //@{
+  /**
+   * Validate a world position. All world positions
+   * are valid so these methods always return 1.
+   */
   int ValidateWorldPosition( double worldPos[3] );
   int ValidateWorldPosition( double worldPos[3],
                              double worldOrient[9]);
+  //@}
 
-  // Description:
-  // Optionally specify a signed offset from the focal plane for the points to
-  // be placed at.  If negative, the constraint plane is offset closer to the
-  // camera. If positive, its further away from the camera.
+  //@{
+  /**
+   * Optionally specify a signed offset from the focal plane for the points to
+   * be placed at.  If negative, the constraint plane is offset closer to the
+   * camera. If positive, its further away from the camera.
+   */
   vtkSetMacro( Offset, double );
   vtkGetMacro( Offset, double );
+  //@}
 
-  // Description:
-  // Optionally Restrict the points to a set of bounds. The placer will
-  // invalidate points outside these bounds.
+  //@{
+  /**
+   * Optionally Restrict the points to a set of bounds. The placer will
+   * invalidate points outside these bounds.
+   */
   vtkSetVector6Macro( PointBounds, double );
   vtkGetVector6Macro( PointBounds, double );
+  //@}
 
 protected:
   vtkFocalPlanePointPlacer();

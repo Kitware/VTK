@@ -17,11 +17,14 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkPruneTreeFilter - prune a subtree out of a vtkTree
-//
-// .SECTION Description
-// Removes a subtree rooted at a particular vertex in a vtkTree.
-//
+/**
+ * @class   vtkPruneTreeFilter
+ * @brief   prune a subtree out of a vtkTree
+ *
+ *
+ * Removes a subtree rooted at a particular vertex in a vtkTree.
+ *
+*/
 
 #ifndef vtkPruneTreeFilter_h
 #define vtkPruneTreeFilter_h
@@ -39,16 +42,22 @@ public:
   vtkTypeMacro(vtkPruneTreeFilter,vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the parent vertex of the subtree to remove.
+  //@{
+  /**
+   * Set the parent vertex of the subtree to remove.
+   */
   vtkGetMacro(ParentVertex, vtkIdType);
   vtkSetMacro(ParentVertex, vtkIdType);
+  //@}
 
-  // Description:
-  // Should we remove the parent vertex, or just its descendants?
-  // Default behavior is to remove the parent vertex.
+  //@{
+  /**
+   * Should we remove the parent vertex, or just its descendants?
+   * Default behavior is to remove the parent vertex.
+   */
   vtkGetMacro(ShouldPruneParentVertex, bool);
   vtkSetMacro(ShouldPruneParentVertex, bool);
+  //@}
 
 protected:
   vtkPruneTreeFilter();

@@ -43,9 +43,9 @@ vtkStandardNewMacro(vtkInteractorStyleUnicam);
 # include "vtkWindows.h"
 
 static double TheTime()
-  {
+{
     return GetTickCount()/1000.0;
-  }
+}
 #else
 #include <sys/time.h>
 
@@ -153,17 +153,17 @@ void vtkInteractorStyleUnicam::OnLeftButtonDown()
   // on it now, OR if the user is clicking on the perimeter of the screen,
   // then we want to go into rotation mode.
   if ((fabs(curpt[0]) > .85 || fabs(curpt[1]) > .9) || this->IsDot)
-    {
+  {
     if (this->IsDot)
-      {
-      this->FocusSphere->GetPosition(this->Center);
-      }
-    state = VTK_UNICAM_CAM_INT_ROT;
-    }
-  else
     {
-    state = VTK_UNICAM_CAM_INT_CHOOSE;
+      this->FocusSphere->GetPosition(this->Center);
     }
+    state = VTK_UNICAM_CAM_INT_ROT;
+  }
+  else
+  {
+    state = VTK_UNICAM_CAM_INT_CHOOSE;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -196,17 +196,17 @@ void vtkInteractorStyleUnicam::OnMouseMove()
   static int last_X = 0;
   static int last_Y = 0;
   if (x == last_X && y == last_Y)
-    {
+  {
     return;
-    }
+  }
 
   // channel event to right method handler.
   switch (this->ButtonDown)
-    {
+  {
     case VTK_UNICAM_BUTTON_LEFT:
       OnLeftButtonMove();
       break;
-    }
+  }
 
   last_X = x;
   last_Y = y;
@@ -223,19 +223,19 @@ void vtkInteractorStyleUnicam::OnLeftButtonUp()
   this->ButtonDown = VTK_UNICAM_NONE;
 
   if (state == VTK_UNICAM_CAM_INT_ROT && this->IsDot )
-    {
+  {
     this->FocusSphereRenderer->RemoveActor(this->FocusSphere);
     this->IsDot = 0;
-    }
+  }
   else if (state == VTK_UNICAM_CAM_INT_CHOOSE)
-    {
+  {
     if (this->IsDot)
-      {
+    {
       this->FocusSphereRenderer->RemoveActor(this->FocusSphere);
       this->IsDot = 0;
-      }
+    }
     else
-      {
+    {
       this->FocusSphere->SetPosition(this->DownPt[0],
                                      this->DownPt[1],
                                      this->DownPt[2]);
@@ -264,17 +264,17 @@ void vtkInteractorStyleUnicam::OnLeftButtonUp()
       this->FocusSphereRenderer->AddActor(this->FocusSphere);
 
       this->IsDot = 1;
-      }
-    this->Interactor->Render();
     }
+    this->Interactor->Render();
+  }
 
   vtkRenderWindowInteractor *rwi = this->Interactor;
   rwi->GetRenderWindow()->SetDesiredUpdateRate(rwi->GetStillUpdateRate());
   rwi->Render();
   if (this->UseTimers)
-    {
+  {
     rwi->DestroyTimer(this->TimerId);
-    }
+  }
 
   this->ReleaseFocus();
 }
@@ -286,12 +286,12 @@ void vtkInteractorStyleUnicam::OnLeftButtonMove()
   int y = this->Interactor->GetEventPosition()[1];
 
   switch (state)
-    {
+  {
     case VTK_UNICAM_CAM_INT_CHOOSE:   this->ChooseXY(x, y); break;
     case VTK_UNICAM_CAM_INT_ROT:      this->RotateXY(x, y); break;
     case VTK_UNICAM_CAM_INT_PAN:      this->PanXY(x, y); break;
     case VTK_UNICAM_CAM_INT_DOLLY:    this->DollyXY(x, y); break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -320,32 +320,32 @@ void vtkInteractorStyleUnicam::ChooseXY( int X, int Y )
 
   int xa=0,ya=1;
   if (getenv("FLIP_CAM_MANIP"))
-    {
+  {
     int tmp = xa;
     xa = ya;
     ya = tmp;
-    }
+  }
 
   double len = sqrt(sdelt[0] * sdelt[0] + sdelt[1] * sdelt[1]);
   if (fabs(sdelt[ya])/len > 0.9 && tdelt > 0.05)
-    {
+  {
     state = VTK_UNICAM_CAM_INT_DOLLY;
-    }
+  }
   else if (tdelt < 0.1 && this->Dist < 0.03)
-    {
+  {
     return;
-    }
+  }
   else
-    {
+  {
     if (fabs(sdelt[xa])/len > 0.6 )
-      {
+    {
       state = VTK_UNICAM_CAM_INT_PAN;
-      }
-    else
-      {
-      state = VTK_UNICAM_CAM_INT_DOLLY;
-      }
     }
+    else
+    {
+      state = VTK_UNICAM_CAM_INT_DOLLY;
+    }
+  }
 }
 
 // define some utilty functions
@@ -400,7 +400,7 @@ void vtkInteractorStyleUnicam::RotateXY( int X, int Y )
   double dot = vtkMath::Dot(nop, noe);
 
   if (fabs(dot) > 0.0001)
-    {
+  {
     this->FindPokedRenderer(X, Y);
 
     double angle = -2*acos(clamp(dot,-1.0,1.0)) * Sign(te[0]-tp[0]);
@@ -420,9 +420,9 @@ void vtkInteractorStyleUnicam::RotateXY( int X, int Y )
     vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
     camera->GetPosition(from);
     for(int i=0; i<3; i++)
-      {
+    {
       dvec[i] = from[i] - center[i];
-      }
+    }
 
     double rdist = te[1]-tp[1];
     vtkMath::Normalize(dvec);
@@ -450,20 +450,20 @@ void vtkInteractorStyleUnicam::RotateXY( int X, int Y )
     //
     const double OVER_THE_TOP_THRESHOLD = 0.99;
     if (vtkMath::Dot(UPvec, atV) >  OVER_THE_TOP_THRESHOLD && rdist < 0)
-      {
+    {
       rdist = 0;
-      }
+    }
     if (vtkMath::Dot(UPvec, atV) < -OVER_THE_TOP_THRESHOLD && rdist > 0)
-      {
+    {
       rdist = 0;
-      }
+    }
 
     MyRotateCamera(center[0], center[1], center[2],
                    rightV[0], rightV[1], rightV[2],
                    rdist);
 
     camera->SetViewUp(UPvec[0], UPvec[1], UPvec[2]);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -490,15 +490,15 @@ void vtkInteractorStyleUnicam::DollyXY( int X, int Y )
 
   double movec[3];
   for(i=0; i<3; i++)
-    {
+  {
     movec[i] = this->DownPt[i] - from[i];
-    }
+  }
 
   double offset1[3];
   for(i=0; i<3; i++)
-    {
+  {
     offset1[i] = movec[i] * delta[1] * -4;
-    }
+  }
 
   this->MyTranslateCamera(offset1);
 
@@ -510,9 +510,9 @@ void vtkInteractorStyleUnicam::DollyXY( int X, int Y )
 
   double offset2[3];
   for(i=0; i<3; i++)
-    {
+  {
     offset2[i] = (-delta[0] * rightV[i]);
-    }
+  }
 
   this->MyTranslateCamera(offset2);
 }
@@ -547,10 +547,10 @@ void vtkInteractorStyleUnicam::PanXY( int X, int Y )
 
   double offset[3];
   for(i=0; i<3; i++)
-    {
+  {
     offset[i] = (-delta[0] * rightV[i] +
                  -delta[1] * upV   [i]);
-    }
+  }
 
   this->MyTranslateCamera(offset);
 }
@@ -575,9 +575,9 @@ void vtkInteractorStyleUnicam::GetRightVandUpV(double *p, vtkCamera *cam,
   // construct a vector from the viewing position to the picked point
   double vec[3];
   for(i=0; i<3; i++)
-    {
+  {
     vec[i] = p[i] - from[i];
-    }
+  }
 
   // Get shortest distance 'l' between the viewing position and
   // plane parallel to the projection plane that contains the 'DownPt'.
@@ -601,10 +601,10 @@ void vtkInteractorStyleUnicam::GetRightVandUpV(double *p, vtkCamera *cam,
   vtkMath::Normalize(upV);
 
   for(i=0; i<3; i++)
-    {
+  {
     rightV[i] = rightV[i] * scalex;
     upV   [i] = upV   [i] * scaley;
-    }
+  }
 }
 
 //
@@ -663,17 +663,17 @@ void vtkInteractorStyleUnicam::MyTranslateCamera(double v[3])
 
   double newP[3], newF[3];
   for(int i=0;i<3;i++)
-    {
+  {
     newP[i] = p[i] + v[i];
     newF[i] = f[i] + v[i];
-    }
+  }
 
   camera->SetPosition  (newP);
   camera->SetFocalPoint(newF);
 
   if (this->AutoAdjustCameraClippingRange)
-    {
+  {
     this->CurrentRenderer->ResetCameraClippingRange();
-    }
+  }
 }
 

@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkIOStream - Include C++ iostreams as used by VTK.
-// .SECTION Description
-// This header includes the proper streams.
+/**
+ * @class   vtkIOStream
+ * @brief   Include C++ iostreams as used by VTK.
+ *
+ * This header includes the proper streams.
+*/
 
 #ifndef vtkIOStream_h
 #define vtkIOStream_h

@@ -28,9 +28,9 @@ vtkKdTreePointLocator::vtkKdTreePointLocator()
 vtkKdTreePointLocator::~vtkKdTreePointLocator()
 {
   if(this->KdTree)
-    {
+  {
     this->KdTree->Delete();
-    }
+  }
 }
 
 vtkIdType vtkKdTreePointLocator::FindClosestPoint(const double x[3])
@@ -65,27 +65,27 @@ void vtkKdTreePointLocator::FindPointsWithinRadius(double R, const double x[3],
 void vtkKdTreePointLocator::FreeSearchStructure()
 {
   if(this->KdTree)
-    {
+  {
     this->KdTree->Delete();
     this->KdTree = 0;
-    }
+  }
 }
 
 void vtkKdTreePointLocator::BuildLocator()
 {
   if(!this->KdTree)
-    {
+  {
     vtkPointSet* pointSet = vtkPointSet::SafeDownCast(this->GetDataSet());
     if(!pointSet)
-      {
+    {
       vtkErrorMacro("vtkKdTreePointLocator requires a PointSet to build locator.");
       return;
-      }
+    }
     this->KdTree = vtkKdTree::New();
     this->KdTree->BuildLocatorFromPoints(pointSet);
     this->KdTree->GetBounds(this->Bounds);
     this->Modified();
-    }
+  }
 }
 
 void vtkKdTreePointLocator::GenerateRepresentation(int level, vtkPolyData *pd)

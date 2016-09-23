@@ -75,19 +75,19 @@ int vtkImageBSplineCoefficients::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (this->Bypass)
-    {
+  {
     // directly pass the scalars to the output
     outData->SetExtent(inData->GetExtent());
     outData->GetPointData()->PassData(inData->GetPointData());
     this->DataWasPassed = 1;
     return 1;
-    }
+  }
   else if (this->DataWasPassed)
-    {
+  {
     // force reallocation of the scalars
     outData->GetPointData()->SetScalars(NULL);
     this->DataWasPassed = 0;
-    }
+  }
 
   // Allocate the output data
   outData->SetExtent(outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
@@ -95,10 +95,10 @@ int vtkImageBSplineCoefficients::RequestData(
 
   if (outData->GetScalarType() != VTK_FLOAT &&
       outData->GetScalarType() != VTK_DOUBLE)
-    {
+  {
     vtkErrorMacro(<< "Execute: output data must be be type float or double.");
     return 0;
-    }
+  }
 
   // copy the data to the output
   int ie[6], oe[6];
@@ -106,25 +106,25 @@ int vtkImageBSplineCoefficients::RequestData(
   outData->GetExtent(oe);
   if (ie[0] == oe[0] && ie[1] == oe[1] && ie[2] == oe[2] &&
       ie[3] == oe[3] && ie[4] == oe[4] && ie[5] == oe[5])
-    {
+  {
     outData->GetPointData()->GetScalars()->DeepCopy(
       inData->GetPointData()->GetScalars());
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro(<< "Execute: input and output extents do not match: "
                   << "(" << ie[0] << "," << ie[1] << "," << ie[2] << ","
                   << ie[3] << "," << ie[4] << "," << ie[5] << ") vs. "
                   << "(" << oe[0] << "," << oe[1] << "," << oe[2] << ","
                   << oe[3] << "," << oe[4] << "," << oe[5] << ")");
     return 0;
-    }
+  }
 
   // if spline degree is < 2, no operation is required
   if (this->SplineDegree < 2)
-    {
+  {
     return 1;
-    }
+  }
 
   // We are about to call superclass' RequestData which allocates output
   // based on the update extent. However, we want the output to be the
@@ -139,28 +139,28 @@ int vtkImageBSplineCoefficients::RequestData(
 
   // execute over the three directions
   for (int i = 0; i < 3; i++)
-    {
+  {
     this->Iteration = i;
 
     // ensure that iteration axis is not split during threaded execution
     this->SplitPathLength = 0;
     for (int axis = 2; axis >= 0; --axis)
-      {
+    {
       if (axis != i)
-        {
-        this->SplitPath[this->SplitPathLength++] = axis;
-        }
-      }
-
-    if (ie[2*i+1] > ie[2*i])
       {
-      if (!this->vtkThreadedImageAlgorithm::RequestData(
-            request, &outputVector, outputVector))
-        {
-        return 0;
-        }
+        this->SplitPath[this->SplitPathLength++] = axis;
       }
     }
+
+    if (ie[2*i+1] > ie[2*i])
+    {
+      if (!this->vtkThreadedImageAlgorithm::RequestData(
+            request, &outputVector, outputVector))
+      {
+        return 0;
+      }
+    }
+  }
 
   // Restore update extent
   outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
@@ -187,30 +187,30 @@ int vtkImageBSplineCoefficients::RequestInformation(
       vtkDataSetAttributes::SCALARS);
 
   if (inScalarInfo)
-    {
+  {
     if (inScalarInfo->Has(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()))
-      {
+    {
       numComponents =
         inScalarInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS());
-      }
-    scalarType = inScalarInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE());
     }
+    scalarType = inScalarInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE());
+  }
 
   if (this->Bypass)
-    {
+  {
     vtkDataObject::SetPointDataActiveScalarInfo(
       outInfo, scalarType, numComponents);
-    }
+  }
   else if (this->OutputScalarType == VTK_DOUBLE)
-    {
+  {
     vtkDataObject::SetPointDataActiveScalarInfo(
       outInfo, VTK_DOUBLE, numComponents);
-    }
+  }
   else
-    {
+  {
     vtkDataObject::SetPointDataActiveScalarInfo(
       outInfo, VTK_FLOAT, numComponents);
-    }
+  }
 
   return 1;
 }
@@ -226,15 +226,15 @@ int vtkImageBSplineCoefficients::RequestUpdateExtent(
   int extent[6];
 
   if (this->Bypass)
-    {
+  {
     // in bypass mode, just pass the update extent
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent);
-    }
+  }
   else
-    {
+  {
     // the whole input extent is required every time
     inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
-    }
+  }
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);
 
@@ -299,29 +299,29 @@ void vtkImageBSplineCoefficientsExecute(
   T *inPtr2 = inPtr - (outMin0 - inMin0)*inInc0;
   T *outPtr2 = outPtr;
   for (int idx2 = outMin2; idx2 <= outMax2; idx2++)
-    {
+  {
     T *inPtr1 = inPtr2;
     T *outPtr1 = outPtr2;
     for (int idx1 = outMin1; !self->AbortExecute && idx1 <= outMax1; idx1++)
-      {
+    {
       if (threadId == 0 && count % target == 0)
-        {
+      {
         self->UpdateProgress((axis + count/(50.0*target))/3.0);
-        }
+      }
       count++;
 
       // loop over components
       for (int idxC = 0; idxC < numscalars; idxC++)
-        {
+      {
         T *inPtr0 = inPtr1 + idxC;
         T *outPtr0 = outPtr1 + idxC;
 
         double *imagePtr = image;
         for (int jdx0 = inMin0; jdx0 <= inMax0; jdx0++)
-          {
+        {
           *imagePtr++ = static_cast<double>(*inPtr0);
           inPtr0 += inInc0;
-          }
+        }
 
         // Call the code that generates the b-spline knots,
         vtkImageBSplineInternals::ConvertToInterpolationCoefficients(
@@ -331,17 +331,17 @@ void vtkImageBSplineCoefficientsExecute(
         // Copy to output
         imagePtr = image + (outMin0 - inMin0);
         for (int idx0 = outMin0; idx0 <= outMax0; idx0++)
-          {
+        {
           *outPtr0 = *imagePtr++;
           outPtr0 += outInc0;
-          }
         }
+      }
       inPtr1 += inInc1;
       outPtr1 += outInc1;
-      }
+    }
     inPtr2 += inInc2;
     outPtr2 += outInc2;
-    }
+  }
 
   delete [] image;
 }
@@ -355,19 +355,19 @@ void vtkImageBSplineCoefficients::ThreadedExecute(
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
 
   if (outData->GetScalarType() == VTK_FLOAT)
-    {
+  {
     vtkImageBSplineCoefficientsExecute(
       this, inData, outData,
       static_cast<float*>(inPtr), static_cast<float*>(outPtr),
       outExt, this->Iteration, threadId);
-    }
+  }
   else if (outData->GetScalarType() == VTK_DOUBLE)
-    {
+  {
     vtkImageBSplineCoefficientsExecute(
       this, inData, outData,
       static_cast<double*>(inPtr), static_cast<double*>(outPtr),
       outExt, this->Iteration, threadId);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -384,7 +384,7 @@ void vtkImageBSplineCoefficients::PrintSelf(ostream& os, vtkIndent indent)
 const char *vtkImageBSplineCoefficients::GetBorderModeAsString()
 {
   switch (this->BorderMode)
-    {
+  {
     case VTK_IMAGE_BORDER_CLAMP:
       return "Clamp";
     case VTK_IMAGE_BORDER_MIRROR:
@@ -393,7 +393,7 @@ const char *vtkImageBSplineCoefficients::GetBorderModeAsString()
       return "Repeat";
     default:
       break;
-    }
+  }
 
   return "Unknown";
 }
@@ -409,15 +409,15 @@ int vtkImageBSplineCoefficients::CheckBounds(const double point[3])
 {
   double *bounds = this->GetOutput()->GetBounds();
   for (int i = 0; i < 3; i++)
-    {
+  {
     double a = bounds[0];
     double b = bounds[1];
     if ((b - a) > 1e-16 && (point[i] < a || point[i] > b))
-      {
+    {
       return 0;
-      }
-    bounds++;
     }
+    bounds++;
+  }
   return 1;
 }
 
@@ -438,49 +438,49 @@ void vtkImageBSplineCoefficients::Evaluate(const double p[3], double *val)
   double z = (p[2] - origin[2])/spacing[2] - extent[4];
 
   if (width < 1 || height < 1 || slices < 1)
-    {
+  {
     vtkErrorMacro("Called Evaluate() on empty extent");
     return;
-    }
+  }
 
   int numscalars = output->GetNumberOfScalarComponents();
   int scalarType = output->GetScalarType();
 
   if (scalarType == VTK_FLOAT)
-    {
+  {
     float *coeffs = static_cast<float *>(output->GetScalarPointer());
     float value4[4];
     float *value = value4;
     if (numscalars > 4)
-      {
+    {
       value = new float[numscalars];
-      }
+    }
 
     vtkImageBSplineInternals::InterpolatedValue(
       coeffs, value, width, height, slices, numscalars, x, y, z,
       this->SplineDegree, this->BorderMode);
 
     for (int i = 0; i < numscalars; i++)
-      {
+    {
       val[i] = value[i];
-      }
+    }
 
     if (value != value4)
-      {
-      delete [] value;
-      }
-    }
-  else if (scalarType == VTK_DOUBLE)
     {
+      delete [] value;
+    }
+  }
+  else if (scalarType == VTK_DOUBLE)
+  {
     double *coeffs = static_cast<double *>(output->GetScalarPointer());
     vtkImageBSplineInternals::InterpolatedValue(
       coeffs, val, width, height, slices, numscalars, x, y, z,
       this->SplineDegree, this->BorderMode);
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro("Called Evaluate(), but data is not float or double.");
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -500,64 +500,64 @@ double vtkImageBSplineCoefficients::Evaluate(double x, double y, double z)
   z = (z - origin[2])/spacing[2] - extent[4];
 
   if (width < 1 || height < 1 || slices < 1)
-    {
+  {
     vtkErrorMacro("Called Evaluate() on empty extent");
     return 0.0;
-    }
+  }
 
   int numscalars = output->GetNumberOfScalarComponents();
   int scalarType = output->GetScalarType();
 
   if (scalarType == VTK_FLOAT)
-    {
+  {
     float *coeffs = static_cast<float *>(output->GetScalarPointer());
     float value4[4];
     float *value = value4;
     if (numscalars > 4)
-      {
+    {
       value = new float[numscalars];
-      }
+    }
 
     vtkImageBSplineInternals::InterpolatedValue(
       coeffs, value, width, height, slices, numscalars, x, y, z,
       this->SplineDegree, this->BorderMode);
 
     if (value != value4)
-      {
+    {
       value4[0] = value[0];
       delete [] value;
       value = value4;
-      }
+    }
 
     return value[0];
-    }
+  }
   else if (scalarType == VTK_DOUBLE)
-    {
+  {
     double *coeffs = static_cast<double *>(output->GetScalarPointer());
     double value4[4];
     double *value = value4;
     if (numscalars > 4)
-      {
+    {
       value = new double[numscalars];
-      }
+    }
 
     vtkImageBSplineInternals::InterpolatedValue(
       coeffs, value, width, height, slices, numscalars, x, y, z,
       this->SplineDegree, this->BorderMode);
 
     if (value != value4)
-      {
+    {
       value4[0] = value[0];
       delete [] value;
       value = value4;
-      }
+    }
 
     return value[0];
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro("Called Evaluate(), but data is not float or double.");
-    }
+  }
 
   return 0;
 }

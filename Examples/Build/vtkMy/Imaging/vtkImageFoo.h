@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageFoo - foo and scale an input image
-// .SECTION Description
-// With vtkImageFoo Pixels are foo'ed.
+/**
+ * @class   vtkImageFoo
+ * @brief   foo and scale an input image
+ *
+ * With vtkImageFoo Pixels are foo'ed.
+*/
 
 #ifndef vtkImageFoo_h
 #define vtkImageFoo_h
@@ -31,13 +34,18 @@ public:
   vtkTypeMacro(vtkImageFoo,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set/Get the foo value.
+  //@{
+  /**
+   * Set/Get the foo value.
+   */
   vtkSetMacro(Foo,float);
   vtkGetMacro(Foo,float);
+  //@}
 
-  // Description:
-  // Set the desired output scalar type.
+  //@{
+  /**
+   * Set the desired output scalar type.
+   */
   vtkSetMacro(OutputScalarType, int);
   vtkGetMacro(OutputScalarType, int);
   void SetOutputScalarTypeToDouble()
@@ -62,6 +70,7 @@ public:
     {this->SetOutputScalarType(VTK_SIGNED_CHAR);}
   void SetOutputScalarTypeToUnsignedChar()
     {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);}
+  //@}
 
 protected:
   vtkImageFoo();

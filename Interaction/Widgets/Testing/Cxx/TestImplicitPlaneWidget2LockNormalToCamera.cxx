@@ -438,27 +438,27 @@ class vtkEnableSlaveCallback : public vtkCommand
 {
 public:
   static vtkEnableSlaveCallback *New()
-    {
+  {
     return new vtkEnableSlaveCallback;
-    }
+  }
   void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
-    {
+  {
     vtkRenderWindowInteractor *iren =
       static_cast<vtkRenderWindowInteractor*>(caller);
     if(vtkStdString(iren->GetKeySym()) == "Control_L" ||
        vtkStdString(iren->GetKeySym()) == "Control_R")
-      {
+    {
       lockMode = !lockMode;
       if(lockMode)
-        {
+      {
         pWidget->SetLockNormalToCamera(1);
-        }
+      }
       else
-        {
+      {
         pWidget->SetLockNormalToCamera(0);
-        }
       }
     }
+  }
 
   // Ctors
   vtkEnableSlaveCallback():lockMode(true), pWidget(0) {}

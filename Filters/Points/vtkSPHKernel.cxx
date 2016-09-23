@@ -61,25 +61,25 @@ Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds, vtkPointData *attr)
 
   // See if cutoff array is provided.
   if ( this->CutoffArray && this->CutoffArray->GetNumberOfComponents() == 1 )
-    {
+  {
     this->UseCutoffArray = true;
-    }
+  }
   else
-    {
+  {
     this->UseCutoffArray = false;
-    }
+  }
 
   // See if local mass and density information is provided
   if ( this->DensityArray && this->MassArray &&
        this->DensityArray->GetNumberOfComponents() == 1 &&
        this->MassArray->GetNumberOfComponents() == 1 )
-    {
+  {
     this->UseArraysForVolume = true;
-    }
+  }
   else
-    {
+  {
     this->UseArraysForVolume = false;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -90,13 +90,13 @@ ComputeBasis(double x[3], vtkIdList *pIds, vtkIdType ptId)
 {
   double cutoff;
   if ( this->UseCutoffArray )
-    {
+  {
     this->CutoffArray->GetTuple(ptId,&cutoff);
-    }
+  }
   else
-    {
+  {
     cutoff = this->Cutoff;
-    }
+  }
 
   this->Locator->FindPointsWithinRadius(cutoff, x, pIds);
   return pIds->GetNumberOfIds();
@@ -116,7 +116,7 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights)
 
   // Compute SPH coefficients.
   for (i=0; i<numPts; ++i)
-    {
+  {
     id = pIds->GetId(i);
     this->DataSet->GetPoint(id,y);
     d = sqrt( vtkMath::Distance2BetweenPoints(x,y) );
@@ -124,18 +124,18 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights)
     KW = this->ComputeFunctionWeight(d*this->DistNorm);
 
     if ( this->UseArraysForVolume )
-      {
+    {
       this->MassArray->GetTuple(id,&mass);
       this->DensityArray->GetTuple(id,&density);
       volume = mass /density;
-      }
+    }
     else
-      {
+    {
       volume = this->DefaultVolume;
-      }
+    }
 
     w[i] = this->NormFactor * KW * volume;
-    }//over all neighbor points
+  }//over all neighbor points
 
   return numPts;
 }
@@ -157,7 +157,7 @@ ComputeDerivWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights,
 
   // Compute SPH coefficients for data and deriative data
   for (i=0; i<numPts; ++i)
-    {
+  {
     id = pIds->GetId(i);
     this->DataSet->GetPoint(id,y);
     d = sqrt( vtkMath::Distance2BetweenPoints(x,y) );
@@ -167,7 +167,7 @@ ComputeDerivWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights,
 
     w[i] = this->NormFactor * KW * volume;
     gw[i] = this->NormFactor * GW * volume;
-    }//over all neighbor points
+  }//over all neighbor points
 
   return numPts;
 }

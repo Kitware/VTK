@@ -42,24 +42,24 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
   int EXT=128;
   int RES=900;
   for (int i = 0; i < argc; i++)
-    {
+  {
     if (!strcmp(argv[i], "-GL"))
-      {
+    {
       useOSP = false;
-      }
-    if (!strcmp(argv[i], "-FP"))
-      {
-      useFP = true;
-      }
-    if (!strcmp(argv[i], "-EXT"))
-      {
-      EXT = atoi(argv[i+1]);
-      }
-    if (!strcmp(argv[i], "-RES"))
-      {
-      RES = atoi(argv[i+1]);
-      }
     }
+    if (!strcmp(argv[i], "-FP"))
+    {
+      useFP = true;
+    }
+    if (!strcmp(argv[i], "-EXT"))
+    {
+      EXT = atoi(argv[i+1]);
+    }
+    if (!strcmp(argv[i], "-RES"))
+    {
+      RES = atoi(argv[i+1]);
+    }
+  }
 
   vtkNew<vtkRTAnalyticSource> wavelet;
   wavelet->SetWholeExtent(-(EXT-1), EXT,
@@ -78,10 +78,10 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
   vtkNew<vtkFixedPointVolumeRayCastMapper> cpu_volumeMapper;
   vtkVolumeMapper *volumeMapper = gpu_volumeMapper.GetPointer();
   if (useFP)
-    {
+  {
     cerr << "USE FP" << endl;
     volumeMapper = cpu_volumeMapper.GetPointer();
-    }
+  }
 
   volumeMapper->SetInputConnection(wavelet->GetOutputPort());
 
@@ -114,22 +114,22 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
 // Attach OSPRay render pass
   vtkNew<vtkOSPRayPass> osprayPass;
   if (useOSP && !useFP)
-    {
+  {
     renderer->SetPass(osprayPass.GetPointer());
-    }
+  }
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renderWindow.GetPointer());
 
   int valid = true;
   if (!useFP)
-    {
+  {
     valid = gpu_volumeMapper->IsRenderSupported(renderWindow.GetPointer(),
                                                 volumeProperty.GetPointer());
-    }
+  }
   int retVal;
   if (valid)
-    {
+  {
     timer->StartTimer();
     renderWindow->Render();
     timer->StopTimer();
@@ -138,21 +138,21 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
 
     int numRenders = 20;
     for (int i = 0; i < numRenders; ++i)
-      {
+    {
       renderer->GetActiveCamera()->Azimuth(1);
       renderer->GetActiveCamera()->Elevation(1);
       renderWindow->Render();
-      }
+    }
 
     timer->StartTimer();
     numRenders = 100;
     for (int i = 0; i < numRenders; ++i)
-      {
+    {
       renderer->GetActiveCamera()->Azimuth(1);
       renderer->GetActiveCamera()->Elevation(1);
       renderer->GetActiveCamera()->OrthogonalizeViewUp();
       renderWindow->Render();
-      }
+    }
     timer->StopTimer();
     double elapsed = timer->GetElapsedTime();
     cerr << "Interactive Render Time: " << elapsed / numRenders << endl;
@@ -169,15 +169,15 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
 
     retVal = vtkRegressionTestImage( renderWindow.GetPointer() );
     if( retVal == vtkRegressionTester::DO_INTERACTOR)
-      {
-      iren->Start();
-      }
-    }
-  else
     {
+      iren->Start();
+    }
+  }
+  else
+  {
     retVal = vtkTesting::PASSED;
     cout << "Required extensions not supported." << endl;
-    }
+  }
 
   return !((retVal == vtkTesting::PASSED) ||
            (retVal == vtkTesting::DO_INTERACTOR));

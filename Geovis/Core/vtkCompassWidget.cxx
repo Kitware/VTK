@@ -64,9 +64,9 @@ vtkCompassWidget::vtkCompassWidget()
 void vtkCompassWidget::CreateDefaultRepresentation()
 {
   if ( ! this->WidgetRep )
-    {
+  {
     this->WidgetRep = vtkCompassRepresentation::New();
-    }
+  }
 }
 
 //-----------------------------------------------------------------
@@ -137,9 +137,9 @@ void vtkCompassWidget::SelectAction(vtkAbstractWidget *w)
   if (!self->CurrentRenderer ||
       !self->CurrentRenderer->IsInViewport(static_cast<int>(eventPos[0]),
                                            static_cast<int>(eventPos[1])))
-    {
+  {
     return;
-    }
+  }
 
   // See if the widget has been selected. StartWidgetInteraction records the
   // starting point of the motion.
@@ -148,22 +148,22 @@ void vtkCompassWidget::SelectAction(vtkAbstractWidget *w)
   int interactionState = self->WidgetRep->GetInteractionState();
 
   if ( interactionState == vtkCompassRepresentation::TiltDown)
-    {
+  {
     self->SetTilt(self->GetTilt() - 15);
     self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     self->EventCallbackCommand->SetAbortFlag(1);
     return;
-    }
+  }
   if (interactionState == vtkCompassRepresentation::TiltUp)
-    {
+  {
     self->SetTilt(self->GetTilt() + 15);
     self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     self->EventCallbackCommand->SetAbortFlag(1);
     return;
-    }
+  }
 
   if ( interactionState == vtkCompassRepresentation::TiltAdjusting)
-    {
+  {
     self->GrabFocus(self->EventCallbackCommand);
     self->WidgetState = vtkCompassWidget::TiltAdjusting;
     // Start off the timer
@@ -178,25 +178,25 @@ void vtkCompassWidget::SelectAction(vtkAbstractWidget *w)
     self->EventCallbackCommand->SetAbortFlag(1);
     self->Render();
     return;
-    }
+  }
 
   if ( interactionState == vtkCompassRepresentation::DistanceIn)
-    {
+  {
     self->SetDistance(self->GetDistance()*0.8);
     self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     self->EventCallbackCommand->SetAbortFlag(1);
     return;
-    }
+  }
   if (interactionState == vtkCompassRepresentation::DistanceOut)
-    {
+  {
     self->SetDistance(self->GetDistance()*1.2);
     self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     self->EventCallbackCommand->SetAbortFlag(1);
     return;
-    }
+  }
 
   if ( interactionState == vtkCompassRepresentation::DistanceAdjusting)
-    {
+  {
     self->GrabFocus(self->EventCallbackCommand);
     self->WidgetState = vtkCompassWidget::DistanceAdjusting;
     // Start off the timer
@@ -211,18 +211,18 @@ void vtkCompassWidget::SelectAction(vtkAbstractWidget *w)
     self->EventCallbackCommand->SetAbortFlag(1);
     self->Render();
     return;
-    }
+  }
 
   if (interactionState != vtkCompassRepresentation::Adjusting)
-    {
+  {
     return;
-    }
+  }
 
   // We are definitely selected
   self->GrabFocus(self->EventCallbackCommand);
   self->EventCallbackCommand->SetAbortFlag(1);
   if ( interactionState == vtkCompassRepresentation::Adjusting )
-    {
+  {
     self->WidgetState = vtkCompassWidget::Adjusting;
     // Highlight as necessary
     self->WidgetRep->Highlight(1);
@@ -232,7 +232,7 @@ void vtkCompassWidget::SelectAction(vtkAbstractWidget *w)
     self->EventCallbackCommand->SetAbortFlag(1);
     self->Render();
     return;
-    }
+  }
 }
 
 
@@ -251,36 +251,36 @@ void vtkCompassWidget::MoveAction(vtkAbstractWidget *w)
   // if we are outside and in the start state then return
   if (interactionState == vtkCompassRepresentation::Outside &&
       self->WidgetState == vtkCompassWidget::Start)
-    {
+  {
     return;
-    }
+  }
 
   // if we are not outside and in the highlighting state then return
   if (interactionState != vtkCompassRepresentation::Outside &&
       self->WidgetState == vtkCompassWidget::Highlighting)
-    {
+  {
     return;
-    }
+  }
 
   // if we are not outside and in the Start state highlight
   if ( interactionState != vtkCompassRepresentation::Outside &&
        self->WidgetState == vtkCompassWidget::Start)
-    {
+  {
     self->WidgetRep->Highlight(1);
     self->WidgetState = vtkCompassWidget::Highlighting;
     self->Render();
     return;
-    }
+  }
 
   // if we are outside but in the highlight state then stop highlighting
   if ( self->WidgetState == vtkCompassWidget::Highlighting &&
        interactionState == vtkCompassRepresentation::Outside)
-    {
+  {
     self->WidgetRep->Highlight(0);
     self->WidgetState = vtkCompassWidget::Start;
     self->Render();
     return;
-    }
+  }
 
   vtkCompassRepresentation *rep =
     vtkCompassRepresentation::SafeDownCast(self->WidgetRep);
@@ -290,17 +290,17 @@ void vtkCompassWidget::MoveAction(vtkAbstractWidget *w)
   eventPos[0] = self->Interactor->GetEventPosition()[0];
   eventPos[1] = self->Interactor->GetEventPosition()[1];
   if (self->WidgetState == vtkCompassWidget::TiltAdjusting)
-    {
+  {
     rep->TiltWidgetInteraction(eventPos);
-    }
+  }
   if (self->WidgetState == vtkCompassWidget::DistanceAdjusting)
-    {
+  {
     rep->DistanceWidgetInteraction(eventPos);
-    }
+  }
   if (self->WidgetState == vtkCompassWidget::Adjusting)
-    {
+  {
     self->WidgetRep->WidgetInteraction(eventPos);
-    }
+  }
   self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
 
   // Interact, if desired
@@ -317,40 +317,40 @@ void vtkCompassWidget::EndSelectAction(vtkAbstractWidget *w)
   if ( self->WidgetState != vtkCompassWidget::Adjusting &&
        self->WidgetState != vtkCompassWidget::TiltAdjusting &&
        self->WidgetState != vtkCompassWidget::DistanceAdjusting)
-    {
+  {
     return;
-    }
+  }
 
   if (self->WidgetState == vtkCompassWidget::TiltAdjusting)
-    {
+  {
     // stop the timer
     self->Interactor->DestroyTimer(self->TimerId);
     vtkCompassRepresentation *rep =
       vtkCompassRepresentation::SafeDownCast(self->WidgetRep);
     rep->EndTilt();
-    }
+  }
 
   if (self->WidgetState == vtkCompassWidget::DistanceAdjusting)
-    {
+  {
     // stop the timer
     self->Interactor->DestroyTimer(self->TimerId);
     vtkCompassRepresentation *rep =
       vtkCompassRepresentation::SafeDownCast(self->WidgetRep);
     rep->EndDistance();
-    }
+  }
 
   int interactionState = self->WidgetRep->ComputeInteractionState
     (self->Interactor->GetEventPosition()[0],
      self->Interactor->GetEventPosition()[1]);
   if ( interactionState == vtkCompassRepresentation::Outside)
-    {
+  {
     self->WidgetRep->Highlight(0);
     self->WidgetState = vtkCompassWidget::Start;
-    }
+  }
   else
-    {
+  {
     self->WidgetState = vtkCompassWidget::Highlighting;
-    }
+  }
 
   // The state returns to unselected
   self->ReleaseFocus();
@@ -370,23 +370,23 @@ void vtkCompassWidget::TimerAction(vtkAbstractWidget *w)
 
   // If this is the timer event we are waiting for...
   if ( timerId == self->TimerId)
-    {
+  {
     vtkCompassRepresentation *rep =
       vtkCompassRepresentation::SafeDownCast(self->WidgetRep);
     if (self->WidgetState == vtkCompassWidget::TiltAdjusting)
-      {
+    {
       double tElapsed = vtkTimerLog::GetUniversalTime() - self->StartTime;
       rep->UpdateTilt(tElapsed);
-      }
+    }
     if (self->WidgetState == vtkCompassWidget::DistanceAdjusting)
-      {
+    {
       double tElapsed = vtkTimerLog::GetUniversalTime() - self->StartTime;
       rep->UpdateDistance(tElapsed);
-      }
+    }
     self->StartTime = vtkTimerLog::GetUniversalTime();
     self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     self->EventCallbackCommand->SetAbortFlag(1); //no one else gets this timer
-    }
+  }
 }
 
 //-----------------------------------------------------------------

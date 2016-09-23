@@ -38,11 +38,11 @@ namespace
 #define test_expression(expression) \
 { \
   if(!(expression)) \
-    { \
+  { \
     std::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
     throw std::runtime_error(buffer.str()); \
-    } \
+  } \
 }
 
 bool doubleEquals(double left, double right, double epsilon) {
@@ -54,7 +54,7 @@ bool doubleEquals(double left, double right, double epsilon) {
 int TestMatlabEngineInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     int buf_size = 2000;
     char* out_buffer = new char[buf_size];
     out_buffer[0] = '\0';
@@ -68,9 +68,9 @@ int TestMatlabEngineInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     da->SetNumberOfComponents(3);
     for( int cc = 0; cc < 10; cc ++ )
-      {
+    {
       da->InsertNextTuple3( cc + 0.1, cc + 0.2, cc + 0.3);
-      }
+    }
 
     mei->PutVtkDataArray("d",da);
     mei->EvalString("d(:,1) = d(:,1) - 0.1;\n\
@@ -80,13 +80,13 @@ int TestMatlabEngineInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkDoubleArray* rda = vtkArrayDownCast<vtkDoubleArray>(mei->GetVtkDataArray("d"));
     test_expression(rda);
     for(int i = 0;i<rda->GetNumberOfTuples();i++)
-      {
+    {
       double* iv = da->GetTuple3(i);
       double* rv = rda->GetTuple3(i);
       test_expression(doubleEquals(iv[0] - 0.1,rv[0],0.001));
       test_expression(doubleEquals(iv[1] - 0.2,rv[1],0.001));
       test_expression(doubleEquals(iv[2] - 0.3,rv[2],0.001));
-      }
+    }
 
     dda->Resize(vtkArrayExtents(3, 3, 5));
     dda->Fill(64.0);
@@ -96,27 +96,27 @@ int TestMatlabEngineInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     assert(rdda->GetExtents().ZeroBased());
     const vtkArrayExtents extents = rdda->GetExtents();
     for(int i = 0; i != extents[0].GetSize(); ++i)
-      {
+    {
       for(int j = 0; j != extents[1].GetSize(); ++j)
-        {
+      {
         for(int k = 0; k != extents[2].GetSize(); ++k)
-          {
+        {
           test_expression(doubleEquals(sqrt(dda->GetValue(vtkArrayCoordinates(i, j, k))),
                                        rdda->GetValue(vtkArrayCoordinates(i, j, k)),
                                        0.001));
-          }
         }
       }
+    }
     dda->Delete();
     da->Delete();
     mei->Delete();
     delete [] out_buffer;
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }
 

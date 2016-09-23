@@ -1299,16 +1299,16 @@ int TestGPUVolumeRayCastMapper(int argc, char *argv[])
 
   int retVal;
   if (valid)
-    {
+  {
     retVal = !( vtkTesting::InteractorEventLoop(argc, argv,
                                                 iren.GetPointer(),
                                                 TestGPUVolumeRayCastMapperLog));
-    }
+  }
   else
-    {
+  {
     retVal = vtkTesting::PASSED;
     cout << "Required extensions not supported." << endl;
-    }
+  }
 
   return !retVal;
 }

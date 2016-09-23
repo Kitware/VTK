@@ -27,28 +27,28 @@ static void vtkSMPTools_Impl_For(
 {
   vtkIdType n = last - first;
   if (!n)
-    {
+  {
     return;
-    }
+  }
 
   if (grain == 0 || grain >= n)
-    {
+  {
     fi.Execute(first, last);
-    }
+  }
   else
-    {
+  {
     vtkIdType b = first;
     while (b < last)
-      {
+    {
       vtkIdType e = b + grain;
       if (e > last)
-        {
+      {
         e = last;
-        }
+      }
       fi.Execute(b, e);
       b = e;
-      }
     }
+  }
 }
 
 //--------------------------------------------------------------------------------

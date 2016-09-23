@@ -36,10 +36,10 @@ vtkBiQuadraticTriangle::vtkBiQuadraticTriangle()
   this->Points->SetNumberOfPoints(7);
   this->PointIds->SetNumberOfIds(7);
   for (int i = 0; i < 7; i++)
-    {
+  {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
     this->PointIds->SetId(i,0);
-    }
+  }
 }
 
 
@@ -90,7 +90,7 @@ int vtkBiQuadraticTriangle::EvaluatePosition(double* x, double* closestPoint,
 
   //six linear triangles are used
   for (minDist2=VTK_DOUBLE_MAX, i=0; i < 6; i++)
-    {
+  {
     this->Face->Points->SetPoint(
       0,this->Points->GetPoint(LinearTris[i][0]));
     this->Face->Points->SetPoint(
@@ -101,59 +101,59 @@ int vtkBiQuadraticTriangle::EvaluatePosition(double* x, double* closestPoint,
     status = this->Face->EvaluatePosition(x,closest,ignoreId,pc,dist2,
                                           tempWeights);
     if ( status != -1 && dist2 < minDist2 )
-      {
+    {
       returnStatus = status;
       minDist2 = dist2;
       subId = i;
       pc0 = pc[0];
       pc1 = pc[1];
       if (closestPoint)
-        {
+      {
         for (int j = 0; j <3; j++ )
-          {
+        {
           closestPoint[j] = closest[j];
-          }
         }
       }
     }
+  }
 
 
   // adjust parametric coordinates
   if ( returnStatus != -1 )
-    {
+  {
     if ( subId == 0 )
-      {
+    {
       pcoords[0] = pc0/2.0 + pc1/3.0;
       pcoords[1] = pc1/3.0;
-      }
+    }
     else if ( subId == 1 )
-      {
+    {
       pcoords[0] = (1.0/3.0) + pc0/6.0 + pc1/6.0;
       pcoords[1] = (1.0/3.0) + pc0/(-3.0) + pc1/6.0;
-      }
+    }
     else if ( subId == 2 )
-      {
+    {
       pcoords[0] = (1.0/3.0) + pc0/6.0 + pc1/(-3.0);
       pcoords[1] = (1.0/3.0) + pc0/6.0 + pc1/6.0;
-      }
+    }
     else if ( subId == 3 )
-      {
+    {
       pcoords[0] = pc0/3.0;
       pcoords[1] = pc0/3.0 + pc1*0.5;
-      }
+    }
     else if ( subId == 4 )
-      {
+    {
       pcoords[0] = pc0*0.5 + 0.5;
       pcoords[1] = 0.5*pc1;
-      }
+    }
     else if ( subId == 5 )
-      {
+    {
       pcoords[0] = 0.5*pc0;
       pcoords[1] = 0.5 + 0.5*pc1;
-      }
+    }
     pcoords[2] = 0.0;
     this->InterpolationFunctions(pcoords,weights);
-    }
+  }
 
   return returnStatus;
 }
@@ -179,10 +179,10 @@ void vtkBiQuadraticTriangle::EvaluateLocation(int& vtkNotUsed(subId),
   this->InterpolationFunctions(pcoords,weights);
 
   for (i=0; i<3; i++)
-    {
+  {
     x[i] = a0[i]*weights[0] + a1[i]*weights[1] + a2[i]*weights[2] +
       a3[i]*weights[3] + a4[i]*weights[4] + a5[i]*weights[5] + a6[i]*weights[6];
-    }
+  }
 }
 
 
@@ -210,17 +210,17 @@ void vtkBiQuadraticTriangle::Contour(double value,
                                    vtkCellData* outCd)
 {
   for ( int i=0; i < 6; i++)
-    {
+  {
     this->Face->Points->SetPoint(0,this->Points->GetPoint(LinearTris[i][0]));
     this->Face->Points->SetPoint(1,this->Points->GetPoint(LinearTris[i][1]));
     this->Face->Points->SetPoint(2,this->Points->GetPoint(LinearTris[i][2]));
 
     if ( outPd )
-      {
+    {
       this->Face->PointIds->SetId(0,this->PointIds->GetId(LinearTris[i][0]));
       this->Face->PointIds->SetId(1,this->PointIds->GetId(LinearTris[i][1]));
       this->Face->PointIds->SetId(2,this->PointIds->GetId(LinearTris[i][2]));
-      }
+    }
 
     this->Scalars->SetTuple(0,cellScalars->GetTuple(LinearTris[i][0]));
     this->Scalars->SetTuple(1,cellScalars->GetTuple(LinearTris[i][1]));
@@ -228,7 +228,7 @@ void vtkBiQuadraticTriangle::Contour(double value,
 
     this->Face->Contour(value, this->Scalars, locator, verts,
                         lines, polys, inPd, outPd, inCd, cellId, outCd);
-    }
+  }
 }
 
 
@@ -248,16 +248,16 @@ int vtkBiQuadraticTriangle::IntersectWithLine(double* p1,
   subId = 0;
 
   for (i=0; i < 6; i++)
-    {
+  {
     this->Face->Points->SetPoint(0,this->Points->GetPoint(LinearTris[i][0]));
     this->Face->Points->SetPoint(1,this->Points->GetPoint(LinearTris[i][1]));
     this->Face->Points->SetPoint(2,this->Points->GetPoint(LinearTris[i][2]));
 
     if (this->Face->IntersectWithLine(p1, p2, tol, t, x, pcoords, subTest) )
-      {
+    {
       return 1;
-      }
     }
+  }
 
   return 0;
 }
@@ -273,14 +273,14 @@ int vtkBiQuadraticTriangle::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 
   // Create six linear triangles
   for ( int i=0; i < 6; i++)
-    {
+  {
     ptIds->InsertId(3*i,this->PointIds->GetId(LinearTris[i][0]));
     pts->InsertPoint(3*i,this->Points->GetPoint(LinearTris[i][0]));
     ptIds->InsertId(3*i+1,this->PointIds->GetId(LinearTris[i][1]));
     pts->InsertPoint(3*i+1,this->Points->GetPoint(LinearTris[i][1]));
     ptIds->InsertId(3*i+2,this->PointIds->GetId(LinearTris[i][2]));
     pts->InsertPoint(3*i+2,this->Points->GetPoint(LinearTris[i][2]));
-    }
+  }
 
   return 1;
 }
@@ -314,29 +314,29 @@ void vtkBiQuadraticTriangle::Derivatives(int vtkNotUsed(subId),
   vtkTriangle::ComputeNormal (x0, x1, x2, n);
 
   for (int i=0; i < 3; i++)     // Compute the vector for each point
-    {
+  {
     v10[i] = x1[i] - x0[i];
     vec20[i] = x2[i] - x0[i];
     vec30[i] = x3[i] - x0[i];
     vec40[i] = x4[i] - x0[i];
     vec50[i] = x5[i] - x0[i];
     vec60[i] = x6[i] - x0[i];
-    }
+  }
 
   vtkMath::Cross(n,v10,v20); //creates local y' axis
 
   if ( (lenX=vtkMath::Normalize(v10)) <= 0.0
        || vtkMath::Normalize(v20) <= 0.0 ) //degenerate
-    {
+  {
     for (int j=0; j < dim; j++ )
-      {
+    {
       for (int i=0; i < 3; i++ )
-        {
+      {
         derivs[j*dim + i] = 0.0;
-        }
       }
-    return;
     }
+    return;
+  }
 
   v0[0] = v0[1] = 0.0; //convert points to 2D (i.e., local system)
   v1[0] = lenX; v1[1] = 0.0;
@@ -381,29 +381,29 @@ void vtkBiQuadraticTriangle::Derivatives(int vtkNotUsed(subId),
 
   // Compute inverse Jacobian, return if Jacobian is singular
   if (!vtkMath::InvertMatrix(J,JI,2))
-    {
+  {
     for (int j=0; j < dim; j++ )
-      {
+    {
       for (int i=0; i < 3; i++ )
-        {
+      {
         derivs[j*dim + i] = 0.0;
-        }
       }
-    return;
     }
+    return;
+  }
 
   // Loop over "dim" derivative values. For each set of values,
   // compute derivatives
   // in local system and then transform into modelling system.
   // First compute derivatives in local x'-y' coordinate system
   for (int j=0; j < dim; j++ )
-    {
+  {
     sum[0] = sum[1] = 0.0;
     for (int i=0; i < 7; i++) //loop over interp. function derivatives
-      {
+    {
       sum[0] += funcDerivs[i] * values[dim*i + j];
       sum[1] += funcDerivs[7 + i] * values[dim*i + j];
-      }
+    }
     dBydx = sum[0]*JI[0][0] + sum[1]*JI[0][1];
     dBydy = sum[0]*JI[1][0] + sum[1]*JI[1][1];
 
@@ -411,7 +411,7 @@ void vtkBiQuadraticTriangle::Derivatives(int vtkNotUsed(subId),
     derivs[3*j] = dBydx * v10[0] + dBydy * v20[0];
     derivs[3*j + 1] = dBydx * v10[1] + dBydy * v20[1];
     derivs[3*j + 2] = dBydx * v10[2] + dBydy * v20[2];
-    }
+  }
 }
 
 
@@ -432,7 +432,7 @@ void vtkBiQuadraticTriangle::Clip(double value,
                                 int insideOut)
 {
   for ( int i=0; i < 6; i++)
-    {
+  {
     this->Face->Points->SetPoint(0,this->Points->GetPoint(LinearTris[i][0]));
     this->Face->Points->SetPoint(1,this->Points->GetPoint(LinearTris[i][1]));
     this->Face->Points->SetPoint(2,this->Points->GetPoint(LinearTris[i][2]));
@@ -447,7 +447,7 @@ void vtkBiQuadraticTriangle::Clip(double value,
 
     this->Face->Clip(value, this->Scalars, locator, polys, inPd, outPd,
                      inCd, cellId, outCd, insideOut);
-    }
+  }
 }
 
 
@@ -465,24 +465,24 @@ double vtkBiQuadraticTriangle::GetParametricDistance(double pcoords[3])
   pc[2] = 1.0 - pcoords[0] - pcoords[1];
 
   for (i=0; i<3; i++)
-    {
+  {
     if ( pc[i] < 0.0 )
-      {
+    {
       pDist = -pc[i];
-      }
-    else if ( pc[i] > 1.0 )
-      {
-      pDist = pc[i] - 1.0;
-      }
-    else //inside the cell in the parametric direction
-      {
-      pDist = 0.0;
-      }
-    if ( pDist > pDistMax )
-      {
-      pDistMax = pDist;
-      }
     }
+    else if ( pc[i] > 1.0 )
+    {
+      pDist = pc[i] - 1.0;
+    }
+    else //inside the cell in the parametric direction
+    {
+      pDist = 0.0;
+    }
+    if ( pDist > pDistMax )
+    {
+      pDistMax = pDist;
+    }
+  }
 
   return pDistMax;
 }

@@ -80,13 +80,13 @@ int vtkPointSource::RequestData(
 
   // Set the desired precision for the points in the output.
   if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     newPoints->SetDataType(VTK_DOUBLE);
-    }
+  }
   else
-    {
+  {
     newPoints->SetDataType(VTK_FLOAT);
-    }
+  }
 
   newPoints->Allocate(this->NumberOfPoints);
   newVerts = vtkCellArray::New();
@@ -95,9 +95,9 @@ int vtkPointSource::RequestData(
   newVerts->InsertNextCell(this->NumberOfPoints);
 
   if (this->Distribution == VTK_POINT_SHELL)
-    {  // only produce points on the surface of the sphere
+  {  // only produce points on the surface of the sphere
     for (i=0; i<this->NumberOfPoints; i++)
-      {
+    {
       cosphi = 1 - 2 * this->Random();
       sinphi = sqrt(1 - cosphi*cosphi);
       radius = this->Radius * sinphi;
@@ -106,12 +106,12 @@ int vtkPointSource::RequestData(
       x[1] = this->Center[1] + radius*sin(theta);
       x[2] = this->Center[2] + this->Radius*cosphi;
       newVerts->InsertCellPoint(newPoints->InsertNextPoint(x));
-      }
     }
+  }
   else
-    { // uniform distribution throughout the sphere volume
+  { // uniform distribution throughout the sphere volume
     for (i=0; i<this->NumberOfPoints; i++)
-      {
+    {
       cosphi = 1 - 2*this->Random();
       sinphi = sqrt(1 - cosphi*cosphi);
       rho = this->Radius*pow(this->Random(),0.33333333);
@@ -121,8 +121,8 @@ int vtkPointSource::RequestData(
       x[1] = this->Center[1] + radius*sin(theta);
       x[2] = this->Center[2] + rho*cosphi;
       newVerts->InsertCellPoint(newPoints->InsertNextPoint(x));
-      }
     }
+  }
    //
    // Update ourselves and release memory
    //
@@ -139,9 +139,9 @@ int vtkPointSource::RequestData(
 double vtkPointSource::Random()
 {
   if (!this->RandomSequence)
-    {
+  {
     return vtkMath::Random();
-    }
+  }
 
   this->RandomSequence->Next();
   return this->RandomSequence->GetValue();

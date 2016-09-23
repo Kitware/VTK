@@ -1723,10 +1723,10 @@ int vtkVectorText::RequestData(
   float ftmp[3];
 
   if (this->Text == NULL)
-    {
+  {
     vtkErrorMacro (<< "Text is not set!");
     return 0;
-    }
+  }
 
   // Set things up; allocate memory
   newPoints = vtkPoints::New();
@@ -1735,9 +1735,9 @@ int vtkVectorText::RequestData(
 
   // Create Text
   while (this->Text[pos])
-    {
+  {
     switch (this->Text[pos])
-      {
+    {
       case 32:
         xpos += 0.4;
         break;
@@ -1750,22 +1750,22 @@ int vtkVectorText::RequestData(
       default:
         // if we have a valid character
         if ((this->Text[pos] > 32)&&(this->Text[pos] < 127))
-          {
+        {
           // add the result to our output
           aLetter = Letters[static_cast<int>(this->Text[pos])-33];
           ptCount = aLetter.ptCount;
           width = aLetter.width;
           for (i = 0; i < ptCount; i++)
-            {
+          {
             ftmp[0] = aLetter.points[i].x;
             ftmp[1] = aLetter.points[i].y;
             ftmp[0] += xpos;
             ftmp[1] += ypos;
             newPoints->InsertNextPoint(ftmp);
-            }
+          }
           triCount = aLetter.triCount;
           for (i = 0; i < triCount; i++)
-            {
+          {
             newPolys->InsertNextCell(3);
             aPoint = aLetter.triangles[i].p1;
             newPolys->InsertCellPoint(aPoint + ptOffset);
@@ -1773,14 +1773,14 @@ int vtkVectorText::RequestData(
             newPolys->InsertCellPoint(aPoint + ptOffset);
             aPoint = aLetter.triangles[i].p3;
             newPolys->InsertCellPoint(aPoint + ptOffset);
-            }
+          }
           ptOffset += ptCount;
           xpos += width;
-          }
+        }
         break;
-      }
-    pos++;
     }
+    pos++;
+  }
 
   //
   // Update ourselves and release memory

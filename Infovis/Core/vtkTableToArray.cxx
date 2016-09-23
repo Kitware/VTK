@@ -82,10 +82,10 @@ void vtkTableToArray::ClearColumns()
 void vtkTableToArray::AddColumn(const char* name)
 {
   if(!name)
-    {
+  {
     vtkErrorMacro(<< "cannot add column with NULL name");
     return;
-    }
+  }
 
   this->Implementation->Columns.push_back(vtkVariant(vtkStdString(name)));
   this->Modified();
@@ -106,11 +106,11 @@ void vtkTableToArray::AddAllColumns()
 int vtkTableToArray::FillInputPortInformation(int port, vtkInformation* info)
 {
   switch(port)
-    {
+  {
     case 0:
       info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
       return 1;
-    }
+  }
 
   return 0;
 }
@@ -127,33 +127,33 @@ int vtkTableToArray::RequestData(
   std::vector<vtkAbstractArray*> columns;
 
   for(size_t i = 0; i != this->Implementation->Columns.size(); ++i)
-    {
+  {
     if(this->Implementation->Columns[i].IsString())
-      {
+    {
       columns.push_back(table->GetColumnByName(this->Implementation->Columns[i].ToString().c_str()));
       if(!columns.back())
-        {
+      {
         vtkErrorMacro(<< "Missing table column: " << this->Implementation->Columns[i].ToString().c_str());
         return 0;
-        }
-      }
-    else if(this->Implementation->Columns[i].IsInt())
-      {
-      columns.push_back(table->GetColumn(this->Implementation->Columns[i].ToInt()));
-      if(!columns.back())
-        {
-        vtkErrorMacro(<< "Missing table column: " << this->Implementation->Columns[i].ToInt());
-        return 0;
-        }
-      }
-    else if(this->Implementation->Columns[i].IsChar() && this->Implementation->Columns[i].ToChar() == 'A')
-      {
-      for(vtkIdType j = 0; j != table->GetNumberOfColumns(); ++j)
-        {
-        columns.push_back(table->GetColumn(j));
-        }
       }
     }
+    else if(this->Implementation->Columns[i].IsInt())
+    {
+      columns.push_back(table->GetColumn(this->Implementation->Columns[i].ToInt()));
+      if(!columns.back())
+      {
+        vtkErrorMacro(<< "Missing table column: " << this->Implementation->Columns[i].ToInt());
+        return 0;
+      }
+    }
+    else if(this->Implementation->Columns[i].IsChar() && this->Implementation->Columns[i].ToChar() == 'A')
+    {
+      for(vtkIdType j = 0; j != table->GetNumberOfColumns(); ++j)
+      {
+        columns.push_back(table->GetColumn(j));
+      }
+    }
+  }
 
   vtkDenseArray<double>* const array = vtkDenseArray<double>::New();
   array->Resize(table->GetNumberOfRows(), columns.size());
@@ -161,12 +161,12 @@ int vtkTableToArray::RequestData(
   array->SetDimensionLabel(1, "column");
 
   for(vtkIdType i = 0; i != table->GetNumberOfRows(); ++i)
-    {
+  {
     for(size_t j = 0; j != columns.size(); ++j)
-      {
+    {
       array->SetValue(i, j, columns[j]->GetVariantValue(i).ToDouble());
-      }
     }
+  }
 
   vtkArrayData* const output = vtkArrayData::GetData(outputVector);
   output->ClearArrays();

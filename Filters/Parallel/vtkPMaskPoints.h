@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPMaskPoints - parallel Mask Points
-// .SECTION Description
-// The difference between this implementation and vtkMaskPoints is
-// the use of the vtkMultiProcessController and that
-// ProportionalMaximumNumberOfPoints is obeyed.
+/**
+ * @class   vtkPMaskPoints
+ * @brief   parallel Mask Points
+ *
+ * The difference between this implementation and vtkMaskPoints is
+ * the use of the vtkMultiProcessController and that
+ * ProportionalMaximumNumberOfPoints is obeyed.
+*/
 
 #ifndef vtkPMaskPoints_h
 #define vtkPMaskPoints_h
@@ -33,10 +36,13 @@ public:
   vtkTypeMacro(vtkPMaskPoints,vtkMaskPoints);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the communicator object for interprocess communication
+  //@{
+  /**
+   * Set the communicator object for interprocess communication
+   */
   virtual vtkMultiProcessController* GetController();
   virtual void SetController(vtkMultiProcessController*);
+  //@}
 
 protected:
   vtkPMaskPoints();

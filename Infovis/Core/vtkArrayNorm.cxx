@@ -74,10 +74,10 @@ void vtkArrayNorm::PrintSelf(ostream& os, vtkIndent indent)
 void vtkArrayNorm::SetL(int value)
 {
   if(value < 1)
-    {
+  {
     vtkErrorMacro(<< "Cannot compute array norm for L < 1");
     return;
-    }
+  }
 
   if(this->L == value)
     return;
@@ -92,7 +92,7 @@ int vtkArrayNorm::RequestData(
   vtkInformationVector* outputVector)
 {
   try
-    {
+  {
     // Test our preconditions ...
     vtkArrayData* const input_data = vtkArrayData::GetData(inputVector[0]);
     if(!input_data)
@@ -129,38 +129,38 @@ int vtkArrayNorm::RequestData(
     vtkArrayCoordinates coordinates;
     const vtkIdType non_null_count = input_array->GetNonNullSize();
     for(vtkIdType n = 0; n != non_null_count; ++n)
-      {
+    {
       input_array->GetCoordinatesN(n, coordinates);
       if(!this->Window.Contains(coordinates[element_dimension]))
         continue;
       output_array->SetValue(coordinates[vector_dimension], output_array->GetValue(coordinates[vector_dimension]) + pow(input_array->GetValueN(n), this->L));
-      }
+    }
 
     for(vtkArray::SizeT n = 0; n != output_array->GetNonNullSize(); ++n)
-      {
+    {
       output_array->SetValueN(n, pow(output_array->GetValueN(n), 1.0 / this->L));
-      }
+    }
 
     // Optionally invert the output vector
     if(this->Invert)
-      {
+    {
       for(vtkArray::SizeT n = 0; n != output_array->GetNonNullSize(); ++n)
-        {
+      {
         if(output_array->GetValueN(n))
           output_array->SetValueN(n, 1.0 / output_array->GetValueN(n));
-        }
       }
     }
+  }
   catch(std::exception& e)
-    {
+  {
     vtkErrorMacro(<< "unhandled exception: " << e.what());
     return 0;
-    }
+  }
   catch(...)
-    {
+  {
     vtkErrorMacro(<< "unknown exception");
     return 0;
-    }
+  }
 
   return 1;
 }

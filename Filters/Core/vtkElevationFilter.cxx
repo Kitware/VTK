@@ -52,13 +52,13 @@ public:
 
   // Interface implicit function computation to SMP tools.
   template <class T> class ElevationOp
-    {
+  {
     public:
       ElevationOp(vtkElevationAlgorithm<T> *algo)
         { this->Algo = algo;}
       vtkElevationAlgorithm *Algo;
       void  operator() (vtkIdType k, vtkIdType end)
-        {
+      {
         double ns, vec[3];
         const double *range = this->Algo->ScalarRange;
         const double diffScalar = range[1] - range[0];
@@ -68,7 +68,7 @@ public:
         const TP *p = this->Algo->Points + 3*k;
         float *s = this->Algo->Scalars + k;
         for ( ; k < end; ++k)
-          {
+        {
           vec[0] = p[0] - lp[0];
           vec[1] = p[1] - lp[1];
           vec[2] = p[2] - lp[2];
@@ -80,9 +80,9 @@ public:
 
           p+=3;
           ++s;
-          }
         }
-    };
+      }
+  };
 };
 
 //----------------------------------------------------------------------------
@@ -169,10 +169,10 @@ int vtkElevationFilter::RequestData(vtkInformation*,
   // Check the size of the input.
   vtkIdType numPts = input->GetNumberOfPoints();
   if(numPts < 1)
-    {
+  {
     vtkDebugMacro("No input!");
     return 1;
-    }
+  }
 
   // Allocate space for the elevation scalar data.
   vtkSmartPointer<vtkFloatArray> newScalars =
@@ -186,13 +186,13 @@ int vtkElevationFilter::RequestData(vtkInformation*,
       this->HighPoint[2] - this->LowPoint[2] };
   double length2 = vtkMath::Dot(diffVector, diffVector);
   if(length2 <= 0)
-    {
+  {
     vtkErrorMacro("Bad vector, using (0,0,1).");
     diffVector[0] = 0;
     diffVector[1] = 0;
     diffVector[2] = 1;
     length2 = 1.0;
-    }
+  }
 
   vtkDebugMacro("Generating elevation scalars!");
 
@@ -200,21 +200,21 @@ int vtkElevationFilter::RequestData(vtkInformation*,
   //
   vtkPointSet *ps = vtkPointSet::SafeDownCast(input);
   if ( ps )
-    {
+  {
     float *scalars =
       static_cast<float*>(newScalars->GetVoidPointer(0));
     vtkPoints *points = ps->GetPoints();
     void *pts = points->GetData()->GetVoidPointer(0);
     switch ( points->GetDataType() )
-      {
+    {
       vtkTemplateMacro(
         vtkElevationAlgorithm<VTK_TT>::Elevate(this,numPts,diffVector,length2,
                                                (VTK_TT *)pts,scalars));
-      }
-    }//fast path
+    }
+  }//fast path
 
   else
-    {
+  {
     // Too bad, got to take the scenic route.
     // Support progress and abort.
     vtkIdType tenth = (numPts >= 10? numPts/10 : 1);
@@ -224,13 +224,13 @@ int vtkElevationFilter::RequestData(vtkInformation*,
     // Compute parametric coordinate and map into scalar range.
     double diffScalar = this->ScalarRange[1] - this->ScalarRange[0];
     for(vtkIdType i=0; i < numPts && !abort; ++i)
-      {
+    {
       // Periodically update progress and check for an abort request.
       if(i % tenth == 0)
-        {
+      {
         this->UpdateProgress((i+1)*numPtsInv);
         abort = this->GetAbortExecute();
-        }
+      }
 
       // Project this input point into the 1D system.
       double x[3];
@@ -243,8 +243,8 @@ int vtkElevationFilter::RequestData(vtkInformation*,
 
       // Store the resulting scalar value.
       newScalars->SetValue(i, this->ScalarRange[0] + s*diffScalar);
-      }
     }
+  }
 
   // Copy all the input geometry and data to the output.
   output->CopyStructure(input);

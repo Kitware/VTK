@@ -12,25 +12,27 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSPHQuarticKernel - a quartic SPH interpolation kernel
-
-// .SECTION Description
-// vtkSPHQuarticKernel is an smooth particle hydrodynamics interpolation kernel as
-// described by D.J. Price. This is a quartic formulation.
-//
-// .SECTION Caveats
-// For more information see D.J. Price, Smoothed particle hydrodynamics and
-// magnetohydrodynamics, J. Comput. Phys. 231:759-794, 2012. Especially
-// equation 49.
-
-// .SECTION Acknowledgments
-// The following work has been generously supported by Altair Engineering
-// and FluiDyna GmbH. Please contact Steve Cosgrove or Milos Stanic for
-// more information.
-
-// .SECTION See Also
-// vtkSPHKernel vtkSPHInterpolator
-
+/**
+ * @class   vtkSPHQuarticKernel
+ * @brief   a quartic SPH interpolation kernel
+ *
+ *
+ * vtkSPHQuarticKernel is an smooth particle hydrodynamics interpolation kernel as
+ * described by D.J. Price. This is a quartic formulation.
+ *
+ * @warning
+ * For more information see D.J. Price, Smoothed particle hydrodynamics and
+ * magnetohydrodynamics, J. Comput. Phys. 231:759-794, 2012. Especially
+ * equation 49.
+ *
+ * @par Acknowledgments:
+ * The following work has been generously supported by Altair Engineering
+ * and FluiDyna GmbH. Please contact Steve Cosgrove or Milos Stanic for
+ * more information.
+ *
+ * @sa
+ * vtkSPHKernel vtkSPHInterpolator
+*/
 
 #ifndef vtkSPHQuarticKernel_h
 #define vtkSPHQuarticKernel_h
@@ -46,20 +48,26 @@ class vtkDoubleArray;
 class VTKFILTERSPOINTS_EXPORT vtkSPHQuarticKernel : public vtkSPHKernel
 {
 public:
-  // Description:
-  // Standard methods for instantiation, obtaining type information, and printing.
+  //@{
+  /**
+   * Standard methods for instantiation, obtaining type information, and printing.
+   */
   static vtkSPHQuarticKernel *New();
   vtkTypeMacro(vtkSPHQuarticKernel,vtkSPHKernel);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // Produce the computational parameters for the kernel. Invoke this method
-  // after setting initial values like SpatialStep.
+  /**
+   * Produce the computational parameters for the kernel. Invoke this method
+   * after setting initial values like SpatialStep.
+   */
   virtual void Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds,
                           vtkPointData *pd);
 
-  // Description:
-  // Compute weighting factor given a normalized distance from a sample point.
+  //@{
+  /**
+   * Compute weighting factor given a normalized distance from a sample point.
+   */
   virtual double ComputeFunctionWeight(const double d)
   {
     double tmp1 = 2.5 - std::min(d,2.5);
@@ -68,10 +76,13 @@ public:
     return (tmp1*tmp1*tmp1*tmp1 - 5.0*tmp2*tmp2*tmp2*tmp2 +
             10.0*tmp3*tmp3*tmp3*tmp3);
   }
+  //@}
 
-  // Description:
-  // Compute weighting factor for derivative quantities given a normalized
-  // distance from a sample point.
+  //@{
+  /**
+   * Compute weighting factor for derivative quantities given a normalized
+   * distance from a sample point.
+   */
   virtual double ComputeDerivWeight(const double d)
   {
     double tmp1 = 2.5 - std::min(d,2.5);
@@ -79,6 +90,7 @@ public:
     double tmp3 = 0.5 - std::min(d,0.5);
     return (-4.0*tmp1*tmp1*tmp1 + 20.0*tmp2*tmp2*tmp2 - 40.0*tmp3*tmp3*tmp3);
   }
+  //@}
 
 protected:
   vtkSPHQuarticKernel();

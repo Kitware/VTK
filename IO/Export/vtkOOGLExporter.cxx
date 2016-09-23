@@ -69,42 +69,42 @@ void vtkOOGLExporter::WriteData()
   vtkMatrix4x4 *mat;
 
   for (i=0;i<256;i++)
-    {
+  {
     indent[i] = ' ';
-    }
+  }
   indent[indent_now] = 0;
 
   // make sure the user specified a filename
   if ( this->FileName == NULL)
-    {
+  {
     vtkErrorMacro(<< "Please specify FileName to use");
     return;
-    }
+  }
 
   // first make sure there is only one renderer in this rendering window
   if (this->RenderWindow->GetRenderers()->GetNumberOfItems() > 1)
-    {
+  {
     vtkErrorMacro(<< "Support for only one renderer per window.");
     return;
-    }
+  }
 
   // get the renderer
   ren = this->RenderWindow->GetRenderers()->GetFirstRenderer();
 
   // make sure it has at least one actor
   if (ren->GetActors()->GetNumberOfItems() < 1)
-    {
+  {
     vtkErrorMacro(<< "no actors found for writing Geomview OOGL file.");
     return;
-    }
+  }
 
   // try opening the files
   fp = fopen(this->FileName,"w");
   if (!fp)
-    {
+  {
     vtkErrorMacro(<< "unable to open Geomview OOGL file " << this->FileName);
     return;
-    }
+  }
 
   //
   //  Write header
@@ -131,14 +131,14 @@ void vtkOOGLExporter::WriteData()
   VTK_INDENT_MORE;
 
   for (i=0; i<4;i++)
-     {
+  {
      fprintf(fp, "%s", indent);
      for (j=0; j < 4; j++)
-       {
+     {
        fprintf(fp, "%f ", mat->GetElement(j,i));
-       }
-     fprintf(fp, "\n");
      }
+     fprintf(fp, "\n");
+  }
 
   VTK_INDENT_LESS;
   fprintf(fp, "%s}\n", indent);
@@ -197,9 +197,9 @@ void vtkOOGLExporter::WriteData()
   lc = ren->GetLights();
   vtkCollectionSimpleIterator sit;
   for (lc->InitTraversal(sit); (aLight = lc->GetNextLight(sit)); )
-    {
+  {
     this->WriteALight(aLight, fp);
-    }
+  }
 
   VTK_INDENT_LESS;
 
@@ -216,14 +216,14 @@ void vtkOOGLExporter::WriteData()
   count = 0;
   vtkCollectionSimpleIterator ait;
   for (ac->InitTraversal(ait); (anActor = ac->GetNextActor(ait)); )
-    {
+  {
     for (anActor->InitPathTraversal(); (apath=anActor->GetNextPath()); )
-      {
+    {
       count++;
       aPart=static_cast<vtkActor *>(apath->GetLastNode()->GetViewProp());
       this->WriteAnActor(aPart, fp, count);
-      }
     }
+  }
 
   fclose(fp);
 }
@@ -280,9 +280,9 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
 
   // see if the actor has a mapper. it could be an assembly
   if (anActor->GetMapper() == NULL)
-    {
+  {
     return;
-    }
+  }
 
   fprintf(fp,"%s(new-geometry \"[g%d]\"\n", indent, count);
 
@@ -294,20 +294,20 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
   vtkAlgorithmOutput* pdProducer = 0;
   // we really want polydata
   if ( ds->GetDataObjectType() != VTK_POLY_DATA )
-    {
+  {
     gf = vtkGeometryFilter::New();
     gf->SetInputConnection(
       anActor->GetMapper()->GetInputConnection(0, 0));
     gf->Update();
     pd = gf->GetOutput();
     pdProducer = gf->GetOutputPort();
-    }
+  }
   else
-    {
+  {
     anActor->GetMapper()->GetInputAlgorithm()->Update();
     pd = static_cast<vtkPolyData *>(ds);
     pdProducer = anActor->GetMapper()->GetInputConnection(0, 0);
-    }
+  }
 
   pm = vtkPolyDataMapper::New();
   pm->SetInputConnection(pdProducer);
@@ -335,7 +335,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
 
    // extract vector information
    if (pd->GetNumberOfLines())
-     {
+   {
      fprintf(fp, "%s{ VECT\n", indent);
 
      VTK_INDENT_MORE;
@@ -344,39 +344,39 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
      cells = pd->GetLines();
      i = 0;
      for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
-       {
+     {
        i += npts;
-       }
+     }
      fprintf(fp, "%s%d %d %d\n", indent, static_cast<int>(pd->GetNumberOfLines()), i, 1);
      cells = pd->GetLines();
      fprintf(fp, "%s", indent);
      for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
-       {
+     {
        fprintf(fp, "%d ", static_cast<int>(npts));
-       }
+     }
      fprintf(fp, "\n");
 
      // write out # of color information
      fprintf(fp, "%s1 ", indent);
      for (i=1; i<pd->GetNumberOfLines(); i++)
-       {
+     {
        fprintf(fp, "0 ");
-       }
+     }
      fprintf(fp, "\n");
 
 
      // write out points
      cells = pd->GetLines();
      for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
-       {
+     {
        fprintf(fp, "%s", indent);
        for (i=0;i<npts;i++)
-         {
+       {
          double *pt = points->GetPoint(indx[i]);
          fprintf(fp, "%s%f %f %f ", indent, pt[0], pt[1], pt[2]);
-         }
-       fprintf(fp, "\n");
        }
+       fprintf(fp, "\n");
+     }
 
      // write out color indices
      tempd = prop->GetColor();
@@ -384,111 +384,111 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
      fprintf(fp, "}\n");
 
      VTK_INDENT_LESS;
-     }
+   }
 
    // extract polygon information (includes triangle strips)
 
    if (pd->GetNumberOfPolys() || pd->GetNumberOfStrips())
-     {
+   {
      fprintf(fp, "%s{ %sOFF\n", indent, (colors) ? "C" : "");
 
      VTK_INDENT_MORE;
 
      // write header
      if (pd->GetNumberOfPolys())
-       {
+     {
        fprintf(fp, "%s%d %d %d\n", indent, static_cast<int>(points->GetNumberOfPoints()),
                static_cast<int>(pd->GetNumberOfPolys()), 0);
-       }
+     }
      else
-       {
+     {
        // Handle triangle strips
        //
        i = 0;
        cells = pd->GetStrips();
        for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
-         {
+       {
          i += (npts-2);
-         }
-       fprintf(fp, "%s%d %d %d\n", indent, static_cast<int>(points->GetNumberOfPoints()), i, 0);
        }
+       fprintf(fp, "%s%d %d %d\n", indent, static_cast<int>(points->GetNumberOfPoints()), i, 0);
+     }
 
       // write points
       if (colors)
-        {
+      {
         for (i = 0; i < points->GetNumberOfPoints(); i++)
-          {
+        {
           double *pt = points->GetPoint(i);
           c = static_cast<unsigned char *>(colors->GetPointer(4*i));
 
           fprintf (fp,"%s%g %g %g %g %g %g %g\n", indent,
                    pt[0], pt[1], pt[2],
                    c[0]/255., c[1]/255., c[2]/255., c[3]/255.);
-          }
         }
+      }
       else
-        {
+      {
         for (i = 0; i < points->GetNumberOfPoints(); i++)
-          {
+        {
           double *pt = points->GetPoint(i);
           fprintf (fp,"%s%g %g %g\n", indent, pt[0], pt[1], pt[2]);
-          }
         }
+      }
 
       // write polys
       if (pd->GetNumberOfPolys())
-        {
+      {
         cells = pd->GetPolys();
         for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
-          {
+        {
           fprintf(fp, "%s%i ", indent, static_cast<int>(npts));
           for (i = 0; i < npts; i++)
-            {
+          {
 #ifdef VTK_USE_64BIT_IDS
             fprintf(fp, "%lld ", indx[i]);
 #else  // VTK_USE_64BIT_IDS
             fprintf(fp, "%d ", indx[i]);
 #endif // VTK_USE_64BIT_IDS
-            }
-          fprintf(fp, "\n");
           }
+          fprintf(fp, "\n");
+        }
         fprintf(fp, "%s}\n", indent); // finish of polygon list
 
         VTK_INDENT_LESS;
 
-        }
+      }
 
       else if (pd->GetNumberOfStrips())
-        { // write triangle strips
+      { // write triangle strips
         cells = pd->GetStrips();
 
         for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
-          {
+        {
           int pt1, pt2, pt3;
 
           pt1 = indx[0];
           pt2 = indx[1];
 
           for (i = 0; i < (npts - 2); i++)
-            {
+          {
             pt3 = indx[i+2];
             if (i % 2)
-              {
+            {
               fprintf(fp, "%s3 %d %d %d\n", indent, pt2, pt1, pt3);
-              }
+            }
             else
-              {
+            {
               fprintf(fp, "%s3 %d %d %d\n", indent, pt1, pt2, pt3);
-              }
+            }
             pt1 = pt2;
             pt2 = pt3;
-            }
           }
+        }
         fprintf(fp, "%s}\n", indent); // Finish off triangle strips
 
         VTK_INDENT_LESS;
-        }
-     }
+      }
+   }
 
    fprintf(fp, "%s}\n", indent); // End of list object
 
@@ -517,21 +517,21 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
 
    // Set shading model
    if (prop->GetInterpolation() > 0)
-     {
+   {
      fprintf(fp, "%sshading smooth\n", indent);
-     }
+   }
 
    // Set transparency
    if (prop->GetOpacity() < 1)
-     {
+   {
      fprintf(fp, "%s+transparent\n", indent);
-     }
+   }
 
    // Set representation - no way to render points
    if (prop->GetRepresentation() != 2)
-     {
+   {
      fprintf(fp, "%s+edge\n%s-face\n", indent, indent);
-     }
+   }
 
    // Set edge information
    fprintf(fp, "%slinewidth %d\n", indent, static_cast<int>(prop->GetLineWidth()));
@@ -543,18 +543,18 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
 
   // Indicate whether edges are shown or not
    if (prop->GetEdgeVisibility())
-     {
+   {
      tempd = prop->GetEdgeColor();
-     }
+   }
    if (prop->GetRepresentation() != 2)
-     {
+   {
      tempd = prop->GetColor();
-     }
+   }
   if (prop->GetEdgeVisibility() || (prop->GetRepresentation() != 2))
-    {
+  {
     fprintf(fp, "%sedgecolor %f %f %f\n", indent,
             tempd[0], tempd[1], tempd[2]);
-    }
+  }
 
   tempf2 = prop->GetAmbient();
   tempd = prop->GetAmbientColor();
@@ -569,9 +569,9 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
   fprintf(fp, "%sks %f\n", indent, tempf2);
   fprintf(fp, "%sspecular %f %f %f\n", indent, tempd[0], tempd[1], tempd[2]);
   if (prop->GetOpacity() < 1)
-    {
+  {
     fprintf(fp, "%salpha %f\n", indent, prop->GetOpacity());
-    }
+  }
 
   fprintf(fp, "%s}\n", indent);
 
@@ -584,9 +584,9 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
   fprintf(fp, ")\n");
 
   if (gf)
-    {
+  {
     gf->Delete();
-    }
+  }
   pm->Delete();
 }
 
@@ -597,12 +597,12 @@ void vtkOOGLExporter::PrintSelf(ostream& os, vtkIndent ind)
   vtkExporter::PrintSelf(os,ind);
 
   if (this->FileName)
-    {
+  {
     os << ind << "FileName: " << this->FileName << "\n";
-    }
+  }
   else
-    {
+  {
     os << ind << "FileName: (null)\n";
-    }
+  }
 }
 

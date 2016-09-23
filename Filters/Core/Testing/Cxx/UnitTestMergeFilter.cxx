@@ -35,19 +35,19 @@ static vtkSmartPointer<vtkCellData> MakeCellData(unsigned int numberOfCells);
   { \
   std::string expectedMsg(msg); \
   if (!warningObserver->GetWarning()) \
-    { \
+  { \
     std::cout << "Failed to catch any warning.. Expected the warning message to contain \"" << expectedMsg << std::endl; \
     status++; \
-    } \
+  } \
   else \
-    { \
+  { \
     std::string gotMsg(warningObserver->GetWarningMessage()); \
     if (gotMsg.find(expectedMsg) == std::string::npos) \
-      { \
+    { \
       std::cout << "Warning message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
       status++; \
-      } \
     } \
+  } \
   } \
   warningObserver->Clear()
 
@@ -68,50 +68,50 @@ int UnitTestMergeFilter (int, char*[])
   // Check for null inputs
   int status0 = 0;
   if (merge0->GetGeometry() != NULL)
-    {
+  {
     std::cout << std::endl << "  GetGeometry() expected NULL" << std::endl;
     status0++;
-    }
+  }
   if (merge0->GetGeometry() != NULL)
-    {
+  {
     status++;
     std::cout << std::endl << "  GetGeometry() expected NULL" << std::endl;
-    }
+  }
   status0 = 0;
 
   if (merge0->GetScalars() != NULL)
-    {
+  {
     status++;
     std::cout << std::endl << "  GetScalars() expected NULL" << std::endl;
-    }
+  }
   status0 = 0;
 
   if (merge0->GetVectors() != NULL)
-    {
+  {
     status++;
     std::cout << std::endl << "  GetVectors( ) expected NULL" << std::endl;
-    }
+  }
   status0 = 0;
 
   if (merge0->GetNormals() != NULL)
-    {
+  {
     status++;
     std::cout << std::endl << "  GetNormals() expected NULL" << std::endl;
-    }
+  }
   status0 = 0;
 
   if (merge0->GetTCoords() != NULL)
-    {
+  {
     status++;
     std::cout << std::endl << "  GetTCoords() expected NULL" << std::endl;
-    }
+  }
   status0 = 0;
 
   if (merge0->GetTensors() != NULL)
-    {
+  {
     status++;
     std::cout << std::endl << "  GetTensorsd() expected NULL" << std::endl;
-    }
+  }
   status0 = 0;
 
   merge0->SetGeometryInputData(polyData0);
@@ -121,14 +121,14 @@ int UnitTestMergeFilter (int, char*[])
   merge0->Update();
   CHECK_WARNING_MSG(warningObserver, "Nothing to merge!", status0);
   if (status0)
-    {
+  {
     status++;
     std::cout << "FAILED." << std::endl;
-    }
+  }
   else
-    {
+  {
     std::cout << "PASSED." << std::endl;
-    }
+  }
 
   // Create a PolyData
   vtkSmartPointer<vtkDataObjectGenerator> dog1 =
@@ -175,40 +175,40 @@ int UnitTestMergeFilter (int, char*[])
 
   // Now verify that the arrays have been merged
   if (merge1->GetGeometry() != vtkDataSet::SafeDownCast(polyData))
-    {
+  {
     std::cout << "ERROR: Input geometry does not match" << std::endl;
     status++;
-    }
+  }
   if (merge1->GetScalars()->GetPointData()->GetScalars() !=
       polyData2->GetPointData()->GetScalars())
-    {
+  {
     std::cout << "ERROR: Scalars not merged" << std::endl;
     status++;
-    }
+  }
   if (merge1->GetVectors()->GetPointData()->GetVectors() !=
       polyData2->GetPointData()->GetVectors())
-    {
+  {
     std::cout << "ERROR: Vectors not merged" << std::endl;
     status++;
-    }
+  }
   if (merge1->GetNormals()->GetPointData()->GetNormals() !=
       polyData2->GetPointData()->GetNormals())
-    {
+  {
     std::cout << "ERROR: Normals not merged" << std::endl;
     status++;
-    }
+  }
   if (merge1->GetTCoords()->GetPointData()->GetTCoords() !=
       polyData2->GetPointData()->GetTCoords())
-    {
+  {
     std::cout << "ERROR: TCoords not merged" << std::endl;
     status++;
-    }
+  }
   if (merge1->GetTensors()->GetPointData()->GetTensors() !=
       polyData2->GetPointData()->GetTensors())
-    {
+  {
     std::cout << "ERROR: Tensors not merged" << std::endl;
     status++;
-    }
+  }
   merge1->AddObserver(vtkCommand::WarningEvent, warningObserver);
   vtkSmartPointer<vtkPointData> pointData2 =
     MakePointData(100);
@@ -241,13 +241,13 @@ int UnitTestMergeFilter (int, char*[])
   merge1->Update();
   CHECK_WARNING_MSG(warningObserver, "cannot be merged", status);
   if (status)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
   else
-    {
+  {
     return EXIT_SUCCESS;
-    }
+  }
 }
 
 vtkSmartPointer<vtkPointData> MakePointData(unsigned int numberOfPoints)
@@ -280,13 +280,13 @@ vtkSmartPointer<vtkPointData> MakePointData(unsigned int numberOfPoints)
   tensorsArray->SetNumberOfComponents(9);
   tensorsArray->SetName("Tensors:floatArray");
   for (unsigned int i = 0; i < numberOfPoints; ++i)
-    {
+  {
     scalarsArray->InsertTuple1(i, i);
     normalsArray->InsertTuple3(i, i, i+1, i+2);
     vectorsArray->InsertTuple3(i, i+1, i+2, i+3);
     tcoordsArray->InsertTuple2(i, i*2, i*3);
     tensorsArray->InsertTuple9(i, i, i+1, i+2, i+3, i+4, i+5,i+6, i+7,i+8);
-    }
+  }
   pointData->SetScalars(scalarsArray);
   pointData->SetNormals(normalsArray);
   pointData->SetVectors(vectorsArray);
@@ -325,13 +325,13 @@ vtkSmartPointer<vtkCellData> MakeCellData(unsigned int numberOfCells)
   tensorsArray->SetNumberOfComponents(9);
   tensorsArray->SetName("Tensors:floatArray");
   for (unsigned int i = 0; i < numberOfCells; ++i)
-    {
+  {
     scalarsArray->InsertTuple1(i, i);
     normalsArray->InsertTuple3(i, i, i+1, i+2);
     vectorsArray->InsertTuple3(i, i+1, i+2, i+3);
     tcoordsArray->InsertTuple2(i, i*2, i*3);
     tensorsArray->InsertTuple9(i, i, i+1, i+2, i+3, i+4, i+5,i+6, i+7,i+8);
-    }
+  }
   cellData->SetScalars(scalarsArray);
   cellData->SetNormals(normalsArray);
   cellData->SetVectors(vectorsArray);

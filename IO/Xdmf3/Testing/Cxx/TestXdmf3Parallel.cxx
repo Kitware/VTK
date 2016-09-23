@@ -35,21 +35,21 @@ public:
   virtual void Execute();
 
   void SetArgs(int argc, char *argv[], std::string fname)
-    {
+  {
       this->Argc = argc;
       this->Argv = argv;
       this->FileName = fname;
-    }
+  }
 
   void CreatePipeline()
-    {
+  {
     int num_procs = this->Controller->GetNumberOfProcesses();
     int my_id = this->Controller->GetLocalProcessId();
 
     this->Reader = vtkXdmf3Reader::New();
     this->Reader->SetFileName(this->FileName.c_str());
     cerr << my_id << "/" << num_procs << " " << this->FileName << endl;
-    }
+  }
 
 protected:
   MyProcess() { this->Argc = 0; this->Argv = NULL;}
@@ -95,11 +95,11 @@ int main(int argc, char *argv[])
   int numProcs = contr->GetNumberOfProcesses();
 
   if (numProcs < 2 && false)
-    {
+  {
     cout << "This test requires at least 2 processes" << endl;
     contr->Delete();
     return retVal;
-    }
+  }
 
   vtkMultiProcessController::SetGlobalController(contr);
 
@@ -112,12 +112,12 @@ int main(int argc, char *argv[])
 
   //allow caller to use something else
   for (int i = 0; i<argc; i++)
-    {
+  {
     if (!strncmp(argv[i], "--file=", 11))
-      {
+    {
       file=argv[i]+11;
-      }
     }
+  }
   MyProcess *p = MyProcess::New();
   p->SetArgs(argc, argv, file.c_str());
 

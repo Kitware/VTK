@@ -50,7 +50,7 @@ vtkHighestDensityRegionsStatistics::~vtkHighestDensityRegionsStatistics()
 // ----------------------------------------------------------------------
 void vtkHighestDensityRegionsStatistics::PrintSelf(ostream& os,
                                                    vtkIndent indent)
-  {
+{
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Sigma matrix: " <<
@@ -58,7 +58,7 @@ void vtkHighestDensityRegionsStatistics::PrintSelf(ostream& os,
     this->SmoothHC1[1] << ", " <<
     this->SmoothHC2[0] << ", " <<
     this->SmoothHC2[1] << "\n";
-  }
+}
 
 // ----------------------------------------------------------------------
 void vtkHighestDensityRegionsStatistics::SetSigmaMatrix(
@@ -66,9 +66,9 @@ void vtkHighestDensityRegionsStatistics::SetSigmaMatrix(
 {
   if (this->SmoothHC1[0] == s11 && this->SmoothHC1[1] == s12 &&
       this->SmoothHC2[0] == s21 && this->SmoothHC2[1] == s22)
-    {
+  {
     return;
-    }
+  }
 
   this->SmoothHC1[0] = s11;
   this->SmoothHC1[1] = s12;
@@ -79,9 +79,9 @@ void vtkHighestDensityRegionsStatistics::SetSigmaMatrix(
     vtkMath::Determinant2x2(this->SmoothHC1, this->SmoothHC2);
   double invDet = 0.;
   if (this->Determinant != 0.)
-    {
+  {
     invDet = 1.0 / this->Determinant;
-    }
+  }
 
   // We compute and store the inverse of the smoothing matrix
   this->InvSigmaC1[0] = +invDet * this->SmoothHC2[1];
@@ -104,9 +104,9 @@ void vtkHighestDensityRegionsStatistics::Learn(vtkTable* inData,
                                                vtkMultiBlockDataSet* outMeta)
 {
   if (!inData || !outMeta)
-    {
+  {
     return;
-    }
+  }
 
   vtkNew<vtkTable> outputColumns;
 
@@ -120,28 +120,28 @@ void vtkHighestDensityRegionsStatistics::Learn(vtkTable* inData,
   // the input dataset
   for (reqIt = this->Internals->Requests.begin();
     reqIt != this->Internals->Requests.end(); ++ reqIt)
-    {
+  {
     // Each request contains only one pair of columns of interest
     // (if there are others, they are ignored).
     std::set<vtkStdString>::const_iterator colIt = reqIt->begin();
     const vtkStdString &colY = *colIt;
     if (!inData->GetColumnByName(colY.c_str()))
-      {
+    {
       vtkWarningMacro("InData table does not have a column "
         << colY.c_str()
         << ". Ignoring this pair.");
       continue;
-      }
+    }
 
     ++colIt;
     const vtkStdString &colX = *colIt;
     if (!inData->GetColumnByName(colX.c_str()))
-      {
+    {
       vtkWarningMacro("InData table does not have a column "
         << colX.c_str()
         << ". Ignoring this pair.");
       continue;
-      }
+    }
 
     // Verify column types
     vtkDataArray *inputColX =
@@ -149,11 +149,11 @@ void vtkHighestDensityRegionsStatistics::Learn(vtkTable* inData,
     vtkDataArray *inputColY =
       vtkArrayDownCast<vtkDataArray>(inData->GetColumnByName(colY.c_str()));
     if (!inputColX || !inputColY)
-      {
+    {
       vtkErrorMacro(
         << "HDR cannot work with columns that are not of vtkDataArray type");
       return;
-      }
+    }
 
     vtkDataArray* arrX =
       vtkDataArray::CreateDataArray(inputColX->GetDataType());
@@ -197,7 +197,7 @@ void vtkHighestDensityRegionsStatistics::Learn(vtkTable* inData,
 
     // One requested pair of columns has been added.
     this->NumberOfRequestedColumnsPair++;
-    } // End requests iteration.
+  } // End requests iteration.
 
   outMeta->SetNumberOfBlocks(1);
   outMeta->SetBlock(0, outputColumns.GetPointer());
@@ -227,17 +227,17 @@ double vtkHighestDensityRegionsStatistics
   vtkIdType nbPoints = inPointsOfInterest->GetNumberOfTuples();
 
   if (nbObservations == 0)
-    {
+  {
     vtkErrorMacro(<< "Empty observation array");
     return 0.0;
-    }
+  }
   double sum = 0.0;
 
   double denom = 1.0 / static_cast<double>(nbObservations);
 
   // Let's compute the HDR for each points of interest
   for (vtkIdType i = 0; i < nbPoints; i++)
-    {
+  {
     double currentXi[2];
     double currentXj[2];
     double hdr = 0.0;
@@ -246,7 +246,7 @@ double vtkHighestDensityRegionsStatistics
     inPointsOfInterest->GetTuple(i, currentXi);
     // Sum all gaussian kernel
     for (vtkIdType j = 0; j < nbObservations; j++)
-      {
+    {
       inObs->GetTuple(j, currentXj);
 
       const double deltaX = currentXi[0] - currentXj[0];
@@ -254,11 +254,11 @@ double vtkHighestDensityRegionsStatistics
       hdr += this->ComputeSmoothGaussianKernel(
         inObs->GetNumberOfComponents(),
         deltaX, deltaY);
-      }
+    }
     double d = denom * hdr;
     outDensity->SetTuple1(i, d);
     sum += d;
-    }
+  }
 
   return sum;
 }

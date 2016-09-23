@@ -38,23 +38,23 @@ void vtkImageFourierFilter::ExecuteFftStep2(vtkImageComplex *p_in,
   p1 = p_in;
   p3 = p_out;
   for(i1 = 0; i1 < N / (bsize * 2); ++i1)   // loop 0->1
-    {
+  {
     p2 = p1;
     for(i2 = 0; i2 < bsize; ++i2)    // loop 0->2
-      {
+    {
       *p3 = *p2;         // out[0] = in[0];  out[1] = in[1];
       ++p2;
       ++p3;
-      }
+    }
     p2 = p1;
     for(i2 = 0; i2 < bsize; ++i2)
-      {
+    {
       *p3 = *p2;         // out[2] = in[0];   out[3] = in[1];
       ++p2;
       ++p3;
-      }
-    p1 = p1 + bsize;
     }
+    p1 = p1 + bsize;
+  }
 
   /* Add the links with factors. */
   fact1.Real = 1.0;
@@ -64,28 +64,28 @@ void vtkImageFourierFilter::ExecuteFftStep2(vtkImageComplex *p_in,
   vtkImageComplexExponential(q, q);
   p3 = p_out;
   for(i1 = 0; i1 < N / (bsize * 2); ++i1)
-    {
+  {
     fact = fact1;
     p2 = p1;
     for(i2 = 0; i2 < bsize; ++i2)
-      {
+    {
       vtkImageComplexMultiply(fact, *p2, temp);
       vtkImageComplexAdd(temp, *p3, *p3);
       vtkImageComplexMultiply(q, fact, fact);
       ++p2;    // out[0] += in[2];   out[1] += -i*in[3];
       ++p3;
-      }
+    }
     p2 = p1;
     for(i2 = 0; i2 < bsize; ++i2)
-      {
+    {
       vtkImageComplexMultiply(fact, *p2, temp);
       vtkImageComplexAdd(temp, *p3, *p3);
       vtkImageComplexMultiply(q, fact, fact);
       ++p2;
       ++p3;
-      }
-    p1 = p1 + bsize;
     }
+    p1 = p1 + bsize;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -105,39 +105,39 @@ void vtkImageFourierFilter::ExecuteFftStepN(vtkImageComplex *p_in,
 
   p3 = p_out;
   for(i0 = 0; i0 < N; ++i0)
-    {
+  {
     p3->Real = 0.0;
     p3->Imag = 0.0;
     ++p3;
-    }
+  }
 
   p1 = p_in;
   for(i0 = 0; i0 < n; ++i0)
-    {
+  {
     q.Real = 0.0;
     q.Imag = -(2.0 * vtkMath::Pi()) * i0 * fb / (bsize*1.0*n);
     vtkImageComplexExponential(q, q);
     p3 = p_out;
     for(i1 = 0; i1 < N / (bsize * n); ++i1)
-      {
+    {
       fact.Real = 1.0;
       fact.Imag = 0.0;
       for(i3 = 0; i3 < n; ++i3)
-        {
+      {
         p2 = p1;
         for(i2 = 0; i2 < bsize; ++i2)
-          {
+        {
           vtkImageComplexMultiply(fact, *p2, temp);
           vtkImageComplexAdd(temp, *p3, *p3);
           vtkImageComplexMultiply(q, fact, fact);
           ++p2;
           ++p3;
-          }
         }
+      }
 
       p1 = p1 + bsize;
-      }
     }
+  }
 }
 
 
@@ -159,51 +159,51 @@ void vtkImageFourierFilter::ExecuteFftForwardBackward(vtkImageComplex *in,
 
   // If this is a reverse transform (scale accordingly).
   if(fb == -1)
-    {
+  {
     p1 = in;
     for(idx = 0; idx < N; ++idx)
-      {
+    {
       p1->Real = p1->Real / N;
       p1->Imag = p1->Imag / N;
       ++p1;
-      }
     }
+  }
   p1 = in;
   p2 = out;
   while(block_size < N && n <= N)
-    {
+  {
     if((rest_size % n) == 0)
-      {
+    {
       // n is a prime factor, perform one "butterfly" stage of the fft.
       if(n == 2)
-        {
+      {
         this->ExecuteFftStep2(p1, p2, N, block_size, fb);
-        }
+      }
       else
-        {
+      {
         this->ExecuteFftStepN(p1, p2, N, block_size, n, fb);
-        }
+      }
       block_size = block_size * n;
       rest_size = rest_size / n;
       // switch input and output.
       p3 = p1;
       p1 = p2;
       p2 = p3;
-      }
+    }
     else
-      {
+    {
       // n is not a prime factor. increment n to see if n+1 is.
       ++n;
-      }
     }
+  }
   // If the results ended up in the input, copy to output.
   if(p1 != out)
-    {
+  {
     for(n = 0; n < N; ++n)
-      {
+    {
       *out++ = *p1++;
-      }
     }
+  }
 }
 
 
@@ -237,12 +237,12 @@ int vtkImageFourierFilter::RequestData(vtkInformation* request,
   // ensure that iteration axis is not split during threaded execution
   this->SplitPathLength = 0;
   for (int axis = 2; axis >= 0; --axis)
-    {
+  {
     if (axis != this->Iteration)
-      {
+    {
       this->SplitPath[this->SplitPathLength++] = axis;
-      }
     }
+  }
 
   return this->Superclass::RequestData(request, inputVector, outputVector);
 }

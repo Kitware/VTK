@@ -67,68 +67,68 @@ void TestDirectedGraph()
     = graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
 
   if (numProcs == 1)
-    {
+  {
     cout << "Distributed-graph test run with one node; nothing to do.\n";
     return;
-    }
+  }
 
   // Build a graph with verticesPerNode vertices on each node
   if (myRank == 0)
-    {
+  {
     (cout << "Building distributed directed graph...").flush();
-    }
+  }
   for (vtkIdType i = 0; i < verticesPerNode; ++i)
-    {
+  {
     graph->AddVertex();
-    }
+  }
 
   // Add an extra vertex on the first and last processors. These
   // vertices will be the source and the sink of search algorithms,
   // respectively.
   if (myRank == 0 || myRank == numProcs - 1)
-    {
+  {
     graph->AddVertex();
-    }
+  }
 
   // Add edges from the ith vertex on each node to the ith vertex on
   // the next node (not counting the extra vertices, of course).
   if (myRank < numProcs - 1)
-    {
+  {
     for (vtkIdType i = 0; i < verticesPerNode; ++i)
-      {
+    {
       graph->AddEdge(helper->MakeDistributedId(myRank, i),
                      helper->MakeDistributedId(myRank+1, i));
-      }
     }
+  }
 
   // Add edges from the source vertex to each of the vertices on the
   // first node
   if (myRank == 0)
-    {
+  {
     for (vtkIdType i = 0; i < verticesPerNode; ++i)
-      {
+    {
       graph->AddEdge(helper->MakeDistributedId(myRank, verticesPerNode),
                      helper->MakeDistributedId(myRank, i));
-      }
     }
+  }
 
   // Add edges from each of the vertices on the last node to the sink
   // vertex.
   if (myRank == numProcs - 1)
-    {
+  {
     for (vtkIdType i = 0; i < verticesPerNode; ++i)
-      {
+    {
       graph->AddEdge(helper->MakeDistributedId(myRank, i),
                      helper->MakeDistributedId(myRank, verticesPerNode));
-      }
     }
+  }
 
   // Synchronize so that everyone catches up
   helper->Synchronize();
   if (myRank == 0)
-    {
+  {
     (cout << " done.\n").flush();
-    }
+  }
 
   // Build the breadth-first search filter
   vtkSmartPointer<vtkPBGLBreadthFirstSearch> bfs
@@ -138,16 +138,16 @@ void TestDirectedGraph()
 
   // Run the breadth-first search
   if (myRank == 0)
-    {
+  {
     (cout << "  Breadth-first search...").flush();
-    }
+  }
   bfs->Update(myRank, numProcs, 0);
 
   // Verify the results of the breadth-first search
   if (myRank == 0)
-    {
+  {
     (cout << " verifying...").flush();
-    }
+  }
 
   graph = vtkMutableDirectedGraph::SafeDownCast(bfs->GetOutput());
   int index;
@@ -155,24 +155,24 @@ void TestDirectedGraph()
     = vtkArrayDownCast<vtkIntArray>(graph->GetVertexData()->GetArray("BFS", index));
   assert(distArray);
   for (vtkIdType i = 0; i < verticesPerNode; ++i)
-    {
+  {
     if (distArray->GetValue(i) != myRank + 1)
-      {
+    {
         cerr << "Value at vertex " << i << " on rank " << myRank
              << " is " << distArray->GetValue(i) << ", expected "
              << (myRank + 1) << endl;
-      }
-    assert(distArray->GetValue(i) == myRank + 1);
     }
+    assert(distArray->GetValue(i) == myRank + 1);
+  }
   if (myRank == 0)
     assert(distArray->GetValue(verticesPerNode) == 0);
   if (myRank == numProcs - 1)
     assert(distArray->GetValue(verticesPerNode) == numProcs + 1);
   helper->Synchronize();
   if (myRank == 0)
-    {
+  {
     (cout << " done.\n").flush();
-    }
+  }
 }
 
 void TestUndirectedGraph()
@@ -194,68 +194,68 @@ void TestUndirectedGraph()
     = graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
 
   if (numProcs == 1)
-    {
+  {
     cout << "Distributed-graph test run with one node; nothing to do.\n";
     return;
-    }
+  }
 
   // Build a graph with verticesPerNode vertices on each node
   if (myRank == 0)
-    {
+  {
     (cout << "Building distributed undirected graph...").flush();
-    }
+  }
   for (vtkIdType i = 0; i < verticesPerNode; ++i)
-    {
+  {
     graph->AddVertex();
-    }
+  }
 
   // Add an extra vertex on the first and last processors. These
   // vertices will be the source and the sink of search algorithms,
   // respectively.
   if (myRank == 0 || myRank == numProcs - 1)
-    {
+  {
     graph->AddVertex();
-    }
+  }
 
   // Add edges from the ith vertex on each node to the ith vertex on
   // the next node (not counting the extra vertices, of course).
   if (myRank < numProcs - 1)
-    {
+  {
     for (vtkIdType i = 0; i < verticesPerNode; ++i)
-      {
+    {
       graph->AddEdge(helper->MakeDistributedId(myRank, i),
                      helper->MakeDistributedId(myRank+1, i));
-      }
     }
+  }
 
   // Add edges from the source vertex to each of the vertices on the
   // first node
   if (myRank == 0)
-    {
+  {
     for (vtkIdType i = 0; i < verticesPerNode; ++i)
-      {
+    {
       graph->AddEdge(helper->MakeDistributedId(myRank, verticesPerNode),
                      helper->MakeDistributedId(myRank, i));
-      }
     }
+  }
 
   // Add edges from each of the vertices on the last node to the sink
   // vertex.
   if (myRank == numProcs - 1)
-    {
+  {
     for (vtkIdType i = 0; i < verticesPerNode; ++i)
-      {
+    {
       graph->AddEdge(helper->MakeDistributedId(myRank, i),
                      helper->MakeDistributedId(myRank, verticesPerNode));
-      }
     }
+  }
 
   // Synchronize so that everyone catches up
   helper->Synchronize();
   if (myRank == 0)
-    {
+  {
     (cout << " done.\n").flush();
-    }
+  }
 
   // Build the breadth-first search filter
   vtkSmartPointer<vtkPBGLBreadthFirstSearch> bfs
@@ -265,16 +265,16 @@ void TestUndirectedGraph()
 
   // Run the breadth-first search
   if (myRank == 0)
-    {
+  {
     (cout << "  Breadth-first search...").flush();
-    }
+  }
   bfs->Update(myRank numProcs, 0);
 
   // Verify the results of the breadth-first search
   if (myRank == 0)
-    {
+  {
     (cout << " verifying...").flush();
-    }
+  }
 
   graph = vtkMutableUndirectedGraph::SafeDownCast(bfs->GetOutput());
   int index;
@@ -282,28 +282,28 @@ void TestUndirectedGraph()
     = vtkArrayDownCast<vtkIntArray>(graph->GetVertexData()->GetArray("BFS", index));
   assert(distArray);
   for (vtkIdType i = 0; i < verticesPerNode; ++i)
-    {
+  {
     if (distArray->GetValue(i) != myRank + 1)
-      {
+    {
         cerr << "Value at vertex " << i << " on rank " << myRank
              << " is " << distArray->GetValue(i) << ", expected "
              << (myRank + 1) << endl;
-      }
+    }
     assert(distArray->GetValue(i) == myRank + 1);
-    }
+  }
   if (myRank == 0)
-    {
+  {
     assert(distArray->GetValue(verticesPerNode) == 0);
-    }
+  }
   if (myRank == numProcs - 1)
-    {
+  {
     assert(distArray->GetValue(verticesPerNode) == numProcs + 1);
-    }
+  }
   helper->Synchronize();
   if (myRank == 0)
-    {
+  {
     (cout << " done.\n").flush();
-    }
+  }
 }
 
 }

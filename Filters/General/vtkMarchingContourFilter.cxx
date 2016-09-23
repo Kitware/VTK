@@ -55,14 +55,14 @@ vtkMarchingContourFilter::~vtkMarchingContourFilter()
 {
   this->ContourValues->Delete();
   if ( this->Locator )
-    {
+  {
     this->Locator->UnRegister(this);
     this->Locator = NULL;
-    }
+  }
   if ( this->ScalarTree )
-    {
+  {
     this->ScalarTree->Delete();
-    }
+  }
 }
 
 // Overload standard modified time function. If contour values are modified,
@@ -73,15 +73,15 @@ vtkMTimeType vtkMarchingContourFilter::GetMTime()
   vtkMTimeType time;
 
   if (this->ContourValues)
-    {
+  {
     time = this->ContourValues->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
   if (this->Locator)
-    {
+  {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
 
   return mTime;
 }
@@ -112,41 +112,41 @@ int vtkMarchingContourFilter::RequestData(
   numCells = input->GetNumberOfCells();
   inScalars = input->GetPointData()->GetScalars();
   if ( ! inScalars || numCells < 1 )
-    {
+  {
     vtkErrorMacro(<<"No data to contour");
     return 1;
-    }
+  }
 
   // If structured points, use more efficient algorithms
   if ( (input->GetDataObjectType() == VTK_STRUCTURED_POINTS))
-    {
+  {
     if (inScalars->GetDataType() != VTK_BIT)
-      {
+    {
       int dim = input->GetCell(0)->GetCellDimension();
 
       if ( input->GetCell(0)->GetCellDimension() >= 2 )
-        {
+      {
         vtkDebugMacro(<< "Structured Points");
         this->StructuredPointsContour(dim, input, output);
         return 1;
-        }
       }
     }
+  }
 
   if ( (input->GetDataObjectType() == VTK_IMAGE_DATA))
-    {
+  {
     if (inScalars->GetDataType() != VTK_BIT)
-      {
+    {
       int dim = input->GetCell(0)->GetCellDimension();
 
       if ( input->GetCell(0)->GetCellDimension() >= 2 )
-        {
+      {
         vtkDebugMacro(<< "Image");
         this->ImageContour(dim, input, output);
         return 1;
-        }
       }
     }
+  }
 
   vtkDebugMacro(<< "Unoptimized");
   this->DataSetContour(input, output);
@@ -163,7 +163,7 @@ void vtkMarchingContourFilter::StructuredPointsContour(int dim,
   double *values=this->ContourValues->GetValues();
 
   if ( dim == 2 ) //marching squares
-    {
+  {
     vtkMarchingSquares *msquares;
     int i;
 
@@ -172,18 +172,18 @@ void vtkMarchingContourFilter::StructuredPointsContour(int dim,
     msquares->SetDebug(this->Debug);
     msquares->SetNumberOfContours(numContours);
     for (i=0; i < numContours; i++)
-      {
+    {
       msquares->SetValue(i,values[i]);
-      }
+    }
 
     msquares->Update();
     output = msquares->GetOutput();
     output->Register(this);
     msquares->Delete();
-    }
+  }
 
   else //marching cubes
-    {
+  {
     vtkMarchingCubes *mcubes;
     int i;
 
@@ -195,15 +195,15 @@ void vtkMarchingContourFilter::StructuredPointsContour(int dim,
     mcubes->SetDebug(this->Debug);
     mcubes->SetNumberOfContours(numContours);
     for (i=0; i < numContours; i++)
-      {
+    {
       mcubes->SetValue(i,values[i]);
-      }
+    }
 
     mcubes->Update();
     output = mcubes->GetOutput();
     output->Register(this);
     mcubes->Delete();
-    }
+  }
 
   thisOutput->CopyStructure(output);
   thisOutput->GetPointData()->ShallowCopy(output->GetPointData());
@@ -224,9 +224,9 @@ void vtkMarchingContourFilter::DataSetContour(vtkDataSet *input,
   contour->SetDebug(this->Debug);
   contour->SetNumberOfContours(numContours);
   for (int i=0; i < numContours; i++)
-    {
+  {
     contour->SetValue(i,values[i]);
-    }
+  }
 
   contour->Update();
   output->ShallowCopy(contour->GetOutput());
@@ -242,7 +242,7 @@ void vtkMarchingContourFilter::ImageContour(int dim, vtkDataSet *input,
   vtkPolyData *contourOutput;
 
   if ( dim == 2 ) //marching squares
-    {
+  {
     vtkMarchingSquares *msquares;
     int i;
 
@@ -251,18 +251,18 @@ void vtkMarchingContourFilter::ImageContour(int dim, vtkDataSet *input,
     msquares->SetDebug(this->Debug);
     msquares->SetNumberOfContours(numContours);
     for (i=0; i < numContours; i++)
-      {
+    {
       msquares->SetValue(i,values[i]);
-      }
+    }
 
     contourOutput = msquares->GetOutput();
     msquares->Update();
     output->ShallowCopy(contourOutput);
     msquares->Delete();
-    }
+  }
 
   else //image marching cubes
-    {
+  {
     vtkImageMarchingCubes *mcubes;
     int i;
 
@@ -274,15 +274,15 @@ void vtkMarchingContourFilter::ImageContour(int dim, vtkDataSet *input,
     mcubes->SetDebug(this->Debug);
     mcubes->SetNumberOfContours(numContours);
     for (i=0; i < numContours; i++)
-      {
+    {
       mcubes->SetValue(i,values[i]);
-      }
+    }
 
     contourOutput = mcubes->GetOutput();
     mcubes->Update();
     output->ShallowCopy(contourOutput);
     mcubes->Delete();
-    }
+  }
 }
 
 // Specify a spatial locator for merging points. By default,
@@ -290,18 +290,18 @@ void vtkMarchingContourFilter::ImageContour(int dim, vtkDataSet *input,
 void vtkMarchingContourFilter::SetLocator(vtkIncrementalPointLocator *locator)
 {
   if ( this->Locator == locator )
-    {
+  {
     return;
-    }
+  }
   if ( this->Locator )
-    {
+  {
     this->Locator->UnRegister(this);
     this->Locator = NULL;
-    }
+  }
   if ( locator )
-    {
+  {
     locator->Register(this);
-    }
+  }
   this->Locator = locator;
   this->Modified();
 }
@@ -309,9 +309,9 @@ void vtkMarchingContourFilter::SetLocator(vtkIncrementalPointLocator *locator)
 void vtkMarchingContourFilter::CreateDefaultLocator()
 {
   if ( this->Locator == NULL )
-    {
+  {
     this->Locator = vtkMergePoints::New();
-    }
+  }
 }
 
 int vtkMarchingContourFilter::FillInputPortInformation(int, vtkInformation *info)
@@ -332,11 +332,11 @@ void vtkMarchingContourFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->ContourValues->PrintSelf(os,indent.GetNextIndent());
 
   if ( this->Locator )
-    {
+  {
     os << indent << "Locator: " << this->Locator << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Locator: (none)\n";
-    }
+  }
 }

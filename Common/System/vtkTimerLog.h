@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTimerLog - Timer support and logging
-// .SECTION Description
-// vtkTimerLog contains walltime and cputime measurements associated
-// with a given event.  These results can be later analyzed when
-// "dumping out" the table.
-//
-// In addition, vtkTimerLog allows the user to simply get the current
-// time, and to start/stop a simple timer separate from the timing
-// table logging.
+/**
+ * @class   vtkTimerLog
+ * @brief   Timer support and logging
+ *
+ * vtkTimerLog contains walltime and cputime measurements associated
+ * with a given event.  These results can be later analyzed when
+ * "dumping out" the table.
+ *
+ * In addition, vtkTimerLog allows the user to simply get the current
+ * time, and to start/stop a simple timer separate from the timing
+ * table logging.
+*/
 
 #ifndef vtkTimerLog_h
 #define vtkTimerLog_h
@@ -76,84 +79,105 @@ public:
   vtkTypeMacro(vtkTimerLog,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // This flag will turn loging of events off or on.
-  // By default, logging is on.
+  /**
+   * This flag will turn loging of events off or on.
+   * By default, logging is on.
+   */
   static void SetLogging(int v) {vtkTimerLog::Logging = v;}
   static int GetLogging() {return vtkTimerLog::Logging;}
   static void LoggingOn() {vtkTimerLog::SetLogging(1);}
   static void LoggingOff() {vtkTimerLog::SetLogging(0);}
 
-  // Description:
-  // Set/Get the maximum number of entries allowed in the timer log
+  //@{
+  /**
+   * Set/Get the maximum number of entries allowed in the timer log
+   */
   static void SetMaxEntries(int a);
   static int  GetMaxEntries();
+  //@}
 
-  // Description:
-  // Record a timing event.  The event is represented by a formatted
-  // string.
+  /**
+   * Record a timing event.  The event is represented by a formatted
+   * string.
+   */
   static void FormatAndMarkEvent(const char *EventString, ...);
 
-  // Description:
-  // Write the timing table out to a file.  Calculate some helpful
-  // statistics (deltas and  percentages) in the process.
+  /**
+   * Write the timing table out to a file.  Calculate some helpful
+   * statistics (deltas and  percentages) in the process.
+   */
   static void DumpLog(const char *filename);
 
-  // Description:
-  // I want to time events, so I am creating this interface to
-  // mark events that have a start and an end.  These events can be,
-  // nested. The standard Dumplog ignores the indents.
+  //@{
+  /**
+   * I want to time events, so I am creating this interface to
+   * mark events that have a start and an end.  These events can be,
+   * nested. The standard Dumplog ignores the indents.
+   */
   static void MarkStartEvent(const char *EventString);
   static void MarkEndEvent(const char *EventString);
+  //@}
 
   static void DumpLogWithIndents(ostream *os, double threshold);
   static void DumpLogWithIndentsAndPercentages(ostream *os);
 
-  // Description:
-  // Programatic access to events.  Indexed from 0 to num-1.
+  //@{
+  /**
+   * Programatic access to events.  Indexed from 0 to num-1.
+   */
   static int GetNumberOfEvents();
   static int GetEventIndent(int i);
   static double GetEventWallTime(int i);
   static const char* GetEventString(int i);
+  //@}
 
-  // Description:
-  // Record a timing event and capture wall time and cpu ticks.
+  /**
+   * Record a timing event and capture wall time and cpu ticks.
+   */
   static void MarkEvent(const char *EventString);
 
-  // Description:
-  // Clear the timing table.  walltime and cputime will also be set
-  // to zero when the first new event is recorded.
+  /**
+   * Clear the timing table.  walltime and cputime will also be set
+   * to zero when the first new event is recorded.
+   */
   static void ResetLog();
 
-  // Description:
-  // Allocate timing table with MaxEntries elements.
+  /**
+   * Allocate timing table with MaxEntries elements.
+   */
   static void AllocateLog();
 
-  // Description:
-  // Remove timer log.
+  /**
+   * Remove timer log.
+   */
   static void CleanupLog();
 
-  // Description:
-  // Returns the elapsed number of seconds since January 1, 1970. This
-  // is also called Universal Coordinated Time.
+  /**
+   * Returns the elapsed number of seconds since January 1, 1970. This
+   * is also called Universal Coordinated Time.
+   */
   static double GetUniversalTime();
 
-  // Description:
-  // Returns the CPU time for this process
-  // On Win32 platforms this actually returns wall time.
+  /**
+   * Returns the CPU time for this process
+   * On Win32 platforms this actually returns wall time.
+   */
   static double GetCPUTime();
 
-  // Description:
-  // Set the StartTime to the current time. Used with GetElapsedTime().
+  /**
+   * Set the StartTime to the current time. Used with GetElapsedTime().
+   */
   void StartTimer();
 
-  // Description:
-  // Sets EndTime to the current time. Used with GetElapsedTime().
+  /**
+   * Sets EndTime to the current time. Used with GetElapsedTime().
+   */
   void StopTimer();
 
-  // Description:
-  // Returns the difference between StartTime and EndTime as
-  // a doubleing point value indicating the elapsed time in seconds.
+  /**
+   * Returns the difference between StartTime and EndTime as
+   * a doubleing point value indicating the elapsed time in seconds.
+   */
   double GetElapsedTime();
 
 protected:

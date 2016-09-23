@@ -469,7 +469,7 @@ public:
     {return new vtkPickingManagerCallback;}
 
   void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
-    {
+  {
     vtkRenderWindowInteractor *iren =
       static_cast<vtkRenderWindowInteractor*>(caller);
 
@@ -477,34 +477,34 @@ public:
     if((vtkStdString(iren->GetKeySym()) == "Control_L" ||
        vtkStdString(iren->GetKeySym()) == "Control_R") &&
        iren->GetPickingManager())
-      {
+    {
       if(!iren->GetPickingManager()->GetEnabled())
-        {
+      {
         std::cout << "PickingManager ON !" << std::endl;
         iren->GetPickingManager()->EnabledOn();
-        }
+      }
       else
-        {
+      {
         std::cout << "PickingManager OFF !" << std::endl;
         iren->GetPickingManager()->EnabledOff();
-        }
       }
+    }
     // Enable/Disable the Optimization on render events.
     else if (vtkStdString(iren->GetKeySym()) == "o" &&
              iren->GetPickingManager())
-      {
+    {
       if(!iren->GetPickingManager()->GetOptimizeOnInteractorEvents())
-        {
+      {
         std::cout << "Optimization on Interactor events ON !" << std::endl;
         iren->GetPickingManager()->SetOptimizeOnInteractorEvents(1);
-        }
+      }
       else
-        {
+      {
         std::cout << "Optimization on Interactor events OFF !" << std::endl;
         iren->GetPickingManager()->SetOptimizeOnInteractorEvents(0);
-        }
       }
     }
+  }
 
   vtkPickingManagerCallback() {}
 };
@@ -524,18 +524,18 @@ public:
 
     // Reorganize the cube
     if(vtkStdString(iren->GetKeySym()) == "space")
-      {
+    {
       const int baseCube =
         static_cast<int>(pow(this->Seeds.size(), 1./3.) / 2 + 0.5);
       std::list<vtkSmartPointer<vtkHandleWidget> >::iterator it =
         this->Seeds.begin();
 
       for(int i=-baseCube; i<baseCube; ++i)
-        {
+      {
         for(int j=-baseCube; j<baseCube; ++j)
-          {
+        {
           for(int k=-baseCube; k<baseCube; ++k)
-            {
+          {
             vtkSphereHandleRepresentation* newHandleRep =
                 vtkSphereHandleRepresentation::SafeDownCast(
                   (*it)->GetRepresentation());
@@ -546,10 +546,10 @@ public:
             newHandleRep->SetWorldPosition(pos);
 
             ++it;
-            }
           }
         }
       }
+    }
   }
 
   std::list<vtkSmartPointer<vtkHandleWidget> > Seeds;
@@ -573,10 +573,10 @@ public:
   ~vtkPMSRecordPerfCallback() VTK_OVERRIDE
   {
     if (this->performanceReport.is_open())
-      {
+    {
       this->performanceReport << "\n";
       this->performanceReport.close();
-      }
+    }
 
     this->logTime->Delete();
   }
@@ -592,7 +592,7 @@ public:
     elapsedTime = this->logTime->GetElapsedTime();
 
     if (this->performanceReport.is_open())
-      {
+    {
       // FPS Measurement
       /*
       this->performanceReport << "; " <<
@@ -602,7 +602,7 @@ public:
 
       // Write delta time
       this->performanceReport << "; " << elapsedTime;
-      }
+    }
 
     // Re-start timer
     this->logTime->StartTimer();
@@ -664,11 +664,11 @@ int TestPickingManagerSeedWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   const int baseCube = 2;
   std::list <vtkSmartPointer<vtkHandleWidget> > seeds;
   for(int i=-baseCube; i<baseCube; ++i)
-    {
+  {
     for(int j=-baseCube; j<baseCube; ++j)
-      {
+    {
       for(int k=-baseCube; k<baseCube; ++k)
-        {
+      {
         vtkHandleWidget* newHandle = seedWidget->CreateNewHandle();
         newHandle->SetEnabled(1);
         vtkSphereHandleRepresentation* newHandleRep =
@@ -683,9 +683,9 @@ int TestPickingManagerSeedWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
         newHandleRep->SetWorldPosition(pos);
 
         seeds.push_back(newHandle);
-        }
       }
     }
+  }
 
   seedWidget->CompleteInteraction();
 

@@ -42,67 +42,67 @@ int TestMinimalStandardRandomSequence(int,char *[])
   status=seq->GetSeed()==1;
 
   if(status)
-    {
+  {
     int i=0;
     while(i<10000)
-      {
+    {
 //      cout << "i=" << i << " seed=" << seq->GetSeed()<< endl;
       seq->Next();
       ++i;
-      }
+    }
     status=seq->GetSeed()==1043618065;
     if(!status)
-      {
+    {
       cout << "FAILED: seed is not 1043618065, it is " << seq->GetSeed()
            << endl;
-      }
     }
+  }
   else
-    {
+  {
     cout << "FAILED: seed is not 1, it is " << seq->GetSeed() << endl;
-    }
+  }
 
   vtkMath::RandomSeed(1);
   int i=0;
   while(i<9997)
-    {
+  {
     // cout << "i=" << i << " seed=" << vtkMath::GetSeed() << endl;
     vtkMath::Random();
     ++i;
-    }
+  }
   status=vtkMath::GetSeed()==1043618065;
   if(!status)
-    {
+  {
     cout << "FAILED: static seed is not 1043618065, it is " << vtkMath::GetSeed()
          << endl;
-    }
+  }
 
   seq->SetSeed(1);
   i=0;
   while(i<9997)
-    {
+  {
     // cout << "i=" << i << " seed=" << vtkMath::GetSeed() << endl;
     seq->Next();
     ++i;
-    }
+  }
   status=seq->GetSeed()==1043618065;
   if(!status)
-    {
+  {
     cout << "FAILED: seed auto is not 1043618065, it is " << seq->GetSeed()
          << endl;
-    }
+  }
   seq->Delete();
   int result;
 
   if(status)
-    {
+  {
     // passed.
     result=0;
-    }
+  }
   else
-    {
+  {
     // failed.
     result=1;
-    }
+  }
   return result;
 }

@@ -75,7 +75,7 @@ void CreateInputDataSet(vtkMultiBlockDataSet* dataset, int rank, int numberOfPro
   transFilter->SetTransform(transform.GetPointer());
 
   for (int i = 0; i < blocksPerProc; ++i)
-    {
+  {
     int piece = (rank * blocksPerProc) + i;
 
     int blockExtent[6];
@@ -91,7 +91,7 @@ void CreateInputDataSet(vtkMultiBlockDataSet* dataset, int rank, int numberOfPro
     block->DeepCopy(transFilter->GetOutputDataObject(0));
     dataset->SetBlock(piece, block);
     block->Delete();
-    }
+  }
 }
 
 void CreateSourceDataSet(vtkMultiBlockDataSet* dataset, int rank, int numberOfProcs,
@@ -110,7 +110,7 @@ void CreateSourceDataSet(vtkMultiBlockDataSet* dataset, int rank, int numberOfPr
   wavelet->SetCenter(0, 0, 0);
 
   for (int i = 0; i < blocksPerProc; ++i)
-    {
+  {
     int piece = (rank * blocksPerProc) + i;
 
     int blockExtent[6];
@@ -124,7 +124,7 @@ void CreateSourceDataSet(vtkMultiBlockDataSet* dataset, int rank, int numberOfPr
     block->DeepCopy(wavelet->GetOutputDataObject(0));
     dataset->SetBlock(piece, block);
     block->Delete();
-    }
+  }
 }
 
 } // anonymous namespace
@@ -186,51 +186,51 @@ int TestPResampleWithDataSet(int argc, char *argv[])
 
   int r1 = vtkTesting::PASSED;
   if (rank == 0)
-    {
+  {
     prm->ResetAllCameras();
 
     std::cout << "Test with RegularPartition" << std::endl;
     renWin->Render();
     r1 = vtkRegressionTester::Test(argc, argv, renWin.GetPointer(), 10);
     if (!r1)
-      {
-      std::cout << "Test with RegularPartition failed" << std::endl;
-      }
-    else if (r1 == vtkRegressionTester::DO_INTERACTOR)
-      {
-      iren->Start();
-      }
-    prm->StopServices();
-    }
-  else
     {
-    prm->StartServices();
+      std::cout << "Test with RegularPartition failed" << std::endl;
     }
+    else if (r1 == vtkRegressionTester::DO_INTERACTOR)
+    {
+      iren->Start();
+    }
+    prm->StopServices();
+  }
+  else
+  {
+    prm->StartServices();
+  }
   controller->Barrier();
 
   resample->UseBalancedPartitionForPointsLookupOn();
   int r2 = vtkTesting::PASSED;
   if (rank == 0)
-    {
+  {
     prm->ResetAllCameras();
 
     std::cout << "Test with BalancedPartition" << std::endl;
     renWin->Render();
     r2 = vtkRegressionTester::Test(argc, argv, renWin.GetPointer(), 10);
     if (!r2)
-      {
-      std::cout << "Test with BalancedPartition failed" << std::endl;
-      }
-    else if (r2 == vtkRegressionTester::DO_INTERACTOR)
-      {
-      iren->Start();
-      }
-    prm->StopServices();
-    }
-  else
     {
-    prm->StartServices();
+      std::cout << "Test with BalancedPartition failed" << std::endl;
     }
+    else if (r2 == vtkRegressionTester::DO_INTERACTOR)
+    {
+      iren->Start();
+    }
+    prm->StopServices();
+  }
+  else
+  {
+    prm->StartServices();
+  }
   controller->Barrier();
 
   int status = r1 && r2;

@@ -28,12 +28,12 @@ template<class T>
 int CheckValue( const std::string &name, T actualValue, T expectedValue )
 {
     if( actualValue != expectedValue )
-      {
+    {
       std::cerr << "ERROR: " << name << " value mismatch! ";
       std::cerr << "Expected: " << expectedValue << " Actual: " << actualValue;
       std::cerr << std::endl;
       return 1;
-      }
+    }
     return 0;
 }
 
@@ -43,13 +43,13 @@ int ComputeMaxNonEmptyLevel(vtkOverlappingAMR* amr)
   iter->SetSkipEmptyNodes(true);
   int maxLevel(-1);
   for(iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-    {
+  {
     int level = iter->GetCurrentLevel();
     if(level>maxLevel)
-      {
+    {
       maxLevel = level;
-      }
     }
+  }
   iter->Delete();
   return maxLevel+1;
 }
@@ -72,7 +72,7 @@ int TestFlashReader( int argc, char *argv[] )
   vtkOverlappingAMR *amr = NULL;
   flashReader->SetFileName( fileName );
   for(int level = 0; level < flashReader->GetNumberOfLevels(); ++level )
-    {
+  {
     flashReader->SetMaxLevel( level );
     flashReader->Update();
     rc+=FlashReaderTest::CheckValue("LEVEL",flashReader->GetNumberOfLevels(),7);
@@ -80,7 +80,7 @@ int TestFlashReader( int argc, char *argv[] )
 
     amr = flashReader->GetOutput();
     if( amr != NULL )
-      {
+    {
       rc+=FlashReaderTest::CheckValue(
         "OUTPUT LEVELS",static_cast<int>(FlashReaderTest::ComputeMaxNonEmptyLevel(amr)),level+1);
       rc+=FlashReaderTest::CheckValue(
@@ -88,13 +88,13 @@ int TestFlashReader( int argc, char *argv[] )
          static_cast<int>(amr->GetNumberOfDataSets(level)),
          NumBlocksPerLevel[level]
          );
-      }
+    }
     else
-      {
+    {
       std::cerr << "ERROR: output AMR dataset is NULL!";
       return 1;
-      }
-    } // END for all levels
+    }
+  } // END for all levels
   flashReader->Delete();
   delete [] fileName;
   return( rc );

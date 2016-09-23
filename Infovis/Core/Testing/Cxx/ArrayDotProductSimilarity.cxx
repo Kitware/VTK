@@ -48,7 +48,7 @@ int ArrayDotProductSimilarity(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   cout << setprecision(17);
 
   try
-    {
+  {
     // Run tests on one matrix ...
     vtkSmartPointer<vtkDenseArray<double> > matrix_a = vtkSmartPointer<vtkDenseArray<double> >::New();
     matrix_a->Resize(vtkArrayExtents(2, 2));
@@ -154,11 +154,11 @@ int ArrayDotProductSimilarity(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(similarity->GetOutput()->GetValueByName(3, "similarity").ToInt() == 53);
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }
 

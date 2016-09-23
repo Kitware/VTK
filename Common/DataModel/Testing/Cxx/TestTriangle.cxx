@@ -87,23 +87,23 @@ int TestTriangle(int,char *[])
 
   int inside;
   for ( int i = 0; i < 31; i ++ )
-    {
+  {
     inside = vtkTriangle::PointInTriangle( pnts[i], pnt0, pnt1, pnt2, 0.00000001 );
 
     if ( inside && i < 17 )
-      {
+    {
       cerr << "ERROR:  point #" << i << ", an outside-point, considered to be inside the triangle!!!" << endl;
       cerr << "Squared error tolerance: 0.00000001" << endl;
       return EXIT_FAILURE;
-      }
+    }
     else
     if ( !inside && i > 16 )
-      {
+    {
       cerr << "ERROR:  point #" << i << ", an inside-point, considered to be outside the triangle!!!" << endl;
       cerr << "Squared error tolerance: 0.00000001" << endl;
       return EXIT_FAILURE;
-      }
     }
+  }
 
   cout << "Passed: 17 points outside and 14 points inside the triangle." << endl;
 
@@ -114,10 +114,10 @@ int TestTriangle(int,char *[])
 
   double area = triangle->ComputeArea();
   if(!fuzzyCompare(area, 0.5))
-    {
+  {
     cerr << "ERROR:  triangle area is " << area << ", should be 0.5" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Testing degenerated triangle
   double pntDeg0[3] = { 0, 0, -10 };
@@ -138,16 +138,16 @@ int TestTriangle(int,char *[])
   if (triangleDeg->IntersectWithLine(p1, p2, dEpsilon, t, x, pcoords, subId) != 1
      || x[0] != 0 || x[1] != 0 || x[2] != 1 || t != 0.5 || pcoords[0] != 1.1
      || pcoords[1] != 0.55 || pcoords[2] != 0)
-    {
+  {
     cerr<<"Error while intersecting degenerated triangle"<<endl;
     return EXIT_FAILURE;
-    }
+  }
   double p1b[3] = { 0, 1, 10.001 };
   double p2b[3] = { 0, -1, 10.001 };
   if (triangleDeg->IntersectWithLine(p1b, p2b, dEpsilon, t, x, pcoords, subId) != 0)
-    {
+  {
     cerr<<"Error while intersecting degenerated triangle"<<endl;
     return EXIT_FAILURE;
-    }
+  }
   return EXIT_SUCCESS;
 }

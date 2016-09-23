@@ -600,35 +600,35 @@ class TestRemoveVolumeNonCurrentContextCallback: public vtkCommand
 public:
 
   static TestRemoveVolumeNonCurrentContextCallback *New()
-    {
+  {
     return new TestRemoveVolumeNonCurrentContextCallback;
-    }
+  }
 
   void Execute(vtkObject* caller,
                unsigned long eventId,
                void* vtkNotUsed(callData)) VTK_OVERRIDE
-    {
+  {
     if (eventId != vtkCommand::KeyPressEvent)
-      {
+    {
       return;
-      }
+    }
 
     vtkRenderWindowInteractor* interactor =
       static_cast<vtkRenderWindowInteractor*>(caller);
     if (interactor == NULL)
-      {
+    {
       return;
-      }
+    }
 
     char* pressedKey = interactor->GetKeySym();
 
     if (strcmp(pressedKey, "9") == 0)
-      {
+    {
       renderer2->RemoveAllViewProps();
       renderWindow1->Render();
       renderWindow2->Render();
-      }
     }
+  }
 
   vtkRenderer* renderer1;
   vtkRenderer* renderer2;

@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageToImageStencil - clip an image with a mask image
-// .SECTION Description
-// vtkImageToImageStencil will convert a vtkImageData into an stencil
-// that can be used with vtkImageStecil or other vtk classes that apply
-// a stencil to an image.
-// .SECTION see also
-// vtkImageStencil vtkImplicitFunctionToImageStencil vtkPolyDataToImageStencil
+/**
+ * @class   vtkImageToImageStencil
+ * @brief   clip an image with a mask image
+ *
+ * vtkImageToImageStencil will convert a vtkImageData into an stencil
+ * that can be used with vtkImageStecil or other vtk classes that apply
+ * a stencil to an image.
+ * @sa
+ * vtkImageStencil vtkImplicitFunctionToImageStencil vtkPolyDataToImageStencil
+*/
 
 #ifndef vtkImageToImageStencil_h
 #define vtkImageToImageStencil_h
@@ -36,29 +39,38 @@ public:
   vtkTypeMacro(vtkImageToImageStencil, vtkImageStencilAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify the image data to convert into a stencil.
+  //@{
+  /**
+   * Specify the image data to convert into a stencil.
+   */
   void SetInputData(vtkImageData *input);
   vtkImageData *GetInput();
+  //@}
 
-  // Description:
-  // The values greater than or equal to the value match.
+  /**
+   * The values greater than or equal to the value match.
+   */
   void ThresholdByUpper(double thresh);
 
-  // Description:
-  // The values less than or equal to the value match.
+  /**
+   * The values less than or equal to the value match.
+   */
   void ThresholdByLower(double thresh);
 
-  // Description:
-  // The values in a range (inclusive) match
+  /**
+   * The values in a range (inclusive) match
+   */
   void ThresholdBetween(double lower, double upper);
 
-  // Description:
-  // Get the Upper and Lower thresholds.
+  //@{
+  /**
+   * Get the Upper and Lower thresholds.
+   */
   vtkSetMacro(UpperThreshold, double);
   vtkGetMacro(UpperThreshold, double);
   vtkSetMacro(LowerThreshold, double);
   vtkGetMacro(LowerThreshold, double);
+  //@}
 
 protected:
   vtkImageToImageStencil();

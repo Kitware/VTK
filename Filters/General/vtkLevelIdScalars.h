@@ -12,10 +12,13 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkLevelIdScalars.h -- Empty class for backwards compatibility
-//
-// .SECTION Description
-//  Empty class for backwards compatibility.
+/**
+ * @class   vtkLevelIdScalars
+ *
+ *
+ *  Empty class for backwards compatibility.
+*/
+
 #ifndef vtkLevelIdScalars_h
 #define vtkLevelIdScalars_h
 

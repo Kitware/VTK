@@ -12,19 +12,22 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGESignaReader - read GE Signa ximg files
-// .SECTION Description
-// vtkGESignaReader is a source object that reads some GE Signa ximg files It
-// does support reading in pixel spacing, slice spacing and it computes an
-// origin for the image in millimeters. It always produces greyscale unsigned
-// short data and it supports reading in rectangular, packed, compressed, and
-// packed&compressed. It does not read in slice orientation, or position
-// right now. To use it you just need to specify a filename or a file prefix
-// and pattern.
-
-//
-// .SECTION See Also
-// vtkImageReader2
+/**
+ * @class   vtkGESignaReader
+ * @brief   read GE Signa ximg files
+ *
+ * vtkGESignaReader is a source object that reads some GE Signa ximg files It
+ * does support reading in pixel spacing, slice spacing and it computes an
+ * origin for the image in millimeters. It always produces greyscale unsigned
+ * short data and it supports reading in rectangular, packed, compressed, and
+ * packed&compressed. It does not read in slice orientation, or position
+ * right now. To use it you just need to specify a filename or a file prefix
+ * and pattern.
+ *
+ *
+ * @sa
+ * vtkImageReader2
+*/
 
 #ifndef vtkGESignaReader_h
 #define vtkGESignaReader_h
@@ -39,23 +42,26 @@ public:
   vtkTypeMacro(vtkGESignaReader,vtkMedicalImageReader2);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Is the given file a GESigna file?
+  /**
+   * Is the given file a GESigna file?
+   */
   virtual int CanReadFile(const char* fname);
 
-  // Description:
-  // Valid extentsions
+  /**
+   * Valid extentsions
+   */
   virtual const char* GetFileExtensions()
-    {
+  {
       return ".MR .CT";
-    }
+  }
 
-  // Description:
-  // A descriptive name for this format
+  /**
+   * A descriptive name for this format
+   */
   virtual const char* GetDescriptiveName()
-    {
+  {
       return "GESigna";
-    }
+  }
 
 protected:
   vtkGESignaReader() {}

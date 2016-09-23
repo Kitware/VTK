@@ -17,17 +17,20 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGraphToPolyData - convert a vtkGraph to vtkPolyData
-//
-// .SECTION Description
-// Converts a vtkGraph to a vtkPolyData.  This assumes that the points
-// of the graph have already been filled (perhaps by vtkGraphLayout),
-// and coverts all the edge of the graph into lines in the polydata.
-// The vertex data is passed along to the point data, and the edge data
-// is passed along to the cell data.
-//
-// Only the owned graph edges (i.e. edges with ghost level 0) are copied
-// into the vtkPolyData.
+/**
+ * @class   vtkGraphToPolyData
+ * @brief   convert a vtkGraph to vtkPolyData
+ *
+ *
+ * Converts a vtkGraph to a vtkPolyData.  This assumes that the points
+ * of the graph have already been filled (perhaps by vtkGraphLayout),
+ * and coverts all the edge of the graph into lines in the polydata.
+ * The vertex data is passed along to the point data, and the edge data
+ * is passed along to the cell data.
+ *
+ * Only the owned graph edges (i.e. edges with ghost level 0) are copied
+ * into the vtkPolyData.
+*/
 
 #ifndef vtkGraphToPolyData_h
 #define vtkGraphToPolyData_h
@@ -42,25 +45,31 @@ public:
   vtkTypeMacro(vtkGraphToPolyData,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Create a second output containing points and orientation vectors
-  // for drawing arrows or other glyphs on edges.  This output should be
-  // set as the first input to vtkGlyph3D to place glyphs on the edges.
-  // vtkGlyphSource2D's VTK_EDGEARROW_GLYPH provides a good glyph for
-  // drawing arrows.
-  // Default value is off.
+  //@{
+  /**
+   * Create a second output containing points and orientation vectors
+   * for drawing arrows or other glyphs on edges.  This output should be
+   * set as the first input to vtkGlyph3D to place glyphs on the edges.
+   * vtkGlyphSource2D's VTK_EDGEARROW_GLYPH provides a good glyph for
+   * drawing arrows.
+   * Default value is off.
+   */
   vtkSetMacro(EdgeGlyphOutput, bool);
   vtkGetMacro(EdgeGlyphOutput, bool);
   vtkBooleanMacro(EdgeGlyphOutput, bool);
+  //@}
 
-  // Description:
-  // The position of the glyph point along the edge.
-  // 0 puts a glyph point at the source of each edge.
-  // 1 puts a glyph point at the target of each edge.
-  // An intermediate value will place the glyph point between the source and target.
-  // The default value is 1.
+  //@{
+  /**
+   * The position of the glyph point along the edge.
+   * 0 puts a glyph point at the source of each edge.
+   * 1 puts a glyph point at the target of each edge.
+   * An intermediate value will place the glyph point between the source and target.
+   * The default value is 1.
+   */
   vtkSetMacro(EdgeGlyphPosition, double);
   vtkGetMacro(EdgeGlyphPosition, double);
+  //@}
 
 protected:
   vtkGraphToPolyData();
@@ -71,12 +80,14 @@ protected:
   bool ArcEdges;
   vtkIdType NumberOfArcSubdivisions;
 
-  // Description:
-  // Convert the vtkGraph into vtkPolyData.
+  /**
+   * Convert the vtkGraph into vtkPolyData.
+   */
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
-  // Description:
-  // Set the input type of the algorithm to vtkGraph.
+  /**
+   * Set the input type of the algorithm to vtkGraph.
+   */
   int FillInputPortInformation(int port, vtkInformation* info);
 
 private:

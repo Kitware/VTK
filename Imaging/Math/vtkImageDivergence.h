@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageDivergence - Divergence of a vector field.
-// .SECTION Description
-// vtkImageDivergence takes a 3D vector field
-// and creates a scalar field which
-// which represents the rate of change of the vector field.
-// The definition of Divergence:
-// Given V = P(x,y,z), Q(x,y,z), R(x,y,z),
-// Divergence = dP/dx + dQ/dy + dR/dz.
+/**
+ * @class   vtkImageDivergence
+ * @brief   Divergence of a vector field.
+ *
+ * vtkImageDivergence takes a 3D vector field
+ * and creates a scalar field which
+ * which represents the rate of change of the vector field.
+ * The definition of Divergence:
+ * Given V = P(x,y,z), Q(x,y,z), R(x,y,z),
+ * Divergence = dP/dx + dQ/dy + dR/dz.
+*/
 
 #ifndef vtkImageDivergence_h
 #define vtkImageDivergence_h

@@ -41,16 +41,16 @@ void vtkMinimalStandardRandomSequence::SetSeedOnly(int value)
 
   // fit the seed to the valid range [1,2147483646]
   if(this->Seed<1)
-    {
+  {
     this->Seed+=2147483646;
-    }
+  }
   else
-    {
+  {
     if(this->Seed==2147483647)
-      {
+    {
       this->Seed=1;
-      }
     }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -88,9 +88,9 @@ void vtkMinimalStandardRandomSequence::Next()
   int lo=this->Seed%VTK_K_Q;
   this->Seed=VTK_K_A*lo-VTK_K_R*hi;
   if(this->Seed<=0)
-    {
+  {
     this->Seed+=VTK_K_M;
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -99,13 +99,13 @@ double vtkMinimalStandardRandomSequence::GetRangeValue(double rangeMin,
 {
   double result;
   if(rangeMin==rangeMax)
-    {
+  {
     result=rangeMin;
-    }
+  }
   else
-    {
+  {
     result=rangeMin+this->GetValue()*(rangeMax-rangeMin);
-    }
+  }
   assert("post: valid_result" &&
          ((rangeMin<=rangeMax && result>=rangeMin && result<=rangeMax)
           || (rangeMax<=rangeMin && result>=rangeMax && result<=rangeMin)));

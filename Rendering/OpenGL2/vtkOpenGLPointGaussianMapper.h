@@ -11,10 +11,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLPointGaussianMapper - draw PointGaussians using imposters
-// .SECTION Description
-// An OpenGL mapper that uses imposters to draw PointGaussians. Supports
-// transparency and picking as well.
+/**
+ * @class   vtkOpenGLPointGaussianMapper
+ * @brief   draw PointGaussians using imposters
+ *
+ * An OpenGL mapper that uses imposters to draw PointGaussians. Supports
+ * transparency and picking as well.
+*/
 
 #ifndef vtkOpenGLPointGaussianMapper_h
 #define vtkOpenGLPointGaussianMapper_h
@@ -31,14 +34,16 @@ public:
   vtkTypeMacro(vtkOpenGLPointGaussianMapper, vtkPointGaussianMapper)
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Release any graphics resources that are being consumed by this mapper.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
+  /**
+   * Release any graphics resources that are being consumed by this mapper.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
   void ReleaseGraphicsResources(vtkWindow *);
 
-  // Description:
-  // Is this mapper opqaue? currently always false.
+  /**
+   * Is this mapper opqaue? currently always false.
+   */
   virtual bool GetIsOpaque();
 
 protected:

@@ -12,8 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMoleculeToBondStickFilter - Generate polydata with cylinders
-// representing bonds
+/**
+ * @class   vtkMoleculeToBondStickFilter
+ * @brief   Generate polydata with cylinders
+ * representing bonds
+*/
 
 #ifndef vtkMoleculeToBondStickFilter_h
 #define vtkMoleculeToBondStickFilter_h

@@ -165,7 +165,7 @@ int vtkMeshQuality::RequestData(
   Eqtri = Eqtri2 = Eqqua = Eqqua2 = Eqtet = Eqtet2 = Eqhex = Eqhex2 = 0.;
 
   switch ( this->GetTriangleQualityMeasure() )
-    {
+  {
     case VTK_QUALITY_AREA:
       TriangleQuality = TriangleArea;
       break;
@@ -210,10 +210,10 @@ int vtkMeshQuality::RequestData(
         << this->GetTriangleQualityMeasure() << "), using RadiusRatio instead");
       TriangleQuality = TriangleRadiusRatio;
       break;
-    }
+  }
 
   switch ( this->GetQuadQualityMeasure() )
-    {
+  {
     case VTK_QUALITY_EDGE_RATIO:
       QuadQuality = QuadEdgeRatio;
       break;
@@ -289,10 +289,10 @@ int vtkMeshQuality::RequestData(
         << this->GetQuadQualityMeasure() << "), using EdgeRatio instead");
       QuadQuality = QuadEdgeRatio;
       break;
-    }
+  }
 
   switch ( this->GetTetQualityMeasure() )
-    {
+  {
     case VTK_QUALITY_EDGE_RATIO:
       TetQuality = TetEdgeRatio;
       break;
@@ -346,10 +346,10 @@ int vtkMeshQuality::RequestData(
         << this->GetTetQualityMeasure() << "), using RadiusRatio instead");
       TetQuality = TetRadiusRatio;
       break;
-    }
+  }
 
   switch ( this->GetHexQualityMeasure() )
-    {
+  {
     case VTK_QUALITY_EDGE_RATIO:
       HexQuality = HexEdgeRatio;
       break;
@@ -415,28 +415,28 @@ int vtkMeshQuality::RequestData(
         << this->GetTetQualityMeasure() << "), using MaxAspectFrobenius instead");
       HexQuality = HexMaxAspectFrobenius;
       break;
-    }
+  }
 
   out->ShallowCopy( in );
 
   if ( this->SaveCellQuality )
-    {
+  {
     quality = vtkDoubleArray::New();
     if ( this->CompatibilityMode )
-      {
+    {
       if ( this->Volume )
-        {
-        quality->SetNumberOfComponents(2);
-        }
-      else
-        {
-        quality->SetNumberOfComponents(1);
-        }
-      }
-    else
       {
-      quality->SetNumberOfComponents(1);
+        quality->SetNumberOfComponents(2);
       }
+      else
+      {
+        quality->SetNumberOfComponents(1);
+      }
+    }
+    else
+    {
+      quality->SetNumberOfComponents(1);
+    }
     quality->SetNumberOfTuples( N );
     quality->SetName( "Quality" );
     out->GetCellData()->AddArray( quality );
@@ -444,18 +444,18 @@ int vtkMeshQuality::RequestData(
     quality->Delete();
 
     if ( ! this->CompatibilityMode )
-      {
+    {
       if ( this->Volume )
-        {
+      {
         volume = vtkDoubleArray::New();
         volume->SetNumberOfComponents(1);
         volume->SetNumberOfTuples( N );
         volume->SetName( "Volume" );
         out->GetCellData()->AddArray( volume );
         volume->Delete();
-        }
       }
     }
+  }
 
   // These measures require the average area/volume for all cells of the same type in the mesh.
   // Either use the hinted value (computed by a previous vtkMeshQuality filter) or compute it.
@@ -469,7 +469,7 @@ int vtkMeshQuality::RequestData(
        this->GetHexQualityMeasure() == VTK_QUALITY_RELATIVE_SIZE_SQUARED ||
        this->GetHexQualityMeasure() == VTK_QUALITY_SHAPE_AND_SIZE ||
        this->GetHexQualityMeasure() == VTK_QUALITY_SHEAR_AND_SIZE )
-    {
+  {
     vtkDataArray* triAreaHint = in->GetFieldData()->GetArray( "TriArea" );
     vtkDataArray* quadAreaHint = in->GetFieldData()->GetArray( "QuadArea" );
     vtkDataArray* tetVolHint = in->GetFieldData()->GetArray( "TetVolume" );
@@ -484,7 +484,7 @@ int vtkMeshQuality::RequestData(
          quadAreaHint && quadAreaHint->GetNumberOfTuples() > 0 && quadAreaHint->GetNumberOfComponents() == 5 &&
          tetVolHint   &&   tetVolHint->GetNumberOfTuples() > 0 &&   tetVolHint->GetNumberOfComponents() == 5 &&
          hexVolHint   &&   hexVolHint->GetNumberOfTuples() > 0 &&   hexVolHint->GetNumberOfComponents() == 5 )
-      {
+    {
       triAreaHint->GetTuple( 0, triAreaTuple );
       quadAreaHint->GetTuple( 0, quadAreaTuple );
       tetVolHint->GetTuple( 0, tetVolTuple );
@@ -493,9 +493,9 @@ int vtkMeshQuality::RequestData(
       v_set_quad_size( quadAreaTuple[1] / quadAreaTuple[4] );
       v_set_tet_size(  tetVolTuple[1] / tetVolTuple[4] );
       v_set_hex_size(  hexVolTuple[1] / hexVolTuple[4] );
-      }
+    }
     else
-      {
+    {
       for ( int i = 0; i < 5; ++i ) {
         triAreaTuple[i]  = 0;
         quadAreaTuple[i] = 0;
@@ -503,25 +503,25 @@ int vtkMeshQuality::RequestData(
         hexVolTuple[i]   = 0;
       }
       for ( vtkIdType c = 0; c < N; ++c )
-        {
+      {
         double a, v; // area and volume
         cell = out->GetCell( c );
         switch ( cell->GetCellType() )
-          {
+        {
         case VTK_TRIANGLE:
           a = TriangleArea( cell );
           if ( a > triAreaTuple[2] )
-            {
+          {
             if ( triAreaTuple[0] == triAreaTuple[2] )
-              { // min == max => min has not been set
+            { // min == max => min has not been set
               triAreaTuple[0] = a;
-              }
+            }
             triAreaTuple[2] = a;
-            }
+          }
           else if ( a < triAreaTuple[0] )
-            {
+          {
             triAreaTuple[0] = a;
-            }
+          }
           triAreaTuple[1] += a;
           triAreaTuple[3] += a * a;
           ntri++;
@@ -529,17 +529,17 @@ int vtkMeshQuality::RequestData(
         case VTK_QUAD:
           a = QuadArea( cell );
           if ( a > quadAreaTuple[2] )
-            {
+          {
             if ( quadAreaTuple[0] == quadAreaTuple[2] )
-              { // min == max => min has not been set
+            { // min == max => min has not been set
               quadAreaTuple[0] = a;
-              }
+            }
             quadAreaTuple[2] = a;
-            }
+          }
           else if ( a < quadAreaTuple[0] )
-            {
+          {
             quadAreaTuple[0] = a;
-            }
+          }
           quadAreaTuple[1] += a;
           quadAreaTuple[3] += a * a;
           nqua++;
@@ -547,17 +547,17 @@ int vtkMeshQuality::RequestData(
         case VTK_TETRA:
           v = TetVolume( cell );
           if ( v > tetVolTuple[2] )
-            {
+          {
             if ( tetVolTuple[0] == tetVolTuple[2] )
-              { // min == max => min has not been set
+            { // min == max => min has not been set
               tetVolTuple[0] = v;
-              }
+            }
             tetVolTuple[2] = v;
-            }
+          }
           else if ( v < tetVolTuple[0] )
-            {
+          {
             tetVolTuple[0] = v;
-            }
+          }
           tetVolTuple[1] += v;
           tetVolTuple[3] += v * v;
           ntet++;
@@ -565,23 +565,23 @@ int vtkMeshQuality::RequestData(
         case VTK_HEXAHEDRON:
           v = HexVolume( cell );
           if ( v > hexVolTuple[2] )
-            {
+          {
             if ( hexVolTuple[0] == hexVolTuple[2] )
-              { // min == max => min has not been set
+            { // min == max => min has not been set
               hexVolTuple[0] = v;
-              }
+            }
             hexVolTuple[2] = v;
-            }
+          }
           else if ( v < hexVolTuple[0] )
-            {
+          {
             hexVolTuple[0] = v;
-            }
+          }
           hexVolTuple[1] += v;
           hexVolTuple[3] += v * v;
           nhex++;
           break;
-          }
         }
+      }
       triAreaTuple[4]  = ntri;
       quadAreaTuple[4] = nqua;
       tetVolTuple[4]   = ntet;
@@ -625,8 +625,8 @@ int vtkMeshQuality::RequestData(
       hexVolHint->InsertNextTuple( hexVolTuple );
       out->GetFieldData()->AddArray( hexVolHint );
       hexVolHint->Delete();
-      }
     }
+  }
 
   int p;
   vtkIdType c = 0;
@@ -634,29 +634,29 @@ int vtkMeshQuality::RequestData(
   vtkIdType inner;
   this->UpdateProgress( progressNumer/progressDenom + 0.01 );
   for ( p = 0; p < 20; ++p )
-    {
+  {
     for ( inner = 0; (inner < sz && c < N); ++c, ++inner )
-      {
+    {
       cell = out->GetCell( c );
       V = 0.;
       switch ( cell->GetCellType() )
-        {
+      {
       case VTK_TRIANGLE:
         if ( this->CellNormals )
           this->CellNormals->GetTuple( c, vtkMeshQuality::CurrentTriNormal );
         q = TriangleQuality( cell );
         if ( q > qtriM )
-          {
+        {
           if ( qtrim > qtriM )
-            {
-            qtrim = q;
-            }
-          qtriM = q;
-          }
-        else if ( q < qtrim )
           {
-          qtrim = q;
+            qtrim = q;
           }
+          qtriM = q;
+        }
+        else if ( q < qtrim )
+        {
+          qtrim = q;
+        }
         Eqtri += q;
         Eqtri2 += q * q;
         ++ ntri;
@@ -664,17 +664,17 @@ int vtkMeshQuality::RequestData(
       case VTK_QUAD:
         q = QuadQuality( cell );
         if ( q > qquaM )
-          {
+        {
           if ( qquam > qquaM )
-            {
-            qquam = q;
-            }
-          qquaM = q;
-          }
-        else if ( q < qquam )
           {
-          qquam = q;
+            qquam = q;
           }
+          qquaM = q;
+        }
+        else if ( q < qquam )
+        {
+          qquam = q;
+        }
         Eqqua += q;
         Eqqua2 += q * q;
         ++ nqua;
@@ -682,109 +682,109 @@ int vtkMeshQuality::RequestData(
       case VTK_TETRA:
         q = TetQuality( cell );
         if ( q > qtetM )
-          {
+        {
           if ( qtetm > qtetM )
-            {
-            qtetm = q;
-            }
-          qtetM = q;
-          }
-        else if ( q < qtetm )
           {
-          qtetm = q;
+            qtetm = q;
           }
+          qtetM = q;
+        }
+        else if ( q < qtetm )
+        {
+          qtetm = q;
+        }
         Eqtet += q;
         Eqtet2 += q * q;
         ++ ntet;
         if ( this->Volume )
-          {
+        {
           V = TetVolume( cell );
           if ( ! this->CompatibilityMode )
-            {
+          {
             volume->SetTuple1( 0, V );
-            }
           }
+        }
         break;
       case VTK_HEXAHEDRON:
         q = HexQuality( cell );
         if ( q > qhexM )
-          {
+        {
           if ( qhexm > qhexM )
-            {
-            qhexm = q;
-            }
-          qhexM = q;
-          }
-        else if ( q < qhexm )
           {
-          qhexm = q;
+            qhexm = q;
           }
+          qhexM = q;
+        }
+        else if ( q < qhexm )
+        {
+          qhexm = q;
+        }
         Eqhex += q;
         Eqhex2 += q * q;
         ++ nhex;
         break;
       default:
         q = 0.;
-        }
+      }
 
       if ( this->SaveCellQuality )
-        {
+      {
         if ( this->CompatibilityMode && this->Volume )
-          {
+        {
           quality->SetTuple2( c, V, q );
-          }
+        }
         else
-          {
+        {
           quality->SetTuple1( c, q );
-          }
         }
       }
-    this->UpdateProgress( double(p+1+progressNumer)/progressDenom );
     }
+    this->UpdateProgress( double(p+1+progressNumer)/progressDenom );
+  }
 
   if ( ntri )
-    {
+  {
     Eqtri  /= static_cast<double>( ntri );
     double multFactor = 1. / static_cast<double>( ntri > 1 ? ntri - 1 : ntri );
     Eqtri2 = multFactor * ( Eqtri2 - static_cast<double>( ntri ) * Eqtri * Eqtri );
-    }
+  }
   else
-    {
+  {
     qtrim = Eqtri = qtriM = Eqtri2 = 0.;
-    }
+  }
 
   if ( nqua )
-    {
+  {
     Eqqua  /= static_cast<double>( nqua );
     double multFactor = 1. / static_cast<double>( nqua > 1 ? nqua - 1 : nqua );
     Eqqua2 = multFactor * ( Eqqua2 - static_cast<double>( nqua ) * Eqqua * Eqqua );
-    }
+  }
   else
-    {
+  {
     qquam = Eqqua = qquaM = Eqqua2 = 0.;
-    }
+  }
 
   if ( ntet )
-    {
+  {
     Eqtet  /= static_cast<double>( ntet );
     double multFactor = 1. / static_cast<double>( ntet > 1 ? ntet - 1 : ntet );
     Eqtet2 = multFactor * ( Eqtet2 - static_cast<double>( ntet ) * Eqtet * Eqtet );
-    }
+  }
   else
-    {
+  {
     qtetm = Eqtet = qtetM = Eqtet2 = 0.;
-    }
+  }
 
   if ( nhex )
-    {
+  {
     Eqhex  /= static_cast<double>( nhex );
     double multFactor = 1. / static_cast<double>( nhex > 1 ? nhex - 1 : nhex );
     Eqhex2 = multFactor * ( Eqhex2 - static_cast<double>( nhex ) * Eqhex * Eqhex );
-    }
+  }
   else
-    {
+  {
     qhexm = Eqhex = qhexM = Eqhex2 = 0.;
-    }
+  }
 
   double tuple[5];
   quality = vtkDoubleArray::New();

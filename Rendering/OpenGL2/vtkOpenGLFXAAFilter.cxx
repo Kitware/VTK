@@ -63,7 +63,7 @@ void vtkOpenGLFXAAFilter::PrintSelf(std::ostream &os, vtkIndent indent)
 
   os << indent << "DebugOptionValue: ";
   switch (this->DebugOptionValue)
-    {
+  {
     default:
     case vtkFXAAOptions::FXAA_NO_DEBUG:
       os << "FXAA_NO_DEBUG\n";
@@ -89,7 +89,7 @@ void vtkOpenGLFXAAFilter::PrintSelf(std::ostream &os, vtkIndent indent)
     case vtkFXAAOptions::FXAA_DEBUG_ONLY_EDGE_AA:
       os << "FXAA_DEBUG_ONLY_EDGE_AA\n";
       break;
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -137,22 +137,22 @@ void vtkOpenGLFXAAFilter::UpdateConfiguration(vtkFXAAOptions *opts)
 void vtkOpenGLFXAAFilter::SetUseHighQualityEndpoints(bool val)
 {
   if (this->UseHighQualityEndpoints != val)
-    {
+  {
     this->NeedToRebuildShader = true;
     this->Modified();
     this->UseHighQualityEndpoints = val;
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
 void vtkOpenGLFXAAFilter::SetDebugOptionValue(vtkFXAAOptions::DebugOption opt)
 {
   if (this->DebugOptionValue != opt)
-    {
+  {
     this->NeedToRebuildShader = true;
     this->Modified();
     this->DebugOptionValue = opt;
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -194,20 +194,20 @@ void vtkOpenGLFXAAFilter::Prepare()
 
   // Check if we need to create a new working texture:
   if (this->Input)
-    {
+  {
     unsigned int rendererWidth = static_cast<unsigned int>(this->Viewport[2]);
     unsigned int rendererHeight = static_cast<unsigned int>(this->Viewport[3]);
     if (this->Input->GetWidth()  != rendererWidth ||
         this->Input->GetHeight() != rendererHeight)
-      {
+    {
       this->FreeGLObjects();
-      }
     }
+  }
 
   if (!this->Input)
-    {
+  {
     this->CreateGLObjects();
-    }
+  }
 
   this->BlendState = glIsEnabled(GL_BLEND) == GL_TRUE;
   this->DepthTestState = glIsEnabled(GL_DEPTH_TEST) == GL_TRUE;
@@ -224,10 +224,10 @@ namespace {
 template <typename T> void DeleteHelper(T *& ptr)
 {
   if (ptr)
-    {
+  {
     ptr->Delete();
     ptr = NULL;
-    }
+  }
 }
 } // end anon namespace
 
@@ -281,33 +281,33 @@ void vtkOpenGLFXAAFilter::ApplyFilter()
   this->Input->Activate();
 
   if (this->NeedToRebuildShader)
-    {
+  {
     DeleteHelper(this->VAO);
     DeleteHelper(this->VBO);
     this->Program = NULL; // Don't free, shader cache manages these.
     this->NeedToRebuildShader = false;
-    }
+  }
 
   if (!this->Program)
-    {
+  {
     std::string fragShader = vtkFXAAFilterFS;
     this->SubstituteFragmentShader(fragShader);
     this->Program = renWin->GetShaderCache()->ReadyShaderProgram(
           GLUtil::GetFullScreenQuadVertexShader().c_str(),
           fragShader.c_str(),
           GLUtil::GetFullScreenQuadGeometryShader().c_str());
-    }
+  }
   else
-    {
+  {
     renWin->GetShaderCache()->ReadyShaderProgram(this->Program);
-    }
+  }
 
   if (!this->VAO)
-    {
+  {
     this->VBO = vtkOpenGLBufferObject::New();
     this->VAO = vtkOpenGLVertexArrayObject::New();
     GLUtil::PrepFullScreenVAO(this->VBO, this->VAO, this->Program);
-    }
+  }
 
   this->Program->SetUniformi("Input", this->Input->GetTextureUnit());
   float invTexSize[2] = { 1.f / static_cast<float>(this->Viewport[2]),
@@ -335,10 +335,10 @@ void vtkOpenGLFXAAFilter::ApplyFilter()
 void vtkOpenGLFXAAFilter::SubstituteFragmentShader(std::string &fragShader)
 {
   if (this->UseHighQualityEndpoints)
-    {
+  {
     vtkShaderProgram::Substitute(fragShader, "//VTK::EndpointAlgo::Def",
                                  "#define FXAA_USE_HIGH_QUALITY_ENDPOINTS");
-    }
+  }
 
 #define DEBUG_OPT_CASE(optName) \
   case vtkFXAAOptions::optName: \
@@ -348,7 +348,7 @@ void vtkOpenGLFXAAFilter::SubstituteFragmentShader(std::string &fragShader)
 
 
   switch (this->DebugOptionValue)
-    {
+  {
     default:
     case vtkFXAAOptions::FXAA_NO_DEBUG:
       break;
@@ -359,7 +359,7 @@ void vtkOpenGLFXAAFilter::SubstituteFragmentShader(std::string &fragShader)
     DEBUG_OPT_CASE(FXAA_DEBUG_EDGE_SAMPLE_OFFSET);
     DEBUG_OPT_CASE(FXAA_DEBUG_ONLY_SUBPIX_AA);
     DEBUG_OPT_CASE(FXAA_DEBUG_ONLY_EDGE_AA);
-    }
+  }
 
 #undef DEBUG_OPT_CASE
 }
@@ -368,13 +368,13 @@ void vtkOpenGLFXAAFilter::SubstituteFragmentShader(std::string &fragShader)
 void vtkOpenGLFXAAFilter::Finalize()
 {
   if (this->BlendState)
-    {
+  {
     glEnable(GL_BLEND);
-    }
+  }
   if (this->DepthTestState)
-    {
+  {
     glEnable(GL_DEPTH_TEST);
-    }
+  }
 
   vtkOpenGLCheckErrorMacro("Error after restoring GL state.");
 }
@@ -385,9 +385,9 @@ void vtkOpenGLFXAAFilter::StartTimeQuery(vtkOpenGLRenderTimer *timer)
   // Since it may take a few frames for the results to become available,
   // check if we've started the timer already.
   if (!timer->Started())
-    {
+  {
     timer->Start();
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -396,9 +396,9 @@ void vtkOpenGLFXAAFilter::EndTimeQuery(vtkOpenGLRenderTimer *timer)
   // Since it may take a few frames for the results to become available,
   // check if we've stopped the timer already.
   if (!timer->Stopped())
-    {
+  {
     timer->Stop();
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -406,7 +406,7 @@ void vtkOpenGLFXAAFilter::PrintBenchmark()
 {
   if (this->PreparationTimer->Ready() &&
       this->FXAATimer->Ready())
-    {
+  {
 
 #ifdef FXAA_BENCHMARK
     int numPixels = this->Input->GetWidth() * this->Input->GetHeight();
@@ -432,5 +432,5 @@ void vtkOpenGLFXAAFilter::PrintBenchmark()
 
     this->PreparationTimer->Reset();
     this->FXAATimer->Reset();
-    }
+  }
 }

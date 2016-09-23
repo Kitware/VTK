@@ -60,9 +60,9 @@ GridFactory::GridFactory() :
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   points->SetNumberOfPoints( 8 );
   for ( int i = 0; i < 8; ++i )
-    {
+  {
     points->SetPoint( i, x[i] );
-    }
+  }
   this->Grid->SetPoints( points );
 }
 
@@ -140,10 +140,10 @@ vtkUnstructuredGrid* GridFactory::Get()
   pointDataArray->SetName( name );
   // Creating data for 8 points
   for ( int i = 0; i < num; ++i )
-    {
+  {
     vtkIdType value = i+100;
     pointDataArray->InsertNextTypedTuple( &value );
-    }
+  }
   this->Grid->GetPointData()->AddArray( pointDataArray );
 
   // Create the cell data array
@@ -154,10 +154,10 @@ vtkUnstructuredGrid* GridFactory::Get()
   cellDataArray->SetName( name );
   cellDataArray->SetNumberOfComponents( 1 );
   for ( int i = 0; i < num; ++i )
-    {
+  {
     vtkIdType value = i+200;
     cellDataArray->InsertNextTypedTuple( &value );
-    }
+  }
   this->Grid->GetCellData()->AddArray( cellDataArray );
 
   return this->Grid;
@@ -204,10 +204,10 @@ int TestGeometryFilter( vtkUnstructuredGrid* ug )
 int CheckDataSet( vtkDataSet* d )
 {
   if ( ! d )
-    {
+  {
     std::cout << "No dataset\n";
     return 1;
-    }
+  }
 
   const char* name;
   if ( vtkUnstructuredGrid::SafeDownCast( d ) )
@@ -229,34 +229,34 @@ int CheckFieldData( vtkIdType numGridEntities, vtkFieldData* fd )
 {
   int retVal = 0;
   if ( ! fd )
-    {
+  {
     std::cout << "No field data\n";
     return 1;
-    }
+  }
 
   const char* name;
   if ( vtkCellData::SafeDownCast( fd ) )
-    {
+  {
     name = "cell data";
-    }
+  }
   else if ( vtkPointData::SafeDownCast( fd ) )
-    {
+  {
     name = "point data";
-    }
+  }
   else
-    {
+  {
     name = "field data";
-    }
+  }
 
   for ( int i = 0; i < fd->GetNumberOfArrays(); ++i )
-    {
+  {
     vtkAbstractArray *a = fd->GetArray( i );
     if(a->GetNumberOfTuples() != numGridEntities)
-      {
+    {
       vtkGenericWarningMacro(<< name << " array '" << a->GetName() << "' has #tuples="<< a->GetNumberOfTuples()
                              << " but should have " << numGridEntities);
       retVal = 1;
-      }
     }
+  }
   return retVal;
 }

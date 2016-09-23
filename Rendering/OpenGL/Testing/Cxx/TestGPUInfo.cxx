@@ -25,7 +25,7 @@ int TestGPUInfo(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   cout << "There is " << c << " GPU(s)."<< endl;
   int i=0;
   while(i<c)
-    {
+  {
     cout << " GPU " << i << ": " << endl;
     vtkGPUInfo *info=l->GetGPUInfo(i);
     vtkTypeUInt64 value;
@@ -36,7 +36,7 @@ int TestGPUInfo(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     value=info->GetSharedSystemMemory();
     cout << "  shared RAM=" << value/(1024*1024) << " MiB" << endl;
     ++i;
-    }
+  }
   l->Delete();
 
   return 0; // 0==never fails.

@@ -98,13 +98,13 @@ vtkCheckerboardRepresentation::vtkCheckerboardRepresentation()
 vtkCheckerboardRepresentation::~vtkCheckerboardRepresentation()
 {
   if ( this->Checkerboard )
-    {
+  {
     this->Checkerboard->Delete();
-    }
+  }
   if ( this->ImageActor )
-    {
+  {
     this->ImageActor->Delete();
-    }
+  }
 
   this->TopRepresentation->Delete();
   this->RightRepresentation->Delete();
@@ -120,57 +120,57 @@ void vtkCheckerboardRepresentation::SliderValueChanged(int sliderNum)
   int div[] = {1,1,1};
 
   if ( sliderNum == vtkCheckerboardRepresentation::TopSlider )
-    {
+  {
     value = static_cast<int>(this->TopRepresentation->GetValue());
     this->BottomRepresentation->SetValue(this->TopRepresentation->GetValue());
     switch ( this->OrthoAxis )
-      {
+    {
       case 0: div[1] = value; div[2] = numDivisions[2]; break;
       case 1: div[0] = value; div[2] = numDivisions[2]; break;
       case 2: div[0] = value; div[1] = numDivisions[1]; break;
-      }
+    }
 
     this->Checkerboard->SetNumberOfDivisions(div);
-    }
+  }
   else if ( sliderNum == vtkCheckerboardRepresentation::RightSlider )
-    {
+  {
     value = static_cast<int>(this->RightRepresentation->GetValue());
     this->LeftRepresentation->SetValue(this->RightRepresentation->GetValue());
     switch ( this->OrthoAxis )
-      {
+    {
       case 0: div[1] = numDivisions[1]; div[2] = value; break;
       case 1: div[0] = numDivisions[0]; div[2] = value; break;
       case 2: div[0] = numDivisions[0]; div[1] = value; break;
-      }
+    }
 
     this->Checkerboard->SetNumberOfDivisions(div);
-    }
+  }
   else if ( sliderNum == vtkCheckerboardRepresentation::BottomSlider )
-    {
+  {
     value = static_cast<int>(this->BottomRepresentation->GetValue());
     this->TopRepresentation->SetValue(this->BottomRepresentation->GetValue());
     switch ( this->OrthoAxis )
-      {
+    {
       case 0: div[1] = value; div[2] = numDivisions[2]; break;
       case 1: div[0] = value; div[2] = numDivisions[2]; break;
       case 2: div[0] = value; div[1] = numDivisions[1]; break;
-      }
+    }
 
     this->Checkerboard->SetNumberOfDivisions(div);
-    }
+  }
   else if ( sliderNum == vtkCheckerboardRepresentation::LeftSlider )
-    {
+  {
     value = static_cast<int>(this->LeftRepresentation->GetValue());
     this->RightRepresentation->SetValue(this->LeftRepresentation->GetValue());
     switch ( this->OrthoAxis )
-      {
+    {
       case 0: div[1] = numDivisions[1]; div[2] = value; break;
       case 1: div[0] = numDivisions[0]; div[2] = value; break;
       case 2: div[0] = numDivisions[0]; div[1] = value; break;
-      }
+    }
 
     this->Checkerboard->SetNumberOfDivisions(div);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -178,20 +178,20 @@ void vtkCheckerboardRepresentation::BuildRepresentation()
 {
   // Make sure that the checkerboard is up to date
   if ( !this->Checkerboard || !this->ImageActor )
-    {
+  {
     vtkErrorMacro("requires a checkerboard and image actor");
     return;
-    }
+  }
 
   double bounds[6];
   vtkImageData *image = this->ImageActor->GetInput();
   this->ImageActor->GetMapper()->GetInputAlgorithm()->Update();
   image->GetBounds(bounds);
   if ( image->GetDataDimension() != 2 )
-    {
+  {
     vtkErrorMacro(<<" requires a 2D image");
     return;
-    }
+  }
   double t0 = bounds[1]-bounds[0];
   double t1 = bounds[3]-bounds[2];
   double t2 = bounds[5]-bounds[4];
@@ -204,7 +204,7 @@ void vtkCheckerboardRepresentation::BuildRepresentation()
   int *numDivisions = this->Checkerboard->GetNumberOfDivisions();
 
   if ( this->OrthoAxis == 0 ) //x-axis
-    {
+  {
     // point1 and point2 are switched for top and bottom in case a
     // user wants to see the slider label positions as text, and
     // rotation of the text about the slider's local x-axis must be
@@ -229,9 +229,9 @@ void vtkCheckerboardRepresentation::BuildRepresentation()
     this->LeftRepresentation->GetPoint2Coordinate()->SetValue(bounds[0], bounds[2], bounds[5]-o2);
     this->LeftRepresentation->SetValue(numDivisions[2]);
     this->LeftRepresentation->SetRotation(0.0);
-    }
+  }
   else if ( this->OrthoAxis == 1 ) //y-axis
-    {
+  {
     this->TopRepresentation->GetPoint1Coordinate()->SetValue(bounds[0]+o0, bounds[2], bounds[5]);
     this->TopRepresentation->GetPoint2Coordinate()->SetValue(bounds[1]-o0, bounds[2], bounds[5]);
     this->TopRepresentation->SetValue(numDivisions[0]);
@@ -251,9 +251,9 @@ void vtkCheckerboardRepresentation::BuildRepresentation()
     this->LeftRepresentation->GetPoint2Coordinate()->SetValue(bounds[0], bounds[2], bounds[5]-o2);
     this->LeftRepresentation->SetValue(numDivisions[2]);
     this->LeftRepresentation->SetRotation(90.0);
-    }
+  }
   else // if( orthoAxis == 2 ) //z-axis
-    {
+  {
     this->TopRepresentation->GetPoint1Coordinate()->SetValue(bounds[0]+o0, bounds[3], bounds[4]);
     this->TopRepresentation->GetPoint2Coordinate()->SetValue(bounds[1]-o0, bounds[3], bounds[4]);
     this->TopRepresentation->SetValue(numDivisions[0]);
@@ -273,7 +273,7 @@ void vtkCheckerboardRepresentation::BuildRepresentation()
     this->LeftRepresentation->GetPoint2Coordinate()->SetValue(bounds[0], bounds[3]-o1, bounds[4]);
     this->LeftRepresentation->SetValue(numDivisions[1]);
     this->LeftRepresentation->SetRotation(0.0);
-    }
+  }
 
   this->TopRepresentation->BuildRepresentation();
   this->RightRepresentation->BuildRepresentation();
@@ -346,22 +346,22 @@ void vtkCheckerboardRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->ImageActor )
-    {
+  {
     os << indent << "Image Actor: " << this->ImageActor << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Image Actor: (none)\n";
-    }
+  }
 
   if ( this->Checkerboard )
-    {
+  {
     os << indent << "Checkerboard: " << this->Checkerboard << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Image Checkerboard: (none)\n";
-    }
+  }
 
   os << indent << "Corner Offset: " << this->CornerOffset << "\n";
 

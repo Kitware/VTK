@@ -116,10 +116,10 @@ void vtkImageToStructuredGrid::CopyPointData(
     return;
 
   for( int i=0; i < img->GetPointData()->GetNumberOfArrays(); ++i)
-    {
+  {
     vtkDataArray* myArray = img->GetPointData()->GetArray( i );
     sgrid->GetPointData()->AddArray( myArray );
-    } // END for all node arrays
+  } // END for all node arrays
 }
 
 //------------------------------------------------------------------------------
@@ -133,8 +133,8 @@ void vtkImageToStructuredGrid::CopyCellData(
     return;
 
   for( int i=0; i < img->GetCellData()->GetNumberOfArrays(); ++i)
-    {
+  {
     vtkDataArray* myArray = img->GetCellData()->GetArray( i );
     sgrid->GetCellData()->AddArray( myArray );
-    } // END for all cell arrays
+  } // END for all cell arrays
 }

@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTDxInteractorStyleGeo - interactive manipulation of the camera with a 3DConnexion device, similar to google earth
-
-// .SECTION Description
-// vtkTDxInteractorStyleGeo allows the end-user to manipulate tha camera
-// with a 3DConnexion device similar to google earth interaction.
-
-// .SECTION See Also
-// vtkInteractorStyle vtkRenderWindowInteractor
-// vtkTDxInteractorStyle
+/**
+ * @class   vtkTDxInteractorStyleGeo
+ * @brief   interactive manipulation of the camera with a 3DConnexion device, similar to google earth
+ *
+ *
+ * vtkTDxInteractorStyleGeo allows the end-user to manipulate tha camera
+ * with a 3DConnexion device similar to google earth interaction.
+ *
+ * @sa
+ * vtkInteractorStyle vtkRenderWindowInteractor
+ * vtkTDxInteractorStyle
+*/
 
 #ifndef vtkTDxInteractorStyleGeo_h
 #define vtkTDxInteractorStyleGeo_h
@@ -37,9 +40,10 @@ public:
   vtkTypeMacro(vtkTDxInteractorStyleGeo,vtkTDxInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Action on motion event.
-  // \pre: motionInfo_exist: motionInfo!=0
+  /**
+   * Action on motion event.
+   * \pre: motionInfo_exist: motionInfo!=0
+   */
   virtual void OnMotionEvent(vtkTDxMotionEventInfo *motionInfo);
 
 protected:

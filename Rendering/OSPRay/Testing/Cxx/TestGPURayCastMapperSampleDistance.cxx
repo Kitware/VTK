@@ -38,13 +38,13 @@ int TestGPURayCastMapperSampleDistance(int argc, char* argv[])
 {
   bool useOSP = true;
   for (int i = 0; i < argc; i++)
-    {
+  {
     if (!strcmp(argv[i], "-GL"))
-      {
+    {
       cerr << "GL" << endl;
       useOSP = false;
-      }
     }
+  }
   vtkNew<vtkRTAnalyticSource> wavelet;
   wavelet->SetWholeExtent(-127, 128,
                           -127, 128,
@@ -85,9 +85,9 @@ int TestGPURayCastMapperSampleDistance(int argc, char* argv[])
 // Attach OSPRay render pass
   vtkNew<vtkOSPRayPass> osprayPass;
   if (useOSP)
-    {
+  {
     renderer->SetPass(osprayPass.GetPointer());
-    }
+  }
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renderWindow.GetPointer());
@@ -97,21 +97,21 @@ int TestGPURayCastMapperSampleDistance(int argc, char* argv[])
 
   int retVal;
   if (valid)
-    {
+  {
     renderWindow->Render();
     iren->Initialize();
 
     retVal = vtkRegressionTestImage( renderWindow.GetPointer() );
     if( retVal == vtkRegressionTester::DO_INTERACTOR)
-      {
-      iren->Start();
-      }
-    }
-  else
     {
+      iren->Start();
+    }
+  }
+  else
+  {
     retVal = vtkTesting::PASSED;
     cout << "Required extensions not supported." << endl;
-    }
+  }
 
   return !((retVal == vtkTesting::PASSED) ||
            (retVal == vtkTesting::DO_INTERACTOR));

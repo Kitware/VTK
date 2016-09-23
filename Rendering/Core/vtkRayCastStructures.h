@@ -13,13 +13,16 @@
 
 =========================================================================*/
 
-// .NAME vtkRayCastStructures - the structure definitions for ray casting
-
-// .SECTION Description
-// These are the structures required for ray casting.
-
-// .SECTION See Also
-// vtkRayCaster
+/**
+ * @class   vtkRayCastStructures
+ * @brief   the structure definitions for ray casting
+ *
+ *
+ * These are the structures required for ray casting.
+ *
+ * @sa
+ * vtkRayCaster
+*/
 
 #ifndef vtkRayCastStructures_h
 #define vtkRayCastStructures_h

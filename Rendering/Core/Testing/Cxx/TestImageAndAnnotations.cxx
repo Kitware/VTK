@@ -22,16 +22,16 @@ vtkSmartPointer<vtkImageData> CreateColorImage(unsigned int dim, bool transparen
   image->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
 
   for (unsigned int x = 0; x < dim; x++)
-    {
+  {
     for (unsigned int y = 0; y < dim; y++)
-      {
+    {
       unsigned char* pixel = static_cast<unsigned char*>(image->GetScalarPointer(x, y, 0));
       pixel[0] = 255;
       pixel[1] = 0;
       pixel[2] = 255;
       pixel[3] = transparent ? 127 : 255;
-      }
     }
+  }
 
   return image;
 }
@@ -94,7 +94,7 @@ int TestImageAndAnnotations(int argc, char *argv[])
     vtkSmartPointer<vtkActor2D> imageActor = CreateImageActor(Dim, VTK_BACKGROUND_LOCATION, transparent);
     imageActor->SetPosition(0, 0);
     renderer->AddActor(imageActor);
-    }
+  }
   {
     // lower right: foreground/opaque
     bool transparent = false;
@@ -125,9 +125,9 @@ int TestImageAndAnnotations(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage( renderWindow );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renderWindowInteractor->Start();
-    }
+  }
 
   return !retVal;
 }

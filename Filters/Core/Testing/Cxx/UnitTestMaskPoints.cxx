@@ -32,19 +32,19 @@
   { \
   std::string expectedMsg(msg); \
   if (!errorObserver->GetError()) \
-    { \
+  { \
     std::cout << "Failed to catch any error.. Expected the error message to contain \"" << expectedMsg << std::endl; \
     status++; \
-    } \
+  } \
   else \
-    { \
+  { \
     std::string gotMsg(errorObserver->GetErrorMessage()); \
     if (gotMsg.find(expectedMsg) == std::string::npos) \
-      { \
+    { \
       std::cout << "Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
       status++; \
-      } \
     } \
+  } \
   } \
   errorObserver->Clear()
 
@@ -75,15 +75,15 @@ int UnitTestMaskPoints (int, char*[])
   mask0->SetOutputPointsPrecision(vtkAlgorithm::DEFAULT_PRECISION);
   mask0->Update();
   if (mask0->GetOutput()->GetNumberOfPoints() != 102)
-    {
+  {
     std::cout << "FAILED: Expected 102"
                << " but got " << mask0->GetOutput()->GetNumberOfPoints() << std::endl;
     status++;
-    }
+  }
   else
-    {
+  {
     std::cout << "PASSED" << std::endl;
-    }
+  }
 
   std::cout << "Testing RandomModeType(0)...";
   mask0->SetInputData(MakePolyData(10000));
@@ -93,44 +93,44 @@ int UnitTestMaskPoints (int, char*[])
   mask0->SetOffset (0);
   mask0->Update();
   if (mask0->GetOutput()->GetNumberOfPoints() != mask0->GetMaximumNumberOfPoints())
-   {
+  {
    std::cout << "FAILED: Expected " << mask0->GetMaximumNumberOfPoints()
              << " but got " << mask0->GetOutput()->GetNumberOfPoints() << std::endl;
    status++;
-   }
+  }
   else
-    {
+  {
     std::cout << "PASSED" << std::endl;
-    }
+  }
 
   std::cout << "Testing RandomModeType(1)...";
   mask0->SetRandomModeType(1);
   mask0->Update();
   if (mask0->GetOutput()->GetNumberOfPoints() != mask0->GetMaximumNumberOfPoints())
-   {
+  {
    std::cout << "FAILED: Expected " << mask0->GetMaximumNumberOfPoints()
              << " but got " << mask0->GetOutput()->GetNumberOfPoints() << std::endl;
    status++;
-   }
+  }
   else
-    {
+  {
     std::cout << "PASSED" << std::endl;
-    }
+  }
 
   std::cout << "Testing RandomModeType(1)...";
   mask0->SetRandomModeType(2);
   mask0->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
   mask0->Update();
   if (mask0->GetOutput()->GetNumberOfPoints() != mask0->GetMaximumNumberOfPoints())
-   {
+  {
    std::cout << "FAILED: Expected " << mask0->GetMaximumNumberOfPoints()
              << " but got " << mask0->GetOutput()->GetNumberOfPoints() << std::endl;
    status++;
-   }
+  }
   else
-    {
+  {
     std::cout << "PASSED" << std::endl;
-    }
+  }
 
   std::cout << "Testing with image data...";
   // Try with image data
@@ -144,15 +144,15 @@ int UnitTestMaskPoints (int, char*[])
   mask1->SetMaximumNumberOfPoints(50);
   mask1->Update();
   if (mask1->GetOutput()->GetNumberOfPoints() != mask1->GetMaximumNumberOfPoints())
-    {
+  {
     std::cout << "FAILED: Expected " << mask1->GetMaximumNumberOfPoints()
              << " but got " << mask1->GetOutput()->GetNumberOfPoints() << std::endl;
     status++;
-    }
+  }
   else
-    {
+  {
     std::cout << "PASSED" << std::endl;
-    }
+  }
 
   // Print an initialized object
   mask0->Print(print0);
@@ -167,13 +167,13 @@ int UnitTestMaskPoints (int, char*[])
   int status1 = 0;
   CHECK_ERROR_MSG(errorObserver, "No points to mask", status1);
   if (status1)
-    {
+  {
     std::cout << "FAILED" << std::endl;
-    }
+  }
   else
-    {
+  {
     std::cout << "PASSED" << std::endl;
-    }
+  }
 
   // Suppress the debug output
   vtkObject::GlobalWarningDisplayOff();
@@ -187,24 +187,24 @@ int UnitTestMaskPoints (int, char*[])
   mask0->Update();
   if (mask0->GetOutput()->GetNumberOfCells() !=
       mask0->GetOutput()->GetNumberOfPoints())
-   {
+  {
      std::cout << "FAILED: Expected " << mask0->GetOutput()->GetNumberOfPoints()
              << " but got " << mask0->GetOutput()->GetNumberOfCells() << std::endl;
    status++;
-   }
+  }
   else
-    {
+  {
     std::cout << "PASSED" << std::endl;
-    }
+  }
 
   if (status)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
   else
-    {
+  {
     return EXIT_SUCCESS;
-    }
+  }
 }
 
 vtkSmartPointer<vtkPolyData> MakePolyData(unsigned int numPoints)
@@ -215,14 +215,14 @@ vtkSmartPointer<vtkPolyData> MakePolyData(unsigned int numPoints)
     vtkSmartPointer<vtkPoints>::New();
   std::vector<double> line;
   for (unsigned int i = 0; i < numPoints; ++i)
-    {
+  {
     line.push_back(static_cast<double>(i));
-    }
+  }
   std::random_shuffle ( line.begin(), line.end() );
   for (unsigned int i = 0; i < numPoints; ++i)
-    {
+  {
     points->InsertNextPoint(line[i], 0.0, 0.0);
-    }
+  }
   polyData->SetPoints(points);
   return polyData;
 }
@@ -234,14 +234,14 @@ vtkSmartPointer<vtkImageData> MakeImageData(unsigned int dim)
   imageData->SetDimensions(dim, dim, 1);
   imageData->AllocateScalars(VTK_UNSIGNED_CHAR,1);
   for(unsigned int x = 0; x < dim; ++x)
-    {
+  {
     for(unsigned int y = 0; y < dim; ++y)
-      {
+    {
       unsigned char* pixel =
         static_cast<unsigned char*>(imageData->GetScalarPointer(x,y,0));
       pixel[0] = static_cast<unsigned char>(x + y);
-      }
     }
+  }
 
   return imageData;
 }

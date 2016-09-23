@@ -40,16 +40,16 @@ vtkOpenGLRenderTimer::~vtkOpenGLRenderTimer()
 void vtkOpenGLRenderTimer::Reset()
 {
   if (this->StartQuery != 0)
-    {
+  {
     glDeleteQueries(1, static_cast<GLuint*>(&this->StartQuery));
     this->StartQuery = 0;
-    }
+  }
 
   if (this->EndQuery != 0)
-    {
+  {
     glDeleteQueries(1, static_cast<GLuint*>(&this->EndQuery));
     this->EndQuery = 0;
-    }
+  }
 
   this->StartReady = false;
   this->EndReady = false;
@@ -70,18 +70,18 @@ void vtkOpenGLRenderTimer::Start()
 void vtkOpenGLRenderTimer::Stop()
 {
   if (this->EndQuery != 0)
-    {
+  {
     vtkGenericWarningMacro("vtkOpenGLRenderTimer::Stop called before "
                            "resetting. Ignoring.");
     return;
-    }
+  }
 
   if (this->StartQuery == 0)
-    {
+  {
     vtkGenericWarningMacro("vtkOpenGLRenderTimer::Stop called before "
                            "vtkOpenGLRenderTimer::Start. Ignoring.");
     return;
-    }
+  }
 
   glGenQueries(1, static_cast<GLuint*>(&this->EndQuery));
   glQueryCounter(static_cast<GLuint>(this->EndQuery), GL_TIMESTAMP);
@@ -103,36 +103,36 @@ bool vtkOpenGLRenderTimer::Stopped()
 bool vtkOpenGLRenderTimer::Ready()
 {
   if (!this->StartReady)
-    {
+  {
     GLint ready;
     glGetQueryObjectiv(static_cast<GLuint>(this->StartQuery),
                        GL_QUERY_RESULT_AVAILABLE, &ready);
     if (!ready)
-      {
+    {
       return false;
-      }
+    }
 
     this->StartReady = true;
     glGetQueryObjectui64v(static_cast<GLuint>(this->StartQuery),
                           GL_QUERY_RESULT,
                           reinterpret_cast<GLuint64*>(&this->StartTime));
-    }
+  }
 
   if (!this->EndReady)
-    {
+  {
     GLint ready;
     glGetQueryObjectiv(static_cast<GLuint>(this->EndQuery),
                        GL_QUERY_RESULT_AVAILABLE, &ready);
     if (!ready)
-      {
+    {
       return false;
-      }
+    }
 
     this->EndReady = true;
     glGetQueryObjectui64v(static_cast<GLuint>(this->EndQuery),
                           GL_QUERY_RESULT,
                           reinterpret_cast<GLuint64*>(&this->EndTime));
-    }
+  }
 
   return true;
 }
@@ -141,9 +141,9 @@ bool vtkOpenGLRenderTimer::Ready()
 float vtkOpenGLRenderTimer::GetElapsedSeconds()
 {
   if (!this->Ready())
-    {
+  {
     return 0.f;
-    }
+  }
 
   return (this->EndTime - this->StartTime) * 1e-9f;
 }
@@ -152,9 +152,9 @@ float vtkOpenGLRenderTimer::GetElapsedSeconds()
 float vtkOpenGLRenderTimer::GetElapsedMilliseconds()
 {
   if (!this->Ready())
-    {
+  {
     return 0.f;
-    }
+  }
 
   return (this->EndTime - this->StartTime) * 1e-6f;
 }
@@ -163,9 +163,9 @@ float vtkOpenGLRenderTimer::GetElapsedMilliseconds()
 vtkTypeUInt64 vtkOpenGLRenderTimer::GetElapsedNanoseconds()
 {
   if (!this->Ready())
-    {
+  {
     return 0;
-    }
+  }
 
   return (this->EndTime - this->StartTime);
 }

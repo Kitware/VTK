@@ -44,39 +44,39 @@ void vtkImageNoiseSource::SetWholeExtent(int xMin, int xMax,
   int modified = 0;
 
   if (this->WholeExtent[0] != xMin)
-    {
+  {
     modified = 1;
     this->WholeExtent[0] = xMin ;
-    }
+  }
   if (this->WholeExtent[1] != xMax)
-    {
+  {
     modified = 1;
     this->WholeExtent[1] = xMax ;
-    }
+  }
   if (this->WholeExtent[2] != yMin)
-    {
+  {
     modified = 1;
     this->WholeExtent[2] = yMin ;
-    }
+  }
   if (this->WholeExtent[3] != yMax)
-    {
+  {
     modified = 1;
     this->WholeExtent[3] = yMax ;
-    }
+  }
   if (this->WholeExtent[4] != zMin)
-    {
+  {
     modified = 1;
     this->WholeExtent[4] = zMin ;
-    }
+  }
   if (this->WholeExtent[5] != zMax)
-    {
+  {
     modified = 1;
     this->WholeExtent[5] = zMax ;
-    }
+  }
   if (modified)
-    {
+  {
     this->Modified();
-    }
+  }
 }
 //----------------------------------------------------------------------------
 int vtkImageNoiseSource::RequestInformation (
@@ -101,26 +101,26 @@ void vtkImageNoiseSource::ExecuteDataWithInformation(vtkDataObject *output,
   vtkImageData *data = this->AllocateOutputData(output, outInfo);
 
   if (data->GetScalarType() != VTK_DOUBLE)
-    {
+  {
     vtkErrorMacro("Execute: This source only outputs doubles");
-    }
+  }
 
   vtkImageProgressIterator<double> outIt(data, data->GetExtent(), this, 0);
 
   // Loop through output pixels
   while (!outIt.IsAtEnd())
-    {
+  {
     double* outSI = outIt.BeginSpan();
     double* outSIEnd = outIt.EndSpan();
     while (outSI != outSIEnd)
-      {
+    {
       // now process the components
       *outSI = this->Minimum +
         (this->Maximum - this->Minimum) * vtkMath::Random();
       outSI++;
-      }
-    outIt.NextSpan();
     }
+    outIt.NextSpan();
+  }
 }
 
 void vtkImageNoiseSource::PrintSelf(ostream& os, vtkIndent indent)

@@ -48,10 +48,10 @@ int TestPolyhedron2( int argc, char* argv[] )
 
   vtkPolyData* output = vtkPolyData::SafeDownCast(cutter->GetOutputDataObject(0));
   if (output->GetNumberOfCells() != 2)
-    {
+  {
     std::cout << "Expected 2 but found " << output->GetNumberOfCells() << " in intersected polyhedron." << std::endl;
     return 1;
-    }
+  }
 
   return 0; // success
 }

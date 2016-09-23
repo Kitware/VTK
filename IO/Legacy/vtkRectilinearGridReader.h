@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkRectilinearGridReader - read vtk rectilinear grid data file
-// .SECTION Description
-// vtkRectilinearGridReader is a source object that reads ASCII or binary
-// rectilinear grid data files in vtk format (see text for format details).
-// The output of this reader is a single vtkRectilinearGrid data object.
-// The superclass of this class, vtkDataReader, provides many methods for
-// controlling the reading of the data file, see vtkDataReader for more
-// information.
-// .SECTION Caveats
-// Binary files written on one system may not be readable on other systems.
-// .SECTION See Also
-// vtkRectilinearGrid vtkDataReader
+/**
+ * @class   vtkRectilinearGridReader
+ * @brief   read vtk rectilinear grid data file
+ *
+ * vtkRectilinearGridReader is a source object that reads ASCII or binary
+ * rectilinear grid data files in vtk format (see text for format details).
+ * The output of this reader is a single vtkRectilinearGrid data object.
+ * The superclass of this class, vtkDataReader, provides many methods for
+ * controlling the reading of the data file, see vtkDataReader for more
+ * information.
+ * @warning
+ * Binary files written on one system may not be readable on other systems.
+ * @sa
+ * vtkRectilinearGrid vtkDataReader
+*/
 
 #ifndef vtkRectilinearGridReader_h
 #define vtkRectilinearGridReader_h
@@ -40,15 +43,19 @@ public:
   vtkTypeMacro(vtkRectilinearGridReader,vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get and set the output of this reader.
+  //@{
+  /**
+   * Get and set the output of this reader.
+   */
   vtkRectilinearGrid *GetOutput();
   vtkRectilinearGrid *GetOutput(int idx);
   void SetOutput(vtkRectilinearGrid *output);
+  //@}
 
-  // Description:
-  // Read the meta information from the file.  This needs to be public to it
-  // can be accessed by vtkDataSetReader.
+  /**
+   * Read the meta information from the file.  This needs to be public to it
+   * can be accessed by vtkDataSetReader.
+   */
   virtual int ReadMetaData(vtkInformation *outInfo);
 
 protected:

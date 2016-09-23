@@ -12,11 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageMirrorPad - Extra pixels are filled by mirror images.
-// .SECTION Description
-// vtkImageMirrorPad makes an image larger by filling extra pixels with
-// a mirror image of the original image (mirror at image boundaries).
-
+/**
+ * @class   vtkImageMirrorPad
+ * @brief   Extra pixels are filled by mirror images.
+ *
+ * vtkImageMirrorPad makes an image larger by filling extra pixels with
+ * a mirror image of the original image (mirror at image boundaries).
+*/
 
 #ifndef vtkImageMirrorPad_h
 #define vtkImageMirrorPad_h

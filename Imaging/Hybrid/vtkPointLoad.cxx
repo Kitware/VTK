@@ -69,13 +69,13 @@ void vtkPointLoad::SetSampleDimensions(int dim[3])
   if ( dim[0] != this->SampleDimensions[0] ||
        dim[1] != this->SampleDimensions[1] ||
        dim[2] != this->SampleDimensions[2] )
-    {
+  {
     for ( int i=0; i<3; i++)
-      {
+    {
       this->SampleDimensions[i] = (dim[i] > 0 ? dim[i] : 1);
-      }
-    this->Modified();
     }
+    this->Modified();
+  }
 }
 
 int vtkPointLoad::RequestInformation (
@@ -97,14 +97,14 @@ int vtkPointLoad::RequestInformation (
   int i;
   double spacing[3];
   for (i=0; i<3; i++)
-    {
+  {
     spacing[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
       / (this->SampleDimensions[i] - 1);
     if ( spacing[i] <= 0.0 )
-      {
+    {
       spacing[i] = 1.0;
-      }
     }
+  }
   outInfo->Set(vtkDataObject::SPACING(),spacing,3);
 
   int wExt[6];
@@ -162,17 +162,17 @@ void vtkPointLoad::ExecuteDataWithInformation(vtkDataObject *outp, vtkInformatio
   P = -this->LoadValue;
   int pointCount = 0;
   for (k=0; k<this->SampleDimensions[2]; k++)
-    {
+  {
     z = xP[2] - (origin[2] + k*spacing[2]);
     for (j=0; j<this->SampleDimensions[1]; j++)
-      {
+    {
       y = xP[1] - (origin[1] + j*spacing[1]);
       for (i=0; i<this->SampleDimensions[0]; i++)
-        {
+      {
         x = (origin[0] + i*spacing[0]) - xP[0];
         rho = sqrt(x*x + y*y + z*z);//in local coordinates
         if ( rho < 1.0e-10 )
-          {
+        {
           vtkWarningMacro(<<"Attempting to set singularity, resetting");
           tensor[0] = VTK_FLOAT_MAX; // Component(0,0)
           tensor[4] = VTK_FLOAT_MAX; // Component(1,1);
@@ -188,7 +188,7 @@ void vtkPointLoad::ExecuteDataWithInformation(vtkDataObject *outp, vtkInformatio
           newScalars->InsertTuple(pointCount,&val);
           pointCount++;
           continue;
-          }
+        }
 
         rho2 = rho*rho;
         rho3 = rho2*rho;
@@ -231,9 +231,9 @@ void vtkPointLoad::ExecuteDataWithInformation(vtkDataObject *outp, vtkInformatio
                                6.0*txz*txz);
         newScalars->InsertTuple(pointCount,&seff);
         pointCount++;
-        }
       }
     }
+  }
   //
   // Update self and free memory
   //

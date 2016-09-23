@@ -74,11 +74,11 @@ void vtkAdjacencyMatrixToEdgeTable::PrintSelf(ostream& os, vtkIndent indent)
 int vtkAdjacencyMatrixToEdgeTable::FillInputPortInformation(int port, vtkInformation* info)
 {
   switch(port)
-    {
+  {
     case 0:
       info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkArrayData");
       return 1;
-    }
+  }
 
   return 0;
 }
@@ -92,23 +92,23 @@ int vtkAdjacencyMatrixToEdgeTable::RequestData(
 {
   vtkArrayData* const input = vtkArrayData::GetData(inputVector[0]);
   if(input->GetNumberOfArrays() != 1)
-    {
+  {
     vtkErrorMacro(<< this->GetClassName() << " requires an input vtkArrayData containing one array.");
     return 0;
-    }
+  }
 
   vtkDenseArray<double>* const input_array = vtkDenseArray<double>::SafeDownCast(
     input->GetArray(static_cast<vtkIdType>(0)));
   if(!input_array)
-    {
+  {
     vtkErrorMacro(<< this->GetClassName() << " requires an input vtkDenseArray<double>.");
     return 0;
-    }
+  }
   if(input_array->GetDimensions() != 2)
-    {
+  {
     vtkErrorMacro(<< this->GetClassName() << " requires an input matrix.");
     return 0;
-    }
+  }
 
   const vtkArrayExtents input_extents = input_array->GetExtents();
 
@@ -129,14 +129,14 @@ int vtkAdjacencyMatrixToEdgeTable::RequestData(
   // For each source in the matrix ...
   vtkArrayCoordinates coordinates(0, 0);
   for(vtkIdType i = input_extents[source_dimension].GetBegin(); i != input_extents[source_dimension].GetEnd(); ++i)
-    {
+  {
     coordinates[source_dimension] = i;
 
     // Create a sorted list of source values ...
     typedef std::multimap<double, vtkIdType, std::greater<double> > sorted_values_t;
     sorted_values_t sorted_values;
     for(vtkIdType j = input_extents[target_dimension].GetBegin(); j != input_extents[target_dimension].GetEnd(); ++j)
-      {
+    {
       coordinates[target_dimension] = j;
 
 #ifdef _RWSTD_NO_MEMBER_TEMPLATES
@@ -146,23 +146,23 @@ int vtkAdjacencyMatrixToEdgeTable::RequestData(
 #else
       sorted_values.insert(std::make_pair(input_array->GetValue(coordinates), j));
 #endif
-      }
+    }
 
     // Create edges for each value that meets our count / threshold criteria ...
     vtkIdType count = 0;
     for(sorted_values_t::const_iterator value = sorted_values.begin(); value != sorted_values.end(); ++value, ++count)
-      {
+    {
       if(count < this->MinimumCount || value->first >= this->MinimumThreshold)
-        {
+      {
         source_array->InsertNextValue(i);
         target_array->InsertNextValue(value->second);
         value_array->InsertNextValue(value->first);
-        }
       }
+    }
 
     double progress = static_cast<double>(i - input_extents[source_dimension].GetBegin()) / static_cast<double>(input_extents[source_dimension].GetSize());
     this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
-    }
+  }
 
 
   output_table->AddColumn(source_array);

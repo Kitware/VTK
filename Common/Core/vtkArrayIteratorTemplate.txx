@@ -53,9 +53,9 @@ void vtkArrayIteratorTemplate<T>::Initialize(vtkAbstractArray* a)
   this->SetArray(a);
   this->Pointer = 0;
   if (this->Array)
-    {
+  {
     this->Pointer = static_cast<T*>(this->Array->GetVoidPointer(0));
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -63,9 +63,9 @@ template <class T>
 vtkIdType vtkArrayIteratorTemplate<T>::GetNumberOfTuples()
 {
   if (this->Array)
-    {
+  {
     return this->Array->GetNumberOfTuples();
-    }
+  }
   return 0;
 }
 
@@ -74,9 +74,9 @@ template <class T>
 vtkIdType vtkArrayIteratorTemplate<T>::GetNumberOfValues()
 {
   if (this->Array)
-    {
+  {
     return (this->Array->GetNumberOfTuples() * this->Array->GetNumberOfComponents());
-    }
+  }
   return 0;
 }
 
@@ -85,9 +85,9 @@ template <class T>
 int vtkArrayIteratorTemplate<T>::GetNumberOfComponents()
 {
   if (this->Array)
-    {
+  {
     return this->Array->GetNumberOfComponents();
-    }
+  }
   return 0;
 }
 
@@ -119,14 +119,14 @@ void vtkArrayIteratorTemplate<T>::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Array: " ;
   if (this->Array)
-    {
+  {
     os << "\n";
     this->Array->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(none)" << "\n";
-    }
+  }
 }
 
 #endif

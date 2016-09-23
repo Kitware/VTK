@@ -128,14 +128,14 @@ int vtkCellQuality::RequestData
 
   vtkDataArray* CellNormals = in->GetCellData()->GetNormals();
   if (CellNormals)
-    {
+  {
     v_set_tri_normal_func(reinterpret_cast<ComputeNormal>
       (vtkCellQuality::GetCurrentTriangleNormal));
-    }
+  }
   else
-    {
+  {
     v_set_tri_normal_func(0);
-    }
+  }
 
   // Support progress and abort.
   vtkIdType const tenth = (nCells >= 10 ? nCells/10 : 1);
@@ -143,21 +143,21 @@ int vtkCellQuality::RequestData
 
   // Actual computation of the selected quality
   for (vtkIdType cid = 0; cid < nCells; ++cid)
-    {
+  {
     // Periodically update progress and check for an abort request.
     if (0 == cid % tenth)
-      {
+    {
       this->UpdateProgress((cid+1)*nCellInv);
       if (this->GetAbortExecute())
-        {
+      {
         break;
-        }
       }
+    }
 
     vtkCell* cell = out->GetCell(cid);
     double q = 0;
     switch (cell->GetCellType())
-      {
+    {
       default:
         q = this->GetUnsupportedGeometry();
         break;
@@ -186,9 +186,9 @@ int vtkCellQuality::RequestData
       case VTK_HEXAHEDRON:
         q = this->ComputeHexQuality(cell);
         break;
-      }
-    quality->SetValue(cid, q);
     }
+    quality->SetValue(cid, q);
+  }
 
   out->GetCellData()->AddArray(quality);
   out->GetCellData()->SetActiveAttribute("CellQuality", vtkDataSetAttributes::SCALARS);
@@ -199,7 +199,7 @@ int vtkCellQuality::RequestData
 double vtkCellQuality::ComputeTriangleQuality (vtkCell* cell)
 {
   switch (this->GetQualityMeasure())
-    {
+  {
     case AREA:             return vtkMeshQuality::TriangleArea(cell);
     case ASPECT_FROBENIUS: return vtkMeshQuality::TriangleAspectFrobenius(cell);
     case ASPECT_RATIO:     return vtkMeshQuality::TriangleAspectRatio(cell);
@@ -215,13 +215,13 @@ double vtkCellQuality::ComputeTriangleQuality (vtkCell* cell)
     case SHAPE_AND_SIZE:   return vtkMeshQuality::TriangleShapeAndSize(cell);
     case SHAPE:            return vtkMeshQuality::TriangleShape(cell);
     default:               return this->GetUndefinedQuality();
-    }
+  }
 }
 
 double vtkCellQuality::ComputeQuadQuality (vtkCell* cell)
 {
   switch (this->GetQualityMeasure())
-    {
+  {
     case AREA:           return vtkMeshQuality::QuadArea(cell);
     case ASPECT_RATIO:   return vtkMeshQuality::QuadAspectRatio(cell);
     case CONDITION:      return vtkMeshQuality::QuadCondition(cell);
@@ -249,13 +249,13 @@ double vtkCellQuality::ComputeQuadQuality (vtkCell* cell)
     case TAPER:          return vtkMeshQuality::QuadTaper(cell);
     case WARPAGE:        return vtkMeshQuality::QuadWarpage(cell);
     default:             return this->GetUndefinedQuality();
-    }
+  }
 }
 
 double vtkCellQuality::ComputeTetQuality (vtkCell* cell)
 {
   switch (this->GetQualityMeasure())
-    {
+  {
     case ASPECT_BETA:      return vtkMeshQuality::TetAspectBeta(cell);
     case ASPECT_FROBENIUS: return vtkMeshQuality::TetAspectFrobenius(cell);
     case ASPECT_GAMMA:     return vtkMeshQuality::TetAspectGamma(cell);
@@ -274,13 +274,13 @@ double vtkCellQuality::ComputeTetQuality (vtkCell* cell)
     case SHAPE:            return vtkMeshQuality::TetShape(cell);
     case VOLUME:           return vtkMeshQuality::TetVolume(cell);
     default:               return this->GetUndefinedQuality();
-    }
+  }
 }
 
 double vtkCellQuality::ComputeHexQuality (vtkCell* cell)
 {
   switch (this->GetQualityMeasure())
-    {
+  {
     case CONDITION:      return vtkMeshQuality::HexCondition(cell);
     case DIAGONAL:       return vtkMeshQuality::HexDiagonal(cell);
     case DIMENSION:      return vtkMeshQuality::HexDimension(cell);
@@ -305,25 +305,25 @@ double vtkCellQuality::ComputeHexQuality (vtkCell* cell)
     case TAPER:          return vtkMeshQuality::HexTaper(cell);
     case VOLUME:         return vtkMeshQuality::HexVolume(cell);
     default:             return this->GetUndefinedQuality();
-    }
+  }
 }
 
 double vtkCellQuality::ComputeTriangleStripQuality (vtkCell* cell)
 {
   switch (this->GetQualityMeasure())
-    {
+  {
     case AREA: return vtkCellQuality::TriangleStripArea(cell);
     default:   return this->GetUndefinedQuality();
-    }
+  }
 }
 
 double vtkCellQuality::ComputePixelQuality (vtkCell* cell)
 {
   switch (this->GetQualityMeasure())
-    {
+  {
     case AREA: return vtkCellQuality::PixelArea(cell);
     default:   return this->GetUndefinedQuality();
-    }
+  }
 }
 
 int vtkCellQuality::GetCurrentTriangleNormal (double [3], double normal [3])
@@ -356,11 +356,11 @@ double vtkCellQuality::PolygonArea (vtkCell* cell)
   cell->Triangulate(0, this->PointIds, this->Points);
   double abc [3][3], quality = 0;
   for (vtkIdType i = 0, n = this->Points->GetNumberOfPoints(); i < n; i += 3)
-    {
+  {
     this->Points->GetPoint(i+0, abc[0]);
     this->Points->GetPoint(i+1, abc[1]);
     this->Points->GetPoint(i+2, abc[2]);
     quality += vtkTriangle::TriangleArea(abc[0], abc[1], abc[2]);
-    }
+  }
   return quality;
 }

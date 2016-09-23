@@ -40,10 +40,10 @@ vtkExtractEdges::vtkExtractEdges()
 vtkExtractEdges::~vtkExtractEdges()
 {
   if ( this->Locator )
-    {
+  {
     this->Locator->UnRegister(this);
     this->Locator = NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -83,9 +83,9 @@ int vtkExtractEdges::RequestData(
   //
   numPts=input->GetNumberOfPoints();
   if ( (numCells=input->GetNumberOfCells()) < 1 || numPts < 1 )
-    {
+  {
     return 1;
-    }
+  }
 
   // Set up processing
   //
@@ -111,82 +111,82 @@ int vtkExtractEdges::RequestData(
   // Get our locator for merging points
   //
   if ( this->Locator == NULL )
-    {
+  {
     this->CreateDefaultLocator();
-    }
+  }
   this->Locator->InitPointInsertion (newPts, input->GetBounds());
 
   // Loop over all cells, extracting non-visited edges.
   //
   vtkIdType tenth = numCells/10 + 1;
   for (cellNum=0; cellNum < numCells && !abort; cellNum++ )
-    {
+  {
     if ( ! (cellNum % tenth) ) //manage progress reports / early abort
-      {
+    {
       this->UpdateProgress (static_cast<double>(cellNum) / numCells);
       abort = this->GetAbortExecute();
-      }
+    }
 
     input->GetCell(cellNum,cell);
     numCellEdges = cell->GetNumberOfEdges();
     for (edgeNum=0; edgeNum < numCellEdges; edgeNum++ )
-      {
+    {
       edge = cell->GetEdge(edgeNum);
       numEdgePts = edge->GetNumberOfPoints();
 
       // Tessellate higher-order edges
       if ( ! edge->IsLinear() )
-        {
+      {
         edge->Triangulate(0, HEedgeIds, HEedgePts);
         edgeIds = HEedgeIds;
         edgePts = HEedgePts;
 
         for ( i=0; i < (edgeIds->GetNumberOfIds()/2); i++ )
-          {
+        {
           pt1 = edgeIds->GetId(2*i);
           pt2 = edgeIds->GetId(2*i+1);
           edgePts->GetPoint(2*i, x);
           if ( this->Locator->InsertUniquePoint(x, pts[0]) )
-            {
+          {
             outPD->CopyData (pd,pt1,pts[0]);
-            }
+          }
           edgePts->GetPoint(2*i+1, x);
           if ( this->Locator->InsertUniquePoint(x, pts[1]) )
-            {
+          {
             outPD->CopyData (pd,pt2,pts[1]);
-            }
+          }
           if ( edgeTable->IsEdge(pt1,pt2) == -1 )
-            {
+          {
             edgeTable->InsertEdge(pt1, pt2);
             newId = newLines->InsertNextCell(2,pts);
             outCD->CopyData(cd, cellNum, newId);
-            }
           }
-        } //if non-linear edge
+        }
+      } //if non-linear edge
 
       else // linear edges
-        {
+      {
         edgeIds = edge->PointIds;
         edgePts = edge->Points;
 
         for ( i=0; i < numEdgePts; i++, pt1=pt2, pts[0]=pts[1] )
-          {
+        {
           pt2 = edgeIds->GetId(i);
           edgePts->GetPoint(i, x);
           if ( this->Locator->InsertUniquePoint(x, pts[1]) )
-            {
+          {
             outPD->CopyData (pd,pt2,pts[1]);
-            }
+          }
           if ( i > 0 && edgeTable->IsEdge(pt1,pt2) == -1 )
-            {
+          {
             edgeTable->InsertEdge(pt1, pt2);
             newId = newLines->InsertNextCell(2,pts);
             outCD->CopyData(cd, cellNum, newId);
-            }
-          }//if linear edge
-        }
-      }//for all edges of cell
-    }//for all cells
+          }
+        }//if linear edge
+      }
+    }//for all edges of cell
+  }//for all cells
 
   vtkDebugMacro(<<"Created " << newLines->GetNumberOfCells() << " edges");
 
@@ -214,18 +214,18 @@ int vtkExtractEdges::RequestData(
 void vtkExtractEdges::SetLocator(vtkIncrementalPointLocator *locator)
 {
   if ( this->Locator == locator )
-    {
+  {
     return;
-    }
+  }
   if ( this->Locator )
-    {
+  {
     this->Locator->UnRegister(this);
     this->Locator = NULL;
-    }
+  }
   if ( locator )
-    {
+  {
     locator->Register(this);
-    }
+  }
   this->Locator = locator;
   this->Modified();
 }
@@ -234,11 +234,11 @@ void vtkExtractEdges::SetLocator(vtkIncrementalPointLocator *locator)
 void vtkExtractEdges::CreateDefaultLocator()
 {
   if ( this->Locator == NULL )
-    {
+  {
     vtkMergePoints *locator = vtkMergePoints::New();
     this->SetLocator(locator);
     locator->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -254,13 +254,13 @@ void vtkExtractEdges::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->Locator )
-    {
+  {
     os << indent << "Locator: " << this->Locator << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Locator: (none)\n";
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -270,9 +270,9 @@ vtkMTimeType vtkExtractEdges::GetMTime()
   vtkMTimeType time;
 
   if ( this->Locator != NULL )
-    {
+  {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
   return mTime;
 }

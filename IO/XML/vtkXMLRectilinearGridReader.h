@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLRectilinearGridReader - Read VTK XML RectilinearGrid files.
-// .SECTION Description
-// vtkXMLRectilinearGridReader reads the VTK XML RectilinearGrid file
-// format.  One rectilinear grid file can be read to produce one
-// output.  Streaming is supported.  The standard extension for this
-// reader's file format is "vtr".  This reader is also used to read a
-// single piece of the parallel file format.
-
-// .SECTION See Also
-// vtkXMLPRectilinearGridReader
+/**
+ * @class   vtkXMLRectilinearGridReader
+ * @brief   Read VTK XML RectilinearGrid files.
+ *
+ * vtkXMLRectilinearGridReader reads the VTK XML RectilinearGrid file
+ * format.  One rectilinear grid file can be read to produce one
+ * output.  Streaming is supported.  The standard extension for this
+ * reader's file format is "vtr".  This reader is also used to read a
+ * single piece of the parallel file format.
+ *
+ * @sa
+ * vtkXMLPRectilinearGridReader
+*/
 
 #ifndef vtkXMLRectilinearGridReader_h
 #define vtkXMLRectilinearGridReader_h
@@ -38,10 +41,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLRectilinearGridReader *New();
 
-  // Description:
-  // Get the reader's output.
+  //@{
+  /**
+   * Get the reader's output.
+   */
   vtkRectilinearGrid *GetOutput();
   vtkRectilinearGrid *GetOutput(int idx);
+  //@}
 
 protected:
   vtkXMLRectilinearGridReader();

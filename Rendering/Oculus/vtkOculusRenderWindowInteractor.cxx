@@ -76,32 +76,32 @@ void  vtkOculusRenderWindowInteractor::StartEventLoop()
   ovrSession session = renWin->GetSession();
 
   while (!this->Done)
-    {
+  {
     if (SDL_PollEvent(&event))
-      {
+    {
       if (event.type == SDL_KEYDOWN &&
           event.key.keysym.sym == SDLK_SPACE)
-        {
+      {
         this->Done = true;
-        }
+      }
       if (event.type == SDL_KEYDOWN &&
           event.key.keysym.sym == SDLK_r)
-        {
+      {
         ovr_RecenterTrackingOrigin(session); // or ovr_ClearShouldRecenterFlag(session) to ignore the request.
-        }
       }
+    }
     ovr_GetSessionStatus(session, &ss);
     if (ss.ShouldQuit)
-      {
+    {
       this->Done = true;
-      }
+    }
     if (ss.ShouldRecenter)
-      {
+    {
       ovr_RecenterTrackingOrigin(session); // or ovr_ClearShouldRecenterFlag(session) to ignore the request.
-      }
+    }
 
     renWin->Render();
-    }
+  }
 }
 
 
@@ -110,14 +110,14 @@ void vtkOculusRenderWindowInteractor::Initialize()
 {
   // make sure we have a RenderWindow and camera
   if ( ! this->RenderWindow)
-    {
+  {
     vtkErrorMacro(<<"No renderer defined!");
     return;
-    }
+  }
   if (this->Initialized)
-    {
+  {
     return;
-    }
+  }
 
   vtkOculusRenderWindow *ren =
     vtkOculusRenderWindow::SafeDownCast(this->RenderWindow);
@@ -166,19 +166,19 @@ vtkOculusRenderWindowInteractor::SetClassExitMethod(void (*f)(void *),void *arg)
 {
   if ( f != vtkOculusRenderWindowInteractor::ClassExitMethod
        || arg != vtkOculusRenderWindowInteractor::ClassExitMethodArg)
-    {
+  {
     // delete the current arg if there is a delete method
     if ((vtkOculusRenderWindowInteractor::ClassExitMethodArg)
         && (vtkOculusRenderWindowInteractor::ClassExitMethodArgDelete))
-      {
+    {
       (*vtkOculusRenderWindowInteractor::ClassExitMethodArgDelete)
         (vtkOculusRenderWindowInteractor::ClassExitMethodArg);
-      }
+    }
     vtkOculusRenderWindowInteractor::ClassExitMethod = f;
     vtkOculusRenderWindowInteractor::ClassExitMethodArg = arg;
 
     // no call to this->Modified() since this is a class member function
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -187,11 +187,11 @@ void
 vtkOculusRenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void *))
 {
   if (f != vtkOculusRenderWindowInteractor::ClassExitMethodArgDelete)
-    {
+  {
     vtkOculusRenderWindowInteractor::ClassExitMethodArgDelete = f;
 
     // no call to this->Modified() since this is a class member function
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -205,13 +205,13 @@ void vtkOculusRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 void vtkOculusRenderWindowInteractor::ExitCallback()
 {
   if (this->HasObserver(vtkCommand::ExitEvent))
-    {
+  {
     this->InvokeEvent(vtkCommand::ExitEvent,NULL);
-    }
+  }
   else if (this->ClassExitMethod)
-    {
+  {
     (*this->ClassExitMethod)(this->ClassExitMethodArg);
-    }
+  }
 
   this->TerminateApp();
 }

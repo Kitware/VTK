@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageLuminance - Computes the luminance of the input
-// .SECTION Description
-// vtkImageLuminance calculates luminance from an rgb input.
+/**
+ * @class   vtkImageLuminance
+ * @brief   Computes the luminance of the input
+ *
+ * vtkImageLuminance calculates luminance from an rgb input.
+*/
 
 #ifndef vtkImageLuminance_h
 #define vtkImageLuminance_h

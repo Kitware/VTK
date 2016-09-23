@@ -34,8 +34,8 @@ class vtkChartPiePrivate
 {
   public:
     vtkChartPiePrivate()
-      {
-      }
+    {
+    }
 
   vtkSmartPointer<vtkPlotPie> Plot;
 };
@@ -70,9 +70,9 @@ vtkChartPie::~vtkChartPie()
 void vtkChartPie::Update()
 {
   if (this->Private->Plot && this->Private->Plot->GetVisible())
-    {
+  {
     this->Private->Plot->Update();
-    }
+  }
 
   this->Legend->Update();
   this->Legend->SetVisible(this->ShowLegend);
@@ -87,15 +87,15 @@ bool vtkChartPie::Paint(vtkContext2D *painter)
   int geometry[] = { this->GetScene()->GetSceneWidth(),
                      this->GetScene()->GetSceneHeight() };
   if (geometry[0] == 0 || geometry[1] == 0 || !this->Visible)
-    {
+  {
     // The geometry of the chart must be valid before anything can be drawn
     return false;
-    }
+  }
 
   this->Update();
 
   if ( geometry[0] != this->Geometry[0] || geometry[1] != this->Geometry[1] )
-    {
+  {
     // Take up the entire window right now, this could be made configurable
     this->SetGeometry(geometry);
 
@@ -110,23 +110,23 @@ bool vtkChartPie::Paint(vtkContext2D *painter)
 
     // Set the dimensions of the Plot
     if (this->Private->Plot)
-      {
+    {
       this->Private->Plot->SetDimensions(20, 20, this->Geometry[0]-40,
                                          this->Geometry[1]-40);
-      }
     }
+  }
 
   this->PaintChildren(painter);
 
   if (this->Title)
-    {
+  {
     vtkPoints2D *rect = vtkPoints2D::New();
     rect->InsertNextPoint(this->Point1[0], this->Point2[1]);
     rect->InsertNextPoint(this->Point2[0]-this->Point1[0], 10);
     painter->ApplyTextProp(this->TitleProperties);
     painter->DrawStringRect(rect, this->Title);
     rect->Delete();
-    }
+  }
 
   this->Tooltip->Paint(painter);
 
@@ -144,10 +144,10 @@ void vtkChartPie::SetScene(vtkContextScene *scene)
 vtkPlot * vtkChartPie::AddPlot(int /* type */)
 {
   if (!this->Private->Plot)
-    {
+  {
     this->Private->Plot = vtkSmartPointer<vtkPlotPie>::New();
     this->AddItem(this->Private->Plot);
-    }
+  }
   return this->Private->Plot;
 }
 
@@ -155,9 +155,9 @@ vtkPlot * vtkChartPie::AddPlot(int /* type */)
 vtkPlot* vtkChartPie::GetPlot(vtkIdType index)
 {
   if (index == 0)
-    {
+  {
     return this->Private->Plot;
-    }
+  }
 
   return 0;
 }
@@ -166,13 +166,13 @@ vtkPlot* vtkChartPie::GetPlot(vtkIdType index)
 vtkIdType vtkChartPie::GetNumberOfPlots()
 {
   if (this->Private->Plot)
-    {
+  {
     return 1;
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -196,13 +196,13 @@ bool vtkChartPie::Hit(const vtkContextMouseEvent &mouse)
       pos[0] < this->Point2[0] &&
       pos[1] > this->Point1[1] &&
       pos[1] < this->Point2[1])
-    {
+  {
     return true;
-    }
+  }
   else
-    {
+  {
     return false;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -215,10 +215,10 @@ bool vtkChartPie::MouseEnterEvent(const vtkContextMouseEvent &)
 bool vtkChartPie::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
   if (mouse.GetButton() == vtkContextMouseEvent::NO_BUTTON)
-    {
+  {
     this->Scene->SetDirty(true);
     this->Tooltip->SetVisible(this->LocatePointInPlots(mouse));
-    }
+  }
 
   return true;
 }
@@ -250,11 +250,11 @@ bool vtkChartPie::MouseWheelEvent(const vtkContextMouseEvent &, int /*delta*/)
 bool vtkChartPie::LocatePointInPlots(const vtkContextMouseEvent &mouse)
 {
   if (!this->Private->Plot || !this->Private->Plot->GetVisible())
-    {
+  {
     return false;
-    }
+  }
   else
-    {
+  {
     int dimensions[4];
     vtkVector2f position(mouse.GetScreenPos().Cast<float>().GetData());
     vtkVector2f tolerance(5, 5);
@@ -266,11 +266,11 @@ bool vtkChartPie::LocatePointInPlots(const vtkContextMouseEvent &mouse)
         pos[0] <= dimensions[0] + dimensions[2] &&
         pos[1] >= dimensions[1] &&
         pos[1] <= dimensions[1] + dimensions[3])
-      {
+    {
       int labelIndex = this->Private->Plot->GetNearestPoint(position, tolerance,
                                                             &plotPos);
       if (labelIndex >= 0)
-        {
+      {
         const char *label = this->Private->Plot->GetLabel(labelIndex);
         std::ostringstream ostr;
         ostr << label << ": " << plotPos.GetY();
@@ -278,9 +278,9 @@ bool vtkChartPie::LocatePointInPlots(const vtkContextMouseEvent &mouse)
         this->Tooltip->SetPosition(mouse.GetScreenPos()[0] + 2,
                                    mouse.GetScreenPos()[1] + 2);
         return true;
-        }
       }
     }
+  }
   return false;
 }
 
@@ -289,8 +289,8 @@ void vtkChartPie::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   if (this->Private->Plot)
-    {
+  {
     os << indent << "Plot: " << endl;
     this->Private->Plot->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
 }

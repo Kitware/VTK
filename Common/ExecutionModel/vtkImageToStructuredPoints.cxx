@@ -63,9 +63,9 @@ void vtkImageToStructuredPoints::SetVectorInputData(vtkImageData *input)
 vtkImageData *vtkImageToStructuredPoints::GetVectorInput()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
-    {
+  {
     return NULL;
-    }
+  }
 
   return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
 }
@@ -96,10 +96,10 @@ int vtkImageToStructuredPoints::RequestData(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkImageData *vData = 0;
   if (vectorInfo)
-    {
+  {
     vData = vtkImageData::SafeDownCast(
       vectorInfo->Get(vtkDataObject::DATA_OBJECT()));
-    }
+  }
 
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
                uExtent);
@@ -115,37 +115,37 @@ int vtkImageToStructuredPoints::RequestData(
   // if the data extent matches the update extent then just pass the data
   // otherwise we must reformat and copy the data
   if (data)
-    {
+  {
     wExtent = data->GetExtent();
     if (wExtent[0] == uExtent[0] && wExtent[1] == uExtent[1] &&
         wExtent[2] == uExtent[2] && wExtent[3] == uExtent[3] &&
         wExtent[4] == uExtent[4] && wExtent[5] == uExtent[5])
-      {
+    {
       if (data->GetPointData())
-        {
-        output->GetPointData()->PassData(data->GetPointData());
-        }
-      if (data->GetCellData())
-        {
-        output->GetCellData()->PassData(data->GetCellData());
-        }
-      if (data->GetFieldData())
-        {
-        output->GetFieldData()->ShallowCopy(data->GetFieldData());
-        }
-      }
-    else
       {
+        output->GetPointData()->PassData(data->GetPointData());
+      }
+      if (data->GetCellData())
+      {
+        output->GetCellData()->PassData(data->GetCellData());
+      }
+      if (data->GetFieldData())
+      {
+        output->GetFieldData()->ShallowCopy(data->GetFieldData());
+      }
+    }
+    else
+    {
       inPtr =
         static_cast<unsigned char *>(data->GetScalarPointerForExtent(uExtent));
       outPtr = static_cast<unsigned char *>(output->GetScalarPointer());
 
       // Make sure there are data.
       if(!inPtr || !outPtr)
-        {
+      {
         output->Initialize();
         return 1;
-        }
+      }
 
       // Get increments to march through data
       data->GetIncrements(inIncX, inIncY, inIncZ);
@@ -160,41 +160,41 @@ int vtkImageToStructuredPoints::RequestData(
 
       // Loop through output pixels
       for (idxZ = 0; idxZ <= maxZ; idxZ++)
-        {
+      {
         inPtr1 = inPtr + idxZ*inIncZ;
         for (idxY = 0; idxY <= maxY; idxY++)
-          {
+        {
           memcpy(outPtr,inPtr1,rowLength);
           inPtr1 += inIncY;
           outPtr += rowLength;
-          }
         }
       }
     }
+  }
 
   if (vData)
-    {
+  {
     // if the data extent matches the update extent then just pass the data
     // otherwise we must reformat and copy the data
     wExtent = vData->GetExtent();
     if (wExtent[0] == uExtent[0] && wExtent[1] == uExtent[1] &&
         wExtent[2] == uExtent[2] && wExtent[3] == uExtent[3] &&
         wExtent[4] == uExtent[4] && wExtent[5] == uExtent[5])
-      {
+    {
       output->GetPointData()->SetVectors(vData->GetPointData()->GetScalars());
-      }
+    }
     else
-      {
+    {
       vtkDataArray *fv = vtkDataArray::CreateDataArray(vData->GetScalarType());
       float *inPtr2 =
         static_cast<float *>(vData->GetScalarPointerForExtent(uExtent));
 
       // Make sure there are data.
       if(!inPtr2)
-        {
+      {
         output->Initialize();
         return 1;
-        }
+      }
 
       fv->SetNumberOfComponents(3);
       fv->SetNumberOfTuples((maxZ+1)*(maxY+1)*(maxX+1));
@@ -204,23 +204,23 @@ int vtkImageToStructuredPoints::RequestData(
 
       // Loop through output pixels
       for (idxZ = 0; idxZ <= maxZ; idxZ++)
-        {
+      {
         for (idxY = 0; idxY <= maxY; idxY++)
-          {
+        {
           for (idxX = 0; idxX <= maxX; idxX++)
-            {
+          {
             fv->SetTuple(idx,inPtr2);
             inPtr2 += numComp;
             idx++;
-            }
-          inPtr2 += inIncY;
           }
-        inPtr2 += inIncZ;
+          inPtr2 += inIncY;
         }
+        inPtr2 += inIncZ;
+      }
       output->GetPointData()->SetVectors(fv);
       fv->Delete();
-      }
     }
+  }
 
   return 1;
 }
@@ -243,10 +243,10 @@ int vtkImageToStructuredPoints::RequestInformation (
   vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
   if (!inScalarInfo)
-    {
+  {
     vtkErrorMacro("Missing scalar field on input information!");
     return 0;
-    }
+  }
   vtkDataObject::SetPointDataActiveScalarInfo(outInfo,
     inScalarInfo->Get( vtkDataObject::FIELD_ARRAY_TYPE() ),
     inScalarInfo->Get( vtkDataObject::FIELD_NUMBER_OF_COMPONENTS() ) );
@@ -257,7 +257,7 @@ int vtkImageToStructuredPoints::RequestInformation (
 
   // intersections for whole extent
   if (vInfo)
-    {
+  {
     tmp = vInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
     if (tmp[0] > whole[0]) {whole[0] = tmp[0];}
     if (tmp[2] > whole[2]) {whole[2] = tmp[2];}
@@ -265,7 +265,7 @@ int vtkImageToStructuredPoints::RequestInformation (
     if (tmp[1] < whole[1]) {whole[1] = tmp[1];}
     if (tmp[3] < whole[1]) {whole[3] = tmp[3];}
     if (tmp[5] < whole[1]) {whole[5] = tmp[5];}
-    }
+  }
 
   // slide min extent to 0,0,0 (I Hate this !!!!)
   this->Translate[0] = whole[0];
@@ -312,9 +312,9 @@ int vtkImageToStructuredPoints::RequestUpdateExtent(
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
 
   if (vInfo)
-    {
+  {
     vInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
-    }
+  }
 
   return 1;
 }
@@ -324,9 +324,9 @@ int vtkImageToStructuredPoints::FillOutputPortInformation(int port,
                                                           vtkInformation* info)
 {
   if(!this->Superclass::FillOutputPortInformation(port, info))
-    {
+  {
     return 0;
-    }
+  }
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkStructuredPoints");
   return 1;
 }
@@ -336,12 +336,12 @@ int vtkImageToStructuredPoints::FillInputPortInformation(int port,
                                                          vtkInformation *info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
-    {
+  {
     return 0;
-    }
+  }
   if (port == 1)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
-    }
+  }
   return 1;
 }

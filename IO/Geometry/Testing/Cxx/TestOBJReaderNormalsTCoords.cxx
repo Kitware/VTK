@@ -40,30 +40,30 @@ int TestOBJReaderNormalsTCoords( int argc, char *argv[] )
   vtkPolyData *data = reader->GetOutput();
 
   if(!data)
-    {
+  {
     std::cerr << "Could not read data" << std::endl;
     return 1;
-    }
+  }
   if(data->GetNumberOfPoints() != 4)
-    {
+  {
     std::cerr << "Invalid number of points" << std::endl;
     return 1;
-    }
+  }
   if(data->GetPointData()->GetNumberOfArrays() != 2)
-    {
+  {
     std::cerr << "Invalid number of arrays" << std::endl;
     return 1;
-    }
+  }
   if(!data->GetPointData()->HasArray("TCoords"))
-    {
+  {
     std::cerr << "Could not find TCoords array" << std::endl;
     return 1;
-    }
+  }
   if(!data->GetPointData()->HasArray("Normals"))
-    {
+  {
     std::cerr << "Could not find TCoords array" << std::endl;
     return 1;
-    }
+  }
 
   return retVal;
 }

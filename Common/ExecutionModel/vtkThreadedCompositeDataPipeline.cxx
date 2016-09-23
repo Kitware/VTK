@@ -55,18 +55,18 @@ namespace
   {
     vtkInformationVector** dst = new vtkInformationVector*[n];
     for(int i=0; i<n; ++i)
-      {
+    {
       dst[i] = vtkInformationVector::New();
       dst[i]->Copy(src[i],1);
-      }
+    }
     return dst;
   }
   static void DeleteAll(vtkInformationVector** dst, int n)
   {
     for(int i=0; i<n; ++i)
-      {
+    {
       dst[i]->Delete();
-      }
+    }
     delete []dst;
   }
 };
@@ -147,20 +147,20 @@ public:
     vtkSMPThreadLocal<vtkInformationVector**>::iterator end1 =
       this->InInfoVecs.end();
     while (itr1 != end1)
-      {
+    {
       DeleteAll(*itr1, this->InfoPrototype->InSize);
       ++itr1;
-      }
+    }
 
     vtkSMPThreadLocal<vtkInformationVector*>::iterator itr2 =
       this->OutInfoVecs.begin();
     vtkSMPThreadLocal<vtkInformationVector*>::iterator end2 =
       this->OutInfoVecs.end();
     while (itr2 != end2)
-      {
+    {
       (*itr2)->Delete();
       ++itr2;
-      }
+    }
   }
 
   void Initialize()
@@ -187,7 +187,7 @@ public:
     vtkInformation* outInfo = outInfoVec->GetInformationObject(0);
 
     for(vtkIdType i= begin; i<end; ++i)
-      {
+    {
       vtkDataObject* outObj =
         this->Exec->ExecuteSimpleAlgorithmForBlock(&inInfoVec[0],
                                                    outInfoVec,
@@ -196,7 +196,7 @@ public:
                                                    request,
                                                    this->InObjs[i]);
       this->OutObjs[i] = outObj;
-      }
+    }
   }
 
   void Reduce()
@@ -251,18 +251,18 @@ void vtkThreadedCompositeDataPipeline::ExecuteEach(vtkCompositeDataIterator* ite
   std::vector<vtkDataObject*> inObjs;
   std::vector<int> indices;
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-    {
+  {
     vtkDataObject* dobj = iter->GetCurrentDataObject();
     if (dobj)
-      {
+    {
       inObjs.push_back(dobj);
       indices.push_back(static_cast<int>(inObjs.size())-1);
-      }
-    else
-      {
-      indices.push_back(-1);
-      }
     }
+    else
+    {
+      indices.push_back(-1);
+    }
+  }
 
   // instantiate outObjs, the output objects that will be created from inObjs
   std::vector<vtkDataObject*> outObjs;
@@ -285,18 +285,18 @@ void vtkThreadedCompositeDataPipeline::ExecuteEach(vtkCompositeDataIterator* ite
 
   int i =0;
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem(), i++)
-    {
+  {
     int j = indices[i];
     if(j>=0)
-      {
+    {
       vtkDataObject* outObj = outObjs[j];
       compositeOutput->SetDataSet(iter, outObj);
       if(outObj)
-        {
+      {
         outObj->FastDelete();
-        }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -312,12 +312,12 @@ int vtkThreadedCompositeDataPipeline::CallAlgorithm(vtkInformation* request, int
 
   // If the algorithm failed report it now.
   if(!result)
-    {
+  {
     vtkErrorMacro("Algorithm " << this->Algorithm->GetClassName()
                   << "(" << this->Algorithm
                   << ") returned failure for request: "
                   << *request);
-    }
+  }
 
   return result;
 }

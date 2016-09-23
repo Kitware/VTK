@@ -1249,13 +1249,13 @@ int TestGPUVolumeRayCastMapper(int argc, char *argv[])
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
   bool useOSP = true;
   for (int i = 0; i < argc; i++)
-    {
+  {
     if (!strcmp(argv[i], "-GL"))
-      {
+    {
       cerr << "GL" << endl;
       useOSP = false;
-      }
     }
+  }
 
   vtkNew<vtkRTAnalyticSource> wavelet;
   wavelet->SetWholeExtent(-10, 10,
@@ -1309,9 +1309,9 @@ int TestGPUVolumeRayCastMapper(int argc, char *argv[])
 // Attach OSPRay render pass
   vtkNew<vtkOSPRayPass> osprayPass;
   if (useOSP)
-    {
+  {
     renderer->SetPass(osprayPass.GetPointer());
-    }
+  }
 
   volumeMapper->DebugOn();
 
@@ -1320,16 +1320,16 @@ int TestGPUVolumeRayCastMapper(int argc, char *argv[])
 
   int retVal;
   if (valid)
-    {
+  {
     retVal = !( vtkTesting::InteractorEventLoop(argc, argv,
                                                 iren.GetPointer(),
                                                 TestGPUVolumeRayCastMapperLog));
-    }
+  }
   else
-    {
+  {
     retVal = vtkTesting::PASSED;
     cout << "Required extensions not supported." << endl;
-    }
+  }
 
   return !retVal;
 }

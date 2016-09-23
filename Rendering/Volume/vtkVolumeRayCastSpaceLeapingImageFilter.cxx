@@ -51,13 +51,13 @@ vtkVolumeRayCastSpaceLeapingImageFilter::vtkVolumeRayCastSpaceLeapingImageFilter
   this->MinNonZeroGradientMagnitudeIndex = NULL;
   this->GradientMagnitude = NULL;
   for (int i = 0; i < 4; i++)
-    {
+  {
     this->TableSize[i] = 0;
     this->TableShift[i] = 0;
     this->TableScale[i] = 1;
     this->ScalarOpacityTable[i] = NULL;
     this->GradientOpacityTable[i] = NULL;
-    }
+  }
   this->Cache = NULL;
 
   // Ensure that no splits occur along X or Y axes when multithreading,
@@ -128,14 +128,14 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
 
   // We group four cells (which require 5 samples) into one element in the min/max tree
   for ( int i = 0; i < 3; i++ )
-    {
+  {
     // size of the input image.
     dim[i] = wholeExtent[2*i+1] - wholeExtent[2*i] + 1;
 
     inExt[2*i] = 0; // The output extent is 0 based.
     inExt[2*i+1] = (dim[i] < 2) ? (0) :
         (static_cast<int>((dim[i] - 2)/VTK_SL_BLK));
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -156,20 +156,20 @@ vtkVolumeRayCastSpaceLeapingImageFilterClearOutput(vtkImageData *outData,
   int i,j,k;
   int c;
   for (k = outExt[4]; k <= outExt[5]; ++k, tmpPtr += outInc2)
-    {
+  {
     for (j = outExt[2]; j <= outExt[3]; ++j, tmpPtr += outInc1)
-      {
+    {
       for (i = outExt[0]; i <= outExt[1]; ++i)
-        {
+      {
         for ( c = 0; c < nComponents; ++c )
-          {
+        {
           *(tmpPtr++) = 0xffff;  // Min Scalar
           *(tmpPtr++) = 0;       // Max Scalar
           *(tmpPtr++) = 0;       // Max Gradient Magnitude and
-          }                      // Flag computed from transfer functions
-        }
+        }                      // Flag computed from transfer functions
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -181,7 +181,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
   inData->GetExtent(inWholeExt);
 
   for ( int i = 0; i < 3; i++ )
-    {
+  {
     inExt[2*i] = outExt[2*i] * VTK_SL_BLK + inWholeExt[2*i];
 
     // Extra +1 needed here since we group four cells (which require 5
@@ -190,16 +190,16 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
 
     // Clip the extents with the whole extent.
     if (inExt[2*i] < inWholeExt[2*i])
-      {
+    {
       inExt[2*i] = inWholeExt[2*i];
-      }
+    }
     if (inExt[2*i+1] > inWholeExt[2*i+1])
-      {
+    {
       inExt[2*i+1] = inWholeExt[2*i+1];
-      }
+    }
 
     inDim[i] = inExt[2*i+1] - inExt[2*i] + 1;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -268,7 +268,7 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
   unsigned short *tmpPtr, *tmpPtrK, *tmpPtrJ, *tmpPtrI;
 
   for ( k = 0; k < inDim[2]; k++, dptr += inInc2 )
-    {
+  {
     sz1 = (k < 1)?(0):((k-1)/4);
     sz2 =             ((k  )/4);
     sz2 = ( k == inDim[2]-1 )?(sz1):(sz2);
@@ -278,14 +278,14 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
 
     // Bounds check
     if (sz2 > outExt[5])
-      {
+    {
       sz2 = outExt[5];
-      }
+    }
 
     tmpPtrK = outBasePtr + sz1 * outInc2;
 
     for ( j = 0; j < inDim[1]; j++, dptr+= inInc1 )
-      {
+    {
       sy1 = (j < 1)?(0):((j-1)/4);
       sy2 =             ((j  )/4);
       sy2 = ( j == inDim[1]-1 )?(sy1):(sy2);
@@ -295,14 +295,14 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
 
       // Bounds check
       if (sy2 > outExt[3])
-        {
+      {
         sy2 = outExt[3];
-        }
+      }
 
       tmpPtrJ = tmpPtrK + sy1 * outInc1;
 
       for ( i = 0; i < inDim[0]; i++ )
-        {
+      {
         sx1 = (i < 1)?(0):((i-1)/4);
         sx2 =             ((i  )/4);
         sx2 = ( i == inDim[0]-1 )?(sx1):(sx2);
@@ -312,41 +312,40 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
 
         // Bounds check
         if (sx2 > outExt[1])
-          {
+        {
           sx2 = outExt[1];
-          }
+        }
 
         tmpPtrI = tmpPtrJ + sx1 * outInc0;
 
         for ( c = 0; c < nComponents; c++, tmpPtrI += 3 )
-          {
+        {
           if ( independent )
-            {
+          {
             val = static_cast<unsigned short>((*dptr + shift[c]) * scale[c]);
             ++dptr;
-            }
+          }
           else
-            {
+          {
             val = static_cast<unsigned short>((*(dptr+components-1) +
                    shift[components-1]) * scale[components-1]);
             dptr += components;
-            }
+          }
 
           for ( z = sz1; z <= sz2; z++ )
-            {
+          {
             for ( y = sy1; y <= sy2; y++ )
-              {
+            {
               tmpPtr = tmpPtrI + (z-sz1)*outInc2 + (y-sy1)*outInc1;
               for ( x = sx1; x <= sx2; x++, tmpPtr += outInc0 )
-                {
+              {
                 if (val < tmpPtr[0])
-                  {
+                {
                   tmpPtr[0] = val;
-                  }
+                }
                 if (val > tmpPtr[1])
-                  {
+                {
                   tmpPtr[1] = val;
-                  }
                 }
               }
             }
@@ -354,6 +353,7 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
         }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -421,7 +421,7 @@ vtkVolumeRayCastSpaceLeapingImageFilterMaxGradientMagnitudeExecute(
   gsptr += (inExt[4]-inWholeExt[4]);
 
   for ( k = 0; k < inDim[2]; k++, ++gsptr )
-    {
+  {
     sz1 = (k < 1)?(0):((k-1)/4);
     sz2 =             ((k  )/4);
     sz2 = ( k == inDim[2]-1 )?(sz1):(sz2);
@@ -431,16 +431,16 @@ vtkVolumeRayCastSpaceLeapingImageFilterMaxGradientMagnitudeExecute(
 
     // Bounds check
     if (sz2 > outExt[5])
-      {
+    {
       sz2 = outExt[5];
-      }
+    }
 
     tmpPtrK = outBasePtr + sz1 * outInc2;
 
     unsigned char *gptr = *gsptr;
 
     for ( j = 0; j < inDim[1]; j++, gptr+= inInc1 )
-      {
+    {
       sy1 = (j < 1)?(0):((j-1)/4);
       sy2 =             ((j  )/4);
       sy2 = ( j == inDim[1]-1 )?(sy1):(sy2);
@@ -450,14 +450,14 @@ vtkVolumeRayCastSpaceLeapingImageFilterMaxGradientMagnitudeExecute(
 
       // Bounds check
       if (sy2 > outExt[3])
-        {
+      {
         sy2 = outExt[3];
-        }
+      }
 
       tmpPtrJ = tmpPtrK + sy1 * outInc1;
 
       for ( i = 0; i < inDim[0]; i++ )
-        {
+      {
         sx1 = (i < 1)?(0):((i-1)/4);
         sx2 =             ((i  )/4);
         sx2 = ( i == inDim[0]-1 )?(sx1):(sx2);
@@ -467,40 +467,40 @@ vtkVolumeRayCastSpaceLeapingImageFilterMaxGradientMagnitudeExecute(
 
         // Bounds check
         if (sx2 > outExt[1])
-          {
+        {
           sx2 = outExt[1];
-          }
+        }
 
         tmpPtrI = tmpPtrJ + sx1 * outInc0;
 
         for ( c = 0; c < nComponents; c++, tmpPtrI += 3 )
-          {
+        {
           val = *gptr;
           ++gptr;
 
           for ( z = sz1; z <= sz2; z++ )
-            {
+          {
             for ( y = sy1; y <= sy2; y++ )
-              {
+            {
               tmpPtr = tmpPtrI + (z-sz1)*outInc2 + (y-sy1)*outInc1;
               for ( x = sx1; x <= sx2; x++, tmpPtr += outInc0 )
-                {
+              {
 
                 // Need to keep track of max gradient magnitude in upper
                 // eight bits. No need to preserve lower eight (the flag)
                 // since we will be recomputing this.
                 if (val>(tmpPtr[2]>>8))
-                  {
+                {
                   tmpPtr[2] = (val<<8);
-                  }
-
                 }
+
               }
             }
           }
         }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -575,7 +575,7 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeExecute(
   unsigned short *tmpPtr, *tmpPtrK, *tmpPtrJ, *tmpPtrI;
 
   for ( k = 0; k < inDim[2]; k++, dptr += inInc2, ++gsptr )
-    {
+  {
     sz1 = (k < 1)?(0):((k-1)/4);
     sz2 =             ((k  )/4);
     sz2 = ( k == inDim[2]-1 )?(sz1):(sz2);
@@ -585,16 +585,16 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeExecute(
 
     // Bounds check
     if (sz2 > outExt[5])
-      {
+    {
       sz2 = outExt[5];
-      }
+    }
 
     tmpPtrK = outBasePtr + sz1 * outInc2;
 
     unsigned char *gptr = *gsptr;
 
     for ( j = 0; j < inDim[1]; j++, dptr+= inInc1, gptr+= inInc1 )
-      {
+    {
       sy1 = (j < 1)?(0):((j-1)/4);
       sy2 =             ((j  )/4);
       sy2 = ( j == inDim[1]-1 )?(sy1):(sy2);
@@ -604,14 +604,14 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeExecute(
 
       // Bounds check
       if (sy2 > outExt[3])
-        {
+      {
         sy2 = outExt[3];
-        }
+      }
 
       tmpPtrJ = tmpPtrK + sy1 * outInc1;
 
       for ( i = 0; i < inDim[0]; i++ )
-        {
+      {
         sx1 = (i < 1)?(0):((i-1)/4);
         sx2 =             ((i  )/4);
         sx2 = ( i == inDim[0]-1 )?(sx1):(sx2);
@@ -621,50 +621,49 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeExecute(
 
         // Bounds check
         if (sx2 > outExt[1])
-          {
+        {
           sx2 = outExt[1];
-          }
+        }
 
         tmpPtrI = tmpPtrJ + sx1 * outInc0;
 
         for ( c = 0; c < nComponents; c++, tmpPtrI += 3 )
-          {
+        {
           val = *gptr;
           ++gptr;
 
           if ( independent )
-            {
+          {
             minMaxVal = static_cast<unsigned short>((*dptr + shift[c]) * scale[c]);
             ++dptr;
-            }
+          }
           else
-            {
+          {
             minMaxVal = static_cast<unsigned short>((*(dptr+components-1) +
                    shift[components-1]) * scale[components-1]);
             dptr += components;
-            }
+          }
 
           for ( z = sz1; z <= sz2; z++ )
-            {
+          {
             for ( y = sy1; y <= sy2; y++ )
-              {
+            {
 
               tmpPtr = tmpPtrI + (z-sz1)*outInc2 + (y-sy1)*outInc1;
               for ( x = sx1; x <= sx2; x++, tmpPtr += outInc0 )
-                {
+              {
 
                 if (minMaxVal<tmpPtr[0])
-                  {
+                {
                   tmpPtr[0] = minMaxVal;
-                  }
+                }
                 if (minMaxVal>tmpPtr[1])
-                  {
+                {
                   tmpPtr[1] = minMaxVal;
-                  }
+                }
                 if (val>(tmpPtr[2]>>8))
-                  {
+                {
                   tmpPtr[2] = (val<<8);
-                  }
                 }
               }
             }
@@ -672,6 +671,7 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeExecute(
         }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -701,64 +701,64 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
   // Loop over the data with in the supplied extents
 
   for (k = outExt[4]; k <= outExt[5]; ++k, tmpPtr += outInc2)
-    {
+  {
     for (j = outExt[2]; j <= outExt[3]; ++j, tmpPtr += outInc1)
-      {
+    {
       for (i = outExt[0]; i <= outExt[1]; ++i)
-        {
+      {
         for ( c = 0; c < nComponents; ++c, tmpPtr += 3 )
-          {
+        {
 
           // We definite have 0 opacity because our maximum scalar value in
           // this region is below the minimum scalar value with non-zero opacity
           // for this component
           if ( tmpPtr[1] < minNonZeroScalarIndex[c] )
-            {
+          {
             tmpPtr[2] &= 0xff00;
-            }
+          }
           // We have 0 opacity because we are using gradient magnitudes and
           // the maximum gradient magnitude in this area is below the minimum
           // gradient magnitude with non-zero opacity for this component
           else if ( (tmpPtr[2]>>8) < minNonZeroGradientMagnitudeIndex[c] )
-            {
+          {
             tmpPtr[2] &= 0xff00;
-            }
+          }
           // We definitely have non-zero opacity because our minimum scalar
           // value is lower than our first scalar with non-zero opacity, and
           // the maximum scalar value is greater than this threshold - so
           // we must encounter scalars with opacity in between
           else if ( tmpPtr[0] < minNonZeroScalarIndex[c] )
-            {
+          {
             tmpPtr[2] &= 0xff00;
             tmpPtr[2] |= 0x0001;
-            }
+          }
           // We have to search between min scalar value and the
           // max scalar stored in the minmax volume to look for non-zero
           // opacity since both values must be above our first non-zero
           // threshold so we don't have information in this area
           else
-            {
+          {
             for ( loop = tmpPtr[0]; loop <= tmpPtr[1]; ++loop )
-              {
+            {
               if ( this->ScalarOpacityTable[c][loop] )
-                {
-                break;
-                }
-              }
-            if ( loop <= tmpPtr[1] )
               {
+                break;
+              }
+            }
+            if ( loop <= tmpPtr[1] )
+            {
               tmpPtr[2] &= 0xff00;
               tmpPtr[2] |= 0x0001;
-              }
+            }
             else
-              {
+            {
               tmpPtr[2] &= 0xff00;
-              }
             }
           }
         }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -786,57 +786,57 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
   // Loop over the data with in the supplied extents
 
   for (k = outExt[4]; k <= outExt[5]; ++k, tmpPtr += outInc2)
-    {
+  {
     for (j = outExt[2]; j <= outExt[3]; ++j, tmpPtr += outInc1)
-      {
+    {
       for (i = outExt[0]; i <= outExt[1]; ++i)
-        {
+      {
         for ( c = 0; c < nComponents; ++c, tmpPtr += 3 )
-          {
+        {
 
           // We definite have 0 opacity because our maximum scalar value in
           // this region is below the minimum scalar value with non-zero opacity
           // for this component
           if ( tmpPtr[1] < minNonZeroScalarIndex[c] )
-            {
+          {
             tmpPtr[2] &= 0xff00;
-            }
+          }
           // We definitely have non-zero opacity because our minimum scalar
           // value is lower than our first scalar with non-zero opacity, and
           // the maximum scalar value is greater than this threshold - so
           // we must encounter scalars with opacity in between
           else if ( tmpPtr[0] < minNonZeroScalarIndex[c] )
-            {
+          {
             tmpPtr[2] &= 0xff00;
             tmpPtr[2] |= 0x0001;
-            }
+          }
           // We have to search between min scalar value and the
           // max scalar stored in the minmax volume to look for non-zero
           // opacity since both values must be above our first non-zero
           // threshold so we don't have information in this area
           else
-            {
+          {
             for ( loop = tmpPtr[0]; loop <= tmpPtr[1]; ++loop )
-              {
+            {
               if ( this->ScalarOpacityTable[c][loop] )
-                {
-                break;
-                }
-              }
-            if ( loop <= tmpPtr[1] )
               {
+                break;
+              }
+            }
+            if ( loop <= tmpPtr[1] )
+            {
               tmpPtr[2] &= 0xff00;
               tmpPtr[2] |= 0x0001;
-              }
+            }
             else
-              {
+            {
               tmpPtr[2] &= 0xff00;
-              }
             }
           }
         }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -857,9 +857,9 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::ThreadedRequestData(
   // - Get the number of independent components for which we need to keep
   //   track of min/max
   if (!this->GetCurrentScalars())
-    {
+  {
     return;
-    }
+  }
 
   const int components = this->GetCurrentScalars()->GetNumberOfComponents();
   const int nComponents = (this->GetIndependentComponents()) ? components : 1;
@@ -868,19 +868,19 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::ThreadedRequestData(
   // will be re-using the cache. (See the method AllocateOutputData)
 
   if (this->ComputeMinMax)
-    {
+  {
     vtkVolumeRayCastSpaceLeapingImageFilterClearOutput(
       outData[0], outExt, nComponents );
-    }
+  }
 
 
   // If only scalar min-max need to be re-computed
 
   if (this->ComputeMinMax && !this->ComputeGradientOpacity)
-    {
+  {
     int scalarType   = this->CurrentScalars->GetDataType();
     switch (scalarType)
-      {
+    {
       vtkTemplateMacro(
         vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
           this, inData[0][0], outData[0], outExt, static_cast<VTK_TT>(0))
@@ -888,16 +888,16 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::ThreadedRequestData(
       default:
         vtkErrorMacro("Unknown scalar type");
         return;
-      }
     }
+  }
 
   // If only gradient max needs to be recomputed
 
   else if (this->ComputeGradientOpacity && !this->ComputeMinMax)
-    {
+  {
     int scalarType   = this->CurrentScalars->GetDataType();
     switch (scalarType)
-      {
+    {
       vtkTemplateMacro(
         vtkVolumeRayCastSpaceLeapingImageFilterMaxGradientMagnitudeExecute(
           this, inData[0][0], outData[0], outExt, static_cast<VTK_TT>(0))
@@ -905,17 +905,17 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::ThreadedRequestData(
       default:
         vtkErrorMacro("Unknown scalar type");
         return;
-      }
     }
+  }
 
   // If both scalar min-max need to be re-computed and gradient max needs to
   // be re-computed
 
   else if (this->ComputeGradientOpacity && this->ComputeMinMax)
-    {
+  {
     int scalarType   = this->CurrentScalars->GetDataType();
     switch (scalarType)
-      {
+    {
       vtkTemplateMacro(
         vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeExecute(
           this, inData[0][0], outData[0], outExt, static_cast<VTK_TT>(0))
@@ -923,8 +923,8 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::ThreadedRequestData(
       default:
         vtkErrorMacro("Unknown scalar type");
         return;
-      }
     }
+  }
 
 
   // Update the flags now for this extent. There are two specialized methods
@@ -932,14 +932,14 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::ThreadedRequestData(
   // in one pass through the data.
 
   if (this->UpdateGradientOpacityFlags)
-    {
+  {
     // Process the flags based on the computed min-max volume
     this->FillScalarAndGradientOpacityFlags(outData[0], outExt);
-    }
+  }
   else
-    {
+  {
     this->FillScalarOpacityFlags(outData[0], outExt);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -961,19 +961,19 @@ int vtkVolumeRayCastSpaceLeapingImageFilter::RequestData(
 
   // The actual work is done in the line below.
   if (this->Superclass::RequestData(request, inputVector, outputVector))
-    {
+  {
 
     // if we recomputed the first two shorts in the output, update this.
     if (this->ComputeGradientOpacity || this->ComputeMinMax)
-      {
+    {
       this->LastMinMaxBuildTime.Modified();
-      }
+    }
 
     // flags were rebuilt. update this.
     this->LastMinMaxFlagTime.Modified();
 
     return 1;
-    }
+  }
 
   return 0;
 }
@@ -1017,10 +1017,10 @@ int vtkVolumeRayCastSpaceLeapingImageFilter
   // the number of independent components for which we need to keep track of
   // min/max
   if(this->CurrentScalars)
-    {
+  {
     const int components = this->CurrentScalars->GetNumberOfComponents();
     return ((this->IndependentComponents) ? components : 1);
-    }
+  }
   return 0;
 }
 
@@ -1043,29 +1043,29 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
   int i;
   this->MinNonZeroScalarIndex = new unsigned short [nComponents];
   for ( int c = 0; c < nComponents; c++ )
-    {
+  {
     for ( i = 0; i < this->TableSize[c]; i++ )
-      {
+    {
       if ( this->ScalarOpacityTable[c][i] )
-        {
+      {
         break;
-        }
       }
-    this->MinNonZeroScalarIndex[c] = i;
     }
+    this->MinNonZeroScalarIndex[c] = i;
+  }
 
   this->MinNonZeroGradientMagnitudeIndex = new unsigned char [nComponents];
   for ( int c = 0; c < nComponents; c++ )
-    {
+  {
     for ( i = 0; i < 256; i++ )
-      {
+    {
       if ( this->GradientOpacityTable[c][i] )
-        {
+      {
         break;
-        }
       }
-    this->MinNonZeroGradientMagnitudeIndex[c] = i;
     }
+    this->MinNonZeroGradientMagnitudeIndex[c] = i;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1115,7 +1115,7 @@ unsigned short * vtkVolumeRayCastSpaceLeapingImageFilter
 ::GetMinMaxVolume( int size[4] )
 {
   if (vtkImageData *output = this->GetOutput())
-    {
+  {
     int dims[3];
     output->GetDimensions(dims);
     size[0] = dims[0];
@@ -1124,7 +1124,7 @@ unsigned short * vtkVolumeRayCastSpaceLeapingImageFilter
     size[3] = this->GetNumberOfIndependentComponents();
 
     return static_cast< unsigned short * >(output->GetScalarPointer());
-    }
+  }
   return NULL;
 }
 
@@ -1161,7 +1161,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
   output->SetExtent(uExtent);
 
   if (this->Cache)
-    {
+  {
 
     int extent[6];
     this->Cache->GetExtent(extent);
@@ -1170,7 +1170,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
         extent[4] == uExtent[4] && extent[5] == uExtent[5] &&
         this->Cache->GetNumberOfScalarComponents() ==
                     output->GetNumberOfScalarComponents())
-      {
+    {
       // Reuse the cache since it has the same dimensions. We may not be
       // updating all flags
 
@@ -1183,8 +1183,8 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
       output->GetPointData()->SetScalars(
           this->Cache->GetPointData()->GetScalars() );
       return;
-      }
     }
+  }
 
   // Otherwise allocate output afresh
   output->AllocateScalars(outInfo);
@@ -1224,9 +1224,9 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
   nVoxels *= minMaxVolumeSize[2];
 
   for (vtkIdType i = 0; i < nVoxels; ++i, pSrc += inc, ++pDst)
-    {
+  {
     *pDst = *pSrc;
-    }
+  }
 
   vtkMetaImageWriter *writer = vtkMetaImageWriter::New();
   writer->SetFileName(filename);

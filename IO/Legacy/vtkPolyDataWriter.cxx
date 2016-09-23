@@ -34,24 +34,24 @@ void vtkPolyDataWriter::WriteData()
   vtkDebugMacro(<<"Writing vtk polygonal data...");
 
   if ( !(fp=this->OpenVTKFile()) || !this->WriteHeader(fp) )
-    {
+  {
     if (fp)
-      {
+    {
       if(this->FileName)
-        {
+      {
         vtkErrorMacro("Ran out of disk space; deleting file: "
                       << this->FileName);
         this->CloseVTKFile(fp);
         unlink(this->FileName);
-        }
+      }
       else
-        {
+      {
         this->CloseVTKFile(fp);
         vtkErrorMacro("Could not read memory header. ");
-        }
       }
-    return;
     }
+    return;
+  }
   //
   // Write polygonal data specific stuff
   //
@@ -61,67 +61,67 @@ void vtkPolyDataWriter::WriteData()
   // Write data owned by the dataset
   int errorOccured = 0;
   if (!this->WriteDataSetData(fp, input))
-    {
+  {
     errorOccured = 1;
-    }
+  }
   if (!errorOccured && !this->WritePoints(fp, input->GetPoints()))
-    {
+  {
     errorOccured = 1;
-    }
+  }
 
   if (!errorOccured && input->GetVerts())
-    {
+  {
     if (!this->WriteCells(fp, input->GetVerts(),"VERTICES"))
-      {
+    {
       errorOccured = 1;
-      }
     }
+  }
   if (!errorOccured && input->GetLines())
-    {
+  {
     if (!this->WriteCells(fp, input->GetLines(),"LINES"))
-      {
+    {
       errorOccured = 1;
-      }
     }
+  }
   if (!errorOccured && input->GetPolys())
-    {
+  {
     if (!this->WriteCells(fp, input->GetPolys(),"POLYGONS"))
-      {
-      errorOccured = 1;
-      }
-    }
-  if (!errorOccured && input->GetStrips())
     {
-    if (!this->WriteCells(fp, input->GetStrips(),"TRIANGLE_STRIPS"))
-      {
       errorOccured = 1;
-      }
     }
+  }
+  if (!errorOccured && input->GetStrips())
+  {
+    if (!this->WriteCells(fp, input->GetStrips(),"TRIANGLE_STRIPS"))
+    {
+      errorOccured = 1;
+    }
+  }
 
   if (!errorOccured && !this->WriteCellData(fp, input))
-    {
+  {
     errorOccured = 1;
-    }
+  }
   if (!errorOccured && !this->WritePointData(fp, input))
-    {
+  {
     errorOccured = 1;
-    }
+  }
 
   if(errorOccured)
-    {
+  {
     if(this->FileName)
-      {
+    {
       vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
       this->CloseVTKFile(fp);
       unlink(this->FileName);
-      }
+    }
     else
-      {
+    {
       vtkErrorMacro("Error writing data set to memory");
       this->CloseVTKFile(fp);
-      }
-    return;
     }
+    return;
+  }
   this->CloseVTKFile(fp);
 }
 

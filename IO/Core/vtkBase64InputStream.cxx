@@ -74,27 +74,27 @@ int vtkBase64InputStream::Seek(vtkTypeInt64 offset)
   std::streamoff off =
     static_cast<std::streamoff>(this->StreamStartPosition+(triplet*4));
   if(!this->Stream->seekg(off, std::ios::beg))
-    {
+  {
     return 0;
-    }
+  }
 
   // Decode the first triplet if it is paritally skipped.
   if(skipLength == 0)
-    {
+  {
     this->BufferLength = 0;
-    }
+  }
   else if(skipLength == 1)
-    {
+  {
     unsigned char c;
     this->BufferLength =
       this->DecodeTriplet(c, this->Buffer[0], this->Buffer[1]) - 1;
-    }
+  }
   else
-    {
+  {
     unsigned char c[2];
     this->BufferLength =
       this->DecodeTriplet(c[0], c[1], this->Buffer[0]) - 2;
-    }
+  }
 
   // A DecodeTriplet call may have failed to read the stream.
   // If so, the current buffer length will be negative.
@@ -114,44 +114,44 @@ size_t vtkBase64InputStream::Read(void* data_in, size_t length)
 
   // Use leftover characters from a previous decode.
   if((out != end) && (this->BufferLength == 2))
-    {
+  {
     *out++ = this->Buffer[0];
     this->Buffer[0] = this->Buffer[1];
     this->BufferLength = 1;
-    }
+  }
   if((out != end) && (this->BufferLength == 1))
-    {
+  {
     *out++ = this->Buffer[0];
     this->BufferLength = 0;
-    }
+  }
 
   // Decode all complete triplets.
   while((end - out) >= 3)
-    {
+  {
     int len = this->DecodeTriplet(out[0], out[1], out[2]);
     out += len;
     if(len < 3)
-      {
+    {
       this->BufferLength = len-3;
       return (out-data);
-      }
     }
+  }
 
   // Decode the last triplet and save leftover characters in the buffer.
   if((end - out) == 2)
-    {
+  {
     int len = this->DecodeTriplet(out[0], out[1], this->Buffer[0]);
     this->BufferLength = len-2;
     if(len > 2) { out += 2; }
     else { out += len; }
-    }
+  }
   else if((end - out) == 1)
-    {
+  {
     int len = this->DecodeTriplet(out[0], this->Buffer[0], this->Buffer[1]);
     this->BufferLength = len-1;
     if(len > 1) { out += 1; }
     else { out += len; }
-    }
+  }
 
   return (out-data);
 }

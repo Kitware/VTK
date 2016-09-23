@@ -61,16 +61,16 @@ void AddTetra(const double* p0,
   vtkIdType pId;
   vtkIdType* bIndex;
   for (vtkIdType i = 0; i < nPoints; i++)
-    {
+  {
     bIndex = bIndices[i];
     for (vtkIdType j = 0; j < 3; j++)
-      {
+    {
       p[j] = (p0[j]*bIndex[3])/order + (p1[j]*bIndex[0])/order +
         (p2[j]*bIndex[1])/order + (p3[j]*bIndex[2])/order;
-      }
+    }
     pointLocator->InsertUniquePoint(p, pId);
     t->GetPointIds()->SetId(i,pId);
-    }
+  }
   cells->InsertNextCell(t);
 }
 }
@@ -105,12 +105,12 @@ int TestLinearToQuadraticCellsFilter(int argc, char* argv[])
   double dy = (bounds[3] - bounds[2])/nY;
   double dz = (bounds[5] - bounds[4])/nZ;
   for (vtkIdType i = 0; i < 8; i++)
-    {
+  {
     for (vtkIdType j = 0; j < 3; j++)
-      {
+    {
       p[i][j] = bounds[2*j];
-      }
     }
+  }
   p[1][0] += dx;
   p[2][0] += dx;
   p[2][1] += dy;
@@ -124,17 +124,17 @@ int TestLinearToQuadraticCellsFilter(int argc, char* argv[])
   p[7][2] += dz;
 
   for (vtkIdType xInc = 0; xInc < nX; xInc++)
-    {
+  {
     p[0][1] = p[1][1] = p[4][1] = p[5][1] = bounds[2];
     p[2][1] = p[3][1] = p[6][1] = p[7][1] = bounds[2] + dy;
 
     for (vtkIdType yInc = 0; yInc < nY; yInc++)
-      {
+    {
       p[0][2] = p[1][2] = p[2][2] = p[3][2] = bounds[4];
       p[4][2] = p[5][2] = p[6][2] = p[7][2] = bounds[4] + dz;
 
       for (vtkIdType zInc = 0; zInc < nZ; zInc++)
-        {
+      {
         AddTetra(p[0],p[1],p[2],p[5], pointLocator, cellArray);
         AddTetra(p[0],p[2],p[3],p[7], pointLocator, cellArray);
         AddTetra(p[0],p[5],p[7],p[4], pointLocator, cellArray);
@@ -142,22 +142,22 @@ int TestLinearToQuadraticCellsFilter(int argc, char* argv[])
         AddTetra(p[0],p[2],p[5],p[7], pointLocator, cellArray);
 
         for (vtkIdType i = 0; i < 8; i++)
-          {
+        {
           p[i][2] += dz;
-          }
         }
+      }
 
       for (vtkIdType i = 0; i < 8; i++)
-        {
-        p[i][1] += dy;
-        }
-      }
-
-    for (vtkIdType i = 0; i < 8; i++)
       {
-      p[i][0] += dx;
+        p[i][1] += dy;
       }
     }
+
+    for (vtkIdType i = 0; i < 8; i++)
+    {
+      p[i][0] += dx;
+    }
+  }
 
   unstructuredGrid->SetPoints(pointArray);
   unstructuredGrid->SetCells(VTK_TETRA, cellArray);
@@ -177,14 +177,14 @@ int TestLinearToQuadraticCellsFilter(int argc, char* argv[])
 
   double maxDist = 0;
   for (vtkIdType i = 0; i < nPoints; i++)
-    {
+  {
     double xyz[3];
     unstructuredGrid->GetPoints()->GetPoint(i,xyz);
     double dist = sqrt(xyz[0]*xyz[0] + xyz[1]*xyz[1] + xyz[2]*xyz[2]);
     maxDist = (dist > maxDist ? dist : maxDist);
     radiant->SetTypedTuple(i, &dist);
     elevation->SetTypedTuple(i, &xyz[2]);
-    }
+  }
 
   unstructuredGrid->GetPointData()->AddArray(radiant);
   unstructuredGrid->GetPointData()->AddArray(elevation);
@@ -232,9 +232,9 @@ actor->GetProperty()->SetLineWidth(4);
 
   int retVal = vtkRegressionTestImage(renderWindow);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renderWindowInteractor->Start();
-    }
+  }
 
  return !retVal;
 }

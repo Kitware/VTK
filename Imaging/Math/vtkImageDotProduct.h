@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageDotProduct - Dot product of two vector images.
-// .SECTION Description
-// vtkImageDotProduct interprets the scalar components of two images
-// as vectors and takes the dot product vector by vector (pixel by pixel).
+/**
+ * @class   vtkImageDotProduct
+ * @brief   Dot product of two vector images.
+ *
+ * vtkImageDotProduct interprets the scalar components of two images
+ * as vectors and takes the dot product vector by vector (pixel by pixel).
+*/
 
 #ifndef vtkImageDotProduct_h
 #define vtkImageDotProduct_h
@@ -31,8 +34,9 @@ public:
   static vtkImageDotProduct *New();
   vtkTypeMacro(vtkImageDotProduct,vtkThreadedImageAlgorithm);
 
-  // Description:
-  // Set the two inputs to this filter
+  /**
+   * Set the two inputs to this filter
+   */
   virtual void SetInput1Data(vtkDataObject *in) { this->SetInputData(0,in); }
   virtual void SetInput2Data(vtkDataObject *in) { this->SetInputData(1,in); }
 

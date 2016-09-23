@@ -12,22 +12,25 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTransformFilter - transform points and associated normals and vectors
-// .SECTION Description
-// vtkTransformFilter is a filter to transform point coordinates, and
-// associated point normals and vectors. Other point data is passed
-// through the filter.
-//
-// An alternative method of transformation is to use vtkActor's methods
-// to scale, rotate, and translate objects. The difference between the
-// two methods is that vtkActor's transformation simply effects where
-// objects are rendered (via the graphics pipeline), whereas
-// vtkTransformFilter actually modifies point coordinates in the
-// visualization pipeline. This is necessary for some objects
-// (e.g., vtkProbeFilter) that require point coordinates as input.
-
-// .SECTION See Also
-// vtkAbstractTransform vtkTransformPolyDataFilter vtkActor
+/**
+ * @class   vtkTransformFilter
+ * @brief   transform points and associated normals and vectors
+ *
+ * vtkTransformFilter is a filter to transform point coordinates, and
+ * associated point normals and vectors. Other point data is passed
+ * through the filter.
+ *
+ * An alternative method of transformation is to use vtkActor's methods
+ * to scale, rotate, and translate objects. The difference between the
+ * two methods is that vtkActor's transformation simply effects where
+ * objects are rendered (via the graphics pipeline), whereas
+ * vtkTransformFilter actually modifies point coordinates in the
+ * visualization pipeline. This is necessary for some objects
+ * (e.g., vtkProbeFilter) that require point coordinates as input.
+ *
+ * @sa
+ * vtkAbstractTransform vtkTransformPolyDataFilter vtkActor
+*/
 
 #ifndef vtkTransformFilter_h
 #define vtkTransformFilter_h
@@ -44,23 +47,30 @@ public:
   vtkTypeMacro(vtkTransformFilter,vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Return the MTime also considering the transform.
+  /**
+   * Return the MTime also considering the transform.
+   */
   vtkMTimeType GetMTime();
 
-  // Description:
-  // Specify the transform object used to transform points.
+  //@{
+  /**
+   * Specify the transform object used to transform points.
+   */
   virtual void SetTransform(vtkAbstractTransform*);
   vtkGetObjectMacro(Transform,vtkAbstractTransform);
+  //@}
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
-  // Description:
-  // Set/get the desired precision for the output types. See the documentation
-  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
-  // the available precision settings.
+  //@{
+  /**
+   * Set/get the desired precision for the output types. See the documentation
+   * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+   * the available precision settings.
+   */
   vtkSetMacro(OutputPointsPrecision,int);
   vtkGetMacro(OutputPointsPrecision,int);
+  //@}
 
 protected:
   vtkTransformFilter();

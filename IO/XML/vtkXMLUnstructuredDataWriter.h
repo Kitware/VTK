@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLUnstructuredDataWriter - Superclass for VTK XML unstructured data writers.
-// .SECTION Description
-// vtkXMLUnstructuredDataWriter provides VTK XML writing functionality
-// that is common among all the unstructured data formats.
+/**
+ * @class   vtkXMLUnstructuredDataWriter
+ * @brief   Superclass for VTK XML unstructured data writers.
+ *
+ * vtkXMLUnstructuredDataWriter provides VTK XML writing functionality
+ * that is common among all the unstructured data formats.
+*/
 
 #ifndef vtkXMLUnstructuredDataWriter_h
 #define vtkXMLUnstructuredDataWriter_h
@@ -36,22 +39,31 @@ public:
   vtkTypeMacro(vtkXMLUnstructuredDataWriter,vtkXMLWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get/Set the number of pieces used to stream the image through the
-  // pipeline while writing to the file.
+  //@{
+  /**
+   * Get/Set the number of pieces used to stream the image through the
+   * pipeline while writing to the file.
+   */
   vtkSetMacro(NumberOfPieces, int);
   vtkGetMacro(NumberOfPieces, int);
+  //@}
 
-  // Description:
-  // Get/Set the piece to write to the file.  If this is
-  // negative or equal to the NumberOfPieces, all pieces will be written.
+  //@{
+  /**
+   * Get/Set the piece to write to the file.  If this is
+   * negative or equal to the NumberOfPieces, all pieces will be written.
+   */
   vtkSetMacro(WritePiece, int);
   vtkGetMacro(WritePiece, int);
+  //@}
 
-  // Description:
-  // Get/Set the ghost level used to pad each piece.
+  //@{
+  /**
+   * Get/Set the ghost level used to pad each piece.
+   */
   vtkSetMacro(GhostLevel, int);
   vtkGetMacro(GhostLevel, int);
+  //@}
 
   // See the vtkAlgorithm for a desciption of what these do
   int ProcessRequest(vtkInformation*,

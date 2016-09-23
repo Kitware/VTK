@@ -39,7 +39,7 @@
 int ArrayToTable(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     vtkSmartPointer<vtkDenseArray<vtkStdString> > a = vtkSmartPointer<vtkDenseArray<vtkStdString> >::New();
     a->Resize(2);
     a->SetValue(0, "Howdy");
@@ -80,11 +80,11 @@ int ArrayToTable(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(f->GetOutput()->GetValue(1, 1).ToDouble() == 2.0);
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }
 

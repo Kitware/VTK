@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLMultiBlockDataReader - Reader for multi-block datasets
-// .SECTION Description
-// vtkXMLMultiBlockDataReader reads the VTK XML multi-block data file
-// format. XML multi-block data files are meta-files that point to a list
-// of serial VTK XML files. When reading in parallel, it will distribute
-// sub-blocks among processor. If the number of sub-blocks is less than
-// the number of processors, some processors will not have any sub-blocks
-// for that block. If the number of sub-blocks is larger than the
-// number of processors, each processor will possibly have more than
-// 1 sub-block.
+/**
+ * @class   vtkXMLMultiBlockDataReader
+ * @brief   Reader for multi-block datasets
+ *
+ * vtkXMLMultiBlockDataReader reads the VTK XML multi-block data file
+ * format. XML multi-block data files are meta-files that point to a list
+ * of serial VTK XML files. When reading in parallel, it will distribute
+ * sub-blocks among processor. If the number of sub-blocks is less than
+ * the number of processors, some processors will not have any sub-blocks
+ * for that block. If the number of sub-blocks is larger than the
+ * number of processors, each processor will possibly have more than
+ * 1 sub-block.
+*/
 
 #ifndef vtkXMLMultiBlockDataReader_h
 #define vtkXMLMultiBlockDataReader_h

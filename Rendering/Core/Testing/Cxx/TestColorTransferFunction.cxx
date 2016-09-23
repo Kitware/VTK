@@ -27,24 +27,24 @@ int TestColorTransferFunction(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   ctf->GetRange(range);
 
   if (range[0] != 0.0 || range[1] != 0.0)
-    {
+  {
     std::cerr << "After RemoveAllPoints() is called, range should be [0, 0]. "
               << "It was [" << range[0] << ", " << range[1] << "].\n";
     return EXIT_FAILURE;
-    }
+  }
 
   double table[256*3];
   ctf->GetTable(0.0, 1.0, 256, table);
 
   // Table should be all black.
   for (int i = 0; i < 3*256; ++i)
-    {
+  {
     if (table[i] != 0.0)
-      {
+    {
       std::cerr << "Table should have all zeros.\n";
       return EXIT_FAILURE;
-      }
     }
+  }
 
   return EXIT_SUCCESS;
 }

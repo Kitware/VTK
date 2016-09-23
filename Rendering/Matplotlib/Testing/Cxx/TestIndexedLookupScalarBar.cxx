@@ -382,26 +382,26 @@ class vtkScalarKeyboardCommand : public vtkCommand
 {
 public:
   static vtkScalarKeyboardCommand* New()
-    {
+  {
     return new vtkScalarKeyboardCommand;
-    }
+  }
   virtual void Execute( vtkObject *caller, unsigned long vtkNotUsed(eventId), void* vtkNotUsed(callData) )
-    {
+  {
     vtkRenderWindowInteractor* ri = vtkRenderWindowInteractor::SafeDownCast( caller );
     if ( this->Lookup && this->RenderWindow && ri )
-      {
+    {
       if ( ri->GetKeySym()[0] == 'u' )
-        {
+      {
         this->Lookup->SetIndexedLookup( ! this->Lookup->GetIndexedLookup() );
         cout << "Index mode " << ( this->Lookup->GetIndexedLookup() ? "ON" : "OFF" ) << "\n";
-        }
+      }
       else if ( ri->GetKeySym()[0] == 'd' )
-        {
+      {
         this->ScalarBar->SetDrawBackground( ! this->ScalarBar->GetDrawBackground() );
         cout << "Background " << ( this->ScalarBar->GetDrawBackground() ? "ON" : "OFF" ) << "\n";
-        }
+      }
       else if ( ri->GetKeySym()[0] == 'k' )
-        {
+      {
         this->ScalarBar->SetTextPosition(
           this->ScalarBar->GetTextPosition() == vtkScalarBarActor::PrecedeScalarBar ?
           vtkScalarBarActor::SucceedScalarBar :
@@ -411,44 +411,44 @@ public:
           << "Text position "
           << ( this->ScalarBar->GetTextPosition() == vtkScalarBarActor::PrecedeScalarBar ? "PRECEDE" : "SUCCEED" )
           << "\n";
-        }
+      }
       else if ( ri->GetKeySym()[0] == 'h' )
-        {
+      {
         vtkIdType idx = this->Lookup->GetAnnotatedValueIndex( 4.00 );
         if ( idx >= 0 )
-          {
+        {
           vtkStdString prev = this->Lookup->GetAnnotation( idx );
           this->Lookup->SetAnnotation( 4.00, prev.empty() ? "No" : "" );
-          }
         }
+      }
       else if ( ri->GetKeySym()[0] == 't' )
-        {
+      {
         this->ScalarBar->SetDrawAnnotations(!this->ScalarBar->GetDrawAnnotations());
         cout
           << "Draw annotation "
           << ( this->ScalarBar->GetDrawAnnotations() ? "ON" : "OFF" )
           << "\n";
-        }
+      }
       else if ( ri->GetKeySym()[0] == 'n' )
-        {
+      {
         this->ScalarBar->SetDrawNanAnnotation(!this->ScalarBar->GetDrawNanAnnotation());
         cout
           << "Draw NaN annotation "
           << ( this->ScalarBar->GetDrawNanAnnotation() ? "ON" : "OFF" )
           << "\n";
-        }
+      }
       else if ( ri->GetKeySym()[0] == 'l' )
-        {
+      {
         this->ScalarBar->SetFixedAnnotationLeaderLineColor(!this->ScalarBar->GetFixedAnnotationLeaderLineColor());
         cout
           << "Use fixed leader line color for annotations "
           << ( this->ScalarBar->GetFixedAnnotationLeaderLineColor() ? "YES" : "NO" )
           << "\n";
-        }
+      }
       cout.flush();
       this->RenderWindow->Render();
-      }
     }
+  }
   vtkLookupTable* Lookup;
   vtkRenderWindow* RenderWindow;
   vtkScalarBarActor* ScalarBar;

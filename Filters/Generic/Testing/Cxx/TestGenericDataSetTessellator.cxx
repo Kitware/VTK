@@ -79,26 +79,26 @@ public:
     { return new SwitchLabelsCallback; }
 
   void SetLabeledDataMapper(vtkLabeledDataMapper *aLabeledDataMapper)
-    {
+  {
       this->LabeledDataMapper=aLabeledDataMapper;
-    }
+  }
   void SetRenderWindow(vtkRenderWindow *aRenWin)
-    {
+  {
       this->RenWin=aRenWin;
-    }
+  }
 
   void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*) VTK_OVERRIDE
-    {
+  {
       if(this->LabeledDataMapper->GetLabelMode()==VTK_LABEL_SCALARS)
-        {
+      {
         this->LabeledDataMapper->SetLabelMode(VTK_LABEL_IDS);
-        }
+      }
       else
-        {
+      {
         this->LabeledDataMapper->SetLabelMode(VTK_LABEL_SCALARS);
-        }
+      }
       this->RenWin->Render();
-    }
+  }
 protected:
   vtkLabeledDataMapper *LabeledDataMapper;
   vtkRenderWindow *RenWin;
@@ -202,13 +202,13 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
 #endif
   mapper->SetLookupTable(lut);
   if(tessellator->GetOutput()->GetPointData()!=0)
-    {
+  {
     if(tessellator->GetOutput()->GetPointData()->GetScalars()!=0)
-      {
+    {
       mapper->SetScalarRange( tessellator->GetOutput()->GetPointData()->
                               GetScalars()->GetRange());
-      }
     }
+  }
 
   vtkActor *actor = vtkActor::New();
   actor->SetMapper(mapper);
@@ -243,14 +243,14 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     SwitchLabelsCallback *switchLabels=SwitchLabelsCallback::New();
     switchLabels->SetRenderWindow(renWin);
     switchLabels->SetLabeledDataMapper(labeledDataMapper);
     iren->AddObserver(vtkCommand::UserEvent,switchLabels);
     switchLabels->Delete();
     iren->Start();
-    }
+  }
 
   // Cleanup
   renderer->Delete();

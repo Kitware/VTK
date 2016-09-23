@@ -38,14 +38,14 @@ int Vtkrenderingtktcl_Init(Tcl_Interp *interp)
   // Forward the call to the real init functions.
   if(Vtktkrenderwidget_Init(interp) == TCL_OK &&
      Vtktkimageviewerwidget_Init(interp) == TCL_OK)
-    {
+  {
     // Report that the package is provided.
     return Tcl_PkgProvide(interp, (char*)"vtkRenderingTkTCL",
         (char*)VTKTK_VERSION);
-    }
+  }
   else
-    {
+  {
     // One of the widgets is not provided.
     return TCL_ERROR;
-    }
+  }
 }

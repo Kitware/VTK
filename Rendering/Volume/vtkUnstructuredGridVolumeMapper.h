@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkUnstructuredGridVolumeMapper - Abstract class for a unstructured grid volume mapper
-
-// .SECTION Description
-// vtkUnstructuredGridVolumeMapper is the abstract definition of a volume mapper for
-// unstructured data (vtkUnstructuredGrid).  Several  basic types of volume mappers
-// are supported as subclasses
-
-// .SECTION see also
-// vtkUnstructuredGridVolumeRayCastMapper
+/**
+ * @class   vtkUnstructuredGridVolumeMapper
+ * @brief   Abstract class for a unstructured grid volume mapper
+ *
+ *
+ * vtkUnstructuredGridVolumeMapper is the abstract definition of a volume mapper for
+ * unstructured data (vtkUnstructuredGrid).  Several  basic types of volume mappers
+ * are supported as subclasses
+ *
+ * @sa
+ * vtkUnstructuredGridVolumeRayCastMapper
+*/
 
 #ifndef vtkUnstructuredGridVolumeMapper_h
 #define vtkUnstructuredGridVolumeMapper_h
@@ -40,11 +43,14 @@ public:
   vtkTypeMacro(vtkUnstructuredGridVolumeMapper,vtkAbstractVolumeMapper);
   void PrintSelf( ostream& os, vtkIndent indent );
 
-  // Description:
-  // Set/Get the input data
+  //@{
+  /**
+   * Set/Get the input data
+   */
   virtual void SetInputData( vtkUnstructuredGridBase * );
   virtual void SetInputData( vtkDataSet * );
   vtkUnstructuredGridBase *GetInput();
+  //@}
 
   vtkSetMacro( BlendMode, int );
   void SetBlendModeToComposite()
@@ -53,17 +59,19 @@ public:
     { this->SetBlendMode( vtkUnstructuredGridVolumeMapper::MAXIMUM_INTENSITY_BLEND ); }
   vtkGetMacro( BlendMode, int );
 
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
-  // Render the volume
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+   * Render the volume
+   */
   virtual void Render(vtkRenderer *ren, vtkVolume *vol)=0;
 
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // Release any graphics resources that are being consumed by this mapper.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * Release any graphics resources that are being consumed by this mapper.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
   virtual void ReleaseGraphicsResources(vtkWindow *) {}
 
   enum

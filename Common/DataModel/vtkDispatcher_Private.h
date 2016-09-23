@@ -54,9 +54,9 @@ public:
   FunctorRefDispatcherHelper(Fun& f) : fun_(f) {}
 
   ResultType operator()(BaseLhs& lhs)
-    {
+  {
     return fun_(CastLhs::Cast(lhs));
-    }
+  }
 private:
   FunctorRefDispatcherHelper& operator =(const FunctorRefDispatcherHelper& b);
 };
@@ -79,9 +79,9 @@ public:
   FunctorDispatcherHelper(Fun fun) : fun_(fun) {}
 
   ResultType operator()(BaseLhs& lhs)
-    {
+  {
     return fun_(CastLhs::Cast(lhs));
-    }
+  }
 };
 
 
@@ -212,9 +212,9 @@ public:
   FunctorRefDispatcherHelper(Fun& fun) : fun_(fun) {}
 
   ResultType operator()(BaseLhs& lhs, BaseRhs& rhs)
-    {
+  {
     return fun_(CastLhs::Cast(lhs), CastRhs::Cast(rhs));
-    }
+  }
 private:
   FunctorRefDispatcherHelper& operator =(const FunctorRefDispatcherHelper& b);
 };
@@ -233,9 +233,9 @@ public:
   FunctorDoubleDispatcherHelper(Fun fun) : fun_(fun) {}
 
   ResultType operator()(BaseLhs& lhs, BaseRhs& rhs)
-    {
+  {
     return fun_(CastLhs::Cast(lhs), CastRhs::Cast(rhs));
-    }
+  }
 
 };
 
@@ -350,28 +350,28 @@ template <class To, class From>
 struct DynamicCaster
 {
   static To& Cast(From& obj)
-    {
+  {
     return dynamic_cast<To&>(obj);
-    }
+  }
 
   static To* Cast(From* obj)
-    {
+  {
     return dynamic_cast<To*>(obj);
-    }
+  }
 };
 
 template <class To, class From>
 struct vtkCaster
 {
   static To& Cast(From& obj)
-    {
+  {
     return *(To::SafeDownCast(&obj));
-    }
+  }
 
   static To* Cast(From* obj)
-    {
+  {
     return To::SafeDownCast(obj);
-    }
+  }
 };
 
 class TypeInfo
@@ -394,34 +394,34 @@ private:
 // Implementation
 
 inline TypeInfo::TypeInfo()
-  {
+{
   class Nil {};
   pInfo_ = &typeid(Nil);
   assert(pInfo_);
-  }
+}
 
 inline TypeInfo::TypeInfo(const std::type_info& ti)
   : pInfo_(&ti)
   { assert(pInfo_); }
 
 inline bool TypeInfo::before(const TypeInfo& rhs) const
-  {
+{
   assert(pInfo_);
   // type_info::before return type is int in some VC libraries
   return pInfo_->before(*rhs.pInfo_) != 0;
-  }
+}
 
 inline const std::type_info& TypeInfo::Get() const
-  {
+{
   assert(pInfo_);
   return *pInfo_;
-  }
+}
 
 inline const char* TypeInfo::name() const
-  {
+{
   assert(pInfo_);
   return pInfo_->name();
-  }
+}
 
 // Comparison operators
 

@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTransformCollection - maintain a list of transforms
-
-// .SECTION Description
-// vtkTransformCollection is an object that creates and manipulates lists of
-// objects of type vtkTransform.
-
-// .SECTION see also
-// vtkCollection vtkTransform
+/**
+ * @class   vtkTransformCollection
+ * @brief   maintain a list of transforms
+ *
+ *
+ * vtkTransformCollection is an object that creates and manipulates lists of
+ * objects of type vtkTransform.
+ *
+ * @sa
+ * vtkCollection vtkTransform
+*/
 
 #ifndef vtkTransformCollection_h
 #define vtkTransformCollection_h
@@ -35,18 +38,21 @@ public:
   vtkTypeMacro(vtkTransformCollection,vtkCollection);
   static vtkTransformCollection *New();
 
-  // Description:
-  // Add a Transform to the list.
+  /**
+   * Add a Transform to the list.
+   */
   void AddItem(vtkTransform *);
 
-  // Description:
-  // Get the next Transform in the list. Return NULL when the end of the
-  // list is reached.
+  /**
+   * Get the next Transform in the list. Return NULL when the end of the
+   * list is reached.
+   */
   vtkTransform *GetNextItem();
 
-  // Description:
-  // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth.
+  /**
+   * Reentrant safe way to get an object in a collection. Just pass the
+   * same cookie back and forth.
+   */
   vtkTransform *GetNextTransform(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkTransform *>(this->GetNextItemAsObject(cookie));};
 
@@ -58,9 +64,9 @@ protected:
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o)
-    {
+  {
       this->vtkCollection::AddItem(o);
-    }
+  }
 
 private:
   vtkTransformCollection(const vtkTransformCollection&) VTK_DELETE_FUNCTION;

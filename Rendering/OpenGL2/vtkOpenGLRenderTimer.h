@@ -13,15 +13,18 @@
 
 =========================================================================*/
 
-// .NAME vtkOpenGLRenderTimer - Asynchronously measures GPU execution time.
-//
-// .SECTION Description
-// This class posts events to the OpenGL server to measure execution times
-// of GPU processes. The queries are asynchronous and multiple
-// vtkOpenGLRenderTimers may overlap / be nested.
-//
-// This uses GL_TIMESTAMP rather than GL_ELAPSED_TIME, since only one
-// GL_ELAPSED_TIME query may be active at a time.
+/**
+ * @class   vtkOpenGLRenderTimer
+ * @brief   Asynchronously measures GPU execution time.
+ *
+ *
+ * This class posts events to the OpenGL server to measure execution times
+ * of GPU processes. The queries are asynchronous and multiple
+ * vtkOpenGLRenderTimers may overlap / be nested.
+ *
+ * This uses GL_TIMESTAMP rather than GL_ELAPSED_TIME, since only one
+ * GL_ELAPSED_TIME query may be active at a time.
+*/
 
 #ifndef vtkOpenGLRenderTimer_h
 #define vtkOpenGLRenderTimer_h
@@ -35,35 +38,44 @@ public:
   vtkOpenGLRenderTimer();
   ~vtkOpenGLRenderTimer();
 
-  // Description:
-  // Clear out any previous results and prepare for a new query.
+  /**
+   * Clear out any previous results and prepare for a new query.
+   */
   void Reset();
 
-  // Description:
-  // Mark the start of a timed event.
+  /**
+   * Mark the start of a timed event.
+   */
   void Start();
 
-  // Description:
-  // Mark the end of a timed event.
+  /**
+   * Mark the end of a timed event.
+   */
   void Stop();
 
-  // Description:
-  // Returns true if the timer has been started. The query may not be ready yet.
+  /**
+   * Returns true if the timer has been started. The query may not be ready yet.
+   */
   bool Started();
 
-  // Description:
-  // Returns true if the timer has been stopped. The query may not be ready yet.
+  /**
+   * Returns true if the timer has been stopped. The query may not be ready yet.
+   */
   bool Stopped();
 
-  // Description:
-  // Returns true when the timing results are available.
+  /**
+   * Returns true when the timing results are available.
+   */
   bool Ready();
 
-  // Description:
-  // If Ready() returns true, get the elapsed time in the requested units.
+  //@{
+  /**
+   * If Ready() returns true, get the elapsed time in the requested units.
+   */
   float GetElapsedSeconds();
   float GetElapsedMilliseconds();
   vtkTypeUInt64 GetElapsedNanoseconds();
+  //@}
 
 protected:
   bool StartReady;

@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLActor - OpenGL actor
-// .SECTION Description
-// vtkOpenGLActor is a concrete implementation of the abstract class vtkActor.
-// vtkOpenGLActor interfaces to the OpenGL rendering library.
+/**
+ * @class   vtkOpenGLActor
+ * @brief   OpenGL actor
+ *
+ * vtkOpenGLActor is a concrete implementation of the abstract class vtkActor.
+ * vtkOpenGLActor interfaces to the OpenGL rendering library.
+*/
 
 #ifndef vtkOpenGLActor_h
 #define vtkOpenGLActor_h
@@ -35,25 +38,27 @@ public:
   vtkTypeMacro(vtkOpenGLActor, vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Actual actor render method.
+  /**
+   * Actual actor render method.
+   */
   void Render(vtkRenderer *ren, vtkMapper *mapper);
 
   void GetKeyMatrices(vtkMatrix4x4 *&WCVCMatrix, vtkMatrix3x3 *&normalMatrix);
 
-  // Description:
-  // If this key is set in GetPropertyKeys(), the glDepthMask will be adjusted
-  // prior to rendering translucent objects. This is useful for e.g. depth
-  // peeling.
-  //
-  // If GetIsOpaque() == true, the depth mask is always enabled, regardless of
-  // this key. Otherwise, the depth mask is disabled for default alpha blending
-  // unless this key is set.
-  //
-  // If this key is set, the integer value has the following meanings:
-  // 0: glDepthMask(GL_FALSE)
-  // 1: glDepthMask(GL_TRUE)
-  // Anything else: No change to depth mask.
+  /**
+   * If this key is set in GetPropertyKeys(), the glDepthMask will be adjusted
+   * prior to rendering translucent objects. This is useful for e.g. depth
+   * peeling.
+
+   * If GetIsOpaque() == true, the depth mask is always enabled, regardless of
+   * this key. Otherwise, the depth mask is disabled for default alpha blending
+   * unless this key is set.
+
+   * If this key is set, the integer value has the following meanings:
+   * 0: glDepthMask(GL_FALSE)
+   * 1: glDepthMask(GL_TRUE)
+   * Anything else: No change to depth mask.
+   */
   static vtkInformationIntegerKey* GLDepthMaskOverride();
 
 protected:

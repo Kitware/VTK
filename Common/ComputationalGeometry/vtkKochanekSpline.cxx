@@ -41,34 +41,34 @@ double vtkKochanekSpline::Evaluate (double t)
 
   // check to see if we need to recompute the spline
   if (this->ComputeTime < this->GetMTime ())
-    {
+  {
     this->Compute ();
-    }
+  }
 
   // make sure we have at least 2 points
   int size = this->PiecewiseFunction->GetSize ();
   if (size < 2)
-    {
+  {
     return 0.0;
-    }
+  }
 
   intervals = this->Intervals;
   coefficients = this->Coefficients;
 
   if ( this->Closed )
-    {
+  {
     size = size + 1;
-    }
+  }
 
   // clamp the function at both ends
   if (t < intervals[0])
-    {
+  {
     t = intervals[0];
-    }
+  }
   if (t > intervals[size - 1])
-    {
+  {
     t = intervals[size - 1];
-    }
+  }
 
   // find pointer to cubic spline coefficient
   index = this->FindIndex(size,t);
@@ -97,21 +97,21 @@ void vtkKochanekSpline::Compute ()
   size = this->PiecewiseFunction->GetSize ();
 
   if(size < 2)
-    {
+  {
     vtkErrorMacro("Spline requires at least 2 points. # of points is: " <<size);
     return;
-    }
+  }
 
   if ( !this->Closed )
-    {
+  {
     // copy the independent variables
     delete [] this->Intervals;
     this->Intervals = new double[size];
     ts = this->PiecewiseFunction->GetDataPointer ();
     for (i = 0; i < size; i++)
-      {
+    {
       this->Intervals[i] = *(ts + 2*i);
-      }
+    }
 
     // allocate memory for coefficients
     delete [] this->Coefficients;
@@ -126,29 +126,29 @@ void vtkKochanekSpline::Compute ()
     // get the dependent variable values
     xs = this->PiecewiseFunction->GetDataPointer () + 1;
     for (int j = 0; j < size; j++)
-      {
-      *(dependent + j) = *(xs + 2*j);
-      }
-    }
-  else //spline is closed, create extra "fictitious" point
     {
+      *(dependent + j) = *(xs + 2*j);
+    }
+  }
+  else //spline is closed, create extra "fictitious" point
+  {
     size = size + 1;
     // copy the independent variables
     delete [] this->Intervals;
     this->Intervals = new double[size];
     ts = this->PiecewiseFunction->GetDataPointer ();
     for (i = 0; i < size-1; i++)
-      {
+    {
       this->Intervals[i] = *(ts + 2 * i);
-      }
+    }
     if ( this->ParametricRange[0] != this->ParametricRange[1] )
-      {
+    {
       this->Intervals[size-1] = this->ParametricRange[1];
-      }
+    }
     else
-      {
+    {
       this->Intervals[size-1] = this->Intervals[size-2] + 1.0;
-      }
+    }
 
     // allocate memory for coefficients
     delete [] this->Coefficients;
@@ -163,11 +163,11 @@ void vtkKochanekSpline::Compute ()
     // get the dependent variable values
     xs = this->PiecewiseFunction->GetDataPointer () + 1;
     for (int j = 0; j < size-1; j++)
-      {
+    {
       *(dependent + j) = *(xs + 2*j);
-      }
-    dependent[size-1] = *xs;
     }
+    dependent[size-1] = *xs;
+  }
 
   this->Fit1D (size, this->Intervals, dependent,
                  this->DefaultTension,
@@ -205,7 +205,7 @@ void vtkKochanekSpline::Fit1D (int size, double *x, double *y,
   N = size - 1;
 
   for (i=1; i < N; i++)
-    {
+  {
     cs = y[i] - y[i-1];
     cd = y[i+1] - y[i];
 
@@ -225,7 +225,7 @@ void vtkKochanekSpline::Fit1D (int size, double *x, double *y,
     coefficients[i][0] = y[i];
     coefficients[i][1] = dd;
     coefficients[i][2] = ds;
-    }
+  }
 
   // Calculate the deriviatives at the end points
   coefficients[0][0] = y[0];
@@ -235,7 +235,7 @@ void vtkKochanekSpline::Fit1D (int size, double *x, double *y,
   coefficients[N][3] = 0.0;
 
   if ( this->Closed ) //the curve is continuous and closed at P0=Pn
-    {
+  {
     cs = y[N] - y[N-1];
     cd = y[1] - y[0];
 
@@ -255,11 +255,11 @@ void vtkKochanekSpline::Fit1D (int size, double *x, double *y,
     coefficients[0][2] = ds;
     coefficients[N][1] = dd;
     coefficients[N][2] = ds;
-    }
+  }
   else //curve is open
-    {
+  {
     switch (leftConstraint)
-      {
+    {
       case 0:
         // desired slope at leftmost point is leftValue
         coefficients[0][1] = this->ComputeLeftDerivative();
@@ -281,20 +281,20 @@ void vtkKochanekSpline::Fit1D (int size, double *x, double *y,
         // times secod derivative at first interior point
         if ((leftValue > (-2.0 + VTK_EPSILON)) ||
             (leftValue < (-2.0 - VTK_EPSILON)))
-          {
+        {
           coefficients[0][1] = (3*(1 + leftValue)*(y[1] - y[0]) -
                                     (1 + 2*leftValue)*coefficients[1][2])
                                   / (2 + leftValue);
-          }
+        }
         else
-          {
+        {
           coefficients[0][1] = 0.0;
-          }
+        }
         break;
-      }
+    }
 
     switch (rightConstraint)
-      {
+    {
       case 0:
         // desired slope at rightmost point is rightValue
         coefficients[N][2] = this->ComputeRightDerivative();
@@ -316,22 +316,22 @@ void vtkKochanekSpline::Fit1D (int size, double *x, double *y,
         // times secord derivative at last interior point
         if ((rightValue > (-2.0 + VTK_EPSILON)) ||
             (rightValue < (-2.0 - VTK_EPSILON)))
-          {
+        {
           coefficients[N][2] = (3*(1 + rightValue)*(y[N] - y[N-1]) -
                                   (1 + 2*rightValue)*coefficients[N-1][1])
                          / (2 + rightValue);
-          }
+        }
         else
-          {
+        {
           coefficients[N][2] = 0.0;
-          }
+        }
           break;
-      }
-    }//curve is open
+    }
+  }//curve is open
 
   // Compute the Coefficients
   for (i=0; i < N; i++)
-    {
+  {
     //
     // c0    = P ;    c1    = DD ;
     //   i      i       i       i
@@ -349,7 +349,7 @@ void vtkKochanekSpline::Fit1D (int size, double *x, double *y,
                        + (-2 * coefficients[i][1]) + (-1 * coefficients[i+1][2]);
     coefficients[i][3] = ( 2 * y[i])        + (-2 * y[i+1])
                        + ( 1 * coefficients[i][1]) + ( 1 * coefficients[i+1][2]);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -358,11 +358,11 @@ void vtkKochanekSpline::DeepCopy(vtkSpline *s)
   vtkKochanekSpline *spline = vtkKochanekSpline::SafeDownCast(s);
 
   if ( spline != NULL )
-    {
+  {
     this->DefaultBias = spline->DefaultBias;
     this->DefaultTension = spline->DefaultTension;
     this->DefaultContinuity = spline->DefaultContinuity;
-    }
+  }
 
   // Now do superclass
   this->vtkSpline::DeepCopy(s);

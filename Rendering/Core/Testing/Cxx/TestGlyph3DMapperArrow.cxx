@@ -135,9 +135,9 @@ int TestGlyph3DMapperArrow(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage(win);
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
   iren->Delete();
 
   return !retVal;

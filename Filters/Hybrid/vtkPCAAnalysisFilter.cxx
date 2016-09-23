@@ -196,32 +196,32 @@ int vtkPCAAnalysisFilter::RequestData(
 
   // Clean up from previous computation
   if (this->evecMat2)
-    {
+  {
     DeleteMatrix(this->evecMat2);
     this->evecMat2 = NULL;
-    }
+  }
   if (this->meanshape)
-    {
+  {
     DeleteVector(this->meanshape);
     this->meanshape = NULL;
-    }
+  }
 
   const int N_SETS = mbInput->GetNumberOfBlocks();
 
   vtkPointSet* input = 0;
   for (i=0; i<N_SETS; i++)
-    {
+  {
     input = vtkPointSet::SafeDownCast(mbInput->GetBlock(i));
     if (input)
-      {
+    {
       break;
-      }
     }
+  }
 
   if (!input)
-    {
+  {
     return 1;
-    }
+  }
 
   vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -229,21 +229,21 @@ int vtkPCAAnalysisFilter::RequestData(
   vtkPointSet *tmpInput;
   // copy the inputs across
   for(i=0;i<N_SETS;i++)
-    {
+  {
     tmpInput =
       vtkPointSet::SafeDownCast(mbInput->GetBlock(i));
     vtkPointSet* outputBlock = 0;
     if (tmpInput)
-      {
+    {
       outputBlock = tmpInput->NewInstance();
       outputBlock->DeepCopy(tmpInput);
-      }
+    }
     output->SetBlock(i, outputBlock);
     if (outputBlock)
-      {
+    {
         outputBlock->Delete();
-      }
     }
+  }
 
   // the number of points is determined by the first input (they must all be the same)
   const int N_POINTS = input->GetNumberOfPoints();
@@ -251,22 +251,22 @@ int vtkPCAAnalysisFilter::RequestData(
   vtkDebugMacro(<<"N_POINTS is " <<N_POINTS);
 
   if(N_POINTS == 0)
-    {
+  {
     vtkErrorMacro(<<"No points!");
     return 1;
-    }
+  }
 
   // all the inputs must have the same number of points to consider executing
   for(i=1;i<N_SETS;i++)
-    {
+  {
     tmpInput =
       vtkPointSet::SafeDownCast(mbInput->GetBlock(i));
     if (!tmpInput)
-      {
+    {
       continue;
-      }
+    }
     if(tmpInput->GetNumberOfPoints() != N_POINTS)
-      {
+    {
       vtkErrorMacro(<<"The inputs have different numbers of points!");
       return 1;
     }
@@ -282,15 +282,15 @@ int vtkPCAAnalysisFilter::RequestData(
   double **D = NewMatrix(3*n, s);
 
   for (i = 0; i < n; i++)
-    {
+  {
     for (int j = 0; j < s; j++)
-      {
+    {
       tmpInput =
         vtkPointSet::SafeDownCast(mbInput->GetBlock(j));
       if (!tmpInput)
-        {
+      {
         continue;
-        }
+      }
       double p[3];
       tmpInput->GetPoint(i, p);
       D[i*3  ][j] = p[0];
@@ -325,24 +325,24 @@ int vtkPCAAnalysisFilter::RequestData(
 
   // Copy data to output structures
   for (int j = 0; j < s; j++)
-    {
+  {
     this->Evals->SetValue(j, ev[j]);
 
     vtkPointSet* block = vtkPointSet::SafeDownCast(
       output->GetBlock(j));
 
     if (block)
-      {
+    {
       for (i = 0; i < n; i++)
-        {
+      {
         double x = evecMat2[i*3  ][j];
         double y = evecMat2[i*3+1][j];
         double z = evecMat2[i*3+2][j];
 
         block->GetPoints()->SetPoint(i, x, y, z);
-        }
       }
     }
+  }
 
   DeleteMatrix(evecMat);
   DeleteVector(ev);
@@ -366,30 +366,30 @@ void vtkPCAAnalysisFilter::GetParameterisedShape(vtkFloatArray *b, vtkPointSet* 
   int i,j;
 
   for(i=0;i<numBlocks;i++)
-    {
+  {
     output =
       vtkPointSet::SafeDownCast(mbOutput->GetBlock(i));
     if (output)
-      {
+    {
       break;
-      }
     }
+  }
 
   if (!output)
-    {
+  {
     vtkErrorMacro(<<"No valid output block was found.");
     return;
-    }
+  }
 
   const int bsize = b->GetNumberOfTuples();
 
   const int n = output->GetNumberOfPoints();
 
   if(shape->GetNumberOfPoints() != n)
-    {
+  {
     vtkErrorMacro(<<"Input shape does not have the correct number of points");
     return;
-    }
+  }
 
   double *shapevec = NewVector(n*3);
 
@@ -429,20 +429,20 @@ void vtkPCAAnalysisFilter::GetShapeParameters(vtkPointSet *shape, vtkFloatArray 
   int i,j;
 
   for(i=0;i<numBlocks;i++)
-    {
+  {
     output =
       vtkPointSet::SafeDownCast(mbOutput->GetBlock(i));
     if (output)
-      {
+    {
       break;
-      }
     }
+  }
 
   if (!output)
-    {
+  {
     vtkErrorMacro(<<"No valid output block was found.");
     return;
-    }
+  }
 
   // Local variant of b for fast access.
   double *bloc = NewVector(bsize);
@@ -450,44 +450,44 @@ void vtkPCAAnalysisFilter::GetShapeParameters(vtkPointSet *shape, vtkFloatArray 
   const int n = output->GetNumberOfPoints();
 
   if(shape->GetNumberOfPoints() != n)
-    {
+  {
     vtkErrorMacro(<<"Input shape does not have the correct number of points");
     DeleteVector(bloc);
     return;
-    }
+  }
 
   double *shapevec = NewVector(n*3);
 
   // Copy shape and subtract mean shape
   for (i = 0; i < n; i++)
-    {
+  {
     double p[3];
     shape->GetPoint(i, p);
     shapevec[i*3  ] = p[0] - meanshape[i*3];
     shapevec[i*3+1] = p[1] - meanshape[i*3+1];
     shapevec[i*3+2] = p[2] - meanshape[i*3+2];
-    }
+  }
 
   for (i = 0; i < bsize; i++)
-    {
+  {
     bloc[i] = 0;
 
     // Project the shape onto eigenvector i
     for (j = 0; j < n*3; j++)
-      {
+    {
       bloc[i] += shapevec[j] * evecMat2[j][i];
-      }
     }
+  }
 
   // Return b in number of standard deviations
   b->SetNumberOfValues(bsize);
   for (i = 0; i < bsize; i++)
-    {
+  {
     if (this->Evals->GetValue(i))
       b->SetValue(i, bloc[i]/sqrt(this->Evals->GetValue(i)));
     else
       b->SetValue(i, 0);
-    }
+  }
 
   DeleteVector(shapevec);
   DeleteVector(bloc);
@@ -510,19 +510,19 @@ int vtkPCAAnalysisFilter::GetModesRequiredFor(double proportion)
 
   double eigen_total = 0.0F;
   for(i=0;i<this->Evals->GetNumberOfTuples();i++)
-    {
+  {
     eigen_total += this->Evals->GetValue(i);
-    }
+  }
 
   double running_total = 0.0F;
   for(i=0;i<this->Evals->GetNumberOfTuples();i++)
-    {
+  {
     running_total += this->Evals->GetValue(i)/eigen_total;
     if(running_total>=proportion)
-      {
+    {
       return i+1;
-      }
     }
+  }
 
   return Evals->GetNumberOfTuples();
 }

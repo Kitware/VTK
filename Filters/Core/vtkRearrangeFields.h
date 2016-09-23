@@ -12,45 +12,48 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkRearrangeFields - Move/copy fields between field data, point data and cell data
-// .SECTION Description
-// vtkRearrangeFields is used to copy/move fields (vtkDataArrays) between
-// data object's field data, point data and cell data. To specify which
-// fields are copied/moved, the user adds operations. There are two types
-// of operations: 1. the type which copies/moves an attribute's data
-// (i.e. the field will be copied but will not be an attribute in the
-// target), 2. the type which copies/moves fields by name. For example:
-// @verbatim
-// rf->AddOperation(vtkRearrangeFields::COPY, "foo",
-//                  vtkRearrangeFields::DATA_OBJECT,
-//                  vtkRearrangeFields::POINT_DATA);
-// @endverbatim
-// adds an operation which copies a field (data array) called foo from
-// the data object's field data to point data.
-// From Tcl, the same operation can be added as follows:
-// @verbatim
-// rf AddOperation COPY foo DATA_OBJECT POINT_DATA
-// @endverbatim
-// The same can be done using Python and Java bindings by passing
-// strings as arguments.
-// @verbatim
-// Operation types: COPY, MOVE
-// AttributeTypes: SCALARS, VECTORS, NORMALS, TCOORDS, TENSORS
-// Field data locations: DATA_OBJECT, POINT_DATA, CELL_DATA
-// @endverbatim
-
-// .SECTION Caveats
-// When using Tcl, Java, Python or Visual Basic bindings, the array name
-// can not be one of the  AttributeTypes when calling AddOperation() which
-// takes strings as arguments. The Tcl (Java etc.) command will
-// always assume the string corresponds to an attribute type when
-// the argument is one of the AttributeTypes. In this situation,
-// use the AddOperation() which takes enums.
-
-// .SECTION See Also
-// vtkFieldData vtkDataSet vtkDataObjectToDataSetFilter
-// vtkDataSetAttributes vtkDataArray vtkAssignAttribute
-// vtkSplitField vtkMergeFields
+/**
+ * @class   vtkRearrangeFields
+ * @brief   Move/copy fields between field data, point data and cell data
+ *
+ * vtkRearrangeFields is used to copy/move fields (vtkDataArrays) between
+ * data object's field data, point data and cell data. To specify which
+ * fields are copied/moved, the user adds operations. There are two types
+ * of operations: 1. the type which copies/moves an attribute's data
+ * (i.e. the field will be copied but will not be an attribute in the
+ * target), 2. the type which copies/moves fields by name. For example:
+ * @verbatim
+ * rf->AddOperation(vtkRearrangeFields::COPY, "foo",
+ *                  vtkRearrangeFields::DATA_OBJECT,
+ *                  vtkRearrangeFields::POINT_DATA);
+ * @endverbatim
+ * adds an operation which copies a field (data array) called foo from
+ * the data object's field data to point data.
+ * From Tcl, the same operation can be added as follows:
+ * @verbatim
+ * rf AddOperation COPY foo DATA_OBJECT POINT_DATA
+ * @endverbatim
+ * The same can be done using Python and Java bindings by passing
+ * strings as arguments.
+ * @verbatim
+ * Operation types: COPY, MOVE
+ * AttributeTypes: SCALARS, VECTORS, NORMALS, TCOORDS, TENSORS
+ * Field data locations: DATA_OBJECT, POINT_DATA, CELL_DATA
+ * @endverbatim
+ *
+ * @warning
+ * When using Tcl, Java, Python or Visual Basic bindings, the array name
+ * can not be one of the  AttributeTypes when calling AddOperation() which
+ * takes strings as arguments. The Tcl (Java etc.) command will
+ * always assume the string corresponds to an attribute type when
+ * the argument is one of the AttributeTypes. In this situation,
+ * use the AddOperation() which takes enums.
+ *
+ * @sa
+ * vtkFieldData vtkDataSet vtkDataObjectToDataSetFilter
+ * vtkDataSetAttributes vtkDataArray vtkAssignAttribute
+ * vtkSplitField vtkMergeFields
+*/
 
 #ifndef vtkRearrangeFields_h
 #define vtkRearrangeFields_h
@@ -68,8 +71,9 @@ public:
   vtkTypeMacro(vtkRearrangeFields,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Create a new vtkRearrangeFields with an empty operation list.
+  /**
+   * Create a new vtkRearrangeFields with an empty operation list.
+   */
   static vtkRearrangeFields *New();
 
   enum OperationType
@@ -84,52 +88,62 @@ public:
     CELL_DATA=2
   };
 
-  // Description:
-  // Add an operation which copies an attribute's field (data array) from
-  // one field data to another. Returns an operation id which can later
-  // be used to remove the operation.
+  /**
+   * Add an operation which copies an attribute's field (data array) from
+   * one field data to another. Returns an operation id which can later
+   * be used to remove the operation.
+   */
   int AddOperation(int operationType, int attributeType, int fromFieldLoc,
                    int toFieldLoc);
-  // Description:
-  // Add an operation which copies a field (data array) from one field
-  // data to another. Returns an operation id which can later
-  // be used to remove the operation.
+  /**
+   * Add an operation which copies a field (data array) from one field
+   * data to another. Returns an operation id which can later
+   * be used to remove the operation.
+   */
   int AddOperation(int operationType, const char* name, int fromFieldLoc,
                    int toFieldLoc);
-  // Description:
-  // Helper method used by other language bindings. Allows the caller to
-  // specify arguments as strings instead of enums.Returns an operation id
-  // which can later be used to remove the operation.
+  /**
+   * Helper method used by other language bindings. Allows the caller to
+   * specify arguments as strings instead of enums.Returns an operation id
+   * which can later be used to remove the operation.
+   */
   int AddOperation(const char* operationType, const char* attributeType,
                    const char* fromFieldLoc,  const char* toFieldLoc);
 
-  // Description:
-  // Remove an operation with the given id.
+  /**
+   * Remove an operation with the given id.
+   */
   int RemoveOperation(int operationId);
-  // Description:
-  // Remove an operation with the given signature. See AddOperation
-  // for details.
+  /**
+   * Remove an operation with the given signature. See AddOperation
+   * for details.
+   */
   int RemoveOperation(int operationType, int attributeType, int fromFieldLoc,
                       int toFieldLoc);
-  // Description:
-  // Remove an operation with the given signature. See AddOperation
-  // for details.
+  /**
+   * Remove an operation with the given signature. See AddOperation
+   * for details.
+   */
   int RemoveOperation(int operationType, const char* name, int fromFieldLoc,
                       int toFieldLoc);
-  // Description:
-  // Remove an operation with the given signature. See AddOperation
-  // for details.
+  /**
+   * Remove an operation with the given signature. See AddOperation
+   * for details.
+   */
   int RemoveOperation(const char* operationType, const char* attributeType,
                       const char* fromFieldLoc,  const char* toFieldLoc);
 
-  // Description:
-  // Remove all operations.
+  //@{
+  /**
+   * Remove all operations.
+   */
   void RemoveAllOperations()
-    {
+  {
     this->Modified();
     this->LastId = 0;
     this->DeleteAllOperations();
-    }
+  }
+  //@}
 
   enum FieldType
   {

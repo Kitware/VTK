@@ -22,17 +22,17 @@
   { \
   std::string expectedMsg(msg); \
   if (!observer->GetError()) \
-    { \
+  { \
     std::cout << "ERROR: Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
-    } \
+  } \
   else \
-    { \
+  { \
     std::string gotMsg(observer->GetErrorMessage()); \
     if (gotMsg.find(expectedMsg) == std::string::npos) \
-      { \
+    { \
       std::cout << "ERROR: Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-      } \
     } \
+  } \
   } \
   observer->Clear()
 
@@ -40,11 +40,11 @@ int TestXMLReaderBadData(int argc, char* argv[])
 {
   // Verify input arguments
   if(argc < 2)
-    {
+  {
     std::cout << "Usage: " << argv[0]
               << " Filename" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   std::string inputFilename = argv[1];
 

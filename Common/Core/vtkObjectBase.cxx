@@ -26,22 +26,22 @@ class vtkObjectBaseToGarbageCollectorFriendship
 {
 public:
   static int GiveReference(vtkObjectBase* obj)
-    {
+  {
     return vtkGarbageCollector::GiveReference(obj);
-    }
+  }
   static int TakeReference(vtkObjectBase* obj)
-    {
+  {
     return vtkGarbageCollector::TakeReference(obj);
-    }
+  }
 };
 
 class vtkObjectBaseToWeakPointerBaseFriendship
 {
 public:
   static void ClearPointer(vtkWeakPointerBase *p)
-    {
+  {
     p->Object = NULL;
-    }
+  }
 };
 
 // avoid dll boundary problems
@@ -89,9 +89,9 @@ vtkObjectBase::~vtkObjectBase()
   // warn user if reference counting is on and the object is being referenced
   // by another object
   if ( this->ReferenceCount > 0)
-    {
+  {
     vtkGenericWarningMacro(<< "Trying to delete object with non-zero reference count.");
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -115,9 +115,9 @@ const char* vtkObjectBase::GetClassName() const
 vtkTypeBool vtkObjectBase::IsTypeOf(const char *name)
 {
   if ( !strcmp("vtkObjectBase",name) )
-    {
+  {
     return 1;
-    }
+  }
   return 0;
 }
 
@@ -197,9 +197,9 @@ void vtkObjectBase::RegisterInternal(vtkObjectBase*, vtkTypeBool check)
   // count.
   if(!(check &&
        vtkObjectBaseToGarbageCollectorFriendship::TakeReference(this)))
-    {
+  {
     this->ReferenceCount++;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -209,36 +209,36 @@ void vtkObjectBase::UnRegisterInternal(vtkObjectBase*, vtkTypeBool check)
   // the count.
   if(check && this->ReferenceCount > 1 &&
      vtkObjectBaseToGarbageCollectorFriendship::GiveReference(this))
-    {
+  {
     return;
-    }
+  }
 
   // Decrement the reference count, delete object if count goes to zero.
   if(--this->ReferenceCount <= 0)
-    {
+  {
     // Clear all weak pointers to the object before deleting it.
     if (this->WeakPointers)
-      {
+    {
       vtkWeakPointerBase **p = this->WeakPointers;
       while (*p)
-        {
+      {
         vtkObjectBaseToWeakPointerBaseFriendship::ClearPointer(*p++);
-        }
-      delete [] this->WeakPointers;
       }
+      delete [] this->WeakPointers;
+    }
 #ifdef VTK_DEBUG_LEAKS
     vtkDebugLeaks::DestructClass(this->GetClassName());
 #endif
     delete this;
-    }
+  }
   else if(check)
-    {
+  {
     // The garbage collector did not accept the reference, but the
     // object still exists and is participating in garbage collection.
     // This means either that delayed garbage collection is disabled
     // or the collector has decided it is time to do a check.
     vtkGarbageCollector::Collect(this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

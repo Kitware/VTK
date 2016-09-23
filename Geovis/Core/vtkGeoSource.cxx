@@ -80,25 +80,25 @@ vtkGeoSource::~vtkGeoSource()
 void vtkGeoSource::Initialize(int numThreads)
 {
   if(this->Initialized)
-    {
+  {
     return;
-    }
+  }
 
   int maxThreads = this->Threader->GetGlobalDefaultNumberOfThreads();
   maxThreads = numThreads < maxThreads ? numThreads : maxThreads;
 
   for(int i = 0; i < maxThreads; ++i)
-    {
+  {
     this->Implementation->ThreadIds.push_back(
       this->Threader->SpawnThread(vtkGeoSourceThreadStart, this));
-    }
+  }
   this->Initialized = true;
 }
 
 void vtkGeoSource::ShutDown()
 {
   if (this->Implementation->ThreadIds.size() > 0)
-    {
+  {
     this->Lock->Lock();
     this->StopThread = true;
     this->Condition->Broadcast();
@@ -108,12 +108,12 @@ void vtkGeoSource::ShutDown()
     for(iter = this->Implementation->ThreadIds.begin();
         iter != this->Implementation->ThreadIds.end();
         ++iter)
-      {
+    {
       this->Threader->TerminateThread(*iter);
-      }
+    }
     this->Implementation->ThreadIds.clear();
     this->Implementation->OutputMap.clear();
-    }
+  }
   this->Initialized = false;
 }
 
@@ -123,14 +123,14 @@ vtkCollection* vtkGeoSource::GetRequestedNodes(vtkGeoTreeNode* node)
   this->OutputSetLock->Lock();
   std::pair<unsigned long, int> p(node->GetId(), node->GetLevel());
   if (this->Implementation->OutputMap.count(p) > 0)
-    {
+  {
     c = this->Implementation->OutputMap[p];
     if (c)
-      {
+    {
       c->Register(0);
       this->Implementation->OutputMap[p] = 0;
-      }
     }
+  }
   this->OutputSetLock->Unlock();
 
   return c;
@@ -139,10 +139,10 @@ vtkCollection* vtkGeoSource::GetRequestedNodes(vtkGeoTreeNode* node)
 void vtkGeoSource::RequestChildren(vtkGeoTreeNode* node)
 {
   if(!this->Initialized)
-    {
+  {
     vtkErrorMacro("Call Initialize() first in order to spawn worker threads.");
     return;
-    }
+  }
 
   this->InputSetLock->Lock();
   this->InputSet->AddItem(node);
@@ -158,15 +158,15 @@ void vtkGeoSource::WorkerThread()
 {
   bool isTerrainNode = false;
   while (true)
-    {
+  {
     this->Lock->Lock();
 
     if (this->StopThread)
-      {
+    {
 
       this->Lock->Unlock();
       return;
-      }
+    }
 
     this->Lock->Unlock();
 
@@ -174,7 +174,7 @@ void vtkGeoSource::WorkerThread()
 
     // Try to find something to work on.
     if (this->InputSet->GetNumberOfItems() > 0)
-      {
+    {
       // Move from input set to processing set
       vtkGeoTreeNode* node = vtkGeoTreeNode::SafeDownCast(this->InputSet->GetItemAsObject(0));
       node->Register(this);
@@ -185,30 +185,30 @@ void vtkGeoSource::WorkerThread()
       vtkGeoTreeNode* child[4];
       isTerrainNode = vtkGeoTerrainNode::SafeDownCast(node) != NULL ? true : false;
       if (isTerrainNode)
-        {
+      {
         for (int i = 0; i < 4; ++i)
-          {
+        {
           child[i] = vtkGeoTerrainNode::New();
-          }
         }
+      }
       else
-        {
+      {
         for (int i = 0; i < 4; ++i)
-          {
+        {
           child[i] = vtkGeoImageNode::New();
-          }
         }
+      }
 
       // Fetch the children
       bool success = true;
       for (int i = 0; i < 4; ++i)
-        {
+      {
         if (!this->FetchChild(node, i, child[i]))
-          {
+        {
           success = false;
           break;
-          }
         }
+      }
 
       // Move from processing set to output
       this->OutputSetLock->Lock();
@@ -216,12 +216,12 @@ void vtkGeoSource::WorkerThread()
       this->Implementation->OutputMap[p] =
         vtkSmartPointer<vtkCollection>::New();
       if (success)
-        {
+      {
         for (int i = 0; i < 4; ++i)
-          {
+        {
           this->Implementation->OutputMap[p]->AddItem(child[i]);
-          }
         }
+      }
       this->OutputSetLock->Unlock();
 
 
@@ -229,12 +229,12 @@ void vtkGeoSource::WorkerThread()
       node = NULL;
 
       for (int i = 0; i < 4; ++i)
-        {
-        child[i]->Delete();
-        }
-      }
-    else
       {
+        child[i]->Delete();
+      }
+    }
+    else
+    {
 
       this->InputSetLock->Unlock();
 
@@ -244,7 +244,7 @@ void vtkGeoSource::WorkerThread()
       this->Condition->Wait( this->Lock );
 
       this->Lock->Unlock();
-      }
     }
+  }
 }
 

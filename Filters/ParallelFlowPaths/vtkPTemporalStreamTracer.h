@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTemporalStreamTracer - A Parallel Particle tracer for unsteady vector fields
-// .SECTION Description
-// vtkTemporalStreamTracer is a filter that integrates a vector field to generate
-//
-//
-// .SECTION See Also
-// vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver
-// vtkRungeKutta2 vtkRungeKutta4 vtkRungeKutta45 vtkStreamTracer
+/**
+ * @class   vtkTemporalStreamTracer
+ * @brief   A Parallel Particle tracer for unsteady vector fields
+ *
+ * vtkTemporalStreamTracer is a filter that integrates a vector field to generate
+ *
+ *
+ * @sa
+ * vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver
+ * vtkRungeKutta2 vtkRungeKutta4 vtkRungeKutta45 vtkStreamTracer
+*/
 
 #ifndef vtkPTemporalStreamTracer_h
 #define vtkPTemporalStreamTracer_h
@@ -54,15 +57,19 @@ public:
     vtkTypeMacro(vtkPTemporalStreamTracer,vtkTemporalStreamTracer);
     void PrintSelf(ostream& os, vtkIndent indent);
 
-    // Description:
-    // Construct object using 2nd order Runge Kutta
+    /**
+     * Construct object using 2nd order Runge Kutta
+     */
     static vtkPTemporalStreamTracer *New();
 
-    // Description:
-    // Set/Get the controller used when sending particles between processes
-    // The controller must be an instance of vtkMPIController.
+    //@{
+    /**
+     * Set/Get the controller used when sending particles between processes
+     * The controller must be an instance of vtkMPIController.
+     */
     virtual void SetController(vtkMultiProcessController* controller);
     vtkGetObjectMacro(Controller, vtkMultiProcessController);
+    //@}
 
   protected:
 
@@ -80,25 +87,28 @@ public:
 
 //
 
-    // Description : Before starting the particle trace, classify
-    // all the injection/seed points according to which processor
-    // they belong to. This saves us retesting at every injection time
-    // providing 1) The volumes are static, 2) the seed points are static
-    // If either are non static, then this step is skipped.
+    /**
+     * all the injection/seed points according to which processor
+     * they belong to. This saves us retesting at every injection time
+     * providing 1) The volumes are static, 2) the seed points are static
+     * If either are non static, then this step is skipped.
+     */
     virtual void AssignSeedsToProcessors(
       vtkDataSet *source, int sourceID, int ptId,
       vtkTemporalStreamTracerNamespace::ParticleVector &LocalSeedPoints,
       int &LocalAssignedCount);
 
-    // Description : once seeds have been assigned to a process, we
-    // give each one a uniqu ID. We need to use MPI to find out
-    // who is using which numbers.
+    /**
+     * give each one a uniqu ID. We need to use MPI to find out
+     * who is using which numbers.
+     */
     virtual void AssignUniqueIds(
       vtkTemporalStreamTracerNamespace::ParticleVector &LocalSeedPoints);
 
-    // Description : Perform a GatherV operation on a vector of particles
-    // this is used during classification of seed points and also between iterations
-    // of the main loop as particles leave each processor domain
+    /**
+     * this is used during classification of seed points and also between iterations
+     * of the main loop as particles leave each processor domain
+     */
     virtual void TransmitReceiveParticles(
       vtkTemporalStreamTracerNamespace::ParticleVector &outofdomain,
       vtkTemporalStreamTracerNamespace::ParticleVector &received,

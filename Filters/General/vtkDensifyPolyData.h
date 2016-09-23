@@ -13,19 +13,22 @@
 
 =========================================================================*/
 
-// .NAME vtkDensifyPolyData - Densify the input by adding points at the
-// centroid
-//
-// .SECTION Description
-// The filter takes any polygonal data as input and will tessellate cells that
-// are planar polygons present by fanning out triangles from its centroid.
-// Other cells are simply passed through to the output.  PointData, if present,
-// is interpolated via linear interpolation. CellData for any tessellated cell
-// is simply copied over from its parent cell. Planar polygons are assumed to
-// be convex. Funny things will happen if they are not.
-//
-// The number of subdivisions can be controlled by the parameter
-// NumberOfSubdivisions.
+/**
+ * @class   vtkDensifyPolyData
+ * @brief   Densify the input by adding points at the
+ * centroid
+ *
+ *
+ * The filter takes any polygonal data as input and will tessellate cells that
+ * are planar polygons present by fanning out triangles from its centroid.
+ * Other cells are simply passed through to the output.  PointData, if present,
+ * is interpolated via linear interpolation. CellData for any tessellated cell
+ * is simply copied over from its parent cell. Planar polygons are assumed to
+ * be convex. Funny things will happen if they are not.
+ *
+ * The number of subdivisions can be controlled by the parameter
+ * NumberOfSubdivisions.
+*/
 
 #ifndef vtkDensifyPolyData_h
 #define vtkDensifyPolyData_h
@@ -40,10 +43,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkDensifyPolyData *New();
 
-  // Description:
-  // Number of recursive subdivisions. Initial value is 1.
+  //@{
+  /**
+   * Number of recursive subdivisions. Initial value is 1.
+   */
   vtkSetMacro( NumberOfSubdivisions, unsigned int );
   vtkGetMacro( NumberOfSubdivisions, unsigned int );
+  //@}
 
 protected:
   vtkDensifyPolyData();

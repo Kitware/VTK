@@ -76,9 +76,9 @@ int X3DTest( int argc, char *argv[] )
   int retVal = vtkRegressionTestImage( renWin );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
   // Clean up
   exporter->Delete();
   renderer->Delete();

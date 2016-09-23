@@ -12,16 +12,19 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkRectilinearGridPartitioner.h -- Partitions a rectilinear grid by RCB
-//
-// .SECTION Description
-//  A concrete implementation of vtkMultiBlockDataSetAlgorithm that provides
-//  functionality for partitioning a VTK rectilinear dataset. The partitioning
-//  methd used is Recursive Coordinate Bisection (RCB) where each time the
-//  longest dimension is split.
-//
-// .SECTION See Also
-//  vtkUniformGridPartitioner vtkStructuredGridPartitioner
+/**
+ * @class   vtkRectilinearGridPartitioner
+ *
+ *
+ *  A concrete implementation of vtkMultiBlockDataSetAlgorithm that provides
+ *  functionality for partitioning a VTK rectilinear dataset. The partitioning
+ *  methd used is Recursive Coordinate Bisection (RCB) where each time the
+ *  longest dimension is split.
+ *
+ * @sa
+ *  vtkUniformGridPartitioner vtkStructuredGridPartitioner
+*/
+
 #ifndef vtkRectilinearGridPartitioner_h
 #define vtkRectilinearGridPartitioner_h
 
@@ -42,27 +45,35 @@ public:
   vtkTypeMacro(vtkRectilinearGridPartitioner, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream &oss, vtkIndent indent);
 
-  // Description:
-  // Set/Get macro for the number of subdivisions.
+  //@{
+  /**
+   * Set/Get macro for the number of subdivisions.
+   */
   vtkGetMacro(NumberOfPartitions,int);
   vtkSetMacro(NumberOfPartitions,int);
+  //@}
 
-  // Description:
-  // Set/Get macro for the number of ghost layers.
+  //@{
+  /**
+   * Set/Get macro for the number of ghost layers.
+   */
   vtkGetMacro(NumberOfGhostLayers,int);
   vtkSetMacro(NumberOfGhostLayers,int);
+  //@}
 
-  // Description:
+  //@{
   vtkGetMacro(DuplicateNodes,int);
   vtkSetMacro(DuplicateNodes,int);
   vtkBooleanMacro(DuplicateNodes,int);
+  //@}
 
 protected:
   vtkRectilinearGridPartitioner();
   virtual ~vtkRectilinearGridPartitioner();
 
-  // Description:
-  // Extracts the coordinates
+  /**
+   * Extracts the coordinates
+   */
   void ExtractGridCoordinates(
       vtkRectilinearGrid *grd, int subext[6],
       vtkDoubleArray *xcoords,

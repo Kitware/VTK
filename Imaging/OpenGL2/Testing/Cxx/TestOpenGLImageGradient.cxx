@@ -87,13 +87,13 @@ int TestOpenGLImageGradient(int argc, char *argv[])
   point[imageMapper->GetOrientation()] += 500.0;
   camera->SetPosition(point);
   if (imageMapper->GetOrientation() == 2)
-    {
+  {
     camera->SetViewUp(0.0, 1.0, 0.0);
-    }
+  }
   else
-    {
+  {
     camera->SetViewUp(0.0, 0.0, -1.0);
-    }
+  }
   camera->ParallelProjectionOn();
   camera->SetParallelScale(0.8*128);
 
@@ -103,9 +103,9 @@ int TestOpenGLImageGradient(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage( renWin.Get() );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

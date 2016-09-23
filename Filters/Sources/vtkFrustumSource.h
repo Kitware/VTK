@@ -12,19 +12,22 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkFrustumSource - create a polygonal representation of a frustum
-// .SECTION Description
-// vtkFrustumSource creates a frustum defines by a set of planes. The frustum
-// is represented with four-sided polygons. It is possible to specify extra
-// lines to better visualize the field of view.
-//
-// .SECTION Usage
-// Typical use consists of 3 steps:
-// 1. get the planes coefficients from a vtkCamera with
-// vtkCamera::GetFrustumPlanes()
-// 2. initialize the planes with vtkPlanes::SetFrustumPlanes() with the planes
-// coefficients
-// 3. pass the vtkPlanes to a vtkFrustumSource.
+/**
+ * @class   vtkFrustumSource
+ * @brief   create a polygonal representation of a frustum
+ *
+ * vtkFrustumSource creates a frustum defines by a set of planes. The frustum
+ * is represented with four-sided polygons. It is possible to specify extra
+ * lines to better visualize the field of view.
+ *
+ * @par Usage:
+ * Typical use consists of 3 steps:
+ * 1. get the planes coefficients from a vtkCamera with
+ * vtkCamera::GetFrustumPlanes()
+ * 2. initialize the planes with vtkPlanes::SetFrustumPlanes() with the planes
+ * coefficients
+ * 3. pass the vtkPlanes to a vtkFrustumSource.
+*/
 
 #ifndef vtkFrustumSource_h
 #define vtkFrustumSource_h
@@ -40,44 +43,59 @@ public:
   vtkTypeMacro(vtkFrustumSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Return the 6 planes defining the frustum. Initial value is NULL.
-  // The 6 planes are defined in this order: left,right,bottom,top,far,near.
-  // If Planes==NULL or if Planes->GetNumberOfPlanes()!=6 when RequestData()
-  // is called, an error message will be emitted and RequestData() will
-  // return right away.
+  //@{
+  /**
+   * Return the 6 planes defining the frustum. Initial value is NULL.
+   * The 6 planes are defined in this order: left,right,bottom,top,far,near.
+   * If Planes==NULL or if Planes->GetNumberOfPlanes()!=6 when RequestData()
+   * is called, an error message will be emitted and RequestData() will
+   * return right away.
+   */
   vtkGetObjectMacro(Planes,vtkPlanes);
+  //@}
 
-  // Description:
-  // Set the 6 planes defining the frustum.
+  /**
+   * Set the 6 planes defining the frustum.
+   */
   virtual void SetPlanes(vtkPlanes *planes);
 
-  // Description:
-  // Tells if some extra lines will be generated. Initial value is true.
+  //@{
+  /**
+   * Tells if some extra lines will be generated. Initial value is true.
+   */
   vtkGetMacro(ShowLines,bool);
   vtkSetMacro(ShowLines,bool);
   vtkBooleanMacro(ShowLines,bool);
+  //@}
 
-  // Description:
-  // Length of the extra lines. This a stricly positive value.
-  // Initial value is 1.0.
+  //@{
+  /**
+   * Length of the extra lines. This a stricly positive value.
+   * Initial value is 1.0.
+   */
   vtkGetMacro(LinesLength,double);
   vtkSetMacro(LinesLength,double);
+  //@}
 
-  // Description:
-  // Modified GetMTime because of Planes.
+  /**
+   * Modified GetMTime because of Planes.
+   */
   vtkMTimeType GetMTime();
 
-  // Description:
-  // Set/get the desired precision for the output points.
-  // vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
-  // vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+  //@{
+  /**
+   * Set/get the desired precision for the output points.
+   * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
+   * vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+   */
   vtkSetMacro(OutputPointsPrecision,int);
   vtkGetMacro(OutputPointsPrecision,int);
+  //@}
 
 protected:
-  // Description:
-  // Default construtor. Planes=NULL. ShowLines=true. LinesLength=1.0.
+  /**
+   * Default construtor. Planes=NULL. ShowLines=true. LinesLength=1.0.
+   */
   vtkFrustumSource();
 
   virtual ~vtkFrustumSource();
@@ -86,8 +104,9 @@ protected:
                           vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector);
 
-  // Description:
-  // Compute the intersection of 3 planes.
+  /**
+   * Compute the intersection of 3 planes.
+   */
   void ComputePoint(int planes[3],
                     double *pt);
 

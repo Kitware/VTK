@@ -66,7 +66,7 @@ CreateWidget( vtkRenderWindowInteractor * iren,
   vtkHandleRepresentation *rep = NULL;
 
   if (cameraFacing && shape <= 12)
-    {
+  {
     rep = vtkOrientedPolygonalHandleRepresentation3D::New();
 
     VTK_CREATE( vtkGlyphSource2D, glyphs );
@@ -75,11 +75,11 @@ CreateWidget( vtkRenderWindowInteractor * iren,
     glyphs->Update();
     static_cast<vtkOrientedPolygonalHandleRepresentation3D *>(rep)->
       SetHandle(glyphs->GetOutput());
-    }
+  }
   else
-    {
+  {
     if (shape == 12)
-      {
+    {
       rep = vtkPolygonalHandleRepresentation3D::New();
 
       VTK_CREATE( vtkSphereSource, sphere );
@@ -88,16 +88,16 @@ CreateWidget( vtkRenderWindowInteractor * iren,
       sphere->SetRadius(300.0);
       sphere->Update();
       static_cast<vtkPolygonalHandleRepresentation3D *>(rep)->SetHandle(sphere->GetOutput());
-      }
-
-    if (shape == 13)
-      {
-      rep = vtkPointHandleRepresentation3D::New();
-      }
     }
 
-  if (constrainedToSurface)
+    if (shape == 13)
     {
+      rep = vtkPointHandleRepresentation3D::New();
+    }
+  }
+
+  if (constrainedToSurface)
+  {
     VTK_CREATE( vtkPolygonalSurfacePointPlacer, pointPlacer );
     pointPlacer->AddProp(demActor);
     pointPlacer->GetPolys()->AddItem( demPolys );
@@ -108,7 +108,7 @@ CreateWidget( vtkRenderWindowInteractor * iren,
     // the placement of handles. Lets not over-constrain it allowing axis
     // constrained interactions.
     widget->EnableAxisConstraintOff();
-    }
+  }
 
   double xyz[3] = {x, y, z};
   rep->SetWorldPosition( xyz );
@@ -123,25 +123,25 @@ CreateWidget( vtkRenderWindowInteractor * iren,
 
   if (vtkAbstractPolygonalHandleRepresentation3D *arep =
       vtkAbstractPolygonalHandleRepresentation3D::SafeDownCast(rep))
-    {
+  {
     arep->GetProperty()->SetColor( color );
     arep->GetProperty()->SetLineWidth(1.0);
     arep->GetSelectedProperty()->SetColor( selectedColor );
 
     if (label)
-      {
+    {
       arep->SetLabelVisibility(1);
       arep->SetLabelText(label);
-      }
     }
+  }
 
   if (vtkPointHandleRepresentation3D *prep =
       vtkPointHandleRepresentation3D::SafeDownCast(rep))
-    {
+  {
     prep->GetProperty()->SetColor( color );
     prep->GetProperty()->SetLineWidth(1.0);
     prep->GetSelectedProperty()->SetColor( selectedColor );
-    }
+  }
 
 
   rep->Delete();
@@ -153,12 +153,12 @@ CreateWidget( vtkRenderWindowInteractor * iren,
 int TestPolygonalHandleRepresentations(int argc, char*argv[])
 {
   if (argc < 2)
-    {
+  {
     std::cerr
       << "Demonstrates various polyonal handle representations in a scene."
       << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Read height field.
   char* fname =
@@ -274,9 +274,9 @@ int TestPolygonalHandleRepresentations(int argc, char*argv[])
   iren->Initialize();
 
   for (unsigned int i = 0; i < 14; i++)
-    {
+  {
     widget[i]->EnabledOn();
-    }
+  }
 
   renWin->Render();
 

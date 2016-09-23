@@ -34,15 +34,15 @@ template <typename TIds> void vtkStaticCellLinksTemplate<TIds>::
 Initialize()
 {
   if ( this->Links )
-    {
+  {
     delete [] this->Links;
     this->Links = NULL;
-    }
+  }
   if ( this->Offsets )
-    {
+  {
     delete [] this->Offsets;
     this->Offsets = NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -53,14 +53,14 @@ BuildLinks(vtkDataSet *ds)
 {
   // Use a fast path if polydata or unstructured grid
   if ( ds->GetDataObjectType() == VTK_POLY_DATA )
-    {
+  {
     return this->BuildLinks(static_cast<vtkPolyData*>(ds));
-    }
+  }
 
   else if ( ds->GetDataObjectType() == VTK_UNSTRUCTURED_GRID )
-    {
+  {
     return this->BuildLinks(static_cast<vtkUnstructuredGrid*>(ds));
-    }
+  }
 
   // Any other type of dataset. Generally this is not called as datasets have
   // their own, more efficient ways of getting similar information.
@@ -78,41 +78,41 @@ BuildLinks(vtkDataSet *ds)
   std::fill_n(this->Offsets, this->NumPts, 0);
 
   for (this->LinksSize=0, cellId=0; cellId < this->NumCells; cellId++)
-    {
+  {
     ds->GetCellPoints(cellId,cellPts);
     npts = cellPts->GetNumberOfIds();
     for (j=0; j < npts; j++)
-      {
+    {
       this->Offsets[cellPts->GetId(j)]++;
       this->LinksSize++;
-      }
     }
+  }
 
   // Allocate space for links. Perform prefix sum.
   this->Links = new TIds[this->LinksSize+1];
   this->Links[this->LinksSize] = this->NumPts;
 
   for ( ptId=0; ptId < this->NumPts; ++ptId )
-    {
+  {
     npts = this->Offsets[ptId+1];
     this->Offsets[ptId+1] = this->Offsets[ptId] + npts;
-    }
+  }
 
   // Now build the links. The summation from the prefix sum indicates where
   // the cells are to be inserted. Each time a cell is inserted, the offset
   // is decremented. In the end, the offset array is also constructed as it
   // points to the beginning of each cell run.
   for ( cellId=0; cellId < this->NumCells; ++cellId )
-    {
+  {
     ds->GetCellPoints(cellId,cellPts);
     npts = cellPts->GetNumberOfIds();
     for (j=0; j<npts; ++j)
-      {
+    {
       ptId = cellPts->GetId(j);
       this->Offsets[ptId]--;
       this->Links[this->Offsets[ptId]] = cellId;
-      }
     }
+  }
   this->Offsets[this->NumPts] = this->LinksSize;
 
   cellPts->Delete();
@@ -149,34 +149,34 @@ BuildLinks(vtkUnstructuredGrid *ugrid)
 
   // Count number of point uses
   for ( cellId=0; cellId < this->NumCells; ++cellId )
-    {
+  {
     npts = *cell++;
     for (i=0; i<npts; ++i)
-      {
+    {
       this->Offsets[*cell++]++;
-      }
     }
+  }
 
   // Perform prefix sum
   for ( ptId=0; ptId < this->NumPts; ++ptId )
-    {
+  {
     npts = this->Offsets[ptId+1];
     this->Offsets[ptId+1] = this->Offsets[ptId] + npts;
-    }
+  }
 
   // Now build the links. The summation from the prefix sum indicates where
   // the cells are to be inserted. Each time a cell is inserted, the offset
   // is decremented. In the end, the offset array is also constructed as it
   // points to the beginning of each cell run.
   for ( cell=cells, cellId=0; cellId < this->NumCells; ++cellId )
-    {
+  {
     npts = *cell++;
     for (i=0; i<npts; ++i)
-      {
+    {
       this->Offsets[*cell]--;
       this->Links[this->Offsets[*cell++]] = cellId;
-      }
     }
+  }
   this->Offsets[this->NumPts] = this->LinksSize;
 }
 
@@ -201,18 +201,18 @@ BuildLinks(vtkPolyData *pd)
   cellArrays[3] = pd->GetStrips();
 
   for (i=0; i<4; ++i)
-    {
+  {
     if ( cellArrays[i] != NULL )
-      {
+    {
       numCells[i] = cellArrays[i]->GetNumberOfCells();
       sizes[i] = cellArrays[i]->GetNumberOfConnectivityEntries() - numCells[i];
-      }
+    }
     else
-      {
+    {
       numCells[i] = 0;
       sizes[i] = 0;
-      }
-    }//for the four polydata arrays
+    }
+  }//for the four polydata arrays
 
   // Allocate
   this->LinksSize = sizes[0] + sizes[1] + sizes[2] + sizes[3];
@@ -228,45 +228,45 @@ BuildLinks(vtkPolyData *pd)
 
   // Visit the four arrays
   for ( CellId=0, j=0; j < 4; ++j )
-    {
+  {
     // Count number of point uses
     cell = cellArrays[j]->GetPointer();
     for ( cellId=0; cellId < numCells[j]; ++cellId )
-      {
+    {
       npts = *cell++;
       for (i=0; i<npts; ++i)
-        {
+      {
         this->Offsets[CellId+(*cell++)]++;
-        }
       }
+    }
     CellId += numCells[j];
-    } //for each of the four polydata cell arrays
+  } //for each of the four polydata cell arrays
 
   // Perform prefix sum
   for ( ptId=0; ptId < this->NumPts; ++ptId )
-    {
+  {
     npts = this->Offsets[ptId+1];
     this->Offsets[ptId+1] = this->Offsets[ptId] + npts;
-    }
+  }
 
   // Now build the links. The summation from the prefix sum indicates where
   // the cells are to be inserted. Each time a cell is inserted, the offset
   // is decremented. In the end, the offset array is also constructed as it
   // points to the beginning of each cell run.
   for ( CellId=0, j=0; j < 4; ++j )
-    {
+  {
     cell = cellArrays[j]->GetPointer();
     for ( cellId=0; cellId < numCells[j]; ++cellId )
-      {
+    {
       npts = *cell++;
       for (i=0; i<npts; ++i)
-        {
+      {
         this->Offsets[*cell]--;
         this->Links[this->Offsets[*cell++]] = CellId+cellId;
-        }
       }
+    }
     CellId += numCells[j];
-    }//for each of the four polydata arrays
+  }//for each of the four polydata arrays
   this->Offsets[this->NumPts] = this->LinksSize;
 }
 

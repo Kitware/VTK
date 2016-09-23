@@ -12,26 +12,27 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkValuePass
-//
-// .SECTION Description
-// Renders geometry using the values of a field array as fragment colors. The
-// output can be used for deferred color mapping. It supports using arrays of
-// either point or cell data. The target array can be selected by setting an
-// array name/id and a component number. Only opaque geometry is supported.
-//
-// There are two rendering modes available:
-//
-// * INVERTIBLE_LUT  Encodes array values as RGB data and renders the result to
-// the default framebuffer.
-//
-// * FLOATING_POINT  Renders actual array values as floating point data to an
-// internal RGBA32F framebuffer.  This class binds and unbinds the framebuffer
-// on each render pass.
-//
-// .SECTION See Also
-// vtkRenderPass vtkDefaultPass vtkValuePassHelper vtkMapper
-
+/**
+ * @class   vtkValuePass
+ *
+ *
+ * Renders geometry using the values of a field array as fragment colors. The
+ * output can be used for deferred color mapping. It supports using arrays of
+ * either point or cell data. The target array can be selected by setting an
+ * array name/id and a component number. Only opaque geometry is supported.
+ *
+ * There are two rendering modes available:
+ *
+ * * INVERTIBLE_LUT  Encodes array values as RGB data and renders the result to
+ * the default framebuffer.
+ *
+ * * FLOATING_POINT  Renders actual array values as floating point data to an
+ * internal RGBA32F framebuffer.  This class binds and unbinds the framebuffer
+ * on each render pass.
+ *
+ * @sa
+ * vtkRenderPass vtkDefaultPass vtkValuePassHelper vtkMapper
+*/
 
 #ifndef vtkValuePass_h
 #define vtkValuePass_h
@@ -67,8 +68,10 @@ public:
   void SetInputComponentToProcess(int component);
   void SetScalarRange(double min, double max);
 
-  // Description:
-  // Passed down the rendering pipeline to control what data array to draw.
+  //@{
+  /**
+   * Passed down the rendering pipeline to control what data array to draw.
+   */
   static vtkInformationIntegerKey *SCALAR_MODE();
   static vtkInformationIntegerKey *ARRAY_MODE();
   static vtkInformationIntegerKey *ARRAY_ID();
@@ -76,59 +79,72 @@ public:
   static vtkInformationIntegerKey *ARRAY_COMPONENT();
   static vtkInformationDoubleVectorKey *SCALAR_RANGE();
   static vtkInformationIntegerKey *RELOAD_DATA();
+  //@}
 
-  // Description:
-  // Perform rendering according to a render state \p s.
-  // \pre s_exists: s!=0
+  /**
+   * Perform rendering according to a render state \p s.
+   * \pre s_exists: s!=0
+   */
   virtual void Render(const vtkRenderState *s);
 
-  // Description:
-  // Interface to get the rendered image in FLOATING_POINT mode.  Returns a
-  // single component array containing the rendered values.  The returned array
-  // is owned by vtkValuePass so it is intended to be deep copied.
+  /**
+   * Interface to get the rendered image in FLOATING_POINT mode.  Returns a
+   * single component array containing the rendered values.  The returned array
+   * is owned by vtkValuePass so it is intended to be deep copied.
+   */
   vtkFloatArray* GetFloatImageDataArray(vtkRenderer* ren);
 
-  // Description:
-  // Interface to get the rendered image in FLOATING_POINT mode.  Low level API,
-  // a format for the internal glReadPixels call can be specified. 'data' is expected
-  // to be allocated and cleaned-up by the caller.
+  /**
+   * Interface to get the rendered image in FLOATING_POINT mode.  Low level API,
+   * a format for the internal glReadPixels call can be specified. 'data' is expected
+   * to be allocated and cleaned-up by the caller.
+   */
   void GetFloatImageData(int const format, int const width, int const height,
     void* data);
 
-  // Description:
-  // Interface to get the rendered image in FLOATING_POINT mode.  Image extents of
-  // the value array.
+  /**
+   * Interface to get the rendered image in FLOATING_POINT mode.  Image extents of
+   * the value array.
+   */
   int* GetFloatImageExtents();
 
  protected:
-  // Description:
-  // Default constructor.
+  /**
+   * Default constructor.
+   */
   vtkValuePass();
 
-  // Description:
-  // Destructor.
+  /**
+   * Destructor.
+   */
   virtual ~vtkValuePass();
 
-  // Description:
-  // Opaque pass with key checking.
-  // \pre s_exists: s!=0
+  /**
+   * Opaque pass with key checking.
+   * \pre s_exists: s!=0
+   */
   virtual void RenderOpaqueGeometry(const vtkRenderState *s);
 
-  // Description:
-  // Manages graphics resources depending on the rendering mode.  Binds internal
-  // FBO when FLOATING_POINT mode is enabled.
+  /**
+   * Manages graphics resources depending on the rendering mode.  Binds internal
+   * FBO when FLOATING_POINT mode is enabled.
+   */
   void BeginPass(vtkRenderer* ren);
 
-  // Description:
-  // Unbinds internal FBO when FLOATING_POINT mode is enabled.
+  /**
+   * Unbinds internal FBO when FLOATING_POINT mode is enabled.
+   */
   void EndPass();
 
-  // Description:
-  //  Methods managing graphics resources required during FLOATING_POINT mode.
+  //@{
+  /**
+   * Methods managing graphics resources required during FLOATING_POINT mode.
+   */
   bool IsFloatFBOSupported(vtkRenderWindow* renWin);
   bool HasWindowSizeChanged(vtkRenderer* ren);
   bool InitializeFloatingPointMode(vtkRenderer* ren);
   void ReleaseFloatingPointMode(vtkRenderer* ren);
+  //@}
 
 
   class vtkInternals;

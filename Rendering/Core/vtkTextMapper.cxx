@@ -102,14 +102,14 @@ void vtkTextMapper::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if (this->TextProperty)
-    {
+  {
     os << indent << "Text Property:\n";
     this->TextProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Text Property: (none)\n";
-    }
+  }
 
   os << indent << "Input: " << (this->Input ? this->Input : "(none)") << "\n";
 
@@ -135,11 +135,11 @@ void vtkTextMapper::GetSize(vtkViewport *vp, int size[2])
 {
   vtkWindow *win = vp ? vp->GetVTKWindow() : NULL;
   if (!win)
-    {
+  {
     size[0] = size[1] = 0;
     vtkErrorMacro(<<"No render window available: cannot determine DPI.");
     return;
-    }
+  }
 
   this->UpdateImage(win->GetDPI());
   size[0] = this->TextDims[0];
@@ -178,16 +178,16 @@ int vtkTextMapper::SetConstrainedFontSize(vtkTextMapper *tmapper,
 {
   // If target "empty" just return
   if (targetWidth == 0 && targetHeight == 0)
-    {
+  {
     return 0;
-    }
+  }
 
   vtkTextProperty *tprop = tmapper->GetTextProperty();
   if (!tprop)
-    {
+  {
     vtkGenericWarningMacro(<<"Need text property to apply constraint");
     return 0;
-    }
+  }
   int fontSize = tprop->GetFontSize();
 
   // Use the last size as a first guess
@@ -202,32 +202,32 @@ int vtkTextMapper::SetConstrainedFontSize(vtkTextMapper *tmapper,
   // I guess the best optim would be to have a look at the shape of the
   // font size growth curve (probably not that linear)
   if (tempi[0] && tempi[1])
-    {
+  {
     float fx = targetWidth / static_cast<float>(tempi[0]);
     float fy = targetHeight / static_cast<float>(tempi[1]);
     fontSize = static_cast<int>(ceil(fontSize * ((fx <= fy) ? fx : fy)));
     tprop->SetFontSize(fontSize);
     tmapper->GetSize(viewport, tempi);
-    }
+  }
 
   // While the size is too small increase it
   while (tempi[1] <= targetHeight &&
          tempi[0] <= targetWidth &&
          fontSize < 100)
-    {
+  {
     fontSize++;
     tprop->SetFontSize(fontSize);
     tmapper->GetSize(viewport, tempi);
-    }
+  }
 
   // While the size is too large decrease it
   while ((tempi[1] > targetHeight || tempi[0] > targetWidth)
          && fontSize > 0)
-    {
+  {
     fontSize--;
     tprop->SetFontSize(fontSize);
     tmapper->GetSize(viewport, tempi);
-    }
+  }
 
   return fontSize;
 }
@@ -243,9 +243,9 @@ int vtkTextMapper::SetMultipleConstrainedFontSize(vtkViewport *viewport,
   maxResultingSize[0] = maxResultingSize[1] = 0;
 
   if (nbOfMappers == 0)
-    {
+  {
     return 0;
-    }
+  }
 
   int fontSize, aSize;
 
@@ -256,9 +256,9 @@ int vtkTextMapper::SetMultipleConstrainedFontSize(vtkViewport *viewport,
   for (first = 0; first < nbOfMappers && !mappers[first]; first++) {}
 
   if (first >= nbOfMappers)
-    {
+  {
     return 0;
-    }
+  }
 
   fontSize = mappers[first]->SetConstrainedFontSize(
     viewport, targetWidth, targetHeight);
@@ -266,37 +266,37 @@ int vtkTextMapper::SetMultipleConstrainedFontSize(vtkViewport *viewport,
   // Find the constrained font size for the remaining mappers and
   // pick the smallest
   for (i = first + 1; i < nbOfMappers; i++)
-    {
+  {
     if (mappers[i])
-      {
+    {
       mappers[i]->GetTextProperty()->SetFontSize(fontSize);
       aSize = mappers[i]->SetConstrainedFontSize(
         viewport, targetWidth, targetHeight);
       if (aSize < fontSize)
-        {
+      {
         fontSize = aSize;
-        }
       }
     }
+  }
 
   // Assign the smallest size to all text mappers and find the largest area
   int tempi[2];
   for (i = first; i < nbOfMappers; i++)
-    {
+  {
     if (mappers[i])
-      {
+    {
       mappers[i]->GetTextProperty()->SetFontSize(fontSize);
       mappers[i]->GetSize(viewport, tempi);
       if (tempi[0] > maxResultingSize[0])
-        {
+      {
         maxResultingSize[0] = tempi[0];
-        }
+      }
       if (tempi[1] > maxResultingSize[1])
-        {
+      {
         maxResultingSize[1] = tempi[1];
-        }
       }
     }
+  }
 
   // The above code could be optimized further since the mappers
   // labels are likely to have the same height: in that case, we could
@@ -360,50 +360,50 @@ void vtkTextMapper::RenderOverlay(vtkViewport *viewport, vtkActor2D *actor)
   // This is neccessary for GL2PS exports when this actor/mapper are part of an
   // composite actor/mapper.
   if (!actor->GetVisibility())
-    {
+  {
     return;
-    }
+  }
 
   vtkDebugMacro(<<"RenderOverlay called");
 
   vtkRenderer *ren = NULL;
   if (this->Input && this->Input[0])
-    {
+  {
     vtkWindow *win = viewport->GetVTKWindow();
     if (!win)
-      {
+    {
       vtkErrorMacro(<<"No render window available: cannot determine DPI.");
       return;
-      }
+    }
 
     this->UpdateImage(win->GetDPI());
     this->UpdateQuad(actor, win->GetDPI());
 
     ren = vtkRenderer::SafeDownCast(viewport);
     if (ren)
-      {
+    {
       vtkDebugMacro(<<"Texture::Render called");
       this->Texture->Render(ren);
       vtkInformation *info = actor->GetPropertyKeys();
       if (!info)
-        {
+      {
         info = vtkInformation::New();
         actor->SetPropertyKeys(info);
         info->Delete();
-        }
+      }
       info->Set(vtkProp::GeneralTextureUnit(),
         this->Texture->GetTextureUnit());
-      }
+    }
 
     vtkDebugMacro(<<"PolyData::RenderOverlay called");
     this->Mapper->RenderOverlay(viewport, actor);
 
     // clean up
     if (ren)
-      {
+    {
       this->Texture->PostRender(ren);
-      }
     }
+  }
 
   vtkDebugMacro(<<"Superclass::RenderOverlay called");
   this->Superclass::RenderOverlay(viewport, actor);
@@ -437,7 +437,7 @@ void vtkTextMapper::UpdateQuad(vtkActor2D *actor, int dpi)
 
   // Update texture coordinates:
   if (this->Image->GetMTime() > this->TCoordsTime)
-    {
+  {
     int dims[3];
     this->Image->GetDimensions(dims);
 
@@ -455,7 +455,7 @@ void vtkTextMapper::UpdateQuad(vtkActor2D *actor, int dpi)
     if (vtkFloatArray *tc =
         vtkArrayDownCast<vtkFloatArray>(
           this->PolyData->GetPointData()->GetTCoords()))
-      {
+    {
       vtkDebugMacro(<<"Setting tcoords: xmin, xmax, ymin, ymax: "
                     << tcXMin << ", " << tcXMax << ", "
                     << tcYMin << ", " << tcYMax);
@@ -473,34 +473,34 @@ void vtkTextMapper::UpdateQuad(vtkActor2D *actor, int dpi)
       tc->InsertNextValue(tcYMin);
 
       this->TCoordsTime.Modified();
-      }
-    else
-      {
-      vtkErrorMacro(<<"Invalid texture coordinate array type.");
-      }
     }
+    else
+    {
+      vtkErrorMacro(<<"Invalid texture coordinate array type.");
+    }
+  }
 
   if (this->CoordsTime < actor->GetMTime() ||
       this->CoordsTime < this->TextProperty->GetMTime() ||
       this->CoordsTime < this->TCoordsTime)
-    {
+  {
     int text_bbox[4];
     vtkTextRenderer *tren = vtkTextRenderer::GetInstance();
     if (tren)
-      {
+    {
       if (!tren->GetBoundingBox(this->TextProperty,
                                 this->Input ? this->Input : std::string(),
                                 text_bbox, dpi))
-        {
-        vtkErrorMacro(<<"Error calculating bounding box.");
-        }
-      }
-    else
       {
+        vtkErrorMacro(<<"Error calculating bounding box.");
+      }
+    }
+    else
+    {
       vtkErrorMacro(<<"Could not locate vtkTextRenderer object.");
       text_bbox[0] = 0;
       text_bbox[2] = 0;
-      }
+    }
     // adjust the quad so that the anchor point and a point with the same
     // coordinates fall on the same pixel.
     double shiftPixel = 1;
@@ -515,7 +515,7 @@ void vtkTextMapper::UpdateQuad(vtkActor2D *actor, int dpi)
     this->Points->InsertNextPoint(x + w - shiftPixel, y + h - shiftPixel, 0.);
     this->Points->InsertNextPoint(x + w - shiftPixel, y - shiftPixel, 0.);
     this->CoordsTime.Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -525,23 +525,23 @@ void vtkTextMapper::UpdateImage(int dpi)
   if (this->MTime > this->Image->GetMTime() ||
       this->RenderedDPI != dpi ||
       this->TextProperty->GetMTime() > this->Image->GetMTime())
-    {
+  {
     vtkTextRenderer *tren = vtkTextRenderer::GetInstance();
     if (tren)
-      {
+    {
       if (!tren->RenderString(this->TextProperty,
                               this->Input ? this->Input : std::string(),
                               this->Image.GetPointer(), this->TextDims, dpi))
-        {
+      {
         vtkErrorMacro(<<"Texture generation failed.");
-        }
+      }
       this->RenderedDPI = dpi;
       vtkDebugMacro(<< "Text rendered to " << this->TextDims[0] << ", "
                     << this->TextDims[1] << " buffer.");
-      }
-    else
-      {
-      vtkErrorMacro(<<"Could not locate vtkTextRenderer object.");
-      }
     }
+    else
+    {
+      vtkErrorMacro(<<"Could not locate vtkTextRenderer object.");
+    }
+  }
 }

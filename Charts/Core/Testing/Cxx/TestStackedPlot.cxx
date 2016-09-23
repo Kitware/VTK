@@ -88,7 +88,7 @@ int TestStackedPlot(int , char * [])
 
   table->SetNumberOfRows(12);
   for (int i = 0; i < 12; i++)
-    {
+  {
     arrMonthLabel->SetValue(i,month_labels[i]);
     arrXTickPositions->SetValue(i,i);
 
@@ -97,7 +97,7 @@ int TestStackedPlot(int , char * [])
     arrPeriodical->SetValue(i,periodical[i]);
     arrAudiobook->SetValue(i,audiobook[i]);
     arrVideo->SetValue(i,video[i]);
-    }
+  }
 
   // Set the Month Labels
   chart->GetAxis(1)->SetCustomTickPositions(arrXTickPositions.GetPointer(),

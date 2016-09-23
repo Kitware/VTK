@@ -12,21 +12,24 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractSelectedThresholds - extract a cells or points from a
-// dataset that have values within a set of thresholds.
-
-// .SECTION Description
-// vtkExtractSelectedThresholds extracts all cells and points with attribute
-// values that lie within a vtkSelection's THRESHOLD contents. The selecion
-// can specify to threshold a particular array within either the point or cell
-// attribute data of the input. This is similar to vtkThreshold
-// but allows mutliple thresholds ranges.
-// This filter adds a scalar array called vtkOriginalCellIds that says what
-// input cell produced each output cell. This is an example of a Pedigree ID
-// which helps to trace back results.
-
-// .SECTION See Also
-// vtkSelection vtkExtractSelection vtkThreshold
+/**
+ * @class   vtkExtractSelectedThresholds
+ * @brief   extract a cells or points from a
+ * dataset that have values within a set of thresholds.
+ *
+ *
+ * vtkExtractSelectedThresholds extracts all cells and points with attribute
+ * values that lie within a vtkSelection's THRESHOLD contents. The selecion
+ * can specify to threshold a particular array within either the point or cell
+ * attribute data of the input. This is similar to vtkThreshold
+ * but allows mutliple thresholds ranges.
+ * This filter adds a scalar array called vtkOriginalCellIds that says what
+ * input cell produced each output cell. This is an example of a Pedigree ID
+ * which helps to trace back results.
+ *
+ * @sa
+ * vtkSelection vtkExtractSelection vtkThreshold
+*/
 
 #ifndef vtkExtractSelectedThresholds_h
 #define vtkExtractSelectedThresholds_h
@@ -45,47 +48,52 @@ public:
   vtkTypeMacro(vtkExtractSelectedThresholds, vtkExtractSelectionBase);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Constructor
+  /**
+   * Constructor
+   */
   static vtkExtractSelectedThresholds *New();
 
-  // Description:
-  // Function for determining whether a value in a data array passes
-  // the threshold test(s) provided in lims.  Returns 1 if the value
-  // passes at least one of the threshold tests.
-  // If \c scalars is NULL, then the id itself is used as the scalar value.
+  /**
+   * Function for determining whether a value in a data array passes
+   * the threshold test(s) provided in lims.  Returns 1 if the value
+   * passes at least one of the threshold tests.
+   * If \c scalars is NULL, then the id itself is used as the scalar value.
+   */
   static int EvaluateValue(vtkDataArray *scalars,
     vtkIdType id, vtkDataArray *lims)
-    {
+  {
     return vtkExtractSelectedThresholds::EvaluateValue(scalars, 0, id, lims);
-    }
+  }
 
-  // Description:
-  // Same as the other EvaluateValue except that the component to be compared
-  // can be picked using array_component_no (use -1 for magnitude).
-  // If \c scalars is NULL, then the id itself is used as the scalar value.
+  /**
+   * Same as the other EvaluateValue except that the component to be compared
+   * can be picked using array_component_no (use -1 for magnitude).
+   * If \c scalars is NULL, then the id itself is used as the scalar value.
+   */
   static int EvaluateValue(vtkDataArray *array,
     int array_component_no,
     vtkIdType id, vtkDataArray *lims);
 
-  // Description:
-  // Function for determining whether a value in a data array passes
-  // the threshold test(s) provided in lims.  Returns 1 if the value
-  // passes at least one of the threshold tests.  Also returns in
-  // AboveCount, BelowCount and InsideCount the number of tests where
-  // the value was above, below or inside the interval.
-  // If \c scalars is NULL, then the id itself is used as the scalar value.
+  /**
+   * Function for determining whether a value in a data array passes
+   * the threshold test(s) provided in lims.  Returns 1 if the value
+   * passes at least one of the threshold tests.  Also returns in
+   * AboveCount, BelowCount and InsideCount the number of tests where
+   * the value was above, below or inside the interval.
+   * If \c scalars is NULL, then the id itself is used as the scalar value.
+   */
   static int EvaluateValue(vtkDataArray *scalars, vtkIdType id,
     vtkDataArray *lims, int *AboveCount, int *BelowCount, int *InsideCount)
-    {
+  {
     return vtkExtractSelectedThresholds::EvaluateValue(scalars, 0,
       id, lims, AboveCount, BelowCount, InsideCount);
-    }
+  }
 
-  // Description:
-  // Same as the other EvaluateValue except that the component to be compared
-  // can be picked using array_component_no (use -1 for magnitude).
-  // If \c scalars is NULL, then the id itself is used as the scalar value.
+  /**
+   * Same as the other EvaluateValue except that the component to be compared
+   * can be picked using array_component_no (use -1 for magnitude).
+   * If \c scalars is NULL, then the id itself is used as the scalar value.
+   */
   static int EvaluateValue(vtkDataArray *scalars,
     int array_component_no,
     vtkIdType id,

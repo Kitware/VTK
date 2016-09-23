@@ -82,15 +82,15 @@ int vtkSphereSource::RequestData(
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
   if (numPieces > this->ThetaResolution)
-    {
+  {
     numPieces = this->ThetaResolution;
-    }
+  }
   if (piece >= numPieces)
-    {
+  {
     // Although the super class should take care of this,
     // it cannot hurt to check here.
     return 1;
-    }
+  }
 
   // I want to modify the ivars resoultion start theta and end theta,
   // so I will make local copies of them.  THese might be able to be merged
@@ -100,9 +100,9 @@ int vtkSphereSource::RequestData(
   double localEndTheta = this->EndTheta;
 
   while (localEndTheta < localStartTheta)
-    {
+  {
     localEndTheta += 360.0;
-    }
+  }
   deltaTheta = (localEndTheta - localStartTheta) / localThetaResolution;
 
   // Change the ivars based on pieces.
@@ -126,13 +126,13 @@ int vtkSphereSource::RequestData(
 
   // Set the desired precision for the points in the output.
   if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     newPoints->SetDataType(VTK_DOUBLE);
-    }
+  }
   else
-    {
+  {
     newPoints->SetDataType(VTK_FLOAT);
-    }
+  }
 
   newPoints->Allocate(numPts);
   newNormals = vtkFloatArray::New();
@@ -147,7 +147,7 @@ int vtkSphereSource::RequestData(
   //
   // Create north pole if needed
   if ( this->StartPhi <= 0.0 )
-    {
+  {
     x[0] = this->Center[0];
     x[1] = this->Center[1];
     x[2] = this->Center[2] + this->Radius;
@@ -156,11 +156,11 @@ int vtkSphereSource::RequestData(
     x[0] = x[1] = 0.0; x[2] = 1.0;
     newNormals->InsertTuple(numPoles,x);
     numPoles++;
-    }
+  }
 
   // Create south pole if needed
   if ( this->EndPhi >= 180.0 )
-    {
+  {
     x[0] = this->Center[0];
     x[1] = this->Center[1];
     x[2] = this->Center[2] - this->Radius;
@@ -169,7 +169,7 @@ int vtkSphereSource::RequestData(
     x[0] = x[1] = 0.0; x[2] = -1.0;
     newNormals->InsertTuple(numPoles,x);
     numPoles++;
-    }
+  }
 
   // Check data, determine increments, and convert to radians
   startTheta = (localStartTheta < localEndTheta ? localStartTheta : localEndTheta);
@@ -186,9 +186,9 @@ int vtkSphereSource::RequestData(
   deltaPhi = (endPhi - startPhi) / (this->PhiResolution - 1);
   thetaResolution = localThetaResolution;
   if (fabs(localStartTheta - localEndTheta) < 360.0)
-    {
+  {
     ++localThetaResolution;
-    }
+  }
   deltaTheta = (endTheta - startTheta) / thetaResolution;
 
   jStart = (this->StartPhi <= 0.0 ? 1 : 0);
@@ -199,11 +199,11 @@ int vtkSphereSource::RequestData(
 
   // Create intermediate points
   for (i=0; i < localThetaResolution; i++)
-    {
+  {
     theta = localStartTheta * vtkMath::Pi() / 180.0 + i*deltaTheta;
 
     for (j=jStart; j<jEnd; j++)
-      {
+    {
       phi = startPhi + j*deltaPhi;
       radius = this->Radius * sin((double)phi);
       n[0] = radius * cos((double)theta);
@@ -215,71 +215,71 @@ int vtkSphereSource::RequestData(
       newPoints->InsertNextPoint(x);
 
       if ( (norm = vtkMath::Norm(n)) == 0.0 )
-        {
+      {
         norm = 1.0;
-        }
+      }
       n[0] /= norm; n[1] /= norm; n[2] /= norm;
       newNormals->InsertNextTuple(n);
-      }
-    this->UpdateProgress (0.10 + 0.50*i/static_cast<float>(localThetaResolution));
     }
+    this->UpdateProgress (0.10 + 0.50*i/static_cast<float>(localThetaResolution));
+  }
 
   // Generate mesh connectivity
   base = phiResolution * localThetaResolution;
 
   if (fabs(localStartTheta - localEndTheta) < 360.0)
-    {
+  {
     --localThetaResolution;
-    }
+  }
 
   if ( this->StartPhi <= 0.0 )  // around north pole
-    {
+  {
     for (i=0; i < localThetaResolution; i++)
-      {
+    {
       pts[0] = phiResolution*i + numPoles;
       pts[1] = (phiResolution*(i+1) % base) + numPoles;
       pts[2] = 0;
       newPolys->InsertNextCell(3, pts);
-      }
     }
+  }
 
   if ( this->EndPhi >= 180.0 ) // around south pole
-    {
+  {
     numOffset = phiResolution - 1 + numPoles;
 
     for (i=0; i < localThetaResolution; i++)
-      {
+    {
       pts[0] = phiResolution*i + numOffset;
       pts[2] = ((phiResolution*(i+1)) % base) + numOffset;
       pts[1] = numPoles - 1;
       newPolys->InsertNextCell(3, pts);
-      }
     }
+  }
   this->UpdateProgress (0.70);
 
   // bands in-between poles
   for (i=0; i < localThetaResolution; i++)
-    {
+  {
     for (j=0; j < (phiResolution-1); j++)
-      {
+    {
       pts[0] = phiResolution*i + j + numPoles;
       pts[1] = pts[0] + 1;
       pts[2] = ((phiResolution*(i+1)+j) % base) + numPoles + 1;
       if ( !this->LatLongTessellation )
-        {
+      {
         newPolys->InsertNextCell(3, pts);
         pts[1] = pts[2];
         pts[2] = pts[1] - 1;
         newPolys->InsertNextCell(3, pts);
-        }
+      }
       else
-        {
+      {
         pts[3] = pts[2] - 1;
         newPolys->InsertNextCell(4, pts);
-        }
       }
-    this->UpdateProgress (0.70 + 0.30*i/static_cast<double>(localThetaResolution));
     }
+    this->UpdateProgress (0.70 + 0.30*i/static_cast<double>(localThetaResolution));
+  }
 
   // Update ourselves and release memeory
   //

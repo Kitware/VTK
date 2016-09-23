@@ -60,11 +60,11 @@ static vtkInformationUnsignedLongKey *TestUnsignedLongKey =
 bool stringEqual(const std::string &expect, const std::string &actual)
 {
   if (expect != actual)
-    {
+  {
     std::cerr << "Strings do not match! Expected: '" << expect << "', got: '"
               << actual << "'.\n";
     return false;
-    }
+  }
   return true;
 }
 
@@ -77,11 +77,11 @@ template <typename T>
 bool compareValues(const std::string &desc, T expect, T actual)
 {
   if (expect != actual)
-    {
+  {
     std::cerr << "Failed comparison for '" << desc << "'. Expected '" << expect
               << "', got '" << actual << "'.\n";
     return false;
-    }
+  }
   return true;
 }
 
@@ -90,18 +90,18 @@ bool verify(vtkUnstructuredGrid *grid)
   vtkDataArray *array = grid->GetPoints()->GetData();
   vtkInformation *info = array->GetInformation();
   if (!info)
-    {
+  {
     std::cerr << "Missing information object!\n";
     return false;
-    }
+  }
 
   if (!stringEqual("X coordinates", array->GetComponentName(0)) ||
       !stringEqual("Y coordinates", array->GetComponentName(1)) ||
       !stringEqual("Z coordinates", array->GetComponentName(2)))
 
-    {
+  {
     return false;
-    }
+  }
 
   if (!compareValues("double key", 1., info->Get(TestDoubleKey)) ||
       !compareValues("double vector key length", 3, info->Length(TestDoubleVectorKey)) ||
@@ -120,22 +120,22 @@ bool verify(vtkUnstructuredGrid *grid)
       !stringEqual("Second (with whitespace!)", info->Get(TestStringVectorKey, 1)) ||
       !stringEqual("Third (with\nnewline!)", info->Get(TestStringVectorKey, 2)) ||
       !compareValues("unsigned long key", 9ul, info->Get(TestUnsignedLongKey)))
-    {
+  {
     return false;
-    }
+  }
 
   array = grid->GetCellData()->GetArray("vtkGhostType");
   info = array->GetInformation();
   if (!info)
-    {
+  {
     std::cerr << "Missing information object!\n";
     return false;
-    }
+  }
   if (!stringEqual("Ghost level information", array->GetComponentName(0)) ||
       !stringEqual("N/A", info->Get(vtkDataArray::UNITS_LABEL())))
-    {
+  {
     return false;
-    }
+  }
 
   return true;
 }
@@ -187,10 +187,10 @@ int TestLegacyArrayMetaData(int argc, char *argv[])
 
   // Check that the input grid passes our test:
   if (!verify(grid))
-    {
+  {
     std::cerr << "Sanity check failed.\n";
     return EXIT_FAILURE;
-    }
+  }
 
   // Now roundtrip the dataset through the readers/writers:
   vtkNew<vtkUnstructuredGridWriter> testWriter;
@@ -203,42 +203,42 @@ int TestLegacyArrayMetaData(int argc, char *argv[])
   // Test ASCII mode:
   testWriter->SetFileTypeToASCII();
   if (!testWriter->Write())
-    {
+  {
     std::cerr << "Write failed!" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   testReader->SetInputString(testWriter->GetOutputStdString());
   testReader->Update();
   grid = testReader->GetOutput();
 
   if (!verify(grid))
-    {
+  {
     std::cerr << "ASCII mode test failed.\n"
               << "Error while parsing:\n"
               << testWriter->GetOutputStdString() << "\n";
     return EXIT_FAILURE;
-    }
+  }
 
   // Test binary mode:
   testWriter->SetFileTypeToBinary();
   if (!testWriter->Write())
-    {
+  {
     std::cerr << "Write failed!" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   testReader->SetInputString(testWriter->GetOutputStdString());
   testReader->Update();
   grid = testReader->GetOutput();
 
   if (!verify(grid))
-    {
+  {
     std::cerr << "Binary mode test failed.\n"
               << "Error while parsing:\n"
               << testWriter->GetOutputStdString() << "\n";
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

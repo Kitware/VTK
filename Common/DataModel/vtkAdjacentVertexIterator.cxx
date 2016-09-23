@@ -38,9 +38,9 @@ vtkAdjacentVertexIterator::vtkAdjacentVertexIterator()
 vtkAdjacentVertexIterator::~vtkAdjacentVertexIterator()
 {
   if (this->Graph)
-    {
+  {
     this->Graph->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -59,8 +59,8 @@ void vtkAdjacentVertexIterator::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Graph: " << (this->Graph ? "" : "(null)") << endl;
   if (this->Graph)
-    {
+  {
     this->Graph->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   os << indent << "Vertex: " << this->Vertex << endl;
 }

@@ -67,27 +67,27 @@ int vtkUnstructuredGridBaseAlgorithm::ProcessRequest(vtkInformation* request,
 {
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
+  {
     return this->RequestData(request, inputVector, outputVector);
-    }
+  }
 
   // create the output
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
-    {
+  {
     return this->RequestDataObject(request, inputVector, outputVector);
-    }
+  }
 
   // set update extent
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
-    {
+  {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
-    }
+  }
 
   // execute information
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
+  {
     return this->RequestInformation(request, inputVector, outputVector);
-    }
+  }
 
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
@@ -128,14 +128,14 @@ int vtkUnstructuredGridBaseAlgorithm::RequestUpdateExtent(
 {
   int numInputPorts = this->GetNumberOfInputPorts();
   for (int i=0; i<numInputPorts; i++)
-    {
+  {
     int numInputConnections = this->GetNumberOfInputConnections(i);
     for (int j=0; j<numInputConnections; j++)
-      {
+    {
       vtkInformation* inputInfo = inputVector[i]->GetInformationObject(j);
       inputInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
-      }
     }
+  }
   return 1;
 }
 
@@ -157,30 +157,30 @@ int vtkUnstructuredGridBaseAlgorithm::RequestDataObject(
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (!inInfo)
-    {
+  {
     return 0;
-    }
+  }
   vtkUnstructuredGridBase *input = vtkUnstructuredGridBase::SafeDownCast(
         inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (input)
-    {
+  {
     // for each output
     for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
-      {
+    {
       vtkInformation* info = outputVector->GetInformationObject(i);
       vtkUnstructuredGridBase *output = vtkUnstructuredGridBase::SafeDownCast(
             info->Get(vtkDataObject::DATA_OBJECT()));
 
       if (!output || !output->IsA(input->GetClassName()))
-        {
+      {
         vtkUnstructuredGridBase* newOutput = input->NewInstance();
         info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
         newOutput->Delete();
-        }
       }
-    return 1;
     }
+    return 1;
+  }
   return 0;
 }
 

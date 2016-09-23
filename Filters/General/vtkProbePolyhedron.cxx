@@ -59,9 +59,9 @@ void vtkProbePolyhedron::SetSourceData(vtkPolyData *input)
 vtkPolyData *vtkProbePolyhedron::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
-    {
+  {
     return NULL;
-    }
+  }
 
   return vtkPolyData::SafeDownCast(
     this->GetExecutive()->GetInputData(1, 0));
@@ -87,19 +87,19 @@ int vtkProbePolyhedron::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (!source)
-    {
+  {
     return 0;
-    }
+  }
 
   // Make sure that the mesh consists of triangles. Bail out if not.
   vtkIdType numPolys = source->GetNumberOfPolys();
   vtkCellArray *srcPolys = source->GetPolys();
 
   if ( !numPolys || !srcPolys )
-    {
+  {
     vtkErrorMacro("Probe polyhedron filter requires a non-empty mesh");
     return 0;
-    }
+  }
 
   // Set up attribute interpolation. The input structure is passed to the
   // output.
@@ -127,63 +127,63 @@ int vtkProbePolyhedron::RequestData(
   vtkIdList *srcIds = vtkIdList::New();
   srcIds->SetNumberOfIds(numSrcPts);
   for (ptId=0; ptId < numSrcPts; ++ptId)
-    {
+  {
     srcIds->SetId(ptId,ptId);
-    }
+  }
 
   // Interpolate the point data (if requested)
   double x[3];
   int abort=0;
   vtkIdType idx=0, progressInterval=(numInputCells+numInputPts)/10 + 1;
   if ( this->ProbePointData )
-    {
+  {
     for (ptId=0; ptId < numInputPts && !abort; ++ptId, ++idx)
-      {
+    {
       if ( ! (idx % progressInterval) )
-        {
+      {
         vtkDebugMacro(<<"Processing #" << idx);
         this->UpdateProgress(static_cast<double>(idx)/(numInputCells+numInputPts));
         abort = this->GetAbortExecute();
-        }
+      }
 
       input->GetPoint(ptId, x);
       vtkMeanValueCoordinatesInterpolator::
         ComputeInterpolationWeights(x,srcPts,srcPolys,wPtr);
 
       outPD->InterpolatePoint(srcPD, ptId, srcIds, wPtr);
-      }
     }
+  }
 
   // Interpolate the cell data (if requested)
   // Compute point value at the cell's parametric center.
   if ( this->ProbeCellData )
-    {
+  {
     vtkCell *cell;
     int subId;
     double pcoords[3];
     x[0] = x[1] = x[2] = 0.0;
 
     for (cellId=0; cellId < numInputCells && !abort; ++cellId,++idx)
-      {
+    {
       if ( ! (idx % progressInterval) )
-        {
+      {
         vtkDebugMacro(<<"Processing #" << idx);
         this->UpdateProgress(static_cast<double>(idx)/(numInputCells+numInputPts));
         abort = this->GetAbortExecute();
-        }
+      }
 
       cell = input->GetCell(cellId);
       if (cell->GetCellType() != VTK_EMPTY_CELL)
-        {
+      {
         subId = cell->GetParametricCenter(pcoords);
         cell->EvaluateLocation(subId, pcoords, x, wPtr);
-        }
+      }
       vtkMeanValueCoordinatesInterpolator::
         ComputeInterpolationWeights(x,srcPts,srcPolys,wPtr);
 
       outCD->InterpolatePoint(srcPD, cellId, srcIds, wPtr);
-      }
     }
+  }
 
   // clean up
   srcIds->Delete();
@@ -234,14 +234,14 @@ int vtkProbePolyhedron::RequestUpdateExtent(
   if (output &&
       (!strcmp(output->GetClassName(), "vtkUnstructuredGrid") ||
        !strcmp(output->GetClassName(), "vtkPolyData")))
-    {
+  {
     usePiece = 1;
-    }
+  }
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
 
   if (usePiece)
-    {
+  {
     inInfo->Set(
       vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
@@ -251,13 +251,13 @@ int vtkProbePolyhedron::RequestUpdateExtent(
     inInfo->Set(
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
-    }
+  }
   else
-    {
+  {
     inInfo->Set(
       vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()), 6);
-    }
+  }
 
   return 1;
 }

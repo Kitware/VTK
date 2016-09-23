@@ -12,12 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageFourierFilter - Superclass that implements complex numbers.
-// .SECTION Description
-// vtkImageFourierFilter is a class of filters that use complex numbers
-// this superclass is a container for methods that manipulate these structure
-// including fast Fourier transforms.  Complex numbers may become a class.
-// This should really be a helper class.
+/**
+ * @class   vtkImageFourierFilter
+ * @brief   Superclass that implements complex numbers.
+ *
+ * vtkImageFourierFilter is a class of filters that use complex numbers
+ * this superclass is a container for methods that manipulate these structure
+ * including fast Fourier transforms.  Complex numbers may become a class.
+ * This should really be a helper class.
+*/
+
 #ifndef vtkImageFourierFilter_h
 #define vtkImageFourierFilter_h
 
@@ -33,7 +37,7 @@
 typedef struct{
     double Real;
     double Imag;
-  } vtkImageComplex;
+} vtkImageComplex;
 
 
 #define vtkImageComplexEuclidSet(C, R, I) \
@@ -89,17 +93,19 @@ public:
 
   // public for templated functions of this object
 
-  // Description:
-  // This function calculates the whole fft of an array.
-  // The contents of the input array are changed.
-  // (It is engineered for no decimation)
+  /**
+   * This function calculates the whole fft of an array.
+   * The contents of the input array are changed.
+   * (It is engineered for no decimation)
+   */
   void ExecuteFft(vtkImageComplex *in, vtkImageComplex *out, int N);
 
 
-  // Description:
-  // This function calculates the whole fft of an array.
-  // The contents of the input array are changed.
-  // (It is engineered for no decimation)
+  /**
+   * This function calculates the whole fft of an array.
+   * The contents of the input array are changed.
+   * (It is engineered for no decimation)
+   */
   void ExecuteRfft(vtkImageComplex *in, vtkImageComplex *out, int N);
 
 protected:
@@ -113,8 +119,9 @@ protected:
   void ExecuteFftForwardBackward(vtkImageComplex *in, vtkImageComplex *out,
                                  int N, int fb);
 
-  // Description:
-  // Override to change extent splitting rules.
+  /**
+   * Override to change extent splitting rules.
+   */
   int RequestData(vtkInformation* request,
                   vtkInformationVector** inputVector,
                   vtkInformationVector* outputVector);

@@ -101,16 +101,16 @@ void vtkQtAnnotationView::slotQtSelectionChanged(const QItemSelection& vtkNotUse
   QModelIndexList qmi = this->View->selectionModel()->selectedRows();
   vtkAnnotationLayers* curLayers = this->GetRepresentation()->GetAnnotationLink()->GetAnnotationLayers();
   for(unsigned int i=0; i<curLayers->GetNumberOfAnnotations(); ++i)
-    {
+  {
     vtkAnnotation* a = curLayers->GetAnnotation(i);
     vtkAnnotation::ENABLE()->Set(a->GetInformation(),0);
-    }
+  }
 
   for(int j=0; j<qmi.count(); ++j)
-    {
+  {
     vtkAnnotation* a = curLayers->GetAnnotation(qmi[j].row());
     vtkAnnotation::ENABLE()->Set(a->GetInformation(),1);
-    }
+  }
 
   //vtkSmartPointer<vtkAnnotationLayers> annotations;
   //annotations.TakeReference(this->Adapter->QModelIndexListToVTKAnnotationLayers(qmi));
@@ -130,21 +130,21 @@ void vtkQtAnnotationView::Update()
 {
   vtkDataRepresentation* rep = this->GetRepresentation();
   if (!rep)
-    {
+  {
     this->Adapter->reset();
     this->View->update();
     return;
-    }
+  }
 
   // Make sure the input connection is up to date.
   vtkDataObject *a = rep->GetAnnotationLink()->GetAnnotationLayers();
   if (a->GetMTime() != this->LastInputMTime)
-    {
+  {
     this->LastInputMTime = a->GetMTime();
 
     this->Adapter->SetVTKDataObject(0);
     this->Adapter->SetVTKDataObject(a);
-    }
+  }
 
   this->View->update();
 

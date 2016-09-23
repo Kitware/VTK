@@ -131,14 +131,14 @@ LRESULT PASCAL vtkWin32VideoSourceCapControlProc(HWND hwndC, int nState)
   vtkWin32VideoSource *self = (vtkWin32VideoSource *)(capGetUserData(hwndC));
 
   if (nState == CONTROLCALLBACK_PREROLL)
-    {
+  {
     //cerr << "controlcallback preroll\n";
     self->SetStartTimeStamp(vtkTimerLog::GetUniversalTime());
-    }
+  }
   else if (nState == CONTROLCALLBACK_CAPTURING)
-    {
+  {
     //cerr << "controlcallback capturing\n";
-    }
+  }
 
   return TRUE;
 }
@@ -161,14 +161,14 @@ LRESULT PASCAL vtkWin32VideoSourceStatusCallbackProc(HWND vtkNotUsed(hwndC),
   //vtkWin32VideoSource *self = (vtkWin32VideoSource *)(capGetUserData(hwndC));
 
   if (nID == IDS_CAP_BEGIN)
-    {
+  {
     //cerr << "start of capture\n";
-    }
+  }
 
   if (nID == IDS_CAP_END)
-    {
+  {
     //cerr << "end of capture\n";
-    }
+  }
 
   return 1;
 }
@@ -179,12 +179,12 @@ LRESULT PASCAL vtkWin32VideoSourceErrorCallbackProc(HWND hwndC,
                                                     LPSTR lpErrorText)
 {
   if (ErrID)
-    {
+  {
     char buff[84];
     sprintf(buff,"Error# %d",ErrID);
     MessageBox(hwndC,lpErrorText, buff, MB_OK | MB_ICONEXCLAMATION);
     //vtkGenericWarningMacro(<< buff << ' ' << lpErrorText);
-    }
+  }
   return 1;
 }
 
@@ -194,9 +194,9 @@ void vtkWin32VideoSource::Initialize()
   int i;
 
   if (this->Initialized)
-    {
+  {
     return;
-    }
+  }
 
   // Preliminary update of frame buffer, just in case we don't get
   // though the initialization but need the framebuffer for Updates
@@ -224,29 +224,29 @@ void vtkWin32VideoSource::Initialize()
   wc.cbWndExtra = 0;
 
   for (i = 1; i <= 10; i++)
-    {
+  {
     if (RegisterClass(&wc))
-      {
+    {
       break;
-      }
+    }
     // try again with a slightly different name
     sprintf(this->WndClassName,"VTKVideo %d",i);
-    }
+  }
 
   if (i > 10)
-    {
+  {
     vtkErrorMacro(<< "Initialize: failed to register VTKVideo class"\
                     << " (" << GetLastError() << ")");
     return;
-    }
+  }
 
   DWORD style = WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|
                 WS_CLIPCHILDREN|WS_CLIPSIBLINGS;
 
   if (this->Preview)
-    {
+  {
     style |= WS_VISIBLE;
-    }
+  }
 
   // set up the parent window, but don't show it
   RECT r;
@@ -256,10 +256,10 @@ void vtkWin32VideoSource::Initialize()
   r.bottom = this->FrameSize[1];
   BOOL result = AdjustWindowRect(&r, style, FALSE);
   if (!result)
-    {
+  {
     vtkWarningMacro("Initialize: AdjustWindowRect failed, error: "
       << GetLastError());
-    }
+  }
 
   this->Internal->ParentWnd = CreateWindow(
                 this->WndClassName,
@@ -274,11 +274,11 @@ void vtkWin32VideoSource::Initialize()
                 NULL);
 
   if (!this->Internal->ParentWnd)
-    {
+  {
     vtkErrorMacro(<< "Initialize: failed to create window"\
                     << " (" << GetLastError() << ")");
     return;
-    }
+  }
 
   // set the user data to 'this'
   vtkSetWindowLong(this->Internal->ParentWnd,vtkGWL_USERDATA,(vtkLONG)this);
@@ -290,21 +290,21 @@ void vtkWin32VideoSource::Initialize()
                       this->Internal->ParentWnd,1);
 
   if (!this->Internal->CapWnd)
-    {
+  {
     vtkErrorMacro(<< "Initialize: failed to create capture window"\
                     << " (" << GetLastError() << ")");
     this->ReleaseSystemResources();
     return;
-    }
+  }
 
   // connect to the driver
   if (!capDriverConnect(this->Internal->CapWnd,0))
-    {
+  {
     vtkErrorMacro(<< "Initialize: couldn't connect to driver"\
                     << " (" << GetLastError() << ")");
     this->ReleaseSystemResources();
     return;
-    }
+  }
 
   capDriverGetCaps(this->Internal->CapWnd,&this->Internal->CapDriverCaps,sizeof(CAPDRIVERCAPS));
 
@@ -315,14 +315,14 @@ void vtkWin32VideoSource::Initialize()
   capCaptureGetSetup(this->Internal->CapWnd,&this->Internal->CaptureParms,sizeof(CAPTUREPARMS));
 
   if (this->FrameRate > 0)
-    {
+  {
     this->Internal->CaptureParms.dwRequestMicroSecPerFrame =
                                     int(1000000/this->FrameRate);
-    }
+  }
   else
-    {
+  {
     this->Internal->CaptureParms.dwRequestMicroSecPerFrame = 0;
-    }
+  }
 
   this->Internal->CaptureParms.fMakeUserHitOKToCapture = FALSE;
   this->Internal->CaptureParms.fYield = 1;
@@ -338,68 +338,68 @@ void vtkWin32VideoSource::Initialize()
 
   if (!capCaptureSetSetup(this->Internal->CapWnd,&this->Internal->CaptureParms,
                             sizeof(CAPTUREPARMS)))
-    {
+  {
     vtkErrorMacro(<< "Initialize: setup of capture parameters failed"\
                     << " (" << GetLastError() << ")");
     this->ReleaseSystemResources();
     return;
-    }
+  }
 
   // set user data for callbacks
   if (!capSetUserData(this->Internal->CapWnd,this))
-    {
+  {
     vtkErrorMacro(<< "Initialize: couldn't set user data for callback"\
                     << " (" << GetLastError() << ")");
     this->ReleaseSystemResources();
     return;
-    }
+  }
 
   // install the callback to precisely time beginning of grab
   if (!capSetCallbackOnCapControl(this->Internal->CapWnd,
                                   &vtkWin32VideoSourceCapControlProc))
-    {
+  {
     vtkErrorMacro(<< "Initialize: couldn't set control callback"\
                     << " (" << GetLastError() << ")");
     this->ReleaseSystemResources();
     return;
-    }
+  }
 
   // install the callback to copy frames into the buffer on sync grabs
   if (!capSetCallbackOnFrame(this->Internal->CapWnd,
                              &vtkWin32VideoSourceCallbackProc))
-    {
+  {
     vtkErrorMacro(<< "Initialize: couldn't set frame callback"\
                     << " (" << GetLastError() << ")");
     this->ReleaseSystemResources();
     return;
-    }
+  }
   // install the callback to copy frames into the buffer on stream grabs
   if (!capSetCallbackOnVideoStream(this->Internal->CapWnd,
                                    &vtkWin32VideoSourceCallbackProc))
-    {
+  {
     vtkErrorMacro(<< "Initialize: couldn't set stream callback"\
                     << " (" << GetLastError() << ")");
     this->ReleaseSystemResources();
     return;
-    }
+  }
   // install the callback to get info on start/end of streaming
   if (!capSetCallbackOnStatus(this->Internal->CapWnd,
                              &vtkWin32VideoSourceStatusCallbackProc))
-    {
+  {
     vtkErrorMacro(<< "Initialize: couldn't set status callback"\
                     << " (" << GetLastError() << ")");
     this->ReleaseSystemResources();
     return;
-    }
+  }
   // install the callback to send messages to user
   if (!capSetCallbackOnError(this->Internal->CapWnd,
                              &vtkWin32VideoSourceErrorCallbackProc))
-    {
+  {
     vtkErrorMacro(<< "Initialize: couldn't set error callback"\
                     << " (" << GetLastError() << ")");
     this->ReleaseSystemResources();
     return;
-    }
+  }
 
   capOverlay(this->Internal->CapWnd,TRUE);
 
@@ -414,26 +414,26 @@ void vtkWin32VideoSource::Initialize()
 void vtkWin32VideoSource::SetPreview(int p)
 {
   if (this->Preview == p)
-    {
+  {
     return;
-    }
+  }
 
   this->Preview = p;
   this->Modified();
 
   if (this->Internal->CapWnd == NULL || this->Internal->ParentWnd == NULL)
-    {
+  {
     return;
-    }
+  }
 
   if (p)
-    {
+  {
     ShowWindow(this->Internal->ParentWnd,SW_SHOWNORMAL);
-    }
+  }
   else
-    {
+  {
     ShowWindow(this->Internal->ParentWnd,SW_HIDE);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -441,21 +441,21 @@ void vtkWin32VideoSource::ReleaseSystemResources()
 {
   // destruction of ParentWnd causes OnParentWndDestroy to be called
   if (this->Internal->ParentWnd)
-    {
+  {
     DestroyWindow(this->Internal->ParentWnd);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkWin32VideoSource::OnParentWndDestroy()
 {
   if (this->Playing || this->Recording)
-    {
+  {
     this->Stop();
-    }
+  }
 
   if (this->Internal->CapWnd)
-    {
+  {
     //MessageBox(this->Internal->ParentWnd, "capDriverDisconnect(this->Internal->CapWnd)", "", MB_OK | MB_ICONEXCLAMATION);
     capDriverDisconnect(this->Internal->CapWnd);
     //MessageBox(this->Internal->ParentWnd, "DestroyWindow(this->Internal->CapWnd)", "", MB_OK | MB_ICONEXCLAMATION);
@@ -463,10 +463,10 @@ void vtkWin32VideoSource::OnParentWndDestroy()
     this->Internal->CapWnd = NULL;
   }
   if (this->WndClassName[0] != '\0')
-    {
+  {
     UnregisterClass(this->WndClassName,GetModuleHandle(NULL));
     this->WndClassName[0] = '\0';
-    }
+  }
 
   this->Internal->ParentWnd = NULL;
   this->Initialized = 0;
@@ -496,13 +496,13 @@ void vtkWin32VideoSource::LocalInternalGrab(void* lpptr)
   this->FrameBufferMutex->Lock();
 
   if (this->AutoAdvance)
-    {
+  {
     this->AdvanceFrameBuffer(1);
     if (this->FrameIndex + 1 < this->FrameBufferSize)
-      {
+    {
       this->FrameIndex++;
-      }
     }
+  }
 
   int index = this->FrameBufferIndex;
 
@@ -530,28 +530,28 @@ void vtkWin32VideoSource::LocalInternalGrab(void* lpptr)
 
   // uncompress or simply copy the DIB
   switch (this->Internal->BitMapPtr->bmiHeader.biCompression)
-    {
+  {
     case BI_RGB:
     case VTK_BI_UYVY:
       if (outBytesPerRow == inBytesPerRow)
-        {
+      {
         memcpy(ptr,cptrDIB,inBytesPerRow*rows);
-        }
+      }
       else
-        {
+      {
         while (--rows >= 0)
-          {
+        {
           memcpy(ptr,cptrDIB,outBytesPerRow);
           ptr += outBytesPerRow;
           cptrDIB += inBytesPerRow;
-          }
         }
+      }
       break;
     case BI_RLE8:  // not handled
     case BI_RLE4:
     case BI_BITFIELDS:
       break;
-    }
+  }
 
   this->Modified();
 
@@ -562,16 +562,16 @@ void vtkWin32VideoSource::LocalInternalGrab(void* lpptr)
 void vtkWin32VideoSource::Grab()
 {
   if (this->Recording)
-    {
+  {
     return;
-    }
+  }
 
   // ensure that the frame buffer is properly initialized
   this->Initialize();
   if (!this->Initialized)
-    {
+  {
     return;
-    }
+  }
 
   // just do the grab, the callback does the rest
   this->SetStartTimeStamp(vtkTimerLog::GetUniversalTime());
@@ -583,21 +583,21 @@ void vtkWin32VideoSource::Record()
 {
   this->Initialize();
   if (!this->Initialized)
-    {
+  {
     return;
-    }
+  }
 
   if (this->Playing)
-    {
+  {
     this->Stop();
-    }
+  }
 
   if (!this->Recording)
-    {
+  {
     this->Recording = 1;
     this->Modified();
     capCaptureSequenceNoFile(this->Internal->CapWnd);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -610,16 +610,16 @@ void vtkWin32VideoSource::Play()
 void vtkWin32VideoSource::Stop()
 {
   if (this->Recording)
-    {
+  {
     this->Recording = 0;
     this->Modified();
 
     capCaptureStop(this->Internal->CapWnd);
-    }
+  }
   else if (this->Playing)
-    {
+  {
     this->vtkVideoSource::Stop();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -680,63 +680,63 @@ void vtkWin32VideoSource::UnpackRasterLine(char *outptr, char *inptr,
   int i;
 
   switch (this->FrameBufferBitsPerPixel)
-    {
+  {
     case 1:
-      {
+    {
       int rawBits;
       inptr += start/8;
       i = start % 8;
       while (count >= 0)
-        {
+      {
         rawBits = *inptr++;
         for (; i < 8 && --count >= 0; i++)
-          {
+        {
           *outptr++ = -((rawBits >> i) & 0x01);
-          }
-        i = 0;
         }
+        i = 0;
       }
+    }
       break;
     case 4:
-      {
+    {
       int rawNibbles;
       inptr += start/2;
       i = start % 2;
       while (count >= 0)
-        {
+      {
         rawNibbles = *inptr++;
         for (; i < 8 && --count >= 0; i += 4)
-          {
+        {
           *outptr++ = ((rawNibbles >> i) & 0x0f) << 4;
-          }
-        i = 0;
         }
+        i = 0;
       }
+    }
       break;
     case 8:
-      {
+    {
       inptr += start;
       memcpy(outptr,inptr,count);
-      }
+    }
       break;
     case 16:
-      {
+    {
       inptr += 2*start;
       if (compression == VTK_BI_UYVY)
-        {
+      {
         switch (this->OutputFormat)
-          {
+        {
           case VTK_LUMINANCE:
-            { // unpack UY half-megapixel to one Y pixel
+          { // unpack UY half-megapixel to one Y pixel
             while (--count >= 0)
-              {
+            {
               inptr++;
               *outptr++ = *inptr++;
-              }
             }
+          }
           case VTK_RGB:
           case VTK_RGBA:
-            { // unpack UYVY megapixel to two RGB or RGBA pixels
+          { // unpack UYVY megapixel to two RGB or RGBA pixels
             unsigned char YUV[3];
             //int finish = start + count;
             int odd = (start % 2 == 1);
@@ -744,120 +744,120 @@ void vtkWin32VideoSource::UnpackRasterLine(char *outptr, char *inptr,
             if (count > 1) { YUV[0]     = inptr[1]; }
             if (count > 2) { YUV[2-odd] = inptr[2]; }
             while (--count >= 0)
-              {
+            {
               YUV[1+odd] = *inptr++;
               YUV[0] = *inptr++;
               odd = !odd;
               vtkYUVToRGB(YUV,(unsigned char *)outptr);
               outptr += 3;
               if (this->OutputFormat == VTK_RGB)
-                {
+              {
                 continue;
-                }
+              }
               *outptr++ = alpha;
-              }
-            }
-          }
-        }
-      else
-        {
-        unsigned short rawWord;
-        unsigned short *shptr = (unsigned short *)inptr;
-        switch (this->OutputFormat)
-          {
-          case VTK_RGB:
-            { // unpack 16 bits to 24 bits
-            while (--count >= 0)
-              {
-              rawWord = *shptr++;
-              *outptr++ = (rawWord & 0x7c00) >> 7;
-              *outptr++ = (rawWord & 0x03e0) >> 2;
-              *outptr++ = (rawWord & 0x001f) << 3;
-              }
-            }
-            break;
-          case VTK_RGBA:
-            { // unpack 16 bits to 32 bits
-            while (--count >= 0)
-              {
-              rawWord = *shptr++;
-              *outptr++ = (rawWord & 0x7c00) >> 7;
-              *outptr++ = (rawWord & 0x03e0) >> 2;
-              *outptr++ = (rawWord & 0x001f) << 3;
-              *outptr++ = alpha;
-              }
-            break;
             }
           }
         }
       }
-    case 24:
+      else
       {
+        unsigned short rawWord;
+        unsigned short *shptr = (unsigned short *)inptr;
+        switch (this->OutputFormat)
+        {
+          case VTK_RGB:
+          { // unpack 16 bits to 24 bits
+            while (--count >= 0)
+            {
+              rawWord = *shptr++;
+              *outptr++ = (rawWord & 0x7c00) >> 7;
+              *outptr++ = (rawWord & 0x03e0) >> 2;
+              *outptr++ = (rawWord & 0x001f) << 3;
+            }
+          }
+            break;
+          case VTK_RGBA:
+          { // unpack 16 bits to 32 bits
+            while (--count >= 0)
+            {
+              rawWord = *shptr++;
+              *outptr++ = (rawWord & 0x7c00) >> 7;
+              *outptr++ = (rawWord & 0x03e0) >> 2;
+              *outptr++ = (rawWord & 0x001f) << 3;
+              *outptr++ = alpha;
+            }
+            break;
+          }
+        }
+      }
+    }
+    case 24:
+    {
       inptr += 3*start;
       switch (this->OutputFormat)
-        {
+      {
         case VTK_RGB:
-          { // must do BGR to RGB conversion
+        { // must do BGR to RGB conversion
           outptr += 3;
           while (--count >= 0)
-            {
+          {
             *--outptr = *inptr++;
             *--outptr = *inptr++;
             *--outptr = *inptr++;
             outptr += 6;
-            }
           }
+        }
           break;
         case VTK_RGBA:
-          { // must do BGR to RGBX conversion
+        { // must do BGR to RGBX conversion
           outptr += 4;
           while (--count >= 0)
-            {
+          {
             *--outptr = alpha;
             *--outptr = *inptr++;
             *--outptr = *inptr++;
             *--outptr = *inptr++;
             outptr += 8;
-            }
           }
-          break;
         }
+          break;
       }
+    }
       break;
     case 32:
       inptr += 4*start;
       switch (this->OutputFormat)
-        {
+      {
         case VTK_RGB:
-          { // must do BGRX to RGB conversion
+        { // must do BGRX to RGB conversion
           outptr += 3;
           while (--count >= 0)
-            {
+          {
             *--outptr = *inptr++;
             *--outptr = *inptr++;
             *--outptr = *inptr++;
             inptr++;
             outptr += 6;
-            }
           }
+        }
           break;
         case VTK_RGBA:
-          {
+        {
           outptr += 4;
           while (--count >= 0)
-            {
+          {
             *--outptr = alpha;
             *--outptr = *inptr++;
             *--outptr = *inptr++;
             *--outptr = *inptr++;
             inptr++;
             outptr += 8;
-            }
           }
-          break;
         }
+          break;
+      }
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -865,9 +865,9 @@ void vtkWin32VideoSource::VideoFormatDialog()
 {
   this->Initialize();
   if (!this->Initialized)
-    {
+  {
     return;
-    }
+  }
 
   //if (!this->Internal->CapDriverCaps.fHasDlgVideoFormat)
   //  {
@@ -878,19 +878,19 @@ void vtkWin32VideoSource::VideoFormatDialog()
 
   capGetStatus(this->Internal->CapWnd,&this->Internal->CapStatus,sizeof(CAPSTATUS));
   if (this->Internal->CapStatus.fCapturingNow)
-    {
+  {
     MessageBox(this->Internal->ParentWnd, "Can't alter video format while grabbing.","",
                MB_OK | MB_ICONEXCLAMATION);
     return;
-    }
+  }
 
   int success = capDlgVideoFormat(this->Internal->CapWnd);
   if (success)
-    {
+  {
     this->FrameBufferMutex->Lock();
     this->DoVFWFormatCheck();
     this->FrameBufferMutex->Unlock();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -898,9 +898,9 @@ void vtkWin32VideoSource::VideoSourceDialog()
 {
   this->Initialize();
   if (!this->Initialized)
-    {
+  {
     return;
-    }
+  }
 
   //if (!this->Internal->CapDriverCaps.fHasDlgVideoSource)
   //  {
@@ -911,19 +911,19 @@ void vtkWin32VideoSource::VideoSourceDialog()
 
   capGetStatus(this->Internal->CapWnd,&this->Internal->CapStatus,sizeof(CAPSTATUS));
   if (this->Internal->CapStatus.fCapturingNow)
-    {
+  {
     MessageBox(this->Internal->ParentWnd, "Can't alter video source while grabbing.","",
                MB_OK | MB_ICONEXCLAMATION);
     return;
-    }
+  }
 
   int success = capDlgVideoSource(this->Internal->CapWnd);
   if (success)
-    {
+  {
     this->FrameBufferMutex->Lock();
     this->DoVFWFormatCheck();
     this->FrameBufferMutex->Unlock();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -933,15 +933,15 @@ void vtkWin32VideoSource::SetFrameSize(int x, int y, int z)
   if (x == this->FrameSize[0] &&
       y == this->FrameSize[1] &&
       z == this->FrameSize[2])
-    {
+  {
     return;
-    }
+  }
 
   if (x < 1 || y < 1 || z != 1)
-    {
+  {
     vtkErrorMacro(<< "SetFrameSize: Illegal frame size");
     return;
-    }
+  }
 
   this->FrameSize[0] = x;
   this->FrameSize[1] = y;
@@ -949,48 +949,48 @@ void vtkWin32VideoSource::SetFrameSize(int x, int y, int z)
   this->Modified();
 
   if (this->Initialized)
-    {
+  {
     this->FrameBufferMutex->Lock();
     this->UpdateFrameBuffer();
     this->DoVFWFormatSetup();
     this->FrameBufferMutex->Unlock();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkWin32VideoSource::SetFrameRate(float rate)
 {
   if (rate == this->FrameRate)
-    {
+  {
     return;
-    }
+  }
 
   this->FrameRate = rate;
   this->Modified();
 
   if (this->Initialized)
-    {
+  {
     capCaptureGetSetup(this->Internal->CapWnd,&this->Internal->CaptureParms,sizeof(CAPTUREPARMS));
     if (this->FrameRate > 0)
-      {
+    {
       this->Internal->CaptureParms.dwRequestMicroSecPerFrame =
                             int(1000000/this->FrameRate);
-      }
-    else
-      {
-      this->Internal->CaptureParms.dwRequestMicroSecPerFrame = 0;
-      }
-    capCaptureSetSetup(this->Internal->CapWnd,&this->Internal->CaptureParms,sizeof(CAPTUREPARMS));
     }
+    else
+    {
+      this->Internal->CaptureParms.dwRequestMicroSecPerFrame = 0;
+    }
+    capCaptureSetSetup(this->Internal->CapWnd,&this->Internal->CaptureParms,sizeof(CAPTUREPARMS));
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkWin32VideoSource::SetOutputFormat(int format)
 {
   if (format == this->OutputFormat)
-    {
+  {
     return;
-    }
+  }
 
   this->OutputFormat = format;
 
@@ -998,7 +998,7 @@ void vtkWin32VideoSource::SetOutputFormat(int format)
   int numComponents;
 
   switch (this->OutputFormat)
-    {
+  {
     case VTK_RGBA:
       numComponents = 4;
       break;
@@ -1012,20 +1012,20 @@ void vtkWin32VideoSource::SetOutputFormat(int format)
       numComponents = 0;
       vtkErrorMacro(<< "SetOutputFormat: Unrecognized color format.");
       break;
-    }
+  }
   this->NumberOfScalarComponents = numComponents;
 
   if (this->FrameBufferBitsPerPixel != numComponents*8)
-    {
+  {
     this->FrameBufferMutex->Lock();
     this->FrameBufferBitsPerPixel = numComponents*8;
     if (this->Initialized)
-      {
+    {
       this->UpdateFrameBuffer();
       this->DoVFWFormatSetup();
-      }
-    this->FrameBufferMutex->Unlock();
     }
+    this->FrameBufferMutex->Unlock();
+  }
 
   this->Modified();
 }
@@ -1037,11 +1037,11 @@ void vtkWin32VideoSource::DoVFWFormatCheck()
   // get the real video format
   int formatSize = capGetVideoFormatSize(this->Internal->CapWnd);
   if (formatSize > this->BitMapSize)
-    {
+  {
     delete [] ((char *)this->Internal->BitMapPtr);
     this->Internal->BitMapPtr = (LPBITMAPINFO) new char[formatSize];
     this->BitMapSize = formatSize;
-    }
+  }
   capGetVideoFormat(this->Internal->CapWnd,this->Internal->BitMapPtr,formatSize);
 
   int bpp = this->Internal->BitMapPtr->bmiHeader.biBitCount;
@@ -1050,34 +1050,34 @@ void vtkWin32VideoSource::DoVFWFormatCheck()
   int compression = this->Internal->BitMapPtr->bmiHeader.biCompression;
 
   if (compression == VTK_BI_UYVY)
-    {
+  {
     this->FlipFrames = 1;
-    }
+  }
   else if (compression == BI_RGB)
-    {
+  {
     this->FlipFrames = 0;
-    }
+  }
   else
-    {
+  {
     char fourcchex[16], fourcc[8];
     sprintf(fourcchex,"0x%08x",compression);
     for (int i = 0; i < 4; i++)
-      {
+    {
       fourcc[i] = (compression >> (8*i)) & 0xff;
       if (!isprint(fourcc[i]))
-        {
+      {
         fourcc[i] = '?';
-        }
       }
+    }
     fourcc[4] = '\0';
     vtkWarningMacro(<< "DoVFWFormatCheck: video compression mode " <<
                     fourcchex << " \"" << fourcc << "\": can't grab");
-    }
+  }
 
   if (bpp != this->FrameBufferBitsPerPixel)
-    {
+  {
     switch (bpp)
-      {
+    {
       case 1:
       case 4:
       case 8:
@@ -1086,32 +1086,32 @@ void vtkWin32VideoSource::DoVFWFormatCheck()
         break;
       case 16:
         if (compression != VTK_BI_UYVY)
-          {
+        {
           this->OutputFormat = VTK_RGB;
           this->NumberOfScalarComponents = 3;
-          }
+        }
         break;
       case 24:
       case 32:
         if (this->OutputFormat != VTK_RGBA)
-          {
+        {
           this->OutputFormat = VTK_RGB;
           this->NumberOfScalarComponents = 3;
-          }
+        }
         break;
-      }
     }
+  }
 
   if (bpp != this->FrameBufferBitsPerPixel ||
       this->FrameSize[0] != width ||
       this->FrameSize[1] != height)
-    {
+  {
     this->FrameBufferBitsPerPixel = bpp;
     this->FrameSize[0] = width;
     this->FrameSize[1] = height;
     this->Modified();
     this->UpdateFrameBuffer();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1124,11 +1124,11 @@ void vtkWin32VideoSource::DoVFWFormatSetup()
   // get the real video format
   int formatSize = capGetVideoFormatSize(this->Internal->CapWnd);
   if (formatSize > this->BitMapSize)
-    {
+  {
     delete [] ((char *)this->Internal->BitMapPtr);
     this->Internal->BitMapPtr = (LPBITMAPINFO) new char[formatSize];
     this->BitMapSize = formatSize;
-    }
+  }
   capGetVideoFormat(this->Internal->CapWnd,this->Internal->BitMapPtr,formatSize);
 
   // set the format of the captured frames
@@ -1139,30 +1139,30 @@ void vtkWin32VideoSource::DoVFWFormatSetup()
   this->Internal->BitMapPtr->bmiHeader.biClrImportant = 0;
 
   for (i = 0; i < 3; i++)
-    { // try for a
+  { // try for a
     if (this->OutputFormat == VTK_RGBA || this->OutputFormat == VTK_RGB)
-      {
+    {
       bitCount = colorBits[i];
-      }
+    }
     else
-      {
+    {
       bitCount = greyBits[i];
-      }
+    }
     bytesPerRow = (this->FrameSize[0]*bitCount+7)/8;
     bytesPerRow += bytesPerRow % this->FrameBufferRowAlignment;
     this->Internal->BitMapPtr->bmiHeader.biBitCount = bitCount;
     this->Internal->BitMapPtr->bmiHeader.biSizeImage = bytesPerRow*this->FrameSize[1];
     if (capSetVideoFormat(this->Internal->CapWnd,this->Internal->BitMapPtr,
                           sizeof(BITMAPINFOHEADER)))
-      {
-      break;
-      }
-    }
-  if (i > 4)
     {
+      break;
+    }
+  }
+  if (i > 4)
+  {
     vtkWarningMacro(<< "DoVFWFormatSetup: invalid video format for device"\
                     << " (" << GetLastError() << ")");
-    }
+  }
   this->DoVFWFormatCheck();
 }
 

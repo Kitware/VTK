@@ -13,12 +13,15 @@
 
 =========================================================================*/
 
-// .NAME vtkCountVertices - Add a cell data array containing the number of
-// vertices per cell.
-//
-// .SECTION Description
-// This filter adds a cell data array containing the number of vertices per
-// cell.
+/**
+ * @class   vtkCountVertices
+ * @brief   Add a cell data array containing the number of
+ * vertices per cell.
+ *
+ *
+ * This filter adds a cell data array containing the number of vertices per
+ * cell.
+*/
 
 #ifndef vtkCountVertices_h
 #define vtkCountVertices_h
@@ -33,10 +36,13 @@ public:
   vtkTypeMacro(vtkCountVertices, vtkPassInputTypeAlgorithm)
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // The name of the new output array containing the vertex counts.
+  //@{
+  /**
+   * The name of the new output array containing the vertex counts.
+   */
   vtkSetStringMacro(OutputArrayName)
   vtkGetStringMacro(OutputArrayName)
+  //@}
 
 protected:
   vtkCountVertices();

@@ -129,10 +129,10 @@ int SLACMultipleModes(int argc, char *argv[])
   // Do the test comparison.
   int retVal = vtkRegressionTestImage(renwin.GetPointer());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   return (retVal == vtkRegressionTester::PASSED) ? 0 : 1;
 }

@@ -50,7 +50,7 @@ vtkOculusCamera::vtkOculusCamera()
 vtkOculusCamera::~vtkOculusCamera()
 {
   if (this->LeftEyePose)
-    {
+  {
     this->LeftEyePose->Delete();
     this->RightEyePose->Delete();
     this->LeftEyeProjection->Delete();
@@ -59,7 +59,7 @@ vtkOculusCamera::~vtkOculusCamera()
     this->RightEyePose = 0;
     this->LeftEyeProjection = 0;
     this->RightEyeProjection = 0;
-    }
+  }
 
   this->RightWCDCMatrix->Delete();
   this->RightWCVCMatrix->Delete();
@@ -99,12 +99,12 @@ void vtkOculusCamera::GetHMDEyeProjections(vtkRenderer *ren)
     0);
 
   for(int i = 0; i < 4; ++i)
-    {
+  {
     for (int j = 0; j < 4; ++j)
-      {
+    {
       this->LeftEyeProjection->SetElement(j, i, proj.M[i][j]);
-      }
     }
+  }
 
   proj = ovrMatrix4f_Projection(win->GetOVRLayer().Fov[1],
     this->ClippingRange[0],
@@ -112,12 +112,12 @@ void vtkOculusCamera::GetHMDEyeProjections(vtkRenderer *ren)
     0);
 
   for(int i = 0; i < 4; ++i)
-    {
+  {
     for (int j = 0; j < 4; ++j)
-      {
+    {
       this->RightEyeProjection->SetElement(j, i, proj.M[i][j]);
-      }
     }
+  }
 }
 
 // Implement base class method.
@@ -130,7 +130,7 @@ void vtkOculusCamera::Render(vtkRenderer *ren)
 
   // if were on a stereo renderer draw to special parts of screen
   if (this->LeftEye)
-    {
+  {
     // make sure clipping range is not crazy
     // we know we are in meters so
     // we can use that knowledge to make the
@@ -146,31 +146,31 @@ void vtkOculusCamera::Render(vtkRenderer *ren)
     nRange[0] = 0.1;
     // to see transmitters make sure far is at least 6 meters
     if (nRange[1] < 6.0)
-      {
+    {
       nRange[1] = 6.0;
-      }
+    }
     // make sure far is not crazy far > 100m
     if (nRange[1] > 100.0)
-      {
+    {
       nRange[1] = 100.0;
-      }
+    }
     this->SetClippingRange(nRange[0]*distance, nRange[1]*distance);
 
     // Left Eye
     ovrRecti vp = win->GetOVRLayer().Viewport[0];
     glViewport(vp.Pos.x, vp.Pos.y, vp.Size.w, vp.Size.h);
-    }
+  }
   else
-    {
+  {
     ovrRecti vp = win->GetOVRLayer().Viewport[1];
     glViewport(vp.Pos.x, vp.Pos.y, vp.Size.w, vp.Size.h);
-    }
+  }
 
   if ((ren->GetRenderWindow())->GetErase() && ren->GetErase()
       && !ren->GetIsPicking())
-    {
+  {
     ren->Clear();
-    }
+  }
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
@@ -180,18 +180,18 @@ void vtkOculusCamera::GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&wcvc,
 {
   // get the eye pose and projection matricies once
   if (!this->LeftEyePose)
-    {
+  {
     this->LeftEyePose = vtkMatrix4x4::New();
     this->RightEyePose = vtkMatrix4x4::New();
     this->LeftEyeProjection = vtkMatrix4x4::New();
     this->RightEyeProjection = vtkMatrix4x4::New();
-    }
+  }
 
   // has the camera changed?
   if (ren != this->LastRenderer ||
       this->MTime > this->KeyMatrixTime ||
       ren->GetMTime() > this->KeyMatrixTime)
-    {
+  {
     this->GetHMDEyePoses(ren);
     this->GetHMDEyeProjections(ren);
     // build both eye views, faster to do it all at once as
@@ -203,12 +203,12 @@ void vtkOculusCamera::GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&wcvc,
     vtkMatrix4x4::Multiply4x4(this->LeftEyePose, w2v, this->WCVCMatrix);
 
     for(int i = 0; i < 3; ++i)
-      {
+    {
       for (int j = 0; j < 3; ++j)
-        {
+      {
         this->NormalMatrix->SetElement(i, j, this->WCVCMatrix->GetElement(i, j));
-        }
       }
+    }
     this->NormalMatrix->Invert();
 
     this->WCVCMatrix->Transpose();
@@ -219,32 +219,32 @@ void vtkOculusCamera::GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&wcvc,
 
     this->KeyMatrixTime.Modified();
     this->LastRenderer = ren;
-    }
+  }
 
   if (this->LeftEye)
-    {
+  {
     wcvc = this->WCVCMatrix;
     normMat = this->NormalMatrix;
     vcdc = this->LeftEyeProjection;
     wcdc = this->WCDCMatrix;
-    }
+  }
   else
-    {
+  {
     wcvc = this->RightWCVCMatrix;
     normMat = this->NormalMatrix;
     vcdc = this->RightEyeProjection;
     wcdc = this->RightWCDCMatrix;
-    }
+  }
 }
 
 void vtkOculusCamera::GetTrackingToDCMatrix(vtkMatrix4x4 *&tcdc)
 {
   if (this->LeftEye)
-    {
+  {
     tcdc = this->LeftEyeTCDCMatrix;
-    }
+  }
   else
-    {
+  {
     tcdc = this->RightEyeTCDCMatrix;
-    }
+  }
 }

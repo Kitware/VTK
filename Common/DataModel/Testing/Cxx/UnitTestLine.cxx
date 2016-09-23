@@ -44,14 +44,14 @@ void GenerateIntersectingLineSegments(vtkMinimalStandardRandomSequence* seq,
 
   double intersection[3];
   for (unsigned i=0;i<3;i++)
-    {
+  {
     intersection[i] = seq->GetValue();
     seq->Next();
     a1[i] = seq->GetValue();
     seq->Next();
     b1[i] = seq->GetValue();
     seq->Next();
-    }
+  }
 
   intersection[0] = 1.; intersection[1] = intersection[2] = 0.;
   a1[0] = a1[1] = a1[2] = 0.;
@@ -68,14 +68,14 @@ void GenerateIntersectingLineSegments(vtkMinimalStandardRandomSequence* seq,
   double lenB1toIntersection = 0.;
 
   for (unsigned i=0;i<3;i++)
-    {
+  {
     a2[i] = a1[i] + (intersection[i]-a1[i])*(1.+t1);
     b2[i] = b1[i] + (intersection[i]-b1[i])*(1.+t2);
     lenA += (a2[i]-a1[i])*(a2[i]-a1[i]);
     lenB += (b2[i]-b1[i])*(b2[i]-b1[i]);
     lenA1toIntersection += (a1[i]-intersection[i])*(a1[i]-intersection[i]);
     lenB1toIntersection += (b1[i]-intersection[i])*(b1[i]-intersection[i]);
-    }
+  }
 
   lenA = sqrt(lenA);
   lenB = sqrt(lenB);
@@ -135,7 +135,7 @@ void GenerateColinearLineSegments(vtkMinimalStandardRandomSequence* seq,
   // Generate two line segments ((a1,a2) and (b1,b2)) that are colinear.
 
   for (unsigned i=0;i<3;i++)
-    {
+  {
     a1[i] = seq->GetValue();
     seq->Next();
     a2[i] = seq->GetValue();
@@ -144,7 +144,7 @@ void GenerateColinearLineSegments(vtkMinimalStandardRandomSequence* seq,
     seq->Next();
     b1[i] = a1[i] + tmp;
     b2[i] = a2[i] + tmp;
-    }
+  }
 }
 
 void GenerateLinesAtKnownDistance(vtkMinimalStandardRandomSequence* seq,
@@ -164,12 +164,12 @@ void GenerateLinesAtKnownDistance(vtkMinimalStandardRandomSequence* seq,
 
   double v1[3],v2[3],v3[3];
   for (unsigned i=0;i<3;i++)
-    {
+  {
     v1[i] = seq->GetValue();
     seq->Next();
     v2[i] = seq->GetValue();
     seq->Next();
-    }
+  }
   vtkMath::Cross(v1,v2,v3);
   vtkMath::Normalize(v1);
   vtkMath::Normalize(v2);
@@ -188,7 +188,7 @@ void GenerateLinesAtKnownDistance(vtkMinimalStandardRandomSequence* seq,
   seq->Next();
 
   for (unsigned i=0;i<3;i++)
-    {
+  {
     a12[i] = seq->GetValue();
     seq->Next();
     b12[i] = a12[i] + lineDist*v3[i];
@@ -196,7 +196,7 @@ void GenerateLinesAtKnownDistance(vtkMinimalStandardRandomSequence* seq,
     a2[i] = a12[i] + a12_to_a2*v1[i];
     b1[i] = b12[i] - b1_to_b12*v2[i];
     b2[i] = b12[i] + b12_to_b2*v2[i];
-    }
+  }
   u = a1_to_a12/(a1_to_a12 + a12_to_a2);
   v = b1_to_b12/(b1_to_b12 + b12_to_b2);
 }
@@ -212,12 +212,12 @@ void GenerateLineAtKnownDistance(vtkMinimalStandardRandomSequence* seq,
 
   double v1[3],v2[3],v3[3];
   for (unsigned i=0;i<3;i++)
-    {
+  {
     v1[i] = seq->GetValue();
     seq->Next();
     v2[i] = seq->GetValue();
     seq->Next();
-    }
+  }
   vtkMath::Cross(v1,v2,v3);
   vtkMath::Normalize(v1);
   vtkMath::Normalize(v2);
@@ -233,13 +233,13 @@ void GenerateLineAtKnownDistance(vtkMinimalStandardRandomSequence* seq,
 
   double nearest[3];
   for (unsigned i=0;i<3;i++)
-    {
+  {
     nearest[i] = seq->GetValue();
     seq->Next();
     p[i] = nearest[i] + dist*v3[i];
     a1[i] = nearest[i] - a1_to_a12*v1[i];
     a2[i] = nearest[i] + a12_to_a2*v1[i];
-    }
+  }
 }
 
 double PointToLineSegment(double* p1,double* p2,double* p,double* pn,double& u)
@@ -251,41 +251,41 @@ double PointToLineSegment(double* p1,double* p2,double* p,double* pn,double& u)
   u = 0.;
   double dist2 = 0.;
   for (unsigned i=0;i<3;i++)
-    {
+  {
     u += (p[i]-p1[i])*(p2[i]-p1[i]);
     dist2 += (p2[i]-p1[i])*(p2[i]-p1[i]);
-    }
+  }
   u/=dist2;
 
   if (u<=0.)
-    {
+  {
     for (unsigned i=0;i<3;i++)
-      {
+    {
       u = 0.;
       pn[i] = p1[i];
-      }
     }
+  }
   else if (u>=1.)
-    {
+  {
     u = 1.;
     for (unsigned i=0;i<3;i++)
-      {
-      pn[i] = p2[i];
-      }
-    }
-  else
     {
-    for (unsigned i=0;i<3;i++)
-      {
-      pn[i] = p1[i] + u*(p2[i]-p1[i]);
-      }
+      pn[i] = p2[i];
     }
+  }
+  else
+  {
+    for (unsigned i=0;i<3;i++)
+    {
+      pn[i] = p1[i] + u*(p2[i]-p1[i]);
+    }
+  }
 
   double dist = 0.;
   for (unsigned i=0;i<3;i++)
-    {
+  {
     dist += (p[i]-pn[i])*(p[i]-pn[i]);
-    }
+  }
   return std::sqrt(dist);
 }
 
@@ -310,31 +310,31 @@ void GenerateLineSegmentsAtKnownDistance(vtkMinimalStandardRandomSequence* seq,
   seq->Next();
 
   if (modify < 0.25)
-    {
+  {
     double t = seq->GetValue();
     seq->Next();
 
     for (unsigned i=0;i<3;i++)
-      {
+    {
       a12[i] = a2[i] = a1[i] + (a12[i]-a1[i])*t;
-      }
+    }
 
     u = 1.;
     lineDist = PointToLineSegment(b1,b2,a2,b12,v);
-    }
+  }
   else if (modify < 0.5)
-    {
+  {
     double t = seq->GetValue();
     seq->Next();
 
     for (unsigned i=0;i<3;i++)
-      {
+    {
       b12[i] = b2[i] = b1[i] + (b12[i]-b1[i])*t;
-      }
+    }
 
     lineDist = PointToLineSegment(a1,a2,b2,a12,u);
     v = 1.;
-    }
+  }
 }
 
 int TestLineIntersection_PositiveResult(vtkMinimalStandardRandomSequence* seq,
@@ -343,22 +343,22 @@ int TestLineIntersection_PositiveResult(vtkMinimalStandardRandomSequence* seq,
   double a1[3],a2[3],b1[3],b2[3],u,v;
 
   for (unsigned i=0;i<nTests;i++)
-    {
+  {
     GenerateIntersectingLineSegments(seq,a1,a2,b1,b2,u,v);
 
     double uv[2];
     int returnValue = vtkLine::Intersection3D(a1,a2,b1,b2,uv[0],uv[1]);
 
     if (returnValue != VTK_YES_INTERSECTION)
-      {
+    {
       return EXIT_FAILURE;
-      }
+    }
 
     if (std::fabs(u-uv[0])>EPSILON && std::fabs(v-uv[1])>EPSILON)
-      {
+    {
       return EXIT_FAILURE;
-      }
     }
+  }
 
     return EXIT_SUCCESS;
 }
@@ -369,16 +369,16 @@ int TestLineIntersection_NegativeResult(vtkMinimalStandardRandomSequence* seq,
   double a1[3],a2[3],b1[3],b2[3],u,v;
 
   for (unsigned i=0;i<nTests;i++)
-    {
+  {
     GenerateNonintersectingLineSegments(seq,a1,a2,b1,b2);
 
     int returnValue = vtkLine::Intersection3D(a1,a2,b1,b2,u,v);
 
     if (returnValue != VTK_NO_INTERSECTION)
-      {
+    {
       return EXIT_FAILURE;
-      }
     }
+  }
 
   return EXIT_SUCCESS;
 }
@@ -389,16 +389,16 @@ int TestLineIntersection_ColinearResult(vtkMinimalStandardRandomSequence* seq,
   double a1[3],a2[3],b1[3],b2[3],u,v;
 
   for (unsigned i=0;i<nTests;i++)
-    {
+  {
     GenerateColinearLineSegments(seq,a1,a2,b1,b2);
 
     int returnValue = vtkLine::Intersection3D(a1,a2,b1,b2,u,v);
 
     if (returnValue != VTK_ON_LINE)
-      {
+    {
       return EXIT_FAILURE;
-      }
     }
+  }
 
   return EXIT_SUCCESS;
 }
@@ -407,17 +407,17 @@ int TestLineIntersection(vtkMinimalStandardRandomSequence* seq,
                                         unsigned nTests)
 {
   if (TestLineIntersection_PositiveResult(seq,nTests) == EXIT_FAILURE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
   if (TestLineIntersection_NegativeResult(seq,nTests) == EXIT_FAILURE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
   if (TestLineIntersection_ColinearResult(seq,nTests) == EXIT_FAILURE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
   return EXIT_SUCCESS;
 }
 
@@ -427,30 +427,30 @@ int TestDistanceBetweenLines(vtkMinimalStandardRandomSequence* seq,
   double a1[3],a2[3],b1[3],b2[3],a12[3],b12[3],u,v,dist;
 
   for (unsigned i=0;i<nTests;i++)
-    {
+  {
     GenerateLinesAtKnownDistance(seq,dist,a1,a2,b1,b2,a12,b12,u,v);
 
     double p1[3],p2[3],t1,t2;
     double d = vtkLine::DistanceBetweenLines(a1,a2,b1,b2,p1,p2,t1,t2);
 
     if (std::fabs(dist*dist-d) > EPSILON)
-      {
+    {
       return EXIT_FAILURE;
-      }
+    }
 
     for (unsigned j=0;j<3;j++)
-      {
+    {
       if (std::fabs(a12[j]-p1[j]) > EPSILON||std::fabs(b12[j]-p2[j]) > EPSILON)
-        {
-        return EXIT_FAILURE;
-        }
-      }
-
-    if (std::fabs(u-t1) > EPSILON || std::fabs(v-t2) > EPSILON)
       {
-      return EXIT_FAILURE;
+        return EXIT_FAILURE;
       }
     }
+
+    if (std::fabs(u-t1) > EPSILON || std::fabs(v-t2) > EPSILON)
+    {
+      return EXIT_FAILURE;
+    }
+  }
 
   return EXIT_SUCCESS;
 }
@@ -461,31 +461,31 @@ int TestDistanceBetweenLineSegments(vtkMinimalStandardRandomSequence* seq,
   double a1[3],a2[3],b1[3],b2[3],a12[3],b12[3],u,v,dist;
 
   for (unsigned i=0;i<nTests;i++)
-    {
+  {
     GenerateLineSegmentsAtKnownDistance(seq,dist,a1,a2,b1,b2,a12,b12,u,v);
 
     double p1[3],p2[3],t1,t2;
     double d = vtkLine::DistanceBetweenLineSegments(a1,a2,b1,b2,p1,p2,t1,t2);
 
     if (std::fabs(dist*dist-d) > EPSILON)
-      {
+    {
       return EXIT_FAILURE;
-      }
+    }
 
     for (unsigned j=0;j<3;j++)
-      {
+    {
       if (std::fabs(a12[j]-p1[j]) > EPSILON ||
           std::fabs(b12[j]-p2[j]) > EPSILON)
-        {
-        return EXIT_FAILURE;
-        }
-      }
-
-    if (std::fabs(u-t1) > EPSILON || std::fabs(v-t2) > EPSILON)
       {
-      return EXIT_FAILURE;
+        return EXIT_FAILURE;
       }
     }
+
+    if (std::fabs(u-t1) > EPSILON || std::fabs(v-t2) > EPSILON)
+    {
+      return EXIT_FAILURE;
+    }
+  }
 
   return EXIT_SUCCESS;
 }
@@ -498,16 +498,16 @@ int TestDistanceToLine(vtkMinimalStandardRandomSequence* seq,
   double a1[3],a2[3],p[3],dist;
 
   for (unsigned i=0;i<nTests;i++)
-    {
+  {
     GenerateLineAtKnownDistance(seq,a1,a2,p,dist);
 
     double d = vtkLine::DistanceToLine(p,a1,a2);
 
     if (std::fabs(dist*dist-d) > epsilon)
-      {
+    {
       return EXIT_FAILURE;
-      }
     }
+  }
 
   return EXIT_SUCCESS;
 }
@@ -524,24 +524,24 @@ int UnitTestLine(int,char *[])
 
   std::cout<<"Testing vtkLine::vtkLine::Intersection3D"<<std::endl;
   if (TestLineIntersection(sequence,nTest) == EXIT_FAILURE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
   std::cout<<"Testing vtkLine::DistanceBetweenLines"<<std::endl;
   if (TestDistanceBetweenLines(sequence,nTest) == EXIT_FAILURE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
   std::cout<<"Testing vtkLine::DistanceBetweenLineSegments"<<std::endl;
   if (TestDistanceBetweenLineSegments(sequence,nTest) == EXIT_FAILURE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
   std::cout<<"Testing vtkLine::DistanceToLine"<<std::endl;
   if (TestDistanceToLine(sequence,nTest) == EXIT_FAILURE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   sequence->Delete();
   return EXIT_SUCCESS;

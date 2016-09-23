@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCameraNode - vtkViewNode specialized for vtkCameras
-// .SECTION Description
-// State storage and graph traversal for vtkCamera
+/**
+ * @class   vtkCameraNode
+ * @brief   vtkViewNode specialized for vtkCameras
+ *
+ * State storage and graph traversal for vtkCamera
+*/
 
 #ifndef vtkCameraNode_h
 #define vtkCameraNode_h

@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkKdTreePointLocator - class to quickly locate points in 3-space
-// .SECTION Description
-// vtkKdTreePointLocator is a wrapper class that derives from
-// vtkAbstractPointLocator and calls the search functions in vtkKdTree.
-
-// .SECTION See Also
-// vtkKdTree
+/**
+ * @class   vtkKdTreePointLocator
+ * @brief   class to quickly locate points in 3-space
+ *
+ * vtkKdTreePointLocator is a wrapper class that derives from
+ * vtkAbstractPointLocator and calls the search functions in vtkKdTree.
+ *
+ * @sa
+ * vtkKdTree
+*/
 
 #ifndef vtkKdTreePointLocator_h
 #define vtkKdTreePointLocator_h
@@ -36,44 +39,51 @@ public:
   static vtkKdTreePointLocator* New();
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Given a position x, return the id of the point closest to it. Alternative
-  // method requires separate x-y-z values.
-  // These methods are thread safe if BuildLocator() is directly or
-  // indirectly called from a single thread first.
+  /**
+   * Given a position x, return the id of the point closest to it. Alternative
+   * method requires separate x-y-z values.
+   * These methods are thread safe if BuildLocator() is directly or
+   * indirectly called from a single thread first.
+   */
   vtkIdType FindClosestPoint(const double x[3]) VTK_OVERRIDE;
 
-  // Description:
-  // Given a position x and a radius r, return the id of the point
-  // closest to the point in that radius.
-  // dist2 returns the squared distance to the point.
+  /**
+   * Given a position x and a radius r, return the id of the point
+   * closest to the point in that radius.
+   * dist2 returns the squared distance to the point.
+   */
   vtkIdType FindClosestPointWithinRadius(
     double radius, const double x[3], double& dist2) VTK_OVERRIDE;
 
-  // Description:
-  // Find the closest N points to a position. This returns the closest
-  // N points to a position. A faster method could be created that returned
-  // N close points to a position, but necessarily the exact N closest.
-  // The returned points are sorted from closest to farthest.
-  // These methods are thread safe if BuildLocator() is directly or
-  // indirectly called from a single thread first.
+  /**
+   * Find the closest N points to a position. This returns the closest
+   * N points to a position. A faster method could be created that returned
+   * N close points to a position, but necessarily the exact N closest.
+   * The returned points are sorted from closest to farthest.
+   * These methods are thread safe if BuildLocator() is directly or
+   * indirectly called from a single thread first.
+   */
   void FindClosestNPoints(
     int N, const double x[3], vtkIdList *result) VTK_OVERRIDE;
 
-  // Description:
-  // Find all points within a specified radius R of position x.
-  // The result is not sorted in any specific manner.
-  // These methods are thread safe if BuildLocator() is directly or
-  // indirectly called from a single thread first.
+  /**
+   * Find all points within a specified radius R of position x.
+   * The result is not sorted in any specific manner.
+   * These methods are thread safe if BuildLocator() is directly or
+   * indirectly called from a single thread first.
+   */
   void FindPointsWithinRadius(double R, const double x[3],
                               vtkIdList *result) VTK_OVERRIDE;
 
-  // Description:
-  // See vtkLocator interface documentation.
-  // These methods are not thread safe.
+  //@{
+  /**
+   * See vtkLocator interface documentation.
+   * These methods are not thread safe.
+   */
   void FreeSearchStructure() VTK_OVERRIDE;
   void BuildLocator() VTK_OVERRIDE;
   void GenerateRepresentation(int level, vtkPolyData *pd) VTK_OVERRIDE;
+  //@}
 
 protected:
   vtkKdTreePointLocator();

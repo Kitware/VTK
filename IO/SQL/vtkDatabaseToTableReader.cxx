@@ -44,21 +44,21 @@ vtkDatabaseToTableReader::~vtkDatabaseToTableReader()
 bool vtkDatabaseToTableReader::SetDatabase(vtkSQLDatabase *db)
 {
   if(!db)
-    {
+  {
     return false;
-    }
+  }
   this->Database = db;
   if(this->Database->IsOpen() == false)
-    {
+  {
     vtkErrorMacro(<<"SetDatabase must be passed an open database connection");
     this->Database = 0;
     return false;
-    }
+  }
 
   if(this->TableName != "")
-    {
+  {
     return this->CheckIfTableExists();
-    }
+  }
   return true;
 }
 
@@ -68,9 +68,9 @@ bool vtkDatabaseToTableReader::SetTableName(const char *name)
   std::string nameStr = name;
   this->TableName = nameStr;
   if(this->Database->IsOpen())
-    {
+  {
     return this->CheckIfTableExists();
-    }
+  }
   return true;
 }
 
@@ -78,23 +78,23 @@ bool vtkDatabaseToTableReader::SetTableName(const char *name)
 bool vtkDatabaseToTableReader::CheckIfTableExists()
 {
   if(!this->Database->IsOpen())
-    {
+  {
     vtkErrorMacro(<<"CheckIfTableExists() called with no open database!");
     return false;
-    }
+  }
   if(this->TableName == "")
-    {
+  {
     vtkErrorMacro(<<"CheckIfTableExists() called but no table name specified.");
     return false;
-    }
+  }
 
   if(this->Database->GetTables()->LookupValue(this->TableName) == -1)
-    {
+  {
     vtkErrorMacro(<<"Table " << this->TableName
                   << " does not exist in the database!");
     this->TableName = "";
     return false;
-    }
+  }
 
   return true;
 }

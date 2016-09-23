@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHierarchicalDataLevelFilter - generate scalars from levels
-// .SECTION Description
-// Legacy class. Use vtkLevelIdScalars instead.
-//
-// .SECTION See Also
-// vtkLevelIdScalars
+/**
+ * @class   vtkHierarchicalDataLevelFilter
+ * @brief   generate scalars from levels
+ *
+ * Legacy class. Use vtkLevelIdScalars instead.
+ *
+ * @sa
+ * vtkLevelIdScalars
+*/
 
 #ifndef vtkHierarchicalDataLevelFilter_h
 #define vtkHierarchicalDataLevelFilter_h
@@ -31,9 +34,10 @@ public:
   vtkTypeMacro(vtkHierarchicalDataLevelFilter,vtkLevelIdScalars);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Construct object with PointIds and CellIds on; and ids being generated
-  // as scalars.
+  /**
+   * Construct object with PointIds and CellIds on; and ids being generated
+   * as scalars.
+   */
   static vtkHierarchicalDataLevelFilter *New();
 
 protected:

@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLRectilinearGridWriter - Write VTK XML RectilinearGrid files.
-// .SECTION Description
-// vtkXMLRectilinearGridWriter writes the VTK XML RectilinearGrid
-// file format.  One rectilinear grid input can be written into one
-// file in any number of streamed pieces.  The standard extension for
-// this writer's file format is "vtr".  This writer is also used to
-// write a single piece of the parallel file format.
-
-// .SECTION See Also
-// vtkXMLPRectilinearGridWriter
+/**
+ * @class   vtkXMLRectilinearGridWriter
+ * @brief   Write VTK XML RectilinearGrid files.
+ *
+ * vtkXMLRectilinearGridWriter writes the VTK XML RectilinearGrid
+ * file format.  One rectilinear grid input can be written into one
+ * file in any number of streamed pieces.  The standard extension for
+ * this writer's file format is "vtr".  This writer is also used to
+ * write a single piece of the parallel file format.
+ *
+ * @sa
+ * vtkXMLPRectilinearGridWriter
+*/
 
 #ifndef vtkXMLRectilinearGridWriter_h
 #define vtkXMLRectilinearGridWriter_h
@@ -38,12 +41,14 @@ public:
   vtkTypeMacro(vtkXMLRectilinearGridWriter,vtkXMLStructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get/Set the writer's input.
+  /**
+   * Get/Set the writer's input.
+   */
   vtkRectilinearGrid* GetInput();
 
-  // Description:
-  // Get the default file extension for files written by this writer.
+  /**
+   * Get the default file extension for files written by this writer.
+   */
   const char* GetDefaultFileExtension();
 
 protected:

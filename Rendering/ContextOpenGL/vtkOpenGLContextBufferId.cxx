@@ -37,19 +37,19 @@ vtkOpenGLContextBufferId::vtkOpenGLContextBufferId()
 vtkOpenGLContextBufferId::~vtkOpenGLContextBufferId()
 {
   if(this->Texture!=0)
-    {
+  {
     vtkErrorMacro("texture should have been released.");
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
 void vtkOpenGLContextBufferId::ReleaseGraphicsResources()
 {
   if(this->Texture!=0)
-    {
+  {
     this->Texture->Delete();
     this->Texture=0;
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -57,11 +57,11 @@ void vtkOpenGLContextBufferId::SetContext(vtkRenderWindow *context)
 {
   vtkOpenGLRenderWindow *c = vtkOpenGLRenderWindow::SafeDownCast(context);
   if (this->Context != c)
-    {
+  {
     this->ReleaseGraphicsResources();
     this->Context = c;
     this->Modified();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -85,10 +85,10 @@ void vtkOpenGLContextBufferId::Allocate()
   assert("pre: context_is_set" && this->GetContext()!=0);
 
   if(this->Texture==0)
-    {
+  {
     this->Texture=vtkTextureObject::New();
     this->Texture->SetContext(this->Context);
-    }
+  }
   this->Context->MakeCurrent();
   // 3: RGB
   this->Texture->Allocate2D(static_cast<unsigned int>(this->GetWidth()),
@@ -124,19 +124,19 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
 
   vtkIdType result=-1;
   if(x<0 || x>=this->Width)
-    {
+  {
     vtkDebugMacro(<<"x mouse position out of range: x=" << x << " (width="
                     << this->Width <<")");
-    }
+  }
   else
-    {
+  {
     if(y<0 || y>=this->Height)
-      {
+    {
       vtkDebugMacro(<<"y mouse position out of range: y="<< y << " (height="
                       << this->Height << ")");
-      }
+    }
     else
-      {
+    {
       this->Context->MakeCurrent();
       // Render texture to current write buffer. Texel x,y is rendered at
       // pixel x,y (instead of pixel 0,0 to work around pixel ownership test).
@@ -148,25 +148,25 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
       bool savedBlend=glIsEnabled(GL_BLEND)==GL_TRUE;
 
       if(savedDrawBuffer!=GL_BACK_LEFT)
-        {
+      {
         glDrawBuffer(GL_BACK_LEFT);
-        }
+      }
       if(savedDepthTest)
-        {
+      {
         glDisable(GL_DEPTH_TEST);
-        }
+      }
       if(savedAlphaTest)
-        {
+      {
         glDisable(GL_ALPHA_TEST);
-        }
+      }
       if(savedStencilTest)
-        {
+      {
         glDisable(GL_STENCIL_TEST);
-        }
+      }
       if(savedBlend)
-        {
+      {
         glDisable(GL_BLEND);
-        }
+      }
 
       // Fixed-pipeline stuff
       vtkgl::ActiveTexture(vtkgl::TEXTURE0);
@@ -192,36 +192,36 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
       glReadPixels(x,y,1,1,GL_RGB,GL_UNSIGNED_BYTE,rgb);
 
       if(savedReadBuffer!=GL_BACK_LEFT)
-        {
+      {
         glReadBuffer(static_cast<GLenum>(savedReadBuffer));
-        }
+      }
       if(savedDrawBuffer!=GL_BACK_LEFT)
-        {
+      {
         glDrawBuffer(static_cast<GLenum>(savedDrawBuffer));
-        }
+      }
       if(savedDepthTest)
-        {
+      {
         glEnable(GL_DEPTH_TEST);
-        }
+      }
       if(savedAlphaTest)
-        {
+      {
         glEnable(GL_ALPHA_TEST);
-        }
+      }
       if(savedStencilTest)
-        {
+      {
         glEnable(GL_STENCIL_TEST);
-        }
+      }
       if(savedBlend)
-        {
+      {
         glEnable(GL_BLEND);
-        }
+      }
 
       int value=(static_cast<int>(rgb[0])<<16)|(static_cast<int>(rgb[1])<<8)
         |static_cast<int>(rgb[2]);
 
       result=static_cast<vtkIdType>(value-1);
-      }
     }
+  }
 
   assert("post: valid_result" && result>=-1 );
 

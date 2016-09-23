@@ -38,7 +38,7 @@
 int ArrayAPIDenseCoordinates(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     vtkSmartPointer<vtkDiagonalMatrixSource> source = vtkSmartPointer<vtkDiagonalMatrixSource>::New();
     source->SetExtents(3);
     source->SetArrayType(vtkDiagonalMatrixSource::DENSE);
@@ -68,30 +68,30 @@ int ArrayAPIDenseCoordinates(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(array->GetValue(vtkArrayCoordinates(2, 2)) == 1.0);
 
     for(vtkArray::SizeT n = 0; n != array->GetNonNullSize(); ++n)
-      {
+    {
       vtkArrayCoordinates coordinates;
       array->GetCoordinatesN(n, coordinates);
 
       if(coordinates[0] == 0 && coordinates[1] == 0)
-        {
+      {
         test_expression(array->GetValueN(n) == 1.0);
-        }
-      else if(coordinates[0] == 0 && coordinates[1] == 1)
-        {
-        test_expression(array->GetValueN(n) == 0.5);
-        }
-      else if(coordinates[0] == 1 && coordinates[1] == 0)
-        {
-        test_expression(array->GetValueN(n) == -0.5);
-        }
       }
+      else if(coordinates[0] == 0 && coordinates[1] == 1)
+      {
+        test_expression(array->GetValueN(n) == 0.5);
+      }
+      else if(coordinates[0] == 1 && coordinates[1] == 0)
+      {
+        test_expression(array->GetValueN(n) == -0.5);
+      }
+    }
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }
 

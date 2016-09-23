@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInformationInformationVectorKey - Key for vtkInformation vectors.
-// .SECTION Description
-// vtkInformationInformationVectorKey is used to represent keys in
-// vtkInformation for vectors of other vtkInformation objects.
+/**
+ * @class   vtkInformationInformationVectorKey
+ * @brief   Key for vtkInformation vectors.
+ *
+ * vtkInformationInformationVectorKey is used to represent keys in
+ * vtkInformation for vectors of other vtkInformation objects.
+*/
 
 #ifndef vtkInformationInformationVectorKey_h
 #define vtkInformationInformationVectorKey_h
@@ -36,26 +39,32 @@ public:
   vtkInformationInformationVectorKey(const char* name, const char* location);
   ~vtkInformationInformationVectorKey() VTK_OVERRIDE;
 
-  // Description:
-  // Get/Set the value associated with this key in the given
-  // information object.
+  //@{
+  /**
+   * Get/Set the value associated with this key in the given
+   * information object.
+   */
   void Set(vtkInformation* info, vtkInformationVector*);
   vtkInformationVector* Get(vtkInformation* info);
+  //@}
 
-  // Description:
-  // Copy the entry associated with this key from one information
-  // object to another.  If there is no entry in the first information
-  // object for this key, the value is removed from the second.
+  /**
+   * Copy the entry associated with this key from one information
+   * object to another.  If there is no entry in the first information
+   * object for this key, the value is removed from the second.
+   */
   void ShallowCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
 
-  // Description:
-  // Duplicate (new instance created) the entry associated with this key from
-  // one information object to another (new instances of any contained
-  // vtkInformation and vtkInformationVector objects are created).
+  /**
+   * Duplicate (new instance created) the entry associated with this key from
+   * one information object to another (new instances of any contained
+   * vtkInformation and vtkInformationVector objects are created).
+   */
   void DeepCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
 
-  // Description:
-  // Report a reference this key has in the given information object.
+  /**
+   * Report a reference this key has in the given information object.
+   */
   void Report(vtkInformation* info, vtkGarbageCollector* collector) VTK_OVERRIDE;
 
 private:

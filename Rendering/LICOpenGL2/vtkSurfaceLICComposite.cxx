@@ -100,28 +100,28 @@ int vtkSurfaceLICComposite::VectorMax(
   size_t nBlocks = exts.size();
   vector<float> tmpMax(nBlocks, 0.0f);
   for (size_t b=0; b<nBlocks; ++b)
-    {
+  {
     tmpMax[b] = this->VectorMax(exts[b], vectors);
-    }
+  }
 
   // use larger of this extent and its neighbors
   vMax.resize(nBlocks, 0.0f);
   for (size_t a=0; a<nBlocks; ++a)
-    {
+  {
     vtkPixelExtent extA = exts[a];
     extA.Grow(1);
     for (size_t b=0; b<nBlocks; ++b)
-      {
+    {
       vtkPixelExtent extB = exts[b];
       extB&=extA;
 
       // it's a neighbor(or self) use the larger of ours and theirs
       if (!extB.Empty())
-        {
+      {
         vMax[a] = vMax[a] < tmpMax[b] ? tmpMax[b] : vMax[a];
-        }
       }
     }
+  }
 
   return 0;
 }
@@ -142,20 +142,20 @@ float vtkSurfaceLICComposite::VectorMax(
   // scaling by 1/nx since that's what LIC'er does.
   float eMax = 0.0;
   for (int j=ext[2]; j<=ext[3]; ++j)
-    {
+  {
     int idx = 4*(nx[0]*j+ext[0]);
     for (int i=ext[0]; i<=ext[1]; ++i, idx+=4)
-      {
+    {
       float eMag = 0.0;
       for (int c=0; c<2; ++c)
-        {
+      {
         float eVec = vectors[idx+c]/static_cast<float>(nx[c]);
         eMag += eVec*eVec;
-        }
+      }
       eMag = sqrt(eMag);
       eMax = eMax < eMag ? eMag : eMax;
-      }
     }
+  }
 
   return eMax;
 }
@@ -187,16 +187,16 @@ int vtkSurfaceLICComposite::MakeDecompDisjoint(
   int nx[2];
   this->WindowExt.Size(nx);
   while(!tmpOut0.empty())
-    {
+  {
     vtkPixelExtent outExt = tmpOut0.back();
     tmpOut0.pop_back();
 
     GetPixelBounds(vectors, nx[0], outExt);
     if (!outExt.Empty())
-      {
+    {
       out.push_back(outExt);
-      }
     }
+  }
 
   /*
   // merge compatible extents
@@ -212,7 +212,7 @@ int vtkSurfaceLICComposite::MakeDecompDisjoint(
      deque<vtkPixelExtent> &out)
 {
   while (!in.empty())
-    {
+  {
     // for each element
     deque<vtkPixelExtent> tmpOut(1, in.back());
     in.pop_back();
@@ -221,21 +221,21 @@ int vtkSurfaceLICComposite::MakeDecompDisjoint(
     // to make it disjoint
     size_t ns = in.size();
     for (size_t se=0; se<ns; ++se)
-      {
+    {
       vtkPixelExtent &selem = in[se];
       deque<vtkPixelExtent> tmpOut2;
       size_t nl = tmpOut.size();
       for (size_t le=0; le<nl; ++le)
-        {
+      {
         vtkPixelExtent &lelem = tmpOut[le];
         vtkPixelExtent::Subtract(lelem, selem, tmpOut2);
-        }
-      tmpOut = tmpOut2;
       }
+      tmpOut = tmpOut2;
+    }
 
     // append new disjoint elements
     out.insert(out.end(), tmpOut.begin(), tmpOut.end());
-    }
+  }
 
   return 0;
 }
@@ -276,7 +276,7 @@ int vtkSurfaceLICComposite::AddGuardPixels(
     = this->StepSize*this->NumberOfSteps*this->NumberOfGuardLevels*fudge;
 
   if (this->NormalizeVectors)
-    {
+  {
     // when normalizing velocity is always 1, all extents have the
     // same number of gaurd cells.
     int ng
@@ -289,17 +289,17 @@ int vtkSurfaceLICComposite::AddGuardPixels(
     size_t nExts = tmpExts.size();
     // add guard pixels
     for (size_t b=0; b<nExts; ++b)
-      {
+    {
       tmpExts[b].Grow(ng);
       tmpExts[b]&=this->DataSetExt;
-      }
+    }
     guardExts=tmpExts;
     // make sure it's disjoint
     disjointGuardExts.clear();
     this->MakeDecompDisjoint(tmpExts, disjointGuardExts);
-    }
+  }
   else
-    {
+  {
     // when not normailzing during integration we need max(V) on the LIC
     // decomp. Each domain has the potential to require a unique number
     // of gaurd cells.
@@ -313,7 +313,7 @@ int vtkSurfaceLICComposite::AddGuardPixels(
     size_t nExts = tmpExts.size();
     // add guard pixels
     for (size_t b=0; b<nExts; ++b)
-      {
+    {
       int ng
         = static_cast<int>(vectorMax[b]*arc
         + this->NumberOfEEGuardPixels
@@ -322,13 +322,13 @@ int vtkSurfaceLICComposite::AddGuardPixels(
       //cerr << " " << ng;
       tmpExts[b].Grow(ng);
       tmpExts[b]&=this->DataSetExt;
-      }
+    }
     guardExts=tmpExts;
     //cerr << endl;
     // make sure it's disjoint
     disjointGuardExts.clear();
     this->MakeDecompDisjoint(tmpExts, disjointGuardExts);
-    }
+  }
 
   return 0;
 }
@@ -341,18 +341,18 @@ void vtkSurfaceLICComposite::GetPixelBounds(
 {
   vtkPixelExtent text;
   for (int j=ext[2]; j<=ext[3]; ++j)
-    {
+  {
     for (int i=ext[0]; i<=ext[1]; ++i)
-      {
+    {
       if (rgba[4*(j*ni+i)+3] > 0.0f)
-        {
+      {
         text[0] = text[0] > i ? i : text[0];
         text[1] = text[1] < i ? i : text[1];
         text[2] = text[2] > j ? j : text[2];
         text[3] = text[3] < j ? j : text[3];
-        }
       }
     }
+  }
   ext = text;
 }
 
@@ -362,9 +362,9 @@ int vtkSurfaceLICComposite::InitializeCompositeExtents(float *vectors)
   // determine screen bounds of all blocks
   size_t nBlocks = this->BlockExts.size();
   for (size_t b = 0; b<nBlocks; ++b)
-    {
+  {
     this->DataSetExt |= this->BlockExts[b];
-    }
+  }
 
   // Make all of the input block extents disjoint so that
   // LIC is computed once per pixel.
@@ -402,24 +402,24 @@ ostream &operator<<(ostream &os, vtkSurfaceLICComposite &ss)
   os << "blockExts=" << endl;
   size_t nExts = ss.BlockExts.size();
   for (size_t i=0; i<nExts; ++i)
-    {
+  {
     os << "  " << ss.BlockExts[i] << endl;
-    }
+  }
   os << "compositeExts=" << endl;
   nExts = ss.CompositeExt.size();
   for (size_t i=0; i<nExts; ++i)
-    {
+  {
     os << ss.CompositeExt[i] << endl;
-    }
+  }
   os << "guardExts=" << endl;
   for (size_t i=0; i<nExts; ++i)
-    {
+  {
     os << ss.GuardExt[i] << endl;
-    }
+  }
   os << "disjointGuardExts=" << endl;
   for (size_t i=0; i<nExts; ++i)
-    {
+  {
     os << ss.DisjointGuardExt[i] << endl;
-    }
+  }
   return os;
 }

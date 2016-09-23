@@ -31,9 +31,9 @@ int TestCountFaces(int, char*[])
 
   // Need 12 points to test all cell types:
   for (int i = 0; i < 12; ++i)
-    {
+  {
     points->InsertNextPoint(0., 0., 0.);
-    }
+  }
   data->SetPoints(points.Get());
 
   // Insert the following cell types and verify the number of faces computed
@@ -86,44 +86,44 @@ int TestCountFaces(int, char*[])
   vtkUnstructuredGrid *output =
       vtkUnstructuredGrid::SafeDownCast(filter->GetOutput());
   if (!output)
-    {
+  {
     std::cerr << "No output data!\n";
     return EXIT_FAILURE;
-    }
+  }
 
   vtkIdTypeArray *faces =
       vtkIdTypeArray::SafeDownCast(
         output->GetCellData()->GetArray(
           filter->GetOutputArrayName()));
   if (!faces)
-    {
+  {
     std::cerr << "No output array!\n";
     return EXIT_FAILURE;
-    }
+  }
 
   if (faces->GetNumberOfComponents() != 1)
-    {
+  {
     std::cerr << "Invalid number of components in output array: "
               << faces->GetNumberOfComponents() << "\n";
     return EXIT_FAILURE;
-    }
+  }
 
   if (faces->GetNumberOfTuples() != 10)
-    {
+  {
     std::cerr << "Invalid number of components in output array: "
               << faces->GetNumberOfTuples() << "\n";
     return EXIT_FAILURE;
-    }
+  }
 
 #define TEST_FACES(idx, expected) \
   { \
   vtkIdType numFaces = faces->GetTypedComponent(idx, 0); \
   if (numFaces != expected) \
-    { \
+  { \
     std::cerr << "Expected cell @idx=" << idx << " to have " << expected \
               << " faces, but found " << numFaces << "\n"; \
     return EXIT_FAILURE; \
-    } \
+  } \
   }
 
   int idx = 0;

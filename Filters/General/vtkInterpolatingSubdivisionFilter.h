@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInterpolatingSubdivisionFilter - generate a subdivision surface using an Interpolating Scheme
-// .SECTION Description
-// vtkInterpolatingSubdivisionFilter is an abstract class that defines
-// the protocol for interpolating subdivision surface filters.
-
-// .SECTION Thanks
-// This work was supported by PHS Research Grant No. 1 P41 RR13218-01
-// from the National Center for Research Resources.
-
-// .SECTION See Also
-// vtkLinearSubdivisionFilter vtkButterflySubdivisionFilter
+/**
+ * @class   vtkInterpolatingSubdivisionFilter
+ * @brief   generate a subdivision surface using an Interpolating Scheme
+ *
+ * vtkInterpolatingSubdivisionFilter is an abstract class that defines
+ * the protocol for interpolating subdivision surface filters.
+ *
+ * @par Thanks:
+ * This work was supported by PHS Research Grant No. 1 P41 RR13218-01
+ * from the National Center for Research Resources.
+ *
+ * @sa
+ * vtkLinearSubdivisionFilter vtkButterflySubdivisionFilter
+*/
 
 #ifndef vtkInterpolatingSubdivisionFilter_h
 #define vtkInterpolatingSubdivisionFilter_h
@@ -44,10 +47,13 @@ public:
   vtkTypeMacro(vtkInterpolatingSubdivisionFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set/get the number of subdivisions.
+  //@{
+  /**
+   * Set/get the number of subdivisions.
+   */
   vtkSetMacro(NumberOfSubdivisions,int);
   vtkGetMacro(NumberOfSubdivisions,int);
+  //@}
 
 protected:
   vtkInterpolatingSubdivisionFilter();

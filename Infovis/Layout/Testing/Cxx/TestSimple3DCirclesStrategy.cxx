@@ -31,7 +31,7 @@
 #include "vtkVertexGlyphFilter.h"
 
 int TestSimple3DCirclesStrategy(int argc, char *argv[])
-  {
+{
   // graph
   vtkSmartPointer<vtkMutableDirectedGraph> graph = vtkSmartPointer<vtkMutableDirectedGraph>::New();
   // mapper
@@ -130,10 +130,10 @@ int TestSimple3DCirclesStrategy(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage( renwin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
-  }
+}
 

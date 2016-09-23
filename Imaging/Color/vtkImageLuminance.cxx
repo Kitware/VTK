@@ -59,22 +59,22 @@ void vtkImageLuminanceExecute(vtkImageLuminance *self, vtkImageData *inData,
 
   // Loop through output pixels
   while (!outIt.IsAtEnd())
-    {
+  {
     T* inSI = inIt.BeginSpan();
     T* outSI = outIt.BeginSpan();
     T* outSIEnd = outIt.EndSpan();
     while (outSI != outSIEnd)
-      {
+    {
       // now process the components
       luminance =  0.30 * *inSI++;
       luminance += 0.59 * *inSI++;
       luminance += 0.11 * *inSI++;
       *outSI = static_cast<T>(luminance);
       ++outSI;
-      }
+    }
     inIt.NextSpan();
     outIt.NextSpan();
-    }
+  }
 }
 
 
@@ -91,29 +91,29 @@ void vtkImageLuminance::ThreadedExecute (vtkImageData *inData,
 
   // this filter expects that input is the same type as output.
   if (inData->GetNumberOfScalarComponents() != 3)
-    {
+  {
     vtkErrorMacro(<< "Execute: input must have 3 components, but has "
                   << inData->GetNumberOfScalarComponents());
     return;
-    }
+  }
 
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
-    {
+  {
     vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
     << ", must match out ScalarType " << outData->GetScalarType());
     return;
-    }
+  }
 
   switch (inData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageLuminanceExecute( this, inData, outData,
                                 outExt, id, static_cast<VTK_TT *>(0)));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
-    }
+  }
 }
 
 

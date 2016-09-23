@@ -70,8 +70,8 @@ int TestHiddenLineRemovalPass(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(renWin.Get());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
   return !retVal;
 }

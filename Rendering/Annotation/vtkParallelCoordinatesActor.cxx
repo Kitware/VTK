@@ -39,9 +39,9 @@ public:
   vtkTypeMacro(vtkParallelCoordinatesActorConnection,vtkAlgorithm);
 
   vtkParallelCoordinatesActorConnection()
-    {
+  {
       this->SetNumberOfInputPorts(1);
-    }
+  }
 };
 
 vtkStandardNewMacro(vtkParallelCoordinatesActorConnection);
@@ -133,11 +133,11 @@ vtkParallelCoordinatesActor::~vtkParallelCoordinatesActor()
 void vtkParallelCoordinatesActor::Initialize()
 {
   if ( this->Axes )
-    {
+  {
     for (int i=0; i<this->N; i++)
-      {
+    {
       this->Axes[i]->Delete();
-      }
+    }
     delete [] this->Axes;
     this->Axes = NULL;
     delete [] this->Mins;
@@ -146,7 +146,7 @@ void vtkParallelCoordinatesActor::Initialize()
     this->Maxs = NULL;
     delete [] this->Xs;
     this->Xs = NULL;
-    }
+  }
   this->N = 0;
 }
 
@@ -179,23 +179,23 @@ int vtkParallelCoordinatesActor::RenderOverlay(vtkViewport *viewport)
 
   // Make sure input is up to date.
   if ( this->GetInput() == NULL || this->N <= 0 )
-    {
+  {
     vtkErrorMacro(<< "Nothing to plot!");
     return 0;
-    }
+  }
 
   if ( this->Title != NULL )
-    {
+  {
     renderedSomething += this->TitleActor->RenderOverlay(viewport);
-    }
+  }
 
   this->PlotActor->SetProperty(this->GetProperty());
   renderedSomething += this->PlotActor->RenderOverlay(viewport);
 
   for (int i=0; i<this->N; i++)
-    {
+  {
     renderedSomething += this->Axes[i]->RenderOverlay(viewport);
-    }
+  }
 
   return renderedSomething;
 }
@@ -213,22 +213,22 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
   // plot.
 
   if (!this->GetInput())
-    {
+  {
     vtkErrorMacro(<< "Nothing to plot!");
     return renderedSomething;
-    }
+  }
 
   if (!this->TitleTextProperty)
-    {
+  {
     vtkErrorMacro(<<"Need title text property to render plot");
     return renderedSomething;
-    }
+  }
 
   if (!this->LabelTextProperty)
-    {
+  {
     vtkErrorMacro(<<"Need label text property to render plot");
     return renderedSomething;
-    }
+  }
 
   // Viewport change may not require rebuild
 
@@ -236,7 +236,7 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
   if (viewport->GetMTime() > this->BuildTime ||
       (viewport->GetVTKWindow() &&
        viewport->GetVTKWindow()->GetMTime() > this->BuildTime))
-    {
+  {
     int *lastPosition =
       this->PositionCoordinate->GetComputedViewportValue(viewport);
     int *lastPosition2 =
@@ -245,14 +245,14 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
         lastPosition[1] != this->LastPosition[1] ||
         lastPosition2[0] != this->LastPosition2[0] ||
         lastPosition2[1] != this->LastPosition2[1] )
-      {
+    {
       this->LastPosition[0] = lastPosition[0];
       this->LastPosition[1] = lastPosition[1];
       this->LastPosition2[0] = lastPosition2[0];
       this->LastPosition2[1] = lastPosition2[1];
       positionsHaveChanged = 1;
-      }
     }
+  }
 
   // Check modified time to see whether we have to rebuild.
 
@@ -263,7 +263,7 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
       this->GetInput()->GetMTime() > this->BuildTime ||
       this->LabelTextProperty->GetMTime() > this->BuildTime ||
       this->TitleTextProperty->GetMTime() > this->BuildTime)
-    {
+  {
     int *size = viewport->GetSize();
     int stringSize[2];
 
@@ -272,23 +272,23 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
     // Build axes
 
     if (!this->PlaceAxes(viewport, size))
-      {
+    {
       return renderedSomething;
-      }
+    }
 
     // Build title
 
     this->TitleMapper->SetInput(this->Title);
 
     if (this->TitleTextProperty->GetMTime() > this->BuildTime)
-      {
+    {
       // Shallow copy here since the justification is changed but we still
       // want to allow actors to share the same text property, and in that case
       // specifically allow the title and label text prop to be the same.
       this->TitleMapper->GetTextProperty()->ShallowCopy(
         this->TitleTextProperty);
       this->TitleMapper->GetTextProperty()->SetJustificationToCentered();
-      }
+    }
 
     // We could do some caching here, but hey, that's just the title
     vtkTextMapper::SetRelativeFontSize(this->TitleMapper, viewport, size, stringSize, 0.015);
@@ -299,20 +299,20 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
     this->BuildTime.Modified();
 
-    } // If need to rebuild the plot
+  } // If need to rebuild the plot
 
   if ( this->Title != NULL )
-    {
+  {
     renderedSomething += this->TitleActor->RenderOpaqueGeometry(viewport);
-    }
+  }
 
   this->PlotActor->SetProperty(this->GetProperty());
   renderedSomething += this->PlotActor->RenderOpaqueGeometry(viewport);
 
   for (int i=0; i<this->N; i++)
-    {
+  {
     renderedSomething += this->Axes[i]->RenderOpaqueGeometry(viewport);
-    }
+  }
 
   return renderedSomething;
 }
@@ -332,15 +332,15 @@ static inline int vtkParallelCoordinatesActorGetComponent(vtkFieldData* field,
   int array_comp;
   int array_index = field->GetArrayContainingComponent(component, array_comp);
   if (array_index < 0)
-    {
+  {
     return 0;
-    }
+  }
   vtkDataArray* da = field->GetArray(array_index);
   if (!da)
-    {
+  {
     // non-numeric array.
     return 0;
-    }
+  }
   *val = da->GetComponent(tuple, array_comp);
   return 1;
 }
@@ -356,9 +356,9 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
   this->Initialize();
 
   if ( ! field )
-    {
+  {
     return 0;
-    }
+  }
 
   // Determine the shape of the field
   int numComponents = field->GetNumberOfComponents(); //number of components
@@ -369,100 +369,100 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
   vtkIdType numTuples;
   vtkDataArray *array;
   for (i=0; i<field->GetNumberOfArrays(); i++)
-    {
+  {
     array = field->GetArray(i);
     if (!array)
-      {
+    {
       // skip over non-numeric arrays.
       continue;
-      }
+    }
     numColumns += array->GetNumberOfComponents();
     numTuples = array->GetNumberOfTuples();
     if ( numTuples < numRows )
-      {
+    {
       numRows = numTuples;
-      }
     }
+  }
 
   // Determine the number of independent variables
   if ( this->IndependentVariables == VTK_IV_COLUMN )
-    {
+  {
     this->N = numColumns;
-    }
+  }
   else //row
-    {
+  {
     this->N = numRows;
-    }
+  }
 
   if ( this->N <= 0 || this->N >= VTK_ID_MAX )
-    {
+  {
     this->N = 0;
     vtkErrorMacro(<<"No field data to plot");
     return 0;
-    }
+  }
 
   // We need to loop over the field to determine the range of
   // each independent variable.
   this->Mins = new double [this->N];
   this->Maxs = new double [this->N];
   for (i=0; i<this->N; i++)
-    {
+  {
     this->Mins[i] =  VTK_DOUBLE_MAX;
     this->Maxs[i] = -VTK_DOUBLE_MAX;
-    }
+  }
 
   if ( this->IndependentVariables == VTK_IV_COLUMN )
-    {
+  {
     k = 0;
     for (j=0; j<numComponents; j++)
-      {
+    {
       int array_comp, array_index;
       array_index = field->GetArrayContainingComponent(j, array_comp);
       if (array_index < 0 || !field->GetArray(array_index))
-        {
+      {
         // non-numeric component, simply skip it.
         continue;
-        }
+      }
       for (i=0; i<numRows; i++)
-        {
+      {
         //v = field->GetComponent(i,j);
         ::vtkParallelCoordinatesActorGetComponent(field, i, j, &v);
         if ( v < this->Mins[k] )
-          {
-          this->Mins[k] = v;
-          }
-        if ( v > this->Maxs[k] )
-          {
-          this->Maxs[k] = v;
-          }
-        }
-      k++;
-      }
-    }
-  else //row
-    {
-    for (j=0; j<numRows; j++)
-      {
-      for (i=0; i<numComponents; i++)
         {
+          this->Mins[k] = v;
+        }
+        if ( v > this->Maxs[k] )
+        {
+          this->Maxs[k] = v;
+        }
+      }
+      k++;
+    }
+  }
+  else //row
+  {
+    for (j=0; j<numRows; j++)
+    {
+      for (i=0; i<numComponents; i++)
+      {
         //v = field->GetComponent(j,i);
         if (::vtkParallelCoordinatesActorGetComponent(field,
             j, i, &v) == 0)
-          {
+        {
           // non-numeric component, simply skip.
           continue;
-          }
+        }
         if ( v < this->Mins[j] )
-          {
+        {
           this->Mins[j] = v;
-          }
+        }
         if ( v > this->Maxs[j] )
-          {
+        {
           this->Maxs[j] = v;
-          }
         }
       }
     }
+  }
 
   // Allocate space and create axes
 
@@ -474,7 +474,7 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
 
   this->Axes = new vtkAxisActor2D* [this->N];
   for (i=0; i<this->N; i++)
-    {
+  {
     this->Axes[i] = vtkAxisActor2D::New();
     this->Axes[i]->GetPositionCoordinate()->SetCoordinateSystemToViewport();
     this->Axes[i]->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
@@ -488,7 +488,7 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
     // so that the size of the text prop is not affected by the automatic
     // adjustment of its text mapper's size.
     this->Axes[i]->SetLabelTextProperty(this->LabelTextProperty);
-    }
+  }
   this->Xs = new int [this->N];
 
   // Get the location of the corners of the box
@@ -499,14 +499,14 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
   this->YMin = p1[1];
   this->YMax = p2[1];
   for (i=0; i<this->N; i++)
-    {
+  {
     this->Xs[i] = static_cast<int>(
       p1[0] + i/static_cast<double>(this->N) * (p2[0]-p1[0]));
     this->Axes[i]->GetPositionCoordinate()->SetValue(this->Xs[i],
                                                      this->YMin);
     this->Axes[i]->GetPosition2Coordinate()->SetValue(this->Xs[i],
                                                       this->YMax);
-    }
+  }
 
   // Now generate the lines to plot
   this->PlotData->Initialize(); //remove old polydata, if any
@@ -518,69 +518,69 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
 
   double x[3]; x[2] = 0.0;
   if ( this->IndependentVariables == VTK_IV_COLUMN )
-    {
+  {
     lines->Allocate(lines->EstimateSize(numRows,numColumns));
     for (j=0; j<numRows; j++)
-      {
+    {
       lines->InsertNextCell(numColumns);
       for (i=0,k=0; i<numColumns && k < numComponents; k++)
-        {
+      {
         // v = field->GetComponent(j,i);
         if (::vtkParallelCoordinatesActorGetComponent(field, j, k, &v) == 0)
-          {
+        {
           // skip non-numeric components.
           continue;
-          }
+        }
         x[0] = this->Xs[i];
         if ( (this->Maxs[i]-this->Mins[i]) == 0.0 )
-          {
+        {
           x[1] = 0.5 * (this->YMax - this->YMin);
-          }
+        }
         else
-          {
+        {
           x[1] = this->YMin +
             ((v - this->Mins[i]) / (this->Maxs[i] - this->Mins[i])) *
             (this->YMax - this->YMin);
-          }
+        }
         ptId = pts->InsertNextPoint(x);
         lines->InsertCellPoint(ptId);
         i++;
-        }
       }
     }
+  }
   else //row
-    {
+  {
     lines->Allocate(lines->EstimateSize(numColumns,numRows));
     for (j=0; j<numComponents; j++)
-      {
+    {
       int array_comp;
       int array_index = field->GetArrayContainingComponent(j, array_comp);
       if (!field->GetArray(array_index))
-        {
+      {
         // non-numeric component, skip it.
         continue;
-        }
+      }
       lines->InsertNextCell(numColumns);
       for (i=0; i<numRows; i++)
-        {
+      {
         x[0] = this->Xs[i];
         // v = field->GetComponent(i,j);
         vtkParallelCoordinatesActorGetComponent(field, i, j, &v);
         if ( (this->Maxs[i]-this->Mins[i]) == 0.0 )
-          {
+        {
           x[1] = 0.5 * (this->YMax - this->YMin);
-          }
+        }
         else
-          {
+        {
           x[1] = this->YMin +
             ((v - this->Mins[i]) / (this->Maxs[i] - this->Mins[i])) *
             (this->YMax - this->YMin);
-          }
+        }
         ptId = pts->InsertNextPoint(x);
         lines->InsertCellPoint(ptId);
-        }
       }
     }
+  }
 
   pts->Delete();
   lines->Delete();
@@ -596,9 +596,9 @@ void vtkParallelCoordinatesActor::ReleaseGraphicsResources(vtkWindow *win)
 {
   this->TitleActor->ReleaseGraphicsResources(win);
   for (int i=0; this->Axes && i<this->N; i++)
-    {
+  {
     this->Axes[i]->ReleaseGraphicsResources(win);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -607,24 +607,24 @@ void vtkParallelCoordinatesActor::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if (this->TitleTextProperty)
-    {
+  {
     os << indent << "Title Text Property:\n";
     this->TitleTextProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Title Text Property: (none)\n";
-    }
+  }
 
   if (this->LabelTextProperty)
-    {
+  {
     os << indent << "Label Text Property:\n";
     this->LabelTextProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Label Text Property: (none)\n";
-    }
+  }
 
   os << indent << "Position2 Coordinate: "
      << this->Position2Coordinate << "\n";
@@ -634,13 +634,13 @@ void vtkParallelCoordinatesActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Independent Variables: " << this->N << "\n";
   os << indent << "Independent Variables: ";
   if ( this->IndependentVariables == VTK_IV_COLUMN )
-    {
+  {
     os << "Columns\n";
-    }
+  }
   else
-    {
+  {
     os << "Rows\n";
-    }
+  }
 
   os << indent << "Number Of Labels: " << this->NumberOfLabels << "\n";
 

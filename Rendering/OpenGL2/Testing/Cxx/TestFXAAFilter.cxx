@@ -44,7 +44,7 @@ void BuildRenderer(vtkRenderer *renderer, int widthBias)
   vtkNew<vtkPolyDataMapper> mappers[NUM_LINES];
   vtkNew<vtkActor> actors[NUM_LINES];
   for (size_t i = 0; i < NUM_LINES; ++i)
-    {
+  {
     double c = static_cast<double>(2 * i) /
                static_cast<double>(NUM_LINES - 1) - 1.;
     lines[i]->SetPoint1(-1,  c, 0.);
@@ -57,7 +57,7 @@ void BuildRenderer(vtkRenderer *renderer, int widthBias)
     actors[i]->GetProperty()->SetRepresentationToWireframe();
     actors[i]->GetProperty()->SetLineWidth((i + widthBias) % 2 ? 1 : 3);
     renderer->AddActor(actors[i].Get());
-    }
+  }
 
   vtkNew<vtkSphereSource> sphere;
   sphere->SetCenter(0., 0.6, 0.);
@@ -167,8 +167,8 @@ int TestFXAAFilter(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage(renWin.Get());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
   return !retVal;
 }

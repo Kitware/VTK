@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageSliceCollection - a sorted list of image slice objects
-// .SECTION Description
-// vtkImageSliceCollection is a vtkPropCollection that maintains
-// a list of vtkImageSlice objects that are sorted by LayerNumber.
-// This allows the images to be rendered in the correct order.
-// .SECTION See Also
-// vtkImageSlice vtkImageAssembly
+/**
+ * @class   vtkImageSliceCollection
+ * @brief   a sorted list of image slice objects
+ *
+ * vtkImageSliceCollection is a vtkPropCollection that maintains
+ * a list of vtkImageSlice objects that are sorted by LayerNumber.
+ * This allows the images to be rendered in the correct order.
+ * @sa
+ * vtkImageSlice vtkImageAssembly
+*/
 
 #ifndef vtkImageSliceCollection_h
 #define vtkImageSliceCollection_h
@@ -33,32 +36,37 @@ class VTKRENDERINGIMAGE_EXPORT vtkImageSliceCollection : public vtkPropCollectio
   static vtkImageSliceCollection *New();
   vtkTypeMacro(vtkImageSliceCollection,vtkPropCollection);
 
-  // Description:
-  // Sorts the vtkImageSliceCollection by layer number.  Smaller layer
-  // numbers are first. Layer numbers can be any integer value. Items
-  // with the same layer number will be kept in the same relative order
-  // as before the sort.
+  /**
+   * Sorts the vtkImageSliceCollection by layer number.  Smaller layer
+   * numbers are first. Layer numbers can be any integer value. Items
+   * with the same layer number will be kept in the same relative order
+   * as before the sort.
+   */
   void Sort();
 
-  // Description:
-  // Add an image to the list.  The new image is inserted in the list
-  // according to its layer number.
+  /**
+   * Add an image to the list.  The new image is inserted in the list
+   * according to its layer number.
+   */
   void AddItem(vtkImageSlice *a);
 
-  // Description:
-  // Standard Collection methods.  You must call InitTraversal
-  // before calling GetNextImage.  If possible, you should use the
-  // GetNextImage method that takes a collection iterator instead.
+  /**
+   * Standard Collection methods.  You must call InitTraversal
+   * before calling GetNextImage.  If possible, you should use the
+   * GetNextImage method that takes a collection iterator instead.
+   */
   vtkImageSlice *GetNextImage();
 
-  // Description:
-  // Reentrant safe way to get an object in a collection.
+  /**
+   * Reentrant safe way to get an object in a collection.
+   */
   vtkImageSlice *GetNextImage(vtkCollectionSimpleIterator &cookie);
 
-  // Description:
-  // Access routine provided for compatibility with previous
-  // versions of VTK.  Please use the GetNextImage() variant
-  // where possible.
+  /**
+   * Access routine provided for compatibility with previous
+   * versions of VTK.  Please use the GetNextImage() variant
+   * where possible.
+   */
   vtkImageSlice *GetNextItem() { return this->GetNextImage(); }
 
 protected:

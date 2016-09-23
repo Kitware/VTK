@@ -36,10 +36,10 @@ vtkQuad::vtkQuad()
   this->Points->SetNumberOfPoints(4);
   this->PointIds->SetNumberOfIds(4);
   for (int i = 0; i < 4; i++)
-    {
+  {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
     this->PointIds->SetId(i,0);
-    }
+  }
   this->Line = vtkLine::New();
   this->Triangle = vtkTriangle::New();
 }
@@ -64,10 +64,10 @@ inline static void ComputeNormal(vtkQuad *self, double pt1[3], double pt2[3],
   //
   double pt4[3];
   if ( n[0] == 0.0 && n[1] == 0.0 && n[2] == 0.0 )
-    {
+  {
     self->Points->GetPoint(3,pt4);
     vtkTriangle::ComputeNormal (pt2, pt3, pt4, n);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -105,27 +105,27 @@ int vtkQuad::EvaluatePosition(double x[3], double* closestPoint,
   // work since we've projected point to plane.)
   //
   for (maxComponent=0.0, i=0; i<3; i++)
-    {
+  {
     if (fabs(n[i]) > maxComponent)
-      {
+    {
       maxComponent = fabs(n[i]);
       idx = i;
-      }
     }
+  }
   for (j=0, i=0; i<3; i++)
-    {
+  {
     if ( i != idx )
-      {
+    {
       indices[j++] = i;
-      }
     }
+  }
 
   // Use Newton's method to solve for parametric coordinates
   //
   for (iteration=converged=0; !converged
          && (iteration < VTK_QUAD_MAX_ITERATION);
        iteration++)
-    {
+  {
     //  calculate element interpolation functions and derivatives
     //
     this->InterpolationFunctions(pcoords, weights);
@@ -134,31 +134,31 @@ int vtkQuad::EvaluatePosition(double x[3], double* closestPoint,
     //  calculate newton functions
     //
     for (i=0; i<2; i++)
-      {
+    {
       fcol[i] = rcol[i] = scol[i] = 0.0;
-      }
+    }
     for (i=0; i<4; i++)
-      {
+    {
       this->Points->GetPoint(i, pt);
       for (j=0; j<2; j++)
-        {
+      {
         fcol[j] += pt[indices[j]] * weights[i];
         rcol[j] += pt[indices[j]] * derivs[i];
         scol[j] += pt[indices[j]] * derivs[i+4];
-        }
       }
+    }
 
     for (j=0; j<2; j++)
-      {
+    {
       fcol[j] -= cp[indices[j]];
-      }
+    }
 
     //  compute determinants and generate improvements
     //
     if ( (det=vtkMath::Determinant2x2(rcol,scol)) == 0.0 )
-      {
+    {
       return -1;
-      }
+    }
 
     pcoords[0] = params[0] - vtkMath::Determinant2x2 (fcol,scol) / det;
     pcoords[1] = params[1] - vtkMath::Determinant2x2 (rcol,fcol) / det;
@@ -167,108 +167,108 @@ int vtkQuad::EvaluatePosition(double x[3], double* closestPoint,
     //
     if ( ((fabs(pcoords[0]-params[0])) < VTK_QUAD_CONVERGED) &&
          ((fabs(pcoords[1]-params[1])) < VTK_QUAD_CONVERGED) )
-      {
+    {
       converged = 1;
-      }
+    }
     // Test for bad divergence (S.Hirschberg 11.12.2001)
     else if ((fabs(pcoords[0]) > VTK_DIVERGED) ||
              (fabs(pcoords[1]) > VTK_DIVERGED))
-      {
+    {
       return -1;
-      }
+    }
 
     //  if not converged, repeat
     //
     else
-      {
+    {
       params[0] = pcoords[0];
       params[1] = pcoords[1];
-      }
     }
+  }
 
   //  if not converged, set the parametric coordinates to arbitrary values
   //  outside of element
   //
   if ( !converged )
-    {
+  {
     return -1;
-    }
+  }
 
   this->InterpolationFunctions(pcoords, weights);
 
   if ( pcoords[0] >= -0.001 && pcoords[0] <= 1.001 &&
        pcoords[1] >= -0.001 && pcoords[1] <= 1.001 )
-    {
+  {
     if (closestPoint)
-      {
+    {
       dist2 =
         vtkMath::Distance2BetweenPoints(cp,x); //projection distance
       closestPoint[0] = cp[0];
       closestPoint[1] = cp[1];
       closestPoint[2] = cp[2];
-      }
-    return 1;
     }
+    return 1;
+  }
   else
-    {
+  {
     double t;
     double pt4[3];
 
     if (closestPoint)
-      {
+    {
       this->Points->GetPoint(3, pt4);
 
       if ( pcoords[0] < 0.0 && pcoords[1] < 0.0 )
-        {
+      {
         dist2 = vtkMath::Distance2BetweenPoints(x,pt1);
         for (i=0; i<3; i++)
-          {
+        {
         closestPoint[i] = pt1[i];
-          }
-        }
-      else if ( pcoords[0] > 1.0 && pcoords[1] < 0.0 )
-        {
-        dist2 = vtkMath::Distance2BetweenPoints(x,pt2);
-        for (i=0; i<3; i++)
-          {
-          closestPoint[i] = pt2[i];
-          }
-        }
-      else if ( pcoords[0] > 1.0 && pcoords[1] > 1.0 )
-        {
-        dist2 = vtkMath::Distance2BetweenPoints(x,pt3);
-        for (i=0; i<3; i++)
-          {
-          closestPoint[i] = pt3[i];
-          }
-        }
-      else if ( pcoords[0] < 0.0 && pcoords[1] > 1.0 )
-        {
-        dist2 = vtkMath::Distance2BetweenPoints(x,pt4);
-        for (i=0; i<3; i++)
-          {
-          closestPoint[i] = pt4[i];
-          }
-        }
-      else if ( pcoords[0] < 0.0 )
-        {
-        dist2 = vtkLine::DistanceToLine(x,pt1,pt4,t,closestPoint);
-        }
-      else if ( pcoords[0] > 1.0 )
-        {
-        dist2 = vtkLine::DistanceToLine(x,pt2,pt3,t,closestPoint);
-        }
-      else if ( pcoords[1] < 0.0 )
-        {
-        dist2 = vtkLine::DistanceToLine(x,pt1,pt2,t,closestPoint);
-        }
-      else if ( pcoords[1] > 1.0 )
-        {
-        dist2 = vtkLine::DistanceToLine(x,pt3,pt4,t,closestPoint);
         }
       }
-    return 0;
+      else if ( pcoords[0] > 1.0 && pcoords[1] < 0.0 )
+      {
+        dist2 = vtkMath::Distance2BetweenPoints(x,pt2);
+        for (i=0; i<3; i++)
+        {
+          closestPoint[i] = pt2[i];
+        }
+      }
+      else if ( pcoords[0] > 1.0 && pcoords[1] > 1.0 )
+      {
+        dist2 = vtkMath::Distance2BetweenPoints(x,pt3);
+        for (i=0; i<3; i++)
+        {
+          closestPoint[i] = pt3[i];
+        }
+      }
+      else if ( pcoords[0] < 0.0 && pcoords[1] > 1.0 )
+      {
+        dist2 = vtkMath::Distance2BetweenPoints(x,pt4);
+        for (i=0; i<3; i++)
+        {
+          closestPoint[i] = pt4[i];
+        }
+      }
+      else if ( pcoords[0] < 0.0 )
+      {
+        dist2 = vtkLine::DistanceToLine(x,pt1,pt4,t,closestPoint);
+      }
+      else if ( pcoords[0] > 1.0 )
+      {
+        dist2 = vtkLine::DistanceToLine(x,pt2,pt3,t,closestPoint);
+      }
+      else if ( pcoords[1] < 0.0 )
+      {
+        dist2 = vtkLine::DistanceToLine(x,pt1,pt2,t,closestPoint);
+      }
+      else if ( pcoords[1] > 1.0 )
+      {
+        dist2 = vtkLine::DistanceToLine(x,pt3,pt4,t,closestPoint);
+      }
     }
+    return 0;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -282,13 +282,13 @@ void vtkQuad::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
 
   x[0] = x[1] = x[2] = 0.0;
   for (i=0; i<4; i++)
-    {
+  {
     this->Points->GetPoint(i, pt);
     for (j=0; j<3; j++)
-      {
+    {
       x[j] += pt[j] * weights[i];
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -337,38 +337,38 @@ int vtkQuad::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
   // compare against two lines in parametric space that divide element
   // into four pieces.
   if ( t1 >= 0.0 && t2 >= 0.0 )
-    {
+  {
     pts->SetId(0,this->PointIds->GetId(0));
     pts->SetId(1,this->PointIds->GetId(1));
-    }
+  }
 
   else if ( t1 >= 0.0 && t2 < 0.0 )
-    {
+  {
     pts->SetId(0,this->PointIds->GetId(1));
     pts->SetId(1,this->PointIds->GetId(2));
-    }
+  }
 
   else if ( t1 < 0.0 && t2 < 0.0 )
-    {
+  {
     pts->SetId(0,this->PointIds->GetId(2));
     pts->SetId(1,this->PointIds->GetId(3));
-    }
+  }
 
   else //( t1 < 0.0 && t2 >= 0.0 )
-    {
+  {
     pts->SetId(0,this->PointIds->GetId(3));
     pts->SetId(1,this->PointIds->GetId(0));
-    }
+  }
 
   if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 ||
        pcoords[1] < 0.0 || pcoords[1] > 1.0 )
-    {
+  {
     return 0;
-    }
+  }
   else
-    {
+  {
     return 1;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -427,68 +427,68 @@ void vtkQuad::Contour(double value, vtkDataArray *cellScalars,
 
   // Build the case table
   for ( i=0, index = 0; i < 4; i++)
-    {
+  {
     if (cellScalars->GetComponent(i,0) >= value)
-      {
+    {
       index |= CASE_MASK[i];
-      }
     }
+  }
 
   lineCase = lineCases + index;
   edge = lineCase->edges;
 
   for ( ; edge[0] > -1; edge += 2 )
-    {
+  {
     for (i=0; i<2; i++) // insert line
-      {
+    {
       vert = edges[edge[i]];
       // calculate a preferred interpolation direction
       deltaScalar = (cellScalars->GetComponent(vert[1],0)
                      - cellScalars->GetComponent(vert[0],0));
       if (deltaScalar > 0)
-        {
+      {
         e1 = vert[0]; e2 = vert[1];
-        }
+      }
       else
-        {
+      {
         e1 = vert[1]; e2 = vert[0];
         deltaScalar = -deltaScalar;
-        }
+      }
 
       // linear interpolation
       if (deltaScalar == 0.0)
-        {
+      {
         t = 0.0;
-        }
+      }
       else
-        {
+      {
         t = (value - cellScalars->GetComponent(e1,0)) / deltaScalar;
-        }
+      }
 
       this->Points->GetPoint(e1, x1);
       this->Points->GetPoint(e2, x2);
 
       for (j=0; j<3; j++)
-        {
+      {
         x[j] = x1[j] + t * (x2[j] - x1[j]);
-        }
+      }
       if ( locator->InsertUniquePoint(x, pts[i]) )
-        {
+      {
         if ( outPd )
-          {
+        {
           vtkIdType p1 = this->PointIds->GetId(e1);
           vtkIdType p2 = this->PointIds->GetId(e2);
           outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
-          }
         }
       }
+    }
     // check for degenerate line
     if ( pts[0] != pts[1] )
-      {
+    {
       newCellId = offset + lines->InsertNextCell(2,pts);
       outCd->CopyData(inCd,cellId,newCellId);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -497,9 +497,9 @@ vtkCell *vtkQuad::GetEdge(int edgeId)
   int edgeIdPlus1 = edgeId + 1;
 
   if (edgeIdPlus1 > 3)
-    {
+  {
     edgeIdPlus1 = 0;
-    }
+  }
 
   // load point id's
   this->Line->PointIds->SetId(0,this->PointIds->GetId(edgeId));
@@ -534,50 +534,50 @@ int vtkQuad::IntersectWithLine(double p1[3], double p2[3], double tol, double& t
   // a tie breaker to insure unique triangulation across the quad.
   //
   if ( d1 == d2 ) //rare case; discriminate based on point id
-    {
+  {
     int i, id, maxId=0, maxIdx=0;
     for (i=0; i<4; i++) //find the maximum id
-      {
+    {
       if ( (id=this->PointIds->GetId(i)) > maxId )
-        {
+      {
         maxId = id;
         maxIdx = i;
-        }
       }
+    }
     if ( maxIdx == 0 || maxIdx == 2) diagonalCase = 0;
     else diagonalCase = 1;
-    }
+  }
   else if ( d1 < d2 )
-    {
+  {
     diagonalCase = 0;
-    }
+  }
   else //d2 < d1
-    {
+  {
     diagonalCase = 1;
-    }
+  }
 
   // Note: in the following code the parametric coords must be adjusted to
   // reflect the use of the triangle parametric coordinate system.
   switch (diagonalCase)
-    {
+  {
     case 0:
       this->Triangle->Points->SetPoint(0,this->Points->GetPoint(0));
       this->Triangle->Points->SetPoint(1,this->Points->GetPoint(1));
       this->Triangle->Points->SetPoint(2,this->Points->GetPoint(2));
       if (this->Triangle->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId) )
-        {
+      {
         pcoords[0] = pcoords[0] + pcoords[1];
         return 1;
-        }
+      }
       this->Triangle->Points->SetPoint(0,this->Points->GetPoint(2));
       this->Triangle->Points->SetPoint(1,this->Points->GetPoint(3));
       this->Triangle->Points->SetPoint(2,this->Points->GetPoint(0));
       if (this->Triangle->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId) )
-        {
+      {
         pcoords[0] = 1.0 - (pcoords[0]+pcoords[1]);
         pcoords[1] = 1.0 - pcoords[1];
         return 1;
-        }
+      }
       return 0;
 
     case 1:
@@ -585,21 +585,21 @@ int vtkQuad::IntersectWithLine(double p1[3], double p2[3], double tol, double& t
       this->Triangle->Points->SetPoint(1,this->Points->GetPoint(1));
       this->Triangle->Points->SetPoint(2,this->Points->GetPoint(3));
       if (this->Triangle->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId) )
-        {
+      {
         return 1;
-        }
+      }
       this->Triangle->Points->SetPoint(0,this->Points->GetPoint(2));
       this->Triangle->Points->SetPoint(1,this->Points->GetPoint(3));
       this->Triangle->Points->SetPoint(2,this->Points->GetPoint(1));
       if (this->Triangle->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId) )
-        {
+      {
         pcoords[0] = 1.0 - pcoords[0];
         pcoords[1] = 1.0 - pcoords[1];
         return 1;
-        }
+      }
 
       return 0;
-    }
+  }
 
   return 0;
 }
@@ -620,7 +620,7 @@ int vtkQuad::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
                                    this->Points->GetPoint(3));
 
   if ( d1 <= d2 )
-    {
+  {
     ptIds->InsertId(0,this->PointIds->GetId(0));
     pts->InsertPoint(0,this->Points->GetPoint(0));
     ptIds->InsertId(1,this->PointIds->GetId(1));
@@ -634,9 +634,9 @@ int vtkQuad::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
     pts->InsertPoint(4,this->Points->GetPoint(2));
     ptIds->InsertId(5,this->PointIds->GetId(3));
     pts->InsertPoint(5,this->Points->GetPoint(3));
-    }
+  }
   else
-    {
+  {
     ptIds->InsertId(0,this->PointIds->GetId(0));
     pts->InsertPoint(0,this->Points->GetPoint(0));
     ptIds->InsertId(1,this->PointIds->GetId(1));
@@ -650,7 +650,7 @@ int vtkQuad::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
     pts->InsertPoint(4,this->Points->GetPoint(2));
     ptIds->InsertId(5,this->PointIds->GetId(3));
     pts->InsertPoint(5,this->Points->GetPoint(3));
-    }
+  }
 
   return 1;
 }
@@ -674,26 +674,26 @@ void vtkQuad::Derivatives(int vtkNotUsed(subId), double pcoords[3],
   this->Points->GetPoint(3, x3);
 
   for (i=0; i < 3; i++)
-    {
+  {
     v10[i] = x1[i] - x0[i];
     vec20[i] = x2[i] - x0[i];
     vec30[i] = x3[i] - x0[i];
-    }
+  }
 
   vtkMath::Cross(n,v10,v20); //creates local y' axis
 
   if ( (lenX=vtkMath::Normalize(v10)) <= 0.0
        || vtkMath::Normalize(v20) <= 0.0 ) //degenerate
-    {
+  {
     for ( j=0; j < dim; j++ )
-      {
+    {
       for ( i=0; i < 3; i++ )
-        {
+      {
         derivs[j*dim + i] = 0.0;
-        }
       }
-    return;
     }
+    return;
+  }
 
   v0[0] = v0[1] = 0.0; //convert points to 2D (i.e., local system)
   v1[0] = lenX; v1[1] = 0.0;
@@ -719,29 +719,29 @@ void vtkQuad::Derivatives(int vtkNotUsed(subId), double pcoords[3],
 
   // Compute inverse Jacobian, return if Jacobian is singular
   if (!vtkMath::InvertMatrix(J,JI,2))
-    {
+  {
     for ( j=0; j < dim; j++ )
-      {
+    {
       for ( i=0; i < 3; i++ )
-        {
+      {
         derivs[j*dim + i] = 0.0;
-        }
       }
-    return;
     }
+    return;
+  }
 
   // Loop over "dim" derivative values. For each set of values,
   // compute derivatives
   // in local system and then transform into modelling system.
   // First compute derivatives in local x'-y' coordinate system
   for ( j=0; j < dim; j++ )
-    {
+  {
     sum[0] = sum[1] = 0.0;
     for ( i=0; i < 4; i++) //loop over interp. function derivatives
-      {
+    {
       sum[0] += funcDerivs[i] * values[dim*i + j];
       sum[1] += funcDerivs[4 + i] * values[dim*i + j];
-      }
+    }
     dBydx = sum[0]*JI[0][0] + sum[1]*JI[0][1];
     dBydy = sum[0]*JI[1][0] + sum[1]*JI[1][1];
 
@@ -749,7 +749,7 @@ void vtkQuad::Derivatives(int vtkNotUsed(subId), double pcoords[3],
     derivs[3*j] = dBydx * v10[0] + dBydy * v20[0];
     derivs[3*j + 1] = dBydx * v10[1] + dBydy * v20[1];
     derivs[3*j + 2] = dBydx * v10[2] + dBydy * v20[2];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -819,50 +819,50 @@ void vtkQuad::Clip(double value, vtkDataArray *cellScalars,
 
   // Build the index into the case table
   if ( insideOut )
-    {
+  {
     for ( i=0, index = 0; i < 4; i++)
-      {
+    {
       if (cellScalars->GetComponent(i,0) <= value)
-        {
+      {
         index |= CASE_MASK[i];
-        }
       }
+    }
     // Select case based on the index and get the list of edges for this case
     quadCase = quadCases + index;
-    }
+  }
   else
-    {
+  {
     for ( i=0, index = 0; i < 4; i++)
-      {
+    {
       if (cellScalars->GetComponent(i,0) > value)
-        {
+      {
         index |= CASE_MASK[i];
-        }
       }
+    }
     // Select case based on the index and get the list of edges for this case
     quadCase = quadCasesComplement + index;
-    }
+  }
 
   edge = quadCase->edges;
 
   // generate each quad
   for ( ; edge[0] > -1; edge += edge[0]+1 )
-    {
+  {
     for (i=0; i < edge[0]; i++) // insert quad or triangle
-      {
+    {
       // vertex exists, and need not be interpolated
       if (edge[i+1] >= 100)
-        {
+      {
         vertexId = edge[i+1] - 100;
         this->Points->GetPoint(vertexId, x);
         if ( locator->InsertUniquePoint(x, pts[i]) )
-          {
+        {
           outPd->CopyData(inPd,this->PointIds->GetId(vertexId),pts[i]);
-          }
         }
+      }
 
       else //new vertex, interpolate
-        {
+      {
         vert = edges[edge[i+1]];
 
         // calculate a preferred interpolation direction
@@ -871,63 +871,63 @@ void vtkQuad::Clip(double value, vtkDataArray *cellScalars,
         deltaScalar = scalar1 - scalar0;
 
         if (deltaScalar > 0)
-          {
+        {
           e1 = vert[0]; e2 = vert[1];
           e1Scalar = scalar0;
-          }
+        }
         else
-          {
+        {
           e1 = vert[1]; e2 = vert[0];
           e1Scalar = scalar1;
           deltaScalar = -deltaScalar;
-          }
+        }
 
         // linear interpolation
         if (deltaScalar == 0.0)
-          {
+        {
           t = 0.0;
-          }
+        }
         else
-          {
+        {
           t = (value - e1Scalar) / deltaScalar;
-          }
+        }
 
         this->Points->GetPoint(e1, x1);
         this->Points->GetPoint(e2, x2);
 
         for (j=0; j<3; j++)
-          {
+        {
           x[j] = x1[j] + t * (x2[j] - x1[j]);
-          }
+        }
 
         if ( locator->InsertUniquePoint(x, pts[i]) )
-          {
+        {
           vtkIdType p1 = this->PointIds->GetId(e1);
           vtkIdType p2 = this->PointIds->GetId(e2);
           outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
-          }
         }
       }
+    }
     // check for degenerate output
     if ( edge[0] == 3 ) //i.e., a triangle
-      {
+    {
       if (pts[0] == pts[1] || pts[0] == pts[2] || pts[1] == pts[2] )
-        {
-        continue;
-        }
-      }
-    else // a quad
       {
+        continue;
+      }
+    }
+    else // a quad
+    {
       if ((pts[0] == pts[3] && pts[1] == pts[2]) ||
           (pts[0] == pts[1] && pts[3] == pts[2]) )
-        {
+      {
         continue;
-        }
       }
+    }
 
     newCellId = polys->InsertNextCell(edge[0],pts);
     outCd->CopyData(inCd,cellId,newCellId);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

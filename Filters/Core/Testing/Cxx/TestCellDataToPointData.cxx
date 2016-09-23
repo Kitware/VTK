@@ -69,17 +69,17 @@ int TestCellDataToPointData (int, char*[])
 
   // mean
   for (vtkIdType i = 0; i < nvalues; ++i)
-    {
+  {
     mean += x->GetTuple1(i) - y->GetTuple1(i);
-    }
+  }
   mean /= nvalues;
 
   // variance
   for (vtkIdType i = 0; i < nvalues; ++i)
-    {
+  {
     double z = x->GetTuple1(i) - y->GetTuple1(i);
     variance += z * z;
-    }
+  }
   variance /= nvalues;
 
   bool const ok = fabs(mean) < 1e-4 && fabs(variance) < 1e-4;

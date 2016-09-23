@@ -43,19 +43,19 @@ public:
   vtkGetMacro(MetaPadding, float);
 
   virtual void DeepCopy(vtkDataObject *src)
-    {
+  {
     this->Superclass::DeepCopy(src);
     OQEDImageData *o = OQEDImageData::SafeDownCast(src);
     if (!o)
-      {
+    {
       // Just return without copying metadata
       return;
-      }
+    }
     this->OrbitalNumber = o->OrbitalNumber;
     this->ImageType = o->ImageType;
     this->MetaSpacing = o->MetaSpacing;
     this->MetaPadding = o->MetaPadding;
-    }
+  }
 
 protected:
   OQEDImageData() {};
@@ -99,22 +99,22 @@ void vtkOpenQubeElectronicData::PrintSelf(ostream& os, vtkIndent indent)
   vtkCollectionSimpleIterator cookie;
   this->Images->InitTraversal(cookie);
   while (vtkDataSet *dataset = this->Images->GetNextDataSet(cookie))
-    {
+  {
     vtkImageData *data = vtkImageData::SafeDownCast(dataset);
     // If this is somehow not a vtkImageData, print a warning and skip it
     if (!data)
-      {
+    {
       vtkWarningMacro(<<"vtkDataSet in this->Images is not a vtkImageData"
                       " object. This should not happen...");
       continue;
-      }
+    }
 
     OQEDImageData * oqeddata = OQEDImageData::SafeDownCast(dataset);
     // Identify the type of image
     if (oqeddata)
-      {
+    {
       switch (oqeddata->GetImageType())
-        {
+      {
         case OpenQube::Cube::MO:
           os << indent << "this->Images has molecular orbital #"
              << oqeddata->GetOrbitalNumber() << " imagedata @"
@@ -141,24 +141,24 @@ void vtkOpenQubeElectronicData::PrintSelf(ostream& os, vtkIndent indent)
           os << indent << "this->Images has imagedata from an unknown source"
                 " @" << oqeddata << ":\n";
           break;
-        }
       }
+    }
     else // oqeddata null
-      {
+    {
       os << indent << "this->Images has imagedata that was externally "
             "generated @" << data << ":\n";
-      }
-    data->PrintSelf(os, indent.GetNextIndent());
     }
+    data->PrintSelf(os, indent.GetNextIndent());
+  }
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkOpenQubeElectronicData::GetNumberOfMOs()
 {
   if (!this->BasisSet || !this->BasisSet->isValid())
-    {
+  {
     return 0;
-    }
+  }
 
   return this->BasisSet->numMOs();
 }
@@ -167,9 +167,9 @@ vtkIdType vtkOpenQubeElectronicData::GetNumberOfMOs()
 unsigned int vtkOpenQubeElectronicData::GetNumberOfElectrons()
 {
   if (!this->BasisSet || !this->BasisSet->isValid())
-    {
+  {
     return 0;
-    }
+  }
 
   return this->BasisSet->numElectrons();
 }
@@ -182,32 +182,32 @@ vtkImageData * vtkOpenQubeElectronicData::GetMO(vtkIdType orbitalNumber)
   vtkCollectionSimpleIterator cookie;
   this->Images->InitTraversal(cookie);
   while (vtkDataSet *dataset = this->Images->GetNextDataSet(cookie))
-    {
+  {
     OQEDImageData * data = OQEDImageData::SafeDownCast(dataset);
     if (!data)
-      {
+    {
       continue;
-      }
+    }
 
     if (data->GetImageType() != OpenQube::Cube::MO)
-      {
+    {
       continue;
-      }
+    }
 
     if (data->GetOrbitalNumber() != orbitalNumber)
-      {
+    {
       continue;
-      }
+    }
 
     if (data->GetMetaSpacing() != this->Spacing ||
         data->GetMetaPadding() != this->Padding)
-      {
+    {
       continue;
-      }
+    }
 
     vtkDebugMacro(<<"Found MO " << orbitalNumber);
     return static_cast<vtkImageData*>(data);
-    }
+  }
 
   // If there is no existing image, calculate it
   vtkDebugMacro(<<"MO " << orbitalNumber << " not found. Calculating...");
@@ -221,26 +221,26 @@ vtkImageData * vtkOpenQubeElectronicData::GetElectronDensity()
   vtkCollectionSimpleIterator cookie;
   this->Images->InitTraversal(cookie);
   while (vtkDataSet *dataset = this->Images->GetNextDataSet(cookie))
-    {
+  {
     OQEDImageData * data = OQEDImageData::SafeDownCast(dataset);
     if (!data)
-      {
+    {
       continue;
-      }
+    }
 
     if (data->GetImageType() != OpenQube::Cube::ElectronDensity)
-      {
+    {
       continue;
-      }
+    }
 
     if (data->GetMetaSpacing() != this->Spacing ||
         data->GetMetaPadding() != this->Padding)
-      {
+    {
       continue;
-      }
+    }
 
     return static_cast<vtkImageData*>(data);
-    }
+  }
 
   // If there is no existing image, calculate it
   return this->CalculateElectronDensity();
@@ -252,11 +252,11 @@ void vtkOpenQubeElectronicData::DeepCopy(vtkDataObject *obj)
   vtkOpenQubeElectronicData *oqed =
       vtkOpenQubeElectronicData::SafeDownCast(obj);
   if (!oqed)
-    {
+  {
     vtkErrorMacro("Can only deep copy from vtkOpenQubeElectronicData "
                   "or subclass.");
     return;
-    }
+  }
 
   // Call superclass
   this->Superclass::DeepCopy(oqed);
@@ -265,21 +265,21 @@ void vtkOpenQubeElectronicData::DeepCopy(vtkDataObject *obj)
   vtkCollectionSimpleIterator cookie;
   oqed->Images->InitTraversal(cookie);
   while (vtkDataSet *dataset = oqed->Images->GetNextDataSet(cookie))
-    {
+  {
     // Only copy valid OQEDImageData objects
     if (OQEDImageData *oqedImage = OQEDImageData::SafeDownCast(dataset))
-      {
+    {
       vtkNew<OQEDImageData> thisImage;
       thisImage->DeepCopy(oqedImage);
       this->Images->AddItem(thisImage.GetPointer());
-      }
     }
+  }
 
   // Copy other ivars
   if (oqed->BasisSet)
-    {
+  {
     this->BasisSet = oqed->BasisSet->clone();
-    }
+  }
   this->Spacing = oqed->Spacing;
 }
 
@@ -288,15 +288,15 @@ vtkImageData * vtkOpenQubeElectronicData::CalculateMO(vtkIdType orbitalNumber)
 {
   vtkDebugMacro(<<"Calculating MO " << orbitalNumber);
   if (!this->BasisSet)
-    {
+  {
     vtkWarningMacro(<<"No OpenQube::BasisSet set.");
     return 0;
-    }
+  }
   else if (!this->BasisSet->isValid())
-    {
+  {
     vtkWarningMacro(<<"Invalid OpenQube::BasisSet set.");
     return 0;
-    }
+  }
 
   // Create and calculate cube
   OpenQube::Cube *cube = new OpenQube::Cube();
@@ -305,11 +305,11 @@ vtkImageData * vtkOpenQubeElectronicData::CalculateMO(vtkIdType orbitalNumber)
 
   vtkDebugMacro(<<"Calculating OpenQube::Cube for MO " << orbitalNumber);
   if (!this->BasisSet->blockingCalculateCubeMO( cube, orbitalNumber ))
-    {
+  {
     vtkWarningMacro(<< "Unable to calculateMO for orbital " << orbitalNumber
                     << " in OpenQube.");
     return 0;
-    }
+  }
 
   // Create image and set metadata
   vtkNew<OQEDImageData> image;
@@ -334,15 +334,15 @@ vtkImageData * vtkOpenQubeElectronicData::CalculateElectronDensity()
 {
   vtkDebugMacro(<<"Calculating electron density...");
   if (!this->BasisSet)
-    {
+  {
     vtkErrorMacro(<<"No OpenQube::BasisSet set.");
     return 0;
-    }
+  }
   else if (!this->BasisSet->isValid())
-    {
+  {
     vtkErrorMacro(<<"Invalid OpenQube::BasisSet set.");
     return 0;
-    }
+  }
 
   // Create and calculate cube
   OpenQube::Cube *cube = new OpenQube::Cube();
@@ -351,10 +351,10 @@ vtkImageData * vtkOpenQubeElectronicData::CalculateElectronDensity()
 
   vtkDebugMacro(<<"Calculating OpenQube::Cube...");
   if (!this->BasisSet->blockingCalculateCubeDensity(cube))
-    {
+  {
     vtkWarningMacro(<<"Unable to calculate density in OpenQube.");
     return 0;
-    }
+  }
 
   // Create image and set metadata
   vtkNew<OQEDImageData> image;
@@ -391,15 +391,15 @@ void vtkOpenQubeElectronicData::FillImageDataFromQube(OpenQube::Cube *qube,
                 << spacing[0] << "  " << spacing[1] << " " << spacing[2]);
 
   if (OQEDImageData *oqedImage = OQEDImageData::SafeDownCast(image))
-    {
+  {
     vtkDebugMacro("Setting cube type to " << qube->cubeType());
     oqedImage->SetImageType(qube->cubeType());
-    }
+  }
   else
-    {
+  {
     vtkWarningMacro(
       <<"Cannot cast input image to internal OQEDImageData type.");
-    }
+  }
 
   image->SetExtent(0, dim[0] - 1, 0, dim[1] - 1, 0, dim[2] - 1);
   image->SetOrigin(min.data());
@@ -412,23 +412,23 @@ void vtkOpenQubeElectronicData::FillImageDataFromQube(OpenQube::Cube *qube,
   const size_t qubeSize = qubeVec->size();
 
   if (qubeSize != static_cast<size_t>(dim[0]) * dim[1] * dim[2])
-    {
+  {
     vtkWarningMacro(<< "Size of qube (" << qubeSize << ") does not equal"
                     << " product of dimensions (" << dim[0]*dim[1]*dim[2]
                     << "). Image may not be accurate.");
-    }
+  }
 
   long int qubeInd = -1; // Incremented to 0 on first use.
   for (int i = 0; i < dim[0]; ++i)
-    {
+  {
     for (int j = 0; j < dim[1]; ++j)
-      {
+    {
       for (int k = 0; k < dim[2]; ++k)
-        {
+      {
         dataPtr[(k * dim[1] + j) * dim[0] + i] = (*qubeVec)[++qubeInd];
-        }
       }
     }
+  }
 
   vtkDebugMacro(<< "Copied " << qubeSize
                 << " (actual: " << qubeInd + 1

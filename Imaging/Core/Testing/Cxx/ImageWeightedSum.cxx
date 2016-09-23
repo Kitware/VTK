@@ -49,10 +49,10 @@ int ImageWeightedSum(int argc, char *argv[])
   double range[2];
   sum->GetOutput()->GetScalarRange( range );
   if( range[0] != 0 || range[1] != 0 )
-    {
+  {
     cerr << "Range: " << range[0] << "," << range[1] << endl;
     rval++;
-    }
+  }
 
   // Set dummy values
   vtkSmartPointer<vtkDoubleArray> weights =
@@ -83,10 +83,10 @@ int ImageWeightedSum(int argc, char *argv[])
 
   math->GetOutput()->GetScalarRange( range );
   if( range[0] != 0 || range[1] != 0 )
-    {
+  {
     cerr << "Range: " << range[0] << "," << range[1] << endl;
     rval++;
-    }
+  }
 
   // Get scalar range:
   reader->GetOutput()->GetScalarRange( range );

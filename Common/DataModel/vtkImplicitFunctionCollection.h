@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImplicitFunctionCollection - maintain a list of implicit functions
-// .SECTION Description
-// vtkImplicitFunctionCollection is an object that creates and manipulates
-// lists of objects of type vtkImplicitFunction.
-// .SECTION See Also
-// vtkCollection vtkPlaneCollection
+/**
+ * @class   vtkImplicitFunctionCollection
+ * @brief   maintain a list of implicit functions
+ *
+ * vtkImplicitFunctionCollection is an object that creates and manipulates
+ * lists of objects of type vtkImplicitFunction.
+ * @sa
+ * vtkCollection vtkPlaneCollection
+*/
 
 #ifndef vtkImplicitFunctionCollection_h
 #define vtkImplicitFunctionCollection_h
@@ -33,23 +36,28 @@ public:
   vtkTypeMacro(vtkImplicitFunctionCollection,vtkCollection);
   static vtkImplicitFunctionCollection *New();
 
-  // Description:
-  // Add an implicit function to the list.
+  /**
+   * Add an implicit function to the list.
+   */
   void AddItem(vtkImplicitFunction *);
 
-  // Description:
-  // Get the next implicit function in the list.
+  /**
+   * Get the next implicit function in the list.
+   */
   vtkImplicitFunction *GetNextItem();
 
-  // Description:
-  // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth.
+  //@{
+  /**
+   * Reentrant safe way to get an object in a collection. Just pass the
+   * same cookie back and forth.
+   */
   vtkImplicitFunction *GetNextImplicitFunction(
     vtkCollectionSimpleIterator &cookie)
-    {
+  {
       return static_cast<vtkImplicitFunction *>(
         this->GetNextItemAsObject(cookie));
-    };
+  };
+  //@}
 
 protected:
   vtkImplicitFunctionCollection() {}

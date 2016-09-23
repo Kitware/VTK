@@ -17,13 +17,16 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkAssignCoordinates - Given two(or three) arrays take the values
-// in those arrays and simply assign them to the coordinates of the vertices.
-//
-// .SECTION Description
-// Given two(or three) arrays take the values in those arrays and simply assign
-// them to the coordinates of the vertices. Yes you could do this with the array
-// calculator, but your mom wears army boots so we're not going to.
+/**
+ * @class   vtkAssignCoordinates
+ * @brief   Given two(or three) arrays take the values
+ * in those arrays and simply assign them to the coordinates of the vertices.
+ *
+ *
+ * Given two(or three) arrays take the values in those arrays and simply assign
+ * them to the coordinates of the vertices. Yes you could do this with the array
+ * calculator, but your mom wears army boots so we're not going to.
+*/
 
 #ifndef vtkAssignCoordinates_h
 #define vtkAssignCoordinates_h
@@ -39,24 +42,36 @@ public:
   vtkTypeMacro(vtkAssignCoordinates, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the x coordinate array name.
+  //@{
+  /**
+   * Set the x coordinate array name.
+   */
   vtkSetStringMacro(XCoordArrayName);
   vtkGetStringMacro(XCoordArrayName);
+  //@}
 
-  // Description:
-  // Set the y coordinate array name.
+  //@{
+  /**
+   * Set the y coordinate array name.
+   */
   vtkSetStringMacro(YCoordArrayName);
   vtkGetStringMacro(YCoordArrayName);
+  //@}
 
-  // Description:
-  // Set the z coordinate array name.
+  //@{
+  /**
+   * Set the z coordinate array name.
+   */
   vtkSetStringMacro(ZCoordArrayName);
   vtkGetStringMacro(ZCoordArrayName);
+  //@}
 
-  // Description:
-  // Set if you want a random jitter
+  //@{
+  /**
+   * Set if you want a random jitter
+   */
   vtkSetMacro(Jitter,bool);
+  //@}
 
 protected:
   vtkAssignCoordinates();

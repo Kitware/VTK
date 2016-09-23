@@ -12,9 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLCoincidentTopologyResolutionPainter
-// .SECTION Description
-// Implementation for vtkCoincidentTopologyResolutionPainter using OpenGL.
+/**
+ * @class   vtkOpenGLCoincidentTopologyResolutionPainter
+ *
+ * Implementation for vtkCoincidentTopologyResolutionPainter using OpenGL.
+*/
 
 #ifndef vtkOpenGLCoincidentTopologyResolutionPainter_h
 #define vtkOpenGLCoincidentTopologyResolutionPainter_h
@@ -35,12 +37,13 @@ protected:
   vtkOpenGLCoincidentTopologyResolutionPainter();
   ~vtkOpenGLCoincidentTopologyResolutionPainter();
 
-  // Description:
-  // Performs the actual rendering. Subclasses may override this method.
-  // default implementation merely call a Render on the DelegatePainter,
-  // if any. When RenderInternal() is called, it is assured that the
-  // DelegatePainter is in sync with this painter i.e. UpdatePainter()
-  // has been called.
+  /**
+   * Performs the actual rendering. Subclasses may override this method.
+   * default implementation merely call a Render on the DelegatePainter,
+   * if any. When RenderInternal() is called, it is assured that the
+   * DelegatePainter is in sync with this painter i.e. UpdatePainter()
+   * has been called.
+   */
   virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
                               unsigned long typeflags, bool forceCompileOnly);
 

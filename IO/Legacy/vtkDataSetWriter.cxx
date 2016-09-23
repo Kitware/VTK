@@ -42,45 +42,45 @@ void vtkDataSetWriter::WriteData()
 
   type = this->GetInput()->GetDataObjectType();
   if ( type == VTK_POLY_DATA )
-    {
+  {
     vtkPolyDataWriter *pwriter = vtkPolyDataWriter::New();
     pwriter->SetInputConnection(input);
     writer = pwriter;
-    }
+  }
 
   else if ( type == VTK_STRUCTURED_POINTS || type == VTK_IMAGE_DATA || type == VTK_UNIFORM_GRID)
-    {
+  {
     vtkStructuredPointsWriter *spwriter = vtkStructuredPointsWriter::New();
     spwriter->SetInputConnection(input);
     writer = spwriter;
-    }
+  }
 
   else if ( type == VTK_STRUCTURED_GRID )
-    {
+  {
     vtkStructuredGridWriter *sgwriter = vtkStructuredGridWriter::New();
     sgwriter->SetInputConnection(input);
     writer = sgwriter;
-    }
+  }
 
   else if ( type == VTK_UNSTRUCTURED_GRID )
-    {
+  {
     vtkUnstructuredGridWriter *ugwriter = vtkUnstructuredGridWriter::New();
     ugwriter->SetInputConnection(input);
     writer = ugwriter;
-    }
+  }
 
   else if ( type == VTK_RECTILINEAR_GRID )
-    {
+  {
     vtkRectilinearGridWriter *rgwriter = vtkRectilinearGridWriter::New();
     rgwriter->SetInputConnection(input);
     writer = rgwriter;
-    }
+  }
 
   else
-    {
+  {
     vtkErrorMacro(<< "Cannot write dataset type: " << type);
     return;
-    }
+  }
 
   writer->SetFileName(this->FileName);
   writer->SetScalarsName(this->ScalarsName);
@@ -96,15 +96,15 @@ void vtkDataSetWriter::WriteData()
   writer->SetWriteToOutputString(this->WriteToOutputString);
   writer->Write();
   if (writer->GetErrorCode() == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-    }
+  }
   if (this->WriteToOutputString)
-    {
+  {
     delete [] this->OutputString;
     this->OutputStringLength = writer->GetOutputStringLength();
     this->OutputString = writer->RegisterAndGetOutputString();
-    }
+  }
   writer->Delete();
 }
 

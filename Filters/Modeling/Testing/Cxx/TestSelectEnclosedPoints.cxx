@@ -62,12 +62,12 @@ int TestSelectEnclosedPoints(int argc, char* argv[])
   vtkMath::RandomSeed(1177);
   vtkPoints *points = vtkPoints::New();
   for (int i=0; i < 500; i++)
-    {
+  {
     double x=vtkMath::Random(2.25,7.0);
     double y=vtkMath::Random(1,10);
     double z=vtkMath::Random(0.5,10.5);
     points->InsertPoint(i,x,y,z);
-    }
+  }
   points->SetPoint(0,4.5,5.5,5.0);
   vtkPolyData *profile = vtkPolyData::New();
   profile->SetPoints(points);
@@ -107,9 +107,9 @@ int TestSelectEnclosedPoints(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Cleanup
   renderer->Delete();

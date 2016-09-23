@@ -12,41 +12,44 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBoostSplitTableField - "Splits" one-or-more table fields by duplicating rows containing delimited data.
-// .SECTION Description
-//
-// Assume the following table:
-//
-// Author                Year     Title
-// Brian; Jeff; Tim      2007     Foo
-// Tim                   2003     Bar
-//
-// If we produce a graph relating authors to the year in which they publish, the string
-// "Brian; Jeff; Tim" will be treated (incorrectly) as a single author associated with
-// the year 2007.  vtkBoostSplitTableField addresses this by splitting one-or-more fields into
-// "subvalues" using a configurable delimiter and placing each subvalue on its own row
-// (the other fields in the original row are copied).  Using the above example, splitting
-// the "Author" field with a ";" (semicolon) delimiter produces:
-//
-// Author                Year     Title
-// Brian                 2007     Foo
-// Jeff                  2007     Foo
-// Tim                   2007     Foo
-// Tim                   2003     Bar
-//
-// When this table is converted to a graph, each author (correctly) becomes a separate node.
-//
-// Usage:
-//
-// Use AddField() to specify the field(s) to be split.  If no fields have been specified,
-// vtkBoostSplitTableField will act as a passthrough.  By default, no fields are specified.
-//
-// The second argument to AddField() is a string containing zero-to-many single character
-// delimiters (multi-character delimiters are not supported).
-//
-// If the input table is missing a field specified by AddField(), it is an error.
-// If no fields are specified, no splitting is performed.
-// If the delimiter for a field is an empty string, no splitting is performed on that field.
+/**
+ * @class   vtkBoostSplitTableField
+ * @brief   "Splits" one-or-more table fields by duplicating rows containing delimited data.
+ *
+ *
+ * Assume the following table:
+ *
+ * Author                Year     Title
+ * Brian; Jeff; Tim      2007     Foo
+ * Tim                   2003     Bar
+ *
+ * If we produce a graph relating authors to the year in which they publish, the string
+ * "Brian; Jeff; Tim" will be treated (incorrectly) as a single author associated with
+ * the year 2007.  vtkBoostSplitTableField addresses this by splitting one-or-more fields into
+ * "subvalues" using a configurable delimiter and placing each subvalue on its own row
+ * (the other fields in the original row are copied).  Using the above example, splitting
+ * the "Author" field with a ";" (semicolon) delimiter produces:
+ *
+ * Author                Year     Title
+ * Brian                 2007     Foo
+ * Jeff                  2007     Foo
+ * Tim                   2007     Foo
+ * Tim                   2003     Bar
+ *
+ * When this table is converted to a graph, each author (correctly) becomes a separate node.
+ *
+ * Usage:
+ *
+ * Use AddField() to specify the field(s) to be split.  If no fields have been specified,
+ * vtkBoostSplitTableField will act as a passthrough.  By default, no fields are specified.
+ *
+ * The second argument to AddField() is a string containing zero-to-many single character
+ * delimiters (multi-character delimiters are not supported).
+ *
+ * If the input table is missing a field specified by AddField(), it is an error.
+ * If no fields are specified, no splitting is performed.
+ * If the delimiter for a field is an empty string, no splitting is performed on that field.
+*/
 
 #ifndef vtkBoostSplitTableField_h
 #define vtkBoostSplitTableField_h

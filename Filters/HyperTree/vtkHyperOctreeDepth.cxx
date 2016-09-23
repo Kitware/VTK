@@ -36,10 +36,10 @@ vtkHyperOctreeDepth::vtkHyperOctreeDepth()
 vtkHyperOctreeDepth::~vtkHyperOctreeDepth()
 {
   if (this->GeneratedDepths)
-    {
+  {
     this->GeneratedDepths->Delete();
     this->GeneratedDepths = 0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -64,10 +64,10 @@ int vtkHyperOctreeDepth::RequestData(vtkInformation *vtkNotUsed(request),
   vtkIdType maxNumberOfCells=fact*fact;
 
   if (this->GeneratedDepths)
-    {
+  {
     this->GeneratedDepths->Delete();
     this->GeneratedDepths = 0;
-    }
+  }
   this->GeneratedDepths = vtkIntArray::New();
   this->GeneratedDepths->SetNumberOfComponents(1);
 
@@ -91,24 +91,24 @@ void vtkHyperOctreeDepth::TraverseAndCount(vtkHyperOctreeCursor *cursor,
                                            int depth)
 {
   if (cursor->CurrentIsLeaf())
-    {
+  {
     //this node is a leaf, we must stop now
     vtkIdType id=cursor->GetLeafId();
     this->Output->GetLeafData()->GetArray("Depth")->InsertTuple1(id,depth);
-    }
+  }
   else
-    {
+  {
     //this node has 'nchildren' children,
     //some of which are internal nodes, so we must continue down
     int i=0;
     while(i<this->NumChildren)
-      {
+    {
       cursor->ToChild(i);
       this->TraverseAndCount(cursor, depth+1);
       cursor->ToParent();
       ++i;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------

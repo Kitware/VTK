@@ -66,9 +66,9 @@ static void MakeCurrentCallback(vtkObject* vtkNotUsed(caller),
                                 void * vtkNotUsed(callData))
 {
   if (initialized)
-    {
+  {
     glutSetWindow(windowId);
-    }
+  }
 }
 
 /* Handler for window-repaint event. Call back when the window first appears and
@@ -76,7 +76,7 @@ static void MakeCurrentCallback(vtkObject* vtkNotUsed(caller),
 void display()
 {
   if (!initialized)
-    {
+  {
     vtkNew<vtkExternalOpenGLRenderWindow> renWin;
     externalVTKWidget->SetRenderWindow(renWin.GetPointer());
     vtkNew<vtkCallbackCommand> callback;
@@ -95,7 +95,7 @@ void display()
     ren->ResetCamera();
 
     initialized = true;
-    }
+  }
 
   // Enable depth testing. Demonstrates OpenGL context being managed by external
   // application i.e. GLUT in this case.
@@ -133,25 +133,25 @@ void test()
   bool interactiveMode = false;
   vtkTesting* t = vtkTesting::New();
   for(int cc = 1; cc < NumArgs; cc++)
-    {
+  {
     t->AddArgument(ArgV[cc]);
     if (strcmp(ArgV[cc], "-I") == 0)
-      {
+    {
       interactiveMode = true;
-      }
     }
+  }
   t->SetRenderWindow(externalVTKWidget->GetRenderWindow());
   if (!tested)
-    {
+  {
     retVal = t->RegressionTest(0);
     tested = true;
-    }
+  }
   t->Delete();
   if (!interactiveMode)
-    {
+  {
     // Exit out of the infinitely running loop
     exit(!retVal);
-    }
+  }
 }
 
 void handleResize(int w, int h)

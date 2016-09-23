@@ -200,36 +200,36 @@ void vtkCompassRepresentation::BuildRing()
   // build the cells
   vtkCellArray *ringCells = vtkCellArray::New();
   for (int i = 0; i < 4; ++i)
-    {
+  {
     ringCells->InsertNextCell(17);
     for (int j = 0; j < 8; ++j)
-      {
+    {
       ringCells->InsertCellPoint(i*9+j);
-      }
-    for (int j = 0; j < 8; ++j)
-      {
-      ringCells->InsertCellPoint(i*9+35+7-j);
-      }
-    ringCells->InsertCellPoint(i*9);
     }
+    for (int j = 0; j < 8; ++j)
+    {
+      ringCells->InsertCellPoint(i*9+35+7-j);
+    }
+    ringCells->InsertCellPoint(i*9);
+  }
   this->Ring->SetLines(ringCells);
   ringCells->Delete();
 
   // add some polys
   vtkCellArray *markCells = vtkCellArray::New();
   for (int i = 1; i < 4; ++i)
-    {
+  {
     markCells->InsertNextCell(3);
     markCells->InsertCellPoint(i+69);
     markCells->InsertCellPoint(i*9+35);
     markCells->InsertCellPoint(i*9+33);
-    }
+  }
   this->Ring->SetPolys(markCells);
   markCells->Delete();
 
   // build the points
   for (int i = 0; i < 35; ++i)
-    {
+  {
     this->Points->SetPoint
       (i,
        this->OuterRadius * cos( vtkMath::RadiansFromDegrees( 10. * ( i + 10 ) ) ),
@@ -240,7 +240,7 @@ void vtkCompassRepresentation::BuildRing()
        this->InnerRadius * cos( vtkMath::RadiansFromDegrees( 10. * ( i + 10 ) ) ),
        this->InnerRadius * sin( vtkMath::RadiansFromDegrees( 10. * ( i + 10 ) ) ),
        0.0);
-    }
+  }
   // add the WSE points
   this->Points->SetPoint(70,-this->OuterRadius-0.1, 0.0, 0.0);
   this->Points->SetPoint(71,0.0,-this->OuterRadius-0.1, 0.0);
@@ -346,18 +346,18 @@ void vtkCompassRepresentation::PlaceWidget(double *vtkNotUsed(bds[6]))
 void vtkCompassRepresentation::Highlight(int highlight)
 {
   if (highlight == this->HighlightState)
-    {
+  {
     return;
-    }
+  }
   this->HighlightState = highlight;
   if ( highlight )
-    {
+  {
     this->RingActor->SetProperty(this->SelectedProperty);
-    }
+  }
   else
-    {
+  {
     this->RingActor->SetProperty(this->RingProperty);
-    }
+  }
   this->TiltRepresentation->Highlight(highlight);
   this->DistanceRepresentation->Highlight(highlight);
 }
@@ -369,17 +369,17 @@ void vtkCompassRepresentation::BuildRepresentation()
   if ( this->GetMTime() <= this->BuildTime &&
        (!this->Renderer || !this->Renderer->GetVTKWindow() ||
         this->Renderer->GetVTKWindow()->GetMTime() <= this->BuildTime) )
-    {
+  {
     return;
-    }
+  }
 
   int *size = this->Renderer->GetSize();
   if (0 == size[0] || 0 == size[1])
-    {
+  {
     // Renderer has no size yet: wait until the next
     // BuildRepresentation...
     return;
-    }
+  }
 
   this->XForm->Identity();
 
@@ -388,13 +388,13 @@ void vtkCompassRepresentation::BuildRepresentation()
   this->GetCenterAndUnitRadius( center, rsize );
 
   while( this->Heading < 0 )
-    {
+  {
     this->Heading += 1;
-    }
+  }
   while( this->Heading > 1 )
-    {
+  {
     this->Heading -= 1;
-    }
+  }
 
   double angle = this->Heading * 2.0 * vtkMath::Pi();
 
@@ -413,20 +413,20 @@ void vtkCompassRepresentation::BuildRepresentation()
   this->LabelProperty->SetFontSize( static_cast<int>( fsize ) );
 
   if (rsize > 40)
-    {
+  {
     std::ostringstream out;
     out.setf( ios::fixed );
     out.precision(0);
 
     out << "Distance: ";
     if (this->Distance > 10000)
-      {
+    {
       out << this->Distance/1000 << "km";
-      }
+    }
     else
-      {
+    {
       out << this->Distance << "m";
-      }
+    }
 
     out << "\nTilt: " << this->Tilt;
 
@@ -438,11 +438,11 @@ void vtkCompassRepresentation::BuildRepresentation()
 
     this->StatusActor->SetPosition
       ( center[0] - rsize * 2.0, center[1] + rsize );
-    }
+  }
   else
-    {
+  {
     this->StatusActor->SetInput("");
-    }
+  }
 
   // adjust the slider as well
   this->TiltRepresentation->GetPoint1Coordinate()->
@@ -476,19 +476,19 @@ void vtkCompassRepresentation::BuildRepresentation()
   pts->SetPoint( 1, renSize[0], center[1] - rsize * 1.1, 0 );
   pts->SetPoint( 2, renSize[0], renSize[1], 0 );
   if (this->HighlightState)
-    {
+  {
     pts->SetPoint( 0, center[0] - rsize * 5.0, center[1] - rsize * 1.1, 0 );
     pts->SetPoint( 3, center[0] - rsize * 5.0, renSize[1], 0 );
     color[3] = 80;
     colors->SetTypedTuple(1,color);
-    }
+  }
   else
-    {
+  {
     pts->SetPoint( 0, center[0] - rsize * 3.0, center[1] - rsize * 1.1, 0 );
     pts->SetPoint( 3, center[0] - rsize * 3.0, renSize[1], 0 );
     color[3] = 0;
     colors->SetTypedTuple( 1, color );
-    }
+  }
   pts->Modified();
   colors->Modified();
 
@@ -527,12 +527,12 @@ int vtkCompassRepresentation
   int count = 0;
   count += this->Backdrop->RenderOpaqueGeometry(viewport);
   if (this->HighlightState)
-    {
+  {
     if (strlen(this->StatusActor->GetInput()))
-      {
+    {
       count += this->StatusActor->RenderOpaqueGeometry(viewport);
-      }
     }
+  }
   count += this->RingActor->RenderOpaqueGeometry(viewport);
   count += this->LabelActor->RenderOpaqueGeometry(viewport);
   count += this->TiltRepresentation->RenderOpaqueGeometry(viewport);
@@ -547,12 +547,12 @@ int vtkCompassRepresentation::RenderOverlay(vtkViewport *viewport)
   int count = 0;
   count += this->Backdrop->RenderOverlay(viewport);
   if (this->HighlightState)
-    {
+  {
     if (strlen(this->StatusActor->GetInput()))
-      {
+    {
       count += this->StatusActor->RenderOverlay(viewport);
-      }
     }
+  }
   count += this->RingActor->RenderOverlay(viewport);
   count += this->LabelActor->RenderOverlay(viewport);
   count += this->TiltRepresentation->RenderOverlay(viewport);
@@ -569,9 +569,9 @@ void vtkCompassRepresentation::SetHeading(double v)
 {
   this->Heading = v;
   if (this->Renderer)
-    {
+  {
     this->BuildRepresentation();
-    }
+  }
 }
 
 double vtkCompassRepresentation::GetTilt()
@@ -583,13 +583,13 @@ void vtkCompassRepresentation::SetTilt(double v)
 {
   this->Tilt = v;
   if (this->Tilt > 90)
-    {
+  {
     this->Tilt = 90;
-    }
+  }
   if (this->Tilt < 0)
-    {
+  {
     this->Tilt = 0;
-    }
+  }
 }
 
 void vtkCompassRepresentation::EndTilt()
@@ -612,9 +612,9 @@ void vtkCompassRepresentation::SetDistance(double v)
 {
   this->Distance = v;
   if (this->Distance < 5)
-    {
+  {
     this->Distance = 5;
-    }
+  }
 }
 
 void vtkCompassRepresentation::EndDistance()
@@ -639,17 +639,17 @@ void vtkCompassRepresentation::GetCenterAndUnitRadius(int center[2],
 
   radius = abs(p1[0] - p2[0]);
   if (abs(p1[1] - p2[1]) < radius)
-    {
+  {
     radius = abs(p1[1] - p2[1]);
-    }
+  }
   radius /= 2;
 
   // scale the rsize between 100% and 50%
   double scale = 1.0 - (radius-40)/(radius+100.0)*0.5;
   if (scale > 1.0)
-    {
+  {
     scale = 1.0;
-    }
+  }
   radius *= scale;
 
   // stick to the upper right
@@ -657,14 +657,14 @@ void vtkCompassRepresentation::GetCenterAndUnitRadius(int center[2],
   center[1] = static_cast<int>(p2[1] - radius);
 
   if (this->HighlightState == 0)
-    {
+  {
     // create a reduced size when not highlighted by applying the scale
     // again, only do it when there is a significant difference
     if (scale < 0.9)
-      {
+    {
       radius = radius*scale*scale;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -684,44 +684,44 @@ void vtkCompassRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   this->Point2Coordinate->PrintSelf(os, indent.GetNextIndent());
 
   if ( this->SelectedProperty )
-    {
+  {
     os << indent << "SelectedProperty:\n";
     this->SelectedProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "SelectedProperty: (none)\n";
-    }
+  }
 
   if ( this->RingProperty )
-    {
+  {
     os << indent << "RingProperty:\n";
     this->RingProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "RingProperty: (none)\n";
-    }
+  }
 
   if ( this->SelectedProperty )
-    {
+  {
     os << indent << "SelectedProperty:\n";
     this->SelectedProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "SelectedProperty: (none)\n";
-    }
+  }
 
   if ( this->LabelProperty )
-    {
+  {
     os << indent << "LabelProperty:\n";
     this->LabelProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "LabelProperty: (none)\n";
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -730,11 +730,11 @@ int vtkCompassRepresentation::ComputeInteractionState(int x, int y,
 {
   int *size = this->Renderer->GetSize();
   if (0 == size[0] || 0 == size[1])
-    {
+  {
     // Renderer has no size yet
     this->InteractionState = vtkCompassRepresentation::Outside;
     return this->InteractionState;
-    }
+  }
 
   // is the pick on the ring?
   int center[2];
@@ -745,18 +745,18 @@ int vtkCompassRepresentation::ComputeInteractionState(int x, int y,
 
   if (radius < rsize*this->OuterRadius + 2 &&
       radius > rsize*this->InnerRadius - 2)
-    {
+  {
     this->InteractionState = vtkCompassRepresentation::Adjusting;
     return this->InteractionState;
-    }
+  }
 
   // on tilt?
   int tiltState =
     this->TiltRepresentation->ComputeInteractionState(x,y,modify);
   if (tiltState != vtkCenteredSliderRepresentation::Outside)
-    {
+  {
     switch (tiltState)
-      {
+    {
       case vtkSliderRepresentation::LeftCap:
         this->InteractionState = vtkCompassRepresentation::TiltDown;
         break;
@@ -766,17 +766,17 @@ int vtkCompassRepresentation::ComputeInteractionState(int x, int y,
       case vtkSliderRepresentation::Slider:
         this->InteractionState = vtkCompassRepresentation::TiltAdjusting;
         break;
-      }
-    return this->InteractionState;
     }
+    return this->InteractionState;
+  }
 
   // on dist?
   int distanceState =
     this->DistanceRepresentation->ComputeInteractionState(x,y,modify);
   if (distanceState != vtkCenteredSliderRepresentation::Outside)
-    {
+  {
     switch (distanceState)
-      {
+    {
       case vtkSliderRepresentation::LeftCap:
         this->InteractionState = vtkCompassRepresentation::DistanceOut;
         break;
@@ -786,15 +786,15 @@ int vtkCompassRepresentation::ComputeInteractionState(int x, int y,
       case vtkSliderRepresentation::Slider:
         this->InteractionState = vtkCompassRepresentation::DistanceAdjusting;
         break;
-      }
-    return this->InteractionState;
     }
+    return this->InteractionState;
+  }
 
   if (radius < rsize*3.0)
-    {
+  {
     this->InteractionState = vtkCompassRepresentation::Inside;
     return this->InteractionState;
-    }
+  }
 
   this->InteractionState = vtkCompassRepresentation::Outside;
   return this->InteractionState;

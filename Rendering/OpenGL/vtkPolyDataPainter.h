@@ -21,22 +21,25 @@
  * statement of authorship are reproduced on all copies.
  */
 
-// .NAME vtkPolyDataPainter - Abstract class for drawing poly data.
-//
-// .SECTION Description
-// vtkPolyDataPainter encapsulates a method of drawing poly data.  This is a subset
-// of what a mapper does.  The painter does no maintenance of the rendering
-// state (camera, lights, etc.).  It is solely responsible for issuing
-// rendering commands that build graphics primitives.
-//
-// To simplify coding, an implementation of vtkPolyDataPainter is allowed to support
-// only certain types of poly data or certain types of primitives.
-//
-// .SECTION See Also
-// vtkDefaultPainter
-// vtkStandardPainter
-// vtkPainterDeviceAdapter
-//
+/**
+ * @class   vtkPolyDataPainter
+ * @brief   Abstract class for drawing poly data.
+ *
+ *
+ * vtkPolyDataPainter encapsulates a method of drawing poly data.  This is a subset
+ * of what a mapper does.  The painter does no maintenance of the rendering
+ * state (camera, lights, etc.).  It is solely responsible for issuing
+ * rendering commands that build graphics primitives.
+ *
+ * To simplify coding, an implementation of vtkPolyDataPainter is allowed to support
+ * only certain types of poly data or certain types of primitives.
+ *
+ * @sa
+ * vtkDefaultPainter
+ * vtkStandardPainter
+ * vtkPainterDeviceAdapter
+ *
+*/
 
 #ifndef vtkPolyDataPainter_h
 #define vtkPolyDataPainter_h
@@ -54,36 +57,42 @@ public:
   vtkTypeMacro(vtkPolyDataPainter, vtkPainter);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Get/set the poly data to render.
+  /**
+   * Get/set the poly data to render.
+   */
   vtkPolyData* GetInputAsPolyData();
 
-  // Description:
-  // Get the output polydata from this Painter. The default
-  // implementation forwards the input polydata as the output.
+  /**
+   * Get the output polydata from this Painter. The default
+   * implementation forwards the input polydata as the output.
+   */
   vtkPolyData* GetOutputAsPolyData();
 
-  // Description:
-  // Keys used to specify control the behaviour of the painter.
-  // When on, the painter creates normals when none are available in the
-  // polydata. On by default.
+  /**
+   * Keys used to specify control the behaviour of the painter.
+   * When on, the painter creates normals when none are available in the
+   * polydata. On by default.
+   */
   static vtkInformationIntegerKey* BUILD_NORMALS();
 
-  // Description:
-  // Key added to disable any scalar coloring for the current pass.
+  /**
+   * Key added to disable any scalar coloring for the current pass.
+   */
   static vtkInformationIntegerKey* DISABLE_SCALAR_COLOR();
 
   // Set the mapping between vtkPointData (vtkCellData) arrays and
   // generic vertex attributes.
   static vtkInformationObjectBaseKey* DATA_ARRAY_TO_VERTEX_ATTRIBUTE();
 
-  // Description:
-  // Key to store the shader device adaptor.
+  /**
+   * Key to store the shader device adaptor.
+   */
   static vtkInformationObjectBaseKey* SHADER_DEVICE_ADAPTOR();
 
-  // Description:
-  // Overridden to stop the render call if input polydata is not set,
-  // since PolyDataPainter cannot paint without any polydata input.
+  /**
+   * Overridden to stop the render call if input polydata is not set,
+   * since PolyDataPainter cannot paint without any polydata input.
+   */
   virtual void Render(vtkRenderer* renderer, vtkActor* actor,
                       unsigned long typeflags, bool forceCompileOnly);
 
@@ -97,9 +106,10 @@ protected:
     // the information object.
   vtkSetMacro(BuildNormals, int);
 
-  // Description:
-  // Called before RenderInternal() if the Information has been changed
-  // since the last time this method was called.
+  /**
+   * Called before RenderInternal() if the Information has been changed
+   * since the last time this method was called.
+   */
   virtual void ProcessInformation(vtkInformation*);
 
 private:

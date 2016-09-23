@@ -53,14 +53,14 @@ int TestGDALVectorReader(int argc, char* argv[])
   reader->UpdateInformation();
   int nl = reader->GetNumberOfLayers();
   for (int i = 0; i < nl; ++i)
-    {
+  {
     reader->SetActiveLayer(i);
     cout
       << "Layer " << i
       << " Type " << reader->GetActiveLayerType()
       << " FeatureCount " << reader->GetActiveLayerFeatureCount()
       << "\n";
-    }
+  }
   reader->SetActiveLayer(0); // Read only layer 0, which is the only layer.
   reader->Update();
 
@@ -72,18 +72,18 @@ int TestGDALVectorReader(int argc, char* argv[])
 
   // Verify that feature IDs exist as a scalar (assuming first block exists)
   if (mbds && mbds->GetNumberOfBlocks() > 0)
-    {
+  {
     vtkPolyData* pd = vtkPolyData::SafeDownCast(mbds->GetBlock(0));
     vtkCellData* cd = pd ? pd->GetCellData() : NULL;
     if (cd)
-      {
+    {
       if (!cd->GetPedigreeIds())
-        {
+      {
         cerr << "Unable to find pedigree IDs even though AddFeatureIds was ON\n";
         return 1;
-        }
       }
     }
+  }
 
   // Create scene
   vtkNew<vtkActor> actor;
@@ -125,9 +125,9 @@ int TestGDALVectorReader(int argc, char* argv[])
   int retVal = vtkRegressionTestImage(renderWindow.GetPointer());
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renderWindowInteractor->Start();
-    }
+  }
 
   return !retVal;
 }

@@ -19,9 +19,9 @@ VTK_THREAD_RETURN_TYPE vtkTestCondVarThread( void* arg )
   vtkThreadUserData* td = static_cast<vtkThreadUserData*>(
     static_cast<vtkMultiThreader::ThreadInfo*>(arg)->UserData );
   if ( td )
-    {
+  {
     if ( threadId == 0 )
-      {
+    {
       td->Done = 0;
       td->Lock->Lock();
       cout << "Thread " << ( threadId + 1 ) << " of " << threadCount << " initializing.\n";
@@ -30,7 +30,7 @@ VTK_THREAD_RETURN_TYPE vtkTestCondVarThread( void* arg )
 
       int i;
       for ( i = 0; i < 2 * threadCount; ++ i )
-        {
+      {
         td->Lock->Lock();
         cout << "Signaling (count " << i << ")...\n";
         cout.flush();
@@ -38,11 +38,11 @@ VTK_THREAD_RETURN_TYPE vtkTestCondVarThread( void* arg )
         td->Condition->Signal();
 
         //sleep( 1 );
-        }
+      }
 
       i = 0;
       do
-        {
+      {
         td->Lock->Lock();
         td->Done = 1;
         cout << "Broadcasting...\n";
@@ -50,20 +50,20 @@ VTK_THREAD_RETURN_TYPE vtkTestCondVarThread( void* arg )
         td->Lock->Unlock();
         td->Condition->Broadcast();
         vtksys::SystemTools::Delay( 200 ); // 0.2 s between broadcasts
-        }
+      }
       while ( td->NumberOfWorkers > 0 && ( i ++ < 1000 ) );
       if ( i >= 1000 )
-        {
-        exit( 2 );
-        }
-      }
-    else
       {
+        exit( 2 );
+      }
+    }
+    else
+    {
       // Wait for thread 0 to initialize... Ugly but effective
       while ( td->Done < 0 )
-        {
+      {
         vtksys::SystemTools::Delay( 200 ); // 0.2 s between checking
-        }
+      }
 
       // Wait for the condition and then note we were signaled.
       // This part looks like a Hansen Monitor:
@@ -71,7 +71,7 @@ VTK_THREAD_RETURN_TYPE vtkTestCondVarThread( void* arg )
 
       td->Lock->Lock();
       while ( td->Done <= 0 )
-        {
+      {
         cout << " Thread " << ( threadId + 1 ) << " waiting.\n";
         cout.flush();
         // Wait() performs an Unlock internally.
@@ -79,22 +79,22 @@ VTK_THREAD_RETURN_TYPE vtkTestCondVarThread( void* arg )
         // Once Wait() returns, the lock is locked again.
         cout << " Thread " << ( threadId + 1 ) << " responded.\n";
         cout.flush();
-        }
+      }
       -- td->NumberOfWorkers;
       td->Lock->Unlock();
-      }
+    }
 
     td->Lock->Lock();
     cout << "  Thread " << ( threadId + 1 ) << " of " << threadCount << " exiting.\n";
     cout.flush();
     td->Lock->Unlock();
-    }
+  }
   else
-    {
+  {
     cout << "No thread data!\n";
     cout << "  Thread " << ( threadId + 1 ) << " of " << threadCount << " exiting.\n";
     cout.flush();
-    }
+  }
 
   return VTK_THREAD_RETURN_VALUE;
 }

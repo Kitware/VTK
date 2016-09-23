@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLHyperOctreeReader - Read VTK XML HyperOctree files.
-// .SECTION Description
-// vtkXMLHyperOctreeReader reads the VTK XML HyperOctree file
-// format.  One rectilinear grid file can be read to produce one
-// output.  Streaming is supported.  The standard extension for this
-// reader's file format is "vto".  This reader is also used to read a
-// single piece of the parallel file format.
-
-// .SECTION See Also
-// vtkXMLPHyperOctreeReader
+/**
+ * @class   vtkXMLHyperOctreeReader
+ * @brief   Read VTK XML HyperOctree files.
+ *
+ * vtkXMLHyperOctreeReader reads the VTK XML HyperOctree file
+ * format.  One rectilinear grid file can be read to produce one
+ * output.  Streaming is supported.  The standard extension for this
+ * reader's file format is "vto".  This reader is also used to read a
+ * single piece of the parallel file format.
+ *
+ * @sa
+ * vtkXMLPHyperOctreeReader
+*/
 
 #ifndef vtkXMLHyperOctreeReader_h
 #define vtkXMLHyperOctreeReader_h
@@ -40,10 +43,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLHyperOctreeReader *New();
 
-  // Description:
-  // Get the reader's output.
+  //@{
+  /**
+   * Get the reader's output.
+   */
   vtkHyperOctree *GetOutput();
   vtkHyperOctree *GetOutput(int idx);
+  //@}
 
 protected:
   vtkXMLHyperOctreeReader();

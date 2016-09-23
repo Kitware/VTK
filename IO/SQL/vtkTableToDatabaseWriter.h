@@ -12,11 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTableToDatabaseWriter
-// in a SQL database.
-// .SECTION Description
-// vtkTableToDatabaseWriter abstract parent class that reads a vtkTable and
-// inserts it into an SQL database.
+/**
+ * @class   vtkTableToDatabaseWriter
+ * in a SQL database.
+ *
+ * vtkTableToDatabaseWriter abstract parent class that reads a vtkTable and
+ * inserts it into an SQL database.
+*/
 
 #ifndef vtkTableToDatabaseWriter_h
 #define vtkTableToDatabaseWriter_h
@@ -35,25 +37,31 @@ public:
   vtkTypeMacro(vtkTableToDatabaseWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the database.  Must already be open.
+  /**
+   * Set the database.  Must already be open.
+   */
   bool SetDatabase(vtkSQLDatabase *db);
 
-  // Description:
-  // Set the name of the new SQL table that you'd this writer to create.
-  // Returns false if the specified table already exists in the database.
+  /**
+   * Set the name of the new SQL table that you'd this writer to create.
+   * Returns false if the specified table already exists in the database.
+   */
   bool SetTableName(const char *name);
 
-  // Description:
-  // Check if the currently specified table name exists in the database.
+  /**
+   * Check if the currently specified table name exists in the database.
+   */
   bool TableNameIsNew();
 
   vtkSQLDatabase *GetDatabase() { return this->Database; }
 
-  // Description:
-  // Get the input to this writer.
+  //@{
+  /**
+   * Get the input to this writer.
+   */
   vtkTable* GetInput();
   vtkTable* GetInput(int port);
+  //@}
 
 protected:
    vtkTableToDatabaseWriter();

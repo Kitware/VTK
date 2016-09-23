@@ -62,10 +62,10 @@ int TestQuadraturePoints(int argc,char *argv[])
   vtkSmartPointer<vtkTesting> testHelper = vtkSmartPointer<vtkTesting>::New();
   testHelper->AddArguments(argc, argv);
   if (!testHelper->IsFlagSpecified("-D"))
-    {
+  {
     std::cerr << "Error: -D /path/to/data was not specified.";
     return EXIT_FAILURE;
-    }
+  }
   std::string dataRoot=testHelper->GetDataRoot();
   std::string tempDir=testHelper->GetTempDirectory();
   std::string inputFileName=dataRoot+"/Data/Quadratic/CylinderQuadratic.vtk";
@@ -80,23 +80,23 @@ int TestQuadraturePoints(int argc,char *argv[])
   vtkSmartPointer<vtkUnstructuredGridReader> lusgr = vtkSmartPointer<vtkUnstructuredGridReader>::New();
   lusgr->SetFileName(inputFileName.c_str());
   if (xusgr->CanReadFile(inputFileName.c_str()))
-    {
+  {
     input=xusgr->GetOutput();
     xusgr->Update();
     lusgr=NULL;
-    }
+  }
   else if (lusgr->IsFileValid("unstructured_grid"))
-    {
+  {
     lusgr->SetFileName(inputFileName.c_str());
     input=lusgr->GetOutput();
     lusgr->Update();
     xusgr=NULL;
-    }
+  }
   if (input==0)
-    {
+  {
     std::cerr << "Error: Could not read file " << inputFileName << "." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Add a couple arrays to be used in the demonstrations.
   int warpIdx=GenerateWarpVector(input);
@@ -183,10 +183,10 @@ int TestQuadraturePoints(int argc,char *argv[])
   pdmQPts->SetColorModeToMapScalars();
   pdmQPts->SetScalarModeToUsePointData();
   if(output->GetPointData()->GetArray(0) == NULL)
-    {
+  {
     vtkGenericWarningMacro( << "no point data in output of vtkQuadraturePointsGenerator" );
     return EXIT_FAILURE;
-    }
+  }
   pdmQPts->SetScalarRange(output->GetPointData()->GetArray(activeScalars)->GetRange());
   vtkSmartPointer<vtkActor> outputActor = vtkSmartPointer<vtkActor>::New();
   outputActor->SetMapper(pdmQPts);
@@ -240,10 +240,10 @@ int TestQuadraturePoints(int argc,char *argv[])
   // If interactive mode then we show wireframes for
   // reference.
   if (testHelper->IsInteractiveModeSpecified())
-    {
+  {
     surfaceActor->GetProperty()->SetOpacity(1.0);
     surfaceActor->GetProperty()->SetRepresentationToWireframe();
-    }
+  }
   // Render window
   vtkSmartPointer<vtkRenderWindow> renwin = vtkSmartPointer<vtkRenderWindow>::New();
   renwin->AddRenderer(ren0);
@@ -283,7 +283,7 @@ int GenerateWarpVector(vtkUnstructuredGrid *usg)
   double *pda=da->GetPointer(0);
   double *ppts=pts->GetPointer(0);
   for (vtkIdType i=0; i<nTups; ++i)
-    {
+  {
     double zs=(ppts[2]-zmid)/(zmax-zmid); // move z to -1 to 1
     double fzs=zs*zs*zs;                  // z**3
     double r[2];                          // radial vector
@@ -299,7 +299,7 @@ int GenerateWarpVector(vtkUnstructuredGrid *usg)
     pda[2]=0.0;
     pda+=3;                               // next
     ppts+=3;
-    }
+  }
   return idx;
 }
 //-----------------------------------------------------------------------------
@@ -325,7 +325,7 @@ int GenerateThresholdScalar(vtkUnstructuredGrid *usg)
   double *pda=da->GetPointer(0);
   double *ppts=pts->GetPointer(0);
   for (vtkIdType i=0; i<nTups; ++i)
-    {
+  {
     double zs=(ppts[2]-zmid)/(zmax-zmid); // move z to -1 to 1
     double fzs=zs*zs*zs;                  // z**3
     double r[2];                          // radial vector
@@ -337,7 +337,7 @@ int GenerateThresholdScalar(vtkUnstructuredGrid *usg)
     pda[0]=r[1];                          // copy into result
     pda+=1;                               // next
     ppts+=3;
-    }
+  }
   return idx;
 }
 

@@ -12,19 +12,22 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageStencilSource - generate an image stencil
-// .SECTION Description
-// vtkImageStencilSource is a superclass for filters that generate image
-// stencils.  Given a clipping object such as a vtkImplicitFunction, it
-// will set up a list of clipping extents for each x-row through the
-// image data.  The extents for each x-row can be retrieved via the
-// GetNextExtent() method after the extent lists have been built
-// with the BuildExtents() method.  For large images, using clipping
-// extents is much more memory efficient (and slightly more time-efficient)
-// than building a mask.  This class can be subclassed to allow clipping
-// with objects other than vtkImplicitFunction.
-// .SECTION see also
-// vtkImplicitFunction vtkImageStencil vtkPolyDataToImageStencil
+/**
+ * @class   vtkImageStencilSource
+ * @brief   generate an image stencil
+ *
+ * vtkImageStencilSource is a superclass for filters that generate image
+ * stencils.  Given a clipping object such as a vtkImplicitFunction, it
+ * will set up a list of clipping extents for each x-row through the
+ * image data.  The extents for each x-row can be retrieved via the
+ * GetNextExtent() method after the extent lists have been built
+ * with the BuildExtents() method.  For large images, using clipping
+ * extents is much more memory efficient (and slightly more time-efficient)
+ * than building a mask.  This class can be subclassed to allow clipping
+ * with objects other than vtkImplicitFunction.
+ * @sa
+ * vtkImplicitFunction vtkImageStencil vtkPolyDataToImageStencil
+*/
 
 #ifndef vtkImageStencilSource_h
 #define vtkImageStencilSource_h
@@ -45,38 +48,51 @@ public:
 
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set a vtkImageData that has the Spacing, Origin, and
-  // WholeExtent that will be used for the stencil.  This
-  // input should be set to the image that you wish to
-  // apply the stencil to.  If you use this method, then
-  // any values set with the SetOutputSpacing, SetOutputOrigin,
-  // and SetOutputWholeExtent methods will be ignored.
+  //@{
+  /**
+   * Set a vtkImageData that has the Spacing, Origin, and
+   * WholeExtent that will be used for the stencil.  This
+   * input should be set to the image that you wish to
+   * apply the stencil to.  If you use this method, then
+   * any values set with the SetOutputSpacing, SetOutputOrigin,
+   * and SetOutputWholeExtent methods will be ignored.
+   */
   virtual void SetInformationInput(vtkImageData*);
   vtkGetObjectMacro(InformationInput, vtkImageData);
+  //@}
 
-  // Description:
-  // Set the Origin to be used for the stencil.  It should be
-  // set to the Origin of the image you intend to apply the
-  // stencil to. The default value is (0,0,0).
+  //@{
+  /**
+   * Set the Origin to be used for the stencil.  It should be
+   * set to the Origin of the image you intend to apply the
+   * stencil to. The default value is (0,0,0).
+   */
   vtkSetVector3Macro(OutputOrigin, double);
   vtkGetVector3Macro(OutputOrigin, double);
+  //@}
 
-  // Description:
-  // Set the Spacing to be used for the stencil. It should be
-  // set to the Spacing of the image you intend to apply the
-  // stencil to. The default value is (1,1,1)
+  //@{
+  /**
+   * Set the Spacing to be used for the stencil. It should be
+   * set to the Spacing of the image you intend to apply the
+   * stencil to. The default value is (1,1,1)
+   */
   vtkSetVector3Macro(OutputSpacing, double);
   vtkGetVector3Macro(OutputSpacing, double);
+  //@}
 
-  // Description:
-  // Set the whole extent for the stencil (anything outside
-  // this extent will be considered to be "outside" the stencil).
+  //@{
+  /**
+   * Set the whole extent for the stencil (anything outside
+   * this extent will be considered to be "outside" the stencil).
+   */
   vtkSetVector6Macro(OutputWholeExtent, int);
   vtkGetVector6Macro(OutputWholeExtent, int);
+  //@}
 
-  // Description:
-  // Report object referenced by instances of this class.
+  /**
+   * Report object referenced by instances of this class.
+   */
   void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
 protected:

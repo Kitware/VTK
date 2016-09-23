@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPassThrough - Shallow copies the input into the output
-//
-// .SECTION Description
-// The output type is always the same as the input object type.
+/**
+ * @class   vtkPassThrough
+ * @brief   Shallow copies the input into the output
+ *
+ *
+ * The output type is always the same as the input object type.
+*/
 
 #ifndef vtkPassThrough_h
 #define vtkPassThrough_h
@@ -30,18 +33,22 @@ public:
   vtkTypeMacro(vtkPassThrough, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify the first input port as optional
+  /**
+   * Specify the first input port as optional
+   */
   int FillInputPortInformation(int port, vtkInformation* info);
 
-  // Description:
-  // Whether or not to deep copy the input. This can be useful if you
-  // want to create a copy of a data object. You can then disconnect
-  // this filter's input connections and it will act like a source.
-  // Defaults to OFF.
+  //@{
+  /**
+   * Whether or not to deep copy the input. This can be useful if you
+   * want to create a copy of a data object. You can then disconnect
+   * this filter's input connections and it will act like a source.
+   * Defaults to OFF.
+   */
   vtkSetMacro(DeepCopyInput, int);
   vtkGetMacro(DeepCopyInput, int);
   vtkBooleanMacro(DeepCopyInput, int);
+  //@}
 
 protected:
   vtkPassThrough();

@@ -59,7 +59,7 @@ void DegreeElevate(vtkCell* lowerOrderCell,
   vtkCell* higherOrderCell = NULL;
 
   switch (lowerOrderCell->GetCellType())
-    {
+  {
 
 #define DegreeElevateCase(LowerOrderCellType, HigherOrderCell)          \
   case LowerOrderCellType:                                              \
@@ -81,33 +81,33 @@ void DegreeElevate(vtkCell* lowerOrderCell,
       vtkGenericWarningMacro(
         << "vtkLinearToQuadraticCellsFilter does not currently support degree elevating cell type " << lowerOrderCell->GetCellType() << ".");
       break;
-    }
+  }
 
   if (higherOrderCell == NULL)
-    {
+  {
     return;
-    }
+  }
 
   double *higherOrderPCoords = higherOrderCell->GetParametricCoords();
   for (vtkIdType hp = 0; hp < higherOrderCell->GetNumberOfPoints(); hp++)
-    {
+  {
     lowerOrderCell->InterpolateFunctions(higherOrderPCoords + (hp*3),
                                          lowerOrderCoeffs);
 
     double higherOrderPoint[3] = {0.,0.,0.};
     double lowerOrderPoint[3];
     for (vtkIdType lp=0; lp<lowerOrderCell->GetNumberOfPoints(); lp++)
-      {
+    {
       // NB: vtkGenericCell creates a local copy of the cell's points, so we
       //     must use local indexing here (i.e. <lp> instead of
       //     <lowerOrderCell->GetPointIds()->GetId(lp)>).
       lowerOrderCell->GetPoints()->GetPoint(lp, lowerOrderPoint);
 ;
       for (int i = 0; i < 3; i++)
-        {
+      {
         higherOrderPoint[i] += lowerOrderPoint[i] * lowerOrderCoeffs[lp];
-        }
       }
+    }
 
     vtkIdType pId;
     pointLocator->InsertUniquePoint(higherOrderPoint, pId);
@@ -115,7 +115,7 @@ void DegreeElevate(vtkCell* lowerOrderCell,
 
     outPd->InterpolatePoint(inPd, pId, lowerOrderCell->GetPointIds(),
                             lowerOrderCoeffs);
-    }
+  }
 
   vtkIdType newCellId = cells->InsertNextCell(higherOrderCell);
   locations->InsertNextValue(cells->GetTraversalLocation());
@@ -138,10 +138,10 @@ vtkLinearToQuadraticCellsFilter::vtkLinearToQuadraticCellsFilter()
 vtkLinearToQuadraticCellsFilter::~vtkLinearToQuadraticCellsFilter()
 {
   if ( this->Locator )
-    {
+  {
     this->Locator->UnRegister(this);
     this->Locator = NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -151,20 +151,20 @@ void vtkLinearToQuadraticCellsFilter::SetLocator(
   vtkIncrementalPointLocator *locator)
 {
   if (this->Locator == locator)
-    {
+  {
     return;
-    }
+  }
 
   if (this->Locator)
-    {
+  {
     this->Locator->UnRegister(this);
     this->Locator = NULL;
-    }
+  }
 
   if (locator)
-    {
+  {
     locator->Register(this);
-    }
+  }
 
   this->Locator = locator;
   this->Modified();
@@ -174,9 +174,9 @@ void vtkLinearToQuadraticCellsFilter::SetLocator(
 void vtkLinearToQuadraticCellsFilter::CreateDefaultLocator()
 {
   if (this->Locator == NULL)
-    {
+  {
     this->Locator = vtkMergePoints::New();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -187,10 +187,10 @@ vtkMTimeType vtkLinearToQuadraticCellsFilter::GetMTime()
   vtkMTimeType time;
 
   if (this->Locator != NULL)
-    {
+  {
     time = this->Locator->GetMTime();
     mTime = (time > mTime ? time : mTime);
-    }
+  }
 
   return mTime;
 }
@@ -219,31 +219,31 @@ int vtkLinearToQuadraticCellsFilter::RequestData(
 
   // Set the desired precision for the points in the output.
   if (this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
-    {
+  {
     output->GetPoints()->SetDataType(input->GetPoints()->GetDataType());
-    }
+  }
   else if (this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
-    {
+  {
     output->GetPoints()->SetDataType(VTK_FLOAT);
-    }
+  }
   else if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     output->GetPoints()->SetDataType(VTK_DOUBLE);
-    }
+  }
 
   // locator used to merge potentially duplicate points
   if (this->Locator == NULL)
-    {
+  {
     this->CreateDefaultLocator();
-    }
+  }
   this->Locator->InitPointInsertion(output->GetPoints(), input->GetBounds());
 
   vtkIdType estimatedSize = input->GetNumberOfCells();
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024)
-    {
+  {
     estimatedSize = 1024;
-    }
+  }
 
   output->GetPointData()->InterpolateAllocate(
     input->GetPointData(),estimatedSize,estimatedSize/2);
@@ -253,14 +253,14 @@ int vtkLinearToQuadraticCellsFilter::RequestData(
   vtkGenericCell *cell = vtkGenericCell::New();
   vtkCellIterator *it = input->NewCellIterator();
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
-    {
+  {
     it->GetCell(cell);
     DegreeElevate(cell, this->Locator, outputCellTypes.GetPointer(),
                   outputCellLocations.GetPointer(),
                   outputCellConnectivities.GetPointer(),
                   input->GetPointData(), output->GetPointData(),
                   input->GetCellData(), it->GetCellId(), output->GetCellData());
-    }
+  }
   it->Delete();
   cell->Delete();
 

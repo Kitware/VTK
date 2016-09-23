@@ -41,16 +41,16 @@ bool vtkPlotLine3D::Paint(vtkContext2D *painter)
   vtkDebugMacro(<< "Paint event called in vtkPlotLine3D.");
 
   if (!this->Visible || this->Points.size() == 0)
-    {
+  {
     return false;
-    }
+  }
 
   // Get the 3D context.
   vtkContext3D *context = painter->GetContext3D();
   if(context == NULL)
-    {
+  {
     return false;
-    }
+  }
 
   // Draw the line between the points
   context->ApplyPen(this->Pen);

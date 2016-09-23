@@ -97,120 +97,120 @@ void vtkVolumeTextureMapper3DComputeScalars( T *dataPtr,
   if ( inputDimensions[0] == outputDimensions[0] &&
        inputDimensions[1] == outputDimensions[1] &&
        inputDimensions[2] == outputDimensions[2] )
-    {
+  {
     int size = outputDimensions[0] * outputDimensions[1] * outputDimensions[2];
 
     inPtr = dataPtr;
     if ( components == 1 )
-      {
+    {
       outPtr = volume1;
       if ( scale == 1.0 )
-        {
+      {
         for ( i = 0; i < size; i++ )
-          {
+        {
           idx = static_cast<int>(*(inPtr++) + offset);
           *(outPtr++) = 0;
           *(outPtr++) = idx;
-          }
-        }
-      else
-        {
-        for ( i = 0; i < size; i++ )
-          {
-          idx = static_cast<int>((*(inPtr++) + offset) * scale);
-          *(outPtr++) = 0;
-          *(outPtr++) = idx;
-          }
         }
       }
-    else if ( components == 2 )
-      {
-      outPtr = volume1;
-      if ( scale == 1.0 )
-        {
-        for ( i = 0; i < size; i++ )
-          {
-          idx = static_cast<int>(*(inPtr++) + offset);
-          *(outPtr++) = idx;
-
-          *(outPtr++) = 0;
-
-          idx = static_cast<int>(*(inPtr++) + offset);
-          *(outPtr++) = idx;
-          }
-        }
       else
-        {
-        for ( i = 0; i < size; i++ )
-          {
-          idx = static_cast<int>((*(inPtr++) + offset) * scale);
-          *(outPtr++) = idx;
-
-          *(outPtr++) = 0;
-
-          idx = static_cast<int>((*(inPtr++) + offset) * scale);
-          *(outPtr++) = idx;
-          }
-        }
-      }
-    else if ( components == 4 )
       {
-      outPtr = volume1;
-      outPtr2 = volume2;
-      if ( scale == 1.0 )
-        {
         for ( i = 0; i < size; i++ )
-          {
-          idx = static_cast<int>(*(inPtr++) + offset);
-          *(outPtr++) = idx;
-          idx = static_cast<int>(*(inPtr++) + offset);
-          *(outPtr++) = idx;
-          idx = static_cast<int>(*(inPtr++) + offset);
-          *(outPtr++) = idx;
-
-          *(outPtr2++) = 0;
-          idx = static_cast<int>(*(inPtr++) + offset);
-          *(outPtr2++) = idx;
-          }
-        }
-      else
         {
-        for ( i = 0; i < size; i++ )
-          {
           idx = static_cast<int>((*(inPtr++) + offset) * scale);
+          *(outPtr++) = 0;
           *(outPtr++) = idx;
-          idx = static_cast<int>((*(inPtr++) + offset) * scale);
-          *(outPtr++) = idx;
-          idx = static_cast<int>((*(inPtr++) + offset) * scale);
-          *(outPtr++) = idx;
-
-          *(outPtr2++) = 0;
-          idx = static_cast<int>((*(inPtr++) + offset) * scale);
-          *(outPtr2++) = idx;
-          }
         }
       }
     }
+    else if ( components == 2 )
+    {
+      outPtr = volume1;
+      if ( scale == 1.0 )
+      {
+        for ( i = 0; i < size; i++ )
+        {
+          idx = static_cast<int>(*(inPtr++) + offset);
+          *(outPtr++) = idx;
+
+          *(outPtr++) = 0;
+
+          idx = static_cast<int>(*(inPtr++) + offset);
+          *(outPtr++) = idx;
+        }
+      }
+      else
+      {
+        for ( i = 0; i < size; i++ )
+        {
+          idx = static_cast<int>((*(inPtr++) + offset) * scale);
+          *(outPtr++) = idx;
+
+          *(outPtr++) = 0;
+
+          idx = static_cast<int>((*(inPtr++) + offset) * scale);
+          *(outPtr++) = idx;
+        }
+      }
+    }
+    else if ( components == 4 )
+    {
+      outPtr = volume1;
+      outPtr2 = volume2;
+      if ( scale == 1.0 )
+      {
+        for ( i = 0; i < size; i++ )
+        {
+          idx = static_cast<int>(*(inPtr++) + offset);
+          *(outPtr++) = idx;
+          idx = static_cast<int>(*(inPtr++) + offset);
+          *(outPtr++) = idx;
+          idx = static_cast<int>(*(inPtr++) + offset);
+          *(outPtr++) = idx;
+
+          *(outPtr2++) = 0;
+          idx = static_cast<int>(*(inPtr++) + offset);
+          *(outPtr2++) = idx;
+        }
+      }
+      else
+      {
+        for ( i = 0; i < size; i++ )
+        {
+          idx = static_cast<int>((*(inPtr++) + offset) * scale);
+          *(outPtr++) = idx;
+          idx = static_cast<int>((*(inPtr++) + offset) * scale);
+          *(outPtr++) = idx;
+          idx = static_cast<int>((*(inPtr++) + offset) * scale);
+          *(outPtr++) = idx;
+
+          *(outPtr2++) = 0;
+          idx = static_cast<int>((*(inPtr++) + offset) * scale);
+          *(outPtr2++) = idx;
+        }
+      }
+    }
+  }
   // The sizes are different and interpolation is required
   else
-    {
+  {
     outPtr  = volume1;
     outPtr2 = volume2;
 
     for ( k = 0; k < outputDimensions[2]; k++ )
-      {
+    {
       fz = k * sampleRate[2];
       fz = (fz >= inputDimensions[2]-1)?(inputDimensions[2]-1.001):(fz);
       z  = vtkMath::Floor( fz );
       wz = fz - z;
       for ( j = 0; j < outputDimensions[1]; j++ )
-        {
+      {
         fy = j * sampleRate[1];
         fy = (fy >= inputDimensions[1]-1)?(inputDimensions[1]-1.001):(fy);
         y  = vtkMath::Floor( fy );
         wy = fy - y;
         for ( i = 0; i < outputDimensions[0]; i++ )
-          {
+        {
           fx = i * sampleRate[0];
           fx = (fx >= inputDimensions[0]-1)?(inputDimensions[0]-1.001):(fx);
           x  = vtkMath::Floor( fx );
@@ -222,7 +222,7 @@ void vtkVolumeTextureMapper3DComputeScalars( T *dataPtr,
                                      x );
 
           if ( components == 1 )
-            {
+          {
             float A, B, C, D, E, F, G, H;
             A = static_cast<float>(*(inPtr));
             B = static_cast<float>(*(inPtr+1));
@@ -246,9 +246,9 @@ void vtkVolumeTextureMapper3DComputeScalars( T *dataPtr,
             idx = static_cast<int>((val + offset)*scale);
             *(outPtr++) = 0;
             *(outPtr++) = idx;
-            }
+          }
           else if ( components == 2 )
-            {
+          {
             float A1, B1, C1, D1, E1, F1, G1, H1;
             float A2, B2, C2, D2, E2, F2, G2, H2;
             A1 = static_cast<float>(*(inPtr));
@@ -296,9 +296,9 @@ void vtkVolumeTextureMapper3DComputeScalars( T *dataPtr,
 
             idx = static_cast<int>((val2 + offset) * scale);
             *(outPtr++) = idx;
-            }
+          }
           else
-            {
+          {
             float Ar, Br, Cr, Dr, Er, Fr, Gr, Hr;
             float Ag, Bg, Cg, Dg, Eg, Fg, Gg, Hg;
             float Ab, Bb, Cb, Db, Eb, Fb, Gb, Hb;
@@ -386,11 +386,11 @@ void vtkVolumeTextureMapper3DComputeScalars( T *dataPtr,
             *(outPtr2++) = 0;
             idx = static_cast<int>((vala + offset) * scale);
             *(outPtr2++) = idx;
-            }
           }
         }
       }
     }
+  }
 }
 
 
@@ -481,33 +481,33 @@ void vtkVolumeTextureMapper3DComputeGradients( T *dataPtr,
 
 
   if ( components == 1 || components == 2 )
-    {
+  {
     normals = volume2;
     gradmags = volume1;
     gradmagIncrement = components+1;
     gradmagOffset = components-1;
-    }
+  }
   else
-    {
+  {
     normals = volume3;
     gradmags = volume2;
     gradmagIncrement = 2;
     gradmagOffset = 0;
-    }
+  }
 
   double wx, wy, wz;
 
   // Loop through all the data and compute the encoded normal and
   // gradient magnitude for each scalar location
   for ( z = z_start; z < z_limit; z++ )
-    {
+  {
     floc[2] = z*sampleRate[2];
     floc[2] = (floc[2]>=(dim[2]-1))?(dim[2]-1.001):(floc[2]);
     loc[2]  = vtkMath::Floor(floc[2]);
     wz = floc[2] - loc[2];
 
     for ( y = y_start; y < y_limit; y++ )
-      {
+    {
       floc[1] = y*sampleRate[1];
       floc[1] = (floc[1]>=(dim[1]-1))?(dim[1]-1.001):(floc[1]);
       loc[1]  = vtkMath::Floor(floc[1]);
@@ -522,7 +522,7 @@ void vtkVolumeTextureMapper3DComputeGradients( T *dataPtr,
       outPtr2 = normals + 3*outputOffset;
 
       for ( x = xlow; x < xhigh; x++ )
-        {
+      {
         floc[0] = x*sampleRate[0];
         floc[0] = (floc[0]>=(dim[0]-1))?(dim[0]-1.001):(floc[0]);
         loc[0]  = vtkMath::Floor(floc[0]);
@@ -545,7 +545,7 @@ void vtkVolumeTextureMapper3DComputeGradients( T *dataPtr,
 
         float sample[6];
         for ( int i = 0; i < 6; i++ )
-          {
+        {
           float A, B, C, D, E, F, G, H;
           T *samplePtr = dptr + sampleOffset[i];
 
@@ -567,7 +567,7 @@ void vtkVolumeTextureMapper3DComputeGradients( T *dataPtr,
             (    wx)*(1.0-wy)*(    wz)*F +
             (1.0-wx)*(    wy)*(    wz)*G +
             (    wx)*(    wy)*(    wz)*H;
-          }
+        }
 
         n[0] = ((sampleOffset[0]==0 || sampleOffset[1]==0)?(2.0):(1.0))*(sample[0] -sample[1]);
         n[1] = ((sampleOffset[2]==0 || sampleOffset[3]==0)?(2.0):(1.0))*(sample[2] -sample[3]);
@@ -594,15 +594,15 @@ void vtkVolumeTextureMapper3DComputeGradients( T *dataPtr,
 
         // Normalize the gradient direction
         if ( t > zeroNormalThreshold )
-          {
+        {
           n[0] /= t;
           n[1] /= t;
           n[2] /= t;
-          }
+        }
         else
-          {
+        {
           n[0] = n[1] = n[2] = 0.0;
-          }
+        }
 
         int nx = static_cast<int>((n[0] / 2.0 + 0.5)*255.0 + 0.5);
         int ny = static_cast<int>((n[1] / 2.0 + 0.5)*255.0 + 0.5);
@@ -622,8 +622,8 @@ void vtkVolumeTextureMapper3DComputeGradients( T *dataPtr,
 
         outPtr1 += gradmagIncrement;
         outPtr2 += 3;
-        }
       }
+    }
 //    if ( z%8 == 7 )
 //      {
 //      float args[1];
@@ -632,7 +632,7 @@ void vtkVolumeTextureMapper3DComputeGradients( T *dataPtr,
 //        static_cast<float>(z_limit - z_start - 1);
 //      me->InvokeEvent( vtkEvent::VolumeMapperComputeGradientsProgressEvent, args );
 //      }
-    }
+  }
 //  me->InvokeEvent( vtkEvent::VolumeMapperComputeGradientsEndEvent, NULL );
 }
 
@@ -723,18 +723,18 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
   matrix->Delete();
 
   if ( position[3] )
-    {
+  {
     position[0] /= position[3];
     position[1] /= position[3];
     position[2] /= position[3];
-    }
+  }
 
   if ( focalPoint[3] )
-    {
+  {
     focalPoint[0] /= focalPoint[3];
     focalPoint[1] /= focalPoint[3];
     focalPoint[2] /= focalPoint[3];
-    }
+  }
 
   // Create a plane equation using the direction and position of the camera
   plane[0] = focalPoint[0] - position[0];
@@ -771,11 +771,11 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
   int idx = 0;
 
   for ( k = 0; k < 2; k++ )
-    {
+  {
     for ( j = 0; j < 2; j++ )
-      {
+    {
       for ( i = 0; i < 2; i++ )
-        {
+      {
         vertices[idx][2] = bounds[4+k];
         vertices[idx][1] = bounds[2+j];
         vertices[idx][0] = bounds[i];
@@ -792,9 +792,9 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
         minDistance = (d<minDistance)?(d):(minDistance);
         maxDistance = (d>maxDistance)?(d):(maxDistance);
 
-        }
       }
     }
+  }
 
   int dim[6];
   this->GetVolumeDimensions(dim);
@@ -828,7 +828,7 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
 
   // Check if we have space, free old space only if it is too small
   if ( this->BufferSize < numPolys )
-    {
+  {
     delete [] this->PolygonBuffer;
     delete [] this->IntersectionBuffer;
 
@@ -836,7 +836,7 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
 
     this->PolygonBuffer = new float [36*this->BufferSize];
     this->IntersectionBuffer = new float [12*this->BufferSize];
-    }
+  }
 
   this->NumberOfPolygons = numPolys;
 
@@ -848,7 +848,7 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
   float *iptr, *pptr;
 
   for ( i = 0; i < 12; i++ )
-    {
+  {
     double line[3];
 
     line[0] = vertices[lines[i][1]][0] - vertices[lines[i][0]][0];
@@ -865,24 +865,24 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
     double t, increment;
 
     if ( planeDotLine != 0.0 )
-      {
+    {
       t = (d - planeDotLineOrigin - plane[3] ) / planeDotLine;
       increment = -stepSize / planeDotLine;
-      }
+    }
     else
-      {
+    {
       t         = -1.0;
       increment =  0.0;
-      }
+    }
 
     for ( j = 0; j < numPolys; j++ )
-      {
+    {
       *iptr = (t > 0.0 && t < 1.0)?(t):(-1.0);
 
       t += increment;
       iptr += 12;
-      }
     }
+  }
 
   // Compute the polygons by determining which edges were intersected
   int neighborLines[12][6] =
@@ -909,31 +909,31 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
   high[2] = (bounds[5] - volBounds[4]) / (volBounds[5] - volBounds[4]);
 
   for ( i = 0; i < 12; i++ )
-    {
+  {
     tCoord[i][0] = (tCoord[i][0])?(high[0]):(low[0]);
     tCoord[i][1] = (tCoord[i][1])?(high[1]):(low[1]);
     tCoord[i][2] = (tCoord[i][2])?(high[2]):(low[2]);
-    }
+  }
 
   iptr = this->IntersectionBuffer;
   pptr = this->PolygonBuffer;
 
   for ( i = 0; i < numPolys; i++ )
-    {
+  {
     // Look for a starting point
     int start = 0;
 
     while ( start < 12 && iptr[start] == -1.0 )
-      {
+    {
       start++;
-      }
+    }
 
     if ( start == 12 )
-      {
+    {
       pptr[0] = -1.0;
-      }
+    }
     else
-      {
+    {
       int current = start;
       int previous = -1;
       int errFlag = 0;
@@ -941,7 +941,7 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
       idx   = 0;
 
       while ( idx < 6 && !errFlag && ( idx == 0 || current != start) )
-        {
+      {
         double t = iptr[current];
 
         *(pptr + idx*6)     =
@@ -975,30 +975,30 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
                 (*(this->IntersectionBuffer + i*12 +
                    neighborLines[current][j]) < 0 ||
                  neighborLines[current][j] == previous) )
-          {
+        {
           j++;
-          }
-
-        if ( j >= 6 )
-          {
-          errFlag = 1;
-          }
-        else
-          {
-          previous = current;
-          current = neighborLines[current][j];
-          }
         }
 
-      if ( idx < 6 )
+        if ( j >= 6 )
         {
-        *(pptr + idx*6) = -1;
+          errFlag = 1;
+        }
+        else
+        {
+          previous = current;
+          current = neighborLines[current][j];
         }
       }
 
+      if ( idx < 6 )
+      {
+        *(pptr + idx*6) = -1;
+      }
+    }
+
     iptr += 12;
     pptr += 36;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1013,14 +1013,14 @@ int vtkVolumeTextureMapper3D::UpdateVolumes(vtkVolume *vtkNotUsed(vol))
   // Has the volume changed in some way?
   if ( this->SavedTextureInput != input ||
        this->SavedTextureMTime.GetMTime() < input->GetMTime() )
-    {
+  {
     needToUpdate = 1;
-    }
+  }
 
   if ( !needToUpdate )
-    {
+  {
     return 0;
-    }
+  }
 
   this->SavedTextureInput = input;
   this->SavedTextureMTime.Modified();
@@ -1036,57 +1036,57 @@ int vtkVolumeTextureMapper3D::UpdateVolumes(vtkVolume *vtkNotUsed(vol))
                                                this->ArrayName,
                                                cellFlag);
   if (!scalarArray)
-    {
+  {
     vtkErrorMacro("No scalars found on input.");
     return 0;
-    }
+  }
 
   if (cellFlag)
-    {
+  {
     vtkErrorMacro("Can not process Cell Data.");
     return 0;
-    }
+  }
 
   int components = scalarArray->GetNumberOfComponents();
 
   int powerOfTwoDim[3];
 
   if(this->SupportsNonPowerOfTwoTextures)
-    {
+  {
      for ( int i = 0; i < 3; i++ )
-       {
+     {
        powerOfTwoDim[i]=dim[i];
-       }
-    }
+     }
+  }
   else
-    {
+  {
     for ( int i = 0; i < 3; i++ )
-      {
+    {
       powerOfTwoDim[i] = 32;
       while ( powerOfTwoDim[i] < dim[i] )
-        {
+      {
         powerOfTwoDim[i] *= 2;
-        }
       }
     }
+  }
 
   while ( ! this->IsTextureSizeSupported( powerOfTwoDim,components ) )
-    {
+  {
     if ( powerOfTwoDim[0] >= powerOfTwoDim[1] &&
          powerOfTwoDim[0] >= powerOfTwoDim[2] )
-      {
+    {
       powerOfTwoDim[0] /= 2;
-      }
+    }
     else if ( powerOfTwoDim[1] >= powerOfTwoDim[0] &&
               powerOfTwoDim[1] >= powerOfTwoDim[2] )
-      {
+    {
       powerOfTwoDim[1] /= 2;
-      }
-    else
-      {
-      powerOfTwoDim[2] /= 2;
-      }
     }
+    else
+    {
+      powerOfTwoDim[2] /= 2;
+    }
+  }
 
   int neededSize = powerOfTwoDim[0] * powerOfTwoDim[1] * powerOfTwoDim[2];
 
@@ -1097,12 +1097,12 @@ int vtkVolumeTextureMapper3D::UpdateVolumes(vtkVolume *vtkNotUsed(vol))
   // Is it the right size? If not, allocate it.
   if ( this->VolumeSize != neededSize ||
        this->VolumeComponents != components )
-    {
+  {
     delete [] this->Volume1;
     delete [] this->Volume2;
     delete [] this->Volume3;
     switch (components)
-      {
+    {
       case 1:
         this->Volume1 = new unsigned char [2*neededSize];
         this->Volume2 = new unsigned char [3*neededSize];
@@ -1119,11 +1119,11 @@ int vtkVolumeTextureMapper3D::UpdateVolumes(vtkVolume *vtkNotUsed(vol))
         this->Volume2 = new unsigned char [2*neededSize];
         this->Volume3 = new unsigned char [3*neededSize];
         break;
-      }
+    }
 
     this->VolumeSize       = neededSize;
     this->VolumeComponents = components;
-    }
+  }
 
   // Find the scalar range
   double scalarRange[2];
@@ -1145,17 +1145,17 @@ int vtkVolumeTextureMapper3D::UpdateVolumes(vtkVolume *vtkNotUsed(vol))
   if ( scalarType == VTK_FLOAT ||
        scalarType == VTK_DOUBLE ||
        scalarRange[1] - scalarRange[0] > 255 )
-    {
+  {
     arraySizeNeeded = 256;
     offset          = -scalarRange[0];
     scale           = 255.0 / (scalarRange[1] - scalarRange[0]);
-    }
+  }
   else
-    {
+  {
     arraySizeNeeded = static_cast<int>(scalarRange[1] - scalarRange[0] + 1);
     offset          = -scalarRange[0];
     scale           = 1.0;
-   }
+  }
 
   this->ColorTableSize   = arraySizeNeeded;
   this->ColorTableOffset = offset;
@@ -1180,17 +1180,17 @@ int vtkVolumeTextureMapper3D::UpdateVolumes(vtkVolume *vtkNotUsed(vol))
 
 
   switch ( scalarType )
-    {
+  {
     vtkTemplateMacro(
       vtkVolumeTextureMapper3DComputeScalars(
         static_cast<VTK_TT *>(dataPtr), this,
         offset, scale,
         this->Volume1,
         this->Volume2));
-    }
+  }
 
   switch ( scalarType )
-    {
+  {
     vtkTemplateMacro(
       vtkVolumeTextureMapper3DComputeGradients(
         static_cast<VTK_TT *>(dataPtr), this,
@@ -1198,7 +1198,7 @@ int vtkVolumeTextureMapper3D::UpdateVolumes(vtkVolume *vtkNotUsed(vol))
         this->Volume1,
         this->Volume2,
         this->Volume3));
-    }
+  }
 
   return 1;
 }
@@ -1216,9 +1216,9 @@ int vtkVolumeTextureMapper3D::UpdateColorLookup( vtkVolume *vol )
   // Has the volume changed in some way?
   if ( this->SavedParametersInput != input ||
        this->SavedParametersMTime.GetMTime() < input->GetMTime() )
-    {
+  {
     needToUpdate = 1;
-    }
+  }
 
   // What sample distance are we going to use for rendering? If we
   // have to render quickly according to our allocated render time,
@@ -1226,21 +1226,21 @@ int vtkVolumeTextureMapper3D::UpdateColorLookup( vtkVolume *vol )
   // Instead set the sample distance to the average spacing.
   this->ActualSampleDistance = this->SampleDistance;
   if ( vol->GetAllocatedRenderTime() < 1.0 )
-    {
+  {
     float spacing[3];
     this->GetVolumeSpacing(spacing);
     this->ActualSampleDistance =
       0.333 * (static_cast<double>(spacing[0]) + static_cast<double>(spacing[1]) + static_cast<double>(spacing[2]));
-    }
+  }
 
   // How many components?
   int components = this->GetNumberOfScalarComponents(input);
 
   // Has the sample distance changed?
   if ( this->SavedSampleDistance != this->ActualSampleDistance )
-    {
+  {
     needToUpdate = 1;
-    }
+  }
 
   vtkColorTransferFunction *rgbFunc  = NULL;
   vtkPiecewiseFunction     *grayFunc = NULL;
@@ -1249,37 +1249,37 @@ int vtkVolumeTextureMapper3D::UpdateColorLookup( vtkVolume *vol )
   int colorChannels = vol->GetProperty()->GetColorChannels(0);
 
   if ( components < 3 )
-    {
+  {
     // Has the number of color channels changed?
     if ( this->SavedColorChannels != colorChannels )
-      {
+    {
       needToUpdate = 1;
-      }
+    }
 
     // Has the color transfer function changed in some way,
     // and we are using it?
     if ( colorChannels == 3 )
-      {
+    {
       rgbFunc  = vol->GetProperty()->GetRGBTransferFunction(0);
       if ( this->SavedRGBFunction != rgbFunc ||
            this->SavedParametersMTime.GetMTime() < rgbFunc->GetMTime() )
-        {
+      {
         needToUpdate = 1;
-        }
       }
+    }
 
     // Has the gray transfer function changed in some way,
     // and we are using it?
     if ( colorChannels == 1 )
-      {
+    {
       grayFunc = vol->GetProperty()->GetGrayTransferFunction(0);
       if ( this->SavedGrayFunction != grayFunc ||
            this->SavedParametersMTime.GetMTime() < grayFunc->GetMTime() )
-        {
+      {
         needToUpdate = 1;
-        }
       }
     }
+  }
 
   // Has the scalar opacity transfer function changed in some way?
   vtkPiecewiseFunction *scalarOpacityFunc =
@@ -1287,9 +1287,9 @@ int vtkVolumeTextureMapper3D::UpdateColorLookup( vtkVolume *vol )
   if ( this->SavedScalarOpacityFunction != scalarOpacityFunc ||
        this->SavedParametersMTime.GetMTime() <
        scalarOpacityFunc->GetMTime() )
-    {
+  {
     needToUpdate = 1;
-    }
+  }
 
   // Has the gradient opacity transfer function changed in some way?
   vtkPiecewiseFunction *gradientOpacityFunc =
@@ -1297,23 +1297,23 @@ int vtkVolumeTextureMapper3D::UpdateColorLookup( vtkVolume *vol )
   if ( this->SavedGradientOpacityFunction != gradientOpacityFunc ||
        this->SavedParametersMTime.GetMTime() <
        gradientOpacityFunc->GetMTime() )
-    {
+  {
     needToUpdate = 1;
-    }
+  }
 
 
   double scalarOpacityDistance =
     vol->GetProperty()->GetScalarOpacityUnitDistance(0);
   if ( this->SavedScalarOpacityDistance != scalarOpacityDistance )
-    {
+  {
     needToUpdate = 1;
-    }
+  }
 
   // If we have not found any need to update, return now
   if ( !needToUpdate )
-    {
+  {
     return 0;
-    }
+  }
 
   this->SavedRGBFunction             = rgbFunc;
   this->SavedGrayFunction            = grayFunc;
@@ -1335,28 +1335,28 @@ int vtkVolumeTextureMapper3D::UpdateColorLookup( vtkVolume *vol )
                                                this->ArrayName,
                                                cellFlag);
   if (!scalarArray)
-    {
+  {
     vtkErrorMacro("No scalars found on input.");
     return 0;
-    }
+  }
   scalarArray->GetRange(scalarRange, components-1);
 
   int arraySizeNeeded = this->ColorTableSize;
 
   if ( components < 3 )
-    {
+  {
     // Sample the transfer functions between the min and max.
     if ( colorChannels == 1 )
-      {
+    {
       grayFunc->GetTable( scalarRange[0], scalarRange[1],
                           arraySizeNeeded, this->TempArray1 );
-      }
+    }
     else
-      {
+    {
       rgbFunc->GetTable( scalarRange[0], scalarRange[1],
                          arraySizeNeeded, this->TempArray1 );
-      }
     }
+  }
 
   scalarOpacityFunc->GetTable( scalarRange[0], scalarRange[1],
                                arraySizeNeeded, this->TempArray2 );
@@ -1371,56 +1371,56 @@ int vtkVolumeTextureMapper3D::UpdateColorLookup( vtkVolume *vol )
   float *fptr2 = this->TempArray2;
   double factor = this->ActualSampleDistance / scalarOpacityDistance;
   for ( i = 0; i < arraySizeNeeded; i++ )
-    {
+  {
     if ( *fptr2 > 0.0001 )
-      {
+    {
       *fptr2 =  1.0-pow(static_cast<double>(1.0-(*fptr2)),factor);
-      }
-    fptr2++;
     }
+    fptr2++;
+  }
 
   int goLoop;
   unsigned char *ptr, *rgbptr, *aptr;
   float *fptr1;
 
   switch (components)
-    {
+  {
     case 1:
       // Move the two temp float arrays into one RGBA unsigned char array
       ptr = this->ColorLookup;
       for ( goLoop = 0; goLoop < 256; goLoop++ )
-        {
+      {
         fptr1 = this->TempArray1;
         fptr2 = this->TempArray2;
         if ( colorChannels == 1 )
-          {
+        {
           for ( i = 0; i < arraySizeNeeded; i++ )
-            {
+          {
             *(ptr++) = static_cast<unsigned char>(*(fptr1)*255.0 + 0.5);
             *(ptr++) = static_cast<unsigned char>(*(fptr1)*255.0 + 0.5);
             *(ptr++) = static_cast<unsigned char>(*(fptr1++)*255.0 + 0.5);
             *(ptr++) = static_cast<unsigned char>(*(fptr2++)*goArray[goLoop]*255.0 + 0.5);
-            }
-          }
-        else
-          {
-          for ( i = 0; i < arraySizeNeeded; i++ )
-            {
-            *(ptr++) = static_cast<unsigned char>(*(fptr1++)*255.0 + 0.5);
-            *(ptr++) = static_cast<unsigned char>(*(fptr1++)*255.0 + 0.5);
-            *(ptr++) = static_cast<unsigned char>(*(fptr1++)*255.0 + 0.5);
-            *(ptr++) = static_cast<unsigned char>(*(fptr2++)*goArray[goLoop]*255.0 + 0.5);
-            }
-          }
-
-        for ( ; i < 256; i++ )
-          {
-          *(ptr++) = 0;
-          *(ptr++) = 0;
-          *(ptr++) = 0;
-          *(ptr++) = 0;
           }
         }
+        else
+        {
+          for ( i = 0; i < arraySizeNeeded; i++ )
+          {
+            *(ptr++) = static_cast<unsigned char>(*(fptr1++)*255.0 + 0.5);
+            *(ptr++) = static_cast<unsigned char>(*(fptr1++)*255.0 + 0.5);
+            *(ptr++) = static_cast<unsigned char>(*(fptr1++)*255.0 + 0.5);
+            *(ptr++) = static_cast<unsigned char>(*(fptr2++)*goArray[goLoop]*255.0 + 0.5);
+          }
+        }
+
+        for ( ; i < 256; i++ )
+        {
+          *(ptr++) = 0;
+          *(ptr++) = 0;
+          *(ptr++) = 0;
+          *(ptr++) = 0;
+        }
+      }
       break;
 
     case 2:
@@ -1430,48 +1430,48 @@ int vtkVolumeTextureMapper3D::UpdateColorLookup( vtkVolume *vol )
       aptr   = this->AlphaLookup;
 
       if ( colorChannels == 1 )
-        {
+      {
         for ( i = 0; i < arraySizeNeeded; i++ )
-          {
+        {
           fptr1 = this->TempArray1;
           fptr2 = this->TempArray2;
           for ( goLoop = 0; goLoop < 256; goLoop++ )
-            {
+          {
             *(rgbptr++) = static_cast<unsigned char>(*(fptr1)*255.0 + 0.5);
             *(rgbptr++) = static_cast<unsigned char>(*(fptr1)*255.0 + 0.5);
             *(rgbptr++) = static_cast<unsigned char>(*(fptr1++)*255.0 + 0.5);
             *(aptr++)   = static_cast<unsigned char>(*(fptr2++)*goArray[goLoop]*255.0 + 0.5);
-            }
           }
         }
+      }
       else
-        {
+      {
         fptr1 = this->TempArray1;
         fptr2 = this->TempArray2;
         for ( i = 0; i < arraySizeNeeded; i++ )
-          {
+        {
           for ( goLoop = 0; goLoop < 256; goLoop++ )
-            {
+          {
             *(rgbptr++) = static_cast<unsigned char>(*(fptr1)*255.0 + 0.5);
             *(rgbptr++) = static_cast<unsigned char>(*(fptr1+1)*255.0 + 0.5);
             *(rgbptr++) = static_cast<unsigned char>(*(fptr1+2)*255.0 + 0.5);
             *(aptr++)   = static_cast<unsigned char>(*(fptr2)*goArray[goLoop]*255.0 + 0.5);
-            }
+          }
           fptr1+=3;
           fptr2++;
-          }
         }
+      }
 
       for ( ; i < 256; i++ )
-        {
+      {
         for ( goLoop = 0; goLoop < 256; goLoop++ )
-          {
+        {
           *(rgbptr++) = 0;
           *(rgbptr++) = 0;
           *(rgbptr++) = 0;
           *(aptr++)   = 0;
-          }
         }
+      }
       break;
 
     case 3:
@@ -1480,20 +1480,20 @@ int vtkVolumeTextureMapper3D::UpdateColorLookup( vtkVolume *vol )
       aptr   = this->AlphaLookup;
 
       for ( goLoop = 0; goLoop < 256; goLoop++ )
-        {
+      {
         fptr2 = this->TempArray2;
         for ( i = 0; i < arraySizeNeeded; i++ )
-          {
+        {
           *(aptr++)   = static_cast<unsigned char>(*(fptr2++)*goArray[goLoop]*255.0 + 0.5);
-          }
-        for ( ; i < 256; i++ )
-          {
-          *(aptr++)   = 0;
-          }
         }
+        for ( ; i < 256; i++ )
+        {
+          *(aptr++)   = 0;
+        }
+      }
 
       break;
-    }
+  }
   return 1;
 }
 
@@ -1529,10 +1529,10 @@ int vtkVolumeTextureMapper3D::GetNumberOfScalarComponents(vtkImageData *input)
                                                this->ArrayName,
                                                cellFlag);
   if (!scalarArray)
-    {
+  {
     vtkErrorMacro("No scalars found on input.");
     return 0;
-    }
+  }
   return scalarArray->GetNumberOfComponents();
 }
 //-----------------------------------------------------------------------------

@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkScaledTextActor - create text that will scale as needed
-// .SECTION Description
-// vtkScaledTextActor is deprecated. New code should use vtkTextActor with
-// the Scaled = true option.
-//
-// .SECTION See Also
-// vtkTextActor vtkActor2D vtkTextMapper
+/**
+ * @class   vtkScaledTextActor
+ * @brief   create text that will scale as needed
+ *
+ * vtkScaledTextActor is deprecated. New code should use vtkTextActor with
+ * the Scaled = true option.
+ *
+ * @sa
+ * vtkTextActor vtkActor2D vtkTextMapper
+*/
 
 #ifndef vtkScaledTextActor_h
 #define vtkScaledTextActor_h
@@ -32,9 +35,10 @@ public:
   vtkTypeMacro(vtkScaledTextActor,vtkTextActor);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Instantiate object with a rectangle in normaled view coordinates
-  // of (0.2,0.85, 0.8, 0.95).
+  /**
+   * Instantiate object with a rectangle in normaled view coordinates
+   * of (0.2,0.85, 0.8, 0.95).
+   */
   static vtkScaledTextActor *New();
 
 protected:

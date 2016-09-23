@@ -468,7 +468,7 @@ public:
   static vtkButtonCallback *New()
     { return new vtkButtonCallback; }
   virtual void Execute(vtkObject *caller, unsigned long, void*)
-    {
+  {
       vtkButtonWidget *buttonWidget =
         reinterpret_cast<vtkButtonWidget*>(caller);
       vtkTexturedButtonRepresentation *rep =
@@ -477,7 +477,7 @@ public:
       int state = rep->GetState();
       cout << "State: " << state << "\n";
       this->Glyph->SetScaleFactor(0.05*(1+state));
-    }
+  }
   vtkButtonCallback():Glyph(0) {}
   vtkGlyph3D *Glyph;
 };

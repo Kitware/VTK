@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkVolumeMapperNode - vtkViewNode specialized for vtkVolumeMappers
-// .SECTION Description
-// State storage and graph traversal for vtkVolumeMapper/PolyDataMapper and Property
-// Made a choice to merge PolyDataMapper, PolyDataMapper and property together. If there
-// is a compelling reason to separate them we can.
+/**
+ * @class   vtkVolumeMapperNode
+ * @brief   vtkViewNode specialized for vtkVolumeMappers
+ *
+ * State storage and graph traversal for vtkVolumeMapper/PolyDataMapper and Property
+ * Made a choice to merge PolyDataMapper, PolyDataMapper and property together. If there
+ * is a compelling reason to separate them we can.
+*/
 
 #ifndef vtkVolumeMapperNode_h
 #define vtkVolumeMapperNode_h

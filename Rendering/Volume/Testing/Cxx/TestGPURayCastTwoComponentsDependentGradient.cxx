@@ -46,40 +46,40 @@ int TestGPURayCastTwoComponentsDependentGradient(int argc, char *argv[])
   double * ptr = static_cast<double *> (image->GetScalarPointer(0, 0, 0));
 
   for (int z = 0; z < dims[2]; ++z)
-    {
+  {
     for (int y = 0; y < dims[1]; ++y)
-      {
+    {
       for (int x = 0; x < dims[0]; ++x)
-        {
+      {
         if (x < dims[0] / 2)
-          {
+        {
           if (y < dims[1] / 2)
-            {
+          {
             *ptr++ = 0.0;
             *ptr++ = 0.0;
-            }
+          }
           else
-            {
+          {
             *ptr++ = 0.25;
             *ptr++ = 25.0;
-            }
           }
+        }
         else
-          {
+        {
           if (y < dims[1] / 2)
-            {
+          {
             *ptr++ = 0.5;
             *ptr++ = 50.0;
-            }
+          }
           else
-            {
+          {
             *ptr++ = 1.0;
             *ptr++ = 100.0;
-            }
           }
         }
       }
     }
+  }
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(301, 300); // Intentional NPOT size
@@ -144,9 +144,9 @@ int TestGPURayCastTwoComponentsDependentGradient(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

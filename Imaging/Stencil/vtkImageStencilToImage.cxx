@@ -82,21 +82,21 @@ void vtkImageStencilToImageExecute(
   double tmax = outData->GetScalarTypeMax();
 
   if (inValueD < tmin)
-    {
+  {
     inValueD = tmin;
-    }
+  }
   if (inValueD > tmax)
-    {
+  {
     inValueD = tmax;
-    }
+  }
   if (outValueD < tmin)
-    {
+  {
     outValueD = tmin;
-    }
+  }
   if (outValueD > tmax)
-    {
+  {
     outValueD = tmax;
-    }
+  }
 
   T inValue = static_cast<T>(inValueD);
   T outValue = static_cast<T>(outValueD);
@@ -105,27 +105,27 @@ void vtkImageStencilToImageExecute(
 
   // Loop through output pixels
   while (!outIter.IsAtEnd())
-    {
+  {
     T* outPtr = outIter.BeginSpan();
     T* spanEndPtr = outIter.EndSpan();
 
     if (outIter.IsInStencil())
-      {
+    {
       while (outPtr != spanEndPtr)
-        {
+      {
         *outPtr++ = inValue;
-        }
       }
+    }
     else
-      {
+    {
       while (outPtr != spanEndPtr)
-        {
+      {
         *outPtr++ = outValue;
-        }
       }
+    }
 
     outIter.NextSpan();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -148,14 +148,14 @@ int vtkImageStencilToImage::RequestData(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   switch (outData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageStencilToImageExecute(
         this, inData, outData, static_cast<VTK_TT *>(outPtr),
         updateExtent, 0));
     default:
       vtkErrorMacro("Execute: Unknown ScalarType");
-    }
+  }
 
   return 1;
 }
@@ -164,10 +164,10 @@ int vtkImageStencilToImage::RequestData(
 int vtkImageStencilToImage::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageStencilData");
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 0);
-    }
+  }
   return 1;
 }
 

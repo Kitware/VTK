@@ -108,21 +108,21 @@ int vtkGeoGraticule::RequestData( vtkInformation*, vtkInformationVector**, vtkIn
   if  (
     ( this->LatitudeBounds[0]  ==  this->LatitudeBounds[1] ) ||
     ( this->LongitudeBounds[0] == this->LongitudeBounds[1] ) )
-    { // no work to do.
+  { // no work to do.
     return 1;
-    }
+  }
 
   vtkInformation* outInfo = outputVector->GetInformationObject( 0 );
   if ( ! outInfo )
-    {
+  {
     return 0;
-    }
+  }
 
   vtkPolyData* output = vtkPolyData::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
   if ( ! output )
-    {
+  {
     return 0;
-    }
+  }
 
   vtkPoints* pts = vtkPoints::New();
   output->SetPoints( pts );
@@ -134,26 +134,26 @@ int vtkGeoGraticule::RequestData( vtkInformation*, vtkInformationVector**, vtkIn
   double lngbds[2];
 
   if ( this->LatitudeBounds[0] > this->LatitudeBounds[1] )
-    {
+  {
     latbds[0] = this->LatitudeBounds[1];
     latbds[1] = this->LatitudeBounds[0];
-    }
+  }
   else
-    {
+  {
     latbds[0] = this->LatitudeBounds[0];
     latbds[1] = this->LatitudeBounds[1];
-    }
+  }
 
   if ( this->LongitudeBounds[0] > this->LongitudeBounds[1] )
-    {
+  {
     lngbds[0] = this->LongitudeBounds[1];
     lngbds[1] = this->LongitudeBounds[0];
-    }
+  }
   else
-    {
+  {
     lngbds[0] = this->LongitudeBounds[0];
     lngbds[1] = this->LongitudeBounds[1];
-    }
+  }
 
   // Now, if the bounds don't line up on a tic, jiggle them so that they are
   // on the closest mark at the current Level that is off-screen (i.e. covering
@@ -204,83 +204,83 @@ void vtkGeoGraticule::GenerateGraticule( vtkPolyData* output, double latbds[2], 
   vtkIdType n = -1;
   vtkIdType p = 0;
   for ( lat = latbds[0]; lat < latbds[1] + latTicIncrement; lat += latTicIncrement, ++ p )
-    {
+  {
     offsets.push_back( n + 1 );
     if ( this->GeometryType & vtkGeoGraticule::POLYLINES )
-      {
+    {
       edges->InsertNextCell( 1 );
-      }
+    }
     pt[1] = lat;
     m = 0;
     for ( lng = lngbds[0]; lng < lngbds[1] + lngTicIncrement; lng += lngTicIncrement, ++m )
-      {
+    {
       pt[0] = lng;
       n = pts->InsertNextPoint( pt );
       latLong->InsertNextTuple2( lat, lng );
       if ( this->GeometryType & vtkGeoGraticule::POLYLINES )
-        {
-        edges->InsertCellPoint( n );
-        }
-      }
-    if ( this->GeometryType & vtkGeoGraticule::POLYLINES )
       {
-      edges->UpdateCellCount( m );
-      width->InsertNextValue( this->ComputeLineLevel( p, this->LatitudeLevel, vtkGeoGraticule::LatitudeLevelTics ) );
+        edges->InsertCellPoint( n );
       }
     }
+    if ( this->GeometryType & vtkGeoGraticule::POLYLINES )
+    {
+      edges->UpdateCellCount( m );
+      width->InsertNextValue( this->ComputeLineLevel( p, this->LatitudeLevel, vtkGeoGraticule::LatitudeLevelTics ) );
+    }
+  }
   vtkIdType gridSize[2] = { m, p };
 
   // Now do the meridians.
   if ( this->GeometryType & vtkGeoGraticule::POLYLINES && p == static_cast<int>( offsets.size() ) )
-    {
+  {
     int lineLevel;
     int polarLatitudeLevel = this->LatitudeLevel - 2 >= 0 ? this->LatitudeLevel - 2 : 0;
     int k;
     p = 0;
     for ( lng = lngbds[0]; lng <= lngbds[1]; lng += lngTicIncrement, ++ p )
-      {
+    {
       n = 0;
       k = 0;
       lineLevel = this->ComputeLineLevel( p, this->LongitudeLevel, vtkGeoGraticule::LongitudeLevelTics );
       edges->InsertNextCell( 1 );
       for ( lat = latbds[0]; lat <= latbds[1]; lat += latTicIncrement, ++ n )
-        {
+      {
         // When near the poles, include fewer meridians.
         if ( fabs(lat) <= 60. || lineLevel <= polarLatitudeLevel )
-          {
+        {
           edges->InsertCellPoint( offsets[n] );
           ++ k;
-          }
-        ++ offsets[n];
         }
+        ++ offsets[n];
+      }
       edges->UpdateCellCount( k );
       width->InsertNextValue( lineLevel );
-      }
     }
+  }
   output->SetLines( edges );
   edges->FastDelete();
 
   // Now create the quads to texture
   if ( this->GeometryType & vtkGeoGraticule::QUADRILATERALS )
-    {
+  {
     vtkCellArray* quads = vtkCellArray::New();
     m = 0;
     vtkIdType quadConn[4];
     for ( p = 0; p < gridSize[1] - 1; ++ p )
-      {
+    {
       for ( m = 0; m < gridSize[0] - 1; ++ m )
-        {
+      {
         quadConn[0] =   p       * gridSize[0] + m;
         quadConn[1] =   p       * gridSize[0] + m + 1;
         quadConn[2] = ( p + 1 ) * gridSize[0] + m + 1;
         quadConn[3] = ( p + 1 ) * gridSize[0] + m;
         quads->InsertNextCell( 4, quadConn );
         width->InsertNextValue( -1 );
-        }
       }
+    }
     output->SetPolys( quads );
     quads->FastDelete();
-    }
+  }
 
   output->GetCellData()->AddArray( width );
   output->GetCellData()->SetActiveScalars( "LineLevel" );
@@ -293,12 +293,12 @@ void vtkGeoGraticule::GenerateGraticule( vtkPolyData* output, double latbds[2], 
 int vtkGeoGraticule::ComputeLineLevel( int ticId, int baseLevel, const double* levelIncrements )
 {
   for ( int curLevel = 0; curLevel < baseLevel; ++ curLevel )
-    {
+  {
     if ( ticId % static_cast<int>( levelIncrements[curLevel] / levelIncrements[baseLevel] ) == 0 )
-      {
+    {
       return curLevel;
-      }
     }
+  }
   return baseLevel;
 }
 

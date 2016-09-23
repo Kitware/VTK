@@ -51,7 +51,7 @@ bool IsConvex(Shape shape)
   std::vector<vtkIdType> polyhedronPointsIds;
 
   if (shape == dodecahedron)
-    {
+  {
     // create a dodecahedron
     const int nPoints = 20;
     const int nFaces = 12;
@@ -78,10 +78,10 @@ bool IsConvex(Shape shape)
                                             {0.982247,   -0.713644,  -1.58931}};
     polyhedronPoints->SetNumberOfPoints(nPoints);
     for (int i = 0; i < nPoints; i++)
-      {
+    {
         polyhedronPoints->SetPoint(i,dodechedronPoint[i]);
         polyhedronPointsIds.push_back(i);
-      }
+    }
 
     vtkIdType dodechedronFace[nFaces][5] = {{0, 1, 2, 3, 4},
                                             {0, 5, 10, 6, 1},
@@ -97,12 +97,12 @@ bool IsConvex(Shape shape)
                                             {19, 18, 17, 16, 15}};
 
     for (int i = 0; i < nFaces; i++)
-      {
-      polyhedronFaces->InsertNextCell(5, dodechedronFace[i]);
-      }
-    }
-  else if (shape == u_shape)
     {
+      polyhedronFaces->InsertNextCell(5, dodechedronFace[i]);
+    }
+  }
+  else if (shape == u_shape)
+  {
     // create a concave shape
     const int nPoints = 16;
     const int nFaces = 10;
@@ -126,10 +126,10 @@ bool IsConvex(Shape shape)
 
     polyhedronPoints->SetNumberOfPoints(nPoints);
     for (int i = 0; i < nPoints; i++)
-      {
+    {
       polyhedronPoints->SetPoint(i,concaveShapePoint[i]);
       polyhedronPointsIds.push_back(i);
-      }
+    }
 
     vtkIdType f1[8] = {0, 1, 2, 3, 4, 5, 6, 7};
     vtkIdType f2[8] = {15, 14, 13, 12, 11, 10, 9, 8};
@@ -145,13 +145,13 @@ bool IsConvex(Shape shape)
     vtkIdType* concaveShapeFace[nFaces] = {f1,f2,f3,f4,f5,f6,f7,f8,f9,f10};
 
     for (int i = 0; i < nFaces; i++)
-      {
+    {
       polyhedronFaces->InsertNextCell((i >= 2 ? 4 : 8),
                                       concaveShapeFace[i]);
-      }
     }
+  }
   else if (shape == cube)
-    {
+  {
     // create a cube
     const int nPoints = 8;
     const int nFaces = 6;
@@ -167,10 +167,10 @@ bool IsConvex(Shape shape)
 
     polyhedronPoints->SetNumberOfPoints(nPoints);
     for (int i = 0; i < nPoints; i++)
-      {
+    {
       polyhedronPoints->SetPoint(i,cubeShapePoint[i]);
       polyhedronPointsIds.push_back(i);
-      }
+    }
 
     vtkIdType f1[4] = {0, 1, 2, 3};
     vtkIdType f2[4] = {7, 6, 5, 4};
@@ -182,12 +182,12 @@ bool IsConvex(Shape shape)
     vtkIdType* cubeShapeFace[nFaces] = {f1,f2,f3,f4,f5,f6};
 
     for (int i = 0; i < nFaces; i++)
-      {
-      polyhedronFaces->InsertNextCell(4,cubeShapeFace[i]);
-      }
-    }
-  else if (shape == colinear_cube)
     {
+      polyhedronFaces->InsertNextCell(4,cubeShapeFace[i]);
+    }
+  }
+  else if (shape == colinear_cube)
+  {
     // create a cube with two rectangles comprising one of the faces.
     const int nPoints = 10;
     const int nFaces = 7;
@@ -205,10 +205,10 @@ bool IsConvex(Shape shape)
 
     polyhedronPoints->SetNumberOfPoints(nPoints);
     for (int i = 0; i < nPoints; i++)
-      {
+    {
       polyhedronPoints->SetPoint(i,cubeShapePoint[i]);
       polyhedronPointsIds.push_back(i);
-      }
+    }
 
     vtkIdType f1[5] = {0, 1, 2, 3, 4};
     vtkIdType f2[5] = {9, 8, 7, 6, 5};
@@ -221,19 +221,19 @@ bool IsConvex(Shape shape)
     vtkIdType* cubeShapeFace[nFaces] = {f1,f2,f3,f4,f5,f6, f7};
 
     for (int i = 0; i < nFaces; i++)
-      {
+    {
       if (i < 2)
-        {
+      {
         polyhedronFaces->InsertNextCell(5,cubeShapeFace[i]);
-        }
+      }
       else
-        {
+      {
         polyhedronFaces->InsertNextCell(4,cubeShapeFace[i]);
-        }
       }
     }
+  }
   else if (shape == degenerate_cube)
-    {
+  {
     // create a cube with two degenerate points.
     const int nPoints = 10;
     const int nFaces = 7;
@@ -251,10 +251,10 @@ bool IsConvex(Shape shape)
 
     polyhedronPoints->SetNumberOfPoints(nPoints);
     for (int i = 0; i < nPoints; i++)
-      {
+    {
       polyhedronPoints->SetPoint(i,cubeShapePoint[i]);
       polyhedronPointsIds.push_back(i);
-      }
+    }
 
     vtkIdType f1[5] = {0, 1, 2, 3, 4};
     vtkIdType f2[5] = {9, 8, 7, 6, 5};
@@ -267,19 +267,19 @@ bool IsConvex(Shape shape)
     vtkIdType* cubeShapeFace[nFaces] = {f1,f2,f3,f4,f5,f6, f7};
 
     for (int i = 0; i < nFaces; i++)
-      {
+    {
       if (i < 2)
-        {
+      {
         polyhedronFaces->InsertNextCell(5,cubeShapeFace[i]);
-        }
+      }
       else
-        {
+      {
         polyhedronFaces->InsertNextCell(4,cubeShapeFace[i]);
-        }
       }
     }
+  }
   else if (shape == convex_pyramid)
-    {
+  {
     // create a simple convex pyramid
     const int nPoints = 5;
     const int nFaces = 5;
@@ -292,10 +292,10 @@ bool IsConvex(Shape shape)
 
     polyhedronPoints->SetNumberOfPoints(nPoints);
     for (int i = 0; i < nPoints; i++)
-      {
+    {
       polyhedronPoints->SetPoint(i,pyramidShapePoint[i]);
       polyhedronPointsIds.push_back(i);
-      }
+    }
 
     vtkIdType f1[4] = {0, 1, 2, 3};
     vtkIdType f2[3] = {0, 4, 1};
@@ -306,12 +306,12 @@ bool IsConvex(Shape shape)
     vtkIdType* pyramidShapeFace[nFaces] = {f1,f2,f3,f4,f5};
 
     for (int i = 0; i < nFaces; i++)
-      {
-      polyhedronFaces->InsertNextCell((i == 0 ? 4 : 3),pyramidShapeFace[i]);
-      }
-    }
-  else if (shape == nonconvex_pyramid)
     {
+      polyhedronFaces->InsertNextCell((i == 0 ? 4 : 3),pyramidShapeFace[i]);
+    }
+  }
+  else if (shape == nonconvex_pyramid)
+  {
     // create a simple non-convex pyramid
     const int nPoints = 5;
     const int nFaces = 5;
@@ -324,10 +324,10 @@ bool IsConvex(Shape shape)
 
     polyhedronPoints->SetNumberOfPoints(nPoints);
     for (int i = 0; i < nPoints; i++)
-      {
+    {
       polyhedronPoints->SetPoint(i,pyramidShapePoint[i]);
       polyhedronPointsIds.push_back(i);
-      }
+    }
 
     vtkIdType f1[4] = {0, 1, 2, 3};
     vtkIdType f2[3] = {0, 4, 1};
@@ -338,10 +338,10 @@ bool IsConvex(Shape shape)
     vtkIdType* pyramidShapeFace[nFaces] = {f1,f2,f3,f4,f5};
 
     for (int i = 0; i < nFaces; i++)
-      {
+    {
       polyhedronFaces->InsertNextCell((i == 0 ? 4 : 3),pyramidShapeFace[i]);
-      }
     }
+  }
 
   vtkSmartPointer<vtkUnstructuredGrid> ugrid =
     vtkSmartPointer<vtkUnstructuredGrid>::New();
@@ -363,46 +363,46 @@ int TestPolyhedronConvexity(int argc, char* argv[])
   (void)argv;
 
   if (IsConvex(dodecahedron) != true)
-    {
+  {
     cerr << "convex dodehecahedron incorrectly classified as non-convex" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (IsConvex(u_shape) != false)
-    {
+  {
     cerr << "non-convex u-shape incorrectly classified as convex" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (IsConvex(cube) != true)
-    {
+  {
     cerr << "convex cube incorrectly classified as non-convex" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (IsConvex(colinear_cube) != true)
-    {
+  {
     cerr << "convex colinear cube incorrectly classified as non-convex" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (IsConvex(degenerate_cube) != true)
-    {
+  {
     cerr << "convex degenerate cube incorrectly classified as non-convex" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (IsConvex(convex_pyramid) != true)
-    {
+  {
     cerr << "convex pyramid incorrectly classified as non-convex" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (IsConvex(nonconvex_pyramid) != false)
-    {
+  {
     cerr << "non-convex pyramid incorrectly classified as convex" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

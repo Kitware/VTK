@@ -49,25 +49,25 @@ struct RemoveOutliers
   RemoveOutliers(T *points, vtkAbstractPointLocator *loc, double radius, int numNei,
                  vtkIdType *map) : Points(points), Locator(loc), Radius(radius),
                                    NumNeighbors(numNei), PointMap(map)
-    {
-    }
+  {
+  }
 
   // Just allocate a little bit of memory to get started.
   void Initialize()
-    {
+  {
     vtkIdList*& pIds = this->PIds.Local();
     pIds->Allocate(128); //allocate some memory
-    }
+  }
 
   void operator() (vtkIdType ptId, vtkIdType endPtId)
-    {
+  {
       const T *p = this->Points + 3*ptId;
       vtkIdType *map = this->PointMap + ptId;
       double x[3];
       vtkIdList*& pIds = this->PIds.Local();
 
       for ( ; ptId < endPtId; ++ptId)
-        {
+      {
         x[0] = static_cast<double>(*p++);
         x[1] = static_cast<double>(*p++);
         x[2] = static_cast<double>(*p++);
@@ -78,20 +78,20 @@ struct RemoveOutliers
         // Keep in mind that The FindPoints method will always return at
         // least one point (itself).
         *map++ = ( numPts > this->NumNeighbors ? 1 : -1 );
-        }
-    }
+      }
+  }
 
   void Reduce()
-    {
-    }
+  {
+  }
 
   static void Execute(vtkRadiusOutlierRemoval *self, vtkIdType numPts,
                       T *points, vtkIdType *map)
-    {
+  {
       RemoveOutliers remove(points, self->GetLocator(), self->GetRadius(),
                             self->GetNumberOfNeighbors(), map);
       vtkSMPTools::For(0, numPts, remove);
-    }
+  }
 
 }; //RemoveOutliers
 
@@ -121,10 +121,10 @@ int vtkRadiusOutlierRemoval::FilterPoints(vtkPointSet *input)
   // Perform the point removal
   // Start by building the locator
   if ( !this->Locator )
-    {
+  {
     vtkErrorMacro(<<"Point locator required\n");
     return 0;
-    }
+  }
   this->Locator->SetDataSet(input);
   this->Locator->BuildLocator();
 
@@ -133,10 +133,10 @@ int vtkRadiusOutlierRemoval::FilterPoints(vtkPointSet *input)
   vtkIdType numPts = input->GetNumberOfPoints();
   void *inPtr = input->GetPoints()->GetVoidPointer(0);
   switch (input->GetPoints()->GetDataType())
-    {
+  {
     vtkTemplateMacro(RemoveOutliers<VTK_TT>::
                      Execute(this, numPts, (VTK_TT *)inPtr, this->PointMap));
-    }
+  }
 
   return 1;
 }

@@ -59,38 +59,38 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   vtkDebugMacro (<< "vtkOpenGLPolyDataMapper2D::Render");
 
   if ( input == NULL )
-    {
+  {
     vtkErrorMacro(<< "No input!");
     return;
-    }
+  }
   else
-    {
+  {
     this->GetInputAlgorithm()->Update();
     numPts = input->GetNumberOfPoints();
-    }
+  }
 
   if (numPts == 0)
-    {
+  {
     vtkDebugMacro(<< "No points!");
     return;
-    }
+  }
 
   if ( this->LookupTable == NULL )
-    {
+  {
     this->CreateDefaultLookupTable();
-    }
+  }
 
   // Texture and color by texture
   t = input->GetPointData()->GetTCoords();
   if ( t )
-    {
+  {
     int tDim = t->GetNumberOfComponents();
     if (tDim != 2)
-      {
+    {
       vtkDebugMacro(<< "Currently only 2d textures are supported.\n");
       t = 0;
-      }
     }
+  }
 
   // if something has changed regenrate colors and display lists
   // if required
@@ -99,11 +99,11 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
        input->GetMTime() > this->BuildTime ||
        this->LookupTable->GetMTime() > this->BuildTime ||
        actor->GetProperty()->GetMTime() > this->BuildTime)
-    {
+  {
     // sets this->Colors as side effect
     this->MapScalars(actor->GetProperty()->GetOpacity());
     this->BuildTime.Modified();
-    }
+  }
 
   // Get the position of the actor
   int size[2];
@@ -122,13 +122,13 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   visVP[2] = (vport[2] <= tileViewPort[2]) ? vport[2] : tileViewPort[2];
   visVP[3] = (vport[3] <= tileViewPort[3]) ? vport[3] : tileViewPort[3];
   if (visVP[0] >= visVP[2])
-    {
+  {
     return;
-    }
+  }
   if (visVP[1] >= visVP[3])
-    {
+  {
     return;
-    }
+  }
   size[0] =
     vtkMath::Round(size[0]*(visVP[2] - visVP[0])/(vport[2] - vport[0]));
   size[1] =
@@ -145,36 +145,36 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   // Transform the points, if necessary
   p = input->GetPoints();
   if ( this->TransformCoordinate )
-    {
+  {
     numPts = p->GetNumberOfPoints();
     displayPts = vtkPoints::New();
     displayPts->SetNumberOfPoints(numPts);
     for ( j=0; j < numPts; j++ )
-      {
+    {
       this->TransformCoordinate->SetValue(p->GetPoint(j));
       if (this->TransformCoordinateUseDouble)
-        {
+      {
         double* dtmp = this->TransformCoordinate->GetComputedDoubleViewportValue(viewport);
         displayPts->SetPoint(j,dtmp[0], dtmp[1], 0.0);
-        }
+      }
       else
-        {
+      {
         int* itmp = this->TransformCoordinate->GetComputedViewportValue(viewport);
         displayPts->SetPoint(j,itmp[0], itmp[1], 0.0);
-        }
       }
-    p = displayPts;
     }
+    p = displayPts;
+  }
 
   // Set up the coloring
   if ( this->Colors )
-    {
+  {
     c = this->Colors;
     if (!input->GetPointData()->GetScalars())
-      {
+    {
       cellScalars = 1;
-      }
     }
+  }
   vtkDebugMacro(<< c);
   vtkDebugMacro(<< cellScalars);
 
@@ -186,21 +186,21 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   glPushMatrix();
   glLoadIdentity();
   if(viewport->GetIsPicking())
-    {
+  {
     vtkgluPickMatrix(viewport->GetPickX(), viewport->GetPickY(),
                      viewport->GetPickWidth(),
                      viewport->GetPickHeight(),
                      viewport->GetOrigin(), viewport->GetSize());
-    }
+  }
 
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glLoadIdentity();
 
   if (!t || !this->ScalarVisibility)
-    {
+  {
     glDisable(GL_TEXTURE_2D);
-    }
+  }
   glDisable(GL_LIGHTING);
 
 
@@ -224,47 +224,47 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   // it's an error to call glOrtho with
   // either left==right or top==bottom
   if (left==right)
-    {
+  {
     right = left + 1.0;
-    }
+  }
   if (bottom==top)
-    {
+  {
     top = bottom + 1.0;
-    }
+  }
 
   if (actor->GetProperty()->GetDisplayLocation() ==
        VTK_FOREGROUND_LOCATION)
-    {
+  {
     glOrtho(left, right, bottom, top, 0, 1);
-    }
+  }
   else
-    {
+  {
     glOrtho(left, right, bottom, top, -1, 0);
-    }
+  }
 
   // Clipping plane stuff
   clipPlanes = this->ClippingPlanes;
 
   if (clipPlanes == NULL)
-    {
+  {
     numClipPlanes = 0;
-    }
+  }
   else
-    {
+  {
     numClipPlanes = clipPlanes->GetNumberOfItems();
     if (numClipPlanes > 4)
-      {
+    {
       vtkErrorMacro(<< "Only 4 clipping planes are used with 2D mappers");
-      }
     }
+  }
 
   for (i = 0; i < numClipPlanes; i++)
-    {
+  {
     glEnable(static_cast<GLenum>(GL_CLIP_PLANE0+i));
-    }
+  }
 
   for (i = 0; i < numClipPlanes; i++)
-    {
+  {
     plane = static_cast<vtkPlane *>(clipPlanes->GetItemAsObject(i));
 
     planeEquation[0] = plane->GetNormal()[0];
@@ -274,7 +274,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
                          planeEquation[1]*plane->GetOrigin()[1]+
                          planeEquation[2]*plane->GetOrigin()[2]);
     glClipPlane(static_cast<GLenum>(GL_CLIP_PLANE0+i),planeEquation);
-    }
+  }
 
   // Set the PointSize
   glPointSize(actor->GetProperty()->GetPointSize());
@@ -284,31 +284,31 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   aPrim = input->GetVerts();
   glBegin(GL_POINTS);
   for (aPrim->InitTraversal(); aPrim->GetNextCell(npts,pts); cellNum++)
-    {
+  {
     for (j = 0; j < npts; j++)
-      {
+    {
       if (c)
-        {
+      {
         if (cellScalars)
-          {
-          rgba = c->GetPointer(4*cellNum);
-          }
-        else
-          {
-          rgba = c->GetPointer(4*pts[j]);
-          }
-        glColor4ubv(rgba);
-        }
-      if (t)
         {
-        glTexCoord2dv(t->GetTuple(pts[j]));
+          rgba = c->GetPointer(4*cellNum);
         }
+        else
+        {
+          rgba = c->GetPointer(4*pts[j]);
+        }
+        glColor4ubv(rgba);
+      }
+      if (t)
+      {
+        glTexCoord2dv(t->GetTuple(pts[j]));
+      }
       // this is done to work around an OpenGL bug, otherwise we could just
       // call glVertex2dv
       dptr = p->GetPoint(pts[j]);
       glVertex3d(dptr[0],dptr[1],0);
-      }
     }
+  }
   glEnd();
 
   // Set the LineWidth
@@ -317,117 +317,117 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
 
   // Set the LineStipple
   if (actor->GetProperty()->GetLineStipplePattern() != 0xFFFF)
-    {
+  {
     glEnable(GL_LINE_STIPPLE);
     glLineStipple(actor->GetProperty()->GetLineStippleRepeatFactor(),
                   actor->GetProperty()->GetLineStipplePattern());
     vtkOpenGLGL2PSHelper::EnableStipple();
-    }
+  }
   else
-    {
+  {
     glDisable(GL_LINE_STIPPLE);
     vtkOpenGLGL2PSHelper::DisableStipple();
-    }
+  }
 
   aPrim = input->GetLines();
   for (aPrim->InitTraversal(); aPrim->GetNextCell(npts,pts); cellNum++)
-    {
+  {
     glBegin(GL_LINE_STRIP);
     for (j = 0; j < npts; j++)
-      {
+    {
       if (c)
-        {
+      {
         if (cellScalars)
-          {
-          rgba = c->GetPointer(4*cellNum);
-          }
-        else
-          {
-          rgba = c->GetPointer(4*pts[j]);
-          }
-        glColor4ubv(rgba);
-        }
-      if (t)
         {
-        glTexCoord2dv(t->GetTuple(pts[j]));
+          rgba = c->GetPointer(4*cellNum);
         }
+        else
+        {
+          rgba = c->GetPointer(4*pts[j]);
+        }
+        glColor4ubv(rgba);
+      }
+      if (t)
+      {
+        glTexCoord2dv(t->GetTuple(pts[j]));
+      }
       // this is done to work around an OpenGL bug, otherwise we could just
       // call glVertex2dv
       dptr = p->GetPoint(pts[j]);
       glVertex3d(dptr[0], dptr[1], 0);
-      }
-    glEnd();
     }
+    glEnd();
+  }
 
   aPrim = input->GetStrips();
   for (aPrim->InitTraversal(); aPrim->GetNextCell(npts,pts); cellNum++)
-    {
+  {
     glBegin(GL_TRIANGLE_STRIP);
     for (j = 0; j < npts; j++)
-      {
+    {
       if (c)
-        {
+      {
         if (cellScalars)
-          {
-          rgba = c->GetPointer(4*cellNum);
-          }
-        else
-          {
-          rgba = c->GetPointer(4*pts[j]);
-          }
-        glColor4ubv(rgba);
-        }
-      if (t)
         {
-        glTexCoord2dv(t->GetTuple(pts[j]));
+          rgba = c->GetPointer(4*cellNum);
         }
+        else
+        {
+          rgba = c->GetPointer(4*pts[j]);
+        }
+        glColor4ubv(rgba);
+      }
+      if (t)
+      {
+        glTexCoord2dv(t->GetTuple(pts[j]));
+      }
       // this is done to work around an OpenGL bug, otherwise we could just
       // call glVertex2dv
       dptr = p->GetPoint(pts[j]);
       glVertex3d(dptr[0],dptr[1],0);
-      }
-    glEnd();
     }
+    glEnd();
+  }
 
   aPrim = input->GetPolys();
   for (aPrim->InitTraversal(); aPrim->GetNextCell(npts,pts); cellNum++)
-    {
+  {
     glBegin(GL_POLYGON);
     for (j = 0; j < npts; j++)
-      {
+    {
       if (c)
-        {
+      {
         if (cellScalars)
-          {
-          rgba = c->GetPointer(4*cellNum);
-          }
-        else
-          {
-          rgba = c->GetPointer(4*pts[j]);
-          }
-        glColor4ubv(rgba);
-        }
-      if (t)
         {
-        glTexCoord2dv(t->GetTuple(pts[j]));
+          rgba = c->GetPointer(4*cellNum);
         }
+        else
+        {
+          rgba = c->GetPointer(4*pts[j]);
+        }
+        glColor4ubv(rgba);
+      }
+      if (t)
+      {
+        glTexCoord2dv(t->GetTuple(pts[j]));
+      }
       // this is done to work around an OpenGL bug, otherwise we could just
       // call glVertex2dv
       dptr = p->GetPoint(pts[j]);
       glVertex3d(dptr[0],dptr[1],0);
-      }
-    glEnd();
     }
+    glEnd();
+  }
 
   if ( this->TransformCoordinate )
-    {
+  {
     p->Delete();
-    }
+  }
 
   for (i = 0; i < numClipPlanes; i++)
-    {
+  {
     glDisable(static_cast<GLenum>(GL_CLIP_PLANE0+i));
-    }
+  }
 
   // push a 2D matrix on the stack
   glMatrixMode(GL_PROJECTION);

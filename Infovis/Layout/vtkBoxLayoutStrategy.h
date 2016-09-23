@@ -17,14 +17,17 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkBoxLayoutStrategy - a tree map layout that puts vertices in square-ish boxes
-//
-// .SECTION Description
-// vtkBoxLayoutStrategy recursively partitions the space for children vertices
-// in a tree-map into square regions (or regions very close to a square).
-//
-// .SECTION Thanks
-// Thanks to Brian Wylie from Sandia National Laboratories for creating this class.
+/**
+ * @class   vtkBoxLayoutStrategy
+ * @brief   a tree map layout that puts vertices in square-ish boxes
+ *
+ *
+ * vtkBoxLayoutStrategy recursively partitions the space for children vertices
+ * in a tree-map into square regions (or regions very close to a square).
+ *
+ * @par Thanks:
+ * Thanks to Brian Wylie from Sandia National Laboratories for creating this class.
+*/
 
 #ifndef vtkBoxLayoutStrategy_h
 #define vtkBoxLayoutStrategy_h
@@ -40,9 +43,10 @@ public:
   vtkTypeMacro(vtkBoxLayoutStrategy,vtkTreeMapLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Perform the layout of a tree and place the results as 4-tuples in
-  // coordsArray (Xmin, Xmax, Ymin, Ymax).
+  /**
+   * Perform the layout of a tree and place the results as 4-tuples in
+   * coordsArray (Xmin, Xmax, Ymin, Ymax).
+   */
   virtual void Layout(
       vtkTree* inputTree,
       vtkDataArray* coordsArray,

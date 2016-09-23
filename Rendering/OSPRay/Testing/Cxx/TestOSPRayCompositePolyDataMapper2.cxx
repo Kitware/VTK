@@ -47,12 +47,12 @@ int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
 {
   bool useGL = false;
   for (int i = 0; i < argc; i++)
-    {
+  {
     if (!strcmp(argv[i], "-GL"))
-      {
+    {
       useGL = true;
-      }
     }
+  }
 
   vtkSmartPointer<vtkRenderWindow> win =
     vtkSmartPointer<vtkRenderWindow>::New();
@@ -89,15 +89,15 @@ int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
   int numNodes = 0;
   vtkStdString blockName("Rolf");
   for (int level = 1; level < numLevels; ++level)
-    {
+  {
     int nblocks=blocksPerLevel[level];
     for (unsigned parent = levelStart; parent < levelEnd; ++parent)
-      {
+    {
       blocks[parent]->SetNumberOfBlocks(nblocks);
       for (int block=0; block < nblocks; ++block, ++numNodes)
-        {
+      {
         if (level == numLevels - 1)
-          {
+        {
           vtkNew<vtkPolyData> child;
           cyl->SetCenter(block*0.25, 0.0, parent*0.5);
           cyl->Update();
@@ -108,25 +108,25 @@ int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
             vtkCompositeDataSet::NAME(), blockName.c_str());
           // test not setting it on some
           if (block % 11)
-            {
+          {
             mapper->SetBlockColor(parent+numLeaves+1,
               vtkMath::HSVToRGB(0.8*block/nblocks, 0.2 + 0.8*((parent - levelStart) % 8)/7.0, 1.0));
             mapper->SetBlockOpacity(parent+numLeaves, (block + 3) % 7 == 0 ? 0.3 : 1.0);
             mapper->SetBlockVisibility(parent+numLeaves, (block % 7) != 0);
-            }
-          ++numLeaves;
           }
+          ++numLeaves;
+        }
         else
-          {
+        {
           vtkNew<vtkMultiBlockDataSet> child;
           blocks[parent]->SetBlock(block, child.GetPointer());
           blocks.push_back(child.GetPointer());
-          }
         }
       }
+    }
     levelStart = levelEnd;
     levelEnd = static_cast<unsigned>(blocks.size());
-    }
+  }
 
   mapper->SetInputData((vtkPolyData *)(data.GetPointer()));
 
@@ -160,9 +160,9 @@ int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
   ren->RemoveCuller(ren->GetCullers()->GetLastItem());
   vtkSmartPointer<vtkOSPRayPass> ospray = vtkSmartPointer<vtkOSPRayPass>::New();
   if (!useGL)
-    {
+  {
     ren->SetPass(ospray);
-    }
+  }
   ren->ResetCamera();
 
   vtkSmartPointer<vtkTimerLog> timer = vtkSmartPointer<vtkTimerLog>::New();
@@ -184,12 +184,12 @@ int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
 
   int numFrames = 2;
   for (int i = 0; i <= numFrames; i++)
-    {
+  {
     ren->GetActiveCamera()->Elevation(40.0/numFrames);
     ren->GetActiveCamera()->Zoom(pow(2.0,1.0/numFrames));
     ren->GetActiveCamera()->Roll(20.0/numFrames);
     win->Render();
-    }
+  }
 
   timer->StopTimer();
   double t =  timer->GetElapsedTime();

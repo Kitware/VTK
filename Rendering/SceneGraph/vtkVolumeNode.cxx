@@ -43,22 +43,22 @@ vtkVolumeNode::~vtkVolumeNode()
 void vtkVolumeNode::Build(bool prepass)
 {
   if (prepass)
-    {
+  {
     vtkVolume *mine = vtkVolume::SafeDownCast
       (this->GetRenderable());
     if (!mine)
-      {
+    {
       return;
-      }
+    }
     if (!mine->GetMapper())
-      {
+    {
       return;
-      }
+    }
 
     this->PrepareNodes();
     this->AddMissingNode(mine->GetMapper());
     this->RemoveUnusedNodes();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

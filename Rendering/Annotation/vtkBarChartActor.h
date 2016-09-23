@@ -12,21 +12,24 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBarChartActor - create a bar chart from an array
-// .SECTION Description
-// vtkBarChartActor generates a bar chart from an array of numbers defined in
-// field data (a vtkDataObject). To use this class, you must specify an input
-// data object. You'll probably also want to specify the position of the plot
-// be setting the Position and Position2 instance variables, which define a
-// rectangle in which the plot lies.  There are also many other instance
-// variables that control the look of the plot includes its title and legend.
-//
-// Set the text property/attributes of the title and the labels through the
-// vtkTextProperty objects associated with these components.
-
-// .SECTION See Also
-// vtkParallelCoordinatesActor vtkXYPlotActor vtkSpiderPlotActor
-// vtkPieChartActor
+/**
+ * @class   vtkBarChartActor
+ * @brief   create a bar chart from an array
+ *
+ * vtkBarChartActor generates a bar chart from an array of numbers defined in
+ * field data (a vtkDataObject). To use this class, you must specify an input
+ * data object. You'll probably also want to specify the position of the plot
+ * be setting the Position and Position2 instance variables, which define a
+ * rectangle in which the plot lies.  There are also many other instance
+ * variables that control the look of the plot includes its title and legend.
+ *
+ * Set the text property/attributes of the title and the labels through the
+ * vtkTextProperty objects associated with these components.
+ *
+ * @sa
+ * vtkParallelCoordinatesActor vtkXYPlotActor vtkSpiderPlotActor
+ * vtkPieChartActor
+*/
 
 #ifndef vtkBarChartActor_h
 #define vtkBarChartActor_h
@@ -47,98 +50,141 @@ class vtkBarLabelArray;
 class VTKRENDERINGANNOTATION_EXPORT vtkBarChartActor : public vtkActor2D
 {
 public:
-  // Description:
-  // Standard methods for type information and printing.
+  //@{
+  /**
+   * Standard methods for type information and printing.
+   */
   vtkTypeMacro(vtkBarChartActor,vtkActor2D);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // Instantiate this class.
+  /**
+   * Instantiate this class.
+   */
   static vtkBarChartActor *New();
 
-  // Description:
-  // Set the input to the bar chart actor.
+  /**
+   * Set the input to the bar chart actor.
+   */
   virtual void SetInput(vtkDataObject*);
 
-  // Description:
-  // Get the input data object to this actor.
+  //@{
+  /**
+   * Get the input data object to this actor.
+   */
   vtkGetObjectMacro(Input,vtkDataObject);
+  //@}
 
-  // Description:
-  // Enable/Disable the display of a plot title.
+  //@{
+  /**
+   * Enable/Disable the display of a plot title.
+   */
   vtkSetMacro(TitleVisibility, int);
   vtkGetMacro(TitleVisibility, int);
   vtkBooleanMacro(TitleVisibility, int);
+  //@}
 
-  // Description:
-  // Set/Get the title of the bar chart.
+  //@{
+  /**
+   * Set/Get the title of the bar chart.
+   */
   vtkSetStringMacro(Title);
   vtkGetStringMacro(Title);
+  //@}
 
-  // Description:
-  // Set/Get the title text property. The property controls the
-  // appearance of the plot title.
+  //@{
+  /**
+   * Set/Get the title text property. The property controls the
+   * appearance of the plot title.
+   */
   virtual void SetTitleTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(TitleTextProperty,vtkTextProperty);
+  //@}
 
-  // Description:
-  // Enable/Disable the display of bar labels.
+  //@{
+  /**
+   * Enable/Disable the display of bar labels.
+   */
   vtkSetMacro(LabelVisibility, int);
   vtkGetMacro(LabelVisibility, int);
   vtkBooleanMacro(LabelVisibility, int);
+  //@}
 
-  // Description:
-  // Set/Get the labels text property. This controls the appearance
-  // of all bar bar labels.
+  //@{
+  /**
+   * Set/Get the labels text property. This controls the appearance
+   * of all bar bar labels.
+   */
   virtual void SetLabelTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(LabelTextProperty,vtkTextProperty);
+  //@}
 
-  // Description:
-  // Specify colors for each bar. If not specified, they are
-  // automatically generated.
+  //@{
+  /**
+   * Specify colors for each bar. If not specified, they are
+   * automatically generated.
+   */
   void SetBarColor(int i, double r, double g, double b);
   void SetBarColor(int i, const double color[3])
     { this->SetBarColor(i, color[0], color[1], color[2]); }
   double *GetBarColor(int i);
+  //@}
 
-  // Description:
-  // Specify the names of each bar. If
-  // not specified, then an integer number is automatically generated.
+  //@{
+  /**
+   * Specify the names of each bar. If
+   * not specified, then an integer number is automatically generated.
+   */
   void SetBarLabel(const int i, const char *);
   const char* GetBarLabel(int i);
+  //@}
 
-  // Description:
-  // Specify the title of the y-axis.
+  //@{
+  /**
+   * Specify the title of the y-axis.
+   */
   vtkSetStringMacro(YTitle);
   vtkGetStringMacro(YTitle);
+  //@}
 
-  // Description:
-  // Enable/Disable the creation of a legend. If on, the legend labels will
-  // be created automatically unless the per plot legend symbol has been
-  // set.
+  //@{
+  /**
+   * Enable/Disable the creation of a legend. If on, the legend labels will
+   * be created automatically unless the per plot legend symbol has been
+   * set.
+   */
   vtkSetMacro(LegendVisibility, int);
   vtkGetMacro(LegendVisibility, int);
   vtkBooleanMacro(LegendVisibility, int);
+  //@}
 
-  // Description:
-  // Retrieve handles to the legend box. This is useful if you would like
-  // to manually control the legend appearance.
+  //@{
+  /**
+   * Retrieve handles to the legend box. This is useful if you would like
+   * to manually control the legend appearance.
+   */
   vtkGetObjectMacro(LegendActor,vtkLegendBoxActor);
+  //@}
 
-  // Description:
-  // Draw the bar plot.
+  //@{
+  /**
+   * Draw the bar plot.
+   */
   int RenderOverlay(vtkViewport*);
   int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport* ) {return 0;}
+  //@}
 
-  // Description:
-  // Does this prop have some translucent polygonal geometry?
+  /**
+   * Does this prop have some translucent polygonal geometry?
+   */
   virtual int HasTranslucentPolygonalGeometry();
 
-  // Description:
-  // Release any graphics resources that are being consumed by this actor.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
+  /**
+   * Release any graphics resources that are being consumed by this actor.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
   void ReleaseGraphicsResources(vtkWindow *);
 
 protected:

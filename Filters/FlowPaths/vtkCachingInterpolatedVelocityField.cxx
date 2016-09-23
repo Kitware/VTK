@@ -50,36 +50,36 @@ void IVFDataSetInfo::SetDataSet(vtkDataSet *data, char *velocity, bool staticdat
   this->Cell           = vtkSmartPointer<vtkGenericCell>::New();
   this->StaticDataSet  = staticdataset;
   if (locator)
-    {
+  {
     this->BSPTree = locator;
-    }
+  }
   else if (this->DataSet->IsA("vtkUnstructuredGrid"))
-    {
+  {
     if (!this->BSPTree)
-      {
+    {
       this->BSPTree = vtkSmartPointer<vtkCellLocator>::New();
-      }
+    }
     this->BSPTree->SetLazyEvaluation(1);
     this->BSPTree->SetDataSet(this->DataSet);
     this->BSPTree->SetUseExistingSearchStructure(this->StaticDataSet);
-    }
+  }
 
   this->Tolerance =
     this->DataSet->GetLength() * IVFDataSetInfo::TOLERANCE_SCALE;
   //
   vtkDataArray *vectors = this->DataSet->GetPointData()->GetArray(velocity);
   if (vtkArrayDownCast<vtkFloatArray>(vectors))
-    {
+  {
     this->VelocityFloat = vtkArrayDownCast<vtkFloatArray>(vectors)->GetPointer(0);
-    }
+  }
   else if (vtkArrayDownCast<vtkDoubleArray>(vectors))
-    {
+  {
     this->VelocityDouble = vtkArrayDownCast<vtkDoubleArray>(vectors)->GetPointer(0);
-    }
+  }
   else
-    {
+  {
     vtkGenericWarningMacro("We only support float/double velocity vectors at the current time");
-    }
+  }
 }
 //---------------------------------------------------------------------------
 IVFDataSetInfo::IVFDataSetInfo(const IVFDataSetInfo &ivfci)
@@ -142,7 +142,7 @@ void vtkCachingInterpolatedVelocityField::SetDataSet(int I, vtkDataSet* dataset,
 void vtkCachingInterpolatedVelocityField::SetLastCellInfo(vtkIdType c, int datasetindex)
 {
   if ((this->LastCacheIndex != datasetindex) || (this->LastCellId != c))
-    {
+  {
     assert(this->CacheList.size() > static_cast<size_t>(datasetindex));
     this->LastCacheIndex = datasetindex;
     this->Cache          = &this->CacheList[this->LastCacheIndex];
@@ -150,11 +150,11 @@ void vtkCachingInterpolatedVelocityField::SetLastCellInfo(vtkIdType c, int datas
     // if the dataset changes, then the cached cell is invalidated
     // we might as well prefetch the new cached cell - we'll need it on the next test anyway
     if (this->LastCellId!=-1)
-      {
+    {
       assert(c < this->Cache->DataSet->GetNumberOfCells());
       this->Cache->DataSet->GetCell(this->LastCellId, this->Cache->Cell);
-      }
     }
+  }
 }
 //---------------------------------------------------------------------------
 void vtkCachingInterpolatedVelocityField::ClearLastCellInfo()
@@ -166,9 +166,9 @@ void vtkCachingInterpolatedVelocityField::ClearLastCellInfo()
 vtkGenericCell *vtkCachingInterpolatedVelocityField::GetLastCell()
 {
   if (this->Cache)
-    {
+  {
     return this->Cache->Cell;
-    }
+  }
   return NULL;
 }
 //---------------------------------------------------------------------------
@@ -177,13 +177,13 @@ int vtkCachingInterpolatedVelocityField::FunctionValues(double* x, double* f)
 {
   // Test using whatever cached information we have
   if (this->Cache)
-    {
+  {
     if (this->FunctionValues(this->Cache, x, f))
-      {
+    {
       this->DataSetCacheHit++;
       return 1;
-      }
     }
+  }
   // don't reset this->Cache as we don't want to test it again,
   // see == comparison below
 
@@ -192,19 +192,19 @@ int vtkCachingInterpolatedVelocityField::FunctionValues(double* x, double* f)
   for (this->LastCacheIndex = 0;
        this->LastCacheIndex < static_cast<int>(this->CacheList.size());
        this->LastCacheIndex++)
-    {
+  {
     IVFDataSetInfo *data = &this->CacheList[this->LastCacheIndex];
     if (data!=this->Cache)
-      {
+    {
       this->LastCellId = -1;
       if (this->FunctionValues(data, x, f))
-        {
+      {
         this->Cache = data;
         this->CacheMiss++;
         return 1;
-        }
       }
     }
+  }
   // failed, so clear data and set the cache index to something sensible
   this->CacheMiss++;
   this->ClearLastCellInfo();
@@ -217,21 +217,21 @@ int vtkCachingInterpolatedVelocityField::InsideTest(double* x)
 {
   // Test using whatever cached information we have
   if (this->Cache)
-    {
+  {
     // check the last cell
     int subId;
     if (this->LastCellId!=-1 && this->Cache->Cell->EvaluatePosition(
           x, 0, subId, this->Cache->PCoords,
           this->Cache->Tolerance, &this->Weights[0])==1)
-      {
+    {
       return 1;
-      }
+    }
     // check this dataset
     if (this->InsideTest(this->Cache, x))
-      {
+    {
       return 1;
-      }
     }
+  }
   // don't reset this->Cache as we don't want to test it again,
   // see != comparison below
 
@@ -239,18 +239,18 @@ int vtkCachingInterpolatedVelocityField::InsideTest(double* x)
   for (this->LastCacheIndex = 0;
        this->LastCacheIndex < static_cast<int>(this->CacheList.size());
        this->LastCacheIndex++)
-    {
+  {
     IVFDataSetInfo *data = &this->CacheList[this->LastCacheIndex];
     if (data!=this->Cache)
-      {
+    {
       this->LastCellId = -1;
       if (this->InsideTest(data,  x))
-        {
+      {
         this->Cache = data;
         return 1;
-        }
       }
     }
+  }
   // failed, so clear data
   this->ClearLastCellInfo();
   return 0;
@@ -260,10 +260,10 @@ int vtkCachingInterpolatedVelocityField::InsideTest(IVFDataSetInfo *data, double
 {
   int cellId = data->BSPTree->FindCell(x, data->Tolerance, data->Cell, data->PCoords, &this->Weights[0]);
   if (cellId!=-1)
-    {
+  {
     this->LastCellId = cellId;
     return 1;
-    }
+  }
   return 0;
 }
 //---------------------------------------------------------------------------
@@ -275,54 +275,54 @@ int vtkCachingInterpolatedVelocityField::FunctionValues(
   double dist2;
 
   if (this->LastCellId>=0)
-    {
+  {
     bool inbox = true;
     if (data->BSPTree && !data->BSPTree->InsideCellBounds(x, this->LastCellId))
-      {
+    {
       inbox = false;
-      }
+    }
     if (inbox && data->Cell->EvaluatePosition(
           x, 0, subId, data->PCoords, dist2, &this->Weights[0])==1)
-      {
+    {
       this->FastCompute(data, f);
       this->CellCacheHit++;
       return 1;
-      }
     }
+  }
 
   // we need to search the whole dataset
   if (data->BSPTree)
-    {
+  {
     int cellId = data->BSPTree->FindCell(
       x, data->Tolerance, data->Cell, data->PCoords, &this->Weights[0]);
     this->LastCellId = cellId;
-    }
+  }
   else
-    {
+  {
     vtkGenericCell* tmpCell = 0;
     if (this->LastCellId >= 0)
-      {
+    {
       data->DataSet->GetCell(this->LastCellId, this->TempCell);
       tmpCell = this->TempCell;
-      }
+    }
     this->LastCellId =
       data->DataSet->FindCell(x, tmpCell, data->Cell, this->LastCellId,
                               data->Tolerance, subId, data->PCoords, &this->Weights[0]);
     if (this->LastCellId != -1)
-      {
+    {
       data->DataSet->GetCell(this->LastCellId, data->Cell);
-      }
     }
+  }
 
   // if the cell is valid
   if (this->LastCellId != -1)
-    {
+  {
     this->FastCompute(data, f);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -335,35 +335,35 @@ void vtkCachingInterpolatedVelocityField::FastCompute(
   // interpolate the vectors
   double *dvectors = data->VelocityDouble;
   if (dvectors)
-    {
+  {
     for (int j=0; j<numPts; j++)
-      {
+    {
       int id = data->Cell->PointIds->GetId(j);
       f[0] +=  dvectors[id*3 + 0] * this->Weights[j];
       f[1] +=  dvectors[id*3 + 1] * this->Weights[j];
       f[2] +=  dvectors[id*3 + 2] * this->Weights[j];
-      }
     }
+  }
   else
-    {
+  {
     float *fvectors = data->VelocityFloat;
     for (int j=0; j<numPts; j++)
-      {
+    {
       int id = data->Cell->PointIds->GetId(j);
       f[0] +=  fvectors[id*3 + 0] * this->Weights[j];
       f[1] +=  fvectors[id*3 + 1] * this->Weights[j];
       f[2] +=  fvectors[id*3 + 2] * this->Weights[j];
-      }
     }
+  }
 }
 //---------------------------------------------------------------------------
 bool vtkCachingInterpolatedVelocityField::InterpolatePoint(
   vtkPointData *outPD, vtkIdType outIndex)
 {
   if (!this->Cache || !this->Cache->DataSet)
-    {
+  {
     return 0;
-    }
+  }
   outPD->InterpolatePoint(
     this->Cache->DataSet->GetPointData(), outIndex,
     this->Cache->Cell->PointIds, &this->Weights[0]);
@@ -374,9 +374,9 @@ bool vtkCachingInterpolatedVelocityField::InterpolatePoint(
   vtkCachingInterpolatedVelocityField* inCIVF, vtkPointData *outPD, vtkIdType outIndex)
 {
   if (!this->Cache || !this->Cache->DataSet)
-    {
+  {
     return 0;
-    }
+  }
   vtkPointData* inPD = inCIVF->Cache->DataSet->GetPointData();
   outPD->InterpolatePoint(
     inPD, outIndex, this->Cache->Cell->PointIds, &this->Weights[0]);
@@ -388,19 +388,19 @@ int vtkCachingInterpolatedVelocityField::GetLastWeights(double* w)
   // If last cell is valid, fill w with the interpolation weights
   // and return true
   if (this->Cache && this->LastCellId >= 0)
-    {
+  {
     int numPts = this->Cache->Cell->GetNumberOfPoints();
     for (int j=0; j < numPts; j++)
-      {
+    {
       w[j] = this->Weights[j];
-      }
-    return 1;
     }
+    return 1;
+  }
   // otherwise, return false
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 //---------------------------------------------------------------------------
 int vtkCachingInterpolatedVelocityField::GetLastLocalCoordinates(double pcoords[3])
@@ -408,18 +408,18 @@ int vtkCachingInterpolatedVelocityField::GetLastLocalCoordinates(double pcoords[
   // If last cell is valid, fill p with the local coordinates
   // and return true
   if (this->Cache && this->LastCellId >= 0)
-    {
+  {
     for (int j=0; j < 3; j++)
-      {
+    {
       pcoords[j] = this->Cache->PCoords[j];
-      }
-    return 1;
     }
+    return 1;
+  }
   // otherwise, return false
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 //---------------------------------------------------------------------------
 void vtkCachingInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)
@@ -427,13 +427,13 @@ void vtkCachingInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent inden
   this->Superclass::PrintSelf(os, indent);
 
   if (Weights.size()>0)
-    {
+  {
     os << indent << "Weights: " << &this->Weights[0] << endl;
-    }
+  }
   else
-    {
+  {
     os << indent << "Weights: (none)" << endl;
-    }
+  }
 
   os << indent << "Cell Cache hit: " << this->CellCacheHit << endl;
   os << indent << "DataSet Cache hit: " << this->DataSetCacheHit << endl;
@@ -442,13 +442,13 @@ void vtkCachingInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent inden
      << (this->VectorsSelection?this->VectorsSelection:"(none)") << endl;
 
   if (this->Cache)
-    {
+  {
     os << indent << "Cache->DataSet : " << this->Cache->DataSet << endl;
-    }
+  }
   else
-    {
+  {
     os << indent << "Cache->DataSet : (none)" << endl;
-    }
+  }
 
   os << indent << "LastCacheIndex : " << this->LastCacheIndex << endl;
 }

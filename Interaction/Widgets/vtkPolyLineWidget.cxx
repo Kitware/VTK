@@ -75,10 +75,10 @@ void vtkPolyLineWidget::SelectAction(vtkAbstractWidget *w)
   // Okay, make sure that the pick is in the current renderer
   if ( !self->CurrentRenderer ||
        !self->CurrentRenderer->IsInViewport(X,Y) )
-    {
+  {
     self->WidgetState = vtkPolyLineWidget::Start;
     return;
-    }
+  }
 
   // Begin the widget interaction which has the side effect of setting the
   // interaction state.
@@ -88,9 +88,9 @@ void vtkPolyLineWidget::SelectAction(vtkAbstractWidget *w)
   self->WidgetRep->StartWidgetInteraction(e);
   int interactionState = self->WidgetRep->GetInteractionState();
   if ( interactionState == vtkPolyLineRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // We are definitely selected
   self->WidgetState = vtkPolyLineWidget::Active;
@@ -98,23 +98,23 @@ void vtkPolyLineWidget::SelectAction(vtkAbstractWidget *w)
 
   if (interactionState == vtkPolyLineRepresentation::OnLine &&
     self->Interactor->GetControlKey())
-    {
+  {
     // Add point.
     reinterpret_cast<vtkPolyLineRepresentation*>(self->WidgetRep)->
       SetInteractionState(vtkPolyLineRepresentation::Inserting);
-    }
+  }
   else if (interactionState == vtkPolyLineRepresentation::OnHandle &&
     self->Interactor->GetShiftKey())
-    {
+  {
     // remove point.
     reinterpret_cast<vtkPolyLineRepresentation*>(self->WidgetRep)->
       SetInteractionState(vtkPolyLineRepresentation::Erasing);
-    }
+  }
   else
-    {
+  {
     reinterpret_cast<vtkPolyLineRepresentation*>(self->WidgetRep)->
       SetInteractionState(vtkPolyLineRepresentation::Moving);
-    }
+  }
 
   // start the interaction
   self->EventCallbackCommand->SetAbortFlag(1);
@@ -143,10 +143,10 @@ void vtkPolyLineWidget::ScaleAction(vtkAbstractWidget *w)
   // Okay, make sure that the pick is in the current renderer
   if ( !self->CurrentRenderer ||
        !self->CurrentRenderer->IsInViewport(X,Y) )
-    {
+  {
     self->WidgetState = vtkPolyLineWidget::Start;
     return;
-    }
+  }
 
   // Begin the widget interaction which has the side effect of setting the
   // interaction state.
@@ -156,9 +156,9 @@ void vtkPolyLineWidget::ScaleAction(vtkAbstractWidget *w)
   self->WidgetRep->StartWidgetInteraction(e);
   int interactionState = self->WidgetRep->GetInteractionState();
   if ( interactionState == vtkPolyLineRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // We are definitely selected
   self->WidgetState = vtkPolyLineWidget::Active;
@@ -181,9 +181,9 @@ void vtkPolyLineWidget::MoveAction(vtkAbstractWidget *w)
 
   // See whether we're active
   if ( self->WidgetState == vtkPolyLineWidget::Start )
-    {
+  {
     return;
-    }
+  }
 
   // compute some info we need for all cases
   int X = self->Interactor->GetEventPosition()[0];
@@ -206,9 +206,9 @@ void vtkPolyLineWidget::EndSelectAction(vtkAbstractWidget *w)
 {
   vtkPolyLineWidget *self = reinterpret_cast<vtkPolyLineWidget*>(w);
   if ( self->WidgetState == vtkPolyLineWidget::Start )
-    {
+  {
     return;
-    }
+  }
 
   // compute some info we need for all cases
   int X = self->Interactor->GetEventPosition()[0];
@@ -237,9 +237,9 @@ void vtkPolyLineWidget::EndSelectAction(vtkAbstractWidget *w)
 void vtkPolyLineWidget::CreateDefaultRepresentation()
 {
   if ( ! this->WidgetRep )
-    {
+  {
     this->WidgetRep = vtkPolyLineRepresentation::New();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

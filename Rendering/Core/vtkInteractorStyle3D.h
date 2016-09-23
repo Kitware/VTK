@@ -12,38 +12,41 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInteractorStyle3D - extends interaction to support 3D input
-// .SECTION Description
-// vtkInteractorStyle3D allows the user to interact with (rotate,
-// pan, etc.) objects in the scene indendent of each other. It is designed
-// to use 3d positions and orientations instead of 2D.
-//
-// The following interactions are specified by default.
-//
-// A click and hold in 3D within the bounding box of a prop
-// will pick up that prop allowing you to translate and
-// orient that prop as desired with the 3D controller.
-//
-// Click/dragging two controllers and pulling them apart or
-// pushing them together will initial a scale gesture
-// that will scale the world larger or smaller.
-//
-// Click/dragging two controllers and translating them in the same
-// direction will translate the camera/world
-// pushing them together will initial a scale gesture
-// that will scale the world larger or smaller.
-//
-// If a controller is right clicked (push touchpad on Vive)
-// then it starts a fly motion where the camer moves in the
-// direction the controller is pointing. It moves at a speed
-// scaled by the position of your thumb on the trackpad.
-// Higher moves faster forward. Lower moves faster backwards.
-//
-// For the Vive left click is mapped to the trigger and right
-// click is mapped to pushing the trackpad down.
-//
-// .SECTION See Also
-// vtkRenderWindowInteractor3D
+/**
+ * @class   vtkInteractorStyle3D
+ * @brief   extends interaction to support 3D input
+ *
+ * vtkInteractorStyle3D allows the user to interact with (rotate,
+ * pan, etc.) objects in the scene indendent of each other. It is designed
+ * to use 3d positions and orientations instead of 2D.
+ *
+ * The following interactions are specified by default.
+ *
+ * A click and hold in 3D within the bounding box of a prop
+ * will pick up that prop allowing you to translate and
+ * orient that prop as desired with the 3D controller.
+ *
+ * Click/dragging two controllers and pulling them apart or
+ * pushing them together will initial a scale gesture
+ * that will scale the world larger or smaller.
+ *
+ * Click/dragging two controllers and translating them in the same
+ * direction will translate the camera/world
+ * pushing them together will initial a scale gesture
+ * that will scale the world larger or smaller.
+ *
+ * If a controller is right clicked (push touchpad on Vive)
+ * then it starts a fly motion where the camer moves in the
+ * direction the controller is pointing. It moves at a speed
+ * scaled by the position of your thumb on the trackpad.
+ * Higher moves faster forward. Lower moves faster backwards.
+ *
+ * For the Vive left click is mapped to the trigger and right
+ * click is mapped to pushing the trackpad down.
+ *
+ * @sa
+ * vtkRenderWindowInteractor3D
+*/
 
 #ifndef vtkInteractorStyle3D_h
 #define vtkInteractorStyle3D_h
@@ -64,19 +67,25 @@ public:
   vtkTypeMacro(vtkInteractorStyle3D,vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Event bindings controlling the effects of pressing mouse buttons
-  // or moving the mouse.
+  //@{
+  /**
+   * Event bindings controlling the effects of pressing mouse buttons
+   * or moving the mouse.
+   */
   virtual void OnMouseMove();
   virtual void OnLeftButtonDown();
   virtual void OnLeftButtonUp();
   virtual void OnRightButtonDown();
   virtual void OnRightButtonUp();
+  //@}
 
-  // Description:
-  // Event bindings for gestures
+  //@{
+  /**
+   * Event bindings for gestures
+   */
   virtual void OnPinch();
   virtual void OnPan();
+  //@}
 
   // This method handles updating the prop based on changes in the devices
   // pose. We use rotate as the state to mean adjusting-the-actor-pose

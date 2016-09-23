@@ -50,9 +50,9 @@ vtkContextArea::vtkContextArea()
   this->Axes[vtkAxis::RIGHT]->SetPosition(vtkAxis::RIGHT);
 
   for (int i = 0; i < 4; ++i)
-    {
+  {
     this->AddItem(this->Axes[i]);
-    }
+  }
 
   this->AddItem(this->Clip.GetPointer());
   this->Clip->AddItem(this->Transform.GetPointer());
@@ -94,16 +94,16 @@ void vtkContextArea::LayoutAxes(vtkContext2D *painter)
 
   // Regenerate ticks, labels, etc:
   for (int i = 0; i < 4; ++i)
-    {
+  {
     this->Axes[i]->Update();
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
 vtkRecti vtkContextArea::ComputeDrawAreaGeometry(vtkContext2D *p)
 {
   switch (this->DrawAreaResizeBehavior)
-    {
+  {
     case vtkContextArea::DARB_Expand:
       return this->ComputeExpandedDrawAreaGeometry(p);
     case vtkContextArea::DARB_FixedAspect:
@@ -116,7 +116,7 @@ vtkRecti vtkContextArea::ComputeDrawAreaGeometry(vtkContext2D *p)
       vtkErrorMacro("Invalid resize behavior enum value: "
                     << this->DrawAreaResizeBehavior);
       break;
-    }
+  }
 
   return vtkRecti();
 }
@@ -131,7 +131,7 @@ vtkRecti vtkContextArea::ComputeExpandedDrawAreaGeometry(vtkContext2D *painter)
   vtkRecti draw(this->DrawAreaGeometry); // Start with last attempt
   vtkRecti lastDraw;
   for (int pass = 0; pass < 3; ++pass)
-    {
+  {
     // Set axes locations to the current draw rect:
     this->TopAxis->SetPoint1(draw.GetTopLeft().Cast<float>());
     this->TopAxis->SetPoint2(draw.GetTopRight().Cast<float>());
@@ -146,11 +146,11 @@ vtkRecti vtkContextArea::ComputeExpandedDrawAreaGeometry(vtkContext2D *painter)
     vtkVector2i bottomLeft = draw.GetBottomLeft();
     vtkVector2i topRight = draw.GetTopRight();
     for (int i = 0; i < 4; ++i)
-      {
+    {
       this->Axes[i]->Update();
       vtkRectf bounds = this->Axes[i]->GetBoundingRect(painter);
       switch (static_cast<vtkAxis::Location>(i))
-        {
+      {
         case vtkAxis::LEFT:
           bottomLeft.SetX(geo.GetLeft() +
                           static_cast<int>(bounds.GetWidth()));
@@ -169,8 +169,8 @@ vtkRecti vtkContextArea::ComputeExpandedDrawAreaGeometry(vtkContext2D *painter)
           break;
         default:
           abort(); // Shouldn't happen unless vtkAxis::Location is changed.
-        }
       }
+    }
 
     // Update draw geometry:
     lastDraw = draw;
@@ -178,10 +178,10 @@ vtkRecti vtkContextArea::ComputeExpandedDrawAreaGeometry(vtkContext2D *painter)
              topRight.GetX() - bottomLeft.GetX(),
              topRight.GetY() - bottomLeft.GetY());
     if (draw == lastDraw)
-      {
+    {
       break; // converged
-      }
     }
+  }
 
   return draw;
 }
@@ -193,21 +193,21 @@ vtkRecti vtkContextArea::ComputeFixedAspectDrawAreaGeometry(vtkContext2D *p)
   float aspect = draw.GetWidth() / static_cast<float>(draw.GetHeight());
 
   if (aspect > this->FixedAspect) // Too wide:
-    {
+  {
     int targetWidth = vtkContext2D::FloatToInt(
           this->FixedAspect * draw.GetHeight());
     int delta = draw.GetWidth() - targetWidth;
     draw.SetX(draw.GetX() + (delta/2));
     draw.SetWidth(targetWidth);
-    }
+  }
   else if (aspect < this->FixedAspect) // Too tall:
-    {
+  {
     int targetHeight = vtkContext2D::FloatToInt(
           draw.GetWidth() / this->FixedAspect);
     int delta = draw.GetHeight() - targetHeight;
     draw.SetY(draw.GetY() + (delta/2));
     draw.SetHeight(targetHeight);
-    }
+  }
 
   return draw;
 }
@@ -271,7 +271,7 @@ void vtkContextArea::PrintSelf(std::ostream &os, vtkIndent indent)
   vtkContextAreaPrintMemberPOD(DrawAreaGeometry);
   os << indent << "DrawAreaResizeBehavior: ";
   switch (this->DrawAreaResizeBehavior)
-    {
+  {
     case vtkContextArea::DARB_Expand:
       os << "DARB_Expand\n";
       break;
@@ -287,7 +287,7 @@ void vtkContextArea::PrintSelf(std::ostream &os, vtkIndent indent)
     default:
       os << "(Invalid enum value: " << this->DrawAreaResizeBehavior << ")\n";
       break;
-    }
+  }
   vtkContextAreaPrintMemberPOD(FixedAspect);
   vtkContextAreaPrintMemberPOD(FixedRect);
   vtkContextAreaPrintMemberPOD(FixedMargins);
@@ -313,10 +313,10 @@ vtkAbstractContextItem *vtkContextArea::GetDrawAreaItem()
 bool vtkContextArea::Paint(vtkContext2D *painter)
 {
   if (this->FillViewport)
-    {
+  {
     vtkVector2i vpSize = painter->GetDevice()->GetViewportSize();
     this->SetGeometry(vtkRecti(0, 0, vpSize[0], vpSize[1]));
-    }
+  }
 
   this->LayoutAxes(painter);
   this->UpdateDrawArea();
@@ -328,10 +328,10 @@ void vtkContextArea::SetFixedAspect(float aspect)
 {
   this->SetDrawAreaResizeBehavior(DARB_FixedAspect);
   if (this->FixedAspect != aspect)
-    {
+  {
     this->FixedAspect = aspect;
     this->Modified();
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -339,10 +339,10 @@ void vtkContextArea::SetFixedRect(vtkRecti rect)
 {
   this->SetDrawAreaResizeBehavior(DARB_FixedRect);
   if (this->FixedRect != rect)
-    {
+  {
     this->FixedRect = rect;
     this->Modified();
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -369,10 +369,10 @@ void vtkContextArea::SetFixedMargins(vtkContextArea::Margins margins)
 {
   this->SetDrawAreaResizeBehavior(DARB_FixedMargins);
   if (margins != this->FixedMargins)
-    {
+  {
     this->FixedMargins = margins;
     this->Modified();
-    }
+  }
 }
 
 //------------------------------------------------------------------------------

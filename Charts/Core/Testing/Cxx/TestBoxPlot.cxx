@@ -45,26 +45,26 @@ int TestBoxPlot(int , char* [])
   vtkNew<vtkTable> inputBoxPlotTable;
 
   for (int i = 0; i < numParam; i++)
-    {
+  {
     char num[10];
     sprintf(num, "P%d", i);
     vtkNew<vtkIntArray> arrIndex;
     arrIndex->SetName(num);
     inputBoxPlotTable->AddColumn(arrIndex.GetPointer());
-    }
+  }
 
   inputBoxPlotTable->SetNumberOfRows(5);
 
   // This scaling parameter can be used to test Y axis positioning
   const double scale = 1e02;
   for (int i = 0; i < numParam; i++)
-    {
+  {
     inputBoxPlotTable->SetValue(0, i, (i/2) * scale); //Q0
     inputBoxPlotTable->SetValue(1, i, (2*i + 2 - i) * scale); //Q1
     inputBoxPlotTable->SetValue(2, i, (2*i + 4) * scale); //Q2
     inputBoxPlotTable->SetValue(3, i, (2*i + 7) * scale); //Q3
     inputBoxPlotTable->SetValue(4, i, (2*i + 8) * scale); //Q4
-    }
+  }
 
   vtkNew<vtkLookupTable> lookup;
   lookup->SetNumberOfColors(5);

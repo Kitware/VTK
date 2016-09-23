@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWrappingHints - hint macros for wrappers
-// .SECTION Description
-// The macros defined in this file can be used to supply hints for the
-// wrappers.
+/**
+ * @class   vtkWrappingHints
+ * @brief   hint macros for wrappers
+ *
+ * The macros defined in this file can be used to supply hints for the
+ * wrappers.
+*/
 
 #ifndef vtkWrappingHints_h
 #define vtkWrappingHints_h

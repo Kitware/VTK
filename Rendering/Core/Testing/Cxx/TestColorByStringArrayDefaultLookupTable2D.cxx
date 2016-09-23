@@ -54,9 +54,9 @@ int TestColorByStringArrayDefaultLookupTable2D(int argc, char* argv[])
 
   // Round-robin assignment of string strings
   for (int i = 0; i < polydata->GetNumberOfCells(); ++i)
-    {
+  {
     sArray->SetValue(i, strings[i % 5].ToString());
-    }
+  }
 
   vtkCellData* cd = polydata->GetCellData();
   cd->AddArray(sArray.Get());
@@ -95,9 +95,9 @@ int TestColorByStringArrayDefaultLookupTable2D(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(renderWindow.Get());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

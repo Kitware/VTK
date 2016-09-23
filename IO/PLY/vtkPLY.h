@@ -46,18 +46,21 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 
 */
 
-// .NAME vtkPLY - a modified version of the PLY 1.1 library
-// .SECTION Description
-// vtkPLY is a modified version of the PLY 1.1 library. The library
-// has been modified by wrapping in a class (to minimize global symbols);
-// to take advantage of functionality generally not available through the
-// PLY library API; and to correct problems with the PLY library.
-//
-// The original distribution was taken from the Stanford University PLY
-// file format release 1.1 (see http://graphics.stanford.edu/data/3Dscanrep/).
-
-// .SECTION See Also
-// vtkPLYWriter vtkPLYReader
+/**
+ * @class   vtkPLY
+ * @brief   a modified version of the PLY 1.1 library
+ *
+ * vtkPLY is a modified version of the PLY 1.1 library. The library
+ * has been modified by wrapping in a class (to minimize global symbols);
+ * to take advantage of functionality generally not available through the
+ * PLY library API; and to correct problems with the PLY library.
+ *
+ * The original distribution was taken from the Stanford University PLY
+ * file format release 1.1 (see http://graphics.stanford.edu/data/3Dscanrep/).
+ *
+ * @sa
+ * vtkPLYWriter vtkPLYReader
+*/
 
 #ifndef vtkPLY_h
 #define vtkPLY_h

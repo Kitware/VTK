@@ -53,50 +53,50 @@ int TestOpenFOAMReader(int argc, char* argv[])
   int numberOfCellArrays = reader->GetNumberOfCellArrays();
   std::cout << "----- Default array settings" << std::endl;
   for (int i = 0; i < numberOfCellArrays; ++i)
-    {
+  {
     const char * name = reader->GetCellArrayName(i);
     std::cout << "  Cell Array: " << i
               << " is named " << name
               << " and is "
               << (reader->GetCellArrayStatus(name) ? "Enabled" : "Disabled")
               << std::endl;
-    }
+  }
 
   int numberOfPointArrays = reader->GetNumberOfPointArrays();
   std::cout << "----- Default array settings" << std::endl;
   for (int i = 0; i < numberOfPointArrays; ++i)
-    {
+  {
     const char * name = reader->GetPointArrayName(i);
     std::cout << "  Point Array: " << i
               << " is named " << name
               << " and is "
               << (reader->GetPointArrayStatus(name) ? "Enabled" : "Disabled")
               << std::endl;
-    }
+  }
 
   int numberOfLagrangianArrays = reader->GetNumberOfLagrangianArrays();
   std::cout << "----- Default array settings" << std::endl;
   for (int i = 0; i < numberOfLagrangianArrays; ++i)
-    {
+  {
     const char * name = reader->GetLagrangianArrayName(i);
     std::cout << "  Lagrangian Array: " << i
               << " is named " << name
               << " and is "
               << (reader->GetLagrangianArrayStatus(name) ? "Enabled" : "Disabled")
               << std::endl;
-    }
+  }
 
   int numberOfPatchArrays = reader->GetNumberOfPatchArrays();
   std::cout << "----- Default array settings" << std::endl;
   for (int i = 0; i < numberOfPatchArrays; ++i)
-    {
+  {
     const char * name = reader->GetPatchArrayName(i);
     std::cout << "  Patch Array: " << i
               << " is named " << name
               << " and is "
               << (reader->GetPatchArrayStatus(name) ? "Enabled" : "Disabled")
               << std::endl;
-    }
+  }
 
   vtkUnstructuredGrid *block0 = vtkUnstructuredGrid::SafeDownCast(reader->GetOutput()->GetBlock(0));
   block0->GetCellData()->SetActiveScalars("p");
@@ -130,9 +130,9 @@ int TestOpenFOAMReader(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage( renderWindow );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renderWindowInteractor->Start();
-    }
+  }
 
   return EXIT_SUCCESS;
 }

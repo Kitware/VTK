@@ -65,7 +65,7 @@ void addViews (vtkRenderWindow* renWin, int typeIndex)
   // Make the four sets of test scalars
   vtkSmartPointer<T> inputs[4];
   for (int ncomp = 1; ncomp <= 4; ncomp++)
-    {
+  {
     int posX = ((ncomp - 1) & 1);
     int posY = ((ncomp - 1) >> 1);
     inputs[ncomp-1] = vtkSmartPointer<T>::New();
@@ -84,11 +84,11 @@ void addViews (vtkRenderWindow* renWin, int typeIndex)
     BaseT cval[4];
     vtkIdType i = 0;
     for (int j = 0; j < 16; j++)
-      {
+    {
       for (int jj = 0; jj < 5; jj++)
-        {
+      {
         for (int k = 0; k < 16; k++)
-          {
+        {
           cval[0] = (((k >> 2) & 3)*f);
           cval[1] = ((k & 3)*f);
           cval[2] = (((j >> 2) & 3)*f);
@@ -99,16 +99,16 @@ void addViews (vtkRenderWindow* renWin, int typeIndex)
           cval[1] = ((ncomp > 2 ? cval[1] : cval[3]));
           // store values between 0 and 1 for floating point colors.
           for (int index = 0; index < 4; ++index)
-            {
+          {
             UCharToColor (cval[index], &cval[index]);
-            }
+          }
           for (int kk = 0; kk < 5; kk++)
-            {
+          {
             arr->SetTypedTuple(i++, cval);
-            }
           }
         }
       }
+    }
 
     vtkNew<vtkImageData> image;
     image->SetDimensions(80, 80, 1);
@@ -139,7 +139,7 @@ void addViews (vtkRenderWindow* renWin, int typeIndex)
                      (pos[0] + 80)/640.0, (pos[1] + 80)/640.0);
 
     renWin->AddRenderer(ren.GetPointer());
-    }
+  }
 }
 
 
@@ -184,9 +184,9 @@ int TestDirectScalarsToColors(int argc, char *argv[])
   renWin->Render();
   int retVal = vtkRegressionTestImage(renWin.GetPointer());
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

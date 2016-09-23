@@ -17,14 +17,17 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkQtAnnotationLayersModelAdapter - Adapts annotations to a Qt item model.
-//
-// .SECTION Description
-// vtkQtAnnotationLayersModelAdapter is a QAbstractItemModel with a
-//    vtkAnnotationLayers as its underlying data model.
-//
-// .SECTION See also
-// vtkQtAbstractModelAdapter vtkQtTableModelAdapter
+/**
+ * @class   vtkQtAnnotationLayersModelAdapter
+ * @brief   Adapts annotations to a Qt item model.
+ *
+ *
+ * vtkQtAnnotationLayersModelAdapter is a QAbstractItemModel with a
+ *    vtkAnnotationLayers as its underlying data model.
+ *
+ * @sa
+ * vtkQtAbstractModelAdapter vtkQtTableModelAdapter
+*/
 
 #ifndef vtkQtAnnotationLayersModelAdapter_h
 #define vtkQtAnnotationLayersModelAdapter_h
@@ -45,13 +48,18 @@ public:
   vtkQtAnnotationLayersModelAdapter(vtkAnnotationLayers* ann, QObject *parent = 0);
   ~vtkQtAnnotationLayersModelAdapter();
 
-  // Description:
-  // Set/Get the VTK data object as input to this adapter
+  //@{
+  /**
+   * Set/Get the VTK data object as input to this adapter
+   */
   virtual void SetVTKDataObject(vtkDataObject *data);
   virtual vtkDataObject* GetVTKDataObject() const;
+  //@}
 
-  // Description:
-  // Selection conversion from VTK land to Qt land
+  //@{
+  /**
+   * Selection conversion from VTK land to Qt land
+   */
   virtual vtkAnnotationLayers* QModelIndexListToVTKAnnotationLayers(
     const QModelIndexList qmil) const;
   virtual QItemSelection VTKAnnotationLayersToQItemSelection(
@@ -60,12 +68,15 @@ public:
     const QModelIndexList qmil) const;
   virtual QItemSelection VTKIndexSelectionToQItemSelection(
     vtkSelection *vtksel) const;
+  //@}
 
   virtual void SetKeyColumnName(const char* name);
   virtual void SetColorColumnName(const char* name);
 
-  // Description:
-  // Set up the model based on the current table.
+  //@{
+  /**
+   * Set up the model based on the current table.
+   */
   void setAnnotationLayers(vtkAnnotationLayers* annotations);
   vtkAnnotationLayers* annotationLayers() const { return this->Annotations; }
   QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
@@ -88,6 +99,7 @@ public:
   virtual QStringList mimeTypes () const ;
 */
 private:
+  //@}
 
   bool noAnnotationsCheck() const;
 

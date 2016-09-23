@@ -30,10 +30,10 @@
 int TestFreeTypeTextMapperNoMath(int argc, char *argv[])
 {
   if (argc < 2)
-    {
+  {
     cerr << "Missing font filename." << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   vtkStdString uncodeFontFile(argv[1]);
   vtkStdString str = "Sample multiline\ntext rendered\nusing FreeTypeTools.";

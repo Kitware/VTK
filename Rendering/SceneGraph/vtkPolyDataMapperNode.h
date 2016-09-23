@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPolyDataMapperNode - vtkViewNode specialized for vtkPolyDataMappers
-// .SECTION Description
-// State storage and graph traversal for vtkPolyDataMapper/PolyDataMapper and Property
-// Made a choice to merge PolyDataMapper, PolyDataMapper and property together. If there
-// is a compelling reason to separate them we can.
+/**
+ * @class   vtkPolyDataMapperNode
+ * @brief   vtkViewNode specialized for vtkPolyDataMappers
+ *
+ * State storage and graph traversal for vtkPolyDataMapper/PolyDataMapper and Property
+ * Made a choice to merge PolyDataMapper, PolyDataMapper and property together. If there
+ * is a compelling reason to separate them we can.
+*/
 
 #ifndef vtkPolyDataMapperNode_h
 #define vtkPolyDataMapperNode_h
@@ -43,18 +46,20 @@ protected:
   ~vtkPolyDataMapperNode();
 
   //Utilities for children
-  //Description:
-  //Makes a cleaned up version of the polydata's geometry in which NaN are removed
-  //(substituted with neighbor) and the PolyDataMapper's transformation matrix is applied.
+  /**
+   * Makes a cleaned up version of the polydata's geometry in which NaN are removed
+   * (substituted with neighbor) and the PolyDataMapper's transformation matrix is applied.
+   */
   static void TransformPoints(vtkActor *act,
                               vtkPolyData *poly,
                               std::vector<double> &vertices);
 
-  //Description:
-  //Homogenizes the entire polydata using internal CreateXIndexBuffer functions.
-  //They flatten the input polydata's Points, Lines, Polys, and Strips contents into
-  //the output arrays. The output "index" arrays contain indices into the Points. The
-  //output "reverse" array contains indices into the original CellArray.
+  /**
+   * Homogenizes the entire polydata using internal CreateXIndexBuffer functions.
+   * They flatten the input polydata's Points, Lines, Polys, and Strips contents into
+   * the output arrays. The output "index" arrays contain indices into the Points. The
+   * output "reverse" array contains indices into the original CellArray.
+   */
   static void MakeConnectivity(vtkPolyData *poly,
                                int representation,
                                std::vector<unsigned int> &vertex_index,

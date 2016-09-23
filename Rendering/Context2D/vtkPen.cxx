@@ -120,18 +120,18 @@ void vtkPen::SetOpacity(unsigned char a)
 void vtkPen::GetColorF(double color[3])
 {
   for (int i = 0; i < 3; ++i)
-    {
+  {
     color[i] = this->Color[i] / 255.0;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 void vtkPen::GetColor(unsigned char color[3])
 {
   for (int i = 0; i < 3; ++i)
-    {
+  {
     color[i] = this->Color[i];
-    }
+  }
 }
 
 vtkColor4ub vtkPen::GetColorObject()
@@ -149,9 +149,9 @@ unsigned char vtkPen::GetOpacity()
 void vtkPen::DeepCopy(vtkPen *pen)
 {
   if (!pen)
-    {
+  {
     return;
-    }
+  }
   this->PenColor = pen->PenColor;
   this->Width = pen->Width;
   this->LineType = pen->LineType;

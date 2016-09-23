@@ -45,9 +45,9 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   //   V. Batagelj, M. Zaversnik, 2001
 
   for(int i = 0; i < 21; i++)
-    {
+  {
     dg->AddVertex();
-    }
+  }
 
   dg->AddEdge(0,8);
   dg->AddEdge(1,8);
@@ -86,19 +86,19 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkDataArray* da = kcp->GetOutput()->GetVertexData()->GetArray("KCoreDecompositionNumbers");
 
   for(int i=0;i< da->GetNumberOfTuples(); ++i)
-    {
+  {
     if(da->GetVariantValue(i).ToInt() != kCores[i])
-      {
+    {
       cerr << "Incorrect k-core value found in directed graph! k-core value is "
            << da->GetVariantValue(i).ToInt() << ", should be " << kCores[i] << endl;
       return 1;
-      }
     }
+  }
 
   for(int i = 0; i < 21; i++)
-    {
+  {
     ug->AddVertex();
-    }
+  }
 
   ug->AddEdge(0,8);
   ug->AddEdge(1,8);
@@ -137,14 +137,14 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   da = kcp->GetOutput()->GetVertexData()->GetArray("KCoreDecompositionNumbers");
 
   for(int i=0;i< da->GetNumberOfTuples(); ++i)
-    {
+  {
     if(da->GetVariantValue(i).ToInt() != kCores[i])
-      {
+    {
       cerr << "Incorrect k-core value found in undirected graph! k-core value is "
            << da->GetVariantValue(i).ToInt() << ", should be " << kCores[i] << endl;
       return 1;
-      }
     }
+  }
 
   // Create a small undirected graph to test turning on and off if the graph
   // in and out edges are counted as part of the vertex degree.  Should have
@@ -170,14 +170,14 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   da = kcp->GetOutput()->GetVertexData()->GetArray("KCoreDecompositionNumbers");
 
   for(int i=0;i< da->GetNumberOfTuples(); ++i)
-    {
+  {
     if(da->GetVariantValue(i).ToInt() != undirected_kCores[i])
-      {
+    {
       cerr << "Incorrect k-core value found in small undirected graph! k-core value is "
            << da->GetVariantValue(i).ToInt() << ", should be " << undirected_kCores[i] << endl;
       return 1;
-      }
     }
+  }
 
   // Create a small directed graph to test turning on and off if the graph
   // in and out edges are counted as part of the vertex degree.
@@ -203,14 +203,14 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   da = kcp->GetOutput()->GetVertexData()->GetArray("KCoreDecompositionNumbers");
 
   for(int i=0;i< da->GetNumberOfTuples(); ++i)
-    {
+  {
     if(da->GetVariantValue(i).ToInt() != directed_kCores[i])
-      {
+    {
       cerr << "Incorrect k-core value found in small directed graph! k-core value is "
            << da->GetVariantValue(i).ToInt() << ", should be " << directed_kCores[i] << endl;
       return 1;
-      }
     }
+  }
 
   int no_out_edges_directed_kCores[5] = { 1, 0, 1, 1, 0 };
 
@@ -221,14 +221,14 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   da = kcp->GetOutput()->GetVertexData()->GetArray("KCoreDecompositionNumbers");
 
   for(int i=0;i< da->GetNumberOfTuples(); ++i)
-    {
+  {
     if(da->GetVariantValue(i).ToInt() != no_out_edges_directed_kCores[i])
-      {
+    {
       cerr << "Incorrect k-core value found in small directed graph! k-core value is "
            << da->GetVariantValue(i).ToInt() << ", should be " << no_out_edges_directed_kCores[i] << endl;
       return 1;
-      }
     }
+  }
 
   int no_in_edges_directed_kCores[5] = { 1, 1, 0, 1, 0 };
 
@@ -240,14 +240,14 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   da = kcp->GetOutput()->GetVertexData()->GetArray("KCoreDecompositionNumbers");
 
   for(int i=0;i< da->GetNumberOfTuples(); ++i)
-    {
+  {
     if(da->GetVariantValue(i).ToInt() != no_in_edges_directed_kCores[i])
-      {
+    {
       cerr << "Incorrect k-core value found in small directed graph! k-core value is "
            << da->GetVariantValue(i).ToInt() << ", should be " << no_in_edges_directed_kCores[i] << endl;
       return 1;
-      }
     }
+  }
 
   return 0;
 }

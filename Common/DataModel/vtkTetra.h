@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTetra - a 3D cell that represents a tetrahedron
-// .SECTION Description
-// vtkTetra is a concrete implementation of vtkCell to represent a 3D
-// tetrahedron. vtkTetra uses the standard isoparametric shape functions
-// for a linear tetrahedron. The tetrahedron is defined by the four points
-// (0-3); where (0,1,2) is the base of the tetrahedron which, using the
-// right hand rule, forms a triangle whose normal points in the direction
-// of the fourth point.
-
-// .SECTION See Also
-// vtkConvexPointSet vtkHexahedron vtkPyramid vtkVoxel vtkWedge
+/**
+ * @class   vtkTetra
+ * @brief   a 3D cell that represents a tetrahedron
+ *
+ * vtkTetra is a concrete implementation of vtkCell to represent a 3D
+ * tetrahedron. vtkTetra uses the standard isoparametric shape functions
+ * for a linear tetrahedron. The tetrahedron is defined by the four points
+ * (0-3); where (0,1,2) is the base of the tetrahedron which, using the
+ * right hand rule, forms a triangle whose normal points in the direction
+ * of the fourth point.
+ *
+ * @sa
+ * vtkConvexPointSet vtkHexahedron vtkPyramid vtkVoxel vtkWedge
+*/
 
 #ifndef vtkTetra_h
 #define vtkTetra_h
@@ -42,13 +45,18 @@ public:
   vtkTypeMacro(vtkTetra,vtkCell3D);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // See vtkCell3D API for description of these methods.
+  //@{
+  /**
+   * See vtkCell3D API for description of these methods.
+   */
   void GetEdgePoints(int edgeId, int* &pts) VTK_OVERRIDE;
   void GetFacePoints(int faceId, int* &pts) VTK_OVERRIDE;
+  //@}
 
-  // Description:
-  // See the vtkCell API for descriptions of these methods.
+  //@{
+  /**
+   * See the vtkCell API for descriptions of these methods.
+   */
   int GetCellType() VTK_OVERRIDE {return VTK_TETRA;}
   int GetNumberOfEdges() VTK_OVERRIDE {return 6;}
   int GetNumberOfFaces() VTK_OVERRIDE {return 4;}
@@ -75,90 +83,108 @@ public:
   void Derivatives(int subId, double pcoords[3], double *values,
                    int dim, double *derivs) VTK_OVERRIDE;
   double *GetParametricCoords() VTK_OVERRIDE;
+  //@}
 
-  // Description:
-  // Returns the set of points that are on the boundary of the tetrahedron that
-  // are closest parametrically to the point specified. This may include faces,
-  // edges, or vertices.
+  /**
+   * Returns the set of points that are on the boundary of the tetrahedron that
+   * are closest parametrically to the point specified. This may include faces,
+   * edges, or vertices.
+   */
   int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) VTK_OVERRIDE;
 
-  // Description:
-  // Return the center of the tetrahedron in parametric coordinates.
+  /**
+   * Return the center of the tetrahedron in parametric coordinates.
+   */
   int GetParametricCenter(double pcoords[3]) VTK_OVERRIDE;
 
-  // Description:
-  // Return the distance of the parametric coordinate provided to the
-  // cell. If inside the cell, a distance of zero is returned.
+  /**
+   * Return the distance of the parametric coordinate provided to the
+   * cell. If inside the cell, a distance of zero is returned.
+   */
   double GetParametricDistance(double pcoords[3]) VTK_OVERRIDE;
 
-  // Description:
-  // Compute the center of the tetrahedron,
+  /**
+   * Compute the center of the tetrahedron,
+   */
   static void TetraCenter(double p1[3], double p2[3], double p3[3], double p4[3],
                           double center[3]);
 
-  // Description:
-  // Compute the circumcenter (center[3]) and radius squared (method
-  // return value) of a tetrahedron defined by the four points x1, x2,
-  // x3, and x4.
+  /**
+   * Compute the circumcenter (center[3]) and radius squared (method
+   * return value) of a tetrahedron defined by the four points x1, x2,
+   * x3, and x4.
+   */
   static double Circumsphere(double  p1[3], double p2[3], double p3[3],
                              double p4[3], double center[3]);
 
-  // Description:
-  // Compute the center (center[3]) and radius (method return value) of
-  // a sphere that just fits inside the faces of a tetrahedron defined
-  // by the four points x1, x2, x3, and x4.
+  /**
+   * Compute the center (center[3]) and radius (method return value) of
+   * a sphere that just fits inside the faces of a tetrahedron defined
+   * by the four points x1, x2, x3, and x4.
+   */
   static double Insphere(double  p1[3], double p2[3], double p3[3],
                          double p4[3], double center[3]);
 
-  // Description:
-  // Given a 3D point x[3], determine the barycentric coordinates of the point.
-  // Barycentric coordinates are a natural coordinate system for simplices that
-  // express a position as a linear combination of the vertices. For a
-  // tetrahedron, there are four barycentric coordinates (because there are
-  // four vertices), and the sum of the coordinates must equal 1. If a
-  // point x is inside a simplex, then all four coordinates will be strictly
-  // positive.  If three coordinates are zero (so the fourth =1), then the
-  // point x is on a vertex. If two coordinates are zero, the point x is on an
-  // edge (and so on). In this method, you must specify the vertex coordinates
-  // x1->x4. Returns 0 if tetrahedron is degenerate.
+  /**
+   * Given a 3D point x[3], determine the barycentric coordinates of the point.
+   * Barycentric coordinates are a natural coordinate system for simplices that
+   * express a position as a linear combination of the vertices. For a
+   * tetrahedron, there are four barycentric coordinates (because there are
+   * four vertices), and the sum of the coordinates must equal 1. If a
+   * point x is inside a simplex, then all four coordinates will be strictly
+   * positive.  If three coordinates are zero (so the fourth =1), then the
+   * point x is on a vertex. If two coordinates are zero, the point x is on an
+   * edge (and so on). In this method, you must specify the vertex coordinates
+   * x1->x4. Returns 0 if tetrahedron is degenerate.
+   */
   static int BarycentricCoords(double x[3], double  x1[3], double x2[3],
                                double x3[3], double x4[3], double bcoords[4]);
 
-  // Description:
-  // Compute the volume of a tetrahedron defined by the four points
-  // p1, p2, p3, and p4.
+  /**
+   * Compute the volume of a tetrahedron defined by the four points
+   * p1, p2, p3, and p4.
+   */
   static double ComputeVolume(double  p1[3], double p2[3], double p3[3],
                               double p4[3]);
 
-  // Description:
-  // Given parametric coordinates compute inverse Jacobian transformation
-  // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
-  // function derivatives. Returns 0 if no inverse exists.
+  /**
+   * Given parametric coordinates compute inverse Jacobian transformation
+   * matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
+   * function derivatives. Returns 0 if no inverse exists.
+   */
   int JacobianInverse(double **inverse, double derivs[12]);
 
-  // Description:
-  // @deprecated Replaced by vtkTetra::InterpolateFunctions as of VTK 5.2
+  /**
+   * @deprecated Replaced by vtkTetra::InterpolateFunctions as of VTK 5.2
+   */
   static void InterpolationFunctions(double pcoords[3], double weights[4]);
-  // Description:
-  // @deprecated Replaced by vtkTetra::InterpolateDerivs as of VTK 5.2
+  /**
+   * @deprecated Replaced by vtkTetra::InterpolateDerivs as of VTK 5.2
+   */
   static void InterpolationDerivs(double pcoords[3], double derivs[12]);
-  // Description:
-  // Compute the interpolation functions/derivatives
-  // (aka shape functions/derivatives)
+  //@{
+  /**
+   * Compute the interpolation functions/derivatives
+   * (aka shape functions/derivatives)
+   */
   void InterpolateFunctions(double pcoords[3], double weights[4]) VTK_OVERRIDE
-    {
+  {
     vtkTetra::InterpolationFunctions(pcoords,weights);
-    }
+  }
   void InterpolateDerivs(double pcoords[3], double derivs[12]) VTK_OVERRIDE
-    {
+  {
     vtkTetra::InterpolationDerivs(pcoords,derivs);
-    }
+  }
+  //@}
 
-  // Description:
-  // Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
-  // Ids are related to the cell, not to the dataset.
+  //@{
+  /**
+   * Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
+   * Ids are related to the cell, not to the dataset.
+   */
   static int *GetEdgeArray(int edgeId);
   static int *GetFaceArray(int faceId);
+  //@}
 
 protected:
   vtkTetra();

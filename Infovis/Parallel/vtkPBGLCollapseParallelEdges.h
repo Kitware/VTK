@@ -16,12 +16,15 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkPBGLCollapseParallelEdges - collapse multiple vertices into a single vertex
-//
-// .SECTION Description
-//
-// Uses single input array specified with SetInputArrayToProcess(0,...)
-// to collapse groups of vertices with the same value into a single vertex.
+/**
+ * @class   vtkPBGLCollapseParallelEdges
+ * @brief   collapse multiple vertices into a single vertex
+ *
+ *
+ *
+ * Uses single input array specified with SetInputArrayToProcess(0,...)
+ * to collapse groups of vertices with the same value into a single vertex.
+*/
 
 #ifndef vtkPBGLCollapseParallelEdges_h
 #define vtkPBGLCollapseParallelEdges_h

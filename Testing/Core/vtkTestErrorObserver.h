@@ -54,7 +54,7 @@ public:
                        void *calldata)
   {
   switch(event)
-    {
+  {
     case vtkCommand::ErrorEvent:
       ErrorMessage += static_cast<char *>(calldata);
       this->Error = true;
@@ -63,16 +63,16 @@ public:
       WarningMessage += static_cast<char *>(calldata);
       this->Warning = true;
       break;
-    }
+  }
   }
   std::string GetErrorMessage()
   {
   return ErrorMessage;
   }
 std::string GetWarningMessage()
-  {
+{
   return WarningMessage;
-  }
+}
 private:
   bool        Error;
   bool        Warning;

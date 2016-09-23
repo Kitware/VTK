@@ -39,14 +39,14 @@ class vtkCoincidentPoints::implementation
 {
 public:
   implementation()
-    {
+  {
     this->TraversalIterator = this->CoordMap.end();
-    }
+  }
 
   ~implementation()
-    {
+  {
     this->CoordMap.clear();
-    }
+  }
 
 
   struct Coord
@@ -54,36 +54,36 @@ public:
     double coord[3];
 
     Coord()
-      {
+    {
       this->coord[0] = -1.0;
       this->coord[1] = -1.0;
       this->coord[2] = -1.0;
-      }
+    }
     Coord( const Coord & src )
-      {
+    {
       this->coord[0] = src.coord[0];
       this->coord[1] = src.coord[1];
       this->coord[2] = src.coord[2];
-      }
+    }
     Coord( const double src[3] )
-      {
+    {
       this->coord[0] = src[0];
       this->coord[1] = src[1];
       this->coord[2] = src[2];
-      }
+    }
     Coord( const double x, const double y, const double z )
-      {
+    {
       this->coord[0] = x;
       this->coord[1] = y;
       this->coord[2] = z;
-      }
+    }
 
     inline bool operator < (const Coord & other) const
-      {
+    {
       return this->coord[0] < other.coord[0] ||
         (this->coord[0] == other.coord[0] && (this->coord[1] < other.coord[1] ||
         (this->coord[1] == other.coord[1] && this->coord[2] < other.coord[2])));
-      }
+    }
   };
 
   typedef std::map<Coord, vtkSmartPointer<vtkIdList> >::iterator MapCoordIter;
@@ -128,15 +128,15 @@ void vtkCoincidentPoints::AddPoint(vtkIdType Id, const double point[3])
   implementation::Coord coord(point);
   implementation::MapCoordIter mapIter = this->Implementation->CoordMap.find(coord);
   if(mapIter == this->Implementation->CoordMap.end())
-    {
+  {
     vtkSmartPointer<vtkIdList> idSet = vtkSmartPointer<vtkIdList>::New();
     idSet->InsertNextId(Id);
     this->Implementation->CoordMap[coord] = idSet;
-    }
+  }
   else
-    {
+  {
     (*mapIter).second->InsertNextId(Id);
-    }
+  }
 }
 
 vtkIdList * vtkCoincidentPoints::GetCoincidentPointIds(const double point[3])
@@ -144,35 +144,35 @@ vtkIdList * vtkCoincidentPoints::GetCoincidentPointIds(const double point[3])
   implementation::Coord coord(point);
   implementation::MapCoordIter mapIter = this->Implementation->CoordMap.find(coord);
   if(mapIter == this->Implementation->CoordMap.end())
-    {
+  {
     return NULL;
-    }
+  }
 
   if((*mapIter).second->GetNumberOfIds() > 1)
-    {
+  {
     return (*mapIter).second;
-    }
+  }
   else
-    {
+  {
     // No Coincident Points
     return NULL;
-    }
+  }
 }
 
 void vtkCoincidentPoints::RemoveNonCoincidentPoints()
 {
   implementation::MapCoordIter mapIter = this->Implementation->CoordMap.begin();
   while(mapIter != this->Implementation->CoordMap.end())
-    {
+  {
     if( (*mapIter).second->GetNumberOfIds() <= 1 )
-      {
+    {
       this->Implementation->CoordMap.erase(mapIter++);
-      }
-    else
-      {
-      ++mapIter;
-      }
     }
+    else
+    {
+      ++mapIter;
+    }
+  }
 }
 
 vtkIdList * vtkCoincidentPoints::GetNextCoincidentPointIds()
@@ -180,11 +180,11 @@ vtkIdList * vtkCoincidentPoints::GetNextCoincidentPointIds()
   vtkIdList * rvalue = NULL;
   if(this->Implementation->TraversalIterator !=
     this->Implementation->CoordMap.end())
-    {
+  {
     rvalue = (*this->Implementation->TraversalIterator).second;
     ++this->Implementation->TraversalIterator;
     return rvalue;
-    }
+  }
 
   return rvalue;
 }
@@ -206,7 +206,7 @@ void vtkCoincidentPoints::SpiralPoints(vtkIdType num, vtkPoints * offsets)
   offsets->SetNumberOfPoints(num);
 
   for (vtkIdType i = 0; i < num; i++)
-    {
+  {
     double d = 2.0*i/sqrt(3.0);
     // We are looking for points at regular intervals along the parametric spiral
     // x = t*cos(2*pi*t)
@@ -217,14 +217,14 @@ void vtkCoincidentPoints::SpiralPoints(vtkIdType num, vtkPoints * offsets)
     // is an excellent starting point./g
     double t = 0.553*pow(d, 0.502);
     for (int iter = 0; iter < maxIter; iter++)
-      {
+    {
       double r = sqrt(t*t+a*a);
       double f = pi*(t*r+a*a*log(t+r)) - d;
       double df = 2*pi*r;
       t = t - f/df;
-      }
+    }
     double x = t*cos(2*pi*t);
     double y = t*sin(2*pi*t);
     offsets->SetPoint(i, x, y, 0);
-    }
+  }
 }

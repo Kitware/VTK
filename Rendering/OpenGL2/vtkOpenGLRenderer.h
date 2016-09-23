@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLRenderer - OpenGL renderer
-// .SECTION Description
-// vtkOpenGLRenderer is a concrete implementation of the abstract class
-// vtkRenderer. vtkOpenGLRenderer interfaces to the OpenGL graphics library.
+/**
+ * @class   vtkOpenGLRenderer
+ * @brief   OpenGL renderer
+ *
+ * vtkOpenGLRenderer is a concrete implementation of the abstract class
+ * vtkRenderer. vtkOpenGLRenderer interfaces to the OpenGL graphics library.
+*/
 
 #ifndef vtkOpenGLRenderer_h
 #define vtkOpenGLRenderer_h
@@ -38,54 +41,62 @@ public:
   vtkTypeMacro(vtkOpenGLRenderer, vtkRenderer);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Concrete open gl render method.
+  /**
+   * Concrete open gl render method.
+   */
   void DeviceRender(void);
 
-  // Description:
-  // Overridden to support hidden line removal.
+  /**
+   * Overridden to support hidden line removal.
+   */
   virtual void DeviceRenderOpaqueGeometry();
 
-  // Description:
-  // Render translucent polygonal geometry. Default implementation just call
-  // UpdateTranslucentPolygonalGeometry().
-  // Subclasses of vtkRenderer that can deal with depth peeling must
-  // override this method.
+  /**
+   * Render translucent polygonal geometry. Default implementation just call
+   * UpdateTranslucentPolygonalGeometry().
+   * Subclasses of vtkRenderer that can deal with depth peeling must
+   * override this method.
+   */
   virtual void DeviceRenderTranslucentPolygonalGeometry();
 
   void Clear(void);
 
-  // Description:
-  // Ask lights to load themselves into graphics pipeline.
+  /**
+   * Ask lights to load themselves into graphics pipeline.
+   */
   int UpdateLights(void);
 
-  // Description:
-  // Is rendering at translucent geometry stage using depth peeling and
-  // rendering a layer other than the first one? (Boolean value)
-  // If so, the uniform variables UseTexture and Texture can be set.
-  // (Used by vtkOpenGLProperty or vtkOpenGLTexture)
+  /**
+   * Is rendering at translucent geometry stage using depth peeling and
+   * rendering a layer other than the first one? (Boolean value)
+   * If so, the uniform variables UseTexture and Texture can be set.
+   * (Used by vtkOpenGLProperty or vtkOpenGLTexture)
+   */
   int GetDepthPeelingHigherLayer();
 
-  // Description:
-  // Indicate if this system is subject to the apple/amd bug
-  // of not having a working glPrimitiveId
+  /**
+   * Indicate if this system is subject to the apple/amd bug
+   * of not having a working glPrimitiveId
+   */
   bool HaveApplePrimitiveIdBug();
 
 protected:
   vtkOpenGLRenderer();
   ~vtkOpenGLRenderer();
 
-  // Description:
-  // Check the compilation status of some fragment shader source.
+  /**
+   * Check the compilation status of some fragment shader source.
+   */
   void CheckCompilation(unsigned int fragmentShader);
 
   // Internal method to release graphics resources in any derived renderers.
   virtual void ReleaseGraphicsResources(vtkWindow *w);
 
-  // Description:
-  // Ask all props to update and draw any opaque and translucent
-  // geometry. This includes both vtkActors and vtkVolumes
-  // Returns the number of props that rendered geometry.
+  /**
+   * Ask all props to update and draw any opaque and translucent
+   * geometry. This includes both vtkActors and vtkVolumes
+   * Returns the number of props that rendered geometry.
+   */
   virtual int UpdateGeometry();
 
   // Picking functions to be implemented by sub-classes
@@ -108,16 +119,19 @@ protected:
   friend class vtkOpenGLImageSliceMapper;
   friend class vtkOpenGLImageResliceMapper;
 
-  // Description:
-  // FXAA is delegated to an instance of vtkOpenGLFXAAFilter
+  /**
+   * FXAA is delegated to an instance of vtkOpenGLFXAAFilter
+   */
   vtkOpenGLFXAAFilter *FXAAFilter;
 
-  // Description:
-  // Depth peeling is delegated to an instance of vtkDepthPeelingPass
+  /**
+   * Depth peeling is delegated to an instance of vtkDepthPeelingPass
+   */
   vtkDepthPeelingPass *DepthPeelingPass;
 
-  // Description:
-  // Shadows are delegated to an instance of vtkShadowMapPass
+  /**
+   * Shadows are delegated to an instance of vtkShadowMapPass
+   */
   vtkShadowMapPass *ShadowMapPass;
 
   // Is rendering at translucent geometry stage using depth peeling and

@@ -19,7 +19,7 @@
 vtkStandardNewMacro(vtkParametricPseudosphere);
 //----------------------------------------------------------------------------//
 vtkParametricPseudosphere::vtkParametricPseudosphere()
-  {
+{
   // Preset triangulation parameters
   this->MinimumU = -5.0;
   this->MinimumV = -vtkMath::Pi();
@@ -32,16 +32,16 @@ vtkParametricPseudosphere::vtkParametricPseudosphere()
   this->TwistV = 0;
   this->ClockwiseOrdering = 1;
   this->DerivativesAvailable = 1;
-  }
+}
 
 //----------------------------------------------------------------------------//
 vtkParametricPseudosphere::~vtkParametricPseudosphere()
-  {
-  }
+{
+}
 
 //----------------------------------------------------------------------------//
 void vtkParametricPseudosphere::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
-  {
+{
   // Copy the parameters out of the vector, for the sake of convenience.
   double u = uvw[0];
   double v = uvw[1];
@@ -73,16 +73,16 @@ void vtkParametricPseudosphere::Evaluate(double uvw[3], double Pt[3], double Duv
   Dv[0] = -sechu*sinv;
   Dv[1] = sechu*cosv;
   Dv[2] = 0.;
-  }
+}
 
 //----------------------------------------------------------------------------//
 double vtkParametricPseudosphere::EvaluateScalar(double *, double *, double *)
-  {
+{
   return 0;
-  }
+}
 
 //----------------------------------------------------------------------------//
 void vtkParametricPseudosphere::PrintSelf(ostream& os, vtkIndent indent)
-  {
+{
   this->Superclass::PrintSelf(os,indent);
-  }
+}

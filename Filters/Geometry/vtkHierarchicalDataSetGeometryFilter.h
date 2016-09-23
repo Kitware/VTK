@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHierarchicalDataSetGeometryFilter - extract geometry from hierarchical data
-// .SECTION Description
-// Legacy class. Use vtkCompositeDataGeometryFilter instead.
-//
-// .SECTION See Also
-// vtkCompositeDataGeometryFilter
+/**
+ * @class   vtkHierarchicalDataSetGeometryFilter
+ * @brief   extract geometry from hierarchical data
+ *
+ * Legacy class. Use vtkCompositeDataGeometryFilter instead.
+ *
+ * @sa
+ * vtkCompositeDataGeometryFilter
+*/
 
 #ifndef vtkHierarchicalDataSetGeometryFilter_h
 #define vtkHierarchicalDataSetGeometryFilter_h

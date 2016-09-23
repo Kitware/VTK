@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAbstractPolyDataReader - Superclass for algorithms that read
-// models from a file.
-// .SECTION Description
-// This class allows to use a single base class to manage AbstractPolyData
-// reader classes in a uniform manner without needing to know the actual
-// type of the reader.
-// i.e. makes it possible to create maps to associate filename extension
-// and vtkAbstractPolyDataReader object.
-
-// .SECTION See Also
-// vtkOBJReader vtkPLYReader vtkSTLReader
+/**
+ * @class   vtkAbstractPolyDataReader
+ * @brief   Superclass for algorithms that read
+ * models from a file.
+ *
+ * This class allows to use a single base class to manage AbstractPolyData
+ * reader classes in a uniform manner without needing to know the actual
+ * type of the reader.
+ * i.e. makes it possible to create maps to associate filename extension
+ * and vtkAbstractPolyDataReader object.
+ *
+ * @sa
+ * vtkOBJReader vtkPLYReader vtkSTLReader
+*/
 
 #ifndef vtkAbstractPolyDataReader_h
 #define vtkAbstractPolyDataReader_h
@@ -36,10 +39,13 @@ public:
   vtkTypeMacro(vtkAbstractPolyDataReader, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify file name of AbstractPolyData file (obj / ply / stl).
+  //@{
+  /**
+   * Specify file name of AbstractPolyData file (obj / ply / stl).
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
 protected:
   vtkAbstractPolyDataReader();

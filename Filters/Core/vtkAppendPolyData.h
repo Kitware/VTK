@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAppendPolyData - appends one or more polygonal datasets together
-// .SECTION Description
-//
-// vtkAppendPolyData is a filter that appends one of more polygonal datasets
-// into a single polygonal dataset. All geometry is extracted and appended,
-// but point and cell attributes (i.e., scalars, vectors, normals) are
-// extracted and appended only if all datasets have the point and/or cell
-// attributes available.  (For example, if one dataset has point scalars but
-// another does not, point scalars will not be appended.)
-
-// .SECTION See Also
-// vtkAppendFilter
+/**
+ * @class   vtkAppendPolyData
+ * @brief   appends one or more polygonal datasets together
+ *
+ *
+ * vtkAppendPolyData is a filter that appends one of more polygonal datasets
+ * into a single polygonal dataset. All geometry is extracted and appended,
+ * but point and cell attributes (i.e., scalars, vectors, normals) are
+ * extracted and appended only if all datasets have the point and/or cell
+ * attributes available.  (For example, if one dataset has point scalars but
+ * another does not, point scalars will not be appended.)
+ *
+ * @sa
+ * vtkAppendFilter
+*/
 
 #ifndef vtkAppendPolyData_h
 #define vtkAppendPolyData_h
@@ -44,58 +47,73 @@ public:
   vtkTypeMacro(vtkAppendPolyData,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // UserManagedInputs allows the user to set inputs by number instead of
-  // using the AddInput/RemoveInput functions. Calls to
-  // SetNumberOfInputs/SetInputConnectionByNumber should not be mixed with calls
-  // to AddInput/RemoveInput. By default, UserManagedInputs is false.
+  //@{
+  /**
+   * UserManagedInputs allows the user to set inputs by number instead of
+   * using the AddInput/RemoveInput functions. Calls to
+   * SetNumberOfInputs/SetInputConnectionByNumber should not be mixed with calls
+   * to AddInput/RemoveInput. By default, UserManagedInputs is false.
+   */
   vtkSetMacro(UserManagedInputs,int);
   vtkGetMacro(UserManagedInputs,int);
   vtkBooleanMacro(UserManagedInputs,int);
+  //@}
 
-  // Description:
-  // Add a dataset to the list of data to append. Should not be
-  // used when UserManagedInputs is true, use SetInputByNumber instead.
+  /**
+   * Add a dataset to the list of data to append. Should not be
+   * used when UserManagedInputs is true, use SetInputByNumber instead.
+   */
   void AddInputData(vtkPolyData *);
 
-  // Description:
-  // Remove a dataset from the list of data to append. Should not be
-  // used when UserManagedInputs is true, use SetInputByNumber (NULL) instead.
+  /**
+   * Remove a dataset from the list of data to append. Should not be
+   * used when UserManagedInputs is true, use SetInputByNumber (NULL) instead.
+   */
   void RemoveInputData(vtkPolyData *);
 
-  // Description:
-  // Get any input of this filter.
+  //@{
+  /**
+   * Get any input of this filter.
+   */
   vtkPolyData *GetInput(int idx);
   vtkPolyData *GetInput() { return this->GetInput( 0 ); };
+  //@}
 
-  // Description:
-  // Directly set(allocate) number of inputs, should only be used
-  // when UserManagedInputs is true.
+  /**
+   * Directly set(allocate) number of inputs, should only be used
+   * when UserManagedInputs is true.
+   */
   void SetNumberOfInputs(int num);
 
   // Set Nth input, should only be used when UserManagedInputs is true.
   void SetInputConnectionByNumber(int num, vtkAlgorithmOutput *input);
   void SetInputDataByNumber(int num, vtkPolyData *ds);
 
-  // Description:
-  // ParallelStreaming is for a particular application.
-  // It causes this filter to ask for a different piece
-  // from each of its inputs.  If all the inputs are the same,
-  // then the output of this append filter is the whole dataset
-  // pieced back together.  Duplicate points are create
-  // along the seams.  The purpose of this feature is to get
-  // data parallelism at a course scale.  Each of the inputs
-  // can be generated in a different process at the same time.
+  //@{
+  /**
+   * ParallelStreaming is for a particular application.
+   * It causes this filter to ask for a different piece
+   * from each of its inputs.  If all the inputs are the same,
+   * then the output of this append filter is the whole dataset
+   * pieced back together.  Duplicate points are create
+   * along the seams.  The purpose of this feature is to get
+   * data parallelism at a course scale.  Each of the inputs
+   * can be generated in a different process at the same time.
+   */
   vtkSetMacro(ParallelStreaming, int);
   vtkGetMacro(ParallelStreaming, int);
   vtkBooleanMacro(ParallelStreaming, int);
+  //@}
 
-  // Description:
-  // Set/get the desired precision for the output types. See the documentation
-  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
-  // the available precision settings.
+  //@{
+  /**
+   * Set/get the desired precision for the output types. See the documentation
+   * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+   * the available precision settings.
+   */
   vtkSetMacro(OutputPointsPrecision,int);
   vtkGetMacro(OutputPointsPrecision,int);
+  //@}
 
   int ExecuteAppend(vtkPolyData* output,
     vtkPolyData* inputs[], int numInputs);

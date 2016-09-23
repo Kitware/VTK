@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBMPWriter - Writes Windows BMP files.
-// .SECTION Description
-// vtkBMPWriter writes BMP files. The data type
-// of the file is unsigned char regardless of the input type.
-
-// .SECTION See Also
-// vtkBMPReader
+/**
+ * @class   vtkBMPWriter
+ * @brief   Writes Windows BMP files.
+ *
+ * vtkBMPWriter writes BMP files. The data type
+ * of the file is unsigned char regardless of the input type.
+ *
+ * @sa
+ * vtkBMPReader
+*/
 
 #ifndef vtkBMPWriter_h
 #define vtkBMPWriter_h

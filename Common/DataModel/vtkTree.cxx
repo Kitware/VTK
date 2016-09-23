@@ -47,9 +47,9 @@ vtkIdType vtkTree::GetChild(vtkIdType v, vtkIdType i)
   vtkIdType nedges;
   this->GetOutEdges(v, edges, nedges);
   if (i < nedges)
-    {
+  {
     return edges[i].Target;
-    }
+  }
   return -1;
 }
 
@@ -60,9 +60,9 @@ vtkIdType vtkTree::GetParent(vtkIdType v)
   vtkIdType nedges;
   this->GetInEdges(v, edges, nedges);
   if (nedges > 0)
-    {
+  {
     return edges[0].Source;
-    }
+  }
   return -1;
 }
 
@@ -73,9 +73,9 @@ vtkEdgeType vtkTree::GetParentEdge(vtkIdType v)
   vtkIdType nedges;
   this->GetInEdges(v, edges, nedges);
   if (nedges > 0)
-    {
+  {
     return vtkEdgeType(edges[0].Source, v, edges[0].Id);
-    }
+  }
   return vtkEdgeType();
 }
 
@@ -83,15 +83,15 @@ vtkEdgeType vtkTree::GetParentEdge(vtkIdType v)
 vtkIdType vtkTree::GetLevel(vtkIdType vertex)
 {
   if (vertex < 0 || vertex >= this->GetNumberOfVertices())
-    {
+  {
     return -1;
-    }
+  }
   vtkIdType level = 0;
   while (vertex != this->Root)
-    {
+  {
     vertex = this->GetParent(vertex);
     level++;
-    }
+  }
   return level;
 }
 
@@ -117,57 +117,57 @@ vtkTree *vtkTree::GetData(vtkInformationVector *v, int i)
 bool vtkTree::IsStructureValid(vtkGraph *g)
 {
   if (!g)
-    {
+  {
     return false;
-    }
+  }
 
   vtkTree *tree = vtkTree::SafeDownCast(g);
   if (tree)
-    {
+  {
     // Since a tree has the additional root propery, we need
     // to set that here.
     this->Root = tree->Root;
     return true;
-    }
+  }
 
   // Empty graph is a valid tree.
   if (g->GetNumberOfVertices() == 0)
-    {
+  {
     this->Root = -1;
     return true;
-    }
+  }
 
   // A tree must have one more vertex than its number of edges.
   if (g->GetNumberOfEdges() != g->GetNumberOfVertices() - 1)
-    {
+  {
     return false;
-    }
+  }
 
   // Find the root and fail if there is more than one.
   vtkIdType root = -1;
   for (vtkIdType v = 0; v < g->GetNumberOfVertices(); ++v)
-    {
+  {
     vtkIdType indeg = g->GetInDegree(v);
     if (indeg > 1)
-      {
+    {
       // No tree vertex should have in degree > 1, so fail.
       return false;
-      }
+    }
     else if (indeg == 0 && root == -1)
-      {
+    {
       // We found our first root.
       root = v;
-      }
+    }
     else if (indeg == 0)
-      {
+    {
       // We already found a root, so fail.
       return false;
-      }
     }
+  }
   if (root < 0)
-    {
+  {
     return false;
-    }
+  }
 
   // Make sure the tree is connected with no cycles.
   std::vector<bool> visited(g->GetNumberOfVertices(), false);
@@ -176,31 +176,31 @@ bool vtkTree::IsStructureValid(vtkGraph *g)
   vtkSmartPointer<vtkOutEdgeIterator> outIter =
     vtkSmartPointer<vtkOutEdgeIterator>::New();
   while (!stack.empty())
-    {
+  {
     vtkIdType v = stack.back();
     stack.pop_back();
     visited[v] = true;
     g->GetOutEdges(v, outIter);
     while (outIter->HasNext())
-      {
+    {
       vtkIdType id = outIter->Next().Target;
       if (!visited[id])
-        {
-        stack.push_back(id);
-        }
-      else
-        {
-        return false;
-        }
-      }
-    }
-  for (vtkIdType v = 0; v < g->GetNumberOfVertices(); ++v)
-    {
-    if (!visited[v])
       {
-      return false;
+        stack.push_back(id);
+      }
+      else
+      {
+        return false;
       }
     }
+  }
+  for (vtkIdType v = 0; v < g->GetNumberOfVertices(); ++v)
+  {
+    if (!visited[v])
+    {
+      return false;
+    }
+  }
 
   // Since a tree has the additional root propery, we need
   // to set that here.

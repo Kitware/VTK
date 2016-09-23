@@ -73,20 +73,20 @@ void vtkAxesTransformWidget::SetEnabled(int enabling)
 {
   // We defer enabling the handles until the selection process begins
   if ( enabling )
-    {
+  {
 
     if ( ! this->CurrentRenderer )
-      {
+    {
       int X=this->Interactor->GetEventPosition()[0];
       int Y=this->Interactor->GetEventPosition()[1];
 
       this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(X,Y));
 
       if (this->CurrentRenderer == NULL)
-        {
+      {
         return;
-        }
       }
+    }
 
     // Don't actually turn these on until cursor is near the end points or the line.
     this->CreateDefaultRepresentation();
@@ -104,12 +104,12 @@ void vtkAxesTransformWidget::SetEnabled(int enabling)
 
     // We do this step first because it sets the CurrentRenderer
     this->Superclass::SetEnabled(enabling);
-    }
+  }
   else
-    {
+  {
     this->OriginWidget->SetEnabled(0);
     this->SelectionWidget->SetEnabled(0);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -117,9 +117,9 @@ void vtkAxesTransformWidget::SelectAction(vtkAbstractWidget *w)
 {
   vtkAxesTransformWidget *self = reinterpret_cast<vtkAxesTransformWidget*>(w);
   if ( self->WidgetRep->GetInteractionState() == vtkAxesTransformRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // Get the event position
   int X = self->Interactor->GetEventPosition()[0];
@@ -149,7 +149,7 @@ void vtkAxesTransformWidget::MoveAction(vtkAbstractWidget *w)
 
   // See whether we're active
   if ( self->WidgetState == vtkAxesTransformWidget::Start )
-    {
+  {
     self->Interactor->Disable(); //avoid extra renders
     self->OriginWidget->SetEnabled(0);
     self->SelectionWidget->SetEnabled(0);
@@ -159,30 +159,30 @@ void vtkAxesTransformWidget::MoveAction(vtkAbstractWidget *w)
     int changed;
     // Determine if we are near the end points or the line
     if ( state == vtkAxesTransformRepresentation::Outside )
-      {
+    {
       changed = self->RequestCursorShape(VTK_CURSOR_DEFAULT);
-      }
+    }
     else //must be near something
-      {
+    {
       changed = self->RequestCursorShape(VTK_CURSOR_HAND);
       if ( state == vtkAxesTransformRepresentation::OnOrigin )
-        {
+      {
         self->OriginWidget->SetEnabled(1);
-        }
+      }
       else //if ( state == vtkAxesTransformRepresentation::OnXXX )
-        {
+      {
         self->SelectionWidget->SetEnabled(1);
         changed = 1; //movement along the line always needs render
-        }
-      }
-    self->Interactor->Enable(); //avoid extra renders
-    if ( changed || oldState != state )
-      {
-      self->Render();
       }
     }
-  else //if ( self->WidgetState == vtkAxesTransformWidget::Active )
+    self->Interactor->Enable(); //avoid extra renders
+    if ( changed || oldState != state )
     {
+      self->Render();
+    }
+  }
+  else //if ( self->WidgetState == vtkAxesTransformWidget::Active )
+  {
     // moving something
     double e[2];
     e[0] = static_cast<double>(X);
@@ -193,7 +193,7 @@ void vtkAxesTransformWidget::MoveAction(vtkAbstractWidget *w)
     self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     self->EventCallbackCommand->SetAbortFlag(1);
     self->Render();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -201,9 +201,9 @@ void vtkAxesTransformWidget::EndSelectAction(vtkAbstractWidget *w)
 {
   vtkAxesTransformWidget *self = reinterpret_cast<vtkAxesTransformWidget*>(w);
   if ( self->WidgetState == vtkAxesTransformWidget::Start )
-    {
+  {
     return;
-    }
+  }
 
   // Return state to not active
   self->WidgetState = vtkAxesTransformWidget::Start;
@@ -219,9 +219,9 @@ void vtkAxesTransformWidget::EndSelectAction(vtkAbstractWidget *w)
 void vtkAxesTransformWidget::CreateDefaultRepresentation()
 {
   if ( ! this->WidgetRep )
-    {
+  {
     this->WidgetRep = vtkAxesTransformRepresentation::New();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

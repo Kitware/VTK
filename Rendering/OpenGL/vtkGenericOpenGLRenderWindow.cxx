@@ -38,9 +38,9 @@ vtkGenericOpenGLRenderWindow::~vtkGenericOpenGLRenderWindow()
   vtkCollectionSimpleIterator rit;
   this->Renderers->InitTraversal(rit);
   while ( (ren = this->Renderers->GetNextRenderer(rit)) )
-    {
+  {
     ren->SetRenderWindow(NULL);
-    }
+  }
 }
 
 void vtkGenericOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
@@ -88,10 +88,10 @@ void vtkGenericOpenGLRenderWindow::Finalize()
   for ( ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject());
     ren != NULL;
     ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject())  )
-    {
+  {
     ren->SetRenderWindow(NULL);
     ren->SetRenderWindow(this);
-    }
+  }
 }
 
 void vtkGenericOpenGLRenderWindow::Frame()

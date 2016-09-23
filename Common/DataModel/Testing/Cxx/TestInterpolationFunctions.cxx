@@ -65,35 +65,35 @@ int TestOneInterpolationFunction(double eps = VTK_EPSILON)
   double *coords = cell->GetParametricCoords();
   int r = 0;
   for(int i=0;i<numPts;++i)
-    {
+  {
     double *point = coords + 3*i;
     double sum = 0.;
     cell->InterpolateFunctions(point, sf); // virtual function
     for(int j=0;j<numPts;j++)
-      {
+    {
       sum += sf[j];
       if(j == i)
-        {
+      {
         if( fabs(sf[j] - 1) > eps)
-          {
+        {
           std::cout << "fabs(sf[" << j << "] - 1): " << fabs(sf[j] - 1) << std::endl;
           ++r;
-          }
         }
+      }
       else
-        {
+      {
         if( fabs(sf[j] - 0) > eps )
-          {
+        {
           std::cout << "fabs(sf[" << j << "] - 0): " << fabs(sf[j] - 0) << std::endl;
           ++r;
-          }
         }
       }
-    if( fabs(sum - 1) > eps )
-      {
-      ++r;
-      }
     }
+    if( fabs(sum - 1) > eps )
+    {
+      ++r;
+    }
+  }
 
   // Let's test unity condition on the center point:
   double center[3];
@@ -101,13 +101,13 @@ int TestOneInterpolationFunction(double eps = VTK_EPSILON)
   cell->InterpolateFunctions(center, sf); // virtual function
   double sum = 0.;
   for(int j=0;j<numPts;j++)
-    {
+  {
     sum += sf[j];
-    }
+  }
   if( fabs(sum - 1) > eps )
-    {
+  {
     ++r;
-    }
+  }
 
   cell->Delete();
   delete[] sf;

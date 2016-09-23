@@ -12,9 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWebInteractionEvent
-// .SECTION Description
-//
+/**
+ * @class   vtkWebInteractionEvent
+ *
+ *
+*/
 
 #ifndef vtkWebInteractionEvent_h
 #define vtkWebInteractionEvent_h
@@ -30,43 +32,55 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   enum MouseButton
-    {
+  {
     LEFT_BUTTON = 0x01,
     MIDDLE_BUTTON = 0x02,
     RIGHT_BUTTON = 0x04
-    };
+  };
 
   enum ModifierKeys
-    {
+  {
     SHIFT_KEY = 0x01,
     CTRL_KEY = 0x02,
     ALT_KEY = 0x04,
     META_KEY = 0x08
-    };
+  };
 
-  // Description:
-  // Set/Get the mouse buttons state.
+  //@{
+  /**
+   * Set/Get the mouse buttons state.
+   */
   vtkSetMacro(Buttons, unsigned int);
   vtkGetMacro(Buttons, unsigned int);
+  //@}
 
-  // Description:
-  // Set/Get modifier state.
+  //@{
+  /**
+   * Set/Get modifier state.
+   */
   vtkSetMacro(Modifiers, unsigned int);
   vtkGetMacro(Modifiers, unsigned int);
+  //@}
 
-  // Description:
-  // Set/Get the chart code.
+  //@{
+  /**
+   * Set/Get the chart code.
+   */
   vtkSetMacro(KeyCode, char);
   vtkGetMacro(KeyCode, char);
+  //@}
 
-  // Description:
-  // Set/Get event position.
+  //@{
+  /**
+   * Set/Get event position.
+   */
   vtkSetMacro(X, double);
   vtkGetMacro(X, double);
   vtkSetMacro(Y, double);
   vtkGetMacro(Y, double);
   vtkSetMacro(Scroll, double);
   vtkGetMacro(Scroll, double);
+  //@}
 
   // Handle double click
   vtkSetMacro(RepeatCount, int);

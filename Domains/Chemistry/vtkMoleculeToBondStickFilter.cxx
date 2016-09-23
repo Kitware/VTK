@@ -95,7 +95,7 @@ int vtkMoleculeToBondStickFilter::RequestData(
   // Build a sphere for each atom and append it's data to the output
   // arrays.
   for (vtkIdType bondInd = 0; bondInd < numBonds; ++bondInd)
-    {
+  {
     // Extract bond info
     vtkBond bond = input->GetBond(bondInd);
     bondOrder = bond.GetOrder();
@@ -117,7 +117,7 @@ int vtkMoleculeToBondStickFilter::RequestData(
 
     // Set up delta step vector and bond radius from bond order:
     switch (bondOrder)
-      {
+    {
       case 1:
       default:
         radius = 0.1;
@@ -144,7 +144,7 @@ int vtkMoleculeToBondStickFilter::RequestData(
         initialDisp[1] = -delta[1];
         initialDisp[2] = -delta[2];
         break;
-      }
+    }
 
     // Construct transform
     xform->Identity();
@@ -156,7 +156,7 @@ int vtkMoleculeToBondStickFilter::RequestData(
     // For each bond order, add a cylinder to output, translate by
     // delta, and repeat.
     for (unsigned short iter = 0; iter < bondOrder; ++iter)
-      {
+    {
       vtkPolyData *cylinder = cylSource->GetOutput();
       vtkPoints *cylPoints = cylinder->GetPoints();
       vtkCellArray *cylPolys = cylinder->GetPolys();
@@ -169,28 +169,28 @@ int vtkMoleculeToBondStickFilter::RequestData(
 
       // Use bond order for point scalar data.
       for (vtkIdType i = 0; i < numPoints; ++i)
-        {
+      {
         bondOrders->InsertNextValue(bondOrder);
-        }
+      }
 
       // Add new cells (polygons) that represent the cylinder
       cylPolys->InitTraversal();
       while (cylPolys->GetNextCell(numCellPoints, cellPoints) != 0)
-        {
+      {
         vtkIdType *newCellPoints = new vtkIdType[numCellPoints];
         for (vtkIdType i = 0; i < numCellPoints; ++i)
-          {
+        {
           // The new point ids should be offset by the pointOffset above
           newCellPoints[i] = cellPoints[i] + pointOffset;
-          }
+        }
         polys->InsertNextCell(numCellPoints, newCellPoints);
         delete [] newCellPoints;
-        }
+      }
 
       // Setup for the next cylinder in a multi-bond
       xform->Translate(delta);
-      }
     }
+  }
 
   // Release extra memory
   points->Squeeze();

@@ -78,11 +78,11 @@ int TestUnstructuredGridQuadricDecimation(int, char *[])
   double xyz[3];
   double r;
   for (vtkIdType i=0; i<points->GetNumberOfPoints(); i++)
-    {
+  {
     points->GetPoint(i,xyz);
     r = std::sqrt(xyz[0]*xyz[0] + xyz[1]*xyz[1] + xyz[2]*xyz[2]);
     radius->SetTypedTuple(i,&r);
-    }
+  }
   pd->GetPointData()->SetScalars(radius);
 
   // Generate a tetrahedral mesh from the input points. By
@@ -96,7 +96,7 @@ int TestUnstructuredGridQuadricDecimation(int, char *[])
     delaunay3D->GetOutput()->GetNumberOfCells();
 
   for (vtkIdType test = 0; test < numberOfTests; test++)
-    {
+  {
     // Decimate the tetrahedral mesh.
     vtkSmartPointer<vtkUnstructuredGridQuadricDecimation> decimate =
       vtkSmartPointer<vtkUnstructuredGridQuadricDecimation>::New();
@@ -117,10 +117,10 @@ int TestUnstructuredGridQuadricDecimation(int, char *[])
     std::cout<<"fraction: "<<fraction<<std::endl;
     std::cout<<"expected fraction: "<<targetReduction[test]<<std::endl;
     if (std::fabs(fraction - targetReduction[test]) > absTolerance)
-      {
+    {
       return EXIT_FAILURE;
-      }
     }
+  }
 
   return EXIT_SUCCESS;
 }

@@ -47,10 +47,10 @@ vtkIdType vtkMutableDirectedGraph::SetNumberOfVertices( vtkIdType numVerts )
   vtkIdType retval = -1;
 
   if ( this->GetDistributedGraphHelper() )
-    {
+  {
     vtkWarningMacro( "SetNumberOfVertices will not work on distributed graphs." );
     return retval;
-    }
+  }
 
   retval = static_cast<vtkIdType>( this->Internals->Adjacency.size() );
   this->Internals->Adjacency.resize( numVerts );
@@ -62,9 +62,9 @@ vtkIdType vtkMutableDirectedGraph::AddVertex()
 {
   if (this->Internals->UsingPedigreeIds &&
       this->GetDistributedGraphHelper() != 0)
-    {
+  {
     vtkErrorMacro("Adding vertex without a pedigree ID into a distributed graph that uses pedigree IDs to name vertices");
-    }
+  }
 
   return this->AddVertex(0);
 }
@@ -72,9 +72,9 @@ vtkIdType vtkMutableDirectedGraph::AddVertex()
 vtkIdType vtkMutableDirectedGraph::AddVertex(vtkVariantArray *propertyArr)
 {
   if (this->GetVertexData()->GetPedigreeIds() != 0)
-    {
+  {
     this->Internals->UsingPedigreeIds = true;
-    }
+  }
 
   vtkIdType vertex;
   this->AddVertexInternal(propertyArr, &vertex);
@@ -145,9 +145,9 @@ void vtkMutableDirectedGraph::LazyAddVertex()
 {
   if (this->Internals->UsingPedigreeIds
       && this->GetDistributedGraphHelper() != 0)
-    {
+  {
     vtkErrorMacro("Adding vertex without a pedigree ID into a distributed graph that uses pedigree IDs to name vertices");
-    }
+  }
 
   this->LazyAddVertex(0);
 }
@@ -155,9 +155,9 @@ void vtkMutableDirectedGraph::LazyAddVertex()
 void vtkMutableDirectedGraph::LazyAddVertex(vtkVariantArray *propertyArr)
 {
   if (this->GetVertexData()->GetPedigreeIds() != 0)
-    {
+  {
     this->Internals->UsingPedigreeIds = true;
-    }
+  }
 
   this->AddVertexInternal(propertyArr, 0);
 }

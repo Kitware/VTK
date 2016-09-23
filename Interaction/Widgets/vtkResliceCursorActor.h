@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkResliceCursorActor - Represent a reslice cursor
-// .SECTION Description
-// A reslice cursor consists of a pair of lines (cross hairs), thin or thick,
-// that may be interactively manipulated for thin/thick reformats through the
-// data.
-// .SECTION See Also
-// vtkResliceCursor vtkResliceCursorPolyDataAlgorithm vtkResliceCursorWidget
-// vtkResliceCursorRepresentation vtkResliceCursorLineRepresentation
+/**
+ * @class   vtkResliceCursorActor
+ * @brief   Represent a reslice cursor
+ *
+ * A reslice cursor consists of a pair of lines (cross hairs), thin or thick,
+ * that may be interactively manipulated for thin/thick reformats through the
+ * data.
+ * @sa
+ * vtkResliceCursor vtkResliceCursorPolyDataAlgorithm vtkResliceCursorWidget
+ * vtkResliceCursorRepresentation vtkResliceCursorLineRepresentation
+*/
 
 #ifndef vtkResliceCursorActor_h
 #define vtkResliceCursorActor_h
@@ -39,49 +42,65 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursorActor : public vtkProp3D
 
 public:
 
-  // Description:
-  // Standard VTK methods
+  //@{
+  /**
+   * Standard VTK methods
+   */
   static vtkResliceCursorActor *New();
   vtkTypeMacro(vtkResliceCursorActor,vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // Get the cursor algorithm. The cursor must be set on the algorithm
+  //@{
+  /**
+   * Get the cursor algorithm. The cursor must be set on the algorithm
+   */
   vtkGetObjectMacro( CursorAlgorithm, vtkResliceCursorPolyDataAlgorithm );
+  //@}
 
-  // Description:
-  // Support the standard render methods.
+  /**
+   * Support the standard render methods.
+   */
   virtual int RenderOpaqueGeometry(vtkViewport *viewport);
 
-  // Description:
-  // Does this prop have some translucent polygonal geometry? No.
+  /**
+   * Does this prop have some translucent polygonal geometry? No.
+   */
   virtual int HasTranslucentPolygonalGeometry();
 
-  // Description:
-  // Release any graphics resources that are being consumed by this actor.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
+  /**
+   * Release any graphics resources that are being consumed by this actor.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
   void ReleaseGraphicsResources(vtkWindow *);
 
-  // Description:
-  // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+  /**
+   * Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+   */
   double *GetBounds();
 
-  // Description:
-  // Get the actors mtime plus consider its algorithm.
+  /**
+   * Get the actors mtime plus consider its algorithm.
+   */
   vtkMTimeType GetMTime();
 
-  // Description:
-  // Get property of the internal actor.
+  //@{
+  /**
+   * Get property of the internal actor.
+   */
   vtkProperty *GetCenterlineProperty( int i );
   vtkProperty *GetThickSlabProperty( int i );
+  //@}
 
-  // Description:
-  // Get the centerline actor along a particular axis
+  /**
+   * Get the centerline actor along a particular axis
+   */
   vtkActor * GetCenterlineActor(int axis);
 
-  // Description:
-  // Set the user matrix on all the internal actors.
+  /**
+   * Set the user matrix on all the internal actors.
+   */
   virtual void SetUserMatrix( vtkMatrix4x4 *matrix);
 
 protected:

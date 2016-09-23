@@ -12,16 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLGlyph3DMapper - vtkOpenGLGlyph3D on the GPU.
-// .SECTION Description
-// Do the same job than vtkGlyph3D but on the GPU. For this reason, it is
-// a mapper not a vtkPolyDataAlgorithm. Also, some methods of vtkOpenGLGlyph3D
-// don't make sense in vtkOpenGLGlyph3DMapper: GeneratePointIds, old-style
-// SetSource, PointIdsName, IsPointVisible.
-// .SECTION Implementation
-//
-// .SECTION See Also
-// vtkOpenGLGlyph3D
+/**
+ * @class   vtkOpenGLGlyph3DMapper
+ * @brief   vtkOpenGLGlyph3D on the GPU.
+ *
+ * Do the same job than vtkGlyph3D but on the GPU. For this reason, it is
+ * a mapper not a vtkPolyDataAlgorithm. Also, some methods of vtkOpenGLGlyph3D
+ * don't make sense in vtkOpenGLGlyph3DMapper: GeneratePointIds, old-style
+ * SetSource, PointIdsName, IsPointVisible.
+ *
+ * @sa
+ * vtkOpenGLGlyph3D
+*/
 
 #ifndef vtkOpenGLGlyph3DMapper_h
 #define vtkOpenGLGlyph3DMapper_h
@@ -42,16 +44,18 @@ public:
   vtkTypeMacro(vtkOpenGLGlyph3DMapper, vtkGlyph3DMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-   // Description:
-  // Method initiates the mapping process. Generally sent by the actor
-  // as each frame is rendered.
-  // Its behavior depends on the value of SelectMode.
+   /**
+    * Method initiates the mapping process. Generally sent by the actor
+    * as each frame is rendered.
+    * Its behavior depends on the value of SelectMode.
+    */
   virtual void Render(vtkRenderer *ren, vtkActor *a);
 
-  // Description:
-  // Release any graphics resources that are being consumed by this mapper.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
+  /**
+   * Release any graphics resources that are being consumed by this mapper.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
   virtual void ReleaseGraphicsResources(vtkWindow *window);
 
 protected:
@@ -59,22 +63,26 @@ protected:
   vtkOpenGLGlyph3DMapper();
   ~vtkOpenGLGlyph3DMapper();
 
-  // Description:
-  // Take part in garbage collection.
+  /**
+   * Take part in garbage collection.
+   */
   void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
-  // Description:
-  // Send mapper ivars to sub-mapper.
-  // \pre mapper_exists: mapper!=0
+  /**
+   * Send mapper ivars to sub-mapper.
+   * \pre mapper_exists: mapper!=0
+   */
   void CopyInformationToSubMapper(vtkPainterPolyDataMapper*);
 
-  // Description:
-  // Release display list used for matrices and color.
+  /**
+   * Release display list used for matrices and color.
+   */
   void ReleaseList();
 
-  // Description:
-  // Called when the PainterInformation becomes obsolete.
-  // It is called before the Render is initiated on the Painter.
+  /**
+   * Called when the PainterInformation becomes obsolete.
+   * It is called before the Render is initiated on the Painter.
+   */
   virtual void UpdatePainterInformation();
 
   vtkOpenGLGlyph3DMapperArray *SourceMappers; // array of mappers

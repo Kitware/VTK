@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGeodesicPath - Abstract base for classes that generate a geodesic path
-// .SECTION Description
-// Serves as a base class for algorithms that trace a geodesic path on a
-// polygonal dataset.
+/**
+ * @class   vtkGeodesicPath
+ * @brief   Abstract base for classes that generate a geodesic path
+ *
+ * Serves as a base class for algorithms that trace a geodesic path on a
+ * polygonal dataset.
+*/
 
 #ifndef vtkGeodesicPath_h
 #define vtkGeodesicPath_h
@@ -29,10 +32,13 @@ class VTKFILTERSMODELING_EXPORT vtkGeodesicPath : public vtkPolyDataAlgorithm
 {
 public:
 
-  // Description:
-  // Standard methids for printing and determining type information.
+  //@{
+  /**
+   * Standard methids for printing and determining type information.
+   */
   vtkTypeMacro(vtkGeodesicPath,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
 protected:
   vtkGeodesicPath();

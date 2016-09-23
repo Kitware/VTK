@@ -31,10 +31,10 @@
 int TestOpenSlideReaderPartial(int argc, char** argv)
 {
   if ( argc <= 1 )
-    {
+  {
     std::cout << "Usage: " << argv[0] << " <image file>" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   std::cout << "Got Filename: " << argv[1] << std::endl;
 

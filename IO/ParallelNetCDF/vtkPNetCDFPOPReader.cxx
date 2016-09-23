@@ -84,10 +84,10 @@ public:
 
 
   vtkPNetCDFPOPReaderInternal()
-    {
+  {
       this->VariableArraySelection =
         vtkSmartPointer<vtkDataArraySelection>::New();
-    }
+  }
 };
 
 //----------------------------------------------------------------------------
@@ -119,15 +119,15 @@ vtkPNetCDFPOPReader::~vtkPNetCDFPOPReader()
   this->SetController(NULL);
   this->SetFileName(0);
   if(this->OpenedFileName)
-    {
+  {
     nc_close(this->NCDFFD);
-    }
+  }
   this->SetOpenedFileName(0);
   if(this->SelectionObserver)
-    {
+  {
     this->SelectionObserver->Delete();
     this->SelectionObserver = NULL;
-    }
+  }
   delete this->Internals;
   this->Internals = NULL;
 }
@@ -145,13 +145,13 @@ void vtkPNetCDFPOPReader::PrintSelf(ostream &os, vtkIndent indent)
      << this->Stride[1] << ", " << this->Stride[2] << ", "
      << "}" << endl;
   if(this->Controller)
-    {
+  {
     os << indent << "Controller: " << this->Controller << endl;
-    }
+  }
   else
-    {
+  {
     os << indent << "Controller: (NULL)" << endl;
-    }
+  }
   os << indent << "NCDFFD: " << this->NCDFFD << endl;
 
   this->Internals->VariableArraySelection->PrintSelf(os, indent.GetNextIndent());
@@ -169,33 +169,33 @@ int vtkPNetCDFPOPReader::RequestInformation(
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   if(this->FileName == NULL)
-    {
+  {
     vtkErrorMacro("FileName not set.");
     return 0;
-    }
+  }
 
   // every rank that is a reader process needs to open the file
   if (this->IsReaderRank())
-    {
+  {
 
     if(this->OpenedFileName)
-      {
+    {
       nc_close(this->NCDFFD);
-      }
+    }
     int retval = nc_open(this->FileName, NC_NOWRITE, &this->NCDFFD);//read file
     if (retval != NC_NOERR)//checks if read file error
-      {
+    {
       vtkErrorMacro(<< "Can't read file " << nc_strerror(retval));
       this->SetOpenedFileName(0);
       return 0;
-      }
-    this->SetOpenedFileName(this->FileName);
     }
+    this->SetOpenedFileName(this->FileName);
+  }
   // first reader reads the metadata and broadcasts it to everyone else
   int extent[6];
   char variableName[NC_MAX_NAME+1];
   if (this->IsFirstReaderRank())
-    {
+  {
     // get number of variables from file
     int numberOfVariables;
     nc_inq_nvars(this->NCDFFD, &numberOfVariables);
@@ -206,7 +206,7 @@ int vtkPNetCDFPOPReader::RequestInformation(
     int actualVariableCounter = 0;
     // For every variable in the file
     for(int i=0;i<numberOfVariables;i++)
-      {
+    {
       this->Internals->VariableMap[i] = -1;
       //get number of dimensions
       CALL_NETCDF(nc_inq_varndims(this->NCDFFD, i, &dataDimension));
@@ -214,22 +214,22 @@ int vtkPNetCDFPOPReader::RequestInformation(
       //grid spacing
       CALL_NETCDF(nc_inq_vardimid(this->NCDFFD, i, dimidsp));
       if(dataDimension == 3)
-        {
+      {
         this->Internals->VariableMap[i] = actualVariableCounter++;
         //get variable name
         CALL_NETCDF(nc_inq_varname(this->NCDFFD, i, variableName));
         this->Internals->VariableArraySelection->AddArray(variableName);
         for(int m=0;m<dataDimension;m++)
-          {
+        {
           CALL_NETCDF(nc_inq_dimlen(this->NCDFFD, dimidsp[m], dimensions+m));
           //acquire variable dimensions
-          }
+        }
         extent[0] = extent[2] = extent[4] =0; //set extent
         extent[1] = static_cast<int>((dimensions[2] -1) / this->Stride[0]);
         extent[3] = static_cast<int>((dimensions[1] -1) / this->Stride[1]);
         extent[5] = static_cast<int>((dimensions[0] -1) / this->Stride[2]);
-        }
       }
+    }
 
     // We've read in all the metadata.  Now broadcast it to the other ranks
 
@@ -238,7 +238,7 @@ int vtkPNetCDFPOPReader::RequestInformation(
     this->Controller->Broadcast( &numNames, 1,
                                  this->Internals->ReaderRanks[0]);
     for (int i = 0; i < numNames; i++)
-      {
+    {
       // I don't really like this extra strcpy, but I want to broadcast a string of
       // known, fixed size and the pointer retrurned by GetArrayName could point to
       // considerably less than NC_MAX_NAME chars, which means I'd risk a segfault if
@@ -246,7 +246,7 @@ int vtkPNetCDFPOPReader::RequestInformation(
       strcpy( variableName, this->Internals->VariableArraySelection->GetArrayName( i));
       this->Controller->Broadcast( variableName, NC_MAX_NAME+1,
                                    this->Internals->ReaderRanks[0]);
-      }
+    }
 
     // Send out the variable map data
     int numVariables = static_cast<int>(this->Internals->VariableMap.size());
@@ -257,20 +257,20 @@ int vtkPNetCDFPOPReader::RequestInformation(
 
     // send out the extents data
     this->Controller->Broadcast( extent, 6, this->Internals->ReaderRanks[0]);
-    }
+  }
   else  // everyone else listens for the broadcasted metadata and fills in
         // Internals->VariableMap and extent[]
-    {
+  {
     // Receive the variable name(s)  (probably only 1 name)
     int numNames = 0;
     this->Controller->Broadcast( &numNames, 1,
                                  this->Internals->ReaderRanks[0]);
     for (int i=0; i < numNames; i++)
-      {
+    {
       this->Controller->Broadcast( variableName, NC_MAX_NAME+1,
                                    this->Internals->ReaderRanks[0]);
       this->Internals->VariableArraySelection->AddArray(variableName);
-      }
+    }
 
     // Receive the variable map data
     int numVariables = 0;
@@ -281,7 +281,7 @@ int vtkPNetCDFPOPReader::RequestInformation(
                                  this->Internals->ReaderRanks[0]);
     // Receive the extents data
     this->Controller->Broadcast( extent, 6, this->Internals->ReaderRanks[0]);
-    }
+  }
 
   //fill in the extent information
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
@@ -304,9 +304,9 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
   // if output port is negative then that means this filter is calling the
   // update directly, in that case just assume port 0
   if (outputPort == -1)
-    {
+  {
     outputPort = 0;
-    }
+  }
 
   // get the data object
   vtkInformation *outInfo = outputVector->GetInformationObject(outputPort);
@@ -327,22 +327,22 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
   //initialize memory (raw data space, x y z axis space) and rectilinear grid
   bool firstPass = true;
   for(size_t i=0;i<this->Internals->VariableMap.size();i++)
-    {
+  {
     if(this->Internals->VariableMap[i] != -1 &&
        this->Internals->VariableArraySelection->GetArraySetting(
          this->Internals->VariableMap[i]) != 0)
-      {
+    {
       // varidp is probably i in which case nc_inq_varid isn't needed
       int varidp = VTK_INT_MIN;
       if (IsReaderRank())
-        {
+      {
         nc_inq_varid(this->NCDFFD,
                      this->Internals->VariableArraySelection->GetArrayName(
                      this->Internals->VariableMap[i]), &varidp);
-        }
+      }
 
       if(firstPass == true)
-        {
+      {
         firstPass = false;
         // Get the latitude, longitude & depth values: the first reader process
         // does the read and broadcasts to everyone
@@ -372,7 +372,7 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
 
         std::vector<float> buffer(wholeCount[0] + wholeCount[1] + wholeCount[2]);
         if (this->IsFirstReaderRank())
-          {
+        {
           int dimidsp[3];
           nc_inq_vardimid(this->NCDFFD, varidp, dimidsp);
           nc_get_vars_float(this->NCDFFD, dimidsp[0], wholeStart, wholeCount,
@@ -381,7 +381,7 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
                             rStride+1, &buffer[wholeCount[0]]);
           nc_get_vars_float(this->NCDFFD, dimidsp[2], wholeStart+2, wholeCount+2,
                             rStride+2, &buffer[wholeCount[0] + wholeCount[1]]);
-          }
+        }
 
         this->Controller->Broadcast( &buffer[0], (wholeCount[0] + wholeCount[1] + wholeCount[2]),
                                      this->Internals->ReaderRanks[0]);
@@ -400,9 +400,9 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
         vtkFloatArray *yCoords = vtkFloatArray::New();
         yCoords->SetArray(y, count[1], 0, 1);
         for (unsigned int q=0; q<count[0]; q++)
-          {
+        {
           x[q] = -x[q];
-          }
+        }
         vtkFloatArray *zCoords = vtkFloatArray::New();
         zCoords->SetArray(x, count[0], 0, 1);
         rgrid->SetXCoordinates(xCoords);
@@ -411,7 +411,7 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
         xCoords->Delete();
         yCoords->Delete();
         zCoords->Delete();
-        }
+      }
       //create vtkFloatArray and get the scalars into it
       vtkFloatArray *scalars = vtkFloatArray::New();
       vtkIdType numberOfTuples = (count[0])*(count[1])*(count[2]);
@@ -434,7 +434,7 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
       unsigned long oneDepthSize = static_cast<unsigned long>(count[1]*count[2]);  // should be the same value as the line above...
 
       for (int curDepth = subext[4]; curDepth <= subext[5]; curDepth++)
-        {
+      {
         float *depthStart = data + ((curDepth-subext[4])*oneDepthSize);  // Where this data should start
         int sourceRank =  ReaderForDepth( curDepth);
         //      cerr << "Rank " << mpiRank << ": Expecting depth " << curDepth << " from rank " << sourceRank << endl;
@@ -446,32 +446,32 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
         MPI_Request recvReq;
         MPI_Irecv( depthStart, oneDepthSize, MPI_FLOAT, sourceRank, curDepth, *comm, &recvReq);
         recvReqs.push_back( recvReq);
-        }
+      }
 
 
       if (IsReaderRank())
-        {
+      {
         // Reads part of the netCDF file and sends subarrays out to all the ranks
         ReadAndSend( outInfo, varidp);
-        }
+      }
 
       delete[] this->Internals->AllExtents;
 
 
       // Wait for all the sends to complete
       if (this->Internals->SendReqs.size() > 0)
-        {
+      {
         MPI_Waitall( static_cast<int>(this->Internals->SendReqs.size()),
                      &this->Internals->SendReqs[0], MPI_STATUSES_IGNORE);
 
         // Now that all the sends are complete, it's safe to free the buffers
         for (size_t j= 0; j < this->Internals->SendBufs.size(); j++)
-          {
+        {
           delete[] this->Internals->SendBufs[j];
-          }
+        }
         this->Internals->SendBufs.clear();
         this->Internals->SendReqs.clear();
-        }
+      }
 
       MPI_Waitall( static_cast<int>(recvReqs.size()), &recvReqs[0], MPI_STATUSES_IGNORE);
       recvReqs.clear();
@@ -483,9 +483,9 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
                          this->Internals->VariableMap[i]));
       rgrid->GetPointData()->AddArray(scalars);
       scalars->Delete();
-      }
-    this->UpdateProgress((i+1.0)/this->Internals->VariableMap.size());
     }
+    this->UpdateProgress((i+1.0)/this->Internals->VariableMap.size());
+  }
   return 1;
 }
 
@@ -507,9 +507,9 @@ int vtkPNetCDFPOPReader::GetNumberOfVariableArrays()
 const char* vtkPNetCDFPOPReader::GetVariableArrayName(int index)
 {
   if(index < 0 || index >= this->GetNumberOfVariableArrays())
-    {
+  {
     return NULL;
-    }
+  }
   return this->Internals->VariableArraySelection->GetArrayName(index);
 }
 
@@ -524,21 +524,21 @@ void vtkPNetCDFPOPReader::SetVariableArrayStatus(const char* name, int status)
 {
   vtkDebugMacro("Set cell array \"" << name << "\" status to: " << status);
   if(this->Internals->VariableArraySelection->ArrayExists(name) == 0)
-    {
+  {
     vtkErrorMacro(<< name << " is not available in the file.");
     return;
-    }
+  }
   int enabled = this->Internals->VariableArraySelection->ArrayIsEnabled(name);
   if(status != 0 && enabled == 0)
-    {
+  {
     this->Internals->VariableArraySelection->EnableArray(name);
     this->Modified();
-    }
+  }
   else if(status == 0 && enabled != 0)
-    {
+  {
     this->Internals->VariableArraySelection->DisableArray(name);
     this->Modified();
-    }
+  }
 }
 
 namespace
@@ -567,9 +567,9 @@ int vtkPNetCDFPOPReader::ReadAndSend( vtkInformation *outInfo, int varID)
 
   // We read one depth at a time, skipping over the depths that other reader processes will read
   for (int curDepth = wholeExtent[0]; curDepth <= wholeExtent[1]; curDepth++)
-    {
+  {
     if (ReaderForDepth( curDepth) == rank)
-      {
+    {
       size_t start[3] = { static_cast<size_t>(curDepth*rStride[0]),
                           static_cast<size_t>(wholeExtent[2]),
                           static_cast<size_t>(wholeExtent[4]) };
@@ -582,13 +582,13 @@ int vtkPNetCDFPOPReader::ReadAndSend( vtkInformation *outInfo, int varID)
 
       int ncErr = nc_get_vars_float( this->NCDFFD, varID, start, count, rStride, buffer);
       if (ncErr != NC_NOERR)
-        {
+      {
         cerr << "!!!nc_get_vars_float() returned error code " << ncErr << endl;
-        }
+      }
 
       // Create sub arrays and send to all processes
       for (int destRank = 0; destRank < this->Controller->GetNumberOfProcesses(); destRank++)
-        {
+      {
         int destExtent[6];
         memcpy( destExtent, &this->Internals->AllExtents[destRank*6], 6*sizeof( int));
         // Note that AllExtents is also in in-memory layout order, so we need to swap
@@ -599,7 +599,7 @@ int vtkPNetCDFPOPReader::ReadAndSend( vtkInformation *outInfo, int varID)
         // Verify that destRank does, in fact, receive an extent at this depth
         // TODO: Don't use MPI to send data to ourself.....
         if (curDepth >= destExtent[0] && curDepth <= destExtent[1])
-          {
+        {
           int subarray_sizes[2] =    { (wholeExtent[3] - wholeExtent[2]+1), (wholeExtent[5] - wholeExtent[4]+1), };
           int subarray_subsizes[2] = { (destExtent[3] -  destExtent[2]+1),  (destExtent[5]  - destExtent[4]+1) };
           int subarray_starts[2] = { destExtent[2], destExtent[4] };
@@ -614,13 +614,13 @@ int vtkPNetCDFPOPReader::ReadAndSend( vtkInformation *outInfo, int varID)
           MPI_Isend( buffer, 1, subArrayType, destRank, curDepth, *comm, &sendReq);  // using the depth value as the tag
           this->Internals->SendReqs.push_back( sendReq);
           MPI_Type_free( &subArrayType);
-          }
         }
+      }
 
       // Check to see if any of the previous sends have completed
       // (This helps to keep the number of 'in-flight' sends to a minimum.)
       if (this->Internals->SendReqs.size())
-        {
+      {
         int foundOne = 1;
         int reqIndex = 0;
         MPI_Status status; // we never actually use this, but MPI_Testany() requires it
@@ -628,14 +628,14 @@ int vtkPNetCDFPOPReader::ReadAndSend( vtkInformation *outInfo, int varID)
         // MPI_Testany() will deallocate the request, so we don't need to do anything
         // except call it in a loop.
         do
-          {
+        {
           MPI_Testany( static_cast<int>(this->Internals->SendReqs.size()),
                        &this->Internals->SendReqs[0],
                        &reqIndex, &foundOne, &status);
-          } while (foundOne && reqIndex != MPI_UNDEFINED);
-        }
+        } while (foundOne && reqIndex != MPI_UNDEFINED);
       }
     }
+  }
 
   return 1;
 }
@@ -655,20 +655,20 @@ void vtkPNetCDFPOPReader::SetReaderRanks(vtkIdList* ranks)
   int numProcs = this->Controller->GetNumberOfProcesses();
 
   if(ranks)
-    {
+  {
     for(vtkIdType i=0;i<ranks->GetNumberOfIds();i++)
-      {
+    {
       vtkIdType rank = ranks->GetId(i);
       if(rank >= 0 && rank < numProcs)
-        {
+      {
         readerRanks.insert(rank);
-        }
       }
     }
+  }
 
   if (readerRanks.empty())  // Either nobody set the env var or it had bogus values
                             //  in it.  Try to pick a reasonable default.
-    {
+  {
     // This is somewhat arbritrary:  below 24 processes, we'll use 4 readers.
     // More than 24 processes, we'll use 8.  (>24 processes, I'm assuming we're
     // running on Jaguar where 2 readers per OSS seems to work well).
@@ -678,25 +678,25 @@ void vtkPNetCDFPOPReader::SetReaderRanks(vtkIdList* ranks)
     int numReaders = numProcs < 24 ? 4 : 8;
 
     if (numProcs < numReaders)  // sanity check
-      {
+    {
       numReaders = numProcs;
-      }
+    }
     int proc = 0;
     while (proc < numProcs)
-      {
+    {
       readerRanks.insert( proc);
       proc += (numProcs / numReaders);
-      }
     }
+  }
 
   // Copy the contents of the set into its permanent location...
   this->Internals->ReaderRanks.clear();
   std::set<int>::iterator it = readerRanks.begin();
   while (it != readerRanks.end())
-    {
+  {
     this->Internals->ReaderRanks.push_back( *it);
     it++;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -717,13 +717,13 @@ bool vtkPNetCDFPOPReader::IsReaderRank()
 {
   int rank = this->Controller->GetLocalProcessId();
   for (size_t i = 0; i < this->Internals->ReaderRanks.size(); i++)
-    {
+  {
     int ii = static_cast<int>(i);
     if (rank == this->Internals->ReaderRanks[ii])
-      {
+    {
       return true;
-      }
     }
+  }
   return false;
 }
 
@@ -734,9 +734,9 @@ bool vtkPNetCDFPOPReader::IsReaderRank()
 bool vtkPNetCDFPOPReader::IsFirstReaderRank()
 {
   if (this->Internals->ReaderRanks.size() == 0)
-    {
+  {
     return false; // sanity check
-    }
+  }
 
   int rank = this->Controller->GetLocalProcessId();
   return (rank == this->Internals->ReaderRanks[0]);
@@ -746,11 +746,11 @@ bool vtkPNetCDFPOPReader::IsFirstReaderRank()
 void vtkPNetCDFPOPReader::SetController(vtkMPIController *controller)
 {
   if(this->Controller != controller)
-    {
+  {
     this->Controller = controller;
     if (this->Controller != NULL)
-      {
+    {
       this->SetReaderRanks(NULL);
-      }
     }
+  }
 }

@@ -92,32 +92,32 @@ int vtkTableToTreeFilter::RequestData(
 
   // Check for a corner case where we have a table with 0 rows
   if (new_table->GetNumberOfRows() != 0)
-    {
+  {
 
     // The tree will have one more vertex than the number of rows
     // in the table (the extra vertex is the new root).
     for (vtkIdType v = 0; v <= new_table->GetNumberOfRows(); ++v)
-      {
+    {
       builder->AddVertex();
-      }
+    }
 
     // Make a star, originating at the new root (the last vertex).
     vtkIdType root = new_table->GetNumberOfRows();
     for (vtkIdType v = 0; v < new_table->GetNumberOfRows(); ++v)
-      {
+    {
       builder->AddEdge(root, v);
-      }
+    }
 
     // Insert a row in the table for the new root.
     new_table->InsertNextBlankRow(-1);
-    }
+  }
 
   // Move the structure of the mutable graph into the tree.
   if (!tree->CheckedShallowCopy(builder))
-    {
+  {
     vtkErrorMacro(<<"Built graph is not a valid tree!");
     return 0;
-    }
+  }
 
   // Copy the table data into the tree vertex data
   tree->GetVertexData()->PassData(new_table->GetRowData());
@@ -129,9 +129,9 @@ int vtkTableToTreeFilter::RequestData(
   vtkIdType numEdges = tree->GetNumberOfEdges();
   edgeIds->SetNumberOfTuples(numEdges);
   for (vtkIdType i = 0; i < numEdges; ++i)
-    {
+  {
     edgeIds->SetValue(i, i);
-    }
+  }
   tree->GetEdgeData()->SetPedigreeIds(edgeIds);
 
   return 1;

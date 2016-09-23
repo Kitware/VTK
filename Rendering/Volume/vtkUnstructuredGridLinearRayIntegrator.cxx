@@ -111,14 +111,14 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(
   double *function_range = color->GetRange();
   double *function = color->GetDataPointer();
   while (1)
-    {
+  {
     cpset.insert(function[0]);
     if (function[0] == function_range[1]) break;
     function += 4;
-    }
+  }
 
   if (color->GetColorSpace() != VTK_CTF_RGB)
-    {
+  {
     // If we are in an HSV color space, we must insert control points
     // in places where the RGB bends.
     double rgb[3], hsv[3];
@@ -130,7 +130,7 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(
     vtkMath::RGBToHSV(rgb, hsv);
     hue1 = hsv[0];
     for (i++; i != cpset.end(); i++)
-      {
+    {
       x2 = *i;
       color->GetColor(x2, rgb);
       vtkMath::RGBToHSV(rgb, hsv);
@@ -139,73 +139,73 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(
       // Are we crossing the 0/1 boundary?
       if (   (color->GetColorSpace() == VTK_CTF_HSV && color->GetHSVWrap() )
           && ((hue1 - hue2 > 0.5) || (hue2 - hue1 > 0.5)) )
-        {
+      {
         // Yes, we are crossing the boundary.
         if (hue1 > hue2)
-          {
+        {
           int j;
           for (j = 0; huebends[j] <= hue2; j++)
-            {
+          {
             double interp = (1-hue1+huebends[j])/(1-hue1+hue2);
             cpset.insert((x2-x1)*interp + x1);
-            }
+          }
           while (huebends[j] < hue1) j++;
           for ( ; j < 6; j++)
-            {
+          {
             double interp = (huebends[j]-hue1)/(1-hue1+hue2);
             cpset.insert((x2-x1)*interp + x1);
-            }
-          }
-        else
-          {
-          int j;
-          for (j = 0; huebends[j] <= hue1; j++)
-            {
-            double interp = (hue1-huebends[j])/(1-hue2+hue1);
-            cpset.insert((x2-x1)*interp + x1);
-            }
-          while (huebends[j] < hue2) j++;
-          for ( ; j < 6; j++)
-            {
-            double interp = (1-huebends[j]+hue1)/(1-hue2+hue1);
-            cpset.insert((x2-x1)*interp + x1);
-            }
           }
         }
-      else
+        else
         {
+          int j;
+          for (j = 0; huebends[j] <= hue1; j++)
+          {
+            double interp = (hue1-huebends[j])/(1-hue2+hue1);
+            cpset.insert((x2-x1)*interp + x1);
+          }
+          while (huebends[j] < hue2) j++;
+          for ( ; j < 6; j++)
+          {
+            double interp = (1-huebends[j]+hue1)/(1-hue2+hue1);
+            cpset.insert((x2-x1)*interp + x1);
+          }
+        }
+      }
+      else
+      {
         // No, we are not crossing the boundary.
         int j = 0;
         double minh, maxh;
         if (hue1 < hue2)
-          {
+        {
           minh = hue1;  maxh = hue2;
-          }
+        }
         else
-          {
+        {
           minh = hue2;  maxh = hue1;
-          }
+        }
         while (huebends[j] < minh) j++;
         for (j = 0; huebends[j] < maxh; j++)
-          {
+        {
           double interp = (huebends[j]-hue1)/(hue2-hue1);
           cpset.insert((x2-x1)*interp + x1);
-          }
         }
+      }
 
       x1 = x2;
       hue1 = hue2;
-      }
     }
+  }
 
   function_range = opacity->GetRange();
   function = opacity->GetDataPointer();
   while (1)
-    {
+  {
     cpset.insert(function[0]);
     if (function[0] == function_range[0]) break;
     function += 2;
-    }
+  }
 
   // Add the scalar at the beginning and end of the range so the interpolation
   // is correct there.
@@ -213,10 +213,10 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(
   cpset.insert(scalar_range[1]);
   // Make extra sure there are at least two entries in cpset.
   if (cpset.size() < 2)
-    {
+  {
     cpset.insert(0.0);
     cpset.insert(1.0);
-    }
+  }
 
   // Now record control points and colors.
   delete[] this->ControlPoints;
@@ -227,11 +227,11 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(
 
   std::copy(cpset.begin(), cpset.end(), this->ControlPoints);
   for (int i = 0; i < this->NumControlPoints; i++)
-    {
+  {
     color->GetColor(this->ControlPoints[i], this->Colors[i].c);
     this->Colors[i].c[3] = (  opacity->GetValue(this->ControlPoints[i])
                             / unit_distance);
-    }
+  }
 }
 
 void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(
@@ -245,20 +245,20 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(
   double *function_range = intensity->GetRange();
   double *function = intensity->GetDataPointer();
   while (1)
-    {
+  {
     cpset.insert(function[0]);
     if (function[0] == function_range[1]) break;
     function += 2;
-    }
+  }
 
   function_range = opacity->GetRange();
   function = opacity->GetDataPointer();
   while (1)
-    {
+  {
     cpset.insert(function[0]);
     if (function[0] == function_range[0]) break;
     function += 2;
-    }
+  }
 
   // Add the scalar at the beginning and end of the range so the interpolation
   // is correct there.
@@ -266,10 +266,10 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(
   cpset.insert(scalar_range[1]);
   // Make extra sure there are at least two entries in cpset.
   if (cpset.size() < 2)
-    {
+  {
     cpset.insert(0.0);
     cpset.insert(1.0);
-    }
+  }
 
   // Now record control points and colors.
   delete[] this->ControlPoints;
@@ -280,13 +280,13 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(
 
   std::copy(cpset.begin(), cpset.end(), this->ControlPoints);
   for (int i = 0; i < this->NumControlPoints; i++)
-    {
+  {
     // Is setting all the colors to the same value the right thing to do?
     this->Colors[i].c[0] = this->Colors[i].c[1] = this->Colors[i].c[2]
       = intensity->GetValue(this->ControlPoints[i]);
     this->Colors[i].c[3] = (  opacity->GetValue(this->ControlPoints[i])
                             / unit_distance);
-    }
+  }
 }
 
 inline void vtkLinearRayIntegratorTransferFunction::GetColor(double x,
@@ -345,10 +345,10 @@ void vtkUnstructuredGridLinearRayIntegrator::Initialize(
 
   if (   (property == this->Property)
       && (this->TransferFunctionsModified > property->GetMTime()) )
-    {
+  {
     // Nothing has changed from the last time Initialize was run.
     return;
-    }
+  }
 
   int numcomponents = scalars->GetNumberOfComponents();
 
@@ -356,14 +356,14 @@ void vtkUnstructuredGridLinearRayIntegrator::Initialize(
   this->TransferFunctionsModified.Modified();
 
   if (!property->GetIndependentComponents())
-    {
+  {
     // The scalars actually hold material properties.
     if ((numcomponents != 4) && (numcomponents != 2) )
-      {
+    {
       vtkErrorMacro("Only 2-tuples and 4-tuples allowed for dependent components.");
-      }
-    return;
     }
+    return;
+  }
 
   delete[] this->TransferFunctions;
 
@@ -372,24 +372,24 @@ void vtkUnstructuredGridLinearRayIntegrator::Initialize(
     = new vtkLinearRayIntegratorTransferFunction[numcomponents];
 
   for (int component = 0; component < numcomponents; component++)
-    {
+  {
     if (property->GetColorChannels(component) == 1)
-      {
+    {
       this->TransferFunctions[component]
         .GetTransferFunction(property->GetGrayTransferFunction(component),
                              property->GetScalarOpacity(component),
                              property->GetScalarOpacityUnitDistance(component),
                              scalars->GetRange(component));
-      }
+    }
     else
-      {
+    {
       this->TransferFunctions[component]
         .GetTransferFunction(property->GetRGBTransferFunction(component),
                              property->GetScalarOpacity(component),
                              property->GetScalarOpacityUnitDistance(component),
                              scalars->GetRange(component));
-      }
     }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -402,13 +402,13 @@ void vtkUnstructuredGridLinearRayIntegrator::Integrate(
 {
   int numintersections = intersectionLengths->GetNumberOfTuples();
   if (this->Property->GetIndependentComponents())
-    {
+  {
     int numscalars = nearIntersections->GetNumberOfComponents();
     double *nearScalars = new double[numscalars];
     double *farScalars = new double[numscalars];
     std::set<double> segments;
     for (vtkIdType i = 0; i < numintersections; i++)
-      {
+    {
       double total_length = intersectionLengths->GetValue(i);
       nearIntersections->GetTuple(i, nearScalars);
       farIntersections->GetTuple(i, farScalars);
@@ -419,35 +419,35 @@ void vtkUnstructuredGridLinearRayIntegrator::Integrate(
       segments.insert(0.0);
       segments.insert(1.0);
       for (int j = 0; j < numscalars; j++)
-        {
+      {
         double *cp = this->TransferFunctions[j].ControlPoints;
         vtkIdType numcp = this->TransferFunctions[j].NumControlPoints;
         double minscalar, maxscalar;
         if (nearScalars[j] < farScalars[j])
-          {
+        {
           minscalar = nearScalars[j];  maxscalar = farScalars[j];
-          }
+        }
         else
-          {
+        {
           minscalar = farScalars[j];  maxscalar = nearScalars[j];
-          }
+        }
         for (int k = 0; k < numcp; k++)
-          {
+        {
           if (cp[k] <= minscalar) continue;
           if (cp[k] >= maxscalar) break;
           // If we are here, we need to break the segment at the given scalar.
           // Find the fraction between the near and far segment points.
           segments.insert(  (cp[k]-nearScalars[j])
                           / (farScalars[j]-nearScalars[j]));
-          }
         }
+      }
 
       // Iterate over all the segment pieces (from front to back) and
       // integrate each piece.
       std::set<double>::iterator segi = segments.begin();
       double nearInterpolant = *segi;
       for (segi++; segi != segments.end(); segi++)
-        {
+      {
         double farInterpolant = *segi;
         double nearcolor[4] = {0.0, 0.0, 0.0, 0.0};
         double farcolor[4] = {0.0, 0.0, 0.0, 0.0};
@@ -463,19 +463,19 @@ void vtkUnstructuredGridLinearRayIntegrator::Integrate(
         // opacity of the resulting color will, however, always be scaled
         // between 0 and 1.
         for (int j = 0; j < numscalars; j++)
-          {
+        {
           double scalar
             = (farScalars[j]-nearScalars[j])*nearInterpolant + nearScalars[j];
           if (j == 0)
-            {
+          {
             this->TransferFunctions[j].GetColor(scalar, nearcolor);
-            }
+          }
           else
-            {
+          {
             double c[4];
             this->TransferFunctions[j].GetColor(scalar, c);
             if (c[3] + nearcolor[3] > 1.0e-8f)
-              {
+            {
               nearcolor[0] *= nearcolor[3]/(c[3] + nearcolor[3]);
               nearcolor[1] *= nearcolor[3]/(c[3] + nearcolor[3]);
               nearcolor[2] *= nearcolor[3]/(c[3] + nearcolor[3]);
@@ -483,21 +483,21 @@ void vtkUnstructuredGridLinearRayIntegrator::Integrate(
               nearcolor[1] += c[1]*c[3]/(c[3] + nearcolor[3]);
               nearcolor[2] += c[2]*c[3]/(c[3] + nearcolor[3]);
               nearcolor[3] += c[3];
-              }
             }
+          }
 
           scalar
             = (farScalars[j]-nearScalars[j])*farInterpolant + nearScalars[j];
           if (j == 0)
-            {
+          {
             this->TransferFunctions[j].GetColor(scalar, farcolor);
-            }
+          }
           else
-            {
+          {
             double c[4];
             this->TransferFunctions[j].GetColor(scalar, c);
             if (c[3] + farcolor[3] > 1.0e-8f)
-              {
+            {
               farcolor[0] *= farcolor[3]/(c[3] + farcolor[3]);
               farcolor[1] *= farcolor[3]/(c[3] + farcolor[3]);
               farcolor[2] *= farcolor[3]/(c[3] + farcolor[3]);
@@ -505,44 +505,44 @@ void vtkUnstructuredGridLinearRayIntegrator::Integrate(
               farcolor[1] += c[1]*c[3]/(c[3] + farcolor[3]);
               farcolor[2] += c[2]*c[3]/(c[3] + farcolor[3]);
               farcolor[3] += c[3];
-              }
             }
           }
+        }
         this->IntegrateRay(length, nearcolor, nearcolor[3],
                            farcolor, farcolor[3], color);
 
         nearInterpolant = farInterpolant;
-        }
       }
+    }
       delete[] nearScalars;
       delete[] farScalars;
-    }
+  }
   else
-    {
+  {
     double unitdistance = this->Property->GetScalarOpacityUnitDistance();
     if (nearIntersections->GetNumberOfComponents() == 4)
-      {
+    {
       for (vtkIdType i = 0; i < numintersections; i++)
-        {
+      {
         double length = intersectionLengths->GetValue(i);
         double *nearcolor = nearIntersections->GetTuple(i);
         double *farcolor = farIntersections->GetTuple(i);
         this->IntegrateRay(length, nearcolor, nearcolor[3]/unitdistance,
                            farcolor, farcolor[3]/unitdistance, color);
-        }
       }
+    }
     else  // Two components.
-      {
+    {
       for (vtkIdType i = 0; i < numintersections; i++)
-        {
+      {
         double length = intersectionLengths->GetValue(i);
         double *nearcolor = nearIntersections->GetTuple(i);
         double *farcolor = farIntersections->GetTuple(i);
         this->IntegrateRay(length, nearcolor[0], nearcolor[1]/unitdistance,
                            farcolor[0], farcolor[1]/unitdistance, color);
-        }
       }
     }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -625,7 +625,7 @@ static const float dawson_constant5 = 3.90894e-9;
 static inline float dawson(float x)
 {
   if (x > 0.2)
-    {
+  {
 /*  x = abs(x);       In this application, x should always be >= 0. */
     int n0 = 2*(int)((0.5/H)*x + 0.5);
     float xp = x - (float)n0*H;
@@ -646,12 +646,12 @@ static inline float dawson(float x)
     d1 += 2;  d2 -= 2;  e1 *= e2;
     sum += dawson_constant5*(e1/d1 + 1/(d2*e1));
     return M_1_SQRTPI*exp(-xp*xp)*sum;
-    }
+  }
   else
-    {
+  {
     float x2 = x*x;
     return x*(1 - (2.0/3.0)*x2*(1 - .4*x2*(1 - (2.0/7.0)*x2)));
-    }
+  }
 }
 
 #if 0
@@ -669,25 +669,25 @@ float vtkUnstructuredGridLinearRayIntegrator::Psi(float length,
   float difftauD = length*fabs(attenuation_back - attenuation_front);
 
   if (difftauD < 1.0e-8f)
-    {
+  {
     // Volume is homogeneous (with respect to attenuation).
     float tauD = length * attenuation_front;
     if (tauD < 1.0e-8f)
-      {
-      return 1;
-      }
-    else
-      {
-      return (1 - (float)exp(-tauD))/tauD;
-      }
-    }
-  else
     {
+      return 1;
+    }
+    else
+    {
+      return (1 - (float)exp(-tauD))/tauD;
+    }
+  }
+  else
+  {
     float invsqrt2difftauD = 1/(float)sqrt(2*difftauD);
     float frontterm = length*invsqrt2difftauD*attenuation_front;
     float backterm  = length*invsqrt2difftauD*attenuation_back;
     if (attenuation_back > attenuation_front)
-      {
+    {
       float u, Y;
       u = 1/(1+0.5f*frontterm);
       Y = u*(float)exp(erf_fitting_function(u));
@@ -696,11 +696,11 @@ float vtkUnstructuredGridLinearRayIntegrator::Psi(float length,
                           + erf_fitting_function(u));
       Y *= M_SQRTPI*invsqrt2difftauD;
       return Y;
-      }
+    }
     else
-      {
+    {
       float expterm = (float)exp(backterm*backterm-frontterm*frontterm);
       return 2*invsqrt2difftauD*(dawson(frontterm) - expterm*dawson(backterm));
-      }
     }
+  }
 }

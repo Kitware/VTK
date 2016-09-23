@@ -48,19 +48,19 @@ class vtkTubeArray { //;prevent man page generation
 public:
   vtkTubeArray();
   ~vtkTubeArray()
-    {
+  {
       delete [] this->Array;
-    };
+  };
   vtkIdType GetNumberOfPoints() {return this->MaxId + 1;};
   vtkTubePoint *GetTubePoint(vtkIdType i) {return this->Array + i;};
   vtkTubePoint *InsertNextTubePoint()
-    {
+  {
     if ( ++this->MaxId >= this->Size )
-      {
+    {
       this->Resize(this->MaxId);
-      }
-    return this->Array + this->MaxId;
     }
+    return this->Array + this->MaxId;
+  }
   vtkTubePoint *Resize(vtkIdType sz); //reallocates data
   void Reset() {this->MaxId = -1;}
 
@@ -79,12 +79,12 @@ vtkTubePoint::vtkTubePoint()
 vtkTubePoint& vtkTubePoint::operator=(const vtkTubePoint& hp)
 {
   for (int i=0; i<3; i++)
-    {
+  {
     this->X[i] = hp.X[i];
     this->V0[i] = hp.V0[i];
     this->V1[i] = hp.V1[i];
     this->V2[i] = hp.V2[i];
-    }
+  }
   this->Vector[0] = hp.Vector[0];
   this->Vector[1] = hp.Vector[1];
   this->Vector[2] = hp.Vector[2];
@@ -108,21 +108,21 @@ vtkTubePoint *vtkTubeArray::Resize(vtkIdType sz)
   vtkIdType newSize, i;
 
   if (sz >= this->Size)
-    {
+  {
     newSize = this->Size +
       this->Extend*(((sz-this->Size)/this->Extend)+1);
-    }
+  }
   else
-    {
+  {
     newSize = sz;
-    }
+  }
 
   newArray = new vtkTubePoint[newSize];
 
   for (i=0; i<sz; i++)
-    {
+  {
     newArray[i] = this->Array[i];
-    }
+  }
 
   this->Size = newSize;
   delete [] this->Array;
@@ -159,13 +159,13 @@ static double IntersectEllipse(double vector[3], double v[3])
   double den = v[0]*v[0]*b*b*c*c + v[1]*v[1]*a*a*c*c + v[2]*v[2]*a*a*b*b;
 
   if ( den <= 0.0 )
-    {
+  {
     return 0.0;
-    }
+  }
   else
-    {
+  {
     return sqrt(num/den);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -197,21 +197,21 @@ int vtkUncertaintyTubeFilter::RequestData(vtkInformation *vtkNotUsed(request),
   vtkPoints *inPts = input->GetPoints();
   vtkCellArray *inLines = input->GetLines();
   if ( !inPts || !inLines )
-    {
+  {
     return 1;
-    }
+  }
 
   vtkIdType numPts = inPts->GetNumberOfPoints();
   vtkIdType numLines = inLines->GetNumberOfCells();
   if ( numPts < 1 || numLines < 1 )
-    {
+  {
     return 1;
-    }
+  }
 
   if ( ! (inVectors=pd->GetVectors()) )
-    {
+  {
     return 1;
-    }
+  }
 
   // Initialize the data
   outPD->CopyNormalsOff();
@@ -231,17 +231,17 @@ int vtkUncertaintyTubeFilter::RequestData(vtkInformation *vtkNotUsed(request),
   double *normal;
   for (k=0, inLines->InitTraversal();
        inLines->GetNextCell(npts,pts); k++)
-    {
+  {
     singlePolyline->Reset(); //avoid instantiation
     singlePolyline->InsertNextCell(npts,pts); //avoid crossing confusion
     if ( ! vtkPolyLine::GenerateSlidingNormals(inPts,singlePolyline,newNormals) )
-      {
+    {
       vtkWarningMacro("Could not generate normals for line. "
                       "Skipping to next.");
       continue; //skip tubing this polyline
-      }
+    }
     for (idx=0; idx < npts; idx++)
-      {
+    {
       // This advances to the next point
       sPtr = this->Tubes[k].InsertNextTubePoint();
       inPts->GetPoint(pts[idx],sPtr->X);
@@ -251,31 +251,31 @@ int vtkUncertaintyTubeFilter::RequestData(vtkInformation *vtkNotUsed(request),
       sPtr->V1[0] = normal[0];
       sPtr->V1[1] = normal[1];
       sPtr->V1[2] = normal[2];
-      }
+    }
 
     // Okay build the rest of the coordinate system. We've got to find the
     // vector along the line segment, and then cross the normal/vector to
     // get the third axis.
     for (idx=0; idx<npts; idx++)
-      {
+    {
       sPtr = this->Tubes[k].GetTubePoint(idx);
       inVectors->GetTuple(pts[idx],sPtr->Vector);
       if ( idx == 0 )
-        {
+      {
         sNext = this->Tubes[k].GetTubePoint(1);
         sPtr->V0[0] = sNext->X[0] - sPtr->X[0];
         sPtr->V0[1] = sNext->X[1] - sPtr->X[1];
         sPtr->V0[2] = sNext->X[2] - sPtr->X[2];
-        }
+      }
       else if ( idx == (npts-1) )
-        {
+      {
         sPrev = this->Tubes[k].GetTubePoint(npts-2);
         sPtr->V0[0] = sPtr->X[0] - sPrev->X[0];
         sPtr->V0[1] = sPtr->X[1] - sPrev->X[1];
         sPtr->V0[2] = sPtr->X[2] - sPrev->X[2];
-        }
+      }
       else
-        {
+      {
         sPrev = this->Tubes[k].GetTubePoint(idx-1);
         sNext = this->Tubes[k].GetTubePoint(idx+1);
         v0[0] = sPtr->X[0] - sPrev->X[0];
@@ -289,7 +289,7 @@ int vtkUncertaintyTubeFilter::RequestData(vtkInformation *vtkNotUsed(request),
         sPtr->V0[0] = (v0[0]+v1[0]) / 2.0; //average vector
         sPtr->V0[1] = (v0[1]+v1[1]) / 2.0;
         sPtr->V0[2] = (v0[2]+v1[2]) / 2.0;
-        }
+      }
       vtkMath::Normalize(sPtr->V0);
 
       // Produce orthogonal axis
@@ -298,8 +298,8 @@ int vtkUncertaintyTubeFilter::RequestData(vtkInformation *vtkNotUsed(request),
       vtkMath::Cross(sPtr->V2,sPtr->V0,sPtr->V1);
       vtkMath::Normalize(sPtr->V1);
 
-      }//for all points in polyline
-    }//for all polylines
+    }//for all points in polyline
+  }//for all polylines
   newNormals->Delete();
   singlePolyline->Delete();
 
@@ -329,9 +329,9 @@ int vtkUncertaintyTubeFilter::BuildTubes(vtkPointData *pd, vtkPointData *outPD,
   //
   vtkDebugMacro(<<"Creating uncertainty tubes");
   if ( this->NumberOfTubes <= 0 )
-    {
+  {
     return 0;
-    }
+  }
 
 
   // Allocate
@@ -349,30 +349,30 @@ int vtkUncertaintyTubeFilter::BuildTubes(vtkPointData *pd, vtkPointData *outPD,
   // Loop over all polylines generating points
   //
   for (cellId=0; cellId < this->NumberOfTubes; cellId++)
-    {
+  {
     if ( (numPts=this->Tubes[cellId].GetNumberOfPoints()) < 2 )
-      {
+    {
       continue;
-      }
+    }
 
     for ( npts=0, i=0; i < numPts; i++)
-      {
+    {
       sPtr = this->Tubes[cellId].GetTubePoint(i);
       for (j=0; j<3; j++) //compute point in center of tube
-        {
+      {
         x[j] = sPtr->X[j];
         r1[j] = sPtr->V1[j];
         r2[j] = sPtr->V2[j];
-        }
+      }
       vector = sPtr->Vector;
 
       // construct points around tube
       for (k=0; k < this->NumberOfSides; k++)
-        {
+      {
         for (j=0; j<3; j++)
-          {
+        {
           normal[j] = r1[j]*cos((double)k*theta) + r2[j]*sin((double)k*theta);
-          }
+        }
         vtkMath::Normalize(normal);
         t = IntersectEllipse(vector,normal);
         xT[0] = x[0] + 0.5*t*normal[0];
@@ -382,28 +382,28 @@ int vtkUncertaintyTubeFilter::BuildTubes(vtkPointData *pd, vtkPointData *outPD,
         outPD->CopyData(pd, i, id);
         vtkMath::Normalize(normal);
         newNormals->InsertTuple(id,normal);
-        }
+      }
       npts++;
-      } //for this polyline
+    } //for this polyline
 
     // Generate the strips for this tube
     //
     for (k=0; k<this->NumberOfSides; k++)
-      {
+    {
       i1 = (k+1) % this->NumberOfSides;
       id = newStrips->InsertNextCell(npts*2);
       outCD->CopyData(cd, cellId, id);
       for (i=0; i < npts; i++)
-        {
+      {
         i2 = i*this->NumberOfSides;
         newStrips->InsertCellPoint(ptOffset+i2+k);
         newStrips->InsertCellPoint(ptOffset+i2+i1);
-        }
-      }//for all tube sides
+      }
+    }//for all tube sides
 
     ptOffset += this->NumberOfSides*npts;
 
-    } //for all tubes
+  } //for all tubes
 
   // Update ourselves
   //

@@ -12,11 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkByteSwap - perform machine dependent byte swapping
-// .SECTION Description
-// vtkByteSwap is used by other classes to perform machine dependent byte
-// swapping. Byte swapping is often used when reading or writing binary
-// files.
+/**
+ * @class   vtkByteSwap
+ * @brief   perform machine dependent byte swapping
+ *
+ * vtkByteSwap is used by other classes to perform machine dependent byte
+ * swapping. Byte swapping is often used when reading or writing binary
+ * files.
+*/
+
 #ifndef vtkByteSwap_h
 #define vtkByteSwap_h
 
@@ -29,10 +33,12 @@ public:
   static vtkByteSwap *New();
   vtkTypeMacro(vtkByteSwap,vtkObject);
 
-  // Description:
-  // Type-safe swap signatures to swap for storage in either Little
-  // Endian or Big Endian format.  Swapping is performed according to
-  // the true size of the type given.
+  //@{
+  /**
+   * Type-safe swap signatures to swap for storage in either Little
+   * Endian or Big Endian format.  Swapping is performed according to
+   * the true size of the type given.
+   */
 #define VTK_BYTE_SWAP_DECL(T)                                           \
   static void SwapLE(T* p);                                             \
   static void SwapBE(T* p);                                             \
@@ -56,54 +62,74 @@ public:
   VTK_BYTE_SWAP_DECL(unsigned long);
   VTK_BYTE_SWAP_DECL(unsigned long long);
 #undef VTK_BYTE_SWAP_DECL
+  //@}
 
-  // Description:
-  // Swap 2, 4, or 8 bytes for storage as Little Endian.
+  //@{
+  /**
+   * Swap 2, 4, or 8 bytes for storage as Little Endian.
+   */
   static void Swap2LE(void* p);
   static void Swap4LE(void* p);
   static void Swap8LE(void* p);
+  //@}
 
-  // Description:
-  // Swap a block of 2-, 4-, or 8-byte segments for storage as Little Endian.
+  //@{
+  /**
+   * Swap a block of 2-, 4-, or 8-byte segments for storage as Little Endian.
+   */
   static void Swap2LERange(void* p, size_t num);
   static void Swap4LERange(void* p, size_t num);
   static void Swap8LERange(void* p, size_t num);
+  //@}
 
-  // Description:
-  // Swap a block of 2-, 4-, or 8-byte segments for storage as Little Endian.
-  // The results are written directly to a file to avoid temporary storage.
+  //@{
+  /**
+   * Swap a block of 2-, 4-, or 8-byte segments for storage as Little Endian.
+   * The results are written directly to a file to avoid temporary storage.
+   */
   static bool SwapWrite2LERange(void const* p, size_t num, FILE* f);
   static bool SwapWrite4LERange(void const* p, size_t num, FILE* f);
   static bool SwapWrite8LERange(void const* p, size_t num, FILE* f);
   static void SwapWrite2LERange(void const* p, size_t num, ostream* os);
   static void SwapWrite4LERange(void const* p, size_t num, ostream* os);
   static void SwapWrite8LERange(void const* p, size_t num, ostream* os);
+  //@}
 
-  // Description:
-  // Swap 2, 4, or 8 bytes for storage as Big Endian.
+  //@{
+  /**
+   * Swap 2, 4, or 8 bytes for storage as Big Endian.
+   */
   static void Swap2BE(void* p);
   static void Swap4BE(void* p);
   static void Swap8BE(void* p);
+  //@}
 
-  // Description:
-  // Swap a block of 2-, 4-, or 8-byte segments for storage as Big Endian.
+  //@{
+  /**
+   * Swap a block of 2-, 4-, or 8-byte segments for storage as Big Endian.
+   */
   static void Swap2BERange(void* p, size_t num);
   static void Swap4BERange(void* p, size_t num);
   static void Swap8BERange(void* p, size_t num);
+  //@}
 
-  // Description:
-  // Swap a block of 2-, 4-, or 8-byte segments for storage as Big Endian.
-  // The results are written directly to a file to avoid temporary storage.
+  //@{
+  /**
+   * Swap a block of 2-, 4-, or 8-byte segments for storage as Big Endian.
+   * The results are written directly to a file to avoid temporary storage.
+   */
   static bool SwapWrite2BERange(void const* p, size_t num, FILE* f);
   static bool SwapWrite4BERange(void const* p, size_t num, FILE* f);
   static bool SwapWrite8BERange(void const* p, size_t num, FILE* f);
   static void SwapWrite2BERange(void const* p, size_t num, ostream* os);
   static void SwapWrite4BERange(void const* p, size_t num, ostream* os);
   static void SwapWrite8BERange(void const* p, size_t num, ostream* os);
+  //@}
 
-  // Description:
-  // Swaps the bytes of a buffer.  Uses an arbitrary word size, but
-  // assumes the word size is divisible by two.
+  /**
+   * Swaps the bytes of a buffer.  Uses an arbitrary word size, but
+   * assumes the word size is divisible by two.
+   */
   static void SwapVoidRange(void *buffer, size_t numWords, size_t wordSize);
 
 protected:

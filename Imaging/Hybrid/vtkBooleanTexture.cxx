@@ -75,10 +75,10 @@ void vtkBooleanTexture::ExecuteDataWithInformation(vtkDataObject *outp,
     vtkArrayDownCast<vtkUnsignedCharArray>(output->GetPointData()->GetScalars());
 
   if (!newScalars || this->XSize*this->YSize < 1 )
-    {
+  {
     vtkErrorMacro(<<"Bad texture (xsize,ysize) specification!");
     return;
-    }
+  }
 
 //
 // Compute size of various regions
@@ -96,66 +96,66 @@ void vtkBooleanTexture::ExecuteDataWithInformation(vtkDataObject *outp,
 //
   int count = 0;
   for (j = 0; j < this->YSize; j++)
-    {
+  {
     for (i = 0; i < this->XSize; i++)
-      {
+    {
       if (i < midILower && j < midJLower)
-        {
+      {
         newScalars->SetValue(count,this->InIn[0]);
         count++;
         newScalars->SetValue(count,this->InIn[1]);
-        }
+      }
       else if (i > midIUpper && j < midJLower)
-        {
+      {
         newScalars->SetValue(count,this->OutIn[0]);
         count++;
         newScalars->SetValue(count,this->OutIn[1]);
-        }
+      }
       else if (i < midILower && j > midJUpper)
-        {
+      {
         newScalars->SetValue(count,this->InOut[0]);
         count++;
         newScalars->SetValue(count,this->InOut[1]);
-        }
+      }
       else if (i > midIUpper && j > midJUpper)
-        {
+      {
         newScalars->SetValue(count,this->OutOut[0]);
         count++;
         newScalars->SetValue(count,this->OutOut[1]);
-        }
+      }
       else if ((i >= midILower && i <= midIUpper) && (j >= midJLower && j <= midJUpper))
-        {
+      {
         newScalars->SetValue(count,this->OnOn[0]);
         count++;
         newScalars->SetValue(count,this->OnOn[1]);
-        }
+      }
       else if ((i >= midILower && i <= midIUpper) && j < midJLower)
-        {
+      {
         newScalars->SetValue(count,this->OnIn[0]);
         count++;
         newScalars->SetValue(count,this->OnIn[1]);
-        }
+      }
       else if ((i >= midILower && i <= midIUpper) && j > midJUpper)
-        {
+      {
         newScalars->SetValue(count,this->OnOut[0]);
         count++;
         newScalars->SetValue(count,this->OnOut[1]);
-        }
+      }
       else if (i < midILower && (j >= midJLower && j <= midJUpper))
-        {
+      {
         newScalars->SetValue(count,this->InOn[0]);
         count++;
         newScalars->SetValue(count,this->InOn[1]);
-        }
+      }
       else if (i > midIUpper && (j >= midJLower && j <= midJUpper))
-        {
+      {
         newScalars->SetValue(count,this->OutOn[0]);
         count++;
         newScalars->SetValue(count,this->OutOn[1]);
-        }
-      count++;
       }
+      count++;
     }
+  }
 
 }
 

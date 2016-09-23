@@ -55,21 +55,21 @@ struct GenerateNormals
                   int orient, double opoint[3], bool flip) :
     Points(points), Locator(loc), SampleSize(sample), Normals(normals),
     Orient(orient), Flip(flip)
-    {
+  {
       this->OPoint[0] = opoint[0];
       this->OPoint[1] = opoint[1];
       this->OPoint[2] = opoint[2];
-    }
+  }
 
   // Just allocate a little bit of memory to get started.
   void Initialize()
-    {
+  {
     vtkIdList*& pIds = this->PIds.Local();
     pIds->Allocate(128); //allocate some memory
-    }
+  }
 
   void operator() (vtkIdType ptId, vtkIdType endPtId)
-    {
+  {
       const T *px = this->Points + 3*ptId;
       const T *py;
       float *n = this->Normals + 3*ptId;
@@ -85,7 +85,7 @@ struct GenerateNormals
       float flipVal = (this->Flip ? -1.0 : 1.0);
 
       for ( ; ptId < endPtId; ++ptId )
-        {
+      {
         x[0] = static_cast<double>(*px++);
         x[1] = static_cast<double>(*px++);
         x[2] = static_cast<double>(*px++);
@@ -97,13 +97,13 @@ struct GenerateNormals
         // First step: compute the mean position of the neighborhood.
         mean[0] = mean[1] = mean[2] = 0.0;
         for (sample=0; sample<numPts; ++sample)
-          {
+        {
           nei = pIds->GetId(sample);
           py = this->Points + 3*nei;
           mean[0] += static_cast<double>(*py++);
           mean[1] += static_cast<double>(*py++);
           mean[2] += static_cast<double>(*py);
-          }
+        }
         mean[0] /= static_cast<double>(numPts);
         mean[1] /= static_cast<double>(numPts);
         mean[2] /= static_cast<double>(numPts);
@@ -113,25 +113,25 @@ struct GenerateNormals
         a0[1] = a1[1] = a2[1] = 0.0;
         a0[2] = a1[2] = a2[2] = 0.0;
         for (sample=0; sample < numPts; ++sample )
-          {
+        {
           nei = pIds->GetId(sample);
           py = this->Points + 3*nei;
           xp[0] = static_cast<double>(*py++) - mean[0];
           xp[1] = static_cast<double>(*py++) - mean[1];
           xp[2] = static_cast<double>(*py) - mean[2];
           for (i=0; i < 3; i++)
-            {
+          {
             a0[i] += xp[0] * xp[i];
             a1[i] += xp[1] * xp[i];
             a2[i] += xp[2] * xp[i];
-            }
           }
+        }
         for (i=0; i < 3; i++)
-          {
+        {
           a0[i] /= static_cast<double>(numPts);
           a1[i] /= static_cast<double>(numPts);
           a2[i] /= static_cast<double>(numPts);
-          }
+        }
 
         // Next extract the eigenvectors and values
         vtkMath::Jacobi(a,eVal,v);
@@ -141,37 +141,37 @@ struct GenerateNormals
 
         // Orient properly
         if ( this->Orient == vtkPCANormalEstimation::POINT )
-          {
+        {
           o[0] = this->OPoint[0] - x[0];
           o[1] = this->OPoint[1] - x[1];
           o[2] = this->OPoint[2] - x[2];
           if ( vtkMath::Dot(o,eVecMin) < 0.0 )
-            {
+          {
             eVecMin[0] *= -1;
             eVecMin[1] *= -1;
             eVecMin[2] *= -1;
-            }
           }
+        }
 
         // Finally compute the point normal (which is the smallest eigenvector)
         *n++ = flipVal * eVecMin[0];
         *n++ = flipVal * eVecMin[1];
         *n++ = flipVal * eVecMin[2];
 
-        }//for all points
-    }
+      }//for all points
+  }
 
   void Reduce()
-    {
-    }
+  {
+  }
 
   static void Execute(vtkPCANormalEstimation *self, vtkIdType numPts, T *points,
                       float *normals, int orient, double opoint[3], bool flip)
-    {
+  {
       GenerateNormals gen(points, self->GetLocator(), self->GetSampleSize(),
                           normals, orient, opoint, flip);
       vtkSMPTools::For(0, numPts, gen);
-    }
+  }
 }; //GenerateNormals
 
 } //anonymous namespace
@@ -216,21 +216,21 @@ int vtkPCANormalEstimation::RequestData(
 
   // Check the input
   if ( !input || !output )
-    {
+  {
     return 1;
-    }
+  }
   vtkIdType numPts = input->GetNumberOfPoints();
   if ( numPts < 1 )
-    {
+  {
     return 1;
-    }
+  }
 
   // Start by building the locator.
   if ( !this->Locator )
-    {
+  {
     vtkErrorMacro(<<"Point locator required\n");
     return 0;
-    }
+  }
   this->Locator->SetDataSet(input);
   this->Locator->BuildLocator();
 
@@ -242,15 +242,15 @@ int vtkPCANormalEstimation::RequestData(
 
   void *inPtr = input->GetPoints()->GetVoidPointer(0);
   switch (input->GetPoints()->GetDataType())
-    {
+  {
     vtkTemplateMacro(GenerateNormals<VTK_TT>::Execute(this, numPts, (VTK_TT *)inPtr, n,
        this->NormalOrientation, this->OrientationPoint, this->FlipNormals));
-    }
+  }
 
   // Orient the normals in a consistent fashion (if requested). This requires a traveral
   // across the point cloud, traversing neighbors that are in close proximity.
   if ( this->NormalOrientation == vtkPCANormalEstimation::GRAPH_TRAVERSAL )
-    {
+  {
     vtkIdType ptId;
     char *pointMap = new char [numPts];
     std::fill_n(pointMap, numPts, static_cast<char>(0));
@@ -260,20 +260,20 @@ int vtkPCANormalEstimation::RequestData(
     wave2->Allocate(numPts/4+1,numPts);
 
     for (ptId=0; ptId < numPts; ptId++)
-      {
+    {
       if ( pointMap[ptId] == 0 )
-        {
+      {
         wave->InsertNextId(ptId); //begin next connected wave
         pointMap[ptId] = 1;
         this->TraverseAndFlip (input->GetPoints(), n, pointMap, wave, wave2);
         wave->Reset();
         wave2->Reset();
-        }
-      }//for all points
+      }
+    }//for all points
     delete [] pointMap;
     wave->Delete();
     wave2->Delete();
-    }//if graph traversal required
+  }//if graph traversal required
 
   // Now send the normals to the output and clean up
   output->SetPoints(input->GetPoints());
@@ -299,9 +299,9 @@ TraverseAndFlip (vtkPoints *inPts, float *normals, char *pointMap,
   vtkIdList *neighborPointIds = vtkIdList::New();
 
   while ( (numIds=wave->GetNumberOfIds()) > 0 )
-    {
+  {
     for ( i=0; i < numIds; i++ ) //for all points in this wave
-      {
+    {
       ptId = wave->GetId(i);
       inPts->GetPoint(ptId,x);
       n = normals + 3*ptId;
@@ -309,28 +309,28 @@ TraverseAndFlip (vtkPoints *inPts, float *normals, char *pointMap,
 
       numPts = neighborPointIds->GetNumberOfIds();
       for (j=0; j < numPts; ++j)
-        {
+      {
         ptId = neighborPointIds->GetId(j);
         if ( pointMap[ptId] == 0 )
-          {
+        {
           pointMap[ptId] = 1;
           n2 = normals + 3*ptId;
           if ( vtkMath::Dot(n,n2) < 0.0 )
-            {
+          {
             *n2++ *= -1;
             *n2++ *= -1;
             *n2 *= -1;
-            }
+          }
           wave2->InsertNextId(ptId);
-          }//if point not yet visited
-        }//for all neighbors
-      }//for all cells in this wave
+        }//if point not yet visited
+      }//for all neighbors
+    }//for all cells in this wave
 
     tmpWave = wave;
     wave = wave2;
     wave2 = tmpWave;
     tmpWave->Reset();
-    } //while wave is not empty
+  } //while wave is not empty
 
   neighborPointIds->Delete();
 

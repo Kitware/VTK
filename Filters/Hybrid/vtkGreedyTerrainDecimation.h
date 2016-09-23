@@ -12,53 +12,57 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGreedyTerrainDecimation - reduce height field (represented as image) to reduced TIN
-// .SECTION Description
-// vtkGreedyTerrainDecimation approximates a height field with a triangle
-// mesh (triangulated irregular network - TIN) using a greedy insertion
-// algorithm similar to that described by Garland and Heckbert in their paper
-// "Fast Polygonal Approximations of Terrain and Height Fields" (Technical
-// Report CMU-CS-95-181).  The input to the filter is a height field
-// (represented by a image whose scalar values are height) and the output of
-// the filter is polygonal data consisting of triangles. The number of
-// triangles in the output is reduced in number as compared to a naive
-// tessellation of the input height field. This filter copies point data
-// from the input to the output for those points present in the output.
-//
-// An brief description of the algorithm is as follows. The algorithm uses a
-// top-down decimation approach that initially represents the height field
-// with two triangles (whose vertices are at the four corners of the
-// image). These two triangles form a Delaunay triangulation. In an iterative
-// fashion, the point in the image with the greatest error (as compared to
-// the original height field) is injected into the triangulation. (Note that
-// the single point with the greatest error per triangle is identified and
-// placed into a priority queue. As the triangulation is modified, the errors
-// from the deleted triangles are removed from the queue, error values from
-// the new triangles are added.) The point whose error is at the top of the
-// queue is added to the triangulaion modifying it using the standard
-// incremental Delaunay point insertion (see vtkDelaunay2D) algorithm. Points
-// are repeatedly inserted until the appropriate (user-specified) error
-// criterion is met.
-//
-// To use this filter, set the input and specify the error measure to be
-// used.  The error measure options are 1) the absolute number of triangles
-// to be produced; 2) a fractional reduction of the mesh (numTris/maxTris)
-// where maxTris is the largest possible number of triangles
-// 2*(dims[0]-1)*(dims[1]-1); 3) an absolute measure on error (maximum
-// difference in height field to reduced TIN); and 4) relative error (the
-// absolute error is normalized by the diagonal of the bounding box of the
-// height field).
-//
-// .SECTION Caveats
-// This algorithm requires the entire input dataset to be in memory, hence it
-// may not work for extremely large images. Invoking BoundaryVertexDeletionOff
-// will allow you to stitch together images with matching boundaries.
-//
-// The input height image is assumed to be positioned in the x-y plane so the
-// scalar value is the z-coordinate, height value.
-//
-// .SECTION See Also
-// vtkDecimatePro vtkQuadricDecimation vtkQuadricClustering
+/**
+ * @class   vtkGreedyTerrainDecimation
+ * @brief   reduce height field (represented as image) to reduced TIN
+ *
+ * vtkGreedyTerrainDecimation approximates a height field with a triangle
+ * mesh (triangulated irregular network - TIN) using a greedy insertion
+ * algorithm similar to that described by Garland and Heckbert in their paper
+ * "Fast Polygonal Approximations of Terrain and Height Fields" (Technical
+ * Report CMU-CS-95-181).  The input to the filter is a height field
+ * (represented by a image whose scalar values are height) and the output of
+ * the filter is polygonal data consisting of triangles. The number of
+ * triangles in the output is reduced in number as compared to a naive
+ * tessellation of the input height field. This filter copies point data
+ * from the input to the output for those points present in the output.
+ *
+ * An brief description of the algorithm is as follows. The algorithm uses a
+ * top-down decimation approach that initially represents the height field
+ * with two triangles (whose vertices are at the four corners of the
+ * image). These two triangles form a Delaunay triangulation. In an iterative
+ * fashion, the point in the image with the greatest error (as compared to
+ * the original height field) is injected into the triangulation. (Note that
+ * the single point with the greatest error per triangle is identified and
+ * placed into a priority queue. As the triangulation is modified, the errors
+ * from the deleted triangles are removed from the queue, error values from
+ * the new triangles are added.) The point whose error is at the top of the
+ * queue is added to the triangulaion modifying it using the standard
+ * incremental Delaunay point insertion (see vtkDelaunay2D) algorithm. Points
+ * are repeatedly inserted until the appropriate (user-specified) error
+ * criterion is met.
+ *
+ * To use this filter, set the input and specify the error measure to be
+ * used.  The error measure options are 1) the absolute number of triangles
+ * to be produced; 2) a fractional reduction of the mesh (numTris/maxTris)
+ * where maxTris is the largest possible number of triangles
+ * 2*(dims[0]-1)*(dims[1]-1); 3) an absolute measure on error (maximum
+ * difference in height field to reduced TIN); and 4) relative error (the
+ * absolute error is normalized by the diagonal of the bounding box of the
+ * height field).
+ *
+ * @warning
+ * This algorithm requires the entire input dataset to be in memory, hence it
+ * may not work for extremely large images. Invoking BoundaryVertexDeletionOff
+ * will allow you to stitch together images with matching boundaries.
+ *
+ * @warning
+ * The input height image is assumed to be positioned in the x-y plane so the
+ * scalar value is the z-coordinate, height value.
+ *
+ * @sa
+ * vtkDecimatePro vtkQuadricDecimation vtkQuadricClustering
+*/
 
 #ifndef vtkGreedyTerrainDecimation_h
 #define vtkGreedyTerrainDecimation_h
@@ -88,15 +92,18 @@ public:
   vtkTypeMacro(vtkGreedyTerrainDecimation,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Instantiate the class.
+  /**
+   * Instantiate the class.
+   */
   static vtkGreedyTerrainDecimation* New();
 
-  // Description:
-  // Specify how to terminate the algorithm: either as an absolute number of
-  // triangles, a relative number of triangles (normalized by the full
-  // resolution mesh), an absolute error (in the height field), or relative
-  // error (normalized by the length of the diagonal of the image).
+  //@{
+  /**
+   * Specify how to terminate the algorithm: either as an absolute number of
+   * triangles, a relative number of triangles (normalized by the full
+   * resolution mesh), an absolute error (in the height field), or relative
+   * error (normalized by the length of the diagonal of the image).
+   */
   vtkSetClampMacro(ErrorMeasure,int,VTK_ERROR_NUMBER_OF_TRIANGLES,VTK_ERROR_RELATIVE);
   vtkGetMacro(ErrorMeasure,int);
   void SetErrorMeasureToNumberOfTriangles()
@@ -107,49 +114,68 @@ public:
     {this->SetErrorMeasure(VTK_ERROR_ABSOLUTE);}
   void SetErrorMeasureToRelativeError()
     {this->SetErrorMeasure(VTK_ERROR_RELATIVE);}
+  //@}
 
-  // Description:
-  // Specify the number of triangles to produce on output. (It is a
-  // good idea to make sure this is less than a tessellated mesh
-  // at full resolution.) You need to set this value only when
-  // the error measure is set to NumberOfTriangles.
+  //@{
+  /**
+   * Specify the number of triangles to produce on output. (It is a
+   * good idea to make sure this is less than a tessellated mesh
+   * at full resolution.) You need to set this value only when
+   * the error measure is set to NumberOfTriangles.
+   */
   vtkSetClampMacro(NumberOfTriangles,vtkIdType,2,VTK_ID_MAX);
   vtkGetMacro(NumberOfTriangles,vtkIdType);
+  //@}
 
-  // Description:
-  // Specify the reduction of the mesh (represented as a fraction).  Note
-  // that a value of 0.10 means a 10% reduction.  You need to set this value
-  // only when the error measure is set to SpecifiedReduction.
+  //@{
+  /**
+   * Specify the reduction of the mesh (represented as a fraction).  Note
+   * that a value of 0.10 means a 10% reduction.  You need to set this value
+   * only when the error measure is set to SpecifiedReduction.
+   */
   vtkSetClampMacro(Reduction,double,0.0,1.0);
   vtkGetMacro(Reduction,double);
+  //@}
 
-  // Description:
-  // Specify the absolute error of the mesh; that is, the error in height
-  // between the decimated mesh and the original height field.  You need to
-  // set this value only when the error measure is set to AbsoluteError.
+  //@{
+  /**
+   * Specify the absolute error of the mesh; that is, the error in height
+   * between the decimated mesh and the original height field.  You need to
+   * set this value only when the error measure is set to AbsoluteError.
+   */
   vtkSetClampMacro(AbsoluteError,double,0.0,VTK_DOUBLE_MAX);
   vtkGetMacro(AbsoluteError,double);
+  //@}
 
-  // Description:
-  // Specify the relative error of the mesh; that is, the error in height
-  // between the decimated mesh and the original height field normalized by
-  // the diagonal of the image.  You need to set this value only when the
-  // error measure is set to RelativeError.
+  //@{
+  /**
+   * Specify the relative error of the mesh; that is, the error in height
+   * between the decimated mesh and the original height field normalized by
+   * the diagonal of the image.  You need to set this value only when the
+   * error measure is set to RelativeError.
+   */
   vtkSetClampMacro(RelativeError,double,0.0,VTK_DOUBLE_MAX);
   vtkGetMacro(RelativeError,double);
+  //@}
 
-  // Description:
-  // Turn on/off the deletion of vertices on the boundary of a mesh. This
-  // may limit the maximum reduction that may be achieved.
+  //@{
+  /**
+   * Turn on/off the deletion of vertices on the boundary of a mesh. This
+   * may limit the maximum reduction that may be achieved.
+   */
   vtkSetMacro(BoundaryVertexDeletion,int);
   vtkGetMacro(BoundaryVertexDeletion,int);
   vtkBooleanMacro(BoundaryVertexDeletion,int);
+  //@}
 
-  // Description:
-  // Compute normals based on the input image. Off by default.
+  //@{
+  /**
+   * Compute normals based on the input image. Off by default.
+   */
   vtkSetMacro(ComputeNormals, int);
   vtkGetMacro(ComputeNormals, int);
   vtkBooleanMacro(ComputeNormals, int);
+  //@}
 
 protected:
   vtkGreedyTerrainDecimation();

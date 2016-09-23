@@ -55,10 +55,10 @@
   { \
     int errorcode = call; \
     if (errorcode != NC_NOERR) \
-      { \
+    { \
       vtkErrorMacro(<< "netCDF Error: " << nc_strerror(errorcode)); \
       return 0; \
-      } \
+    } \
   }
 
 #include <cctype>
@@ -81,7 +81,7 @@ public:
 static int NetCDFTypeToVTKType(nc_type type)
 {
   switch (type)
-    {
+  {
     case NC_BYTE: return VTK_UNSIGNED_CHAR;
     case NC_CHAR: return VTK_CHAR;
     case NC_SHORT: return VTK_SHORT;
@@ -92,7 +92,7 @@ static int NetCDFTypeToVTKType(nc_type type)
       vtkGenericWarningMacro(<< "Unknown netCDF variable type "
                              << type);
       return -1;
-    }
+  }
 }
 
 //=============================================================================
@@ -165,11 +165,11 @@ int vtkNetCDFReader::RequestDataObject(
   vtkDataObject *output = vtkDataObject::GetData(outInfo);
 
   if (!output || !output->IsA("vtkImageData"))
-    {
+  {
     output = vtkImageData::New();
     outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
     output->Delete();   // Not really deleted.
-    }
+  }
 
   return 1;
 }
@@ -193,7 +193,7 @@ int vtkNetCDFReader::RequestInformation(
   int numArrays = this->VariableArraySelection->GetNumberOfArrays();
   int numDims = 0;
   for (int arrayIndex = 0; arrayIndex < numArrays; arrayIndex++)
-    {
+  {
     if (!this->VariableArraySelection->GetArraySetting(arrayIndex)) continue;
 
     const char *name = this->VariableArraySelection->GetArrayName(arrayIndex);
@@ -214,21 +214,21 @@ int vtkNetCDFReader::RequestInformation(
     char *buffer = NULL;
     status = nc_inq_attlen(ncFD, varId, "units", &len);
     if (status == NC_NOERR)
-      {
+    {
       buffer = new char[len+1];
       status = nc_get_att_text(ncFD, varId, "units", buffer);
       buffer[len] = '\0';
-      }
+    }
     if (status == NC_NOERR)
-      {
+    {
       this->Private->AddUnit(name, buffer);
-      }
+    }
     delete[] buffer;
 
     // Assumption: time dimension is first.
     int timeDim = currentDimensions->GetValue(0);       // Not determined yet.
     if (this->IsTimeDimension(ncFD, timeDim))
-      {
+    {
       // Get time step information.
       VTK_CREATE(vtkDoubleArray, compositeTimeValues);
       vtkSmartPointer<vtkDoubleArray> currentTimeValues
@@ -241,24 +241,24 @@ int vtkNetCDFReader::RequestInformation(
                                     + currentTimeValues->GetNumberOfTuples());
       compositeTimeValues->SetNumberOfComponents(1);
       while ((oldTime < oldTimeEnd) || (newTime < newTimeEnd))
-        {
+      {
         double nextTimeValue;
         if (   (newTime >= newTimeEnd)
             || ((oldTime < oldTimeEnd) && (*oldTime < *newTime)) )
-          {
+        {
           nextTimeValue = *oldTime;
           oldTime++;
-          }
+        }
         else if ((oldTime >= oldTimeEnd) || (*newTime < *oldTime))
-          {
+        {
           nextTimeValue = *newTime;
           newTime++;
-          }
+        }
         else // *oldTime == *newTime
-          {
+        {
           nextTimeValue = *oldTime;
           oldTime++;  newTime++;
-          }
+        }
         compositeTimeValues->InsertNextTuple1(nextTimeValue);
 
         // Obviously, time values should be monotonically increasing. If they
@@ -266,34 +266,34 @@ int vtkNetCDFReader::RequestInformation(
         // garbage time slice. Because we still want to see the other time
         // slices, just dump those with bad time values.
         while ((newTime < newTimeEnd) && (*newTime <= nextTimeValue))
-          {
+        {
           newTime++;
-          }
         }
+      }
       timeValues = compositeTimeValues;
 
       // Strip off time dimension from what we load (we will use it to
       // subset instead).
       currentDimensions->RemoveTuple(0);
       currentNumDims--;
-      }
+    }
 
     // Remember the first variable we encounter.  Use it to determine extents
     // (below).
     if (numDims == 0)
-      {
+    {
       numDims = currentNumDims;
       this->LoadingDimensions->DeepCopy(currentDimensions);
-      }
     }
+  }
 
   // Capture the extent information from this->LoadingDimensions.
   bool pointData = this->DimensionsAreForPointData(this->LoadingDimensions);
   for (int i = 0 ; i < 3; i++)
-    {
+  {
     this->WholeExtent[2*i] = 0;
     if (i < this->LoadingDimensions->GetNumberOfTuples())
-      {
+    {
       size_t dimlength;
       // Remember that netCDF arrays are indexed backward from VTK images.
       int dim = this->LoadingDimensions->GetValue(numDims-i-1);
@@ -301,12 +301,12 @@ int vtkNetCDFReader::RequestInformation(
       this->WholeExtent[2*i+1] = static_cast<int>(dimlength-1);
       // For cell data, add one to the extent (which is for points).
       if (!pointData) this->WholeExtent[2*i+1]++;
-      }
-    else
-      {
-      this->WholeExtent[2*i+1] = 0;
-      }
     }
+    else
+    {
+      this->WholeExtent[2*i+1] = 0;
+    }
+  }
   vtkDebugMacro(<< "Whole extents: "
                 << this->WholeExtent[0] << ", " << this->WholeExtent[1] <<", "
                 << this->WholeExtent[2] << ", " << this->WholeExtent[3] <<", "
@@ -315,10 +315,10 @@ int vtkNetCDFReader::RequestInformation(
   // Report extents.
   vtkDataObject *output = vtkDataObject::GetData(outInfo);
   if (output && (output->GetExtentType() == VTK_3D_EXTENT))
-    {
+  {
     outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                  this->WholeExtent, 6);
-    }
+  }
 
 
   //Free old time units.
@@ -329,7 +329,7 @@ int vtkNetCDFReader::RequestInformation(
 
   // If we have time, report that.
   if (timeValues && (timeValues->GetNumberOfTuples() > 0))
-    {
+  {
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
                  timeValues->GetPointer(0),
                  timeValues->GetNumberOfTuples());
@@ -344,49 +344,49 @@ int vtkNetCDFReader::RequestInformation(
     char *buffer = NULL;
     status = nc_inq_varid(ncFD, "time", &varId);
     if (status == NC_NOERR)
-      {
+    {
       status = nc_inq_attlen(ncFD, varId, "units", &len);
-      }
+    }
     if (status == NC_NOERR)
-      {
+    {
       buffer = new char[len+1];
       status = nc_get_att_text(ncFD, varId, "units", buffer);
       buffer[len] = '\0';
       if (status == NC_NOERR)
-        {
+      {
         this->TimeUnits = buffer;
-        }
-      else
-        {
-        delete[] buffer;
-        }
       }
+      else
+      {
+        delete[] buffer;
+      }
+    }
 
     //Get calendar that time units are in
     if (status == NC_NOERR)
-       {
+    {
        status = nc_inq_attlen(ncFD, varId, "calendar", &len);
-       }
+    }
      if (status == NC_NOERR)
-       {
+     {
        buffer = new char[len+1];
        status = nc_get_att_text(ncFD, varId, "calendar", buffer);
        buffer[len] = '\0';
        if (status == NC_NOERR)
-         {
+       {
          this->Calendar = buffer;
-         }
-       else
-         {
-         delete[] buffer;
-         }
        }
-    }
+       else
+       {
+         delete[] buffer;
+       }
+     }
+  }
   else
-    {
+  {
     outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
-    }
+  }
 
   CALL_NETCDF(nc_close(ncFD));
 
@@ -403,10 +403,10 @@ int vtkNetCDFReader::RequestData(vtkInformation *vtkNotUsed(request),
   // this method.
   vtkDataSet *output = vtkDataSet::GetData(outInfo);
   if (!output)
-    {
+  {
     vtkErrorMacro(<< "Bad output type.");
     return 0;
-    }
+  }
 
   // Set up the extent for regular-grid type data sets.
   vtkImageData *imageOutput = vtkImageData::SafeDownCast(output);
@@ -415,29 +415,29 @@ int vtkNetCDFReader::RequestData(vtkInformation *vtkNotUsed(request),
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
     this->UpdateExtent);
   if (imageOutput)
-    {
+  {
     imageOutput->SetExtent(this->UpdateExtent);
-    }
+  }
   else if (rectOutput)
-    {
+  {
     rectOutput->SetExtent(this->UpdateExtent);
-    }
+  }
   else if (structOutput)
-    {
+  {
     structOutput->SetExtent(this->UpdateExtent);
-    }
+  }
   else
-    {
+  {
     // Superclass should handle extent setup if necessary.
-    }
+  }
 
   // Get requested time step.
   double time = 0.0;
   if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
-    {
+  {
     time
       = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
-    }
+  }
 
   int ncFD;
   CALL_NETCDF(nc_open(this->FileName, NC_NOWRITE, &ncFD));
@@ -445,13 +445,13 @@ int vtkNetCDFReader::RequestData(vtkInformation *vtkNotUsed(request),
   // Iterate over arrays and load selected ones.
   int numArrays = this->VariableArraySelection->GetNumberOfArrays();
   for (int arrayIndex = 0; arrayIndex < numArrays; arrayIndex++)
-    {
+  {
     if (!this->VariableArraySelection->GetArraySetting(arrayIndex)) continue;
 
     const char *name = this->VariableArraySelection->GetArrayName(arrayIndex);
 
     if (!this->LoadVariable(ncFD, name, time, output)) return 0;
-    }
+  }
 
   CALL_NETCDF(nc_close(ncFD));
 
@@ -463,18 +463,18 @@ void vtkNetCDFReader::SetFileName(const char *filename)
 {
   if (this->FileName == filename) return;
   if (this->FileName && filename && (strcmp(this->FileName, filename) == 0))
-    {
+  {
     return;
-    }
+  }
 
   delete[] this->FileName;
   this->FileName = NULL;
 
   if (filename)
-    {
+  {
     this->FileName = new char[strlen(filename)+1];
     strcpy(this->FileName, filename);
-    }
+  }
 
   this->Modified();
   this->FileNameMTime.Modified();
@@ -510,13 +510,13 @@ void vtkNetCDFReader::SetVariableArrayStatus(const char* name, int status)
 {
   vtkDebugMacro("Set cell array \"" << name << "\" status to: " << status);
   if(status)
-    {
+  {
     this->VariableArraySelection->EnableArray(name);
-    }
+  }
   else
-    {
+  {
     this->VariableArraySelection->DisableArray(name);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -525,10 +525,10 @@ vtkStringArray *vtkNetCDFReader::GetAllVariableArrayNames()
   int numArrays = this->GetNumberOfVariableArrays();
   this->AllVariableArrayNames->SetNumberOfValues(numArrays);
   for (int arrayIdx = 0; arrayIdx < numArrays; arrayIdx++)
-    {
+  {
     const char *arrayName = this->GetVariableArrayName(arrayIdx);
     this->AllVariableArrayNames->SetValue(arrayIdx, arrayName);
-    }
+  }
 
   return this->AllVariableArrayNames;
 }
@@ -539,25 +539,25 @@ void vtkNetCDFReader::SetDimensions(const char *dimensions)
   this->VariableArraySelection->DisableAllArrays();
 
   for (vtkIdType i = 0; i < this->VariableDimensions->GetNumberOfValues(); i++)
-    {
+  {
     if (this->VariableDimensions->GetValue(i) == dimensions)
-      {
+    {
       const char *variableName = this->VariableArraySelection->GetArrayName(i);
       this->VariableArraySelection->EnableArray(variableName);
-      }
     }
+  }
 }
 
 //-----------------------------------------------------------------------------
 int vtkNetCDFReader::UpdateMetaData()
 {
   if (this->MetaDataMTime < this->FileNameMTime)
-    {
+  {
     if (!this->FileName)
-      {
+    {
       vtkErrorMacro(<< "FileName not set.");
       return 0;
-      }
+    }
 
     int ncFD;
     CALL_NETCDF(nc_open(this->FileName, NC_NOWRITE, &ncFD));
@@ -571,11 +571,11 @@ int vtkNetCDFReader::UpdateMetaData()
     CALL_NETCDF(nc_close(ncFD));
 
     return retval;
-    }
+  }
   else
-    {
+  {
     return 1;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -584,12 +584,12 @@ vtkStdString vtkNetCDFReader::DescribeDimensions(int ncFD,
 {
   vtkStdString description;
   for (int i = 0; i < numDims; i++)
-    {
+  {
     char name[NC_MAX_NAME+1];
     CALL_NETCDF(nc_inq_dimname(ncFD, dimIds[i], name));
     if (i > 0) description += " ";
     description += name;
-    }
+  }
   return description;
 }
 
@@ -608,42 +608,42 @@ int vtkNetCDFReader::ReadMetaData(int ncFD)
   // Initialize variablesToRemove with all the variables.  Then remove them from
   // the list as we find them.
   for (int i = 0; i < this->VariableArraySelection->GetNumberOfArrays(); i++)
-    {
+  {
     variablesToRemove.insert(this->VariableArraySelection->GetArrayName(i));
-    }
+  }
 
   int numVariables;
   CALL_NETCDF(nc_inq_nvars(ncFD, &numVariables));
 
   for (int i = 0; i < numVariables; i++)
-    {
+  {
     char name[NC_MAX_NAME+1];
     CALL_NETCDF(nc_inq_varname(ncFD, i, name));
     if (variablesToRemove.find(name) == variablesToRemove.end())
-      {
+    {
       // Variable not already here.  Insert it in the variables to add.
       variablesToAdd.insert(name);
-      }
+    }
     else
-      {
+    {
       // Variable already exists.  Leave it be.  Remove it from the
       // variablesToRemove list.
       variablesToRemove.erase(name);
-      }
     }
+  }
 
   // Add and remove variables.  This will be a no-op if the variables have not
   // changed.
   for (stringSet::iterator removeItr = variablesToRemove.begin();
        removeItr != variablesToRemove.end(); removeItr++)
-    {
+  {
     this->VariableArraySelection->RemoveArrayByName(removeItr->c_str());
-    }
+  }
   for (stringSet::iterator addItr = variablesToAdd.begin();
        addItr != variablesToAdd.end(); addItr++)
-    {
+  {
     this->VariableArraySelection->AddArray(addItr->c_str());
-    }
+  }
 
   return 1;
 }
@@ -656,7 +656,7 @@ int vtkNetCDFReader::FillVariableDimensions(int ncFD)
   this->AllDimensions->SetNumberOfValues(0);
 
   for (int i = 0; i < numVar; i++)
-    {
+  {
     // Get the dimensions of this variable and encode them in a string.
     const char *varName = this->GetVariableArrayName(i);
     int varId, numDim, dimIds[NC_MAX_VAR_DIMS];
@@ -665,28 +665,28 @@ int vtkNetCDFReader::FillVariableDimensions(int ncFD)
     CALL_NETCDF(nc_inq_vardimid(ncFD, varId, dimIds));
     vtkStdString dimEncoding("(");
     for (int j = 0; j < numDim; j++)
-      {
+    {
       if ((j == 0) && (this->IsTimeDimension(ncFD, dimIds[j]))) continue;
       char dimName[NC_MAX_NAME+1];
       CALL_NETCDF(nc_inq_dimname(ncFD, dimIds[j], dimName));
       if (dimEncoding.size() > 1) dimEncoding += ", ";
       dimEncoding += dimName;
-      }
+    }
     dimEncoding += ")";
     // Store all dimensions in the VariableDimensions array.
     this->VariableDimensions->SetValue(i, dimEncoding.c_str());
     // Store unique dimensions in the AllDimensions array.
     bool unique = true;
     for (vtkIdType j = 0; j < this->AllDimensions->GetNumberOfValues(); j++)
-      {
+    {
       if (this->AllDimensions->GetValue(j) == dimEncoding)
-        {
+      {
         unique = false;
         break;
-        }
       }
-    if (unique) this->AllDimensions->InsertNextValue(dimEncoding);
     }
+    if (unique) this->AllDimensions->InsertNextValue(dimEncoding);
+  }
 
   return 1;
 }
@@ -710,9 +710,9 @@ vtkSmartPointer<vtkDoubleArray> vtkNetCDFReader::GetTimeValues(int ncFD,
   timeValues->SetNumberOfComponents(1);
   timeValues->SetNumberOfTuples(dimLength);
   for (size_t j = 0; j < dimLength; j++)
-    {
+  {
     timeValues->SetValue(j, static_cast<double>(j));
-    }
+  }
   return timeValues;
 }
 
@@ -735,11 +735,11 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char *varName, double time,
   int numDims;
   CALL_NETCDF(nc_inq_varndims(ncFD, varId, &numDims));
   if (numDims > 4)
-    {
+  {
     vtkErrorMacro(<< "More than 3 dims + time not supported in variable "
                   << varName);
     return 0;
-    }
+  }
   int dimIds[4];
   CALL_NETCDF(nc_inq_vardimid(ncFD, varId, dimIds));
 
@@ -752,7 +752,7 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char *varName, double time,
   // Are we using time?
   int timeIndexOffset = 0;
   if ((numDims > 0) && this->IsTimeDimension(ncFD, dimIds[0]))
-    {
+  {
     vtkSmartPointer<vtkDoubleArray> timeValues
       = this->GetTimeValues(ncFD, dimIds[0]);
     timeIndexOffset = 1;
@@ -761,19 +761,19 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char *varName, double time,
     for (start[0] = 0;
          start[0] < static_cast<size_t>(timeValues->GetNumberOfTuples());
          start[0]++)
-      {
+    {
       if (timeValues->GetValue(start[0]) >= time) break;
-      }
+    }
     count[0] = 1;
     numDims--;
-    }
+  }
 
   if (numDims > 3)
-    {
+  {
     vtkErrorMacro(<< "More than 3 dims without time not supported in variable "
                   << varName);
     return 0;
-    }
+  }
 
   bool loadingPointData = this->DimensionsAreForPointData(
                                                        this->LoadingDimensions);
@@ -783,7 +783,7 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char *varName, double time,
   int extent[6];
   this->GetUpdateExtentForOutput(output, extent);
   if (numDims != this->LoadingDimensions->GetNumberOfTuples())
-    {
+  {
     vtkWarningMacro(<< "Variable " << varName << " dimensions ("
                     << this->DescribeDimensions(ncFD, dimIds+timeIndexOffset,
                                                 numDims).c_str()
@@ -793,11 +793,11 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char *varName, double time,
                            this->LoadingDimensions->GetNumberOfTuples()).c_str()
                     << ").  Skipping");
     return 1;
-    }
+  }
   for (int i = 0; i < numDims; i++)
-    {
+  {
     if (dimIds[i+timeIndexOffset] != this->LoadingDimensions->GetValue(i))
-      {
+    {
       vtkWarningMacro(<< "Variable " << varName << " dimensions ("
                       << this->DescribeDimensions(ncFD, dimIds+timeIndexOffset,
                                                   numDims).c_str()
@@ -807,7 +807,7 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char *varName, double time,
                            this->LoadingDimensions->GetNumberOfTuples()).c_str()
                       << ").  Skipping");
       return 1;
-      }
+    }
     // Remember that netCDF arrays are indexed backward from VTK images.
     start[i+timeIndexOffset] = extent[2*(numDims-i-1)];
     count[i+timeIndexOffset]
@@ -817,7 +817,7 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char *varName, double time,
     if (!loadingPointData) count[i+timeIndexOffset]--;
 
     arraySize *= count[i+timeIndexOffset];
-    }
+  }
 
   // Allocate an array of the right type.
   nc_type ncType;
@@ -837,72 +837,72 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char *varName, double time,
   size_t attribLength;
   if (   (nc_inq_attlen(ncFD, varId, "_FillValue", &attribLength) == NC_NOERR)
       && (attribLength == 1) )
-    {
+  {
     if (this->ReplaceFillValueWithNan)
-      {
+    {
       // NaN only available with float and double.
       if (dataArray->GetDataType() == VTK_FLOAT)
-        {
+      {
         float fillValue;
         nc_get_att_float(ncFD, varId, "_FillValue", &fillValue);
         std::replace(reinterpret_cast<float*>(dataArray->GetVoidPointer(0)),
                         reinterpret_cast<float*>(dataArray->GetVoidPointer(
                                                dataArray->GetNumberOfTuples())),
                         fillValue, static_cast<float>(vtkMath::Nan()));
-        }
+      }
       else if (dataArray->GetDataType() == VTK_DOUBLE)
-        {
+      {
         double fillValue;
         nc_get_att_double(ncFD, varId, "_FillValue", &fillValue);
         std::replace(reinterpret_cast<double*>(dataArray->GetVoidPointer(0)),
                         reinterpret_cast<double*>(dataArray->GetVoidPointer(
                                                dataArray->GetNumberOfTuples())),
                         fillValue, vtkMath::Nan());
-        }
+      }
       else
-        {
+      {
         vtkDebugMacro(<< "No NaN available for data of type "
                       << dataArray->GetDataType());
-        }
       }
     }
+  }
 
   // Check to see if there is a scale or offset.
   double scale = 1.0;
   double offset = 0.0;
   if (   (nc_inq_attlen(ncFD, varId, "scale_factor", &attribLength) == NC_NOERR)
       && (attribLength == 1) )
-    {
+  {
     CALL_NETCDF(nc_get_att_double(ncFD, varId, "scale_factor", &scale));
-    }
+  }
   if (   (nc_inq_attlen(ncFD, varId, "add_offset", &attribLength) == NC_NOERR)
       && (attribLength == 1) )
-    {
+  {
     CALL_NETCDF(nc_get_att_double(ncFD, varId, "add_offset", &offset));
-    }
+  }
 
   if ((scale != 1.0) || (offset != 0.0))
-    {
+  {
     VTK_CREATE(vtkDoubleArray, adjustedArray);
     adjustedArray->SetNumberOfComponents(1);
     adjustedArray->SetNumberOfTuples(arraySize);
     for (vtkIdType i = 0; i < arraySize; i++)
-      {
+    {
       adjustedArray->SetValue(i, dataArray->GetTuple1(i)*scale + offset);
-      }
-    dataArray = adjustedArray;
     }
+    dataArray = adjustedArray;
+  }
 
   // Add data to the output.
   dataArray->SetName(varName);
   if (loadingPointData)
-    {
+  {
     output->GetPointData()->AddArray(dataArray);
-    }
+  }
   else
-    {
+  {
     output->GetCellData()->AddArray(dataArray);
-    }
+  }
 
   return 1;
 }

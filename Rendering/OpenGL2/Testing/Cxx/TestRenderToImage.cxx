@@ -43,7 +43,7 @@ int TestRenderToImage(int argc, char* argv[])
     vtkOpenGLRenderWindow::SafeDownCast(renderWindow.Get());
 
   if (!glRenderWindow->SetUseOffScreenBuffers(true))
-    {
+  {
     // Hardware off screen buffer failed to be created.
     // Turn debug mode on to write the errors on the output.
     glRenderWindow->DebugOn();
@@ -54,7 +54,7 @@ int TestRenderToImage(int argc, char* argv[])
       << glRenderWindow->ReportCapabilities() << std::endl;
 
     return EXIT_FAILURE;
-    }
+  }
   renderWindow->Render();
   // Create an (empty) image at the window size
   int *size = renderWindow->GetSize();
@@ -91,9 +91,9 @@ int TestRenderToImage(int argc, char* argv[])
   renderWindow->Render();
   int retVal = vtkRegressionTestImage(renderWindow.Get());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renderWindowInteractor->Start();
-    }
+  }
 
   return !retVal;
 }

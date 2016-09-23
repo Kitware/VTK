@@ -69,8 +69,8 @@ struct vtkMultiBlockPLOT3DReaderInternals
       NumberOfDimensions(3),
       Precision(4),
       IBlanking(0)
-      {
-      }
+    {
+    }
   };
 
   InternalSettings Settings;
@@ -78,8 +78,8 @@ struct vtkMultiBlockPLOT3DReaderInternals
 
   vtkMultiBlockPLOT3DReaderInternals() :
     NeedToCheckXYZFile(true)
-    {
-    }
+  {
+  }
 
   int ReadInts(FILE* fp, int n, int* val);
   void CheckBinaryFile(FILE *fp, size_t fileSize);
@@ -104,11 +104,11 @@ struct vtkMultiBlockPLOT3DReaderInternals
 
   static void CalculateSkips(const int extent[6], const int wextent[6],
     vtkIdType& preskip, vtkIdType& postskip)
-    {
+  {
     vtkIdType nPtsInPlane = static_cast<vtkIdType>(wextent[1]+1)*(wextent[3]+1);
     preskip = nPtsInPlane * extent[4];
     postskip = nPtsInPlane * (wextent[5] - extent[5]);
-    }
+  }
 };
 
 namespace
@@ -129,10 +129,10 @@ class Plot3DException : public std::exception
 class VTKIOPARALLEL_EXPORT vtkMultiBlockPLOT3DReaderRecord
 {
   struct vtkSubRecord
-    {
+  {
     vtkTypeUInt64 HeaderOffset;
     vtkTypeUInt64 FooterOffset;
-    };
+  };
 
   typedef std::vector<vtkSubRecord> VectorOfSubRecords;
   VectorOfSubRecords SubRecords;
@@ -167,19 +167,19 @@ public:
   // 1. file doesn't comprise of records i.e. ASCII or doesn't have byte-count markers.
   // 2. offset is same as the start offset for this record.
   bool AtStart(vtkTypeUInt64 offset)
-    {
+  {
     return (this->SubRecords.size()==0 || this->SubRecords.front().HeaderOffset == offset);
-    }
+  }
 
   // Description:
   // Returns true if:
   // 1. file doesn't comprise of records i.e. ASCII or doesn't have byte-count markers.
   // 2. offset is at the end of this record i.e. the start of the next record.
   bool AtEnd(vtkTypeUInt64 offset)
-    {
+  {
     return (this->SubRecords.size()==0 ||
       (this->SubRecords.back().FooterOffset + sizeof(int) == offset));
-    }
+  }
 
   // Description:
   // Returns the location of SubRecordSeparators (bad two 4-byte ints) between startOffset and
@@ -203,9 +203,9 @@ public:
 
   std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64> > GetChunksToRead(
     vtkTypeUInt64 start, vtkTypeUInt64 length) const
-    {
+  {
     return this->GetChunksToRead(start, length, this->GetSubRecordSeparators(start, length));
-    }
+  }
 
 };
 

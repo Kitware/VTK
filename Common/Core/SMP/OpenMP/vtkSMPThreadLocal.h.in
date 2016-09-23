@@ -61,9 +61,9 @@ public:
     detail::ThreadSpecificStorageIterator it;
     it.SetThreadSpecificStorage(Backend);
     for (it.SetToBegin(); !it.GetAtEnd(); it.Forward())
-      {
+    {
       delete reinterpret_cast<T*>(it.GetStorage());
-      }
+    }
   }
 
   // Description:
@@ -79,9 +79,9 @@ public:
     detail::StoragePointerType &ptr = this->Backend.GetStorage();
     T *local = reinterpret_cast<T*>(ptr);
     if (!ptr)
-      {
+    {
        ptr = local = new T(this->Exemplar);
-      }
+    }
     return *local;
   }
 

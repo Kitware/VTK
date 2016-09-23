@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPOutlineFilter - create wireframe outline for arbitrary data set
-// .SECTION Description
-// vtkPOutlineFilter works like vtkOutlineFilter, but it looks for data
-// partitions in other processes.  It assumes the filter is operated
-// in a data parallel pipeline.
+/**
+ * @class   vtkPOutlineFilter
+ * @brief   create wireframe outline for arbitrary data set
+ *
+ * vtkPOutlineFilter works like vtkOutlineFilter, but it looks for data
+ * partitions in other processes.  It assumes the filter is operated
+ * in a data parallel pipeline.
+*/
 
 #ifndef vtkPOutlineFilter_h
 #define vtkPOutlineFilter_h
@@ -33,10 +36,13 @@ public:
   vtkTypeMacro(vtkPOutlineFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set and get the controller.
+  //@{
+  /**
+   * Set and get the controller.
+   */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
 
 protected:
   vtkPOutlineFilter();

@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkResampleToImage - sample dataset on a uniform grid
-// .SECTION Description
-// vtkPResampleToImage is a filter that resamples the input dataset on
-// a uniform grid. It internally uses vtkProbeFilter to do the probing.
-// .SECTION See Also
-// vtkProbeFilter
+/**
+ * @class   vtkResampleToImage
+ * @brief   sample dataset on a uniform grid
+ *
+ * vtkPResampleToImage is a filter that resamples the input dataset on
+ * a uniform grid. It internally uses vtkProbeFilter to do the probing.
+ * @sa
+ * vtkProbeFilter
+*/
 
 #ifndef vtkResampleToImage_h
 #define vtkResampleToImage_h
@@ -39,26 +42,36 @@ public:
 
   static vtkResampleToImage *New();
 
-  // Description:
-  // Set/Get if the filter should use Input bounds to sub-sample the data.
-  // By default it is set to 1.
+  //@{
+  /**
+   * Set/Get if the filter should use Input bounds to sub-sample the data.
+   * By default it is set to 1.
+   */
   vtkSetMacro(UseInputBounds, bool);
   vtkGetMacro(UseInputBounds, bool);
   vtkBooleanMacro(UseInputBounds, bool);
+  //@}
 
-  // Description:
-  // Set/Get sampling bounds. If (UseInputBounds == 1) then the sampling
-  // bounds won't be used.
+  //@{
+  /**
+   * Set/Get sampling bounds. If (UseInputBounds == 1) then the sampling
+   * bounds won't be used.
+   */
   vtkSetVector6Macro(SamplingBounds, double);
   vtkGetVector6Macro(SamplingBounds, double);
+  //@}
 
-  // Description:
-  // Set/Get sampling dimension along each axis. Default will be [10,10,10]
+  //@{
+  /**
+   * Set/Get sampling dimension along each axis. Default will be [10,10,10]
+   */
   vtkSetVector3Macro(SamplingDimensions, int);
   vtkGetVector3Macro(SamplingDimensions, int);
+  //@}
 
-  // Description:
-  // Get the output data for this algorithm.
+  /**
+   * Get the output data for this algorithm.
+   */
   vtkImageData* GetOutput();
 
 protected:
@@ -77,24 +90,28 @@ protected:
   virtual int FillInputPortInformation(int, vtkInformation *);
   virtual int FillOutputPortInformation(int, vtkInformation *);
 
-  // Description:
-  // Get the name of the valid-points mask array.
+  /**
+   * Get the name of the valid-points mask array.
+   */
   const char* GetMaskArrayName() const;
 
-  // Description:
-  // Resample input vtkDataObject to a vtkImageData with the specified bounds
-  // and extent.
+  /**
+   * Resample input vtkDataObject to a vtkImageData with the specified bounds
+   * and extent.
+   */
   void PerformResampling(vtkDataObject *input, const double samplingBounds[6],
                          bool computeProbingExtent, const double inputBounds[6],
                          vtkImageData *output);
 
-  // Description:
-  // Mark invalid points and cells of vtkImageData as hidden
+  /**
+   * Mark invalid points and cells of vtkImageData as hidden
+   */
   void SetBlankPointsAndCells(vtkImageData *data);
 
-  // Description:
-  // Helper function to compute the bounds of the given vtkDataSet or
-  // vtkCompositeDataSet
+  /**
+   * Helper function to compute the bounds of the given vtkDataSet or
+   * vtkCompositeDataSet
+   */
   static void ComputeDataBounds(vtkDataObject *data, double bounds[6]);
 
 

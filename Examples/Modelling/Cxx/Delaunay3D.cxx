@@ -14,11 +14,11 @@
 int main ( int argc, char *argv[] )
 {
   if (argc != 3)
-    {
+  {
     cout << "Usage: " << argv[0]
          << " InputPolyDataFile OutputDataSetFile" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   //Read the file
   vtkSmartPointer<vtkXMLPolyDataReader> reader =

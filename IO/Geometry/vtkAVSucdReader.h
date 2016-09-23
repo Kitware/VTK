@@ -12,23 +12,26 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAVSucdReader - reads a dataset in AVS "UCD" format
-// .SECTION Description
-// vtkAVSucdReader creates an unstructured grid dataset. It reads binary or
-// ASCII files stored in UCD format, with optional data stored at the nodes
-// or at the cells of the model. A cell-based fielddata stores the material
-// id. The class can automatically detect the endian-ness of the binary files.
-
-// .SECTION Thanks
-// Thanks to Guenole Harel and Emmanuel Colin (Supelec engineering school,
-// France) and Jean M. Favre (CSCS, Switzerland) who co-developed this class.
-// Thanks to Isabelle Surin (isabelle.surin at cea.fr, CEA-DAM, France) who
-// supervised the internship of the first two authors. Thanks to Daniel
-// Aguilera (daniel.aguilera at cea.fr, CEA-DAM, France) who contributed code
-// and advice. Please address all comments to Jean Favre (jfavre at cscs.ch)
-
-// .SECTION See Also
-// vtkGAMBITReader
+/**
+ * @class   vtkAVSucdReader
+ * @brief   reads a dataset in AVS "UCD" format
+ *
+ * vtkAVSucdReader creates an unstructured grid dataset. It reads binary or
+ * ASCII files stored in UCD format, with optional data stored at the nodes
+ * or at the cells of the model. A cell-based fielddata stores the material
+ * id. The class can automatically detect the endian-ness of the binary files.
+ *
+ * @par Thanks:
+ * Thanks to Guenole Harel and Emmanuel Colin (Supelec engineering school,
+ * France) and Jean M. Favre (CSCS, Switzerland) who co-developed this class.
+ * Thanks to Isabelle Surin (isabelle.surin at cea.fr, CEA-DAM, France) who
+ * supervised the internship of the first two authors. Thanks to Daniel
+ * Aguilera (daniel.aguilera at cea.fr, CEA-DAM, France) who contributed code
+ * and advice. Please address all comments to Jean Favre (jfavre at cscs.ch)
+ *
+ * @sa
+ * vtkGAMBITReader
+*/
 
 #ifndef vtkAVSucdReader_h
 #define vtkAVSucdReader_h
@@ -48,56 +51,85 @@ public:
   vtkTypeMacro(vtkAVSucdReader,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify file name of AVS UCD datafile to read
+  //@{
+  /**
+   * Specify file name of AVS UCD datafile to read
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Is the file to be read written in binary format (as opposed to ascii).
+  //@{
+  /**
+   * Is the file to be read written in binary format (as opposed to ascii).
+   */
   vtkSetMacro(BinaryFile, int);
   vtkGetMacro(BinaryFile, int);
   vtkBooleanMacro(BinaryFile, int);
+  //@}
 
-  // Description:
-  // Get the total number of cells.
+  //@{
+  /**
+   * Get the total number of cells.
+   */
   vtkGetMacro(NumberOfCells,int);
+  //@}
 
-  // Description:
-  // Get the total number of nodes.
+  //@{
+  /**
+   * Get the total number of nodes.
+   */
   vtkGetMacro(NumberOfNodes,int);
+  //@}
 
-  // Description:
-  // Get the number of data fields at the nodes.
+  //@{
+  /**
+   * Get the number of data fields at the nodes.
+   */
   vtkGetMacro(NumberOfNodeFields,int);
+  //@}
 
-  // Description:
-  // Get the number of data fields at the cell centers.
+  //@{
+  /**
+   * Get the number of data fields at the cell centers.
+   */
   vtkGetMacro(NumberOfCellFields,int);
+  //@}
 
-  // Description:
-  // Get the number of data fields for the model. Unused because VTK
-  // has no methods for it.
+  //@{
+  /**
+   * Get the number of data fields for the model. Unused because VTK
+   * has no methods for it.
+   */
   vtkGetMacro(NumberOfFields,int);
+  //@}
 
-  // Description:
-  // Get the number of data components at the nodes and cells.
+  //@{
+  /**
+   * Get the number of data components at the nodes and cells.
+   */
   vtkGetMacro(NumberOfNodeComponents,int);
   vtkGetMacro(NumberOfCellComponents,int);
+  //@}
 
-  // Description:
-  // Set/Get the endian-ness of the binary file.
+  //@{
+  /**
+   * Set/Get the endian-ness of the binary file.
+   */
   void SetByteOrderToBigEndian();
   void SetByteOrderToLittleEndian();
   const char *GetByteOrderAsString();
+  //@}
 
   vtkSetMacro(ByteOrder, int);
   vtkGetMacro(ByteOrder, int);
 
-  // Description:
-  // The following methods allow selective reading of solutions fields.  by
-  // default, ALL data fields are the nodes and cells are read, but this can
-  // be modified.
+  //@{
+  /**
+   * The following methods allow selective reading of solutions fields.  by
+   * default, ALL data fields are the nodes and cells are read, but this can
+   * be modified.
+   */
   int GetNumberOfPointArrays();
   int GetNumberOfCellArrays();
   const char* GetPointArrayName(int index);
@@ -106,6 +138,7 @@ public:
   int GetCellArrayStatus(const char* name);
   void SetPointArrayStatus(const char* name, int status);
   void SetCellArrayStatus(const char* name, int status);
+  //@}
 
   void DisableAllCellArrays();
   void EnableAllCellArrays();

@@ -12,15 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageSobel3D - Computes a vector field using sobel functions.
-// .SECTION Description
-// vtkImageSobel3D computes a vector field from a scalar field by using
-// Sobel functions.  The number of vector components is 3 because
-// the input is a volume.  Output is always doubles.  A little creative
-// liberty was used to extend the 2D sobel kernels into 3D.
-
-
-
+/**
+ * @class   vtkImageSobel3D
+ * @brief   Computes a vector field using sobel functions.
+ *
+ * vtkImageSobel3D computes a vector field from a scalar field by using
+ * Sobel functions.  The number of vector components is 3 because
+ * the input is a volume.  Output is always doubles.  A little creative
+ * liberty was used to extend the 2D sobel kernels into 3D.
+*/
 
 #ifndef vtkImageSobel3D_h
 #define vtkImageSobel3D_h

@@ -61,9 +61,9 @@ int TestGL2PSExporterVolumeRaster( int, char *[] )
   coneShift->SetShift(-range[0]);
   double mag = range[1] - range[0];
   if (mag == 0.0)
-    {
+  {
     mag = 1.0;
-    }
+  }
   coneShift->SetScale(255.0/mag);
   coneShift->SetOutputScalarTypeToUnsignedChar();
   coneShift->Update();

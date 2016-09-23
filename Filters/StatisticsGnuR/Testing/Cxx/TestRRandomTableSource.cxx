@@ -37,11 +37,11 @@ namespace
 #define test_expression(expression)                                     \
   {                                                                     \
     if(!(expression))                                                   \
-      {                                                                 \
+    {                                                                 \
       std::ostringstream buffer;                                 \
       buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
       throw std::runtime_error(buffer.str());                        \
-      }                                                                 \
+    }                                                                 \
   }
 
   bool doubleEquals(double left, double right, double epsilon) {
@@ -53,7 +53,7 @@ namespace
 int TestRRandomTableSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     double mean_nd = 5.0;
     double sd_nd = 2.5;
     double lambda_pd = 3.0;
@@ -84,54 +84,54 @@ int TestRRandomTableSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkTable* outputDerived = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
 
     for ( vtkIdType r = 0; r < outputPrimary->GetNumberOfRows(); ++ r )
-      {
+    {
       if(!strcmp(outputPrimary->GetValueByName(r, "Variable").ToString(),"Normal"))
-        {
+      {
         test_expression(doubleEquals(outputPrimary->GetValueByName(r,"Mean").ToDouble(),mean_nd,1.0));
         test_expression(doubleEquals(outputDerived->GetValueByName(r,"Standard Deviation").ToDouble(),sd_nd,1.0));
         test_expression(doubleEquals(outputDerived->GetValueByName(r,"Skewness").ToDouble(),0.0,1.0));
         test_expression(doubleEquals(outputDerived->GetValueByName(r,"Kurtosis").ToDouble(),0.0,1.0));
-        }
+      }
       else if(!strcmp(outputPrimary->GetValueByName(r, "Variable").ToString(),"Poisson"))
-        {
+      {
         test_expression(doubleEquals(outputPrimary->GetValueByName(r,"Mean").ToDouble(),lambda_pd,1.0));
         test_expression(doubleEquals(outputDerived->GetValueByName(r,"Standard Deviation").ToDouble(),sqrt(lambda_pd),1.0));
         test_expression(doubleEquals(outputDerived->GetValueByName(r,"Skewness").ToDouble(),1.0/sqrt(lambda_pd),1.0));
         test_expression(doubleEquals(outputDerived->GetValueByName(r,"Kurtosis").ToDouble(),1.0/lambda_pd,1.0));
-        }
+      }
       else if(!strcmp(outputPrimary->GetValueByName(r, "Variable").ToString(),"Chi-Square"))
-        {
+      {
         test_expression(doubleEquals(outputPrimary->GetValueByName(r,"Mean").ToDouble(),k_csd,1.0));
         test_expression(doubleEquals(outputDerived->GetValueByName(r,"Standard Deviation").ToDouble(),sqrt(2.0*k_csd),1.0));
         test_expression(doubleEquals(outputDerived->GetValueByName(r,"Skewness").ToDouble(),sqrt(8.0/k_csd),1.0));
         test_expression(doubleEquals(outputDerived->GetValueByName(r,"Kurtosis").ToDouble(),12.0/k_csd,2.0));
-        }
+      }
       else if(!strcmp(outputPrimary->GetValueByName(r, "Variable").ToString(),"Uniform"))
-        {
+      {
         test_expression(doubleEquals(outputPrimary->GetValueByName(r,"Mean").ToDouble(),0.5*(lb_ud+ub_ud),1.0));
         test_expression(doubleEquals(outputDerived->GetValueByName(r,"Standard Deviation").ToDouble(),sqrt((1.0/12.0)*pow((ub_ud-lb_ud),2)),1.0));
         test_expression(doubleEquals(outputDerived->GetValueByName(r,"Skewness").ToDouble(),0.0,1.0));
         test_expression(doubleEquals(outputDerived->GetValueByName(r,"Kurtosis").ToDouble(),-(6.0/5.0),1.0));
-        }
+      }
       else if(!strcmp(outputPrimary->GetValueByName(r, "Variable").ToString(),"Binomial"))
-        {
+      {
         test_expression(doubleEquals(outputPrimary->GetValueByName(r,"Mean").ToDouble(),nt_bd*ps_bd,1.0));
         test_expression(doubleEquals(outputDerived->GetValueByName(r,"Standard Deviation").ToDouble(),sqrt(nt_bd*ps_bd*(1.0 - ps_bd)),1.0));
         test_expression(doubleEquals(outputDerived->GetValueByName(r,"Skewness").ToDouble(),(1.0 - 2.0*ps_bd)/sqrt(nt_bd*ps_bd*(1.0 - ps_bd)),1.0));
         test_expression(doubleEquals(outputDerived->GetValueByName(r,"Kurtosis").ToDouble(),(1.0 - 6.0*ps_bd*(1.0 - ps_bd))/(nt_bd*ps_bd*(1.0 - ps_bd)),1.0));
-        }
       }
+    }
 
     dsf->Delete();
     rts->Delete();
     return 0;
-    }
+  }
 
   catch( std::exception& e )
-    {
+  {
     cerr << e.what()
          << "\n";
     return 1;
-    }
+  }
 }
 

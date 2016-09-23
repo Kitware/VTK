@@ -11,9 +11,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkShader - encapsulate a glsl shader
-// .SECTION Description
-// vtkShader represents a shader, vertex, fragment, geometry etc
+/**
+ * @class   vtkShader
+ * @brief   encapsulate a glsl shader
+ *
+ * vtkShader represents a shader, vertex, fragment, geometry etc
+*/
+
 #ifndef vtkShader_h
 #define vtkShader_h
 

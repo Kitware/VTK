@@ -13,12 +13,15 @@
 
 =========================================================================*/
 
-// .NAME vtkXdmf3Writer - write eXtensible Data Model and Format files
-// .SECTION Description
-// vtkXdmf3Writer converts vtkDataObjects to XDMF format. This is intended to
-// replace vtkXdmfWriter, which is not up to date with the capabilities of the
-// newer XDMF3 library. This writer understands VTK's composite data types and
-// produces full trees in the output XDMF files.
+/**
+ * @class   vtkXdmf3Writer
+ * @brief   write eXtensible Data Model and Format files
+ *
+ * vtkXdmf3Writer converts vtkDataObjects to XDMF format. This is intended to
+ * replace vtkXdmfWriter, which is not up to date with the capabilities of the
+ * newer XDMF3 library. This writer understands VTK's composite data types and
+ * produces full trees in the output XDMF files.
+*/
 
 #ifndef vtkXdmf3Writer_h
 #define vtkXdmf3Writer_h
@@ -34,34 +37,45 @@ public:
   vtkTypeMacro(vtkXdmf3Writer,vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the input data set.
+  /**
+   * Set the input data set.
+   */
   virtual void SetInputData(vtkDataObject* dobj);
 
-  // Description:
-  // Set or get the file name of the xdmf file.
+  //@{
+  /**
+   * Set or get the file name of the xdmf file.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Write data to output. Method executes subclasses WriteData() method, as
-  // well as StartMethod() and EndMethod() methods.
-  // Returns 1 on success and 0 on failure.
+  /**
+   * Write data to output. Method executes subclasses WriteData() method, as
+   * well as StartMethod() and EndMethod() methods.
+   * Returns 1 on success and 0 on failure.
+   */
   virtual int Write();
 
-  // Description:
-  // Topology Geometry and Attribute arrays smaller than this are written in line into the XML.
-  // Default is 100.
+  //@{
+  /**
+   * Topology Geometry and Attribute arrays smaller than this are written in line into the XML.
+   * Default is 100.
+   */
   vtkSetMacro(LightDataLimit, unsigned int);
   vtkGetMacro(LightDataLimit, unsigned int);
+  //@}
 
-  //Description:
-  //Controls whether writer automatically writes all input time steps, or
-  //just the timestep that is currently on the input.
-  //Default is OFF.
+  //@{
+  /**
+   * Controls whether writer automatically writes all input time steps, or
+   * just the timestep that is currently on the input.
+   * Default is OFF.
+   */
   vtkSetMacro(WriteAllTimeSteps, bool);
   vtkGetMacro(WriteAllTimeSteps, bool);
   vtkBooleanMacro(WriteAllTimeSteps, bool);
+  //@}
 
 protected:
   vtkXdmf3Writer();

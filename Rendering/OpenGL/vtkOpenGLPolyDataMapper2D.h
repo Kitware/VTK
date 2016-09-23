@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLPolyDataMapper2D - 2D PolyData support for OpenGL
-// .SECTION Description
-// vtkOpenGLPolyDataMapper2D provides 2D PolyData annotation support for
-// vtk under OpenGL.  Normally the user should use vtkPolyDataMapper2D
-// which in turn will use this class.
-
-// .SECTION See Also
-// vtkPolyDataMapper2D
+/**
+ * @class   vtkOpenGLPolyDataMapper2D
+ * @brief   2D PolyData support for OpenGL
+ *
+ * vtkOpenGLPolyDataMapper2D provides 2D PolyData annotation support for
+ * vtk under OpenGL.  Normally the user should use vtkPolyDataMapper2D
+ * which in turn will use this class.
+ *
+ * @sa
+ * vtkPolyDataMapper2D
+*/
 
 #ifndef vtkOpenGLPolyDataMapper2D_h
 #define vtkOpenGLPolyDataMapper2D_h
@@ -34,8 +37,9 @@ public:
   static vtkOpenGLPolyDataMapper2D *New();
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Actually draw the poly data.
+  /**
+   * Actually draw the poly data.
+   */
   void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor);
 
 protected:

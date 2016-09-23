@@ -150,59 +150,59 @@ vtkMoleculeReaderBase::~vtkMoleculeReaderBase()
   delete [] this->FileName;
 
   if(this->AtomType)
-    {
+  {
     this->AtomType->Delete();
-    }
+  }
   if(this->AtomTypeStrings)
-    {
+  {
     this->AtomTypeStrings->Delete();
-    }
+  }
   if(this->Points)
-    {
+  {
     this->Points->Delete();
-    }
+  }
   if(this->RGB)
-    {
+  {
     this->RGB->Delete();
-    }
+  }
   if(this->Radii)
-    {
+  {
     this->Radii->Delete();
-    }
+  }
   if(this->Chain)
-    {
+  {
     this->Chain->Delete();
-    }
+  }
   if(this->Residue)
-    {
+  {
     this->Residue->Delete();
-    }
+  }
   if(this->SecondaryStructures)
-    {
+  {
     this->SecondaryStructures->Delete();
-    }
+  }
   if(this->SecondaryStructuresBegin)
-    {
+  {
     this->SecondaryStructuresBegin->Delete();
-    }
+  }
   if(this->SecondaryStructuresEnd)
-    {
+  {
     this->SecondaryStructuresEnd->Delete();
-    }
+  }
   if(this->IsHetatm)
-    {
+  {
     this->IsHetatm->Delete();
-    }
+  }
 }
 
 int vtkMoleculeReaderBase::FillOutputPortInformation(int port,
                                                      vtkInformation *info)
 {
   if (port == 1)
-    {
+  {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMolecule");
     return 1;
-    }
+  }
   return this->Superclass::FillOutputPortInformation(port, info);
 }
 
@@ -220,24 +220,24 @@ int vtkMoleculeReaderBase::RequestData(
 
   vtkInformation *outMolInfo = outputVector->GetInformationObject(1);
   if (outMolInfo)
-    {
+  {
     this->Molecule = vtkMolecule::SafeDownCast(
       outMolInfo->Get(vtkDataObject::DATA_OBJECT()));
-    }
+  }
 
 
   FILE *fp;
 
   if (!this->FileName)
-    {
+  {
     return 0;
-    }
+  }
 
   if ((fp = fopen(this->FileName, "r")) == NULL)
-    {
+  {
     vtkErrorMacro(<< "Unable to open " << this->FileName);
     return 0;
-    }
+  }
   vtkDebugMacro(<< "opening base file " << this->FileName);
   this->ReadMolecule(fp, output);
   fclose(fp);
@@ -255,101 +255,101 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp, vtkPolyData *output)
   vtkDebugMacro(<< "Scanning the Molecule file");
 
   if ( !this->AtomType )
-    {
+  {
     this->AtomType = vtkIdTypeArray::New();
-    }
+  }
   else
-    {
+  {
     this->AtomType->Reset();
-    }
+  }
   this->AtomType->SetName("atom_type");
   output->GetPointData()->AddArray(this->AtomType);
 
   if(!this->AtomTypeStrings)
-    {
+  {
     this->AtomTypeStrings = vtkStringArray::New();
-    }
+  }
   else
-    {
+  {
     this->AtomTypeStrings->Reset();
-    }
+  }
   this->AtomTypeStrings->SetName("atom_types");
   output->GetPointData()->AddArray(this->AtomTypeStrings);
 
   if(!this->Residue)
-    {
+  {
     this->Residue = vtkIdTypeArray::New();
-    }
+  }
   else
-    {
+  {
     this->Residue->Reset();
-    }
+  }
   this->Residue->SetName("residue");
   output->GetPointData()->AddArray(this->Residue);
 
   if(!this->Chain)
-    {
+  {
     this->Chain = vtkUnsignedCharArray::New();
-    }
+  }
   else
-    {
+  {
     this->Chain->Reset();
-    }
+  }
   this->Chain->SetName("chain");
   output->GetPointData()->AddArray(this->Chain);
 
   if(!this->SecondaryStructures)
-    {
+  {
     this->SecondaryStructures = vtkUnsignedCharArray::New();
-    }
+  }
   else
-    {
+  {
     this->SecondaryStructures->Reset();
-    }
+  }
   this->SecondaryStructures->SetName("secondary_structures");
   output->GetPointData()->AddArray(this->SecondaryStructures);
 
   if(!this->SecondaryStructuresBegin)
-    {
+  {
     this->SecondaryStructuresBegin = vtkUnsignedCharArray::New();
-    }
+  }
   else
-    {
+  {
     this->SecondaryStructuresBegin->Reset();
-    }
+  }
   this->SecondaryStructuresBegin->SetName("secondary_structures_begin");
   output->GetPointData()->AddArray(this->SecondaryStructuresBegin);
 
   if(!this->SecondaryStructuresEnd)
-    {
+  {
     this->SecondaryStructuresEnd = vtkUnsignedCharArray::New();
-    }
+  }
   else
-    {
+  {
     this->SecondaryStructuresEnd->Reset();
-    }
+  }
   this->SecondaryStructuresEnd->SetName("secondary_structures_end");
   output->GetPointData()->AddArray(this->SecondaryStructuresEnd);
 
   if(!this->IsHetatm)
-    {
+  {
     this->IsHetatm = vtkUnsignedCharArray::New();
-    }
+  }
   else
-    {
+  {
     this->IsHetatm->Reset();
-    }
+  }
   this->IsHetatm->SetName("ishetatm");
   output->GetPointData()->AddArray(this->IsHetatm);
 
   if ( !this->Points )
-    {
+  {
     this->Points = vtkPoints::New();
-    }
+  }
   else
-    {
+  {
     this->Points->Reset();
-    }
+  }
 
   this->ReadSpecificMolecule(fp);
 
@@ -368,33 +368,33 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp, vtkPolyData *output)
                 << newBonds->GetNumberOfCells() << " bonds" << endl);
 
   if ( this->RGB )
-    {
+  {
     this->RGB->Reset();
-    }
+  }
   else
-    {
+  {
     this->RGB = vtkUnsignedCharArray::New();
-    }
+  }
   this->RGB->SetNumberOfComponents(3);
   this->RGB->Allocate(3*this->NumberOfAtoms);
   this->RGB->SetName("rgb_colors");
 
   for(i=0; i < this->NumberOfAtoms; i++)
-    {
+  {
     this->RGB->InsertNextTuple(
       &vtkMoleculeReaderBaseAtomColors[AtomType->GetValue(i)][0]);
-    }
+  }
 
   output->GetPointData()->SetScalars(this->RGB);
 
   if ( this->Radii )
-    {
+  {
     this->Radii->Reset();
-    }
+  }
   else
-    {
+  {
     this->Radii = vtkFloatArray::New();
-    }
+  }
   this->Radii->SetNumberOfComponents(3);
   this->Radii->Allocate(3 * this->NumberOfAtoms);
   this->Radii->SetName("radius");
@@ -403,12 +403,12 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp, vtkPolyData *output)
   // vector in order to use Glyph3D to color AND scale at the same time.
 
   for(i=0; i < this->NumberOfAtoms; i++)
-    {
+  {
     this->Radii->InsertNextTuple3(
       vtkMoleculeReaderBaseRadius[AtomType->GetValue(i)],
       vtkMoleculeReaderBaseRadius[AtomType->GetValue(i)],
       vtkMoleculeReaderBaseRadius[AtomType->GetValue(i)]);
-    }
+  }
 
   output->GetPointData()->SetVectors(this->Radii);
 
@@ -437,17 +437,17 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
   // Add atoms to the molecule first because an atom must
   // must be declared before bonds involving it.
   if (this->Molecule)
-    {
+  {
     for(i = 0; i < this->NumberOfAtoms; i++)
-      {
+    {
       newPts->GetPoint(i, X);
       this->Molecule->AppendAtom(atype->GetValue(i) + 1, X[0], X[1], X[2]);
-      }
     }
+  }
 
   nbonds = 0;
   for (i = this->NumberOfAtoms - 1; i > 0; i--)
-    {
+  {
     bond[0] = i;
     newPts->GetPoint(i, X);
 
@@ -459,13 +459,13 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
       std::max(BScale, HBScale);
     locator->FindPointsWithinRadius(radius, X, result.GetPointer());
     for (k = result->GetNumberOfIds()-1; k >= 0; k--)
-      {
+    {
       j = result->GetId(k);
       // Skip points with which a bond may have already been created
       if (j >= i)
-        {
+      {
         continue;
-        }
+      }
       /*
        * The outer loop index 'i' is AFTER the inner loop 'j': 'i'
        * leads 'j' in the list: since hydrogens traditionally follow
@@ -479,22 +479,22 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
 
       // Never bond hydrogens to each other
       if (atype->GetValue(i) == 0 && atype->GetValue(j) == 0)
-        {
+      {
         continue;
-        }
+      }
 
       dist = vtkMoleculeReaderBaseCovRadius[atype->GetValue(i)] +
         vtkMoleculeReaderBaseCovRadius[atype->GetValue(j)] + 0.56;
       max = dist*dist;
 
       if(atype->GetValue(i) == 0 || atype->GetValue(j) == 0)
-        {
+      {
         max *= HBScale;
-        }
+      }
       else
-        {
+      {
         max *= BScale;
-        }
+      }
 
       newPts->GetPoint(j, Y);
       dx = X[0] - Y[0];
@@ -503,21 +503,21 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
       dist = dx * dx + dy * dy + dz * dz;
 
       if (dist <= max)
-        {
+      {
         bond[1] = j;
         newBonds->InsertNextCell(2, bond);
 
         // Add bond to the molecule
         if (this->Molecule)
-          {
+        {
           this->Molecule->AppendBond(bond[0], bond[1]);
-          }
+        }
 
         nbonds++;
-        }
       }
-    result->Reset();
     }
+    result->Reset();
+  }
   newBonds->Squeeze();
   return nbonds;
 }
@@ -529,7 +529,7 @@ int vtkMoleculeReaderBase::MakeAtomType(const char *atype)
   char b = toupper(atype[1]);
 
   switch (a)
-    {
+  {
   case 'A':
     if(b == 'C') anum = 89;
     else if(b == 'G') anum = 47;
@@ -667,7 +667,7 @@ int vtkMoleculeReaderBase::MakeAtomType(const char *atype)
   default:
     anum = 6;
     break;
-    }
+  }
   return (anum-1);
 }
 

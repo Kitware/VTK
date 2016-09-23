@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSelectionSource - Generate selection from given set of ids
-// vtkSelectionSource generates a vtkSelection from a set of
-// (piece id, cell id) pairs. It will only generate the selection values
-// that match UPDATE_PIECE_NUMBER (i.e. piece == UPDATE_PIECE_NUMBER).
+/**
+ * @class   vtkSelectionSource
+ * @brief   Generate selection from given set of ids
+ * vtkSelectionSource generates a vtkSelection from a set of
+ * (piece id, cell id) pairs. It will only generate the selection values
+ * that match UPDATE_PIECE_NUMBER (i.e. piece == UPDATE_PIECE_NUMBER).
+*/
 
 #ifndef vtkSelectionSource_h
 #define vtkSelectionSource_h
@@ -32,100 +35,140 @@ public:
   vtkTypeMacro(vtkSelectionSource,vtkSelectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Add a (piece, id) to the selection set. The source will generate
-  // only the ids for which piece == UPDATE_PIECE_NUMBER.
-  // If piece == -1, the id applies to all pieces.
+  //@{
+  /**
+   * Add a (piece, id) to the selection set. The source will generate
+   * only the ids for which piece == UPDATE_PIECE_NUMBER.
+   * If piece == -1, the id applies to all pieces.
+   */
   void AddID(vtkIdType piece, vtkIdType id);
   void AddStringID(vtkIdType piece, const char* id);
+  //@}
 
-  // Description:
-  // Add a point in world space to probe at.
+  /**
+   * Add a point in world space to probe at.
+   */
   void AddLocation(double x, double y, double z);
 
-  // Description:
-  // Add a value range to threshold within.
+  /**
+   * Add a value range to threshold within.
+   */
   void AddThreshold(double min, double max);
 
-  // Description:
-  // Set a frustum to choose within.
+  /**
+   * Set a frustum to choose within.
+   */
   void SetFrustum(double *vertices);
 
-  // Description:
-  // Add the flat-index/composite index for a block.
+  /**
+   * Add the flat-index/composite index for a block.
+   */
   void AddBlock(vtkIdType blockno);
 
-  // Description:
-  // Removes all IDs.
+  //@{
+  /**
+   * Removes all IDs.
+   */
   void RemoveAllIDs();
   void RemoveAllStringIDs();
+  //@}
 
-  // Description:
-  // Remove all thresholds added with AddThreshold.
+  /**
+   * Remove all thresholds added with AddThreshold.
+   */
   void RemoveAllThresholds();
 
-  // Description:
-  // Remove all locations added with AddLocation.
+  /**
+   * Remove all locations added with AddLocation.
+   */
   void RemoveAllLocations();
 
-  // Description:
-  // Remove all blocks added with AddBlock.
+  /**
+   * Remove all blocks added with AddBlock.
+   */
   void RemoveAllBlocks();
 
-  // Description:
-  // Set the content type for the generated selection.
-  // Possible values are as defined by
-  // vtkSelection::SelectionContent.
+  //@{
+  /**
+   * Set the content type for the generated selection.
+   * Possible values are as defined by
+   * vtkSelection::SelectionContent.
+   */
   vtkSetMacro(ContentType, int);
   vtkGetMacro(ContentType, int);
+  //@}
 
-  // Description:
-  // Set the field type for the generated selection.
-  // Possible values are as defined by
-  // vtkSelection::SelectionField.
+  //@{
+  /**
+   * Set the field type for the generated selection.
+   * Possible values are as defined by
+   * vtkSelection::SelectionField.
+   */
   vtkSetMacro(FieldType, int);
   vtkGetMacro(FieldType, int);
+  //@}
 
-  // Description:
-  // When extracting by points, extract the cells that contain the
-  // passing points.
+  //@{
+  /**
+   * When extracting by points, extract the cells that contain the
+   * passing points.
+   */
   vtkSetMacro(ContainingCells, int);
   vtkGetMacro(ContainingCells, int);
+  //@}
 
-  // Description:
-  // Determines whether the selection describes what to include or exclude.
-  // Default is 0, meaning include.
+  //@{
+  /**
+   * Determines whether the selection describes what to include or exclude.
+   * Default is 0, meaning include.
+   */
   vtkSetMacro(Inverse, int);
   vtkGetMacro(Inverse, int);
+  //@}
 
-  // Description:
-  // Access to the name of the selection's subset description array.
+  //@{
+  /**
+   * Access to the name of the selection's subset description array.
+   */
   vtkSetStringMacro(ArrayName);
   vtkGetStringMacro(ArrayName);
+  //@}
 
-  // Description:
-  // Access to the component number for the array specified by ArrayName.
-  // Default is component 0. Use -1 for magnitude.
+  //@{
+  /**
+   * Access to the component number for the array specified by ArrayName.
+   * Default is component 0. Use -1 for magnitude.
+   */
   vtkSetMacro(ArrayComponent, int);
   vtkGetMacro(ArrayComponent, int);
+  //@}
 
-  // Description:
-  // If CompositeIndex < 0 then COMPOSITE_INDEX() is not added to the output.
+  //@{
+  /**
+   * If CompositeIndex < 0 then COMPOSITE_INDEX() is not added to the output.
+   */
   vtkSetMacro(CompositeIndex, int);
   vtkGetMacro(CompositeIndex, int);
+  //@}
 
-  // Description:
-  // If HierarchicalLevel or HierarchicalIndex < 0 , then HIERARCHICAL_LEVEL()
-  // and HIERARCHICAL_INDEX() keys are not added to the output.
+  //@{
+  /**
+   * If HierarchicalLevel or HierarchicalIndex < 0 , then HIERARCHICAL_LEVEL()
+   * and HIERARCHICAL_INDEX() keys are not added to the output.
+   */
   vtkSetMacro(HierarchicalLevel, int);
   vtkGetMacro(HierarchicalLevel, int);
   vtkSetMacro(HierarchicalIndex, int);
   vtkGetMacro(HierarchicalIndex, int);
+  //@}
 
-  // Description:
-  // Set/Get the query expression string.
+  //@{
+  /**
+   * Set/Get the query expression string.
+   */
   vtkSetStringMacro(QueryString);
   vtkGetStringMacro(QueryString);
+  //@}
 
 protected:
   vtkSelectionSource();

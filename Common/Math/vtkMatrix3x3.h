@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMatrix3x3 - represent and manipulate 3x3 transformation matrices
-// .SECTION Description
-// vtkMatrix3x3 is a class to represent and manipulate 3x3 matrices.
-// Specifically, it is designed to work on 3x3 transformation matrices
-// found in 2D rendering using homogeneous coordinates [x y w].
-
-// .SECTION See Also
-// vtkTransform2D
+/**
+ * @class   vtkMatrix3x3
+ * @brief   represent and manipulate 3x3 transformation matrices
+ *
+ * vtkMatrix3x3 is a class to represent and manipulate 3x3 matrices.
+ * Specifically, it is designed to work on 3x3 transformation matrices
+ * found in 2D rendering using homogeneous coordinates [x y w].
+ *
+ * @sa
+ * vtkTransform2D
+*/
 
 #ifndef vtkMatrix3x3_h
 #define vtkMatrix3x3_h
@@ -39,59 +42,67 @@ class VTKCOMMONMATH_EXPORT vtkMatrix3x3 : public vtkObject
   // which is inefficient.
 
 public:
-  // Description:
-  // Construct a 3x3 identity matrix.
+  /**
+   * Construct a 3x3 identity matrix.
+   */
   static vtkMatrix3x3 *New();
 
   vtkTypeMacro(vtkMatrix3x3,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Set the elements of the matrix to the same values as the elements
-  // of the source Matrix.
+  /**
+   * Set the elements of the matrix to the same values as the elements
+   * of the source Matrix.
+   */
   void DeepCopy(vtkMatrix3x3 *source)
     {vtkMatrix3x3::DeepCopy(*this->Element,source); this->Modified(); }
   static void DeepCopy(double elements[9], vtkMatrix3x3 *source)
     {vtkMatrix3x3::DeepCopy(elements,*source->Element); }
   static void DeepCopy(double elements[9], const double newElements[9]);
 
-  // Description:
-  // Non-static member function. Assigns *from* elements array
+  /**
+   * Non-static member function. Assigns *from* elements array
+   */
   void DeepCopy(const double elements[9])
     { this->DeepCopy(*this->Element,elements); this->Modified(); }
 
-  // Description:
-  // Set all of the elements to zero.
+  /**
+   * Set all of the elements to zero.
+   */
   void Zero()
     { vtkMatrix3x3::Zero(*this->Element); this->Modified(); }
   static void Zero(double elements[9]);
 
-  // Description:
-  // Set equal to Identity matrix
+  /**
+   * Set equal to Identity matrix
+   */
   void Identity()
     { vtkMatrix3x3::Identity(*this->Element); this->Modified();}
   static void Identity(double elements[9]);
 
-  // Description:
-  // Matrix Inversion (adapted from Richard Carling in "Graphics Gems,"
-  // Academic Press, 1990).
+  /**
+   * Matrix Inversion (adapted from Richard Carling in "Graphics Gems,"
+   * Academic Press, 1990).
+   */
   static void Invert(vtkMatrix3x3 *in, vtkMatrix3x3 *out)
     {vtkMatrix3x3::Invert(*in->Element,*out->Element); out->Modified(); }
   void Invert()
     { vtkMatrix3x3::Invert(this,this); }
   static void Invert(const double inElements[9], double outElements[9]);
 
-  // Description:
-  // Transpose the matrix and put it into out.
+  /**
+   * Transpose the matrix and put it into out.
+   */
   static void Transpose(vtkMatrix3x3 *in, vtkMatrix3x3 *out)
     {vtkMatrix3x3::Transpose(*in->Element,*out->Element); out->Modified(); }
   void Transpose()
     { vtkMatrix3x3::Transpose(this,this); }
   static void Transpose(const double inElements[9], double outElements[9]);
 
-  // Description:
-  // Multiply a homogeneous coordinate by this matrix, i.e. out = A*in.
-  // The in[3] and out[3] can be the same array.
+  /**
+   * Multiply a homogeneous coordinate by this matrix, i.e. out = A*in.
+   * The in[3] and out[3] can be the same array.
+   */
   void MultiplyPoint(const float in[3], float out[3])
     {vtkMatrix3x3::MultiplyPoint(*this->Element,in,out); }
   void MultiplyPoint(const double in[3], double out[3])
@@ -102,35 +113,42 @@ public:
   static void MultiplyPoint(const double elements[9],
                             const double in[3], double out[3]);
 
-  // Description:
-  // Multiplies matrices a and b and stores the result in c (c=a*b).
+  /**
+   * Multiplies matrices a and b and stores the result in c (c=a*b).
+   */
   static void Multiply3x3(vtkMatrix3x3 *a, vtkMatrix3x3 *b, vtkMatrix3x3 *c) {
     vtkMatrix3x3::Multiply3x3(*a->Element,*b->Element,*c->Element); }
   static void Multiply3x3(const double a[9], const double b[9],
                           double c[9]);
 
-  // Description:
-  // Compute adjoint of the matrix and put it into out.
+  /**
+   * Compute adjoint of the matrix and put it into out.
+   */
   void Adjoint(vtkMatrix3x3 *in, vtkMatrix3x3 *out)
     {vtkMatrix3x3::Adjoint(*in->Element,*out->Element);}
   static void Adjoint(const double inElements[9], double outElements[9]);
 
-  // Description:
-  // Compute the determinant of the matrix and return it.
+  /**
+   * Compute the determinant of the matrix and return it.
+   */
   double Determinant() {return vtkMatrix3x3::Determinant(*this->Element);}
   static double Determinant(const double elements[9]);
 
-  // Description:
-  // Sets the element i,j in the matrix.
+  /**
+   * Sets the element i,j in the matrix.
+   */
   void SetElement(int i, int j, double value);
 
-  // Description:
-  // Returns the element i,j from the matrix.
+  /**
+   * Returns the element i,j from the matrix.
+   */
   double GetElement(int i, int j) const
     {return this->Element[i][j];}
 
-  // Description:
-  // Legacy methods. Do not use.
+  //@{
+  /**
+   * Legacy methods. Do not use.
+   */
   VTK_LEGACY(double *operator[](const unsigned int i));
   VTK_LEGACY(const double *operator[](unsigned int i) const);
   VTK_LEGACY(bool operator==(const vtkMatrix3x3&));
@@ -144,13 +162,15 @@ public:
                                        const float [3], float [3]));
   VTK_LEGACY(static void PointMultiply(const double [9],
                                        const double [3], double [3]));
+  //@}
 
   // Descption:
   // Returns true if this matrix is equal to the identity matrix.
   bool IsIdentity();
 
-  // Description:
-  // Return a pointer to the first element of the matrix (double[9]).
+  /**
+   * Return a pointer to the first element of the matrix (double[9]).
+   */
   double * GetData() { return *this->Element; }
 
 protected:
@@ -167,10 +187,10 @@ private:
 inline void vtkMatrix3x3::SetElement(int i, int j, double value)
 {
   if (this->Element[i][j] != value)
-    {
+  {
     this->Element[i][j] = value;
     this->Modified();
-    }
+  }
 }
 
 inline bool vtkMatrix3x3::IsIdentity()
@@ -179,13 +199,13 @@ inline bool vtkMatrix3x3::IsIdentity()
   if (M[0] == 1.0 && M[4] == 1.0 && M[8] == 1.0 &&
       M[1] == 0.0 && M[2] == 0.0 && M[3] == 0.0 && M[5] == 0.0 &&
       M[6] == 0.0 && M[7] == 0.0)
-    {
+  {
     return true;
-    }
+  }
   else
-    {
+  {
     return false;
-    }
+  }
 }
 
 #endif

@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPistonContour -  A filter that contours on the GPU
-// .SECTION Description
-// This filter uses LANL's Piston library to isocontour on the GPU.
+/**
+ * @class   vtkPistonContour
+ * @brief    A filter that contours on the GPU
+ *
+ * This filter uses LANL's Piston library to isocontour on the GPU.
+*/
 
 #ifndef vtkPistonContour_h
 #define vtkPistonContour_h
@@ -28,16 +31,20 @@ public:
   static vtkPistonContour *New();
   void PrintSelf(ostream &os, vtkIndent indent);
 
-  //Description:
-  //Choose the isovalue to contour on.
+  //@{
+  /**
+   * Choose the isovalue to contour on.
+   */
   vtkSetMacro(IsoValue, float);
   vtkGetMacro(IsoValue, float);
 protected:
   vtkPistonContour();
   ~vtkPistonContour();
+  //@}
 
-  // Description:
-  // Method that does the actual calculation. Funnels down to ExecuteData.
+  /**
+   * Method that does the actual calculation. Funnels down to ExecuteData.
+   */
   virtual int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);

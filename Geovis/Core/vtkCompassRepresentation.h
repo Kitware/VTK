@@ -19,10 +19,12 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// .NAME vtkCompassRepresentation - provide a compass
-// .SECTION Description
-// This class is used to represent and render a compass.
-
+/**
+ * @class   vtkCompassRepresentation
+ * @brief   provide a compass
+ *
+ * This class is used to represent and render a compass.
+*/
 
 #ifndef vtkCompassRepresentation_h
 #define vtkCompassRepresentation_h
@@ -53,52 +55,69 @@ class VTKGEOVISCORE_EXPORT vtkCompassRepresentation :
   public vtkContinuousValueWidgetRepresentation
 {
 public:
-  // Description:
-  // Instantiate the class.
+  /**
+   * Instantiate the class.
+   */
   static vtkCompassRepresentation *New();
 
-  // Description:
-  // Standard methods for the class.
+  //@{
+  /**
+   * Standard methods for the class.
+   */
   vtkTypeMacro(vtkCompassRepresentation,
                        vtkContinuousValueWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // Position the first end point of the slider. Note that this point is an
-  // instance of vtkCoordinate, meaning that Point 1 can be specified in a
-  // variety of coordinate systems, and can even be relative to another
-  // point. To set the point, you'll want to get the Point1Coordinate and
-  // then invoke the necessary methods to put it into the correct coordinate
-  // system and set the correct initial value.
+  /**
+   * Position the first end point of the slider. Note that this point is an
+   * instance of vtkCoordinate, meaning that Point 1 can be specified in a
+   * variety of coordinate systems, and can even be relative to another
+   * point. To set the point, you'll want to get the Point1Coordinate and
+   * then invoke the necessary methods to put it into the correct coordinate
+   * system and set the correct initial value.
+   */
   vtkCoordinate *GetPoint1Coordinate();
 
-  // Description:
-  // Position the second end point of the slider. Note that this point is an
-  // instance of vtkCoordinate, meaning that Point 1 can be specified in a
-  // variety of coordinate systems, and can even be relative to another
-  // point. To set the point, you'll want to get the Point2Coordinate and
-  // then invoke the necessary methods to put it into the correct coordinate
-  // system and set the correct initial value.
+  /**
+   * Position the second end point of the slider. Note that this point is an
+   * instance of vtkCoordinate, meaning that Point 1 can be specified in a
+   * variety of coordinate systems, and can even be relative to another
+   * point. To set the point, you'll want to get the Point2Coordinate and
+   * then invoke the necessary methods to put it into the correct coordinate
+   * system and set the correct initial value.
+   */
   vtkCoordinate *GetPoint2Coordinate();
 
-  // Description:
-  // Get the slider properties. The properties of the slider when selected
-  // and unselected can be manipulated.
+  //@{
+  /**
+   * Get the slider properties. The properties of the slider when selected
+   * and unselected can be manipulated.
+   */
   vtkGetObjectMacro(RingProperty,vtkProperty2D);
+  //@}
 
-  // Description:
-  // Get the selection property. This property is used to modify the
-  // appearance of selected objects (e.g., the slider).
+  //@{
+  /**
+   * Get the selection property. This property is used to modify the
+   * appearance of selected objects (e.g., the slider).
+   */
   vtkGetObjectMacro(SelectedProperty,vtkProperty2D);
+  //@}
 
-  // Description:
-  // Set/Get the properties for the label and title text.
+  //@{
+  /**
+   * Set/Get the properties for the label and title text.
+   */
   vtkGetObjectMacro(LabelProperty,vtkTextProperty);
+  //@}
 
-  // Description:
-  // Methods to interface with the vtkSliderWidget. The PlaceWidget() method
-  // assumes that the parameter bounds[6] specifies the location in display
-  // space where the widget should be placed.
+  //@{
+  /**
+   * Methods to interface with the vtkSliderWidget. The PlaceWidget() method
+   * assumes that the parameter bounds[6] specifies the location in display
+   * space where the widget should be placed.
+   */
   virtual void PlaceWidget(double bounds[6]);
   virtual void BuildRepresentation();
   virtual void StartWidgetInteraction(double eventPos[2]);
@@ -107,13 +126,17 @@ public:
   virtual void DistanceWidgetInteraction(double eventPos[2]);
   virtual int ComputeInteractionState(int X, int Y, int modify=0);
   virtual void Highlight(int);
+  //@}
 
-  // Decsription:
-  // Methods supporting the rendering process.
+  //@{
+  /**
+   * Methods supporting the rendering process.
+   */
   virtual void GetActors(vtkPropCollection*);
   virtual void ReleaseGraphicsResources(vtkWindow*);
   virtual int RenderOverlay(vtkViewport*);
   virtual int RenderOpaqueGeometry(vtkViewport*);
+  //@}
 
   virtual void SetHeading(double value);
   virtual double GetHeading();

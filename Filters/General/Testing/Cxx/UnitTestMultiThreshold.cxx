@@ -86,9 +86,9 @@ void CreateStructuredGrid(vtkSmartPointer<vtkStructuredGrid> &sg,
   vectors->SetNumberOfTuples((numRows + 1) * (numCols + 1));
   int pointNo = 0;
   for (int j = 0; j < numRows + 1; ++j)
-    {
+  {
     for (int i = 0; i < numCols + 1; ++i)
-      {
+    {
       float vec[3];
       int* pixel = static_cast<int*>(image->GetScalarPointer(i, j, 0));
       vec[0] = 0.0;
@@ -96,8 +96,8 @@ void CreateStructuredGrid(vtkSmartPointer<vtkStructuredGrid> &sg,
       vec[2] = vtkMath::Random(-10.0, 10.0);
       vectors->SetTuple(pointNo, vec);
       *pixel = pointNo++;
-      }
     }
+  }
   image->GetPointData()->AddArray(vectors);
 
   // Populate the cell data
@@ -118,15 +118,15 @@ void CreateStructuredGrid(vtkSmartPointer<vtkStructuredGrid> &sg,
 
   int cell = 0;
   for (int row = 0; row < numRows; ++row)
-    {
+  {
     for (int col = 0; col < numCols; ++col)
-      {
+    {
       columns->SetTuple1(cell, col);
       rows->SetTuple1(cell, row);
       cells->SetTuple1(cell, cell);
       ++cell;
-      }
     }
+  }
   image->GetCellData()->AddArray(columns);
   image->GetCellData()->AddArray(rows);
   image->GetCellData()->AddArray(cells);
@@ -255,10 +255,10 @@ int TestFilter(int columns, int rows)
   expectedCellCounts.push_back(-1);
 
   for (size_t n = 0; n < intervalSets.size(); ++n)
-    {
+  {
     std::cout << "OutputSet: "
               << threshold->OutputSet(intervalSets[n]) << std::endl;
-    }
+  }
 
   // Add the first set again, should do nothing
   std::cout << "OutputSet: "
@@ -267,17 +267,17 @@ int TestFilter(int columns, int rows)
 
   int blocksBefore = threshold->GetOutput()->GetNumberOfBlocks();
   for (int b = 0; b < blocksBefore; ++b)
-    {
+  {
     std::cout << "Block " << b << " has "
               << GetBlockCellCount(threshold->GetOutput(), b) << " cells";
     if (expectedCellCounts[b] != -1 &&
         expectedCellCounts[b] != GetBlockCellCount(threshold->GetOutput(), b))
-      {
+    {
       std::cout << " but expected " << expectedCellCounts[b];
       ++status;
-      }
-    std::cout << std::endl;
     }
+    std::cout << std::endl;
+  }
 
   // Add the first set again, should do nothing
   std::cout << "OutputSet: "
@@ -285,12 +285,12 @@ int TestFilter(int columns, int rows)
   threshold->Update();
   int blocksAfter = threshold->GetOutput()->GetNumberOfBlocks();
   if (blocksBefore != blocksAfter)
-    {
+  {
     std::cout
       << "ERROR: A duplicate OutputSet() should not produce extra output"
       << std::endl;
     ++status;
-    }
+  }
   threshold->Print(std::cout);
   return status;
 }
@@ -332,15 +332,15 @@ int TestErrorsAndWarnings()
     vtkMultiThreshold::CLOSED, vtkMultiThreshold::CLOSED,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, (char *) NULL, 0, 1 ));
   if (filterObserver->GetWarning())
-    {
+  {
     std::cout << "Caught expected warning: "
               << filterObserver->GetWarningMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected 'You passed a null array name' warning" << std::endl;
     ++status;
-    }
+  }
   filterObserver->Clear();
 
 
@@ -350,15 +350,15 @@ int TestErrorsAndWarnings()
     vtkMultiThreshold::CLOSED, vtkMultiThreshold::CLOSED,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, 100, 0, 1 ));
   if (filterObserver->GetWarning())
-    {
+  {
     std::cout << "Caught expected warning: "
               << filterObserver->GetWarningMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected 'You passed an invalid attribute type (100)' warning" << std::endl;
     ++status;
-    }
+  }
   filterObserver->Clear();
 
   int intersection[2];
@@ -367,44 +367,44 @@ int TestErrorsAndWarnings()
   // ERROR: Operators require at least one operand. You passed 0.
   intervalSets.push_back(threshold->AddBooleanSet(vtkMultiThreshold::AND, 0, intersection));
   if (filterObserver->GetError())
-    {
+  {
     std::cout << "Caught expected error: "
               << filterObserver->GetErrorMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected 'Operators require at least one operand. You passed 0.' error" << std::endl;
     ++status;
-    }
+  }
   filterObserver->Clear();
 
   // ERROR: Invalid operation (10)
   intervalSets.push_back(threshold->AddBooleanSet(10, 1, intersection));
   if (filterObserver->GetError())
-    {
+  {
     std::cout << "Caught expected error: "
               << filterObserver->GetErrorMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected 'Invalid operation (10)' error" << std::endl;
     ++status;
-    }
+  }
   filterObserver->Clear();
 
   // ERROR: Input 1 is invalid(100)
   intersection[1] = 100;
   intervalSets.push_back(threshold->AddBooleanSet(vtkMultiThreshold::XOR, 2, intersection));
   if (filterObserver->GetError())
-    {
+  {
     std::cout << "Caught expected error: "
               << filterObserver->GetErrorMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected 'Input 1 is invalid(100)' error" << std::endl;
     ++status;
-    }
+  }
   filterObserver->Clear();
 
   intersection[1] = intervalSets[1];
@@ -426,15 +426,15 @@ int TestErrorsAndWarnings()
     vtkMultiThreshold::CLOSED, vtkMultiThreshold::CLOSED,
     100, "PointVectors", -2, 1 ));
   if (filterObserver->GetWarning())
-    {
+  {
     std::cout << "Caught expected warning: "
               << filterObserver->GetWarningMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected 'You passed an invalid atribute type (100)' warning" << std::endl;
     ++status;
-    }
+  }
   filterObserver->Clear();
 
 
@@ -445,15 +445,15 @@ int TestErrorsAndWarnings()
     vtkMultiThreshold::CLOSED, vtkMultiThreshold::CLOSED,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, "PointVectors", -3, 1 ));
   if (filterObserver->GetWarning())
-    {
+  {
     std::cout << "Caught expected warning: "
               << filterObserver->GetWarningMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected 'One of the interval endpoints is not a number.' warning" << std::endl;
     ++status;
-    }
+  }
   filterObserver->Clear();
 
 #ifndef _WIN32
@@ -463,15 +463,15 @@ int TestErrorsAndWarnings()
     vtkMultiThreshold::CLOSED, vtkMultiThreshold::CLOSED,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, "PointVectors", -3, 1 ));
   if (filterObserver->GetWarning())
-    {
+  {
     std::cout << "Caught expected warning: "
               << filterObserver->GetWarningMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected 'One of the interval endpoints is not a number.' warning" << std::endl;
     ++status;
-    }
+  }
   filterObserver->Clear();
 #endif
 
@@ -482,15 +482,15 @@ int TestErrorsAndWarnings()
     vtkMultiThreshold::OPEN, vtkMultiThreshold::OPEN,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, "PointVectors", -3, 1 ));
   if (filterObserver->GetWarning())
-    {
+  {
     std::cout << "Caught expected warning: "
               << filterObserver->GetWarningMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected 'An open interval with equal endpoints will always be...' warning" << std::endl;
     ++status;
-    }
+  }
   filterObserver->Clear();
 
 
@@ -498,15 +498,15 @@ int TestErrorsAndWarnings()
   // label
   threshold->OutputSet(1000);
   if (filterObserver->GetWarning())
-    {
+  {
     std::cout << "Caught expected warning: "
               << filterObserver->GetWarningMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected 'Cannot output 1000 because there is not set with that label' warning" << std::endl;
     ++status;
-    }
+  }
   filterObserver->Clear();
 
   vtkSmartPointer<vtkTest::ErrorObserver>  executiveObserver =
@@ -516,15 +516,15 @@ int TestErrorsAndWarnings()
   threshold->Update();
 
   if (executiveObserver->GetError())
-    {
+  {
     std::cout << "Caught expected error: "
               << executiveObserver->GetErrorMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected pipeline error" << std::endl;
     ++status;
-    }
+  }
   filterObserver->Clear();
 
   return status;

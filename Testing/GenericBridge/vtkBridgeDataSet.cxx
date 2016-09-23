@@ -53,9 +53,9 @@ vtkBridgeDataSet::vtkBridgeDataSet(  )
 vtkBridgeDataSet::~vtkBridgeDataSet(  )
 {
   if(this->Implementation)
-    {
+  {
     this->Implementation->Delete();
-    }
+  }
   this->Types->Delete();
   // this->Tessellator is deleted in the superclass
 }
@@ -67,13 +67,13 @@ void vtkBridgeDataSet::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "implementation: ";
   if(this->Implementation==0)
-    {
+  {
     os << "(none)" << endl;
-    }
+  }
   else
-    {
+  {
     this->Implementation->PrintSelf(os << endl, indent.GetNextIndent());
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -100,33 +100,33 @@ void vtkBridgeDataSet::SetDataSet(vtkDataSet *ds)
   // refresh the attribute collection
   this->Attributes->Reset();
   if(ds!=0)
-    {
+  {
     // point data
     pd=ds->GetPointData();
     c=pd->GetNumberOfArrays();
     i=0;
     while(i<c)
-      {
+    {
       a=vtkBridgeAttribute::New();
       a->InitWithPointData(pd,i);
       this->Attributes->InsertNextAttribute(a);
       a->Delete();
       ++i;
-      }
+    }
     // same thing for cell data.
     cd=ds->GetCellData();
     c=cd->GetNumberOfArrays();
     i=0;
     while(i<c)
-      {
+    {
       a=vtkBridgeAttribute::New();
       a->InitWithCellData(cd,i);
       this->Attributes->InsertNextAttribute(a);
       a->Delete();
       ++i;
-      }
-    this->Tessellator->Initialize(this);
     }
+    this->Tessellator->Initialize(this);
+  }
   this->Modified();
 }
 
@@ -139,9 +139,9 @@ vtkIdType vtkBridgeDataSet::GetNumberOfPoints()
 {
   vtkIdType result = 0;
   if(this->Implementation)
-    {
+  {
     result = this->Implementation->GetNumberOfPoints();
-    }
+  }
   assert("post: positive_result" && result>=0);
   return result;
 }
@@ -159,7 +159,7 @@ void vtkBridgeDataSet::ComputeNumberOfCellsAndTypes()
   vtkCell *c;
 
   if ( this->GetMTime() > this->ComputeNumberOfCellsTime ) // cache is obsolete
-     {
+  {
      numCells = this->GetNumberOfCells();
      this->NumberOf0DCells=0;
      this->NumberOf1DCells=0;
@@ -169,13 +169,13 @@ void vtkBridgeDataSet::ComputeNumberOfCellsAndTypes()
      this->Types->Reset();
 
      if(this->Implementation!=0)
-       {
+     {
        cellId=0;
        while(cellId<numCells)
-         {
+       {
          c=this->Implementation->GetCell(cellId);
          switch(c->GetCellDimension())
-           {
+         {
            case 0:
              this->NumberOf0DCells++;
              break;
@@ -188,15 +188,15 @@ void vtkBridgeDataSet::ComputeNumberOfCellsAndTypes()
            case 3:
              this->NumberOf3DCells++;
              break;
-           }
+         }
          type=c->GetCellType();
          if(!this->Types->IsType(type))
-           {
+         {
            this->Types->InsertNextType(type);
-           }
-         cellId++;
          }
+         cellId++;
        }
+     }
 
      this->ComputeNumberOfCellsTime.Modified(); // cache is up-to-date
      assert("check: positive_dim0" && this->NumberOf0DCells>=0);
@@ -207,7 +207,7 @@ void vtkBridgeDataSet::ComputeNumberOfCellsAndTypes()
      assert("check: valid_dim2" && this->NumberOf2DCells<=numCells);
      assert("check: positive_dim3" && this->NumberOf3DCells>=0);
      assert("check: valid_dim3" && this->NumberOf3DCells<=numCells);
-     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -222,16 +222,16 @@ vtkIdType vtkBridgeDataSet::GetNumberOfCells(int dim)
 
   vtkIdType result=0;
   if(this->Implementation!=0)
-    {
+  {
     if(dim==-1)
-      {
+    {
       result=this->Implementation->GetNumberOfCells();
-      }
+    }
     else
-      {
+    {
       this->ComputeNumberOfCellsAndTypes();
       switch(dim)
-        {
+      {
         case 0:
           result=this->NumberOf0DCells;
           break;
@@ -244,9 +244,9 @@ vtkIdType vtkBridgeDataSet::GetNumberOfCells(int dim)
         case 3:
           result=this->NumberOf3DCells;
           break;
-        }
       }
     }
+  }
 
   assert("post: positive_result" && result>=0);
   return result;
@@ -266,29 +266,29 @@ int vtkBridgeDataSet::GetCellDimension()
   this->ComputeNumberOfCellsAndTypes();
 
   if(this->NumberOf0DCells!=0)
-    {
+  {
     accu++;
     result=0;
-    }
+  }
   if(this->NumberOf1DCells!=0)
-    {
+  {
     accu++;
     result=1;
-    }
+  }
   if(this->NumberOf2DCells!=0)
-    {
+  {
     accu++;
     result=2;
-    }
+  }
   if(this->NumberOf3DCells!=0)
-    {
+  {
     accu++;
     result=3;
-    }
+  }
   if(accu!=1) // no cells at all or several dimensions
-    {
+  {
     result=-1;
-    }
+  }
   assert("post: valid_range" && (result>=-1) && (result<=3));
   return result;
 }
@@ -316,10 +316,10 @@ void vtkBridgeDataSet::GetCellTypes(vtkCellTypes *types)
   c=this->Types->GetNumberOfTypes();
   i=0;
   while(i<c)
-    {
+  {
     types->InsertNextType(this->Types->GetCellType(i));
     ++i;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -414,38 +414,38 @@ int vtkBridgeDataSet::FindCell(double x[3],
   double *ignoredWeights=new double[this->Implementation->GetMaxCellSize()];
 
   if(cell->IsAtEnd())
-    {
+  {
     cellid=this->Implementation->FindCell(x,0,0,tol2,subId,pcoords,
                                           ignoredWeights);
-    }
+  }
   else
-    {
+  {
     c=static_cast<vtkBridgeCell *>(cell->GetCell());
     c2=c->Cell; // bridge
     cellid=c->GetId(); // adaptor
     cellid=this->Implementation->FindCell(x,c2,cellid,tol2,subId,pcoords,
                                           ignoredWeights);
-    }
+  }
   delete [] ignoredWeights;
   if(cellid>=0)
-    {
+  {
     it->InitWithOneCell(this,cellid); // at end
     it->Begin();
     // clamp:
     int i=0;
     while(i<3)
-      {
+    {
       if(pcoords[i]<0)
-        {
+      {
         pcoords[i]=0;
-        }
-      else if(pcoords[i]>1)
-        {
-        pcoords[i]=1;
-        }
-      ++i;
       }
+      else if(pcoords[i]>1)
+      {
+        pcoords[i]=1;
+      }
+      ++i;
     }
+  }
 
   // A=>B: !A || B
   // result => clamped pcoords
@@ -472,14 +472,14 @@ void vtkBridgeDataSet::FindPoint(double x[3],
   vtkBridgePointIterator *bp=static_cast<vtkBridgePointIterator *>(p);
 
   if(this->Implementation!=0)
-    {
+  {
     vtkIdType pt=this->Implementation->FindPoint(x);
     bp->InitWithOnePoint(this,pt);
-    }
+  }
   else
-    {
+  {
     bp->InitWithOnePoint(this,-1);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -493,10 +493,10 @@ vtkMTimeType vtkBridgeDataSet::GetMTime()
   result = this->Superclass::GetMTime();
 
   if(this->Implementation!=0)
-    {
+  {
     mtime = this->Implementation->GetMTime();
     result = ( mtime > result ? mtime : result );
-    }
+  }
   return result;
 }
 
@@ -508,18 +508,18 @@ void vtkBridgeDataSet::ComputeBounds()
   double *bounds;
 
   if ( this->GetMTime() > this->ComputeTime )
-    {
+  {
     if(this->Implementation!=0)
-      {
+    {
       this->Implementation->ComputeBounds();
       this->ComputeTime.Modified();
       bounds=this->Implementation->GetBounds();
       memcpy(this->Bounds,bounds,sizeof(double)*6);
-      }
-    else
-      {
-      vtkMath::UninitializeBounds(this->Bounds);
-      }
-    this->ComputeTime.Modified();
     }
+    else
+    {
+      vtkMath::UninitializeBounds(this->Bounds);
+    }
+    this->ComputeTime.Modified();
+  }
 }

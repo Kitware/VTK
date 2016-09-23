@@ -70,17 +70,17 @@ int TestEdgeFlags(int argc, char *argv[])
     };
 
   for (int i = 0; i < 9; i++)
-    {
+  {
     pts->SetPoint(i, pcoords + 3 * i);
-    }
+  }
 
   // Define the 4 triangles
   vtkNew<vtkCellArray> cells;
   const vtkIdType tris[] = { 0,5,8, 1,6,8, 2,7,8, 3,4,8 };
   for (int i = 0; i < 4; i++)
-    {
+  {
     cells->InsertNextCell(3, tris + 3 * i);
-    }
+  }
 
   // Set the point-edge flags in such a way that only the edges of the
   // boundary of the square are considered as edges.
@@ -91,9 +91,9 @@ int TestEdgeFlags(int argc, char *argv[])
   // Tip: Turn the last flag on to simulate test failure
   const unsigned char flags[] = { 1, 1, 1, 1, 0, 0, 0, 0, 0 };
   for (int i = 0; i < 9; i++)
-    {
+  {
     edgeflags->SetValue(i, flags[i]);
-    }
+  }
 
   vtkNew<vtkPolyData> pd;
   pd->SetPoints(pts.Get());
@@ -163,19 +163,19 @@ int TestEdgeFlags(int argc, char *argv[])
 // so we just return true in that case
 #ifndef VTK_OPENGL2
   if (IsDriverMesa(renWin.Get()))
-    {
+  {
     // Mesa support for edge flags is buggy.
     std::cout << "Mesa detected. Skip the test." << std::endl;
     return !vtkRegressionTester::PASSED;
-    }
+  }
 #endif
 
   // Compare image
   int retVal = vtkRegressionTestImage(renWin.Get());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

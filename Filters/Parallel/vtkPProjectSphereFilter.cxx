@@ -45,19 +45,19 @@ void vtkPProjectSphereFilter::ComputePointsClosestToCenterLine(
 {
   if(vtkMultiProcessController* controller =
      vtkMultiProcessController::GetGlobalController())
-    {
+  {
     if(controller->GetNumberOfProcesses() >1)
-      {
+    {
       double tmp = minDist2ToCenterLine;
       double minDist2ToCenterLineGlobal = 0;
       controller->AllReduce(&tmp, &minDist2ToCenterLineGlobal,
                             1, vtkCommunicator::MAX_OP);
       if(tmp < minDist2ToCenterLineGlobal)
-        {
+      {
         polePointIds->Reset();
-        }
       }
     }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -67,12 +67,12 @@ double vtkPProjectSphereFilter::GetZTranslation(vtkPointSet* input)
   double globalMax = localMax;
   if(vtkMultiProcessController* controller =
      vtkMultiProcessController::GetGlobalController())
-    {
+  {
     if(controller->GetNumberOfProcesses() > 1)
-      {
+    {
       controller->AllReduce(&localMax, &globalMax, 1, vtkCommunicator::MAX_OP);
-      }
     }
+  }
 
   return globalMax;
 }

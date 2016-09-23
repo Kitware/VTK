@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTableToSQLiteWriter - store a vtkTable in an SQLite database
-// .SECTION Description
-// vtkTableToSQLiteWriter reads a vtkTable and inserts it into an SQLite
-// database.
+/**
+ * @class   vtkTableToSQLiteWriter
+ * @brief   store a vtkTable in an SQLite database
+ *
+ * vtkTableToSQLiteWriter reads a vtkTable and inserts it into an SQLite
+ * database.
+*/
 
 #ifndef vtkTableToSQLiteWriter_h
 #define vtkTableToSQLiteWriter_h
@@ -32,10 +35,13 @@ public:
   vtkTypeMacro(vtkTableToSQLiteWriter,vtkTableToDatabaseWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the input to this writer.
+  //@{
+  /**
+   * Get the input to this writer.
+   */
   vtkTable* GetInput();
   vtkTable* GetInput(int port);
+  //@}
 
 protected:
    vtkTableToSQLiteWriter();

@@ -13,16 +13,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXdmf3ArrayKeeper - LRU cache of XDMF Arrays
-// .SECTION Description
-// vtkXdmf3ArrayKeeper maintains the in memory cache of recently used XdmfArrays.
-// Each array that is loaded from XDMF is put in the cache and/or marked with the
-// current timestep. A release method frees arrays that have not been recently
-// used.
-//
-// This file is a helper for the vtkXdmf3Reader and not intended to be
-// part of VTK public API
-// VTK-HeaderTest-Exclude: vtkXdmf3ArrayKeeper.h
+/**
+ * @class   vtkXdmf3ArrayKeeper
+ * @brief   LRU cache of XDMF Arrays
+ *
+ * vtkXdmf3ArrayKeeper maintains the in memory cache of recently used XdmfArrays.
+ * Each array that is loaded from XDMF is put in the cache and/or marked with the
+ * current timestep. A release method frees arrays that have not been recently
+ * used.
+ *
+ * This file is a helper for the vtkXdmf3Reader and not intended to be
+ * part of VTK public API
+*/
 
 #ifndef vtkXdmf3ArrayKeeper_h
 #define vtkXdmf3ArrayKeeper_h
@@ -36,25 +38,30 @@ class VTKIOXDMF3_EXPORT vtkXdmf3ArrayKeeper
   : public std::map<XdmfArray *, unsigned int>
 {
 public:
-  //Description:
-  //Constructor
+  /**
+   * Constructor
+   */
   vtkXdmf3ArrayKeeper();
 
-  //Description:
-  //Destructor
+  /**
+   * Destructor
+   */
   ~vtkXdmf3ArrayKeeper();
 
-  //Description:
-  //Call to mark arrays that will be accessed with a new timestamp
+  /**
+   * Call to mark arrays that will be accessed with a new timestamp
+   */
   void BumpGeneration();
 
-  //Description:
-  //Call whenever you a new XDMF array is accessed.
+  /**
+   * Call whenever you a new XDMF array is accessed.
+   */
   void Insert(XdmfArray *val);
 
-  //Description:
-  //Call to free all open arrays that are currently open but not in use.
-  //Force argument frees all arrays.
+  /**
+   * Call to free all open arrays that are currently open but not in use.
+   * Force argument frees all arrays.
+   */
   void Release(bool force);
 
 private:
@@ -62,3 +69,4 @@ private:
 };
 
 #endif //vtkXdmf3ArrayKeeper_h
+// VTK-HeaderTest-Exclude: vtkXdmf3ArrayKeeper.h

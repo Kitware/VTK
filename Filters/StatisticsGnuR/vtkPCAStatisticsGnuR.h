@@ -17,30 +17,33 @@ PURPOSE.  See the above copyright notice for more information.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
-// .NAME vtkPCAStatisticsGnuR - A class for multivariate principal component analysis
-// using R to calculate p-values.
-//
-// .SECTION Description
-// This class derives from the multi-correlative statistics algorithm and
-// uses the covariance matrix and Cholesky decomposition computed by it.
-// However, when it finalizes the statistics in learn operation, the PCA class
-// computes the SVD of the covariance matrix in order to obtain its eigenvectors.
-//
-// In the assess operation, the input data are
-// - projected into the basis defined by the eigenvectors,
-// - the energy associated with each datum is computed,
-// - or some combination thereof.
-// Additionally, the user may specify some threshold energy or
-// eigenvector entry below which the basis is truncated. This allows
-// projection into a lower-dimensional state while minimizing (in a
-// least squares sense) the projection error.
-//
-// In the test operation, a Jarque-Bera-Srivastava test of n-d normality is performed.
-//
-// .SECTION Thanks
-// Thanks to David Thompson, Philippe Pebay and Jackson Mayo from
-// Sandia National Laboratories for implementing this class.
-// Updated by Philippe Pebay, Kitware SAS 2012
+/**
+ * @class   vtkPCAStatisticsGnuR
+ * @brief   A class for multivariate principal component analysis
+ * using R to calculate p-values.
+ *
+ *
+ * This class derives from the multi-correlative statistics algorithm and
+ * uses the covariance matrix and Cholesky decomposition computed by it.
+ * However, when it finalizes the statistics in learn operation, the PCA class
+ * computes the SVD of the covariance matrix in order to obtain its eigenvectors.
+ *
+ * In the assess operation, the input data are
+ * - projected into the basis defined by the eigenvectors,
+ * - the energy associated with each datum is computed,
+ * - or some combination thereof.
+ * Additionally, the user may specify some threshold energy or
+ * eigenvector entry below which the basis is truncated. This allows
+ * projection into a lower-dimensional state while minimizing (in a
+ * least squares sense) the projection error.
+ *
+ * In the test operation, a Jarque-Bera-Srivastava test of n-d normality is performed.
+ *
+ * @par Thanks:
+ * Thanks to David Thompson, Philippe Pebay and Jackson Mayo from
+ * Sandia National Laboratories for implementing this class.
+ * Updated by Philippe Pebay, Kitware SAS 2012
+*/
 
 #ifndef vtkPCAStatisticsGnuR_h
 #define vtkPCAStatisticsGnuR_h

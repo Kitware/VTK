@@ -111,12 +111,12 @@ int main( int, char *[] )
   dataset3Arr->SetName( "Metric 2" );
 
   for ( int i = 0; i < nVals1; ++ i )
-    {
+  {
     int ti = i << 1;
     dataset1Arr->InsertNextValue( mingledData[ti] );
     dataset2Arr->InsertNextValue( mingledData[ti + 1] );
     dataset3Arr->InsertNextValue( -1. );
-    }
+  }
 
   vtkTable* datasetTable1 = vtkTable::New();
   datasetTable1->AddColumn( dataset1Arr );
@@ -156,9 +156,9 @@ int main( int, char *[] )
 
   // Select Columns of Interest
   for ( int i = 0; i< nMetrics; ++ i )
-    {
+  {
     ds1->AddColumn( columns[i] );
-    }
+  }
 
   // Test Learn, Derive, Test, and Assess options
   ds1->SetLearnOption( true );
@@ -177,61 +177,61 @@ int main( int, char *[] )
 
   cout << "\n## Calculated the following primary statistics for first data set:\n";
   for ( vtkIdType r = 0; r < outputPrimary1->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << "   ";
     for ( int i = 0; i < outputPrimary1->GetNumberOfColumns(); ++ i )
-      {
+    {
       cout << outputPrimary1->GetColumnName( i )
            << "="
            << outputPrimary1->GetValue( r, i ).ToString()
            << "  ";
-      }
+    }
 
     // Verify some of the calculated primary statistics
     if ( fabs ( outputPrimary1->GetValueByName( r, "Mean" ).ToDouble() - means1[r] ) > 1.e-6 )
-      {
+    {
       vtkGenericWarningMacro("Incorrect mean");
       testStatus = 1;
-      }
-    cout << "\n";
     }
+    cout << "\n";
+  }
 
   cout << "\n## Calculated the following derived statistics for first data set:\n";
   for ( vtkIdType r = 0; r < outputDerived1->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << "   ";
     for ( int i = 0; i < outputDerived1->GetNumberOfColumns(); ++ i )
-      {
+    {
       cout << outputDerived1->GetColumnName( i )
            << "="
            << outputDerived1->GetValue( r, i ).ToString()
            << "  ";
-      }
+    }
 
     // Verify some of the calculated derived statistics
     if ( fabs ( outputDerived1->GetValueByName( r, "Standard Deviation" ).ToDouble() - stdevs1[r] ) > 1.e-5 )
-      {
+    {
       vtkGenericWarningMacro("Incorrect standard deviation");
       testStatus = 1;
-      }
-    cout << "\n";
     }
+    cout << "\n";
+  }
 
   // Check some results of the Test option
   cout << "\n## Calculated the following Jarque-Bera statistics:\n";
   for ( vtkIdType r = 0; r < outputTest1->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << "   ";
     for ( int i = 0; i < outputTest1->GetNumberOfColumns(); ++ i )
-      {
+    {
       cout << outputTest1->GetColumnName( i )
            << "="
            << outputTest1->GetValue( r, i ).ToString()
            << "  ";
-      }
+    }
 
     cout << "\n";
-    }
+  }
 
   // Search for outliers to check results of Assess option
   double maxdev = 1.5;
@@ -245,21 +245,21 @@ int main( int, char *[] )
   vtkDoubleArray* devs1 = vtkArrayDownCast<vtkDoubleArray>( outputData1->GetColumnByName( "d(Metric 1)" ) );
 
   if ( ! devs0 || ! devs1 || ! vals0 || ! vals1 )
-    {
+  {
     vtkGenericWarningMacro("Empty output column(s).\n");
     testStatus = 1;
 
     return testStatus;
-    }
+  }
 
   double dev;
   int m0outliers = 0;
   int m1outliers = 0;
   for ( vtkIdType r = 0; r < outputData1->GetNumberOfRows(); ++ r )
-    {
+  {
     dev = devs0->GetValue( r );
     if ( dev > maxdev )
-      {
+    {
       ++ m0outliers;
       cout << "   "
            << " row "
@@ -273,13 +273,13 @@ int main( int, char *[] )
            << " (value: "
            << vals0->GetValue( r )
            << ")\n";
-      }
     }
+  }
   for ( vtkIdType r = 0; r < outputData1->GetNumberOfRows(); ++ r )
-    {
+  {
     dev = devs1->GetValue( r );
     if ( dev > maxdev )
-      {
+    {
       ++ m1outliers;
       cout << "   "
            << " row "
@@ -293,8 +293,8 @@ int main( int, char *[] )
            << " (value: "
            << vals1->GetValue( r )
            << ")\n";
-      }
     }
+  }
 
   cout << "  Found "
        << m0outliers
@@ -304,10 +304,10 @@ int main( int, char *[] )
        << " outliers for Metric 1.\n";
 
   if ( m0outliers != 4 || m1outliers != 6 )
-    {
+  {
     vtkGenericWarningMacro("Expected 4 outliers for Metric 0 and 6 outliers for Metric 1.");
     testStatus = 1;
-    }
+  }
 
   // Now, used modified output 1 as input 1 to test 0-deviation
   cout << "\n## Searching for values not equal to 50 for metric 1:\n";
@@ -337,32 +337,32 @@ int main( int, char *[] )
   devs1 = vtkArrayDownCast<vtkDoubleArray>( outputData1->GetColumnByName( "d(Metric 1)" ) );
 
   if ( ! devs1 || ! vals1 )
-    {
+  {
     vtkGenericWarningMacro("Empty output column(s).\n");
     testStatus = 1;
 
     return testStatus;
-    }
+  }
 
   m1outliers = 0;
   for ( vtkIdType r = 0; r < outputData1->GetNumberOfRows(); ++ r )
-    {
+  {
     dev = devs1->GetValue( r );
     if ( dev )
-      {
+    {
       ++ m1outliers;
-      }
     }
+  }
 
   cout << "  Found "
        << m1outliers
        << " outliers for Metric 1.\n";
 
   if ( m1outliers != 28 )
-    {
+  {
     vtkGenericWarningMacro("Expected 28 outliers for Metric 1, found " << m1outliers << ".");
     testStatus = 1;
-    }
+  }
 
   // Clean up (which implies resetting input model to first algorithm parameters table values which were modified to their initial values)
   modifiedPrimary->SetValueByName( 1, "Mean", means1[1] );
@@ -387,12 +387,12 @@ int main( int, char *[] )
   dataset6Arr->SetName( "Metric 2" );
 
   for ( int i = 0; i < nVals2; ++ i )
-    {
+  {
     int ti = i << 1;
     dataset4Arr->InsertNextValue( mingledData[ti] + 1. );
     dataset5Arr->InsertNextValue( mingledData[ti + 1] );
     dataset6Arr->InsertNextValue( 1. );
-    }
+  }
 
   vtkTable* datasetTable2 = vtkTable::New();
   datasetTable2->AddColumn( dataset4Arr );
@@ -408,9 +408,9 @@ int main( int, char *[] )
 
   // Select Columns of Interest (all of them)
   for ( int i = 0; i< nMetrics; ++ i )
-    {
+  {
     ds2->AddColumn( columns[i] );
-    }
+  }
 
   // Update with Learn option only
   ds2->SetLearnOption( true );
@@ -425,17 +425,17 @@ int main( int, char *[] )
 
   cout << "\n## Calculated the following primary statistics for second data set:\n";
   for ( vtkIdType r = 0; r < outputPrimary2->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << "   ";
     for ( int i = 0; i < outputPrimary2->GetNumberOfColumns(); ++ i )
-      {
+    {
       cout << outputPrimary2->GetColumnName( i )
            << "="
            << outputPrimary2->GetValue( r, i ).ToString()
            << "  ";
-      }
+    }
     cout << "\n";
-   }
+  }
 
   // Clean up
   ds2->Delete();
@@ -469,45 +469,45 @@ int main( int, char *[] )
 
   cout << "\n## Calculated the following primary statistics for updated (first + second) data set:\n";
   for ( vtkIdType r = 0; r < outputPrimary1->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << "   ";
     for ( int i = 0; i < outputPrimary1->GetNumberOfColumns(); ++ i )
-      {
+    {
       cout << outputPrimary1->GetColumnName( i )
            << "="
            << outputPrimary1->GetValue( r, i ).ToString()
            << "  ";
-      }
+    }
 
     // Verify some of the calculated primary statistics
     if ( fabs ( outputPrimary1->GetValueByName( r, "Mean" ).ToDouble() - means0[r] ) > 1.e-6 )
-      {
+    {
       vtkGenericWarningMacro("Incorrect mean");
       testStatus = 1;
-      }
-    cout << "\n";
     }
+    cout << "\n";
+  }
 
   cout << "\n## Calculated the following derived statistics for updated (first + second) data set:\n";
   for ( vtkIdType r = 0; r < outputDerived1->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << "   ";
     for ( int i = 0; i < outputDerived1->GetNumberOfColumns(); ++ i )
-      {
+    {
       cout << outputDerived1->GetColumnName( i )
            << "="
            << outputDerived1->GetValue( r, i ).ToString()
            << "  ";
-      }
+    }
 
     // Verify some of the calculated derived statistics
     if ( fabs ( outputDerived1->GetValueByName( r, "Standard Deviation" ).ToDouble() - stdevs0[r] ) > 1.e-5 )
-      {
+    {
       vtkGenericWarningMacro("Incorrect standard deviation");
       testStatus = 1;
-      }
-    cout << "\n";
     }
+    cout << "\n";
+  }
 
   // Clean up
   ds1->Delete();
@@ -533,9 +533,9 @@ int main( int, char *[] )
   datasetArr->SetName( "Digits" );
 
   for ( int i = 0; i < nSimpleVals; ++ i )
-    {
+  {
     datasetArr->InsertNextValue( simpleData[i] );
-    }
+  }
 
   vtkTable* simpleTable = vtkTable::New();
   simpleTable->AddColumn( datasetArr );
@@ -575,49 +575,49 @@ int main( int, char *[] )
   cout << "\n## Calculated the following primary statistics for {0,...9} sequence:\n";
   cout << "   ";
   for ( int i = 0; i < outputPrimary3->GetNumberOfColumns(); ++ i )
-    {
+  {
     cout << outputPrimary3->GetColumnName( i )
          << "="
          << outputPrimary3->GetValue( 0, i ).ToString()
          << "  ";
-    }
+  }
 
   // Verify some of the calculated primary statistics
   if ( fabs ( outputPrimary3->GetValueByName( 0, "Mean" ).ToDouble() - mean ) > 1.e-6 )
-    {
+  {
     vtkGenericWarningMacro("Incorrect mean");
     testStatus = 1;
-    }
+  }
   cout << "\n";
 
   cout << "\n## Calculated the following derived statistics for {0,...9} sequence:\n";
   cout << "   ";
   for ( int i = 0; i < outputDerived3->GetNumberOfColumns(); ++ i )
-    {
+  {
     cout << outputDerived3->GetColumnName( i )
          << "="
          << outputDerived3->GetValue( 0, i ).ToString()
          << "  ";
-    }
+  }
 
   // Verify some of the calculated derived statistics
   if ( fabs ( outputDerived3->GetValueByName( 0, "Variance" ).ToDouble() - variance ) > 1.e-6 )
-    {
+  {
     vtkGenericWarningMacro("Incorrect variance");
     testStatus = 1;
-    }
+  }
 
   if ( fabs ( outputDerived3->GetValueByName( 0, "Skewness" ).ToDouble() - skewness ) > 1.e-6 )
-    {
+  {
     vtkGenericWarningMacro("Incorrect skewness");
     testStatus = 1;
-    }
+  }
 
   if ( fabs ( outputDerived3->GetValueByName( 0, "Kurtosis" ).ToDouble() - kurtosis ) > 1.e-6 )
-    {
+  {
     vtkGenericWarningMacro("Incorrect kurtosis");
     testStatus = 1;
-    }
+  }
   cout << "\n";
 
   // Clean up
@@ -650,14 +650,14 @@ int main( int, char *[] )
   vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) );
 
   for ( int i = 0; i < nVals; ++ i )
-    {
+  {
     datasetNormal->InsertNextValue( vtkMath::Gaussian() );
     datasetUniform->InsertNextValue( vtkMath::Random() );
     datasetLogNormal->InsertNextValue( exp( vtkMath::Gaussian() ) );
     datasetExponential->InsertNextValue( -log ( vtkMath::Random() ) );
     double u = vtkMath::Random() - .5;
     datasetLaplace->InsertNextValue( ( u < 0. ? 1. : -1. ) * log ( 1. - 2. * fabs( u ) ) );
-    }
+  }
 
   vtkTable* gaussianTable = vtkTable::New();
   gaussianTable->AddColumn( datasetNormal );
@@ -700,35 +700,35 @@ int main( int, char *[] )
        << nVals
        << "):\n";
   for ( vtkIdType r = 0; r < outputPrimary4->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << "   ";
     for ( int i = 0; i < outputPrimary4->GetNumberOfColumns(); ++ i )
-      {
+    {
       cout << outputPrimary4->GetColumnName( i )
            << "="
            << outputPrimary4->GetValue( r, i ).ToString()
            << "  ";
-      }
+    }
 
     cout << "\n";
-    }
+  }
 
   cout << "\n## Calculated the following derived statistics for pseudo-random variables (n="
        << nVals
        << "):\n";
   for ( vtkIdType r = 0; r < outputDerived4->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << "   ";
     for ( int i = 0; i < outputDerived4->GetNumberOfColumns(); ++ i )
-      {
+    {
       cout << outputDerived4->GetColumnName( i )
            << "="
            << outputDerived4->GetValue( r, i ).ToString()
            << "  ";
-      }
+    }
 
     cout << "\n";
-    }
+  }
 
   // Check some results of the Test option
   cout << "\n## Calculated the following Jarque-Bera statistics for pseudo-random variables (n="
@@ -747,41 +747,41 @@ int main( int, char *[] )
 
   // Loop over Test table
   for ( vtkIdType r = 0; r < outputTest4->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << "   ";
     for ( int c = 0; c < outputTest4->GetNumberOfColumns(); ++ c )
-      {
+    {
       cout << outputTest4->GetColumnName( c )
            << "="
            << outputTest4->GetValue( r, c ).ToString()
            << "  ";
-      }
+    }
 
 #ifdef VTK_USE_GNU_R
     // Check if null hypothesis is rejected at specified significance level
     double p = outputTest4->GetValueByName( r, "P" ).ToDouble();
     // Must verify that p value is valid (it is set to -1 if R has failed)
     if ( p > -1 && p < alpha )
-      {
+    {
       cout << "N.H. rejected";
 
       ++ nRejected;
-      }
+    }
 #endif // VTK_USE_GNU_R
 
     cout << "\n";
-    }
+  }
 
 #ifdef VTK_USE_GNU_R
   if ( nRejected < nNonGaussian )
-    {
+  {
     vtkGenericWarningMacro("Rejected only "
                            << nRejected
                            << " null hypotheses of normality whereas "
                            << nNonGaussian
                            << " variables are not Gaussian");
     testStatus = 1;
-    }
+  }
 #endif // VTK_USE_GNU_R
 
   // Clean up

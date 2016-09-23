@@ -79,14 +79,14 @@ int vtkDiagonalMatrixSource::RequestData(
   vtkInformationVector* outputVector)
 {
   if(this->Extents < 1)
-    {
+  {
     vtkErrorMacro(<< "Invalid matrix extents: " << this->Extents << "x" << this->Extents << " array is not supported.");
     return 0;
-    }
+  }
 
   vtkArray* array = 0;
   switch(this->ArrayType)
-    {
+  {
     case DENSE:
       array = this->GenerateDenseArray();
       break;
@@ -96,7 +96,7 @@ int vtkDiagonalMatrixSource::RequestData(
     default:
       vtkErrorMacro(<< "Invalid array type: " << this->ArrayType << ".");
       return 0;
-    }
+  }
 
   vtkArrayData* const output = vtkArrayData::GetData(outputVector);
   output->ClearArrays();
@@ -116,22 +116,22 @@ vtkArray* vtkDiagonalMatrixSource::GenerateDenseArray()
   array->Fill(0.0);
 
   if(this->Diagonal != 0.0)
-    {
+  {
     for(vtkIdType i = 0; i != this->Extents; ++i)
       array->SetValue(vtkArrayCoordinates(i, i), this->Diagonal);
-    }
+  }
 
   if(this->SuperDiagonal != 0.0)
-    {
+  {
     for(vtkIdType i = 0; i + 1 != this->Extents; ++i)
       array->SetValue(vtkArrayCoordinates(i, i+1), this->SuperDiagonal);
-    }
+  }
 
   if(this->SubDiagonal != 0.0)
-    {
+  {
     for(vtkIdType i = 0; i + 1 != this->Extents; ++i)
       array->SetValue(vtkArrayCoordinates(i+1, i), this->SubDiagonal);
-    }
+  }
 
   return array;
 }
@@ -144,22 +144,22 @@ vtkArray* vtkDiagonalMatrixSource::GenerateSparseArray()
   array->SetDimensionLabel(1, this->ColumnLabel);
 
   if(this->Diagonal != 0.0)
-    {
+  {
     for(vtkIdType i = 0; i != this->Extents; ++i)
       array->AddValue(vtkArrayCoordinates(i, i), this->Diagonal);
-    }
+  }
 
   if(this->SuperDiagonal != 0.0)
-    {
+  {
     for(vtkIdType i = 0; i + 1 != this->Extents; ++i)
       array->AddValue(vtkArrayCoordinates(i, i+1), this->SuperDiagonal);
-    }
+  }
 
   if(this->SubDiagonal != 0.0)
-    {
+  {
     for(vtkIdType i = 0; i + 1 != this->Extents; ++i)
       array->AddValue(vtkArrayCoordinates(i+1, i), this->SubDiagonal);
-    }
+  }
 
   return array;
 }

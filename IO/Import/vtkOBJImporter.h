@@ -9,13 +9,16 @@
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
-// .NAME vtkOBJImporter - import from .obj wavefront files
-// .SECTION Description - suports import of polydata, textures, and actors
-//                        from Wavefront .obj & associated .mtl files.
-// .SECTION Thanks - Peter Karasev (Georgia Tech / Keysight Technologies Inc),
-//                   Allen Tannenbaum (SUNY Stonybrook), Patricio Vela (Georgia Tech)
-// .SECTION See Also
-//  vtkImporter
+/**
+ * @class   vtkOBJImporter
+ * @brief   import from .obj wavefront files
+ *
+ *                        from Wavefront .obj & associated .mtl files.
+ * @par Thanks - Peter Karasev (Georgia Tech / Keysight Technologies Inc),:
+ *                   Allen Tannenbaum (SUNY Stonybrook), Patricio Vela (Georgia Tech)
+ * @sa
+ *  vtkImporter
+*/
 
 #ifndef vtkOBJImporter_h
 #define vtkOBJImporter_h
@@ -60,14 +63,17 @@ public:
   vtkTypeMacro(vtkOBJImporter,vtkImporter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify the name of the file to read.
+  //@{
+  /**
+   * Specify the name of the file to read.
+   */
   void SetFileName(const char* arg);
   void SetFileNameMTL(const char* arg);
   void SetTexturePath(const char* path);
   const char* GetFileName() const;
   const char* GetFileNameMTL() const;
   const char* GetTexturePath() const;
+  //@}
 
 protected:
   vtkOBJImporter();

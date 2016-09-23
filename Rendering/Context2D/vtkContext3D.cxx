@@ -28,22 +28,22 @@ void vtkContext3D::PrintSelf(ostream &os, vtkIndent indent)
   Superclass::PrintSelf(os, indent);
   os << indent << "Context Device: ";
   if (this->Device)
-    {
+  {
     os << endl;
     this->Device->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(none)" << endl;
-    }
+  }
 }
 
 bool vtkContext3D::Begin(vtkContextDevice3D *device)
 {
   if (this->Device == device)
-    {
+  {
     return true;
-    }
+  }
   this->Device = device;
   return true;
 }
@@ -56,9 +56,9 @@ vtkContextDevice3D * vtkContext3D::GetDevice()
 bool vtkContext3D::End()
 {
   if (this->Device)
-    {
+  {
     this->Device = NULL;
-    }
+  }
   return true;
 }
 
@@ -116,27 +116,27 @@ void vtkContext3D::ApplyBrush(vtkBrush *brush)
 void vtkContext3D::SetTransform(vtkTransform *transform)
 {
   if (transform)
-    {
+  {
     this->Device->SetMatrix(transform->GetMatrix());
-    }
+  }
 }
 
 vtkTransform * vtkContext3D::GetTransform()
 {
   if (this->Device && this->Transform)
-    {
+  {
     this->Device->GetMatrix(this->Transform->GetMatrix());
     return this->Transform;
-    }
+  }
   return NULL;
 }
 
 void vtkContext3D::AppendTransform(vtkTransform *transform)
 {
   if(transform)
-    {
+  {
     this->Device->MultiplyMatrix(transform->GetMatrix());
-    }
+  }
 }
 
 void vtkContext3D::PushMatrix()

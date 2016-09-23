@@ -38,9 +38,9 @@ bool CompareMeshes(vtkPolyData* p1, vtkPolyData* p2)
   vtkIdType nbCells1 = p1->GetNumberOfCells();
   vtkIdType nbCells2 = p2->GetNumberOfCells();
   if (nbPoints1 != nbPoints2 || nbCells1 != nbCells2)
-    {
+  {
     return false;
-    }
+  }
 
   vtkCellArray* polys1 = p1->GetPolys();
   vtkCellArray* polys2 = p2->GetPolys();
@@ -48,19 +48,19 @@ bool CompareMeshes(vtkPolyData* p1, vtkPolyData* p2)
   polys2->InitTraversal();
   vtkIdType npts1, npts2, *pts1, *pts2;
   while (polys1->GetNextCell(npts1, pts1) && polys2->GetNextCell(npts2, pts2))
-    {
+  {
     if (npts1 != npts2)
-      {
+    {
       return false;
-      }
+    }
     for (vtkIdType i = 0; i < npts1; i++)
-      {
+    {
       if (pts1[i] != pts2[i])
-        {
+      {
         return false;
-        }
       }
     }
+  }
 
   return true;
 }
@@ -94,12 +94,12 @@ bool TriangulationTest(const std::string& filePath)
   vtkPolyData* validMesh = outputReader->GetOutput();
 
   if (!CompareMeshes(validMesh, obtainedMesh))
-    {
+  {
     std::cerr << "Obtained mesh is different from expected! "
       "Its VTK file follows:" << std::endl;
     DumpMesh(obtainedMesh);
     return false;
-    }
+  }
 
   return true;
 }
@@ -116,30 +116,30 @@ void GetTransform(vtkTransform *transform, vtkPoints *points)
   double rotationAxis[3], center[3], rotationAngle;
   double dotZAxis = vtkMath::Dot(normal, zaxis);
   if (fabs(1.0 - dotZAxis) < 1e-6)
-    {
+  {
     // Aligned with z-axis
     rotationAxis[0] = 1.0;
     rotationAxis[1] = 0.0;
     rotationAxis[2] = 0.0;
     rotationAngle   = 0.0;
-    }
+  }
   else if (fabs(1.0 + dotZAxis) < 1e-6)
-    {
+  {
     // Co-linear with z-axis, but reversed sense.
     // Aligned with z-axis
     rotationAxis[0] = 1.0;
     rotationAxis[1] = 0.0;
     rotationAxis[2] = 0.0;
     rotationAngle = 180.0;
-    }
+  }
   else
-    {
+  {
     // The general case
     vtkMath::Cross(normal, zaxis, rotationAxis);
     vtkMath::Normalize(rotationAxis);
     rotationAngle =
       vtkMath::DegreesFromRadians(acos(vtkMath::Dot(zaxis, normal)));
-    }
+  }
 
   transform->PreMultiply();
   transform->Identity();
@@ -183,12 +183,12 @@ bool TessellationTestWithTransform(const std::string& dataPath)
   vtkPolyData* outPoly = del2D->GetOutput();
 
   if (outPoly->GetNumberOfCells() != boundaryPoly->GetNumberOfPoints() - 2)
-    {
+  {
     std::cerr << "Bad triangulation for " << dataPath << "!" << std::endl;
     std::cerr << "Output has " << outPoly->GetNumberOfCells() << " cells instead of "
       << boundaryPoly->GetNumberOfPoints() - 2 << std::endl;
     return false;
-    }
+  }
   return true;
 }
 
@@ -197,10 +197,10 @@ int TestDelaunay2DMeshes(int argc, char* argv[])
 
   char* data_dir = vtkTestUtilities::GetDataRoot(argc, argv);
   if (!data_dir)
-    {
+  {
     cerr << "Could not determine data directory." << endl;
     return VTK_FAILURE;
-    }
+  }
 
   std::string dataPath =
     std::string(data_dir) + "/Data/Delaunay/";

@@ -44,17 +44,17 @@ static inline void generatePixelData(std::vector<float> &data,
 {
   data.resize(width * height * 4);
   for (size_t h = 0; h < height; ++h)
-    {
+  {
     size_t rowOffset = h * width * 4;
     for (size_t w = 0; w < width; ++w)
-      {
+    {
       size_t pixel = rowOffset + (w * 4);
       data[pixel    ] = h / static_cast<float>(height);
       data[pixel + 1] = 0.f;
       data[pixel + 2] = w / static_cast<float>(width);
       data[pixel + 3] = 1.f;
-      }
     }
+  }
 }
 
 } // end anon namespace
@@ -65,10 +65,10 @@ int TestGL2PSAddPolyPrimitive(int , char * [])
       std::string("/TestGL2PSAddPolyPrimitive.ps");
   FILE *stream = fopen(filename.c_str(), "wb");
   if (stream == NULL)
-    {
+  {
     std::cerr << "Error opening output file." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   GLint viewport[4] = { 0, 0, 400, 400 };
   GLint result = gl2psBeginPage("AddPolyPrimitive Test", "VTK", viewport,
@@ -76,10 +76,10 @@ int TestGL2PSAddPolyPrimitive(int , char * [])
                                 GL2PS_NO_OPENGL_CONTEXT | GL2PS_NO_BLENDING,
                                 GL_RGBA, 0, NULL, 0, 0, 0, 0, stream, 0);
   if (result != GL2PS_SUCCESS)
-    {
+  {
     std::cerr << "gl2psBeginPage failed." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // AddPolyPrimitive arguments:
   GL2PSvertex vertices[3]; // Vertices.
@@ -126,10 +126,10 @@ int TestGL2PSAddPolyPrimitive(int , char * [])
 
   result = gl2psEndPage();
   if (result != GL2PS_SUCCESS)
-    {
+  {
     std::cerr << "gl2psEndPage failed." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   fclose(stream);
 

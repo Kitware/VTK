@@ -77,30 +77,30 @@ struct ComputeScalarRange
     APIType tempRange[RangeSize];
 
     for(int i = 0, j = 0; i < NumComps; ++i, j+=2)
-      {
+    {
       tempRange[j] = vtkTypeTraits<APIType>::Max();
       tempRange[j+1] = vtkTypeTraits<APIType>::Min();
-      }
+    }
 
     //compute the range for each component of the data array at the same time
     const vtkIdType numTuples = array->GetNumberOfTuples();
     for(vtkIdType tupleIdx = 0; tupleIdx < numTuples; ++tupleIdx)
-      {
+    {
       for(int compIdx = 0, j = 0; compIdx < NumComps; ++compIdx, j+=2)
-        {
+      {
         tempRange[j]   = detail::min(tempRange[j],
                                      access.Get(tupleIdx, compIdx));
         tempRange[j+1] = detail::max(tempRange[j+1],
                                      access.Get(tupleIdx, compIdx));
-        }
       }
+    }
 
     //convert the range to doubles
     for (int i = 0, j = 0; i < NumComps; ++i, j+=2)
-      {
+    {
       ranges[j] = static_cast<double>(tempRange[j]);
       ranges[j+1] = static_cast<double>(tempRange[j+1]);
-      }
+    }
     return true;
   }
 };
@@ -117,89 +117,89 @@ bool DoComputeScalarRange(ArrayT *array, double *ranges)
 
   //setup the initial ranges to be the max,min for double
   for (int i = 0, j = 0; i < numComp; ++i, j+=2)
-    {
+  {
     ranges[j] =  vtkTypeTraits<double>::Max();
     ranges[j+1] = vtkTypeTraits<double>::Min();
-    }
+  }
 
   //do this after we make sure range is max to min
   if (numTuples == 0)
-    {
+  {
     return false;
-    }
+  }
 
   //Special case for single value scalar range. This is done to help the
   //compiler detect it can perform loop optimizations.
   if (numComp == 1)
-    {
+  {
     return ComputeScalarRange<APIType,1,2>()(array, ranges);
-    }
+  }
   else if (numComp == 2)
-    {
+  {
     return ComputeScalarRange<APIType,2,4>()(array, ranges);
-    }
+  }
   else if (numComp == 3)
-    {
+  {
     return ComputeScalarRange<APIType,3,6>()(array, ranges);
-    }
+  }
   else if (numComp == 4)
-    {
+  {
     return ComputeScalarRange<APIType,4,8>()(array, ranges);
-    }
+  }
   else if (numComp == 5)
-    {
+  {
     return ComputeScalarRange<APIType,5,10>()(array, ranges);
-    }
+  }
   else if (numComp == 6)
-    {
+  {
     return ComputeScalarRange<APIType,6,12>()(array, ranges);
-    }
+  }
   else if (numComp == 7)
-    {
+  {
     return ComputeScalarRange<APIType,7,14>()(array, ranges);
-    }
+  }
   else if (numComp == 8)
-    {
+  {
     return ComputeScalarRange<APIType,8,16>()(array, ranges);
-    }
+  }
   else if (numComp == 9)
-    {
+  {
     return ComputeScalarRange<APIType,9,18>()(array, ranges);
-    }
+  }
   else
-    {
+  {
     //initialize the temp range storage to min/max pairs
     APIType* tempRange = new APIType[numComp*2];
     for (int i = 0, j = 0; i < numComp; ++i, j+=2)
-      {
+    {
       tempRange[j] = vtkTypeTraits<APIType>::Max();
       tempRange[j+1] = vtkTypeTraits<APIType>::Min();
-      }
+    }
 
     //compute the range for each component of the data array at the same time
     for (vtkIdType tupleIdx = 0; tupleIdx < numTuples; ++tupleIdx)
-      {
+    {
       for(int compIdx = 0, j = 0; compIdx < numComp; ++compIdx, j+=2)
-        {
+      {
         tempRange[j]   = detail::min(tempRange[j],
                                      access.Get(tupleIdx, compIdx));
         tempRange[j+1] = detail::max(tempRange[j+1],
                                      access.Get(tupleIdx, compIdx));
-        }
       }
+    }
 
     //convert the range to doubles
     for (int i = 0, j = 0; i < numComp; ++i, j+=2)
-      {
+    {
       ranges[j] = static_cast<double>(tempRange[j]);
       ranges[j+1] = static_cast<double>(tempRange[j+1]);
-      }
+    }
 
     //cleanup temp range storage
     delete[] tempRange;
 
     return true;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -216,22 +216,22 @@ bool DoComputeVectorRange(ArrayT *array, double range[2])
 
   //do this after we make sure range is max to min
   if (numTuples == 0)
-    {
+  {
     return false;
-    }
+  }
 
   //iterate over all the tuples
   for (vtkIdType tupleIdx = 0; tupleIdx < numTuples; ++tupleIdx)
-    {
+  {
     double squaredSum = 0.0;
     for (int compIdx = 0; compIdx < numComps; ++compIdx)
-      {
+    {
       const double t = static_cast<double>(access.Get(tupleIdx, compIdx));
       squaredSum += t * t;
-      }
+    }
     range[0] = detail::min(range[0], squaredSum);
     range[1] = detail::max(range[1], squaredSum);
-    }
+  }
 
   //now that we have computed the smallest and largest value, take the
   //square root of that value.

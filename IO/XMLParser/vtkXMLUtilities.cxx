@@ -40,7 +40,7 @@ vtkStandardNewMacro(vtkXMLUtilities);
 inline int vtkXMLUtilitiesEncodeEntities(unsigned char c, ostream &output)
 {
   switch (c)
-    {
+  {
     case '&':
       output << "&amp;";
       return 1;
@@ -60,7 +60,7 @@ inline int vtkXMLUtilitiesEncodeEntities(unsigned char c, ostream &output)
     case '>':
       output << "&gt;";
       return 1;
-    }
+  }
 
   return 0;
 }
@@ -73,9 +73,9 @@ void vtkXMLUtilities::EncodeString(const char *input, int input_encoding,
   // No string
 
   if (!input)
-    {
+  {
     return;
-    }
+  }
 
   // If either the input or output encoding is not specified,
   // or they are the same, dump as is (if no entites had to be converted)
@@ -89,10 +89,10 @@ void vtkXMLUtilities::EncodeString(const char *input, int input_encoding,
   if (!special_entities &&
       (no_input_encoding || no_output_encoding ||
        input_encoding == output_encoding))
-    {
+  {
     output << input;
     return;
-    }
+  }
 
   // Convert
 
@@ -102,35 +102,35 @@ void vtkXMLUtilities::EncodeString(const char *input, int input_encoding,
   // the entities
 
   if (no_input_encoding || no_output_encoding)
-    {
+  {
     while (*str)
-      {
+    {
       if (!vtkXMLUtilitiesEncodeEntities(*str, output))
-        {
+      {
         output << *str;
-        }
-      str++;
       }
-    return;
+      str++;
     }
+    return;
+  }
 
   // To VTK_UTF_8...
 
   if (output_encoding == VTK_ENCODING_UTF_8)
-    {
+  {
     int from_iso_8859 = (input_encoding >= VTK_ENCODING_ISO_8859_1 &&
                          input_encoding <= VTK_ENCODING_ISO_8859_16);
 
     // From ISO-8859 or US-ASCII
 
     if (input_encoding == VTK_ENCODING_US_ASCII || from_iso_8859)
-      {
+    {
       while (*str)
-        {
+      {
         if (!special_entities || !vtkXMLUtilitiesEncodeEntities(*str, output))
-          {
+        {
           if (*str > 0x7F)
-            {
+          {
 #if 0
             // This should be the right implementation, but it seems that
             // it just does not work for Expat. Brad and I should dig into
@@ -144,83 +144,83 @@ void vtkXMLUtilities::EncodeString(const char *input, int input_encoding,
 #else
             output << "&#x" << hex << (int)(*str) << ';';
 #endif
-            }
-          else if (*str < 30)
-            {
-            output << "&#x" << hex << (int)(*str) << ';';
-            }
-          else
-            {
-            output << *str;
-            }
           }
-        str++;
+          else if (*str < 30)
+          {
+            output << "&#x" << hex << (int)(*str) << ';';
+          }
+          else
+          {
+            output << *str;
+          }
         }
+        str++;
       }
+    }
 
     // From VTK_ENCODING_UTF_8 (i.e. just encode the entities)
     // To be completed (need the whole &#x)
 
     else if (input_encoding == VTK_ENCODING_UTF_8)
-      {
+    {
       while (*str)
-        {
+      {
         if (!vtkXMLUtilitiesEncodeEntities(*str, output))
-          {
+        {
           output << *str;
-          }
-        str++;
         }
+        str++;
       }
+    }
 
     // Unsupported input encoding
 
     else
-      {
+    {
       vtkGenericWarningMacro(
         << "Input encoding not supported (" << input_encoding << ")");
-      }
     }
+  }
 
   // From VTK_ENCODING_UTF_8...
 
   else if (input_encoding == VTK_ENCODING_UTF_8)
-    {
+  {
     int to_iso_8859 = (output_encoding >= VTK_ENCODING_ISO_8859_1 &&
                        output_encoding <=VTK_ENCODING_ISO_8859_16);
 
     // To US-ASCII or ISO 8859
 
     if (output_encoding == VTK_ENCODING_US_ASCII || to_iso_8859)
-      {
+    {
       while (*str)
-        {
+      {
         if (!special_entities || !vtkXMLUtilitiesEncodeEntities(*str, output))
-          {
+        {
           // Multi-byte 2-chars converted into one char
 
           if (*str > 0x7F)
-            {
+          {
             output << (unsigned char)((*str << 6) | (str[1] & 0x3F));
             str++;
-            }
-          else
-            {
-            output << *str;
-            }
           }
-        str++;
+          else
+          {
+            output << *str;
+          }
         }
+        str++;
       }
+    }
 
     // Unsupported output encoding
 
     else
-      {
+    {
       vtkGenericWarningMacro(
         << "Output encoding not supported (" << input_encoding << ")");
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -229,30 +229,30 @@ void vtkXMLUtilities::CollateAttributes(vtkXMLDataElement *elem,
                                         const char *sep)
 {
   if (!elem)
-    {
+  {
     return;
-    }
+  }
 
   int i, nb = elem->GetNumberOfAttributes();
   for (i = 0; i < nb; i++)
-    {
+  {
     const char *name = elem->GetAttributeName(i);
     if (name)
-      {
+    {
       const char *value = elem->GetAttribute(name);
       if (value)
-        {
+      {
         if (i)
-          {
+        {
           os << (sep ? sep : " ");
-          }
+        }
         os << name << "=\"";
         vtkXMLUtilities::EncodeString(
           value, elem->GetAttributeEncoding(), os, VTK_ENCODING_UTF_8, 1);
         os << '\"';
-        }
       }
     }
+  }
 
   return;
 }
@@ -264,105 +264,105 @@ void vtkXMLUtilities::FlattenElement(vtkXMLDataElement *elem,
                                      int indent_attributes)
 {
   if (!elem)
-    {
+  {
     return;
-    }
+  }
 
   unsigned long pos = os.tellp();
 
   // Name
 
   if (indent)
-    {
+  {
     os << *indent;
-    }
+  }
 
   os << '<' << elem->GetName();
 
   // Attributes
 
   if (elem->GetNumberOfAttributes())
-    {
+  {
     os << ' ';
     if (indent && indent_attributes)
-      {
+    {
       unsigned long len = (unsigned long)os.tellp() - pos;
       if (os.fail())
-        {
+      {
         return;
-        }
+      }
       char *sep = new char [1 + len + 1];
       sep[0] = '\n';
       memset(sep + 1, ' ', len);
       sep[len + 1] = '\0';
       vtkXMLUtilities::CollateAttributes(elem, os, sep);
       delete [] sep;
-      }
-    else
-      {
-      vtkXMLUtilities::CollateAttributes(elem, os);
-      }
     }
+    else
+    {
+      vtkXMLUtilities::CollateAttributes(elem, os);
+    }
+  }
 
   const char *cdata = elem->GetCharacterData();
   int nb_nested = elem->GetNumberOfNestedElements();
   int need_close_tag = (nb_nested || cdata);
 
   if (!need_close_tag)
-    {
+  {
     os << "/>";
-    }
+  }
   else
-    {
+  {
     os << '>';
-    }
+  }
 
   // cdata
 
   if (cdata)
-    {
+  {
     vtkXMLUtilities::EncodeString(
       cdata, elem->GetAttributeEncoding(), os, VTK_ENCODING_UTF_8, 1);
-    }
+  }
 
   // Nested elements
 
   if (nb_nested)
-    {
+  {
     if (indent)
-      {
+    {
       os << '\n';
-      }
+    }
     for (int i = 0; i < nb_nested; i++)
-      {
+    {
       if (indent)
-        {
+      {
         vtkIndent next_indent = indent->GetNextIndent();
         vtkXMLUtilities::FlattenElement(elem->GetNestedElement(i),
                                         os, &next_indent);
-        }
-      else
-        {
-        vtkXMLUtilities::FlattenElement(elem->GetNestedElement(i), os);
-        }
       }
-    if (indent)
+      else
       {
-      os << *indent;
+        vtkXMLUtilities::FlattenElement(elem->GetNestedElement(i), os);
       }
     }
+    if (indent)
+    {
+      os << *indent;
+    }
+  }
 
   // Close
 
   if (need_close_tag)
-    {
+  {
     os << "</" << elem->GetName() << '>';
-    }
+  }
 
   if (indent)
-    {
+  {
     os << '\n';
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -371,20 +371,20 @@ int vtkXMLUtilities::WriteElementToFile(vtkXMLDataElement *elem,
                                         vtkIndent *indent)
 {
   if (!elem || !filename)
-    {
+  {
     return 0;
-    }
+  }
 
   ofstream os(filename, ios::out);
   vtkXMLUtilities::FlattenElement(elem, os, indent);
 
   os.flush();
   if (os.fail())
-    {
+  {
     os.close();
     unlink(filename);
     return 0;
-    }
+  }
   return 1;
 }
 
@@ -398,13 +398,13 @@ vtkXMLUtilities::ReadElementFromStream(istream &is, int encoding)
 
   xml_parser->SetStream(&is);
   if (xml_parser->Parse())
-    {
+  {
     res = xml_parser->GetRootElement();
     // Bump up the ref count since we are going to delete the parser
     // which actually owns the element
     res->SetReferenceCount(res->GetReferenceCount() + 1);
     vtkXMLUtilities::UnFactorElements(res);
-    }
+  }
 
   xml_parser->Delete();
   return res;
@@ -415,9 +415,9 @@ vtkXMLDataElement*
 vtkXMLUtilities::ReadElementFromString(const char *str, int encoding)
 {
   if (!str)
-    {
+  {
     return 0;
-    }
+  }
 
   std::stringstream strstr;
   strstr << str;
@@ -432,9 +432,9 @@ vtkXMLDataElement*
 vtkXMLUtilities::ReadElementFromFile(const char *filename, int encoding)
 {
   if (!filename)
-    {
+  {
     return NULL;
-    }
+  }
 
   ifstream is(filename);
   return vtkXMLUtilities::ReadElementFromStream(is, encoding);
@@ -447,35 +447,35 @@ void vtkXMLUtilities::ReadElementFromAttributeArray(
         int encoding)
 {
   if(atts)
-    {
+  {
     // If the target encoding is VTK_ENCODING_NONE or VTK_ENCODING_UNKNOWN,
     // then keep the internal/default encoding, otherwise encode each
     // attribute using that new format
 
     if (encoding != VTK_ENCODING_NONE && encoding != VTK_ENCODING_UNKNOWN)
-      {
+    {
       element->SetAttributeEncoding(encoding);
-      }
+    }
 
     // Process each attributes returned by Expat in UTF-8 encoding, and
     // convert them to our encoding
 
     for (int i = 0; atts[i] && atts[i + 1]; i += 2)
-      {
+    {
       if (element->GetAttributeEncoding() == VTK_ENCODING_UTF_8)
-        {
+      {
         element->SetAttribute(atts[i], atts[i + 1]);
-        }
+      }
       else
-        {
+      {
         std::ostringstream str;
         vtkXMLUtilities::EncodeString(
           atts[i+1], VTK_ENCODING_UTF_8, str, element->GetAttributeEncoding(), 0);
         str << ends;
         element->SetAttribute(atts[i], str.str().c_str());
-        }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -485,25 +485,25 @@ static void vtkXMLUtilitiesFindSimilarElementsInternal(
   vtkXMLUtilitiesDataElementContainer *results)
 {
   if (!elem || !tree || !results || elem == tree)
-    {
+  {
     return;
-    }
+  }
 
   // If the element is equal to the current tree, append it to the
   // results, otherwise check the sub-trees
 
   if (elem->IsEqualTo(tree))
-    {
+  {
     results->push_back(tree);
-    }
+  }
   else
-    {
+  {
     for (int i = 0; i < tree->GetNumberOfNestedElements(); i++)
-      {
+    {
       vtkXMLUtilitiesFindSimilarElementsInternal(
         elem, tree->GetNestedElement(i), results);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -512,9 +512,9 @@ int vtkXMLUtilities::FindSimilarElements(vtkXMLDataElement *elem,
                                          vtkXMLDataElement ***results)
 {
   if (!elem || ! tree)
-    {
+  {
     return 0;
-    }
+  }
 
   // Create a data element container, and find all similar elements
 
@@ -527,7 +527,7 @@ int vtkXMLUtilities::FindSimilarElements(vtkXMLDataElement *elem,
 
   int size = (int)container->size();
   if (size)
-    {
+  {
     // Allocate an array of element and copy the contents of the container
     // to this flat structure
 
@@ -536,13 +536,13 @@ int vtkXMLUtilities::FindSimilarElements(vtkXMLDataElement *elem,
     size = 0;
     for (vtkXMLUtilitiesDataElementContainer::const_iterator
            it = container->begin(); it != container->end(); ++it)
-      {
+    {
       if (*it)
-        {
+      {
         (*results)[size++] = *it;
-        }
       }
     }
+  }
 
   delete container;
 
@@ -553,9 +553,9 @@ int vtkXMLUtilities::FindSimilarElements(vtkXMLDataElement *elem,
 void vtkXMLUtilities::FactorElements(vtkXMLDataElement *tree)
 {
   if (!tree)
-    {
+  {
     return;
-    }
+  }
 
   // Create the factored pool, and add it to the tree so that it can
   // factor itself too
@@ -574,9 +574,9 @@ void vtkXMLUtilities::FactorElements(vtkXMLDataElement *tree)
   // Nothing factored, remove the useless pool
 
   if (!pool->GetNumberOfNestedElements())
-    {
+  {
     tree->RemoveNestedElement(pool);
-    }
+  }
 
   pool->Delete();
 }
@@ -587,17 +587,17 @@ int vtkXMLUtilities::FactorElementsInternal(vtkXMLDataElement *tree,
                                             vtkXMLDataElement *pool)
 {
   if (!tree || !root || !pool)
-    {
+  {
     return 0;
-    }
+  }
 
   // Do not bother factoring something already factored
 
   if (tree->GetName() &&
       !strcmp(tree->GetName(), VTK_XML_UTILITIES_FACTORED_REF_NAME))
-    {
+  {
     return 0;
-    }
+  }
 
   // Try to find all trees similar to the current tree
 
@@ -608,15 +608,15 @@ int vtkXMLUtilities::FactorElementsInternal(vtkXMLDataElement *tree,
   // None was found, try to factor the sub-trees
 
   if (!nb_of_similar_trees)
-    {
+  {
     int res = 0;
     for (int i = 0; i < tree->GetNumberOfNestedElements(); i++)
-      {
+    {
       res += vtkXMLUtilities::FactorElementsInternal(
         tree->GetNestedElement(i), root, pool);
-      }
-    return res ? 1 : 0;
     }
+    return res ? 1 : 0;
+  }
 
   // Otherwise replace those trees with factored refs
 
@@ -639,13 +639,13 @@ int vtkXMLUtilities::FactorElementsInternal(vtkXMLDataElement *tree,
   tree_copy->Delete();
 
   for (int i = 0; i < nb_of_similar_trees; i++)
-    {
+  {
     similar_trees[i]->RemoveAllAttributes();
     similar_trees[i]->RemoveAllNestedElements();
     similar_trees[i]->SetCharacterData(NULL, 0);
     similar_trees[i]->SetName(VTK_XML_UTILITIES_FACTORED_REF_NAME);
     similar_trees[i]->SetAttribute("Id", id.str().c_str());
-    }
+  }
 
   tree->RemoveAllAttributes();
   tree->RemoveAllNestedElements();
@@ -662,18 +662,18 @@ int vtkXMLUtilities::FactorElementsInternal(vtkXMLDataElement *tree,
 void vtkXMLUtilities::UnFactorElements(vtkXMLDataElement *tree)
 {
   if (!tree)
-    {
+  {
     return;
-    }
+  }
 
   // Search for the factored pool, if not found, we are done
 
   vtkXMLDataElement *pool = tree->FindNestedElementWithName(
     VTK_XML_UTILITIES_FACTORED_POOL_NAME);
   if (!pool)
-    {
+  {
     return;
-    }
+  }
 
   // Remove the pool from the tree, because it makes no sense
   // unfactoring it too
@@ -695,9 +695,9 @@ int vtkXMLUtilities::UnFactorElementsInternal(vtkXMLDataElement *tree,
                                               vtkXMLDataElement *pool)
 {
   if (!tree || !pool)
-    {
+  {
     return 0;
-    }
+  }
 
   int res = 0;
 
@@ -705,24 +705,24 @@ int vtkXMLUtilities::UnFactorElementsInternal(vtkXMLDataElement *tree,
 
   if (tree->GetName() &&
       !strcmp(tree->GetName(), VTK_XML_UTILITIES_FACTORED_REF_NAME))
-    {
+  {
     vtkXMLDataElement *original_tree =
       pool->FindNestedElementWithNameAndAttribute(
         VTK_XML_UTILITIES_FACTORED_NAME, "Id", tree->GetAttribute("Id"));
     if (original_tree && original_tree->GetNumberOfNestedElements())
-      {
+    {
       tree->DeepCopy(original_tree->GetNestedElement(0));
       res++;
-      }
     }
+  }
 
   // Now try to unfactor the sub-trees
 
   for (int i = 0; i < tree->GetNumberOfNestedElements(); i++)
-    {
+  {
     res += vtkXMLUtilities::UnFactorElementsInternal(
       tree->GetNestedElement(i), pool);
-    }
+  }
 
   return res ? 1 : 0;
 }

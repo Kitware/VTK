@@ -50,18 +50,18 @@ int TestXYPlotActor( int argc, char* argv[] )
     };
   vtkSmartPointer<vtkDoubleArray>* data = new vtkSmartPointer<vtkDoubleArray>[nPlots];
   for ( unsigned int i = 0; i < nPlots; ++ i )
-    {
+  {
     data[i] = vtkSmartPointer<vtkDoubleArray>::New();
     data[i]->SetNumberOfComponents( 1 );
     data[i]->SetName( names[i].c_str() );
-    }
+  }
 
   // Fill in points and data
   unsigned int nSteps = 10;
   unsigned int stepSize = 50;
   unsigned int nVals = nSteps * stepSize + 1;
   for ( unsigned int i = 0; i < nVals; ++ i )
-    {
+  {
     points->InsertNextPoint( i, 0., 0. );
 
     double val0 = sqrt( static_cast<double>( i ) );
@@ -71,7 +71,7 @@ int TestXYPlotActor( int argc, char* argv[] )
     double val2 = val0  * cos( 2. * val0 );
     data[2]->InsertNextValue( val2 );
     data[3]->InsertNextValue( -val0 );
-    }
+  }
 
   // Determine extrema
   double* rangeCurr = data[0]->GetRange();
@@ -79,20 +79,20 @@ int TestXYPlotActor( int argc, char* argv[] )
   range[0] = rangeCurr[0];
   range[1] = rangeCurr[1];
   for ( unsigned int i = 1; i < nPlots; ++ i )
-    {
+  {
     rangeCurr = data[i]->GetRange();
     range[0] = rangeCurr[0] < range[0] ? rangeCurr[0] : range[0];
     range[1] = rangeCurr[1] > range[1] ? rangeCurr[1] : range[1];
-    }
+  }
 
   // Create data sets with created points and data
   vtkSmartPointer<vtkPolyData>* polydata = new vtkSmartPointer<vtkPolyData>[nPlots];
   for ( unsigned int i = 0; i < nPlots; ++ i )
-    {
+  {
     polydata[i] = vtkSmartPointer<vtkPolyData>::New();
     polydata[i]->SetPoints( points );
     polydata[i]->GetPointData()->SetScalars( data[i] );
-    }
+  }
 
   // Set XY plot actor
   double colors[] =
@@ -104,10 +104,10 @@ int TestXYPlotActor( int argc, char* argv[] )
   };
   vtkSmartPointer<vtkXYPlotActor> xyPlot = vtkSmartPointer<vtkXYPlotActor>::New();
   for ( unsigned int i = 0; i < nPlots; ++ i )
-    {
+  {
     xyPlot->AddDataSetInput( polydata[i] );
     xyPlot->SetPlotColor( i, colors[3 * i], colors[3 * i + 1], colors[3 * i + 2] );
-    }
+  }
   xyPlot->GetPositionCoordinate()->SetValue( .01, .01, .0 );
   xyPlot->GetPosition2Coordinate()->SetValue( .99, .99, .0 );
   xyPlot->SetLineWidth( 2 );
@@ -129,9 +129,9 @@ int TestXYPlotActor( int argc, char* argv[] )
   xyPlot->SetLegendUseBackground( 1 );
   xyPlot->SetLegendBackgroundColor( .86, .86, .86 );
   for ( unsigned int i = 0; i < nPlots; ++ i )
-    {
+  {
     xyPlot->GetLegendActor()->SetEntryString( i, names[i] );
-    }
+  }
 
   // Axes settings
   xyPlot->SetAxisTitleFontFamily( VTK_TIMES );
@@ -167,9 +167,9 @@ int TestXYPlotActor( int argc, char* argv[] )
 
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Clean up
   delete [] polydata;

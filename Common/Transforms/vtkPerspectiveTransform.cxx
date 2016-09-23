@@ -38,13 +38,13 @@ vtkPerspectiveTransform::~vtkPerspectiveTransform()
   this->SetInput(NULL);
 
   if (this->Concatenation)
-    {
+  {
     this->Concatenation->Delete();
-    }
+  }
   if (this->Stack)
-    {
+  {
     this->Stack->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -58,25 +58,25 @@ void vtkPerspectiveTransform::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfConcatenatedTransforms: " <<
     this->GetNumberOfConcatenatedTransforms() << "\n";
   if (this->GetNumberOfConcatenatedTransforms() != 0)
-    {
+  {
     int n = this->GetNumberOfConcatenatedTransforms();
     for (int i = 0; i < n; i++)
-      {
+    {
       vtkHomogeneousTransform *t = this->GetConcatenatedTransform(i);
       os << indent << "    " << i << ": " << t->GetClassName() << " at " <<
          t << "\n";
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkPerspectiveTransform::Concatenate(vtkHomogeneousTransform *transform)
 {
   if (transform->CircuitCheck(this))
-    {
+  {
     vtkErrorMacro("Concatenate: this would create a circular reference.");
     return;
-    }
+  }
   this->Concatenation->Concatenate(transform);
   this->Modified();
 }
@@ -85,23 +85,23 @@ void vtkPerspectiveTransform::Concatenate(vtkHomogeneousTransform *transform)
 void vtkPerspectiveTransform::SetInput(vtkHomogeneousTransform *input)
 {
   if (this->Input == input)
-    {
+  {
     return;
-    }
+  }
   if (input && input->CircuitCheck(this))
-    {
+  {
     vtkErrorMacro("SetInput: this would create a circular reference.");
     return;
-    }
+  }
   if (this->Input)
-    {
+  {
     this->Input->Delete();
-    }
+  }
   this->Input = input;
   if (this->Input)
-    {
+  {
     this->Input->Register(this);
-    }
+  }
   this->Modified();
 }
 
@@ -110,18 +110,18 @@ int vtkPerspectiveTransform::CircuitCheck(vtkAbstractTransform *transform)
 {
   if (this->vtkHomogeneousTransform::CircuitCheck(transform) ||
       (this->Input && this->Input->CircuitCheck(transform)))
-    {
+  {
     return 1;
-    }
+  }
 
   int n = this->Concatenation->GetNumberOfTransforms();
   for (int i = 0; i < n; i++)
-    {
+  {
     if (this->Concatenation->GetTransform(i)->CircuitCheck(transform))
-      {
+    {
       return 1;
-      }
     }
+  }
 
   return 0;
 }
@@ -139,18 +139,18 @@ vtkMTimeType vtkPerspectiveTransform::GetMTime()
   vtkMTimeType mtime2;
 
   if (this->Input)
-    {
+  {
     mtime2 = this->Input->GetMTime();
     if (mtime2 > mtime)
-      {
+    {
       mtime = mtime2;
-      }
     }
+  }
   mtime2 = this->Concatenation->GetMaxMTime();
   if (mtime2 > mtime)
-    {
+  {
     return mtime2;
-    }
+  }
   return mtime;
 }
 
@@ -168,21 +168,21 @@ void vtkPerspectiveTransform::InternalDeepCopy(vtkAbstractTransform *gtrans)
 
   // copy the stack
   if (transform->Stack)
-    {
+  {
     if (this->Stack == NULL)
-      {
-      this->Stack = vtkTransformConcatenationStack::New();
-      }
-    this->Stack->DeepCopy(transform->Stack);
-    }
-  else
     {
+      this->Stack = vtkTransformConcatenationStack::New();
+    }
+    this->Stack->DeepCopy(transform->Stack);
+  }
+  else
+  {
     if (this->Stack)
-      {
+    {
       this->Stack->Delete();
       this->Stack = NULL;
-      }
     }
+  }
 
   // defer to superclass
   this->vtkHomogeneousTransform::InternalDeepCopy(transform);
@@ -193,19 +193,19 @@ void vtkPerspectiveTransform::InternalUpdate()
 {
   // copy matrix from input
   if (this->Input)
-    {
+  {
     this->Matrix->DeepCopy(this->Input->GetMatrix());
     // if inverse flag is set, invert the matrix
     if (this->Concatenation->GetInverseFlag())
-      {
+    {
       this->Matrix->Invert();
-      }
     }
+  }
   else
   // no input, start with identity
-    {
+  {
     this->Matrix->Identity();
-    }
+  }
 
   int i;
   int nTransforms = this->Concatenation->GetNumberOfTransforms();
@@ -213,21 +213,21 @@ void vtkPerspectiveTransform::InternalUpdate()
 
   // concatenate PreTransforms
   for (i = nPreTransforms-1; i >= 0; i--)
-    {
+  {
     vtkHomogeneousTransform *transform =
       static_cast<vtkHomogeneousTransform *>(this->Concatenation->GetTransform(i));
     vtkMatrix4x4::Multiply4x4(this->Matrix,transform->GetMatrix(),
                               this->Matrix);
-    }
+  }
 
   // concatenate PostTransforms
   for (i = nPreTransforms; i < nTransforms; i++)
-    {
+  {
     vtkHomogeneousTransform *transform =
       static_cast<vtkHomogeneousTransform *>(this->Concatenation->GetTransform(i));
     vtkMatrix4x4::Multiply4x4(transform->GetMatrix(),this->Matrix,
                               this->Matrix);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

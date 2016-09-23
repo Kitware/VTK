@@ -56,77 +56,77 @@ public:
   // Set the rendering context and load the required
   // extensions.
   void SetContext(vtkRenderWindow *context)
-    {
+  {
     if (this->Context != context)
-      {
+    {
       this->MultisampleSupport = true;
-      }
     }
+  }
 
   // Description:
   // Enable/disable multisampling.
   void EnableMultisampling(bool mode)
-    {
+  {
     if (this->MultisampleSupport)
-      {
+    {
 #if GL_ES_VERSION_2_0 != 1
       if (mode)
-        {
+      {
         glEnable(GL_MULTISAMPLE);
-        }
-      else
-        {
-        glDisable(GL_MULTISAMPLE);
-        }
-#endif
       }
+      else
+      {
+        glDisable(GL_MULTISAMPLE);
+      }
+#endif
     }
+  }
 
   // Description:
   // Check if multisample is enabled.
   bool QueryMultisampling()
-    {
+  {
 #if GL_ES_VERSION_2_0 != 1
     if (this->MultisampleSupport && glIsEnabled(GL_MULTISAMPLE))
-      {
+    {
       return true;
-      }
+    }
     else
-      {
+    {
       return false;
-      }
+    }
 #else
     return false;
 #endif
-    }
+  }
 
   // Description:
   // Enable/Disable blending
   void EnableBlending(bool mode)
-    {
+  {
     if (mode)
-      {
+    {
       glEnable(GL_BLEND);
-      }
-    else
-      {
-      glDisable(GL_BLEND);
-      }
     }
+    else
+    {
+      glDisable(GL_BLEND);
+    }
+  }
 
   // Description:
   // Check if blending is enabled.
   bool QueryBlending()
-    {
+  {
     if (glIsEnabled(GL_BLEND))
-      {
+    {
       return true;
-      }
-    else
-      {
-      return false;
-      }
     }
+    else
+    {
+      return false;
+    }
+  }
 };
 
 //----------------------------------------------------------------------------
@@ -154,13 +154,13 @@ vtkOpenGLHardwareSelector::~vtkOpenGLHardwareSelector()
 bool vtkOpenGLHardwareSelector::CaptureBuffers()
 {
   if (!this->Renderer)
-    {
+  {
     vtkErrorMacro("Renderer must be set before calling Select.");
     return false;
-    }
+  }
 
   if (this->FieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS)
-    {
+  {
     vtkRenderWindow *rwin = this->Renderer->GetRenderWindow();
 
     this->Renderer->Clear();
@@ -168,7 +168,7 @@ bool vtkOpenGLHardwareSelector::CaptureBuffers()
     // do a normal render to set the zbuffer first
     rwin->Render();
     this->Renderer->PreserveDepthBufferOn();
-    }
+  }
 
   return this->Superclass::CaptureBuffers();
 }
@@ -245,9 +245,9 @@ void vtkOpenGLHardwareSelector::BeginRenderProp()
 {
   this->InPropRender++;
   if (this->InPropRender != 1)
-    {
+  {
     return;
-    }
+  }
 
   // device specific prep
   vtkRenderWindow *renWin = this->Renderer->GetRenderWindow();
@@ -255,27 +255,27 @@ void vtkOpenGLHardwareSelector::BeginRenderProp()
 
   //cout << "In BeginRenderProp" << endl;
   if (this->CurrentPass == ACTOR_PASS)
-    {
+  {
     int propid = this->PropID;
     if (propid >= 0xfffffe)
-      {
+    {
       vtkErrorMacro("Too many props. Currently only " << 0xfffffe
         << " props are supported.");
       return;
-      }
+    }
     float color[3];
     // Since 0 is reserved for nothing selected, we offset propid by 1.
     propid = propid + 1;
     vtkHardwareSelector::Convert(propid, color);
     this->SetPropColorValue(color);
-    }
+  }
   else if (this->CurrentPass == PROCESS_PASS)
-    {
+  {
     float color[3];
     // Since 0 is reserved for nothing selected, we offset propid by 1.
     vtkHardwareSelector::Convert(this->ProcessID + 1, color);
     this->SetPropColorValue(color);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -283,19 +283,19 @@ void vtkOpenGLHardwareSelector::RenderCompositeIndex(unsigned int index)
 {
 
   if (index > 0xffffff)
-    {
+  {
     vtkErrorMacro("Indices > 0xffffff are not supported.");
     return;
-    }
+  }
 
   index += ID_OFFSET;
 
   if (this->CurrentPass == COMPOSITE_INDEX_PASS)
-    {
+  {
     float color[3];
     vtkHardwareSelector::Convert(static_cast<int>(0xffffff & index), color);
     this->SetPropColorValue(color);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -303,52 +303,52 @@ void vtkOpenGLHardwareSelector::RenderCompositeIndex(unsigned int index)
 void vtkOpenGLHardwareSelector::RenderAttributeId(vtkIdType attribid)
 {
   if (attribid < 0)
-    {
+  {
     vtkErrorMacro("Invalid id: " << attribid);
     return;
-    }
+  }
 
   this->MaxAttributeId = (attribid > this->MaxAttributeId)? attribid :
     this->MaxAttributeId;
 
   if (this->CurrentPass < ID_LOW24 || this->CurrentPass > ID_HIGH16)
-    {
+  {
     return;
-    }
+  }
 
   // 0 is reserved.
   attribid += ID_OFFSET;
 
   for (int cc=0; cc < 3; cc++)
-    {
+  {
     int words24 = (0xffffff & attribid);
     attribid = attribid >> 24;
     if ((this->CurrentPass - ID_LOW24) == cc)
-      {
+    {
       float color[3];
       vtkHardwareSelector::Convert(words24, color);
       this->SetPropColorValue(color);
       break;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkOpenGLHardwareSelector::RenderProcessId(unsigned int processid)
 {
   if (this->CurrentPass == PROCESS_PASS && this->UseProcessIdFromData)
-    {
+  {
     if (processid >= 0xffffff)
-      {
+    {
       vtkErrorMacro("Invalid id: " << processid);
       return;
-      }
+    }
 
     float color[3];
     vtkHardwareSelector::Convert(
       static_cast<int>(processid + 1), color);
     this->SetPropColorValue(color);
-    }
+  }
 }
 
 

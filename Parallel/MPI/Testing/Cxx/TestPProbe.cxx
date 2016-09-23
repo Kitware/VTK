@@ -57,10 +57,10 @@ int TestPProbe(int argc,char *argv[])
   renWin->SetSize(300,300);
 
   if (me > 0)
-    {
+  {
     renWin->SetPosition(me*350, 0);
     renWin->OffScreenRenderingOn();
-    }
+  }
 
 // camera parameters
   vtkCamera* camera = Ren1->GetActiveCamera();
@@ -139,26 +139,26 @@ int TestPProbe(int argc,char *argv[])
   int retVal;
 
   if (me)
-    {
+  {
     compManager->InitializeRMIs();
     contr->ProcessRMIs();
     contr->Receive(&retVal, 1, 0, 33);
-    }
+  }
   else
-    {
+  {
     renWin->Render();
     retVal = vtkRegressionTester::Test(argc, argv, renWin, 10);
     for (int i = 1; i < numProcs; i++)
-      {
+    {
       contr->TriggerRMI(i, vtkMultiProcessController::BREAK_RMI_TAG);
       contr->Send(&retVal, 1, i, 33);
-      }
     }
+  }
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
+  {
     compManager->StartInteractor();
-    }
+  }
 
   contr->Finalize();
   contr->Delete();

@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkFloatingPointExceptions - Deal with floating-point exceptions
-// .SECTION Description
-// Right now it is really basic and it only provides a function to enable
-// floating point exceptions on some compilers.
-// Note that Borland C++ has floating-point exceptions by default, not
-// Visual studio nor gcc. It is mainly use to optionally enable floating
-// point exceptions in the C++ tests.
+/**
+ * @class   vtkFloatingPointExceptions
+ * @brief   Deal with floating-point exceptions
+ *
+ * Right now it is really basic and it only provides a function to enable
+ * floating point exceptions on some compilers.
+ * Note that Borland C++ has floating-point exceptions by default, not
+ * Visual studio nor gcc. It is mainly use to optionally enable floating
+ * point exceptions in the C++ tests.
+*/
 
 #ifndef vtkFloatingPointExceptions_h
 #define vtkFloatingPointExceptions_h
@@ -29,12 +32,14 @@
 class VTKCOMMONCORE_EXPORT vtkFloatingPointExceptions
 {
 public:
-  // Description:
-  // Enable floating point exceptions.
+  /**
+   * Enable floating point exceptions.
+   */
   static void Enable();
 
-  // Description:
-  // Disable floating point exceptions.
+  /**
+   * Disable floating point exceptions.
+   */
   static void Disable();
 
 private:

@@ -37,14 +37,14 @@ void vtkUnstructuredGridVolumeMapper::SetInputData( vtkDataSet *genericInput )
     vtkUnstructuredGridBase::SafeDownCast( genericInput );
 
   if ( input )
-    {
+  {
     this->SetInputData( input );
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro("The SetInput method of this mapper requires "
                   "vtkUnstructuredGridBase as input");
-    }
+  }
 }
 
 void vtkUnstructuredGridVolumeMapper::SetInputData( vtkUnstructuredGridBase *input )
@@ -55,9 +55,9 @@ void vtkUnstructuredGridVolumeMapper::SetInputData( vtkUnstructuredGridBase *inp
 vtkUnstructuredGridBase *vtkUnstructuredGridVolumeMapper::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
-    {
+  {
     return 0;
-    }
+  }
   return vtkUnstructuredGridBase::SafeDownCast(
     this->GetExecutive()->GetInputData(0, 0));
 }

@@ -53,17 +53,17 @@ int TestAssignAttribute(int, char *[])
   tensors->SetName(NULL); // no name.
   tensors->SetNumberOfComponents(9);
   for (vtkIdType i = 0; i < 10; ++i)
-    {
+  {
     pts->InsertNextPoint(i, 0, 0);
     verts->InsertNextCell(1, &i);
     graph->AddVertex();
     scalars->InsertNextTuple3(i, 0.5 * i, 0.1 * i);
     tensors->InsertNextTuple9(1.,0.,0.,0.,1.,0.,0.,0.,1.);
-    }
+  }
   for (vtkIdType i = 0; i < 10; ++i)
-    {
+  {
     graph->AddEdge(i, (i+1)%10);
-    }
+  }
   graph->GetVertexData()->AddArray(scalars);
   graph->GetEdgeData()->AddArray(scalars);
   graph->GetVertexData()->SetTensors(tensors);
@@ -83,55 +83,55 @@ int TestAssignAttribute(int, char *[])
   assign->Update();
   vtkGraph *output = vtkGraph::SafeDownCast(assign->GetOutput());
   if (output->GetVertexData()->GetScalars() != scalars.GetPointer())
-    {
+  {
     cerr << "Vertex scalars not set properly" << endl;
     ++errors;
-    }
+  }
   assign->Assign("scalars", vtkDataSetAttributes::SCALARS, vtkAssignAttribute::EDGE_DATA);
   assign->Update();
   output = vtkGraph::SafeDownCast(assign->GetOutput());
   if (output->GetEdgeData()->GetScalars() != scalars.GetPointer())
-    {
+  {
     cerr << "Edge scalars not set properly" << endl;
     ++errors;
-    }
+  }
 
   assign->SetInputData(poly);
   assign->Assign("scalars", vtkDataSetAttributes::SCALARS, vtkAssignAttribute::POINT_DATA);
   assign->Update();
   vtkPolyData *outputPoly = vtkPolyData::SafeDownCast(assign->GetOutput());
   if (outputPoly->GetPointData()->GetScalars() != scalars.GetPointer())
-    {
+  {
     cerr << "Point scalars not set properly" << endl;
     ++errors;
-    }
+  }
   assign->Assign("scalars", vtkDataSetAttributes::SCALARS, vtkAssignAttribute::CELL_DATA);
   assign->Update();
   outputPoly = vtkPolyData::SafeDownCast(assign->GetOutput());
   if (outputPoly->GetCellData()->GetScalars() != scalars.GetPointer())
-    {
+  {
     cerr << "Cell scalars not set properly" << endl;
     ++errors;
-    }
+  }
 
   assign->Assign(vtkDataSetAttributes::TENSORS,
     vtkDataSetAttributes::SCALARS, vtkAssignAttribute::POINT_DATA);
   assign->Update();
   outputPoly = vtkPolyData::SafeDownCast(assign->GetOutput());
   if (outputPoly->GetPointData()->GetTensors() != tensors.GetPointer())
-    {
+  {
     cerr << "Point scalar not set when name is empty" << endl;
     ++errors;
-    }
+  }
   assign->Assign(vtkDataSetAttributes::TENSORS,
     vtkDataSetAttributes::SCALARS, vtkAssignAttribute::CELL_DATA);
   assign->Update();
   outputPoly = vtkPolyData::SafeDownCast(assign->GetOutput());
   if (outputPoly->GetCellData()->GetTensors() != tensors.GetPointer())
-    {
+  {
     cerr << "Cell scalar not set when name is empty" << endl;
     ++errors;
-    }
+  }
   vtkInformation *inInfo = assign->GetExecutive()->GetInputInformation()[0]->GetInformationObject(0);
   vtkInformation *outInfo = assign->GetExecutive()->GetOutputInformation()->GetInformationObject(0);
   outInfo->Clear();
@@ -150,10 +150,10 @@ int TestAssignAttribute(int, char *[])
     || outFieldInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()) != scalars->GetNumberOfComponents()
     || outFieldInfo->Get(vtkDataObject::FIELD_NUMBER_OF_TUPLES()) != scalars->GetNumberOfTuples()
     || outFieldInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()) != scalars->GetDataType())
-    {
+  {
     cerr << "Scalar information not passed when attribute is assigned by name." << endl;
     ++errors;
-    }
+  }
   outInfo->Clear();
   inInfo = assign->GetExecutive()->GetInputInformation()[0]->GetInformationObject(0);
   vtkDataObject::SetActiveAttribute(inInfo, vtkDataObject::FIELD_ASSOCIATION_POINTS,
@@ -172,10 +172,10 @@ int TestAssignAttribute(int, char *[])
     || outFieldInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()) != scalars->GetNumberOfComponents()
     || outFieldInfo->Get(vtkDataObject::FIELD_NUMBER_OF_TUPLES()) != scalars->GetNumberOfTuples()
     || outFieldInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()) != scalars->GetDataType())
-    {
+  {
     cerr << "Scalar information not passed when attribute is assigned by type." << endl;
     ++errors;
-    }
+  }
   outInfo->Clear();
   assign->SetInputData(graph);
   tensors->SetName("tensors");
@@ -196,10 +196,10 @@ int TestAssignAttribute(int, char *[])
     || outFieldInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()) != tensors->GetNumberOfComponents()
     || outFieldInfo->Get(vtkDataObject::FIELD_NUMBER_OF_TUPLES()) != tensors->GetNumberOfTuples()
     || outFieldInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()) != tensors->GetDataType())
-    {
+  {
     cerr << "Tensor information not passed when attribute is assigned by name." << endl;
     ++errors;
-    }
+  }
   outInfo->Clear();
   inInfo = assign->GetExecutive()->GetInputInformation()[0]->GetInformationObject(0);
   vtkDataObject::SetActiveAttribute(inInfo, vtkDataObject::FIELD_ASSOCIATION_EDGES,
@@ -218,9 +218,9 @@ int TestAssignAttribute(int, char *[])
     || outFieldInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()) != tensors->GetNumberOfComponents()
     || outFieldInfo->Get(vtkDataObject::FIELD_NUMBER_OF_TUPLES()) != tensors->GetNumberOfTuples()
     || outFieldInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()) != tensors->GetDataType())
-    {
+  {
     cerr << "Tensor information not passed when attribute is assigned by type." << endl;
     ++errors;
-    }
+  }
   return 0;
 }

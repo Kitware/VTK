@@ -17,14 +17,18 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGeoSphereTransform - A transformation between long-lat-alt and rect coords
-// .SECTION Description
-// the cartesian coordinate system is the following (if BaseAltitude is 0),
-// - the origin is at the center of the earth
-// - the x axis goes from the origin to (longtitude=-90,latitude=0), intersection of equator and the meridian passing just east of Galapagos Islands
-// - the y axis goes from the origin to the intersection of Greenwitch meridian and equator (longitude=0,latitude=0)
-// - the z axis goes from the origin to the Geographic North Pole (latitude=90)
-// - therefore the frame is right-handed.
+/**
+ * @class   vtkGeoSphereTransform
+ * @brief   A transformation between long-lat-alt and rect coords
+ *
+ * the cartesian coordinate system is the following (if BaseAltitude is 0),
+ * - the origin is at the center of the earth
+ * - the x axis goes from the origin to (longtitude=-90,latitude=0), intersection of equator and the meridian passing just east of Galapagos Islands
+ * - the y axis goes from the origin to the intersection of Greenwitch meridian and equator (longitude=0,latitude=0)
+ * - the z axis goes from the origin to the Geographic North Pole (latitude=90)
+ * - therefore the frame is right-handed.
+*/
+
 #ifndef vtkGeoSphereTransform_h
 #define vtkGeoSphereTransform_h
 
@@ -40,42 +44,56 @@ public:
   virtual void PrintSelf( ostream& os, vtkIndent indent );
   vtkTypeMacro(vtkGeoSphereTransform,vtkAbstractTransform);
 
-  // Description:
-  // Invert the transformation.
+  /**
+   * Invert the transformation.
+   */
   virtual void Inverse();
 
-  // Description:
-  // This will calculate the transformation without calling Update.
-  // Meant for use only within other VTK classes.
+  //@{
+  /**
+   * This will calculate the transformation without calling Update.
+   * Meant for use only within other VTK classes.
+   */
   virtual void InternalTransformPoint( const float in[3], float out[3] );
   virtual void InternalTransformPoint( const double in[3], double out[3] );
+  //@}
 
-  // Description:
-  // This will transform a point and, at the same time, calculate a
-  // 3x3 Jacobian matrix that provides the partial derivatives of the
-  // transformation at that point.  This method does not call Update.
-  // Meant for use only within other VTK classes.
+  //@{
+  /**
+   * This will transform a point and, at the same time, calculate a
+   * 3x3 Jacobian matrix that provides the partial derivatives of the
+   * transformation at that point.  This method does not call Update.
+   * Meant for use only within other VTK classes.
+   */
   virtual void InternalTransformDerivative( const float in[3], float out[3], float derivative[3][3] );
   virtual void InternalTransformDerivative( const double in[3], double out[3], double derivative[3][3] );
+  //@}
 
-  // Description:
-  // Make another transform of the same type.
+  /**
+   * Make another transform of the same type.
+   */
   virtual vtkAbstractTransform* MakeTransform();
 
-  // Description:
-  // If on, this transform converts (long,lat,alt) triples to (x,y,z) as an offset
-  // from the center of the earth. Alt, x, y, and z are all be in meters.
-  // If off, the transform works in the reverse direction.
-  // Initial value is on.
+  //@{
+  /**
+   * If on, this transform converts (long,lat,alt) triples to (x,y,z) as an offset
+   * from the center of the earth. Alt, x, y, and z are all be in meters.
+   * If off, the transform works in the reverse direction.
+   * Initial value is on.
+   */
   vtkSetMacro(ToRectangular, bool);
   vtkGetMacro(ToRectangular, bool);
   vtkBooleanMacro(ToRectangular, bool);
+  //@}
 
-  // Description:
-  // The base altitude to transform coordinates to. This can be useful for transforming
-  // lines just above the earth's surface. Default is 0.
+  //@{
+  /**
+   * The base altitude to transform coordinates to. This can be useful for transforming
+   * lines just above the earth's surface. Default is 0.
+   */
   vtkSetMacro(BaseAltitude, double);
   vtkGetMacro(BaseAltitude, double);
+  //@}
 
 protected:
   vtkGeoSphereTransform();

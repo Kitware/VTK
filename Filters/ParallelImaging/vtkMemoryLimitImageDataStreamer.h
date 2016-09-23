@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMemoryLimitImageDataStreamer - Initiates streaming on image data.
-// .SECTION Description
-// To satisfy a request, this filter calls update on its input
-// many times with smaller update extents.  All processing up stream
-// streams smaller pieces.
+/**
+ * @class   vtkMemoryLimitImageDataStreamer
+ * @brief   Initiates streaming on image data.
+ *
+ * To satisfy a request, this filter calls update on its input
+ * many times with smaller update extents.  All processing up stream
+ * streams smaller pieces.
+*/
 
 #ifndef vtkMemoryLimitImageDataStreamer_h
 #define vtkMemoryLimitImageDataStreamer_h
@@ -32,10 +35,13 @@ public:
   vtkTypeMacro(vtkMemoryLimitImageDataStreamer,vtkImageDataStreamer);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set / Get the memory limit in kibibytes (1024 bytes).
+  //@{
+  /**
+   * Set / Get the memory limit in kibibytes (1024 bytes).
+   */
   vtkSetMacro(MemoryLimit, unsigned long);
   vtkGetMacro(MemoryLimit, unsigned long);
+  //@}
 
   // See the vtkAlgorithm for a desciption of what these do
   int ProcessRequest(vtkInformation*,

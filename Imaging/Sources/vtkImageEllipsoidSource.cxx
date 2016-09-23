@@ -69,13 +69,13 @@ void vtkImageEllipsoidSource::SetWholeExtent(int extent[6])
   int idx;
 
   for (idx = 0; idx < 6; ++idx)
-    {
+  {
     if (this->WholeExtent[idx] != extent[idx])
-      {
+    {
       this->WholeExtent[idx] = extent[idx];
       this->Modified();
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -98,9 +98,9 @@ void vtkImageEllipsoidSource::GetWholeExtent(int extent[6])
   int idx;
 
   for (idx = 0; idx < 6; ++idx)
-    {
+  {
     extent[idx] = this->WholeExtent[idx];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -146,87 +146,87 @@ void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
   target++;
 
   for (idx2 = ext[4]; idx2 <= ext[5]; ++idx2)
-    {
+  {
     // handle divide by zero
     if (radius[2] != 0.0)
-      {
+    {
       temp = (static_cast<double>(idx2) - center[2]) / radius[2];
-      }
+    }
     else
-      {
+    {
       if (static_cast<double>(idx2) - center[2] == 0.0)
-        {
+      {
         temp = 0.0;
-        }
-      else
-        {
-        temp = VTK_DOUBLE_MAX;
-        }
       }
+      else
+      {
+        temp = VTK_DOUBLE_MAX;
+      }
+    }
 
 
     s2 = temp * temp;
     for (idx1 = ext[2]; !self->AbortExecute && idx1 <= ext[3]; ++idx1)
-      {
+    {
       if (!(count%target))
-        {
+      {
         self->UpdateProgress(count/(50.0*target));
-        }
+      }
       count++;
 
       // handle divide by zero
       if (radius[1] != 0.0)
-        {
+      {
         temp = (static_cast<double>(idx1) - center[1]) / radius[1];
-        }
+      }
       else
-        {
+      {
         if (static_cast<double>(idx1) - center[1] == 0.0)
-          {
+        {
           temp = 0.0;
-          }
-        else
-          {
-          temp = VTK_DOUBLE_MAX;
-          }
         }
+        else
+        {
+          temp = VTK_DOUBLE_MAX;
+        }
+      }
 
       s1 = temp * temp;
       for (idx0 = min0; idx0 <= max0; ++idx0)
-        {
+      {
         // handle divide by zero
         if (radius[0] != 0.0)
-          {
+        {
           temp = (static_cast<double>(idx0) - center[0]) / radius[0];
-          }
+        }
         else
-          {
+        {
           if (static_cast<double>(idx0) - center[0] == 0.0)
-            {
+          {
             temp = 0.0;
-            }
-          else
-            {
-            temp = VTK_DOUBLE_MAX;
-            }
           }
+          else
+          {
+            temp = VTK_DOUBLE_MAX;
+          }
+        }
 
         s0 = temp * temp;
         if (s0 + s1 + s2 > 1.0)
-          {
+        {
           *ptr = outVal;
-          }
+        }
         else
-          {
+        {
           *ptr = inVal;
-          }
+        }
         ++ptr;
         // inc0 is 0
-        }
-      ptr += inc1;
       }
-    ptr += inc2;
+      ptr += inc1;
     }
+    ptr += inc2;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -249,13 +249,13 @@ int vtkImageEllipsoidSource::RequestData(
   ptr = data->GetScalarPointerForExtent(extent);
 
   switch (data->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageEllipsoidSourceExecute(this, data, extent,
                                      static_cast<VTK_TT *>(ptr)));
     default:
       vtkErrorMacro("Execute: Unknown output ScalarType");
-    }
+  }
 
   return 1;
 }

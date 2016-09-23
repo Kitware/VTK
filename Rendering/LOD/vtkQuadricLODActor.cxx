@@ -84,32 +84,32 @@ int vtkQuadricLODActor::RenderOpaqueGeometry(vtkViewport *vp)
   vtkRenderer* ren = static_cast<vtkRenderer*>(vp);
 
   if (!this->Mapper)
-    {
+  {
     return 0;
-    }
+  }
 
   // is this actor opaque ?
   // Do this check only when not in selection mode
   if (this->GetIsOpaque() ||
     (ren->GetSelector() && this->Property->GetOpacity() > 0.0))
-    {
+  {
     this->GetProperty()->Render(this, ren);
 
     // render the backface property
     if (this->BackfaceProperty)
-      {
+    {
       this->BackfaceProperty->BackfaceRender(this, ren);
-      }
+    }
 
     // render the texture
     if (this->Texture)
-      {
+    {
       this->Texture->Render(ren);
-      }
+    }
     this->Render(ren, this->Mapper);
 
     renderedSomething = 1;
-    }
+  }
 
   return renderedSomething;
 }
@@ -129,10 +129,10 @@ inline vtkIdType vtkQuadricLODActor::GetDisplayListSize(vtkPolyData *pd)
 void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
 {
   if (!this->Mapper)
-    {
+  {
     vtkErrorMacro("No mapper for actor.");
     return;
-    }
+  }
 
   // determine out how much time we have to render
   float allowedTime = this->AllocatedRenderTime;
@@ -142,20 +142,20 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
   // interactive renders are defined when compared with the desired update rate. Here we use
   // a generous fudge factor to insure that the LOD kicks in.
   if (allowedTime <= (1.1 / frameRate))
-    {
+  {
     interactiveRender = 1;
-    }
+  }
 
   // Use display lists if it makes sense
   vtkIdType nCells = this->GetDisplayListSize(static_cast<vtkPolyData*>(this->Mapper->GetInput()));
   if (nCells < this->MaximumDisplayListSize)
-    {
+  {
     this->Mapper->ImmediateModeRenderingOff();
-    }
+  }
   else
-    {
+  {
     this->Mapper->ImmediateModeRenderingOn();
-    }
+  }
 
   vtkMatrix4x4 *matrix;
 
@@ -165,7 +165,7 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
       (this->Mapper->GetMTime() > this->BuildTime) ||
       (this->CachedInteractiveFrameRate < 0.9*frameRate) ||
       (this->CachedInteractiveFrameRate > 1.1*frameRate)))
-    {
+  {
     vtkDebugMacro(">>>>>>>>>>>>>>>Building LOD");
     this->CachedInteractiveFrameRate = frameRate;
 
@@ -186,14 +186,14 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
     static const double DIMTable[] = { 75.0, 60.0, 50.0, 35.0, 25.0, 20.0, 15.0 };
     int dim = 15;
     for (int i=0; i < (NumTableEntries-1); i++)
-      {
+    {
       if (frameRate >= FPSTable[i] && frameRate <= FPSTable[i+1] )
-        {
+      {
         dim = static_cast<int>((DIMTable[i] + (frameRate - FPSTable[i]) /
           (FPSTable[i+1] - FPSTable[i]) * (DIMTable[i+1] - DIMTable[i])));
         break;
-        }
       }
+    }
 
     // TODO: When the 'TestQuadricLODActor' test gets here frameRate=15.0
     // and dim=40.  This causes vtkQuadricClustering::AddTriangle()'s computations
@@ -204,35 +204,35 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
 
     // First see if there is an explicit description of the data configuration.
     if (this->DataConfiguration == XLINE)
-      {
+    {
       this->LODFilter->SetNumberOfDivisions(dim, 1, 1);
-      }
+    }
     else if (this->DataConfiguration == YLINE)
-      {
+    {
       this->LODFilter->SetNumberOfDivisions(1, dim, 1);
-      }
+    }
     else if (this->DataConfiguration == ZLINE)
-      {
+    {
       this->LODFilter->SetNumberOfDivisions(1, 1, dim);
-      }
+    }
     else if (this->DataConfiguration == XYPLANE)
-      {
+    {
       this->LODFilter->SetNumberOfDivisions(dim, dim, 1);
-      }
+    }
     else if (this->DataConfiguration == YZPLANE)
-      {
+    {
       this->LODFilter->SetNumberOfDivisions(1, dim, dim);
-      }
+    }
     else if (this->DataConfiguration == XZPLANE)
-      {
+    {
       this->LODFilter->SetNumberOfDivisions(dim, 1, dim);
-      }
+    }
     else if (this->DataConfiguration == XYZVOLUME)
-      {
+    {
       this->LODFilter->SetNumberOfDivisions(dim, dim, dim);
-      }
+    }
     else // no explicit description
-      {
+    {
       // If here, we analyze the data to see if we can optimize binning.  The
       // binning is optimized depending on data dimension and data aspect
       // ratio.
@@ -246,19 +246,19 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
         (h[1] > h[2] ? h[1]:h[2]);
       int nDivs[3], numSmallDims = 0;
       for (int i = 0; i < 3; i++)
-        {
+      {
         if (h[i] <= (this->CollapseDimensionRatio * hMax))
-          {
+        {
           nDivs[i] = 1;
           numSmallDims++;
-          }
-        else
-          {
-          nDivs[i] = dim;
-          }
         }
+        else
+        {
+          nDivs[i] = dim;
+        }
+      }
       this->LODFilter->SetNumberOfDivisions(nDivs);
-      }//data configuration not explicitly specified
+    }//data configuration not explicitly specified
 
     vtkDebugMacro("QC bin size: " << dim);
     this->LODFilter->AutoAdjustNumberOfDivisionsOff();
@@ -274,11 +274,11 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
 
     this->LODMapper->Update();
     if (this->Static)
-      {
+    {
       this->LODMapper->StaticOn();
-      }
-    this->BuildTime.Modified();
     }
+    this->BuildTime.Modified();
+  }
 
   // Figure out which resolution to use. We want the highest resolution that
   // fits under the time allowed.  There is no order to the list, so it is
@@ -290,41 +290,41 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
   float bestTime = bestMapper->GetTimeToDraw();
 #endif
   if (interactiveRender)
-    {//use lod
+  {//use lod
     bestMapper = this->LODMapper;
 #ifndef NDEBUG
     bestTime = bestMapper->GetTimeToDraw();
 #endif
     vtkDebugMacro("LOD render (best,allowed): " << bestTime << "," << allowedTime);
-    }
+  }
   else
-    {//use full resolution
+  {//use full resolution
     //Only update when still update rate is requested.
     matrix = this->LODActor->GetUserMatrix();
     this->GetMatrix(matrix);
     vtkDebugMacro("----Full render (best,allowed): " << bestTime << "," << allowedTime);
-    }
+  }
 
   // render the property
   if (!this->Property)
-    {
+  {
     // force creation of a property
     this->GetProperty();
-    }
+  }
   this->Property->Render(this, ren);
 
   if (this->BackfaceProperty)
-    {
+  {
     this->BackfaceProperty->BackfaceRender(this, ren);
     this->LODActor->SetBackfaceProperty(this->BackfaceProperty);
-    }
+  }
   this->LODActor->SetProperty(this->Property);
 
   // render the texture
   if (this->Texture)
-    {
+  {
     this->Texture->Render(ren);
-    }
+  }
 
   // Store information on time it takes to render.
   // We might want to estimate time from the number of polygons in mapper.
@@ -352,9 +352,9 @@ void vtkQuadricLODActor::SetCamera(vtkCamera *camera)
 {
   vtkFollower *follower = vtkFollower::SafeDownCast(this->LODActor);
   if (follower)
-    {
+  {
     follower->SetCamera(camera);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -371,7 +371,7 @@ void vtkQuadricLODActor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Data Configuration: ";
   switch (this->DataConfiguration)
-    {
+  {
     case XYZVOLUME:
       os << "XYZ Volume\n";
       break;
@@ -395,38 +395,38 @@ void vtkQuadricLODActor::PrintSelf(ostream& os, vtkIndent indent)
       break;
     default: //XLINE
       os << "Unknown\n";
-    }
+  }
 
   os << indent << "LOD Filter: ";
   if (this->LODFilter)
-    {
+  {
     os << this->LODFilter << "\n";
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
 
   os << indent << "Maximum Display List Size: "
      << this->MaximumDisplayListSize << "\n";
 
   os << indent << "Prop Type: ";
   if (this->PropType == FOLLOWER)
-    {
+  {
     os << "Follower\n";
-    }
+  }
   else
-    {
+  {
     os << "Actor\n";
-    }
+  }
 
   os << indent << "Camera: ";
   if (this->Camera)
-    {
+  {
     os << this->Camera << "\n";
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
 }

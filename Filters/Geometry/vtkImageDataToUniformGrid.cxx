@@ -54,27 +54,27 @@ int vtkImageDataToUniformGrid::RequestDataObject(vtkInformation *,
 {
   vtkInformation* inInfo = inV[0]->GetInformationObject(0);
   if (!inInfo)
-    {
+  {
     return VTK_ERROR;
-    }
+  }
 
   vtkInformation* outInfo = outV->GetInformationObject(0);
 
   if(vtkDataObjectTree* input = vtkDataObjectTree::GetData(inInfo) )
-    { // multiblock data sets
+  { // multiblock data sets
     vtkDataObjectTree* output = vtkDataObjectTree::GetData(outInfo);
     if (!output)
-      {
+    {
       output = input->NewInstance();
       outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
       this->GetOutputPortInformation(0)->Set(
         vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
       output->Delete();
-      }
-    return VTK_OK;
     }
+    return VTK_OK;
+  }
   if(vtkImageData::GetData(inInfo) != NULL)
-    {
+  {
     vtkUniformGrid* output = vtkUniformGrid::New();
     outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
     this->GetOutputPortInformation(0)->Set(
@@ -82,7 +82,7 @@ int vtkImageDataToUniformGrid::RequestDataObject(vtkInformation *,
     output->Delete();
 
     return VTK_OK;
-    }
+  }
 
   vtkErrorMacro("Don't know how to handle input of type " <<
                 vtkDataObject::GetData(inInfo)->GetClassName());
@@ -100,30 +100,30 @@ int vtkImageDataToUniformGrid::RequestData(vtkInformation *,
 
   vtkInformation *inArrayInfo = this->GetInputArrayInformation(0);
   if (!inArrayInfo)
-    {
+  {
     vtkErrorMacro("Problem getting array to process.");
     return 0;
-    }
+  }
   int association = -1;
   if (!inArrayInfo->Has(vtkDataObject::FIELD_ASSOCIATION()))
-    {
+  {
     vtkErrorMacro("Unable to query field association for the scalar.");
     return 0;
-    }
+  }
   association = inArrayInfo->Get(vtkDataObject::FIELD_ASSOCIATION());
 
   const char* arrayName = inArrayInfo->Get(vtkDataObject::FIELD_NAME());
   if (!arrayName)
-    {
+  {
     vtkErrorMacro("Problem getting array name to process.");
     return 0;
-    }
+  }
 
   if(vtkImageData* inImageData = vtkImageData::SafeDownCast(input))
-    {
+  {
     return this->Process(inImageData, association, arrayName,
                          vtkUniformGrid::SafeDownCast(output));
-    }
+  }
   vtkDataObjectTree* inMB = vtkDataObjectTree::SafeDownCast(input);
   vtkDataObjectTree* outMB = vtkDataObjectTree::SafeDownCast(output);
   outMB->CopyStructure(inMB);
@@ -131,23 +131,23 @@ int vtkImageDataToUniformGrid::RequestData(vtkInformation *,
   iter->VisitOnlyLeavesOn();
   iter->TraverseSubTreeOn();
   for(iter->GoToFirstItem();!iter->IsDoneWithTraversal();iter->GoToNextItem())
-    {
+  {
     if(vtkImageData* inImageData =
        vtkImageData::SafeDownCast(iter->GetCurrentDataObject()))
-      {
+    {
       vtkNew<vtkUniformGrid> outUniformGrid;
       if(this->Process(inImageData, association, arrayName, outUniformGrid.GetPointer()) != VTK_OK)
-        {
+      {
         iter->Delete();
         return VTK_ERROR;
-        }
+      }
       outMB->SetDataSetFrom(iter, outUniformGrid.GetPointer());
-      }
-    else
-      { // not a uniform grid so we just shallow copy from input to output
-      outMB->SetDataSetFrom(iter, iter->GetCurrentDataObject());
-      }
     }
+    else
+    { // not a uniform grid so we just shallow copy from input to output
+      outMB->SetDataSetFrom(iter, iter->GetCurrentDataObject());
+    }
+  }
   iter->Delete();
 
   return VTK_OK;
@@ -182,39 +182,39 @@ int vtkImageDataToUniformGrid::Process(
   const char* arrayName, vtkUniformGrid* output)
 {
   if(vtkUniformGrid* uniformGrid = vtkUniformGrid::SafeDownCast(input))
-    {
+  {
     output->ShallowCopy(uniformGrid);
-    }
+  }
   else
-    {
+  {
     output->ShallowCopy(input);
-    }
+  }
 
   vtkDataArray* inScalars = NULL;
   if(association == vtkDataObject::FIELD_ASSOCIATION_POINTS)
-    {
+  {
     inScalars = input->GetPointData()->GetArray(arrayName);
-    }
+  }
   else if(association == vtkDataObject::FIELD_ASSOCIATION_CELLS)
-    {
+  {
     inScalars = input->GetCellData()->GetArray(arrayName);
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro("Wrong assocation type: " << association);
     return VTK_ERROR;
-    }
+  }
 
   if (!inScalars)
-    {
+  {
     vtkErrorMacro("No scalar data to use for blanking.");
     return VTK_ERROR;
-    }
+  }
   else if(inScalars->GetNumberOfComponents() != 1)
-    {
+  {
     vtkErrorMacro("Scalar data must be a single component array.");
     return VTK_ERROR;
-    }
+  }
 
   vtkNew<vtkUnsignedCharArray> blankingArray;
   blankingArray->DeepCopy(inScalars);
@@ -224,45 +224,45 @@ int vtkImageDataToUniformGrid::Process(
   unsigned char value1;
   unsigned char value2;
   if (association == vtkDataObject::FIELD_ASSOCIATION_CELLS)
-    {
+  {
     if (this->Reverse)
-      {
+    {
       value1 = 0;
       value2 = vtkDataSetAttributes::HIDDENCELL;
-      }
+    }
     else
-      {
+    {
       value1 = vtkDataSetAttributes::HIDDENCELL;
       value2 = 0;
-      }
     }
+  }
   else
-    {
+  {
     if (this->Reverse)
-      {
+    {
       value1 = 0;
       value2 = vtkDataSetAttributes::HIDDENPOINT;
-      }
+    }
     else
-      {
+    {
       value1 = vtkDataSetAttributes::HIDDENPOINT;
       value2 = 0;
-      }
     }
+  }
   for(vtkIdType i=0;i<blankingArray->GetNumberOfTuples();i++)
-    {
+  {
     char value = blankingArray->GetValue(i) == 0 ? value1 : value2;
     blankingArray->SetValue(i, value);
-    }
+  }
 
   if(association == vtkDataObject::FIELD_ASSOCIATION_POINTS)
-    {
+  {
     output->GetPointData()->AddArray(blankingArray.GetPointer());
-    }
+  }
   else
-    {
+  {
     output->GetCellData()->AddArray(blankingArray.GetPointer());
-    }
+  }
 
   return VTK_OK;
 }

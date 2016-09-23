@@ -89,28 +89,28 @@ void vtkPLSDynaReader::PrintSelf( ostream &os, vtkIndent indent )
 void vtkPLSDynaReader::SetController(vtkMultiProcessController *c)
 {
   if ((c == NULL) || (c->GetNumberOfProcesses() == 0))
-    {
+  {
     this->Internal->NumProcesses = 1;
     this->Internal->ProcessRank = 0;
-    }
+  }
 
   if (this->Controller == c)
-    {
+  {
     return;
-    }
+  }
 
   this->Modified();
 
   if (this->Controller)
-    {
+  {
     this->Controller->UnRegister(this);
     this->Controller = NULL;
-    }
+  }
 
   if (c == NULL)
-    {
+  {
     return;
-    }
+  }
 
   this->Controller = c;
 
@@ -165,7 +165,7 @@ int vtkPLSDynaReader::ReadTopology()
 {
   bool readTopology=false;
   if(!this->Parts)
-    {
+  {
     readTopology=true;
     this->Parts = vtkLSDynaPartCollection::New();
     vtkIdType* minCellIds = new vtkIdType[LSDynaMetaData::NUM_CELL_TYPES];
@@ -175,42 +175,42 @@ int vtkPLSDynaReader::ReadTopology()
     this->Parts->InitCollection(this->P,minCellIds,maxCellIds);
     delete[] minCellIds;
     delete[] maxCellIds;
-    }
+  }
   if(!readTopology)
-    {
+  {
     return 0;
-    }
+  }
 
   if( this->ReadPartSizes())
-    {
+  {
     vtkErrorMacro( "Could not read cell sizes." );
     return 1;
-    }
+  }
 
   if ( this->ReadConnectivityAndMaterial() )
-    {
+  {
     vtkErrorMacro( "Could not read connectivity." );
     return 1;
-    }
+  }
 
   //finalize the topology on each process, each process will  remove
   //any part that it doesn't have a cell for.
   this->Parts->FinalizeTopology();
 
   if(this->ReadNodes())
-    {
+  {
     vtkErrorMacro("Could not read static node values.");
     return 1;
-    }
+  }
 
 
   // we need to read the user ids after we have read the topology
   // so we know how many cells are in each part
   if ( this->ReadUserIds() )
-    {
+  {
     vtkErrorMacro( "Could not read user node/element IDs." );
     return 1;
-    }
+  }
 
 
   return 0;
@@ -223,34 +223,34 @@ void vtkPLSDynaReader::GetPartRanges(vtkIdType* mins, vtkIdType* maxs)
   //1 == load the whole data
   //determine which domains in this mesh this processor is responsible for
   if ( this->Internal->UpdateNumPieces > 1 )
-    {
+  {
     double numCells;
     for(int i=0; i < LSDynaMetaData::NUM_CELL_TYPES;++i)
-      {
+    {
       numCells = static_cast<double>(this->P->NumberOfCells[i]);
       if(numCells > 1000)
-        {
+      {
         double percent = (1.0 / this->Internal->UpdateNumPieces) * numCells;
         mins[i] = static_cast<vtkIdType>(
                     percent * this->Internal->UpdatePiece);
         maxs[i] = static_cast<vtkIdType>(
                     percent * (this->Internal->UpdatePiece+1));
-        }
+      }
       else
-        {
+      {
         //else not enough cells to worth dividing the reading
         mins[i]=0;
         maxs[i]=static_cast<vtkIdType>(
                   (this->Internal->ProcessRank==0)?numCells:0);
-        }
       }
     }
+  }
   else
-    {
+  {
     for(int i=0; i < LSDynaMetaData::NUM_CELL_TYPES;++i)
-      {
+    {
       mins[i] = 0;
       maxs[i] = this->P->NumberOfCells[i];
-      }
     }
+  }
 }

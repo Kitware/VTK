@@ -87,9 +87,9 @@ void vtkXMLStructuredGridWriter::WriteAppendedPiece(int index,
 {
   this->Superclass::WriteAppendedPiece(index, indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
   this->WritePointsAppended(this->GetInput()->GetPoints(), indent,
     &this->PointsOM->GetPiece(index));
 }
@@ -110,9 +110,9 @@ void vtkXMLStructuredGridWriter::WriteAppendedPieceData(int index)
   // Let the superclass write its data.
   this->Superclass::WriteAppendedPieceData(index);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
   // Set the range of progress for the points array.
   this->SetProgressRange(progressRange, 1, fractions);
@@ -139,9 +139,9 @@ void vtkXMLStructuredGridWriter::WriteInlinePiece(vtkIndent indent)
   // Let the superclass write its data.
   this->Superclass::WriteInlinePiece(indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
 
   // Set the range of progress for the points array.
   this->SetProgressRange(progressRange, 1, fractions);
@@ -169,9 +169,9 @@ void vtkXMLStructuredGridWriter::CalculateSuperclassFraction(float* fractions)
   vtkIdType totalPieceSize =
     superclassPieceSize + (dims[0] * dims[1] * dims[2]);
   if (totalPieceSize == 0)
-    {
+  {
     totalPieceSize = 1;
-    }
+  }
   fractions[0] = 0;
   fractions[1] = fractions[0] + float(superclassPieceSize)/totalPieceSize;
   fractions[2] = 1;

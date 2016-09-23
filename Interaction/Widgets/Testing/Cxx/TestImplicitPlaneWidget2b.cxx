@@ -41,25 +41,25 @@ class vtkTimerCallback : public vtkCommand
 {
 public:
   static vtkTimerCallback *New()
-    {
+  {
     vtkTimerCallback *cb = new vtkTimerCallback;
     cb->TimerId = 0;
     cb->Count = 0;
     return cb;
-    }
+  }
 
   void Execute(vtkObject *caller, unsigned long eventId,
     void *callData) VTK_OVERRIDE
-    {
+  {
     if (vtkCommand::TimerEvent == eventId)
-      {
+    {
       int tid = * static_cast<int *>(callData);
 
       if (tid == this->TimerId)
-        {
+      {
         vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::SafeDownCast(caller);
         if (iren && iren->GetRenderWindow() && iren->GetRenderWindow()->GetRenderers())
-          {
+        {
           ++this->Count;
 
           vtkRenderer *renderer = iren->GetRenderWindow()->GetRenderers()->GetFirstRenderer();
@@ -70,10 +70,10 @@ public:
 
           double b[6];
           for (unsigned int i = 0; i < 3; i++)
-            {
+          {
             b[2*i] = TestImplicitPlaneWidget2bPlaneOrigins[this->Count % 3][i] - .625;
             b[2*i+1] = TestImplicitPlaneWidget2bPlaneOrigins[this->Count % 3][i] + .625;
-            }
+          }
           rep->PlaceWidget( b );
           renderer->ResetCamera();
           this->Widget->Render();
@@ -90,20 +90,20 @@ public:
             << b[3] << " "
             << b[4] << " "
             << b[5] << ")" << std::endl;
-          }
         }
+      }
       else if (tid == this->QuitTimerId)
-        {
+      {
         vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::SafeDownCast(caller);
         if (iren)
-          {
+        {
           std::cout << "Calling iren->ExitCallback()..." << std::endl;
           iren->ExitCallback();
-          }
         }
-
       }
+
     }
+  }
 
   int Count;
   int TimerId;

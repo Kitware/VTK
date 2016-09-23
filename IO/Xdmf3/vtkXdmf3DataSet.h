@@ -13,14 +13,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXdmf3DataSet - dataset level translation between xdmf3 and vtk
-// .SECTION Description
-// This class holds static methods that translate the five atomic data
-// types between vtk and xdmf3.
-//
-// This file is a helper for the vtkXdmf3Reader and vtkXdmf3Writer and
-// not intended to be part of VTK public API
-// VTK-HeaderTest-Exclude: vtkXdmf3DataSet.h
+/**
+ * @class   vtkXdmf3DataSet
+ * @brief   dataset level translation between xdmf3 and vtk
+ *
+ * This class holds static methods that translate the five atomic data
+ * types between vtk and xdmf3.
+ *
+ * This file is a helper for the vtkXdmf3Reader and vtkXdmf3Writer and
+ * not intended to be part of VTK public API
+*/
 
 #ifndef vtkXdmf3DataSet_h
 #define vtkXdmf3DataSet_h
@@ -59,24 +61,27 @@ public:
 
   // Common
 
-  // Description:
-  // Returns a VTK array corresponding to the Xdmf array it is given.
+  /**
+   * Returns a VTK array corresponding to the Xdmf array it is given.
+   */
   static vtkDataArray *XdmfToVTKArray(
     XdmfArray* xArray,
     std::string attrName,//TODO: needed because XdmfArray::getName() misbehaves
     unsigned int preferredComponents = 0,
     vtkXdmf3ArrayKeeper *keeper=NULL);
 
-  // Description:
-  // Populates and Xdmf array corresponding to the VTK array it is given
+  /**
+   * Populates and Xdmf array corresponding to the VTK array it is given
+   */
   static bool VTKToXdmfArray(
     vtkDataArray *vArray,
     XdmfArray* xArray,
     unsigned int rank = 0, unsigned int *dims = NULL);
 
-  // Description:
-  // Populates the given VTK DataObject's attribute arrays with the selected
-  // arrays from the Xdmf Grid
+  /**
+   * Populates the given VTK DataObject's attribute arrays with the selected
+   * arrays from the Xdmf Grid
+   */
   static void XdmfToVTKAttributes(
     vtkXdmf3ArraySelection *fselection,
     vtkXdmf3ArraySelection *cselection,
@@ -84,26 +89,34 @@ public:
     XdmfGrid *grid, vtkDataObject *dObject,
     vtkXdmf3ArrayKeeper *keeper=NULL);
 
-  // Description:
-  // Populates the given Xdmf Grid's attribute arrays with the selected
-  // arrays from the VTK DataObject
+  /**
+   * Populates the given Xdmf Grid's attribute arrays with the selected
+   * arrays from the VTK DataObject
+   */
   static void VTKToXdmfAttributes(vtkDataObject *dObject, XdmfGrid *grid);
 
-  // Description:
-  // Helpers for Unstructured Grid translation
+  //@{
+  /**
+   * Helpers for Unstructured Grid translation
+   */
   static unsigned int GetNumberOfPointsPerCell(int vtk_cell_type, bool &fail);
   static int GetVTKCellType(shared_ptr<const XdmfTopologyType> topologyType);
   static int GetXdmfCellType(int vtkType);
+  //@}
 
-  // Description:
-  // Helper used in VTKToXdmf to set the time in a Xdmf grid
+  //@{
+  /**
+   * Helper used in VTKToXdmf to set the time in a Xdmf grid
+   */
   static void SetTime(XdmfGrid *grid, double hasTime, double time);
   static void SetTime(XdmfGraph *graph, double hasTime, double time);
+  //@}
 
   //vtkXdmf3RegularGrid
 
-  // Description:
-  // Populates the VTK data set with the contents of the Xdmf grid
+  /**
+   * Populates the VTK data set with the contents of the Xdmf grid
+   */
   static void XdmfToVTK(
     vtkXdmf3ArraySelection *fselection,
     vtkXdmf3ArraySelection *cselection,
@@ -112,15 +125,17 @@ public:
     vtkImageData *dataSet,
     vtkXdmf3ArrayKeeper *keeper=NULL);
 
-  // Description:
-  // Helper that does topology for XdmfToVTK
+  /**
+   * Helper that does topology for XdmfToVTK
+   */
   static void CopyShape(
     XdmfRegularGrid *grid,
     vtkImageData *dataSet,
     vtkXdmf3ArrayKeeper *keeper=NULL);
 
-  // Description:
-  // Populates the Xdmf Grid with the contents of the VTK data set
+  /**
+   * Populates the Xdmf Grid with the contents of the VTK data set
+   */
   static void VTKToXdmf(
     vtkImageData *dataSet,
     XdmfDomain *domain,
@@ -128,8 +143,9 @@ public:
     const char* name = 0);
 
   //vtkXdmf3RectilinearGrid
-  // Description:
-  // Populates the VTK data set with the contents of the Xdmf grid
+  /**
+   * Populates the VTK data set with the contents of the Xdmf grid
+   */
   static void XdmfToVTK(
     vtkXdmf3ArraySelection *fselection,
     vtkXdmf3ArraySelection *cselection,
@@ -138,15 +154,17 @@ public:
     vtkRectilinearGrid *dataSet,
     vtkXdmf3ArrayKeeper *keeper=NULL);
 
-  // Description:
-  // Helper that does topology for XdmfToVTK
+  /**
+   * Helper that does topology for XdmfToVTK
+   */
   static void CopyShape(
     XdmfRectilinearGrid *grid,
     vtkRectilinearGrid *dataSet,
     vtkXdmf3ArrayKeeper *keeper=NULL);
 
-  // Description:
-  // Populates the Xdmf Grid with the contents of the VTK data set
+  /**
+   * Populates the Xdmf Grid with the contents of the VTK data set
+   */
   static void VTKToXdmf(
     vtkRectilinearGrid *dataSet,
     XdmfDomain *domain,
@@ -154,8 +172,9 @@ public:
     const char* name = 0);
 
   //vtkXdmf3CurvilinearGrid
-  // Description:
-  // Populates the VTK data set with the contents of the Xdmf grid
+  /**
+   * Populates the VTK data set with the contents of the Xdmf grid
+   */
   static void XdmfToVTK(
     vtkXdmf3ArraySelection *fselection,
     vtkXdmf3ArraySelection *cselection,
@@ -164,15 +183,17 @@ public:
     vtkStructuredGrid *dataSet,
     vtkXdmf3ArrayKeeper *keeper=NULL);
 
-  // Description:
-  // Helper that does topology for XdmfToVTK
+  /**
+   * Helper that does topology for XdmfToVTK
+   */
   static void CopyShape(
     XdmfCurvilinearGrid *grid,
     vtkStructuredGrid *dataSet,
     vtkXdmf3ArrayKeeper *keeper=NULL);
 
-  // Description:
-  // Populates the Xdmf Grid with the contents of the VTK data set
+  /**
+   * Populates the Xdmf Grid with the contents of the VTK data set
+   */
   static void VTKToXdmf(
     vtkStructuredGrid *dataSet,
     XdmfDomain *domain,
@@ -180,8 +201,9 @@ public:
     const char* name = 0);
 
   //vtkXdmf3UnstructuredGrid
-  // Description:
-  // Populates the VTK data set with the contents of the Xdmf grid
+  /**
+   * Populates the VTK data set with the contents of the Xdmf grid
+   */
   static void XdmfToVTK(
     vtkXdmf3ArraySelection *fselection,
     vtkXdmf3ArraySelection *cselection,
@@ -190,15 +212,17 @@ public:
     vtkUnstructuredGrid *dataSet,
     vtkXdmf3ArrayKeeper *keeper=NULL);
 
-  // Description:
-  // Helper that does topology for XdmfToVTK
+  /**
+   * Helper that does topology for XdmfToVTK
+   */
   static void CopyShape(
     XdmfUnstructuredGrid *grid,
     vtkUnstructuredGrid *dataSet,
     vtkXdmf3ArrayKeeper *keeper=NULL);
 
-  // Description:
-  // Populates the Xdmf Grid with the contents of the VTK data set
+  /**
+   * Populates the Xdmf Grid with the contents of the VTK data set
+   */
   static void VTKToXdmf(
     vtkPointSet *dataSet,
     XdmfDomain *domain,
@@ -206,8 +230,9 @@ public:
     const char* name = 0);
 
   //vtkXdmf3Graph
-  // Description:
-  // Populates the VTK graph with the contents of the Xdmf grid
+  /**
+   * Populates the VTK graph with the contents of the Xdmf grid
+   */
   static void XdmfToVTK(
     vtkXdmf3ArraySelection *fselection,
     vtkXdmf3ArraySelection *cselection,
@@ -216,8 +241,9 @@ public:
     vtkMutableDirectedGraph *dataSet,
     vtkXdmf3ArrayKeeper *keeper=NULL);
 
-  // Description:
-  // Populates the Xdmf Grid with the contents of the VTK data set
+  /**
+   * Populates the Xdmf Grid with the contents of the VTK data set
+   */
   static void VTKToXdmf(
     vtkDirectedGraph *dataSet,
     XdmfDomain *domain,
@@ -227,9 +253,10 @@ public:
 
   //Side Sets
 
-  // Description:
-  // Populates the given VTK DataObject's attribute arrays with the selected
-  // arrays from the Xdmf Grid
+  /**
+   * Populates the given VTK DataObject's attribute arrays with the selected
+   * arrays from the Xdmf Grid
+   */
   static void XdmfToVTKAttributes(
 /*
     vtkXdmf3ArraySelection *fselection,
@@ -239,9 +266,10 @@ public:
     XdmfSet *grid, vtkDataObject *dObject,
     vtkXdmf3ArrayKeeper *keeper=NULL);
 
-  // Description:
-  // Extracts numbered subset out of grid (grid corresponds to dataSet),
-  // and fills in subSet with it.
+  /**
+   * Extracts numbered subset out of grid (grid corresponds to dataSet),
+   * and fills in subSet with it.
+   */
   static void XdmfSubsetToVTK(
     XdmfGrid *grid,
     unsigned int setnum,
@@ -252,3 +280,4 @@ public:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkXdmf3DataSet.h

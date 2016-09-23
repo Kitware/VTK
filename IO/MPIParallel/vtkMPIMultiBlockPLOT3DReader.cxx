@@ -70,7 +70,7 @@ namespace
       vtkIdType vtkNotUsed(postskip),
       DataType* scalar,
       const vtkMultiBlockPLOT3DReaderRecord& record = vtkMultiBlockPLOT3DReaderRecord())
-      {
+    {
       vtkMPIOpaqueFileHandle* fp = reinterpret_cast<vtkMPIOpaqueFileHandle*>(vfp);
       assert(fp);
 
@@ -86,11 +86,11 @@ namespace
                                      /// to work when reading large files.
       vtkIdType bytesread = 0;
       for (size_t cc=0; cc < chunks.size(); cc++)
-        {
+      {
         vtkTypeUInt64 start = chunks[cc].first;
         vtkTypeUInt64 length = chunks[cc].second;
         while (length > 0)
-          {
+        {
           int segment = length > static_cast<vtkTypeUInt64>(dummy_INT_MAX)?
             (length - dummy_INT_MAX) : static_cast<int>(length);
 
@@ -98,46 +98,46 @@ namespace
           if (MPI_File_read_at(fp->Handle, start,
             reinterpret_cast<char*>(scalar) + bytesread,
             segment, MPI_UNSIGNED_CHAR, &status) != MPI_SUCCESS)
-            {
+          {
             return 0; // let's assume nothing was read.
-            }
+          }
           start += segment;
           length -= segment;
           bytesread += segment;
-          }
         }
+      }
 
       if (this->ByteOrder == vtkMultiBlockPLOT3DReader::FILE_LITTLE_ENDIAN)
-        {
+      {
         if (sizeof(DataType) == 4)
-          {
+        {
           vtkByteSwap::Swap4LERange(scalar, n);
-          }
-        else
-          {
-          vtkByteSwap::Swap8LERange(scalar, n);
-          }
         }
-      else
+        else
         {
-        if (sizeof(DataType) == 4)
-          {
-          vtkByteSwap::Swap4BERange(scalar, n);
-          }
-        else
-          {
-          vtkByteSwap::Swap8BERange(scalar, n);
-          }
+          vtkByteSwap::Swap8LERange(scalar, n);
         }
-      return bytesread / sizeof(DataType);
       }
+      else
+      {
+        if (sizeof(DataType) == 4)
+        {
+          vtkByteSwap::Swap4BERange(scalar, n);
+        }
+        else
+        {
+          vtkByteSwap::Swap8BERange(scalar, n);
+        }
+      }
+      return bytesread / sizeof(DataType);
+    }
 
     vtkIdType ReadVector(void* vfp,
       vtkTypeUInt64 offset,
       int extent[6], int wextent[6],
       int numDims, DataType* vector,
       const vtkMultiBlockPLOT3DReaderRecord &record)
-      {
+    {
       vtkIdType n = vtkStructuredData::GetNumberOfPoints(extent);
       vtkIdType totalN = vtkStructuredData::GetNumberOfPoints(wextent);
 
@@ -150,24 +150,24 @@ namespace
       vtkIdType retVal = 0;
       DataType* buffer = new DataType[n];
       for (int component = 0; component < numDims; component++)
-        {
+      {
         vtkIdType preskip, postskip;
         vtkMultiBlockPLOT3DReaderInternals::CalculateSkips(extent, wextent, preskip, postskip);
         vtkIdType valread = this->ReadScalar(vfp, offset, preskip, n, postskip, buffer, record);
         if (valread != n)
-          {
+        {
           return 0; // failed.
-          }
+        }
         retVal += valread;
         for (vtkIdType i=0; i<n; i++)
-          {
+        {
           vector[3*i+component] = buffer[i];
-          }
-        offset += record.GetLengthWithSeparators(offset, totalN * sizeof(DataType));
         }
+        offset += record.GetLengthWithSeparators(offset, totalN * sizeof(DataType));
+      }
       delete[] buffer;
       return retVal;
-      }
+    }
     int ByteOrder;
   };
 }
@@ -196,9 +196,9 @@ bool vtkMPIMultiBlockPLOT3DReader::CanUseMPIIO()
 int vtkMPIMultiBlockPLOT3DReader::OpenFileForDataRead(void*& vfp, const char* fname)
 {
   if (!this->CanUseMPIIO())
-    {
+  {
     return this->Superclass::OpenFileForDataRead(vfp, fname);
-    }
+  }
 
   vtkMPICommunicator* mpiComm = vtkMPICommunicator::SafeDownCast(
     this->Controller->GetCommunicator());
@@ -206,22 +206,22 @@ int vtkMPIMultiBlockPLOT3DReader::OpenFileForDataRead(void*& vfp, const char* fn
 
   vtkMPIOpaqueFileHandle* handle = new vtkMPIOpaqueFileHandle();
   try
-    {
+  {
     if (MPI_File_open(*mpiComm->GetMPIComm()->GetHandle(),
                       const_cast<char*>(fname), MPI_MODE_RDONLY,
                       MPI_INFO_NULL, &handle->Handle) != MPI_SUCCESS)
-      {
+    {
       this->SetErrorCode(vtkErrorCode::FileNotFoundError);
       vtkErrorMacro("File: " << fname << " not found.");
       throw MPIPlot3DException();
-      }
     }
+  }
   catch (MPIPlot3DException)
-    {
+  {
     delete handle;
     vfp = NULL;
     return VTK_ERROR;
-    }
+  }
   vfp = handle;
   return VTK_OK;
 }
@@ -230,17 +230,17 @@ int vtkMPIMultiBlockPLOT3DReader::OpenFileForDataRead(void*& vfp, const char* fn
 void vtkMPIMultiBlockPLOT3DReader::CloseFile(void* vfp)
 {
   if (!this->CanUseMPIIO())
-    {
+  {
     this->Superclass::CloseFile(vfp);
     return;
-    }
+  }
 
   vtkMPIOpaqueFileHandle* handle = reinterpret_cast<vtkMPIOpaqueFileHandle*>(vfp);
   assert(handle);
   if (MPI_File_close(&handle->Handle) != MPI_SUCCESS)
-    {
+  {
     vtkErrorMacro("Failed to close file!");
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -251,9 +251,9 @@ int vtkMPIMultiBlockPLOT3DReader::ReadIntScalar(
 
 {
   if (!this->CanUseMPIIO())
-    {
+  {
     return this->Superclass::ReadIntScalar(vfp, extent, wextent, scalar, offset, record);
-    }
+  }
 
   vtkIdType n = vtkStructuredData::GetNumberOfPoints(extent);
   vtkMPIPLOT3DArrayReader<int> arrayReader;
@@ -273,13 +273,13 @@ int vtkMPIMultiBlockPLOT3DReader::ReadScalar(
   const vtkMultiBlockPLOT3DReaderRecord& record)
 {
   if (!this->CanUseMPIIO())
-    {
+  {
     return this->Superclass::ReadScalar(vfp, extent, wextent, scalar, offset, record);
-    }
+  }
 
   vtkIdType n = vtkStructuredData::GetNumberOfPoints(extent);
   if (this->Internal->Settings.Precision == 4)
-    {
+  {
     vtkMPIPLOT3DArrayReader<float> arrayReader;
     arrayReader.ByteOrder = this->Internal->Settings.ByteOrder;
     vtkIdType preskip, postskip;
@@ -288,9 +288,9 @@ int vtkMPIMultiBlockPLOT3DReader::ReadScalar(
     return arrayReader.ReadScalar(
       vfp, offset, preskip, n, postskip, floatArray->GetPointer(0),
       record) == n;
-    }
+  }
   else
-    {
+  {
     vtkMPIPLOT3DArrayReader<double> arrayReader;
     arrayReader.ByteOrder = this->Internal->Settings.ByteOrder;
     vtkIdType preskip, postskip;
@@ -299,7 +299,7 @@ int vtkMPIMultiBlockPLOT3DReader::ReadScalar(
     return arrayReader.ReadScalar(
       vfp, offset, preskip, n, postskip, doubleArray->GetPointer(0),
       record) == n;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -310,28 +310,28 @@ int vtkMPIMultiBlockPLOT3DReader::ReadVector(
   const vtkMultiBlockPLOT3DReaderRecord& record)
 {
   if (!this->CanUseMPIIO())
-    {
+  {
     return this->Superclass::ReadVector(vfp, extent, wextent, numDims, vector, offset, record);
-    }
+  }
 
   vtkIdType n = vtkStructuredData::GetNumberOfPoints(extent);
   vtkIdType nValues = n*numDims;
   if (this->Internal->Settings.Precision == 4)
-    {
+  {
     vtkMPIPLOT3DArrayReader<float> arrayReader;
     arrayReader.ByteOrder = this->Internal->Settings.ByteOrder;
     vtkFloatArray* floatArray = static_cast<vtkFloatArray*>(vector);
     return arrayReader.ReadVector(
       vfp, offset, extent, wextent, numDims, floatArray->GetPointer(0), record) == nValues;
-    }
+  }
   else
-    {
+  {
     vtkMPIPLOT3DArrayReader<double> arrayReader;
     arrayReader.ByteOrder = this->Internal->Settings.ByteOrder;
     vtkDoubleArray* doubleArray = static_cast<vtkDoubleArray*>(vector);
     return arrayReader.ReadVector(
       vfp, offset, extent, wextent, numDims, doubleArray->GetPointer(0), record) == nValues;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

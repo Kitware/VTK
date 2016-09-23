@@ -94,10 +94,10 @@ int TestFindCellsAlongLine()
   cellLocator->FindCellsAlongLine(p1, p2, 0.0, cellIds.GetPointer());
 
   if(cellIds->GetNumberOfIds() != 4)
-    {
+  {
     vtkGenericWarningMacro("Wrong amount of intersected Ids " << cellIds->GetNumberOfIds());
     return 0;
-    }
+  }
 
   // these ids are the ones that should be in the list.
   // if we uniquely add them the list size should still be 4.
@@ -107,10 +107,10 @@ int TestFindCellsAlongLine()
   cellIds->InsertUniqueId(1887);
 
   if(cellIds->GetNumberOfIds() != 4)
-    {
+  {
     vtkGenericWarningMacro("Wrong cell Ids in the list " << cellIds->GetNumberOfIds());
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -162,7 +162,7 @@ int TestCellLocator( int argc, char *argv[] )
   std::cout << "NumberOfPoints: "
             << sphere1->GetOutput()->GetNumberOfPoints() << std::endl;
   for ( int i = 0; i < sphere1->GetOutput()->GetNumberOfPoints(); i ++ )
-    {
+  {
     sphere1->GetOutput()->GetPoint(i, sourcePnt);
     sphereNormals->GetTuple(i, normalVec);
 
@@ -173,11 +173,11 @@ int TestCellLocator( int argc, char *argv[] )
 
     if ( locator->IntersectWithLine(sourcePnt, destinPnt, 0.0010, param_t,
                                     intersect, paraCoord, sub_id, cell_id, cell) )
-      {
+    {
       numIntersected ++;
-      }
+    }
     else
-      {
+    {
       std::cout << "Missed intersection: "
                 << sourcePnt[0] << ", "
                 << sourcePnt[1] << ", "
@@ -190,24 +190,24 @@ int TestCellLocator( int argc, char *argv[] )
                 << normalVec[0] << ", "
                 << normalVec[1] << ", "
                 << normalVec[2] << std::endl;
-      }
     }
+  }
 
   if ( numIntersected != sphere1->GetOutput()->GetNumberOfPoints() )
-    {
+  {
     int numMissed = sphere1->GetOutput()->GetNumberOfPoints() - numIntersected;
     std::cerr << "ERROR: "
               << numMissed << " ray-sphere intersections missed!!!"
               << std::endl;
     std::cerr << "If on a non-WinTel32 platform, try rayLen = 0.200001 or 0.20001 for a new test." << std::endl;
     return 1;
-    }
+  }
   else
-    {
+  {
     std::cout << "Passed: a total of "
               << sphere1->GetOutput()->GetNumberOfPoints()
               << " ray-sphere intersections detected." << std::endl;
-    }
+  }
   sphereNormals = NULL;
 
   // below: the initial tests
@@ -298,9 +298,9 @@ int TestCellLocator( int argc, char *argv[] )
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   retVal = retVal & TestFindCellsAlongLine();
 

@@ -13,7 +13,7 @@ public:
       {}
 protected:
     QVariant interpolated(const QVariant& from, const QVariant& to, qreal progress) const
-      {
+    {
       double f = from.toDouble();
       double t = to.toDouble();
       double i = QPropertyAnimation::interpolated(f, t, progress).toDouble();
@@ -21,7 +21,7 @@ protected:
       if(f < t)
         return i >= mTippingPoint;
       return i <= mTippingPoint;
-      }
+    }
     double mTippingPoint;
 };
 

@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPostgreSQLToTableReader - Read a PostgreSQL table as a vtkTable
-// .SECTION Description
-// vtkPostgreSQLToTableReader reads a table from a PostgreSQL database and
-// outputs it as a vtkTable.
+/**
+ * @class   vtkPostgreSQLToTableReader
+ * @brief   Read a PostgreSQL table as a vtkTable
+ *
+ * vtkPostgreSQLToTableReader reads a table from a PostgreSQL database and
+ * outputs it as a vtkTable.
+*/
 
 #ifndef vtkPostgreSQLToTableReader_h
 #define vtkPostgreSQLToTableReader_h

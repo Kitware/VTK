@@ -29,17 +29,17 @@
 #define test_expression(expression) \
 { \
   if(!(expression)) \
-    { \
+  { \
     std::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
     throw std::runtime_error(buffer.str()); \
-    } \
+  } \
 }
 
 int TestArrayVariants(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     // Exercise the API that gets/sets variants ...
     vtkSmartPointer<vtkDenseArray<double> > concrete = vtkSmartPointer<vtkDenseArray<double> >::New();
     concrete->Resize(3, 2);
@@ -68,10 +68,10 @@ int TestArrayVariants(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(concrete->GetVariantValueN(0) == 9.0);
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }

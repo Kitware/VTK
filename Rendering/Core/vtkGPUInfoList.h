@@ -13,13 +13,16 @@
 
 =========================================================================*/
 
-// .NAME vtkGPUInfoList - Stores the list of GPUs VRAM information.
-// .SECTION Description
-// vtkGPUInfoList stores a list of vtkGPUInfo. An host can have
-// several GPUs. It creates and sets the list by probing the host with system
-// calls. This an abstract class. Concrete classes are OS specific.
-// .SECTION See Also
-// vtkGPUInfo vtkDirectXGPUInfoList vtkCoreGraphicsGPUInfoList
+/**
+ * @class   vtkGPUInfoList
+ * @brief   Stores the list of GPUs VRAM information.
+ *
+ * vtkGPUInfoList stores a list of vtkGPUInfo. An host can have
+ * several GPUs. It creates and sets the list by probing the host with system
+ * calls. This an abstract class. Concrete classes are OS specific.
+ * @sa
+ * vtkGPUInfo vtkDirectXGPUInfoList vtkCoreGraphicsGPUInfoList
+*/
 
 #ifndef vtkGPUInfoList_h
 #define vtkGPUInfoList_h
@@ -37,34 +40,41 @@ public:
   vtkTypeMacro(vtkGPUInfoList, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Build the list of vtkInfoGPU if not done yet.
-  // Default implementation created an empty list. Useful if there is no
-  // implementation available for a given architecture yet.
-  // \post probed: IsProbed()
+  /**
+   * Build the list of vtkInfoGPU if not done yet.
+   * Default implementation created an empty list. Useful if there is no
+   * implementation available for a given architecture yet.
+   * \post probed: IsProbed()
+   */
   virtual void Probe() = 0;
 
-  // Description:
-  // Tells if the operating system has been probed. Initial value is false.
+  /**
+   * Tells if the operating system has been probed. Initial value is false.
+   */
   virtual bool IsProbed();
 
-  // Description:
-  // Return the number of GPUs.
-  // \pre probed: IsProbed()
+  /**
+   * Return the number of GPUs.
+   * \pre probed: IsProbed()
+   */
   virtual int GetNumberOfGPUs();
 
-  // Description:
-  // Return information about GPU i.
-  // \pre probed: IsProbed()
-  // \pre valid_index: i>=0 && i<GetNumberOfGPUs()
-  // \post result_exists: result!=0
+  /**
+   * Return information about GPU i.
+   * \pre probed: IsProbed()
+   * \pre valid_index: i>=0 && i<GetNumberOfGPUs()
+   * \post result_exists: result!=0
+   */
   virtual vtkGPUInfo *GetGPUInfo(int i);
 
 protected:
-  // Description:
-  // Default constructor. Set Probed to false. Set Array to NULL.
+  //@{
+  /**
+   * Default constructor. Set Probed to false. Set Array to NULL.
+   */
   vtkGPUInfoList();
   virtual ~vtkGPUInfoList();
+  //@}
 
   bool Probed;
   vtkGPUInfoListArray *Array;

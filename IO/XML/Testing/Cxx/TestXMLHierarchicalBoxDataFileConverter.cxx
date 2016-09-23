@@ -14,18 +14,18 @@ int TestXMLHierarchicalBoxDataFileConverter(int argc, char* argv[])
   char* temp_dir = vtkTestUtilities::GetArgOrEnvOrDefault(
     "-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   if (!temp_dir)
-    {
+  {
     cerr << "Could not determine temporary directory." << endl;
     return VTK_FAILURE;
-    }
+  }
 
   char* data_dir = vtkTestUtilities::GetDataRoot(argc, argv);
   if (!data_dir)
-    {
+  {
     delete [] temp_dir;
     cerr << "Could not determine data directory." << endl;
     return VTK_FAILURE;
-    }
+  }
 
   std::string input = data_dir;
   input += "/Data/AMR/HierarchicalBoxDataset.v1.0.vthb";
@@ -38,11 +38,11 @@ int TestXMLHierarchicalBoxDataFileConverter(int argc, char* argv[])
   converter->SetOutputFileName(output.c_str());
 
   if (!converter->Convert())
-    {
+  {
     delete [] temp_dir;
     delete [] data_dir;
     return VTK_FAILURE;
-    }
+  }
 
   // Copy the subfiles over to the temporary directory so that we can test
   // loading the written file.
@@ -55,12 +55,12 @@ int TestXMLHierarchicalBoxDataFileConverter(int argc, char* argv[])
   vtksys::SystemTools::RemoveADirectory(output_dir.c_str());
   if (!vtksys::SystemTools::CopyADirectory(
       input_dir.c_str(), output_dir.c_str()))
-    {
+  {
     delete [] temp_dir;
     delete [] data_dir;
     cerr << "Failed to copy image data files over for testing." << endl;
     return VTK_FAILURE;
-    }
+  }
 
   vtkNew<vtkXMLGenericDataObjectReader> reader;
   reader->SetFileName(output.c_str());

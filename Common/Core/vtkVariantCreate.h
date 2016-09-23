@@ -19,13 +19,15 @@
 
 =========================================================================*/
 
-// .NAME vtkVariantCreate
-// .SECTION Description
-// Performs an explicit conversion from an arbitrary type to a vtkVariant.  Provides
-// callers with a "hook" for defining conversions from user-defined types to vtkVariant.
-
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+/**
+ * @class   vtkVariantCreate
+ *
+ * Performs an explicit conversion from an arbitrary type to a vtkVariant.  Provides
+ * callers with a "hook" for defining conversions from user-defined types to vtkVariant.
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+*/
 
 #ifndef vtkVariantCreate_h
 #define vtkVariantCreate_h

@@ -43,9 +43,9 @@ template <typename T>
 void vtkMergeColumnsCombine(T* col1, T* col2, T* merged, vtkIdType size)
 {
   for (vtkIdType i = 0; i < size; i++)
-    {
+  {
     merged[i] = col1[i] + col2[i];
-    }
+  }
 }
 
 int vtkMergeColumns::RequestData(
@@ -68,20 +68,20 @@ int vtkMergeColumns::RequestData(
   vtkAbstractArray* col1 = this->GetInputAbstractArrayToProcess(0, 0, inputVector);
   vtkAbstractArray* col2 = this->GetInputAbstractArrayToProcess(1, 0, inputVector);
   if (!col1)
-    {
+  {
     vtkErrorMacro("Could not find first column to process.");
     return 0;
-    }
+  }
   if (!col2)
-    {
+  {
     vtkErrorMacro("Could not find second column to process.");
     return 0;
-    }
+  }
   if (col1->GetDataType() != col2->GetDataType())
-    {
+  {
     vtkErrorMacro("The columns must be of the same type.");
     return 0;
-    }
+  }
 
   output->RemoveColumnByName(col1->GetName());
   output->RemoveColumnByName(col2->GetName());
@@ -91,49 +91,49 @@ int vtkMergeColumns::RequestData(
   merged->SetNumberOfTuples(col1->GetNumberOfTuples());
 
   switch (merged->GetDataType())
-    {
+  {
     case VTK_STRING:
-      {
+    {
       vtkStringArray* col1Str = vtkArrayDownCast<vtkStringArray>(col1);
       vtkStringArray* col2Str = vtkArrayDownCast<vtkStringArray>(col2);
       vtkStringArray* mergedStr = vtkArrayDownCast<vtkStringArray>(merged);
       for (vtkIdType i = 0; i < merged->GetNumberOfTuples(); i++)
-        {
+      {
         vtkStdString combined = col1Str->GetValue(i);
         if (col1Str->GetValue(i).length() > 0 &&
             col2Str->GetValue(i).length() > 0)
-          {
+        {
           combined += " ";
-          }
+        }
         combined += col2Str->GetValue(i);
         mergedStr->SetValue(i, combined);
-        }
-      break;
       }
+      break;
+    }
     case VTK_UNICODE_STRING:
-      {
+    {
       vtkUnicodeStringArray* col1Str = vtkArrayDownCast<vtkUnicodeStringArray>(col1);
       vtkUnicodeStringArray* col2Str = vtkArrayDownCast<vtkUnicodeStringArray>(col2);
       vtkUnicodeStringArray* mergedStr = vtkArrayDownCast<vtkUnicodeStringArray>(merged);
       for (vtkIdType i = 0; i < merged->GetNumberOfTuples(); i++)
-        {
+      {
         vtkUnicodeString combined = col1Str->GetValue(i);
         if (!col1Str->GetValue(i).empty() &&
             !col2Str->GetValue(i).empty())
-          {
+        {
           combined += vtkUnicodeString::from_utf8(" ");
-          }
+        }
         combined += col2Str->GetValue(i);
         mergedStr->SetValue(i, combined);
-        }
-      break;
       }
+      break;
+    }
     vtkTemplateMacro(vtkMergeColumnsCombine(
       static_cast<VTK_TT*>(col1->GetVoidPointer(0)),
       static_cast<VTK_TT*>(col2->GetVoidPointer(0)),
       static_cast<VTK_TT*>(merged->GetVoidPointer(0)),
       merged->GetNumberOfTuples()));
-    }
+  }
 
   output->AddColumn(merged);
   merged->Delete();

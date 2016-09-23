@@ -33,9 +33,9 @@ public:
   vtkTypeMacro(vtk3DWidgetConnection,vtkAlgorithm);
 
   vtk3DWidgetConnection()
-    {
+  {
       this->SetNumberOfInputPorts(1);
-    }
+  }
 };
 
 vtkStandardNewMacro(vtk3DWidgetConnection);
@@ -61,10 +61,10 @@ vtk3DWidget::~vtk3DWidget()
   this->ConnectionHolder = 0;
 
   if ( this->Prop3D )
-    {
+  {
     this->Prop3D->Delete();
     this->Prop3D = NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -72,9 +72,9 @@ void vtk3DWidget::UpdateInput()
 {
   vtkAlgorithm* inpAlg = this->ConnectionHolder->GetInputAlgorithm();
   if (inpAlg)
-    {
+  {
     inpAlg->Update();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -83,16 +83,16 @@ void vtk3DWidget::PlaceWidget()
   double bounds[6];
 
   if ( this->Prop3D )
-    {
+  {
     this->Prop3D->GetBounds(bounds);
-    }
+  }
   else if ( this->GetInput() )
-    {
+  {
     this->ConnectionHolder->GetInputAlgorithm()->Update();
     this->GetInput()->GetBounds(bounds);
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro(<<"No input or prop defined for widget placement");
     bounds[0] = -1.0;
     bounds[1] = 1.0;
@@ -100,7 +100,7 @@ void vtk3DWidget::PlaceWidget()
     bounds[3] = 1.0;
     bounds[4] = -1.0;
     bounds[5] = 1.0;
-    }
+  }
 
   this->PlaceWidget(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
 }
@@ -148,11 +148,11 @@ double vtk3DWidget::SizeHandles(double factor)
 
   if ( !this->ValidPick || !(renderer=this->CurrentRenderer) ||
        !renderer->GetActiveCamera() )
-    {
+  {
     return (this->HandleSize * factor * this->InitialLength);
-    }
+  }
   else
-    {
+  {
     double radius, z;
     double windowLowerLeft[4], windowUpperRight[4];
     double *viewport = renderer->GetViewport();
@@ -173,13 +173,13 @@ double vtk3DWidget::SizeHandles(double factor)
     this->ComputeDisplayToWorld(x,y,z,windowUpperRight);
 
     for (radius=0.0, i=0; i<3; i++)
-      {
+    {
       radius += (windowUpperRight[i] - windowLowerLeft[i]) *
         (windowUpperRight[i] - windowLowerLeft[i]);
-      }
+    }
 
     return (sqrt(radius) * factor * this->HandleSize);
-    }
+  }
 }
 
 

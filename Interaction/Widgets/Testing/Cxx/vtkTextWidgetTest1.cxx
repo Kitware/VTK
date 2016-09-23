@@ -18,20 +18,20 @@ int vtkTextWidgetTest1(int , char * [] )
 
   vtkTextActor *textActor = node1->GetTextActor();
   if (textActor)
-    {
+  {
     std::cout << "Text actor is not null" << std::endl;
-    }
+  }
   else
-    {
+  {
     std::cout << "Text actor is null" << std::endl;
-    }
+  }
   vtkSmartPointer<vtkTextActor> textActor2 = vtkSmartPointer<vtkTextActor>::New();
   node1->SetTextActor(textActor2);
   if (node1->GetTextActor() != textActor2)
-    {
+  {
     std::cerr << "Failed to get back expected text actor" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

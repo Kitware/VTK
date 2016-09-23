@@ -12,8 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractSelectedBlock
-// .SECTION Description
+/**
+ * @class   vtkExtractSelectedBlock
+ *
+*/
 
 #ifndef vtkExtractSelectedBlock_h
 #define vtkExtractSelectedBlock_h
@@ -36,8 +38,9 @@ protected:
   virtual int RequestData(vtkInformation *,
     vtkInformationVector **, vtkInformationVector *);
 
-  // Description:
-  // Sets up empty output dataset
+  /**
+   * Sets up empty output dataset
+   */
   virtual int RequestDataObject(vtkInformation* request,
                                 vtkInformationVector** inputVector,
                                 vtkInformationVector* outputVector);

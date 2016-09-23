@@ -13,7 +13,10 @@
 
 =========================================================================*/
 
-// .NAME vtkOpenGLTextActor - vtkTextActor override.
+/**
+ * @class   vtkOpenGLTextActor
+ * @brief   vtkTextActor override.
+*/
 
 #ifndef vtkOpenGLTextActor_h
 #define vtkOpenGLTextActor_h

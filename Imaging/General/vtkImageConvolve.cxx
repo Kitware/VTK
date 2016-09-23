@@ -28,16 +28,16 @@ vtkImageConvolve::vtkImageConvolve()
 {
   int idx;
   for (idx = 0; idx < 343; idx++)
-    {
+  {
     this->Kernel[idx] = 0.0;
-    }
+  }
 
   // Construct a primary id function kernel that does nothing at all
   double kernel[9];
   for (idx = 0; idx < 9; idx++)
-    {
+  {
     kernel[idx] = 0.0;
-    }
+  }
   kernel[4] = 1.0;
   this->SetKernel3x3(kernel);
 }
@@ -60,26 +60,26 @@ void vtkImageConvolve::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Kernel: (";
   for (int k = 0; k < this->KernelSize[2]; k++)
-    {
+  {
     for (int j = 0; j < this->KernelSize[1]; j++)
-      {
+    {
       for (int i = 0; i < this->KernelSize[0]; i++)
-        {
+      {
         os << this->Kernel[this->KernelSize[1]*this->KernelSize[0]*k +
                            this->KernelSize[0]*j +
                            i];
 
         if (i != this->KernelSize[0] - 1)
-          {
-          os << ", ";
-          }
-        }
-      if (j != this->KernelSize[1] - 1 || k != this->KernelSize[2] - 1)
         {
-        os << ",\n" << indent << "         ";
+          os << ", ";
         }
       }
+      if (j != this->KernelSize[1] - 1 || k != this->KernelSize[2] - 1)
+      {
+        os << ",\n" << indent << "         ";
+      }
     }
+  }
   os << ")\n";
 }
 
@@ -146,17 +146,17 @@ void vtkImageConvolve::SetKernel(const double* kernel,
   int kernelLength = sizeX*sizeY*sizeZ;
 
   for (int idx = 0; idx < kernelLength; idx++)
-    {
+  {
     if ( this->Kernel[idx] != kernel[idx] )
-      {
+    {
       modified = 1;
       this->Kernel[idx] = kernel[idx];
-      }
     }
+  }
   if (modified)
-    {
+  {
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -258,9 +258,9 @@ void vtkImageConvolve::GetKernel(double *kernel)
     this->KernelSize[1]*this->KernelSize[2];
 
   for (int idx = 0; idx < kernelLength; idx++)
-    {
+  {
     kernel[idx] = this->Kernel[idx];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -342,32 +342,32 @@ void vtkImageConvolveExecute(vtkImageConvolve *self,
 
   // loop through components
   for (outIdxC = 0; outIdxC < numComps; ++outIdxC)
-    {
+  {
     // loop through pixels of output
     outPtr2 = outPtr;
     inPtr2 = inPtr;
     for (outIdx2 = outMin2; outIdx2 <= outMax2; ++outIdx2)
-      {
+    {
       outPtr1 = outPtr2;
       inPtr1 = inPtr2;
       for (outIdx1 = outMin1;
            outIdx1 <= outMax1 && !self->AbortExecute;
            ++outIdx1)
-        {
+      {
         if (!id)
-          {
+        {
           if (!(count%target))
-            {
+          {
             self->UpdateProgress(count/(50.0*target));
-            }
-          count++;
           }
+          count++;
+        }
 
         outPtr0 = outPtr1;
         inPtr0 = inPtr1;
 
         for (outIdx0 = outMin0; outIdx0 <= outMax0; ++outIdx0)
-          {
+        {
           // Inner loop where we compute the kernel
 
           // Set the sum to zero
@@ -384,15 +384,15 @@ void vtkImageConvolveExecute(vtkImageConvolve *self,
           kernelIdx = 0;
 
           for (hoodIdx2 = hoodMin2; hoodIdx2 <= hoodMax2; ++hoodIdx2)
-            {
+          {
             hoodPtr1 = hoodPtr2;
 
             for (hoodIdx1 = hoodMin1; hoodIdx1 <= hoodMax1; ++hoodIdx1)
-              {
+            {
               hoodPtr0 = hoodPtr1;
 
               for (hoodIdx0 = hoodMin0; hoodIdx0 <= hoodMax0; ++hoodIdx0)
-                {
+              {
                 // A quick but rather expensive way to handle boundaries
                 // This assumes the boundary values are zero
                 if (outIdx0 + hoodIdx0 >= inImageExt[0] &&
@@ -401,40 +401,40 @@ void vtkImageConvolveExecute(vtkImageConvolve *self,
                     outIdx1 + hoodIdx1 <= inImageExt[3] &&
                     outIdx2 + hoodIdx2 >= inImageExt[4] &&
                     outIdx2 + hoodIdx2 <= inImageExt[5])
-                  {
+                {
                   sum += *hoodPtr0 * kernel[kernelIdx];
 
                   // Take the next position in the kernel
                   kernelIdx++;
-                  }
-
-                hoodPtr0 += inInc0;
                 }
 
-              hoodPtr1 += inInc1;
+                hoodPtr0 += inInc0;
               }
 
-            hoodPtr2 += inInc2;
+              hoodPtr1 += inInc1;
             }
+
+            hoodPtr2 += inInc2;
+          }
 
           // Set the output pixel to the correct value
           *outPtr0 = static_cast<T>(sum);
 
           inPtr0 += inInc0;
           outPtr0 += outInc0;
-          }
+        }
 
         inPtr1 += inInc1;
         outPtr1 += outInc1;
-        }
+      }
 
       inPtr2 += inInc2;
       outPtr2 += outInc2;
-      }
+    }
 
     ++inPtr;
     ++outPtr;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -456,15 +456,15 @@ void vtkImageConvolve::ThreadedRequestData(
 
   // this filter expects the output type to be same as input
   if (outData[0]->GetScalarType() != inData[0][0]->GetScalarType())
-    {
+  {
     vtkErrorMacro(<< "Execute: output ScalarType, "
       << vtkImageScalarTypeNameMacro(outData[0]->GetScalarType())
       << " must match input scalar type");
     return;
-    }
+  }
 
   switch (inData[0][0]->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageConvolveExecute(this, inData[0][0],
                               static_cast<VTK_TT *>(inPtr), outData[0],
@@ -474,5 +474,5 @@ void vtkImageConvolve::ThreadedRequestData(
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
-    }
+  }
 }

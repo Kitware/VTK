@@ -99,7 +99,7 @@ void MyProcess::Execute()
   // READER
   vtkSmartPointer<vtkStructuredPoints> sp;
   if (me == 0)
-    {
+  {
     vtkSmartPointer<vtkStructuredPointsReader> spr=
       vtkSmartPointer<vtkStructuredPointsReader>::New();
     char* fname =
@@ -112,26 +112,26 @@ void MyProcess::Execute()
 
     go = 1;
     if ((sp == NULL) || (sp->GetNumberOfCells() == 0))
-      {
-      if (sp)
-        {
-        cout << "Failure: input file has no cells" << endl;
-        }
-      go = 0;
-      }
-    }
-  else
     {
-    sp = vtkSmartPointer<vtkStructuredPoints>::New();
+      if (sp)
+      {
+        cout << "Failure: input file has no cells" << endl;
+      }
+      go = 0;
     }
+  }
+  else
+  {
+    sp = vtkSmartPointer<vtkStructuredPoints>::New();
+  }
 
   vtkMPICommunicator *comm =
     vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
   comm->Broadcast(&go, 1, 0);
   if (!go)
-    {
+  {
     return;
-    }
+  }
 
   // FILTER WE ARE TRYING TO TEST
   vtkSmartPointer<vtkTransmitImageDataPiece> pass =
@@ -203,8 +203,8 @@ void MyProcess::Execute()
   prm->SetController(this->Controller);
   prm->InitializeOffScreen();   // Mesa GL only
   if (me == 0)
-    {
-    }
+  {
+  }
 
   // We must update the whole pipeline here, otherwise node 0
   // goes into GetActiveCamera which updates the pipeline, putting
@@ -219,7 +219,7 @@ void MyProcess::Execute()
   const int MY_RETURN_VALUE_MESSAGE=0x11;
 
   if (me == 0)
-    {
+  {
     vtkCamera *camera = renderer->GetActiveCamera();
     //camera->UpdateViewport(renderer);
     camera->SetParallelScale(16);
@@ -234,15 +234,15 @@ void MyProcess::Execute()
 
     prm->StopServices();
     for (i=1; i < numProcs; i++)
-      {
-      this->Controller->Send(&this->ReturnValue,1,i,MY_RETURN_VALUE_MESSAGE);
-      }
-    }
-  else
     {
+      this->Controller->Send(&this->ReturnValue,1,i,MY_RETURN_VALUE_MESSAGE);
+    }
+  }
+  else
+  {
     prm->StartServices();
     this->Controller->Receive(&this->ReturnValue,1,0,MY_RETURN_VALUE_MESSAGE);
-    }
+  }
   renWin->Delete();
   renderer->Delete();
 }
@@ -272,23 +272,23 @@ int TransmitImageDataRenderPass(int argc, char *argv[])
   int me = contr->GetLocalProcessId();
 
   if (numProcs != 2)
-    {
+  {
     if (me == 0)
-      {
+    {
       cout << "DistributedData test requires 2 processes" << endl;
-      }
-    return retVal;
     }
+    return retVal;
+  }
 
   if (!contr->IsA("vtkMPIController"))
-    {
+  {
     if (me == 0)
-      {
+    {
       cout << "DistributedData test requires MPI" << endl;
-      }
+    }
     contr->Delete();
     return retVal;   // is this the right error val?   TODO
-    }
+  }
 
   MyProcess *p=MyProcess::New();
   p->SetArgs(argc,argv);

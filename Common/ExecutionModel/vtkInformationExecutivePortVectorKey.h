@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInformationExecutivePortVectorKey - Key for vtkExecutive/Port value pair vectors.
-// .SECTION Description
-// vtkInformationExecutivePortVectorKey is used to represent keys in
-// vtkInformation for values that are vectors of vtkExecutive
-// instances paired with port numbers.
+/**
+ * @class   vtkInformationExecutivePortVectorKey
+ * @brief   Key for vtkExecutive/Port value pair vectors.
+ *
+ * vtkInformationExecutivePortVectorKey is used to represent keys in
+ * vtkInformation for values that are vectors of vtkExecutive
+ * instances paired with port numbers.
+*/
 
 #ifndef vtkInformationExecutivePortVectorKey_h
 #define vtkInformationExecutivePortVectorKey_h
@@ -37,18 +40,21 @@ public:
   vtkInformationExecutivePortVectorKey(const char* name, const char* location);
   ~vtkInformationExecutivePortVectorKey() VTK_OVERRIDE;
 
-  // Description:
-  // This method simply returns a new vtkInformationExecutivePortVectorKey,
-  // given a name and a location. This method is provided for wrappers. Use
-  // the constructor directly from C++ instead.
+  /**
+   * This method simply returns a new vtkInformationExecutivePortVectorKey,
+   * given a name and a location. This method is provided for wrappers. Use
+   * the constructor directly from C++ instead.
+   */
   static vtkInformationExecutivePortVectorKey* MakeKey(const char* name, const char* location)
-    {
+  {
     return new vtkInformationExecutivePortVectorKey(name, location);
-    }
+  }
 
-  // Description:
-  // Get/Set the value associated with this key in the given
-  // information object.
+  //@{
+  /**
+   * Get/Set the value associated with this key in the given
+   * information object.
+   */
   void Append(vtkInformation* info, vtkExecutive* executive, int port);
   void Remove(vtkInformation* info, vtkExecutive* executive, int port);
   void Set(vtkInformation* info, vtkExecutive** executives, int* ports, int length);
@@ -56,33 +62,41 @@ public:
   int* GetPorts(vtkInformation* info);
   void Get(vtkInformation* info, vtkExecutive** executives, int* ports);
   int Length(vtkInformation* info);
+  //@}
 
-  // Description:
-  // Copy the entry associated with this key from one information
-  // object to another.  If there is no entry in the first information
-  // object for this key, the value is removed from the second.
+  /**
+   * Copy the entry associated with this key from one information
+   * object to another.  If there is no entry in the first information
+   * object for this key, the value is removed from the second.
+   */
   void ShallowCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
 
-  // Description:
-  // Remove this key from the given information object.
+  /**
+   * Remove this key from the given information object.
+   */
   void Remove(vtkInformation* info) VTK_OVERRIDE;
 
-  // Description:
-  // Report a reference this key has in the given information object.
+  /**
+   * Report a reference this key has in the given information object.
+   */
   void Report(vtkInformation* info, vtkGarbageCollector* collector) VTK_OVERRIDE;
 
-  // Description:
-  // Print the key's value in an information object to a stream.
+  /**
+   * Print the key's value in an information object to a stream.
+   */
   void Print(ostream& os, vtkInformation* info) VTK_OVERRIDE;
 
 protected:
 
-  // Description:
-  // Get the address at which the actual value is stored.  This is
-  // meant for use from a debugger to add watches and is therefore not
-  // a public method.
+  //@{
+  /**
+   * Get the address at which the actual value is stored.  This is
+   * meant for use from a debugger to add watches and is therefore not
+   * a public method.
+   */
   vtkExecutive** GetExecutivesWatchAddress(vtkInformation* info);
   int* GetPortsWatchAddress(vtkInformation* info);
+  //@}
 
 private:
   vtkInformationExecutivePortVectorKey(const vtkInformationExecutivePortVectorKey&) VTK_DELETE_FUNCTION;

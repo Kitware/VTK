@@ -53,15 +53,15 @@ int vtkFocalPlaneContourRepresentation::GetIntermediatePointWorldPosition(int n,
 {
   if ( n < 0 ||
        static_cast<unsigned int>(n) >= this->Internal->Nodes.size() )
-    {
+  {
     return 0;
-    }
+  }
 
   if ( idx < 0 ||
        static_cast<unsigned int>(idx) >= this->Internal->Nodes[n]->Points.size() )
-    {
+  {
     return 0;
-    }
+  }
 
   double p[4], fp[4], z, dispPos[2];
   this->Renderer->GetActiveCamera()->GetFocalPoint(fp);
@@ -92,15 +92,15 @@ int vtkFocalPlaneContourRepresentation::GetIntermediatePointDisplayPosition(int 
 {
   if ( n < 0 ||
        static_cast<unsigned int>(n) >= this->Internal->Nodes.size() )
-    {
+  {
     return 0;
-    }
+  }
 
   if ( idx < 0 ||
        static_cast<unsigned int>(idx) >= this->Internal->Nodes[n]->Points.size() )
-    {
+  {
     return 0;
-    }
+  }
 
   point[0] = this->Internal->Nodes[n]->Points[idx]->NormalizedDisplayPosition[0];
   point[1] = this->Internal->Nodes[n]->Points[idx]->NormalizedDisplayPosition[1];
@@ -115,9 +115,9 @@ int vtkFocalPlaneContourRepresentation::GetNthNodeDisplayPosition(
 {
   if ( n < 0 ||
        static_cast<unsigned int>(n) >= this->Internal->Nodes.size() )
-    {
+  {
     return 0;
-    }
+  }
 
   displayPos[0] = this->Internal->Nodes[n]->NormalizedDisplayPosition[0];
   displayPos[1] = this->Internal->Nodes[n]->NormalizedDisplayPosition[1];
@@ -132,9 +132,9 @@ int vtkFocalPlaneContourRepresentation::GetNthNodeWorldPosition(
 {
   if ( n < 0 ||
        static_cast<unsigned int>(n) >= this->Internal->Nodes.size() )
-    {
+  {
     return 0;
-    }
+  }
 
   double p[4], fp[4], z, dispPos[2];
   this->Renderer->GetActiveCamera()->GetFocalPoint(fp);
@@ -165,7 +165,7 @@ void vtkFocalPlaneContourRepresentation
   z = fp[2];
 
   for(unsigned int i=0;i<this->Internal->Nodes.size();i++)
-    {
+  {
 
     dispPos[0] = this->Internal->Nodes[i]->NormalizedDisplayPosition[0];
     dispPos[1] = this->Internal->Nodes[i]->NormalizedDisplayPosition[1];
@@ -179,7 +179,7 @@ void vtkFocalPlaneContourRepresentation
     this->Internal->Nodes[i]->WorldPosition[2] = p[2];
 
     for (unsigned int j=0;j<this->Internal->Nodes[i]->Points.size();j++)
-      {
+    {
       dispPos[0] = this->Internal->Nodes[i]->Points[j]->NormalizedDisplayPosition[0];
       dispPos[1] = this->Internal->Nodes[i]->Points[j]->NormalizedDisplayPosition[1];
       this->Renderer->NormalizedDisplayToDisplay( dispPos[0], dispPos[1] );
@@ -190,8 +190,8 @@ void vtkFocalPlaneContourRepresentation
       this->Internal->Nodes[i]->Points[j]->WorldPosition[0] = p[0];
       this->Internal->Nodes[i]->Points[j]->WorldPosition[1] = p[1];
       this->Internal->Nodes[i]->Points[j]->WorldPosition[2] = p[2];
-      }
     }
+  }
 }
 
 //---------------------------------------------------------------------
@@ -201,10 +201,10 @@ int vtkFocalPlaneContourRepresentation::UpdateContour()
 
   if ( this->ContourBuildTime > this->Renderer->GetMTime() &&
        this->ContourBuildTime > this->PointPlacer->GetMTime() )
-    {
+  {
     // Contour does not need to be rebuilt
     return 0;
-    }
+  }
 
   // The representation maintains its true positions based on display positions.
   // Sync the world positions in terms of the current display positions.
@@ -221,14 +221,14 @@ int vtkFocalPlaneContourRepresentation::UpdateContour()
 
   unsigned int i;
   for(i=0; (i+1)<this->Internal->Nodes.size(); i++)
-    {
+  {
     this->UpdateLine(i, i+1);
-    }
+  }
 
   if ( this->ClosedLoop )
-    {
+  {
     this->UpdateLine( static_cast<int>(this->Internal->Nodes.size())-1, 0);
-    }
+  }
   this->BuildLines();
 
   this->ContourBuildTime.Modified();

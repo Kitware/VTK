@@ -12,30 +12,33 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWeakPointer - a weak reference to a vtkObject.
-// .SECTION Description
-// A weak reference to a vtkObject, which means that assigning
-// a vtkObject to the vtkWeakPointer does not affect the reference count of the
-// vtkObject. However, when the vtkObject is destroyed, the vtkWeakPointer gets
-// initialized to NULL, thus avoiding any dangling references.
-//
-// \code
-// vtkTable *table = vtkTable::New();
-// vtkWeakPointer<vtkTable> weakTable = table;
-// \endcode
-//
-// Some time later the table may be deleted, but if it is tested for null then
-// the weak pointer will not leave a dangling pointer.
-//
-// \code
-// table->Delete();
-// if (weakTable)
-//   {
-//   // Never executed as the weak table pointer will be null here
-//   cout << "Number of columns in table: " << weakTable->GetNumberOfColumns()
-//        << endl;
-//   }
-// \endcode
+/**
+ * @class   vtkWeakPointer
+ * @brief   a weak reference to a vtkObject.
+ *
+ * A weak reference to a vtkObject, which means that assigning
+ * a vtkObject to the vtkWeakPointer does not affect the reference count of the
+ * vtkObject. However, when the vtkObject is destroyed, the vtkWeakPointer gets
+ * initialized to NULL, thus avoiding any dangling references.
+ *
+ * \code
+ * vtkTable *table = vtkTable::New();
+ * vtkWeakPointer<vtkTable> weakTable = table;
+ * \endcode
+ *
+ * Some time later the table may be deleted, but if it is tested for null then
+ * the weak pointer will not leave a dangling pointer.
+ *
+ * \code
+ * table->Delete();
+ * if (weakTable)
+ *   {
+ *   // Never executed as the weak table pointer will be null here
+ *   cout << "Number of columns in table: " << weakTable->GetNumberOfColumns()
+ *        << endl;
+ *   }
+ * \endcode
+*/
 
 #ifndef vtkWeakPointer_h
 #define vtkWeakPointer_h
@@ -46,66 +49,81 @@ template <class T>
 class vtkWeakPointer: public vtkWeakPointerBase
 {
 public:
-  // Description:
-  // Initialize smart pointer to NULL.
+  /**
+   * Initialize smart pointer to NULL.
+   */
   vtkWeakPointer() {}
 
-  // Description:
-  // Initialize smart pointer to given object.
+  /**
+   * Initialize smart pointer to given object.
+   */
   vtkWeakPointer(T* r): vtkWeakPointerBase(r) {}
 
-  // Description:
-  // Initialize smart pointer with the given smart pointer.
+  /**
+   * Initialize smart pointer with the given smart pointer.
+   */
   vtkWeakPointer(const vtkWeakPointerBase& r): vtkWeakPointerBase(r) {}
 
-  // Description:
-  // Assign object to reference.
+  //@{
+  /**
+   * Assign object to reference.
+   */
   vtkWeakPointer& operator=(T* r)
-    {
+  {
     this->vtkWeakPointerBase::operator=(r);
     return *this;
-    }
+  }
+  //@}
 
-  // Description:
-  // Assign object to reference.
+  //@{
+  /**
+   * Assign object to reference.
+   */
   vtkWeakPointer& operator=(const vtkWeakPointerBase& r)
-    {
+  {
     this->vtkWeakPointerBase::operator=(r);
     return *this;
-    }
+  }
+  //@}
 
-  // Description:
-  // Get the contained pointer.
+  //@{
+  /**
+   * Get the contained pointer.
+   */
   T* GetPointer() const
-    {
+  {
     return static_cast<T*>(this->Object);
-    }
+  }
   T* Get() const
-    {
+  {
     return static_cast<T*>(this->Object);
-    }
+  }
+  //@}
 
-  // Description:
-  // Get the contained pointer.
+  /**
+   * Get the contained pointer.
+   */
   operator T* () const
-    {
+  {
     return static_cast<T*>(this->Object);
-    }
+  }
 
-  // Description:
-  // Dereference the pointer and return a reference to the contained
-  // object.
+  /**
+   * Dereference the pointer and return a reference to the contained
+   * object.
+   */
   T& operator*() const
-    {
+  {
     return *static_cast<T*>(this->Object);
-    }
+  }
 
-  // Description:
-  // Provides normal pointer target member access using operator ->.
+  /**
+   * Provides normal pointer target member access using operator ->.
+   */
   T* operator->() const
-    {
+  {
     return static_cast<T*>(this->Object);
-    }
+  }
 
   // Work-around for HP and IBM overload resolution bug.  Since
   // NullPointerOnly is a private type the only pointer value that can
@@ -115,9 +133,9 @@ public:
 #if defined(__HP_aCC) || defined(__IBMCPP__)
 # define VTK_WEAK_POINTER_DEFINE_OPERATOR_WORKAROUND(op) \
   bool operator op (NullPointerOnly*) const              \
-    {                                                     \
+  {                                                     \
     return ::operator op (*this, 0);                      \
-    }
+  }
 private:
   class NullPointerOnly {};
 public:
@@ -142,21 +160,22 @@ private:
   template <class T> \
   inline bool \
   operator op (const vtkWeakPointer<T>& l, const vtkWeakPointer<T>& r) \
-    { \
+  { \
     return (l.GetPointer() op r.GetPointer()); \
-    } \
+  } \
   template <class T> \
   inline bool operator op (T* l, const vtkWeakPointer<T>& r) \
-    { \
+  { \
     return (l op r.GetPointer()); \
-    } \
+  } \
   template <class T> \
   inline bool operator op (const vtkWeakPointer<T>& l, T* r) \
-    { \
+  { \
     return (l.GetPointer() op r); \
-    }
-// Description:
-// Compare smart pointer values.
+  }
+/**
+ * Compare smart pointer values.
+ */
 VTK_WEAK_POINTER_DEFINE_OPERATOR(==)
 VTK_WEAK_POINTER_DEFINE_OPERATOR(!=)
 VTK_WEAK_POINTER_DEFINE_OPERATOR(<)
@@ -166,8 +185,9 @@ VTK_WEAK_POINTER_DEFINE_OPERATOR(>=)
 
 #undef VTK_WEAK_POINTER_DEFINE_OPERATOR
 
-// Description:
-// Streaming operator to print smart pointer like regular pointers.
+/**
+ * Streaming operator to print smart pointer like regular pointers.
+ */
 template <class T>
 inline ostream& operator << (ostream& os, const vtkWeakPointer<T>& p)
 {

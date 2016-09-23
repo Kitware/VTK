@@ -95,30 +95,30 @@ int vtkPBGLConnectedComponents::RequestData(
   // Create the component array
   vtkIdTypeArray* componentArray = vtkIdTypeArray::New();
   if (this->ComponentArrayName)
-    {
+  {
     componentArray->SetName(this->ComponentArrayName);
-    }
+  }
   else
-    {
+  {
     componentArray->SetName("Component");
-    }
+  }
   componentArray->SetNumberOfTuples(output->GetNumberOfVertices());
 
   vtkDistributedGraphHelper *helper = output->GetDistributedGraphHelper();
   if (!helper)
-    {
+  {
     vtkErrorMacro("Distributed vtkGraph is required.");
     return 1;
-    }
+  }
 
   // We can only deal with Parallel BGL-distributed graphs.
   vtkPBGLDistributedGraphHelper *pbglHelper
     = vtkPBGLDistributedGraphHelper::SafeDownCast(helper);
   if (!pbglHelper)
-    {
+  {
     vtkErrorMacro("Can only perform parallel shortest-paths on a Parallel BGL distributed graph");
     return 1;
-    }
+  }
 
   int myRank = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
 
@@ -130,7 +130,7 @@ int vtkPBGLConnectedComponents::RequestData(
 
   // Execute the algorithm itself
   if (vtkUndirectedGraph::SafeDownCast(output))
-    {
+  {
     // Distributed parent map. Used for scratch space in the algorithm
     // itself.
     vtkIdTypeArray* parentArray = vtkIdTypeArray::New();
@@ -148,13 +148,13 @@ int vtkPBGLConnectedComponents::RequestData(
 
     // Remove the temporary parent array.
     parentArray->Delete();
-    }
+  }
   else
-    {
+  {
     vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(output);
     boost::graph::distributed::fleischer_hendrickson_pinar_strong_components
       (g, componentMap, MakeDistributedVertexIndexMap(g));
-    }
+  }
 
   // Add component array to the output
   output->GetVertexData()->AddArray(componentArray);
@@ -178,9 +178,9 @@ int vtkPBGLConnectedComponents::FillInputPortInformation(
 {
   // now add our info
   if (port == 0)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
-    }
+  }
   return 1;
 }
 
@@ -190,9 +190,9 @@ int vtkPBGLConnectedComponents::FillOutputPortInformation(
 {
   // now add our info
   if (port == 0)
-    {
+  {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkGraph");
-    }
+  }
   return 1;
 }
 

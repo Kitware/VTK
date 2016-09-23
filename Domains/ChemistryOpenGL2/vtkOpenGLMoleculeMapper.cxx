@@ -69,21 +69,21 @@ void vtkOpenGLMoleculeMapper::Render(vtkRenderer *ren, vtkActor *act )
 
   // Pass rendering call on
   if (this->RenderAtoms)
-    {
+  {
     this->FastAtomMapper->Render(ren, act);
     //  this->AtomGlyphMapper->Render(ren, act);
-    }
+  }
 
   if (this->RenderBonds)
-    {
+  {
     this->FastBondMapper->Render(ren, act);
     //  this->BondGlyphMapper->Render(ren, act);
-    }
+  }
 
   if (this->RenderLattice)
-    {
+  {
     this->LatticeMapper->Render(ren, act);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -114,7 +114,7 @@ void vtkOpenGLMoleculeMapper::UpdateBondGlyphPolyData()
   this->Superclass::UpdateBondGlyphPolyData();
 
   switch(this->BondColorMode)
-    {
+  {
     case SingleColor:
       this->FastBondMapper->SetColorModeToDefault();
       this->FastBondMapper->SetScalarModeToUsePointData();
@@ -128,7 +128,7 @@ void vtkOpenGLMoleculeMapper::UpdateBondGlyphPolyData()
       this->FastBondMapper->SetScalarModeToUsePointData();
       this->FastBondMapper->SetScalarMaterialMode(this->GetScalarMaterialMode());
       break;
-    }
+  }
 
   // Setup glypher
   this->FastBondMapper->SetScaleArray("Scale Factors");

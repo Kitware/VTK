@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTriangleStrip - a cell that represents a triangle strip
-// .SECTION Description
-// vtkTriangleStrip is a concrete implementation of vtkCell to represent a 2D
-// triangle strip. A triangle strip is a compact representation of triangles
-// connected edge to edge in strip fashion. The connectivity of a triangle
-// strip is three points defining an initial triangle, then for each
-// additional triangle, a single point that, combined with the previous two
-// points, defines the next triangle.
+/**
+ * @class   vtkTriangleStrip
+ * @brief   a cell that represents a triangle strip
+ *
+ * vtkTriangleStrip is a concrete implementation of vtkCell to represent a 2D
+ * triangle strip. A triangle strip is a compact representation of triangles
+ * connected edge to edge in strip fashion. The connectivity of a triangle
+ * strip is three points defining an initial triangle, then for each
+ * additional triangle, a single point that, combined with the previous two
+ * points, defines the next triangle.
+*/
 
 #ifndef vtkTriangleStrip_h
 #define vtkTriangleStrip_h
@@ -38,8 +41,10 @@ public:
   vtkTypeMacro(vtkTriangleStrip,vtkCell);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // See the vtkCell API for descriptions of these methods.
+  //@{
+  /**
+   * See the vtkCell API for descriptions of these methods.
+   */
   int GetCellType() VTK_OVERRIDE {return VTK_TRIANGLE_STRIP;};
   int GetCellDimension() VTK_OVERRIDE {return 2;};
   int GetNumberOfEdges() VTK_OVERRIDE {return this->GetNumberOfPoints();};
@@ -57,6 +62,7 @@ public:
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
             int insideOut) VTK_OVERRIDE;
+  //@}
 
   int EvaluatePosition(double x[3], double* closestPoint,
                        int& subId, double pcoords[3],
@@ -70,13 +76,15 @@ public:
                    int dim, double *derivs) VTK_OVERRIDE;
   int IsPrimaryCell() VTK_OVERRIDE {return 0;}
 
-  // Description:
-  // Return the center of the point cloud in parametric coordinates.
+  /**
+   * Return the center of the point cloud in parametric coordinates.
+   */
   int GetParametricCenter(double pcoords[3]) VTK_OVERRIDE;
 
-  // Description:
-  // Given a triangle strip, decompose it into a list of (triangle)
-  // polygons. The polygons are appended to the end of the list of triangles.
+  /**
+   * Given a triangle strip, decompose it into a list of (triangle)
+   * polygons. The polygons are appended to the end of the list of triangles.
+   */
   static void DecomposeStrip(int npts, vtkIdType *pts, vtkCellArray *tris);
 
 protected:

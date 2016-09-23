@@ -195,10 +195,10 @@ int TestGPURayCastDataTypesMinIP(int argc,
 
   int i=0;
   while(i<4)
-    {
+  {
     int j=0;
     while(j<2)
-      {
+    {
       volumeMapper[i][j]=vtkGPUVolumeRayCastMapper::New();
       volumeMapper[i][j]->SetBlendModeToMinimumIntensity();
       volumeMapper[i][j]->SetInputConnection(
@@ -220,9 +220,9 @@ int TestGPURayCastDataTypesMinIP(int argc,
       volume[i][j]->SetUserTransform(userMatrix[i][j]);
       ren1->AddViewProp(volume[i][j]);
       ++j;
-      }
-    ++i;
     }
+    ++i;
+  }
 
   ren1->AddViewProp(volume[0][0]);
 
@@ -230,7 +230,7 @@ int TestGPURayCastDataTypesMinIP(int argc,
 
   int retVal;
   if(valid)
-    {
+  {
     iren->Initialize();
     ren1->SetBackground(0.1,0.4,0.2);
     ren1->ResetCamera();
@@ -239,15 +239,15 @@ int TestGPURayCastDataTypesMinIP(int argc,
 
     retVal = vtkTesting::Test(argc, argv, renWin, 75);
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
-      {
-      iren->Start();
-      }
-    }
-  else
     {
+      iren->Start();
+    }
+  }
+  else
+  {
     retVal=vtkTesting::PASSED;
     cout << "Required extensions not supported." << endl;
-    }
+  }
 
   iren->Delete();
   renWin->Delete();
@@ -256,10 +256,10 @@ int TestGPURayCastDataTypesMinIP(int argc,
   shiftScale_3_0_pre->Delete();
   i=0;
   while(i<4)
-    {
+  {
     int j=0;
     while(j<2)
-      {
+    {
       volumeMapper[i][j]->Delete();
       volumeProperty[i][j]->Delete();
       volume[i][j]->Delete();
@@ -268,17 +268,17 @@ int TestGPURayCastDataTypesMinIP(int argc,
       color[i][j]->Delete();
       opacity[i][j]->Delete();
       ++j;
-      }
-    ++i;
     }
+    ++i;
+  }
   reader->Delete();
 
   if ((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR))
-    {
+  {
     return 0;
-    }
+  }
   else
-    {
+  {
     return 1;
-    }
+  }
 }

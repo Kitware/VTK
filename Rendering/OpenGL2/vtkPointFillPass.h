@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPointFillPass - Implement a post-processing fillpass
-// .SECTION Description
-//
-// This pass is designed to fill in rendering of sparse point sets/coulds
-// The delegate is used once and is usually set to a vtkCameraPass or
-// to a post-processing pass.
-//
-// .SECTION See Also
-// vtkRenderPass
+/**
+ * @class   vtkPointFillPass
+ * @brief   Implement a post-processing fillpass
+ *
+ *
+ * This pass is designed to fill in rendering of sparse point sets/coulds
+ * The delegate is used once and is usually set to a vtkCameraPass or
+ * to a post-processing pass.
+ *
+ * @sa
+ * vtkRenderPass
+*/
 
 #ifndef vtkPointFillPass_h
 #define vtkPointFillPass_h
@@ -41,44 +44,55 @@ public:
   vtkTypeMacro(vtkPointFillPass,vtkDepthImageProcessingPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Perform rendering according to a render state \p s.
-  // \pre s_exists: s!=0
+  /**
+   * Perform rendering according to a render state \p s.
+   * \pre s_exists: s!=0
+   */
   virtual void Render(const vtkRenderState *s);
 
-  // Description:
-  // Release graphics resources and ask components to release their own
-  // resources.
-  // \pre w_exists: w!=0
+  /**
+   * Release graphics resources and ask components to release their own
+   * resources.
+   * \pre w_exists: w!=0
+   */
   void ReleaseGraphicsResources(vtkWindow *w);
 
-  // Description:
-  // How far in front of a point must a neighboring point
-  // be to be used as a filler candidate.  Expressed as
-  // a multiple of the points distance from the camera.
-  // Defaults to 0.95
+  //@{
+  /**
+   * How far in front of a point must a neighboring point
+   * be to be used as a filler candidate.  Expressed as
+   * a multiple of the points distance from the camera.
+   * Defaults to 0.95
+   */
   vtkSetMacro(CandidatePointRatio,float);
   vtkGetMacro(CandidatePointRatio,float);
+  //@}
 
-  // Description:
-  // How large of an angle must the filler candidates
-  // span before a point will be filled. Expressed in
-  // radians. A value of pi will keep edges from growing out.
-  // Large values require more support, lower values less.
+  //@{
+  /**
+   * How large of an angle must the filler candidates
+   * span before a point will be filled. Expressed in
+   * radians. A value of pi will keep edges from growing out.
+   * Large values require more support, lower values less.
+   */
   vtkSetMacro(MinimumCandidateAngle,float);
   vtkGetMacro(MinimumCandidateAngle,float);
+  //@}
 
  protected:
-  // Description:
-  // Default constructor. DelegatePass is set to NULL.
+  /**
+   * Default constructor. DelegatePass is set to NULL.
+   */
   vtkPointFillPass();
 
-  // Description:
-  // Destructor.
+  /**
+   * Destructor.
+   */
   virtual ~vtkPointFillPass();
 
-  // Description:
-  // Graphics resources.
+  /**
+   * Graphics resources.
+   */
   vtkFrameBufferObject *FrameBufferObject;
   vtkTextureObject *Pass1; // render target for the scene
   vtkTextureObject *Pass1Depth; // render target for the depth

@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAMRInterpolatedVelocityField - A concrete class for obtaining
-//  the interpolated velocity values at a point in AMR data.
-//
-//
-// .SECTION Description
-// The main functionality supported here is the point location inside vtkOverlappingAMR data set.
+/**
+ * @class   vtkAMRInterpolatedVelocityField
+ * @brief   A concrete class for obtaining
+ *  the interpolated velocity values at a point in AMR data.
+ *
+ *
+ *
+ * The main functionality supported here is the point location inside vtkOverlappingAMR data set.
+*/
 
 #ifndef vtkAMRInterpolatedVelocityField_h
 #define vtkAMRInterpolatedVelocityField_h
@@ -44,23 +47,24 @@ public:
 
   bool SetLastDataSet(int level, int id);
 
-  //Description: This function is no op. Do not call
   virtual void SetLastCellId( vtkIdType c, int dataindex );
 
-  // Description:
-  // Set the cell id cached by the last evaluation.
+  /**
+   * Set the cell id cached by the last evaluation.
+   */
   virtual void SetLastCellId( vtkIdType c )
     { this->Superclass::SetLastCellId( c ); }
 
-  //Description:
- //  Evaluate the velocity field f at point p.
- //  If it succeeds, then both the last data set (this->LastDataSet) and
- //  the last data set location (this->LastLevel, this->LastId) will be
-  // set according to where p is found.  If it fails, either p is out of
-  // bound, in which case both the last data set and the last location
-  // will be invlaid or, in a multi-process setting, p is inbound but not
-  // on the processor.  In the last case, the last data set location is
-  // still valid
+  /**
+   * Evaluate the velocity field f at point p.
+   * If it succeeds, then both the last data set (this->LastDataSet) and
+   * the last data set location (this->LastLevel, this->LastId) will be
+   * set according to where p is found.  If it fails, either p is out of
+   * bound, in which case both the last data set and the last location
+   * will be invlaid or, in a multi-process setting, p is inbound but not
+   * on the processor.  In the last case, the last data set location is
+   * still valid
+   */
 
   virtual int FunctionValues( double * x, double * f );
 

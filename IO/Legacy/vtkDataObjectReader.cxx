@@ -69,38 +69,38 @@ int vtkDataObjectReader::RequestData(
   vtkDebugMacro(<<"Reading vtk field data...");
 
   if ( !(this->OpenVTKFile()) || !this->ReadHeader())
-    {
+  {
     return 1;
-    }
+  }
 
   // Read field data until end-of-file
   //
   while (this->ReadString(line) && !field )
-    {
+  {
     if ( !strncmp(this->LowerCase(line),"field",(unsigned long)5) )
-      {
+    {
       field = this->ReadFieldData(); //reads named field (or first found)
       if ( field != NULL )
-        {
+      {
         output->SetFieldData(field);
         field->Delete();
-        }
       }
+    }
 
     else if ( !strncmp(this->LowerCase(line),"dataset",(unsigned long)7) )
-      {
+    {
       vtkErrorMacro(<<"Field reader cannot read datasets");
       this->CloseVTKFile();
       return 1;
-      }
+    }
 
     else
-      {
+    {
       vtkErrorMacro(<< "Unrecognized keyword: " << line);
       this->CloseVTKFile();
       return 1;
-      }
     }
+  }
   //while field not read
 
   this->CloseVTKFile();

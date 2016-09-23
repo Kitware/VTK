@@ -25,9 +25,9 @@ vtkStructuredNeighbor::vtkStructuredNeighbor()
   this->Orientation[ 2 ]    = vtkStructuredNeighbor::UNDEFINED;
 
   for( int i=0; i < 6; ++i )
-    {
+  {
     this->SendExtent[i] = this->RcvExtent[i] = -1;
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -36,11 +36,11 @@ vtkStructuredNeighbor::vtkStructuredNeighbor(
 {
   this->NeighborID = neiId;
   for( int i=0; i < 6; ++i )
-    {
+  {
     this->SendExtent[ i ]    =
     this->RcvExtent[ i ]     =
     this->OverlapExtent[ i ] = overlap[ i ];
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -49,7 +49,7 @@ vtkStructuredNeighbor::vtkStructuredNeighbor(
 {
   this->NeighborID = neiId;
   for( int i=0; i < 3; ++i )
-    {
+  {
     this->RcvExtent[i*2]         =
     this->SendExtent[i*2]        =
     this->OverlapExtent[ i*2 ]   = overlap[ i*2 ];
@@ -59,7 +59,7 @@ vtkStructuredNeighbor::vtkStructuredNeighbor(
     this->OverlapExtent[ i*2+1 ] = overlap[ i*2+1 ];
 
     this->Orientation[ i ]       = orient[ i ];
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -74,9 +74,9 @@ void vtkStructuredNeighbor::ComputeSendAndReceiveExtent(
 {
 
   for( int i=0; i < 3; ++i )
-    {
+  {
     switch( this->Orientation[i] )
-      {
+    {
       case vtkStructuredNeighbor::SUPERSET:
         this->SendExtent[i*2]   -= N;
         this->SendExtent[i*2+1] += N;
@@ -99,8 +99,8 @@ void vtkStructuredNeighbor::ComputeSendAndReceiveExtent(
         break;
       default:
         ; /* NO OP */
-      }
-    } // END for all dimensions
+    }
+  } // END for all dimensions
 
   // Hmm...restricting receive extent to the real extent of the neighbor
   vtkStructuredExtent::Clamp( this->RcvExtent, neiRealExtent );

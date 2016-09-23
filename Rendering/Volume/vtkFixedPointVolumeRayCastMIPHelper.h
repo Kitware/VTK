@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkFixedPointVolumeRayCastMIPHelper - A helper that generates MIP images for the volume ray cast mapper
-// .SECTION Description
-// This is one of the helper classes for the vtkFixedPointVolumeRayCastMapper.
-// It will generate maximum intensity images.
-// This class should not be used directly, it is a helper class for
-// the mapper and has no user-level API.
-//
-// .SECTION see also
-// vtkFixedPointVolumeRayCastMapper
+/**
+ * @class   vtkFixedPointVolumeRayCastMIPHelper
+ * @brief   A helper that generates MIP images for the volume ray cast mapper
+ *
+ * This is one of the helper classes for the vtkFixedPointVolumeRayCastMapper.
+ * It will generate maximum intensity images.
+ * This class should not be used directly, it is a helper class for
+ * the mapper and has no user-level API.
+ *
+ * @sa
+ * vtkFixedPointVolumeRayCastMapper
+*/
 
 #ifndef vtkFixedPointVolumeRayCastMIPHelper_h
 #define vtkFixedPointVolumeRayCastMIPHelper_h

@@ -53,16 +53,16 @@ vtkSelectEnclosedPoints::vtkSelectEnclosedPoints()
 vtkSelectEnclosedPoints::~vtkSelectEnclosedPoints()
 {
   if ( this->InsideOutsideArray )
-    {
+  {
     this->InsideOutsideArray->Delete();
-    }
+  }
 
   if ( this->CellLocator )
-    {
+  {
     vtkCellLocator *loc = this->CellLocator;
     this->CellLocator = NULL;
     loc->Delete();
-    }
+  }
 
   this->CellIds->Delete();
   this->Cell->Delete();
@@ -91,18 +91,18 @@ int vtkSelectEnclosedPoints::RequestData(
 
   // If requested, check that the surface is closed
   if ( this->CheckSurface && ! this->IsSurfaceClosed(surface) )
-    {
+  {
     return 0;
-    }
+  }
 
   // Initiailize search structures
   this->Initialize(surface);
 
   // Create array to mark inside/outside
   if ( this->InsideOutsideArray )
-    {
+  {
     this->InsideOutsideArray->Delete();
-    }
+  }
   this->InsideOutsideArray = vtkUnsignedCharArray::New();
   vtkUnsignedCharArray *marks = this->InsideOutsideArray;
   marks->SetName("SelectedPointsArray");
@@ -116,24 +116,24 @@ int vtkSelectEnclosedPoints::RequestData(
   int abort=0;
   vtkIdType progressInterval=numPts/20+1;
   for ( ptId=0; ptId < numPts && !abort; ptId++ )
-    {
+  {
     if ( ! (ptId % progressInterval) ) //manage progress / early abort
-      {
+    {
       this->UpdateProgress ((double)ptId / numPts);
       abort = this->GetAbortExecute();
-      }
+    }
 
     input->GetPoint(ptId,x);
 
     if ( this->IsInsideSurface(x) )
-      {
+    {
       marks->SetValue(ptId,(this->InsideOut?0:1));
-      }
-    else
-      {
-      marks->SetValue(ptId,(this->InsideOut?1:0));
-      }
     }
+    else
+    {
+      marks->SetValue(ptId,(this->InsideOut?1:0));
+    }
+  }
 
   // Copy all the input geometry and data to the output.
   output->CopyStructure(input);
@@ -169,22 +169,22 @@ int vtkSelectEnclosedPoints::IsSurfaceClosed(vtkPolyData *surface)
   checker->Delete();
 
   if ( numCells > 0 )
-    {
+  {
     return 0;
-    }
+  }
   else
-    {
+  {
     return 1;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkSelectEnclosedPoints::Initialize(vtkPolyData *surface)
 {
   if ( ! this->CellLocator )
-    {
+  {
     this->CellLocator = vtkCellLocator::New();
-    }
+  }
 
   this->Surface = surface;
   surface->GetBounds(this->Bounds);
@@ -200,13 +200,13 @@ int vtkSelectEnclosedPoints::IsInside(vtkIdType inputPtId)
 {
   if ( !this->InsideOutsideArray ||
        this->InsideOutsideArray->GetValue(inputPtId) == 0 )
-    {
+  {
     return 0;
-    }
+  }
   else
-    {
+  {
     return 1;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -229,9 +229,9 @@ int vtkSelectEnclosedPoints::IsInsideSurface(double x[3])
   if ( x[0] < this->Bounds[0] || x[0] > this->Bounds[1] ||
        x[1] < this->Bounds[2] || x[1] > this->Bounds[3] ||
        x[2] < this->Bounds[4] || x[2] > this->Bounds[5])
-    {
+  {
     return 0;
-    }
+  }
 
   //  Perform in/out by shooting random rays. Multiple rays are fired
   //  to improve accuracy of the result.
@@ -254,24 +254,24 @@ int vtkSelectEnclosedPoints::IsInsideSurface(double x[3])
   for (deltaVotes = 0, iterNumber = 1;
        (iterNumber < VTK_MAX_ITER) && (abs(deltaVotes) < VTK_VOTE_THRESHOLD);
        iterNumber++)
-    {
+  {
     //  Define a random ray to fire.
     rayMag = 0.0;
     while (rayMag == 0.0 )
-      {
+    {
       for (i=0; i<3; i++)
-        {
+      {
         ray[i] = vtkMath::Random(-1.0,1.0);
-        }
-      rayMag = vtkMath::Norm(ray);
       }
+      rayMag = vtkMath::Norm(ray);
+    }
 
     // The ray must be appropriately sized wrt the bounding box. (It has to go
     // all the way through the bounding box.)
     for (i=0; i<3; i++)
-      {
+    {
       xray[i] = x[i] + (this->Length/rayMag)*ray[i];
-      }
+    }
 
     // Retrieve the candidate cells from the locator
     this->CellLocator->FindCellsAlongLine(x,xray,tol,this->CellIds);
@@ -280,24 +280,24 @@ int vtkSelectEnclosedPoints::IsInsideSurface(double x[3])
     numInts = 0;
     numCells = this->CellIds->GetNumberOfIds();
     for ( idx=0; idx < numCells; idx++ )
-      {
+    {
       this->Surface->GetCell(this->CellIds->GetId(idx), this->Cell);
       if ( this->Cell->IntersectWithLine(x, xray, tol, t, xint, pcoords, subId) )
-        {
+      {
         numInts++;
-        }
-      } //for all candidate cells
+      }
+    } //for all candidate cells
 
     // Count the result
     if ( (numInts % 2) == 0)
-      {
+    {
       --deltaVotes;
-      }
+    }
     else
-      {
+    {
       ++deltaVotes;
-      }
-    } //try another ray
+    }
+  } //try another ray
 
   //   If the number of votes is positive, the point is inside
   //
@@ -335,9 +335,9 @@ vtkPolyData* vtkSelectEnclosedPoints::GetSurface(vtkInformationVector *sourceInf
 {
   vtkInformation *info = sourceInfo->GetInformationObject(1);
   if (!info)
-    {
+  {
     return NULL;
-    }
+  }
   return vtkPolyData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
 }
 
@@ -345,15 +345,15 @@ vtkPolyData* vtkSelectEnclosedPoints::GetSurface(vtkInformationVector *sourceInf
 int vtkSelectEnclosedPoints::FillInputPortInformation(int port, vtkInformation *info)
 {
   if (port == 0)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
-    }
+  }
   else if (port == 1)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 0);
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 0);
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
-    }
+  }
 
   return 1;
 }

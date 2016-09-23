@@ -74,64 +74,64 @@ int vtkCellLocatorInterpolatedVelocityField::FunctionValues
   vtkAbstractCellLocator * loc = NULL;
 
   if( !this->LastDataSet && !this->DataSets->empty() )
-    {
+  {
     vds = ( *this->DataSets )[0];
     loc = ( *this->CellLocators )[0].GetPointer();
     this->LastDataSet      = vds;
     this->LastCellLocator  = loc;
     this->LastDataSetIndex = 0;
-    }
+  }
   else
-    {
+  {
     vds = this->LastDataSet;
     loc = this->LastCellLocator;
-    }
+  }
 
   int retVal;
   if ( loc )
-    {
+  {
     // resort to vtkAbstractCellLocator::FindCell()
     retVal = this->FunctionValues( vds, loc, x, f );
-    }
+  }
   else
-    {
+  {
     // turn to vtkImageData/vtkRectilinearGrid::FindCell()
     retVal = this->FunctionValues( vds, x, f );
-    }
+  }
 
   if ( !retVal )
-    {
+  {
     for( this->LastDataSetIndex = 0;
          this->LastDataSetIndex < static_cast<int>( this->DataSets->size() );
          this->LastDataSetIndex ++ )
-      {
+    {
       vds = this->DataSets->operator[]( this->LastDataSetIndex );
       loc = this->CellLocators->operator[]( this->LastDataSetIndex ).GetPointer();
       if( vds && vds != this->LastDataSet )
-        {
+      {
         this->ClearLastCellId();
 
         if ( loc )
-          {
+        {
           // resort to vtkAbstractCellLocator::FindCell()
           retVal = this->FunctionValues( vds, loc, x, f );
-          }
+        }
         else
-          {
+        {
           // turn to vtkImageData/vtkRectilinearGrid::FindCell()
           retVal = this->FunctionValues( vds, x, f );
-          }
+        }
 
         if ( retVal )
-          {
+        {
           this->LastDataSet     = vds;
           this->LastCellLocator = loc;
           vds = NULL;
           loc = NULL;
           return retVal;
-          }
         }
       }
+    }
 
     this->LastCellId       = -1;
     this->LastDataSet      = ( *this->DataSets )[0];
@@ -140,7 +140,7 @@ int vtkCellLocatorInterpolatedVelocityField::FunctionValues
     vds = NULL;
     loc = NULL;
     return 0;
-    }
+  }
 
   vds = NULL;
   loc = NULL;
@@ -159,11 +159,11 @@ int vtkCellLocatorInterpolatedVelocityField::FunctionValues
                            ->GetVectors( this->VectorsSelection )
         )
      )
-    {
+  {
     vtkErrorMacro( <<"Can't evaluate dataset!" );
     vectors = NULL;
     return  0;
-    }
+  }
 
   int    i;
   int    subIdx;
@@ -180,38 +180,38 @@ int vtkCellLocatorInterpolatedVelocityField::FunctionValues
        this->GenCell->EvaluatePosition
              ( x, 0, subIdx, this->LastPCoords, dstns2, this->Weights ) == 1
      )
-    {
+  {
     bFound = 1;
     this->CacheHit ++;
-    }
+  }
 
   if ( !bFound )
-    {
+  {
     // cache missing or evaluation failure and then we have to find the cell
     this->CacheMiss += !(  !( this->LastCellId + 1 )  );
     this->LastCellId = loc->FindCell( x, toler2, this->GenCell,
                                       this->LastPCoords, this->Weights );
     bFound = !(  !( this->LastCellId + 1 )  );
-    }
+  }
 
   // interpolate vectors if possible
   if ( bFound )
-    {
+  {
     numPts = this->GenCell->GetNumberOfPoints();
     for ( i = 0; i < numPts; i ++ )
-      {
+    {
       pntIdx = this->GenCell->PointIds->GetId( i );
       vectors->GetTuple( pntIdx, vector );
       f[0] += vector[0] * this->Weights[i];
       f[1] += vector[1] * this->Weights[i];
       f[2] += vector[2] * this->Weights[i];
-      }
+    }
 
     if ( this->NormalizeVector == true )
-      {
+    {
       vtkMath::Normalize( f );
-      }
     }
+  }
 
   vectors = NULL;
   return  bFound;
@@ -221,10 +221,10 @@ int vtkCellLocatorInterpolatedVelocityField::FunctionValues
 void vtkCellLocatorInterpolatedVelocityField::AddDataSet( vtkDataSet * dataset )
 {
   if ( !dataset )
-    {
+  {
     vtkErrorMacro( <<"Dataset NULL!" );
     return;
-    }
+  }
 
   // insert the dataset (do NOT register the dataset to 'this')
   this->DataSets->push_back( dataset );
@@ -239,29 +239,29 @@ void vtkCellLocatorInterpolatedVelocityField::AddDataSet( vtkDataSet * dataset )
   // location via vtkImageData/vtkRectilinearGrid::FindCell().
   vtkSmartPointer< vtkAbstractCellLocator > locator = 0; // MUST inited with 0
   if (  dataset->IsA( "vtkPointSet" )  )
-    {
+  {
 
     if ( !this->CellLocatorPrototype )
-      {
+    {
       locator = vtkSmartPointer < vtkModifiedBSPTree >::New();
-      }
+    }
     else
-      {
+    {
       locator.TakeReference( this->CellLocatorPrototype->NewInstance() );
-      }
+    }
 
     locator->SetLazyEvaluation( 1 );
     locator->SetDataSet( dataset );
-    }
+  }
   this->CellLocators->push_back( locator );
 
   int  size = dataset->GetMaxCellSize();
   if ( size > this->WeightsSize )
-    {
+  {
     this->WeightsSize = size;
     delete[] this->Weights;
     this->Weights = new double[size];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -271,12 +271,12 @@ void vtkCellLocatorInterpolatedVelocityField::CopyParameters
   vtkAbstractInterpolatedVelocityField::CopyParameters( from );
 
   if (  from->IsA( "vtkCellLocatorInterpolatedVelocityField" )  )
-    {
+  {
     this->SetCellLocatorPrototype
           (  vtkCellLocatorInterpolatedVelocityField::SafeDownCast( from )
              ->GetCellLocatorPrototype()
           );
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -286,9 +286,9 @@ void vtkCellLocatorInterpolatedVelocityField::PrintSelf( ostream & os, vtkIndent
 
   os << indent << "CellLocators: "     << this->CellLocators     << endl;
   if ( this->CellLocators )
-    {
+  {
     os << indent << "Number of Cell Locators: " << this->CellLocators->size();
-    }
+  }
   os << indent << "LastCellLocator: "      << this->LastCellLocator      << endl;
   os << indent << "CellLocatorPrototype: " << this->CellLocatorPrototype << endl;
 }

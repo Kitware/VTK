@@ -49,9 +49,9 @@ vtkXMLHyperOctreeWriter::vtkXMLHyperOctreeWriter()
 vtkXMLHyperOctreeWriter::~vtkXMLHyperOctreeWriter()
 {
   if (this->TopologyArray)
-    {
+  {
     this->TopologyArray->Delete();
-    }
+  }
   delete this->TopologyOM;
   delete this->PointDataOM;
   delete this->CellDataOM;
@@ -94,36 +94,36 @@ int vtkXMLHyperOctreeWriter::WriteData()
 {
   //write XML header and VTK file header and file attributes
   if (!this->StartFile())
-    {
+  {
     return 0;
-    }
+  }
 
   vtkIndent indent = vtkIndent().GetNextIndent();
 
   if (!this->StartPrimElement(indent))
-    {
+  {
     return 0;
-    }
+  }
 
   if (!this->WriteTopology(indent.GetNextIndent()))
-    {
+  {
     return 0;
-    }
+  }
 
   if (!this->WriteAttributeData(indent.GetNextIndent()))
-    {
+  {
     return 0;
-    }
+  }
 
   this->WriteFieldData(indent.GetNextIndent());
 
   if (!this->FinishPrimElement(indent))
-    {
+  {
     return 0;
-    }
+  }
 
   if (this->GetDataMode() == vtkXMLWriter::Appended)
-    {
+  {
 
     float progressRange[2] = { 0.f, 0.f };
     this->GetProgressRange(progressRange);
@@ -160,15 +160,15 @@ int vtkXMLHyperOctreeWriter::WriteData()
     this->WriteFieldDataAppendedData(this->GetInput()->GetFieldData(), 0, this->FieldDataOM);
 
     this->EndAppendedData();
-    }
+  }
 
   this->TopologyArray->Delete();
   this->TopologyArray = NULL;
 
   if (!this->EndFile())
-    {
+  {
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -195,9 +195,9 @@ void vtkXMLHyperOctreeWriter::WritePrimaryElementAttributes(ostream &os, vtkInde
 int vtkXMLHyperOctreeWriter::WriteTopology(vtkIndent indent)
 {
   if (this->TopologyArray)
-    {
+  {
     this->TopologyArray->Delete();
-    }
+  }
   this->TopologyArray = vtkIntArray::New();
   this->TopologyArray->SetNumberOfComponents(1);
 
@@ -221,32 +221,32 @@ int vtkXMLHyperOctreeWriter::WriteTopology(vtkIndent indent)
   os << indent << "<" << "Topology" << ">\n";
   os.flush();
   if (os.fail())
-    {
+  {
     this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
     return 0;
-    }
+  }
   //...,1) to save length of array for easy recovery by reader
 
   if (this->GetDataMode() == vtkXMLWriter::Appended)
-    {
+  {
     this->WriteArrayAppended(this->TopologyArray,
       indent.GetNextIndent(),
       this->TopologyOM->GetElement(0),
       "Topology", 1, 0);
-    }
+  }
   else
-    {
+  {
     this->WriteArrayInline(this->TopologyArray,
       indent.GetNextIndent(), "Topology", 1);
-    }
+  }
 
   os << indent << "</" << "Topology" << ">\n";
   os.flush();
   if (os.fail())
-    {
+  {
     this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
     return 0;
-    }
+  }
 
   cursor->Delete();
   return 1;
@@ -257,10 +257,10 @@ void vtkXMLHyperOctreeWriter::SerializeTopology(
   vtkHyperOctreeCursor *cursor, int nchildren)
 {
   if (cursor->CurrentIsLeaf())
-    {
+  {
     //this node is a leaf, we must stop now
     this->TopologyArray->InsertNextValue(1);
-    }
+  }
   /*
   else if (cursor->CurrentIsTerminalNode())
     {
@@ -270,20 +270,20 @@ void vtkXMLHyperOctreeWriter::SerializeTopology(
     }
   */
   else
-    {
+  {
     //this node has 'nchildren' children,
     //some of which are internal nodes, so we must continue down
     this->TopologyArray->InsertNextValue(0);
 
     int i = 0;
     while (i < nchildren)
-      {
+    {
       cursor->ToChild(i);
       this->SerializeTopology(cursor, nchildren);
       cursor->ToParent();
       ++i;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -304,31 +304,31 @@ int vtkXMLHyperOctreeWriter::WriteAttributeData(vtkIndent indent)
   this->SetProgressRange(progressRange, 0, fractions);
 
   if (this->GetDataMode() == vtkXMLWriter::Appended)
-    {
+  {
     this->WritePointDataAppended(
       input->GetPointData(), indent, this->PointDataOM);
-    }
+  }
   else
-    {
+  {
     this->WritePointDataInline(input->GetPointData(), indent);
-    }
+  }
 
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return 0;
-    }
+  }
 
   // Set the range of progress for the cell data arrays.
   this->SetProgressRange(progressRange, 1, fractions);
   if (this->GetDataMode() == vtkXMLWriter::Appended)
-    {
+  {
     this->WriteCellDataAppended(
       input->GetCellData(), indent, this->CellDataOM);
-    }
+  }
   else
-    {
+  {
     this->WriteCellDataInline(input->GetCellData(), indent);
-    }
+  }
 
   return 1;
 }
@@ -342,9 +342,9 @@ int vtkXMLHyperOctreeWriter::FinishPrimElement(vtkIndent indent)
   os << indent << "</" << this->GetDataSetName() << ">\n";
   os.flush();
   if (os.fail())
-    {
+  {
     this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
     return 0;
-    }
+  }
   return 1;
 }

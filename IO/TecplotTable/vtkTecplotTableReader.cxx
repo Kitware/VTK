@@ -102,14 +102,14 @@ public:
   {
     // Ensure that all table columns have the same length ...
     for(vtkIdType i = 0; i != this->OutputTable->GetNumberOfColumns(); ++i)
-      {
+    {
       if(this->OutputTable->GetColumn(i)->GetNumberOfTuples() !=
           this->OutputTable->GetColumn(0)->GetNumberOfTuples())
-        {
+      {
         this->OutputTable->GetColumn(i)
             ->Resize(this->OutputTable->GetColumn(0)->GetNumberOfTuples());
-        }
       }
+    }
   }
 
   DelimitedTextIterator& operator++(int) VTK_OVERRIDE
@@ -126,45 +126,45 @@ public:
   void ReachedEndOfInput()
   {
     if(this->CurrentField.empty())
-      {
+    {
       return;
-      }
+    }
     vtkUnicodeString::value_type value =
         this->CurrentField[this->CurrentField.character_count()-1];
     if(!this->RecordDelimiters.count(value) && !this->Whitespace.count(value))
-      {
+    {
       this->InsertField();
-      }
+    }
   }
 
   DelimitedTextIterator& operator=(const vtkUnicodeString::value_type value) VTK_OVERRIDE
   {
     // If we've already read our maximum number of records, we're done ...
     if(this->MaxRecords && this->CurrentRecordIndex == this->MaxRecordIndex)
-      {
+    {
       return *this;
-      }
+    }
 
     // Strip adjacent record delimiters and whitespace...
     if(this->RecordAdjacent && (this->RecordDelimiters.count(value) ||
                                 this->Whitespace.count(value)))
-      {
+    {
       return *this;
-      }
+    }
     else
-      {
+    {
       this->RecordAdjacent = false;
-      }
+    }
 
     // Look for record delimiters ...
     if(this->RecordDelimiters.count(value))
-      {
+    {
       // keep skipping until column names line
       if (this->CurrentRecordIndex < ColumnNamesOnLine)
-        {
+      {
         this->CurrentRecordIndex += 1;
         return *this;
-        }
+      }
 
       this->InsertField();
       this->CurrentRecordIndex += 1;
@@ -174,19 +174,19 @@ public:
       this->WithinString = 0;
       this->WhiteSpaceOnlyString = true;
       return *this;
-      }
+    }
 
     if (this->CurrentRecordIndex < ColumnNamesOnLine)
-      {
+    {
       return *this; // keep skipping until column names line
-      }
+    }
 
     // Look for field delimiters unless we're in a string ...
     if(!this->WithinString && this->FieldDelimiters.count(value))
-      {
+    {
       // Handle special case of merging consective delimiters ...
       if( !(this->CurrentField.empty() && this->MergeConsDelims) )
-        {
+      {
           if (!(this->CurrentFieldIndex < SkipColumnNames && this->CurrentRecordIndex == ColumnNamesOnLine))
           //if (!(this->CurrentFieldIndex == 0 && this->CurrentRecordIndex == 1))
           {
@@ -194,87 +194,87 @@ public:
           }
         this->CurrentFieldIndex += 1;
         this->CurrentField.clear();
-        }
-      return *this;
       }
+      return *this;
+    }
 
     // Check for start of escape sequence ...
     if(!this->ProcessEscapeSequence && this->EscapeDelimiter.count(value))
-      {
+    {
       this->ProcessEscapeSequence = true;
       return *this;
-      }
+    }
 
     // Process escape sequence ...
     if(this->ProcessEscapeSequence)
-      {
+    {
       vtkUnicodeString curr_char;
       curr_char += value;
       if(curr_char == vtkUnicodeString::from_utf8("0"))
-        {
+      {
         this->CurrentField += vtkUnicodeString::from_utf8("\0");
-        }
+      }
       else if(curr_char == vtkUnicodeString::from_utf8("a"))
-        {
+      {
         this->CurrentField += vtkUnicodeString::from_utf8("\a");
-        }
+      }
       else if(curr_char == vtkUnicodeString::from_utf8("b"))
-        {
+      {
         this->CurrentField += vtkUnicodeString::from_utf8("\b");
-        }
+      }
       else if(curr_char == vtkUnicodeString::from_utf8("t"))
-        {
+      {
         this->CurrentField += vtkUnicodeString::from_utf8("\t");
-        }
+      }
       else if(curr_char == vtkUnicodeString::from_utf8("n"))
-        {
+      {
         this->CurrentField += vtkUnicodeString::from_utf8("\n");
-        }
+      }
       else if(curr_char == vtkUnicodeString::from_utf8("v"))
-        {
+      {
         this->CurrentField += vtkUnicodeString::from_utf8("\v");
-        }
+      }
       else if(curr_char == vtkUnicodeString::from_utf8("f"))
-        {
+      {
         this->CurrentField += vtkUnicodeString::from_utf8("\f");
-        }
+      }
       else if(curr_char == vtkUnicodeString::from_utf8("r"))
-        {
+      {
         this->CurrentField += vtkUnicodeString::from_utf8("\r");
-        }
+      }
       else if(curr_char == vtkUnicodeString::from_utf8("\\"))
-        {
+      {
         this->CurrentField += vtkUnicodeString::from_utf8("\\");
-        }
+      }
       else
-        {
+      {
         this->CurrentField += value;
-        }
+      }
       this->ProcessEscapeSequence = false;
       return *this;
-      }
+    }
 
     // Start a string ...
     if(!this->WithinString && this->StringDelimiters.count(value) &&
         this->UseStringDelimiter)
-      {
+    {
       this->WithinString = value;
       this->CurrentField.clear();
       return *this;
-      }
+    }
 
     // End a string ...
     if(this->WithinString && (this->WithinString == value) &&
         this->UseStringDelimiter)
-      {
+    {
       this->WithinString = 0;
       return *this;
-      }
+    }
 
     if(!this->Whitespace.count(value))
-      {
+    {
       this->WhiteSpaceOnlyString = false;
-      }
+    }
     // Keep growing the current field ...
     this->CurrentField += value;
     return *this;
@@ -285,20 +285,20 @@ private:
   {
     vtkIdType fieldIndex = this->CurrentFieldIndex;
     if (this->CurrentRecordIndex == ColumnNamesOnLine)
-      {
+    {
       fieldIndex -= SkipColumnNames;
-      }
+    }
 
     if(fieldIndex >= this->OutputTable->GetNumberOfColumns() && ColumnNamesOnLine == this->CurrentRecordIndex)
-      {
+    {
       vtkDoubleArray* array = vtkDoubleArray::New();
 
       array->SetName(this->CurrentField.utf8_str());
       this->OutputTable->AddColumn(array);
       array->Delete();
-      }
+    }
     else if(fieldIndex < this->OutputTable->GetNumberOfColumns())
-      {
+    {
       // Handle case where input file has header information ...
       vtkIdType recordIndex;
       recordIndex = this->CurrentRecordIndex - HeaderLines;
@@ -309,14 +309,14 @@ private:
       bool ok;
       double doubleValue = vtkVariant(str).ToDouble(&ok);
       if (ok)
-        {
+      {
         array->InsertValue(recordIndex, doubleValue);
-        }
-      else
-        {
-        array->InsertValue(recordIndex, std::numeric_limits<double>::quiet_NaN());
-        }
       }
+      else
+      {
+        array->InsertValue(recordIndex, std::numeric_limits<double>::quiet_NaN());
+      }
+    }
   }
 
   vtkIdType MaxRecords;
@@ -403,36 +403,36 @@ int vtkTecplotTableReader::RequestData(
   this->LastError = "";
 
   try
-    {
+  {
     // We only retrieve one piece ...
     vtkInformation* const outInfo = outputVector->GetInformationObject(0);
     if(outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) &&
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
-      {
+    {
       return 1;
-      }
+    }
 
     if (!this->PedigreeIdArrayName)
-      {
+    {
       vtkErrorMacro(<<"You must specify a pedigree id array name");
       return 0;
-      }
+    }
 
     istream* input_stream_pt = NULL;
     ifstream file_stream;
 
     // If the filename hasn't been specified, we're done ...
     if(!this->FileName)
-      {
+    {
       return 1;
-      }
+    }
     // Get the total size of the input file in bytes
     file_stream.open(this->FileName, ios::binary);
     if(!file_stream.good())
-      {
+    {
       vtkErrorMacro(<<"Unable to open input file" << std::string(this->FileName));
       return 0;
-      }
+    }
 
     file_stream.seekg(0, ios::end);
     file_stream.seekg(0, ios::beg);
@@ -441,10 +441,10 @@ int vtkTecplotTableReader::RequestData(
     vtkTextCodec* transCodec = vtkTextCodecFactory::CodecToHandle(*input_stream_pt);
 
     if (NULL == transCodec)
-      {
+    {
       // should this use the locale instead??
       return 1;
-      }
+    }
 
     DelimitedTextIterator iterator(
       output_table,
@@ -460,51 +460,51 @@ int vtkTecplotTableReader::RequestData(
     transCodec->Delete();
 
     if(this->OutputPedigreeIds)
-      {
+    {
       vtkAbstractArray *arr =
         output_table->GetColumnByName(this->PedigreeIdArrayName);
 
       if (this->GeneratePedigreeIds || !arr)
-        {
+      {
         vtkSmartPointer<vtkIdTypeArray> pedigreeIds =
           vtkSmartPointer<vtkIdTypeArray>::New();
         vtkIdType numRows = output_table->GetNumberOfRows();
         pedigreeIds->SetNumberOfTuples(numRows);
         pedigreeIds->SetName(this->PedigreeIdArrayName);
         for (vtkIdType i = 0; i < numRows; ++i)
-          {
-          pedigreeIds->InsertValue(i, i);
-          }
-        output_table->GetRowData()->SetPedigreeIds(pedigreeIds);
-        }
-      else
         {
+          pedigreeIds->InsertValue(i, i);
+        }
+        output_table->GetRowData()->SetPedigreeIds(pedigreeIds);
+      }
+      else
+      {
         if (arr)
-          {
+        {
           output_table->GetRowData()->SetPedigreeIds(arr);
-          }
+        }
         else
-          {
+        {
           vtkErrorMacro(<< "Could not find pedigree id array: " << std::string(this->PedigreeIdArrayName));
           return 0;
-          }
         }
       }
     }
+  }
   catch(std::exception& e)
-    {
+  {
     vtkErrorMacro(<< "caught exception: " << e.what());
     this->LastError = e.what();
     output_table->Initialize();
     return 0;
-    }
+  }
   catch(...)
-    {
+  {
     vtkErrorMacro(<< "caught unknown exception.");
     this->LastError = "Unknown exception.";
     output_table->Initialize();
     return 0;
-    }
+  }
 
   return 1;
 }

@@ -31,17 +31,17 @@
   { \
   std::string expectedMsg(msg); \
   if (!observer->GetError()) \
-    { \
+  { \
     std::cout << "Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
-    } \
+  } \
   else \
-    { \
+  { \
     std::string gotMsg(observer->GetErrorMessage()); \
     if (gotMsg.find(expectedMsg) == std::string::npos) \
-      { \
+    { \
       std::cout << "Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-      } \
     } \
+  } \
   } \
   observer->Clear()
 
@@ -79,22 +79,22 @@ int vtkSeedRepresentationTest1(int , char * [] )
   double e[2] ={ 10.0, 10.0};
   int numSeeds = 10;
   for (int n = 0; n < numSeeds; n++)
-    {
+  {
     int handleNum = node1->CreateHandle(e);
     std::cout << "Created handle number " << handleNum << std::endl;
     e[0] -= 1.0;
     e[1] += 1.0;
-    }
+  }
   std::cout << "Number of Seeds = " << node1->GetNumberOfSeeds() << std::endl;
 
   node1->SetSeedDisplayPosition(s, pos);
   node1->GetSeedDisplayPosition(s, pos2);
   if (pos2[0] != pos[0] ||
       pos2[1] != pos[1])
-    {
+  {
     std::cerr << "Error in Set/Get Seed display position " << s << ", expected " << pos[0] << ", " << pos[1] << ", instead got " << pos2[0] << ", " << pos2[1] << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   node1->GetSeedWorldPosition(s, pos2);
   std::cout << "Get Seed world position " << s << " = " << pos2[0] << ", " << pos2[1] <<  ", " << pos2[2] << std::endl;
@@ -103,16 +103,16 @@ int vtkSeedRepresentationTest1(int , char * [] )
   handleRep2 = vtkPointHandleRepresentation3D::SafeDownCast(node1->GetHandleRepresentation());
   if (handleRep2 == NULL ||
       handleRep2 != handleRep)
-    {
+  {
     std::cerr << "Error in Set/Get handle rep at top level." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   handleRep2 =  vtkPointHandleRepresentation3D::SafeDownCast(node1->GetHandleRepresentation(0));
   if (handleRep2 == NULL)
-    {
+  {
     std::cerr << "Error in Set/Get handle rep 0." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // clamped 1,100
   TEST_SET_GET_INT_RANGE(node1, Tolerance, 2, 99);

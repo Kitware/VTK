@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkShortArray - dynamic, self-adjusting array of short
-// .SECTION Description
-// vtkShortArray is an array of values of type short.  It provides
-// methods for insertion and retrieval of values and will
-// automatically resize itself to hold new data.
-//
-// The C++ standard does not define the exact size of the short type,
-// so use of this type directly is discouraged.  If an array of 16 bit
-// integers is needed, prefer vtkTypeInt16Array to this class.
+/**
+ * @class   vtkShortArray
+ * @brief   dynamic, self-adjusting array of short
+ *
+ * vtkShortArray is an array of values of type short.  It provides
+ * methods for insertion and retrieval of values and will
+ * automatically resize itself to hold new data.
+ *
+ * The C++ standard does not define the exact size of the short type,
+ * so use of this type directly is discouraged.  If an array of 16 bit
+ * integers is needed, prefer vtkTypeInt16Array to this class.
+*/
 
 #ifndef vtkShortArray_h
 #define vtkShortArray_h
@@ -50,19 +53,22 @@ public:
   vtkCreateWrappedArrayInterface(short);
 #endif
 
-  // Description:
-  // A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+  /**
+   * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+   */
   static vtkShortArray* FastDownCast(vtkAbstractArray *source)
   {
     return static_cast<vtkShortArray*>(Superclass::FastDownCast(source));
   }
 
-  // Description:
-  // Get the minimum data value in its native type.
+  /**
+   * Get the minimum data value in its native type.
+   */
   static short GetDataTypeValueMin() { return VTK_SHORT_MIN; }
 
-  // Description:
-  // Get the maximum data value in its native type.
+  /**
+   * Get the maximum data value in its native type.
+   */
   static short GetDataTypeValueMax() { return VTK_SHORT_MAX; }
 
 protected:

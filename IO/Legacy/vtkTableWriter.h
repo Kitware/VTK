@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTableWriter - write vtkTable to a file
-// .SECTION Description
-// vtkTableWriter is a sink object that writes ASCII or binary
-// vtkTable data files in vtk format. See text for format details.
-// .SECTION Caveats
-// Binary files written on one system may not be readable on other systems.
+/**
+ * @class   vtkTableWriter
+ * @brief   write vtkTable to a file
+ *
+ * vtkTableWriter is a sink object that writes ASCII or binary
+ * vtkTable data files in vtk format. See text for format details.
+ * @warning
+ * Binary files written on one system may not be readable on other systems.
+*/
 
 #ifndef vtkTableWriter_h
 #define vtkTableWriter_h
@@ -33,10 +36,13 @@ public:
   vtkTypeMacro(vtkTableWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the input to this writer.
+  //@{
+  /**
+   * Get the input to this writer.
+   */
   vtkTable* GetInput();
   vtkTable* GetInput(int port);
+  //@}
 
 protected:
   vtkTableWriter() {}

@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCompositePolyDataMapper2 - mapper for composite dataset consisting
-// of polygonal data.
-// .SECTION Description
-// vtkCompositePolyDataMapper2 is similar to vtkCompositePolyDataMapper except
-// that instead of creating individual mapper for each block in the composite
-// dataset, it iterates over the blocks internally.
+/**
+ * @class   vtkCompositePolyDataMapper2
+ * @brief   mapper for composite dataset consisting
+ * of polygonal data.
+ *
+ * vtkCompositePolyDataMapper2 is similar to vtkCompositePolyDataMapper except
+ * that instead of creating individual mapper for each block in the composite
+ * dataset, it iterates over the blocks internally.
+*/
 
 #ifndef vtkCompositePolyDataMapper2_h
 #define vtkCompositePolyDataMapper2_h
@@ -35,77 +38,96 @@ public:
   vtkTypeMacro(vtkCompositePolyDataMapper2, vtkPainterPolyDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Returns if the mapper does not expect to have translucent geometry. This
-  // may happen when using ScalarMode is set to not map scalars i.e. render the
-  // scalar array directly as colors and the scalar array has opacity i.e. alpha
-  // component. Note that even if this method returns true, an actor may treat
-  // the geometry as translucent since a constant translucency is set on the
-  // property, for example.
-  // Overridden to use the actual data and ScalarMode to determine if we have
-  // opaque geometry.
+  /**
+   * Returns if the mapper does not expect to have translucent geometry. This
+   * may happen when using ScalarMode is set to not map scalars i.e. render the
+   * scalar array directly as colors and the scalar array has opacity i.e. alpha
+   * component. Note that even if this method returns true, an actor may treat
+   * the geometry as translucent since a constant translucency is set on the
+   * property, for example.
+   * Overridden to use the actual data and ScalarMode to determine if we have
+   * opaque geometry.
+   */
   virtual bool GetIsOpaque();
 
-  // Description:
-  // Set/get the composite data set attributes.
+  //@{
+  /**
+   * Set/get the composite data set attributes.
+   */
   void SetCompositeDataDisplayAttributes(vtkCompositeDataDisplayAttributes *attributes);
   vtkCompositeDataDisplayAttributes* GetCompositeDataDisplayAttributes();
+  //@}
 
-  // Description:
-  // Set/get the visibility for a block given its flat index.
+  //@{
+  /**
+   * Set/get the visibility for a block given its flat index.
+   */
   void SetBlockVisibility(unsigned int index, bool visible);
   bool GetBlockVisibility(unsigned int index) const;
   void RemoveBlockVisibility(unsigned int index);
   void RemoveBlockVisibilites();
+  //@}
 
-  // Description:
-  // Set/get the color for a block given its flat index.
+  //@{
+  /**
+   * Set/get the color for a block given its flat index.
+   */
   void SetBlockColor(unsigned int index, double color[3]);
   void SetBlockColor(unsigned int index, double r, double g, double b)
-    {
+  {
     double color[3] = {r, g, b};
     this->SetBlockColor(index, color);
-    }
+  }
   double* GetBlockColor(unsigned int index);
   void RemoveBlockColor(unsigned int index);
   void RemoveBlockColors();
+  //@}
 
-  // Description:
-  // Set/get the opacity for a block given its flat index.
+  //@{
+  /**
+   * Set/get the opacity for a block given its flat index.
+   */
   void SetBlockOpacity(unsigned int index, double opacity);
   double GetBlockOpacity(unsigned int index);
   void RemoveBlockOpacity(unsigned int index);
   void RemoveBlockOpacities();
+  //@}
 
 protected:
   vtkCompositePolyDataMapper2();
   ~vtkCompositePolyDataMapper2();
 
-  // Description:
-  // We need to override this method because the standard streaming
-  // demand driven pipeline is not what we want - we are expecting
-  // hierarchical data as input
+  /**
+   * We need to override this method because the standard streaming
+   * demand driven pipeline is not what we want - we are expecting
+   * hierarchical data as input
+   */
   vtkExecutive* CreateDefaultExecutive();
 
-  // Description:
-  // Need to define the type of data handled by this mapper.
+  /**
+   * Need to define the type of data handled by this mapper.
+   */
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
-  // Description:
-  // Need to loop over the hierarchy to compute bounds
+  /**
+   * Need to loop over the hierarchy to compute bounds
+   */
   virtual void ComputeBounds();
 
-  // Description:
-  // Called when the PainterInformation becomes obsolete. Overridden to pass
-  // CompositeDataDisplayAttributes to the painters.
+  /**
+   * Called when the PainterInformation becomes obsolete. Overridden to pass
+   * CompositeDataDisplayAttributes to the painters.
+   */
   virtual void UpdatePainterInformation();
 
-  // Description:
-  // Time stamp for computation of bounds.
+  /**
+   * Time stamp for computation of bounds.
+   */
   vtkTimeStamp BoundsMTime;
 
-  // Description:
-  // Composite data set attributes.
+  /**
+   * Composite data set attributes.
+   */
   vtkSmartPointer<vtkCompositeDataDisplayAttributes> CompositeAttributes;
 
   vtkPainter* SelectionCompositePainter;

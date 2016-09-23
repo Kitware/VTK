@@ -35,40 +35,40 @@
 vtkActor* makeActor( const char* type, const char* material )
 {
   if( !type && !material )
-    {
+  {
     return NULL;
-    }
+  }
 
   cout << "\t" << material << endl;
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
   mapper->ImmediateModeRenderingOn();
 
   if( strcmp(type,"sphere")==0 )
-    {
+  {
     vtkTexturedSphereSource *sphere = vtkTexturedSphereSource::New();
     sphere->SetThetaResolution(25);
     sphere->SetPhiResolution(25);
     mapper->SetInputConnection(sphere->GetOutputPort());
     sphere->Delete();
-    }
+  }
   else if( strcmp(type,"cube")==0 )
-    {
+  {
     vtkCubeSource *cube= vtkCubeSource::New();
     mapper->SetInputConnection(cube->GetOutputPort());
     cube->Delete();
-    }
+  }
   else if( strcmp(type,"cylinder")==0 )
-    {
+  {
     vtkCylinderSource *cylinder= vtkCylinderSource::New();
     mapper->SetInputConnection(cylinder->GetOutputPort());
     cylinder->Delete();
-    }
+  }
   else if( strcmp(type,"plane")==0 )
-    {
+  {
     vtkPlaneSource *plane= vtkPlaneSource::New();
     mapper->SetInputConnection(plane->GetOutputPort());
     plane->Delete();
-    }
+  }
 
 
   vtkActor *actor = vtkActor::New();
@@ -107,16 +107,16 @@ vtkActor* makeActor( const char* type, const char* material )
 void gridLayoutActors( std::vector<vtkActor*> actors )
 {
   if( (int)actors.size() <= 1 )
-    {
+  {
     return;
-    }
+  }
 
   double bounds[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
   std::vector<vtkActor*>::iterator it = actors.begin();
   std::vector<vtkActor*>::iterator itEnd = actors.end();
   while( it != itEnd )
-    {
+  {
     // move to the origin
     (*it)->SetPosition( 0.0, 0.0, 0.0 );
     double *b = (*it)->GetBounds();
@@ -132,7 +132,7 @@ void gridLayoutActors( std::vector<vtkActor*> actors )
     if( b[4]<bounds[4] ) bounds[4] = b[4];
     if( b[5]>bounds[5] ) bounds[5] = b[5];
     it++;
-    }
+  }
 
   double step[3] = {1.25 * (bounds[1]-bounds[0]),
                     1.25 * (bounds[3]-bounds[2]),
@@ -141,19 +141,19 @@ void gridLayoutActors( std::vector<vtkActor*> actors )
 
   double dim = ceil( pow( (double)actors.size(), 0.5 ) );
   for( int i=0; i<dim; i++ )
-    {
+  {
     for( int j=0; j<dim; j++ )
-      {
+    {
       int id = i*(int)dim+j;
       if( (id) < (int)actors.size() )
-        {
+      {
 #if 0
         if(i>0)
-          {
+        {
           actors[id]->RotateX(15.0 * i );
           actors[id]->RotateY(15.0 * j);
           actors[id]->RotateZ(15.0);
-          }
+        }
 #endif
         actors[id]->AddPosition( i*step[0], j*step[1], 0.0 );
 #if 0
@@ -162,19 +162,19 @@ void gridLayoutActors( std::vector<vtkActor*> actors )
         cout << actors[id]->GetPosition()[1] << " , ";
         cout << actors[id]->GetPosition()[2] << endl;
 #endif
-        }
       }
+    }
 #if 0
     cout << endl;
 #endif
-    }
+  }
 }
 
 int main(int argc, char* argv[])
 {
 #if 0
   if( argc == 1 )
-    {
+  {
     cout << "Syntax: MaterialObjects obj0 material0 obj1 material1...objN materialN" << endl;
     cout << "\tobji may be one of : arrow - vtkArrowSource" << endl;
     cout << "                       cone - vtkConeSource" << endl;
@@ -194,7 +194,7 @@ int main(int argc, char* argv[])
     cout << "                       texturedSphere - vtkPlatonicSolidSource" << endl;
     cout << "                       superQuadratic - vtkPlatonicSolidSource" << endl;
     cout << "\tmateriali may be any material in VTK/Utilities/Materials." << endl;
-    }
+  }
 #endif
 
   cout << "Syntax: MaterialObjects material0 material1 ... materialn" << endl;
@@ -207,32 +207,32 @@ int main(int argc, char* argv[])
   int i = 0;
 
   for( i=1; i<argc; i++ )
-    {
+  {
     if( count==0 )
-      {
+    {
       geom.push_back( i );
       numActors++;
       count++;
-      }
+    }
     else if( count==1 )
-      {
+    {
       mat.push_back( i );
       count = 0;
-      }
     }
+  }
 
   std::vector<vtkActor*> actors;
   i = 0;
   for( i=0; i<numActors; i++ )
-    {
+  {
     if( i < (int)geom.size() && i < (int)mat.size() )
-      {
+    {
       if( geom[i] < argc && mat[i] < argc )
-        {
+      {
         actors.push_back( makeActor(argv[geom[i]],argv[mat[i]]) );
-        }
       }
     }
+  }
 
   // layout actore in a grid
   gridLayoutActors( actors );
@@ -253,10 +253,10 @@ int main(int argc, char* argv[])
   std::vector<vtkActor*>::iterator it = actors.begin();
   std::vector<vtkActor*>::iterator itEnd = actors.end();
   while( it != itEnd )
-    {
+  {
     ren1->AddActor(*it);
     it++;
-    }
+  }
 
   ren1->SetBackground(0.1, 0.2, 0.4);
   renWin->SetSize(400, 200);
@@ -298,14 +298,14 @@ int main(int argc, char* argv[])
   count = 0;
   it = actors.begin();
   while( it != itEnd )
-    {
+  {
     cout << "Actor " << count << " : " << (*it)->GetPosition()[0] << ", "
                                        << (*it)->GetPosition()[1] << ", "
                                        << (*it)->GetPosition()[2] << endl;
     (*it)->Delete();
     it++;
     count++;
-    }
+  }
 #endif
 
   ren1->Delete();

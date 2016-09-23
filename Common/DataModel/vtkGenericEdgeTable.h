@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGenericEdgeTable - keep track of edges (defined by pair of integer id's)
-// .SECTION Description
-// vtkGenericEdgeTable is used to indicate the existence of and hold
-// information about edges. Similar to vtkEdgeTable, this class is
-// more sophisticated in that it uses reference counting to keep track
-// of when information about an edge should be deleted.
-//
-// vtkGenericEdgeTable is a helper class used in the adaptor framework.  It
-// is used during the tessellation process to hold information about the
-// error metric on each edge. This avoids recomputing the error metric each
-// time the same edge is visited.
+/**
+ * @class   vtkGenericEdgeTable
+ * @brief   keep track of edges (defined by pair of integer id's)
+ *
+ * vtkGenericEdgeTable is used to indicate the existence of and hold
+ * information about edges. Similar to vtkEdgeTable, this class is
+ * more sophisticated in that it uses reference counting to keep track
+ * of when information about an edge should be deleted.
+ *
+ * vtkGenericEdgeTable is a helper class used in the adaptor framework.  It
+ * is used during the tessellation process to hold information about the
+ * error metric on each edge. This avoids recomputing the error metric each
+ * time the same edge is visited.
+*/
 
 #ifndef vtkGenericEdgeTable_h
 #define vtkGenericEdgeTable_h
@@ -36,88 +39,111 @@ class vtkEdgeTablePoints;
 class VTKCOMMONDATAMODEL_EXPORT vtkGenericEdgeTable : public vtkObject
 {
 public:
-  // Description:
-  // Instantiate an empty edge table.
+  /**
+   * Instantiate an empty edge table.
+   */
   static vtkGenericEdgeTable *New();
 
-  // Description:
-  // Standard VTK type and print macros.
+  //@{
+  /**
+   * Standard VTK type and print macros.
+   */
   vtkTypeMacro(vtkGenericEdgeTable,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  //@}
 
-  // Description:
-  // Split the edge with the indicated point id.
+  /**
+   * Split the edge with the indicated point id.
+   */
   void InsertEdge(vtkIdType e1, vtkIdType e2, vtkIdType cellId,
                   int ref, vtkIdType &ptId );
 
-  // Description:
-  // Insert an edge but do not split it.
+  /**
+   * Insert an edge but do not split it.
+   */
   void InsertEdge(vtkIdType e1, vtkIdType e2, vtkIdType cellId, int ref = 1 );
 
-  // Description:
-  // Method to remove an edge from the table. The method returns the
-  // current reference count.
+  /**
+   * Method to remove an edge from the table. The method returns the
+   * current reference count.
+   */
   int RemoveEdge(vtkIdType e1, vtkIdType e2);
 
-  // Description:
-  // Method to determine whether an edge is in the table (0 or 1), or not (-1).
-  // It returns whether the edge was split (1) or not (0),
-  // and the point id exists.
+  /**
+   * Method to determine whether an edge is in the table (0 or 1), or not (-1).
+   * It returns whether the edge was split (1) or not (0),
+   * and the point id exists.
+   */
   int CheckEdge(vtkIdType e1, vtkIdType e2, vtkIdType &ptId);
 
-  // Description:
-  // Method that increments the referencecount and returns it.
+  /**
+   * Method that increments the referencecount and returns it.
+   */
   int IncrementEdgeReferenceCount(vtkIdType e1, vtkIdType e2,
                                   vtkIdType cellId);
 
-  // Description:
-  // Return the edge reference count.
+  /**
+   * Return the edge reference count.
+   */
   int CheckEdgeReferenceCount(vtkIdType e1, vtkIdType e2);
 
-  // Description:
-  // To specify the starting point id. It will initialize LastPointId
-  // This is very sensitive the start point should be cautiously chosen
+  /**
+   * To specify the starting point id. It will initialize LastPointId
+   * This is very sensitive the start point should be cautiously chosen
+   */
   void Initialize(vtkIdType start);
 
-  // Description:
-  // Return the total number of components for the point-centered attributes.
-  // \post positive_result: result>0
+  /**
+   * Return the total number of components for the point-centered attributes.
+   * \post positive_result: result>0
+   */
   int GetNumberOfComponents();
 
-  // Description:
-  // Set the total number of components for the point-centered attributes.
-  // \pre positive_count: count>0
+  /**
+   * Set the total number of components for the point-centered attributes.
+   * \pre positive_count: count>0
+   */
   void SetNumberOfComponents(int count);
 
-  // Description:
-  // Check if a point is already in the point table.
+  /**
+   * Check if a point is already in the point table.
+   */
   int CheckPoint(vtkIdType ptId);
 
-  // Description:
-  // Check for the existence of a point and return its coordinate value.
-  // \pre scalar_size: sizeof(scalar)==this->GetNumberOfComponents()
+  /**
+   * Check for the existence of a point and return its coordinate value.
+   * \pre scalar_size: sizeof(scalar)==this->GetNumberOfComponents()
+   */
   int CheckPoint(vtkIdType ptId, double point[3], double *scalar);
 
-  // Description:
-  // Insert point associated with an edge.
+  //@{
+  /**
+   * Insert point associated with an edge.
+   */
   void InsertPoint(vtkIdType ptId, double point[3]);
   // \pre: sizeof(s)==GetNumberOfComponents()
   void InsertPointAndScalar(vtkIdType ptId, double pt[3], double *s);
+  //@}
 
-  // Description:
-  // Remove a point from the point table.
+  /**
+   * Remove a point from the point table.
+   */
   void RemovePoint(vtkIdType ptId);
 
-  // Description:
-  // Increment the reference count for the indicated point.
+  /**
+   * Increment the reference count for the indicated point.
+   */
   void IncrementPointReferenceCount(vtkIdType ptId );
 
-  // Description:
-  // For debugging purposes. It is particularly useful to dump the table
-  // and check that nothing is left after a complete iteration. LoadFactor
-  // should ideally be very low to be able to have a constant time access
+  //@{
+  /**
+   * For debugging purposes. It is particularly useful to dump the table
+   * and check that nothing is left after a complete iteration. LoadFactor
+   * should ideally be very low to be able to have a constant time access
+   */
   void DumpTable();
   void LoadFactor();
+  //@}
 
 class PointEntry
 {
@@ -129,18 +155,19 @@ public:
 
   int Reference;  //signed char
 
-  // Description:
-  // Constructor with a scalar field of `size' doubles.
-  // \pre positive_number_of_components: size>0
+  /**
+   * Constructor with a scalar field of `size' doubles.
+   * \pre positive_number_of_components: size>0
+   */
   PointEntry(int size);
 
   ~PointEntry()
-    {
+  {
       delete[] this->Scalar;
-    }
+  }
 
   PointEntry(const PointEntry &other)
-    {
+  {
     this->PointId  = other.PointId;
 
     memcpy(this->Coord,other.Coord,sizeof(double)*3);
@@ -150,12 +177,12 @@ public:
     this->Scalar = new double[c];
     memcpy(this->Scalar, other.Scalar, sizeof(double)*c);
     this->Reference = other.Reference;
-    }
+  }
 
   PointEntry& operator=(const PointEntry &other)
-    {
+  {
     if(this != &other)
-      {
+    {
       this->PointId  = other.PointId;
 
       memcpy(this->Coord, other.Coord, sizeof(double)*3);
@@ -163,16 +190,16 @@ public:
       int c = other.numberOfComponents;
 
       if(this->numberOfComponents!=c)
-        {
+      {
         delete[] this->Scalar;
         this->Scalar = new double[c];
         this->numberOfComponents = c;
-        }
+      }
       memcpy(this->Scalar, other.Scalar, sizeof(double)*c);
       this->Reference = other.Reference;
-      }
-    return *this;
     }
+    return *this;
+  }
 };
 
 class EdgeEntry
@@ -187,14 +214,14 @@ public:
   vtkIdType CellId; //CellId the edge refer to at a step in tesselation
 
   EdgeEntry()
-    {
+  {
     this->Reference = 0;
     this->CellId = -1;
-    }
+  }
   ~EdgeEntry() {}
 
   EdgeEntry(const EdgeEntry& copy)
-    {
+  {
     this->E1 = copy.E1;
     this->E2 = copy.E2;
 
@@ -202,14 +229,14 @@ public:
     this->ToSplit = copy.ToSplit;
     this->PtId = copy.PtId;
     this->CellId = copy.CellId;
-    }
+  }
 
   EdgeEntry& operator=(const EdgeEntry& entry)
-    {
+  {
     if(this == &entry)
-      {
+    {
       return *this;
-      }
+    }
     this->E1 = entry.E1;
     this->E2 = entry.E2;
     this->Reference = entry.Reference;
@@ -217,15 +244,16 @@ public:
     this->PtId = entry.PtId;
     this->CellId = entry.CellId;
     return *this;
-    }
+  }
 };
 
 protected:
   vtkGenericEdgeTable();
   ~vtkGenericEdgeTable() VTK_OVERRIDE;
 
-  // Description:
-  // Split the edge with the indicated point id.
+  /**
+   * Split the edge with the indicated point id.
+   */
   void InsertEdge(vtkIdType e1, vtkIdType e2, vtkIdType cellId,
                   int ref, int toSplit, vtkIdType &ptId );
 

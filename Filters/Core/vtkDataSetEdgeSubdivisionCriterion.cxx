@@ -89,7 +89,7 @@ double* vtkDataSetEdgeSubdivisionCriterion::EvaluateFields( double* vertex, doub
   const int* offsets = this->GetFieldOffsets();
 
   for ( int f=0; f<this->GetNumberOfFields(); ++f )
-    {
+  {
     // Do the magic of evaluating either:
     //  - the nodal (linear or quadratic) fields here
     //  - the cell (constant or linear) fields here
@@ -98,7 +98,7 @@ double* vtkDataSetEdgeSubdivisionCriterion::EvaluateFields( double* vertex, doub
       this->EvaluateCellDataField( vertex + field_start + offsets[f], weights, -(1+fields[f]) );
     else
       this->EvaluatePointDataField( vertex + field_start + offsets[f], weights, fields[f] );
-    }
+  }
   return vertex;
 }
 
@@ -112,11 +112,11 @@ void vtkDataSetEdgeSubdivisionCriterion::EvaluatePointDataField( double* result,
   for ( j=0; j<nc; ++j )
     result[j] = 0.;
   for ( i=0; i<npts; ++i )
-    {
+  {
     double* tuple = array->GetTuple( ptIds->GetId(i) );
     for ( j=0; j<nc; ++j )
       result[j] += weights[i]*tuple[j];
-    }
+  }
 }
 
 void vtkDataSetEdgeSubdivisionCriterion::EvaluateCellDataField( double* result, double* vtkNotUsed(weights), int field )
@@ -146,24 +146,24 @@ bool vtkDataSetEdgeSubdivisionCriterion::EvaluateEdge( const double* p0, double*
   double tmp;
   int c;
   for ( c = 0; c < 3; ++c )
-    {
+  {
     tmp = midpt[c] - realMidPt[c];
     chord2 += tmp * tmp;
-    }
+  }
 
   bool rval = chord2 > this->ChordError2;
   if ( rval )
-    {
+  {
     for ( c = 0; c < 3; ++c )
       midpt[c] = realMidPt[c];
 
     this->EvaluateFields( midpt, weights, field_start );
     return true;
-    }
+  }
 
   int active = this->GetActiveFieldCriteria();
   if ( active )
-    {
+  {
     double real_pf[6+vtkStreamingTessellator::MaxFieldSize];
     std::copy( midpt, midpt + field_start, real_pf );
     this->EvaluateFields( real_pf, weights, field_start );
@@ -177,10 +177,10 @@ bool vtkDataSetEdgeSubdivisionCriterion::EvaluateEdge( const double* p0, double*
       << "   p1 " <<      p1[13] << ", " <<      p1[14] << ", " <<      p1[15] << endl;
 #endif
     if ( rval )
-      {
+    {
       std::copy( real_pf+field_start, real_pf+field_start+this->FieldOffsets[this->NumberOfFields], midpt+field_start );
-      }
     }
+  }
 
   return rval;
 }
@@ -188,18 +188,18 @@ bool vtkDataSetEdgeSubdivisionCriterion::EvaluateEdge( const double* p0, double*
 void vtkDataSetEdgeSubdivisionCriterion::SetFieldError2( int s, double err )
 {
   if ( s < this->FieldError2Length )
-    {
+  {
     if  ( this->FieldError2[s] == err )
       return; // no change
-    }
+  }
   else
-    {
+  {
     if ( err <= 0. )
       return; // no need to allocate more memory to store an unused value
-    }
+  }
 
   if ( this->FieldError2Capacity <= s )
-    {
+  {
     int nc = this->FieldError2Capacity;
     while ( nc <= s )
       nc <<= 1;
@@ -209,18 +209,18 @@ void vtkDataSetEdgeSubdivisionCriterion::SetFieldError2( int s, double err )
     delete [] this->FieldError2;
     this->FieldError2 = tmp;
     this->FieldError2Capacity = nc;
-    }
+  }
   for ( int j=this->FieldError2Length; j<s; ++j )
     this->FieldError2[j] = -1.;
   this->FieldError2Length = this->FieldError2Length > s ? this->FieldError2Length : s + 1;
 
   if ( s < int(sizeof(int)*8)  && s >= 0 )
-    {
+  {
     if ( err > 0. )
       this->ActiveFieldCriteria = this->ActiveFieldCriteria | (1<<s);
     else
       this->ActiveFieldCriteria = this->ActiveFieldCriteria & ~(1<<s);
-    }
+  }
 
   this->FieldError2[s] = err;
   this->Modified();

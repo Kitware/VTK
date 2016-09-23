@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLFileReadTester - Utility class for vtkXMLReader and subclasses.
-// .SECTION Description
-// vtkXMLFileReadTester reads the smallest part of a file necessary to
-// determine whether it is a VTK XML file.  If so, it extracts the
-// file type and version number.
+/**
+ * @class   vtkXMLFileReadTester
+ * @brief   Utility class for vtkXMLReader and subclasses.
+ *
+ * vtkXMLFileReadTester reads the smallest part of a file necessary to
+ * determine whether it is a VTK XML file.  If so, it extracts the
+ * file type and version number.
+*/
 
 #ifndef vtkXMLFileReadTester_h
 #define vtkXMLFileReadTester_h
@@ -31,25 +34,35 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLFileReadTester* New();
 
-  // Description:
-  // Try to read the file given by FileName.  Returns 1 if the file is
-  // a VTK XML file, and 0 otherwise.
+  /**
+   * Try to read the file given by FileName.  Returns 1 if the file is
+   * a VTK XML file, and 0 otherwise.
+   */
   int TestReadFile();
 
-  // Description:
-  // Get/Set the name of the file tested by TestReadFile().
+  //@{
+  /**
+   * Get/Set the name of the file tested by TestReadFile().
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Get the data type of the XML file tested.  If the file could not
-  // be read, returns NULL.
+  //@{
+  /**
+   * Get the data type of the XML file tested.  If the file could not
+   * be read, returns NULL.
+   */
   vtkGetStringMacro(FileDataType);
+  //@}
 
-  // Description:
-  // Get the file version of the XML file tested.  If the file could not
-  // be read, returns NULL.
+  //@{
+  /**
+   * Get the file version of the XML file tested.  If the file could not
+   * be read, returns NULL.
+   */
   vtkGetStringMacro(FileVersion);
+  //@}
 
 protected:
   vtkXMLFileReadTester();

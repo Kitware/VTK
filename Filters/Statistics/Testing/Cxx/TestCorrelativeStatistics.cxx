@@ -113,12 +113,12 @@ int TestCorrelativeStatistics( int, char *[] )
   dataset3Arr->SetName( "M2" );
 
   for ( int i = 0; i < nVals1; ++ i )
-    {
+  {
     int ti = i << 1;
     dataset1Arr->InsertNextValue( mingledData[ti] );
     dataset2Arr->InsertNextValue( mingledData[ti + 1] );
     dataset3Arr->InsertNextValue( -1. );
-    }
+  }
 
   vtkTable* datasetTable1 = vtkTable::New();
   datasetTable1->AddColumn( dataset1Arr );
@@ -192,44 +192,44 @@ int TestCorrelativeStatistics( int, char *[] )
 
   cout << "## Calculated the following primary statistics for first data set:\n";
   for ( vtkIdType r = 0; r < outputPrimary1->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << "   ";
     for ( int i = 0; i < outputPrimary1->GetNumberOfColumns(); ++ i )
-      {
+    {
       cout << outputPrimary1->GetColumnName( i )
            << "="
            << outputPrimary1->GetValue( r, i ).ToString()
            << "  ";
-      }
+    }
 
     // Verify some of the calculated primary statistics
     double testMeanX = outputPrimary1->GetValueByName( r, "Mean X" ).ToDouble();
     if ( fabs ( testMeanX - meansX1[r] ) > 1.e-6 )
-      {
+    {
       vtkGenericWarningMacro("Incorrect mean for X");
       testStatus = 1;
-      }
+    }
 
     double testMeanY = outputPrimary1->GetValueByName( r, "Mean Y" ).ToDouble();
     if ( fabs ( testMeanY - meansY1[r] ) > 1.e-6 )
-      {
+    {
       vtkGenericWarningMacro("Incorrect mean for Y");
       testStatus = 1;
-      }
-    cout << "\n";
     }
+    cout << "\n";
+  }
 
   cout << "\n## Calculated the following derived statistics for first data set:\n";
   for ( vtkIdType r = 0; r < outputDerived1->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << "   ";
     for ( int i = 0; i < outputDerived1->GetNumberOfColumns(); ++ i )
-      {
+    {
       cout << outputDerived1->GetColumnName( i )
            << "="
            << outputDerived1->GetValue( r, i ).ToString()
            << "  ";
-      }
+    }
 
     // Verify some of the calculated derived statistics
     double testMeanX = outputPrimary1->GetValueByName( r, "Mean X" ).ToDouble();
@@ -237,88 +237,88 @@ int TestCorrelativeStatistics( int, char *[] )
 
     double testVarX = outputDerived1->GetValueByName( r, "Variance X" ).ToDouble();
     if ( fabs ( testVarX - varsX1[r] ) > 1.e-5 )
-      {
+    {
       vtkGenericWarningMacro("Incorrect variance for X");
       testStatus = 1;
-      }
+    }
 
     double testVarY = outputDerived1->GetValueByName( r, "Variance Y" ).ToDouble();
     if ( fabs ( testVarY - varsY1[r] ) > 1.e-5 )
-      {
+    {
       vtkGenericWarningMacro("Incorrect variance for Y");
       testStatus = 1;
-      }
+    }
 
     double testCovariance = outputDerived1->GetValueByName( r, "Covariance" ).ToDouble();
     if ( fabs ( testCovariance - covariances1[r] ) > 1.e-5 )
-      {
+    {
       vtkGenericWarningMacro("Incorrect covariance");
       testStatus = 1;
-      }
+    }
 
     double testPearsonR = outputDerived1->GetValueByName( r, "Pearson r" ).ToDouble();
     // Special treatment as some values of Pearson r are Nan, resulting in an exception on VS for <
     vtkTypeBool isNanTest = vtkMath::IsNan( testPearsonR );
     vtkTypeBool isNanCorr = vtkMath::IsNan( correlations1[r] );
     if ( isNanTest || isNanCorr )
-      {
+    {
       if ( isNanTest != isNanCorr )
-        {
+      {
         vtkGenericWarningMacro("Incorrect correlation coefficient");
         testStatus = 1;
-        }
       }
+    }
     else if ( fabs ( testPearsonR - correlations1[r] ) > 1.e-6 )
-      {
+    {
       vtkGenericWarningMacro("Incorrect correlation coefficient");
       testStatus = 1;
-      }
+    }
 
     // Test regression lines if linear regression is valid
     if ( outputDerived1->GetValueByName( r, "Linear Correlation").ToString() == "valid" )
-      {
+    {
       double testSlopeYX = outputDerived1->GetValueByName( r, "Slope Y/X" ).ToDouble();
       double testInterceptYX = outputDerived1->GetValueByName( r, "Intercept Y/X" ).ToDouble();
       if ( fabs ( testSlopeYX * testMeanX + testInterceptYX - testMeanY ) > 1.e-8 )
-        {
+      {
         vtkGenericWarningMacro("Incorrect linear regression of Y on X");
         testStatus = 1;
-        }
+      }
 
       double testSlopeXY = outputDerived1->GetValueByName( r, "Slope X/Y" ).ToDouble();
       double testInterceptXY = outputDerived1->GetValueByName( r, "Intercept X/Y" ).ToDouble();
       if ( fabs ( testSlopeXY * testMeanY + testInterceptXY - testMeanX ) > 1.e-8 )
-        {
+      {
         vtkGenericWarningMacro("Incorrect linear regression of X on Y");
         testStatus = 1;
-        }
       }
+    }
 
     cout << "\n";
-    }
+  }
 
   // Check some results of the Test option
   cout << "\n## Calculated the following Jarque-Bera-Srivastava statistics:\n";
   for ( vtkIdType r = 0; r < outputTest1->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << "   ";
     for ( int i = 0; i < outputTest1->GetNumberOfColumns(); ++ i )
-      {
+    {
       cout << outputTest1->GetColumnName( i )
            << "="
            << outputTest1->GetValue( r, i ).ToString()
            << "  ";
-      }
+    }
 
     cout << "\n";
-    }
+  }
 
   // Search for outliers to check results of Assess option
   cout << "\n## Searching for outliers with respect to various criteria:\n";
   int assessIdx[] = { 3, 4, 5 };
   int testIntValue[] = { 3, 3, 4 };
   for ( int i = 0; i < 3; ++ i )
-    {
+  {
     cerr << "   For |"
          <<  outputData1->GetColumnName( assessIdx[i] )
          << "| > "
@@ -328,10 +328,10 @@ int TestCorrelativeStatistics( int, char *[] )
     int nOutliers = 0;
 
     for ( vtkIdType r = 0; r < outputData1->GetNumberOfRows(); ++ r )
-      {
+    {
       double assessed = outputData1->GetValue( r, assessIdx[i] ).ToDouble();
       if ( fabs( assessed ) > threshold[i] )
-        {
+      {
         ++ nOutliers;
 
         cout << "     ("
@@ -341,20 +341,20 @@ int TestCorrelativeStatistics( int, char *[] )
              << "): "
            << assessed
              << "\n";
-        }
-      } // r
+      }
+    } // r
 
     // Verify that number of found outliers is correct
     if ( nOutliers != testIntValue[i] )
-      {
+    {
       vtkGenericWarningMacro("Expected "
                              <<testIntValue[i]
                              <<" outliers, found "
                              << nOutliers
                              << ".");
       testStatus = 1;
-      }
     }
+  }
 
   // Test with a slight variation of initial data set (to test model aggregation)
   int nVals2 = 32;
@@ -372,12 +372,12 @@ int TestCorrelativeStatistics( int, char *[] )
   dataset6Arr->SetName( "M2" );
 
   for ( int i = 0; i < nVals2; ++ i )
-    {
+  {
     int ti = i << 1;
     dataset4Arr->InsertNextValue( mingledData[ti] + 1. );
     dataset5Arr->InsertNextValue( mingledData[ti + 1] );
     dataset6Arr->InsertNextValue( 1. );
-    }
+  }
 
   vtkTable* datasetTable2 = vtkTable::New();
   datasetTable2->AddColumn( dataset4Arr );
@@ -393,9 +393,9 @@ int TestCorrelativeStatistics( int, char *[] )
 
   // Select all valid column pairs as pairs of interest
   for ( int i = 0; i< nMetricPairs; ++ i )
-    {
+  {
     cs2->AddColumnPair( columnPairs[2 * i], columnPairs[ 2 * i + 1] );
-    }
+  }
 
   // Update with Learn option only
   cs2->SetLearnOption( true );
@@ -410,17 +410,17 @@ int TestCorrelativeStatistics( int, char *[] )
 
   cout << "\n## Calculated the following primary statistics for second data set:\n";
   for ( vtkIdType r = 0; r < outputPrimary2->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << "   ";
     for ( int i = 0; i < outputPrimary2->GetNumberOfColumns(); ++ i )
-      {
+    {
       cout << outputPrimary2->GetColumnName( i )
            << "="
            << outputPrimary2->GetValue( r, i ).ToString()
            << "  ";
-      }
-    cout << "\n";
     }
+    cout << "\n";
+  }
 
   // Test model aggregation by adding new data to engine which already has a model
   cs1->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2 );
@@ -459,69 +459,69 @@ int TestCorrelativeStatistics( int, char *[] )
 
   cout << "\n## Calculated the following primary statistics for aggregated (first + second) data set:\n";
   for ( vtkIdType r = 0; r < outputPrimary1->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << "   ";
     for ( int i = 0; i < outputPrimary1->GetNumberOfColumns(); ++ i )
-      {
+    {
       cout << outputPrimary1->GetColumnName( i )
            << "="
            << outputPrimary1->GetValue( r, i ).ToString()
            << "  ";
-      }
+    }
 
     // Verify some of the calculated primary statistics
     if ( outputPrimary1->GetValueByName( r, "Cardinality" ).ToInt() != nVals1 + nVals2 )
-      {
+    {
       vtkGenericWarningMacro("Incorrect cardinality");
       testStatus = 1;
-      }
+    }
 
     if ( fabs ( outputPrimary1->GetValueByName( r, "Mean X" ).ToDouble() - meansX0[r] ) > 1.e-6 )
-      {
+    {
       vtkGenericWarningMacro("Incorrect mean for X");
       testStatus = 1;
-      }
+    }
 
     if ( fabs ( outputPrimary1->GetValueByName( r, "Mean Y" ).ToDouble() - meansY0[r] ) > 1.e-6 )
-      {
+    {
       vtkGenericWarningMacro("Incorrect mean for Y");
       testStatus = 1;
-      }
-    cout << "\n";
     }
+    cout << "\n";
+  }
 
   cout << "\n## Calculated the following derived statistics for aggregated (first + second) data set:\n";
   for ( vtkIdType r = 0; r < outputDerived1->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << "   ";
     for ( int i = 0; i < outputDerived1->GetNumberOfColumns(); ++ i )
-      {
+    {
       cout << outputDerived1->GetColumnName( i )
            << "="
            << outputDerived1->GetValue( r, i ).ToString()
            << "  ";
-      }
+    }
 
     // Verify some of the calculated derived statistics
     if ( fabs ( outputDerived1->GetValueByName( r, "Variance X" ).ToDouble() - varsX0[r] ) > 1.e-5 )
-      {
+    {
       vtkGenericWarningMacro("Incorrect variance for X");
       testStatus = 1;
-      }
+    }
 
     if ( fabs ( outputDerived1->GetValueByName( r, "Variance Y" ).ToDouble() - varsY0[r] ) > 1.e-5 )
-      {
+    {
       vtkGenericWarningMacro("Incorrect variance for Y");
       testStatus = 1;
-      }
+    }
 
     if ( fabs ( outputDerived1->GetValueByName( r, "Pearson r" ).ToDouble() - correlations0[r] ) > 1.e-6 )
-      {
+    {
       vtkGenericWarningMacro("Incorrect correlation coefficient");
       testStatus = 1;
-      }
-    cout << "\n";
     }
+    cout << "\n";
+  }
 
   // Clean up
   cs1->Delete();
@@ -579,7 +579,7 @@ int TestCorrelativeStatistics( int, char *[] )
   // Generate pseudo-random vectors
   double x, y, z1, z2, z3;
   for ( int i = 0; i < nVals; ++ i )
-    {
+  {
     x = vtkMath::Gaussian();
     y = vtkMath::Gaussian();
     z1 = rhoXZ1 * x + rorXZ1 * y;
@@ -593,7 +593,7 @@ int TestCorrelativeStatistics( int, char *[] )
     datasetUniform->InsertNextValue( vtkMath::Random() );
     double u = vtkMath::Random() - .5;
     datasetLaplace->InsertNextValue( ( u < 0. ? 1. : -1. ) * log ( 1. - 2. * fabs( u ) ) );
-    }
+  }
 
   vtkTable* testTable = vtkTable::New();
   testTable->AddColumn( datasetNormalX );
@@ -642,35 +642,35 @@ int TestCorrelativeStatistics( int, char *[] )
        << nVals
        << "):\n";
   for ( vtkIdType r = 0; r < outputPrimary4->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << "   ";
     for ( int i = 0; i < outputPrimary4->GetNumberOfColumns(); ++ i )
-      {
+    {
       cout << outputPrimary4->GetColumnName( i )
            << "="
            << outputPrimary4->GetValue( r, i ).ToString()
            << "  ";
-      }
+    }
 
     cout << "\n";
-    }
+  }
 
   cout << "\n## Calculated the following derived statistics for pseudo-random variables (n="
        << nVals
        << "):\n";
   for ( vtkIdType r = 0; r < outputDerived4->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << "   ";
     for ( int i = 0; i < outputDerived4->GetNumberOfColumns(); ++ i )
-      {
+    {
       cout << outputDerived4->GetColumnName( i )
            << "="
            << outputDerived4->GetValue( r, i ).ToString()
            << "  ";
-      }
+    }
 
     cout << "\n";
-    }
+  }
 
   // Check some results of the Test option
   cout << "\n## Calculated the following Jarque-Bera-Srivastava statistics for pseudo-random variables (n="
@@ -689,41 +689,41 @@ int TestCorrelativeStatistics( int, char *[] )
 
   // Loop over Test table
   for ( vtkIdType r = 0; r < outputTest4->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << "   ";
     for ( int c = 0; c < outputTest4->GetNumberOfColumns(); ++ c )
-      {
+    {
       cout << outputTest4->GetColumnName( c )
            << "="
            << outputTest4->GetValue( r, c ).ToString()
            << "  ";
-      }
+    }
 
 #ifdef USE_GNU_R
     // Check if null hypothesis is rejected at specified significance level
     double p = outputTest4->GetValueByName( r, "P" ).ToDouble();
     // Must verify that p value is valid (it is set to -1 if R has failed)
     if ( p > -1 && p < alpha )
-      {
+    {
       cout << "N.H. rejected";
 
       ++ nRejected;
-      }
+    }
 #endif // USE_GNU_R
 
     cout << "\n";
-    }
+  }
 
 #ifdef USE_GNU_R
   if ( nRejected < nNonGaussian )
-    {
+  {
     vtkGenericWarningMacro("Rejected only "
                            << nRejected
                            << " null hypotheses of binormality whereas "
                            << nNonGaussian
                            << " variable pairs are not Gaussian");
     testStatus = 1;
-    }
+  }
 #endif // USE_GNU_R
 
   // Clean up

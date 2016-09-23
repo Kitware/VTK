@@ -52,16 +52,16 @@ public:
   void OpenEngine()
   {
     if(this->ep)
-      {
+    {
       this->refcount++;
       return;
-      }
+    }
 
     if(!(this->ep = engOpen("\0")))
-      {
+    {
       cerr << endl << "Can't start MATLAB engine" << endl;
       return;
-      }
+    }
 
     engSetVisible(this->ep, 0);
     this->refcount++;
@@ -73,12 +73,12 @@ public:
     this->refcount--;
 
     if(this->refcount == 0)
-      {
+    {
       if(engClose(this->ep))
-        {
+      {
         cerr << "Can't shutdown MATLAB engine" << endl;
-        }
       }
+    }
   };
 
   int EngEvalString(const char* string)
@@ -159,10 +159,10 @@ vtkMatlabEngineSingleton* vtkMatlabEngineSingleton::Instance()
 {
 
   if(ins == 0)
-    {
+  {
     ins = new vtkMatlabEngineSingleton;
     destroyer.SetSingleton(ins);
-    }
+  }
 
   ins->OpenEngine();
   return(ins);
@@ -206,9 +206,9 @@ void vtkMatlabEngineInterface::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if(this->vmma)
-    {
+  {
     this->vmma->PrintSelf(os, indent);
-    }
+  }
 
 
 }
@@ -217,10 +217,10 @@ int vtkMatlabEngineInterface::EvalString(const char* string)
 {
 
   if(!this->meng->EngineOpen())
-    {
+  {
     cerr << "Matlab engine not open, cannot execute EvalString() command" << endl;
     return(1);
-    }
+  }
 
   return(this->meng->EngEvalString(string));
 
@@ -230,10 +230,10 @@ int vtkMatlabEngineInterface::PutVtkDataArray(const char* name, vtkDataArray* vd
 {
 
   if(!this->meng->EngineOpen())
-    {
+  {
     cerr << "Matlab engine not open, cannot execute PutVtkDataArray() command" << endl;
     return(1);
-    }
+  }
 
   mxArray* mxa = this->vmma->vtkDataArrayToMxArray(vda);
 
@@ -249,10 +249,10 @@ vtkDataArray* vtkMatlabEngineInterface::GetVtkDataArray(const char* name)
 {
 
   if(!this->meng->EngineOpen())
-    {
+  {
     cerr << "Matlab engine not open, cannot execute GetVtkDataArray() command" << endl;
     return(0);
-    }
+  }
 
   mxArray* mxa = meng->EngGetVariable(name);
 
@@ -269,10 +269,10 @@ int vtkMatlabEngineInterface::PutVtkArray(const char* name, vtkArray* vda)
 {
 
   if(!this->meng->EngineOpen())
-    {
+  {
     cerr << "Matlab engine not open, cannot execute PutVtkArray() command" << endl;
     return(1);
-    }
+  }
 
   mxArray* mxa = this->vmma->vtkArrayToMxArray(vda);
 
@@ -289,10 +289,10 @@ vtkArray* vtkMatlabEngineInterface::GetVtkArray(const char* name)
 {
 
   if(!this->meng->EngineOpen())
-    {
+  {
     cerr << "Matlab engine not open, cannot execute GetVtkArray() command" << endl;
     return(0);
-    }
+  }
 
   mxArray* mxa = meng->EngGetVariable(name);
 
@@ -308,10 +308,10 @@ int vtkMatlabEngineInterface::OutputBuffer(char* p, int n)
 {
 
   if(!this->meng->EngineOpen())
-    {
+  {
     cerr << "Matlab engine not open, cannot execute OuputBuffer() command" << endl;
     return(1);
-    }
+  }
 
   return(this->meng->EngOutputBuffer(p, n));
 
@@ -321,10 +321,10 @@ int vtkMatlabEngineInterface::SetVisibleOn()
 {
 
   if(!this->meng->EngineOpen())
-    {
+  {
     cerr << "Matlab engine not open, cannot execute SetVisibleOn() command" << endl;
     return(1);
-    }
+  }
 
   return(this->meng->EngSetVisible(1));
 
@@ -334,10 +334,10 @@ int vtkMatlabEngineInterface::SetVisibleOff()
 {
 
   if(!this->meng->EngineOpen())
-    {
+  {
     cerr << "Matlab engine not open, cannot execute SetVisibleOff() command" << endl;
     return(1);
-    }
+  }
 
   return(this->meng->EngSetVisible(0));
 

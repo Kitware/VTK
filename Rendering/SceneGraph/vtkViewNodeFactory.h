@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkViewNodeFactory - factory that chooses vtkViewNodes to create
-// .SECTION Description
-// Class tells VTK which specific vtkViewNode subclass to make when it is
-// asked to make a vtkViewNode for a particular renderable. modules for
-// different rendering backends are expected to use this to customize the
-// set of instances for their own purposes
+/**
+ * @class   vtkViewNodeFactory
+ * @brief   factory that chooses vtkViewNodes to create
+ *
+ * Class tells VTK which specific vtkViewNode subclass to make when it is
+ * asked to make a vtkViewNode for a particular renderable. modules for
+ * different rendering backends are expected to use this to customize the
+ * set of instances for their own purposes
+*/
 
 #ifndef vtkViewNodeFactory_h
 #define vtkViewNodeFactory_h
@@ -35,17 +38,20 @@ public:
   vtkTypeMacro(vtkViewNodeFactory, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //Description:
-  //Give a functin pointer to a class that will manufacture a
-  //vtkViewNode when given a class name string.
+  /**
+   * Give a functin pointer to a class that will manufacture a
+   * vtkViewNode when given a class name string.
+   */
   void RegisterOverride(const char *name, vtkViewNode *(*func)());
 
-  //Description:
-  //Creates and returns a vtkViewNode for the provided renderable.
+  /**
+   * Creates and returns a vtkViewNode for the provided renderable.
+   */
   vtkViewNode *CreateNode(vtkObject *);
 
-  //Description:
-  //Creates and returns a vtkViewNode for the provided class name.
+  /**
+   * Creates and returns a vtkViewNode for the provided class name.
+   */
   vtkViewNode *CreateNode(const char *);
 
 protected:

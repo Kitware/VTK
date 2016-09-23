@@ -34,9 +34,9 @@
 void FillArray( const int rank, const int size, double array[] )
 {
   for( int i=0; i < size; ++i )
-    {
+  {
     array[ i ] = (rank+1)*(i+1);
-    } // END for
+  } // END for
 }
 
 //------------------------------------------------------------------------------
@@ -55,12 +55,12 @@ int TestNonBlockingCommunication( int argc, char *argv[] )
   int Rank     = myController->GetLocalProcessId();
   int SendRank = (Rank==0)? 1 : 0;
   if( N != 2 )
-    {
+  {
     cerr << "This test must be run with 2 MPI processes!\n";
     myController->Finalize();
     myController->Delete();
     return(-1);
-    }
+  }
   assert("pre: N must be 2" && (N==2));
   assert("pre: Rank is out-of-bounds" && (Rank >= 0) && (Rank < N) );
 
@@ -88,23 +88,23 @@ int TestNonBlockingCommunication( int argc, char *argv[] )
 
   bool arraysMatch = true;
   for( int i=0; i < 10; ++i )
-    {
+  {
     if( !vtkMathUtilities::FuzzyCompare(rcvarray[i],expected[i]) )
-      {
+    {
       arraysMatch = false;
       break;
-      }
     }
+  }
   if( arraysMatch )
-    {
+  {
     cout << "RcvArray matches expected data!\n";
     cout.flush();
-    }
+  }
   else
-    {
+  {
     cout << "ERROR: rcvarray does not match expected data!\n";
     cout.flush();
-    }
+  }
   myController->Barrier();
 
   myController->Finalize();

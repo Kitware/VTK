@@ -13,15 +13,18 @@
 
 =========================================================================*/
 
-// .NAME vtkMatrixToHomogeneousTransform - convert a matrix to a transform
-// .SECTION Description
-// This is a very simple class which allows a vtkMatrix4x4 to be used in
-// place of a vtkHomogeneousTransform or vtkAbstractTransform.  For example,
-// if you use it as a proxy between a matrix and vtkTransformPolyDataFilter
-// then any modifications to the matrix will automatically be reflected in
-// the output of the filter.
-// .SECTION See Also
-// vtkPerspectiveTransform vtkMatrix4x4 vtkMatrixToLinearTransform
+/**
+ * @class   vtkMatrixToHomogeneousTransform
+ * @brief   convert a matrix to a transform
+ *
+ * This is a very simple class which allows a vtkMatrix4x4 to be used in
+ * place of a vtkHomogeneousTransform or vtkAbstractTransform.  For example,
+ * if you use it as a proxy between a matrix and vtkTransformPolyDataFilter
+ * then any modifications to the matrix will automatically be reflected in
+ * the output of the filter.
+ * @sa
+ * vtkPerspectiveTransform vtkMatrix4x4 vtkMatrixToLinearTransform
+*/
 
 #ifndef vtkMatrixToHomogeneousTransform_h
 #define vtkMatrixToHomogeneousTransform_h
@@ -43,17 +46,20 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkMatrixToHomogeneousTransform : public vtkHom
   virtual void SetInput(vtkMatrix4x4*);
   vtkGetObjectMacro(Input,vtkMatrix4x4);
 
-  // Description:
-  // The input matrix is left as-is, but the transformation matrix
-  // is inverted.
+  /**
+   * The input matrix is left as-is, but the transformation matrix
+   * is inverted.
+   */
   void Inverse() VTK_OVERRIDE;
 
-  // Description:
-  // Get the MTime: this is the bit of magic that makes everything work.
+  /**
+   * Get the MTime: this is the bit of magic that makes everything work.
+   */
   vtkMTimeType GetMTime() VTK_OVERRIDE;
 
-  // Description:
-  // Make a new transform of the same type.
+  /**
+   * Make a new transform of the same type.
+   */
   vtkAbstractTransform *MakeTransform() VTK_OVERRIDE;
 
 protected:

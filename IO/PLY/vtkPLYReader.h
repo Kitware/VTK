@@ -12,20 +12,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPLYReader - read Stanford University PLY polygonal file format
-// .SECTION Description
-// vtkPLYReader is a source object that reads polygonal data in
-// Stanford University PLY file format (see
-// http://graphics.stanford.edu/data/3Dscanrep). It requires that
-// the elements "vertex" and "face" are defined. The "vertex" element
-// must have the properties "x", "y", and "z". The "face" element must
-// have the property "vertex_indices" defined. Optionally, if the "face"
-// element has the properties "intensity" and/or the triplet "red",
-// "green", and "blue"; these are read and added as scalars to the
-// output data.
-
-// .SECTION See Also
-// vtkPLYWriter
+/**
+ * @class   vtkPLYReader
+ * @brief   read Stanford University PLY polygonal file format
+ *
+ * vtkPLYReader is a source object that reads polygonal data in
+ * Stanford University PLY file format (see
+ * http://graphics.stanford.edu/data/3Dscanrep). It requires that
+ * the elements "vertex" and "face" are defined. The "vertex" element
+ * must have the properties "x", "y", and "z". The "face" element must
+ * have the property "vertex_indices" defined. Optionally, if the "face"
+ * element has the properties "intensity" and/or the triplet "red",
+ * "green", and "blue"; these are read and added as scalars to the
+ * output data.
+ *
+ * @sa
+ * vtkPLYWriter
+*/
 
 #ifndef vtkPLYReader_h
 #define vtkPLYReader_h
@@ -39,12 +42,14 @@ public:
   vtkTypeMacro(vtkPLYReader,vtkAbstractPolyDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Construct object with merging set to true.
+  /**
+   * Construct object with merging set to true.
+   */
   static vtkPLYReader *New();
 
-  // Description:
-  // A simple, non-exhaustive check to see if a file is a valid ply file.
+  /**
+   * A simple, non-exhaustive check to see if a file is a valid ply file.
+   */
   static int CanReadFile(const char *filename);
 
 protected:

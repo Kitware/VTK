@@ -53,9 +53,9 @@ void vtkParametricEllipsoid::Evaluate(double uvw[3], double Pt[3], double Duvw[9
   double *Dv = Duvw + 3;
 
   for ( int i = 0; i < 3; ++i)
-    {
+  {
     Pt[i] = Du[i] = Dv[i] = 0;
-    }
+  }
 
   double cu = cos(u);
   double su = sin(u);

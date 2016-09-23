@@ -37,17 +37,17 @@ void vtkWendlandQuinticKernel::
 Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds, vtkPointData *attr)
 {
   if ( this->Dimension == 1 )
-    {
+  {
     vtkErrorMacro("Wendland kernel defined for dimensions >2");
-    }
+  }
   else if ( this->Dimension == 2 )
-    {
+  {
     this->Sigma = 7.0 / (4.0*vtkMath::Pi());
-    }
+  }
   else //if ( this->Dimension == 3 )
-    {
+  {
     this->Sigma = 21.0 / (16.0*vtkMath::Pi());
-    }
+  }
 
   // Sigma must be set before vtkSPHKernel::Initialize is invoked
   this->Superclass::Initialize(loc, ds, attr);

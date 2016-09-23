@@ -70,13 +70,13 @@ int vtkBridgeAttribute::GetCentering()
 {
   int result;
   if(this->Pd!=0)
-    {
+  {
     result=vtkPointCentered;
-    }
+  }
   else
-    {
+  {
     result=vtkCellCentered;
-    }
+  }
   assert("post: valid_result" && ((result==vtkPointCentered) || (result==vtkCellCentered) || (result==vtkBoundaryCentered)));
   return result;
 }
@@ -93,9 +93,9 @@ int vtkBridgeAttribute::GetType()
 {
   int result=this->Data->IsArrayAnAttribute(this->AttributeNumber);
   if(result==-1)
-    {
+  {
     switch(this->GetNumberOfComponents())
-      {
+    {
       case 1:
         result=vtkDataSetAttributes::SCALARS;
         break;
@@ -108,8 +108,8 @@ int vtkBridgeAttribute::GetType()
       default:
         assert("check: unknown attribute type" && 0);
         break;
-      }
     }
+  }
   return result;
 }
 
@@ -222,31 +222,31 @@ void vtkBridgeAttribute::GetTuple(vtkGenericAdaptorCell *c, double *tuple)
 
 
   if(this->Pd!=0)
-    {
+  {
     i=0;
     size=c2->GetNumberOfPoints();
     while(i<size)
-      {
+    {
       j=c2->Cell->GetPointId(i);
       this->Data->GetArray(this->AttributeNumber)->GetTuple(j,p);
       ++i;
       p=p+this->GetNumberOfComponents();
-      }
     }
+  }
   else
-    {
+  {
     this->Data->GetArray(this->AttributeNumber)->GetTuple(c2->GetId(),tuple);
     // duplicate:
     size=c2->GetNumberOfPoints();
     i=1;
     p=p+this->GetNumberOfComponents();
     while(i<size)
-      {
+    {
       memcpy(p,tuple,sizeof(double)*this->GetNumberOfComponents());
       p=p+this->GetNumberOfComponents();
       ++i;
-      }
     }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -334,28 +334,28 @@ void vtkBridgeAttribute::GetComponent(int i,vtkGenericCellIterator *c, double *v
   vtkBridgeCellIterator *c2=static_cast<vtkBridgeCellIterator *>(c);
 
   if(this->Pd!=0)
-    {
+  {
     j=0;
     size=c2->GetCell()->GetNumberOfPoints();
     while(j<size)
-      {
+    {
       id=static_cast<vtkBridgeCell *>(c2->GetCell())->Cell->GetPointId(j);
       values[j]=this->Data->GetArray(this->AttributeNumber)->GetComponent(id,i);
       ++j;
-      }
     }
+  }
   else
-    {
+  {
     values[0]=this->Data->GetArray(this->AttributeNumber)->GetComponent(c2->GetCell()->GetId(),i);
     // duplicate:
     size=c2->GetCell()->GetNumberOfPoints();
     j=1;
     while(j<size)
-      {
+    {
       values[j]=values[0];
       ++j;
-      }
     }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -462,16 +462,16 @@ vtkBridgeAttribute::vtkBridgeAttribute()
 vtkBridgeAttribute::~vtkBridgeAttribute()
 {
   if(this->Pd!=0)
-    {
+  {
     this->Pd->Delete();
-    }
+  }
   else
-    {
+  {
     if(this->Cd!=0)
-      {
+    {
       this->Cd->Delete();
-      }
     }
+  }
   delete[] this->InternalTuple;
 }
 
@@ -485,17 +485,17 @@ void vtkBridgeAttribute::AllocateInternalTuple(int size)
   assert("pre: positive_size" && size>0);
 
   if(this->InternalTuple==0)
-    {
+  {
     this->InternalTupleCapacity = size;
     this->InternalTuple = new double[this->InternalTupleCapacity];
-    }
+  }
   else
-    {
+  {
     if(InternalTupleCapacity<size)
-      {
+    {
       this->InternalTupleCapacity = size;
       delete [] this->InternalTuple;
       this->InternalTuple = new double[this->InternalTupleCapacity];
-      }
     }
+  }
 }

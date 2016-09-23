@@ -45,7 +45,7 @@ void vtkPolygonalHandleRepresentation3D::SetWorldPosition(double p[3])
 {
   if (!this->Renderer || !this->PointPlacer ||
                           this->PointPlacer->ValidateWorldPosition( p ))
-    {
+  {
     this->HandleTransformMatrix->SetElement(0, 3, p[0] - this->Offset[0]);
     this->HandleTransformMatrix->SetElement(1, 3, p[1] - this->Offset[1]);
     this->HandleTransformMatrix->SetElement(2, 3, p[2] - this->Offset[2]);
@@ -56,7 +56,7 @@ void vtkPolygonalHandleRepresentation3D::SetWorldPosition(double p[3])
       this->HandleTransformMatrix->GetElement(2, 3));
 
     this->WorldPositionTime.Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------

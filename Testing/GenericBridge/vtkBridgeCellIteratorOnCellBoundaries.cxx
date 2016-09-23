@@ -60,27 +60,27 @@ void vtkBridgeCellIteratorOnCellBoundaries::Begin()
 {
   this->Id=0; // first id of the current dimension
   if(this->NumberOfFaces>0)
-    {
+  {
     this->Dim=2;
-    }
+  }
   else
-    {
+  {
     if(this->NumberOfEdges>0)
-      {
+    {
       this->Dim=1;
-      }
-    else
-      {
-       if(this->NumberOfVertices>0)
-         {
-         this->Dim=0;
-         }
-       else
-         {
-         this->Dim=-1; // is at end
-         }
-      }
     }
+    else
+    {
+       if(this->NumberOfVertices>0)
+       {
+         this->Dim=0;
+       }
+       else
+       {
+         this->Dim=-1; // is at end
+       }
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -107,7 +107,7 @@ void vtkBridgeCellIteratorOnCellBoundaries::GetCell(vtkGenericAdaptorCell *c)
   vtkCell *vc=0;
 
   switch(this->Dim)
-    {
+  {
     case 2:
       vc=this->DataSetCell->Cell->GetFace(this->Id);
       break;
@@ -122,13 +122,13 @@ void vtkBridgeCellIteratorOnCellBoundaries::GetCell(vtkGenericAdaptorCell *c)
     default:
       assert("check: impossible case" && 0);
       break;
-    }
+  }
 
   c2->InitWithCell(vc,this->Id); // this->Id unique?
   if(this->Dim==0)
-    {
+  {
     vc->Delete();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -144,7 +144,7 @@ vtkGenericAdaptorCell *vtkBridgeCellIteratorOnCellBoundaries::GetCell()
   vtkCell *vc=0;
 
   switch(this->Dim)
-    {
+  {
     case 2:
       vc=this->DataSetCell->Cell->GetFace(this->Id);
       break;
@@ -159,13 +159,13 @@ vtkGenericAdaptorCell *vtkBridgeCellIteratorOnCellBoundaries::GetCell()
     default:
       assert("check: impossible case" && 0);
       break;
-    }
+  }
 
   this->Cell->InitWithCell(vc,this->Id); // this->Id unique?
   if(this->Dim==0)
-    {
+  {
     vc->Delete();
-    }
+  }
   vtkGenericAdaptorCell *result=this->Cell;
 
   assert("post: result_exits" && result!=0);
@@ -185,7 +185,7 @@ void vtkBridgeCellIteratorOnCellBoundaries::Next()
   this->Id++; // next id of the current dimension
 
   switch(this->Dim)
-    {
+  {
     case 2:
       atEndOfDimension=Id>=this->NumberOfFaces;
       break;
@@ -198,35 +198,35 @@ void vtkBridgeCellIteratorOnCellBoundaries::Next()
     default:
       assert("check: impossible case" && 0);
       break;
-    }
+  }
 
   if(atEndOfDimension)
-    {
+  {
     this->Id=0; // first id of the next dimension
     this->Dim--;
 
     if(this->Dim==1)
-      {
+    {
       if(this->NumberOfEdges==0)
-        {
-        if(this->NumberOfVertices==0)
-          {
-          this->Dim=-1;
-          }
-        else
-          {
-          this->Dim=0;
-          }
-        }
-      }
-    else
       {
-      if(this->NumberOfVertices==0)
+        if(this->NumberOfVertices==0)
         {
-        this->Dim=-1;
+          this->Dim=-1;
+        }
+        else
+        {
+          this->Dim=0;
         }
       }
     }
+    else
+    {
+      if(this->NumberOfVertices==0)
+      {
+        this->Dim=-1;
+      }
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -244,29 +244,29 @@ void vtkBridgeCellIteratorOnCellBoundaries::InitWithCellBoundaries(vtkBridgeCell
   this->DataSetCell=cell;
 
   if(((dim==-1)&&(2<cell->GetDimension()))||(dim==2)) // faces
-    {
+  {
     this->NumberOfFaces=this->DataSetCell->Cell->GetNumberOfFaces();
-    }
+  }
   else
-    {
+  {
     this->NumberOfFaces=0;
-    }
+  }
 
   if(((dim==-1)&&(1<cell->GetDimension()))||(dim==1)) // edges
-    {
+  {
     this->NumberOfEdges=this->DataSetCell->Cell->GetNumberOfEdges();
-    }
+  }
   else
-    {
+  {
     this->NumberOfEdges=0;
-    }
+  }
 
   if((dim==-1)||(dim==0)) // vertices
-    {
+  {
     this->NumberOfVertices=this->DataSetCell->Cell->GetNumberOfPoints();
-    }
+  }
   else
-    {
+  {
     this->NumberOfVertices=0;
-    }
+  }
 }

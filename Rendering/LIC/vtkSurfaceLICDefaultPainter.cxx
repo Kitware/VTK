@@ -58,10 +58,10 @@ void vtkSurfaceLICDefaultPainter::BuildPainterChain()
   cerr << "SurfaceLIC Default Painter Chain:" << endl;
   vtkPainter *painter = this->vtkPainter::GetDelegatePainter();;
   while (painter)
-    {
+  {
     cerr << painter->GetClassName() << "->";
     painter = painter->GetDelegatePainter();
-    }
+  }
   cerr << "NULL" << endl;
   #endif
 }
@@ -83,27 +83,27 @@ void vtkSurfaceLICDefaultPainter::UpdateBounds(double bounds[6])
   // need the superclass to start with the first painter in the chain
   vtkPainter *painter = this->Superclass::GetDelegatePainter();
   if (painter)
-    {
+  {
     // delegate the task of updating the bounds
     painter->UpdateBounds(bounds);
-    }
+  }
   else
-    {
+  {
     // no painter in the chain. let's build the chain if needed.
     if (this->ChainBuildTime < this->MTime)
-      {
+    {
       // build the chain of painters
       this->BuildPainterChain();
       this->ChainBuildTime.Modified();
-      }
+    }
     // try again to get the first painter in the chain
     painter = this->Superclass::GetDelegatePainter();
     if (painter)
-      {
+    {
       //delegate the task of updating the bounds
       painter->UpdateBounds(bounds);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------

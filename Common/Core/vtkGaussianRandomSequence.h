@@ -11,13 +11,16 @@
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
-// .NAME vtkGaussianRandomSequence - Gaussian sequence of pseudo random numbers
-// .SECTION Description
-// vtkGaussianRandomSequence is a sequence of pseudo random numbers
-// distributed according to the Gaussian/normal distribution (mean=0 and
-// standard deviation=1)
-//
-// This is just an interface.
+/**
+ * @class   vtkGaussianRandomSequence
+ * @brief   Gaussian sequence of pseudo random numbers
+ *
+ * vtkGaussianRandomSequence is a sequence of pseudo random numbers
+ * distributed according to the Gaussian/normal distribution (mean=0 and
+ * standard deviation=1)
+ *
+ * This is just an interface.
+*/
 
 #ifndef vtkGaussianRandomSequence_h
 #define vtkGaussianRandomSequence_h
@@ -31,11 +34,12 @@ public:
   vtkTypeMacro(vtkGaussianRandomSequence,vtkRandomSequence);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Convenient method to return a value given the mean and standard deviation
-  // of the Gaussian distribution from the the Gaussian distribution of mean=0
-  // and standard deviation=1.0. There is an initial implementation that can
-  // be overridden by a subclass.
+  /**
+   * Convenient method to return a value given the mean and standard deviation
+   * of the Gaussian distribution from the the Gaussian distribution of mean=0
+   * and standard deviation=1.0. There is an initial implementation that can
+   * be overridden by a subclass.
+   */
   virtual double GetScaledValue(double mean,
                                 double standardDeviation);
 

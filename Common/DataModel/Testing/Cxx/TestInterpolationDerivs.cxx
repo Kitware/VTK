@@ -69,19 +69,19 @@ int TestOneInterpolationDerivs(double eps = VTK_EPSILON)
   double *coords = cell->GetParametricCoords();
   int r = 0;
   for(int i=0;i<numPts;++i)
-    {
+  {
     double *point = coords + 3*i;
     double sum = 0.;
     cell->InterpolateDerivs(point, derivs); // static function
     for(int j=0;j<dim*numPts;j++)
-      {
+    {
       sum += derivs[j];
-      }
-    if( fabs(sum) > eps )
-      {
-      ++r;
-      }
     }
+    if( fabs(sum) > eps )
+    {
+      ++r;
+    }
+  }
 
   // Let's test zero condition on the center point:
   double center[3];
@@ -89,13 +89,13 @@ int TestOneInterpolationDerivs(double eps = VTK_EPSILON)
   cell->InterpolateDerivs(center, derivs); // static function
   double sum = 0.;
   for(int j=0;j<dim*numPts;j++)
-    {
+  {
     sum += derivs[j];
-    }
+  }
   if( fabs(sum) > eps )
-    {
+  {
     ++r;
-    }
+  }
 
   cell->Delete();
   delete[] derivs;

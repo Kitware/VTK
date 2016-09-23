@@ -42,15 +42,15 @@ vtkPipelineSize::GetEstimatedSize(vtkAlgorithm *input, int inputPort,
 
   if(vtkAlgorithmOutput* inInfo =
      input->GetInputConnection(inputPort, connection))
-    {
+  {
     if (vtkAlgorithm* srcAlg =
         vtkAlgorithm::SafeDownCast(
           inInfo->GetProducer()))
-      {
+    {
       this->ComputeSourcePipelineSize(srcAlg, inInfo->GetIndex(), sizes );
       memorySize = sizes[2];
-      }
     }
+  }
 
   return memorySize;
 }
@@ -68,7 +68,7 @@ void vtkPipelineSize::ComputeSourcePipelineSize(vtkAlgorithm *src,
   // watch for special sources
   // handle vtkDataReader subclasses
   if (src->IsA("vtkDataReader"))
-    {
+  {
     ifstream *ifs;
     vtkDataReader *rdr = vtkDataReader::SafeDownCast(src);
 #ifdef _WIN32
@@ -77,21 +77,21 @@ void vtkPipelineSize::ComputeSourcePipelineSize(vtkAlgorithm *src,
     ifs = new ifstream(rdr->GetFileName(), ios::in);
 #endif
     if (!ifs->fail())
-      {
+    {
       ifs->seekg(0,ios::end);
       int sz = ifs->tellg()/1024;
       size[0] = sz;
       size[1] = sz;
       size[2] = sz;
       return;
-      }
-    delete ifs;
     }
+    delete ifs;
+  }
 
   // handle some simple sources
   vtkLargeInteger sz;
   if (src->IsA("vtkConeSource"))
-    {
+  {
     vtkConeSource *s = vtkConeSource::SafeDownCast(src);
     sz = s->GetResolution();
     sz = sz * 32/1024;
@@ -99,9 +99,9 @@ void vtkPipelineSize::ComputeSourcePipelineSize(vtkAlgorithm *src,
     size[1] = size[0];
     size[2] = size[0];
     return;
-    }
+  }
   if (src->IsA("vtkPlaneSource"))
-    {
+  {
     vtkPlaneSource *s = vtkPlaneSource::SafeDownCast(src);
     sz = s->GetXResolution();
     sz = sz * s->GetYResolution()*32/1024;
@@ -109,15 +109,15 @@ void vtkPipelineSize::ComputeSourcePipelineSize(vtkAlgorithm *src,
     size[1] = size[0];
     size[2] = size[0];
     return;
-    }
+  }
   if (src->IsA("vtkPSphereSource"))
-    {
+  {
     vtkPSphereSource *s = vtkPSphereSource::SafeDownCast(src);
     size[0] = s->GetEstimatedMemorySize();
     size[1] = size[0];
     size[2] = size[0];
     return;
-    }
+  }
 
   // otherwise use generic approach
   this->GenericComputeSourcePipelineSize(src,outputPort,size);
@@ -138,9 +138,9 @@ void vtkPipelineSize::GenericComputeSourcePipelineSize(vtkAlgorithm *src,
   // We need some space to store the input sizes if there are any inputs
   int numberOfInputs = src->GetTotalNumberOfInputConnections();
   if ( numberOfInputs > 0 )
-    {
+  {
     inputSize = new unsigned long[numberOfInputs];
-    }
+  }
 
   // Get the pipeline size propagated down each input. Keep track of max
   // pipeline size, how much memory will be required downstream from here,
@@ -149,14 +149,14 @@ void vtkPipelineSize::GenericComputeSourcePipelineSize(vtkAlgorithm *src,
   int port = 0;
   int conn = 0;
   for (idx = 0; idx < numberOfInputs; ++idx)
-    {
+  {
     src->ConvertTotalInputToPortConnection(idx,port,conn);
     inputSize[idx] = 0;
     if(vtkAlgorithmOutput* inInfo = src->GetInputConnection(port, conn))
-      {
+    {
       if (vtkAlgorithm* srcAlg =
           vtkAlgorithm::SafeDownCast(inInfo->GetProducer()))
-        {
+      {
         // Get the upstream size of the pipeline, the estimated size of this
         // input, and the maximum size seen upstream from here.
         this->ComputeSourcePipelineSize(srcAlg, inInfo->GetIndex(),
@@ -167,9 +167,9 @@ void vtkPipelineSize::GenericComputeSourcePipelineSize(vtkAlgorithm *src,
 
         // Is the max returned bigger than the max we've seen so far?
         if ( inputPipelineSize[2] > maxSize )
-          {
+        {
           maxSize = inputPipelineSize[2];
-          }
+        }
 
         // If we are going to release this input, then its size won't matter
         // downstream from here.
@@ -178,20 +178,20 @@ void vtkPipelineSize::GenericComputeSourcePipelineSize(vtkAlgorithm *src,
         if (ddp &&
             ddp->GetOutputInformation(inInfo->GetIndex())
             ->Get(vtkDemandDrivenPipeline::RELEASE_DATA()))
-          {
+        {
           goingDownstreamSize = goingDownstreamSize + inputPipelineSize[0] -
             inputPipelineSize[1];
-          }
+        }
         else
-          {
+        {
           goingDownstreamSize = goingDownstreamSize + inputPipelineSize[0];
-          }
+        }
 
         // During execution this filter will need all the input data
         mySize += inputPipelineSize[0];
-        }
       }
     }
+  }
 
   // Now the we know the size of all input, compute the output size
   this->ComputeOutputMemorySize(src, outputPort, inputSize, outputSize );
@@ -206,9 +206,9 @@ void vtkPipelineSize::GenericComputeSourcePipelineSize(vtkAlgorithm *src,
   // Is the state of the pipeline during this filter's execution the
   // largest that it has been so far?
   if ( mySize.CastToUnsignedLong() > maxSize )
-    {
+  {
     maxSize = mySize.CastToUnsignedLong();
-    }
+  }
 
   // The first size is the memory going downstream from here - which is all
   // the memory coming in minus any data realeased. The second size is the
@@ -231,18 +231,18 @@ ComputeOutputMemorySize( vtkAlgorithm *src, int outputPort,
 
   // watch for special filters such as Glyph3D
   if (src->IsA("vtkGlyph3D"))
-    {
+  {
     // the output size is the same as the source size * the number of points
     // we guess the number of points to be 1/16 of the input size in bytes
     if (src->GetTotalNumberOfInputConnections() >= 2)
-      {
+    {
       sz = inputSize[1];
       sz = sz * inputSize[0]*1024/16;
       size[0] = sz.CastToUnsignedLong();
       size[1] = size[0];
       return;
-      }
     }
+  }
 
   this->GenericComputeOutputMemorySize(src, outputPort, inputSize, size);
 }
@@ -269,21 +269,21 @@ GenericComputeOutputMemorySize( vtkAlgorithm *src, int outputPort,
   // the size of the specified output in size[0], and the sum of all
   // output size in size[1]. Ignore input sizes in this default implementation.
   for (idx = 0; idx < src->GetNumberOfOutputPorts(); ++idx)
-    {
+  {
     vtkInformation *outInfo = ddp->GetOutputInformation(idx);
     if (outInfo)
-      {
+    {
       tmp = 0;
       vtkInformation *dataInfo =
         outInfo->Get(vtkDataObject::DATA_OBJECT())->GetInformation();
       if (dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) ==
           VTK_PIECES_EXTENT)
-        {
+      {
         // TODO: need something here
         tmp = 1;
-        }
+      }
       if (dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_3D_EXTENT)
-        {
+      {
         int uExt[6];
         outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),uExt);
         tmp = 4;
@@ -292,28 +292,28 @@ GenericComputeOutputMemorySize( vtkAlgorithm *src, int outputPort,
           vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
         int numComp = 1;
         if (scalarInfo)
-          {
+        {
           tmp = vtkDataArray::GetDataTypeSize(
             scalarInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()));
           if (scalarInfo->Has(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()))
-            {
+          {
             numComp = scalarInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS());
-            }
           }
+        }
         tmp *= numComp;
         for (idx = 0; idx < 3; ++idx)
-          {
-          tmp = tmp*(uExt[idx*2+1] - uExt[idx*2] + 1);
-          }
-        tmp /= 1024;
-        }
-      if (idx == outputPort )
         {
-        size[0] = tmp.CastToUnsignedLong();
+          tmp = tmp*(uExt[idx*2+1] - uExt[idx*2] + 1);
         }
+        tmp /= 1024;
       }
-    sz += tmp;
+      if (idx == outputPort )
+      {
+        size[0] = tmp.CastToUnsignedLong();
+      }
     }
+    sz += tmp;
+  }
 
   size[1] = sz.CastToUnsignedLong();
 }
@@ -324,9 +324,9 @@ unsigned long vtkPipelineSize::GetNumberOfSubPieces(unsigned long memoryLimit,
 {
   // find the right number of pieces
   if (!mapper->GetInput())
-    {
+  {
     return 1;
-    }
+  }
 
   unsigned long subDivisions = 1;
   unsigned long numPieces = mapper->GetNumberOfPieces();
@@ -350,7 +350,7 @@ unsigned long vtkPipelineSize::GetNumberOfSubPieces(unsigned long memoryLimit,
   // double the number of pieces until the size fits in memory
   // or the reduction in size falls to 20%
   do
-    {
+  {
     oldSize = size;
     vtkInformation* inInfo = mapper->GetInputInformation();
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
@@ -363,17 +363,17 @@ unsigned long vtkPipelineSize::GetNumberOfSubPieces(unsigned long memoryLimit,
     size = this->GetEstimatedSize(mapper,0,0);
     // watch for the first time through
     if (!oldSize)
-      {
+    {
       ratio = 0.5;
-      }
+    }
     // otherwise the normal ratio calculation
     else
-      {
+    {
       ratio = size/(float)oldSize;
-      }
+    }
     subDivisions = subDivisions*2;
     count++;
-    }
+  }
   while (size > memoryLimit &&
          (size > maxSize || ratio < 0.8) && count < 29);
 

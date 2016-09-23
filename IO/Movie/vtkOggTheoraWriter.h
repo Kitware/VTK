@@ -12,17 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOggTheoraWriter - Uses the ogg and theora libraries to write video
-// files.
-// .SECTION Description
-// vtkOggTheoraWriter is an adapter that allows VTK to use the ogg and theora
-// libraries to write movie files.  This class creates .ogv files containing
-// theora encoded video without audio.
-//
-// This implementation is based on vtkFFMPEGWriter and uses some code derived
-// from the encoder example distributed with libtheora.
-//
-// .SECTION See Also vtkGenericMovieWriter vtkAVIWriter vtkMPEG2Writer vtkFFMPEGWriter
+/**
+ * @class   vtkOggTheoraWriter
+ * @brief   Uses the ogg and theora libraries to write video
+ * files.
+ *
+ * vtkOggTheoraWriter is an adapter that allows VTK to use the ogg and theora
+ * libraries to write movie files.  This class creates .ogv files containing
+ * theora encoded video without audio.
+ *
+ * This implementation is based on vtkFFMPEGWriter and uses some code derived
+ * from the encoder example distributed with libtheora.
+ *
+*/
 
 #ifndef vtkOggTheoraWriter_h
 #define vtkOggTheoraWriter_h
@@ -39,33 +41,45 @@ public:
   vtkTypeMacro(vtkOggTheoraWriter,vtkGenericMovieWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // These methods start writing an Movie file, write a frame to the file
-  // and then end the writing process.
+  //@{
+  /**
+   * These methods start writing an Movie file, write a frame to the file
+   * and then end the writing process.
+   */
   void Start();
   void Write();
   void End();
+  //@}
 
-  // Description:
-  // Set/Get the compression quality.
-  // 0 means worst quality and smallest file size
-  // 2 means best quality and largest file size
+  //@{
+  /**
+   * Set/Get the compression quality.
+   * 0 means worst quality and smallest file size
+   * 2 means best quality and largest file size
+   */
   vtkSetClampMacro(Quality, int, 0, 2);
   vtkGetMacro(Quality, int);
+  //@}
 
-  // Description:
-  // Set/Get the frame rate, in frame/s.
+  //@{
+  /**
+   * Set/Get the frame rate, in frame/s.
+   */
   vtkSetClampMacro(Rate, int , 1, 5000);
   vtkGetMacro(Rate, int);
+  //@}
 
-  // Description:
-  // Is the video to be encoded using 4:2:0 subsampling?
+  //@{
+  /**
+   * Is the video to be encoded using 4:2:0 subsampling?
+   */
   vtkSetMacro(Subsampling, int);
   vtkGetMacro(Subsampling, int);
   vtkBooleanMacro(Subsampling, int);
 protected:
   vtkOggTheoraWriter();
   ~vtkOggTheoraWriter();
+  //@}
 
   vtkOggTheoraWriterInternal *Internals;
 

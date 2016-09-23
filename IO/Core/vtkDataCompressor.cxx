@@ -76,10 +76,10 @@ vtkDataCompressor::Compress(unsigned char const* uncompressedData,
 
   // Make sure compression succeeded.
   if(!compressedSize)
-    {
+  {
     outputArray->Delete();
     return 0;
-    }
+  }
 
   // Store the actual size.
   outputArray->SetNumberOfTuples(compressedSize);
@@ -106,10 +106,10 @@ vtkDataCompressor::Uncompress(unsigned char const* compressedData,
 
   // Make sure the decompression succeeded.
   if(!decSize)
-    {
+  {
     outputArray->Delete();
     return 0;
-    }
+  }
 
   // Store the actual size.
   outputArray->SetNumberOfTuples(decSize);

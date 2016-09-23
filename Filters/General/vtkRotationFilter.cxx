@@ -78,10 +78,10 @@ int vtkRotationFilter::RequestData(
   vtkCellData *outCD = output->GetCellData();
 
   if (!this->GetNumberOfCopies())
-    {
+  {
     vtkErrorMacro("No number of copy set!");
     return 1;
-    }
+  }
 
   double tuple[3];
   vtkPoints *outPoints;
@@ -96,15 +96,15 @@ int vtkRotationFilter::RequestData(
   vtkIdType numCells = input->GetNumberOfCells();
 
   if (this->CopyInput)
-    {
+  {
     outPoints->Allocate((this->CopyInput + this->GetNumberOfCopies()) * numPts);
     output->Allocate((this->CopyInput + this->GetNumberOfCopies()) * numPts);
-    }
+  }
   else
-    {
+  {
     outPoints->Allocate( this->GetNumberOfCopies() * numPts);
     output->Allocate( this->GetNumberOfCopies() * numPts);
-    }
+  }
 
   outPD->CopyAllocate(inPD);
   outCD->CopyAllocate(inCD);
@@ -121,14 +121,14 @@ int vtkRotationFilter::RequestData(
 
   // Copy first points.
   if (this->CopyInput)
-    {
+  {
     for (i = 0; i < numPts; i++)
-      {
+    {
       input->GetPoint(i, point);
       ptId = outPoints->InsertNextPoint(point);
       outPD->CopyData(inPD, i, ptId);
-      }
     }
+  }
   vtkTransform *localTransform = vtkTransform::New();
   // Rotate points.
   // double angle = vtkMath::RadiansFromDegrees( this->GetAngle() );
@@ -138,11 +138,11 @@ int vtkRotationFilter::RequestData(
   negativCenter[2] = -center[2];
 
   for (k = 0; k < this->GetNumberOfCopies(); k++)
-   {
+  {
    localTransform->Identity();
    localTransform->Translate(center);
    switch (this->Axis)
-    {
+   {
      case USE_X:
         localTransform->RotateX((k+1)*this->GetAngle());
      break;
@@ -154,26 +154,26 @@ int vtkRotationFilter::RequestData(
      case USE_Z:
         localTransform->RotateZ((k+1)*this->GetAngle());
      break;
-     }
+   }
    localTransform->Translate(negativCenter);
    for (i = 0; i < numPts; i++)
-    {
+   {
     input->GetPoint(i, point);
     localTransform->TransformPoint(point, point);
     ptId = outPoints->InsertNextPoint(point);
     outPD->CopyData(inPD, i, ptId);
     if (inPtVectors)
-      {
+    {
       inPtVectors->GetTuple(i, tuple);
       outPtVectors->SetTuple(ptId, tuple);
-      }
+    }
     if (inPtNormals)
-      {
+    {
       //inPtNormals->GetTuple(i, tuple);
       //outPtNormals->SetTuple(ptId, tuple);
-      }
     }
    }
+  }
 
   localTransform->Delete();
 
@@ -183,20 +183,20 @@ int vtkRotationFilter::RequestData(
 
   // Copy original cells.
   if (this->CopyInput)
-    {
+  {
     for (i = 0; i < numCells; i++)
-      {
+    {
       input->GetCellPoints(i, ptIds);
       output->InsertNextCell(input->GetCellType(i), ptIds);
       outCD->CopyData(inCD, i, i);
-      }
     }
+  }
 
   // Generate rotated cells.
   for (k = 0; k < this->GetNumberOfCopies(); k++)
-    {
+  {
     for (i = 0; i < numCells; i++)
-      {
+    {
        input->GetCellPoints(i, ptIds);
        input->GetCell(i, cell);
        numCellPts = cell->GetNumberOfPoints();
@@ -206,41 +206,41 @@ int vtkRotationFilter::RequestData(
       // to be handled specially. A degenerate triangle is
       // introduce to flip all the triangles properly.
       if (cellType == VTK_TRIANGLE_STRIP && numCellPts % 2 == 0)
-        {
+      {
         vtkErrorMacro(<< "Triangles with bad points");
         return 0;
-        }
+      }
       else
-        {
+      {
         vtkDebugMacro(<< "celltype " << cellType << " numCellPts " << numCellPts);
         newCellPts = new vtkIdType[numCellPts];
         //for (j = numCellPts-1; j >= 0; j--)
         for (j = 0; j < numCellPts; j++)
-          {
+        {
           //newCellPts[numCellPts-1-j] = cellPts->GetId(j) + numPts*k;
           newCellPts[j] = cellPts->GetId(j) + numPts*k;
            if (this->CopyInput)
-            {
+           {
              //newCellPts[numCellPts-1-j] += numPts;
              newCellPts[j] += numPts;
-            }
-          }
+           }
         }
+      }
       cellId = output->InsertNextCell(cellType, numCellPts, newCellPts);
       delete [] newCellPts;
       outCD->CopyData(inCD, i, cellId);
       if (inCellVectors)
-        {
+      {
         inCellVectors->GetTuple(i, tuple);
         outCellVectors->SetTuple(cellId, tuple);
-        }
+      }
       if (inCellNormals)
-        {
+      {
         //inCellNormals->GetTuple(i, tuple);
         //outCellNormals->SetTuple(cellId, tuple);
-        }
       }
     }
+  }
 
   cell->Delete();
   ptIds->Delete();

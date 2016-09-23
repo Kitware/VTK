@@ -57,10 +57,10 @@ int TestRIBExporter (int argc, char *argv[])
   delete []_prefix;
 
   if (prefix == "")
-    {
+  {
     std::cout << argv[0] << " Could not determine temporary directory.\n";
     return EXIT_FAILURE;
-    }
+  }
   prefix += "/TestRIBExporter";
 
   vtkSmartPointer<vtkRenderWindow> renWin =

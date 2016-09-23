@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGenericDataObjectWriter - writes any type of vtk data object to file
-// .SECTION Description
-// vtkGenericDataObjectWriter is a concrete class that writes data objects
-// to disk. The input to this object is any subclass of vtkDataObject.
+/**
+ * @class   vtkGenericDataObjectWriter
+ * @brief   writes any type of vtk data object to file
+ *
+ * vtkGenericDataObjectWriter is a concrete class that writes data objects
+ * to disk. The input to this object is any subclass of vtkDataObject.
+*/
 
 #ifndef vtkGenericDataObjectWriter_h
 #define vtkGenericDataObjectWriter_h

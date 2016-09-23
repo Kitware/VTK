@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLMultiGroupDataReader - Reader for multi-block datasets
-// .SECTION Description
-// vtkXMLMultiGroupDataReader is a legacy reader that reads multi group files
-// into multiblock datasets.
+/**
+ * @class   vtkXMLMultiGroupDataReader
+ * @brief   Reader for multi-block datasets
+ *
+ * vtkXMLMultiGroupDataReader is a legacy reader that reads multi group files
+ * into multiblock datasets.
+*/
 
 #ifndef vtkXMLMultiGroupDataReader_h
 #define vtkXMLMultiGroupDataReader_h
@@ -36,9 +39,9 @@ protected:
 
   // Get the name of the data set being read.
   virtual const char* GetDataSetName()
-    {
+  {
     return "vtkMultiGroupDataSet";
-    }
+  }
 
 private:
   vtkXMLMultiGroupDataReader(const vtkXMLMultiGroupDataReader&) VTK_DELETE_FUNCTION;

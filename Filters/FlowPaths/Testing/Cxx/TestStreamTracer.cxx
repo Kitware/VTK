@@ -55,9 +55,9 @@ int TestFieldNames(int, char*[])
   arr0->SetNumberOfComponents(1);
   arr0->SetNumberOfTuples(image0->GetNumberOfPoints());
   for(vtkIdType idx=0; idx<numPts; idx++)
-    {
+  {
     arr0->SetTuple1(idx, 1.0);
-    }
+  }
   arr0->SetName("array 0");
   image0->GetPointData()->AddArray(arr0);
 
@@ -65,9 +65,9 @@ int TestFieldNames(int, char*[])
   arr1->Allocate(numPts);
   arr1->SetName("array 1");
   for(vtkIdType idx=0; idx<numPts; idx++)
-    {
+  {
     arr1->SetTuple1(idx, 2.0);
-    }
+  }
   image1->GetPointData()->AddArray(arr1);
 
   vtkNew<vtkMultiBlockDataSet> dataSets;
@@ -97,9 +97,9 @@ int TestFieldNames(int, char*[])
      || trace->GetPointData()->GetArray("array 1")!=NULL
      || trace->GetPointData()->GetArray("RTData")==NULL
      || trace->GetNumberOfPoints()==0)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

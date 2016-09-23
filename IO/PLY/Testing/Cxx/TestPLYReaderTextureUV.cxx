@@ -36,10 +36,10 @@ int TestPLYReaderTextureUV( int argc, char *argv[] )
 
   // Test if the reader thinks it can open the file.
   if (0 == vtkPLYReader::CanReadFile(fname))
-    {
+  {
     std::cout << "The PLY reader can not read the input file." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Create the reader.
   vtkPLYReader* reader = vtkPLYReader::New();
@@ -88,9 +88,9 @@ int TestPLYReaderTextureUV( int argc, char *argv[] )
   int retVal = vtkRegressionTestImage( renWin );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   actor->Delete();
   mapper->Delete();

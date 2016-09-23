@@ -75,18 +75,18 @@ void vtkExtractUnstructuredGrid::SetExtent(double extent[6])
   if ( extent[0] != this->Extent[0] || extent[1] != this->Extent[1] ||
        extent[2] != this->Extent[2] || extent[3] != this->Extent[3] ||
        extent[4] != this->Extent[4] || extent[5] != this->Extent[5] )
-    {
+  {
     this->ExtentClippingOn();
     for (i=0; i<3; i++)
-      {
+    {
       if ( extent[2*i+1] < extent[2*i] )
-        {
+      {
         extent[2*i+1] = extent[2*i];
-        }
+      }
       this->Extent[2*i] = extent[2*i];
       this->Extent[2*i+1] = extent[2*i+1];
-      }
     }
+  }
 }
 
 // Extract cells and pass points and point data through. Also handles
@@ -127,41 +127,41 @@ int vtkExtractUnstructuredGrid::RequestData(
   vtkDebugMacro(<<"Executing extraction filter");
 
   if ( numPts < 1 || numCells < 1 || !inPts )
-    {
+  {
     vtkDebugMacro(<<"No data to extract!");
     return 1;
-    }
+  }
   cellIds=vtkIdList::New();
 
   if ( (!this->CellClipping) && (!this->PointClipping) &&
        (!this->ExtentClipping) )
-    {
+  {
     allVisible = 1;
     cellVis = NULL;
-    }
+  }
   else
-    {
+  {
     allVisible = 0;
     cellVis = new char[numCells];
-    }
+  }
 
   // Mark cells as being visible or not
   if ( ! allVisible )
-    {
+  {
     for(cellId=0; cellId < numCells; cellId++)
-      {
+    {
         if ( this->CellClipping && (cellId < this->CellMinimum ||
                                     cellId > this->CellMaximum) )
         {
         cellVis[cellId] = 0;
         }
       else
-        {
+      {
         cell = input->GetCell(cellId);
         ptIds = cell->GetPointIds();
         numIds = ptIds->GetNumberOfIds();
         for (i=0; i < numIds; i++)
-          {
+        {
           ptId = ptIds->GetId(i);
           input->GetPoint(ptId, x);
 
@@ -171,18 +171,18 @@ int vtkExtractUnstructuredGrid::RequestData(
           (x[0] < this->Extent[0] || x[0] > this->Extent[1] ||
           x[1] < this->Extent[2] || x[1] > this->Extent[3] ||
           x[2] < this->Extent[4] || x[2] > this->Extent[5] )) )
-            {
+          {
             cellVis[cellId] = 0;
             break;
-            }
           }
+        }
         if ( i >= numIds )
-          {
+        {
           cellVis[cellId] = 1;
-          }
         }
       }
     }
+  }
 
   // Allocate
   newPts = vtkPoints::New();
@@ -192,63 +192,63 @@ int vtkExtractUnstructuredGrid::RequestData(
   outputCD->CopyAllocate(cd,numCells,numCells/2);
 
   if ( this->Merging )
-    {
+  {
     if ( this->Locator == NULL )
-      {
-      this->CreateDefaultLocator();
-      }
-    this->Locator->InitPointInsertion (newPts, input->GetBounds());
-    }
-  else
     {
+      this->CreateDefaultLocator();
+    }
+    this->Locator->InitPointInsertion (newPts, input->GetBounds());
+  }
+  else
+  {
     pointMap = new vtkIdType[numPts];
     for (i=0; i<numPts; i++)
-      {
+    {
       pointMap[i] = (-1); //initialize as unused
-      }
     }
+  }
 
   // Traverse cells to extract geometry
   for(cellId=0; cellId < numCells; cellId++)
-    {
+  {
     if ( allVisible || cellVis[cellId] )
-      {
+    {
       cell = input->GetCell(cellId);
       numIds = cell->PointIds->GetNumberOfIds();
       cellIds->Reset();
       if ( this->Merging )
-        {
+      {
         for (i=0; i < numIds; i++)
-          {
+        {
           ptId = cell->PointIds->GetId(i);
           input->GetPoint(ptId, x);
           if ( this->Locator->InsertUniquePoint(x, newPtId) )
-            {
-            outputPD->CopyData(pd,ptId,newPtId);
-            }
-          cellIds->InsertNextId(newPtId);
-          }
-        }//merging coincident points
-      else
-        {
-        for (i=0; i < numIds; i++)
           {
+            outputPD->CopyData(pd,ptId,newPtId);
+          }
+          cellIds->InsertNextId(newPtId);
+        }
+      }//merging coincident points
+      else
+      {
+        for (i=0; i < numIds; i++)
+        {
           ptId = cell->PointIds->GetId(i);
           if ( pointMap[ptId] < 0 )
-            {
+          {
             pointMap[ptId] = newPtId
               = newPts->InsertNextPoint(inPts->GetPoint(ptId));
             outputPD->CopyData(pd, ptId, newPtId);
-            }
-          cellIds->InsertNextId(pointMap[ptId]);
           }
-        }//keeping original point list
+          cellIds->InsertNextId(pointMap[ptId]);
+        }
+      }//keeping original point list
 
       newCellId = output->InsertNextCell(input->GetCellType(cellId), cellIds);
       outputCD->CopyData(cd, cellId, newCellId);
 
-      } //if cell is visible
-    } //for all cells
+    } //if cell is visible
+  } //for all cells
 
   // Update ourselves and release memory
   output->SetPoints(newPts);
@@ -258,13 +258,13 @@ int vtkExtractUnstructuredGrid::RequestData(
                 << output->GetNumberOfCells() << " cells.");
 
   if ( this->Merging && this->Locator )
-    {
+  {
     this->Locator->Initialize();
-    }
+  }
   else
-    {
+  {
     delete [] pointMap;
-    }
+  }
   output->Squeeze();
 
   delete [] cellVis;
@@ -279,19 +279,19 @@ vtkMTimeType vtkExtractUnstructuredGrid::GetMTime()
   vtkMTimeType time;
 
   if ( this->Locator != NULL )
-    {
+  {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
   return mTime;
 }
 
 void vtkExtractUnstructuredGrid::CreateDefaultLocator()
 {
   if ( this->Locator == NULL )
-    {
+  {
     this->Locator = vtkMergePoints::New();
-    }
+  }
 }
 
 // Specify a spatial locator for merging points. By
@@ -299,18 +299,18 @@ void vtkExtractUnstructuredGrid::CreateDefaultLocator()
 void vtkExtractUnstructuredGrid::SetLocator(vtkIncrementalPointLocator *locator)
 {
   if ( this->Locator == locator )
-    {
+  {
     return;
-    }
+  }
   if ( this->Locator )
-    {
+  {
     this->Locator->UnRegister(this);
     this->Locator = NULL;
-    }
+  }
   if ( locator )
-    {
+  {
     locator->Register(this);
-    }
+  }
   this->Locator = locator;
   this->Modified();
 }
@@ -336,11 +336,11 @@ void vtkExtractUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Merging: " << (this->Merging ? "On\n" : "Off\n");
   if ( this->Locator )
-    {
+  {
     os << indent << "Locator: " << this->Locator << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Locator: (none)\n";
-    }
+  }
 }

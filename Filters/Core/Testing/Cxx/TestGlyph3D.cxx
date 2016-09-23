@@ -34,17 +34,17 @@
   { \
   std::string expectedMsg(msg); \
   if (!observer->GetError()) \
-    { \
+  { \
     std::cout << "ERROR: Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
-    } \
+  } \
   else \
-    { \
+  { \
     std::string gotMsg(observer->GetErrorMessage()); \
     if (gotMsg.find(expectedMsg) == std::string::npos) \
-      { \
+    { \
       std::cout << "ERROR: Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-      } \
     } \
+  } \
   } \
   observer->Clear()
 
@@ -92,9 +92,9 @@ static bool TestGlyph3D_WithBadArray()
 int TestGlyph3D(int argc, char* argv[])
 {
   if(!TestGlyph3D_WithBadArray())
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   vtkSmartPointer<vtkDoubleArray> vectors =
     vtkSmartPointer<vtkDoubleArray>::New();
@@ -161,8 +161,8 @@ int TestGlyph3D(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(renWin.GetPointer());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
   return !retVal;
 }

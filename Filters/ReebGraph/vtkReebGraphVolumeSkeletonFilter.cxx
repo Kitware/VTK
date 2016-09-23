@@ -51,7 +51,7 @@ int vtkReebGraphVolumeSkeletonFilter::FillInputPortInformation(
   int portNumber, vtkInformation *info)
 {
   switch(portNumber)
-    {
+  {
     case 0:
       info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
       info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),
@@ -61,7 +61,7 @@ int vtkReebGraphVolumeSkeletonFilter::FillInputPortInformation(
       info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
       info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkReebGraph");
       break;
-    }
+  }
   return 1;
 }
 
@@ -97,9 +97,9 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(req
                   *inInfoGraph = inputVector[1]->GetInformationObject(0);
 
   if ((!inInfoMesh)||(!inInfoGraph))
-    {
+  {
     return 0;
-    }
+  }
   vtkUnstructuredGrid *inputMesh = vtkUnstructuredGrid::SafeDownCast(
     inInfoMesh->Get(vtkUnstructuredGrid::DATA_OBJECT()));
 
@@ -107,13 +107,13 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(req
     inInfoGraph->Get(vtkReebGraph::DATA_OBJECT()));
 
   if ((inputMesh)&&(inputGraph))
-    {
+  {
     vtkInformation  *outInfo = outputVector->GetInformationObject(0);
     vtkTable        *output = vtkTable::SafeDownCast(
       outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
     if(output)
-      {
+    {
 
       // Retrieve the information regarding the critical noes.
       vtkDataArray  *vertexInfo = vtkArrayDownCast<vtkDataArray>(
@@ -146,14 +146,14 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(req
       double           point[3];
 
       do
-        {
+      {
         vtkEdgeType e = eIt->Next();
         vtkAbstractArray *vertexList = edgeInfo->GetPointer(e.Id)->ToArray();
         if((vertexInfo->GetTuple(e.Source))&&(vertexInfo->GetTuple(e.Target)))
-          {
+        {
           criticalNodeIds.first = (int) *(vertexInfo->GetTuple(e.Source));
           criticalNodeIds.second = (int) *(vertexInfo->GetTuple(e.Target));
-          }
+        }
         else
           // invalid Reeb graph
           return 0;
@@ -186,22 +186,22 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(req
 
         // add the vertices to the subMesh
         for(int i = 0; i < vertexList->GetNumberOfTuples(); i++)
-          {
+        {
           inputMesh->GetPointCells(
             vertexList->GetVariantValue(i).ToInt(), starTetList);
 
           for(int j = 0; j < starTetList->GetNumberOfIds(); j++)
-            {
+          {
             vtkIdType tId = starTetList->GetId(j);
             vtkTetra *t = vtkTetra::SafeDownCast(inputMesh->GetCell(tId));
 
             vtkIdType vertexId;
 
             for(int k = 0; k < 4; k++)
-              {
+            {
               vertexId = t->GetPointIds()->GetId(k);
               if(!visitedVertices[vertexId])
-                {
+              {
                 // add also its scalar value to the subField
                 inputMesh->GetPoint(vertexId, point);
                 meshToSubMeshMap[vertexId] =
@@ -210,11 +210,11 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(req
                   scalarField->GetComponent(vertexId, 0);
                 subField->InsertNextTypedTuple(&scalarFieldValue);
                 visitedVertices[vertexId] = true;
-                }
               }
             }
-
           }
+
+        }
 
         subPointSet->SetData(subCoordinates);
         subMesh->SetPoints(subPointSet);
@@ -223,16 +223,16 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(req
 
         // add the tets to the subMesh
         for(int i = 0; i < vertexList->GetNumberOfTuples(); i++)
-          {
+        {
           // add the tets to the chart.
           inputMesh->GetPointCells(
             vertexList->GetVariantValue(i).ToInt(), starTetList);
 
           for(int j = 0; j < starTetList->GetNumberOfIds(); j++)
-            {
+          {
             vtkIdType tId = starTetList->GetId(j);
             if(!visitedTets[tId])
-              {
+            {
               vtkTetra *t = vtkTetra::SafeDownCast(inputMesh->GetCell(tId));
 
               for(int k = 0; k < 4; k++)
@@ -240,9 +240,9 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(req
 
               subMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
               visitedTets[tId] = true;
-              }
             }
           }
+        }
 
         subField->Delete();
         subCoordinates->Delete();
@@ -265,9 +265,9 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(req
         if(vertexList->GetNumberOfTuples() > 500)
           // very conservative safety margin, noticed some floating point
           // exception in the contouring filter otherwise.
-          {
+        {
           for(int i = 0; i < NumberOfSamples; i++)
-            {
+          {
 
             contourFilter->SetNumberOfContours(1);
             contourFilter->SetValue(0, minValue +
@@ -279,27 +279,27 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(req
             vtkPolyData *contourMesh = contourFilter->GetOutput();
             std::vector<double> baryCenter(3);
             for(int j = 0; j < 3; j++)
-              {
+            {
               baryCenter[j] = 0.0;
-              }
+            }
 
             if(contourMesh->GetNumberOfPoints() > 1)
-              {
+            {
               // if the current arc of the Reeb graph has not deg-2 node, then
               // the level set will most likely be empty.
 
               for(int j = 0; j < contourMesh->GetNumberOfPoints(); j++)
-                {
+              {
                 contourMesh->GetPoint(j, point);
                 for(int k = 0; k < 3; k++)
                   baryCenter[k] += point[k];
-                }
+              }
               for(int j = 0; j < 3; j++)
                 baryCenter[j] /= contourMesh->GetNumberOfPoints();
                             arcSkeleton.push_back(baryCenter);
-              }
             }
           }
+        }
         inputMesh->GetPoint(criticalNodeIds.second, criticalPoint);
         for(int i = 0; i < 3; i++)
           arcEntry[i] = criticalPoint[i];
@@ -308,51 +308,51 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(req
         // if we have an empty arc skeleton, let's fill the blanks to have an
         // homogeneous output
         if(arcSkeleton.size() == 2)
-          {
+        {
           arcSkeleton.resize(NumberOfSamples + 2);
           std::vector<double> lastPoint = arcEntry;
           for(int i = 1; i <= NumberOfSamples; i++)
-            {
+          {
             for(int j = 0; j < 3; j++)
-              {
+            {
               arcEntry[j] = arcSkeleton[0][j]
                 + (((double) i)/(NumberOfSamples + 1.0))
                   *(lastPoint[j] - arcSkeleton[0][j]);
-              }
-            arcSkeleton[i] = arcEntry;
             }
-          arcSkeleton[arcSkeleton.size() - 1] = lastPoint;
+            arcSkeleton[i] = arcEntry;
           }
+          arcSkeleton[arcSkeleton.size() - 1] = lastPoint;
+        }
 
         // now do the smoothing of the arc skeleton
         std::vector<std::vector<double> > smoothedArc;
         for(int i = 0; i < NumberOfSmoothingIterations; i++)
-          {
+        {
           smoothedArc.push_back(arcSkeleton[0]);
           if(arcSkeleton.size() > 2)
-            {
+          {
             for(unsigned int j = 1; j < arcSkeleton.size() - 1; j++)
-              {
+            {
               std::vector<double> smoothedSample(3);
               for(int k = 0; k < 3; k++)
                 smoothedSample[k] =
                   (arcSkeleton[j-1][k]
                   + arcSkeleton[j+1][k] + arcSkeleton[j][k])/3;
               smoothedArc.push_back(smoothedSample);
-              }
             }
+          }
           smoothedArc.push_back(arcSkeleton[arcSkeleton.size() - 1]);
 
           // now, replace arcSkeleton with smoohtedArc for the next Iteration
           for(unsigned int j = 0; j < arcSkeleton.size(); j++)
             arcSkeleton[j] = smoothedArc[j];
-          }
+        }
 
         // now add the arc skeleton to the output.
         subMesh->Delete();
         skeleton.push_back(arcSkeleton);
 
-        }while(eIt->HasNext());
+      }while(eIt->HasNext());
 
       eIt->Delete();
       contourFilter->Delete();
@@ -361,21 +361,21 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(req
       // now prepare the output
       output->Initialize();
       for(unsigned int i = 0; i < skeleton.size(); i++)
-        {
+      {
         vtkDoubleArray *outputArc = vtkDoubleArray::New();
         outputArc->SetNumberOfComponents(3);
         for(unsigned int j = 0; j < skeleton[i].size(); j++)
-          {
+        {
           for(int k = 0; k < 3; k++)
             point[k] = skeleton[i][j][k];
           outputArc->InsertNextTypedTuple(point);
-          }
+        }
         output->AddColumn(outputArc);
         outputArc->Delete();
-        }
       }
+    }
 
     return 1;
-    }
+  }
   return 0;
 }

@@ -84,14 +84,14 @@ int vtkDataSetGhostGenerator::RequestData(
 
  // STEP 2: Generate ghost layers
  if( this->NumberOfGhostLayers == 0 )
-   {
+ {
    // Shallow copy the input object
    outputMultiBlock->ShallowCopy( inputMultiBlock );
-   }
+ }
  else
-   {
+ {
    // Create requested ghost layers
    this->GenerateGhostLayers( inputMultiBlock, outputMultiBlock );
-   }
+ }
  return 1;
 }

@@ -123,9 +123,9 @@ public:
   template<typename T>
   void FillCellUserId(T *buffer,const LSDynaMetaData::LSDYNA_TYPES& type,
     const vtkIdType& startId, const vtkIdType& numCells)
-    {
+  {
     this->FillCellUserIdArray(buffer,type,startId,numCells);
-    }
+  }
 
 protected:
   vtkLSDynaPartCollection();

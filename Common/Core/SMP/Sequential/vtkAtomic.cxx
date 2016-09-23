@@ -36,7 +36,7 @@
 #include "vtkSimpleCriticalSection.h"
 
 class CriticalSectionGuard
-{
+    {
 public:
   CriticalSectionGuard(vtkSimpleCriticalSection &cs) : CriticalSection(cs)
   {
@@ -54,7 +54,7 @@ private:
   void operator=(const CriticalSectionGuard&);
 
   vtkSimpleCriticalSection &CriticalSection;
-};
+    };
 
 #if defined(VTK_LOCK_BASED_ATOMICS_64)
 detail::AtomicOps<8>::atomic_type::atomic_type(vtkTypeInt64 init)

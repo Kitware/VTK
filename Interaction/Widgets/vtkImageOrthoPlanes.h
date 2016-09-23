@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageOrthoPlanes - Connect three vtkImagePlaneWidgets together
-// .SECTION Description
-// vtkImageOrthoPlanes is an event observer class that listens to the
-// events from three vtkImagePlaneWidgets and keeps their orientations
-// and scales synchronized.
-// .SECTION See Also
-// vtkImagePlaneWidget
-// .SECTION Thanks
-// Thanks to Atamai Inc. for developing and contributing this class.
+/**
+ * @class   vtkImageOrthoPlanes
+ * @brief   Connect three vtkImagePlaneWidgets together
+ *
+ * vtkImageOrthoPlanes is an event observer class that listens to the
+ * events from three vtkImagePlaneWidgets and keeps their orientations
+ * and scales synchronized.
+ * @sa
+ * vtkImagePlaneWidget
+ * @par Thanks:
+ * Thanks to Atamai Inc. for developing and contributing this class.
+*/
 
 #ifndef vtkImageOrthoPlanes_h
 #define vtkImageOrthoPlanes_h
@@ -39,21 +42,27 @@ public:
   vtkTypeMacro(vtkImageOrthoPlanes,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // You must set three planes for the widget.
+  //@{
+  /**
+   * You must set three planes for the widget.
+   */
   void SetPlane(int i, vtkImagePlaneWidget *imagePlaneWidget);
   vtkImagePlaneWidget* GetPlane(int i);
+  //@}
 
-  // Description:
-  // Reset the planes to original scale, rotation, and location.
+  /**
+   * Reset the planes to original scale, rotation, and location.
+   */
   void ResetPlanes();
 
-  // Description:
-  // Get the transform for the planes.
+  /**
+   * Get the transform for the planes.
+   */
   vtkTransform *GetTransform() { return this->Transform; };
 
-  // Description:
-  // A public method to be used only by the event callback.
+  /**
+   * A public method to be used only by the event callback.
+   */
   void HandlePlaneEvent(vtkImagePlaneWidget *imagePlaneWidget);
 
 protected:

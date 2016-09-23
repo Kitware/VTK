@@ -33,10 +33,10 @@ vtkStringToImage::~vtkStringToImage()
 void vtkStringToImage::SetScaleToPowerOfTwo(bool scale)
 {
   if (this->ScaleToPowerOfTwo != scale)
-    {
+  {
     this->ScaleToPowerOfTwo = scale;
     this->Modified();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------

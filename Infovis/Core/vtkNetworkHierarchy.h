@@ -17,13 +17,16 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkNetworkHierarchy - Filter that takes a graph and makes a
-// tree out of the network ip addresses in that graph.
-//
-// .SECTION Description
-// Use SetInputArrayToProcess(0, ...) to set the array to that has
-// the network ip addresses.
-// Currently this array must be a vtkStringArray.
+/**
+ * @class   vtkNetworkHierarchy
+ * @brief   Filter that takes a graph and makes a
+ * tree out of the network ip addresses in that graph.
+ *
+ *
+ * Use SetInputArrayToProcess(0, ...) to set the array to that has
+ * the network ip addresses.
+ * Currently this array must be a vtkStringArray.
+*/
 
 #ifndef vtkNetworkHierarchy_h
 #define vtkNetworkHierarchy_h
@@ -39,10 +42,13 @@ public:
   static vtkNetworkHierarchy* New();
   vtkTypeMacro(vtkNetworkHierarchy,vtkTreeAlgorithm);
 
-  // Description:
-  // Used to store the ip array name
+  //@{
+  /**
+   * Used to store the ip array name
+   */
   vtkGetStringMacro(IPArrayName);
   vtkSetStringMacro(IPArrayName);
+  //@}
 
   void PrintSelf(ostream& os, vtkIndent indent);
 

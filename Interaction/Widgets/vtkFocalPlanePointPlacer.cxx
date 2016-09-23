@@ -66,13 +66,13 @@ int vtkFocalPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
   double focalPlaneNormal[3];
   ren->GetActiveCamera()->GetDirectionOfProjection( focalPlaneNormal );
   if (ren->GetActiveCamera()->GetParallelProjection())
-    {
+  {
     tmp[0] += (focalPlaneNormal[0] * this->Offset);
     tmp[1] += (focalPlaneNormal[1] * this->Offset);
     tmp[2] += (focalPlaneNormal[2] * this->Offset);
-    }
+  }
   else
-    {
+  {
     double camPos[3], viewDirection[3];
     ren->GetActiveCamera()->GetPosition( camPos );
     viewDirection[0] = tmp[0] - camPos[0];
@@ -82,19 +82,19 @@ int vtkFocalPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
     double costheta = vtkMath::Dot( viewDirection, focalPlaneNormal ) /
         (vtkMath::Norm(viewDirection) * vtkMath::Norm(focalPlaneNormal));
     if (costheta != 0.0) // 0.0 Impossible in a perspective projection
-      {
+    {
       tmp[0] += (viewDirection[0] * this->Offset / costheta);
       tmp[1] += (viewDirection[1] * this->Offset / costheta);
       tmp[2] += (viewDirection[2] * this->Offset / costheta);
-      }
     }
+  }
 
   double tolerance[3] = { 1e-12, 1e-12, 1e-12 };
   if ( this->PointBounds[0] < this->PointBounds[1] &&
       !(vtkMath::PointIsWithinBounds( tmp, this->PointBounds, tolerance )))
-    {
+  {
     return 0;
-    }
+  }
 
   worldPos[0] = tmp[0];
   worldPos[1] = tmp[1];
@@ -134,13 +134,13 @@ int vtkFocalPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
   double focalPlaneNormal[3];
   ren->GetActiveCamera()->GetDirectionOfProjection( focalPlaneNormal );
   if (ren->GetActiveCamera()->GetParallelProjection())
-    {
+  {
     tmp[0] += (focalPlaneNormal[0] * this->Offset);
     tmp[1] += (focalPlaneNormal[1] * this->Offset);
     tmp[2] += (focalPlaneNormal[2] * this->Offset);
-    }
+  }
   else
-    {
+  {
     double camPos[3], viewDirection[3];
     ren->GetActiveCamera()->GetPosition( camPos );
     viewDirection[0] = tmp[0] - camPos[0];
@@ -150,19 +150,19 @@ int vtkFocalPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
     double costheta = vtkMath::Dot( viewDirection, focalPlaneNormal ) /
         (vtkMath::Norm(viewDirection) * vtkMath::Norm(focalPlaneNormal));
     if (costheta != 0.0) // 0.0 Impossible in a perspective projection
-      {
+    {
       tmp[0] += (viewDirection[0] * this->Offset / costheta);
       tmp[1] += (viewDirection[1] * this->Offset / costheta);
       tmp[2] += (viewDirection[2] * this->Offset / costheta);
-      }
     }
+  }
 
   double tolerance[3] = { 1e-12, 1e-12, 1e-12 };
   if ( this->PointBounds[0] < this->PointBounds[1] &&
       !(vtkMath::PointIsWithinBounds( tmp, this->PointBounds, tolerance )))
-    {
+  {
     return 0;
-    }
+  }
 
   worldPos[0] = tmp[0];
   worldPos[1] = tmp[1];
@@ -179,9 +179,9 @@ int vtkFocalPlanePointPlacer::ValidateWorldPosition( double* worldPos )
   double tolerance[3] = { 1e-12, 1e-12, 1e-12 };
   if ( this->PointBounds[0] < this->PointBounds[1] &&
     !(vtkMath::PointIsWithinBounds( worldPos, this->PointBounds, tolerance )))
-    {
+  {
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -193,9 +193,9 @@ int vtkFocalPlanePointPlacer::ValidateWorldPosition( double* worldPos,
   double tolerance[3] = { 1e-12, 1e-12, 1e-12 };
   if ( this->PointBounds[0] < this->PointBounds[1] &&
     !(vtkMath::PointIsWithinBounds( worldPos, this->PointBounds, tolerance )))
-    {
+  {
     return 0;
-    }
+  }
 
   return 1;
 }

@@ -67,17 +67,17 @@ int vtkPComputeHistogram2DOutliers::RequestData(
     return 0;
 
   if (!this->Controller || this->Controller->GetNumberOfProcesses() <= 1)
-    {
+  {
     // Nothing to do for single process.
     return 1;
-    }
+  }
 
   vtkCommunicator* comm = this->Controller->GetCommunicator();
   if (!comm)
-    {
+  {
     vtkErrorMacro("Need a communicator.");
     return 0;
-    }
+  }
 
   // get the ouptut
   vtkInformation *outTableInfo = outputVector->GetInformationObject(OUTPUT_SELECTED_TABLE_DATA);
@@ -94,7 +94,7 @@ int vtkPComputeHistogram2DOutliers::RequestData(
   // for each column, make a new one and add it to a new table
   vtkSmartPointer<vtkTable> gatheredTable = vtkSmartPointer<vtkTable>::New();
   for (int i=0; i<outputTable->GetNumberOfColumns(); i++)
-    {
+  {
     vtkAbstractArray* col = vtkArrayDownCast<vtkAbstractArray>(outputTable->GetColumn(i));
     if (!col)
       continue;
@@ -110,11 +110,11 @@ int vtkPComputeHistogram2DOutliers::RequestData(
     // compute the displacements
     vtkIdType typeSize = col->GetDataTypeSize();
     for (int j=0; j<numProcesses; j++)
-      {
+    {
       recvOffsets[j] = totalLength*typeSize;
       totalLength += recvLengths[j];
       recvLengths[j] *= typeSize;
-      }
+    }
 
     // communicating this as a byte array :/
     vtkAbstractArray* received = vtkAbstractArray::CreateArray(col->GetDataType());
@@ -127,7 +127,7 @@ int vtkPComputeHistogram2DOutliers::RequestData(
 
     gatheredTable->AddColumn(received);
     received->Delete();
-    }
+  }
 
   outputTable->ShallowCopy(gatheredTable);
 

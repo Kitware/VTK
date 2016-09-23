@@ -53,20 +53,20 @@ int TestSingleGridBlanking(bool pointBlanking, bool reverse, int expectedNumberO
 
   vtkNew<vtkImageDataToUniformGrid> imageDataToUniformGrid;
   if(reverse)
-    {
+  {
     imageDataToUniformGrid->ReverseOn();
-    }
+  }
   imageDataToUniformGrid->SetInputConnection(pointDataToCellData->GetOutputPort());
   if(pointBlanking)
-    {
+  {
     imageDataToUniformGrid->SetInputArrayToProcess(
       0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Elevation");
-    }
+  }
   else
-    {
+  {
     imageDataToUniformGrid->SetInputArrayToProcess(
       0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "Elevation");
-    }
+  }
   imageDataToUniformGrid->Update();
 
   // the threshold filter is really meant to create an unstructured
@@ -82,9 +82,9 @@ int TestSingleGridBlanking(bool pointBlanking, bool reverse, int expectedNumberO
   vtkUnstructuredGrid* outputGrid = threshold->GetOutput();
 
   if(outputGrid->GetNumberOfCells() == expectedNumberOfCells)
-    {
+  {
     return 0;
-    }
+  }
   vtkGenericWarningMacro("Expecting " << expectedNumberOfCells << " but getting "
                          << outputGrid->GetNumberOfCells());
   return 1;
@@ -126,9 +126,9 @@ int TestMultiBlockBlanking(int expectedNumberOfCells)
   vtkUnstructuredGrid* outputGrid = threshold->GetOutput();
 
   if(outputGrid->GetNumberOfCells() == expectedNumberOfCells)
-    {
+  {
     return 0;
-    }
+  }
   vtkGenericWarningMacro("Expecting " << expectedNumberOfCells << " but getting "
                          << outputGrid->GetNumberOfCells());
   return 1;

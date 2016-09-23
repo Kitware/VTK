@@ -68,9 +68,9 @@ int TestCustomArrayRadius(int, char *[])
   radii->SetName("radii");
   radii->SetNumberOfTuples(mol->GetNumberOfAtoms());
   for (vtkIdType i = 0; i < mol->GetNumberOfAtoms(); ++i)
-    {
+  {
     radii->SetTypedComponent(i, 0, (i % 2) ? 0.5f : 1.0f);
-    }
+  }
   mol->GetVertexData()->AddArray(radii.Get());
 
   vtkNew<vtkMoleculeMapper> molmapper;

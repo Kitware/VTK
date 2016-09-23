@@ -154,9 +154,9 @@ vtkFinitePlaneRepresentation::vtkFinitePlaneRepresentation()
   points->SetNumberOfPoints(4);
   this->PlanePolyData->SetPoints(points.Get());
   for (int i = 0; i < 4; i++)
-    {
+  {
     points->SetPoint(i, this->Origin);
-    }
+  }
 
   // Construct plane geometry
   vtkNew<vtkCellArray> cell;
@@ -318,9 +318,9 @@ void vtkFinitePlaneRepresentation::WidgetInteraction(double e[2])
 
   vtkCamera *camera = this->Renderer->GetActiveCamera();
   if (!camera)
-    {
+  {
     return;
-    }
+  }
 
   // Compute the two points defining the motion vector
   double pos[3];
@@ -338,26 +338,26 @@ void vtkFinitePlaneRepresentation::WidgetInteraction(double e[2])
 
   // Process the motion
   if (this->InteractionState == vtkFinitePlaneRepresentation::MoveOrigin)
-    {
+  {
     this->TranslateOrigin(prevPickPoint, pickPoint);
-    }
+  }
   else if (this->InteractionState == vtkFinitePlaneRepresentation::ModifyV1)
-    {
+  {
     this->MovePoint1(prevPickPoint, pickPoint);
-    }
+  }
   else if (this->InteractionState == vtkFinitePlaneRepresentation::ModifyV2)
-    {
+  {
     this->MovePoint2(prevPickPoint, pickPoint);
-    }
+  }
    else if (this->InteractionState == vtkFinitePlaneRepresentation::Rotating)
-    {
+   {
     camera->GetViewPlaneNormal(vpn);
     this->Rotate(e[0], e[1], prevPickPoint, pickPoint, vpn);
-    }
+   }
    else if (this->InteractionState == vtkFinitePlaneRepresentation::Pushing)
-    {
+   {
     this->Push(prevPickPoint, pickPoint);
-    }
+   }
 
   // Store the start position
   this->LastEventPosition[0] = e[0];
@@ -476,11 +476,11 @@ int vtkFinitePlaneRepresentation::ComputeInteractionState(int X, int Y,
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then pick the bounding box.
   if (!this->Renderer || !this->Renderer->IsInViewport(X, Y))
-    {
+  {
     this->SetRepresentationState(vtkFinitePlaneRepresentation::Outside);
     this->InteractionState = vtkFinitePlaneRepresentation::Outside;
     return this->InteractionState;
-    }
+  }
 
   this->SetHighlightNormal(0);
   this->SetHighlightPlane(0);
@@ -490,61 +490,61 @@ int vtkFinitePlaneRepresentation::ComputeInteractionState(int X, int Y,
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
 
   if (path == NULL) // Not picking this widget
-    {
+  {
     this->SetRepresentationState(vtkFinitePlaneRepresentation::Outside);
     this->InteractionState = vtkFinitePlaneRepresentation::Outside;
     return this->InteractionState;
-    }
+  }
 
   // Something picked, continue
   this->ValidPick = 1;
   vtkProp *prop = path->GetFirstNode()->GetViewProp();
 
   if (prop == this->PlaneActor)
-    {
+  {
     this->SetRepresentationState(vtkFinitePlaneRepresentation::Pushing);
     this->InteractionState = vtkFinitePlaneRepresentation::Pushing;
     this->SetHighlightNormal(0);
     this->SetHighlightPlane(1);
     this->SetHighlightHandle(NULL);
-    }
+  }
   else if ((prop == this->ConeActor) || (prop == this->ConeActor2) ||
     (prop == this->LineActor) || (prop == this->LineActor2))
-    {
+  {
     this->SetRepresentationState(vtkFinitePlaneRepresentation::Rotating);
     this->InteractionState = vtkFinitePlaneRepresentation::Rotating;
 
     this->SetHighlightNormal(1);
     this->SetHighlightPlane(1);
     this->SetHighlightHandle(NULL);
-    }
+  }
   else if (prop == this->OriginActor)
-    {
+  {
     this->SetRepresentationState(vtkFinitePlaneRepresentation::MoveOrigin);
     this->InteractionState = vtkFinitePlaneRepresentation::MoveOrigin;
 
     this->SetHighlightNormal(1);
     this->SetHighlightPlane(1);
     this->SetHighlightHandle(prop);
-    }
+  }
   else if (prop == this->V1Actor)
-    {
+  {
     this->SetRepresentationState(vtkFinitePlaneRepresentation::ModifyV1);
     this->InteractionState = vtkFinitePlaneRepresentation::ModifyV1;
 
     this->SetHighlightNormal(0);
     this->SetHighlightPlane(0);
     this->SetHighlightHandle(prop);
-    }
+  }
   else if (prop == this->V2Actor)
-    {
+  {
     this->SetRepresentationState(vtkFinitePlaneRepresentation::ModifyV2);
     this->InteractionState = vtkFinitePlaneRepresentation::ModifyV2;
 
     this->SetHighlightNormal(0);
     this->SetHighlightPlane(0);
     this->SetHighlightHandle(prop);
-    }
+  }
 
   return this->InteractionState;
 }
@@ -574,9 +574,9 @@ void vtkFinitePlaneRepresentation::BuildRepresentation()
 
   if (this->GetMTime() < this->BuildTime &&
       this->PlanePolyData->GetMTime() < this->BuildTime)
-    {
+  {
     return;
-    }
+  }
 
   double *origin = this->GetOrigin();
   double *normal = this->GetNormal();
@@ -677,17 +677,17 @@ int vtkFinitePlaneRepresentation::RenderOpaqueGeometry(vtkViewport *v)
   this->BuildRepresentation();
 
   if (this->OriginActor->GetVisibility())
-    {
+  {
     count += this->OriginActor->RenderOpaqueGeometry(v);
-    }
+  }
   if (this->V1Actor->GetVisibility())
-    {
+  {
     count += this->V1Actor->RenderOpaqueGeometry(v);
-    }
+  }
   if (this->V2Actor->GetVisibility())
-    {
+  {
     count += this->V2Actor->RenderOpaqueGeometry(v);
-    }
+  }
   count += this->EdgesActor->RenderOpaqueGeometry(v);
   count += this->ConeActor->RenderOpaqueGeometry(v);
   count += this->LineActor->RenderOpaqueGeometry(v);
@@ -695,9 +695,9 @@ int vtkFinitePlaneRepresentation::RenderOpaqueGeometry(vtkViewport *v)
   count += this->LineActor2->RenderOpaqueGeometry(v);
 
   if (this->DrawPlane)
-    {
+  {
     count += this->PlaneActor->RenderOpaqueGeometry(v);
-    }
+  }
 
   return count;
 }
@@ -709,17 +709,17 @@ int vtkFinitePlaneRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport
   this->BuildRepresentation();
 
   if (this->OriginActor->GetVisibility())
-    {
+  {
     count += this->OriginActor->RenderTranslucentPolygonalGeometry(v);
-    }
+  }
   if (this->V1Actor->GetVisibility())
-    {
+  {
     count += this->V1Actor->RenderTranslucentPolygonalGeometry(v);
-    }
+  }
   if (this->V2Actor->GetVisibility())
-    {
+  {
     count += this->V2Actor->RenderTranslucentPolygonalGeometry(v);
-    }
+  }
 
   count += this->EdgesActor->RenderTranslucentPolygonalGeometry(v);
   count += this->ConeActor->RenderTranslucentPolygonalGeometry(v);
@@ -728,9 +728,9 @@ int vtkFinitePlaneRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport
   count += this->LineActor2->RenderTranslucentPolygonalGeometry(v);
 
   if (this->DrawPlane)
-    {
+  {
     count += this->PlaneActor->RenderTranslucentPolygonalGeometry(v);
-    }
+  }
 
   return count;
 }
@@ -742,17 +742,17 @@ int vtkFinitePlaneRepresentation::HasTranslucentPolygonalGeometry()
   this->BuildRepresentation();
 
   if (this->OriginActor->GetVisibility())
-    {
+  {
     result |= this->OriginActor->HasTranslucentPolygonalGeometry();
-    }
+  }
   if (this->V1Actor->GetVisibility())
-    {
+  {
     result |= this->V1Actor->HasTranslucentPolygonalGeometry();
-    }
+  }
   if (this->V2Actor->GetVisibility())
-    {
+  {
     result |= this->V2Actor->HasTranslucentPolygonalGeometry();
-    }
+  }
 
   result |= this->EdgesActor->HasTranslucentPolygonalGeometry();
   result |= this->ConeActor->HasTranslucentPolygonalGeometry();
@@ -761,9 +761,9 @@ int vtkFinitePlaneRepresentation::HasTranslucentPolygonalGeometry()
   result |= this->LineActor2->HasTranslucentPolygonalGeometry();
 
   if (this->DrawPlane)
-    {
+  {
     result |= this->PlaneActor->HasTranslucentPolygonalGeometry();
-    }
+  }
 
   return result;
 }
@@ -773,9 +773,9 @@ void vtkFinitePlaneRepresentation::SetHandles(bool handles)
 {
   int h = handles ? 1 : 0;
   if (this->V1Actor->GetVisibility() == h)
-    {
+  {
     return;
-    }
+  }
   this->V1Actor->SetVisibility(h);
   this->V2Actor->SetVisibility(h);
   this->OriginActor->SetVisibility(h);
@@ -816,24 +816,24 @@ void vtkFinitePlaneRepresentation::SizeHandles()
 void vtkFinitePlaneRepresentation::SetHighlightHandle(vtkProp *prop)
 {
   if (this->CurrentHandle == this->OriginActor)
-    {
+  {
     this->OriginActor->SetProperty(this->OriginHandleProperty);
-    }
+  }
   else if (this->CurrentHandle == this->V1Actor)
-    {
+  {
     this->CurrentHandle->SetProperty(this->V1HandleProperty);
-    }
+  }
   else if (this->CurrentHandle == this->V2Actor)
-    {
+  {
     this->CurrentHandle->SetProperty(this->V2HandleProperty);
-    }
+  }
 
   this->CurrentHandle = dynamic_cast<vtkActor*>(prop);
 
   if (this->CurrentHandle)
-    {
+  {
     this->CurrentHandle->SetProperty(this->SelectedHandleProperty);
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -856,14 +856,14 @@ void vtkFinitePlaneRepresentation::SetOrigin(double x[3])
   if (this->Origin[0] != x[0] ||
       this->Origin[1] != x[1] ||
       this->Origin[2] != x[2])
-    {
+  {
     this->Origin[0] = x[0];
     this->Origin[1] = x[1];
     this->Origin[2] = x[2];
 
     this->Modified();
     this->BuildRepresentation();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -878,13 +878,13 @@ void vtkFinitePlaneRepresentation::SetV1(double x[2])
 {
   if (this->V1[0] != x[0] ||
       this->V1[1] != x[1])
-    {
+  {
     this->V1[0] = x[0];
     this->V1[1] = x[1];
 
     this->Modified();
     this->BuildRepresentation();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -899,13 +899,13 @@ void vtkFinitePlaneRepresentation::SetV2(double x[2])
 {
   if (this->V2[0] != x[0] ||
       this->V2[1] != x[1])
-    {
+  {
     this->V2[0] = x[0];
     this->V2[1] = x[1];
 
     this->Modified();
     this->BuildRepresentation();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -919,7 +919,7 @@ void vtkFinitePlaneRepresentation::SetNormal(double x, double y, double z)
   this->PreviousNormal[2] = this->Normal[2];
 
   if (n[0] != this->Normal[0] || n[1] != this->Normal[1] || n[2] != this->Normal[2])
-    {
+  {
     this->Normal[0] = n[0];
     this->Normal[1] = n[1];
     this->Normal[2] = n[2];
@@ -936,7 +936,7 @@ void vtkFinitePlaneRepresentation::SetNormal(double x, double y, double z)
 
     this->Modified();
     this->BuildRepresentation();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -949,9 +949,9 @@ void vtkFinitePlaneRepresentation::SetNormal(double n[3])
 void vtkFinitePlaneRepresentation::SetDrawPlane(bool drawPlane)
 {
   if (drawPlane == this->DrawPlane)
-    {
+  {
     return;
-    }
+  }
 
   this->DrawPlane = drawPlane;
   this->Modified();
@@ -981,9 +981,9 @@ void vtkFinitePlaneRepresentation::SetHighlightNormal(int highlight)
 void vtkFinitePlaneRepresentation::SetRepresentationState(int state)
 {
   if (this->RepresentationState == state)
-    {
+  {
     return;
-    }
+  }
 
   // Clamp the state
   state = (state < vtkFinitePlaneRepresentation::Outside ?
@@ -1077,9 +1077,9 @@ void vtkFinitePlaneRepresentation::Push(double *p1, double *p2)
   double distance = vtkMath::Dot(v, this->Normal);
 
   if (distance == 0.0)
-    {
+  {
     return;
-    }
+  }
 
   double origin[3];
   this->GetOrigin(origin);
@@ -1102,56 +1102,56 @@ void vtkFinitePlaneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
      << "(" << bounds[4] << ", " << bounds[5] << ")\n";
 
   if (this->OriginHandleProperty)
-    {
+  {
     os << indent << "Origin Handle Property: " << this->OriginHandleProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Origin Handle Property: (none)\n";
-    }
+  }
   if (this->V1HandleProperty)
-    {
+  {
     os << indent << "P1 Handle Property: " << this->V1HandleProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "P1 Handle Property: (none)\n";
-    }
+  }
   if (this->V2HandleProperty)
-    {
+  {
     os << indent << "P2 Handle Property: " << this->V2HandleProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "P2 Handle Property: (none)\n";
-    }
+  }
   if (this->SelectedHandleProperty)
-    {
+  {
     os << indent << "Selected Handle Property: "
        << this->SelectedHandleProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "SelectedHandle Property: (none)\n";
-    }
+  }
 
   if (this->PlaneProperty)
-    {
+  {
     os << indent << "Plane Property: " << this->PlaneProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Plane Property: (none)\n";
-    }
+  }
   if (this->SelectedPlaneProperty)
-    {
+  {
     os << indent << "Selected Plane Property: "
        << this->SelectedPlaneProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Selected Plane Property: (none)\n";
-    }
+  }
 
   os << indent << "Tubing: " << (this->Tubing ? "On" : "Off") << "\n";
   os << indent << "Draw Plane: " << (this->DrawPlane ? "On" : "Off") << "\n";

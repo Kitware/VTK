@@ -78,56 +78,56 @@ int vtkIdFilter::RequestData(
   // Loop over points (if requested) and generate ids
   //
   if ( this->PointIds && numPts > 0 )
-    {
+  {
     ptIds = vtkIdTypeArray::New();
     ptIds->SetNumberOfValues(numPts);
 
     for (id=0; id < numPts; id++)
-      {
+    {
       ptIds->SetValue(id, id);
-      }
+    }
 
     ptIds->SetName(this->IdsArrayName);
     if ( ! this->FieldData )
-      {
+    {
       int idx = outPD->AddArray(ptIds);
       outPD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
       outPD->CopyScalarsOff();
-      }
+    }
     else
-      {
+    {
       outPD->AddArray(ptIds);
       outPD->CopyFieldOff(this->IdsArrayName);
-      }
-    ptIds->Delete();
     }
+    ptIds->Delete();
+  }
 
   // Loop over cells (if requested) and generate ids
   //
   if ( this->CellIds && numCells > 0 )
-    {
+  {
     cellIds = vtkIdTypeArray::New();
     cellIds->SetNumberOfValues(numCells);
 
     for (id=0; id < numCells; id++)
-      {
+    {
       cellIds->SetValue(id, id);
-      }
+    }
 
     cellIds->SetName(this->IdsArrayName);
     if ( ! this->FieldData )
-      {
+    {
       int idx = outCD->AddArray(cellIds);
       outCD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
       outCD->CopyScalarsOff();
-      }
+    }
     else
-      {
+    {
       outCD->AddArray(cellIds);
       outCD->CopyFieldOff(this->IdsArrayName);
-      }
-    cellIds->Delete();
     }
+    cellIds->Delete();
+  }
 
   outPD->PassData(inPD);
   outCD->PassData(inCD);

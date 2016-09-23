@@ -82,25 +82,25 @@ int vtkMatrixMathFilter::RequestData
   bool const cellQuality  =
     vtkDataObject::FIELD_ASSOCIATION_CELLS  == association;
   if (!pointQuality && !cellQuality)
-    {
+  {
     vtkWarningMacro("Unknown association " << association);
     return 1;
-    }
+  }
 
   vtkIdType const nCells  = in->GetNumberOfCells ();
   vtkIdType const nPoints = in->GetNumberOfPoints();
   if ((pointQuality && 0 == nPoints) || (cellQuality && 0 == nCells))
-    {
+  {
     vtkWarningMacro("No data to work.");
     return 1;
-    }
+  }
 
   // Allocate storage for the computation
   vtkSmartPointer<vtkDoubleArray> quality =
     vtkSmartPointer<vtkDoubleArray>::New();
   // Set different number of component and name depending on the quality
   switch (this->GetOperation())
-    {
+  {
     case DETERMINANT :
       quality->SetName("Determinant");
       quality->SetNumberOfComponents(1);
@@ -120,7 +120,7 @@ int vtkMatrixMathFilter::RequestData
     default:
       vtkWarningMacro("Bad Operation (" << this->GetOperation() << ")");
       return 1;
-    }
+  }
   quality->SetNumberOfTuples(pointQuality ? nPoints : nCells);
 
   // Support progress and abort.
@@ -129,28 +129,28 @@ int vtkMatrixMathFilter::RequestData
 
   // Actual computation of the selected quality
   for (vtkIdType i = 0, n = (pointQuality ? nPoints : nCells); i < n; ++i)
-    {
+  {
     // Periodically update progress and check for an abort request.
     if (0 == i % tenth)
-      {
+    {
       this->UpdateProgress((i+1)*nCellInv);
       if (this->GetAbortExecute()) { break; }
-      }
+    }
 
     // Interpret the associated data as a 3 by 3 matrix and evaluate it for the
     // requested quality measure.
     switch (this->GetOperation())
-      {
+    {
       case DETERMINANT :
-        {
+      {
         double const q = vtkMath::Determinant3x3(
           reinterpret_cast<double(*)[3]>(inTensors->GetTuple(i)));
         quality->SetTuple(i, &q);
         break;
-        }
+      }
       case EIGENVALUE :
       case EIGENVECTOR :
-        {
+      {
         double* d = inTensors->GetTuple(i);
         double  w[3]={0}, v[9]={0}, t[]={d[1]-d[3], d[2]-d[6], d[5]-d[7]};
 
@@ -159,25 +159,25 @@ int vtkMatrixMathFilter::RequestData
         if (-1e-5 <= t[0] && t[0] <= 1e-5 &&
             -1e-5 <= t[1] && t[1] <= 1e-5 &&
             -1e-5 <= t[2] && t[2] <= 1e-5)
-          {
+        {
           // I have to do this conversion due to the Jacobi implementation.
           double* dd [] = {d, d+3, d+6};
           double* vv [] = {v, v+3, v+6};
           vtkMath::Jacobi(dd, w, vv);
-          }
+        }
 
         if (EIGENVALUE == this->GetOperation())
-          {
-          quality->SetTuple(i, w);
-          }
-        else
-          {
-          quality->SetTuple(i, v);
-          }
-        break;
-        }
-      case INVERSE :
         {
+          quality->SetTuple(i, w);
+        }
+        else
+        {
+          quality->SetTuple(i, v);
+        }
+        break;
+      }
+      case INVERSE :
+      {
         double AI [3][3] = {{0}}, (*A) [3]
           = reinterpret_cast<double(*)[3]>(inTensors->GetTuple(i));
 
@@ -208,7 +208,7 @@ int vtkMatrixMathFilter::RequestData
 
         // Compute inverse only if the matrix is non-singular
         if (det < -VTK_DBL_EPSILON || det > VTK_DBL_EPSILON)
-          {
+        {
           AI[0][0] = d1/det;
           AI[1][0] = d2/det;
           AI[2][0] = d3/det;
@@ -220,22 +220,22 @@ int vtkMatrixMathFilter::RequestData
           AI[0][2] = f1/det;
           AI[1][2] = f2/det;
           AI[2][2] = f3/det;
-          }
+        }
 
         quality->SetTuple(i, AI[0]);
         break;
-        }
       }
     }
+  }
 
   if (pointQuality)
-    {
+  {
     out->GetPointData()->AddArray(quality);
-    }
+  }
   else
-    {
+  {
     out->GetCellData()->AddArray(quality);
-    }
+  }
 
   return 1;
 }

@@ -47,28 +47,28 @@ void vtkImageLogarithmicScaleExecute(vtkImageLogarithmicScale *self,
 
   // Loop through output pixels
   while (!outIt.IsAtEnd())
-    {
+  {
     T* inSI = inIt.BeginSpan();
     T* outSI = outIt.BeginSpan();
     T* outSIEnd = outIt.EndSpan();
     while (outSI != outSIEnd)
-      {
+    {
       // Pixel operation
       if (*inSI > 0)
-        {
+      {
         *outSI = static_cast<T>(c*log(static_cast<double>(*inSI)+1.0));
-        }
+      }
       else
-        {
+      {
         *outSI = static_cast<T>(-c*log(1.0-static_cast<double>(*inSI)));
-        }
+      }
 
       outSI++;
       inSI++;
-      }
+    }
     inIt.NextSpan();
     outIt.NextSpan();
-    }
+  }
 }
 
 
@@ -83,16 +83,16 @@ void vtkImageLogarithmicScale::ThreadedExecute (vtkImageData *inData,
 {
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
-    {
+  {
     vtkErrorMacro(<< "Execute: input ScalarType, "
                   << inData->GetScalarType()
                   << ", must match out ScalarType "
                   << outData->GetScalarType());
     return;
-    }
+  }
 
   switch (inData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageLogarithmicScaleExecute(this, inData,
                                       outData, outExt, id,
@@ -100,7 +100,7 @@ void vtkImageLogarithmicScale::ThreadedExecute (vtkImageData *inData,
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;
-    }
+  }
 }
 
 void vtkImageLogarithmicScale::PrintSelf(ostream& os, vtkIndent indent)

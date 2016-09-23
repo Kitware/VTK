@@ -56,37 +56,37 @@ static void vtkOpaqueAtElementCentroid (int XSize,
   AGrayValue[0] = AGrayValue[1] = 255;
 
   for (j = 0; j < YSize; j++)
-    {
+  {
     for (i = 0; i < XSize; i++)
-      {
+    {
       point[0] = i / XScale;
       point[1] = j / YScale;
       dist = vtkMath::Distance2BetweenPoints (point, v1);
       distToV2 = vtkMath::Distance2BetweenPoints (point, v2);
       if (distToV2 < dist)
-        {
+      {
         dist = distToV2;
-        }
+      }
       distToV3 = vtkMath::Distance2BetweenPoints (point, v3);
       if (distToV3 < dist)
-        {
+      {
         dist = distToV3;
-        }
+      }
 
       opacity = sqrt(dist) * ScaleFactor;
       if (opacity < .5)
-        {
+      {
         opacity = 0.0;
-        }
+      }
       if (opacity > .5)
-        {
+      {
         opacity = 1.0;
-        }
+      }
       AGrayValue[1] = static_cast<unsigned char>(opacity * 255);
       newScalars->SetValue ((XSize*j + i)*2, AGrayValue[0]);
       newScalars->SetValue ((XSize*j + i)*2 + 1, AGrayValue[1]);
-      }
     }
+  }
 }
 
 static void vtkOpaqueAtVertices (int XSize,
@@ -109,38 +109,38 @@ static void vtkOpaqueAtVertices (int XSize,
   AGrayValue[0] = AGrayValue[1] = 255;
 
   for (j = 0; j < YSize; j++)
-    {
+  {
     for (i = 0; i < XSize; i++)
-      {
+    {
       point[0] = i / XScale;
       point[1] = j / YScale;
       dist = vtkMath::Distance2BetweenPoints (point, v1);
       distToV2 = vtkMath::Distance2BetweenPoints (point, v2);
       if (distToV2 < dist)
-        {
+      {
         dist = distToV2;
-        }
+      }
       distToV3 = vtkMath::Distance2BetweenPoints (point, v3);
       if (distToV3 < dist)
-        {
+      {
         dist = distToV3;
-        }
+      }
 
       opacity = sqrt(dist) * ScaleFactor;
       if (opacity < .5)
-        {
+      {
         opacity = 0.0;
-        }
+      }
       if (opacity > .5)
-        {
+      {
         opacity = 1.0;
-        }
+      }
       opacity = 1.0 - opacity;
       AGrayValue[1] = static_cast<unsigned char>(opacity * 255);
       newScalars->SetValue ((XSize*j + i)*2, AGrayValue[0]);
       newScalars->SetValue ((XSize*j + i)*2 + 1, AGrayValue[1]);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -167,13 +167,13 @@ void vtkTriangularTexture::ExecuteDataWithInformation(vtkDataObject *outp,
     vtkArrayDownCast<vtkUnsignedCharArray>(output->GetPointData()->GetScalars());
 
   if (this->XSize*this->YSize < 1)
-    {
+  {
     vtkErrorMacro(<<"Bad texture (xsize,ysize) specification!");
     return;
-    }
+  }
 
   switch (this->TexturePattern)
-    {
+  {
     case 1: // opaque at element vertices
       vtkOpaqueAtVertices (this->XSize, this->YSize,
                            this->ScaleFactor, newScalars);
@@ -187,7 +187,7 @@ void vtkTriangularTexture::ExecuteDataWithInformation(vtkDataObject *outp,
     case 3: // opaque in rings around vertices
       vtkErrorMacro(<<"Opaque vertex rings not implemented");
       break;
-    }
+  }
 }
 
 void vtkTriangularTexture::PrintSelf(ostream& os, vtkIndent indent)

@@ -13,13 +13,16 @@
 
 =========================================================================*/
 
-// .NAME vtkPlot3D - Abstract class for 3D plots.
-//
-// .SECTION Description
-// The base class for all plot types used in vtkChart derived charts.
-//
-// .SECTION See Also
-// vtkPlot3DPoints vtkPlot3DLine vtkPlot3DBar vtkChart vtkChartXY
+/**
+ * @class   vtkPlot3D
+ * @brief   Abstract class for 3D plots.
+ *
+ *
+ * The base class for all plot types used in vtkChart derived charts.
+ *
+ * @sa
+ * vtkPlot3DPoints vtkPlot3DLine vtkPlot3DBar vtkChart vtkChartXY
+*/
 
 #ifndef vtkPlot3D_h
 #define vtkPlot3D_h
@@ -44,18 +47,26 @@ public:
   vtkTypeMacro(vtkPlot3D, vtkContextItem);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Set/get the vtkPen object that controls how this plot draws (out)lines.
+  //@{
+  /**
+   * Set/get the vtkPen object that controls how this plot draws (out)lines.
+   */
   void SetPen(vtkPen *pen);
   vtkPen* GetPen();
+  //@}
 
-  // Description:
-  // Set/get the vtkPen object that controls how this plot draws (out)lines.
+  //@{
+  /**
+   * Set/get the vtkPen object that controls how this plot draws (out)lines.
+   */
   void SetSelectionPen(vtkPen *pen);
   vtkPen* GetSelectionPen();
+  //@}
 
-  // Description:
-  // Set the input to the plot.
+  //@{
+  /**
+   * Set the input to the plot.
+   */
   virtual void SetInputData(vtkTable *input);
   virtual void SetInputData(vtkTable *input, const vtkStdString &xName,
                             const vtkStdString &yName,
@@ -66,98 +77,124 @@ public:
                             const vtkStdString &colorName);
   virtual void SetInputData(vtkTable *input, vtkIdType xColumn,
                             vtkIdType yColumn, vtkIdType zColumn);
+  //@}
 
-  // Description:
-  // Set the color of each point in the plot.  The input is a single component
-  // scalar array.  The values of this array will be passed through a lookup
-  // table to generate the color for each data point in the plot.
+  /**
+   * Set the color of each point in the plot.  The input is a single component
+   * scalar array.  The values of this array will be passed through a lookup
+   * table to generate the color for each data point in the plot.
+   */
   virtual void SetColors(vtkDataArray *colorArr);
 
-  // Description:
-  // Get all the data points within this plot.
+  /**
+   * Get all the data points within this plot.
+   */
   std::vector<vtkVector3f> GetPoints();
 
-  // Description:
-  // Get/set the chart for this plot.
+  //@{
+  /**
+   * Get/set the chart for this plot.
+   */
   vtkGetObjectMacro(Chart, vtkChartXYZ);
   virtual void SetChart(vtkChartXYZ* chart);
+  //@}
 
-  // Description:
-  // Get the label for the X axis.
+  /**
+   * Get the label for the X axis.
+   */
   std::string GetXAxisLabel();
 
-  // Description:
-  // Get the label for the Y axis.
+  /**
+   * Get the label for the Y axis.
+   */
   std::string GetYAxisLabel();
 
-  // Description:
-  // Get the label for the Z axis.
+  /**
+   * Get the label for the Z axis.
+   */
   std::string GetZAxisLabel();
 
-  // Description:
-  // Get the bounding cube surrounding the currently rendered data points.
+  /**
+   * Get the bounding cube surrounding the currently rendered data points.
+   */
   std::vector<vtkVector3f> GetDataBounds() { return this->DataBounds; }
 
-  // Description:
-  // Set/get the selection array for the plot.
+  //@{
+  /**
+   * Set/get the selection array for the plot.
+   */
   virtual void SetSelection(vtkIdTypeArray *id);
   virtual vtkIdTypeArray* GetSelection();
+  //@}
 
 protected:
   vtkPlot3D();
   ~vtkPlot3D();
 
-  // Description:
-  // Generate a bounding cube for our data.
+  /**
+   * Generate a bounding cube for our data.
+   */
   virtual void ComputeDataBounds();
 
-  // Description:
-  // This object stores the vtkPen that controls how the plot is drawn.
+  /**
+   * This object stores the vtkPen that controls how the plot is drawn.
+   */
   vtkSmartPointer<vtkPen> Pen;
 
-  // Description:
-  // This object stores the vtkPen that controls how the plot is drawn.
+  /**
+   * This object stores the vtkPen that controls how the plot is drawn.
+   */
   vtkSmartPointer<vtkPen> SelectionPen;
 
-  // Description:
-  // This array assigns a color to each datum in the plot.
+  /**
+   * This array assigns a color to each datum in the plot.
+   */
   vtkNew<vtkUnsignedCharArray> Colors;
 
-  // Description:
-  // Number of components in our color vectors.  This value is initialized
-  // to zero.  It's typically set to 3 or 4 if the points are to be colored.
+  /**
+   * Number of components in our color vectors.  This value is initialized
+   * to zero.  It's typically set to 3 or 4 if the points are to be colored.
+   */
   int NumberOfComponents;
 
-  // Description:
-  // The label for the X Axis.
+  /**
+   * The label for the X Axis.
+   */
   std::string XAxisLabel;
 
-  // Description:
-  // The label for the Y Axis.
+  /**
+   * The label for the Y Axis.
+   */
   std::string YAxisLabel;
 
-  // Description:
-  // The label for the Z Axis.
+  /**
+   * The label for the Z Axis.
+   */
   std::string ZAxisLabel;
 
-  // Description:
-  // The data points read in during SetInputData().
+  /**
+   * The data points read in during SetInputData().
+   */
   std::vector<vtkVector3f> Points;
 
-  // Description:
-  // When the points were last built.
+  /**
+   * When the points were last built.
+   */
   vtkTimeStamp PointsBuildTime;
 
-  // Description:
-  // The chart containing this plot.
+  /**
+   * The chart containing this plot.
+   */
   vtkChartXYZ* Chart;
 
-  // Description:
-  // A bounding cube surrounding the currently rendered data points.
+  /**
+   * A bounding cube surrounding the currently rendered data points.
+   */
   std::vector<vtkVector3f> DataBounds;
 
-  // Description:
-  // Selected indices for the table the plot is rendering
+  /**
+   * Selected indices for the table the plot is rendering
+   */
   vtkSmartPointer<vtkIdTypeArray> Selection;
 
 private:

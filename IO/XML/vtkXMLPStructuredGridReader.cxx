@@ -89,36 +89,36 @@ int
   vtkXMLPStructuredGridReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 {
   if (!this->Superclass::ReadPrimaryElement(ePrimary))
-    {
+  {
     return 0;
-    }
+  }
 
   // Find the PPoints element.
   this->PPointsElement = 0;
   int numNested = ePrimary->GetNumberOfNestedElements();
   for (int i = 0; i < numNested; ++i)
-    {
+  {
     vtkXMLDataElement* eNested = ePrimary->GetNestedElement(i);
     if ((strcmp(eNested->GetName(), "PPoints") == 0) &&
       (eNested->GetNumberOfNestedElements() == 1))
-      {
+    {
       this->PPointsElement = eNested;
-      }
     }
+  }
 
   if (!this->PPointsElement)
-    {
+  {
     int extent[6];
     this->GetCurrentOutputInformation()->Get(
         vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
     if ((extent[0] <= extent[1]) &&
       (extent[2] <= extent[3]) &&
       (extent[4] <= extent[5]))
-      {
+    {
       vtkErrorMacro("Could not find PPoints element with 1 array.");
       return 0;
-      }
     }
+  }
 
   return 1;
 }
@@ -131,26 +131,26 @@ void vtkXMLPStructuredGridReader::SetupOutputData()
   // Create the points array.
   vtkPoints* points = vtkPoints::New();
   if (this->PPointsElement)
-    {
+  {
     // Non-zero volume.
     vtkAbstractArray* aa =
       this->CreateArray(this->PPointsElement->GetNestedElement(0));
     vtkDataArray* a = vtkArrayDownCast<vtkDataArray>(aa);
     if(a)
-      {
+    {
       a->SetNumberOfTuples(this->GetNumberOfPoints());
       points->SetData(a);
       a->Delete();
-      }
-    else
-      {
-      if (aa)
-        {
-        aa->Delete();
-        }
-      this->DataError = 1;
-      }
     }
+    else
+    {
+      if (aa)
+      {
+        aa->Delete();
+      }
+      this->DataError = 1;
+    }
+  }
   vtkStructuredGrid::SafeDownCast(this->GetCurrentOutput())->SetPoints(points);
   points->Delete();
 }
@@ -159,9 +159,9 @@ void vtkXMLPStructuredGridReader::SetupOutputData()
 int vtkXMLPStructuredGridReader::ReadPieceData()
 {
   if (!this->Superclass::ReadPieceData())
-    {
+  {
     return 0;
-    }
+  }
 
   // Copy the points.
   vtkStructuredGrid* input = this->GetPieceInput(this->Piece);

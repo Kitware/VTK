@@ -56,15 +56,15 @@ int vtkPolyDataPointSampler::RequestData(vtkInformation *vtkNotUsed(request),
   vtkDebugMacro(<<"Resampling polygonal data");
 
   if ( this->Distance <= 0.0 )
-    {
+  {
     vtkWarningMacro("Cannot resample to zero distance\n");
     return 1;
-    }
+  }
   if ( !input || !input->GetPoints() ||
        (!this->GenerateVertexPoints && !this->GenerateEdgePoints && !this->GenerateInteriorPoints) )
-    {
+  {
     return 1;
-    }
+  }
   vtkPoints *inPts = input->GetPoints();
   vtkIdType numInputPts = input->GetNumberOfPoints();
 
@@ -76,9 +76,9 @@ int vtkPolyDataPointSampler::RequestData(vtkInformation *vtkNotUsed(request),
 
   // First the vertex points
   if ( this->GenerateVertexPoints )
-    {
+  {
     newPts->DeepCopy(input->GetPoints());
-    }
+  }
   this->UpdateProgress (0.1);
   int abort = this->GetAbortExecute();
 
@@ -86,107 +86,107 @@ int vtkPolyDataPointSampler::RequestData(vtkInformation *vtkNotUsed(request),
   vtkCellArray *inPolys = input->GetPolys();
   vtkCellArray *inStrips = input->GetStrips();
   if ( this->GenerateEdgePoints && !abort )
-    {
+  {
     vtkEdgeTable *eTable = vtkEdgeTable::New();
     eTable->InitEdgeInsertion(numInputPts);
     vtkCellArray *inLines = input->GetLines();
 
     for ( inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
-      {
+    {
       for (i=0; i<(npts-1); i++)
-        {
+      {
         if ( eTable->IsEdge(pts[i],pts[i+1]) == -1 )
-          {
+        {
           eTable->InsertEdge(pts[i],pts[i+1]);
           inPts->GetPoint(pts[i],x0);
           inPts->GetPoint(pts[i+1],x1);
           this->SampleEdge(newPts,x0,x1);
-          }
         }
       }
+    }
 
     this->UpdateProgress (0.2);
     abort = this->GetAbortExecute();
 
     vtkIdType p0, p1;
     for ( inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
-      {
+    {
       for (i=0; i<npts; i++)
-        {
+      {
         p0 = pts[i];
         p1 = pts[(i+1)%npts];
         if ( eTable->IsEdge(p0,p1) == -1 )
-          {
+        {
           eTable->InsertEdge(p0,p1);
           inPts->GetPoint(p0,x0);
           inPts->GetPoint(p1,x1);
           this->SampleEdge(newPts,x0,x1);
-          }
         }
       }
+    }
 
     this->UpdateProgress (0.3);
     abort = this->GetAbortExecute();
 
     for ( inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
-      {
+    {
       // The first triangle
       for (i=0; i<3; i++)
-        {
+      {
         p0 = pts[i];
         p1 = pts[(i+1)%3];
         if ( eTable->IsEdge(p0,p1) == -1 )
-          {
+        {
           eTable->InsertEdge(p0,p1);
           inPts->GetPoint(p0,x0);
           inPts->GetPoint(p1,x1);
           this->SampleEdge(newPts,x0,x1);
-          }
         }
+      }
       // Now the other triangles
       for (i=3; i<npts; i++)
-        {
+      {
         p0 = pts[i-2];
         p1 = pts[i];
         if ( eTable->IsEdge(p0,p1) == -1 )
-          {
+        {
           eTable->InsertEdge(p0,p1);
           inPts->GetPoint(p0,x0);
           inPts->GetPoint(p1,x1);
           this->SampleEdge(newPts,x0,x1);
-          }
+        }
         p0 = pts[i-1];
         p1 = pts[i];
         if ( eTable->IsEdge(p0,p1) == -1 )
-          {
+        {
           eTable->InsertEdge(p0,p1);
           inPts->GetPoint(p0,x0);
           inPts->GetPoint(p1,x1);
           this->SampleEdge(newPts,x0,x1);
-          }
         }
       }
-    eTable->Delete();
     }
+    eTable->Delete();
+  }
 
   this->UpdateProgress (0.5);
   abort = this->GetAbortExecute();
 
   // Finally the interior points on polygons and triangle strips
   if ( this->GenerateInteriorPoints && !abort )
-    {
+  {
     // First the polygons
     for ( inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
-      {
+    {
       if ( npts == 3 )
-        {
+      {
         this->SampleTriangle(newPts,inPts,pts);
-        }
-      else
-        {
-        this->SamplePolygon(newPts,inPts,npts,pts);
-        }
       }
+      else
+      {
+        this->SamplePolygon(newPts,inPts,npts,pts);
+      }
+    }
 
     this->UpdateProgress (0.75);
     abort = this->GetAbortExecute();
@@ -194,35 +194,35 @@ int vtkPolyDataPointSampler::RequestData(vtkInformation *vtkNotUsed(request),
     // Next the triangle strips
     for ( inStrips->InitTraversal();
           inStrips->GetNextCell(npts,pts) && !abort; )
-      {
+    {
       vtkIdType stripPts[3];
       for (i=0; i<(npts-2); i++)
-        {
+      {
         stripPts[0] = pts[i];
         stripPts[1] = pts[i+1];
         stripPts[2] = pts[i+2];
         this->SampleTriangle(newPts,inPts,stripPts);
-        }
-      }//for all strips
-    }//for interior points
+      }
+    }//for all strips
+  }//for interior points
 
   this->UpdateProgress (0.90);
   abort = this->GetAbortExecute();
 
   // Generate vertex cells if requested
   if ( this->GenerateVertices && !abort )
-    {
+  {
     vtkIdType id, numPts = newPts->GetNumberOfPoints();
     vtkCellArray *verts = vtkCellArray::New();
     verts->Allocate(numPts+1);
     verts->InsertNextCell(numPts);
     for ( id=0; id < numPts; id++)
-      {
+    {
       verts->InsertCellPoint(id);
-      }
+    }
     output->SetVerts(verts);
     verts->Delete();
-    }
+  }
 
   // Clean up and get out
   output->SetPoints(newPts);
@@ -236,19 +236,19 @@ void vtkPolyDataPointSampler::SampleEdge(vtkPoints *pts, double x0[3], double x1
 {
   double len = vtkMath::Distance2BetweenPoints(x0,x1);
   if ( len > this->Distance2 )
-    {
+  {
     double t, x[3];
     len = sqrt(len);
     int npts = static_cast<int>(len/this->Distance) + 2;
     for (vtkIdType id=1; id<(npts-1); id++)
-      {
+    {
       t = static_cast<double>(id)/(npts-1);
       x[0] = x0[0] + t*(x1[0]-x0[0]);
       x[1] = x0[1] + t*(x1[1]-x0[1]);
       x[2] = x0[2] + t*(x1[2]-x0[2]);
       pts->InsertNextPoint(x);
-      }
     }
+  }
 }
 
 //------------------------------------------------------------------------
@@ -263,7 +263,7 @@ void vtkPolyDataPointSampler::SampleTriangle(vtkPoints *newPts, vtkPoints *inPts
   double l1 = vtkMath::Distance2BetweenPoints(x0,x1);
   double l2 = vtkMath::Distance2BetweenPoints(x0,x2);
   if ( l1 > this->Distance2 || l2 > this->Distance2 )
-    {
+  {
     double s, t, x[3];
     l1 = sqrt(l1);
     l2 = sqrt(l2);
@@ -272,21 +272,21 @@ void vtkPolyDataPointSampler::SampleTriangle(vtkPoints *newPts, vtkPoints *inPts
     n1 = ( n1 < 3 ? 3 : n1); //make sure there is at least one point
     n2 = ( n2 < 3 ? 3 : n2);
     for (vtkIdType j=1; j<(n2-1); j++)
-      {
+    {
       t = static_cast<double>(j)/(n2-1);
       for (vtkIdType i=1; i<(n1-1); i++)
-        {
+      {
         s = static_cast<double>(i)/(n1-1);
         if ( (1.0 - s - t) > 0.0 )
-          {
+        {
           x[0] = x0[0] + s*(x1[0]-x0[0]) + t*(x2[0]-x0[0]);
           x[1] = x0[1] + s*(x1[1]-x0[1]) + t*(x2[1]-x0[1]);
           x[2] = x0[2] + s*(x1[2]-x0[2]) + t*(x2[2]-x0[2]);
           newPts->InsertNextPoint(x);
-          }
         }
       }
     }
+  }
 }
 
 //------------------------------------------------------------------------
@@ -295,7 +295,7 @@ void vtkPolyDataPointSampler::SamplePolygon(vtkPoints *newPts, vtkPoints *inPts,
 {
   // Specialize for quads
   if ( npts == 4 )
-    {
+  {
     double x0[3], x1[3], x2[3], x3[4];
     inPts->GetPoint(pts[0],x0);
     inPts->GetPoint(pts[1],x1);
@@ -305,7 +305,7 @@ void vtkPolyDataPointSampler::SamplePolygon(vtkPoints *newPts, vtkPoints *inPts,
     double l1 = vtkMath::Distance2BetweenPoints(x0,x1);
     double l2 = vtkMath::Distance2BetweenPoints(x0,x3);
     if ( l1 > this->Distance2 || l2 > this->Distance2 )
-      {
+    {
       double s, t, x[3];
       l1 = sqrt(l1);
       l2 = sqrt(l2);
@@ -314,22 +314,22 @@ void vtkPolyDataPointSampler::SamplePolygon(vtkPoints *newPts, vtkPoints *inPts,
       n1 = ( n1 < 3 ? 3 : n1); //make sure there is at least one point
       n2 = ( n2 < 3 ? 3 : n2);
       for (vtkIdType j=1; j<(n2-1); j++)
-        {
+      {
         t = static_cast<double>(j)/(n2-1);
         for (vtkIdType i=1; i<(n1-1); i++)
-          {
+        {
           s = static_cast<double>(i)/(n1-1);
           x[0] = x0[0] + s*(x1[0]-x0[0]) + t*(x3[0]-x0[0]);
           x[1] = x0[1] + s*(x1[1]-x0[1]) + t*(x3[1]-x0[1]);
           x[2] = x0[2] + s*(x1[2]-x0[2]) + t*(x3[2]-x0[2]);
           newPts->InsertNextPoint(x);
-          }
         }
       }
     }
+  }
   else
-    {
-    }
+  {
+  }
 }
 
 //------------------------------------------------------------------------

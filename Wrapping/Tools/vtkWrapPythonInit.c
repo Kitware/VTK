@@ -61,9 +61,9 @@ static void CreateImplFile(const char *libName,
           "#endif // Windows Warnings\n\n");
 
   for (i = 0; i < numFiles; i++)
-    {
+  {
     fprintf(fout,"extern  \"C\" {%sPyObject *PyVTKAddFile_%s(PyObject *); }\n", dllexp, files[i]);
-    }
+  }
 
   fprintf(fout,"\nstatic PyMethodDef Py%s_Methods[] = {\n", libName);
   fprintf(fout,"{NULL, NULL, 0, NULL}};\n\n");
@@ -98,16 +98,16 @@ static void CreateImplFile(const char *libName,
 
   fprintf(fout,"  PyObject *d = PyModule_GetDict(m);\n");
   fprintf(fout,"  if (!d)\n");
-  fprintf(fout,"    {\n");
+  fprintf(fout,"  {\n");
   fprintf(fout,"    Py_FatalError(\"can't get dictionary for module %s\");\n",
     libName);
-  fprintf(fout,"    }\n");
+  fprintf(fout,"  }\n");
 
   for (i = 0; i < numFiles; i++)
-    {
+  {
     fprintf(fout,"  PyVTKAddFile_%s(d);\n",
       files[i]);
-    }
+  }
 
   fprintf(fout,"\n");
   fprintf(fout,"  return m;\n");
@@ -126,55 +126,55 @@ int main(int argc,char *argv[])
   char *files[4000];
 
   if (argc < 4)
-    {
+  {
     fprintf(stderr,"Usage: %s input_file init_file impl_file\n",argv[0]);
     return 1;
-    }
+  }
 
   file = fopen(argv[1],"r");
   if (!file)
-    {
+  {
     fprintf(stderr,"Input file %s could not be opened\n",argv[1]);
     return 1;
-    }
+  }
 
   /* read the info from the file */
   if (fscanf(file,"%s",libName) != 1)
-    {
+  {
     fprintf(stderr,"Error getting libName\n");
     fclose(file);
     return 1;
-    }
+  }
   /* read in the classes */
   while (fscanf(file,"%s",tmpVal) != EOF)
-    {
+  {
     files[numFiles] = strdup(tmpVal);
     numFiles++;
-    }
+  }
   /* close the file */
   fclose(file);
   file = NULL;
 
   fout_init = fopen(argv[2],"w");
   if (!fout_init)
-    {
+  {
     return 1;
-    }
+  }
 
   fout_impl = fopen(argv[3],"w");
   if (!fout_impl)
-    {
+  {
     fclose(fout_init);
     return 1;
-    }
+  }
 
   /* extra functions, types, etc. for the CommonCore module */
   if (strcmp(libName, "vtkCommonCorePython") == 0 ||
     strcmp(libName, "vtkCommonKitPython") == 0)
-    {
+  {
     files[numFiles] = strdup("PyVTKExtras");
     numFiles++;
-    }
+  }
 
   CreateInitFile(libName, fout_init);
   CreateImplFile(libName, numFiles, files, fout_impl);

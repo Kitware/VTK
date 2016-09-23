@@ -33,17 +33,17 @@
 #define test_expression(expression) \
 { \
   if(!(expression)) \
-    { \
+  { \
     std::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
     throw std::runtime_error(buffer.str()); \
-    } \
+  } \
 }
 
 int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     // Test Read and Write in Ascii text mode
     // Test sparse-array round-trip ...
     vtkSmartPointer<vtkSparseArray<double> > a1 = vtkSmartPointer<vtkSparseArray<double> >::New();
@@ -301,11 +301,11 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     test_expression(be2->GetVariantValue(2).ToUnicodeString() == vtkUnicodeString::from_utf8("fox"));
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }
 

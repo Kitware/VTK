@@ -46,9 +46,9 @@ public:
   void Execute(vtkObject*, unsigned long, void*) VTK_OVERRIDE
   {
     for (unsigned int i = 0; i < this->Views.size(); i++)
-      {
+    {
       this->Views[i]->Update();
-      }
+    }
   }
 private:
   ViewUpdater() { }
@@ -79,13 +79,13 @@ int main(int, char*[])
   vtkTree* tree = vtkTree::New();
   bool validTree = tree->CheckedShallowCopy(graph);
   if (!validTree)
-    {
+  {
     std::cout << "ERROR: Invalid tree" << std::endl;
     graph->Delete();
     labels->Delete();
     tree->Delete();
     return EXIT_FAILURE;
-    }
+  }
   vtkGraphLayoutView* view = vtkGraphLayoutView::New();
   vtkDataRepresentation* rep =
     view->SetRepresentationFromInput(tree);

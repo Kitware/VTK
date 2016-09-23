@@ -59,13 +59,13 @@ vtkDirectedGraph *vtkDirectedGraph::GetData(vtkInformationVector *v, int i)
 bool vtkDirectedGraph::IsStructureValid(vtkGraph *g)
 {
   if (!g)
-    {
+  {
     return false;
-    }
+  }
   if (vtkDirectedGraph::SafeDownCast(g))
-    {
+  {
     return true;
-    }
+  }
 
   // Verify that each edge appears in exactly one in and one out edge list.
   std::vector<bool> in(g->GetNumberOfEdges(), false);
@@ -75,35 +75,35 @@ bool vtkDirectedGraph::IsStructureValid(vtkGraph *g)
   vtkSmartPointer<vtkOutEdgeIterator> outIter =
     vtkSmartPointer<vtkOutEdgeIterator>::New();
   for (vtkIdType v = 0; v < g->GetNumberOfVertices(); ++v)
-    {
+  {
     g->GetInEdges(v, inIter);
     while (inIter->HasNext())
-      {
+    {
       vtkIdType id = inIter->Next().Id;
       if (in[id])
-        {
+      {
         return false;
-        }
-      in[id] = true;
       }
+      in[id] = true;
+    }
     g->GetOutEdges(v, outIter);
     while (outIter->HasNext())
-      {
+    {
       vtkIdType id = outIter->Next().Id;
       if (out[id])
-        {
-        return false;
-        }
-      out[id] = true;
-      }
-    }
-  for (vtkIdType i = 0; i < g->GetNumberOfEdges(); ++i)
-    {
-    if (in[i] == false || out[i] == false)
       {
-      return false;
+        return false;
       }
+      out[id] = true;
     }
+  }
+  for (vtkIdType i = 0; i < g->GetNumberOfEdges(); ++i)
+  {
+    if (in[i] == false || out[i] == false)
+    {
+      return false;
+    }
+  }
 
   return true;
 }

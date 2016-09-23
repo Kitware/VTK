@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPointLoad - compute stress tensors given point load on semi-infinite domain
-// .SECTION Description
-// vtkPointLoad is a source object that computes stress tensors on a volume.
-// The tensors are computed from the application of a point load on a
-// semi-infinite domain. (The analytical results are adapted from Saada - see
-// text.) It also is possible to compute effective stress scalars if desired.
-// This object serves as a specialized data generator for some of the examples
-// in the text.
-
-// .SECTION See Also
-// vtkTensorGlyph, vtkHyperStreamline
+/**
+ * @class   vtkPointLoad
+ * @brief   compute stress tensors given point load on semi-infinite domain
+ *
+ * vtkPointLoad is a source object that computes stress tensors on a volume.
+ * The tensors are computed from the application of a point load on a
+ * semi-infinite domain. (The analytical results are adapted from Saada - see
+ * text.) It also is possible to compute effective stress scalars if desired.
+ * This object serves as a specialized data generator for some of the examples
+ * in the text.
+ *
+ * @sa
+ * vtkTensorGlyph, vtkHyperStreamline
+*/
 
 #ifndef vtkPointLoad_h
 #define vtkPointLoad_h
@@ -36,41 +39,56 @@ public:
   vtkTypeMacro(vtkPointLoad,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
-  // and LoadValue = 1.
+  /**
+   * Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
+   * and LoadValue = 1.
+   */
   static vtkPointLoad *New();
 
-  // Description:
-  // Set/Get value of applied load.
+  //@{
+  /**
+   * Set/Get value of applied load.
+   */
   vtkSetMacro(LoadValue,double);
   vtkGetMacro(LoadValue,double);
+  //@}
 
-  // Description:
-  // Specify the dimensions of the volume. A stress tensor will be computed for
-  // each point in the volume.
+  /**
+   * Specify the dimensions of the volume. A stress tensor will be computed for
+   * each point in the volume.
+   */
   void SetSampleDimensions(int i, int j, int k);
 
-  // Description:
-  // Specify the dimensions of the volume. A stress tensor will be computed for
-  // each point in the volume.
+  //@{
+  /**
+   * Specify the dimensions of the volume. A stress tensor will be computed for
+   * each point in the volume.
+   */
   void SetSampleDimensions(int dim[3]);
   vtkGetVectorMacro(SampleDimensions,int,3);
+  //@}
 
-  // Description:
-  // Specify the region in space over which the tensors are computed. The point
-  // load is assumed to be applied at top center of the volume.
+  //@{
+  /**
+   * Specify the region in space over which the tensors are computed. The point
+   * load is assumed to be applied at top center of the volume.
+   */
   vtkSetVector6Macro(ModelBounds,double);
   vtkGetVectorMacro(ModelBounds,double,6);
+  //@}
 
-  // Description:
-  // Set/Get Poisson's ratio.
+  //@{
+  /**
+   * Set/Get Poisson's ratio.
+   */
   vtkSetMacro(PoissonsRatio,double);
   vtkGetMacro(PoissonsRatio,double);
+  //@}
 
-  // Description:
-  // Turn on/off computation of effective stress scalar. These methods do
-  // nothing. The effective stress is always computed.
+  /**
+   * Turn on/off computation of effective stress scalar. These methods do
+   * nothing. The effective stress is always computed.
+   */
   void SetComputeEffectiveStress(int) {}
   int GetComputeEffectiveStress() {return 1;};
   void ComputeEffectiveStressOn() {}

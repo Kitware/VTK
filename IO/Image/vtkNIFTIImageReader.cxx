@@ -49,13 +49,13 @@ vtkStandardNewMacro(vtkNIFTIImageReader);
 vtkNIFTIImageReader::vtkNIFTIImageReader()
 {
   for (int i = 0; i < 8; i++)
-    {
+  {
     this->Dim[i] = 0;
-    }
+  }
   for (int i = 0; i < 8; i++)
-    {
+  {
     this->PixDim[i] = 1.0;
-    }
+  }
   this->TimeAsVector = false;
   this->RescaleSlope = 1.0;
   this->RescaleIntercept = 0.0;
@@ -70,17 +70,17 @@ vtkNIFTIImageReader::vtkNIFTIImageReader()
 vtkNIFTIImageReader::~vtkNIFTIImageReader()
 {
   if (this->QFormMatrix)
-    {
+  {
     this->QFormMatrix->Delete();
-    }
+  }
   if (this->SFormMatrix)
-    {
+  {
     this->SFormMatrix->Delete();
-    }
+  }
   if (this->NIFTIHeader)
-    {
+  {
     this->NIFTIHeader->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -115,7 +115,7 @@ void vtkNIFTIImageReaderSwapHeader(nifti_1_header *hdr)
   // All NIFTI-specific (meaning is totally different in Analyze 7.5)
   if (strncmp(hdr->magic, "ni1", 4) == 0 ||
       strncmp(hdr->magic, "n+1", 4) == 0)
-    {
+  {
     vtkByteSwap::SwapVoidRange(&hdr->qform_code,    1, 2);
     vtkByteSwap::SwapVoidRange(&hdr->sform_code,    1, 2);
     vtkByteSwap::SwapVoidRange(&hdr->quatern_b,     1, 4);
@@ -127,7 +127,7 @@ void vtkNIFTIImageReaderSwapHeader(nifti_1_header *hdr)
     vtkByteSwap::SwapVoidRange(hdr->srow_x,         4, 4);
     vtkByteSwap::SwapVoidRange(hdr->srow_y,         4, 4);
     vtkByteSwap::SwapVoidRange(hdr->srow_z,         4, 4);
-    }
+  }
 }
 
 void vtkNIFTIImageReaderSwapHeader(nifti_2_header *hdr)
@@ -171,9 +171,9 @@ void vtkNIFTIImageReaderSwapHeader(nifti_2_header *hdr)
 vtkNIFTIImageHeader *vtkNIFTIImageReader::GetNIFTIHeader()
 {
   if (!this->NIFTIHeader)
-    {
+  {
     this->NIFTIHeader = vtkNIFTIImageHeader::New();
-    }
+  }
   return this->NIFTIHeader;
 }
 
@@ -192,35 +192,35 @@ void vtkNIFTIImageReader::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "QFormMatrix:";
   if (this->QFormMatrix)
-    {
+  {
     double mat[16];
     vtkMatrix4x4::DeepCopy(mat, this->QFormMatrix);
     for (int i = 0; i < 16; i++)
-      {
-      os << " " << mat[i];
-      }
-    os << "\n";
-    }
-  else
     {
-    os << " (none)\n";
+      os << " " << mat[i];
     }
+    os << "\n";
+  }
+  else
+  {
+    os << " (none)\n";
+  }
 
   os << indent << "SFormMatrix:";
   if (this->SFormMatrix)
-    {
+  {
     double mat[16];
     vtkMatrix4x4::DeepCopy(mat, this->SFormMatrix);
     for (int i = 0; i < 16; i++)
-      {
-      os << " " << mat[i];
-     }
-    os << "\n";
-    }
-  else
     {
-    os << " (none)\n";
+      os << " " << mat[i];
     }
+    os << "\n";
+  }
+  else
+  {
+    os << " (none)\n";
+  }
 
   os << indent << "NIFTIHeader:" << (this->NIFTIHeader ? "\n" : " (none)\n");
   os << indent << "PlanarRGB: " << (this->PlanarRGB ? "On\n" : "Off\n");
@@ -231,22 +231,22 @@ bool vtkNIFTIImageReader::CheckExtension(
   const char *filename, const char *ext)
 {
   if (strlen(ext) == 4 && ext[0] == '.')
-    {
+  {
     size_t n = strlen(filename);
     if (n > 2 && filename[n-3] == '.' &&
         tolower(filename[n-2]) == 'g' &&
         tolower(filename[n-1]) == 'z')
-      {
+    {
       n -= 3;
-      }
+    }
     if (n > 3 && filename[n-4] == '.' &&
         tolower(filename[n-3]) == tolower(ext[1]) &&
         tolower(filename[n-2]) == tolower(ext[2]) &&
         tolower(filename[n-1]) == tolower(ext[3]))
-      {
+    {
       return true;
-      }
     }
+  }
   return false;
 }
 
@@ -258,7 +258,7 @@ char *vtkNIFTIImageReader::ReplaceExtension(
 
   if (strlen(ext1) == 4 && ext1[0] == '.' &&
       strlen(ext2) == 4 && ext2[0] == '.')
-    {
+  {
     size_t n = strlen(filename);
     size_t m = n;
     newname = new char[n+4];
@@ -268,56 +268,56 @@ char *vtkNIFTIImageReader::ReplaceExtension(
     if (n > 2 && filename[n-3] == '.' &&
         tolower(filename[n-2]) == 'g' &&
         tolower(filename[n-1]) == 'z')
-      {
+    {
       m = n - 3;
-      }
+    }
 
     if (vtkNIFTIImageReader::CheckExtension(filename, ext1))
-      {
+    {
       // replace the extension
       if (isupper(filename[m-3]))
-        {
+      {
         newname[m-3] = toupper(ext2[1]);
         newname[m-2] = toupper(ext2[2]);
         newname[m-1] = toupper(ext2[3]);
-        }
+      }
       else
-        {
+      {
         newname[m-3] = tolower(ext2[1]);
         newname[m-2] = tolower(ext2[2]);
         newname[m-1] = tolower(ext2[3]);
-        }
       }
+    }
 
     // existence of file
     for (int i = 0; i < 2; i++)
-      {
+    {
       if (vtksys::SystemTools::FileExists(newname))
-        {
+      {
         return newname;
-        }
+      }
       if (i == 0)
-        {
+      {
         if (m < n)
-          {
+        {
           // try again without the ".gz"
           newname[m] = '\0';
           n = m;
-          }
+        }
         else
-          {
+        {
           // try again with the ".gz"
           newname[m] = '.';
           newname[m+1] = (isupper(newname[m-3]) ? 'G' : 'g');
           newname[m+2] = (isupper(newname[m-3]) ? 'Z' : 'z');
           newname[m+3] = '\0';
-          }
         }
       }
+    }
 
     delete [] newname;
     newname = 0;
-    }
+  }
 
   return newname;
 }
@@ -333,26 +333,26 @@ int vtkNIFTIImageReader::CheckNIFTIVersion(const nifti_1_header *hdr)
       (hdr->data_type[1] == '+' || hdr->data_type[1] == 'i') &&
       (hdr->data_type[2] >= '2' && hdr->data_type[2] <= '9') &&
       hdr->data_type[3] == '\0')
-    {
+  {
     version = (hdr->data_type[2] - '0');
 
     if (hdr->data_type[4] != '\r' ||
         hdr->data_type[5] != '\n' ||
         hdr->data_type[6] != '\032' ||
         hdr->data_type[7] != '\n')
-      {
+    {
       // Indicate that file was corrupted by newline conversion
       version = -version;
-      }
     }
+  }
   // Check for NIFTIv1
   else if (hdr->magic[0] == 'n' &&
       (hdr->magic[1] == '+' || hdr->magic[1] == 'i') &&
       hdr->magic[2] == '1' &&
       hdr->magic[3] == '\0')
-    {
+  {
     version = 1;
-    }
+  }
 
   return version;
 }
@@ -362,9 +362,9 @@ bool vtkNIFTIImageReader::CheckAnalyzeHeader(const nifti_1_header *hdr)
 {
   if (hdr->sizeof_hdr == 348 || // Analyze 7.5 header size
       hdr->sizeof_hdr == 1543569408) // byte-swapped 348
-    {
+  {
     return true;
-    }
+  }
   return false;
 }
 
@@ -377,9 +377,9 @@ int vtkNIFTIImageReader::CanReadFile(const char *filename)
     filename, ".img", ".hdr");
 
   if (hdrname == 0)
-    {
+  {
     return 0;
-    }
+  }
 
   // try opening file
   gzFile file = gzopen(hdrname, "rb");
@@ -387,9 +387,9 @@ int vtkNIFTIImageReader::CanReadFile(const char *filename)
   delete [] hdrname;
 
   if (!file)
-    {
+  {
     return 0;
-    }
+  }
 
   // read and check the header
   bool canRead = false;
@@ -397,19 +397,19 @@ int vtkNIFTIImageReader::CanReadFile(const char *filename)
   int hsize = vtkNIFTIImageHeader::NIFTI1HeaderSize; // nifti_1 header size
   int rsize = gzread(file, &hdr, hsize);
   if (rsize == hsize)
-    {
+  {
     int version = vtkNIFTIImageReader::CheckNIFTIVersion(&hdr);
     if (version > 0)
-      {
+    {
       // NIFTI file
       canRead = true;
-      }
+    }
     else if (version == 0)
-      {
+    {
       // Analyze 7.5 file
       canRead = vtkNIFTIImageReader::CheckAnalyzeHeader(&hdr);
-      }
     }
+  }
 
   gzclose(file);
 
@@ -427,9 +427,9 @@ int vtkNIFTIImageReader::RequestInformation(
 
   // Create the header object
   if (!this->NIFTIHeader)
-    {
+  {
     this->NIFTIHeader = vtkNIFTIImageHeader::New();
-    }
+  }
 
   // default byte order is native byte order
 #ifdef VTK_WORDS_BIGENDIAN
@@ -442,53 +442,53 @@ int vtkNIFTIImageReader::RequestInformation(
   char *hdrname = 0;
 
   if (this->FileNames)
-    {
+  {
     vtkIdType n = this->FileNames->GetNumberOfValues();
     int headers = 0;
     for (vtkIdType i = 0; i < n; i++)
-      {
+    {
       filename = this->FileNames->GetValue(i);
       // this checks for .hdr and .hdr.gz, case insensitive
       if (vtkNIFTIImageReader::CheckExtension(filename, ".hdr"))
-        {
+      {
         if (++headers < 2)
-          {
+        {
           hdrname = new char[strlen(filename) + 1];
           strcpy(hdrname, filename);
-          }
         }
       }
+    }
     if (n != 2 || headers != 1)
-      {
+    {
       vtkErrorMacro("There must be two files and one must be a .hdr file.");
       delete [] hdrname;
       return 0;
-      }
     }
+  }
   else
-    {
+  {
     filename = this->GetFileName();
-    }
+  }
 
   if (filename == 0)
-    {
+  {
     vtkErrorMacro("A FileName must be provided");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return 0;
-    }
+  }
 
   if (hdrname == 0)
-    {
+  {
     hdrname = vtkNIFTIImageReader::ReplaceExtension(
       filename, ".img", ".hdr");
-    }
+  }
 
   if (hdrname == 0)
-    {
+  {
     vtkErrorMacro("Unable to locate header for file " << filename);
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
     return 0;
-    }
+  }
 
   vtkDebugMacro("Opening NIFTI file " << hdrname);
 
@@ -496,12 +496,12 @@ int vtkNIFTIImageReader::RequestInformation(
   gzFile file = gzopen(hdrname, "rb");
 
   if (!file)
-    {
+  {
     vtkErrorMacro("Cannot open file " << hdrname);
     delete [] hdrname;
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
     return 0;
-    }
+  }
 
   // read and check the header
   bool canRead = false;
@@ -512,10 +512,10 @@ int vtkNIFTIImageReader::RequestInformation(
   const int hsize = vtkNIFTIImageHeader::NIFTI1HeaderSize;
   int rsize = gzread(file, hdr1, hsize);
   if (rsize == hsize)
-    {
+  {
     niftiVersion = vtkNIFTIImageReader::CheckNIFTIVersion(hdr1);
     if (niftiVersion >= 2)
-      {
+    {
       // the header was a NIFTIv2 header
       const int h2size = vtkNIFTIImageHeader::NIFTI2HeaderSize;
       // copy what was read into the NIFTIv1 header
@@ -523,45 +523,45 @@ int vtkNIFTIImageReader::RequestInformation(
       // read the remainder of the NIFTIv2 header
       rsize = gzread(file, reinterpret_cast<char *>(hdr2)+hsize, h2size-hsize);
       if (rsize == h2size-hsize)
-        {
+      {
         canRead = true;
-        }
-      }
-    else if (niftiVersion == 1)
-      {
-      // the header was a NIFTIv1 header
-      canRead = true;
-      }
-    else if (niftiVersion == 0)
-      {
-      // Analyze 7.5 file
-      canRead = vtkNIFTIImageReader::CheckAnalyzeHeader(hdr1);
       }
     }
+    else if (niftiVersion == 1)
+    {
+      // the header was a NIFTIv1 header
+      canRead = true;
+    }
+    else if (niftiVersion == 0)
+    {
+      // Analyze 7.5 file
+      canRead = vtkNIFTIImageReader::CheckAnalyzeHeader(hdr1);
+    }
+  }
 
   if (canRead)
-    {
+  {
     if (niftiVersion >= 2)
-      {
+    {
       if (NIFTI_NEEDS_SWAP(*hdr2))
-        {
+      {
         vtkNIFTIImageReaderSwapHeader(hdr2);
         isLittleEndian = !isLittleEndian;
-        }
-      this->NIFTIHeader->SetHeader(hdr2);
       }
+      this->NIFTIHeader->SetHeader(hdr2);
+    }
     else
-      {
+    {
       if (NIFTI_NEEDS_SWAP(*hdr1))
-        {
+      {
         vtkNIFTIImageReaderSwapHeader(hdr1);
         isLittleEndian = !isLittleEndian;
-        }
+      }
       // convert NIFTIv1 header into NIFTIv2
       this->NIFTIHeader->SetHeader(hdr1);
       this->NIFTIHeader->GetHeader(hdr2);
-      }
     }
+  }
 
   gzclose(file);
 
@@ -570,7 +570,7 @@ int vtkNIFTIImageReader::RequestInformation(
   hdr1 = 0;
 
   if (!canRead)
-    {
+  {
     const char *message = (niftiVersion <= -2 ?
                            "NIfTI header has newline corruption " :
                            "Bad NIfTI header in file ");
@@ -578,72 +578,72 @@ int vtkNIFTIImageReader::RequestInformation(
     this->SetErrorCode(vtkErrorCode::UnrecognizedFileTypeError);
     delete [] hdrname;
     return 0;
-    }
+  }
 
   delete [] hdrname;
 
   // number of dimensions
   int ndim = hdr2->dim[0];
   if (ndim < 0 || ndim > 7)
-    {
+  {
     vtkErrorMacro("NIfTI image has illegal ndim of " << ndim);
     this->SetErrorCode(vtkErrorCode::FileFormatError);
     return 0;
-    }
+  }
 
   // sanity checks
   for (int i = 0; i < 8; i++)
-    {
+  {
     // voxel spacing cannot be zero
     if (hdr2->pixdim[i] == 0)
-      {
+    {
       hdr2->pixdim[i] = 1.0;
-      }
+    }
     if (i > ndim)
-      {
+    {
       // dimensions greater than ndim have size of 1
       hdr2->dim[i] = 1;
-      }
+    }
     else if (hdr2->dim[i] < 0)
-      {
+    {
       vtkErrorMacro("NIfTI image dimension " << i << " is negative");
       this->SetErrorCode(vtkErrorCode::FileFormatError);
       return 0;
-      }
+    }
     else if ((hdr2->dim[i] & 0x7fffffff) != hdr2->dim[i])
-      {
+    {
       // dimension does not fit in signed int
       vtkErrorMacro("NIfTI image dimension " << i << " is larger than int32");
       this->SetErrorCode(vtkErrorCode::FileFormatError);
       return 0;
-      }
     }
+  }
 
   if (niftiVersion > 0)
-    {
+  {
     // pass rescale info to user (do not rescale in the reader)
     this->RescaleSlope = hdr2->scl_slope;
     this->RescaleIntercept = hdr2->scl_inter;
-    }
+  }
   else
-    {
+  {
     // rescale information not available for Analyze 7.5
     this->RescaleSlope = 1.0;
     this->RescaleIntercept = 0.0;
-    }
+  }
 
   // header might be extended, vox_offset says where data starts
   this->SetHeaderSize(static_cast<unsigned long>(hdr2->vox_offset));
 
   // endianness of data
   if (isLittleEndian)
-    {
+  {
     this->SetDataByteOrderToLittleEndian();
-    }
+  }
   else
-    {
+  {
     this->SetDataByteOrderToBigEndian();
-    }
+  }
 
   // NIFTI images are stored in a single file, not one file per slice
   this->SetFileDimensionality(3);
@@ -687,32 +687,32 @@ int vtkNIFTIImageReader::RequestInformation(
   int numComponents = 0;
 
   for (int i = 0; typeMap[2] != 0; i++)
-    {
+  {
     if (hdr2->datatype == typeMap[i][0])
-      {
+    {
       scalarType = typeMap[i][1];
       numComponents = typeMap[i][2];
       break;
-      }
     }
+  }
 
   // if loop finished without finding a match
   if (numComponents == 0)
-    {
+  {
     vtkErrorMacro("Unrecognized NIFTI data type: " << hdr2->datatype);
     this->SetErrorCode(vtkErrorCode::FileFormatError);
     return 0;
-    }
+  }
 
   // vector planes become vector components
   if (ndim >= 5)
-    {
+  {
     numComponents *= hdr2->dim[5];
-    }
+  }
   if (ndim >= 4 && this->TimeAsVector)
-    {
+  {
     numComponents *= hdr2->dim[4];
-    }
+  }
 
   this->SetDataScalarType(scalarType);
   this->SetNumberOfScalarComponents(numComponents);
@@ -730,10 +730,10 @@ int vtkNIFTIImageReader::RequestInformation(
 
   // copy dim for when RequestData is called
   for (int j = 0; j < 8; j++)
-    {
+  {
     this->Dim[j] = hdr2->dim[j];
     this->PixDim[j] = hdr2->pixdim[j];
-    }
+  }
 
   // === Image Orientation in NIfTI files ===
   //
@@ -893,20 +893,20 @@ int vtkNIFTIImageReader::RequestInformation(
   // Initialize
   this->QFac = 1.0;
   if (this->QFormMatrix)
-    {
+  {
     this->QFormMatrix->Delete();
     this->QFormMatrix = NULL;
-    }
+  }
   if (this->SFormMatrix)
-    {
+  {
     this->SFormMatrix->Delete();
     this->SFormMatrix = NULL;
-    }
+  }
 
   // Set the QFormMatrix from the quaternion data in the header.
   // See the long discussion above for more information.
   if (niftiVersion > 0 && hdr2->qform_code > 0)
-    {
+  {
     double mmat[16];
     double rmat[3][3];
     double quat[4];
@@ -917,13 +917,13 @@ int vtkNIFTIImageReader::RequestInformation(
 
     quat[0] = 1.0 - quat[1]*quat[1] - quat[2]*quat[2] - quat[3]*quat[3];
     if (quat[0] > 0.0)
-      {
+    {
       quat[0] = sqrt(quat[0]);
-      }
+    }
     else
-      {
+    {
       quat[0] = 0.0;
-      }
+    }
 
     vtkMath::QuaternionToMatrix3x3(quat, rmat);
 
@@ -932,16 +932,16 @@ int vtkNIFTIImageReader::RequestInformation(
     // quaternion-to-matrix conversion.
     const double tol = 2.384185791015625e-07; // 2**-22
     for (int i = 0; i < 3; i++)
-      {
+    {
       for (int j = 0; j < 3; j++)
-        {
+      {
         if (fabs(rmat[i][j]) < tol)
-          {
+        {
           rmat[i][j] = 0.0;
-          }
         }
-      vtkMath::Normalize(rmat[i]);
       }
+      vtkMath::Normalize(rmat[i]);
+    }
 
     // first row
     mmat[0] = rmat[0][0];
@@ -969,23 +969,23 @@ int vtkNIFTIImageReader::RequestInformation(
     this->QFac = ((hdr2->pixdim[0] < 0) ? -1.0 : 1.0);
 
     if (this->QFac < 0)
-      {
+    {
       // We will be reversing the order of the slices, so the first VTK
       // slice will be at the position of the last NIfTI slice, and we
       // must adjust the offset to compensate for this.
       mmat[3] -= rmat[0][2]*hdr2->pixdim[3]*(hdr2->dim[3] - 1);
       mmat[7] -= rmat[1][2]*hdr2->pixdim[3]*(hdr2->dim[3] - 1);
       mmat[11] -= rmat[2][2]*hdr2->pixdim[3]*(hdr2->dim[3] - 1);
-      }
+    }
 
     this->QFormMatrix = vtkMatrix4x4::New();
     this->QFormMatrix->DeepCopy(mmat);
-    }
+  }
 
   // Set the SFormMatrix from the matrix information in the header.
   // See the long discussion above for more information.
   if (niftiVersion > 0 && hdr2->sform_code > 0)
-    {
+  {
     double mmat[16];
 
     // first row
@@ -1014,12 +1014,12 @@ int vtkNIFTIImageReader::RequestInformation(
     // Set QFac to -1 if the determinant is negative, unless QFac
     // has already been set by the qform information.
     if (vtkMatrix4x4::Determinant(mmat) < 0 && hdr2->qform_code == 0)
-      {
+    {
       this->QFac = -1.0;
-      }
+    }
 
     if (this->QFac < 0)
-      {
+    {
       // If QFac is set to -1 then the slices will be reversed, and we must
       // reverse the slice orientation vector (the third column of the matrix)
       // to compensate.
@@ -1033,16 +1033,16 @@ int vtkNIFTIImageReader::RequestInformation(
       mmat[3] += hdr2->srow_x[2]*(hdr2->dim[3] - 1);
       mmat[7] += hdr2->srow_y[2]*(hdr2->dim[3] - 1);
       mmat[11] += hdr2->srow_z[2]*(hdr2->dim[3] - 1);
-      }
+    }
 
     this->SFormMatrix = vtkMatrix4x4::New();
     this->SFormMatrix->DeepCopy(mmat);
 
     if (this->SFormMatrix->Determinant() < 0)
-      {
+    {
       vtkWarningMacro("SFormMatrix is flipped compared to QFormMatrix");
-      }
     }
+  }
 
   return 1;
 }
@@ -1055,9 +1055,9 @@ int vtkNIFTIImageReader::RequestData(
 {
   // check whether the reader is in an error state
   if (this->GetErrorCode() != vtkErrorCode::NoError)
-    {
+  {
     return 0;
-    }
+  }
 
   // which output port did the request come from
   int outputPort =
@@ -1065,9 +1065,9 @@ int vtkNIFTIImageReader::RequestData(
 
   // for now, this reader has only one output
   if (outputPort > 0)
-    {
+  {
     return 1;
-    }
+  }
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
@@ -1089,51 +1089,51 @@ int vtkNIFTIImageReader::RequestData(
   char *imgname = 0;
 
   if (this->FileNames)
-    {
+  {
     vtkIdType n = this->FileNames->GetNumberOfValues();
     int headers = 0;
     for (vtkIdType i = 0; i < n; i++)
-      {
+    {
       filename = this->FileNames->GetValue(i);
       // this checks for .hdr and .hdr.gz, case insensitive
       if (vtkNIFTIImageReader::CheckExtension(filename, ".hdr"))
-        {
+      {
         headers++;
-        }
+      }
       else
-        {
+      {
         imgname = new char[strlen(filename) + 1];
         strcpy(imgname, filename);
-        }
       }
+    }
     if (n != 2 || headers != 1)
-      {
+    {
       vtkErrorMacro("There must be two files and one must be a .hdr file.");
       delete [] imgname;
       return 0;
-      }
     }
+  }
   else
-    {
+  {
     filename = this->GetFileName();
-    }
+  }
 
   if (filename == 0)
-    {
+  {
     vtkErrorMacro("A FileName must be provided");
     return 0;
-    }
+  }
 
   if (imgname == 0)
-    {
+  {
     imgname = vtkNIFTIImageReader::ReplaceExtension(filename, ".hdr", ".img");
-    }
+  }
 
   if (imgname == 0)
-    {
+  {
     vtkErrorMacro("Unable to locate image for file " << filename);
     return 0;
-    }
+  }
 
   vtkDebugMacro("Opening NIFTI file " << imgname);
 
@@ -1147,9 +1147,9 @@ int vtkNIFTIImageReader::RequestData(
   delete [] imgname;
 
   if (!file)
-    {
+  {
     return 0;
-    }
+  }
 
   // check if planar RGB is applicable (Analyze only)
   bool planarRGB = (this->PlanarRGB &&
@@ -1162,9 +1162,9 @@ int vtkNIFTIImageReader::RequestData(
   int timeDim = (this->Dim[0] >= 4 ? this->Dim[4] : 1);
   int vectorDim = (this->Dim[0] >= 5 ? this->Dim[5] : 1);
   if (this->TimeAsVector)
-    {
+  {
     vectorDim *= timeDim;
-    }
+  }
 
   int outSizeX = extent[1] - extent[0] + 1;
   int outSizeY = extent[3] - extent[2] + 1;
@@ -1177,50 +1177,50 @@ int vtkNIFTIImageReader::RequestData(
   z_off_t fileTimeIncr = fileSliceIncr*this->Dim[3];
   z_off_t fileVectorIncr = fileTimeIncr*this->Dim[4];
   if (this->TimeAsVector)
-    {
+  {
     fileVectorIncr = fileTimeIncr;
-    }
+  }
 
   // planar RGB requires different increments
   int planarSize = 1; // if > 1, indicates planar RGB
   if (planarRGB)
-    {
+  {
     planarSize = numComponents/vectorDim;
     fileVoxelIncr = scalarSize;
     fileRowIncr = fileVoxelIncr*this->Dim[1];
     filePlaneIncr = fileRowIncr*this->Dim[2];
-    }
+  }
 
   // add a buffer for planar-vector to packed-vector conversion
   unsigned char *rowBuffer = 0;
   if (vectorDim > 1 || planarRGB)
-    {
+  {
     rowBuffer = new unsigned char[outSizeX*fileVoxelIncr];
-    }
+  }
 
   // special increment to reverse the slices if needed
   vtkIdType sliceOffset = 0;
 
   if (this->GetQFac() < 0)
-    {
+  {
     // put slices in reverse order
     sliceOffset = scalarSize*numComponents;
     sliceOffset *= outSizeX;
     sliceOffset *= outSizeY;
     dataPtr += sliceOffset*(outSizeZ - 1);
-    }
+  }
 
   // special increment to handle planar RGB
   vtkIdType planarOffset = 0;
   vtkIdType planarEndOffset = 0;
   if (planarRGB)
-    {
+  {
     planarOffset = scalarSize*numComponents;
     planarOffset *= outSizeX;
     planarOffset *= outSizeY;
     planarOffset -= scalarSize;
     planarEndOffset = planarOffset - scalarSize*(planarSize - 1);
-    }
+  }
 
   // report progress every 2% of the way to completion
   this->InvokeEvent(vtkCommand::StartEvent);
@@ -1248,130 +1248,130 @@ int vtkNIFTIImageReader::RequestData(
   int errorCode = 0;
 
   while (!this->AbortExecute)
-    {
+  {
     if (offset)
-      {
+    {
       int rval = gzseek(file, offset, SEEK_CUR);
       if (rval == -1)
-        {
+      {
         errorCode = vtkErrorCode::FileFormatError;
         if (gzeof(file))
-          {
+        {
           errorCode = vtkErrorCode::PrematureEndOfFileError;
-          }
-        break;
         }
+        break;
       }
+    }
 
     if (vectorDim == 1 && !planarRGB)
-      {
+    {
       // read directly into the output instead of into a buffer
       rowBuffer = ptr;
-      }
+    }
 
     int code = gzread(file, rowBuffer, rowSize*scalarSize);
     if (code != rowSize*scalarSize)
-      {
+    {
       errorCode = vtkErrorCode::FileFormatError;
       if (gzeof(file))
-        {
+      {
         errorCode = vtkErrorCode::PrematureEndOfFileError;
-        }
-      break;
       }
+      break;
+    }
 
     if (swapBytes != 0 && scalarSize > 1)
-      {
+    {
       vtkByteSwap::SwapVoidRange(rowBuffer, rowSize, scalarSize);
-      }
+    }
 
     if (vectorDim == 1 && !planarRGB)
-      {
+    {
       // advance the pointer to the next row
       ptr += outSizeX*numComponents*scalarSize;
       rowBuffer = 0;
-      }
+    }
     else
-      {
+    {
       // write vector plane to packed vector component
       unsigned char *tmpPtr = rowBuffer;
       z_off_t skipOther = scalarSize*numComponents - fileVoxelIncr;
       for (int i = 0; i < outSizeX; i++)
-        {
+      {
         // write one vector component of one voxel
         z_off_t n = fileVoxelIncr;
         do { *ptr++ = *tmpPtr++; } while (--n);
         // skip past the other components
         ptr += skipOther;
-        }
       }
+    }
 
     if (++count % target == 0)
-      {
+    {
       this->UpdateProgress(0.02*count/target);
-      }
+    }
 
     // offset to skip unread sections of the file, for when
     // the update extent is less than the whole extent
     offset = fileRowIncr - outSizeX*fileVoxelIncr;
     if (++j == outSizeY)
-      {
+    {
       j = 0;
       offset += filePlaneIncr - outSizeY*fileRowIncr;
       // back up for next plane (R, G, or B) if planar mode
       ptr -= planarOffset;
       if (++p == planarSize)
-        {
+      {
         p = 0;
         ptr += planarEndOffset; // advance to start of next slice
         ptr -= 2*sliceOffset; // for reverse slice order
         if (++k == outSizeZ)
-          {
+        {
           k = 0;
           offset += fileVectorIncr - outSizeZ*fileSliceIncr;
           if (++t == timeDim)
-            {
+          {
             t = 0;
-            }
+          }
           if (++c == vectorDim)
-            {
+          {
             break;
-            }
+          }
           // back up the ptr to the beginning of the image,
           // then increment to the next vector component
           ptr = dataPtr + c*fileVoxelIncr*planarSize;
 
           if (this->TimeAsVector)
-            {
+          {
             // if timeDim is included in the vectorDim (and hence in the
             // VTK scalar components) then we have to make sure that
             // the vector components are packed before the time steps
             ptr = dataPtr + (c + t*(vectorDim - 1))/timeDim*
                             fileVoxelIncr*planarSize;
-            }
           }
         }
       }
     }
+  }
 
   if (vectorDim > 1 || planarRGB)
-    {
+  {
     delete [] rowBuffer;
-    }
+  }
 
   gzclose(file);
 
   if (errorCode)
-    {
+  {
     const char *errorText = "Error in NIFTI file, cannot read.";
     if (errorCode == vtkErrorCode::PrematureEndOfFileError)
-      {
+    {
       errorText = "NIFTI file is truncated, some data is missing.";
-      }
+    }
     this->SetErrorCode(errorCode);
     vtkErrorMacro(<< errorText);
     return 0;
-    }
+  }
 
   this->UpdateProgress(1.0);
   this->InvokeEvent(vtkCommand::EndEvent);

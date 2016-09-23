@@ -77,32 +77,32 @@ int vtkExtractFunctionalBagPlot::RequestData(vtkInformation* /*request*/,
   vtkIdType inNbColumns = inTable->GetNumberOfColumns();
 
   if (!inTable)
-    {
+  {
     vtkDebugMacro(<< "Update event called with no input table.");
     return false;
-    }
+  }
 
   if (!inTableDensity)
-    {
+  {
     vtkDebugMacro(<< "Update event called with no density input table.");
     return false;
-    }
+  }
 
   vtkDoubleArray *density = vtkArrayDownCast<vtkDoubleArray>(
     this->GetInputAbstractArrayToProcess(0, inTableDensity));
   if (!density)
-    {
+  {
     vtkDebugMacro(<< "Update event called with non double density array.");
     return false;
-    }
+  }
 
   vtkStringArray *varName = vtkArrayDownCast<vtkStringArray>(
     this->GetInputAbstractArrayToProcess(1, inTableDensity));
   if (!varName)
-    {
+  {
     vtkDebugMacro(<< "Update event called with no variable name array.");
     return false;
-    }
+  }
 
   vtkIdType nbPoints = varName->GetNumberOfValues();
 
@@ -111,25 +111,25 @@ int vtkExtractFunctionalBagPlot::RequestData(vtkInformation* /*request*/,
   std::set<vtkIdType> outliersSeries;
 
   for (vtkIdType i = 0; i < nbPoints; i++)
-    {
+  {
     double d = density->GetValue(i);
     vtkAbstractArray* c = inTable->GetColumnByName(varName->GetValue(i));
     if (d < this->DensityForPUser)
-      {
+    {
       outliersSeries.insert(i);
-      }
+    }
     else
-      {
+    {
       if (d > this->DensityForP50)
-        {
+      {
         medianLines.push_back(c);
-        }
+      }
       else
-        {
+      {
         q3Lines.push_back(c);
-        }
       }
     }
+  }
 
   vtkIdType nbRows = inTable->GetNumberOfRows();
   vtkIdType nbCols = inTable->GetNumberOfColumns();
@@ -143,14 +143,14 @@ int vtkExtractFunctionalBagPlot::RequestData(vtkInformation* /*request*/,
   std::vector<double> vals;
   vals.resize(nbCols);
   for (vtkIdType i = 0; i < nbRows; i++)
-    {
+  {
     for (vtkIdType j = 0; j < nbCols; j++)
-      {
+    {
       vals[j] = inTable->GetValue(i, j).ToDouble();
-      }
+    }
     std::sort(vals.begin(), vals.end());
     qMedPoints->SetTuple1(i, vals[nbCols / 2]);
-    }
+  }
 
   // Generate the quad strip arrays
   std::ostringstream ss;
@@ -168,56 +168,56 @@ int vtkExtractFunctionalBagPlot::RequestData(vtkInformation* /*request*/,
   size_t medianCount = medianLines.size();
   size_t q3Count = q3Lines.size();
   for (vtkIdType i = 0; i < nbRows; i++)
-    {
+  {
     double vMin = VTK_DOUBLE_MAX;
     double vMax = VTK_DOUBLE_MIN;
     for (size_t j = 0; j < medianCount; j++)
-      {
+    {
       double v = medianLines[j]->GetVariantValue(i).ToDouble();
       if (v < vMin) { vMin = v; }
       if (v > vMax) { vMax = v; }
-      }
+    }
     q2Points->SetTuple2(i, vMin, vMax);
 
     vMin = VTK_DOUBLE_MAX;
     vMax = VTK_DOUBLE_MIN;
     for (size_t j = 0; j < q3Count; j++)
-      {
+    {
       double v = q3Lines[j]->GetVariantValue(i).ToDouble();
       if (v < vMin) { vMin = v; }
       if (v > vMax) { vMax = v; }
-      }
-    q3Points->SetTuple2(i, vMin, vMax);
     }
+    q3Points->SetTuple2(i, vMin, vMax);
+  }
 
   // Append the input columns
   for (vtkIdType i = 0; i < inNbColumns; i++)
-    {
+  {
     vtkAbstractArray* arr = inTable->GetColumn(i);
     if (outliersSeries.find(i) != outliersSeries.end())
-      {
+    {
       vtkAbstractArray* arrCopy = arr->NewInstance();
       arrCopy->DeepCopy(arr);
       std::string name = std::string(arr->GetName()) + "_outlier";
       arrCopy->SetName(name.c_str());
       outTable->AddColumn(arrCopy);
       arrCopy->Delete();
-      }
-    else
-      {
-      outTable->AddColumn(arr);
-      }
     }
+    else
+    {
+      outTable->AddColumn(arr);
+    }
+  }
 
   // Then add the 2 "bag" columns into the output table
   if (q3Lines.size() > 0)
-    {
+  {
     outTable->AddColumn(q3Points.GetPointer());
-    }
+  }
   if (medianLines.size() > 0)
-    {
+  {
     outTable->AddColumn(q2Points.GetPointer());
-    }
+  }
   outTable->AddColumn(qMedPoints.GetPointer());
 
   return 1;

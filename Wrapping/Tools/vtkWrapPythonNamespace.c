@@ -34,10 +34,10 @@ int vtkWrapPython_WrapNamespace(
 
   /* create any enum types defined in the namespace */
   for (i = 0; i < data->NumberOfEnums; i++)
-    {
+  {
     vtkWrapPython_GenerateEnumType(
       fp, module, data->Name, data->Enums[i]);
-    }
+  }
 
   fprintf(fp,
           "static PyObject *PyVTKNamespace_%s()\n"
@@ -48,7 +48,7 @@ int vtkWrapPython_WrapNamespace(
 
   if (data->NumberOfEnums ||
       data->NumberOfConstants)
-    {
+  {
     fprintf(fp,
             "  PyObject *d = PyVTKNamespace_GetDict(m);\n"
             "  PyObject *o;\n"
@@ -59,7 +59,7 @@ int vtkWrapPython_WrapNamespace(
 
     /* add any constants defined in the namespace */
     vtkWrapPython_AddPublicConstants(fp, "  ", "d", "o", data);
-    }
+  }
 
   fprintf(fp,
           "  return m;\n"

@@ -12,15 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLVolumeTextureMapper2D - Abstract class for a volume mapper
-
-// .SECTION Description
-// vtkOpenGLVolumeTextureMapper2D renders a volume using 2D texture mapping.
-
-
-// .SECTION see also
-// vtkVolumeMapper
-// @deprecated
+/**
+ * @class   vtkOpenGLVolumeTextureMapper2D
+ * @brief   Abstract class for a volume mapper
+ *
+ *
+ * vtkOpenGLVolumeTextureMapper2D renders a volume using 2D texture mapping.
+ *
+ * @sa
+ * vtkVolumeMapper
+ * @deprecated
+*/
 
 #ifndef vtkOpenGLVolumeTextureMapper2D_h
 #define vtkOpenGLVolumeTextureMapper2D_h
@@ -38,10 +40,11 @@ public:
 
   static vtkOpenGLVolumeTextureMapper2D *New();
 
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
-  // Render the volume
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+   * Render the volume
+   */
   virtual void Render(vtkRenderer *ren, vtkVolume *vol);
 
   void RenderQuads( int count, float *v, float *t,

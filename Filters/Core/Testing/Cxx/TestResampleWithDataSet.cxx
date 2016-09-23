@@ -80,7 +80,7 @@ void CreateInputDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
   randomAttrs->SetNumberOfTuples(100);
 
   for (int i = 0; i < numberOfBlocks; ++i)
-    {
+  {
     int blockExtent[6];
     extentTranslator->SetPiece(i);
     extentTranslator->PieceToExtent();
@@ -94,7 +94,7 @@ void CreateInputDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
     block->DeepCopy(randomAttrs->GetOutputDataObject(0));
     dataset->SetBlock(i, block);
     block->Delete();
-    }
+  }
 }
 
 void CreateSourceDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
@@ -111,7 +111,7 @@ void CreateSourceDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
   wavelet->SetCenter(0, 0, 0);
 
   for (int i = 0; i < numberOfBlocks; ++i)
-    {
+  {
     int blockExtent[6];
     extentTranslator->SetPiece(i);
     extentTranslator->PieceToExtent();
@@ -123,7 +123,7 @@ void CreateSourceDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
     block->DeepCopy(wavelet->GetOutputDataObject(0));
     dataset->SetBlock(i, block);
     block->Delete();
-    }
+  }
 }
 
 } // anonymous namespace
@@ -149,10 +149,10 @@ int TestResampleWithDataSet(int argc, char *argv[])
   if (block->GetFieldData()->GetNumberOfArrays() != 1 ||
       block->GetCellData()->GetNumberOfArrays() != 1 ||
       block->GetPointData()->GetNumberOfArrays() != 3)
-    {
+  {
     std::cout << "Unexpected number of arrays in default output" << std::endl;
     return !vtkTesting::FAILED;
-    }
+  }
 
   // pass point and cell arrays
   resample->PassCellArraysOn();
@@ -163,10 +163,10 @@ int TestResampleWithDataSet(int argc, char *argv[])
   if (block->GetFieldData()->GetNumberOfArrays() != 1 ||
       block->GetCellData()->GetNumberOfArrays() != 6 ||
       block->GetPointData()->GetNumberOfArrays() != 8)
-    {
+  {
     std::cout << "Unexpected number of arrays in output with pass cell and point arrays" << std::endl;
     return !vtkTesting::FAILED;
-    }
+  }
 
   // dont pass field arrays
   resample->PassFieldArraysOff();
@@ -176,10 +176,10 @@ int TestResampleWithDataSet(int argc, char *argv[])
   if (block->GetFieldData()->GetNumberOfArrays() != 0 ||
       block->GetCellData()->GetNumberOfArrays() != 6 ||
       block->GetPointData()->GetNumberOfArrays() != 8)
-    {
+  {
     std::cout << "Unexpected number of arrays in output with pass field arrays off" << std::endl;
     return !vtkTesting::FAILED;
-    }
+  }
 
   // Render
   vtkNew<vtkCompositeDataGeometryFilter> toPoly;
@@ -211,9 +211,9 @@ int TestResampleWithDataSet(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage(renWin.GetPointer());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

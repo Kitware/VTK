@@ -46,13 +46,13 @@ int TestGPURayCastVolumePolyData(int argc, char *argv[])
 {
   bool useOSP = true;
   for (int i = 0; i < argc; i++)
-    {
+  {
     if (!strcmp(argv[i], "-GL"))
-      {
+    {
       cerr << "GL" << endl;
       useOSP = false;
-      }
     }
+  }
   double scalarRange[2];
 
   vtkNew<vtkActor> outlineActor;
@@ -139,9 +139,9 @@ int TestGPURayCastVolumePolyData(int argc, char *argv[])
   // Attach OSPRay render pass
   vtkNew<vtkOSPRayPass> osprayPass;
   if (useOSP)
-    {
+  {
     ren->SetPass(osprayPass.GetPointer());
-    }
+  }
 
   renWin->Render();
   ren->ResetCamera();
@@ -150,9 +150,9 @@ int TestGPURayCastVolumePolyData(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

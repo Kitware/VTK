@@ -53,54 +53,54 @@ int TestGeoView2D(int argc, char* argv[])
   vtkStdString terrainReadPath = ".";
   vtkStdString terrainSavePath = ".";
   for (int a = 1; a < argc; a++)
-    {
+  {
     if (!strcmp(argv[a], "-P"))
-      {
+    {
       ++a;
       proj = atoi(argv[a]);
       continue;
-      }
+    }
     if (!strcmp(argv[a], "-IF"))
-      {
+    {
       ++a;
       imageFile = argv[a];
       continue;
-      }
+    }
     if (!strcmp(argv[a], "-IR"))
-      {
+    {
       ++a;
       imageReadPath = argv[a];
       continue;
-      }
+    }
     if (!strcmp(argv[a], "-IS"))
-      {
+    {
       ++a;
       imageSavePath = argv[a];
       continue;
-      }
+    }
     if (!strcmp(argv[a], "-TR"))
-      {
+    {
       ++a;
       terrainReadPath = argv[a];
       continue;
-      }
+    }
     if (!strcmp(argv[a], "-TS"))
-      {
+    {
       ++a;
       terrainSavePath = argv[a];
       continue;
-      }
+    }
     if (!strcmp(argv[a], "-I"))
-      {
+    {
       continue;
-      }
+    }
     if (!strcmp(argv[a], "-D") ||
         !strcmp(argv[a], "-T") ||
         !strcmp(argv[a], "-V"))
-      {
+    {
       ++a;
       continue;
-      }
+    }
     cerr
       << "\nUsage:\n"
       << "  -P  proj - Projection ID (default 40)\n"
@@ -112,7 +112,7 @@ int TestGeoView2D(int argc, char* argv[])
       << "  -LT tol  - Set geometry tolerance in pixels (default 5.0)\n"
       << "  -TT tol  - Set texture tolerance in pixels (default 1.0)\n";
     return 0;
-    }
+  }
 
   // Create the view
   vtkSmartPointer<vtkGeoView2D> view = vtkSmartPointer<vtkGeoView2D>::New();
@@ -163,32 +163,32 @@ int TestGeoView2D(int argc, char* argv[])
 
   // Serialize databases
   if (imageSavePath.length() > 0)
-    {
+  {
     imageRep->SaveDatabase(imageSavePath);
-    }
+  }
   if (terrainSavePath.length() > 0)
-    {
+  {
     terrain->SaveDatabase(terrainSavePath, 4);
-    }
+  }
 
   // Reload databases
   if (terrainReadPath.length() > 0)
-    {
+  {
     terrainSource->ShutDown();
     vtkGeoFileTerrainSource* source = vtkGeoFileTerrainSource::New();
     source->SetPath(terrainReadPath.c_str());
     source->Initialize();
     terrainSource.TakeReference(source);
-    }
+  }
   terrain->SetSource(terrainSource);
   if (imageReadPath.length() > 0)
-    {
+  {
     imageSource->ShutDown();
     vtkGeoFileImageSource* source = vtkGeoFileImageSource::New();
     source->SetPath(imageReadPath.c_str());
     source->Initialize();
     imageSource.TakeReference(source);
-    }
+  }
   imageRep->SetSource(imageSource);
 
   // Set up the viewport
@@ -211,10 +211,10 @@ int TestGeoView2D(int argc, char* argv[])
   vtksys::SystemTools::Delay(2000);
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();
-    }
+  }
 
   terrainSource->ShutDown();
   imageSource->ShutDown();

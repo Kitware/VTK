@@ -34,9 +34,9 @@ vtkTDxInteractorStyle::vtkTDxInteractorStyle()
 vtkTDxInteractorStyle::~vtkTDxInteractorStyle()
 {
   if(this->Settings!=0)
-    {
+  {
     this->Settings->Delete();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -51,7 +51,7 @@ void vtkTDxInteractorStyle::ProcessEvent(vtkRenderer *renderer,
   int *buttonInfo;
 
   switch(event)
-    {
+  {
     case vtkCommand::TDxMotionEvent:
       vtkDebugMacro(<<"vtkTDxInteractorStyle::ProcessEvent() TDxMotionEvent");
       motionInfo=static_cast<vtkTDxMotionEventInfo *>(calldata);
@@ -67,7 +67,7 @@ void vtkTDxInteractorStyle::ProcessEvent(vtkRenderer *renderer,
       buttonInfo=static_cast<int *>(calldata);
       this->OnButtonReleasedEvent(*buttonInfo);
       break;
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -96,12 +96,12 @@ void vtkTDxInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Settings: ";
   if(this->Settings==0)
-    {
+  {
     os << "(none)" << endl;
-    }
+  }
   else
-    {
+  {
     os << endl;
     this->Settings->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
 }

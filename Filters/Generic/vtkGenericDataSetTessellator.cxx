@@ -52,10 +52,10 @@ vtkGenericDataSetTessellator::vtkGenericDataSetTessellator()
 vtkGenericDataSetTessellator::~vtkGenericDataSetTessellator()
 {
   if ( this->Locator )
-    {
+  {
     this->Locator->UnRegister(this);
     this->Locator = NULL;
-    }
+  }
   this->InternalPD->Delete();
 }
 
@@ -114,11 +114,11 @@ int vtkGenericDataSetTessellator::RequestData(
 
   i=0;
   while(i<c)
-    {
+  {
     attribute=attributes->GetAttribute(i);
     attributeType=attribute->GetType();
     if(attribute->GetCentering()==vtkPointCentered)
-      {
+    {
       dsAttributes=outputPD;
 
       attributeArray=vtkDataArray::CreateDataArray(attribute->GetComponentType());
@@ -127,14 +127,14 @@ int vtkGenericDataSetTessellator::RequestData(
       this->InternalPD->AddArray(attributeArray);
       attributeArray->Delete();
       if(this->InternalPD->GetAttribute(attributeType)==0)
-        {
-        this->InternalPD->SetActiveAttribute(this->InternalPD->GetNumberOfArrays()-1,attributeType);
-        }
-      }
-    else // vtkCellCentered
       {
-      dsAttributes=outputCD;
+        this->InternalPD->SetActiveAttribute(this->InternalPD->GetNumberOfArrays()-1,attributeType);
       }
+    }
+    else // vtkCellCentered
+    {
+      dsAttributes=outputCD;
+    }
     attributeArray=vtkDataArray::CreateDataArray(attribute->GetComponentType());
     attributeArray->SetNumberOfComponents(attribute->GetNumberOfComponents());
     attributeArray->SetName(attribute->GetName());
@@ -142,19 +142,19 @@ int vtkGenericDataSetTessellator::RequestData(
     attributeArray->Delete();
 
     if(dsAttributes->GetAttribute(attributeType)==0)
-      {
+    {
       dsAttributes->SetActiveAttribute(dsAttributes->GetNumberOfArrays()-1,attributeType);
-      }
-    ++i;
     }
+    ++i;
+  }
 
   vtkIdTypeArray *cellIdArray=0;
 
   if(this->KeepCellIds)
-    {
+  {
     cellIdArray=vtkIdTypeArray::New();
     cellIdArray->SetName("OriginalIds");
-    }
+  }
 
   vtkGenericCellIterator *cellIt = input->NewCellIterator();
   vtkIdType updateCount = numCells/20 + 1;  // update roughly every 5%
@@ -164,22 +164,22 @@ int vtkGenericDataSetTessellator::RequestData(
 
   vtkIncrementalPointLocator *locator=0;
   if ( this->Merging )
-    {
+  {
     if ( this->Locator == NULL )
-      {
+    {
       this->CreateDefaultLocator();
-      }
+    }
     this->Locator->InitPointInsertion (newPts, input->GetBounds());
     locator=this->Locator;
-    }
+  }
 
   for(cellIt->Begin(); !cellIt->IsAtEnd() && !abortExecute; cellIt->Next(), count++)
-    {
+  {
     if ( !(count % updateCount) )
-      {
+    {
       this->UpdateProgress(static_cast<double>(count) / numCells);
       abortExecute = this->GetAbortExecute();
-      }
+    }
 
     cell = cellIt->GetCell();
     cell->Tessellate(input->GetAttributes(), input->GetTessellator(),
@@ -191,35 +191,35 @@ int vtkGenericDataSetTessellator::RequestData(
     vtkIdType cellId=cell->GetId();
 
     if(this->KeepCellIds)
-      {
+    {
       for(i=0;i<numNew;i++)
-        {
+      {
         cellIdArray->InsertNextValue(cellId);
-        }
       }
+    }
 
     for (i=0; i < numNew; i++)
-      {
+    {
       locs->InsertNextValue(conn->GetTraversalLocation());
       conn->GetNextCell(npts,pts); //side effect updates traversal location
-      } //insert each new cell
-    } //for all cells
+    } //insert each new cell
+  } //for all cells
   cellIt->Delete();
 
   // Send to the output
   if(this->KeepCellIds)
-    {
+  {
     outputCD->AddArray(cellIdArray);
     cellIdArray->Delete();
-    }
+  }
 
   output->SetPoints(newPts);
   output->SetCells(types, locs, conn);
 
   if (!this->Merging && this->Locator)
-    {
+  {
     this->Locator->Initialize();
-    }
+  }
 
   vtkDebugMacro(<<"Subdivided " << numCells << " cells to produce "
                 << conn->GetNumberOfCells() << "new cells");
@@ -239,9 +239,9 @@ int vtkGenericDataSetTessellator::FillInputPortInformation(
   vtkInformation* info)
 {
   if(!this->Superclass::FillInputPortInformation(port, info))
-    {
+  {
     return 0;
-    }
+  }
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGenericDataSet");
   return 1;
 }
@@ -252,9 +252,9 @@ int vtkGenericDataSetTessellator::FillInputPortInformation(
 void vtkGenericDataSetTessellator::CreateDefaultLocator()
 {
   if ( this->Locator == NULL )
-    {
+  {
     this->Locator = vtkMergePoints::New();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -263,23 +263,23 @@ void vtkGenericDataSetTessellator::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "keep cells ids=";
   if(this->KeepCellIds)
-    {
+  {
     os << "true" << endl;
-    }
+  }
   else
-    {
+  {
     os << "false" << endl;
-    }
+  }
 
   os << indent << "Merging: " << (this->Merging ? "On\n" : "Off\n");
   if ( this->Locator )
-    {
+  {
     os << indent << "Locator: " << this->Locator << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Locator: (none)\n";
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -289,9 +289,9 @@ vtkMTimeType vtkGenericDataSetTessellator::GetMTime()
   vtkMTimeType time;
 
   if ( this->Locator != NULL )
-    {
+  {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
   return mTime;
 }

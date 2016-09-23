@@ -47,7 +47,7 @@ int vtkPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
                                   double vtkNotUsed(worldOrient)[9] )
 {
   if (ren)
-    {
+  {
     vtkCoordinate *dpos = vtkCoordinate::New();
     dpos->SetCoordinateSystemToDisplay();
     dpos->SetValue( displayPos[0], displayPos[1] );
@@ -57,7 +57,7 @@ int vtkPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
     worldPos[2] = p[2];
     dpos->Delete();
     return 1;
-    }
+  }
   return 0;
 }
 

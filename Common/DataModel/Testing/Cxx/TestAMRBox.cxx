@@ -54,19 +54,19 @@ int TestAMRBoxEquality()
   Construct3DAMRBox( C, lo, hi );
 
   if( A != B )
-    {
+  {
     rc++;
-    }
+  }
 
   if( A == A2D )
-    {
+  {
     rc++;
-    }
+  }
 
   if( A == C  )
-    {
+  {
     rc++;
-    }
+  }
 
   return( rc );
 }
@@ -87,9 +87,9 @@ int TestAMRBoxAssignmentOperator()
   Construct3DAMRBox( A, lo, hi );
   B = A;
   if( A != B )
-    {
+  {
     rc++;
-    }
+  }
   return( rc );
 }
 
@@ -121,7 +121,7 @@ int TestAMRBoxCoarsenRefineOperators()
   // Refine the AMR box to Ar
   A.Refine( 2 );
   if( A != Ar )
-    {
+  {
     std::cerr << "Here is A: ";
     A.Print( std::cerr ) << "\n";
 
@@ -130,15 +130,15 @@ int TestAMRBoxCoarsenRefineOperators()
 
     std::cerr << "ERROR: refining AMR box failed!\n";
     rc++;
-    }
+  }
 
   // Coarsen AMR box to A0
   A.Coarsen( 2 );
   if( A != A0 )
-    {
+  {
     std::cerr << "ERROR: coarsening AMR box failed!\n";
     rc++;
-    }
+  }
   return( rc );
 }
 
@@ -172,22 +172,22 @@ int TestAMRBoxShiftOperator()
 
   A.Shift( shift );
   if( A != Ashifted )
-    {
+  {
     std::cerr << "ERROR: shifting AMR box failed!\n";
     rc++;
-    }
+  }
 
   // Reverse shift orientation
   for( int i=0; i < 3; i++)
-    {
+  {
     shift[i] = shift[i]*(-1);
-    }
+  }
   A.Shift( shift );
   if( A != A0 )
-    {
+  {
     std::cerr << "ERROR: shifting AMR box failed!\n";
     rc++;
-    }
+  }
   return( rc );
 }
 
@@ -218,17 +218,17 @@ int TestAMRBoxGrowShrinkOperators()
 
   A.Grow( 2 );
   if( A != Agrown )
-    {
+  {
     std::cerr << "ERROR: growing AMR box failed!\n";
     rc ++;
-    }
+  }
 
   A.Shrink( 2 );
   if( A != A0 )
-    {
+  {
     std::cerr << "ERROR: shrinking AMR box failed!\n";
     rc ++;
-    }
+  }
   return( rc );
 }
 
@@ -256,10 +256,10 @@ int TestAMRBoxIntersection()
   B.Shrink( 2 );
   bool doesIntersect = A.Intersect( B );
   if( !doesIntersect || (A != B) )
-    {
+  {
     std::cerr << "ERROR: Intersecting a fully encompassing box failed!\n";
     rc++;
-    }
+  }
 
   A = A0;
   B = A;
@@ -273,20 +273,20 @@ int TestAMRBoxIntersection()
 
   doesIntersect = A.Intersect( B );
   if( !doesIntersect || (A != I) )
-    {
+  {
     std::cerr << "ERROR: Intersecting a partially overlapping box failed!\n";
     rc++;
-    }
+  }
 
   A = A0;
   B = A;
   B.Shift(10,10,10);
   doesIntersect = A.Intersect( B );
   if( doesIntersect )
-    {
+  {
     std::cerr << "ERROR: Intersecting a non-overlapping box failed!\n";
     rc++;
-    }
+  }
   return( rc );
 }
 
@@ -310,26 +310,26 @@ int TestAMRBoxSerialization()
   unsigned char *buffer = NULL;
   A.Serialize( buffer, bytesize );
   if( (buffer == NULL) || (bytesize == 0) )
-    {
+  {
     std::cerr << "ERROR: Serializing AMR box failed!\n";
     ++rc;
-    }
+  }
 
   vtkIdType expectedByteSize = vtkAMRBox::GetBytesize();
   if( bytesize != expectedByteSize )
-    {
+  {
     std::cerr << "ERROR: Bytesize of buffer did not match expected size!\n";
     ++rc;
-    }
+  }
 
   vtkAMRBox B;
   B.Deserialize( buffer, bytesize );
 
   if( A != B )
-    {
+  {
     std::cerr << "ERROR: Deserialization of AMR box failed!\n";
     rc++;
-    }
+  }
 
   delete [] buffer;
 
@@ -342,15 +342,15 @@ void CheckTestStatus( int rc, const std::string &TestName )
   std::cout << "Test " << TestName << "...";
   std::cout.flush();
   if( rc == 0 )
-    {
+  {
     std::cout << "PASSED!\n";
     std::cout.flush();
-    }
+  }
   else
-    {
+  {
     std::cout << "FAILED!\n";
     std::cout.flush();
-    }
+  }
 }
 
 #include <cassert>

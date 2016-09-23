@@ -76,13 +76,13 @@ int vtkTexturedSphereSource::RequestData(
 
   // Set the desired precision for the points in the output.
   if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     newPoints->SetDataType(VTK_DOUBLE);
-    }
+  }
   else
-    {
+  {
     newPoints->SetDataType(VTK_FLOAT);
-    }
+  }
 
   newPoints->Allocate(numPts);
   newNormals = vtkFloatArray::New();
@@ -100,11 +100,11 @@ int vtkTexturedSphereSource::RequestData(
   deltaPhi = vtkMath::Pi() / this->PhiResolution;
   deltaTheta = 2.0 * vtkMath::Pi() / this->ThetaResolution;
   for (i=0; i <= this->ThetaResolution; i++)
-    {
+  {
     theta = i * deltaTheta;
     tc[0] = 2.0 * theta/vtkMath::Pi();
     for (j=0; j <= this->PhiResolution; j++)
-      {
+    {
       phi = j * deltaPhi;
       radius = this->Radius * sin((double)phi);
       x[0] = radius * cos((double)theta);
@@ -113,24 +113,24 @@ int vtkTexturedSphereSource::RequestData(
       newPoints->InsertNextPoint(x);
 
       if ( (norm = vtkMath::Norm(x)) == 0.0 )
-        {
+      {
         norm = 1.0;
-        }
+      }
       x[0] /= norm; x[1] /= norm; x[2] /= norm;
       newNormals->InsertNextTuple(x);
 
       tc[1] = 1.0 - phi/vtkMath::Pi();
       newTCoords->InsertNextTuple(tc);
-      }
     }
+  }
   //
   // Generate mesh connectivity
   //
   // bands between poles
   for (i=0; i < this->ThetaResolution; i++)
-    {
+  {
     for (j=0; j < this->PhiResolution; j++)
-      {
+    {
       pts[0] = (this->PhiResolution+1)*i + j;
       pts[1] = pts[0] + 1;
       pts[2] = ((this->PhiResolution+1)*(i+1)+j) + 1;
@@ -139,8 +139,8 @@ int vtkTexturedSphereSource::RequestData(
       pts[1] = pts[2];
       pts[2] = pts[1] - 1;
       newPolys->InsertNextCell(3,pts);
-      }
     }
+  }
 //
 // Update ourselves and release memeory
 //

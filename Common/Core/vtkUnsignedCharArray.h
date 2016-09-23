@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkUnsignedCharArray - dynamic, self-adjusting array of unsigned char
-// .SECTION Description
-// vtkUnsignedCharArray is an array of values of type unsigned char.
-// It provides methods for insertion and retrieval of values and will
-// automatically resize itself to hold new data.
+/**
+ * @class   vtkUnsignedCharArray
+ * @brief   dynamic, self-adjusting array of unsigned char
+ *
+ * vtkUnsignedCharArray is an array of values of type unsigned char.
+ * It provides methods for insertion and retrieval of values and will
+ * automatically resize itself to hold new data.
+*/
 
 #ifndef vtkUnsignedCharArray_h
 #define vtkUnsignedCharArray_h
@@ -46,19 +49,22 @@ public:
   vtkCreateWrappedArrayInterface(unsigned char);
 #endif
 
-  // Description:
-  // A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+  /**
+   * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+   */
   static vtkUnsignedCharArray* FastDownCast(vtkAbstractArray *source)
   {
     return static_cast<vtkUnsignedCharArray*>(Superclass::FastDownCast(source));
   }
 
-  // Description:
-  // Get the minimum data value in its native type.
+  /**
+   * Get the minimum data value in its native type.
+   */
   static unsigned char GetDataTypeValueMin() { return VTK_UNSIGNED_CHAR_MIN; }
 
-  // Description:
-  // Get the maximum data value in its native type.
+  /**
+   * Get the maximum data value in its native type.
+   */
   static unsigned char GetDataTypeValueMax() { return VTK_UNSIGNED_CHAR_MAX; }
 
 protected:

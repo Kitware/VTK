@@ -108,12 +108,12 @@ int TestOrderStatistics( int, char *[] )
   dataset3Arr->SetName( "Metric 2" );
 
   for ( int i = 0; i < nVals; ++ i )
-    {
+  {
     int ti = i << 1;
     dataset1Arr->InsertNextValue( mingledData[ti] );
     dataset2Arr->InsertNextValue( mingledData[ti + 1] );
     dataset3Arr->InsertNextValue( static_cast<double>( i ) );
-    }
+  }
 
   vtkTable* datasetTable = vtkTable::New();
   datasetTable->AddColumn( dataset1Arr );
@@ -141,9 +141,9 @@ int TestOrderStatistics( int, char *[] )
   // Select Columns of Interest
   os->AddColumn( "Metric 3" ); // Include invalid Metric 3
   for ( int i = 0; i< nMetrics; ++ i )
-    {  // Try to add all valid indices once more
+  {  // Try to add all valid indices once more
     os->AddColumn( columns[i] );
-    }
+  }
 
   // Test Learn, Derive, and Test operations
   os->SetLearnOption( true );
@@ -173,7 +173,7 @@ int TestOrderStatistics( int, char *[] )
   cout << "## Calculated the following quartiles with InverseCDFAveragedSteps quantile definition:\n";
   outputQuantiles->Dump();
   for ( vtkIdType c = 1; c < outputQuantiles->GetNumberOfColumns(); ++ c )
-    {
+  {
     vtkStdString colName = outputQuantiles->GetColumnName( c );
     cout << "   Variable="
          << colName
@@ -181,53 +181,53 @@ int TestOrderStatistics( int, char *[] )
 
     // Check some results of the Derive operation
     for ( int r = 0; r < outputQuantiles->GetNumberOfRows(); ++ r )
-      {
+    {
       double Qp = outputQuantiles->GetValue( r, c ).ToDouble();
       int i = ( c - 1 ) * valsOffset + r;
 
       if ( fabs( Qp - valsTest1[i] ) > 1.e-6 )
-        {
+      {
         vtkGenericWarningMacro("Incorrect quartiles: "
                                << Qp
                                << " != "
                                << valsTest1[i]
                                << ".");
         testStatus = 1;
-        }
       }
+    }
 
     // Check some results of the Assess operation
     vtkStdString quantColName = "Quantile(" + colName + ")";
     vtkAbstractArray* absQuantArr = outputData->GetColumnByName( quantColName );
     if ( ! absQuantArr )
-      {
+    {
       vtkGenericWarningMacro("Cannot retrieve quartile array for variable: "
                              << colName
                              << ".");
       testStatus = 1;
-      }
+    }
     else
-      {
+    {
       vtkDataArray* dataQuantArr = vtkArrayDownCast<vtkDoubleArray>( absQuantArr );
       if ( ! dataQuantArr )
-        {
+      {
         vtkGenericWarningMacro("Quartile array for variable: "
                                << colName
                                << " is not a data array.");
         testStatus = 1;
-        }
+      }
 
       std::map<int,int> histoQuantiles;
       for ( vtkIdType r = 0; r < dataQuantArr->GetNumberOfTuples(); ++ r )
-        {
+      {
         int qIdx = static_cast<int>( vtkMath::Round( dataQuantArr->GetTuple1( r ) ) );
         ++ histoQuantiles[qIdx];
-        }
+      }
 
       int totalHist = 0;
       for ( std::map<int,int>::iterator hit = histoQuantiles.begin();
             hit != histoQuantiles.end() ; ++ hit )
-        {
+      {
         cout << "    IQR "
              << hit->first
              << ": "
@@ -235,28 +235,28 @@ int TestOrderStatistics( int, char *[] )
              << " observations\n";
 
         totalHist += hit->second;
-        }
+      }
       cout << "    Total: "
            << totalHist
            << " observations\n";
 
       if ( nVals != totalHist )
-        {
+      {
         vtkGenericWarningMacro("Quartile-based histogram size "
                                << totalHist
                                << " != "
                                << nVals
                                << ", the data set cardinality.");
         testStatus = 1;
-        }
       }
+    }
 
     cout << "\n";
-    }
+  }
 
   cout << "## Calculated the following histograms:\n";
   for ( unsigned b = 0; b < outputModelDS->GetNumberOfBlocks() - 2; ++ b )
-    {
+  {
     vtkStdString varName = outputModelDS->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
     cout << "   Variable="
          << varName
@@ -264,59 +264,59 @@ int TestOrderStatistics( int, char *[] )
 
     vtkTable* histoTab = vtkTable::SafeDownCast( outputModelDS->GetBlock( b ) );
     histoTab->Dump();
-    }
+  }
 
   // Check cardinalities
   cout << "\n## Calculated the following cardinalities:\n";
   for ( vtkIdType r = 0; r < outputCard->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << "   ";
     for ( int i = 0; i < outputCard->GetNumberOfColumns(); ++ i )
-      {
+    {
       cout << outputCard->GetColumnName( i )
            << "="
            << outputCard->GetValue( r, i ).ToString()
            << "  ";
-      }
+    }
 
     // Check whether total cardinality is correct
     int testIntValue = outputCard->GetValueByName( r, "Cardinality" ).ToInt();
     if ( testIntValue != outputData->GetNumberOfRows() )
-      {
+    {
       vtkGenericWarningMacro("Incorrect histogram count: "
                              << testIntValue
                              << " != "
                              << outputData->GetNumberOfRows()
                              << ".");
       testStatus = 1;
-      }
+    }
 
     cout << "\n";
-    }
+  }
 
   // Check some results of the Test operation
   cout << "\n## Calculated the following Kolmogorov-Smirnov statistics:\n";
   for ( vtkIdType r = 0; r < outputTest->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << "   ";
     for ( int i = 0; i < outputTest->GetNumberOfColumns(); ++ i )
-      {
+    {
       cout << outputTest->GetColumnName( i )
            << "="
            << outputTest->GetValue( r, i ).ToString()
            << "  ";
-      }
+    }
 
     cout << "\n";
-    }
+  }
 
   // Select Columns of Interest (no more bogus columns)
   os->ResetAllColumnStates();
   os->ResetRequests();
   for ( int i = 0; i< nMetrics; ++ i )
-    {  // Try to add all valid indices once more
+  {  // Try to add all valid indices once more
     os->AddColumn( columns[i] );
-    }
+  }
 
   // Test Learn, Derive, and Test operations with InverseCDF quantile definition
   os->SetQuantileDefinition( vtkOrderStatistics::InverseCDF );
@@ -341,15 +341,15 @@ int TestOrderStatistics( int, char *[] )
   cout << "\n## Calculated the following quartiles with InverseCDFAveragedSteps quantile definition:\n";
   outputQuantiles->Dump();
   for ( vtkIdType c = 1; c < outputQuantiles->GetNumberOfColumns(); ++ c )
-    {
+  {
     // Verify some of the calculated quartiles
     for ( int r = 0; r < outputQuantiles->GetNumberOfRows(); ++ r )
-      {
+    {
       double Qp = outputQuantiles->GetValue( r, c ).ToDouble();
       int i = ( c - 1 ) * valsOffset + r;
 
       if ( fabs( Qp - valsTest2[i] ) > 1.e-6 )
-        {
+      {
         vtkGenericWarningMacro("Incorrect quartiles for variable "
                                << outputQuantiles->GetColumnName( c )
                                << ": "
@@ -358,25 +358,25 @@ int TestOrderStatistics( int, char *[] )
                                << valsTest2[i]
                                << ".");
         testStatus = 1;
-        }
       }
     }
+  }
 
   // Check some results of the Test operation
   cout << "\n## Calculated the following Kolmogorov-Smirnov statistics:\n";
   for ( vtkIdType r = 0; r < outputTest->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << "   ";
     for ( int i = 0; i < outputTest->GetNumberOfColumns(); ++ i )
-      {
+    {
       cout << outputTest->GetColumnName( i )
            << "="
            << outputTest->GetValue( r, i ).ToString()
            << "  ";
-      }
+    }
 
     cout << "\n";
-    }
+  }
 
   // Test Learn, Derive, and Test operation for deciles with InverseCDF quantile definition (as with Octave)
   os->SetQuantileDefinition( 0 ); // 0: vtkOrderStatistics::InverseCDF
@@ -394,18 +394,18 @@ int TestOrderStatistics( int, char *[] )
   // Check some results of the Test operation
   cout << "\n## Calculated the following Kolmogorov-Smirnov statistics:\n";
   for ( vtkIdType r = 0; r < outputTest->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << "   ";
     for ( int i = 0; i < outputTest->GetNumberOfColumns(); ++ i )
-      {
+    {
       cout << outputTest->GetColumnName( i )
            << "="
            << outputTest->GetValue( r, i ).ToString()
            << "  ";
-      }
+    }
 
     cout << "\n";
-    }
+  }
 
   // Clean up
   os->Delete();
@@ -420,11 +420,11 @@ int TestOrderStatistics( int, char *[] )
   textArr->SetName( "Text" );
 
   for ( std::vector<int>::size_type i = 0; i < textLength; ++ i )
-    {
+  {
     vtkStdString s( "" );
     s += text.at(i);
     textArr->InsertNextValue( s );
-    }
+  }
 
   vtkTable* textTable = vtkTable::New();
   textTable->AddColumn( textArr );
@@ -460,7 +460,7 @@ int TestOrderStatistics( int, char *[] )
 
   cout << "\n## Calculated the following histogram:\n";
   for ( unsigned b = 0; b < outputModelDS2->GetNumberOfBlocks() - 2; ++ b )
-    {
+  {
     vtkStdString varName = outputModelDS2->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
     cout << "   Variable="
          << varName
@@ -472,22 +472,22 @@ int TestOrderStatistics( int, char *[] )
     // Check whether total cardinality is correct
     int testIntValue2 = outputCard2->GetValueByName( 0, "Cardinality" ).ToInt();
     if ( testIntValue2 != outputData2->GetNumberOfRows() )
-      {
+    {
       vtkGenericWarningMacro("Incorrect histogram count: "
                              << testIntValue2
                              << " != "
                              << outputData2->GetNumberOfRows()
                              << ".");
       testStatus = 1;
-      }
     }
+  }
 
   // Calculate quantile-based histogram
   std::map<int,int> histo12Text;
   for ( vtkIdType r = 0; r < outputData2->GetNumberOfRows(); ++ r )
-    {
+  {
     ++ histo12Text[outputData2->GetValueByName( r, "Quantile(Text)" ).ToInt()];
-    }
+  }
 
   int sum12 = 0;
   cout << "\n## Calculated the following quantization from "
@@ -497,7 +497,7 @@ int TestOrderStatistics( int, char *[] )
   // Calculate representatives
   std::map<int,char> histo12Repr;
   for ( std::map<int,int>::iterator it = histo12Text.begin(); it != histo12Text.end(); ++ it )
-    {
+  {
     int quantIdx = it->first;
     int prevqIdx = ( it->first ? it->first - 1 : 0 );
     int frequVal = it->second;
@@ -519,14 +519,14 @@ int TestOrderStatistics( int, char *[] )
          << " with frequency "
          << frequVal
          << "\n";
-    }
+  }
 
   // Verify that we retrieve the total count
   if ( sum12 != outputData2->GetNumberOfRows() )
-    {
+  {
     vtkGenericWarningMacro("Incorrect histogram count: " << sum12 << " != " << outputData2->GetNumberOfRows() << ".");
     testStatus = 1;
-    }
+  }
 
   // Quantize text and print it
   cout << "\n## Quantized text with "
@@ -535,9 +535,9 @@ int TestOrderStatistics( int, char *[] )
        << os2->GetNumberOfIntervals()
        << "-quantiles :\n   ";
   for ( vtkIdType r = 0; r < outputData2->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << histo12Repr[outputData2->GetValueByName( r, "Quantile(Text)" ).ToInt()];
-    }
+  }
   cout << "\n";
 
   // Learn, Derive, Assess, and Test again but with with 100 intervals this time
@@ -561,9 +561,9 @@ int TestOrderStatistics( int, char *[] )
   // Calculate quantile-based histogram
   std::map<int,int> histo100Text;
   for ( vtkIdType r = 0; r < outputData2->GetNumberOfRows(); ++ r )
-    {
+  {
     ++ histo100Text[outputData2->GetValueByName( r, "Quantile(Text)" ).ToInt()];
-    }
+  }
 
   int sum100 = 0;
   cout << "\n## Calculated the following quantization with "
@@ -573,7 +573,7 @@ int TestOrderStatistics( int, char *[] )
   // Calculate representatives
   std::map<int,char> histo100Repr;
   for ( std::map<int,int>::iterator it = histo100Text.begin(); it != histo100Text.end(); ++ it )
-    {
+  {
     int quantIdx = it->first;
     int prevqIdx = ( it->first ? it->first - 1 : 0 );
     int frequVal = it->second;
@@ -595,14 +595,14 @@ int TestOrderStatistics( int, char *[] )
          << " with frequency "
          << frequVal
          << "\n";
-    }
+  }
 
   // Verify that we retrieve the total count
   if ( sum100 != outputData2->GetNumberOfRows() )
-    {
+  {
     vtkGenericWarningMacro("Incorrect histogram count: " << sum100 << " != " << outputData2->GetNumberOfRows() << ".");
     testStatus = 1;
-    }
+  }
 
   // Quantize text and print it
   cout << "\n## Quantized text with "
@@ -611,9 +611,9 @@ int TestOrderStatistics( int, char *[] )
        << os2->GetNumberOfIntervals()
        << "-quantiles :\n   ";
   for ( vtkIdType r = 0; r < outputData2->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << histo100Repr[outputData2->GetValueByName( r, "Quantile(Text)" ).ToInt()];
-    }
+  }
   cout << "\n";
 
   // Clean up

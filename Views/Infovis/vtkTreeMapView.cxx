@@ -76,10 +76,10 @@ void vtkTreeMapView::SetLayoutStrategyToSquarify()
 void vtkTreeMapView::SetLayoutStrategy(vtkAreaLayoutStrategy* s)
 {
   if (!vtkTreeMapLayoutStrategy::SafeDownCast(s))
-    {
+  {
     vtkErrorMacro("Strategy must be a treemap layout strategy.");
     return;
-    }
+  }
   this->Superclass::SetLayoutStrategy(s);
 }
 
@@ -87,24 +87,24 @@ void vtkTreeMapView::SetLayoutStrategy(vtkAreaLayoutStrategy* s)
 void vtkTreeMapView::SetLayoutStrategy(const char* name)
 {
   if (!strcmp(name, "Box"))
-    {
+  {
     this->BoxLayout->SetShrinkPercentage(this->GetShrinkPercentage());
     this->SetLayoutStrategy(this->BoxLayout);
-    }
+  }
   else if (!strcmp(name, "Slice And Dice"))
-    {
+  {
     this->SliceAndDiceLayout->SetShrinkPercentage(this->GetShrinkPercentage());
     this->SetLayoutStrategy(this->SliceAndDiceLayout);
-    }
+  }
   else if (!strcmp(name, "Squarify"))
-    {
+  {
     this->SquarifyLayout->SetShrinkPercentage(this->GetShrinkPercentage());
     this->SetLayoutStrategy(this->SquarifyLayout);
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro("Unknown layout name: " << name);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -113,9 +113,9 @@ void vtkTreeMapView::SetFontSizeRange(const int maxSize, const int minSize, cons
   vtkLabeledTreeMapDataMapper* mapper =
     vtkLabeledTreeMapDataMapper::SafeDownCast(this->GetAreaLabelMapper());
   if (mapper)
-    {
+  {
     mapper->SetFontSizeRange(maxSize, minSize, delta);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -124,9 +124,9 @@ void vtkTreeMapView::GetFontSizeRange(int range[3])
   vtkLabeledTreeMapDataMapper* mapper =
     vtkLabeledTreeMapDataMapper::SafeDownCast(this->GetAreaLabelMapper());
   if (mapper)
-    {
+  {
     mapper->GetFontSizeRange(range);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

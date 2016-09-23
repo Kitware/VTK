@@ -33,9 +33,9 @@ int TestScalarBarAboveBelow(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
   vtkNew<vtkDoubleArray> cellData;
   for (int i = 0; i < resolution * resolution; i++)
-    {
+  {
     cellData->InsertNextValue(i);
-    }
+  }
 
   plane->Update(); // Force an update so we can set cell data
   plane->GetOutput()->GetCellData()->SetScalars(cellData.Get());

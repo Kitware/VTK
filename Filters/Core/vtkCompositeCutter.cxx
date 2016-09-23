@@ -64,14 +64,14 @@ namespace
 
     double sign0  = Sign(fVal[0]-value);
     for (int i=1; i<8;i++)
-      {
+    {
       if (Sign(fVal[i]-value) != sign0)
-        {
+      {
         //this corner is on different side than first, piece
         //intersects and cannot be rejected
         return true;
-        }
       }
+    }
     return false;
   }
 };
@@ -100,14 +100,14 @@ int vtkCompositeCutter::RequestUpdateExtent(vtkInformation *, vtkInformationVect
   vtkInformation * inInfo = inputVector[0]->GetInformationObject(0);
 
   for (int c=0; c < this->ContourValues->GetNumberOfContours(); c++)
-    {
+  {
     vtkDebugMacro("Contours "<<this->ContourValues->GetValue(c));
-    }
+  }
 
 
   // Check if metadata are passed downstream
   if(inInfo->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
-    {
+  {
     std::vector<int> intersected;
 
     vtkCompositeDataSet * meta= vtkCompositeDataSet::SafeDownCast(inInfo->Get(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA()));
@@ -115,20 +115,20 @@ int vtkCompositeCutter::RequestUpdateExtent(vtkInformation *, vtkInformationVect
     iter.TakeReference(meta->NewIterator());
     iter->SetSkipEmptyNodes(false);
     for(iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-      {
+    {
       double* bb = iter->GetCurrentMetaData()->Get(vtkDataObject::BOUNDING_BOX());
       for (int c=0; c < this->ContourValues->GetNumberOfContours(); c++)
-        {
+      {
         if(IntersectBox(this->GetCutFunction(),bb,this->ContourValues->GetValue(c)))
-          {
+        {
           intersected.push_back(iter->GetCurrentFlatIndex());
           break;
-          }
         }
       }
+    }
     PRINT("Cutter demand "<<intersected.size()<<" blocks");
     inInfo->Set(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(), &intersected[0], static_cast<int>(intersected.size()));
-    }
+  }
   return 1;
 }
 
@@ -140,9 +140,9 @@ int vtkCompositeCutter::RequestData(vtkInformation *request,
   vtkInformation * outInfo = outputVector->GetInformationObject(0);
   vtkSmartPointer<vtkCompositeDataSet> inData = vtkCompositeDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   if(!inData)
-    {
+  {
     return Superclass::RequestData(request,inputVector,outputVector);
-    }
+  }
 
   vtkSmartPointer<vtkCompositeDataIterator> itr;
   itr.TakeReference(inData->NewIterator());
@@ -152,7 +152,7 @@ int vtkCompositeCutter::RequestData(vtkInformation *request,
   int numObjects(0);
   itr->GoToFirstItem();
   while(!itr->IsDoneWithTraversal())
-    {
+  {
     vtkDataSet* data = vtkDataSet::SafeDownCast(itr->GetCurrentDataObject());
     assert(data);
     inInfo->Set(vtkDataObject::DATA_OBJECT(),data);
@@ -162,7 +162,7 @@ int vtkCompositeCutter::RequestData(vtkInformation *request,
     append->AddInputData(out.GetPointer());
     numObjects++;
     itr->GoToNextItem();
-    }
+  }
   append->Update();
 
   vtkPolyData* appoutput = append->GetOutput();

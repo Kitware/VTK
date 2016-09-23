@@ -13,18 +13,21 @@
 
 =========================================================================*/
 
-// .NAME vtkVolumeRayCastFunction - a superclass for ray casting functions
-
-// .SECTION Description
-// vtkVolumeRayCastFunction is a superclass for ray casting functions that
-// can be used within a vtkVolumeRayCastMapper. This includes for example,
-// vtkVolumeRayCastCompositeFunction, vtkVolumeRayCastMIPFunction, and
-// vtkVolumeRayCastIsosurfaceFunction.
-
-// .SECTION See Also
-// vtkVolumeRayCastCompositeFunction vtkVolumeRayCastMIPFunction
-// vtkVolumeRayCastIsosurfaceFunction vtkVolumeRayCastMapper
-// @deprecated
+/**
+ * @class   vtkVolumeRayCastFunction
+ * @brief   a superclass for ray casting functions
+ *
+ *
+ * vtkVolumeRayCastFunction is a superclass for ray casting functions that
+ * can be used within a vtkVolumeRayCastMapper. This includes for example,
+ * vtkVolumeRayCastCompositeFunction, vtkVolumeRayCastMIPFunction, and
+ * vtkVolumeRayCastIsosurfaceFunction.
+ *
+ * @sa
+ * vtkVolumeRayCastCompositeFunction vtkVolumeRayCastMIPFunction
+ * vtkVolumeRayCastIsosurfaceFunction vtkVolumeRayCastMapper
+ * @deprecated
+*/
 
 #ifndef vtkVolumeRayCastFunction_h
 #define vtkVolumeRayCastFunction_h
@@ -136,12 +139,13 @@ public:
   vtkTypeMacro(vtkVolumeRayCastFunction,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Do the basic initialization. This includes saving the parameters
-  // passed in into local variables, as well as grabbing some useful
-  // info from the volume property and normal encoder. This initialize
-  // routine is called once per render. It also calls the
-  // SpecificFunctionInitialize of the subclass function.
+  /**
+   * Do the basic initialization. This includes saving the parameters
+   * passed in into local variables, as well as grabbing some useful
+   * info from the volume property and normal encoder. This initialize
+   * routine is called once per render. It also calls the
+   * SpecificFunctionInitialize of the subclass function.
+   */
   void FunctionInitialize( vtkRenderer *ren,
                            vtkVolume   *vol,
                            vtkVolumeRayCastStaticInfo *staticInfo );
@@ -149,21 +153,23 @@ public:
   virtual void CastRay( vtkVolumeRayCastDynamicInfo *dynamicInfo,
                         vtkVolumeRayCastStaticInfo *staticInfo )=0;
 
-  // Description:
-  // Get the value below which all scalar values are considered to
-  // have 0 opacity.
+  /**
+   * Get the value below which all scalar values are considered to
+   * have 0 opacity.
+   */
   virtual float GetZeroOpacityThreshold( vtkVolume *vol )=0;
 
 protected:
   vtkVolumeRayCastFunction()
-    {
+  {
     VTK_LEGACY_BODY(vtkVolumeRayCastMapper::vtkVolumeRayCastMapper,"VTK 7.0");
-    }
+  }
   ~vtkVolumeRayCastFunction() {}
 
-  // Description:
-  // This method gives the subclass a chance to do any special
-  // initialization that it may need to do
+  /**
+   * This method gives the subclass a chance to do any special
+   * initialization that it may need to do
+   */
   virtual void SpecificFunctionInitialize( vtkRenderer *ren,
                                            vtkVolume   *vol,
                                            vtkVolumeRayCastStaticInfo *staticInfo,

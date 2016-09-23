@@ -67,38 +67,38 @@ int vtkFillHolesFilter::RequestData(
   vtkIdType numStrips = input->GetNumberOfStrips();
   if ( (numPts=input->GetNumberOfPoints()) < 1 || !inPts ||
        (numPolys < 1 && numStrips < 1) )
-    {
+  {
     vtkDebugMacro(<<"No input data!");
     return 1;
-    }
+  }
 
   vtkPolyData *Mesh = vtkPolyData::New();
   Mesh->SetPoints(inPts);
   vtkCellArray *newPolys, *inPolys=input->GetPolys();
   if ( numStrips > 0 )
-    {
+  {
     newPolys = vtkCellArray::New();
     if ( numPolys > 0 )
-      {
+    {
       newPolys->DeepCopy(inPolys);
-      }
+    }
     else
-      {
+    {
       newPolys->Allocate(newPolys->EstimateSize(numStrips,5));
-      }
+    }
     vtkCellArray *inStrips = input->GetStrips();
     for ( inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
-      {
+    {
       vtkTriangleStrip::DecomposeStrip(npts, pts, newPolys);
-      }
+    }
     Mesh->SetPolys(newPolys);
     newPolys->Delete();
-    }
+  }
   else
-    {
+  {
     newPolys = inPolys;
     Mesh->SetPolys(newPolys);
-    }
+  }
   Mesh->BuildLinks();
 
   // Allocate storage for lines/points (arbitrary allocation sizes)
@@ -117,15 +117,15 @@ int vtkFillHolesFilter::RequestData(
   neighbors->Allocate(VTK_CELL_SIZE);
   for (cellId=0, newPolys->InitTraversal();
        newPolys->GetNextCell(npts,pts) && !abort; cellId++)
-    {
+  {
     if ( ! (cellId % progressInterval) ) //manage progress / early abort
-      {
+    {
       this->UpdateProgress (static_cast<double>(cellId) / numCells);
       abort = this->GetAbortExecute();
-      }
+    }
 
     for (i=0; i < npts; i++)
-      {
+    {
       p1 = pts[i];
       p2 = pts[(i+1)%npts];
 
@@ -133,13 +133,13 @@ int vtkFillHolesFilter::RequestData(
       numNei = neighbors->GetNumberOfIds();
 
       if ( numNei < 1 )
-        {
+      {
         newLines->InsertNextCell(2);
         newLines->InsertCellPoint(p1);
         newLines->InsertCellPoint(p2);
-        }
       }
     }
+  }
 
   // Track all free edges and see whether polygons can be built from them.
   // For each polygon of appropriate HoleSize, triangulate the hole and
@@ -148,7 +148,7 @@ int vtkFillHolesFilter::RequestData(
   numCells = newLines->GetNumberOfCells();
   vtkCellArray *newCells = NULL;
   if ( numCells >= 3 ) //only do the work if there are free edges
-    {
+  {
     double sphere[4];
     vtkIdType startId, neiId, currentCellId, hints[2]; hints[0]=0; hints[1]=0;
     vtkPolygon *polygon=vtkPolygon::New();
@@ -162,9 +162,9 @@ int vtkFillHolesFilter::RequestData(
     newCells->DeepCopy(inPolys);
 
     for (cellId=0; cellId < numCells && !abort; cellId++)
-      {
+    {
       if ( ! visited[cellId] )
-        {
+      {
         visited[cellId] = 1;
         // Setup the polygon
         Lines->GetCellPoints(cellId, npts, pts);
@@ -179,54 +179,54 @@ int vtkFillHolesFilter::RequestData(
         int valid = 1;
         currentCellId = cellId;
         while ( startId != endId->GetId(0) && valid )
-          {
+        {
           polygon->PointIds->InsertNextId(endId->GetId(0));
           polygon->Points->InsertNextPoint(inPts->GetPoint(endId->GetId(0)));
           Lines->GetCellNeighbors(currentCellId,endId,neighbors);
           if ( neighbors->GetNumberOfIds() == 0 )
-            {
+          {
             valid = 0;
-            }
+          }
           else if ( neighbors->GetNumberOfIds() > 1 )
-            {
+          {
             //have to logically split this vertex
             valid = 0;
-            }
+          }
           else
-            {
+          {
             neiId = neighbors->GetId(0);
             visited[neiId] = 1;
             Lines->GetCellPoints(neiId,npts,pts);
             endId->SetId( 0, (pts[0] != endId->GetId(0) ? pts[0] : pts[1] ) );
             currentCellId = neiId;
-            }
-          }//while loop connected
+          }
+        }//while loop connected
 
         // Evaluate the size of the loop and see if it is small enough
         if ( valid )
-          {
+        {
           vtkSphere::ComputeBoundingSphere(static_cast<vtkDoubleArray*>(polygon->Points->GetData())->GetPointer(0),
                                            polygon->PointIds->GetNumberOfIds(),sphere,hints);
           if ( sphere[3] <= this->HoleSize )
-            {
+          {
             // Now triangulate the loop and pass to the output
             numHolesFilled++;
             polygon->NonDegenerateTriangulate(neighbors);
             for ( i=0; i < neighbors->GetNumberOfIds(); i+=3 )
-              {
+            {
               newCells->InsertNextCell(3);
               newCells->InsertCellPoint(polygon->PointIds->GetId(neighbors->GetId(i)));
               newCells->InsertCellPoint(polygon->PointIds->GetId(neighbors->GetId(i+1)));
               newCells->InsertCellPoint(polygon->PointIds->GetId(neighbors->GetId(i+2)));
-              }
-            }//if hole small enough
-          }//if a valid loop
-        }//if not yet visited a line
-      }//for all lines
+            }
+          }//if hole small enough
+        }//if a valid loop
+      }//if not yet visited a line
+    }//for all lines
     polygon->Delete();
     endId->Delete();
     delete [] visited;
-    }//if loops present in the input
+  }//if loops present in the input
 
   // Clean up
   neighbors->Delete();
@@ -243,14 +243,14 @@ int vtkFillHolesFilter::RequestData(
   output->SetVerts(input->GetVerts());
   output->SetLines(input->GetLines());
   if ( newCells )
-    {
+  {
     output->SetPolys(newCells);
     newCells->Delete();
-    }
+  }
   else
-    {
+  {
     output->SetPolys(inPolys);
-    }
+  }
   output->SetStrips(input->GetStrips());
 
   Mesh->Delete();

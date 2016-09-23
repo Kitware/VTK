@@ -48,9 +48,9 @@ void vtkOpenGLLightMonitor::Initialize()
 void vtkOpenGLLightMonitor::SetEnabled(int val)
 {
   if (this->Enabled == val)
-    {
+  {
     return;
-    }
+  }
   this->Enabled = val;
   this->UpTime += 1;
 }
@@ -60,9 +60,9 @@ void vtkOpenGLLightMonitor::SetEnabled(int val)
 void vtkOpenGLLightMonitor::Set##_name(float val) \
 {                                           \
   if ( fabs ( this->_name - val ) < 1e-5f ) \
-    {                                       \
+  {                                       \
     return;                                 \
-    }                                       \
+  }                                       \
   this->_name = val;                        \
   this->UpTime += 1;                        \
 }
@@ -75,17 +75,17 @@ void vtkOpenGLLightMonitor::Set##_name(float *val)       \
 {                                                  \
   int changed = 0;                                 \
   for (int i=0; i<_n; ++i)                         \
-    {                                              \
+  {                                              \
     if ( fabs( val[i] - this->_name[i] ) > 1e-5f ) \
-      {                                            \
+    {                                            \
       changed=1;                                   \
       this->_name[i] = val[i];                     \
-      }                                            \
-    }                                              \
+    }                                            \
+  }                                              \
   if ( changed )                                   \
-    {                                              \
+  {                                              \
     this->UpTime += 1;                             \
-    }                                              \
+  }                                              \
 }
 vtkOpenGLLightMonitorSetVectorMacro(Ambient, 4)
 vtkOpenGLLightMonitorSetVectorMacro(Diffuse, 4)
@@ -101,16 +101,16 @@ void vtkOpenGLLightMonitor::Update()
   GLenum light = (GLenum)GL_LIGHT0+this->LightId;
 
   if (glIsEnabled(light))
-    {
+  {
     this->SetEnabled(1);
-    }
+  }
   else
-    {
+  {
     this->SetEnabled(0);
-    }
+  }
 
   if (this->Enabled)
-    {
+  {
     glGetLightfv(light, GL_AMBIENT, param);
     this->SetAmbient(param);
 
@@ -136,16 +136,16 @@ void vtkOpenGLLightMonitor::Update()
     glGetLightfv(light, GL_LINEAR_ATTENUATION, param+1);
     glGetLightfv(light, GL_QUADRATIC_ATTENUATION, param+2);
     this->SetAttenuation(param);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 bool vtkOpenGLLightMonitor::StateChanged()
 {
   if (!glIsEnabled(GL_LIGHTING))
-    {
+  {
     return false;
-    }
+  }
   long long lastUpTime = this->UpTime;
   this->Update();
   return (lastUpTime != this->UpTime);
@@ -159,41 +159,41 @@ void vtkOpenGLLightMonitor::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "Enabled=" << this->Enabled << endl;
   os << indent << "Ambient=";
   for (int q=0; q<4; ++q)
-    {
+  {
     os << indent << this->Ambient[q] << " ";
-    }
+  }
   os << endl;
   os << indent << "Diffuse=";
   for (int q=0; q<4; ++q)
-    {
+  {
     os << indent << this->Diffuse[q] << " ";
-    }
+  }
   os << endl;
   os << indent << "Specular=";
   for (int q=0; q<4; ++q)
-    {
+  {
     os << this->Specular[q] << " ";
-    }
+  }
   os << endl;
   os << indent << "Position=";
   for (int q=0; q<4; ++q)
-    {
+  {
     os << this->Position[q] << " ";
-    }
+  }
   os << endl;
   os << indent << "SpotDirection=";
   for (int q=0; q<3; ++q)
-    {
+  {
     os << this->SpotDirection[q] << " ";
-    }
+  }
   os << endl;
   os << indent << "SpotExponent=" << this->SpotExponent << endl;
   os << indent << "SpotCutoff=" << this->SpotCutoff << endl;
   os << indent << "Attenuation=";
   for (int q=0; q<3; ++q)
-    {
+  {
     os << indent << this->Attenuation[q] << " ";
-    }
+  }
   os << endl;
   os << indent << "UpTime=" << this->UpTime << endl;
 }

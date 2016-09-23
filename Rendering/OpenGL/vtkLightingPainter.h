@@ -12,8 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkLightingPainter - abstract class defining interface for painter
-// that can handle lightin.
+/**
+ * @class   vtkLightingPainter
+ * @brief   abstract class defining interface for painter
+ * that can handle lightin.
+*/
 
 #ifndef vtkLightingPainter_h
 #define vtkLightingPainter_h

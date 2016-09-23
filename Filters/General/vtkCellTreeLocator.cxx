@@ -131,26 +131,26 @@ class vtkCellPointTraversal
   public:
     vtkCellPointTraversal( const vtkCellTreeLocator::vtkCellTree& ct, const float* pos ) :
         m_ct(ct), m_pos(pos)
-          {
+    {
           this->m_stack[0] = 0; // first element is set to zero
           this->m_sp = this->m_stack + 1; //this points to the second element of the stack
-          }
+    }
 
         const vtkCellTreeLocator::vtkCellTreeNode* Next()  // this returns n (the location in the CellTree) if it is a leaf or 0 if the point doesn't contain in the data domain
-          {
+        {
           while( true )
-            {
+          {
             if( this->m_sp == this->m_stack ) //This means the point is not within the domain
-              {
+            {
               return 0;
-              }
+            }
 
             const vtkCellTreeLocator::vtkCellTreeNode* n = &this->m_ct.Nodes.front() + *(--this->m_sp);
 
             if( n->IsLeaf() )
-              {
+            {
               return n;
-              }
+            }
 
             const float p = m_pos[n->GetDimension()];
             const unsigned int left = n->GetLeftChildIndex();
@@ -159,28 +159,28 @@ class vtkCellPointTraversal
             bool r = p >= n->GetRightMinValue(); // Check if the point is within the right sub tree
 
             if( l && r ) //  This means if there is a overlap region both left and right sub trees should be traversed
-              {
+            {
               if( n->GetLeftMaxValue()-p < p-n->GetRightMinValue() )
-                {
+              {
                 *(this->m_sp++) = left;
                 *(this->m_sp++) = left+1;
-                }
+              }
               else
-                {
+              {
                 *(this->m_sp++) = left+1;
                 *(this->m_sp++) = left;
-                }
-              }
-            else if( l )
-              {
-              *(this->m_sp++) = left;
-              }
-            else if( r )
-              {
-              *(this->m_sp++) = left+1;
               }
             }
+            else if( l )
+            {
+              *(this->m_sp++) = left;
+            }
+            else if( r )
+            {
+              *(this->m_sp++) = left+1;
+            }
           }
+        }
 };
 //----------------------------------------------------------------------------
 // This class builds the CellTree according to the algorithm given in the paper.
@@ -191,103 +191,103 @@ class vtkCellTreeBuilder
   private:
 
     struct Bucket
-      {
+    {
       float  Min;
       float  Max;
       unsigned int Cnt;
 
       Bucket()
-        {
+      {
         Cnt = 0;
         Min =  std::numeric_limits<float>::max();
         Max = -std::numeric_limits<float>::max();
-        }
+      }
 
       void Add( const float _min, const float _max )
-        {
+      {
         ++Cnt;
 
         if( _min < Min )
-          {
+        {
           Min = _min;
-          }
+        }
 
         if( _max > Max )
-          {
+        {
           Max = _max;
-          }
         }
-      };
+      }
+    };
 
     struct PerCell
-      {
+    {
       float  Min[3];
       float  Max[3];
       unsigned int Ind;
-      };
+    };
 
     struct CenterOrder
-      {
+    {
       unsigned int d;
       CenterOrder( unsigned int _d ) : d(_d) {}
 
       bool operator()( const PerCell& pc0, const PerCell& pc1 )
-        {
+      {
         return (pc0.Min[d] + pc0.Max[d]) < (pc1.Min[d] + pc1.Max[d]);
-        }
-      };
+      }
+    };
 
     struct LeftPredicate
-      {
+    {
       unsigned int d;
       float  p;
       LeftPredicate( unsigned int _d, float _p ) :  d(_d), p(2.0f*_p) {}
 
       bool operator()( const PerCell& pc )
-        {
+      {
         return (pc.Min[d] + pc.Max[d]) < p;
-        }
-      };
+      }
+    };
 
 
     // -------------------------------------------------------------------------
 
     void FindMinMax( const PerCell* begin, const PerCell* end,
       float* min, float* max )
-      {
+    {
       if( begin == end )
-        {
+      {
         return;
-        }
+      }
 
       for( unsigned int d=0; d<3; ++d )
-        {
+      {
         min[d] = begin->Min[d];
         max[d] = begin->Max[d];
-        }
+      }
 
 
       while( ++begin != end )
-        {
+      {
         for( unsigned int d=0; d<3; ++d )
-          {
+        {
           if( begin->Min[d] < min[d] )    min[d] = begin->Min[d];
           if( begin->Max[d] > max[d] )    max[d] = begin->Max[d];
-          }
         }
       }
+    }
 
     // -------------------------------------------------------------------------
 
     void Split( unsigned int index, float min[3], float max[3] )
-      {
+    {
       unsigned int start = this->m_nodes[index].Start();
       unsigned int size  = this->m_nodes[index].Size();
 
       if( size < this->m_leafsize )
-        {
+      {
         return;
-        }
+      }
 
       PerCell* begin = &(this->m_pc[start]);
       PerCell* end   = &(this->m_pc[0])+start + size;
@@ -301,54 +301,54 @@ class vtkCellTreeBuilder
       Bucket b[3][nbuckets];
 
       for( const PerCell* pc=begin; pc!=end; ++pc )
-        {
+      {
         for( unsigned int d=0; d<3; ++d )
-          {
+        {
           float cen = (pc->Min[d] + pc->Max[d])/2.0f;
           int   ind = (int)( (cen-min[d])*iext[d] );
 
           if( ind<0 )
-            {
+          {
             ind = 0;
-            }
+          }
 
           if( ind>=nbuckets )
-            {
+          {
             ind = nbuckets-1;
-            }
+          }
 
           b[d][ind].Add( pc->Min[d], pc->Max[d] );
-          }
         }
+      }
 
       float cost = std::numeric_limits<float>::max();
       float plane = VTK_FLOAT_MIN; // bad value in case it doesn't get setx
       unsigned int dim = VTK_INT_MAX; // bad value in case it doesn't get set
 
       for( unsigned int d=0; d<3; ++d )
-        {
+      {
         unsigned int sum = 0;
 
         for( unsigned int n=0; n< (unsigned int)nbuckets-1; ++n )
-          {
+        {
           float lmax = -std::numeric_limits<float>::max();
           float rmin =  std::numeric_limits<float>::max();
 
           for( unsigned int m=0; m<=n; ++m )
-            {
+          {
             if( b[d][m].Max > lmax )
-              {
+            {
               lmax = b[d][m].Max;
-              }
             }
+          }
 
           for( unsigned int m=n+1; m< (unsigned int) nbuckets; ++m )
-            {
+          {
             if( b[d][m].Min < rmin )
-              {
+            {
               rmin = b[d][m].Min;
-              }
             }
+          }
 
           //
           // JB : added if (...) to stop floating point error if rmin is unset
@@ -356,7 +356,7 @@ class vtkCellTreeBuilder
           //
           if (lmax != -std::numeric_limits<float>::max() &&
               rmin !=  std::numeric_limits<float>::max())
-            {
+          {
               sum += b[d][n].Cnt;
 
               float lvol = (lmax-min[d])/ext[d];
@@ -365,28 +365,28 @@ class vtkCellTreeBuilder
               float c = lvol*sum + rvol*(size-sum);
 
               if( sum > 0 && sum < size && c < cost )
-                {
+              {
                 cost    = c;
                 dim     = d;
                 plane   = min[d] + (n+1)/iext[d];
-                }
-            }
+              }
           }
         }
+      }
 
       if( cost != std::numeric_limits<float>::max() )
-        {
+      {
         mid = std::partition( begin, end, LeftPredicate( dim, plane ) );
-        }
+      }
 
       // fallback
       if( mid == begin || mid == end )
-        {
+      {
         dim = std::max_element( ext, ext+3 ) - ext;
 
         mid = begin + (end-begin)/2;
         std::nth_element( begin, mid, end, CenterOrder( dim ) );
-        }
+      }
 
       float lmin[3], lmax[3], rmin[3], rmax[3];
 
@@ -404,23 +404,23 @@ class vtkCellTreeBuilder
 
       Split( this->m_nodes[index].GetLeftChildIndex(), lmin, lmax );
       Split( this->m_nodes[index].GetRightChildIndex(), rmin, rmax );
-      }
+    }
 
   public:
 
     vtkCellTreeBuilder()
-      {
+    {
       this->m_buckets =  5;
       this->m_leafsize = 8;
-      }
+    }
 
     void Build( vtkCellTreeLocator *ctl, vtkCellTreeLocator::vtkCellTree& ct, vtkDataSet* ds )
-      {
+    {
       const vtkIdType size = ds->GetNumberOfCells();
       if( size > std::numeric_limits<vtkIdType>::max() )
-        {
+      {
         vtkGenericWarningMacro("Too many cells.");
-        }
+      }
       double cellBounds[6];
       this->m_pc.resize(size);
 
@@ -439,35 +439,35 @@ class vtkCellTreeBuilder
         };
 
       for( vtkIdType i=0; i<size; ++i )
-        {
+      {
         this->m_pc[i].Ind = i;
 
         double *boundsPtr = cellBounds;
         if (ctl->CellBounds)
-          {
+        {
           boundsPtr = ctl->CellBounds[i];
-          }
+        }
         else
-          {
+        {
           ds->GetCellBounds(i, boundsPtr);
-          }
+        }
 
         for( int d=0; d<3; ++d )
-          {
+        {
           this->m_pc[i].Min[d] = boundsPtr[2*d+0];
           this->m_pc[i].Max[d] = boundsPtr[2*d+1];
 
           if( this->m_pc[i].Min[d] < min[d] )
-            {
+          {
             min[d] = this->m_pc[i].Min[d];
-            }
+          }
 
           if( this->m_pc[i].Max[d] > max[d] )  /// This can be m_pc[i].max[d] instead of min
-            {
+          {
             max[d] = this->m_pc[i].Max[d];
-            }
           }
         }
+      }
 
       ct.DataBBox[0] = min[0];
       ct.DataBBox[1] = max[0];
@@ -489,29 +489,29 @@ class vtkCellTreeBuilder
       std::vector<vtkCellTreeLocator::vtkCellTreeNode>::iterator nn = ct.Nodes.begin()+1;
 
       for( ; ni!=ct.Nodes.end(); ++ni )
-        {
+      {
         if( ni->IsLeaf() )
-          {
+        {
           continue;
-          }
+        }
 
         *(nn++) = this->m_nodes[ni->GetLeftChildIndex()];
         *(nn++) = this->m_nodes[ni->GetRightChildIndex()];
 
         ni->SetChildren( nn-ct.Nodes.begin()-2 );
-        }
+      }
 
       // --- final
 
       ct.Leaves.resize( size );
 
       for( int i=0; i<size; ++i )
-        {
+      {
         ct.Leaves[i] = this->m_pc[i].Ind;
-        }
+      }
 
       this->m_pc.clear();
-      }
+    }
 
   public:
     unsigned int     m_buckets;
@@ -547,14 +547,14 @@ vtkCellTreeLocator::~vtkCellTreeLocator()
 void vtkCellTreeLocator::BuildLocatorIfNeeded()
 {
   if (this->LazyEvaluation)
-    {
+  {
     if (!this->Tree || (this->MTime>this->BuildTime))
-      {
+    {
       this->Modified();
       vtkDebugMacro(<< "Forcing BuildLocator");
       this->ForceBuildLocator();
-      }
     }
+  }
 }
 //----------------------------------------------------------------------------
 void vtkCellTreeLocator::ForceBuildLocator()
@@ -564,16 +564,16 @@ void vtkCellTreeLocator::ForceBuildLocator()
   if ( (this->Tree) &&
     (this->BuildTime>this->MTime) &&
     (this->BuildTime>DataSet->GetMTime()))
-    {
+  {
     return;
-    }
+  }
   // don't rebuild if UseExistingSearchStructure is ON and a tree structure already exists
   if ( (this->Tree) && this->UseExistingSearchStructure)
-    {
+  {
     this->BuildTime.Modified();
     vtkDebugMacro(<< "BuildLocator exited - UseExistingSearchStructure");
     return;
-    }
+  }
   this->BuildLocatorInternal();
 }
 //----------------------------------------------------------------------------
@@ -581,15 +581,15 @@ void vtkCellTreeLocator::BuildLocatorInternal()
 {
   this->FreeSearchStructure();
   if ( !this->DataSet || (this->DataSet->GetNumberOfCells() < 1) )
-    {
+  {
     vtkErrorMacro( << " No Cells in the data set\n");
     return;
-    }
+  }
   //
   if (this->CacheCellBounds)
-    {
+  {
     this->StoreCellBounds();
-    }
+  }
   //
   this->Tree = new vtkCellTree;
   vtkCellTreeBuilder builder;
@@ -602,9 +602,9 @@ void vtkCellTreeLocator::BuildLocatorInternal()
 void vtkCellTreeLocator::BuildLocator()
 {
   if (this->LazyEvaluation)
-    {
+  {
     return;
-    }
+  }
   this->ForceBuildLocator();
 }
 
@@ -613,9 +613,9 @@ vtkIdType vtkCellTreeLocator::FindCell( double pos[3], double , vtkGenericCell *
                                         double* weights )
 {
   if( this->Tree == 0 )
-    {
+  {
     return -1;
-    }
+  }
 
   double dist2;
   int subId;
@@ -627,19 +627,19 @@ vtkIdType vtkCellTreeLocator::FindCell( double pos[3], double , vtkGenericCell *
   //bool found = false;
 
   while( const vtkCellTreeNode* n = pt.Next() )
-    {
+  {
     const unsigned int* begin = &(this->Tree->Leaves[n->Start()]);
     const unsigned int* end = begin + n->Size();
 
     for( ; begin!=end; ++begin )
-      {
+    {
       this->DataSet->GetCell(*begin, cell);
       if( cell->EvaluatePosition(pos, NULL, subId, pcoords, dist2, weights)==1 )
-        {
+      {
         return *begin;
-        }
       }
     }
+  }
 
   return -1;
 }
@@ -688,9 +688,9 @@ int vtkCellTreeLocator::IntersectWithLine(double p1[3],
 {
   int hit = this->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId, cellId);
   if (hit)
-    {
+  {
     this->DataSet->GetCell(cellId, cell);
-    }
+  }
   return hit;
 }
 
@@ -711,9 +711,9 @@ int vtkCellTreeLocator::IntersectWithLine(double p1[3], double p2[3], double tol
   tmin = 0; tmax = 1;
 
   if (!this->RayMinMaxT(p1, ray_vec, tmin, tmax)) // 0 for root node
-    {
+  {
     return false;
-    }
+  }
   // Ok, setup a stack and various params
   nodeStack  ns;
   double    closest_intersection = VTK_FLOAT_MAX;
@@ -722,14 +722,14 @@ int vtkCellTreeLocator::IntersectWithLine(double p1[3], double p2[3], double tol
   int axis = getDominantAxis(ray_vec);
   double (*_getMinDist)(const double origin[3], const double dir[3], const double B[6]);
   switch (axis)
-    {
+  {
     case POS_X: _getMinDist = _getMinDistPOS_X; break;
     case NEG_X: _getMinDist = _getMinDistNEG_X; break;
     case POS_Y: _getMinDist = _getMinDistPOS_Y; break;
     case NEG_Y: _getMinDist = _getMinDistNEG_Y; break;
     case POS_Z: _getMinDist = _getMinDistPOS_Z; break;
     default:    _getMinDist = _getMinDistNEG_Z; break;
-    }
+  }
 
 
   //
@@ -738,7 +738,7 @@ int vtkCellTreeLocator::IntersectWithLine(double p1[3], double p2[3], double tol
   vtkCellTreeNode* n = &this->Tree->Nodes.front();
   ns.push(n);
   while (!ns.empty())
-    {
+  {
     node = ns.top();
     ns.pop();
     // We do as few tests on the way down as possible, because our BBoxes
@@ -752,33 +752,33 @@ int vtkCellTreeLocator::IntersectWithLine(double p1[3], double p2[3], double tol
 
     //
     while (!node->IsLeaf())
-      { // this must be a parent node
+    { // this must be a parent node
       // Which child node is closest to ray origin - given direction
       Classify(p1, ray_vec, tDist, near, node, far, mustCheck);
       // if the distance to the far edge of the near box is > tmax, no need to test far box
       // (we still need to test Mid because it may overlap slightly)
       if(mustCheck)
-        {
+      {
         ns.push(far);
         node = near;
-        }
+      }
       else if ((tDist > tmax) || (tDist <= 0) )
-        { // <=0 for ray on edge
+      { // <=0 for ray on edge
         node = near;
-        }
+      }
       // if the distance to the far edge of the near box is < tmin, no need to test near box
       else if (tDist < tmin)
-        {
+      {
         ns.push(near);
         node = far;
-        }
+      }
       // All the child nodes may be candidates, keep near, push far then mid
       else
-        {
+      {
         ns.push(far);
         node = near;
-        }
       }
+    }
     double t_hit, ipt[3];
     // Ok, so we're a leaf node, first check the BBox against the ray
     // then test the candidates in our sorted ray direction order
@@ -788,49 +788,49 @@ int vtkCellTreeLocator::IntersectWithLine(double p1[3], double p2[3], double tol
     //if (_tmax>closest_intersection) break;
     //
     for (int i=0; i< (int)node->Size(); i++)
-      {
+    {
       vtkIdType cell_ID = this->Tree->Leaves[node->Start()+i];
       //
 
       double* boundsPtr = cellBounds;
       if (this->CellBounds)
-        {
+      {
         boundsPtr = this->CellBounds[cell_ID];
-        }
+      }
       else
-        {
+      {
         this->DataSet->GetCellBounds(cell_ID, cellBounds);
-        }
+      }
       if (_getMinDist(p1, ray_vec, boundsPtr) > closest_intersection)
-        {
+      {
         break;
-        }
+      }
       //
       ctmin = _tmin; ctmax = _tmax;
       if (this->RayMinMaxT(boundsPtr, p1, ray_vec, ctmin, ctmax))
-        {
+      {
         if (this->IntersectCellInternal(cell_ID, p1, p2, tol, t_hit, ipt, pcoords, subId))
-          {
+        {
           if (t_hit<closest_intersection)
-            {
+          {
             HIT = true;
             closest_intersection = t_hit;
             cellIds = cell_ID;
             x[0] = ipt[0];
             x[1] = ipt[1];
             x[2] = ipt[2];
-            }
-
-
           }
+
+
         }
       }
+    }
     //    }
-    }
+  }
   if (HIT)
-    {
+  {
     t = closest_intersection;
-    }
+  }
   //
   return HIT;
 
@@ -853,145 +853,145 @@ bool vtkCellTreeLocator::RayMinMaxT(const double origin[3],
   bounds[5] = this->Tree->DataBBox[5];
 
   if (dir[0] < -EPSILON_)
-    {    // ray travelling in -x direction
+  {    // ray travelling in -x direction
     tT = (bounds[0] - origin[0]) / dir[0];
     if (tT < rTmin)
-      {
+    {
       return (false);  // ray already left of box. Can't hit
-      }
+    }
     if (tT <= rTmax)
-      {
+    {
       rTmax = tT;     // update new tmax
-      }
+    }
     tT = (bounds[1] - origin[0]) / dir[0]; // distance to right edge
     if (tT >= rTmin)
-      {   // can't see this ever happening
+    {   // can't see this ever happening
       if (tT > rTmax)
-        {
+      {
         return false;  // clip start of ray to right edge
-        }
-      rTmin = tT;
       }
+      rTmin = tT;
     }
+  }
   else if (dir[0] > EPSILON_)
-    {
+  {
     tT = (bounds[1] - origin[0]) / dir[0];
     if (tT < rTmin)
-      {
+    {
       return (false);
-      }
+    }
     if (tT <= rTmax)
-      {
+    {
       rTmax = tT;
-      }
+    }
     tT = (bounds[0] - origin[0]) / dir[0];
     if (tT >= rTmin)
-      {
-      if (tT > rTmax)
-        {
-        return (false);
-        }
-      rTmin = tT;
-      }
-    }
-  else if (origin[0] < bounds[0] || origin[0] > bounds[1])
     {
-    return (false);
+      if (tT > rTmax)
+      {
+        return (false);
+      }
+      rTmin = tT;
     }
+  }
+  else if (origin[0] < bounds[0] || origin[0] > bounds[1])
+  {
+    return (false);
+  }
   // Y-Axis
   if (dir[1] < -EPSILON_)
-    {
+  {
     tT = (bounds[2] - origin[1]) / dir[1];
     if (tT < rTmin)
-      {
+    {
       return (false);
-      }
+    }
     if (tT <= rTmax)
-      {
+    {
       rTmax = tT;
-      }
+    }
     tT = (bounds[3] - origin[1]) / dir[1];
     if (tT >= rTmin)
-      {
+    {
       if (tT > rTmax)
-        {
+      {
         return (false);
-        }
-      rTmin = tT;
       }
+      rTmin = tT;
     }
+  }
   else if (dir[1] > EPSILON_)
-    {
+  {
     tT = (bounds[3] - origin[1]) / dir[1];
     if (tT < rTmin)
-      {
+    {
       return (false);
-      }
+    }
     if (tT <= rTmax)
-      {
+    {
       rTmax = tT;
-      }
+    }
     tT = (bounds[2] - origin[1]) / dir[1];
     if (tT >= rTmin)
-      {
-      if (tT > rTmax)
-        {
-        return (false);
-        }
-      rTmin = tT;
-      }
-    }
-  else if (origin[1] < bounds[2] || origin[1] > bounds[3])
     {
-    return (false);
+      if (tT > rTmax)
+      {
+        return (false);
+      }
+      rTmin = tT;
     }
+  }
+  else if (origin[1] < bounds[2] || origin[1] > bounds[3])
+  {
+    return (false);
+  }
   // Z-Axis
   if (dir[2] < -EPSILON_)
-    {
+  {
     tT = (bounds[4] - origin[2]) / dir[2];
     if (tT < rTmin)
-      {
+    {
       return (false);
-      }
+    }
     if (tT <= rTmax)
-      {
+    {
       rTmax = tT;
-      }
+    }
     tT = (bounds[5] - origin[2]) / dir[2];
     if (tT >= rTmin)
-      {
+    {
       if (tT > rTmax)
-        {
+      {
         return (false);
-        }
-      rTmin = tT;
       }
+      rTmin = tT;
     }
+  }
   else if (dir[2] > EPSILON_)
-    {
+  {
     tT = (bounds[5] - origin[2]) / dir[2];
     if (tT < rTmin)
-      {
+    {
       return (false);
-      }
+    }
     if (tT <= rTmax)
-      {
+    {
       rTmax = tT;
-      }
+    }
     tT = (bounds[4] - origin[2]) / dir[2];
     if (tT >= rTmin)
-      {
-      if (tT > rTmax)
-        {
-        return (false);
-        }
-      rTmin = tT;
-      }
-    }
-  else if (origin[2] < bounds[4] || origin[2] > bounds[5])
     {
-    return (false);
+      if (tT > rTmax)
+      {
+        return (false);
+      }
+      rTmin = tT;
     }
+  }
+  else if (origin[2] < bounds[4] || origin[2] > bounds[5])
+  {
+    return (false);
+  }
   return (true);
 }
 //----------------------------------------------------------------------------
@@ -1004,142 +1004,142 @@ bool vtkCellTreeLocator::RayMinMaxT(const double bounds[6],
   double tT;
   // X-Axis
   if (dir[0] < -EPSILON_)
-    {    // ray travelling in -x direction
+  {    // ray travelling in -x direction
     tT = (bounds[0] - origin[0]) / dir[0]; // Ipoint less than minT - ray outside box!
     if (tT < rTmin)
-      {
+    {
       return (false);
-      }
+    }
     if (tT <= rTmax)
-      {
+    {
       rTmax = tT;     // update new tmax
-      }
+    }
     tT = (bounds[1] - origin[0]) / dir[0]; // distance to right edge
     if (tT >= rTmin)
-      {   // can't see this ever happening
+    {   // can't see this ever happening
       if (tT > rTmax)
-        {
+      {
         return false;  // clip start of ray to right edge
-        }
-      rTmin = tT;
       }
+      rTmin = tT;
     }
+  }
   else if (dir[0] > EPSILON_)
-    {
+  {
     tT = (bounds[1] - origin[0]) / dir[0];
     if (tT < rTmin)
-      {
+    {
       return (false);
-      }
+    }
     if (tT <= rTmax)
-      {
+    {
       rTmax = tT;
-      }
+    }
     tT = (bounds[0] - origin[0]) / dir[0];
     if (tT >= rTmin)
-      {
-      if (tT > rTmax)
-        {
-        return (false);
-        }
-      rTmin = tT;
-      }
-    }
-  else if (origin[0] < bounds[0] || origin[0] > bounds[1])
     {
-    return (false);
+      if (tT > rTmax)
+      {
+        return (false);
+      }
+      rTmin = tT;
     }
+  }
+  else if (origin[0] < bounds[0] || origin[0] > bounds[1])
+  {
+    return (false);
+  }
   // Y-Axis
   if (dir[1] < -EPSILON_)
-    {
+  {
     tT = (bounds[2] - origin[1]) / dir[1];
     if (tT < rTmin)
-      {
+    {
       return (false);
-      }
+    }
     if (tT <= rTmax) rTmax = tT;
     tT = (bounds[3] - origin[1]) / dir[1];
     if (tT >= rTmin)
-      {
-      if (tT > rTmax)
-        {
-        return (false);
-        }
-      rTmin = tT;
-      }
-    }
-  else if (dir[1] > EPSILON_)
     {
+      if (tT > rTmax)
+      {
+        return (false);
+      }
+      rTmin = tT;
+    }
+  }
+  else if (dir[1] > EPSILON_)
+  {
     tT = (bounds[3] - origin[1]) / dir[1];
     if (tT < rTmin)
-      {
+    {
       return (false);
-      }
+    }
     if (tT <= rTmax)
-      {
+    {
       rTmax = tT;
-      }
+    }
     tT = (bounds[2] - origin[1]) / dir[1];
     if (tT >= rTmin)
-      {
-      if (tT > rTmax)
-        {
-        return (false);
-        }
-      rTmin = tT;
-      }
-    }
-  else if (origin[1] < bounds[2] || origin[1] > bounds[3])
     {
-    return (false);
+      if (tT > rTmax)
+      {
+        return (false);
+      }
+      rTmin = tT;
     }
+  }
+  else if (origin[1] < bounds[2] || origin[1] > bounds[3])
+  {
+    return (false);
+  }
   // Z-Axis
   if (dir[2] < -EPSILON_)
-    {
+  {
     tT = (bounds[4] - origin[2]) / dir[2];
     if (tT < rTmin)
-      {
+    {
       return (false);
-      }
+    }
     if (tT <= rTmax)
-      {
+    {
       rTmax = tT;
-      }
+    }
     tT = (bounds[5] - origin[2]) / dir[2];
     if (tT >= rTmin)
-      {
+    {
       if (tT > rTmax)
-        {
+      {
         return (false);
-        }
-      rTmin = tT;
       }
+      rTmin = tT;
     }
+  }
   else if (dir[2] > EPSILON_)
-    {
+  {
     tT = (bounds[5] - origin[2]) / dir[2];
     if (tT < rTmin)
-      {
+    {
       return (false);
-      }
+    }
     if (tT <= rTmax)
-      {
+    {
       rTmax = tT;
-      }
+    }
     tT = (bounds[4] - origin[2]) / dir[2];
     if (tT >= rTmin)
-      {
-      if (tT > rTmax)
-        {
-        return (false);
-        }
-      rTmin = tT;
-      }
-    }
-  else if (origin[2] < bounds[4] || origin[2] > bounds[5])
     {
-    return (false);
+      if (tT > rTmax)
+      {
+        return (false);
+      }
+      rTmin = tT;
     }
+  }
+  else if (origin[2] < bounds[4] || origin[2] > bounds[5])
+  {
+    return (false);
+  }
   return (true);
 }
 //----------------------------------------------------------------------------
@@ -1149,17 +1149,17 @@ int vtkCellTreeLocator::getDominantAxis(const double dir[3])
   double tY = (dir[1]>0) ? dir[1] : -dir[1];
   double tZ = (dir[2]>0) ? dir[2] : -dir[2];
   if (tX > tY && tX > tZ)
-    {
+  {
     return ((dir[0] > 0) ? POS_X : NEG_X);
-    }
+  }
   else if ( tY > tZ )
-    {
+  {
     return ((dir[1] > 0) ? POS_Y : NEG_Y);
-    }
+  }
   else
-    {
+  {
     return ((dir[2] > 0) ? POS_Z : NEG_Z);
-    }
+  }
 }
 //----------------------------------------------------------------------------
 void vtkCellTreeLocator::Classify(const double origin[3],
@@ -1172,47 +1172,47 @@ void vtkCellTreeLocator::Classify(const double origin[3],
   double tOriginToDivPlane2 = parent->GetRightMinValue() - origin[parent->GetDimension()];
   double tDivDirection   = dir[parent->GetDimension()];
   if ( tOriginToDivPlane2 > 0 )  // origin is right of the rmin
-    {
+  {
     near = &this->Tree->Nodes.at(parent->GetLeftChildIndex());
     far  = &this->Tree->Nodes.at(parent->GetLeftChildIndex()+1);
     rDist = (tDivDirection) ? tOriginToDivPlane2 / tDivDirection : VTK_FLOAT_MAX;
-    }
+  }
   else if (tOriginToDivPlane < 0)  // origin is left of the lm
-    {
+  {
     far  = &this->Tree->Nodes.at(parent->GetLeftChildIndex());
     near = &this->Tree->Nodes.at(parent->GetLeftChildIndex()+1);
     rDist = (tDivDirection) ? tOriginToDivPlane / tDivDirection : VTK_FLOAT_MAX;
-    }
+  }
 
 
   else
-    {
+  {
     if(tOriginToDivPlane > 0 && tOriginToDivPlane2 < 0)
-      {
+    {
       mustCheck = 1;  // The point is within right min and left max. both left and right subtrees must be checked
-      }
+    }
 
     if ( tDivDirection < 0)
-      {
+    {
       near = &this->Tree->Nodes.at(parent->GetLeftChildIndex());
       far  = &this->Tree->Nodes.at(parent->GetLeftChildIndex()+1);
       if(!(tOriginToDivPlane > 0 || tOriginToDivPlane < 0))
-        {
-        mustCheck=1;  // Ray was exactly on edge left max box.
-        }
-      rDist = (tDivDirection) ? 0 / tDivDirection : VTK_FLOAT_MAX;
-      }
-    else
       {
+        mustCheck=1;  // Ray was exactly on edge left max box.
+      }
+      rDist = (tDivDirection) ? 0 / tDivDirection : VTK_FLOAT_MAX;
+    }
+    else
+    {
       far  = &this->Tree->Nodes.at(parent->GetLeftChildIndex());
       near = &this->Tree->Nodes.at(parent->GetLeftChildIndex()+1);
       if(!(tOriginToDivPlane2 > 0 || tOriginToDivPlane2 < 0))
-        {
+      {
         mustCheck=1; // Ray was exactly on edge right min box.
-        }
-      rDist = (tDivDirection) ? 0 / tDivDirection : VTK_FLOAT_MAX;
       }
+      rDist = (tDivDirection) ? 0 / tDivDirection : VTK_FLOAT_MAX;
     }
+  }
 
 }
 //----------------------------------------------------------------------------
@@ -1314,9 +1314,9 @@ static void AddBox(vtkPolyData *pd, double *bounds, int level)
   // Colour boxes by scalar if array present
   //
   for (int i=0; levels && i<8; i++)
-    {
+  {
     levels->InsertNextTuple1(level);
-    }
+  }
 }
 //---------------------------------------------------------------------------
 void vtkCellTreeLocator::GenerateRepresentation(int level, vtkPolyData *pd)
@@ -1332,39 +1332,39 @@ void vtkCellTreeLocator::GenerateRepresentation(int level, vtkPolyData *pd)
   vtkBoundingBox lbox, rbox, rootbox(DataBBox[0], DataBBox[1], DataBBox[2], DataBBox[3], DataBBox[4], DataBBox[5]);
   ns.push(nodeBoxLevel(n0,boxLevel(rootbox,0)));
   while (!ns.empty())
-    {
+  {
     n0 = ns.top().first;
     int lev = ns.top().second.second;
     if (n0->IsLeaf() && ((lev==level) || (level==-1)))
-      {
+    {
       bl.push_back(boxLevel(ns.top().second.first,lev));
       ns.pop();
-      }
+    }
     else if (n0->IsLeaf())
-      {
+    {
       ns.pop();
-      }
+    }
     else if (n0->IsNode())
-      {
+    {
       SplitNodeBox(n0, ns.top().second.first, lbox, rbox);
       vtkCellTreeNode *n1 = &this->Tree->Nodes.at(n0->GetLeftChildIndex());
       vtkCellTreeNode *n2 = &this->Tree->Nodes.at(n0->GetLeftChildIndex()+1);
       ns.pop();
       ns.push(nodeBoxLevel(n1,boxLevel(lbox,lev+1)));
       ns.push(nodeBoxLevel(n2,boxLevel(rbox,lev+1)));
-      }
     }
+  }
   //
   //
   //
   // For each node, add the bbox to our polydata
   int s = (int) bl.size();
   for (int i=0; i<s; i++)
-    {
+  {
     double bounds[6];
     bl[i].first.GetBounds(bounds);
     AddBox(pd, bounds, bl[i].second);
-    }
+  }
 }
 //---------------------------------------------------------------------------
 void vtkCellTreeLocator::FindCellsWithinBounds(double *bbox, vtkIdList *cells)
@@ -1381,35 +1381,35 @@ void vtkCellTreeLocator::FindCellsWithinBounds(double *bbox, vtkIdList *cells)
   vtkBoundingBox lbox, rbox, rootbox(DataBBox[0], DataBBox[1], DataBBox[2], DataBBox[3], DataBBox[4], DataBBox[5]);
   ns.push(nodeBoxLevel(n0,boxLevel(rootbox,0)));
   while (!ns.empty())
-    {
+  {
     n0 = ns.top().first;
     vtkBoundingBox &nodebox = ns.top().second.first;
     if (TestBox.Intersects(nodebox))
-      {
+    {
       if (n0->IsLeaf())
-        {
+      {
         for (int i=0; i<(int)n0->Size(); i++)
-          {
+        {
           vtkIdType cell_ID = this->Tree->Leaves[n0->Start()+i];
           double *boundsPtr = cellBounds;
           if (this->CellBounds)
-            {
+          {
             boundsPtr = this->CellBounds[cell_ID];
-            }
+          }
           else
-            {
+          {
             this->DataSet->GetCellBounds(cell_ID, boundsPtr);
-            }
+          }
           vtkBoundingBox box(boundsPtr);
           if (TestBox.Intersects(box))
-            {
+          {
             cells->InsertNextId(cell_ID);
-            }
           }
-        ns.pop();
         }
+        ns.pop();
+      }
       else
-        {
+      {
         int lev = ns.top().second.second;
         SplitNodeBox(n0, nodebox, lbox, rbox);
         vtkCellTreeNode *n1 = &this->Tree->Nodes.at(n0->GetLeftChildIndex());
@@ -1417,13 +1417,13 @@ void vtkCellTreeLocator::FindCellsWithinBounds(double *bbox, vtkIdList *cells)
         ns.pop();
         ns.push(nodeBoxLevel(n1,boxLevel(lbox,lev+1)));
         ns.push(nodeBoxLevel(n2,boxLevel(rbox,lev+1)));
-        }
-      }
-    else
-      {
-      ns.pop();
       }
     }
+    else
+    {
+      ns.pop();
+    }
+  }
 }
 //---------------------------------------------------------------------------
 

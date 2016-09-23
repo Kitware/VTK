@@ -150,34 +150,34 @@ int TestGenericVertexAttributesGLSLDepthPeelingPass(int argc, char *argv[])
 
   int retVal;
   if(MesaHasVTKBug8135(renWin))
-    {
+  {
     // Mesa will crash if version<7.3
     cout<<"This version of Mesa would crash. Skip the test."<<endl;
     retVal=vtkRegressionTester::PASSED;
-    }
+  }
   else
-    {
+  {
     renderer->AddActor(actor);
     renderer->ResetCamera();
     renWin->Render();
 
     if(peeling->GetLastRenderingUsedDepthPeeling())
-      {
+    {
       cout<<"depth peeling was used"<<endl;
-      }
+    }
     else
-      {
+    {
       cout<<"depth peeling was not used (alpha blending instead)"<<endl;
-      }
+    }
     interactor->Initialize();
     renWin->Render();
 
     retVal = vtkRegressionTestImageThreshold(renWin,18);
     if( retVal == vtkRegressionTester::DO_INTERACTOR)
-      {
+    {
       interactor->Start();
-      }
     }
+  }
 
   sphere->Delete();
   randomVector->Delete();

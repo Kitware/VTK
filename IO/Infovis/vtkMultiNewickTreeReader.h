@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMultiNewickTreeReader - read multiple vtkTrees from Newick formatted file
-// .SECTION Description
-// vtkMultiNewickTreeReader is a source object that reads Newick tree format
-// files.
-// The output of this reader is a single vtkMultiPieceDataSet that contains multiple vtkTree objects.
-// The superclass of this class, vtkDataReader, provides many methods for
-// controlling the reading of the data file, see vtkDataReader for more
-// information.
-// .SECTION See Also
-// vtkTree vtkDataReader
+/**
+ * @class   vtkMultiNewickTreeReader
+ * @brief   read multiple vtkTrees from Newick formatted file
+ *
+ * vtkMultiNewickTreeReader is a source object that reads Newick tree format
+ * files.
+ * The output of this reader is a single vtkMultiPieceDataSet that contains multiple vtkTree objects.
+ * The superclass of this class, vtkDataReader, provides many methods for
+ * controlling the reading of the data file, see vtkDataReader for more
+ * information.
+ * @sa
+ * vtkTree vtkDataReader
+*/
 
 #ifndef vtkMultiNewickTreeReader_h
 #define vtkMultiNewickTreeReader_h
@@ -38,11 +41,14 @@ public:
   vtkTypeMacro(vtkMultiNewickTreeReader,vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the output of this reader.
+  //@{
+  /**
+   * Get the output of this reader.
+   */
   vtkMultiPieceDataSet *GetOutput();
   vtkMultiPieceDataSet *GetOutput(int idx);
   void SetOutput(vtkMultiPieceDataSet *output);
+  //@}
 
 protected:
   vtkMultiNewickTreeReader();

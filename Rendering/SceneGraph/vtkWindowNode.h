@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWindowNode - vtkViewNode specialized for vtkRenderWindows
-// .SECTION Description
-// State storage and graph traversal for vtkRenderWindow
+/**
+ * @class   vtkWindowNode
+ * @brief   vtkViewNode specialized for vtkRenderWindows
+ *
+ * State storage and graph traversal for vtkRenderWindow
+*/
 
 #ifndef vtkWindowNode_h
 #define vtkWindowNode_h
@@ -33,26 +36,31 @@ public:
   vtkTypeMacro(vtkWindowNode, vtkViewNode);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //Description:
-  //Build containers for our child nodes.
+  /**
+   * Build containers for our child nodes.
+   */
   virtual void Build(bool prepass);
 
-  //Description:
-  //Get state of my renderable.
+  /**
+   * Get state of my renderable.
+   */
   virtual void Synchronize(bool prepass);
 
-  // Description:
-  // Return the size of the last rendered image
+  /**
+   * Return the size of the last rendered image
+   */
   virtual int *GetSize() {
     return this->Size; }
 
-  // Description:
-  // Get the most recent color buffer RGBA
+  /**
+   * Get the most recent color buffer RGBA
+   */
   virtual vtkUnsignedCharArray *GetColorBuffer()
     { return this->ColorBuffer; }
 
-  // Description:
-  // Get the most recent zbufer buffer
+  /**
+   * Get the most recent zbufer buffer
+   */
   virtual vtkFloatArray *GetZBuffer()
     { return this->ZBuffer; }
 

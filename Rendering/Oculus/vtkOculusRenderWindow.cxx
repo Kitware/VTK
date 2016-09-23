@@ -73,9 +73,9 @@ vtkOculusRenderWindow::~vtkOculusRenderWindow()
   vtkCollectionSimpleIterator rit;
   this->Renderers->InitTraversal(rit);
   while ( (ren = this->Renderers->GetNextRenderer(rit)) )
-    {
+  {
     ren->SetRenderWindow(NULL);
-    }
+  }
   this->HMDTransform->Delete();
   this->HMDTransform = 0;
 }
@@ -90,10 +90,10 @@ void vtkOculusRenderWindow::Clean()
 {
   /* finish OpenGL rendering */
   if (this->OwnContext && this->ContextId)
-    {
+  {
     this->MakeCurrent();
     this->ReleaseGraphicsResources(this);
-    }
+  }
 
   this->ContextId = NULL;
 }
@@ -118,24 +118,24 @@ void vtkOculusRenderWindow::SetSize(int x, int y)
 {
   static int resizing = 0;
   if ((this->Size[0] != x) || (this->Size[1] != y))
-    {
+  {
     this->Superclass::SetSize(x, y);
 
     if (this->Interactor)
-      {
+    {
       this->Interactor->SetSize(x, y);
-      }
+    }
 
     if (this->Mapped)
-      {
+    {
       if (!resizing)
-        {
+      {
         resizing = 1;
         SDL_SetWindowSize(this->WindowId, this->Size[0], this->Size[1]);
         resizing = 0;
-        }
       }
     }
+  }
 }
 
 // Get the size of the whole screen.
@@ -150,20 +150,20 @@ void vtkOculusRenderWindow::SetPosition(int x, int y)
   static int resizing = 0;
 
   if ((this->Position[0] != x) || (this->Position[1] != y))
-    {
+  {
     this->Modified();
     this->Position[0] = x;
     this->Position[1] = y;
     if (this->Mapped)
-      {
+    {
       if (!resizing)
-        {
+      {
         resizing = 1;
         SDL_SetWindowPosition(this->WindowId,x,y);
         resizing = 0;
-        }
       }
     }
+  }
 }
 
 void vtkOculusRenderWindow::UpdateHMDMatrixPose()
@@ -175,7 +175,7 @@ void vtkOculusRenderWindow::UpdateHMDMatrixPose()
 
   // Query the HMD for ts current tracking state.
   if (hmdState.StatusFlags & (ovrStatus_OrientationTracked | ovrStatus_PositionTracked))
-    {
+  {
     // update the camera values based on the pose
     ovrPosef pose = hmdState.HeadPose.ThePose;
 
@@ -194,7 +194,7 @@ void vtkOculusRenderWindow::UpdateHMDMatrixPose()
     vtkCollectionSimpleIterator rit;
     this->Renderers->InitTraversal(rit);
     while ( (ren = this->Renderers->GetNextRenderer(rit)) )
-      {
+    {
       vtkOculusCamera *cam = static_cast<vtkOculusCamera *>(ren->GetActiveCamera());
       this->HMDTransform->Identity();
       double *trans = cam->GetTranslation();
@@ -208,8 +208,8 @@ void vtkOculusRenderWindow::UpdateHMDMatrixPose()
       cam->SetPosition(0,0,0);
       cam->SetViewUp(0,1,0);
       cam->ApplyTransform(this->HMDTransform);
-      }
     }
+  }
 }
 
 void vtkOculusRenderWindow::Render()
@@ -261,27 +261,27 @@ void vtkOculusRenderWindow::Frame(void)
 {
   this->MakeCurrent();
   if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers)
-    {
+  {
     // for now as fast as possible
     if ( this->Session )
-      {
+    {
       ovr_CommitTextureSwapChain(this->Session, this->LeftEyeDesc.TextureSwapChain);
       ovr_CommitTextureSwapChain(this->Session, this->RightEyeDesc.TextureSwapChain);
       // Submit frame with one layer we have.
       ovrLayerHeader* layers = &this->OVRLayer.Header;
       ovrResult result = ovr_SubmitFrame(this->Session, 0, nullptr, &layers, 1);
       while (result == ovrSuccess_NotVisible)
-        {
+      {
         result = ovr_SubmitFrame(this->Session, 0, nullptr, &layers, 1);
-        }
-      if (result != ovrSuccess)
-        {
-        vtkWarningMacro("failed to submit frame");
-        }
       }
+      if (result != ovrSuccess)
+      {
+        vtkWarningMacro("failed to submit frame");
+      }
+    }
 
     SDL_GL_SwapWindow( this->WindowId );
-    }
+  }
 }
 
 bool vtkOculusRenderWindow::CreateFrameBuffer( FramebufferDesc &framebufferDesc )
@@ -307,9 +307,9 @@ bool vtkOculusRenderWindow::CreateFrameBuffer( FramebufferDesc &framebufferDesc 
   desc.SampleCount = 1;
   desc.StaticImage = ovrFalse;
   if (ovr_CreateTextureSwapChainGL(this->Session, &desc, &framebufferDesc.TextureSwapChain) != ovrSuccess)
-    {
+  {
     vtkErrorMacro("Failed to create texture swap chain");
-    }
+  }
 
   // Sample texture access:
   unsigned int texId;
@@ -320,9 +320,9 @@ bool vtkOculusRenderWindow::CreateFrameBuffer( FramebufferDesc &framebufferDesc 
   // check FBO status
   GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if (status != GL_FRAMEBUFFER_COMPLETE)
-    {
+  {
     return false;
-    }
+  }
 
   glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 
@@ -334,26 +334,26 @@ bool vtkOculusRenderWindow::CreateFrameBuffer( FramebufferDesc &framebufferDesc 
 void vtkOculusRenderWindow::Initialize (void)
 {
   if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_TIMER ) < 0 )
-    {
+  {
     vtkErrorMacro("SDL could not initialize! SDL Error: " <<  SDL_GetError());
     return;
-    }
+  }
 
   ovrResult result = ovr_Initialize(nullptr);
   if (OVR_FAILURE(result))
-    {
+  {
     vtkErrorMacro("Failed to initialize LibOVR");
     return;
-    }
+  }
 
   ovrGraphicsLuid luid;
   result = ovr_Create(&this->Session, &luid);
 
   if (OVR_FAILURE(result))
-    {
+  {
     vtkErrorMacro("Failed to create LibOVR session");
     return;
-    }
+  }
 
   this->HMD = ovr_GetHmdDesc(this->Session);
 
@@ -382,25 +382,25 @@ void vtkOculusRenderWindow::Initialize (void)
     this->Size[0], this->Size[1],
     unWindowFlags );
   if (this->WindowId == NULL)
-    {
+  {
     vtkErrorMacro("Window could not be created! SDL Error: " <<  SDL_GetError());
     return;
-    }
+  }
 
   this->ContextId = SDL_GL_CreateContext(this->WindowId);
   if (this->ContextId == NULL)
-    {
+  {
     vtkErrorMacro("OpenGL context could not be created! SDL Error: " <<  SDL_GetError() );
     return;
-    }
+  }
 
   this->OpenGLInit();
 
   if ( SDL_GL_SetSwapInterval( 0 ) < 0 )
-    {
+  {
     vtkErrorMacro("Warning: Unable to set VSync! SDL Error: " << SDL_GetError() );
     return;
-    }
+  }
 
   std::string strWindowTitle = "VTK - Oculus";
   this->SetWindowName(strWindowTitle.c_str());
@@ -434,21 +434,21 @@ void vtkOculusRenderWindow::Finalize (void)
   this->Clean();
 
   if( this->Session )
-    {
+  {
     ovr_Destroy(this->Session);
     ovr_Shutdown();
     this->Session = NULL;
-    }
+  }
 
   if( this->ContextId )
-    {
-    }
+  {
+  }
 
   if( this->WindowId )
-    {
+  {
     SDL_DestroyWindow( this->WindowId );
     this->WindowId = NULL;
-    }
+  }
 
   SDL_Quit();
 }
@@ -466,9 +466,9 @@ void vtkOculusRenderWindow::Start(void)
 {
   // if the renderer has not been initialized, do so now
   if (!this->ContextId)
-    {
+  {
     this->Initialize();
-    }
+  }
 
   // set the current window
   this->MakeCurrent();

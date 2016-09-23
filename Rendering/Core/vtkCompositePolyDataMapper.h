@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCompositePolyDataMapper - a class that renders hierarchical polygonal data
-// .SECTION Description
-// This class uses a set of vtkPolyDataMappers to render input data
-// which may be hierarchical. The input to this mapper may be
-// either vtkPolyData or a vtkCompositeDataSet built from
-// polydata. If something other than vtkPolyData is encountered,
-// an error message will be produced.
-// .SECTION see also
-// vtkPolyDataMapper
+/**
+ * @class   vtkCompositePolyDataMapper
+ * @brief   a class that renders hierarchical polygonal data
+ *
+ * This class uses a set of vtkPolyDataMappers to render input data
+ * which may be hierarchical. The input to this mapper may be
+ * either vtkPolyData or a vtkCompositeDataSet built from
+ * polydata. If something other than vtkPolyData is encountered,
+ * an error message will be produced.
+ * @sa
+ * vtkPolyDataMapper
+*/
 
 #ifndef vtkCompositePolyDataMapper_h
 #define vtkCompositePolyDataMapper_h
@@ -42,60 +45,73 @@ public:
   vtkTypeMacro(vtkCompositePolyDataMapper, vtkMapper);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Standard method for rendering a mapper. This method will be
-  // called by the actor.
+  /**
+   * Standard method for rendering a mapper. This method will be
+   * called by the actor.
+   */
   void Render(vtkRenderer *ren, vtkActor *a);
 
-  // Description:
-  // Standard vtkProp method to get 3D bounds of a 3D prop
+  //@{
+  /**
+   * Standard vtkProp method to get 3D bounds of a 3D prop
+   */
   double *GetBounds();
   void GetBounds(double bounds[6]) { this->Superclass::GetBounds( bounds ); };
+  //@}
 
-  // Description:
-  // Release the underlying resources associated with this mapper
+  /**
+   * Release the underlying resources associated with this mapper
+   */
   void ReleaseGraphicsResources(vtkWindow *);
 
 protected:
   vtkCompositePolyDataMapper();
   ~vtkCompositePolyDataMapper();
 
-  // Description:
-  // We need to override this method because the standard streaming
-  // demand driven pipeline is not what we want - we are expecting
-  // hierarchical data as input
+  /**
+   * We need to override this method because the standard streaming
+   * demand driven pipeline is not what we want - we are expecting
+   * hierarchical data as input
+   */
   vtkExecutive* CreateDefaultExecutive();
 
-  // Description:
-  // Need to define the type of data handled by this mapper.
+  /**
+   * Need to define the type of data handled by this mapper.
+   */
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
-  // Description:
-  // This is the build method for creating the internal polydata
-  // mapper that do the actual work
+  /**
+   * This is the build method for creating the internal polydata
+   * mapper that do the actual work
+   */
   void BuildPolyDataMapper();
 
-  // Description:
-  // BuildPolyDataMapper uses this for each mapper. It is broken out so we can change types.
+  /**
+   * BuildPolyDataMapper uses this for each mapper. It is broken out so we can change types.
+   */
   virtual vtkPolyDataMapper *MakeAMapper();
 
-  // Description:
-  // Need to loop over the hierarchy to compute bounds
+  /**
+   * Need to loop over the hierarchy to compute bounds
+   */
   void ComputeBounds();
 
-  // Description:
-  // Time stamp for computation of bounds.
+  /**
+   * Time stamp for computation of bounds.
+   */
   vtkTimeStamp BoundsMTime;
 
-  // Description:
-  // These are the internal polydata mapper that do the
-  // rendering. We save then so that they can keep their
-  // display lists.
+  /**
+   * These are the internal polydata mapper that do the
+   * rendering. We save then so that they can keep their
+   * display lists.
+   */
   vtkCompositePolyDataMapperInternals *Internal;
 
-  // Description:
-  // Time stamp for when we need to update the
-  // internal mappers
+  /**
+   * Time stamp for when we need to update the
+   * internal mappers
+   */
   vtkTimeStamp InternalMappersBuildTime;
 
 private:

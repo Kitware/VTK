@@ -12,23 +12,26 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkNIFTIImageHeader - Store NIfTI header information.
-// .SECTION Description
-// This class stores the header of a NIfTI file in a VTK-friendly format.
-// By using this class, it is possible to specify the header information
-// that will be stored in a file written by the vtkNIFTIImageWriter.  Note
-// that the SForm and QForm orientation information in this class will be
-// ignored by the writer if an SForm and QForm have been explicitly set
-// via the writer's SetSForm and SetQForm methods.  Also note that all
-// info like Dim, PixDim, DataType, etc. will be ignored by the writer
-// because this information must instead be taken from the vtkImageData
-// information.  Finally, note that the vtkNIFTIImageWriter will ignore the
-// Descrip field, since it has its own SetDescription method.
-// .SECTION Thanks
-// This class was contributed to VTK by the Calgary Image Processing and
-// Analysis Centre (CIPAC).
-// .SECTION See Also
-// vtkNIFTIImageReader, vtkNIFTIImageWriter
+/**
+ * @class   vtkNIFTIImageHeader
+ * @brief   Store NIfTI header information.
+ *
+ * This class stores the header of a NIfTI file in a VTK-friendly format.
+ * By using this class, it is possible to specify the header information
+ * that will be stored in a file written by the vtkNIFTIImageWriter.  Note
+ * that the SForm and QForm orientation information in this class will be
+ * ignored by the writer if an SForm and QForm have been explicitly set
+ * via the writer's SetSForm and SetQForm methods.  Also note that all
+ * info like Dim, PixDim, DataType, etc. will be ignored by the writer
+ * because this information must instead be taken from the vtkImageData
+ * information.  Finally, note that the vtkNIFTIImageWriter will ignore the
+ * Descrip field, since it has its own SetDescription method.
+ * @par Thanks:
+ * This class was contributed to VTK by the Calgary Image Processing and
+ * Analysis Centre (CIPAC).
+ * @sa
+ * vtkNIFTIImageReader, vtkNIFTIImageWriter
+*/
 
 #ifndef vtkNIFTIImageHeader_h
 #define vtkNIFTIImageHeader_h
@@ -44,8 +47,9 @@ class VTKIOIMAGE_EXPORT vtkNIFTIImageHeader : public vtkObject
 {
 public:
 
-  // Description:
-  // NIFTI intent codes.
+  /**
+   * NIFTI intent codes.
+   */
   enum IntentCodeEnum {
     IntentNone = 0,
     IntentCorrel = 2,
@@ -89,8 +93,9 @@ public:
     IntentShape = 2005
   };
 
-  // Description:
-  // NIFTI transform codes.
+  /**
+   * NIFTI transform codes.
+   */
   enum XFormCodeEnum {
     XFormUnkown = 0,
     XFormScannerAnat = 1,
@@ -99,8 +104,9 @@ public:
     XFormMNI152 = 4
   };
 
-  // Description:
-  // NIFTI slice codes.
+  /**
+   * NIFTI slice codes.
+   */
   enum SliceCodeEnum {
     SliceUnknown = 0,
     SliceSeqInc = 1,
@@ -111,8 +117,9 @@ public:
     SliceAltDec2 = 6
   };
 
-  // Description:
-  // NIFTI unit codes.
+  /**
+   * NIFTI unit codes.
+   */
   enum UnitsXYZTEnum {
     UnitsUnknown = 0,
     UnitsMeter = 1,
@@ -128,11 +135,12 @@ public:
     UnitsTime = 56
   };
 
-  // Description:
-  // NIFTI data types.
-  // Types RGB24 and RGB32 are represented in VTK as a multi-component
-  // unsigned char image.  Complex values are represented as two-component
-  // images.  The NIFTI types Float128 and Complex256 are not supported.
+  /**
+   * NIFTI data types.
+   * Types RGB24 and RGB32 are represented in VTK as a multi-component
+   * unsigned char image.  Complex values are represented as two-component
+   * images.  The NIFTI types Float128 and Complex256 are not supported.
+   */
   enum DataTypeEnum {
     TypeUInt8 = 2,
     TypeInt16 = 4,
@@ -152,147 +160,193 @@ public:
     TypeRGBA32 = 2304
   };
 
-  // Description:
-  // NIFTI header sizes.
+  /**
+   * NIFTI header sizes.
+   */
   enum HeaderSizeEnum {
     NIFTI1HeaderSize = 348,
     NIFTI2HeaderSize = 540
   };
 
-  // Description:
-  // Static method for construction.
+  //@{
+  /**
+   * Static method for construction.
+   */
   static vtkNIFTIImageHeader *New();
   vtkTypeMacro(vtkNIFTIImageHeader, vtkObject);
+  //@}
 
-  // Description:
-  // Print information about this object.
+  /**
+   * Print information about this object.
+   */
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Get the magic number for the NIFTI file as a null-terminated string.
+  /**
+   * Get the magic number for the NIFTI file as a null-terminated string.
+   */
   const char *GetMagic() { return this->Magic; }
 
-  // Description:
-  // Get the offset to the pixel data within the file.
+  /**
+   * Get the offset to the pixel data within the file.
+   */
   vtkTypeInt64 GetVoxOffset() { return this->VoxOffset; }
 
-  // Description:
-  // Get the data type.
+  /**
+   * Get the data type.
+   */
   int GetDataType() { return this->DataType; }
 
-  // Description:
-  // Get the number of bits per pixel.
+  /**
+   * Get the number of bits per pixel.
+   */
   int GetBitPix() { return this->BitPix; }
 
-  // Description:
-  // Get the nth dimension of the data, where GetDim(0) returns the
-  // number of dimensions that are defined for the file.
+  /**
+   * Get the nth dimension of the data, where GetDim(0) returns the
+   * number of dimensions that are defined for the file.
+   */
   vtkTypeInt64 GetDim(int i) {
     return (i < 0 || i > 7 ? 0 : this->Dim[i]); }
 
-  // Description:
-  // Get the sample spacing in the nth dimension. If GetPixDim(0) is
-  // negative, then the quaternion for the qform describes the correct
-  // orientation only after the slice ordering has been reversed.
+  /**
+   * Get the sample spacing in the nth dimension. If GetPixDim(0) is
+   * negative, then the quaternion for the qform describes the correct
+   * orientation only after the slice ordering has been reversed.
+   */
   double GetPixDim(int i) {
     return (i < 0 || i > 7 ? 0.0 : this->PixDim[i]); }
 
-  // Description:
-  // Get the NIFTI intent code.  This is an enumerated value in the NIFTI
-  // header that states what the data is intended to be used for.
+  //@{
+  /**
+   * Get the NIFTI intent code.  This is an enumerated value in the NIFTI
+   * header that states what the data is intended to be used for.
+   */
   vtkSetMacro(IntentCode, int);
   int GetIntentCode() { return this->IntentCode; }
+  //@}
 
-  // Description:
-  // Get the intent name.  This should match the intent code.
+  /**
+   * Get the intent name.  This should match the intent code.
+   */
   void SetIntentName(const char *name);
   const char *GetIntentName() { return this->IntentName; }
 
-  // Description:
-  // Get one of the NIFTI intent parameters.  The definition of these
-  // parameters varies according to the IntentCode.
+  //@{
+  /**
+   * Get one of the NIFTI intent parameters.  The definition of these
+   * parameters varies according to the IntentCode.
+   */
   vtkSetMacro(IntentP1, double);
   double GetIntentP1() { return this->IntentP1; }
   vtkSetMacro(IntentP2, double);
   double GetIntentP2() { return this->IntentP2; }
   vtkSetMacro(IntentP3, double);
   double GetIntentP3() { return this->IntentP3; }
+  //@}
 
-  // Description:
-  // Get the scale and slope to apply to the data in order to get
-  // the real-valued data values.
+  //@{
+  /**
+   * Get the scale and slope to apply to the data in order to get
+   * the real-valued data values.
+   */
   vtkSetMacro(SclSlope, double);
   double GetSclSlope() { return this->SclSlope; }
   vtkSetMacro(SclInter, double);
   double GetSclInter() { return this->SclInter; }
+  //@}
 
-  // Description:
-  // Get the calibrated range of the data, i.e. the values stored in the
-  // cal_min and cal_max fields in the header.
+  //@{
+  /**
+   * Get the calibrated range of the data, i.e. the values stored in the
+   * cal_min and cal_max fields in the header.
+   */
   vtkSetMacro(CalMin, double);
   double GetCalMin() { return this->CalMin; }
   vtkSetMacro(CalMax, double);
   double GetCalMax() { return this->CalMax; }
+  //@}
 
-  // Description:
-  // Get the slice_duration and toffset from the header.
+  //@{
+  /**
+   * Get the slice_duration and toffset from the header.
+   */
   vtkSetMacro(SliceDuration, double);
   double GetSliceDuration() { return this->SliceDuration; }
   vtkSetMacro(TOffset, double);
   double GetTOffset() { return this->TOffset; }
+  //@}
 
-  // Description:
-  // Get the slice range for the data.
+  //@{
+  /**
+   * Get the slice range for the data.
+   */
   vtkSetMacro(SliceStart, vtkTypeInt64);
   vtkTypeInt64 GetSliceStart() { return this->SliceStart; }
   vtkSetMacro(SliceEnd, vtkTypeInt64);
   vtkTypeInt64 GetSliceEnd() { return this->SliceEnd; }
+  //@}
 
-  // Description:
-  // Get the slice code for the data.
+  //@{
+  /**
+   * Get the slice code for the data.
+   */
   vtkSetMacro(SliceCode, int);
   int GetSliceCode() { return this->SliceCode; }
+  //@}
 
-  // Description:
-  // Get a bitfield that describes the units for the first 4 dims.
+  //@{
+  /**
+   * Get a bitfield that describes the units for the first 4 dims.
+   */
   vtkSetMacro(XYZTUnits, int);
   int GetXYZTUnits() { return this->XYZTUnits; }
+  //@}
 
-  // Description:
-  // Get a bitfield with extra information about the dimensions, it
-  // states which dimensions are the phase encode, frequency encode,
-  // and slice encode dimensions for MRI acquisitions.
+  //@{
+  /**
+   * Get a bitfield with extra information about the dimensions, it
+   * states which dimensions are the phase encode, frequency encode,
+   * and slice encode dimensions for MRI acquisitions.
+   */
   vtkSetMacro(DimInfo, int);
   int GetDimInfo() { return this->DimInfo; }
+  //@}
 
-  // Description:
-  // Get a null-terminated file descriptor, this usually gives the
-  // name of the software that wrote the file. It will have a maximum
-  // length of 80 characters.  Use ASCII to ensure compatibility with
-  // all NIFTI software, the NIFTI standard itself does not specify what
-  // encodings are permitted.
+  /**
+   * Get a null-terminated file descriptor, this usually gives the
+   * name of the software that wrote the file. It will have a maximum
+   * length of 80 characters.  Use ASCII to ensure compatibility with
+   * all NIFTI software, the NIFTI standard itself does not specify what
+   * encodings are permitted.
+   */
   void SetDescrip(const char *descrip);
   const char *GetDescrip() { return this->Descrip; }
 
-  // Description:
-  // Get an auxilliary file, e.g. a color table, that is associated
-  // with this data.  The length of the filename must be a maximum of
-  // 24 characters, and it will be assumed to be in the same directory
-  // as the NIFTI file.
+  /**
+   * Get an auxilliary file, e.g. a color table, that is associated
+   * with this data.  The length of the filename must be a maximum of
+   * 24 characters, and it will be assumed to be in the same directory
+   * as the NIFTI file.
+   */
   void SetAuxFile(const char *auxfile);
   const char *GetAuxFile() { return this->AuxFile; }
 
-  // Description:
-  // Get the QForm or SForm code.
+  //@{
+  /**
+   * Get the QForm or SForm code.
+   */
   vtkSetMacro(QFormCode, int);
   int GetQFormCode() { return this->QFormCode; }
   vtkSetMacro(SFormCode, int);
   int GetSFormCode() { return this->SFormCode; }
+  //@}
 
-  // Description:
-  // Get information about the quaternion transformation.  Note that
-  // the vtkNIFTIImageWriter ignores this part of the header if a quaternion
-  // has been set via vtkNIFTIImageWriter::SetQFormMatrix().
+  //@{
+  /**
+   * Get information about the quaternion transformation.  Note that
+   * the vtkNIFTIImageWriter ignores this part of the header if a quaternion
+   * has been set via vtkNIFTIImageWriter::SetQFormMatrix().
+   */
   vtkSetMacro(QuaternB, double);
   double GetQuaternB() { return this->QuaternB; }
   vtkSetMacro(QuaternC, double);
@@ -305,33 +359,42 @@ public:
   double GetQOffsetY() { return this->QOffsetY; }
   vtkSetMacro(QOffsetZ, double);
   double GetQOffsetZ() { return this->QOffsetZ; }
+  //@}
 
-  // Description:
-  // Get information about the matrix transformation.  Note that
-  // the vtkNIFTIImageWriter ignores this part of the header if a matrix
-  // has been set via vtkNIFTIImageWriter::SetSFormMatrix().
+  //@{
+  /**
+   * Get information about the matrix transformation.  Note that
+   * the vtkNIFTIImageWriter ignores this part of the header if a matrix
+   * has been set via vtkNIFTIImageWriter::SetSFormMatrix().
+   */
   vtkSetVector4Macro(SRowX, double);
   vtkGetVector4Macro(SRowX, double);
   vtkSetVector4Macro(SRowY, double);
   vtkGetVector4Macro(SRowY, double);
   vtkSetVector4Macro(SRowZ, double);
   vtkGetVector4Macro(SRowZ, double);
+  //@}
 
-  // Description:
-  // Initialize the header to default values.
+  /**
+   * Initialize the header to default values.
+   */
   void Initialize();
 
-  // Description:
-  // Make a copy of the header.
+  /**
+   * Make a copy of the header.
+   */
   void DeepCopy(vtkNIFTIImageHeader *o);
 
-  // Description:
-  // Set the values from an existing nifti struct, or store
-  // the values in an existing nifti struct.
+  //@{
+  /**
+   * Set the values from an existing nifti struct, or store
+   * the values in an existing nifti struct.
+   */
   void SetHeader(const nifti_1_header *hdr);
   void GetHeader(nifti_1_header *hdr);
   void SetHeader(const nifti_2_header *hdr);
   void GetHeader(nifti_2_header *hdr);
+  //@}
 
 protected:
   vtkNIFTIImageHeader();

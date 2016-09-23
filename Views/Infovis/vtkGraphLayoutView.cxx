@@ -57,20 +57,20 @@ vtkRenderedGraphRepresentation* vtkGraphLayoutView::GetGraphRepresentation()
 {
   vtkRenderedGraphRepresentation* graphRep = 0;
   for (int i = 0; i < this->GetNumberOfRepresentations(); ++i)
-    {
+  {
     vtkDataRepresentation* rep = this->GetRepresentation(i);
     graphRep = vtkRenderedGraphRepresentation::SafeDownCast(rep);
     if (graphRep)
-      {
-      break;
-      }
-    }
-  if (!graphRep)
     {
+      break;
+    }
+  }
+  if (!graphRep)
+  {
     vtkSmartPointer<vtkDirectedGraph> g = vtkSmartPointer<vtkDirectedGraph>::New();
     graphRep = vtkRenderedGraphRepresentation::SafeDownCast(
       this->AddRepresentationFromInput(g));
-    }
+  }
   return graphRep;
 }
 

@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSQLiteToTableReader - Read an SQLite table as a vtkTable
-// .SECTION Description
-// vtkSQLiteToTableReader reads a table from an SQLite database and
-// outputs it as a vtkTable.
+/**
+ * @class   vtkSQLiteToTableReader
+ * @brief   Read an SQLite table as a vtkTable
+ *
+ * vtkSQLiteToTableReader reads a table from an SQLite database and
+ * outputs it as a vtkTable.
+*/
 
 #ifndef vtkSQLiteToTableReader_h
 #define vtkSQLiteToTableReader_h

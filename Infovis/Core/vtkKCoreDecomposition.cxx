@@ -46,87 +46,87 @@ class Neighbors
 public:
   Neighbors(bool _UseInDegreeNeighbors,
             bool _UseOutDegreeNeighbors)
-    {
+  {
     this->iti = vtkInEdgeIterator::New();
     this->ito = vtkOutEdgeIterator::New();
     this->UseInDegreeNeighbors = _UseInDegreeNeighbors;
     this->UseOutDegreeNeighbors = _UseOutDegreeNeighbors;
-    }
+  }
 
   ~Neighbors()
-    {
+  {
     this->iti->Delete();
     this->ito->Delete();
-    }
+  }
 
   void Initialize(vtkGraph* g,
                   int v)
-    {
+  {
     if(vtkUndirectedGraph::SafeDownCast(g))
-      {
+    {
       this->Undirected = true;
-      }
+    }
     else
-      {
+    {
       this->Undirected = false;
-      }
+    }
 
     this->iti->Initialize(g, vtkIdType(v - 1));
 
     if(!this->Undirected)
-      {
+    {
       this->ito->Initialize(g, vtkIdType(v - 1));
-      }
     }
+  }
 
   bool HasNext()
-    {
+  {
     if(this->Undirected)
-      {
+    {
       return(this->iti->HasNext());
-      }
+    }
 
     if(this->UseInDegreeNeighbors &&
       !this->UseOutDegreeNeighbors)
-      {
+    {
       return(this->iti->HasNext());
-      }
+    }
 
     if(!this->UseInDegreeNeighbors &&
         this->UseOutDegreeNeighbors)
-      {
+    {
       return(this->ito->HasNext());
-      }
-
-    return(this->iti->HasNext() || this->ito->HasNext());
     }
 
+    return(this->iti->HasNext() || this->ito->HasNext());
+  }
+
   int Next()
-    {
+  {
     if(this->Undirected)
-      {
+    {
       return(int(this->iti->Next().Source) + 1);
-      }
+    }
 
     if(this->UseInDegreeNeighbors &&
       !this->UseOutDegreeNeighbors)
-      {
+    {
       return(int(this->iti->Next().Source) + 1);
-      }
+    }
 
     if(!this->UseInDegreeNeighbors &&
        this->UseOutDegreeNeighbors)
-      {
+    {
       return(int(this->ito->Next().Target) + 1);
-      }
+    }
 
     if(this->iti->HasNext())
-      {
+    {
       return(int(this->iti->Next().Source) + 1);
-      }
+    }
 
     return(int(this->ito->Next().Target) + 1);
-    }
+  }
 
 private:
   vtkInEdgeIterator* iti;
@@ -140,37 +140,37 @@ private:
 class tableVert {
 public:
   tableVert(int n)
-    {
+  {
     this->_array = vtkIntArray::New();
     this->_array->SetNumberOfTuples(n);
-    }
+  }
 
   tableVert(vtkIntArray* a)
-    {
+  {
     this->_array = a;
     this->_array->Register(this->_array);
-    }
+  }
 
   ~tableVert()
-    {
+  {
     if(this->_array)
-      {
+    {
       this->_array->Delete();
       this->_array = 0;
-      }
     }
+  }
 
   int& operator[]( int idx )
-    {
+  {
     if(idx < 1 || idx > this->_array->GetNumberOfTuples())
-      {
+    {
       cerr << "Write Number of tuples = " << this->_array->GetNumberOfTuples() << endl;
       cerr << "Array index out out bounds in tableVert operator [], index: " << idx << endl;
       return(static_cast<int*>(this->_array->GetVoidPointer(0))[0]);
-      }
+    }
 
     return(static_cast<int*>(this->_array->GetVoidPointer(0))[idx - 1]);
-    }
+  }
 
 private:
   vtkIntArray* _array;
@@ -180,49 +180,49 @@ private:
 class tableDeg {
 public:
   tableDeg()
-    {
+  {
     this->_array = 0;
-    }
+  }
 
   ~tableDeg()
-    {
+  {
     if(this->_array)
-      {
+    {
       this->_array->Delete();
       this->_array = 0;
-      }
     }
+  }
 
   int getArraySize()
-    {
+  {
     if(this->_array)
-      {
+    {
       return(this->_array->GetNumberOfTuples());
-      }
-    return(0);
     }
+    return(0);
+  }
 
   void setNewArray(int n)
-    {
+  {
     if(this->_array)
-      {
+    {
       this->_array->Delete();
-      }
+    }
     this->_array = vtkIntArray::New();
     this->_array->SetNumberOfTuples(n);
-    }
+  }
 
   int& operator[]( int idx )
-    {
+  {
     if(idx < 0 || idx >= this->_array->GetNumberOfTuples())
-      {
+    {
       cerr << "Read Number of tuples = " << this->_array->GetNumberOfTuples() << endl;
       cerr << "Array index out out bounds in tableDeg operator [], index: " << idx << endl;
       return(static_cast<int*>(this->_array->GetVoidPointer(0))[0]);
-      }
+    }
 
     return(static_cast<int*>(this->_array->GetVoidPointer(0))[idx]);
-    }
+  }
 
 private:
   vtkIntArray* _array;
@@ -261,13 +261,13 @@ void vtkKCoreDecomposition::Cores(vtkGraph* g,
   if(vtkDirectedGraph::SafeDownCast(g) &&
      this->UseInDegreeNeighbors &&
      this->UseOutDegreeNeighbors)
-    {
+  {
     bin.setNewArray(2*g->GetNumberOfVertices() - 1);
-    }
+  }
   else
-    {
+  {
     bin.setNewArray(g->GetNumberOfVertices());
-    }
+  }
 
   n = g->GetNumberOfVertices();
   md = 0;
@@ -275,84 +275,84 @@ void vtkKCoreDecomposition::Cores(vtkGraph* g,
                              this->UseOutDegreeNeighbors);
 
   for(v = 1; v <= n; v++)
-    {
+  {
     d = 0;
     neighborVertices.Initialize(g, v);
     while(neighborVertices.HasNext())
-      {
+    {
       d++;
       neighborVertices.Next();
-      }
+    }
     deg[v] = d;
     if(d > md)
-      {
+    {
       md = d;
-      }
     }
+  }
 
   if(md > bin.getArraySize())
-    {
+  {
     vtkErrorMacro("Maximum vertex degree exceeds bin array size: " << md << ". Unable to compute K core.");
     return;
-    }
+  }
 
   for(d = 0; d <= md; d++)
-    {
+  {
     bin[d] = 0;
-    }
+  }
 
   for(v = 1; v <= n; v++)
-    {
+  {
     bin[deg[v]] += 1;
-    }
+  }
 
   start = 1;
   for(d = 0; d <= md; d++)
-    {
+  {
     num = bin[d];
     bin[d] = start;
     start = start + num;
-    }
+  }
 
   for(v = 1; v <= n; v++)
-    {
+  {
     pos[v] = bin[deg[v]];
     vert[pos[v]] = v;
     bin[deg[v]] += 1;
-    }
+  }
 
   for(d = md; d >= 1; d--)
-    {
+  {
     bin[d] = bin[d - 1];
-    }
+  }
 
   bin[0] = 1;
 
   for(i = 1; i <= n; i++)
-    {
+  {
     v = vert[i];
     neighborVertices.Initialize(g, v);
     while(neighborVertices.HasNext())
-      {
+    {
       u = neighborVertices.Next();
       if(deg[u] > deg[v])
-        {
+      {
         du = deg[u];
         pu = pos[u];
         pw = bin[du];
         w = vert[pw];
         if(u != w)
-          {
+        {
           pos[u] = pw;
           pos[w] = pu;
           vert[pu] = w;
           vert[pw] = u;
-          }
+        }
         bin[du] += 1;
         deg[u] -= 1;
-        }
       }
     }
+  }
 }
 
 int vtkKCoreDecomposition::RequestData(vtkInformation *vtkNotUsed(request),
@@ -374,7 +374,7 @@ int vtkKCoreDecomposition::RequestData(vtkInformation *vtkNotUsed(request),
   output->ShallowCopy(input);
 
   if(this->CheckInputGraph)
-    {
+  {
     // Check input graph for parallel edges.  The input graph must not contain
     // parallel edges for the K core algorithm to work.  We loop over the edges
     // and use a Cantor pairing function to create a unique integer from each
@@ -386,72 +386,72 @@ int vtkKCoreDecomposition::RequestData(vtkInformation *vtkNotUsed(request),
     bool foundParallelEdges = false;
     bool foundLoops = false;
     while(it->HasNext())
-      {
+    {
       vtkEdgeType e = it->Next();
       // Cantor pairing function
       unsigned long int id = (unsigned long int) (0.5*(e.Source + e.Target)*(e.Source + e.Target + 1.0) + e.Target);
       if(hmap.find(id) == hmap.end())
-        {
+      {
         hmap[id] = true;
-        }
+      }
       else
-        {
+      {
         vtkErrorMacro("Found parallel edge between at vertex ID: " << e.Source << " and vertex ID: " << e.Target);
         foundParallelEdges = true;
-        }
+      }
 
       if(vtkUndirectedGraph::SafeDownCast(input))
-        {
+      {
         id = (unsigned long int) (0.5*(e.Target + e.Source)*(e.Target + e.Source + 1.0) + e.Source);
         if(hmap.find(id) == hmap.end())
-          {
+        {
           hmap[id] = true;
-          }
+        }
         else
-          {
+        {
           vtkErrorMacro("Found parallel edge between at vertex ID: " << e.Source << " and vertex ID: " << e.Target);
           foundParallelEdges = true;
-          }
         }
+      }
 
       // Check input graph for loops, i.e. edges that start and end
       // on the same vertex.  The K core is not defined for these graphs.
       // Just loop over the edges and check for equal target and source.
       if(e.Source == e.Target)
-        {
+      {
         foundLoops = true;
         vtkErrorMacro("Found loop at vertex ID: " << e.Source);
-        }
       }
+    }
 
     it->Delete();
     hmap.clear();
 
     if(foundLoops || foundParallelEdges)
-      {
+    {
       if(foundLoops)
-        {
+      {
         vtkErrorMacro("Found loops in input graph.  Unable to compute K core.");
-        }
+      }
 
       if(foundParallelEdges)
-        {
+      {
         vtkErrorMacro("Found parallel edges in input graph.  Unable to compute K core.");
-        }
-      return 0;
       }
+      return 0;
     }
+  }
 
   // Create the attribute array
   vtkIntArray* KCoreNumbers = vtkIntArray::New();
   if (this->OutputArrayName)
-    {
+  {
     KCoreNumbers->SetName(this->OutputArrayName);
-    }
+  }
   else
-    {
+  {
     KCoreNumbers->SetName("KCoreDecompositionNumbers");
-    }
+  }
 
   KCoreNumbers->SetNumberOfTuples(input->GetNumberOfVertices());
 

@@ -12,16 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCardinalSpline - computes an interpolating spline using a
-// a Cardinal basis.
-
-// .SECTION Description
-// vtkCardinalSpline is a concrete implementation of vtkSpline using a
-// Cardinal basis.
-
-// .SECTION See Also
-// vtkSpline vtkKochanekSpline
-
+/**
+ * @class   vtkCardinalSpline
+ * @brief   computes an interpolating spline using a
+ * a Cardinal basis.
+ *
+ *
+ * vtkCardinalSpline is a concrete implementation of vtkSpline using a
+ * Cardinal basis.
+ *
+ * @sa
+ * vtkSpline vtkKochanekSpline
+*/
 
 #ifndef vtkCardinalSpline_h
 #define vtkCardinalSpline_h
@@ -37,16 +39,19 @@ public:
   vtkTypeMacro(vtkCardinalSpline,vtkSpline);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description
-  // Compute Cardinal Splines for each dependent variable
+  /**
+   * Compute Cardinal Splines for each dependent variable
+   */
   void Compute () VTK_OVERRIDE;
 
-  // Description:
-  // Evaluate a 1D cardinal spline.
+  /**
+   * Evaluate a 1D cardinal spline.
+   */
   double Evaluate (double t) VTK_OVERRIDE;
 
-  // Description:
-  // Deep copy of cardinal spline data.
+  /**
+   * Deep copy of cardinal spline data.
+   */
   void DeepCopy(vtkSpline *s) VTK_OVERRIDE;
 
 protected:

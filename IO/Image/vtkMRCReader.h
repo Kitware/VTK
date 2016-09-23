@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMRCReader - read MRC image files
-// .SECTION Description
-//
-// A reader to load MRC images.  See http://bio3d.colorado.edu/imod/doc/mrc_format.txt
-// for the file format specification.
+/**
+ * @class   vtkMRCReader
+ * @brief   read MRC image files
+ *
+ *
+ * A reader to load MRC images.  See http://bio3d.colorado.edu/imod/doc/mrc_format.txt
+ * for the file format specification.
+*/
 
 #ifndef vtkMRCReader_h
 #define vtkMRCReader_h

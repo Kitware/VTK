@@ -108,16 +108,16 @@ void UseCase0()
   VTK_CREATE(vtkVariantArray, pedIds);
   mdg->GetVertexData()->SetPedigreeIds(pedIds);
   if (mdg->GetVertexData()->GetPedigreeIds() )
-    {
+  {
     if (mdg->GetVertexData()->GetPedigreeIds()->GetName() )
       cout << " after SetPedIds(), pedId Name= "<<mdg->GetVertexData()->GetPedigreeIds()->GetName()<<endl;
     else
       cout << " after SetPedIds(), no Name set yet."<<endl;
-    }
+  }
   else
-    {
+  {
     cout << "  after SetPedIds, GetPedigreeIds == NULL\n";
-    }
+  }
 
 
   // Have every proc (try to) add these vertices.  However, since they are uniquely defined
@@ -132,13 +132,13 @@ void UseCase0()
 
   // This method will tell us where (on which proc) a pedId *should* be stored
   if (myRank == 0)
-    {
+  {
     cout << "owner of A should be proc  "<< helper->GetVertexOwnerByPedigreeId("A") << endl;
     cout << "owner of B should be proc  "<< helper->GetVertexOwnerByPedigreeId("B") << endl;
     cout << "owner of C should be proc  "<< helper->GetVertexOwnerByPedigreeId("C") << endl;
     cout << "owner of D should be proc  "<< helper->GetVertexOwnerByPedigreeId("D") << endl;
     cout << "owner of E should be proc  "<< helper->GetVertexOwnerByPedigreeId("E") << endl;
-    }
+  }
 
   // Returns # of verts stored locally
   cout << " >>Rank "<< myRank << " has "<<mdg->GetNumberOfVertices() << " verts\n";
@@ -147,19 +147,19 @@ void UseCase0()
   mdg->GetVertices(vit);
   vtkAbstractArray *peds = mdg->GetVertexData()->GetPedigreeIds();
   while (vit->HasNext())
-    {
+  {
     vtkIdType vtx = vit->Next();
     vtkVariant ped = vtkArrayDownCast<vtkVariantArray>(peds)->GetValue(helper->GetVertexIndex(vtx));
     cout << " ======Rank " << myRank << ": vertex " << ped.ToString() << " ("
          << hex << vtx << ")" << " owner="<<mdg->GetDistributedGraphHelper()->GetVertexOwner(vtx)<< ", "
          << " index="<<mdg->GetDistributedGraphHelper()->GetVertexIndex(vtx) << endl;
-    }
+  }
 
   helper->Synchronize();
   if (myRank == 0)
-    {
+  {
     (cout << " -------------done.\n").flush();
-    }
+  }
 }
 //=================================================================================
 // Same functionality as above, but add the pedigreeIds via single-element vtkVariantArray.
@@ -194,16 +194,16 @@ void UseCase1()
   mdg->GetVertexData()->SetPedigreeIds(pedIds);
 
   if (mdg->GetVertexData()->GetPedigreeIds() )
-    {
+  {
     if (mdg->GetVertexData()->GetPedigreeIds()->GetName() )
       cout << " after SetPedIds(), pedId Name= "<<mdg->GetVertexData()->GetPedigreeIds()->GetName()<<endl;
     else
       cout << " after SetPedIds(), no Name set yet."<<endl;
-    }
+  }
   else
-    {
+  {
     cout << "  after SetPedIds, GetPedigreeIds == NULL\n";
-    }
+  }
 
   helper->Synchronize();
   cout << "num property arrays =" << vertexPropArr->GetNumberOfValues() <<endl;
@@ -234,13 +234,13 @@ void UseCase1()
 
   helper->Synchronize();
   if (myRank == 0)
-    {
+  {
     cout << "owner of A should be proc  "<< helper->GetVertexOwnerByPedigreeId("A") << endl;
     cout << "owner of B should be proc  "<< helper->GetVertexOwnerByPedigreeId("B") << endl;
     cout << "owner of C should be proc  "<< helper->GetVertexOwnerByPedigreeId("C") << endl;
     cout << "owner of D should be proc  "<< helper->GetVertexOwnerByPedigreeId("D") << endl;
     cout << "owner of E should be proc  "<< helper->GetVertexOwnerByPedigreeId("E") << endl;
-    }
+  }
 
   // Returns # of verts stored locally
   cout << " >>Rank "<< myRank << " has "<<mdg->GetNumberOfVertices() << " verts\n";
@@ -250,19 +250,19 @@ void UseCase1()
   mdg->GetVertices(vit);
   vtkAbstractArray *peds = mdg->GetVertexData()->GetPedigreeIds();
   while (vit->HasNext())
-    {
+  {
     vtkIdType vtx = vit->Next();
     vtkVariant ped = vtkArrayDownCast<vtkVariantArray>(peds)->GetValue(helper->GetVertexIndex(vtx));
     cout << " ======Rank " << myRank << ": vertex " << ped.ToString() << " ("
          << hex << vtx << ")" << " owner="<<mdg->GetDistributedGraphHelper()->GetVertexOwner(vtx)<< ", "
          << " index="<<mdg->GetDistributedGraphHelper()->GetVertexIndex(vtx) << endl;
-    }
+  }
 
   helper->Synchronize();
   if (myRank == 0)
-    {
+  {
     (cout << " -------------done.\n").flush();
-    }
+  }
 }
 
 //=================================================================================
@@ -281,12 +281,12 @@ void UseCase2()
     cout << "-----------------   UseCase2  ----------------------------\n";
 
   if (myRank == 0)
-    {
+  {
     cout << "owner of pedA should be = "<< helper->GetVertexOwnerByPedigreeId("pedA") << endl;
     cout << "owner of pedB should be = "<< helper->GetVertexOwnerByPedigreeId("pedB") << endl;
     cout << "owner of pedC should be = "<< helper->GetVertexOwnerByPedigreeId("pedC") << endl;
     (cout << " done.\n").flush();
-    }
+  }
 
 
   //  Create some vertex property arrays -  this includes a pedigreeID array too.
@@ -301,19 +301,19 @@ void UseCase2()
 
   bool addPedFirst = false;  // if true, add peds at [0]; if false, add peds at [3]
   if (addPedFirst)
-    {
+  {
     mdg->GetVertexData()->SetPedigreeIds(pedigreeIds);
     if (mdg->GetVertexData()->GetPedigreeIds())
-      {
+    {
       cout << "Yes, GetVertexData()->GetPedigreeIds()  is non-NULL\n";
       if (char *pedIdArrayName = mdg->GetVertexData()->GetPedigreeIds()->GetName())
         cout << "name of pedigrees array= " << pedIdArrayName << endl;
       else
         cout << "unnamed pedigrees array= " << endl;
-      }
+    }
     else
       cout << "GetVertexData()->GetPedigreeIds()  is NULL at this point\n";
-    }
+  }
 
   VTK_CREATE(vtkStringArray, vertexProp0Array);
   vertexProp0Array->SetName("labels");
@@ -328,9 +328,9 @@ void UseCase2()
   mdg->GetVertexData()->AddArray(vertexProp2Array);
 
   if (!addPedFirst)
-    {
+  {
     mdg->GetVertexData()->SetPedigreeIds(pedigreeIds);
-    }
+  }
 
   const char *stringProp;
   float weight;
@@ -338,47 +338,47 @@ void UseCase2()
   vtkVariant ped;
 
   for (vtkIdType i = 0; i < 3; ++i)
-    {
+  {
     if (i==0)
-      {
+    {
       stringProp = "labelA";
       weight = 40.0;
       age = 10;
       ped = vtkVariant("pedA");
-      }
+    }
     else if (i==1)
-      {
+    {
       stringProp = "labelB";
       weight = 41.0;
       age = 11;
       ped = vtkVariant("pedB");
-      }
+    }
     else if (i==2)
-      {
+    {
       stringProp = "labelC";
       weight = 42.0;
       age = 12;
       ped = vtkVariant("pedC");
-      }
+    }
 //    cout << myRank <<" vertex "<< v <<","<< stringProp <<","<<weight<< endl;
     if (addPedFirst)
-      {
+    {
       vertexPropertyArr->SetValue(0,ped);   // add pedId here
       vertexPropertyArr->SetValue(1,stringProp);
       vertexPropertyArr->SetValue(2,weight);
       vertexPropertyArr->SetValue(3,age);
-      }
+    }
     else
-      {
+    {
       vertexPropertyArr->SetValue(0,stringProp);
       vertexPropertyArr->SetValue(1,weight);
       vertexPropertyArr->SetValue(2,age);
       vertexPropertyArr->SetValue(3,ped);  // add pedId here
-      }
+    }
 
     mdg->AddVertex(vertexPropertyArr);
 //    if (i == 0) mdg->AddVertex(vertexPropertyArr);  // what should this do? (adding a vert w/ an existing pedId)
-    }
+  }
 
   // Create some edges
 //  mdgTree->AddEdge(0, 1);
@@ -395,18 +395,18 @@ void UseCase2()
   cout << "numProps = "<<numProps<<endl;
   vtkAbstractArray *peds = mdg->GetVertexData()->GetPedigreeIds();
   if (peds == NULL)
-    {
+  {
     cout << "  No peds here!!\n";
-    }
+  }
   else
-    {
+  {
     cout << "  We have peds!\n";
-    }
+  }
 
   VTK_CREATE(vtkVertexListIterator, vit);
   mdg->GetVertices(vit);
   while (vit->HasNext())
-    {
+  {
     vtkIdType vtx = vit->Next();
     int idx = mdg->GetDistributedGraphHelper()->GetVertexIndex(vtx);
 
@@ -418,13 +418,13 @@ void UseCase2()
 
     cout << myRank<<")   GetNumberOfArrays= " << mdg->GetVertexData()->GetNumberOfArrays() << endl;
     for (int iprop=0; iprop<numProps; iprop++)
-      {
+    {
       vtkAbstractArray* aa = vtkArrayDownCast<vtkAbstractArray>(mdg->GetVertexData()->GetAbstractArray(iprop));
 //      int idx = helper->GetVertexIndex(vtx);
       cout << "     idx="<<idx<<") = "<< aa->GetVariantValue(idx).ToString() <<endl;
-      }
-    cout.flush();
     }
+    cout.flush();
+  }
 
 
   helper->Synchronize();
@@ -441,19 +441,19 @@ void UseCase2()
   age = 20;
   ped = vtkVariant("pedA");
   if (addPedFirst)
-    {
+  {
     vertexPropertyArr->SetValue(0,ped);
     vertexPropertyArr->SetValue(1,stringProp);
     vertexPropertyArr->SetValue(2,weight);
     vertexPropertyArr->SetValue(3,age);
-    }
+  }
   else
-    {
+  {
     vertexPropertyArr->SetValue(0,stringProp);
     vertexPropertyArr->SetValue(1,weight);
     vertexPropertyArr->SetValue(2,age);
     vertexPropertyArr->SetValue(3,ped);
-    }
+  }
   mdg->AddVertex(vertexPropertyArr);
   }
 
@@ -465,7 +465,7 @@ void UseCase2()
   mdg->GetVertices(vit);
   peds = mdg->GetVertexData()->GetPedigreeIds();
   while (vit->HasNext())
-    {
+  {
     vtkIdType vtx = vit->Next();
     int idx = mdg->GetDistributedGraphHelper()->GetVertexIndex(vtx);
 
@@ -477,19 +477,19 @@ void UseCase2()
 
     cout << myRank<<")   GetNumberOfArrays= " << mdg->GetVertexData()->GetNumberOfArrays() << endl;
     for (int iprop=0; iprop<numProps; iprop++)
-      {
+    {
       vtkAbstractArray* aa = vtkArrayDownCast<vtkAbstractArray>(mdg->GetVertexData()->GetAbstractArray(iprop));
 //      int idx = helper->GetVertexIndex(vtx);
       cout << "     idx="<<idx<<") = "<< aa->GetVariantValue(idx).ToString() <<endl;
-      }
-    cout.flush();
     }
+    cout.flush();
+  }
 
   helper->Synchronize();
   if (myRank == 0)
-    {
+  {
     (cout << " -------------done.\n").flush();
-    }
+  }
 }
 //=================================================================================
 // Create vertices (w/ pedIds) implicitly via AddEdge(pedId,pedId)
@@ -519,7 +519,7 @@ void UseCase3()
   helper->Synchronize();
 
   if (myRank == 0)
-    {
+  {
     cout << "===================================\n"; cout.flush();
     cout << "owner of A= "<< helper->GetVertexOwnerByPedigreeId(vtkVariant("A")) << endl;
     cout << "owner of B= "<< helper->GetVertexOwnerByPedigreeId(vtkVariant("B")) << endl;
@@ -527,16 +527,16 @@ void UseCase3()
     cout << "owner of D= "<< helper->GetVertexOwnerByPedigreeId(vtkVariant("D")) << endl;
     cout << "owner of E= "<< helper->GetVertexOwnerByPedigreeId(vtkVariant("E")) << endl;
     (cout << " done.\n").flush();
-    }
+  }
 
   int numProps = mdg->GetVertexData()->GetNumberOfArrays();   // # of properties = # of arrays
   if (myRank == 0) cout << "   numProps = "<<numProps<<endl;
   vtkAbstractArray *peds = mdg->GetVertexData()->GetPedigreeIds();
   if (myRank == 0)
-    {
+  {
     if (peds == NULL) cout << "  No peds here!!\n";
     else cout << "  We have peds!\n";
-    }
+  }
 
 
   if (myRank == 0)
@@ -544,7 +544,7 @@ void UseCase3()
   VTK_CREATE(vtkVertexListIterator, vit);
   mdg->GetVertices(vit);
   while (vit->HasNext())
-    {
+  {
     vtkIdType vtx = vit->Next();
     int idx = mdg->GetDistributedGraphHelper()->GetVertexIndex(vtx);
 
@@ -556,32 +556,32 @@ void UseCase3()
 
     cout << myRank<<") "<<"  GetNumberOfArrays= " << mdg->GetVertexData()->GetNumberOfArrays() << endl;
     for (int iprop=0; iprop<numProps; iprop++)
-      {
+    {
       vtkAbstractArray* aa = vtkArrayDownCast<vtkAbstractArray>(mdg->GetVertexData()->GetAbstractArray(iprop));
 //      int idx = helper->GetVertexIndex(vtx);
       cout << "     idx="<<idx<<") = "<< aa->GetVariantValue(idx).ToString() <<endl;
-      }
-    cout.flush();
     }
+    cout.flush();
+  }
 
   if (myRank == 0)
     cout << "=============== dump edges\n"; cout.flush();
   VTK_CREATE(vtkEdgeListIterator, eit);
   mdg->GetEdges(eit);
   while (eit->HasNext())
-    {
+  {
     vtkEdgeType etx = eit->Next();
 
     cerr << "PROCESS " << myRank << " edge: " << hex << etx.Id
       << " (" << etx.Source << "," << etx.Target << ")" <<endl;
-    }
+  }
 
 
   helper->Synchronize();
   if (myRank == 0)
-    {
+  {
     (cout << " -------------done.\n").flush();
-    }
+  }
 }
 //=================================================================================
 // Trying to mimic TestPBGLGraphSQLReader
@@ -610,11 +610,11 @@ void UseCase4()
 
     mdg->GetVertexData()->SetPedigreeIds(pedigreeIds);
     if (mdg->GetVertexData()->GetPedigreeIds())
-      {
+    {
       cout << "  Yes, GetVertexData()->GetPedigreeIds()  is non-NULL\n";
       char *pedIdArrayName = mdg->GetVertexData()->GetPedigreeIds()->GetName();
       cout << "  name of pedigrees array= " << pedIdArrayName << endl;
-      }
+    }
 
   VTK_CREATE(vtkFloatArray, vertexProp1Array);
   vertexProp1Array->SetName("weight");
@@ -624,22 +624,22 @@ void UseCase4()
   float weight;
 
   for (vtkIdType i = 0; i < 3; ++i)
-    {
+  {
     if (i==0)
-      {
+    {
       weight = 40.0;
       ped = vtkVariant(0);
-      }
+    }
     else if (i==1)
-      {
+    {
       weight = 41.0;
       ped = vtkVariant(1);
-      }
+    }
     else if (i==2)
-      {
+    {
       weight = 42.0;
       ped = vtkVariant(2);
-      }
+    }
 //    cout << myRank <<" vertex "<< v <<","<< stringProp <<","<<weight<< endl;
 
     vertexPropertyArr->SetValue(0,ped);
@@ -647,7 +647,7 @@ void UseCase4()
 
     mdg->AddVertex(vertexPropertyArr);
 //    if (i == 0) mdg->AddVertex(vertexPropertyArr);  // what should this do? (adding a vert w/ an existing pedId)
-    }
+  }
 
   // Create some edges
   mdg->AddEdge(vtkVariant(0), vtkVariant(1));
@@ -661,10 +661,10 @@ void UseCase4()
   vtkAbstractArray *peds = mdg->GetVertexData()->GetPedigreeIds();
 
   if (myRank == 0)
-    {
+  {
     if (peds == NULL) cout << "  No peds here!!\n";
     else
-      {
+    {
       cout << "  We have peds!\n";
 
       // This is only valid if we did a SetName on the pedIds above
@@ -683,8 +683,8 @@ void UseCase4()
   //    cout << "vertexdata has peds, datatypeAsString = " << vtkArrayDownCast<vtkStringArray>(peds).GetDataTypeAsString() << endl;
   //    cout << "vertexdata has peds, name = " << peds.GetName() << endl;
   //    cout << "vertexdata has peds, size = " << peds.GetSize() << endl;
-      }
     }
+  }
 
   helper->Synchronize();
 
@@ -702,7 +702,7 @@ void UseCase4()
   VTK_CREATE(vtkVertexListIterator, vit);
   mdg->GetVertices(vit);
   while (vit->HasNext())
-    {
+  {
     vtkIdType vtx = vit->Next();
 
     int ind = mdg->GetDistributedGraphHelper()->GetVertexIndex(vtx);
@@ -716,13 +716,13 @@ void UseCase4()
 
     cout << myRank<<")   GetNumberOfArrays= " << mdg->GetVertexData()->GetNumberOfArrays() << endl;
     for (int iprop=0; iprop<numProps; iprop++)
-      {
+    {
       vtkAbstractArray* aa = vtkArrayDownCast<vtkAbstractArray>(mdg->GetVertexData()->GetAbstractArray(iprop));
 //      int ind = helper->GetVertexIndex(vtx);
       cout << "     ind="<<ind<<") = "<< aa->GetVariantValue(ind).ToString() <<endl;
-      }
-    cout.flush();
     }
+    cout.flush();
+  }
 
   if (myRank == 0)
     cout << "=============== dump edges\n"; cout.flush();
@@ -731,23 +731,23 @@ void UseCase4()
   VTK_CREATE(vtkEdgeListIterator, eit);
   mdg->GetEdges(eit);
   while (eit->HasNext())
-    {
+  {
     vtkEdgeType etx = eit->Next();
 
     cerr << "PROCESS " << myRank << " edge: " << hex << etx.Id
       << " (" << etx.Source << "," << etx.Target << ")" <<endl;
-    }
+  }
 
 
   helper->Synchronize();
   if (myRank == 0)
-    {
+  {
     cout << "===================================\n"; cout.flush();
     cout << "owner of 0= "<< helper->GetVertexOwnerByPedigreeId(vtkVariant(0)) << endl;
     cout << "owner of 1= "<< helper->GetVertexOwnerByPedigreeId(vtkVariant(1)) << endl;
     cout << "owner of 2= "<< helper->GetVertexOwnerByPedigreeId(vtkVariant(2)) << endl;
     (cout << " done.\n").flush();
-    }
+  }
 }
 //=================================================================================
 // No pedigreeIds, just propArr
@@ -792,28 +792,28 @@ void UseCase5()
   int age;
 
   for (vtkIdType i = 0; i < 3; ++i)
-    {
+  {
     if (i==0)
-      {
+    {
       stringProp = "labelA";
       weight = 40.0;
       age = 10;
       name = vtkVariant("nameA");
-      }
+    }
     else if (i==1)
-      {
+    {
       stringProp = "labelB";
       weight = 41.0;
       age = 11;
       name = vtkVariant("nameB");
-      }
+    }
     else if (i==2)
-      {
+    {
       stringProp = "labelC";
       weight = 42.0;
       age = 12;
       name = vtkVariant("nameC");
-      }
+    }
 
       vertexPropertyArr->SetValue(0,name);
       vertexPropertyArr->SetValue(1,stringProp);
@@ -821,10 +821,10 @@ void UseCase5()
       vertexPropertyArr->SetValue(3,age);
 
       if ((myRank % 3) == i)  // Not doing this 'if' will add all the vertices to all procs
-        {
+      {
         mdg->AddVertex(vertexPropertyArr);
-        }
-    }
+      }
+  }
 
 
   cout << myRank<<")   num vertexdata arrays = " << mdg->GetVertexData()->GetNumberOfArrays() << endl;
@@ -843,7 +843,7 @@ void UseCase5()
   VTK_CREATE(vtkVertexListIterator, vit);
   mdg->GetVertices(vit);
   while (vit->HasNext())
-    {
+  {
     vtkIdType vtx = vit->Next();
 
     int ind = mdg->GetDistributedGraphHelper()->GetVertexIndex(vtx);
@@ -855,20 +855,20 @@ void UseCase5()
 
     cout << myRank<<")   GetNumberOfArrays= " << mdg->GetVertexData()->GetNumberOfArrays() << endl;
     for (int iprop=0; iprop<numProps; iprop++)
-      {
+    {
       vtkAbstractArray* aa = vtkArrayDownCast<vtkAbstractArray>(mdg->GetVertexData()->GetAbstractArray(iprop));
 //      int ind = helper->GetVertexIndex(vtx);
       cout << "     ind="<<ind<<") = "<< aa->GetVariantValue(ind).ToString() <<endl;
-      }
-    cout.flush();
     }
+    cout.flush();
+  }
 //  }
 
   helper->Synchronize();
   if (myRank == 0)
-    {
+  {
     (cout << " done.\n").flush();
-    }
+  }
 }
 
 }

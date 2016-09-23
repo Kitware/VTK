@@ -25,10 +25,10 @@ public:
   static vtkSplineWidgetCallback *New()
     { return new vtkSplineWidgetCallback; }
   virtual void Execute(vtkObject *caller, unsigned long, void*)
-    {
+  {
       vtkSplineWidget *spline = reinterpret_cast<vtkSplineWidget*>(caller);
       spline->GetPolyData(Poly);
-    }
+  }
   vtkSplineWidgetCallback():Poly(0){};
   vtkPolyData* Poly;
 };

@@ -113,52 +113,52 @@ vtkSphereWidget::~vtkSphereWidget()
   this->HandleActor->Delete();
 
   if ( this->SphereProperty )
-    {
+  {
     this->SphereProperty->Delete();
-    }
+  }
   if ( this->SelectedSphereProperty )
-    {
+  {
     this->SelectedSphereProperty->Delete();
-    }
+  }
   if ( this->HandleProperty )
-    {
+  {
     this->HandleProperty->Delete();
-    }
+  }
   if ( this->SelectedHandleProperty )
-    {
+  {
     this->SelectedHandleProperty->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkSphereWidget::SetEnabled(int enabling)
 {
   if ( ! this->Interactor )
-    {
+  {
     vtkErrorMacro(<<"The interactor must be set prior to enabling/disabling widget");
     return;
-    }
+  }
 
   if ( enabling ) //----------------------------------------------------------
-    {
+  {
     vtkDebugMacro(<<"Enabling sphere widget");
 
     if ( this->Enabled ) //already enabled, just return
-      {
+    {
       return;
-      }
+    }
 
     if ( ! this->CurrentRenderer )
-      {
+    {
       this->SetCurrentRenderer(
         this->Interactor->FindPokedRenderer(
           this->Interactor->GetLastEventPosition()[0],
           this->Interactor->GetLastEventPosition()[1]));
       if (this->CurrentRenderer == NULL)
-        {
+      {
         return;
-        }
       }
+    }
 
     this->Enabled = 1;
 
@@ -185,16 +185,16 @@ void vtkSphereWidget::SetEnabled(int enabling)
     this->SizeHandles();
 
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
-    }
+  }
 
   else //disabling----------------------------------------------------------
-    {
+  {
     vtkDebugMacro(<<"Disabling sphere widget");
 
     if ( ! this->Enabled ) //already disabled, just return
-      {
+    {
       return;
-      }
+    }
 
     this->Enabled = 0;
 
@@ -207,7 +207,7 @@ void vtkSphereWidget::SetEnabled(int enabling)
 
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
     this->SetCurrentRenderer(NULL);
-    }
+  }
 
   this->Interactor->Render();
 }
@@ -222,7 +222,7 @@ void vtkSphereWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
 
   //okay, let's do the right thing
   switch(event)
-    {
+  {
     case vtkCommand::LeftButtonPressEvent:
       self->OnLeftButtonDown();
       break;
@@ -238,7 +238,7 @@ void vtkSphereWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
     case vtkCommand::MouseMoveEvent:
       self->OnMouseMove();
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -248,53 +248,53 @@ void vtkSphereWidget::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Sphere Representation: ";
   if ( this->Representation == VTK_SPHERE_OFF )
-    {
+  {
     os << "Off\n";
-    }
+  }
   else if ( this->Representation == VTK_SPHERE_WIREFRAME )
-    {
+  {
     os << "Wireframe\n";
-    }
+  }
   else //if ( this->Representation == VTK_SPHERE_SURFACE )
-    {
+  {
     os << "Surface\n";
-    }
+  }
 
   if ( this->SphereProperty )
-    {
+  {
     os << indent << "Sphere Property: " << this->SphereProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Sphere Property: (none)\n";
-    }
+  }
   if ( this->SelectedSphereProperty )
-    {
+  {
     os << indent << "Selected Sphere Property: "
        << this->SelectedSphereProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Selected Sphere Property: (none)\n";
-    }
+  }
 
   if ( this->HandleProperty )
-    {
+  {
     os << indent << "Handle Property: " << this->HandleProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Handle Property: (none)\n";
-    }
+  }
   if ( this->SelectedHandleProperty )
-    {
+  {
     os << indent << "Selected Handle Property: "
        << this->SelectedHandleProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Selected Handle Property: (none)\n";
-    }
+  }
 
   os << indent << "Translation: " << (this->Translation ? "On\n" : "Off\n");
   os << indent << "Scale: " << (this->Scale ? "On\n" : "Off\n");
@@ -324,28 +324,28 @@ void vtkSphereWidget::PrintSelf(ostream& os, vtkIndent indent)
 void vtkSphereWidget::SelectRepresentation()
 {
   if ( ! this->HandleVisibility )
-    {
+  {
     this->CurrentRenderer->RemoveActor(this->HandleActor);
-    }
+  }
 
   if ( this->Representation == VTK_SPHERE_OFF )
-    {
+  {
     this->CurrentRenderer->RemoveActor(this->SphereActor);
-    }
+  }
   else if ( this->Representation == VTK_SPHERE_WIREFRAME )
-    {
+  {
     this->CurrentRenderer->RemoveActor(this->SphereActor);
     this->CurrentRenderer->AddActor(this->SphereActor);
     this->SphereProperty->SetRepresentationToWireframe();
     this->SelectedSphereProperty->SetRepresentationToWireframe();
-    }
+  }
   else //if ( this->Representation == VTK_SPHERE_SURFACE )
-    {
+  {
     this->CurrentRenderer->RemoveActor(this->SphereActor);
     this->CurrentRenderer->AddActor(this->SphereActor);
     this->SphereProperty->SetRepresentationToSurface();
     this->SelectedSphereProperty->SetRepresentationToSurface();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -359,69 +359,69 @@ void vtkSphereWidget::GetSphere(vtkSphere *sphere)
 void vtkSphereWidget::HighlightSphere(int highlight)
 {
   if ( highlight )
-    {
+  {
     this->ValidPick = 1;
     this->Picker->GetPickPosition(this->LastPickPosition);
     this->SphereActor->SetProperty(this->SelectedSphereProperty);
-    }
+  }
   else
-    {
+  {
     this->SphereActor->SetProperty(this->SphereProperty);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkSphereWidget::HighlightHandle(int highlight)
 {
   if ( highlight )
-    {
+  {
     this->ValidPick = 1;
     this->Picker->GetPickPosition(this->LastPickPosition);
     this->HandleActor->SetProperty(this->SelectedHandleProperty);
-    }
+  }
   else
-    {
+  {
     this->HandleActor->SetProperty(this->HandleProperty);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkSphereWidget::OnLeftButtonDown()
 {
   if (!this->Interactor)
-    {
+  {
     return;
-    }
+  }
 
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
   // Okay, make sure that the pick is in the current renderer
   if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
-    {
+  {
     this->State = vtkSphereWidget::Outside;
     return;
-    }
+  }
 
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then try to pick the sphere.
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->Picker);
 
   if ( path == NULL )
-    {
+  {
     this->State = vtkSphereWidget::Outside;
     return;
-    }
+  }
   else if (path->GetFirstNode()->GetViewProp() == this->SphereActor )
-    {
+  {
     this->State = vtkSphereWidget::Moving;
     this->HighlightSphere(1);
-    }
+  }
   else if (path->GetFirstNode()->GetViewProp() == this->HandleActor )
-    {
+  {
     this->State = vtkSphereWidget::Positioning;
     this->HighlightHandle(1);
-    }
+  }
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
@@ -435,14 +435,14 @@ void vtkSphereWidget::OnMouseMove()
   // See whether we're active
   if ( this->State == vtkSphereWidget::Outside ||
        this->State == vtkSphereWidget::Start )
-    {
+  {
     return;
-    }
+  }
 
   if (!this->Interactor)
-    {
+  {
     return;
-    }
+  }
 
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
@@ -454,9 +454,9 @@ void vtkSphereWidget::OnMouseMove()
 
   vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
   if ( !camera )
-    {
+  {
     return;
-    }
+  }
 
   // Compute the two points defining the motion vector
   camera->GetFocalPoint(focalPoint);
@@ -471,17 +471,17 @@ void vtkSphereWidget::OnMouseMove()
 
   // Process the motion
   if ( this->State == vtkSphereWidget::Moving )
-    {
+  {
     this->Translate(prevPickPoint, pickPoint);
-    }
+  }
   else if ( this->State == vtkSphereWidget::Scaling )
-    {
+  {
     this->ScaleSphere(prevPickPoint, pickPoint, X, Y);
-    }
+  }
   else if ( this->State == vtkSphereWidget::Positioning )
-    {
+  {
     this->MoveHandle(prevPickPoint, pickPoint, X, Y);
-    }
+  }
 
   // Interact, if desired
   this->EventCallbackCommand->SetAbortFlag(1);
@@ -493,9 +493,9 @@ void vtkSphereWidget::OnMouseMove()
 void vtkSphereWidget::OnLeftButtonUp()
 {
   if ( this->State == vtkSphereWidget::Outside )
-    {
+  {
     return;
-    }
+  }
 
   this->State = vtkSphereWidget::Start;
   this->HighlightSphere(0);
@@ -506,18 +506,18 @@ void vtkSphereWidget::OnLeftButtonUp()
   this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
   if (this->Interactor)
-    {
+  {
     this->Interactor->Render();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkSphereWidget::OnRightButtonDown()
 {
   if (!this->Interactor)
-    {
+  {
     return;
-    }
+  }
 
   this->State = vtkSphereWidget::Scaling;
 
@@ -526,25 +526,25 @@ void vtkSphereWidget::OnRightButtonDown()
 
   // Okay, make sure that the pick is in the current renderer
   if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
-    {
+  {
     this->State = vtkSphereWidget::Outside;
     return;
-    }
+  }
 
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then pick the bounding box.
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->Picker);
 
   if ( path == NULL )
-    {
+  {
     this->State = vtkSphereWidget::Outside;
     this->HighlightSphere(0);
     return;
-    }
+  }
   else
-    {
+  {
     this->HighlightSphere(1);
-    }
+  }
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
@@ -556,9 +556,9 @@ void vtkSphereWidget::OnRightButtonDown()
 void vtkSphereWidget::OnRightButtonUp()
 {
   if ( this->State == vtkSphereWidget::Outside )
-    {
+  {
     return;
-    }
+  }
 
   this->State = vtkSphereWidget::Start;
   this->HighlightSphere(0);
@@ -569,9 +569,9 @@ void vtkSphereWidget::OnRightButtonUp()
   this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
   if (this->Interactor)
-    {
+  {
     this->Interactor->Render();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -579,9 +579,9 @@ void vtkSphereWidget::OnRightButtonUp()
 void vtkSphereWidget::Translate(double *p1, double *p2)
 {
   if ( !this->Translation )
-    {
+  {
     return;
-    }
+  }
 
   //Get the motion vector
   double v[3];
@@ -594,10 +594,10 @@ void vtkSphereWidget::Translate(double *p1, double *p2)
 
   double center1[3];
   for (int i=0; i<3; i++)
-    {
+  {
     center1[i] = center[i] + v[i];
     this->HandlePosition[i] += v[i];
-    }
+  }
 
   this->SphereSource->SetCenter(center1);
   this->HandleSource->SetCenter(HandlePosition);
@@ -610,9 +610,9 @@ void vtkSphereWidget::ScaleSphere(double *p1, double *p2,
                                   int vtkNotUsed(X), int Y)
 {
   if ( !this->Scale )
-    {
+  {
     return;
-    }
+  }
 
   //Get the motion vector
   double v[3];
@@ -626,22 +626,22 @@ void vtkSphereWidget::ScaleSphere(double *p1, double *p2,
   // Compute the scale factor
   double sf=0.0;
   if ( radius > 0.0 )
-    {
+  {
     sf = vtkMath::Norm(v) / radius;
     if ( Y > this->Interactor->GetLastEventPosition()[1] )
-      {
-      sf = 1.0 + sf;
-      }
-    else
-      {
-      sf = 1.0 - sf;
-      }
-    radius *= sf;
-    }
-  else //Bump the radius >0 otherwise it'll never scale up from 0.0
     {
-    radius = VTK_DBL_EPSILON;
+      sf = 1.0 + sf;
     }
+    else
+    {
+      sf = 1.0 - sf;
+    }
+    radius *= sf;
+  }
+  else //Bump the radius >0 otherwise it'll never scale up from 0.0
+  {
+    radius = VTK_DBL_EPSILON;
+  }
 
   this->SphereSource->SetRadius(radius);
   this->HandlePosition[0] = c[0]+sf*(this->HandlePosition[0]-c[0]);
@@ -669,10 +669,10 @@ void vtkSphereWidget::MoveHandle(double *p1, double *p2,
   // set the position of the sphere
   double p[3];
   for (int i=0; i<3; i++)
-    {
+  {
     p[i] = this->HandlePosition[i] + v[i];
     this->HandleDirection[i] = p[i] - center[i];
-    }
+  }
 
   this->PlaceHandle(center,radius);
 
@@ -683,24 +683,24 @@ void vtkSphereWidget::MoveHandle(double *p1, double *p2,
 void vtkSphereWidget::CreateDefaultProperties()
 {
   if ( ! this->SphereProperty )
-    {
+  {
     this->SphereProperty = vtkProperty::New();
-    }
+  }
   if ( ! this->SelectedSphereProperty )
-    {
+  {
     this->SelectedSphereProperty = vtkProperty::New();
-    }
+  }
 
   if ( ! this->HandleProperty )
-    {
+  {
     this->HandleProperty = vtkProperty::New();
     this->HandleProperty->SetColor(1,1,1);
-    }
+  }
   if ( ! this->SelectedHandleProperty )
-    {
+  {
     this->SelectedHandleProperty = vtkProperty::New();
     this->SelectedHandleProperty->SetColor(1,0,0);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -712,14 +712,14 @@ void vtkSphereWidget::PlaceWidget(double bds[6])
 
   radius = (bounds[1]-bounds[0]) / 2.0;
   if ( radius > ((bounds[3]-bounds[2])/2.0) )
-    {
+  {
     radius = (bounds[3]-bounds[2])/2.0;
-    }
+  }
   radius = (bounds[1]-bounds[0]) / 2.0;
   if ( radius > ((bounds[5]-bounds[4])/2.0) )
-    {
+  {
     radius = (bounds[5]-bounds[4])/2.0;
-    }
+  }
 
   this->SphereSource->SetCenter(center);
   this->SphereSource->SetRadius(radius);
@@ -729,9 +729,9 @@ void vtkSphereWidget::PlaceWidget(double bds[6])
   this->PlaceHandle(center,radius);
 
   for (int i=0; i<6; i++)
-    {
+  {
     this->InitialBounds[i] = bounds[i];
-    }
+  }
   this->InitialLength = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
                              (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
                              (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));

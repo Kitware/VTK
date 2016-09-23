@@ -61,18 +61,18 @@ int vtkStreamPoints::RequestData(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataSet *source = 0;
   if (sourceInfo)
-    {
+  {
     source = vtkDataSet::SafeDownCast(
       sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
-    }
+  }
   vtkIdList *pts;
 
   this->SavePointInterval = this->TimeIncrement;
   this->vtkStreamer::Integrate(input, source);
   if ( this->NumberOfStreamers <= 0 )
-    {
+  {
     return 1;
-    }
+  }
 
   pts = vtkIdList::New();
   pts->Allocate(2500);
@@ -83,10 +83,10 @@ int vtkStreamPoints::RequestData(
   newVectors ->Allocate(3000);
   if ( input->GetPointData()->GetScalars() || this->SpeedScalars
     || this->OrientationScalars)
-    {
+  {
     newScalars = vtkFloatArray::New();
     newScalars->Allocate(1000);
-    }
+  }
   newVerts = vtkCellArray::New();
   newVerts->Allocate(newVerts->EstimateSize(2*this->NumberOfStreamers,VTK_CELL_SIZE));
 
@@ -94,28 +94,28 @@ int vtkStreamPoints::RequestData(
   // Loop over all streamers generating points
   //
   for (ptId=0; ptId < this->NumberOfStreamers; ptId++)
-    {
+  {
     // tOffset is the time that the next point will have.
     tOffset = 0.0;
 
     for ( sPrev=sPtr=this->Streamers[ptId].GetStreamPoint(0), i=0;
     i < this->Streamers[ptId].GetNumberOfPoints() && sPtr->cellId >= 0;
     i++, sPrev=sPtr, sPtr=this->Streamers[ptId].GetStreamPoint(i) )
-      {
+    {
       //
       // For each streamer, create points "time increment" apart
       //
       if ( tOffset < sPtr->t )
-        {
+      {
         while ( tOffset < sPtr->t )
-          {
+        {
           r = (tOffset - sPrev->t) / (sPtr->t - sPrev->t);
 
           for (j=0; j<3; j++)
-            {
+          {
             x[j] = sPrev->x[j] + r * (sPtr->x[j] - sPrev->x[j]);
             v[j] = sPrev->v[j] + r * (sPtr->v[j] - sPrev->v[j]);
-            }
+          }
 
           // add point to line
           id = newPts->InsertNextPoint(x);
@@ -123,23 +123,23 @@ int vtkStreamPoints::RequestData(
           newVectors->InsertTuple(id,v);
 
           if ( newScalars )
-            {
+          {
             s = sPrev->s + r * (sPtr->s - sPrev->s);
             newScalars->InsertTuple(id,&s);
-            }
+          }
 
           tOffset += this->TimeIncrement;
-          } // while
+        } // while
 
-        } //if points should be created
+      } //if points should be created
 
-      } //for this streamer
+    } //for this streamer
     if ( pts->GetNumberOfIds() > 1 )
-      {
+    {
       newVerts->InsertNextCell(pts);
       pts->Reset();
-      }
-    } //for all streamers
+    }
+  } //for all streamers
   //
   // Update ourselves
   //
@@ -154,11 +154,11 @@ int vtkStreamPoints::RequestData(
   newVectors->Delete();
 
   if ( newScalars )
-    {
+  {
     int idx = output->GetPointData()->AddArray(newScalars);
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
-    }
+  }
 
   // Delete the streamers since they are no longer needed
   delete[] this->Streamers;

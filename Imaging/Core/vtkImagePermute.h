@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImagePermute -  Permutes axes of input.
-// .SECTION Description
-// vtkImagePermute reorders the axes of the input. Filtered axes specify
-// the input axes which become X, Y, Z.  The input has to have the
-// same scalar type of the output. The filter does copy the
-// data when it executes. This filter is actually a very thin wrapper
-// around vtkImageReslice.
+/**
+ * @class   vtkImagePermute
+ * @brief    Permutes axes of input.
+ *
+ * vtkImagePermute reorders the axes of the input. Filtered axes specify
+ * the input axes which become X, Y, Z.  The input has to have the
+ * same scalar type of the output. The filter does copy the
+ * data when it executes. This filter is actually a very thin wrapper
+ * around vtkImageReslice.
+*/
 
 #ifndef vtkImagePermute_h
 #define vtkImagePermute_h
@@ -35,12 +38,15 @@ public:
 
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // The filtered axes are the input axes that get relabeled to X,Y,Z.
+  //@{
+  /**
+   * The filtered axes are the input axes that get relabeled to X,Y,Z.
+   */
   void SetFilteredAxes(int x, int y, int z);
   void SetFilteredAxes(const int xyz[3]) {
     this->SetFilteredAxes(xyz[0], xyz[1], xyz[2]); };
   vtkGetVector3Macro(FilteredAxes, int);
+  //@}
 
 protected:
   vtkImagePermute();

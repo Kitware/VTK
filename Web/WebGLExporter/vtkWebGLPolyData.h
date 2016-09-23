@@ -12,9 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWebGLPolyData
-// .SECTION Description
-// PolyData representation for WebGL.
+/**
+ * @class   vtkWebGLPolyData
+ *
+ * PolyData representation for WebGL.
+*/
 
 #ifndef vtkWebGLPolyData_h
 #define vtkWebGLPolyData_h

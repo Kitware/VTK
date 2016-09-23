@@ -83,7 +83,7 @@ vtkPlaneWidget::vtkPlaneWidget() : vtkPolyDataSourceWidget()
   this->HandleMapper = new vtkPolyDataMapper* [4];
   this->HandleGeometry = new vtkSphereSource* [4];
   for (i=0; i<4; i++)
-    {
+  {
     this->HandleGeometry[i] = vtkSphereSource::New();
     this->HandleGeometry[i]->SetThetaResolution(16);
     this->HandleGeometry[i]->SetPhiResolution(8);
@@ -92,7 +92,7 @@ vtkPlaneWidget::vtkPlaneWidget() : vtkPolyDataSourceWidget()
       this->HandleGeometry[i]->GetOutputPort());
     this->Handle[i] = vtkActor::New();
     this->Handle[i]->SetMapper(this->HandleMapper[i]);
-    }
+  }
 
   // Create the + plane normal
   this->LineSource = vtkLineSource::New();
@@ -145,9 +145,9 @@ vtkPlaneWidget::vtkPlaneWidget() : vtkPolyDataSourceWidget()
   this->HandlePicker = vtkCellPicker::New();
   this->HandlePicker->SetTolerance(0.001);
   for (i=0; i<4; i++)
-    {
+  {
     this->HandlePicker->AddPickList(this->Handle[i]);
-    }
+  }
   this->HandlePicker->PickFromListOn();
 
   this->PlanePicker = vtkCellPicker::New();
@@ -184,11 +184,11 @@ vtkPlaneWidget::~vtkPlaneWidget()
   this->PlaneOutline->Delete();
 
   for (int i=0; i<4; i++)
-    {
+  {
     this->HandleGeometry[i]->Delete();
     this->HandleMapper[i]->Delete();
     this->Handle[i]->Delete();
-    }
+  }
   delete [] this->Handle;
   delete [] this->HandleMapper;
   delete [] this->HandleGeometry;
@@ -213,28 +213,28 @@ vtkPlaneWidget::~vtkPlaneWidget()
   this->PlanePicker->Delete();
 
   if (this->HandleProperty)
-    {
+  {
     this->HandleProperty->Delete();
     this->HandleProperty = 0;
-    }
+  }
 
   if (this->SelectedHandleProperty)
-    {
+  {
     this->SelectedHandleProperty->Delete();
     this->SelectedHandleProperty = 0;
-    }
+  }
 
   if (this->PlaneProperty)
-    {
+  {
     this->PlaneProperty->Delete();
     this->PlaneProperty = 0;
-    }
+  }
 
   if (this->SelectedPlaneProperty)
-    {
+  {
     this->SelectedPlaneProperty->Delete();
     this->SelectedPlaneProperty = 0;
-    }
+  }
 
   this->Transform->Delete();
 }
@@ -242,30 +242,30 @@ vtkPlaneWidget::~vtkPlaneWidget()
 void vtkPlaneWidget::SetEnabled(int enabling)
 {
   if ( ! this->Interactor )
-    {
+  {
     vtkErrorMacro(<<"The interactor must be set prior to enabling/disabling widget");
     return;
-    }
+  }
 
   if ( enabling ) //-----------------------------------------------------------
-    {
+  {
     vtkDebugMacro(<<"Enabling plane widget");
 
     if ( this->Enabled ) //already enabled, just return
-      {
+    {
       return;
-      }
+    }
 
     if ( ! this->CurrentRenderer )
-      {
+    {
       this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(
         this->Interactor->GetLastEventPosition()[0],
         this->Interactor->GetLastEventPosition()[1]));
       if (this->CurrentRenderer == NULL)
-        {
+      {
         return;
-        }
       }
+    }
 
     this->Enabled = 1;
 
@@ -298,10 +298,10 @@ void vtkPlaneWidget::SetEnabled(int enabling)
 
     // turn on the handles
     for (int j=0; j<4; j++)
-      {
+    {
       this->CurrentRenderer->AddActor(this->Handle[j]);
       this->Handle[j]->SetProperty(this->HandleProperty);
-      }
+    }
 
     // add the normal vector
     this->CurrentRenderer->AddActor(this->LineActor);
@@ -315,16 +315,16 @@ void vtkPlaneWidget::SetEnabled(int enabling)
 
     this->SelectRepresentation();
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
-    }
+  }
 
   else //disabling----------------------------------------------------------
-    {
+  {
     vtkDebugMacro(<<"Disabling plane widget");
 
     if ( ! this->Enabled ) //already disabled, just return
-      {
+    {
       return;
-      }
+    }
 
     this->Enabled = 0;
 
@@ -336,9 +336,9 @@ void vtkPlaneWidget::SetEnabled(int enabling)
 
     // turn off the handles
     for (int i=0; i<4; i++)
-      {
+    {
       this->CurrentRenderer->RemoveActor(this->Handle[i]);
-      }
+    }
 
     // turn off the normal vector
     this->CurrentRenderer->RemoveActor(this->LineActor);
@@ -349,7 +349,7 @@ void vtkPlaneWidget::SetEnabled(int enabling)
     this->CurrentHandle = NULL;
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
     this->SetCurrentRenderer(NULL);
-    }
+  }
 
   this->Interactor->Render();
 }
@@ -370,7 +370,7 @@ void vtkPlaneWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
 
   //okay, let's do the right thing
   switch(event)
-    {
+  {
     case vtkCommand::LeftButtonPressEvent:
       self->OnLeftButtonDown();
       break;
@@ -401,7 +401,7 @@ void vtkPlaneWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
     case vtkCommand::EndPinchEvent:
       self->OnEndPinch();
       break;
-    }
+  }
 }
 
 void vtkPlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
@@ -409,54 +409,54 @@ void vtkPlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->HandleProperty )
-    {
+  {
     os << indent << "Handle Property: " << this->HandleProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Handle Property: (none)\n";
-    }
+  }
   if ( this->SelectedHandleProperty )
-    {
+  {
     os << indent << "Selected Handle Property: "
        << this->SelectedHandleProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "SelectedHandle Property: (none)\n";
-    }
+  }
 
   if ( this->PlaneProperty )
-    {
+  {
     os << indent << "Plane Property: " << this->PlaneProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Plane Property: (none)\n";
-    }
+  }
   if ( this->SelectedPlaneProperty )
-    {
+  {
     os << indent << "Selected Plane Property: "
        << this->SelectedPlaneProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Selected Plane Property: (none)\n";
-    }
+  }
 
   os << indent << "Plane Representation: ";
   if ( this->Representation == VTK_PLANE_WIREFRAME )
-    {
+  {
     os << "Wireframe\n";
-    }
+  }
   else if ( this->Representation == VTK_PLANE_SURFACE )
-    {
+  {
     os << "Surface\n";
-    }
+  }
   else //( this->Representation == VTK_PLANE_OUTLINE )
-    {
+  {
     os << "Outline\n";
-    }
+  }
 
   os << indent << "Normal To X Axis: "
      << (this->NormalToXAxis ? "On" : "Off") << "\n";
@@ -500,13 +500,13 @@ void vtkPlaneWidget::PositionHandles()
 
   // set up the outline
   if ( this->Representation == VTK_PLANE_OUTLINE )
-    {
+  {
     this->PlaneOutline->GetPoints()->SetPoint(0,o);
     this->PlaneOutline->GetPoints()->SetPoint(1,pt1);
     this->PlaneOutline->GetPoints()->SetPoint(2,x);
     this->PlaneOutline->GetPoints()->SetPoint(3,pt2);
     this->PlaneOutline->Modified();
-    }
+  }
   this->SelectRepresentation();
 
   // Create the normal vector
@@ -540,25 +540,25 @@ int vtkPlaneWidget::HighlightHandle(vtkProp *prop)
 {
   // first unhighlight anything picked
   if ( this->CurrentHandle )
-    {
+  {
     this->CurrentHandle->SetProperty(this->HandleProperty);
-    }
+  }
 
   this->CurrentHandle = static_cast<vtkActor *>(prop);
 
   if ( this->CurrentHandle )
-    {
+  {
     this->ValidPick = 1;
     this->HandlePicker->GetPickPosition(this->LastPickPosition);
     this->CurrentHandle->SetProperty(this->SelectedHandleProperty);
     for (int i=0; i<4; i++) //find handle
-      {
+    {
       if ( this->CurrentHandle == this->Handle[i] )
-        {
+      {
         return i;
-        }
       }
     }
+  }
 
   return -1;
 }
@@ -566,35 +566,35 @@ int vtkPlaneWidget::HighlightHandle(vtkProp *prop)
 void vtkPlaneWidget::HighlightNormal(int highlight)
 {
   if ( highlight )
-    {
+  {
     this->ValidPick = 1;
     this->PlanePicker->GetPickPosition(this->LastPickPosition);
     this->LineActor->SetProperty(this->SelectedHandleProperty);
     this->ConeActor->SetProperty(this->SelectedHandleProperty);
     this->LineActor2->SetProperty(this->SelectedHandleProperty);
     this->ConeActor2->SetProperty(this->SelectedHandleProperty);
-    }
+  }
   else
-    {
+  {
     this->LineActor->SetProperty(this->HandleProperty);
     this->ConeActor->SetProperty(this->HandleProperty);
     this->LineActor2->SetProperty(this->HandleProperty);
     this->ConeActor2->SetProperty(this->HandleProperty);
-    }
+  }
 }
 
 void vtkPlaneWidget::HighlightPlane(int highlight)
 {
   if ( highlight )
-    {
+  {
     this->ValidPick = 1;
     this->PlanePicker->GetPickPosition(this->LastPickPosition);
     this->PlaneActor->SetProperty(this->SelectedPlaneProperty);
-    }
+  }
   else
-    {
+  {
     this->PlaneActor->SetProperty(this->PlaneProperty);
-    }
+  }
 }
 
 void vtkPlaneWidget::OnStartPinch()
@@ -604,29 +604,29 @@ void vtkPlaneWidget::OnStartPinch()
 
   // Okay, make sure that the pick is in the current renderer
   if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
-    {
+  {
     this->State = vtkPlaneWidget::Outside;
     return;
-    }
+  }
 
   // Okay, we can process this. try to pick the plane.
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->PlanePicker);
 
   if ( path != NULL )
-    {
+  {
     this->State = vtkPlaneWidget::Pinching;
     this->HighlightPlane(1);
     this->StartInteraction();
     this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
-    }
+  }
 }
 
 void vtkPlaneWidget::OnPinch()
 {
   if ( this->State != vtkPlaneWidget::Pinching)
-    {
+  {
     return;
-    }
+  }
 
   double sf = this->Interactor->GetScale()/this->Interactor->GetLastScale();
   double *o = this->PlaneSource->GetOrigin();
@@ -641,11 +641,11 @@ void vtkPlaneWidget::OnPinch()
   // Move the corner points
   double origin[3], point1[3], point2[3];
   for (int i=0; i<3; i++)
-    {
+  {
     origin[i] = sf * (o[i] - center[i]) + center[i];
     point1[i] = sf * (pt1[i] - center[i]) + center[i];
     point2[i] = sf * (pt2[i] - center[i]) + center[i];
-    }
+  }
 
   this->PlaneSource->SetOrigin(origin);
   this->PlaneSource->SetPoint1(point1);
@@ -662,9 +662,9 @@ void vtkPlaneWidget::OnPinch()
 void vtkPlaneWidget::OnEndPinch()
 {
   if ( this->State != vtkPlaneWidget::Pinching)
-    {
+  {
     return;
-    }
+  }
 
   this->State = vtkPlaneWidget::Start;
   this->HighlightHandle(NULL);
@@ -685,51 +685,51 @@ void vtkPlaneWidget::OnLeftButtonDown()
 
   // Okay, make sure that the pick is in the current renderer
   if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
-    {
+  {
     this->State = vtkPlaneWidget::Outside;
     return;
-    }
+  }
 
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then try to pick the plane.
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
 
   if ( path != NULL )
-    {
+  {
     this->State = vtkPlaneWidget::Moving;
     this->HighlightHandle(path->GetFirstNode()->GetViewProp());
-    }
+  }
   else
-    {
+  {
     path = this->GetAssemblyPath(X, Y, 0., this->PlanePicker);
 
     if ( path != NULL )
-      {
+    {
       vtkProp *prop = path->GetFirstNode()->GetViewProp();
       if ( prop == this->ConeActor || prop == this->LineActor ||
            prop == this->ConeActor2 || prop == this->LineActor2 )
-        {
+      {
         this->State = vtkPlaneWidget::Rotating;
         this->HighlightNormal(1);
-        }
+      }
       else if (this->Interactor->GetControlKey())
-        {
+      {
         this->State = vtkPlaneWidget::Spinning;
         this->HighlightNormal(1);
-        }
+      }
       else
-        {
+      {
         this->State = vtkPlaneWidget::Moving;
         this->HighlightPlane(1);
-        }
       }
+    }
     else
-      {
+    {
       this->State = vtkPlaneWidget::Outside;
       this->HighlightHandle(NULL);
       return;
-      }
     }
+  }
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
@@ -741,9 +741,9 @@ void vtkPlaneWidget::OnLeftButtonUp()
 {
   if ( this->State == vtkPlaneWidget::Outside ||
        this->State == vtkPlaneWidget::Start )
-    {
+  {
     return;
-    }
+  }
 
   this->State = vtkPlaneWidget::Start;
   this->HighlightHandle(NULL);
@@ -764,38 +764,38 @@ void vtkPlaneWidget::OnMiddleButtonDown()
 
   // Okay, make sure that the pick is in the current renderer
   if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
-    {
+  {
     this->State = vtkPlaneWidget::Outside;
     return;
-    }
+  }
 
   // Okay, we can process this. If anything is picked, then we
   // can start pushing the plane.
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
 
   if ( path != NULL )
-    {
+  {
     this->State = vtkPlaneWidget::Pushing;
     this->HighlightPlane(1);
     this->HighlightNormal(1);
     this->HighlightHandle(path->GetFirstNode()->GetViewProp());
-    }
+  }
   else
-    {
+  {
     path = this->GetAssemblyPath(X, Y, 0., this->PlanePicker);
 
     if ( path == NULL ) //nothing picked
-      {
+    {
       this->State = vtkPlaneWidget::Outside;
       return;
-      }
+    }
     else
-      {
+    {
       this->State = vtkPlaneWidget::Pushing;
       this->HighlightNormal(1);
       this->HighlightPlane(1);
-      }
     }
+  }
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
@@ -807,9 +807,9 @@ void vtkPlaneWidget::OnMiddleButtonUp()
 {
   if ( this->State == vtkPlaneWidget::Outside ||
        this->State == vtkPlaneWidget::Start )
-    {
+  {
     return;
-    }
+  }
 
   this->State = vtkPlaneWidget::Start;
   this->HighlightPlane(0);
@@ -830,36 +830,36 @@ void vtkPlaneWidget::OnRightButtonDown()
 
   // Okay, make sure that the pick is in the current renderer
   if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
-    {
+  {
     this->State = vtkPlaneWidget::Outside;
     return;
-    }
+  }
 
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then pick the bounding box.
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
 
   if ( path != NULL )
-    {
+  {
     this->State = vtkPlaneWidget::Scaling;
     this->HighlightPlane(1);
     this->HighlightHandle(path->GetFirstNode()->GetViewProp());
-    }
+  }
   else //see if we picked the plane or a normal
-    {
+  {
     path = this->GetAssemblyPath(X, Y, 0., this->PlanePicker);
 
     if ( path == NULL )
-      {
+    {
       this->State = vtkPlaneWidget::Outside;
       return;
-      }
+    }
     else
-      {
+    {
       this->State = vtkPlaneWidget::Scaling;
       this->HighlightPlane(1);
-      }
     }
+  }
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
@@ -871,9 +871,9 @@ void vtkPlaneWidget::OnRightButtonUp()
 {
   if ( this->State == vtkPlaneWidget::Outside ||
        this->State == vtkPlaneWidget::Start )
-    {
+  {
     return;
-    }
+  }
 
   this->State = vtkPlaneWidget::Start;
   this->HighlightPlane(0);
@@ -890,9 +890,9 @@ void vtkPlaneWidget::OnMouseMove()
   // See whether we're active
   if ( this->State == vtkPlaneWidget::Outside ||
        this->State == vtkPlaneWidget::Start )
-    {
+  {
     return;
-    }
+  }
 
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
@@ -904,9 +904,9 @@ void vtkPlaneWidget::OnMouseMove()
 
   vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
   if ( !camera )
-    {
+  {
     return;
-    }
+  }
 
   // Compute the two points defining the motion vector
   this->ComputeWorldToDisplay(this->LastPickPosition[0],
@@ -921,49 +921,49 @@ void vtkPlaneWidget::OnMouseMove()
 
   // Process the motion
   if ( this->State == vtkPlaneWidget::Moving )
-    {
+  {
     // Okay to process
     if ( this->CurrentHandle )
-      {
+    {
       if ( this->CurrentHandle == this->Handle[0] )
-        {
-        this->MoveOrigin(prevPickPoint, pickPoint);
-        }
-      else if ( this->CurrentHandle == this->Handle[1] )
-        {
-        this->MovePoint1(prevPickPoint, pickPoint);
-        }
-      else if ( this->CurrentHandle == this->Handle[2] )
-        {
-        this->MovePoint2(prevPickPoint, pickPoint);
-        }
-      else if ( this->CurrentHandle == this->Handle[3] )
-        {
-        this->MovePoint3(prevPickPoint, pickPoint);
-        }
-      }
-    else //must be moving the plane
       {
-      this->Translate(prevPickPoint, pickPoint);
+        this->MoveOrigin(prevPickPoint, pickPoint);
+      }
+      else if ( this->CurrentHandle == this->Handle[1] )
+      {
+        this->MovePoint1(prevPickPoint, pickPoint);
+      }
+      else if ( this->CurrentHandle == this->Handle[2] )
+      {
+        this->MovePoint2(prevPickPoint, pickPoint);
+      }
+      else if ( this->CurrentHandle == this->Handle[3] )
+      {
+        this->MovePoint3(prevPickPoint, pickPoint);
       }
     }
+    else //must be moving the plane
+    {
+      this->Translate(prevPickPoint, pickPoint);
+    }
+  }
   else if ( this->State == vtkPlaneWidget::Scaling )
-    {
+  {
     this->Scale(prevPickPoint, pickPoint, X, Y);
-    }
+  }
   else if ( this->State == vtkPlaneWidget::Pushing )
-    {
+  {
     this->Push(prevPickPoint, pickPoint);
-    }
+  }
   else if ( this->State == vtkPlaneWidget::Rotating )
-    {
+  {
     camera->GetViewPlaneNormal(vpn);
     this->Rotate(X, Y, prevPickPoint, pickPoint, vpn);
-    }
+  }
   else if ( this->State == vtkPlaneWidget::Spinning )
-    {
+  {
     this->Spin(prevPickPoint, pickPoint);
-    }
+  }
 
 
   // Interact, if desired
@@ -1012,11 +1012,11 @@ void vtkPlaneWidget::MoveOrigin(double *p1, double *p2)
 
   double point1[3], point2[3], origin[3];
   for (int i=0; i<3; i++)
-    {
+  {
     point1[i] = pt3[i] + (1.0+d1)*p13[i];
     point2[i] = pt3[i] + (1.0+d2)*p23[i];
     origin[i] = pt3[i] + (1.0+d1)*p13[i] + (1.0+d2)*p23[i];
-    }
+  }
 
   this->PlaneSource->SetOrigin(origin);
   this->PlaneSource->SetPoint1(point1);
@@ -1060,9 +1060,9 @@ void vtkPlaneWidget::MovePoint1(double *p1, double *p2)
 
   // if there is no motion then return
   if (vN == 0.0)
-    {
+  {
     return;
-    }
+  }
 
   // Project v onto these vector to determine the amount of motion
   // Scale it by the relative size of the motion to the vector length
@@ -1071,10 +1071,10 @@ void vtkPlaneWidget::MovePoint1(double *p1, double *p2)
 
   double point1[3], origin[3];
   for (int i=0; i<3; i++)
-    {
+  {
     origin[i] = pt2[i] + (1.0+d1)*p02[i];
     point1[i] = pt2[i] + (1.0+d1)*p02[i] + (1.0+d2)*p32[i];
-    }
+  }
 
   this->PlaneSource->SetOrigin(origin);
   this->PlaneSource->SetPoint1(point1);
@@ -1117,9 +1117,9 @@ void vtkPlaneWidget::MovePoint2(double *p1, double *p2)
 
   // if there is no motion then return
   if (vN == 0.0)
-    {
+  {
     return;
-    }
+  }
 
   // Project v onto these vector to determine the amount of motion
   // Scale it by the relative size of the motion to the vector length
@@ -1128,10 +1128,10 @@ void vtkPlaneWidget::MovePoint2(double *p1, double *p2)
 
   double point2[3], origin[3];
   for (int i=0; i<3; i++)
-    {
+  {
     point2[i] = pt1[i] + (1.0+d1)*p31[i] + (1.0+d2)*p01[i];
     origin[i] = pt1[i] + (1.0+d2)*p01[i];
-    }
+  }
 
   this->PlaneSource->SetOrigin(origin);
   this->PlaneSource->SetPoint2(point2);
@@ -1168,9 +1168,9 @@ void vtkPlaneWidget::MovePoint3(double *p1, double *p2)
 
   // if there is no motion then return
   if (vN == 0.0)
-    {
+  {
     return;
-    }
+  }
 
   // Project v onto these vector to determine the amount of motion
   // Scale it by the relative size of the motion to the vector length
@@ -1179,10 +1179,10 @@ void vtkPlaneWidget::MovePoint3(double *p1, double *p2)
 
   double point1[3], point2[3];
   for (int i=0; i<3; i++)
-    {
+  {
     point1[i] = o[i] + (1.0+d1)*p10[i];
     point2[i] = o[i] + (1.0+d2)*p20[i];
-    }
+  }
 
   this->PlaneSource->SetPoint1(point1);
   this->PlaneSource->SetPoint2(point2);
@@ -1210,9 +1210,9 @@ void vtkPlaneWidget::Rotate(int X, int Y, double *p1, double *p2, double *vpn)
   // Create axis of rotation and angle of rotation
   vtkMath::Cross(vpn,v,axis);
   if ( vtkMath::Normalize(axis) == 0.0 )
-    {
+  {
     return;
-    }
+  }
   int *size = this->CurrentRenderer->GetSize();
   double l2 =
     (X-this->Interactor->GetLastEventPosition()[0])*
@@ -1310,11 +1310,11 @@ void vtkPlaneWidget::Translate(double *p1, double *p2)
 
   double origin[3], point1[3], point2[3];
   for (int i=0; i<3; i++)
-    {
+  {
     origin[i] = o[i] + v[i];
     point1[i] = pt1[i] + v[i];
     point2[i] = pt2[i] + v[i];
-    }
+  }
 
   this->PlaneSource->SetOrigin(origin);
   this->PlaneSource->SetPoint1(point1);
@@ -1346,22 +1346,22 @@ void vtkPlaneWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
   double sf =
     vtkMath::Norm(v) / sqrt(vtkMath::Distance2BetweenPoints(pt1,pt2));
   if ( Y > this->Interactor->GetLastEventPosition()[1] )
-    {
+  {
     sf = 1.0 + sf;
-    }
+  }
   else
-    {
+  {
     sf = 1.0 - sf;
-    }
+  }
 
   // Move the corner points
   double origin[3], point1[3], point2[3];
   for (int i=0; i<3; i++)
-    {
+  {
     origin[i] = sf * (o[i] - center[i]) + center[i];
     point1[i] = sf * (pt1[i] - center[i]) + center[i];
     point2[i] = sf * (pt2[i] - center[i]) + center[i];
-    }
+  }
 
   this->PlaneSource->SetOrigin(origin);
   this->PlaneSource->SetPoint1(point1);
@@ -1412,26 +1412,26 @@ void vtkPlaneWidget::PlaceWidget(double bds[6])
   this->AdjustBounds(bds, bounds, center);
 
   if (this->GetInput() || this->Prop3D)
-    {
+  {
     if ( this->NormalToYAxis )
-      {
+    {
       this->PlaneSource->SetOrigin(bounds[0],center[1],bounds[4]);
       this->PlaneSource->SetPoint1(bounds[1],center[1],bounds[4]);
       this->PlaneSource->SetPoint2(bounds[0],center[1],bounds[5]);
-      }
+    }
     else if ( this->NormalToZAxis )
-      {
+    {
       this->PlaneSource->SetOrigin(bounds[0],bounds[2],center[2]);
       this->PlaneSource->SetPoint1(bounds[1],bounds[2],center[2]);
       this->PlaneSource->SetPoint2(bounds[0],bounds[3],center[2]);
-      }
+    }
     else //default or x-normal
-      {
+    {
       this->PlaneSource->SetOrigin(center[0],bounds[2],bounds[4]);
       this->PlaneSource->SetPoint1(center[0],bounds[3],bounds[4]);
       this->PlaneSource->SetPoint2(center[0],bounds[2],bounds[5]);
-      }
     }
+  }
 
   this->PlaneSource->Update();
 
@@ -1439,19 +1439,19 @@ void vtkPlaneWidget::PlaceWidget(double bds[6])
   this->PositionHandles();
 
   for (i=0; i<6; i++)
-    {
+  {
     this->InitialBounds[i] = bounds[i];
-    }
+  }
 
 
   if (this->GetInput() || this->Prop3D)
-    {
+  {
     this->InitialLength = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
                                (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
                                (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
-    }
+  }
   else
-    {
+  {
     // this means we have to make use of the PolyDataSource, so
     // we just calculate the magnitude of the longest diagonal on
     // the plane and use that as InitialLength
@@ -1461,13 +1461,13 @@ void vtkPlaneWidget::PlaceWidget(double bds[6])
     this->PlaneSource->GetPoint2(point2);
     double sqr1 = 0, sqr2 = 0;
     for (i = 0; i < 3; i++)
-      {
+    {
       sqr1 += (point1[i] - origin[i]) * (point1[i] - origin[i]);
       sqr2 += (point2[i] - origin[i]) * (point2[i] - origin[i]);
-      }
+    }
 
     this->InitialLength = sqrt(sqr1 + sqr2);
-    }
+  }
 
   // Set the radius on the sphere handles
   this->SizeHandles();
@@ -1478,22 +1478,22 @@ void vtkPlaneWidget::SizeHandles()
   double radius = this->vtk3DWidget::SizeHandles(this->HandleSizeFactor);
 
   if (this->ValidPick && !this->LastPickValid)
-    {
+  {
     // Adjust factor to preserve old radius.
     double oldradius = this->HandleGeometry[0]->GetRadius();
     if (oldradius != 0 && radius != 0)
-      {
+    {
       this->HandleSizeFactor = oldradius / radius;
       radius = oldradius;
-      }
     }
+  }
 
   this->LastPickValid = this->ValidPick;
 
   for(int i=0; i<4; i++)
-    {
+  {
     this->HandleGeometry[i]->SetRadius(radius);
-    }
+  }
 
   // Set the height and radius of the cone
   this->ConeSource->SetHeight(2.0*radius);
@@ -1507,35 +1507,35 @@ void vtkPlaneWidget::SizeHandles()
 void vtkPlaneWidget::SelectRepresentation()
 {
   if ( ! this->CurrentRenderer )
-    {
+  {
     return;
-    }
+  }
 
   if ( this->Representation == VTK_PLANE_OFF )
-    {
+  {
     this->CurrentRenderer->RemoveActor(this->PlaneActor);
-    }
+  }
   else if ( this->Representation == VTK_PLANE_OUTLINE )
-    {
+  {
     this->CurrentRenderer->RemoveActor(this->PlaneActor);
     this->CurrentRenderer->AddActor(this->PlaneActor);
     this->PlaneMapper->SetInputData( this->PlaneOutline );
     this->PlaneActor->GetProperty()->SetRepresentationToWireframe();
-    }
+  }
   else if ( this->Representation == VTK_PLANE_SURFACE )
-    {
+  {
     this->CurrentRenderer->RemoveActor(this->PlaneActor);
     this->CurrentRenderer->AddActor(this->PlaneActor);
     this->PlaneMapper->SetInputConnection( this->PlaneSource->GetOutputPort() );
     this->PlaneActor->GetProperty()->SetRepresentationToSurface();
-    }
+  }
   else //( this->Representation == VTK_PLANE_WIREFRAME )
-    {
+  {
     this->CurrentRenderer->RemoveActor(this->PlaneActor);
     this->CurrentRenderer->AddActor(this->PlaneActor);
     this->PlaneMapper->SetInputConnection( this->PlaneSource->GetOutputPort() );
     this->PlaneActor->GetProperty()->SetRepresentationToWireframe();
-    }
+  }
 }
 
 // Description:
@@ -1687,9 +1687,9 @@ vtkPolyDataAlgorithm *vtkPlaneWidget::GetPolyDataAlgorithm()
 void vtkPlaneWidget::GetPlane(vtkPlane *plane)
 {
   if ( plane == NULL )
-    {
+  {
     return;
-    }
+  }
 
   plane->SetNormal(this->GetNormal());
   plane->SetOrigin(this->GetCenter());

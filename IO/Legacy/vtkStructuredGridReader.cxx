@@ -75,64 +75,64 @@ int vtkStructuredGridReader::ReadMetaData(vtkInformation *outInfo)
   char line[256];
 
   if (!this->OpenVTKFile() || !this->ReadHeader())
-    {
+  {
     return 1;
-    }
+  }
 
   // Read structured grid specific stuff
   //
   if (!this->ReadString(line))
-    {
+  {
     vtkErrorMacro(<<"Data file ends prematurely!");
     this->CloseVTKFile ();
     return 1;
-    }
+  }
 
   if ( !strncmp(this->LowerCase(line),"dataset",(unsigned long)7) )
-    {
+  {
     // Make sure we're reading right type of geometry
     //
     if (!this->ReadString(line))
-      {
+    {
       vtkErrorMacro(<<"Data file ends prematurely!");
       this->CloseVTKFile ();
       return 1;
-      }
+    }
 
     if ( strncmp(this->LowerCase(line),"structured_grid",15) )
-      {
+    {
       vtkErrorMacro(<< "Cannot read dataset type: " << line);
       this->CloseVTKFile ();
       return 1;
-      }
+    }
 
     // Read keyword and dimensions
     //
     while (true)
-      {
+    {
       if (!this->ReadString(line))
-        {
+      {
         break;
-        }
+      }
 
       // Have to read field data because it may be binary.
       if (! strncmp(this->LowerCase(line), "field", 5))
-        {
+      {
         vtkFieldData* fd = this->ReadFieldData();
         fd->Delete();
-        }
+      }
 
       if ( ! strncmp(this->LowerCase(line),"dimensions",10) )
-        {
+      {
         int ext[6];
         if (!(this->Read(ext+1) &&
               this->Read(ext+3) &&
               this->Read(ext+5)))
-          {
+        {
           vtkErrorMacro(<<"Error reading dimensions!");
           this->CloseVTKFile ();
           return 1;
-          }
+        }
         // read dimensions, change to extent;
         ext[0] = ext[2] = ext[4] = 0;
         --ext[1];
@@ -143,9 +143,9 @@ int vtkStructuredGridReader::ReadMetaData(vtkInformation *outInfo)
         // That is all we wanted !!!!!!!!!!!!!!!
         this->CloseVTKFile();
         return 1;
-        }
       }
     }
+  }
 
   vtkErrorMacro("Could not read dimensions");
   this->CloseVTKFile ();
@@ -169,201 +169,201 @@ int vtkStructuredGridReader::RequestData(
   vtkDebugMacro(<<"Reading vtk structured grid file...");
 
   if (!this->OpenVTKFile() || !this->ReadHeader())
-    {
+  {
     return 1;
-    }
+  }
 
   // Read structured grid specific stuff
   //
   if (!this->ReadString(line))
-    {
+  {
     vtkErrorMacro(<<"Data file ends prematurely!");
     this->CloseVTKFile ();
     return 1;
-    }
+  }
 
   if ( !strncmp(this->LowerCase(line),"dataset",(unsigned long)7) )
-    {
+  {
     // Make sure we're reading right type of geometry
     //
     if (!this->ReadString(line))
-      {
+    {
       vtkErrorMacro(<<"Data file ends prematurely!");
       this->CloseVTKFile ();
       return 1;
-      }
+    }
 
     if ( strncmp(this->LowerCase(line),"structured_grid",15) )
-      {
+    {
       vtkErrorMacro(<< "Cannot read dataset type: " << line);
       this->CloseVTKFile ();
       return 1;
-      }
+    }
 
     // Read keyword and number of points
     //
     while (true)
-      {
+    {
       if (!this->ReadString(line))
-        {
+      {
         break;
-        }
+      }
 
       if (! strncmp(this->LowerCase(line), "field", 5))
-        {
+      {
         vtkFieldData* fd = this->ReadFieldData();
         output->SetFieldData(fd);
         fd->Delete(); // ?
-        }
+      }
       else if ( ! strncmp(line, "dimensions",10) )
-        {
+      {
         int dim[3];
         if (!(this->Read(dim) &&
               this->Read(dim+1) &&
               this->Read(dim+2)))
-          {
+        {
           vtkErrorMacro(<<"Error reading dimensions!");
           this->CloseVTKFile ();
           return 1;
-          }
+        }
 
         numPts = dim[0] * dim[1] * dim[2];
         output->SetDimensions(dim);
         numCells = output->GetNumberOfCells();
         dimsRead = 1;
-        }
+      }
 
       else if ( this->FileMajorVersion < 4 && ! strncmp(line,"blanking",8) )
-        {
+      {
         if (!this->Read(&npts))
-          {
+        {
           vtkErrorMacro(<<"Error reading blanking!");
           this->CloseVTKFile ();
           return 1;
-          }
+        }
 
         if (!this->ReadString(line))
-          {
+        {
           vtkErrorMacro(<<"Cannot read blank type!" );
           this->CloseVTKFile ();
           return 1;
-          }
+        }
 
         vtkUnsignedCharArray *data = vtkArrayDownCast<vtkUnsignedCharArray>(
                                         this->ReadArray(line, numPts, 1));
 
         if ( data != NULL )
-          {
+        {
           vtkUnsignedCharArray *ghosts = vtkUnsignedCharArray::New();
           ghosts->SetNumberOfValues(numPts);
           ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
           for(vtkIdType ptId = 0; ptId < numPts; ++ptId)
-            {
+          {
             unsigned char value = 0;
             if(data->GetValue(ptId) == 0)
-              {
+            {
               value |= vtkDataSetAttributes::HIDDENPOINT;
-              }
-            ghosts->SetValue(ptId, value);
             }
+            ghosts->SetValue(ptId, value);
+          }
           output->GetPointData()->AddArray(ghosts);
           ghosts->Delete();
           data->Delete();
-          }
         }
+      }
 
       else if ( ! strncmp(line,"points",6) )
-        {
+      {
         if (!this->Read(&npts))
-          {
+        {
           vtkErrorMacro(<<"Error reading points!");
           this->CloseVTKFile ();
           return 1;
-          }
-
-        this->ReadPoints(output, npts);
         }
 
+        this->ReadPoints(output, npts);
+      }
+
       else if ( ! strncmp(line, "cell_data", 9) )
-        {
+      {
         if (!this->Read(&ncells))
-          {
+        {
           vtkErrorMacro(<<"Cannot read cell data!");
           this->CloseVTKFile ();
           return 1;
-          }
+        }
 
         if ( ncells != numCells )
-          {
+        {
           vtkErrorMacro(<<"Number of cells don't match!");
           this->CloseVTKFile ();
           return 1;
-          }
+        }
 
         this->ReadCellData(output, ncells);
         break; //out of this loop
-        }
+      }
 
       else if ( ! strncmp(line, "point_data", 10) )
-        {
+      {
         if (!this->Read(&numPts))
-          {
+        {
           vtkErrorMacro(<<"Cannot read point data!");
           this->CloseVTKFile ();
           return 1;
-          }
+        }
 
         if ( npts != numPts )
-          {
+        {
           vtkErrorMacro(<<"Number of points don't match!");
           this->CloseVTKFile ();
           return 1;
-          }
+        }
 
         this->ReadPointData(output, npts);
         break; //out of this loop
-        }
+      }
 
       else
-        {
+      {
         vtkErrorMacro(<< "Unrecognized keyword: " << line);
         this->CloseVTKFile ();
         return 1;
-        }
       }
+    }
 
       if ( !dimsRead ) vtkWarningMacro(<<"No dimensions read.");
       if ( !output->GetPoints() ) vtkWarningMacro(<<"No points read.");
-    }
+  }
 
   else if ( !strncmp(line, "cell_data", 9) )
-    {
+  {
     vtkWarningMacro(<<"No geometry defined in data file!");
     if (!this->Read(&ncells))
-      {
+    {
       vtkErrorMacro(<<"Cannot read cell data!");
       this->CloseVTKFile ();
       return 1;
-      }
-    this->ReadCellData(output, ncells);
     }
+    this->ReadCellData(output, ncells);
+  }
 
   else if ( !strncmp(line, "point_data", 10) )
-    {
+  {
     vtkWarningMacro(<<"No geometry defined in data file!");
     if (!this->Read(&npts))
-      {
+    {
       vtkErrorMacro(<<"Cannot read point data!");
       this->CloseVTKFile ();
       return 1;
-      }
-    this->ReadPointData(output, npts);
     }
+    this->ReadPointData(output, npts);
+  }
 
   else
-    {
+  {
     vtkErrorMacro(<< "Unrecognized keyword: " << line);
-    }
+  }
   this->CloseVTKFile ();
 
   return 1;

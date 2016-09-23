@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkReebGraphSimplificationFilter - simplify an input Reeb graph.
-// .SECTION Description
-// The filter takes an input vtkReebGraph object and outputs a
-// vtkReebGraph object.
+/**
+ * @class   vtkReebGraphSimplificationFilter
+ * @brief   simplify an input Reeb graph.
+ *
+ * The filter takes an input vtkReebGraph object and outputs a
+ * vtkReebGraph object.
+*/
 
 #ifndef vtkReebGraphSimplificationFilter_h
 #define vtkReebGraphSimplificationFilter_h
@@ -34,15 +37,19 @@ public:
   vtkTypeMacro(vtkReebGraphSimplificationFilter, vtkDirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the persistence threshold for simplification (from 0 to 1).
-  // Default value: 0 (no simplification).
+  //@{
+  /**
+   * Set the persistence threshold for simplification (from 0 to 1).
+   * Default value: 0 (no simplification).
+   */
   vtkSetMacro(SimplificationThreshold, double);
   vtkGetMacro(SimplificationThreshold, double);
+  //@}
 
-  // Description:
-  // Set the persistence metric evaluation code
-  // Default value: NULL (standard topological persistence).
+  /**
+   * Set the persistence metric evaluation code
+   * Default value: NULL (standard topological persistence).
+   */
   void SetSimplificationMetric(vtkReebGraphSimplificationMetric *metric);
 
   vtkReebGraph* GetOutput();

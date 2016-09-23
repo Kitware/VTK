@@ -82,15 +82,15 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   int nVariables = 0;
   std::map<int,bool> isVariableAString;
   if ( ! args->skipInt )
-    {
+  {
     isVariableAString[nVariables] = false;
     ++ nVariables;
-    }
+  }
   if ( ! args->skipString )
-    {
+  {
     isVariableAString[nVariables] = true;
     ++ nVariables;
-    }
+  }
 
   // Prepare column of integers
   vtkIntArray* intArray = vtkIntArray::New();
@@ -112,75 +112,75 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Store first integer value
   if ( ! args->skipInt )
-    {
+  {
     v[idx] = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
     intArray->InsertNextValue( v[idx] );
     ++ idx;
-    }
+  }
 
   // Store first string value
   if ( ! args->skipString )
-    {
+  {
     v[idx] = 96 + vtkMath::Ceil( vtkMath::Random() * 26 );
     char c = static_cast<char>( v[idx] );
     vtkStdString s( &c, 1 );
     strArray->InsertNextValue( s );
-    }
+  }
 
   // Initialize local extrema
   for ( int i = 0; i < nVariables; ++ i )
-    {
+  {
     min_l[i] = v[i];
     max_l[i] = v[i];
-    }
+  }
 
   // Continue up to nVals values have been generated
   for ( int r = 1; r < args->nVals; ++ r )
-    {
+  {
     // Initial current variable index
     idx = 0;
 
     // Store current integer value
     if ( ! args->skipInt )
-      {
+    {
       v[idx] = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
       intArray->InsertNextValue( v[idx] );
       ++ idx;
-      }
+    }
 
     // Store current string value
     if ( ! args->skipString )
-      {
+    {
       v[idx] = 96 + vtkMath::Ceil( vtkMath::Random() * 26 );
       char c = static_cast<char>( v[idx] );
       vtkStdString s( &c, 1 );
       strArray->InsertNextValue( s );
-      }
+    }
 
     // Update local extrema
     for ( int i = 0; i < nVariables; ++ i )
-      {
+    {
       if ( v[i] < min_l[i] )
-        {
+      {
         min_l[i] = v[i];
-        }
+      }
       else if ( v[i] > max_l[i] )
-        {
+      {
         max_l[i] = v[i];
-        }
-      } // i
-    } // r
+      }
+    } // i
+  } // r
 
   // Create input table
   vtkTable* inputData = vtkTable::New();
   if ( ! args->skipInt )
-    {
+  {
     inputData->AddColumn( intArray );
-    }
+  }
   if ( ! args->skipString )
-    {
+  {
     inputData->AddColumn( strArray );
-    }
+  }
 
   // Storage for global extrema
   int* min_g = new int[nVariables];
@@ -198,28 +198,28 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
                   vtkCommunicator::MAX_OP );
 
   if ( myRank == args->ioRank )
-    {
+  {
     cout << "\n## Generated pseudo-random samples with following ranges:\n";
     for ( int i = 0; i < nVariables; ++ i )
-      {
+    {
       cout << "   "
            << columnNames[i]
            << ": ";
       if ( isVariableAString[i] )
-        {
+      {
         cout << static_cast<char>( min_g[i] )
              << " to "
              << static_cast<char>( max_g[i] );
-        }
+      }
       else
-        {
+      {
         cout <<  min_g[i]
              << " to "
              << max_g[i];
-        }
+      }
       cout << "\n";
-      } // i
-    } // if ( myRank == args->ioRank )
+    } // i
+  } // if ( myRank == args->ioRank )
 
   // Clean up
   delete [] v;
@@ -243,13 +243,13 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Select columns of interest depending on command line choices
   if ( ! args->skipInt )
-    {
+  {
     pos->AddColumn( columnNames[0] );
-    }
+  }
   if ( ! args->skipString )
-    {
+  {
     pos->AddColumn( columnNames[1] );
-    }
+  }
 
   // Test (in parallel) with Learn, Derive, and Assess options turned on
   pos->SetLearnOption( true );
@@ -265,31 +265,31 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   timer->StopTimer();
 
   if ( myRank == args->ioRank )
-    {
+  {
     cout << "\n## Completed parallel calculation of order statistics (with assessment):\n"
          << "   Wall time: "
          << timer->GetElapsedTime()
          << " sec.\n";
-    }
+  }
 
   // If no variables were requested, terminate here (only made sure that empty input worked)
   if ( ! nVariables )
-    {
+  {
     pos->Delete();
     inputData->Delete();
     timer->Delete();
 
     return;
-    }
+  }
 
   // Now perform verifications
   vtkTable* outputCard = vtkTable::SafeDownCast( outputModelDS->GetBlock( nVariables ) );
 
   // Verify that all processes have the same grand total and histograms size
   if ( myRank == args->ioRank )
-    {
+  {
     cout << "\n## Verifying that all processes have the same grand total and histograms size.\n";
-    }
+  }
 
   // Gather all cardinalities
   int numProcs = controller->GetNumberOfProcesses();
@@ -302,20 +302,20 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Verify histogram cardinalities for each variable
   for ( int i = 0; i < nVariables; ++ i )
-    {
+  {
     if ( myRank == args->ioRank )
-      {
+    {
       cout << "   "
            << columnNames[i]
            << ":\n";
-      }  // if ( myRank == args->ioRank )
+    }  // if ( myRank == args->ioRank )
 
     vtkTable* outputHistogram = vtkTable::SafeDownCast( outputModelDS->GetBlock( i ) );
     // Print out and verify all cardinalities
     if ( myRank == args->ioRank )
-      {
+    {
       for ( int p = 0; p < numProcs; ++ p )
-        {
+      {
         cout << "     On process "
              << p
              << ", cardinality = "
@@ -325,25 +325,25 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
              << "\n";
 
         if ( card_g[p] != testIntValue )
-          {
+        {
           vtkGenericWarningMacro("Incorrect cardinality:"
                                  << card_g[p]
                                  << " <> "
                                  << testIntValue
                                  << ")");
           *(args->retVal) = 1;
-          }
-        } // p
-      } // if ( myRank == args->ioRank )
-    } // i
+        }
+      } // p
+    } // if ( myRank == args->ioRank )
+  } // i
 
   // Print out and verify global extrema
   vtkTable* outputQuantiles = vtkTable::SafeDownCast( outputModelDS->GetBlock( nVariables + 1 ) );
   if ( myRank == args->ioRank )
-    {
+  {
     cout << "\n## Verifying that calculated global ranges are correct:\n";
     for ( int i = 0; i < nVariables; ++ i )
-      {
+    {
       vtkVariant min_c = outputQuantiles->GetValue( 0,
                                                     i + 1 );
 
@@ -361,10 +361,10 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
 
       // Check minimum
       if ( min_c.IsString() )
-        {
+      {
         char c = static_cast<char>( min_g[i] );
         if ( min_c.ToString() != vtkStdString( &c, 1 ) )
-          {
+        {
           vtkGenericWarningMacro("Incorrect calculated minimum for variable "
                                  << columnNames[i]
                                  << ": "
@@ -372,12 +372,12 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
                                  << " <> "
                                  << vtkStdString( &c, 1 ) );
           *(args->retVal) = 1;
-          }
-        } // if ( min_c.IsString() )
+        }
+      } // if ( min_c.IsString() )
       else
-        {
+      {
         if ( min_c != min_g[i] )
-          {
+        {
           vtkGenericWarningMacro("Incorrect calculated minimum for variable "
                                  << columnNames[i]
                                  << ": "
@@ -385,15 +385,15 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
                                  << " <> "
                                  << min_g[i]);
           *(args->retVal) = 1;
-          }
-        } // else
+        }
+      } // else
 
       // Check maximum
       if ( max_c.IsString() )
-        {
+      {
         char c = static_cast<char>( max_g[i] );
         if ( max_c.ToString() != vtkStdString( &c, 1 ) )
-          {
+        {
           vtkGenericWarningMacro("Incorrect calculated maximum for variable "
                                  << columnNames[i]
                                  << ": "
@@ -401,12 +401,12 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
                                  << " <> "
                                  << vtkStdString( &c, 1 ) );
           *(args->retVal) = 1;
-          }
         }
+      }
       else
-        {
+      {
         if ( max_c != max_g[i] )
-          {
+        {
           vtkGenericWarningMacro("Incorrect calculated maximum for variable "
                                  << columnNames[i]
                                  << ": "
@@ -414,10 +414,10 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
                                  << " <> "
                                  << max_g[i]);
           *(args->retVal) = 1;
-          } //  ( max_c.IsString() )
-        } // else
-      } // i
-    } // if ( myRank == args->ioRank )
+        } //  ( max_c.IsString() )
+      } // else
+    } // i
+  } // if ( myRank == args->ioRank )
 
   // Clean up
   delete [] card_g;
@@ -439,11 +439,11 @@ int TestRandomPOrderStatisticsMPI( int argc, char* argv[] )
 
   // If an MPI controller was not created, terminate in error.
   if ( ! controller->IsA( "vtkMPIController" ) )
-    {
+  {
     vtkGenericWarningMacro("Failed to initialize a MPI controller.");
     controller->Delete();
     return 1;
-    }
+  }
 
   vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast( controller->GetCommunicator() );
 
@@ -458,7 +458,7 @@ int TestRandomPOrderStatisticsMPI( int argc, char* argv[] )
                 &flag );
 
   if ( ( ! flag ) || ( *ioPtr == MPI_PROC_NULL ) )
-    {
+  {
     // Getting MPI attributes did not return any I/O node found.
     ioRank = MPI_PROC_NULL;
     vtkGenericWarningMacro("No MPI I/O nodes found.");
@@ -469,23 +469,23 @@ int TestRandomPOrderStatisticsMPI( int argc, char* argv[] )
     controller->Delete();
 
     return -1;
-    }
+  }
   else
-    {
+  {
     if ( *ioPtr == MPI_ANY_SOURCE )
-      {
+    {
       // Anyone can do the I/O trick--just pick node 0.
       ioRank = 0;
-      }
+    }
     else
-      {
+    {
       // Only some nodes can do I/O. Make sure everyone agrees on the choice (min).
       com->AllReduce( ioPtr,
                       &ioRank,
                       1,
                       vtkCommunicator::MIN_OP );
-      }
     }
+  }
 
   // **************************** Parse command line ***************************
   // Set default argument values
@@ -534,27 +534,27 @@ int TestRandomPOrderStatisticsMPI( int argc, char* argv[] )
 
   // If incorrect arguments were provided, provide some help and terminate in error.
   if ( ! clArgs.Parse() )
-    {
+  {
     if ( com->GetLocalProcessId() == ioRank )
-      {
+    {
       cerr << "Usage: "
            << clArgs.GetHelp()
            << "\n";
-      }
+    }
 
     controller->Finalize();
     controller->Delete();
 
     return 1;
-    }
+  }
 
   // ************************** Initialize test *********************************
   if ( com->GetLocalProcessId() == ioRank )
-    {
+  {
     cout << "\n# Process "
          << ioRank
          << " will be the I/O node.\n";
-    }
+  }
 
 
   // Parameters for regression test.
@@ -572,13 +572,13 @@ int TestRandomPOrderStatisticsMPI( int argc, char* argv[] )
   // Check how many processes have been made available
   int numProcs = controller->GetNumberOfProcesses();
   if ( controller->GetLocalProcessId() == ioRank )
-    {
+  {
     cout << "\n# Running test with "
          << numProcs
          << " processes and standard deviation = "
          << args.stdev
          << " for rounded Gaussian variable.\n";
-    }
+  }
 
   // Execute the function named "process" on both processes
   controller->SetSingleMethod( RandomOrderStatistics, &args );
@@ -586,9 +586,9 @@ int TestRandomPOrderStatisticsMPI( int argc, char* argv[] )
 
   // Clean up and exit
   if ( com->GetLocalProcessId() == ioRank )
-    {
+  {
     cout << "\n# Test completed.\n\n";
-    }
+  }
 
   controller->Finalize();
   controller->Delete();

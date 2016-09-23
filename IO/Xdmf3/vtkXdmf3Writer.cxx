@@ -66,77 +66,77 @@ public:
     const char* name = 0)
   {
     if (!dataSet)
-      {
+    {
       return;
-      }
+    }
     switch (dataSet->GetDataObjectType())
-      {
+    {
       case VTK_MULTIBLOCK_DATA_SET:
-        {
+      {
         shared_ptr<XdmfGridCollection> group = XdmfGridCollection::New();
         this->Destination->insert(group);
         this->DestinationGroups.push(group);
         this->Destination = this->DestinationGroups.top();
         vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(dataSet);
         for (unsigned int i = 0; i< mbds->GetNumberOfBlocks(); i++)
-          {
+        {
           vtkDataObject *next = mbds->GetBlock(i);
           const char* blockName = mbds->GetMetaData(i)->Get(vtkCompositeDataSet::NAME());
           this->WriteDataObject(next, hasTime, time, blockName);
-          }
+        }
         this->DestinationGroups.pop();
         this->Destination = this->DestinationGroups.top();
         break;
-        }
+      }
       case VTK_STRUCTURED_POINTS:
       case VTK_IMAGE_DATA:
       case VTK_UNIFORM_GRID:
-        {
+      {
         vtkXdmf3DataSet::VTKToXdmf(
           vtkImageData::SafeDownCast(dataSet),
           this->Destination.get(),
           hasTime, time, name);
         break;
-        }
+      }
       case VTK_RECTILINEAR_GRID:
-        {
+      {
         vtkXdmf3DataSet::VTKToXdmf(
           vtkRectilinearGrid::SafeDownCast(dataSet),
           this->Destination.get(),
           hasTime, time, name);
         break;
-        }
+      }
       case VTK_STRUCTURED_GRID:
-        {
+      {
         vtkXdmf3DataSet::VTKToXdmf(
           vtkStructuredGrid::SafeDownCast(dataSet),
           this->Destination.get(),
           hasTime, time, name);
         break;
-        }
+      }
       case VTK_POLY_DATA:
       case VTK_UNSTRUCTURED_GRID:
-        {
+      {
         vtkXdmf3DataSet::VTKToXdmf(
           vtkPointSet::SafeDownCast(dataSet),
           this->Destination.get(),
           hasTime, time, name);
         break;
-        }
+      }
       //case VTK_GRAPH:
       case VTK_DIRECTED_GRAPH:
       //case VTK_UNDIRECTED_GRAPH:
-        {
+      {
         vtkXdmf3DataSet::VTKToXdmf(
           vtkDirectedGraph::SafeDownCast(dataSet),
           this->Destination.get(),
           hasTime, time, name);
         break;
-        }
-      default:
-        {
-        }
       }
+      default:
+      {
+      }
+    }
 
     this->Domain->accept(this->Writer);
   }
@@ -193,10 +193,10 @@ int vtkXdmf3Writer::Write()
 {
   // Make sure we have input.
   if (this->GetNumberOfInputConnections(0) < 1)
-    {
+  {
     vtkErrorMacro("No input provided!");
     return 0;
-    }
+  }
 
   // always write even if the data hasn't changed
   this->Modified();
@@ -226,14 +226,14 @@ int vtkXdmf3Writer::RequestInformation(
   // Does the input have timesteps?
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   if ( inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()) )
-    {
+  {
     this->Internal->NumberOfTimeSteps =
       inInfo->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
-    }
+  }
   else
-    {
+  {
     this->Internal->NumberOfTimeSteps = 1;
-    }
+  }
   //cerr << "WRITER NUM TS = " << this->Internal->NumberOfTimeSteps << endl;
 
   return 1;
@@ -248,7 +248,7 @@ int vtkXdmf3Writer::RequestUpdateExtent(
   double *inTimes = inputVector[0]->GetInformationObject(0)->Get(
       vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   if (inTimes && this->WriteAllTimeSteps)
-    {
+  {
     //TODO:? Add a user ivar to specify a particular time,
     //which is different from current time. Can do it by updating
     //to a particular time then writing without writealltimesteps,
@@ -257,7 +257,7 @@ int vtkXdmf3Writer::RequestUpdateExtent(
     inputVector[0]->GetInformationObject(0)->Set(
         vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
         timeReq);
-    }
+  }
 
   return 1;
 }
@@ -269,21 +269,21 @@ int vtkXdmf3Writer::RequestData(
   vtkInformationVector* vtkNotUsed(outputVector))
 {
   if (!this->Internal->Domain)
-    {
+  {
     //call Write() instead of RD() directly. Write() does setup first before it calls RD().
     return 1;
-    }
+  }
 
   this->Internal->Writer->setLightDataLimit(this->LightDataLimit);
 
   if (this->Internal->CurrentTimeIndex == 0 &&
       this->WriteAllTimeSteps &&
       this->Internal->NumberOfTimeSteps > 1)
-    {
+  {
     // Tell the pipeline to start looping.
     this->Internal->SwitchToTemporal();
     request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
-    }
+  }
 
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
@@ -291,20 +291,20 @@ int vtkXdmf3Writer::RequestData(
   double dataT = 0;
   bool hasTime = false;
   if (inDataInfo->Has(vtkDataObject::DATA_TIME_STEP()))
-    {
+  {
     dataT = input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
     hasTime = true;
-    }
+  }
   this->Internal->WriteDataObject(input, hasTime, dataT);
 
   this->Internal->CurrentTimeIndex++;
   if (this->Internal->CurrentTimeIndex >= this->Internal->NumberOfTimeSteps &&
       this->WriteAllTimeSteps)
-    {
+  {
     // Tell the pipeline to stop looping.
     request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
     this->Internal->CurrentTimeIndex = 0;
-    }
+  }
 
   return 1;
 }

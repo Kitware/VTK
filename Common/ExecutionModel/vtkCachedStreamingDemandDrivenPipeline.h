@@ -12,9 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCachedStreamingDemandDrivenPipeline -
-// .SECTION Description
-// vtkCachedStreamingDemandDrivenPipeline
+/**
+ * @class   vtkCachedStreamingDemandDrivenPipeline
+ *
+ * vtkCachedStreamingDemandDrivenPipeline
+*/
 
 #ifndef vtkCachedStreamingDemandDrivenPipeline_h
 #define vtkCachedStreamingDemandDrivenPipeline_h
@@ -34,11 +36,14 @@ public:
                        vtkStreamingDemandDrivenPipeline);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // This is the maximum number of images that can be retained in memory.
-  // it defaults to 10.
+  //@{
+  /**
+   * This is the maximum number of images that can be retained in memory.
+   * it defaults to 10.
+   */
   void SetCacheSize(int size);
   vtkGetMacro(CacheSize, int);
+  //@}
 
 protected:
   vtkCachedStreamingDemandDrivenPipeline();

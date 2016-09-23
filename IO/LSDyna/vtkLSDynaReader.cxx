@@ -160,12 +160,12 @@ static void vtkLSGetLine( ifstream& deck, std::string& line )
   int linechar;
   line = "";
   while ( deck.good() )
-    {
+  {
     linechar = deck.get();
     if ( linechar == '\r' || linechar == '\n' )
       return;
     line += linechar;
-    }
+  }
 #endif
 }
 
@@ -177,13 +177,13 @@ static void vtkLSGetLine( ifstream& deck, std::string& line )
 static int vtkLSNextSignificantLine( ifstream& deck, std::string& line )
 {
   while ( deck.good() )
-    {
+  {
     vtkLSGetLine( deck, line );
     if ( ! line.empty() && line[0] != '$' )
-      {
+    {
       return 1;
-      }
     }
+  }
   return 0;
 }
 
@@ -195,17 +195,17 @@ static void vtkLSTrimWhitespace( std::string& line )
       line[llen - 1] == '\t' ||
       line[llen - 1] == '\r' ||
       line[llen - 1] == '\n' ) )
-    {
+  {
     --llen;
-    }
+  }
 
   std::string::size_type nameStart = 0;
   while ( nameStart < llen &&
     ( line[nameStart] == ' ' ||
       line[nameStart] == '\t' ) )
-    {
+  {
     ++nameStart;
-    }
+  }
 
   line = line.substr( nameStart, llen - nameStart );
 }
@@ -217,25 +217,25 @@ static void vtkLSDowncaseFirstWord( std::string& downcased, const std::string& l
   int leadingSpace = 0;
   downcased = "";
   for ( i = 0; i < line.length(); ++i )
-    {
+  {
     chr = tolower( line[i] );
     if ( chr == ' ' || chr == '\t' )
-      {
+    {
       if ( leadingSpace )
-        { // We've trimmed leading whitespace already, so we're done with the word.
+      { // We've trimmed leading whitespace already, so we're done with the word.
         return;
-        }
       }
+    }
     else
-      {
+    {
       leadingSpace = 1;
       if ( chr == ',' )
-        { // We're at a separator (other than whitespace). No need to continue.
+      { // We're at a separator (other than whitespace). No need to continue.
         return;
-        }
       }
-    downcased += chr;
     }
+    downcased += chr;
+  }
 }
 
 void vtkLSSplitString( std::string& input, std::vector<std::string>& splits, const char* separators )
@@ -245,65 +245,65 @@ void vtkLSSplitString( std::string& input, std::vector<std::string>& splits, con
   do {
     posEnd = input.find_first_of( separators, posBeg );
     if ( posEnd > posBeg )
-      {
+    {
       // don't include empty entries in splits.
       // NOTE: This means ",comp,1, ,3" with separators ", " yields "comp","1","3", not "","comp","1","","","3".
       splits.push_back( input.substr( posBeg, posEnd - posBeg ) );
-      }
+    }
     posBeg = input.find_first_not_of( separators, posEnd );
   } while ( posBeg != std::string::npos );
 }
 
 template<int hostBitSize, int fileBitSize, int cellLength> struct Converter
-  {
+{
   //general use case that the host
   //bit size and file bit size are the same
   vtkIdType* convert(vtkIdType* buff, const vtkIdType&)
-    {
+  {
     return buff;
-    }
-  };
+  }
+};
 
 template<int cellLength> struct Converter<8,4,cellLength>
-  {
+{
   //specilization of 64bit machine and 32bit file
   //so we have to copy each item individually
   vtkIdType* convert(int* buff, const vtkIdType& size)
-    {
+  {
     for(vtkIdType i=0;i<size;++i)
-      {
+    {
       this->Conn[i]=static_cast<vtkIdType>(buff[i]);
-      }
-    return Conn;
     }
+    return Conn;
+  }
   vtkIdType Conn[cellLength];
-  };
+};
 
 template<int cellLength> struct Converter<4,8,cellLength>
-  {
+{
   //specilization for reading 64 bit files on a 32 bit machine
   //which means reading the bottom half of the long long
   vtkIdType* convert(int* buff, const vtkIdType& size)
-    {
+  {
     vtkIdType idx=0;
     for(vtkIdType i=0;i<size;i+=2,++idx)
-      {
+    {
       this->Conn[idx]=static_cast<vtkIdType>(buff[i]);
-      }
-    return Conn;
     }
+    return Conn;
+  }
   vtkIdType Conn[cellLength];
-  };
+};
 
 template<int type,int wordSize,int cellLength>
   struct FillBlock
-  {
+{
   Converter<sizeof(vtkIdType),wordSize,cellLength> BC;
 
   template<typename T>
   FillBlock(T* buff, vtkLSDynaPartCollection *parts,LSDynaMetaData *p,
     const vtkIdType& numWordsPerCell, const int& cellType)
-    {
+  {
     //determine the relationship between the file bit size and
     //the host machine bit size. This allows us to read 64 bit files on a
     //32 bit machine. The Converter allows us to easily convert 32bit
@@ -325,31 +325,31 @@ template<int type,int wordSize,int cellLength>
     //buffer the amount in small chunks so we don't create a massive buffer
     vtkIdType numChunks = p->Fam.InitPartialChunkBuffering(nc,numWordsPerCell);
     for(vtkIdType i=0; i < numChunks; ++i)
-      {
+    {
       chunkSize = p->Fam.GetNextChunk( LSDynaFamily::Int);
       buff = p->Fam.GetBufferAs<T>();
       for (j=0; j<chunkSize;j+=numWordsPerCell)
-        {
+      {
         conn = BC.convert(buff,offsetToMatId);
         buff+=offsetToMatId;
         matlId = static_cast<vtkIdType>(*buff);
         buff+=numWordsPerIdType;
         parts->InsertCell(type,matlId,cellType,cellLength,conn);
-        }
       }
-    p->Fam.SkipWords(numFileWordsPerCell * numCellsToSkipEnd);
     }
-  };
+    p->Fam.SkipWords(numFileWordsPerCell * numCellsToSkipEnd);
+  }
+};
 
 template<int wordSize,int cellLength>
   struct FillBlock<LSDynaMetaData::SOLID,wordSize,cellLength>
-  {
+{
   Converter<sizeof(vtkIdType),wordSize,cellLength> BC;
 
   template<typename T>
   FillBlock(T* buff, vtkLSDynaPartCollection *parts,LSDynaMetaData *p,
     const vtkIdType& numWordsPerCell, const int& vtkNotUsed(cellType) )
-    {
+  {
     //determine the relationship between the file bit size and
     //the host machine bit size. This allows us to read 64 bit files on a
     //32 bit machine. The Converter allows us to easily convert 32bit
@@ -374,11 +374,11 @@ template<int wordSize,int cellLength>
     vtkIdType npts = 0;
     int ctype = 0;
     for(vtkIdType i=0; i < numChunks; ++i)
-      {
+    {
       chunkSize = p->Fam.GetNextChunk( LSDynaFamily::Int);
       buff = p->Fam.GetBufferAs<T>();
       for (j=0; j<chunkSize;j+=numWordsPerCell)
-        {
+      {
         conn = BC.convert(buff,offsetToMatId);
         buff+=offsetToMatId;
         matlId = static_cast<vtkIdType>(*buff);
@@ -386,43 +386,43 @@ template<int wordSize,int cellLength>
 
         //Detect repeated connectivity entries to determine element type
         if (conn[3] == conn[7])
-          {
+        {
           ctype = VTK_TETRA;
           npts = 4;
-          }
+        }
         else if (conn[4] == conn[7])
-          {
+        {
           ctype = VTK_PYRAMID;
           npts = 5;
-          }
+        }
         else if (conn[5] == conn[7])
-          {
+        {
           ctype = VTK_WEDGE;
           npts = 6;
-          }
+        }
         else
-          {
+        {
           ctype = VTK_HEXAHEDRON;
           npts = 8;
-          }
+        }
 
         //push this cell back into the unstructured grid for this part(if the part is active)
         parts->InsertCell(LSDynaMetaData::SOLID,matlId,ctype,npts,conn);
-        }
       }
-    p->Fam.SkipWords(numFileWordsPerCell * numCellsToSkipEnd);
     }
-  };
+    p->Fam.SkipWords(numFileWordsPerCell * numCellsToSkipEnd);
+  }
+};
 
 template<int wordSize,int cellLength>
   struct FillBlock<LSDynaMetaData::SHELL,wordSize,cellLength>
-  {
+{
   Converter<sizeof(vtkIdType),wordSize,cellLength> BC;
 
   template<typename T>
   FillBlock(T* buff, vtkLSDynaPartCollection *parts,LSDynaMetaData *p,
     const vtkIdType& numWordsPerCell, const int& cellType)
-    {
+  {
     //determine the relationship between the file bit size and
     //the host machine bit size. This allows us to read 64 bit files on a
     //32 bit machine. The Converter allows us to easily convert 32bit
@@ -449,11 +449,11 @@ template<int wordSize,int cellLength>
     vtkIdType numChunks = p->Fam.InitPartialChunkBuffering(nc,numWordsPerCell);
     int pType = 0;
     for(vtkIdType i=0; i < numChunks; ++i)
-      {
+    {
       chunkSize = p->Fam.GetNextChunk( LSDynaFamily::Int);
       buff = p->Fam.GetBufferAs<T>();
       for (j=0; j<chunkSize;j+=numWordsPerCell)
-        {
+      {
         conn = BC.convert(buff,offsetToMatId);
         buff+=offsetToMatId;
         matlId = static_cast<vtkIdType>(*buff);
@@ -461,27 +461,27 @@ template<int wordSize,int cellLength>
 
         if ( haveRigidMaterials &&
           p->RigidMaterials.find( matlId ) == p->RigidMaterials.end())
-          {
+        {
           pType = LSDynaMetaData::RIGID_BODY;
-          }
-        else
-          {
-          pType = LSDynaMetaData::SHELL;
-          }
-        parts->InsertCell(pType,matlId,cellType,cellLength,conn);
         }
+        else
+        {
+          pType = LSDynaMetaData::SHELL;
+        }
+        parts->InsertCell(pType,matlId,cellType,cellLength,conn);
       }
-    p->Fam.SkipWords(numFileWordsPerCell * numCellsToSkipEnd);
     }
-  };
+    p->Fam.SkipWords(numFileWordsPerCell * numCellsToSkipEnd);
+  }
+};
 
 template<int wordSize,int cellLength>
   struct FillBlock<LSDynaMetaData::ROAD_SURFACE,wordSize,cellLength>
-  {
+{
   template<typename T>
   FillBlock(T*, vtkLSDynaPartCollection *parts,LSDynaMetaData *p,
     const vtkIdType&, const int& cellType)
-    {
+  {
     //This is a ROAD_SURFACE specialization
     //has a weird weaving of cell types
     vtkIdType nc=0,segId=0,segSz=0;
@@ -497,25 +497,25 @@ template<int wordSize,int cellLength>
     vtkIdType currentCell=0;
     vtkIdType conn[4];
     for (vtkIdType i=0; i<p->Dict["NSURF"]; ++i)
-      {
+    {
       p->Fam.BufferChunk( LSDynaFamily::Int, 2 );
       segId = p->Fam.GetNextWordAsInt();
       segSz = p->Fam.GetNextWordAsInt();
       p->Fam.BufferChunk( LSDynaFamily::Int, 4*segSz );
       for (vtkIdType t=0; t<segSz; ++t, ++currentCell)
-        {
+      {
         if(currentCell >= numCellsToSkip)
-          {
+        {
           for (int j=0; j<4; ++j )
-            {
+          {
             conn[j] = p->Fam.GetNextWordAsInt() - 1;
-            }
-          parts->InsertCell(LSDynaMetaData::ROAD_SURFACE,segId,cellType,4,conn);
           }
+          parts->InsertCell(LSDynaMetaData::ROAD_SURFACE,segId,cellType,4,conn);
         }
       }
     }
-  };
+  }
+};
 
 }
 // =================================================== Start of public interface
@@ -552,13 +552,13 @@ void vtkLSDynaReader::PrintSelf( ostream &os, vtkIndent indent )
   os << indent << "TimeStepRange: " << this->TimeStepRange[0] << ", " << this->TimeStepRange[1] << endl;
 
   if (this->P)
-    {
+  {
     os << indent << "PrivateData: " << this->P << endl;
-    }
+  }
   else
-    {
+  {
     os << indent << "PrivateData: (none)" << endl;
-    }
+  }
   os << indent << "Show Deleted Cells as Ghost Cells: "<<
         (this->DeletedCellsAsGhostArray ? "On" : "Off") << endl;
 
@@ -568,38 +568,38 @@ void vtkLSDynaReader::PrintSelf( ostream &os, vtkIndent indent )
 
   os << indent << "PointArrays: ";
   for ( int i=0; i<this->GetNumberOfPointArrays(); ++i )
-    {
+  {
     os << this->GetPointArrayName( i ) << " ";
-    }
+  }
   os << endl;
 
   os << "CellArrays: " << endl;
   for ( int ct = 0; ct < LSDynaMetaData::NUM_CELL_TYPES; ++ct )
-    {
+  {
     os << vtkLSDynaCellTypes[ct] << ":" << endl;
     for ( int i = 0; i < this->GetNumberOfCellArrays( ct ); ++i )
-      {
+    {
       os << this->GetCellArrayName( ct, i ) << " ";
-      }
-    os << endl;
     }
+    os << endl;
+  }
   os << endl;
 
   os << indent << "Time Steps: " << this->GetNumberOfTimeSteps() << endl;
   for ( int j=0; j<this->GetNumberOfTimeSteps(); ++j )
-    {
+  {
     os.precision(5);
     os.width(12);
     os << this->GetTimeValue(j) ;
     if ( (j+1) % 8 == 0 && j != this->GetNumberOfTimeSteps()-1 )
-      {
+    {
       os << endl << indent;
-      }
-    else
-      {
-      os << " ";
-      }
     }
+    else
+    {
+      os << " ";
+    }
+  }
   os << endl;
 }
 
@@ -616,37 +616,37 @@ void vtkLSDynaReader::Dump( ostream& os )
      << indent << "Cells: " << this->GetNumberOfCells() << endl
      << indent << "PointArrays:    ";
   for ( int i=0; i<this->GetNumberOfPointArrays(); ++i )
-    {
+  {
     os << this->GetPointArrayName( i ) << " ";
-    }
+  }
   os << endl
      << "CellArrays:" << endl;
   for ( int ct = 0; ct < LSDynaMetaData::NUM_CELL_TYPES; ++ct )
-    {
+  {
     os << vtkLSDynaCellTypes[ct] << ":" << endl;
     for ( int i = 0; i < this->GetNumberOfCellArrays( ct ); ++i )
-      {
+    {
       os << this->GetCellArrayName( ct, i ) << " ";
-      }
-    os << endl;
     }
+    os << endl;
+  }
   os << endl;
 
   os << indent << "Time Steps:       " << this->GetNumberOfTimeSteps() << endl;
   for ( int j=0; j<this->GetNumberOfTimeSteps(); ++j )
-    {
+  {
     os.precision(5);
     os.width(12);
     os << this->GetTimeValue(j) ;
     if ( (j+1) % 8 == 0 && j != this->GetNumberOfTimeSteps()-1 )
-      {
+    {
       os << endl << indent;
-      }
-    else
-      {
-      os << " ";
-      }
     }
+    else
+    {
+      os << " ";
+    }
+  }
   os << endl;
 }
 
@@ -670,62 +670,62 @@ int vtkLSDynaReader::CanReadFile( const char* fname )
   // GetFilenameExtension doesn't look for the rightmost "." ... do it ourselves.
   dot = dbName.rfind( '.' );
   if ( dot != std::string::npos )
-    {
+  {
     dbExt = dbName.substr( dot );
-    }
+  }
   else
-    {
+  {
     dbExt = "";
-    }
+  }
 
   p->Fam.SetDatabaseDirectory( dbDir );
 
   if ( dbExt == ".k" || dbExt == ".lsdyna" )
-    {
+  {
     p->Fam.SetDatabaseBaseName( "/d3plot" );
-    }
+  }
   else
-    {
+  {
     struct stat st;
     if ( stat( fname, &st ) == 0 )
-      {
+    {
       dbName.insert( 0, "/" );
       p->Fam.SetDatabaseBaseName( dbName.c_str() );
-      }
-    else
-      {
-      p->Fam.SetDatabaseBaseName( "/d3plot" );
-      }
     }
+    else
+    {
+      p->Fam.SetDatabaseBaseName( "/d3plot" );
+    }
+  }
   // If the time step is set before RequestInformation is called, we must
   // read the header information immediately in order to determine whether
   // the timestep that's been passed is valid. If it's not, we ignore it.
   if ( ! p->FileIsValid )
-    {
+  {
     if ( p->Fam.GetDatabaseDirectory().empty() )
-      {
+    {
       result = -1;
-      }
+    }
     else
-      {
+    {
       if ( p->Fam.GetDatabaseBaseName().empty() )
-        {
+      {
         p->Fam.SetDatabaseBaseName( "/d3plot" ); // not a bad assumption.
-        }
+      }
       p->Fam.ScanDatabaseDirectory();
       if ( p->Fam.GetNumberOfFiles() < 1 )
-        {
+      {
         result = -1;
-        }
+      }
       else
-        {
+      {
         if ( p->Fam.DetermineStorageModel() != 0 )
           result = 0;
         else
           result = 1;
-        }
       }
     }
+  }
   delete p;
 
   return result > 0; // -1 and 0 are both problems, 1 indicates success.
@@ -735,24 +735,24 @@ void vtkLSDynaReader::SetDatabaseDirectory( const char* f )
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting DatabaseDirectory to " << f );
   if ( ! f )
-    {
+  {
     if ( ! this->P->Fam.GetDatabaseDirectory().empty() )
-      { // no string => no database directory
+    { // no string => no database directory
       this->P->Reset();
       this->SetInputDeck( 0 );
       this->ResetPartsCache();
       this->Modified();
-      }
-    return;
     }
+    return;
+  }
   if ( strcmp(this->P->Fam.GetDatabaseDirectory().c_str(), f) )
-    {
+  {
     this->P->Reset();
     this->SetInputDeck( 0 );
     this->P->Fam.SetDatabaseDirectory( std::string(f) );
     this->ResetPartsCache();
     this->Modified();
-    }
+  }
 }
 
 const char* vtkLSDynaReader::GetDatabaseDirectory()
@@ -775,34 +775,34 @@ void vtkLSDynaReader::SetFileName( const char* f )
   // GetFilenameExtension doesn't look for the rightmost "." ... do it ourselves.
   dot = dbName.rfind( '.' );
   if ( dot != std::string::npos )
-    {
+  {
     dbExt = dbName.substr( dot );
-    }
+  }
   else
-    {
+  {
     dbExt = "";
-    }
+  }
 
   this->SetDatabaseDirectory( dbDir.c_str() );
 
   if ( dbExt == ".k" || dbExt == ".lsdyna" )
-    {
+  {
     this->SetInputDeck( f );
     this->P->Fam.SetDatabaseBaseName( "/d3plot" );
-    }
+  }
   else
-    {
+  {
     struct stat st;
     if ( stat( f, &st ) == 0 )
-      {
+    {
       dbName.insert( 0, "/" );
       this->P->Fam.SetDatabaseBaseName( dbName.c_str() );
-      }
-    else
-      {
-      this->P->Fam.SetDatabaseBaseName( "/d3plot" );
-      }
     }
+    else
+    {
+      this->P->Fam.SetDatabaseBaseName( "/d3plot" );
+    }
+  }
 }
 
 const char* vtkLSDynaReader::GetFileName()
@@ -827,28 +827,28 @@ void vtkLSDynaReader::SetTimeStep( vtkIdType t )
 {
   LSDynaMetaData* p = this->P;
   if ( p->CurrentState == t )
-    {
+  {
     return;
-    }
+  }
 
   // If the time step is set before RequestInformation is called, we must
   // read the header information immediately in order to determine whether
   // the timestep that's been passed is valid. If it's not, we ignore it.
   if ( ! p->FileIsValid )
-    {
+  {
     if ( p->Fam.GetDatabaseDirectory().empty() )
-      {
+    {
       vtkErrorMacro( "You haven't set the LS-Dyna database directory!" );
       return;
-      }
+    }
 
     p->Fam.SetDatabaseBaseName( "/d3plot" ); // force this for now.
     p->Fam.ScanDatabaseDirectory();
     if ( p->Fam.GetNumberOfFiles() < 1 )
-      {
+    {
       p->FileIsValid = 0;
       return;
-      }
+    }
     p->Fam.DetermineStorageModel();
     p->MaxFileLength = p->FileSizeFactor*512*512*p->Fam.GetWordSize();
     p->FileIsValid = 1;
@@ -860,22 +860,22 @@ void vtkLSDynaReader::SetTimeStep( vtkIdType t )
     // Finally, we can loop through and determine where all the state
     // vectors start for each time step.
     this->ScanDatabaseTimeSteps();
-    }
+  }
 
   // Now, make sure we update the dictionary to contain information
   // relevant to the adaptation level that matches the requested timestep.
   if ( t >= 0 && t < (int) p->TimeValues.size() )
-    {
+  {
     if ( p->Fam.GetCurrentAdaptLevel() != p->Fam.TimeAdaptLevel( t ) )
-      {
+    {
       if ( this->ReadHeaderInformation( p->Fam.TimeAdaptLevel( t ) ) == 0 )
-        {
+      {
         // unable to read the header information for the adaptation level corresponding
         // to the requested time step
         return;
-        }
       }
     }
+  }
 
   p->CurrentState = t;
   this->Modified();
@@ -894,9 +894,9 @@ vtkIdType vtkLSDynaReader::GetNumberOfTimeSteps()
 double vtkLSDynaReader::GetTimeValue( vtkIdType s )
 {
   if ( s < 0 || s >= (vtkIdType) this->P->TimeValues.size() )
-    {
+  {
     return -1.0;
-    }
+  }
 
   return this->P->TimeValues[s];
 }
@@ -910,9 +910,9 @@ vtkIdType vtkLSDynaReader::GetNumberOfCells()
 {
   vtkIdType tmp=0;
   for ( int c=0; c<LSDynaMetaData::NUM_CELL_TYPES; ++c )
-    {
+  {
     tmp += this->P->NumberOfCells[c];
-    }
+  }
   return tmp;
 }
 
@@ -955,9 +955,9 @@ vtkIdType vtkLSDynaReader::GetNumberOfContinuumCells()
 {
   vtkIdType tmp=0;
   for ( int c=LSDynaMetaData::PARTICLE+1; c<LSDynaMetaData::NUM_CELL_TYPES; ++c )
-    {
+  {
     tmp += this->P->NumberOfCells[c];
-    }
+  }
   return tmp;
 }
 
@@ -986,10 +986,10 @@ int vtkLSDynaReader::GetPointArrayStatus( int a )
 void vtkLSDynaReader::SetPointArrayStatus( int a, int stat )
 {
   if ( a < 0 || a >= (int) this->P->PointArrayStatus.size() )
-    {
+  {
     vtkWarningMacro( "Cannot set status of non-existent point array " << a );
     return;
-    }
+  }
 
   if ( stat == this->P->PointArrayStatus[a] )
     return;
@@ -1040,10 +1040,10 @@ int vtkLSDynaReader::GetNumberOfComponentsInCellArray( int ct, int a )
 void vtkLSDynaReader::SetCellArrayStatus( int ct, int a, int stat )
 {
   if ( a < 0 || a >= (int) this->P->CellArrayStatus[ct].size() )
-    {
+  {
     vtkWarningMacro( "Cannot set status of non-existent point array " << a );
     return;
-    }
+  }
 
   if ( stat == this->P->CellArrayStatus[ct][a] )
     return;
@@ -1086,10 +1086,10 @@ int vtkLSDynaReader::GetNumberOfComponentsInSolidArray( int a )
 void vtkLSDynaReader::SetSolidArrayStatus( int a, int stat )
 {
   if ( a < 0 || a >= (int) this->P->CellArrayStatus[LSDynaMetaData::SOLID].size() )
-    {
+  {
     vtkWarningMacro( "Cannot set status of non-existent point array " << a );
     return;
-    }
+  }
 
   if ( stat == this->P->CellArrayStatus[LSDynaMetaData::SOLID][a] )
     return;
@@ -1132,10 +1132,10 @@ int vtkLSDynaReader::GetNumberOfComponentsInThickShellArray( int a )
 void vtkLSDynaReader::SetThickShellArrayStatus( int a, int stat )
 {
   if ( a < 0 || a >= (int) this->P->CellArrayStatus[LSDynaMetaData::THICK_SHELL].size() )
-    {
+  {
     vtkWarningMacro( "Cannot set status of non-existent point array " << a );
     return;
-    }
+  }
 
   if ( stat == this->P->CellArrayStatus[LSDynaMetaData::THICK_SHELL][a] )
     return;
@@ -1178,10 +1178,10 @@ int vtkLSDynaReader::GetNumberOfComponentsInShellArray( int a )
 void vtkLSDynaReader::SetShellArrayStatus( int a, int stat )
 {
   if ( a < 0 || a >= (int) this->P->CellArrayStatus[LSDynaMetaData::SHELL].size() )
-    {
+  {
     vtkWarningMacro( "Cannot set status of non-existent point array " << a );
     return;
-    }
+  }
 
   if ( stat == this->P->CellArrayStatus[LSDynaMetaData::SHELL][a] )
     return;
@@ -1224,10 +1224,10 @@ int vtkLSDynaReader::GetNumberOfComponentsInRigidBodyArray( int a )
 void vtkLSDynaReader::SetRigidBodyArrayStatus( int a, int stat )
 {
   if ( a < 0 || a >= (int) this->P->CellArrayStatus[LSDynaMetaData::RIGID_BODY].size() )
-    {
+  {
     vtkWarningMacro( "Cannot set status of non-existent point array " << a );
     return;
-    }
+  }
 
   if ( stat == this->P->CellArrayStatus[LSDynaMetaData::RIGID_BODY][a] )
     return;
@@ -1270,10 +1270,10 @@ int vtkLSDynaReader::GetNumberOfComponentsInRoadSurfaceArray( int a )
 void vtkLSDynaReader::SetRoadSurfaceArrayStatus( int a, int stat )
 {
   if ( a < 0 || a >= (int) this->P->CellArrayStatus[LSDynaMetaData::ROAD_SURFACE].size() )
-    {
+  {
     vtkWarningMacro( "Cannot set status of non-existent point array " << a );
     return;
-    }
+  }
 
   if ( stat == this->P->CellArrayStatus[LSDynaMetaData::ROAD_SURFACE][a] )
     return;
@@ -1316,10 +1316,10 @@ int vtkLSDynaReader::GetNumberOfComponentsInBeamArray( int a )
 void vtkLSDynaReader::SetBeamArrayStatus( int a, int stat )
 {
   if ( a < 0 || a >= (int) this->P->CellArrayStatus[LSDynaMetaData::BEAM].size() )
-    {
+  {
     vtkWarningMacro( "Cannot set status of non-existent point array " << a );
     return;
-    }
+  }
 
   if ( stat == this->P->CellArrayStatus[LSDynaMetaData::BEAM][a] )
     return;
@@ -1362,10 +1362,10 @@ int vtkLSDynaReader::GetNumberOfComponentsInParticleArray( int a )
 void vtkLSDynaReader::SetParticleArrayStatus( int a, int stat )
 {
   if ( a < 0 || a >= (int) this->P->CellArrayStatus[LSDynaMetaData::PARTICLE].size() )
-    {
+  {
     vtkWarningMacro( "Cannot set status of non-existent point array " << a );
     return;
-    }
+  }
 
   if ( stat == this->P->CellArrayStatus[LSDynaMetaData::PARTICLE][a] )
     return;
@@ -1400,10 +1400,10 @@ int vtkLSDynaReader::GetPartArrayStatus( int a )
 void vtkLSDynaReader::SetPartArrayStatus( int a, int stat )
 {
   if ( a < 0 || a >= (int) this->P->PartStatus.size() )
-    {
+  {
     vtkWarningMacro( "Cannot set status of non-existent point array " << a );
     return;
-    }
+  }
 
   if ( stat == this->P->PartStatus[a] )
     return;
@@ -1417,10 +1417,10 @@ void vtkLSDynaReader::SetPartArrayStatus( int a, int stat )
 void vtkLSDynaReader::ResetPartsCache()
 {
   if(this->Parts)
-    {
+  {
     this->Parts->Delete();
     this->Parts=NULL;
-    }
+  }
 }
 
 // =================================== Read the control word header for the current adaptation level
@@ -1510,7 +1510,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   p->StateSize = p->Fam.GetWordSize(); // Account for "time word"
   p->Dimensionality = p->Dict["NDIM"];
   switch (p->Dimensionality)
-    {
+  {
   case 2:
   case 3:
     p->Dict["MATTYP"] = 0;
@@ -1533,22 +1533,22 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
     vtkErrorMacro("Unknown Dimensionality " << p->Dimensionality << " encountered" );
     p->FileIsValid = 0;
     return 0;
-    }
+  }
 
   // FIXME Are these marks valid since we are marking the word past the end of the chunk?
   p->Fam.MarkSectionStart( curAdapt, LSDynaFamily::StaticSection );
   p->Fam.MarkSectionStart( curAdapt, LSDynaFamily::MaterialTypeData );
   if ( p->Dict["MATTYP"] != 0 )
-    {
+  {
     p->Fam.BufferChunk( LSDynaFamily::Int, 2 );
     p->Dict["NUMRBE"] = p->Fam.GetNextWordAsInt();
     p->Dict["NUMMAT"] = p->Fam.GetNextWordAsInt();
-    }
+  }
   else
-    {
+  {
     p->Dict["NUMRBE"] = 0;
     p->Dict["NUMMAT"] = 0;
-    }
+  }
   p->NumberOfNodes = p->Dict["NUMNP"];
 
   p->NumberOfCells[LSDynaMetaData::RIGID_BODY] = p->Dict["NUMRBE"];
@@ -1561,25 +1561,25 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   p->StateSize += p->Dict["NGLBV"]*p->Fam.GetWordSize();
 
   if ( p->Dict["IT"] != 0 )
-    {
+  {
     p->AddPointArray( LS_ARRAYNAME_TEMPERATURE, 1, 1 );
     p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
-    }
+  }
   if ( p->Dict["IU"] != 0 )
-    {
+  {
     p->AddPointArray( LS_ARRAYNAME_DEFLECTION, p->Dimensionality, 1 );
     p->StateSize += p->NumberOfNodes * p->Dimensionality * p->Fam.GetWordSize();
-    }
+  }
   if ( p->Dict["IV"] != 0 )
-    {
+  {
     p->AddPointArray( LS_ARRAYNAME_VELOCITY, p->Dimensionality, 1 );
     p->StateSize += p->NumberOfNodes * p->Dimensionality * p->Fam.GetWordSize();
-    }
+  }
   if ( p->Dict["IA"] != 0 )
-    {
+  {
     p->AddPointArray( LS_ARRAYNAME_ACCELERATION, p->Dimensionality, 1 );
     p->StateSize += p->NumberOfNodes * p->Dimensionality * p->Fam.GetWordSize();
-    }
+  }
   p->Dict["cfdPressure"] = 0;
   p->Dict["cfdVort"] = 0;
   p->Dict["cfdXVort"] = 0;
@@ -1596,114 +1596,114 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   p->Dict["cfdEddyVisc"] = 0;
   itmp = p->Dict["NCFDV1"];
   if ( itmp & 2 )
-    {
+  {
     p->AddPointArray( LS_ARRAYNAME_PRESSURE, 1, 1 );
     p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
     p->Dict["cfdPressure"] = 1;
-    }
+  }
   if ( (itmp & 28) == 28 )
-    {
+  {
     p->AddPointArray( LS_ARRAYNAME_VORTICITY, 3, 1 );
     p->StateSize += p->NumberOfNodes * 3 * p->Fam.GetWordSize();
     p->Dict["cfdVort"] = 1;
     p->Dict["cfdXVort"] = 1;
     p->Dict["cfdYVort"] = 1;
     p->Dict["cfdZVort"] = 1;
-    }
+  }
   else
-    { // OK, we don't have all the vector components... maybe we have some of them?
+  { // OK, we don't have all the vector components... maybe we have some of them?
     if ( itmp & 4 )
-      {
+    {
       p->AddPointArray( LS_ARRAYNAME_VORTICITY "_X", 1, 1 );
       p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
       p->Dict["cfdXVort"] = 1;
-      }
+    }
     if ( itmp & 8 )
-      {
+    {
       p->AddPointArray( LS_ARRAYNAME_VORTICITY "_Y", 1, 1 );
       p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
       p->Dict["cfdYVort"] = 1;
-      }
+    }
     if ( itmp & 16 )
-      {
+    {
       p->AddPointArray( LS_ARRAYNAME_VORTICITY "_Z", 1, 1 );
       p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
       p->Dict["cfdZVort"] = 1;
-      }
     }
+  }
   if ( itmp & 32 )
-    {
+  {
     p->AddPointArray( LS_ARRAYNAME_RESULTANTVORTICITY, 1, 1 );
     p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
     p->Dict["cfdRVort"] = 1;
   if ( itmp & 64 )
-    {
+  {
     p->AddPointArray( LS_ARRAYNAME_ENSTROPHY, 1, 1 );
     p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
     p->Dict["cfdEnstrophy"] = 1;
-    }
+  }
   if ( itmp & 128 )
-    {
+  {
     p->AddPointArray( LS_ARRAYNAME_HELICITY, 1, 1 );
     p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
     p->Dict["cfdHelicity"] = 1;
-    }
+  }
   if ( itmp & 256 )
-    {
+  {
     p->AddPointArray( LS_ARRAYNAME_STREAMFUNCTION, 1, 1 );
     p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
     p->Dict["cfdStream"] = 1;
-    }
+  }
   if ( itmp & 512 )
-    {
+  {
     p->AddPointArray( LS_ARRAYNAME_ENTHALPY, 1, 1 );
     p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
     p->Dict["cfdEnthalpy"] = 1;
-    }
+  }
   if ( itmp & 1024 )
-    {
+  {
     p->AddPointArray( LS_ARRAYNAME_DENSITY, 1, 1 );
     p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
     p->Dict["cfdDensity"] = 1;
-    }
+  }
   if ( itmp & 2048 )
-    {
+  {
     p->AddPointArray( LS_ARRAYNAME_TURBULENTKE, 1, 1 );
     p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
     p->Dict["cfdTurbKE"] = 1;
-    }
+  }
   if ( itmp & 4096 )
-    {
+  {
     p->AddPointArray( LS_ARRAYNAME_DISSIPATION, 1, 1 );
     p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
     p->Dict["cfdDiss"] = 1;
-    }
+  }
   if ( itmp & 1040384 )
-    {
+  {
     p->AddPointArray( LS_ARRAYNAME_EDDYVISCOSITY, 1, 1 );
     p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
     p->Dict["cfdEddyVisc"] = 1;
-    }
-    }
+  }
+  }
 
   char sname[]=LS_ARRAYNAME_SPECIES_BLNK;
   iddtmp = p->Dict["NCFDV2"];
   for ( itmp=1; itmp<11; ++itmp )
-    {
+  {
     if ( iddtmp & (vtkIdType)(1<<itmp) )
-      {
+    {
       sprintf( sname, LS_ARRAYNAME_SPECIES_FMT, itmp );
       p->AddPointArray( sname, 1, 1 );
       p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
       sprintf( sname, "cfdSpec%02d", itmp );
       p->Dict[ sname ] = 1;
-      }
+    }
     else
-      {
+    {
       sprintf( sname, "cfdSpec%02d", itmp );
       p->Dict[ sname ] = 0;
-      }
     }
+  }
 
   // Solid element state size   FIXME: 7 + NEIPH should really be NV3D (in case things change)
   p->StateSize += (7+p->Dict["NEIPH"])*p->NumberOfCells[LSDynaMetaData::SOLID]*p->Fam.GetWordSize();
@@ -1719,18 +1719,18 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   // ================================================ Material Type Data Section
   // This is marked above so we can read NUMRBE in time to do StateSize calculations
   if ( p->Dict["MATTYP"] != 0 )
-    {
+  {
     // If there are rigid body elements, they won't have state data and we must
     // reduce the state size
     p->StateSize -= p->Dict["NV2D"] * p->NumberOfCells[ LSDynaMetaData::RIGID_BODY ];
 
     p->Fam.BufferChunk( LSDynaFamily::Int, p->Dict["NUMMAT"] );
     for ( itmp = 0; itmp < p->Dict["NUMMAT"]; ++itmp )
-      {
+    {
       p->RigidMaterials.insert( p->Fam.GetNextWordAsInt() );
-      }
-    p->PreStateSize += (2 + p->Dict["NUMMAT"])*p->Fam.GetWordSize();
     }
+    p->PreStateSize += (2 + p->Dict["NUMMAT"])*p->Fam.GetWordSize();
+  }
 
   //process the deletion array
   //save the position we currently have as it is the offset to jump to
@@ -1741,61 +1741,61 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   int intpts2;
   mdlopt = p->Dict["MAXINT"];
   if ( mdlopt >= 0 && mdlopt <= 10000)
-    {
+  {
     intpts2 = mdlopt;
     mdlopt = LS_MDLOPT_NONE;
-    }
+  }
   else if ( mdlopt < -10000 )
-    {
+  {
     intpts2 = -mdlopt -10000;
     mdlopt = LS_MDLOPT_CELL;
 
     // WARNING: This needs NumberOfCells[LSDynaMetaData::RIGID_BODY] set, which relies on NUMRBE
     p->StateSize += this->GetNumberOfContinuumCells() * p->Fam.GetWordSize();
-    }
+  }
   else if ( mdlopt > 10000)
-    {
+  {
     intpts2 = mdlopt -10000;
     mdlopt = LS_MDLOPT_CELL;
 
     // WARNING: This needs NumberOfCells[LSDynaMetaData::RIGID_BODY] set, which relies on NUMRBE
     p->StateSize += this->GetNumberOfContinuumCells() * p->Fam.GetWordSize();
-    }
+  }
   else
-    {
+  {
     intpts2 = -mdlopt;
     mdlopt = LS_MDLOPT_POINT;
     //p->AddPointArray( LS_ARRAYNAME_DEATH, 1, 1 );
     p->StateSize += this->GetNumberOfNodes() * p->Fam.GetWordSize();
-    }
+  }
   p->Dict["MDLOPT"] = mdlopt;
   p->Dict["_MAXINT_"] = intpts2;
   if ( p->Dict["NV2D"] > 0 )
-    {
+  {
     if ( p->Dict["NV2D"]-(p->Dict["_MAXINT_"]*(6*p->Dict["IOSHL(1)"]+p->Dict["IOSHL(2)"]+p->Dict["NEIPS"])+8*p->Dict["IOSHL(3)"]+4*p->Dict["IOSHL(4)"]) > 1 )
-      {
+    {
       p->Dict["ISTRN"] = 1;
-      }
-    else
-      {
-      p->Dict["ISTRN"] = 0;
-      }
     }
+    else
+    {
+      p->Dict["ISTRN"] = 0;
+    }
+  }
   else if ( p->Dict["NELT"] > 0 )
-    {
+  {
     if ( p->Dict["NV3D"] - p->Dict["_MAXINT_"]*(6*p->Dict["IOSHL(1)"]+p->Dict["IOSHL(2)"]+p->Dict["NEIPS"]) > 1 )
-      {
-      p->Dict["ISTRN"] = 1;
-      }
-    else
-      {
-      p->Dict["ISTRN"] = 0;
-      }
-    }
-  else
     {
-    p->Dict["ISTRN"] = 0;
+      p->Dict["ISTRN"] = 1;
     }
+    else
+    {
+      p->Dict["ISTRN"] = 0;
+    }
+  }
+  else
+  {
+    p->Dict["ISTRN"] = 0;
+  }
 
 // OK, we are done processing the header (control) section.
 
@@ -1807,42 +1807,42 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   p->PreStateSize += p->Dict["IALEMAT"];
   p->Fam.BufferChunk( LSDynaFamily::Int, p->Dict["IALEMAT"] );
   for ( itmp = 0; itmp < p->Dict["IALEMAT"]; ++itmp )
-    {
+  {
     p->FluidMaterials.insert( p->Fam.GetNextWordAsInt() );
-    }
+  }
   //p->Fam.SkipToWord( LSDynaFamily::FluidMaterialIdData, curAdapt, p->Dict["IALEMAT"] );
 
   // =======================  Smooth Particle Hydrodynamics Element Data Section
   // Only when NMSPH > 0
   p->Fam.MarkSectionStart( curAdapt, LSDynaFamily::SPHElementData );
   if ( p->NumberOfCells[LSDynaMetaData::PARTICLE] > 0 )
-    {
+  {
     p->Fam.BufferChunk( LSDynaFamily::Int, 1 );
     vtkIdType sphAttributes = p->Fam.GetNextWordAsInt();
     p->Dict["isphfg(1)"] = sphAttributes;
     if ( sphAttributes >= 9 )
-      {
+    {
       p->Fam.BufferChunk( LSDynaFamily::Int, sphAttributes - 1 ); // should be 9 or 10
       // Dyna docs call statePerParticle "NUM_SPH_DATA":
       int statePerParticle = 1; // start at 1 because we always have material ID of particle.
       for ( itmp = 2; itmp <= sphAttributes; ++itmp )
-        {
+      {
         int numComponents = p->Fam.GetNextWordAsInt();
         sprintf( ctmp, "isphfg(%d)", itmp );
         p->Dict[ ctmp ] = numComponents;
         statePerParticle += numComponents;
-        }
+      }
       p->Dict["NUM_SPH_DATA"] = statePerParticle;
       p->StateSize += statePerParticle * p->NumberOfCells[LSDynaMetaData::PARTICLE] * p->Fam.GetWordSize();
-      }
+    }
     else
-      {
+    {
       p->FileIsValid = 0;
       return 0;
-      }
+    }
     p->Fam.SkipToWord( LSDynaFamily::SPHElementData, curAdapt, p->Dict["isphfg(1)"] );
     p->PreStateSize += p->Dict["isphfg(1)"]*p->Fam.GetWordSize();
-    }
+  }
 
   // ===================================================== Geometry Data Section
   p->Fam.MarkSectionStart( curAdapt, LSDynaFamily::GeometryData );
@@ -1857,7 +1857,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   // =========== User Material, Node, And Element Identification Numbers Section
   p->Fam.MarkSectionStart( curAdapt, LSDynaFamily::UserIdData );
   if ( p->Dict["NARBS"] != 0 )
-    {
+  {
     p->Fam.BufferChunk( LSDynaFamily::Int, 10 );
     p->PreStateSize += 10*p->Fam.GetWordSize();
     p->Dict["NSORT"] = p->Fam.GetNextWordAsInt();
@@ -1872,7 +1872,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
     p->Dict["NSRTD"] = p->Fam.GetNextWordAsInt();
     //iddtmp = (this->GetNumberOfNodes() + this->GetNumberOfContinuumCells())*p->Fam.GetWordSize();
     if ( p->Dict["NSORT"] < 0 )
-      {
+    {
       p->Fam.BufferChunk( LSDynaFamily::Int, 6 );
       p->PreStateSize += 6*p->Fam.GetWordSize();
       p->Dict["NSRMA"] = p->Fam.GetNextWordAsInt();
@@ -1882,7 +1882,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
       p->Dict["NUMRBS"] = p->Fam.GetNextWordAsInt();
       p->Dict["NMMAT"] = p->Fam.GetNextWordAsInt();
       iddtmp += 3*p->Dict["NMMAT"]*p->Fam.GetWordSize();
-      }
+    }
     // FIXME!!! Why is NARBS larger than 10+NUMNP+NEL8+NEL2+NEL4+NELT?
     // Obviously, NARBS is definitive, but what are the extra numbers at the end?
     //iddtmp += (p->Dict["NARBS"]*p->Fam.GetWordSize() - iddtmp - 10*p->Fam.GetWordSize() - (p->Dict["NSORT"]<0 ? 6*p->Fam.GetWordSize() : 0));
@@ -1890,11 +1890,11 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
     p->PreStateSize += p->Dict["NARBS"] * p->Fam.GetWordSize();
     // should just skip forward iddtmp bytes here, but no easy way to do that with the fam
     p->Fam.SkipToWord( LSDynaFamily::UserIdData, curAdapt, p->Dict["NARBS"] );
-    }
+  }
   else
-    {
+  {
     p->Dict["NSORT"] = 0;
-    }
+  }
   // Break from convention and read in actual array values (as opposed to just summary information)
   // about the material IDs. This is required because the reader must present part names after
   // RequestInformation is called and that cannot be done without a list of material IDs.
@@ -1915,7 +1915,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   // =========================================== Rigid Road Surface Data Section
   p->Fam.MarkSectionStart( curAdapt, LSDynaFamily::RigidSurfaceData );
   if ( p->Dict["NDIM"] > 5 )
-    {
+  {
     p->Fam.BufferChunk( LSDynaFamily::Int, 4 );
     p->PreStateSize += 4*p->Fam.GetWordSize();
     p->Dict["NNODE"]  = p->Fam.GetNextWordAsInt();
@@ -1928,32 +1928,32 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
     p->NumberOfCells[LSDynaMetaData::ROAD_SURFACE] = p->Dict["NSEG"];
 
     for ( itmp = 0; itmp < p->Dict["NSURF"]; ++itmp )
-      {
+    {
       p->Fam.BufferChunk( LSDynaFamily::Int, 2 );
       p->Fam.GetNextWordAsInt(); // Skip SURFID
       iddtmp = p->Fam.GetNextWordAsInt(); // Read SURFNSEG[SURFID]
       p->RigidSurfaceSegmentSizes.push_back( iddtmp );
       p->PreStateSize += (2 + 4*iddtmp)*p->Fam.GetWordSize();
       p->Fam.SkipWords( 4*iddtmp );
-      }
+    }
 
     if ( p->Dict["NSEG"] > 0 )
-      {
+    {
       p->AddCellArray( LSDynaMetaData::ROAD_SURFACE, LS_ARRAYNAME_SEGMENTID, 1, 1 );
       //FIXME: p->AddRoadPointArray( LSDynaMetaData::ROAD_SURFACE, LS_ARRAYNAME_USERID, 1, 1 );
-      }
+    }
 
     if ( p->Dict["MOTION"] )
-      {
+    {
       p->StateSize += 6*p->Dict["NSURF"]*p->Fam.GetWordSize();
-      }
     }
+  }
 
   //if ( curAdapt == 0 )
-    {
+  {
     p->Fam.MarkSectionStart( curAdapt, LSDynaFamily::EndOfStaticSection );
     p->Fam.MarkSectionStart( curAdapt, LSDynaFamily::TimeStepSection );
-    }
+  }
   p->Fam.SetStateSize( p->StateSize / p->Fam.GetWordSize() );
 
 
@@ -1980,54 +1980,54 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   // case we need to check that the number of cells in the other 5 meshes sum to >0
 
   if ( p->Dict["NARBS"] )
-    {
+  {
     p->AddPointArray( LS_ARRAYNAME_USERID, 1, 1 );
-    }
+  }
 
   if ( p->NumberOfCells[ LSDynaMetaData::PARTICLE ] )
-    {
+  {
     //p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_MATERIAL, 1, 1 );
     //p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_DEATH, 1, 1 );
     if ( p->Dict["isphfg(2)"] == 1 )
-      {
+    {
       p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_RADIUSOFINFLUENCE, 1, 1 );
-      }
-    if ( p->Dict["isphfg(3)"] == 1 )
-      {
-      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_PRESSURE, 1, 1 );
-      }
-    if ( p->Dict["isphfg(4)"] == 6 )
-      {
-      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_STRESS, 6, 1 );
-      }
-    if ( p->Dict["isphfg(5)"] == 1 )
-      {
-      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_EPSTRAIN, 1, 1 );
-      }
-    if ( p->Dict["isphfg(6)"] == 1 )
-      {
-      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_DENSITY, 1, 1 );
-      }
-    if ( p->Dict["isphfg(7)"] == 1 )
-      {
-      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_INTERNALENERGY, 1, 1 );
-      }
-    if ( p->Dict["isphfg(8)"] == 1 )
-      {
-      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_NUMNEIGHBORS, 1, 1 );
-      }
-    if ( p->Dict["isphfg(9)"] == 6 )
-      {
-      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_STRAIN, 6, 1 );
-      }
-    if ( p->Dict["isphfg(10)"] == 1 )
-      {
-      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_MASS, 1, 1 );
-      }
     }
+    if ( p->Dict["isphfg(3)"] == 1 )
+    {
+      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_PRESSURE, 1, 1 );
+    }
+    if ( p->Dict["isphfg(4)"] == 6 )
+    {
+      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_STRESS, 6, 1 );
+    }
+    if ( p->Dict["isphfg(5)"] == 1 )
+    {
+      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_EPSTRAIN, 1, 1 );
+    }
+    if ( p->Dict["isphfg(6)"] == 1 )
+    {
+      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_DENSITY, 1, 1 );
+    }
+    if ( p->Dict["isphfg(7)"] == 1 )
+    {
+      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_INTERNALENERGY, 1, 1 );
+    }
+    if ( p->Dict["isphfg(8)"] == 1 )
+    {
+      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_NUMNEIGHBORS, 1, 1 );
+    }
+    if ( p->Dict["isphfg(9)"] == 6 )
+    {
+      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_STRAIN, 6, 1 );
+    }
+    if ( p->Dict["isphfg(10)"] == 1 )
+    {
+      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_MASS, 1, 1 );
+    }
+  }
 
   if ( p->NumberOfCells[ LSDynaMetaData::BEAM ] )
-    {
+  {
 //    p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_MATERIAL, 1, 1 );
 //    if ( p->Dict["MDLOPT"] == LS_MDLOPT_CELL )
 //      {
@@ -2035,186 +2035,186 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
 //      }
 
     if ( p->Dict["NARBS"] != 0 )
-      {
+    {
       p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_USERID, 1, 1 );
-      }
+    }
     if ( p->Dict["NV1D"] >= 6 )
-      {
+    {
       p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_AXIALFORCE, 1, 1 );
       p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_SHEARRESULTANT, 2, 1 );
       p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_BENDINGRESULTANT, 2, 1 );
       p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_TORSIONRESULTANT, 1, 1 );
-      }
+    }
     if ( p->Dict["NV1D"] > 6 )
-      {
+    {
       p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_SHEARSTRESS, 2, 1 );
       p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_AXIALSTRESS, 1, 1 );
       p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_AXIALSTRAIN, 1, 1 );
       p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_PLASTICSTRAIN, 1, 1 );
-      }
     }
+  }
 
   if ( p->NumberOfCells[ LSDynaMetaData::SHELL ] )
-    {
+  {
 //    p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_MATERIAL, 1, 1 );
 //    if ( p->Dict["MDLOPT"] == LS_MDLOPT_CELL )
 //      {
 //      p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_DEATH, 1, 1 );
 //      }
     if ( p->Dict["NARBS"] != 0 )
-      {
+    {
       p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_USERID, 1, 1 );
-      }
+    }
     if ( p->Dict["IOSHL(1)"] )
-      {
+    {
       if ( p->Dict["_MAXINT_"] >= 3 )
-        {
+      {
         p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_STRESS, 6, 1 );
         p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_STRESS "InnerSurf", 6, 1 );
         p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_STRESS "OuterSurf", 6, 1 );
-        }
+      }
       for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
-        {
+      {
         sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_STRESS, itmp + 1 );
         p->AddCellArray( LSDynaMetaData::SHELL, ctmp, 6, 1 );
-        }
       }
+    }
     if ( p->Dict["IOSHL(2)"] )
-      {
+    {
       if ( p->Dict["_MAXINT_"] >= 3 )
-        {
+      {
         p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_EPSTRAIN, 1, 1 );
         p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_EPSTRAIN "InnerSurf", 1, 1 );
         p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_EPSTRAIN "OuterSurf", 1, 1 );
-        }
+      }
       for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
-        {
+      {
         sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_EPSTRAIN, itmp + 1 );
         p->AddCellArray( LSDynaMetaData::SHELL, ctmp, 1, 1 );
-        }
       }
+    }
     if ( p->Dict["IOSHL(3)"] )
-      {
+    {
       p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_NORMALRESULTANT, 3, 1 );
       p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_SHEARRESULTANT, 2, 1 );
       p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_BENDINGRESULTANT, 3, 1 );
-      }
+    }
     if ( p->Dict["IOSHL(4)"] )
-      {
+    {
       p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_THICKNESS, 1, 1 );
       p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_ELEMENTMISC, 2, 1 );
-      }
+    }
     if ( p->Dict["NEIPS"] )
-      {
+    {
       int neips = p->Dict["NEIPS"];
       if ( p->Dict["_MAXINT_"] >= 3 )
-        {
+      {
         p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_INTEGRATIONPOINT, neips, 1 );
         p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_INTEGRATIONPOINT, neips, 1 );
         p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_INTEGRATIONPOINT "InnerSurf", neips, 1 );
         p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_INTEGRATIONPOINT "OuterSurf", neips, 1 );
-        }
+      }
       for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
-        {
+      {
         sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1 );
         p->AddCellArray( LSDynaMetaData::SHELL, ctmp, 6, 1 );
-        }
-      }
-    if ( p->Dict["ISTRN"] )
-      {
-        p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_STRAIN "InnerSurf", 6, 1 );
-        p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_STRAIN "OuterSurf", 6, 1 );
-      }
-    if ( ! p->Dict["ISTRN"] || (p->Dict["NV2D"] >= 45) )
-      {
-        p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_INTERNALENERGY, 1, 1 );
       }
     }
+    if ( p->Dict["ISTRN"] )
+    {
+        p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_STRAIN "InnerSurf", 6, 1 );
+        p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_STRAIN "OuterSurf", 6, 1 );
+    }
+    if ( ! p->Dict["ISTRN"] || (p->Dict["NV2D"] >= 45) )
+    {
+        p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_INTERNALENERGY, 1, 1 );
+    }
+  }
 
   if ( p->NumberOfCells[ LSDynaMetaData::THICK_SHELL ] )
-    {
+  {
 //    p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_MATERIAL, 1, 1 );
 //    if ( p->Dict["MDLOPT"] == LS_MDLOPT_CELL )
 //      {
 //      p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_DEATH, 1, 1 );
 //      }
     if ( p->Dict["NARBS"] != 0 )
-      {
+    {
       p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_USERID, 1, 1 );
-      }
+    }
     if ( p->Dict["IOSHL(1)"] )
-      {
+    {
       if ( p->Dict["_MAXINT_"] >= 3 )
-        {
+      {
         p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_STRESS, 6, 1 );
         p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_STRESS "InnerSurf", 6, 1 );
         p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_STRESS "OuterSurf", 6, 1 );
-        }
+      }
       for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
-        {
+      {
         sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_STRESS, itmp + 1 );
         p->AddCellArray( LSDynaMetaData::THICK_SHELL, ctmp, 6, 1 );
-        }
       }
+    }
     if ( p->Dict["IOSHL(2)"] )
-      {
+    {
       if ( p->Dict["_MAXINT_"] >= 3 )
-        {
+      {
         p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_EPSTRAIN, 1, 1 );
         p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_EPSTRAIN "InnerSurf", 1, 1 );
         p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_EPSTRAIN "OuterSurf", 1, 1 );
-        }
+      }
       for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
-        {
+      {
         sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_EPSTRAIN, itmp + 1 );
         p->AddCellArray( LSDynaMetaData::THICK_SHELL, ctmp, 1, 1 );
-        }
       }
+    }
     if ( p->Dict["NEIPS"] )
-      {
+    {
       int neips = p->Dict["NEIPS"];
       if ( p->Dict["_MAXINT_"] >= 3 )
-        {
+      {
         p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_INTEGRATIONPOINT, neips, 1 );
         p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_INTEGRATIONPOINT, neips, 1 );
         p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_INTEGRATIONPOINT "InnerSurf", neips, 1 );
         p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_INTEGRATIONPOINT "OuterSurf", neips, 1 );
-        }
+      }
       for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
-        {
+      {
         sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1 );
         p->AddCellArray( LSDynaMetaData::THICK_SHELL, ctmp, 6, 1 );
-        }
-      }
-    if ( p->Dict["ISTRN"] )
-      {
-        p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_STRAIN "InnerSurf", 6, 1 );
-        p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_STRAIN "OuterSurf", 6, 1 );
       }
     }
+    if ( p->Dict["ISTRN"] )
+    {
+        p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_STRAIN "InnerSurf", 6, 1 );
+        p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_STRAIN "OuterSurf", 6, 1 );
+    }
+  }
 
   if ( p->NumberOfCells[ LSDynaMetaData::SOLID ] )
-    {
+  {
 //    p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_MATERIAL, 1, 1 );
 //    if ( p->Dict["MDLOPT"] == LS_MDLOPT_CELL )
 //      {
 //      p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_DEATH, 1, 1 );
 //      }
     if ( p->Dict["NARBS"] != 0 )
-      {
+    {
       p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_USERID, 1, 1 );
-      }
+    }
     p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_STRESS, 6, 1 );
     p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_EPSTRAIN, 1, 1 );
 
     int extraValues = p->Dict["NEIPH"];
     if ( p->Dict["ISTRN"] )
-      {
+    {
       extraValues -= 6; // last six values are strain.
-      }
+    }
     assert(extraValues >= 0);
     if ( std::abs(static_cast<int>(p->Dict["NUMFLUID"])) > 0 )
-      {
+    {
       // Total number of ALE fluid groups. Fluid density and
       // volume fractions output as history variables, and a flag
       // for the dominant group. If negative multi-material
@@ -2231,48 +2231,48 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
       extraValues--;
 
       for (vtkIdType g=0; g < numGroups; ++g)
-        {
+      {
         sprintf( ctmp, LS_ARRAYNAME_VOLUME_FRACTION_FMT, static_cast<int>(g+1) );
         p->AddCellArray( LSDynaMetaData::SOLID, ctmp, 1, 1 );
         extraValues--;
-        }
+      }
 
       p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_DOMINANT_GROUP, 1, 1 );
       extraValues--;
 
       for (vtkIdType g=0; hasMass && (g < numGroups); ++g)
-        {
+      {
         sprintf( ctmp, LS_ARRAYNAME_SPECIES_MASS_FMT, static_cast<int>(g+1) );
         p->AddCellArray( LSDynaMetaData::SOLID, ctmp, 1, 1 );
         extraValues--;
-        }
       }
+    }
     assert(extraValues >= 0);
     if (extraValues > 0)
-      {
+    {
       // I am not sure if this is correct, but let's assume so, so that what
       // every we were doing before we added support for ALE continues to work.
       p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_INTEGRATIONPOINT, extraValues, 1 );
-      }
-    if ( p->Dict["ISTRN"] )
-      {
-      p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_STRAIN, 6, 1 );
-      }
     }
+    if ( p->Dict["ISTRN"] )
+    {
+      p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_STRAIN, 6, 1 );
+    }
+  }
 
   // Only try reading the keyword file if we don't have part names.
   if ( curAdapt == 0 && p->PartNames.size() == 0 )
-    {
+  {
     this->ResetPartInfo();
 
     int result = this->ReadInputDeck();
 
     if (result == 0)
-      {
+    {
       //we failed to read the input deck so we are going to read the first binary file for part names
       this->ReadPartTitlesFromRootFile();
-      }
     }
+  }
 
   return -1;
 }
@@ -2289,10 +2289,10 @@ int vtkLSDynaReader::ScanDatabaseTimeSteps()
   // p->JumpToMark( LSDynaFamily::TimeStepSection );
   // here.
   if ( p->Fam.GetStateSize() <= 0 )
-    {
+  {
     vtkErrorMacro( "Database has bad state size (" << p->Fam.GetStateSize() << ")." );
     return 1;
-    }
+  }
 
   // Discover the number of states and record the time value for each.
   int ntimesteps = 0;
@@ -2301,48 +2301,48 @@ int vtkLSDynaReader::ScanDatabaseTimeSteps()
   int lastAdapt = 0;
   do {
     if ( p->Fam.BufferChunk( LSDynaFamily::Float, 1 ) == 0 )
-      {
+    {
       time = p->Fam.GetNextWordAsFloat();
       if ( time != LSDynaFamily::EOFMarker )
-        {
+      {
         p->Fam.MarkTimeStep();
         p->TimeValues.push_back( time );
         //fprintf( stderr, "%d %f\n", (int) p->TimeValues.size() - 1, time ); fflush(stderr);
         if ( p->Fam.SkipToWord( LSDynaFamily::TimeStepSection, ntimesteps++, p->Fam.GetStateSize() ) )
-          {
-          itmp = 0;
-          }
-        }
-      else
         {
-        if ( p->Fam.AdvanceFile() )
-          {
           itmp = 0;
-          }
+        }
+      }
+      else
+      {
+        if ( p->Fam.AdvanceFile() )
+        {
+          itmp = 0;
+        }
         else
-          {
+        {
           if ( ntimesteps == 0 )
-            {
+          {
             // First time step was an EOF marker... move the marker to the
             // beginning of the first real time step...
             p->Fam.MarkSectionStart( lastAdapt, LSDynaFamily::TimeStepSection );
-            }
           }
+        }
         int nextAdapt = p->Fam.GetCurrentAdaptLevel();
         if ( nextAdapt != lastAdapt )
-          {
+        {
           // Read the next static header section... state size has changed.
           p->Fam.MarkSectionStart( nextAdapt, LSDynaFamily::ControlSection );
           this->ReadHeaderInformation( nextAdapt );
           //p->Fam.SkipToWord( LSDynaFamily::EndOfStaticSection, nextAdapt, 0 );
           lastAdapt = nextAdapt;
-          }
         }
       }
+    }
     else
-      {
+    {
       itmp = 0;
-      }
+    }
   } while (itmp);
 
   this->TimeStepRange[0] = 0;
@@ -2361,24 +2361,24 @@ int vtkLSDynaReader::RequestInformation( vtkInformation* vtkNotUsed(request),
   // read the header information immediately in order to determine whether
   // the timestep that's been passed is valid. If it's not, we ignore it.
   if ( ! p->FileIsValid )
-    {
+  {
     if ( p->Fam.GetDatabaseDirectory().empty() )
-      {
+    {
       // fail silently for CanReadFile()'s sake.
       //vtkErrorMacro( "You haven't set the LS-Dyna database directory!" );
       return 1;
-      }
+    }
 
     if ( p->Fam.GetDatabaseBaseName().empty() )
-      {
+    {
       p->Fam.SetDatabaseBaseName( "/d3plot" ); // not a bad assumption.
-      }
+    }
     p->Fam.ScanDatabaseDirectory();
     if ( p->Fam.GetNumberOfFiles() < 1 )
-      {
+    {
       p->FileIsValid = 0;
       return 1;
-      }
+    }
     p->Fam.DetermineStorageModel();
     p->MaxFileLength = p->FileSizeFactor*512*512*p->Fam.GetWordSize();
     p->FileIsValid = 1;
@@ -2392,37 +2392,37 @@ int vtkLSDynaReader::RequestInformation( vtkInformation* vtkNotUsed(request),
     // This will call ReadHeaderInformation when it encounters any
     // mesh adaptations (so that it can get the new state vector size).
     this->ScanDatabaseTimeSteps();
-    }
+  }
 
   if ( p->TimeValues.size() == 0 )
-    {
+  {
     vtkErrorMacro( "No valid time steps in the LS-Dyna database" );
     return 0;
-    }
+  }
 
   // Clamp timestep to be valid here.
   if ( p->CurrentState < 0 )
-    {
+  {
     p->CurrentState = 0;
-    }
+  }
   else if ( p->CurrentState >= (int) p->TimeValues.size() )
-    {
+  {
     p->CurrentState = p->TimeValues.size() - 1;
-    }
+  }
 
   int newAdaptLevel = p->Fam.TimeAdaptLevel( p->CurrentState );
   if ( p->Fam.GetCurrentAdaptLevel() !=  newAdaptLevel )
-    {
+  {
     // Requested time step has a different mesh adaptation than current one.
     // Update the header information so that queries like GetNumberOfCells() work properly.
     int result;
     result = this->ReadHeaderInformation( newAdaptLevel );
     if ( result >= 0 )
-      {
+    {
       this->ResetPartsCache();
       return result;
-      }
     }
+  }
 
   // Every output object has all the time steps.
   vtkInformation* outInfo = oinfo->GetInformationObject(0);
@@ -2440,44 +2440,44 @@ int vtkLSDynaReader::ReadTopology()
 {
   bool readTopology=false;
   if(!this->Parts)
-    {
+  {
     readTopology=true;
     this->Parts = vtkLSDynaPartCollection::New();
     this->Parts->InitCollection(this->P,NULL,NULL);
-    }
+  }
   if(!readTopology)
-    {
+  {
     return 0;
-    }
+  }
 
   if( this->ReadPartSizes())
-    {
+  {
     vtkErrorMacro( "Could not read cell sizes." );
     return 1;
-    }
+  }
 
   if ( this->ReadConnectivityAndMaterial() )
-    {
+  {
     vtkErrorMacro( "Could not read connectivity." );
     return 1;
-    }
+  }
 
   this->Parts->FinalizeTopology();
 
   if(this->ReadNodes())
-    {
+  {
     vtkErrorMacro("Could not read static node values.");
     return 1;
-    }
+  }
 
 
   // we need to read the user ids after we have read the topology
   // so we know how many cells are in each part
   if ( this->ReadUserIds() )
-    {
+  {
     vtkErrorMacro( "Could not read user node/element IDs." );
     return 1;
-    }
+  }
 
   return 0;
 }
@@ -2493,17 +2493,17 @@ int vtkLSDynaReader::ReadNodes()
   // Note that in any event we still have to read the rigid road coordinates.
   // If the mesh is deformed each state will have the points so see ReadState
   if ( ! this->DeformedMesh || ! p->Dict["IU"] )
-    {
+  {
     p->Fam.SkipToWord( LSDynaFamily::GeometryData, p->Fam.GetCurrentAdaptLevel(), 0 );
     this->Parts->ReadPointProperty(p->NumberOfNodes,p->Dimensionality,NULL,false,true,false);
-    }
+  }
 
   if ( p->ReadRigidRoadMvmt )
-    {
+  {
     vtkIdType nnode = p->Dict["NNODE"];
     p->Fam.SkipToWord( LSDynaFamily::RigidSurfaceData, p->Fam.GetCurrentAdaptLevel(), 4 + nnode );
     this->Parts->ReadPointProperty(nnode,3,NULL,false,false,true);
-    }
+  }
 
   return 0;
 }
@@ -2515,22 +2515,22 @@ int vtkLSDynaReader::ReadUserIds()
   int arbitraryMaterials = this->P->Dict["NSORT"] < 0 ? 1 : 0;
   vtkIdType isz = this->GetNumberOfNodes();
   if ( arbitraryMaterials )
-    {
+  {
     this->P->Fam.SkipToWord( LSDynaFamily::UserIdData,
                              this->P->Fam.GetCurrentAdaptLevel(), 16 );
-    }
+  }
   else
-    {
+  {
     this->P->Fam.SkipToWord( LSDynaFamily::UserIdData,
                              this->P->Fam.GetCurrentAdaptLevel(), 10 );
-    }
+  }
 
   // Node numbers
   bool nodeIdStatus = this->GetPointArrayStatus( LS_ARRAYNAME_USERID ) == 1;
   if(nodeIdStatus)
-    {
+  {
     this->Parts->ReadPointUserIds(isz,LS_ARRAYNAME_USERID);
-    }
+  }
 
   // FIXME: This won't work if Rigid Body and Shell elements are interleaved (which I now believe they are)
   this->Parts->ReadCellUserIds(LSDynaMetaData::BEAM,
@@ -2556,23 +2556,23 @@ int vtkLSDynaReader::ReadDeletion()
         LSDynaMetaData::BEAM};
 
   if(!this->RemoveDeletedCells)
-    {
+  {
     //this functions doesn't have to lead the reader to a certain
     //position in the files
     this->Parts->DisbleDeadCells();
     return 0;
-    }
+  }
 
   LSDynaMetaData* p = this->P;
   vtkUnsignedCharArray* death;
   switch ( p->Dict["MDLOPT"] )
-    {
+  {
   case LS_MDLOPT_POINT:
     vtkErrorMacro("We currently only support cell death");
     break;
   case LS_MDLOPT_CELL:
     for(int i=0; i < 4; ++i)
-      {
+    {
       const LSDynaMetaData::LSDYNA_TYPES type = validCellTypes[i];
       vtkIdType numCells,numSkipStart,numSkipEnd;
       this->Parts->GetPartReadInfo(type,numCells,numSkipStart,numSkipEnd);
@@ -2587,11 +2587,11 @@ int vtkLSDynaReader::ReadDeletion()
       p->Fam.SkipWords(numSkipEnd);
       this->Parts->SetCellDeadFlags(type,death,this->DeletedCellsAsGhostArray);
       death->Delete();
-      }
+    }
 
     //we are now at the position to read the SPH deletion info from the sph state info
     if(p->NumberOfCells[LSDynaMetaData::PARTICLE]>0)
-      {
+    {
       const LSDynaMetaData::LSDYNA_TYPES type = LSDynaMetaData::PARTICLE;
       vtkIdType numCells,numSkipStart,numSkipEnd;
       this->Parts->GetPartReadInfo(type,numCells,numSkipStart,numSkipEnd);
@@ -2609,13 +2609,13 @@ int vtkLSDynaReader::ReadDeletion()
       p->Fam.SkipWords(numSkipEnd);
       this->Parts->SetCellDeadFlags(type,death,this->DeletedCellsAsGhostArray);
       death->Delete();
-      }
+    }
     break;
   case LS_MDLOPT_NONE:
   default:
     // do nothing.
     break;
-    }
+  }
   return 0;
 }
 
@@ -2628,27 +2628,27 @@ void vtkLSDynaReader::ReadDeletionArray(vtkUnsignedCharArray* arr, const int& po
   vtkIdType startId = 0;
   vtkIdType numChunks = p->Fam.InitPartialChunkBuffering(arr->GetNumberOfTuples(),size);
   if(p->Fam.GetWordSize() == 8)
-    {
+  {
     for(vtkIdType i=0;i<numChunks;++i)
-      {
+    {
       vtkIdType chunkSize = p->Fam.GetNextChunk(LSDynaFamily::Float );
       vtkIdType numCellsInChunk = chunkSize/size;
       double *dbuf = p->Fam.GetBufferAs<double>();
       this->FillDeletionArray(dbuf,arr,startId,numCellsInChunk,pos,size);
       startId+=numCellsInChunk;
-      }
     }
+  }
   else
-    {
+  {
     for(vtkIdType i=0;i<numChunks;++i)
-      {
+    {
       vtkIdType chunkSize = p->Fam.GetNextChunk(LSDynaFamily::Float );
       vtkIdType numCellsInChunk = chunkSize/size;
       float *fbuf = p->Fam.GetBufferAs<float>();
       this->FillDeletionArray(fbuf,arr,startId,numCellsInChunk,pos,size);
       startId+=numCellsInChunk;
-      }
     }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -2656,20 +2656,20 @@ int vtkLSDynaReader::ReadState( vtkIdType step )
 {
   //remember C style return so zero is pass
   if(this->ReadNodeStateInfo(step))
-    {
+  {
     vtkErrorMacro( "Problem reading state point information." );
     return 1;
-    }
+  }
   if(this->ReadCellStateInfo( step ))
-    {
+  {
     vtkErrorMacro( "Problem reading state cell information." );
     return 1;
-    }
+  }
   if(this->ReadDeletion())
-    {
+  {
     vtkErrorMacro( "Problem reading state deletion information." );
     return 1;
-    }
+  }
   return 0;
 }
 
@@ -2753,27 +2753,27 @@ int vtkLSDynaReader::ReadNodeStateInfo( vtkIdType step )
   int allVortPresent = p->Dict["cfdXVort"] && p->Dict["cfdYVort"] && p->Dict["cfdZVort"];
 
   for ( int nvnum = 0; nvnum < (int) (sizeof(aComponents)/sizeof(aComponents[0])); ++nvnum )
-    {
+  {
     if ( p->Dict[ aDictNames[nvnum] ] )
-      {
+    {
       if ( allVortPresent && ! strncmp( LS_ARRAYNAME_VORTICITY, aNames[ nvnum ], sizeof(LS_ARRAYNAME_VORTICITY) ) )
-        {
+      {
         // turn the vorticity components from individual scalars into one vector (with a hack)
         if ( nvnum < 7 )
           continue;
         aComponents[ nvnum ] = 3;
         aNames[ nvnum ] = LS_ARRAYNAME_VORTICITY;
-        }
+      }
       names.push_back(aNames[ nvnum ]);
       cmps.push_back( aComponents[ nvnum ] == -1 ? p->Dimensionality : aComponents[ nvnum ] );
       vppt += cmps.back();
-      }
     }
+  }
 
   if ( vppt != 0 )
-    {
+  {
     for(size_t i=0; i < cmps.size(); i++)
-      {
+    {
       //special case if the user has said they want a deformed mesh
       //we have to read in the deflection array
       bool valid = this->GetPointArrayStatus( names[i].c_str() ) != 0;
@@ -2781,10 +2781,10 @@ int vtkLSDynaReader::ReadNodeStateInfo( vtkIdType step )
                                strcmp(names[i].c_str(), LS_ARRAYNAME_DEFLECTION)==0;
       this->Parts->ReadPointProperty(p->NumberOfNodes,cmps[i],names[i].c_str(),
                                      valid,isDeflectionArray);
-      }
+    }
     //clear the buffer as it will be very large and not needed
     p->Fam.ClearBuffer();
-    }
+  }
   return 0;
 }
 
@@ -2798,9 +2798,9 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
 
 #define VTK_LS_CELLARRAY(cond,celltype,arrayname,numComps)\
   if ( (cond) && this->GetCellArrayStatus( celltype, arrayname ) ) \
-    { \
+  { \
     this->Parts->AddProperty(celltype,arrayname,startPos,numComps); \
-    } \
+  } \
   startPos+=(numComps);
 
   // Solid element data========================================================
@@ -2810,12 +2810,12 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
   VTK_LS_CELLARRAY(1,LSDynaMetaData::SOLID,LS_ARRAYNAME_EPSTRAIN,1);
   int extraValues = p->Dict["NEIPH"];
   if ( p->Dict["ISTRN"] )
-    {
+  {
     extraValues -= 6; // last six values are strain.
-    }
+  }
   assert(extraValues >= 0);
   if ( std::abs(static_cast<int>(p->Dict["NUMFLUID"])) > 0 )
-    {
+  {
     vtkIdType numGroups = std::abs(static_cast<int>(p->Dict["NUMFLUID"]));
     bool hasMass = (p->Dict["NUMFLUID"] < 0);
     assert(extraValues >= (1 + numGroups + 1 + (hasMass? numGroups : 0)));
@@ -2823,31 +2823,31 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
     extraValues--;
 
     for (vtkIdType g=0; g < numGroups; ++g)
-      {
+    {
       sprintf( ctmp, LS_ARRAYNAME_VOLUME_FRACTION_FMT, static_cast<int>(g+1) );
       VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, ctmp, 1);
       extraValues--;
-      }
+    }
 
     VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, LS_ARRAYNAME_DOMINANT_GROUP, 1);
     extraValues--;
 
     for (vtkIdType g=0; hasMass && (g < numGroups); ++g)
-      {
+    {
       sprintf( ctmp, LS_ARRAYNAME_SPECIES_MASS_FMT, static_cast<int>(g+1) );
       VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, ctmp, 1);
       extraValues--;
-      }
     }
+  }
   assert(extraValues >= 0);
   if (extraValues > 0)
-    {
+  {
     VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, LS_ARRAYNAME_INTEGRATIONPOINT, extraValues);
-    }
+  }
   if (p->Dict["ISTRN"] == 1 && p->Dict["NEIPH"] >= 6)
-    {
+  {
     VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, LS_ARRAYNAME_STRAIN, 6);
-    }
+  }
   this->ReadCellProperties(LSDynaMetaData::SOLID, p->Dict["NV3D"]);
 
   // Thick Shell element data==================================================
@@ -2868,7 +2868,7 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
   VTK_LS_CELLARRAY(p->Dict["NEIPS"] > 0,LSDynaMetaData::THICK_SHELL,LS_ARRAYNAME_INTEGRATIONPOINT "OuterSurf",p->Dict["NEIPS"]);
 
   if(p->Dict["NV3DT"] > 21)
-    {
+  {
     //in some use case the ISTRN is incorrectly calculated because the d3plot
     //is unclear if the flag needs to be computed separately for
     //NV2D and NV3DT
@@ -2882,7 +2882,7 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
     // an effective plastic strain (1 val), and extra integration
     // point values (NEIPS vals).
     for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
-      {
+    {
       sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_STRESS, itmp + 1 );
       VTK_LS_CELLARRAY(p->Dict["IOSHL(1)"] != 0,LSDynaMetaData::THICK_SHELL,ctmp,6);
 
@@ -2891,8 +2891,8 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
 
       sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1 );
       VTK_LS_CELLARRAY(p->Dict["NEIPS"] > 0,LSDynaMetaData::THICK_SHELL,ctmp,p->Dict["NEIPS"]);
-      }
     }
+  }
 
   this->ReadCellProperties(LSDynaMetaData::THICK_SHELL, p->Dict["NV3DT"]);
 
@@ -2935,7 +2935,7 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
   // an effective plastic strain (1 val), and extra integration
   // point values (NEIPS vals).
   for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
-    {
+  {
     sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_STRESS, itmp + 1 );
     VTK_LS_CELLARRAY(p->Dict["IOSHL(1)"] != 0,LSDynaMetaData::SHELL,ctmp,6);
 
@@ -2944,7 +2944,7 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
 
     sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1 );
     VTK_LS_CELLARRAY(p->Dict["NEIPS"] > 0,LSDynaMetaData::SHELL,ctmp,p->Dict["NEIPS"]);
-    }
+  }
 
   VTK_LS_CELLARRAY(p->Dict["IOSHL(3)"],LSDynaMetaData::SHELL,LS_ARRAYNAME_BENDINGRESULTANT,3); // Bending Mx, My, Mxy
   VTK_LS_CELLARRAY(p->Dict["IOSHL(3)"],LSDynaMetaData::SHELL,LS_ARRAYNAME_SHEARRESULTANT,2); // Shear Qx, Qy
@@ -2980,28 +2980,28 @@ void vtkLSDynaReader::ReadCellProperties(const int& type,const int& numTuples)
   vtkIdType numChunks = this->P->Fam.InitPartialChunkBuffering(numCells,numTuples);
   vtkIdType startId = 0;
   if(this->P->Fam.GetWordSize() == 8 && numCells > 0)
-    {
+  {
     for(vtkIdType i=0; i < numChunks; ++i)
-      {
+    {
       //we need offsets!
       vtkIdType chunkSize = this->P->Fam.GetNextChunk( LSDynaFamily::Float);
       vtkIdType numCellsInChunk = chunkSize/numTuples;
       double *dbuf = this->P->Fam.GetBufferAs<double>();
       this->Parts->FillCellProperties(dbuf,t,startId,numCellsInChunk,numTuples);
       startId += numCellsInChunk;
-      }
     }
+  }
   else if (numCells > 0)
-    {
+  {
     for(vtkIdType i=0; i < numChunks; ++i)
-      {
+    {
       vtkIdType chunkSize = this->P->Fam.GetNextChunk( LSDynaFamily::Float);
       vtkIdType numCellsInChunk = chunkSize/numTuples;
       float *fbuf = this->P->Fam.GetBufferAs<float>();
       this->Parts->FillCellProperties(fbuf,t,startId,numCellsInChunk,numTuples);
       startId += numCellsInChunk;
-      }
     }
+  }
   this->P->Fam.SkipWords(numSkipEnd * numTuples);
 
   //clear the buffer as it will be very large and not needed
@@ -3019,9 +3019,9 @@ int vtkLSDynaReader::ReadSPHState( vtkIdType vtkNotUsed(step) )
 
 #define VTK_LS_SPHARRAY(cond,celltype,arrayname,numComps)\
   if ( (cond) && this->GetCellArrayStatus( celltype, arrayname ) ) \
-    { \
+  { \
     this->Parts->AddProperty(celltype,arrayname,startPos,numComps); \
-    } \
+  } \
   startPos+=(numComps);
 
   // Smooth Particle ========================================================
@@ -3058,7 +3058,7 @@ int vtkLSDynaReader::ReadUserMaterialIds()
   // Does the file contain arbitrary material IDs?
 
   if ( (p->Dict["NARBS"] > 0) && (p->Dict["NSORT"] < 0))
-    { // Yes, it does. Read them.
+  { // Yes, it does. Read them.
 
 
     // Skip over arbitrary node and element IDs:
@@ -3072,31 +3072,31 @@ int vtkLSDynaReader::ReadUserMaterialIds()
     // Read in material ID lists:
     p->Fam.BufferChunk( LSDynaFamily::Int, numMats*3 );
     for ( m=0; m<numMats; ++m )
-      {
-      p->MaterialsOrdered.push_back( p->Fam.GetNextWordAsInt() );
-      }
-    for ( m=0; m<numMats; ++m )
-      {
-      p->MaterialsUnordered.push_back( p->Fam.GetNextWordAsInt() );
-      }
-    for ( m=0; m<numMats; ++m )
-      {
-      p->MaterialsLookup.push_back( p->Fam.GetNextWordAsInt() );
-      }
-
-    }
-  else
     {
+      p->MaterialsOrdered.push_back( p->Fam.GetNextWordAsInt() );
+    }
+    for ( m=0; m<numMats; ++m )
+    {
+      p->MaterialsUnordered.push_back( p->Fam.GetNextWordAsInt() );
+    }
+    for ( m=0; m<numMats; ++m )
+    {
+      p->MaterialsLookup.push_back( p->Fam.GetNextWordAsInt() );
+    }
+
+  }
+  else
+  {
     numMats = p->Dict["NUMMAT8"] + p->Dict["NUMMATT"] + p->Dict["NUMMAT4"] + p->Dict["NUMMAT2"] + p->Dict["NGPSPH"];
     // No, it doesn't. Fabricate a list of sequential IDs
     // construct the (trivial) material lookup tables
     for ( m = 1; m <= numMats; ++m )
-      {
+    {
       p->MaterialsOrdered.push_back( m );
       p->MaterialsUnordered.push_back( m );
       p->MaterialsLookup.push_back( m );
-      }
     }
+  }
   return 0;
 }
 
@@ -3123,10 +3123,10 @@ int vtkLSDynaReader::ReadPartTitlesFromRootFile()
 
   LSDynaMetaData* p = this->P;
   if ( p->PreStateSize <= 0 )
-    {
+  {
     vtkErrorMacro( "Database has bad pre state size(" << p->PreStateSize << ")." );
     return 1;
-    }
+  }
 
  //when called this method is at the right spot to read the part names
   vtkIdType currentFileLoc = p->Fam.GetCurrentFWord();
@@ -3135,11 +3135,11 @@ int vtkLSDynaReader::ReadPartTitlesFromRootFile()
   p->Fam.BufferChunk( LSDynaFamily::Float, 1 );
   double eofM = p->Fam.GetNextWordAsFloat();
   if(eofM !=LSDynaFamily::EOFMarker)
-    {
+  {
     //we failed to find a marker stop on the part names
     p->Fam.SkipToWord(LSDynaFamily::ControlSection,currentAdaptLevel,currentFileLoc);
     return 1;
-    }
+  }
 
   //make sure that the root files has room left for the amount of data we are going to request
   //if it doesn't we know it can't have part names
@@ -3149,34 +3149,34 @@ int vtkLSDynaReader::ReadPartTitlesFromRootFile()
 
   vtkIdType fileSize = p->Fam.GetFileSize(0);
   if ( fileSize < partTitlesByteSize + p->Fam.GetCurrentFWord())
-    {
+  {
     //this root file doesn't part names
     p->Fam.SkipToWord(LSDynaFamily::ControlSection,currentAdaptLevel,currentFileLoc);
     return 1;
-    }
+  }
 
   //we can now safely read the part titles
   p->Fam.SkipWords(2); //skip types and num of parts
   vtkIdType nameWordSize = 72 / p->Fam.GetWordSize();
   for(vtkIdType i=0; i < numParts; ++i)
-    {
+  {
     p->Fam.BufferChunk(LSDynaFamily::Int, 1);
     p->Fam.GetNextWordAsInt(); //vtkIdType partId
 
     p->Fam.BufferChunk( LSDynaFamily::Char, nameWordSize);
     std::string name(p->Fam.GetNextWordAsChars(),72);
     if(name.size() > 0 && name[0]!=' ')
-      {
+    {
       //strip the name to the subset that
       size_t found = name.find_last_not_of(' ');
       if(found != std::string::npos)
-        {
+      {
         name = name.substr(0,found+1);
-        }
+      }
       //get the right part id
       p->PartNames[i] = name;
-      }
     }
+  }
   p->Fam.SkipToWord(LSDynaFamily::ControlSection,currentAdaptLevel,currentFileLoc);
   return 0;
 }
@@ -3199,28 +3199,28 @@ void vtkLSDynaReader::ResetPartInfo()
 #define VTK_LSDYNA_PARTLABEL(dict,fmt) \
   N = p->Dict[dict]; \
   for ( i = 0; i < N; ++i, ++mat ) \
-    { \
+  { \
     if(arbitraryMaterials) \
     { \
       if(mat < static_cast<int>(p->MaterialsOrdered.size())) \
-        { \
+      { \
         realMat = p->MaterialsOrdered[mat - 1]; \
-        } \
+      } \
       else \
-        { \
+      { \
         realMat = mat; \
-        } \
+      } \
       sprintf( partLabel, fmt " (Matl%d)", mat, realMat ); \
     } \
     else{ \
       realMat = mat; \
       sprintf( partLabel, fmt, mat );  \
-      } \
+    } \
     p->PartNames.push_back( partLabel ); \
     p->PartIds.push_back( realMat ); \
     p->PartMaterials.push_back( mat ); \
     p->PartStatus.push_back( 1 ); \
-    }
+  }
 
   VTK_LSDYNA_PARTLABEL("NUMMAT8","Part%d"); // was "PartSolid%d
   VTK_LSDYNA_PARTLABEL("NUMMATT","Part%d"); // was "PartThickShell%d
@@ -3236,29 +3236,29 @@ void vtkLSDynaReader::ResetPartInfo()
 int vtkLSDynaReader::ReadInputDeck()
 {
   if ( ! this->InputDeck )
-    {
+  {
     // nothing more we can do
     return 0;
-    }
+  }
 
   ifstream deck( this->InputDeck, ios::in );
   if ( ! deck.good() )
-    {
+  {
     return 0;
-    }
+  }
 
   std::string header;
   vtkLSGetLine( deck, header );
   deck.seekg( 0, ios::beg );
   int retval;
   if ( vtksys::SystemTools::StringStartsWith( header.c_str(), "<?xml" ) )
-    {
+  {
     retval = this->ReadInputDeckXML( deck );
-    }
+  }
   else
-    {
+  {
     retval = this->ReadInputDeckKeywords( deck );
-    }
+  }
 
   return retval;
 }
@@ -3270,10 +3270,10 @@ int vtkLSDynaReader::ReadInputDeckXML( ifstream& deck )
   parser->SetStream( &deck );
   // We must be able to parse the file and end up with 1 part per material ID
   if ( ! parser->Parse() || this->P->GetTotalMaterialCount() != (int)this->P->PartNames.size() )
-    {
+  {
     // We had a problem identifying a part, give up and start over by reseting the parts
     this->ResetPartInfo();
-    }
+  }
   parser->Delete();
 
   return 0;
@@ -3291,120 +3291,120 @@ int vtkLSDynaReader::ReadInputDeckKeywords( ifstream& deck )
   int curPart = 0;
 
   while ( deck.good() && vtkLSNextSignificantLine( deck, line ) && curPart < (int)this->P->PartNames.size() )
-    {
+  {
     if ( line[0] == '*' )
-      {
+    {
       vtkLSDowncaseFirstWord( lineLowercase, line.substr( 1 ) );
       if ( vtksys::SystemTools::StringStartsWith( lineLowercase.c_str(), "part" ) )
-        {
+      {
         // found a part
         // ... read the next non-comment line as the part name
         if ( vtkLSNextSignificantLine( deck, line ) )
-          {
+        {
           // Get rid of leading and trailing newlines, whitespace, etc.
           vtkLSTrimWhitespace( line );
           partName = line;
-          }
+        }
         else
-          {
+        {
           partName = "";
-          }
+        }
         // ... read the next non-comment line as the part id or a reference to it.
         if ( vtkLSNextSignificantLine( deck, line ) )
-          {
+        {
           std::vector<std::string> splits;
           vtkLSSplitString( line, splits, "& ,\t\n\r" );
           if ( line[0] == '&' )
-            {
+          {
             // found a reference. look it up.
             partId = splits.size() ? parameters[splits[0]] : -1;
-            }
+          }
           else
-            {
-            if ( splits.size() < 1 || sscanf( splits[0].c_str(), "%d", &partId ) <= 0 )
-              {
-              partId = -1;
-              }
-            }
-          if ( splits.size() < 3 )
-            {
-            partMaterial = -1;
-            }
-          else
-            {
-            if ( splits[2][0] == '&' )
-              {
-              partMaterial = parameters[splits[2]];
-              }
-            else
-              {
-              if ( sscanf( splits[2].c_str(), "%d", &partMaterial ) <= 0 )
-                {
-                partMaterial = -1;
-                }
-              }
-            }
-          } // read the part id or reference
-        else
           {
+            if ( splits.size() < 1 || sscanf( splits[0].c_str(), "%d", &partId ) <= 0 )
+            {
+              partId = -1;
+            }
+          }
+          if ( splits.size() < 3 )
+          {
+            partMaterial = -1;
+          }
+          else
+          {
+            if ( splits[2][0] == '&' )
+            {
+              partMaterial = parameters[splits[2]];
+            }
+            else
+            {
+              if ( sscanf( splits[2].c_str(), "%d", &partMaterial ) <= 0 )
+              {
+                partMaterial = -1;
+              }
+            }
+          }
+        } // read the part id or reference
+        else
+        {
           partId = -1;
           partMaterial = -1;
-          }
+        }
         // Comment on next line: partId values need not be consecutive. FIXME: ... or even positive?
         if ( ! partName.empty() && partId >= 0 )
-          {
+        {
           this->P->PartNames[curPart] = partName;
           this->P->PartIds[curPart] = partId;
           this->P->PartMaterials[curPart] = partMaterial;
           this->P->PartStatus[curPart] = 1;
           fprintf( stderr, "%2d: Part: \"%s\" Id: %d\n", curPart, partName.c_str(), partId );
           ++curPart;
-          }
-        else
-          {
-          success = 0;
-          }
         }
-      else if ( vtksys::SystemTools::StringStartsWith( lineLowercase.c_str(), "parameter" ) )
+        else
         {
+          success = 0;
+        }
+      }
+      else if ( vtksys::SystemTools::StringStartsWith( lineLowercase.c_str(), "parameter" ) )
+      {
         // found a reference
         // ... read the next non-comment line to decode the reference
         if ( vtkLSNextSignificantLine( deck, line ) )
-          {
+        {
           std::string paramName;
           int paramIntVal;
           // Look for "^[IiRr]\s*(\w+)\s+([\w\.-]+)" and set parameters[\2]=\1
           if ( line[0] == 'I' || line[0] == 'i' )
-            { // We found an integer parameter. Those are the only ones we care about.
+          { // We found an integer parameter. Those are the only ones we care about.
             line = line.substr( 1 );
             std::string::size_type paramStart = line.find_first_not_of( " \t," );
             if ( paramStart == std::string::npos )
-              { // ignore a bad parameter line
+            { // ignore a bad parameter line
               continue;
-              }
+            }
             std::string::size_type paramEnd = line.find_first_of( " \t,", paramStart );
             if ( paramEnd == std::string::npos )
-              { // found the parameter name, but no value after it
+            { // found the parameter name, but no value after it
               continue;
-              }
+            }
             paramName = line.substr( paramStart, paramEnd - paramStart );
             if ( sscanf( line.substr( paramEnd + 1 ).c_str(), "%d", &paramIntVal ) <= 0 )
-              { // unable to read id
+            { // unable to read id
               continue;
-              }
-            parameters[ paramName ] = paramIntVal;
             }
+            parameters[ paramName ] = paramIntVal;
           }
+        }
         else
-          {
+        {
           // no valid line after "*parameter" keyword. Silently ignore it.
-          }
-        } // "parameter line"
-      } // line starts with "*"
-    } // while ( deck.good() )
+        }
+      } // "parameter line"
+    } // line starts with "*"
+  } // while ( deck.good() )
 
   if ( success )
-    {
+  {
     // Save a summary file if possible. The user can open the summary file next
     // time and not be forced to parse the entire input deck to get part IDs.
     std::string deckDir = vtksys::SystemTools::GetFilenamePath( this->InputDeck );
@@ -3416,14 +3416,14 @@ int vtkLSDynaReader::ReadInputDeckKeywords( ifstream& deck )
     // GetFilenameExtension doesn't look for the rightmost "." ... do it ourselves.
     dot = deckName.rfind( '.' );
     if ( dot != std::string::npos )
-      {
+    {
       deckExt = deckName.substr( dot );
       deckName = deckName.substr( 0, dot );
-      }
+    }
     else
-      {
+    {
       deckExt = "";
-      }
+    }
 #ifndef _WIN32
     xmlSummary = deckDir + "/" + deckName + ".lsdyna";
 #else
@@ -3431,15 +3431,15 @@ int vtkLSDynaReader::ReadInputDeckKeywords( ifstream& deck )
 #endif // _WIN32
     // As long as we don't kill the input deck, write the summary XML:
     if ( xmlSummary != this->InputDeck )
-      {
-      this->WriteInputDeckSummary( xmlSummary.c_str() );
-      }
-    }
-  else
     {
+      this->WriteInputDeckSummary( xmlSummary.c_str() );
+    }
+  }
+  else
+  {
     // We had a problem identifying a part, give up and reset part info
     this->ResetPartInfo();
-    }
+  }
 
   return ! success;
 }
@@ -3448,9 +3448,9 @@ int vtkLSDynaReader::WriteInputDeckSummary( const char* fname )
 {
   ofstream xmlSummary( fname, ios::out | ios::trunc );
   if ( ! xmlSummary.good() )
-    {
+  {
     return 1;
-    }
+  }
 
   xmlSummary
     << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl
@@ -3459,29 +3459,29 @@ int vtkLSDynaReader::WriteInputDeckSummary( const char* fname )
   std::string dbDir = this->P->Fam.GetDatabaseDirectory();
   std::string dbName = this->P->Fam.GetDatabaseBaseName();
   if ( this->IsDatabaseValid() && ! dbDir.empty() && ! dbName.empty() )
-    {
+  {
 #ifndef _WIN32
     if ( dbDir[0] == '/' )
 #else
     if ( dbDir[0] == '\\' )
 #endif // _WIN32
-      {
+    {
       // OK, we have an absolute path, so it should be safe to write it out.
       xmlSummary
         << "  <database path=\"" << dbDir.c_str()
         << "\" name=\"" << dbName.c_str() << "\"/>" << endl;
-      }
     }
+  }
 
   for ( unsigned p = 0; p < this->P->PartNames.size(); ++p )
-    {
+  {
     xmlSummary
       << "  <part id=\"" << this->P->PartIds[p]
       << "\" material_id=\"" << this->P->PartMaterials[p]
       << "\" status=\"" << this->P->PartStatus[p]
       << "\"><name>" << this->P->PartNames[p].c_str()
       << "</name></part>" << endl;
-    }
+  }
 
   xmlSummary
     << "</lsdyna>" << endl;
@@ -3498,22 +3498,22 @@ int vtkLSDynaReader::RequestData(
   LSDynaMetaData* p = this->P;
 
   if ( ! p->FileIsValid )
-    {
+  {
     // This should have been set in RequestInformation()
     return 0;
-    }
+  }
   p->Fam.ClearBuffer();
   p->Fam.OpenFileHandles();
 
   vtkMultiBlockDataSet* mbds = 0;
   vtkInformation* oi = oinfo->GetInformationObject(0);
   if ( ! oi )
-    {
+  {
     return 0;
-    }
+  }
 
   if ( oi->Has( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP() ) )
-    {
+  {
     // Only return single time steps for now.
     double requestedTimeStep = oi->Get( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     int timeStepLen = oi->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
@@ -3521,37 +3521,37 @@ int vtkLSDynaReader::RequestData(
 
     int cnt = 0;
     while ( cnt < timeStepLen - 1 && timeSteps[cnt] < requestedTimeStep )
-      {
+    {
       ++cnt;
-      }
+    }
     this->SetTimeStep( cnt );
 
     oi->Set( vtkDataObject::DATA_TIME_STEP(), p->TimeValues[ p->CurrentState ] );
-    }
+  }
 
   mbds = vtkMultiBlockDataSet::SafeDownCast( oi->Get(vtkDataObject::DATA_OBJECT()) );
   if ( ! mbds )
-    {
+  {
     return 0;
-    }
+  }
   this->UpdateProgress( 0.01 );
 
   if ( p->Dict["MATTYP"] )
-    {
+  {
     // Do something with material type data
-    }
+  }
   this->UpdateProgress( 0.05 );
 
   if ( p->Dict["IALEMAT"] )
-    {
+  {
     // Do something with fluid material ID data
-    }
+  }
   this->UpdateProgress( 0.10 );
 
   if ( p->Dict["NMSPH"] )
-    {
+  {
     // Do something with smooth partical hydrodynamics element data
-    }
+  }
   this->UpdateProgress( 0.15 );
 
   //Read in the topology information for caching
@@ -3566,39 +3566,39 @@ int vtkLSDynaReader::RequestData(
   // I. Node and Cell State
   this->UpdateProgress( 0.6 );
   if ( this->ReadState( p->CurrentState ) )
-    {
+  {
     vtkErrorMacro( "Problem reading state data for time step " << p->CurrentState );
     return 1;
-    }
+  }
 
   // III. SPH Node State
   this->UpdateProgress( 0.7 );
   if ( this->GetNumberOfParticleCells() )
-    {
+  {
     if ( this->ReadSPHState( p->CurrentState ) )
-      {
+    {
       vtkErrorMacro( "Problem reading smooth particle hydrodynamics state." );
       return 1;
-      }
     }
+  }
 
   this->UpdateProgress( 0.8 );
   //add all the parts as child blocks to the output
   int size = this->Parts->GetNumberOfParts();
   for(int i=0; i < size;++i)
-    {
+  {
     if (this->Parts->IsActivePart(i))
-      {
+    {
       vtkUnstructuredGrid *ug = this->Parts->GetGridForPart(i);
       mbds->SetBlock(i,ug);
       mbds->GetMetaData(i)->Set(vtkCompositeDataSet::NAME(),
         this->P->PartNames[i].c_str());
-      }
-    else
-      {
-      mbds->SetBlock(i,NULL);
-      }
     }
+    else
+    {
+      mbds->SetBlock(i,NULL);
+    }
+  }
 
   this->P->Fam.ClearBuffer();
   this->UpdateProgress( 1.0 );
@@ -3613,14 +3613,14 @@ void vtkLSDynaReader::FillDeletionArray(T *buffer, vtkUnsignedCharArray* arr,
 {
   unsigned char val;
   for ( vtkIdType i=0; i<numCells; ++i )
-    {
+  {
     //Quote from LSDyna Manual:
     //"each value is set to the element material number or =0,
     //if the element is deleted"
     val = (buffer[deathPos] == 0.0) ? 1 : 0;
     buffer+=cellSize;
     arr->SetTuple1(start+i, val);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -3658,13 +3658,13 @@ int vtkLSDynaReader::FillTopology(T *buff)
 
   //Read Road Surface
   if ( this->P->ReadRigidRoadMvmt )
-    {
+  {
     this->P->Fam.SkipToWord( LSDynaFamily::RigidSurfaceData,
                              this->P->Fam.GetCurrentAdaptLevel(),
                              4 + 4*this->P->Dict["NNODE"] );
     FillBlock<LSDynaMetaData::ROAD_SURFACE,wordSize,4>(buff,this->Parts,this->P,5,
                                             VTK_QUAD);
-    }
+  }
   return 0;
 }
 
@@ -3673,23 +3673,23 @@ int vtkLSDynaReader::ReadConnectivityAndMaterial()
 {
   LSDynaMetaData* p = this->P;
   if ( p->ConnectivityUnpacked == 0 )
-    {
+  {
     // FIXME
     vtkErrorMacro( "Packed connectivity isn't supported yet." );
     return 1;
-    }
+  }
 
   this->Parts->InitCellInsertion();
   if(p->Fam.GetWordSize() == 8)
-    {
+  {
     vtkIdType *buf=NULL;
     return this->FillTopology<8>(buf);
-    }
+  }
   else
-    {
+  {
     int *buf=NULL;
     return this->FillTopology<4>(buf);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -3715,18 +3715,18 @@ void vtkLSDynaReader::ReadBlockCellSizes()
   //buffer the amount in small chunks so we don't create a massive buffer
   vtkIdType numChunks = this->P->Fam.InitPartialChunkBuffering(nc,numWordsPerCell);
   for(vtkIdType i=0; i < numChunks; ++i)
-    {
+  {
     chunkSize = this->P->Fam.GetNextChunk( LSDynaFamily::Int);
     buff = this->P->Fam.GetBufferAs<T>();
 
     for (j=0; j<chunkSize;j+=numWordsPerCell)
-      {
+    {
       buff+=offsetToMatId;
       matlId = static_cast<vtkIdType>(*buff);
       buff+=numWordsPerIdType;
       this->Parts->RegisterCellIndexToPart(blockType,matlId,t++,cellLength);
-      }
     }
+  }
   this->P->Fam.SkipWords(fileNumWordsPerCell * numCellsToSkipEnd);
 }
 
@@ -3758,12 +3758,12 @@ int vtkLSDynaReader::FillPartSizes()
 
   //Read Road Surface
   if ( this->P->ReadRigidRoadMvmt )
-    {
+  {
     this->P->Fam.SkipToWord( LSDynaFamily::RigidSurfaceData,
                              this->P->Fam.GetCurrentAdaptLevel(),
                              4 + 4*this->P->Dict["NNODE"] );
     this->ReadBlockCellSizes<T,LSDynaMetaData::ROAD_SURFACE,5,4>();
-    }
+  }
 
   //now that all the registering is done tell the collection
   //it can allocate the necessary space for each part
@@ -3776,29 +3776,29 @@ int vtkLSDynaReader::ReadPartSizes()
 {
   LSDynaMetaData* p = this->P;
   if ( p->ConnectivityUnpacked == 0 )
-    {
+  {
     // FIXME
     vtkErrorMacro( "Packed connectivity isn't supported yet." );
     return 1;
-    }
+  }
 
   if(p->Fam.GetWordSize() == 8)
-    {
+  {
     return this->FillPartSizes<vtkIdType>();
-    }
+  }
   else
-    {
+  {
     return this->FillPartSizes<int>();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 void vtkLSDynaReader::SetDeformedMesh(int deformed)
 {
   if (this->DeformedMesh != deformed)
-    {
+  {
     this->DeformedMesh = deformed;
     this->ResetPartsCache();
     this->Modified();
-    }
+  }
 }

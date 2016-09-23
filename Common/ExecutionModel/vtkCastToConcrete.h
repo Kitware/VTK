@@ -12,28 +12,31 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCastToConcrete - works around type-checking limitations
-// .SECTION Description
-// vtkCastToConcrete is a filter that works around type-checking limitations
-// in the filter classes. Some filters generate abstract types on output,
-// and cannot be connected to the input of filters requiring a concrete
-// input type. For example, vtkElevationFilter generates vtkDataSet for output,
-// and cannot be connected to vtkDecimate, because vtkDecimate requires
-// vtkPolyData as input. This is true even though (in this example) the input
-// to vtkElevationFilter is of type vtkPolyData, and you know the output of
-// vtkElevationFilter is the same type as its input.
-//
-// vtkCastToConcrete performs run-time checking to insure that output type
-// is of the right type. An error message will result if you try to cast
-// an input type improperly. Otherwise, the filter performs the appropriate
-// cast and returns the data.
-
-// .SECTION Caveats
-// You must specify the input before you can get the output. Otherwise an
-// error results.
-
-// .SECTION See Also
-// vtkDataSetAlgorithm vtkPointSetToPointSetFilter
+/**
+ * @class   vtkCastToConcrete
+ * @brief   works around type-checking limitations
+ *
+ * vtkCastToConcrete is a filter that works around type-checking limitations
+ * in the filter classes. Some filters generate abstract types on output,
+ * and cannot be connected to the input of filters requiring a concrete
+ * input type. For example, vtkElevationFilter generates vtkDataSet for output,
+ * and cannot be connected to vtkDecimate, because vtkDecimate requires
+ * vtkPolyData as input. This is true even though (in this example) the input
+ * to vtkElevationFilter is of type vtkPolyData, and you know the output of
+ * vtkElevationFilter is the same type as its input.
+ *
+ * vtkCastToConcrete performs run-time checking to insure that output type
+ * is of the right type. An error message will result if you try to cast
+ * an input type improperly. Otherwise, the filter performs the appropriate
+ * cast and returns the data.
+ *
+ * @warning
+ * You must specify the input before you can get the output. Otherwise an
+ * error results.
+ *
+ * @sa
+ * vtkDataSetAlgorithm vtkPointSetToPointSetFilter
+*/
 
 #ifndef vtkCastToConcrete_h
 #define vtkCastToConcrete_h

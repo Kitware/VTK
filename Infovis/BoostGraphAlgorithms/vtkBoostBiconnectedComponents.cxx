@@ -74,17 +74,17 @@ int vtkBoostBiconnectedComponents::RequestData(
   vtkSmartPointer<vtkIntArray> edgeCompArr = vtkSmartPointer<vtkIntArray>::New();
   edgeCompArr->SetNumberOfTuples(input->GetNumberOfEdges());
   for (vtkIdType i = 0; i < input->GetNumberOfEdges(); ++i)
-    {
+  {
     edgeCompArr->SetValue(i, -1);
-    }
+  }
   if (this->OutputArrayName)
-    {
+  {
     edgeCompArr->SetName(this->OutputArrayName);
-    }
+  }
   else
-    {
+  {
     edgeCompArr->SetName("biconnected component");
-    }
+  }
   vtkGraphEdgePropertyMapHelper<vtkIntArray*> helper(edgeCompArr.GetPointer());
 
   // Create vector of articulation points and set it up for insertion
@@ -114,44 +114,44 @@ int vtkBoostBiconnectedComponents::RequestData(
   // If isolated, assign a new value.
   vtkSmartPointer<vtkIntArray> vertCompArr = vtkSmartPointer<vtkIntArray>::New();
   if (this->OutputArrayName)
-    {
+  {
     vertCompArr->SetName(this->OutputArrayName);
-    }
+  }
   else
-    {
+  {
     vertCompArr->SetName("biconnected component");
-    }
+  }
   vertCompArr->SetNumberOfTuples(output->GetNumberOfVertices());
   vtkSmartPointer<vtkVertexListIterator> vertIt = vtkSmartPointer<vtkVertexListIterator>::New();
   vtkSmartPointer<vtkOutEdgeIterator> edgeIt = vtkSmartPointer<vtkOutEdgeIterator>::New();
   output->GetVertices(vertIt);
   while (vertIt->HasNext())
-    {
+  {
     vtkIdType u = vertIt->Next();
     output->GetOutEdges(u, edgeIt);
     int comp = -1;
     while (edgeIt->HasNext() && comp == -1)
-      {
+    {
       vtkOutEdgeType e = edgeIt->Next();
       int value = edgeCompArr->GetValue(e.Id);
       comp = value;
-      }
+    }
     if (comp == -1)
-      {
+    {
       comp = static_cast<int>(numComp);
       numComp++;
-      }
-    vertCompArr->SetValue(u, comp);
     }
+    vertCompArr->SetValue(u, comp);
+  }
 
   // Articulation points belong to multiple biconnected components.
   // Indicate these by assigning a component value of -1.
   // It belongs to whatever components its incident edges belong to.
   std::vector<vtkIdType>::size_type i;
   for (i = 0; i < artPoints.size(); i++)
-    {
+  {
     vertCompArr->SetValue(artPoints[i], -1);
-    }
+  }
 
   // Add edge and vertex component arrays to the output
   output->GetEdgeData()->AddArray(edgeCompArr);

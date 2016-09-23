@@ -180,12 +180,12 @@ public:
   {
     float len = Length();
     if (len!=0)
-      {
+    {
       values[0] /= len;
       values[1] /= len;
       values[2] /= len;
       values[3] /= len;
-      }
+    }
   }
 
   float values[4];
@@ -262,9 +262,9 @@ public:
   {
     vtkUnstructuredGridQuadricDecimationSymMat4 result;
     for (int i=0; i<10; i++)
-      {
+    {
       result.values[i] = values[i] * f;
-      }
+    }
     return result;
   }
 
@@ -272,27 +272,27 @@ public:
   {
     vtkUnstructuredGridQuadricDecimationSymMat4 result;
     for (int i=0; i<10; i++)
-      {
+    {
       result.values[i] = values[i] / f;
-      }
+    }
     return result;
   }
 
   const vtkUnstructuredGridQuadricDecimationSymMat4& operator*=(const float &f)
   {
     for (int i=0; i<10; i++)
-      {
+    {
       values[i] *= f;
-      }
+    }
     return *this;
   }
 
   const vtkUnstructuredGridQuadricDecimationSymMat4& operator/=(const float &f)
   {
     for (int i=0; i<10; i++)
-      {
+    {
       values[i] /= f;
-      }
+    }
     return *this;
   }
 
@@ -300,9 +300,9 @@ public:
     const vtkUnstructuredGridQuadricDecimationSymMat4 &m)
   {
     for (int i=0; i<10; i++)
-      {
+    {
       values[i] += m.values[i];
-      }
+    }
     return *this;
   }
 
@@ -310,9 +310,9 @@ public:
     const vtkUnstructuredGridQuadricDecimationSymMat4 &m)
   {
     for (int i=0; i<10; i++)
-      {
+    {
       values[i] -= m.values[i];
-      }
+    }
     return *this;
   }
 
@@ -366,22 +366,22 @@ bool vtkUnstructuredGridQuadricDecimationSymMat4::ConjugateR(
   vtkUnstructuredGridQuadricDecimationVec4 r((A1-A2)*(p1-x));
   vtkUnstructuredGridQuadricDecimationVec4 p;
   for (int k=0; k<4; k++)
-    {
+  {
     float s(r.Dot(r));
     if (s<=0)
-      {
+    {
       break;
-      }
+    }
     p += (r/s);
     vtkUnstructuredGridQuadricDecimationVec4 q((*this)*p);
     float t(p.Dot(q));
     if (s*t<=e)
-      {
+    {
       break;
-      }
+    }
     r -= (q/t);
     x += (p/t);
-    }
+  }
   return true;
 }
 
@@ -488,16 +488,16 @@ public:
   bool operator<(const vtkUnstructuredGridQuadricDecimationEdge &e) const
   {
     if (Verts[0]<e.Verts[0])
-      {
+    {
       return true;
-      }
+    }
     else
-      {
+    {
       if (Verts[0]==e.Verts[0] && Verts[1]<e.Verts[1])
-        {
+      {
         return true;
-        }
       }
+    }
     return false;
   }
 
@@ -505,11 +505,11 @@ public:
   void SortVerts()
   {
     if (Verts[0]>Verts[1])
-      {
+    {
       vtkUnstructuredGridQuadricDecimationVertex *v = Verts[1];
       Verts[1] = Verts[0];
       Verts[0] = v;
-      }
+    }
   }
 
   void ChangeVerts(vtkUnstructuredGridQuadricDecimationVertex *v1,
@@ -548,19 +548,19 @@ public:
   bool operator<(const vtkUnstructuredGridQuadricDecimationFace &f) const
   {
     for (int i = 0; i<3; i++)
-      {
+    {
       if (Verts[i]<f.Verts[i])
-        {
+      {
         return true;
-        }
+      }
       else
-        {
+      {
         if (Verts[i]>f.Verts[i])
-          {
+        {
           return false;
-          }
         }
       }
+    }
     return false;
   }
 
@@ -582,19 +582,19 @@ public:
   void SortVerts()
   {
     if (Verts[1]<Verts[0] && Verts[1]<Verts[2])
-      {
+    {
       VTK_SWAP(Verts[0], Verts[1], vtkUnstructuredGridQuadricDecimationVertex*);
-      }
+    }
 
     if (Verts[2]<Verts[0] && Verts[2]<Verts[1])
-      {
+    {
       VTK_SWAP(Verts[0], Verts[2], vtkUnstructuredGridQuadricDecimationVertex*);
-      }
+    }
 
     if (Verts[2]<Verts[1])
-      {
+    {
       VTK_SWAP(Verts[1], Verts[2], vtkUnstructuredGridQuadricDecimationVertex*);
-      }
+    }
   }
 
   vtkUnstructuredGridQuadricDecimationVertex *Verts[3];
@@ -773,21 +773,21 @@ void vtkUnstructuredGridQuadricDecimationFace::UpdateQuadric(
   A *= fabs(Orientation())/6.0 * boundaryWeight;
   //  A *= boundaryWeight;
   for (int i=0; i<3; i++)
-    {
+  {
     Verts[i]->Q.A += A;
-    }
+  }
 }
 
 bool vtkUnstructuredGridQuadricDecimationFace::ContainVertex(
   vtkUnstructuredGridQuadricDecimationVertex *v) const
 {
   for (int i=0; i<3; i++)
-    {
+  {
     if (Verts[i]==v)
-      {
+    {
       return true;
-      }
     }
+  }
   return false;
 }
 
@@ -797,12 +797,12 @@ void vtkUnstructuredGridQuadricDecimationFace::ChangeVertex(
   vtkUnstructuredGridQuadricDecimationVertex *v2)
 {
   for (int i=0; i<3; i++)
-    {
+  {
     if (Verts[i]==v1)
-      {
+    {
       Verts[i] = v2;
-      }
     }
+  }
   SortVerts();
 }
 
@@ -813,10 +813,10 @@ void vtkUnstructuredGridQuadricDecimationFaceMap::clear()
   vtkUnstructuredGridQuadricDecimationFaceHashMap::iterator i = faces.begin();
   // free all the memory
   while (i!=faces.end())
-    {
+  {
     delete (*i).second;
     i++;
-    }
+  }
   // clear the hash table
   faces.clear();
 }
@@ -827,13 +827,13 @@ vtkUnstructuredGridQuadricDecimationFaceMap::AddFace(
   const vtkUnstructuredGridQuadricDecimationFace &f)
 {
   if (GetFace(f)==NULL)
-    {
+  {
     return DirectAddFace(f);
-    }
+  }
   else
-    {
+  {
     return NULL;
-    }
+  }
 }
 
 // return the face that is the same as f
@@ -844,13 +844,13 @@ vtkUnstructuredGridQuadricDecimationFaceMap::GetFace(
 {
   vtkUnstructuredGridQuadricDecimationFaceHashMap::iterator i = faces.find(f);
   if (i!=faces.end())
-    {
+  {
     return (*i).second;
-    }
+  }
   else
-    {
+  {
     return NULL;
-    }
+  }
 }
 
 // remove the face has the content f
@@ -859,9 +859,9 @@ void vtkUnstructuredGridQuadricDecimationFaceMap::RemoveFace(
 {
   vtkUnstructuredGridQuadricDecimationFaceHashMap::iterator i = faces.find(f);
   if (i!=faces.end())
-    {
+  {
     DirectRemoveFace(i);
-    }
+  }
 }
 
 // add a face, and check if it can't be a border face
@@ -872,16 +872,16 @@ vtkUnstructuredGridQuadricDecimationFaceMap::AddFaceBorder(
 {
   vtkUnstructuredGridQuadricDecimationFaceHashMap::iterator i = faces.find(f);
   if (i!=faces.end())
-    {
+  {
     // exist -> has 2 tets -> not a border -> kill it
     DirectRemoveFace(i);
     return NULL;
-    }
+  }
   else
-    {
+  {
     // not exist -> add it in
     return DirectAddFace(f);
-    }
+  }
 }
 
 // add face without checking existence
@@ -950,9 +950,9 @@ public:
   bool ContainVertex(vtkUnstructuredGridQuadricDecimationVertex *v) const
   {
     if (Verts[0]==v || Verts[1]==v || Verts[2]==v || Verts[3]==v)
-      {
+    {
       return true;
-      }
+    }
     return false;
   }
 
@@ -961,25 +961,25 @@ public:
                   const vtkUnstructuredGridQuadricDecimationVec4 &v4)
   {
     if (fromV==Verts[0])
-      {
+    {
       return
         Orientation(v4, Verts[1]->Q.p, Verts[2]->Q.p, Verts[3]->Q.p)>VTK_TEPS;
-      }
+    }
     if (fromV==Verts[1])
-      {
+    {
       return
         Orientation(Verts[0]->Q.p, v4, Verts[2]->Q.p, Verts[3]->Q.p)>VTK_TEPS;
-      }
+    }
     if (fromV==Verts[2])
-      {
+    {
       return
         Orientation(Verts[0]->Q.p, Verts[1]->Q.p, v4, Verts[3]->Q.p)>VTK_TEPS;
-      }
+    }
     if (fromV==Verts[3])
-      {
+    {
       return
         Orientation(Verts[0]->Q.p, Verts[1]->Q.p, Verts[2]->Q.p, v4)>VTK_TEPS;
-      }
+    }
     return true;
   }
 
@@ -1033,13 +1033,13 @@ float vtkUnstructuredGridQuadricDecimationTetra::Orientation(
 void vtkUnstructuredGridQuadricDecimationTetra::FixOrientation()
 {
   if (Orientation()<0)
-    {
+  {
     VTK_SWAP(Verts[2], Verts[3], vtkUnstructuredGridQuadricDecimationVertex *);
-    }
+  }
   if (Orientation()<0)
-    {
+  {
     VTK_SWAP(Verts[1], Verts[2], vtkUnstructuredGridQuadricDecimationVertex *);
-    }
+  }
 }
 
 // change vertex v1 on the list to vertex v2 (for edge collapsing)
@@ -1048,12 +1048,12 @@ void vtkUnstructuredGridQuadricDecimationTetra::ChangeVertex(
   vtkUnstructuredGridQuadricDecimationVertex *v2)
 {
   for (int i=0; i<4; i++)
-    {
+  {
     if (Verts[i]==v1)
-      {
+    {
       Verts[i] = v2;
-      }
     }
+  }
 }
 
 // find the orthonormal tangent space e1, e2, e3
@@ -1108,9 +1108,9 @@ void vtkUnstructuredGridQuadricDecimationTetra::UpdateQuadric()
   A *= 1.5 / fabs(Orientation());
 
   for (int i=0; i<4; i++)
-    {
+  {
     Verts[i]->Q.A += A;
-    }
+  }
 }
 #undef ax
 #undef ay
@@ -1191,9 +1191,9 @@ void vtkUnstructuredGridQuadricDecimationTetMesh::AddTet(
   vtkUnstructuredGridQuadricDecimationTetra *t)
 {
   if (t->Orientation()<-VTK_FEPS)
-    {
+  {
     t->FixOrientation();
-    }
+  }
 
   // add all of its faces to the FaceMap => 4 faces
   // NOTE: adding faces to vertices' list will be done
@@ -1210,15 +1210,15 @@ void vtkUnstructuredGridQuadricDecimationTetMesh::AddCorner(
   vtkUnstructuredGridQuadricDecimationVertex *v, int corner)
 {
   if (v->Corner<0)
-    {
+  {
     v->Corner = corner;
     L[corner] = corner;
-    }
+  }
   else
-    {
+  {
     L[corner] = L[v->Corner];
     L[v->Corner] = corner;
-    }
+  }
 }
 
 // Clean the mesh
@@ -1243,11 +1243,11 @@ void vtkUnstructuredGridQuadricDecimationTetMesh::BuildFullMesh()
   vtkUnstructuredGridQuadricDecimationFaceHashMap::iterator fi =
     faces.begin();
   while (fi!=faces.end())
-    {
+  {
     vtkUnstructuredGridQuadricDecimationFace *f = (*fi).second;
     f->UpdateQuadric(boundaryWeight);
     fi++;
-    }
+  }
 }
 
 void vtkUnstructuredGridQuadricDecimationTetMesh::DeleteMin(
@@ -1260,61 +1260,61 @@ void vtkUnstructuredGridQuadricDecimationTetMesh::DeleteMin(
   vtkUnstructuredGridQuadricDecimationQEF Q;
   vtkUnstructuredGridQuadricDecimationEdge e(NULL, NULL);
   for (int j=0; j<2; j++)
-    {
+  {
     for (int i=0; i<setSize; i++)
-      {
+    {
       int k = rand() % maxTet;
       if (tets[k].index<0)
-        {
+      {
         do
-          {
+        {
           maxTet--;
-          }
+        }
         while (maxTet>0 && tets[maxTet].index<0);
         if (k<maxTet)
-          {
+        {
           int idx = tets[k].index;
           tets[k] = tets[maxTet];
           tets[maxTet].index = idx;
           PT[tets[k].index] = &tets[k];
-          }
-        else
-          {
-          k = maxTet++;
-          }
         }
+        else
+        {
+          k = maxTet++;
+        }
+      }
 
       e.Verts[0] = tets[k].Verts[rand() % 4];
       do
-        {
+      {
         e.Verts[1] = tets[k].Verts[rand() % 4];
-        }
+      }
       while (e.Verts[1]==e.Verts[0]);
 
       if (!stored)
-        {
+      {
         finalE = e;
         minQ.Sum(e.Verts[0]->Q, e.Verts[1]->Q);
         stored = true;
-        }
+      }
       else
-        {
+      {
         if (e.Verts[0]->Q.e + e.Verts[1]->Q.e < minQ.e)
-          {
+        {
           Q.Sum(e.Verts[0]->Q, e.Verts[1]->Q);
           if (Q.e<minQ.e)
-            {
+          {
             finalE = e;
             minQ = Q;
-            }
           }
         }
       }
-    if (noDoubling || (minQ.e-lasterror)/lasterror<=doublingRatio)
-      {
-      break;
-      }
     }
+    if (noDoubling || (minQ.e-lasterror)/lasterror<=doublingRatio)
+    {
+      break;
+    }
+  }
   lasterror = minQ.e;
 }
 
@@ -1328,7 +1328,7 @@ int vtkUnstructuredGridQuadricDecimationTetMesh::Simplify(int n,
   int uncontractable = 0;
   int run = 0;
   while ((count<n || desiredTets<(tCount-unusedTets)) && (run<1000))
-    {
+  {
     // as long as we want to collapse
     vtkUnstructuredGridQuadricDecimationQEF Q;
     vtkUnstructuredGridQuadricDecimationEdge e;
@@ -1336,7 +1336,7 @@ int vtkUnstructuredGridQuadricDecimationTetMesh::Simplify(int n,
     DeleteMin(e, Q);
 
     if (Contractable(e, Q.p))
-      {
+    {
       run = 0;
       // begin to collapse the edge Va + Vb -> Va = e.target
       vtkUnstructuredGridQuadricDecimationVertex *va = e.Verts[0];
@@ -1352,13 +1352,13 @@ int vtkUnstructuredGridQuadricDecimationTetMesh::Simplify(int n,
 
       // Complete the edge contraction
       count++;
-      }
+    }
     else
-      {
+    {
       uncontractable++;
       run++;
-      }
     }
+  }
   return count;
 }
 
@@ -1373,23 +1373,23 @@ void vtkUnstructuredGridQuadricDecimationTetMesh::MergeTets(
   int next = src->Corner;
   vtkUnstructuredGridQuadricDecimationTetra *t = NULL;
   do
-    {
+  {
     t = PT[next/4];
     if (t)
-      {
+    {
       if (t->ContainVertex(dst))
-        {
+      {
         t->index = -t->index-1;
         unusedTets++;
         PT[next/4] = NULL;
-        }
-      else
-        {
-        t->ChangeVertex(src, dst);
-        }
       }
-    next = L[next];
+      else
+      {
+        t->ChangeVertex(src, dst);
+      }
     }
+    next = L[next];
+  }
   while (next!=src->Corner);
 
   // Then we merge them all together
@@ -1400,20 +1400,20 @@ void vtkUnstructuredGridQuadricDecimationTetMesh::MergeTets(
   int prev = dst->Corner;
   next = L[prev];
   do
-    {
+  {
     notstop = next!=dst->Corner;
     t = PT[next/4];
     if (!t)
-      {
+    {
       next = L[next];
       L[prev] = next;
-      }
+    }
     else
-      {
+    {
       prev = next;
       next = L[next];
-      }
     }
+  }
   while (notstop);
   dst->Corner = prev;
 }
@@ -1427,24 +1427,24 @@ bool vtkUnstructuredGridQuadricDecimationTetMesh::Contractable(
   // adapt the new target vertex or not
   vtkUnstructuredGridQuadricDecimationTetra *t = NULL;
   for (int i=0; i<2; i++)
-    {
+  {
     int c = e.Verts[i]->Corner;
     do
-      {
+    {
       t = PT[c/4];
       if (t)
-        {
+      {
         if (!(t->ContainVertex(e.Verts[0]) &&
               t->ContainVertex(e.Verts[1])) &&
             !(t->Changeable(e.Verts[i], target)))
-          {
+        {
           return false;
-          }
         }
-      c = L[c];
       }
-    while (c!=e.Verts[i]->Corner);
+      c = L[c];
     }
+    while (c!=e.Verts[i]->Corner);
+  }
   return true;
 }
 
@@ -1458,37 +1458,37 @@ int vtkUnstructuredGridQuadricDecimationTetMesh::LoadUnstructuredGrid(
   vtkPoints *vp = vgrid->GetPoints();
   vtkDataArray *vs = NULL;
   if (scalarsName)
-    {
+  {
     vs = vgrid->GetPointData()->GetArray(scalarsName);
-    }
+  }
   else
-    {
+  {
     vs = vgrid->GetPointData()->GetScalars();
     if (!vs)
-      {
+    {
       vs = vgrid->GetPointData()->GetArray("scalars");
-      }
     }
+  }
   if (!vs)
-    {
+  {
     return vtkUnstructuredGridQuadricDecimation::NO_SCALARS;
-    }
+  }
   for (int i=0; i<vCount; i++)
-    {
+  {
     double *pos = vp->GetPoint(i);
     double *scalar = vs->GetTuple(i);
     Verts[i].Q.p[0] = pos[0];
     Verts[i].Q.p[1] = pos[1];
     Verts[i].Q.p[2] = pos[2];
     Verts[i].Q.p[3] = scalar[0];
-    }
+  }
 
   // Read all the tets
   tCount = vgrid->GetNumberOfCells();
   if (!tCount)
-    {
+  {
     return vtkUnstructuredGridQuadricDecimation::NO_CELLS;
-    }
+  }
   maxTet = tCount;
   VTK_PRECHECK(tets) = new vtkUnstructuredGridQuadricDecimationTetra[tCount];
   VTK_PRECHECK(PT) = new vtkUnstructuredGridQuadricDecimationTetra*[tCount];
@@ -1498,15 +1498,15 @@ int vtkUnstructuredGridQuadricDecimationTetMesh::LoadUnstructuredGrid(
   vtkIdType *idx;
   vtkIdType curIdx = 0;
   for (int i=0; i<tCount; i++)
-    {
+  {
     vt->GetCell(curIdx, npts, idx);
     curIdx += (npts+1);
     if (npts==4)
-      {
+    {
       for (int k=0; k<4; k++)
-        {
+      {
         tets[i].Verts[k] = &Verts[idx[k]];
-        }
+      }
       AddTet(&tets[i]);
       AddCorner(tets[i].Verts[0], i*4 + 0);
       AddCorner(tets[i].Verts[1], i*4 + 1);
@@ -1515,12 +1515,12 @@ int vtkUnstructuredGridQuadricDecimationTetMesh::LoadUnstructuredGrid(
       tets[i].UpdateQuadric();
       PT[i] = &tets[i];
       tets[i].index = i;
-      }
-    else
-      {
-      return vtkUnstructuredGridQuadricDecimation::NON_TETRAHEDRA;
-      }
     }
+    else
+    {
+      return vtkUnstructuredGridQuadricDecimation::NON_TETRAHEDRA;
+    }
+  }
 
   return vtkUnstructuredGridQuadricDecimation::NO_ERROR;
 }
@@ -1539,25 +1539,25 @@ int vtkUnstructuredGridQuadricDecimationTetMesh::SaveUnstructuredGrid(
 
   int nPoints = 0;
   for (int i=0; i<vCount; i++)
-    {
+  {
     if (Verts[i].Corner>=0)
-      {
+    {
       ++nPoints;
-      }
     }
+  }
 
   vp->SetNumberOfPoints(nPoints);
   vs->SetNumberOfValues(nPoints);
   int vIdx = 0;
   for (int i=0; i<vCount; i++)
-    {
+  {
     if (Verts[i].Corner>=0)
-      {
+    {
       vp->SetPoint(vIdx, Verts[i].Q.p[0], Verts[i].Q.p[1], Verts[i].Q.p[2]);
       vs->SetValue(vIdx, Verts[i].Q.p[3]);
       indexes[&Verts[i]] = vIdx++;
-      }
     }
+  }
   vgrid->SetPoints(vp);
   vp->Delete();
   vs->SetName("scalars");
@@ -1567,16 +1567,16 @@ int vtkUnstructuredGridQuadricDecimationTetMesh::SaveUnstructuredGrid(
 
   vtkIdType idx[4];
   for (int i=0; i<maxTet; i++)
-    {
+  {
     if (tets[i].index>=0)
-      {
+    {
       for (int j=0; j<4; j++)
-        {
+      {
         idx[j] = indexes[tets[i].Verts[j]];
-        }
-      vgrid->InsertNextCell(VTK_TETRA, 4, idx);
       }
+      vgrid->InsertNextCell(VTK_TETRA, 4, idx);
     }
+  }
   return vtkUnstructuredGridQuadricDecimation::NO_ERROR;
 }
 
@@ -1628,15 +1628,15 @@ vtkUnstructuredGridQuadricDecimation::vtkUnstructuredGridQuadricDecimation()
 vtkUnstructuredGridQuadricDecimation::~vtkUnstructuredGridQuadricDecimation()
 {
   if (this->ScalarsName)
-    {
+  {
     delete [] this->ScalarsName;
-    }
+  }
 }
 
 void vtkUnstructuredGridQuadricDecimation::ReportError(int err)
 {
   switch (err)
-    {
+  {
     case vtkUnstructuredGridQuadricDecimation::NON_TETRAHEDRA:
       vtkErrorMacro(<< "Non-tetrahedral cells not supported!");
       break;
@@ -1648,7 +1648,7 @@ void vtkUnstructuredGridQuadricDecimation::ReportError(int err)
       break;
     default:
       break;
-    }
+  }
 }
 
 int vtkUnstructuredGridQuadricDecimation::RequestData(
@@ -1673,18 +1673,18 @@ int vtkUnstructuredGridQuadricDecimation::RequestData(
   int err = myMesh.LoadUnstructuredGrid((vtkUnstructuredGrid*)(input),
                                         this->ScalarsName);
   if (err!=vtkUnstructuredGridQuadricDecimation::NO_ERROR)
-    {
+  {
     this->ReportError(err);
     return 0;
-    }
+  }
 
   myMesh.BuildFullMesh();
 
   int desiredTets = this->NumberOfTetsOutput;
   if (desiredTets==0)
-    {
+  {
     desiredTets = (int)((1 - this->TargetReduction) * myMesh.tCount);
-    }
+  }
   myMesh.Simplify(this->NumberOfEdgesToDecimate, desiredTets);
   myMesh.SaveUnstructuredGrid(output);
   return 1;

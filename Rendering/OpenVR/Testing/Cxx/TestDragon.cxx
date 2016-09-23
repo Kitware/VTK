@@ -118,9 +118,9 @@ int TestDragon(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage( renderWindow.Get() );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return EXIT_SUCCESS;
 }

@@ -59,25 +59,25 @@ vtkScalarsToColorsItem::vtkScalarsToColorsItem()
 vtkScalarsToColorsItem::~vtkScalarsToColorsItem()
 {
   if (this->PolyLinePen)
-    {
+  {
     this->PolyLinePen->Delete();
     this->PolyLinePen = 0;
-    }
+  }
   if (this->Texture)
-    {
+  {
     this->Texture->Delete();
     this->Texture = 0;
-    }
+  }
   if (this->Shape)
-    {
+  {
     this->Shape->Delete();
     this->Shape = 0;
-    }
+  }
   if (this->Callback)
-    {
+  {
     this->Callback->Delete();
     this->Callback = 0;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -92,13 +92,13 @@ void vtkScalarsToColorsItem::GetBounds(double bounds[4])
 {
   if (this->UserBounds[1] > this->UserBounds[0] &&
       this->UserBounds[3] > this->UserBounds[2])
-    {
+  {
     bounds[0] = this->UserBounds[0];
     bounds[1] = this->UserBounds[1];
     bounds[2] = this->UserBounds[2];
     bounds[3] = this->UserBounds[3];
     return;
-    }
+  }
   this->ComputeBounds(bounds);
 }
 
@@ -117,13 +117,13 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
   this->TextureWidth = this->GetScene()->GetViewWidth();
   if (this->Texture == 0 ||
       this->Texture->GetMTime() < this->GetMTime())
-    {
+  {
     this->ComputeTexture();
-    }
+  }
   if (this->Texture == 0)
-    {
+  {
     return false;
-    }
+  }
   vtkSmartPointer<vtkPen> transparentPen = vtkSmartPointer<vtkPen>::New();
   transparentPen->SetLineType(vtkPen::NO_PEN);
   painter->ApplyPen(transparentPen);
@@ -135,7 +135,7 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
     vtkBrush::Stretch);
   const int size = this->Shape->GetNumberOfPoints();
   if (!this->MaskAboveCurve || size < 2)
-    {
+  {
     double dbounds[4];
     this->GetBounds(dbounds);
 
@@ -150,9 +150,9 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
                       fbounds[0], fbounds[3],
                       fbounds[1], fbounds[3],
                       fbounds[1], fbounds[2]);
-    }
+  }
   else
-    {
+  {
     const vtkRectd& ss = this->ShiftScale;
 
     vtkPoints2D* trapezoids = vtkPoints2D::New();
@@ -160,7 +160,7 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
     double point[2];
     vtkIdType j = -1;
     for (vtkIdType i = 0; i < size; ++i)
-      {
+    {
       this->Shape->GetPoint(i, point);
 
       // shift/scale to scale from data space to rendering space.
@@ -168,29 +168,29 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
       point[1] = (point[1] + ss[1]) * ss[3];
       trapezoids->SetPoint(++j, point[0], 0.);
       trapezoids->SetPoint(++j, point);
-      }
+    }
     painter->DrawQuadStrip(trapezoids);
     trapezoids->Delete();
-    }
+  }
 
   if (this->PolyLinePen->GetLineType() != vtkPen::NO_PEN)
-    {
+  {
     const vtkRectd& ss = this->ShiftScale;
 
     vtkNew<vtkPoints2D> transformedShape;
     transformedShape->SetNumberOfPoints(size);
     for (vtkIdType i = 0; i < size; ++i)
-      {
+    {
       double point[2];
       this->Shape->GetPoint(i, point);
       // shift/scale to scale from data space to rendering space.
       point[0] = (point[0] + ss[0]) * ss[2];
       point[1] = (point[1] + ss[1]) * ss[3];
       transformedShape->SetPoint(i, point);
-      }
+    }
     painter->ApplyPen(this->PolyLinePen);
     painter->DrawPoly(transformedShape.GetPointer());
-    }
+  }
 
   return true;
 }

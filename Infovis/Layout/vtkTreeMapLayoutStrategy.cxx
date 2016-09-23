@@ -61,40 +61,40 @@ vtkIdType vtkTreeMapLayoutStrategy::FindVertex(
   boxInfo->GetTypedTuple(vertex, blimits); // Get the extents of the root
   if ((pnt[0] < blimits[0]) || (pnt[0] > blimits[1]) ||
       (pnt[1] < blimits[2]) || (pnt[1] > blimits[3]))
-    {
+  {
     // Point is not in the tree at all
     return -1;
-    }
+  }
 
   // Now traverse the children to try and find
   // the vertex that contains the point
   vtkIdType child;
 #if 0
   if (binfo)
-    {
+  {
     binfo[0] = blimits[0];
     binfo[1] = blimits[1];
     binfo[2] = blimits[2];
     binfo[3] = blimits[3];
-    }
+  }
 #endif
 
   vtkAdjacentVertexIterator *it = vtkAdjacentVertexIterator::New();
   otree->GetAdjacentVertices(vertex, it);
   while (it->HasNext())
-    {
+  {
     child = it->Next();
     boxInfo->GetTypedTuple(child, blimits); // Get the extents of the child
     if ((pnt[0] < blimits[0]) || (pnt[0] > blimits[1]) ||
             (pnt[1] < blimits[2]) || (pnt[1] > blimits[3]))
-      {
+    {
       continue;
-      }
+    }
     // If we are here then the point is contained by the child
     // So recurse down the children of this vertex
     vertex = child;
     otree->GetAdjacentVertices(vertex, it);
-    }
+  }
   it->Delete();
 
   return vertex;

@@ -13,13 +13,16 @@
 
 =========================================================================*/
 
-// .NAME vtkOpenGLRayCastImageDisplayHelper - OpenGL subclass that draws the image to the screen
-// .SECTION Description
-// This is the concrete implementation of a ray cast image display helper -
-// a helper class responsible for drawing the image to the screen.
-
-// .SECTION see also
-// vtkRayCastImageDisplayHelper
+/**
+ * @class   vtkOpenGLRayCastImageDisplayHelper
+ * @brief   OpenGL subclass that draws the image to the screen
+ *
+ * This is the concrete implementation of a ray cast image display helper -
+ * a helper class responsible for drawing the image to the screen.
+ *
+ * @sa
+ * vtkRayCastImageDisplayHelper
+*/
 
 #ifndef vtkOpenGLRayCastImageDisplayHelper_h
 #define vtkOpenGLRayCastImageDisplayHelper_h

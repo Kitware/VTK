@@ -29,9 +29,9 @@ void LoadScalarsFromStats(void* &ptr, ADIOS_VARINFO *v)
   T* &ptrT = reinterpret_cast<T*&>(ptr);
   ptrT = new T[v->sum_nblocks];
   for(size_t i = 0; i < v->sum_nblocks; ++i)
-    {
+  {
     ptrT[i] = *reinterpret_cast<const T*>(v->statistics->blocks->mins[i]);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -39,7 +39,7 @@ Scalar::Scalar(ADIOS_FILE *f, ADIOS_VARINFO *v)
 : VarInfo(f, v), Values(NULL)
 {
   switch(this->Type)
-    {
+  {
     case adios_byte:
       LoadScalarsFromStats<int8_t>(this->Values, v);
       break;
@@ -79,19 +79,19 @@ Scalar::Scalar(ADIOS_FILE *f, ADIOS_VARINFO *v)
     default:
       // Unsupported data type
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 Scalar::~Scalar()
 {
   if(!this->Values)
-    {
+  {
     return;
-    }
+  }
 
   switch(this->Type)
-    {
+  {
     case adios_byte:
       delete[] reinterpret_cast<int8_t*>(this->Values);
       break;
@@ -129,7 +129,7 @@ Scalar::~Scalar()
       delete[] reinterpret_cast<std::complex<double>*>(this->Values);
       break;
     default: break;
-    }
+  }
 }
 
 } // End namespace ADIOS

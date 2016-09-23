@@ -12,11 +12,14 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkNonOverlappingAMRAlgorithm.h -- Superclass for algorithms that
-//  produce vtkNonOverlappingAMR as output.
-//
-// .SECTION Description
-//
+/**
+ * @class   vtkNonOverlappingAMRAlgorithm
+ *  produce vtkNonOverlappingAMR as output.
+ *
+ *
+ *
+*/
+
 #ifndef vtkNonOverlappingAMRAlgorithm_h
 #define vtkNonOverlappingAMRAlgorithm_h
 
@@ -34,19 +37,25 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkNonOverlappingAMRAlgorithm :
     vtkTypeMacro(vtkNonOverlappingAMRAlgorithm,vtkUniformGridAMRAlgorithm);
     void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-    // Description:
-    // Get the output data object for a port on this algorithm
+    //@{
+    /**
+     * Get the output data object for a port on this algorithm
+     */
     vtkNonOverlappingAMR* GetOutput();
     vtkNonOverlappingAMR* GetOutput(int);
+    //@}
 
   protected:
     vtkNonOverlappingAMRAlgorithm();
     ~vtkNonOverlappingAMRAlgorithm() VTK_OVERRIDE;
 
-    // Description:
-    // See algorithm for more info.
+    //@{
+    /**
+     * See algorithm for more info.
+     */
     int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
     int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+    //@}
 
   private:
     vtkNonOverlappingAMRAlgorithm(const vtkNonOverlappingAMRAlgorithm&) VTK_DELETE_FUNCTION;

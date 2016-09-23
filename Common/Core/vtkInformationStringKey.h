@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInformationStringKey - Key for string values in vtkInformation.
-// .SECTION Description
-// vtkInformationStringKey is used to represent keys for string values
-// in vtkInformation.
+/**
+ * @class   vtkInformationStringKey
+ * @brief   Key for string values in vtkInformation.
+ *
+ * vtkInformationStringKey is used to represent keys for string values
+ * in vtkInformation.
+*/
 
 #ifndef vtkInformationStringKey_h
 #define vtkInformationStringKey_h
@@ -36,30 +39,36 @@ public:
   vtkInformationStringKey(const char* name, const char* location);
   ~vtkInformationStringKey() VTK_OVERRIDE;
 
-  // Description:
-  // This method simply returns a new vtkInformationStringKey, given a
-  // name and a location. This method is provided for wrappers. Use the
-  // constructor directly from C++ instead.
+  /**
+   * This method simply returns a new vtkInformationStringKey, given a
+   * name and a location. This method is provided for wrappers. Use the
+   * constructor directly from C++ instead.
+   */
   static vtkInformationStringKey* MakeKey(const char* name, const char* location)
-    {
+  {
     return new vtkInformationStringKey(name, location);
-    }
+  }
 
-  // Description:
-  // Get/Set the value associated with this key in the given
-  // information object.
+  //@{
+  /**
+   * Get/Set the value associated with this key in the given
+   * information object.
+   */
   void Set(vtkInformation* info, const char*);
   void Set(vtkInformation* info, const std::string &str);
   const char* Get(vtkInformation* info);
+  //@}
 
-  // Description:
-  // Copy the entry associated with this key from one information
-  // object to another.  If there is no entry in the first information
-  // object for this key, the value is removed from the second.
+  /**
+   * Copy the entry associated with this key from one information
+   * object to another.  If there is no entry in the first information
+   * object for this key, the value is removed from the second.
+   */
   void ShallowCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
 
-  // Description:
-  // Print the key's value in an information object to a stream.
+  /**
+   * Print the key's value in an information object to a stream.
+   */
   void Print(ostream& os, vtkInformation* info) VTK_OVERRIDE;
 
 private:

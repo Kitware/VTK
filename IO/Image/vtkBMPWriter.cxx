@@ -47,9 +47,9 @@ void vtkBMPWriter::WriteFileHeader(ofstream *file,
   file->put((char)((temp%65536L)/256));
   file->put((char)(temp/65536L));
   for (row = 0; row < 5; row++)
-    {
+  {
     file->put((char)0);
-    }
+  }
   file->put((char)54);
   file->put((char)0);
   file->put((char)0);
@@ -75,9 +75,9 @@ void vtkBMPWriter::WriteFileHeader(ofstream *file,
   file->put((char)0);
   file->put((char)24);
   for (row = 0; row < 25; row++)
-    {
+  {
     file->put((char)0);
-    }
+  }
 }
 
 
@@ -97,17 +97,17 @@ void vtkBMPWriter::WriteFile(ofstream *file, vtkImageData *data,
 
   // Make sure we actually have data.
   if ( !data->GetPointData()->GetScalars())
-    {
+  {
     vtkErrorMacro(<< "Could not get data from input.");
     return;
-    }
+  }
 
   // take into consideration the scalar type
   if (data->GetScalarType() != VTK_UNSIGNED_CHAR)
-    {
+  {
     vtkErrorMacro("BMPWriter only accepts unsigned char scalars!");
     return;
-    }
+  }
 
   // Row length of x axis
   rowLength = extent[1] - extent[0] + 1;
@@ -123,57 +123,57 @@ void vtkBMPWriter::WriteFile(ofstream *file, vtkImageData *data,
   target++;
 
   for (idx2 = extent[4]; idx2 <= extent[5]; ++idx2)
-    {
+  {
     for (idx1 = extent[2]; idx1 <= extent[3]; idx1++)
-      {
+    {
       if (!(count%target))
-        {
+      {
         this->UpdateProgress(progress + count/(50.0*target));
-        }
+      }
       count++;
       ptr = (unsigned char *)data->GetScalarPointer(extent[0], idx1, idx2);
       if (bpp == 1)
-        {
+      {
         for (i = 0; i < rowLength; i++)
-          {
+        {
           file->put(ptr[i]);
           file->put(ptr[i]);
           file->put(ptr[i]);
-          }
         }
+      }
       if (bpp == 2)
-        {
+      {
         for (i = 0; i < rowLength; i++)
-          {
+        {
           file->put(ptr[i*2]);
           file->put(ptr[i*2]);
           file->put(ptr[i*2]);
-          }
         }
+      }
       if (bpp == 3)
-        {
+      {
         for (i = 0; i < rowLength; i++)
-          {
+        {
           file->put(ptr[i*3 + 2]);
           file->put(ptr[i*3 + 1]);
           file->put(ptr[i*3]);
-          }
         }
+      }
       if (bpp == 4)
-        {
+      {
         for (i = 0; i < rowLength; i++)
-          {
+        {
           file->put(ptr[i*4 + 2]);
           file->put(ptr[i*4 + 1]);
           file->put(ptr[i*4]);
-          }
-        }
-      for (i = 0; i < rowAdder; i++)
-        {
-        file->put((char)0);
         }
       }
+      for (i = 0; i < rowAdder; i++)
+      {
+        file->put((char)0);
+      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------

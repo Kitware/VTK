@@ -51,10 +51,10 @@ int vtkQImageToImageSource::RequestData( vtkInformation *vtkNotUsed(request),
                                          vtkInformationVector *outputVector)
 {
   if(!QApplication::instance())
-    {
+  {
     vtkErrorMacro("You must initialize QApplication before using this filter.");
     return 0;
-    }
+  }
 
   // get the info objects
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
@@ -62,10 +62,10 @@ int vtkQImageToImageSource::RequestData( vtkInformation *vtkNotUsed(request),
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if( this->QtImage == 0 )
-    {
+  {
     vtkErrorMacro( "Qt Image was not set." );
     return 0;
-    }
+  }
 
   QImage newImage = this->QtImage->convertToFormat( QImage::Format_ARGB32 );
   QSize size = newImage.size();
@@ -84,9 +84,9 @@ int vtkQImageToImageSource::RequestData( vtkInformation *vtkNotUsed(request),
   int i, j;
   unsigned char temp[4];
   for( i = 0; i < height/2; i++ )
-    {
+  {
     for( j = 0; j < width; j++ )
-      {
+    {
       int bottom_address = ((((height-1)-i)*width)+j);
       int top_address = (i*width)+j;
       temp[0] = data[(4*bottom_address)+0];
@@ -103,19 +103,19 @@ int vtkQImageToImageSource::RequestData( vtkInformation *vtkNotUsed(request),
       data[(4*top_address)+1] = temp[1]; //G
       data[(4*top_address)+0] = temp[2]; //R
       data[(4*top_address)+3] = temp[3]; //A
-      }
     }
+  }
 
   if( height%2 )
-    {
+  {
     for( j = 0; j < width; j++ )
-      {
+    {
       int address = (i*width)+j;
       unsigned char temp1 = data[(4*address)+0];
       data[(4*address)+0] = data[(4*address)+2];
       data[(4*address)+2] = temp1;
-      }
     }
+  }
 
   array->SetVoidArray( data, 4*width*height, 0, vtkUnsignedCharArray::VTK_DATA_ARRAY_DELETE );
   return 1;
@@ -130,10 +130,10 @@ int vtkQImageToImageSource::RequestInformation (
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   if( this->QtImage == 0 )
-    {
+  {
     vtkErrorMacro( "Qt Image was not set." );
     return 0;
-    }
+  }
 
   QSize size = this->QtImage->size();
   this->DataExtent[1] = size.width() - 1;

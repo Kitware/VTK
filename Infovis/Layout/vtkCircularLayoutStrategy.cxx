@@ -41,11 +41,11 @@ void vtkCircularLayoutStrategy::Layout()
   vtkIdType numVerts = this->Graph->GetNumberOfVertices();
   points->SetNumberOfPoints(numVerts);
   for (vtkIdType i = 0; i < numVerts; i++)
-    {
+  {
     double x = cos(2.0*vtkMath::Pi()*i/numVerts);
     double y = sin(2.0*vtkMath::Pi()*i/numVerts);
     points->SetPoint(i, x, y, 0);
-    }
+  }
   this->Graph->SetPoints(points);
   points->Delete();
 }

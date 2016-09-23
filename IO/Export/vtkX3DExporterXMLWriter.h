@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkX3DExporterXMLWriter - X3D Exporter XML Writer
-// .SECTION Description
-// vtkX3DExporterXMLWriter
+/**
+ * @class   vtkX3DExporterXMLWriter
+ * @brief   X3D Exporter XML Writer
+ *
+ * vtkX3DExporterXMLWriter
+*/
 
 #ifndef vtkX3DExporterXMLWriter_h
 #define vtkX3DExporterXMLWriter_h

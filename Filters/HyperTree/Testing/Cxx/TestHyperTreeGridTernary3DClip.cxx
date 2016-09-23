@@ -119,9 +119,9 @@ int TestHyperTreeGridTernary3DClip( int argc, char* argv[] )
 
   int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 40 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

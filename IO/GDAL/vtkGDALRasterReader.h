@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGDALRasterReader - Read raster file formats using GDAL.
-// .SECTION Description
-// vtkGDALRasterReader is a source object that reads raster files and uses
-// GDAL as the underlying library for the task. GDAL is required for this
-// reader. The output of the reader is a vtkUniformGrid instead of vtkImageData
-// to support blanking.
-//
-//
-// .SECTION See Also
-// vtkUniformGrid, vtkImageData
+/**
+ * @class   vtkGDALRasterReader
+ * @brief   Read raster file formats using GDAL.
+ *
+ * vtkGDALRasterReader is a source object that reads raster files and uses
+ * GDAL as the underlying library for the task. GDAL is required for this
+ * reader. The output of the reader is a vtkUniformGrid instead of vtkImageData
+ * to support blanking.
+ *
+ *
+ * @sa
+ * vtkUniformGrid, vtkImageData
+*/
 
 #ifndef vtkGDALRasterReader_h
 #define vtkGDALRasterReader_h
@@ -43,46 +46,63 @@ public:
   vtkGDALRasterReader();
   virtual ~vtkGDALRasterReader();
 
-  // Description:
-  // Set input file name
+  //@{
+  /**
+   * Set input file name
+   */
   vtkSetStringMacro(FileName);
   // Get input file name
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Return proj4 spatial reference
+  /**
+   * Return proj4 spatial reference
+   */
   const char*  GetProjectionString() const;
 
-  // Description:
-  // Return geo-referenced corner points (Upper left,
-  // lower left, lower right, upper right)
+  /**
+   * Return geo-referenced corner points (Upper left,
+   * lower left, lower right, upper right)
+   */
   const double* GetGeoCornerPoints();
 
-  // Description:
-  // Set desired width and height of the image
+  //@{
+  /**
+   * Set desired width and height of the image
+   */
   vtkSetVector2Macro(TargetDimensions, int);
   vtkGetVector2Macro(TargetDimensions, int);
+  //@}
 
-  // Description:
-  // Get raster width and heigth
+  //@{
+  /**
+   * Get raster width and heigth
+   */
   vtkGetVector2Macro(RasterDimensions, int);
+  //@}
 
-  // Description:
-  // Return metadata as reported by GDAL
+  /**
+   * Return metadata as reported by GDAL
+   */
   const std::vector<std::string>& GetMetaData();
 
-  // Description:
-  // Return the invalid value for a pixel (for blanking purposes)
+  /**
+   * Return the invalid value for a pixel (for blanking purposes)
+   */
   double GetInvalidValue();
 
-  // Description:
-  // Return domain metadata
+  /**
+   * Return domain metadata
+   */
   std::vector<std::string> GetDomainMetaData(const std::string& domain);
 
-  // Description:
-  // Return driver name which was used to read the current data
+  //@{
+  /**
+   * Return driver name which was used to read the current data
+   */
   const std::string& GetDriverShortName();
   const std::string& GetDriverLongName();
+  //@}
 
   vtkIdType GetNumberOfPoints();
 

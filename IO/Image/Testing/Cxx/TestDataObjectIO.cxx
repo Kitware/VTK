@@ -33,10 +33,10 @@ bool CompareData(vtkImageData* Output, vtkImageData* Input)
 
   const int point_count = Input->GetDimensions()[0] * Input->GetDimensions()[1] * Input->GetDimensions()[2];
   for(int point = 0; point != point_count; ++point)
-    {
+  {
     if(memcmp(Input->GetPoint(point), Output->GetPoint(point), 3 * sizeof(double)))
       return false;
-    }
+  }
 
   return true;
 }
@@ -62,11 +62,11 @@ bool TestDataObjectSerialization()
   vtkDataObject *obj = reader->GetOutput();
   DataT* const input_data = DataT::SafeDownCast(obj);
   if(!input_data)
-    {
+  {
     reader->Delete();
     output_data->Delete();
     return false;
-    }
+  }
 
   const bool result = CompareData(output_data, input_data);
 
@@ -81,9 +81,9 @@ int TestDataObjectIO(int /*argc*/, char* /*argv*/[])
   int result = 0;
 
   if(!TestDataObjectSerialization<vtkImageData>())
-    {
+  {
     cerr << "Error: failure serializing vtkImageData" << endl;
     result = 1;
-    }
+  }
   return result;
 }

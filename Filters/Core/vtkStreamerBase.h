@@ -14,19 +14,21 @@
 
 =========================================================================*/
 
-// .NAME vtkStreamerBase - Superclass for filters that stream input pipeline
-//
-// .SECTION Description
-// This class can be used as a superclass for filters that want to
-// stream their input pipeline by making multiple execution passes.
-// The subclass needs to set NumberOfPasses to > 1 before execution (
-// usuall in the constructor or in RequestInformation) to initiate
-// streaming. vtkStreamerBase will handle streaming while calling
-// ExecutePass() during each pass. CurrentIndex can be used to obtain
-// the index for the current pass. Finally, PostExecute() is called
-// after the last pass and can be used to cleanup any internal data
-// structures and create the actual output.
-
+/**
+ * @class   vtkStreamerBase
+ * @brief   Superclass for filters that stream input pipeline
+ *
+ *
+ * This class can be used as a superclass for filters that want to
+ * stream their input pipeline by making multiple execution passes.
+ * The subclass needs to set NumberOfPasses to > 1 before execution (
+ * usuall in the constructor or in RequestInformation) to initiate
+ * streaming. vtkStreamerBase will handle streaming while calling
+ * ExecutePass() during each pass. CurrentIndex can be used to obtain
+ * the index for the current pass. Finally, PostExecute() is called
+ * after the last pass and can be used to cleanup any internal data
+ * structures and create the actual output.
+*/
 
 #ifndef vtkStreamerBase_h
 #define vtkStreamerBase_h
@@ -40,8 +42,9 @@ public:
   vtkTypeMacro(vtkStreamerBase, vtkAlgorithm);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // see vtkAlgorithm for details
+  /**
+   * see vtkAlgorithm for details
+   */
   virtual int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
                              vtkInformationVector*);
@@ -57,9 +60,10 @@ protected:
     return 1;
   }
 
-  // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
+  /**
+   * This is called by the superclass.
+   * This is the method you should override.
+   */
   virtual int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*) = 0;

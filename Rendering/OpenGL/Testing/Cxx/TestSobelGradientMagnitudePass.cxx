@@ -111,10 +111,10 @@ int TestSobelGradientMagnitudePass(int argc, char* argv[])
   sobelP->AddObserver(vtkCommand::ErrorEvent, errorObserver);
   sobelP->SetDelegatePass(cameraP);
   if (!errorObserver->GetError())
-    {
+  {
     std::cout << "The required extensions are not supported."  << std::endl;
     return 0;
-    }
+  }
 
   glrenderer->SetPass(sobelP);
 
@@ -171,13 +171,13 @@ int TestSobelGradientMagnitudePass(int argc, char* argv[])
 
   renWin->Render();
   if(peeling->GetLastRenderingUsedDepthPeeling())
-    {
+  {
     cout<<"depth peeling was used"<<endl;
-    }
+  }
   else
-    {
+  {
     cout<<"depth peeling was not used (alpha blending instead)"<<endl;
-    }
+  }
   vtkCamera *camera=renderer->GetActiveCamera();
   camera->Azimuth(-40.0);
   camera->Elevation(20.0);
@@ -185,9 +185,9 @@ int TestSobelGradientMagnitudePass(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

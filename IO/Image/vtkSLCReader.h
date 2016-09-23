@@ -13,11 +13,14 @@
 
 =========================================================================*/
 
-// .NAME vtkSLCReader - read an SLC volume file.
-// .SECTION Description
-// vtkSLCReader reads an SLC file and creates a structured point dataset.
-// The size of the volume and the data spacing is set from the SLC file
-// header.
+/**
+ * @class   vtkSLCReader
+ * @brief   read an SLC volume file.
+ *
+ * vtkSLCReader reads an SLC file and creates a structured point dataset.
+ * The size of the volume and the data spacing is set from the SLC file
+ * header.
+*/
 
 #ifndef vtkSLCReader_h
 #define vtkSLCReader_h
@@ -32,31 +35,40 @@ public:
   vtkTypeMacro(vtkSLCReader,vtkImageReader2);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set/Get the name of the file to read.
+  //@{
+  /**
+   * Set/Get the name of the file to read.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Was there an error on the last read performed?
+  //@{
+  /**
+   * Was there an error on the last read performed?
+   */
   vtkGetMacro(Error,int);
+  //@}
 
-  // Description:
-  // Is the given file an SLC file?
+  /**
+   * Is the given file an SLC file?
+   */
   int CanReadFile(const char* fname);
-  // Description:
-  // .slc
+  /**
+   * .slc
+   */
   virtual const char* GetFileExtensions()
-    {
+  {
       return ".slc";
-    }
+  }
 
-  // Description:
-  // SLC
+  /**
+   * SLC
+   */
   virtual const char* GetDescriptiveName()
-    {
+  {
       return "SLC";
-    }
+  }
 
 protected:
   vtkSLCReader();

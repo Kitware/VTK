@@ -12,9 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDataArrayTemplate
-// .SECTION Description
-// vtkDataArrayTemplate is deprecated, use vtkAOSDataArrayTemplate instead.
+/**
+ * @class   vtkDataArrayTemplate
+ *
+ * vtkDataArrayTemplate is deprecated, use vtkAOSDataArrayTemplate instead.
+*/
 
 #ifndef vtkDataArrayTemplate_h
 #define vtkDataArrayTemplate_h

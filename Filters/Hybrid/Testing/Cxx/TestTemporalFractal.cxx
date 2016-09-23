@@ -95,19 +95,19 @@ int TestTemporalFractal(int argc, char *argv[])
   double time = -0.6;
   int i;
   for (i = 0; i < 10; ++i)
-    {
+  {
     time = i/25.0 - 0.5;
     info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), time);
     mapper->Modified();
     renderer->ResetCameraClippingRange();
     renWin->Render();
-    }
+  }
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   vtkAlgorithm::SetDefaultExecutivePrototype(0);
   return !retVal;

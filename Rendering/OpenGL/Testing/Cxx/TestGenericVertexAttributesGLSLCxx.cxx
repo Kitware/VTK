@@ -93,9 +93,9 @@ int TestGenericVertexAttributesGLSLCxx(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImageThreshold(renWin,18);
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     interactor->Start();
-    }
+  }
 
   sphere->Delete();
   randomVector->Delete();

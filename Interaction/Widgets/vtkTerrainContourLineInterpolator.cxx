@@ -45,20 +45,20 @@ vtkTerrainContourLineInterpolator::~vtkTerrainContourLineInterpolator()
 void vtkTerrainContourLineInterpolator::SetImageData(vtkImageData *image)
 {
   if (this->ImageData != image)
-    {
+  {
     vtkImageData *temp = this->ImageData;
     this->ImageData = image;
     if (this->ImageData != NULL)
-      {
+    {
       this->ImageData->Register(this);
       this->Projector->SetSourceData(this->ImageData);
-      }
-    if (temp != NULL)
-      {
-      temp->UnRegister(this);
-      }
-    this->Modified();
     }
+    if (temp != NULL)
+    {
+      temp->UnRegister(this);
+    }
+    this->Modified();
+  }
 }
 
 //----------------------------------------------------------------------
@@ -67,9 +67,9 @@ int vtkTerrainContourLineInterpolator::InterpolateLine( vtkRenderer *,
                                                      int idx1, int idx2 )
 {
   if (!this->ImageData)
-    {
+  {
     return 0; // No interpolation done if height-field data isn't specified.
-    }
+  }
 
   double p1[3], p2[3];
   rep->GetNthNodeWorldPosition( idx1, p1 );
@@ -108,33 +108,33 @@ int vtkTerrainContourLineInterpolator::InterpolateLine( vtkRenderer *,
   const double tolerance = 1.0;
   bool traversalDone = false;
   while (!traversalDone)
-    {
+  {
     for (interpolatedCells->InitTraversal();
          interpolatedCells->GetNextCell(npts, ptIdx); )
-      {
+    {
 
       double p[3];
       interpolatedPts->GetPoint(ptIdx[0], p);
 
       if ((p[0]-p1[0])*(p[0]-p1[0]) + (p[1]-p1[1])*(p[1]-p1[1]) < tolerance)
-        {
+      {
         interpolatedPts->GetPoint(ptIdx[npts-1], p1);
         if ((p2[0]-p1[0])*(p2[0]-p1[0])
             + (p2[1]-p1[1])*(p2[1]-p1[1]) < tolerance)
-          {
+        {
           --npts;
           traversalDone = true;
-          }
+        }
 
         for (int i = 1; i < npts; i++)
-          {
+        {
           rep->AddIntermediatePointWorldPosition(
               idx1, interpolatedPts->GetPoint(ptIdx[i]) );
-          }
-        continue;
         }
+        continue;
       }
     }
+  }
 
   return 1;
 }
@@ -154,13 +154,13 @@ void vtkTerrainContourLineInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ImageData: " << this->ImageData << endl;
   if (this->ImageData)
-    {
+  {
     this->ImageData->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
 
   os << indent << "Projector: " << this->Projector << endl;
   if (this->Projector)
-    {
+  {
     this->Projector->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
 }

@@ -32,11 +32,11 @@ int vtkImageImportExecutive::ProcessRequest(vtkInformation* request,
                                             vtkInformationVector* outInfoVec)
 {
   if(this->Algorithm && request->Has(REQUEST_INFORMATION()))
-    {
+  {
     // Invoke the callback
     vtkImageImport *ii = vtkImageImport::SafeDownCast(this->Algorithm);
     ii->InvokeUpdateInformationCallbacks();
-    }
+  }
 
   return this->Superclass::ProcessRequest(request, inInfoVec, outInfoVec);
 }

@@ -65,7 +65,7 @@ int TestPUnstructuredGridGhostDataGenerator(int argc, char* argv[])
   std::ostringstream grdfname;   // input grid name at each iteration for I/O
   std::ostringstream ghostfname; // ghosted grid name at each iteration for I/O
   for(int i=0; i < 2; ++i)
-    {
+  {
     grdfname.clear();
     grdfname.str("");
     grdfname << "INITIAL-T" << i;
@@ -113,7 +113,7 @@ int TestPUnstructuredGridGhostDataGenerator(int argc, char* argv[])
 
     rc += CheckGrid(ghostGrid,i);
     ghostGrid->Delete();
-    } // END for
+  } // END for
 
   // STEP 5: Delete the ghost generator
   timer->Delete();

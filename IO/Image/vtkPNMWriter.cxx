@@ -44,17 +44,17 @@ void vtkPNMWriter::WriteFileHeader(ofstream *file,
 
   // spit out the pnm header
   if (bpp == 1)
-    {
+  {
     *file << "P5\n";
     *file << "# pgm file written by the visualization toolkit\n";
     *file << (max1 - min1 + 1) << " " << (max2 - min2 + 1) << "\n255\n";
-    }
+  }
   else
-    {
+  {
     *file << "P6\n";
     *file << "# ppm file written by the visualization toolkit\n";
     *file << (max1 - min1 + 1) << " " << (max2 - min2 + 1) << "\n255\n";
-    }
+  }
 }
 
 
@@ -71,21 +71,21 @@ void vtkPNMWriter::WriteFile(ofstream *file, vtkImageData *data,
 
   // Make sure we actually have data.
   if ( !data->GetPointData()->GetScalars())
-    {
+  {
     vtkErrorMacro(<< "Could not get data from input.");
     return;
-    }
+  }
 
   // take into consideration the scalar type
   switch (data->GetScalarType())
-    {
+  {
     case VTK_UNSIGNED_CHAR:
       rowLength = sizeof(unsigned char);
       break;
     default:
       vtkErrorMacro("PNMWriter only accepts unsigned char scalars!");
       return;
-    }
+  }
   rowLength *= data->GetNumberOfScalarComponents();
 
   area = static_cast<float>(((extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)*
@@ -98,25 +98,25 @@ void vtkPNMWriter::WriteFile(ofstream *file, vtkImageData *data,
   target++;
 
   for (idx2 = extent[4]; idx2 <= extent[5]; ++idx2)
-    {
+  {
     for (idx1 = extent[3]; idx1 >= extent[2]; idx1--)
-      {
+    {
       if (!(count%target))
-        {
+      {
         this->UpdateProgress(progress + count/(50.0*target));
-        }
+      }
       count++;
       for (idx0 = extent[0]; idx0 <= extent[1]; idx0++)
-        {
+      {
         ptr = data->GetScalarPointer(idx0, idx1, idx2);
         if ( ! file->write((char *)ptr, rowLength))
-          {
+        {
           this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
           return;
-          }
         }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------

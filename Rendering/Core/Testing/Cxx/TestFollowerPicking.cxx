@@ -51,14 +51,14 @@ public:
   static vtkPickFollowerCallback *New()
     { return new vtkPickFollowerCallback; }
   void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
-    {
+  {
 //      vtkPropPicker *picker = reinterpret_cast<vtkPropPicker*>(caller);
       vtkCellPicker *picker = reinterpret_cast<vtkCellPicker*>(caller);
       if ( picker->GetViewProp() != NULL )
-        {
+      {
         cout << "Picked\n";
-        }
-    }
+      }
+  }
 
   vtkPickFollowerCallback() {}
 };
@@ -337,9 +337,9 @@ int TestFollowerPicking( int argc, char* argv[] )
 
   int retVal = vtkRegressionTestImageThreshold( renWin, 10 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

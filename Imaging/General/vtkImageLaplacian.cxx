@@ -57,26 +57,26 @@ int vtkImageLaplacian::RequestUpdateExtent (
 
   // update and Clip
   for (idx = 0; idx < 3; ++idx)
-    {
+  {
     --inUExt[idx*2];
     ++inUExt[idx*2+1];
     if (inUExt[idx*2] < wholeExtent[idx*2])
-      {
+    {
       inUExt[idx*2] = wholeExtent[idx*2];
-      }
-    if (inUExt[idx*2] > wholeExtent[idx*2 + 1])
-      {
-      inUExt[idx*2] = wholeExtent[idx*2 + 1];
-      }
-    if (inUExt[idx*2+1] < wholeExtent[idx*2])
-      {
-      inUExt[idx*2+1] = wholeExtent[idx*2];
-      }
-    if (inUExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
-      {
-      inUExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
-      }
     }
+    if (inUExt[idx*2] > wholeExtent[idx*2 + 1])
+    {
+      inUExt[idx*2] = wholeExtent[idx*2 + 1];
+    }
+    if (inUExt[idx*2+1] < wholeExtent[idx*2])
+    {
+      inUExt[idx*2+1] = wholeExtent[idx*2];
+    }
+    if (inUExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
+    {
+      inUExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
+    }
+  }
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inUExt, 6);
 
   return 1;
@@ -132,27 +132,27 @@ void vtkImageLaplacianExecute(vtkImageLaplacian *self,
 
   // Loop through output pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
-    {
+  {
     useZMin = ((idxZ + outExt[4]) <= wholeExtent[4]) ? 0 : -inIncs[2];
     useZMax = ((idxZ + outExt[4]) >= wholeExtent[5]) ? 0 : inIncs[2];
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
-      {
+    {
       if (!id)
-        {
+      {
         if (!(count%target))
-          {
+        {
           self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
         }
+        count++;
+      }
       useYMin = ((idxY + outExt[2]) <= wholeExtent[2]) ? 0 : -inIncs[1];
       useYMax = ((idxY + outExt[2]) >= wholeExtent[3]) ? 0 : inIncs[1];
       for (idxX = 0; idxX <= maxX; idxX++)
-        {
+      {
         useXMin = ((idxX + outExt[0]) <= wholeExtent[0]) ? 0 : -inIncs[0];
         useXMax = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];
         for (idxC = 0; idxC < maxC; idxC++)
-          {
+        {
           // do X axis
           d = -2.0*(*inPtr);
           d += static_cast<double>(inPtr[useXMin]);
@@ -165,24 +165,24 @@ void vtkImageLaplacianExecute(vtkImageLaplacian *self,
           d += static_cast<double>(inPtr[useYMax]);
           sum = sum + d * r[1];
           if (axesNum == 3)
-            {
+          {
             // do z axis
             d = -2.0*(*inPtr);
             d += static_cast<double>(inPtr[useZMin]);
             d += static_cast<double>(inPtr[useZMax]);
             sum = sum + d * r[2];
-            }
+          }
           *outPtr = static_cast<T>(sum);
           inPtr++;
           outPtr++;
-          }
         }
+      }
       outPtr += outIncY;
       inPtr += inIncY;
-      }
+    }
     outPtr += outIncZ;
     inPtr += inIncZ;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -203,15 +203,15 @@ void vtkImageLaplacian::ThreadedRequestData(
   // this filter expects that input is the same type as output.
   if (inData[0][0]->GetScalarType() !=
       outData[0]->GetScalarType())
-    {
+  {
     vtkErrorMacro(<< "Execute: input ScalarType, "
       << inData[0][0]->GetScalarType() << ", must match out ScalarType "
       << outData[0]->GetScalarType());
     return;
-    }
+  }
 
   switch (inData[0][0]->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageLaplacianExecute( this, inData[0][0],
                                 static_cast<VTK_TT *>(inPtr), outData[0],
@@ -220,6 +220,6 @@ void vtkImageLaplacian::ThreadedRequestData(
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
-    }
+  }
 }
 

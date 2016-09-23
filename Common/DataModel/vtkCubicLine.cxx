@@ -37,10 +37,10 @@ vtkCubicLine::vtkCubicLine()
   this->Points->SetNumberOfPoints(4);
   this->PointIds->SetNumberOfIds(4);
   for (int i = 0; i < 4; i++)
-    {
+  {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
     this->PointIds->SetId(i,0);
-    }
+  }
   this->Line = vtkLine::New();
 }
 //----------------------------------------------------------------------------
@@ -67,61 +67,61 @@ int vtkCubicLine::EvaluatePosition(double x[3], double* closestPoint,
   returnStatus = -1;
   weights[0] = 0.0;
   for (minDist2=VTK_DOUBLE_MAX,i=0; i < 3; i++)
-    {
+  {
     if ( i == 0)
-      {
+    {
       this->Line->Points->SetPoint(0,this->Points->GetPoint(0));
       this->Line->Points->SetPoint(1,this->Points->GetPoint(2));
-      }
+    }
     else if (i == 1)
-      {
+    {
       this->Line->Points->SetPoint(0,this->Points->GetPoint(2));
       this->Line->Points->SetPoint(1,this->Points->GetPoint(3));
-      }
+    }
     else
-      {
+    {
       this->Line->Points->SetPoint(0,this->Points->GetPoint(3));
       this->Line->Points->SetPoint(1,this->Points->GetPoint(1));
-      }
+    }
 
 
     status = this->Line->EvaluatePosition(x,closest,ignoreId,pc,
                                           dist2,lineWeights);
     if ( status != -1 && dist2 < minDist2 )
-      {
+    {
       returnStatus = status;
       minDist2 = dist2;
       subId = i;
       pcoords[0] = pc[0];
-      }
     }
+  }
 
   // adjust parametric coordinate
   if ( returnStatus != -1 )
-    {
+  {
     if ( subId == 0 ) //first part  : -1 <= pcoords <= -1/3
-      {
+    {
       pcoords[0] = pcoords[0]*(2.0/3.0) - 1;
-      }
+    }
     else if ( subId == 1 ) //second part  : -1/3 <= pcoords <= 1/3
-      {
+    {
       pcoords[0] = pcoords[0]*(2.0/3.0) -(1.0/3.0) ;
-      }
+    }
     else              // third part : 1/3 <= pcoords <= 1
-      {
+    {
       pcoords[0] = pcoords[0]*(2.0/3.0) + (1.0/3.0);
-      }
+    }
     if(closestPoint!=0)
-      {
+    {
       // Compute both closestPoint and weights
       this->EvaluateLocation(subId,pcoords,closestPoint,weights);
-      }
+    }
     else
-      {
+    {
       // Compute weights only
       this->InterpolationFunctions(pcoords,weights);
-      }
     }
+  }
 
   return returnStatus;
 }
@@ -143,9 +143,9 @@ void vtkCubicLine::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
 
 
   for (i=0; i<3; i++)
-    {
+  {
     x[i] = a0[i]*weights[0] + a1[i]*weights[1] + a2[i]*weights[2] + a3[i]*weights[3];
-    }
+  }
 
 }
 
@@ -160,29 +160,29 @@ int vtkCubicLine::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
   pts->SetNumberOfIds(1);
 
   if ( pcoords[0] >= 0.0 )
-    {
+  {
     pts->SetId(0,this->PointIds->GetId(1));   // The edge points IDs are 0 and 1.
     if ( pcoords[0] > 1.0 )
-      {
-      return 0;
-      }
-    else
-      {
-      return 1;
-      }
-    }
-  else
     {
+      return 0;
+    }
+    else
+    {
+      return 1;
+    }
+  }
+  else
+  {
     pts->SetId(0,this->PointIds->GetId(0));
     if ( pcoords[0] < -1.0 )
-      {
+    {
       return 0;
-      }
-    else
-      {
-      return 1;
-      }
     }
+    else
+    {
+      return 1;
+    }
+  }
 }
 
 
@@ -199,16 +199,16 @@ void vtkCubicLine::Contour(double value, vtkDataArray *cellScalars,
                                vtkCellData *outCd)
 {
   for (int i=0; i < 3; i++) //for each subdivided line
-    {
+  {
     for ( int j=0; j<2; j++) //for each of the four vertices of the line
-      {
+    {
       this->Line->Points->SetPoint(j,this->Points->GetPoint(LinearLines[i][j]));
       this->Line->PointIds->SetId(j,this->PointIds->GetId(LinearLines[i][j]));
       this->Scalars->SetValue(j,cellScalars->GetTuple1(LinearLines[i][j]));
-      }
+    }
     this->Line->Contour(value, this->Scalars, locator, verts,
                        lines, polys, inPd, outPd, inCd, cellId, outCd);
-    }
+  }
 }
 
 
@@ -225,43 +225,43 @@ int vtkCubicLine::IntersectWithLine(double p1[3], double p2[3], double tol, doub
   int subTest, numLines=3;
 
   for (subId=0; subId < numLines; subId++)
-    {
+  {
     if ( subId == 0)
-      {
+    {
       this->Line->Points->SetPoint(0,this->Points->GetPoint(0));
       this->Line->Points->SetPoint(1,this->Points->GetPoint(2));
-      }
+    }
     else if (subId == 1)
-      {
+    {
       this->Line->Points->SetPoint(0,this->Points->GetPoint(2));
       this->Line->Points->SetPoint(1,this->Points->GetPoint(3));
-      }
+    }
     else
-      {
+    {
       this->Line->Points->SetPoint(0,this->Points->GetPoint(3));
       this->Line->Points->SetPoint(1,this->Points->GetPoint(1));
-      }
+    }
 
     if ( this->Line->IntersectWithLine(p1, p2, tol, t, x, pcoords, subTest) )
-      {
+    {
       // adjust parametric coordinate
 
       if ( subId == 0 )      //first part  : -1 <= pcoords <= -1/3
-        {
+      {
         pcoords[0] = pcoords[0]*(2.0/3.0) - 1;
-        }
+      }
       else if ( subId == 1 ) //second part  : -1/3 <= pcoords <= 1/3
-        {
+      {
         pcoords[0] = pcoords[0]*(2.0/3.0) - (1.0/3.0) ;
-        }
+      }
       else                   // third part : 1/3 <= pcoords <= 1
-        {
+      {
         pcoords[0] = pcoords[0]*(2.0/3.0) + (1.0/3.0);
-        }
+      }
 
       return 1;
-      }
     }
+  }
 
   return 0;
 }
@@ -324,24 +324,24 @@ void vtkCubicLine::Derivatives(int vtkNotUsed(subId),
   this->Points->GetPoint(3, x3);
 
   for (int i=0; i < 3; i++)                    // Compute the vector for each point
-    {
+  {
     v10[i] = x1[i] - x0[i];
     vec20[i] = x2[i] - x0[i];
     vec30[i] = x3[i] - x0[i];
-    }
+  }
 
 
   if ( (lenX=vtkMath::Normalize(v10)) <= 0.0 ) //degenerate
-    {
+  {
     for (int j=0; j < dim; j++ )
-      {
+    {
       for (int i=0; i < 3; i++ )
-        {
+      {
         derivs[j*dim + i] = 0.0;
-        }
       }
-    return;
     }
+    return;
+  }
 
   v0 =  0.0; //convert points to 1D (i.e., local system)
 
@@ -359,32 +359,32 @@ void vtkCubicLine::Derivatives(int vtkNotUsed(subId),
   // Compute inverse Jacobian, return if Jacobian is singular
 
   if(J != 0)
-    {
+  {
     JI = 1.0 / J;
-    }
+  }
   else
-    {
+  {
     for (int j=0; j < dim; j++ )
-      {
+    {
       for (int i=0; i < 3; i++ )
-        {
+      {
         derivs[j*dim + i] = 0.0;
-        }
       }
-    return;
     }
+    return;
+  }
 
   // Loop over "dim" derivative values. For each set of values,
   // compute derivatives
   // in local system and then transform into modelling system.
   // First compute derivatives in local x' coordinate system
   for (int j=0; j < dim; j++ )
-    {
+  {
     sum = 0.0;
     for (int i=0; i < 4; i++) //loop over interp. function derivatives
-      {
+    {
       sum += funcDerivs[i] * values[dim*i + j];
-      }
+    }
 
     dBydx = sum*JI;
 
@@ -392,7 +392,7 @@ void vtkCubicLine::Derivatives(int vtkNotUsed(subId),
     derivs[3*j] = dBydx * v10[0] ;
     derivs[3*j + 1] = dBydx * v10[1] ;
     derivs[3*j + 2] = dBydx * v10[2] ;
-    }
+  }
 }
 
 
@@ -408,16 +408,16 @@ void vtkCubicLine::Clip(double value, vtkDataArray *cellScalars,
                    int insideOut)
 {
    for (int i=0; i < 3; i++) //for each subdivided line
-    {
+   {
     for ( int j=0; j<2; j++) //for each of the four vertices of the line
-      {
+    {
       this->Line->Points->SetPoint(j,this->Points->GetPoint(LinearLines[i][j]));
       this->Line->PointIds->SetId(j,this->PointIds->GetId(LinearLines[i][j]));
       this->Scalars->SetValue(j,cellScalars->GetTuple1(LinearLines[i][j]));
-      }
+    }
     this->Line->Clip(value, this->Scalars, locator, lines, inPd, outPd,
                      inCd, cellId, outCd, insideOut);
-    }
+   }
 }
 
 
@@ -470,13 +470,13 @@ double vtkCubicLine::GetParametricDistance(double pcoords[3])
   pc = pcoords[0];
 
   if ( pc <= -1.0)
-    {
+  {
     return  pc * (-1.0) - 1.0;
-    }
+  }
   else if (pc >= 1.0)
-    {
+  {
     return pc - 1.0;
-    }
+  }
 
   return pc;    // the parametric coordintate lies between -1.0 and 1.0.
 }

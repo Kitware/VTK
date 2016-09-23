@@ -37,9 +37,9 @@ vtkImageData* createTexture2D(int width, int height, int comp)
 {
   void* data = malloc(width*height*comp*sizeof(unsigned char));
   if (!data)
-    {
+  {
     return 0;
-    }
+  }
   free(data);
   vtkImageData* image = vtkImageData::New();
   image->SetExtent(0, width - 1,
@@ -52,16 +52,16 @@ vtkImageData* createTexture2D(int width, int height, int comp)
   double value = 0.;
   double valueIncr = 255. / (width*height > 1 ? width*height-1 : 1);
   for (int y = 0; y < height; ++y)
-    {
+  {
     for (int x = 0; x < width; ++x)
-      {
+    {
       for (int c = 0; c < comp; ++c)
-        {
+      {
         *ptr++ = static_cast<unsigned char>(value);
-        }
-      value += valueIncr;
       }
+      value += valueIncr;
     }
+  }
   return image;
 }
 
@@ -109,17 +109,17 @@ int TestTextureSize(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
      {2047,2047}, {4097,4097}};
   int componentSizes[3] = {1, 3, 4};
   for (int i = 0; i < 23; ++i)
-    {
+  {
     for (int c = 0; c < 3; ++c)
-      {
+    {
       int* size = textureSizes[i];
       vtkSmartPointer<vtkImageData> image =
         vtkSmartPointer<vtkImageData>::Take(
           createTexture2D(size[0], size[1], componentSizes[c]));
       if (image.GetPointer() == 0)
-        {
+      {
         return EXIT_SUCCESS;
-        }
+      }
       vtkNew<vtkTexture> texture;
       texture->SetInputData(image);
       // You can play with the parameters
@@ -137,8 +137,8 @@ int TestTextureSize(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
       texture->SetRestrictPowerOf2ImageSmaller(true);
       renderWindow->Render();
-      }
     }
+  }
 
   return EXIT_SUCCESS;
 }

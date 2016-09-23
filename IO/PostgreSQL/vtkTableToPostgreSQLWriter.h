@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTableToPostgreSQLWriter - store a vtkTable in a PostgreSQL database
-// .SECTION Description
-// vtkTableToPostgreSQLWriter reads a vtkTable and inserts it into a PostgreSQL
-// database.
+/**
+ * @class   vtkTableToPostgreSQLWriter
+ * @brief   store a vtkTable in a PostgreSQL database
+ *
+ * vtkTableToPostgreSQLWriter reads a vtkTable and inserts it into a PostgreSQL
+ * database.
+*/
 
 #ifndef vtkTableToPostgreSQLWriter_h
 #define vtkTableToPostgreSQLWriter_h
@@ -32,10 +35,13 @@ public:
   vtkTypeMacro(vtkTableToPostgreSQLWriter,vtkTableToDatabaseWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the input to this writer.
+  //@{
+  /**
+   * Get the input to this writer.
+   */
   vtkTable* GetInput();
   vtkTable* GetInput(int port);
+  //@}
 
 protected:
    vtkTableToPostgreSQLWriter();

@@ -62,7 +62,7 @@ int vtkReverseSense::RequestData(
   vtkIdType progressInterval;
 
   if ( this->ReverseCells )
-    {
+  {
     vtkIdType numCells=input->GetNumberOfCells();
     vtkCellArray *verts, *lines, *polys, *strips;
 
@@ -83,20 +83,20 @@ int vtkReverseSense::RequestData(
 
     progressInterval=numCells/10+1;
     for (vtkIdType cellId=0; cellId < numCells && !abort; cellId++ )
-      {
+    {
       if ( ! (cellId % progressInterval) ) //manage progress / early abort
-        {
+      {
         this->UpdateProgress (0.6*cellId/numCells);
         abort = this->GetAbortExecute();
-        }
-      output->ReverseCell(cellId);
       }
+      output->ReverseCell(cellId);
     }
+  }
 
   //If specified and normals available, reverse orientation of normals.
   // Using NewInstance() creates normals of the same data type.
   if ( this->ReverseNormals && normals )
-    {
+  {
     //first do point normals
     vtkIdType numPoints=input->GetNumberOfPoints();
     vtkDataArray *outNormals=normals->NewInstance();
@@ -106,24 +106,24 @@ int vtkReverseSense::RequestData(
 
     progressInterval=numPoints/5+1;
     for ( int ptId=0; ptId < numPoints; ptId++ )
-      {
+    {
       if ( ! (ptId % progressInterval) ) //manage progress / early abort
-        {
+      {
         this->UpdateProgress (0.6 + 0.2*ptId/numPoints);
         abort = this->GetAbortExecute();
-        }
+      }
       normals->GetTuple(ptId,n);
       n[0] = -n[0]; n[1] = -n[1]; n[2] = -n[2];
       outNormals->SetTuple(ptId,n);
-      }
+    }
 
     output->GetPointData()->SetNormals(outNormals);
     outNormals->Delete();
-    }
+  }
 
   //now do cell normals
   if ( this->ReverseNormals && cellNormals )
-    {
+  {
     vtkIdType numCells=input->GetNumberOfCells();
     vtkDataArray *outNormals=cellNormals->NewInstance();
     outNormals->SetNumberOfComponents(cellNormals->GetNumberOfComponents());
@@ -132,21 +132,21 @@ int vtkReverseSense::RequestData(
 
     progressInterval=numCells/5+1;
     for (vtkIdType cellId=0; cellId < numCells && !abort; cellId++ )
-      {
+    {
       if ( ! (cellId % progressInterval) ) //manage progress / early abort
-        {
+      {
         this->UpdateProgress (0.8 + 0.2*cellId/numCells);
         abort = this->GetAbortExecute();
-        }
+      }
 
       cellNormals->GetTuple(cellId,n);
       n[0] = -n[0]; n[1] = -n[1]; n[2] = -n[2];
       outNormals->SetTuple(cellId,n);
-      }
+    }
 
     output->GetCellData()->SetNormals(outNormals);
     outNormals->Delete();
-    }
+  }
 
   return 1;
 }

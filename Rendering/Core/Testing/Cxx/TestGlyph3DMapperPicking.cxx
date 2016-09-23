@@ -51,21 +51,21 @@ class MyEndPickCommand : public vtkCommand
 {
 public:
   MyEndPickCommand()
-    {
+  {
     this->Renderer=0; // no reference counting
     this->Mask=0; // no reference counting
     this->DataSet=0;
-    }
+  }
 
   ~MyEndPickCommand() VTK_OVERRIDE
-    {
+  {
     // empty
-    }
+  }
 
   void Execute(vtkObject *vtkNotUsed(caller),
     unsigned long vtkNotUsed(eventId),
     void *vtkNotUsed(callData)) VTK_OVERRIDE
-    {
+  {
     assert("pre: renderer_exists" && this->Renderer!=0);
 
     vtkHardwareSelector *sel = vtkHardwareSelector::New();
@@ -92,66 +92,66 @@ public:
     // Reset the mask to false.
     vtkIdType numPoints = this->Mask->GetNumberOfTuples();
     for (vtkIdType i=0; i < numPoints; i++)
-      {
+    {
       this->Mask->SetValue(i,false);
-      }
+    }
 
     vtkSelectionNode *glyphids = res->GetNode(0);
     if (glyphids!=0)
-      {
+    {
       vtkAbstractArray *abs=glyphids->GetSelectionList();
       if(abs==0)
-        {
+      {
         cout<<"abs is null"<<endl;
-        }
+      }
       vtkIdTypeArray *ids=vtkArrayDownCast<vtkIdTypeArray>(abs);
       if(ids==0)
-        {
+      {
         cout<<"ids is null"<<endl;
-        }
+      }
       else
-        {
+      {
         // modify mask array with selection.
         vtkIdType numSelPoints = ids->GetNumberOfTuples();
         for (vtkIdType i =0; i < numSelPoints; i++)
-          {
+        {
           vtkIdType value = ids->GetValue(i);
           if (value >=0 && value < numPoints)
-            {
+          {
             cout << "Turn On: " << value << endl;
             this->Mask->SetValue(value,true);
-            }
+          }
           else
-            {
+          {
             cout << "Ignoring: " << value << endl;
-            }
           }
         }
       }
+    }
     this->DataSet->Modified();
 
     sel->Delete();
     res->Delete();
-    }
+  }
 
   void SetRenderer(vtkRenderer *r)
-    {
+  {
     this->Renderer=r;
-    }
+  }
 
   vtkRenderer *GetRenderer() const
-    {
+  {
     return this->Renderer;
-    }
+  }
 
   void SetMask(vtkBitArray *m)
-    {
+  {
     this->Mask=m;
-    }
+  }
   void SetDataSet(vtkDataSet* ds)
-    {
+  {
     this->DataSet = ds;
-    }
+  }
 
 protected:
   vtkRenderer *Renderer;
@@ -203,10 +203,10 @@ int TestGlyph3DMapperPicking(int argc, char* argv[])
   vtkIdType i=0;
   vtkIdType c=selectionMask->GetNumberOfTuples();
   while(i<c)
-    {
+  {
       selectionMask->SetValue(i,true);
       ++i;
-    }
+  }
   selection->GetPointData()->AddArray(selectionMask);
   selectionMask->Delete();
 
@@ -268,9 +268,9 @@ int TestGlyph3DMapperPicking(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Cleanup
   renderer->Delete();

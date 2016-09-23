@@ -23,12 +23,12 @@ vtkMTimeType vtkAssemblyPaths::GetMTime()
 
   vtkAssemblyPath *path;
   for (this->InitTraversal(); (path = this->GetNextItem());)
-    {
+  {
     vtkMTimeType pathMTime = path->GetMTime();
     if (pathMTime > mtime)
-      {
+    {
       mtime = pathMTime;
-      }
     }
+  }
   return mtime;
 }

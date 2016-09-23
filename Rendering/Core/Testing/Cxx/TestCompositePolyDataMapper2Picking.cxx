@@ -77,14 +77,14 @@ public:
   // Find selection node that we're interested in:
   const vtkIdType numNodes = selection->GetNumberOfNodes();
   for (vtkIdType nodeId = 0; nodeId < numNodes; ++nodeId)
-    {
+  {
     vtkSelectionNode *node = selection->GetNode(nodeId);
 
     // Check if the mapper is this instance of MoleculeMapper
     vtkActor *selActor = vtkActor::SafeDownCast(
                node->GetProperties()->Get(vtkSelectionNode::PROP()));
     if (selActor && (selActor->GetMapper() == this->Mapper))
-      {
+    {
       int blockIndex =
         node->GetProperties()->Get(vtkSelectionNode::COMPOSITE_INDEX());
         cerr << "Block ID " << blockIndex << " with prim ids of: ";
@@ -92,18 +92,18 @@ public:
       vtkIdTypeArray *selIds = vtkArrayDownCast<vtkIdTypeArray>(
             node->GetSelectionList());
       if (selIds)
-        {
+      {
         vtkIdType numIds = selIds->GetNumberOfTuples();
         for (vtkIdType i = 0; i < numIds; ++i)
-          {
+        {
           vtkIdType curId = selIds->GetValue(i);
           this->BlockPrims[blockIndex].push_back(curId);
           cerr << " " << curId;
-          }
         }
-      cerr << "\n";
       }
+      cerr << "\n";
     }
+  }
   }
 
   std::map<int, std::vector<int> > &GetBlockPrims()
@@ -130,7 +130,7 @@ public:
   {
     vtkProp3DCollection *props = this->Picker->GetProp3Ds();
     if (props->GetNumberOfItems() != 0)
-      {
+    {
       // If anything was picked during the fast area pick, do a more detailed
       // pick.
       vtkNew<vtkHardwareSelector> selector;
@@ -147,7 +147,7 @@ public:
       this->SetPointIds(result);
       //this->DumpPointSelection();
       result->Delete();
-      }
+    }
   }
 
 };
@@ -206,53 +206,53 @@ int TestCompositePolyDataMapper2Picking(int argc, char* argv[])
   int numNodes = 0;
   vtkStdString blockName("Rolf");
   for (int level = 1; level < numLevels; ++level)
-    {
+  {
     int nblocks=blocksPerLevel[level];
     for (unsigned parent = levelStart; parent < levelEnd; ++parent)
-      {
+    {
       blocks[parent]->SetNumberOfBlocks(nblocks);
       for (int block=0; block < nblocks; ++block, ++numNodes)
-        {
+      {
         if (level == numLevels - 1)
-          {
+        {
           vtkNew<vtkPolyData> child;
           if ((block/6)%2)
-            {
+          {
             cyl->SetCenter(block*0.25, 0.0, parent*0.5);
             plane->SetCenter(block*0.25, 0.5, parent*0.5);
             elev->SetLowPoint(block*0.25 - 0.2 + 0.2*block/nblocks, -0.02, 0.0);
             elev->SetHighPoint(block*0.25 + 0.1 + 0.2*block/nblocks, 0.02, 0.0);
             p2c->Update();
             child->DeepCopy(p2c->GetOutput(0));
-            }
+          }
           else
-            {
+          {
             plane->SetCenter(block*0.25, 0.5, parent*0.5);
             extract->Update();
             child->DeepCopy(extract->GetOutput(0));
-            }
+          }
           blocks[parent]->SetBlock(
             block, (block % 2) ? NULL : child.GetPointer());
           blocks[parent]->GetMetaData(block)->Set(
             vtkCompositeDataSet::NAME(), blockName.c_str());
           // test not seting it on some
           if (block % 11)
-            {
-            mapper->SetBlockVisibility(parent+numLeaves, (block % 7) != 0);
-            }
-          ++numLeaves;
-          }
-        else
           {
+            mapper->SetBlockVisibility(parent+numLeaves, (block % 7) != 0);
+          }
+          ++numLeaves;
+        }
+        else
+        {
           vtkNew<vtkMultiBlockDataSet> child;
           blocks[parent]->SetBlock(block, child.GetPointer());
           blocks.push_back(child.GetPointer());
-          }
         }
       }
+    }
     levelStart = levelEnd;
     levelEnd = static_cast<unsigned>(blocks.size());
-    }
+  }
 
   mapper->SetInputData((vtkPolyData *)(data.GetPointer()));
   mapper->SetScalarModeToUseCellData();
@@ -302,9 +302,9 @@ int TestCompositePolyDataMapper2Picking(int argc, char* argv[])
   // Interact if desired
   int retVal = vtkRegressionTestImage(win.GetPointer());
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Verify pick
   std::map<int,std::vector<int> > &bPrims =
@@ -315,11 +315,11 @@ int TestCompositePolyDataMapper2Picking(int argc, char* argv[])
       bPrims.find(97) == bPrims.end() ||
       std::find(bPrims[82].begin(), bPrims[82].end(), 114) == bPrims[82].end()
       )
-    {
+  {
     cerr << "Incorrect pick results (if any picks were performed inter"
             "actively this could be ignored).\n";
     return EXIT_FAILURE;
-    }
+  }
 
   return !retVal;
 }

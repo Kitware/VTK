@@ -43,10 +43,10 @@ vtkPointSet::~vtkPointSet ()
   this->Cleanup();
 
   if ( this->Locator )
-    {
+  {
     this->Locator->UnRegister(this);
     this->Locator = NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -56,23 +56,23 @@ void vtkPointSet::CopyStructure(vtkDataSet *ds)
   vtkPointSet *ps=static_cast<vtkPointSet *>(ds);
 
   if ( this->Points != ps->Points )
-    {
+  {
     if ( this->Locator )
-      {
+    {
       this->Locator->Initialize();
-      }
-    this->SetPoints(ps->Points);
     }
+    this->SetPoints(ps->Points);
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkPointSet::Cleanup()
 {
   if ( this->Points )
-    {
+  {
     this->Points->UnRegister(this);
     this->Points = NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -83,9 +83,9 @@ void vtkPointSet::Initialize()
   this->Cleanup();
 
   if ( this->Locator )
-    {
+  {
     this->Locator->Initialize();
-    }
+  }
 }
 //----------------------------------------------------------------------------
 void vtkPointSet::ComputeBounds()
@@ -93,17 +93,17 @@ void vtkPointSet::ComputeBounds()
   double *bounds;
 
   if ( this->Points )
-    {
+  {
     if ( this->GetMTime() >= this->ComputeTime )
-      {
+    {
       bounds = this->Points->GetBounds();
       for (int i=0; i<6; i++)
-        {
+      {
         this->Bounds[i] = bounds[i];
-        }
-      this->ComputeTime.Modified();
       }
+      this->ComputeTime.Modified();
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -112,12 +112,12 @@ vtkMTimeType vtkPointSet::GetMTime()
   vtkMTimeType dsTime = vtkDataSet::GetMTime();
 
   if ( this->Points )
-    {
+  {
     if ( this->Points->GetMTime() > dsTime )
-      {
+    {
       dsTime = this->Points->GetMTime();
-      }
     }
+  }
 
   // don't get locator's mtime because its an internal object that cannot be
   // modified directly from outside. Causes problems due to FindCell()
@@ -130,22 +130,22 @@ vtkMTimeType vtkPointSet::GetMTime()
 vtkIdType vtkPointSet::FindPoint(double x[3])
 {
   if ( !this->Points )
-    {
+  {
     return -1;
-    }
+  }
 
   if ( !this->Locator )
-    {
+  {
     this->Locator = vtkPointLocator::New();
     this->Locator->Register(this);
     this->Locator->Delete();
     this->Locator->SetDataSet(this);
-    }
+  }
 
   if ( this->Points->GetMTime() > this->Locator->GetMTime() )
-    {
+  {
     this->Locator->SetDataSet(this);
-    }
+  }
 
   return this->Locator->FindClosestPoint(x);
 }
@@ -169,24 +169,24 @@ static vtkIdType FindCellWalk(vtkPointSet *self, double x[3], vtkCell *cell,
                               vtkIdList *ptIds, vtkIdList *neighbors)
 {
   for (int walk = 0; walk < VTK_MAX_WALK; walk++)
-    {
+  {
     // Check to see if we already visited this cell.
     if (visitedCells.find(cellId) != visitedCells.end()) break;
     visitedCells.insert(cellId);
 
     // Get information for the cell.
     if (!cell)
-      {
+    {
       if (gencell)
-        {
+      {
         self->GetCell(cellId, gencell);
         cell = gencell;
-        }
-      else
-        {
-        cell = self->GetCell(cellId);
-        }
       }
+      else
+      {
+        cell = self->GetCell(cellId);
+      }
+    }
 
     // Check to see if the cell contains the point.
     double closestPoint[3];
@@ -194,9 +194,9 @@ static vtkIdType FindCellWalk(vtkPointSet *self, double x[3], vtkCell *cell,
     if (   (cell->EvaluatePosition(x, closestPoint, subId,
                                    pcoords, dist2, weights) == 1)
         && (dist2 <= tol2) )
-      {
+    {
       return cellId;
-      }
+    }
 
     // This is not the right cell.  Find the next one.
     cell->CellBoundary(subId, pcoords, ptIds);
@@ -206,7 +206,7 @@ static vtkIdType FindCellWalk(vtkPointSet *self, double x[3], vtkCell *cell,
     // Set the next cell as the current one and iterate.
     cellId = neighbors->GetId(0);
     cell = NULL;
-    }
+  }
 
   // Could not find a cell.
   return -1;
@@ -221,13 +221,13 @@ static vtkIdType FindCellWalk(vtkPointSet *self, double x[3],
                               vtkIdList *ptIds, vtkIdList *neighbors)
 {
   for (vtkIdType i = 0; i < cellIds->GetNumberOfIds(); i++)
-    {
+  {
     vtkIdType cellId = cellIds->GetId(i);
     vtkIdType foundCell = FindCellWalk(self, x, NULL, gencell, cellId,
                                        tol2, subId, pcoords, weights,
                                        visitedCells, ptIds, neighbors);
     if (foundCell >= 0) return foundCell;
-    }
+  }
   return -1;
 }
 
@@ -241,9 +241,9 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
 
   // make sure everything is up to snuff
   if ( !this->Points || this->Points->GetNumberOfPoints() < 1)
-    {
+  {
     return -1;
-    }
+  }
 
   // Check to see if the point is within the bounds of the data.  This is not
   // a strict check, but it is fast.
@@ -253,24 +253,24 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
   if (   (x[0] < bounds[0] - tol) || (x[0] > bounds[1] + tol)
       || (x[1] < bounds[2] - tol) || (x[1] > bounds[3] + tol)
       || (x[2] < bounds[4] - tol) || (x[2] > bounds[5] + tol) )
-    {
+  {
     return -1;
-    }
+  }
 
   if ( !this->Locator )
-    {
+  {
     this->Locator = vtkPointLocator::New();
     this->Locator->Register(this);
     this->Locator->Delete();
     this->Locator->SetDataSet(this);
     this->Locator->BuildLocator();
-    }
+  }
 
   if ( this->Points->GetMTime() > this->Locator->GetBuildTime() )
-    {
+  {
     this->Locator->SetDataSet(this);
     this->Locator->BuildLocator();
-    }
+  }
 
   std::set<vtkIdType> visitedCells;
   VTK_CREATE(vtkIdList, ptIds);
@@ -280,12 +280,12 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
 
   // If we are given a starting cell, try that.
   if (cell && (cellId >= 0))
-    {
+  {
     foundCell = FindCellWalk(this, x, cell, gencell, cellId,
                              tol2, subId, pcoords, weights,
                              visitedCells, ptIds, neighbors);
     if (foundCell >= 0) return foundCell;
-    }
+  }
 
   VTK_CREATE(vtkIdList, cellIds);
   cellIds->Allocate(8,100);
@@ -314,13 +314,13 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
   this->Locator->FindPointsWithinRadius(tol2, ptCoord, coincidentPtIds);
   coincidentPtIds->DeleteId(ptId);      // Already searched this one.
   for (vtkIdType i = 0; i < coincidentPtIds->GetNumberOfIds(); i++)
-    {
+  {
     this->GetPointCells(coincidentPtIds->GetId(i), cellIds);
     foundCell = FindCellWalk(this, x, gencell, cellIds,
                              tol2, subId, pcoords, weights,
                              visitedCells, ptIds, neighbors);
     if (foundCell >= 0) return foundCell;
-    }
+  }
 
   // Could not find the cell.
   return -1;
@@ -350,9 +350,9 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell, vtkIdType cellId,
 void vtkPointSet::Squeeze()
 {
   if ( this->Points )
-    {
+  {
     this->Points->Squeeze();
-    }
+  }
   vtkDataSet::Squeeze();
 }
 
@@ -368,9 +368,9 @@ unsigned long vtkPointSet::GetActualMemorySize()
 {
   unsigned long size=this->vtkDataSet::GetActualMemorySize();
   if ( this->Points )
-    {
+  {
     size += this->Points->GetActualMemorySize();
-    }
+  }
   return size;
 }
 
@@ -380,9 +380,9 @@ void vtkPointSet::ShallowCopy(vtkDataObject *dataObject)
   vtkPointSet *pointSet = vtkPointSet::SafeDownCast(dataObject);
 
   if ( pointSet != NULL )
-    {
+  {
     this->SetPoints(pointSet->GetPoints());
-    }
+  }
 
   // Do superclass
   this->vtkDataSet::ShallowCopy(dataObject);
@@ -394,22 +394,22 @@ void vtkPointSet::DeepCopy(vtkDataObject *dataObject)
   vtkPointSet *pointSet = vtkPointSet::SafeDownCast(dataObject);
 
   if ( pointSet != NULL )
-    {
+  {
     vtkPoints* newPoints;
     vtkPoints* pointsToCopy = pointSet->GetPoints();
     if (pointsToCopy)
-      {
+    {
       newPoints = pointsToCopy->NewInstance();
       newPoints->SetDataType(pointsToCopy->GetDataType());
       newPoints->DeepCopy(pointsToCopy);
-      }
+    }
     else
-      {
+    {
       newPoints = vtkPoints::New();
-      }
+    }
     this->SetPoints(newPoints);
     newPoints->Delete();
-    }
+  }
 
   // Do superclass
   this->vtkDataSet::DeepCopy(dataObject);

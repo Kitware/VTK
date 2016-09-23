@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOBJReader - read Wavefront .obj files
-// .SECTION Description
-// vtkOBJReader is a source object that reads Wavefront .obj
-// files. The output of this source object is polygonal data.
-// .SECTION See Also
-// vtkOBJImporter
+/**
+ * @class   vtkOBJReader
+ * @brief   read Wavefront .obj files
+ *
+ * vtkOBJReader is a source object that reads Wavefront .obj
+ * files. The output of this source object is polygonal data.
+ * @sa
+ * vtkOBJImporter
+*/
 
 #ifndef vtkOBJReader_h
 #define vtkOBJReader_h

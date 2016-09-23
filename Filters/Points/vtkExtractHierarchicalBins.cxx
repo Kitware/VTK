@@ -61,27 +61,27 @@ int vtkExtractHierarchicalBins::FilterPoints(vtkPointSet *input)
 {
   // Check the input.
   if ( !this->BinningFilter )
-    {
+  {
     vtkErrorMacro(<<"vtkHierarchicalBinningFilter required\n");
     return 0;
-    }
+  }
 
   // Access the correct bin and determine how many points to extract.
   vtkIdType offset;
   vtkIdType numFill;
 
   if ( this->Level >= 0 )
-    {
+  {
     offset = this->BinningFilter->GetLevelOffset(this->Level, numFill);
-    }
+  }
   else if ( this->Bin >= 0 )
-    {
+  {
     offset = this->BinningFilter->GetBinOffset(this->Bin, numFill);
-    }
+  }
   else //pass everything through
-    {
+  {
     return 1;
-    }
+  }
 
   vtkIdType numPts = input->GetNumberOfPoints();
   MaskPoints(numPts, this->PointMap, offset, numFill);

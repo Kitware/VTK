@@ -32,10 +32,10 @@
 int TestMySQLTableReadWrite(int argc, char *argv[])
 {
   if ( argc <= 1 )
-    {
+  {
     cerr << "Usage: " << argv[0] << " <.vtk table file>" << endl;
     return 1;
-    }
+  }
   cerr << "reading a vtkTable from file" << endl;
   vtkSmartPointer<vtkTableReader> tableFileReader =
     vtkSmartPointer<vtkTableReader>::New();
@@ -50,10 +50,10 @@ int TestMySQLTableReadWrite(int argc, char *argv[])
   bool status = db->Open();
 
   if ( ! status )
-    {
+  {
     cerr << "Couldn't open database.\n";
     return 1;
-    }
+  }
 
   cerr << "creating a MySQL table from a vtkTable" << endl;
   vtkSmartPointer<vtkTableToMySQLWriter> writerToTest =
@@ -82,14 +82,14 @@ int TestMySQLTableReadWrite(int argc, char *argv[])
   cerr << "verifying that it's the same as what we started with...";
   int result = 0;
   if(vtksys::SystemTools::FilesDiffer(argv[1], "TestMySQLTableReadWrite.vtk"))
-    {
+  {
     cerr << "it's not." << endl;
     result = 1;
-    }
+  }
   else
-    {
+  {
     cerr << "it is!" << endl;
-    }
+  }
 
   //drop the table we created
   vtkSQLQuery* query = db->GetQueryInstance();

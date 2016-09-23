@@ -69,9 +69,9 @@ template <typename Scalar> inline
 void vtkTypedDataArray<Scalar>::SetNumberOfValues(vtkIdType number)
 {
   if (this->Allocate(number))
-    {
+  {
     this->MaxId = number - 1;
-    }
+  }
   this->Modified();
 }
 
@@ -96,19 +96,19 @@ template <typename Scalar> inline vtkTypedDataArray<Scalar> *
 vtkTypedDataArray<Scalar>::FastDownCast(vtkAbstractArray *source)
 {
   if (source)
-    {
+  {
     switch (source->GetArrayType())
-      {
+    {
       case vtkAbstractArray::TypedDataArray:
       case vtkAbstractArray::MappedDataArray:
         if (vtkDataTypesCompare(source->GetDataType(),
                                 vtkTypeTraits<Scalar>::VTK_TYPE_ID))
-          {
+        {
           return static_cast<vtkTypedDataArray<Scalar>*>(source);
-          }
+        }
         break;
-      }
     }
+  }
   return NULL;
 }
 

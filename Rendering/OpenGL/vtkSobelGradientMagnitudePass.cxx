@@ -61,29 +61,29 @@ vtkSobelGradientMagnitudePass::vtkSobelGradientMagnitudePass()
 vtkSobelGradientMagnitudePass::~vtkSobelGradientMagnitudePass()
 {
   if(this->FrameBufferObject!=0)
-    {
+  {
     vtkErrorMacro(<<"FrameBufferObject should have been deleted in ReleaseGraphicsResources().");
-    }
+  }
    if(this->Pass1!=0)
-    {
+   {
     vtkErrorMacro(<<"Pass1 should have been deleted in ReleaseGraphicsResources().");
-    }
+   }
    if(this->Gx1!=0)
-    {
+   {
     vtkErrorMacro(<<"Gx1 should have been deleted in ReleaseGraphicsResources().");
-    }
+   }
    if(this->Gy1!=0)
-     {
+   {
      vtkErrorMacro(<<"Gx1 should have been deleted in ReleaseGraphicsResources().");
-     }
+   }
    if(this->Program1!=0)
-     {
+   {
      this->Program1->Delete();
-     }
+   }
    if(this->Program2!=0)
-     {
+   {
      this->Program2->Delete();
-     }
+   }
 }
 
 // ----------------------------------------------------------------------------
@@ -103,7 +103,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
   this->NumberOfRenderedProps=0;
 
   if(this->DelegatePass!=0)
-    {
+  {
     vtkRenderer *renderer = s->GetRenderer();
 
     vtkOpenGLRenderWindow *context
@@ -118,7 +118,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
       = fbo_support && texture_support && shader_support;
 
     if (!supported)
-      {
+    {
       vtkErrorMacro(
         << "The required extensions are not supported."
         << " fbo_support=" << fbo_support
@@ -130,7 +130,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
         += this->DelegatePass->GetNumberOfRenderedProps();
 
       return;
-      }
+    }
 
     vtkOpenGLClearErrorMacro();
 
@@ -152,16 +152,16 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
     int h=height+2*extraPixels;
 
     if(this->Pass1==0)
-      {
+    {
       this->Pass1=vtkTextureObject::New();
       this->Pass1->SetContext(context);
-      }
+    }
 
     if(this->FrameBufferObject==0)
-      {
+    {
       this->FrameBufferObject=vtkFrameBufferObject::New();
       this->FrameBufferObject->SetContext(context);
-      }
+    }
 
     this->RenderDelegate(s,width,height,w,h,this->FrameBufferObject,
                          this->Pass1);
@@ -210,28 +210,28 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
     // 3. Same FBO, but two color attachments (new TOs gx1 and gy1).
 
     if(this->Gx1==0)
-      {
+    {
       this->Gx1=vtkTextureObject::New();
       this->Gx1->SetContext(this->FrameBufferObject->GetContext());
-      }
+    }
 
     if(this->Gx1->GetWidth()!=static_cast<unsigned int>(w) ||
        this->Gx1->GetHeight()!=static_cast<unsigned int>(h))
-      {
+    {
       this->Gx1->Create2D(w,h,4,VTK_UNSIGNED_CHAR,false);
-      }
+    }
 
     if(this->Gy1==0)
-      {
+    {
       this->Gy1=vtkTextureObject::New();
       this->Gy1->SetContext(this->FrameBufferObject->GetContext());
-      }
+    }
 
     if(this->Gy1->GetWidth()!=static_cast<unsigned int>(w) ||
        this->Gy1->GetHeight()!=static_cast<unsigned int>(h))
-      {
+    {
       this->Gy1->Create2D(w,h,4,VTK_UNSIGNED_CHAR,false);
-      }
+    }
 #ifdef VTK_SOBEL_PASS_DEBUG
     cout << "gx1 TOid=" << this->Gx1->GetHandle() <<endl;
     cout << "gy1 TOid=" << this->Gy1->GetHandle() <<endl;
@@ -254,7 +254,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
     // (this->Gx1 and this->Gy1 are fbo render targets)
 
     if(this->Program1==0)
-      {
+    {
       this->Program1=vtkShaderProgram2::New();
       this->Program1->SetContext(
         static_cast<vtkOpenGLRenderWindow *>(
@@ -265,7 +265,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
       shader->SetContext(this->Program1->GetContext());
       this->Program1->GetShaders()->AddItem(shader);
       shader->Delete();
-      }
+    }
 
     this->Program1->Build();
 
@@ -280,7 +280,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
 
     if(this->Program1->GetLastBuildStatus()
        !=VTK_SHADER_PROGRAM2_LINK_SUCCEEDED)
-      {
+    {
       vtkErrorMacro("Couldn't build the shader program. At this point , it can be an error in a shader or a driver bug.");
 
       // restore some state.
@@ -288,7 +288,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
       glDrawBuffer(savedDrawBuffer);
 
       return;
-      }
+    }
 
     vtkUniformVariables *var=this->Program1->GetUniformVariables();
     vtkTextureUnitManager *tu=context->GetTextureUnitManager();
@@ -315,9 +315,9 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
 #endif
 
     if(!this->Program1->IsValid())
-      {
+    {
       vtkErrorMacro(<<this->Program1->GetLastValidateLog());
-      }
+    }
 #ifdef VTK_SOBEL_PASS_DEBUG
     cout << "sobel finish3-" << endl;
     glFinish();
@@ -399,7 +399,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
     glDrawBuffer(savedDrawBuffer);
 
     if(this->Program2==0)
-      {
+    {
       this->Program2=vtkShaderProgram2::New();
       this->Program2->SetContext(
         static_cast<vtkOpenGLRenderWindow *>(
@@ -410,7 +410,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
       shader->SetContext(this->Program2->GetContext());
       this->Program2->GetShaders()->AddItem(shader);
       shader->Delete();
-      }
+    }
 
     this->Program2->Build();
 
@@ -425,13 +425,13 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
 
     if(this->Program2->GetLastBuildStatus()
        !=VTK_SHADER_PROGRAM2_LINK_SUCCEEDED)
-      {
+    {
       vtkErrorMacro("Couldn't build the shader program. At this point , it can be an error in a shader or a driver bug.");
 
       // restore some state.
       vtkgl::ActiveTexture(vtkgl::TEXTURE0);
       return;
-      }
+    }
 
     // this->Gx1 and this->Gy1 are the sources
     int id0=tu->Allocate();
@@ -467,9 +467,9 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
 #endif
 
     if(!this->Program2->IsValid())
-      {
+    {
       vtkErrorMacro(<<this->Program2->GetLastValidateLog());
-      }
+    }
 #ifdef VTK_SOBEL_PASS_DEBUG
     cout << "sobel finish 4-" << endl;
     glFinish();
@@ -501,11 +501,11 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
 #endif
 
     this->Program2->Restore();
-    }
+  }
   else
-    {
+  {
     vtkWarningMacro(<<" no delegate.");
-    }
+  }
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
@@ -522,36 +522,36 @@ void vtkSobelGradientMagnitudePass::ReleaseGraphicsResources(vtkWindow *w)
   this->Superclass::ReleaseGraphicsResources(w);
 
   if(this->Program1!=0)
-    {
+  {
     this->Program1->ReleaseGraphicsResources();
-    }
+  }
 
   if(this->Program2!=0)
-    {
+  {
     this->Program2->ReleaseGraphicsResources();
-    }
+  }
 
   if(this->FrameBufferObject!=0)
-    {
+  {
     this->FrameBufferObject->Delete();
     this->FrameBufferObject=0;
-    }
+  }
 
   if(this->Pass1!=0)
-    {
+  {
     this->Pass1->Delete();
     this->Pass1=0;
-    }
+  }
 
   if(this->Gx1!=0)
-    {
+  {
     this->Gx1->Delete();
     this->Gx1=0;
-    }
+  }
 
   if(this->Gy1!=0)
-    {
+  {
     this->Gy1->Delete();
     this->Gy1=0;
-    }
+  }
 }

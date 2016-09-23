@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLHardwareSelector - implements the device specific code of
-//  vtkOpenGLHardwareSelector.
-//
-// .SECTION Description
-// Implements the device specific code of vtkOpenGLHardwareSelector.
-//
-// .SECTION See Also
-// vtkHardwareSelector
+/**
+ * @class   vtkOpenGLHardwareSelector
+ * @brief   implements the device specific code of
+ *  vtkOpenGLHardwareSelector.
+ *
+ *
+ * Implements the device specific code of vtkOpenGLHardwareSelector.
+ *
+ * @sa
+ * vtkHardwareSelector
+*/
 
 #ifndef vtkOpenGLHardwareSelector_h
 #define vtkOpenGLHardwareSelector_h
@@ -34,9 +37,10 @@ public:
   vtkTypeMacro(vtkOpenGLHardwareSelector, vtkHardwareSelector);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Called by the mapper (vtkHardwareSelectionPolyDataPainter) before and after
-  // rendering each prop.
+  /**
+   * Called by the mapper (vtkHardwareSelectionPolyDataPainter) before and after
+   * rendering each prop.
+   */
   virtual void BeginRenderProp()
     { this->vtkHardwareSelector::BeginRenderProp(); }
 

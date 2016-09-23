@@ -45,19 +45,22 @@ THE USE OR INABILITY TO USE THE SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGES.
 
 =========================================================================*/
-// .NAME vtkMNIObjectWriter - A writer for MNI surface mesh files.
-// .SECTION Description
-// The MNI .obj file format is used to store geometrical data.  This
-// file format was developed at the McConnell Brain Imaging Centre at
-// the Montreal Neurological Institute and is used by their software.
-// Only polygon and line files are supported by this writer.  For these
-// formats, all data elements are written including normals, colors,
-// and surface properties.  ASCII and binary file types are supported.
-// .SECTION See Also
-// vtkMINCImageReader vtkMNIObjectReader vtkMNITransformReader
-// .SECTION Thanks
-// Thanks to David Gobbi for writing this class and Atamai Inc. for
-// contributing it to VTK.
+/**
+ * @class   vtkMNIObjectWriter
+ * @brief   A writer for MNI surface mesh files.
+ *
+ * The MNI .obj file format is used to store geometrical data.  This
+ * file format was developed at the McConnell Brain Imaging Centre at
+ * the Montreal Neurological Institute and is used by their software.
+ * Only polygon and line files are supported by this writer.  For these
+ * formats, all data elements are written including normals, colors,
+ * and surface properties.  ASCII and binary file types are supported.
+ * @sa
+ * vtkMINCImageReader vtkMNIObjectReader vtkMNITransformReader
+ * @par Thanks:
+ * Thanks to David Gobbi for writing this class and Atamai Inc. for
+ * contributing it to VTK.
+*/
 
 #ifndef vtkMNIObjectWriter_h
 #define vtkMNIObjectWriter_h
@@ -81,51 +84,71 @@ public:
   static vtkMNIObjectWriter *New();
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Get the entension for this file format.
+  /**
+   * Get the entension for this file format.
+   */
   virtual const char* GetFileExtensions() {
     return ".obj"; }
 
-  // Description:
-  // Get the name of this file format.
+  /**
+   * Get the name of this file format.
+   */
   virtual const char* GetDescriptiveName() {
     return "MNI object"; }
 
-  // Description:
-  // Set the property associated with the object.  Optional.
-  // This is useful for exporting an actor.
+  //@{
+  /**
+   * Set the property associated with the object.  Optional.
+   * This is useful for exporting an actor.
+   */
   virtual void SetProperty(vtkProperty *property);
   virtual vtkProperty *GetProperty() { return this->Property; };
+  //@}
 
-  // Description:
-  // Set the mapper associated with the object.  Optional.
-  // This is useful for exporting an actor with the same colors
-  // that are used to display the actor within VTK.
+  //@{
+  /**
+   * Set the mapper associated with the object.  Optional.
+   * This is useful for exporting an actor with the same colors
+   * that are used to display the actor within VTK.
+   */
   virtual void SetMapper(vtkMapper *mapper);
   virtual vtkMapper *GetMapper() { return this->Mapper; };
+  //@}
 
-  // Description:
-  // Set the lookup table associated with the object.  This will be
-  // used to convert scalar values to colors, if a mapper is not set.
+  //@{
+  /**
+   * Set the lookup table associated with the object.  This will be
+   * used to convert scalar values to colors, if a mapper is not set.
+   */
   virtual void SetLookupTable(vtkLookupTable *table);
   virtual vtkLookupTable *GetLookupTable() { return this->LookupTable; };
+  //@}
 
-  // Description:
-  // Get the input to this writer.
+  //@{
+  /**
+   * Get the input to this writer.
+   */
   vtkPolyData* GetInput();
   vtkPolyData* GetInput(int port);
+  //@}
 
-  // Description:
-  // Specify file name of vtk polygon data file to write.
+  //@{
+  /**
+   * Specify file name of vtk polygon data file to write.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Specify file type (ASCII or BINARY) for vtk data file.
+  //@{
+  /**
+   * Specify file type (ASCII or BINARY) for vtk data file.
+   */
   vtkSetClampMacro(FileType,int,VTK_ASCII,VTK_BINARY);
   vtkGetMacro(FileType,int);
   void SetFileTypeToASCII() {this->SetFileType(VTK_ASCII);};
   void SetFileTypeToBinary() {this->SetFileType(VTK_BINARY);};
+  //@}
 
 protected:
   vtkMNIObjectWriter();

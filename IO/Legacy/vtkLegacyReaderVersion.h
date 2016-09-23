@@ -12,7 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkLegacyReaderVersion - version number for legacy readers/writers
+/**
+ * @class   vtkLegacyReaderVersion
+ * @brief   version number for legacy readers/writers
+*/
 
 #ifndef vtkLegacyReaderVersion_h
 #define vtkLegacyReaderVersion_h

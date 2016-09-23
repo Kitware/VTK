@@ -49,31 +49,31 @@ class vtkOpenGLResourceFreeCallback : public vtkGenericOpenGLResourceFreeCallbac
 {
 public:
   vtkOpenGLResourceFreeCallback(T* handler, void (T::*method)(vtkWindow *))
-    {
+  {
     this->Handler = handler;
     this->Method = method;
-    }
+  }
 
   virtual ~vtkOpenGLResourceFreeCallback() { }
 
   virtual void RegisterGraphicsResources(vtkOpenGLRenderWindow *rw) {
     if (this->VTKWindow == rw)
-      {
+    {
       return;
-      }
+    }
     if (this->VTKWindow)
-      {
+    {
       this->Release();
-      }
+    }
     this->VTKWindow = rw;
     this->VTKWindow->RegisterGraphicsResources(this);
-    }
+  }
 
   // Called when the event is invoked
   virtual void Release()
-    {
+  {
     if (this->VTKWindow && this->Handler && !this->Releasing)
-      {
+    {
       this->Releasing = true;
       this->VTKWindow->PushContext();
       (this->Handler->*this->Method)(this->VTKWindow);
@@ -81,8 +81,8 @@ public:
       this->VTKWindow->PopContext();
       this->VTKWindow = NULL;
       this->Releasing = false;
-      }
     }
+  }
 protected:
   T* Handler;
   void (T::*Method)(vtkWindow *);

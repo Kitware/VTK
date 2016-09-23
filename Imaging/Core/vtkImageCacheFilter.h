@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageCacheFilter - Caches multiple vtkImageData objects.
-
-// .SECTION Description
-// vtkImageCacheFilter keep a number of vtkImageDataObjects from previous
-// updates to satisfy future updates without needing to update the input.  It
-// does not change the data at all.  It just makes the pipeline more
-// efficient at the expense of using extra memory.
+/**
+ * @class   vtkImageCacheFilter
+ * @brief   Caches multiple vtkImageData objects.
+ *
+ *
+ * vtkImageCacheFilter keep a number of vtkImageDataObjects from previous
+ * updates to satisfy future updates without needing to update the input.  It
+ * does not change the data at all.  It just makes the pipeline more
+ * efficient at the expense of using extra memory.
+*/
 
 #ifndef vtkImageCacheFilter_h
 #define vtkImageCacheFilter_h
@@ -35,11 +38,14 @@ public:
   vtkTypeMacro(vtkImageCacheFilter,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // This is the maximum number of images that can be retained in memory.
-  // it defaults to 10.
+  //@{
+  /**
+   * This is the maximum number of images that can be retained in memory.
+   * it defaults to 10.
+   */
   void SetCacheSize(int size);
   int GetCacheSize();
+  //@}
 
 protected:
   vtkImageCacheFilter();

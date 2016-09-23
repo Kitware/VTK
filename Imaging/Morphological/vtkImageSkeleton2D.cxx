@@ -54,22 +54,22 @@ int vtkImageSkeleton2D::IterativeRequestUpdateExtent(vtkInformation* in,
   inExt[4] = outExt[4];
   inExt[5] = outExt[5];
   for(int idx=0; idx < 2; ++idx)
-    {
+  {
     inExt[idx*2] = outExt[idx*2] - 1;
     inExt[idx*2+1] = outExt[idx*2+1] + 1;
 
     // If the expanded region is out of the IMAGE Extent (grow min)
     if (inExt[idx*2] < wholeExtent[idx*2])
-      {
+    {
       inExt[idx*2] = wholeExtent[idx*2];
-      }
+    }
     // If the expanded region is out of the IMAGE Extent (shrink max)
     if (inExt[idx*2+1] > wholeExtent[idx*2+1])
-      {
+    {
       // shrink the required region extent
       inExt[idx*2+1] = wholeExtent[idx*2+1];
-      }
     }
+  }
 
   in->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
 
@@ -123,28 +123,28 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
 
   inPtrC = inPtr;
   for (idxC = 0; idxC < numComps; ++idxC)
-    {
+  {
     inPtr2 = inPtrC;
     for (idx2 = outMin2; idx2 <= outMax2; ++idx2)
-      {
+    {
       // erode input
       inPtr1 = inPtr2;
       for (idx1 = outMin1; !self->AbortExecute && idx1 <= outMax1; ++idx1)
-        {
+      {
         if (!id)
-          {
+        {
           if (!(count%target))
-            {
+          {
             self->UpdateProgress(0.9*count/(50.0*target));
-            }
-          count++;
           }
+          count++;
+        }
         inPtr0 = inPtr1;
         for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
-          {
+        {
           // Center pixel has to be on.
           if (*inPtr0)
-            {
+          {
             // neighbors independent of boundaries
             n[0] = (idx0>wholeMin0) ? static_cast<float>(*(inPtr0-inInc0)) : 0;
             n[1] = (idx0>wholeMin0)&&(idx1>wholeMin1)
@@ -178,18 +178,18 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
             if (n[0] > 0) {++erodeCase;}
 
             if (erodeCase == 54 || erodeCase == 216)
-              { // erode
+            { // erode
               // 54 top part of diagonal / double thick line
               // 216 bottom part of diagonal \ double thick line
               *inPtr0 = 1;
-              }
+            }
             else if (erodeCase == 99 || erodeCase == 141)
-              { // No errosion
+            { // No errosion
               // 99 bottom part of diagonal / double thick line
               // 141 top part of diagonal \ double thick line
-              }
+            }
             else
-              {
+            {
               // old heuristic method
               countFaces = (n[0]>0)+(n[2]>0)+(n[4]>0)+(n[6]>0);
               countCorners = (n[1]>0)+(n[3]>0)+(n[5]>0)+(n[7]>0);
@@ -198,27 +198,27 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
               // (should we just have a case table?)
               if (countFaces == 2 && countCorners == 0 &&
                   n[2] > 0 && n[4] > 0)
-                {
+              {
                 *inPtr0 = 1;
-                }
+              }
 
               // special case
               if (prune > 1 && ((countFaces + countCorners) <= 1))
-                {
+              {
                 *inPtr0 = 1;
-                }
+              }
 
               // one of four face neighbors has to be off
               if (n[0] == 0 || n[2] == 0 ||
                   n[4] == 0 || n[6] == 0)
-                {
+              {
                 // Special condition not to prune diamond corners
                 if (prune > 1 || countFaces != 1 || countCorners != 2 ||
                     ((n[1]==0 || n[2]==0 || n[3]==0) &&
                      (n[3]==0 || n[4]==0 || n[5]==0) &&
                      (n[5]==0 || n[6]==0 || n[7]==0) &&
                      (n[7]==0 || n[0]==0 || n[1]==0)))
-                  {
+                {
                   // special condition (making another prune level)
                   // pruning 135 degree corners
                   if (prune || countFaces != 2 || countCorners != 2 ||
@@ -230,80 +230,80 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
                        (n[4]==0 || n[5]==0 || n[6]==0 || n[7]!=0) &&
                        (n[3]==0 || n[4]==0 || n[5]==0 || n[6]!=0) &&
                        (n[2]==0 || n[3]==0 || n[4]==0 || n[5]!=0)))
-                    {
+                  {
                     // remaining pixels need to be connected.
                     // do not break corner connectivity
                     if ((n[1] == 0 || n[0] > 1 || n[2] > 1) &&
                         (n[3] == 0 || n[2] > 1 || n[4] > 1) &&
                         (n[5] == 0 || n[4] > 1 || n[6] > 1) &&
                         (n[7] == 0 || n[6] > 1 || n[0] > 1))
-                      {
+                    {
                       // opposite faces
                       // (special condition so double thick lines
                       // will not be completely eroded)
                       if ((n[0] == 0 || n[4] == 0 || n[2] > 1 || n[6] > 1) &&
                           (n[2] == 0 || n[6] == 0 || n[0] > 1 || n[4] > 1))
-                        {
+                      {
                         // check to stop pruning (sort of a hack huristic)
                         if (prune > 1 || (countFaces > 2) ||
                             ((countFaces == 2) && (countCorners > 1)))
-                          {
+                        {
                           *inPtr0 = 1;
-                          }
                         }
                       }
                     }
                   }
                 }
               }
-
             }
-          inPtr0 += inInc0;
+
           }
-        inPtr1 += inInc1;
+          inPtr0 += inInc0;
         }
-      inPtr2 += inInc2;
+        inPtr1 += inInc1;
       }
-    ++inPtrC;
+      inPtr2 += inInc2;
     }
+    ++inPtrC;
+  }
 
 
   // copy to output
   for (idxC = 0; idxC < numComps; ++idxC)
-    {
+  {
     outPtr2 = outPtr;
     inPtr2 = inPtr;
     for (idx2 = outMin2; idx2 <= outMax2; ++idx2)
-      {
+    {
       outPtr1 = outPtr2;
       inPtr1 = inPtr2;
       for (idx1 = outMin1; idx1 <= outMax1; ++idx1)
-        {
+      {
         outPtr0 = outPtr1;
         inPtr0 = inPtr1;
         for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
-          {
+        {
           if (*inPtr0 <= 1)
-            {
+          {
             *outPtr0 = static_cast<T>(0.0);
-            }
+          }
           else
-            {
+          {
             *outPtr0 = *inPtr0;
-            }
+          }
 
           inPtr0 += inInc0;
           outPtr0 += outInc0;
-          }
+        }
         inPtr1 += inInc1;
         outPtr1 += outInc1;
-        }
+      }
       inPtr2 += inInc2;
       outPtr2 += outInc2;
-      }
+    }
     ++inPtr;
     ++outPtr;
-    }
+  }
 }
 
 
@@ -331,11 +331,11 @@ void vtkImageSkeleton2D::ThreadedRequestData(
 
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
-    {
+  {
     vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
       << ", must match out ScalarType " << outData->GetScalarType());
     return;
-    }
+  }
 
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt);
@@ -344,10 +344,10 @@ void vtkImageSkeleton2D::ThreadedRequestData(
   vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
   if (!inScalarInfo)
-    {
+  {
     vtkErrorMacro("Missing ActiveScalar info in input information!");
     return;
-    }
+  }
 
   // Make a temporary copy of the input data
   tempData = vtkImageData::New();
@@ -358,7 +358,7 @@ void vtkImageSkeleton2D::ThreadedRequestData(
 
   inPtr = tempData->GetScalarPointerForExtent(outExt);
   switch (tempData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageSkeleton2DExecute(this, tempData,
                                 static_cast<VTK_TT *>(inPtr), outData, outExt,
@@ -368,7 +368,7 @@ void vtkImageSkeleton2D::ThreadedRequestData(
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       tempData->Delete();
       return;
-    }
+  }
 
   tempData->Delete();
 }

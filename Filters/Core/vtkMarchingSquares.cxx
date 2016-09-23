@@ -57,10 +57,10 @@ vtkMarchingSquares::~vtkMarchingSquares()
 {
   this->ContourValues->Delete();
   if ( this->Locator )
-    {
+  {
     this->Locator->UnRegister(this);
     this->Locator = NULL;
-    }
+  }
 }
 
 void vtkMarchingSquares::SetImageRange(int imin, int imax, int jmin, int jmax,
@@ -88,10 +88,10 @@ vtkMTimeType vtkMarchingSquares::GetMTime()
 
   mTime = ( mTime2 > mTime ? mTime2 : mTime );
   if (this->Locator)
-    {
+  {
     mTime2=this->Locator->GetMTime();
     mTime = ( mTime2 > mTime ? mTime2 : mTime );
-    }
+  }
 
   return mTime;
 }
@@ -121,34 +121,34 @@ void vtkContourImage(T *scalars, vtkDataArray *newScalars, int roi[6], int dir[3
 // Get min/max contour values
 //
   if ( numValues < 1 )
-    {
+  {
     return;
-    }
+  }
   for ( min=max=values[0], i=1; i < numValues; i++)
-    {
+  {
     if ( values[i] < min )
-      {
+    {
       min = values[i];
-      }
-    if ( values[i] > max )
-      {
-      max = values[i];
-      }
     }
+    if ( values[i] > max )
+    {
+      max = values[i];
+    }
+  }
 
   //assign coordinate value to non-varying coordinate direction
   x[dir[2]] = origin[dir[2]] + roi[dir[2]*2]*ar[dir[2]];
 
   // Traverse all pixel cells, generating line segements using marching squares.
   for ( j=roi[start[1]]; j < roi[end[1]]; j++ )
-    {
+  {
 
     jOffset = j * offset[1];
     pts[0][dir[1]] = origin[dir[1]] + j*ar[dir[1]];
     yp = origin[dir[1]] + (j+1)*ar[dir[1]];
 
     for ( i=roi[start[0]]; i < roi[end[0]]; i++)
-      {
+    {
        //get scalar values
       idx = i * offset[0] + jOffset + offset[2];
       s[0] = scalars[idx];
@@ -158,9 +158,9 @@ void vtkContourImage(T *scalars, vtkDataArray *newScalars, int roi[6], int dir[3
 
       if ( (s[0] < min && s[1] < min && s[2] < min && s[3] < min) ||
       (s[0] > max && s[1] > max && s[2] > max && s[3] > max) )
-        {
+      {
         continue; // no contours possible
-        }
+      }
 
       //create pixel points
       pts[0][dir[0]] = origin[dir[0]] + i*ar[dir[0]];
@@ -177,52 +177,52 @@ void vtkContourImage(T *scalars, vtkDataArray *newScalars, int roi[6], int dir[3
 
       // Loop over contours in this pixel
       for (contNum=0; contNum < numValues; contNum++)
-        {
+      {
         value = values[contNum];
 
         // Build the case table
         for ( ii=0, index = 0; ii < 4; ii++)
-          {
+        {
           if ( s[ii] >= value )
-            {
-            index |= CASE_MASK[ii];
-            }
-          }
-        if ( index == 0 || index == 15 )
           {
-          continue; //no lines
+            index |= CASE_MASK[ii];
           }
+        }
+        if ( index == 0 || index == 15 )
+        {
+          continue; //no lines
+        }
 
         lineCase = lineCases + index;
         edge = lineCase->edges;
 
         for ( ; edge[0] > -1; edge += 2 )
-          {
+        {
           for (ii=0; ii<2; ii++) //insert line
-            {
+          {
             vert = edges[edge[ii]];
             t = (value - s[vert[0]]) / (s[vert[1]] - s[vert[0]]);
             x1 = pts[vert[0]];
             x2 = pts[vert[1]];
             for (jj=0; jj<2; jj++) //only need to interpolate two values
-              {
+            {
               x[dir[jj]] = x1[dir[jj]] + t * (x2[dir[jj]] - x1[dir[jj]]);
-              }
-            if ( p->InsertUniquePoint(x, ptIds[ii]) )
-              {
-              newScalars->InsertComponent(ptIds[ii],0,value);
-              }
             }
+            if ( p->InsertUniquePoint(x, ptIds[ii]) )
+            {
+              newScalars->InsertComponent(ptIds[ii],0,value);
+            }
+          }
 
           if ( ptIds[0] != ptIds[1] ) //check for degenerate line
-            {
+          {
             lines->InsertNextCell(2,ptIds);
-            }
+          }
 
-          }//for each line
-        }//for all contours
-      }//for i
-    }//for j
+        }//for each line
+      }//for all contours
+    }//for i
+  }//for j
 }
 
 //
@@ -261,16 +261,16 @@ int vtkMarchingSquares::RequestData(
 //
   pd=input->GetPointData();
   if (pd ==NULL)
-    {
+  {
     vtkErrorMacro(<<"PointData is NULL");
     return 1;
-    }
+  }
   inScalars=pd->GetScalars();
   if ( inScalars == NULL )
-    {
+  {
     vtkErrorMacro(<<"Scalars must be defined for contouring");
     return 1;
-    }
+  }
 //
 // Check dimensionality of data and get appropriate form
 //
@@ -281,92 +281,92 @@ int vtkMarchingSquares::RequestData(
   dataSize = dims[0] * dims[1] * dims[2];
 
   if ( input->GetDataDimension() != 2 )
-    {
+  {
     for (i=0; i < 6; i++)
-      {
-      roi[i] = this->ImageRange[i];
-      }
-    }
-  else
     {
-    input->GetExtent(roi);
+      roi[i] = this->ImageRange[i];
     }
+  }
+  else
+  {
+    input->GetExtent(roi);
+  }
 
   // check the final region of interest to make sure its acceptable
   for ( dim=0, i=0; i < 3; i++ )
-    {
+  {
     if ( roi[2*i+1] > ext[2*i+1] )
-      {
+    {
       roi[2*i+1] = ext[2*i+1];
-      }
+    }
     else if ( roi[2*i+1] < ext[2*i] )
-      {
+    {
       roi[2*i+1] = ext[2*i];
-      }
+    }
 
     if ( roi[2*i] > roi[2*i+1] )
-      {
+    {
       roi[2*i] = roi[2*i+1];
-      }
+    }
     else if ( roi[2*i] < ext[2*i] )
-      {
+    {
       roi[2*i] = ext[2*i];
-      }
+    }
 
     if ( (roi[2*i+1]-roi[2*i]) > 0 )
-      {
+    {
       dim++;
-      }
-    else
-      {
-      plane = i;
-      }
     }
+    else
+    {
+      plane = i;
+    }
+  }
 
   if ( dim != 2 )
-    {
+  {
     vtkErrorMacro(<<"Marching squares requires 2D data");
     return 1;
-    }
+  }
 //
 // Setup indices and offsets (since can have x-y or z-plane)
 //
   if ( plane == 0 ) //x-plane
-    {
+  {
     start[0] = 2; end[0] = 3;
     start[1] = 4; end[1] = 5;
     offset[0] = dims[0];
     offset[1] = dims[0]*dims[1];
     offset[2] = (roi[0]-ext[0]);
     dir[0] = 1; dir[1] = 2; dir[2] = 0;
-    }
+  }
   else if ( plane == 1 ) //y-plane
-    {
+  {
     start[0] = 0; end[0] = 1;
     start[1] = 4; end[1] = 5;
     offset[0] = 1;
     offset[1] = dims[0]*dims[1];
     offset[2] = (roi[2]-ext[2])*dims[0];
     dir[0] = 0; dir[1] = 2; dir[2] = 1;
-    }
+  }
   else //z-plane
-    {
+  {
     start[0] = 0; end[0] = 1;
     start[1] = 2; end[1] = 3;
     offset[0] = 1;
     offset[1] = dims[0];
     offset[2] = (roi[4]-ext[4])*dims[0]*dims[1];
     dir[0] = 0; dir[1] = 1; dir[2] = 2;
-    }
+  }
 //
 // Allocate necessary objects
 //
   estimatedSize = (int) (numContours * sqrt((double)dims[0]*dims[1]));
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024)
-    {
+  {
     estimatedSize = 1024;
-    }
+  }
 
   newPts = vtkPoints::New();
   newPts->Allocate(estimatedSize,estimatedSize);
@@ -375,30 +375,30 @@ int vtkMarchingSquares::RequestData(
 
   // locator used to merge potentially duplicate points
   if ( this->Locator == NULL )
-    {
+  {
     this->CreateDefaultLocator();
-    }
+  }
   this->Locator->InitPointInsertion (newPts, input->GetBounds());
   //
   // Check data type and execute appropriate function
   //
   if (inScalars->GetNumberOfComponents() == 1 )
-    {
+  {
     void* scalars = inScalars->GetVoidPointer(0);
     newScalars = inScalars->NewInstance();
     newScalars->Allocate(5000, 25000);
     switch (inScalars->GetDataType())
-      {
+    {
       vtkTemplateMacro(
         vtkContourImage(static_cast<VTK_TT*>(scalars),newScalars,
                         roi,dir,start,end,offset,ar,origin,
                         values,numContours,this->Locator,newLines)
         );
-      }//switch
-    }
+    }//switch
+  }
 
   else //multiple components - have to convert
-    {
+  {
     vtkDoubleArray *image = vtkDoubleArray::New();
     image->SetNumberOfComponents(inScalars->GetNumberOfComponents());
     image->SetNumberOfTuples(dataSize);
@@ -409,7 +409,7 @@ int vtkMarchingSquares::RequestData(
     vtkContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
                     values,numContours,this->Locator,newLines);
     image->Delete();
-    }
+  }
 
   vtkDebugMacro(<<"Created: "
                << newPts->GetNumberOfPoints() << " points, "
@@ -440,20 +440,20 @@ int vtkMarchingSquares::RequestData(
 void vtkMarchingSquares::SetLocator(vtkIncrementalPointLocator *locator)
 {
   if ( this->Locator == locator)
-    {
+  {
     return;
-    }
+  }
 
   if ( this->Locator )
-    {
+  {
     this->Locator->UnRegister(this);
     this->Locator = NULL;
-    }
+  }
 
   if ( locator )
-    {
+  {
     locator->Register(this);
-    }
+  }
 
   this->Locator = locator;
   this->Modified();
@@ -462,9 +462,9 @@ void vtkMarchingSquares::SetLocator(vtkIncrementalPointLocator *locator)
 void vtkMarchingSquares::CreateDefaultLocator()
 {
   if ( this->Locator == NULL)
-    {
+  {
     this->Locator = vtkMergePoints::New();
-    }
+  }
 }
 
 int vtkMarchingSquares::FillInputPortInformation(int, vtkInformation *info)
@@ -488,11 +488,11 @@ void vtkMarchingSquares::PrintSelf(ostream& os, vtkIndent indent)
      << this->ImageRange[5] << " )\n";
 
   if ( this->Locator )
-    {
+  {
     os << indent << "Locator: " << this->Locator << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Locator: (none)\n";
-    }
+  }
 }

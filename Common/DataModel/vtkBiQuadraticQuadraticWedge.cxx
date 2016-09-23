@@ -39,10 +39,10 @@ vtkBiQuadraticQuadraticWedge::vtkBiQuadraticQuadraticWedge ()
   this->Points->SetNumberOfPoints (18);
   this->PointIds->SetNumberOfIds (18);
   for (int i = 0; i < 18; i++)
-    {
+  {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
     this->PointIds->SetId(i,0);
-    }
+  }
 
   this->Edge = vtkQuadraticEdge::New ();
   this->Face = vtkBiQuadraticQuad::New ();
@@ -108,10 +108,10 @@ vtkCell *vtkBiQuadraticQuadraticWedge::GetEdge(int edgeId)
 
   //We have 9 quadratic edges
   for (int i = 0; i < 3; i++)
-    {
+  {
     this->Edge->PointIds->SetId (i, this->PointIds->GetId (WedgeEdges[edgeId][i]));
     this->Edge->Points->SetPoint (i, this->Points->GetPoint (WedgeEdges[edgeId][i]));
-    }
+  }
 
   return this->Edge;
 }
@@ -124,23 +124,23 @@ vtkCell *vtkBiQuadraticQuadraticWedge::GetFace(int faceId)
   // load point id's and coordinates
   // be careful with the last two:
   if (faceId < 2)
-    {
+  {
     for (int i = 0; i < 6; i++)
-      {
+    {
       this->TriangleFace->PointIds->SetId (i, this->PointIds->GetId (WedgeFaces[faceId][i]));
       this->TriangleFace->Points->SetPoint (i, this->Points->GetPoint (WedgeFaces[faceId][i]));
-      }
-    return this->TriangleFace;
     }
+    return this->TriangleFace;
+  }
   else
-    {
+  {
     for (int i = 0; i < 9; i++)
-      {
+    {
       this->Face->PointIds->SetId (i, this->PointIds->GetId (WedgeFaces[faceId][i]));
       this->Face->Points->SetPoint (i, this->Points->GetPoint (WedgeFaces[faceId][i]));
-      }
-    return this->Face;
     }
+    return this->Face;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -165,40 +165,40 @@ int vtkBiQuadraticQuadraticWedge::EvaluatePosition (double *x,
 
   //  enter iteration loop
   for (iteration = converged = 0; !converged && (iteration < VTK_WEDGE_MAX_ITERATION); iteration++)
-    {
+  {
     //  calculate element interpolation functions and derivatives
     this->InterpolationFunctions (pcoords, weights);
     this->InterpolationDerivs (pcoords, derivs);
 
     //  calculate newton functions
     for (i = 0; i < 3; i++)
-      {
+    {
       fcol[i] = rcol[i] = scol[i] = tcol[i] = 0.0;
-      }
+    }
     for (i = 0; i < 18; i++)
-      {
+    {
       this->Points->GetPoint (i, pt);
       for (j = 0; j < 3; j++)
-        {
+      {
         fcol[j] += pt[j] * weights[i];
         rcol[j] += pt[j] * derivs[i];
         scol[j] += pt[j] * derivs[i + 18];
         tcol[j] += pt[j] * derivs[i + 36];
-        }
       }
+    }
 
     for (i = 0; i < 3; i++)
-      {
+    {
       fcol[i] -= x[i];
-      }
+    }
 
     //  compute determinants and generate improvements
     d = vtkMath::Determinant3x3 (rcol, scol, tcol);
     if (fabs (d) < 1.e-20)
-      {
+    {
       vtkDebugMacro (<<"Determinant incorrect, iteration " << iteration);
       return -1;
-      }
+    }
 
     pcoords[0] = params[0] - 0.5 * vtkMath::Determinant3x3 (fcol, scol, tcol) / d;
     pcoords[1] = params[1] - 0.5 * vtkMath::Determinant3x3 (rcol, fcol, tcol) / d;
@@ -208,73 +208,73 @@ int vtkBiQuadraticQuadraticWedge::EvaluatePosition (double *x,
     if (((fabs (pcoords[0] - params[0])) < VTK_WEDGE_CONVERGED) &&
       ((fabs (pcoords[1] - params[1])) < VTK_WEDGE_CONVERGED) &&
       ((fabs (pcoords[2] - params[2])) < VTK_WEDGE_CONVERGED))
-      {
+    {
       converged = 1;
-      }
+    }
 
     // Test for bad divergence (S.Hirschberg 11.12.2001)
     else if ((fabs (pcoords[0]) > VTK_DIVERGED) ||
       (fabs (pcoords[1]) > VTK_DIVERGED) || (fabs (pcoords[2]) > VTK_DIVERGED))
-      {
+    {
       return -1;
-      }
+    }
 
     //  if not converged, repeat
     else
-      {
+    {
       params[0] = pcoords[0];
       params[1] = pcoords[1];
       params[2] = pcoords[2];
-      }
     }
+  }
 
   //  if not converged, set the parametric coordinates to arbitrary values
   //  outside of element
   if (!converged)
-    {
+  {
     return -1;
-    }
+  }
 
   this->InterpolationFunctions (pcoords, weights);
 
   if (pcoords[0] >= -0.001 && pcoords[0] <= 1.001 &&
     pcoords[1] >= -0.001 && pcoords[1] <= 1.001 && pcoords[2] >= -0.001 && pcoords[2] <= 1.001)
-    {
+  {
     if (closestPoint)
-      {
+    {
       closestPoint[0] = x[0];
       closestPoint[1] = x[1];
       closestPoint[2] = x[2];
       dist2 = 0.0;    //inside wedge
-      }
-    return 1;
     }
+    return 1;
+  }
   else
-    {
+  {
     double pc[3], w[18];
     if (closestPoint)
-      {
+    {
       for (i = 0; i < 3; i++)  //only approximate, not really true for warped hexa
-        {
+      {
         if (pcoords[i] < 0.0)
-          {
+        {
           pc[i] = 0.0;
-          }
-        else if (pcoords[i] > 1.0)
-          {
-          pc[i] = 1.0;
-          }
-        else
-          {
-          pc[i] = pcoords[i];
-          }
         }
+        else if (pcoords[i] > 1.0)
+        {
+          pc[i] = 1.0;
+        }
+        else
+        {
+          pc[i] = pcoords[i];
+        }
+      }
       this->EvaluateLocation (subId, pc, closestPoint,
                               static_cast<double *>(w));
       dist2 = vtkMath::Distance2BetweenPoints (closestPoint, x);
-      }
-    return 0;
     }
+    return 0;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -287,13 +287,13 @@ void vtkBiQuadraticQuadraticWedge::EvaluateLocation (int &vtkNotUsed (subId),
 
   x[0] = x[1] = x[2] = 0.0;
   for (int i = 0; i < 18; i++)
-    {
+  {
     this->Points->GetPoint (i, pt);
     for (int j = 0; j < 3; j++)
-      {
+    {
       x[j] += pt[j] * weights[i];
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -316,15 +316,15 @@ void vtkBiQuadraticQuadraticWedge::Contour (double value,
 {
   //contour each linear wedge separately
   for (int i=0; i<8; i++) //for each wedge
-    {
+  {
     for (int j=0; j<6; j++) //for each point of wedge
-      {
+    {
       this->Wedge->Points->SetPoint(j,this->Points->GetPoint(LinearWedges[i][j]));
       this->Wedge->PointIds->SetId(j,this->PointIds->GetId(LinearWedges[i][j]));
       this->Scalars->SetValue(j,cellScalars->GetTuple1(LinearWedges[i][j]));
-      }
-    this->Wedge->Contour(value,this->Scalars,locator,verts,lines,polys, inPd,outPd,inCd,cellId,outCd);
     }
+    this->Wedge->Contour(value,this->Scalars,locator,verts,lines,polys, inPd,outPd,inCd,cellId,outCd);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -338,15 +338,15 @@ vtkBiQuadraticQuadraticWedge::Clip (double value, vtkDataArray *cellScalars,
 {
   //contour each linear wedge separately
   for (int i=0; i<8; i++) //for each wedge
-    {
+  {
     for (int j=0; j<6; j++) //for each of the six vertices of the wedge
-      {
+    {
       this->Wedge->Points->SetPoint(j,this->Points->GetPoint(LinearWedges[i][j]));
       this->Wedge->PointIds->SetId(j,this->PointIds->GetId(LinearWedges[i][j]));
       this->Scalars->SetValue(j,cellScalars->GetTuple1(LinearWedges[i][j]));
-      }
-    this->Wedge->Clip(value,this->Scalars,locator,tets,inPd,outPd, inCd,cellId,outCd,insideOut);
     }
+    this->Wedge->Clip(value,this->Scalars,locator,tets,inPd,outPd, inCd,cellId,outCd,insideOut);
+  }
 }
 
 
@@ -367,39 +367,39 @@ int vtkBiQuadraticQuadraticWedge::IntersectWithLine (double *p1, double *p2,
 
   t = VTK_DOUBLE_MAX;
   for (faceNum = 0; faceNum < 5; faceNum++)
-    {
+  {
     // We have 9 nodes on biquad face
     // and 6 on triangle faces
     if (faceNum < 2)
-      {
+    {
       for (int i = 0; i < 6; i++)
-        {
+      {
         this->TriangleFace->PointIds->SetId (i, this->PointIds->GetId (WedgeFaces[faceNum][i]));
         this->TriangleFace->Points->SetPoint (i, this->Points->GetPoint (WedgeFaces[faceNum][i]));
-        }
+      }
       inter = this->TriangleFace->IntersectWithLine (p1, p2, tol, tTemp, xTemp,
                                                      pc, subId);
-      }
+    }
     else
-      {
+    {
       for (int i = 0; i < 9; i++)
-        {
+      {
         this->Face->Points->SetPoint (i, this->Points->GetPoint (WedgeFaces[faceNum][i]));
-        }
+      }
       inter = this->Face->IntersectWithLine (p1, p2, tol, tTemp, xTemp, pc,
                                              subId);
-      }
+    }
     if (inter)
-      {
+    {
       intersection = 1;
       if (tTemp < t)
-        {
+      {
         t = tTemp;
         x[0] = xTemp[0];
         x[1] = xTemp[1];
         x[2] = xTemp[2];
         switch (faceNum)
-          {
+        {
           case 0:
             pcoords[0] = 0.0;
             pcoords[1] = pc[1];
@@ -438,10 +438,10 @@ int vtkBiQuadraticQuadraticWedge::IntersectWithLine (double *p1, double *p2,
           default:
             assert("check:impossible case" && 0); // reaching this line is a bug
             break;
-          }
         }
       }
     }
+  }
   return intersection;
 }
 
@@ -453,13 +453,13 @@ int vtkBiQuadraticQuadraticWedge::Triangulate (int vtkNotUsed (index),
   ptIds->Reset ();
 
   for (int i = 0; i < 8; i++)
-    {
+  {
     for (int j = 0; j < 6; j++)
-      {
+    {
       ptIds->InsertId (6 * i + j, this->PointIds->GetId (LinearWedges[i][j]));
       pts->InsertPoint (6 * i + j, this->Points->GetPoint (LinearWedges[i][j]));
-      }
     }
+  }
 
   return 1;
 }
@@ -484,27 +484,27 @@ void vtkBiQuadraticQuadraticWedge::JacobianInverse(double pcoords[3],
   m[2] = m2;
 
   for (i = 0; i < 3; i++)  //initialize matrix
-    {
+  {
     m0[i] = m1[i] = m2[i] = 0.0;
-    }
+  }
 
   for (j = 0; j < 18; j++)
-    {
+  {
     this->Points->GetPoint (j, x);
     for (i = 0; i < 3; i++)
-      {
+    {
       m0[i] += x[i] * derivs[j];
       m1[i] += x[i] * derivs[18 + j];
       m2[i] += x[i] * derivs[36 + j];
-      }
     }
+  }
 
   // now find the inverse
   if (vtkMath::InvertMatrix(m, inverse, 3) == 0)
-    {
+  {
     vtkErrorMacro (<<"Jacobian inverse not found");
     return;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -524,19 +524,19 @@ void vtkBiQuadraticQuadraticWedge::Derivatives (int vtkNotUsed (subId),
 
   // now compute derivates of values provided
   for (k = 0; k < dim; k++)  //loop over values per vertex
-    {
+  {
     sum[0] = sum[1] = sum[2] = 0.0;
     for (i = 0; i < 18; i++)  //loop over interp. function derivatives
-      {
+    {
       sum[0] += functionDerivs[i] * values[dim * i + k];
       sum[1] += functionDerivs[18 + i] * values[dim * i + k];
       sum[2] += functionDerivs[36 + i] * values[dim * i + k];
-      }
-    for (j = 0; j < 3; j++)  //loop over derivative directions
-      {
-      derivs[3 * k + j] = sum[0] * jI[j][0] + sum[1] * jI[j][1] + sum[2] * jI[j][2];
-      }
     }
+    for (j = 0; j < 3; j++)  //loop over derivative directions
+    {
+      derivs[3 * k + j] = sum[0] * jI[j][0] + sum[1] * jI[j][1] + sum[2] * jI[j][2];
+    }
+  }
 }
 
 //----------------------------------------------------------------------------

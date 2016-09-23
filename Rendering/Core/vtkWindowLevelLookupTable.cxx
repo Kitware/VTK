@@ -47,42 +47,42 @@ void vtkWindowLevelLookupTable::Build()
   if (this->Table->GetNumberOfTuples() < 1 ||
       (this->GetMTime() > this->BuildTime &&
        this->InsertTime < this->BuildTime))
-    {
+  {
     int i, j;
     unsigned char *rgba;
     double start[4], incr[4];
 
     for (j = 0; j < 4; j++)
-      {
+    {
       start[j] = this->MinimumTableValue[j]*255;
       incr[j] = ((this->MaximumTableValue[j]-this->MinimumTableValue[j]) /
                  (this->NumberOfColors - 1) * 255);
-      }
+    }
 
     if (this->InverseVideo)
-      {
+    {
       for (i = 0; i < this->NumberOfColors; i++)
-        {
+      {
         rgba = this->Table->WritePointer(4*i,4);
         for (j = 0; j < 4; j++)
-          {
+        {
           rgba[j] = static_cast<unsigned char> \
             (start[j] + (this->NumberOfColors - i - 1)*incr[j] + 0.5);
-          }
-        }
-      }
-    else
-      {
-      for (i = 0; i < this->NumberOfColors; i++)
-        {
-        rgba = this->Table->WritePointer(4*i,4);
-        for (j = 0; j < 4; j++)
-          {
-          rgba[j] = static_cast<unsigned char>(start[j] + i*incr[j] + 0.5);
-          }
         }
       }
     }
+    else
+    {
+      for (i = 0; i < this->NumberOfColors; i++)
+      {
+        rgba = this->Table->WritePointer(4*i,4);
+        for (j = 0; j < 4; j++)
+        {
+          rgba[j] = static_cast<unsigned char>(start[j] + i*incr[j] + 0.5);
+        }
+      }
+    }
+  }
   this->BuildTime.Modified();
 }
 
@@ -94,16 +94,16 @@ void vtkWindowLevelLookupTable::Build()
 void vtkWindowLevelLookupTable::SetInverseVideo(int iv)
 {
   if (this->InverseVideo == iv)
-    {
+  {
     return;
-    }
+  }
 
   this->InverseVideo = iv;
 
   if (this->Table->GetNumberOfTuples() < 1)
-    {
+  {
     return;
-    }
+  }
 
   unsigned char *rgba, *rgba2;
   unsigned char tmp[4];
@@ -111,13 +111,13 @@ void vtkWindowLevelLookupTable::SetInverseVideo(int iv)
   int n = this->NumberOfColors-1;
 
   for (i = 0; i < this->NumberOfColors/2; i++)
-    {
+  {
     rgba = this->Table->WritePointer(4*i,4);
     rgba2 = this->Table->WritePointer(4*(n-i),4);
     tmp[0]=rgba[0]; tmp[1]=rgba[1]; tmp[2]=rgba[2]; tmp[3]=rgba[3];
     rgba[0]=rgba2[0]; rgba[1]=rgba2[1]; rgba[2]=rgba2[2]; rgba[3]=rgba2[3];
     rgba2[0]=tmp[0]; rgba2[1]=tmp[1]; rgba2[2]=tmp[2]; rgba2[3]=tmp[3];
-    }
+  }
   this->Modified();
 }
 

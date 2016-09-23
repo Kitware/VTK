@@ -35,10 +35,10 @@ vtkExtentRCBPartitioner::vtkExtentRCBPartitioner()
   this->ExtentIsPartitioned  = false;
   this->DataDescription      = VTK_EMPTY;
   for( int i=0; i < 3; ++i )
-    {
+  {
     this->GlobalExtent[ i*2   ] = 0;
     this->GlobalExtent[ i*2+1 ] = 0;
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -56,9 +56,9 @@ void vtkExtentRCBPartitioner::PrintSelf( std::ostream &oss, vtkIndent indent )
   oss << "Number of ghost layers: " << this->NumberOfGhostLayers << endl;
   oss << "Global Extent: ";
   for( int i=0; i < 6; ++i )
-    {
+  {
     oss << this->GlobalExtent[ i ] << " ";
-    }
+  }
   oss << endl;
 }
 
@@ -68,18 +68,18 @@ void vtkExtentRCBPartitioner::Partition()
   // Short-circuit here since the given global extent has already been
   // partitioned
   if( this->ExtentIsPartitioned )
-    {
+  {
     return;
-    }
+  }
 
 
   // STEP 0: Get the data description according to the given global extent
   this->AcquireDataDescription();
   if( this->DataDescription == VTK_EMPTY ||
       this->DataDescription == VTK_SINGLE_POINT  )
-    {
+  {
     return;
-    }
+  }
 
   // STEP 1: Insert the global extent to the workQueue
   vtkPriorityQueue *wrkQueue = vtkPriorityQueue::New();
@@ -94,7 +94,7 @@ void vtkExtentRCBPartitioner::Partition()
 
   // STEP 2: Loop until number of partitions is attained
   while( this->NumExtents < this->NumberOfPartitions )
-    {
+  {
     vtkIdType extentIdx = wrkQueue->Pop(wrkQueue->GetNumberOfItems()-1);
     this->GetExtent( extentIdx, ex );
     int ldim = this->GetLongestDimension( ex );
@@ -105,22 +105,22 @@ void vtkExtentRCBPartitioner::Partition()
 
     wrkQueue->Insert( this->GetNumberOfNodes( s1 ),extentIdx );
     wrkQueue->Insert( this->GetNumberOfNodes( s2 ),this->NumExtents-1);
-    }
+  }
 
   // STEP 3: Clear priority data-structures
   wrkQueue->Delete();
 
   // STEP 4: Loop through all the extents and add ghost layers
   if( this->NumberOfGhostLayers > 0 )
-    {
+  {
     int ext[6];
     for( int i=0; i < this->NumExtents; ++i )
-      {
+    {
       this->GetExtent( i, ext );
       this->ExtendGhostLayers( ext );
       this->ReplaceExtent( i, ext );
-      } // END for all extents
-    }
+    } // END for all extents
+  }
 
   // STEP 5: Set the flag to indicate that the extent has been partitioned to
   // the requested number of partitions. The only way this method will reexecute
@@ -139,18 +139,18 @@ void vtkExtentRCBPartitioner::GetExtent( const int idx, int ext[6] )
            ( (idx >=0) && (idx < this->NumExtents) ) );
 
   for( int i=0; i < 6; ++i )
-    {
+  {
     ext[ i ] = this->PartitionExtents[ idx*6+i ];
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
 void vtkExtentRCBPartitioner::AddExtent( int ext[6] )
 {
   for( int i=0; i < 6; ++i )
-    {
+  {
     this->PartitionExtents.push_back( ext[ i ] );
-    }
+  }
   ++this->NumExtents;
 }
 
@@ -162,9 +162,9 @@ void vtkExtentRCBPartitioner::ReplaceExtent(const int idx, int ext[6] )
            ( (idx >=0) && (idx < this->NumExtents) ) );
 
   for( int i=0; i < 6; ++i )
-    {
+  {
     this->PartitionExtents[ idx*6+i ] = ext[ i ];
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -175,9 +175,9 @@ void vtkExtentRCBPartitioner::GetPartitionExtent( const int idx, int ext[6] )
            ( (idx >=0) && (idx < this->NumExtents) ) );
 
   for( int i=0; i < 6; ++i )
-    {
+  {
     ext[i] = this->PartitionExtents[idx*6+i];
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -196,12 +196,12 @@ void vtkExtentRCBPartitioner::SplitExtent(
   int maxIdx   = -1;
 
   for( int i=0; i < 6; ++i )
-    {
+  {
     s1[ i ] = s2[ i ] = parent[ i ];
-    }
+  }
 
   switch( splitDimension )
-    {
+  {
     case 1:
       minIdx = 0;
       maxIdx = 1;
@@ -216,21 +216,21 @@ void vtkExtentRCBPartitioner::SplitExtent(
       break;
     default:
       vtkErrorMacro( "Cannot split extent: Undefined split dimension!");
-    }
+  }
 
   numNodes      = (parent[maxIdx]-parent[minIdx]) + 1;
   mid           = (int)vtkMath::Floor(0.5*numNodes);
 
   if( this->DuplicateNodes == 1 )
-    {
+  {
     s1[ maxIdx ]  = (mid < s1[minIdx])? (s1[minIdx]+mid) : mid;
     s2[ minIdx ]  = (mid < s1[minIdx])? (s1[minIdx]+mid) : mid;
-    }
+  }
   else
-    {
+  {
     s1[ maxIdx ]  = (mid < s1[minIdx])? (s1[minIdx]+mid) : mid;
     s2[ minIdx ]  = (mid < s1[minIdx])? (s1[minIdx]+mid)+1 : mid+1;
-    }
+  }
 
 //  this->PrintExtent( "Parent", parent );
 //  this->PrintExtent( "s1", s1 );
@@ -242,12 +242,12 @@ void vtkExtentRCBPartitioner::SplitExtent(
 void vtkExtentRCBPartitioner::ExtendGhostLayers( int ext[6] )
 {
   if( this->NumberOfGhostLayers == 0 )
-    {
+  {
     return;
-    }
+  }
 
   switch( this->DataDescription )
-    {
+  {
     case VTK_X_LINE:
       this->GetGhostedExtent( ext, 0, 1 );
       break;
@@ -277,7 +277,7 @@ void vtkExtentRCBPartitioner::ExtendGhostLayers( int ext[6] )
     default:
       assert("pre: unsupported data-description, code should not reach here!"&&
              false );
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -286,7 +286,7 @@ int vtkExtentRCBPartitioner::GetNumberOfNodes( int ext[6] )
   int ilength,jlength,klength;
   int numNodes = 0;
   switch( this->DataDescription )
-    {
+  {
     case VTK_X_LINE:
       numNodes = ilength = (ext[1]-ext[0])+1;
       break;
@@ -320,7 +320,7 @@ int vtkExtentRCBPartitioner::GetNumberOfNodes( int ext[6] )
     default:
       assert("pre: unsupported data-description, code should not reach here!"&&
              false );
-    }
+  }
   return( numNodes );
 }
 //------------------------------------------------------------------------------
@@ -329,7 +329,7 @@ int vtkExtentRCBPartitioner::GetNumberOfCells( int ext[6] )
   int ilength,jlength,klength;
   int numNodes = 0;
   switch( this->DataDescription )
-    {
+  {
     case VTK_X_LINE:
       numNodes = ilength = (ext[1]-ext[0]);
       break;
@@ -363,7 +363,7 @@ int vtkExtentRCBPartitioner::GetNumberOfCells( int ext[6] )
     default:
       assert("pre: unsupported data-description, code should not reach here!"&&
              false );
-    }
+  }
   return( numNodes );
 }
 
@@ -375,17 +375,17 @@ int vtkExtentRCBPartitioner::GetLongestDimensionLength( int ext[6] )
   int klength = (ext[5]-ext[4])+1;
 
   if ((ilength >= jlength) && (ilength >= klength))
-    {
+  {
     return ilength;
-    }
+  }
   else if ((jlength >= ilength) && (jlength >= klength))
-    {
+  {
     return jlength;
-    }
+  }
   else if ((klength >= ilength) && (klength >= jlength))
-    {
+  {
     return klength;
-    }
+  }
 
   assert( "pre: could not find longest dimension" && false );
   return 0;
@@ -399,17 +399,17 @@ int vtkExtentRCBPartitioner::GetLongestDimension( int ext[6] )
   int klength = (ext[5]-ext[4])+1;
 
   if ((ilength >= jlength) && (ilength >= klength))
-    {
+  {
     return 1;
-    }
+  }
   else if ((jlength >= ilength) && (jlength >= klength))
-    {
+  {
     return 2;
-    }
+  }
   else if ((klength >= ilength) && (klength >= jlength))
-    {
+  {
     return 3;
-    }
+  }
 
   assert( "pre: could not find longest dimension" && false );
   return 0;
@@ -427,9 +427,9 @@ void vtkExtentRCBPartitioner::PrintExtent( const std::string &name, int ext[6] )
 {
   cout << name << ": [";
   for( int i=0; i < 6; ++i  )
-    {
+  {
     cout << ext[i] << " ";
-    }
+  }
   cout << "]\n";
   cout.flush();
 }

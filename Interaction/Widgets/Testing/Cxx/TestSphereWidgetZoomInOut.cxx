@@ -298,18 +298,18 @@ int TestSphereWidgetZoomInOut( int argc, char *argv[] )
   renWin->Render();
   int retVal = vtkRegressionTestImageThreshold( renWin, 70 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Clean up
   recorder->Off();
 
   // radius should be 0.2388
   if ( sphWidget->GetRadius() < 0.23 || sphWidget->GetRadius() > 0.24 )
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

@@ -72,9 +72,9 @@ int TestLegacyGhostCellsImport(int argc, char *argv[])
   int retVal = vtkRegressionTestImage( renwin.GetPointer() );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

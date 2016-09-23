@@ -17,12 +17,15 @@ PURPOSE.  See the above copyright notice for more information.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkPBivariateLinearTableThreshold - performs line-based thresholding
-// for vtkTable data in parallel.
-//
-// .SECTION Description
-// Perform the table filtering operations provided by
-// vtkBivariateLinearTableThreshold in parallel.
+/**
+ * @class   vtkPBivariateLinearTableThreshold
+ * @brief   performs line-based thresholding
+ * for vtkTable data in parallel.
+ *
+ *
+ * Perform the table filtering operations provided by
+ * vtkBivariateLinearTableThreshold in parallel.
+*/
 
 #ifndef vtkPBivariateLinearTableThreshold_h
 #define vtkPBivariateLinearTableThreshold_h
@@ -40,14 +43,17 @@ public:
   vtkTypeMacro(vtkPBivariateLinearTableThreshold, vtkBivariateLinearTableThreshold);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the vtkMultiProcessController to be used for combining filter
-  // results from the individual nodes.
+  //@{
+  /**
+   * Set the vtkMultiProcessController to be used for combining filter
+   * results from the individual nodes.
+   */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller,vtkMultiProcessController);
 protected:
   vtkPBivariateLinearTableThreshold();
   virtual ~vtkPBivariateLinearTableThreshold();
+  //@}
 
   virtual int RequestData(
     vtkInformation*,

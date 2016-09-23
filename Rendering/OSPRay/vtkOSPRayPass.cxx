@@ -40,17 +40,17 @@ public:
   static vtkOSPRayPassInternals *New();
   vtkTypeMacro(vtkOSPRayPassInternals,vtkRenderPass);
   vtkOSPRayPassInternals()
-    {
+  {
     this->Factory = 0;
-    }
+  }
   ~vtkOSPRayPassInternals()
-    {
+  {
     this->Factory->Delete();
-    }
+  }
   void Render(const vtkRenderState *s)
-    {
+  {
     this->Parent->RenderInternal(s);
-    }
+  }
 
   vtkOSPRayViewNodeFactory *Factory;
   vtkOSPRayPass *Parent;
@@ -70,43 +70,43 @@ vtkOSPRayPass::vtkOSPRayPass()
   int ac = 1;
   const char* envArgs = getenv("VTKOSPRAY_ARGS");
   if (envArgs)
-    {
+  {
     std::stringstream ss(envArgs);
     std::string arg;
     std::vector<std::string> args;
     while (ss >> arg)
-      {
+    {
       args.push_back(arg);
-      }
+    }
     int ac =args.size()+1;
     const char** av = new const char*[ac];
     av[0] = "pvOSPRay";
     for(int i=1;i < ac; i++)
-      {
-      av[i] = args[i - 1].c_str();
-      }
-    try
-      {
-      ospInit(&ac, av);
-      }
-    catch (std::runtime_error &vtkNotUsed(e))
-      {
-      //todo: request addition of ospFinalize() to ospray
-      }
-    delete [] av;
-    }
-  else
     {
+      av[i] = args[i - 1].c_str();
+    }
+    try
+    {
+      ospInit(&ac, av);
+    }
+    catch (std::runtime_error &vtkNotUsed(e))
+    {
+      //todo: request addition of ospFinalize() to ospray
+    }
+    delete [] av;
+  }
+  else
+  {
     const char* av[] = {"pvOSPRay\0"};
     try
-      {
+    {
       ospInit(&ac, av);
-      }
-    catch (std::runtime_error &vtkNotUsed(e))
-      {
-      //todo: request addition of ospFinalize() to ospray
-      }
     }
+    catch (std::runtime_error &vtkNotUsed(e))
+    {
+      //todo: request addition of ospFinalize() to ospray
+    }
+  }
 
   vtkOSPRayViewNodeFactory *vnf = vtkOSPRayViewNodeFactory::New();
   this->Internal = vtkOSPRayPassInternals::New();
@@ -136,35 +136,35 @@ vtkOSPRayPass::~vtkOSPRayPass()
   this->Internal->Delete();
   this->Internal = 0;
   if (this->CameraPass)
-    {
+  {
     this->CameraPass->Delete();
     this->CameraPass = 0;
-    }
+  }
   if (this->LightsPass)
-    {
+  {
     this->LightsPass->Delete();
     this->LightsPass = 0;
-    }
+  }
   if (this->SequencePass)
-    {
+  {
     this->SequencePass->Delete();
     this->SequencePass = 0;
-    }
+  }
   if (this->VolumetricPass)
-    {
+  {
     this->VolumetricPass->Delete();
     this->VolumetricPass = 0;
-    }
+  }
   if (this->OverlayPass)
-    {
+  {
     this->OverlayPass->Delete();
     this->OverlayPass = 0;
-    }
+  }
   if (this->RenderPassCollection)
-    {
+  {
     this->RenderPassCollection->Delete();
     this->RenderPassCollection = 0;
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -180,14 +180,14 @@ vtkCxxSetObjectMacro(vtkOSPRayPass, SceneGraph, vtkOSPRayRendererNode)
 void vtkOSPRayPass::Render(const vtkRenderState *s)
 {
   if (!this->SceneGraph)
-    {
+  {
     vtkRenderer *ren = s->GetRenderer();
     if (ren)
-      {
+    {
       this->SceneGraph = vtkOSPRayRendererNode::SafeDownCast
         (this->Internal->Factory->CreateNode(ren));
-      }
     }
+  }
   this->CameraPass->Render(s);
 }
 
@@ -197,7 +197,7 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState *s)
   this->NumberOfRenderedProps=0;
 
   if (this->SceneGraph)
-    {
+  {
     this->SceneGraph->TraverseAllPasses();
 
     // copy the result to the window
@@ -212,7 +212,7 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState *s)
       (this->SceneGraph->GetViewNodeFor(ren));
     int layer = ren->GetLayer();
     if (layer == 0)
-      {
+    {
       rwin->SetZbufferData(
         viewportX,  viewportY,
         viewportX+viewportWidth-1,
@@ -224,9 +224,9 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState *s)
         viewportY+viewportHeight-1,
         this->SceneGraph->GetBuffer(),
         0, vtkOSPRayRendererNode::GetCompositeOnGL(ren) );
-      }
+    }
     else
-      {
+    {
 
       float *ontoZ = rwin->GetZbufferData
         (viewportX,  viewportY,
@@ -251,6 +251,6 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState *s)
          0, vtkOSPRayRendererNode::GetCompositeOnGL(ren) );
       delete[] ontoZ;
       delete[] ontoRGBA;
-      }
     }
+  }
 }

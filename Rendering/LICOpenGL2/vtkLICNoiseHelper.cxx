@@ -29,14 +29,14 @@ integer log base 2
 int ilog2(unsigned int n)
 {
   if (n == 0)
-    {
+  {
     return -1;
-    }
+  }
   unsigned int r = 0;
   while ((n >>= 1))
-    {
+  {
     r += 1;
-    }
+  }
   return r;
 }
 
@@ -48,33 +48,33 @@ void vtkLICRandomNoise2D::GetValidDimensionAndGrainSize(int type, int &sideLen, 
 {
   // perlin noise both side len and grain size need to be powers of 2
   if (type == PERLIN)
-    {
+  {
     sideLen = 1 << ilog2(sideLen);
     grainSize = 1 << ilog2(grainSize);
-    }
+  }
 
   // grains can't be larger than the patch
   if (sideLen < grainSize)
-    {
+  {
     sideLen = grainSize;
-    }
+  }
 
   // generate noise with agiven grainSize size on the patch
   if (sideLen % grainSize)
-    {
+  {
     // grainSize is not an even divsior of sideLen, adjust sideLen to
     // next larger even divisor
     sideLen = grainSize * (sideLen/grainSize + 1);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 int vtkLICRandomNoise2D::ShouldGenerateValue(double prob)
 {
   if (this->ProbGen.GetRandomNumber() > (1.0 - prob))
-    {
+  {
     return 1;
-    }
+  }
   return 0;
 }
 
@@ -93,7 +93,7 @@ float *vtkLICRandomNoise2D::Generate(
   this->GetValidDimensionAndGrainSize(type, sideLen, grainSize);
 
   switch (type)
-    {
+  {
     case GAUSSIAN:
       return this->GenerateGaussian(
             sideLen,
@@ -126,7 +126,7 @@ float *vtkLICRandomNoise2D::Generate(
             impulseProb,
             impulseBgNoiseVal,
             seed);
-    }
+  }
   return NULL;
 }
 
@@ -159,23 +159,23 @@ float *vtkLICRandomNoise2D::GenerateUniform(
   const int sdim2 = sdim*sdim;
   float *rvals=(float*)malloc(sdim2*sizeof(float));
   for (int i=0; i<sdim2; ++i)
-    {
+  {
     rvals[i] = impulseBgNoiseVal;
-    }
+  }
   for (int j=0; j<sdim; ++j)
-    {
+  {
      for (int i=0; i<sdim; ++i)
-       {
+     {
        int idx=j*sdim+i;
 
        if ((impulseProb == 1.0) || this->ShouldGenerateValue(impulseProb))
-         {
+       {
          int l = static_cast<int>(this->ValueGen.GetRandomNumber()*nLevels);
          l = l > maxLevel ? maxLevel : l; // needed for 1.0
          rvals[idx] = nLevels == 1 ? maxNoiseVal : minNoiseVal + (l*delta) * noiseRange;
-         }
        }
-    }
+     }
+  }
 
   // map single pixel random values onto a patch of values of
   // the requested grain size
@@ -184,9 +184,9 @@ float *vtkLICRandomNoise2D::GenerateUniform(
   const int ntup = ncomp*dim2;
   float *noise = (float*)malloc(ntup*sizeof(float));
   for (int j=0; j<sideLen; ++j)
-    {
+  {
      for (int i=0; i<sideLen; ++i)
-       {
+     {
        int idx=ncomp*(j*sideLen+i);
 
        int ii = i/grainSize;
@@ -195,8 +195,8 @@ float *vtkLICRandomNoise2D::GenerateUniform(
 
        noise[idx] = rvals[iidx];
        noise[idx+1] = 1.0f; // alpha
-       }
-    }
+     }
+  }
   free(rvals);
 
   return noise;
@@ -228,26 +228,26 @@ float *vtkLICRandomNoise2D::GenerateGaussian(
   const int sdim2 = sdim*sdim;
   float *rvals = (float*)malloc(sdim2*sizeof(float));
   for (int i=0; i<sdim2; ++i)
-    {
+  {
     rvals[i] = 0.0f;
-    }
+  }
   for (int j=0; j<sdim; ++j)
-    {
+  {
     for (int i=0; i<sdim; ++i)
-      {
+    {
       int idx = j*sdim+i;
 
       if ((impulseProb == 1.0) || this->ShouldGenerateValue(impulseProb))
-        {
+      {
         double val = 0.0;
         for (int q=0; q<N; ++q)
-          {
+        {
           val += this->ValueGen.GetRandomNumber();
-          }
-        rvals[idx] = static_cast<float>(val);
         }
+        rvals[idx] = static_cast<float>(val);
       }
     }
+  }
 
   // normalize noise field from eps to nLevels onto 0 to 1
   // and restrict to the requested number of levels
@@ -255,7 +255,7 @@ float *vtkLICRandomNoise2D::GenerateGaussian(
   float minVal = static_cast<float>(N+1);
   float maxVal = 0.0f;
   for (int i=0; i<sdim2; ++i)
-    {
+  {
     // for impulseProb < 1 background is 0 but pixels that are touched
     // have a much larger value, after normalization the gaussian
     // distribution is compressed and localized near 1. We can fix this
@@ -265,7 +265,7 @@ float *vtkLICRandomNoise2D::GenerateGaussian(
             (rvals[i] < minVal && rvals[i] > 0.0f ? rvals[i] : minVal);
 
     maxVal = rvals[i]>maxVal ? rvals[i] : maxVal;
-    }
+  }
   float maxMinDiff = maxVal-minVal;
   // because we ignore zero when impulseProb<1 we have to be careful
   // here so that we can support one noise level.
@@ -279,7 +279,7 @@ float *vtkLICRandomNoise2D::GenerateGaussian(
   maxNoiseVal = maxNoiseVal > 1.0f ? 1.0f : maxNoiseVal;
   float noiseRange = maxNoiseVal - minNoiseVal;
   for (int i=0; i<sdim2; ++i)
-    {
+  {
     // normalize
     float val = rvals[i] < minVal ? rvals[i] : (rvals[i] - minVal)/maxMinDiff;
     // restrict
@@ -288,7 +288,7 @@ float *vtkLICRandomNoise2D::GenerateGaussian(
     rvals[i]
        = rvals[i] < minVal ? impulseBgNoiseVal
        : nLevels == 1 ? maxNoiseVal : minNoiseVal + (l*delta) * noiseRange;
-    }
+  }
 
   // map single pixel random values onto a patch of values of
   // the requested grain size
@@ -297,9 +297,9 @@ float *vtkLICRandomNoise2D::GenerateGaussian(
   const int ntup = ncomp*dim2;
   float *noise = (float*)malloc(ntup*sizeof(float));
   for (int j=0; j<sideLen; ++j)
-    {
+  {
      for (int i=0; i<sideLen; ++i)
-       {
+     {
        int idx = ncomp*(j*sideLen+i);
 
        int ii = i/grainSize;
@@ -308,8 +308,8 @@ float *vtkLICRandomNoise2D::GenerateGaussian(
 
        noise[idx] = rvals[iidx];
        noise[idx+1] = 1.0; // alpha
-       }
-    }
+     }
+  }
   free(rvals);
 
   return noise;
@@ -332,10 +332,10 @@ float *vtkLICRandomNoise2D::GeneratePerlin(
   const int ntup = ncomp*dim2;
   float *noise = static_cast<float*>(malloc(ntup*sizeof(float)));
   for (int i=0; i<ntup; i+=2)
-    {
+  {
     noise[i  ] = 0.0f;
     noise[i+1] = 1.0f; // alpha channel
-    }
+  }
 
   impulseProb = impulseProb < 0.0 ? 0.0 : impulseProb;
   impulseProb = impulseProb > 1.0 ? 1.0 : impulseProb;
@@ -347,7 +347,7 @@ float *vtkLICRandomNoise2D::GeneratePerlin(
   //int nIter = ilog2(static_cast<unsigned int>(sideLen-1<nLevels ? sideLen-1 : nLevels));
   int nIter = ilog2(static_cast<unsigned int>(grainSize));
   for (int w=0; w<nIter; ++w)
-    {
+  {
     // reduce range with grain size
     float levelNoiseMin = 0.0f;
     float levelNoiseMax = 0.1f + 0.9f/static_cast<float>(1<<(nIter-1-w));
@@ -397,30 +397,30 @@ float *vtkLICRandomNoise2D::GeneratePerlin(
       }*/
     // accumulate
     for (int i=0; i<ntup; i+=2)
-      {
+    {
       noise[i] += levelNoise[i];
-      }
-    free(levelNoise);
     }
+    free(levelNoise);
+  }
   // normalize
   float minVal = static_cast<float>(nIter+1);
   float maxVal = 0.0f;
   for (int i=0; i<ntup; i+=2)
-    {
+  {
     float val = noise[i];
     minVal = val<minVal ? val : minVal;
     maxVal = val>maxVal ? val : maxVal;
-    }
+  }
   float maxMinDiff = maxVal - minVal;
   if ( maxMinDiff <= 0.0f )
-    {
+  {
     maxMinDiff = 1.0f;
     minVal = 0.0f;
-    }
+  }
   for (int i=0; i<ntup; i+=2)
-    {
+  {
     noise[i] = (noise[i] - minVal) / maxMinDiff;
-    }
+  }
   return noise;
 }
 
@@ -434,9 +434,9 @@ vtkImageData *vtkLICRandomNoise2D::GetNoiseResource()
 {
   std::string base64string;
   for (unsigned int cc=0; cc < file_noise200x200_vtk_nb_sections; cc++)
-    {
+  {
     base64string += reinterpret_cast<const char*>(file_noise200x200_vtk_sections[cc]);
-    }
+  }
 
   unsigned char* binaryInput
      = new unsigned char[file_noise200x200_vtk_decoded_length + 10];

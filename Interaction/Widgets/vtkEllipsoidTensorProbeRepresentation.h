@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkEllipsoidTensorProbeRepresentation - A concrete implementation of vtkTensorProbeRepresentation that renders tensors as ellipoids.
-// .SECTION Description
-// vtkEllipsoidTensorProbeRepresentation is a concrete implementation of
-// vtkTensorProbeRepresentation. It renders tensors as ellipsoids. Locations
-// between two points when probed have the tensors linearly interpolated
-// from the neighboring locations on the polyline.
-//
-// .SECTION See Also
-// vtkTensorProbeWidget
+/**
+ * @class   vtkEllipsoidTensorProbeRepresentation
+ * @brief   A concrete implementation of vtkTensorProbeRepresentation that renders tensors as ellipoids.
+ *
+ * vtkEllipsoidTensorProbeRepresentation is a concrete implementation of
+ * vtkTensorProbeRepresentation. It renders tensors as ellipsoids. Locations
+ * between two points when probed have the tensors linearly interpolated
+ * from the neighboring locations on the polyline.
+ *
+ * @sa
+ * vtkTensorProbeWidget
+*/
 
 #ifndef vtkEllipsoidTensorProbeRepresentation_h
 #define vtkEllipsoidTensorProbeRepresentation_h
@@ -38,23 +41,30 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkEllipsoidTensorProbeRepresentation :
 public:
   static vtkEllipsoidTensorProbeRepresentation *New();
 
-  // Description:
-  // Standard methods for instances of this class.
+  //@{
+  /**
+   * Standard methods for instances of this class.
+   */
   vtkTypeMacro(vtkEllipsoidTensorProbeRepresentation,
                                 vtkTensorProbeRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
   virtual void BuildRepresentation();
   virtual int RenderOpaqueGeometry(vtkViewport *);
 
-  // Description:
-  // Can we pick the tensor glyph at the current cursor pos
+  /**
+   * Can we pick the tensor glyph at the current cursor pos
+   */
   virtual int SelectProbe( int pos[2] );
 
-  // Description:
-  // See vtkProp for details.
+  //@{
+  /**
+   * See vtkProp for details.
+   */
   virtual void GetActors(vtkPropCollection *);
   virtual void ReleaseGraphicsResources(vtkWindow *);
+  //@}
 
 protected:
   vtkEllipsoidTensorProbeRepresentation();

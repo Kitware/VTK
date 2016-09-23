@@ -105,10 +105,10 @@ int vtkSectorSource::RequestData(
   rotateFilter->SetAngle( this->EndAngle - this->StartAngle );
 
   if (piece == 0 && numPieces > 0)
-    {
+  {
     rotateFilter->Update();
     output->ShallowCopy(rotateFilter->GetOutput());
-    }
+  }
 //  }
 
   return 1;

@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
   vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::New();
 
   for (i=0; i<3; i++)
-    {
+  {
     // Here we load the three separate files (each containing
     // a structured grid dataset)
     std::ostringstream fname;
@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
     // Add the structured grid to the multi-block dataset
     mb->SetBlock(i, sg);
     sg->Delete();
-    }
+  }
   reader->Delete();
 
   // Multi-block can be processed with regular VTK filters in two ways:

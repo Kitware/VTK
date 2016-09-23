@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCone - implicit function for a cone
-// .SECTION Description
-// vtkCone computes the implicit function and function gradient for a cone.
-// vtkCone is a concrete implementation of vtkImplicitFunction. The cone vertex
-// is located at the origin with axis of rotation coincident with x-axis. (Use
-// the superclass' vtkImplicitFunction transformation matrix if necessary to
-// reposition.) The angle specifies the angle between the axis of rotation
-// and the side of the cone.
-
-// .SECTION Caveats
-// The cone is infinite in extent. To truncate the cone use the
-// vtkImplicitBoolean in combination with clipping planes.
+/**
+ * @class   vtkCone
+ * @brief   implicit function for a cone
+ *
+ * vtkCone computes the implicit function and function gradient for a cone.
+ * vtkCone is a concrete implementation of vtkImplicitFunction. The cone vertex
+ * is located at the origin with axis of rotation coincident with x-axis. (Use
+ * the superclass' vtkImplicitFunction transformation matrix if necessary to
+ * reposition.) The angle specifies the angle between the axis of rotation
+ * and the side of the cone.
+ *
+ * @warning
+ * The cone is infinite in extent. To truncate the cone use the
+ * vtkImplicitBoolean in combination with clipping planes.
+*/
 
 #ifndef vtkCone_h
 #define vtkCone_h
@@ -34,27 +37,35 @@
 class VTKCOMMONDATAMODEL_EXPORT vtkCone : public vtkImplicitFunction
 {
 public:
-  // Description
-  // Construct cone with angle of 45 degrees.
+  /**
+   * Construct cone with angle of 45 degrees.
+   */
   static vtkCone *New();
 
   vtkTypeMacro(vtkCone,vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description
-  // Evaluate cone equation.
+  //@{
+  /**
+   * Evaluate cone equation.
+   */
   double EvaluateFunction(double x[3]) VTK_OVERRIDE;
   double EvaluateFunction(double x, double y, double z)
     {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
+  //@}
 
-  // Description
-  // Evaluate cone normal.
+  /**
+   * Evaluate cone normal.
+   */
   void EvaluateGradient(double x[3], double g[3]) VTK_OVERRIDE;
 
-  // Description:
-  // Set/Get the cone angle (expressed in degrees).
+  //@{
+  /**
+   * Set/Get the cone angle (expressed in degrees).
+   */
   vtkSetClampMacro(Angle,double,0.0,89.0);
   vtkGetMacro(Angle,double);
+  //@}
 
 protected:
   vtkCone();

@@ -36,15 +36,15 @@ vtkPParticlePathFilter::vtkPParticlePathFilter()
 vtkPParticlePathFilter::~vtkPParticlePathFilter()
 {
   if(this->SimulationTime)
-    {
+  {
     this->SimulationTime->Delete();
     this->SimulationTime = NULL;
-    }
+  }
   if(this->SimulationTimeStep)
-    {
+  {
     this->SimulationTimeStep->Delete();
     this->SimulationTimeStep = NULL;
-    }
+  }
 }
 
 void vtkPParticlePathFilter::ResetCache()
@@ -67,20 +67,20 @@ int vtkPParticlePathFilter::OutputParticles(vtkPolyData* particles)
   tailPD->CopyAllocate(particles->GetPointData());
 
   for(unsigned int i=0; i<this->Tail.size();i++)
-    {
+  {
     vtkParticleTracerBaseNamespace::ParticleInformation& info(this->Tail[i].Previous);
     vtkPointData* pd = this->Tail[i].PreviousPD;
 
     const double    *coord = info.CurrentPosition.x;
     vtkIdType tempId = tailPoly->GetPoints()->InsertNextPoint(coord);
     for(int j=0; j<pd->GetNumberOfArrays();j++)
-      {
+    {
       vtkDataArray* arrFrom = pd->GetArray(j);
       vtkDataArray* arrTo = tailPD->GetArray(arrFrom->GetName());
       assert(arrTo);
       assert(arrTo->GetNumberOfComponents()==arrFrom->GetNumberOfComponents());
       arrTo->InsertTuple(tempId,arrFrom->GetTuple(0));
-      }
+    }
 
     this->GetParticleIds(tailPD)->InsertValue(tempId,info.UniqueParticleId);
     this->GetParticleSourceIds(tailPD)->InsertValue(tempId,info.SourceID);
@@ -93,12 +93,12 @@ int vtkPParticlePathFilter::OutputParticles(vtkPolyData* particles)
     vtkArrayDownCast<vtkIntArray>(tailPD->GetArray("SimulationTimeStep"))->InsertValue(tempId, info.InjectedStepId+info.TimeStepAge);
 
     if(this->GetComputeVorticity())
-      {
+    {
 //      this->GetParticleVorticity(tailPD)->InsertNextTuple(info.vorticity); missing in implementation
       this->GetParticleAngularVel(tailPD)->InsertValue(tempId,info.angularVel);
       this->GetParticleRotation(tailPD)->InsertValue(tempId,info.rotation);
-      }
     }
+  }
 
   this->It.OutputParticles(tailPoly.GetPointer());
 
@@ -108,26 +108,26 @@ int vtkPParticlePathFilter::OutputParticles(vtkPolyData* particles)
 void vtkPParticlePathFilter::InitializeExtraPointDataArrays(vtkPointData* outputPD)
 {
   if(this->SimulationTime == NULL)
-    {
+  {
     this->SimulationTime = vtkDoubleArray::New();
     this->SimulationTime->SetName("SimulationTime");
-    }
+  }
   if(outputPD->GetArray("SimulationTime"))
-    {
+  {
     outputPD->RemoveArray("SimulationTime");
-    }
+  }
   this->SimulationTime->SetNumberOfTuples(0);
   outputPD->AddArray(this->SimulationTime);
 
   if(this->SimulationTimeStep == NULL)
-    {
+  {
     this->SimulationTimeStep = vtkIntArray::New();
     this->SimulationTimeStep->SetName("SimulationTimeStep");
-    }
+  }
   if(outputPD->GetArray("SimulationTimeStep"))
-    {
+  {
     outputPD->RemoveArray("SimulationTimeStep");
-    }
+  }
   this->SimulationTimeStep->SetNumberOfTuples(0);
   outputPD->AddArray(this->SimulationTimeStep);
 }

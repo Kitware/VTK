@@ -74,24 +74,24 @@ void vtkAMRToMultiBlockFilter::CopyAMRToMultiBlock(
   unsigned int blockIdx = 0;
   unsigned int levelIdx = 0;
   for( ; levelIdx < amr->GetNumberOfLevels(); ++levelIdx )
-    {
+  {
     unsigned int dataIdx = 0;
     for( ; dataIdx < amr->GetNumberOfDataSets( levelIdx ); ++dataIdx )
-      {
+    {
       vtkUniformGrid *grid = amr->GetDataSet( levelIdx, dataIdx );
       if( grid != NULL )
-        {
+      {
         vtkUniformGrid *gridCopy = vtkUniformGrid::New();
         gridCopy->ShallowCopy( grid );
         mbds->SetBlock( blockIdx, gridCopy );
-        }
+      }
       else
-        {
+      {
         mbds->SetBlock( blockIdx, NULL );
-        }
+      }
       ++blockIdx;
-      } // END for all data
-    } // END for all levels
+    } // END for all data
+  } // END for all levels
 }
 
 //------------------------------------------------------------------------------

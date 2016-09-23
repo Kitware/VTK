@@ -60,9 +60,9 @@ int TestHyperTreeGridBinary2DMaterialIJK( int argc, char* argv[] )
   double resolution = ( maxLevel - 1 ) / ( nContours + 1. );
   double isovalue = resolution;
   for ( int i = 0; i < nContours; ++ i, isovalue += resolution )
-    {
+  {
     contour->SetValue( i, isovalue );
-    }
+  }
 
   // Mappers
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
@@ -127,9 +127,9 @@ int TestHyperTreeGridBinary2DMaterialIJK( int argc, char* argv[] )
 
   int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 70 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

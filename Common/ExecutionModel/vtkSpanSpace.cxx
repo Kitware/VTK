@@ -118,26 +118,26 @@ public:
 
     MapToSpanSpace(vtkInternalSpanSpace *ss, vtkDataSet *ds, vtkDataArray *s) :
       SpanSpace(ss), DataSet(ds), Scalars(s)
-      {
-      }
+    {
+    }
 
     void Initialize()
-      {
+    {
       vtkIdList*& cellPts = this->CellPts.Local();
       cellPts->SetNumberOfIds(12);
       vtkDoubleArray*& cellScalars = this->CellScalars.Local();
       cellScalars->SetNumberOfTuples(12);
-      }
+    }
 
     void operator() (vtkIdType cellId, vtkIdType endCellId)
-      {
+    {
       vtkIdType j, numScalars;
       double *s, sMin, sMax;
       vtkIdList*& cellPts = this->CellPts.Local();
       vtkDoubleArray*& cellScalars = this->CellScalars.Local();
 
       for ( ; cellId < endCellId; ++cellId )
-        {
+      {
         this->DataSet->GetCellPoints(cellId,cellPts);
         numScalars = cellPts->GetNumberOfIds();
         cellScalars->SetNumberOfTuples(numScalars);
@@ -147,26 +147,26 @@ public:
         sMin = VTK_DOUBLE_MAX;
         sMax = VTK_DOUBLE_MIN;
         for ( j=0; j < numScalars; j++ )
-          {
+        {
           if ( s[j] < sMin )
-            {
+          {
             sMin = s[j];
-            }
+          }
           if ( s[j] > sMax )
-            {
+          {
             sMax = s[j];
-            }
-          }//for all cell scalars
+          }
+        }//for all cell scalars
         // Compute span space id, and prepare to map
         this->SpanSpace->SetSpanPoint(cellId, sMin, sMax);
-        }//for all cells in this thread
-      }
+      }//for all cells in this thread
+    }
 
     void Reduce()
-      {
-      }
+    {
+    }
   };
- };
+};
 
 //-----------------------------------------------------------------------------
 vtkInternalSpanSpace::
@@ -219,24 +219,24 @@ Build()
   // First count the number of contributions in each bucket.
   vtkIdType cellId, numElems;
   for ( cellId=0; cellId < this->NumCells; ++cellId )
-    {
+  {
     this->Offsets[this->Space[cellId].Index]++;
     this->CellIds[cellId] = this->Space[cellId].CellId;
-    }
+  }
 
   // Now accumulate offset array
   vtkIdType i, j, jOffset, idx, currentOffset = 0;
   for (j=0; j < this->Dim; ++j)
-    {
+  {
     jOffset = j * this->Dim;
     for (i=0; i < this->Dim; ++i)
-      {
+    {
       idx = i + jOffset;
       numElems = this->Offsets[idx];
       this->Offsets[idx] = currentOffset;
       currentOffset += numElems;
-      }
     }
+  }
   this->Offsets[this->Dim*this->Dim] = this->NumCells;
 
   // We don't need the span space tuple array any more, we have
@@ -246,10 +246,10 @@ Build()
 
   // The candidate cell list can be allocated
   if ( this->CandidateCells )
-    {
+  {
     delete [] this->CandidateCells;
     this->CandidateCells = NULL;
-    }
+  }
   this->CandidateCells = new vtkIdType [this->NumCells];
 }
 
@@ -279,10 +279,10 @@ vtkSpanSpace::~vtkSpanSpace()
 void vtkSpanSpace::Initialize()
 {
   if (this->SpanSpace)
-    {
+  {
     delete this->SpanSpace;
     this->SpanSpace = NULL;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -296,39 +296,39 @@ void vtkSpanSpace::BuildTree()
   // Check input...see whether we have to rebuild
   //
   if ( !this->DataSet || (numCells = this->DataSet->GetNumberOfCells()) < 1 )
-    {
+  {
     vtkErrorMacro( << "No data to build tree with");
     return;
-    }
+  }
 
   if ( this->BuildTime > this->MTime
        && this->BuildTime > this->DataSet->GetMTime() )
-    {
+  {
     return;
-    }
+  }
 
   vtkDebugMacro( << "Building span space..." );
 
   // If no scalars set then try and grab them from dataset
   if ( ! this->Scalars )
-    {
+  {
     this->SetScalars(this->DataSet->GetPointData()->GetScalars());
-    }
+  }
   if ( ! this->Scalars )
-    {
+  {
     vtkErrorMacro( << "No scalar data to build trees with");
     return;
-    }
+  }
 
   // We need a range for the scalars
   double range[2];
   this->Scalars->GetRange(range);
   double  R = range[1] - range[0];
   if ( R <= 0.0 )
-    {
+  {
     vtkErrorMacro( << "Bad scalar range");
     return;
-    }
+  }
 
   // Prepare to process scalars
   this->Initialize(); //clears out old span space arrays
@@ -382,20 +382,20 @@ vtkCell *vtkSpanSpace::GetNextCell(vtkIdType& cellId, vtkIdList* &cellPts,
   // Where are we in the current span space row? If at the end, need to get the
   // next row (or return if the last row)
   while ( this->CurrentIdx >= this->CurrentNumCells )
-    {
+  {
     this->CurrentRow++;
     if (this->CurrentRow >= this->RMax[1])
-      {
+    {
       return NULL;
-      }
+    }
     else
-      {
+    {
       this->CurrentSpan = this->SpanSpace->
         GetCellsInSpan(this->CurrentRow, this->RMin, this->RMax,
                        this->CurrentNumCells);
       this->CurrentIdx = 0; //beginning of row
-      }
     }
+  }
 
   // If here then get the next cell
   vtkIdType numScalars;
@@ -422,25 +422,25 @@ vtkIdType vtkSpanSpace::GetNumberOfCellBatches()
   // loop over all rows in span rectangle
   vtkIdType row, *span, idx, numCells;
   for (row=this->RMin[1]; row < this->RMax[1]; ++row)
-    {
+  {
     span = this->SpanSpace->
       GetCellsInSpan(row, this->RMin, this->RMax, numCells);
     for (idx=0; idx < numCells; ++idx)
-      {
+    {
       this->SpanSpace->
         CandidateCells[this->SpanSpace->NumCandidates++] = span[idx];
-      }
-    }//for all rows in span rectangle
+    }
+  }//for all rows in span rectangle
 
   // Watch for boundary conditions. Return 10 cells to a batch.
   if ( this->SpanSpace->NumCandidates < 1 )
-    {
+  {
     return 0;
-    }
+  }
   else
-    {
+  {
     return ( ((this->SpanSpace->NumCandidates-1)/this->BatchSize) + 1);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -452,19 +452,19 @@ GetCellBatch(vtkIdType batchNum, vtkIdType& numCells)
   vtkIdType pos = batchNum * this->BatchSize;
   if ( this->SpanSpace->NumCells < 1 || ! this->SpanSpace->CandidateCells ||
        pos > this->SpanSpace->NumCandidates )
-    {
+  {
     numCells = 0;
     return NULL;
-    }
+  }
 
   if ( (this->SpanSpace->NumCandidates - pos) >= this->BatchSize )
-    {
+  {
     numCells = this->BatchSize;
-    }
+  }
   else
-    {
+  {
     numCells = this->SpanSpace->NumCandidates % this->BatchSize;
-    }
+  }
 
   return this->SpanSpace->CandidateCells + pos;
 }
