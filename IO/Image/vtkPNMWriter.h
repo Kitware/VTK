@@ -12,11 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPNMWriter - Writes PNM (portable any map)  files.
-// .SECTION Description
-// vtkPNMWriter writes PNM file. The data type
-// of the file is unsigned char regardless of the input type.
-
+/**
+ * @class   vtkPNMWriter
+ * @brief   Writes PNM (portable any map)  files.
+ *
+ * vtkPNMWriter writes PNM file. The data type
+ * of the file is unsigned char regardless of the input type.
+*/
 
 #ifndef vtkPNMWriter_h
 #define vtkPNMWriter_h

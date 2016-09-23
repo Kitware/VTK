@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBoundedPlanePointPlacer - a placer that constrains a handle to a finite plane
-// .SECTION Description
-// vtkBoundedPlanePointPlacer is a type of point placer that constrains its
-// points to a finite (i.e., bounded) plance.
-//
-// .SECTION See Also
-// vtkPointPlacer vtkHandleWidget vtkHandleRepresentation
+/**
+ * @class   vtkBoundedPlanePointPlacer
+ * @brief   a placer that constrains a handle to a finite plane
+ *
+ * vtkBoundedPlanePointPlacer is a type of point placer that constrains its
+ * points to a finite (i.e., bounded) plance.
+ *
+ * @sa
+ * vtkPointPlacer vtkHandleWidget vtkHandleRepresentation
+*/
 
 #ifndef vtkBoundedPlanePointPlacer_h
 #define vtkBoundedPlanePointPlacer_h
@@ -35,19 +38,25 @@ class vtkRenderer;
 class VTKINTERACTIONWIDGETS_EXPORT vtkBoundedPlanePointPlacer : public vtkPointPlacer
 {
 public:
-  // Description:
-  // Instantiate this class.
+  /**
+   * Instantiate this class.
+   */
   static vtkBoundedPlanePointPlacer *New();
 
-  // Description:
-  // Standard methods for instances of this class.
+  //@{
+  /**
+   * Standard methods for instances of this class.
+   */
   vtkTypeMacro(vtkBoundedPlanePointPlacer,vtkPointPlacer);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // Set the projection normal to lie along the x, y, or z axis,
-  // or to be oblique. If it is oblique, then the plane is
-  // defined in the ObliquePlane ivar.
+  //@{
+  /**
+   * Set the projection normal to lie along the x, y, or z axis,
+   * or to be oblique. If it is oblique, then the plane is
+   * defined in the ObliquePlane ivar.
+   */
   vtkSetClampMacro(ProjectionNormal,int,
                    vtkBoundedPlanePointPlacer::XAxis,
                    vtkBoundedPlanePointPlacer::Oblique);
@@ -60,35 +69,45 @@ public:
     { this->SetProjectionNormal(vtkBoundedPlanePointPlacer::ZAxis); }
   void SetProjectionNormalToOblique()
     { this->SetProjectionNormal(vtkBoundedPlanePointPlacer::Oblique); }
+  //@}
 
-  // Description:
-  // If the ProjectionNormal is set to Oblique, then this is the
-  // oblique plane used to constrain the handle position.
+  //@{
+  /**
+   * If the ProjectionNormal is set to Oblique, then this is the
+   * oblique plane used to constrain the handle position.
+   */
   void SetObliquePlane(vtkPlane *);
   vtkGetObjectMacro( ObliquePlane, vtkPlane );
+  //@}
 
-  // Description:
-  // The position of the bounding plane from the origin along the
-  // normal. The origin and normal are defined in the oblique plane
-  // when the ProjectionNormal is oblique. For the X, Y, and Z
-  // axes projection normals, the normal is the axis direction, and
-  // the origin is (0,0,0).
+  //@{
+  /**
+   * The position of the bounding plane from the origin along the
+   * normal. The origin and normal are defined in the oblique plane
+   * when the ProjectionNormal is oblique. For the X, Y, and Z
+   * axes projection normals, the normal is the axis direction, and
+   * the origin is (0,0,0).
+   */
   void SetProjectionPosition(double position);
   vtkGetMacro(ProjectionPosition, double);
+  //@}
 
-  // Description:
-  // A collection of plane equations used to bound the position of the point.
-  // This is in addition to confining the point to a plane - these constraints
-  // are meant to, for example, keep a point within the extent of an image.
-  // Using a set of plane equations allows for more complex bounds (such as
-  // bounding a point to an oblique reliced image that has hexagonal shape)
-  // than a simple extent.
+  //@{
+  /**
+   * A collection of plane equations used to bound the position of the point.
+   * This is in addition to confining the point to a plane - these constraints
+   * are meant to, for example, keep a point within the extent of an image.
+   * Using a set of plane equations allows for more complex bounds (such as
+   * bounding a point to an oblique reliced image that has hexagonal shape)
+   * than a simple extent.
+   */
   void AddBoundingPlane(vtkPlane *plane);
   void RemoveBoundingPlane(vtkPlane *plane);
   void RemoveAllBoundingPlanes();
   virtual void SetBoundingPlanes(vtkPlaneCollection*);
   vtkGetObjectMacro(BoundingPlanes,vtkPlaneCollection);
   void SetBoundingPlanes(vtkPlanes *planes);
+  //@}
 
   enum
   {
@@ -98,39 +117,42 @@ public:
     Oblique
   };
 
-  // Description:
-  // Given a renderer and a display position, compute the
-  // world position and world orientation for this point.
-  // A plane is defined by a combination of the
-  // ProjectionNormal, ProjectionOrigin, and ObliquePlane
-  // ivars. The display position is projected onto this
-  // plane to determine a world position, and the
-  // orientation is set to the normal of the plane. If
-  // the point cannot project onto the plane or if it
-  // falls outside the bounds imposed by the
-  // BoundingPlanes, then 0 is returned, otherwise 1 is
-  // returned to indicate a valid return position and
-  // orientation.
+  /**
+   * Given a renderer and a display position, compute the
+   * world position and world orientation for this point.
+   * A plane is defined by a combination of the
+   * ProjectionNormal, ProjectionOrigin, and ObliquePlane
+   * ivars. The display position is projected onto this
+   * plane to determine a world position, and the
+   * orientation is set to the normal of the plane. If
+   * the point cannot project onto the plane or if it
+   * falls outside the bounds imposed by the
+   * BoundingPlanes, then 0 is returned, otherwise 1 is
+   * returned to indicate a valid return position and
+   * orientation.
+   */
   int ComputeWorldPosition( vtkRenderer *ren,
                             double displayPos[2],
                             double worldPos[3],
                             double worldOrient[9] );
 
-  // Description:
-  // Given a renderer, a display position, and a reference world
-  // position, compute the new world position and orientation
-  // of this point. This method is typically used by the
-  // representation to move the point.
+  /**
+   * Given a renderer, a display position, and a reference world
+   * position, compute the new world position and orientation
+   * of this point. This method is typically used by the
+   * representation to move the point.
+   */
   virtual int ComputeWorldPosition( vtkRenderer *ren,
                                     double displayPos[2],
                                     double refWorldPos[3],
                                     double worldPos[3],
                                     double worldOrient[9] );
 
-  // Description:
-  // Give a world position check if it is valid - does
-  // it lie on the plane and within the bounds? Returns
-  // 1 if it is valid, 0 otherwise.
+  /**
+   * Give a world position check if it is valid - does
+   * it lie on the plane and within the bounds? Returns
+   * 1 if it is valid, 0 otherwise.
+   */
   int ValidateWorldPosition( double worldPos[3] );
 
   // Descrption:
@@ -139,13 +161,14 @@ public:
   int ValidateWorldPosition( double worldPos[3],
                              double worldOrient[9]);
 
-  // Description:
-  // If the constraints on this placer are changed, then
-  // this method will be called by the representation on
-  // each of its points. For this placer, the world
-  // position will be converted to a display position, then
-  // ComputeWorldPosition will be used to update the
-  // point.
+  /**
+   * If the constraints on this placer are changed, then
+   * this method will be called by the representation on
+   * each of its points. For this placer, the world
+   * position will be converted to a display position, then
+   * ComputeWorldPosition will be used to update the
+   * point.
+   */
   virtual int UpdateWorldPosition( vtkRenderer *ren,
                                    double worldPos[3],
                                    double worldOrient[9] );

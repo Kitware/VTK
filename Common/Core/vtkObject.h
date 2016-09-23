@@ -12,28 +12,31 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkObject - abstract base class for most VTK objects
-// .SECTION Description
-// vtkObject is the base class for most objects in the visualization
-// toolkit. vtkObject provides methods for tracking modification time,
-// debugging, printing, and event callbacks. Most objects created
-// within the VTK framework should be a subclass of vtkObject or one
-// of its children.  The few exceptions tend to be very small helper
-// classes that usually never get instantiated or situations where
-// multiple inheritance gets in the way.  vtkObject also performs
-// reference counting: objects that are reference counted exist as
-// long as another object uses them. Once the last reference to a
-// reference counted object is removed, the object will spontaneously
-// destruct.
-
-// .SECTION Caveats
-// Note: in VTK objects should always be created with the New() method
-// and deleted with the Delete() method. VTK objects cannot be
-// allocated off the stack (i.e., automatic objects) because the
-// constructor is a protected method.
-
-// .SECTION See also
-// vtkCommand vtkTimeStamp
+/**
+ * @class   vtkObject
+ * @brief   abstract base class for most VTK objects
+ *
+ * vtkObject is the base class for most objects in the visualization
+ * toolkit. vtkObject provides methods for tracking modification time,
+ * debugging, printing, and event callbacks. Most objects created
+ * within the VTK framework should be a subclass of vtkObject or one
+ * of its children.  The few exceptions tend to be very small helper
+ * classes that usually never get instantiated or situations where
+ * multiple inheritance gets in the way.  vtkObject also performs
+ * reference counting: objects that are reference counted exist as
+ * long as another object uses them. Once the last reference to a
+ * reference counted object is removed, the object will spontaneously
+ * destruct.
+ *
+ * @warning
+ * Note: in VTK objects should always be created with the New() method
+ * and deleted with the Delete() method. VTK objects cannot be
+ * allocated off the stack (i.e., automatic objects) because the
+ * constructor is a protected method.
+ *
+ * @sa
+ * vtkCommand vtkTimeStamp
+*/
 
 #ifndef vtkObject_h
 #define vtkObject_h
@@ -52,9 +55,10 @@ class VTKCOMMONCORE_EXPORT vtkObject : public vtkObjectBase
 public:
   vtkBaseTypeMacro(vtkObject,vtkObjectBase);
 
-  // Description:
-  // Create an object with Debug turned off, modified time initialized
-  // to zero, and reference counting on.
+  /**
+   * Create an object with Debug turned off, modified time initialized
+   * to zero, and reference counting on.
+   */
   static vtkObject *New();
 
 #ifdef _WIN32
@@ -63,65 +67,78 @@ public:
   void operator delete( void* p );
 #endif
 
-  // Description:
-  // Turn debugging output on.
+  /**
+   * Turn debugging output on.
+   */
   virtual void DebugOn();
 
-  // Description:
-  // Turn debugging output off.
+  /**
+   * Turn debugging output off.
+   */
   virtual void DebugOff();
 
-  // Description:
-  // Get the value of the debug flag.
+  /**
+   * Get the value of the debug flag.
+   */
   bool GetDebug();
 
-  // Description:
-  // Set the value of the debug flag. A true value turns debugging on.
+  /**
+   * Set the value of the debug flag. A true value turns debugging on.
+   */
   void SetDebug(bool debugFlag);
 
-  // Description:
-  // This method is called when vtkErrorMacro executes. It allows
-  // the debugger to break on error.
+  /**
+   * This method is called when vtkErrorMacro executes. It allows
+   * the debugger to break on error.
+   */
   static void BreakOnError();
 
-  // Description:
-  // Update the modification time for this object. Many filters rely on
-  // the modification time to determine if they need to recompute their
-  // data. The modification time is a unique monotonically increasing
-  // unsigned long integer.
+  /**
+   * Update the modification time for this object. Many filters rely on
+   * the modification time to determine if they need to recompute their
+   * data. The modification time is a unique monotonically increasing
+   * unsigned long integer.
+   */
   virtual void Modified();
 
-  // Description:
-  // Return this object's modified time.
+  /**
+   * Return this object's modified time.
+   */
   virtual vtkMTimeType GetMTime();
 
-  // Description:
-  // Methods invoked by print to print information about the object
-  // including superclasses. Typically not called by the user (use
-  // Print() instead) but used in the hierarchical print process to
-  // combine the output of several classes.
+  /**
+   * Methods invoked by print to print information about the object
+   * including superclasses. Typically not called by the user (use
+   * Print() instead) but used in the hierarchical print process to
+   * combine the output of several classes.
+   */
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // This is a global flag that controls whether any debug, warning
-  // or error messages are displayed.
+  //@{
+  /**
+   * This is a global flag that controls whether any debug, warning
+   * or error messages are displayed.
+   */
   static void SetGlobalWarningDisplay(int val);
   static void GlobalWarningDisplayOn(){vtkObject::SetGlobalWarningDisplay(1);};
   static void GlobalWarningDisplayOff()
     {vtkObject::SetGlobalWarningDisplay(0);};
   static int  GetGlobalWarningDisplay();
+  //@}
 
-  // Description:
-  // Allow people to add/remove/invoke observers (callbacks) to any VTK
-  // object.  This is an implementation of the subject/observer design
-  // pattern. An observer is added by specifying an event to respond to
-  // and a vtkCommand to execute. It returns an unsigned long tag which
-  // can be used later to remove the event or retrieve the command.
-  // When events are invoked, the observers are called in the order they
-  // were added. If a priority value is specified, then the higher
-  // priority commands are called first. A command may set an abort
-  // flag to stop processing of the event. (See vtkCommand.h for more
-  // information.)
+  //@{
+  /**
+   * Allow people to add/remove/invoke observers (callbacks) to any VTK
+   * object.  This is an implementation of the subject/observer design
+   * pattern. An observer is added by specifying an event to respond to
+   * and a vtkCommand to execute. It returns an unsigned long tag which
+   * can be used later to remove the event or retrieve the command.
+   * When events are invoked, the observers are called in the order they
+   * were added. If a priority value is specified, then the higher
+   * priority commands are called first. A command may set an abort
+   * flag to stop processing of the event. (See vtkCommand.h for more
+   * information.)
+   */
   unsigned long AddObserver(unsigned long event, vtkCommand *,
                             float priority=0.0f);
   unsigned long AddObserver(const char *event, vtkCommand *,
@@ -132,6 +149,7 @@ public:
   void RemoveObservers(const char *event, vtkCommand *);
   int HasObserver(unsigned long event, vtkCommand *);
   int HasObserver(const char *event, vtkCommand *);
+  //@}
 
   void RemoveObserver(unsigned long tag);
   void RemoveObservers(unsigned long event);
@@ -140,30 +158,32 @@ public:
   int HasObserver(unsigned long event);
   int HasObserver(const char *event);
 
-  // Description:
-  // Overloads to AddObserver that allow developers to add class member
-  // functions as callbacks for events.  The callback function can
-  // be one of these two types:
-  // \code
-  // void foo(void);\n
-  // void foo(vtkObject*, unsigned long, void*);
-  // \endcode
-  // If the callback is a member of a vtkObjectBase-derived object,
-  // then the callback will automatically be disabled if the object
-  // destructs (but the observer will not automatically be removed).
-  // If the callback is a member of any other type of object, then
-  // the observer must be removed before the object destructs or else
-  // its dead pointer will be used the next time the event occurs.
-  // Typical usage of these functions is as follows:
-  // \code
-  // SomeClassOfMine* observer = SomeClassOfMine::New();\n
-  // to_observe->AddObserver(event, observer, \&SomeClassOfMine::SomeMethod);
-  // \endcode
-  // Note that this does not affect the reference count of a
-  // vtkObjectBase-derived \c observer, which can be safely deleted
-  // with the observer still in place. For non-vtkObjectBase observers,
-  // the observer should never be deleted before it is removed.
-  // Return value is a tag that can be used to remove the observer.
+  //@{
+  /**
+   * Overloads to AddObserver that allow developers to add class member
+   * functions as callbacks for events.  The callback function can
+   * be one of these two types:
+   * \code
+   * void foo(void);\n
+   * void foo(vtkObject*, unsigned long, void*);
+   * \endcode
+   * If the callback is a member of a vtkObjectBase-derived object,
+   * then the callback will automatically be disabled if the object
+   * destructs (but the observer will not automatically be removed).
+   * If the callback is a member of any other type of object, then
+   * the observer must be removed before the object destructs or else
+   * its dead pointer will be used the next time the event occurs.
+   * Typical usage of these functions is as follows:
+   * \code
+   * SomeClassOfMine* observer = SomeClassOfMine::New();\n
+   * to_observe->AddObserver(event, observer, \&SomeClassOfMine::SomeMethod);
+   * \endcode
+   * Note that this does not affect the reference count of a
+   * vtkObjectBase-derived \c observer, which can be safely deleted
+   * with the observer still in place. For non-vtkObjectBase observers,
+   * the observer should never be deleted before it is removed.
+   * Return value is a tag that can be used to remove the observer.
+   */
   template <class U, class T>
   unsigned long AddObserver(unsigned long event,
     U observer, void (T::*callback)(), float priority=0.0f)
@@ -185,10 +205,13 @@ public:
     // vtkObjectCommandInternal)
     return this->AddTemplatedObserver(event, callable, priority);
     }
+  //@}
 
-  // Description:
-  // Allow user to set the AbortFlagOn() with the return value of the callback
-  // method.
+  //@{
+  /**
+   * Allow user to set the AbortFlagOn() with the return value of the callback
+   * method.
+   */
   template <class U, class T>
   unsigned long AddObserver(unsigned long event,
     U observer, bool (T::*callback)(vtkObject*, unsigned long, void*),
@@ -200,13 +223,17 @@ public:
     // vtkObjectCommandInternal)
     return this->AddTemplatedObserver(event, callable, priority);
     }
+  //@}
 
-  // Description:
-  // This method invokes an event and return whether the event was
-  // aborted or not. If the event was aborted, the return value is 1,
-  // otherwise it is 0.
+  //@{
+  /**
+   * This method invokes an event and return whether the event was
+   * aborted or not. If the event was aborted, the return value is 1,
+   * otherwise it is 0.
+   */
   int InvokeEvent(unsigned long event, void *callData);
   int InvokeEvent(const char *event, void *callData);
+  //@}
 
   int InvokeEvent(unsigned long event) { return this->InvokeEvent(event, NULL); };
   int InvokeEvent(const char *event) { return this->InvokeEvent(event, NULL); };
@@ -223,38 +250,47 @@ protected:
   vtkTimeStamp      MTime;      // Keep track of modification time
   vtkSubjectHelper *SubjectHelper; // List of observers on this object
 
-  // Description:
-  // These methods allow a command to exclusively grab all events. (This
-  // method is typically used by widgets to grab events once an event
-  // sequence begins.)  These methods are provided in support of the
-  // public methods found in the class vtkInteractorObserver. Note that
-  // these methods are designed to support vtkInteractorObservers since
-  // they use two separate vtkCommands to watch for mouse and keypress events.
+  //@{
+  /**
+   * These methods allow a command to exclusively grab all events. (This
+   * method is typically used by widgets to grab events once an event
+   * sequence begins.)  These methods are provided in support of the
+   * public methods found in the class vtkInteractorObserver. Note that
+   * these methods are designed to support vtkInteractorObservers since
+   * they use two separate vtkCommands to watch for mouse and keypress events.
+   */
   void InternalGrabFocus(vtkCommand *mouseEvents, vtkCommand *keypressEvents=NULL);
   void InternalReleaseFocus();
+  //@}
 
 private:
   vtkObject(const vtkObject&) VTK_DELETE_FUNCTION;
   void operator=(const vtkObject&) VTK_DELETE_FUNCTION;
 
-  // Description:
-  // Following classes (vtkClassMemberCallbackBase,
-  // vtkClassMemberCallback, and vtkClassMemberHanderPointer)
-  // along with vtkObjectCommandInternal are for supporting
-  // templated AddObserver() overloads that allow developers
-  // to add event callbacks that are class member functions.
+  /**
+   * Following classes (vtkClassMemberCallbackBase,
+   * vtkClassMemberCallback, and vtkClassMemberHanderPointer)
+   * along with vtkObjectCommandInternal are for supporting
+   * templated AddObserver() overloads that allow developers
+   * to add event callbacks that are class member functions.
+   */
   class vtkClassMemberCallbackBase
     {
   public:
-    // Description:
-    // Called when the event is invoked
+    //@{
+    /**
+     * Called when the event is invoked
+     */
     virtual bool operator()(vtkObject*, unsigned long, void*) = 0;
     virtual ~vtkClassMemberCallbackBase(){}
     };
+    //@}
 
-  // Description:
-  // This is a weak pointer for vtkObjectBase and a regular
-  // void pointer for everything else
+  //@{
+  /**
+   * This is a weak pointer for vtkObjectBase and a regular
+   * void pointer for everything else
+   */
   template<class T>
     class vtkClassMemberHandlerPointer
       {
@@ -290,9 +326,12 @@ private:
       void *VoidPointer;
       bool UseWeakPointer;
       };
+  //@}
 
-  // Description:
-  // Templated member callback.
+  //@{
+  /**
+   * Templated member callback.
+   */
   template <class T>
     class vtkClassMemberCallback : public vtkClassMemberCallbackBase
       {
@@ -300,6 +339,7 @@ private:
       void (T::*Method1)();
       void (T::*Method2)(vtkObject*, unsigned long, void*);
       bool (T::*Method3)(vtkObject*, unsigned long, void*);
+  //@}
 
     public:
       vtkClassMemberCallback(T* handler, void (T::*method)())
@@ -353,12 +393,15 @@ private:
         }
       };
 
-  // Description:
-  // Called by templated variants of AddObserver.
+  //@{
+  /**
+   * Called by templated variants of AddObserver.
+   */
   unsigned long AddTemplatedObserver(
     unsigned long event, vtkClassMemberCallbackBase* callable, float priority);
   // Friend to access AddTemplatedObserver().
   friend class vtkObjectCommandInternal;
+  //@}
 
 };
 

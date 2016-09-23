@@ -13,13 +13,16 @@
 
 =========================================================================*/
 
-// .NAME vtkMappedUnstructuredGridCellIterator - Default cell iterator for
-// vtkMappedUnstructuredGrid.
-//
-// .SECTION Description
-// This class is used by default for vtkMappedUnstructedGrid instances. It
-// uses random access for data lookups. Custom vtkCellIterator implementations
-// should be used instead when random-access is inefficient.
+/**
+ * @class   vtkMappedUnstructuredGridCellIterator
+ * @brief   Default cell iterator for
+ * vtkMappedUnstructuredGrid.
+ *
+ *
+ * This class is used by default for vtkMappedUnstructedGrid instances. It
+ * uses random access for data lookups. Custom vtkCellIterator implementations
+ * should be used instead when random-access is inefficient.
+*/
 
 #ifndef vtkMappedUnstructuredGridCellIterator_h
 #define vtkMappedUnstructuredGridCellIterator_h

@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPStreamTracer -  parallel streamline generators
-// .SECTION Description
-// This class implements parallel streamline generators.
-// Note that all processes must have
-// access to the WHOLE seed source, i.e. the source must be identical
-// on all processes.
-// .SECTION See Also
-// vtkStreamTracer
+/**
+ * @class   vtkPStreamTracer
+ * @brief    parallel streamline generators
+ *
+ * This class implements parallel streamline generators.
+ * Note that all processes must have
+ * access to the WHOLE seed source, i.e. the source must be identical
+ * on all processes.
+ * @sa
+ * vtkStreamTracer
+*/
 
 #ifndef vtkPStreamTracer_h
 #define vtkPStreamTracer_h
@@ -42,13 +45,16 @@ public:
   vtkTypeMacro(vtkPStreamTracer,vtkStreamTracer);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Set/Get the controller use in compositing (set to
-  // the global controller by default)
-  // If not using the default, this must be called before any
-  // other methods.
+  //@{
+  /**
+   * Set/Get the controller use in compositing (set to
+   * the global controller by default)
+   * If not using the default, this must be called before any
+   * other methods.
+   */
   virtual void SetController(vtkMultiProcessController* controller);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
 
   static vtkPStreamTracer * New();
 

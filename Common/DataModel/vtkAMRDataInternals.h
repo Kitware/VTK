@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAMRDataInternals - container of vtkUniformGrid for an AMR data set
-//
-// .SECTION Description
-// vtkAMRDataInternals stores a list of non-empty blocks of an AMR data set
-//
-// .SECTION See Also
-// vtkOverlappingAMR, vtkAMRBox
+/**
+ * @class   vtkAMRDataInternals
+ * @brief   container of vtkUniformGrid for an AMR data set
+ *
+ *
+ * vtkAMRDataInternals stores a list of non-empty blocks of an AMR data set
+ *
+ * @sa
+ * vtkOverlappingAMR, vtkAMRBox
+*/
 
 #ifndef vtkAMRDataInternals_h
 #define vtkAMRDataInternals_h

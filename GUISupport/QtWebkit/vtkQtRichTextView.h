@@ -17,16 +17,19 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkQtRichTextView - Superclass for QAbstractItemView-based views.
-//
-// .SECTION Description
-// This superclass provides all the plumbing to integrate a QAbstractItemView
-// into the VTK view framework, including reporting selection changes and
-// detecting selection changes from linked views.
-//
-// .SECTION Thanks
-// Thanks to Bob Kerr from Sandia National Laboratories for implementing
-// this class
+/**
+ * @class   vtkQtRichTextView
+ * @brief   Superclass for QAbstractItemView-based views.
+ *
+ *
+ * This superclass provides all the plumbing to integrate a QAbstractItemView
+ * into the VTK view framework, including reporting selection changes and
+ * detecting selection changes from linked views.
+ *
+ * @par Thanks:
+ * Thanks to Bob Kerr from Sandia National Laboratories for implementing
+ * this class
+*/
 
 #ifndef vtkQtRichTextView_h
 #define vtkQtRichTextView_h
@@ -46,11 +49,12 @@ public:
   vtkTypeMacro(vtkQtRichTextView, vtkQtView);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the main container of this view (a  QWidget).
-  // The application typically places the view with a call
-  // to GetWidget(): something like this
-  // this->ui->box->layout()->addWidget(this->View->GetWidget());
+  /**
+   * Get the main container of this view (a  QWidget).
+   * The application typically places the view with a call
+   * to GetWidget(): something like this
+   * this->ui->box->layout()->addWidget(this->View->GetWidget());
+   */
   virtual QWidget* GetWidget();
 
   enum
@@ -63,42 +67,61 @@ public:
     ROW_DATA = 5,
     };
 
-  // Description:
-  // The field type to copy into the output table.
-  // Should be one of FIELD_DATA, POINT_DATA, CELL_DATA, VERTEX_DATA, EDGE_DATA.
+  //@{
+  /**
+   * The field type to copy into the output table.
+   * Should be one of FIELD_DATA, POINT_DATA, CELL_DATA, VERTEX_DATA, EDGE_DATA.
+   */
   void SetFieldType(int);
   int GetFieldType();
+  //@}
 
-  // Description:
-  // If a vtkTable is provided as input to the view, this sets the column
-  // name to use for the content.  (Default: 'http').
+  //@{
+  /**
+   * If a vtkTable is provided as input to the view, this sets the column
+   * name to use for the content.  (Default: 'http').
+   */
   vtkSetStringMacro(ContentColumnName);
   vtkGetStringMacro(ContentColumnName);
+  //@}
 
-  // Description:
-  // If a vtkTable is provided as input to the view, this sets the column
-  // name to use for the preview when multiple items in selection.
+  //@{
+  /**
+   * If a vtkTable is provided as input to the view, this sets the column
+   * name to use for the preview when multiple items in selection.
+   */
   vtkSetStringMacro(PreviewColumnName);
   vtkGetStringMacro(PreviewColumnName);
+  //@}
 
-  // Description:
-  // If a vtkTable is provided as input to the view, this sets the column
-  // name to use for the title displayed in the title bar.
+  //@{
+  /**
+   * If a vtkTable is provided as input to the view, this sets the column
+   * name to use for the title displayed in the title bar.
+   */
   vtkSetStringMacro(TitleColumnName);
   vtkGetStringMacro(TitleColumnName);
+  //@}
 
-  // Description:
-  // This field sets a URL for a HTTP proxy server.
+  //@{
+  /**
+   * This field sets a URL for a HTTP proxy server.
+   */
   vtkSetStringMacro(ProxyURL);
   vtkGetStringMacro(ProxyURL);
+  //@}
 
-  // Description:
-  // This fields sets the port number for a HTTP proxy server.
+  //@{
+  /**
+   * This fields sets the port number for a HTTP proxy server.
+   */
   vtkSetMacro(ProxyPort, int);
   vtkGetMacro(ProxyPort, int);
+  //@}
 
-  // Description:
-  // Updates the view.
+  /**
+   * Updates the view.
+   */
   virtual void Update();
 
 protected slots:

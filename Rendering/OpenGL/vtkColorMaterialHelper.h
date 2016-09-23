@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkColorMaterialHelper - a helper to assist in simulating the
-//  ColorMaterial behaviour of the default OpenGL pipeline.
-//
-// .SECTION Description
-//  vtkColorMaterialHelper is a helper to assist in simulating the
-//  ColorMaterial behaviour of the default OpenGL pipeline. Look at
-//  vtkColorMaterialHelper_s for available GLSL functions.
-//
-// .SECTION see also
-//  vtkShaderProgram2
+/**
+ * @class   vtkColorMaterialHelper
+ * @brief   a helper to assist in simulating the
+ *  ColorMaterial behaviour of the default OpenGL pipeline.
+ *
+ *
+ *  vtkColorMaterialHelper is a helper to assist in simulating the
+ *  ColorMaterial behaviour of the default OpenGL pipeline. Look at
+ *  vtkColorMaterialHelper_s for available GLSL functions.
+ *
+ * @sa
+ *  vtkShaderProgram2
+*/
 
 #ifndef vtkColorMaterialHelper_h
 #define vtkColorMaterialHelper_h
@@ -41,21 +44,24 @@ public:
   void Initialize(vtkShaderProgram2*);
   vtkGetObjectMacro(Shader, vtkShaderProgram2);
 
-  // Description:
-  // Capture current OpenGL state and initialize uniform variables
-  // used by the helper shader.
+  /**
+   * Capture current OpenGL state and initialize uniform variables
+   * used by the helper shader.
+   */
   void SetUniformVariables();
 
-  // Description:
-  // Captures current OpenGL state.
-  // DEPRECATED (Use PrepareForRendering2 instead)
+  /**
+   * Captures current OpenGL state.
+   * DEPRECATED (Use PrepareForRendering2 instead)
+   */
   void PrepareForRendering();
 
-  // Description:
-  // Initializes uniform variables with the last captured
-  // OpenGL state.
-  // NOTHING IS RENDERED THIS SETS UNIFORMS.
-  // DEPRECATED: Use SetUnformVariables instead.
+  /**
+   * Initializes uniform variables with the last captured
+   * OpenGL state.
+   * NOTHING IS RENDERED THIS SETS UNIFORMS.
+   * DEPRECATED: Use SetUnformVariables instead.
+   */
   void Render();
 
 protected:

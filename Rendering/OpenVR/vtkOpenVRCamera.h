@@ -11,10 +11,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenVRCamera - OpenVR camera
-// .SECTION Description
-// vtkOpenVRCamera is a concrete implementation of the abstract class
-// vtkCamera.  vtkOpenVRCamera interfaces to the OpenVR rendering library.
+/**
+ * @class   vtkOpenVRCamera
+ * @brief   OpenVR camera
+ *
+ * vtkOpenVRCamera is a concrete implementation of the abstract class
+ * vtkCamera.  vtkOpenVRCamera interfaces to the OpenVR rendering library.
+*/
 
 #ifndef vtkOpenVRCamera_h
 #define vtkOpenVRCamera_h
@@ -34,23 +37,28 @@ public:
   static vtkOpenVRCamera *New();
   vtkTypeMacro(vtkOpenVRCamera, vtkOpenGLCamera);
 
-  // Description:
-  // Implement base class method.
+  /**
+   * Implement base class method.
+   */
   virtual void Render(vtkRenderer *ren);
 
   virtual void GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&WCVCMatrix,
     vtkMatrix3x3 *&normalMatrix, vtkMatrix4x4 *&VCDCMatrix, vtkMatrix4x4 *&WCDCMatrix);
 
-  // Description:
-  // Provides a matrix to go from absolute OpenVR tracking coordinates
-  // to device coordinates. Used for rendering devices.
+  /**
+   * Provides a matrix to go from absolute OpenVR tracking coordinates
+   * to device coordinates. Used for rendering devices.
+   */
   virtual void GetTrackingToDCMatrix(vtkMatrix4x4 *&TCDCMatrix);
 
-  // Description:
-  // Set/Get the translation to map world coordinates into the
-  // OpenVR physical space (meters, 0,0,0).
+  //@{
+  /**
+   * Set/Get the translation to map world coordinates into the
+   * OpenVR physical space (meters, 0,0,0).
+   */
   vtkSetVector3Macro(Translation,double);
   vtkGetVector3Macro(Translation,double);
+  //@}
 
 protected:
   vtkOpenVRCamera();

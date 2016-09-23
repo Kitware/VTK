@@ -13,13 +13,16 @@
 
 =========================================================================*/
 
-// .NAME vtkChartSelectionHelper - helper functions for making selections in
-// charts.
-//
-// .SECTION Description
-// This contains several inline methods intended for use inside chart
-// implementations to make chart selections easier. This is intended for
-// internal use and the API should not be considered stable.
+/**
+ * @class   vtkChartSelectionHelper
+ * @brief   helper functions for making selections in
+ * charts.
+ *
+ *
+ * This contains several inline methods intended for use inside chart
+ * implementations to make chart selections easier. This is intended for
+ * internal use and the API should not be considered stable.
+*/
 
 #ifndef vtkChartSelectionHelper_h
 #define vtkChartSelectionHelper_h
@@ -42,9 +45,10 @@
 namespace vtkChartSelectionHelper
 {
 
-// Description:
-// Populate the annotation link with the supplied selectionIds array, and set
-// the appropriate node properties for a standard row based chart selection.
+/**
+ * Populate the annotation link with the supplied selectionIds array, and set
+ * the appropriate node properties for a standard row based chart selection.
+ */
 static void MakeSelection(vtkAnnotationLink *link, vtkIdTypeArray *selectionIds,
                           vtkPlot *plot)
 {
@@ -90,8 +94,10 @@ static void MakeSelection(vtkAnnotationLink *link, vtkIdTypeArray *selectionIds,
     }
 }
 
-// Description:
-// Subtract the supplied selection from the oldSelection.
+//@{
+/**
+ * Subtract the supplied selection from the oldSelection.
+ */
 static void MinusSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection)
 {
   // We rely on the selection id arrays being sorted.
@@ -104,6 +110,7 @@ static void MinusSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelecti
   vtkIdType size = selection->GetNumberOfTuples();
   vtkIdType i = 0;
   vtkIdType iOld = 0;
+//@}
 
   while (i < size && iOld < oldSize)
     {
@@ -134,8 +141,10 @@ static void MinusSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelecti
     }
 }
 
-// Description:
-// Add the supplied selection from the oldSelection.
+//@{
+/**
+ * Add the supplied selection from the oldSelection.
+ */
 static void AddSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection)
 {
   // Add all unique array indices to create a new combined array.
@@ -160,9 +169,12 @@ static void AddSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection
     *ptrSelection = *i;
     }
 }
+//@}
 
-// Description:
-// Toggle the supplied selection from the oldSelection.
+//@{
+/**
+ * Toggle the supplied selection from the oldSelection.
+ */
 static void ToggleSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection)
 {
   // We rely on the selection id arrays being sorted.
@@ -207,11 +219,13 @@ static void ToggleSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelect
     *ptrSelection = *it;
     }
 }
+//@}
 
-// Description:
-// Build a selection based on the supplied selectionMode using the new
-// plotSelection and combining it with the oldSelection. If link is not NULL
-// then the resulting selection will be set on the link.
+/**
+ * Build a selection based on the supplied selectionMode using the new
+ * plotSelection and combining it with the oldSelection. If link is not NULL
+ * then the resulting selection will be set on the link.
+ */
 static void BuildSelection(vtkAnnotationLink *link, int selectionMode,
                            vtkIdTypeArray *plotSelection, vtkIdTypeArray *oldSelection,
                            vtkPlot *plot)
@@ -245,9 +259,11 @@ static void BuildSelection(vtkAnnotationLink *link, int selectionMode,
     }
 }
 
-// Description:
-// Combine the SelectionMode with any mouse modifiers to get an effective
-// selection mode for this click event.
+//@{
+/**
+ * Combine the SelectionMode with any mouse modifiers to get an effective
+ * selection mode for this click event.
+ */
 static int GetMouseSelectionMode(const vtkContextMouseEvent &mouse, int selectionMode)
 {
   // Mouse modifiers override the current selection mode.
@@ -266,6 +282,7 @@ static int GetMouseSelectionMode(const vtkContextMouseEvent &mouse, int selectio
     }
   return selectionMode;
 }
+//@}
 
 } // End vtkChartSelectionHelper namespace
 

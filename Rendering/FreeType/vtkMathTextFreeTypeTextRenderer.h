@@ -13,17 +13,20 @@
 
 =========================================================================*/
 
-// .NAME vtkMathTextFreeTypeTextRenderer - Default implementation of
-// vtkTextRenderer.
-//
-// .SECTION Description
-// Default implementation of vtkTextRenderer using vtkFreeTypeTools and
-// vtkMathTextUtilities.
-//
-// .SECTION CAVEATS
-// The MathText backend does not currently support UTF16 strings, thus
-// UTF16 strings passed to the MathText renderer will be converted to
-// UTF8.
+/**
+ * @class   vtkMathTextFreeTypeTextRenderer
+ * @brief   Default implementation of
+ * vtkTextRenderer.
+ *
+ *
+ * Default implementation of vtkTextRenderer using vtkFreeTypeTools and
+ * vtkMathTextUtilities.
+ *
+ * @warning
+ * The MathText backend does not currently support UTF16 strings, thus
+ * UTF16 strings passed to the MathText renderer will be converted to
+ * UTF8.
+*/
 
 #ifndef vtkMathTextFreeTypeTextRenderer_h
 #define vtkMathTextFreeTypeTextRenderer_h
@@ -43,17 +46,22 @@ public:
 
   static vtkMathTextFreeTypeTextRenderer *New();
 
-  // Description:
-  // Test for availability of various backends
+  //@{
+  /**
+   * Test for availability of various backends
+   */
   virtual bool FreeTypeIsSupported();
   virtual bool MathTextIsSupported();
+  //@}
 
 protected:
   vtkMathTextFreeTypeTextRenderer();
   ~vtkMathTextFreeTypeTextRenderer();
 
-  // Description:
-  // Reimplemented from vtkTextRenderer.
+  //@{
+  /**
+   * Reimplemented from vtkTextRenderer.
+   */
   bool GetBoundingBoxInternal(vtkTextProperty *tprop, const vtkStdString &str,
                               int bbox[4], int dpi, int backend);
   bool GetBoundingBoxInternal(vtkTextProperty *tprop,
@@ -82,6 +90,7 @@ protected:
   bool StringToPathInternal(vtkTextProperty *tprop, const vtkUnicodeString &str,
                             vtkPath *path, int dpi, int backend);
   void SetScaleToPowerOfTwoInternal(bool scale);
+  //@}
 
 private:
   vtkMathTextFreeTypeTextRenderer(const vtkMathTextFreeTypeTextRenderer &) VTK_DELETE_FUNCTION;

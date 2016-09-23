@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPieceRequestFilter - Sets the piece request for upstream filters.
-// .SECTION Description
-// Sends the piece and number of pieces to upstream filters; passes the input
-// to the output unmodified.
+/**
+ * @class   vtkPieceRequestFilter
+ * @brief   Sets the piece request for upstream filters.
+ *
+ * Sends the piece and number of pieces to upstream filters; passes the input
+ * to the output unmodified.
+*/
 
 #ifndef vtkPieceRequestFilter_h
 #define vtkPieceRequestFilter_h
@@ -32,28 +35,41 @@ public:
   vtkTypeMacro(vtkPieceRequestFilter,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // The total number of pieces.
+  //@{
+  /**
+   * The total number of pieces.
+   */
   vtkSetClampMacro(NumberOfPieces, int, 0, VTK_INT_MAX);
   vtkGetMacro(NumberOfPieces, int);
+  //@}
 
-  // Description:
-  // The piece to extract.
+  //@{
+  /**
+   * The piece to extract.
+   */
   vtkSetClampMacro(Piece, int, 0, VTK_INT_MAX);
   vtkGetMacro(Piece, int);
+  //@}
 
-  // Description:
-  // Get the output data object for a port on this algorithm.
+  //@{
+  /**
+   * Get the output data object for a port on this algorithm.
+   */
   vtkDataObject* GetOutput();
   vtkDataObject* GetOutput(int);
+  //@}
 
-  // Description:
-  // Set an input of this algorithm.
+  //@{
+  /**
+   * Set an input of this algorithm.
+   */
   void SetInputData(vtkDataObject*);
   void SetInputData(int, vtkDataObject*);
+  //@}
 
-  // Description:
-  // see vtkAlgorithm for details
+  /**
+   * see vtkAlgorithm for details
+   */
   virtual int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector);

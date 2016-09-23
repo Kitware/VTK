@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkStructuredPointsCollection - maintain a list of structured points data objects
-// .SECTION Description
-// vtkStructuredPointsCollection is an object that creates and manipulates
-// lists of structured points datasets. See also vtkCollection and
-// subclasses.
+/**
+ * @class   vtkStructuredPointsCollection
+ * @brief   maintain a list of structured points data objects
+ *
+ * vtkStructuredPointsCollection is an object that creates and manipulates
+ * lists of structured points datasets. See also vtkCollection and
+ * subclasses.
+*/
 
 #ifndef vtkStructuredPointsCollection_h
 #define vtkStructuredPointsCollection_h
@@ -32,22 +35,25 @@ public:
   vtkTypeMacro(vtkStructuredPointsCollection,vtkCollection);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Add a pointer to a vtkStructuredPoints to the list.
+  /**
+   * Add a pointer to a vtkStructuredPoints to the list.
+   */
   void AddItem(vtkStructuredPoints *ds)
     {
       this->vtkCollection::AddItem(ds);
     }
 
-  // Description:
-  // Get the next item in the collection. NULL is returned if the collection
-  // is exhausted.
+  /**
+   * Get the next item in the collection. NULL is returned if the collection
+   * is exhausted.
+   */
   vtkStructuredPoints *GetNextItem() {
     return static_cast<vtkStructuredPoints *>(this->GetNextItemAsObject());};
 
-  // Description:
-  // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth.
+  /**
+   * Reentrant safe way to get an object in a collection. Just pass the
+   * same cookie back and forth.
+   */
   vtkStructuredPoints *GetNextStructuredPoints(
     vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkStructuredPoints *>(

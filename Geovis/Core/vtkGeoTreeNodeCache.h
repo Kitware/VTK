@@ -17,13 +17,16 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGeoTreeNodeCache - Manages a list of vtkGeoTreeNodes.
-//
-// .SECTION Description
-// vtkGeoTreeNodeCache keeps track of a linked list of vtkGeoTreeNodes,
-// and has operations to move nodes to the front of the list and to
-// delete data from the least used nodes. This is used to recover memory
-// from nodes that store data that hasn't been used in a while.
+/**
+ * @class   vtkGeoTreeNodeCache
+ * @brief   Manages a list of vtkGeoTreeNodes.
+ *
+ *
+ * vtkGeoTreeNodeCache keeps track of a linked list of vtkGeoTreeNodes,
+ * and has operations to move nodes to the front of the list and to
+ * delete data from the least used nodes. This is used to recover memory
+ * from nodes that store data that hasn't been used in a while.
+*/
 
 #ifndef vtkGeoTreeNodeCache_h
 #define vtkGeoTreeNodeCache_h
@@ -41,45 +44,58 @@ public:
   vtkTypeMacro(vtkGeoTreeNodeCache,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // The size of the cache of geospatial nodes.
-  // When the size reaches this limit, the list of non-empty
-  // nodes will be shortened to CacheMinimumLimit.
+  //@{
+  /**
+   * The size of the cache of geospatial nodes.
+   * When the size reaches this limit, the list of non-empty
+   * nodes will be shortened to CacheMinimumLimit.
+   */
   vtkSetMacro(CacheMaximumLimit, int);
   vtkGetMacro(CacheMaximumLimit, int);
+  //@}
 
-  // Description:
-  // The cache is reduced to this size when the maximum limit is reached.
+  //@{
+  /**
+   * The cache is reduced to this size when the maximum limit is reached.
+   */
   vtkSetMacro(CacheMinimumLimit, int);
   vtkGetMacro(CacheMinimumLimit, int);
+  //@}
 
-  // Description:
-  // Send a node to the front of the list.
-  // Perform this whenever a node is accessed, so that the most
-  // recently accessed nodes' data are not deleted.
+  /**
+   * Send a node to the front of the list.
+   * Perform this whenever a node is accessed, so that the most
+   * recently accessed nodes' data are not deleted.
+   */
   void SendToFront(vtkGeoTreeNode* node);
 
-  // Description:
-  // Remove the node from the list.
+  /**
+   * Remove the node from the list.
+   */
   void RemoveNode(vtkGeoTreeNode* node);
 
-  // Description:
-  // The current size of the list.
+  //@{
+  /**
+   * The current size of the list.
+   */
   vtkGetMacro(Size, int);
+  //@}
 
 protected:
   vtkGeoTreeNodeCache();
   ~vtkGeoTreeNodeCache();
 
-  // Description:
-  // Removes data from the oldest nodes and removes them from
-  // the list until the list is of size CacheSize.
+  /**
+   * Removes data from the oldest nodes and removes them from
+   * the list until the list is of size CacheSize.
+   */
   void TrimToCacheMinimum();
 
-  // Description:
-  // Checks whether a node is the last of a set of siblings
-  // to be removed from the list. If so, deletes data from the
-  // node and all siblings.
+  /**
+   * Checks whether a node is the last of a set of siblings
+   * to be removed from the list. If so, deletes data from the
+   * node and all siblings.
+   */
   void DeleteDataFromSiblings(vtkGeoTreeNode* node);
 
   int Size;

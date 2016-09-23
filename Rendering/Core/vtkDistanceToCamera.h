@@ -17,14 +17,17 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkDistanceToCamera - calculates distance from points to the camera.
-//
-// .SECTION Description
-// This filter adds a double array containing the distance from each point
-// to the camera. If Scaling is on, it will use the values in the input
-// array to process in order to scale the size of the points. ScreenSize
-// sets the size in screen pixels that you would want a rendered rectangle
-// at that point to be, if it was scaled by the output array.
+/**
+ * @class   vtkDistanceToCamera
+ * @brief   calculates distance from points to the camera.
+ *
+ *
+ * This filter adds a double array containing the distance from each point
+ * to the camera. If Scaling is on, it will use the values in the input
+ * array to process in order to scale the size of the points. ScreenSize
+ * sets the size in screen pixels that you would want a rendered rectangle
+ * at that point to be, if it was scaled by the output array.
+*/
 
 #ifndef vtkDistanceToCamera_h
 #define vtkDistanceToCamera_h
@@ -41,25 +44,35 @@ public:
   vtkTypeMacro(vtkDistanceToCamera,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // The renderer which will ultimately render these points.
+  //@{
+  /**
+   * The renderer which will ultimately render these points.
+   */
   void SetRenderer(vtkRenderer* ren);
   vtkGetObjectMacro(Renderer, vtkRenderer);
+  //@}
 
-  // Description:
-  // The desired screen size obtained by scaling glyphs by the distance
-  // array. It assumes the glyph at each point will be unit size.
+  //@{
+  /**
+   * The desired screen size obtained by scaling glyphs by the distance
+   * array. It assumes the glyph at each point will be unit size.
+   */
   vtkSetMacro(ScreenSize, double);
   vtkGetMacro(ScreenSize, double);
+  //@}
 
-  // Description:
-  // Whether to scale the distance by the input array to process.
+  //@{
+  /**
+   * Whether to scale the distance by the input array to process.
+   */
   vtkSetMacro(Scaling, bool);
   vtkGetMacro(Scaling, bool);
   vtkBooleanMacro(Scaling, bool);
+  //@}
 
-  // Description:
-  // The modified time of this filter.
+  /**
+   * The modified time of this filter.
+   */
   virtual vtkMTimeType GetMTime();
 
 protected:

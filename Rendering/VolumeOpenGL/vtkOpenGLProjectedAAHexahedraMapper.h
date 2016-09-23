@@ -12,18 +12,22 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLProjectedAAHexahedraMapper - OpenGL implementation of a volume mapper for axis-aligned hexahedra
-// .SECTION Description
-// High quality volume renderer for axis-aligned hexahedra
-
-// .SECTION Implementation
-// Implementation by Stephane Marchesin (stephane.marchesin@gmail.com)
-// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France
-// BP12, F-91297 Arpajon, France.
-//
-// This mapper implements the paper
-// "High-Quality, Semi-Analytical Volume Rendering for AMR Data",
-// Stephane Marchesin and Guillaume Colin de Verdiere, IEEE Vis 2009.
+/**
+ * @class   vtkOpenGLProjectedAAHexahedraMapper
+ * @brief   OpenGL implementation of a volume mapper for axis-aligned hexahedra
+ *
+ * High quality volume renderer for axis-aligned hexahedra
+ *
+ * @par Implementation:
+ * Implementation by Stephane Marchesin (stephane.marchesin@gmail.com)
+ * CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France
+ * BP12, F-91297 Arpajon, France.
+ *
+ * @par Implementation:
+ * This mapper implements the paper
+ * "High-Quality, Semi-Analytical Volume Rendering for AMR Data",
+ * Stephane Marchesin and Guillaume Colin de Verdiere, IEEE Vis 2009.
+*/
 
 #ifndef vtkOpenGLProjectedAAHexahedraMapper_h
 #define vtkOpenGLProjectedAAHexahedraMapper_h
@@ -48,9 +52,10 @@ public:
   static vtkOpenGLProjectedAAHexahedraMapper *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Check if the required OpenGL extensions are supported by the OpenGL
-  // context attached to the render window `w'.
+  /**
+   * Check if the required OpenGL extensions are supported by the OpenGL
+   * context attached to the render window `w'.
+   */
   bool IsRenderSupported(vtkRenderWindow *w);
 
   void Render(vtkRenderer *renderer, vtkVolume *volume);
@@ -61,43 +66,52 @@ protected:
   vtkOpenGLProjectedAAHexahedraMapper();
   ~vtkOpenGLProjectedAAHexahedraMapper();
 
-  // Description:
-  // Convert the input scalar values to floats.
+  /**
+   * Convert the input scalar values to floats.
+   */
   float* ConvertScalars(vtkDataArray* inScalars);
 
-  // Description:
-  // Convert the input cell coordinates to floats.
+  /**
+   * Convert the input cell coordinates to floats.
+   */
   float* ConvertPoints(vtkPoints* inPoints);
 
-  // Description:
-  // Iterate over all the hexahedal input cells,
-  // sort and render them.
+  /**
+   * Iterate over all the hexahedal input cells,
+   * sort and render them.
+   */
   virtual void ProjectHexahedra(vtkRenderer *renderer, vtkVolume *volume);
 
-  // Description:
-  // Load the OpenGL extensions and allocate the vertex arrays.
+  /**
+   * Load the OpenGL extensions and allocate the vertex arrays.
+   */
   void Initialize(vtkRenderer *renderer, vtkVolume *volume);
 
-  // Description:
-  // Update the preintegration texture; this is needed whenever the mesh
-  // changes.
+  /**
+   * Update the preintegration texture; this is needed whenever the mesh
+   * changes.
+   */
   void UpdatePreintegrationTexture(vtkVolume *vome, vtkDataArray *scalars);
 
-  // Description:
-  // Create the OpenGL geometry/vertex/fragment programs for
-  // hexahedral cell rendering.
+  /**
+   * Create the OpenGL geometry/vertex/fragment programs for
+   * hexahedral cell rendering.
+   */
   void CreateProgram(vtkRenderWindow *w);
 
-  // Description:
-  // Set the OpenGL state for hexahedral cell rendering.
+  /**
+   * Set the OpenGL state for hexahedral cell rendering.
+   */
   void SetState(double* observer);
 
-  // Description:
-  // Render a single axis-aligned hexahedal cell.
+  /**
+   * Render a single axis-aligned hexahedal cell.
+   */
   void RenderHexahedron(float min[3], float max[3], float scalars[8]);
 
-  // Description:
-  // Restore the OpenGL state touched by SetState().
+  /**
+   * Restore the OpenGL state touched by SetState().
+   */
   void UnsetState();
 
 

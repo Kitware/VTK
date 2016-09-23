@@ -22,7 +22,9 @@
  * see vtkWrapPython_ArgCheckString() in vtkWrapPython.c.
  */
 
-// .NAME vtkPythonOverload
+/**
+ * @class   vtkPythonOverload
+*/
 
 #ifndef vtkPythonOverload_h
 #define vtkPythonOverload_h
@@ -34,26 +36,31 @@ class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonOverload
 {
 public:
 
-  // Description:
-  // Check python object against a format character and return a number
-  // to indicate how well it matches (lower numbers are better).
+  /**
+   * Check python object against a format character and return a number
+   * to indicate how well it matches (lower numbers are better).
+   */
   static int CheckArg(PyObject *arg, const char *format,
                       const char *classname, int level=0);
 
-  // Description:
-  // Call the method that is the best match for the for the provided
-  // arguments.  The docstrings in the PyMethodDef must provide info
-  // about the argument types for each method.
+  /**
+   * Call the method that is the best match for the for the provided
+   * arguments.  The docstrings in the PyMethodDef must provide info
+   * about the argument types for each method.
+   */
   static PyObject *CallMethod(PyMethodDef *methods,
                               PyObject *self, PyObject *args);
 
-  // Description:
-  // Find a method that takes the single arg provided, this is used
-  // to locate the correct constructor signature for a conversion.
-  // The docstrings in the PyMethodDef must provide info about the
-  // argument types for each method.
+  //@{
+  /**
+   * Find a method that takes the single arg provided, this is used
+   * to locate the correct constructor signature for a conversion.
+   * The docstrings in the PyMethodDef must provide info about the
+   * argument types for each method.
+   */
   static PyMethodDef *FindConversionMethod(PyMethodDef *methods,
                                            PyObject *arg);
 };
+  //@}
 
 #endif

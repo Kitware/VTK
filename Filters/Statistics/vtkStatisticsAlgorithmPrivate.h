@@ -17,16 +17,19 @@ PURPOSE.  See the above copyright notice for more information.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
-// .NAME vtkDescriptiveStatistics - Private implementation for bivariate
-// statistics algorithms.
-//
-// .SECTION Description
-// The main purpose of this class is to avoid exposure of STL container
-// through the APIs of the vtkStatistics classes APIs
-//
-// .SECTION Thanks
-// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories
-// for implementing this class.
+/**
+ * @class   vtkDescriptiveStatistics
+ * @brief   Private implementation for bivariate
+ * statistics algorithms.
+ *
+ *
+ * The main purpose of this class is to avoid exposure of STL container
+ * through the APIs of the vtkStatistics classes APIs
+ *
+ * @par Thanks:
+ * Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories
+ * for implementing this class.
+*/
 
 #ifndef vtkStatisticsAlgorithmPrivate_h
 #define vtkStatisticsAlgorithmPrivate_h
@@ -45,15 +48,18 @@ public:
     {
     }
   // --------------------------------------------------------------------
-  // Description:
-  // Empty current set of requests
+  /**
+   * Empty current set of requests
+   */
   void ResetRequests()
     {
     this->Requests.clear();
     }
   // --------------------------------------------------------------------
-  // Description:
-  // Empty current buffer
+  //@{
+  /**
+   * Empty current buffer
+   */
   int ResetBuffer()
     {
     int rval = this->Buffer.empty() ? 0 : 1;
@@ -84,8 +90,11 @@ public:
     return result ? 1 : 0;
     }
   // --------------------------------------------------------------------
-  // Description:
-  // This function does not use the buffer like other column selection methods.
+  //@}
+  //@{
+  /**
+   * This function does not use the buffer like other column selection methods.
+   */
   int AddColumnToRequests( const char* col )
     {
     if ( col && strlen( col ) )
@@ -100,8 +109,11 @@ public:
     return 0;
     }
   // --------------------------------------------------------------------
-  // Description:
-  // This function does not use the buffer like other column selection methods.
+  //@}
+  //@{
+  /**
+   * This function does not use the buffer like other column selection methods.
+   */
   int AddColumnPairToRequests( const char* cola, const char* colb )
     {
     if ( cola && colb && strlen( cola ) && strlen( colb ) )
@@ -117,15 +129,19 @@ public:
     return 0;
     }
   // --------------------------------------------------------------------
-  // Description:
-  // Return the number of currently-defined requests
+  //@}
+  /**
+   * Return the number of currently-defined requests
+   */
   vtkIdType GetNumberOfRequests()
     {
     return static_cast<vtkIdType>( this->Requests.size() );
     }
   // --------------------------------------------------------------------
-  // Description:
-  // Return the number of columns associated with request \a r.
+  //@{
+  /**
+   * Return the number of columns associated with request \a r.
+   */
   vtkIdType GetNumberOfColumnsForRequest( vtkIdType r )
     {
     if ( r < 0 || r > static_cast<vtkIdType>( this->Requests.size() ) )
@@ -140,9 +156,12 @@ public:
     return it->size();
     }
   // --------------------------------------------------------------------
-  // Description:
-  // Provide the name of the \a c-th column of the \a r-th request in \a columnName.
-  // Returns false if the request or column does not exist and true otherwise.
+  //@}
+  //@{
+  /**
+   * Provide the name of the \a c-th column of the \a r-th request in \a columnName.
+   * Returns false if the request or column does not exist and true otherwise.
+   */
   bool GetColumnForRequest( vtkIdType r, vtkIdType c, vtkStdString& columnName )
     {
     if ( r < 0 || r > static_cast<vtkIdType>( this->Requests.size() ) || c < 0 )
@@ -166,6 +185,7 @@ public:
     columnName = *cit;
     return true;
     }
+  //@}
 
   std::set<std::set<vtkStdString> > Requests;
   std::set<vtkStdString> Buffer;

@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkFixedPointVolumeRayCastHelper - An abstract helper that generates images for the volume ray cast mapper
-// .SECTION Description
-// This is the abstract superclass of all helper classes for the
-// vtkFixedPointVolumeRayCastMapper. This class should not be used directly.
-//
-// .SECTION see also
-// vtkFixedPointVolumeRayCastMapper
+/**
+ * @class   vtkFixedPointVolumeRayCastHelper
+ * @brief   An abstract helper that generates images for the volume ray cast mapper
+ *
+ * This is the abstract superclass of all helper classes for the
+ * vtkFixedPointVolumeRayCastMapper. This class should not be used directly.
+ *
+ * @sa
+ * vtkFixedPointVolumeRayCastMapper
+*/
 
 #ifndef vtkFixedPointVolumeRayCastHelper_h
 #define vtkFixedPointVolumeRayCastHelper_h

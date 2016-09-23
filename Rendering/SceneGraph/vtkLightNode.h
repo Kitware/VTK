@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkLightNode - vtkViewNode specialized for vtkLights
-// .SECTION Description
-// State storage and graph traversal for vtkLight
+/**
+ * @class   vtkLightNode
+ * @brief   vtkViewNode specialized for vtkLights
+ *
+ * State storage and graph traversal for vtkLight
+*/
 
 #ifndef vtkLightNode_h
 #define vtkLightNode_h

@@ -16,11 +16,14 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkGraphInternals - Internal representation of vtkGraph
-//
-// .SECTION Description
-// This is the internal representation of vtkGraph, used only in rare cases
-// where one must modify that representation.
+/**
+ * @class   vtkGraphInternals
+ * @brief   Internal representation of vtkGraph
+ *
+ *
+ * This is the internal representation of vtkGraph, used only in rare cases
+ * where one must modify that representation.
+*/
 
 #ifndef vtkGraphInternals_h
 #define vtkGraphInternals_h
@@ -66,20 +69,24 @@ public:
   // vtkMutableDirectedGraph.
   bool UsingPedigreeIds;
 
-  // Description:
-  // Convenience method for removing an edge from an out edge list.
+  /**
+   * Convenience method for removing an edge from an out edge list.
+   */
   void RemoveEdgeFromOutList(vtkIdType e, std::vector<vtkOutEdgeType>& outEdges);
 
-  // Description:
-  // Convenience method for removing an edge from an in edge list.
+  /**
+   * Convenience method for removing an edge from an in edge list.
+   */
   void RemoveEdgeFromInList(vtkIdType e, std::vector<vtkInEdgeType>& inEdges);
 
-  // Description:
-  // Convenience method for renaming an edge in an out edge list.
+  /**
+   * Convenience method for renaming an edge in an out edge list.
+   */
   void ReplaceEdgeFromOutList(vtkIdType from, vtkIdType to, std::vector<vtkOutEdgeType>& outEdges);
 
-  // Description:
-  // Convenience method for renaming an edge in an in edge list.
+  /**
+   * Convenience method for renaming an edge in an in edge list.
+   */
   void ReplaceEdgeFromInList(vtkIdType from, vtkIdType to, std::vector<vtkInEdgeType>& inEdges);
 
 protected:

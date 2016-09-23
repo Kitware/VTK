@@ -12,18 +12,20 @@
   PURPOSE.  See the above copyright notice for more information.
 
   =========================================================================*/
-// .NAME vtkDataSetGradient - computes scalar field gradient
-//
-// .SECTION Description
-// vtkDataSetGradient Computes per cell gradient of point scalar field
-// or per point gradient of cell scalar field.
-//
-// .SECTION Thanks
-// This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
-// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
-// BP12, F-91297 Arpajon, France. <br>
-// Implementation by Thierry Carrard (CEA)
-
+/**
+ * @class   vtkDataSetGradient
+ * @brief   computes scalar field gradient
+ *
+ *
+ * vtkDataSetGradient Computes per cell gradient of point scalar field
+ * or per point gradient of cell scalar field.
+ *
+ * @par Thanks:
+ * This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
+ * CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
+ * BP12, F-91297 Arpajon, France. <br>
+ * Implementation by Thierry Carrard (CEA)
+*/
 
 #ifndef vtkDataSetGradient_h
 #define vtkDataSetGradient_h
@@ -39,10 +41,13 @@ class VTKFILTERSGENERAL_EXPORT vtkDataSetGradient : public vtkDataSetAlgorithm
   vtkTypeMacro(vtkDataSetGradient,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set/Get the name of computed vector array.
+  //@{
+  /**
+   * Set/Get the name of computed vector array.
+   */
   vtkSetStringMacro(ResultArrayName);
   vtkGetStringMacro(ResultArrayName);
+  //@}
 
  protected:
   vtkDataSetGradient ();

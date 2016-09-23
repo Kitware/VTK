@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkIdTypeArray - dynamic, self-adjusting array of vtkIdType
-// .SECTION Description
-// vtkIdTypeArray is an array of values of type vtkIdType.
-// It provides methods for insertion and retrieval of values and will
-// automatically resize itself to hold new data.
+/**
+ * @class   vtkIdTypeArray
+ * @brief   dynamic, self-adjusting array of vtkIdType
+ *
+ * vtkIdTypeArray is an array of values of type vtkIdType.
+ * It provides methods for insertion and retrieval of values and will
+ * automatically resize itself to hold new data.
+*/
 
 #ifndef vtkIdTypeArray_h
 #define vtkIdTypeArray_h
@@ -46,8 +49,9 @@ public:
   vtkCreateWrappedArrayInterface(vtkIdType);
 #else
 
-  // Description:
-  // Get the data type.
+  /**
+   * Get the data type.
+   */
   int GetDataType() VTK_OVERRIDE
     {
       // This needs to overwritten from superclass because
@@ -59,19 +63,22 @@ public:
     }
 #endif
 
-  // Description:
-  // A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+  /**
+   * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+   */
   static vtkIdTypeArray* FastDownCast(vtkAbstractArray *source)
   {
     return static_cast<vtkIdTypeArray*>(Superclass::FastDownCast(source));
   }
 
-  // Description:
-  // Get the minimum data value in its native type.
+  /**
+   * Get the minimum data value in its native type.
+   */
   static vtkIdType GetDataTypeValueMin() { return VTK_ID_MIN; }
 
-  // Description:
-  // Get the maximum data value in its native type.
+  /**
+   * Get the maximum data value in its native type.
+   */
   static vtkIdType GetDataTypeValueMax() { return VTK_ID_MAX; }
 
 protected:

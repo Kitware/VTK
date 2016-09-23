@@ -12,18 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLLightMonitor -- A helper for painters that
-// tracks state of OpenGL model-view and projection matrices.
-//
-// .SECTION Description:
-// vtkOpenGLLightMonitor -- A helper for painters that
-// tracks state of OpenGL lights. A Painter could use this
-// to skip expensive processing that is only needed when
-// lights change.
-//
-// this is not intended to be shared. each object should use it's
-// own instance of this class. it's intended to be called once per
-// render.
+/**
+ * @class   vtkOpenGLLightMonitor
+ * tracks state of OpenGL model-view and projection matrices.
+ *
+ *
+ * vtkOpenGLLightMonitor -- A helper for painters that
+ * tracks state of OpenGL lights. A Painter could use this
+ * to skip expensive processing that is only needed when
+ * lights change.
+ *
+ * this is not intended to be shared. each object should use it's
+ * own instance of this class. it's intended to be called once per
+ * render.
+*/
 
 #ifndef vtkOpenGLLightMonitor_h
 #define vtkOpenGLLightMonitor_h
@@ -39,27 +41,34 @@ public:
   vtkTypeMacro(vtkOpenGLLightMonitor, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set/Get the light id of the OpenGL light to track. The
-  // light id must be set prior to use. Default value 0.
+  //@{
+  /**
+   * Set/Get the light id of the OpenGL light to track. The
+   * light id must be set prior to use. Default value 0.
+   */
   vtkSetMacro(LightId, int);
   vtkGetMacro(LightId, int);
+  //@}
 
-  // Description:
-  // Fetches the current GL state and updates the
-  // internal copies of the data. returns true if
-  // any of the tracked OpenGL lights have changed.
-  // Typically this is the only function a user needs
-  // to call.
+  /**
+   * Fetches the current GL state and updates the
+   * internal copies of the data. returns true if
+   * any of the tracked OpenGL lights have changed.
+   * Typically this is the only function a user needs
+   * to call.
+   */
   bool StateChanged();
 
-  // Description:
-  // Fetch and save OpenGL light state. Note,
-  // this is done automatically in SateChanged.
+  /**
+   * Fetch and save OpenGL light state. Note,
+   * this is done automatically in SateChanged.
+   */
   void Update();
 
-  // Description:
-  // Setters for internal state.
+  //@{
+  /**
+   * Setters for internal state.
+   */
   void SetEnabled(int val);
   void SetAmbient(float *val);
   void SetDiffuse(float *val);
@@ -69,6 +78,7 @@ public:
   void SetSpotExponent(float val);
   void SetSpotCutoff(float val);
   void SetAttenuation(float *val);
+  //@}
 
 private:
   vtkOpenGLLightMonitor(int lightId) : LightId(lightId), UpTime(0)

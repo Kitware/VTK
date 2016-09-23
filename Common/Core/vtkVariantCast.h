@@ -19,17 +19,19 @@
 
 =========================================================================*/
 
-// .NAME vtkVariantCast
-// .SECTION Description
-// Converts a vtkVariant to some other type.  Wherever possible, implicit conversions are
-// performed, so this method can be used to convert from nearly any type to a string, or
-// from a string to nearly any type.  Note that some conversions may fail at runtime, such
-// as a conversion from the string "abc" to a numeric type.
-//
-// The optional 'valid' flag can be used by callers to verify whether conversion succeeded.
-
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+/**
+ * @class   vtkVariantCast
+ *
+ * Converts a vtkVariant to some other type.  Wherever possible, implicit conversions are
+ * performed, so this method can be used to convert from nearly any type to a string, or
+ * from a string to nearly any type.  Note that some conversions may fail at runtime, such
+ * as a conversion from the string "abc" to a numeric type.
+ *
+ * The optional 'valid' flag can be used by callers to verify whether conversion succeeded.
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+*/
 
 #ifndef vtkVariantCast_h
 #define vtkVariantCast_h

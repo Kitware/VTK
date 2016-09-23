@@ -19,12 +19,15 @@
 
 =========================================================================*/
 
-// .NAME vtkExtractArray - Given a vtkArrayData object containing one-or-more
-// vtkArray instances, produces a vtkArrayData containing just one vtkArray,
-// indentified by index.
-//
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+/**
+ * @class   vtkExtractArray
+ * @brief   Given a vtkArrayData object containing one-or-more
+ * vtkArray instances, produces a vtkArrayData containing just one vtkArray,
+ * indentified by index.
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+*/
 
 #ifndef vtkExtractArray_h
 #define vtkExtractArray_h
@@ -39,10 +42,13 @@ public:
   vtkTypeMacro(vtkExtractArray, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Controls which array will be extracted.
+  //@{
+  /**
+   * Controls which array will be extracted.
+   */
   vtkGetMacro(Index, vtkIdType);
   vtkSetMacro(Index, vtkIdType);
+  //@}
 
 protected:
   vtkExtractArray();

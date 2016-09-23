@@ -19,24 +19,27 @@
 
 =========================================================================*/
 
-// .NAME vtkArrayExtentsList - Stores a collection of vtkArrayExtents objects.
-//
-// .SECTION Description
-// vtkArrayExtentsList provides storage for a collection of vtkArrayExtents
-// instances.  Constructors are provided for creating collections
-// containing one, two, three, or four slices.  To work with larger
-// numbers of slices, use the default constructor, the SetCount() method,
-// and operator[].
-//
-// vtkArrayExtentsList is most commonly used with the vtkInterpolate()
-// function, which is used to computed weighted sums of vtkArray slices.
-//
-// .SECTION See Also
-// vtkArray, vtkExtents
-//
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
-// Laboratories.
+/**
+ * @class   vtkArrayExtentsList
+ * @brief   Stores a collection of vtkArrayExtents objects.
+ *
+ *
+ * vtkArrayExtentsList provides storage for a collection of vtkArrayExtents
+ * instances.  Constructors are provided for creating collections
+ * containing one, two, three, or four slices.  To work with larger
+ * numbers of slices, use the default constructor, the SetCount() method,
+ * and operator[].
+ *
+ * vtkArrayExtentsList is most commonly used with the vtkInterpolate()
+ * function, which is used to computed weighted sums of vtkArray slices.
+ *
+ * @sa
+ * vtkArray, vtkExtents
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
+ * Laboratories.
+*/
 
 #ifndef vtkArrayExtentsList_h
 #define vtkArrayExtentsList_h
@@ -48,43 +51,52 @@
 class VTKCOMMONCORE_EXPORT vtkArrayExtentsList
 {
 public:
-  // Description:
-  // Creates an empty collection of slices.
+  /**
+   * Creates an empty collection of slices.
+   */
   vtkArrayExtentsList();
 
-  // Description:
-  // Creates a collection containing one slice.
+  /**
+   * Creates a collection containing one slice.
+   */
   vtkArrayExtentsList(const vtkArrayExtents& i);
 
-  // Description:
-  // Creates a collection containing two slices.
+  /**
+   * Creates a collection containing two slices.
+   */
   vtkArrayExtentsList(const vtkArrayExtents& i, const vtkArrayExtents& j);
 
-  // Description:
-  // Creates a collection containing three slices.
+  /**
+   * Creates a collection containing three slices.
+   */
   vtkArrayExtentsList(const vtkArrayExtents& i, const vtkArrayExtents& j, const vtkArrayExtents& k);
 
-  // Description:
-  // Creates a collection containing four slices.
+  /**
+   * Creates a collection containing four slices.
+   */
   vtkArrayExtentsList(const vtkArrayExtents& i, const vtkArrayExtents& j, const vtkArrayExtents& k, const vtkArrayExtents& l);
 
-  // Description:
-  // Returns the number of slices stored in this collection.
+  /**
+   * Returns the number of slices stored in this collection.
+   */
   vtkIdType GetCount() const;
 
-  // Description:
-  // Sets the number of extents stored in this collection.  Note: all
-  // extents will be empty after calling SetCount(), use operator[]
-  // to assign extents to each item in the collection.
+  /**
+   * Sets the number of extents stored in this collection.  Note: all
+   * extents will be empty after calling SetCount(), use operator[]
+   * to assign extents to each item in the collection.
+   */
   void SetCount(vtkIdType count);
 
 
-  // Description:
-  // Accesses the i-th slice.
+  /**
+   * Accesses the i-th slice.
+   */
   vtkArrayExtents& operator[](vtkIdType i);
 
-  // Description:
-  // Accesses the i-th slice.
+  /**
+   * Accesses the i-th slice.
+   */
   const vtkArrayExtents& operator[](vtkIdType i) const;
 
 private:

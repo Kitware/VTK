@@ -17,16 +17,19 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkVertexListIterator - Iterates all vertices in a graph.
-//
-// .SECTION Description
-// vtkVertexListIterator iterates through all vertices in a graph.
-// Create an instance of this and call graph->GetVertices(it) to initialize
-// this iterator. You may alternately call SetGraph() to initialize the
-// iterator.
-//
-// .SECTION See Also
-// vtkGraph
+/**
+ * @class   vtkVertexListIterator
+ * @brief   Iterates all vertices in a graph.
+ *
+ *
+ * vtkVertexListIterator iterates through all vertices in a graph.
+ * Create an instance of this and call graph->GetVertices(it) to initialize
+ * this iterator. You may alternately call SetGraph() to initialize the
+ * iterator.
+ *
+ * @sa
+ * vtkGraph
+*/
 
 #ifndef vtkVertexListIterator_h
 #define vtkVertexListIterator_h
@@ -45,25 +48,33 @@ public:
   vtkTypeMacro(vtkVertexListIterator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Setup the iterator with a graph.
+  /**
+   * Setup the iterator with a graph.
+   */
   virtual void SetGraph(vtkGraph *graph);
 
-  // Description:
-  // Get the graph associated with this iterator.
+  //@{
+  /**
+   * Get the graph associated with this iterator.
+   */
   vtkGetObjectMacro(Graph, vtkGraph);
+  //@}
 
-  // Description:
-  // Returns the next edge in the graph.
+  //@{
+  /**
+   * Returns the next edge in the graph.
+   */
   vtkIdType Next()
   {
     vtkIdType v = this->Current;
     ++this->Current;
     return v;
   }
+  //@}
 
-  // Description:
-  // Whether this iterator has more edges.
+  /**
+   * Whether this iterator has more edges.
+   */
   bool HasNext()
   {
     return this->Current != this->End;

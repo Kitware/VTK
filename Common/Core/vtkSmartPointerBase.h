@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSmartPointerBase - Non-templated superclass for vtkSmartPointer.
-// .SECTION Description
-// vtkSmartPointerBase holds a pointer to a vtkObjectBase or subclass
-// instance and performs one Register/UnRegister pair.  This is useful
-// for storing VTK objects in STL containers.  This class is not
-// intended to be used directly.  Instead, use the vtkSmartPointer
-// class template to automatically perform proper cast operations.
+/**
+ * @class   vtkSmartPointerBase
+ * @brief   Non-templated superclass for vtkSmartPointer.
+ *
+ * vtkSmartPointerBase holds a pointer to a vtkObjectBase or subclass
+ * instance and performs one Register/UnRegister pair.  This is useful
+ * for storing VTK objects in STL containers.  This class is not
+ * intended to be used directly.  Instead, use the vtkSmartPointer
+ * class template to automatically perform proper cast operations.
+*/
 
 #ifndef vtkSmartPointerBase_h
 #define vtkSmartPointerBase_h
@@ -29,31 +32,39 @@
 class VTKCOMMONCORE_EXPORT vtkSmartPointerBase
 {
 public:
-  // Description:
-  // Initialize smart pointer to NULL.
+  /**
+   * Initialize smart pointer to NULL.
+   */
   vtkSmartPointerBase();
 
-  // Description:
-  // Initialize smart pointer to given object.
+  /**
+   * Initialize smart pointer to given object.
+   */
   vtkSmartPointerBase(vtkObjectBase* r);
 
-  // Description:
-  // Initialize smart pointer with a new reference to the same object
-  // referenced by given smart pointer.
+  /**
+   * Initialize smart pointer with a new reference to the same object
+   * referenced by given smart pointer.
+   */
   vtkSmartPointerBase(const vtkSmartPointerBase& r);
 
-  // Description:
-  // Destroy smart pointer and remove the reference to its object.
+  /**
+   * Destroy smart pointer and remove the reference to its object.
+   */
   ~vtkSmartPointerBase();
 
-  // Description:
-  // Assign object to reference.  This removes any reference to an old
-  // object.
+  //@{
+  /**
+   * Assign object to reference.  This removes any reference to an old
+   * object.
+   */
   vtkSmartPointerBase& operator=(vtkObjectBase* r);
   vtkSmartPointerBase& operator=(const vtkSmartPointerBase& r);
+  //@}
 
-  // Description:
-  // Get the contained pointer.
+  /**
+   * Get the contained pointer.
+   */
   vtkObjectBase* GetPointer() const
     {
     // Inline implementation so smart pointer comparisons can be fully
@@ -61,8 +72,9 @@ public:
     return this->Object;
     }
 
-  // Description:
-  // Report the reference held by the smart pointer to a collector.
+  /**
+   * Report the reference held by the smart pointer to a collector.
+   */
   void Report(vtkGarbageCollector* collector, const char* desc);
 
 protected:
@@ -100,8 +112,9 @@ private:
     { \
     return (static_cast<void*>(l.GetPointer()) op static_cast<void*>(r)); \
     }
-// Description:
-// Compare smart pointer values.
+/**
+ * Compare smart pointer values.
+ */
 VTK_SMART_POINTER_BASE_DEFINE_OPERATOR(==)
 VTK_SMART_POINTER_BASE_DEFINE_OPERATOR(!=)
 VTK_SMART_POINTER_BASE_DEFINE_OPERATOR(<)
@@ -111,8 +124,9 @@ VTK_SMART_POINTER_BASE_DEFINE_OPERATOR(>=)
 
 #undef VTK_SMART_POINTER_BASE_DEFINE_OPERATOR
 
-// Description:
-// Streaming operator to print smart pointer like regular pointers.
+/**
+ * Streaming operator to print smart pointer like regular pointers.
+ */
 VTKCOMMONCORE_EXPORT ostream& operator << (ostream& os,
                                         const vtkSmartPointerBase& p);
 

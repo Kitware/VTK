@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPistonMinMax - computes scalar range on GPU for mapper
-// .SECTION Description
-// Used in vtkPistonMapper to determine data range as part of color mapping
-// process.
+/**
+ * @class   vtkPistonMinMax
+ * @brief   computes scalar range on GPU for mapper
+ *
+ * Used in vtkPistonMapper to determine data range as part of color mapping
+ * process.
+*/
 
 #ifndef vtkPistonMinMax_h
 #define vtkPistonMinMax_h

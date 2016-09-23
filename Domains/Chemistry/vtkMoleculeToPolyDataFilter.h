@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMoleculeToPolyDataFilter - abstract filter class
-// .SECTION Description
-// vtkMoleculeToPolyDataFilter is an abstract filter class whose
-// subclasses take as input datasets of type vtkMolecule and
-// generate polygonal data on output.
+/**
+ * @class   vtkMoleculeToPolyDataFilter
+ * @brief   abstract filter class
+ *
+ * vtkMoleculeToPolyDataFilter is an abstract filter class whose
+ * subclasses take as input datasets of type vtkMolecule and
+ * generate polygonal data on output.
+*/
 
 #ifndef vtkMoleculeToPolyDataFilter_h
 #define vtkMoleculeToPolyDataFilter_h

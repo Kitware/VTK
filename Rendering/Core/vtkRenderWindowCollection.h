@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkRenderWindowCollection - a list of RenderWindows
-// .SECTION Description
-// vtkRenderWindowCollection represents and provides methods to manipulate a
-// list of RenderWindows. The list is unsorted and duplicate entries are
-// not prevented.
-
-// .SECTION see also
-// vtkRenderWindow vtkCollection
+/**
+ * @class   vtkRenderWindowCollection
+ * @brief   a list of RenderWindows
+ *
+ * vtkRenderWindowCollection represents and provides methods to manipulate a
+ * list of RenderWindows. The list is unsorted and duplicate entries are
+ * not prevented.
+ *
+ * @sa
+ * vtkRenderWindow vtkCollection
+*/
 
 #ifndef vtkRenderWindowCollection_h
 #define vtkRenderWindowCollection_h
@@ -35,24 +38,27 @@ class VTKRENDERINGCORE_EXPORT vtkRenderWindowCollection : public vtkCollection
   vtkTypeMacro(vtkRenderWindowCollection,vtkCollection);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Add a RenderWindow to the list.
+  /**
+   * Add a RenderWindow to the list.
+   */
   void AddItem(vtkRenderWindow *a)
     {
       this->vtkCollection::AddItem(a);
     }
 
-  // Description:
-  // Get the next RenderWindow in the list. Return NULL when at the end of the
-  // list.
+  /**
+   * Get the next RenderWindow in the list. Return NULL when at the end of the
+   * list.
+   */
   vtkRenderWindow *GetNextItem()
     {
       return static_cast<vtkRenderWindow *>(this->GetNextItemAsObject());
     }
 
-  // Description:
-  // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth.
+  /**
+   * Reentrant safe way to get an object in a collection. Just pass the
+   * same cookie back and forth.
+   */
   vtkRenderWindow *GetNextRenderWindow(vtkCollectionSimpleIterator &cookie)
     {
       return static_cast<vtkRenderWindow *>(this->GetNextItemAsObject(cookie));

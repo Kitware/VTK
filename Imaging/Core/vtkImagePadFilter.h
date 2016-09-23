@@ -12,13 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImagePadFilter - Super class for filters that fill in extra pixels.
-// .SECTION Description
-// vtkImagePadFilter Changes the image extent of an image.  If the image
-// extent is larger than the input image extent, the extra pixels are
-// filled by an algorithm determined by the subclass.
-// The image extent of the output has to be specified.
-
+/**
+ * @class   vtkImagePadFilter
+ * @brief   Super class for filters that fill in extra pixels.
+ *
+ * vtkImagePadFilter Changes the image extent of an image.  If the image
+ * extent is larger than the input image extent, the extra pixels are
+ * filled by an algorithm determined by the subclass.
+ * The image extent of the output has to be specified.
+*/
 
 #ifndef vtkImagePadFilter_h
 #define vtkImagePadFilter_h
@@ -33,18 +35,24 @@ public:
   vtkTypeMacro(vtkImagePadFilter,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // The image extent of the output has to be set explicitly.
+  //@{
+  /**
+   * The image extent of the output has to be set explicitly.
+   */
   void SetOutputWholeExtent(int extent[6]);
   void SetOutputWholeExtent(int minX, int maxX, int minY, int maxY,
                             int minZ, int maxZ);
   void GetOutputWholeExtent(int extent[6]);
   int *GetOutputWholeExtent() {return this->OutputWholeExtent;}
+  //@}
 
-  // Description:
-  // Set/Get the number of output scalar components.
+  //@{
+  /**
+   * Set/Get the number of output scalar components.
+   */
   vtkSetMacro(OutputNumberOfScalarComponents, int);
   vtkGetMacro(OutputNumberOfScalarComponents, int);
+  //@}
 
 protected:
   vtkImagePadFilter();

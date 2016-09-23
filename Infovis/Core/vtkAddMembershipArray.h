@@ -17,13 +17,16 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkAddMembershipArray - Add an array to the output indicating
-// membership within an input selection.
-//
-// .SECTION Description
-// This filter takes an input selection, vtkDataSetAttribute
-// information, and data object and adds a bit array to the output
-// vtkDataSetAttributes indicating whether each index was selected or not.
+/**
+ * @class   vtkAddMembershipArray
+ * @brief   Add an array to the output indicating
+ * membership within an input selection.
+ *
+ *
+ * This filter takes an input selection, vtkDataSetAttribute
+ * information, and data object and adds a bit array to the output
+ * vtkDataSetAttributes indicating whether each index was selected or not.
+*/
 
 #ifndef vtkAddMembershipArray_h
 #define vtkAddMembershipArray_h
@@ -50,16 +53,22 @@ public:
     ROW_DATA = 5
     };
 
-  // Description:
-  // The field type to add the membership array to.
+  //@{
+  /**
+   * The field type to add the membership array to.
+   */
   vtkGetMacro(FieldType, int);
   vtkSetClampMacro(FieldType, int, 0, 5);
+  //@}
 
-  // Description:
-  // The name of the array added to the output vtkDataSetAttributes
-  // indicating membership. Defaults to "membership".
+  //@{
+  /**
+   * The name of the array added to the output vtkDataSetAttributes
+   * indicating membership. Defaults to "membership".
+   */
   vtkSetStringMacro(OutputArrayName);
   vtkGetStringMacro(OutputArrayName);
+  //@}
 
   vtkSetStringMacro(InputArrayName);
   vtkGetStringMacro(InputArrayName);

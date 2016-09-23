@@ -13,14 +13,17 @@
 
 =========================================================================*/
 
-// .NAME vtkVector - templated base type for storage of vectors.
-//
-// .SECTION Description
-// This class is a templated data type for storing and manipulating fixed size
-// vectors, which can be used to represent two and three dimensional points. The
-// memory layout is a contiguous array of the specified type, such that a
-// float[2] can be cast to a vtkVector2f and manipulated. Also a float[6] could
-// be cast and used as a vtkVector2f[3].
+/**
+ * @class   vtkVector
+ * @brief   templated base type for storage of vectors.
+ *
+ *
+ * This class is a templated data type for storing and manipulating fixed size
+ * vectors, which can be used to represent two and three dimensional points. The
+ * memory layout is a contiguous array of the specified type, such that a
+ * float[2] can be cast to a vtkVector2f and manipulated. Also a float[6] could
+ * be cast and used as a vtkVector2f[3].
+*/
 
 #ifndef vtkVector_h
 #define vtkVector_h
@@ -38,22 +41,26 @@ public:
   {
   }
 
-  // Description:
-  // Initialize all of the vector's elements with the supplied scalar.
+  /**
+   * Initialize all of the vector's elements with the supplied scalar.
+   */
   explicit vtkVector(const T& scalar) : vtkTuple<T, Size>(scalar)
   {
   }
 
-  // Description:
-  // Initalize the vector's elements with the elements of the supplied array.
-  // Note that the supplied pointer must contain at least as many elements as
-  // the vector, or it will result in access to out of bounds memory.
+  /**
+   * Initalize the vector's elements with the elements of the supplied array.
+   * Note that the supplied pointer must contain at least as many elements as
+   * the vector, or it will result in access to out of bounds memory.
+   */
   explicit vtkVector(const T* init) : vtkTuple<T, Size>(init)
   {
   }
 
-  // Description:
-  // Get the squared norm of the vector.
+  //@{
+  /**
+   * Get the squared norm of the vector.
+   */
   T SquaredNorm() const
   {
     T result = 0;
@@ -63,17 +70,21 @@ public:
       }
     return result;
   }
+  //@}
 
-  // Description:
-  // Get the norm of the vector, i.e. its length.
+  /**
+   * Get the norm of the vector, i.e. its length.
+   */
   double Norm() const
   {
     return sqrt(static_cast<double>(this->SquaredNorm()));
   }
 
-  // Description:
-  // Normalize the vector in place.
-  // \return The length of the vector.
+  //@{
+  /**
+   * Normalize the vector in place.
+   * \return The length of the vector.
+   */
   double Normalize()
   {
     const double norm(this->Norm());
@@ -84,19 +95,25 @@ public:
       }
     return norm;
   }
+  //@}
 
-  // Description:
-  // Return the normalized form of this vector.
-  // \return The normalized form of this vector.
+  //@{
+  /**
+   * Return the normalized form of this vector.
+   * \return The normalized form of this vector.
+   */
   vtkVector<T, Size> Normalized() const
   {
     vtkVector<T, Size> temp(*this);
     temp.Normalize();
     return temp;
   }
+  //@}
 
-  // Description:
-  // The dot product of this and the supplied vector.
+  //@{
+  /**
+   * The dot product of this and the supplied vector.
+   */
   T Dot(const vtkVector<T, Size>& other) const
   {
     T result(0);
@@ -106,9 +123,12 @@ public:
       }
     return result;
   }
+  //@}
 
-  // Description:
-  // Cast the vector to the specified type, returning the result.
+  //@{
+  /**
+   * Cast the vector to the specified type, returning the result.
+   */
   template<typename TR>
   vtkVector<TR, Size> Cast() const
   {
@@ -120,6 +140,7 @@ public:
     return result;
   }
 };
+  //@}
 
 // .NAME vtkVector2 - templated base type for storage of 2D vectors.
 //
@@ -145,37 +166,47 @@ public:
     this->Data[1] = y;
   }
 
-  // Description:
-  // Set the x and y components of the vector.
+  //@{
+  /**
+   * Set the x and y components of the vector.
+   */
   void Set(const T& x, const T& y)
   {
     this->Data[0] = x;
     this->Data[1] = y;
   }
+  //@}
 
-  // Description:
-  // Set the x component of the vector, i.e. element 0.
+  /**
+   * Set the x component of the vector, i.e. element 0.
+   */
   void SetX(const T& x) { this->Data[0] = x; }
 
-  // Description:
-  // Get the x component of the vector, i.e. element 0.
+  /**
+   * Get the x component of the vector, i.e. element 0.
+   */
   const T& GetX() const { return this->Data[0]; }
 
-  // Description:
-  // Set the y component of the vector, i.e. element 1.
+  /**
+   * Set the y component of the vector, i.e. element 1.
+   */
   void SetY(const T& y) { this->Data[1] = y; }
 
-  // Description:
-  // Get the y component of the vector, i.e. element 1.
+  /**
+   * Get the y component of the vector, i.e. element 1.
+   */
   const T& GetY() const { return this->Data[1]; }
 
-  // Description:
-  // Lexicographical comparison of two vector.
+  //@{
+  /**
+   * Lexicographical comparison of two vector.
+   */
   bool operator<(const vtkVector2<T> &v) const
     {
     return (this->Data[0] < v.Data[0]) || (this->Data[0] == v.Data[0] && this->Data[1] < v.Data[1]);
     }
 };
+  //@}
 
 // .NAME vtkVector3 - templated base type for storage of 3D vectors.
 //
@@ -202,41 +233,52 @@ public:
     this->Data[2] = z;
   }
 
-  // Description:
-  // Set the x, y and z components of the vector.
+  //@{
+  /**
+   * Set the x, y and z components of the vector.
+   */
   void Set(const T& x, const T& y, const T& z)
   {
     this->Data[0] = x;
     this->Data[1] = y;
     this->Data[2] = z;
   }
+  //@}
 
-  // Description:
-  // Set the x component of the vector, i.e. element 0.
+  /**
+   * Set the x component of the vector, i.e. element 0.
+   */
   void SetX(const T& x) { this->Data[0] = x; }
 
-  // Description:
-  // Get the x component of the vector, i.e. element 0.
+  /**
+   * Get the x component of the vector, i.e. element 0.
+   */
   const T& GetX() const { return this->Data[0]; }
 
-  // Description:
-  // Set the y component of the vector, i.e. element 1.
+  /**
+   * Set the y component of the vector, i.e. element 1.
+   */
   void SetY(const T& y) { this->Data[1] = y; }
 
-  // Description:
-  // Get the y component of the vector, i.e. element 1.
+  /**
+   * Get the y component of the vector, i.e. element 1.
+   */
   const T& GetY() const { return this->Data[1]; }
 
-  // Description:
-  // Set the z component of the vector, i.e. element 2.
+  /**
+   * Set the z component of the vector, i.e. element 2.
+   */
   void SetZ(const T& z) { this->Data[2] = z; }
 
-  // Description:
-  // Get the z component of the vector, i.e. element 2.
+  /**
+   * Get the z component of the vector, i.e. element 2.
+   */
   const T& GetZ() const { return this->Data[2]; }
 
-  // Description:
-  // Return the cross product of this X other.
+  //@{
+  /**
+   * Return the cross product of this X other.
+   */
   vtkVector3<T> Cross(const vtkVector3<T>& other) const
   {
     vtkVector3<T> res;
@@ -245,18 +287,23 @@ public:
     res[2] = this->Data[0] * other.Data[1] - this->Data[1] * other.Data[0];
     return res;
   }
+  //@}
 
-  // Description:
-  // Lexicographical comparison of two vector.
+  //@{
+  /**
+   * Lexicographical comparison of two vector.
+   */
   bool operator<(const vtkVector3<T> &v) const
     {
     return (this->Data[0] < v.Data[0]) || (this->Data[0] == v.Data[0] && this->Data[1] < v.Data[1]) ||
       (this->Data[0] == v.Data[0] && this->Data[1] == v.Data[1] && this->Data[2] < v.Data[2]);
     }
 };
+  //@}
 
-// Description:
-// Some inline functions for the derived types.
+/**
+ * Some inline functions for the derived types.
+ */
 #define vtkVectorNormalized(vectorType, type, size) \
 vectorType Normalized() const \
 { \
@@ -270,8 +317,10 @@ explicit vectorType(const type *i) : Superclass(i) {} \
 explicit vectorType(const vtkTuple<type, size> &o) : Superclass(o.GetData()) {} \
 vectorType(const vtkVector<type, size> &o) : Superclass(o.GetData()) {} \
 
-// Description:
-// Some derived classes for the different vectors commonly used.
+//@{
+/**
+ * Some derived classes for the different vectors commonly used.
+ */
 class vtkVector2i : public vtkVector2<int>
 {
 public:
@@ -280,6 +329,7 @@ public:
   vtkVector2i(int x, int y) : vtkVector2<int>(x, y) {}
   vtkVectorDerivedMacro(vtkVector2i, int, 2)
 };
+//@}
 
 class vtkVector2f : public vtkVector2<float>
 {

@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBuffer - internal storage class used by vtkSOADataArrayTemplate,
-// vtkAOSDataArrayTemplate, and others.
-// .SECTION Description
-// vtkBuffer makes it easier to keep data pointers in vtkDataArray subclasses.
-// This is an internal class and not intended for direct use expect when writing
-// new types of vtkDataArray subclasses.
+/**
+ * @class   vtkBuffer
+ * @brief   internal storage class used by vtkSOADataArrayTemplate,
+ * vtkAOSDataArrayTemplate, and others.
+ *
+ * vtkBuffer makes it easier to keep data pointers in vtkDataArray subclasses.
+ * This is an internal class and not intended for direct use expect when writing
+ * new types of vtkDataArray subclasses.
+*/
 
 #ifndef vtkBuffer_h
 #define vtkBuffer_h
@@ -39,31 +42,36 @@ public:
 
   static vtkBuffer<ScalarTypeT>* New();
 
-  // Description:
-  // Access the buffer as a scalar pointer.
+  /**
+   * Access the buffer as a scalar pointer.
+   */
   inline ScalarType* GetBuffer() { return this->Pointer; }
   inline const ScalarType* GetBuffer() const { return this->Pointer; }
 
-  // Description:
-  // Set the memory buffer that this vtkBuffer object will manage. @a array
-  // is a pointer to the buffer data and @a size is the size of the bufffer (in
-  // number of elements). If @a save is true, the buffer will not be freed when
-  // this vtkBuffer object is deleted or resize -- otherwise, @a deleteMethod
-  // specifies how the buffer will be freed.
+  /**
+   * Set the memory buffer that this vtkBuffer object will manage. @a array
+   * is a pointer to the buffer data and @a size is the size of the bufffer (in
+   * number of elements). If @a save is true, the buffer will not be freed when
+   * this vtkBuffer object is deleted or resize -- otherwise, @a deleteMethod
+   * specifies how the buffer will be freed.
+   */
   void SetBuffer(ScalarType* array, vtkIdType size, bool save=false,
                  int deleteMethod=VTK_DATA_ARRAY_FREE);
 
-  // Description:
-  // Return the number of elements the current buffer can hold.
+  /**
+   * Return the number of elements the current buffer can hold.
+   */
   inline vtkIdType GetSize() const { return this->Size; }
 
-  // Description:
-  // Allocate a new buffer that holds @a size elements. Old data is not saved.
+  /**
+   * Allocate a new buffer that holds @a size elements. Old data is not saved.
+   */
   bool Allocate(vtkIdType size);
 
-  // Description:
-  // Allocate a new buffer that holds @a newsize elements. Old data is
-  // preserved.
+  /**
+   * Allocate a new buffer that holds @a newsize elements. Old data is
+   * preserved.
+   */
   bool Reallocate(vtkIdType newsize);
 
 protected:

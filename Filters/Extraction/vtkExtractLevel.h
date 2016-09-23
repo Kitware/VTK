@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractLevel - extract levels between min and max from a
-// hierarchical box dataset.
-// .SECTION Description
-// vtkExtractLevel filter extracts the levels between (and including) the user
-// specified min and max levels.
+/**
+ * @class   vtkExtractLevel
+ * @brief   extract levels between min and max from a
+ * hierarchical box dataset.
+ *
+ * vtkExtractLevel filter extracts the levels between (and including) the user
+ * specified min and max levels.
+*/
 
 #ifndef vtkExtractLevel_h
 #define vtkExtractLevel_h
@@ -33,12 +36,15 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
 
-  // Description:
-  // Select the levels that should be extracted. All other levels will have no
-  // datasets in them.
+  //@{
+  /**
+   * Select the levels that should be extracted. All other levels will have no
+   * datasets in them.
+   */
   void AddLevel(unsigned int level);
   void RemoveLevel(unsigned int level);
   void RemoveAllLevels();
+  //@}
 
 protected:
   vtkExtractLevel();

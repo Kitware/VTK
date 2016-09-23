@@ -13,11 +13,14 @@
 
 =========================================================================*/
 
-// .NAME vtkHiddenLineRemovalPass - RenderPass for HLR.
-//
-// .SECTION Description
-// This render pass renders wireframe polydata such that only the front
-// wireframe surface is drawn.
+/**
+ * @class   vtkHiddenLineRemovalPass
+ * @brief   RenderPass for HLR.
+ *
+ *
+ * This render pass renders wireframe polydata such that only the front
+ * wireframe surface is drawn.
+*/
 
 #ifndef vtkHiddenLineRemovalPass_h
 #define vtkHiddenLineRemovalPass_h
@@ -39,8 +42,9 @@ public:
 
   virtual void Render(const vtkRenderState *s);
 
-  // Description:
-  // Returns true if any of the nProps in propArray are rendered as wireframe.
+  /**
+   * Returns true if any of the nProps in propArray are rendered as wireframe.
+   */
   static bool WireframePropsExist(vtkProp **propArray, int nProps);
 
 protected:

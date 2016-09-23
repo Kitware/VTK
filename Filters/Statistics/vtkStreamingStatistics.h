@@ -17,16 +17,19 @@ PURPOSE.  See the above copyright notice for more information.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
-// .NAME vtkStreamingStatistics - A class for using the statistics filters
-// in a streaming mode.
-//
-// .SECTION Description
-// A class for using the statistics filters in a streaming mode or perhaps
-// an "online, incremental, push" mode.
-//
-// .SECTION Thanks
-// Thanks to the Universe for unfolding in a way that allowed this class
-// to be implemented, also Godzilla for not crushing my computer.
+/**
+ * @class   vtkStreamingStatistics
+ * @brief   A class for using the statistics filters
+ * in a streaming mode.
+ *
+ *
+ * A class for using the statistics filters in a streaming mode or perhaps
+ * an "online, incremental, push" mode.
+ *
+ * @par Thanks:
+ * Thanks to the Universe for unfolding in a way that allowed this class
+ * to be implemented, also Godzilla for not crushing my computer.
+*/
 
 #ifndef vtkStreamingStatistics_h
 #define vtkStreamingStatistics_h
@@ -46,8 +49,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkStreamingStatistics* New();
 
-  // Description:
-  // enumeration values to specify input port types
+  /**
+   * enumeration values to specify input port types
+   */
   enum InputPorts
     {
     INPUT_DATA = 0,         //!< Port 0 is for learn data
@@ -55,8 +59,9 @@ public:
     INPUT_MODEL = 2         //!< Port 2 is for a priori models
     };
 
-  // Description:
-  // enumeration values to specify output port types
+  /**
+   * enumeration values to specify output port types
+   */
   enum OutputIndices
     {
     OUTPUT_DATA  = 0,       //!< Output 0 mirrors the input data, plus optional assessment columns

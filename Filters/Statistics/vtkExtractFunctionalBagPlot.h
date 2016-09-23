@@ -12,18 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractFunctionalBagPlot
-//
-// .SECTION Description
-// From an input table containing series on port 0 and another table
-// describing densities on port 1 (for instance obtained by applying
-// filter  vtkHighestDensityRegionsStatistics, this filter generates
-// a table containing all the columns of the input port 0 plus two 2
-// components columns containing the bag series to be used by
-// vtkFunctionalBagPlot.
-//
-// .SECTION See Also
-// vtkFunctionalBagPlot vtkHighestDensityRegionsStatistics
+/**
+ * @class   vtkExtractFunctionalBagPlot
+ *
+ *
+ * From an input table containing series on port 0 and another table
+ * describing densities on port 1 (for instance obtained by applying
+ * filter  vtkHighestDensityRegionsStatistics, this filter generates
+ * a table containing all the columns of the input port 0 plus two 2
+ * components columns containing the bag series to be used by
+ * vtkFunctionalBagPlot.
+ *
+ * @sa
+ * vtkFunctionalBagPlot vtkHighestDensityRegionsStatistics
+*/
 
 #ifndef vtkExtractFunctionalBagPlot_h
 #define vtkExtractFunctionalBagPlot_h
@@ -42,10 +44,13 @@ public:
   // Density value for the median quartile.
   vtkSetMacro(DensityForP50, double);
 
-  // Description:
-  // Density value for the user defined quartile.
+  //@{
+  /**
+   * Density value for the user defined quartile.
+   */
   vtkSetMacro(DensityForPUser, double);
   vtkSetMacro(PUser, int);
+  //@}
 
 protected:
   vtkExtractFunctionalBagPlot();

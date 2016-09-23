@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkObjectFactoryCollection - maintain a list of object factories
-// .SECTION Description
-// vtkObjectFactoryCollection is an object that creates and manipulates lists
-// of object of type vtkObjectFactory.
-
-// .SECTION see also
-// vtkCollection vtkObjectFactory
+/**
+ * @class   vtkObjectFactoryCollection
+ * @brief   maintain a list of object factories
+ *
+ * vtkObjectFactoryCollection is an object that creates and manipulates lists
+ * of object of type vtkObjectFactory.
+ *
+ * @sa
+ * vtkCollection vtkObjectFactory
+*/
 
 #ifndef vtkObjectFactoryCollection_h
 #define vtkObjectFactoryCollection_h
@@ -34,22 +37,25 @@ public:
   vtkTypeMacro(vtkObjectFactoryCollection,vtkCollection);
   static vtkObjectFactoryCollection *New();
 
-  // Description:
-  // Add an ObjectFactory from the list.
+  /**
+   * Add an ObjectFactory from the list.
+   */
   void AddItem(vtkObjectFactory *t)
     {
       this->vtkCollection::AddItem(t);
     }
 
-  // Description:
-  // Get the next ObjectFactory in the list. Return NULL when the end of the
-  // list is reached.
+  /**
+   * Get the next ObjectFactory in the list. Return NULL when the end of the
+   * list is reached.
+   */
   vtkObjectFactory *GetNextItem()
     { return static_cast<vtkObjectFactory *>(this->GetNextItemAsObject());}
 
-  // Description:
-  // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth.
+  /**
+   * Reentrant safe way to get an object in a collection. Just pass the
+   * same cookie back and forth.
+   */
   vtkObjectFactory *GetNextObjectFactory(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkObjectFactory *>(
       this->GetNextItemAsObject(cookie));};

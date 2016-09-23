@@ -12,13 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageIslandRemoval2D - Removes small clusters in masks.
-// .SECTION Description
-// vtkImageIslandRemoval2D computes the area of separate islands in
-// a mask image.  It removes any island that has less than AreaThreshold
-// pixels.  Output has the same ScalarType as input.  It generates
-// the whole 2D output image for any output request.
-
+/**
+ * @class   vtkImageIslandRemoval2D
+ * @brief   Removes small clusters in masks.
+ *
+ * vtkImageIslandRemoval2D computes the area of separate islands in
+ * a mask image.  It removes any island that has less than AreaThreshold
+ * pixels.  Output has the same ScalarType as input.  It generates
+ * the whole 2D output image for any output request.
+*/
 
 #ifndef vtkImageIslandRemoval2D_h
 #define vtkImageIslandRemoval2D_h
@@ -37,32 +39,47 @@ typedef struct{
 class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageIslandRemoval2D : public vtkImageAlgorithm
 {
 public:
-  // Description:
-  // Constructor: Sets default filter to be identity.
+  //@{
+  /**
+   * Constructor: Sets default filter to be identity.
+   */
   static vtkImageIslandRemoval2D *New();
   vtkTypeMacro(vtkImageIslandRemoval2D,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // Set/Get the cutoff area for removal
+  //@{
+  /**
+   * Set/Get the cutoff area for removal
+   */
   vtkSetMacro(AreaThreshold, int);
   vtkGetMacro(AreaThreshold, int);
+  //@}
 
-  // Description:
-  // Set/Get whether to use 4 or 8 neighbors
+  //@{
+  /**
+   * Set/Get whether to use 4 or 8 neighbors
+   */
   vtkSetMacro(SquareNeighborhood, int);
   vtkGetMacro(SquareNeighborhood, int);
   vtkBooleanMacro(SquareNeighborhood, int);
+  //@}
 
-  // Description:
-  // Set/Get the value to remove.
+  //@{
+  /**
+   * Set/Get the value to remove.
+   */
   vtkSetMacro(IslandValue, double);
   vtkGetMacro(IslandValue, double);
+  //@}
 
-  // Description:
-  // Set/Get the value to put in the place of removed pixels.
+  //@{
+  /**
+   * Set/Get the value to put in the place of removed pixels.
+   */
   vtkSetMacro(ReplaceValue, double);
   vtkGetMacro(ReplaceValue, double);
+  //@}
 
 protected:
   vtkImageIslandRemoval2D();

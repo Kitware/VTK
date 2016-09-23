@@ -16,12 +16,15 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkDSPFilterGroup - used by the Exodus readers
-// .SECTION Description
-// vtkDSPFilterGroup is used by vtkExodusReader, vtkExodusIIReader and
-// vtkPExodusReader to do temporal smoothing of data
-// .SECTION See Also
-// vtkDSPFilterDefinition vtkExodusReader vtkExodusIIReader vtkPExodusReader
+/**
+ * @class   vtkDSPFilterGroup
+ * @brief   used by the Exodus readers
+ *
+ * vtkDSPFilterGroup is used by vtkExodusReader, vtkExodusIIReader and
+ * vtkPExodusReader to do temporal smoothing of data
+ * @sa
+ * vtkDSPFilterDefinition vtkExodusReader vtkExodusIIReader vtkPExodusReader
+*/
 
 #ifndef vtkDSPFilterGroup_h
 #define vtkDSPFilterGroup_h

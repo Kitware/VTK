@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkX3DExporter - create an x3d file
-// .SECTION Description
-// vtkX3DExporter is a render window exporter which writes out the renderered
-// scene into an X3D file. X3D is an XML-based format for representation
-// 3D scenes (similar to VRML). Check out http://www.web3d.org/x3d/ for more
-// details.
-// .SECTION Thanks
-// X3DExporter is contributed by Christophe Mouton at EDF.
+/**
+ * @class   vtkX3DExporter
+ * @brief   create an x3d file
+ *
+ * vtkX3DExporter is a render window exporter which writes out the renderered
+ * scene into an X3D file. X3D is an XML-based format for representation
+ * 3D scenes (similar to VRML). Check out http://www.web3d.org/x3d/ for more
+ * details.
+ * @par Thanks:
+ * X3DExporter is contributed by Christophe Mouton at EDF.
+*/
 
 #ifndef vtkX3DExporter_h
 #define vtkX3DExporter_h
@@ -43,49 +46,68 @@ public:
   vtkTypeMacro(vtkX3DExporter,vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set/Get the output file name.
+  //@{
+  /**
+   * Set/Get the output file name.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Specify the Speed of navigation. Default is 4.
+  //@{
+  /**
+   * Specify the Speed of navigation. Default is 4.
+   */
   vtkSetMacro(Speed,double);
   vtkGetMacro(Speed,double);
+  //@}
 
-  // Description:
-  // Turn on binary mode
+  //@{
+  /**
+   * Turn on binary mode
+   */
   vtkSetClampMacro(Binary, int, 0, 1);
   vtkBooleanMacro(Binary, int);
   vtkGetMacro(Binary, int);
+  //@}
 
-  // Description:
-  // In binary mode use fastest instead of best compression
+  //@{
+  /**
+   * In binary mode use fastest instead of best compression
+   */
   vtkSetClampMacro(Fastest, int, 0, 1);
   vtkBooleanMacro(Fastest, int);
   vtkGetMacro(Fastest, int);
+  //@}
 
-  // Description:
-  // Enable writing to an OutputString instead of the default, a file.
+  //@{
+  /**
+   * Enable writing to an OutputString instead of the default, a file.
+   */
   vtkSetMacro(WriteToOutputString,int);
   vtkGetMacro(WriteToOutputString,int);
   vtkBooleanMacro(WriteToOutputString,int);
+  //@}
 
-  // Description:
-  // When WriteToOutputString in on, then a string is allocated, written to,
-  // and can be retrieved with these methods.  The string is deleted during
-  // the next call to write ...
+  //@{
+  /**
+   * When WriteToOutputString in on, then a string is allocated, written to,
+   * and can be retrieved with these methods.  The string is deleted during
+   * the next call to write ...
+   */
   vtkGetMacro(OutputStringLength, int);
   vtkGetStringMacro(OutputString);
   unsigned char *GetBinaryOutputString()
     {
       return reinterpret_cast<unsigned char *>(this->OutputString);
     }
+  //@}
 
-  // Description:
-  // This convenience method returns the string, sets the IVAR to NULL,
-  // so that the user is responsible for deleting the string.
-  // I am not sure what the name should be, so it may change in the future.
+  /**
+   * This convenience method returns the string, sets the IVAR to NULL,
+   * so that the user is responsible for deleting the string.
+   * I am not sure what the name should be, so it may change in the future.
+   */
   char *RegisterAndGetOutputString();
 
 protected:
@@ -97,8 +119,9 @@ protected:
   char *OutputString;
   int OutputStringLength;
 
-  // Description:
-  // Write data to output.
+  /**
+   * Write data to output.
+   */
   void WriteData();
 
   void WriteALight(vtkLight *aLight, vtkX3DExporterWriter* writer);

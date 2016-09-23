@@ -12,7 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLReaderVersion - version number for legacy readers/writers
+/**
+ * @class   vtkXMLReaderVersion
+ * @brief   version number for legacy readers/writers
+*/
 
 #ifndef vtkXMLReaderVersion_h
 #define vtkXMLReaderVersion_h

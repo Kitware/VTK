@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSurfaceLICDefaultPainter - vtkDefaultPainter replacement that
-//  inserts the vtkSurfaceLICPainter at the correct position in the painter
-//  chain.
-//
-// .SECTION Description
-//  vtkSurfaceLICDefaultPainter is a vtkDefaultPainter replacement
-//  that inserts the vtkSurfaceLICPainter at the correct position in the painter
-//  chain.
-//
-// .SECTION See Also
-//  vtkDefaultPainter vtkSurfaceLICPainter
+/**
+ * @class   vtkSurfaceLICDefaultPainter
+ * @brief   vtkDefaultPainter replacement that
+ *  inserts the vtkSurfaceLICPainter at the correct position in the painter
+ *  chain.
+ *
+ *
+ *  vtkSurfaceLICDefaultPainter is a vtkDefaultPainter replacement
+ *  that inserts the vtkSurfaceLICPainter at the correct position in the painter
+ *  chain.
+ *
+ * @sa
+ *  vtkDefaultPainter vtkSurfaceLICPainter
+*/
 
 #ifndef vtkSurfaceLICDefaultPainter_h
 #define vtkSurfaceLICDefaultPainter_h
@@ -40,25 +43,31 @@ public:
   vtkTypeMacro(vtkSurfaceLICDefaultPainter, vtkDefaultPainter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get/Set the Surface LIC painter.
+  //@{
+  /**
+   * Get/Set the Surface LIC painter.
+   */
   void SetSurfaceLICPainter(vtkSurfaceLICPainter*);
   vtkGetObjectMacro(SurfaceLICPainter, vtkSurfaceLICPainter);
+  //@}
 
 protected:
   vtkSurfaceLICDefaultPainter();
   ~vtkSurfaceLICDefaultPainter();
 
-  // Description:
-  // Setup the the painter chain.
+  /**
+   * Setup the the painter chain.
+   */
   virtual void BuildPainterChain();
 
-  // Description:
-  // Take part in garbage collection.
+  /**
+   * Take part in garbage collection.
+   */
   void ReportReferences(vtkGarbageCollector *collector) VTK_OVERRIDE;
 
-  // Description:
-  // Override.
+  /**
+   * Override.
+   */
   virtual void UpdateBounds(double bounds[6]);
 
 protected:

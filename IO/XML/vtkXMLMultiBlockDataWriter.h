@@ -12,10 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLMultiBlockDataWriter - writer for vtkMultiBlockDataSet.
-// .SECTION Description
-// vtkXMLMultiBlockDataWriter is a vtkXMLCompositeDataWriter subclass to handle
-// vtkMultiBlockDataSet.
+/**
+ * @class   vtkXMLMultiBlockDataWriter
+ * @brief   writer for vtkMultiBlockDataSet.
+ *
+ * vtkXMLMultiBlockDataWriter is a vtkXMLCompositeDataWriter subclass to handle
+ * vtkMultiBlockDataSet.
+*/
+
 #ifndef vtkXMLMultiBlockDataWriter_h
 #define vtkXMLMultiBlockDataWriter_h
 
@@ -29,8 +33,9 @@ public:
   vtkTypeMacro(vtkXMLMultiBlockDataWriter, vtkXMLCompositeDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the default file extension for files written by this writer.
+  /**
+   * Get the default file extension for files written by this writer.
+   */
   virtual const char* GetDefaultFileExtension()
     { return "vtm"; }
 

@@ -12,20 +12,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCompositeDataSet - abstract superclass for composite
-// (multi-block or AMR) datasets
-// .SECTION Description
-// vtkCompositeDataSet is an abstract class that represents a collection
-// of datasets (including other composite datasets). It
-// provides an interface to access the datasets through iterators.
-// vtkCompositeDataSet provides methods that are used by subclasses to store the
-// datasets.
-// vtkCompositeDataSet provides the datastructure for a full tree
-// representation. Subclasses provide the semantics for it and control how
-// this tree is built.
-
-// .SECTION See Also
-// vtkCompositeDataIterator
+/**
+ * @class   vtkCompositeDataSet
+ * @brief   abstract superclass for composite
+ * (multi-block or AMR) datasets
+ *
+ * vtkCompositeDataSet is an abstract class that represents a collection
+ * of datasets (including other composite datasets). It
+ * provides an interface to access the datasets through iterators.
+ * vtkCompositeDataSet provides methods that are used by subclasses to store the
+ * datasets.
+ * vtkCompositeDataSet provides the datastructure for a full tree
+ * representation. Subclasses provide the semantics for it and control how
+ * this tree is built.
+ *
+ * @sa
+ * vtkCompositeDataIterator
+*/
 
 #ifndef vtkCompositeDataSet_h
 #define vtkCompositeDataSet_h
@@ -45,71 +48,87 @@ public:
   vtkTypeMacro(vtkCompositeDataSet, vtkDataObject);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Return a new iterator (the iterator has to be deleted by user).
+  /**
+   * Return a new iterator (the iterator has to be deleted by user).
+   */
   virtual VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator() =0;
 
-  // Description:
-  // Return class name of data type (see vtkType.h for
-  // definitions).
+  /**
+   * Return class name of data type (see vtkType.h for
+   * definitions).
+   */
   int GetDataObjectType() VTK_OVERRIDE {return VTK_COMPOSITE_DATA_SET;}
 
-  // Description:
-  // Copies the tree structure from the input. All pointers to non-composite
-  // data objects are intialized to NULL. This also shallow copies the meta data
-  // associated with all the nodes.
+  /**
+   * Copies the tree structure from the input. All pointers to non-composite
+   * data objects are intialized to NULL. This also shallow copies the meta data
+   * associated with all the nodes.
+   */
   virtual void CopyStructure(vtkCompositeDataSet* input)=0;
 
-  // Description:
-  // Sets the data set at the location pointed by the iterator.
-  // The iterator does not need to be iterating over this dataset itself. It can
-  // be any composite datasite with similar structure (achieved by using
-  // CopyStructure).
+  /**
+   * Sets the data set at the location pointed by the iterator.
+   * The iterator does not need to be iterating over this dataset itself. It can
+   * be any composite datasite with similar structure (achieved by using
+   * CopyStructure).
+   */
   virtual void SetDataSet(vtkCompositeDataIterator* iter, vtkDataObject* dataObj)=0;
 
-  // Description:
-  // Returns the dataset located at the positiong pointed by the iterator.
-  // The iterator does not need to be iterating over this dataset itself. It can
-  // be an iterator for composite dataset with similar structure (achieved by
-  // using CopyStructure).
+  /**
+   * Returns the dataset located at the positiong pointed by the iterator.
+   * The iterator does not need to be iterating over this dataset itself. It can
+   * be an iterator for composite dataset with similar structure (achieved by
+   * using CopyStructure).
+   */
   virtual vtkDataObject* GetDataSet(vtkCompositeDataIterator* iter)=0;
 
 
-  // Description:
-  // Return the actual size of the data in kibibytes (1024 bytes). This number
-  // is valid only after the pipeline has updated.
+  /**
+   * Return the actual size of the data in kibibytes (1024 bytes). This number
+   * is valid only after the pipeline has updated.
+   */
   unsigned long GetActualMemorySize() VTK_OVERRIDE;
 
-  // Description:
-  // Retrieve an instance of this class from an information object.
+  //@{
+  /**
+   * Retrieve an instance of this class from an information object.
+   */
   static vtkCompositeDataSet* GetData(vtkInformation* info);
   static vtkCompositeDataSet* GetData(vtkInformationVector* v, int i=0);
+  //@}
 
-  // Description:
-  // Restore data object to initial state,
+  /**
+   * Restore data object to initial state,
+   */
   void Initialize() VTK_OVERRIDE;
 
-  // Description:
-  // Shallow and Deep copy.
+  //@{
+  /**
+   * Shallow and Deep copy.
+   */
   void ShallowCopy(vtkDataObject *src) VTK_OVERRIDE;
   void DeepCopy(vtkDataObject *src) VTK_OVERRIDE;
+  //@}
 
-  // Description:
-  // Returns the total number of points of all blocks. This will
-  // iterate over all blocks and call GetNumberOfPoints() so it
-  // might be expansive.
+  /**
+   * Returns the total number of points of all blocks. This will
+   * iterate over all blocks and call GetNumberOfPoints() so it
+   * might be expansive.
+   */
   virtual vtkIdType GetNumberOfPoints();
 
-  // Description:
-  // Key used to put node name in the meta-data associated with a node.
+  /**
+   * Key used to put node name in the meta-data associated with a node.
+   */
   static vtkInformationStringKey* NAME();
 
-  // Description:
-  // Key used to indicate that the current process can load the data
-  // in the node.  Used for parallel readers where the nodes are assigned
-  // to the processes by the reader to indicate further down the pipeline
-  // which nodes will be on which processes.
-  // ***THIS IS AN EXPERIMENTAL KEY SUBJECT TO CHANGE WITHOUT NOTICE***
+  /**
+   * Key used to indicate that the current process can load the data
+   * in the node.  Used for parallel readers where the nodes are assigned
+   * to the processes by the reader to indicate further down the pipeline
+   * which nodes will be on which processes.
+   * ***THIS IS AN EXPERIMENTAL KEY SUBJECT TO CHANGE WITHOUT NOTICE***
+   */
   static vtkInformationIntegerKey* CURRENT_PROCESS_CAN_LOAD_BLOCK();
 
  protected:

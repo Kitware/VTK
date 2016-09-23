@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOSPRayVolumeInterface - Removes link dependence
-// on optional ospray module.
-// .SECTION Description
-// Class allows SmartVolume to use OSPRay for rendering when ospray
-// is enabled. When disabled, this class does nothing but return a warning.
+/**
+ * @class   vtkOSPRayVolumeInterface
+ * @brief   Removes link dependence
+ * on optional ospray module.
+ *
+ * Class allows SmartVolume to use OSPRay for rendering when ospray
+ * is enabled. When disabled, this class does nothing but return a warning.
+*/
 
 #ifndef vtkOSPRayVolumeInterface_h
 #define vtkOSPRayVolumeInterface_h
@@ -35,8 +38,9 @@ public:
   vtkTypeMacro(vtkOSPRayVolumeInterface,vtkVolumeMapper);
   void PrintSelf( ostream& os, vtkIndent indent );
 
-  //Description:
-  //Overridden to warn about lack of OSPRay if not overridden.
+  /**
+   * Overridden to warn about lack of OSPRay if not overridden.
+   */
   virtual void Render(vtkRenderer *, vtkVolume *);
 
 protected:

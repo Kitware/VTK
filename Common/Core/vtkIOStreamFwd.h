@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkIOStreamFwd - Forward-declare C++ iostreams as used by VTK.
-// .SECTION Description
-// This header forward-declares the proper streams.
+/**
+ * @class   vtkIOStreamFwd
+ * @brief   Forward-declare C++ iostreams as used by VTK.
+ *
+ * This header forward-declares the proper streams.
+*/
 
 #ifndef vtkIOStreamFwd_h
 #define vtkIOStreamFwd_h

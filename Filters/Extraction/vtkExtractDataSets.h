@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractDataSets - extracts a number of datasets.
-// .SECTION Description
-// vtkExtractDataSets accepts a vtkHierarchicalBoxDataSet as input and extracts
-// different datasets from different levels. The output is
-// vtkMultiBlockDataSet of vtkMultiPiece datasets. Each block corresponds to
-// a level in the vktHierarchicalBoxDataSet. Individual datasets, within a level,
-// are stored in a vtkMultiPiece dataset.
-//
-// .SECTION See Also
-// vtkHierarchicalBoxDataSet, vtkMultiBlockDataSet vtkMultiPieceDataSet
+/**
+ * @class   vtkExtractDataSets
+ * @brief   extracts a number of datasets.
+ *
+ * vtkExtractDataSets accepts a vtkHierarchicalBoxDataSet as input and extracts
+ * different datasets from different levels. The output is
+ * vtkMultiBlockDataSet of vtkMultiPiece datasets. Each block corresponds to
+ * a level in the vktHierarchicalBoxDataSet. Individual datasets, within a level,
+ * are stored in a vtkMultiPiece dataset.
+ *
+ * @sa
+ * vtkHierarchicalBoxDataSet, vtkMultiBlockDataSet vtkMultiPieceDataSet
+*/
 
 #ifndef vtkExtractDataSets_h
 #define vtkExtractDataSets_h
@@ -37,12 +40,14 @@ public:
   vtkTypeMacro(vtkExtractDataSets, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Add a dataset to be extracted.
+  /**
+   * Add a dataset to be extracted.
+   */
   void AddDataSet(unsigned int level, unsigned int idx);
 
-  // Description:
-  // Remove all entries from the list of datasets to be extracted.
+  /**
+   * Remove all entries from the list of datasets to be extracted.
+   */
   void ClearDataSetList();
 
 protected:

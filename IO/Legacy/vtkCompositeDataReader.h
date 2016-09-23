@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCompositeDataReader - read vtkCompositeDataSet data file.
-// .SECTION Description
-// .SECTION CAVEATS
-// This is an experimental format. Use XML-based formats for writing composite
-// datasets. Saving composite dataset in legacy VTK format is expected to change
-// in future including changes to the file layout.
+/**
+ * @class   vtkCompositeDataReader
+ * @brief   read vtkCompositeDataSet data file.
+ *
+ * @warning
+ * This is an experimental format. Use XML-based formats for writing composite
+ * datasets. Saving composite dataset in legacy VTK format is expected to change
+ * in future including changes to the file layout.
+*/
 
 #ifndef vtkCompositeDataReader_h
 #define vtkCompositeDataReader_h
@@ -39,11 +42,14 @@ public:
   vtkTypeMacro(vtkCompositeDataReader, vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the output of this reader.
+  //@{
+  /**
+   * Get the output of this reader.
+   */
   vtkCompositeDataSet *GetOutput();
   vtkCompositeDataSet *GetOutput(int idx);
   void SetOutput(vtkCompositeDataSet *output);
+  //@}
 
 protected:
   vtkCompositeDataReader();
@@ -68,8 +74,9 @@ protected:
 
   virtual int FillOutputPortInformation(int, vtkInformation*);
 
-  // Description:
-  // Read the output type information.
+  /**
+   * Read the output type information.
+   */
   int ReadOutputType();
 
   bool ReadCompositeData(vtkMultiPieceDataSet*);

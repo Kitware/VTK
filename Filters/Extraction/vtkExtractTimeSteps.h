@@ -12,13 +12,16 @@
     PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractTimeSteps - extract specific time-steps from dataset
-// .SECTION Description
-// vtkExtractTimeSteps extracts the specified time steps from the input dataset.
-// The timesteps to be extracted are specified by their indices. If no
-// time step is specified, all of the input time steps are extracted.
-// This filter is useful when one wants to work with only a sub-set of the input
-// time steps.
+/**
+ * @class   vtkExtractTimeSteps
+ * @brief   extract specific time-steps from dataset
+ *
+ * vtkExtractTimeSteps extracts the specified time steps from the input dataset.
+ * The timesteps to be extracted are specified by their indices. If no
+ * time step is specified, all of the input time steps are extracted.
+ * This filter is useful when one wants to work with only a sub-set of the input
+ * time steps.
+*/
 
 #ifndef vtkExtractTimeSteps_h
 #define vtkExtractTimeSteps_h
@@ -37,34 +40,43 @@ public:
 
   static vtkExtractTimeSteps *New();
 
-  // Description:
-  // Get the number of time steps that will be extracted
+  /**
+   * Get the number of time steps that will be extracted
+   */
   int GetNumberOfTimeSteps() const
   {
     return static_cast<int>(this->TimeStepIndices.size());
   }
 
-  // Description:
-  // Add a time step index. Not added if the index already exists.
+  /**
+   * Add a time step index. Not added if the index already exists.
+   */
   void AddTimeStepIndex(int timeStepIndex);
 
-  // Description:
-  // Get/Set an array of time step indices. For the Get function,
-  // timeStepIndices should be big enough for GetNumberOfTimeSteps() values.
+  //@{
+  /**
+   * Get/Set an array of time step indices. For the Get function,
+   * timeStepIndices should be big enough for GetNumberOfTimeSteps() values.
+   */
   void SetTimeStepIndices(int count, const int *timeStepIndices);
   void GetTimeStepIndices(int *timeStepIndices) const;
+  //@}
 
-  // Description:
-  // Generate a range of indices in [begin, end) with a step size of 'step'
+  /**
+   * Generate a range of indices in [begin, end) with a step size of 'step'
+   */
   void GenerateTimeStepIndices(int begin, int end, int step);
 
-  // Description:
-  // Clear the time step indices
+  //@{
+  /**
+   * Clear the time step indices
+   */
   void ClearTimeStepIndices()
   {
     this->TimeStepIndices.clear();
     this->Modified();
   }
+  //@}
 
 protected:
   vtkExtractTimeSteps() {};

@@ -22,21 +22,24 @@
  * statement of authorship are reproduced on all copies.
  */
 
-// .NAME vtkUnstructuredGridPreIntegration - performs ray integration with pre-integration tables.
-//
-// .SECTION Description
-//
-// vtkUnstructuredGridPreIntegration performs ray integration by looking
-// into a precomputed table.  The result should be equivalent to that
-// computed by vtkUnstructuredGridLinearRayIntegrator and
-// vtkUnstructuredGridPartialPreIntegration, but faster than either one.
-// The pre-integration algorithm was first introduced by Roettger, Kraus,
-// and Ertl in "Hardware-Accelerated Volume And Isosurface Rendering Based
-// On Cell-Projection."
-//
-// Due to table size limitations, a table can only be indexed by
-// independent scalars.  Thus, dependent scalars are not supported.
-//
+/**
+ * @class   vtkUnstructuredGridPreIntegration
+ * @brief   performs ray integration with pre-integration tables.
+ *
+ *
+ *
+ * vtkUnstructuredGridPreIntegration performs ray integration by looking
+ * into a precomputed table.  The result should be equivalent to that
+ * computed by vtkUnstructuredGridLinearRayIntegrator and
+ * vtkUnstructuredGridPartialPreIntegration, but faster than either one.
+ * The pre-integration algorithm was first introduced by Roettger, Kraus,
+ * and Ertl in "Hardware-Accelerated Volume And Isosurface Rendering Based
+ * On Cell-Projection."
+ *
+ * Due to table size limitations, a table can only be indexed by
+ * independent scalars.  Thus, dependent scalars are not supported.
+ *
+*/
 
 #ifndef vtkUnstructuredGridPreIntegration_h
 #define vtkUnstructuredGridPreIntegration_h
@@ -61,56 +64,71 @@ public:
                          vtkDataArray *farIntersections,
                          float color[4]);
 
-  // Description:
-  // The class used to fill the pre integration table.  By default, a
-  // vtkUnstructuredGridPartialPreIntegration is built.
+  //@{
+  /**
+   * The class used to fill the pre integration table.  By default, a
+   * vtkUnstructuredGridPartialPreIntegration is built.
+   */
   vtkGetObjectMacro(Integrator, vtkUnstructuredGridVolumeRayIntegrator);
   virtual void SetIntegrator(vtkUnstructuredGridVolumeRayIntegrator *);
+  //@}
 
-  // Description:
-  // Set/Get the size of the integration table built.
+  //@{
+  /**
+   * Set/Get the size of the integration table built.
+   */
   vtkSetMacro(IntegrationTableScalarResolution, int);
   vtkGetMacro(IntegrationTableScalarResolution, int);
   vtkSetMacro(IntegrationTableLengthResolution, int);
   vtkGetMacro(IntegrationTableLengthResolution, int);
+  //@}
 
-  // Description::
-  // Get how an integration table is indexed.
+  //@{
+  /**
+   * Get how an integration table is indexed.
+   */
   virtual double GetIntegrationTableScalarShift(int component = 0);
   virtual double GetIntegrationTableScalarScale(int component = 0);
   virtual double GetIntegrationTableLengthScale();
+  //@}
 
-  // Description:
-  // Get/set whether to use incremental pre-integration (by default it's
-  // on).  Incremental pre-integration is much faster but can introduce
-  // error due to numerical imprecision.  Under most circumstances, the
-  // error is not noticeable.
+  //@{
+  /**
+   * Get/set whether to use incremental pre-integration (by default it's
+   * on).  Incremental pre-integration is much faster but can introduce
+   * error due to numerical imprecision.  Under most circumstances, the
+   * error is not noticeable.
+   */
   vtkGetMacro(IncrementalPreIntegration, int);
   vtkSetMacro(IncrementalPreIntegration, int);
   vtkBooleanMacro(IncrementalPreIntegration, int);
+  //@}
 
-  // Description:
-  // Get the partial pre-integration table for the given scalar component.
-  // The tables are built when Initialize is called.  A segment of length d
-  // with a front scalar of sf and a back scalar of sb is referenced in the
-  // resulting table as 4 * ((l * \c IntegrationTableLengthScale) * \c
-  // IntegrationTableScalarResolution * \c IntegrationTableScalarResolution
-  // + (sb * \c IntegrationTableScalarScale + \c
-  // IntegrationTableScalarShift) * \c IntegrationTableScalarResolution
-  // + (sf * \c IntegrationTableScalarScale + \c
-  // IntegrationTableScalarShift)).
+  /**
+   * Get the partial pre-integration table for the given scalar component.
+   * The tables are built when Initialize is called.  A segment of length d
+   * with a front scalar of sf and a back scalar of sb is referenced in the
+   * resulting table as 4 * ((l * \c IntegrationTableLengthScale) * \c
+   * IntegrationTableScalarResolution * \c IntegrationTableScalarResolution
+   * + (sb * \c IntegrationTableScalarScale + \c
+   * IntegrationTableScalarShift) * \c IntegrationTableScalarResolution
+   * + (sf * \c IntegrationTableScalarScale + \c
+   * IntegrationTableScalarShift)).
+   */
   virtual float *GetPreIntegrationTable(int component = 0);
 
-  // Description:
-  // Get an entry (RGBA) in one of the pre-integration tables.  The tables
-  // are built when Intialize is called.
+  /**
+   * Get an entry (RGBA) in one of the pre-integration tables.  The tables
+   * are built when Intialize is called.
+   */
   float *GetTableEntry(double scalar_front, double scalar_back, double lenth,
                        int component = 0);
 
-  // Description:
-  // Like GetTableEntry, except the inputs are scaled indices into the table
-  // rather than than the actual scalar and length values.  Use GetTableEntry
-  // unless you are really sure you know what you are doing.
+  /**
+   * Like GetTableEntry, except the inputs are scaled indices into the table
+   * rather than than the actual scalar and length values.  Use GetTableEntry
+   * unless you are really sure you know what you are doing.
+   */
   float *GetIndexedTableEntry(int scalar_front_index, int scalar_back_index,
                               int length_index, int component = 0);
 

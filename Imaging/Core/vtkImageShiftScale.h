@@ -12,13 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageShiftScale - shift and scale an input image
-// .SECTION Description
-// With vtkImageShiftScale Pixels are shifted (a constant value added)
-// and then scaled (multiplied by a scalar. As a convenience, this class
-// allows you to set the output scalar type similar to vtkImageCast.
-// This is because shift scale operations frequently convert data types.
-
+/**
+ * @class   vtkImageShiftScale
+ * @brief   shift and scale an input image
+ *
+ * With vtkImageShiftScale Pixels are shifted (a constant value added)
+ * and then scaled (multiplied by a scalar. As a convenience, this class
+ * allows you to set the output scalar type similar to vtkImageCast.
+ * This is because shift scale operations frequently convert data types.
+*/
 
 #ifndef vtkImageShiftScale_h
 #define vtkImageShiftScale_h
@@ -34,19 +36,27 @@ public:
   vtkTypeMacro(vtkImageShiftScale,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set/Get the shift value. This value is added to each pixel
+  //@{
+  /**
+   * Set/Get the shift value. This value is added to each pixel
+   */
   vtkSetMacro(Shift,double);
   vtkGetMacro(Shift,double);
+  //@}
 
-  // Description:
-  // Set/Get the scale value. Each pixel is multiplied by this value.
+  //@{
+  /**
+   * Set/Get the scale value. Each pixel is multiplied by this value.
+   */
   vtkSetMacro(Scale,double);
   vtkGetMacro(Scale,double);
+  //@}
 
-  // Description:
-  // Set the desired output scalar type. The result of the shift
-  // and scale operations is cast to the type specified.
+  //@{
+  /**
+   * Set the desired output scalar type. The result of the shift
+   * and scale operations is cast to the type specified.
+   */
   vtkSetMacro(OutputScalarType, int);
   vtkGetMacro(OutputScalarType, int);
   void SetOutputScalarTypeToDouble()
@@ -69,17 +79,21 @@ public:
     {this->SetOutputScalarType(VTK_CHAR);}
   void SetOutputScalarTypeToUnsignedChar()
     {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);}
+  //@}
 
-  // Description:
-  // When the ClampOverflow flag is on, the data is thresholded so that
-  // the output value does not exceed the max or min of the data type.
-  // Clamping is safer because otherwise you might invoke undefined
-  // behavior (and may crash) if the type conversion is out of range
-  // of the data type.  On the other hand, clamping is slower.
-  // By default, ClampOverflow is off.
+  //@{
+  /**
+   * When the ClampOverflow flag is on, the data is thresholded so that
+   * the output value does not exceed the max or min of the data type.
+   * Clamping is safer because otherwise you might invoke undefined
+   * behavior (and may crash) if the type conversion is out of range
+   * of the data type.  On the other hand, clamping is slower.
+   * By default, ClampOverflow is off.
+   */
   vtkSetMacro(ClampOverflow, int);
   vtkGetMacro(ClampOverflow, int);
   vtkBooleanMacro(ClampOverflow, int);
+  //@}
 
 protected:
   vtkImageShiftScale();

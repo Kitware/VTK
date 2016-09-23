@@ -12,19 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAbstractPolygonalHandleRepresentation3D - represent a user defined handle geometry in 3D while maintaining a fixed orientation w.r.t the camera.
-// .SECTION Description
-// This class serves as the geometrical representation of a vtkHandleWidget.
-// The handle can be represented by an arbitrary polygonal data (vtkPolyData),
-// set via SetHandle(vtkPolyData *). The actual position of the handle
-// will be initially assumed to be (0,0,0). You can specify an offset from
-// this position if desired. This class differs from
-// vtkPolygonalHandleRepresentation3D in that the handle will always remain
-// front facing, ie it maintains a fixed orientation with respect to the
-// camera. This is done by using vtkFollowers internally to render the actors.
-// .SECTION See Also
-// vtkPolygonalHandleRepresentation3D vtkHandleRepresentation vtkHandleWidget
-
+/**
+ * @class   vtkAbstractPolygonalHandleRepresentation3D
+ * @brief   represent a user defined handle geometry in 3D while maintaining a fixed orientation w.r.t the camera.
+ *
+ * This class serves as the geometrical representation of a vtkHandleWidget.
+ * The handle can be represented by an arbitrary polygonal data (vtkPolyData),
+ * set via SetHandle(vtkPolyData *). The actual position of the handle
+ * will be initially assumed to be (0,0,0). You can specify an offset from
+ * this position if desired. This class differs from
+ * vtkPolygonalHandleRepresentation3D in that the handle will always remain
+ * front facing, ie it maintains a fixed orientation with respect to the
+ * camera. This is done by using vtkFollowers internally to render the actors.
+ * @sa
+ * vtkPolygonalHandleRepresentation3D vtkHandleRepresentation vtkHandleWidget
+*/
 
 #ifndef vtkAbstractPolygonalHandleRepresentation3D_h
 #define vtkAbstractPolygonalHandleRepresentation3D_h
@@ -49,42 +51,60 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkAbstractPolygonalHandleRepresentation3D
 {
 public:
 
-  // Description:
-  // Standard methods for instances of this class.
+  //@{
+  /**
+   * Standard methods for instances of this class.
+   */
   vtkTypeMacro(vtkAbstractPolygonalHandleRepresentation3D,vtkHandleRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // Set the position of the point in world and display coordinates.
+  //@{
+  /**
+   * Set the position of the point in world and display coordinates.
+   */
   virtual void SetWorldPosition(double p[3]);
   virtual void SetDisplayPosition(double p[3]);
+  //@}
 
-  // Description:
-  // Set/get the handle polydata.
+  //@{
+  /**
+   * Set/get the handle polydata.
+   */
   void SetHandle( vtkPolyData * );
   vtkPolyData * GetHandle();
+  //@}
 
-  // Description:
-  // Set/Get the handle properties when unselected and selected.
+  //@{
+  /**
+   * Set/Get the handle properties when unselected and selected.
+   */
   void SetProperty(vtkProperty*);
   void SetSelectedProperty(vtkProperty*);
   vtkGetObjectMacro(Property,vtkProperty);
   vtkGetObjectMacro(SelectedProperty,vtkProperty);
+  //@}
 
-  // Description:
-  // Get the transform used to transform the generic handle polydata before
-  // placing it in the render window
+  /**
+   * Get the transform used to transform the generic handle polydata before
+   * placing it in the render window
+   */
   virtual vtkAbstractTransform * GetTransform();
 
-  // Description:
-  // Methods to make this class properly act like a vtkWidgetRepresentation.
+  //@{
+  /**
+   * Methods to make this class properly act like a vtkWidgetRepresentation.
+   */
   virtual void BuildRepresentation();
   virtual void StartWidgetInteraction(double eventPos[2]);
   virtual void WidgetInteraction(double eventPos[2]);
   virtual int ComputeInteractionState(int X, int Y, int modify=0);
+  //@}
 
-  // Description:
-  // Methods to make this class behave as a vtkProp.
+  //@{
+  /**
+   * Methods to make this class behave as a vtkProp.
+   */
   virtual void ShallowCopy(vtkProp *prop);
   virtual void DeepCopy(vtkProp *prop);
   virtual void GetActors(vtkPropCollection *);
@@ -93,18 +113,24 @@ public:
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
   virtual int HasTranslucentPolygonalGeometry();
   virtual double *GetBounds();
+  //@}
 
-  // Description:
-  // A label may be associated with the seed. The string can be set via
-  // SetLabelText. The visibility of the label can be turned on / off.
+  //@{
+  /**
+   * A label may be associated with the seed. The string can be set via
+   * SetLabelText. The visibility of the label can be turned on / off.
+   */
   vtkSetMacro( LabelVisibility, int );
   vtkGetMacro( LabelVisibility, int );
   vtkBooleanMacro( LabelVisibility, int );
   virtual void SetLabelText( const char * label );
   virtual char * GetLabelText();
+  //@}
 
-  // Description:
-  // Scale text (font size along each dimension).
+  //@{
+  /**
+   * Scale text (font size along each dimension).
+   */
   virtual void SetLabelTextScale( double scale[3] );
   void SetLabelTextScale(double x, double y, double z)
   {
@@ -112,38 +138,49 @@ public:
     this->SetLabelTextScale(scale);
   }
   virtual double * GetLabelTextScale();
+  //@}
 
-  // Description:
-  // Get the label text actor
+  //@{
+  /**
+   * Get the label text actor
+   */
   vtkGetObjectMacro( LabelTextActor, vtkFollower );
+  //@}
 
-  // Description:
-  // The handle may be scaled uniformly in all three dimensions using this
-  // API. The handle can also be scaled interactively using the right
-  // mouse button.
+  /**
+   * The handle may be scaled uniformly in all three dimensions using this
+   * API. The handle can also be scaled interactively using the right
+   * mouse button.
+   */
   virtual void SetUniformScale( double scale );
 
-  // Description:
-  // Toogle the visibility of the handle on and off
+  //@{
+  /**
+   * Toogle the visibility of the handle on and off
+   */
   vtkSetMacro( HandleVisibility, int );
   vtkGetMacro( HandleVisibility, int );
   vtkBooleanMacro( HandleVisibility, int );
+  //@}
 
   void Highlight(int highlight);
 
-  // Description:
-  // Turn on/off smooth motion of the handle. See the documentation of
-  // MoveFocusRequest for details. By default, SmoothMotion is ON. However,
-  // in certain applications the user may want to turn it off. For instance
-  // when using certain specific PointPlacer's with the representation such
-  // as the vtkCellCentersPointPlacer, which causes the representation to
-  // snap to the center of cells, or using a vtkPolygonalSurfacePointPlacer
-  // which constrains the widget to the surface of a mesh. In such cases,
-  // inherent restrictions on handle placement might conflict with a request
-  // for smooth motion of the handles.
+  //@{
+  /**
+   * Turn on/off smooth motion of the handle. See the documentation of
+   * MoveFocusRequest for details. By default, SmoothMotion is ON. However,
+   * in certain applications the user may want to turn it off. For instance
+   * when using certain specific PointPlacer's with the representation such
+   * as the vtkCellCentersPointPlacer, which causes the representation to
+   * snap to the center of cells, or using a vtkPolygonalSurfacePointPlacer
+   * which constrains the widget to the surface of a mesh. In such cases,
+   * inherent restrictions on handle placement might conflict with a request
+   * for smooth motion of the handles.
+   */
   vtkSetMacro( SmoothMotion, int );
   vtkGetMacro( SmoothMotion, int );
   vtkBooleanMacro( SmoothMotion, int );
+  //@}
 
 protected:
   vtkAbstractPolygonalHandleRepresentation3D();
@@ -188,18 +225,20 @@ protected:
 
   int DetermineConstraintAxis(int constraint, double *x, double *startPickPos);
 
-  // Description:
-  // Update the actor position. Different subclasses handle this differently.
-  // For instance vtkPolygonalHandleRepresentation3D updates the handle
-  // transformation and sets this on the handle.
-  // vtkOrientedPolygonalHandleRepresentation3D, which uses a vtkFollower to
-  // keep the handle geometry facinig the camera handles this differently. This
-  // is an opportunity for subclasses to update the actor's position etc each
-  // time the handle is rendered.
+  /**
+   * Update the actor position. Different subclasses handle this differently.
+   * For instance vtkPolygonalHandleRepresentation3D updates the handle
+   * transformation and sets this on the handle.
+   * vtkOrientedPolygonalHandleRepresentation3D, which uses a vtkFollower to
+   * keep the handle geometry facinig the camera handles this differently. This
+   * is an opportunity for subclasses to update the actor's position etc each
+   * time the handle is rendered.
+   */
   virtual void UpdateHandle();
 
-  // Description:
-  // Opportunity to update the label position and text during each render.
+  /**
+   * Opportunity to update the label position and text during each render.
+   */
   virtual void UpdateLabel();
 
   // Handle the label.

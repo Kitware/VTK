@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTDxWinDevice - Implementation of vtkTDxDevice on Windows
-// .SECTION Description
-// vtkTDxWinDevice is a concrete implementation of vtkTDxDevice on Windows
-// It uses the COM API.
-// .SECTION See Also
-// vtkTDxDevice, vtkTDxWinDevice
+/**
+ * @class   vtkTDxWinDevice
+ * @brief   Implementation of vtkTDxDevice on Windows
+ *
+ * vtkTDxWinDevice is a concrete implementation of vtkTDxDevice on Windows
+ * It uses the COM API.
+ * @sa
+ * vtkTDxDevice, vtkTDxWinDevice
+*/
 
 #ifndef vtkTDxWinDevice_h
 #define vtkTDxWinDevice_h
@@ -42,58 +45,68 @@ public:
   vtkTypeMacro(vtkTDxWinDevice,vtkTDxDevice);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the Handle of the Window. Initial value is 0.
+  /**
+   * Get the Handle of the Window. Initial value is 0.
+   */
   HWND GetWindowHandle() const;
 
-  // Description:
-  // Set the handle of the Window.
-  // \pre not_yet_initialized: !GetInitialized()
+  /**
+   * Set the handle of the Window.
+   * \pre not_yet_initialized: !GetInitialized()
+   */
   void SetWindowHandle(HWND hWnd);
 
-  // Description:
-  // Initialize the device with the current display and window ids.
-  // It updates the value of GetInitialized().
-  // Initialization can fail (if the device is not present or the driver is
-  // not running). You must look for the value of
-  // GetInitialized() before processing further.
-  // If the case initialization is successful, GetIsListening() is false.
-  // \pre not_yet_initialized: !GetInitialized()
+  /**
+   * Initialize the device with the current display and window ids.
+   * It updates the value of GetInitialized().
+   * Initialization can fail (if the device is not present or the driver is
+   * not running). You must look for the value of
+   * GetInitialized() before processing further.
+   * If the case initialization is successful, GetIsListening() is false.
+   * \pre not_yet_initialized: !GetInitialized()
+   */
   void Initialize();
 
-  // Description:
-  // See description in the superclass. Implementation for Windows.
+  /**
+   * See description in the superclass. Implementation for Windows.
+   */
   virtual void Close();
 
-  // Description:
-  // Tells if we are listening events on the device.
+  /**
+   * Tells if we are listening events on the device.
+   */
   bool GetIsListening() const;
 
-  // Description:
-  // Call it when the window has or get the focus
-  // \pre initialized: GetInitialized()
-  // \pre not_yet: !GetIsListening()
+  /**
+   * Call it when the window has or get the focus
+   * \pre initialized: GetInitialized()
+   * \pre not_yet: !GetIsListening()
+   */
   void StartListening();
 
-  // Description:
-  // Call it when the window lose the focus.
-  // \pre initialized: GetInitialized()
-  // \pre is_listening: GetIsListening()
+  /**
+   * Call it when the window lose the focus.
+   * \pre initialized: GetInitialized()
+   * \pre is_listening: GetIsListening()
+   */
   void StopListening();
 
-  // Description:
-  // Process the 3DConnexion event.
-  // Called internally by the timer.
+  /**
+   * Process the 3DConnexion event.
+   * Called internally by the timer.
+   */
   void ProcessEvent();
 
 protected:
-  // Description:
-  // Default constructor.
+  /**
+   * Default constructor.
+   */
   vtkTDxWinDevice();
 
-  // Description:
-  // Destructor. If the device is not initialized, do nothing. If the device
-  // is initialized, close the device.
+  /**
+   * Destructor. If the device is not initialized, do nothing. If the device
+   * is initialized, close the device.
+   */
   virtual ~vtkTDxWinDevice();
 
   HWND WindowHandle;

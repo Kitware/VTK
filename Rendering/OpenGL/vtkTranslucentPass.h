@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTranslucentPass - Render the translucent polygonal geometry
-// with property key filtering.
-// .SECTION Description
-// vtkTranslucentPass renders the translucent polygonal geometry of all the
-// props that have the keys contained in vtkRenderState.
-//
-// This pass expects an initialized depth buffer and color buffer.
-// Initialized buffers means they have been cleared with farest z-value and
-// background color/gradient/transparent color.
-//
-// .SECTION See Also
-// vtkRenderPass vtkDefaultPass
+/**
+ * @class   vtkTranslucentPass
+ * @brief   Render the translucent polygonal geometry
+ * with property key filtering.
+ *
+ * vtkTranslucentPass renders the translucent polygonal geometry of all the
+ * props that have the keys contained in vtkRenderState.
+ *
+ * This pass expects an initialized depth buffer and color buffer.
+ * Initialized buffers means they have been cleared with farest z-value and
+ * background color/gradient/transparent color.
+ *
+ * @sa
+ * vtkRenderPass vtkDefaultPass
+*/
 
 #ifndef vtkTranslucentPass_h
 #define vtkTranslucentPass_h
@@ -38,18 +41,21 @@ public:
   vtkTypeMacro(vtkTranslucentPass,vtkDefaultPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Perform rendering according to a render state \p s.
-  // \pre s_exists: s!=0
+  /**
+   * Perform rendering according to a render state \p s.
+   * \pre s_exists: s!=0
+   */
   virtual void Render(const vtkRenderState *s);
 
  protected:
-  // Description:
-  // Default constructor.
+  /**
+   * Default constructor.
+   */
   vtkTranslucentPass();
 
-  // Description:
-  // Destructor.
+  /**
+   * Destructor.
+   */
   virtual ~vtkTranslucentPass();
 
  private:

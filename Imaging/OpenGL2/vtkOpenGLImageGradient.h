@@ -12,7 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLImageGradient - Compute Gradient using the GPU
+/**
+ * @class   vtkOpenGLImageGradient
+ * @brief   Compute Gradient using the GPU
+*/
 
 #ifndef vtkOpenGLImageGradient_h
 #define vtkOpenGLImageGradient_h
@@ -29,8 +32,9 @@ public:
   static vtkOpenGLImageGradient *New();
   vtkTypeMacro(vtkOpenGLImageGradient,vtkImageGradient);
 
-  // Description:
-  // Set the render window to get the OpenGL resources from
+  /**
+   * Set the render window to get the OpenGL resources from
+   */
   void SetRenderWindow(vtkRenderWindow *);
 
 protected:

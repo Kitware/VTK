@@ -17,17 +17,20 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkOutEdgeIterator - Iterates through all outgoing edges from a vertex.
-//
-// .SECTION Description
-// vtkOutEdgeIterator iterates through all edges whose source is a particular
-// vertex. Instantiate this class directly and call Initialize() to traverse
-// the vertex of a graph. Alternately, use GetInEdges() on the graph to
-// initialize the iterator. it->Next() returns a vtkOutEdgeType structure,
-// which contains Id, the edge's id, and Target, the edge's target vertex.
-//
-// .SECTION See Also
-// vtkGraph vtkInEdgeIterator
+/**
+ * @class   vtkOutEdgeIterator
+ * @brief   Iterates through all outgoing edges from a vertex.
+ *
+ *
+ * vtkOutEdgeIterator iterates through all edges whose source is a particular
+ * vertex. Instantiate this class directly and call Initialize() to traverse
+ * the vertex of a graph. Alternately, use GetInEdges() on the graph to
+ * initialize the iterator. it->Next() returns a vtkOutEdgeType structure,
+ * which contains Id, the edge's id, and Target, the edge's target vertex.
+ *
+ * @sa
+ * vtkGraph vtkInEdgeIterator
+*/
 
 #ifndef vtkOutEdgeIterator_h
 #define vtkOutEdgeIterator_h
@@ -46,34 +49,43 @@ public:
   vtkTypeMacro(vtkOutEdgeIterator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Initialize the iterator with a graph and vertex.
+  /**
+   * Initialize the iterator with a graph and vertex.
+   */
   void Initialize(vtkGraph *g, vtkIdType v);
 
-  // Description:
-  // Get the graph and vertex associated with this iterator.
+  //@{
+  /**
+   * Get the graph and vertex associated with this iterator.
+   */
   vtkGetObjectMacro(Graph, vtkGraph);
   vtkGetMacro(Vertex, vtkIdType);
+  //@}
 
-  // Description:
-  // Returns the next edge in the graph.
+  //@{
+  /**
+   * Returns the next edge in the graph.
+   */
   inline vtkOutEdgeType Next()
   {
     vtkOutEdgeType e = *this->Current;
     ++this->Current;
     return e;
   }
+  //@}
 
-  // Description:
-  // Just like Next(), but
-  // returns heavy-weight vtkGraphEdge object instead of
-  // the vtkEdgeType struct, for use with wrappers.
-  // The graph edge is owned by this iterator, and changes
-  // after each call to NextGraphEdge().
+  /**
+   * Just like Next(), but
+   * returns heavy-weight vtkGraphEdge object instead of
+   * the vtkEdgeType struct, for use with wrappers.
+   * The graph edge is owned by this iterator, and changes
+   * after each call to NextGraphEdge().
+   */
   vtkGraphEdge *NextGraphEdge();
 
-  // Description:
-  // Whether this iterator has more edges.
+  /**
+   * Whether this iterator has more edges.
+   */
   bool HasNext()
   {
     return this->Current != this->End;
@@ -83,9 +95,10 @@ protected:
   vtkOutEdgeIterator();
   ~vtkOutEdgeIterator() VTK_OVERRIDE;
 
-  // Description:
-  // Protected method for setting the graph used
-  // by Initialize().
+  /**
+   * Protected method for setting the graph used
+   * by Initialize().
+   */
   virtual void SetGraph(vtkGraph *graph);
 
   vtkGraph            *Graph;

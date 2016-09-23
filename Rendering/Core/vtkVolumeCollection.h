@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkVolumeCollection - a list of volumes
-// .SECTION Description
-// vtkVolumeCollection represents and provides methods to manipulate a
-// list of volumes (i.e., vtkVolume and subclasses). The list is unsorted
-// and duplicate entries are not prevented.
-
-// .SECTION see also
-// vtkCollection vtkVolume
+/**
+ * @class   vtkVolumeCollection
+ * @brief   a list of volumes
+ *
+ * vtkVolumeCollection represents and provides methods to manipulate a
+ * list of volumes (i.e., vtkVolume and subclasses). The list is unsorted
+ * and duplicate entries are not prevented.
+ *
+ * @sa
+ * vtkCollection vtkVolume
+*/
 
 #ifndef vtkVolumeCollection_h
 #define vtkVolumeCollection_h
@@ -36,28 +39,32 @@ class VTKRENDERINGCORE_EXPORT vtkVolumeCollection : public vtkPropCollection
   vtkTypeMacro(vtkVolumeCollection, vtkPropCollection);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Add a Volume to the list.
+  /**
+   * Add a Volume to the list.
+   */
   void AddItem(vtkVolume *a)
     { this->vtkCollection::AddItem(a); }
 
-  // Description:
-  // Get the next Volume in the list. Return NULL when at the end of the
-  // list.
+  /**
+   * Get the next Volume in the list. Return NULL when at the end of the
+   * list.
+   */
   vtkVolume *GetNextVolume()
     { return static_cast<vtkVolume *>(this->GetNextItemAsObject()); }
 
 
-  // Description:
-  // Access routine provided for compatibility with previous
-  // versions of VTK.  Please use the GetNextVolume() variant
-  // where possible.
+  /**
+   * Access routine provided for compatibility with previous
+   * versions of VTK.  Please use the GetNextVolume() variant
+   * where possible.
+   */
   vtkVolume *GetNextItem()
     { return this->GetNextVolume(); }
 
-  // Description:
-  // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth.
+  /**
+   * Reentrant safe way to get an object in a collection. Just pass the
+   * same cookie back and forth.
+   */
   vtkVolume *GetNextVolume(vtkCollectionSimpleIterator &cookie)
     { return static_cast<vtkVolume *>(this->GetNextItemAsObject(cookie)); }
 

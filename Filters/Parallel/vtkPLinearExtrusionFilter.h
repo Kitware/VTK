@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPLinearExtrusionFilter - Subclass that handles piece invariance.
-// .SECTION Description
-// vtkPLinearExtrusionFilter is a parallel version of vtkLinearExtrusionFilter.
-
-// .SECTION See Also
-// vtkLinearExtrusionFilter
+/**
+ * @class   vtkPLinearExtrusionFilter
+ * @brief   Subclass that handles piece invariance.
+ *
+ * vtkPLinearExtrusionFilter is a parallel version of vtkLinearExtrusionFilter.
+ *
+ * @sa
+ * vtkLinearExtrusionFilter
+*/
 
 #ifndef vtkPLinearExtrusionFilter_h
 #define vtkPLinearExtrusionFilter_h
@@ -31,8 +34,9 @@ public:
   vtkTypeMacro(vtkPLinearExtrusionFilter,vtkLinearExtrusionFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Create an object with PieceInvariant off.
+  /**
+   * Create an object with PieceInvariant off.
+   */
   static vtkPLinearExtrusionFilter *New();
 
   // To get piece invariance, this filter has to request an

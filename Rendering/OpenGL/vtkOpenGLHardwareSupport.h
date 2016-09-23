@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLHardwareSupport - OpenGL rendering window
-// .SECTION Description
-// vtkOpenGLHardwareSupport is an implementation of methods used
-// to query OpenGL and the hardware of what kind of graphics support
-// is available. When VTK supports more than one Graphics API an
-// abstract super class vtkHardwareSupport should be implemented
-// for this class to derive from.
+/**
+ * @class   vtkOpenGLHardwareSupport
+ * @brief   OpenGL rendering window
+ *
+ * vtkOpenGLHardwareSupport is an implementation of methods used
+ * to query OpenGL and the hardware of what kind of graphics support
+ * is available. When VTK supports more than one Graphics API an
+ * abstract super class vtkHardwareSupport should be implemented
+ * for this class to derive from.
+*/
 
 #ifndef vtkOpenGLHardwareSupport_h
 #define vtkOpenGLHardwareSupport_h
@@ -37,24 +40,30 @@ public:
 
   static vtkOpenGLHardwareSupport *New();
 
-  // Description:
-  // Return the number of fixed-function texture units.
+  /**
+   * Return the number of fixed-function texture units.
+   */
   int GetNumberOfFixedTextureUnits();
 
-  // Description:
-  // Return the total number of texture image units accessible by a shader
-  // program.
+  /**
+   * Return the total number of texture image units accessible by a shader
+   * program.
+   */
   int GetNumberOfTextureUnits();
 
-  // Description:
-  // Test if MultiTexturing is supported.
+  /**
+   * Test if MultiTexturing is supported.
+   */
   bool GetSupportsMultiTexturing();
 
-  // Description:
-  // Set/Get a reference to a vtkRenderWindow which is Required
-  // for most methods of this class to work.
+  //@{
+  /**
+   * Set/Get a reference to a vtkRenderWindow which is Required
+   * for most methods of this class to work.
+   */
   vtkGetObjectMacro(ExtensionManager, vtkOpenGLExtensionManager);
   void SetExtensionManager(vtkOpenGLExtensionManager* extensionManager);
+  //@}
 
 protected:
   vtkOpenGLHardwareSupport();

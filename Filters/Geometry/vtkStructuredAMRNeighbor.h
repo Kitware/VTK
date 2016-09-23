@@ -12,14 +12,17 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkStructuredAMRNeighbor.h -- Stored AMR neighboring information
-//
-// .SECTION Description
-//  An internal, light-weight object used to store neighbor information for
-//  AMR grids.
-//
-// .SECTION See Also
-//  vtkStructuredNeighbor vtkStructuredAMRGridConnectivity
+/**
+ * @class   vtkStructuredAMRNeighbor
+ *
+ *
+ *  An internal, light-weight object used to store neighbor information for
+ *  AMR grids.
+ *
+ * @sa
+ *  vtkStructuredNeighbor vtkStructuredAMRGridConnectivity
+*/
+
 #ifndef vtkStructuredAMRNeighbor_h
 #define vtkStructuredAMRNeighbor_h
 
@@ -51,15 +54,17 @@ public:
   int NeighborLevel;  // The level of the neighboring grid
   int RelationShip;   // The relationship of the grid with this neighbor
 
-  // Description:
-  // Default constructor.
+  /**
+   * Default constructor.
+   */
   vtkStructuredAMRNeighbor();
 
-  // Description:
-  // Custom constructor. Creates an AMR neighbor for a grid (block) at level
-  // GridLevel with the neighboring block at NeiID, NeighborLevel. The two
-  // neighbors overlap at the pre-computed overlap extent which is given w.r.t
-  // to the current grid (i.e., not the neighboring grid).
+  /**
+   * Custom constructor. Creates an AMR neighbor for a grid (block) at level
+   * GridLevel with the neighboring block at NeiID, NeighborLevel. The two
+   * neighbors overlap at the pre-computed overlap extent which is given w.r.t
+   * to the current grid (i.e., not the neighboring grid).
+   */
   vtkStructuredAMRNeighbor(
      const int gridLevel,
      const int neiID, const int neighborLevel,
@@ -67,37 +72,45 @@ public:
      int orient[3],
      const int relationShip);
 
-  // Description:
-  // Copy constructor.
+  /**
+   * Copy constructor.
+   */
   vtkStructuredAMRNeighbor(const vtkStructuredAMRNeighbor &N) :
     vtkStructuredNeighbor(N) { *this = N; }
 
-  // Description:
-  // Destructor.
+  /**
+   * Destructor.
+   */
   ~vtkStructuredAMRNeighbor() {}
 
-  // Description:
-  // Overload assignment operator.
+  /**
+   * Overload assignment operator.
+   */
   vtkStructuredAMRNeighbor& operator=(const vtkStructuredAMRNeighbor &N);
 
-  // Description:
-  // Returns the receive extent w.r.t. the grid's level, i.e., not the
-  // neighbor's level.
+  /**
+   * Returns the receive extent w.r.t. the grid's level, i.e., not the
+   * neighbor's level.
+   */
   void GetReceiveExtentOnGrid(const int ng,int gridExtent[6],int ext[6]);
 
-  // Description:
-  // Returns the neighbor relationship as a string (usefule for debugging).
+  /**
+   * Returns the neighbor relationship as a string (usefule for debugging).
+   */
   std::string GetRelationShipString();
 
-  // Description:
-  // Computes the SendExtent and RcvExtent for this neighbor. The method assumes
-  // that the overlap extent and orientation are already computed. Using this
-  // information, the method grows the overlap extent to form the Send and Rcv
-  // extents for this neighbor instance.
+  //@{
+  /**
+   * Computes the SendExtent and RcvExtent for this neighbor. The method assumes
+   * that the overlap extent and orientation are already computed. Using this
+   * information, the method grows the overlap extent to form the Send and Rcv
+   * extents for this neighbor instance.
+   */
   virtual void ComputeSendAndReceiveExtent(
       int gridRealExtent[6], int gridGhostedExtent[6], int neiRealExtent[6],
       int WholeExtent[6], const int N);
 };
+  //@}
 
 #endif /* vtkStructuredAMRNeighbor_h */
 // VTK-HeaderTest-Exclude: vtkStructuredAMRNeighbor.h

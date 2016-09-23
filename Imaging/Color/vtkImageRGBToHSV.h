@@ -12,12 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageRGBToHSV - Converts RGB components to HSV.
-// .SECTION Description
-// For each pixel with red, blue, and green components this
-// filter output the color coded as hue, saturation and value.
-// Output type must be the same as input type.
-
+/**
+ * @class   vtkImageRGBToHSV
+ * @brief   Converts RGB components to HSV.
+ *
+ * For each pixel with red, blue, and green components this
+ * filter output the color coded as hue, saturation and value.
+ * Output type must be the same as input type.
+*/
 
 #ifndef vtkImageRGBToHSV_h
 #define vtkImageRGBToHSV_h
@@ -33,7 +35,6 @@ public:
   vtkTypeMacro(vtkImageRGBToHSV,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
 
   // Hue is an angle. Maximum specifies when it maps back to 0.  HueMaximum
   // defaults to 255 instead of 2PI, because unsigned char is expected as

@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPolyLineWidget - widget for vtkPolyLineRepresentation.
-// .SECTION Description
-// vtkPolyLineWidget is the vtkAbstractWidget subclass for
-// vtkPolyLineRepresentation which manages the interactions with
-// vtkPolyLineRepresentation. This is based on vtkPolyLineWidget.
-// .SECTION See Also
-// vtkPolyLineRepresentation, vtkPolyLineWidget
+/**
+ * @class   vtkPolyLineWidget
+ * @brief   widget for vtkPolyLineRepresentation.
+ *
+ * vtkPolyLineWidget is the vtkAbstractWidget subclass for
+ * vtkPolyLineRepresentation which manages the interactions with
+ * vtkPolyLineRepresentation. This is based on vtkPolyLineWidget.
+ * @sa
+ * vtkPolyLineRepresentation, vtkPolyLineWidget
+*/
 
 #ifndef vtkPolyLineWidget_h
 #define vtkPolyLineWidget_h
@@ -35,19 +38,21 @@ public:
   vtkTypeMacro(vtkPolyLineWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify an instance of vtkWidgetRepresentation used to represent this
-  // widget in the scene. Note that the representation is a subclass of
-  // vtkProp so it can be added to the renderer independent of the widget.
+  /**
+   * Specify an instance of vtkWidgetRepresentation used to represent this
+   * widget in the scene. Note that the representation is a subclass of
+   * vtkProp so it can be added to the renderer independent of the widget.
+   */
   void SetRepresentation(vtkPolyLineRepresentation *r)
     {
     this->Superclass::SetWidgetRepresentation(
       reinterpret_cast<vtkWidgetRepresentation*>(r));
     }
 
-  // Description:
-  // Create the default widget representation if one is not set. By default,
-  // this is an instance of the vtkPolyLineRepresentation class.
+  /**
+   * Create the default widget representation if one is not set. By default,
+   * this is an instance of the vtkPolyLineRepresentation class.
+   */
   void CreateDefaultRepresentation();
 
 protected:

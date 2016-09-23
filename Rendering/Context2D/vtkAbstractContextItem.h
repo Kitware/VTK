@@ -13,13 +13,16 @@
 
 =========================================================================*/
 
-// .NAME vtkAbstractContextItem - base class for items that are part of a
-// vtkContextScene.
-//
-// .SECTION Description
-// This class is the common base for all context scene items. You should
-// generally derive from vtkContextItem, rather than this class, as it provides
-// most of the commonly used API.
+/**
+ * @class   vtkAbstractContextItem
+ * @brief   base class for items that are part of a
+ * vtkContextScene.
+ *
+ *
+ * This class is the common base for all context scene items. You should
+ * generally derive from vtkContextItem, rather than this class, as it provides
+ * most of the commonly used API.
+*/
 
 #ifndef vtkAbstractContextItem_h
 #define vtkAbstractContextItem_h
@@ -40,229 +43,280 @@ public:
   vtkTypeMacro(vtkAbstractContextItem, vtkObject);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Perform any updates to the item that may be necessary before rendering.
-  // The scene should take care of calling this on all items before their
-  // Paint function is invoked.
+  /**
+   * Perform any updates to the item that may be necessary before rendering.
+   * The scene should take care of calling this on all items before their
+   * Paint function is invoked.
+   */
   virtual void Update();
 
-  // Description:
-  // Paint event for the item, called whenever the item needs to be drawn.
+  /**
+   * Paint event for the item, called whenever the item needs to be drawn.
+   */
   virtual bool Paint(vtkContext2D *painter);
 
-  // Description:
-  // Paint the children of the item, should be called whenever the children
-  // need to be rendered.
+  /**
+   * Paint the children of the item, should be called whenever the children
+   * need to be rendered.
+   */
   virtual bool PaintChildren(vtkContext2D *painter);
 
-  // Description:
-  // Release graphics resources hold by the item. The default implementation
-  // is empty.
+  /**
+   * Release graphics resources hold by the item. The default implementation
+   * is empty.
+   */
   virtual void ReleaseGraphicsResources();
 
-  // Description:
-  // Add child items to this item. Increments reference count of item.
-  // \return the index of the child item.
+  /**
+   * Add child items to this item. Increments reference count of item.
+   * \return the index of the child item.
+   */
   unsigned int AddItem(vtkAbstractContextItem* item);
 
-  // Description:
-  // Remove child item from this item. Decrements reference count of item.
-  // \param item the item to be removed.
-  // \return true on success, false otherwise.
+  /**
+   * Remove child item from this item. Decrements reference count of item.
+   * \param item the item to be removed.
+   * \return true on success, false otherwise.
+   */
   bool RemoveItem(vtkAbstractContextItem* item);
 
-  // Description:
-  // Remove child item from this item. Decrements reference count of item.
-  // \param index of the item to be removed.
-  // \return true on success, false otherwise.
+  /**
+   * Remove child item from this item. Decrements reference count of item.
+   * \param index of the item to be removed.
+   * \return true on success, false otherwise.
+   */
   bool RemoveItem(unsigned int index);
 
-  // Description:
-  // Get the item at the specified index.
-  // \return the item at the specified index (null if index is invalid).
+  /**
+   * Get the item at the specified index.
+   * \return the item at the specified index (null if index is invalid).
+   */
   vtkAbstractContextItem* GetItem(unsigned int index);
 
-  // Description:
-  // Get the index of the specified item.
-  // \return the index of the item (-1 if item is not a valid child).
+  /**
+   * Get the index of the specified item.
+   * \return the index of the item (-1 if item is not a valid child).
+   */
   unsigned int GetItemIndex(vtkAbstractContextItem* item);
 
-  // Description:
-  // Get the number of child items.
+  /**
+   * Get the number of child items.
+   */
   unsigned int GetNumberOfItems();
 
-  // Description:
-  // Remove all child items from this item.
+  /**
+   * Remove all child items from this item.
+   */
   void ClearItems();
 
-  // Description:
-  // Raises the \a child to the top of the item's stack.
-  // \return The new index of the item
-  // \sa StackAbove(), Lower(), LowerUnder()
+  /**
+   * Raises the \a child to the top of the item's stack.
+   * \return The new index of the item
+   * \sa StackAbove(), Lower(), LowerUnder()
+   */
   unsigned int Raise(unsigned int index);
 
-  // Description:
-  // Raises the \a child above the \a under sibling. If \a under is invalid,
-  // the item is raised to the top of the item's stack.
-  // \return The new index of the item
-  // \sa Raise(), Lower(), StackUnder()
+  /**
+   * Raises the \a child above the \a under sibling. If \a under is invalid,
+   * the item is raised to the top of the item's stack.
+   * \return The new index of the item
+   * \sa Raise(), Lower(), StackUnder()
+   */
   virtual unsigned int StackAbove(unsigned int index,
                                   unsigned int under);
 
-  // Description:
-  // Lowers the \a child to the bottom of the item's stack.
-  // \return The new index of the item
-  // \sa StackUnder(), Raise(), StackAbove()
+  /**
+   * Lowers the \a child to the bottom of the item's stack.
+   * \return The new index of the item
+   * \sa StackUnder(), Raise(), StackAbove()
+   */
   unsigned int Lower(unsigned int index);
 
-  // Description:
-  // Lowers the \a child under the \a above sibling. If \a above is invalid,
-  // the item is lowered to the bottom of the item's stack
-  // \return The new index of the item
-  // \sa Lower(), Raise(), StackAbove()
+  /**
+   * Lowers the \a child under the \a above sibling. If \a above is invalid,
+   * the item is lowered to the bottom of the item's stack
+   * \return The new index of the item
+   * \sa Lower(), Raise(), StackAbove()
+   */
   virtual unsigned int StackUnder(unsigned int child,
                                   unsigned int above);
 
-  // Description:
-  // Return true if the supplied x, y coordinate is inside the item.
+  /**
+   * Return true if the supplied x, y coordinate is inside the item.
+   */
   virtual bool Hit(const vtkContextMouseEvent &mouse);
 
-  // Description:
-  // Return the item under the mouse.
-  // If no item is under the mouse, the method returns a null pointer.
+  /**
+   * Return the item under the mouse.
+   * If no item is under the mouse, the method returns a null pointer.
+   */
   virtual vtkAbstractContextItem* GetPickedItem(const vtkContextMouseEvent &mouse);
 
-  // Description:
-  // Mouse enter event.
-  // Return true if the item holds the event, false if the event can be
-  // propagated to other items.
+  /**
+   * Mouse enter event.
+   * Return true if the item holds the event, false if the event can be
+   * propagated to other items.
+   */
   virtual bool MouseEnterEvent(const vtkContextMouseEvent &mouse);
 
-  // Description:
-  // Mouse move event.
-  // Return true if the item holds the event, false if the event can be
-  // propagated to other items.
+  /**
+   * Mouse move event.
+   * Return true if the item holds the event, false if the event can be
+   * propagated to other items.
+   */
   virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
 
-  // Description:
-  // Mouse leave event.
-  // Return true if the item holds the event, false if the event can be
-  // propagated to other items.
+  /**
+   * Mouse leave event.
+   * Return true if the item holds the event, false if the event can be
+   * propagated to other items.
+   */
   virtual bool MouseLeaveEvent(const vtkContextMouseEvent &mouse);
 
-  // Description:
-  // Mouse button down event
-  // Return true if the item holds the event, false if the event can be
-  // propagated to other items.
+  /**
+   * Mouse button down event
+   * Return true if the item holds the event, false if the event can be
+   * propagated to other items.
+   */
   virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
 
-  // Description:
-  // Mouse button release event.
-  // Return true if the item holds the event, false if the event can be
-  // propagated to other items.
+  /**
+   * Mouse button release event.
+   * Return true if the item holds the event, false if the event can be
+   * propagated to other items.
+   */
   virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
 
-  // Description:
-  // Mouse button double click event.
-  // Return true if the item holds the event, false if the event can be
-  // propagated to other items.
+  /**
+   * Mouse button double click event.
+   * Return true if the item holds the event, false if the event can be
+   * propagated to other items.
+   */
   virtual bool MouseDoubleClickEvent(const vtkContextMouseEvent &mouse);
 
-  // Description:
-  // Mouse wheel event, positive delta indicates forward movement of the wheel.
-  // Return true if the item holds the event, false if the event can be
-  // propagated to other items.
+  /**
+   * Mouse wheel event, positive delta indicates forward movement of the wheel.
+   * Return true if the item holds the event, false if the event can be
+   * propagated to other items.
+   */
   virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
 
-  // Description:
-  // Key press event.
+  /**
+   * Key press event.
+   */
   virtual bool KeyPressEvent(const vtkContextKeyEvent &key);
 
-  // Description:
-  // Key release event.
+  /**
+   * Key release event.
+   */
   virtual bool KeyReleaseEvent(const vtkContextKeyEvent &key);
 
-  // Description:
-  // Set the vtkContextScene for the item, always set for an item in a scene.
+  /**
+   * Set the vtkContextScene for the item, always set for an item in a scene.
+   */
   virtual void SetScene(vtkContextScene *scene);
 
-  // Description:
-  // Get the vtkContextScene for the item, always set for an item in a scene.
+  /**
+   * Get the vtkContextScene for the item, always set for an item in a scene.
+   */
   vtkContextScene* GetScene()
     {
     return this->Scene;
     }
 
-  // Description:
-  // Set the parent item. The parent will be set for all items except top
-  // level items in a scene.
+  /**
+   * Set the parent item. The parent will be set for all items except top
+   * level items in a scene.
+   */
   virtual void SetParent(vtkAbstractContextItem *parent);
 
-  // Description:
-  // Get the parent item. The parent will be set for all items except top
-  // level items in a tree.
+  /**
+   * Get the parent item. The parent will be set for all items except top
+   * level items in a tree.
+   */
   vtkAbstractContextItem* GetParent()
     {
     return this->Parent;
     }
 
-  // Description:
-  // Maps the point to the parent coordinate system.
+  /**
+   * Maps the point to the parent coordinate system.
+   */
   virtual vtkVector2f MapToParent(const vtkVector2f& point);
 
-  // Description:
-  // Maps the point from the parent coordinate system.
+  /**
+   * Maps the point from the parent coordinate system.
+   */
   virtual vtkVector2f MapFromParent(const vtkVector2f& point);
 
-  // Description:
-  // Maps the point to the scene coordinate system.
+  /**
+   * Maps the point to the scene coordinate system.
+   */
   virtual vtkVector2f MapToScene(const vtkVector2f& point);
 
-  // Description:
-  // Maps the point from the scene coordinate system.
+  /**
+   * Maps the point from the scene coordinate system.
+   */
   virtual vtkVector2f MapFromScene(const vtkVector2f& point);
 
-  // Description:
-  // Get the visibility of the item (should it be drawn).
+  //@{
+  /**
+   * Get the visibility of the item (should it be drawn).
+   */
   vtkGetMacro(Visible, bool);
+  //@}
 
-  // Description:
-  // Set the visibility of the item (should it be drawn).
-  // Visible by default.
+  //@{
+  /**
+   * Set the visibility of the item (should it be drawn).
+   * Visible by default.
+   */
   vtkSetMacro(Visible, bool);
+  //@}
 
-  // Description:
-  // Get if the item is interactive (should respond to mouse events).
+  //@{
+  /**
+   * Get if the item is interactive (should respond to mouse events).
+   */
   vtkGetMacro(Interactive, bool);
+  //@}
 
-  // Description:
-  // Set if the item is interactive (should respond to mouse events).
+  //@{
+  /**
+   * Set if the item is interactive (should respond to mouse events).
+   */
   vtkSetMacro(Interactive, bool);
+  //@}
 
 protected:
   vtkAbstractContextItem();
   ~vtkAbstractContextItem();
 
-  // Description:
-  // Point to the scene the item is on - can be null.
+  /**
+   * Point to the scene the item is on - can be null.
+   */
   vtkContextScene* Scene;
 
-  // Description:
-  // Point to the parent item - can be null.
+  /**
+   * Point to the parent item - can be null.
+   */
   vtkAbstractContextItem* Parent;
 
-  // Description:
-  // This structure provides a list of children, along with convenience
-  // functions to paint the children etc. It is derived from
-  // std::vector<vtkAbstractContextItem>, defined in a private header.
+  /**
+   * This structure provides a list of children, along with convenience
+   * functions to paint the children etc. It is derived from
+   * std::vector<vtkAbstractContextItem>, defined in a private header.
+   */
   vtkContextScenePrivate* Children;
 
-  // Description:
-  // Store the visibility of the item (default is true).
+  /**
+   * Store the visibility of the item (default is true).
+   */
   bool Visible;
 
-  // Description:
-  // Store whether the item should respond to interactions (default is true).
+  /**
+   * Store whether the item should respond to interactions (default is true).
+   */
   bool Interactive;
 
 private:

@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOutlineCornerSource - create wireframe outline corners around bounding box
-// .SECTION Description
-// vtkOutlineCornerSource creates wireframe outline corners around a user-specified
-// bounding box.
+/**
+ * @class   vtkOutlineCornerSource
+ * @brief   create wireframe outline corners around bounding box
+ *
+ * vtkOutlineCornerSource creates wireframe outline corners around a user-specified
+ * bounding box.
+*/
 
 #ifndef vtkOutlineCornerSource_h
 #define vtkOutlineCornerSource_h
@@ -29,22 +32,29 @@ public:
   vtkTypeMacro(vtkOutlineCornerSource,vtkOutlineSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Construct outline corner source with default corner factor = 0.2
+  /**
+   * Construct outline corner source with default corner factor = 0.2
+   */
   static vtkOutlineCornerSource *New();
 
-  // Description:
-  // Set/Get the factor that controls the relative size of the corners
-  // to the length of the corresponding bounds
+  //@{
+  /**
+   * Set/Get the factor that controls the relative size of the corners
+   * to the length of the corresponding bounds
+   */
   vtkSetClampMacro(CornerFactor, double, 0.001, 0.5);
   vtkGetMacro(CornerFactor, double);
+  //@}
 
-  // Description:
-  // Set/get the desired precision for the output points.
-  // vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
-  // vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+  //@{
+  /**
+   * Set/get the desired precision for the output points.
+   * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
+   * vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+   */
   vtkSetMacro(OutputPointsPrecision,int);
   vtkGetMacro(OutputPointsPrecision,int);
+  //@}
 
 protected:
   vtkOutlineCornerSource();

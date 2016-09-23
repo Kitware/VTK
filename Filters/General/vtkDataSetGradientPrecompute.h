@@ -12,18 +12,20 @@
   PURPOSE.  See the above copyright notice for more information.
 
   =========================================================================*/
-// .NAME vtkDataSetGradientPrecompute
-//
-// .SECTION Description
-// Computes a geometry based vector field that the DataSetGradient filter uses to accelerate
-// gradient computation. This vector field is added to FieldData since it has a different
-// value for each vertex of each cell (a vertex shared by two cell has two differents values).
-//
-// .SECTION Thanks
-// This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
-// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
-// BP12, F-91297 Arpajon, France. <br>
-// Implementation by Thierry Carrard (CEA)
+/**
+ * @class   vtkDataSetGradientPrecompute
+ *
+ *
+ * Computes a geometry based vector field that the DataSetGradient filter uses to accelerate
+ * gradient computation. This vector field is added to FieldData since it has a different
+ * value for each vertex of each cell (a vertex shared by two cell has two differents values).
+ *
+ * @par Thanks:
+ * This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
+ * CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
+ * BP12, F-91297 Arpajon, France. <br>
+ * Implementation by Thierry Carrard (CEA)
+*/
 
 #ifndef vtkDataSetGradientPrecompute_h
 #define vtkDataSetGradientPrecompute_h

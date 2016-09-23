@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkJPEGReader - read JPEG files
-// .SECTION Description
-// vtkJPEGReader is a source object that reads JPEG files.
-// The reader can also read an image from a memory buffer,
-// see vtkImageReader2::MemoryBuffer.
-// It should be able to read most any JPEG file.
-//
-// .SECTION See Also
-// vtkJPEGWriter
+/**
+ * @class   vtkJPEGReader
+ * @brief   read JPEG files
+ *
+ * vtkJPEGReader is a source object that reads JPEG files.
+ * The reader can also read an image from a memory buffer,
+ * see vtkImageReader2::MemoryBuffer.
+ * It should be able to read most any JPEG file.
+ *
+ * @sa
+ * vtkJPEGWriter
+*/
 
 #ifndef vtkJPEGReader_h
 #define vtkJPEGReader_h
@@ -35,21 +38,24 @@ public:
   vtkTypeMacro(vtkJPEGReader,vtkImageReader2);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Is the given file a JPEG file?
+  /**
+   * Is the given file a JPEG file?
+   */
   int CanReadFile(const char* fname);
 
-  // Description:
-  // Get the file extensions for this format.
-  // Returns a string with a space separated list of extensions in
-  // the format .extension
+  /**
+   * Get the file extensions for this format.
+   * Returns a string with a space separated list of extensions in
+   * the format .extension
+   */
   virtual const char* GetFileExtensions()
     {
       return ".jpeg .jpg";
     }
 
-  // Description:
-  // Return a descriptive name for the file format that might be useful in a GUI.
+  /**
+   * Return a descriptive name for the file format that might be useful in a GUI.
+   */
   virtual const char* GetDescriptiveName()
     {
       return "JPEG";

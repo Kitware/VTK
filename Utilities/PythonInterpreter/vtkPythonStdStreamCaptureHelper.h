@@ -12,8 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPythonStdStreamCaptureHelper
-// .SECTION Description
+/**
+ * @class   vtkPythonStdStreamCaptureHelper
+ *
+*/
+
 #ifndef vtkPythonStdStreamCaptureHelper_h
 #define vtkPythonStdStreamCaptureHelper_h
 

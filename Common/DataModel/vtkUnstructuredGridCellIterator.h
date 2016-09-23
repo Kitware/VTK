@@ -12,8 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkUnstructuredGridCellIterator - Implementation of vtkCellIterator
-// specialized for vtkUnstructuredGrid.
+/**
+ * @class   vtkUnstructuredGridCellIterator
+ * @brief   Implementation of vtkCellIterator
+ * specialized for vtkUnstructuredGrid.
+*/
 
 #ifndef vtkUnstructuredGridCellIterator_h
 #define vtkUnstructuredGridCellIterator_h

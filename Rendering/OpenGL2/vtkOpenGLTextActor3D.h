@@ -13,7 +13,10 @@
 
 =========================================================================*/
 
-// .NAME vtkOpenGLTextActor3D - OpenGL2 override for vtkTextActor3D.
+/**
+ * @class   vtkOpenGLTextActor3D
+ * @brief   OpenGL2 override for vtkTextActor3D.
+*/
 
 #ifndef vtkOpenGLTextActor3D_h
 #define vtkOpenGLTextActor3D_h

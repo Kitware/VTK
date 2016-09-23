@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPlaneCollection - maintain a list of planes
-// .SECTION Description
-// vtkPlaneCollection is an object that creates and manipulates
-// lists of objects of type vtkPlane.
-// .SECTION See Also
-// vtkCollection
+/**
+ * @class   vtkPlaneCollection
+ * @brief   maintain a list of planes
+ *
+ * vtkPlaneCollection is an object that creates and manipulates
+ * lists of objects of type vtkPlane.
+ * @sa
+ * vtkCollection
+*/
 
 #ifndef vtkPlaneCollection_h
 #define vtkPlaneCollection_h
@@ -33,22 +36,26 @@ public:
   vtkTypeMacro(vtkPlaneCollection,vtkCollection);
   static vtkPlaneCollection *New();
 
-  // Description:
-  // Add a plane to the list.
+  /**
+   * Add a plane to the list.
+   */
   void AddItem(vtkPlane *);
 
-  // Description:
-  // Get the next plane in the list.
+  /**
+   * Get the next plane in the list.
+   */
   vtkPlane *GetNextItem();
 
-  // Description:
-  // Get the ith plane in the list.
+  /**
+   * Get the ith plane in the list.
+   */
   vtkPlane *GetItem(int i) {
     return static_cast<vtkPlane *>(this->GetItemAsObject(i));};
 
-  // Description:
-  // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth.
+  /**
+   * Reentrant safe way to get an object in a collection. Just pass the
+   * same cookie back and forth.
+   */
   vtkPlane *GetNextPlane(vtkCollectionSimpleIterator &cookie);
 
 protected:

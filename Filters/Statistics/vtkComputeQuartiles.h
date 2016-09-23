@@ -12,21 +12,24 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkComputeQuartiles - Extract quartiles and extremum values
-// of all columns of a table or all fields of a dataset.
-//
-// .SECTION Description
-// vtkComputeQuartiles accepts any vtkDataObject as input and produces a
-// vtkTable data as output.
-// This filter can be used to generate a table to create box plots
-// using a vtkPlotBox instance.
-// The filter internally uses vtkOrderStatistics to compute quartiles.
-//
-// .SECTION See also
-// vtkTableAlgorithm vtkOrderStatistics vtkPlotBox vtkChartBox
-//
-// .SECTION Thanks
-// This class was written by Kitware SAS and supported by EDF - www.edf.fr
+/**
+ * @class   vtkComputeQuartiles
+ * @brief   Extract quartiles and extremum values
+ * of all columns of a table or all fields of a dataset.
+ *
+ *
+ * vtkComputeQuartiles accepts any vtkDataObject as input and produces a
+ * vtkTable data as output.
+ * This filter can be used to generate a table to create box plots
+ * using a vtkPlotBox instance.
+ * The filter internally uses vtkOrderStatistics to compute quartiles.
+ *
+ * @sa
+ * vtkTableAlgorithm vtkOrderStatistics vtkPlotBox vtkChartBox
+ *
+ * @par Thanks:
+ * This class was written by Kitware SAS and supported by EDF - www.edf.fr
+*/
 
 #ifndef vtkComputeQuartiles_h
 #define vtkComputeQuartiles_h

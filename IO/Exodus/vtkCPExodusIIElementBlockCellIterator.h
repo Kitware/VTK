@@ -12,8 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCPExodusIIElementBlockCellIterator - vtkCellIterator subclass
-// specialized for vtkCPExodusIIElementBlock.
+/**
+ * @class   vtkCPExodusIIElementBlockCellIterator
+ * @brief   vtkCellIterator subclass
+ * specialized for vtkCPExodusIIElementBlock.
+*/
 
 #ifndef vtkCPExodusIIElementBlockCellIterator_h
 #define vtkCPExodusIIElementBlockCellIterator_h

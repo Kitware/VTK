@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExodusIIReaderParser - internal parser used by vtkExodusIIReader.
-// .SECTION Description
-// vtkExodusIIReaderParser is an internal XML parser used by vtkExodusIIReader.
-// This is not for public use.
+/**
+ * @class   vtkExodusIIReaderParser
+ * @brief   internal parser used by vtkExodusIIReader.
+ *
+ * vtkExodusIIReaderParser is an internal XML parser used by vtkExodusIIReader.
+ * This is not for public use.
+*/
 
 #ifndef vtkExodusIIReaderParser_h
 #define vtkExodusIIReaderParser_h
@@ -41,13 +44,17 @@ public:
   vtkTypeMacro(vtkExodusIIReaderParser, vtkXMLParser);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Returns the SIL.
-  // This is valid only after Go().
+  //@{
+  /**
+   * Returns the SIL.
+   * This is valid only after Go().
+   */
   vtkGetObjectMacro(SIL, vtkMutableDirectedGraph);
+  //@}
 
-  // Description:
-  // Trigger parsing of the XML file.
+  /**
+   * Trigger parsing of the XML file.
+   */
   void Go(const char* filename);
 
   // Returns if the parser has some information about the block with given "id".
@@ -57,14 +64,17 @@ public:
     return (this->BlockID_To_VertexID.find(id) != this->BlockID_To_VertexID.end());
     }
 
-  // Description:
-  // Given a block "id" return the name as determined from the xml.
-  // This is valid only after Go().
+  /**
+   * Given a block "id" return the name as determined from the xml.
+   * This is valid only after Go().
+   */
   std::string GetBlockName(int id);
 
-  // Description:
-  // Fills up the blockIdsSet with the block ids referred to by the XML.
-  // This is valid only after Go().
+  //@{
+  /**
+   * Fills up the blockIdsSet with the block ids referred to by the XML.
+   * This is valid only after Go().
+   */
   void GetBlockIds(std::set<int>& blockIdsSet)
     {
     std::map<int, vtkIdType>::iterator iter;
@@ -75,6 +85,7 @@ public:
       blockIdsSet.insert(iter->first);
       }
     }
+  //@}
 
 protected:
   vtkExodusIIReaderParser();
@@ -111,10 +122,11 @@ protected:
   vtkIdType AddChildEdgeToSIL(vtkIdType src, vtkIdType dst);
   vtkIdType AddCrossEdgeToSIL(vtkIdType src, vtkIdType dst);
 
-  // Description:
-  // Returns the vertex id for the "part" with given
-  // part_number_instance_string formed as
-  // "{part-number} Instance: {part-instance}"
+  /**
+   * Returns the vertex id for the "part" with given
+   * part_number_instance_string formed as
+   * "{part-number} Instance: {part-instance}"
+   */
   vtkIdType GetPartVertex(const char* part_number_instance_string);
 
   // For each of the blocks, this maps the "id" attribute in the XML to the

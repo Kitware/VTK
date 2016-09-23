@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTensorProbeRepresentation - Abstract class that serves as a representation for vtkTensorProbeWidget
-// .SECTION Description
-// The class serves as an abstract geometrical representation for the
-// vtkTensorProbeWidget. It is left to the concrete implementation to render
-// the tensors as it desires. For instance,
-// vtkEllipsoidTensorProbeRepresentation renders the tensors as ellipsoids.
-//
-// .SECTION See Also
-// vtkTensorProbeWidget
+/**
+ * @class   vtkTensorProbeRepresentation
+ * @brief   Abstract class that serves as a representation for vtkTensorProbeWidget
+ *
+ * The class serves as an abstract geometrical representation for the
+ * vtkTensorProbeWidget. It is left to the concrete implementation to render
+ * the tensors as it desires. For instance,
+ * vtkEllipsoidTensorProbeRepresentation renders the tensors as ellipsoids.
+ *
+ * @sa
+ * vtkTensorProbeWidget
+*/
 
 #ifndef vtkTensorProbeRepresentation_h
 #define vtkTensorProbeRepresentation_h
@@ -37,46 +40,62 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkTensorProbeRepresentation :
                            public vtkWidgetRepresentation
 {
 public:
-  // Description:
-  // Standard methods for instances of this class.
+  //@{
+  /**
+   * Standard methods for instances of this class.
+   */
   vtkTypeMacro(vtkTensorProbeRepresentation,vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // See vtkWidgetRepresentation for details.
+  //@{
+  /**
+   * See vtkWidgetRepresentation for details.
+   */
   virtual void BuildRepresentation();
   virtual int RenderOpaqueGeometry(vtkViewport *);
+  //@}
 
-  // Description:
-  // Set the position of the Tensor probe.
+  //@{
+  /**
+   * Set the position of the Tensor probe.
+   */
   vtkSetVector3Macro( ProbePosition, double );
   vtkGetVector3Macro( ProbePosition, double );
   vtkSetMacro( ProbeCellId, vtkIdType );
   vtkGetMacro( ProbeCellId, vtkIdType );
+  //@}
 
-  // Description:
-  // Set the trajectory that we are trying to probe tensors on
+  /**
+   * Set the trajectory that we are trying to probe tensors on
+   */
   virtual void SetTrajectory( vtkPolyData * );
 
-  // Description:
-  // Set the probe position to a reasonable location on the trajectory.
+  /**
+   * Set the probe position to a reasonable location on the trajectory.
+   */
   void Initialize();
 
-  // Description:
-  // This method is invoked by the widget during user interaction.
-  // Can we pick the tensor glyph at the current cursor pos
+  /**
+   * This method is invoked by the widget during user interaction.
+   * Can we pick the tensor glyph at the current cursor pos
+   */
   virtual int SelectProbe( int pos[2] ) = 0;
 
-  // Description:
-  // INTERNAL - Do not use
-  // This method is invoked by the widget during user interaction.
-  // Move probe based on the position and the motion vector.
+  /**
+   * INTERNAL - Do not use
+   * This method is invoked by the widget during user interaction.
+   * Move probe based on the position and the motion vector.
+   */
   virtual int Move( double motionVector[2] );
 
-  // Description:
-  // See vtkProp for details.
+  //@{
+  /**
+   * See vtkProp for details.
+   */
   virtual void GetActors(vtkPropCollection *);
   virtual void ReleaseGraphicsResources(vtkWindow *);
+  //@}
 
 protected:
   vtkTensorProbeRepresentation();

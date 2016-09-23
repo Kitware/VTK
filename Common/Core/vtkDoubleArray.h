@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDoubleArray - dynamic, self-adjusting array of double
-// .SECTION Description
-// vtkDoubleArray is an array of values of type double.  It provides
-// methods for insertion and retrieval of values and will
-// automatically resize itself to hold new data.
+/**
+ * @class   vtkDoubleArray
+ * @brief   dynamic, self-adjusting array of double
+ *
+ * vtkDoubleArray is an array of values of type double.  It provides
+ * methods for insertion and retrieval of values and will
+ * automatically resize itself to hold new data.
+*/
 
 #ifndef vtkDoubleArray_h
 #define vtkDoubleArray_h
@@ -46,19 +49,22 @@ public:
   vtkCreateWrappedArrayInterface(double);
 #endif
 
-  // Description:
-  // A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+  /**
+   * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+   */
   static vtkDoubleArray* FastDownCast(vtkAbstractArray *source)
   {
     return static_cast<vtkDoubleArray*>(Superclass::FastDownCast(source));
   }
 
-  // Description:
-  // Get the minimum data value in its native type.
+  /**
+   * Get the minimum data value in its native type.
+   */
   static double GetDataTypeValueMin() { return VTK_DOUBLE_MIN; }
 
-  // Description:
-  // Get the maximum data value in its native type.
+  /**
+   * Get the maximum data value in its native type.
+   */
   static double GetDataTypeValueMax() { return VTK_DOUBLE_MAX; }
 
 protected:

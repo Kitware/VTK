@@ -12,14 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkStreaklineFilter - A Parallel Particle tracer for unsteady vector fields
-// .SECTION Description
-// vtkStreaklineFilter is a filter that integrates a vector field to generate streak lines
-//
-//
-// .SECTION See Also
-// vtkParticleTracerBase has the details of the algorithms
-
+/**
+ * @class   vtkStreaklineFilter
+ * @brief   A Parallel Particle tracer for unsteady vector fields
+ *
+ * vtkStreaklineFilter is a filter that integrates a vector field to generate streak lines
+ *
+ *
+ * @sa
+ * vtkParticleTracerBase has the details of the algorithms
+*/
 
 #ifndef vtkStreaklineFilter_h
 #define vtkStreaklineFilter_h

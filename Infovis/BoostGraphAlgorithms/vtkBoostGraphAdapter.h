@@ -17,13 +17,15 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkDirectedGraph*ToBoostAdapter - adapter to the boost graph library (www.boost.org)
-//
-// .SECTION Description
-// Including this header allows you to use a vtkDirectedGraph* in boost algorithms.
-// To do this, first wrap the class in a vtkDirectedGraph* or
-// vtkUndirectedGraph* depending on whether your graph is directed or undirected.
-// You may then use these objects directly in boost graph algorithms.
+/**
+ * @class   vtkDirectedGraph
+ *
+ *
+ * Including this header allows you to use a vtkDirectedGraph* in boost algorithms.
+ * To do this, first wrap the class in a vtkDirectedGraph* or
+ * vtkUndirectedGraph* depending on whether your graph is directed or undirected.
+ * You may then use these objects directly in boost graph algorithms.
+*/
 
 #ifndef vtkBoostGraphAdapter_h
 #define vtkBoostGraphAdapter_h

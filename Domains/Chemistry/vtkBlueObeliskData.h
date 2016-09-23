@@ -12,23 +12,26 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBlueObeliskData - Contains chemical data from the Blue
-// Obelisk Data Repository
-//
-// .SECTION Description
-// The Blue Obelisk Data Repository is a free, open repository of
-// chemical information. This class is a container for this
-// information.
-//
-// \note This class contains only the raw arrays parsed from the
-// BODR. For more convenient access to this data, use the
-// vtkPeriodicTable class.
-//
-// \note If you must use this class directly, consider using the
-// static vtkBlueObeliskData object accessible through
-// vtkPeriodicTable::GetBlueObeliskData(). This object is
-// automatically populated on the first instantiation of
-// vtkPeriodicTable.
+/**
+ * @class   vtkBlueObeliskData
+ * @brief   Contains chemical data from the Blue
+ * Obelisk Data Repository
+ *
+ *
+ * The Blue Obelisk Data Repository is a free, open repository of
+ * chemical information. This class is a container for this
+ * information.
+ *
+ * \note This class contains only the raw arrays parsed from the
+ * BODR. For more convenient access to this data, use the
+ * vtkPeriodicTable class.
+ *
+ * \note If you must use this class directly, consider using the
+ * static vtkBlueObeliskData object accessible through
+ * vtkPeriodicTable::GetBlueObeliskData(). This object is
+ * automatically populated on the first instantiation of
+ * vtkPeriodicTable.
+*/
 
 #ifndef vtkBlueObeliskData_h
 #define vtkBlueObeliskData_h
@@ -53,29 +56,39 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskData : public vtkObject
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkBlueObeliskData *New();
 
-  // Description:
-  // Fill this object using an internal vtkBlueObeliskDataParser
-  // instance. Check that the vtkSimpleMutexLock GetWriteMutex() is
-  // locked before calling this method on a static instance in a
-  // multithreaded environment.
+  /**
+   * Fill this object using an internal vtkBlueObeliskDataParser
+   * instance. Check that the vtkSimpleMutexLock GetWriteMutex() is
+   * locked before calling this method on a static instance in a
+   * multithreaded environment.
+   */
   void Initialize();
 
-  // Description:
-  // Check if this object has been initialized yet.
+  /**
+   * Check if this object has been initialized yet.
+   */
   bool IsInitialized() { return this->Initialized;}
 
-  // Description:
-  // Access the mutex that protects the arrays during a call to
-  // Initialize()
+  //@{
+  /**
+   * Access the mutex that protects the arrays during a call to
+   * Initialize()
+   */
   vtkGetObjectMacro(WriteMutex, vtkSimpleMutexLock);
+  //@}
 
-  // Description:
-  // Return the number of elements for which this vtkBlueObeliskData
-  // instance contains information.
+  //@{
+  /**
+   * Return the number of elements for which this vtkBlueObeliskData
+   * instance contains information.
+   */
   vtkGetMacro(NumberOfElements, unsigned short);
+  //@}
 
-  // Description:
-  // Access the raw arrays stored in this vtkBlueObeliskData.
+  //@{
+  /**
+   * Access the raw arrays stored in this vtkBlueObeliskData.
+   */
   vtkGetNewMacro(Symbols, vtkStringArray);
   vtkGetNewMacro(LowerSymbols, vtkStringArray);
   vtkGetNewMacro(Names, vtkStringArray);
@@ -83,6 +96,7 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskData : public vtkObject
   vtkGetNewMacro(PeriodicTableBlocks, vtkStringArray);
   vtkGetNewMacro(ElectronicConfigurations, vtkStringArray);
   vtkGetNewMacro(Families, vtkStringArray);
+  //@}
 
   vtkGetNewMacro(Masses, vtkFloatArray);
   vtkGetNewMacro(ExactMasses, vtkFloatArray);
@@ -98,9 +112,10 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskData : public vtkObject
   vtkGetNewMacro(Periods, vtkUnsignedShortArray);
   vtkGetNewMacro(Groups, vtkUnsignedShortArray);
 
-  // Description:
-  // Static method to generate the data header file used by this class from the
-  // BODR elements.xml. See the GenerateBlueObeliskHeader test in this module.
+  /**
+   * Static method to generate the data header file used by this class from the
+   * BODR elements.xml. See the GenerateBlueObeliskHeader test in this module.
+   */
   static bool GenerateHeaderFromXML(std::istream &xml, std::ostream &header);
 
  protected:
@@ -112,17 +127,20 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskData : public vtkObject
   vtkSimpleMutexLock *WriteMutex;
   bool Initialized;
 
-  // Description:
-  // Allocate enough memory in each array for sz elements. ext is not
-  // used.
+  /**
+   * Allocate enough memory in each array for sz elements. ext is not
+   * used.
+   */
   virtual int Allocate(vtkIdType sz, vtkIdType ext=1000);
 
-  // Description:
-  // Reset each array.
+  /**
+   * Reset each array.
+   */
   virtual void Reset();
 
-  // Description:
-  // Free any unused memory in the member arrays
+  /**
+   * Free any unused memory in the member arrays
+   */
   virtual void Squeeze();
 
   unsigned short NumberOfElements;

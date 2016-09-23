@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLActor - OpenGL actor
-// .SECTION Description
-// vtkOpenGLActor is a concrete implementation of the abstract class vtkActor.
-// vtkOpenGLActor interfaces to the OpenGL rendering library.
+/**
+ * @class   vtkOpenGLActor
+ * @brief   OpenGL actor
+ *
+ * vtkOpenGLActor is a concrete implementation of the abstract class vtkActor.
+ * vtkOpenGLActor interfaces to the OpenGL rendering library.
+*/
 
 #ifndef vtkOpenGLActor_h
 #define vtkOpenGLActor_h
@@ -32,8 +35,9 @@ public:
   vtkTypeMacro(vtkOpenGLActor, vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Actual actor render method.
+  /**
+   * Actual actor render method.
+   */
   void Render(vtkRenderer *ren, vtkMapper *mapper);
 
 protected:

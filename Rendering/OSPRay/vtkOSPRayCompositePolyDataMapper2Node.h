@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOSPRayCompositePolyDataMapper2Node - links vtkActor and vtkMapper to OSPRay
-// .SECTION Description
-// Translates vtkActor/Mapper state into OSPRay rendering calls
+/**
+ * @class   vtkOSPRayCompositePolyDataMapper2Node
+ * @brief   links vtkActor and vtkMapper to OSPRay
+ *
+ * Translates vtkActor/Mapper state into OSPRay rendering calls
+*/
 
 #ifndef vtkOSPRayCompositePolyDataMapper2Node_h
 #define vtkOSPRayCompositePolyDataMapper2Node_h
@@ -36,12 +39,14 @@ public:
   vtkTypeMacro(vtkOSPRayCompositePolyDataMapper2Node, vtkOSPRayPolyDataMapperNode);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //Description:
-  //Make ospray calls to render me.
+  /**
+   * Make ospray calls to render me.
+   */
   virtual void Render(bool prepass);
 
-  //Description:
-  //Invalidates cached rendering data.
+  /**
+   * Invalidates cached rendering data.
+   */
   virtual void Invalidate(bool prepass);
 
 protected:

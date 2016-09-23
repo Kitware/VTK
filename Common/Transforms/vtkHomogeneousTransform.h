@@ -12,14 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHomogeneousTransform - superclass for homogeneous transformations
-// .SECTION Description
-// vtkHomogeneousTransform provides a generic interface for homogeneous
-// transformations, i.e. transformations which can be represented by
-// multiplying a 4x4 matrix with a homogeneous coordinate.
-// .SECTION see also
-// vtkPerspectiveTransform vtkLinearTransform vtkIdentityTransform
-
+/**
+ * @class   vtkHomogeneousTransform
+ * @brief   superclass for homogeneous transformations
+ *
+ * vtkHomogeneousTransform provides a generic interface for homogeneous
+ * transformations, i.e. transformations which can be represented by
+ * multiplying a 4x4 matrix with a homogeneous coordinate.
+ * @sa
+ * vtkPerspectiveTransform vtkLinearTransform vtkIdentityTransform
+*/
 
 #ifndef vtkHomogeneousTransform_h
 #define vtkHomogeneousTransform_h
@@ -36,14 +38,16 @@ public:
   vtkTypeMacro(vtkHomogeneousTransform,vtkAbstractTransform);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Apply the transformation to a series of points, and append the
-  // results to outPts.
+  /**
+   * Apply the transformation to a series of points, and append the
+   * results to outPts.
+   */
   void TransformPoints(vtkPoints *inPts, vtkPoints *outPts) VTK_OVERRIDE;
 
-  // Description:
-  // Apply the transformation to a combination of points, normals
-  // and vectors.
+  /**
+   * Apply the transformation to a combination of points, normals
+   * and vectors.
+   */
   void TransformPointsNormalsVectors(vtkPoints *inPts,
                                      vtkPoints *outPts,
                                      vtkDataArray *inNms,
@@ -51,41 +55,50 @@ public:
                                      vtkDataArray *inVrs,
                                      vtkDataArray *outVrs) VTK_OVERRIDE;
 
-  // Description:
-  // Get a copy of the internal transformation matrix.  The
-  // transform is Updated first, to guarantee that the matrix
-  // is valid.
+  /**
+   * Get a copy of the internal transformation matrix.  The
+   * transform is Updated first, to guarantee that the matrix
+   * is valid.
+   */
   void GetMatrix(vtkMatrix4x4 *m);
 
-  // Description:
-  // Get a pointer to an internal vtkMatrix4x4 that represents
-  // the transformation.  An Update() is called on the transform
-  // to ensure that the matrix is up-to-date when you get it.
-  // You should not store the matrix pointer anywhere because it
-  // might become stale.
+  /**
+   * Get a pointer to an internal vtkMatrix4x4 that represents
+   * the transformation.  An Update() is called on the transform
+   * to ensure that the matrix is up-to-date when you get it.
+   * You should not store the matrix pointer anywhere because it
+   * might become stale.
+   */
   vtkMatrix4x4 *GetMatrix() { this->Update(); return this->Matrix; };
 
-  // Description:
-  // Just like GetInverse(), but includes typecast to vtkHomogeneousTransform.
+  /**
+   * Just like GetInverse(), but includes typecast to vtkHomogeneousTransform.
+   */
   vtkHomogeneousTransform *GetHomogeneousInverse()
     {
       return static_cast<vtkHomogeneousTransform *>(this->GetInverse());
     }
 
-  // Description:
-  // This will calculate the transformation without calling Update.
-  // Meant for use only within other VTK classes.
+  //@{
+  /**
+   * This will calculate the transformation without calling Update.
+   * Meant for use only within other VTK classes.
+   */
   void InternalTransformPoint(const float in[3], float out[3]) VTK_OVERRIDE;
   void InternalTransformPoint(const double in[3], double out[3]) VTK_OVERRIDE;
+  //@}
 
-  // Description:
-  // This will calculate the transformation as well as its derivative
-  // without calling Update.  Meant for use only within other VTK
-  // classes.
+  //@{
+  /**
+   * This will calculate the transformation as well as its derivative
+   * without calling Update.  Meant for use only within other VTK
+   * classes.
+   */
   void InternalTransformDerivative(const float in[3], float out[3],
                                    float derivative[3][3]) VTK_OVERRIDE;
   void InternalTransformDerivative(const double in[3], double out[3],
                                    double derivative[3][3]) VTK_OVERRIDE;
+  //@}
 
 protected:
   vtkHomogeneousTransform();

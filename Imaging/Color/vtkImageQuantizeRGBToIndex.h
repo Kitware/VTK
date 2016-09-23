@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageQuantizeRGBToIndex - generalized histograms up to 4 dimensions
-// .SECTION Description
-// vtkImageQuantizeRGBToIndex takes a 3 component RGB image as
-// input and produces a one component index image as output, along with
-// a lookup table that contains the color definitions for the index values.
-// This filter works on the entire input extent - it does not perform
-// streaming, and it does not supported threaded execution (because it has
-// to process the entire image).
-//
-// To use this filter, you typically set the number of colors
-// (between 2 and 65536), execute it, and then retrieve the lookup table.
-// The colors can then be using the lookup table and the image index.
+/**
+ * @class   vtkImageQuantizeRGBToIndex
+ * @brief   generalized histograms up to 4 dimensions
+ *
+ * vtkImageQuantizeRGBToIndex takes a 3 component RGB image as
+ * input and produces a one component index image as output, along with
+ * a lookup table that contains the color definitions for the index values.
+ * This filter works on the entire input extent - it does not perform
+ * streaming, and it does not supported threaded execution (because it has
+ * to process the entire image).
+ *
+ * To use this filter, you typically set the number of colors
+ * (between 2 and 65536), execute it, and then retrieve the lookup table.
+ * The colors can then be using the lookup table and the image index.
+*/
 
 #ifndef vtkImageQuantizeRGBToIndex_h
 #define vtkImageQuantizeRGBToIndex_h
@@ -40,30 +43,42 @@ public:
   vtkTypeMacro(vtkImageQuantizeRGBToIndex,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set / Get the number of color index values to produce - must be
-  // a number between 2 and 65536.
+  //@{
+  /**
+   * Set / Get the number of color index values to produce - must be
+   * a number between 2 and 65536.
+   */
   vtkSetClampMacro( NumberOfColors, int, 2, 65536 );
   vtkGetMacro( NumberOfColors, int );
+  //@}
 
-  // Description:
-  // Get the resulting lookup table that contains the color definitions
-  // corresponding to the index values in the output image.
+  //@{
+  /**
+   * Get the resulting lookup table that contains the color definitions
+   * corresponding to the index values in the output image.
+   */
   vtkGetObjectMacro( LookupTable, vtkLookupTable );
+  //@}
 
   vtkGetMacro( InitializeExecuteTime, double );
   vtkGetMacro( BuildTreeExecuteTime, double );
   vtkGetMacro( LookupIndexExecuteTime, double );
 
-  // Description:
-  // For internal use only - get the type of the image
+  //@{
+  /**
+   * For internal use only - get the type of the image
+   */
   vtkGetMacro( InputType, int );
+  //@}
 
-  // Description:
-  // For internal use only - set the times for execution
+  //@{
+  /**
+   * For internal use only - set the times for execution
+   */
   vtkSetMacro( InitializeExecuteTime, double );
   vtkSetMacro( BuildTreeExecuteTime, double );
   vtkSetMacro( LookupIndexExecuteTime, double );
+  //@}
 
 protected:
   vtkImageQuantizeRGBToIndex();

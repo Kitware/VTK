@@ -19,12 +19,15 @@
 
 =========================================================================*/
 
-// .NAME vtkNormalizeMatrixVectors - given a sparse input matrix, produces
-// a sparse output matrix with each vector normalized to unit length with respect
-// to a p-norm (default p=2).
-//
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+/**
+ * @class   vtkNormalizeMatrixVectors
+ * @brief   given a sparse input matrix, produces
+ * a sparse output matrix with each vector normalized to unit length with respect
+ * to a p-norm (default p=2).
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+*/
 
 #ifndef vtkNormalizeMatrixVectors_h
 #define vtkNormalizeMatrixVectors_h
@@ -39,15 +42,21 @@ public:
   vtkTypeMacro(vtkNormalizeMatrixVectors, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Controls whether to normalize row-vectors or column-vectors.  0 = rows, 1 = columns.
+  //@{
+  /**
+   * Controls whether to normalize row-vectors or column-vectors.  0 = rows, 1 = columns.
+   */
   vtkGetMacro(VectorDimension, int);
   vtkSetMacro(VectorDimension, int);
+  //@}
 
-  // Description:
-  // Value of p in p-norm normalization, subject to p >= 1.  Default is p=2 (Euclidean norm).
+  //@{
+  /**
+   * Value of p in p-norm normalization, subject to p >= 1.  Default is p=2 (Euclidean norm).
+   */
   vtkGetMacro(PValue, double);
   vtkSetMacro(PValue, double);
+  //@}
 
 protected:
   vtkNormalizeMatrixVectors();

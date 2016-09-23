@@ -12,18 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCollapseVerticesByArray - Collapse the graph given a vertex array
-//
-// .SECTION Description
-// vtkCollapseVerticesByArray is a class which collapses the graph using
-// a vertex array as the key. So if the graph has vertices sharing common
-// traits then this class combines all these vertices into one. This class
-// does not perform aggregation on vertex data but allow to do so for edge data.
-// Users can choose one or more edge data arrays for aggregation using
-// AddAggregateEdgeArray function.
-//
-// .SECTION Thanks
-//
+/**
+ * @class   vtkCollapseVerticesByArray
+ * @brief   Collapse the graph given a vertex array
+ *
+ *
+ * vtkCollapseVerticesByArray is a class which collapses the graph using
+ * a vertex array as the key. So if the graph has vertices sharing common
+ * traits then this class combines all these vertices into one. This class
+ * does not perform aggregation on vertex data but allow to do so for edge data.
+ * Users can choose one or more edge data arrays for aggregation using
+ * AddAggregateEdgeArray function.
+ *
+ *
+*/
 
 #ifndef vtkCollapseVerticesByArray_h
 #define vtkCollapseVerticesByArray_h
@@ -41,82 +43,107 @@ public:
 
     void PrintSelf(ostream &os, vtkIndent indent);
 
-    // Description:
-    // Boolean to allow self loops during collapse.
+    //@{
+    /**
+     * Boolean to allow self loops during collapse.
+     */
     vtkGetMacro(AllowSelfLoops, bool);
     vtkSetMacro(AllowSelfLoops, bool);
     vtkBooleanMacro(AllowSelfLoops, bool);
+    //@}
 
-    // Description:
-    // Add arrays on which aggregation of data is allowed.
-    // Default if replaced by the last value.
+    /**
+     * Add arrays on which aggregation of data is allowed.
+     * Default if replaced by the last value.
+     */
     void AddAggregateEdgeArray(const char* arrName);
 
 
-    // Description:
-    // Clear the list of arrays on which aggregation was set to allow.
+    /**
+     * Clear the list of arrays on which aggregation was set to allow.
+     */
     void ClearAggregateEdgeArray();
 
-    // Description:
-    // Set the array using which perform the collapse.
+    //@{
+    /**
+     * Set the array using which perform the collapse.
+     */
     vtkGetStringMacro(VertexArray);
     vtkSetStringMacro(VertexArray);
+    //@}
 
 
-    // Description:
-    // Set if count should be made of how many edges collapsed.
+    //@{
+    /**
+     * Set if count should be made of how many edges collapsed.
+     */
     vtkGetMacro(CountEdgesCollapsed, bool);
     vtkSetMacro(CountEdgesCollapsed, bool);
     vtkBooleanMacro(CountEdgesCollapsed, bool);
+    //@}
 
-    // Description:
-    // Name of the array where the count of how many edges collapsed will
-    // be stored.By default the name of array is "EdgesCollapsedCountArray".
+    //@{
+    /**
+     * Name of the array where the count of how many edges collapsed will
+     * be stored.By default the name of array is "EdgesCollapsedCountArray".
+     */
     vtkGetStringMacro(EdgesCollapsedArray);
     vtkSetStringMacro(EdgesCollapsedArray);
+    //@}
 
 
-    // Description:
-    // Get/Set if count should be made of how many vertices collapsed.
+    //@{
+    /**
+     * Get/Set if count should be made of how many vertices collapsed.
+     */
     vtkGetMacro(CountVerticesCollapsed, bool);
     vtkSetMacro(CountVerticesCollapsed, bool);
     vtkBooleanMacro(CountVerticesCollapsed, bool);
+    //@}
 
-    // Description:
-    // Name of the array where the count of how many vertices collapsed will
-    // be stored. By default name of the array is "VerticesCollapsedCountArray".
+    //@{
+    /**
+     * Name of the array where the count of how many vertices collapsed will
+     * be stored. By default name of the array is "VerticesCollapsedCountArray".
+     */
     vtkGetStringMacro(VerticesCollapsedArray);
     vtkSetStringMacro(VerticesCollapsedArray);
+    //@}
 
 protected:
 
     vtkCollapseVerticesByArray();
    ~vtkCollapseVerticesByArray();
 
-   // Description:
-   // Pipeline function.
+   /**
+    * Pipeline function.
+    */
    virtual int RequestData(vtkInformation* request,
                            vtkInformationVector** inputVector,
                            vtkInformationVector* outputVector);
 
-   // Description:
-   // Pipeline function.
+   /**
+    * Pipeline function.
+    */
    virtual int FillOutputPortInformation(int port, vtkInformation* info);
 
 
-   // Description:
-   // Create output graph given all the parameters. Helper function.
+   /**
+    * Create output graph given all the parameters. Helper function.
+    */
    vtkGraph* Create(vtkGraph* inGraph);
 
-   // Description:
-   // Helper function.
+   /**
+    * Helper function.
+    */
    void FindEdge(vtkGraph* outGraph, vtkIdType source,
                  vtkIdType target, vtkIdType& edgeId);
 
 private:
-  // Description:
+  //@{
   vtkCollapseVerticesByArray(const vtkCollapseVerticesByArray&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCollapseVerticesByArray&) VTK_DELETE_FUNCTION;
+  //@}
 
 
 protected:

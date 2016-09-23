@@ -16,13 +16,16 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkPBGLCollapseGraph - collapse multiple vertices into a single vertex
-//
-// .SECTION Description
-//
-// Uses single input array specified with SetInputArrayToProcess(0,...)
-// to collapse groups of vertices with the same value into a single vertex.
-// @deprecated Not maintained as of VTK 6.2 and will be removed eventually.
+/**
+ * @class   vtkPBGLCollapseGraph
+ * @brief   collapse multiple vertices into a single vertex
+ *
+ *
+ *
+ * Uses single input array specified with SetInputArrayToProcess(0,...)
+ * to collapse groups of vertices with the same value into a single vertex.
+ * @deprecated Not maintained as of VTK 6.2 and will be removed eventually.
+*/
 
 #ifndef vtkPBGLCollapseGraph_h
 #define vtkPBGLCollapseGraph_h

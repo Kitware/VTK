@@ -12,16 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPixelTransfer -- For movement of pixel data described by
-// pixel extents
-//
-// .SECTION Description
-// Class to handle non-contiguous data transfers of data described
-// by pixel extents within a process. For transfering data between
-// processes see vtkPPixelTransfer.
-//
-// .SECTION See also
-// vtkPixelExtent vtkPPixelTransfer
+/**
+ * @class   vtkPixelTransfer
+ * pixel extents
+ *
+ *
+ * Class to handle non-contiguous data transfers of data described
+ * by pixel extents within a process. For transfering data between
+ * processes see vtkPPixelTransfer.
+ *
+ * @sa
+ * vtkPixelExtent vtkPPixelTransfer
+*/
 
 #ifndef vtkPixelTransfer_h
 #define vtkPixelTransfer_h
@@ -36,9 +38,10 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPixelTransfer
 public:
   vtkPixelTransfer(){}
 
-  // Description:
-  // for  memory to memory transfers. Conveinience api for working
-  // with vtk type enum rather than c-data types and simple extents.
+  /**
+   * for  memory to memory transfers. Conveinience api for working
+   * with vtk type enum rather than c-data types and simple extents.
+   */
   static
   int Blit(
          const vtkPixelExtent &ext,
@@ -48,9 +51,10 @@ public:
          int destType,
          void *destData);
 
-  // Description:
-  // for  memory to memory transfers. Conveinience api for working
-  // with vtk type enum rather than c-data types.
+  /**
+   * for  memory to memory transfers. Conveinience api for working
+   * with vtk type enum rather than c-data types.
+   */
   static
   int Blit(
          const vtkPixelExtent &srcWhole,
@@ -64,8 +68,9 @@ public:
          int destType,
          void *destData);
 
-  // Description:
-  // for local memory to memory transfers
+  /**
+   * for local memory to memory transfers
+   */
   template<typename SOURCE_TYPE, typename DEST_TYPE>
   static
   int Blit(

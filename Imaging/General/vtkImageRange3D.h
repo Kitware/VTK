@@ -12,12 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageRange3D - Max - min of a circular neighborhood.
-// .SECTION Description
-// vtkImageRange3D replaces a pixel with the maximum minus minimum over
-// an ellipsoidal neighborhood.  If KernelSize of an axis is 1, no processing
-// is done on that axis.
-
+/**
+ * @class   vtkImageRange3D
+ * @brief   Max - min of a circular neighborhood.
+ *
+ * vtkImageRange3D replaces a pixel with the maximum minus minimum over
+ * an ellipsoidal neighborhood.  If KernelSize of an axis is 1, no processing
+ * is done on that axis.
+*/
 
 #ifndef vtkImageRange3D_h
 #define vtkImageRange3D_h
@@ -35,9 +37,10 @@ public:
   vtkTypeMacro(vtkImageRange3D,vtkImageSpatialAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // This method sets the size of the neighborhood.  It also sets the
-  // default middle of the neighborhood and computes the elliptical foot print.
+  /**
+   * This method sets the size of the neighborhood.  It also sets the
+   * default middle of the neighborhood and computes the elliptical foot print.
+   */
   void SetKernelSize(int size0, int size1, int size2);
 
 protected:

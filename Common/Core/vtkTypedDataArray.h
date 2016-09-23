@@ -12,23 +12,26 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTypedDataArray - Extend vtkDataArray with abstract type-specific API
-//
-// .SECTION Description
-// This templated class decorates vtkDataArray with additional type-specific
-// methods that can be used to interact with the data.
-//
-// NOTE: This class has been made obsolete by the newer vtkGenericDataArray.
-//
-// .SECTION Caveats
-// This class uses vtkTypeTraits to implement GetDataType(). Since vtkIdType
-// is a typedef for either a 32- or 64-bit integer, subclasses that are designed
-// to hold vtkIdTypes will, by default, return an incorrect value from
-// GetDataType(). To fix this, such subclasses should override GetDataType() to
-// return VTK_ID_TYPE.
-//
-// .SECTION See Also
-// vtkGenericDataArray
+/**
+ * @class   vtkTypedDataArray
+ * @brief   Extend vtkDataArray with abstract type-specific API
+ *
+ *
+ * This templated class decorates vtkDataArray with additional type-specific
+ * methods that can be used to interact with the data.
+ *
+ * NOTE: This class has been made obsolete by the newer vtkGenericDataArray.
+ *
+ * @warning
+ * This class uses vtkTypeTraits to implement GetDataType(). Since vtkIdType
+ * is a typedef for either a 32- or 64-bit integer, subclasses that are designed
+ * to hold vtkIdTypes will, by default, return an incorrect value from
+ * GetDataType(). To fix this, such subclasses should override GetDataType() to
+ * return VTK_ID_TYPE.
+ *
+ * @sa
+ * vtkGenericDataArray
+*/
 
 #ifndef vtkTypedDataArray_h
 #define vtkTypedDataArray_h
@@ -50,88 +53,106 @@ public:
   vtkTemplateTypeMacro(vtkTypedDataArray<Scalar>, GenericDataArrayType)
   typedef typename Superclass::ValueType ValueType;
 
-  // Description:
-  // Typedef to a suitable iterator class.
+  /**
+   * Typedef to a suitable iterator class.
+   */
   typedef vtkTypedDataArrayIterator<ValueType> Iterator;
 
-  // Description:
-  // Return an iterator initialized to the first element of the data.
+  /**
+   * Return an iterator initialized to the first element of the data.
+   */
   Iterator Begin();
 
-  // Description:
-  // Return an iterator initialized to first element past the end of the data.
+  /**
+   * Return an iterator initialized to first element past the end of the data.
+   */
   Iterator End();
 
-  // Description:
-  // Compile time access to the VTK type identifier.
+  /**
+   * Compile time access to the VTK type identifier.
+   */
   enum { VTK_DATA_TYPE = vtkTypeTraits<ValueType>::VTK_TYPE_ID };
 
-  // Description:
-  // Perform a fast, safe cast from a vtkAbstractArray to a vtkTypedDataArray.
-  // This method checks if:
-  // - source->GetArrayType() is appropriate, and
-  // - source->GetDataType() matches the Scalar template argument
-  // if these conditions are met, the method performs a static_cast to return
-  // source as a vtkTypedDataArray pointer. Otherwise, NULL is returned.
+  /**
+   * Perform a fast, safe cast from a vtkAbstractArray to a vtkTypedDataArray.
+   * This method checks if:
+   * - source->GetArrayType() is appropriate, and
+   * - source->GetDataType() matches the Scalar template argument
+   * if these conditions are met, the method performs a static_cast to return
+   * source as a vtkTypedDataArray pointer. Otherwise, NULL is returned.
+   */
   static vtkTypedDataArray<Scalar>* FastDownCast(vtkAbstractArray *source);
 
-  // Description:
-  // Return the VTK data type held by this array.
+  /**
+   * Return the VTK data type held by this array.
+   */
   int GetDataType() VTK_OVERRIDE;
 
-  // Description:
-  // Return the size of the element type in bytes.
+  /**
+   * Return the size of the element type in bytes.
+   */
   int GetDataTypeSize() VTK_OVERRIDE;
 
-  // Description:
-  // Specify the number of values for this object to hold. Does an
-  // allocation as well as setting the MaxId ivar. Used in conjunction with
-  // SetValue() method for fast insertion.
+  /**
+   * Specify the number of values for this object to hold. Does an
+   * allocation as well as setting the MaxId ivar. Used in conjunction with
+   * SetValue() method for fast insertion.
+   */
   void SetNumberOfValues(vtkIdType num) VTK_OVERRIDE;
 
-  // Description:
-  // Set the tuple value at the ith location in the array.
+  /**
+   * Set the tuple value at the ith location in the array.
+   */
   virtual void SetTypedTuple(vtkIdType i, const ValueType *t) = 0;
 
-  // Description:
-  // Insert (memory allocation performed) the tuple into the ith location
-  // in the array.
+  /**
+   * Insert (memory allocation performed) the tuple into the ith location
+   * in the array.
+   */
   virtual void InsertTypedTuple(vtkIdType i, const ValueType *t) = 0;
 
-  // Description:
-  // Insert (memory allocation performed) the tuple onto the end of the array.
+  /**
+   * Insert (memory allocation performed) the tuple onto the end of the array.
+   */
   virtual vtkIdType InsertNextTypedTuple(const ValueType *t) = 0;
 
-  // Description:
-  // Get the data at a particular index.
+  /**
+   * Get the data at a particular index.
+   */
   virtual ValueType GetValue(vtkIdType idx) const = 0;
 
-  // Description:
-  // Get a reference to the scalar value at a particular index.
+  /**
+   * Get a reference to the scalar value at a particular index.
+   */
   virtual ValueType& GetValueReference(vtkIdType idx) = 0;
 
-  // Description:
-  // Set the data at a particular index. Does not do range checking. Make sure
-  // you use the method SetNumberOfValues() before inserting data.
+  /**
+   * Set the data at a particular index. Does not do range checking. Make sure
+   * you use the method SetNumberOfValues() before inserting data.
+   */
   virtual void SetValue(vtkIdType idx, ValueType value) = 0;
 
-  // Description:
-  // Copy the tuple value into a user-provided array.
+  /**
+   * Copy the tuple value into a user-provided array.
+   */
   virtual void GetTypedTuple(vtkIdType idx, ValueType *t) const = 0;
 
-  // Description:
-  // Insert data at the end of the array. Return its location in the array.
+  /**
+   * Insert data at the end of the array. Return its location in the array.
+   */
   virtual vtkIdType InsertNextValue(ValueType v) = 0;
 
-  // Description:
-  // Insert data at a specified position in the array.
+  /**
+   * Insert data at a specified position in the array.
+   */
   virtual void InsertValue(vtkIdType idx, ValueType v) = 0;
 
   virtual ValueType GetTypedComponent(vtkIdType tupleIdx, int comp) const;
   virtual void SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType v);
 
-  // Description:
-  // Method for type-checking in FastDownCast implementations.
+  /**
+   * Method for type-checking in FastDownCast implementations.
+   */
   int GetArrayType() VTK_OVERRIDE { return vtkAbstractArray::TypedDataArray; }
 
   // Reintroduced as pure virtual since the base vtkGenericDataArray method
@@ -144,14 +165,16 @@ protected:
   vtkTypedDataArray();
   ~vtkTypedDataArray();
 
-  // Description:
-  // Needed for vtkGenericDataArray API, but just aborts. Override Allocate
-  // instead.
+  /**
+   * Needed for vtkGenericDataArray API, but just aborts. Override Allocate
+   * instead.
+   */
   virtual bool AllocateTuples(vtkIdType numTuples);
 
-  // Description:
-  // Needed for vtkGenericDataArray API, but just aborts. Override Resize
-  // instead.
+  /**
+   * Needed for vtkGenericDataArray API, but just aborts. Override Resize
+   * instead.
+   */
   virtual bool ReallocateTuples(vtkIdType numTuples);
 
 private:

@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDataSetWriter - write any type of vtk dataset to file
-// .SECTION Description
-// vtkDataSetWriter is an abstract class for mapper objects that write their
-// data to disk (or into a communications port). The input to this object is
-// a dataset of any type.
+/**
+ * @class   vtkDataSetWriter
+ * @brief   write any type of vtk dataset to file
+ *
+ * vtkDataSetWriter is an abstract class for mapper objects that write their
+ * data to disk (or into a communications port). The input to this object is
+ * a dataset of any type.
+*/
 
 #ifndef vtkDataSetWriter_h
 #define vtkDataSetWriter_h
@@ -31,10 +34,13 @@ public:
   vtkTypeMacro(vtkDataSetWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the input to this writer.
+  //@{
+  /**
+   * Get the input to this writer.
+   */
   vtkDataSet* GetInput();
   vtkDataSet* GetInput(int port);
+  //@}
 
 protected:
   vtkDataSetWriter() {}

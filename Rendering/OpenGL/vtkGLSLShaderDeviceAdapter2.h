@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGLSLShaderDeviceAdapter2 - adapter to pass generic vertex
-// attributes to the rendering pipeline to be used in a vtkShaderProgram2.
-// .SECTION Description
-// vtkShaderDeviceAdapter subclass for vtkShaderProgram2.
+/**
+ * @class   vtkGLSLShaderDeviceAdapter2
+ * @brief   adapter to pass generic vertex
+ * attributes to the rendering pipeline to be used in a vtkShaderProgram2.
+ *
+ * vtkShaderDeviceAdapter subclass for vtkShaderProgram2.
+*/
 
 #ifndef vtkGLSLShaderDeviceAdapter2_h
 #define vtkGLSLShaderDeviceAdapter2_h
@@ -39,20 +42,21 @@ public:
   // that it will need while rendering.
   virtual void PrepareForRender();
 
-  // Description:
-  // Sends a single attribute to the graphics card.
-  // The attrname parameter identifies the name of attribute.
-  // The components parameter gives the number of
-  // components in the attribute.  In general, components must be between
-  // 1-4, but a rendering system may impose even more constraints.  The
-  // type parameter is a VTK type enumeration (VTK_FLOAT, VTK_INT, etc.).
-  // Again, a rendering system may not support all types for all
-  // attributes.  The attribute parameter is the actual data for the
-  // attribute.
-  // If offset is specified, it is added to attribute pointer \c after
-  // it has been casted to the proper type.
-  // If attribute is NULL, the OpenGL ID for the attribute will simply be
-  // cached.
+  /**
+   * Sends a single attribute to the graphics card.
+   * The attrname parameter identifies the name of attribute.
+   * The components parameter gives the number of
+   * components in the attribute.  In general, components must be between
+   * 1-4, but a rendering system may impose even more constraints.  The
+   * type parameter is a VTK type enumeration (VTK_FLOAT, VTK_INT, etc.).
+   * Again, a rendering system may not support all types for all
+   * attributes.  The attribute parameter is the actual data for the
+   * attribute.
+   * If offset is specified, it is added to attribute pointer \c after
+   * it has been casted to the proper type.
+   * If attribute is NULL, the OpenGL ID for the attribute will simply be
+   * cached.
+   */
   virtual void SendAttribute(const char* attrname,
                              int components,
                              int type,
@@ -63,7 +67,6 @@ protected:
   vtkGLSLShaderDeviceAdapter2();
   ~vtkGLSLShaderDeviceAdapter2();
 
-  // Description:
   int GetAttributeLocation(const char* attrName);
 
 private:

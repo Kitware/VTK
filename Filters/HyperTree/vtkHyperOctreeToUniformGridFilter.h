@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHyperOctreeToUniformGridFilter - Flat the octree into a uniform
-// grid
-// .SECTION Description
-// vtkHyperOctreeToUniformGridFilter creates a uniform grid with a resolution
-// based on the number of levels of the hyperoctree. Then, it copies celldata
-// in each cell of the uniform grid that belongs to an actual leaf of the
-// hyperoctree.
-//
-// .SECTION See Also
-// vtkGeometryFilter vtkStructuredGridGeometryFilter.
+/**
+ * @class   vtkHyperOctreeToUniformGridFilter
+ * @brief   Flat the octree into a uniform
+ * grid
+ *
+ * vtkHyperOctreeToUniformGridFilter creates a uniform grid with a resolution
+ * based on the number of levels of the hyperoctree. Then, it copies celldata
+ * in each cell of the uniform grid that belongs to an actual leaf of the
+ * hyperoctree.
+ *
+ * @sa
+ * vtkGeometryFilter vtkStructuredGridGeometryFilter.
+*/
 
 #ifndef vtkHyperOctreeToUniformGridFilter_h
 #define vtkHyperOctreeToUniformGridFilter_h

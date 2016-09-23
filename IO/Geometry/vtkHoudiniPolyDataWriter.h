@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHoudiniPolyDataWriter - write vtk polygonal data to Houdini file.
-//
-// .SECTION Description
-// vtkHoudiniPolyDataWriter is a source object that writes VTK polygonal data
-// files in ASCII Houdini format (see
-// http://www.sidefx.com/docs/houdini15.0/io/formats/geo).
+/**
+ * @class   vtkHoudiniPolyDataWriter
+ * @brief   write vtk polygonal data to Houdini file.
+ *
+ *
+ * vtkHoudiniPolyDataWriter is a source object that writes VTK polygonal data
+ * files in ASCII Houdini format (see
+ * http://www.sidefx.com/docs/houdini15.0/io/formats/geo).
+*/
 
 #ifndef vtkHoudiniPolyDataWriter_h
 #define vtkHoudiniPolyDataWriter_h
@@ -34,10 +37,13 @@ public:
   vtkTypeMacro(vtkHoudiniPolyDataWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specifies the delimited text file to be loaded.
+  //@{
+  /**
+   * Specifies the delimited text file to be loaded.
+   */
   vtkGetStringMacro(FileName);
   vtkSetStringMacro(FileName);
+  //@}
 
 protected:
   vtkHoudiniPolyDataWriter();

@@ -12,15 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageProcessingPass - Convenient class for post-processing passes.
-// render pass.
-// .SECTION Description
-// Abstract class with some convenient methods frequently used in subclasses.
-//
-// .SECTION Implementation
-
-// .SECTION See Also
-// vtkRenderPass vtkGaussianBlurPass vtkSobelGradientMagnitudePass
+/**
+ * @class   vtkImageProcessingPass
+ * @brief   Convenient class for post-processing passes.
+ * render pass.
+ *
+ * Abstract class with some convenient methods frequently used in subclasses.
+ *
+ *
+ * @sa
+ * vtkRenderPass vtkGaussianBlurPass vtkSobelGradientMagnitudePass
+*/
 
 #ifndef vtkImageProcessingPass_h
 #define vtkImageProcessingPass_h
@@ -39,37 +41,44 @@ public:
   vtkTypeMacro(vtkImageProcessingPass,vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Release graphics resources and ask components to release their own
-  // resources.
-  // \pre w_exists: w!=0
+  /**
+   * Release graphics resources and ask components to release their own
+   * resources.
+   * \pre w_exists: w!=0
+   */
   void ReleaseGraphicsResources(vtkWindow *w);
 
-  // Description:
-  // Delegate for rendering the image to be processed.
-  // If it is NULL, nothing will be rendered and a warning will be emitted.
-  // It is usually set to a vtkCameraPass or to a post-processing pass.
-  // Initial value is a NULL pointer.
+  //@{
+  /**
+   * Delegate for rendering the image to be processed.
+   * If it is NULL, nothing will be rendered and a warning will be emitted.
+   * It is usually set to a vtkCameraPass or to a post-processing pass.
+   * Initial value is a NULL pointer.
+   */
   vtkGetObjectMacro(DelegatePass,vtkRenderPass);
   virtual void SetDelegatePass(vtkRenderPass *delegatePass);
+  //@}
 
  protected:
-  // Description:
-  // Default constructor. DelegatePass is set to NULL.
+  /**
+   * Default constructor. DelegatePass is set to NULL.
+   */
   vtkImageProcessingPass();
 
-  // Description:
-  // Destructor.
+  /**
+   * Destructor.
+   */
   virtual ~vtkImageProcessingPass();
 
-  // Description:
-  // Render delegate with a image of different dimensions than the
-  // original one.
-  // \pre s_exists: s!=0
-  // \pre fbo_exists: fbo!=0
-  // \pre fbo_has_context: fbo->GetContext()!=0
-  // \pre target_exists: target!=0
-  // \pre target_has_context: target->GetContext()!=0
+  /**
+   * Render delegate with a image of different dimensions than the
+   * original one.
+   * \pre s_exists: s!=0
+   * \pre fbo_exists: fbo!=0
+   * \pre fbo_has_context: fbo->GetContext()!=0
+   * \pre target_exists: target!=0
+   * \pre target_has_context: target->GetContext()!=0
+   */
   void RenderDelegate(const vtkRenderState *s,
                       int width,
                       int height,

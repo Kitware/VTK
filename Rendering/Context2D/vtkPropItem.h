@@ -13,12 +13,15 @@
 
 =========================================================================*/
 
-// .NAME vtkPropItem - Embed a vtkProp in a vtkContextScene.
-//
-// .SECTION Description
-// This class allows vtkProp objects to be drawn inside a vtkContextScene.
-// This is especially useful for constructing layered scenes that need to ignore
-// depth testing.
+/**
+ * @class   vtkPropItem
+ * @brief   Embed a vtkProp in a vtkContextScene.
+ *
+ *
+ * This class allows vtkProp objects to be drawn inside a vtkContextScene.
+ * This is especially useful for constructing layered scenes that need to ignore
+ * depth testing.
+*/
 
 #ifndef vtkPropItem_h
 #define vtkPropItem_h
@@ -38,8 +41,9 @@ public:
   virtual bool Paint(vtkContext2D *painter);
   virtual void ReleaseGraphicsResources();
 
-  // Description:
-  // The actor to render.
+  /**
+   * The actor to render.
+   */
   virtual void SetPropObject(vtkProp *PropObject);
   vtkGetObjectMacro(PropObject, vtkProp)
 

@@ -12,11 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPDataSetWriter - Manages writing pieces of a data set.
-// .SECTION Description
-// vtkPDataSetWriter will write a piece of a file, and will also create
-// a metadata file that lists all of the files in a data set.
-
+/**
+ * @class   vtkPDataSetWriter
+ * @brief   Manages writing pieces of a data set.
+ *
+ * vtkPDataSetWriter will write a piece of a file, and will also create
+ * a metadata file that lists all of the files in a data set.
+*/
 
 #ifndef vtkPDataSetWriter_h
 #define vtkPDataSetWriter_h
@@ -39,52 +41,71 @@ public:
   vtkTypeMacro(vtkPDataSetWriter,vtkDataSetWriter);
   static vtkPDataSetWriter *New();
 
-  // Description:
-  // Write the pvtk file and cooresponding vtk files.
+  /**
+   * Write the pvtk file and cooresponding vtk files.
+   */
   virtual int Write();
 
-  // Description:
-  // This is how many pieces the whole data set will be divided into.
+  //@{
+  /**
+   * This is how many pieces the whole data set will be divided into.
+   */
   void SetNumberOfPieces(int num);
   vtkGetMacro(NumberOfPieces, int);
+  //@}
 
-  // Description:
-  // Extra ghost cells will be written out to each piece file
-  // if this value is larger than 0.
+  //@{
+  /**
+   * Extra ghost cells will be written out to each piece file
+   * if this value is larger than 0.
+   */
   vtkSetMacro(GhostLevel, int);
   vtkGetMacro(GhostLevel, int);
+  //@}
 
-  // Description:
-  // This is the range of pieces that that this writer is
-  // responsible for writing.  All pieces must be written
-  // by some process.  The process that writes piece 0 also
-  // writes the pvtk file that lists all the piece file names.
+  //@{
+  /**
+   * This is the range of pieces that that this writer is
+   * responsible for writing.  All pieces must be written
+   * by some process.  The process that writes piece 0 also
+   * writes the pvtk file that lists all the piece file names.
+   */
   vtkSetMacro(StartPiece, int);
   vtkGetMacro(StartPiece, int);
   vtkSetMacro(EndPiece, int);
   vtkGetMacro(EndPiece, int);
+  //@}
 
-  // Description:
-  // This file pattern uses the file name and piece number
-  // to contruct a file name for the piece file.
+  //@{
+  /**
+   * This file pattern uses the file name and piece number
+   * to contruct a file name for the piece file.
+   */
   vtkSetStringMacro(FilePattern);
   vtkGetStringMacro(FilePattern);
+  //@}
 
-  // Description:
-  // This flag determines whether to use absolute paths for the piece files.
-  // By default the pieces are put in the main directory, and the piece file
-  // names in the meta data pvtk file are relative to this directory.
-  // This should make moving the whole lot to another directory, an easier task.
+  //@{
+  /**
+   * This flag determines whether to use absolute paths for the piece files.
+   * By default the pieces are put in the main directory, and the piece file
+   * names in the meta data pvtk file are relative to this directory.
+   * This should make moving the whole lot to another directory, an easier task.
+   */
   vtkSetMacro(UseRelativeFileNames, int);
   vtkGetMacro(UseRelativeFileNames, int);
   vtkBooleanMacro(UseRelativeFileNames, int);
+  //@}
 
-  // Description:
-  // Controller used to communicate data type of blocks.
-  // By default, the global controller is used. If you want another
-  // controller to be used, set it with this.
+  //@{
+  /**
+   * Controller used to communicate data type of blocks.
+   * By default, the global controller is used. If you want another
+   * controller to be used, set it with this.
+   */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
 
 protected:
   vtkPDataSetWriter();

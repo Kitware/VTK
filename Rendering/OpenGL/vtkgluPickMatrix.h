@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkgluPickMatrix - implement selected glu functionality
-// .SECTION Description
-// This file implements selected glu functionality to avoid
-// system dependencies on glu.
+/**
+ * @class   vtkgluPickMatrix
+ * @brief   implement selected glu functionality
+ *
+ * This file implements selected glu functionality to avoid
+ * system dependencies on glu.
+*/
 
 #ifndef vtkgluPickMatrix_h
 #define vtkgluPickMatrix_h

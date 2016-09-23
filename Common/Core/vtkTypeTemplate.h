@@ -19,11 +19,14 @@
 
 =========================================================================*/
 
-// .NAME vtkTypeTemplate - Provides the equivalent of vtkTypeMacro
-// for use with template classes
-//
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+/**
+ * @class   vtkTypeTemplate
+ * @brief   Provides the equivalent of vtkTypeMacro
+ * for use with template classes
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+*/
 
 #ifndef vtkTypeTemplate_h
 #define vtkTypeTemplate_h

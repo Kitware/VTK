@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractSelectedLocations - extract cells within a dataset that
-// contain the locations listen in the vtkSelection.
-// .SECTION Description
-// vtkExtractSelectedLocations extracts all cells whose volume contain at least
-// one point listed in the LOCATIONS content of the vtkSelection. This filter
-// adds a scalar array called vtkOriginalCellIds that says what input cell
-// produced each output cell. This is an example of a Pedigree ID which helps
-// to trace back results.
-// .SECTION See Also
-// vtkSelection vtkExtractSelection
+/**
+ * @class   vtkExtractSelectedLocations
+ * @brief   extract cells within a dataset that
+ * contain the locations listen in the vtkSelection.
+ *
+ * vtkExtractSelectedLocations extracts all cells whose volume contain at least
+ * one point listed in the LOCATIONS content of the vtkSelection. This filter
+ * adds a scalar array called vtkOriginalCellIds that says what input cell
+ * produced each output cell. This is an example of a Pedigree ID which helps
+ * to trace back results.
+ * @sa
+ * vtkSelection vtkExtractSelection
+*/
 
 #ifndef vtkExtractSelectedLocations_h
 #define vtkExtractSelectedLocations_h

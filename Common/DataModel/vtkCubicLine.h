@@ -12,21 +12,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCubicLine - cell represents a cubic , isoparametric 1D line
-// .SECTION Description
-// vtkCubicLine is a concrete implementation of vtkNonLinearCell to represent a 1D Cubic line.
-// The Cubic Line is the 4 nodes isoparametric parabolic line . The
-// interpolation is the standard finite element, cubic isoparametric
-// shape function. The cell includes two mid-edge nodes. The ordering of the
-// four points defining the cell is point ids (0,1,2,3) where id #2 and #3 are the
-// mid-edge nodes. Please note that the parametric coordinates lie between -1 and 1
-// in accordance with most standard documentations.
-// .SECTION Thanks
-// <verbatim>
-// This file has been developed by Oxalya - www.oxalya.com
-// Copyright (c) EDF - www.edf.fr
-// </verbatim>
-
+/**
+ * @class   vtkCubicLine
+ * @brief   cell represents a cubic , isoparametric 1D line
+ *
+ * vtkCubicLine is a concrete implementation of vtkNonLinearCell to represent a 1D Cubic line.
+ * The Cubic Line is the 4 nodes isoparametric parabolic line . The
+ * interpolation is the standard finite element, cubic isoparametric
+ * shape function. The cell includes two mid-edge nodes. The ordering of the
+ * four points defining the cell is point ids (0,1,2,3) where id #2 and #3 are the
+ * mid-edge nodes. Please note that the parametric coordinates lie between -1 and 1
+ * in accordance with most standard documentations.
+ * @par Thanks:
+ * <verbatim>
+ * This file has been developed by Oxalya - www.oxalya.com
+ * Copyright (c) EDF - www.edf.fr
+ * </verbatim>
+*/
 
 #ifndef vtkCubicLine_h
 #define vtkCubicLine_h
@@ -44,8 +46,10 @@ public:
   vtkTypeMacro(vtkCubicLine,vtkNonLinearCell);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // See the vtkCell API for descriptions of these methods.
+  //@{
+  /**
+   * See the vtkCell API for descriptions of these methods.
+   */
   int GetCellType() VTK_OVERRIDE {return VTK_CUBIC_LINE;};
   int GetCellDimension() VTK_OVERRIDE {return 1;};
   int GetNumberOfEdges() VTK_OVERRIDE {return 0;};
@@ -67,42 +71,51 @@ public:
   void Derivatives(int subId, double pcoords[3], double *values,
                    int dim, double *derivs) VTK_OVERRIDE;
   double *GetParametricCoords() VTK_OVERRIDE;
+  //@}
 
-  // Description:
-  // Return the distance of the parametric coordinate provided to the
-  // cell. If inside the cell, a distance of zero is returned.
+  /**
+   * Return the distance of the parametric coordinate provided to the
+   * cell. If inside the cell, a distance of zero is returned.
+   */
   double GetParametricDistance(double pcoords[3]) VTK_OVERRIDE;
 
-  // Description:
-  // Clip this line using scalar value provided. Like contouring, except
-  // that it cuts the line to produce other lines.
+  /**
+   * Clip this line using scalar value provided. Like contouring, except
+   * that it cuts the line to produce other lines.
+   */
   void Clip(double value, vtkDataArray *cellScalars,
             vtkIncrementalPointLocator *locator, vtkCellArray *lines,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
             int insideOut) VTK_OVERRIDE;
 
-  // Description:
-  // Return the center of the triangle in parametric coordinates.
+  /**
+   * Return the center of the triangle in parametric coordinates.
+   */
   int GetParametricCenter(double pcoords[3]) VTK_OVERRIDE;
 
-  // Description:
-  // Line-line intersection. Intersection has to occur within [0,1] parametric
-  // coordinates and with specified tolerance.
+  /**
+   * Line-line intersection. Intersection has to occur within [0,1] parametric
+   * coordinates and with specified tolerance.
+   */
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
                         double x[3], double pcoords[3], int& subId) VTK_OVERRIDE;
 
 
 
-  // Description:
-  // @deprecated Replaced by vtkCubicLine::InterpolateFunctions as of VTK 5.2
+  /**
+   * @deprecated Replaced by vtkCubicLine::InterpolateFunctions as of VTK 5.2
+   */
   static void InterpolationFunctions(double pcoords[3], double weights[4]);
-  // Description:
-  // @deprecated Replaced by vtkCubicLine::InterpolateDerivs as of VTK 5.2
+  /**
+   * @deprecated Replaced by vtkCubicLine::InterpolateDerivs as of VTK 5.2
+   */
   static void InterpolationDerivs(double pcoords[3], double derivs[4]);
-  // Description:
-  // Compute the interpolation functions/derivatives
-  // (aka shape functions/derivatives)
+  //@{
+  /**
+   * Compute the interpolation functions/derivatives
+   * (aka shape functions/derivatives)
+   */
   void InterpolateFunctions(double pcoords[3], double weights[4]) VTK_OVERRIDE
     {
     vtkCubicLine::InterpolationFunctions(pcoords,weights);
@@ -111,6 +124,7 @@ public:
     {
     vtkCubicLine::InterpolationDerivs(pcoords,derivs);
     }
+  //@}
 
 protected:
   vtkCubicLine();

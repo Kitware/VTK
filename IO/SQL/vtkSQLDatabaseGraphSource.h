@@ -17,12 +17,15 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkSQLDatabaseGraphSource - Generates a vtkGraph based on an SQL query.
-//
-// .SECTION Description
-// This class combines vtkSQLDatabase, vtkSQLQuery, and vtkQueryToGraph to
-// provide a convenience class for generating graphs from databases.
-// Also this class can be easily wrapped and used within ParaView / OverView.
+/**
+ * @class   vtkSQLDatabaseGraphSource
+ * @brief   Generates a vtkGraph based on an SQL query.
+ *
+ *
+ * This class combines vtkSQLDatabase, vtkSQLQuery, and vtkQueryToGraph to
+ * provide a convenience class for generating graphs from databases.
+ * Also this class can be easily wrapped and used within ParaView / OverView.
+*/
 
 #ifndef vtkSQLDatabaseGraphSource_h
 #define vtkSQLDatabaseGraphSource_h
@@ -56,24 +59,33 @@ public:
   void AddLinkEdge(const char* column1, const char* column2);
   void ClearLinkEdges();
 
-  // Description:
-  // If on (default), generate edge pedigree ids.
-  // If off, assign an array to be edge pedigree ids.
+  //@{
+  /**
+   * If on (default), generate edge pedigree ids.
+   * If off, assign an array to be edge pedigree ids.
+   */
   vtkGetMacro(GenerateEdgePedigreeIds, bool);
   vtkSetMacro(GenerateEdgePedigreeIds, bool);
   vtkBooleanMacro(GenerateEdgePedigreeIds, bool);
+  //@}
 
-  // Description:
-  // Use this array name for setting or generating edge pedigree ids.
+  //@{
+  /**
+   * Use this array name for setting or generating edge pedigree ids.
+   */
   vtkSetStringMacro(EdgePedigreeIdArrayName);
   vtkGetStringMacro(EdgePedigreeIdArrayName);
+  //@}
 
-  // Description:
-  // If on (default), generate a directed output graph.
-  // If off, generate an undirected output graph.
+  //@{
+  /**
+   * If on (default), generate a directed output graph.
+   * If off, generate an undirected output graph.
+   */
   vtkSetMacro(Directed, bool);
   vtkGetMacro(Directed, bool);
   vtkBooleanMacro(Directed, bool);
+  //@}
 
 protected:
   vtkSQLDatabaseGraphSource();
@@ -96,9 +108,10 @@ private:
   vtkSQLDatabaseGraphSource(const vtkSQLDatabaseGraphSource&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSQLDatabaseGraphSource&) VTK_DELETE_FUNCTION;
 
-  // Description:
-  // This intercepts events from the graph layout class
-  // and re-emits them as if they came from this class.
+  /**
+   * This intercepts events from the graph layout class
+   * and re-emits them as if they came from this class.
+   */
   vtkEventForwarderCommand *EventForwarder;
 
   class implementation;

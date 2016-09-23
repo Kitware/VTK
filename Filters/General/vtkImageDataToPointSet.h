@@ -17,15 +17,18 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// .NAME vtkImageDataToPointSet - Converts a vtkImageData to a vtkPointSet
-//
-// .SECTION Description
-// vtkImageDataToPointSet takes a vtkImageData as an image and outputs an
-// equivalent vtkStructuredGrid (which is a subclass of vtkPointSet).
-//
-// .SECTION Thanks
-// This class was developed by Kenneth Moreland (kmorel@sandia.gov) from
-// Sandia National Laboratories.
+/**
+ * @class   vtkImageDataToPointSet
+ * @brief   Converts a vtkImageData to a vtkPointSet
+ *
+ *
+ * vtkImageDataToPointSet takes a vtkImageData as an image and outputs an
+ * equivalent vtkStructuredGrid (which is a subclass of vtkPointSet).
+ *
+ * @par Thanks:
+ * This class was developed by Kenneth Moreland (kmorel@sandia.gov) from
+ * Sandia National Laboratories.
+*/
 
 #ifndef vtkImageDataToPointSet_h
 #define vtkImageDataToPointSet_h

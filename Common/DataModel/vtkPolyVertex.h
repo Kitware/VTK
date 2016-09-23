@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPolyVertex - cell represents a set of 0D vertices
-// .SECTION Description
-// vtkPolyVertex is a concrete implementation of vtkCell to represent a
-// set of 3D vertices.
+/**
+ * @class   vtkPolyVertex
+ * @brief   cell represents a set of 0D vertices
+ *
+ * vtkPolyVertex is a concrete implementation of vtkCell to represent a
+ * set of 3D vertices.
+*/
 
 #ifndef vtkPolyVertex_h
 #define vtkPolyVertex_h
@@ -33,8 +36,10 @@ public:
   vtkTypeMacro(vtkPolyVertex,vtkCell);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // See the vtkCell API for descriptions of these methods.
+  //@{
+  /**
+   * See the vtkCell API for descriptions of these methods.
+   */
   int GetCellType() VTK_OVERRIDE {return VTK_POLY_VERTEX;};
   int GetCellDimension() VTK_OVERRIDE {return 0;};
   int GetNumberOfEdges() VTK_OVERRIDE {return 0;};
@@ -63,9 +68,11 @@ public:
   void Derivatives(int subId, double pcoords[3], double *values,
                    int dim, double *derivs) VTK_OVERRIDE;
   int IsPrimaryCell() VTK_OVERRIDE {return 0;}
+  //@}
 
-  // Description:
-  // Return the center of the point cloud in parametric coordinates.
+  /**
+   * Return the center of the point cloud in parametric coordinates.
+   */
   int GetParametricCenter(double pcoords[3]) VTK_OVERRIDE;
 
 protected:

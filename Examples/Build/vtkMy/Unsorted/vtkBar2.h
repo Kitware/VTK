@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBar2 - Bar2 class for vtk
-// .SECTION Description
-// None.
+/**
+ * @class   vtkBar2
+ * @brief   Bar2 class for vtk
+ *
+ * None.
+*/
 
 #ifndef vtkBar2_h
 #define vtkBar2_h

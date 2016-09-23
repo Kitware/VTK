@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDijkstraGraphInternals - Helper class due to PIMPL excess
-// .SECTION Description
-// .SECTION See Also
-//  vtkDijkstraGraphGeodesicPath
-// .SECTION Warning
-//  Do not include this file in a header file, it will break PIMPL convention
+/**
+ * @class   vtkDijkstraGraphInternals
+ * @brief   Helper class due to PIMPL excess
+ *
+ * @sa
+ *  vtkDijkstraGraphGeodesicPath
+ * @warning
+ *  Do not include this file in a header file, it will break PIMPL convention
+*/
 
 #ifndef vtkDijkstraGraphInternals_h
 #define vtkDijkstraGraphInternals_h

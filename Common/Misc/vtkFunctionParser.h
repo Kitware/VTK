@@ -12,31 +12,36 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkFunctionParser - Parse and evaluate a mathematical expression
-// .SECTION Description
-// vtkFunctionParser is a class that takes in a mathematical expression as
-// a char string, parses it, and evaluates it at the specified values of
-// the variables in the input string.
-//
-// You can use the "if" operator to create conditional expressions
-// such as if ( test, trueresult, falseresult). These evaluate the boolean
-// valued test expression and then evaluate either the trueresult or the
-// falseresult expression to produce a final (scalar or vector valued) value.
-// "test" may contain <,>,=,|,&, and () and all three subexpressions can
-// evaluate arbitrary function operators (ln, cos, +, if, etc)
-//
-// .SECTION Thanks
-// Juha Nieminen (juha.nieminen@gmail.com) for relicensing this branch of the
-// function parser code that this class is based upon under the new BSD license
-// so that it could be used in VTK. Note, the BSD license applies to this
-// version of the function parser only (by permission of the author), and not
-// the original library.
-//
-// Thomas Dunne (thomas.dunne@iwr.uni-heidelberg.de) for adding code for
-// two-parameter-parsing and a few functions (sign, min, max).
-//
-// Sid Sydoriak (sxs@lanl.gov) for adding boolean operations and
-// conditional expressions and for fixing a variety of bugs.
+/**
+ * @class   vtkFunctionParser
+ * @brief   Parse and evaluate a mathematical expression
+ *
+ * vtkFunctionParser is a class that takes in a mathematical expression as
+ * a char string, parses it, and evaluates it at the specified values of
+ * the variables in the input string.
+ *
+ * You can use the "if" operator to create conditional expressions
+ * such as if ( test, trueresult, falseresult). These evaluate the boolean
+ * valued test expression and then evaluate either the trueresult or the
+ * falseresult expression to produce a final (scalar or vector valued) value.
+ * "test" may contain <,>,=,|,&, and () and all three subexpressions can
+ * evaluate arbitrary function operators (ln, cos, +, if, etc)
+ *
+ * @par Thanks:
+ * Juha Nieminen (juha.nieminen@gmail.com) for relicensing this branch of the
+ * function parser code that this class is based upon under the new BSD license
+ * so that it could be used in VTK. Note, the BSD license applies to this
+ * version of the function parser only (by permission of the author), and not
+ * the original library.
+ *
+ * @par Thanks:
+ * Thomas Dunne (thomas.dunne@iwr.uni-heidelberg.de) for adding code for
+ * two-parameter-parsing and a few functions (sign, min, max).
+ *
+ * @par Thanks:
+ * Sid Sydoriak (sxs@lanl.gov) for adding boolean operations and
+ * conditional expressions and for fixing a variety of bugs.
+*/
 
 #ifndef vtkFunctionParser_h
 #define vtkFunctionParser_h
@@ -132,54 +137,72 @@ public:
   vtkTypeMacro(vtkFunctionParser, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Return parser's MTime
+  /**
+   * Return parser's MTime
+   */
   vtkMTimeType GetMTime() VTK_OVERRIDE;
 
-  // Description:
-  // Set/Get input string to evaluate.
+  //@{
+  /**
+   * Set/Get input string to evaluate.
+   */
   void SetFunction(const char *function);
   vtkGetStringMacro(Function);
+  //@}
 
-  // Description:
-  // Check whether the result is a scalar result.  If it isn't, then
-  // either the result is a vector or an error has occurred.
+  /**
+   * Check whether the result is a scalar result.  If it isn't, then
+   * either the result is a vector or an error has occurred.
+   */
   int IsScalarResult();
 
-  // Description:
-  // Check whether the result is a vector result.  If it isn't, then
-  // either the result is scalar or an error has occurred.
+  /**
+   * Check whether the result is a vector result.  If it isn't, then
+   * either the result is scalar or an error has occurred.
+   */
   int IsVectorResult();
 
-  // Description:
-  // Get a scalar result from evaluating the input function.
+  /**
+   * Get a scalar result from evaluating the input function.
+   */
   double GetScalarResult();
 
-  // Description:
-  // Get a vector result from evaluating the input function.
+  //@{
+  /**
+   * Get a vector result from evaluating the input function.
+   */
   double* GetVectorResult();
   void GetVectorResult(double result[3]) {
     double *r = this->GetVectorResult();
     result[0] = r[0]; result[1] = r[1]; result[2] = r[2]; };
+  //@}
 
-  // Description:
-  // Set the value of a scalar variable.  If a variable with this name
-  // exists, then its value will be set to the new value.  If there is not
-  // already a variable with this name, variableName will be added to the
-  // list of variables, and its value will be set to the new value.
+  //@{
+  /**
+   * Set the value of a scalar variable.  If a variable with this name
+   * exists, then its value will be set to the new value.  If there is not
+   * already a variable with this name, variableName will be added to the
+   * list of variables, and its value will be set to the new value.
+   */
   void SetScalarVariableValue(const char* variableName, double value);
   void SetScalarVariableValue(int i, double value);
+  //@}
 
-  // Description:
-  // Get the value of a scalar variable.
+  //@{
+  /**
+   * Get the value of a scalar variable.
+   */
   double GetScalarVariableValue(const char* variableName);
   double GetScalarVariableValue(int i);
+  //@}
 
-  // Description:
-  // Set the value of a vector variable.  If a variable with this name
-  // exists, then its value will be set to the new value.  If there is not
-  // already a variable with this name, variableName will be added to the
-  // list of variables, and its value will be set to the new value.
+  //@{
+  /**
+   * Set the value of a vector variable.  If a variable with this name
+   * exists, then its value will be set to the new value.  If there is not
+   * already a variable with this name, variableName will be added to the
+   * list of variables, and its value will be set to the new value.
+   */
   void SetVectorVariableValue(const char* variableName, double xValue,
                               double yValue, double zValue);
   void SetVectorVariableValue(const char* variableName,
@@ -189,9 +212,12 @@ public:
                               double zValue);
   void SetVectorVariableValue(int i, const double values[3]) {
     this->SetVectorVariableValue(i,values[0],values[1],values[2]);};
+  //@}
 
-  // Description:
-  // Get the value of a vector variable.
+  //@{
+  /**
+   * Get the value of a vector variable.
+   */
   double* GetVectorVariableValue(const char* variableName);
   void GetVectorVariableValue(const char* variableName, double value[3]) {
     double *r = this->GetVectorVariableValue(variableName);
@@ -200,68 +226,87 @@ public:
   void GetVectorVariableValue(int i, double value[3]) {
     double *r = this->GetVectorVariableValue(i);
     value[0] = r[0]; value[1] = r[1]; value[2] = r[2]; };
+  //@}
 
-  // Description:
-  // Get the number of scalar variables.
+  /**
+   * Get the number of scalar variables.
+   */
   int GetNumberOfScalarVariables()
     { return static_cast<int>(this->ScalarVariableNames.size()); }
 
-  // Description:
-  // Get the number of vector variables.
+  /**
+   * Get the number of vector variables.
+   */
   int GetNumberOfVectorVariables()
     { return static_cast<int>(this->VectorVariableNames.size()); }
 
-  // Description:
-  // Get the ith scalar variable name.
+  /**
+   * Get the ith scalar variable name.
+   */
   const char* GetScalarVariableName(int i);
 
-  // Description:
-  // Get the ith vector variable name.
+  /**
+   * Get the ith vector variable name.
+   */
   const char* GetVectorVariableName(int i);
 
-  // Description:
-  // Returns whether a scalar variable is needed for the function evaluation.
-  // This is only valid after a successful Parse(). Thus, call GetScalarResult()
-  // or IsScalarResult() or similar method before calling this.
+  //@{
+  /**
+   * Returns whether a scalar variable is needed for the function evaluation.
+   * This is only valid after a successful Parse(). Thus, call GetScalarResult()
+   * or IsScalarResult() or similar method before calling this.
+   */
   bool GetScalarVariableNeeded(int i);
   bool GetScalarVariableNeeded(const char* variableName);
+  //@}
 
-  // Description:
-  // Returns whether a vector variable is needed for the function evaluation.
-  // This is only valid after a successful Parse(). Thus, call GetVectorResult()
-  // or IsVectorResult() or similar method before calling this.
+  //@{
+  /**
+   * Returns whether a vector variable is needed for the function evaluation.
+   * This is only valid after a successful Parse(). Thus, call GetVectorResult()
+   * or IsVectorResult() or similar method before calling this.
+   */
   bool GetVectorVariableNeeded(int i);
   bool GetVectorVariableNeeded(const char* variableName);
+  //@}
 
-  // Description:
-  // Remove all the current variables.
+  /**
+   * Remove all the current variables.
+   */
   void RemoveAllVariables();
 
-  // Description:
-  // Remove all the scalar variables.
+  /**
+   * Remove all the scalar variables.
+   */
   void RemoveScalarVariables();
 
-  // Description:
-  // Remove all the vector variables.
+  /**
+   * Remove all the vector variables.
+   */
   void RemoveVectorVariables();
 
-  // Description:
-  // When ReplaceInvalidValues is on, all invalid values (such as
-  // sqrt(-2), note that function parser does not handle complex
-  // numbers) will be replaced by ReplacementValue. Otherwise an
-  // error will be reported
+  //@{
+  /**
+   * When ReplaceInvalidValues is on, all invalid values (such as
+   * sqrt(-2), note that function parser does not handle complex
+   * numbers) will be replaced by ReplacementValue. Otherwise an
+   * error will be reported
+   */
   vtkSetMacro(ReplaceInvalidValues,int);
   vtkGetMacro(ReplaceInvalidValues,int);
   vtkBooleanMacro(ReplaceInvalidValues,int);
   vtkSetMacro(ReplacementValue,double);
   vtkGetMacro(ReplacementValue,double);
+  //@}
 
-  // Description:
-  // Check the validity of the function expression.
+  /**
+   * Check the validity of the function expression.
+   */
   void CheckExpression(int &pos, char **error);
 
-  // Description:
-  // Allow the user to force the function to be re-parsed
+  /**
+   * Allow the user to force the function to be re-parsed
+   */
   void InvalidateFunction();
 
 protected:
@@ -270,8 +315,9 @@ protected:
 
   int Parse();
 
-  // Description:
-  // Evaluate the function, returning true on success, false on failure.
+  /**
+   * Evaluate the function, returning true on success, false on failure.
+   */
   bool Evaluate();
 
   int CheckSyntax();
@@ -304,9 +350,10 @@ protected:
 
   int DisambiguateOperators();
 
-  // Description:
-  // Collects meta-data about which variables are needed by the current
-  // function. This is called only after a successful call to this->Parse().
+  /**
+   * Collects meta-data about which variables are needed by the current
+   * function. This is called only after a successful call to this->Parse().
+   */
   void UpdateNeededVariables();
 
   vtkSetStringMacro(ParseError);

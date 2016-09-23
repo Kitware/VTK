@@ -12,14 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkParticlePathFilter - A Parallel Particle tracer for unsteady vector fields
-// .SECTION Description
-// vtkParticlePathFilter is a filter that integrates a vector field to generate particle paths
-//
-//
-// .SECTION See Also
-// vtkParticlePathFilterBase has the details of the algorithms
-
+/**
+ * @class   vtkParticlePathFilter
+ * @brief   A Parallel Particle tracer for unsteady vector fields
+ *
+ * vtkParticlePathFilter is a filter that integrates a vector field to generate particle paths
+ *
+ *
+ * @sa
+ * vtkParticlePathFilterBase has the details of the algorithms
+*/
 
 #ifndef vtkParticlePathFilter_h
 #define vtkParticlePathFilter_h

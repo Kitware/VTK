@@ -2,10 +2,13 @@
 This source has no copyright.  It is intended to be copied by users
 wishing to create their own VTK classes locally.
 =========================================================================*/
-// .NAME vtkLocalExample - Example class using VTK.
-// .SECTION Description
-// vtkLocalExample is a simple class that uses VTK.  This class can be
-// copied and modified to produce your own classes.
+/**
+ * @class   vtkLocalExample
+ * @brief   Example class using VTK.
+ *
+ * vtkLocalExample is a simple class that uses VTK.  This class can be
+ * copied and modified to produce your own classes.
+*/
 
 #ifndef vtkLocalExample_h
 #define vtkLocalExample_h

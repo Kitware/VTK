@@ -13,19 +13,22 @@
 
 =========================================================================*/
 
-// .NAME vtkOpenGL2ContextDevice2DPrivate - Private class with storage and
-// utility functions for the vtkOpenGLContextDevice2D.
-//
-// .SECTION Description
-// This class is for internal use only, it should not be included from anything
-// outside of the vtkCharts kit. It provides a shared private class that can be
-// used by vtkOpenGLContextDevice2D and derived classes.
-//
-// .Section Caveats
-// Internal use only.
-//
-// .Section See Also
-// vtkOpenGLContextDevice2D vtkOpenGL2ContextDevice2D
+/**
+ * @class   vtkOpenGL2ContextDevice2DPrivate
+ * @brief   Private class with storage and
+ * utility functions for the vtkOpenGLContextDevice2D.
+ *
+ *
+ * This class is for internal use only, it should not be included from anything
+ * outside of the vtkCharts kit. It provides a shared private class that can be
+ * used by vtkOpenGLContextDevice2D and derived classes.
+ *
+ * @warning
+ * Internal use only.
+ *
+ * @sa
+ * vtkOpenGLContextDevice2D vtkOpenGL2ContextDevice2D
+*/
 
 #ifndef vtkOpenGLContextDevice2DPrivate_h
 #define vtkOpenGLContextDevice2DPrivate_h
@@ -61,8 +64,10 @@ public:
     int TextHeight;
   };
 
-  // Description:
-  // CacheElement associates a unique key to some cache.
+  //@{
+  /**
+   * CacheElement associates a unique key to some cache.
+   */
   struct CacheElement: public std::pair<Key, CacheData>
   {
     // Default constructor
@@ -85,32 +90,38 @@ public:
       return this->first == other.first;
     }
   };
+  //@}
 
-  // Description:
-  // Construct a texture image cache with a maximum number of texture of 50.
+  /**
+   * Construct a texture image cache with a maximum number of texture of 50.
+   */
   vtkTextureImageCache()
   {
     this->MaxSize = 50;
   }
 
-  // Description:
-  // Search the cache list to see if a given key already exists. Returns true
-  // if the key is found, false otherwise.
+  /**
+   * Search the cache list to see if a given key already exists. Returns true
+   * if the key is found, false otherwise.
+   */
   bool IsKeyInCache(const Key& key)const
   {
     return std::find(this->Cache.begin(), this->Cache.end(), key) != this->Cache.end();
   }
 
-  // Description:
-  // Return the cache associated to a key. If the key doesn't exist yet in the
-  // cache list, create a new cache.
-  // The returned cache is moved at the beginning of the cache list for faster
-  // search next time. The most use cache is faster to be searched.
+  /**
+   * Return the cache associated to a key. If the key doesn't exist yet in the
+   * cache list, create a new cache.
+   * The returned cache is moved at the beginning of the cache list for faster
+   * search next time. The most use cache is faster to be searched.
+   */
   CacheData& GetCacheData(const Key& key);
 
-  // Description:
-  // Release all the OpenGL Pixel Buffer Object(PBO) associated with the
-  // textures of the cache list.
+  //@{
+  /**
+   * Release all the OpenGL Pixel Buffer Object(PBO) associated with the
+   * textures of the cache list.
+   */
   void ReleaseGraphicsResources(vtkWindow* window)
   {
     typename std::list<CacheElement >::iterator it;
@@ -119,11 +130,14 @@ public:
       it->second.Texture->ReleaseGraphicsResources(window);
       }
   }
+  //@}
 
 protected:
-  // Description:
-  // Add a new cache entry into the cache list. Enforce the MaxSize size of the
-  // list by removing the least used cache if needed.
+  //@{
+  /**
+   * Add a new cache entry into the cache list. Enforce the MaxSize size of the
+   * list by removing the least used cache if needed.
+   */
   CacheData& AddCacheData(const Key& key, const CacheData& cacheData)
   {
     assert(!this->IsKeyInCache(key));
@@ -134,14 +148,19 @@ protected:
     this->Cache.push_front(CacheElement(key, cacheData));
     return this->Cache.begin()->second;
   }
+  //@}
 
-  // Description:
-  // List of a pair of key and cache data.
+  /**
+   * List of a pair of key and cache data.
+   */
   std::list<CacheElement > Cache;
-  // Description:
-  // Maximum size the cache list can be.
+  //@{
+  /**
+   * Maximum size the cache list can be.
+   */
   size_t MaxSize;
 };
+  //@}
 
 template<class Key>
 typename vtkTextureImageCache<Key>::CacheData& vtkTextureImageCache<Key>
@@ -168,8 +187,10 @@ typename vtkTextureImageCache<Key>::CacheData& vtkTextureImageCache<Key>
 template <class StringType>
 struct TextPropertyKey
 {
-  // Description:
-  // Transform a text property into an unsigned long
+  //@{
+  /**
+   * Transform a text property into an unsigned long
+   */
   static unsigned int GetIdFromTextProperty(vtkTextProperty* textProperty)
   {
     size_t id;
@@ -177,9 +198,12 @@ struct TextPropertyKey
     // Truncation on 64-bit machines! The id is a pointer.
     return static_cast<unsigned int>(id);
   }
+  //@}
 
-  // Description:
-  // Creates a TextPropertyKey.
+  //@{
+  /**
+   * Creates a TextPropertyKey.
+   */
   TextPropertyKey(vtkTextProperty* textProperty, const StringType& text,
                   int dpi)
   {
@@ -194,10 +218,12 @@ struct TextPropertyKey
     this->Text = text;
     this->DPI = dpi;
   }
+  //@}
 
-  // Description:
-  // Compares two TextPropertyKeys with each other. Returns true if they are
-  // identical: same text and text property
+  /**
+   * Compares two TextPropertyKeys with each other. Returns true if they are
+   * identical: same text and text property
+   */
   bool operator==(const TextPropertyKey& other)const
   {
     return this->TextPropertyId == other.TextPropertyId &&
@@ -485,12 +511,15 @@ public:
   bool GLSL;
   bool PowerOfTwoTextures;
 
-  // Description:
-  // Cache for text images. Generating texture for strings is expensive,
-  // we cache the textures here for a faster reuse.
+  //@{
+  /**
+   * Cache for text images. Generating texture for strings is expensive,
+   * we cache the textures here for a faster reuse.
+   */
   mutable vtkTextureImageCache<UTF16TextPropertyKey> TextTextureCache;
   mutable vtkTextureImageCache<UTF8TextPropertyKey> MathTextTextureCache;
 };
+  //@}
 
 #endif // VTKOPENGLCONTEXTDEVICE2DPRIVATE_H
 // VTK-HeaderTest-Exclude: vtkOpenGLContextDevice2DPrivate.h

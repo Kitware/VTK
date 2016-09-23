@@ -17,16 +17,19 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkSliceAndDiceLayoutStrategy - a horizontal and vertical slicing tree map layout
-//
-// .SECTION Description
-// Lays out a tree-map alternating between horizontal and vertical slices,
-// taking into account the relative size of each vertex.
-//
-// .SECTION Thanks
-// Slice and dice algorithm comes from:
-// Shneiderman, B. 1992. Tree visualization with tree-maps: 2-d space-filling approach.
-// ACM Trans. Graph. 11, 1 (Jan. 1992), 92-99.
+/**
+ * @class   vtkSliceAndDiceLayoutStrategy
+ * @brief   a horizontal and vertical slicing tree map layout
+ *
+ *
+ * Lays out a tree-map alternating between horizontal and vertical slices,
+ * taking into account the relative size of each vertex.
+ *
+ * @par Thanks:
+ * Slice and dice algorithm comes from:
+ * Shneiderman, B. 1992. Tree visualization with tree-maps: 2-d space-filling approach.
+ * ACM Trans. Graph. 11, 1 (Jan. 1992), 92-99.
+*/
 
 #ifndef vtkSliceAndDiceLayoutStrategy_h
 #define vtkSliceAndDiceLayoutStrategy_h
@@ -42,9 +45,10 @@ public:
   vtkTypeMacro(vtkSliceAndDiceLayoutStrategy,vtkTreeMapLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Perform the layout of a tree and place the results as 4-tuples in
-  // coordsArray (Xmin, Xmax, Ymin, Ymax).
+  /**
+   * Perform the layout of a tree and place the results as 4-tuples in
+   * coordsArray (Xmin, Xmax, Ymin, Ymax).
+   */
   void Layout(
       vtkTree* inputTree,
       vtkDataArray* coordsArray,

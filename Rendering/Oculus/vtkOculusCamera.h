@@ -11,10 +11,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOculusCamera - Oculus camera
-// .SECTION Description
-// vtkOculusCamera is a concrete implementation of the abstract class
-// vtkCamera.  vtkOculusCamera interfaces to the Oculus rendering library.
+/**
+ * @class   vtkOculusCamera
+ * @brief   Oculus camera
+ *
+ * vtkOculusCamera is a concrete implementation of the abstract class
+ * vtkCamera.  vtkOculusCamera interfaces to the Oculus rendering library.
+*/
 
 #ifndef vtkOculusCamera_h
 #define vtkOculusCamera_h
@@ -34,23 +37,28 @@ public:
   static vtkOculusCamera *New();
   vtkTypeMacro(vtkOculusCamera, vtkOpenGLCamera);
 
-  // Description:
-  // Implement base class method.
+  /**
+   * Implement base class method.
+   */
   virtual void Render(vtkRenderer *ren);
 
   virtual void GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&WCVCMatrix,
     vtkMatrix3x3 *&normalMatrix, vtkMatrix4x4 *&VCDCMatrix, vtkMatrix4x4 *&WCDCMatrix);
 
-  // Description:
-  // Provides a matrix to go from absolute Oculus tracking coordinates
-  // to device coordinates. Used for rendering devices.
+  /**
+   * Provides a matrix to go from absolute Oculus tracking coordinates
+   * to device coordinates. Used for rendering devices.
+   */
   virtual void GetTrackingToDCMatrix(vtkMatrix4x4 *&TCDCMatrix);
 
-  // Description:
-  // Set/Get the translation to map world coordinates into the
-  // Oculus physical space (meters, 0,0,0).
+  //@{
+  /**
+   * Set/Get the translation to map world coordinates into the
+   * Oculus physical space (meters, 0,0,0).
+   */
   vtkSetVector3Macro(Translation,double);
   vtkGetVector3Macro(Translation,double);
+  //@}
 
 protected:
   vtkOculusCamera();

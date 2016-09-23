@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkClipConvexPolyData - clip any dataset with user-specified implicit function or input scalar data
-// .SECTION Description
-// vtkClipConvexPolyData is a filter that clips a convex polydata with a set
-// of planes. Its main usage is for clipping a bounding volume with frustum
-// planes (used later one in volume rendering).
+/**
+ * @class   vtkClipConvexPolyData
+ * @brief   clip any dataset with user-specified implicit function or input scalar data
+ *
+ * vtkClipConvexPolyData is a filter that clips a convex polydata with a set
+ * of planes. Its main usage is for clipping a bounding volume with frustum
+ * planes (used later one in volume rendering).
+*/
 
 #ifndef vtkClipConvexPolyData_h
 #define vtkClipConvexPolyData_h
@@ -35,15 +38,19 @@ public:
   vtkTypeMacro(vtkClipConvexPolyData,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set all the planes at once using a vtkPlanes implicit function.
-  // This also sets the D value.
+  //@{
+  /**
+   * Set all the planes at once using a vtkPlanes implicit function.
+   * This also sets the D value.
+   */
   void SetPlanes(vtkPlaneCollection *planes);
   vtkGetObjectMacro(Planes,vtkPlaneCollection);
+  //@}
 
-  // Description:
-  // Redefines this method, as this filter depends on time of its components
-  // (planes)
+  /**
+   * Redefines this method, as this filter depends on time of its components
+   * (planes)
+   */
   virtual vtkMTimeType GetMTime();
 
 protected:
@@ -55,26 +62,31 @@ protected:
                   vtkInformationVector **inputVector,
                   vtkInformationVector *outputVector);
 
-  // Description:
-  // Clip the input with a given plane `p'.
-  // tolerance ?
+  /**
+   * Clip the input with a given plane `p'.
+   * tolerance ?
+   */
   void ClipWithPlane(vtkPlane *p,
                      double tolerance);
 
-  // Description:
-  // Tells if clipping the input by plane `p' creates some degeneracies.
+  /**
+   * Tells if clipping the input by plane `p' creates some degeneracies.
+   */
   bool HasDegeneracies(vtkPlane *p);
 
-  // Description:
-  // Delete calculation data.
+  /**
+   * Delete calculation data.
+   */
   void ClearInternals();
 
-  // Description:
-  // ?
+  /**
+   * ?
+   */
   void ClearNewVertices();
 
-  // Description:
-  // ?
+  /**
+   * ?
+   */
   void RemoveEmptyPolygons();
 
   vtkPlaneCollection *Planes;

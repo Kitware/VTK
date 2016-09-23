@@ -12,7 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkLargeInteger - class for arbitrarily large ints
+/**
+ * @class   vtkLargeInteger
+ * @brief   class for arbitrarily large ints
+*/
 
 #ifndef vtkLargeInteger_h
 #define vtkLargeInteger_h

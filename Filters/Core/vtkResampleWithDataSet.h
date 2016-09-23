@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkResampleWithDataset - sample point and cell data of a dataset on
-// points from another dataset.
-// .SECTION Description
-// Similar to vtkCompositeDataProbeFilter, vtkResampleWithDataset takes two
-// inputs - Input and Source, and samples the point and cell values of Source
-// on to the point locations of Input. The output has the same structure as
-// Input but its point data have the resampled values from Source. Unlike
-// vtkCompositeDataProbeFilter, this filter support composite datasets for both
-// Input and Source.
-// .SECTION See Also
-// vtkCompositeDataProbeFilter vtkResampleToImage
+/**
+ * @class   vtkResampleWithDataset
+ * @brief   sample point and cell data of a dataset on
+ * points from another dataset.
+ *
+ * Similar to vtkCompositeDataProbeFilter, vtkResampleWithDataset takes two
+ * inputs - Input and Source, and samples the point and cell values of Source
+ * on to the point locations of Input. The output has the same structure as
+ * Input but its point data have the resampled values from Source. Unlike
+ * vtkCompositeDataProbeFilter, this filter support composite datasets for both
+ * Input and Source.
+ * @sa
+ * vtkCompositeDataProbeFilter vtkResampleToImage
+*/
 
 #ifndef vtkResampleWithDataSet_h
 #define vtkResampleWithDataSet_h
@@ -43,40 +46,51 @@ public:
 
   static vtkResampleWithDataSet *New();
 
-  // Description:
-  // Specify the data set that will be probed at the input points.
-  // The Input gives the geometry (the points and cells) for the output,
-  // while the Source is probed (interpolated) to generate the scalars,
-  // vectors, etc. for the output points based on the point locations.
+  /**
+   * Specify the data set that will be probed at the input points.
+   * The Input gives the geometry (the points and cells) for the output,
+   * while the Source is probed (interpolated) to generate the scalars,
+   * vectors, etc. for the output points based on the point locations.
+   */
   void SetSourceData(vtkDataObject *source);
 
-  // Description:
-  // Specify the data set that will be probed at the input points.
-  // The Input gives the geometry (the points and cells) for the output,
-  // while the Source is probed (interpolated) to generate the scalars,
-  // vectors, etc. for the output points based on the point locations.
+  /**
+   * Specify the data set that will be probed at the input points.
+   * The Input gives the geometry (the points and cells) for the output,
+   * while the Source is probed (interpolated) to generate the scalars,
+   * vectors, etc. for the output points based on the point locations.
+   */
   void SetSourceConnection(vtkAlgorithmOutput* algOutput);
 
-  // Description:
-  // Shallow copy the input cell data arrays to the output.
-  // Off by default.
+  //@{
+  /**
+   * Shallow copy the input cell data arrays to the output.
+   * Off by default.
+   */
   void SetPassCellArrays(bool arg);
   bool GetPassCellArrays();
   vtkBooleanMacro(PassCellArrays, bool);
+  //@}
 
-  // Description:
-  // Shallow copy the input point data arrays to the output
-  // Off by default.
+  //@{
+  /**
+   * Shallow copy the input point data arrays to the output
+   * Off by default.
+   */
   void SetPassPointArrays(bool arg);
   bool GetPassPointArrays();
   vtkBooleanMacro(PassPointArrays, bool);
+  //@}
 
-  // Description:
-  // Set whether to pass the field-data arrays from the Input i.e. the input
-  // providing the geometry to the output. On by default.
+  //@{
+  /**
+   * Set whether to pass the field-data arrays from the Input i.e. the input
+   * providing the geometry to the output. On by default.
+   */
   void SetPassFieldArrays(bool arg);
   bool GetPassFieldArrays();
   vtkBooleanMacro(PassFieldArrays, bool);
+  //@}
 
   virtual vtkMTimeType GetMTime();
 
@@ -94,12 +108,14 @@ protected:
   virtual int FillInputPortInformation(int, vtkInformation *);
   virtual int FillOutputPortInformation(int, vtkInformation *);
 
-  // Description:
-  // Get the name of the valid-points mask array.
+  /**
+   * Get the name of the valid-points mask array.
+   */
   const char* GetMaskArrayName() const;
 
-  // Description:
-  // Mark invalid points and cells of output DataSet as hidden
+  /**
+   * Mark invalid points and cells of output DataSet as hidden
+   */
   void SetBlankPointsAndCells(vtkDataSet *data);
 
   vtkNew<vtkCompositeDataProbeFilter> Prober;

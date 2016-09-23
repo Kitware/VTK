@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCoreGraphicsGPUInfoList - Get GPUs VRAM information using CoreGraphics.
-// .SECTION Description
-// vtkCoreGraphicsGPUInfoList implements the Probe() method of vtkGPUInfoList
-// using Mac OS X APIs.
-// .SECTION See Also
-// vtkGPUInfo vtkGPUInfoList
+/**
+ * @class   vtkCoreGraphicsGPUInfoList
+ * @brief   Get GPUs VRAM information using CoreGraphics.
+ *
+ * vtkCoreGraphicsGPUInfoList implements the Probe() method of vtkGPUInfoList
+ * using Mac OS X APIs.
+ * @sa
+ * vtkGPUInfo vtkGPUInfoList
+*/
 
 #ifndef vtkCoreGraphicsGPUInfoList_h
 #define vtkCoreGraphicsGPUInfoList_h
@@ -32,16 +35,20 @@ public:
   vtkTypeMacro(vtkCoreGraphicsGPUInfoList, vtkGPUInfoList);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Build the list of vtkInfoGPU if not done yet.
-  // \post probed: IsProbed()
+  /**
+   * Build the list of vtkInfoGPU if not done yet.
+   * \post probed: IsProbed()
+   */
   virtual void Probe();
 
 protected:
-  // Description:
-  // Default constructor.
+  //@{
+  /**
+   * Default constructor.
+   */
   vtkCoreGraphicsGPUInfoList();
   virtual ~vtkCoreGraphicsGPUInfoList();
+  //@}
 
 private:
   vtkCoreGraphicsGPUInfoList(const vtkCoreGraphicsGPUInfoList&) VTK_DELETE_FUNCTION;

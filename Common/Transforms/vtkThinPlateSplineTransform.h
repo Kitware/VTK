@@ -12,27 +12,29 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkThinPlateSplineTransform - a nonlinear warp transformation
-// .SECTION Description
-// vtkThinPlateSplineTransform describes a nonlinear warp transform defined
-// by a set of source and target landmarks. Any point on the mesh close to a
-// source landmark will be moved to a place close to the corresponding target
-// landmark. The points in between are interpolated smoothly using
-// Bookstein's Thin Plate Spline algorithm.
-//
-// To obtain a correct TPS warp, use the R2LogR kernel if your data is 2D, and
-// the R kernel if your data is 3D. Or you can specify your own RBF. (Hence this
-// class is more general than a pure TPS transform.)
-// .SECTION Caveats
-// 1) The inverse transform is calculated using an iterative method,
-// and is several times more expensive than the forward transform.
-// 2) Whenever you add, subtract, or set points you must call Modified()
-// on the vtkPoints object, or the transformation might not update.
-// 3) Collinear point configurations (except those that lie in the XY plane)
-// result in an unstable transformation.
-// .SECTION see also
-// vtkGridTransform vtkGeneralTransform
-
+/**
+ * @class   vtkThinPlateSplineTransform
+ * @brief   a nonlinear warp transformation
+ *
+ * vtkThinPlateSplineTransform describes a nonlinear warp transform defined
+ * by a set of source and target landmarks. Any point on the mesh close to a
+ * source landmark will be moved to a place close to the corresponding target
+ * landmark. The points in between are interpolated smoothly using
+ * Bookstein's Thin Plate Spline algorithm.
+ *
+ * To obtain a correct TPS warp, use the R2LogR kernel if your data is 2D, and
+ * the R kernel if your data is 3D. Or you can specify your own RBF. (Hence this
+ * class is more general than a pure TPS transform.)
+ * @warning
+ * 1) The inverse transform is calculated using an iterative method,
+ * and is several times more expensive than the forward transform.
+ * 2) Whenever you add, subtract, or set points you must call Modified()
+ * on the vtkPoints object, or the transformation might not update.
+ * 3) Collinear point configurations (except those that lie in the XY plane)
+ * result in an unstable transformation.
+ * @sa
+ * vtkGridTransform vtkGeneralTransform
+*/
 
 #ifndef vtkThinPlateSplineTransform_h
 #define vtkThinPlateSplineTransform_h
@@ -51,26 +53,34 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkThinPlateSplineTransform *New();
 
-  // Description:
-  // Specify the 'stiffness' of the spline. The default is 1.0.
+  //@{
+  /**
+   * Specify the 'stiffness' of the spline. The default is 1.0.
+   */
   vtkGetMacro(Sigma,double);
   vtkSetMacro(Sigma,double);
+  //@}
 
-  // Description:
-  // Specify the radial basis function to use.  The default is
-  // R2LogR which is appropriate for 2D. Use |R| (SetBasisToR)
-  // if your data is 3D. Alternatively specify your own basis function,
-  // however this will mean that the transform will no longer be a true
-  // thin-plate spline.
+  //@{
+  /**
+   * Specify the radial basis function to use.  The default is
+   * R2LogR which is appropriate for 2D. Use |R| (SetBasisToR)
+   * if your data is 3D. Alternatively specify your own basis function,
+   * however this will mean that the transform will no longer be a true
+   * thin-plate spline.
+   */
   void SetBasis(int basis);
   vtkGetMacro(Basis,int);
   void SetBasisToR() { this->SetBasis(VTK_RBF_R); };
   void SetBasisToR2LogR() { this->SetBasis(VTK_RBF_R2LOGR); };
   const char *GetBasisAsString();
+  //@}
 
-  // Description:
-  // Set the radial basis function to a custom function.  You must
-  // supply both the function and its derivative with respect to r.
+  //@{
+  /**
+   * Set the radial basis function to a custom function.  You must
+   * supply both the function and its derivative with respect to r.
+   */
   void SetBasisFunction(double (*U)(double r)) {
     if (this->BasisFunction == U) { return; }
     this->SetBasis(VTK_RBF_CUSTOM);
@@ -79,39 +89,50 @@ public:
   void SetBasisDerivative(double (*dUdr)(double r, double &dU)) {
     this->BasisDerivative = dUdr;
     this->Modified(); };
+  //@}
 
-  // Description:
-  // Set the source landmarks for the warp.  If you add or change the
-  // vtkPoints object, you must call Modified() on it or the transformation
-  // might not update.
+  //@{
+  /**
+   * Set the source landmarks for the warp.  If you add or change the
+   * vtkPoints object, you must call Modified() on it or the transformation
+   * might not update.
+   */
   void SetSourceLandmarks(vtkPoints *source);
   vtkGetObjectMacro(SourceLandmarks,vtkPoints);
+  //@}
 
-  // Description:
-  // Set the target landmarks for the warp.  If you add or change the
-  // vtkPoints object, you must call Modified() on it or the transformation
-  // might not update.
+  //@{
+  /**
+   * Set the target landmarks for the warp.  If you add or change the
+   * vtkPoints object, you must call Modified() on it or the transformation
+   * might not update.
+   */
   void SetTargetLandmarks(vtkPoints *target);
   vtkGetObjectMacro(TargetLandmarks,vtkPoints);
+  //@}
 
-  // Description:
-  // Get the MTime.
+  /**
+   * Get the MTime.
+   */
   vtkMTimeType GetMTime() VTK_OVERRIDE;
 
-  // Description:
-  // Make another transform of the same type.
+  /**
+   * Make another transform of the same type.
+   */
   vtkAbstractTransform *MakeTransform() VTK_OVERRIDE;
 
 protected:
   vtkThinPlateSplineTransform();
   ~vtkThinPlateSplineTransform() VTK_OVERRIDE;
 
-  // Description:
-  // Prepare the transformation for application.
+  /**
+   * Prepare the transformation for application.
+   */
   void InternalUpdate() VTK_OVERRIDE;
 
-  // Description:
-  // This method does no type checking, use DeepCopy instead.
+  /**
+   * This method does no type checking, use DeepCopy instead.
+   */
   void InternalDeepCopy(vtkAbstractTransform *transform) VTK_OVERRIDE;
 
   void ForwardTransformPoint(const float in[3], float out[3]) VTK_OVERRIDE;

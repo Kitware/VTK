@@ -12,8 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkX3DExporterJavaHelper - create an x3d file
-// .SECTION Description
+/**
+ * @class   vtkX3DExporterJavaHelper
+ * @brief   create an x3d file
+ *
+*/
 
 #ifndef vtkX3DExporterJavaHelper_h
 #define vtkX3DExporterJavaHelper_h
@@ -33,8 +36,9 @@ public:
   int Write(const char* data, vtkIdType length);
   int Close();
 
-  // Description:
-  // Set the location of the FastInfoset JAR file
+  /**
+   * Set the location of the FastInfoset JAR file
+   */
   static void SetFastInfosetJarLocation(const char* location);
 
 protected:

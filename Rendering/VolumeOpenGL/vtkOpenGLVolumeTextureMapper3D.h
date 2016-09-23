@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLVolumeTextureMapper3D - concrete implementation of 3D volume texture mapping
-
-// .SECTION Description
-// vtkOpenGLVolumeTextureMapper3D renders a volume using 3D texture mapping.
-// See vtkVolumeTextureMapper3D for full description.
-
-// .SECTION see also
-// vtkVolumeTextureMapper3D vtkVolumeMapper
-// @deprecated
+/**
+ * @class   vtkOpenGLVolumeTextureMapper3D
+ * @brief   concrete implementation of 3D volume texture mapping
+ *
+ *
+ * vtkOpenGLVolumeTextureMapper3D renders a volume using 3D texture mapping.
+ * See vtkVolumeTextureMapper3D for full description.
+ *
+ * @sa
+ * vtkVolumeTextureMapper3D vtkVolumeMapper
+ * @deprecated
+*/
 
 #ifndef vtkOpenGLVolumeTextureMapper3D_h
 #define vtkOpenGLVolumeTextureMapper3D_h
@@ -42,17 +45,19 @@ public:
 
   static vtkOpenGLVolumeTextureMapper3D *New();
 
-  // Description:
-  // Is hardware rendering supported? No if the input data is
-  // more than one independent component, or if the hardware does
-  // not support the required extensions
+  /**
+   * Is hardware rendering supported? No if the input data is
+   * more than one independent component, or if the hardware does
+   * not support the required extensions
+   */
   int IsRenderSupported(vtkVolumeProperty *,
                         vtkRenderer *ren);
 
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
-  // Render the volume
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+   * Render the volume
+   */
   virtual void Render(vtkRenderer *ren, vtkVolume *vol);
 
   // Desciption:
@@ -61,10 +66,11 @@ public:
   // a valid OpenGL context!
   vtkGetMacro( Initialized, int );
 
-  // Description:
-  // Release any graphics resources that are being consumed by this texture.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
+  /**
+   * Release any graphics resources that are being consumed by this texture.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
   void ReleaseGraphicsResources(vtkWindow *);
 
 protected:
@@ -138,13 +144,15 @@ protected:
 
   void SetupProgramLocalsForShadingFP( vtkRenderer *ren, vtkVolume *vol );
 
-  // Description:
-  // Check if we can support this texture size for the number of components.
+  /**
+   * Check if we can support this texture size for the number of components.
+   */
   int IsTextureSizeSupported(int size[3],
                              int components);
 
-  // Description:
-  // Common code for setting up interpolation / clamping on 3D textures
+  /**
+   * Common code for setting up interpolation / clamping on 3D textures
+   */
   void Setup3DTextureParameters( vtkVolumeProperty *property );
 
 private:

@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMultiBlockFromTimeSeriesFilter - collects multiple inputs into one multi-group dataset
-// .SECTION Description
-// vtkMultiBlockFromTimeSeriesFilter is a 1 to 1 filter that merges multiple
-// time steps from the input into one multiblock dataset.  It will assign each
-// time step from the input to one group of the multi-block dataset and will
-// assign each timestep's data as a block in the multi-block datset.
+/**
+ * @class   vtkMultiBlockFromTimeSeriesFilter
+ * @brief   collects multiple inputs into one multi-group dataset
+ *
+ * vtkMultiBlockFromTimeSeriesFilter is a 1 to 1 filter that merges multiple
+ * time steps from the input into one multiblock dataset.  It will assign each
+ * time step from the input to one group of the multi-block dataset and will
+ * assign each timestep's data as a block in the multi-block datset.
+*/
 
 #ifndef vtkMultiBlockFromTimeSeriesFilter_h
 #define vtkMultiBlockFromTimeSeriesFilter_h

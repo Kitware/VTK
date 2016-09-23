@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInteractorStyleRubberBandZoom - zoom in by amount indicated by rubber band box
-// .SECTION Description
-// This interactor style allows the user to draw a rectangle in the render
-// window using the left mouse button.  When the mouse button is released,
-// the current camera zooms by an amount determined from the shorter side of
-// the drawn rectangle.
+/**
+ * @class   vtkInteractorStyleRubberBandZoom
+ * @brief   zoom in by amount indicated by rubber band box
+ *
+ * This interactor style allows the user to draw a rectangle in the render
+ * window using the left mouse button.  When the mouse button is released,
+ * the current camera zooms by an amount determined from the shorter side of
+ * the drawn rectangle.
+*/
 
 #ifndef vtkInteractorStyleRubberBandZoom_h
 #define vtkInteractorStyleRubberBandZoom_h
@@ -34,11 +37,14 @@ public:
   vtkTypeMacro(vtkInteractorStyleRubberBandZoom, vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Event bindings
+  //@{
+  /**
+   * Event bindings
+   */
   virtual void OnMouseMove();
   virtual void OnLeftButtonDown();
   virtual void OnLeftButtonUp();
+  //@}
 
 protected:
   vtkInteractorStyleRubberBandZoom();

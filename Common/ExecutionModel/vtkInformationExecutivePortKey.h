@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInformationExecutivePortKey - Key for vtkExecutive/Port value pairs.
-// .SECTION Description
-// vtkInformationExecutivePortKey is used to represent keys in
-// vtkInformation for values that are vtkExecutive instances paired
-// with port numbers.
+/**
+ * @class   vtkInformationExecutivePortKey
+ * @brief   Key for vtkExecutive/Port value pairs.
+ *
+ * vtkInformationExecutivePortKey is used to represent keys in
+ * vtkInformation for values that are vtkExecutive instances paired
+ * with port numbers.
+*/
 
 #ifndef vtkInformationExecutivePortKey_h
 #define vtkInformationExecutivePortKey_h
@@ -37,35 +40,42 @@ public:
   vtkInformationExecutivePortKey(const char* name, const char* location);
   ~vtkInformationExecutivePortKey() VTK_OVERRIDE;
 
-  // Description:
-  // This method simply returns a new vtkInformationExecutivePortKey, given a
-  // name and a location. This method is provided for wrappers. Use the
-  // constructor directly from C++ instead.
+  /**
+   * This method simply returns a new vtkInformationExecutivePortKey, given a
+   * name and a location. This method is provided for wrappers. Use the
+   * constructor directly from C++ instead.
+   */
   static vtkInformationExecutivePortKey* MakeKey(const char* name, const char* location)
     {
     return new vtkInformationExecutivePortKey(name, location);
     }
 
-  // Description:
-  // Get/Set the value associated with this key in the given
-  // information object.
+  //@{
+  /**
+   * Get/Set the value associated with this key in the given
+   * information object.
+   */
   void Set(vtkInformation* info, vtkExecutive*, int);
   vtkExecutive* GetExecutive(vtkInformation* info);
   int GetPort(vtkInformation* info);
   void Get(vtkInformation *info, vtkExecutive*& executive, int &port);
+  //@}
 
-  // Description:
-  // Copy the entry associated with this key from one information
-  // object to another.  If there is no entry in the first information
-  // object for this key, the value is removed from the second.
+  /**
+   * Copy the entry associated with this key from one information
+   * object to another.  If there is no entry in the first information
+   * object for this key, the value is removed from the second.
+   */
   void ShallowCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
 
-  // Description:
-  // Report a reference this key has in the given information object.
+  /**
+   * Report a reference this key has in the given information object.
+   */
   void Report(vtkInformation* info, vtkGarbageCollector* collector) VTK_OVERRIDE;
 
-  // Description:
-  // Print the key's value in an information object to a stream.
+  /**
+   * Print the key's value in an information object to a stream.
+   */
   void Print(ostream& os, vtkInformation* info) VTK_OVERRIDE;
 
 private:

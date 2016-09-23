@@ -12,19 +12,22 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInitialValueProblemSolver - Integrate a set of ordinary
-// differential equations (initial value problem) in time.
-
-// .SECTION Description
-// Given a vtkFunctionSet which returns dF_i(x_j, t)/dt given x_j and
-// t, vtkInitialValueProblemSolver computes the value of F_i at t+deltat.
-
-// .SECTION Warning
-// vtkInitialValueProblemSolver and it's subclasses are not thread-safe.
-// You should create a new integrator for each thread.
-
-// .SECTION See Also
-// vtkRungeKutta2 vtkRungeKutta4
+/**
+ * @class   vtkInitialValueProblemSolver
+ * @brief   Integrate a set of ordinary
+ * differential equations (initial value problem) in time.
+ *
+ *
+ * Given a vtkFunctionSet which returns dF_i(x_j, t)/dt given x_j and
+ * t, vtkInitialValueProblemSolver computes the value of F_i at t+deltat.
+ *
+ * @warning
+ * vtkInitialValueProblemSolver and it's subclasses are not thread-safe.
+ * You should create a new integrator for each thread.
+ *
+ * @sa
+ * vtkRungeKutta2 vtkRungeKutta4
+*/
 
 #ifndef vtkInitialValueProblemSolver_h
 #define vtkInitialValueProblemSolver_h
@@ -40,26 +43,28 @@ public:
   vtkTypeMacro(vtkInitialValueProblemSolver,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Given initial values, xprev , initial time, t and a requested time
-  // interval, delT calculate values of x at t+delTActual (xnext).
-  // For certain concrete sub-classes delTActual != delT. This occurs
-  // when the solver supports adaptive stepsize control. If this
-  // is the case, the solver tries to change to stepsize such that
-  // the (estimated) error of the integration is less than maxError.
-  // The solver will not set the stepsize smaller than minStep or
-  // larger than maxStep.
-  // Also note that delT is an in/out argument. Adaptive solvers
-  // will modify delT to reflect the best (estimated) size for the next
-  // integration step.
-  // An estimated value for the error is returned (by reference) in error.
-  // Note that only some concrete sub-classes support this. Otherwise,
-  // the error is set to 0.
-  // This method returns an error code representing the nature of
-  // the failure:
-  // OutOfDomain = 1,
-  // NotInitialized = 2,
-  // UnexpectedValue = 3
+  //@{
+  /**
+   * Given initial values, xprev , initial time, t and a requested time
+   * interval, delT calculate values of x at t+delTActual (xnext).
+   * For certain concrete sub-classes delTActual != delT. This occurs
+   * when the solver supports adaptive stepsize control. If this
+   * is the case, the solver tries to change to stepsize such that
+   * the (estimated) error of the integration is less than maxError.
+   * The solver will not set the stepsize smaller than minStep or
+   * larger than maxStep.
+   * Also note that delT is an in/out argument. Adaptive solvers
+   * will modify delT to reflect the best (estimated) size for the next
+   * integration step.
+   * An estimated value for the error is returned (by reference) in error.
+   * Note that only some concrete sub-classes support this. Otherwise,
+   * the error is set to 0.
+   * This method returns an error code representing the nature of
+   * the failure:
+   * OutOfDomain = 1,
+   * NotInitialized = 2,
+   * UnexpectedValue = 3
+   */
   virtual int ComputeNextStep(double* xprev, double* xnext, double t,
                               double& delT, double maxError,
                               double& error)
@@ -92,15 +97,20 @@ public:
                               double t, double& delT, double& delTActual,
                               double minStep, double maxStep,
                               double maxError, double& error) = 0;
+  //@}
 
-  // Description:
-  // Set / get the dataset used for the implicit function evaluation.
+  //@{
+  /**
+   * Set / get the dataset used for the implicit function evaluation.
+   */
   virtual void SetFunctionSet(vtkFunctionSet* functionset);
   vtkGetObjectMacro(FunctionSet,vtkFunctionSet);
+  //@}
 
-  // Description:
-  // Returns 1 if the solver uses adaptive stepsize control,
-  // 0 otherwise
+  /**
+   * Returns 1 if the solver uses adaptive stepsize control,
+   * 0 otherwise
+   */
   virtual int IsAdaptive() { return this->Adaptive; }
 
   enum ErrorCodes

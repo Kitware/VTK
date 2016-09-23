@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOSPRayVolumeMapperNode - links vtkVolumeMapper  to OSPRay
-// .SECTION Description
-// Translates vtkVolumeMapper state into OSPRay rendering calls
+/**
+ * @class   vtkOSPRayVolumeMapperNode
+ * @brief   links vtkVolumeMapper  to OSPRay
+ *
+ * Translates vtkVolumeMapper state into OSPRay rendering calls
+*/
 
 #ifndef vtkOSPRayVolumeMapperNode_h
 #define vtkOSPRayVolumeMapperNode_h
@@ -36,14 +39,16 @@ public:
   vtkTypeMacro(vtkOSPRayVolumeMapperNode, vtkVolumeMapperNode);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //Description:
-  //Make ospray calls to render me.
+  /**
+   * Make ospray calls to render me.
+   */
   virtual void Render(bool prepass);
 
-  //Description:
-  //TODO: fix me
-  //should be controlled by VTK SampleDistance, otherwise
-  //should use macros and modify self.
+  /**
+   * TODO: fix me
+   * should be controlled by VTK SampleDistance, otherwise
+   * should use macros and modify self.
+   */
   void SetSamplingRate(double rate) { this->SamplingRate = rate; }
   double GetSamplingRate() { return this->SamplingRate; }
 

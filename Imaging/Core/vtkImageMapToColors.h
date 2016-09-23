@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageMapToColors - map the input image through a lookup table
-// .SECTION Description
-// The vtkImageMapToColors filter will take an input image of any valid
-// scalar type, and map the first component of the image through a
-// lookup table.  The result is an image of type VTK_UNSIGNED_CHAR.
-// If the lookup table is not set, or is set to NULL, then the input
-// data will be passed through if it is already of type VTK_UNSIGNED_CHAR.
-
-// .SECTION See Also
-// vtkLookupTable vtkScalarsToColors
+/**
+ * @class   vtkImageMapToColors
+ * @brief   map the input image through a lookup table
+ *
+ * The vtkImageMapToColors filter will take an input image of any valid
+ * scalar type, and map the first component of the image through a
+ * lookup table.  The result is an image of type VTK_UNSIGNED_CHAR.
+ * If the lookup table is not set, or is set to NULL, then the input
+ * data will be passed through if it is already of type VTK_UNSIGNED_CHAR.
+ *
+ * @sa
+ * vtkLookupTable vtkScalarsToColors
+*/
 
 #ifndef vtkImageMapToColors_h
 #define vtkImageMapToColors_h
@@ -39,41 +42,57 @@ public:
   vtkTypeMacro(vtkImageMapToColors,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the lookup table.
+  //@{
+  /**
+   * Set the lookup table.
+   */
   virtual void SetLookupTable(vtkScalarsToColors*);
   vtkGetObjectMacro(LookupTable,vtkScalarsToColors);
+  //@}
 
-  // Description:
-  // Set the output format, the default is RGBA.
+  //@{
+  /**
+   * Set the output format, the default is RGBA.
+   */
   vtkSetMacro(OutputFormat,int);
   vtkGetMacro(OutputFormat,int);
   void SetOutputFormatToRGBA() { this->OutputFormat = VTK_RGBA; };
   void SetOutputFormatToRGB() { this->OutputFormat = VTK_RGB; };
   void SetOutputFormatToLuminanceAlpha() { this->OutputFormat = VTK_LUMINANCE_ALPHA; };
   void SetOutputFormatToLuminance() { this->OutputFormat = VTK_LUMINANCE; };
+  //@}
 
-  // Description:
-  // Set the component to map for multi-component images (default: 0)
+  //@{
+  /**
+   * Set the component to map for multi-component images (default: 0)
+   */
   vtkSetMacro(ActiveComponent,int);
   vtkGetMacro(ActiveComponent,int);
+  //@}
 
-  // Description:
-  // Use the alpha component of the input when computing the alpha component
-  // of the output (useful when converting monochrome+alpha data to RGBA)
+  //@{
+  /**
+   * Use the alpha component of the input when computing the alpha component
+   * of the output (useful when converting monochrome+alpha data to RGBA)
+   */
   vtkSetMacro(PassAlphaToOutput,int);
   vtkBooleanMacro(PassAlphaToOutput,int);
   vtkGetMacro(PassAlphaToOutput,int);
+  //@}
 
-  // Description:
-  // We need to check the modified time of the lookup table too.
+  /**
+   * We need to check the modified time of the lookup table too.
+   */
   virtual vtkMTimeType GetMTime();
 
-  // Description:
-  // Set/Get Color that should be used in case of UnMatching
-  // data.
+  //@{
+  /**
+   * Set/Get Color that should be used in case of UnMatching
+   * data.
+   */
   vtkSetVector4Macro(NaNColor, unsigned char);
   vtkGetVector4Macro(NaNColor, unsigned char);
+  //@}
 
 protected:
   vtkImageMapToColors();

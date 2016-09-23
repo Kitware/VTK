@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLLight - OpenGL light
-// .SECTION Description
-// vtkOpenGLLight is a concrete implementation of the abstract class vtkLight.
-// vtkOpenGLLight interfaces to the OpenGL rendering library.
+/**
+ * @class   vtkOpenGLLight
+ * @brief   OpenGL light
+ *
+ * vtkOpenGLLight is a concrete implementation of the abstract class vtkLight.
+ * vtkOpenGLLight interfaces to the OpenGL rendering library.
+*/
 
 #ifndef vtkOpenGLLight_h
 #define vtkOpenGLLight_h
@@ -32,8 +35,9 @@ public:
   vtkTypeMacro(vtkOpenGLLight, vtkLight);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Implement base class method.
+  /**
+   * Implement base class method.
+   */
   void Render(vtkRenderer *ren, int light_index);
 
 protected:

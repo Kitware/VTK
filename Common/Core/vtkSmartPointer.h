@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSmartPointer - Hold a reference to a vtkObjectBase instance.
-// .SECTION Description
-// vtkSmartPointer is a class template that provides automatic casting
-// for objects held by the vtkSmartPointerBase superclass.
+/**
+ * @class   vtkSmartPointer
+ * @brief   Hold a reference to a vtkObjectBase instance.
+ *
+ * vtkSmartPointer is a class template that provides automatic casting
+ * for objects held by the vtkSmartPointerBase superclass.
+*/
 
 #ifndef vtkSmartPointer_h
 #define vtkSmartPointer_h
@@ -27,42 +30,53 @@ class vtkSmartPointer: public vtkSmartPointerBase
 {
   static T* CheckType(T* t) { return t; }
 public:
-  // Description:
-  // Initialize smart pointer to NULL.
+  /**
+   * Initialize smart pointer to NULL.
+   */
   vtkSmartPointer() {}
 
-  // Description:
-  // Initialize smart pointer to given object.
+  /**
+   * Initialize smart pointer to given object.
+   */
   vtkSmartPointer(T* r): vtkSmartPointerBase(r) {}
 
-  // Description:
-  // Initialize smart pointer with a new reference to the same object
-  // referenced by given smart pointer.
+  /**
+   * Initialize smart pointer with a new reference to the same object
+   * referenced by given smart pointer.
+   */
   template <class U>
   vtkSmartPointer(const vtkSmartPointer<U>& r):
     vtkSmartPointerBase(CheckType(r.GetPointer())) {}
 
-  // Description:
-  // Assign object to reference.  This removes any reference to an old
-  // object.
+  //@{
+  /**
+   * Assign object to reference.  This removes any reference to an old
+   * object.
+   */
   vtkSmartPointer& operator=(T* r)
     {
     this->vtkSmartPointerBase::operator=(r);
     return *this;
     }
+  //@}
 
-  // Description:
-  // Assign object to reference.  This removes any reference to an old
-  // object.
+  //@{
+  /**
+   * Assign object to reference.  This removes any reference to an old
+   * object.
+   */
   template <class U>
   vtkSmartPointer& operator=(const vtkSmartPointer<U>& r)
     {
     this->vtkSmartPointerBase::operator=(CheckType(r.GetPointer()));
     return *this;
     }
+  //@}
 
-  // Description:
-  // Get the contained pointer.
+  //@{
+  /**
+   * Get the contained pointer.
+   */
   T* GetPointer() const
     {
     return static_cast<T*>(this->Object);
@@ -71,71 +85,79 @@ public:
     {
     return static_cast<T*>(this->Object);
     }
+  //@}
 
-  // Description:
-  // Get the contained pointer.
+  /**
+   * Get the contained pointer.
+   */
   operator T* () const
     {
     return static_cast<T*>(this->Object);
     }
 
-  // Description:
-  // Dereference the pointer and return a reference to the contained
-  // object.
+  /**
+   * Dereference the pointer and return a reference to the contained
+   * object.
+   */
   T& operator*() const
     {
     return *static_cast<T*>(this->Object);
     }
 
-  // Description:
-  // Provides normal pointer target member access using operator ->.
+  /**
+   * Provides normal pointer target member access using operator ->.
+   */
   T* operator->() const
     {
     return static_cast<T*>(this->Object);
     }
 
-  // Description:
-  // Transfer ownership of one reference to the given VTK object to
-  // this smart pointer.  This does not increment the reference count
-  // of the object, but will decrement it later.  The caller is
-  // effectively passing ownership of one reference to the smart
-  // pointer.  This is useful for code like:
-  //
-  //   vtkSmartPointer<vtkFoo> foo;
-  //   foo.TakeReference(bar->NewFoo());
-  //
-  // The input argument may not be another smart pointer.
+  /**
+   * Transfer ownership of one reference to the given VTK object to
+   * this smart pointer.  This does not increment the reference count
+   * of the object, but will decrement it later.  The caller is
+   * effectively passing ownership of one reference to the smart
+   * pointer.  This is useful for code like:
+
+   * vtkSmartPointer<vtkFoo> foo;
+   * foo.TakeReference(bar->NewFoo());
+
+   * The input argument may not be another smart pointer.
+   */
   void TakeReference(T* t)
     {
     *this = vtkSmartPointer<T>(t, NoReference());
     }
 
-  // Description:
-  // Create an instance of a VTK object.
+  /**
+   * Create an instance of a VTK object.
+   */
   static vtkSmartPointer<T> New()
     {
     return vtkSmartPointer<T>(T::New(), NoReference());
     }
 
-  // Description:
-  // Create a new instance of the given VTK object.
+  /**
+   * Create a new instance of the given VTK object.
+   */
   static vtkSmartPointer<T> NewInstance(T* t)
     {
     return vtkSmartPointer<T>(t->NewInstance(), NoReference());
     }
 
-  // Description:
-  // Transfer ownership of one reference to the given VTK object to a
-  // new smart pointer.  The returned smart pointer does not increment
-  // the reference count of the object on construction but will
-  // decrement it on destruction.  The caller is effectively passing
-  // ownership of one reference to the smart pointer.  This is useful
-  // for code like:
-  //
-  //   vtkSmartPointer<vtkFoo> foo =
-  //     vtkSmartPointer<vtkFoo>::Take(bar->NewFoo());
-  //
-  // The input argument may not be another smart pointer.
+  /**
+   * Transfer ownership of one reference to the given VTK object to a
+   * new smart pointer.  The returned smart pointer does not increment
+   * the reference count of the object on construction but will
+   * decrement it on destruction.  The caller is effectively passing
+   * ownership of one reference to the smart pointer.  This is useful
+   * for code like:
+
+   * vtkSmartPointer<vtkFoo> foo =
+   * vtkSmartPointer<vtkFoo>::Take(bar->NewFoo());
+
+   * The input argument may not be another smart pointer.
+   */
   static vtkSmartPointer<T> Take(T* t)
     {
     return vtkSmartPointer<T>(t, NoReference());
@@ -189,8 +211,9 @@ private:
     { \
     return (l.GetPointer() op r); \
     }
-// Description:
-// Compare smart pointer values.
+/**
+ * Compare smart pointer values.
+ */
 VTK_SMART_POINTER_DEFINE_OPERATOR(==)
 VTK_SMART_POINTER_DEFINE_OPERATOR(!=)
 VTK_SMART_POINTER_DEFINE_OPERATOR(<)
@@ -200,8 +223,9 @@ VTK_SMART_POINTER_DEFINE_OPERATOR(>=)
 
 #undef VTK_SMART_POINTER_DEFINE_OPERATOR
 
-// Description:
-// Streaming operator to print smart pointer like regular pointers.
+/**
+ * Streaming operator to print smart pointer like regular pointers.
+ */
 template <class T>
 inline ostream& operator << (ostream& os, const vtkSmartPointer<T>& p)
 {

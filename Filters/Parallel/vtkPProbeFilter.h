@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPProbeFilter - probe dataset in parallel
-// .SECTION Description
-// This filter works correctly only if the whole geometry dataset
-// (that specify the point locations used to probe input) is available on all
-// nodes.
+/**
+ * @class   vtkPProbeFilter
+ * @brief   probe dataset in parallel
+ *
+ * This filter works correctly only if the whole geometry dataset
+ * (that specify the point locations used to probe input) is available on all
+ * nodes.
+*/
 
 #ifndef vtkPProbeFilter_h
 #define vtkPProbeFilter_h
@@ -34,10 +37,13 @@ public:
 
   static vtkPProbeFilter *New();
 
-  // Description:
-  // Set and get the controller.
+  //@{
+  /**
+   * Set and get the controller.
+   */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
 
 protected:
   vtkPProbeFilter();

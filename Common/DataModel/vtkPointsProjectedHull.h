@@ -17,14 +17,17 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// .NAME vtkPointsProjectedHull - the convex hull of the orthogonal
-//    projection of the vtkPoints in the 3 coordinate directions
-// .SECTION Description
-//    a subclass of vtkPoints, it maintains the counter clockwise
-//    convex hull of the points (projected orthogonally in the
-//    three coordinate directions) and has a method to
-//    test for intersection of that hull with an axis aligned
-//    rectangle.  This is used for intersection tests of 3D volumes.
+/**
+ * @class   vtkPointsProjectedHull
+ * @brief   the convex hull of the orthogonal
+ *    projection of the vtkPoints in the 3 coordinate directions
+ *
+ *    a subclass of vtkPoints, it maintains the counter clockwise
+ *    convex hull of the points (projected orthogonally in the
+ *    three coordinate directions) and has a method to
+ *    test for intersection of that hull with an axis aligned
+ *    rectangle.  This is used for intersection tests of 3D volumes.
+*/
 
 #ifndef vtkPointsProjectedHull_h
 #define vtkPointsProjectedHull_h
@@ -41,91 +44,104 @@ public:
 
     static vtkPointsProjectedHull *New();
 
-    // Description:  Project the box R along the positive X axis and
-    //   determine whether the resulting rectangle intersects the
-    //   convex hull of the projection of the points along that axis.
+    /**
+     * determine whether the resulting rectangle intersects the
+     * convex hull of the projection of the points along that axis.
+     */
 
     int RectangleIntersectionX(vtkPoints *R);
 
-    // Description:  Determine whether the given rectangle intersects
-    //   the convex hull of the projection of the points along the
-    //   positive X-axis.
+    /**
+     * the convex hull of the projection of the points along the
+     * positive X-axis.
+     */
 
     int RectangleIntersectionX(float ymin, float ymax, float zmin, float zmax);
     int RectangleIntersectionX(double ymin, double ymax, double zmin, double zmax);
 
-    // Description:  Determine if a rectangle intersects the convex hull
-    //   of the parallel projection along the Y axis of the points
+    /**
+     * of the parallel projection along the Y axis of the points
+     */
 
     int RectangleIntersectionY(vtkPoints *R);
 
-    // Description:  Determine whether the given rectangle intersects
-    //   the convex hull of the projection of the points along the
-    //   positive Y-axis.
+    /**
+     * the convex hull of the projection of the points along the
+     * positive Y-axis.
+     */
 
     int RectangleIntersectionY(float zmin, float zmax, float xmin, float xmax);
     int RectangleIntersectionY(double zmin, double zmax, double xmin, double xmax);
 
-    // Description:  Determine if a rectangle intersects the convex hull
-    //   of the parallel projection along the Z axis of the points
+    /**
+     * of the parallel projection along the Z axis of the points
+     */
 
     int RectangleIntersectionZ(vtkPoints *R);
 
-    // Description:  Determine whether the given rectangle intersects
-    //   the convex hull of the projection of the points along the
-    //   positive Z-axis.
+    /**
+     * the convex hull of the projection of the points along the
+     * positive Z-axis.
+     */
 
     int RectangleIntersectionZ(float xmin, float xmax, float ymin, float ymax);
     int RectangleIntersectionZ(double xmin, double xmax, double ymin, double ymax);
 
-    // Description:
-    //   Returns the coordinates (y,z) of the points in the convex hull
-    //   of the projection of the points down the positive x-axis.  pts has
-    //   storage for len*2 values.
+    /**
+     * Returns the coordinates (y,z) of the points in the convex hull
+     * of the projection of the points down the positive x-axis.  pts has
+     * storage for len*2 values.
+     */
 
     int GetCCWHullX(float *pts, int len);
     int GetCCWHullX(double *pts, int len);
 
-    // Description:
-    //   Returns the coordinates (z, x) of the points in the convex hull
-    //   of the projection of the points down the positive y-axis.  pts has
-    //   storage for len*2 values.
+    /**
+     * Returns the coordinates (z, x) of the points in the convex hull
+     * of the projection of the points down the positive y-axis.  pts has
+     * storage for len*2 values.
+     */
 
     int GetCCWHullY(float *pts, int len);
     int GetCCWHullY(double *pts, int len);
 
-    // Description:
-    //   Returns the coordinates (x, y) of the points in the convex hull
-    //   of the projection of the points down the positive z-axis.  pts has
-    //   storage for len*2 values.
+    /**
+     * Returns the coordinates (x, y) of the points in the convex hull
+     * of the projection of the points down the positive z-axis.  pts has
+     * storage for len*2 values.
+     */
 
     int GetCCWHullZ(float *pts, int len);
     int GetCCWHullZ(double *pts, int len);
 
-    // Description:
-    //  Returns the number of points in the convex hull of the projection
-    //  of the points down the positive x-axis
+    /**
+     * Returns the number of points in the convex hull of the projection
+     * of the points down the positive x-axis
+     */
 
     int GetSizeCCWHullX();
 
-    // Description:
-    //  Returns the number of points in the convex hull of the projection
-    //  of the points down the positive y-axis
+    /**
+     * Returns the number of points in the convex hull of the projection
+     * of the points down the positive y-axis
+     */
 
     int GetSizeCCWHullY();
 
-    // Description:
-    //  Returns the number of points in the convex hull of the projection
-    //  of the points down the positive z-axis
+    /**
+     * Returns the number of points in the convex hull of the projection
+     * of the points down the positive z-axis
+     */
 
     int GetSizeCCWHullZ();
 
     void Initialize() VTK_OVERRIDE;
     void Reset() VTK_OVERRIDE {this->Initialize();}
 
-    // Description:
-    //   Forces recalculation of convex hulls, use this if
-    //   you delete/add points
+    /**
+     * Forces recalculation of convex hulls, use this if
+     * you delete/add points
+     */
 
     void Update();
 

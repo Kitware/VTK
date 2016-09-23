@@ -17,15 +17,18 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGeoTerrain2D - A 2D terrain model for the globe.
-//
-// .SECTION Description
-// vtkGeoTerrain2D contains a multi-resolution tree of geometry representing
-// the globe. It uses a vtkGeoSource subclass to generate the terrain, such
-// as vtkGeoProjectionSource. This source must be set before using the
-// terrain in a vtkGeoView2D. The terrain also contains an AddActors()
-// method which updates the set of actors representing the globe given the
-// current camera position.
+/**
+ * @class   vtkGeoTerrain2D
+ * @brief   A 2D terrain model for the globe.
+ *
+ *
+ * vtkGeoTerrain2D contains a multi-resolution tree of geometry representing
+ * the globe. It uses a vtkGeoSource subclass to generate the terrain, such
+ * as vtkGeoProjectionSource. This source must be set before using the
+ * terrain in a vtkGeoView2D. The terrain also contains an AddActors()
+ * method which updates the set of actors representing the globe given the
+ * current camera position.
+*/
 
 #ifndef vtkGeoTerrain2D_h
 #define vtkGeoTerrain2D_h
@@ -48,20 +51,27 @@ public:
   vtkTypeMacro(vtkGeoTerrain2D,vtkGeoTerrain);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // The maximum size of a single texel in pixels.
-  // Images will be refined if a texel becomes larger than the tolerance.
+  //@{
+  /**
+   * The maximum size of a single texel in pixels.
+   * Images will be refined if a texel becomes larger than the tolerance.
+   */
   vtkSetMacro(TextureTolerance, double);
   vtkGetMacro(TextureTolerance, double);
+  //@}
 
-  // Description:
-  // The maximum allowed deviation of geometry in pixels.
-  // Geometry will be refined if the deviation is larger than the tolerance.
+  //@{
+  /**
+   * The maximum allowed deviation of geometry in pixels.
+   * Geometry will be refined if the deviation is larger than the tolerance.
+   */
   vtkSetMacro(LocationTolerance, double);
   vtkGetMacro(LocationTolerance, double);
+  //@}
 
-  // Description:
-  // Return the projection transformation used by this 2D terrain.
+  /**
+   * Return the projection transformation used by this 2D terrain.
+   */
   virtual vtkAbstractTransform* GetTransform();
 
 protected:
@@ -71,18 +81,21 @@ protected:
   double LocationTolerance;
   double TextureTolerance;
 
-  // Description:
-  // AddActors() calls this to setup parameters for evaluating nodes.
+  /**
+   * AddActors() calls this to setup parameters for evaluating nodes.
+   */
   virtual void InitializeNodeAnalysis(vtkRenderer* ren);
 
-  // Description:
-  // AddActors() calls this to determine if a node is in the current
-  // viewport.
+  /**
+   * AddActors() calls this to determine if a node is in the current
+   * viewport.
+   */
   virtual bool NodeInViewport(vtkGeoTerrainNode* node);
 
-  // Description:
-  // AddActors() calls to to evaluate whether a node should be
-  // refined (1), coarsened (-1), or remain at the same level (0).
+  /**
+   * AddActors() calls to to evaluate whether a node should be
+   * refined (1), coarsened (-1), or remain at the same level (0).
+   */
   virtual int EvaluateNode(vtkGeoTerrainNode* node);
 
   double CameraBounds[4];

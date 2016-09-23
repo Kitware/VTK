@@ -16,11 +16,14 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkPassThroughEdgeStrategy - passes edge routing information through
-//
-// .SECTION Description
-// Simply passes existing edge layout information from the input to the
-// output without making changes.
+/**
+ * @class   vtkPassThroughEdgeStrategy
+ * @brief   passes edge routing information through
+ *
+ *
+ * Simply passes existing edge layout information from the input to the
+ * output without making changes.
+*/
 
 #ifndef vtkPassThroughEdgeStrategy_h
 #define vtkPassThroughEdgeStrategy_h
@@ -35,9 +38,10 @@ public:
   vtkTypeMacro(vtkPassThroughEdgeStrategy,vtkEdgeLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // This is the layout method where the graph that was
-  // set in SetGraph() is laid out.
+  /**
+   * This is the layout method where the graph that was
+   * set in SetGraph() is laid out.
+   */
   virtual void Layout();
 
 protected:

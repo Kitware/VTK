@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBrownianPoints - assign random vector to points
-// .SECTION Description
-// vtkBrownianPoints is a filter object that assigns a random vector (i.e.,
-// magnitude and direction) to each point. The minimum and maximum speed
-// values can be controlled by the user.
-
-// .SECTION See also
-// vtkRandomAttributeGenerator
+/**
+ * @class   vtkBrownianPoints
+ * @brief   assign random vector to points
+ *
+ * vtkBrownianPoints is a filter object that assigns a random vector (i.e.,
+ * magnitude and direction) to each point. The minimum and maximum speed
+ * values can be controlled by the user.
+ *
+ * @sa
+ * vtkRandomAttributeGenerator
+*/
 
 #ifndef vtkBrownianPoints_h
 #define vtkBrownianPoints_h
@@ -30,22 +33,29 @@
 class VTKFILTERSGENERAL_EXPORT vtkBrownianPoints : public vtkDataSetAlgorithm
 {
 public:
-  // Description:
-  // Create instance with minimum speed 0.0, maximum speed 1.0.
+  /**
+   * Create instance with minimum speed 0.0, maximum speed 1.0.
+   */
   static vtkBrownianPoints *New();
 
   vtkTypeMacro(vtkBrownianPoints,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the minimum speed value.
+  //@{
+  /**
+   * Set the minimum speed value.
+   */
   vtkSetClampMacro(MinimumSpeed,double,0.0,VTK_DOUBLE_MAX);
   vtkGetMacro(MinimumSpeed,double);
+  //@}
 
-  // Description:
-  // Set the maximum speed value.
+  //@{
+  /**
+   * Set the maximum speed value.
+   */
   vtkSetClampMacro(MaximumSpeed,double,0.0,VTK_DOUBLE_MAX);
   vtkGetMacro(MaximumSpeed,double);
+  //@}
 
 protected:
   vtkBrownianPoints();

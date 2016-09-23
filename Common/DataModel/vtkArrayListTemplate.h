@@ -12,27 +12,30 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkArrayListTemplate - thread-safe and efficient data attribute manipulation
-
-// .SECTION Description
-// vtkArrayListTemplate supplements the vtkDataSetAttributes class to provide
-// threaded processing of data arrays. It is also more efficient for certain
-// interpolation operations. The expectation is that it will be replaced one
-// day once vtkPointData, vtkCellData, vtkDataSetAttributes, and vtkFieldData
-// properly support multithreading and/or are redesigned. Note that this
-// implementation does not support incremental operations (like InsertNext()).
-//
-// Generally the way this helper class is used is to first invoke
-// vtkDataSetAttributes::CopyInterpolate() or InterpolateAllocate() which
-// performs the initial magic of constructing input and output arrays. Then
-// the input attributes, and output attributes, are passed to initialize the
-// internal structures. Essentially these internal structures are pairs of
-// arrays of the same type, which can be efficently accessed and
-// assigned. The operations on these array pairs (e.g., interpolation) occur
-// using a typeless, virtual dispatch base class.
-
-// .SECTION See Also
-// vtkFieldData vtkDataSetAttributes vtkPointData vtkCellData
+/**
+ * @class   vtkArrayListTemplate
+ * @brief   thread-safe and efficient data attribute manipulation
+ *
+ *
+ * vtkArrayListTemplate supplements the vtkDataSetAttributes class to provide
+ * threaded processing of data arrays. It is also more efficient for certain
+ * interpolation operations. The expectation is that it will be replaced one
+ * day once vtkPointData, vtkCellData, vtkDataSetAttributes, and vtkFieldData
+ * properly support multithreading and/or are redesigned. Note that this
+ * implementation does not support incremental operations (like InsertNext()).
+ *
+ * Generally the way this helper class is used is to first invoke
+ * vtkDataSetAttributes::CopyInterpolate() or InterpolateAllocate() which
+ * performs the initial magic of constructing input and output arrays. Then
+ * the input attributes, and output attributes, are passed to initialize the
+ * internal structures. Essentially these internal structures are pairs of
+ * arrays of the same type, which can be efficently accessed and
+ * assigned. The operations on these array pairs (e.g., interpolation) occur
+ * using a typeless, virtual dispatch base class.
+ *
+ * @sa
+ * vtkFieldData vtkDataSetAttributes vtkPointData vtkCellData
+*/
 
 #ifndef vtkArrayListTemplate_h
 #define vtkArrayListTemplate_h

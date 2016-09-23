@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkProcessIdScalars - Sets cell or point scalars to the processor rank.
-//
-// .SECTION Description
-// vtkProcessIdScalars is meant to display which processor owns which cells
-// and points.  It is useful for visualizing the partitioning for
-// streaming or distributed pipelines.
-//
-// .SECTION See Also
-// vtkPolyDataStreamer
+/**
+ * @class   vtkProcessIdScalars
+ * @brief   Sets cell or point scalars to the processor rank.
+ *
+ *
+ * vtkProcessIdScalars is meant to display which processor owns which cells
+ * and points.  It is useful for visualizing the partitioning for
+ * streaming or distributed pipelines.
+ *
+ * @sa
+ * vtkPolyDataStreamer
+*/
 
 #ifndef vtkProcessIdScalars_h
 #define vtkProcessIdScalars_h
@@ -40,9 +43,10 @@ public:
   vtkTypeMacro(vtkProcessIdScalars,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Option to centerate cell scalars of points scalars.  Default is point
-  // scalars.
+  /**
+   * Option to centerate cell scalars of points scalars.  Default is point
+   * scalars.
+   */
   void SetScalarModeToCellData() {this->SetCellScalarsFlag(1);}
   void SetScalarModeToPointData() {this->SetCellScalarsFlag(0);}
   int GetScalarMode() {return this->CellScalarsFlag;}
@@ -55,11 +59,14 @@ public:
   vtkGetMacro(RandomMode, int);
   vtkBooleanMacro(RandomMode, int);
 
-  // Description:
-  // By defualt this filter uses the global controller,
-  // but this method can be used to set another instead.
+  //@{
+  /**
+   * By defualt this filter uses the global controller,
+   * but this method can be used to set another instead.
+   */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
 
 
 protected:

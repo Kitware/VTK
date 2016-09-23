@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHierarchicalBoxDataSetAlgorithm - superclass for algorithms that
-// produce vtkHierarchicalBoxDataSet as output.
-// .SECTION Description
-// Algorithms that take any type of data object (including composite dataset)
-// and produce a vtkHierarchicalBoxDataSet in the output can subclass from this
-// class.
+/**
+ * @class   vtkHierarchicalBoxDataSetAlgorithm
+ * @brief   superclass for algorithms that
+ * produce vtkHierarchicalBoxDataSet as output.
+ *
+ * Algorithms that take any type of data object (including composite dataset)
+ * and produce a vtkHierarchicalBoxDataSet in the output can subclass from this
+ * class.
+*/
 
 #ifndef vtkHierarchicalBoxDataSetAlgorithm_h
 #define vtkHierarchicalBoxDataSetAlgorithm_h
@@ -33,20 +36,27 @@ public:
   vtkTypeMacro(vtkHierarchicalBoxDataSetAlgorithm, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Get the output data object for a port on this algorithm.
+  //@{
+  /**
+   * Get the output data object for a port on this algorithm.
+   */
   vtkHierarchicalBoxDataSet* GetOutput();
   vtkHierarchicalBoxDataSet* GetOutput(int);
+  //@}
 
-  // Description:
-  // Assign a data object as input. Note that this method does not
-  // establish a pipeline connection. Use SetInputConnection() to
-  // setup a pipeline connection.
+  //@{
+  /**
+   * Assign a data object as input. Note that this method does not
+   * establish a pipeline connection. Use SetInputConnection() to
+   * setup a pipeline connection.
+   */
   void SetInputData(vtkDataObject*);
   void SetInputData(int, vtkDataObject*);
+  //@}
 
-  // Description:
-  // see vtkAlgorithm for details
+  /**
+   * see vtkAlgorithm for details
+   */
   int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector) VTK_OVERRIDE;
@@ -55,36 +65,42 @@ protected:
   vtkHierarchicalBoxDataSetAlgorithm();
   ~vtkHierarchicalBoxDataSetAlgorithm() VTK_OVERRIDE;
 
-  // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
+  /**
+   * This is called by the superclass.
+   * This is the method you should override.
+   */
   virtual int RequestDataObject(vtkInformation*,
                                 vtkInformationVector**,
                                 vtkInformationVector*) {return 1;};
 
-  // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
+  /**
+   * This is called by the superclass.
+   * This is the method you should override.
+   */
   virtual int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
                                  vtkInformationVector*) {return 1;};
 
-  // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
+  /**
+   * This is called by the superclass.
+   * This is the method you should override.
+   */
   virtual int RequestData(vtkInformation*,
                           vtkInformationVector**,
                           vtkInformationVector*) {return 1;};
 
-  // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
+  //@{
+  /**
+   * This is called by the superclass.
+   * This is the method you should override.
+   */
   virtual int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*)
     {
       return 1;
     };
+  //@}
 
   // Create a default executive.
   vtkExecutive* CreateDefaultExecutive() VTK_OVERRIDE;

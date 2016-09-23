@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSMPTools - A set of parallel (multi-threaded) utility functions.
-// .SECTION Description
-// vtkSMPTools provides a set of utility functions that can
-// be used to parallelize parts of VTK code using multiple threads.
-// There are several back-end implementations of parallel functionality
-// (currently Sequential, TBB and X-Kaapi) that actual execution is
-// delegated to.
+/**
+ * @class   vtkSMPTools
+ * @brief   A set of parallel (multi-threaded) utility functions.
+ *
+ * vtkSMPTools provides a set of utility functions that can
+ * be used to parallelize parts of VTK code using multiple threads.
+ * There are several back-end implementations of parallel functionality
+ * (currently Sequential, TBB and X-Kaapi) that actual execution is
+ * delegated to.
+*/
 
 #ifndef vtkSMPTools_h
 #define vtkSMPTools_h
@@ -136,97 +139,109 @@ class VTKCOMMONCORE_EXPORT vtkSMPTools
 {
 public:
 
-  // Description:
-  // Execute a for operation in parallel. First and last
-  // define the range over which to operate (which is defined
-  // by the operator). The operation executed is defined by
-  // operator() of the functor object. The grain gives the parallel
-  // engine a hint about the coarseness over which to parallelize
-  // the function (as defined by last-first of each execution of
-  // operator() ).
+  //@{
+  /**
+   * Execute a for operation in parallel. First and last
+   * define the range over which to operate (which is defined
+   * by the operator). The operation executed is defined by
+   * operator() of the functor object. The grain gives the parallel
+   * engine a hint about the coarseness over which to parallelize
+   * the function (as defined by last-first of each execution of
+   * operator() ).
+   */
   template <typename Functor>
   static void For(vtkIdType first, vtkIdType last, vtkIdType grain, Functor& f)
   {
     typename vtk::detail::smp::vtkSMPTools_Lookup_For<Functor>::type fi(f);
     fi.For(first, last, grain);
   }
+  //@}
 
-  // Description:
-  // Execute a for operation in parallel. First and last
-  // define the range over which to operate (which is defined
-  // by the operator). The operation executed is defined by
-  // operator() of the functor object. The grain gives the parallel
-  // engine a hint about the coarseness over which to parallelize
-  // the function (as defined by last-first of each execution of
-  // operator() ).
+  //@{
+  /**
+   * Execute a for operation in parallel. First and last
+   * define the range over which to operate (which is defined
+   * by the operator). The operation executed is defined by
+   * operator() of the functor object. The grain gives the parallel
+   * engine a hint about the coarseness over which to parallelize
+   * the function (as defined by last-first of each execution of
+   * operator() ).
+   */
   template <typename Functor>
   static void For(vtkIdType first, vtkIdType last, vtkIdType grain, Functor const& f)
   {
     typename vtk::detail::smp::vtkSMPTools_Lookup_For<Functor const>::type fi(f);
     fi.For(first, last, grain);
   }
+  //@}
 
-  // Description:
-  // Execute a for operation in parallel. First and last
-  // define the range over which to operate (which is defined
-  // by the operator). The operation executed is defined by
-  // operator() of the functor object. The grain gives the parallel
-  // engine a hint about the coarseness over which to parallelize
-  // the function (as defined by last-first of each execution of
-  // operator() ). Uses a default value for the grain.
+  /**
+   * Execute a for operation in parallel. First and last
+   * define the range over which to operate (which is defined
+   * by the operator). The operation executed is defined by
+   * operator() of the functor object. The grain gives the parallel
+   * engine a hint about the coarseness over which to parallelize
+   * the function (as defined by last-first of each execution of
+   * operator() ). Uses a default value for the grain.
+   */
   template <typename Functor>
   static void For(vtkIdType first, vtkIdType last, Functor& f)
   {
     vtkSMPTools::For(first, last, 0, f);
   }
 
-  // Description:
-  // Execute a for operation in parallel. First and last
-  // define the range over which to operate (which is defined
-  // by the operator). The operation executed is defined by
-  // operator() of the functor object. The grain gives the parallel
-  // engine a hint about the coarseness over which to parallelize
-  // the function (as defined by last-first of each execution of
-  // operator() ). Uses a default value for the grain.
+  /**
+   * Execute a for operation in parallel. First and last
+   * define the range over which to operate (which is defined
+   * by the operator). The operation executed is defined by
+   * operator() of the functor object. The grain gives the parallel
+   * engine a hint about the coarseness over which to parallelize
+   * the function (as defined by last-first of each execution of
+   * operator() ). Uses a default value for the grain.
+   */
   template <typename Functor>
   static void For(vtkIdType first, vtkIdType last, Functor const& f)
   {
     vtkSMPTools::For(first, last, 0, f);
   }
 
-  // Description:
-  // Initialize the underlying libraries for execution. This is
-  // not required as it is automatically called before the first
-  // execution of any parallel code. However, it can be used to
-  // control the maximum number of threads used when the back-end
-  // supports it (currently Simple and TBB only). Make sure to call
-  // it before any other parallel operation.
-  // When using Kaapi, use the KAAPI_CPUCOUNT env. variable to control
-  // the number of threads used in the thread pool.
+  /**
+   * Initialize the underlying libraries for execution. This is
+   * not required as it is automatically called before the first
+   * execution of any parallel code. However, it can be used to
+   * control the maximum number of threads used when the back-end
+   * supports it (currently Simple and TBB only). Make sure to call
+   * it before any other parallel operation.
+   * When using Kaapi, use the KAAPI_CPUCOUNT env. variable to control
+   * the number of threads used in the thread pool.
+   */
   static void Initialize(int numThreads=0);
 
-  // Description:
-  // Get the estimated number of threads being used by the backend.
-  // This should be used as just an estimate since the number of threads may
-  // vary dynamically and a particular task may not be executed on all the
-  // available threads.
+  /**
+   * Get the estimated number of threads being used by the backend.
+   * This should be used as just an estimate since the number of threads may
+   * vary dynamically and a particular task may not be executed on all the
+   * available threads.
+   */
   static int GetEstimatedNumberOfThreads();
 
-  // Description:
-  // A convenience method for sorting data. It is a drop in replacement for
-  // std::sort(). Under the hood different methods are used. For example,
-  // tbb::parallel_sort is used in TBB.
+  /**
+   * A convenience method for sorting data. It is a drop in replacement for
+   * std::sort(). Under the hood different methods are used. For example,
+   * tbb::parallel_sort is used in TBB.
+   */
   template<typename RandomAccessIterator>
     static void Sort(RandomAccessIterator begin, RandomAccessIterator end)
   {
     vtk::detail::smp::vtkSMPTools_Impl_Sort(begin,end);
   }
 
-  // Description:
-  // A convenience method for sorting data. It is a drop in replacement for
-  // std::sort(). Under the hood different methods are used. For example,
-  // tbb::parallel_sort is used in TBB. This version of Sort() takes a
-  // comparison class.
+  /**
+   * A convenience method for sorting data. It is a drop in replacement for
+   * std::sort(). Under the hood different methods are used. For example,
+   * tbb::parallel_sort is used in TBB. This version of Sort() takes a
+   * comparison class.
+   */
   template<typename RandomAccessIterator, typename Compare>
     static void Sort(RandomAccessIterator begin, RandomAccessIterator end,
       Compare comp)

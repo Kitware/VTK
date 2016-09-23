@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCompositeDataGeometryFilter - extract geometry from multi-group data
-// .SECTION Description
-// vtkCompositeDataGeometryFilter applies vtkGeometryFilter to all
-// leaves in vtkCompositeDataSet. Place this filter at the end of a
-// pipeline before a polydata consumer such as a polydata mapper to extract
-// geometry from all blocks and append them to one polydata object.
+/**
+ * @class   vtkCompositeDataGeometryFilter
+ * @brief   extract geometry from multi-group data
+ *
+ * vtkCompositeDataGeometryFilter applies vtkGeometryFilter to all
+ * leaves in vtkCompositeDataSet. Place this filter at the end of a
+ * pipeline before a polydata consumer such as a polydata mapper to extract
+ * geometry from all blocks and append them to one polydata object.
+*/
 
 #ifndef vtkCompositeDataGeometryFilter_h
 #define vtkCompositeDataGeometryFilter_h
@@ -34,8 +37,9 @@ public:
   vtkTypeMacro(vtkCompositeDataGeometryFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // see vtkAlgorithm for details
+  /**
+   * see vtkAlgorithm for details
+   */
   virtual int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector);

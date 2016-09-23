@@ -11,9 +11,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkLICNoiseHelper -- Support code for surface LIC
-// .SECTION Description
-// A small collection of noise routines for LIC
+/**
+ * @class   vtkLICNoiseHelper
+ *
+ * A small collection of noise routines for LIC
+*/
+
 #ifndef vtkLICNoiseHelper_h
 #define vtkLICNoiseHelper_h
 
@@ -79,22 +82,24 @@ class vtkLICRandomNoise2D
 public:
   vtkLICRandomNoise2D(){}
 
-  // Description:
-  // Generate a patch of random gray scale values along with an
-  // alpha channel (in vtk array format). The data should be
-  // deleted by later calling DeleteValues. Grain size and sideLen
-  // may be modified to match the noise generator requirements,
-  // returned arrays will be sized accordingly.
-  //
-  // type              - UNIFORM=0, GAUSSIAN=1, PERLIN=2
-  // sideLen           - side length of square patch in pixels (in/out)
-  // grainSize         - grain size of noise values in pixels (in/out)
-  // nLevels           - number of noise intesity levels
-  // minNoiseVal       - set the min for noise pixels (position distribution)
-  // maxNoiseVal       - set the max for noise pixels (position distribution)
-  // impulseProb       - probability of impulse noise,1 touches every pixel
-  // impulseBgNoiseVal - set the background color for impulse noise
-  // seed              - seed for random number generator
+  //@{
+  /**
+   * Generate a patch of random gray scale values along with an
+   * alpha channel (in vtk array format). The data should be
+   * deleted by later calling DeleteValues. Grain size and sideLen
+   * may be modified to match the noise generator requirements,
+   * returned arrays will be sized accordingly.
+
+   * type              - UNIFORM=0, GAUSSIAN=1, PERLIN=2
+   * sideLen           - side length of square patch in pixels (in/out)
+   * grainSize         - grain size of noise values in pixels (in/out)
+   * nLevels           - number of noise intesity levels
+   * minNoiseVal       - set the min for noise pixels (position distribution)
+   * maxNoiseVal       - set the max for noise pixels (position distribution)
+   * impulseProb       - probability of impulse noise,1 touches every pixel
+   * impulseBgNoiseVal - set the background color for impulse noise
+   * seed              - seed for random number generator
+   */
   enum {
     UNIFORM = 0,
     GAUSSIAN = 1,
@@ -110,16 +115,19 @@ public:
         double impulseProb,
         float impulseBgNoiseVal,
         int seed);
+  //@}
 
-  // Description
-  // Delete the passed in array of values.
+  /**
+   * Delete the passed in array of values.
+   */
   void DeleteValues(unsigned char *vals){ free(vals); }
 
   static vtkImageData *GetNoiseResource();
 
 private:
-  // Description:
-  // Generate noise with a uniform distribution.
+  /**
+   * Generate noise with a uniform distribution.
+   */
   float *GenerateUniform(
         int sideLen,
         int grainLize,
@@ -130,8 +138,9 @@ private:
         float impulseBgNoiseVal,
         int seed);
 
-  // Description:
-  // Generate noise with a Gaussian distribution.
+  /**
+   * Generate noise with a Gaussian distribution.
+   */
   float *GenerateGaussian(
         int sideLen,
         int grainLize,
@@ -142,8 +151,9 @@ private:
         float impulseBgNoiseVal,
         int seed);
 
-  // Description:
-  // Generate Perlin noise with a Gaussian distribution.
+  /**
+   * Generate Perlin noise with a Gaussian distribution.
+   */
   float *GeneratePerlin(
         int sideLen,
         int grainLize,
@@ -154,17 +164,19 @@ private:
         float impulseBgNoiseVal,
         int seed);
 
-  // Description:
-  // A way of controling the probability (from 0.0 to 1.0) that you
-  // generate values. returns 1 if you should generate a value.
-  // for example this is used to control the frequency of impulse
-  // noise.
+  /**
+   * A way of controling the probability (from 0.0 to 1.0) that you
+   * generate values. returns 1 if you should generate a value.
+   * for example this is used to control the frequency of impulse
+   * noise.
+   */
   int ShouldGenerateValue(double prob);
 
-  // Description:
-  // Get a valid the length of the side of the patch and grains size in pixels
-  // given a desired patch side length and a grain size. This ensures that all
-  // grains are the same size.
+  /**
+   * Get a valid the length of the side of the patch and grains size in pixels
+   * given a desired patch side length and a grain size. This ensures that all
+   * grains are the same size.
+   */
   void GetValidDimensionAndGrainSize(int type, int &dim, int &grainSize);
 
 private:

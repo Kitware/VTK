@@ -17,20 +17,23 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkAreaLayout - layout a vtkTree into a tree map
-//
-// .SECTION Description
-// vtkAreaLayout assigns sector regions to each vertex in the tree,
-// creating a tree ring.  The data is added as a data array with four
-// components per tuple representing the location and size of the
-// sector using the format (StartAngle, EndAngle, innerRadius, outerRadius).
-//
-// This algorithm relies on a helper class to perform the actual layout.
-// This helper class is a subclass of vtkAreaLayoutStrategy.
-//
-// .SECTION Thanks
-// Thanks to Jason Shepherd from Sandia National Laboratories
-// for help developing this class.
+/**
+ * @class   vtkAreaLayout
+ * @brief   layout a vtkTree into a tree map
+ *
+ *
+ * vtkAreaLayout assigns sector regions to each vertex in the tree,
+ * creating a tree ring.  The data is added as a data array with four
+ * components per tuple representing the location and size of the
+ * sector using the format (StartAngle, EndAngle, innerRadius, outerRadius).
+ *
+ * This algorithm relies on a helper class to perform the actual layout.
+ * This helper class is a subclass of vtkAreaLayoutStrategy.
+ *
+ * @par Thanks:
+ * Thanks to Jason Shepherd from Sandia National Laboratories
+ * for help developing this class.
+*/
 
 #ifndef vtkAreaLayout_h
 #define vtkAreaLayout_h
@@ -47,43 +50,56 @@ public:
   vtkTypeMacro(vtkAreaLayout,vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // The array name to use for retrieving the relative size of each vertex.
-  // If this array is not found, use constant size for each vertex.
+  /**
+   * The array name to use for retrieving the relative size of each vertex.
+   * If this array is not found, use constant size for each vertex.
+   */
   virtual void SetSizeArrayName(const char* name)
     { this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name); }
 
-  // Description:
-  // The name for the array created for the area for each vertex.
-  // The rectangles are stored in a quadruple float array
-  // (startAngle, endAngle, innerRadius, outerRadius).
-  // For rectangular layouts, this is (minx, maxx, miny, maxy).
+  //@{
+  /**
+   * The name for the array created for the area for each vertex.
+   * The rectangles are stored in a quadruple float array
+   * (startAngle, endAngle, innerRadius, outerRadius).
+   * For rectangular layouts, this is (minx, maxx, miny, maxy).
+   */
   vtkGetStringMacro(AreaArrayName);
   vtkSetStringMacro(AreaArrayName);
+  //@}
 
-  // Description:
-  // Whether to output a second output tree with vertex locations
-  // appropriate for routing bundled edges. Default is on.
+  //@{
+  /**
+   * Whether to output a second output tree with vertex locations
+   * appropriate for routing bundled edges. Default is on.
+   */
   vtkGetMacro(EdgeRoutingPoints, bool);
   vtkSetMacro(EdgeRoutingPoints, bool);
   vtkBooleanMacro(EdgeRoutingPoints, bool);
+  //@}
 
-  // Description:
-  // The strategy to use when laying out the tree map.
+  //@{
+  /**
+   * The strategy to use when laying out the tree map.
+   */
   vtkGetObjectMacro(LayoutStrategy, vtkAreaLayoutStrategy);
   void SetLayoutStrategy(vtkAreaLayoutStrategy * strategy);
+  //@}
 
-  // Description:
-  // Get the modification time of the layout algorithm.
+  /**
+   * Get the modification time of the layout algorithm.
+   */
   virtual vtkMTimeType GetMTime();
 
-  // Description:
-  // Get the vertex whose area contains the point, or return -1
-  // if no vertex area covers the point.
+  /**
+   * Get the vertex whose area contains the point, or return -1
+   * if no vertex area covers the point.
+   */
   vtkIdType FindVertex(float pnt[2]);
 
-  // Description:
-  // The bounding area information for a certain vertex id.
+  /**
+   * The bounding area information for a certain vertex id.
+   */
   void GetBoundingArea(vtkIdType id, float *sinfo);
 
 protected:

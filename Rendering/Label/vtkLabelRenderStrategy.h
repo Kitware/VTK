@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkLabelRenderStrategy - Superclass for label rendering implementations.
-//
-// .SECTION Description
-// These methods should only be called within a mapper.
+/**
+ * @class   vtkLabelRenderStrategy
+ * @brief   Superclass for label rendering implementations.
+ *
+ *
+ * These methods should only be called within a mapper.
+*/
 
 #ifndef vtkLabelRenderStrategy_h
 #define vtkLabelRenderStrategy_h
@@ -36,35 +39,44 @@ class VTKRENDERINGLABEL_EXPORT vtkLabelRenderStrategy : public vtkObject
   void PrintSelf(ostream& os, vtkIndent indent);
   vtkTypeMacro(vtkLabelRenderStrategy, vtkObject);
 
-  // Description:
-  // Whether the text rendering strategy supports rotation.
-  // The superclass returns true. Subclasses should override this to
-  // return the appropriate value.
+  /**
+   * Whether the text rendering strategy supports rotation.
+   * The superclass returns true. Subclasses should override this to
+   * return the appropriate value.
+   */
   virtual bool SupportsRotation()
     { return true; }
 
-  // Description:
-  // Whether the text rendering strategy supports bounded size.
-  // The superclass returns true. Subclasses should override this to
-  // return the appropriate value. Subclasses that return true
-  // from this method should implement the version of RenderLabel()
-  // that takes a maximum size (see RenderLabel()).
+  /**
+   * Whether the text rendering strategy supports bounded size.
+   * The superclass returns true. Subclasses should override this to
+   * return the appropriate value. Subclasses that return true
+   * from this method should implement the version of RenderLabel()
+   * that takes a maximum size (see RenderLabel()).
+   */
   virtual bool SupportsBoundedSize()
     { return true; }
 
-  // Description:
-  // Set the renderer associated with this strategy.
+  //@{
+  /**
+   * Set the renderer associated with this strategy.
+   */
   virtual void SetRenderer(vtkRenderer* ren);
   vtkGetObjectMacro(Renderer, vtkRenderer);
+  //@}
 
-  // Description:
-  // Set the default text property for the strategy.
+  //@{
+  /**
+   * Set the default text property for the strategy.
+   */
   virtual void SetDefaultTextProperty(vtkTextProperty* tprop);
   vtkGetObjectMacro(DefaultTextProperty, vtkTextProperty);
+  //@}
 
-  // Description:
-  // Compute the bounds of a label. Must be performed after the renderer is set.
-  // Only the unicode string version must be implemented in subclasses.
+  /**
+   * Compute the bounds of a label. Must be performed after the renderer is set.
+   * Only the unicode string version must be implemented in subclasses.
+   */
   virtual void ComputeLabelBounds(vtkTextProperty* tprop, vtkStdString label,
                                   double bds[4])
     { this->ComputeLabelBounds(tprop, vtkUnicodeString::from_utf8(label.c_str()),
@@ -72,14 +84,15 @@ class VTKRENDERINGLABEL_EXPORT vtkLabelRenderStrategy : public vtkObject
   virtual void ComputeLabelBounds(vtkTextProperty* tprop, vtkUnicodeString label,
                                   double bds[4]) = 0;
 
-  // Description:
-  // Render a label at a location in display coordinates.
-  // Must be performed between StartFrame() and EndFrame() calls.
-  // Only the unicode string version must be implemented in subclasses.
-  // The optional final parameter maxWidth specifies a maximum width for the label.
-  // Longer labels can be shorted with an ellipsis (...). Only renderer strategies
-  // that return true from SupportsBoundedSize must implement this version of th
-  // method.
+  /**
+   * Render a label at a location in display coordinates.
+   * Must be performed between StartFrame() and EndFrame() calls.
+   * Only the unicode string version must be implemented in subclasses.
+   * The optional final parameter maxWidth specifies a maximum width for the label.
+   * Longer labels can be shorted with an ellipsis (...). Only renderer strategies
+   * that return true from SupportsBoundedSize must implement this version of th
+   * method.
+   */
   virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label)
     { this->RenderLabel(x, tprop, vtkUnicodeString::from_utf8(label)); }
   virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label,
@@ -91,18 +104,21 @@ class VTKRENDERINGLABEL_EXPORT vtkLabelRenderStrategy : public vtkObject
                            vtkUnicodeString label, int vtkNotUsed(maxWidth))
     { this->RenderLabel(x, tprop, label); }
 
-  // Description:
-  // Start a rendering frame. Renderer must be set.
+  /**
+   * Start a rendering frame. Renderer must be set.
+   */
   virtual void StartFrame() { }
 
-  // Description:
-  // End a rendering frame.
+  /**
+   * End a rendering frame.
+   */
   virtual void EndFrame() { }
 
-  // Description:
-  // Release any graphics resources that are being consumed by this strategy.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
+  /**
+   * Release any graphics resources that are being consumed by this strategy.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
   virtual void ReleaseGraphicsResources(vtkWindow *) { }
 
 protected:

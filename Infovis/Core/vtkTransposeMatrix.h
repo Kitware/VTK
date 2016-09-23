@@ -19,10 +19,13 @@
 
 =========================================================================*/
 
-// .NAME vtkTransposeMatrix - Computes the transpose of an input matrix.
-//
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+/**
+ * @class   vtkTransposeMatrix
+ * @brief   Computes the transpose of an input matrix.
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+*/
 
 #ifndef vtkTransposeMatrix_h
 #define vtkTransposeMatrix_h

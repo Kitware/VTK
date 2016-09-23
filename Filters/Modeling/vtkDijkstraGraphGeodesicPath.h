@@ -12,25 +12,28 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDijkstraGraphGeodesicPath - Dijkstra algorithm to compute the graph geodesic.
-// .SECTION Description
-// Takes as input a polygonal mesh and performs a single source shortest
-// path calculation. Dijkstra's algorithm is used. The implementation is
-// similar to the one described in Introduction to Algorithms (Second Edition)
-// by Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and
-// Cliff Stein, published by MIT Press and McGraw-Hill. Some minor
-// enhancement are added though. All vertices are not pushed on the heap
-// at start, instead a front set is maintained. The heap is implemented as
-// a binary heap. The output of the filter is a set of lines describing
-// the shortest path from StartVertex to EndVertex.
-//
-// .SECTION Caveats
-// The input polydata must have only triangle cells.
-//
-// .SECTION Thanks
-// The class was contributed by Rasmus Paulsen.
-// www.imm.dtu.dk/~rrp/VTK . Also thanks to Alexandre Gouaillard and Shoaib
-// Ghias for bug fixes and enhancements.
+/**
+ * @class   vtkDijkstraGraphGeodesicPath
+ * @brief   Dijkstra algorithm to compute the graph geodesic.
+ *
+ * Takes as input a polygonal mesh and performs a single source shortest
+ * path calculation. Dijkstra's algorithm is used. The implementation is
+ * similar to the one described in Introduction to Algorithms (Second Edition)
+ * by Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and
+ * Cliff Stein, published by MIT Press and McGraw-Hill. Some minor
+ * enhancement are added though. All vertices are not pushed on the heap
+ * at start, instead a front set is maintained. The heap is implemented as
+ * a binary heap. The output of the filter is a set of lines describing
+ * the shortest path from StartVertex to EndVertex.
+ *
+ * @warning
+ * The input polydata must have only triangle cells.
+ *
+ * @par Thanks:
+ * The class was contributed by Rasmus Paulsen.
+ * www.imm.dtu.dk/~rrp/VTK . Also thanks to Alexandre Gouaillard and Shoaib
+ * Ghias for bug fixes and enhancements.
+*/
 
 #ifndef vtkDijkstraGraphGeodesicPath_h
 #define vtkDijkstraGraphGeodesicPath_h
@@ -46,45 +49,65 @@ class VTKFILTERSMODELING_EXPORT vtkDijkstraGraphGeodesicPath :
 {
 public:
 
-  // Description:
-  // Instantiate the class
+  /**
+   * Instantiate the class
+   */
   static vtkDijkstraGraphGeodesicPath *New();
 
-  // Description:
-  // Standard methids for printing and determining type information.
+  //@{
+  /**
+   * Standard methids for printing and determining type information.
+   */
   vtkTypeMacro(vtkDijkstraGraphGeodesicPath,vtkGraphGeodesicPath);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // The vertex ids (of the input polydata) on the shortest path
+  //@{
+  /**
+   * The vertex ids (of the input polydata) on the shortest path
+   */
   vtkGetObjectMacro(IdList, vtkIdList);
+  //@}
 
-  // Description:
-  // Stop when the end vertex is reached
-  // or calculate shortest path to all vertices
+  //@{
+  /**
+   * Stop when the end vertex is reached
+   * or calculate shortest path to all vertices
+   */
   vtkSetMacro(StopWhenEndReached, int);
   vtkGetMacro(StopWhenEndReached, int);
   vtkBooleanMacro(StopWhenEndReached, int);
+  //@}
 
-  // Description:
-  // Use scalar values in the edge weight (experimental)
+  //@{
+  /**
+   * Use scalar values in the edge weight (experimental)
+   */
   vtkSetMacro(UseScalarWeights, int);
   vtkGetMacro(UseScalarWeights, int);
   vtkBooleanMacro(UseScalarWeights, int);
+  //@}
 
-  // Description:
-  // Use the input point to repel the path by assigning high costs.
+  //@{
+  /**
+   * Use the input point to repel the path by assigning high costs.
+   */
   vtkSetMacro(RepelPathFromVertices, int);
   vtkGetMacro(RepelPathFromVertices, int);
   vtkBooleanMacro(RepelPathFromVertices, int);
+  //@}
 
-  // Description:
-  // Specify vtkPoints to use to repel the path from.
+  //@{
+  /**
+   * Specify vtkPoints to use to repel the path from.
+   */
   virtual void SetRepelVertices(vtkPoints*);
   vtkGetObjectMacro(RepelVertices, vtkPoints);
+  //@}
 
-  //Description:
-  //Fill the array with the cumulative weights.
+  /**
+   * Fill the array with the cumulative weights.
+   */
   virtual void GetCumulativeWeights(vtkDoubleArray *weights);
 
 protected:

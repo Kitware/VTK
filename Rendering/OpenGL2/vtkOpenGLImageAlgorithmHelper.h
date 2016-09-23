@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLImageAlgorithmHelper - Help image algorithms use the GPU
-// .SECTION Description
-// Designed to make it easier to accelerate an image algorithm on the GPU
+/**
+ * @class   vtkOpenGLImageAlgorithmHelper
+ * @brief   Help image algorithms use the GPU
+ *
+ * Designed to make it easier to accelerate an image algorithm on the GPU
+*/
 
 #ifndef vtkOpenGLImageAlgorithmHelper_h
 #define vtkOpenGLImageAlgorithmHelper_h
@@ -59,8 +62,9 @@ public:
     const char *geometryCode
     );
 
-  // Description:
-  // Set the render window to get the OpenGL resources from
+  /**
+   * Set the render window to get the OpenGL resources from
+   */
   void SetRenderWindow(vtkRenderWindow *renWin);
 
  protected:

@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMatplotlibMathTextUtilities - Access to MatPlotLib MathText rendering
-// .SECTION Description
-// vtkMatplotlibMathTextUtilities provides access to the MatPlotLib MathText
-// implementation.
-//
-// This class is aware of a number of environment variables that can be used to
-// configure and debug python initialization (all are optional):
-// - VTK_MATPLOTLIB_DEBUG: Enable verbose debugging output during initialization
-// of the python environment.
+/**
+ * @class   vtkMatplotlibMathTextUtilities
+ * @brief   Access to MatPlotLib MathText rendering
+ *
+ * vtkMatplotlibMathTextUtilities provides access to the MatPlotLib MathText
+ * implementation.
+ *
+ * This class is aware of a number of environment variables that can be used to
+ * configure and debug python initialization (all are optional):
+ * - VTK_MATPLOTLIB_DEBUG: Enable verbose debugging output during initialization
+ * of the python environment.
+*/
 
 #ifndef vtkMatplotlibMathTextUtilities_h
 #define vtkMatplotlibMathTextUtilities_h
@@ -46,44 +49,50 @@ public:
 
   virtual bool IsAvailable();
 
-  // Description:
-  // Given a text property and a string, get the bounding box {xmin, xmax,
-  // ymin, ymax} of the rendered string in pixels. The origin of the bounding
-  // box is the anchor point described by the horizontal and vertical
-  // justification text property variables.
-  // Returns true on success, false otherwise.
+  /**
+   * Given a text property and a string, get the bounding box {xmin, xmax,
+   * ymin, ymax} of the rendered string in pixels. The origin of the bounding
+   * box is the anchor point described by the horizontal and vertical
+   * justification text property variables.
+   * Returns true on success, false otherwise.
+   */
   bool GetBoundingBox(vtkTextProperty *tprop, const char *str, int dpi,
                       int bbox[4]);
 
   bool GetMetrics(vtkTextProperty *tprop, const char *str, int dpi,
                   vtkTextRenderer::Metrics &metrics);
 
-  // Description:
-  // Render the given string @a str into the vtkImageData @a data with a
-  // resolution of @a dpi. The image is resized automatically. textDims
-  // will be overwritten by the pixel width and height of the rendered string.
-  // This is useful when ScaleToPowerOfTwo is true, and the image dimensions may
-  // not match the dimensions of the rendered text.
-  // The origin of the image's extents is aligned with the anchor point
-  // described by the text property's vertical and horizontal justification
-  // options.
+  /**
+   * Render the given string @a str into the vtkImageData @a data with a
+   * resolution of @a dpi. The image is resized automatically. textDims
+   * will be overwritten by the pixel width and height of the rendered string.
+   * This is useful when ScaleToPowerOfTwo is true, and the image dimensions may
+   * not match the dimensions of the rendered text.
+   * The origin of the image's extents is aligned with the anchor point
+   * described by the text property's vertical and horizontal justification
+   * options.
+   */
   bool RenderString(const char *str, vtkImageData *data, vtkTextProperty *tprop,
                     int dpi, int textDims[2] = NULL);
 
-  // Description:
-  // Parse the MathText expression in str and fill path with a contour of the
-  // glyphs. The origin of the path coordinates is aligned with the anchor point
-  // described by the text property's horizontal and vertical justification
-  // options.
+  /**
+   * Parse the MathText expression in str and fill path with a contour of the
+   * glyphs. The origin of the path coordinates is aligned with the anchor point
+   * described by the text property's horizontal and vertical justification
+   * options.
+   */
   bool StringToPath(const char *str, vtkPath *path, vtkTextProperty *tprop,
                     int dpi);
 
-  // Description:
-  // Set to true if the graphics implmentation requires texture image dimensions
-  // to be a power of two. Default is true, but this member will be set
-  // appropriately when GL is inited.
+  //@{
+  /**
+   * Set to true if the graphics implmentation requires texture image dimensions
+   * to be a power of two. Default is true, but this member will be set
+   * appropriately when GL is inited.
+   */
   vtkSetMacro(ScaleToPowerOfTwo, bool);
   vtkGetMacro(ScaleToPowerOfTwo, bool);
+  //@}
 
 protected:
   vtkMatplotlibMathTextUtilities();
@@ -96,15 +105,17 @@ protected:
   bool CheckForError();
   bool CheckForError(PyObject *object);
 
-  // Description:
-  // Returns a matplotlib.font_manager.FontProperties PyObject, initialized from
-  // the vtkTextProperty tprop.
+  /**
+   * Returns a matplotlib.font_manager.FontProperties PyObject, initialized from
+   * the vtkTextProperty tprop.
+   */
   PyObject * GetFontProperties(vtkTextProperty *tprop);
 
-  // Description:
-  // Cleanup and destroy any python objects. This is called during destructor as
-  // well as when the Python interpreter is finalized. Thus this class must
-  // handle the case where the internal python objects disappear between calls.
+  /**
+   * Cleanup and destroy any python objects. This is called during destructor as
+   * well as when the Python interpreter is finalized. Thus this class must
+   * handle the case where the internal python objects disappear between calls.
+   */
   void CleanupPythonObjects();
 
   vtkPythonInterpreter* Interpreter;
@@ -127,9 +138,10 @@ private:
   vtkMatplotlibMathTextUtilities(const vtkMatplotlibMathTextUtilities&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMatplotlibMathTextUtilities&) VTK_DELETE_FUNCTION;
 
-  // Description:
-  // Used for runtime checking of matplotlib's mathtext availability.
-  // @sa IsAvailable
+  /**
+   * Used for runtime checking of matplotlib's mathtext availability.
+   * @sa IsAvailable
+   */
   enum Availability
     {
     NOT_TESTED = 0,
@@ -137,16 +149,20 @@ private:
     UNAVAILABLE
     };
 
-  // Description:
-  // Function used to check MPL availability and update MPLMathTextAvailable.
-  // This will do tests only the first time this method is called. This method
-  // is called internally when matplotlib rendering is first needed and is used
-  // to implement IsAvailable.
+  /**
+   * Function used to check MPL availability and update MPLMathTextAvailable.
+   * This will do tests only the first time this method is called. This method
+   * is called internally when matplotlib rendering is first needed and is used
+   * to implement IsAvailable.
+   */
   static Availability CheckMPLAvailability();
 
-  // Description:
-  // Cache the availability of matplotlib in the current python session.
+  //@{
+  /**
+   * Cache the availability of matplotlib in the current python session.
+   */
   static Availability MPLMathTextAvailable;
 };
+  //@}
 
 #endif

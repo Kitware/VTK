@@ -13,8 +13,11 @@
 
 =========================================================================*/
 
-// .NAME vtkInformationKeyLookup - Find vtkInformationKeys from name and
-// location strings.
+/**
+ * @class   vtkInformationKeyLookup
+ * @brief   Find vtkInformationKeys from name and
+ * location strings.
+*/
 
 #ifndef vtkInformationKeyLookup_h
 #define vtkInformationKeyLookup_h
@@ -34,15 +37,17 @@ public:
     static vtkInformationKeyLookup* New();
     vtkTypeMacro(vtkInformationKeyLookup, vtkObject)
 
-    // Description:
-    // Lists all known keys.
+    /**
+     * Lists all known keys.
+     */
     void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-    // Description:
-    // Find an information key from name and location strings. For example,
-    // Find("GUI_HIDE", "vtkAbstractArray") returns vtkAbstractArray::GUI_HIDE.
-    // Note that this class only knows about keys in modules that are currently
-    // linked to the running executable.
+    /**
+     * Find an information key from name and location strings. For example,
+     * Find("GUI_HIDE", "vtkAbstractArray") returns vtkAbstractArray::GUI_HIDE.
+     * Note that this class only knows about keys in modules that are currently
+     * linked to the running executable.
+     */
     static vtkInformationKey* Find(const std::string &name,
                                    const std::string &location);
 
@@ -52,9 +57,10 @@ protected:
 
     friend class vtkInformationKey;
 
-    // Description:
-    // Add a key to the KeyMap. This is done automatically in the
-    // vtkInformationKey constructor.
+    /**
+     * Add a key to the KeyMap. This is done automatically in the
+     * vtkInformationKey constructor.
+     */
     static void RegisterKey(vtkInformationKey *key,
                             const std::string &name,
                             const std::string &location);

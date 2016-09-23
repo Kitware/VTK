@@ -12,21 +12,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkQuadraticQuad - cell represents a parabolic, 8-node isoparametric quad
-// .SECTION Description
-// vtkQuadraticQuad is a concrete implementation of vtkNonLinearCell to
-// represent a two-dimensional, 8-node isoparametric parabolic quadrilateral
-// element. The interpolation is the standard finite element, quadratic
-// isoparametric shape function. The cell includes a mid-edge node for each
-// of the four edges of the cell. The ordering of the eight points defining
-// the cell are point ids (0-3,4-7) where ids 0-3 define the four corner
-// vertices of the quad; ids 4-7 define the midedge nodes (0,1), (1,2),
-// (2,3), (3,0).
-
-// .SECTION See Also
-// vtkQuadraticEdge vtkQuadraticTriangle vtkQuadraticTetra
-// vtkQuadraticHexahedron vtkQuadraticWedge vtkQuadraticPyramid
-
+/**
+ * @class   vtkQuadraticQuad
+ * @brief   cell represents a parabolic, 8-node isoparametric quad
+ *
+ * vtkQuadraticQuad is a concrete implementation of vtkNonLinearCell to
+ * represent a two-dimensional, 8-node isoparametric parabolic quadrilateral
+ * element. The interpolation is the standard finite element, quadratic
+ * isoparametric shape function. The cell includes a mid-edge node for each
+ * of the four edges of the cell. The ordering of the eight points defining
+ * the cell are point ids (0-3,4-7) where ids 0-3 define the four corner
+ * vertices of the quad; ids 4-7 define the midedge nodes (0,1), (1,2),
+ * (2,3), (3,0).
+ *
+ * @sa
+ * vtkQuadraticEdge vtkQuadraticTriangle vtkQuadraticTetra
+ * vtkQuadraticHexahedron vtkQuadraticWedge vtkQuadraticPyramid
+*/
 
 #ifndef vtkQuadraticQuad_h
 #define vtkQuadraticQuad_h
@@ -45,15 +47,18 @@ public:
   vtkTypeMacro(vtkQuadraticQuad,vtkNonLinearCell);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Implement the vtkCell API. See the vtkCell API for descriptions
-  // of these methods.
+  //@{
+  /**
+   * Implement the vtkCell API. See the vtkCell API for descriptions
+   * of these methods.
+   */
   int GetCellType() VTK_OVERRIDE {return VTK_QUADRATIC_QUAD;};
   int GetCellDimension() VTK_OVERRIDE {return 2;}
   int GetNumberOfEdges() VTK_OVERRIDE {return 4;}
   int GetNumberOfFaces() VTK_OVERRIDE {return 0;}
   vtkCell *GetEdge(int) VTK_OVERRIDE;
   vtkCell *GetFace(int) VTK_OVERRIDE {return 0;}
+  //@}
 
   int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) VTK_OVERRIDE;
   void Contour(double value, vtkDataArray *cellScalars,
@@ -71,35 +76,42 @@ public:
                    int dim, double *derivs) VTK_OVERRIDE;
   double *GetParametricCoords() VTK_OVERRIDE;
 
-  // Description:
-  // Clip this quadratic quad using scalar value provided. Like contouring,
-  // except that it cuts the quad to produce linear triangles.
+  /**
+   * Clip this quadratic quad using scalar value provided. Like contouring,
+   * except that it cuts the quad to produce linear triangles.
+   */
   void Clip(double value, vtkDataArray *cellScalars,
             vtkIncrementalPointLocator *locator, vtkCellArray *polys,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
             int insideOut) VTK_OVERRIDE;
 
-  // Description:
-  // Line-edge intersection. Intersection has to occur within [0,1] parametric
-  // coordinates and with specified tolerance.
+  /**
+   * Line-edge intersection. Intersection has to occur within [0,1] parametric
+   * coordinates and with specified tolerance.
+   */
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
                         double x[3], double pcoords[3], int& subId) VTK_OVERRIDE;
 
 
-  // Description:
-  // Return the center of the pyramid in parametric coordinates.
+  /**
+   * Return the center of the pyramid in parametric coordinates.
+   */
   int GetParametricCenter(double pcoords[3]) VTK_OVERRIDE;
 
-  // Description:
-  // @deprecated Replaced by vtkQuadraticQuad::InterpolateFunctions as of VTK 5.2
+  /**
+   * @deprecated Replaced by vtkQuadraticQuad::InterpolateFunctions as of VTK 5.2
+   */
   static void InterpolationFunctions(double pcoords[3], double weights[8]);
-  // Description:
-  // @deprecated Replaced by vtkQuadraticQuad::InterpolateDerivs as of VTK 5.2
+  /**
+   * @deprecated Replaced by vtkQuadraticQuad::InterpolateDerivs as of VTK 5.2
+   */
   static void InterpolationDerivs(double pcoords[3], double derivs[16]);
-  // Description:
-  // Compute the interpolation functions/derivatives
-  // (aka shape functions/derivatives)
+  //@{
+  /**
+   * Compute the interpolation functions/derivatives
+   * (aka shape functions/derivatives)
+   */
   void InterpolateFunctions(double pcoords[3], double weights[8]) VTK_OVERRIDE
     {
     vtkQuadraticQuad::InterpolationFunctions(pcoords,weights);
@@ -108,6 +120,7 @@ public:
     {
     vtkQuadraticQuad::InterpolationDerivs(pcoords,derivs);
     }
+  //@}
 
 protected:
   vtkQuadraticQuad();

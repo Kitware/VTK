@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXGPUInfoList - Get GPUs VRAM information using X server
-// extensions.
-// .SECTION Description
-// vtkXGPUInfoList implements Probe() method of vtkGPUInfoList
-// through some X server extensions API. NV-CONTROL for Nvidia.
-// ATIFGLEXTENSION for ATI is not supported yet.
-// There is no support for other vendors.
-// .SECTION See Also
-// vtkGPUInfo vtkGPUInfoList
+/**
+ * @class   vtkXGPUInfoList
+ * @brief   Get GPUs VRAM information using X server
+ * extensions.
+ *
+ * vtkXGPUInfoList implements Probe() method of vtkGPUInfoList
+ * through some X server extensions API. NV-CONTROL for Nvidia.
+ * ATIFGLEXTENSION for ATI is not supported yet.
+ * There is no support for other vendors.
+ * @sa
+ * vtkGPUInfo vtkGPUInfoList
+*/
 
 #ifndef vtkXGPUInfoList_h
 #define vtkXGPUInfoList_h
@@ -35,16 +38,20 @@ public:
   vtkTypeMacro(vtkXGPUInfoList, vtkGPUInfoList);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Build the list of vtkInfoGPU if not done yet.
-  // \post probed: IsProbed()
+  /**
+   * Build the list of vtkInfoGPU if not done yet.
+   * \post probed: IsProbed()
+   */
   virtual void Probe();
 
 protected:
-  // Description:
-  // Default constructor.
+  //@{
+  /**
+   * Default constructor.
+   */
   vtkXGPUInfoList();
   virtual ~vtkXGPUInfoList();
+  //@}
 
 private:
   vtkXGPUInfoList(const vtkXGPUInfoList&) VTK_DELETE_FUNCTION;

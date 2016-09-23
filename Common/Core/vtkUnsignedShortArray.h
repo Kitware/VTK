@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkUnsignedShortArray - dynamic, self-adjusting array of unsigned short
-// .SECTION Description
-// vtkUnsignedShortArray is an array of values of type unsigned short.
-// It provides methods for insertion and retrieval of values and will
-// automatically resize itself to hold new data.
-//
-// The C++ standard does not define the exact size of the unsigned short type,
-// so use of this type directly is discouraged.  If an array of 16 bit
-// unsigned integers is needed, prefer vtkTypeUInt16Array to this class.
+/**
+ * @class   vtkUnsignedShortArray
+ * @brief   dynamic, self-adjusting array of unsigned short
+ *
+ * vtkUnsignedShortArray is an array of values of type unsigned short.
+ * It provides methods for insertion and retrieval of values and will
+ * automatically resize itself to hold new data.
+ *
+ * The C++ standard does not define the exact size of the unsigned short type,
+ * so use of this type directly is discouraged.  If an array of 16 bit
+ * unsigned integers is needed, prefer vtkTypeUInt16Array to this class.
+*/
 
 #ifndef vtkUnsignedShortArray_h
 #define vtkUnsignedShortArray_h
@@ -50,20 +53,23 @@ public:
   vtkCreateWrappedArrayInterface(unsigned short);
 #endif
 
-  // Description:
-  // A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+  /**
+   * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+   */
   static vtkUnsignedShortArray* FastDownCast(vtkAbstractArray *source)
   {
     return static_cast<vtkUnsignedShortArray*>(
           Superclass::FastDownCast(source));
   }
 
-  // Description:
-  // Get the minimum data value in its native type.
+  /**
+   * Get the minimum data value in its native type.
+   */
   static unsigned short GetDataTypeValueMin() { return VTK_UNSIGNED_SHORT_MIN; }
 
-  // Description:
-  // Get the maximum data value in its native type.
+  /**
+   * Get the maximum data value in its native type.
+   */
   static unsigned short GetDataTypeValueMax() { return VTK_UNSIGNED_SHORT_MAX; }
 
 protected:

@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkLightingMapPass - TO DO
-// .SECTION Description
-// Renders lighting information directly instead of final shaded colors.
-// The information keys allow the selection of either normal rendering or
-// luminance. For normals, the (nx, ny, nz) tuple are rendered directly into
-// the (r,g,b) fragment. For luminance, the diffuse and specular intensities are
-// rendered into the red and green channels, respectively. The blue channel is
-// zero. For both luminances and normals, the alpha channel is set to 1.0 if
-// present.
-//
-// .SECTION See Also
-// vtkRenderPass vtkDefaultPass
+/**
+ * @class   vtkLightingMapPass
+ * @brief   TO DO
+ *
+ * Renders lighting information directly instead of final shaded colors.
+ * The information keys allow the selection of either normal rendering or
+ * luminance. For normals, the (nx, ny, nz) tuple are rendered directly into
+ * the (r,g,b) fragment. For luminance, the diffuse and specular intensities are
+ * rendered into the red and green channels, respectively. The blue channel is
+ * zero. For both luminances and normals, the alpha channel is set to 1.0 if
+ * present.
+ *
+ * @sa
+ * vtkRenderPass vtkDefaultPass
+*/
 
 #ifndef vtkLightingMapPass_h
 #define vtkLightingMapPass_h
@@ -40,41 +43,50 @@ public:
   vtkTypeMacro(vtkLightingMapPass, vtkDefaultPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the type of lighting render to perform
+  //@{
+  /**
+   * Set the type of lighting render to perform
+   */
   enum RenderMode { LUMINANCE, NORMALS };
   vtkSetMacro(RenderType, RenderMode);
   vtkGetMacro(RenderType, RenderMode);
+  //@}
 
-  // Description:
-  // If this key exists on the PropertyKeys of a prop, the active scalar array
-  // on the prop will be rendered as its color. This key is mutually exclusive
-  // with the RENDER_LUMINANCE key.
+  /**
+   * If this key exists on the PropertyKeys of a prop, the active scalar array
+   * on the prop will be rendered as its color. This key is mutually exclusive
+   * with the RENDER_LUMINANCE key.
+   */
   static vtkInformationIntegerKey *RENDER_LUMINANCE();
 
-  // Description:
-  // if this key exists on the ProperyKeys of a prop, the active vector array on
-  // the prop will be rendered as its color. This key is mutually exclusive with
-  // the RENDER_LUMINANCE key.
+  /**
+   * if this key exists on the ProperyKeys of a prop, the active vector array on
+   * the prop will be rendered as its color. This key is mutually exclusive with
+   * the RENDER_LUMINANCE key.
+   */
   static vtkInformationIntegerKey *RENDER_NORMALS();
 
-  // Description:
-  // Perform rendering according to a render state \p s.
-  // \pre s_exists: s!=0
+  /**
+   * Perform rendering according to a render state \p s.
+   * \pre s_exists: s!=0
+   */
   virtual void Render(const vtkRenderState *s);
 
  protected:
-  // Description:
-  // Default constructor.
+  /**
+   * Default constructor.
+   */
   vtkLightingMapPass();
 
-  // Description:
-  // Destructor.
+  /**
+   * Destructor.
+   */
   virtual ~vtkLightingMapPass();
 
-  // Description:
-  // Opaque pass with key checking.
-  // \pre s_exists: s!=0
+  /**
+   * Opaque pass with key checking.
+   * \pre s_exists: s!=0
+   */
   virtual void RenderOpaqueGeometry(const vtkRenderState *s);
 
  private:

@@ -12,23 +12,26 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBlueObeliskDataParser - Fill a vtkBlueObeliskData
-// container with data from the BODR XML dataset.
-//
-// .SECTION Description
-// The Blue Obelisk Data Repository is a free, open repository of
-// chemical information. This class extracts the BODR information into
-// vtk arrays, which are stored in a vtkBlueObeliskData object.
-//
-// \warning The vtkBlueObeliskDataParser class should never need to be
-// used directly. For convenient access to the BODR data, use
-// vtkPeriodicTable. For access to the raw arrays produced by this
-// parser, see the vtkBlueObeliskData class. A static
-// vtkBlueObeliskData object is accessible via
-// vtkPeriodicTable::GetBlueObeliskData().
-//
-// .SECTION See Also
-// vtkPeriodicTable vtkBlueObeliskData
+/**
+ * @class   vtkBlueObeliskDataParser
+ * @brief   Fill a vtkBlueObeliskData
+ * container with data from the BODR XML dataset.
+ *
+ *
+ * The Blue Obelisk Data Repository is a free, open repository of
+ * chemical information. This class extracts the BODR information into
+ * vtk arrays, which are stored in a vtkBlueObeliskData object.
+ *
+ * \warning The vtkBlueObeliskDataParser class should never need to be
+ * used directly. For convenient access to the BODR data, use
+ * vtkPeriodicTable. For access to the raw arrays produced by this
+ * parser, see the vtkBlueObeliskData class. A static
+ * vtkBlueObeliskData object is accessible via
+ * vtkPeriodicTable::GetBlueObeliskData().
+ *
+ * @sa
+ * vtkPeriodicTable vtkBlueObeliskData
+*/
 
 #ifndef vtkBlueObeliskDataParser_h
 #define vtkBlueObeliskDataParser_h
@@ -51,21 +54,26 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskDataParser : public vtkXMLParser
   vtkTypeMacro(vtkBlueObeliskDataParser, vtkXMLParser);
   static vtkBlueObeliskDataParser * New();
 
-  // Description:
-  // Set the target vtkBlueObeliskData object that this parser will
-  // populate
+  /**
+   * Set the target vtkBlueObeliskData object that this parser will
+   * populate
+   */
   virtual void SetTarget(vtkBlueObeliskData *bodr);
 
-  // Description:
-  // Start parsing
+  /**
+   * Start parsing
+   */
   virtual int Parse();
 
-  // Description:
-  // These are only implemented to prevent compiler warnings about hidden
-  // virtual overloads. This function simply call Parse(); the arguments are
-  // ignored.
+  //@{
+  /**
+   * These are only implemented to prevent compiler warnings about hidden
+   * virtual overloads. This function simply call Parse(); the arguments are
+   * ignored.
+   */
   virtual int Parse(const char *);
   virtual int Parse(const char *, unsigned int);
+  //@}
 
 protected:
   vtkBlueObeliskDataParser();
@@ -136,8 +144,10 @@ private:
   vtkBlueObeliskDataParser(const vtkBlueObeliskDataParser&) VTK_DELETE_FUNCTION;
   void operator=(const vtkBlueObeliskDataParser&) VTK_DELETE_FUNCTION;
 
-  // Description:
-  // Resize array if needed and set the entry at ind to val.
+  //@{
+  /**
+   * Resize array if needed and set the entry at ind to val.
+   */
   static void ResizeArrayIfNeeded(vtkAbstractArray *arr, vtkIdType ind);
   static void ResizeAndSetValue(vtkStdString *val,
                                 vtkStringArray *arr,
@@ -148,18 +158,25 @@ private:
   static void ResizeAndSetValue(unsigned short val,
                                 vtkUnsignedShortArray *arr,
                                 vtkIdType ind);
+  //@}
 
-  // Description:
-  // Parse types from const char *
+  //@{
+  /**
+   * Parse types from const char *
+   */
   static int parseInt(const char *);
   static float parseFloat(const char *);
   static void parseFloat3(const char * str, float[3]);
   static unsigned short parseUnsignedShort(const char *);
+  //@}
 
-  // Description:
-  // Convert a string to lower case. This will modify the input string
-  // and return the input pointer.
+  //@{
+  /**
+   * Convert a string to lower case. This will modify the input string
+   * and return the input pointer.
+   */
   static vtkStdString * ToLower(vtkStdString *);
 };
+  //@}
 
 #endif

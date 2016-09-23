@@ -17,17 +17,20 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkBoostBrandesCentrality - Compute Brandes betweenness centrality
-// on a vtkGraph
-
-// .SECTION Description
-
-// This vtk class uses the Boost brandes_betweeness_centrality
-// generic algorithm to compute betweenness centrality on
-// the input graph (a vtkGraph).
-
-// .SECTION See Also
-// vtkGraph vtkBoostGraphAdapter
+/**
+ * @class   vtkBoostBrandesCentrality
+ * @brief   Compute Brandes betweenness centrality
+ * on a vtkGraph
+ *
+ *
+ *
+ * This vtk class uses the Boost brandes_betweeness_centrality
+ * generic algorithm to compute betweenness centrality on
+ * the input graph (a vtkGraph).
+ *
+ * @sa
+ * vtkGraph vtkBoostGraphAdapter
+*/
 
 #ifndef vtkBoostBrandesCentrality_h
 #define vtkBoostBrandesCentrality_h
@@ -44,20 +47,26 @@ public:
   vtkTypeMacro(vtkBoostBrandesCentrality, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get/Set the flag that sets the rule whether or not to use the
-  // edge weight array as set using \c SetEdgeWeightArrayName.
+  //@{
+  /**
+   * Get/Set the flag that sets the rule whether or not to use the
+   * edge weight array as set using \c SetEdgeWeightArrayName.
+   */
   vtkSetMacro(UseEdgeWeightArray, bool);
   vtkBooleanMacro(UseEdgeWeightArray, bool);
+  //@}
 
   vtkSetMacro(InvertEdgeWeightArray, bool);
   vtkBooleanMacro(InvertEdgeWeightArray, bool);
 
-  // Description:
-  // Get/Set the name of the array that needs to be used as the edge weight.
-  // The array should be a vtkDataArray.
+  //@{
+  /**
+   * Get/Set the name of the array that needs to be used as the edge weight.
+   * The array should be a vtkDataArray.
+   */
   vtkGetStringMacro(EdgeWeightArrayName);
   vtkSetStringMacro(EdgeWeightArrayName);
+  //@}
 
 protected:
   vtkBoostBrandesCentrality();

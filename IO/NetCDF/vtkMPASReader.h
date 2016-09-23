@@ -42,34 +42,37 @@ SOFTWARE should be clearly marked, so as not to confuse it with the
 version available from Los Alamos National Laboratory.
 
 =========================================================================*/
-// .NAME vtkMPASReader - Read an MPAS netCDF file
-// .SECTION Description
-// This program reads an MPAS netCDF data file to allow paraview to
-// display a dual-grid sphere or latlon projection.  Also allows
-// display of primal-grid sphere.
-// The variables that have time dim are available to ParaView.
-//
-// Assume all variables are of interest if they have dims
-// (Time, nCells|nVertices, nVertLevels, [nTracers]).
-// Does not deal with edge data.
-//
-// When using this reader, it is important that you remember to do the
-//following:
-//   1.  When changing a selected variable, remember to select it also
-//       in the drop down box to "color by".  It doesn't color by that variable
-//       automatically.
-//   2.  When selecting multilayer sphere view, make layer thickness around
-//       100,000.
-//   3.  When selecting multilayer lat/lon view, make layer thickness around 10.
-//   4.  Always click the -Z orientation after making a switch from lat/lon to
-//       sphere, from single to multilayer or changing thickness.
-//   5.  Be conservative on the number of changes you make before hitting Apply,
-//       since there may be bugs in this reader.  Just make one change and then
-//       hit Apply.
-
-//
-// Christine Ahrens (cahrens@lanl.gov)
-// Version 1.3
+/**
+ * @class   vtkMPASReader
+ * @brief   Read an MPAS netCDF file
+ *
+ * This program reads an MPAS netCDF data file to allow paraview to
+ * display a dual-grid sphere or latlon projection.  Also allows
+ * display of primal-grid sphere.
+ * The variables that have time dim are available to ParaView.
+ *
+ * Assume all variables are of interest if they have dims
+ * (Time, nCells|nVertices, nVertLevels, [nTracers]).
+ * Does not deal with edge data.
+ *
+ * When using this reader, it is important that you remember to do the
+ *following:
+ *   1.  When changing a selected variable, remember to select it also
+ *       in the drop down box to "color by".  It doesn't color by that variable
+ *       automatically.
+ *   2.  When selecting multilayer sphere view, make layer thickness around
+ *       100,000.
+ *   3.  When selecting multilayer lat/lon view, make layer thickness around 10.
+ *   4.  Always click the -Z orientation after making a switch from lat/lon to
+ *       sphere, from single to multilayer or changing thickness.
+ *   5.  Be conservative on the number of changes you make before hitting Apply,
+ *       since there may be bugs in this reader.  Just make one change and then
+ *       hit Apply.
+ *
+ *
+ * Christine Ahrens (cahrens@lanl.gov)
+ * Version 1.3
+*/
 
 #ifndef vtkMPASReader_h
 #define vtkMPASReader_h
@@ -95,48 +98,69 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   vtkTypeMacro(vtkMPASReader,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify file name of MPAS data file to read.
+  //@{
+  /**
+   * Specify file name of MPAS data file to read.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Get the number of data cells
+  //@{
+  /**
+   * Get the number of data cells
+   */
   vtkGetMacro(MaximumCells, int);
+  //@}
 
-  // Description:
-  // Get the number of points
+  //@{
+  /**
+   * Get the number of points
+   */
   vtkGetMacro(MaximumPoints, int);
+  //@}
 
-  // Description:
-  // Get the number of data variables at the cell centers and points
+  //@{
+  /**
+   * Get the number of data variables at the cell centers and points
+   */
   virtual int GetNumberOfCellVars();
   virtual int GetNumberOfPointVars();
+  //@}
 
-  // Description:
-  // Get the reader's output
+  //@{
+  /**
+   * Get the reader's output
+   */
   vtkUnstructuredGrid *GetOutput();
   vtkUnstructuredGrid *GetOutput(int index);
+  //@}
 
-  // Description:
-  // If true, dimension info is included in the array name. For instance,
-  // "tracers" will become "tracers(Time, nCells, nVertLevels, nTracers)".
-  // This is useful for user-visible array selection, but is disabled by default
-  // for backwards compatibility.
+  //@{
+  /**
+   * If true, dimension info is included in the array name. For instance,
+   * "tracers" will become "tracers(Time, nCells, nVertLevels, nTracers)".
+   * This is useful for user-visible array selection, but is disabled by default
+   * for backwards compatibility.
+   */
   vtkSetMacro(UseDimensionedArrayNames, bool)
   vtkGetMacro(UseDimensionedArrayNames, bool)
   vtkBooleanMacro(UseDimensionedArrayNames, bool)
+  //@}
 
-  // Description:
-  // The following methods allow selective reading of solutions fields.
-  // By default, ALL data fields on the nodes are read, but this can
-  // be modified.
+  //@{
+  /**
+   * The following methods allow selective reading of solutions fields.
+   * By default, ALL data fields on the nodes are read, but this can
+   * be modified.
+   */
   int GetNumberOfPointArrays();
   const char* GetPointArrayName(int index);
   int GetPointArrayStatus(const char* name);
   void SetPointArrayStatus(const char* name, int status);
   void DisableAllPointArrays();
   void EnableAllPointArrays();
+  //@}
 
   int GetNumberOfCellArrays();
   const char* GetCellArrayName(int index);
@@ -145,31 +169,40 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   void DisableAllCellArrays();
   void EnableAllCellArrays();
 
-  // Description:
-  // If the point/cell arrays contain dimensions other than Time, nCells, or
-  // nVertices, they are configured here. Use GetNumberOfDimensions to get the
-  // number of arbitrary dimensions in the loaded arrays and GetDimensionName to
-  // retrieve the dimension names. GetDimensionSize returns the number of values
-  // in the dimensions, and Set/GetDimensionCurrentIndex controls the value
-  // to fix a given dimension at when extracting slices of data.
+  //@{
+  /**
+   * If the point/cell arrays contain dimensions other than Time, nCells, or
+   * nVertices, they are configured here. Use GetNumberOfDimensions to get the
+   * number of arbitrary dimensions in the loaded arrays and GetDimensionName to
+   * retrieve the dimension names. GetDimensionSize returns the number of values
+   * in the dimensions, and Set/GetDimensionCurrentIndex controls the value
+   * to fix a given dimension at when extracting slices of data.
+   */
   int GetNumberOfDimensions();
   std::string GetDimensionName(int idx);
   vtkStringArray* GetAllDimensions();
   int GetDimensionCurrentIndex(const std::string &dim);
   void SetDimensionCurrentIndex(const std::string &dim, int idx);
   int GetDimensionSize(const std::string &dim);
+  //@}
 
-  // Description:
-  // Get/Set the name to the dimension that identifies the vertical dimension.
-  // Defaults to "nVertLevels".
+  //@{
+  /**
+   * Get/Set the name to the dimension that identifies the vertical dimension.
+   * Defaults to "nVertLevels".
+   */
   vtkSetMacro(VerticalDimension, std::string)
   vtkGetMacro(VerticalDimension, std::string)
+  //@}
 
-  // Description:
-  // Convenience functon for setting/querying [GS]etDimensionCurrentIndex
-  // for the dimension returned by GetVerticalDimension.
+  //@{
+  /**
+   * Convenience functon for setting/querying [GS]etDimensionCurrentIndex
+   * for the dimension returned by GetVerticalDimension.
+   */
   void SetVerticalLevel(int level);
   int GetVerticalLevel();
+  //@}
 
   vtkGetVector2Macro(VerticalLevelRange, int)
 
@@ -192,8 +225,9 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   vtkSetMacro(ShowMultilayerView, bool)
   vtkGetMacro(ShowMultilayerView, bool)
 
-  // Description:
-  // Returns true if the given file can be read.
+  /**
+   * Returns true if the given file can be read.
+   */
   static int CanReadFile(const char *filename);
 
   vtkMTimeType GetMTime();
@@ -225,9 +259,10 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   vtkDataArraySelection* PointDataArraySelection;
   vtkDataArraySelection* CellDataArraySelection;
 
-  // Description:
-  // Update the list of available dimensions. Only does work when
-  // PointDataArraySelection or CellDataArraySelection is changed.
+  /**
+   * Update the list of available dimensions. Only does work when
+   * PointDataArraySelection or CellDataArraySelection is changed.
+   */
   void UpdateDimensions(bool force = false);
 
   std::string VerticalDimension;
@@ -300,26 +335,30 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   void OutputCells();
   unsigned char GetCellType();
 
-  // Description:
-  // Returns true if the dimensions in var match the expected args, or prints a
-  // warning and returns false if any are incorrect.
-  // ndims is the number of dimensions, and the variatic args must be
-  // C-strings identifying the expected dimensions.
-  // If silent is true, no warnings are printed.
+  /**
+   * Returns true if the dimensions in var match the expected args, or prints a
+   * warning and returns false if any are incorrect.
+   * ndims is the number of dimensions, and the variatic args must be
+   * C-strings identifying the expected dimensions.
+   * If silent is true, no warnings are printed.
+   */
   bool ValidateDimensions(NcVar *var, bool silent, int ndims, ...);
 
-  // Description:
-  // Return the cursor position for the specified dimension.
+  /**
+   * Return the cursor position for the specified dimension.
+   */
   long GetCursorForDimension(const NcDim *dim);
 
-  // Description:
-  // Return the number of values to read for the specified dimension.
+  /**
+   * Return the number of values to read for the specified dimension.
+   */
   size_t GetCountForDimension(const NcDim *dim);
 
-  // Description:
-  // For an arbitrary (i.e. not nCells, nVertices, or Time) dimension, extract
-  // the dimension's metadata into memory (if needed) and return the last used
-  // index into the dimension values, or 0 if the dimension is new.
+  /**
+   * For an arbitrary (i.e. not nCells, nVertices, or Time) dimension, extract
+   * the dimension's metadata into memory (if needed) and return the last used
+   * index into the dimension values, or 0 if the dimension is new.
+   */
   long InitializeDimension(const NcDim *dim);
 
   vtkDataArray* LoadPointVarData(int variable);
@@ -327,13 +366,14 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   vtkDataArray* LookupPointDataArray(int varIdx);
   vtkDataArray* LookupCellDataArray(int varIdx);
 
-  // Description:
-  // Update the "Time" vtkStringArray in dataset's FieldData to contain the
-  // xtime string for the current timestep.
-  // If there is an error getting xtime, the current timestep number is inserted
-  // instead.
-  // If a non-string array named Time already exists in the FieldData, dataset
-  // is not modified in any way.
+  /**
+   * Update the "Time" vtkStringArray in dataset's FieldData to contain the
+   * xtime string for the current timestep.
+   * If there is an error getting xtime, the current timestep number is inserted
+   * instead.
+   * If a non-string array named Time already exists in the FieldData, dataset
+   * is not modified in any way.
+   */
   void LoadTimeFieldData(vtkUnstructuredGrid *dataset);
 
  private:

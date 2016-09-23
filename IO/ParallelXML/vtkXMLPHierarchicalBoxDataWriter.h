@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPHierarchicalBoxDataWriter - parallel writer for
-// vtkHierarchicalBoxDataSet for backwards compatibility.
-// .SECTION Description
-// vtkXMLPHierarchicalBoxDataWriter is an empty subclass of
-// vtkXMLPUniformGridAMRWriter for backwards compatibility.
+/**
+ * @class   vtkXMLPHierarchicalBoxDataWriter
+ * @brief   parallel writer for
+ * vtkHierarchicalBoxDataSet for backwards compatibility.
+ *
+ * vtkXMLPHierarchicalBoxDataWriter is an empty subclass of
+ * vtkXMLPUniformGridAMRWriter for backwards compatibility.
+*/
 
 #ifndef vtkXMLPHierarchicalBoxDataWriter_h
 #define vtkXMLPHierarchicalBoxDataWriter_h

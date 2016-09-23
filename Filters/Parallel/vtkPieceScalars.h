@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPieceScalars - Sets all cell scalars from the update piece.
-//
-// .SECTION Description
-// vtkPieceScalars is meant to display which piece is being requested
-// as scalar values.  It is useful for visualizing the partitioning for
-// streaming or distributed pipelines.
-//
-// .SECTION See Also
-// vtkPolyDataStreamer
+/**
+ * @class   vtkPieceScalars
+ * @brief   Sets all cell scalars from the update piece.
+ *
+ *
+ * vtkPieceScalars is meant to display which piece is being requested
+ * as scalar values.  It is useful for visualizing the partitioning for
+ * streaming or distributed pipelines.
+ *
+ * @sa
+ * vtkPolyDataStreamer
+*/
 
 #ifndef vtkPieceScalars_h
 #define vtkPieceScalars_h
@@ -39,8 +42,9 @@ public:
   vtkTypeMacro(vtkPieceScalars,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Option to centerate cell scalars of points scalars.  Default is point scalars.
+  /**
+   * Option to centerate cell scalars of points scalars.  Default is point scalars.
+   */
   void SetScalarModeToCellData() {this->SetCellScalarsFlag(1);}
   void SetScalarModeToPointData() {this->SetCellScalarsFlag(0);}
   int GetScalarMode() {return this->CellScalarsFlag;}

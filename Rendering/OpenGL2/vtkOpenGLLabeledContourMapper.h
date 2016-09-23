@@ -12,10 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLLabeledContourMapper
-// .SECTION Description
-// vtkOpenGLLabeledContourMapper is an override for vtkLabeledContourMapper
-// that implements stenciling using the OpenGL2 API.
+/**
+ * @class   vtkOpenGLLabeledContourMapper
+ *
+ * vtkOpenGLLabeledContourMapper is an override for vtkLabeledContourMapper
+ * that implements stenciling using the OpenGL2 API.
+*/
 
 #ifndef vtkOpenGLLabeledContourMapper_h
 #define vtkOpenGLLabeledContourMapper_h
@@ -34,8 +36,9 @@ public:
   vtkTypeMacro(vtkOpenGLLabeledContourMapper, vtkLabeledContourMapper)
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Release graphics resources
+  /**
+   * Release graphics resources
+   */
   void ReleaseGraphicsResources(vtkWindow *win);
 
 protected:

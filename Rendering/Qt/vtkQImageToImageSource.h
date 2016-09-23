@@ -12,9 +12,12 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkQImageToImageSource - Create image data from a QImage.
-// .SECTION Description
-// vtkQImageToImageSource produces image data from a QImage.
+/**
+ * @class   vtkQImageToImageSource
+ * @brief   Create image data from a QImage.
+ *
+ * vtkQImageToImageSource produces image data from a QImage.
+*/
 
 #ifndef vtkQImageToImageSource_h
 #define vtkQImageToImageSource_h
@@ -31,8 +34,9 @@ public:
   vtkTypeMacro(vtkQImageToImageSource,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set/Get QImage surface to be used.
+  /**
+   * Set/Get QImage surface to be used.
+   */
   void SetQImage( QImage* image )
       {this->QtImage = image; this->Modified();}
   const QImage* GetQImage(){return QtImage;}

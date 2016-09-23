@@ -11,10 +11,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLCamera - OpenGL camera
-// .SECTION Description
-// vtkOpenGLCamera is a concrete implementation of the abstract class
-// vtkCamera.  vtkOpenGLCamera interfaces to the OpenGL rendering library.
+/**
+ * @class   vtkOpenGLCamera
+ * @brief   OpenGL camera
+ *
+ * vtkOpenGLCamera is a concrete implementation of the abstract class
+ * vtkCamera.  vtkOpenGLCamera interfaces to the OpenGL rendering library.
+*/
 
 #ifndef vtkOpenGLCamera_h
 #define vtkOpenGLCamera_h
@@ -33,8 +36,9 @@ public:
   vtkTypeMacro(vtkOpenGLCamera, vtkCamera);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Implement base class method.
+  /**
+   * Implement base class method.
+   */
   virtual void Render(vtkRenderer *ren);
 
   virtual void UpdateViewport(vtkRenderer *ren);

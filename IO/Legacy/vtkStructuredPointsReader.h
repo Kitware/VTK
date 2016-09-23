@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkStructuredPointsReader - read vtk structured points data file
-// .SECTION Description
-// vtkStructuredPointsReader is a source object that reads ASCII or binary
-// structured points data files in vtk format (see text for format details).
-// The output of this reader is a single vtkStructuredPoints data object.
-// The superclass of this class, vtkDataReader, provides many methods for
-// controlling the reading of the data file, see vtkDataReader for more
-// information.
-// .SECTION Caveats
-// Binary files written on one system may not be readable on other systems.
-// .SECTION See Also
-// vtkStructuredPoints vtkDataReader
+/**
+ * @class   vtkStructuredPointsReader
+ * @brief   read vtk structured points data file
+ *
+ * vtkStructuredPointsReader is a source object that reads ASCII or binary
+ * structured points data files in vtk format (see text for format details).
+ * The output of this reader is a single vtkStructuredPoints data object.
+ * The superclass of this class, vtkDataReader, provides many methods for
+ * controlling the reading of the data file, see vtkDataReader for more
+ * information.
+ * @warning
+ * Binary files written on one system may not be readable on other systems.
+ * @sa
+ * vtkStructuredPoints vtkDataReader
+*/
 
 #ifndef vtkStructuredPointsReader_h
 #define vtkStructuredPointsReader_h
@@ -40,15 +43,19 @@ public:
   vtkTypeMacro(vtkStructuredPointsReader,vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set/Get the output of this reader.
+  //@{
+  /**
+   * Set/Get the output of this reader.
+   */
   void SetOutput(vtkStructuredPoints *output);
   vtkStructuredPoints *GetOutput(int idx);
   vtkStructuredPoints *GetOutput();
+  //@}
 
-  // Description:
-  // Read the meta information from the file.  This needs to be public to it
-  // can be accessed by vtkDataSetReader.
+  /**
+   * Read the meta information from the file.  This needs to be public to it
+   * can be accessed by vtkDataSetReader.
+   */
   virtual int ReadMetaData(vtkInformation *outInfo);
 
 protected:

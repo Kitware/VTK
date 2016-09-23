@@ -12,25 +12,28 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCompositeDataProbeFilter - subclass of vtkProbeFilter which supports
-// composite datasets in the input.
-// .SECTION Description
-// vtkCompositeDataProbeFilter supports probing into multi-group datasets.
-// It sequentially probes through each concrete dataset within the composite
-// probing at only those locations at which there were no hits when probing
-// earlier datasets. For Hierarchical datasets, this traversal through leaf
-// datasets is done in reverse order of levels i.e. highest level first.
-//
-// When dealing with composite datasets, partial arrays are common i.e.
-// data-arrays that are not available in all of the blocks. By default, this
-// filter only passes those point and cell data-arrays that are available in all
-// the blocks i.e. partial array are removed.
-// When PassPartialArrays is turned on, this behavior is changed to take a
-// union of all arrays present thus partial arrays are passed as well. However,
-// for composite dataset input, this filter still produces a non-composite
-// output. For all those locations in a block of where a particular data array
-// is missing, this filter uses vtkMath::Nan() for double and float arrays,
-// while 0 for all other types of arrays i.e int, char etc.
+/**
+ * @class   vtkCompositeDataProbeFilter
+ * @brief   subclass of vtkProbeFilter which supports
+ * composite datasets in the input.
+ *
+ * vtkCompositeDataProbeFilter supports probing into multi-group datasets.
+ * It sequentially probes through each concrete dataset within the composite
+ * probing at only those locations at which there were no hits when probing
+ * earlier datasets. For Hierarchical datasets, this traversal through leaf
+ * datasets is done in reverse order of levels i.e. highest level first.
+ *
+ * When dealing with composite datasets, partial arrays are common i.e.
+ * data-arrays that are not available in all of the blocks. By default, this
+ * filter only passes those point and cell data-arrays that are available in all
+ * the blocks i.e. partial array are removed.
+ * When PassPartialArrays is turned on, this behavior is changed to take a
+ * union of all arrays present thus partial arrays are passed as well. However,
+ * for composite dataset input, this filter still produces a non-composite
+ * output. For all those locations in a block of where a particular data array
+ * is missing, this filter uses vtkMath::Nan() for double and float arrays,
+ * while 0 for all other types of arrays i.e int, char etc.
+*/
 
 #ifndef vtkCompositeDataProbeFilter_h
 #define vtkCompositeDataProbeFilter_h
@@ -46,45 +49,53 @@ public:
   vtkTypeMacro(vtkCompositeDataProbeFilter, vtkProbeFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // When dealing with composite datasets, partial arrays are common i.e.
-  // data-arrays that are not available in all of the blocks. By default, this
-  // filter only passes those point and cell data-arrays that are available in
-  // all the blocks i.e. partial array are removed.  When PassPartialArrays is
-  // turned on, this behavior is changed to take a union of all arrays present
-  // thus partial arrays are passed as well. However, for composite dataset
-  // input, this filter still produces a non-composite output. For all those
-  // locations in a block of where a particular data array is missing, this
-  // filter uses vtkMath::Nan() for double and float arrays, while 0 for all
-  // other types of arrays i.e int, char etc.
+  //@{
+  /**
+   * When dealing with composite datasets, partial arrays are common i.e.
+   * data-arrays that are not available in all of the blocks. By default, this
+   * filter only passes those point and cell data-arrays that are available in
+   * all the blocks i.e. partial array are removed.  When PassPartialArrays is
+   * turned on, this behavior is changed to take a union of all arrays present
+   * thus partial arrays are passed as well. However, for composite dataset
+   * input, this filter still produces a non-composite output. For all those
+   * locations in a block of where a particular data array is missing, this
+   * filter uses vtkMath::Nan() for double and float arrays, while 0 for all
+   * other types of arrays i.e int, char etc.
+   */
   vtkSetMacro(PassPartialArrays, bool);
   vtkGetMacro(PassPartialArrays, bool);
   vtkBooleanMacro(PassPartialArrays, bool);
+  //@}
 
 protected:
   vtkCompositeDataProbeFilter();
   ~vtkCompositeDataProbeFilter();
 
-  // Description:
-  // Change input information to accept composite datasets as the input which
-  // is probed into.
+  /**
+   * Change input information to accept composite datasets as the input which
+   * is probed into.
+   */
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
-  // Description:
-  // Builds the field list using the composite dataset source.
+  /**
+   * Builds the field list using the composite dataset source.
+   */
   int BuildFieldList(vtkCompositeDataSet* source);
 
-  // Description:
-  // Initializes output and various arrays which keep track for probing status.
+  /**
+   * Initializes output and various arrays which keep track for probing status.
+   */
   virtual void InitializeForProbing(vtkDataSet *input, vtkDataSet *output);
 
-  // Description:
-  // Handle composite input.
+  /**
+   * Handle composite input.
+   */
   virtual int RequestData(vtkInformation *,
     vtkInformationVector **, vtkInformationVector *);
 
-  // Description:
-  // Create a default executive.
+  /**
+   * Create a default executive.
+   */
   virtual vtkExecutive* CreateDefaultExecutive();
 
   bool PassPartialArrays;

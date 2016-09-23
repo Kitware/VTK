@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWin32Header - manage Windows system differences
-// .SECTION Description
-// The vtkWin32Header captures some system differences between Unix and
-// Windows operating systems.
+/**
+ * @class   vtkWin32Header
+ * @brief   manage Windows system differences
+ *
+ * The vtkWin32Header captures some system differences between Unix and
+ * Windows operating systems.
+*/
 
 #ifndef vtkWin32Header_h
 #define vtkWin32Header_h

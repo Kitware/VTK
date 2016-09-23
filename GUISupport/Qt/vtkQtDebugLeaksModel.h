@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkQtDebugLeaksModel - model class that observes the vtkDebugLeaks singleton
-//
-// .SECTION Description
-// This class is used internally by the vtkQtDebugLeaksView.  It installs an
-// observer on the vtkDebugLeaks singleton and uses the observer to maintain
-// a model of all vtkObjectBase dervied objects that are alive in memory.
+/**
+ * @class   vtkQtDebugLeaksModel
+ * @brief   model class that observes the vtkDebugLeaks singleton
+ *
+ *
+ * This class is used internally by the vtkQtDebugLeaksView.  It installs an
+ * observer on the vtkDebugLeaks singleton and uses the observer to maintain
+ * a model of all vtkObjectBase dervied objects that are alive in memory.
+*/
 
 #ifndef vtkQtDebugLeaksModel_h
 #define vtkQtDebugLeaksModel_h
@@ -36,14 +39,16 @@ public:
   vtkQtDebugLeaksModel(QObject* p=0);
   virtual ~vtkQtDebugLeaksModel();
 
-  // Description:
-  // Get the list of objects in the model that have the given class name
+  /**
+   * Get the list of objects in the model that have the given class name
+   */
   QList<vtkObjectBase*> getObjects(const QString& className);
 
-  // Description:
-  // Return an item model that contains only objects with the given class name.
-  // The model has two columns: object address (string), object reference count (integer)
-  // The caller is allowed to reparent or delete the returned model.
+  /**
+   * Return an item model that contains only objects with the given class name.
+   * The model has two columns: object address (string), object reference count (integer)
+   * The caller is allowed to reparent or delete the returned model.
+   */
   QStandardItemModel* referenceCountModel(const QString& className);
 
 protected slots:

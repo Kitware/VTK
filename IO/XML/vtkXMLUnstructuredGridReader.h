@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLUnstructuredGridReader - Read VTK XML UnstructuredGrid files.
-// .SECTION Description
-// vtkXMLUnstructuredGridReader reads the VTK XML UnstructuredGrid
-// file format.  One unstructured grid file can be read to produce one
-// output.  Streaming is supported.  The standard extension for this
-// reader's file format is "vtu".  This reader is also used to read a
-// single piece of the parallel file format.
-
-// .SECTION See Also
-// vtkXMLPUnstructuredGridReader
+/**
+ * @class   vtkXMLUnstructuredGridReader
+ * @brief   Read VTK XML UnstructuredGrid files.
+ *
+ * vtkXMLUnstructuredGridReader reads the VTK XML UnstructuredGrid
+ * file format.  One unstructured grid file can be read to produce one
+ * output.  Streaming is supported.  The standard extension for this
+ * reader's file format is "vtu".  This reader is also used to read a
+ * single piece of the parallel file format.
+ *
+ * @sa
+ * vtkXMLPUnstructuredGridReader
+*/
 
 #ifndef vtkXMLUnstructuredGridReader_h
 #define vtkXMLUnstructuredGridReader_h
@@ -39,10 +42,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLUnstructuredGridReader *New();
 
-  // Description:
-  // Get the reader's output.
+  //@{
+  /**
+   * Get the reader's output.
+   */
   vtkUnstructuredGrid *GetOutput();
   vtkUnstructuredGrid *GetOutput(int idx);
+  //@}
 
 protected:
   vtkXMLUnstructuredGridReader();

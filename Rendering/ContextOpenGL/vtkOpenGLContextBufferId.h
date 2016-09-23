@@ -13,11 +13,14 @@
 
 =========================================================================*/
 
-// .NAME vtkOpenGLContextBufferId - 2D array of ids stored in VRAM.
-//
-// .SECTION Description
-// An 2D array where each element is the id of an entity drawn at the given
-// pixel.
+/**
+ * @class   vtkOpenGLContextBufferId
+ * @brief   2D array of ids stored in VRAM.
+ *
+ *
+ * An 2D array where each element is the id of an entity drawn at the given
+ * pixel.
+*/
 
 #ifndef vtkOpenGLContextBufferId_h
 #define vtkOpenGLContextBufferId_h
@@ -34,49 +37,59 @@ public:
   vtkTypeMacro(vtkOpenGLContextBufferId, vtkAbstractContextBufferId);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Creates a 2D Painter object.
+  /**
+   * Creates a 2D Painter object.
+   */
   static vtkOpenGLContextBufferId *New();
 
-  // Description:
-  // Release any graphics resources that are being consumed by this object.
+  /**
+   * Release any graphics resources that are being consumed by this object.
+   */
   virtual void ReleaseGraphicsResources();
 
-  // Description:
-  // Set/Get the OpenGL context owning the texture object resource.
+  //@{
+  /**
+   * Set/Get the OpenGL context owning the texture object resource.
+   */
   virtual void SetContext(vtkRenderWindow *context);
   virtual vtkRenderWindow *GetContext();
+  //@}
 
-  // Description:
-  // Returns if the context supports the required extensions.
-  // \pre context_is_set: this->GetContext()!=0
+  /**
+   * Returns if the context supports the required extensions.
+   * \pre context_is_set: this->GetContext()!=0
+   */
   virtual bool IsSupported();
 
-  // Description:
-  // Allocate the memory for at least Width*Height elements.
-  // \pre positive_width: GetWidth()>0
-  // \pre positive_height: GetHeight()>0
-  // \pre context_is_set: this->GetContext()!=0
+  /**
+   * Allocate the memory for at least Width*Height elements.
+   * \pre positive_width: GetWidth()>0
+   * \pre positive_height: GetHeight()>0
+   * \pre context_is_set: this->GetContext()!=0
+   */
   virtual void Allocate();
 
-  // Description:
-  // Tell if the buffer has been allocated.
+  /**
+   * Tell if the buffer has been allocated.
+   */
   virtual bool IsAllocated() const;
 
-  // Description:
-  // Copy the contents of the current read buffer to the internal texture
-  // starting at lower left corner of the framebuffer (srcXmin,srcYmin).
-  // \pre is_allocated: this->IsAllocated()
+  /**
+   * Copy the contents of the current read buffer to the internal texture
+   * starting at lower left corner of the framebuffer (srcXmin,srcYmin).
+   * \pre is_allocated: this->IsAllocated()
+   */
   virtual void SetValues(int srcXmin,
                          int srcYmin);
 
-  // Description:
-  // Return item under abscissa x and ordinate y.
-  // Abscissa go from left to right.
-  // Ordinate go from bottom to top.
-  // The return value is -1 if there is no item.
-  // \pre is_allocated: IsAllocated()
-  // \post valid_result: result>=-1
+  /**
+   * Return item under abscissa x and ordinate y.
+   * Abscissa go from left to right.
+   * Ordinate go from bottom to top.
+   * The return value is -1 if there is no item.
+   * \pre is_allocated: IsAllocated()
+   * \post valid_result: result>=-1
+   */
   virtual vtkIdType GetPickedItem(int x, int y);
 
 protected:

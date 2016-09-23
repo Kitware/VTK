@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSortFileNames - Group and sort a set of filenames
-// .SECTION Description
-// vtkSortFileNames will take a list of filenames (e.g. from
-// a file load dialog) and sort them into one or more series.  If
-// the input list of filenames contains any directories, these can
-// be removed before sorting using the SkipDirectories flag.  This
-// class should be used where information about the series groupings
-// can be determined by the filenames, but it might not be successful
-// in cases where the information about the series groupings is
-// stored in the files themselves (e.g DICOM).
-// .SECTION See Also
-// vtkImageReader2
+/**
+ * @class   vtkSortFileNames
+ * @brief   Group and sort a set of filenames
+ *
+ * vtkSortFileNames will take a list of filenames (e.g. from
+ * a file load dialog) and sort them into one or more series.  If
+ * the input list of filenames contains any directories, these can
+ * be removed before sorting using the SkipDirectories flag.  This
+ * class should be used where information about the series groupings
+ * can be determined by the filenames, but it might not be successful
+ * in cases where the information about the series groupings is
+ * stored in the files themselves (e.g DICOM).
+ * @sa
+ * vtkImageReader2
+*/
 
 #ifndef vtkSortFileNames_h
 #define vtkSortFileNames_h
@@ -44,69 +47,88 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkSortFileNames *New();
 
-  // Description:
-  // Sort the file names into groups, according to similarity in
-  // filename name and path.  Files in different directories,
-  // or with different extensions, or which do not fit into the same
-  // numbered series will be placed into different groups.  This is
-  // off by default.
+  //@{
+  /**
+   * Sort the file names into groups, according to similarity in
+   * filename name and path.  Files in different directories,
+   * or with different extensions, or which do not fit into the same
+   * numbered series will be placed into different groups.  This is
+   * off by default.
+   */
   vtkSetMacro(Grouping, int);
   vtkGetMacro(Grouping, int);
   vtkBooleanMacro(Grouping, int);
+  //@}
 
-  // Description:
-  // Sort the files numerically, rather than lexicographically.
-  // For filenames that contain numbers, this means the order will be
-  // ["file8.dat", "file9.dat", "file10.dat"]
-  // instead of the usual alphabetic sorting order
-  // ["file10.dat" "file8.dat", "file9.dat"].
-  // NumericSort is off by default.
+  //@{
+  /**
+   * Sort the files numerically, rather than lexicographically.
+   * For filenames that contain numbers, this means the order will be
+   * ["file8.dat", "file9.dat", "file10.dat"]
+   * instead of the usual alphabetic sorting order
+   * ["file10.dat" "file8.dat", "file9.dat"].
+   * NumericSort is off by default.
+   */
   vtkSetMacro(NumericSort, int);
   vtkGetMacro(NumericSort, int);
   vtkBooleanMacro(NumericSort, int);
+  //@}
 
-  // Description:
-  // Ignore case when sorting.  This flag is honored by both
-  // the sorting and the grouping. This is off by default.
+  //@{
+  /**
+   * Ignore case when sorting.  This flag is honored by both
+   * the sorting and the grouping. This is off by default.
+   */
   vtkSetMacro(IgnoreCase, int);
   vtkGetMacro(IgnoreCase, int);
   vtkBooleanMacro(IgnoreCase, int);
+  //@}
 
-  // Description:
-  // Skip directories. If this flag is set, any input item that
-  // is a directory rather than a file will not be included in
-  // the output.  This is off by default.
+  //@{
+  /**
+   * Skip directories. If this flag is set, any input item that
+   * is a directory rather than a file will not be included in
+   * the output.  This is off by default.
+   */
   vtkSetMacro(SkipDirectories, int);
   vtkGetMacro(SkipDirectories, int);
   vtkBooleanMacro(SkipDirectories, int);
+  //@}
 
-  // Description:
-  // Set a list of file names to group and sort.
+  //@{
+  /**
+   * Set a list of file names to group and sort.
+   */
   void SetInputFileNames(vtkStringArray *input);
   vtkGetObjectMacro(InputFileNames, vtkStringArray);
+  //@}
 
-  // Description:
-  // Get the full list of sorted filenames.
+  /**
+   * Get the full list of sorted filenames.
+   */
   virtual vtkStringArray *GetFileNames();
 
-  // Description:
-  // Get the number of groups that the names were split into, if
-  // grouping is on.  The filenames are automatically split into
-  // groups, where the filenames in each group will be identical
-  // except for their series numbers.  If grouping is not on, this
-  // method will return zero.
+  /**
+   * Get the number of groups that the names were split into, if
+   * grouping is on.  The filenames are automatically split into
+   * groups, where the filenames in each group will be identical
+   * except for their series numbers.  If grouping is not on, this
+   * method will return zero.
+   */
   virtual int GetNumberOfGroups();
 
-  // Description:
-  // Get the Nth group of file names.  This method should only
-  // be used if grouping is on.  If grouping is off, it will always
-  // return null.
+  /**
+   * Get the Nth group of file names.  This method should only
+   * be used if grouping is on.  If grouping is off, it will always
+   * return null.
+   */
   virtual vtkStringArray *GetNthGroup(int i);
 
-  // Description:
-  // Update the output filenames from the input filenames.
-  // This method is called automatically by GetFileNames()
-  // and GetNumberOfGroups() if the input names have changed.
+  /**
+   * Update the output filenames from the input filenames.
+   * This method is called automatically by GetFileNames()
+   * and GetNumberOfGroups() if the input names have changed.
+   */
   virtual void Update();
 
 protected:
@@ -124,16 +146,19 @@ protected:
   vtkStringArray *FileNames;
   vtkStringArrayVector *Groups;
 
-  // Description:
-  // Fill the output.
+  /**
+   * Fill the output.
+   */
   virtual void Execute();
 
-  // Description:
-  // Sort the input string array, and append the results to the output.
+  /**
+   * Sort the input string array, and append the results to the output.
+   */
   virtual void SortFileNames(vtkStringArray *input, vtkStringArray *output);
 
-  // Description:
-  // Separate a string array into groups and append them to the output.
+  /**
+   * Separate a string array into groups and append them to the output.
+   */
   virtual void GroupFileNames(vtkStringArray *input,
                               vtkStringArrayVector *output);
 

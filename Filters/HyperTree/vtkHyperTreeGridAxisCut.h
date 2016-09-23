@@ -12,20 +12,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHyperTreeGridAxisCut - Axis aligned hyper tree grid cut
-//
-// .SECTION Description
-// Cut along an axis aligned plane. Only works for 3D grids.
-// Produces disjoint (no point sharing) quads for now.
-// NB: If cut plane contains inter-cell boundaries, the output will contain
-// superimposed faces as a result.
-//
-// .SECTION See Also
-// vtkHyperTreeGrid
-//
-// .SECTION Thanks
-// This class was written by Philippe Pebay and Charles Law, Kitware 2012
-// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
+/**
+ * @class   vtkHyperTreeGridAxisCut
+ * @brief   Axis aligned hyper tree grid cut
+ *
+ *
+ * Cut along an axis aligned plane. Only works for 3D grids.
+ * Produces disjoint (no point sharing) quads for now.
+ * NB: If cut plane contains inter-cell boundaries, the output will contain
+ * superimposed faces as a result.
+ *
+ * @sa
+ * vtkHyperTreeGrid
+ *
+ * @par Thanks:
+ * This class was written by Philippe Pebay and Charles Law, Kitware 2012
+ * This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
+*/
 
 #ifndef vtkHyperTreeGridAxisCut_h
 #define vtkHyperTreeGridAxisCut_h
@@ -45,15 +48,21 @@ public:
   vtkTypeMacro( vtkHyperTreeGridAxisCut, vtkPolyDataAlgorithm );
   void PrintSelf( ostream&, vtkIndent );
 
-  // Description:
-  // Normal axis: 0=X, 1=Y, 2=Z. Default is 0
+  //@{
+  /**
+   * Normal axis: 0=X, 1=Y, 2=Z. Default is 0
+   */
   vtkSetMacro(PlaneNormalAxis, int);
   vtkGetMacro(PlaneNormalAxis, int);
+  //@}
 
-  // Description:
-  // Position of plane: Axis constant. Default is 0.0
+  //@{
+  /**
+   * Position of plane: Axis constant. Default is 0.0
+   */
   vtkSetMacro(PlanePosition, double);
   vtkGetMacro(PlanePosition, double);
+  //@}
 
 protected:
   vtkHyperTreeGridAxisCut();

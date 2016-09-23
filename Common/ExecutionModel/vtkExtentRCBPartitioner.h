@@ -12,11 +12,13 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkExtentRCBPartitioner.h -- Partitions a global structured extent.
-//
-// .SECTION Description
-//  This method partitions a global extent to N partitions where N is a user
-//  supplied parameter.
+/**
+ * @class   vtkExtentRCBPartitioner
+ *
+ *
+ *  This method partitions a global extent to N partitions where N is a user
+ *  supplied parameter.
+*/
 
 #ifndef vtkExtentRCBPartitioner_h
 #define vtkExtentRCBPartitioner_h
@@ -34,19 +36,24 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentRCBPartitioner : public vtkObject
     vtkTypeMacro(vtkExtentRCBPartitioner,vtkObject);
     void PrintSelf(ostream &oss, vtkIndent indent ) VTK_OVERRIDE;
 
-    // Description:
-    // Set/Get the number of requested partitions
+    //@{
+    /**
+     * Set/Get the number of requested partitions
+     */
     void SetNumberOfPartitions( const int N )
       {
       assert( "pre: Number of partitions requested must be > 0" && (N >= 0) );
       this->Reset();
       this->NumberOfPartitions = N;
       }
+    //@}
 
-    // Description:
-    // Set/Get the global extent array to be partitioned.
-    // The global extent is packed as follows:
-    // [imin,imax,jmin,jmax,kmin,kmax]
+    //@{
+    /**
+     * Set/Get the global extent array to be partitioned.
+     * The global extent is packed as follows:
+     * [imin,imax,jmin,jmax,kmin,kmax]
+     */
     void SetGlobalExtent(int imin,int imax,int jmin,int jmax,int kmin,int kmax)
       {
       this->Reset();
@@ -61,54 +68,72 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentRCBPartitioner : public vtkObject
       {
       this->SetGlobalExtent( ext[0], ext[1], ext[2], ext[3], ext[4], ext[5] );
       }
+    //@}
 
-    // Description:
-    // On/Off DuplicateNodes between partitions. Default is On.
+    //@{
+    /**
+     * On/Off DuplicateNodes between partitions. Default is On.
+     */
     vtkSetMacro(DuplicateNodes,int);
     vtkGetMacro(DuplicateNodes,int);
     vtkBooleanMacro(DuplicateNodes,int);
+    //@}
 
-    // Description:
-    // Set/Get macro for the number of ghost layers.
+    //@{
+    /**
+     * Set/Get macro for the number of ghost layers.
+     */
     vtkSetMacro(NumberOfGhostLayers,int);
     vtkGetMacro(NumberOfGhostLayers,int);
+    //@}
 
-    // Description:
-    // Returns the number of extents.
+    //@{
+    /**
+     * Returns the number of extents.
+     */
     vtkGetMacro(NumExtents,int);
+    //@}
 
-    // Description:
-    // Partitions the extent
+    /**
+     * Partitions the extent
+     */
     void Partition();
 
-    // Description:
-    // Returns the extent of the partition corresponding to the given ID.
+    /**
+     * Returns the extent of the partition corresponding to the given ID.
+     */
     void GetPartitionExtent( const int idx, int ext[6] );
 
   protected:
     vtkExtentRCBPartitioner();
    ~vtkExtentRCBPartitioner() VTK_OVERRIDE;
 
-    // Description:
-    // Resets the partitioner to the initial state, all previous partition
-    // extents are cleared.
+    //@{
+    /**
+     * Resets the partitioner to the initial state, all previous partition
+     * extents are cleared.
+     */
     void Reset()
      {
      this->PartitionExtents.clear();
      this->NumExtents          = 0;
      this->ExtentIsPartitioned = false;
      }
+    //@}
 
-    // Description:
-    // Given an extent, this method will create ghost layers on each side of
-    // the boundary in each dimension. The ghost layers however will be
-    // restricted to the given global extent.
+    /**
+     * Given an extent, this method will create ghost layers on each side of
+     * the boundary in each dimension. The ghost layers however will be
+     * restricted to the given global extent.
+     */
     void ExtendGhostLayers( int ext[6] );
 
-    // Description:
-    // Givent an extent and the min/max of the dimension we are looking at, this
-    // method will produce a ghosted extent which is clamped within the given
-    // global extent
+    //@{
+    /**
+     * Givent an extent and the min/max of the dimension we are looking at, this
+     * method will produce a ghosted extent which is clamped within the given
+     * global extent
+     */
     void GetGhostedExtent(
         int ext[6], const int minIdx, const int maxIdx )
       {
@@ -119,51 +144,63 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentRCBPartitioner : public vtkObject
       ext[maxIdx] = (ext[maxIdx] > this->GlobalExtent[maxIdx])?
           this->GlobalExtent[maxIdx] : ext[maxIdx];
       }
+    //@}
 
-    // Description:
-    // Gets the structured data-description based on the givenn global extent
+    /**
+     * Gets the structured data-description based on the givenn global extent
+     */
     void AcquireDataDescription();
 
-     // Description:
-     // Returns the extent at the position corresponding to idx.
+     /**
+      * Returns the extent at the position corresponding to idx.
+      */
      void GetExtent( const int idx, int ext[6] );
 
-     // Description:
-     // Adds the extent to the end of the list of partitioned extents
+     /**
+      * Adds the extent to the end of the list of partitioned extents
+      */
      void AddExtent(int ext[6]);
 
-     // Description:
-     // Replaces the extent at the position indicated by idx with the provided
-     // extent.
+     /**
+      * Replaces the extent at the position indicated by idx with the provided
+      * extent.
+      */
      void ReplaceExtent(const int idx, int ext[6]);
 
-     // Description:
-     // Splits the extent along the given dimension.
+     /**
+      * Splits the extent along the given dimension.
+      */
      void SplitExtent(int parent[6],int s1[6],int s2[6],int splitDimension);
 
-     // Description:
-     // Returns the total number of extents. It's always the 2^N where
-     // N is the number of subdivisions.
+     /**
+      * Returns the total number of extents. It's always the 2^N where
+      * N is the number of subdivisions.
+      */
      int GetNumberOfTotalExtents();
 
-     // Description:
-     // Computes the total number of nodes for the given structured grid extent
+     /**
+      * Computes the total number of nodes for the given structured grid extent
+      */
      int GetNumberOfNodes( int ext[6] );
 
-     // Description:
-     // Computes the total number of cells for the given structured grid extent
+     /**
+      * Computes the total number of cells for the given structured grid extent
+      */
      int GetNumberOfCells( int ext[6] );
 
-     // Description:
-     // Returns the length of the longest dimension
+     /**
+      * Returns the length of the longest dimension
+      */
      int GetLongestDimensionLength( int ext[6] );
 
-     // Description:
-     // Returns the longest edge
+     /**
+      * Returns the longest edge
+      */
      int GetLongestDimension( int ext[6] );
 
-     // Description:
-     // A convenience method for debugging purposes.
+     /**
+      * A convenience method for debugging purposes.
+      */
      void PrintExtent( const std::string& name, int ext[6] );
 
      int NumberOfGhostLayers;

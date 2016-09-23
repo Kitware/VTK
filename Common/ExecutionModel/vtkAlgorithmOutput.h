@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAlgorithmOutput - Proxy object to connect input/output ports.
-// .SECTION Description
-// vtkAlgorithmOutput is a proxy object returned by the GetOutputPort
-// method of vtkAlgorithm.  It may be passed to the
-// SetInputConnection, AddInputConnection, or RemoveInputConnection
-// methods of another vtkAlgorithm to establish a connection between
-// an output and input port.  The connection is not stored in the
-// proxy object: it is simply a convenience for creating or removing
-// connections.
+/**
+ * @class   vtkAlgorithmOutput
+ * @brief   Proxy object to connect input/output ports.
+ *
+ * vtkAlgorithmOutput is a proxy object returned by the GetOutputPort
+ * method of vtkAlgorithm.  It may be passed to the
+ * SetInputConnection, AddInputConnection, or RemoveInputConnection
+ * methods of another vtkAlgorithm to establish a connection between
+ * an output and input port.  The connection is not stored in the
+ * proxy object: it is simply a convenience for creating or removing
+ * connections.
+*/
 
 #ifndef vtkAlgorithmOutput_h
 #define vtkAlgorithmOutput_h

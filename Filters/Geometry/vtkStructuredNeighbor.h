@@ -12,10 +12,12 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkStructuredNeighbor.h -- Stores neighboring information
-//
-// .SECTION Description
-//  An internal, light-weight class used to store neighbor information.
+/**
+ * @class   vtkStructuredNeighbor
+ *
+ *
+ *  An internal, light-weight class used to store neighbor information.
+*/
 
 #ifndef vtkStructuredNeighbor_h
 #define vtkStructuredNeighbor_h
@@ -63,31 +65,38 @@ public:
   int Orientation[3];   // Defines how we are neighboring with this grid, see
                         // NeighborOrientation enum above.
 
-  // Description:
-  // Default Constructor
+  /**
+   * Default Constructor
+   */
   vtkStructuredNeighbor();
 
-  // Description:
-  // Custom constructor. Constructs a neighbor with the prescribed neighbor
-  // grid/block ID and overlap.
+  /**
+   * Custom constructor. Constructs a neighbor with the prescribed neighbor
+   * grid/block ID and overlap.
+   */
   vtkStructuredNeighbor( const int NeiID, int overlap[6] );
 
-  // Description:
-  // Custom constructor. Constructs a neighbor with the prescribed neigbhor
-  // grid/block ID, overlap extent, and orientation
+  /**
+   * Custom constructor. Constructs a neighbor with the prescribed neigbhor
+   * grid/block ID, overlap extent, and orientation
+   */
   vtkStructuredNeighbor( const int NeiID, int overlap[6], int orient[3] );
 
-  // Description:
-  // Copy constructor
+  /**
+   * Copy constructor
+   */
   vtkStructuredNeighbor(const vtkStructuredNeighbor &N ){ *this = N; };
 
-  // Description:
-  // Default destructor
+  /**
+   * Default destructor
+   */
   virtual ~vtkStructuredNeighbor();
 
 
-  // Description:
-  // Overload assignment operator
+  //@{
+  /**
+   * Overload assignment operator
+   */
   vtkStructuredNeighbor& operator=(const vtkStructuredNeighbor &N )
   {
     if( this != &N )
@@ -105,16 +114,20 @@ public:
       } // END if
     return *this;
   }
+  //@}
 
-  // Description:
-  // Computes the SendExtent and the RcvExtent for this neighbor. The method
-  // assumes that the overlap extent and orientation are already computed.
-  // Using this information, the method grows the overlap extent to form the
-  // Send and Rcv Extents for this neighbor instance.
+  //@{
+  /**
+   * Computes the SendExtent and the RcvExtent for this neighbor. The method
+   * assumes that the overlap extent and orientation are already computed.
+   * Using this information, the method grows the overlap extent to form the
+   * Send and Rcv Extents for this neighbor instance.
+   */
   virtual void ComputeSendAndReceiveExtent(
       int gridRealExtent[6], int gridGhostedExtent[6], int neiRealExtent[6],
       int WholeExtent[6], const int N);
 };
+  //@}
 
 #endif /* vtkStructuredNeighbor_h */
 // VTK-HeaderTest-Exclude: vtkStructuredNeighbor.h

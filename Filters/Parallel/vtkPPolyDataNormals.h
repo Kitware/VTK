@@ -12,8 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPPolyDataNormals - compute normals for polygonal mesh
-// .SECTION Description
+/**
+ * @class   vtkPPolyDataNormals
+ * @brief   compute normals for polygonal mesh
+ *
+*/
 
 #ifndef vtkPPolyDataNormals_h
 #define vtkPPolyDataNormals_h
@@ -29,12 +32,15 @@ public:
 
   static vtkPPolyDataNormals *New();
 
-  // Description:
-  // To get piece invariance, this filter has to request an
-  // extra ghost level.  By default piece invariance is on.
+  //@{
+  /**
+   * To get piece invariance, this filter has to request an
+   * extra ghost level.  By default piece invariance is on.
+   */
   vtkSetMacro(PieceInvariant, int);
   vtkGetMacro(PieceInvariant, int);
   vtkBooleanMacro(PieceInvariant, int);
+  //@}
 
 protected:
   vtkPPolyDataNormals();

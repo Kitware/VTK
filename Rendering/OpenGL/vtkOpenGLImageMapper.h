@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLImageMapper - 2D image display support for OpenGL
-// .SECTION Description
-// vtkOpenGLImageMapper is a concrete subclass of vtkImageMapper that
-// renders images under OpenGL
-
-// .SECTION Caveats
-// vtkOpenGLImageMapper does not support vtkBitArray, you have to convert the array first
-// to vtkUnsignedCharArray (for example)
-//
-// .SECTION See Also
-// vtkImageMapper
+/**
+ * @class   vtkOpenGLImageMapper
+ * @brief   2D image display support for OpenGL
+ *
+ * vtkOpenGLImageMapper is a concrete subclass of vtkImageMapper that
+ * renders images under OpenGL
+ *
+ * @warning
+ * vtkOpenGLImageMapper does not support vtkBitArray, you have to convert the array first
+ * to vtkUnsignedCharArray (for example)
+ *
+ * @sa
+ * vtkImageMapper
+*/
 
 #ifndef vtkOpenGLImageMapper_h
 #define vtkOpenGLImageMapper_h
@@ -39,14 +42,16 @@ public:
   vtkTypeMacro(vtkOpenGLImageMapper, vtkImageMapper);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Handle the render method.
+  /**
+   * Handle the render method.
+   */
   void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor)
     { this->RenderStart(viewport, actor); }
 
-  // Description:
-  // Called by the Render function in vtkImageMapper.  Actually draws
-  // the image to the screen.
+  /**
+   * Called by the Render function in vtkImageMapper.  Actually draws
+   * the image to the screen.
+   */
   void RenderData(vtkViewport* viewport, vtkImageData* data,
                   vtkActor2D* actor);
 

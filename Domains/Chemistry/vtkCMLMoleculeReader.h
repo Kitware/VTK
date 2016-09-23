@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCMLMoleculeReader - Read a CML file and output a
-// vtkMolecule object
-// .SECTION Description
+/**
+ * @class   vtkCMLMoleculeReader
+ * @brief   Read a CML file and output a
+ * vtkMolecule object
+ *
+*/
 
 #ifndef vtkCMLMoleculeReader_h
 #define vtkCMLMoleculeReader_h
@@ -31,15 +34,21 @@ public:
   vtkTypeMacro(vtkCMLMoleculeReader,vtkMoleculeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get/Set the output (vtkMolecule) that the reader will fill
+  //@{
+  /**
+   * Get/Set the output (vtkMolecule) that the reader will fill
+   */
   vtkMolecule *GetOutput();
   void SetOutput(vtkMolecule *);
+  //@}
 
-  // Description:
-  // Get/Set the name of the CML file
+  //@{
+  /**
+   * Get/Set the name of the CML file
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
 protected:
   vtkCMLMoleculeReader();

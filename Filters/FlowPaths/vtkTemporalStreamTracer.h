@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTemporalStreamTracer - A Parallel Particle tracer for unsteady vector fields
-// .SECTION Description
-// vtkTemporalStreamTracer is a filter that integrates a vector field to generate
-//
-//
-// .SECTION See Also
-// vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver
-// vtkRungeKutta2 vtkRungeKutta4 vtkRungeKutta45 vtkStreamTracer
+/**
+ * @class   vtkTemporalStreamTracer
+ * @brief   A Parallel Particle tracer for unsteady vector fields
+ *
+ * vtkTemporalStreamTracer is a filter that integrates a vector field to generate
+ *
+ *
+ * @sa
+ * vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver
+ * vtkRungeKutta2 vtkRungeKutta4 vtkRungeKutta45 vtkStreamTracer
+*/
 
 #ifndef vtkTemporalStreamTracer_h
 #define vtkTemporalStreamTracer_h
@@ -85,43 +88,56 @@ public:
     vtkTypeMacro(vtkTemporalStreamTracer,vtkStreamTracer);
     void PrintSelf(ostream& os, vtkIndent indent);
 
-    // Description:
-    // Construct object using 2nd order Runge Kutta
+    /**
+     * Construct object using 2nd order Runge Kutta
+     */
     static vtkTemporalStreamTracer *New();
 
-    // Description:
-    // Set/Get the TimeStep. This is the primary means of advancing
-    // the particles. The TimeStep should be animated and this will drive
-    // the pipeline forcing timesteps to be fetched from upstream.
+    //@{
+    /**
+     * Set/Get the TimeStep. This is the primary means of advancing
+     * the particles. The TimeStep should be animated and this will drive
+     * the pipeline forcing timesteps to be fetched from upstream.
+     */
     vtkSetMacro(TimeStep,unsigned int);
     vtkGetMacro(TimeStep,unsigned int);
+    //@}
 
-    // Description:
-    // To get around problems with the Paraview Animation controls
-    // we can just animate the time step and ignore the TIME_ requests
+    //@{
+    /**
+     * To get around problems with the Paraview Animation controls
+     * we can just animate the time step and ignore the TIME_ requests
+     */
     vtkSetMacro(IgnorePipelineTime, int);
     vtkGetMacro(IgnorePipelineTime, int);
     vtkBooleanMacro(IgnorePipelineTime, int);
+    //@}
 
-    // Description:
-    // If the data source does not have the correct time values
-    // present on each time step - setting this value to non unity can
-    // be used to adjust the time step size from 1s pre step to
-    // 1x_TimeStepResolution : Not functional in this version.
-    // Broke it @todo, put back time scaling
+    //@{
+    /**
+     * If the data source does not have the correct time values
+     * present on each time step - setting this value to non unity can
+     * be used to adjust the time step size from 1s pre step to
+     * 1x_TimeStepResolution : Not functional in this version.
+     * Broke it @todo, put back time scaling
+     */
     vtkSetMacro(TimeStepResolution,double);
     vtkGetMacro(TimeStepResolution,double);
+    //@}
 
-    // Description:
-    // When animating particles, it is nice to inject new ones every Nth step
-    // to produce a continuous flow. Setting ForceReinjectionEveryNSteps to a
-    // non zero value will cause the particle source to reinject particles
-    // every Nth step even if it is otherwise unchanged.
-    // Note that if the particle source is also animated, this flag will be
-    // redundant as the particles will be reinjected whenever the source changes
-    // anyway
+    //@{
+    /**
+     * When animating particles, it is nice to inject new ones every Nth step
+     * to produce a continuous flow. Setting ForceReinjectionEveryNSteps to a
+     * non zero value will cause the particle source to reinject particles
+     * every Nth step even if it is otherwise unchanged.
+     * Note that if the particle source is also animated, this flag will be
+     * redundant as the particles will be reinjected whenever the source changes
+     * anyway
+     */
     vtkSetMacro(ForceReinjectionEveryNSteps,int);
     vtkGetMacro(ForceReinjectionEveryNSteps,int);
+    //@}
 
   enum Units
   {
@@ -129,71 +145,95 @@ public:
     TERMINATION_STEP_UNIT
   };
 
-    // Description:
-    // Setting TerminationTime to a positive value will cause particles
-    // to terminate when the time is reached. Use a vlue of zero to
-    // diable termination. The units of time should be consistent with the
-    // primary time variable.
+    //@{
+    /**
+     * Setting TerminationTime to a positive value will cause particles
+     * to terminate when the time is reached. Use a vlue of zero to
+     * diable termination. The units of time should be consistent with the
+     * primary time variable.
+     */
     vtkSetMacro(TerminationTime,double);
     vtkGetMacro(TerminationTime,double);
+    //@}
 
-    // Description:
-    // The units of TerminationTime may be actual 'Time' units as described
-    // by the data, or just TimeSteps of iteration.
+    //@{
+    /**
+     * The units of TerminationTime may be actual 'Time' units as described
+     * by the data, or just TimeSteps of iteration.
+     */
     vtkSetMacro(TerminationTimeUnit,int);
     vtkGetMacro(TerminationTimeUnit,int);
     void SetTerminationTimeUnitToTimeUnit()
     {this->SetTerminationTimeUnit(TERMINATION_TIME_UNIT);};
     void SetTerminationTimeUnitToStepUnit()
     {this->SetTerminationTimeUnit(TERMINATION_STEP_UNIT);};
+    //@}
 
-    // Description:
-    // if StaticSeeds is set and the mesh is static,
-    // then every time particles are injected we can re-use the same
-    // injection information. We classify particles according to
-    // processor just once before start.
-    // If StaticSeeds is set and a moving seed source is specified
-    // the motion will be ignored and results will not be as expected.
+    //@{
+    /**
+     * if StaticSeeds is set and the mesh is static,
+     * then every time particles are injected we can re-use the same
+     * injection information. We classify particles according to
+     * processor just once before start.
+     * If StaticSeeds is set and a moving seed source is specified
+     * the motion will be ignored and results will not be as expected.
+     */
     vtkSetMacro(StaticSeeds,int);
     vtkGetMacro(StaticSeeds,int);
     vtkBooleanMacro(StaticSeeds,int);
+    //@}
 
-    // Description:
-    // if StaticMesh is set, many optimizations for cell caching
-    // can be assumed. if StaticMesh is not set, the algorithm
-    // will attempt to find out if optimizations can be used, but
-    // setting it to true will force all optimizations.
-    // Do not Set StaticMesh to true if a dynamic mesh is being used
-    // as this will invalidate all results.
+    //@{
+    /**
+     * if StaticMesh is set, many optimizations for cell caching
+     * can be assumed. if StaticMesh is not set, the algorithm
+     * will attempt to find out if optimizations can be used, but
+     * setting it to true will force all optimizations.
+     * Do not Set StaticMesh to true if a dynamic mesh is being used
+     * as this will invalidate all results.
+     */
     vtkSetMacro(StaticMesh,int);
     vtkGetMacro(StaticMesh,int);
     vtkBooleanMacro(StaticMesh,int);
+    //@}
 
-    // Description:
-    // Set/Get the Writer associated with this Particle Tracer
-    // Ideally a parallel IO capable vtkH5PartWriter should be used
-    // which will collect particles from all parallel processes
-    // and write them to a single HDF5 file.
+    //@{
+    /**
+     * Set/Get the Writer associated with this Particle Tracer
+     * Ideally a parallel IO capable vtkH5PartWriter should be used
+     * which will collect particles from all parallel processes
+     * and write them to a single HDF5 file.
+     */
     virtual void SetParticleWriter(vtkAbstractParticleWriter *pw);
     vtkGetObjectMacro(ParticleWriter, vtkAbstractParticleWriter);
+    //@}
 
-    // Description:
-    // Set/Get the filename to be used with the particle writer when
-    // dumping particles to disk
+    //@{
+    /**
+     * Set/Get the filename to be used with the particle writer when
+     * dumping particles to disk
+     */
     vtkSetStringMacro(ParticleFileName);
     vtkGetStringMacro(ParticleFileName);
+    //@}
 
-    // Description:
-    // Set/Get the filename to be used with the particle writer when
-    // dumping particles to disk
+    //@{
+    /**
+     * Set/Get the filename to be used with the particle writer when
+     * dumping particles to disk
+     */
     vtkSetMacro(EnableParticleWriting,int);
     vtkGetMacro(EnableParticleWriting,int);
     vtkBooleanMacro(EnableParticleWriting,int);
+    //@}
 
-    // Description:
-    // Provide support for multiple see sources
+    //@{
+    /**
+     * Provide support for multiple see sources
+     */
     void AddSourceConnection(vtkAlgorithmOutput* input);
     void RemoveAllSources();
+    //@}
 
   protected:
 
@@ -250,56 +290,63 @@ public:
 
 //
 
-    // Description : Test the list of particles to see if they are
-    // inside our data. Add good ones to passed list and set count to the
-    // number that passed
+    /**
+     * inside our data. Add good ones to passed list and set count to the
+     * number that passed
+     */
     void TestParticles(
       vtkTemporalStreamTracerNamespace::ParticleVector &candidates,
       vtkTemporalStreamTracerNamespace::ParticleVector &passed,
       int &count);
 
-    // Description : Before starting the particle trace, classify
-    // all the injection/seed points according to which processor
-    // they belong to. This saves us retesting at every injection time
-    // providing 1) The volumes are static, 2) the seed points are static
-    // If either are non static, then this step is skipped.
+    /**
+     * all the injection/seed points according to which processor
+     * they belong to. This saves us retesting at every injection time
+     * providing 1) The volumes are static, 2) the seed points are static
+     * If either are non static, then this step is skipped.
+     */
     virtual void AssignSeedsToProcessors(
       vtkDataSet *source, int sourceID, int ptId,
       vtkTemporalStreamTracerNamespace::ParticleVector &LocalSeedPoints,
       int &LocalAssignedCount);
 
-    // Description : once seeds have been assigned to a process, we
-    // give each one a uniqu ID. We need to use MPI to find out
-    // who is using which numbers.
+    /**
+     * give each one a uniqu ID. We need to use MPI to find out
+     * who is using which numbers.
+     */
     virtual void AssignUniqueIds(
       vtkTemporalStreamTracerNamespace::ParticleVector &LocalSeedPoints);
 
-    // Description : copy list of particles from a vector used for testing particles
-    // and sending between processors, into a list, which is used as the master
-    // list on this processor
+    /**
+     * and sending between processors, into a list, which is used as the master
+     * list on this processor
+     */
     void UpdateParticleList(
       vtkTemporalStreamTracerNamespace::ParticleVector &candidates);
 
-    // Description : Perform a GatherV operation on a vector of particles
-    // this is used during classification of seed points and also between iterations
-    // of the main loop as particles leave each processor domain
+    /**
+     * this is used during classification of seed points and also between iterations
+     * of the main loop as particles leave each processor domain
+     */
     virtual void TransmitReceiveParticles(
       vtkTemporalStreamTracerNamespace::ParticleVector &outofdomain,
       vtkTemporalStreamTracerNamespace::ParticleVector &received,
       bool removeself);
 
-    // Description : The main loop performing Runge-Kutta integration of a single
-    // particle between the two times supplied.
+    /**
+     * particle between the two times supplied.
+     */
     void IntegrateParticle(
       vtkTemporalStreamTracerNamespace::ParticleListIterator &it,
       double currenttime, double terminationtime,
       vtkInitialValueProblemSolver* integrator);
 
-    // Description : When particle leave the domain, they must be collected
-    // and sent to the other processors for possible continuation.
-    // These routines manage the collection and sending after each main iteration.
-    // RetryWithPush adds a small pusj to aparticle along it's current velocity
-    // vector, this helps get over cracks in dynamic/rotating meshes
+    /**
+     * and sent to the other processors for possible continuation.
+     * These routines manage the collection and sending after each main iteration.
+     * RetryWithPush adds a small pusj to aparticle along it's current velocity
+     * vector, this helps get over cracks in dynamic/rotating meshes
+     */
     bool RetryWithPush(
       vtkTemporalStreamTracerNamespace::ParticleInformation &info,
       double velocity[3], double delT);
@@ -313,10 +360,11 @@ public:
     void AddParticleToMPISendList(
       vtkTemporalStreamTracerNamespace::ParticleInformation &info);
 
-    // Description : This is an old routine kept for possible future use.
-    // In dnamic meshes, particles might leave the domain and need to be extrapolated across
-    // a gap between the meshes before they re-renter another domain
-    // dodgy rotating meshes need special care....
+    /**
+     * In dnamic meshes, particles might leave the domain and need to be extrapolated across
+     * a gap between the meshes before they re-renter another domain
+     * dodgy rotating meshes need special care....
+     */
     bool ComputeDomainExitLocation(
       double pos[4], double p2[4], double intersection[4],
       vtkGenericCell *cell);
@@ -416,8 +464,9 @@ public:
   int substeps;
 
 private:
-  // Description:
-  // Hide this because we require a new interpolator type
+  /**
+   * Hide this because we require a new interpolator type
+   */
   void SetInterpolatorPrototype(vtkAbstractInterpolatedVelocityField*) {}
 
 private:

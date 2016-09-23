@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTableToMySQLWriter - store a vtkTable in a MySQL database
-// .SECTION Description
-// vtkTableToMySQLWriter reads a vtkTable and inserts it into a MySQL
-// database.
+/**
+ * @class   vtkTableToMySQLWriter
+ * @brief   store a vtkTable in a MySQL database
+ *
+ * vtkTableToMySQLWriter reads a vtkTable and inserts it into a MySQL
+ * database.
+*/
 
 #ifndef vtkTableToMySQLWriter_h
 #define vtkTableToMySQLWriter_h
@@ -32,10 +35,13 @@ public:
   vtkTypeMacro(vtkTableToMySQLWriter,vtkTableToDatabaseWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the input to this writer.
+  //@{
+  /**
+   * Get the input to this writer.
+   */
   vtkTable* GetInput();
   vtkTable* GetInput(int port);
+  //@}
 
 protected:
    vtkTableToMySQLWriter();

@@ -28,41 +28,44 @@
 //     without express or implied warranty.
 ////////////////////////////////////////////////////////////////////////////////
 
-// .NAME vtkDoubleDispatcher - Dispatch to functor based on two pointer types.
-// .SECTION Description
-// vtkDoubleDispatcher is a class that allows calling a functor based
-// on the derived types of two pointers. This form of dynamic dispatching
-// allows the conversion of runtime polymorphism to a compile time polymorphism.
-// For example it can be used as a replacement for the vtkTemplateMacro when
-// you want to know multiple parameter types, or need to call a specialized implementation
-// for a subset
-//
-// Note: By default the return type is void.
-//
-// The functors that are passed around can contain state, and are allowed
-// to be const or non const. If you are using a functor that does have state,
-// make sure your copy constructor is correct.
-//
-// \code
-// struct functor{
-//   template<typename T,typename U>
-//   void operator()(T& t,U& u) const
-//   {
-//
-//   }
-// };
-//
-// Here is an example of using the double dispatcher.
-//  \code
-//  vtkDoubleDispatcher<vtkObject,vtkObject,vtkPoints*> dispatcher;
-//  dispatcher.Add<vtkPoints,vtkDoubleArray>(makePointsWrapperFunctor());
-//  dispatcher.Add<vtkPoints,vtkPoints>(straightCopyFunctor());
-//  dispatcher.Go(ptr1,ptr2); //this will return a vtkPoints pointer
-//  \endcode
-
-//
-// .SECTION See Also
-// vtkDispatcher
+/**
+ * @class   vtkDoubleDispatcher
+ * @brief   Dispatch to functor based on two pointer types.
+ *
+ * vtkDoubleDispatcher is a class that allows calling a functor based
+ * on the derived types of two pointers. This form of dynamic dispatching
+ * allows the conversion of runtime polymorphism to a compile time polymorphism.
+ * For example it can be used as a replacement for the vtkTemplateMacro when
+ * you want to know multiple parameter types, or need to call a specialized implementation
+ * for a subset
+ *
+ * Note: By default the return type is void.
+ *
+ * The functors that are passed around can contain state, and are allowed
+ * to be const or non const. If you are using a functor that does have state,
+ * make sure your copy constructor is correct.
+ *
+ * \code
+ * struct functor{
+ *   template<typename T,typename U>
+ *   void operator()(T& t,U& u) const
+ *   {
+ *
+ *   }
+ * };
+ *
+ * Here is an example of using the double dispatcher.
+ *  \code
+ *  vtkDoubleDispatcher<vtkObject,vtkObject,vtkPoints*> dispatcher;
+ *  dispatcher.Add<vtkPoints,vtkDoubleArray>(makePointsWrapperFunctor());
+ *  dispatcher.Add<vtkPoints,vtkPoints>(straightCopyFunctor());
+ *  dispatcher.Go(ptr1,ptr2); //this will return a vtkPoints pointer
+ *  \endcode
+ *
+ *
+ * @sa
+ * vtkDispatcher
+*/
 
 #ifndef vtkDoubleDispatcher_h
 #define vtkDoubleDispatcher_h
@@ -80,44 +83,47 @@ template
 class vtkDoubleDispatcher
 {
 public:
-  // Description:
-  // Add in a functor that is mapped to the combination of the
-  // two template parameters passed in. When instances of the two parameters
-  // are passed in on the Go method we will call the functor and pass along
-  // the given parameters.
-  // Note: This copies the functor so pass stateful functors by pointer.
-  //
-  // \code
-  // vtkDoubleDispatcher<vtkDataModel,vtkCell> dispatcher;
-  // dispatcher.Add<vtkImageData,vtkVoxel>(exampleFunctor());
-  // dispatcher.Add<vtkImageData,vtkVoxel>(&exampleFunctorWithState);
-  // \endcode
+  /**
+   * Add in a functor that is mapped to the combination of the
+   * two template parameters passed in. When instances of the two parameters
+   * are passed in on the Go method we will call the functor and pass along
+   * the given parameters.
+   * Note: This copies the functor so pass stateful functors by pointer.
+
+   * \code
+   * vtkDoubleDispatcher<vtkDataModel,vtkCell> dispatcher;
+   * dispatcher.Add<vtkImageData,vtkVoxel>(exampleFunctor());
+   * dispatcher.Add<vtkImageData,vtkVoxel>(&exampleFunctorWithState);
+   * \endcode
+   */
   template <class SomeLhs, class SomeRhs, class Functor>
   void Add(Functor fun) { this->AddInternal<SomeLhs,SomeRhs>(fun, 1); }
 
-  // Description:
-  // Remove a functor that is bound to the given parameter types. Will
-  // return true if we did remove a functor.
+  /**
+   * Remove a functor that is bound to the given parameter types. Will
+   * return true if we did remove a functor.
+   */
   template <class SomeLhs, class SomeRhs>
   bool Remove() { return DoRemove(typeid(SomeLhs), typeid(SomeRhs)); }
 
-  // Description:
-  // Given two pointers of objects that derive from the BaseLhs and BaseRhs
-  // we find the matching functor that was added, and call it passing along
-  // the given parameters. It should be noted that the functor will be called
-  // with the parameters being the derived type that Functor was registered with.
-  //
-  // Note: This will only find exact matches. So if you add functor to find
-  // vtkDataArray,vtkDataArray, it will not be called if passed with
-  // vtkDoubleArray,vtkDoubleArray.
-  //
-  // \code
-  //
-  // vtkDoubleDispatcher<vtkDataArray,vtkDataArray> dispatcher;
-  // dispatcher.Add(vtkFloatArray,vtkFloatArray>(floatFunctor())
-  // dispatcher.Add(vtkFloatArray,vtkDoubleArray>(mixedTypeFunctor())
-  // dispatcher.Go( dataArray1, dataArray2);
-  // \endcode
+  /**
+   * Given two pointers of objects that derive from the BaseLhs and BaseRhs
+   * we find the matching functor that was added, and call it passing along
+   * the given parameters. It should be noted that the functor will be called
+   * with the parameters being the derived type that Functor was registered with.
+
+   * Note: This will only find exact matches. So if you add functor to find
+   * vtkDataArray,vtkDataArray, it will not be called if passed with
+   * vtkDoubleArray,vtkDoubleArray.
+
+   * \code
+
+   * vtkDoubleDispatcher<vtkDataArray,vtkDataArray> dispatcher;
+   * dispatcher.Add(vtkFloatArray,vtkFloatArray>(floatFunctor())
+   * dispatcher.Add(vtkFloatArray,vtkDoubleArray>(mixedTypeFunctor())
+   * dispatcher.Go( dataArray1, dataArray2);
+   * \endcode
+   */
   ReturnType Go(BaseLhs* lhs, BaseRhs* rhs);
 
 protected:

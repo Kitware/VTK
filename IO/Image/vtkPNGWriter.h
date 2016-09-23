@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPNGWriter - Writes PNG files.
-// .SECTION Description
-// vtkPNGWriter writes PNG files. It supports 1 to 4 component data of
-// unsigned char or unsigned short
-
-// .SECTION See Also
-// vtkPNGReader
+/**
+ * @class   vtkPNGWriter
+ * @brief   Writes PNG files.
+ *
+ * vtkPNGWriter writes PNG files. It supports 1 to 4 component data of
+ * unsigned char or unsigned short
+ *
+ * @sa
+ * vtkPNGReader
+*/
 
 #ifndef vtkPNGWriter_h
 #define vtkPNGWriter_h
@@ -36,40 +39,53 @@ public:
   vtkTypeMacro(vtkPNGWriter,vtkImageWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // The main interface which triggers the writer to start.
+  /**
+   * The main interface which triggers the writer to start.
+   */
   virtual void Write();
 
-  // Description:
-  // Set/Get the zlib compression level.
-  // The range is 0-9, with 0 meaning no compression
-  // corresponding to the largest file size, and 9 meaning
-  // best compression, corresponding to the smallest file size.
-  // The default is 5.
+  //@{
+  /**
+   * Set/Get the zlib compression level.
+   * The range is 0-9, with 0 meaning no compression
+   * corresponding to the largest file size, and 9 meaning
+   * best compression, corresponding to the smallest file size.
+   * The default is 5.
+   */
   vtkSetClampMacro(CompressionLevel, int, 0, 9);
   vtkGetMacro(CompressionLevel, int);
+  //@}
 
-  // Description:
-  // Write the image to memory (a vtkUnsignedCharArray)
+  //@{
+  /**
+   * Write the image to memory (a vtkUnsignedCharArray)
+   */
   vtkSetMacro(WriteToMemory, unsigned int);
   vtkGetMacro(WriteToMemory, unsigned int);
   vtkBooleanMacro(WriteToMemory, unsigned int);
+  //@}
 
-  // Description:
-  // When writing to memory this is the result, it will be NULL until the
-  // data is written the first time
+  //@{
+  /**
+   * When writing to memory this is the result, it will be NULL until the
+   * data is written the first time
+   */
   virtual void SetResult(vtkUnsignedCharArray*);
   vtkGetObjectMacro(Result, vtkUnsignedCharArray);
+  //@}
 
-  // Description:
-  // Adds a text chunk to the PNG. More than one text chunk with the same key is permissible.
-  // There are a number of predefined keywords that should be used
-  // when appropriate. See
-  // http://www.libpng.org/pub/png/spec/1.2/PNG-Chunks.html
-  // for more information.
+  /**
+   * Adds a text chunk to the PNG. More than one text chunk with the same key is permissible.
+   * There are a number of predefined keywords that should be used
+   * when appropriate. See
+   * http://www.libpng.org/pub/png/spec/1.2/PNG-Chunks.html
+   * for more information.
+   */
   void AddText(const char* key, const char* value);
-  // Description:
-  // Standard keys
+  //@{
+  /**
+   * Standard keys
+   */
   static const char* TITLE;
   static const char* AUTHOR;
   static const char* DESCRIPTION;
@@ -80,6 +96,7 @@ public:
   static const char* WARNING;
   static const char* SOURCE;
   static const char* COMMENT;
+  //@}
 
 protected:
   vtkPNGWriter();

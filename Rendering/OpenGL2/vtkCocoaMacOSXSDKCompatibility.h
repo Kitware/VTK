@@ -12,12 +12,15 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCocoaMacOSXSDKCompatibility - Compatibility header
-// .SECTION Description
-// VTK requires the Mac OS X 10.6 SDK or later.
-// However, this file is meant to allow us to use features from newer
-// SDKs by adding workarounds to still support the minimum SDK.
-// It is safe to include this header multiple times.
+/**
+ * @class   vtkCocoaMacOSXSDKCompatibility
+ * @brief   Compatibility header
+ *
+ * VTK requires the Mac OS X 10.6 SDK or later.
+ * However, this file is meant to allow us to use features from newer
+ * SDKs by adding workarounds to still support the minimum SDK.
+ * It is safe to include this header multiple times.
+*/
 
 #include <AvailabilityMacros.h>
 

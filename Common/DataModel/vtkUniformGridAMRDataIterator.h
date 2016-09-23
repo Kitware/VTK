@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkUniformGridAMRDataIterator - subclass of vtkCompositeDataIterator
-// with API to get current level and dataset index.
-// .SECTION Description
+/**
+ * @class   vtkUniformGridAMRDataIterator
+ * @brief   subclass of vtkCompositeDataIterator
+ * with API to get current level and dataset index.
+ *
+*/
 
 #ifndef vtkUniformGridAMRDataIterator_h
 #define vtkUniformGridAMRDataIterator_h
@@ -37,48 +40,55 @@ public:
   vtkTypeMacro(vtkUniformGridAMRDataIterator, vtkCompositeDataIterator);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Returns the meta-data associated with the current item.
-  // Note that this points to a single instance of vtkInformation object
-  // allocated by the iterator and will be changed as soon as GoToNextItem is
-  // called.
+  /**
+   * Returns the meta-data associated with the current item.
+   * Note that this points to a single instance of vtkInformation object
+   * allocated by the iterator and will be changed as soon as GoToNextItem is
+   * called.
+   */
   vtkInformation* GetCurrentMetaData() VTK_OVERRIDE;
 
-  // Description:
   int HasCurrentMetaData() VTK_OVERRIDE { return 1;}
 
-  // Description:
-  // Returns the current item. Valid only when IsDoneWithTraversal() returns 0.
+  /**
+   * Returns the current item. Valid only when IsDoneWithTraversal() returns 0.
+   */
   vtkDataObject* GetCurrentDataObject() VTK_OVERRIDE;
 
-  // Description:
-  // Flat index is an index obtained by traversing the tree in preorder.
-  // This can be used to uniquely identify nodes in the tree.
-  // Not valid if IsDoneWithTraversal() returns true.
+  /**
+   * Flat index is an index obtained by traversing the tree in preorder.
+   * This can be used to uniquely identify nodes in the tree.
+   * Not valid if IsDoneWithTraversal() returns true.
+   */
   unsigned int GetCurrentFlatIndex() VTK_OVERRIDE;
 
-  // Description:
-  // Returns the level for the current dataset.
+  /**
+   * Returns the level for the current dataset.
+   */
   virtual unsigned int GetCurrentLevel();
 
-  // Description:
-  // Returns the dataset index for the current data object. Valid only if the
-  // current data is a leaf node i.e. no a composite dataset.
+  /**
+   * Returns the dataset index for the current data object. Valid only if the
+   * current data is a leaf node i.e. no a composite dataset.
+   */
   virtual unsigned int GetCurrentIndex();
 
-  // Description:
-  // Move the iterator to the beginning of the collection.
+  /**
+   * Move the iterator to the beginning of the collection.
+   */
   void GoToFirstItem() VTK_OVERRIDE;
 
-  // Description:
-  // Move the iterator to the next item in the collection.
+  /**
+   * Move the iterator to the next item in the collection.
+   */
   void GoToNextItem() VTK_OVERRIDE;
 
-  // Description:
-  // Test whether the iterator is finished with the traversal.
-  // Returns 1 for yes, and 0 for no.
-  // It is safe to call any of the GetCurrent...() methods only when
-  // IsDoneWithTraversal() returns 0.
+  /**
+   * Test whether the iterator is finished with the traversal.
+   * Returns 1 for yes, and 0 for no.
+   * It is safe to call any of the GetCurrent...() methods only when
+   * IsDoneWithTraversal() returns 0.
+   */
   int IsDoneWithTraversal() VTK_OVERRIDE;
 
 protected:

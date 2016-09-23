@@ -19,16 +19,19 @@
 
 =========================================================================*/
 
-// .NAME vtkAnnotation - Stores a collection of annotation artifacts.
-//
-// .SECTION Description
-// vtkAnnotation is a collection of annotation properties along with
-// an associated selection indicating the portion of data the annotation
-// refers to.
-//
-// .SECTION Thanks
-// Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories
-// contributed code to this class.
+/**
+ * @class   vtkAnnotation
+ * @brief   Stores a collection of annotation artifacts.
+ *
+ *
+ * vtkAnnotation is a collection of annotation properties along with
+ * an associated selection indicating the portion of data the annotation
+ * refers to.
+ *
+ * @par Thanks:
+ * Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories
+ * contributed code to this class.
+*/
 
 #ifndef vtkAnnotation_h
 #define vtkAnnotation_h
@@ -49,63 +52,80 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkAnnotation* New();
 
-  // Description:
-  // The selection to which this set of annotations will apply.
+  //@{
+  /**
+   * The selection to which this set of annotations will apply.
+   */
   vtkGetObjectMacro(Selection, vtkSelection);
   virtual void SetSelection(vtkSelection* selection);
+  //@}
 
-  // Description:
-  // Retrieve a vtkAnnotation stored inside an information object.
+  //@{
+  /**
+   * Retrieve a vtkAnnotation stored inside an information object.
+   */
   static vtkAnnotation* GetData(vtkInformation* info);
   static vtkAnnotation* GetData(vtkInformationVector* v, int i=0);
+  //@}
 
-  // Description:
-  // The label for this annotation.
+  /**
+   * The label for this annotation.
+   */
   static vtkInformationStringKey* LABEL();
 
-  // Description:
-  // The color for this annotation.
-  // This is stored as an RGB triple with values between 0 and 1.
+  /**
+   * The color for this annotation.
+   * This is stored as an RGB triple with values between 0 and 1.
+   */
   static vtkInformationDoubleVectorKey* COLOR();
 
-  // Description:
-  // The color for this annotation.
-  // This is stored as a value between 0 and 1.
+  /**
+   * The color for this annotation.
+   * This is stored as a value between 0 and 1.
+   */
   static vtkInformationDoubleKey* OPACITY();
 
-  // Description:
-  // An icon index for this annotation.
+  /**
+   * An icon index for this annotation.
+   */
   static vtkInformationIntegerKey* ICON_INDEX();
 
-  // Description:
-  // Whether or not this annotation is enabled.
-  // A value of 1 means enabled, 0 disabled.
+  /**
+   * Whether or not this annotation is enabled.
+   * A value of 1 means enabled, 0 disabled.
+   */
   static vtkInformationIntegerKey* ENABLE();
 
-  // Description:
-  // Whether or not this annotation is visible.
+  /**
+   * Whether or not this annotation is visible.
+   */
   static vtkInformationIntegerKey* HIDE();
 
-  // Description:
-  // Associate a vtkDataObject with this annotation
+  /**
+   * Associate a vtkDataObject with this annotation
+   */
   static vtkInformationDataObjectKey* DATA();
 
-  // Description:
-  // Initialize the annotation to an empty state.
+  /**
+   * Initialize the annotation to an empty state.
+   */
   void Initialize() VTK_OVERRIDE;
 
-  // Description:
-  // Make this annotation have the same properties and have
-  // the same selection of another annotation.
+  /**
+   * Make this annotation have the same properties and have
+   * the same selection of another annotation.
+   */
   void ShallowCopy(vtkDataObject* other) VTK_OVERRIDE;
 
-  // Description:
-  // Make this annotation have the same properties and have
-  // a copy of the selection of another annotation.
+  /**
+   * Make this annotation have the same properties and have
+   * a copy of the selection of another annotation.
+   */
   void DeepCopy(vtkDataObject* other) VTK_OVERRIDE;
 
-  // Description:
-  // Get the modified time of this object.
+  /**
+   * Get the modified time of this object.
+   */
   vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:

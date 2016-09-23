@@ -16,11 +16,14 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkEdgeLayoutStrategy - abstract superclass for all edge layout strategies
-//
-// .SECTION Description
-// All edge layouts should subclass from this class.  vtkEdgeLayoutStrategy
-// works as a plug-in to the vtkEdgeLayout algorithm.
+/**
+ * @class   vtkEdgeLayoutStrategy
+ * @brief   abstract superclass for all edge layout strategies
+ *
+ *
+ * All edge layouts should subclass from this class.  vtkEdgeLayoutStrategy
+ * works as a plug-in to the vtkEdgeLayout algorithm.
+*/
 
 #ifndef vtkEdgeLayoutStrategy_h
 #define vtkEdgeLayoutStrategy_h
@@ -36,25 +39,31 @@ public:
   vtkTypeMacro(vtkEdgeLayoutStrategy,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Setting the graph for the layout strategy
+  /**
+   * Setting the graph for the layout strategy
+   */
   virtual void SetGraph(vtkGraph *graph);
 
-  // Description:
-  // This method allows the layout strategy to
-  // do initialization of data structures
-  // or whatever else it might want to do.
+  /**
+   * This method allows the layout strategy to
+   * do initialization of data structures
+   * or whatever else it might want to do.
+   */
   virtual void Initialize() {}
 
-  // Description:
-  // This is the layout method where the graph that was
-  // set in SetGraph() is laid out.
+  /**
+   * This is the layout method where the graph that was
+   * set in SetGraph() is laid out.
+   */
   virtual void Layout()=0;
 
-  // Description:
-  // Set/Get the field to use for the edge weights.
+  //@{
+  /**
+   * Set/Get the field to use for the edge weights.
+   */
   vtkSetStringMacro(EdgeWeightArrayName);
   vtkGetStringMacro(EdgeWeightArrayName);
+  //@}
 
 protected:
   vtkEdgeLayoutStrategy();

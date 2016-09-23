@@ -12,8 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBond - convenience proxy for vtkMolecule
-// .SECTION Description
+/**
+ * @class   vtkBond
+ * @brief   convenience proxy for vtkMolecule
+ *
+*/
 
 #ifndef vtkBond_h
 #define vtkBond_h
@@ -29,36 +32,46 @@ class VTKCOMMONDATAMODEL_EXPORT vtkBond
 public:
   void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Return the Id used to identify this bond in the parent molecule.
+  /**
+   * Return the Id used to identify this bond in the parent molecule.
+   */
   vtkIdType GetId() const;
 
-  // Description:
-  // Return the parent molecule of this bond.
+  /**
+   * Return the parent molecule of this bond.
+   */
   vtkMolecule * GetMolecule();
 
-  // Description:
-  // Get the starting / ending atom ids for this bond.
+  //@{
+  /**
+   * Get the starting / ending atom ids for this bond.
+   */
   vtkIdType GetBeginAtomId() const;
   vtkIdType GetEndAtomId() const;
+  //@}
 
-  // Description:
-  // Get a vtkAtom object that refers to the starting / ending atom
-  // for this bond.
+  //@{
+  /**
+   * Get a vtkAtom object that refers to the starting / ending atom
+   * for this bond.
+   */
   vtkAtom GetBeginAtom();
   vtkAtom GetEndAtom();
   const vtkAtom GetBeginAtom() const;
   const vtkAtom GetEndAtom() const;
+  //@}
 
-  // Description:
-  // Get the bond order for this bond.
+  /**
+   * Get the bond order for this bond.
+   */
   unsigned short GetOrder();
 
-  // Description:
-  // Get the distance between the bonded atoms.
-  //
-  // @note This function is faster than vtkMolecule::GetBondLength and
-  // should be used when possible.
+  /**
+   * Get the distance between the bonded atoms.
+
+   * @note This function is faster than vtkMolecule::GetBondLength and
+   * should be used when possible.
+   */
   double GetLength() const;
 
 protected:

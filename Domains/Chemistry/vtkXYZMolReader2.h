@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXYZMolReader2 - read Molecular Data files
-// .SECTION Description
-// vtkXYZMolReader2 is a source object that reads Molecule files
-// The reader will detect multiple timesteps in an XYZ molecule file.
-//
-// .SECTION Thanks
-// Dr. Jean M. Favre who developed and contributed this class
+/**
+ * @class   vtkXYZMolReader2
+ * @brief   read Molecular Data files
+ *
+ * vtkXYZMolReader2 is a source object that reads Molecule files
+ * The reader will detect multiple timesteps in an XYZ molecule file.
+ *
+ * @par Thanks:
+ * Dr. Jean M. Favre who developed and contributed this class
+*/
 
 #ifndef vtkXYZMolReader2_h
 #define vtkXYZMolReader2_h
@@ -39,15 +42,21 @@ public:
   vtkTypeMacro(vtkXYZMolReader2,vtkMoleculeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get/Set the output (vtkMolecule) that the reader will fill
+  //@{
+  /**
+   * Get/Set the output (vtkMolecule) that the reader will fill
+   */
   vtkMolecule *GetOutput();
   void SetOutput(vtkMolecule *);
+  //@}
 
-  // Description:
-  // Get/Set the name of the XYZ Molecule file
+  //@{
+  /**
+   * Get/Set the name of the XYZ Molecule file
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
 protected:
   vtkXYZMolReader2();

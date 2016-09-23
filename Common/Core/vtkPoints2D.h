@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPoints2D - represent and manipulate 2D points
-// .SECTION Description
-// vtkPoints2D represents 2D points. The data model for vtkPoints2D is an
-// array of vx-vy doublets accessible by (point or cell) id.
+/**
+ * @class   vtkPoints2D
+ * @brief   represent and manipulate 2D points
+ *
+ * vtkPoints2D represents 2D points. The data model for vtkPoints2D is an
+ * array of vx-vy doublets accessible by (point or cell) id.
+*/
 
 #ifndef vtkPoints2D_h
 #define vtkPoints2D_h
@@ -38,31 +41,36 @@ public:
   vtkTypeMacro(vtkPoints2D, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Allocate initial memory size. ext is no longer used.
+  /**
+   * Allocate initial memory size. ext is no longer used.
+   */
   virtual int Allocate(const vtkIdType sz, const vtkIdType ext = 1000);
 
-  // Description:
-  // Return object to instantiated state.
+  /**
+   * Return object to instantiated state.
+   */
   virtual void Initialize();
 
-  // Description:
-  // Set/Get the underlying data array. This function must be implemented
-  // in a concrete subclass to check for consistency. (The tuple size must
-  // match the type of data. For example, 3-tuple data array can be assigned to
-  // a vector, normal, or points object, but not a tensor object, which has a
-  // tuple dimension of 9. Scalars, on the other hand, can have tuple dimension
-  //  from 1-4, depending on the type of scalar.)
+  /**
+   * Set/Get the underlying data array. This function must be implemented
+   * in a concrete subclass to check for consistency. (The tuple size must
+   * match the type of data. For example, 3-tuple data array can be assigned to
+   * a vector, normal, or points object, but not a tensor object, which has a
+   * tuple dimension of 9. Scalars, on the other hand, can have tuple dimension
+   * from 1-4, depending on the type of scalar.)
+   */
   virtual void SetData(vtkDataArray *);
   vtkDataArray *GetData() { return this->Data; }
 
-  // Description:
-  // Return the underlying data type. An integer indicating data type is
-  // returned as specified in vtkSetGet.h.
+  /**
+   * Return the underlying data type. An integer indicating data type is
+   * returned as specified in vtkSetGet.h.
+   */
   virtual int GetDataType();
 
-  // Description:
-  // Specify the underlying data type of the object.
+  /**
+   * Specify the underlying data type of the object.
+   */
   virtual void SetDataType(int dataType);
   void SetDataTypeToBit() { this->SetDataType(VTK_BIT); }
   void SetDataTypeToChar() { this->SetDataType(VTK_CHAR); }
@@ -76,104 +84,124 @@ public:
   void SetDataTypeToFloat() { this->SetDataType(VTK_FLOAT); }
   void SetDataTypeToDouble() { this->SetDataType(VTK_DOUBLE); }
 
-  // Description:
-  // Return a void pointer. For image pipeline interface and other
-  // special pointer manipulation.
+  /**
+   * Return a void pointer. For image pipeline interface and other
+   * special pointer manipulation.
+   */
   void *GetVoidPointer(const int id) { return this->Data->GetVoidPointer(id); }
 
-  // Description:
-  // Reclaim any extra memory.
+  /**
+   * Reclaim any extra memory.
+   */
   virtual void Squeeze() { this->Data->Squeeze(); }
 
-  // Description:
-  // Make object look empty but do not delete memory.
+  /**
+   * Make object look empty but do not delete memory.
+   */
   virtual void Reset();
 
-  // Description:
-  // Different ways to copy data. Shallow copy does reference count (i.e.,
-  // assigns pointers and updates reference count); deep copy runs through
-  // entire data array assigning values.
+  //@{
+  /**
+   * Different ways to copy data. Shallow copy does reference count (i.e.,
+   * assigns pointers and updates reference count); deep copy runs through
+   * entire data array assigning values.
+   */
   virtual void DeepCopy(vtkPoints2D *ad);
   virtual void ShallowCopy(vtkPoints2D *ad);
+  //@}
 
-  // Description:
-  // Return the memory in kibibytes (1024 bytes) consumed by this attribute data.
-  // Used to support streaming and reading/writing data. The value
-  // returned is guaranteed to be greater than or equal to the
-  // memory required to actually represent the data represented
-  // by this object. The information returned is valid only after
-  // the pipeline has been updated.
+  /**
+   * Return the memory in kibibytes (1024 bytes) consumed by this attribute data.
+   * Used to support streaming and reading/writing data. The value
+   * returned is guaranteed to be greater than or equal to the
+   * memory required to actually represent the data represented
+   * by this object. The information returned is valid only after
+   * the pipeline has been updated.
+   */
   unsigned long GetActualMemorySize();
 
-  // Description:
-  // Return number of points in array.
+  /**
+   * Return number of points in array.
+   */
   vtkIdType GetNumberOfPoints() { return this->Data->GetNumberOfTuples(); }
 
-  // Description:
-  // Return a pointer to a double point x[2] for a specific id.
-  // WARNING: Just don't use this error-prone method, the returned pointer
-  // and its values are only valid as long as another method invocation is not
-  // performed. Prefer GetPoint() with the return value in argument.
+  /**
+   * Return a pointer to a double point x[2] for a specific id.
+   * WARNING: Just don't use this error-prone method, the returned pointer
+   * and its values are only valid as long as another method invocation is not
+   * performed. Prefer GetPoint() with the return value in argument.
+   */
   double *GetPoint(vtkIdType id) { return this->Data->GetTuple(id);}
 
-  // Description:
-  // Copy point components into user provided array v[2] for specified id.
+  /**
+   * Copy point components into user provided array v[2] for specified id.
+   */
   void GetPoint(vtkIdType id, double x[2]) { this->Data->GetTuple(id,x); }
 
-  // Description:
-  // Insert point into object. No range checking performed (fast!).
-  // Make sure you use SetNumberOfPoints() to allocate memory prior
-  // to using SetPoint().
+  /**
+   * Insert point into object. No range checking performed (fast!).
+   * Make sure you use SetNumberOfPoints() to allocate memory prior
+   * to using SetPoint().
+   */
   void SetPoint(vtkIdType id, const float x[2]) { this->Data->SetTuple(id,x); }
   void SetPoint(vtkIdType id, const double x[2]) { this->Data->SetTuple(id,x); }
   void SetPoint(vtkIdType id, double x, double y);
 
-  // Description:
-  // Insert point into object. Range checking performed and memory
-  // allocated as necessary.
+  /**
+   * Insert point into object. Range checking performed and memory
+   * allocated as necessary.
+   */
   void InsertPoint(vtkIdType id, const float x[2])
     { this->Data->InsertTuple(id,x); }
   void InsertPoint(vtkIdType id, const double x[2])
     { this->Data->InsertTuple(id,x); }
   void InsertPoint(vtkIdType id, double x, double y);
 
-  // Description:
-  // Insert point into next available slot. Returns id of slot.
+  /**
+   * Insert point into next available slot. Returns id of slot.
+   */
   vtkIdType InsertNextPoint(const float x[2])
     { return this->Data->InsertNextTuple(x); }
   vtkIdType InsertNextPoint(const double x[2])
     { return this->Data->InsertNextTuple(x); }
   vtkIdType InsertNextPoint(double x, double y);
 
-  // Description:
-  // Remove point described by its id
+  /**
+   * Remove point described by its id
+   */
   void RemovePoint(vtkIdType id) { this->Data->RemoveTuple(id); }
 
-  // Description:
-  // Specify the number of points for this object to hold. Does an
-  // allocation as well as setting the MaxId ivar. Used in conjunction with
-  // SetPoint() method for fast insertion.
+  /**
+   * Specify the number of points for this object to hold. Does an
+   * allocation as well as setting the MaxId ivar. Used in conjunction with
+   * SetPoint() method for fast insertion.
+   */
   void SetNumberOfPoints(vtkIdType numPoints);
 
-  // Description:
-  // Resize the internal array while conserving the data.  Returns 1 if
-  // resizing succeeded and 0 otherwise.
+  /**
+   * Resize the internal array while conserving the data.  Returns 1 if
+   * resizing succeeded and 0 otherwise.
+   */
   int Resize(vtkIdType numPoints);
 
-  // Description:
-  // Given a list of pt ids, return an array of points.
+  /**
+   * Given a list of pt ids, return an array of points.
+   */
   void GetPoints(vtkIdList *ptId, vtkPoints2D *fp);
 
-  // Description:
-  // Determine (xmin,xmax, ymin,ymax) bounds of points.
+  /**
+   * Determine (xmin,xmax, ymin,ymax) bounds of points.
+   */
   virtual void ComputeBounds();
 
-  // Description:
-  // Return the bounds of the points.
+  /**
+   * Return the bounds of the points.
+   */
   double *GetBounds();
 
-  // Description:
-  // Return the bounds of the points.
+  /**
+   * Return the bounds of the points.
+   */
   void GetBounds(double bounds[4]);
 
 protected:

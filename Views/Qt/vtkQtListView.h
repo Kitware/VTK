@@ -17,14 +17,17 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkQtListView - A VTK view based on a Qt List view.
-//
-// .SECTION Description
-// vtkQtListView is a VTK view using an underlying QListView.
-//
-// .SECTION Thanks
-// Thanks to Brian Wylie from Sandia National Laboratories for implementing
-// this class
+/**
+ * @class   vtkQtListView
+ * @brief   A VTK view based on a Qt List view.
+ *
+ *
+ * vtkQtListView is a VTK view using an underlying QListView.
+ *
+ * @par Thanks:
+ * Thanks to Brian Wylie from Sandia National Laboratories for implementing
+ * this class
+*/
 
 #ifndef vtkQtListView_h
 #define vtkQtListView_h
@@ -52,11 +55,12 @@ public:
   vtkTypeMacro(vtkQtListView, vtkQtView);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the main container of this view (a  QWidget).
-  // The application typically places the view with a call
-  // to GetWidget(): something like this
-  // this->ui->box->layout()->addWidget(this->View->GetWidget());
+  /**
+   * Get the main container of this view (a  QWidget).
+   * The application typically places the view with a call
+   * to GetWidget(): something like this
+   * this->ui->box->layout()->addWidget(this->View->GetWidget());
+   */
   virtual QWidget* GetWidget();
 
   enum
@@ -69,57 +73,75 @@ public:
     ROW_DATA = 5,
     };
 
-  // Description:
-  // The field type to copy into the output table.
-  // Should be one of FIELD_DATA, POINT_DATA, CELL_DATA, VERTEX_DATA, EDGE_DATA.
+  //@{
+  /**
+   * The field type to copy into the output table.
+   * Should be one of FIELD_DATA, POINT_DATA, CELL_DATA, VERTEX_DATA, EDGE_DATA.
+   */
   vtkGetMacro(FieldType, int);
   void SetFieldType(int);
+  //@}
 
-  // Description:
-  // Enable drag and drop on this widget
+  /**
+   * Enable drag and drop on this widget
+   */
   void SetEnableDragDrop(bool);
 
-  // Description:
-  // Have the view alternate its row colors
+  /**
+   * Have the view alternate its row colors
+   */
   void SetAlternatingRowColors(bool);
 
-  // Description:
-  // The strategy for how to decorate rows.
-  // Should be one of vtkQtTableModelAdapter::COLORS,
-  // vtkQtTableModelAdapter::ICONS, or
-  // vtkQtTableModelAdapter::NONE. Default is NONE.
+  /**
+   * The strategy for how to decorate rows.
+   * Should be one of vtkQtTableModelAdapter::COLORS,
+   * vtkQtTableModelAdapter::ICONS, or
+   * vtkQtTableModelAdapter::NONE. Default is NONE.
+   */
   void SetDecorationStrategy(int);
 
-  // Description:
-  // The array to use for coloring items in view.  Default is "color".
+  //@{
+  /**
+   * The array to use for coloring items in view.  Default is "color".
+   */
   void SetColorArrayName(const char* name);
   const char* GetColorArrayName();
+  //@}
 
-  // Description:
-  // Whether to color vertices.  Default is off.
+  //@{
+  /**
+   * Whether to color vertices.  Default is off.
+   */
   void SetColorByArray(bool vis);
   bool GetColorByArray();
   vtkBooleanMacro(ColorByArray, bool);
+  //@}
 
-  // Description:
-  // The column to display
+  /**
+   * The column to display
+   */
   void SetVisibleColumn(int col);
 
-  // Description:
-  // The column used to filter on
+  /**
+   * The column used to filter on
+   */
   void SetFilterRegExp(const QRegExp& pattern);
 
-  // Description:
-  // Set the icon ivars. Only used if the decoration strategy is set to ICONS.
+  //@{
+  /**
+   * Set the icon ivars. Only used if the decoration strategy is set to ICONS.
+   */
   void SetIconSheet(QImage sheet);
   void SetIconSize(int w, int h);
   void SetIconSheetSize(int w, int h);
   void SetIconArrayName(const char* name);
+  //@}
 
   virtual void ApplyViewTheme(vtkViewTheme* theme);
 
-  // Description:
-  // Updates the view.
+  /**
+   * Updates the view.
+   */
   virtual void Update();
 
 protected:

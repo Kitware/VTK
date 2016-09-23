@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCollectionIterator - iterator through a vtkCollection.
-// .SECTION Description
-// vtkCollectionIterator provides an alternative way to traverse
-// through the objects in a vtkCollection.  Unlike the collection's
-// built in interface, this allows multiple iterators to
-// simultaneously traverse the collection.  If items are removed from
-// the collection, only the iterators currently pointing to those
-// items are invalidated.  Other iterators will still continue to
-// function normally.
+/**
+ * @class   vtkCollectionIterator
+ * @brief   iterator through a vtkCollection.
+ *
+ * vtkCollectionIterator provides an alternative way to traverse
+ * through the objects in a vtkCollection.  Unlike the collection's
+ * built in interface, this allows multiple iterators to
+ * simultaneously traverse the collection.  If items are removed from
+ * the collection, only the iterators currently pointing to those
+ * items are invalidated.  Other iterators will still continue to
+ * function normally.
+*/
 
 #ifndef vtkCollectionIterator_h
 #define vtkCollectionIterator_h
@@ -38,31 +41,39 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkCollectionIterator* New();
 
-  // Description:
-  // Set/Get the collection over which to iterate.
+  //@{
+  /**
+   * Set/Get the collection over which to iterate.
+   */
   virtual void SetCollection(vtkCollection*);
   vtkGetObjectMacro(Collection, vtkCollection);
+  //@}
 
-  // Description:
-  // Position the iterator at the first item in the collection.
+  /**
+   * Position the iterator at the first item in the collection.
+   */
   void InitTraversal() { this->GoToFirstItem(); }
 
-  // Description:
-  // Position the iterator at the first item in the collection.
+  /**
+   * Position the iterator at the first item in the collection.
+   */
   void GoToFirstItem();
 
-  // Description:
-  // Move the iterator to the next item in the collection.
+  /**
+   * Move the iterator to the next item in the collection.
+   */
   void GoToNextItem();
 
-  // Description:
-  // Test whether the iterator is currently positioned at a valid item.
-  // Returns 1 for yes, 0 for no.
+  /**
+   * Test whether the iterator is currently positioned at a valid item.
+   * Returns 1 for yes, 0 for no.
+   */
   int IsDoneWithTraversal();
 
-  // Description:
-  // Get the item at the current iterator position.  Valid only when
-  // IsDoneWithTraversal() returns 1.
+  /**
+   * Get the item at the current iterator position.  Valid only when
+   * IsDoneWithTraversal() returns 1.
+   */
   vtkObject* GetCurrentObject();
 
 protected:

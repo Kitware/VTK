@@ -17,9 +17,11 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkEmptyRepresentation -
-//
-// .SECTION Description
+/**
+ * @class   vtkEmptyRepresentation
+ *
+ *
+*/
 
 #ifndef vtkEmptyRepresentation_h
 #define vtkEmptyRepresentation_h
@@ -37,10 +39,11 @@ public:
   vtkTypeMacro(vtkEmptyRepresentation, vtkDataRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Since this representation has no inputs, override superclass
-  // implementation with one that ignores "port" and "conn" and still allows it
-  // to have an annotation output.
+  /**
+   * Since this representation has no inputs, override superclass
+   * implementation with one that ignores "port" and "conn" and still allows it
+   * to have an annotation output.
+   */
   virtual vtkAlgorithmOutput* GetInternalAnnotationOutputPort()
     { return this->GetInternalAnnotationOutputPort(0); }
   virtual vtkAlgorithmOutput* GetInternalAnnotationOutputPort(int port)

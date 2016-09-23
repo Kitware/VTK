@@ -12,9 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWebGLDataSet
-// .SECTION Description
-// vtkWebGLDataSet represent vertices, lines, polygons, and triangles.
+/**
+ * @class   vtkWebGLDataSet
+ *
+ * vtkWebGLDataSet represent vertices, lines, polygons, and triangles.
+*/
 
 #ifndef vtkWebGLDataSet_h
 #define vtkWebGLDataSet_h

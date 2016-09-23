@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkLightCollection - a list of lights
-// .SECTION Description
-// vtkLightCollection represents and provides methods to manipulate a list of
-// lights (i.e., vtkLight and subclasses). The list is unsorted and duplicate
-// entries are not prevented.
-
-// .SECTION see also
-// vtkCollection vtkLight
+/**
+ * @class   vtkLightCollection
+ * @brief   a list of lights
+ *
+ * vtkLightCollection represents and provides methods to manipulate a list of
+ * lights (i.e., vtkLight and subclasses). The list is unsorted and duplicate
+ * entries are not prevented.
+ *
+ * @sa
+ * vtkCollection vtkLight
+*/
 
 #ifndef vtkLightCollection_h
 #define vtkLightCollection_h
@@ -36,18 +39,21 @@ class VTKRENDERINGCORE_EXPORT vtkLightCollection : public vtkCollection
   vtkTypeMacro(vtkLightCollection, vtkCollection);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Add a light to the list.
+  /**
+   * Add a light to the list.
+   */
   void AddItem(vtkLight *a);
 
-  // Description:
-  // Get the next light in the list. NULL is returned when the collection is
-  // exhausted.
+  /**
+   * Get the next light in the list. NULL is returned when the collection is
+   * exhausted.
+   */
   vtkLight *GetNextItem();
 
-  // Description:
-  // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth.
+  /**
+   * Reentrant safe way to get an object in a collection. Just pass the
+   * same cookie back and forth.
+   */
   vtkLight *GetNextLight(vtkCollectionSimpleIterator &cookie);
 
 protected:

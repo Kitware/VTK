@@ -19,16 +19,19 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// .NAME vtkODBCQuery - vtkSQLQuery implementation for ODBC connections to databases
-//
-// .SECTION Description
-//
-// This is an implementation of vtkSQLQuery for ODBC databases.  See
-// the documentation for vtkSQLQuery and vtkRowQuery for information
-// about what the methods do.
-//
-// .SECTION See Also
-// vtkSQLDatabase vtkSQLQuery vtkODBCDatabase
+/**
+ * @class   vtkODBCQuery
+ * @brief   vtkSQLQuery implementation for ODBC connections to databases
+ *
+ *
+ *
+ * This is an implementation of vtkSQLQuery for ODBC databases.  See
+ * the documentation for vtkSQLQuery and vtkRowQuery for information
+ * about what the methods do.
+ *
+ * @sa
+ * vtkSQLDatabase vtkSQLQuery vtkODBCDatabase
+*/
 
 #ifndef vtkODBCQuery_h
 #define vtkODBCQuery_h
@@ -52,59 +55,74 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkODBCQuery *New();
 
-  // Description:
-  // Execute the query.  This must be performed
-  // before any field name or data access functions
-  // are used.
+  /**
+   * Execute the query.  This must be performed
+   * before any field name or data access functions
+   * are used.
+   */
   bool Execute();
 
-  // Description:
-  // The number of fields in the query result.
+  /**
+   * The number of fields in the query result.
+   */
   int GetNumberOfFields();
 
-  // Description:
-  // Return the name of the specified query field.
+  /**
+   * Return the name of the specified query field.
+   */
   const char* GetFieldName(int i);
 
-  // Description:
-  // Return the type of the field, using the constants defined in vtkType.h.
+  /**
+   * Return the type of the field, using the constants defined in vtkType.h.
+   */
   int GetFieldType(int i);
 
-  // Description:
-  // Advance row, return false if past end.
+  /**
+   * Advance row, return false if past end.
+   */
   bool NextRow();
 
-  // Description:
-  // Return true if there is an error on the current query.
+  /**
+   * Return true if there is an error on the current query.
+   */
   bool HasError();
 
-  // Description:
-  // Return data in current row, field c
+  /**
+   * Return data in current row, field c
+   */
   vtkVariant DataValue(vtkIdType c);
 
-  // Description:
-  // Get the last error text from the query
+  /**
+   * Get the last error text from the query
+   */
   const char* GetLastErrorText();
 
-  // Description:
-  // Begin, commit, or roll back a transaction.
+  //@{
+  /**
+   * Begin, commit, or roll back a transaction.
+   */
   bool BeginTransaction();
   bool CommitTransaction();
   bool RollbackTransaction();
+  //@}
 
-  // Description:
-  // Set the query string to be used.  Returns true if the query is
-  // OK; false if there's some problem with it that can be detected
-  // before execution.
+  //@{
+  /**
+   * Set the query string to be used.  Returns true if the query is
+   * OK; false if there's some problem with it that can be detected
+   * before execution.
+   */
   bool SetQuery(const char *queryString);
   const char *GetQuery();
+  //@}
 
-  // Description:
-  // The following methods bind a parameter value to a placeholder in
-  // the SQL string.  See the documentation for vtkSQLQuery for
-  // further explanation.  The driver makes internal copies of string
-  // and BLOB parameters so you don't need to worry about keeping them
-  // in scope until the query finishes executing.
+  /**
+   * The following methods bind a parameter value to a placeholder in
+   * the SQL string.  See the documentation for vtkSQLQuery for
+   * further explanation.  The driver makes internal copies of string
+   * and BLOB parameters so you don't need to worry about keeping them
+   * in scope until the query finishes executing.
+   */
 
   using vtkSQLQuery::BindParameter;
   bool BindParameter(int index, unsigned char value);
@@ -122,19 +140,26 @@ public:
 
   bool BindParameter(int index, float value);
   bool BindParameter(int index, double value);
-  // Description:
-  // Bind a string value -- string must be null-terminated
+  /**
+   * Bind a string value -- string must be null-terminated
+   */
   bool BindParameter(int index, const char *stringValue);
-  // Description:
-  // Bind a string value by specifying an array and a size
+  //@{
+  /**
+   * Bind a string value by specifying an array and a size
+   */
   bool BindParameter(int index, const char *stringValue, size_t length);
   bool BindParameter(int index, const vtkStdString &string);
-  // Description:
-  // Bind a blob value.  Not all databases support blobs as a data
-  // type.  Check vtkSQLDatabase::IsSupported(VTK_SQL_FEATURE_BLOB) to
-  // make sure.
+  //@}
+  //@{
+  /**
+   * Bind a blob value.  Not all databases support blobs as a data
+   * type.  Check vtkSQLDatabase::IsSupported(VTK_SQL_FEATURE_BLOB) to
+   * make sure.
+   */
   bool BindParameter(int index, const void *data, size_t length);
   bool ClearParameterBindings();
+  //@}
 
 protected:
   vtkODBCQuery();

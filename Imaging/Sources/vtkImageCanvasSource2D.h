@@ -12,12 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageCanvasSource2D - Paints on a canvas
-// .SECTION Description
-// vtkImageCanvasSource2D is a source that starts as a blank image.
-// you may add to the image with two-dimensional drawing routines.
-// It can paint multi-spectral images.
-
+/**
+ * @class   vtkImageCanvasSource2D
+ * @brief   Paints on a canvas
+ *
+ * vtkImageCanvasSource2D is a source that starts as a blank image.
+ * you may add to the image with two-dimensional drawing routines.
+ * It can paint multi-spectral images.
+*/
 
 #ifndef vtkImageCanvasSource2D_h
 #define vtkImageCanvasSource2D_h
@@ -28,39 +30,49 @@
 class VTKIMAGINGSOURCES_EXPORT vtkImageCanvasSource2D : public vtkImageAlgorithm
 {
 public:
-  // Description:
-  // Construct an instance of vtkImageCanvasSource2D with no data.
+  /**
+   * Construct an instance of vtkImageCanvasSource2D with no data.
+   */
   static vtkImageCanvasSource2D *New();
 
   vtkTypeMacro(vtkImageCanvasSource2D,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set/Get DrawColor.  This is the value that is used when filling data
-  // or drawing lines. Default is (0,0,0,0)
+  //@{
+  /**
+   * Set/Get DrawColor.  This is the value that is used when filling data
+   * or drawing lines. Default is (0,0,0,0)
+   */
   vtkSetVector4Macro(DrawColor, double);
   vtkGetVector4Macro(DrawColor, double);
+  //@}
 
-  // Description:
-  // Set DrawColor to (a, 0, 0, 0)
+  /**
+   * Set DrawColor to (a, 0, 0, 0)
+   */
   void SetDrawColor(double a) {this->SetDrawColor(a, 0.0, 0.0, 0.0);}
 
-  // Description:
-  // Set DrawColor to (a, b, 0, 0)
+  /**
+   * Set DrawColor to (a, b, 0, 0)
+   */
   void SetDrawColor(double a,double b) {this->SetDrawColor(a, b, 0.0, 0.0);}
 
-  // Description:
-  // Set DrawColor to (a, b, c, 0)
+  /**
+   * Set DrawColor to (a, b, c, 0)
+   */
   void SetDrawColor(double a, double b, double c) {
     this->SetDrawColor(a, b, c, 0.0);}
 
-  // Description:
-  // Initialize the canvas with a given volume
+  /**
+   * Initialize the canvas with a given volume
+   */
   void InitializeCanvasVolume(vtkImageData *volume);
 
-  // Description:
-  // Set the pixels inside the box (min0, max0, min1, max1) to the current
-  // DrawColor
+  //@{
+  /**
+   * Set the pixels inside the box (min0, max0, min1, max1) to the current
+   * DrawColor
+   */
   void FillBox(int min0, int max0, int min1, int max1);
   void FillTube(int x0, int y0, int x1, int y1, double radius);
   void FillTriangle(int x0, int y0, int x1, int y1, int x2, int y2);
@@ -73,53 +85,70 @@ public:
     { double p1[3], p2[3];
     p1[0] = x1; p1[1] = y1; p1[2] = z1; p2[0] = x2; p2[1] = y2; p2[2] = z2;
     this->DrawSegment3D(p1, p2);}
+  //@}
 
-  // Description:
-  // Draw subimage of the input image in the canvas at position x0 and
-  // y0. The subimage is defined with sx, sy, width, and height.
+  /**
+   * Draw subimage of the input image in the canvas at position x0 and
+   * y0. The subimage is defined with sx, sy, width, and height.
+   */
   void DrawImage(int x0, int y0, vtkImageData* i)
     { this->DrawImage(x0, y0, i, -1, -1, -1, -1); }
   void DrawImage(int x0, int y0, vtkImageData*, int sx, int sy,
                  int width, int height);
 
-  // Description:
-  // Fill a colored area with another color. (like connectivity)
-  // All pixels connected (and with the same value) to pixel (x, y)
-  // get replaced by the current "DrawColor".
+  /**
+   * Fill a colored area with another color. (like connectivity)
+   * All pixels connected (and with the same value) to pixel (x, y)
+   * get replaced by the current "DrawColor".
+   */
   void FillPixel(int x, int y);
 
-  // Description:
-  // These methods set the WholeExtent of the output
-  // It sets the size of the canvas.
-  // Extent is a min max 3D box.  Minimums and maximums are inclusive.
+  //@{
+  /**
+   * These methods set the WholeExtent of the output
+   * It sets the size of the canvas.
+   * Extent is a min max 3D box.  Minimums and maximums are inclusive.
+   */
   void SetExtent(int *extent);
   void SetExtent(int x1, int x2, int y1, int y2, int z1, int z2);
+  //@}
 
-  // Description:
-  // The drawing operations can only draw into one 2D XY plane at a time.
-  // If the canvas is a 3D volume, then this z value is used
-  // as the default for 2D operations. The default is 0.
+  //@{
+  /**
+   * The drawing operations can only draw into one 2D XY plane at a time.
+   * If the canvas is a 3D volume, then this z value is used
+   * as the default for 2D operations. The default is 0.
+   */
   vtkSetMacro(DefaultZ, int);
   vtkGetMacro(DefaultZ, int);
+  //@}
 
-  // Description:
-  // Set/Get Ratio. This is the value that is used to pre-multiply each
-  // (x, y, z) drawing coordinates (including DefaultZ). The default
-  // is (1, 1, 1)
+  //@{
+  /**
+   * Set/Get Ratio. This is the value that is used to pre-multiply each
+   * (x, y, z) drawing coordinates (including DefaultZ). The default
+   * is (1, 1, 1)
+   */
   vtkSetVector3Macro(Ratio, double);
   vtkGetVector3Macro(Ratio, double);
+  //@}
 
-  // Description:
-  // Set the number of scalar components
+  //@{
+  /**
+   * Set the number of scalar components
+   */
   virtual void SetNumberOfScalarComponents(int i);
   virtual int GetNumberOfScalarComponents() const;
+  //@}
 
-  // Description:
-  // Set/Get the data scalar type (i.e VTK_DOUBLE). Note that these methods
-  // are setting and getting the pipeline scalar type. i.e. they are setting
-  // the type that the image data will be once it has executed. Until the
-  // REQUEST_DATA pass the actual scalars may be of some other type. This is
-  // for backwards compatibility
+  //@{
+  /**
+   * Set/Get the data scalar type (i.e VTK_DOUBLE). Note that these methods
+   * are setting and getting the pipeline scalar type. i.e. they are setting
+   * the type that the image data will be once it has executed. Until the
+   * REQUEST_DATA pass the actual scalars may be of some other type. This is
+   * for backwards compatibility
+   */
   void SetScalarTypeToFloat(){this->SetScalarType(VTK_FLOAT);};
   void SetScalarTypeToDouble(){this->SetScalarType(VTK_DOUBLE);};
   void SetScalarTypeToInt(){this->SetScalarType(VTK_INT);};
@@ -137,6 +166,7 @@ public:
     {this->SetScalarType(VTK_CHAR);};
   void SetScalarType(int);
   int GetScalarType() const;
+  //@}
 
 protected:
   vtkImageCanvasSource2D();

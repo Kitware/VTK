@@ -12,13 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAMRFlashReaderInternal.hpp -- Low-level Flash Reader
-//
-// .SECTION Description
-//  Consists of the low-level Flash Reader used by the vtkAMRFlashReader.
-//
-// .SECTION See Also
-//  vtkAMRFlashReader
+/**
+ * @class   vtkAMRFlashReaderInternal
+ *
+ *
+ *  Consists of the low-level Flash Reader used by the vtkAMRFlashReader.
+ *
+ * @sa
+ *  vtkAMRFlashReader
+*/
 
 #ifndef vtkAMRFlashReaderInternal_h
 #define vtkAMRFlashReaderInternal_h

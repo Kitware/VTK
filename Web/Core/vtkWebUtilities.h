@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWebUtilities - collection of utility functions for ParaView Web.
-// .SECTION Description
-// vtkWebUtilities consolidates miscellaneous utility functions useful for
-// Python scripts designed for ParaView Web.
+/**
+ * @class   vtkWebUtilities
+ * @brief   collection of utility functions for ParaView Web.
+ *
+ * vtkWebUtilities consolidates miscellaneous utility functions useful for
+ * Python scripts designed for ParaView Web.
+*/
 
 #ifndef vtkWebUtilities_h
 #define vtkWebUtilities_h
@@ -37,13 +40,16 @@ public:
   static std::string WriteAttributeHeadersToJavaScript(
     int field_type, vtkDataSet*);
 
-  // Description
-  // This method is similar to the ProcessRMIs() method on the GlobalController
-  // except that it is Python friendly in the sense that it will release the
-  // Python GIS lock, so when run in a thread, this will trully work in the
-  // background without locking the main one.
+  //@{
+  /**
+   * This method is similar to the ProcessRMIs() method on the GlobalController
+   * except that it is Python friendly in the sense that it will release the
+   * Python GIS lock, so when run in a thread, this will trully work in the
+   * background without locking the main one.
+   */
   static void ProcessRMIs();
   static void ProcessRMIs(int reportError, int dont_loop=0);
+  //@}
 
 protected:
   vtkWebUtilities();

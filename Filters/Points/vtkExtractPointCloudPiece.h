@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractPointCloudPiece - Return a piece of a point cloud
-// .SECTION Description
-// This filter takes the output of a vtkHierarchicalBinningFilter and allows
-// the pipeline to stream it. Pieces are detemined from an offset integral
-// array is associated with the field data of the input.
+/**
+ * @class   vtkExtractPointCloudPiece
+ * @brief   Return a piece of a point cloud
+ *
+ * This filter takes the output of a vtkHierarchicalBinningFilter and allows
+ * the pipeline to stream it. Pieces are detemined from an offset integral
+ * array is associated with the field data of the input.
+*/
 
 #ifndef vtkExtractPointCloudPiece_h
 #define vtkExtractPointCloudPiece_h
@@ -30,19 +33,25 @@ class vtkIntArray;
 class VTKFILTERSPOINTS_EXPORT vtkExtractPointCloudPiece : public vtkPolyDataAlgorithm
 {
 public:
-  // Description:
-  // Standard methods for instantiation, printing, and type information.
+  //@{
+  /**
+   * Standard methods for instantiation, printing, and type information.
+   */
   static vtkExtractPointCloudPiece *New();
   vtkTypeMacro(vtkExtractPointCloudPiece, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // Turn on or off modulo sampling of the points. By default this is on and the
-  // points in a given piece will be reordered in an attempt to reduce spatial
-  // coherency.
+  //@{
+  /**
+   * Turn on or off modulo sampling of the points. By default this is on and the
+   * points in a given piece will be reordered in an attempt to reduce spatial
+   * coherency.
+   */
   vtkSetMacro(ModuloOrdering,bool);
   vtkGetMacro(ModuloOrdering,bool);
   vtkBooleanMacro(ModuloOrdering,bool);
+  //@}
 
 protected:
   vtkExtractPointCloudPiece();

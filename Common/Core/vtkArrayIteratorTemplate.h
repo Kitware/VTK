@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkArrayIteratorTemplate - Implementation template for a array
-// iterator.
-//
-// .SECTION Description
-// This is implementation template for a array iterator. It only works
-// with arrays that have a contiguous internal storage of values (as in
-// vtkDataArray, vtkStringArray).
+/**
+ * @class   vtkArrayIteratorTemplate
+ * @brief   Implementation template for a array
+ * iterator.
+ *
+ *
+ * This is implementation template for a array iterator. It only works
+ * with arrays that have a contiguous internal storage of values (as in
+ * vtkDataArray, vtkStringArray).
+*/
 
 #ifndef vtkArrayIteratorTemplate_h
 #define vtkArrayIteratorTemplate_h
@@ -38,63 +41,76 @@ public:
   vtkTemplateTypeMacro(vtkArrayIteratorTemplate<T>, vtkArrayIterator)
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Set the array this iterator will iterate over.
-  // After Initialize() has been called, the iterator is valid
-  // so long as the Array has not been modified
-  // (except using the iterator itself).
-  // If the array is modified, the iterator must be re-intialized.
+  /**
+   * Set the array this iterator will iterate over.
+   * After Initialize() has been called, the iterator is valid
+   * so long as the Array has not been modified
+   * (except using the iterator itself).
+   * If the array is modified, the iterator must be re-intialized.
+   */
   void Initialize(vtkAbstractArray* array) VTK_OVERRIDE;
 
-  // Description:
-  // Get the array.
+  /**
+   * Get the array.
+   */
   vtkAbstractArray* GetArray(){ return this->Array; }
 
 
-  // Description:
-  // Must be called only after Initialize.
+  /**
+   * Must be called only after Initialize.
+   */
   T* GetTuple(vtkIdType id);
 
-  // Description:
-  // Must be called only after Initialize.
+  /**
+   * Must be called only after Initialize.
+   */
   T& GetValue(vtkIdType id)
     { return this->Pointer[id]; }
 
-  // Description:
-  // Sets the value at the index. This does not verify if the index is
-  // valid.  The caller must ensure that id is less than the maximum
-  // number of values.
+  /**
+   * Sets the value at the index. This does not verify if the index is
+   * valid.  The caller must ensure that id is less than the maximum
+   * number of values.
+   */
   void SetValue(vtkIdType id, T value)
     {
     this->Pointer[id] = value;
     }
 
-  // Description:
-  // Must be called only after Initialize.
+  /**
+   * Must be called only after Initialize.
+   */
   vtkIdType GetNumberOfTuples();
 
-  // Description:
-  // Must be called only after Initialize.
+  /**
+   * Must be called only after Initialize.
+   */
   vtkIdType GetNumberOfValues();
 
-  // Description:
-  // Must be called only after Initialize.
+  /**
+   * Must be called only after Initialize.
+   */
   int GetNumberOfComponents();
 
-  // Description:
-  // Get the data type from the underlying array.
+  /**
+   * Get the data type from the underlying array.
+   */
   int GetDataType() VTK_OVERRIDE;
 
-  // Description:
-  // Get the data type size from the underlying array.
+  /**
+   * Get the data type size from the underlying array.
+   */
   int GetDataTypeSize();
 
-  // Description:
-  // This is the data type for the value.
+  //@{
+  /**
+   * This is the data type for the value.
+   */
   typedef T ValueType;
 protected:
   vtkArrayIteratorTemplate();
   ~vtkArrayIteratorTemplate() VTK_OVERRIDE;
+  //@}
 
   T* Pointer;
 private:

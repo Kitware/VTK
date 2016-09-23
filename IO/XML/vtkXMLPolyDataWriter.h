@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPolyDataWriter - Write VTK XML PolyData files.
-// .SECTION Description
-// vtkXMLPolyDataWriter writes the VTK XML PolyData file format.  One
-// polygonal data input can be written into one file in any number of
-// streamed pieces (if supported by the rest of the pipeline).  The
-// standard extension for this writer's file format is "vtp".  This
-// writer is also used to write a single piece of the parallel file
-// format.
-
-// .SECTION See Also
-// vtkXMLPPolyDataWriter
+/**
+ * @class   vtkXMLPolyDataWriter
+ * @brief   Write VTK XML PolyData files.
+ *
+ * vtkXMLPolyDataWriter writes the VTK XML PolyData file format.  One
+ * polygonal data input can be written into one file in any number of
+ * streamed pieces (if supported by the rest of the pipeline).  The
+ * standard extension for this writer's file format is "vtp".  This
+ * writer is also used to write a single piece of the parallel file
+ * format.
+ *
+ * @sa
+ * vtkXMLPPolyDataWriter
+*/
 
 #ifndef vtkXMLPolyDataWriter_h
 #define vtkXMLPolyDataWriter_h
@@ -39,12 +42,14 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLPolyDataWriter* New();
 
-  // Description:
-  // Get/Set the writer's input.
+  /**
+   * Get/Set the writer's input.
+   */
   vtkPolyData* GetInput();
 
-  // Description:
-  // Get the default file extension for files written by this writer.
+  /**
+   * Get the default file extension for files written by this writer.
+   */
   const char* GetDefaultFileExtension();
 
 protected:

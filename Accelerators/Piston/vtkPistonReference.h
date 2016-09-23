@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPistonReference - Lower level handle on GPU resident data.
-//
-// .SECTION Description
-// This class is internal storage for the vtkPistonDataObject class.
-// Essentially this is just a handle, in the form of an opaque void
-// pointer, with enough contextual information to determine what is
-// actually pointed to in order for to cast it back into a usable form.
-// The .cu files use this directly instead of vtkPistonDataObject
-// to keep the GPU/CPU code conceptually distinct.
-//
-// .SECTION See Also
-// vtkPistonDataObject
+/**
+ * @class   vtkPistonReference
+ * @brief   Lower level handle on GPU resident data.
+ *
+ *
+ * This class is internal storage for the vtkPistonDataObject class.
+ * Essentially this is just a handle, in the form of an opaque void
+ * pointer, with enough contextual information to determine what is
+ * actually pointed to in order for to cast it back into a usable form.
+ * The .cu files use this directly instead of vtkPistonDataObject
+ * to keep the GPU/CPU code conceptually distinct.
+ *
+ * @sa
+ * vtkPistonDataObject
+*/
 
 #ifndef vtkPistonReference_h
 #define vtkPistonReference_h

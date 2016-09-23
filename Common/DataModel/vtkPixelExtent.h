@@ -12,15 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPixelExtent -- Index space representation of a pixel plane
-// .SECTION Description
-// Representation of a cartesian pixel plane and common operations
-// on it. The implementation is intended to be fast and light
-// so that it may be used in place of int[4] with little or no
-// performance penalty.
-//
-// NOTE in most cases operation on an empty object produces
-// incorrect results. If it an issue query Empty() first.
+/**
+ * @class   vtkPixelExtent
+ *
+ * Representation of a cartesian pixel plane and common operations
+ * on it. The implementation is intended to be fast and light
+ * so that it may be used in place of int[4] with little or no
+ * performance penalty.
+ *
+ * NOTE in most cases operation on an empty object produces
+ * incorrect results. If it an issue query Empty() first.
+*/
 
 #ifndef vtkPixelExtent_h
 #define vtkPixelExtent_h
@@ -52,13 +54,15 @@ public:
 
   vtkPixelExtent &operator=(const vtkPixelExtent &other);
 
-  // Description:
-  // Element access
+  /**
+   * Element access
+   */
   int &operator[](int i){ return this->Data[i]; }
   const int &operator[](int i) const { return this->Data[i]; }
 
-  // Description:
-  // Set the extent.
+  /**
+   * Set the extent.
+   */
   void SetData(const vtkPixelExtent &ext);
 
   template<typename T>
@@ -68,8 +72,9 @@ public:
   void SetData(T ilo, T ihi, T jlo, T jhi);
   void Clear();
 
-  // Description:
-  // Direct access to internal data.
+  /**
+   * Direct access to internal data.
+   */
   int *GetData(){ return this->Data; }
   const int *GetData() const { return this->Data; }
 
@@ -82,108 +87,138 @@ public:
   const unsigned int *GetDataU() const
     { return reinterpret_cast<const unsigned int*>(this->Data); }
 
-  // Description:
-  // Get the start/end index.
+  //@{
+  /**
+   * Get the start/end index.
+   */
   void GetStartIndex(int first[2]) const;
   void GetStartIndex(int first[2], const int origin[2]) const;
   void GetEndIndex(int last[2]) const;
+  //@}
 
-  // Description:
-  // Return true if empty.
+  /**
+   * Return true if empty.
+   */
   int Empty() const;
 
-  // Description:
-  // Test for equivalence.
+  /**
+   * Test for equivalence.
+   */
   bool operator==(const vtkPixelExtent &other) const;
 
-  // Description:
-  // Return non-zero if this extent conatins the other.
+  //@{
+  /**
+   * Return non-zero if this extent conatins the other.
+   */
   int Contains(const vtkPixelExtent &other) const;
   int Contains(int i, int j) const;
+  //@}
 
-  // Description:
-  // Return non-zero if the extent is disjoint from the other
+  /**
+   * Return non-zero if the extent is disjoint from the other
+   */
   int Disjoint(vtkPixelExtent other) const;
 
-  // Description:
-  // Get the number in each direction.
+  /**
+   * Get the number in each direction.
+   */
   template<typename T>
   void Size(T nCells[2]) const;
 
-  // Description:
-  // Get the total number.
+  /**
+   * Get the total number.
+   */
   size_t Size() const;
 
 
-  // Description:
-  //In place intersection.
+  /**
+   * In place intersection.
+   */
   void operator&=(const vtkPixelExtent &other);
 
-  // Description:
-  // In place union
+  /**
+   * In place union
+   */
   void operator|=(const vtkPixelExtent &other);
 
 
 
-  // Description:
-  // Expand the extents by n.
+  //@{
+  /**
+   * Expand the extents by n.
+   */
   void Grow(int n);
   void Grow(int q, int n);
   void GrowLow(int q, int n);
   void GrowHigh(int q, int n);
+  //@}
 
-  // Description:
-  // Shrink the extent by n.
+  //@{
+  /**
+   * Shrink the extent by n.
+   */
   void Shrink(int n);
   void Shrink(int q, int n);
+  //@}
 
-  // Description:
-  // Shifts by low corner of this, moving to the origin.
+  /**
+   * Shifts by low corner of this, moving to the origin.
+   */
   void Shift();
 
-  // Description:
-  // Shift by low corner of the given extent.
+  /**
+   * Shift by low corner of the given extent.
+   */
   void Shift(const vtkPixelExtent &ext);
 
-  // Description:
-  // Shift by the given amount.
+  /**
+   * Shift by the given amount.
+   */
   void Shift(int *n);
 
-  // Description:
-  // Shift by the given amount in the given direction.
+  /**
+   * Shift by the given amount in the given direction.
+   */
   void Shift(int q, int n);
 
-  // Description:
-  // Divide the extent in half in the given direction. The
-  // operation is done in-place the other half of the split
-  // extent is returned. The retunr will be empty if the split
-  // could not be made.
+  /**
+   * Divide the extent in half in the given direction. The
+   * operation is done in-place the other half of the split
+   * extent is returned. The retunr will be empty if the split
+   * could not be made.
+   */
   vtkPixelExtent Split(int dir);
 
 
 
-  // Description:
-  // In-place conversion from cell based to node based extent, and vise-versa.
+  //@{
+  /**
+   * In-place conversion from cell based to node based extent, and vise-versa.
+   */
   void CellToNode();
   void NodeToCell();
+  //@}
 
 
 
-  // Description:
-  // Get the number in each direction.
+  /**
+   * Get the number in each direction.
+   */
   template<typename T>
   static
   void Size(const vtkPixelExtent &ext, T nCells[2]);
 
-  // Description:
-  // Get the total number.
+  /**
+   * Get the total number.
+   */
   static
   size_t Size(const vtkPixelExtent &ext);
 
-  // Description:
-  // Add or remove ghost cells. If a problem domain is
-  // provided then the result is clipled to be within the
-  // problem domain.
+  /**
+   * Add or remove ghost cells. If a problem domain is
+   * provided then the result is clipled to be within the
+   * problem domain.
+   */
   static vtkPixelExtent Grow(const vtkPixelExtent &inputExt, int n);
 
   static vtkPixelExtent Grow(
@@ -201,9 +236,10 @@ public:
       int q,
       int n);
 
-  // Description:
-  // Remove ghost cells. If a problem domain is
-  // provided the input is pinned at the domain.
+  /**
+   * Remove ghost cells. If a problem domain is
+   * provided the input is pinned at the domain.
+   */
   static vtkPixelExtent Shrink(
       const vtkPixelExtent &inputExt,
       const vtkPixelExtent &problemDomain,
@@ -213,54 +249,63 @@ public:
       const vtkPixelExtent &inputExt,
       int n);
 
-  // Description:
-  // Convert from point extent to cell extent
-  // while respecting the dimensionality of the data.
+  /**
+   * Convert from point extent to cell extent
+   * while respecting the dimensionality of the data.
+   */
   static vtkPixelExtent NodeToCell(const vtkPixelExtent &inputExt);
 
-  // Description:
-  // Convert from cell extent to point extent
-  // while respecting the dimensionality of the data.
+  /**
+   * Convert from cell extent to point extent
+   * while respecting the dimensionality of the data.
+   */
   static vtkPixelExtent CellToNode(const vtkPixelExtent &inputExt);
 
-  // Description:
-  // Shift by the given amount while respecting mode.
+  //@{
+  /**
+   * Shift by the given amount while respecting mode.
+   */
   static void Shift(int *ij, int n);
   static void Shift(int *ij, int *n);
+  //@}
 
 
-  // Description:
-  // Split ext at i,j, resulting extents (up to 4) are appended
-  // to newExts. If i,j is outside ext, ext is passed through
-  // unmodified.
+  /**
+   * Split ext at i,j, resulting extents (up to 4) are appended
+   * to newExts. If i,j is outside ext, ext is passed through
+   * unmodified.
+   */
   static void Split(
         int i,
         int j,
         const vtkPixelExtent &ext,
         std::deque<vtkPixelExtent> &newExts);
 
-  // Description:
-  // A - B = C
-  // C is a set of disjoint extents such that the
-  // intersection of B and C is empty and the intersection
-  // of A and C is C.
+  /**
+   * A - B = C
+   * C is a set of disjoint extents such that the
+   * intersection of B and C is empty and the intersection
+   * of A and C is C.
+   */
   static void Subtract(
         const vtkPixelExtent &A,
         vtkPixelExtent B,
         std::deque<vtkPixelExtent> &newExts);
 
-  // Description:
-  // Merge compatible extents in the list. Extents are compatible
-  // if they are directly adjacent nad have the same extent along
-  // the adjacent edge.
+  /**
+   * Merge compatible extents in the list. Extents are compatible
+   * if they are directly adjacent nad have the same extent along
+   * the adjacent edge.
+   */
   static void Merge(std::deque<vtkPixelExtent> &exts);
 
 private:
   int Data[4];
 };
 
-// Description:
-// Stream insertion operator for formatted output of pixel extents.
+/**
+ * Stream insertion operator for formatted output of pixel extents.
+ */
 VTKCOMMONDATAMODEL_EXPORT
 std::ostream &operator<<(std::ostream &os, const vtkPixelExtent &ext);
 

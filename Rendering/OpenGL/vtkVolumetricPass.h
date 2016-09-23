@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkVolumetricPass - Render the volumetric geometry with property key
-// filtering.
-// .SECTION Description
-// vtkVolumetricPass renders the volumetric geometry of all the props that
-// have the keys contained in vtkRenderState.
-//
-// This pass expects an initialized depth buffer and color buffer.
-// Initialized buffers means they have been cleared with farest z-value and
-// background color/gradient/transparent color.
-//
-// .SECTION See Also
-// vtkRenderPass vtkDefaultPass
+/**
+ * @class   vtkVolumetricPass
+ * @brief   Render the volumetric geometry with property key
+ * filtering.
+ *
+ * vtkVolumetricPass renders the volumetric geometry of all the props that
+ * have the keys contained in vtkRenderState.
+ *
+ * This pass expects an initialized depth buffer and color buffer.
+ * Initialized buffers means they have been cleared with farest z-value and
+ * background color/gradient/transparent color.
+ *
+ * @sa
+ * vtkRenderPass vtkDefaultPass
+*/
 
 #ifndef vtkVolumetricPass_h
 #define vtkVolumetricPass_h
@@ -38,18 +41,21 @@ public:
   vtkTypeMacro(vtkVolumetricPass,vtkDefaultPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Perform rendering according to a render state \p s.
-  // \pre s_exists: s!=0
+  /**
+   * Perform rendering according to a render state \p s.
+   * \pre s_exists: s!=0
+   */
   virtual void Render(const vtkRenderState *s);
 
  protected:
-  // Description:
-  // Default constructor.
+  /**
+   * Default constructor.
+   */
   vtkVolumetricPass();
 
-  // Description:
-  // Destructor.
+  /**
+   * Destructor.
+   */
   virtual ~vtkVolumetricPass();
 
  private:

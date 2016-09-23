@@ -45,18 +45,21 @@ THE USE OR INABILITY TO USE THE SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGES.
 
 =========================================================================*/
-// .NAME vtkMNITransformReader - A reader for MNI transformation files.
-// .SECTION Description
-// The MNI .xfm file format is used to store geometrical
-// transformations.  Three kinds of transformations are supported by
-// the file format: affine, thin-plate spline, and grid transformations.
-// This file format was developed at the McConnell Brain Imaging Centre
-// at the Montreal Neurological Institute and is used by their software.
-// .SECTION See Also
-// vtkMINCImageReader vtkMNITransformWriter
-// .SECTION Thanks
-// Thanks to David Gobbi for writing this class and Atamai Inc. for
-// contributing it to VTK.
+/**
+ * @class   vtkMNITransformReader
+ * @brief   A reader for MNI transformation files.
+ *
+ * The MNI .xfm file format is used to store geometrical
+ * transformations.  Three kinds of transformations are supported by
+ * the file format: affine, thin-plate spline, and grid transformations.
+ * This file format was developed at the McConnell Brain Imaging Centre
+ * at the Montreal Neurological Institute and is used by their software.
+ * @sa
+ * vtkMINCImageReader vtkMNITransformWriter
+ * @par Thanks:
+ * Thanks to David Gobbi for writing this class and Atamai Inc. for
+ * contributing it to VTK.
+*/
 
 #ifndef vtkMNITransformReader_h
 #define vtkMNITransformReader_h
@@ -76,41 +79,51 @@ public:
   static vtkMNITransformReader *New();
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Set the file name.
+  //@{
+  /**
+   * Set the file name.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Get the entension for this file format.
+  /**
+   * Get the entension for this file format.
+   */
   virtual const char* GetFileExtensions() {
     return ".xfm"; }
 
-  // Description:
-  // Get the name of this file format.
+  /**
+   * Get the name of this file format.
+   */
   virtual const char* GetDescriptiveName() {
     return "MNI Transform"; }
 
-  // Description:
-  // Test whether the specified file can be read.
+  /**
+   * Test whether the specified file can be read.
+   */
   virtual int CanReadFile(const char* name);
 
-  // Description:
-  // Get the number of transforms in the file.
+  /**
+   * Get the number of transforms in the file.
+   */
   virtual int GetNumberOfTransforms();
 
-  // Description:
-  // Get one of the transforms listed in the file.
+  /**
+   * Get one of the transforms listed in the file.
+   */
   virtual vtkAbstractTransform *GetNthTransform(int i);
 
-  // Description:
-  // Get the transform that results from concatenating all
-  // of the transforms in the file.  This will return null
-  // if you have not specified a file name.
+  /**
+   * Get the transform that results from concatenating all
+   * of the transforms in the file.  This will return null
+   * if you have not specified a file name.
+   */
   virtual vtkAbstractTransform *GetTransform();
 
-  // Description:
-  // Get any comments that are included in the file.
+  /**
+   * Get any comments that are included in the file.
+   */
   virtual const char *GetComments();
 
 protected:

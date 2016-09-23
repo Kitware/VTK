@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkVolumeOutlineSource - outline of volume cropping region
-// .SECTION Description
-// vtkVolumeOutlineSource generates a wireframe outline that corresponds
-// to the cropping region of a vtkVolumeMapper.  It requires a
-// vtkVolumeMapper as input.  The GenerateFaces option turns on the
-// solid faces of the outline, and the GenerateScalars option generates
-// color scalars.  When GenerateScalars is on, it is possible to set
-// an "ActivePlaneId" value in the range [0..6] to highlight one of the
-// six cropping planes.
-// .SECTION Thanks
-// Thanks to David Gobbi for contributing this class to VTK.
+/**
+ * @class   vtkVolumeOutlineSource
+ * @brief   outline of volume cropping region
+ *
+ * vtkVolumeOutlineSource generates a wireframe outline that corresponds
+ * to the cropping region of a vtkVolumeMapper.  It requires a
+ * vtkVolumeMapper as input.  The GenerateFaces option turns on the
+ * solid faces of the outline, and the GenerateScalars option generates
+ * color scalars.  When GenerateScalars is on, it is possible to set
+ * an "ActivePlaneId" value in the range [0..6] to highlight one of the
+ * six cropping planes.
+ * @par Thanks:
+ * Thanks to David Gobbi for contributing this class to VTK.
+*/
 
 #ifndef vtkVolumeOutlineSource_h
 #define vtkVolumeOutlineSource_h
@@ -39,56 +42,77 @@ public:
   vtkTypeMacro(vtkVolumeOutlineSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the mapper that has the cropping region that the outline will
-  // be generated for.  The mapper must have an input, because the
-  // bounds of the data must be computed in order to generate the
-  // outline.
+  //@{
+  /**
+   * Set the mapper that has the cropping region that the outline will
+   * be generated for.  The mapper must have an input, because the
+   * bounds of the data must be computed in order to generate the
+   * outline.
+   */
   virtual void SetVolumeMapper(vtkVolumeMapper *mapper);
   vtkVolumeMapper *GetVolumeMapper() { return this->VolumeMapper; };
+  //@}
 
-  // Description:
-  // Set whether to generate color scalars for the output.  By default,
-  // the output has no scalars and the color must be set in the
-  // property of the actor.
+  //@{
+  /**
+   * Set whether to generate color scalars for the output.  By default,
+   * the output has no scalars and the color must be set in the
+   * property of the actor.
+   */
   vtkSetMacro(GenerateScalars, int);
   vtkBooleanMacro(GenerateScalars, int);
   vtkGetMacro(GenerateScalars, int);
+  //@}
 
-  // Description:
-  // Set whether to generate an outline wherever an input face was
-  // cut by a plane.  This is on by default.
+  //@{
+  /**
+   * Set whether to generate an outline wherever an input face was
+   * cut by a plane.  This is on by default.
+   */
   vtkSetMacro(GenerateOutline, int);
   vtkBooleanMacro(GenerateOutline, int);
   vtkGetMacro(GenerateOutline, int);
+  //@}
 
-  // Description:
-  // Set whether to generate polygonal faces for the output.  By default,
-  // only lines are generated.  The faces will form a closed, watertight
-  // surface.
+  //@{
+  /**
+   * Set whether to generate polygonal faces for the output.  By default,
+   * only lines are generated.  The faces will form a closed, watertight
+   * surface.
+   */
   vtkSetMacro(GenerateFaces, int);
   vtkBooleanMacro(GenerateFaces, int);
   vtkGetMacro(GenerateFaces, int);
+  //@}
 
-  // Description:
-  // Set the color of the outline.  This has no effect unless GenerateScalars
-  // is On.  The default color is red.
+  //@{
+  /**
+   * Set the color of the outline.  This has no effect unless GenerateScalars
+   * is On.  The default color is red.
+   */
   vtkSetVector3Macro(Color, double);
   vtkGetVector3Macro(Color, double);
+  //@}
 
-  // Description:
-  // Set the active plane, e.g. to display which plane is currently being
-  // modified by an interaction.  Set this to -1 if there is no active plane.
-  // The default value is -1.
+  //@{
+  /**
+   * Set the active plane, e.g. to display which plane is currently being
+   * modified by an interaction.  Set this to -1 if there is no active plane.
+   * The default value is -1.
+   */
   vtkSetMacro(ActivePlaneId, int);
   vtkGetMacro(ActivePlaneId, int);
+  //@}
 
-  // Description:
-  // Set the color of the active cropping plane.  This has no effect unless
-  // GenerateScalars is On and ActivePlaneId is non-negative.  The default
-  // color is yellow.
+  //@{
+  /**
+   * Set the color of the active cropping plane.  This has no effect unless
+   * GenerateScalars is On and ActivePlaneId is non-negative.  The default
+   * color is yellow.
+   */
   vtkSetVector3Macro(ActivePlaneColor, double);
   vtkGetVector3Macro(ActivePlaneColor, double);
+  //@}
 
 protected:
   vtkVolumeOutlineSource();

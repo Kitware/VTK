@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGenericDataArrayLookupHelper - internal class used by
-// vtkGenericDataArray to support LookupValue.
-// .SECTION Description
+/**
+ * @class   vtkGenericDataArrayLookupHelper
+ * @brief   internal class used by
+ * vtkGenericDataArray to support LookupValue.
+ *
+*/
 
 #ifndef vtkGenericDataArrayLookupHelper_h
 #define vtkGenericDataArrayLookupHelper_h
@@ -91,14 +94,17 @@ public:
       }
     }
 
-  // Description:
-  // Release any allocated memory for internal data-structures.
+  //@{
+  /**
+   * Release any allocated memory for internal data-structures.
+   */
   void ClearLookup()
     {
     free(this->SortedArray);
     this->SortedArray = NULL;
     this->SortedArraySize = 0;
     }
+  //@}
 
 private:
   vtkGenericDataArrayLookupHelper(const vtkGenericDataArrayLookupHelper&) VTK_DELETE_FUNCTION;

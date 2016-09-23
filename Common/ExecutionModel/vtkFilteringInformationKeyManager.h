@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkFilteringInformationKeyManager - Manages key types in vtkFiltering.
-// .SECTION Description
-// vtkFilteringInformationKeyManager is included in the header of any
-// subclass of vtkInformationKey defined in the vtkFiltering library.
-// It makes sure that the table of keys is created before and
-// destroyed after it is used.
+/**
+ * @class   vtkFilteringInformationKeyManager
+ * @brief   Manages key types in vtkFiltering.
+ *
+ * vtkFilteringInformationKeyManager is included in the header of any
+ * subclass of vtkInformationKey defined in the vtkFiltering library.
+ * It makes sure that the table of keys is created before and
+ * destroyed after it is used.
+*/
 
 #ifndef vtkFilteringInformationKeyManager_h
 #define vtkFilteringInformationKeyManager_h
@@ -35,11 +38,12 @@ public:
   vtkFilteringInformationKeyManager();
   ~vtkFilteringInformationKeyManager();
 
-  // Description:
-  // Called by constructors of vtkInformationKey subclasses defined in
-  // vtkFiltering to register themselves with the manager.  The
-  // instances will be deleted when vtkFiltering is unloaded on
-  // program exit.
+  /**
+   * Called by constructors of vtkInformationKey subclasses defined in
+   * vtkFiltering to register themselves with the manager.  The
+   * instances will be deleted when vtkFiltering is unloaded on
+   * program exit.
+   */
   static void Register(vtkInformationKey* key);
 
 private:

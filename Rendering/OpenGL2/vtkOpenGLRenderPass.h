@@ -13,10 +13,13 @@
 
 =========================================================================*/
 
-// .NAME vtkOpenGLRenderPass - Abstract render pass with shader modifications.
-//
-// .SECTION Description
-// Allows a render pass to update shader code using a new virtual API.
+/**
+ * @class   vtkOpenGLRenderPass
+ * @brief   Abstract render pass with shader modifications.
+ *
+ *
+ * Allows a render pass to update shader code using a new virtual API.
+*/
 
 #ifndef vtkOpenGLRenderPass_h
 #define vtkOpenGLRenderPass_h
@@ -37,43 +40,49 @@ public:
   vtkTypeMacro(vtkOpenGLRenderPass, vtkRenderPass)
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Use vtkShaderProgram::Substitute to replace //VTK::XXX:YYY declarations in
-  // the shader sources.
-  // Return false on error.
+  /**
+   * Use vtkShaderProgram::Substitute to replace //VTK::XXX:YYY declarations in
+   * the shader sources.
+   * Return false on error.
+   */
   virtual bool ReplaceShaderValues(std::string &vertexShader,
                                    std::string &geometryShader,
                                    std::string &fragmentShader,
                                    vtkAbstractMapper *mapper, vtkProp *prop);
 
-  // Description:
-  // Update the uniforms of the shader program.
-  // Return false on error.
+  /**
+   * Update the uniforms of the shader program.
+   * Return false on error.
+   */
   virtual bool SetShaderParameters(vtkShaderProgram *program,
                                    vtkAbstractMapper *mapper, vtkProp *prop);
 
-  // Description:
-  // For multi-stage render passes that need to change shader code during a
-  // single pass, use this method to notify a mapper that the shader needs to be
-  // rebuilt (rather than reuse the last cached shader. This method should
-  // return the last time that the shader stage changed, or 0 if the shader
-  // is single-stage.
+  /**
+   * For multi-stage render passes that need to change shader code during a
+   * single pass, use this method to notify a mapper that the shader needs to be
+   * rebuilt (rather than reuse the last cached shader. This method should
+   * return the last time that the shader stage changed, or 0 if the shader
+   * is single-stage.
+   */
   virtual vtkMTimeType GetShaderStageMTime();
 
-  // Description:
-  // Key containing information about the current pass.
+  /**
+   * Key containing information about the current pass.
+   */
   static vtkInformationObjectBaseVectorKey *RenderPasses();
 
 protected:
   vtkOpenGLRenderPass();
   ~vtkOpenGLRenderPass();
 
-  // Description:
-  // Call before rendering to update the actors' information keys.
+  /**
+   * Call before rendering to update the actors' information keys.
+   */
   void PreRender(const vtkRenderState *s);
 
-  // Description:
-  // Call after rendering to clean up the actors' information keys.
+  /**
+   * Call after rendering to clean up the actors' information keys.
+   */
   void PostRender(const vtkRenderState *s);
 
 private:

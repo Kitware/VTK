@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkStructuredPointsWriter - write vtk structured points data file
-// .SECTION Description
-// vtkStructuredPointsWriter is a source object that writes ASCII or binary
-// structured points data in vtk file format. See text for format details.
-// .SECTION Caveats
-// Binary files written on one system may not be readable on other systems.
+/**
+ * @class   vtkStructuredPointsWriter
+ * @brief   write vtk structured points data file
+ *
+ * vtkStructuredPointsWriter is a source object that writes ASCII or binary
+ * structured points data in vtk file format. See text for format details.
+ * @warning
+ * Binary files written on one system may not be readable on other systems.
+*/
 
 #ifndef vtkStructuredPointsWriter_h
 #define vtkStructuredPointsWriter_h
@@ -34,10 +37,13 @@ public:
   vtkTypeMacro(vtkStructuredPointsWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the input to this writer.
+  //@{
+  /**
+   * Get the input to this writer.
+   */
   vtkImageData* GetInput();
   vtkImageData* GetInput(int port);
+  //@}
 
 protected:
   vtkStructuredPointsWriter() {}

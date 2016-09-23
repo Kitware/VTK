@@ -12,8 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPointSetCellIterator - Implementation of vtkCellIterator using
-// vtkPointSet API.
+/**
+ * @class   vtkPointSetCellIterator
+ * @brief   Implementation of vtkCellIterator using
+ * vtkPointSet API.
+*/
 
 #ifndef vtkPointSetCellIterator_h
 #define vtkPointSetCellIterator_h

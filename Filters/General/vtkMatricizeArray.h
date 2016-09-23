@@ -19,16 +19,19 @@
 
 =========================================================================*/
 
-// .NAME vtkMatricizeArray - Convert an array of arbitrary dimensions to a
-// matrix.
-//
-// .SECTION Description
-// Given a sparse input array of arbitrary dimension, creates a sparse output
-// matrix (vtkSparseArray<double>) where each column is a slice along an
-// arbitrary dimension from the source.
-//
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+/**
+ * @class   vtkMatricizeArray
+ * @brief   Convert an array of arbitrary dimensions to a
+ * matrix.
+ *
+ *
+ * Given a sparse input array of arbitrary dimension, creates a sparse output
+ * matrix (vtkSparseArray<double>) where each column is a slice along an
+ * arbitrary dimension from the source.
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+*/
 
 #ifndef vtkMatricizeArray_h
 #define vtkMatricizeArray_h
@@ -43,13 +46,19 @@ public:
   vtkTypeMacro(vtkMatricizeArray, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Returns the 0-numbered dimension that will be mapped to columns in the output
+  //@{
+  /**
+   * Returns the 0-numbered dimension that will be mapped to columns in the output
+   */
   vtkGetMacro(SliceDimension, vtkIdType);
+  //@}
 
-  // Description:
-  // Sets the 0-numbered dimension that will be mapped to columns in the output
+  //@{
+  /**
+   * Sets the 0-numbered dimension that will be mapped to columns in the output
+   */
   vtkSetMacro(SliceDimension, vtkIdType);
+  //@}
 
 protected:
   vtkMatricizeArray();

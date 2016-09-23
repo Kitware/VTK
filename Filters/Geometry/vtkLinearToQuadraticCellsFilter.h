@@ -13,13 +13,16 @@
 
 =========================================================================*/
 
-// .NAME vtkLinearToQuadraticCellsFilter - degree elevate the cells of a linear unstructured grid.
-//
-// .SECTION Description
-// vtkLinearToQuadraticCellsFilter takes an unstructured grid comprised of
-// linear cells and degree elevates each of the cells to quadratic. Additional
-// points are simply interpolated from the existing points (there is no snapping
-// to an external model).
+/**
+ * @class   vtkLinearToQuadraticCellsFilter
+ * @brief   degree elevate the cells of a linear unstructured grid.
+ *
+ *
+ * vtkLinearToQuadraticCellsFilter takes an unstructured grid comprised of
+ * linear cells and degree elevates each of the cells to quadratic. Additional
+ * points are simply interpolated from the existing points (there is no snapping
+ * to an external model).
+*/
 
 #ifndef vtkLinearToQuadraticCellsFilter_h
 #define vtkLinearToQuadraticCellsFilter_h
@@ -37,27 +40,35 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkLinearToQuadraticCellsFilter *New();
 
-  // Description:
-  // Specify a spatial locator for merging points. By default, an
-  // instance of vtkMergePoints is used.
+  //@{
+  /**
+   * Specify a spatial locator for merging points. By default, an
+   * instance of vtkMergePoints is used.
+   */
   void SetLocator(vtkIncrementalPointLocator *locator);
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
+  //@}
 
-  // Description:
-  // Create default locator. Used to create one when none is specified. The
-  // locator is used to merge coincident points.
+  /**
+   * Create default locator. Used to create one when none is specified. The
+   * locator is used to merge coincident points.
+   */
   void CreateDefaultLocator();
 
-  // Description:
-  // Set/get the desired precision for the output types. See the documentation
-  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
-  // the available precision settings.
-  // OutputPointsPrecision is DEFAULT_PRECISION by default.
+  //@{
+  /**
+   * Set/get the desired precision for the output types. See the documentation
+   * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+   * the available precision settings.
+   * OutputPointsPrecision is DEFAULT_PRECISION by default.
+   */
   vtkSetMacro(OutputPointsPrecision,int);
   vtkGetMacro(OutputPointsPrecision,int);
+  //@}
 
-  // Description:
-  // Return the mtime also considering the locator.
+  /**
+   * Return the mtime also considering the locator.
+   */
   vtkMTimeType GetMTime();
 
 protected:

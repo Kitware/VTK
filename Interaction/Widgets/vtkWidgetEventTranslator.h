@@ -12,20 +12,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWidgetEventTranslator - map VTK events into widget events
-// .SECTION Description
-// vtkWidgetEventTranslator maps VTK events (defined on vtkCommand) into
-// widget events (defined in vtkWidgetEvent.h). This class is typically used
-// in combination with vtkWidgetCallbackMapper, which is responsible for
-// translating widget events into method callbacks, and then invoking the
-// callbacks.
-//
-// This class can be used to define different mappings of VTK events into
-// the widget events. Thus widgets can be reconfigured to use different
-// event bindings.
-
-// .SECTION See Also
-// vtkWidgetEvent vtkCommand vtkInteractorObserver
+/**
+ * @class   vtkWidgetEventTranslator
+ * @brief   map VTK events into widget events
+ *
+ * vtkWidgetEventTranslator maps VTK events (defined on vtkCommand) into
+ * widget events (defined in vtkWidgetEvent.h). This class is typically used
+ * in combination with vtkWidgetCallbackMapper, which is responsible for
+ * translating widget events into method callbacks, and then invoking the
+ * callbacks.
+ *
+ * This class can be used to define different mappings of VTK events into
+ * the widget events. Thus widgets can be reconfigured to use different
+ * event bindings.
+ *
+ * @sa
+ * vtkWidgetEvent vtkCommand vtkInteractorObserver
+*/
 
 #ifndef vtkWidgetEventTranslator_h
 #define vtkWidgetEventTranslator_h
@@ -45,54 +48,71 @@ class vtkAbstractWidget;
 class VTKINTERACTIONWIDGETS_EXPORT vtkWidgetEventTranslator : public vtkObject
 {
 public:
-  // Description:
-  // Instantiate the object.
+  /**
+   * Instantiate the object.
+   */
   static vtkWidgetEventTranslator *New();
 
-  // Description:
-  // Standard macros.
+  //@{
+  /**
+   * Standard macros.
+   */
   vtkTypeMacro(vtkWidgetEventTranslator,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // Use these methods to create the translation from a VTK event to a widget
-  // event. Specifying vtkWidgetEvent::NoEvent or an empty
-  // string for the (toEvent) erases the mapping for the event.
+  //@{
+  /**
+   * Use these methods to create the translation from a VTK event to a widget
+   * event. Specifying vtkWidgetEvent::NoEvent or an empty
+   * string for the (toEvent) erases the mapping for the event.
+   */
   void SetTranslation(unsigned long VTKEvent, unsigned long widgetEvent);
   void SetTranslation(const char *VTKEvent, const char *widgetEvent);
   void SetTranslation(unsigned long VTKEvent, int modifier, char keyCode,
                       int repeatCount, const char* keySym, unsigned long widgetEvent);
   void SetTranslation(vtkEvent *VTKevent, unsigned long widgetEvent);
+  //@}
 
-  // Description:
-  // Translate a VTK event into a widget event. If no event mapping is found,
-  // then the methods return vtkWidgetEvent::NoEvent or a NULL string.
+  //@{
+  /**
+   * Translate a VTK event into a widget event. If no event mapping is found,
+   * then the methods return vtkWidgetEvent::NoEvent or a NULL string.
+   */
   unsigned long GetTranslation(unsigned long VTKEvent);
   const char *GetTranslation(const char *VTKEvent);
   unsigned long GetTranslation(unsigned long VTKEvent, int modifier, char keyCode,
                                int repeatCount, char* keySym);
   unsigned long GetTranslation(vtkEvent *VTKEvent);
+  //@}
 
-  // Description:
-  // Remove translations for a binding.
-  // Returns the number of translations removed.
+  //@{
+  /**
+   * Remove translations for a binding.
+   * Returns the number of translations removed.
+   */
   int RemoveTranslation( unsigned long VTKEvent,
                          int modifier,    char keyCode,
                          int repeatCount, char* keySym);
   int RemoveTranslation( vtkEvent *e );
   int RemoveTranslation(unsigned long VTKEvent);
   int RemoveTranslation(const char *VTKEvent);
+  //@}
 
-  // Description:
-  // Clear all events from the translator (i.e., no events will be
-  // translated).
+  /**
+   * Clear all events from the translator (i.e., no events will be
+   * translated).
+   */
   void ClearEvents();
 
-  // Description:
-  // Add the events in the current translation table to the interactor.
+  //@{
+  /**
+   * Add the events in the current translation table to the interactor.
+   */
   void AddEventsToParent(vtkAbstractWidget*, vtkCallbackCommand*, float priority);
   void AddEventsToInteractor(vtkRenderWindowInteractor*, vtkCallbackCommand*,
                              float priority);
+  //@}
 
 protected:
   // Constructors/destructors made public for widgets to use

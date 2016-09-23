@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkZLibDataCompressor - Data compression using zlib.
-// .SECTION Description
-// vtkZLibDataCompressor provides a concrete vtkDataCompressor class
-// using zlib for compressing and uncompressing data.
+/**
+ * @class   vtkZLibDataCompressor
+ * @brief   Data compression using zlib.
+ *
+ * vtkZLibDataCompressor provides a concrete vtkDataCompressor class
+ * using zlib for compressing and uncompressing data.
+*/
 
 #ifndef vtkZLibDataCompressor_h
 #define vtkZLibDataCompressor_h
@@ -30,17 +33,21 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkZLibDataCompressor* New();
 
-  // Description:
-  // Get the maximum space that may be needed to store data of the
-  // given uncompressed size after compression.  This is the minimum
-  // size of the output buffer that can be passed to the four-argument
-  // Compress method.
+  /**
+   * Get the maximum space that may be needed to store data of the
+   * given uncompressed size after compression.  This is the minimum
+   * size of the output buffer that can be passed to the four-argument
+   * Compress method.
+   */
   size_t GetMaximumCompressionSpace(size_t size);
 
-  // Description:
-  // Get/Set the compression level.
+  //@{
+  /**
+   * Get/Set the compression level.
+   */
   vtkSetClampMacro(CompressionLevel, int, 0, 9);
   vtkGetMacro(CompressionLevel, int);
+  //@}
 
 protected:
   vtkZLibDataCompressor();

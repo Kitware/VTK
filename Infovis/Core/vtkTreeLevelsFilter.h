@@ -17,17 +17,20 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkTreeLevelsFilter - adds level and leaf fields to a vtkTree
-//
-// .SECTION Description
-// The filter currently add two arrays to the incoming vtkTree datastructure.
-// 1) "levels" this is the distance from the root of the vertex. Root = 0
-// and you add 1 for each level down from the root
-// 2) "leaf" this array simply indicates whether the vertex is a leaf or not
-//
-// .SECTION Thanks
-// Thanks to Brian Wylie from Sandia National Laboratories for creating this
-// class.
+/**
+ * @class   vtkTreeLevelsFilter
+ * @brief   adds level and leaf fields to a vtkTree
+ *
+ *
+ * The filter currently add two arrays to the incoming vtkTree datastructure.
+ * 1) "levels" this is the distance from the root of the vertex. Root = 0
+ * and you add 1 for each level down from the root
+ * 2) "leaf" this array simply indicates whether the vertex is a leaf or not
+ *
+ * @par Thanks:
+ * Thanks to Brian Wylie from Sandia National Laboratories for creating this
+ * class.
+*/
 
 #ifndef vtkTreeLevelsFilter_h
 #define vtkTreeLevelsFilter_h

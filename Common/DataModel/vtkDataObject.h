@@ -12,21 +12,24 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDataObject - general representation of visualization data
-// .SECTION Description
-// vtkDataObject is an general representation of visualization data. It serves
-// to encapsulate instance variables and methods for visualization network
-// execution, as well as representing data consisting of a field (i.e., just
-// an unstructured pile of data). This is to be compared with a vtkDataSet,
-// which is data with geometric and/or topological structure.
-//
-// vtkDataObjects are used to represent arbitrary repositories of data via the
-// vtkFieldData instance variable. These data must be eventually mapped into a
-// concrete subclass of vtkDataSet before they can actually be displayed.
-//
-// .SECTION See Also
-// vtkDataSet vtkFieldData vtkDataObjectToDataSetFilter
-// vtkFieldDataToAttributeDataFilter
+/**
+ * @class   vtkDataObject
+ * @brief   general representation of visualization data
+ *
+ * vtkDataObject is an general representation of visualization data. It serves
+ * to encapsulate instance variables and methods for visualization network
+ * execution, as well as representing data consisting of a field (i.e., just
+ * an unstructured pile of data). This is to be compared with a vtkDataSet,
+ * which is data with geometric and/or topological structure.
+ *
+ * vtkDataObjects are used to represent arbitrary repositories of data via the
+ * vtkFieldData instance variable. These data must be eventually mapped into a
+ * concrete subclass of vtkDataSet before they can actually be displayed.
+ *
+ * @sa
+ * vtkDataSet vtkFieldData vtkDataObjectToDataSetFilter
+ * vtkFieldDataToAttributeDataFilter
+*/
 
 #ifndef vtkDataObject_h
 #define vtkDataObject_h
@@ -60,158 +63,192 @@ public:
   vtkTypeMacro(vtkDataObject,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Set/Get the information object associated with this data object.
+  //@{
+  /**
+   * Set/Get the information object associated with this data object.
+   */
   vtkGetObjectMacro(Information, vtkInformation);
   virtual void SetInformation(vtkInformation*);
+  //@}
 
-  // Description:
-  // Data objects are composite objects and need to check each part for MTime.
-  // The information object also needs to be considered.
+  /**
+   * Data objects are composite objects and need to check each part for MTime.
+   * The information object also needs to be considered.
+   */
   vtkMTimeType GetMTime() VTK_OVERRIDE;
 
-  // Description:
-  // Restore data object to initial state,
+  /**
+   * Restore data object to initial state,
+   */
   virtual void Initialize();
 
-  // Description:
-  // Release data back to system to conserve memory resource. Used during
-  // visualization network execution.  Releasing this data does not make
-  // down-stream data invalid, so it does not modify the MTime of this
-  // data object.
+  /**
+   * Release data back to system to conserve memory resource. Used during
+   * visualization network execution.  Releasing this data does not make
+   * down-stream data invalid, so it does not modify the MTime of this
+   * data object.
+   */
   void ReleaseData();
 
-  // Description:
-  // Get the flag indicating the data has been released.
+  //@{
+  /**
+   * Get the flag indicating the data has been released.
+   */
   vtkGetMacro(DataReleased,int);
+  //@}
 
 
-  // Description:
-  // Turn on/off flag to control whether every object releases its data
-  // after being used by a filter.
+  //@{
+  /**
+   * Turn on/off flag to control whether every object releases its data
+   * after being used by a filter.
+   */
   static void SetGlobalReleaseDataFlag(int val);
   void GlobalReleaseDataFlagOn() {this->SetGlobalReleaseDataFlag(1);};
   void GlobalReleaseDataFlagOff() {this->SetGlobalReleaseDataFlag(0);};
   static int GetGlobalReleaseDataFlag();
+  //@}
 
-  // Description:
-  // Assign or retrieve a general field data to this data object.
+  //@{
+  /**
+   * Assign or retrieve a general field data to this data object.
+   */
   virtual void SetFieldData(vtkFieldData*);
   vtkGetObjectMacro(FieldData,vtkFieldData);
+  //@}
 
-  // Description:
-  // Return class name of data type. This is one of VTK_STRUCTURED_GRID,
-  // VTK_STRUCTURED_POINTS, VTK_UNSTRUCTURED_GRID, VTK_POLY_DATA, or
-  // VTK_RECTILINEAR_GRID (see vtkSetGet.h for definitions).
-  // THIS METHOD IS THREAD SAFE
+  /**
+   * Return class name of data type. This is one of VTK_STRUCTURED_GRID,
+   * VTK_STRUCTURED_POINTS, VTK_UNSTRUCTURED_GRID, VTK_POLY_DATA, or
+   * VTK_RECTILINEAR_GRID (see vtkSetGet.h for definitions).
+   * THIS METHOD IS THREAD SAFE
+   */
   virtual int GetDataObjectType() {return VTK_DATA_OBJECT;}
 
-  // Description:
-  // Used by Threaded ports to determine if they should initiate an
-  // asynchronous update (still in development).
+  /**
+   * Used by Threaded ports to determine if they should initiate an
+   * asynchronous update (still in development).
+   */
   vtkMTimeType GetUpdateTime();
 
-  // Description:
-  // Return the actual size of the data in kibibytes (1024 bytes). This number
-  // is valid only after the pipeline has updated. The memory size
-  // returned is guaranteed to be greater than or equal to the
-  // memory required to represent the data (e.g., extra space in
-  // arrays, etc. are not included in the return value).
+  /**
+   * Return the actual size of the data in kibibytes (1024 bytes). This number
+   * is valid only after the pipeline has updated. The memory size
+   * returned is guaranteed to be greater than or equal to the
+   * memory required to represent the data (e.g., extra space in
+   * arrays, etc. are not included in the return value).
+   */
   virtual unsigned long GetActualMemorySize();
 
-  // Description:
-  // Copy from the pipeline information to the data object's own information.
-  // Called right before the main execution pass.
+  /**
+   * Copy from the pipeline information to the data object's own information.
+   * Called right before the main execution pass.
+   */
   virtual void CopyInformationFromPipeline(vtkInformation* vtkNotUsed(info))
   {}
 
-  // Description:
-  // Copy information from this data object to the pipeline information.
-  // This is used by the vtkTrivialProducer that is created when someone
-  // calls SetInputData() to connect a data object to a pipeline.
+  /**
+   * Copy information from this data object to the pipeline information.
+   * This is used by the vtkTrivialProducer that is created when someone
+   * calls SetInputData() to connect a data object to a pipeline.
+   */
   virtual void CopyInformationToPipeline(vtkInformation* vtkNotUsed(info)) {}
 
-  // Description:
-  // Return the information object within the input information object's
-  // field data corresponding to the specified association
-  // (FIELD_ASSOCIATION_POINTS or FIELD_ASSOCIATION_CELLS) and attribute
-  // (SCALARS, VECTORS, NORMALS, TCOORDS, or TENSORS)
+  /**
+   * Return the information object within the input information object's
+   * field data corresponding to the specified association
+   * (FIELD_ASSOCIATION_POINTS or FIELD_ASSOCIATION_CELLS) and attribute
+   * (SCALARS, VECTORS, NORMALS, TCOORDS, or TENSORS)
+   */
   static vtkInformation *GetActiveFieldInformation(vtkInformation *info,
     int fieldAssociation, int attributeType);
 
-  // Description:
-  // Return the information object within the input information object's
-  // field data corresponding to the specified association
-  // (FIELD_ASSOCIATION_POINTS or FIELD_ASSOCIATION_CELLS) and name.
+  /**
+   * Return the information object within the input information object's
+   * field data corresponding to the specified association
+   * (FIELD_ASSOCIATION_POINTS or FIELD_ASSOCIATION_CELLS) and name.
+   */
   static vtkInformation *GetNamedFieldInformation(vtkInformation *info,
     int fieldAssociation, const char *name);
 
-  // Description:
-  // Remove the info associated with an array
+  /**
+   * Remove the info associated with an array
+   */
   static void RemoveNamedFieldInformation(vtkInformation *info,
                                           int fieldAssociation,
                                           const char *name);
 
-  // Description:
-  // Set the named array to be the active field for the specified type
-  // (SCALARS, VECTORS, NORMALS, TCOORDS, or TENSORS) and association
-  // (FIELD_ASSOCIATION_POINTS or FIELD_ASSOCIATION_CELLS).  Returns the
-  // active field information object and creates on entry if one not found.
+  /**
+   * Set the named array to be the active field for the specified type
+   * (SCALARS, VECTORS, NORMALS, TCOORDS, or TENSORS) and association
+   * (FIELD_ASSOCIATION_POINTS or FIELD_ASSOCIATION_CELLS).  Returns the
+   * active field information object and creates on entry if one not found.
+   */
   static vtkInformation *SetActiveAttribute(vtkInformation *info,
     int fieldAssociation, const char *attributeName, int attributeType);
 
-  // Description:
-  // Set the name, array type, number of components, and number of tuples
-  // within the passed information object for the active attribute of type
-  // attributeType (in specified association, FIELD_ASSOCIATION_POINTS or
-  // FIELD_ASSOCIATION_CELLS).  If there is not an active attribute of the
-  // specified type, an entry in the information object is created.  If
-  // arrayType, numComponents, or numTuples equal to -1, or name=NULL the
-  // value is not changed.
+  /**
+   * Set the name, array type, number of components, and number of tuples
+   * within the passed information object for the active attribute of type
+   * attributeType (in specified association, FIELD_ASSOCIATION_POINTS or
+   * FIELD_ASSOCIATION_CELLS).  If there is not an active attribute of the
+   * specified type, an entry in the information object is created.  If
+   * arrayType, numComponents, or numTuples equal to -1, or name=NULL the
+   * value is not changed.
+   */
   static void SetActiveAttributeInfo(vtkInformation *info,
     int fieldAssociation, int attributeType, const char *name, int arrayType,
     int numComponents, int numTuples);
 
-  // Description:
-  // Convenience version of previous method for use (primarily) by the Imaging
-  // filters. If arrayType or numComponents == -1, the value is not changed.
+  /**
+   * Convenience version of previous method for use (primarily) by the Imaging
+   * filters. If arrayType or numComponents == -1, the value is not changed.
+   */
   static void SetPointDataActiveScalarInfo(vtkInformation *info,
     int arrayType, int numComponents);
 
-  // Description:
-  // This method is called by the source when it executes to generate data.
-  // It is sort of the opposite of ReleaseData.
-  // It sets the DataReleased flag to 0, and sets a new UpdateTime.
+  /**
+   * This method is called by the source when it executes to generate data.
+   * It is sort of the opposite of ReleaseData.
+   * It sets the DataReleased flag to 0, and sets a new UpdateTime.
+   */
   void DataHasBeenGenerated();
 
-  // Description:
-  // make the output data ready for new data to be inserted. For most
-  // objects we just call Initialize. But for vtkImageData we leave the old
-  // data in case the memory can be reused.
+  /**
+   * make the output data ready for new data to be inserted. For most
+   * objects we just call Initialize. But for vtkImageData we leave the old
+   * data in case the memory can be reused.
+   */
   virtual void PrepareForNewData() {this->Initialize();};
 
-  // Description:
-  // Shallow and Deep copy.  These copy the data, but not any of the
-  // pipeline connections.
+  //@{
+  /**
+   * Shallow and Deep copy.  These copy the data, but not any of the
+   * pipeline connections.
+   */
   virtual void ShallowCopy(vtkDataObject *src);
   virtual void DeepCopy(vtkDataObject *src);
+  //@}
 
-  // Description:
-  // The ExtentType will be left as VTK_PIECES_EXTENT for data objects
-  // such as vtkPolyData and vtkUnstructuredGrid. The ExtentType will be
-  // changed to VTK_3D_EXTENT for data objects with 3D structure such as
-  // vtkImageData (and its subclass vtkStructuredPoints), vtkRectilinearGrid,
-  // and vtkStructuredGrid. The default is the have an extent in pieces,
-  // with only one piece (no streaming possible).
+  /**
+   * The ExtentType will be left as VTK_PIECES_EXTENT for data objects
+   * such as vtkPolyData and vtkUnstructuredGrid. The ExtentType will be
+   * changed to VTK_3D_EXTENT for data objects with 3D structure such as
+   * vtkImageData (and its subclass vtkStructuredPoints), vtkRectilinearGrid,
+   * and vtkStructuredGrid. The default is the have an extent in pieces,
+   * with only one piece (no streaming possible).
+   */
   virtual int GetExtentType() { return VTK_PIECES_EXTENT; };
 
-  // Description:
-  // This method crops the data object (if necessary) so that the extent
-  // matches the update extent.
+  /**
+   * This method crops the data object (if necessary) so that the extent
+   * matches the update extent.
+   */
   virtual void Crop(const int* updateExtent);
 
-  // Description:
-  // Possible values for the FIELD_ASSOCIATION information entry.
+  /**
+   * Possible values for the FIELD_ASSOCIATION information entry.
+   */
   enum FieldAssociations
   {
     FIELD_ASSOCIATION_POINTS,
@@ -224,9 +261,10 @@ public:
     NUMBER_OF_ASSOCIATIONS
   };
 
-  // Description:
-  // Possible attribute types.
-  // POINT_THEN_CELL is provided for consistency with FieldAssociations.
+  /**
+   * Possible attribute types.
+   * POINT_THEN_CELL is provided for consistency with FieldAssociations.
+   */
   enum AttributeTypes
   {
     POINT,
@@ -239,41 +277,46 @@ public:
     NUMBER_OF_ATTRIBUTE_TYPES
   };
 
-  // Description:
-  // Returns the attributes of the data object of the specified
-  // attribute type. The type may be:
-  // <ul>
-  // <li>POINT  - Defined in vtkDataSet subclasses.
-  // <li>CELL   - Defined in vtkDataSet subclasses.
-  // <li>VERTEX - Defined in vtkGraph subclasses.
-  // <li>EDGE   - Defined in vtkGraph subclasses.
-  // <li>ROW    - Defined in vtkTable.
-  // </ul>
-  // The other attribute type, FIELD, will return NULL since
-  // field data is stored as a vtkFieldData instance, not a
-  // vtkDataSetAttributes instance. To retrieve field data, use
-  // GetAttributesAsFieldData.
+  /**
+   * Returns the attributes of the data object of the specified
+   * attribute type. The type may be:
+   * <ul>
+   * <li>POINT  - Defined in vtkDataSet subclasses.
+   * <li>CELL   - Defined in vtkDataSet subclasses.
+   * <li>VERTEX - Defined in vtkGraph subclasses.
+   * <li>EDGE   - Defined in vtkGraph subclasses.
+   * <li>ROW    - Defined in vtkTable.
+   * </ul>
+   * The other attribute type, FIELD, will return NULL since
+   * field data is stored as a vtkFieldData instance, not a
+   * vtkDataSetAttributes instance. To retrieve field data, use
+   * GetAttributesAsFieldData.
+   */
   virtual vtkDataSetAttributes* GetAttributes(int type);
 
-  // Description:
-  // Returns the attributes of the data object as a vtkFieldData.
-  // This returns non-null values in all the same cases as GetAttributes,
-  // in addition to the case of FIELD, which will return the field data
-  // for any vtkDataObject subclass.
+  /**
+   * Returns the attributes of the data object as a vtkFieldData.
+   * This returns non-null values in all the same cases as GetAttributes,
+   * in addition to the case of FIELD, which will return the field data
+   * for any vtkDataObject subclass.
+   */
   virtual vtkFieldData* GetAttributesAsFieldData(int type);
 
-  // Description:
-  // Retrieves the attribute type that an array came from.
-  // This is useful for obtaining which attribute type a input array
-  // to an algorithm came from (retrieved from GetInputAbstractArrayToProcesss).
+  /**
+   * Retrieves the attribute type that an array came from.
+   * This is useful for obtaining which attribute type a input array
+   * to an algorithm came from (retrieved from GetInputAbstractArrayToProcesss).
+   */
   virtual int GetAttributeTypeForArray(vtkAbstractArray* arr);
 
-  // Description:
-  // Get the number of elements for a specific attribute type (POINT, CELL, etc.).
+  /**
+   * Get the number of elements for a specific attribute type (POINT, CELL, etc.).
+   */
   virtual vtkIdType GetNumberOfElements(int type);
 
-  // Description:
-  // Possible values for the FIELD_OPERATION information entry.
+  /**
+   * Possible values for the FIELD_OPERATION information entry.
+   */
   enum FieldOperations
   {
     FIELD_OPERATION_PRESERVED,
@@ -282,14 +325,16 @@ public:
     FIELD_OPERATION_REMOVED
   };
 
-  // Description:
-  // Given an integer association type, this static method returns a string type
-  // for the attribute (i.e. type = 0: returns "Points").
+  /**
+   * Given an integer association type, this static method returns a string type
+   * for the attribute (i.e. type = 0: returns "Points").
+   */
   static const char* GetAssociationTypeAsString(int associationType);
 
-  // Description:
-  // Given an integer association type, this static method returns a string type
-  // for the attribute (i.e. type = 0: returns "Points").
+  /**
+   * Given an integer association type, this static method returns a string type
+   * for the attribute (i.e. type = 0: returns "Points").
+   */
   static int GetAssociationTypeFromString(const char* associationType);
 
   // \ingroup InformationKeys
@@ -349,10 +394,13 @@ public:
   // \ingroup InformationKeys
   static vtkInformationDataObjectKey* SIL();
 
-  // Description:
-  // Retrieve an instance of this class from an information object.
+  //@{
+  /**
+   * Retrieve an instance of this class from an information object.
+   */
   static vtkDataObject* GetData(vtkInformation* info);
   static vtkDataObject* GetData(vtkInformationVector* v, int i=0);
+  //@}
 
 protected:
 

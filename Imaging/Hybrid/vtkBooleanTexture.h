@@ -12,31 +12,34 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBooleanTexture - generate 2D texture map based on combinations of inside, outside, and on region boundary
-
-// .SECTION Description
-// vtkBooleanTexture is a filter to generate a 2D texture map based on
-// combinations of inside, outside, and on region boundary. The "region" is
-// implicitly represented via 2D texture coordinates. These texture
-// coordinates are normally generated using a filter like
-// vtkImplicitTextureCoords, which generates the texture coordinates for
-// any implicit function.
-//
-// vtkBooleanTexture generates the map according to the s-t texture
-// coordinates plus the notion of being in, on, or outside of a
-// region. An in region is when the texture coordinate is between
-// (0,0.5-thickness/2).  An out region is where the texture coordinate
-// is (0.5+thickness/2). An on region is between
-// (0.5-thickness/2,0.5+thickness/2). The combination in, on, and out
-// for each of the s-t texture coordinates results in 16 possible
-// combinations (see text). For each combination, a different value of
-// intensity and transparency can be assigned. To assign maximum intensity
-// and/or opacity use the value 255. A minimum value of 0 results in
-// a black region (for intensity) and a fully transparent region (for
-// transparency).
-
-// .SECTION See Also
-// vtkImplicitTextureCoords vtkThresholdTextureCoords
+/**
+ * @class   vtkBooleanTexture
+ * @brief   generate 2D texture map based on combinations of inside, outside, and on region boundary
+ *
+ *
+ * vtkBooleanTexture is a filter to generate a 2D texture map based on
+ * combinations of inside, outside, and on region boundary. The "region" is
+ * implicitly represented via 2D texture coordinates. These texture
+ * coordinates are normally generated using a filter like
+ * vtkImplicitTextureCoords, which generates the texture coordinates for
+ * any implicit function.
+ *
+ * vtkBooleanTexture generates the map according to the s-t texture
+ * coordinates plus the notion of being in, on, or outside of a
+ * region. An in region is when the texture coordinate is between
+ * (0,0.5-thickness/2).  An out region is where the texture coordinate
+ * is (0.5+thickness/2). An on region is between
+ * (0.5-thickness/2,0.5+thickness/2). The combination in, on, and out
+ * for each of the s-t texture coordinates results in 16 possible
+ * combinations (see text). For each combination, a different value of
+ * intensity and transparency can be assigned. To assign maximum intensity
+ * and/or opacity use the value 255. A minimum value of 0 results in
+ * a black region (for intensity) and a fully transparent region (for
+ * transparency).
+ *
+ * @sa
+ * vtkImplicitTextureCoords vtkThresholdTextureCoords
+*/
 
 #ifndef vtkBooleanTexture_h
 #define vtkBooleanTexture_h
@@ -52,65 +55,101 @@ public:
   vtkTypeMacro(vtkBooleanTexture,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the X texture map dimension.
+  //@{
+  /**
+   * Set the X texture map dimension.
+   */
   vtkSetMacro(XSize,int);
   vtkGetMacro(XSize,int);
+  //@}
 
-  // Description:
-  // Set the Y texture map dimension.
+  //@{
+  /**
+   * Set the Y texture map dimension.
+   */
   vtkSetMacro(YSize,int);
   vtkGetMacro(YSize,int);
+  //@}
 
-  // Description:
-  // Set the thickness of the "on" region.
+  //@{
+  /**
+   * Set the thickness of the "on" region.
+   */
   vtkSetMacro(Thickness,int);
   vtkGetMacro(Thickness,int);
+  //@}
 
-  // Description:
-  // Specify intensity/transparency for "in/in" region.
+  //@{
+  /**
+   * Specify intensity/transparency for "in/in" region.
+   */
   vtkSetVector2Macro(InIn,unsigned char);
   vtkGetVectorMacro(InIn,unsigned char,2);
+  //@}
 
-  // Description:
-  // Specify intensity/transparency for "in/out" region.
+  //@{
+  /**
+   * Specify intensity/transparency for "in/out" region.
+   */
   vtkSetVector2Macro(InOut,unsigned char);
   vtkGetVectorMacro(InOut,unsigned char,2);
+  //@}
 
-  // Description:
-  // Specify intensity/transparency for "out/in" region.
+  //@{
+  /**
+   * Specify intensity/transparency for "out/in" region.
+   */
   vtkSetVector2Macro(OutIn,unsigned char);
   vtkGetVectorMacro(OutIn,unsigned char,2);
+  //@}
 
-  // Description:
-  // Specify intensity/transparency for "out/out" region.
+  //@{
+  /**
+   * Specify intensity/transparency for "out/out" region.
+   */
   vtkSetVector2Macro(OutOut,unsigned char);
   vtkGetVectorMacro(OutOut,unsigned char,2);
+  //@}
 
-  // Description:
-  // Specify intensity/transparency for "on/on" region.
+  //@{
+  /**
+   * Specify intensity/transparency for "on/on" region.
+   */
   vtkSetVector2Macro(OnOn,unsigned char);
   vtkGetVectorMacro(OnOn,unsigned char,2);
+  //@}
 
-  // Description:
-  // Specify intensity/transparency for "on/in" region.
+  //@{
+  /**
+   * Specify intensity/transparency for "on/in" region.
+   */
   vtkSetVector2Macro(OnIn,unsigned char);
   vtkGetVectorMacro(OnIn,unsigned char,2);
+  //@}
 
-  // Description:
-  // Specify intensity/transparency for "on/out" region.
+  //@{
+  /**
+   * Specify intensity/transparency for "on/out" region.
+   */
   vtkSetVector2Macro(OnOut,unsigned char);
   vtkGetVectorMacro(OnOut,unsigned char,2);
+  //@}
 
-  // Description:
-  // Specify intensity/transparency for "in/on" region.
+  //@{
+  /**
+   * Specify intensity/transparency for "in/on" region.
+   */
   vtkSetVector2Macro(InOn,unsigned char);
   vtkGetVectorMacro(InOn,unsigned char,2);
+  //@}
 
-  // Description:
-  // Specify intensity/transparency for "out/on" region.
+  //@{
+  /**
+   * Specify intensity/transparency for "out/on" region.
+   */
   vtkSetVector2Macro(OutOn,unsigned char);
   vtkGetVectorMacro(OutOn,unsigned char,2);
+  //@}
 
 protected:
   vtkBooleanTexture();

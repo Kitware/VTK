@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGaussianCubeReader - read ASCII Gaussian Cube Data files
-// .SECTION Description
-// vtkGaussianCubeReader is a source object that reads ASCII files following
-// the description in http://www.gaussian.com/00000430.htm
-// The FileName must be specified.
-//
-// .SECTION Thanks
-// Dr. Jean M. Favre who developed and contributed this class.
+/**
+ * @class   vtkGaussianCubeReader
+ * @brief   read ASCII Gaussian Cube Data files
+ *
+ * vtkGaussianCubeReader is a source object that reads ASCII files following
+ * the description in http://www.gaussian.com/00000430.htm
+ * The FileName must be specified.
+ *
+ * @par Thanks:
+ * Dr. Jean M. Favre who developed and contributed this class.
+*/
 
 #ifndef vtkGaussianCubeReader_h
 #define vtkGaussianCubeReader_h

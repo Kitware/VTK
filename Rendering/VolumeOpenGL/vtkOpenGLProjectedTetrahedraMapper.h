@@ -22,13 +22,16 @@
  * statement of authorship are reproduced on all copies.
  */
 
-// .NAME vtkOpenGLProjectedTetrahedraMapper - OpenGL implementation of PT
-//
-// .SECTION Bugs
-// This mapper relies highly on the implementation of the OpenGL pipeline.
-// A typical hardware driver has lots of options and some settings can
-// cause this mapper to produce artifacts.
-//
+/**
+ * @class   vtkOpenGLProjectedTetrahedraMapper
+ * @brief   OpenGL implementation of PT
+ *
+ * @bug
+ * This mapper relies highly on the implementation of the OpenGL pipeline.
+ * A typical hardware driver has lots of options and some settings can
+ * cause this mapper to produce artifacts.
+ *
+*/
 
 #ifndef vtkOpenGLProjectedTetrahedraMapper_h
 #define vtkOpenGLProjectedTetrahedraMapper_h
@@ -55,16 +58,20 @@ public:
 
   virtual void Render(vtkRenderer *renderer, vtkVolume *volume);
 
-  // Description:
-  // Set/get whether to use floating-point rendering buffers rather
-  // than the default.
+  //@{
+  /**
+   * Set/get whether to use floating-point rendering buffers rather
+   * than the default.
+   */
   vtkSetMacro(UseFloatingPointFrameBuffer,bool);
   vtkGetMacro(UseFloatingPointFrameBuffer,bool);
   vtkBooleanMacro(UseFloatingPointFrameBuffer,bool);
+  //@}
 
-  // Description:
-  // Return true if the rendering context provides
-  // the nececessary functionality to use this class.
+  /**
+   * Return true if the rendering context provides
+   * the nececessary functionality to use this class.
+   */
   virtual bool IsSupported(vtkRenderWindow *context);
 
 protected:

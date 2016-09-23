@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCompositeCutter - Cut composite data sets with user-specified implicit function
-// .SECTION Description
-// Loop over each data set in the composite input and apply vtkCutter
-// .SECTION See Also
-// vtkCutter
+/**
+ * @class   vtkCompositeCutter
+ * @brief   Cut composite data sets with user-specified implicit function
+ *
+ * Loop over each data set in the composite input and apply vtkCutter
+ * @sa
+ * vtkCutter
+*/
 
 #ifndef vtkCompositeCutter_h
 #define vtkCompositeCutter_h

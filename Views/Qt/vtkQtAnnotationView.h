@@ -17,13 +17,15 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkQtAnnotationView - A VTK view that displays the annotations
-//    on its annotation link.
-//
-// .SECTION Description
-// vtkQtAnnotationView is a VTK view using an underlying QTableView.
-//
-// .SECTION Thanks
+/**
+ * @class   vtkQtAnnotationView
+ * @brief   A VTK view that displays the annotations
+ *    on its annotation link.
+ *
+ *
+ * vtkQtAnnotationView is a VTK view using an underlying QTableView.
+ *
+*/
 
 #ifndef vtkQtAnnotationView_h
 #define vtkQtAnnotationView_h
@@ -48,15 +50,17 @@ public:
   vtkTypeMacro(vtkQtAnnotationView, vtkQtView);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the main container of this view (a  QWidget).
-  // The application typically places the view with a call
-  // to GetWidget(): something like this
-  // this->ui->box->layout()->addWidget(this->View->GetWidget());
+  /**
+   * Get the main container of this view (a  QWidget).
+   * The application typically places the view with a call
+   * to GetWidget(): something like this
+   * this->ui->box->layout()->addWidget(this->View->GetWidget());
+   */
   virtual QWidget* GetWidget();
 
-  // Description:
-  // Updates the view.
+  /**
+   * Updates the view.
+   */
   virtual void Update();
 
 protected:

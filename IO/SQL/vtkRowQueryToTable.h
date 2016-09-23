@@ -17,20 +17,23 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkRowQueryToTable - executes an sql query and retrieves results into a table
-//
-// .SECTION Description
-// vtkRowQueryToTable creates a vtkTable with the results of an arbitrary SQL
-// query.  To use this filter, you first need an instance of a vtkSQLDatabase
-// subclass.  You may use the database class to obtain a vtkRowQuery instance.
-// Set that query on this filter to extract the query as a table.
-//
-// .SECTION Thanks
-// Thanks to Andrew Wilson from Sandia National Laboratories for his work
-// on the database classes.
-//
-// .SECTION See Also
-// vtkSQLDatabase vtkRowQuery
+/**
+ * @class   vtkRowQueryToTable
+ * @brief   executes an sql query and retrieves results into a table
+ *
+ *
+ * vtkRowQueryToTable creates a vtkTable with the results of an arbitrary SQL
+ * query.  To use this filter, you first need an instance of a vtkSQLDatabase
+ * subclass.  You may use the database class to obtain a vtkRowQuery instance.
+ * Set that query on this filter to extract the query as a table.
+ *
+ * @par Thanks:
+ * Thanks to Andrew Wilson from Sandia National Laboratories for his work
+ * on the database classes.
+ *
+ * @sa
+ * vtkSQLDatabase vtkRowQuery
+*/
 
 #ifndef vtkRowQueryToTable_h
 #define vtkRowQueryToTable_h
@@ -47,13 +50,17 @@ public:
   vtkTypeMacro(vtkRowQueryToTable, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // The query to execute.
+  //@{
+  /**
+   * The query to execute.
+   */
   void SetQuery(vtkRowQuery* query);
   vtkGetObjectMacro(Query, vtkRowQuery);
+  //@}
 
-  // Description:
-  // Update the modified time based on the query.
+  /**
+   * Update the modified time based on the query.
+   */
   vtkMTimeType GetMTime();
 
 protected:

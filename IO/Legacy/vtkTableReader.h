@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTableReader - read vtkTable data file
-// .SECTION Description
-// vtkTableReader is a source object that reads ASCII or binary
-// vtkTable data files in vtk format. (see text for format details).
-// The output of this reader is a single vtkTable data object.
-// The superclass of this class, vtkDataReader, provides many methods for
-// controlling the reading of the data file, see vtkDataReader for more
-// information.
-// .SECTION Caveats
-// Binary files written on one system may not be readable on other systems.
-// .SECTION See Also
-// vtkTable vtkDataReader vtkTableWriter
+/**
+ * @class   vtkTableReader
+ * @brief   read vtkTable data file
+ *
+ * vtkTableReader is a source object that reads ASCII or binary
+ * vtkTable data files in vtk format. (see text for format details).
+ * The output of this reader is a single vtkTable data object.
+ * The superclass of this class, vtkDataReader, provides many methods for
+ * controlling the reading of the data file, see vtkDataReader for more
+ * information.
+ * @warning
+ * Binary files written on one system may not be readable on other systems.
+ * @sa
+ * vtkTable vtkDataReader vtkTableWriter
+*/
 
 #ifndef vtkTableReader_h
 #define vtkTableReader_h
@@ -40,11 +43,14 @@ public:
   vtkTypeMacro(vtkTableReader,vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the output of this reader.
+  //@{
+  /**
+   * Get the output of this reader.
+   */
   vtkTable *GetOutput();
   vtkTable *GetOutput(int idx);
   void SetOutput(vtkTable *output);
+  //@}
 
 protected:
   vtkTableReader();

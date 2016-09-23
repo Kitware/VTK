@@ -13,38 +13,41 @@
 
 =========================================================================*/
 
-// .NAME vtkDataArrayDispatcher - Dispatch to functor vtkDataArrayType
-// .SECTION Description
-// vtkDataArrayDispatcher is a class that allows calling a functor based
-// on the data type of the vtkDataArray subclass. This is a wrapper
-// around the vtkTemplateMacro (VTK_TT) to allow easier implementation and
-// readibility, while at the same time the ability to use statefull functors.
-//
-// Note: By default the return type is void.
-// Note: The functor parameter must be of type vtkDataArrayDispatcherPointer
-//
-// The functors that are passed around can contain state, and are allowed
-// to be const or non const. If you are using a functor that does have state,
-// make sure your copy constructor is correct.
-//
-// \code
-// struct sizeOfFunctor{
-//   template<typename T>
-//   int operator()(const vtkDataArrayDispatcherPointer<T>& t) const
-//   {
-//   return t.NumberOfComponents * t.NumberOfTuples;
-//   }
-// };
-//
-// Here is an example of using the dispatcher.
-//  \code
-//  vtkDataArrayDispatcher<sizeOfFunctor,int> dispatcher;
-//  int arrayLength = dispatcher.Go(vtkDataArrayPtr);
-//  \endcode
-
-//
-// .SECTION See Also
-// vtkDispatcher vtkDoubleDispatcher
+/**
+ * @class   vtkDataArrayDispatcher
+ * @brief   Dispatch to functor vtkDataArrayType
+ *
+ * vtkDataArrayDispatcher is a class that allows calling a functor based
+ * on the data type of the vtkDataArray subclass. This is a wrapper
+ * around the vtkTemplateMacro (VTK_TT) to allow easier implementation and
+ * readibility, while at the same time the ability to use statefull functors.
+ *
+ * Note: By default the return type is void.
+ * Note: The functor parameter must be of type vtkDataArrayDispatcherPointer
+ *
+ * The functors that are passed around can contain state, and are allowed
+ * to be const or non const. If you are using a functor that does have state,
+ * make sure your copy constructor is correct.
+ *
+ * \code
+ * struct sizeOfFunctor{
+ *   template<typename T>
+ *   int operator()(const vtkDataArrayDispatcherPointer<T>& t) const
+ *   {
+ *   return t.NumberOfComponents * t.NumberOfTuples;
+ *   }
+ * };
+ *
+ * Here is an example of using the dispatcher.
+ *  \code
+ *  vtkDataArrayDispatcher<sizeOfFunctor,int> dispatcher;
+ *  int arrayLength = dispatcher.Go(vtkDataArrayPtr);
+ *  \endcode
+ *
+ *
+ * @sa
+ * vtkDispatcher vtkDoubleDispatcher
+*/
 
 #ifndef vtkDataArrayDispatcher_h
 #define vtkDataArrayDispatcher_h
@@ -85,40 +88,43 @@ class vtkDataArrayDispatcher
 {
 public:
 
-  // Description:
-  // Specify the functor that is to be used when dispatching. This allows
-  // you to specify a statefull functor.
-  //
-  // \code
-  //
-  //struct storeLengthFunctor
-  //{
-  //  int length;
-  //  storeLengthFunctor():length(0){}
-  //
-  //  template<typename T>
-  //  void operator()(vtkDataArrayDispatcherPointer<T> array)
-  //    {
-  //    length += array.NumberOfComponents * array.NumberOfTuples;
-  //    }
-  //};
-  //
-  // storeLengthFunctor storedLength;
-  // vtkDataArrayDispatcher<storeLengthFunctor> dispatcher(storedLength);
-  // dispatcher.Go(exampleDataArray);
-  //
-  // \endcode
+  /**
+   * Specify the functor that is to be used when dispatching. This allows
+   * you to specify a statefull functor.
+
+   * \code
+
+   * struct storeLengthFunctor
+   * {
+   * int length;
+   * storeLengthFunctor():length(0){}
+
+   * template<typename T>
+   * void operator()(vtkDataArrayDispatcherPointer<T> array)
+   * {
+   * length += array.NumberOfComponents * array.NumberOfTuples;
+   * }
+   * };
+
+   * storeLengthFunctor storedLength;
+   * vtkDataArrayDispatcher<storeLengthFunctor> dispatcher(storedLength);
+   * dispatcher.Go(exampleDataArray);
+
+   * \endcode
+   */
   vtkDataArrayDispatcher(DefaultFunctorType& f);
 
-  // Description:
-  // Default constructor which will create an instance of the DefaultFunctorType
-  // and use that single instance for all calls.
+  /**
+   * Default constructor which will create an instance of the DefaultFunctorType
+   * and use that single instance for all calls.
+   */
   vtkDataArrayDispatcher();
 
   virtual ~vtkDataArrayDispatcher();
 
-  // Description:
-  // Execute the default functor with the passed in vtkDataArray;
+  /**
+   * Execute the default functor with the passed in vtkDataArray;
+   */
   ReturnType Go(vtkDataArray* lhs);
 
 protected:

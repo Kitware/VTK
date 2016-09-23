@@ -13,17 +13,20 @@
 
 =========================================================================*/
 
-// .NAME vtkBoostBetweennessClustering - Implements graph clustering based on
-// edge betweenness centrality.
-//
-// .SECTION Description
-//
-// This vtk class uses the Boost centrality clustering
-// generic algorithm to compute edge betweenness centrality on
-// the input graph (a vtkGraph).
-
-// .SECTION See Also
-// vtkGraph vtkBoostGraphAdapter
+/**
+ * @class   vtkBoostBetweennessClustering
+ * @brief   Implements graph clustering based on
+ * edge betweenness centrality.
+ *
+ *
+ *
+ * This vtk class uses the Boost centrality clustering
+ * generic algorithm to compute edge betweenness centrality on
+ * the input graph (a vtkGraph).
+ *
+ * @sa
+ * vtkGraph vtkBoostGraphAdapter
+*/
 
 #ifndef vtkBoostBetweennessClustering_h
 #define vtkBoostBetweennessClustering_h
@@ -42,31 +45,43 @@ public:
   vtkBoostBetweennessClustering();
   virtual ~vtkBoostBetweennessClustering();
 
-  // Description:
-  // Get/Set the threshold value. Algorithm terminats when the maximum edge
-  // centrality is below this threshold.
+  //@{
+  /**
+   * Get/Set the threshold value. Algorithm terminats when the maximum edge
+   * centrality is below this threshold.
+   */
   vtkSetMacro(Threshold, double);
   vtkGetMacro(Threshold, double);
+  //@}
 
-  // Description:
-  // Get/Set the flag that sets the rule whether or not to use the
-  // edge weight array as set using \c SetEdgeWeightArrayName.
+  //@{
+  /**
+   * Get/Set the flag that sets the rule whether or not to use the
+   * edge weight array as set using \c SetEdgeWeightArrayName.
+   */
   vtkSetMacro(UseEdgeWeightArray, bool);
   vtkBooleanMacro(UseEdgeWeightArray, bool);
+  //@}
 
   vtkSetMacro(InvertEdgeWeightArray, bool);
   vtkBooleanMacro(InvertEdgeWeightArray, bool);
 
-  // Description:
-  // Get/Set the name of the array that needs to be used as the edge weight.
-  // The array should be a vtkDataArray.
+  //@{
+  /**
+   * Get/Set the name of the array that needs to be used as the edge weight.
+   * The array should be a vtkDataArray.
+   */
   vtkGetStringMacro(EdgeWeightArrayName);
   vtkSetStringMacro(EdgeWeightArrayName);
+  //@}
 
-  // Description:
-  // Set the edge centrality array name. If no output array name is
-  // set then the name "edge_centrality" is used.
+  //@{
+  /**
+   * Set the edge centrality array name. If no output array name is
+   * set then the name "edge_centrality" is used.
+   */
   vtkSetStringMacro(EdgeCentralityArrayName);
+  //@}
 
 protected:
 

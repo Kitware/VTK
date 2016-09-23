@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGraphWriter - write vtkGraph data to a file
-// .SECTION Description
-// vtkGraphWriter is a sink object that writes ASCII or binary
-// vtkGraph data files in vtk format. See text for format details.
-// .SECTION Caveats
-// Binary files written on one system may not be readable on other systems.
+/**
+ * @class   vtkGraphWriter
+ * @brief   write vtkGraph data to a file
+ *
+ * vtkGraphWriter is a sink object that writes ASCII or binary
+ * vtkGraph data files in vtk format. See text for format details.
+ * @warning
+ * Binary files written on one system may not be readable on other systems.
+*/
 
 #ifndef vtkGraphWriter_h
 #define vtkGraphWriter_h
@@ -35,10 +38,13 @@ public:
   vtkTypeMacro(vtkGraphWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the input to this writer.
+  //@{
+  /**
+   * Get the input to this writer.
+   */
   vtkGraph* GetInput();
   vtkGraph* GetInput(int port);
+  //@}
 
 protected:
   vtkGraphWriter() {}

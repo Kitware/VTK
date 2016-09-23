@@ -13,11 +13,14 @@
 
 =========================================================================*/
 
-// .NAME vtkCountFaces - Add a cell data array containing the number of faces
-// per cell.
-//
-// .SECTION Description
-// This filter adds a cell data array containing the number of faces per cell.
+/**
+ * @class   vtkCountFaces
+ * @brief   Add a cell data array containing the number of faces
+ * per cell.
+ *
+ *
+ * This filter adds a cell data array containing the number of faces per cell.
+*/
 
 #ifndef vtkCountFaces_h
 #define vtkCountFaces_h
@@ -32,10 +35,13 @@ public:
   vtkTypeMacro(vtkCountFaces, vtkPassInputTypeAlgorithm)
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // The name of the new output array containing the face counts.
+  //@{
+  /**
+   * The name of the new output array containing the face counts.
+   */
   vtkSetStringMacro(OutputArrayName)
   vtkGetStringMacro(OutputArrayName)
+  //@}
 
 protected:
   vtkCountFaces();

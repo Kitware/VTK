@@ -11,14 +11,17 @@
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
-// .NAME vtkBoxMuellerRandomSequence - Gaussian sequence of pseudo random numbers implemented with the Box-Mueller transform
-// .SECTION Description
-// vtkGaussianRandomSequence is a sequence of pseudo random numbers
-// distributed according to the Gaussian/normal distribution (mean=0 and
-// standard deviation=1).
-//
-// It based is calculation from a uniformly distributed pseudo random sequence.
-// The initial sequence is a vtkMinimalStandardRandomSequence.
+/**
+ * @class   vtkBoxMuellerRandomSequence
+ * @brief   Gaussian sequence of pseudo random numbers implemented with the Box-Mueller transform
+ *
+ * vtkGaussianRandomSequence is a sequence of pseudo random numbers
+ * distributed according to the Gaussian/normal distribution (mean=0 and
+ * standard deviation=1).
+ *
+ * It based is calculation from a uniformly distributed pseudo random sequence.
+ * The initial sequence is a vtkMinimalStandardRandomSequence.
+*/
 
 #ifndef vtkBoxMuellerRandomSequence_h
 #define vtkBoxMuellerRandomSequence_h
@@ -34,21 +37,25 @@ public:
 
   static vtkBoxMuellerRandomSequence* New();
 
-  // Description:
-  // Current value.
+  /**
+   * Current value.
+   */
   double GetValue() VTK_OVERRIDE;
 
-  // Description:
-  // Move to the next number in the random sequence.
+  /**
+   * Move to the next number in the random sequence.
+   */
   void Next() VTK_OVERRIDE;
 
-  // Description:
-  // Return the uniformly distributed sequence of random numbers.
+  /**
+   * Return the uniformly distributed sequence of random numbers.
+   */
   vtkRandomSequence *GetUniformSequence();
 
-  // Description:
-  // Set the uniformly distributed sequence of random numbers.
-  // Default is a .
+  /**
+   * Set the uniformly distributed sequence of random numbers.
+   * Default is a .
+   */
   void SetUniformSequence(vtkRandomSequence *uniformSequence);
 
 protected:

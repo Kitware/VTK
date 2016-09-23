@@ -15,17 +15,21 @@
 #ifndef vtkTestingObjectFactory_h
 #define vtkTestingObjectFactory_h
 
-// .NAME vtkTestingObjectFactory - Object overrides used during testing
-// .SECTION Description
-// Some vtk examples and tests need to perform differently when they
-// are run as tests versus when they are run as individual
-// programs. Many tests/examples are interactive and eventually call
-// vtkRenderWindowInteration::Start() to initialie the
-// interaction. But, when run as tests, these programs should
-// exit. This factory overrides vtkRenderWindowInteractor so that the
-// Start() method just returns.
-// To use this factory:
-// \code
+/**
+ * @class   vtkTestingObjectFactory
+ * @brief   Object overrides used during testing
+ *
+ * Some vtk examples and tests need to perform differently when they
+ * are run as tests versus when they are run as individual
+ * programs. Many tests/examples are interactive and eventually call
+ * vtkRenderWindowInteration::Start() to initialie the
+ * interaction. But, when run as tests, these programs should
+ * exit. This factory overrides vtkRenderWindowInteractor so that the
+ * Start() method just returns.
+ * To use this factory:
+ * \code
+*/
+
 #include "vtkTestingRenderingModule.h" // For export macro
 //   #include "vtkTestingObjectFactory.h"
 //   vtkTestingObjectFactory* factory = vtkTestingObjectFactory::New();
@@ -50,8 +54,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
-  // Description:
-  // Register objects that override vtk objects whem they are run as tests.
+  /**
+   * Register objects that override vtk objects whem they are run as tests.
+   */
   vtkTestingObjectFactory();
 
 private:

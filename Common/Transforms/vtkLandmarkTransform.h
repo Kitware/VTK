@@ -12,19 +12,22 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkLandmarkTransform - a linear transform specified by two corresponding point sets
-// .SECTION Description
-// A vtkLandmarkTransform is defined by two sets of landmarks, the
-// transform computed gives the best fit mapping one onto the other, in a
-// least squares sense. The indices are taken to correspond, so point 1
-// in the first set will get mapped close to point 1 in the second set,
-// etc. Call SetSourceLandmarks and SetTargetLandmarks to specify the two
-// sets of landmarks, ensure they have the same number of points.
-// .SECTION Caveats
-// Whenever you add, subtract, or set points you must call Modified()
-// on the vtkPoints object, or the transformation might not update.
-// .SECTION see also
-// vtkLinearTransform
+/**
+ * @class   vtkLandmarkTransform
+ * @brief   a linear transform specified by two corresponding point sets
+ *
+ * A vtkLandmarkTransform is defined by two sets of landmarks, the
+ * transform computed gives the best fit mapping one onto the other, in a
+ * least squares sense. The indices are taken to correspond, so point 1
+ * in the first set will get mapped close to point 1 in the second set,
+ * etc. Call SetSourceLandmarks and SetTargetLandmarks to specify the two
+ * sets of landmarks, ensure they have the same number of points.
+ * @warning
+ * Whenever you add, subtract, or set points you must call Modified()
+ * on the vtkPoints object, or the transformation might not update.
+ * @sa
+ * vtkLinearTransform
+*/
 
 #ifndef vtkLandmarkTransform_h
 #define vtkLandmarkTransform_h
@@ -44,44 +47,56 @@ public:
   vtkTypeMacro(vtkLandmarkTransform,vtkLinearTransform);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Specify the source and target landmark sets. The two sets must have
-  // the same number of points.  If you add or change points in these objects,
-  // you must call Modified() on them or the transformation might not update.
+  //@{
+  /**
+   * Specify the source and target landmark sets. The two sets must have
+   * the same number of points.  If you add or change points in these objects,
+   * you must call Modified() on them or the transformation might not update.
+   */
   void SetSourceLandmarks(vtkPoints *points);
   void SetTargetLandmarks(vtkPoints *points);
   vtkGetObjectMacro(SourceLandmarks, vtkPoints);
   vtkGetObjectMacro(TargetLandmarks, vtkPoints);
+  //@}
 
-  // Description:
-  // Set the number of degrees of freedom to constrain the solution to.
-  // Rigidbody (VTK_LANDMARK_RIGIDBODY): rotation and translation only.
-  // Similarity (VTK_LANDMARK_SIMILARITY): rotation, translation and
-  //            isotropic scaling.
-  // Affine (VTK_LANDMARK_AFFINE): collinearity is preserved.
-  //        Ratios of distances along a line are preserved.
-  // The default is similarity.
+  //@{
+  /**
+   * Set the number of degrees of freedom to constrain the solution to.
+   * Rigidbody (VTK_LANDMARK_RIGIDBODY): rotation and translation only.
+   * Similarity (VTK_LANDMARK_SIMILARITY): rotation, translation and
+   * isotropic scaling.
+   * Affine (VTK_LANDMARK_AFFINE): collinearity is preserved.
+   * Ratios of distances along a line are preserved.
+   * The default is similarity.
+   */
   vtkSetMacro(Mode,int);
   void SetModeToRigidBody() { this->SetMode(VTK_LANDMARK_RIGIDBODY); };
   void SetModeToSimilarity() { this->SetMode(VTK_LANDMARK_SIMILARITY); };
   void SetModeToAffine() { this->SetMode(VTK_LANDMARK_AFFINE); };
+  //@}
 
-  // Description:
-  // Get the current transformation mode.
+  //@{
+  /**
+   * Get the current transformation mode.
+   */
   vtkGetMacro(Mode,int);
   const char *GetModeAsString();
+  //@}
 
-  // Description:
-  // Invert the transformation.  This is done by switching the
-  // source and target landmarks.
+  /**
+   * Invert the transformation.  This is done by switching the
+   * source and target landmarks.
+   */
   void Inverse() VTK_OVERRIDE;
 
-  // Description:
-  // Get the MTime.
+  /**
+   * Get the MTime.
+   */
   vtkMTimeType GetMTime() VTK_OVERRIDE;
 
-  // Description:
-  // Make another transform of the same type.
+  /**
+   * Make another transform of the same type.
+   */
   vtkAbstractTransform *MakeTransform() VTK_OVERRIDE;
 
 protected:
@@ -91,8 +106,9 @@ protected:
   // Update the matrix from the quaternion.
   void InternalUpdate() VTK_OVERRIDE;
 
-  // Description:
-  // This method does no type checking, use DeepCopy instead.
+  /**
+   * This method does no type checking, use DeepCopy instead.
+   */
   void InternalDeepCopy(vtkAbstractTransform *transform) VTK_OVERRIDE;
 
   vtkPoints* SourceLandmarks;

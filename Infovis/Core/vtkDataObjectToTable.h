@@ -17,11 +17,14 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkDataObjectToTable - extract field data as a table
-//
-// .SECTION Description
-// This filter is used to extract either the field, cell or point data of
-// any data object as a table.
+/**
+ * @class   vtkDataObjectToTable
+ * @brief   extract field data as a table
+ *
+ *
+ * This filter is used to extract either the field, cell or point data of
+ * any data object as a table.
+*/
 
 #ifndef vtkDataObjectToTable_h
 #define vtkDataObjectToTable_h
@@ -45,11 +48,14 @@ public:
     EDGE_DATA = 4
     };
 
-  // Description:
-  // The field type to copy into the output table.
-  // Should be one of FIELD_DATA, POINT_DATA, CELL_DATA, VERTEX_DATA, EDGE_DATA.
+  //@{
+  /**
+   * The field type to copy into the output table.
+   * Should be one of FIELD_DATA, POINT_DATA, CELL_DATA, VERTEX_DATA, EDGE_DATA.
+   */
   vtkGetMacro(FieldType, int);
   vtkSetClampMacro(FieldType, int, 0, 4);
+  //@}
 
 protected:
   vtkDataObjectToTable();

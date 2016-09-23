@@ -12,13 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPostScriptWriter - Writes an image as a PostScript file.
-// .SECTION Description
-// vtkPostScriptWriter writes an image as a PostScript file using some
-// reasonable scalings and centered on the page which is assumed to be
-// about 8.5 by 11 inches. This is based loosely off of the code from
-// pnmtops.c. Right now there aren't any real options.
-
+/**
+ * @class   vtkPostScriptWriter
+ * @brief   Writes an image as a PostScript file.
+ *
+ * vtkPostScriptWriter writes an image as a PostScript file using some
+ * reasonable scalings and centered on the page which is assumed to be
+ * about 8.5 by 11 inches. This is based loosely off of the code from
+ * pnmtops.c. Right now there aren't any real options.
+*/
 
 #ifndef vtkPostScriptWriter_h
 #define vtkPostScriptWriter_h

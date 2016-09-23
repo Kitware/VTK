@@ -13,19 +13,22 @@
 
 =========================================================================*/
 
-// .NAME vtkXYPlotRepresentation - represent XY plot for vtkXYPlotWidget
-//
-// .SECTION Description
-//
-// This class represents a XY plot for a vtkXYPlotWidget.  This class
-// provides support for interactively placing a XY plot on the 2D overlay
-// plane.  The XY plot is defined by an instance of vtkXYPlotActor.
-//
-// .SECTION See Also
-// vtkXYPlotWidget vtkWidgetRepresentation vtkXYPlotActor
-//
-// .SECTION Thanks
-// This class was written by Philippe Pebay, Kitware SAS 2012
+/**
+ * @class   vtkXYPlotRepresentation
+ * @brief   represent XY plot for vtkXYPlotWidget
+ *
+ *
+ *
+ * This class represents a XY plot for a vtkXYPlotWidget.  This class
+ * provides support for interactively placing a XY plot on the 2D overlay
+ * plane.  The XY plot is defined by an instance of vtkXYPlotActor.
+ *
+ * @sa
+ * vtkXYPlotWidget vtkWidgetRepresentation vtkXYPlotActor
+ *
+ * @par Thanks:
+ * This class was written by Philippe Pebay, Kitware SAS 2012
+*/
 
 #ifndef vtkXYPlotRepresentation_h
 #define vtkXYPlotRepresentation_h
@@ -42,21 +45,29 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   static vtkXYPlotRepresentation *New();
 
-  // Description:
-  // The prop that is placed in the renderer.
+  //@{
+  /**
+   * The prop that is placed in the renderer.
+   */
   vtkGetObjectMacro(XYPlotActor, vtkXYPlotActor);
   virtual void SetXYPlotActor(vtkXYPlotActor *);
+  //@}
 
-  // Description:
-  // Satisfy the superclass' API.
+  //@{
+  /**
+   * Satisfy the superclass' API.
+   */
   virtual void BuildRepresentation();
   virtual void WidgetInteraction(double eventPos[2]);
   virtual void GetSize(double size[2])
     {size[0]=2.0; size[1]=2.0;}
+  //@}
 
-  // Description:
-  // These methods are necessary to make this representation behave as
-  // a vtkProp.
+  //@{
+  /**
+   * These methods are necessary to make this representation behave as
+   * a vtkProp.
+   */
   virtual int GetVisibility();
   virtual void SetVisibility(int);
   virtual void GetActors2D(vtkPropCollection *collection);
@@ -65,14 +76,20 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int HasTranslucentPolygonalGeometry();
+  //@}
 
-  // Description:
-  // Set glyph properties
+  //@{
+  /**
+   * Set glyph properties
+   */
   void SetGlyphSize(double x);
   void SetPlotGlyphType(int curve, int glyph);
+  //@}
 
-  // Description:
-  // Set title properties
+  //@{
+  /**
+   * Set title properties
+   */
   void SetTitle(const char* title);
   void SetTitleColor(double r, double g, double b);
   void SetTitleFontFamily(int x);
@@ -84,9 +101,12 @@ public:
   void SetTitleVerticalJustification(int x);
   void SetAdjustTitlePosition(int x);
   void SetTitlePosition(double x, double y);
+  //@}
 
-  // Description:
-  // Set/Get axis properties
+  //@{
+  /**
+   * Set/Get axis properties
+   */
   void SetXAxisColor(double r, double g, double b);
   void SetYAxisColor(double r, double g, double b);
   void SetXTitle( const char* ytitle );
@@ -98,9 +118,12 @@ public:
   void SetYTitlePosition (int pos);
   int GetYTitlePosition() const;
   void SetXValues(int x);
+  //@}
 
-  // Description:
-  // Set axis title properties
+  //@{
+  /**
+   * Set axis title properties
+   */
   void SetAxisTitleColor(double r, double g, double b);
   void SetAxisTitleFontFamily(int x);
   void SetAxisTitleBold(int x);
@@ -109,9 +132,12 @@ public:
   void SetAxisTitleFontSize(int x);
   void SetAxisTitleJustification(int x);
   void SetAxisTitleVerticalJustification(int x);
+  //@}
 
-  // Description:
-  // Set axis label properties
+  //@{
+  /**
+   * Set axis label properties
+   */
   void SetAxisLabelColor(double r, double g, double b);
   void SetAxisLabelFontFamily(int x);
   void SetAxisLabelBold(int x);
@@ -122,9 +148,12 @@ public:
   void SetAxisLabelVerticalJustification(int x);
   void SetXLabelFormat(const char* _arg);
   void SetYLabelFormat(const char* _arg);
+  //@}
 
-  // Description:
-  // Set various properties
+  //@{
+  /**
+   * Set various properties
+   */
   void SetBorder(int x);
   void RemoveAllActiveCurves();
   void AddUserCurvesPoint( double c, double x, double y);
@@ -139,6 +168,7 @@ public:
   void SetPlotLines(int i);
   void SetPlotPoints(int i);
   void SetPlotLabel(int i, const char* label);
+  //@}
 
 protected:
   vtkXYPlotRepresentation();

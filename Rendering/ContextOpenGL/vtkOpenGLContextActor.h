@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLContextActor - provides a vtkProp derived object.
-// .SECTION Description
-// This object provides the entry point for the vtkContextScene to be rendered
-// in a vtkRenderer. Uses the RenderOverlay pass to render the 2D
-// vtkContextScene.
+/**
+ * @class   vtkOpenGLContextActor
+ * @brief   provides a vtkProp derived object.
+ *
+ * This object provides the entry point for the vtkContextScene to be rendered
+ * in a vtkRenderer. Uses the RenderOverlay pass to render the 2D
+ * vtkContextScene.
+*/
 
 #ifndef vtkOpenGLContextActor_h
 #define vtkOpenGLContextActor_h
@@ -32,18 +35,20 @@ public:
 
   static vtkOpenGLContextActor* New();
 
-  // Description:
-  // Release any graphics resources that are being consumed by this actor.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
+  /**
+   * Release any graphics resources that are being consumed by this actor.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
   virtual void ReleaseGraphicsResources(vtkWindow *window);
 
 protected:
   vtkOpenGLContextActor();
   ~vtkOpenGLContextActor();
 
-  // Description:
-  // Initialize the actor - right now we just decide which device to initialize.
+  /**
+   * Initialize the actor - right now we just decide which device to initialize.
+   */
   void Initialize(vtkViewport* viewport);
 
 private:

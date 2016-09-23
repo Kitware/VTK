@@ -12,8 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDataObjectTreeInternals
-// .SECTION Description
+/**
+ * @class   vtkDataObjectTreeInternals
+ *
+*/
 
 #ifndef vtkDataObjectTreeInternals_h
 #define vtkDataObjectTreeInternals_h

@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInformationInternals - internal structure for vtkInformation
-// .SECTION Description
-// vtkInformationInternals is used in internal implementation of
-// vtkInformation. This should only be accessed by friends
-// and sub-classes of that class.
+/**
+ * @class   vtkInformationInternals
+ * @brief   internal structure for vtkInformation
+ *
+ * vtkInformationInternals is used in internal implementation of
+ * vtkInformation. This should only be accessed by friends
+ * and sub-classes of that class.
+*/
 
 #ifndef vtkInformationInternals_h
 #define vtkInformationInternals_h

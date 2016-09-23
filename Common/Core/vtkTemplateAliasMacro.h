@@ -12,26 +12,29 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTemplateAliasMacro - Dispatch a scalar processing template.
-// .SECTION Description
-// vtkTemplateAliasMacro is used in a switch statement to
-// automatically generate duplicate code for all enabled scalar types.
-// The code can be written to use VTK_TT to refer to the type, and
-// each case generated will define VTK_TT appropriately.  The
-// difference between this and the standard vtkTemplateMacro is that
-// this version will set VTK_TT to an "alias" for each type.  The
-// alias may be the same type or may be a different type that is the
-// same size/signedness.  This is sufficient when only the numerical
-// value associated with instances of the type is needed, and it
-// avoids unnecessary template instantiations.
-//
-// Example usage:
-//
-//   void* p = dataArray->GetVoidPointer(0);
-//   switch(dataArray->GetDataType())
-//     {
-//     vtkTemplateAliasMacro(vtkMyTemplateFunction(static_cast<VTK_TT*>(p)));
-//     }
+/**
+ * @class   vtkTemplateAliasMacro
+ * @brief   Dispatch a scalar processing template.
+ *
+ * vtkTemplateAliasMacro is used in a switch statement to
+ * automatically generate duplicate code for all enabled scalar types.
+ * The code can be written to use VTK_TT to refer to the type, and
+ * each case generated will define VTK_TT appropriately.  The
+ * difference between this and the standard vtkTemplateMacro is that
+ * this version will set VTK_TT to an "alias" for each type.  The
+ * alias may be the same type or may be a different type that is the
+ * same size/signedness.  This is sufficient when only the numerical
+ * value associated with instances of the type is needed, and it
+ * avoids unnecessary template instantiations.
+ *
+ * Example usage:
+ *
+ *   void* p = dataArray->GetVoidPointer(0);
+ *   switch(dataArray->GetDataType())
+ *     {
+ *     vtkTemplateAliasMacro(vtkMyTemplateFunction(static_cast<VTK_TT*>(p)));
+ *     }
+*/
 
 #ifndef vtkTemplateAliasMacro_h
 #define vtkTemplateAliasMacro_h

@@ -19,18 +19,21 @@
 
 =========================================================================*/
 
-// .NAME vtkArrayRange - Stores a half-open range of array coordinates.
-//
-// .SECTION Description
-// vtkArrayRange stores a half-open range of array coordinates along a
-// single dimension of a vtkArraySlice object.
-//
-// .SECTION See Also
-// vtkArray, vtkArrayRange
-//
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
-// Laboratories.
+/**
+ * @class   vtkArrayRange
+ * @brief   Stores a half-open range of array coordinates.
+ *
+ *
+ * vtkArrayRange stores a half-open range of array coordinates along a
+ * single dimension of a vtkArraySlice object.
+ *
+ * @sa
+ * vtkArray, vtkArrayRange
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
+ * Laboratories.
+*/
 
 #ifndef vtkArrayRange_h
 #define vtkArrayRange_h
@@ -44,55 +47,70 @@ class VTKCOMMONCORE_EXPORT vtkArrayRange
 public:
   typedef vtkArrayCoordinates::CoordinateT CoordinateT;
 
-  // Description:
-  // Creates an empty range.
+  /**
+   * Creates an empty range.
+   */
   vtkArrayRange();
 
-  // Description:
-  // Creates a half-open range [begin, end).
-  // Note that begin must be <= end,
-  // if not, creates the empty range [begin, begin).
+  /**
+   * Creates a half-open range [begin, end).
+   * Note that begin must be <= end,
+   * if not, creates the empty range [begin, begin).
+   */
   vtkArrayRange(CoordinateT begin, CoordinateT end);
 
-  // Description:
-  // Returns the beginning of the range
+  /**
+   * Returns the beginning of the range
+   */
   CoordinateT GetBegin() const;
 
-  // Description:
-  // Returns one-past-the-end of the range
+  /**
+   * Returns one-past-the-end of the range
+   */
   CoordinateT GetEnd() const;
 
-  // Description:
-  // Returns the size of the range (the distance End - Begin).
+  /**
+   * Returns the size of the range (the distance End - Begin).
+   */
   CoordinateT GetSize() const;
 
-  // Description:
-  // Returns true iff the given range is a non-overlapping subset of this
-  // range.
+  /**
+   * Returns true iff the given range is a non-overlapping subset of this
+   * range.
+   */
   bool Contains(const vtkArrayRange& range) const;
 
-  // Description:
-  // Returns true iff the given coordinate falls within this range.
+  /**
+   * Returns true iff the given coordinate falls within this range.
+   */
   bool Contains(const CoordinateT coordinate) const;
 
-  // Description:
-  // Equality comparisons.
+  //@{
+  /**
+   * Equality comparisons.
+   */
   VTKCOMMONCORE_EXPORT friend bool operator==(const vtkArrayRange& lhs, const vtkArrayRange& rhs);
   VTKCOMMONCORE_EXPORT friend bool operator!=(const vtkArrayRange& lhs, const vtkArrayRange& rhs);
+  //@}
 
-  // Description:
-  // Serialization.
+  /**
+   * Serialization.
+   */
   VTKCOMMONCORE_EXPORT friend ostream& operator<<(ostream& stream, const vtkArrayRange& rhs);
 
 private:
-  // Description:
-  // Stores the beginning of the range.
+  /**
+   * Stores the beginning of the range.
+   */
   CoordinateT Begin;
 
-  // Description:
-  // Stores one-past-the-end of the range.
+  //@{
+  /**
+   * Stores one-past-the-end of the range.
+   */
   CoordinateT End;
 };
+  //@}
 
 #endif
 // VTK-HeaderTest-Exclude: vtkArrayRange.h

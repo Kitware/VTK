@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBoostExtractLargestComponent - Extract the largest connected
-// component of a graph
-//
-// .SECTION Description
-// vtkBoostExtractLargestComponent finds the largest connected region of a
-// vtkGraph. For directed graphs, this returns the largest biconnected component.
-// See vtkBoostConnectedComponents for details.
+/**
+ * @class   vtkBoostExtractLargestComponent
+ * @brief   Extract the largest connected
+ * component of a graph
+ *
+ *
+ * vtkBoostExtractLargestComponent finds the largest connected region of a
+ * vtkGraph. For directed graphs, this returns the largest biconnected component.
+ * See vtkBoostConnectedComponents for details.
+*/
 
 #ifndef vtkBoostExtractLargestComponent_h
 #define vtkBoostExtractLargestComponent_h
@@ -34,15 +37,19 @@ public:
   vtkTypeMacro(vtkBoostExtractLargestComponent, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Construct an instance of vtkBoostExtractLargestComponent with
-  // InvertSelection set to false.
+  /**
+   * Construct an instance of vtkBoostExtractLargestComponent with
+   * InvertSelection set to false.
+   */
   static vtkBoostExtractLargestComponent* New();
 
-  // Description:
-  // Set the flag to determine if the selection should be inverted.
+  //@{
+  /**
+   * Set the flag to determine if the selection should be inverted.
+   */
   vtkSetMacro(InvertSelection, bool);
   vtkGetMacro(InvertSelection, bool);
+  //@}
 
 protected:
   vtkBoostExtractLargestComponent();
@@ -50,8 +57,9 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
-  // Description:
-  // Store the choice of whether or not to invert the selection.
+  /**
+   * Store the choice of whether or not to invert the selection.
+   */
   bool InvertSelection;
 
 private:

@@ -12,12 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageRGBToYIQ - Converts RGB components to YIQ.
-// .SECTION Description
-// For each pixel with red, blue, and green components this
-// filter output the color coded as YIQ.
-// Output type must be the same as input type.
-
+/**
+ * @class   vtkImageRGBToYIQ
+ * @brief   Converts RGB components to YIQ.
+ *
+ * For each pixel with red, blue, and green components this
+ * filter output the color coded as YIQ.
+ * Output type must be the same as input type.
+*/
 
 #ifndef vtkImageRGBToYIQ_h
 #define vtkImageRGBToYIQ_h

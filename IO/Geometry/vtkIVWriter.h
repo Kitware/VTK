@@ -12,14 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkIVWriter - export polydata into OpenInventor 2.0 format.
-// .SECTION Description
-// vtkIVWriter is a concrete subclass of vtkWriter that writes OpenInventor 2.0
-// files.
-//
-// .SECTION See Also
-// vtkPolyDataWriter
-
+/**
+ * @class   vtkIVWriter
+ * @brief   export polydata into OpenInventor 2.0 format.
+ *
+ * vtkIVWriter is a concrete subclass of vtkWriter that writes OpenInventor 2.0
+ * files.
+ *
+ * @sa
+ * vtkPolyDataWriter
+*/
 
 #ifndef vtkIVWriter_h
 #define vtkIVWriter_h
@@ -36,15 +38,21 @@ public:
   vtkTypeMacro(vtkIVWriter,vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Get the input to this writer.
+  //@{
+  /**
+   * Get the input to this writer.
+   */
   vtkPolyData* GetInput();
   vtkPolyData* GetInput(int port);
+  //@}
 
-  // Description:
-  // Specify file name of vtk polygon data file to write.
+  //@{
+  /**
+   * Specify file name of vtk polygon data file to write.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
 protected:
   vtkIVWriter()

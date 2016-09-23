@@ -13,10 +13,13 @@
 
 =========================================================================*/
 
-// .NAME vtkOpenGLGL2PSExporter - OpenGL2 implementation of GL2PS exporter.
-//
-// .SECTION Description
-// Implementation of vtkGL2PSExporter for the OpenGL2 backend.
+/**
+ * @class   vtkOpenGLGL2PSExporter
+ * @brief   OpenGL2 implementation of GL2PS exporter.
+ *
+ *
+ * Implementation of vtkGL2PSExporter for the OpenGL2 backend.
+*/
 
 #ifndef vtkOpenGLGL2PSExporter_h
 #define vtkOpenGLGL2PSExporter_h

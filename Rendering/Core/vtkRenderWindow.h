@@ -12,28 +12,31 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkRenderWindow - create a window for renderers to draw into
-// .SECTION Description
-// vtkRenderWindow is an abstract object to specify the behavior of a
-// rendering window. A rendering window is a window in a graphical user
-// interface where renderers draw their images. Methods are provided to
-// synchronize the rendering process, set window size, and control double
-// buffering.  The window also allows rendering in stereo.  The interlaced
-// render stereo type is for output to a VRex stereo projector.  All of the
-// odd horizontal lines are from the left eye, and the even lines are from
-// the right eye.  The user has to make the render window aligned with the
-// VRex projector, or the eye will be swapped.
-
-// .SECTION Caveats
-// In VTK versions 4 and later, the vtkWindowToImageFilter class is
-// part of the canonical way to output an image of a window to a file
-// (replacing the obsolete SaveImageAsPPM method for vtkRenderWindows
-// that existed in 3.2 and earlier).  Connect one of these filters to
-// the output of the window, and filter's output to a writer such as
-// vtkPNGWriter.
-
-// .SECTION see also
-// vtkRenderer vtkRenderWindowInteractor vtkWindowToImageFilter
+/**
+ * @class   vtkRenderWindow
+ * @brief   create a window for renderers to draw into
+ *
+ * vtkRenderWindow is an abstract object to specify the behavior of a
+ * rendering window. A rendering window is a window in a graphical user
+ * interface where renderers draw their images. Methods are provided to
+ * synchronize the rendering process, set window size, and control double
+ * buffering.  The window also allows rendering in stereo.  The interlaced
+ * render stereo type is for output to a VRex stereo projector.  All of the
+ * odd horizontal lines are from the left eye, and the even lines are from
+ * the right eye.  The user has to make the render window aligned with the
+ * VRex projector, or the eye will be swapped.
+ *
+ * @warning
+ * In VTK versions 4 and later, the vtkWindowToImageFilter class is
+ * part of the canonical way to output an image of a window to a file
+ * (replacing the obsolete SaveImageAsPPM method for vtkRenderWindows
+ * that existed in 3.2 and earlier).  Connect one of these filters to
+ * the output of the window, and filter's output to a writer such as
+ * vtkPNGWriter.
+ *
+ * @sa
+ * vtkRenderer vtkRenderWindowInteractor vtkWindowToImageFilter
+*/
 
 #ifndef vtkRenderWindow_h
 #define vtkRenderWindow_h
@@ -80,167 +83,217 @@ public:
   vtkTypeMacro(vtkRenderWindow,vtkWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Construct an instance of  vtkRenderWindow with its screen size
-  // set to 300x300, borders turned on, positioned at (0,0), double
-  // buffering turned on.
+  /**
+   * Construct an instance of  vtkRenderWindow with its screen size
+   * set to 300x300, borders turned on, positioned at (0,0), double
+   * buffering turned on.
+   */
   static vtkRenderWindow *New();
 
-  // Description:
-  // Add a renderer to the list of renderers.
+  /**
+   * Add a renderer to the list of renderers.
+   */
   virtual void AddRenderer(vtkRenderer *);
 
-  // Description:
-  // Remove a renderer from the list of renderers.
+  /**
+   * Remove a renderer from the list of renderers.
+   */
   void RemoveRenderer(vtkRenderer *);
 
-  // Description:
-  // Query if a renderer is in the list of renderers.
+  /**
+   * Query if a renderer is in the list of renderers.
+   */
   int HasRenderer(vtkRenderer *);
 
-  // Description:
-  // What rendering library has the user requested
+  /**
+   * What rendering library has the user requested
+   */
   static const char *GetRenderLibrary();
 
-  // Description:
-  // What rendering backend has the user requested
+  /**
+   * What rendering backend has the user requested
+   */
   virtual const char *GetRenderingBackend();
 
-  // Description:
-  // Return the collection of renderers in the render window.
+  /**
+   * Return the collection of renderers in the render window.
+   */
   vtkRendererCollection *GetRenderers() {return this->Renderers;};
 
-  // Description:
-  // The GL2PS exporter must handle certain props in a special way (e.g. text).
-  // This method performs a render and captures all "GL2PS-special" props in
-  // the specified collection. The collection will contain a
-  // vtkPropCollection for each vtkRenderer in this->GetRenderers(), each
-  // containing the special props rendered by the corresponding renderer.
+  /**
+   * The GL2PS exporter must handle certain props in a special way (e.g. text).
+   * This method performs a render and captures all "GL2PS-special" props in
+   * the specified collection. The collection will contain a
+   * vtkPropCollection for each vtkRenderer in this->GetRenderers(), each
+   * containing the special props rendered by the corresponding renderer.
+   */
   void CaptureGL2PSSpecialProps(vtkCollection *specialProps);
 
-  // Description:
-  // Returns true if the render process is capturing text actors.
+  //@{
+  /**
+   * Returns true if the render process is capturing text actors.
+   */
   vtkGetMacro(CapturingGL2PSSpecialProps, int);
+  //@}
 
-  // Description:
-  // Ask each renderer owned by this RenderWindow to render its image and
-  // synchronize this process.
+  /**
+   * Ask each renderer owned by this RenderWindow to render its image and
+   * synchronize this process.
+   */
   virtual void Render();
 
-  // Description:
-  // Initialize the rendering process.
+  /**
+   * Initialize the rendering process.
+   */
   virtual void Start() = 0;
 
-  // Description:
-  // Finalize the rendering process.
+  /**
+   * Finalize the rendering process.
+   */
   virtual void Finalize() = 0;
 
-  // Description:
-  // A termination method performed at the end of the rendering process
-  // to do things like swapping buffers (if necessary) or similar actions.
+  /**
+   * A termination method performed at the end of the rendering process
+   * to do things like swapping buffers (if necessary) or similar actions.
+   */
   virtual void Frame() = 0;
 
-  // Description:
-  // Block the thread until the actual rendering is finished().
-  // Useful for measurement only.
+  /**
+   * Block the thread until the actual rendering is finished().
+   * Useful for measurement only.
+   */
   virtual void WaitForCompletion()=0;
 
-  // Description:
-  // Performed at the end of the rendering process to generate image.
-  // This is typically done right before swapping buffers.
+  /**
+   * Performed at the end of the rendering process to generate image.
+   * This is typically done right before swapping buffers.
+   */
   virtual void CopyResultFrame();
 
-  // Description:
-  // Create an interactor to control renderers in this window. We need
-  // to know what type of interactor to create, because we might be in
-  // X Windows or MS Windows.
+  /**
+   * Create an interactor to control renderers in this window. We need
+   * to know what type of interactor to create, because we might be in
+   * X Windows or MS Windows.
+   */
   virtual vtkRenderWindowInteractor *MakeRenderWindowInteractor();
 
-  // Description:
-  // Hide or Show the mouse cursor, it is nice to be able to hide the
-  // default cursor if you want VTK to display a 3D cursor instead.
-  // Set cursor position in window (note that (0,0) is the lower left
-  // corner).
+  //@{
+  /**
+   * Hide or Show the mouse cursor, it is nice to be able to hide the
+   * default cursor if you want VTK to display a 3D cursor instead.
+   * Set cursor position in window (note that (0,0) is the lower left
+   * corner).
+   */
   virtual void HideCursor() = 0;
   virtual void ShowCursor() = 0;
   virtual void SetCursorPosition(int , int ) {}
+  //@}
 
-  // Description:
-  // Change the shape of the cursor.
+  //@{
+  /**
+   * Change the shape of the cursor.
+   */
   vtkSetMacro(CurrentCursor,int);
   vtkGetMacro(CurrentCursor,int);
+  //@}
 
-  // Description:
-  // Turn on/off rendering full screen window size.
+  //@{
+  /**
+   * Turn on/off rendering full screen window size.
+   */
   virtual void SetFullScreen(int) = 0;
   vtkGetMacro(FullScreen,int);
   vtkBooleanMacro(FullScreen,int);
+  //@}
 
-  // Description:
-  // Turn on/off window manager borders. Typically, you shouldn't turn the
-  // borders off, because that bypasses the window manager and can cause
-  // undesirable behavior.
+  //@{
+  /**
+   * Turn on/off window manager borders. Typically, you shouldn't turn the
+   * borders off, because that bypasses the window manager and can cause
+   * undesirable behavior.
+   */
   vtkSetMacro(Borders,int);
   vtkGetMacro(Borders,int);
   vtkBooleanMacro(Borders,int);
+  //@}
 
-  // Description:
-  // Prescribe that the window be created in a stereo-capable mode. This
-  // method must be called before the window is realized. Default is off.
+  //@{
+  /**
+   * Prescribe that the window be created in a stereo-capable mode. This
+   * method must be called before the window is realized. Default is off.
+   */
   vtkGetMacro(StereoCapableWindow,int);
   vtkBooleanMacro(StereoCapableWindow,int);
   virtual void SetStereoCapableWindow(int capable);
+  //@}
 
-  // Description:
-  // Turn on/off stereo rendering.
+  //@{
+  /**
+   * Turn on/off stereo rendering.
+   */
   vtkGetMacro(StereoRender,int);
   void SetStereoRender(int stereo);
   vtkBooleanMacro(StereoRender,int);
+  //@}
 
-  // Description:
-  // Turn on/off the use of alpha bitplanes.
+  //@{
+  /**
+   * Turn on/off the use of alpha bitplanes.
+   */
   vtkSetMacro(AlphaBitPlanes, int);
   vtkGetMacro(AlphaBitPlanes, int);
   vtkBooleanMacro(AlphaBitPlanes, int);
+  //@}
 
-  // Description:
-  // Turn on/off point smoothing. Default is off.
-  // This must be applied before the first Render.
+  //@{
+  /**
+   * Turn on/off point smoothing. Default is off.
+   * This must be applied before the first Render.
+   */
   vtkSetMacro(PointSmoothing,int);
   vtkGetMacro(PointSmoothing,int);
   vtkBooleanMacro(PointSmoothing,int);
+  //@}
 
-  // Description:
-  // Turn on/off line smoothing. Default is off.
-  // This must be applied before the first Render.
+  //@{
+  /**
+   * Turn on/off line smoothing. Default is off.
+   * This must be applied before the first Render.
+   */
   vtkSetMacro(LineSmoothing,int);
   vtkGetMacro(LineSmoothing,int);
   vtkBooleanMacro(LineSmoothing,int);
+  //@}
 
-  // Description:
-  // Turn on/off polygon smoothing. Default is off.
-  // This must be applied before the first Render.
+  //@{
+  /**
+   * Turn on/off polygon smoothing. Default is off.
+   * This must be applied before the first Render.
+   */
   vtkSetMacro(PolygonSmoothing,int);
   vtkGetMacro(PolygonSmoothing,int);
   vtkBooleanMacro(PolygonSmoothing,int);
+  //@}
 
-  // Description:
-  // Set/Get what type of stereo rendering to use.  CrystalEyes
-  // mode uses frame-sequential capabilities available in OpenGL
-  // to drive LCD shutter glasses and stereo projectors.  RedBlue
-  // mode is a simple type of stereo for use with red-blue glasses.
-  // Anaglyph mode is a superset of RedBlue mode, but the color
-  // output channels can be configured using the AnaglyphColorMask
-  // and the color of the original image can be (somewhat) maintained
-  // using AnaglyphColorSaturation;  the default colors for Anaglyph
-  // mode is red-cyan.  Interlaced stereo mode produces a composite
-  // image where horizontal lines alternate between left and right
-  // views.  StereoLeft and StereoRight modes choose one or the other
-  // stereo view.  Dresden mode is yet another stereoscopic
-  // interleaving. Fake simply causes the window to render twice without
-  // actually swapping the camera from left eye to right eye. This is useful in
-  // certain applications that want to emulate the rendering passes without
-  // actually rendering in stereo mode.
+  //@{
+  /**
+   * Set/Get what type of stereo rendering to use.  CrystalEyes
+   * mode uses frame-sequential capabilities available in OpenGL
+   * to drive LCD shutter glasses and stereo projectors.  RedBlue
+   * mode is a simple type of stereo for use with red-blue glasses.
+   * Anaglyph mode is a superset of RedBlue mode, but the color
+   * output channels can be configured using the AnaglyphColorMask
+   * and the color of the original image can be (somewhat) maintained
+   * using AnaglyphColorSaturation;  the default colors for Anaglyph
+   * mode is red-cyan.  Interlaced stereo mode produces a composite
+   * image where horizontal lines alternate between left and right
+   * views.  StereoLeft and StereoRight modes choose one or the other
+   * stereo view.  Dresden mode is yet another stereoscopic
+   * interleaving. Fake simply causes the window to render twice without
+   * actually swapping the camera from left eye to right eye. This is useful in
+   * certain applications that want to emulate the rendering passes without
+   * actually rendering in stereo mode.
+   */
   vtkGetMacro(StereoType,int);
   vtkSetMacro(StereoType,int);
   void SetStereoTypeToCrystalEyes()
@@ -263,83 +316,102 @@ public:
     {this->SetStereoType(VTK_STEREO_SPLITVIEWPORT_HORIZONTAL);}
   void SetStereoTypeToFake()
     {this->SetStereoType(VTK_STEREO_FAKE);}
+  //@}
 
   const char *GetStereoTypeAsString();
 
-  // Description:
-  // Update the system, if needed, due to stereo rendering. For some stereo
-  // methods, subclasses might need to switch some hardware settings here.
+  /**
+   * Update the system, if needed, due to stereo rendering. For some stereo
+   * methods, subclasses might need to switch some hardware settings here.
+   */
   virtual void StereoUpdate();
 
-  // Description:
-  // Intermediate method performs operations required between the rendering
-  // of the left and right eye.
+  /**
+   * Intermediate method performs operations required between the rendering
+   * of the left and right eye.
+   */
   virtual void StereoMidpoint();
 
-  // Description:
-  // Handles work required once both views have been rendered when using
-  // stereo rendering.
+  /**
+   * Handles work required once both views have been rendered when using
+   * stereo rendering.
+   */
   virtual void StereoRenderComplete();
 
-  //Description:
-  // Set/get the anaglyph color saturation factor.  This number ranges from
-  // 0.0 to 1.0:  0.0 means that no color from the original object is
-  // maintained, 1.0 means all of the color is maintained.  The default
-  // value is 0.65.  Too much saturation can produce uncomfortable 3D
-  // viewing because anaglyphs also use color to encode 3D.
+  //@{
+  /**
+   * Set/get the anaglyph color saturation factor.  This number ranges from
+   * 0.0 to 1.0:  0.0 means that no color from the original object is
+   * maintained, 1.0 means all of the color is maintained.  The default
+   * value is 0.65.  Too much saturation can produce uncomfortable 3D
+   * viewing because anaglyphs also use color to encode 3D.
+   */
   vtkSetClampMacro(AnaglyphColorSaturation,float, 0.0f, 1.0f);
   vtkGetMacro(AnaglyphColorSaturation,float);
+  //@}
 
-  //Description:
-  // Set/get the anaglyph color mask values.  These two numbers are bits
-  // mask that control which color channels of the original stereo
-  // images are used to produce the final anaglyph image.  The first
-  // value is the color mask for the left view, the second the mask
-  // for the right view.  If a bit in the mask is on for a particular
-  // color for a view, that color is passed on to the final view; if
-  // it is not set, that channel for that view is ignored.
-  // The bits are arranged as r, g, and b, so r = 4, g = 2, and b = 1.
-  // By default, the first value (the left view) is set to 4, and the
-  // second value is set to 3.  That means that the red output channel
-  // comes from the left view, and the green and blue values come from
-  // the right view.
+  //@{
+  /**
+   * Set/get the anaglyph color mask values.  These two numbers are bits
+   * mask that control which color channels of the original stereo
+   * images are used to produce the final anaglyph image.  The first
+   * value is the color mask for the left view, the second the mask
+   * for the right view.  If a bit in the mask is on for a particular
+   * color for a view, that color is passed on to the final view; if
+   * it is not set, that channel for that view is ignored.
+   * The bits are arranged as r, g, and b, so r = 4, g = 2, and b = 1.
+   * By default, the first value (the left view) is set to 4, and the
+   * second value is set to 3.  That means that the red output channel
+   * comes from the left view, and the green and blue values come from
+   * the right view.
+   */
   vtkSetVector2Macro(AnaglyphColorMask,int);
   vtkGetVectorMacro(AnaglyphColorMask,int,2);
+  //@}
 
-  // Description:
-  // Remap the rendering window. This probably only works on UNIX right now.
-  // It is useful for changing properties that can't normally be changed
-  // once the window is up.
+  /**
+   * Remap the rendering window. This probably only works on UNIX right now.
+   * It is useful for changing properties that can't normally be changed
+   * once the window is up.
+   */
   virtual void WindowRemap() = 0;
 
-  // Description:
-  // Turn on/off buffer swapping between images.
+  //@{
+  /**
+   * Turn on/off buffer swapping between images.
+   */
   vtkSetMacro(SwapBuffers,int);
   vtkGetMacro(SwapBuffers,int);
   vtkBooleanMacro(SwapBuffers,int);
+  //@}
 
-  // Description:
-  // Set/Get the pixel data of an image, transmitted as RGBRGBRGB. The
-  // front argument indicates if the front buffer should be used or the back
-  // buffer. It is the caller's responsibility to delete the resulting
-  // array. It is very important to realize that the memory in this array
-  // is organized from the bottom of the window to the top. The origin
-  // of the screen is in the lower left corner. The y axis increases as
-  // you go up the screen. So the storage of pixels is from left to right
-  // and from bottom to top.
-  // (x,y) is any corner of the rectangle. (x2,y2) is its opposite corner on
-  // the diagonal.
+  //@{
+  /**
+   * Set/Get the pixel data of an image, transmitted as RGBRGBRGB. The
+   * front argument indicates if the front buffer should be used or the back
+   * buffer. It is the caller's responsibility to delete the resulting
+   * array. It is very important to realize that the memory in this array
+   * is organized from the bottom of the window to the top. The origin
+   * of the screen is in the lower left corner. The y axis increases as
+   * you go up the screen. So the storage of pixels is from left to right
+   * and from bottom to top.
+   * (x,y) is any corner of the rectangle. (x2,y2) is its opposite corner on
+   * the diagonal.
+   */
   virtual int SetPixelData(int x, int y, int x2, int y2, unsigned char *data,
                            int front) = 0;
   virtual int SetPixelData(int x, int y, int x2, int y2,
                            vtkUnsignedCharArray *data, int front) = 0;
+  //@}
 
-  // Description:
-  // Same as Get/SetPixelData except that the image also contains an alpha
-  // component. The image is transmitted as RGBARGBARGBA... each of which is a
-  // float value. The "blend" parameter controls whether the SetRGBAPixelData
-  // method blends the data with the previous contents of the frame buffer
-  // or completely replaces the frame buffer data.
+  //@{
+  /**
+   * Same as Get/SetPixelData except that the image also contains an alpha
+   * component. The image is transmitted as RGBARGBARGBA... each of which is a
+   * float value. The "blend" parameter controls whether the SetRGBAPixelData
+   * method blends the data with the previous contents of the frame buffer
+   * or completely replaces the frame buffer data.
+   */
   virtual float *GetRGBAPixelData(int x, int y, int x2, int y2, int front) = 0;
   virtual int GetRGBAPixelData(int x, int y, int x2, int y2, int front,
                                vtkFloatArray *data) = 0;
@@ -358,11 +430,14 @@ public:
   virtual int SetRGBACharPixelData(int x, int y, int x2, int y2,
                                    vtkUnsignedCharArray *data, int front,
                                    int blend=0) = 0;
+  //@}
 
-  // Description:
-  // Set/Get the zbuffer data from the frame buffer.
-  // (x,y) is any corner of the rectangle. (x2,y2) is its opposite corner on
-  // the diagonal.
+  //@{
+  /**
+   * Set/Get the zbuffer data from the frame buffer.
+   * (x,y) is any corner of the rectangle. (x2,y2) is its opposite corner on
+   * the diagonal.
+   */
   virtual float *GetZbufferData(int x, int y, int x2, int y2) = 0;
   virtual int GetZbufferData(int x, int y, int x2, int y2, float *z) = 0;
   virtual int GetZbufferData(int x, int y, int x2, int y2,
@@ -376,107 +451,142 @@ public:
     this->GetZbufferData(x, y, x, y, &value);
     return value;
     }
+  //@}
 
-  // Description:
-  // Set the number of frames for doing antialiasing. The default is
-  // zero. Typically five or six will yield reasonable results without
-  // taking too long.
+  //@{
+  /**
+   * Set the number of frames for doing antialiasing. The default is
+   * zero. Typically five or six will yield reasonable results without
+   * taking too long.
+   */
   vtkGetMacro(AAFrames,int);
   vtkSetMacro(AAFrames,int);
+  //@}
 
-  // Description:
-  // Set the number of frames for doing focal depth. The default is zero.
-  // Depending on how your scene is organized you can get away with as
-  // few as four frames for focal depth or you might need thirty.
-  // One thing to note is that if you are using focal depth frames,
-  // then you will not need many (if any) frames for antialiasing.
+  //@{
+  /**
+   * Set the number of frames for doing focal depth. The default is zero.
+   * Depending on how your scene is organized you can get away with as
+   * few as four frames for focal depth or you might need thirty.
+   * One thing to note is that if you are using focal depth frames,
+   * then you will not need many (if any) frames for antialiasing.
+   */
   vtkGetMacro(FDFrames,int);
   virtual void SetFDFrames (int fdFrames);
+  //@}
 
-  // Description:
-  // Turn on/off using constant offsets for focal depth rendering.
-  // The default is off. When constants offsets are used, re-rendering
-  // the same scene using the same camera yields the same image; otherwise
-  // offsets are random numbers at each rendering that yields
-  // slightly different images.
+  //@{
+  /**
+   * Turn on/off using constant offsets for focal depth rendering.
+   * The default is off. When constants offsets are used, re-rendering
+   * the same scene using the same camera yields the same image; otherwise
+   * offsets are random numbers at each rendering that yields
+   * slightly different images.
+   */
   vtkGetMacro(UseConstantFDOffsets,int);
   vtkSetMacro(UseConstantFDOffsets,int);
+  //@}
 
-  // Description:
-  // Set the number of sub frames for doing motion blur. The default is zero.
-  // Once this is set greater than one, you will no longer see a new frame
-  // for every Render().  If you set this to five, you will need to do
-  // five Render() invocations before seeing the result. This isn't
-  // very impressive unless something is changing between the Renders.
-  // Changing this value may reset the current subframe count.
+  //@{
+  /**
+   * Set the number of sub frames for doing motion blur. The default is zero.
+   * Once this is set greater than one, you will no longer see a new frame
+   * for every Render().  If you set this to five, you will need to do
+   * five Render() invocations before seeing the result. This isn't
+   * very impressive unless something is changing between the Renders.
+   * Changing this value may reset the current subframe count.
+   */
   vtkGetMacro(SubFrames,int);
   virtual void SetSubFrames(int subFrames);
+  //@}
 
-  // Description:
-  // This flag is set if the window hasn't rendered since it was created
+  //@{
+  /**
+   * This flag is set if the window hasn't rendered since it was created
+   */
   vtkGetMacro(NeverRendered,int);
+  //@}
 
-  // Description:
-  // This is a flag that can be set to interrupt a rendering that is in
-  // progress.
+  //@{
+  /**
+   * This is a flag that can be set to interrupt a rendering that is in
+   * progress.
+   */
   vtkGetMacro(AbortRender,int);
   vtkSetMacro(AbortRender,int);
   vtkGetMacro(InAbortCheck,int);
   vtkSetMacro(InAbortCheck,int);
   virtual int CheckAbortStatus();
+  //@}
 
   vtkGetMacro(IsPicking,int);
   vtkSetMacro(IsPicking,int);
   vtkBooleanMacro(IsPicking,int);
 
-  // Description:
-  // Check to see if a mouse button has been pressed.  All other events
-  // are ignored by this method.  Ideally, you want to abort the render
-  // on any event which causes the DesiredUpdateRate to switch from
-  // a high-quality rate to a more interactive rate.
+  /**
+   * Check to see if a mouse button has been pressed.  All other events
+   * are ignored by this method.  Ideally, you want to abort the render
+   * on any event which causes the DesiredUpdateRate to switch from
+   * a high-quality rate to a more interactive rate.
+   */
   virtual int GetEventPending() = 0;
 
-  // Description:
-  // Are we rendering at the moment
+  /**
+   * Are we rendering at the moment
+   */
   virtual int  CheckInRenderStatus() { return this->InRender; }
 
-  // Description:
-  // Clear status (after an exception was thrown for example)
+  /**
+   * Clear status (after an exception was thrown for example)
+   */
   virtual void ClearInRenderStatus() { this->InRender = 0; }
 
-  // Description:
-  // Set/Get the desired update rate. This is used with
-  // the vtkLODActor class. When using level of detail actors you
-  // need to specify what update rate you require. The LODActors then
-  // will pick the correct resolution to meet your desired update rate
-  // in frames per second. A value of zero indicates that they can use
-  // all the time they want to.
+  //@{
+  /**
+   * Set/Get the desired update rate. This is used with
+   * the vtkLODActor class. When using level of detail actors you
+   * need to specify what update rate you require. The LODActors then
+   * will pick the correct resolution to meet your desired update rate
+   * in frames per second. A value of zero indicates that they can use
+   * all the time they want to.
+   */
   virtual void SetDesiredUpdateRate(double);
   vtkGetMacro(DesiredUpdateRate,double);
+  //@}
 
-  // Description:
-  // Get the number of layers for renderers.  Each renderer should have
-  // its layer set individually.  Some algorithms iterate through all layers,
-  // so it is not wise to set the number of layers to be exorbitantly large
-  // (say bigger than 100).
+  //@{
+  /**
+   * Get the number of layers for renderers.  Each renderer should have
+   * its layer set individually.  Some algorithms iterate through all layers,
+   * so it is not wise to set the number of layers to be exorbitantly large
+   * (say bigger than 100).
+   */
   vtkGetMacro(NumberOfLayers, int);
   vtkSetClampMacro(NumberOfLayers, int, 1, VTK_INT_MAX);
+  //@}
 
-  // Description:
-  // Get the interactor associated with this render window
+  //@{
+  /**
+   * Get the interactor associated with this render window
+   */
   vtkGetObjectMacro(Interactor,vtkRenderWindowInteractor);
+  //@}
 
-  // Description:
-  // Set the interactor to the render window
+  /**
+   * Set the interactor to the render window
+   */
   void SetInteractor(vtkRenderWindowInteractor *);
 
-  // Description:
-  // This Method detects loops of RenderWindow<->Interactor,
-  // so objects are freed properly.
+  /**
+   * This Method detects loops of RenderWindow<->Interactor,
+   * so objects are freed properly.
+   */
   virtual void UnRegister(vtkObjectBase *o);
 
-  // Description:
-  // Dummy stubs for vtkWindow API.
+  //@{
+  /**
+   * Dummy stubs for vtkWindow API.
+   */
   virtual void SetDisplayId(void *) = 0;
   virtual void SetWindowId(void *)  = 0;
   virtual void SetNextWindowId(void *) = 0;
@@ -489,96 +599,121 @@ public:
   virtual void SetWindowInfo(char *) = 0;
   virtual void SetNextWindowInfo(char *) = 0;
   virtual void SetParentInfo(char *) = 0;
+  //@}
 
-  // Description:
-  // Initialize the render window from the information associated
-  // with the currently activated OpenGL context.
+  /**
+   * Initialize the render window from the information associated
+   * with the currently activated OpenGL context.
+   */
   virtual bool InitializeFromCurrentContext() { return false; };
 
-  // Description:
-  // Attempt to make this window the current graphics context for the calling
-  // thread.
+  /**
+   * Attempt to make this window the current graphics context for the calling
+   * thread.
+   */
   virtual void MakeCurrent() = 0;
 
-  // Description:
-  // Tells if this window is the current graphics context for the calling
-  // thread.
+  /**
+   * Tells if this window is the current graphics context for the calling
+   * thread.
+   */
   virtual bool IsCurrent()=0;
 
-  // Description:
-  // Test if the window has a valid drawable. This is
-  // currently only an issue on Mac OS X Cocoa where rendering
-  // to an invalid drawable results in all OpenGL calls to fail
-  // with "invalid framebuffer operation".
+  /**
+   * Test if the window has a valid drawable. This is
+   * currently only an issue on Mac OS X Cocoa where rendering
+   * to an invalid drawable results in all OpenGL calls to fail
+   * with "invalid framebuffer operation".
+   */
   virtual bool IsDrawable(){ return true; }
 
-  // Description:
-  // If called, allow MakeCurrent() to skip cache-check when called.
-  // MakeCurrent() reverts to original behavior of cache-checking
-  // on the next render.
+  /**
+   * If called, allow MakeCurrent() to skip cache-check when called.
+   * MakeCurrent() reverts to original behavior of cache-checking
+   * on the next render.
+   */
   virtual void SetForceMakeCurrent() {}
 
-  // Description:
-  // Get report of capabilities for the render window
+  /**
+   * Get report of capabilities for the render window
+   */
   virtual const char *ReportCapabilities() { return "Not Implemented";};
 
-  // Description:
-  // Does this render window support OpenGL? 0-false, 1-true
+  /**
+   * Does this render window support OpenGL? 0-false, 1-true
+   */
   virtual int SupportsOpenGL() { return 0;};
 
-  // Description:
-  // Is this render window using hardware acceleration? 0-false, 1-true
+  /**
+   * Is this render window using hardware acceleration? 0-false, 1-true
+   */
   virtual int IsDirect() { return 0;};
 
-  // Description:
-  // This method should be defined by the subclass. How many bits of
-  // precision are there in the zbuffer?
+  /**
+   * This method should be defined by the subclass. How many bits of
+   * precision are there in the zbuffer?
+   */
   virtual int GetDepthBufferSize() = 0;
 
-  // Description:
-  // Get the size of the color buffer.
-  // Returns 0 if not able to determine otherwise sets R G B and A into buffer.
+  /**
+   * Get the size of the color buffer.
+   * Returns 0 if not able to determine otherwise sets R G B and A into buffer.
+   */
   virtual int GetColorBufferSizes(int *rgba) = 0;
 
-  // Description:
-  // Get the vtkPainterDeviceAdapter which can be used to paint on
-  // this render window.  Note the old OpenGL backend requires this
-  // method.
+  //@{
+  /**
+   * Get the vtkPainterDeviceAdapter which can be used to paint on
+   * this render window.  Note the old OpenGL backend requires this
+   * method.
+   */
   vtkGetObjectMacro(PainterDeviceAdapter, vtkPainterDeviceAdapter);
+  //@}
 
-  // Description:
-  // Set / Get the number of multisamples to use for hardware antialiasing.
+  //@{
+  /**
+   * Set / Get the number of multisamples to use for hardware antialiasing.
+   */
   vtkSetMacro(MultiSamples,int);
   vtkGetMacro(MultiSamples,int);
+  //@}
 
-  // Description:
-  // Set / Get the availability of the stencil buffer.
+  //@{
+  /**
+   * Set / Get the availability of the stencil buffer.
+   */
   vtkSetMacro(StencilCapable, int);
   vtkGetMacro(StencilCapable, int);
   vtkBooleanMacro(StencilCapable, int);
+  //@}
 
-  // Description:
-  // If there are several graphics card installed on a system,
-  // this index can be used to specify which card you want to render to.
-  // the default is 0. This may not work on all derived render window and
-  // it may need to be set before the first render.
+  //@{
+  /**
+   * If there are several graphics card installed on a system,
+   * this index can be used to specify which card you want to render to.
+   * the default is 0. This may not work on all derived render window and
+   * it may need to be set before the first render.
+   */
   vtkSetMacro(DeviceIndex,int);
   vtkGetMacro(DeviceIndex,int);
-  // Description:
-  // Returns the number of devices (graphics cards) on a system.
-  // This may not work on all derived render windows.
+  //@}
+  /**
+   * Returns the number of devices (graphics cards) on a system.
+   * This may not work on all derived render windows.
+   */
   virtual int GetNumberOfDevices()
   {
     return 0;
   }
 
-  // Description:
-  // Create and bind offscreen rendering buffers without destroying the current
-  // OpenGL context. This allows to temporary switch to offscreen rendering
-  // (ie. to make a screenshot even if the window is hidden).
-  // Return if the creation was successful (1) or not (0).
-  // Note: This function requires that the device supports OpenGL framebuffer extension.
-  // The function has no effect if OffScreenRendering is ON.
+  /**
+   * Create and bind offscreen rendering buffers without destroying the current
+   * OpenGL context. This allows to temporary switch to offscreen rendering
+   * (ie. to make a screenshot even if the window is hidden).
+   * Return if the creation was successful (1) or not (0).
+   * Note: This function requires that the device supports OpenGL framebuffer extension.
+   * The function has no effect if OffScreenRendering is ON.
+   */
   virtual int SetUseOffScreenBuffers(bool) { return 0; }
   virtual bool GetUseOffScreenBuffers() { return false; }
 
@@ -630,8 +765,9 @@ protected:
   int CapturingGL2PSSpecialProps;
   int DeviceIndex;
 
-  // Description:
-  // The universal time since the last abort check occurred.
+  /**
+   * The universal time since the last abort check occurred.
+   */
   double AbortCheckTime;
 
 private:

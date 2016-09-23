@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLPolyDataMapper2D - 2D PolyData support for OpenGL
-// .SECTION Description
-// vtkOpenGLPolyDataMapper2D provides 2D PolyData annotation support for
-// vtk under OpenGL.  Normally the user should use vtkPolyDataMapper2D
-// which in turn will use this class.
-
-// .SECTION See Also
-// vtkPolyDataMapper2D
+/**
+ * @class   vtkOpenGLPolyDataMapper2D
+ * @brief   2D PolyData support for OpenGL
+ *
+ * vtkOpenGLPolyDataMapper2D provides 2D PolyData annotation support for
+ * vtk under OpenGL.  Normally the user should use vtkPolyDataMapper2D
+ * which in turn will use this class.
+ *
+ * @sa
+ * vtkPolyDataMapper2D
+*/
 
 #ifndef vtkOpenGLPolyDataMapper2D_h
 #define vtkOpenGLPolyDataMapper2D_h
@@ -48,14 +51,16 @@ public:
   static vtkOpenGLPolyDataMapper2D *New();
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Actually draw the poly data.
+  /**
+   * Actually draw the poly data.
+   */
   void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor);
 
-  // Description:
-  // Release any graphics resources that are being consumed by this mapper.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
+  /**
+   * Release any graphics resources that are being consumed by this mapper.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
   void ReleaseGraphicsResources(vtkWindow *);
 
   /// Return the mapper's vertex buffer object.
@@ -73,45 +78,53 @@ protected:
   std::vector<float> AppleBugPrimIDs;
   vtkOpenGLBufferObject *AppleBugPrimIDBuffer;
 
-  // Description:
-  // Does the shader source need to be recomputed
+  /**
+   * Does the shader source need to be recomputed
+   */
   virtual bool GetNeedToRebuildShaders(
     vtkOpenGLHelper &cellBO, vtkViewport *ren, vtkActor2D *act);
 
-  // Description:
-  // Build the shader source code
+  /**
+   * Build the shader source code
+   */
   virtual void BuildShaders(std::string &VertexCode,
                            std::string &fragmentCode,
                            std::string &geometryCode,
                            vtkViewport *ren, vtkActor2D *act);
 
-  // Description:
-  // Determine what shader to use and compile/link it
+  /**
+   * Determine what shader to use and compile/link it
+   */
   virtual void UpdateShaders(vtkOpenGLHelper &cellBO,
     vtkViewport *viewport, vtkActor2D *act);
 
-  // Description:
-  // Set the shader parameteres related to the mapper/input data, called by UpdateShader
+  /**
+   * Set the shader parameteres related to the mapper/input data, called by UpdateShader
+   */
   virtual void SetMapperShaderParameters(vtkOpenGLHelper &cellBO, vtkViewport *ren, vtkActor2D *act);
 
 
-    // Description:
-  // Set the shader parameteres related to the Camera
+    /**
+     * Set the shader parameteres related to the Camera
+     */
   void SetCameraShaderParameters(vtkOpenGLHelper &cellBO, vtkViewport *viewport, vtkActor2D *act);
 
-  // Description:
-  // Set the shader parameteres related to the property
+  /**
+   * Set the shader parameteres related to the property
+   */
   void SetPropertyShaderParameters(vtkOpenGLHelper &cellBO, vtkViewport *viewport, vtkActor2D *act);
 
-  // Description:
-  // Perform string replacments on the shader templates, called from
-  // ReplaceShaderValues
+  /**
+   * Perform string replacments on the shader templates, called from
+   * ReplaceShaderValues
+   */
   virtual void ReplaceShaderPicking(
     std::string & fssource,
     vtkRenderer *ren, vtkActor2D *act);
 
-  // Description:
-  // Update the scene when necessary.
+  /**
+   * Update the scene when necessary.
+   */
   void UpdateVBO(vtkActor2D *act, vtkViewport *viewport);
 
   // The VBO and its layout.

@@ -12,8 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractUnstructuredGridPiece - Return specified piece, including specified
-// number of ghost levels.
+/**
+ * @class   vtkExtractUnstructuredGridPiece
+ * @brief   Return specified piece, including specified
+ * number of ghost levels.
+*/
 
 #ifndef vtkExtractUnstructuredGridPiece_h
 #define vtkExtractUnstructuredGridPiece_h
@@ -31,11 +34,14 @@ public:
   vtkTypeMacro(vtkExtractUnstructuredGridPiece, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Turn on/off creating ghost cells (on by default).
+  //@{
+  /**
+   * Turn on/off creating ghost cells (on by default).
+   */
   vtkSetMacro(CreateGhostCells, int);
   vtkGetMacro(CreateGhostCells, int);
   vtkBooleanMacro(CreateGhostCells, int);
+  //@}
 
 protected:
   vtkExtractUnstructuredGridPiece();

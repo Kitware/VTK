@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMatrixMathFilter - Calculate functions of quality of the elements
-//  of a mesh
-//
-// .SECTION Description
-// vtkMatrixMathFilter computes one or more functions of mathematical quality for the
-// cells or points in a mesh. The per-cell or per-point quality is added to the
-// mesh's cell data or point data, in an array with names varied with different
-// quality being queried. Note this filter always assume the data associate with
-// the cells or points are 3 by 3 matrix.
+/**
+ * @class   vtkMatrixMathFilter
+ * @brief   Calculate functions of quality of the elements
+ *  of a mesh
+ *
+ *
+ * vtkMatrixMathFilter computes one or more functions of mathematical quality for the
+ * cells or points in a mesh. The per-cell or per-point quality is added to the
+ * mesh's cell data or point data, in an array with names varied with different
+ * quality being queried. Note this filter always assume the data associate with
+ * the cells or points are 3 by 3 matrix.
+*/
 
 #ifndef vtkMatrixMathFilter_h
 #define vtkMatrixMathFilter_h
@@ -53,8 +56,10 @@ public:
   vtkTypeMacro(vtkMatrixMathFilter, vtkDataSetAlgorithm);
   static vtkMatrixMathFilter* New ();
 
-  // Description:
-  // Set/Get the particular estimator used to function the quality of query.
+  //@{
+  /**
+   * Set/Get the particular estimator used to function the quality of query.
+   */
   vtkSetMacro(Operation, int)
   vtkGetMacro(Operation, int)
   void SetOperationToDeterminant ()
@@ -73,6 +78,7 @@ public:
     {
      this->SetOperation(INVERSE);
     }
+  //@}
 
 protected:
  ~vtkMatrixMathFilter ();

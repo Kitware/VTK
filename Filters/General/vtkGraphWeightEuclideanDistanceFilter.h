@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGraphWeightEuclideanDistanceFilter - Weights the edges of a
-// graph based on the Euclidean distance between the points.
-//
-// .SECTION Description
-// Weights the edges of a graph based on the Euclidean distance between the points.
+/**
+ * @class   vtkGraphWeightEuclideanDistanceFilter
+ * @brief   Weights the edges of a
+ * graph based on the Euclidean distance between the points.
+ *
+ *
+ * Weights the edges of a graph based on the Euclidean distance between the points.
+*/
 
 #ifndef vtkGraphWeightEuclideanDistanceFilter_h
 #define vtkGraphWeightEuclideanDistanceFilter_h
@@ -37,13 +40,15 @@ protected:
   vtkGraphWeightEuclideanDistanceFilter(){}
   ~vtkGraphWeightEuclideanDistanceFilter(){}
 
-  // Description:
-  // Compute the Euclidean distance between the Points defined for the
-  // verticies of a specified 'edge'.
+  /**
+   * Compute the Euclidean distance between the Points defined for the
+   * verticies of a specified 'edge'.
+   */
   float ComputeWeight(vtkGraph* const graph, const vtkEdgeType& edge) const;
 
-  // Description:
-  // Ensure that 'graph' has Points defined.
+  /**
+   * Ensure that 'graph' has Points defined.
+   */
   bool CheckRequirements(vtkGraph* const graph) const;
 
 private:

@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkServerSocket - Encapsulate a socket that accepts connections.
-// .SECTION Description
-//
+/**
+ * @class   vtkServerSocket
+ * @brief   Encapsulate a socket that accepts connections.
+ *
+ *
+*/
 
 #ifndef vtkServerSocket_h
 #define vtkServerSocket_h
@@ -30,23 +33,28 @@ public:
   vtkTypeMacro(vtkServerSocket, vtkSocket);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Creates a server socket at a given port and binds to it.
-  // Returns -1 on error. 0 on success.
+  /**
+   * Creates a server socket at a given port and binds to it.
+   * Returns -1 on error. 0 on success.
+   */
   int CreateServer(int port);
 
-  // Description:
-  // Waits for a connection. When a connection is received
-  // a new vtkClientSocket object is created and returned.
-  // Returns NULL on timeout.
+  /**
+   * Waits for a connection. When a connection is received
+   * a new vtkClientSocket object is created and returned.
+   * Returns NULL on timeout.
+   */
   vtkClientSocket* WaitForConnection(unsigned long msec=0);
 
-  // Description:
-  // Returns the port on which the server is running.
+  //@{
+  /**
+   * Returns the port on which the server is running.
+   */
   int GetServerPort();
 protected:
   vtkServerSocket();
   ~vtkServerSocket() VTK_OVERRIDE;
+  //@}
 
 private:
   vtkServerSocket(const vtkServerSocket&) VTK_DELETE_FUNCTION;

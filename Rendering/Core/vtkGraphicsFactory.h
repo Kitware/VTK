@@ -12,8 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGraphicsFactory -
-// .SECTION Description
+/**
+ * @class   vtkGraphicsFactory
+ *
+*/
 
 #ifndef vtkGraphicsFactory_h
 #define vtkGraphicsFactory_h
@@ -28,28 +30,36 @@ public:
   vtkTypeMacro(vtkGraphicsFactory, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Create and return an instance of the named vtk object.
-  // This method first checks the vtkObjectFactory to support
-  // dynamic loading.
+  /**
+   * Create and return an instance of the named vtk object.
+   * This method first checks the vtkObjectFactory to support
+   * dynamic loading.
+   */
   VTK_NEWINSTANCE
   static vtkObject* CreateInstance(const char* vtkclassname);
 
-  // Description:
-  // What rendering library has the user requested
+  /**
+   * What rendering library has the user requested
+   */
   static const char *GetRenderLibrary();
 
-  // Description:
-  // This option enables the creation of Mesa classes
-  // instead of the OpenGL classes when using mangled Mesa.
+  //@{
+  /**
+   * This option enables the creation of Mesa classes
+   * instead of the OpenGL classes when using mangled Mesa.
+   */
   static void SetUseMesaClasses(int use);
   static int  GetUseMesaClasses();
+  //@}
 
-  // Description:
-  // This option enables the off-screen only mode. In this mode no X calls will
-  // be made even when interactor is used.
+  //@{
+  /**
+   * This option enables the off-screen only mode. In this mode no X calls will
+   * be made even when interactor is used.
+   */
   static void SetOffScreenOnlyMode(int use);
   static int  GetOffScreenOnlyMode();
+  //@}
 
 protected:
   vtkGraphicsFactory() {}

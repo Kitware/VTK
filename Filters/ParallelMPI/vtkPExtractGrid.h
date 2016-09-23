@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPExtractGrid - Extract VOI and/or sub-sample a distributed
-//  structured dataset.
-//
-// .SECTION Description
-//  vtkPExtractGrid inherits from vtkExtractGrid and provides additional
-//  functionality when dealing with a distributed dataset. Specifically, when
-//  sub-sampling a dataset, a gap may be introduced between partitions. This
-//  filter handles such cases correctly by growing the grid to the right to
-//  close the gap.
-//
-// .SECTION See Also
-//  vtkExtractGrid
+/**
+ * @class   vtkPExtractGrid
+ * @brief   Extract VOI and/or sub-sample a distributed
+ *  structured dataset.
+ *
+ *
+ *  vtkPExtractGrid inherits from vtkExtractGrid and provides additional
+ *  functionality when dealing with a distributed dataset. Specifically, when
+ *  sub-sampling a dataset, a gap may be introduced between partitions. This
+ *  filter handles such cases correctly by growing the grid to the right to
+ *  close the gap.
+ *
+ * @sa
+ *  vtkExtractGrid
+*/
 
 #ifndef vtkPExtractGrid_h
 #define vtkPExtractGrid_h

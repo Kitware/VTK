@@ -12,10 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLLabeledContourMapper
-// .SECTION Description
-// vtkOpenGLLabeledContourMapper is an override for vtkLabeledContourMapper
-// that implements stenciling using the OpenGL API.
+/**
+ * @class   vtkOpenGLLabeledContourMapper
+ *
+ * vtkOpenGLLabeledContourMapper is an override for vtkLabeledContourMapper
+ * that implements stenciling using the OpenGL API.
+*/
 
 #ifndef vtkOpenGLLabeledContourMapper_h
 #define vtkOpenGLLabeledContourMapper_h

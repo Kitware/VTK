@@ -13,13 +13,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXdmf3HeavyDataHandler - internal helper for vtkXdmf3Reader
-// .SECTION Description
-// vtkXdmf3Reader uses this class to read the heave data from the XDMF
-// file(s).
-//
-// This file is a helper for the vtkXdmf3Reader and not intended to be
-// part of VTK public API
+/**
+ * @class   vtkXdmf3HeavyDataHandler
+ * @brief   internal helper for vtkXdmf3Reader
+ *
+ * vtkXdmf3Reader uses this class to read the heave data from the XDMF
+ * file(s).
+ *
+ * This file is a helper for the vtkXdmf3Reader and not intended to be
+ * part of VTK public API
+*/
 
 #ifndef vtkXdmf3HeavyDataHandler_h
 #define vtkXdmf3HeavyDataHandler_h
@@ -50,8 +53,9 @@ class XdmfUnstructuredGrid;
 class VTKIOXDMF3_EXPORT vtkXdmf3HeavyDataHandler
 {
 public:
-  //Description:
-  //factory constructor
+  /**
+   * factory constructor
+   */
   static shared_ptr<vtkXdmf3HeavyDataHandler> New(
       vtkXdmf3ArraySelection *fs,
       vtkXdmf3ArraySelection *cs,
@@ -63,24 +67,28 @@ public:
       vtkXdmf3ArrayKeeper *keeper,
       bool asTime );
 
-  //Description:
-  //destructor
+  /**
+   * destructor
+   */
   ~vtkXdmf3HeavyDataHandler();
 
-  //Description:
-  //recursively create and populate vtk data objects for the provided Xdmf item
+  /**
+   * recursively create and populate vtk data objects for the provided Xdmf item
+   */
   vtkDataObject *Populate(shared_ptr<XdmfItem> item, vtkDataObject *toFill);
 
   vtkXdmf3ArrayKeeper* Keeper;
 
 protected:
 
-  //Description:
-  //constructor
+  /**
+   * constructor
+   */
   vtkXdmf3HeavyDataHandler();
 
-  //Description:
-  //for parallel partitioning
+  /**
+   * for parallel partitioning
+   */
   bool ShouldRead(unsigned int piece, unsigned int npieces);
 
   bool GridEnabled(shared_ptr<XdmfGrid> grid);

@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOSPRayVolumeMapper - Standalone OSPRayVolumeMapper.
-// .SECTION Description
-// This is a standalone interface for ospray volume rendering to be used
-// within otherwise OpenGL rendering contexts such as within the
-// SmartVolumeMapper.
+/**
+ * @class   vtkOSPRayVolumeMapper
+ * @brief   Standalone OSPRayVolumeMapper.
+ *
+ * This is a standalone interface for ospray volume rendering to be used
+ * within otherwise OpenGL rendering contexts such as within the
+ * SmartVolumeMapper.
+*/
 
 #ifndef vtkOSPRayVolumeMapper_h
 #define vtkOSPRayVolumeMapper_h
@@ -36,18 +39,20 @@ public:
   vtkTypeMacro(vtkOSPRayVolumeMapper,vtkOSPRayVolumeInterface);
   void PrintSelf( ostream& os, vtkIndent indent );
 
-  // Description:
-  // Release any graphics resources that are being consumed by this mapper.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
+  /**
+   * Release any graphics resources that are being consumed by this mapper.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
   virtual void ReleaseGraphicsResources(vtkWindow *);
 
   // Initialize internal constructs
   virtual void Init();
 
-  //Description:
-  //Render the volume onto the screen.
-  //Overridden to use OSPRay to do the work.
+  /**
+   * Render the volume onto the screen.
+   * Overridden to use OSPRay to do the work.
+   */
   virtual void Render(vtkRenderer *, vtkVolume *);
 
 protected:

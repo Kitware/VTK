@@ -12,13 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageWrapPad - Makes an image larger by wrapping existing data.
-// .SECTION Description
-// vtkImageWrapPad performs a modulo operation on the output pixel index
-// to determine the source input index.  The new image extent of the
-// output has to be specified.  Input has to be the same scalar type as
-// output.
-
+/**
+ * @class   vtkImageWrapPad
+ * @brief   Makes an image larger by wrapping existing data.
+ *
+ * vtkImageWrapPad performs a modulo operation on the output pixel index
+ * to determine the source input index.  The new image extent of the
+ * output has to be specified.  Input has to be the same scalar type as
+ * output.
+*/
 
 #ifndef vtkImageWrapPad_h
 #define vtkImageWrapPad_h

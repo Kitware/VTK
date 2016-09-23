@@ -12,13 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPResampleWithDataSet -sample point and cell data of a dataset on
-// points from another dataset.
-// .SECTION Description
-// vtkPResampleWithDataSet is the parallel version of vtkResampleWithDataSet
-// filter
-// .SECTION See Also
-// vtkResampleWithDataSet vtkPResampleToImage
+/**
+ * @class   vtkPResampleWithDataSet
+ * points from another dataset.
+ *
+ * vtkPResampleWithDataSet is the parallel version of vtkResampleWithDataSet
+ * filter
+ * @sa
+ * vtkResampleWithDataSet vtkPResampleToImage
+*/
 
 #ifndef vtkPResampleWithDataSet_h
 #define vtkPResampleWithDataSet_h
@@ -37,27 +39,33 @@ public:
 
   static vtkPResampleWithDataSet *New();
 
-  // Description:
-  // By defualt this filter uses the global controller,
-  // but this method can be used to set another instead.
+  //@{
+  /**
+   * By defualt this filter uses the global controller,
+   * but this method can be used to set another instead.
+   */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
 
-  // Description:
-  // Set/Get if the filter should use Balanced Partitioning for fast lookup of
-  // the input points. Balanced Partitioning partitions the points into similar
-  // sized bins. It takes logarithmic time to search for the candidate bins, but
-  // search inside border bins takes constant time.
-  // The default is to use Regular Partitioning which partitions the space of the
-  // points into regular sized bins. Based on their distribution, the bins may
-  // contain widely varying number of points. It takes constant time to search
-  // for the candidate bins but search within border bins can vary.
-  // For most cases, both techniques perform the same with Regular Partitioning
-  // being slightly better. Balanced Partitioning may perform better when the
-  // points distribution is highly skewed.
+  //@{
+  /**
+   * Set/Get if the filter should use Balanced Partitioning for fast lookup of
+   * the input points. Balanced Partitioning partitions the points into similar
+   * sized bins. It takes logarithmic time to search for the candidate bins, but
+   * search inside border bins takes constant time.
+   * The default is to use Regular Partitioning which partitions the space of the
+   * points into regular sized bins. Based on their distribution, the bins may
+   * contain widely varying number of points. It takes constant time to search
+   * for the candidate bins but search within border bins can vary.
+   * For most cases, both techniques perform the same with Regular Partitioning
+   * being slightly better. Balanced Partitioning may perform better when the
+   * points distribution is highly skewed.
+   */
   vtkSetMacro(UseBalancedPartitionForPointsLookup, bool);
   vtkGetMacro(UseBalancedPartitionForPointsLookup, bool);
   vtkBooleanMacro(UseBalancedPartitionForPointsLookup, bool);
+  //@}
 
 protected:
   vtkPResampleWithDataSet();

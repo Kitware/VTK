@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMutexLock - mutual exclusion locking class
-// .SECTION Description
-// vtkMutexLock allows the locking of variables which are accessed
-// through different threads.  This header file also defines
-// vtkSimpleMutexLock which is not a subclass of vtkObject.
+/**
+ * @class   vtkMutexLock
+ * @brief   mutual exclusion locking class
+ *
+ * vtkMutexLock allows the locking of variables which are accessed
+ * through different threads.  This header file also defines
+ * vtkSimpleMutexLock which is not a subclass of vtkObject.
+*/
 
 #ifndef vtkMutexLock_h
 #define vtkMutexLock_h
@@ -59,12 +62,14 @@ public:
 
   void Delete() {delete this;}
 
-  // Description:
-  // Lock the vtkMutexLock
+  /**
+   * Lock the vtkMutexLock
+   */
   void Lock( void );
 
-  // Description:
-  // Unlock the vtkMutexLock
+  /**
+   * Unlock the vtkMutexLock
+   */
   void Unlock( void );
 
 protected:
@@ -84,12 +89,14 @@ public:
   vtkTypeMacro(vtkMutexLock,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Lock the vtkMutexLock
+  /**
+   * Lock the vtkMutexLock
+   */
   void Lock( void );
 
-  // Description:
-  // Unlock the vtkMutexLock
+  /**
+   * Unlock the vtkMutexLock
+   */
   void Unlock( void );
 
 protected:

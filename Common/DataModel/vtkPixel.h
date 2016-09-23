@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPixel - a cell that represents an orthogonal quadrilateral
-// .SECTION Description
-// vtkPixel is a concrete implementation of vtkCell to represent a 2D
-// orthogonal quadrilateral. Unlike vtkQuad, the corners are at right angles,
-// and aligned along x-y-z coordinate axes leading to large increases in
-// computational efficiency.
+/**
+ * @class   vtkPixel
+ * @brief   a cell that represents an orthogonal quadrilateral
+ *
+ * vtkPixel is a concrete implementation of vtkCell to represent a 2D
+ * orthogonal quadrilateral. Unlike vtkQuad, the corners are at right angles,
+ * and aligned along x-y-z coordinate axes leading to large increases in
+ * computational efficiency.
+*/
 
 #ifndef vtkPixel_h
 #define vtkPixel_h
@@ -35,8 +38,10 @@ public:
   vtkTypeMacro(vtkPixel,vtkCell);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // See the vtkCell API for descriptions of these methods.
+  //@{
+  /**
+   * See the vtkCell API for descriptions of these methods.
+   */
   int GetCellType() VTK_OVERRIDE {return VTK_PIXEL;};
   int GetCellDimension() VTK_OVERRIDE {return 2;};
   int GetNumberOfEdges() VTK_OVERRIDE {return 4;};
@@ -59,9 +64,11 @@ public:
                        double& dist2, double *weights) VTK_OVERRIDE;
   void EvaluateLocation(int& subId, double pcoords[3], double x[3],
                         double *weights) VTK_OVERRIDE;
+  //@}
 
-  // Description:
-  // Return the center of the triangle in parametric coordinates.
+  /**
+   * Return the center of the triangle in parametric coordinates.
+   */
   int GetParametricCenter(double pcoords[3]) VTK_OVERRIDE;
 
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
@@ -71,15 +78,19 @@ public:
                    int dim, double *derivs) VTK_OVERRIDE;
   double *GetParametricCoords() VTK_OVERRIDE;
 
-  // Description:
-  // @deprecated Replaced by vtkPixel::InterpolateFunctions as of VTK 5.2
+  /**
+   * @deprecated Replaced by vtkPixel::InterpolateFunctions as of VTK 5.2
+   */
   static void InterpolationFunctions(double pcoords[3], double weights[4]);
-  // Description:
-  // @deprecated Replaced by vtkPixel::InterpolateDerivs as of VTK 5.2
+  /**
+   * @deprecated Replaced by vtkPixel::InterpolateDerivs as of VTK 5.2
+   */
   static void InterpolationDerivs(double pcoords[3], double derivs[8]);
-  // Description:
-  // Compute the interpolation functions/derivatives
-  // (aka shape functions/derivatives)
+  //@{
+  /**
+   * Compute the interpolation functions/derivatives
+   * (aka shape functions/derivatives)
+   */
   void InterpolateFunctions(double pcoords[3], double weights[4]) VTK_OVERRIDE
     {
     vtkPixel::InterpolationFunctions(pcoords,weights);
@@ -88,6 +99,7 @@ public:
     {
     vtkPixel::InterpolationDerivs(pcoords,derivs);
     }
+  //@}
 
 protected:
   vtkPixel();

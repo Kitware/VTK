@@ -12,17 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageConnector - Create a binary image of a sphere.
-// .SECTION Description
-// vtkImageConnector is a helper class for connectivity filters.
-// It is not meant to be used directly.
-// It implements a stack and breadth first search necessary for
-// some connectivity filters.  Filtered axes sets the dimensionality
-// of the neighbor comparison, and
-// cannot be more than three dimensions.
-// As implemented, only voxels which share faces are considered
-// neighbors.
-
+/**
+ * @class   vtkImageConnector
+ * @brief   Create a binary image of a sphere.
+ *
+ * vtkImageConnector is a helper class for connectivity filters.
+ * It is not meant to be used directly.
+ * It implements a stack and breadth first search necessary for
+ * some connectivity filters.  Filtered axes sets the dimensionality
+ * of the neighbor comparison, and
+ * cannot be more than three dimensions.
+ * As implemented, only voxels which share faces are considered
+ * neighbors.
+*/
 
 #ifndef vtkImageConnector_h
 #define vtkImageConnector_h
@@ -59,18 +61,22 @@ public:
 
   void RemoveAllSeeds();
 
-  // Description:
-  // Values used by the MarkRegion method
+  //@{
+  /**
+   * Values used by the MarkRegion method
+   */
   vtkSetMacro(ConnectedValue, unsigned char);
   vtkGetMacro(ConnectedValue, unsigned char);
   vtkSetMacro(UnconnectedValue, unsigned char);
   vtkGetMacro(UnconnectedValue, unsigned char);
+  //@}
 
 
-  // Description:
-  // Input a data of 0's and "UnconnectedValue"s. Seeds of this object are
-  // used to find connected pixels.  All pixels connected to seeds are set to
-  // ConnectedValue.  The data has to be unsigned char.
+  /**
+   * Input a data of 0's and "UnconnectedValue"s. Seeds of this object are
+   * used to find connected pixels.  All pixels connected to seeds are set to
+   * ConnectedValue.  The data has to be unsigned char.
+   */
   void MarkData(vtkImageData *data, int dimensionality, int ext[6]);
 
 

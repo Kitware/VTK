@@ -12,8 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMPIPixelView -- Templated helper function for creating
-// MPI datatypes that describe a vtkPixelExtent.
+/**
+ * @class   vtkMPIPixelView
+ * MPI datatypes that describe a vtkPixelExtent.
+*/
 
 #ifndef vtkMPIPixelView_h
 #define vtkMPIPixelView_h

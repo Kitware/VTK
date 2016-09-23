@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPolyDataToReebGraphFilter - generate a Reeb graph from a scalar
-// field defined on a vtkPolyData.
-// .SECTION Description
-// The filter will first try to pull as a scalar field the vtkDataArray with
-// Id 'fieldId' of the mesh's vtkPointData.
-// If this field does not exist, the filter will use the vtkElevationFilter to
-// generate a default scalar field.
+/**
+ * @class   vtkPolyDataToReebGraphFilter
+ * @brief   generate a Reeb graph from a scalar
+ * field defined on a vtkPolyData.
+ *
+ * The filter will first try to pull as a scalar field the vtkDataArray with
+ * Id 'fieldId' of the mesh's vtkPointData.
+ * If this field does not exist, the filter will use the vtkElevationFilter to
+ * generate a default scalar field.
+*/
 
 #ifndef vtkPolyDataToReebGraphFilter_h
 #define vtkPolyDataToReebGraphFilter_h
@@ -36,10 +39,13 @@ public:
   vtkTypeMacro(vtkPolyDataToReebGraphFilter, vtkDirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the scalar field id (default = 0).
+  //@{
+  /**
+   * Set the scalar field id (default = 0).
+   */
   vtkSetMacro(FieldId, int);
   vtkGetMacro(FieldId, int);
+  //@}
 
   vtkReebGraph* GetOutput();
 

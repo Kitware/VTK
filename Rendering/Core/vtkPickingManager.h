@@ -33,37 +33,39 @@
 
 ==============================================================================*/
 
-// .NAME vtkPickingManager -
-// Class defines API to manage the picking process.
-// .SECTION Description
-// The Picking Manager (PM) coordinates picking across widgets simultaneously.
-// It maintains a collection of registered pickers;
-// when the manager is picked (e.g. vtkPickingManager::Pick()),
-// a pick is run on each picker but only the best picker
-// (e.g. closest to camera point) is selected.
-// It finally returns the widget/representation or picker that was
-// selected.
-// .SECTION Caveats
-// Every time a vtkWidget and/or a vtkWidgetRepresentation is instantiated,
-// it automatically registers its picker(s) and start being managed by
-// delegating all its pick calls to the picking manager.
-// It is possible to customize with the management in two ways:
-// * at the widget level, the "ManagesPicking" variable can be changed
-// from the widget/representation class to tell
-// whether to use the manager or not.
-// * Directly disable the picking manager itself  with the boolean variable
-// \sa Enabled using vtkPickingManager::EnabledOn(), EnabledOff(),
-// SetEnabled(bool).
-// .SECTION Important
-// The picking manager is not active by default as it slightly reduces the
-// performances when interacting with the scene.
-// .SECTION Important
-// When registering pickers, a null object is considered valid because we can
-// managed picker without any associated object.
-// It is really important to note that a null object is different from one
-// to an other !!
-// This has been done to allow adding multiple times the same picker to the manager
-// by not passing the referenced object to not force the supression of all pickers
+/**
+ * @class   vtkPickingManager
+ * Class defines API to manage the picking process.
+ *
+ * The Picking Manager (PM) coordinates picking across widgets simultaneously.
+ * It maintains a collection of registered pickers;
+ * when the manager is picked (e.g. vtkPickingManager::Pick()),
+ * a pick is run on each picker but only the best picker
+ * (e.g. closest to camera point) is selected.
+ * It finally returns the widget/representation or picker that was
+ * selected.
+ * @warning
+ * Every time a vtkWidget and/or a vtkWidgetRepresentation is instantiated,
+ * it automatically registers its picker(s) and start being managed by
+ * delegating all its pick calls to the picking manager.
+ * It is possible to customize with the management in two ways:
+ * * at the widget level, the "ManagesPicking" variable can be changed
+ * from the widget/representation class to tell
+ * whether to use the manager or not.
+ * * Directly disable the picking manager itself  with the boolean variable
+ * \sa Enabled using vtkPickingManager::EnabledOn(), EnabledOff(),
+ * SetEnabled(bool).
+ * @par Important:
+ * The picking manager is not active by default as it slightly reduces the
+ * performances when interacting with the scene.
+ * @par Important:
+ * When registering pickers, a null object is considered valid because we can
+ * managed picker without any associated object.
+ * It is really important to note that a null object is different from one
+ * to an other !!
+ * This has been done to allow adding multiple times the same picker to the manager
+ * by not passing the referenced object to not force the supression of all pickers
+*/
 
 #ifndef vtkPickingManager_h
 #define vtkPickingManager_h
@@ -84,88 +86,106 @@ public:
   vtkTypeMacro(vtkPickingManager,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Enable/Disable management.
-  // When disabled, it redirects every pick on the picker.
-  // By default the picking manager is disabled when initialized.
+  //@{
+  /**
+   * Enable/Disable management.
+   * When disabled, it redirects every pick on the picker.
+   * By default the picking manager is disabled when initialized.
+   */
   vtkBooleanMacro(Enabled, bool);
   vtkSetMacro(Enabled, bool);
   vtkGetMacro(Enabled, bool);
+  //@}
 
-  // Description:
-  // Enable/Disable optimization depending on the renderWindowInteractor events.
-  // The mechanism keeps in cache the last selected picker as well as the last
-  // render time to recompute the selection only if a new render event
-  // occurred after the last selection; otherwise, it simply returns the last
-  // picker selected.
-  // By default pickingManagers does use the optimization.
-  // Warning: Turning off the caching significantly decreases performance.
+  //@{
+  /**
+   * Enable/Disable optimization depending on the renderWindowInteractor events.
+   * The mechanism keeps in cache the last selected picker as well as the last
+   * render time to recompute the selection only if a new render event
+   * occurred after the last selection; otherwise, it simply returns the last
+   * picker selected.
+   * By default pickingManagers does use the optimization.
+   * Warning: Turning off the caching significantly decreases performance.
+   */
   void SetOptimizeOnInteractorEvents(bool optimize);
   vtkGetMacro(OptimizeOnInteractorEvents, bool);
+  //@}
 
-  // Description:
-  // Set the window interactor associated with the manager.
+  //@{
+  /**
+   * Set the window interactor associated with the manager.
+   */
   void SetInteractor(vtkRenderWindowInteractor* iren);
   vtkGetMacro(Interactor, vtkRenderWindowInteractor*);
+  //@}
 
-  // Description:
-  // Register a picker into the picking manager.
-  // It can be internally associated (optional) with an \a object.
-  // This allows the removal of all the pickers of the given object.
-  // Note that a picker can be registered multiple times with different objects.
-  // \sa RemovePicker(), RemoveObject().
+  /**
+   * Register a picker into the picking manager.
+   * It can be internally associated (optional) with an \a object.
+   * This allows the removal of all the pickers of the given object.
+   * Note that a picker can be registered multiple times with different objects.
+   * \sa RemovePicker(), RemoveObject().
+   */
   void AddPicker(vtkAbstractPicker* picker, vtkObject* object = 0);
 
-  // Description:
-  // Unregister the \a picker from the picking manager.
-  // If \a object is non null, only the pair (\a picker, \a object) is removed.
+  /**
+   * Unregister the \a picker from the picking manager.
+   * If \a object is non null, only the pair (\a picker, \a object) is removed.
+   */
   void RemovePicker(vtkAbstractPicker* picker, vtkObject* object = 0);
 
-  // Description:
-  // Remove all occurences of the \a object from the registered list.
-  // If a picker associated with the \a object is not also associated with
-  // any other object, it is removed from the list as well.
+  /**
+   * Remove all occurences of the \a object from the registered list.
+   * If a picker associated with the \a object is not also associated with
+   * any other object, it is removed from the list as well.
+   */
   void RemoveObject(vtkObject* object);
 
-  // Description:
-  // Run the picking selection process and return true if the \a object
-  // is associated with the given picker if it is the best one, false otherwise.
-  // If OptimizeOnInteractorEvents is true, the pick can reuse cached
-  // information.
+  /**
+   * Run the picking selection process and return true if the \a object
+   * is associated with the given picker if it is the best one, false otherwise.
+   * If OptimizeOnInteractorEvents is true, the pick can reuse cached
+   * information.
+   */
   bool Pick(vtkAbstractPicker* picker, vtkObject* object);
 
-  // Description:
-  // Run the picking selection process and return true if the \a object
-  // is associated with the best picker.
-  // This is an overloaded function.
+  /**
+   * Run the picking selection process and return true if the \a object
+   * is associated with the best picker.
+   * This is an overloaded function.
+   */
   bool Pick(vtkObject* object);
 
-  // Description:
-  // Run the picking selection process and return if \a picker is the one
-  // selected.
-  // This is an overloaded function.
+  /**
+   * Run the picking selection process and return if \a picker is the one
+   * selected.
+   * This is an overloaded function.
+   */
   bool Pick(vtkAbstractPicker* picker);
 
-  // Description:
-  // If the picking manager is enabled, it runs the picking selection process
-  // and return the assembly path associated to the picker passed as
-  // argument if it is the one mediated.
-  // Otherwise it simply proceeds to a pick using the given renderer and
-  // returns the corresponding assembly path.
+  /**
+   * If the picking manager is enabled, it runs the picking selection process
+   * and return the assembly path associated to the picker passed as
+   * argument if it is the one mediated.
+   * Otherwise it simply proceeds to a pick using the given renderer and
+   * returns the corresponding assembly path.
+   */
   vtkAssemblyPath* GetAssemblyPath(double X, double Y, double Z,
                                    vtkAbstractPropPicker* picker,
                                    vtkRenderer* renderer,
                                    vtkObject* obj);
 
-  // Description:
-  // Return the number of pickers registered.
-  // If the same picker is added multiple times with different objects, it is
-  // counted once.
+  /**
+   * Return the number of pickers registered.
+   * If the same picker is added multiple times with different objects, it is
+   * counted once.
+   */
   int GetNumberOfPickers();
 
-  // Description:
-  // Return the number of objects linked with a given \a picker.
-  // Note: a null object is counted as an associated object.
+  /**
+   * Return the number of objects linked with a given \a picker.
+   * Note: a null object is counted as an associated object.
+   */
   int GetNumberOfObjectsLinked(vtkAbstractPicker* picker);
 
 protected:

@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPOutlineFilterInternals - create wireframe outline (or corners) for arbitrary data set
-// .SECTION Description
-// vtkPOutlineFilterInternals has common code for vtkOutlineFilter and
-// vtkOutlineCornerFilter. It assumes the filter is operated in a data parallel
-// pipeline.
+/**
+ * @class   vtkPOutlineFilterInternals
+ * @brief   create wireframe outline (or corners) for arbitrary data set
+ *
+ * vtkPOutlineFilterInternals has common code for vtkOutlineFilter and
+ * vtkOutlineCornerFilter. It assumes the filter is operated in a data parallel
+ * pipeline.
+*/
 
 #ifndef vtkPOutlineFilterInternals_h
 #define vtkPOutlineFilterInternals_h

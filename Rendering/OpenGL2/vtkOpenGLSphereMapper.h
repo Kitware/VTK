@@ -11,10 +11,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLSphereMapper - draw spheres using imposters
-// .SECTION Description
-// An OpenGL mapper that uses imposters to draw spheres. Supports
-// transparency and picking as well.
+/**
+ * @class   vtkOpenGLSphereMapper
+ * @brief   draw spheres using imposters
+ *
+ * An OpenGL mapper that uses imposters to draw spheres. Supports
+ * transparency and picking as well.
+*/
 
 #ifndef vtkOpenGLSphereMapper_h
 #define vtkOpenGLSphereMapper_h
@@ -29,46 +32,56 @@ public:
   vtkTypeMacro(vtkOpenGLSphereMapper, vtkOpenGLPolyDataMapper)
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Convenience method to set the array to scale with.
+  //@{
+  /**
+   * Convenience method to set the array to scale with.
+   */
   vtkSetStringMacro(ScaleArray);
+  //@}
 
-  // Description:
-  // This calls RenderPiece (twice when transparent)
+  /**
+   * This calls RenderPiece (twice when transparent)
+   */
   virtual void Render(vtkRenderer *ren, vtkActor *act);
 
 protected:
   vtkOpenGLSphereMapper();
   ~vtkOpenGLSphereMapper();
 
-  // Description:
-  // Create the basic shaders before replacement
+  /**
+   * Create the basic shaders before replacement
+   */
   virtual void GetShaderTemplate(
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *act);
 
-  // Description:
-  // Perform string replacments on the shader templates
+  /**
+   * Perform string replacments on the shader templates
+   */
   virtual void ReplaceShaderValues(
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *act);
 
-  // Description:
-  // Set the shader parameters related to the Camera
+  /**
+   * Set the shader parameters related to the Camera
+   */
   virtual void SetCameraShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
 
-  // Description:
-  // Set the shader parameters related to the actor/mapper
+  /**
+   * Set the shader parameters related to the actor/mapper
+   */
   virtual void SetMapperShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
 
   const char *ScaleArray;
 
-  // Description:
-  // Does the VBO/IBO need to be rebuilt
+  /**
+   * Does the VBO/IBO need to be rebuilt
+   */
   virtual bool GetNeedToRebuildBufferObjects(vtkRenderer *ren, vtkActor *act);
 
-  // Description:
-  // Update the VBO to contain point based values
+  /**
+   * Update the VBO to contain point based values
+   */
   virtual void BuildBufferObjects(vtkRenderer *ren, vtkActor *act);
 
   virtual void RenderPieceDraw(vtkRenderer *ren, vtkActor *act);

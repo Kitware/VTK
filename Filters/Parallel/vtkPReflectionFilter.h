@@ -12,10 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPReflectionFilter - parallel version of vtkReflectionFilter
-// .SECTION Description
-// vtkPReflectionFilter is a parallel version of vtkReflectionFilter which takes
-// into consideration the full dataset bounds for performing the reflection.
+/**
+ * @class   vtkPReflectionFilter
+ * @brief   parallel version of vtkReflectionFilter
+ *
+ * vtkPReflectionFilter is a parallel version of vtkReflectionFilter which takes
+ * into consideration the full dataset bounds for performing the reflection.
+*/
+
 #ifndef vtkPReflectionFilter_h
 #define vtkPReflectionFilter_h
 
@@ -31,17 +35,21 @@ public:
   vtkTypeMacro(vtkPReflectionFilter, vtkReflectionFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get/Set the parallel controller.
+  //@{
+  /**
+   * Get/Set the parallel controller.
+   */
   void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro (Controller, vtkMultiProcessController);
+  //@}
 
 protected:
   vtkPReflectionFilter();
   ~vtkPReflectionFilter();
 
-  // Description:
-  // Internal method to compute bounds.
+  /**
+   * Internal method to compute bounds.
+   */
   virtual int ComputeBounds(vtkDataObject* input, double bounds[6]);
 
   vtkMultiProcessController* Controller;

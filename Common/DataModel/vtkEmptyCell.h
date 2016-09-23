@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkEmptyCell - an empty cell used as a place-holder during processing
-// .SECTION Description
-// vtkEmptyCell is a concrete implementation of vtkCell. It is used
-// during processing to represented a deleted element.
+/**
+ * @class   vtkEmptyCell
+ * @brief   an empty cell used as a place-holder during processing
+ *
+ * vtkEmptyCell is a concrete implementation of vtkCell. It is used
+ * during processing to represented a deleted element.
+*/
 
 #ifndef vtkEmptyCell_h
 #define vtkEmptyCell_h
@@ -30,8 +33,10 @@ public:
   vtkTypeMacro(vtkEmptyCell,vtkCell);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // See the vtkCell API for descriptions of these methods.
+  //@{
+  /**
+   * See the vtkCell API for descriptions of these methods.
+   */
   int GetCellType() VTK_OVERRIDE {return VTK_EMPTY_CELL;};
   int GetCellDimension() VTK_OVERRIDE {return 0;};
   int GetNumberOfEdges() VTK_OVERRIDE {return 0;};
@@ -49,6 +54,7 @@ public:
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
             int insideOut) VTK_OVERRIDE;
+  //@}
 
   int EvaluatePosition(double x[3], double* closestPoint,
                        int& subId, double pcoords[3],

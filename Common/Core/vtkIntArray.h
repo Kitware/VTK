@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkIntArray - dynamic, self-adjusting array of int
-// .SECTION Description
-// vtkIntArray is an array of values of type int.  It provides
-// methods for insertion and retrieval of values and will
-// automatically resize itself to hold new data.
-//
-// The C++ standard does not define the exact size of the int type, so use
-// of this type directly is discouraged.  If an array of 32 bit integers is
-// needed, prefer vtkTypeInt32Array to this class.
+/**
+ * @class   vtkIntArray
+ * @brief   dynamic, self-adjusting array of int
+ *
+ * vtkIntArray is an array of values of type int.  It provides
+ * methods for insertion and retrieval of values and will
+ * automatically resize itself to hold new data.
+ *
+ * The C++ standard does not define the exact size of the int type, so use
+ * of this type directly is discouraged.  If an array of 32 bit integers is
+ * needed, prefer vtkTypeInt32Array to this class.
+*/
 
 #ifndef vtkIntArray_h
 #define vtkIntArray_h
@@ -50,19 +53,22 @@ public:
   vtkCreateWrappedArrayInterface(int);
 #endif
 
-  // Description:
-  // A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+  /**
+   * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+   */
   static vtkIntArray* FastDownCast(vtkAbstractArray *source)
   {
     return static_cast<vtkIntArray*>(Superclass::FastDownCast(source));
   }
 
-  // Description:
-  // Get the minimum data value in its native type.
+  /**
+   * Get the minimum data value in its native type.
+   */
   static int GetDataTypeValueMin() { return VTK_INT_MIN; }
 
-  // Description:
-  // Get the maximum data value in its native type.
+  /**
+   * Get the maximum data value in its native type.
+   */
   static int GetDataTypeValueMax() { return VTK_INT_MAX; }
 
 protected:

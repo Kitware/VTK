@@ -12,25 +12,28 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPolyDataSilhouette - sort polydata along camera view direction
-//
-// .SECTION Description
-// vtkPolyDataSilhouette extracts a subset of a polygonal mesh edges to
-// generate an outline (silhouette) of the corresponding 3D object. In
-// addition, this filter can also extracts sharp edges (aka feature angles).
-// In order to use this filter you must specify the a point of view (origin) or
-// a direction (vector).  given this direction or origin, a silhouette is
-// generated wherever the surface's normal is orthogonal to the view direction.
-//
-// .SECTION Caveats
-// when the active camera is used, almost everything is recomputed for each
-// frame, keep this in mind when dealing with extremely large surface data
-// sets.
-//
-// .SECTION Thanks
-// Contribution by Thierry Carrard <br>
-// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
-// BP12, F-91297 Arpajon, France. <br>
+/**
+ * @class   vtkPolyDataSilhouette
+ * @brief   sort polydata along camera view direction
+ *
+ *
+ * vtkPolyDataSilhouette extracts a subset of a polygonal mesh edges to
+ * generate an outline (silhouette) of the corresponding 3D object. In
+ * addition, this filter can also extracts sharp edges (aka feature angles).
+ * In order to use this filter you must specify the a point of view (origin) or
+ * a direction (vector).  given this direction or origin, a silhouette is
+ * generated wherever the surface's normal is orthogonal to the view direction.
+ *
+ * @warning
+ * when the active camera is used, almost everything is recomputed for each
+ * frame, keep this in mind when dealing with extremely large surface data
+ * sets.
+ *
+ * @par Thanks:
+ * Contribution by Thierry Carrard <br>
+ * CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
+ * BP12, F-91297 Arpajon, France. <br>
+*/
 
 #ifndef vtkPolyDataSilhouette_h
 #define vtkPolyDataSilhouette_h
@@ -47,36 +50,49 @@ class vtkPolyDataEdges;
 class VTKFILTERSHYBRID_EXPORT vtkPolyDataSilhouette : public vtkPolyDataAlgorithm
 {
 public:
-  // Description:
-  // Instantiate object.
+  /**
+   * Instantiate object.
+   */
   static vtkPolyDataSilhouette *New();
 
   vtkTypeMacro(vtkPolyDataSilhouette,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Enables or Disables generation of silhouette edges along sharp edges
+  //@{
+  /**
+   * Enables or Disables generation of silhouette edges along sharp edges
+   */
   vtkSetMacro(EnableFeatureAngle,int);
   vtkGetMacro(EnableFeatureAngle,int);
+  //@}
 
-  // Description:
-  // Sets/Gets minimal angle for sharp edges detection. Default is 60
+  //@{
+  /**
+   * Sets/Gets minimal angle for sharp edges detection. Default is 60
+   */
   vtkSetMacro(FeatureAngle,double);
   vtkGetMacro(FeatureAngle,double);
+  //@}
 
-  // Description:
-  // Enables or Disables generation of border edges. Note: borders exist only
-  // in case of non closed surface
+  //@{
+  /**
+   * Enables or Disables generation of border edges. Note: borders exist only
+   * in case of non closed surface
+   */
   vtkSetMacro(BorderEdges,int);
   vtkGetMacro(BorderEdges,int);
   vtkBooleanMacro(BorderEdges,int);
+  //@}
 
-  // Description:
-  // Enables or Disables piece invariance. This is useful when dealing with
-  // multi-block data sets. Note: requires one level of ghost cells
+  //@{
+  /**
+   * Enables or Disables piece invariance. This is useful when dealing with
+   * multi-block data sets. Note: requires one level of ghost cells
+   */
   vtkSetMacro(PieceInvariant,int);
   vtkGetMacro(PieceInvariant,int);
   vtkBooleanMacro(PieceInvariant,int);
+  //@}
 
   enum Directions
   {
@@ -86,9 +102,11 @@ public:
     VTK_DIRECTION_CAMERA_VECTOR = 3
   };
 
-  // Description:
-  // Specify how view direction is computed. By default, the
-  // camera origin (eye) is used.
+  //@{
+  /**
+   * Specify how view direction is computed. By default, the
+   * camera origin (eye) is used.
+   */
   vtkSetMacro(Direction,int);
   vtkGetMacro(Direction,int);
   void SetDirectionToSpecifiedVector()
@@ -99,40 +117,54 @@ public:
       {this->SetDirection( VTK_DIRECTION_CAMERA_VECTOR ); }
   void SetDirectionToCameraOrigin()
       {this->SetDirection( VTK_DIRECTION_CAMERA_ORIGIN ); }
+  //@}
 
-  // Description:
-  // Specify a camera that is used to define the view direction.  This ivar
-  // only has effect if the direction is set to VTK_DIRECTION_CAMERA_ORIGIN or
-  // VTK_DIRECTION_CAMERA_VECTOR, and a camera is specified.
+  //@{
+  /**
+   * Specify a camera that is used to define the view direction.  This ivar
+   * only has effect if the direction is set to VTK_DIRECTION_CAMERA_ORIGIN or
+   * VTK_DIRECTION_CAMERA_VECTOR, and a camera is specified.
+   */
   virtual void SetCamera(vtkCamera VTK_WRAP_EXTERN*);
   vtkGetObjectMacro(Camera,vtkCamera VTK_WRAP_EXTERN);
+  //@}
 
-  // Description:
-  // Specify a transformation matrix (via the vtkProp3D::GetMatrix() method)
-  // that is used to include the effects of transformation. This ivar only has
-  // effect if the direction is set to VTK_DIRECTION_CAMERA_ORIGIN or
-  // VTK_DIRECTION_CAMERA_VECTOR, and a camera is specified. Specifying the
-  // vtkProp3D is optional.
+  //@{
+  /**
+   * Specify a transformation matrix (via the vtkProp3D::GetMatrix() method)
+   * that is used to include the effects of transformation. This ivar only has
+   * effect if the direction is set to VTK_DIRECTION_CAMERA_ORIGIN or
+   * VTK_DIRECTION_CAMERA_VECTOR, and a camera is specified. Specifying the
+   * vtkProp3D is optional.
+   */
   void SetProp3D(vtkProp3D VTK_WRAP_EXTERN*);
   vtkProp3D VTK_WRAP_EXTERN*GetProp3D();
+  //@}
 
-  // Description:
-  // Set/Get the sort direction. This ivar only has effect if the sort
-  // direction is set to SetDirectionToSpecifiedVector(). The edge detection
-  // occurs in the direction of the vector.
+  //@{
+  /**
+   * Set/Get the sort direction. This ivar only has effect if the sort
+   * direction is set to SetDirectionToSpecifiedVector(). The edge detection
+   * occurs in the direction of the vector.
+   */
   vtkSetVector3Macro(Vector,double);
   vtkGetVectorMacro(Vector,double,3);
+  //@}
 
-  // Description:
-  // Set/Get the sort origin. This ivar only has effect if the sort direction
-  // is set to SetDirectionToSpecifiedOrigin(). The edge detection occurs in
-  // the direction of the origin to each edge's center.
+  //@{
+  /**
+   * Set/Get the sort origin. This ivar only has effect if the sort direction
+   * is set to SetDirectionToSpecifiedOrigin(). The edge detection occurs in
+   * the direction of the origin to each edge's center.
+   */
   vtkSetVector3Macro(Origin,double);
   vtkGetVectorMacro(Origin,double,3);
+  //@}
 
-  // Description:
-  // Return MTime also considering the dependent objects: the camera
-  // and/or the prop3D.
+  /**
+   * Return MTime also considering the dependent objects: the camera
+   * and/or the prop3D.
+   */
   vtkMTimeType GetMTime();
 
 protected:

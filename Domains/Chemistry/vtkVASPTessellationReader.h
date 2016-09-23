@@ -13,10 +13,13 @@
 
 =========================================================================*/
 
-// .NAME vtkVASPTessellationReader - Read NPT_Z_TESSELLATE.out files.
-//
-// .SECTION Description
-// Read NPT_Z_TESSELLATE.out files from VASP.
+/**
+ * @class   vtkVASPTessellationReader
+ * @brief   Read NPT_Z_TESSELLATE.out files.
+ *
+ *
+ * Read NPT_Z_TESSELLATE.out files from VASP.
+*/
 
 #ifndef vtkVASPTessellationReader_h
 #define vtkVASPTessellationReader_h
@@ -38,10 +41,13 @@ public:
   vtkTypeMacro(vtkVASPTessellationReader, vtkMoleculeAlgorithm)
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // The name of the file to read.
+  //@{
+  /**
+   * The name of the file to read.
+   */
   vtkSetStringMacro(FileName)
   vtkGetStringMacro(FileName)
+  //@}
 
 protected:
   vtkVASPTessellationReader();
@@ -55,18 +61,20 @@ protected:
                                  vtkInformationVector *outInfoVec);
   virtual int FillOutputPortInformation(int port, vtkInformation *info);
 
-  // Description:
-  // Advance @a in to the start of the data for the next timestep. Parses the
-  // "time = X" line, sets @a time to the timestamp, and returns true on
-  // success. Returning false means either EOF was reached, or the timestamp
-  // line could not be parsed.
+  /**
+   * Advance @a in to the start of the data for the next timestep. Parses the
+   * "time = X" line, sets @a time to the timestamp, and returns true on
+   * success. Returning false means either EOF was reached, or the timestamp
+   * line could not be parsed.
+   */
   bool NextTimeStep(std::istream &in, double &time);
 
-  // Description:
-  // Called by RequestData to determine which timestep to read. If both
-  // UPDATE_TIME_STEP and TIME_STEPS are defined, return the index of the
-  // timestep in TIME_STEPS closest to UPDATE_TIME_STEP. If either is undefined,
-  // return 0.
+  /**
+   * Called by RequestData to determine which timestep to read. If both
+   * UPDATE_TIME_STEP and TIME_STEPS are defined, return the index of the
+   * timestep in TIME_STEPS closest to UPDATE_TIME_STEP. If either is undefined,
+   * return 0.
+   */
   size_t SelectTimeStepIndex(vtkInformation *info);
 
   bool ReadTimeStep(std::istream &in, vtkMolecule *molecule,

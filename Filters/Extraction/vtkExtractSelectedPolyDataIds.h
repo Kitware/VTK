@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractSelectedPolyDataIds - extract a list of cells from a polydata
-// .SECTION Description
-// vtkExtractSelectedPolyDataIds extracts all cells in vtkSelection from a
-// vtkPolyData.
-// .SECTION See Also
-// vtkSelection
+/**
+ * @class   vtkExtractSelectedPolyDataIds
+ * @brief   extract a list of cells from a polydata
+ *
+ * vtkExtractSelectedPolyDataIds extracts all cells in vtkSelection from a
+ * vtkPolyData.
+ * @sa
+ * vtkSelection
+*/
 
 #ifndef vtkExtractSelectedPolyDataIds_h
 #define vtkExtractSelectedPolyDataIds_h

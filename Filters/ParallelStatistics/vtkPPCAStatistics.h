@@ -17,15 +17,18 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
-// .NAME vtkPPCAStatistics - A class for parallel principal component analysis
-// .SECTION Description
-// vtkPPCAStatistics is vtkPCAStatistics subclass for parallel datasets.
-// It learns and derives the global statistical model on each node, but assesses each
-// individual data points on the node that owns it.
-
-// .SECTION Thanks
-// Thanks to Philippe Pebay, David Thompson and Janine Bennett from
-// Sandia National Laboratories for implementing this class.
+/**
+ * @class   vtkPPCAStatistics
+ * @brief   A class for parallel principal component analysis
+ *
+ * vtkPPCAStatistics is vtkPCAStatistics subclass for parallel datasets.
+ * It learns and derives the global statistical model on each node, but assesses each
+ * individual data points on the node that owns it.
+ *
+ * @par Thanks:
+ * Thanks to Philippe Pebay, David Thompson and Janine Bennett from
+ * Sandia National Laboratories for implementing this class.
+*/
 
 #ifndef vtkPPCAStatistics_h
 #define vtkPPCAStatistics_h
@@ -42,13 +45,15 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkPPCAStatistics* New();
 
-  // Description:
-  // Get/Set the multiprocess controller. If no controller is set,
-  // single process is assumed.
+  //@{
+  /**
+   * Get/Set the multiprocess controller. If no controller is set,
+   * single process is assumed.
+   */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
 
-  // Description:
 
 protected:
   vtkPPCAStatistics();
@@ -61,9 +66,10 @@ protected:
                       vtkTable* inParameters,
                       vtkMultiBlockDataSet* outMeta );
 
-  // Description:
-  // Execute the calculations required by the Test option.
-  // NB: Not implemented for more than 1 processor
+  /**
+   * Execute the calculations required by the Test option.
+   * NB: Not implemented for more than 1 processor
+   */
   virtual void Test( vtkTable*,
                      vtkMultiBlockDataSet*,
                      vtkTable* );

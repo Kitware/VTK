@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHierarchicalPolyDataMapper - a class that renders hierarchical polygonal data
-// .SECTION Description
-// Legacy class. Use vtkCompositePolyDataMapper instead.
-//
-// .SECTION see also
-// vtkPolyDataMapper
+/**
+ * @class   vtkHierarchicalPolyDataMapper
+ * @brief   a class that renders hierarchical polygonal data
+ *
+ * Legacy class. Use vtkCompositePolyDataMapper instead.
+ *
+ * @sa
+ * vtkPolyDataMapper
+*/
 
 #ifndef vtkHierarchicalPolyDataMapper_h
 #define vtkHierarchicalPolyDataMapper_h

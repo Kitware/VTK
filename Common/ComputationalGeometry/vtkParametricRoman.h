@@ -12,18 +12,22 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkParametricRoman - Generate Steiner's Roman Surface.
-// .SECTION Description
-// vtkParametricRoman generates Steiner's Roman Surface.
-//
-// For further information about this surface, please consult the
-// technical description "Parametric surfaces" in http://www.vtk.org/publications
-// in the "VTK Technical Documents" section in the VTk.org web pages.
-//
-// .SECTION Thanks
-// Andrew Maclean andrew.amaclean@gmail.com for creating and contributing the
-// class.
-//
+/**
+ * @class   vtkParametricRoman
+ * @brief   Generate Steiner's Roman Surface.
+ *
+ * vtkParametricRoman generates Steiner's Roman Surface.
+ *
+ * For further information about this surface, please consult the
+ * technical description "Parametric surfaces" in http://www.vtk.org/publications
+ * in the "VTK Technical Documents" section in the VTk.org web pages.
+ *
+ * @par Thanks:
+ * Andrew Maclean andrew.amaclean@gmail.com for creating and contributing the
+ * class.
+ *
+*/
+
 #ifndef vtkParametricRoman_h
 #define vtkParametricRoman_h
 
@@ -37,47 +41,54 @@ public:
   vtkTypeMacro(vtkParametricRoman,vtkParametricFunction);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description
-  // Return the parametric dimension of the class.
+  /**
+   * Return the parametric dimension of the class.
+   */
   int GetDimension() VTK_OVERRIDE {return 2;}
 
-  // Description:
-  // Construct Steiner's Roman Surface with the following parameters:
-  // MinimumU = 0, MaximumU = Pi,
-  // MinimumV = 0, MaximumV = Pi,
-  // JoinU = 1, JoinV = 1,
-  // TwistU = 1, TwistV = 0;
-  // ClockwiseOrdering = 1,
-  // DerivativesAvailable = 1,
-  // Radius = 1
+  /**
+   * Construct Steiner's Roman Surface with the following parameters:
+   * MinimumU = 0, MaximumU = Pi,
+   * MinimumV = 0, MaximumV = Pi,
+   * JoinU = 1, JoinV = 1,
+   * TwistU = 1, TwistV = 0;
+   * ClockwiseOrdering = 1,
+   * DerivativesAvailable = 1,
+   * Radius = 1
+   */
   static vtkParametricRoman *New();
 
-  // Description:
-  // Set/Get the radius. Default is 1.
+  //@{
+  /**
+   * Set/Get the radius. Default is 1.
+   */
   vtkSetMacro(Radius,double);
   vtkGetMacro(Radius,double);
+  //@}
 
-  // Description:
-  // Steiner's Roman Surface
-  //
-  // This function performs the mapping \f$f(u,v) \rightarrow (x,y,x)\f$, returning it
-  // as Pt. It also returns the partial derivatives Du and Dv.
-  // \f$Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)\f$ .
-  // Then the normal is \f$N = Du X Dv\f$ .
+  /**
+   * Steiner's Roman Surface
+
+   * This function performs the mapping \f$f(u,v) \rightarrow (x,y,x)\f$, returning it
+   * as Pt. It also returns the partial derivatives Du and Dv.
+   * \f$Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)\f$ .
+   * Then the normal is \f$N = Du X Dv\f$ .
+   */
   void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) VTK_OVERRIDE;
 
-  // Description:
-  // Calculate a user defined scalar using one or all of uvw, Pt, Duvw.
-  //
-  // uvw are the parameters with Pt being the the Cartesian point,
-  // Duvw are the derivatives of this point with respect to u, v and w.
-  // Pt, Duvw are obtained from Evaluate().
-  //
-  // This function is only called if the ScalarMode has the value
-  // vtkParametricFunctionSource::SCALAR_FUNCTION_DEFINED
-  //
-  // If the user does not need to calculate a scalar, then the
-  // instantiated function should return zero.
+  /**
+   * Calculate a user defined scalar using one or all of uvw, Pt, Duvw.
+
+   * uvw are the parameters with Pt being the the Cartesian point,
+   * Duvw are the derivatives of this point with respect to u, v and w.
+   * Pt, Duvw are obtained from Evaluate().
+
+   * This function is only called if the ScalarMode has the value
+   * vtkParametricFunctionSource::SCALAR_FUNCTION_DEFINED
+
+   * If the user does not need to calculate a scalar, then the
+   * instantiated function should return zero.
+   */
   double EvaluateScalar(double uvw[3], double Pt[3], double Duvw[9]) VTK_OVERRIDE;
 
 

@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkStructuredPointsGeometryFilter - obsolete class
-// .SECTION Description
-// vtkStructuredPointsGeometryFilter has been renamed to
-// vtkImageDataGeometryFilter
+/**
+ * @class   vtkStructuredPointsGeometryFilter
+ * @brief   obsolete class
+ *
+ * vtkStructuredPointsGeometryFilter has been renamed to
+ * vtkImageDataGeometryFilter
+*/
 
 #ifndef vtkStructuredPointsGeometryFilter_h
 #define vtkStructuredPointsGeometryFilter_h
@@ -28,8 +31,9 @@ class VTKFILTERSGEOMETRY_EXPORT vtkStructuredPointsGeometryFilter : public vtkIm
 public:
   vtkTypeMacro(vtkStructuredPointsGeometryFilter,vtkImageDataGeometryFilter);
 
-  // Description:
-  // Construct with initial extent of all the data
+  /**
+   * Construct with initial extent of all the data
+   */
   static vtkStructuredPointsGeometryFilter *New();
 
 protected:

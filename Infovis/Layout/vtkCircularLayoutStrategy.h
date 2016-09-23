@@ -17,10 +17,13 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkCircularLayoutStrategy - Places vertices around a circle
-//
-// .SECTION Description
-// Assigns points to the vertices around a circle with unit radius.
+/**
+ * @class   vtkCircularLayoutStrategy
+ * @brief   Places vertices around a circle
+ *
+ *
+ * Assigns points to the vertices around a circle with unit radius.
+*/
 
 #ifndef vtkCircularLayoutStrategy_h
 #define vtkCircularLayoutStrategy_h
@@ -36,8 +39,9 @@ public:
   vtkTypeMacro(vtkCircularLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Perform the layout.
+  /**
+   * Perform the layout.
+   */
   void Layout();
 
 protected:

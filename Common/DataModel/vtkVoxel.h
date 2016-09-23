@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkVoxel - a cell that represents a 3D orthogonal parallelepiped
-// .SECTION Description
-// vtkVoxel is a concrete implementation of vtkCell to represent a 3D
-// orthogonal parallelepiped. Unlike vtkHexahedron, vtkVoxel has interior
-// angles of 90 degrees, and sides are parallel to coordinate axes. This
-// results in large increases in computational performance.
-
-// .SECTION See Also
-// vtkConvexPointSet vtkHexahedron vtkPyramid vtkTetra vtkWedge
+/**
+ * @class   vtkVoxel
+ * @brief   a cell that represents a 3D orthogonal parallelepiped
+ *
+ * vtkVoxel is a concrete implementation of vtkCell to represent a 3D
+ * orthogonal parallelepiped. Unlike vtkHexahedron, vtkVoxel has interior
+ * angles of 90 degrees, and sides are parallel to coordinate axes. This
+ * results in large increases in computational performance.
+ *
+ * @sa
+ * vtkConvexPointSet vtkHexahedron vtkPyramid vtkTetra vtkWedge
+*/
 
 #ifndef vtkVoxel_h
 #define vtkVoxel_h
@@ -39,14 +42,19 @@ public:
   vtkTypeMacro(vtkVoxel,vtkCell3D);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // See vtkCell3D API for description of these methods.
+  //@{
+  /**
+   * See vtkCell3D API for description of these methods.
+   */
   void GetEdgePoints(int edgeId, int* &pts) VTK_OVERRIDE;
   void GetFacePoints(int faceId, int* &pts) VTK_OVERRIDE;
   double *GetParametricCoords() VTK_OVERRIDE;
+  //@}
 
-  // Description:
-  // See the vtkCell API for descriptions of these methods.
+  //@{
+  /**
+   * See the vtkCell API for descriptions of these methods.
+   */
   int GetCellType() VTK_OVERRIDE {return VTK_VOXEL;}
   int GetCellDimension() VTK_OVERRIDE {return 3;}
   int GetNumberOfEdges() VTK_OVERRIDE {return 12;}
@@ -69,13 +77,17 @@ public:
   int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) VTK_OVERRIDE;
   void Derivatives(int subId, double pcoords[3], double *values,
                    int dim, double *derivs) VTK_OVERRIDE;
+  //@}
 
-  // Description:
-  // @deprecated Replaced by vtkVoxel::InterpolateDerivs as of VTK 5.2
+  /**
+   * @deprecated Replaced by vtkVoxel::InterpolateDerivs as of VTK 5.2
+   */
   static void InterpolationDerivs(double pcoords[3], double derivs[24]);
-  // Description:
-  // Compute the interpolation functions/derivatives
-  // (aka shape functions/derivatives)
+  //@{
+  /**
+   * Compute the interpolation functions/derivatives
+   * (aka shape functions/derivatives)
+   */
   void InterpolateFunctions(double pcoords[3], double weights[8]) VTK_OVERRIDE
     {
     vtkVoxel::InterpolationFunctions(pcoords,weights);
@@ -84,18 +96,23 @@ public:
     {
     vtkVoxel::InterpolationDerivs(pcoords,derivs);
     }
+  //@}
 
-  // Description:
-  // Compute the interpolation functions.
-  // This static method is for convenience. Use the member function
-  // if you already have an instance of a voxel.
+  /**
+   * Compute the interpolation functions.
+   * This static method is for convenience. Use the member function
+   * if you already have an instance of a voxel.
+   */
   static void InterpolationFunctions(double pcoords[3], double weights[8]);
 
-  // Description:
-  // Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
-  // Ids are related to the cell, not to the dataset.
+  //@{
+  /**
+   * Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
+   * Ids are related to the cell, not to the dataset.
+   */
   static int *GetEdgeArray(int edgeId);
   static int *GetFaceArray(int faceId);
+  //@}
 
 protected:
   vtkVoxel();

@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOSPRayRendererNode - links vtkRenderers to OSPRay
-// .SECTION Description
-// Translates vtkRenderer state into OSPRay rendering calls
+/**
+ * @class   vtkOSPRayRendererNode
+ * @brief   links vtkRenderers to OSPRay
+ *
+ * Translates vtkRenderer state into OSPRay rendering calls
+*/
 
 #ifndef vtkOSPRayRendererNode_h
 #define vtkOSPRayRendererNode_h
@@ -49,85 +52,110 @@ public:
   vtkTypeMacro(vtkOSPRayRendererNode, vtkRendererNode);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //Description:
-  //Builds myself.
+  /**
+   * Builds myself.
+   */
   virtual void Build(bool prepass);
 
-  //Description:
-  //Traverse graph in ospray's prefered order and render
+  /**
+   * Traverse graph in ospray's prefered order and render
+   */
   virtual void Render(bool prepass);
 
-  //Description:
-  //Invalidates cached rendering data.
+  /**
+   * Invalidates cached rendering data.
+   */
   virtual void Invalidate(bool prepass);
 
-  //Description:
-  //Put my results into the correct place in the provided pixel buffer.
+  /**
+   * Put my results into the correct place in the provided pixel buffer.
+   */
   virtual void WriteLayer(unsigned char *buffer, float *zbuffer,
                           int buffx, int buffy, int layer);
 
   //state beyond rendering core...
 
-  //Description:
-  //When present on renderer, controls the number of primary rays
-  //shot per pixel
-  //default is 1
+  /**
+   * When present on renderer, controls the number of primary rays
+   * shot per pixel
+   * default is 1
+   */
   static vtkInformationIntegerKey* SAMPLES_PER_PIXEL();
 
-  //Description:
-  //Convenience method to set/get SAMPLES_PER_PIXEL on a vtkRenderer.
+  //@{
+  /**
+   * Convenience method to set/get SAMPLES_PER_PIXEL on a vtkRenderer.
+   */
   static void SetSamplesPerPixel(int, vtkRenderer *renderer);
   static int GetSamplesPerPixel(vtkRenderer *renderer);
+  //@}
 
-  //Description:
-  //When present on renderer, controls the number of ospray render calls
-  //for each refresh.
-  //default is 1
-  //TODO: NOT CURRENTLY USED
+  //@{
+  /**
+   * When present on renderer, controls the number of ospray render calls
+   * for each refresh.
+   * default is 1
+   * TODO: NOT CURRENTLY USED
+   */
   static vtkInformationIntegerKey* MAX_FRAMES();
   static void SetMaxFrames(int, vtkRenderer *renderer);
   static int GetMaxFrames(vtkRenderer *renderer);
+  //@}
 
-  //Description:
-  //Set the OSPRay renderer type to use (e.g. scivis vs. pathtracer)
-  //default is scivis
+  //@{
+  /**
+   * Set the OSPRay renderer type to use (e.g. scivis vs. pathtracer)
+   * default is scivis
+   */
   static vtkInformationStringKey* RENDERER_TYPE();
   static void SetRendererType(std::string name, vtkRenderer *renderer);
   static std::string GetRendererType(vtkRenderer *renderer);
+  //@}
 
-  //Description:
-  //When present on renderer, controls the number of ambient occlusion
-  //samples shot per hit.
-  //default is 4
+  /**
+   * When present on renderer, controls the number of ambient occlusion
+   * samples shot per hit.
+   * default is 4
+   */
   static vtkInformationIntegerKey* AMBIENT_SAMPLES();
-  //Description:
-  //Convenience method to set/get AMBIENT_SAMPLES on a vtkRenderer.
+  //@{
+  /**
+   * Convenience method to set/get AMBIENT_SAMPLES on a vtkRenderer.
+   */
   static void SetAmbientSamples(int, vtkRenderer *renderer);
   static int GetAmbientSamples(vtkRenderer *renderer);
+  //@}
 
-  //Description:
-  //used to make the renderer add ospray's content onto GL rendered
-  //content on the window
+  /**
+   * used to make the renderer add ospray's content onto GL rendered
+   * content on the window
+   */
   static vtkInformationIntegerKey* COMPOSITE_ON_GL();
-  //Description:
-  //Convenience method to set/get COMPOSITE_ON_GL on a vtkRenderer.
+  //@{
+  /**
+   * Convenience method to set/get COMPOSITE_ON_GL on a vtkRenderer.
+   */
   static void SetCompositeOnGL(int, vtkRenderer *renderer);
   static int GetCompositeOnGL(vtkRenderer *renderer);
+  //@}
 
-  // Description:
-  // Methods for other nodes to access
+  /**
+   * Methods for other nodes to access
+   */
   OSPModel GetOModel() { return this->OModel; }
   OSPRenderer GetORenderer() { return this->ORenderer; }
   void AddLight(OSPLight light) {
     this->Lights.push_back(light); }
 
-  // Description:
-  // Get the last rendered ColorBuffer
+  /**
+   * Get the last rendered ColorBuffer
+   */
   virtual unsigned char *GetBuffer() {
     return this->Buffer; }
 
-  // Description:
-  // Get the last rendered ZBuffer
+  /**
+   * Get the last rendered ZBuffer
+   */
   virtual float *GetZBuffer() {
     return this->ZBuffer; }
 

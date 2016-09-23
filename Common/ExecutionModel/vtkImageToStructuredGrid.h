@@ -12,12 +12,14 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkImageToStructuredGrid.h -- A filter to convert image data to
-// a structured grid instance.
-//
-// .SECTION Description
-// A concrete instance of vtkStructuredGridAlgorithm which provides
-// functionality for converting instances of vtkImageData to vtkStructuredGrid.
+/**
+ * @class   vtkImageToStructuredGrid
+ * a structured grid instance.
+ *
+ *
+ * A concrete instance of vtkStructuredGridAlgorithm which provides
+ * functionality for converting instances of vtkImageData to vtkStructuredGrid.
+*/
 
 #ifndef vtkImageToStructuredGrid_h
 #define vtkImageToStructuredGrid_h
@@ -47,10 +49,13 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageToStructuredGrid:
         vtkInformationVector** inputVector,
         vtkInformationVector* outputVector ) VTK_OVERRIDE;
 
-    // Description:
-    // Helper function to copy point/cell data from image to grid
+    //@{
+    /**
+     * Helper function to copy point/cell data from image to grid
+     */
     void CopyPointData( vtkImageData*, vtkStructuredGrid* );
     void CopyCellData( vtkImageData*, vtkStructuredGrid*  );
+    //@}
 
     int FillInputPortInformation(int, vtkInformation* info) VTK_OVERRIDE;
     int FillOutputPortInformation(int, vtkInformation* info ) VTK_OVERRIDE;

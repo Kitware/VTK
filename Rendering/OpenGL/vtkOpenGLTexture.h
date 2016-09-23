@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLTexture - OpenGL texture map
-// .SECTION Description
-// vtkOpenGLTexture is a concrete implementation of the abstract class
-// vtkTexture. vtkOpenGLTexture interfaces to the OpenGL rendering library.
+/**
+ * @class   vtkOpenGLTexture
+ * @brief   OpenGL texture map
+ *
+ * vtkOpenGLTexture is a concrete implementation of the abstract class
+ * vtkTexture. vtkOpenGLTexture interfaces to the OpenGL rendering library.
+*/
 
 #ifndef vtkOpenGLTexture_h
 #define vtkOpenGLTexture_h
@@ -37,25 +40,30 @@ public:
   vtkTypeMacro(vtkOpenGLTexture, vtkTexture);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Implement base class method.
+  /**
+   * Implement base class method.
+   */
   void Load(vtkRenderer*);
 
   // Descsription:
   // Clean up after the rendering is complete.
   virtual void PostRender(vtkRenderer*);
 
-  // Description:
-  // Release any graphics resources that are being consumed by this texture.
-  // The parameter window could be used to determine which graphic
-  // resources to release. Using the same texture object in multiple
-  // render windows is NOT currently supported.
+  /**
+   * Release any graphics resources that are being consumed by this texture.
+   * The parameter window could be used to determine which graphic
+   * resources to release. Using the same texture object in multiple
+   * render windows is NOT currently supported.
+   */
   void ReleaseGraphicsResources(vtkWindow*);
 
-  // Description:
-  // Get the openGL texture name to which this texture is bound.
-  // This is available only if GL version >= 1.1
+  //@{
+  /**
+   * Get the openGL texture name to which this texture is bound.
+   * This is available only if GL version >= 1.1
+   */
   vtkGetMacro(Index, long);
+  //@}
 
 protected:
 
@@ -77,8 +85,9 @@ private:
   vtkOpenGLTexture(const vtkOpenGLTexture&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLTexture&) VTK_DELETE_FUNCTION;
 
-  // Description:
-  // Handle loading in extension support
+  /**
+   * Handle loading in extension support
+   */
   virtual void Initialize(vtkRenderer * ren);
 
 };

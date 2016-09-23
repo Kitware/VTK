@@ -17,13 +17,16 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGraphToPoints - convert a vtkGraph a set of points.
-//
-// .SECTION Description
-// Converts a vtkGraph to a vtkPolyData containing a set of points.
-// This assumes that the points
-// of the graph have already been filled (perhaps by vtkGraphLayout).
-// The vertex data is passed along to the point data.
+/**
+ * @class   vtkGraphToPoints
+ * @brief   convert a vtkGraph a set of points.
+ *
+ *
+ * Converts a vtkGraph to a vtkPolyData containing a set of points.
+ * This assumes that the points
+ * of the graph have already been filled (perhaps by vtkGraphLayout).
+ * The vertex data is passed along to the point data.
+*/
 
 #ifndef vtkGraphToPoints_h
 #define vtkGraphToPoints_h
@@ -42,12 +45,14 @@ protected:
   vtkGraphToPoints();
   ~vtkGraphToPoints() {}
 
-  // Description:
-  // Convert the vtkGraph into vtkPolyData.
+  /**
+   * Convert the vtkGraph into vtkPolyData.
+   */
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
-  // Description:
-  // Set the input type of the algorithm to vtkGraph.
+  /**
+   * Set the input type of the algorithm to vtkGraph.
+   */
   int FillInputPortInformation(int port, vtkInformation* info);
 
 private:

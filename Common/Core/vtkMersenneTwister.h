@@ -41,21 +41,24 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// .NAME vtkMersenneTwister - Generator for Mersenne Twister pseudorandom numbers
-// .SECTION Description
-// vtkMersenneTwister is an implementation of the Mersenne Twister pseudorandom
-// number generator. The VTK class is simply a wrapper around an implementation
-// written by M. Matsumoto, T. Nishimura and M. Saito, whose source code can be
-// found at http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/DC/dc.html.
-//
-// This implementation of the Mersenne Twister facilitates the generation and
-// query from multiple independent pseudorandom sequences. Independent sequences
-// are identified by a unique vtkMersenneTwister::SequenceId, which is either
-// generated upon request or passed into the initialization method. This id is
-// factored into the initialization of the Mersenne Twister's initial state, so
-// two sequences with the same seed and different sequence ids will produce
-// different results. Once a sequence is initialized with an associated sequence
-// id, this id is used to obtain values from the sequence.
+/**
+ * @class   vtkMersenneTwister
+ * @brief   Generator for Mersenne Twister pseudorandom numbers
+ *
+ * vtkMersenneTwister is an implementation of the Mersenne Twister pseudorandom
+ * number generator. The VTK class is simply a wrapper around an implementation
+ * written by M. Matsumoto, T. Nishimura and M. Saito, whose source code can be
+ * found at http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/DC/dc.html.
+ *
+ * This implementation of the Mersenne Twister facilitates the generation and
+ * query from multiple independent pseudorandom sequences. Independent sequences
+ * are identified by a unique vtkMersenneTwister::SequenceId, which is either
+ * generated upon request or passed into the initialization method. This id is
+ * factored into the initialization of the Mersenne Twister's initial state, so
+ * two sequences with the same seed and different sequence ids will produce
+ * different results. Once a sequence is initialized with an associated sequence
+ * id, this id is used to obtain values from the sequence.
+*/
 
 #ifndef vtkMersenneTwister_h
 #define vtkMersenneTwister_h
@@ -75,41 +78,47 @@ public:
 
   static vtkMersenneTwister* New();
 
-  // Description:
-  // Initialize a new Mersenne Twister sequence, given a) a <seed> and b) a
-  // Mersenne exponent (p s.t. 2^p-1 is a Mersenne prime). If <p> is not a
-  // usable Mersenne exponent, its value is used to pick one from a list.
-  // The return value is the id for the generated sequence, which is used as a
-  // key to access values of the sequence.
+  /**
+   * Initialize a new Mersenne Twister sequence, given a) a <seed> and b) a
+   * Mersenne exponent (p s.t. 2^p-1 is a Mersenne prime). If <p> is not a
+   * usable Mersenne exponent, its value is used to pick one from a list.
+   * The return value is the id for the generated sequence, which is used as a
+   * key to access values of the sequence.
+   */
   SequenceId InitializeNewSequence(vtkTypeUInt32 seed, int p=521);
 
-  // Description:
-  // Initialize a sequence as in InitializeNewSequence(), but additionally pass
-  // an id to associate with the new sequence. If a sequence is already
-  // associated with this id, a warning is given and the sequence is reset using
-  // the given parameters.
+  /**
+   * Initialize a sequence as in InitializeNewSequence(), but additionally pass
+   * an id to associate with the new sequence. If a sequence is already
+   * associated with this id, a warning is given and the sequence is reset using
+   * the given parameters.
+   */
   void InitializeSequence(SequenceId id, vtkTypeUInt32 seed, int p=521);
 
-  // Description:
-  // Current value
-  // \post unit_range: result>=0.0 && result<=1.0
+  /**
+   * Current value
+   * \post unit_range: result>=0.0 && result<=1.0
+   */
   virtual double GetValue(SequenceId id);
 
-  // Description:
-  // Current value
-  // \post unit_range: result>=0.0 && result<=1.0
+  /**
+   * Current value
+   * \post unit_range: result>=0.0 && result<=1.0
+   */
   double GetValue() VTK_OVERRIDE { return this->GetValue(0); }
 
-  // Description:
-  // Move to the next number in random sequence <id>. If no sequence is
-  // associated with this id, a warning is given and a sequence is generated
-  // with default values.
+  /**
+   * Move to the next number in random sequence <id>. If no sequence is
+   * associated with this id, a warning is given and a sequence is generated
+   * with default values.
+   */
   virtual void Next(SequenceId id);
 
-  // Description:
-  // Move to the next number in random sequence <0>. If no sequence is
-  // associated with this id, a warning is given and a sequence is generated
-  // with default values.
+  /**
+   * Move to the next number in random sequence <0>. If no sequence is
+   * associated with this id, a warning is given and a sequence is generated
+   * with default values.
+   */
   void Next() VTK_OVERRIDE { return this->Next(0); }
 
 protected:

@@ -22,14 +22,17 @@
  * statement of authorship are reproduced on all copies.
  */
 
-// .NAME vtkUnstructuredGridHomogeneousRayIntegrator - performs peicewise constant ray integration.
-//
-// .SECTION Description
-//
-// vtkUnstructuredGridHomogeneousRayIntegrator performs homogeneous ray
-// integration.  This is a good method to use when volume rendering scalars
-// that are defined on cells.
-//
+/**
+ * @class   vtkUnstructuredGridHomogeneousRayIntegrator
+ * @brief   performs peicewise constant ray integration.
+ *
+ *
+ *
+ * vtkUnstructuredGridHomogeneousRayIntegrator performs homogeneous ray
+ * integration.  This is a good method to use when volume rendering scalars
+ * that are defined on cells.
+ *
+*/
 
 #ifndef vtkUnstructuredGridHomogeneousRayIntegrator_h
 #define vtkUnstructuredGridHomogeneousRayIntegrator_h
@@ -54,12 +57,15 @@ public:
                          vtkDataArray *farIntersections,
                          float color[4]);
 
-  // Description:
-  // For quick lookup, the transfer function is sampled into a table.
-  // This parameter sets how big of a table to use.  By default, 1024
-  // entries are used.
+  //@{
+  /**
+   * For quick lookup, the transfer function is sampled into a table.
+   * This parameter sets how big of a table to use.  By default, 1024
+   * entries are used.
+   */
   vtkSetMacro(TransferFunctionTableSize, int);
   vtkGetMacro(TransferFunctionTableSize, int);
+  //@}
 
 protected:
   vtkUnstructuredGridHomogeneousRayIntegrator();

@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkVolumeMapper - Abstract class for a volume mapper
-
-// .SECTION Description
-// vtkVolumeMapper is the abstract definition of a volume mapper for regular
-// rectilinear data (vtkImageData).  Several  basic types of volume mappers
-// are supported.
-
-// .SECTION see also
-// vtkVolumeRayCastMapper vtkVolumeTextureMapper2D
+/**
+ * @class   vtkVolumeMapper
+ * @brief   Abstract class for a volume mapper
+ *
+ *
+ * vtkVolumeMapper is the abstract definition of a volume mapper for regular
+ * rectilinear data (vtkImageData).  Several  basic types of volume mappers
+ * are supported.
+ *
+ * @sa
+ * vtkVolumeRayCastMapper vtkVolumeTextureMapper2D
+*/
 
 #ifndef vtkVolumeMapper_h
 #define vtkVolumeMapper_h
@@ -46,20 +49,25 @@ public:
   vtkTypeMacro(vtkVolumeMapper,vtkAbstractVolumeMapper);
   void PrintSelf( ostream& os, vtkIndent indent );
 
-  // Description:
-  // Set/Get the input data
+  //@{
+  /**
+   * Set/Get the input data
+   */
   virtual void SetInputData( vtkImageData * );
   virtual void SetInputData( vtkDataSet * );
   vtkImageData *GetInput();
+  //@}
 
-  // Description:
-  // Set/Get the blend mode. Currently this is only supported
-  // by the vtkFixedPointVolumeRayCastMapper - other mappers
-  // have different ways to set this (supplying a function
-  // to a vtkVolumeRayCastMapper) or don't have any options
-  // (vtkVolumeTextureMapper2D supports only compositing).
-  // Additive blend mode adds scalars along the ray and multiply them by
-  // their opacity mapping value.
+  //@{
+  /**
+   * Set/Get the blend mode. Currently this is only supported
+   * by the vtkFixedPointVolumeRayCastMapper - other mappers
+   * have different ways to set this (supplying a function
+   * to a vtkVolumeRayCastMapper) or don't have any options
+   * (vtkVolumeTextureMapper2D supports only compositing).
+   * Additive blend mode adds scalars along the ray and multiply them by
+   * their opacity mapping value.
+   */
   vtkSetMacro( BlendMode, int );
   void SetBlendModeToComposite()
     { this->SetBlendMode( vtkVolumeMapper::COMPOSITE_BLEND ); }
@@ -70,36 +78,48 @@ public:
   void SetBlendModeToAdditive()
     { this->SetBlendMode( vtkVolumeMapper::ADDITIVE_BLEND ); }
   vtkGetMacro( BlendMode, int );
+  //@}
 
-  // Description:
-  // Turn On/Off orthogonal cropping. (Clipping planes are
-  // perpendicular to the coordinate axes.)
+  //@{
+  /**
+   * Turn On/Off orthogonal cropping. (Clipping planes are
+   * perpendicular to the coordinate axes.)
+   */
   vtkSetClampMacro(Cropping,int,0,1);
   vtkGetMacro(Cropping,int);
   vtkBooleanMacro(Cropping,int);
+  //@}
 
-  // Description:
-  // Set/Get the Cropping Region Planes ( xmin, xmax, ymin, ymax, zmin, zmax )
-  // These planes are defined in volume coordinates - spacing and origin are
-  // considered.
+  //@{
+  /**
+   * Set/Get the Cropping Region Planes ( xmin, xmax, ymin, ymax, zmin, zmax )
+   * These planes are defined in volume coordinates - spacing and origin are
+   * considered.
+   */
   vtkSetVector6Macro( CroppingRegionPlanes, double );
   vtkGetVectorMacro(  CroppingRegionPlanes, double, 6 );
+  //@}
 
-  // Description:
-  // Get the cropping region planes in voxels. Only valid during the
-  // rendering process
+  //@{
+  /**
+   * Get the cropping region planes in voxels. Only valid during the
+   * rendering process
+   */
   vtkGetVectorMacro( VoxelCroppingRegionPlanes, double, 6 );
+  //@}
 
-  // Description:
-  // Set the flags for the cropping regions. The clipping planes divide the
-  // volume into 27 regions - there is one bit for each region. The regions
-  // start from the one containing voxel (0,0,0), moving along the x axis
-  // fastest, the y axis next, and the z axis slowest. These are represented
-  // from the lowest bit to bit number 27 in the integer containing the
-  // flags. There are several convenience functions to set some common
-  // configurations - subvolume (the default), fence (between any of the
-  // clip plane pairs), inverted fence, cross (between any two of the
-  // clip plane pairs) and inverted cross.
+  //@{
+  /**
+   * Set the flags for the cropping regions. The clipping planes divide the
+   * volume into 27 regions - there is one bit for each region. The regions
+   * start from the one containing voxel (0,0,0), moving along the x axis
+   * fastest, the y axis next, and the z axis slowest. These are represented
+   * from the lowest bit to bit number 27 in the integer containing the
+   * flags. There are several convenience functions to set some common
+   * configurations - subvolume (the default), fence (between any of the
+   * clip plane pairs), inverted fence, cross (between any two of the
+   * clip plane pairs) and inverted cross.
+   */
   vtkSetClampMacro( CroppingRegionFlags, int, 0x0, 0x7ffffff );
   vtkGetMacro( CroppingRegionFlags, int );
   void SetCroppingRegionFlagsToSubVolume()
@@ -112,18 +132,21 @@ public:
     {this->SetCroppingRegionFlags( VTK_CROP_CROSS );};
   void SetCroppingRegionFlagsToInvertedCross()
     {this->SetCroppingRegionFlags( VTK_CROP_INVERTED_CROSS );};
+  //@}
 
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
-  // Render the volume
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+   * Render the volume
+   */
   virtual void Render(vtkRenderer *ren, vtkVolume *vol)=0;
 
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // Release any graphics resources that are being consumed by this mapper.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * Release any graphics resources that are being consumed by this mapper.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
   virtual void ReleaseGraphicsResources(vtkWindow *) {}
 
   enum

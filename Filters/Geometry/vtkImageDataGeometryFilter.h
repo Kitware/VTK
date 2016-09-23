@@ -12,25 +12,28 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageDataGeometryFilter - extract geometry for structured points
-// .SECTION Description
-// vtkImageDataGeometryFilter is a filter that extracts geometry from a
-// structured points dataset. By specifying appropriate i-j-k indices (via the
-// "Extent" instance variable), it is possible to extract a point, a line, a
-// plane (i.e., image), or a "volume" from dataset. (Since the output is
-// of type polydata, the volume is actually a (n x m x o) region of points.)
-//
-// The extent specification is zero-offset. That is, the first k-plane in
-// a 50x50x50 volume is given by (0,49, 0,49, 0,0).
-// .SECTION Caveats
-// If you don't know the dimensions of the input dataset, you can use a large
-// number to specify extent (the number will be clamped appropriately). For
-// example, if the dataset dimensions are 50x50x50, and you want a the fifth
-// k-plane, you can use the extents (0,100, 0,100, 4,4). The 100 will
-// automatically be clamped to 49.
-
-// .SECTION See Also
-// vtkGeometryFilter vtkStructuredGridSource
+/**
+ * @class   vtkImageDataGeometryFilter
+ * @brief   extract geometry for structured points
+ *
+ * vtkImageDataGeometryFilter is a filter that extracts geometry from a
+ * structured points dataset. By specifying appropriate i-j-k indices (via the
+ * "Extent" instance variable), it is possible to extract a point, a line, a
+ * plane (i.e., image), or a "volume" from dataset. (Since the output is
+ * of type polydata, the volume is actually a (n x m x o) region of points.)
+ *
+ * The extent specification is zero-offset. That is, the first k-plane in
+ * a 50x50x50 volume is given by (0,49, 0,49, 0,0).
+ * @warning
+ * If you don't know the dimensions of the input dataset, you can use a large
+ * number to specify extent (the number will be clamped appropriately). For
+ * example, if the dataset dimensions are 50x50x50, and you want a the fifth
+ * k-plane, you can use the extents (0,100, 0,100, 4,4). The 100 will
+ * automatically be clamped to 49.
+ *
+ * @sa
+ * vtkGeometryFilter vtkStructuredGridSource
+*/
 
 #ifndef vtkImageDataGeometryFilter_h
 #define vtkImageDataGeometryFilter_h
@@ -44,38 +47,51 @@ public:
   vtkTypeMacro(vtkImageDataGeometryFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Construct with initial extent of all the data
+  /**
+   * Construct with initial extent of all the data
+   */
   static vtkImageDataGeometryFilter *New();
 
-  // Description:
-  // Set / get the extent (imin,imax, jmin,jmax, kmin,kmax) indices.
+  //@{
+  /**
+   * Set / get the extent (imin,imax, jmin,jmax, kmin,kmax) indices.
+   */
   void SetExtent(int extent[6]);
   void SetExtent(int iMin, int iMax, int jMin, int jMax, int kMin, int kMax);
   int *GetExtent() { return this->Extent;};
+  //@}
 
-  // Description:
-  // Set ThresholdCells to true if you wish to skip any voxel/pixels which have scalar
-  // values less than the specified threshold.
-  // Currently this functionality is only implemented for 2D imagedata
+  //@{
+  /**
+   * Set ThresholdCells to true if you wish to skip any voxel/pixels which have scalar
+   * values less than the specified threshold.
+   * Currently this functionality is only implemented for 2D imagedata
+   */
   vtkSetMacro(ThresholdCells,int);
   vtkGetMacro(ThresholdCells,int);
   vtkBooleanMacro(ThresholdCells,int);
+  //@}
 
-  // Description:
-  // Set ThresholdValue to the scalar value by which to threshold cells when extracting geometry
-  // when ThresholdCells is true. Cells with scalar values greater than the threshold will be output.
+  //@{
+  /**
+   * Set ThresholdValue to the scalar value by which to threshold cells when extracting geometry
+   * when ThresholdCells is true. Cells with scalar values greater than the threshold will be output.
+   */
   vtkSetMacro(ThresholdValue,double);
   vtkGetMacro(ThresholdValue,double);
   vtkBooleanMacro(ThresholdValue,double);
+  //@}
 
-  // Description:
-  // Set OutputTriangles to true if you wish to generate triangles instead of quads
-  // when extracting cells from 2D imagedata
-  // Currently this functionality is only implemented for 2D imagedata
+  //@{
+  /**
+   * Set OutputTriangles to true if you wish to generate triangles instead of quads
+   * when extracting cells from 2D imagedata
+   * Currently this functionality is only implemented for 2D imagedata
+   */
   vtkSetMacro(OutputTriangles,int);
   vtkGetMacro(OutputTriangles,int);
   vtkBooleanMacro(OutputTriangles,int);
+  //@}
 
 protected:
   vtkImageDataGeometryFilter();

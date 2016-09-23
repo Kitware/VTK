@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHexahedron - a cell that represents a linear 3D hexahedron
-// .SECTION Description
-// vtkHexahedron is a concrete implementation of vtkCell to represent a
-// linear, 3D rectangular hexahedron (e.g., "brick" topology). vtkHexahedron
-// uses the standard isoparametric shape functions for a linear
-// hexahedron. The hexahedron is defined by the eight points (0-7) where
-// (0,1,2,3) is the base of the hexahedron which, using the right hand rule,
-// forms a quadrilaterial whose normal points in the direction of the
-// opposite face (4,5,6,7).
-
-// .SECTION See Also
-// vtkConvexPointSet vtkPyramid vtkTetra vtkVoxel vtkWedge
+/**
+ * @class   vtkHexahedron
+ * @brief   a cell that represents a linear 3D hexahedron
+ *
+ * vtkHexahedron is a concrete implementation of vtkCell to represent a
+ * linear, 3D rectangular hexahedron (e.g., "brick" topology). vtkHexahedron
+ * uses the standard isoparametric shape functions for a linear
+ * hexahedron. The hexahedron is defined by the eight points (0-7) where
+ * (0,1,2,3) is the base of the hexahedron which, using the right hand rule,
+ * forms a quadrilaterial whose normal points in the direction of the
+ * opposite face (4,5,6,7).
+ *
+ * @sa
+ * vtkConvexPointSet vtkPyramid vtkTetra vtkVoxel vtkWedge
+*/
 
 #ifndef vtkHexahedron_h
 #define vtkHexahedron_h
@@ -42,13 +45,18 @@ public:
   vtkTypeMacro(vtkHexahedron,vtkCell3D);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // See vtkCell3D API for description of these methods.
+  //@{
+  /**
+   * See vtkCell3D API for description of these methods.
+   */
   void GetEdgePoints(int edgeId, int* &pts) VTK_OVERRIDE;
   void GetFacePoints(int faceId, int* &pts) VTK_OVERRIDE;
+  //@}
 
-  // Description:
-  // See the vtkCell API for descriptions of these methods.
+  //@{
+  /**
+   * See the vtkCell API for descriptions of these methods.
+   */
   int GetCellType() VTK_OVERRIDE {return VTK_HEXAHEDRON;}
   int GetNumberOfEdges() VTK_OVERRIDE {return 12;}
   int GetNumberOfFaces() VTK_OVERRIDE {return 6;}
@@ -60,6 +68,7 @@ public:
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd) VTK_OVERRIDE;
+  //@}
 
   int EvaluatePosition(double x[3], double* closestPoint,
                        int& subId, double pcoords[3],
@@ -73,15 +82,19 @@ public:
                    int dim, double *derivs) VTK_OVERRIDE;
   double *GetParametricCoords() VTK_OVERRIDE;
 
-  // Description:
-  // @deprecated Replaced by vtkHexahedron::InterpolateFunctions as of VTK 5.2
+  /**
+   * @deprecated Replaced by vtkHexahedron::InterpolateFunctions as of VTK 5.2
+   */
   static void InterpolationFunctions(double pcoords[3], double weights[8]);
-  // Description:
-  // @deprecated Replaced by vtkHexahedron::InterpolateDerivs as of VTK 5.2
+  /**
+   * @deprecated Replaced by vtkHexahedron::InterpolateDerivs as of VTK 5.2
+   */
   static void InterpolationDerivs(double pcoords[3], double derivs[24]);
-  // Description:
-  // Compute the interpolation functions/derivatives
-  // (aka shape functions/derivatives)
+  //@{
+  /**
+   * Compute the interpolation functions/derivatives
+   * (aka shape functions/derivatives)
+   */
   void InterpolateFunctions(double pcoords[3], double weights[8]) VTK_OVERRIDE
     {
     vtkHexahedron::InterpolationFunctions(pcoords,weights);
@@ -90,17 +103,22 @@ public:
     {
     vtkHexahedron::InterpolationDerivs(pcoords,derivs);
     }
+  //@}
 
-  // Description:
-  // Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
-  // Ids are related to the cell, not to the dataset.
+  //@{
+  /**
+   * Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
+   * Ids are related to the cell, not to the dataset.
+   */
   static int *GetEdgeArray(int edgeId);
   static int *GetFaceArray(int faceId);
+  //@}
 
-  // Description:
-  // Given parametric coordinates compute inverse Jacobian transformation
-  // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
-  // function derivatives.
+  /**
+   * Given parametric coordinates compute inverse Jacobian transformation
+   * matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
+   * function derivatives.
+   */
   void JacobianInverse(double pcoords[3], double **inverse, double derivs[24]);
 
 protected:

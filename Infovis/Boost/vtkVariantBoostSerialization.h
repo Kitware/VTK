@@ -17,15 +17,18 @@
  * Use, modification and distribution is subject to the Boost Software
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
  */
-// .NAME vtkVariantBoostSerialization - Serialization support for
-// vtkVariant and vtkVariantArray using the Boost.Serialization
-// library.
-//
-// .SECTION Description
-// The header includes the templates required to serialize the
-// vtkVariant and vtkVariantArray with the Boost.Serialization
-// library. Just including the header suffices to get serialization
-// support; no other action is needed.
+/**
+ * @class   vtkVariantBoostSerialization
+ * @brief   Serialization support for
+ * vtkVariant and vtkVariantArray using the Boost.Serialization
+ * library.
+ *
+ *
+ * The header includes the templates required to serialize the
+ * vtkVariant and vtkVariantArray with the Boost.Serialization
+ * library. Just including the header suffices to get serialization
+ * support; no other action is needed.
+*/
 
 #ifndef vtkVariantBoostSerialization_h
 #define vtkVariantBoostSerialization_h

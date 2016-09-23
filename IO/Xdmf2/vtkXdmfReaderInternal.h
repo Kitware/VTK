@@ -12,9 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXdmfReaderInternal -- private class(es) used by vtkXdmfReader
-// .SECTION Description
-
+/**
+ * @class   vtkXdmfReaderInternal
+ *
+*/
 
 #ifndef vtkXdmfReaderInternal_h
 #define vtkXdmfReaderInternal_h
@@ -63,37 +64,48 @@ class VTKIOXDMF2_EXPORT vtkXdmfDocument
 {
 public:
   //---------------------------------------------------------------------------
-  // Description:
-  // Parse an xmf file (or string). Both these methods use caching hence calling
-  // these methods repeatedly with the same argument will NOT result in
-  // re-parsing of the xmf.
+  //@{
+  /**
+   * Parse an xmf file (or string). Both these methods use caching hence calling
+   * these methods repeatedly with the same argument will NOT result in
+   * re-parsing of the xmf.
+   */
   bool Parse(const char*xmffilename);
   bool ParseString(const char* xmfdata, size_t length);
+  //@}
 
   //---------------------------------------------------------------------------
-  // Description:
-  // Returns the names for available domains.
+  /**
+   * Returns the names for available domains.
+   */
   const std::vector<std::string>& GetDomains()
     { return this->Domains; }
 
   //---------------------------------------------------------------------------
-  // Description:
-  // Set the active domain. This will result in processing of the domain xmf if
-  // the selected domain is different from the active one.
+  //@{
+  /**
+   * Set the active domain. This will result in processing of the domain xmf if
+   * the selected domain is different from the active one.
+   */
   bool SetActiveDomain(const char* domainname);
   bool SetActiveDomain(int index);
+  //@}
 
   //---------------------------------------------------------------------------
-  // Description:
-  // Returns the active domain.
+  /**
+   * Returns the active domain.
+   */
   vtkXdmfDomain* GetActiveDomain()
     { return this->ActiveDomain; }
 
   //---------------------------------------------------------------------------
-  // Description:
-  // Constructor/Destructor
+  //@{
+  /**
+   * Constructor/Destructor
+   */
   vtkXdmfDocument();
   ~vtkXdmfDocument();
+  //@}
 
 private:
   // Populates the list of domains.
@@ -213,9 +225,10 @@ public:
   vtkXdmfDomain(xdmf2::XdmfDOM* xmlDom, int domain_index);
 
   //---------------------------------------------------------------------------
-  // Description:
-  // After instantiating, check that the domain is valid. If this returns false,
-  // it means that the specified domain could not be located.
+  /**
+   * After instantiating, check that the domain is valid. If this returns false,
+   * it means that the specified domain could not be located.
+   */
   bool IsValid()
     { return (this->XMLDomain != 0); }
 
@@ -224,68 +237,80 @@ public:
     { return this->SIL; }
 
   //---------------------------------------------------------------------------
-  // Description:
-  // Returns the number of top-level grids present in this domain.
+  /**
+   * Returns the number of top-level grids present in this domain.
+   */
   XdmfInt64 GetNumberOfGrids() { return this->NumberOfGrids; }
 
   //---------------------------------------------------------------------------
-  // Description:
-  // Provides access to a top-level grid from this domain.
+  /**
+   * Provides access to a top-level grid from this domain.
+   */
   xdmf2::XdmfGrid* GetGrid(XdmfInt64 cc);
 
   //---------------------------------------------------------------------------
-  // Description:
-  // Returns the VTK data type need for this domain. If the domain has only 1
-  // grid, then a vtkDataSet-type is returned, otherwise a vtkMultiBlockDataSet
-  // is required.
-  // Returns -1 on error.
+  /**
+   * Returns the VTK data type need for this domain. If the domain has only 1
+   * grid, then a vtkDataSet-type is returned, otherwise a vtkMultiBlockDataSet
+   * is required.
+   * Returns -1 on error.
+   */
   int GetVTKDataType();
 
   //---------------------------------------------------------------------------
-  // Description:
-  // Returns the timesteps.
+  /**
+   * Returns the timesteps.
+   */
   const std::map<XdmfFloat64, int>& GetTimeSteps()
     { return this->TimeSteps; }
   const std::map<int,XdmfFloat64>& GetTimeStepsRev()
     { return this->TimeStepsRev; }
 
   //---------------------------------------------------------------------------
-  // Description:
-  // Given a time value, returns the index.
+  /**
+   * Given a time value, returns the index.
+   */
   int GetIndexForTime(double time);
 
   //---------------------------------------------------------------------------
-  // Description:
-  // Returns the time value at the given index.
+  //@{
+  /**
+   * Returns the time value at the given index.
+   */
   XdmfFloat64 GetTimeForIndex(int index)
     {
     std::map<int, XdmfFloat64>::iterator iter = this->TimeStepsRev.find(index);
     return (iter != this->TimeStepsRev.end()) ? iter->second : 0.0;
     }
+  //@}
 
   //---------------------------------------------------------------------------
-  // Description:
-  // If xmfGrid is a temporal collection, returns the child-grid matching the
-  // requested time.
+  /**
+   * If xmfGrid is a temporal collection, returns the child-grid matching the
+   * requested time.
+   */
   xdmf2::XdmfGrid* GetGrid(xdmf2::XdmfGrid* xmfGrid, double time);
 
   //---------------------------------------------------------------------------
-  // Description:
-  // Returns true if the grids is a structured dataset.
+  /**
+   * Returns true if the grids is a structured dataset.
+   */
   bool IsStructured(xdmf2::XdmfGrid*);
 
   //---------------------------------------------------------------------------
-  // Description:
-  // Returns the whole extents for the dataset if the grid if IsStructured()
-  // returns true for the given grid. Returns true if the extents are valid.
-  // NOTE: returned extents are always (0, dimx-1, 0, dimy-1, 0, dimz-1).
+  /**
+   * Returns the whole extents for the dataset if the grid if IsStructured()
+   * returns true for the given grid. Returns true if the extents are valid.
+   * NOTE: returned extents are always (0, dimx-1, 0, dimy-1, 0, dimz-1).
+   */
   bool GetWholeExtent(xdmf2::XdmfGrid*, int extents[6]);
 
   //---------------------------------------------------------------------------
-  // Description:
-  // Returns the spacing and origin for the grid if the grid topology ==
-  // XDMF_2DCORECTMESH or XDMF_3DCORECTMESH i.e. image data.  Returns true if
-  // the extents are valid.
+  /**
+   * Returns the spacing and origin for the grid if the grid topology ==
+   * XDMF_2DCORECTMESH or XDMF_3DCORECTMESH i.e. image data.  Returns true if
+   * the extents are valid.
+   */
   bool GetOriginAndSpacing(xdmf2::XdmfGrid*, double origin[3], double spacing[3]);
 
   //---------------------------------------------------------------------------
@@ -309,15 +334,16 @@ public:
     { return this->Sets; }
 
 private:
-  // Description:
-  // There are a few meta-information that we need to collect from the domain
-  // * number of data-arrays so that the user can choose which to load.
-  // * grid-structure so that the user can choose the hierarchy
-  // * time information so that reader can report the number of timesteps
-  //   available.
-  // This does another book-keeping task of ensuring that all grids have valid
-  // names. If a grid is not named, then we make up a name.
-  // TODO: We can use GRID centered attributes to create hierarchies in the SIL.
+  /**
+   * There are a few meta-information that we need to collect from the domain
+   * * number of data-arrays so that the user can choose which to load.
+   * * grid-structure so that the user can choose the hierarchy
+   * * time information so that reader can report the number of timesteps
+   * available.
+   * This does another book-keeping task of ensuring that all grids have valid
+   * names. If a grid is not named, then we make up a name.
+   * TODO: We can use GRID centered attributes to create hierarchies in the SIL.
+   */
   void CollectMetaData();
 
   // Used by CollectMetaData().
@@ -329,12 +355,15 @@ private:
   // Used by CollectMetaData().
   void CollectLeafMetaData(xdmf2::XdmfGrid* xmfGrid, vtkIdType silParent);
 
-  // Description:
-  // Use this to add an association with the grid attribute with the node for
-  // the grid in the SIL if applicable. Returns true if the attribute was added.
+  //@{
+  /**
+   * Use this to add an association with the grid attribute with the node for
+   * the grid in the SIL if applicable. Returns true if the attribute was added.
+   */
   bool UpdateGridAttributeInSIL(
     xdmf2::XdmfAttribute* xmfAttribute, vtkIdType gridSILId);
 };
+  //@}
 
 #endif
 // VTK-HeaderTest-Exclude: vtkXdmfReaderInternal.h

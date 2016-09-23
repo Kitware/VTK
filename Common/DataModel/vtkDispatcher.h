@@ -28,44 +28,47 @@
 //     without express or implied warranty.
 ////////////////////////////////////////////////////////////////////////////////
 
-// .NAME vtkDispatcher - Dispatch to functor based on a pointer type.
-// .SECTION Description
-// vtkDispatcher is a class that allows calling a functor based
-// on the derived types of a pointer. This form of dynamic dispatching
-// allows the conversion of runtime polymorphism to a compile time polymorphism.
-// For example it can be used as a replacement for the vtkTemplateMacro, with
-// bonus of being easier to understand
-//
-// Note: By default the return type is void.
-//
-// The functors that are passed around can contain state, and are allowed
-// to be const or non const. If you are using a functor that does have state,
-// make sure your copy constructor is correct.
-//
-// \code
-// struct functor{
-//   template<typename T>
-//   void operator()(T& t) const
-//   {
-//
-//   }
-// };
-//
-// Here is an example of using the dispatcher.
-//  \code
-//  statefull functor;
-//  vtkDispatcher<vtkDataArray> dispatcher;
-//  dispatcher.Add<vtkCharArray>(&functor);
-//  dispatcher.Add<vtkDoubleArray>(&functor);
-//  dispatcher.Add<vtkIdTypeArray>(&functor);
-//  dispatcher.Add<vtkIntArray>(&functor);
-//  dispatcher.Add<vtkFloatArray>(&functor);
-//  dispatcher.Go(ptr1);
-//  \endcode
-
-//
-// .SECTION See Also
-// vtkDispatcher
+/**
+ * @class   vtkDispatcher
+ * @brief   Dispatch to functor based on a pointer type.
+ *
+ * vtkDispatcher is a class that allows calling a functor based
+ * on the derived types of a pointer. This form of dynamic dispatching
+ * allows the conversion of runtime polymorphism to a compile time polymorphism.
+ * For example it can be used as a replacement for the vtkTemplateMacro, with
+ * bonus of being easier to understand
+ *
+ * Note: By default the return type is void.
+ *
+ * The functors that are passed around can contain state, and are allowed
+ * to be const or non const. If you are using a functor that does have state,
+ * make sure your copy constructor is correct.
+ *
+ * \code
+ * struct functor{
+ *   template<typename T>
+ *   void operator()(T& t) const
+ *   {
+ *
+ *   }
+ * };
+ *
+ * Here is an example of using the dispatcher.
+ *  \code
+ *  statefull functor;
+ *  vtkDispatcher<vtkDataArray> dispatcher;
+ *  dispatcher.Add<vtkCharArray>(&functor);
+ *  dispatcher.Add<vtkDoubleArray>(&functor);
+ *  dispatcher.Add<vtkIdTypeArray>(&functor);
+ *  dispatcher.Add<vtkIntArray>(&functor);
+ *  dispatcher.Add<vtkFloatArray>(&functor);
+ *  dispatcher.Go(ptr1);
+ *  \endcode
+ *
+ *
+ * @sa
+ * vtkDispatcher
+*/
 
 #ifndef vtkDispatcher_h
 #define vtkDispatcher_h
@@ -85,43 +88,46 @@ template
 class vtkDispatcher
 {
 public:
-  // Description:
-  // Add in a functor that is mapped to the template SomeLhs parameter.
-  // When instances of the parameter is passed in on the Go method we will call
-  // the functor and pass along the given parameter.
-  // Note: This copies the functor so pass stateful functors by pointer.
-  //
-  // \code
-  // vtkDispatcher<vtkDataModel> dispatcher;
-  // dispatcher.Add<vtkImageData>(exampleFunctor());
-  // dispatcher.Add<vtkImageData>(&exampleFunctorWithState);
-  // \endcode
+  /**
+   * Add in a functor that is mapped to the template SomeLhs parameter.
+   * When instances of the parameter is passed in on the Go method we will call
+   * the functor and pass along the given parameter.
+   * Note: This copies the functor so pass stateful functors by pointer.
+
+   * \code
+   * vtkDispatcher<vtkDataModel> dispatcher;
+   * dispatcher.Add<vtkImageData>(exampleFunctor());
+   * dispatcher.Add<vtkImageData>(&exampleFunctorWithState);
+   * \endcode
+   */
   template <class SomeLhs, class Functor>
   void Add(Functor fun) { this->AddInternal<SomeLhs>(fun, 1); }
 
-  // Description:
-  // Remove a functor that is bound to the given parameter type. Will
-  // return true if we did remove a functor.
+  /**
+   * Remove a functor that is bound to the given parameter type. Will
+   * return true if we did remove a functor.
+   */
   template <class SomeLhs>
   bool Remove() { return DoRemove(typeid(SomeLhs)); }
 
-  // Description:
-  // Given a pointer to an object that derives from the BaseLhs
-  // we find the matching functor that was added, and call it passing along
-  // the given parameter. It should be noted that the functor will be called
-  // with the parameter being the derived type that Functor was registered with.
-  //
-  // Note: This will only find exact matches. So if you add functor to find
-  // vtkDataArray, it will not be called if passed with a vtkDoubleArray.
-  //
-  // \code
-  //
-  // vtkDispatcher<vtkDataArray> dispatcher;
-  // dispatcher.Add(vtkFloatArray>(floatFunctor())
-  // dispatcher.Add(vtkDoubleArray>(doubleFunctor())
-  // dispatcher.Go(dataArray1);
-  // dispatcher.Go(dataArray2);
-  // \endcode
+  /**
+   * Given a pointer to an object that derives from the BaseLhs
+   * we find the matching functor that was added, and call it passing along
+   * the given parameter. It should be noted that the functor will be called
+   * with the parameter being the derived type that Functor was registered with.
+
+   * Note: This will only find exact matches. So if you add functor to find
+   * vtkDataArray, it will not be called if passed with a vtkDoubleArray.
+
+   * \code
+
+   * vtkDispatcher<vtkDataArray> dispatcher;
+   * dispatcher.Add(vtkFloatArray>(floatFunctor())
+   * dispatcher.Add(vtkDoubleArray>(doubleFunctor())
+   * dispatcher.Go(dataArray1);
+   * dispatcher.Go(dataArray2);
+   * \endcode
+   */
   ReturnType Go(BaseLhs* lhs);
 
 protected:

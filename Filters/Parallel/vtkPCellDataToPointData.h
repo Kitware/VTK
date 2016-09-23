@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPCellDataToPointData - Compute point arrays from cell arrays.
-// .SECTION Description
-// Like it super class, this filter averages the cell data around
-// a point to get new point data.  This subclass requests a layer of
-// ghost cells to make the results invariant to pieces.  There is a
-// "PieceInvariant" flag that lets the user change the behavior
-// of the filter to that of its superclass.
+/**
+ * @class   vtkPCellDataToPointData
+ * @brief   Compute point arrays from cell arrays.
+ *
+ * Like it super class, this filter averages the cell data around
+ * a point to get new point data.  This subclass requests a layer of
+ * ghost cells to make the results invariant to pieces.  There is a
+ * "PieceInvariant" flag that lets the user change the behavior
+ * of the filter to that of its superclass.
+*/
 
 #ifndef vtkPCellDataToPointData_h
 #define vtkPCellDataToPointData_h
@@ -34,12 +37,15 @@ public:
 
   static vtkPCellDataToPointData *New();
 
-  // Description:
-  // To get piece invariance, this filter has to request an
-  // extra ghost level.  By default piece invariance is on.
+  //@{
+  /**
+   * To get piece invariance, this filter has to request an
+   * extra ghost level.  By default piece invariance is on.
+   */
   vtkSetMacro(PieceInvariant, int);
   vtkGetMacro(PieceInvariant, int);
   vtkBooleanMacro(PieceInvariant, int);
+  //@}
 
 protected:
   vtkPCellDataToPointData();

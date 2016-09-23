@@ -12,25 +12,28 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCallbackCommand - supports function callbacks
-// .SECTION Description
-// Use vtkCallbackCommand for generic function callbacks. That is, this class
-// can be used when you wish to execute a function (of the signature
-// described below) using the Command/Observer design pattern in VTK.
-// The callback function should have the form
-// <pre>
-// void func(vtkObject*, unsigned long eid, void* clientdata, void *calldata)
-// </pre>
-// where the parameter vtkObject* is the object invoking the event; eid is
-// the event id (see vtkCommand.h); clientdata is special data that should
-// is associated with this instance of vtkCallbackCommand; and calldata is
-// data that the vtkObject::InvokeEvent() may send with the callback. For
-// example, the invocation of the ProgressEvent sends along the progress
-// value as calldata.
-//
-
-// .SECTION See Also
-// vtkCommand vtkOldStyleCallbackCommand
+/**
+ * @class   vtkCallbackCommand
+ * @brief   supports function callbacks
+ *
+ * Use vtkCallbackCommand for generic function callbacks. That is, this class
+ * can be used when you wish to execute a function (of the signature
+ * described below) using the Command/Observer design pattern in VTK.
+ * The callback function should have the form
+ * <pre>
+ * void func(vtkObject*, unsigned long eid, void* clientdata, void *calldata)
+ * </pre>
+ * where the parameter vtkObject* is the object invoking the event; eid is
+ * the event id (see vtkCommand.h); clientdata is special data that should
+ * is associated with this instance of vtkCallbackCommand; and calldata is
+ * data that the vtkObject::InvokeEvent() may send with the callback. For
+ * example, the invocation of the ProgressEvent sends along the progress
+ * value as calldata.
+ *
+ *
+ * @sa
+ * vtkCommand vtkOldStyleCallbackCommand
+*/
 
 #ifndef vtkCallbackCommand_h
 #define vtkCallbackCommand_h
@@ -46,18 +49,20 @@ public:
   static vtkCallbackCommand *New()
     {return new vtkCallbackCommand;};
 
-  // Description:
-  // Satisfy the superclass API for callbacks. Recall that the caller is
-  // the instance invoking the event; eid is the event id (see
-  // vtkCommand.h); and calldata is information sent when the callback
-  // was invoked (e.g., progress value in the vtkCommand::ProgressEvent).
+  /**
+   * Satisfy the superclass API for callbacks. Recall that the caller is
+   * the instance invoking the event; eid is the event id (see
+   * vtkCommand.h); and calldata is information sent when the callback
+   * was invoked (e.g., progress value in the vtkCommand::ProgressEvent).
+   */
   void Execute(vtkObject *caller,
                unsigned long eid,
                void *callData) VTK_OVERRIDE;
 
-  // Description:
-  // Methods to set and get client and callback information, and the callback
-  // function.
+  /**
+   * Methods to set and get client and callback information, and the callback
+   * function.
+   */
   virtual void SetClientData(void *cd)
     { this->ClientData = cd; }
   virtual void* GetClientData()
@@ -68,10 +73,11 @@ public:
   virtual void SetClientDataDeleteCallback(void (*f)(void *))
     { this->ClientDataDeleteCallback = f; }
 
-  // Description:
-  // Set/Get the abort flag on execute. If this is set to true the AbortFlag
-  // will be set to On automatically when the Execute method is triggered *and*
-  // a callback is set.
+  /**
+   * Set/Get the abort flag on execute. If this is set to true the AbortFlag
+   * will be set to On automatically when the Execute method is triggered *and*
+   * a callback is set.
+   */
   void SetAbortFlagOnExecute(int f)
     { this->AbortFlagOnExecute = f; }
   int GetAbortFlagOnExecute()

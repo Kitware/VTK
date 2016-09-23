@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPolyLine - cell represents a set of 1D lines
-// .SECTION Description
-// vtkPolyLine is a concrete implementation of vtkCell to represent a set
-// of 1D lines.
+/**
+ * @class   vtkPolyLine
+ * @brief   cell represents a set of 1D lines
+ *
+ * vtkPolyLine is a concrete implementation of vtkCell to represent a set
+ * of 1D lines.
+*/
 
 #ifndef vtkPolyLine_h
 #define vtkPolyLine_h
@@ -37,18 +40,23 @@ public:
   vtkTypeMacro(vtkPolyLine,vtkCell);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Given points and lines, compute normals to lines. These are not true
-  // normals, they are "orientation" normals used by classes like vtkTubeFilter
-  // that control the rotation around the line. The normals try to stay pointing
-  // in the same direction as much as possible (i.e., minimal rotation) w.r.t the
-  // firstNormal (computed if NULL). Allways returns 1 (success).
+  //@{
+  /**
+   * Given points and lines, compute normals to lines. These are not true
+   * normals, they are "orientation" normals used by classes like vtkTubeFilter
+   * that control the rotation around the line. The normals try to stay pointing
+   * in the same direction as much as possible (i.e., minimal rotation) w.r.t the
+   * firstNormal (computed if NULL). Allways returns 1 (success).
+   */
   static int GenerateSlidingNormals(vtkPoints *, vtkCellArray *, vtkDataArray *);
   static int GenerateSlidingNormals(vtkPoints *, vtkCellArray *, vtkDataArray *,
                                     double* firstNormal);
+  //@}
 
-  // Description:
-  // See the vtkCell API for descriptions of these methods.
+  //@{
+  /**
+   * See the vtkCell API for descriptions of these methods.
+   */
   int GetCellType() VTK_OVERRIDE {return VTK_POLY_LINE;};
   int GetCellDimension() VTK_OVERRIDE {return 1;};
   int GetNumberOfEdges() VTK_OVERRIDE {return 0;};
@@ -77,9 +85,11 @@ public:
   void Derivatives(int subId, double pcoords[3], double *values,
                    int dim, double *derivs) VTK_OVERRIDE;
   int IsPrimaryCell() VTK_OVERRIDE {return 0;}
+  //@}
 
-  // Description:
-  // Return the center of the point cloud in parametric coordinates.
+  /**
+   * Return the center of the point cloud in parametric coordinates.
+   */
   int GetParametricCenter(double pcoords[3]) VTK_OVERRIDE;
 
 protected:

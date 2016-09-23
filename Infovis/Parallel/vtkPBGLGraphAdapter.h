@@ -17,11 +17,14 @@
  * Use, modification and distribution is subject to the Boost Software
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
  */
-// .NAME vtkPBGLGraphAdapter - adapter to the Parallel Boost Graph Library (http://www.osl.iu.edu/research/pbgl)
-//
-// .SECTION Description
-// Including this header allows you to use a vtk*Graph in Parallel BGL algorithms.
-// @deprecated Not maintained as of VTK 6.2 and will be removed eventually.
+/**
+ * @class   vtkPBGLGraphAdapter
+ * @brief   adapter to the Parallel Boost Graph Library (http://www.osl.iu.edu/research/pbgl)
+ *
+ *
+ * Including this header allows you to use a vtk*Graph in Parallel BGL algorithms.
+ * @deprecated Not maintained as of VTK 6.2 and will be removed eventually.
+*/
 
 #ifndef vtkPBGLGraphAdapter_h
 #define vtkPBGLGraphAdapter_h
@@ -352,19 +355,22 @@ void serialize(Archiver& ar, vtkEdgeType& edge, const unsigned int)
 // Simplified tools to build distributed property maps
 //----------------------------------------------------------------------------
 
-// Description:
-// A property map used as the vertex index map for distributed
-// vtkGraphs.  Using this index property map when building PBGL's
-// vector_property_map or iterator_property_map will automatically
-// make those property maps distributed. This feature is relied upon
-// by several of the PBGL graph algorithms.
+/**
+ * A property map used as the vertex index map for distributed
+ * vtkGraphs.  Using this index property map when building PBGL's
+ * vector_property_map or iterator_property_map will automatically
+ * make those property maps distributed. This feature is relied upon
+ * by several of the PBGL graph algorithms.
+ */
 typedef boost::local_property_map<boost::graph::distributed::mpi_process_group,
                                   boost::vtkVertexGlobalMap,
                                   boost::vtkGraphIndexMap>
   vtkGraphDistributedVertexIndexMap;
 
-// Description:
-// Creates the distributed vertex index property map for a vtkGraph.
+//@{
+/**
+ * Creates the distributed vertex index property map for a vtkGraph.
+ */
 inline vtkGraphDistributedVertexIndexMap
 MakeDistributedVertexIndexMap(vtkGraph* graph)
 {
@@ -374,6 +380,7 @@ MakeDistributedVertexIndexMap(vtkGraph* graph)
     vtkErrorWithObjectMacro(graph, "A vtkGraph without a distributed graph helper is not a distributed graph");
     return vtkGraphDistributedVertexIndexMap();
     }
+//@}
 
   vtkPBGLDistributedGraphHelper *pbglHelper
     = vtkPBGLDistributedGraphHelper::SafeDownCast(helper);
@@ -388,9 +395,11 @@ MakeDistributedVertexIndexMap(vtkGraph* graph)
                                            boost::vtkGraphIndexMap());
 }
 
-// Description:
-// Retrieves the type of the distributed property map indexed by the
-// vertices of a distributed graph.
+//@{
+/**
+ * Retrieves the type of the distributed property map indexed by the
+ * vertices of a distributed graph.
+ */
 template<typename DataArray>
 struct vtkDistributedVertexPropertyMapType
 {
@@ -399,10 +408,12 @@ struct vtkDistributedVertexPropertyMapType
             boost::vtkVertexGlobalMap,
             DataArray*> type;
 };
+//@}
 
-// Description:
-// Build a distributed property map indexed by the vertices of the
-// given graph, using storage from the given array.
+/**
+ * Build a distributed property map indexed by the vertices of the
+ * given graph, using storage from the given array.
+ */
 template<typename DataArray>
 inline typename vtkDistributedVertexPropertyMapType<DataArray>::type
 MakeDistributedVertexPropertyMap(vtkGraph* graph, DataArray* array)
@@ -429,9 +440,11 @@ MakeDistributedVertexPropertyMap(vtkGraph* graph, DataArray* array)
                  array);
 }
 
-// Description:
-// Retrieves the type of the distributed property map indexed by the
-// edges of a distributed graph.
+//@{
+/**
+ * Retrieves the type of the distributed property map indexed by the
+ * edges of a distributed graph.
+ */
 template<typename DataArray>
 struct vtkDistributedEdgePropertyMapType
 {
@@ -440,10 +453,12 @@ struct vtkDistributedEdgePropertyMapType
             boost::vtkEdgeGlobalMap,
             DataArray*> type;
 };
+//@}
 
-// Description:
-// Build a distributed property map indexed by the edges of the
-// given graph, using storage from the given array.
+/**
+ * Build a distributed property map indexed by the edges of the
+ * given graph, using storage from the given array.
+ */
 template<typename DataArray>
 inline typename vtkDistributedEdgePropertyMapType<DataArray>::type
 MakeDistributedEdgePropertyMap(vtkGraph* graph, DataArray* array)

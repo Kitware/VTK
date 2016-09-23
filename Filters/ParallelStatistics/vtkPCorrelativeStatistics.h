@@ -17,14 +17,17 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
-// .NAME vtkPCorrelativeStatistics - A class for parallel bivariate correlative statistics
-// .SECTION Description
-// vtkPCorrelativeStatistics is vtkCorrelativeStatistics subclass for parallel datasets.
-// It learns and derives the global statistical model on each node, but assesses each
-// individual data points on the node that owns it.
-
-// .SECTION Thanks
-// Thanks to Philippe Pebay from Sandia National Laboratories for implementing this class.
+/**
+ * @class   vtkPCorrelativeStatistics
+ * @brief   A class for parallel bivariate correlative statistics
+ *
+ * vtkPCorrelativeStatistics is vtkCorrelativeStatistics subclass for parallel datasets.
+ * It learns and derives the global statistical model on each node, but assesses each
+ * individual data points on the node that owns it.
+ *
+ * @par Thanks:
+ * Thanks to Philippe Pebay from Sandia National Laboratories for implementing this class.
+*/
 
 #ifndef vtkPCorrelativeStatistics_h
 #define vtkPCorrelativeStatistics_h
@@ -42,21 +45,26 @@ public:
   vtkTypeMacro(vtkPCorrelativeStatistics, vtkCorrelativeStatistics);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get/Set the multiprocess controller. If no controller is set,
-  // single process is assumed.
+  //@{
+  /**
+   * Get/Set the multiprocess controller. If no controller is set,
+   * single process is assumed.
+   */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
 
-  // Description:
-  // Execute the parallel calculations required by the Learn option.
+  /**
+   * Execute the parallel calculations required by the Learn option.
+   */
   virtual void Learn( vtkTable* inData,
                       vtkTable* inParameters,
                       vtkMultiBlockDataSet* outMeta );
 
-  // Description:
-  // Execute the calculations required by the Test option.
-  // NB: Not implemented for more than 1 processor
+  /**
+   * Execute the calculations required by the Test option.
+   * NB: Not implemented for more than 1 processor
+   */
   virtual void Test( vtkTable*,
                      vtkMultiBlockDataSet*,
                      vtkTable* );

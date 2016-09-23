@@ -12,8 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkVRMLImporter_Yacc.h
-//
+/**
+ * @class   vtkVRMLImporter_Yacc
+ *
+*/
 
 #ifndef vtkVRMLImporter_Yacc_h
 #define vtkVRMLImporter_Yacc_h

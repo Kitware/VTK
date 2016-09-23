@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOSPRayVolumeNode - links vtkVolume and vtkMapper to OSPRay
-// .SECTION Description
-// Translates vtkVolume/Mapper state into OSPRay rendering calls
+/**
+ * @class   vtkOSPRayVolumeNode
+ * @brief   links vtkVolume and vtkMapper to OSPRay
+ *
+ * Translates vtkVolume/Mapper state into OSPRay rendering calls
+*/
 
 #ifndef vtkOSPRayVolumeNode_h
 #define vtkOSPRayVolumeNode_h
@@ -39,9 +42,10 @@ public:
   vtkTypeMacro(vtkOSPRayVolumeNode, vtkVolumeNode);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Overridden to take into account my renderables time, including
-  // mapper and data into mapper inclusive of composite input
+  /**
+   * Overridden to take into account my renderables time, including
+   * mapper and data into mapper inclusive of composite input
+   */
   virtual vtkMTimeType GetMTime();
 
 protected:

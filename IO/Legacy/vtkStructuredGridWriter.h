@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkStructuredGridWriter - write vtk structured grid data file
-// .SECTION Description
-// vtkStructuredGridWriter is a source object that writes ASCII or binary
-// structured grid data files in vtk format. See text for format details.
-
-// .SECTION Caveats
-// Binary files written on one system may not be readable on other systems.
+/**
+ * @class   vtkStructuredGridWriter
+ * @brief   write vtk structured grid data file
+ *
+ * vtkStructuredGridWriter is a source object that writes ASCII or binary
+ * structured grid data files in vtk format. See text for format details.
+ *
+ * @warning
+ * Binary files written on one system may not be readable on other systems.
+*/
 
 #ifndef vtkStructuredGridWriter_h
 #define vtkStructuredGridWriter_h
@@ -35,10 +38,13 @@ public:
   vtkTypeMacro(vtkStructuredGridWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the input to this writer.
+  //@{
+  /**
+   * Get the input to this writer.
+   */
   vtkStructuredGrid* GetInput();
   vtkStructuredGrid* GetInput(int port);
+  //@}
 
 protected:
   vtkStructuredGridWriter() {}

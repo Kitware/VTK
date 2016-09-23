@@ -12,25 +12,27 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWendlandQuinticKernel - a quintic SPH interpolation kernel
-
-// .SECTION Description
-// vtkWendlandQuinticKernel is an smooth particle hydrodynamics interpolation kernel as
-// described by D.J. Price. This is a quintic formulation.
-//
-// .SECTION Caveats
-// FOr more information see D.J. Price, Smoothed particle hydrodynamics and
-// magnetohydrodynamics, J. Comput. Phys. 231:759-794, 2012. Especially
-// equation 49.
-
-// .SECTION Acknowledgments
-// The following work has been generously supported by Altair Engineering
-// and FluiDyna GmbH. Please contact Steve Cosgrove or Milos Stanic for
-// more information.
-
-// .SECTION See Also
-// vtkSPHKernel vtkSPHInterpolator
-
+/**
+ * @class   vtkWendlandQuinticKernel
+ * @brief   a quintic SPH interpolation kernel
+ *
+ *
+ * vtkWendlandQuinticKernel is an smooth particle hydrodynamics interpolation kernel as
+ * described by D.J. Price. This is a quintic formulation.
+ *
+ * @warning
+ * FOr more information see D.J. Price, Smoothed particle hydrodynamics and
+ * magnetohydrodynamics, J. Comput. Phys. 231:759-794, 2012. Especially
+ * equation 49.
+ *
+ * @par Acknowledgments:
+ * The following work has been generously supported by Altair Engineering
+ * and FluiDyna GmbH. Please contact Steve Cosgrove or Milos Stanic for
+ * more information.
+ *
+ * @sa
+ * vtkSPHKernel vtkSPHInterpolator
+*/
 
 #ifndef vtkWendlandQuinticKernel_h
 #define vtkWendlandQuinticKernel_h
@@ -46,22 +48,28 @@ class vtkDoubleArray;
 class VTKFILTERSPOINTS_EXPORT vtkWendlandQuinticKernel : public vtkSPHKernel
 {
 public:
-  // Description:
-  // Standard methods for instantiation, obtaining type information, and printing.
+  //@{
+  /**
+   * Standard methods for instantiation, obtaining type information, and printing.
+   */
   static vtkWendlandQuinticKernel *New();
   vtkTypeMacro(vtkWendlandQuinticKernel,vtkSPHKernel);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // Produce the computational parameters for the kernel. Invoke this method
-  // after setting initial values like SpatialStep.
+  /**
+   * Produce the computational parameters for the kernel. Invoke this method
+   * after setting initial values like SpatialStep.
+   */
   virtual void Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds,
                           vtkPointData *pd);
 
-  // Description:
-  // Compute weighting factor given a normalized distance from a sample point.
-  // Note that the formulation is slightly different to avoid an extra operation
-  // (which has the effect of affecting the NormFactor by 1/16).
+  //@{
+  /**
+   * Compute weighting factor given a normalized distance from a sample point.
+   * Note that the formulation is slightly different to avoid an extra operation
+   * (which has the effect of affecting the NormFactor by 1/16).
+   */
   virtual double ComputeFunctionWeight(const double d)
   {
     if ( d >= 2.0 )
@@ -74,10 +82,13 @@ public:
       return (tmp*tmp*tmp*tmp) * (1.0 + 2.0*d);
       }
   }
+  //@}
 
-  // Description:
-  // Compute weighting factor for derivative quantities given a normalized
-  // distance from a sample point.
+  //@{
+  /**
+   * Compute weighting factor for derivative quantities given a normalized
+   * distance from a sample point.
+   */
   virtual double ComputeDerivWeight(const double d)
   {
     if ( d >= 2.0 )
@@ -91,6 +102,7 @@ public:
         2.0*(tmp*tmp*tmp*tmp);
       }
   }
+  //@}
 
 protected:
   vtkWendlandQuinticKernel();

@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageMapToRGBA - map the input image through a lookup table
-// .SECTION Description
-// This filter has been replaced by vtkImageMapToColors, which provided
-// additional features.  Use vtkImageMapToColors instead.
-
-// .SECTION See Also
-// vtkLookupTable
+/**
+ * @class   vtkImageMapToRGBA
+ * @brief   map the input image through a lookup table
+ *
+ * This filter has been replaced by vtkImageMapToColors, which provided
+ * additional features.  Use vtkImageMapToColors instead.
+ *
+ * @sa
+ * vtkLookupTable
+*/
 
 #ifndef vtkImageMapToRGBA_h
 #define vtkImageMapToRGBA_h

@@ -13,15 +13,18 @@
 
 =========================================================================*/
 
-// .NAME vtkDirectXGPUInfoList - Get GPUs VRAM information using DirectX.
-// .SECTION Description
-// vtkDirectXGPUInfoList implements Probe() method of vtkGPUInfoList
-// through the DirectX API. As recommended by Microsoft, the WMI interface is
-// used for Windows XP and the DXGI interface is used for Windows Vista and
-// later. (see documentation of VideoMemory sample of the DirectX SDK)
-// ref: http://msdn.microsoft.com/en-us/library/ee419018(v=VS.85)
-// .SECTION See Also
-// vtkGPUInfo vtkGPUInfoList
+/**
+ * @class   vtkDirectXGPUInfoList
+ * @brief   Get GPUs VRAM information using DirectX.
+ *
+ * vtkDirectXGPUInfoList implements Probe() method of vtkGPUInfoList
+ * through the DirectX API. As recommended by Microsoft, the WMI interface is
+ * used for Windows XP and the DXGI interface is used for Windows Vista and
+ * later. (see documentation of VideoMemory sample of the DirectX SDK)
+ * ref: http://msdn.microsoft.com/en-us/library/ee419018(v=VS.85)
+ * @sa
+ * vtkGPUInfo vtkGPUInfoList
+*/
 
 #ifndef vtkDirectXGPUInfoList_h
 #define vtkDirectXGPUInfoList_h
@@ -38,38 +41,45 @@ public:
   vtkTypeMacro(vtkDirectXGPUInfoList, vtkGPUInfoList);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Build the list of vtkInfoGPU if not done yet.
-  // \post probed: IsProbed()
+  /**
+   * Build the list of vtkInfoGPU if not done yet.
+   * \post probed: IsProbed()
+   */
   virtual void Probe();
 
 protected:
-  // Description:
-  // Default constructor.
+  //@{
+  /**
+   * Default constructor.
+   */
   vtkDirectXGPUInfoList();
   virtual ~vtkDirectXGPUInfoList();
+  //@}
 
-  // Description:
-  // Probe the GPUs with the DXGI api (Windows Vista or later).
-  // It returns true if it succeeded (DXGI API is supported and probing
-  // succeeded)
-  // \pre m_exists: m!=0
-  // \pre info_exist: info!=0
+  /**
+   * Probe the GPUs with the DXGI api (Windows Vista or later).
+   * It returns true if it succeeded (DXGI API is supported and probing
+   * succeeded)
+   * \pre m_exists: m!=0
+   * \pre info_exist: info!=0
+   */
   bool ProbeInfoWithDXGI(HMONITOR m,
                          vtkGPUInfo *info);
 
-  // Description:
-  // Probe the GPUs with the WMI api (Windows XP or later).
-  // \pre m_exists: m!=0
-  // \pre info_exist: info!=0
+  /**
+   * Probe the GPUs with the WMI api (Windows XP or later).
+   * \pre m_exists: m!=0
+   * \pre info_exist: info!=0
+   */
   void ProbeInfoWithWMI(HMONITOR m,
                         vtkGPUInfo *info);
 
-  // Description:
-  // Used by ProbeInfoWithWMI().
-  // \pre pre hm_exists: hm!=0
-  // \pre strDeviceID_exists: strDeviceID!=0
-  // \pre cchDeviceID_is_positive: cchDeviceID>0
+  /**
+   * Used by ProbeInfoWithWMI().
+   * \pre pre hm_exists: hm!=0
+   * \pre strDeviceID_exists: strDeviceID!=0
+   * \pre cchDeviceID_is_positive: cchDeviceID>0
+   */
   bool GetDeviceIDFromHMonitor(HMONITOR hm,
                                WCHAR *strDeviceID,
                                int cchDeviceID);

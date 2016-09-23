@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInteractorStyleTrackball - provides trackball motion control
-
-// .SECTION Description
-// vtkInteractorStyleTrackball is an implementation of vtkInteractorStyle
-// that defines the trackball style. It is now deprecated and as such a
-// subclass of vtkInteractorStyleSwitch
-
-// .SECTION See Also
-// vtkInteractorStyleSwitch vtkInteractorStyleTrackballActor vtkInteractorStyleJoystickCamera
+/**
+ * @class   vtkInteractorStyleTrackball
+ * @brief   provides trackball motion control
+ *
+ *
+ * vtkInteractorStyleTrackball is an implementation of vtkInteractorStyle
+ * that defines the trackball style. It is now deprecated and as such a
+ * subclass of vtkInteractorStyleSwitch
+ *
+ * @sa
+ * vtkInteractorStyleSwitch vtkInteractorStyleTrackballActor vtkInteractorStyleJoystickCamera
+*/
 
 #ifndef vtkInteractorStyleTrackball_h
 #define vtkInteractorStyleTrackball_h

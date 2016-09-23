@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkConditionVariable - mutual exclusion locking class
-// .SECTION Description
-// vtkConditionVariable allows the locking of variables which are accessed
-// through different threads.  This header file also defines
-// vtkSimpleConditionVariable which is not a subclass of vtkObject.
-//
-// The win32 implementation is based on notes provided by
-// Douglas C. Schmidt and Irfan Pyarali,
-// Department of Computer Science,
-// Washington University, St. Louis, Missouri.
-// http://www.cs.wustl.edu/~schmidt/win32-cv-1.html
+/**
+ * @class   vtkConditionVariable
+ * @brief   mutual exclusion locking class
+ *
+ * vtkConditionVariable allows the locking of variables which are accessed
+ * through different threads.  This header file also defines
+ * vtkSimpleConditionVariable which is not a subclass of vtkObject.
+ *
+ * The win32 implementation is based on notes provided by
+ * Douglas C. Schmidt and Irfan Pyarali,
+ * Department of Computer Science,
+ * Washington University, St. Louis, Missouri.
+ * http://www.cs.wustl.edu/~schmidt/win32-cv-1.html
+*/
 
 #ifndef vtkConditionVariable_h
 #define vtkConditionVariable_h
@@ -113,22 +116,25 @@ public:
 
   void Delete() { delete this; }
 
-  // Description:
-  // Wake one thread waiting for the condition to change.
+  /**
+   * Wake one thread waiting for the condition to change.
+   */
   void Signal();
 
-  // Description:
-  // Wake all threads waiting for the condition to change.
+  /**
+   * Wake all threads waiting for the condition to change.
+   */
   void Broadcast();
 
-  // Description:
-  // Wait for the condition to change.
-  // Upon entry, the mutex must be locked and the lock held by the calling thread.
-  // Upon exit, the mutex will be locked and held by the calling thread.
-  // Between entry and exit, the mutex will be unlocked and may be held by other threads.
-  //
-  // @param mutex The mutex that should be locked on entry and will be locked on exit (but not in between)
-  // @retval Normally, this function returns 0. Should a thread be interrupted by a signal, a non-zero value may be returned.
+  /**
+   * Wait for the condition to change.
+   * Upon entry, the mutex must be locked and the lock held by the calling thread.
+   * Upon exit, the mutex will be locked and held by the calling thread.
+   * Between entry and exit, the mutex will be unlocked and may be held by other threads.
+
+   * @param mutex The mutex that should be locked on entry and will be locked on exit (but not in between)
+   * @retval Normally, this function returns 0. Should a thread be interrupted by a signal, a non-zero value may be returned.
+   */
   int Wait( vtkSimpleMutexLock& mutex );
 
 protected:
@@ -146,22 +152,25 @@ public:
   vtkTypeMacro(vtkConditionVariable,vtkObject);
   void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
-  // Description:
-  // Wake one thread waiting for the condition to change.
+  /**
+   * Wake one thread waiting for the condition to change.
+   */
   void Signal();
 
-  // Description:
-  // Wake all threads waiting for the condition to change.
+  /**
+   * Wake all threads waiting for the condition to change.
+   */
   void Broadcast();
 
-  // Description:
-  // Wait for the condition to change.
-  // Upon entry, the mutex must be locked and the lock held by the calling thread.
-  // Upon exit, the mutex will be locked and held by the calling thread.
-  // Between entry and exit, the mutex will be unlocked and may be held by other threads.
-  //
-  // @param mutex The mutex that should be locked on entry and will be locked on exit (but not in between)
-  // @retval Normally, this function returns 0. Should a thread be interrupted by a signal, a non-zero value may be returned.
+  /**
+   * Wait for the condition to change.
+   * Upon entry, the mutex must be locked and the lock held by the calling thread.
+   * Upon exit, the mutex will be locked and held by the calling thread.
+   * Between entry and exit, the mutex will be unlocked and may be held by other threads.
+
+   * @param mutex The mutex that should be locked on entry and will be locked on exit (but not in between)
+   * @retval Normally, this function returns 0. Should a thread be interrupted by a signal, a non-zero value may be returned.
+   */
   int Wait( vtkMutexLock* mutex );
 
 protected:

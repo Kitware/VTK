@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPistonDataWrangling - Miscellaneous conversion code.
-// .SECTION Description
-// Miscellaneous code that is used in conversion between vtk and piston.
-// The vtk_polydata struct is important as that is how piston's polygonal
-// results get brought back to the CPU.
+/**
+ * @class   vtkPistonDataWrangling
+ * @brief   Miscellaneous conversion code.
+ *
+ * Miscellaneous code that is used in conversion between vtk and piston.
+ * The vtk_polydata struct is important as that is how piston's polygonal
+ * results get brought back to the CPU.
+*/
 
 #ifndef vtkPistonDataWrangling_h
 #define vtkPistonDataWrangling_h

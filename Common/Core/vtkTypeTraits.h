@@ -12,10 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTypeTraits - Template defining traits of native types used by VTK.
-// .SECTION Description
-// vtkTypeTraits provides information about VTK's supported scalar types
-// that is useful for templates.
+/**
+ * @class   vtkTypeTraits
+ * @brief   Template defining traits of native types used by VTK.
+ *
+ * vtkTypeTraits provides information about VTK's supported scalar types
+ * that is useful for templates.
+*/
+
 #ifndef vtkTypeTraits_h
 #define vtkTypeTraits_h
 

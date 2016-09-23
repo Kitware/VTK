@@ -12,14 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPStreaklineFilter - A Parallel Particle tracer for unsteady vector fields
-// .SECTION Description
-// vtkPStreaklineFilter is a filter that integrates a vector field to generate
-//
-//
-// .SECTION See Also
-// vtkPStreaklineFilterBase has the details of the algorithms
-
+/**
+ * @class   vtkPStreaklineFilter
+ * @brief   A Parallel Particle tracer for unsteady vector fields
+ *
+ * vtkPStreaklineFilter is a filter that integrates a vector field to generate
+ *
+ *
+ * @sa
+ * vtkPStreaklineFilterBase has the details of the algorithms
+*/
 
 #ifndef vtkPStreaklineFilter_h
 #define vtkPStreaklineFilter_h

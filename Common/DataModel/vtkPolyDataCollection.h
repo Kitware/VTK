@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPolyDataCollection - maintain a list of polygonal data objects
-// .SECTION Description
-// vtkPolyDataCollection is an object that creates and manipulates lists of
-// datasets of type vtkPolyData.
-
-// .SECTION See Also
-// vtkDataSetCollection vtkCollection
+/**
+ * @class   vtkPolyDataCollection
+ * @brief   maintain a list of polygonal data objects
+ *
+ * vtkPolyDataCollection is an object that creates and manipulates lists of
+ * datasets of type vtkPolyData.
+ *
+ * @sa
+ * vtkDataSetCollection vtkCollection
+*/
 
 #ifndef vtkPolyDataCollection_h
 #define vtkPolyDataCollection_h
@@ -35,21 +38,24 @@ public:
   vtkTypeMacro(vtkPolyDataCollection,vtkCollection);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Add a poly data to the list.
+  /**
+   * Add a poly data to the list.
+   */
   void AddItem(vtkPolyData *pd)
     {
       this->vtkCollection::AddItem(pd);
     }
 
-  // Description:
-  // Get the next poly data in the list.
+  /**
+   * Get the next poly data in the list.
+   */
   vtkPolyData *GetNextItem() {
     return static_cast<vtkPolyData *>(this->GetNextItemAsObject());};
 
-  // Description:
-  // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth.
+  /**
+   * Reentrant safe way to get an object in a collection. Just pass the
+   * same cookie back and forth.
+   */
   vtkPolyData *GetNextPolyData(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkPolyData *>(this->GetNextItemAsObject(cookie));};
 

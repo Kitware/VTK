@@ -12,15 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME SetGet Macros - standard macros for setting/getting instance variables
-// .SECTION Description
-// The SetGet macros are used to interface to instance variables
-// in a standard fashion. This includes properly treating modified time
-// and printing out debug information.
-//
-// Macros are available for built-in types; for character strings;
-// vector arrays of built-in types size 2,3,4; for setting objects; and
-// debug, warning, and error printout information.
+/**
+ * @class   SetGet
+ *
+ * The SetGet macros are used to interface to instance variables
+ * in a standard fashion. This includes properly treating modified time
+ * and printing out debug information.
+ *
+ * Macros are available for built-in types; for character strings;
+ * vector arrays of built-in types size 2,3,4; for setting objects; and
+ * debug, warning, and error printout information.
+*/
 
 #ifndef vtkSetGet_h
 #define vtkSetGet_h
