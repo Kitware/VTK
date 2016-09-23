@@ -237,7 +237,7 @@ int vtkVoxelGrid::RequestData(
   // Grab the point data for interpolation
   vtkPointData *inPD = input->GetPointData();
   vtkPointData *outPD = output->GetPointData();
-  outPD->InterpolateAllocate(inPD,numBins);
+  outPD->InterpolateAllocate(inPD,numOutPts);
 
   // Finally run over all of the bins, and those that are not emoty are
   // processed. The processing consists of averaging all of the points found
