@@ -42,6 +42,12 @@ void main()
 
   //VTK::Color::Impl
   //VTK::TCoord::Impl
+
   //VTK::DepthPeeling::Impl
   //VTK::Picking::Impl
+
+  if (gl_FragData[0].a <= 0.0)
+    {
+    discard;
+    }
 }
