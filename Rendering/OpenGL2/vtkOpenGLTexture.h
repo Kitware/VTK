@@ -95,6 +95,7 @@ protected:
 
   int IsDepthTexture;
   int TextureType;
+  int PrevBlendParams[4];
 
   // used when the texture exceeds the GL limit
   unsigned char *ResampleToPowerOfTwo(int &xsize, int &ysize,
