@@ -36,8 +36,8 @@ extract.Update()
 timer.StopTimer()
 time = timer.GetElapsedTime()
 print("Time to remove points: {0}".format(time))
-print("   Number removed: {0}".format(extract.GetNumberOfPointsRemoved()),
-      " (out of: {}".format(NPts))
+print("   Number removed: {0}".format(extract.GetNumberOfPointsRemoved()))
+print("   Original number of points: {0}".format(NPts))
 
 # First output are the non-outliers
 extMapper = vtk.vtkPointGaussianMapper()
