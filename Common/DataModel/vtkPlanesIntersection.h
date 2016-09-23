@@ -102,7 +102,7 @@ protected:
   static int Invert3x3(double M[3][3]);
 
   vtkPlanesIntersection();
-  ~vtkPlanesIntersection();
+  ~vtkPlanesIntersection() VTK_OVERRIDE;
 
 private:
 

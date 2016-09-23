@@ -63,7 +63,7 @@ public:
 
 protected:
   vtkEmptyCell() {}
-  ~vtkEmptyCell() {}
+  ~vtkEmptyCell() VTK_OVERRIDE {}
 
 private:
   vtkEmptyCell(const vtkEmptyCell&) VTK_DELETE_FUNCTION;

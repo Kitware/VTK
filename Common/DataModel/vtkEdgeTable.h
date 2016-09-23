@@ -146,7 +146,7 @@ public:
 
 protected:
   vtkEdgeTable();
-  ~vtkEdgeTable();
+  ~vtkEdgeTable() VTK_OVERRIDE;
 
   vtkIdList **Table;
   vtkIdType TableMaxId; //maximum point id inserted

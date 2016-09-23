@@ -80,7 +80,7 @@ public:
                                           vtkCellArray *tris, double *weights);
 protected:
   vtkMeanValueCoordinatesInterpolator();
-  ~vtkMeanValueCoordinatesInterpolator();
+  ~vtkMeanValueCoordinatesInterpolator() VTK_OVERRIDE;
 
   // Description:
   // Internal method that sets up the processing of triangular meshes.

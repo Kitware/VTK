@@ -157,7 +157,7 @@ public:
 protected:
 
   vtkOctreePointLocator();
-  ~vtkOctreePointLocator();
+  ~vtkOctreePointLocator() VTK_OVERRIDE;
 
   vtkOctreePointLocatorNode *Top;
   vtkOctreePointLocatorNode **LeafNodeList;      // indexed by region/node ID

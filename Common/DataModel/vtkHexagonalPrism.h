@@ -110,7 +110,7 @@ public:
 
 protected:
   vtkHexagonalPrism();
-  ~vtkHexagonalPrism();
+  ~vtkHexagonalPrism() VTK_OVERRIDE;
 
   vtkLine          *Line;
   vtkQuad          *Quad;

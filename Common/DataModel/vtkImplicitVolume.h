@@ -88,7 +88,7 @@ public:
 
 protected:
   vtkImplicitVolume();
-  ~vtkImplicitVolume();
+  ~vtkImplicitVolume() VTK_OVERRIDE;
 
   vtkImageData *Volume; // the structured points
   double OutValue;

@@ -55,7 +55,7 @@ public:
 
 protected:
   vtkPolyDataCollection() {}
-  ~vtkPolyDataCollection() {}
+  ~vtkPolyDataCollection() VTK_OVERRIDE {}
 
 private:
   // hide the standard AddItem from the user and the compiler.

@@ -48,13 +48,13 @@ public:
 
   // Description:
   // see vtkAlgorithm for details
-  virtual int ProcessRequest(vtkInformation* request,
+  int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector);
+                             vtkInformationVector* outputVector) VTK_OVERRIDE;
 
 protected:
   vtkCompositeDataSetAlgorithm();
-  ~vtkCompositeDataSetAlgorithm() {}
+  ~vtkCompositeDataSetAlgorithm() VTK_OVERRIDE {}
 
   // Description:
   // This is called by the superclass.
@@ -88,11 +88,11 @@ protected:
     };
 
   // Create a default executive.
-  virtual vtkExecutive* CreateDefaultExecutive();
+  vtkExecutive* CreateDefaultExecutive() VTK_OVERRIDE;
 
   // see algorithm for more info
-  virtual int FillOutputPortInformation(int port, vtkInformation* info);
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   vtkDataObject *GetInput(int port);
 

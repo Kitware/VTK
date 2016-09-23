@@ -35,7 +35,7 @@ public:
 
   vtkInformationStringVectorKey(const char* name, const char* location,
                                  int length=-1);
-  ~vtkInformationStringVectorKey();
+  ~vtkInformationStringVectorKey() VTK_OVERRIDE;
 
   // Description:
   // This method simply returns a new vtkInformationStringVectorKey, given a

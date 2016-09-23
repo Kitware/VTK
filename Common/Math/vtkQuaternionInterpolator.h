@@ -128,7 +128,7 @@ public:
 
 protected:
   vtkQuaternionInterpolator();
-  virtual ~vtkQuaternionInterpolator();
+  ~vtkQuaternionInterpolator() VTK_OVERRIDE;
 
   // Specify the type of interpolation to use
   int InterpolationType;

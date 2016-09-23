@@ -40,7 +40,7 @@ public:
 
 protected:
   vtkUnstructuredGridCellIterator();
-  ~vtkUnstructuredGridCellIterator();
+  ~vtkUnstructuredGridCellIterator() VTK_OVERRIDE;
 
   void ResetToFirstCell() VTK_OVERRIDE;
   void IncrementToNextCell() VTK_OVERRIDE;

@@ -76,7 +76,7 @@ public:
 
 protected:
   vtkIdTypeArray();
-  ~vtkIdTypeArray();
+  ~vtkIdTypeArray() VTK_OVERRIDE;
 
 private:
 

@@ -79,7 +79,7 @@ protected:
 
 private:
   vtkOverrideInformation();
-  ~vtkOverrideInformation();
+  ~vtkOverrideInformation() VTK_OVERRIDE;
   // allow the object factory to set the values in this
   // class, but only the object factory
 

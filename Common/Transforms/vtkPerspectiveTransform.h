@@ -319,7 +319,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
 
 protected:
   vtkPerspectiveTransform();
-  ~vtkPerspectiveTransform();
+  ~vtkPerspectiveTransform() VTK_OVERRIDE;
 
   void InternalDeepCopy(vtkAbstractTransform *t) VTK_OVERRIDE;
   void InternalUpdate() VTK_OVERRIDE;

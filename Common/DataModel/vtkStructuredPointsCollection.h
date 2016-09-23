@@ -55,7 +55,7 @@ public:
 
 protected:
   vtkStructuredPointsCollection() {}
-  ~vtkStructuredPointsCollection() {}
+  ~vtkStructuredPointsCollection() VTK_OVERRIDE {}
 
 
 

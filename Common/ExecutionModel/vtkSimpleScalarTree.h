@@ -83,24 +83,24 @@ public:
   // Description:
   // Construct the scalar tree from the dataset provided. Checks build times
   // and modified time from input and reconstructs the tree if necessary.
-  virtual void BuildTree();
+  void BuildTree() VTK_OVERRIDE;
 
   // Description:
   // Initialize locator. Frees memory and resets object as appropriate.
-  virtual void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   // Description:
   // Begin to traverse the cells based on a scalar value. Returned cells
   // will likely have scalar values that span the scalar value specified.
-  virtual void InitTraversal(double scalarValue);
+  void InitTraversal(double scalarValue) VTK_OVERRIDE;
 
   // Description:
   // Return the next cell that may contain scalar value specified to
   // initialize traversal. The value NULL is returned if the list is
   // exhausted. Make sure that InitTraversal() has been invoked first or
   // you'll get erratic behavior.
-  virtual vtkCell *GetNextCell(vtkIdType &cellId, vtkIdList* &ptIds,
-                               vtkDataArray *cellScalars);
+  vtkCell *GetNextCell(vtkIdType &cellId, vtkIdList* &ptIds,
+                               vtkDataArray *cellScalars) VTK_OVERRIDE;
 
   // The following methods supports parallel (threaded)
   // applications. Basically batches of cells (which represent a
@@ -114,18 +114,18 @@ public:
   // of the isocontour value. Note that the cells found in
   // [0...(NumberOfCellBatches-1)] will contain all the cells
   // potentially containing the isocontour.
-  virtual vtkIdType GetNumberOfCellBatches();
+  vtkIdType GetNumberOfCellBatches() VTK_OVERRIDE;
 
   // Description:
   // Return the array of cell ids in the specified batch. The method
   // also returns the number of cell ids in the array. Make sure to
   // call InitTraversal() beforehand.
-  virtual const vtkIdType* GetCellBatch(vtkIdType batchNum,
-                                        vtkIdType& numCells);
+  const vtkIdType* GetCellBatch(vtkIdType batchNum,
+                                        vtkIdType& numCells) VTK_OVERRIDE;
 
 protected:
   vtkSimpleScalarTree();
-  ~vtkSimpleScalarTree();
+  ~vtkSimpleScalarTree() VTK_OVERRIDE;
 
   int MaxLevel;
   int Level;

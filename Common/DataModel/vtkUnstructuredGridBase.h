@@ -100,7 +100,7 @@ public:
 
 protected:
   vtkUnstructuredGridBase();
-  ~vtkUnstructuredGridBase();
+  ~vtkUnstructuredGridBase() VTK_OVERRIDE;
 
 private:
   vtkUnstructuredGridBase(const vtkUnstructuredGridBase&) VTK_DELETE_FUNCTION;

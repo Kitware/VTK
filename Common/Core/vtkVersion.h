@@ -50,7 +50,7 @@ public:
 
 protected:
   vtkVersion() {} //insure constructor/destructor protected
-  ~vtkVersion() {}
+  ~vtkVersion() VTK_OVERRIDE {}
 private:
   vtkVersion(const vtkVersion&) VTK_DELETE_FUNCTION;
   void operator=(const vtkVersion&) VTK_DELETE_FUNCTION;

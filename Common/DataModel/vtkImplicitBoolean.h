@@ -97,7 +97,7 @@ public:
 
 protected:
   vtkImplicitBoolean();
-  ~vtkImplicitBoolean();
+  ~vtkImplicitBoolean() VTK_OVERRIDE;
 
   vtkImplicitFunctionCollection *FunctionList;
 

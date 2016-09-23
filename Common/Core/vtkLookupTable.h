@@ -348,7 +348,7 @@ public:
 
 protected:
   vtkLookupTable(int sze=256, int ext=256);
-  ~vtkLookupTable();
+  ~vtkLookupTable() VTK_OVERRIDE;
 
   vtkIdType NumberOfColors;
   vtkUnsignedCharArray *Table;

@@ -508,7 +508,7 @@ public:
 
 protected:
   vtkDataSetAttributes();
-  ~vtkDataSetAttributes();
+  ~vtkDataSetAttributes() VTK_OVERRIDE;
 
   void InternalCopyAllocate(vtkDataSetAttributes* pd,
                             int ctype,

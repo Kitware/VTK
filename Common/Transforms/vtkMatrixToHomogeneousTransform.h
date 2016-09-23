@@ -58,7 +58,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkMatrixToHomogeneousTransform : public vtkHom
 
 protected:
   vtkMatrixToHomogeneousTransform();
-  ~vtkMatrixToHomogeneousTransform();
+  ~vtkMatrixToHomogeneousTransform() VTK_OVERRIDE;
 
   void InternalUpdate() VTK_OVERRIDE;
   void InternalDeepCopy(vtkAbstractTransform *transform) VTK_OVERRIDE;

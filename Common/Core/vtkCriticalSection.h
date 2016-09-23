@@ -56,7 +56,7 @@ public:
 protected:
   vtkSimpleCriticalSection SimpleCriticalSection;
   vtkCriticalSection() {}
-  ~vtkCriticalSection() {}
+  ~vtkCriticalSection() VTK_OVERRIDE {}
 
 private:
   vtkCriticalSection(const vtkCriticalSection&) VTK_DELETE_FUNCTION;

@@ -32,7 +32,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentRCBPartitioner : public vtkObject
   public:
     static vtkExtentRCBPartitioner *New();
     vtkTypeMacro(vtkExtentRCBPartitioner,vtkObject);
-    void PrintSelf(ostream &oss, vtkIndent indent );
+    void PrintSelf(ostream &oss, vtkIndent indent ) VTK_OVERRIDE;
 
     // Description:
     // Set/Get the number of requested partitions
@@ -87,7 +87,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentRCBPartitioner : public vtkObject
 
   protected:
     vtkExtentRCBPartitioner();
-   ~vtkExtentRCBPartitioner();
+   ~vtkExtentRCBPartitioner() VTK_OVERRIDE;
 
     // Description:
     // Resets the partitioner to the initial state, all previous partition

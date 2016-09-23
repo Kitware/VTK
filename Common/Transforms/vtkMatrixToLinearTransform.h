@@ -59,7 +59,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkMatrixToLinearTransform : public vtkLinearTr
 
 protected:
   vtkMatrixToLinearTransform();
-  ~vtkMatrixToLinearTransform();
+  ~vtkMatrixToLinearTransform() VTK_OVERRIDE;
 
   void InternalUpdate() VTK_OVERRIDE;
   void InternalDeepCopy(vtkAbstractTransform *transform) VTK_OVERRIDE;

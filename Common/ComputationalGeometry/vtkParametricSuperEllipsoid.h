@@ -59,7 +59,7 @@ public:
 
   // Description
   // Return the parametric dimension of the class.
-  virtual int GetDimension() {return 2;}
+  int GetDimension() VTK_OVERRIDE {return 2;}
 
   // Description:
   // Set/Get the scaling factor for the x-axis. Default is 1.
@@ -93,7 +93,7 @@ public:
   // as Pt. It also returns the partial derivatives Du and Dv.
   // \f$Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)\f$ .
   // Then the normal is \f$N = Du X Dv\f$ .
-  virtual void Evaluate(double uvw[3], double Pt[3], double Duvw[9]);
+  void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) VTK_OVERRIDE;
 
   // Description:
   // Calculate a user defined scalar using one or all of uvw, Pt, Duvw.
@@ -108,11 +108,11 @@ public:
   // If the user does not need to calculate a scalar, then the
   // instantiated function should return zero.
   //
-  virtual double EvaluateScalar(double uvw[3], double Pt[3], double Duvw[9]);
+  double EvaluateScalar(double uvw[3], double Pt[3], double Duvw[9]) VTK_OVERRIDE;
 
 protected:
   vtkParametricSuperEllipsoid();
-  ~vtkParametricSuperEllipsoid();
+  ~vtkParametricSuperEllipsoid() VTK_OVERRIDE;
 
   // Variables
   double XRadius;

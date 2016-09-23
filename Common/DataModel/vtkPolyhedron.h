@@ -208,7 +208,7 @@ public:
 
 protected:
   vtkPolyhedron();
-  ~vtkPolyhedron();
+  ~vtkPolyhedron() VTK_OVERRIDE;
 
   // Internal classes for supporting operations on this cell
   vtkLine        *Line;

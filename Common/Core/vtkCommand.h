@@ -408,7 +408,7 @@ protected:
   int PassiveObserver;
 
   vtkCommand();
-  virtual ~vtkCommand() {}
+  ~vtkCommand() VTK_OVERRIDE {}
 
   friend class vtkSubjectHelper;
 

@@ -81,7 +81,7 @@ public:
 
 protected:
   vtkTriangleStrip();
-  ~vtkTriangleStrip();
+  ~vtkTriangleStrip() VTK_OVERRIDE;
 
   vtkLine *Line;
   vtkTriangle *Triangle;

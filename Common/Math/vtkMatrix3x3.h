@@ -155,7 +155,7 @@ public:
 
 protected:
   vtkMatrix3x3();
-  ~vtkMatrix3x3();
+  ~vtkMatrix3x3() VTK_OVERRIDE;
 
   double Element[3][3]; // The elements of the 3x3 matrix
 

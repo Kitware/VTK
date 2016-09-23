@@ -103,7 +103,7 @@ public:
 
 protected:
   vtkAnimationScene();
-  ~vtkAnimationScene();
+  ~vtkAnimationScene() VTK_OVERRIDE;
 
   // Description:
   // Called on every valid tick.

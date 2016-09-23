@@ -240,7 +240,7 @@ public:
 
 protected:
    vtkAbstractCellLocator();
-  ~vtkAbstractCellLocator();
+  ~vtkAbstractCellLocator() VTK_OVERRIDE;
 
   // Description:
   // This command is used internally by the locator to copy

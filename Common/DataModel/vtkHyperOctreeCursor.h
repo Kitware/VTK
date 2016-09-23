@@ -157,7 +157,7 @@ public:
 protected:
   // Constructor.
   vtkHyperOctreeCursor();
-  virtual ~vtkHyperOctreeCursor();
+  ~vtkHyperOctreeCursor() VTK_OVERRIDE;
 private:
   vtkHyperOctreeCursor(const vtkHyperOctreeCursor&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHyperOctreeCursor&) VTK_DELETE_FUNCTION;

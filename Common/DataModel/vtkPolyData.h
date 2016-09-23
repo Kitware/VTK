@@ -448,7 +448,7 @@ public:
 
 protected:
   vtkPolyData();
-  ~vtkPolyData();
+  ~vtkPolyData() VTK_OVERRIDE;
 
   // constant cell objects returned by GetCell called.
   vtkVertex *Vertex;

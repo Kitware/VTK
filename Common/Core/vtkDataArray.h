@@ -403,7 +403,7 @@ protected:
 
   // Construct object with default tuple dimension (number of components) of 1.
   vtkDataArray();
-  ~vtkDataArray();
+  ~vtkDataArray() VTK_OVERRIDE;
 
   vtkLookupTable *LookupTable;
   double Range[2];

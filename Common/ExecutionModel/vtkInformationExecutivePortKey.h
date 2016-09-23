@@ -35,7 +35,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkInformationExecutivePortKey(const char* name, const char* location);
-  ~vtkInformationExecutivePortKey();
+  ~vtkInformationExecutivePortKey() VTK_OVERRIDE;
 
   // Description:
   // This method simply returns a new vtkInformationExecutivePortKey, given a

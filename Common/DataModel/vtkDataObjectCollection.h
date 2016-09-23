@@ -62,7 +62,7 @@ public:
 
 protected:
   vtkDataObjectCollection() {}
-  ~vtkDataObjectCollection() {}
+  ~vtkDataObjectCollection() VTK_OVERRIDE {}
 
 
 private:

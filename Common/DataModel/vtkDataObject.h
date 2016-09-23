@@ -357,7 +357,7 @@ public:
 protected:
 
   vtkDataObject();
-  ~vtkDataObject();
+  ~vtkDataObject() VTK_OVERRIDE;
 
   // General field data associated with data object
   vtkFieldData  *FieldData;

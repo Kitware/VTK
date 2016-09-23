@@ -106,7 +106,7 @@ public:
 
 protected:
   vtkTypedArray() {}
-  ~vtkTypedArray() {}
+  ~vtkTypedArray() VTK_OVERRIDE {}
 
 private:
   vtkTypedArray(const vtkTypedArray&) VTK_DELETE_FUNCTION;

@@ -116,7 +116,7 @@ public:
 
 protected:
   vtkQuadraticLinearQuad ();
-  ~vtkQuadraticLinearQuad ();
+  ~vtkQuadraticLinearQuad () VTK_OVERRIDE;
 
   vtkQuadraticEdge *Edge;
   vtkLine *LinEdge;

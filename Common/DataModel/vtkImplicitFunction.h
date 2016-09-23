@@ -105,7 +105,7 @@ public:
 
 protected:
   vtkImplicitFunction();
-  ~vtkImplicitFunction();
+  ~vtkImplicitFunction() VTK_OVERRIDE;
 
   vtkAbstractTransform *Transform;
   double ReturnValue[3];

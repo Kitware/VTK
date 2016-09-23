@@ -56,7 +56,7 @@ public:
   void RemoveAllItems();
 protected:
   vtkSocketCollection();
-  ~vtkSocketCollection();
+  ~vtkSocketCollection() VTK_OVERRIDE;
 
   vtkSocket* SelectedSocket;
 private:

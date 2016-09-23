@@ -991,7 +991,7 @@ public:
 
 protected:
   vtkMath() {}
-  ~vtkMath() {}
+  ~vtkMath() VTK_OVERRIDE {}
 
   static vtkSmartPointer<vtkMathInternal> Internal;
 private:

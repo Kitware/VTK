@@ -246,7 +246,7 @@ public:
 
 protected:
   vtkSelectionNode();
-  ~vtkSelectionNode();
+  ~vtkSelectionNode() VTK_OVERRIDE;
 
   vtkInformation* Properties;
   vtkDataSetAttributes* SelectionData;

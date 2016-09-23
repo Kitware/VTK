@@ -156,7 +156,7 @@ public:
 protected:
   int OffScreenRendering;
   vtkWindow();
-  ~vtkWindow();
+  ~vtkWindow() VTK_OVERRIDE;
 
   char *WindowName;
   int Size[2];

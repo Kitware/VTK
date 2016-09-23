@@ -69,7 +69,7 @@ public:
 
 protected:
   vtkUnsignedLongArray();
-  ~vtkUnsignedLongArray();
+  ~vtkUnsignedLongArray() VTK_OVERRIDE;
 
 private:
 

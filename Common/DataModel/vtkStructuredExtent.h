@@ -61,7 +61,7 @@ public:
 
 protected:
   vtkStructuredExtent();
-  ~vtkStructuredExtent();
+  ~vtkStructuredExtent() VTK_OVERRIDE;
 
 private:
   vtkStructuredExtent(const vtkStructuredExtent&) VTK_DELETE_FUNCTION;

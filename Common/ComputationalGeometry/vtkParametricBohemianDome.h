@@ -56,7 +56,7 @@ public:
 
   // Description
   // Return the parametric dimension of the class.
-  virtual int GetDimension() {return 2;}
+  int GetDimension() VTK_OVERRIDE {return 2;}
 
   // Description:
   // BohemianDome surface.
@@ -65,16 +65,16 @@ public:
   // as Pt. It also returns the partial derivatives Du and Dv.
   // \f$Pt = (x, y, z), D_u\vec{f} = (dx/du, dy/du, dz/du), D_v\vec{f} = (dx/dv, dy/dv, dz/dv)\f$ .
   // Then the normal is \f$N = D_u\vec{f} \times D_v\vec{f}\f$ .
-  virtual void Evaluate(double uvw[3], double Pt[3], double Duvw[9]);
+  void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) VTK_OVERRIDE;
 
   // Description:
   // Calculate a user defined scalar using one or all of uvw, Pt, Duvw.
   // This method simply returns 0.
-  virtual double EvaluateScalar(double uvw[3], double Pt[3], double Duvw[9]);
+  double EvaluateScalar(double uvw[3], double Pt[3], double Duvw[9]) VTK_OVERRIDE;
 
 protected:
   vtkParametricBohemianDome();
-  ~vtkParametricBohemianDome();
+  ~vtkParametricBohemianDome() VTK_OVERRIDE;
 
   // Variables
   double A;

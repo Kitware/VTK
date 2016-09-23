@@ -34,7 +34,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkInformationDataObjectKey(const char* name, const char* location);
-  ~vtkInformationDataObjectKey();
+  ~vtkInformationDataObjectKey() VTK_OVERRIDE;
 
   // Description:
   // This method simply returns a new vtkInformationDataObjectKey, given a

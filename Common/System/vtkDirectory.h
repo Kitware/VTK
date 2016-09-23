@@ -89,7 +89,7 @@ protected:
   // NumberOfFiles to 0
   void CleanUpFilesAndPath();
   vtkDirectory();
-  ~vtkDirectory() ;
+  ~vtkDirectory() VTK_OVERRIDE;
 
 private:
   char* Path;           // Path to Open'ed directory

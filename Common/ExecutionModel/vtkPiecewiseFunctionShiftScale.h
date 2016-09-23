@@ -44,10 +44,10 @@ public:
 
 protected:
   vtkPiecewiseFunctionShiftScale();
-  ~vtkPiecewiseFunctionShiftScale();
+  ~vtkPiecewiseFunctionShiftScale() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *) VTK_OVERRIDE;
 
   double PositionShift;
   double PositionScale;

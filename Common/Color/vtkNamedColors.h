@@ -352,7 +352,7 @@ public:
 
 protected:
   vtkNamedColors();
-  virtual ~vtkNamedColors();
+  ~vtkNamedColors() VTK_OVERRIDE;
 
 private:
   // Description:

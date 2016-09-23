@@ -81,7 +81,7 @@ public:
 
 protected:
   vtkOutEdgeIterator();
-  ~vtkOutEdgeIterator();
+  ~vtkOutEdgeIterator() VTK_OVERRIDE;
 
   // Description:
   // Protected method for setting the graph used

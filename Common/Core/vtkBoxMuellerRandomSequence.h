@@ -53,7 +53,7 @@ public:
 
 protected:
   vtkBoxMuellerRandomSequence();
-  virtual ~vtkBoxMuellerRandomSequence();
+  ~vtkBoxMuellerRandomSequence() VTK_OVERRIDE;
 
   vtkRandomSequence *UniformSequence;
   double Value;

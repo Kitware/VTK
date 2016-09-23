@@ -334,7 +334,7 @@ public:
 
 protected:
   vtkScalarsToColors();
-  ~vtkScalarsToColors();
+  ~vtkScalarsToColors() VTK_OVERRIDE;
 
   // Description:
   // An internal method that assumes that the input already has the right

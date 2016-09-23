@@ -62,7 +62,7 @@ public:
 
 protected:
   vtkNonMergingPointLocator() { };
-  ~vtkNonMergingPointLocator() { };
+  ~vtkNonMergingPointLocator() VTK_OVERRIDE { };
 
 private:
   vtkNonMergingPointLocator( const vtkNonMergingPointLocator & ) VTK_DELETE_FUNCTION;

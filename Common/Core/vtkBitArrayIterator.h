@@ -81,7 +81,7 @@ public:
 
 protected:
   vtkBitArrayIterator();
-  ~vtkBitArrayIterator();
+  ~vtkBitArrayIterator() VTK_OVERRIDE;
 
   int *Tuple;
   int TupleSize;

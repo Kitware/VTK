@@ -62,7 +62,7 @@ public:
 
 protected:
   vtkXMLFileOutputWindow() {}
-  virtual ~vtkXMLFileOutputWindow() {}
+  ~vtkXMLFileOutputWindow() VTK_OVERRIDE {}
 
   void Initialize();
   virtual void DisplayXML(const char*, const char*);

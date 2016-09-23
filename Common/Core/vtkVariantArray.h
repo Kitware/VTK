@@ -270,7 +270,7 @@ public:
   // Description:
   // This destructor is public to work around a bug in version 1.36.0 of
   // the Boost.Serialization library.
-  ~vtkVariantArray();
+  ~vtkVariantArray() VTK_OVERRIDE;
 
 protected:
   // Construct object with default tuple dimension (number of components) of 1.

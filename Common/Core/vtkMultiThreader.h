@@ -189,7 +189,7 @@ public:
 
 protected:
   vtkMultiThreader();
-  ~vtkMultiThreader();
+  ~vtkMultiThreader() VTK_OVERRIDE;
 
   // The number of threads to use
   int                        NumberOfThreads;

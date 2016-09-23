@@ -95,7 +95,7 @@ public:
 
 protected:
   vtkSmoothErrorMetric();
-  virtual ~vtkSmoothErrorMetric();
+  ~vtkSmoothErrorMetric() VTK_OVERRIDE;
 
   double AngleTolerance;
   double CosTolerance;

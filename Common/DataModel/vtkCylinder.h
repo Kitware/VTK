@@ -77,7 +77,7 @@ public:
 
 protected:
   vtkCylinder();
-  ~vtkCylinder() {}
+  ~vtkCylinder() VTK_OVERRIDE {}
 
   double Radius;
   double Center[3];

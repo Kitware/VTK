@@ -53,7 +53,7 @@ public:
 
 protected:
   vtkQuadric();
-  ~vtkQuadric() {}
+  ~vtkQuadric() VTK_OVERRIDE {}
 
   double Coefficients[10];
 

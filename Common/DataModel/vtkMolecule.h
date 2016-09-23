@@ -291,7 +291,7 @@ public:
 
  protected:
   vtkMolecule();
-  ~vtkMolecule();
+  ~vtkMolecule() VTK_OVERRIDE;
 
   // Description:
   // Copy bonds and atoms.

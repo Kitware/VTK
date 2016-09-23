@@ -305,7 +305,7 @@ public:
 
 protected:
   vtkMutableDirectedGraph();
-  ~vtkMutableDirectedGraph();
+  ~vtkMutableDirectedGraph() VTK_OVERRIDE;
 
   // Description:
   // Graph edge that is reused of \p AddGraphEdge calls.

@@ -114,7 +114,7 @@ public:
 
 protected:
   vtkCubicLine();
-  ~vtkCubicLine();
+  ~vtkCubicLine() VTK_OVERRIDE;
 
   vtkLine *Line;
   vtkDoubleArray *Scalars; //used to avoid New/Delete in contouring/clipping

@@ -99,7 +99,7 @@ public:
 
 protected:
   vtkVoxel();
-  ~vtkVoxel();
+  ~vtkVoxel() VTK_OVERRIDE;
 
 private:
   vtkVoxel(const vtkVoxel&) VTK_DELETE_FUNCTION;

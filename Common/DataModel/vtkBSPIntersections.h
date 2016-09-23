@@ -139,7 +139,7 @@ public:
 protected:
 
   vtkBSPIntersections();
-  ~vtkBSPIntersections();
+  ~vtkBSPIntersections() VTK_OVERRIDE;
 
   vtkGetMacro(RegionListBuildTime, vtkMTimeType);
 

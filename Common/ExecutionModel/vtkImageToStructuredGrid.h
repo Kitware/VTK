@@ -36,24 +36,24 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageToStructuredGrid:
   public:
     static vtkImageToStructuredGrid* New();
     vtkTypeMacro(vtkImageToStructuredGrid,vtkStructuredGridAlgorithm);
-    void PrintSelf(ostream &oss, vtkIndent indent );
+    void PrintSelf(ostream &oss, vtkIndent indent ) VTK_OVERRIDE;
 
   protected:
     vtkImageToStructuredGrid();
-    virtual ~vtkImageToStructuredGrid();
+    ~vtkImageToStructuredGrid() VTK_OVERRIDE;
 
-    virtual int RequestData(
+    int RequestData(
         vtkInformation* request,
         vtkInformationVector** inputVector,
-        vtkInformationVector* outputVector );
+        vtkInformationVector* outputVector ) VTK_OVERRIDE;
 
     // Description:
     // Helper function to copy point/cell data from image to grid
     void CopyPointData( vtkImageData*, vtkStructuredGrid* );
     void CopyCellData( vtkImageData*, vtkStructuredGrid*  );
 
-    virtual int FillInputPortInformation(int, vtkInformation* info);
-    virtual int FillOutputPortInformation(int, vtkInformation* info );
+    int FillInputPortInformation(int, vtkInformation* info) VTK_OVERRIDE;
+    int FillOutputPortInformation(int, vtkInformation* info ) VTK_OVERRIDE;
 
   private:
     vtkImageToStructuredGrid(

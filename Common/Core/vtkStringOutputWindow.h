@@ -45,7 +45,7 @@ public:
 
 protected:
   vtkStringOutputWindow();
-  virtual ~vtkStringOutputWindow();
+  ~vtkStringOutputWindow() VTK_OVERRIDE;
   void Initialize();
 
   std::ostringstream OStream;

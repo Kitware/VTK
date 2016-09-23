@@ -37,7 +37,7 @@ public:
 
   // Description:
   // Destructor frees all used memory.
-  ~vtkOStrStreamWrapper();
+  ~vtkOStrStreamWrapper() VTK_OVERRIDE;
 
   // Description:
   // Get the string that has been written.  This call transfers

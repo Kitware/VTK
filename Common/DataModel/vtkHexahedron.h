@@ -105,7 +105,7 @@ public:
 
 protected:
   vtkHexahedron();
-  ~vtkHexahedron();
+  ~vtkHexahedron() VTK_OVERRIDE;
 
   vtkLine *Line;
   vtkQuad *Quad;

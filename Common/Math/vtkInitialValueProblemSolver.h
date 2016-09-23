@@ -112,7 +112,7 @@ public:
 
 protected:
   vtkInitialValueProblemSolver();
-  ~vtkInitialValueProblemSolver();
+  ~vtkInitialValueProblemSolver() VTK_OVERRIDE;
 
   virtual void Initialize();
 

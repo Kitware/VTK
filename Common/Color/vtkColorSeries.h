@@ -288,7 +288,7 @@ enum LUTMode {
 
 protected:
   vtkColorSeries();
-  virtual ~vtkColorSeries();
+  ~vtkColorSeries() VTK_OVERRIDE;
 
   // Description:
   // If the current scheme is a predefined (read-only) scheme,

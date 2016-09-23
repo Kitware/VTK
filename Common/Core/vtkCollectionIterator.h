@@ -67,7 +67,7 @@ public:
 
 protected:
   vtkCollectionIterator();
-  ~vtkCollectionIterator();
+  ~vtkCollectionIterator() VTK_OVERRIDE;
 
   // The collection over which we are iterating.
   vtkCollection* Collection;

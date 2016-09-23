@@ -85,7 +85,7 @@ public:
 
 protected:
   vtkRungeKutta2();
-  ~vtkRungeKutta2();
+  ~vtkRungeKutta2() VTK_OVERRIDE;
 private:
   vtkRungeKutta2(const vtkRungeKutta2&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRungeKutta2&) VTK_DELETE_FUNCTION;

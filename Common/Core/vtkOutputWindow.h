@@ -83,7 +83,7 @@ public:
 
 protected:
   vtkOutputWindow();
-  virtual ~vtkOutputWindow();
+  ~vtkOutputWindow() VTK_OVERRIDE;
   int PromptUser;
 private:
   static vtkOutputWindow* Instance;

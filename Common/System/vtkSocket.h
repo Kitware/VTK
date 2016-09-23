@@ -67,7 +67,7 @@ public:
     unsigned long msec, int* selected_index);
 protected:
   vtkSocket();
-  ~vtkSocket();
+  ~vtkSocket() VTK_OVERRIDE;
 
   int SocketDescriptor;
 

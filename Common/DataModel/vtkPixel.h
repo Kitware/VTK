@@ -91,7 +91,7 @@ public:
 
 protected:
   vtkPixel();
-  ~vtkPixel();
+  ~vtkPixel() VTK_OVERRIDE;
 
   vtkLine *Line;
 

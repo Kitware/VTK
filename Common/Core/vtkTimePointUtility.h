@@ -148,7 +148,7 @@ public:
 
 protected:
   vtkTimePointUtility() {}
-  ~vtkTimePointUtility() {}
+  ~vtkTimePointUtility() VTK_OVERRIDE {}
 
 private:
   vtkTimePointUtility(const vtkTimePointUtility&) VTK_DELETE_FUNCTION;

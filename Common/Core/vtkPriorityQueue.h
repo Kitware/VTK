@@ -110,7 +110,7 @@ public:
 
 protected:
   vtkPriorityQueue();
-  ~vtkPriorityQueue();
+  ~vtkPriorityQueue() VTK_OVERRIDE;
 
   Item *Resize(const vtkIdType sz);
 

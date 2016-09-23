@@ -405,7 +405,7 @@ public:
 
 protected:
   VTKCOMMONCORE_EXPORT vtkInformation();
-  VTKCOMMONCORE_EXPORT ~vtkInformation();
+  VTKCOMMONCORE_EXPORT ~vtkInformation() VTK_OVERRIDE;
 
   // Get/Set a map entry directly through the vtkObjectBase instance
   // representing the value.  Used internally to manage the map.

@@ -58,7 +58,7 @@ public:
 
 protected:
   vtkFunctionSet();
-  ~vtkFunctionSet() {}
+  ~vtkFunctionSet() VTK_OVERRIDE {}
 
   int NumFuncs;
   int NumIndepVars;

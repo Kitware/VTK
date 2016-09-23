@@ -226,7 +226,7 @@ public:
 
 protected:
   vtkXMLDataElement();
-  ~vtkXMLDataElement();
+  ~vtkXMLDataElement() VTK_OVERRIDE;
 
   // The name of the element from the XML file.
   char* Name;

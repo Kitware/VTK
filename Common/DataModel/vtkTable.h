@@ -206,7 +206,7 @@ public:
 
 protected:
   vtkTable();
-  ~vtkTable();
+  ~vtkTable() VTK_OVERRIDE;
 
   // Description:
   // Holds the column data of the table.

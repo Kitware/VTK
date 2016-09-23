@@ -188,7 +188,7 @@ public:
 
 protected:
   vtkExecutive();
-  ~vtkExecutive();
+  ~vtkExecutive() VTK_OVERRIDE;
 
   // Helper methods for subclasses.
   int InputPortIndexInRange(int port, const char* action);

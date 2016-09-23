@@ -96,7 +96,7 @@ public:
 
 protected:
   vtkAbstractElectronicData();
-  ~vtkAbstractElectronicData();
+  ~vtkAbstractElectronicData() VTK_OVERRIDE;
 
   double Padding;
 

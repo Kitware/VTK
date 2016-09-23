@@ -155,7 +155,7 @@ public:
 
 protected:
   vtkAnimationCue();
-  ~vtkAnimationCue();
+  ~vtkAnimationCue() VTK_OVERRIDE;
 
   enum {
     UNINITIALIZED=0,

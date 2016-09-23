@@ -170,7 +170,7 @@ public:
 protected:
   // Constructor.
   vtkHyperTreeCursor();
-  virtual ~vtkHyperTreeCursor();
+  ~vtkHyperTreeCursor() VTK_OVERRIDE;
 
 private:
   vtkHyperTreeCursor(const vtkHyperTreeCursor&) VTK_DELETE_FUNCTION;

@@ -53,7 +53,7 @@ public:
 
 protected:
   vtkMergePoints() {}
-  ~vtkMergePoints() {}
+  ~vtkMergePoints() VTK_OVERRIDE {}
 
 private:
   vtkMergePoints(const vtkMergePoints&) VTK_DELETE_FUNCTION;

@@ -41,7 +41,7 @@ public:
 
 protected:
   vtkGaussianRandomSequence();
-  virtual ~vtkGaussianRandomSequence();
+  ~vtkGaussianRandomSequence() VTK_OVERRIDE;
 private:
   vtkGaussianRandomSequence(const vtkGaussianRandomSequence&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGaussianRandomSequence&) VTK_DELETE_FUNCTION;

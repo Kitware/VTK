@@ -321,7 +321,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
 
 protected:
   vtkTransform ();
-  ~vtkTransform ();
+  ~vtkTransform () VTK_OVERRIDE;
 
   void InternalDeepCopy(vtkAbstractTransform *t) VTK_OVERRIDE;
 

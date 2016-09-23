@@ -76,7 +76,7 @@ protected:
   // Description:
   // Destructor.
   vtkGenericPointIterator();
-  virtual ~vtkGenericPointIterator();
+  ~vtkGenericPointIterator() VTK_OVERRIDE;
 
 private:
   vtkGenericPointIterator(const vtkGenericPointIterator&) VTK_DELETE_FUNCTION;

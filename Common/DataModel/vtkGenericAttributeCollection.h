@@ -206,7 +206,7 @@ protected:
 
   // Description:
   // Destructor.
-  virtual ~vtkGenericAttributeCollection();
+  ~vtkGenericAttributeCollection() VTK_OVERRIDE;
 
   // Description:
   // STL vector for storing attributes

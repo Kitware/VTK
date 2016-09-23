@@ -66,7 +66,7 @@ public:
 
 protected:
   vtkDirectedAcyclicGraph();
-  ~vtkDirectedAcyclicGraph();
+  ~vtkDirectedAcyclicGraph() VTK_OVERRIDE;
 
   // Description:
   // Check the storage, and accept it if it is a valid

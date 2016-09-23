@@ -47,7 +47,7 @@ public:
 
 protected:
   vtkRandomSequence();
-  virtual ~vtkRandomSequence();
+  ~vtkRandomSequence() VTK_OVERRIDE;
 private:
   vtkRandomSequence(const vtkRandomSequence&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRandomSequence&) VTK_DELETE_FUNCTION;

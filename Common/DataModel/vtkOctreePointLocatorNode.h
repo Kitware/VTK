@@ -206,7 +206,7 @@ public:
 
 protected:
   vtkOctreePointLocatorNode();
-  ~vtkOctreePointLocatorNode();
+  ~vtkOctreePointLocatorNode() VTK_OVERRIDE;
 
 private:
 

@@ -279,7 +279,7 @@ public:
 protected:
 
   vtkIncrementalOctreePointLocator();
-  virtual ~vtkIncrementalOctreePointLocator();
+  ~vtkIncrementalOctreePointLocator() VTK_OVERRIDE;
 
 private:
 

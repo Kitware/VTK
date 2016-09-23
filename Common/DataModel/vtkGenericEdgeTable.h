@@ -222,7 +222,7 @@ public:
 
 protected:
   vtkGenericEdgeTable();
-  ~vtkGenericEdgeTable();
+  ~vtkGenericEdgeTable() VTK_OVERRIDE;
 
   // Description:
   // Split the edge with the indicated point id.

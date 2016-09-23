@@ -116,7 +116,7 @@ public:
 
 protected:
   vtkPentagonalPrism();
-  ~vtkPentagonalPrism();
+  ~vtkPentagonalPrism() VTK_OVERRIDE;
 
   vtkLine          *Line;
   vtkQuad          *Quad;

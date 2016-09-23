@@ -246,7 +246,7 @@ protected:
   // empty attribute collection and default tessellator.
   vtkGenericDataSet();
 
-  virtual ~vtkGenericDataSet();
+  ~vtkGenericDataSet() VTK_OVERRIDE;
 
   vtkGenericAttributeCollection *Attributes;
 

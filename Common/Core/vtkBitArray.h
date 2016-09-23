@@ -56,34 +56,34 @@ public:
   // This method assumes that the two arrays have the same type
   // and structure. Note that range checking and memory allocation is not
   // performed; use in conjunction with SetNumberOfTuples() to allocate space.
-  virtual void SetTuple(vtkIdType i, vtkIdType j,
+  void SetTuple(vtkIdType i, vtkIdType j,
                         vtkAbstractArray* source) VTK_OVERRIDE;
 
   // Description:
   // Insert the jth tuple in the source array, at ith location in this array.
   // Note that memory allocation is performed as necessary to hold the data.
-  virtual void InsertTuple(vtkIdType i, vtkIdType j,
+  void InsertTuple(vtkIdType i, vtkIdType j,
                            vtkAbstractArray* source) VTK_OVERRIDE;
 
   // Description:
   // Copy the tuples indexed in srcIds from the source array to the tuple
   // locations indexed by dstIds in this array.
   // Note that memory allocation is performed as necessary to hold the data.
-  virtual void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
+  void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
                             vtkAbstractArray *source) VTK_OVERRIDE;
 
   // Description:
   // Copy n consecutive tuples starting at srcStart from the source array to
   // this array, starting at the dstStart location.
   // Note that memory allocation is performed as necessary to hold the data.
-  virtual void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
+  void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
                             vtkAbstractArray* source) VTK_OVERRIDE;
 
   // Description:
   // Insert the jth tuple in the source array, at the end in this array.
   // Note that memory allocation is performed as necessary to hold the data.
   // Returns the location at which the data was inserted.
-  virtual vtkIdType InsertNextTuple(vtkIdType j,
+  vtkIdType InsertNextTuple(vtkIdType j,
                                     vtkAbstractArray* source) VTK_OVERRIDE;
 
   // Description:
@@ -115,9 +115,9 @@ public:
   // These methods remove tuples from the data array. They shift data and
   // resize array, so the data array is still valid after this operation. Note,
   // this operation is fairly slow.
-  virtual void RemoveTuple(vtkIdType id) VTK_OVERRIDE;
-  virtual void RemoveFirstTuple() VTK_OVERRIDE;
-  virtual void RemoveLastTuple() VTK_OVERRIDE;
+  void RemoveTuple(vtkIdType id) VTK_OVERRIDE;
+  void RemoveFirstTuple() VTK_OVERRIDE;
+  void RemoveLastTuple() VTK_OVERRIDE;
 
   // Description:
   // Set the data component at the ith tuple and jth component location.
@@ -246,7 +246,7 @@ public:
 
 protected:
   vtkBitArray();
-  ~vtkBitArray();
+  ~vtkBitArray() VTK_OVERRIDE;
 
   unsigned char *Array;   // pointer to data
   unsigned char *ResizeAndExtend(vtkIdType sz);

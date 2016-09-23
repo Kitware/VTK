@@ -46,7 +46,7 @@ public:
 
 protected:
   vtkDataArrayCollectionIterator();
-  ~vtkDataArrayCollectionIterator();
+  ~vtkDataArrayCollectionIterator() VTK_OVERRIDE;
 
 private:
   vtkDataArrayCollectionIterator(const vtkDataArrayCollectionIterator&) VTK_DELETE_FUNCTION;

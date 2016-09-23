@@ -202,7 +202,7 @@ public:
 
 protected:
   vtkStructuredData() {}
-  ~vtkStructuredData() {}
+  ~vtkStructuredData() VTK_OVERRIDE {}
 
   // Description:
   // Computes the linear index for the given i-j-k structured of a grid with

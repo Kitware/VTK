@@ -84,7 +84,7 @@ public:
 
 protected:
   vtkGraphInternals();
-  ~vtkGraphInternals();
+  ~vtkGraphInternals() VTK_OVERRIDE;
 
 private:
   vtkGraphInternals(const vtkGraphInternals&) VTK_DELETE_FUNCTION;

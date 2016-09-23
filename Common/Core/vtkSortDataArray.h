@@ -160,7 +160,7 @@ public:
 
 protected:
   vtkSortDataArray();
-  virtual ~vtkSortDataArray();
+  ~vtkSortDataArray() VTK_OVERRIDE;
 
   // A more efficient sort for single component arrays. This is delegated to
   // by the methods above (if appropriate).

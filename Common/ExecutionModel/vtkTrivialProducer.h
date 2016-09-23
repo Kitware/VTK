@@ -39,9 +39,9 @@ public:
   // Process upstream/downstream requests trivially.  The associated
   // output data object is never modified, but it is queried to
   // fulfill requests.
-  virtual int ProcessRequest(vtkInformation*,
+  int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*);
+                             vtkInformationVector*) VTK_OVERRIDE;
 
   // Description:
   // Set the data object that is "produced" by this producer.  It is
@@ -51,7 +51,7 @@ public:
   // Description:
   // The modified time of this producer is the newer of this object or
   // the assigned output.
-  virtual vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   // Description:
   // Set the whole extent to use for the data this producer is producing.
@@ -69,11 +69,11 @@ public:
 
 protected:
   vtkTrivialProducer();
-  ~vtkTrivialProducer();
+  ~vtkTrivialProducer() VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int, vtkInformation*);
-  virtual int FillOutputPortInformation(int, vtkInformation*);
-  virtual vtkExecutive* CreateDefaultExecutive();
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  vtkExecutive* CreateDefaultExecutive() VTK_OVERRIDE;
 
   // The real data object.
   vtkDataObject* Output;

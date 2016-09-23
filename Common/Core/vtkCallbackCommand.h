@@ -90,7 +90,7 @@ protected:
   void *ClientData;
 
   vtkCallbackCommand();
-  ~vtkCallbackCommand();
+  ~vtkCallbackCommand() VTK_OVERRIDE;
 };
 
 #endif

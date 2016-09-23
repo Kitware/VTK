@@ -72,7 +72,7 @@ public:
 
 protected:
   vtkEdgeListIterator();
-  ~vtkEdgeListIterator();
+  ~vtkEdgeListIterator() VTK_OVERRIDE;
 
   void Increment();
 

@@ -556,7 +556,7 @@ public:
 
 protected:
   vtkGenericAdaptorCell();
-  virtual ~vtkGenericAdaptorCell();
+  ~vtkGenericAdaptorCell() VTK_OVERRIDE;
 
   // Description:
   // Reset internal structures.

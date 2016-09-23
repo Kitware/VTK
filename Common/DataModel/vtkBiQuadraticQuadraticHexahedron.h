@@ -155,7 +155,7 @@ public:
 
 protected:
   vtkBiQuadraticQuadraticHexahedron();
-  ~vtkBiQuadraticQuadraticHexahedron();
+  ~vtkBiQuadraticQuadraticHexahedron() VTK_OVERRIDE;
 
   vtkQuadraticEdge *Edge;
   vtkQuadraticQuad *Face;

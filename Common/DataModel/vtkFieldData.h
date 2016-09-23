@@ -297,7 +297,7 @@ public:
 protected:
 
   vtkFieldData();
-  ~vtkFieldData();
+  ~vtkFieldData() VTK_OVERRIDE;
 
   int NumberOfArrays;
   int NumberOfActiveArrays;
@@ -380,7 +380,7 @@ public:
 
     Iterator(const Iterator& source);
     Iterator& operator=(const Iterator& source);
-    virtual ~Iterator();
+    ~Iterator() VTK_OVERRIDE;
     Iterator(vtkFieldData* dsa, const int* list=0,
              unsigned int listSize=0);
 

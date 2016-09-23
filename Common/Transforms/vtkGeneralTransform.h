@@ -218,7 +218,7 @@ public:
 
 protected:
   vtkGeneralTransform();
-  ~vtkGeneralTransform();
+  ~vtkGeneralTransform() VTK_OVERRIDE;
 
   void InternalDeepCopy(vtkAbstractTransform *t) VTK_OVERRIDE;
   void InternalUpdate() VTK_OVERRIDE;

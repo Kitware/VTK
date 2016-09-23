@@ -64,7 +64,7 @@ public:
 
 protected:
   vtkPolyPlane();
-  ~vtkPolyPlane();
+  ~vtkPolyPlane() VTK_OVERRIDE;
 
   void ComputeNormals();
 

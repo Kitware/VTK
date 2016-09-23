@@ -157,7 +157,7 @@ protected:
   vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   vtkIterativeClosestPointTransform();
-  ~vtkIterativeClosestPointTransform();
+  ~vtkIterativeClosestPointTransform() VTK_OVERRIDE;
 
   void InternalUpdate() VTK_OVERRIDE;
 

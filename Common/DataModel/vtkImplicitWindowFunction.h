@@ -82,7 +82,7 @@ public:
 
 protected:
   vtkImplicitWindowFunction();
-  ~vtkImplicitWindowFunction();
+  ~vtkImplicitWindowFunction() VTK_OVERRIDE;
 
   void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 

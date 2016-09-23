@@ -187,7 +187,7 @@ public:
 
 protected:
   vtkSimpleCellTessellator();
-  ~vtkSimpleCellTessellator();
+  ~vtkSimpleCellTessellator() VTK_OVERRIDE;
 
   // Description:
   // Extract point `pointId' from the edge table to the output point and output

@@ -81,7 +81,7 @@ public:
 
 protected:
   vtkContourValues();
-  ~vtkContourValues();
+  ~vtkContourValues() VTK_OVERRIDE;
 
   vtkDoubleArray *Contours;
 

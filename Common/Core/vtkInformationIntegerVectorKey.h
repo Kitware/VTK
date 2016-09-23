@@ -33,7 +33,7 @@ public:
 
   vtkInformationIntegerVectorKey(const char* name, const char* location,
                                  int length=-1);
-  ~vtkInformationIntegerVectorKey();
+  ~vtkInformationIntegerVectorKey() VTK_OVERRIDE;
 
   // Description:
   // This method simply returns a new vtkInformationIntegerVectorKey, given a

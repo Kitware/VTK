@@ -131,7 +131,7 @@ public:
 
 protected:
   vtkQuadraticTetra();
-  ~vtkQuadraticTetra();
+  ~vtkQuadraticTetra() VTK_OVERRIDE;
 
   vtkQuadraticEdge *Edge;
   vtkQuadraticTriangle *Face;

@@ -63,7 +63,7 @@ public:
   // should be passed to the constructor.  They must be string
   // literals because the strings are not copied.
   vtkInformationKey(const char* name, const char* location);
-  ~vtkInformationKey();
+  ~vtkInformationKey() VTK_OVERRIDE;
 
   // Description:
   // Copy the entry associated with this key from one information

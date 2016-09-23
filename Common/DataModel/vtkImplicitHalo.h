@@ -71,7 +71,7 @@ public:
 
 protected:
   vtkImplicitHalo();
-  virtual ~vtkImplicitHalo();
+  ~vtkImplicitHalo() VTK_OVERRIDE;
 
   double Radius;
   double Center[3];

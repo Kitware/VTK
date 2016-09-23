@@ -33,7 +33,7 @@ public:
 
   vtkInformationIntegerPointerKey(const char* name, const char* location,
                                  int length=-1);
-  ~vtkInformationIntegerPointerKey();
+  ~vtkInformationIntegerPointerKey() VTK_OVERRIDE;
 
   // Description:
   // Get/Set the value associated with this key in the given

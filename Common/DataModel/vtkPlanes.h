@@ -102,7 +102,7 @@ public:
 
 protected:
   vtkPlanes();
-  ~vtkPlanes();
+  ~vtkPlanes() VTK_OVERRIDE;
 
   vtkPoints *Points;
   vtkDataArray *Normals;

@@ -126,7 +126,7 @@ public:
 
 protected:
   vtkDataObjectTree();
-  ~vtkDataObjectTree();
+  ~vtkDataObjectTree() VTK_OVERRIDE;
 
   // Description:
   // Set the number of children.

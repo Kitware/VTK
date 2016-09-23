@@ -109,7 +109,7 @@ public:
 
 protected:
   vtkVoidArray();
-  ~vtkVoidArray();
+  ~vtkVoidArray() VTK_OVERRIDE;
 
   vtkIdType NumberOfPointers;
   vtkIdType Size;

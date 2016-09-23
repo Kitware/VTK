@@ -137,7 +137,7 @@ public:
 
 protected:
   vtkCellIterator();
-  ~vtkCellIterator();
+  ~vtkCellIterator() VTK_OVERRIDE;
 
   // Description:
   // Update internal state to point to the first cell.

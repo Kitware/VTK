@@ -106,35 +106,35 @@ public:
 
 protected:
   vtkCompositeDataPipeline();
-  ~vtkCompositeDataPipeline();
+  ~vtkCompositeDataPipeline() VTK_OVERRIDE;
 
-  virtual int ForwardUpstream(vtkInformation* request);
+  int ForwardUpstream(vtkInformation* request) VTK_OVERRIDE;
   virtual int ForwardUpstream(int i, int j, vtkInformation* request);
 
   // Copy information for the given request.
-  virtual void CopyDefaultInformation(vtkInformation* request, int direction,
+  void CopyDefaultInformation(vtkInformation* request, int direction,
                                       vtkInformationVector** inInfoVec,
-                                      vtkInformationVector* outInfoVec);
+                                      vtkInformationVector* outInfoVec) VTK_OVERRIDE;
 
   virtual void PushInformation(vtkInformation*);
   virtual void PopInformation (vtkInformation*);
 
-  virtual int ExecuteDataObject(vtkInformation* request,
+  int ExecuteDataObject(vtkInformation* request,
                                 vtkInformationVector** inInfo,
-                                vtkInformationVector* outInfo);
+                                vtkInformationVector* outInfo) VTK_OVERRIDE;
 
-  virtual int ExecuteData(vtkInformation* request,
+  int ExecuteData(vtkInformation* request,
                           vtkInformationVector** inInfoVec,
-                          vtkInformationVector* outInfoVec);
+                          vtkInformationVector* outInfoVec) VTK_OVERRIDE;
 
-  virtual void ExecuteDataStart(vtkInformation* request,
+  void ExecuteDataStart(vtkInformation* request,
                                 vtkInformationVector** inInfoVec,
-                                vtkInformationVector* outInfoVec);
+                                vtkInformationVector* outInfoVec) VTK_OVERRIDE;
 
   // Override this check to account for update extent.
-  virtual int NeedToExecuteData(int outputPort,
+  int NeedToExecuteData(int outputPort,
                                 vtkInformationVector** inInfoVec,
-                                vtkInformationVector* outInfoVec);
+                                vtkInformationVector* outInfoVec) VTK_OVERRIDE;
 
   // Check whether the data object in the pipeline information for an
   // output port exists and has a valid type.
@@ -172,8 +172,8 @@ protected:
   bool ShouldIterateOverInput(vtkInformationVector** inInfoVec,
                               int& compositePort);
 
-  virtual int InputTypeIsValid(int port, int index,
-                                vtkInformationVector **inInfoVec);
+  int InputTypeIsValid(int port, int index,
+                                vtkInformationVector **inInfoVec) VTK_OVERRIDE;
 
   vtkInformation* InformationCache;
 
@@ -184,7 +184,7 @@ protected:
   vtkInformation* DataRequest;
 
 
-  virtual void ResetPipelineInformation(int port, vtkInformation*);
+  void ResetPipelineInformation(int port, vtkInformation*) VTK_OVERRIDE;
 
   // Description:
   // Tries to create the best possible composite data output for the given input
@@ -198,9 +198,9 @@ protected:
     vtkCompositeDataSet* input, int compositePort);
 
   // Override this to handle UPDATE_COMPOSITE_INDICES().
-  virtual void MarkOutputsGenerated(vtkInformation* request,
+  void MarkOutputsGenerated(vtkInformation* request,
                                     vtkInformationVector** inInfoVec,
-                                    vtkInformationVector* outInfoVec);
+                                    vtkInformationVector* outInfoVec) VTK_OVERRIDE;
 
   int NeedToExecuteBasedOnCompositeIndices(vtkInformation* outInfo);
 

@@ -299,7 +299,7 @@ public:
 
 protected:
   vtkOrderedTriangulator();
-  ~vtkOrderedTriangulator();
+  ~vtkOrderedTriangulator() VTK_OVERRIDE;
 
 private:
   void       Initialize();

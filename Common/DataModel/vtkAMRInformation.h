@@ -210,7 +210,7 @@ public:
 
  private:
   vtkAMRInformation();
-  ~vtkAMRInformation();
+  ~vtkAMRInformation() VTK_OVERRIDE;
   vtkAMRInformation(const vtkAMRInformation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAMRInformation&) VTK_DELETE_FUNCTION;
 

@@ -172,7 +172,7 @@ public:
 
 protected:
   vtkPiecewiseFunction();
-  ~vtkPiecewiseFunction();
+  ~vtkPiecewiseFunction() VTK_OVERRIDE;
 
   // Internal method to sort the vector and update the
   // Range whenever a node is added, edited or removed.

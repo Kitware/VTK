@@ -36,7 +36,7 @@ public:
 
 protected:
   vtkCellData() {} //make sure constructor and desctructor are protected
-  ~vtkCellData() {}
+  ~vtkCellData() VTK_OVERRIDE {}
 
 private:
   vtkCellData(const vtkCellData&) VTK_DELETE_FUNCTION;

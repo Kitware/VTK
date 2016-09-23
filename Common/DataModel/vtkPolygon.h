@@ -203,7 +203,7 @@ public:
 
 protected:
   vtkPolygon();
-  ~vtkPolygon();
+  ~vtkPolygon() VTK_OVERRIDE;
 
   // Compute the interpolation functions using Mean Value Coordinate.
   void InterpolateFunctionsUsingMVC(double x[3], double *weights);

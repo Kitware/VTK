@@ -36,25 +36,25 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkThreadedCompositeDataPipeline : public v
  public:
   static vtkThreadedCompositeDataPipeline* New();
   vtkTypeMacro(vtkThreadedCompositeDataPipeline,vtkCompositeDataPipeline);
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // An API to CallAlgorithm that allows you to pass in the info objects to
   // be used
-  virtual int CallAlgorithm(vtkInformation* request, int direction,
+  int CallAlgorithm(vtkInformation* request, int direction,
                             vtkInformationVector** inInfo,
-                            vtkInformationVector* outInfo);
+                            vtkInformationVector* outInfo) VTK_OVERRIDE;
 
  protected:
   vtkThreadedCompositeDataPipeline();
-  ~vtkThreadedCompositeDataPipeline();
-  virtual void ExecuteEach(vtkCompositeDataIterator* iter,
+  ~vtkThreadedCompositeDataPipeline() VTK_OVERRIDE;
+  void ExecuteEach(vtkCompositeDataIterator* iter,
                            vtkInformationVector** inInfoVec,
                            vtkInformationVector* outInfoVec,
                            int compositePort,
                            int connection,
                            vtkInformation* request,
-                           vtkCompositeDataSet* compositeOutput);
+                           vtkCompositeDataSet* compositeOutput) VTK_OVERRIDE;
 
  private:
   vtkThreadedCompositeDataPipeline(const vtkThreadedCompositeDataPipeline&) VTK_DELETE_FUNCTION;

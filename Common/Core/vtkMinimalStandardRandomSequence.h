@@ -101,7 +101,7 @@ public:
 
 protected:
   vtkMinimalStandardRandomSequence();
-  virtual ~vtkMinimalStandardRandomSequence();
+  ~vtkMinimalStandardRandomSequence() VTK_OVERRIDE;
   int Seed;
 private:
   vtkMinimalStandardRandomSequence(const vtkMinimalStandardRandomSequence&) VTK_DELETE_FUNCTION;

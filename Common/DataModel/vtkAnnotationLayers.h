@@ -95,7 +95,7 @@ public:
 
 protected:
   vtkAnnotationLayers();
-  ~vtkAnnotationLayers();
+  ~vtkAnnotationLayers() VTK_OVERRIDE;
 
   class Internals;
   Internals* Implementation;

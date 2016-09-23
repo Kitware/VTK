@@ -107,7 +107,7 @@ public:
 
 protected:
   vtkExtentTranslator();
-  ~vtkExtentTranslator();
+  ~vtkExtentTranslator() VTK_OVERRIDE;
 
   static vtkInformationIntegerKey* DATA_SPLIT_MODE();
 

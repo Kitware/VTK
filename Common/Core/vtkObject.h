@@ -213,7 +213,7 @@ public:
 
 protected:
   vtkObject();
-  virtual ~vtkObject();
+  ~vtkObject() VTK_OVERRIDE;
 
   // See vtkObjectBase.h.
   void RegisterInternal(vtkObjectBase*, vtkTypeBool check) VTK_OVERRIDE;
@@ -327,11 +327,11 @@ private:
         this->Method2 = NULL;
         this->Method3 = method;
         }
-      virtual ~vtkClassMemberCallback() { }
+      ~vtkClassMemberCallback() VTK_OVERRIDE { }
 
       // Called when the event is invoked
-      virtual bool operator()(
-        vtkObject* caller, unsigned long event, void* calldata)
+      bool operator()(
+        vtkObject* caller, unsigned long event, void* calldata) VTK_OVERRIDE
         {
         T *handler = this->Handler.GetPointer();
         if (handler)

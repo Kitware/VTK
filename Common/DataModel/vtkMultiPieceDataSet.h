@@ -96,7 +96,7 @@ public:
 
 protected:
   vtkMultiPieceDataSet();
-  ~vtkMultiPieceDataSet();
+  ~vtkMultiPieceDataSet() VTK_OVERRIDE;
 
 private:
   vtkMultiPieceDataSet(const vtkMultiPieceDataSet&) VTK_DELETE_FUNCTION;

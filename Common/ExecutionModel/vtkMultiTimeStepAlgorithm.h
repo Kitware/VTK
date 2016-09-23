@@ -45,7 +45,7 @@ public:
 protected:
   vtkMultiTimeStepAlgorithm();
 
-  ~vtkMultiTimeStepAlgorithm()
+  ~vtkMultiTimeStepAlgorithm() VTK_OVERRIDE
   {
   };
 
@@ -86,7 +86,7 @@ protected:
     return 1;
   }
 
-  int ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+  int ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
 
   bool CacheData;
   unsigned int NumberOfCacheEntries;

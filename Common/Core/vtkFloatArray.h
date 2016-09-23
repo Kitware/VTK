@@ -65,7 +65,7 @@ public:
 
 protected:
   vtkFloatArray();
-  ~vtkFloatArray();
+  ~vtkFloatArray() VTK_OVERRIDE;
 
 private:
 

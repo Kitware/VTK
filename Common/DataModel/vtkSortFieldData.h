@@ -98,7 +98,7 @@ public:
 
 protected:
   vtkSortFieldData();
-  virtual ~vtkSortFieldData();
+  ~vtkSortFieldData() VTK_OVERRIDE;
 
 private:
   vtkSortFieldData(const vtkSortFieldData &) VTK_DELETE_FUNCTION;

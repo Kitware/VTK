@@ -83,7 +83,7 @@ public:
 
 protected:
   vtkUniformGridAMRDataIterator();
-  ~vtkUniformGridAMRDataIterator();
+  ~vtkUniformGridAMRDataIterator() VTK_OVERRIDE;
   vtkSmartPointer<AMRIndexIterator> Iter;
 private:
   vtkUniformGridAMRDataIterator(const vtkUniformGridAMRDataIterator&) VTK_DELETE_FUNCTION;

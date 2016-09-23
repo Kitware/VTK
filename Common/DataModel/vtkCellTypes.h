@@ -128,7 +128,7 @@ public:
 
 protected:
   vtkCellTypes();
-  ~vtkCellTypes();
+  ~vtkCellTypes() VTK_OVERRIDE;
 
   vtkUnsignedCharArray *TypeArray; // pointer to types array
   vtkIntArray *LocationArray;   // pointer to array of offsets

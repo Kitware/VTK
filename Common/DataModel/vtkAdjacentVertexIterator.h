@@ -74,7 +74,7 @@ public:
 
 protected:
   vtkAdjacentVertexIterator();
-  ~vtkAdjacentVertexIterator();
+  ~vtkAdjacentVertexIterator() VTK_OVERRIDE;
 
   // Description:
   // Protected method for setting the graph used

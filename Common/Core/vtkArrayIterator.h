@@ -63,7 +63,7 @@ public:
   virtual int GetDataType()=0;
 protected:
   vtkArrayIterator();
-  ~vtkArrayIterator();
+  ~vtkArrayIterator() VTK_OVERRIDE;
 
 private:
   vtkArrayIterator(const vtkArrayIterator&) VTK_DELETE_FUNCTION;

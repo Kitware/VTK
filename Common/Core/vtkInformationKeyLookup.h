@@ -48,7 +48,7 @@ public:
 
 protected:
     vtkInformationKeyLookup();
-    ~vtkInformationKeyLookup();
+    ~vtkInformationKeyLookup() VTK_OVERRIDE;
 
     friend class vtkInformationKey;
 

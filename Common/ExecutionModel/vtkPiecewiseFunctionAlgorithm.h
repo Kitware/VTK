@@ -52,9 +52,9 @@ public:
 
   // Description:
   // see vtkAlgorithm for details
-  virtual int ProcessRequest(vtkInformation*,
+  int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*);
+                             vtkInformationVector*) VTK_OVERRIDE;
 
   // this method is not recommended for use, but lots of old style filters
   // use it
@@ -77,7 +77,7 @@ public:
 
 protected:
   vtkPiecewiseFunctionAlgorithm();
-  ~vtkPiecewiseFunctionAlgorithm();
+  ~vtkPiecewiseFunctionAlgorithm() VTK_OVERRIDE;
 
   // Description:
   // This is called by the superclass.
@@ -87,8 +87,8 @@ protected:
                           vtkInformationVector* outputVector);
 
   // see algorithm for more info
-  virtual int FillOutputPortInformation(int port, vtkInformation* info);
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
 private:
   vtkPiecewiseFunctionAlgorithm(const vtkPiecewiseFunctionAlgorithm&) VTK_DELETE_FUNCTION;

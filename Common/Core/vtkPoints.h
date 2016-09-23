@@ -194,7 +194,7 @@ public:
 
 protected:
   vtkPoints(int dataType = VTK_FLOAT);
-  ~vtkPoints();
+  ~vtkPoints() VTK_OVERRIDE;
 
   double Bounds[6];
   vtkTimeStamp ComputeTime; // Time at which bounds computed

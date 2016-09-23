@@ -158,7 +158,7 @@ public:
 
 protected:
   vtkTimerLog() {this->StartTime=0; this->EndTime = 0;}; //insure constructor/destructor protected
-  virtual ~vtkTimerLog() { };
+  ~vtkTimerLog() VTK_OVERRIDE { };
 
   static vtkTimerLogEntry* GetEvent(int i);
 

@@ -49,13 +49,13 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUniformGridAMRAlgorithm : public vtkAlgo
 
     // Description:
     // See vtkAlgorithm for details
-    virtual int ProcessRequest(vtkInformation* request,
+    int ProcessRequest(vtkInformation* request,
                                vtkInformationVector** inputVector,
-                               vtkInformationVector* outputVector );
+                               vtkInformationVector* outputVector ) VTK_OVERRIDE;
 
   protected:
     vtkUniformGridAMRAlgorithm();
-    virtual ~vtkUniformGridAMRAlgorithm();
+    ~vtkUniformGridAMRAlgorithm() VTK_OVERRIDE;
 
     // Description:
     // This is called by the superclass.
@@ -87,12 +87,12 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUniformGridAMRAlgorithm : public vtkAlgo
 
     // Description:
     // Create a default executive
-    virtual vtkExecutive* CreateDefaultExecutive();
+    vtkExecutive* CreateDefaultExecutive() VTK_OVERRIDE;
 
     // Description:
     // See algorithm for more info.
-    virtual int FillOutputPortInformation(int port, vtkInformation* info);
-    virtual int FillInputPortInformation(int port, vtkInformation* info);
+    int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+    int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
     vtkDataObject *GetInput(int port);
 

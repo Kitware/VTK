@@ -364,7 +364,7 @@ public:
 
 protected:
   vtkImageData();
-  ~vtkImageData();
+  ~vtkImageData() VTK_OVERRIDE;
 
   // The extent of what is currently in the structured grid.
   // Dimensions is just an array to return a value.

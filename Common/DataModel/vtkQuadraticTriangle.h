@@ -116,7 +116,7 @@ public:
 
 protected:
   vtkQuadraticTriangle();
-  ~vtkQuadraticTriangle();
+  ~vtkQuadraticTriangle() VTK_OVERRIDE;
 
   vtkQuadraticEdge *Edge;
   vtkTriangle      *Face;

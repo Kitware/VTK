@@ -127,7 +127,7 @@ public:
 
 protected:
   vtkQuadraticWedge();
-  ~vtkQuadraticWedge();
+  ~vtkQuadraticWedge() VTK_OVERRIDE;
 
   vtkQuadraticEdge *Edge;
   vtkQuadraticTriangle *TriangleFace;

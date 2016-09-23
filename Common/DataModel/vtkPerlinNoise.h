@@ -78,7 +78,7 @@ public:
 
 protected:
   vtkPerlinNoise();
-  ~vtkPerlinNoise() {}
+  ~vtkPerlinNoise() VTK_OVERRIDE {}
 
   double Frequency[3];
   double Phase[3];

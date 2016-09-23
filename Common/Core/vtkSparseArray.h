@@ -193,7 +193,7 @@ public:
 
 protected:
   vtkSparseArray();
-  ~vtkSparseArray();
+  ~vtkSparseArray() VTK_OVERRIDE;
 
 private:
   vtkSparseArray(const vtkSparseArray&) VTK_DELETE_FUNCTION;

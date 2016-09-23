@@ -93,7 +93,7 @@ public:
 
 protected:
   vtkExtentSplitter();
-  ~vtkExtentSplitter();
+  ~vtkExtentSplitter() VTK_OVERRIDE;
 
   // Internal utility methods.
   void SplitExtent(int* extent, int* subextent);

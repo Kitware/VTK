@@ -50,9 +50,9 @@ public:
 
   // Description:
   // see vtkAlgorithm for details
-  virtual int ProcessRequest(vtkInformation*,
+  int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*);
+                             vtkInformationVector*) VTK_OVERRIDE;
 
   // this method is not recommended for use, but lots of old style filters
   // use it
@@ -76,7 +76,7 @@ public:
 
 protected:
   vtkStructuredGridAlgorithm();
-  ~vtkStructuredGridAlgorithm();
+  ~vtkStructuredGridAlgorithm() VTK_OVERRIDE;
 
   // convenience method
   virtual int RequestInformation(vtkInformation* request,
@@ -101,8 +101,8 @@ protected:
     };
 
   // see algorithm for more info
-  virtual int FillOutputPortInformation(int port, vtkInformation* info);
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
 private:
   vtkStructuredGridAlgorithm(const vtkStructuredGridAlgorithm&) VTK_DELETE_FUNCTION;

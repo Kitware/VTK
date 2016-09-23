@@ -147,7 +147,7 @@ public:
 
 protected:
   vtkConvexPointSet();
-  ~vtkConvexPointSet();
+  ~vtkConvexPointSet() VTK_OVERRIDE;
 
   vtkTetra       *Tetra;
   vtkIdList      *TetraIds;

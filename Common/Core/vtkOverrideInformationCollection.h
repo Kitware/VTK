@@ -51,7 +51,7 @@ public:
 
 protected:
   vtkOverrideInformationCollection() {}
-  ~vtkOverrideInformationCollection() {}
+  ~vtkOverrideInformationCollection() VTK_OVERRIDE {}
 
 
 private:

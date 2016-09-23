@@ -98,7 +98,7 @@ public:
 
 protected:
   vtkIdentityTransform();
-  ~vtkIdentityTransform();
+  ~vtkIdentityTransform() VTK_OVERRIDE;
 
   void InternalDeepCopy(vtkAbstractTransform *t) VTK_OVERRIDE;
 

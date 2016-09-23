@@ -78,16 +78,16 @@ public:
 
 protected:
   vtkEnsembleSource();
-  ~vtkEnsembleSource();
+  ~vtkEnsembleSource() VTK_OVERRIDE;
 
   static vtkInformationIntegerKey* DATA_MEMBER();
 
   friend class vtkInformationEnsembleMemberRequestKey;
 
-  virtual int ProcessRequest(vtkInformation *request,
+  int ProcessRequest(vtkInformation *request,
                              vtkInformationVector **inputVector,
-                             vtkInformationVector *outputVector);
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+                             vtkInformationVector *outputVector) VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
   vtkAlgorithm* GetCurrentReader(vtkInformation*);
 

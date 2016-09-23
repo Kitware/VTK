@@ -189,7 +189,7 @@ public:
 
 protected:
   vtkRectilinearGrid();
-  ~vtkRectilinearGrid();
+  ~vtkRectilinearGrid() VTK_OVERRIDE;
 
   // for the GetCell method
   vtkVertex *Vertex;

@@ -82,7 +82,7 @@ public:
 
 protected:
   vtkImplicitSum();
-  ~vtkImplicitSum();
+  ~vtkImplicitSum() VTK_OVERRIDE;
 
   vtkImplicitFunctionCollection *FunctionList;
   vtkDoubleArray *Weights;

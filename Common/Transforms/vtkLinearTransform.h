@@ -183,7 +183,7 @@ public:
 
 protected:
   vtkLinearTransform() {}
-  ~vtkLinearTransform() {}
+  ~vtkLinearTransform() VTK_OVERRIDE {}
 private:
   vtkLinearTransform(const vtkLinearTransform&) VTK_DELETE_FUNCTION;
   void operator=(const vtkLinearTransform&) VTK_DELETE_FUNCTION;

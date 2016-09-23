@@ -67,7 +67,7 @@ public:
 
 protected:
   vtkTreeDFSIterator();
-  ~vtkTreeDFSIterator();
+  ~vtkTreeDFSIterator() VTK_OVERRIDE;
 
   void Initialize() VTK_OVERRIDE;
   vtkIdType NextInternal() VTK_OVERRIDE;

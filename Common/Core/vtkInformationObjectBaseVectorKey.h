@@ -44,7 +44,7 @@ public:
                                     const char* location,
                                     const char* requiredClass=0);
   //
-  ~vtkInformationObjectBaseVectorKey();
+  ~vtkInformationObjectBaseVectorKey() VTK_OVERRIDE;
 
   // Description:
   // This method simply returns a new vtkInformationObjectBaseVectorKey, given a

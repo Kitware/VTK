@@ -70,7 +70,7 @@ public:
 
 protected:
   vtkPolyVertex();
-  ~vtkPolyVertex();
+  ~vtkPolyVertex() VTK_OVERRIDE;
 
   vtkVertex *Vertex;
 

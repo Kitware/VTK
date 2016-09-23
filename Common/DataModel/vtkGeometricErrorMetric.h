@@ -108,7 +108,7 @@ public:
 
 protected:
   vtkGeometricErrorMetric();
-  virtual ~vtkGeometricErrorMetric();
+  ~vtkGeometricErrorMetric() VTK_OVERRIDE;
 
   // Description:
   // Square distance between a straight line (defined by points x and y)

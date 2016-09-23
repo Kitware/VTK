@@ -355,7 +355,7 @@ public:
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkHyperTreeGrid();
-  ~vtkHyperTreeGrid();
+  ~vtkHyperTreeGrid() VTK_OVERRIDE;
 
   void ComputeBounds() VTK_OVERRIDE;
 

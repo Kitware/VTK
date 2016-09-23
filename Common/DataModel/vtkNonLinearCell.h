@@ -44,7 +44,7 @@ public:
 
 protected:
   vtkNonLinearCell();
-  ~vtkNonLinearCell() {}
+  ~vtkNonLinearCell() VTK_OVERRIDE {}
 
 private:
   vtkNonLinearCell(const vtkNonLinearCell&) VTK_DELETE_FUNCTION;

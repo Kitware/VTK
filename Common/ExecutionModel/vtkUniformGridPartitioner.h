@@ -39,7 +39,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUniformGridPartitioner :
   public:
       static vtkUniformGridPartitioner *New();
       vtkTypeMacro(vtkUniformGridPartitioner, vtkMultiBlockDataSetAlgorithm);
-      void PrintSelf(ostream &oss, vtkIndent indent );
+      void PrintSelf(ostream &oss, vtkIndent indent ) VTK_OVERRIDE;
 
       // Description:
       // Set/Get macro for the number of subdivisions.
@@ -58,13 +58,13 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUniformGridPartitioner :
 
   protected:
     vtkUniformGridPartitioner();
-    virtual ~vtkUniformGridPartitioner();
+    ~vtkUniformGridPartitioner() VTK_OVERRIDE;
 
     // Standard Pipeline methods
-    virtual int RequestData(
-       vtkInformation*,vtkInformationVector**,vtkInformationVector*);
-    virtual int FillInputPortInformation(int port, vtkInformation *info);
-    virtual int FillOutputPortInformation(int port, vtkInformation *info);
+    int RequestData(
+       vtkInformation*,vtkInformationVector**,vtkInformationVector*) VTK_OVERRIDE;
+    int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+    int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
     int NumberOfPartitions;
     int NumberOfGhostLayers;

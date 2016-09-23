@@ -36,7 +36,7 @@ public:
 
 protected:
   vtkDataSetCellIterator();
-  ~vtkDataSetCellIterator();
+  ~vtkDataSetCellIterator() VTK_OVERRIDE;
 
   void ResetToFirstCell() VTK_OVERRIDE;
   void IncrementToNextCell() VTK_OVERRIDE;

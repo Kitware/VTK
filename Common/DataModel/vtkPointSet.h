@@ -118,7 +118,7 @@ public:
 
 protected:
   vtkPointSet();
-  ~vtkPointSet();
+  ~vtkPointSet() VTK_OVERRIDE;
 
   vtkPoints *Points;
   vtkPointLocator *Locator;

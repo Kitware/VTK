@@ -114,7 +114,7 @@ public:
 
  protected:
   vtkCompositeDataSet();
-  virtual ~vtkCompositeDataSet();
+  ~vtkCompositeDataSet() VTK_OVERRIDE;
  private:
 
   vtkCompositeDataSet(const vtkCompositeDataSet&) VTK_DELETE_FUNCTION;

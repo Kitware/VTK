@@ -89,7 +89,7 @@ public:
 
 protected:
   vtkUndirectedGraph();
-  ~vtkUndirectedGraph();
+  ~vtkUndirectedGraph() VTK_OVERRIDE;
 
   // Description:
   // For iterators, returns the same edge list as GetOutEdges().

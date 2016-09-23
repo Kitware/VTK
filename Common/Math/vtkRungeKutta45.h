@@ -101,7 +101,7 @@ public:
 
 protected:
   vtkRungeKutta45();
-  ~vtkRungeKutta45();
+  ~vtkRungeKutta45() VTK_OVERRIDE;
 
   void Initialize() VTK_OVERRIDE;
 

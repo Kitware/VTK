@@ -33,7 +33,7 @@ public:
 
   vtkInformationDoubleVectorKey(const char* name, const char* location,
                                  int length=-1);
-  ~vtkInformationDoubleVectorKey();
+  ~vtkInformationDoubleVectorKey() VTK_OVERRIDE;
 
   // Description:
   // This method simply returns a new vtkInformationDoubleVectorKey, given a

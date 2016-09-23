@@ -104,7 +104,7 @@ public:
 
 protected:
   vtkMultiBlockDataSet();
-  ~vtkMultiBlockDataSet();
+  ~vtkMultiBlockDataSet() VTK_OVERRIDE;
 
 private:
   vtkMultiBlockDataSet(const vtkMultiBlockDataSet&) VTK_DELETE_FUNCTION;
