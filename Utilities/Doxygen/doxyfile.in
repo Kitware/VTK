@@ -182,4 +182,6 @@ PREDEFINED  = "vtkSetMacro(name,type)= \
                    virtual vtkObjectBase *NewInstanceInternal() const; \
                    public: \
                    thisClass *NewInstance() const;" \
-               "VTK_LEGACY(x)= x"
+               "VTK_LEGACY(x)= x" \
+               "VTK_OVERRIDE=override" \
+               "VTK_DELETE=delete"
