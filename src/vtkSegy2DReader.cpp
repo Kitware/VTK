@@ -35,7 +35,6 @@ int vtkSegy2DReader::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     reader.LoadFromFile(FileName);
-    cout << "FileName : " <<  FileName << endl;
     if(!reader.ExportData2D(output))
         cout << "Failed to request data for vtkSegy2DReader" << endl;
 }

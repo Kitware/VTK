@@ -309,11 +309,11 @@ int main(int argc, char** argv)
     }
     else if(argc > 1 && strcmp(argv[1], "3") == 0)
     {
-        demoRDV();
+        demo3D();
     }
     else
     {
-        demo2D();
+        demoRDV();
     }
     return 0;
 }

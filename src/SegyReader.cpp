@@ -36,6 +36,8 @@ bool SegyReader::LoadFromFile(string path) {
         return false;
     }
 
+    std::cerr << "in " << in << std::endl;
+
     readHeader(in);
 
     int traceStartPos = 3600;// traces start after 3200 + 400 file header
