@@ -1,5 +1,7 @@
 #include "IOUtil.h"
 
+#include <cstring>
+
 IOUtil* IOUtil::instance = NULL;
 
 IOUtil::IOUtil()

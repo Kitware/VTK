@@ -3,7 +3,7 @@ using namespace std;
 
 #include <vtkSmartPointer.h>
 #include <vtkStructuredPointsReader.h>
-#include <vtkVolumeTextureMapper3D.h>
+#include <vtkGPUVolumeRayCastMapper.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkRenderer.h>
@@ -100,7 +100,7 @@ void render(vtkImageData* id)
     volumeProperty->SetSpecularPower(70.0);
 
 
-    vtkSmartPointer<vtkVolumeTextureMapper3D> volumeMapper = vtkVolumeTextureMapper3D::New();
+    vtkSmartPointer<vtkGPUVolumeRayCastMapper> volumeMapper = vtkGPUVolumeRayCastMapper::New();
     volumeMapper->SetInputData(id);
 
     vtkVolume *volume=vtkVolume::New();
