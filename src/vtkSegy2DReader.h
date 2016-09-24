@@ -18,7 +18,8 @@ public:
     void PrintSelf(ostream& os, vtkIndent indent);
 
     vtkSetStringMacro(FileName);
-    vtkSegy2DReader(){}
+    vtkSegy2DReader();
+    ~vtkSegy2DReader();
 protected:
     int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
                     vtkInformationVector* outputVector);

@@ -10,6 +10,17 @@
 
 vtkStandardNewMacro(vtkSegy2DReader);
 
+vtkSegy2DReader::vtkSegy2DReader()
+{
+    this->SetFileName(0);
+    this->SetNumberOfInputPorts( 0 );
+}
+
+vtkSegy2DReader::~vtkSegy2DReader()
+{
+    this->SetFileName(0);
+}
+
 int vtkSegy2DReader::RequestData(vtkInformation* vtkNotUsed(request),
                                   vtkInformationVector** inputVector,
                                   vtkInformationVector* outputVector)
