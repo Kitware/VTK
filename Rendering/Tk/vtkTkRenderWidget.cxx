@@ -1206,6 +1206,11 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
       Tk_HandleEvent(&event);
   }
 
+  // Process all outstanding events so that Tk is fully updated
+  Tcl_ServiceAll();
+
+  self->RenderWindow->Render();
+
   return TCL_OK;
 }
 
