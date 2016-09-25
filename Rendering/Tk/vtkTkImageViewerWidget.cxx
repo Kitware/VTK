@@ -23,6 +23,10 @@
 #if defined(VTK_USE_COCOA)
 #include "vtkCocoaRenderWindow.h"
 #include "vtkCocoaTkUtilities.h"
+#ifndef MAC_OSX_TK
+#define MAC_OSX_TK 1
+#endif
+#include "tkInt.h"
 #else
 #include "vtkXOpenGLRenderWindow.h"
 #endif
@@ -369,15 +373,52 @@ extern "C"
           {
             int x = Tk_X(self->TkWin);
             int y = Tk_Y(self->TkWin);
+#if defined(VTK_USE_COCOA)
+            // Do not call SetSize or SetPosition until we're mapped.
+            if (Tk_IsMapped(self->TkWin))
+            {
+              // On Cocoa, compute coordinates relative to toplevel
+              for (TkWindow *curPtr = ((TkWindow *)self->TkWin)->parentPtr;
+                   (NULL != curPtr) && !(curPtr->flags & TK_TOP_LEVEL);
+                   curPtr = curPtr->parentPtr)
+              {
+                x += Tk_X(curPtr);
+                y += Tk_Y(curPtr);
+              }
+              self->ImageViewer->SetPosition(x, y);
+              self->ImageViewer->SetSize(self->Width, self->Height);
+            }
+#else
             self->ImageViewer->SetPosition(x, y);
             self->ImageViewer->SetSize(self->Width, self->Height);
+#endif
           }
 
           //vtkTkImageViewerWidget_PostRedisplay(self);
         }
         break;
       case MapNotify:
+#if defined(VTK_USE_COCOA)
+      {
+        // On Cocoa, compute coordinates relative to the toplevel
+        int x = Tk_X(self->TkWin);
+        int y = Tk_Y(self->TkWin);
+        for (TkWindow *curPtr = ((TkWindow *)self->TkWin)->parentPtr;
+             (NULL != curPtr) && !(curPtr->flags & TK_TOP_LEVEL);
+             curPtr = curPtr->parentPtr)
+        {
+          x += Tk_X(curPtr);
+          y += Tk_Y(curPtr);
+        }
+        self->ImageViewer->SetPosition(x, y);
+        self->ImageViewer->SetSize(self->Width, self->Height);
+      }
+#endif
         break;
+#if defined(VTK_USE_COCOA)
+      case UnmapNotify:
+        break;
+#endif
       case DestroyNotify:
 #ifdef _WIN32
         if (self->ImageViewer->GetRenderWindow()->GetGenericWindowId())
@@ -781,6 +822,8 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
   // Set the size
   self->ImageViewer->SetSize(self->Width, self->Height);
 
+  // Process all outstanding events so that Tk is fully updated
+  Tcl_ServiceAll();
 
   self->ImageViewer->Render();
   return TCL_OK;
