@@ -9,6 +9,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestXMLToString.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestXMLWriterWithDataArrayFallback.cxx,NO_VALID
   TestDataObjectXMLIO.cxx,NO_VALID
+  TestReadDuplicateDataArrayNames.cxx,No_DATA,NO_VALID
   )
 
 # Each of these most be added in a separate vtk_add_test_cxx
