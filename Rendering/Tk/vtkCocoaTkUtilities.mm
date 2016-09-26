@@ -40,18 +40,18 @@ void* vtkCocoaTkUtilities::GetDrawableView(Tk_Window window)
   MacDrawable *macWin = reinterpret_cast<TkWindow *>(window)->privatePtr;
 
   if (!macWin)
-    {
+  {
     return nil;
-    }
+  }
   else if (macWin->toplevel && (macWin->toplevel->flags & TK_EMBEDDED))
-    {
+  {
     // can't handle embedded window, but not sure if this will ever happen
     return nil;
-    }
+  }
   else if (macWin->toplevel)
-    {
+  {
     macWin = macWin->toplevel;
-    }
+  }
 
   TkMacOSXMakeRealWindowExist(macWin->winPtr);
   NSView *result = macWin->view;

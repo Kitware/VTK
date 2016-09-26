@@ -46,7 +46,7 @@
 {
   self = [super initWithFrame:frameRect];
   if (self)
-    {
+  {
     // Force Cocoa into "multi threaded mode" because VTK spawns pthreads.
     // Apple's docs say: "If you intend to use Cocoa calls, you must force
     // Cocoa into its multithreaded mode before detaching any POSIX threads.
@@ -54,12 +54,12 @@
     // This is enough to ensure that the locks needed by the Cocoa
     // frameworks are put in place"
     if ([NSThread isMultiThreaded] == NO)
-      {
+    {
       [NSThread detachNewThreadSelector:@selector(emptyMethod:)
                                toTarget:self
                              withObject:nil];
-      }
     }
+  }
   return self;
 }
 
@@ -79,13 +79,13 @@
 - (vtkCocoaRenderWindowInteractor *)getInteractor
 {
   if (_myVTKRenderWindow)
-    {
+  {
     return (vtkCocoaRenderWindowInteractor *)_myVTKRenderWindow->GetInteractor();
-    }
+  }
   else
-    {
+  {
     return NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -95,9 +95,9 @@
   (void)theRect;
 
   if (_myVTKRenderWindow && _myVTKRenderWindow->GetMapped())
-    {
+  {
     _myVTKRenderWindow->Render();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -107,9 +107,9 @@
   //clear out the old tracking area
   NSTrackingArea *trackingArea = [self rolloverTrackingArea];
   if (trackingArea)
-    {
+  {
     [self removeTrackingArea:trackingArea];
-    }
+  }
 
   //create a new tracking area
   NSRect rect = [self visibleRect];
@@ -186,9 +186,9 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
 
   if (!interactor || !renWin)
-    {
+  {
     return;
-    }
+  }
 
   // Get the location of the mouse event relative to this NSView's bottom
   // left corner.  Since this is NOT a mouse event, we can not use
@@ -215,60 +215,60 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   BOOL isPress = (type == NSEventTypeKeyDown);
 
   if (type == NSEventTypeKeyUp || type == NSEventTypeKeyDown)
-    {
+  {
     // Try to get the characters associated with the key event as an ASCII string.
     const char* keyedChars = [[theEvent characters] cStringUsingEncoding:NSASCIIStringEncoding];
     if (keyedChars)
-      {
+    {
       charCode = static_cast<unsigned char>(keyedChars[0]);
-      }
+    }
     // Get the virtual key code and convert it to a keysym as best we can.
     unsigned short macKeyCode = [theEvent keyCode];
     if (macKeyCode < 128)
-      {
-      keySym = vtkMacKeyCodeToKeySymTable[macKeyCode];
-      }
-    if (keySym == 0 && charCode < 128)
-      {
-      keySym = vtkMacCharCodeToKeySymTable[charCode];
-      }
-    }
-  else if (type == NSEventTypeFlagsChanged)
     {
+      keySym = vtkMacKeyCodeToKeySymTable[macKeyCode];
+    }
+    if (keySym == 0 && charCode < 128)
+    {
+      keySym = vtkMacCharCodeToKeySymTable[charCode];
+    }
+  }
+  else if (type == NSEventTypeFlagsChanged)
+  {
     // Check to see what modifier flag changed.
     if (controlDown != interactor->GetControlKey())
-      {
+    {
       keySym = "Control_L";
       isPress = (controlDown != 0);
-      }
+    }
     else if (shiftDown != interactor->GetShiftKey())
-      {
+    {
       keySym = "Shift_L";
       isPress = (shiftDown != 0);
-      }
+    }
     else if (altDown != interactor->GetAltKey())
-      {
+    {
       keySym = "Alt_L";
       isPress = (altDown != 0);
-      }
+    }
     else
-      {
+    {
       return;
-      }
+    }
 
     theEventId = (isPress ?
                   vtkCommand::KeyPressEvent :
                   vtkCommand::KeyReleaseEvent);
-    }
+  }
   else // No info from which to generate a VTK key event!
-    {
+  {
     return;
-    }
+  }
 
   if (keySym == 0)
-    {
+  {
     keySym = "None";
-    }
+  }
 
   interactor->SetEventInformation(static_cast<int>(round(mouseLoc.x)),
                                   static_cast<int>(round(mouseLoc.y)),
@@ -278,9 +278,9 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 
   interactor->InvokeEvent(theEventId, NULL);
   if (isPress && charCode != '\0')
-    {
+  {
     interactor->InvokeEvent(vtkCommand::CharEvent, NULL);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -293,9 +293,9 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
 
   if (!interactor || !renWin)
-    {
+  {
     return;
-    }
+  }
 
   // Get the location of the mouse event relative to this NSView's bottom
   // left corner. Since this is a mouse event, we can use locationInWindow.
@@ -324,9 +324,9 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
 
   if (!interactor || !renWin)
-    {
+  {
     return;
-    }
+  }
 
   // Get the location of the mouse event relative to this NSView's bottom
   // left corner. Since this is a mouseevent, we can use locationInWindow.
@@ -386,10 +386,10 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   NSPoint mouseLoc =
     [self convertPoint:[theEvent locationInWindow] fromView:nil];
   if (NSPointInRect(mouseLoc, [self visibleRect]))
-    {
+  {
     [self invokeVTKMoveEvent:vtkCommand::MouseMoveEvent
                   cocoaEvent:theEvent];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -443,19 +443,19 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   unsigned long eventId = 0;
 
   if (dy > 0)
-    {
+  {
     eventId = vtkCommand::MouseWheelForwardEvent;
-    }
+  }
   else if (dy < 0)
-    {
+  {
     eventId = vtkCommand::MouseWheelBackwardEvent;
-    }
+  }
 
   if (eventId != 0)
-    {
+  {
     [self invokeVTKMoveEvent:eventId
                   cocoaEvent:theEvent];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

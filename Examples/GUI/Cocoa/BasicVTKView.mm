@@ -13,9 +13,9 @@
 {
   self = [super initWithFrame:frame];
   if (self)
-    {
+  {
     // nothing to do... add something if you need to
-    }
+  }
 
   return self;
 }
@@ -44,9 +44,9 @@
   // more soothing to the eye.
   vtkRenderWindowInteractor* theRenWinInt = [self getInteractor];
   if (theRenWinInt && (theRenWinInt->GetInitialized() == NO))
-    {
+  {
     theRenWinInt->Initialize();
-    }
+  }
 
   // Let the vtkCocoaGLView do its regular drawing
   [super drawRect:theRect];
@@ -64,7 +64,7 @@
   vtkCocoaRenderWindow* cocoaRenWin = vtkCocoaRenderWindow::SafeDownCast(renWin);
 
   if (ren && cocoaRenWin && renWinInt)
-    {
+  {
     // This is special to our usage of vtk.  To prevent vtk
     // from creating an NSWindow and NSView automatically (its
     // default behaviour) we tell vtk that they exist already.
@@ -84,7 +84,7 @@
 
     // Likewise, BasicVTKView keeps track of the renderer
     [self setRenderer:ren];
-    }
+  }
 }
 
 - (void)cleanUpVTKSupport
@@ -94,17 +94,17 @@
   vtkRenderWindowInteractor* renWinInt = [self getInteractor];
 
   if (ren)
-    {
+  {
     ren->Delete();
-    }
+  }
   if (renWin)
-    {
+  {
     renWin->Delete();
-    }
+  }
   if (renWinInt)
-    {
+  {
     renWinInt->Delete();
-    }
+  }
   [self setRenderer:NULL];
   [self setVTKRenderWindow:NULL];
 

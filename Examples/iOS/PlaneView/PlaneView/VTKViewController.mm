@@ -48,11 +48,11 @@ public:
   static vtkTPWCallback *New()
   { return new vtkTPWCallback; }
   virtual void Execute(vtkObject *caller, unsigned long, void*)
-    {
+  {
     vtkPlaneWidget *planeWidget = reinterpret_cast<vtkPlaneWidget*>(caller);
     planeWidget->GetPolyData(this->PolyData);
     this->Actor->VisibilityOn();
-    }
+  }
   vtkTPWCallback():PolyData(0),Actor(0) {}
   vtkPolyData *PolyData;
   vtkActor *Actor;
@@ -85,13 +85,13 @@ public:
 - (vtkIOSRenderWindowInteractor *)getInteractor
 {
   if (self->RenderWindow)
-    {
+  {
     return (vtkIOSRenderWindowInteractor *)self->RenderWindow->GetInteractor();
-    }
+  }
   else
-    {
+  {
     return NULL;
-    }
+  }
 }
 
 - (void)setupPipeline
@@ -176,30 +176,30 @@ public:
   // setup the reader and outline filter based
   // on data type
   if ([url.pathExtension isEqual:@"vtu"])
-    {
+  {
     reader = vtkXMLUnstructuredGridReader::New();
     outline = vtkOutlineFilter::New();
-    }
+  }
   if ([url.pathExtension isEqual:@"vts"])
-    {
+  {
     reader = vtkXMLStructuredGridReader::New();
     outline = vtkStructuredGridOutlineFilter::New();
-    }
+  }
   if ([url.pathExtension isEqual:@"vtr"])
-    {
+  {
     reader = vtkXMLRectilinearGridReader::New();
     outline = vtkOutlineFilter::New();
-    }
+  }
   if ([url.pathExtension isEqual:@"vti"])
-    {
+  {
     reader = vtkXMLImageDataReader::New();
     outline = vtkOutlineFilter::New();
-    }
+  }
 
   if (!reader || !outline)
-    {
+  {
     return;
-    }
+  }
 
   reader->SetFileName([url.path cStringUsingEncoding:NSASCIIStringEncoding]);
   reader->Update();
@@ -230,10 +230,10 @@ public:
   self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
 
   if (!self.context)
-    {
+  {
     NSLog(@"Failed to create ES context");
     return;
-    }
+  }
 
   UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc]
      initWithTarget:self action:@selector(handleTap:)];
@@ -259,9 +259,9 @@ public:
   [self tearDownGL];
 
   if ([EAGLContext currentContext] == self.context)
-    {
+  {
     [EAGLContext setCurrentContext:nil];
-    }
+  }
 }
 
 - (void)didReceiveMemoryWarning
@@ -269,17 +269,17 @@ public:
   [super didReceiveMemoryWarning];
 
   if ([self isViewLoaded] && ([[self view] window] == nil))
-    {
+  {
     self.view = nil;
 
     [self tearDownGL];
 
     if ([EAGLContext currentContext] == self.context)
-      {
+    {
       [EAGLContext setCurrentContext:nil];
-      }
-    self.context = nil;
     }
+    self.context = nil;
+  }
     // Dispose of any resources that can be recreated.
 }
 
@@ -317,9 +317,9 @@ public:
 {
   vtkIOSRenderWindowInteractor *interactor = [self getInteractor];
   if (!interactor)
-    {
+  {
     return;
-    }
+  }
 
   CGRect bounds = [self.view bounds];
   double scale = self.view.contentScaleFactor;
@@ -327,28 +327,28 @@ public:
   // set the position for all contacts
   NSSet *myTouches = [event touchesForView:self.view];
   for (UITouch *touch in myTouches)
-    {
+  {
     // Convert touch point from UIView referential to OpenGL one (upside-down flip)
     CGPoint location = [touch locationInView:self.view];
     location.y = bounds.size.height - location.y;
 
     int index = interactor->GetPointerIndexForContact((size_t)(__bridge void *)touch);
     if (index < VTKI_MAX_POINTERS)
-      {
+    {
       interactor->SetEventInformation((int)round(location.x*scale),
                                   (int)round(location.y*scale),
                                   0, 0,
                                   0, 0, 0, index);
-      }
     }
+  }
 
   // handle begin events
   for (UITouch *touch in touches)
-    {
+  {
     int index = interactor->GetPointerIndexForContact((size_t)(__bridge void *)touch);
     interactor->SetPointerIndex(index);
     interactor->LeftButtonPressEvent();
-    }
+  }
 
   // Display the buffer
   [(GLKView *)self.view display];
@@ -359,9 +359,9 @@ public:
 {
   vtkIOSRenderWindowInteractor *interactor = [self getInteractor];
   if (!interactor)
-    {
+  {
     return;
-    }
+  }
 
   CGRect        bounds = [self.view bounds];
   double scale = self.view.contentScaleFactor;
@@ -370,27 +370,27 @@ public:
   int index = -1;
   NSSet *myTouches = [event touchesForView:self.view];
   for (UITouch *touch in myTouches)
-    {
+  {
     // Convert touch point from UIView referential to OpenGL one (upside-down flip)
     CGPoint location = [touch locationInView:self.view];
     location.y = bounds.size.height - location.y;
 
     index = interactor->GetPointerIndexForContact((size_t)(__bridge void *)touch);
     if (index < VTKI_MAX_POINTERS)
-      {
+    {
       interactor->SetEventInformation((int)round(location.x*scale),
                                   (int)round(location.y*scale),
                                   0, 0,
                                   0, 0, 0, index);
-      }
     }
+  }
 
   // fire move event on last index
   if (index > -1)
-    {
+  {
     interactor->SetPointerIndex(index);
     interactor->MouseMoveEvent();
-    }
+  }
 
   // Display the buffer
   [(GLKView *)self.view display];
@@ -401,9 +401,9 @@ public:
 {
   vtkIOSRenderWindowInteractor *interactor = [self getInteractor];
   if (!interactor)
-    {
+  {
     return;
-    }
+  }
 
   CGRect        bounds = [self.view bounds];
   double scale = self.view.contentScaleFactor;
@@ -411,29 +411,29 @@ public:
   // set the position for all contacts
   NSSet *myTouches = [event touchesForView:self.view];
   for (UITouch *touch in myTouches)
-    {
+  {
     // Convert touch point from UIView referential to OpenGL one (upside-down flip)
     CGPoint location = [touch locationInView:self.view];
     location.y = bounds.size.height - location.y;
 
     int index = interactor->GetPointerIndexForContact((size_t)(__bridge void *)touch);
     if (index < VTKI_MAX_POINTERS)
-      {
+    {
       interactor->SetEventInformation((int)round(location.x*scale),
                                   (int)round(location.y*scale),
                                   0, 0,
                                   0, 0, 0, index);
-      }
     }
+  }
 
   // handle begin events
   for (UITouch *touch in touches)
-    {
+  {
     int index = interactor->GetPointerIndexForContact((size_t)(__bridge void *)touch);
     interactor->SetPointerIndex(index);
     interactor->LeftButtonReleaseEvent();
     interactor->ClearContact((size_t)(__bridge void *)touch);
-    }
+  }
 
   // Display the buffer
   [(GLKView *)self.view display];
@@ -444,15 +444,15 @@ public:
 {
   vtkIOSRenderWindowInteractor *interactor = [self getInteractor];
   if (!interactor)
-    {
+  {
     return;
-    }
+  }
 
   CGRect        bounds = [self.view bounds];
   double scale = self.view.contentScaleFactor;
 
   for (UITouch *touch in touches)
-    {
+  {
     int index = interactor->GetPointerIndexForContact((size_t)(__bridge void *)touch);
     interactor->SetPointerIndex(index);
     // Convert touch point from UIView referential to OpenGL one (upside-down flip)
@@ -464,21 +464,21 @@ public:
                                     0, 0);
     interactor->LeftButtonReleaseEvent();
     interactor->ClearContact((size_t)(__bridge void *)touch);
-    }
+  }
 }
 
 - (void)handleTap:(UITapGestureRecognizer *)sender
 {
   if (sender.state == UIGestureRecognizerStateEnded)
-    {
+  {
     vtkIOSRenderWindowInteractor *interactor = [self getInteractor];
     if (!interactor)
-      {
+    {
       return;
-      }
+    }
     self->Renderer->ResetCamera();
     self->RenderWindow->Render();
-    }
+  }
 }
 
 @end
