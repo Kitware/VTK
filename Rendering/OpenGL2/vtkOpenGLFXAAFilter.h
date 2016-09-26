@@ -44,6 +44,8 @@
 #include "vtkObject.h"
 #include "vtkFXAAOptions.h" // For DebugOptions enum
 
+#include <string> // For std::string
+
 class vtkFXAAOptions;
 class vtkOpenGLBufferObject;
 class vtkOpenGLVertexArrayObject;
