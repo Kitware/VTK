@@ -169,28 +169,27 @@ public:
    */
   virtual void SetField(int attributeID, const double* values, size_t size) = 0;
 
-    /**
-     * Sets the field specified with attributeID
-     * of the active node to the given value.
-     * The type of the field is specified with type
-     * It is possible to specify that the field is an
-     * image for optimized formating or compression
-     * Supported types: MFINT32, SFIMAGE
-     */
-  virtual void SetField(int attributeID, const int* values, size_t size, bool image = false) = 0;
-
-  //@{
   /**
    * Sets the field specified with attributeID
    * of the active node to the given value.
    * The type of the field is specified with type
-   * Supported types: MFString
-   * virtual void SetField(int attributeID, int type, std::string) = 0;
+   * It is possible to specify that the field is an
+   * image for optimized formating or compression
+   * Supported types: MFINT32, SFIMAGE
    */
+  virtual void SetField(int attributeID, const int* values, size_t size, bool image = false) = 0;
+
+  /*
+   * Sets the field specified with attributeID
+   * of the active node to the given value.
+   * The type of the field is specified with type
+   * Supported types: MFString
+   */
+  // virtual void SetField(int attributeID, int type, std::string) = 0;
+
 protected:
   vtkX3DExporterWriter();
   ~vtkX3DExporterWriter();
-  //@}
 
   char *OutputString;
   int OutputStringLength;

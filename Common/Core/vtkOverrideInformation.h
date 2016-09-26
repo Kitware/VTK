@@ -75,18 +75,26 @@ public:
   {
       return this->ObjectFactory;
   }
+
   //@{
   /**
    * Set the class override name
    */
   vtkSetStringMacro(ClassOverrideName);
-  // Set the class override with name
+
+  /**
+   * Set the class override with name
+   */
   vtkSetStringMacro(ClassOverrideWithName);
-  // Set the description
+
+  /**
+   * Set the description
+   */
   vtkSetStringMacro(Description);
+  //@}
+
 protected:
   virtual void SetObjectFactory(vtkObjectFactory*);
-  //@}
 
 private:
   vtkOverrideInformation();

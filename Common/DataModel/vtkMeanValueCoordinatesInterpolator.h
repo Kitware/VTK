@@ -77,7 +77,6 @@ public:
   static void ComputeInterpolationWeights(double x[3], vtkPoints *pts,
                                           vtkIdList *tris, double *weights);
 
-  //@{
   /**
    * Method to generate interpolation weights for a point x[3] from a list of
    * polygonal faces.  In this version of the method, the faces are defined by
@@ -87,10 +86,10 @@ public:
    */
   static void ComputeInterpolationWeights(double x[3], vtkPoints *pts,
                                           vtkCellArray *tris, double *weights);
+
 protected:
   vtkMeanValueCoordinatesInterpolator();
   ~vtkMeanValueCoordinatesInterpolator() VTK_OVERRIDE;
-  //@}
 
   /**
    * Internal method that sets up the processing of triangular meshes.

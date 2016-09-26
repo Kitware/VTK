@@ -123,10 +123,11 @@ public:
   vtkGetMacro(ForegroundValue, double);
   vtkSetMacro(BackgroundValue, double);
   vtkGetMacro(BackgroundValue, double);
+  //@}
+
 protected:
   vtkVoxelModeller();
   ~vtkVoxelModeller() {}
-  //@}
 
   virtual int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,

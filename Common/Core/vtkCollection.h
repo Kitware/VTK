@@ -147,10 +147,11 @@ public:
    */
   void Register(vtkObjectBase* o) VTK_OVERRIDE;
   void UnRegister(vtkObjectBase* o) VTK_OVERRIDE;
+  //@}
+
 protected:
   vtkCollection();
   ~vtkCollection() VTK_OVERRIDE;
-  //@}
 
   virtual void RemoveElement(vtkCollectionElement *element,
                              vtkCollectionElement *previous);

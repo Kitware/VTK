@@ -52,16 +52,15 @@ protected:
   vtkOpenGLRepresentationPainter();
   ~vtkOpenGLRepresentationPainter();
 
-  //@{
   /**
    * Changes the polygon mode according to the representation.
    */
   void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
                       unsigned long typeflags,bool forceCompileOnly);
+
 private:
   vtkOpenGLRepresentationPainter(const vtkOpenGLRepresentationPainter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLRepresentationPainter&) VTK_DELETE_FUNCTION;
 };
-  //@}
 
 #endif

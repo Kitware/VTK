@@ -254,7 +254,7 @@ protected:
     void* clientdata, void* calldata);
 
   virtual int FillOutputPortInformation(int, vtkInformation*);
-  //@{
+
   /**
    * We intercept the requests to check for which port
    * information is being requested for and if there is
@@ -264,9 +264,9 @@ protected:
   int ProcessRequest(vtkInformation *request,
                      vtkInformationVector **inInfo,
                      vtkInformationVector *outInfo);
+
 private:
   WindBladeReaderInternal * Internal;
-  //@}
 
   vtkWindBladeReader(const vtkWindBladeReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkWindBladeReader&) VTK_DELETE_FUNCTION;

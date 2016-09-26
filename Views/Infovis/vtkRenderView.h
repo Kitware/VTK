@@ -241,10 +241,11 @@ public:
   void SetRenderOnMouseMove(bool b);
   vtkGetMacro(RenderOnMouseMove, bool);
   vtkBooleanMacro(RenderOnMouseMove, bool);
+  //@}
+
 protected:
   vtkRenderView();
   ~vtkRenderView();
-  //@}
 
   /**
    * Called to process events.

@@ -97,27 +97,32 @@ public:
   virtual void OnLeave();
   //@}
 
+  //@{
   virtual void StartInspect(int x, int y);
   virtual void Inspect(int x, int y);
   virtual void EndInspect();
+  //@}
 
+  //@{
   virtual void StartZoom();
   virtual void Zoom();
   virtual void EndZoom();
+  //@}
 
+  //@{
   virtual void StartPan();
   virtual void Pan();
   virtual void EndPan();
+  //@}
 
-  //@{
   /**
    * Override the "fly-to" (f keypress) for images.
    */
   virtual void OnChar();
+
 protected:
   vtkParallelCoordinatesInteractorStyle();
   ~vtkParallelCoordinatesInteractorStyle();
-  //@}
 
   int CursorStartPosition[2];
   int CursorCurrentPosition[2];

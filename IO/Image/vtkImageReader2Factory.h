@@ -64,16 +64,15 @@ public:
   VTK_NEWINSTANCE
   static vtkImageReader2* CreateImageReader2(const char* path);
 
-  //@{
   /**
    * The caller must allocate the vtkImageReader2Collection and pass in the
    * pointer to this method.
    */
   static void GetRegisteredReaders(vtkImageReader2Collection* );
+
 protected:
   vtkImageReader2Factory();
   ~vtkImageReader2Factory();
-  //@}
 
   static void InitializeReaders();
 

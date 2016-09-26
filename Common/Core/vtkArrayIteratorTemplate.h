@@ -102,15 +102,14 @@ public:
    */
   int GetDataTypeSize();
 
-  //@{
   /**
    * This is the data type for the value.
    */
   typedef T ValueType;
+
 protected:
   vtkArrayIteratorTemplate();
   ~vtkArrayIteratorTemplate() VTK_OVERRIDE;
-  //@}
 
   T* Pointer;
 private:

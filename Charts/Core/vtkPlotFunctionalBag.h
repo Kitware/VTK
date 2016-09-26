@@ -124,15 +124,14 @@ public:
    */
   virtual bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max);
 
-  //@{
   /**
    * Select all points in the specified polygon.
    */
   virtual bool SelectPointsInPolygon(const vtkContextPolygon &polygon);
+
 protected:
   vtkPlotFunctionalBag();
   ~vtkPlotFunctionalBag();
-  //@}
 
   /**
    * Populate the data arrays ready to operate on input data.

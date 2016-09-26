@@ -46,15 +46,14 @@ public:
    */
   vtkClientSocket* WaitForConnection(unsigned long msec=0);
 
-  //@{
   /**
    * Returns the port on which the server is running.
    */
   int GetServerPort();
+
 protected:
   vtkServerSocket();
   ~vtkServerSocket() VTK_OVERRIDE;
-  //@}
 
 private:
   vtkServerSocket(const vtkServerSocket&) VTK_DELETE_FUNCTION;

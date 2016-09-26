@@ -129,16 +129,15 @@ protected:
    */
   virtual int ComputeOutlierThresholds(vtkImageData* histogram, vtkDoubleArray* thresholds, double threshold);
 
-  //@{
   /**
    * Take a set of range thresholds (bin extents) and filter out rows from the input table data that
    * fits inside those thresholds.
    */
   virtual int FillOutlierIds(vtkTable* data, vtkCollection* thresholds, vtkIdTypeArray* rowIds, vtkTable* outTable);
+
 private:
   vtkComputeHistogram2DOutliers(const vtkComputeHistogram2DOutliers&) VTK_DELETE_FUNCTION;
   void operator=(const vtkComputeHistogram2DOutliers&) VTK_DELETE_FUNCTION;
 };
-  //@}
 
 #endif

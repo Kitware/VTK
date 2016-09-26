@@ -61,10 +61,11 @@ public:
   void RemoveItem(int i);
   void RemoveItem(vtkObject *);
   void RemoveAllItems();
+  //@}
+
 protected:
   vtkSocketCollection();
   ~vtkSocketCollection() VTK_OVERRIDE;
-  //@}
 
   vtkSocket* SelectedSocket;
 private:

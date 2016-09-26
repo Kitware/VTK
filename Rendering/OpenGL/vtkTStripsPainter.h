@@ -34,17 +34,16 @@ protected:
   vtkTStripsPainter();
   ~vtkTStripsPainter();
 
-  //@{
   /**
    * The actual rendering happens here. This method is called only when
    * SupportedPrimitive is present in typeflags when Render() is invoked.
    */
   virtual int RenderPrimitive(unsigned long flags, vtkDataArray* n,
     vtkUnsignedCharArray* c, vtkDataArray* t, vtkRenderer* ren);
+
 private:
   vtkTStripsPainter(const vtkTStripsPainter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTStripsPainter&) VTK_DELETE_FUNCTION;
 };
-  //@}
 
 #endif

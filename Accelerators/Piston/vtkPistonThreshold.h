@@ -45,10 +45,11 @@ public:
    */
   vtkSetMacro(MaxValue, float);
   vtkGetMacro(MaxValue, float);
+  //@}
+
 protected:
   vtkPistonThreshold();
   ~vtkPistonThreshold();
-  //@}
 
   /**
    * Method that does the actual calculation.

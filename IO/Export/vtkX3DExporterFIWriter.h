@@ -78,11 +78,11 @@ public:
   vtkSetClampMacro(Fastest, int, 0, 1);
   vtkBooleanMacro(Fastest, int);
   vtkGetMacro(Fastest, int);
+  //@}
+
 protected:
   vtkX3DExporterFIWriter();
   ~vtkX3DExporterFIWriter();
-  //@}
-
 
 private:
   void StartAttribute(int attributeID, bool literal, bool addToTable = false);

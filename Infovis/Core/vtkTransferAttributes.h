@@ -128,15 +128,14 @@ protected:
 
   vtkVariant DefaultValue;
 
-  //@{
   /**
    * Convert the vtkGraph into vtkPolyData.
    */
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+
 private:
   vtkTransferAttributes(const vtkTransferAttributes&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTransferAttributes&) VTK_DELETE_FUNCTION;
 };
-  //@}
 
 #endif

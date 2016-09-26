@@ -284,7 +284,6 @@ public:
   vtkBooleanMacro(UseSsend, int);
   //@}
 
-  //@{
   /**
    * Copies all the attributes of source, deleting previously
    * stored data. The MPI communicator handle is also copied.
@@ -293,10 +292,10 @@ public:
    * world communicator, keeping the same context.
    */
   void CopyFrom(vtkMPICommunicator* source);
+
 protected:
   vtkMPICommunicator();
   ~vtkMPICommunicator();
-  //@}
 
   // Obtain size and rank setting NumberOfProcesses and LocalProcessId Should
   // not be called if the current communicator does not include this process
