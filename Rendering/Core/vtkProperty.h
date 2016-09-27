@@ -109,6 +109,17 @@ public:
 
   //@{
   /**
+   * Set/Get rendering of points as spheres. The size of the
+   * sphere in pixels is controlled by the PointSize
+   * attribute.
+   */
+  vtkGetMacro(RenderPointsAsSpheres, bool);
+  vtkSetMacro(RenderPointsAsSpheres, bool);
+  vtkBooleanMacro(RenderPointsAsSpheres, bool);
+  //@}
+
+  //@{
+  /**
    * Set the shading interpolation method for an object.
    */
   vtkSetClampMacro(Interpolation, int, VTK_FLAT, VTK_PHONG);
@@ -470,6 +481,7 @@ protected:
   int BackfaceCulling;
   int FrontfaceCulling;
   bool Lighting;
+  bool RenderPointsAsSpheres;
 
   int Shading;
 

@@ -86,6 +86,7 @@ vtkProperty::vtkProperty()
   this->LineStipplePattern = 0xFFFF;
   this->LineStippleRepeatFactor = 1;
   this->Lighting = true;
+  this->RenderPointsAsSpheres = false;
 
   this->Shading = 0;
   this->MaterialName = 0;
@@ -125,6 +126,7 @@ void vtkProperty::DeepCopy(vtkProperty *p)
     this->SetLineStipplePattern(p->GetLineStipplePattern());
     this->SetLineStippleRepeatFactor(p->GetLineStippleRepeatFactor());
     this->SetLighting(p->GetLighting());
+    this->SetRenderPointsAsSpheres(p->GetRenderPointsAsSpheres());
     this->SetShading(p->GetShading());
 
     this->RemoveAllTextures();
@@ -477,6 +479,8 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << "Off" << endl;
   }
+  os << indent << "RenderPointsAsSpheres: "
+     << (this->RenderPointsAsSpheres ? "On" : "Off") << endl;
 
   os << indent << "Shading: "
     << (this->Shading? "On" : "Off") << endl;

@@ -528,7 +528,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
   std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
   std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
 
-  // crate the material/color property declarations, and VS implementation
+  // create the material/color property declarations, and VS implementation
   // these are always defined
   std::string colorDec =
     "uniform float opacityUniform; // the fragment opacity\n"
@@ -1200,12 +1200,48 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
   std::map<vtkShader::Type, vtkShader *> shaders,
   vtkRenderer *, vtkActor *actor)
 {
+  std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+
+  // Render points as spheres if so requested
+  // To get the correct zbuffer values we have to
+  // adjust the incoming z value based on the shape
+  // of the sphere, See the document
+  // PixelsToZBufferConversion in this directory for
+  // the derivation of the equations used.
+  if (actor->GetProperty()->GetRenderPointsAsSpheres() &&
+      !this->DrawingEdges &&
+      (this->LastBoundBO == &this->Points ||
+        actor->GetProperty()->GetRepresentation() == VTK_POINTS))
+  {
+    vtkShaderProgram::Substitute(FSSource,
+      "//VTK::Normal::Dec",
+      "uniform float ZCalcS;\n"
+      "uniform float ZCalcR;\n"
+      "uniform int cameraParallel;\n"
+      );
+    vtkShaderProgram::Substitute(FSSource,
+      "//VTK::Normal::Impl",
+      " float len = length(vec2(2.0*gl_PointCoord.x - 1.0, 2.0*gl_PointCoord.y - 1.0));\n"
+      " if (len > 1.0) { discard; }\n"
+      " vec3 normalVCVSOutput = normalize(\n"
+      "   vec3(2.0*gl_PointCoord.x - 1.0, 2.0*gl_PointCoord.y - 1.0, sqrt(1.0 - len*len)));\n"
+
+      " gl_FragDepth = gl_FragCoord.z + normalVCVSOutput.z*ZCalcS*ZCalcR;\n"
+      " if (cameraParallel == 0) {\n"
+      "  float ZCalcQ = (normalVCVSOutput.z*ZCalcR - 1.0);\n"
+      "  gl_FragDepth = (ZCalcS - gl_FragCoord.z) / ZCalcQ + ZCalcS; }\n"
+      );
+
+     shaders[vtkShader::Fragment]->SetSource(FSSource);
+     return;
+   }
+
   if (this->LastLightComplexity[this->LastBoundBO] > 0)
   {
     std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
     std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
-    std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
 
+    // if we have point normals provided
     if (this->VBO->NormalOffset)
     {
       vtkShaderProgram::Substitute(VSSource,
@@ -1234,28 +1270,33 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
         "  if (gl_FrontFacing == false) { normalVCVSOutput = -normalVCVSOutput; }\n"
         //"normalVC = normalVCVarying;"
         );
+
+      shaders[vtkShader::Vertex]->SetSource(VSSource);
+      shaders[vtkShader::Geometry]->SetSource(GSSource);
+      shaders[vtkShader::Fragment]->SetSource(FSSource);
+      return;
     }
-    else
+
+    // OK no point normals, how about cell normals
+    if (this->HaveCellNormals)
     {
-      if (this->HaveCellNormals)
+      vtkShaderProgram::Substitute(FSSource,
+        "//VTK::Normal::Dec",
+        "uniform mat3 normalMatrix;\n"
+        "uniform samplerBuffer textureN;\n");
+      if (this->CellNormalTexture->GetVTKDataType() == VTK_FLOAT)
       {
         vtkShaderProgram::Substitute(FSSource,
-          "//VTK::Normal::Dec",
-          "uniform mat3 normalMatrix;\n"
-          "uniform samplerBuffer textureN;\n");
-        if (this->CellNormalTexture->GetVTKDataType() == VTK_FLOAT)
-        {
-          vtkShaderProgram::Substitute(FSSource,
-            "//VTK::Normal::Impl",
-            "vec3 normalVCVSOutput = \n"
-            "    texelFetchBuffer(textureN, gl_PrimitiveID + PrimitiveIDOffset).xyz;\n"
-            "normalVCVSOutput = normalize(normalMatrix * normalVCVSOutput);\n"
-            "  if (gl_FrontFacing == false) { normalVCVSOutput = -normalVCVSOutput; }\n"
-            );
-        }
-        else
-        {
-          vtkShaderProgram::Substitute(FSSource,
+          "//VTK::Normal::Impl",
+          "vec3 normalVCVSOutput = \n"
+          "    texelFetchBuffer(textureN, gl_PrimitiveID + PrimitiveIDOffset).xyz;\n"
+          "normalVCVSOutput = normalize(normalMatrix * normalVCVSOutput);\n"
+          "  if (gl_FrontFacing == false) { normalVCVSOutput = -normalVCVSOutput; }\n"
+          );
+      }
+      else
+      {
+        vtkShaderProgram::Substitute(FSSource,
             "//VTK::Normal::Impl",
             "vec3 normalVCVSOutput = \n"
             "    texelFetchBuffer(textureN, gl_PrimitiveID + PrimitiveIDOffset).xyz;\n"
@@ -1263,67 +1304,65 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
             "normalVCVSOutput = normalize(normalMatrix * normalVCVSOutput);\n"
             "  if (gl_FrontFacing == false) { normalVCVSOutput = -normalVCVSOutput; }\n"
             );
-        }
-      }
-      else
-      {
-        if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
-        {
-          // generate a normal for lines, it will be perpendicular to the line
-          // and maximally aligned with the camera view direction
-          // no clue if this is the best way to do this.
-          // the code below has been optimized a bit so what follows is
-          // an explanation of the basic approach. Compute the gradient of the line
-          // with respect to x and y, the the larger of the two
-          // cross that with the camera view direction. That gives a vector
-          // orthogonal to the camera view and the line. Note that the line and the camera
-          // view are probably not orthogonal. Which is why when we cross result that with
-          // the line gradient again we get a reasonable normal. It will be othogonal to
-          // the line (which is a plane but maximally aligned with the camera view.
-          vtkShaderProgram::Substitute(
-                FSSource,"//VTK::UniformFlow::Impl",
-                "  vec3 fdx = vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z));\n"
-                "  vec3 fdy = vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z));\n"
-                "  //VTK::UniformFlow::Impl\n" // For further replacements
-                );
-          vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Impl",
-            "vec3 normalVCVSOutput;\n"
-            "  fdx = normalize(fdx);\n"
-            "  fdy = normalize(fdy);\n"
-            "  if (abs(fdx.x) > 0.0)\n"
-            "    { normalVCVSOutput = normalize(cross(vec3(fdx.y, -fdx.x, 0.0), fdx)); }\n"
-            "  else { normalVCVSOutput = normalize(cross(vec3(fdy.y, -fdy.x, 0.0), fdy));}"
-            );
-        }
-        else
-        {
-          vtkShaderProgram::Substitute(FSSource,
-            "//VTK::Normal::Dec",
-            "uniform int cameraParallel;");
-
-          vtkShaderProgram::Substitute(
-                FSSource,"//VTK::UniformFlow::Impl",
-                "vec3 fdx = vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z));\n"
-                "  vec3 fdy = vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z));\n"
-                "  //VTK::UniformFlow::Impl\n" // For further replacements
-                );
-          vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Impl",
-            "  fdx = normalize(fdx);\n"
-            "  fdy = normalize(fdy);\n"
-            "  vec3 normalVCVSOutput = normalize(cross(fdx,fdy));\n"
-            // the code below is faster, but does not work on some devices
-            //"vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));\n"
-            "  if (cameraParallel == 1 && normalVCVSOutput.z < 0.0) { normalVCVSOutput = -1.0*normalVCVSOutput; }\n"
-            "  if (cameraParallel == 0 && dot(normalVCVSOutput,vertexVC.xyz) > 0.0) { normalVCVSOutput = -1.0*normalVCVSOutput; }"
-            );
-        }
+        shaders[vtkShader::Fragment]->SetSource(FSSource);
+        return;
       }
     }
-    shaders[vtkShader::Vertex]->SetSource(VSSource);
-    shaders[vtkShader::Geometry]->SetSource(GSSource);
+
+    // OK we have no point or cell normals, so compute something
+    // we have a forumla for wireframe
+    if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
+    {
+      // generate a normal for lines, it will be perpendicular to the line
+      // and maximally aligned with the camera view direction
+      // no clue if this is the best way to do this.
+      // the code below has been optimized a bit so what follows is
+      // an explanation of the basic approach. Compute the gradient of the line
+      // with respect to x and y, the the larger of the two
+      // cross that with the camera view direction. That gives a vector
+      // orthogonal to the camera view and the line. Note that the line and the camera
+      // view are probably not orthogonal. Which is why when we cross result that with
+      // the line gradient again we get a reasonable normal. It will be othogonal to
+      // the line (which is a plane but maximally aligned with the camera view.
+      vtkShaderProgram::Substitute(
+            FSSource,"//VTK::UniformFlow::Impl",
+            "  vec3 fdx = vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z));\n"
+            "  vec3 fdy = vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z));\n"
+            "  //VTK::UniformFlow::Impl\n" // For further replacements
+            );
+      vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Impl",
+        "vec3 normalVCVSOutput;\n"
+        "  fdx = normalize(fdx);\n"
+        "  fdy = normalize(fdy);\n"
+        "  if (abs(fdx.x) > 0.0)\n"
+        "    { normalVCVSOutput = normalize(cross(vec3(fdx.y, -fdx.x, 0.0), fdx)); }\n"
+        "  else { normalVCVSOutput = normalize(cross(vec3(fdy.y, -fdy.x, 0.0), fdy));}"
+        );
+    }
+    else // not lines, so surface
+    {
+      vtkShaderProgram::Substitute(FSSource,
+        "//VTK::Normal::Dec",
+        "uniform int cameraParallel;");
+
+      vtkShaderProgram::Substitute(
+            FSSource,"//VTK::UniformFlow::Impl",
+            "vec3 fdx = vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z));\n"
+            "  vec3 fdy = vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z));\n"
+            "  //VTK::UniformFlow::Impl\n" // For further replacements
+            );
+      vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Impl",
+        "  fdx = normalize(fdx);\n"
+        "  fdy = normalize(fdy);\n"
+        "  vec3 normalVCVSOutput = normalize(cross(fdx,fdy));\n"
+        // the code below is faster, but does not work on some devices
+        //"vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));\n"
+        "  if (cameraParallel == 1 && normalVCVSOutput.z < 0.0) { normalVCVSOutput = -1.0*normalVCVSOutput; }\n"
+        "  if (cameraParallel == 0 && dot(normalVCVSOutput,vertexVC.xyz) > 0.0) { normalVCVSOutput = -1.0*normalVCVSOutput; }"
+        );
+    }
     shaders[vtkShader::Fragment]->SetSource(FSSource);
   }
-
 }
 
 void vtkOpenGLPolyDataMapper::ReplaceShaderPositionVC(
@@ -1514,6 +1553,14 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
     needLighting = (isTrisOrStrips ||
       (!isTrisOrStrips && actor->GetProperty()->GetInterpolation() != VTK_FLAT && haveNormals));
   }
+
+  if ((&cellBO == &this->Points ||
+      actor->GetProperty()->GetRepresentation() == VTK_POINTS) &&
+      actor->GetProperty()->GetRenderPointsAsSpheres() &&
+      !this->DrawingEdges)
+    {
+    needLighting = true;
+    }
 
   // do we need lighting?
   if (actor->GetProperty()->GetLighting() && needLighting)
@@ -2002,6 +2049,21 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(vtkOpenGLHelper &cellBO,
   vtkMatrix3x3* norms;
   vtkMatrix4x4* vcdc;
   cam->GetKeyMatrices(ren, wcvc, norms, vcdc, wcdc);
+
+  if (program->IsUniformUsed("ZCalcR"))
+    {
+    if (cam->GetParallelProjection())
+      {
+      program->SetUniformf("ZCalcS", vcdc->GetElement(2,2));
+      }
+    else
+      {
+      program->SetUniformf("ZCalcS", -0.5*vcdc->GetElement(2,2) + 0.5);
+      }
+    program->SetUniformf("ZCalcR",
+      actor->GetProperty()->GetPointSize()/
+        (ren->GetSize()[0] * vcdc->GetElement(0,0)));
+    }
 
   if (this->VBO->GetCoordShiftAndScaleEnabled())
   {
