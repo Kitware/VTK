@@ -277,12 +277,8 @@ void vtkXMLDataReader::SetupOutputData()
     for (int i = 0; i < ePointData->GetNumberOfNestedElements(); i++)
     {
       vtkXMLDataElement* eNested = ePointData->GetNestedElement(i);
-      if (pointData->HasArray(eNested->GetAttribute("Name")))
-      {
-        vtkErrorMacro("Duplicate array names.");
-        this->DataError = 1;
-      }
-      if (this->PointDataArrayIsEnabled(eNested))
+      if (this->PointDataArrayIsEnabled(eNested) &&
+          !pointData->HasArray(eNested->GetAttribute("Name")))
       {
         this->NumberOfPointArrays++;
         vtkAbstractArray* array = this->CreateArray(eNested);
@@ -307,12 +303,8 @@ void vtkXMLDataReader::SetupOutputData()
     for (int i = 0; i < eCellData->GetNumberOfNestedElements(); i++)
     {
       vtkXMLDataElement* eNested = eCellData->GetNestedElement(i);
-      if (cellData->HasArray(eNested->GetAttribute("Name")))
-      {
-        vtkErrorMacro("Duplicate array names.");
-        this->DataError = 1;
-      }
-      if (this->CellDataArrayIsEnabled(eNested))
+      if (this->CellDataArrayIsEnabled(eNested) &&
+          !cellData->HasArray(eNested->GetAttribute("Name")))
       {
         this->NumberOfCellArrays++;
         vtkAbstractArray* array = this->CreateArray(eNested);
@@ -441,7 +433,8 @@ int vtkXMLDataReader::ReadPieceData()
           this->SetProgressRange(progressRange, currentArray++, numArrays);
 
           // Read the array.
-          if (!this->ReadArrayForPoints(eNested, pointData->GetAbstractArray(a++)))
+          vtkAbstractArray* array = pointData->GetAbstractArray(a++);
+          if (array && !this->ReadArrayForPoints(eNested, array))
           {
             if (!this->AbortExecute)
             {
