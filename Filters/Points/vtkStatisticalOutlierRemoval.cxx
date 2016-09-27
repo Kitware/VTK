@@ -137,6 +137,7 @@ struct ComputeMeanDistance
         count += *cItr;
       }
 
+      count = ( count < 1 ? 1 : count);
       this->Mean = mean / static_cast<double>(count);
   }
 
