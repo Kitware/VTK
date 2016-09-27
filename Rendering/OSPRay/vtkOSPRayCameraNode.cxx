@@ -15,6 +15,7 @@
 #include "vtkOSPRayCameraNode.h"
 
 #include "vtkCamera.h"
+#include "vtkWindow.h"
 #include "vtkCollectionIterator.h"
 #include "vtkObjectFactory.h"
 #include "vtkOSPRayRendererNode.h"
@@ -57,18 +58,26 @@ void vtkOSPRayCameraNode::Render(bool prepass)
     ren->GetTiledSizeAndOrigin(
       &tiledSize[0], &tiledSize[1], &tiledOrigin[0], &tiledOrigin[1]);
 
+    vtkWindow *win = ren->GetVTKWindow();
+    double *vp = win->GetTileViewport();
+    int *ts = win->GetTileScale();
+
     vtkCamera *cam = static_cast<vtkCamera *>(this->Renderable);
 
     OSPCamera ospCamera;
     if (cam->GetParallelProjection())
     {
+      // TODO: looks like imageStart/imageEnd doesn't work in ortho mode
+      double height = cam->GetParallelScale() * 2 * ts[0];
       ospCamera = ospNewCamera("orthographic");
-      ospSetf(ospCamera, "height", cam->GetParallelScale() * 2);
+      ospSetf(ospCamera, "height", height);
     }
     else
     {
+      // TODO: there's a rounding error here since TileScale is an int
+      double fovy = cam->GetViewAngle() * ts[0];
       ospCamera = ospNewCamera("perspective");
-      ospSetf(ospCamera, "fovy", cam->GetViewAngle());
+      ospSetf(ospCamera, "fovy", fovy);
     }
 
     ospSetObject(orn->GetORenderer(), "camera", ospCamera);
@@ -79,6 +88,8 @@ void vtkOSPRayCameraNode::Render(bool prepass)
     ospSet3f(ospCamera, "up", up[0], up[1], up[2]);
     double *dop = cam->GetDirectionOfProjection();
     ospSet3f(ospCamera, "dir", dop[0], dop[1], dop[2]);
+    ospSet2f(ospCamera, "imageStart", (float)vp[0], (float)vp[1]);
+    ospSet2f(ospCamera, "imageEnd", (float)vp[2], (float)vp[3]);
     ospCommit(ospCamera);
     ospRelease(ospCamera);
   }

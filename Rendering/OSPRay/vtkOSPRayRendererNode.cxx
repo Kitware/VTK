@@ -514,9 +514,12 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     ospCommit(this->ORenderer);
 
     vtkRenderer *ren = vtkRenderer::SafeDownCast(this->GetRenderable());
-    int *tmp = ren->GetSize();
-    this->Size[0] = tmp[0];
-    this->Size[1] = tmp[1];
+    int viewportOrigin[2];
+    int viewportSize[2];
+    ren->GetTiledSizeAndOrigin(
+      &viewportSize[0], &viewportSize[1], &viewportOrigin[0], &viewportOrigin[1]);
+    this->Size[0] = viewportSize[0];
+    this->Size[1] = viewportSize[1];
     if (ren->GetUseShadows())
     {
       ospSet1i(oRenderer,"shadowsEnabled",1);
