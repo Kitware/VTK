@@ -140,7 +140,7 @@ protected:
   // what "index" are we currently rendering, -1 means none
   int CurrentFlatIndex;
   std::map<const std::string, vtkCompositeMapperHelper2 *> Helpers;
-  std::map<const vtkPolyData *, vtkCompositeMapperHelperData *> HelperDataMap;
+  std::map<vtkPolyData *, vtkCompositeMapperHelperData *> HelperDataMap;
   vtkTimeStamp HelperMTime;
 
   // copy values to the helpers
