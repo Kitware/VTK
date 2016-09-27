@@ -46,18 +46,18 @@ vtkIOSRenderWindow::vtkIOSRenderWindow()
 vtkIOSRenderWindow::~vtkIOSRenderWindow()
 {
   if (this->CursorHidden)
-    {
+  {
     this->ShowCursor();
-    }
+  }
   this->Finalize();
 
   vtkRenderer *ren;
   vtkCollectionSimpleIterator rit;
   this->Renderers->InitTraversal(rit);
   while ( (ren = this->Renderers->GetNextRenderer(rit)) )
-    {
+  {
     ren->SetRenderWindow(NULL);
-    }
+  }
 
   delete[] this->Capabilities;
   this->Capabilities = 0;
@@ -74,15 +74,15 @@ vtkIOSRenderWindow::~vtkIOSRenderWindow()
 void vtkIOSRenderWindow::Finalize()
 {
   if(this->OffScreenInitialized)
-    {
+  {
     this->OffScreenInitialized = 0;
     this->DestroyOffScreenWindow();
-    }
+  }
   if(this->OnScreenInitialized)
-    {
+  {
     this->OnScreenInitialized = 0;
     this->DestroyWindow();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -90,10 +90,10 @@ void vtkIOSRenderWindow::DestroyWindow()
 {
   // finish OpenGL rendering
   if (this->OwnContext && this->GetContextId())
-    {
+  {
     this->MakeCurrent();
     this->ReleaseGraphicsResources(this);
-    }
+  }
   this->SetContextId(NULL);
   this->SetPixelFormat(NULL);
 
@@ -207,9 +207,9 @@ int vtkIOSRenderWindow::SupportsOpenGL()
 {
   this->MakeCurrent();
   if (!this->GetContextId() || !this->GetPixelFormat())
-    {
+  {
     return 0;
-    }
+  }
   return 1;
 }
 
@@ -218,9 +218,9 @@ int vtkIOSRenderWindow::IsDirect()
 {
   this->MakeCurrent();
   if (!this->GetContextId() || !this->GetPixelFormat())
-    {
+  {
     return 0;
-    }
+  }
   return 1;
 }
 
@@ -236,11 +236,11 @@ void vtkIOSRenderWindow::SetSize(int x, int y)
   static int resizing = 0;
 
   if ((this->Size[0] != x) || (this->Size[1] != y) || (this->GetParentId()))
-    {
+  {
     this->Modified();
     this->Size[0] = x;
     this->Size[1] = y;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -262,11 +262,11 @@ void vtkIOSRenderWindow::SetPosition(int x, int y)
 
   if ((this->Position[0] != x) || (this->Position[1] != y)
       || (this->GetParentId()))
-    {
+  {
     this->Modified();
     this->Position[0] = x;
     this->Position[1] = y;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -276,9 +276,9 @@ void vtkIOSRenderWindow::Frame()
   this->MakeCurrent();
 
   if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers)
-    {
+  {
 //    [(NSOpenGLContext*)this->GetContextId() flushBuffer];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -287,9 +287,9 @@ void vtkIOSRenderWindow::StereoUpdate()
 {
   // if stereo is on and it wasn't before
   if (this->StereoRender && (!this->StereoStatus))
-    {
+  {
     switch (this->StereoType)
-      {
+    {
       case VTK_STEREO_CRYSTAL_EYES:
         this->StereoStatus = 1;
         break;
@@ -311,12 +311,12 @@ void vtkIOSRenderWindow::StereoUpdate()
       case VTK_STEREO_SPLITVIEWPORT_HORIZONTAL:
         this->StereoStatus = 1;
         break;
-      }
     }
+  }
   else if ((!this->StereoRender) && this->StereoStatus)
-    {
+  {
     switch (this->StereoType)
-      {
+    {
       case VTK_STEREO_CRYSTAL_EYES:
         this->StereoStatus = 0;
         break;
@@ -338,8 +338,8 @@ void vtkIOSRenderWindow::StereoUpdate()
       case VTK_STEREO_SPLITVIEWPORT_HORIZONTAL:
         this->StereoStatus = 0;
         break;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -377,10 +377,10 @@ void vtkIOSRenderWindow::CreateAWindow()
 
   for ( this->Renderers->InitTraversal(rsit);
         (renderer = this->Renderers->GetNextRenderer(rsit));)
-    {
+  {
     renderer->SetRenderWindow(0);
     renderer->SetRenderWindow(this);
-    }
+  }
   this->OpenGLInit();
   this->Mapped = 1;
 }
@@ -409,9 +409,9 @@ int *vtkIOSRenderWindow::GetSize()
 {
   // if we aren't mapped then just return the ivar
   if (!this->Mapped)
-    {
+  {
     return this->Superclass::GetSize();
-    }
+  }
 
   return this->Superclass::GetSize();
 }
@@ -444,14 +444,14 @@ void vtkIOSRenderWindow::SetFullScreen(int arg)
 void vtkIOSRenderWindow::SetStereoCapableWindow(int capable)
 {
   if (this->GetContextId() == 0)
-    {
+  {
     vtkRenderWindow::SetStereoCapableWindow(capable);
-    }
+  }
   else
-    {
+  {
     vtkWarningMacro(<< "Requesting a StereoCapableWindow must be performed "
                     << "before the window is realized, i.e. before a render.");
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -492,16 +492,16 @@ void vtkIOSRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 int vtkIOSRenderWindow::GetDepthBufferSize()
 {
   if ( this->Mapped )
-    {
+  {
     GLint size = 0;
     glGetIntegerv( GL_DEPTH_BITS, &size );
     return (int) size;
-    }
+  }
   else
-    {
+  {
     vtkDebugMacro(<< "Window is not mapped yet!" );
     return 24;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -577,9 +577,9 @@ void vtkIOSRenderWindow::SetWindowInfo(char *info)
   // a pointer to the window. Convert it back to a pointer.
   ptrdiff_t tmp = 0;
   if (info)
-    {
+  {
     (void)sscanf(info, "%tu", &tmp);
-    }
+  }
 
   this->SetWindowId (reinterpret_cast<void *>(tmp));
 }
@@ -591,9 +591,9 @@ void vtkIOSRenderWindow::SetParentInfo(char *info)
   // a pointer to the window. Convert it back to a pointer.
   ptrdiff_t tmp = 0;
   if (info)
-    {
+  {
     (void)sscanf(info, "%tu", &tmp);
-    }
+  }
 
   this->SetParentId (reinterpret_cast<void *>(tmp));
 }
@@ -602,9 +602,9 @@ void vtkIOSRenderWindow::SetParentInfo(char *info)
 void vtkIOSRenderWindow::HideCursor()
 {
   if (this->CursorHidden)
-    {
+  {
     return;
-    }
+  }
   this->CursorHidden = 1;
 }
 
@@ -612,9 +612,9 @@ void vtkIOSRenderWindow::HideCursor()
 void vtkIOSRenderWindow::ShowCursor()
 {
   if (!this->CursorHidden)
-    {
+  {
     return;
-    }
+  }
   this->CursorHidden = 0;
 }
 
@@ -633,8 +633,8 @@ void vtkIOSRenderWindow::SetCursorPosition(int x, int y)
 void vtkIOSRenderWindow::SetCurrentCursor(int shape)
 {
   if (this->InvokeEvent(vtkCommand::CursorChangedEvent, &shape))
-    {
+  {
     return;
-    }
+  }
   this->Superclass::SetCurrentCursor(shape);
 }

@@ -60,13 +60,13 @@ PURPOSE.  See the above copyright notice for more information.
 - (vtkIOSRenderWindowInteractor *)getInteractor
 {
   if (_myVTKRenderWindow)
-    {
+  {
     return (vtkIOSRenderWindowInteractor *)_myVTKRenderWindow->GetInteractor();
-    }
+  }
   else
-    {
+  {
     return NULL;
-    }
+  }
 }
 
 - (void)setupPipeline
@@ -209,38 +209,38 @@ PURPOSE.  See the above copyright notice for more information.
 {
   vtkIOSRenderWindowInteractor *interactor = [self getInteractor];
   if (!interactor)
-    {
+  {
     return;
-    }
+  }
 
   CGRect bounds = [self.view bounds];
 
   // set the position for all contacts
   NSSet *myTouches = [event touchesForView:self.view];
   for (UITouch *touch in myTouches)
-    {
+  {
     // Convert touch point from UIView referential to OpenGL one (upside-down flip)
     CGPoint location = [touch locationInView:self.view];
     location.y = bounds.size.height - location.y;
 
     int index = interactor->GetPointerIndexForContact((size_t)(__bridge void *)touch);
     if (index < VTKI_MAX_POINTERS)
-      {
+    {
       interactor->SetEventInformation((int)round(location.x),
                                   (int)round(location.y),
                                   0, 0,
                                   0, 0, 0, index);
-      }
     }
+  }
 
   // handle begin events
   for (UITouch *touch in touches)
-    {
+  {
     int index = interactor->GetPointerIndexForContact((size_t)(__bridge void *)touch);
     interactor->SetPointerIndex(index);
     interactor->LeftButtonPressEvent();
     NSLog(@"Starting left mouse");
-    }
+  }
 
   // Display the buffer
   [(GLKView *)self.view display];
@@ -251,9 +251,9 @@ PURPOSE.  See the above copyright notice for more information.
 {
   vtkIOSRenderWindowInteractor *interactor = [self getInteractor];
   if (!interactor)
-    {
+  {
     return;
-    }
+  }
 
   CGRect        bounds = [self.view bounds];
 
@@ -261,20 +261,20 @@ PURPOSE.  See the above copyright notice for more information.
   int index;
   NSSet *myTouches = [event touchesForView:self.view];
   for (UITouch *touch in myTouches)
-    {
+  {
     // Convert touch point from UIView referential to OpenGL one (upside-down flip)
     CGPoint location = [touch locationInView:self.view];
     location.y = bounds.size.height - location.y;
 
     index = interactor->GetPointerIndexForContact((size_t)(__bridge void *)touch);
     if (index < VTKI_MAX_POINTERS)
-      {
+    {
       interactor->SetEventInformation((int)round(location.x),
                                   (int)round(location.y),
                                   0, 0,
                                   0, 0, 0, index);
-      }
     }
+  }
 
   // fire move event on last index
   interactor->SetPointerIndex(index);
@@ -290,38 +290,38 @@ PURPOSE.  See the above copyright notice for more information.
 {
   vtkIOSRenderWindowInteractor *interactor = [self getInteractor];
   if (!interactor)
-    {
+  {
     return;
-    }
+  }
 
   CGRect        bounds = [self.view bounds];
   // set the position for all contacts
   NSSet *myTouches = [event touchesForView:self.view];
   for (UITouch *touch in myTouches)
-    {
+  {
     // Convert touch point from UIView referential to OpenGL one (upside-down flip)
     CGPoint location = [touch locationInView:self.view];
     location.y = bounds.size.height - location.y;
 
     int index = interactor->GetPointerIndexForContact((size_t)(__bridge void *)touch);
     if (index < VTKI_MAX_POINTERS)
-      {
+    {
       interactor->SetEventInformation((int)round(location.x),
                                   (int)round(location.y),
                                   0, 0,
                                   0, 0, 0, index);
-      }
     }
+  }
 
   // handle begin events
   for (UITouch *touch in touches)
-    {
+  {
     int index = interactor->GetPointerIndexForContact((size_t)(__bridge void *)touch);
     interactor->SetPointerIndex(index);
     interactor->LeftButtonReleaseEvent();
     interactor->ClearContact((size_t)(__bridge void *)touch);
     NSLog(@"lifting left mouse");
-    }
+  }
 
   // Display the buffer
   [(GLKView *)self.view display];
@@ -332,9 +332,9 @@ PURPOSE.  See the above copyright notice for more information.
 {
   vtkIOSRenderWindowInteractor *interactor = [self getInteractor];
   if (!interactor)
-    {
+  {
     return;
-    }
+  }
 
   CGRect        bounds = [self.view bounds];
   UITouch*            touch = [[event touchesForView:self.view] anyObject];

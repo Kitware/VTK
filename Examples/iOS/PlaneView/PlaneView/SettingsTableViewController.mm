@@ -56,7 +56,7 @@
   [tableView deselectRowAtIndexPath:indexPath animated:NO];
 
   if (indexPath.row == 1)
-    {
+  {
     UIDocumentPickerViewController *documentPicker =
       [[UIDocumentPickerViewController alloc]
         initWithDocumentTypes:@[@"com.kitware.vtu",@"com.kitware.vts",@"com.kitware.vtr",@"com.kitware.vti"]
@@ -72,7 +72,7 @@
     // documentPicker.delegate = self;
     // documentPicker.modalPresentationStyle = UIModalPresentationFullScreen;
     // [self presentViewController:documentPicker animated:NO completion:nil];
-    }
+  }
 }
 
 - (void)documentMenu:(UIDocumentMenuViewController *)documentMenu
@@ -86,7 +86,7 @@
 - (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentAtURL:(NSURL *)url
 {
   if (controller.documentPickerMode == UIDocumentPickerModeImport)
-    {
+  {
     NSString *alertMessage = [NSString stringWithFormat:@"Successfully imported %@", [url lastPathComponent]];
     dispatch_async(dispatch_get_main_queue(), ^{
       UIAlertController *alertController = [UIAlertController
@@ -95,13 +95,13 @@
       preferredStyle:UIAlertControllerStyleAlert];
       [alertController addAction:[UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleDefault handler:nil]];
       [self presentViewController:alertController animated:YES completion:nil];
-      });
+    });
 
     // pass the data to the mapper
     VTKViewController *vtkVC = (VTKViewController *)
         [self.navigationController.viewControllers firstObject];
     [vtkVC setNewDataFile:url];
-    }
+  }
 }
 
 
