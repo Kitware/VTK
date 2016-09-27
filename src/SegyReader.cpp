@@ -36,7 +36,6 @@ bool SegyReader::LoadFromFile(string path) {
         return false;
     }
 
-    std::cerr << "in " << in << std::endl;
 
     readHeader(in);
 
