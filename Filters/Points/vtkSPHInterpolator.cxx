@@ -391,7 +391,7 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
   // Initialize the SPH kernel
   if ( this->Kernel->GetRequiresInitialization() )
   {
-    this->Kernel->SetCutoffArray(inPD->GetArray(this->CutoffArrayName));
+    this->Kernel->SetCutoffArray(sourcePD->GetArray(this->CutoffArrayName));
     this->Kernel->SetDensityArray(sourcePD->GetArray(this->DensityArrayName));
     this->Kernel->SetMassArray(sourcePD->GetArray(this->MassArrayName));
     this->Kernel->Initialize(this->Locator, source, sourcePD);
