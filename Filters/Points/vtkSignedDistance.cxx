@@ -42,7 +42,7 @@ struct SignedDistance
 {
   T *Pts;
   float *Normals;
-  int Dims[3];
+  vtkIdType Dims[3];
   double Origin[3];
   double Spacing[3];
   double Radius;
@@ -59,7 +59,7 @@ struct SignedDistance
   {
       for (int i=0; i < 3; ++i)
       {
-        this->Dims[i] = dims[i];
+        this->Dims[i] = static_cast<vtkIdType>(dims[i]);
         this->Origin[i] = origin[i];
         this->Spacing[i] = spacing[i];
       }
@@ -81,7 +81,8 @@ struct SignedDistance
       vtkIdType numPts;
       double *origin=this->Origin;
       double *spacing=this->Spacing;
-      int ii, *dims=this->Dims;
+      int ii;
+      vtkIdType *dims=this->Dims;
       vtkIdType ptId, jOffset, kOffset, sliceSize=dims[0]*dims[1];
       vtkIdList*& pIds = this->PIds.Local();
 
@@ -90,12 +91,12 @@ struct SignedDistance
         x[2] = origin[2] + slice*spacing[2];
         kOffset = slice*sliceSize;
 
-        for ( int j=0;  j < dims[1]; ++j)
+        for ( vtkIdType j=0;  j < dims[1]; ++j)
         {
           x[1] = origin[1] + j*spacing[1];
           jOffset = j*dims[0];
 
-          for ( int i=0; i < dims[0]; ++i)
+          for ( vtkIdType i=0; i < dims[0]; ++i)
           {
             x[0] = origin[0] + i*spacing[0];
             ptId = i + jOffset + kOffset;
@@ -180,7 +181,9 @@ void vtkSignedDistance::StartAppend()
 
   vtkDebugMacro(<< "Initializing data");
   this->AllocateOutputData(this->GetOutput(), this->GetOutputInformation(0));
-  vtkIdType numPts = this->Dimensions[0] * this->Dimensions[1] * this->Dimensions[2];
+  vtkIdType numPts = static_cast<vtkIdType>(this->Dimensions[0]) *
+    static_cast<vtkIdType>(this->Dimensions[1]) *
+    static_cast<vtkIdType>(this->Dimensions[2]);
 
   // initialize output to initial unseen value at each location
   float *newScalars = static_cast<float*>(

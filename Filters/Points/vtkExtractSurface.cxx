@@ -252,7 +252,8 @@ public:
 
       if ( this->NeedGradients )
       {
-        float gTmp[3], g1[3];
+        //some brain dead compilers issue warnings without {} initialization
+        float gTmp[3]={}, g1[3];
         this->ComputeGradient(loc,ijk,
                               s + incs[0], s - incs[0],
                               s + incs[1], s - incs[1],
@@ -684,7 +685,8 @@ InterpolateEdge(double value, vtkIdType ijk[3],
 
   if ( this->NeedGradients )
   {
-    float gTmp[3], g0[3], g1[3];
+    //some brain dead compilers issue warnings without {} initialization
+    float gTmp[3]={}, g0[3], g1[3];
     this->ComputeBoundaryGradient(ijk0,
                                   s0+incs[0], s0-incs[0],
                                   s0+incs[1], s0-incs[1],
