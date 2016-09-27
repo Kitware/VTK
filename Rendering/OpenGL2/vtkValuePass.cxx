@@ -312,7 +312,11 @@ void vtkValuePass::BeginPass(vtkRenderer* ren)
   }
 
   // Clear buffers
+#if GL_ES_VERSION_2_0 != 1
   glClearDepth(1.0);
+#else
+  glClearDepthf(1.0f);
+#endif
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
@@ -491,7 +495,9 @@ void vtkValuePass::GetFloatImageData(int const format, int const width,
 
   // Calling pack alignment ensures any window size can be grabbed.
   glPixelStorei(GL_PACK_ALIGNMENT, 1);
+#if GL_ES_VERSION_2_0 != 1
   glClampColor(GL_CLAMP_READ_COLOR, GL_FALSE);
+#endif
 
   glReadPixels(0, 0, width, height, format, GL_FLOAT,
     data);
