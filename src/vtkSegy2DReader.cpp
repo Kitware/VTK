@@ -10,6 +10,17 @@
 
 vtkStandardNewMacro(vtkSegy2DReader);
 
+vtkSegy2DReader::vtkSegy2DReader()
+{
+    this->SetFileName(0);
+    this->SetNumberOfInputPorts( 0 );
+}
+
+vtkSegy2DReader::~vtkSegy2DReader()
+{
+    this->SetFileName(0);
+}
+
 int vtkSegy2DReader::RequestData(vtkInformation* vtkNotUsed(request),
                                   vtkInformationVector** inputVector,
                                   vtkInformationVector* outputVector)
@@ -24,7 +35,6 @@ int vtkSegy2DReader::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     reader.LoadFromFile(FileName);
-    cout << "FileName : " <<  FileName << endl;
     if(!reader.ExportData2D(output))
         cout << "Failed to request data for vtkSegy2DReader" << endl;
 }

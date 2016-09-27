@@ -3,7 +3,7 @@ using namespace std;
 
 #include <vtkSmartPointer.h>
 #include <vtkStructuredPointsReader.h>
-#include <vtkVolumeTextureMapper3D.h>
+#include <vtkGPUVolumeRayCastMapper.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkRenderer.h>
@@ -100,7 +100,7 @@ void render(vtkImageData* id)
     volumeProperty->SetSpecularPower(70.0);
 
 
-    vtkSmartPointer<vtkVolumeTextureMapper3D> volumeMapper = vtkVolumeTextureMapper3D::New();
+    vtkSmartPointer<vtkGPUVolumeRayCastMapper> volumeMapper = vtkGPUVolumeRayCastMapper::New();
     volumeMapper->SetInputData(id);
 
     vtkVolume *volume=vtkVolume::New();
@@ -309,11 +309,11 @@ int main(int argc, char** argv)
     }
     else if(argc > 1 && strcmp(argv[1], "3") == 0)
     {
-        demoRDV();
+        demo3D();
     }
     else
     {
-        demo2D();
+        demoRDV();
     }
     return 0;
 }
