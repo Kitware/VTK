@@ -108,6 +108,8 @@ public:
    */
   int* GetFloatImageExtents();
 
+  bool IsFloatingPointModeSupported(vtkRenderWindow* renWin);
+
  protected:
   /**
    * Default constructor.
@@ -140,7 +142,6 @@ public:
   /**
    * Methods managing graphics resources required during FLOATING_POINT mode.
    */
-  bool IsFloatFBOSupported(vtkRenderWindow* renWin);
   bool HasWindowSizeChanged(vtkRenderer* ren);
   bool InitializeFloatingPointMode(vtkRenderer* ren);
   void ReleaseFloatingPointMode(vtkRenderer* ren);

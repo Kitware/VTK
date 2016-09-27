@@ -361,8 +361,8 @@ bool vtkValuePass::InitializeFloatingPointMode(vtkRenderer* ren)
   }
 
   vtkRenderWindow* renWin = ren->GetRenderWindow();
-  if (!this->IsFloatFBOSupported(renWin))
-  {
+  if (!this->IsFloatingPointModeSupported(renWin))
+    {
     vtkWarningMacro("Switching to INVERTIBLE_LUT mode.");
     this->RenderingMode = vtkValuePass::INVERTIBLE_LUT;
     return false;
@@ -431,7 +431,7 @@ void vtkValuePass::ReleaseFloatingPointMode(vtkRenderer* ren)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkValuePass::IsFloatFBOSupported(vtkRenderWindow *renWin)
+bool vtkValuePass::IsFloatingPointModeSupported(vtkRenderWindow *renWin)
 {
   vtkOpenGLRenderWindow *context = vtkOpenGLRenderWindow::SafeDownCast(renWin);
   if (!context)
@@ -466,6 +466,11 @@ bool vtkValuePass::IsFloatFBOSupported(vtkRenderWindow *renWin)
 //------------------------------------------------------------------------------
 vtkFloatArray* vtkValuePass::GetFloatImageDataArray(vtkRenderer* ren)
 {
+  if (!this->Internals->ValuePassResourcesAllocated)
+  {
+    return this->Internals->Values;
+  }
+
   vtkRenderWindow* renWin = ren->GetRenderWindow();
   renWin->MakeCurrent();
 
