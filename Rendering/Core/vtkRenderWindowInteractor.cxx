@@ -171,10 +171,10 @@ vtkRenderWindowInteractor *vtkRenderWindowInteractor::New()
   {
     return static_cast<vtkRenderWindowInteractor *>(ret);
   }
-#ifdef VTK_DEBUG_LEAKS
-  vtkDebugLeaks::ConstructClass("vtkRenderWindowInteractor");
-#endif
-  return new vtkRenderWindowInteractor;
+
+  vtkRenderWindowInteractor *o = new vtkRenderWindowInteractor;
+  o->InitializeObjectBase();
+  return o;
 }
 
 //----------------------------------------------------------------------

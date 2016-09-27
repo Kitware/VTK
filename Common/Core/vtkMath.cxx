@@ -45,10 +45,10 @@ public:
   vtkBaseTypeMacro(vtkMathInternal, vtkObjectBase);
   static vtkMathInternal* New()
   {
-#ifdef VTK_DEBUG_LEAKS
-    vtkDebugLeaks::ConstructClass("vtkMathInternal");
-#endif
-    return new vtkMathInternal();
+    // Can't use object factory macros, since they cast to vtkObject*.
+    vtkMathInternal *ret = new vtkMathInternal;
+    ret->InitializeObjectBase();
+    return ret;
   }
 
   vtkMinimalStandardRandomSequence *Uniform;

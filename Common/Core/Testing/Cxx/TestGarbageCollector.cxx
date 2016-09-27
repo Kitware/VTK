@@ -24,7 +24,12 @@
 class vtkTestReferenceLoop: public vtkObject
 {
 public:
-  static vtkTestReferenceLoop* New() { return new vtkTestReferenceLoop; }
+  static vtkTestReferenceLoop* New()
+  {
+    vtkTestReferenceLoop *ret = new vtkTestReferenceLoop;
+    ret->InitializeObjectBase();
+    return ret;
+  }
   vtkTypeMacro(vtkTestReferenceLoop, vtkObject);
 
   void Register(vtkObjectBase* o) VTK_OVERRIDE { this->RegisterInternal(o, 1); }
@@ -34,17 +39,12 @@ protected:
   vtkTestReferenceLoop()
   {
     this->Other = new vtkTestReferenceLoop(this);
-#ifdef VTK_DEBUG_LEAKS
-    vtkDebugLeaks::ConstructClass("vtkTestReferenceLoop");
-#endif
+    this->Other->InitializeObjectBase();
   }
   vtkTestReferenceLoop(vtkTestReferenceLoop* other)
   {
     this->Other = other;
     this->Other->Register(this);
-#ifdef VTK_DEBUG_LEAKS
-    vtkDebugLeaks::ConstructClass("vtkTestReferenceLoop");
-#endif
   }
   ~vtkTestReferenceLoop() VTK_OVERRIDE
   {

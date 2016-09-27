@@ -17,6 +17,7 @@
 #include "vtkCommand.h"
 #include "vtkDebugLeaks.h"
 #include "vtkGarbageCollector.h"
+#include "vtkObjectFactory.h"
 #include "vtkTimeStamp.h"
 #include "vtkWeakPointer.h"
 
@@ -126,10 +127,9 @@ protected:
 
 vtkObject *vtkObject::New()
 {
-#ifdef VTK_DEBUG_LEAKS
-  vtkDebugLeaks::ConstructClass("vtkObject");
-#endif
-  return new vtkObject;
+  vtkObject *ret = new vtkObject;
+  ret->InitializeObjectBase();
+  return ret;
 }
 
 

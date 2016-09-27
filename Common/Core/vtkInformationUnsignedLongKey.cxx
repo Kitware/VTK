@@ -65,7 +65,7 @@ void vtkInformationUnsignedLongKey::Set(vtkInformation* info,
   {
     // Allocate a new value.
     vtkInformationUnsignedLongValue* v = new vtkInformationUnsignedLongValue;
-    this->ConstructClass("vtkInformationUnsignedLongValue");
+    v->InitializeObjectBase();
     v->Value = value;
     this->SetAsObjectBase(info, v);
     v->Delete();

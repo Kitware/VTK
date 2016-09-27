@@ -18,14 +18,7 @@
 //------------------------------------------------------------------------------
 vtkIndent* vtkIndent::New()
 {
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkIndent");
-  if(ret)
-  {
-    return reinterpret_cast<vtkIndent*>(ret);
-  }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkIndent;
+  return new vtkIndent; // not a VTK object, don't use object factory macros
 }
 
 

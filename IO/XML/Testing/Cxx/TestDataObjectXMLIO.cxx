@@ -44,22 +44,22 @@ namespace
 {
 
 static vtkInformationDoubleKey *TestDoubleKey =
-    new vtkInformationDoubleKey("Double", "XMLTestKey");
+    vtkInformationDoubleKey::MakeKey("Double", "XMLTestKey");
 // Test RequiredLength keys. DoubleVector must have Length() == 3
 static vtkInformationDoubleVectorKey *TestDoubleVectorKey =
-    new vtkInformationDoubleVectorKey("DoubleVector", "XMLTestKey", 3);
+    vtkInformationDoubleVectorKey::MakeKey("DoubleVector", "XMLTestKey", 3);
 static vtkInformationIdTypeKey *TestIdTypeKey =
-    new vtkInformationIdTypeKey("IdType", "XMLTestKey");
+    vtkInformationIdTypeKey::MakeKey("IdType", "XMLTestKey");
 static vtkInformationIntegerKey *TestIntegerKey =
-    new vtkInformationIntegerKey("Integer", "XMLTestKey");
+    vtkInformationIntegerKey::MakeKey("Integer", "XMLTestKey");
 static vtkInformationIntegerVectorKey *TestIntegerVectorKey =
-    new vtkInformationIntegerVectorKey("IntegerVector", "XMLTestKey");
+    vtkInformationIntegerVectorKey::MakeKey("IntegerVector", "XMLTestKey");
 static vtkInformationStringKey *TestStringKey =
-    new vtkInformationStringKey("String", "XMLTestKey");
+    vtkInformationStringKey::MakeKey("String", "XMLTestKey");
 static vtkInformationStringVectorKey *TestStringVectorKey =
-    new vtkInformationStringVectorKey("StringVector", "XMLTestKey");
+    vtkInformationStringVectorKey::MakeKey("StringVector", "XMLTestKey");
 static vtkInformationUnsignedLongKey *TestUnsignedLongKey =
-    new vtkInformationUnsignedLongKey("UnsignedLong", "XMLTestKey");
+    vtkInformationUnsignedLongKey::MakeKey("UnsignedLong", "XMLTestKey");
 
 bool stringEqual(const std::string &expect, const std::string &actual)
 {

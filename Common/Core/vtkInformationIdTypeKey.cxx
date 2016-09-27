@@ -64,7 +64,7 @@ void vtkInformationIdTypeKey::Set(vtkInformation* info, vtkIdType value)
   {
     // Allocate a new value.
     vtkInformationIdTypeValue* v = new vtkInformationIdTypeValue;
-    this->ConstructClass("vtkInformationIdTypeValue");
+    v->InitializeObjectBase();
     v->Value = value;
     this->SetAsObjectBase(info, v);
     v->Delete();

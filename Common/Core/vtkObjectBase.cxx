@@ -95,6 +95,14 @@ vtkObjectBase::~vtkObjectBase()
 }
 
 //----------------------------------------------------------------------------
+void vtkObjectBase::InitializeObjectBase()
+{
+#ifdef VTK_DEBUG_LEAKS
+  vtkDebugLeaks::ConstructClass(this->GetClassName());
+#endif // VTK_DEBUG_LEAKS
+}
+
+//----------------------------------------------------------------------------
 #ifdef VTK_WORKAROUND_WINDOWS_MANGLE
 # undef GetClassName
 // Define possible mangled names.

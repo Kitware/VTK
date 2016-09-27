@@ -129,17 +129,11 @@ public:
   //---------------------------------------------------------------------------
   static vtkCompactHyperOctreeCursor<D> *New()
   {
-      vtkObject *ret=
-        vtkObjectFactory::CreateInstance("vtkCompactHyperOctreeCursor<D>");
-
-      if(ret!=0)
-      {
-        return static_cast<vtkCompactHyperOctreeCursor<D> *>(ret);
-      }
-      else
-      {
-        return new vtkCompactHyperOctreeCursor<D>;
-      }
+    // Don't use object factory macros with templates. It'll confuse the
+    // object factory.
+    vtkCompactHyperOctreeCursor<D> *ret = new vtkCompactHyperOctreeCursor<D>;
+    ret->InitializeObjectBase();
+    return ret;
   }
 
   vtkTypeMacro(vtkCompactHyperOctreeCursor<D>,vtkHyperOctreeCursor);
@@ -655,17 +649,9 @@ public:
   //---------------------------------------------------------------------------
   static vtkCompactHyperOctree<D> *New()
   {
-      vtkObject *ret=
-        vtkObjectFactory::CreateInstance("vtkCompactHyperOctree<D>");
-
-      if(ret!=0)
-      {
-        return static_cast<vtkCompactHyperOctree<D> *>(ret);
-      }
-      else
-      {
-        return new vtkCompactHyperOctree<D>;
-      }
+    vtkCompactHyperOctree<D> *result = new vtkCompactHyperOctree<D>;
+    result->InitializeObjectBase();
+    return result;
   }
 
   vtkTypeMacro(vtkCompactHyperOctree<D>,vtkHyperOctreeInternal);

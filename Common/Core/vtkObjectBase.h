@@ -43,6 +43,11 @@
 #ifndef vtkObjectBase_h
 #define vtkObjectBase_h
 
+// Semantics around vtkDebugLeaks usage has changed. Now just call
+// vtkObjectBase::InitializeObjectBase() after creating an object with New().
+// The object factory methods take care of this automatically.
+#define VTK_HAS_INITIALIZE_OBJECT_BASE
+
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkIndent.h"
 #include "vtkSystemIncludes.h"
@@ -120,7 +125,15 @@ public:
    * to zero, and reference counting on.
    */
   static vtkObjectBase *New()
-    {return new vtkObjectBase;}
+  {
+    vtkObjectBase *o = new vtkObjectBase;
+    o->InitializeObjectBase();
+    return o;
+  }
+
+  // Called by implementations of vtkObject::New(). Centralized location for
+  // vtkDebugLeaks registration:
+  void InitializeObjectBase();
 
 #ifdef _WIN32
   // avoid dll boundary problems

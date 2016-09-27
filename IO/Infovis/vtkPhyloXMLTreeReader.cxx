@@ -557,12 +557,12 @@ void vtkPhyloXMLTreeReader::ReadPropertyElement(vtkXMLDataElement *element,
   {
     // authority (required attribute)
     vtkInformationStringKey *authorityKey =
-      new vtkInformationStringKey("authority", "vtkPhyloXMLTreeReader");
+      vtkInformationStringKey::MakeKey("authority", "vtkPhyloXMLTreeReader");
     propertyArray->GetInformation()->Set(authorityKey, authority.c_str());
 
     // applies_to (required attribute)
     vtkInformationStringKey *appliesToKey =
-      new vtkInformationStringKey("applies_to", "vtkPhyloXMLTreeReader");
+      vtkInformationStringKey::MakeKey("applies_to", "vtkPhyloXMLTreeReader");
     propertyArray->GetInformation()->Set(appliesToKey, appliesTo);
 
     // unit (optional attribute)
@@ -570,7 +570,7 @@ void vtkPhyloXMLTreeReader::ReadPropertyElement(vtkXMLDataElement *element,
     if (unit)
     {
       vtkInformationStringKey *unitKey =
-        new vtkInformationStringKey("unit", "vtkPhyloXMLTreeReader");
+        vtkInformationStringKey::MakeKey("unit", "vtkPhyloXMLTreeReader");
       propertyArray->GetInformation()->Set(unitKey, unit);
     }
   }
@@ -617,7 +617,7 @@ void vtkPhyloXMLTreeReader::ReadConfidenceElement(vtkXMLDataElement *element,
 
     // add the confidence type as an Information type on this array
     vtkInformationStringKey *key =
-      new vtkInformationStringKey("type", "vtkPhyloXMLTreeReader");
+      vtkInformationStringKey::MakeKey("type", "vtkPhyloXMLTreeReader");
     treeConfidence->GetInformation()->Set(key, type);
 
     g->GetVertexData()->AddArray(treeConfidence.GetPointer());
@@ -633,7 +633,7 @@ void vtkPhyloXMLTreeReader::ReadConfidenceElement(vtkXMLDataElement *element,
 
       // add the confidence type as an Information type on this array
       vtkInformationStringKey *key =
-        new vtkInformationStringKey("type", "vtkPhyloXMLTreeReader");
+        vtkInformationStringKey::MakeKey("type", "vtkPhyloXMLTreeReader");
       confidenceArray->GetInformation()->Set(key, type);
 
       g->GetVertexData()->AddArray(confidenceArray.GetPointer());

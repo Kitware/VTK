@@ -64,7 +64,7 @@ void vtkInformationIntegerKey::Set(vtkInformation* info, int value)
   {
     // Allocate a new value.
     vtkInformationIntegerValue* v = new vtkInformationIntegerValue;
-    this->ConstructClass("vtkInformationIntegerValue");
+    v->InitializeObjectBase();
     v->Value = value;
     this->SetAsObjectBase(info, v);
     v->Delete();

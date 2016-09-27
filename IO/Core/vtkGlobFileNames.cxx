@@ -16,6 +16,7 @@
 #include "vtkStringArray.h"
 
 #include "vtkDebugLeaks.h"
+#include "vtkObjectFactory.h"
 
 #include <vtksys/Glob.hxx>
 #include <vtksys/SystemTools.hxx>
@@ -27,10 +28,7 @@
 //----------------------------------------------------------------------------
 vtkGlobFileNames* vtkGlobFileNames::New()
 {
-#ifdef VTK_DEBUG_LEAKS
-  vtkDebugLeaks::ConstructClass("vtkGlobFileNames");
-#endif
-  return new vtkGlobFileNames;
+  VTK_STANDARD_NEW_BODY(vtkGlobFileNames)
 }
 
 //----------------------------------------------------------------------------

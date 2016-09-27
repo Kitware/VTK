@@ -37,10 +37,9 @@ public:
 
   static vtkCompactHyperTreeCursor<N>* New()
   {
-    vtkObject* o =
-      vtkObjectFactory::CreateInstance( "vtkCompactHyperTreeCursor<N>" );
-    return o ? static_cast<vtkCompactHyperTreeCursor<N> *>( o ) :
-      new vtkCompactHyperTreeCursor<N>();
+    vtkCompactHyperTreeCursor<N> *ret = new vtkCompactHyperTreeCursor<N>;
+    ret->InitializeObjectBase();
+    return ret;
   }
 
   //---------------------------------------------------------------------------
@@ -595,9 +594,9 @@ public:
   //---------------------------------------------------------------------------
   static vtkCompactHyperTree<N>* New()
   {
-    vtkObject* o = vtkObjectFactory::CreateInstance( "vtkCompactHyperTree<N>" );
-    return o ?
-      static_cast<vtkCompactHyperTree<N> *>(o) : new vtkCompactHyperTree<N>;
+    vtkCompactHyperTree<N> *ret = new vtkCompactHyperTree<N>;
+    ret->InitializeObjectBase();
+    return ret;
   }
 
   //---------------------------------------------------------------------------

@@ -149,22 +149,14 @@ vtkOutputWindow* vtkOutputWindow::GetInstance()
     // if the factory did not provide one, then create it here
     if(!vtkOutputWindow::Instance)
     {
-      // if the factory failed to create the object,
-      // then destroy it now, as vtkDebugLeaks::ConstructClass was called
-      // with "vtkOutputWindow", and not the real name of the class
 #if defined( _WIN32 ) && !defined( VTK_USE_X )
-#ifdef VTK_DEBUG_LEAKS
-      vtkDebugLeaks::DestructClass("vtkOutputWindow");
-#endif
       vtkOutputWindow::Instance = vtkWin32OutputWindow::New();
 #else
 #if defined( ANDROID )
-#ifdef VTK_DEBUG_LEAKS
-      vtkDebugLeaks::DestructClass("vtkOutputWindow");
-#endif
       vtkOutputWindow::Instance = vtkAndroidOutputWindow::New();
 #else
       vtkOutputWindow::Instance = new vtkOutputWindow;
+      vtkOutputWindow::Instance->InitializeObjectBase();
 #endif
 #endif
     }

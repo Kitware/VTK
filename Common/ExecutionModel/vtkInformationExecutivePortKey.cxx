@@ -69,7 +69,7 @@ void vtkInformationExecutivePortKey::Set(vtkInformation* info,
       // Allocate a new value.
       vtkInformationExecutivePortValue* v =
         new vtkInformationExecutivePortValue;
-      this->ConstructClass("vtkInformationExecutivePortValue");
+      v->InitializeObjectBase();
       v->Executive = executive;
       v->Port = port;
       this->SetAsObjectBase(info, v);

@@ -75,7 +75,7 @@ vtkInformationObjectBaseVectorValue *
   if(base==NULL)
   {
     base=new vtkInformationObjectBaseVectorValue;
-    this->ConstructClass("vtkInformationObjectBaseVectorValue"); // For debug info
+    base->InitializeObjectBase();
     this->SetAsObjectBase(info, base);
     base->Delete();
   }

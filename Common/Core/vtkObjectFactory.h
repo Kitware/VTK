@@ -55,17 +55,17 @@ public:
    * Each loaded vtkObjectFactory will be asked in the order
    * the factory was in the VTK_AUTOLOAD_PATH.  After the
    * first factory returns the object no other factories are asked.
-   * If the requested class is abstract, set isAbstract to true. Otherwise
-   * it is assumed that an instance of 'vtkclassname' will be instantiated
-   * by the caller when no override is found.
+   * isAbstract is no longer used. This method calls
+   * vtkObjectBase::InitializeObjectBase() on the instance when the
+   * return value is non-NULL.
    */
   VTK_NEWINSTANCE
   static vtkObject* CreateInstance(const char* vtkclassname,
                                    bool isAbstract = false);
 
   /**
-   * Call vtkDebugLeaks::ConstructClass if necessary. Does not attempt
-   * to use the object factory to create an instance.
+   * No longer used. Call vtkObjectBase::InitializeObjectBase() from the
+   * New() implementation instead.
    */
   static void ConstructInstance(const char* vtkclassname);
 
@@ -327,7 +327,9 @@ vtkObjectFactory* vtkLoad()                     \
   { \
     return static_cast<thisClass*>(ret); \
   } \
-  return new thisClass;
+  thisClass *result = new thisClass; \
+  result->InitializeObjectBase(); \
+  return result;
 
 // Macro to implement the body of the abstract object factory form of the New()
 // method, i.e. an abstract base class that can only be instantiated if the
@@ -345,14 +347,11 @@ vtkObjectFactory* vtkLoad()                     \
 #if defined(VTK_ALL_NEW_OBJECT_FACTORY)
 # define VTK_STANDARD_NEW_BODY(thisClass) \
   VTK_OBJECT_FACTORY_NEW_BODY(thisClass)
-#elif defined(VTK_DEBUG_LEAKS)
-# define VTK_STANDARD_NEW_BODY(thisClass) \
-  thisClass *result = new thisClass; \
-  vtkObjectFactory::ConstructInstance(result->GetClassName()); \
-  return result;
 #else
 # define VTK_STANDARD_NEW_BODY(thisClass) \
-  return new thisClass;
+  thisClass *result = new thisClass; \
+  result->InitializeObjectBase(); \
+  return result;
 #endif
 
 // Macro to implement the standard form of the New() method.

@@ -72,7 +72,7 @@ vtkInformationQuadratureSchemeDefinitionVectorValue *
   if(base == NULL)
   {
     base=new vtkInformationQuadratureSchemeDefinitionVectorValue;
-    this->ConstructClass("vtkInformationQuadratureSchemeDefinitionVectorValue"); // For debug info
+    base->InitializeObjectBase();
     this->SetAsObjectBase(info, base);
     base->Delete();
   }

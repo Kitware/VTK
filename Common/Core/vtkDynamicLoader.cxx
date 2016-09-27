@@ -15,15 +15,13 @@
 #include "vtkDynamicLoader.h"
 
 #include "vtkDebugLeaks.h"
+#include "vtkObjectFactory.h"
 
 
 //-----------------------------------------------------------------------------
 vtkDynamicLoader* vtkDynamicLoader::New()
 {
-#ifdef VTK_DEBUG_LEAKS
-  vtkDebugLeaks::ConstructClass("vtkDynamicLoader");
-#endif
-  return new vtkDynamicLoader;
+  VTK_STANDARD_NEW_BODY(vtkDynamicLoader)
 }
 
 

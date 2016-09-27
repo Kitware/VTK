@@ -33,7 +33,7 @@ public:
   }
 
   vtkTypeMacro(vtkTestPoints,vtkPoints);
-  static vtkTestPoints* New() { return new vtkTestPoints; }
+  static vtkTestPoints* New() { VTK_STANDARD_NEW_BODY(vtkTestPoints) }
   vtkTestPoints() {  }
 private:
   vtkTestPoints(const vtkTestPoints&);
@@ -50,7 +50,7 @@ public:
 
   // Methods from vtkObject
   vtkTypeMacro(vtkTestPoints2,vtkPoints);
-  static vtkTestPoints2* New() { return new vtkTestPoints2; }
+  static vtkTestPoints2* New() { VTK_STANDARD_NEW_BODY(vtkTestPoints2) }
   vtkTestPoints2() { }
 private:
   vtkTestPoints2(const vtkTestPoints2&);
@@ -65,7 +65,12 @@ class VTK_EXPORT TestFactory : public vtkObjectFactory
 {
 public:
   TestFactory();
-  static TestFactory* New() { return new TestFactory;}
+  static TestFactory* New()
+  {
+    TestFactory *f = new TestFactory;
+    f->InitializeObjectBase();
+    return f;
+  }
   const char* GetVTKSourceVersion() VTK_OVERRIDE { return VTK_SOURCE_VERSION; }
   const char* GetDescription() VTK_OVERRIDE { return "A fine Test Factory"; }
 
@@ -73,11 +78,6 @@ protected:
   TestFactory(const TestFactory&);
   void operator=(const TestFactory&);
 };
-
-
-
-
-
 
 TestFactory::TestFactory()
 {
@@ -97,7 +97,8 @@ void TestNewPoints(vtkPoints* v, const char* expectedClassName)
   if(strcmp(v->GetClassName(), expectedClassName) != 0)
   {
     failed = 1;
-    cout << "Test Failed" << endl;
+    cout << "Test Failed:\nExpected classname: " << expectedClassName
+         << "\nCreated classname: " << v->GetClassName() << endl;
   }
 }
 

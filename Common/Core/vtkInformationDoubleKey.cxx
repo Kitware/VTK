@@ -64,7 +64,7 @@ void vtkInformationDoubleKey::Set(vtkInformation* info, double value)
   {
     // Allocate a new value.
     vtkInformationDoubleValue* v = new vtkInformationDoubleValue;
-    this->ConstructClass("vtkInformationDoubleValue");
+    v->InitializeObjectBase();
     v->Value = value;
     this->SetAsObjectBase(info, v);
     v->Delete();

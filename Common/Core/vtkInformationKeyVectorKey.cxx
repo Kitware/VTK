@@ -99,9 +99,8 @@ void vtkInformationKeyVectorKey::Set(vtkInformation* info,
 {
   if(value)
   {
-    vtkInformationKeyVectorValue* v =
-      new vtkInformationKeyVectorValue;
-    this->ConstructClass("vtkInformationKeyVectorValue");
+    vtkInformationKeyVectorValue* v = new vtkInformationKeyVectorValue;
+    v->InitializeObjectBase();
     v->Value.insert(v->Value.begin(), value, value+length);
     this->SetAsObjectBase(info, v);
     v->Delete();

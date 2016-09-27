@@ -82,12 +82,10 @@ public:
 
   static ProcessBlockData* New()
   {
-    // This is required everytime we're implementing our own New() to avoid
-    // "Deleting unknown object" warning from vtkDebugLeaks.
-#ifdef VTK_DEBUG_LEAKS
-    vtkDebugLeaks::ConstructClass("ProcessBlockData");
-#endif
-    return new ProcessBlockData();
+    // Can't use object factory macros, this is not a vtkObject.
+    ProcessBlockData *ret = new ProcessBlockData;
+    ret->InitializeObjectBase();
+    return ret;
   }
 
   void Construct(vtkInformationVector** inInfoVec,

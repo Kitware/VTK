@@ -15,6 +15,7 @@
 
 #include "vtkTextRenderer.h"
 
+#include "vtkDebugLeaks.h" // Must be included before any singletons
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPath.h"
@@ -23,10 +24,6 @@
 #include "vtkUnicodeString.h"
 
 #include <vtksys/RegularExpression.hxx>
-
-#ifdef VTK_DEBUG_LEAKS
-#include "vtkDebugLeaks.h"
-#endif
 
 //----------------------------------------------------------------------------
 // The singleton, and the singleton cleanup
@@ -75,14 +72,6 @@ vtkTextRenderer *vtkTextRenderer::GetInstance()
 
   vtkTextRenderer::Instance = static_cast<vtkTextRenderer*>(
         vtkObjectFactory::CreateInstance("vtkTextRenderer"));
-
-  // Clean up any leaked references from vtkDebugLeaks if needed
-#ifdef VTK_DEBUG_LEAKS
-  if (!vtkTextRenderer::Instance)
-  {
-    vtkDebugLeaks::DestructClass("vtkTextRenderer");
-  }
-#endif
 
   return vtkTextRenderer::Instance;
 }

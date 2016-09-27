@@ -44,7 +44,9 @@ vtkPoints2D* vtkPoints2D::New(int dataType)
     return static_cast<vtkPoints2D*>(ret);
   }
   // If the factory was unable to create the object, then create it here.
-  return new vtkPoints2D(dataType);
+  vtkPoints2D *result = new vtkPoints2D(dataType);
+  result->InitializeObjectBase();
+  return result;
 }
 
 vtkPoints2D* vtkPoints2D::New()

@@ -86,7 +86,7 @@ void vtkInformationVariantVectorKey::Set(vtkInformation* info, const vtkVariant*
     }
     vtkInformationVariantVectorValue* v =
       new vtkInformationVariantVectorValue;
-    this->ConstructClass("vtkInformationVariantVectorValue");
+    v->InitializeObjectBase();
     v->Value.insert(v->Value.begin(), value, value+length);
     this->SetAsObjectBase(info, v);
     v->Delete();
