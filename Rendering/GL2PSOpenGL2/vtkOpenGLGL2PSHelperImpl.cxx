@@ -183,15 +183,15 @@ void vtkOpenGLGL2PSHelperImpl::ProcessTransformFeedback(
       {
       case GL_POINTS:
         gl2psAddPolyPrimitive(GL2PS_POINT, 1, verts, 0, 0.f, 0.f, 0xffff, 1,
-                              pointSize, 0);
+                              pointSize, gl2psLineCap (GL2PS_LINE_CAP_ROUND), gl2psLineJoin (GL2PS_LINE_JOIN_ROUND), 0);
         break;
 
       case GL_LINES:
         curVert = (curVert + 1) % 2;
         if (curVert == 0)
           {
-          gl2psAddPolyPrimitive(GL2PS_LINE, 2, verts, 0, 0.f, 0.f,
-                                this->LineStipple, 1, lineWidth, 0);
+          gl2psAddPolyPrimitive(GL2PS_LINE, 2, verts, 0, 0.f, 0.f, this->LineStipple, 1, 
+                                lineWidth, gl2psLineCap (GL2PS_LINE_CAP_ROUND), gl2psLineJoin (GL2PS_LINE_JOIN_ROUND), 0);
           }
         break;
 
@@ -199,8 +199,8 @@ void vtkOpenGLGL2PSHelperImpl::ProcessTransformFeedback(
         curVert = (curVert + 1) % 3;
         if (curVert == 0)
           {
-          gl2psAddPolyPrimitive(GL2PS_TRIANGLE, 3, verts, 0, 0.f, 0.f, 0xffff,
-                                1, 1, 0);
+          gl2psAddPolyPrimitive(GL2PS_TRIANGLE, 3, verts, 0, 0.f, 0.f, 0xffff, 1, 
+                                1, gl2psLineCap (GL2PS_LINE_CAP_ROUND), gl2psLineJoin (GL2PS_LINE_JOIN_ROUND), 0);
           }
         break;
 
@@ -270,9 +270,9 @@ void vtkOpenGLGL2PSHelperImpl::DrawString(const std::string &str,
       bgVerts[4].xyz[2] = bgVerts[0].xyz[2];
 
       gl2psAddPolyPrimitive(GL2PS_TRIANGLE, 3, bgVerts,     0, 0, 0, 0xffff, 0,
-                            0, 0);
+                            0, gl2psLineCap (GL2PS_LINE_CAP_ROUND), gl2psLineJoin (GL2PS_LINE_JOIN_ROUND), 0);
       gl2psAddPolyPrimitive(GL2PS_TRIANGLE, 3, bgVerts + 2, 0, 0, 0, 0xffff, 0,
-                            0, 0);
+                            0, gl2psLineCap (GL2PS_LINE_CAP_ROUND), gl2psLineJoin (GL2PS_LINE_JOIN_ROUND), 0);
       }
     }
 
