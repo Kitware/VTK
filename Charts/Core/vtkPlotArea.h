@@ -102,7 +102,6 @@ public:
                                     const vtkVector2f& tolerance,
                                     vtkVector2f* location);
 
-  //@{
   /**
    * Generate and return the tooltip label string for this plot
    * The segmentIndex parameter is ignored, except for vtkPlotBar
@@ -110,10 +109,10 @@ public:
   virtual vtkStdString GetTooltipLabel(const vtkVector2d &plotPos,
                                        vtkIdType seriesIndex,
                                        vtkIdType segmentIndex);
+
 protected:
   vtkPlotArea();
   ~vtkPlotArea();
-  //@}
 
   /**
    * Name of the valid point mask array.

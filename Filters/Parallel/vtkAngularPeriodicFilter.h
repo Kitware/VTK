@@ -169,7 +169,6 @@ protected:
                              vtkCompositeDataSet* output,
                              vtkCompositeDataSet* input);
 
-  //@{
   /**
    * Generate a name for a piece in the periodic dataset from the input dataset
    */
@@ -177,10 +176,10 @@ protected:
                                  vtkCompositeDataIterator* inputLoc,
                                  vtkMultiPieceDataSet* output,
                                  vtkIdType outputId);
+
 private:
   vtkAngularPeriodicFilter(const vtkAngularPeriodicFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAngularPeriodicFilter&) VTK_DELETE_FUNCTION;
-  //@}
 
   bool ComputeRotationsOnTheFly;
 

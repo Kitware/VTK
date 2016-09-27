@@ -40,7 +40,6 @@ protected:
   vtkOpenGLClipPlanesPainter();
   ~vtkOpenGLClipPlanesPainter();
 
-  //@{
   /**
    * Generates rendering primitives of appropriate type(s).
    * Uses the clipping planes to set up clipping regions.
@@ -48,10 +47,10 @@ protected:
    */
   virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
                               unsigned long typeflags, bool forceCompileOnly);
+
 private:
   vtkOpenGLClipPlanesPainter(const vtkOpenGLClipPlanesPainter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLClipPlanesPainter&) VTK_DELETE_FUNCTION;
 };
-  //@}
 
 #endif

@@ -52,7 +52,6 @@ public:
    */
   size_t Read(void* data, size_t length);
 
-  //@{
   /**
    * Called after all desired calls to Seek and Read have been made.
    * After this call, the caller is free to change the position of the
@@ -60,10 +59,10 @@ public:
    * call to StartReading.
    */
   void EndReading();
+
 protected:
   vtkBase64InputStream();
   ~vtkBase64InputStream();
-  //@}
 
   // Number of decoded bytes left in Buffer from last call to Read.
   int BufferLength;

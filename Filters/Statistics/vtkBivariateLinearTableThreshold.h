@@ -212,6 +212,7 @@ protected:
    */
   virtual int ApplyThreshold(vtkTable* tableToThreshold, vtkIdTypeArray* acceptedIds);
 
+  //@{
   /**
    * Determine if x,y is above all specified lines.
    */
@@ -227,15 +228,15 @@ protected:
    */
   int ThresholdNear(double x, double y);
 
-  //@{
   /**
    * Determine if x,y is between ANY TWO of the specified lines.
    */
   int ThresholdBetween(double x, double y);
+  //@}
+
 private:
   vtkBivariateLinearTableThreshold(const vtkBivariateLinearTableThreshold&) VTK_DELETE_FUNCTION;
   void operator=(const vtkBivariateLinearTableThreshold&) VTK_DELETE_FUNCTION;
 };
-  //@}
 
 #endif

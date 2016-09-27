@@ -73,7 +73,6 @@ public:
   vtkUnsignedCharArray* Compress(unsigned char const* uncompressedData,
                                  size_t uncompressedSize);
 
-  //@{
   /**
    * Uncompress the given data.  A vtkUnsignedCharArray containing the
    * compressed data is returned with a reference count of 1.  The
@@ -84,10 +83,10 @@ public:
   vtkUnsignedCharArray* Uncompress(unsigned char const* compressedData,
                                    size_t compressedSize,
                                    size_t uncompressedSize);
+
 protected:
   vtkDataCompressor();
   ~vtkDataCompressor();
-  //@}
 
   // Actual compression method.  This must be provided by a subclass.
   // Must return the size of the compressed data, or zero on error.

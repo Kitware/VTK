@@ -337,15 +337,14 @@ protected:
 
   static char ProcessorName[];
 
-  //@{
   /**
    * When set, TriggerRMI uses Ssend instead of Send.
    */
   static int UseSsendForRMI;
+
 private:
   vtkMPIController(const vtkMPIController&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMPIController&) VTK_DELETE_FUNCTION;
-  //@}
 
 };
 

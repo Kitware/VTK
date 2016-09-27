@@ -82,10 +82,11 @@ public:
   vtkSetMacro(LogScale, bool);
   vtkGetMacro(LogScale, bool);
   vtkBooleanMacro(LogScale, bool);
+  //@}
+
 protected:
   vtkTreeFieldAggregator();
   ~vtkTreeFieldAggregator();
-  //@}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 

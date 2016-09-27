@@ -148,15 +148,14 @@ public:
                             int defaultStatus);
   //@}
 
-  //@{
   /**
    * Copy the selections from the given vtkDataArraySelection instance.
    */
   void CopySelections(vtkDataArraySelection* selections);
+
 protected:
   vtkDataArraySelection();
   ~vtkDataArraySelection() VTK_OVERRIDE;
-  //@}
 
   // Internal implementation details.
   vtkDataArraySelectionInternals* Internal;

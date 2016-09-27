@@ -68,17 +68,16 @@ public:
    */
   static vtkInformationDoubleVectorKey* POLYGON_OFFSET_PARAMETERS();
 
-  //@{
   /**
    * When set and when RESOLVE_COINCIDENT_TOPOLOGY is set to use polygon offset,
    * solid polygonal faces will be offsetted, otherwise lines/vertices will be
    * offsetted.
    */
   static vtkInformationIntegerKey* POLYGON_OFFSET_FACES();
+
 protected:
   vtkCoincidentTopologyResolutionPainter();
   ~vtkCoincidentTopologyResolutionPainter();
-  //@}
 
   /**
    * Called before RenderInternal() if the Information has been changed
@@ -107,6 +106,7 @@ protected:
   double PolygonOffsetUnits;
   double ZShift;
   int OffsetFaces;
+
 private:
   vtkCoincidentTopologyResolutionPainter(const vtkCoincidentTopologyResolutionPainter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCoincidentTopologyResolutionPainter&) VTK_DELETE_FUNCTION;

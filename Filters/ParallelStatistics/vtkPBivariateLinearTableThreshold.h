@@ -50,10 +50,11 @@ public:
    */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller,vtkMultiProcessController);
+  //@}
+
 protected:
   vtkPBivariateLinearTableThreshold();
   virtual ~vtkPBivariateLinearTableThreshold();
-  //@}
 
   virtual int RequestData(
     vtkInformation*,

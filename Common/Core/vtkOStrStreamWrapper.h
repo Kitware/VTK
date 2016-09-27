@@ -64,10 +64,11 @@ public:
    */
   void freeze();
   void freeze(int);
+  //@}
+
 protected:
   // The pointer returned by str().
   char* Result;
-  //@}
 
   // Whether the caller of str() owns the memory.
   int Frozen;

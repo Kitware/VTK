@@ -89,15 +89,14 @@ public:
    * reference count
    */
   PyObject *GetPointer() const;
-  //@{
   /**
    * Returns the internal pointer to a PyObject and incrments its reference
    * count
    */
   PyObject* GetAndIncreaseReferenceCount();
+
 private:
   PyObject *Object;
 };
-  //@}
 
 #endif

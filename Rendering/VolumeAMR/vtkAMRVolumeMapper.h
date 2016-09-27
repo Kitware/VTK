@@ -301,7 +301,6 @@ public:
   vtkGetMacro(UseDefaultThreading, bool);
   //@}
 
-  //@{
   /**
    * Utility method used by UpdateResamplerFrustrumMethod() to compute the
    * bounds.
@@ -309,10 +308,10 @@ public:
   static bool ComputeResamplerBoundsFrustumMethod(
     vtkCamera* camera, vtkRenderer* renderer,
     const double data_bounds[6], double out_bounds[6]);
+
 protected:
   vtkAMRVolumeMapper();
   ~vtkAMRVolumeMapper();
-  //@}
 
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);

@@ -110,9 +110,10 @@ public:
   vtkSetMacro(InvertMeanCurvature,int);
   vtkGetMacro(InvertMeanCurvature,int);
   vtkBooleanMacro(InvertMeanCurvature,int);
+  //@}
+
 protected:
   vtkCurvatures();
-  //@}
 
   // Usual data generation method
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);

@@ -144,16 +144,15 @@ protected:
 
   vtkMultiProcessController* Controller;
 
-  //@{
   /**
    * Valid at end of WriteInternal to indicate if we're going to continue
    * execution.
    */
   vtkGetMacro(ContinuingExecution, bool);
+
 private:
   vtkXMLPDataWriter(const vtkXMLPDataWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkXMLPDataWriter&) VTK_DELETE_FUNCTION;
-  //@}
 
   /**
    * Method used to delete all written files.

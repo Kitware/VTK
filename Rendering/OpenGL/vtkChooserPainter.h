@@ -43,17 +43,16 @@ public:
   void SetPolyPainter(vtkPolyDataPainter*);
   void SetStripPainter(vtkPolyDataPainter*);
 
-  //@{
-  /**
+  /*
    * Release any graphics resources that are being consumed by this mapper.
    * The parameter window could be used to determine which graphic
    * resources to release. Merely propagates the call to the painter.
-   * void ReleaseGraphicsResources(vtkWindow *);
    */
+  // void ReleaseGraphicsResources(vtkWindow *);
+
 protected:
   vtkChooserPainter();
   ~vtkChooserPainter();
-  //@}
 
   vtkPolyDataPainter *VertPainter;
   vtkPolyDataPainter *LinePainter;

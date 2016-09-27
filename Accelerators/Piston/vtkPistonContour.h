@@ -37,10 +37,11 @@ public:
    */
   vtkSetMacro(IsoValue, float);
   vtkGetMacro(IsoValue, float);
+  //@}
+
 protected:
   vtkPistonContour();
   ~vtkPistonContour();
-  //@}
 
   /**
    * Method that does the actual calculation. Funnels down to ExecuteData.

@@ -51,18 +51,17 @@ protected:
   virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
                               unsigned long typeflags, bool forceCompileOnly);
 
-  //@{
   /**
    * The actual rendering happens here. This method is called only when
    * SupportedPrimitive is present in typeflags when Render() is invoked.
    */
   virtual int RenderPrimitive(unsigned long flags, vtkDataArray* n,
     vtkUnsignedCharArray* c, vtkDataArray* t, vtkRenderer* ren);
+
 private:
   vtkLinesPainter(const vtkLinesPainter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkLinesPainter&) VTK_DELETE_FUNCTION;
 };
-  //@}
 
 
 

@@ -61,16 +61,15 @@ public:
    */
   virtual void Initialize(vtkAbstractArray* array) = 0;
 
-  //@{
   /**
    * Get the data type from the underlying array. Returns 0 if
    * no underlying array is present.
    */
   virtual int GetDataType()=0;
+
 protected:
   vtkArrayIterator();
   ~vtkArrayIterator() VTK_OVERRIDE;
-  //@}
 
 private:
   vtkArrayIterator(const vtkArrayIterator&) VTK_DELETE_FUNCTION;

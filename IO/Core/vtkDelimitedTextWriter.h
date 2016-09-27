@@ -89,16 +89,15 @@ public:
    */
   char *RegisterAndGetOutputString();
 
-  //@{
   /**
    * Internal method: Returns the "string" with the "StringDelimiter" if
    * UseStringDelimiter is true.
    */
   vtkStdString GetString(vtkStdString string);
+
 protected:
   vtkDelimitedTextWriter();
   ~vtkDelimitedTextWriter();
-  //@}
 
   bool WriteToOutputString;
   char* OutputString;

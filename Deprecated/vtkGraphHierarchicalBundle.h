@@ -100,15 +100,14 @@ protected:
   double BundlingStrength;
   bool DirectMapping;
 
-  //@{
   /**
    * Convert the vtkGraph into vtkPolyData.
    */
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+
 private:
   vtkGraphHierarchicalBundle(const vtkGraphHierarchicalBundle&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGraphHierarchicalBundle&) VTK_DELETE_FUNCTION;
 };
-  //@}
 
 #endif

@@ -185,7 +185,6 @@ public:
    */
   vtkIdType GetTotal() { return this->Total; }
 
-  //@{
   /**
    * This is part of the executive, but is public so that it can be accessed
    * by non-member functions.
@@ -195,10 +194,10 @@ public:
                                    vtkInformationVector *outputVector,
                                    vtkImageData ***inData,
                                    vtkImageData **outData, int ext[6], int id);
+
 protected:
   vtkImageHistogram();
   ~vtkImageHistogram();
-  //@}
 
   virtual int RequestUpdateExtent(vtkInformation *vtkNotUsed(request),
                                  vtkInformationVector **inInfo,

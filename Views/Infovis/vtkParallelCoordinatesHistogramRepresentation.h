@@ -220,15 +220,14 @@ protected:
    */
   virtual vtkImageData* GetHistogramImage(int idx);
 
-  //@{
   /**
    * get the table containing just the outlier rows from the input table.
    */
   virtual vtkTable* GetOutlierData();
+
 private:
   vtkParallelCoordinatesHistogramRepresentation(const vtkParallelCoordinatesHistogramRepresentation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkParallelCoordinatesHistogramRepresentation&) VTK_DELETE_FUNCTION;
 };
-  //@}
 
 #endif

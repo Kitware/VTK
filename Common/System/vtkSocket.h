@@ -61,15 +61,12 @@ public:
    */
   int Receive(void* data, int length, int readFully=1);
 
-  //@{
   /**
    * Provides access to  the internal socket descriptor. This is valid only when
    * GetConnected() returns true.
    */
   vtkGetMacro(SocketDescriptor, int);
-  //@}
 
-  //@{
   /**
    * Selects set of sockets. Returns 0 on timeout, -1 on error.
    * 1 on success. Selected socket's index is returned thru
@@ -77,10 +74,10 @@ public:
    */
   static int SelectSockets(const int* sockets_to_select, int size,
     unsigned long msec, int* selected_index);
+
 protected:
   vtkSocket();
   ~vtkSocket() VTK_OVERRIDE;
-  //@}
 
   int SocketDescriptor;
 

@@ -76,10 +76,11 @@ public:
   vtkSetMacro(Subsampling, int);
   vtkGetMacro(Subsampling, int);
   vtkBooleanMacro(Subsampling, int);
+  //@}
+
 protected:
   vtkOggTheoraWriter();
   ~vtkOggTheoraWriter();
-  //@}
 
   vtkOggTheoraWriterInternal *Internals;
 
