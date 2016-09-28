@@ -248,7 +248,14 @@ void vtkOpenGLFXAAFilter::CreateGLObjects()
   this->Input->SetContext(static_cast<vtkOpenGLRenderWindow*>(
                             this->Renderer->GetRenderWindow()));
   this->Input->SetFormat(GL_RGB);
+
+  // ES doesn't support GL_RGB8, and OpenGL 3 doesn't support GL_RGB.
+  // What a world.
+#if defined(GL_ES_VERSION_3_0) || defined(GL_ES_VERSION_2_0)
+  this->Input->SetInternalFormat(GL_RGB);
+#else // OpenGL ES
   this->Input->SetInternalFormat(GL_RGB8);
+#endif // OpenGL ES
 
   // Required for FXAA, since we interpolate texels for blending.
   this->Input->SetMinificationFilter(vtkTextureObject::Linear);
