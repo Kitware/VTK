@@ -22,13 +22,10 @@
 #endif
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
-#include "vtkDebugLeaks.h"
-
 
 //----------------------------------------------------------------------------
-
 vtkOutputWindow* vtkOutputWindow::Instance = 0;
-vtkOutputWindowCleanup vtkOutputWindow::Cleanup;
+static unsigned int vtkOutputWindowCleanupCounter = 0;
 
 void vtkOutputWindowDisplayText(const char* message)
 {
@@ -57,12 +54,16 @@ void vtkOutputWindowDisplayDebugText(const char* message)
 
 vtkOutputWindowCleanup::vtkOutputWindowCleanup()
 {
+  ++vtkOutputWindowCleanupCounter;
 }
 
 vtkOutputWindowCleanup::~vtkOutputWindowCleanup()
 {
-  // Destroy any remaining output window.
-  vtkOutputWindow::SetInstance(0);
+  if (--vtkOutputWindowCleanupCounter == 0)
+  {
+    // Destroy any remaining output window.
+    vtkOutputWindow::SetInstance(0);
+  }
 }
 
 vtkOutputWindow::vtkOutputWindow()

@@ -27,21 +27,20 @@
 
 
 vtkObjectFactoryCollection* vtkObjectFactory::RegisteredFactories = 0;
+static unsigned int vtkObjectFactoryRegistryCleanupCounter = 0;
 
-
-class vtkCleanUpObjectFactory
+vtkObjectFactoryRegistryCleanup::vtkObjectFactoryRegistryCleanup()
 {
-public:
-  inline void Use()
-  {
-  }
-  ~vtkCleanUpObjectFactory()
-  {
-      vtkObjectFactory::UnRegisterAllFactories();
-  }
-};
+  ++vtkObjectFactoryRegistryCleanupCounter;
+}
 
-static vtkCleanUpObjectFactory vtkCleanUpObjectFactoryGlobal;
+vtkObjectFactoryRegistryCleanup::~vtkObjectFactoryRegistryCleanup()
+{
+  if (--vtkObjectFactoryRegistryCleanupCounter == 0)
+  {
+    vtkObjectFactory::UnRegisterAllFactories();
+  }
+}
 
 // Create an instance of a named vtk object using the loaded
 // factories
@@ -88,7 +87,6 @@ void vtkObjectFactory::ConstructInstance(const char *vtkclassname)
 // A one time initialization method.
 void vtkObjectFactory::Init()
 {
-  vtkCleanUpObjectFactoryGlobal.Use();
   // Don't do anything if we are already initialized
   if(vtkObjectFactory::RegisteredFactories)
   {
@@ -737,4 +735,3 @@ void vtkObjectFactory::CreateAllInstance(const char* vtkclassname,
     }
   }
 }
-

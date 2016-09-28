@@ -38,6 +38,7 @@
 #ifndef vtkObjectFactory_h
 #define vtkObjectFactory_h
 
+#include "vtkDebugLeaksManager.h" // Must be included before singletons
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
@@ -285,6 +286,20 @@ private:
   vtkObjectFactory(const vtkObjectFactory&) VTK_DELETE_FUNCTION;
   void operator=(const vtkObjectFactory&) VTK_DELETE_FUNCTION;
 };
+
+// Implementation detail for Schwartz counter idiom.
+class VTKCOMMONCORE_EXPORT vtkObjectFactoryRegistryCleanup
+{
+public:
+  vtkObjectFactoryRegistryCleanup();
+  ~vtkObjectFactoryRegistryCleanup();
+
+private:
+  vtkObjectFactoryRegistryCleanup(const vtkObjectFactoryRegistryCleanup& other) VTK_DELETE_FUNCTION;
+  vtkObjectFactoryRegistryCleanup& operator=(const vtkObjectFactoryRegistryCleanup& rhs) VTK_DELETE_FUNCTION;
+};
+static vtkObjectFactoryRegistryCleanup vtkObjectFactoryRegistryCleanupInstance;
+
 
 // Macro to create an object creation function.
 // The name of the function will by vtkObjectFactoryCreateclassname
