@@ -263,7 +263,8 @@ int vtkVoxelGrid::RequestData(
     output->GetPointData()->AddArray(input->GetPointData()->GetArray(i));
   }
 
-  // Clean up
+  // Clean up. The locator needs to be reset.
+  this->Locator->Initialize();
   points->Delete();
   delete [] binMap;
 
