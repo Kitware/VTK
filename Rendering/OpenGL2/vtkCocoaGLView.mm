@@ -13,7 +13,6 @@
 
 =========================================================================*/
 
-#include "vtkOpenGLRenderWindow.h"
 #import <Cocoa/Cocoa.h>
 #import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
 
@@ -201,8 +200,13 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   // Also note that 'mouseLoc' may have nonsense values if a key is pressed
   // while the mouse in not actually in the vtk view but the view is
   // first responder.
-  NSPoint mouseLoc = [[self window] mouseLocationOutsideOfEventStream];
-  mouseLoc = [self convertPoint:mouseLoc fromView:nil];
+  NSPoint windowLoc = [[self window] mouseLocationOutsideOfEventStream];
+  NSPoint viewLoc = [self convertPoint:windowLoc fromView:nil];
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+  NSPoint backingLoc = [self convertPointToBacking:viewLoc];
+#else
+  NSPoint backingLoc = viewLoc;
+#endif
 
   NSUInteger flags = [theEvent modifierFlags];
   int shiftDown = ((flags & NSEventModifierFlagShift) != 0);
@@ -271,8 +275,8 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     keySym = "None";
   }
 
-  interactor->SetEventInformation(static_cast<int>(round(mouseLoc.x)),
-                                  static_cast<int>(round(mouseLoc.y)),
+  interactor->SetEventInformation(static_cast<int>(backingLoc.x),
+                                  static_cast<int>(backingLoc.y),
                                   controlDown, shiftDown,
                                   charCode, 1, keySym);
   interactor->SetAltKey(altDown);
@@ -300,16 +304,21 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 
   // Get the location of the mouse event relative to this NSView's bottom
   // left corner. Since this is a mouse event, we can use locationInWindow.
-  NSPoint mouseLoc =
-    [self convertPoint:[theEvent locationInWindow] fromView:nil];
+  NSPoint windowLoc = [theEvent locationInWindow];
+  NSPoint viewLoc = [self convertPoint:windowLoc fromView:nil];
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+  NSPoint backingLoc = [self convertPointToBacking:viewLoc];
+#else
+  NSPoint backingLoc = viewLoc;
+#endif
 
   NSUInteger flags = [theEvent modifierFlags];
   int shiftDown = ((flags & NSEventModifierFlagShift) != 0);
   int controlDown = ((flags & (NSEventModifierFlagControl | NSEventModifierFlagCommand)) != 0);
   int altDown = ((flags & NSEventModifierFlagOption) != 0);
 
-  interactor->SetEventInformation(static_cast<int>(round(mouseLoc.x)),
-                                  static_cast<int>(round(mouseLoc.y)),
+  interactor->SetEventInformation(static_cast<int>(backingLoc.x),
+                                  static_cast<int>(backingLoc.y),
                                   controlDown, shiftDown);
   interactor->SetAltKey(altDown);
   interactor->InvokeEvent(theEventId, NULL);
@@ -330,9 +339,14 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   }
 
   // Get the location of the mouse event relative to this NSView's bottom
-  // left corner. Since this is a mouseevent, we can use locationInWindow.
-  NSPoint mouseLoc =
-    [self convertPoint:[theEvent locationInWindow] fromView:nil];
+  // left corner. Since this is a mouse event, we can use locationInWindow.
+  NSPoint windowLoc = [theEvent locationInWindow];
+  NSPoint viewLoc = [self convertPoint:windowLoc fromView:nil];
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+  NSPoint backingLoc = [self convertPointToBacking:viewLoc];
+#else
+  NSPoint backingLoc = viewLoc;
+#endif
 
   int clickCount = static_cast<int>([theEvent clickCount]);
   int repeatCount = ((clickCount > 1) ? clickCount - 1 : 0);
@@ -342,8 +356,8 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   int controlDown = ((flags & (NSEventModifierFlagControl | NSEventModifierFlagCommand)) != 0);
   int altDown = ((flags & NSEventModifierFlagOption) != 0);
 
-  interactor->SetEventInformation(static_cast<int>(round(mouseLoc.x)),
-                                  static_cast<int>(round(mouseLoc.y)),
+  interactor->SetEventInformation(static_cast<int>(backingLoc.x),
+                                  static_cast<int>(backingLoc.y),
                                   controlDown, shiftDown,
                                   0, repeatCount);
   interactor->SetAltKey(altDown);
@@ -384,9 +398,9 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   // An NSWindow created by vtk automatically does accept such events.
 
   // Ignore motion outside the view in order to mimic other interactors
-  NSPoint mouseLoc =
-    [self convertPoint:[theEvent locationInWindow] fromView:nil];
-  if (NSPointInRect(mouseLoc, [self visibleRect]))
+  NSPoint windowLoc = [theEvent locationInWindow];
+  NSPoint viewLoc = [self convertPoint:windowLoc fromView:nil];
+  if (NSPointInRect(viewLoc, [self visibleRect]))
   {
     [self invokeVTKMoveEvent:vtkCommand::MouseMoveEvent
                   cocoaEvent:theEvent];
