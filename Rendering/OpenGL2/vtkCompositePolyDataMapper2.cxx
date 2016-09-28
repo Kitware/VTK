@@ -280,6 +280,7 @@ void vtkCompositeMapperHelper2::RemoveUnused()
     if (!it->second->Marked)
     {
       delete it->second;
+      this->Parent->HelperDataMap.erase(it->first);
       this->Data.erase(it++);
       this->Modified();
     }
@@ -1337,7 +1338,7 @@ void vtkCompositePolyDataMapper2::Render(
   // the first step is to gather up the polydata based on their
   // signatures (aka have normals, have scalars etc)
   if (this->HelperMTime < this->GetInputDataObject(0, 0)->GetMTime() ||
-      this->HelperMTime < this->MTime)
+      this->HelperMTime < this->GetMTime())
   {
     // clear old helpers
     for (helpIter hiter = this->Helpers.begin(); hiter != this->Helpers.end(); hiter++)
@@ -1510,10 +1511,10 @@ void vtkCompositePolyDataMapper2::BuildRenderValues(
   else
   {
     vtkPolyData *pd = vtkPolyData::SafeDownCast(dobj);
-    if (this->HelperDataMap.find(pd) != this->HelperDataMap.end())
+    dataIter dit = this->HelperDataMap.find(pd);
+    if (dit != this->HelperDataMap.end())
     {
-      vtkCompositeMapperHelperData *helperData =
-        this->HelperDataMap[pd];
+      vtkCompositeMapperHelperData *helperData = dit->second;
       helperData->Opacity = this->BlockState.Opacity.top();
       helperData->Visibility = this->BlockState.Visibility.top();
       helperData->AmbientColor = this->BlockState.AmbientColor.top();
