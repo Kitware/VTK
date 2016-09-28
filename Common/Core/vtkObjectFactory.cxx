@@ -70,11 +70,20 @@ vtkObject* vtkObjectFactory::CreateInstance(const char* vtkclassname,
   return 0;
 }
 
-void vtkObjectFactory::ConstructInstance(const char*)
+#ifndef VTK_LEGACY_REMOVE
+void vtkObjectFactory::ConstructInstance(const char *vtkclassname)
 {
   // no-op. Call vtkObjectBase::InitializeObjectBase() from the New()
-  // implementation instead.
+  // implementation instead. That way we ensure that the
+  // registration/deregistration strings match.
+  VTK_LEGACY_REPLACED_BODY(vtkObjectFactory::ConstructInstance, "VTK 7.1",
+                           vtkObjectBase::InitializeObjectBase);
+#ifdef VTK_DEBUG_LEAKS
+  vtkDebugLeaks::ConstructClass(vtkclassname);
+#endif // VTK_DEBUG_LEAKS
+
 }
+#endif // not VTK_LEGACY_REMOVE
 
 // A one time initialization method.
 void vtkObjectFactory::Init()

@@ -66,8 +66,10 @@ public:
   /**
    * No longer used. Call vtkObjectBase::InitializeObjectBase() from the
    * New() implementation instead.
+   * @deprecated because this method relies on taking an arbitrary string,
+   * which may not match the GetClassName() string (especially for templates).
    */
-  static void ConstructInstance(const char* vtkclassname);
+  VTK_LEGACY(static void ConstructInstance(const char* vtkclassname));
 
   /**
    * Create all possible instances of the named vtk object.
