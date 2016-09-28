@@ -48,7 +48,7 @@ public:
    * Standard methods for printing and obtaining type information for instances of this class.
    */
   vtkTypeMacro(vtkUncertaintyTubeFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -67,10 +67,10 @@ public:
 
 protected:
   vtkUncertaintyTubeFilter();
-  ~vtkUncertaintyTubeFilter();
+  ~vtkUncertaintyTubeFilter() VTK_OVERRIDE;
 
   // Integrate data
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   int BuildTubes(vtkPointData *pd, vtkPointData *outPD,
                  vtkCellData *cd, vtkCellData *outCD, vtkPolyData *output);
 

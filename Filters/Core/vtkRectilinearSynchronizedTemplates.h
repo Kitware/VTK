@@ -44,12 +44,12 @@ public:
   static vtkRectilinearSynchronizedTemplates *New();
 
   vtkTypeMacro(vtkRectilinearSynchronizedTemplates,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Because we delegate to vtkContourValues
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -166,7 +166,7 @@ public:
 
 protected:
   vtkRectilinearSynchronizedTemplates();
-  ~vtkRectilinearSynchronizedTemplates();
+  ~vtkRectilinearSynchronizedTemplates() VTK_OVERRIDE;
 
   int ComputeNormals;
   int ComputeGradients;
@@ -175,9 +175,9 @@ protected:
 
   vtkContourValues *ContourValues;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   int ArrayComponent;
 

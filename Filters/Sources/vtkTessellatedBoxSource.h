@@ -114,15 +114,15 @@ public:
 
 protected:
    vtkTessellatedBoxSource();
-  ~vtkTessellatedBoxSource();
+  ~vtkTessellatedBoxSource() VTK_OVERRIDE;
 
   /**
    * Called by the superclass. Actual creation of the points and cells
    * happens here.
    */
-  virtual int RequestData(vtkInformation *request,
+  int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outpuVector);
+                          vtkInformationVector *outpuVector) VTK_OVERRIDE;
 
 
   void DuplicateSharedPointsMethod(double *bounds,

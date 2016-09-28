@@ -48,15 +48,15 @@ class VTKIMAGINGFOURIER_EXPORT vtkTableFFT : public vtkTableAlgorithm
 public:
   vtkTypeMacro(vtkTableFFT, vtkTableAlgorithm);
   static vtkTableFFT *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkTableFFT();
-  ~vtkTableFFT();
+  ~vtkTableFFT() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *request,
+  int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+                          vtkInformationVector *outputVector) VTK_OVERRIDE;
 
   /**
    * Perform the FFT on the given data array.

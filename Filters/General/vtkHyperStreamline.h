@@ -66,7 +66,7 @@ class VTKFILTERSGENERAL_EXPORT vtkHyperStreamline : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkHyperStreamline,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object with initial starting position (0,0,0); integration
@@ -246,13 +246,13 @@ public:
 
 protected:
   vtkHyperStreamline();
-  ~vtkHyperStreamline();
+  ~vtkHyperStreamline() VTK_OVERRIDE;
 
   // Integrate data
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   int BuildTube(vtkDataSet *input, vtkPolyData *output);
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   // Flag indicates where streamlines start from (either position or location)
   int StartFrom;

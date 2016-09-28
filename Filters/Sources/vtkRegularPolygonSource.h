@@ -39,7 +39,7 @@ public:
    */
   static vtkRegularPolygonSource *New();
   vtkTypeMacro(vtkRegularPolygonSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -108,9 +108,9 @@ public:
 
 protected:
   vtkRegularPolygonSource();
-  ~vtkRegularPolygonSource() {}
+  ~vtkRegularPolygonSource() VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   int    NumberOfSides;
   double Center[3];

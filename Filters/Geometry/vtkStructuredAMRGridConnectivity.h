@@ -49,7 +49,7 @@ class VTKFILTERSGEOMETRY_EXPORT vtkStructuredAMRGridConnectivity :
 public:
   static vtkStructuredAMRGridConnectivity* New();
   vtkTypeMacro(vtkStructuredAMRGridConnectivity, vtkAbstractGridConnectivity);
-  void PrintSelf(ostream& os, vtkIndent indent );
+  void PrintSelf(ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
   /**
    * Initializes this instance of vtkStructuredAMRGridConnectivity where N
@@ -65,12 +65,12 @@ public:
   /**
    * Computes neighboring information.
    */
-  virtual void ComputeNeighbors();
+  void ComputeNeighbors() VTK_OVERRIDE;
 
   /**
    * Creates ghost layers.
    */
-  virtual void CreateGhostLayers(const int N=1);
+  void CreateGhostLayers(const int N=1) VTK_OVERRIDE;
 
   /**
    * Registers the AMR grid with the given global linear grid ID (starting
@@ -146,12 +146,12 @@ public:
 
 protected:
   vtkStructuredAMRGridConnectivity();
-  virtual ~vtkStructuredAMRGridConnectivity();
+  ~vtkStructuredAMRGridConnectivity() VTK_OVERRIDE;
 
   /**
    * Sets the total number of grids(blocks) in the AMR hierarchy
    */
-  virtual void SetNumberOfGrids( const unsigned int N );
+  void SetNumberOfGrids( const unsigned int N ) VTK_OVERRIDE;
 
   /**
    * Creates the ghosted mask arrays
@@ -416,10 +416,10 @@ protected:
   /**
    * Fills ghost arrays.
    */
-  virtual void FillGhostArrays(
+  void FillGhostArrays(
             const int gridId,
             vtkUnsignedCharArray* nodesArray,
-            vtkUnsignedCharArray* cellsArray );
+            vtkUnsignedCharArray* cellsArray ) VTK_OVERRIDE;
 
   /**
    * Compute the AMR neighbor of grid "i" and its neighbor grid "j".

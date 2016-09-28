@@ -37,7 +37,7 @@ class VTKFILTERSGENERAL_EXPORT vtkCursor3D : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkCursor3D,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct with model bounds = (-1,1,-1,1,-1,1), focal point = (0,0,0),
@@ -155,9 +155,9 @@ public:
 
 protected:
   vtkCursor3D();
-  ~vtkCursor3D();
+  ~vtkCursor3D() VTK_OVERRIDE;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   vtkPolyData *Focus;
   double ModelBounds[6];

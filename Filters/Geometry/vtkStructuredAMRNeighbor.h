@@ -81,7 +81,7 @@ public:
   /**
    * Destructor.
    */
-  ~vtkStructuredAMRNeighbor() {}
+  ~vtkStructuredAMRNeighbor() VTK_OVERRIDE {}
 
   /**
    * Overload assignment operator.
@@ -106,9 +106,9 @@ public:
    * information, the method grows the overlap extent to form the Send and Rcv
    * extents for this neighbor instance.
    */
-  virtual void ComputeSendAndReceiveExtent(
+  void ComputeSendAndReceiveExtent(
       int gridRealExtent[6], int gridGhostedExtent[6], int neiRealExtent[6],
-      int WholeExtent[6], const int N);
+      int WholeExtent[6], const int N) VTK_OVERRIDE;
 };
   //@}
 

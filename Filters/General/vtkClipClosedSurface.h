@@ -74,7 +74,7 @@ class VTKFILTERSGENERAL_EXPORT vtkClipClosedSurface : public vtkPolyDataAlgorith
 public:
   static vtkClipClosedSurface *New();
   vtkTypeMacro(vtkClipClosedSurface,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -201,7 +201,7 @@ public:
 
 protected:
   vtkClipClosedSurface();
-  ~vtkClipClosedSurface();
+  ~vtkClipClosedSurface() VTK_OVERRIDE;
 
   vtkPlaneCollection *ClippingPlanes;
 
@@ -220,14 +220,14 @@ protected:
 
   vtkIdList *IdList;
 
-  virtual int ComputePipelineMTime(
+  int ComputePipelineMTime(
     vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector, int requestFromOutputPort,
-    vtkMTimeType* mtime);
+    vtkMTimeType* mtime) VTK_OVERRIDE;
 
-  virtual int RequestData(
+  int RequestData(
     vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
+    vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   /**
    * Method for clipping lines and copying the scalar data.

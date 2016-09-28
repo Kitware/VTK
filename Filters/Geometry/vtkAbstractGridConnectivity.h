@@ -64,7 +64,7 @@ class VTKFILTERSGEOMETRY_EXPORT vtkAbstractGridConnectivity : public vtkObject
 {
 public:
   vtkTypeMacro( vtkAbstractGridConnectivity, vtkObject );
-  void PrintSelf(ostream &os,vtkIndent indent );
+  void PrintSelf(ostream &os,vtkIndent indent ) VTK_OVERRIDE;
 
   //@{
   /**
@@ -143,7 +143,7 @@ public:
 
 protected:
   vtkAbstractGridConnectivity();
-  virtual ~vtkAbstractGridConnectivity();
+  ~vtkAbstractGridConnectivity() VTK_OVERRIDE;
 
   /**
    * Fills the ghost arrays for the given grid.

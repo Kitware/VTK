@@ -64,7 +64,7 @@ class VTKFILTERSGENERAL_EXPORT vtkCellDerivatives : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkCellDerivatives,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct to compute the gradient of the scalars and vectors.
@@ -114,8 +114,8 @@ public:
 
 protected:
   vtkCellDerivatives();
-  ~vtkCellDerivatives() {}
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  ~vtkCellDerivatives() VTK_OVERRIDE {}
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   int VectorMode;
   int TensorMode;

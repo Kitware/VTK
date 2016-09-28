@@ -80,7 +80,7 @@ public:
    */
   static vtkDeformPointSet *New();
   vtkTypeMacro(vtkDeformPointSet,vtkPointSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -114,7 +114,7 @@ public:
 
 protected:
   vtkDeformPointSet();
-  ~vtkDeformPointSet();
+  ~vtkDeformPointSet() VTK_OVERRIDE;
 
   int InitializeWeights;
 
@@ -125,8 +125,8 @@ protected:
   vtkIdType InitialNumberOfPointSetCells;
   vtkSmartPointer<vtkDoubleArray> Weights;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **,
+    vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   vtkDeformPointSet(const vtkDeformPointSet&) VTK_DELETE_FUNCTION;

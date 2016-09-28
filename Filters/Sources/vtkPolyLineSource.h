@@ -33,7 +33,7 @@ class VTKFILTERSSOURCES_EXPORT vtkPolyLineSource : public vtkPolyDataAlgorithm
 public:
   static vtkPolyLineSource* New();
   vtkTypeMacro(vtkPolyLineSource, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -72,9 +72,9 @@ public:
 
 protected:
   vtkPolyLineSource();
-  ~vtkPolyLineSource();
+  ~vtkPolyLineSource() VTK_OVERRIDE;
 
-  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector *);
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector *) VTK_OVERRIDE;
 
   vtkPoints* Points;
 

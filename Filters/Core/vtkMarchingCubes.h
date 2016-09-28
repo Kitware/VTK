@@ -45,7 +45,7 @@ class VTKFILTERSCORE_EXPORT vtkMarchingCubes : public vtkPolyDataAlgorithm
 public:
   static vtkMarchingCubes *New();
   vtkTypeMacro(vtkMarchingCubes,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Methods to set contour values
   void SetValue(int i, double value);
@@ -58,7 +58,7 @@ public:
   void GenerateValues(int numContours, double rangeStart, double rangeEnd);
 
   // Because we delegate to vtkContourValues
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -112,10 +112,10 @@ public:
 
 protected:
   vtkMarchingCubes();
-  ~vtkMarchingCubes();
+  ~vtkMarchingCubes() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   vtkContourValues *ContourValues;
   int ComputeNormals;

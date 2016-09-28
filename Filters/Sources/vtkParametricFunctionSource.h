@@ -57,7 +57,7 @@ class VTKFILTERSSOURCES_EXPORT vtkParametricFunctionSource : public vtkPolyDataA
 {
 public:
   vtkTypeMacro(vtkParametricFunctionSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Create a new instance with (50,50,50) points in the (u-v-w) directions.
@@ -188,7 +188,7 @@ public:
   /**
    * Return the MTime also considering the parametric function.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -202,11 +202,11 @@ public:
 
 protected:
   vtkParametricFunctionSource();
-  virtual ~vtkParametricFunctionSource();
+  ~vtkParametricFunctionSource() VTK_OVERRIDE;
 
   // Usual data generation method
   int RequestData(vtkInformation *info, vtkInformationVector **input,
-                  vtkInformationVector *output);
+                  vtkInformationVector *output) VTK_OVERRIDE;
 
   // Variables
   vtkParametricFunction *ParametricFunction;

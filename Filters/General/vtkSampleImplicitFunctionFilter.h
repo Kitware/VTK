@@ -50,7 +50,7 @@ public:
    */
   static vtkSampleImplicitFunctionFilter *New();
   vtkTypeMacro(vtkSampleImplicitFunctionFilter,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -91,11 +91,11 @@ public:
   /**
    * Return the MTime also taking into account the implicit function.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkSampleImplicitFunctionFilter();
-  ~vtkSampleImplicitFunctionFilter();
+  ~vtkSampleImplicitFunctionFilter() VTK_OVERRIDE;
 
   vtkImplicitFunction *ImplicitFunction;
   int ComputeGradients;
@@ -104,9 +104,9 @@ protected:
 
   void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                  vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 
 private:

@@ -42,7 +42,7 @@ public:
   static vtkAppendFilter *New();
 
   vtkTypeMacro(vtkAppendFilter,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Get any input of this filter.
@@ -94,13 +94,13 @@ public:
 
 protected:
   vtkAppendFilter();
-  ~vtkAppendFilter();
+  ~vtkAppendFilter() VTK_OVERRIDE;
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *,
-                                  vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *,
+                          vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   // list of data sets to append together.
   // Here as a convenience.  It is a copy of the input array.

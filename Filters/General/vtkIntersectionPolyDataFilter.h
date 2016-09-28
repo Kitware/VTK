@@ -69,7 +69,7 @@ class VTKFILTERSGENERAL_EXPORT vtkIntersectionPolyDataFilter :
 public:
   static vtkIntersectionPolyDataFilter *New();
   vtkTypeMacro(vtkIntersectionPolyDataFilter, vtkPolyDataAlgorithm);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -177,11 +177,11 @@ public:
 
 protected:
   vtkIntersectionPolyDataFilter();  //Constructor
-  ~vtkIntersectionPolyDataFilter();  //Destructor
+  ~vtkIntersectionPolyDataFilter() VTK_OVERRIDE;  //Destructor
 
   int RequestData(vtkInformation*, vtkInformationVector**,
-                  vtkInformationVector*);  //Update
-  int FillInputPortInformation(int, vtkInformation*); //Input,Output
+                  vtkInformationVector*) VTK_OVERRIDE;  //Update
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE; //Input,Output
 
 private:
   vtkIntersectionPolyDataFilter(const vtkIntersectionPolyDataFilter&) VTK_DELETE_FUNCTION;

@@ -72,7 +72,7 @@ class vtkFieldData;
 class VTKFILTERSCORE_EXPORT vtkFieldDataToAttributeDataFilter : public vtkDataSetAlgorithm
 {
 public:
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   vtkTypeMacro(vtkFieldDataToAttributeDataFilter,vtkDataSetAlgorithm);
 
   /**
@@ -253,13 +253,13 @@ public:
   /**
    * If output does not need exact extent, the I do not either.
    */
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
 protected:
   vtkFieldDataToAttributeDataFilter();
-  ~vtkFieldDataToAttributeDataFilter();
+  ~vtkFieldDataToAttributeDataFilter() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *); //generate output data
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE; //generate output data
 
   int InputField;
   int OutputAttributeData;

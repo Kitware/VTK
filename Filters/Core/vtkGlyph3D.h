@@ -106,7 +106,7 @@ class VTKFILTERSCORE_EXPORT vtkGlyph3D : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkGlyph3D,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object with scaling on, scaling mode is by scalar value,
@@ -306,15 +306,15 @@ public:
   /**
    * Overridden to include SourceTransform's MTime.
    */
-  virtual vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkGlyph3D();
-  ~vtkGlyph3D();
+  ~vtkGlyph3D() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int, vtkInformation *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
 
   vtkPolyData* GetSource(int idx, vtkInformationVector *sourceInfo);
 

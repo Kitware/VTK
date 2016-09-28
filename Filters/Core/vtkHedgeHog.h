@@ -36,7 +36,7 @@ class VTKFILTERSCORE_EXPORT vtkHedgeHog : public vtkPolyDataAlgorithm
 public:
   static vtkHedgeHog *New();
   vtkTypeMacro(vtkHedgeHog,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -69,10 +69,10 @@ public:
 
 protected:
   vtkHedgeHog();
-  ~vtkHedgeHog() {}
+  ~vtkHedgeHog() VTK_OVERRIDE {}
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
   double ScaleFactor;
   int VectorMode; // Orient/scale via normal or via vector data
   int OutputPointsPrecision;

@@ -41,7 +41,7 @@ class VTKFILTERSGENERAL_EXPORT vtkBlankStructuredGrid : public vtkStructuredGrid
 public:
   static vtkBlankStructuredGrid *New();
   vtkTypeMacro(vtkBlankStructuredGrid,vtkStructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -92,9 +92,9 @@ public:
 
 protected:
   vtkBlankStructuredGrid();
-  ~vtkBlankStructuredGrid();
+  ~vtkBlankStructuredGrid() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   double MinBlankingValue;
   double MaxBlankingValue;

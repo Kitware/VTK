@@ -41,7 +41,7 @@ class VTKFILTERSCORE_EXPORT vtkMaskFields : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkMaskFields,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Create a new vtkMaskFields.
@@ -141,9 +141,9 @@ public:
 
 protected:
   vtkMaskFields();
-  virtual ~vtkMaskFields();
+  ~vtkMaskFields() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   struct CopyFieldFlag
   {

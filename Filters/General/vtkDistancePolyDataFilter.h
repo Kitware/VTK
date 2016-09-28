@@ -45,7 +45,7 @@ class VTKFILTERSGENERAL_EXPORT vtkDistancePolyDataFilter : public vtkPolyDataAlg
 public:
   static vtkDistancePolyDataFilter *New();
   vtkTypeMacro(vtkDistancePolyDataFilter, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -87,9 +87,9 @@ public:
 
 protected:
   vtkDistancePolyDataFilter();
-  ~vtkDistancePolyDataFilter();
+  ~vtkDistancePolyDataFilter() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
   void GetPolyDataDistance(vtkPolyData*, vtkPolyData*);
 
 private:

@@ -43,7 +43,7 @@ public:
   static vtkGraphLayoutFilter *New();
 
   vtkTypeMacro(vtkGraphLayoutFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -95,9 +95,9 @@ public:
 
 protected:
   vtkGraphLayoutFilter();
-  ~vtkGraphLayoutFilter() {}
+  ~vtkGraphLayoutFilter() VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   double GraphBounds[6];
   int   AutomaticBoundsComputation;  //Boolean controls automatic bounds calc.

@@ -37,13 +37,13 @@ class VTKFILTERSGENERAL_EXPORT vtkMultiBlockFromTimeSeriesFilter : public vtkMul
 {
 public:
   vtkTypeMacro(vtkMultiBlockFromTimeSeriesFilter,vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkMultiBlockFromTimeSeriesFilter *New();
 
 protected:
   vtkMultiBlockFromTimeSeriesFilter();
-  virtual ~vtkMultiBlockFromTimeSeriesFilter();
+  ~vtkMultiBlockFromTimeSeriesFilter() VTK_OVERRIDE;
 
   int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
 

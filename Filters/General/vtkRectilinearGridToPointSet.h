@@ -44,19 +44,19 @@ class VTKFILTERSGENERAL_EXPORT vtkRectilinearGridToPointSet : public vtkStructur
 {
 public:
   vtkTypeMacro(vtkRectilinearGridToPointSet, vtkStructuredGridAlgorithm);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkRectilinearGridToPointSet *New();
 
 protected:
   vtkRectilinearGridToPointSet();
-  ~vtkRectilinearGridToPointSet();
+  ~vtkRectilinearGridToPointSet() VTK_OVERRIDE;
 
   int RequestData(vtkInformation *request,
                   vtkInformationVector **inputVector,
-                  vtkInformationVector *outputVector);
+                  vtkInformationVector *outputVector) VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 private:
   vtkRectilinearGridToPointSet(const vtkRectilinearGridToPointSet &) VTK_DELETE_FUNCTION;

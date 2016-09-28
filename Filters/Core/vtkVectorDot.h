@@ -42,7 +42,7 @@ class VTKFILTERSCORE_EXPORT vtkVectorDot : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkVectorDot,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object with scalar range (-1,1).
@@ -81,13 +81,13 @@ public:
 
 protected:
   vtkVectorDot();
-  ~vtkVectorDot() {}
+  ~vtkVectorDot() VTK_OVERRIDE {}
 
   int MapScalars;
   double ScalarRange[2];
   double ActualRange[2];
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   vtkVectorDot(const vtkVectorDot&) VTK_DELETE_FUNCTION;

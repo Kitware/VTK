@@ -69,7 +69,7 @@ class VTKFILTERSGENERAL_EXPORT vtkTessellatorFilter : public vtkUnstructuredGrid
 {
 public:
   vtkTypeMacro(vtkTessellatorFilter,vtkUnstructuredGridAlgorithm);
-  void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
   static vtkTessellatorFilter* New();
 
@@ -79,7 +79,7 @@ public:
   virtual void SetSubdivider( vtkDataSetEdgeSubdivisionCriterion* );
   vtkGetObjectMacro(Subdivider, vtkDataSetEdgeSubdivisionCriterion);
 
-  virtual vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -130,9 +130,9 @@ public:
 
 protected:
   vtkTessellatorFilter();
-  ~vtkTessellatorFilter();
+  ~vtkTessellatorFilter() VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   /**
    * Called by RequestData to set up a multitude of member variables used by
@@ -154,9 +154,9 @@ protected:
   /**
    * Run the filter; produce a polygonal approximation to the grid.
    */
-  virtual int RequestData(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+  int RequestData(vtkInformation* request,
+                  vtkInformationVector** inputVector,
+                  vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   vtkStreamingTessellator* Tessellator;
   vtkDataSetEdgeSubdivisionCriterion* Subdivider;

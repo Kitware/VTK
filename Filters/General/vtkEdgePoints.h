@@ -39,7 +39,7 @@ class VTKFILTERSGENERAL_EXPORT vtkEdgePoints : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkEdgePoints,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object with contour value of 0.0.
@@ -56,10 +56,10 @@ public:
 
 protected:
   vtkEdgePoints();
-  ~vtkEdgePoints();
+  ~vtkEdgePoints() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   double Value;
   vtkMergePoints *Locator;

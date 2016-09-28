@@ -45,7 +45,7 @@ class VTKFILTERSCORE_EXPORT vtkCellDataToPointData : public vtkDataSetAlgorithm
 public:
   static vtkCellDataToPointData *New();
   vtkTypeMacro(vtkCellDataToPointData,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -60,11 +60,11 @@ public:
 
 protected:
   vtkCellDataToPointData();
-  ~vtkCellDataToPointData() {}
+  ~vtkCellDataToPointData() VTK_OVERRIDE {}
 
-  virtual int RequestData(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+  int RequestData(vtkInformation* request,
+                  vtkInformationVector** inputVector,
+                  vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   // Special traversal algorithm for unstructured grid
   int RequestDataForUnstructuredGrid

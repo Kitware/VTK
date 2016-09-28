@@ -45,7 +45,7 @@ public:
   static vtkAppendPolyData *New();
 
   vtkTypeMacro(vtkAppendPolyData,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -120,18 +120,18 @@ public:
 
 protected:
   vtkAppendPolyData();
-  ~vtkAppendPolyData();
+  ~vtkAppendPolyData() VTK_OVERRIDE;
 
   // Flag for selecting parallel streaming behavior
   int ParallelStreaming;
   int OutputPointsPrecision;
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *,
-                          vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *,
-                                  vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int, vtkInformation *);
+  int RequestData(vtkInformation *,
+                  vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *,
+                          vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
 
   // An efficient templated way to append data.
   void AppendData(vtkDataArray *dest, vtkDataArray *src, vtkIdType offset);

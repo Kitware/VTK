@@ -45,7 +45,7 @@ class VTKFILTERSGENERAL_EXPORT vtkContourTriangulator : public vtkPolyDataAlgori
 public:
   static vtkContourTriangulator *New();
   vtkTypeMacro(vtkContourTriangulator,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -85,11 +85,11 @@ public:
 
 protected:
   vtkContourTriangulator();
-  ~vtkContourTriangulator();
+  ~vtkContourTriangulator() VTK_OVERRIDE;
 
-  virtual int RequestData(
+  int RequestData(
     vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
+    vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   int TriangulationError;
   int TriangulationErrorDisplay;

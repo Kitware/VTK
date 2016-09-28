@@ -39,7 +39,7 @@ class VTKFILTERSCORE_EXPORT vtkCenterOfMass : public vtkPointSetAlgorithm
 public:
   static vtkCenterOfMass *New();
   vtkTypeMacro(vtkCenterOfMass,vtkPointSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -74,7 +74,7 @@ protected:
 
   int RequestData(vtkInformation* request,
                   vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector );
+                  vtkInformationVector* outputVector ) VTK_OVERRIDE;
 
 private:
 

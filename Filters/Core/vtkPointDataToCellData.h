@@ -43,7 +43,7 @@ class VTKFILTERSCORE_EXPORT vtkPointDataToCellData : public vtkDataSetAlgorithm
 public:
   static vtkPointDataToCellData *New();
   vtkTypeMacro(vtkPointDataToCellData,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -69,11 +69,11 @@ public:
 
 protected:
   vtkPointDataToCellData();
-  ~vtkPointDataToCellData() {}
+  ~vtkPointDataToCellData() VTK_OVERRIDE {}
 
-  virtual int RequestData(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+  int RequestData(vtkInformation* request,
+                  vtkInformationVector** inputVector,
+                  vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   int PassPointData;
   int CategoricalData;

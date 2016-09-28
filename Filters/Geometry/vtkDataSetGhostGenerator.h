@@ -44,7 +44,7 @@ class VTKFILTERSGEOMETRY_EXPORT vtkDataSetGhostGenerator:
 {
 public:
   vtkTypeMacro(vtkDataSetGhostGenerator,vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -55,16 +55,16 @@ public:
   //@}
 
   // Standard VTK pipeline routines
-  virtual int FillInputPortInformation(int port,vtkInformation *info);
-  virtual int FillOutputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port,vtkInformation *info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
-  virtual int RequestData(
+  int RequestData(
       vtkInformation *rqst, vtkInformationVector **inputVector,
-      vtkInformationVector* outputVector );
+      vtkInformationVector* outputVector ) VTK_OVERRIDE;
 
 protected:
   vtkDataSetGhostGenerator();
-  virtual ~vtkDataSetGhostGenerator();
+  ~vtkDataSetGhostGenerator() VTK_OVERRIDE;
 
   /**
    * Generate ghost layers. Implemented by concrete implementations.

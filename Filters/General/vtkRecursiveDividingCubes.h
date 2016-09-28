@@ -47,7 +47,7 @@ class VTKFILTERSGENERAL_EXPORT vtkRecursiveDividingCubes : public vtkPolyDataAlg
 public:
   static vtkRecursiveDividingCubes *New();
   vtkTypeMacro(vtkRecursiveDividingCubes,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -77,10 +77,10 @@ public:
 
 protected:
   vtkRecursiveDividingCubes();
-  ~vtkRecursiveDividingCubes();
+  ~vtkRecursiveDividingCubes() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
   void SubDivide(double origin[3], double h[3], double values[8]);
 
   double Value;

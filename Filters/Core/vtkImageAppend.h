@@ -37,7 +37,7 @@ class VTKFILTERSCORE_EXPORT vtkImageAppend : public vtkThreadedImageAlgorithm
 public:
   static vtkImageAppend *New();
   vtkTypeMacro(vtkImageAppend,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Replace one of the input connections with a new input.  You can
@@ -101,30 +101,30 @@ public:
 
 protected:
   vtkImageAppend();
-  ~vtkImageAppend();
+  ~vtkImageAppend() VTK_OVERRIDE;
 
   int PreserveExtents;
   int AppendAxis;
   // Array holds the AppendAxisExtent shift for each input.
   int *Shifts;
 
-  virtual int RequestInformation (vtkInformation *,
-                                  vtkInformationVector **,
-                                  vtkInformationVector *);
+  int RequestInformation (vtkInformation *,
+                          vtkInformationVector **,
+                          vtkInformationVector *) VTK_OVERRIDE;
 
-  virtual int RequestUpdateExtent(vtkInformation *,
-                                  vtkInformationVector **,
-                                  vtkInformationVector *);
+  int RequestUpdateExtent(vtkInformation *,
+                          vtkInformationVector **,
+                          vtkInformationVector *) VTK_OVERRIDE;
 
   void ThreadedRequestData (vtkInformation* request,
                             vtkInformationVector** inputVector,
                             vtkInformationVector* outputVector,
                             vtkImageData ***inData, vtkImageData **outData,
-                            int ext[6], int id);
+                            int ext[6], int id) VTK_OVERRIDE;
 
 
   // see vtkAlgorithm for docs.
-  virtual int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
   void InitOutput(int outExt[6], vtkImageData *outData);
 
@@ -132,15 +132,15 @@ protected:
     int *inExt, int *outExt, int *inWextent, int whichInput);
 
   // overridden to allocate all of the output arrays, not just active scalars
-  virtual void AllocateOutputData(vtkImageData *out,
-                                  vtkInformation* outInfo,
-                                  int *uExtent);
-  virtual vtkImageData *AllocateOutputData(vtkDataObject *out,
-                                           vtkInformation* outInfo);
+  void AllocateOutputData(vtkImageData *out,
+                          vtkInformation* outInfo,
+                          int *uExtent) VTK_OVERRIDE;
+  vtkImageData *AllocateOutputData(vtkDataObject *out,
+                                   vtkInformation* outInfo) VTK_OVERRIDE;
 
   // overridden to prevent shallow copies across, since we have to do it elementwise
-  virtual void CopyAttributeData(vtkImageData *in, vtkImageData *out,
-                                 vtkInformationVector** inputVector);
+  void CopyAttributeData(vtkImageData *in, vtkImageData *out,
+                         vtkInformationVector** inputVector) VTK_OVERRIDE;
 
 
 private:

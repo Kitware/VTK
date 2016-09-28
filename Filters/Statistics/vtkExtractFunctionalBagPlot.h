@@ -54,11 +54,11 @@ public:
 
 protected:
   vtkExtractFunctionalBagPlot();
-  virtual ~vtkExtractFunctionalBagPlot();
+  ~vtkExtractFunctionalBagPlot() VTK_OVERRIDE;
 
   int RequestData(vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
   char *P50String;
   char *PUserString;

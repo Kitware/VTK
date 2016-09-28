@@ -59,7 +59,7 @@ class VTKFILTERSGENERAL_EXPORT vtkAnnotationLink : public vtkAnnotationLayersAlg
 public:
   static vtkAnnotationLink *New();
   vtkTypeMacro(vtkAnnotationLink, vtkAnnotationLayersAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -91,11 +91,11 @@ public:
   /**
    * Get the mtime of this object.
    */
-  virtual vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkAnnotationLink();
-  ~vtkAnnotationLink();
+  ~vtkAnnotationLink() VTK_OVERRIDE;
 
   /**
    * Called to process modified events from its vtkAnnotationLayers.
@@ -106,12 +106,12 @@ protected:
   /**
    * Set up input ports.
    */
-  virtual int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
   /**
    * Set up output ports.
    */
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
   /**
    * Copy the data to the output objects.
@@ -124,10 +124,10 @@ protected:
   /**
    * Shallow copy the internal selection to the output.
    */
-  virtual int RequestData(
+  int RequestData(
     vtkInformation *info,
     vtkInformationVector **inVector,
-    vtkInformationVector *outVector);
+    vtkInformationVector *outVector) VTK_OVERRIDE;
 
   /**
    * The shared selection.

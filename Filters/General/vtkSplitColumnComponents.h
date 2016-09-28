@@ -46,7 +46,7 @@ class VTKFILTERSGENERAL_EXPORT vtkSplitColumnComponents : public vtkTableAlgorit
 public:
   static vtkSplitColumnComponents* New();
   vtkTypeMacro(vtkSplitColumnComponents,vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -85,7 +85,7 @@ public:
 
 protected:
   vtkSplitColumnComponents();
-  ~vtkSplitColumnComponents();
+  ~vtkSplitColumnComponents() VTK_OVERRIDE;
 
   /**
    * Returns the label to use for the specific component in the array based on
@@ -98,7 +98,7 @@ protected:
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
   int NamingMode;
 private:

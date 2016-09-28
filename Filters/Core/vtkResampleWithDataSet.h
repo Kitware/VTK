@@ -42,7 +42,7 @@ class VTKFILTERSCORE_EXPORT vtkResampleWithDataSet : public vtkPassInputTypeAlgo
 {
 public:
   vtkTypeMacro(vtkResampleWithDataSet, vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkResampleWithDataSet *New();
 
@@ -92,21 +92,21 @@ public:
   vtkBooleanMacro(PassFieldArrays, bool);
   //@}
 
-  virtual vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkResampleWithDataSet();
-  ~vtkResampleWithDataSet();
+  ~vtkResampleWithDataSet() VTK_OVERRIDE;
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                  vtkInformationVector *) VTK_OVERRIDE;
   //virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
   //                               vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *);
-  virtual int FillInputPortInformation(int, vtkInformation *);
-  virtual int FillOutputPortInformation(int, vtkInformation *);
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
 
   /**
    * Get the name of the valid-points mask array.

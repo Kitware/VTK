@@ -36,7 +36,7 @@ class VTKFILTERSGENERAL_EXPORT vtkTableToStructuredGrid : public vtkStructuredGr
 public:
   static vtkTableToStructuredGrid* New();
   vtkTypeMacro(vtkTableToStructuredGrid, vtkStructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -103,27 +103,27 @@ public:
 
 protected:
   vtkTableToStructuredGrid();
-  ~vtkTableToStructuredGrid();
+  ~vtkTableToStructuredGrid() VTK_OVERRIDE;
 
   int Convert(vtkTable*, vtkStructuredGrid*, int extent[6]);
 
   /**
    * Overridden to specify that input must be a vtkTable.
    */
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   /**
    * Convert input vtkTable to vtkStructuredGrid.
    */
-  virtual int RequestData(vtkInformation* request,
-    vtkInformationVector** inputVector, vtkInformationVector* outputVector);
+  int RequestData(vtkInformation* request,
+    vtkInformationVector** inputVector, vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   /**
    * Request information -- pass whole extent to the pipeline.
    */
-  virtual int RequestInformation(vtkInformation *vtkNotUsed(request),
+  int RequestInformation(vtkInformation *vtkNotUsed(request),
     vtkInformationVector **vtkNotUsed(inputVector),
-    vtkInformationVector *outputVector);
+    vtkInformationVector *outputVector) VTK_OVERRIDE;
 
   char* XColumn;
   char* YColumn;

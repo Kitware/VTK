@@ -122,7 +122,7 @@ class VTKFILTERSGENERAL_EXPORT vtkMultiThreshold : public vtkMultiBlockDataSetAl
 public:
   vtkTypeMacro(vtkMultiThreshold,vtkMultiBlockDataSetAlgorithm);
   static vtkMultiThreshold* New();
-  virtual void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
   /// Whether the endpoint value of an interval should be included or excluded.
   enum Closure {
@@ -318,9 +318,9 @@ public:
      */
     int Match( double cellNorm[2] );
 
-    virtual ~Interval() { }
-    virtual void PrintNode( ostream& os );
-    virtual Interval* GetIntervalPointer();
+    ~Interval() VTK_OVERRIDE { }
+    void PrintNode( ostream& os ) VTK_OVERRIDE;
+    Interval* GetIntervalPointer() VTK_OVERRIDE;
   };
 
   /// A subset of a mesh represented as a boolean set operation
@@ -336,15 +336,15 @@ public:
       this->Id = sId;
       this->Operator = op;
     }
-    virtual ~BooleanSet() { }
-    virtual void PrintNode( ostream& os );
-    virtual BooleanSet* GetBooleanSetPointer();
+    ~BooleanSet() VTK_OVERRIDE { }
+    void PrintNode( ostream& os ) VTK_OVERRIDE;
+    BooleanSet* GetBooleanSetPointer() VTK_OVERRIDE;
   };
 
 protected:
 
   vtkMultiThreshold();
-  virtual ~vtkMultiThreshold();
+  ~vtkMultiThreshold() VTK_OVERRIDE;
 
   /**
    * When an interval is evaluated, its value is used to update a truth table.
@@ -369,14 +369,14 @@ protected:
   /**
    * This function performs the actual thresholding.
    */
-  virtual int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
+  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
 
   /**
    * We accept any mesh that is descended from vtkPointSet.
    * In the future, it is possible to accept more types but this would require
    * us to generate a new vtkPoints object for each output mesh.
    */
-  virtual int FillInputPortInformation( int port, vtkInformation* info );
+  int FillInputPortInformation( int port, vtkInformation* info ) VTK_OVERRIDE;
 
   /**
    * A variable used to store the next index to use when calling SetInputArrayToProcess.

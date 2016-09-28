@@ -50,22 +50,22 @@ class VTKFILTERSCORE_EXPORT vtkImplicitPolyDataDistance : public vtkImplicitFunc
 public:
   static vtkImplicitPolyDataDistance *New();
   vtkTypeMacro(vtkImplicitPolyDataDistance,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Return the MTime also considering the Input dependency.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   /**
    * Evaluate plane equation of nearest triangle to point x[3].
    */
-  double EvaluateFunction(double x[3]);
+  double EvaluateFunction(double x[3]) VTK_OVERRIDE;
 
   /**
    * Evaluate function gradient of nearest triangle to point x[3].
    */
-  void EvaluateGradient(double x[3], double g[3]);
+  void EvaluateGradient(double x[3], double g[3]) VTK_OVERRIDE;
 
   /**
    * Evaluate plane equation of nearest triangle to point x[3] and provides closest point on an input vtkPolyData.
@@ -117,7 +117,7 @@ public:
 
 protected:
   vtkImplicitPolyDataDistance();
-  ~vtkImplicitPolyDataDistance();
+  ~vtkImplicitPolyDataDistance() VTK_OVERRIDE;
 
   /**
    * Create default locator. Used to create one when none is specified.

@@ -50,14 +50,14 @@ class VTKFILTERSSTATISTICS_EXPORT vtkHighestDensityRegionsStatistics :
 {
 public:
   vtkTypeMacro(vtkHighestDensityRegionsStatistics, vtkStatisticsAlgorithm);
-  virtual void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
   static vtkHighestDensityRegionsStatistics* New();
 
   /**
    * Given a collection of models, calculate aggregate model
    */
-  virtual void Aggregate(vtkDataObjectCollection*,
-                         vtkMultiBlockDataSet*) { return; }
+  void Aggregate(vtkDataObjectCollection*,
+                 vtkMultiBlockDataSet*) VTK_OVERRIDE { return; }
 
   /**
    * Set the width of the gaussian kernel.
@@ -90,41 +90,41 @@ public:
 
 protected:
   vtkHighestDensityRegionsStatistics();
-  ~vtkHighestDensityRegionsStatistics();
+  ~vtkHighestDensityRegionsStatistics() VTK_OVERRIDE;
 
   /**
    * Execute the calculations required by the Learn option.
    */
-  virtual void Learn(vtkTable*,
-                     vtkTable*,
-                     vtkMultiBlockDataSet*);
+  void Learn(vtkTable*,
+             vtkTable*,
+             vtkMultiBlockDataSet*) VTK_OVERRIDE;
 
   /**
    * Execute the calculations required by the Derive option.
    */
-  virtual void Derive(vtkMultiBlockDataSet*);
+  void Derive(vtkMultiBlockDataSet*) VTK_OVERRIDE;
 
   /**
    * Execute the calculations required by the Assess option.
    */
-  virtual void Assess(vtkTable*,
-                      vtkMultiBlockDataSet*,
-                      vtkTable*) { return; }
+  void Assess(vtkTable*,
+              vtkMultiBlockDataSet*,
+              vtkTable*) VTK_OVERRIDE { return; }
 
   /**
    * Execute the calculations required by the Test option.
    */
-  virtual void Test(vtkTable*,
-                    vtkMultiBlockDataSet*,
-                    vtkTable*) { return; }
+  void Test(vtkTable*,
+            vtkMultiBlockDataSet*,
+            vtkTable*) VTK_OVERRIDE { return; }
 
   /**
    * Provide the appropriate assessment functor.
    */
-  virtual void SelectAssessFunctor(vtkTable*,
-                                   vtkDataObject*,
-                                   vtkStringArray*,
-                                   AssessFunctor*&) { return; }
+  void SelectAssessFunctor(vtkTable*,
+                           vtkDataObject*,
+                           vtkStringArray*,
+                           AssessFunctor*&) VTK_OVERRIDE { return; }
 
   //@{
   /**

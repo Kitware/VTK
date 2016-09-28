@@ -87,7 +87,7 @@ class VTKFILTERSCORE_EXPORT vtkStreamingTessellator : public vtkObject
   public:
     vtkTypeMacro(vtkStreamingTessellator,vtkObject);
     static vtkStreamingTessellator* New();
-    virtual void PrintSelf( ostream& os, vtkIndent indent );
+    void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
     typedef void (*VertexProcessorFunction)( const double*, vtkEdgeSubdivisionCriterion*, void*, const void* );
     typedef void (*EdgeProcessorFunction)( const double*, const double*, vtkEdgeSubdivisionCriterion*, void*, const void* );
@@ -332,7 +332,7 @@ class VTKFILTERSCORE_EXPORT vtkStreamingTessellator : public vtkObject
     int MaximumNumberOfSubdivisions;
 
     vtkStreamingTessellator();
-    ~vtkStreamingTessellator();
+    ~vtkStreamingTessellator() VTK_OVERRIDE;
 
     void AdaptivelySample3Facet( double* v1, double* v2, double* v3, double* v4, int maxDepth ) const ;
     void AdaptivelySample2Facet( double* v1, double* v2, double* v3, int maxDepth, int move=7 ) const ;

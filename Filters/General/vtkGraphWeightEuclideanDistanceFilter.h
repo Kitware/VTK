@@ -34,22 +34,22 @@ class VTKFILTERSGENERAL_EXPORT vtkGraphWeightEuclideanDistanceFilter : public vt
  public:
   static vtkGraphWeightEuclideanDistanceFilter *New();
   vtkTypeMacro(vtkGraphWeightEuclideanDistanceFilter, vtkGraphWeightFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkGraphWeightEuclideanDistanceFilter(){}
-  ~vtkGraphWeightEuclideanDistanceFilter(){}
+  ~vtkGraphWeightEuclideanDistanceFilter() VTK_OVERRIDE {}
 
   /**
    * Compute the Euclidean distance between the Points defined for the
    * verticies of a specified 'edge'.
    */
-  float ComputeWeight(vtkGraph* const graph, const vtkEdgeType& edge) const;
+  float ComputeWeight(vtkGraph* const graph, const vtkEdgeType& edge) const VTK_OVERRIDE;
 
   /**
    * Ensure that 'graph' has Points defined.
    */
-  bool CheckRequirements(vtkGraph* const graph) const;
+  bool CheckRequirements(vtkGraph* const graph) const VTK_OVERRIDE;
 
 private:
   vtkGraphWeightEuclideanDistanceFilter(const vtkGraphWeightEuclideanDistanceFilter&) VTK_DELETE_FUNCTION;

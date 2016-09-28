@@ -43,7 +43,7 @@ class VTKFILTERSGENERAL_EXPORT vtkInterpolateDataSetAttributes : public vtkDataS
 public:
   static vtkInterpolateDataSetAttributes *New();
   vtkTypeMacro(vtkInterpolateDataSetAttributes,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Return the list of inputs to this filter.
@@ -60,12 +60,12 @@ public:
 
 protected:
   vtkInterpolateDataSetAttributes();
-  ~vtkInterpolateDataSetAttributes();
+  ~vtkInterpolateDataSetAttributes() VTK_OVERRIDE;
 
   void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   vtkDataSetCollection *InputList; // list of data sets to interpolate
   double T; // interpolation parameter

@@ -56,7 +56,7 @@ class VTKFILTERSGENERAL_EXPORT vtkVolumeContourSpectrumFilter :
 public:
   static vtkVolumeContourSpectrumFilter* New();
   vtkTypeMacro(vtkVolumeContourSpectrumFilter, vtkDataObjectAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -89,16 +89,16 @@ public:
 
 protected:
   vtkVolumeContourSpectrumFilter();
-  ~vtkVolumeContourSpectrumFilter();
+  ~vtkVolumeContourSpectrumFilter() VTK_OVERRIDE;
 
   vtkIdType ArcId, FieldId;
   int NumberOfSamples;
 
-  int FillInputPortInformation(int portNumber, vtkInformation *);
-  int FillOutputPortInformation(int portNumber, vtkInformation *info);
+  int FillInputPortInformation(int portNumber, vtkInformation *) VTK_OVERRIDE;
+  int FillOutputPortInformation(int portNumber, vtkInformation *info) VTK_OVERRIDE;
 
   int RequestData(vtkInformation *request,
-    vtkInformationVector **inputVector, vtkInformationVector *outputVector);
+    vtkInformationVector **inputVector, vtkInformationVector *outputVector) VTK_OVERRIDE;
 
 private:
   vtkVolumeContourSpectrumFilter(const vtkVolumeContourSpectrumFilter&) VTK_DELETE_FUNCTION;

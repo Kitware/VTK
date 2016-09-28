@@ -70,7 +70,7 @@ class VTKFILTERSCORE_EXPORT vtkConnectivityFilter : public vtkUnstructuredGridAl
 {
 public:
   vtkTypeMacro(vtkConnectivityFilter,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct with default extraction mode to extract largest regions.
@@ -183,11 +183,11 @@ public:
 
 protected:
   vtkConnectivityFilter();
-  ~vtkConnectivityFilter();
+  ~vtkConnectivityFilter() VTK_OVERRIDE;
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   int ColorRegions; //boolean turns on/off scalar gen for separate regions
   int ExtractionMode; //how to extract regions

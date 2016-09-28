@@ -102,7 +102,7 @@ public:
    * Standard instantition, type and print methods.
    */
   vtkTypeMacro(vtkQuadricClustering, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkQuadricClustering *New();
   //@}
 
@@ -257,10 +257,10 @@ public:
 
 protected:
   vtkQuadricClustering();
-  ~vtkQuadricClustering();
+  ~vtkQuadricClustering() VTK_OVERRIDE;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int FillInputPortInformation(int, vtkInformation *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
 
   /**
    * Given a point, determine what bin it falls into.
