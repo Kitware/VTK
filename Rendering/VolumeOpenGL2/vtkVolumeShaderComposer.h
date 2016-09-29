@@ -1011,7 +1011,7 @@ namespace vtkvolume
     {
       return std::string("\
         \n  //We get data between 0.0 - 1.0 range\
-        \n  float l_sumValue = 0.0;"
+        \n  vec4 l_sumValue = vec4(0.0);"
       );
     }
     else
@@ -1161,7 +1161,7 @@ namespace vtkvolume
        {
          shaderStr += std::string("\
            \n      float opacity = computeOpacity(scalar);\
-           \n      l_sumValue = l_sumValue + opacity * scalar.x;"
+           \n      l_sumValue.x = l_sumValue.x + opacity * scalar.x;"
          );
        }
        else
@@ -1179,7 +1179,7 @@ namespace vtkvolume
        {
          shaderStr += std::string("\
            \n      float opacity = computeOpacity(scalar);\
-           \n      l_sumValue = l_sumValue + opacity * scalar.x;"
+           \n      l_sumValue.x = l_sumValue.x + opacity * scalar.x;"
          );
        }
     }
@@ -1432,16 +1432,22 @@ namespace vtkvolume
     {
       if (noOfComponents > 1 && independentComponents)
       {
+        // Add all the components to get final color
         return std::string("\
-          \n  l_sumValue = clamp(l_sumValue, 0.0, 1.0);\
-          \n  g_fragColor = vec4(l_sumValue);"
+          \n  l_sumValue.x *= in_componentWeight.x;\
+          \n  for (int i = 1; i < in_noOfComponents; ++i)\
+          \n    {\
+          \n    l_sumValue.x += l_sumValue[i] * in_componentWeight[i];\
+          \n    }\
+          \n  l_sumValue.x = clamp(l_sumValue.x, 0.0, 1.0);\
+          \n  g_fragColor = vec4(vec3(l_sumValue.x), 1.0);"
         );
       }
       else
       {
         return std::string("\
-          \n  l_sumValue = clamp(l_sumValue, 0.0, 1.0);\
-          \n  g_fragColor = vec4(vec3(l_sumValue), 1.0);"
+          \n  l_sumValue = clamp(l_sumValue, vec4(0.0), vec4(1.0));\
+          \n  g_fragColor = vec4(vec3(l_sumValue.x), 1.0);"
         );
       }
     }
