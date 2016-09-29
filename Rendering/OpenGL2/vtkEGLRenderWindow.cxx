@@ -404,6 +404,11 @@ void vtkEGLRenderWindow::WindowInitialize (void)
   }
 
   this->OpenGLInit();
+
+  // for offscreen EGL always turn on point sprites
+#ifdef VTK_USE_OFFSCREEN_EGL
+  glEnable(GL_POINT_SPRITE);
+#endif
 }
 
 // Initialize the rendering window.
