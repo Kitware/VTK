@@ -71,6 +71,7 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastRenderDepthToImage.cxx
   TestGPURayCastRenderDepthToImage2.cxx
   TestGPURayCastRenderToTexture.cxx
+  TestGPURayCastThreeComponentsAdditive.cxx
   TestGPURayCastThreeComponentsIndependent.cxx
   TestGPURayCastTwoComponentsDependent.cxx
   TestGPURayCastTwoComponentsDependentGradient.cxx
