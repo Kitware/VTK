@@ -575,11 +575,10 @@ namespace vtkvolume
       \n  vec4 finalColor = vec4(0.0);"
     );
 
+    // Shading for composite blending only
     int shadeReqd = volProperty->GetShade() &&
-                    (mapper->GetBlendMode() !=
-                     vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND) &&
-                    (mapper->GetBlendMode() !=
-                     vtkVolumeMapper::MINIMUM_INTENSITY_BLEND);
+                    (mapper->GetBlendMode() ==
+                     vtkVolumeMapper::COMPOSITE_BLEND);
 
     if (shadeReqd || volProperty->HasGradientOpacity())
     {
