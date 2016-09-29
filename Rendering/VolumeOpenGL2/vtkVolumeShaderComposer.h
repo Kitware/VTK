@@ -190,8 +190,8 @@ namespace vtkvolume
       \n uniform bool in_useJittering;\
       \n uniform bool in_clampDepthToBackface;\
       \n\
-      \n uniform vec2 in_averageIP
-      ");
+      \n uniform vec2 in_averageIPRange;"
+      );
 
     if (lightingComplexity > 0 || hasGradientOpacity)
     {
@@ -1013,9 +1013,9 @@ namespace vtkvolume
     {
       return std::string("\
         \n  //We get data between 0.0 - 1.0 range\
-        \n  float l_sumValue = 0.0;\
+        \n  vec4 l_avgValue = vec4(0.0);\
         \n  // Keep track of number of samples\
-        \n  uint l_numSamples = 0;"
+        \n  vec4 l_numSamples = vec4(0);"
       );
     }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
@@ -1166,35 +1166,29 @@ namespace vtkvolume
     }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::AVERAGE_INTENSITY_BLEND)
     {
-      if (noOfComponents > 1)
+      if (noOfComponents > 1  && independentComponents)
       {
-        if (!independentComponents)
-        {
-          shaderStr += std::string("\
-          \n      if (in_averageIPRange.x <= scalar.x <= in_averageIPRange.y)
-          \n        {\
-          \n        float opacity = computeOpacity(scalar);\
-          \n        l_sumValue = l_sumValue + opacity * scalar.x;\
-          \n        }"
-         );
-        }
-        else
-        {
-          shaderStr += std::string("\
-          \n       for (int i = 0; i < in_noOfComponents; ++i)\
-          \n         {\
-          \n         float opacity = computeOpacity(scalar, i);\
-          \n         l_sumValue[i] = l_sumValue[i] + opacity * scalar[i];\
-          \n         }"
-          );
-        }
+        shaderStr += std::string("\
+        \n       for (int i = 0; i < in_noOfComponents; ++i)\
+        \n         {\
+        \n         if (in_averageIPRange.x <= scalar[i] <= in_averageIPRange.y)\
+        \n           {\
+        \n           float opacity = computeOpacity(scalar, i);\
+        \n           l_avgValue[i] = l_avgValue[i] + scalar[i];\
+        \n           l_numSamples[i]++;\
+        \n           }\
+        \n         }"
+        );
       }
       else
       {
-         shaderStr += std::string("\
-           \n      float opacity = computeOpacity(scalar);\
-           \n      l_sumValue = l_sumValue + opacity * scalar.x;"
-         );
+        shaderStr += std::string("\
+        \n      if (in_averageIPRange.x <= scalar.x <= in_averageIPRange.y)\
+        \n        {\
+        \n        l_avgValue.w = l_avgValue.w + scalar.x;\
+        \n        l_numSamples.w++;\
+        \n        }"
+        );
       }
     }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
@@ -1477,15 +1471,37 @@ namespace vtkvolume
       if (noOfComponents > 1 && independentComponents)
       {
         return std::string("\
-          \n  l_sumValue = clamp(l_sumValue, 0.0, 1.0);\
-          \n  g_fragColor = vec4(l_sumValue);"
+          \n  g_srcColor = vec4(0);\
+          \n  for (int i = 0; i < in_noOfComponents; ++i)\
+          \n    {\
+          \n    if (l_numSamples[i] == 0)\
+          \n      {\
+          \n      continue;\
+          \n      }\
+          \n    l_avgValue[i] /= l_numSamples[i];\
+          \n    vec4 tmp = computeColor(l_avgValue,\
+          \n                            computeOpacity(l_avgValue, i), i);\
+          \n    g_srcColor[0] += tmp[0] * tmp[3] * in_componentWeight[i];\
+          \n    g_srcColor[1] += tmp[1] * tmp[3] * in_componentWeight[i];\
+          \n    g_srcColor[2] += tmp[2] * tmp[3] * in_componentWeight[i];\
+          \n    g_srcColor[3] += tmp[3] * in_componentWeight[i];\
+          \n    }\
+          \n  g_fragColor = g_srcColor;"
         );
       }
       else
       {
         return std::string("\
-          \n  l_sumValue = clamp(l_sumValue, 0.0, 1.0);\
-          \n  g_fragColor = vec4(vec3(l_sumValue), 1.0);"
+         \n  if (l_numSamples.w == 0)\
+         \n    {\
+         \n    g_fragColor = vec4(0);\
+         \n    return;\
+         \n    }\
+         \n  l_avgValue.w /= l_numSamples.w;\
+         \n  g_srcColor = computeColor(l_avgValue,\
+         \n                            computeOpacity(l_avgValue));\
+         \n  g_fragColor.rgb = g_srcColor.rgb * g_srcColor.a;\
+         \n  g_fragColor.a = g_srcColor.a;"
         );
       }
     }
