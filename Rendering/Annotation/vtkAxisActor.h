@@ -263,7 +263,7 @@ public:
    * Get/Set the alignement of the title related to the axis.
    * Possible Alignment: VTK_ALIGN_TOP, VTK_ALIGN_BOTTOM, VTK_ALIGN_POINT1, VTK_ALIGN_POINT2
    */
-  vtkSetClampMacro(TitleAlignLocation, int, VTK_ALIGN_TOP, VTK_ALIGN_POINT2);
+  virtual void SetTitleAlignLocation(int location);
   vtkGetMacro(TitleAlignLocation, int);
   //@}
 
@@ -272,7 +272,7 @@ public:
    * Get/Set the location of the Detached Exponent related to the axis.
    * Possible Location: VTK_ALIGN_TOP, VTK_ALIGN_BOTTOM, VTK_ALIGN_POINT1, VTK_ALIGN_POINT2
    */
-  vtkSetClampMacro(ExponentLocation, int, VTK_ALIGN_TOP, VTK_ALIGN_POINT2);
+  virtual void SetExponentLocation(int location);
   vtkGetMacro(ExponentLocation, int);
   //@}
 

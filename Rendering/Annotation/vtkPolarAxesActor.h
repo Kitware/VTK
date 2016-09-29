@@ -84,7 +84,7 @@ public:
   //@{
   /**
    * Enable/Disable log scale
-   * Default: true
+   * Default: false
    */
   vtkSetMacro(Log, bool);
   vtkGetMacro(Log, bool);
@@ -140,15 +140,6 @@ public:
    */
   virtual void SetMaximumRadius(double);
   vtkGetMacro(MaximumRadius, double);
-  //@}
-
-  //@{
-  /**
-   * Turn on and off the auto-scaling of the maximum radius.
-   * Default: false
-   */
-  vtkSetMacro(AutoScaleRadius, bool);
-  vtkGetMacro(AutoScaleRadius, bool);
   //@}
 
   //@{
@@ -1001,7 +992,7 @@ protected:
   int PolarTickVisibility;
 
   /**
-   * If On, the ticks are drawn from the angle of the polarAxis (i.e. this->MinimalRadius)
+   * If On, the ticks are drawn from the angle of the polarAxis (i.e. this->MinimumAngle)
    * and continue counterclockwise with the step DeltaAngle Major/Minor. if Off, the start angle is 0.0, i.e.
    * the angle on the major radius of the ellipse.
    */

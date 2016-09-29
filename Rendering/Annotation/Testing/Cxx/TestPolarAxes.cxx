@@ -81,7 +81,6 @@ int TestPolarAxes(int argc, char* argv[])
   vtkNew<vtkPolarAxesActor> polaxes;
   polaxes->SetBounds(normals->GetOutput()->GetBounds());
   polaxes->SetPole(.5, 1., 3.);
-  polaxes->SetAutoScaleRadius(false);
   polaxes->SetMaximumRadius(3.);
   polaxes->SetMinimumAngle(-60.);
   polaxes->SetMaximumAngle(210.);
@@ -93,8 +92,9 @@ int TestPolarAxes(int argc, char* argv[])
   polaxes->GetPolarArcsProperty()->SetColor(1., .0, 0.);
   polaxes->GetSecondaryPolarArcsProperty()->SetColor(1., 1., 1.);
   polaxes->GetPolarAxisProperty()->SetColor(.2, .2, .2);
-  polaxes->GetPolarAxisTitleTextProperty()->SetColor(.2, .2, .2);
-  polaxes->GetPolarAxisLabelTextProperty()->SetColor(.2, .2, .2);
+  polaxes->GetPolarAxisTitleTextProperty()->SetColor(1, 1, 0);
+  polaxes->GetPolarAxisLabelTextProperty()->SetColor(0, 1, 1);
+  polaxes->GetSecondaryRadialAxesTextProperty()->SetColor(1, 0, 1);
   polaxes->SetNumberOfPolarAxisTicks(9);
   polaxes->SetAutoSubdividePolarAxis(false);
   polaxes->SetScreenSize(9.0);
