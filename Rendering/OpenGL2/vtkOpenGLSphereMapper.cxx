@@ -43,6 +43,7 @@ vtkOpenGLSphereMapper::vtkOpenGLSphereMapper()
 {
   this->ScaleArray = 0;
   this->Invert = false;
+  this->Radius = 0.3;
 }
 
 //-----------------------------------------------------------------------------
@@ -217,6 +218,7 @@ void vtkOpenGLSphereMapper::SetMapperShaderParameters(
 void vtkOpenGLSphereMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Radius: " << this->Radius << "\n";
 }
 
 namespace
@@ -224,7 +226,8 @@ namespace
 // internal function called by CreateVBO
 void vtkOpenGLSphereMapperCreateVBO(float * points, vtkIdType numPts,
               unsigned char *colors, int colorComponents,
-              float *sizes,
+              vtkIdType nc,
+              float *sizes, vtkIdType ns,
               vtkOpenGLVertexBufferObject *VBO)
 {
   // Figure out how big each block will be, currently 6 or 7 floats.
@@ -253,8 +256,8 @@ void vtkOpenGLSphereMapperCreateVBO(float * points, vtkIdType numPts,
   for (vtkIdType i = 0; i < numPts; ++i)
   {
     pointPtr = points + i*3;
-    colorPtr = colors + i*colorComponents;
-    float radius = sizes[i];
+    colorPtr = (nc == numPts ? colors + i*colorComponents : colors);
+    float radius = (ns == numPts ? sizes[i] : sizes[0]);
 
     // Vertices
     *(it++) = pointPtr[0];
@@ -302,7 +305,7 @@ bool vtkOpenGLSphereMapper::GetNeedToRebuildBufferObjects(
 //-------------------------------------------------------------------------
 void vtkOpenGLSphereMapper::BuildBufferObjects(
   vtkRenderer *vtkNotUsed(ren),
-  vtkActor *vtkNotUsed(act))
+  vtkActor *act)
 {
   vtkPolyData *poly = this->CurrentInput;
 
@@ -319,15 +322,55 @@ void vtkOpenGLSphereMapper::BuildBufferObjects(
   // then the scalars do not have to be regenerted.
   this->MapScalars(1.0);
 
+  vtkIdType numPts = poly->GetPoints()->GetNumberOfPoints();
+  unsigned char *c;
+  int cc;
+  vtkIdType nc;
+  if (this->Colors)
+  {
+    c = (unsigned char *)this->Colors->GetVoidPointer(0);
+    nc = numPts;
+    cc = this->Colors->GetNumberOfComponents();
+  }
+  else
+  {
+    double *ac = act->GetProperty()->GetColor();
+    c = new unsigned char[3];
+    c[0] = (unsigned char) (ac[0] *255.0);
+    c[1] = (unsigned char) (ac[1] *255.0);
+    c[2] = (unsigned char) (ac[2] *255.0);
+    nc = 1;
+    cc = 3;
+  }
+
+  float *scales;
+  vtkIdType ns = poly->GetPoints()->GetNumberOfPoints();
+  if (this->ScaleArray != NULL &&
+      poly->GetPointData()->HasArray(this->ScaleArray))
+  {
+    scales = static_cast<float*>(poly->GetPointData()->GetArray(this->ScaleArray)->GetVoidPointer(0));
+    ns = numPts;
+  }
+  else
+  {
+    scales = &this->Radius;
+    ns = 1;
+  }
+
+
   // Iterate through all of the different types in the polydata, building OpenGLs
   // and IBOs as appropriate for each type.
   vtkOpenGLSphereMapperCreateVBO(
     static_cast<float *>(poly->GetPoints()->GetVoidPointer(0)),
-    poly->GetPoints()->GetNumberOfPoints(),
-    this->Colors ? (unsigned char *)this->Colors->GetVoidPointer(0) : NULL,
-    this->Colors ? this->Colors->GetNumberOfComponents() : 0,
-    static_cast<float *>(poly->GetPointData()->GetArray(this->ScaleArray)->GetVoidPointer(0)),
+    numPts,
+    c, cc, nc,
+    scales, ns,
     this->VBO);
+
+  if (!this->Colors)
+  {
+    delete [] c;
+  }
 
   // create the IBO
   this->Points.IBO->IndexCount = 0;
