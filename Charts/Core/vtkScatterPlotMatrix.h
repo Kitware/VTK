@@ -410,6 +410,11 @@ protected:
    */
   void UpdateLayout();
 
+  /**
+   * Compute and set big chart resize
+   */
+  void ResizeBigChart();
+
   //@{
   /**
    * Attach axis range listener so we can forward to dependent axes in matrix.
