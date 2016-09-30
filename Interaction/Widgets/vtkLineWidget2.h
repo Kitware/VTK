@@ -157,6 +157,10 @@ protected:
   vtkHandleWidget *Point2Widget; //second end point
   vtkHandleWidget *LineHandle; //used when selecting the line
 
+  char ActiveKeyCode;
+  vtkCallbackCommand *KeyEventCallbackCommand;
+  static void ProcessKeyEvents(vtkObject *, unsigned long, void *, void *);
+
 private:
   vtkLineWidget2(const vtkLineWidget2&) VTK_DELETE_FUNCTION;
   void operator=(const vtkLineWidget2&) VTK_DELETE_FUNCTION;
