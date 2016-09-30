@@ -190,7 +190,7 @@ namespace vtkvolume
       \n uniform bool in_useJittering;\
       \n uniform bool in_clampDepthToBackface;\
       \n\
-      \n uniform vec2 in_averageIPRange;"
+      \nuniform vec2 in_averageIPRange;"
       );
 
     if (lightingComplexity > 0 || hasGradientOpacity)
@@ -1170,11 +1170,16 @@ namespace vtkvolume
         shaderStr += std::string("\
         \n       for (int i = 0; i < in_noOfComponents; ++i)\
         \n         {\
-        \n         if (in_averageIPRange.x <= scalar[i] <= in_averageIPRange.y)\
+        \n         // Get the intensity in volume scalar range\
+        \n         float intensity = in_scalarsRange[i][0] +\
+        \n                           (in_scalarsRange[i][1] -\
+        \n                            in_scalarsRange[i][0]) * scalar[i];\
+        \n         if (in_averageIPRange.x <= intensity &&\
+        \n             intensity <= in_averageIPRange.y)\
         \n           {\
         \n           float opacity = computeOpacity(scalar, i);\
-        \n           l_avgValue[i] = l_avgValue[i] + scalar[i];\
-        \n           l_numSamples[i]++;\
+        \n           l_avgValue[i] += scalar[i];\
+        \n           ++l_numSamples[i];\
         \n           }\
         \n         }"
         );
@@ -1182,10 +1187,15 @@ namespace vtkvolume
       else
       {
         shaderStr += std::string("\
-        \n      if (in_averageIPRange.x <= scalar.x <= in_averageIPRange.y)\
+        \n      // Get the intensity in volume scalar range\
+        \n      float intensity = in_scalarsRange[0][0] +\
+        \n                        (in_scalarsRange[0][1] -\
+        \n                         in_scalarsRange[0][0]) * scalar.x;\
+        \n      if (in_averageIPRange.x <= intensity &&\
+        \n          intensity <= in_averageIPRange.y)\
         \n        {\
-        \n        l_avgValue.w = l_avgValue.w + scalar.x;\
-        \n        l_numSamples.w++;\
+        \n        l_avgValue.w += scalar.x;\
+        \n        ++l_numSamples.w;\
         \n        }"
         );
       }
@@ -1494,13 +1504,15 @@ namespace vtkvolume
          \n  if (l_numSamples.w == 0)\
          \n    {\
          \n    g_fragColor = vec4(0);\
-         \n    return;\
          \n    }\
-         \n  l_avgValue.w /= l_numSamples.w;\
-         \n  g_srcColor = computeColor(l_avgValue,\
-         \n                            computeOpacity(l_avgValue));\
-         \n  g_fragColor.rgb = g_srcColor.rgb * g_srcColor.a;\
-         \n  g_fragColor.a = g_srcColor.a;"
+         \n  else\
+         \n    {\
+         \n    l_avgValue.w /= l_numSamples.w;\
+         \n    g_srcColor = computeColor(l_avgValue,\
+         \n                              computeOpacity(l_avgValue));\
+         \n    g_fragColor.rgb = g_srcColor.rgb * g_srcColor.a;\
+         \n    g_fragColor.a = g_srcColor.a;\
+         \n    }"
         );
       }
     }
