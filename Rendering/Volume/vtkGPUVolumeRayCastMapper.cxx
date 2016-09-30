@@ -376,11 +376,12 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
     if(this->BlendMode!=vtkVolumeMapper::COMPOSITE_BLEND &&
        this->BlendMode!=vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND &&
        this->BlendMode!=vtkVolumeMapper::MINIMUM_INTENSITY_BLEND &&
+       this->BlendMode!=vtkVolumeMapper::AVERAGE_INTENSITY_BLEND &&
        this->BlendMode!=vtkVolumeMapper::ADDITIVE_BLEND)
     {
       goodSoFar = 0;
       vtkErrorMacro(<< "Selected blend mode not supported. "
-                    << "Only Composite, MIP, MinIP and additive modes "
+                    << "Only Composite, MIP, MinIP, averageIP and additive modes "
                     << "are supported by the current implementation.");
     }
   }
