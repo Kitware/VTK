@@ -19,6 +19,7 @@ vtk_module(vtkRenderingVolumeOpenGL2
     vtkCommonCore
     vtkCommonDataModel
     vtkImagingCore
+    vtkImagingMath
     vtkRenderingCore
     vtkRenderingOpenGL2
     vtkRenderingVolume

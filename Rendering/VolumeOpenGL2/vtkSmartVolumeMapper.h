@@ -84,6 +84,7 @@ class vtkOSPRayVolumeInterface;
 class vtkRenderWindow;
 class vtkVolume;
 class vtkVolumeProperty;
+class vtkImageMagnitude;
 
 class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkSmartVolumeMapper : public vtkVolumeMapper
 {
@@ -317,6 +318,28 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow *);
 
+  //@{
+  /**
+   * VectorMode is a special rendering mode for 3-component vectors which makes
+   * use of GPURayCastMapper's independent-component capabilities. In this mode,
+   * a single component in the vector can be selected for rendering. In addition,
+   * the mapper can compute a scalar field representing the magnitude of this vector
+   * using a vtkImageMagnitude object (MAGNITUDE mode).
+   */
+  enum VectorModeType
+  {
+    DISABLED = -1,
+    MAGNITUDE = 0,
+    COMPONENT = 1,
+  };
+
+  vtkSetClampMacro(VectorMode, int, -1, 1);
+  vtkSetClampMacro(VectorComponent, int, 0, 3);
+
+  int VectorMode;
+  int VectorComponent;
+  //@}
+
 protected:
   vtkSmartVolumeMapper();
   ~vtkSmartVolumeMapper();
@@ -361,7 +384,21 @@ protected:
 
   // This is the resample filter that may be used if we need to
   // create a low resolution version of the volume for GPU rendering
-  vtkImageResample *GPUResampleFilter;
+  vtkImageResample* GPUResampleFilter;
+
+  //@{
+  /**
+   * This filter is used to compute the magnitude of 3-component data. MAGNITUDE
+   * is one of the supported modes when rendering separately a single independent
+   * component.
+   *
+   * \note
+   * This feature was added specifically for ParaView so it might eventually be
+   * moved into a derived mapper in ParaView.
+   */
+  vtkImageMagnitude* ImageMagnitude;
+  vtkImageData* InputDataMagnitude;
+  //@}
 
   // The initialize method. Called from ComputeRenderMode whenever something
   // relevant has changed.
@@ -404,6 +441,12 @@ protected:
   int InteractiveAdjustSampleDistances;
 
 private:
+  /**
+   * Adjust the GPUMapper's parameters (ColorTable, Weights, etc.) to render
+   * a single component of a dataset.
+   */
+  void SetupVectorMode(vtkVolume* vol);
+
   vtkSmartVolumeMapper(const vtkSmartVolumeMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSmartVolumeMapper&) VTK_DELETE_FUNCTION;
 
