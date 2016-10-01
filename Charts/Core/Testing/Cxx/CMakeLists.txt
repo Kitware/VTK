@@ -47,6 +47,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestBarGraphHorizontal.cxx
   TestBarGraphSelection.cxx
   TestBoxPlot.cxx
+  TestBoxPlot2.cxx
   TestCategoryLegend.cxx
   TestColorTransferFunction.cxx
   TestChartDouble.cxx

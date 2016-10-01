@@ -114,8 +114,9 @@ bool vtkPlotBox::Paint(vtkContext2D *painter)
     return false;
   }
 
-  if (this->Storage->size() == 0 || this->Storage->at(0).size() < 5)
+  if (this->Storage->size() == 0 || this->Storage->at(0).size() != 5)
   {
+    vtkErrorMacro( << "Input table must contain 5 rows per column. These rows hold min, quartile 1, median, quartile 2 and max. Use vtkComputeQuartiles to create a proper table.");
     return false;
   }
 
