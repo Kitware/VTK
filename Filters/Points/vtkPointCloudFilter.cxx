@@ -142,6 +142,7 @@ vtkPointCloudFilter::vtkPointCloudFilter()
   this->PointMap = NULL;
   this->NumberOfPointsRemoved = 0;
   this->GenerateOutliers = false;
+  this->GenerateVertices = false;
 
   // Optional second output of outliers
   this->SetNumberOfOutputPorts(2);
@@ -238,6 +239,8 @@ int vtkPointCloudFilter::RequestData(
   {
     output->SetPoints(input->GetPoints());
     outPD->PassData(inPD);
+    this->GenerateVerticesIfRequested(output);
+
     return 1;
   }
 
@@ -257,6 +260,9 @@ int vtkPointCloudFilter::RequestData(
     vtkTemplateMacro(MapPoints<VTK_TT>::Execute(numPts, (VTK_TT *)inPtr, count,
                               (VTK_TT *)outPtr, this->PointMap, inPD, outPD));
   }
+
+  // Generate poly vertex cell if requested
+  this->GenerateVerticesIfRequested(output);
 
   // Clean up. We leave the map in case the user wants to use it.
   points->Delete();
@@ -297,9 +303,36 @@ int vtkPointCloudFilter::RequestData(
                                   (VTK_TT *)outPtr2, this->PointMap, inPD, outPD2));
     }
     points2->Delete();
+
+    // Produce poly vertex cell if requested
+    this->GenerateVerticesIfRequested(output2);
   }
 
   return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkPointCloudFilter::GenerateVerticesIfRequested(vtkPolyData *output)
+{
+  vtkIdType numPts;
+  if ( ! this->GenerateVertices || output->GetPoints() == NULL ||
+       (numPts=output->GetNumberOfPoints()) < 1)
+  {
+    return;
+  }
+
+  // Okay create a cell array and assign it to the output
+  vtkCellArray *verts = vtkCellArray::New();
+  verts->EstimateSize(1,numPts);
+
+  verts->InsertNextCell(numPts);
+  for (vtkIdType ptId=0; ptId < numPts; ++ptId)
+  {
+    verts->InsertCellPoint(ptId);
+  }
+
+  output->SetVerts(verts);
+  verts->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -309,7 +342,6 @@ FillInputPortInformation(int, vtkInformation *info)
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
   return 1;
 }
-
 
 //----------------------------------------------------------------------------
 void vtkPointCloudFilter::PrintSelf(ostream& os, vtkIndent indent)
@@ -321,5 +353,8 @@ void vtkPointCloudFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Generate Outliers: "
      << (this->GenerateOutliers ? "On\n" : "Off\n");
+
+  os << indent << "Generate Vertices: "
+     << (this->GenerateVertices ? "On\n" : "Off\n");
 
 }

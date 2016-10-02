@@ -240,5 +240,6 @@ void vtkPCACurvatureEstimation::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Sample Size: " << this->SampleSize << "\n";
+  os << indent << "Locator: " << this->Locator << "\n";
 
 }

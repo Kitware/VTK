@@ -355,5 +355,6 @@ void vtkPCANormalEstimation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Orientation Point: (" << this->OrientationPoint[0] << ","
      << this->OrientationPoint[1] << "," << this->OrientationPoint[2] << ")\n";
   os << indent << "Flip Normals: " << (this->FlipNormals ? "On\n" : "Off\n");
+  os << indent << "Locator: " << this->Locator << "\n";
 
 }

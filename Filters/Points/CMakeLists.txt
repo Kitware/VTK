@@ -14,6 +14,7 @@ set(Module_SRCS
   vtkLinearKernel.cxx
   vtkPCACurvatureEstimation.cxx
   vtkPCANormalEstimation.cxx
+  vtkPointDensityFilter.cxx
   vtkPointCloudFilter.cxx
   vtkPointInterpolator.cxx
   vtkPointInterpolator2D.cxx
