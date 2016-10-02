@@ -83,7 +83,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     // make sure that we have scalar input and update the scalar input
     if ( mapper->GetDataSetInput() == NULL )
     {
-      vtkErrorMacro("VolumeMapper had no input!");
+      //OK - PV cli/srv for instance vtkErrorMacro("VolumeMapper had no input!");
       return;
     }
     mapper->GetInputAlgorithm()->UpdateInformation();
