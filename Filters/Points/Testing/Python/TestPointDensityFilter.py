@@ -60,6 +60,7 @@ timer.StopTimer()
 time = timer.GetElapsedTime()
 print("Time to compute density field: {0}".format(time))
 vrange = dens0.GetOutput().GetScalarRange()
+print(dens0)
 
 map0 = vtk.vtkImageSliceMapper()
 map0.BorderOn()
