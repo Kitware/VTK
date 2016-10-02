@@ -380,6 +380,61 @@ public:
     this->GetRange(range,0);
   }
 
+  /**
+   * The range of the data array values for the given component will be
+   * returned in the provided range array argument. If comp is -1, the range
+   * of the magnitude (L2 norm) over all components will be provided. The
+   * range is computed and then cached, and will not be re-computed on
+   * subsequent calls to GetRange() unless the array is modified or the
+   * requested component changes.
+   * THIS METHOD IS NOT THREAD SAFE.
+   */
+  void GetFiniteRange(double range[2], int comp)
+  {
+    this->ComputeFiniteRange(range, comp);
+  }
+
+  //@{
+  /**
+   * Return the range of the data array values for the given component. If
+   * comp is -1, return the range of the magnitude (L2 norm) over all
+   * components.The range is computed and then cached, and will not be
+   * re-computed on subsequent calls to GetRange() unless the array is
+   * modified or the requested component changes.
+   * THIS METHOD IS NOT THREAD SAFE.
+   */
+  double *GetFiniteRange(int comp)
+  {
+    this->GetFiniteRange(this->FiniteRange, comp);
+    return this->FiniteRange;
+  }
+  //@}
+
+  /**
+   * Return the range of the data array. If the array has multiple components,
+   * then this will return the range of only the first component (component
+   * zero). The range is computed and then cached, and will not be re-computed
+   * on subsequent calls to GetRange() unless the array is modified.
+   * THIS METHOD IS NOT THREAD SAFE.
+   */
+  double *GetFiniteRange()
+  {
+    return this->GetFiniteRange(0);
+  }
+
+  /**
+   * The the range of the data array values will be returned in the provided
+   * range array argument. If the data array has multiple components, then
+   * this will return the range of only the first component (component zero).
+   * The range is computend and then cached, and will not be re-computed on
+   * subsequent calls to GetRange() unless the array is modified.
+   * THIS METHOD IS NOT THREAD SAFE.
+   */
+  void GetFiniteRange(double range[2])
+  {
+    this->GetFiniteRange(range, 0);
+  }
+
   //@{
   /**
    * These methods return the Min and Max possible range of the native
@@ -419,6 +474,7 @@ public:
    * this value is set to { VTK_DOUBLE_MAX, VTK_DOUBLE_MIN }.
    */
   static vtkInformationDoubleVectorKey* COMPONENT_RANGE();
+
   /**
    * This key is used to hold tight bounds on the $L_2$ norm
    * of tuples in the array.
@@ -436,8 +492,8 @@ public:
   /**
    * Copy information instance. Arrays use information objects
    * in a variety of ways. It is important to have flexibility in
-   * this regard because certain keys should not be coppied, while
-   * others must be. NOTE: Up to the implmeneter to make sure that
+   * this regard because certain keys should not be copied, while
+   * others must be. NOTE: Up to the implmenter to make sure that
    * keys not inteneded to be coppied are excluded here.
    */
   int CopyInformation(vtkInformation *infoFrom, int deep=1) VTK_OVERRIDE;
@@ -452,6 +508,22 @@ protected:
   friend class vtkPoints;
 
   /**
+   * Get an information object that can be used to annotate the array.
+   * Information stored here should ignore NaN and infinity.
+   * This will always return an instance of vtkInformation, if one is
+   * not currently associated with the array it will be created.
+   */
+  vtkInformation* GetFiniteInformation();
+
+  /**
+   * Set an information object that can be used to annotate the array.
+   * Information stored here should ignore NaN and infinity.
+   * Use this with caution as array instances depend on persistence of
+   * information keys.
+   */
+  void SetFiniteInformation(vtkInformation *args);
+
+  /**
    * Compute the range for a specific component. If comp is set -1
    * then L2 norm is computed on all components. Call ClearRange
    * to force a recomputation if it is needed. The range is copied
@@ -459,6 +531,15 @@ protected:
    * THIS METHOD IS NOT THREAD SAFE.
    */
   virtual void ComputeRange(double range[2], int comp);
+
+  /**
+   * Compute the range for a specific component. If comp is set -1
+   * then L2 norm is computed on all components. Call ClearRange
+   * to force a recomputation if it is needed. The range is copied
+   * to the range argument.
+   * THIS METHOD IS NOT THREAD SAFE.
+   */
+  virtual void ComputeFiniteRange(double range[2], int comp);
 
   /**
    * Computes the range for each component of an array, the length
@@ -472,12 +553,26 @@ protected:
   // if you try to compute the range of an array of length zero.
   virtual bool ComputeVectorRange(double range[2]);
 
+  /**
+   * Computes the range for each component of an array, the length
+   * of \a ranges must be two times the number of components.
+   * Returns true if the range was computed. Will return false
+   * if you try to compute the range of an array of length zero.
+   */
+  virtual bool ComputeFiniteScalarRange(double* ranges);
+
+  // Returns true if the range was computed. Will return false
+  // if you try to compute the range of an array of length zero.
+  virtual bool ComputeFiniteVectorRange(double range[2]);
+
   // Construct object with default tuple dimension (number of components) of 1.
   vtkDataArray();
   ~vtkDataArray() VTK_OVERRIDE;
 
   vtkLookupTable *LookupTable;
   double Range[2];
+  double FiniteRange[2];
+  vtkInformation *FiniteInformation;
 
 private:
   double* GetTupleN(vtkIdType i, int n);
