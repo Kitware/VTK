@@ -55,7 +55,7 @@ void BuildRenderer(vtkRenderer *renderer, int widthBias)
     actors[i]->SetMapper(mappers[i].Get());
     actors[i]->GetProperty()->SetColor(0., 1., 0.);
     actors[i]->GetProperty()->SetRepresentationToWireframe();
-    actors[i]->GetProperty()->SetLineWidth((i + widthBias) % 2 ? 1 : 3);
+    actors[i]->GetProperty()->SetLineWidth(((i + widthBias) % 2) ? 1 : 3);
     renderer->AddActor(actors[i].Get());
   }
 
