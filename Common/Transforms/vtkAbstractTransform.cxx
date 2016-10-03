@@ -18,6 +18,7 @@
 #include "vtkDataArray.h"
 #include "vtkDebugLeaks.h"
 #include "vtkHomogeneousTransform.h"
+#include "vtkObjectFactory.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkPoints.h"
@@ -360,11 +361,7 @@ class vtkSimpleTransform : public vtkHomogeneousTransform
 {
 public:
   vtkTypeMacro(vtkSimpleTransform,vtkHomogeneousTransform);
-  static vtkSimpleTransform *New() {
-#ifdef VTK_DEBUG_LEAKS
-    vtkDebugLeaks::ConstructClass("vtkSimpleTransform");
-#endif
-    return new vtkSimpleTransform; };
+  static vtkSimpleTransform *New() { VTK_STANDARD_NEW_BODY(vtkSimpleTransform) }
   vtkAbstractTransform *MakeTransform() VTK_OVERRIDE { return vtkSimpleTransform::New(); };
   void Inverse() VTK_OVERRIDE { this->Matrix->Invert(); this->Modified(); };
 protected:

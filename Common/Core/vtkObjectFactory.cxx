@@ -27,27 +27,26 @@
 
 
 vtkObjectFactoryCollection* vtkObjectFactory::RegisteredFactories = 0;
+static unsigned int vtkObjectFactoryRegistryCleanupCounter = 0;
 
-
-class vtkCleanUpObjectFactory
+vtkObjectFactoryRegistryCleanup::vtkObjectFactoryRegistryCleanup()
 {
-public:
-  inline void Use()
-  {
-  }
-  ~vtkCleanUpObjectFactory()
-  {
-      vtkObjectFactory::UnRegisterAllFactories();
-  }
-};
+  ++vtkObjectFactoryRegistryCleanupCounter;
+}
 
-static vtkCleanUpObjectFactory vtkCleanUpObjectFactoryGlobal;
+vtkObjectFactoryRegistryCleanup::~vtkObjectFactoryRegistryCleanup()
+{
+  if (--vtkObjectFactoryRegistryCleanupCounter == 0)
+  {
+    vtkObjectFactory::UnRegisterAllFactories();
+  }
+}
 
 // Create an instance of a named vtk object using the loaded
 // factories
 
 vtkObject* vtkObjectFactory::CreateInstance(const char* vtkclassname,
-                                            bool isAbstract)
+                                            bool)
 {
   if(!vtkObjectFactory::RegisteredFactories)
   {
@@ -66,34 +65,28 @@ vtkObject* vtkObjectFactory::CreateInstance(const char* vtkclassname,
       return newobject;
     }
   }
-  // if the factory does not create the object, then
-  // the object will be created with the name passed in,
-  // so register the construction
-  if (!isAbstract)
-  {
-#ifdef VTK_DEBUG_LEAKS
-    vtkDebugLeaks::ConstructClass(vtkclassname);
-#endif
-  }
 
   return 0;
 }
 
+#ifndef VTK_LEGACY_REMOVE
+void vtkObjectFactory::ConstructInstance(const char *vtkclassname)
+{
+  // no-op. Call vtkObjectBase::InitializeObjectBase() from the New()
+  // implementation instead. That way we ensure that the
+  // registration/deregistration strings match.
+  VTK_LEGACY_REPLACED_BODY(vtkObjectFactory::ConstructInstance, "VTK 7.1",
+                           vtkObjectBase::InitializeObjectBase);
 #ifdef VTK_DEBUG_LEAKS
-void vtkObjectFactory::ConstructInstance(const char* vtkclassname)
-{
   vtkDebugLeaks::ConstructClass(vtkclassname);
+#endif // VTK_DEBUG_LEAKS
+
 }
-#else
-void vtkObjectFactory::ConstructInstance(const char*)
-{
-}
-#endif
+#endif // not VTK_LEGACY_REMOVE
 
 // A one time initialization method.
 void vtkObjectFactory::Init()
 {
-  vtkCleanUpObjectFactoryGlobal.Use();
   // Don't do anything if we are already initialized
   if(vtkObjectFactory::RegisteredFactories)
   {
@@ -742,4 +735,3 @@ void vtkObjectFactory::CreateAllInstance(const char* vtkclassname,
     }
   }
 }
-

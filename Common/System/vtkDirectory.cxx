@@ -16,19 +16,12 @@
 #include "vtkStringArray.h"
 
 #include "vtkDebugLeaks.h"
+#include "vtkObjectFactory.h"
 
 #include <sys/stat.h>
 #include <vtksys/SystemTools.hxx>
 
-
-//----------------------------------------------------------------------------
-vtkDirectory* vtkDirectory::New()
-{
-#ifdef VTK_DEBUG_LEAKS
-  vtkDebugLeaks::ConstructClass("vtkDirectory");
-#endif
-  return new vtkDirectory;
-}
+vtkStandardNewMacro(vtkDirectory)
 
 vtkDirectory::vtkDirectory()
   : Path(0)

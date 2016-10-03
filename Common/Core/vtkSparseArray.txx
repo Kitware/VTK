@@ -28,12 +28,11 @@
 template<typename T>
 vtkSparseArray<T>* vtkSparseArray<T>::New()
 {
-  vtkObject* ret = vtkObjectFactory::CreateInstance(typeid(ThisT).name());
-  if(ret)
-  {
-    return static_cast<ThisT*>(ret);
-  }
-  return new ThisT();
+  // Don't use object factory macros on templates, it'll confuse the object
+  // factory.
+  vtkSparseArray<T> *ret = new vtkSparseArray<T>;
+  ret->InitializeObjectBase();
+  return ret;
 }
 
 template<typename T>

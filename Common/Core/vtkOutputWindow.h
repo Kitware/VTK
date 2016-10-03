@@ -25,6 +25,7 @@
 #ifndef vtkOutputWindow_h
 #define vtkOutputWindow_h
 
+#include "vtkDebugLeaksManager.h" // Must be included before singletons
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
@@ -89,11 +90,6 @@ public:
   vtkSetMacro(PromptUser, int);
   //@}
 
-  // use this as a way of memory management when the
-  // program exits the SmartPointer will be deleted which
-  // will delete the Instance singleton
-  static vtkOutputWindowCleanup Cleanup;
-
 protected:
   vtkOutputWindow();
   ~vtkOutputWindow() VTK_OVERRIDE;
@@ -104,5 +100,9 @@ private:
   vtkOutputWindow(const vtkOutputWindow&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOutputWindow&) VTK_DELETE_FUNCTION;
 };
+
+// Uses schwartz counter idiom for singleton management
+static vtkOutputWindowCleanup vtkOutputWindowCleanupInstance;
+
 
 #endif

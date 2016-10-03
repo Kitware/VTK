@@ -33,7 +33,7 @@ class MyArray : public vtkTypedDataArray<float>
   vtkFloatArray *Data;
 public:
   vtkTypeMacro(MyArray, vtkTypedDataArray<float>)
-  static MyArray *New() { return new MyArray; }
+  static MyArray *New() { VTK_STANDARD_NEW_BODY(MyArray) }
   void Init(vtkFloatArray *array)
   {
     this->Data = array;

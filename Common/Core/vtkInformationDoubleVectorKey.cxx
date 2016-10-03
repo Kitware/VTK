@@ -83,7 +83,7 @@ void vtkInformationDoubleVectorKey::Set(vtkInformation* info,
     }
     vtkInformationDoubleVectorValue* v =
       new vtkInformationDoubleVectorValue;
-    this->ConstructClass("vtkInformationDoubleVectorValue");
+    v->InitializeObjectBase();
     v->Value.insert(v->Value.begin(), value, value+length);
     this->SetAsObjectBase(info, v);
     v->Delete();

@@ -13,18 +13,38 @@
 
 =========================================================================*/
 /**
- * @class   vtkDebugLeaks
- * @brief   identify memory leaks at program termination
+ * @class vtkDebugLeaks
+ * @brief identify memory leaks at program termination
+ * vtkDebugLeaks is used to report memory leaks at the exit of the program. It
+ * uses vtkObjectBase::InitializeObjectBase() (called via vtkObjectFactory
+ * macros) to intercept the construction of all VTK objects. It uses the
+ * UnRegisterInternal method of vtkObjectBase to intercept the destruction of
+ * all objects.
  *
- * vtkDebugLeaks is used to report memory leaks at the exit of the program.
- * It uses the vtkObjectFactory to intercept the construction of all VTK
- * objects. It uses the UnRegister method of vtkObject to intercept the
- * destruction of all objects. A table of object name to number of instances
- * is kept. At the exit of the program if there are still VTK objects around
- * it will print them out.  To enable this class add the flag
- * -DVTK_DEBUG_LEAKS to the compile line, and rebuild vtkObject and
- * vtkObjectFactory.
-*/
+ * If not using the vtkObjectFactory macros to implement New(), be sure to call
+ * vtkObjectBase::InitializeObjectBase() explicitly on the constructed
+ * instance. The rule of thumb is that wherever "new [some vtkObjectBase
+ * subclass]" is called, vtkObjectBase::InitializeObjectBase() must be called
+ * as well.
+ *
+ * There are exceptions to this:
+ *
+ * - vtkCommand subclasses traditionally do not fully participate in
+ * vtkDebugLeaks registration, likely because they typically do not use
+ * vtkTypeMacro to configure GetClassName. InitializeObjectBase should not be
+ * called on vtkCommand subclasses, and all such classes will be automatically
+ * registered with vtkDebugLeaks as "vtkCommand or subclass".
+ *
+ * - vtkInformationKey subclasses are not reference counted. They are allocated
+ * statically and registered automatically with a singleton "manager" instance.
+ * The manager ensures that all keys are cleaned up before exiting, and
+ * registration/deregistration with vtkDebugLeaks is bypassed.
+ *
+ * A table of object name to number of instances is kept. At the exit of the
+ * program if there are still VTK objects around it will print them out. To
+ * enable this class add the flag -DVTK_DEBUG_LEAKS to the compile line, and
+ * rebuild vtkObject and vtkObjectFactory.
+ */
 
 #ifndef vtkDebugLeaks_h
 #define vtkDebugLeaks_h

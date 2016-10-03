@@ -171,7 +171,7 @@ void vtkInformationExecutivePortVectorKey::Set(vtkInformation* info,
       // Allocate a new value.
       vtkInformationExecutivePortVectorValue* v =
         new vtkInformationExecutivePortVectorValue;
-      this->ConstructClass("vtkInformationExecutivePortVectorValue");
+      v->InitializeObjectBase();
       v->Executives.insert(v->Executives.begin(), executives, executives+length);
       v->Ports.insert(v->Ports.begin(), ports, ports+length);
       this->SetAsObjectBase(info, v);

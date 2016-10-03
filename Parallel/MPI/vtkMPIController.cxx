@@ -66,6 +66,7 @@ protected:
 void vtkMPIController::CreateOutputWindow()
 {
   vtkMPIOutputWindow* window = new vtkMPIOutputWindow;
+  window->InitializeObjectBase();
   window->Controller = this;
   this->OutputWindow = window;
   vtkOutputWindow::SetInstance(this->OutputWindow);

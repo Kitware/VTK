@@ -86,12 +86,6 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
   {
     return ret;
   }
-  // if the factory failed to create the object,
-  // then destroy it now, as vtkDebugLeaks::ConstructClass was called
-  // with vtkclassname, and not the real name of the class
-#ifdef VTK_DEBUG_LEAKS
-  vtkDebugLeaks::DestructClass(vtkclassname);
-#endif
   return 0;
 }
 

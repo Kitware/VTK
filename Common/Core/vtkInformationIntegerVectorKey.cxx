@@ -107,7 +107,7 @@ void vtkInformationIntegerVectorKey::Set(vtkInformation* info,
       // Allocate a new value.
       vtkInformationIntegerVectorValue* v =
         new vtkInformationIntegerVectorValue;
-      this->ConstructClass("vtkInformationIntegerVectorValue");
+      v->InitializeObjectBase();
       v->Value.insert(v->Value.begin(), value, value+length);
       this->SetAsObjectBase(info, v);
       v->Delete();

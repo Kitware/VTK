@@ -22,6 +22,8 @@
 #ifndef vtkDenseArray_txx
 #define vtkDenseArray_txx
 
+#include "vtkObjectFactory.h"
+
 ///////////////////////////////////////////////////////////////////////////////
 // vtkDenseArray::MemoryBlock
 
@@ -72,12 +74,11 @@ T* vtkDenseArray<T>::StaticMemoryBlock::GetAddress()
 template<typename T>
 vtkDenseArray<T>* vtkDenseArray<T>::New()
 {
-  vtkObject* ret = vtkObjectFactory::CreateInstance(typeid(ThisT).name());
-  if(ret)
-  {
-    return static_cast<ThisT*>(ret);
-  }
-  return new ThisT();
+  // Don't use object factory macros on templated classes. It'll confuse the
+  // object factory.
+  vtkDenseArray<T> *ret = new vtkDenseArray<T>;
+  ret->InitializeObjectBase();
+  return ret;
 }
 
 template<typename T>

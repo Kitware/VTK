@@ -16,6 +16,7 @@
 // This test checks the SplitExtent method of vtkThreadedImageAlgorithm.
 
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 #include "vtkThreadedImageAlgorithm.h"
 
 #define TEST_SUCCESS 0
@@ -32,10 +33,7 @@ public:
   bool TestSplitExtent(int extent[6], vtkIdType pieces);
 };
 
-ThreadedImageAlgorithmTester *ThreadedImageAlgorithmTester::New()
-{
-  return new ThreadedImageAlgorithmTester;
-}
+vtkStandardNewMacro(ThreadedImageAlgorithmTester)
 
 // The SplitPath is protected, so add a method to set it.
 void ThreadedImageAlgorithmTester::SetSplitPath(const int path[3], int len)

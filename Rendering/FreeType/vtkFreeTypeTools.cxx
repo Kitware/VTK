@@ -155,6 +155,7 @@ vtkFreeTypeTools* vtkFreeTypeTools::GetInstance()
     if (!vtkFreeTypeTools::Instance)
     {
       vtkFreeTypeTools::Instance = new vtkFreeTypeTools;
+      vtkFreeTypeTools::Instance->InitializeObjectBase();
     }
   }
   return vtkFreeTypeTools::Instance;

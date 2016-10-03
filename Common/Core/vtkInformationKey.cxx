@@ -156,13 +156,6 @@ void vtkInformationKey::ReportAsObjectBase(vtkInformation* info,
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_DEBUG_LEAKS
-void vtkInformationKey::ConstructClass(const char* name)
-{
-  vtkDebugLeaks::ConstructClass(name);
-}
-#else
 void vtkInformationKey::ConstructClass(const char*)
 {
 }
-#endif

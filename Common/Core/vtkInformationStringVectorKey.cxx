@@ -92,7 +92,7 @@ void vtkInformationStringVectorKey::Set(vtkInformation* info, const char* value,
   {
     vtkInformationStringVectorValue* v =
       new vtkInformationStringVectorValue;
-    this->ConstructClass("vtkInformationStringVectorValue");
+    v->InitializeObjectBase();
     while(static_cast<int>(v->Value.size()) <= index)
     {
       v->Value.push_back("");

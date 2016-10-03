@@ -15,16 +15,13 @@
 
 #include "vtkMathTextUtilities.h"
 
+#include "vtkDebugLeaks.h" // Must be included before any singletons
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkTextProperty.h"
 #include "vtkTextActor.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
-
-#ifdef VTK_DEBUG_LEAKS
-#include "vtkDebugLeaks.h"
-#endif
 
 #include <algorithm>
 
@@ -55,13 +52,6 @@ vtkMathTextUtilities* vtkMathTextUtilities::GetInstance()
   {
     vtkMathTextUtilities::Instance = static_cast<vtkMathTextUtilities *>(
       vtkObjectFactory::CreateInstance("vtkMathTextUtilities"));
-    // Clean up any leaked references from vtkDebugLeaks if needed
-#ifdef VTK_DEBUG_LEAKS
-    if (!vtkMathTextUtilities::Instance)
-    {
-      vtkDebugLeaks::DestructClass("vtkMathTextUtilities");
-    }
-#endif
   }
 
   return vtkMathTextUtilities::Instance;

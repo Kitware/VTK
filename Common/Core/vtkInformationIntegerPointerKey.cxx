@@ -70,7 +70,7 @@ void vtkInformationIntegerPointerKey::Set(vtkInformation* info, int* value,
     // Allocate a new value.
     vtkInformationIntegerPointerValue* v =
       new vtkInformationIntegerPointerValue;
-    this->ConstructClass("vtkInformationIntegerPointerValue");
+    v->InitializeObjectBase();
     v->Value = value;
     v->Length = length;
     this->SetAsObjectBase(info, v);

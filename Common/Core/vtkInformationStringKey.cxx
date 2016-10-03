@@ -68,7 +68,7 @@ void vtkInformationStringKey::Set(vtkInformation* info, const char* value)
     {
       // Allocate a new value.
       vtkInformationStringValue* v = new vtkInformationStringValue;
-      this->ConstructClass("vtkInformationStringValue");
+      v->InitializeObjectBase();
       v->Value = value;
       this->SetAsObjectBase(info, v);
       v->Delete();
