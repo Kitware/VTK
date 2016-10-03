@@ -1175,13 +1175,13 @@ namespace vtkvolume
          );
        }
       }
-       else
-       {
-         shaderStr += std::string("\
-           \n      float opacity = computeOpacity(scalar);\
-           \n      l_sumValue.x = l_sumValue.x + opacity * scalar.x;"
-         );
-       }
+      else
+      {
+        shaderStr += std::string("\
+          \n      float opacity = computeOpacity(scalar);\
+          \n      l_sumValue.x = l_sumValue.x + opacity * scalar.x;"
+        );
+      }
     }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::COMPOSITE_BLEND)
     {
@@ -1446,7 +1446,7 @@ namespace vtkvolume
       else
       {
         return std::string("\
-          \n  l_sumValue = clamp(l_sumValue, vec4(0.0), vec4(1.0));\
+          \n  l_sumValue.x = clamp(l_sumValue.x, 0.0, 1.0);\
           \n  g_fragColor = vec4(vec3(l_sumValue.x), 1.0);"
         );
       }
