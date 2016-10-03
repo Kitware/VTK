@@ -1475,6 +1475,20 @@ void vtkFixedPointVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol 
 //                    << " is  > 1. This class does not produce repeatable results when the number of threads exceeds 1.");
 //    this->ThreadWarning = false;
 //    }
+
+
+  if(this->GetBlendMode()!=vtkVolumeMapper::COMPOSITE_BLEND &&
+     this->GetBlendMode()!=vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND &&
+     this->GetBlendMode()!=vtkVolumeMapper::MINIMUM_INTENSITY_BLEND &&
+     this->GetBlendMode()!=vtkVolumeMapper::AVERAGE_INTENSITY_BLEND &&
+     this->GetBlendMode()!=vtkVolumeMapper::ADDITIVE_BLEND)
+  {
+    vtkErrorMacro(<< "Selected blend mode not supported. "
+                  << "Only Composite, MIP, MinIP, averageIP and additive modes "
+                  << "are supported by the fixed point implementation.");
+    return;
+  }
+
   this->Timer->StartTimer();
 
   // Since we are passing in a value of 0 for the multiRender flag

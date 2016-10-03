@@ -370,7 +370,8 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
     }
   }
 
-  // Check on the blending type - we support composite and min / max intensity
+  // Check on the blending type - we support composite, additive, average
+  // and min / max intensity
   if ( goodSoFar )
   {
     if(this->BlendMode!=vtkVolumeMapper::COMPOSITE_BLEND &&
