@@ -1836,11 +1836,7 @@ int vtkExodusIIWriter::WriteBlockInformation()
   std::vector<int*> connectivity (nblocks);
 
   // Use this to copy the attributes into if we need it.
-  std::vector<double*> attributesD;
-  if (this->PassDoubles)
-  {
-    attributesD.resize (nblocks);
-  }
+  std::vector<double*> attributesD (nblocks);
 
   // For each block, a map from element global ID to it's location
   // within it's block in the ExodusModel object.
