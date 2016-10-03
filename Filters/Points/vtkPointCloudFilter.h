@@ -21,13 +21,13 @@
  * It takes as input any vtkPointSet (which represents points explicitly
  * using vtkPoints) and produces as output an explicit representation of
  * filtered points via a vtkPolyData. This output vtkPolyData will populate
- * its instance of vtkPoints, but no cells will be defined (i.e., no
- * vtkVertex or vtkPolyVertex are contained in the output). Also, after
- * filter execution, the user can request a vtkIdType* point map which
- * indicates how the input points were mapped to the output. A value of
- * PointMap[i] < 0 (where i is the ith input point) means that the ith input
- * point was removed. Otherwise PointMap[i] indicates the position in the
- * output vtkPoints array (point cloud).
+ * its instance of vtkPoints, and typically no cells will be defined (i.e.,
+ * no vtkVertex or vtkPolyVertex are contained in the output unless
+ * explicitly requested). Also, after filter execution, the user can request
+ * a vtkIdType* point map which indicates how the input points were mapped to
+ * the output. A value of PointMap[i] < 0 (where i is the ith input point)
+ * means that the ith input point was removed. Otherwise PointMap[i]
+ * indicates the position in the output vtkPoints array (point cloud).
  *
  * Optionally the filter may produce a second output. This second output is
  * another vtkPolyData with a vtkPoints that contains the points that were
@@ -61,7 +61,7 @@
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkPointSet;
-
+class vtkPolyData;
 
 class VTKFILTERSPOINTS_EXPORT vtkPointCloudFilter : public vtkPolyDataAlgorithm
 {
@@ -103,6 +103,18 @@ public:
   vtkBooleanMacro(GenerateOutliers,bool);
   //@}
 
+  //@{
+  /**
+   * If this method is enabled (true), then the outputs will contain a vertex
+   * cells (i.e., a vtkPolyVertex for each output). This takes a lot more
+   * memory but some VTK filters need cells to function properly. By default
+   * this is off (false).
+   */
+  vtkSetMacro(GenerateVertices,bool);
+  vtkGetMacro(GenerateVertices,bool);
+  vtkBooleanMacro(GenerateVertices,bool);
+  //@}
+
 protected:
   vtkPointCloudFilter();
   ~vtkPointCloudFilter();
@@ -118,9 +130,14 @@ protected:
   // Does a second output need to be created?
   bool GenerateOutliers;
 
+  // Should output vertex cells be created?
+  bool GenerateVertices;
+
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
     vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
+
+  void GenerateVerticesIfRequested(vtkPolyData *output);
 
 private:
   vtkPointCloudFilter(const vtkPointCloudFilter&) VTK_DELETE_FUNCTION;
