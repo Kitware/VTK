@@ -91,6 +91,9 @@ IVFDataSetInfo::IVFDataSetInfo(const IVFDataSetInfo &ivfci)
   this->BSPTree        = ivfci.BSPTree;
   this->Tolerance      = ivfci.Tolerance;
   this->StaticDataSet  = ivfci.StaticDataSet;
+  this->PCoords[0]     = ivfci.PCoords[0];
+  this->PCoords[1]     = ivfci.PCoords[1];
+  this->PCoords[2]     = ivfci.PCoords[2];
 }
 //---------------------------------------------------------------------------
 IVFDataSetInfo &IVFDataSetInfo::operator=(const IVFDataSetInfo &ivfci)
@@ -102,6 +105,9 @@ IVFDataSetInfo &IVFDataSetInfo::operator=(const IVFDataSetInfo &ivfci)
   this->BSPTree        = ivfci.BSPTree;
   this->Tolerance      = ivfci.Tolerance;
   this->StaticDataSet  = ivfci.StaticDataSet;
+  this->PCoords[0]     = ivfci.PCoords[0];
+  this->PCoords[1]     = ivfci.PCoords[1];
+  this->PCoords[2]     = ivfci.PCoords[2];
   return *this;
 }
 //---------------------------------------------------------------------------
