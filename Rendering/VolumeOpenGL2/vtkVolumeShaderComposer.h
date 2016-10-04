@@ -1014,7 +1014,7 @@ namespace vtkvolume
         \n  //We get data between 0.0 - 1.0 range\
         \n  vec4 l_avgValue = vec4(0.0);\
         \n  // Keep track of number of samples\
-        \n  vec4 l_numSamples = vec4(0);"
+        \n  uvec4 l_numSamples = uvec4(0);"
       );
     }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
@@ -1483,7 +1483,7 @@ namespace vtkvolume
           \n  g_srcColor = vec4(0);\
           \n  for (int i = 0; i < in_noOfComponents; ++i)\
           \n    {\
-          \n    if (l_numSamples[i] == 0)\
+          \n    if (l_numSamples[i] == uint(0))\
           \n      {\
           \n      continue;\
           \n      }\
@@ -1501,7 +1501,7 @@ namespace vtkvolume
       else
       {
         return std::string("\
-         \n  if (l_numSamples.w == 0)\
+         \n  if (l_numSamples.w == uint(0))\
          \n    {\
          \n    g_fragColor = vec4(0);\
          \n    }\
