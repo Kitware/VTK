@@ -293,7 +293,11 @@ bool vtkHardwareSelector::CaptureBuffers()
     {
       continue;
     }
+
+    this->PreCapturePass(this->CurrentPass);
     rwin->Render();
+    this->PostCapturePass(this->CurrentPass);
+
     this->SavePixelBuffer(this->CurrentPass);
   }
   this->EndSelection();
@@ -586,6 +590,28 @@ vtkProp* vtkHardwareSelector::GetPropFromID(int id)
     return iter->second;
   }
   return NULL;
+}
+
+//----------------------------------------------------------------------------
+std::string vtkHardwareSelector::PassTypeToString(PassTypes type)
+{
+  switch (type)
+  {
+    case vtkHardwareSelector::PROCESS_PASS:
+      return "PROCESS_PASS";
+    case vtkHardwareSelector::ACTOR_PASS:
+      return "ACTOR_PASS";
+    case vtkHardwareSelector::COMPOSITE_INDEX_PASS:
+      return "COMPOSITE_INDEX_PASS";
+    case vtkHardwareSelector::ID_LOW24:
+      return "ID_LOW24_PASS";
+    case vtkHardwareSelector::ID_MID24:
+      return "ID_MID24_PASS";
+    case vtkHardwareSelector::ID_HIGH16:
+      return "ID_HIGH16_PASS";
+    default:
+      return "Invalid Enum";
+  }
 }
 
 //----------------------------------------------------------------------------

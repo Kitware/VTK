@@ -64,6 +64,8 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+#include <string> // for std::string
+
 class vtkRenderer;
 class vtkRenderWindow;
 class vtkSelection;
@@ -270,6 +272,11 @@ public:
     MIN_KNOWN_PASS = PROCESS_PASS
   };
 
+  /**
+   * Convert a PassTypes enum value to a human readable string.
+   */
+  std::string PassTypeToString(PassTypes type);
+
   static void Convert(int id, float tcoord[3])
   {
     tcoord[0] = static_cast<float>((id & 0xff)/255.0);
@@ -280,6 +287,10 @@ public:
 protected:
   vtkHardwareSelector();
   ~vtkHardwareSelector();
+
+  // Used to notify subclasses when a capture pass is occuring.
+  virtual void PreCapturePass(int pass) { (void)pass; }
+  virtual void PostCapturePass(int pass) { (void)pass; }
 
   // Called internally before and after each prop is rendered
   // for device specific configuration/preparation etc.
