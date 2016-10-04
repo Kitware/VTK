@@ -2244,15 +2244,6 @@ void vtkOpenGLPolyDataMapper::GetCoincidentParameters(
   vtkRenderer* ren, vtkActor *actor,
   float &factor, float &offset)
 {
-  // hardware picking alsways offset due to saved zbuffer
-  vtkHardwareSelector* selector = ren->GetSelector();
-  if (selector)
-  {
-    offset = 2.0;
-    factor = 0.0;
-    return;
-  }
-
   // 1. ResolveCoincidentTopology is On and non zero for this primitive
   // type
   factor = 0.0;
@@ -2295,6 +2286,16 @@ void vtkOpenGLPolyDataMapper::GetCoincidentParameters(
     }
     factor = f;
     offset = u;
+  }
+
+  // hardware picking always offset due to saved zbuffer
+  // This gets you above the saved surface depth buffer.
+  vtkHardwareSelector* selector = ren->GetSelector();
+  if (selector &&
+      selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+  {
+    offset -= 2.0;
+    return;
   }
 }
 

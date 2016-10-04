@@ -185,26 +185,18 @@ void vtkOpenGLHardwareSelector::PostCapturePass(int pass)
 }
 
 //----------------------------------------------------------------------------
-bool vtkOpenGLHardwareSelector::CaptureBuffers()
+void vtkOpenGLHardwareSelector::BeginSelection()
 {
-  if (!this->Renderer)
-  {
-    vtkErrorMacro("Renderer must be set before calling Select.");
-    return false;
-  }
-
+  // render normally to set the zbuffer
   if (this->FieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS)
   {
     vtkRenderWindow *rwin = this->Renderer->GetRenderWindow();
-
-    this->Renderer->Clear();
     rwin->SwapBuffersOff();
-    // do a normal render to set the zbuffer first
     rwin->Render();
     this->Renderer->PreserveDepthBufferOn();
   }
 
-  return this->Superclass::CaptureBuffers();
+  return this->Superclass::BeginSelection();
 }
 
 //----------------------------------------------------------------------------
