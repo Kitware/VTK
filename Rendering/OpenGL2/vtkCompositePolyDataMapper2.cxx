@@ -280,7 +280,6 @@ void vtkCompositeMapperHelper2::RemoveUnused()
     if (!it->second->Marked)
     {
       delete it->second;
-      this->Parent->HelperDataMap.erase(it->first);
       this->Data.erase(it++);
       this->Modified();
     }
@@ -1345,6 +1344,7 @@ void vtkCompositePolyDataMapper2::Render(
     {
       hiter->second->ClearMark();
     }
+    this->HelperDataMap.clear();
 
     vtkSmartPointer<vtkDataObjectTreeIterator> iter =
       vtkSmartPointer<vtkDataObjectTreeIterator>::New();
