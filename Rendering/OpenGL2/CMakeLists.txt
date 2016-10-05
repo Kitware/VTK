@@ -78,8 +78,6 @@ set(Module_SRCS
   vtkTextureUnitManager.cxx
   vtkTransformFeedback.cxx
   vtkTranslucentPass.cxx
-  vtkValuePass.cxx
-  vtkValuePassHelper.cxx
   vtkVolumetricPass.cxx
   )
 
@@ -90,6 +88,8 @@ if (NOT DEFINED OPENGL_ES_VERSION)
     vtkFrameBufferObject2.cxx
     vtkPixelBufferObject.cxx
     vtkRenderbuffer.cxx
+    vtkValuePass.cxx
+    vtkValuePassHelper.cxx
     )
 else()
   if (${OPENGL_ES_VERSION} MATCHES 3.0)
@@ -98,6 +98,8 @@ else()
       vtkFrameBufferObject2.cxx
       vtkPixelBufferObject.cxx
       vtkRenderbuffer.cxx
+      vtkValuePass.cxx
+      vtkValuePassHelper.cxx
       )
   endif()
 endif()
