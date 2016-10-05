@@ -69,6 +69,9 @@ protected:
   vtkOpenGLHardwareSelector();
   virtual ~vtkOpenGLHardwareSelector();
 
+  void PreCapturePass(int pass) VTK_OVERRIDE;
+  void PostCapturePass(int pass) VTK_OVERRIDE;
+
   // Called internally before and after each prop is rendered
   // for device specific configuration/preparation etc.
   virtual void BeginRenderProp(vtkRenderWindow *);

@@ -35,6 +35,26 @@
 
 #define ID_OFFSET 1
 
+// Define to print debug statements to the OpenGL CS stream (useful for e.g.
+// apitrace debugging):
+//#define ANNOTATE_STREAM
+
+namespace
+{
+void annotate(const std::string &str)
+{
+#ifdef ANNOTATE_STREAM
+  vtkOpenGLStaticCheckErrorMacro("Error before glDebug.")
+  glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_OTHER,
+                       GL_DEBUG_SEVERITY_NOTIFICATION,
+                       0, str.size(), str.c_str());
+  vtkOpenGLClearErrorMacro();
+#else // ANNOTATE_STREAM
+  (void)str;
+#endif // ANNOTATE_STREAM
+}
+}
+
 // Description:
 // Internal state and helper methods.
 class vtkOpenGLHardwareSelector::vtkInternals
@@ -148,6 +168,20 @@ vtkOpenGLHardwareSelector::~vtkOpenGLHardwareSelector()
   cerr << "=====vtkOpenGLHardwareSelector::~vtkOpenGLHardwareSelector" << endl;
   #endif
   delete this->Internals;
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLHardwareSelector::PreCapturePass(int pass)
+{
+  annotate(std::string("Starting pass: ") +
+           this->PassTypeToString(static_cast<PassTypes>(pass)));
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLHardwareSelector::PostCapturePass(int pass)
+{
+  annotate(std::string("Pass complete: ") +
+           this->PassTypeToString(static_cast<PassTypes>(pass)));
 }
 
 //----------------------------------------------------------------------------
