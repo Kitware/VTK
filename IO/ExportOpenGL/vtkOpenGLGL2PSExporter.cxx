@@ -19,6 +19,7 @@
 #include "vtkActor2D.h"
 #include "vtkActorCollection.h"
 #include "vtkActor2DCollection.h"
+#include "vtkBillboardTextActor3D.h"
 #include "vtkCamera.h"
 #include "vtkContext2D.h"
 #include "vtkContextActor.h"
@@ -585,10 +586,31 @@ void vtkOpenGLGL2PSExporter::HandleSpecialProp(vtkProp *prop, vtkRenderer *ren)
   {
     this->DrawTextActor3D(textAct3D, ren);
   }
+  else if (vtkBillboardTextActor3D *billboardTextAct3D =
+           vtkBillboardTextActor3D::SafeDownCast(prop))
+  {
+    this->DrawBillboardTextActor3D(billboardTextAct3D, ren);
+  }
   else // Some other prop
   {
     return;
   }
+}
+
+void vtkOpenGLGL2PSExporter::
+DrawBillboardTextActor3D(vtkBillboardTextActor3D *textAct, vtkRenderer *)
+{
+  vtkOpenGLClearErrorMacro();
+
+  double textPosWC[3];
+  textAct->GetPosition(textPosWC);
+  double textPosDC[3];
+  textAct->GetAnchorDC(textPosDC);
+
+  vtkGL2PSUtilities::DrawString(textAct->GetInput(), textAct->GetTextProperty(),
+                                textPosWC, textPosDC[2] + 1e-6);
+
+  vtkOpenGLCheckErrorMacro("failed after DrawBillboardTextActor3D");
 }
 
 void vtkOpenGLGL2PSExporter::DrawTextActor(vtkTextActor *textAct, vtkRenderer *ren)

@@ -46,8 +46,7 @@ public:
 
   /**
    * Format the text in str according to tprop and instruct GL2PS to draw it at
-   * world coordinate pos. Background depth is the z value for the background
-   * quad, and should be in NDC space.
+   * world coordinate pos. Background depth is no longer used.
    */
   static void DrawString(const char *str, vtkTextProperty *tprop, double pos[3],
                          double backgroundDepth);
@@ -162,7 +161,7 @@ private:
   /**
    * Project the point from world coordinates into device coordinates.
    */
-  static void ProjectPoint(double point[3], vtkMatrix4x4 *actorMatrix = NULL);
+  static void ProjectPoint(double point[4], vtkMatrix4x4 *actorMatrix = NULL);
   static void ProjectPoint(double point[4], vtkMatrix4x4 * transformMatrix,
                            double viewportOrigin[2], double halfWidth,
                            double halfHeight, double zfact1, double zfact2);

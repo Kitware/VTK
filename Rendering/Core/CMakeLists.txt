@@ -9,6 +9,7 @@ set(Module_SRCS
   vtkActor.cxx
   vtkAssembly.cxx
   vtkBackgroundColorMonitor.cxx
+  vtkBillboardTextActor3D.cxx
   vtkCameraActor.cxx
   vtkCamera.cxx
   vtkCameraInterpolator.cxx
