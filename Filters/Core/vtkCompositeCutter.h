@@ -34,14 +34,14 @@ public:
 
   static vtkCompositeCutter *New();
 
-  void PrintSelf(ostream& os, vtkIndent indent);;
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;;
 
 protected:
   vtkCompositeCutter(vtkImplicitFunction *cf=NULL);
-  virtual ~vtkCompositeCutter();
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  ~vtkCompositeCutter() VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 private:
   vtkCompositeCutter(const vtkCompositeCutter&) VTK_DELETE_FUNCTION;

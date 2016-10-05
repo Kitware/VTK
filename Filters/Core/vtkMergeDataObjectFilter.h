@@ -49,7 +49,7 @@ class VTKFILTERSCORE_EXPORT vtkMergeDataObjectFilter : public vtkDataSetAlgorith
 public:
   static vtkMergeDataObjectFilter *New();
   vtkTypeMacro(vtkMergeDataObjectFilter,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -75,11 +75,11 @@ public:
 
 protected:
   vtkMergeDataObjectFilter();
-  ~vtkMergeDataObjectFilter();
+  ~vtkMergeDataObjectFilter() VTK_OVERRIDE;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   int OutputField; // which output field
 

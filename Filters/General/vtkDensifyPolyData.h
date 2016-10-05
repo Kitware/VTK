@@ -40,7 +40,7 @@ class VTKFILTERSGENERAL_EXPORT vtkDensifyPolyData : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkDensifyPolyData,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkDensifyPolyData *New();
 
   //@{
@@ -53,16 +53,16 @@ public:
 
 protected:
   vtkDensifyPolyData();
-  ~vtkDensifyPolyData();
+  ~vtkDensifyPolyData() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *);
+  int RequestData(vtkInformation *,
+                  vtkInformationVector **,
+                  vtkInformationVector *) VTK_OVERRIDE;
 
   unsigned int NumberOfSubdivisions;
 
 private:
-  virtual int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
   vtkDensifyPolyData(const vtkDensifyPolyData&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDensifyPolyData&) VTK_DELETE_FUNCTION;

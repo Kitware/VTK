@@ -39,7 +39,7 @@ public:
   static vtkBrownianPoints *New();
 
   vtkTypeMacro(vtkBrownianPoints,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -59,9 +59,9 @@ public:
 
 protected:
   vtkBrownianPoints();
-  ~vtkBrownianPoints() {}
+  ~vtkBrownianPoints() VTK_OVERRIDE {}
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   double MinimumSpeed;
   double MaximumSpeed;
 private:

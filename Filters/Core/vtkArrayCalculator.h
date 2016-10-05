@@ -76,7 +76,7 @@ class VTKFILTERSCORE_EXPORT vtkArrayCalculator : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkArrayCalculator,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkArrayCalculator *New();
 
@@ -263,9 +263,9 @@ public:
 
 protected:
   vtkArrayCalculator();
-  ~vtkArrayCalculator();
+  ~vtkArrayCalculator() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   char  * Function;
   char  * ResultArrayName;

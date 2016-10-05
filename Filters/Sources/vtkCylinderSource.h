@@ -38,7 +38,7 @@ class VTKFILTERSSOURCES_EXPORT vtkCylinderSource : public vtkPolyDataAlgorithm
 public:
   static vtkCylinderSource *New();
   vtkTypeMacro(vtkCylinderSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -93,9 +93,9 @@ public:
 
 protected:
   vtkCylinderSource(int res=6);
-  ~vtkCylinderSource() {}
+  ~vtkCylinderSource() VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   double Height;
   double Radius;
   double Center[3];

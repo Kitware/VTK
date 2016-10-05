@@ -33,7 +33,7 @@ class VTKFILTERSCORE_EXPORT vtkTriangleFilter : public vtkPolyDataAlgorithm
 public:
   static vtkTriangleFilter *New();
   vtkTypeMacro(vtkTriangleFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -61,10 +61,10 @@ public:
 
 protected:
   vtkTriangleFilter() : PassVerts(1), PassLines(1) {}
-  ~vtkTriangleFilter() {}
+  ~vtkTriangleFilter() VTK_OVERRIDE {}
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   int PassVerts;
   int PassLines;

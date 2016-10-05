@@ -38,7 +38,7 @@ class VTKFILTERSGEOMETRY_EXPORT vtkProjectSphereFilter :
 {
 public:
   vtkTypeMacro(vtkProjectSphereFilter, vtkPointSetAlgorithm);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkProjectSphereFilter *New();
 
@@ -73,12 +73,12 @@ public:
 
 protected:
   vtkProjectSphereFilter();
-  ~vtkProjectSphereFilter();
+  ~vtkProjectSphereFilter() VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                  vtkInformationVector *) VTK_OVERRIDE;
 
   void TransformPointInformation(vtkPointSet* input, vtkPointSet* output, vtkIdList*);
   void TransformCellInformation(vtkPointSet* input, vtkPointSet* output, vtkIdList*);

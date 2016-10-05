@@ -31,7 +31,7 @@ class VTKFILTERSGENERAL_EXPORT vtkWarpTo : public vtkPointSetAlgorithm
 public:
   static vtkWarpTo *New();
   vtkTypeMacro(vtkWarpTo,vtkPointSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -59,18 +59,18 @@ public:
   vtkBooleanMacro(Absolute,int);
   //@}
 
-  int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 protected:
   vtkWarpTo();
-  ~vtkWarpTo() {}
+  ~vtkWarpTo() VTK_OVERRIDE {}
 
   int RequestDataObject(vtkInformation *request,
                         vtkInformationVector **inputVector,
-                        vtkInformationVector *outputVector);
+                        vtkInformationVector *outputVector) VTK_OVERRIDE;
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) VTK_OVERRIDE;
   double ScaleFactor;
   double Position[3];
   int   Absolute;

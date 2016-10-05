@@ -90,14 +90,14 @@ class VTKFILTERSSTATISTICS_EXPORT vtkMultiCorrelativeStatistics : public vtkStat
 {
 public:
   vtkTypeMacro(vtkMultiCorrelativeStatistics, vtkStatisticsAlgorithm);
-  virtual void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
   static vtkMultiCorrelativeStatistics* New();
 
   /**
    * Given a collection of models, calculate aggregate model
    */
-  virtual void Aggregate( vtkDataObjectCollection*,
-                          vtkMultiBlockDataSet* );
+  void Aggregate( vtkDataObjectCollection*,
+                          vtkMultiBlockDataSet* ) VTK_OVERRIDE;
 
   //@{
   /**
@@ -112,41 +112,41 @@ public:
 
 protected:
   vtkMultiCorrelativeStatistics();
-  ~vtkMultiCorrelativeStatistics();
+  ~vtkMultiCorrelativeStatistics() VTK_OVERRIDE;
 
   /**
    * Execute the calculations required by the Learn option.
    */
-  virtual void Learn( vtkTable*,
-                      vtkTable*,
-                      vtkMultiBlockDataSet* );
+  void Learn( vtkTable*,
+              vtkTable*,
+              vtkMultiBlockDataSet* ) VTK_OVERRIDE;
 
   /**
    * Execute the calculations required by the Derive option.
    */
-  virtual void Derive( vtkMultiBlockDataSet* );
+  void Derive( vtkMultiBlockDataSet* ) VTK_OVERRIDE;
 
   /**
    * Execute the calculations required by the Assess option.
    */
-  virtual void Assess( vtkTable*,
-                       vtkMultiBlockDataSet*,
-                       vtkTable* );
+  void Assess( vtkTable*,
+               vtkMultiBlockDataSet*,
+               vtkTable* ) VTK_OVERRIDE;
 
   /**
    * Execute the calculations required by the Test option.
    */
-  virtual void Test( vtkTable*,
-                     vtkMultiBlockDataSet*,
-                     vtkTable* ) { return; }
+  void Test( vtkTable*,
+             vtkMultiBlockDataSet*,
+             vtkTable* ) VTK_OVERRIDE { return; }
 
   /**
    * Provide the appropriate assessment functor.
    */
-  virtual void SelectAssessFunctor( vtkTable* inData,
-                                    vtkDataObject* inMeta,
-                                    vtkStringArray* rowNames,
-                                    AssessFunctor*& dfunc );
+  void SelectAssessFunctor( vtkTable* inData,
+                            vtkDataObject* inMeta,
+                            vtkStringArray* rowNames,
+                            AssessFunctor*& dfunc ) VTK_OVERRIDE;
 
   /**
    * Computes the median of inData with vtkOrderStatistics.

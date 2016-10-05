@@ -36,7 +36,7 @@ public:
   static vtkReflectionFilter *New();
 
   vtkTypeMacro(vtkReflectionFilter, vtkDataObjectAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   enum ReflectionPlane
   {
@@ -89,16 +89,16 @@ public:
 
 protected:
   vtkReflectionFilter();
-  ~vtkReflectionFilter();
+  ~vtkReflectionFilter() VTK_OVERRIDE;
 
   /**
    * This is called by the superclass.
    * This is the method you should override.
    * Overridden to create the correct type of output.
    */
-  virtual int RequestDataObject(vtkInformation*,
-                                vtkInformationVector**,
-                                vtkInformationVector*);
+  int RequestDataObject(vtkInformation*,
+                        vtkInformationVector**,
+                        vtkInformationVector*) VTK_OVERRIDE;
 
   /**
    * Actual implementation for reflection.
@@ -111,8 +111,8 @@ protected:
    */
   virtual int ComputeBounds(vtkDataObject* input, double bounds[6]);
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   int Plane;
   double Center;

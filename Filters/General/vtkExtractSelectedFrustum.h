@@ -51,12 +51,12 @@ class VTKFILTERSGENERAL_EXPORT vtkExtractSelectedFrustum : public vtkExtractSele
 public:
   static vtkExtractSelectedFrustum *New();
   vtkTypeMacro(vtkExtractSelectedFrustum, vtkExtractSelectionBase);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Return the MTime taking into account changes to the Frustum
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -128,16 +128,16 @@ public:
 
 protected:
   vtkExtractSelectedFrustum(vtkPlanes *f=NULL);
-  ~vtkExtractSelectedFrustum();
+  ~vtkExtractSelectedFrustum() VTK_OVERRIDE;
 
   // sets up output dataset
-  virtual int RequestDataObject(vtkInformation* request,
-                                vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector);
+  int RequestDataObject(vtkInformation* request,
+                        vtkInformationVector** inputVector,
+                        vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   //execution
-  virtual int RequestData(vtkInformation *,
-                          vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *,
+                          vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   int ABoxFrustumIsect(double bounds[], vtkCell *cell);
   int FrustumClipPolygon(int nverts,
                          double *ivlist, double *wvlist, double *ovlist);

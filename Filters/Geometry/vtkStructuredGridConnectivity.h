@@ -60,7 +60,7 @@ class VTKFILTERSGEOMETRY_EXPORT vtkStructuredGridConnectivity :
 public:
   static vtkStructuredGridConnectivity* New();
   vtkTypeMacro( vtkStructuredGridConnectivity, vtkAbstractGridConnectivity );
-  void PrintSelf(ostream& os, vtkIndent  indent );
+  void PrintSelf(ostream& os, vtkIndent  indent ) VTK_OVERRIDE;
 
   //@{
   /**
@@ -80,7 +80,7 @@ public:
   /**
    * Set/Get the total number of domains distributed among processors
    */
-  virtual void SetNumberOfGrids( const unsigned int N );
+  void SetNumberOfGrids( const unsigned int N ) VTK_OVERRIDE;
 
   /**
    * Registers the current grid corresponding to the grid ID by its global
@@ -112,7 +112,7 @@ public:
   /**
    * Computes neighboring information
    */
-  virtual void ComputeNeighbors();
+  void ComputeNeighbors() VTK_OVERRIDE;
 
   /**
    * Returns the number of neighbors for the grid corresponding to the given
@@ -144,16 +144,16 @@ public:
   void FillGhostArrays(
      const int gridID,
      vtkUnsignedCharArray *nodesArray,
-     vtkUnsignedCharArray *cellsArray );
+     vtkUnsignedCharArray *cellsArray ) VTK_OVERRIDE;
 
   /**
    * Creates ghost layers.
    */
-  virtual void CreateGhostLayers( const int N=1 );
+  void CreateGhostLayers( const int N=1 ) VTK_OVERRIDE;
 
 protected:
   vtkStructuredGridConnectivity();
-  virtual ~vtkStructuredGridConnectivity();
+  ~vtkStructuredGridConnectivity() VTK_OVERRIDE;
 
   /**
    * Returns true iff Lo <= idx <= Hi, otherwise false.

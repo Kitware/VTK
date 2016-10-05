@@ -32,7 +32,7 @@ class VTKFILTERSSOURCES_EXPORT vtkCubeSource : public vtkPolyDataAlgorithm
 public:
   static vtkCubeSource *New();
   vtkTypeMacro(vtkCubeSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -88,9 +88,9 @@ public:
 
 protected:
   vtkCubeSource(double xL=1.0, double yL=1.0, double zL=1.0);
-  ~vtkCubeSource() {}
+  ~vtkCubeSource() VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   double XLength;
   double YLength;
   double ZLength;

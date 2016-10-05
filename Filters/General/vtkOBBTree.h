@@ -86,7 +86,7 @@ class VTKFILTERSGENERAL_EXPORT vtkOBBTree : public vtkAbstractCellLocator
 {
 public:
   vtkTypeMacro(vtkOBBTree,vtkAbstractCellLocator);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct with automatic computation of divisions, averaging
@@ -109,7 +109,7 @@ public:
    * to receive that information.
    */
   int IntersectWithLine(const double a0[3], const double a1[3],
-                        vtkPoints *points, vtkIdList *cellIds);
+                        vtkPoints *points, vtkIdList *cellIds) VTK_OVERRIDE;
 
   /**
    * Return the first intersection of the specified line segment with
@@ -118,7 +118,7 @@ public:
    */
   int IntersectWithLine(double a0[3], double a1[3], double tol,
                         double& t, double x[3], double pcoords[3],
-                        int &subId, vtkIdType &cellId, vtkGenericCell *cell);
+                        int &subId, vtkIdType &cellId, vtkGenericCell *cell) VTK_OVERRIDE;
 
   /**
    * Compute an OBB from the list of points given. Return the corner point
@@ -178,8 +178,8 @@ public:
   /**
    * Satisfy locator's abstract interface, see vtkLocator.
    */
-  void FreeSearchStructure();
-  void BuildLocator();
+  void FreeSearchStructure() VTK_OVERRIDE;
+  void BuildLocator() VTK_OVERRIDE;
   //@}
 
   /**
@@ -191,11 +191,11 @@ public:
    * represented either as two crossed polygons, or as a line, depending on
    * the relative diameter of the OBB compared to the diameter (d).
    */
-  void GenerateRepresentation(int level, vtkPolyData *pd);
+  void GenerateRepresentation(int level, vtkPolyData *pd) VTK_OVERRIDE;
 
 protected:
   vtkOBBTree();
-  ~vtkOBBTree();
+  ~vtkOBBTree() VTK_OVERRIDE;
 
   // Compute an OBB from the list of cells given.  This used to be
   // public but should not have been.  A public call has been added

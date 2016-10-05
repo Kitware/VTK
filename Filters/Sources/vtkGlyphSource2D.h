@@ -57,7 +57,7 @@ class VTKFILTERSSOURCES_EXPORT vtkGlyphSource2D : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkGlyphSource2D,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct a vertex glyph centered at the origin, scale 1.0, white in
@@ -183,9 +183,9 @@ public:
 
 protected:
   vtkGlyphSource2D();
-  ~vtkGlyphSource2D() {}
+  ~vtkGlyphSource2D() VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   double Center[3];
   double Scale;

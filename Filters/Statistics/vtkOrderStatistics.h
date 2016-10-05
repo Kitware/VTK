@@ -55,7 +55,7 @@ class VTKFILTERSSTATISTICS_EXPORT vtkOrderStatistics : public vtkStatisticsAlgor
 {
 public:
   vtkTypeMacro(vtkOrderStatistics, vtkStatisticsAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkOrderStatistics* New();
 
   /**
@@ -110,55 +110,55 @@ public:
    * set parameter values.
    * Return true if setting of requested parameter name was excuted, false otherwise.
    */
-  virtual bool SetParameter( const char* parameter,
-                             int index,
-                             vtkVariant value );
+  bool SetParameter( const char* parameter,
+                     int index,
+                     vtkVariant value ) VTK_OVERRIDE;
 
   /**
    * Given a collection of models, calculate aggregate model
    * NB: not implemented
    */
-  virtual void Aggregate( vtkDataObjectCollection*,
-                          vtkMultiBlockDataSet* ) { return; };
+  void Aggregate( vtkDataObjectCollection*,
+                          vtkMultiBlockDataSet* ) VTK_OVERRIDE { return; };
 
 protected:
   vtkOrderStatistics();
-  ~vtkOrderStatistics();
+  ~vtkOrderStatistics() VTK_OVERRIDE;
 
   /**
    * Execute the calculations required by the Learn option.
    */
-  virtual void Learn( vtkTable*,
-                      vtkTable*,
-                      vtkMultiBlockDataSet* );
+  void Learn( vtkTable*,
+              vtkTable*,
+              vtkMultiBlockDataSet* ) VTK_OVERRIDE;
 
   /**
    * Execute the calculations required by the Derive option.
    */
-  virtual void Derive( vtkMultiBlockDataSet* );
+  void Derive( vtkMultiBlockDataSet* ) VTK_OVERRIDE;
 
   /**
    * Execute the calculations required by the Test option.
    */
-  virtual void Test( vtkTable*,
-                     vtkMultiBlockDataSet*,
-                     vtkTable* );
+  void Test( vtkTable*,
+             vtkMultiBlockDataSet*,
+             vtkTable* ) VTK_OVERRIDE;
 
   /**
    * Execute the calculations required by the Assess option.
    */
-  virtual void Assess( vtkTable* inData,
-                       vtkMultiBlockDataSet* inMeta,
-                       vtkTable* outData )
+  void Assess( vtkTable* inData,
+               vtkMultiBlockDataSet* inMeta,
+               vtkTable* outData ) VTK_OVERRIDE
   { this->Superclass::Assess( inData, inMeta, outData, 1 ); }
 
   /**
    * Provide the appropriate assessment functor.
    */
-  virtual void SelectAssessFunctor( vtkTable* outData,
-                                    vtkDataObject* inMeta,
-                                    vtkStringArray* rowNames,
-                                    AssessFunctor*& dfunc );
+  void SelectAssessFunctor( vtkTable* outData,
+                            vtkDataObject* inMeta,
+                            vtkStringArray* rowNames,
+                            AssessFunctor*& dfunc ) VTK_OVERRIDE;
 
   vtkIdType NumberOfIntervals;
   QuantileDefinitionType QuantileDefinition;

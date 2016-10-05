@@ -141,7 +141,7 @@ class VTKFILTERSCORE_EXPORT vtkDelaunay2D : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkDelaunay2D,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object with Alpha = 0.0; Tolerance = 0.001; Offset = 1.25;
@@ -243,9 +243,9 @@ public:
 
 protected:
   vtkDelaunay2D();
-  ~vtkDelaunay2D();
+  ~vtkDelaunay2D() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   vtkAbstractTransform * ComputeBestFittingPlane(vtkPointSet *input);
 
@@ -288,7 +288,7 @@ private:
   void CheckEdge(vtkIdType ptId, double x[3], vtkIdType p1, vtkIdType p2,
                  vtkIdType tri, bool recursive);
 
-  virtual int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
 private:
   vtkDelaunay2D(const vtkDelaunay2D&) VTK_DELETE_FUNCTION;

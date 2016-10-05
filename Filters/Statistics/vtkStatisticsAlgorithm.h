@@ -72,7 +72,7 @@ class VTKFILTERSSTATISTICS_EXPORT vtkStatisticsAlgorithm : public vtkTableAlgori
 {
 public:
   vtkTypeMacro(vtkStatisticsAlgorithm, vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * enumeration values to specify input port types
@@ -284,15 +284,15 @@ public:
 
 protected:
   vtkStatisticsAlgorithm();
-  ~vtkStatisticsAlgorithm();
+  ~vtkStatisticsAlgorithm() VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation( int port, vtkInformation* info );
-  virtual int FillOutputPortInformation( int port, vtkInformation* info );
+  int FillInputPortInformation( int port, vtkInformation* info ) VTK_OVERRIDE;
+  int FillOutputPortInformation( int port, vtkInformation* info ) VTK_OVERRIDE;
 
-  virtual int RequestData(
+  int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector* );
+    vtkInformationVector* ) VTK_OVERRIDE;
 
   /**
    * Execute the calculations required by the Learn option, given some input Data

@@ -38,7 +38,7 @@ class VTKFILTERSCORE_EXPORT vtkReverseSense : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkReverseSense,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object so that behavior is to reverse cell ordering and
@@ -67,10 +67,10 @@ public:
 
 protected:
   vtkReverseSense();
-  ~vtkReverseSense() {}
+  ~vtkReverseSense() VTK_OVERRIDE {}
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   int ReverseCells;
   int ReverseNormals;

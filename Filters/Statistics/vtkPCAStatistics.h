@@ -63,7 +63,7 @@ class VTKFILTERSSTATISTICS_EXPORT vtkPCAStatistics : public vtkMultiCorrelativeS
 {
 public:
   vtkTypeMacro(vtkPCAStatistics,vtkMultiCorrelativeStatistics);
-  virtual void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
   static vtkPCAStatistics* New();
 
   /**
@@ -236,39 +236,39 @@ public:
    * set parameter values.
    * Return true if setting of requested parameter name was excuted, false otherwise.
    */
-  virtual bool SetParameter( const char* parameter,
-                             int index,
-                             vtkVariant value );
+  bool SetParameter( const char* parameter,
+                     int index,
+                     vtkVariant value ) VTK_OVERRIDE;
 
 protected:
   vtkPCAStatistics();
-  ~vtkPCAStatistics();
+  ~vtkPCAStatistics() VTK_OVERRIDE;
 
   /**
    * This algorithm accepts a vtkTable containing normalization values for
    * its fourth input (port 3).
    * We override FillInputPortInformation to indicate this.
    */
-  virtual int FillInputPortInformation( int port, vtkInformation* info );
+  int FillInputPortInformation( int port, vtkInformation* info ) VTK_OVERRIDE;
 
   /**
    * Execute the calculations required by the Derive option.
    */
-  virtual void Derive( vtkMultiBlockDataSet* );
+  void Derive( vtkMultiBlockDataSet* ) VTK_OVERRIDE;
 
   /**
    * Execute the calculations required by the Test option.
    */
-  virtual void Test( vtkTable*,
-                     vtkMultiBlockDataSet*,
-                     vtkTable* );
+  void Test( vtkTable*,
+             vtkMultiBlockDataSet*,
+             vtkTable* ) VTK_OVERRIDE;
 
   /**
    * Execute the calculations required by the Assess option.
    */
-  virtual void Assess( vtkTable*,
-                       vtkMultiBlockDataSet*,
-                       vtkTable* );
+  void Assess( vtkTable*,
+               vtkMultiBlockDataSet*,
+               vtkTable* ) VTK_OVERRIDE;
 
   /**
    * Calculate p-value. This will be overridden using the object factory with an
@@ -279,10 +279,10 @@ protected:
   /**
    * Provide the appropriate assessment functor.
    */
-  virtual void SelectAssessFunctor( vtkTable* inData,
-                                    vtkDataObject* inMeta,
-                                    vtkStringArray* rowNames,
-                                    AssessFunctor*& dfunc );
+  void SelectAssessFunctor( vtkTable* inData,
+                            vtkDataObject* inMeta,
+                            vtkStringArray* rowNames,
+                            AssessFunctor*& dfunc ) VTK_OVERRIDE;
 
   int NormalizationScheme;
   int BasisScheme;

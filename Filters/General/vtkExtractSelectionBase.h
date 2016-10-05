@@ -31,7 +31,7 @@ class VTKFILTERSGENERAL_EXPORT vtkExtractSelectionBase : public vtkDataObjectAlg
 {
 public:
   vtkTypeMacro(vtkExtractSelectionBase, vtkDataObjectAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Convenience method to specify the selection connection (2nd input
@@ -55,16 +55,16 @@ public:
 
 protected:
   vtkExtractSelectionBase();
-  ~vtkExtractSelectionBase();
+  ~vtkExtractSelectionBase() VTK_OVERRIDE;
 
   /**
    * Sets up empty output dataset
    */
-  virtual int RequestDataObject(vtkInformation* request,
-                                vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector);
+  int RequestDataObject(vtkInformation* request,
+                        vtkInformationVector** inputVector,
+                        vtkInformationVector* outputVector) VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   int PreserveTopology;
 private:

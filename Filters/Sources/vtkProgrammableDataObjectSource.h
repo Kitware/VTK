@@ -44,7 +44,7 @@ class VTKFILTERSSOURCES_EXPORT vtkProgrammableDataObjectSource : public vtkDataO
 public:
   static vtkProgrammableDataObjectSource *New();
   vtkTypeMacro(vtkProgrammableDataObjectSource,vtkDataObjectAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Signature definition for programmable method callbacks. Methods passed to
@@ -70,10 +70,10 @@ public:
 
 protected:
   vtkProgrammableDataObjectSource();
-  ~vtkProgrammableDataObjectSource();
+  ~vtkProgrammableDataObjectSource() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *) VTK_OVERRIDE;
 
   ProgrammableMethodCallbackType ExecuteMethod; //function to invoke
   ProgrammableMethodCallbackType ExecuteMethodArgDelete;

@@ -54,7 +54,7 @@ class vtkPoints;
 class VTKFILTERSSOURCES_EXPORT vtkRectangularButtonSource : public vtkButtonSource
 {
 public:
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   vtkTypeMacro(vtkRectangularButtonSource,vtkButtonSource);
 
   /**
@@ -134,9 +134,9 @@ public:
 
 protected:
   vtkRectangularButtonSource();
-  ~vtkRectangularButtonSource() {}
+  ~vtkRectangularButtonSource() VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   double Width;
   double Height;

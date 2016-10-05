@@ -57,45 +57,45 @@ class VTKFILTERSSTATISTICS_EXPORT vtkContingencyStatistics : public vtkStatistic
 {
 public:
   vtkTypeMacro(vtkContingencyStatistics, vtkStatisticsAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkContingencyStatistics* New();
 
   /**
    * Given a collection of models, calculate aggregate model
    * NB: not implemented
    */
-  virtual void Aggregate( vtkDataObjectCollection*,
-                          vtkMultiBlockDataSet* ) { return; };
+  void Aggregate( vtkDataObjectCollection*,
+                          vtkMultiBlockDataSet* ) VTK_OVERRIDE { return; };
 
 protected:
   vtkContingencyStatistics();
-  ~vtkContingencyStatistics();
+  ~vtkContingencyStatistics() VTK_OVERRIDE;
 
   /**
    * Execute the calculations required by the Learn option.
    */
-  virtual void Learn( vtkTable*,
-                      vtkTable*,
-                      vtkMultiBlockDataSet* );
+  void Learn( vtkTable*,
+              vtkTable*,
+              vtkMultiBlockDataSet* ) VTK_OVERRIDE;
 
   /**
    * Execute the calculations required by the Derive option.
    */
-  virtual void Derive( vtkMultiBlockDataSet* );
+  void Derive( vtkMultiBlockDataSet* ) VTK_OVERRIDE;
 
   /**
    * Execute the calculations required by the Test option.
    */
-  virtual void Test( vtkTable*,
-                     vtkMultiBlockDataSet*,
-                     vtkTable* );
+  void Test( vtkTable*,
+             vtkMultiBlockDataSet*,
+             vtkTable* ) VTK_OVERRIDE;
 
   /**
    * Execute the calculations required by the Assess option.
    */
-  virtual void Assess( vtkTable*,
-                       vtkMultiBlockDataSet*,
-                       vtkTable* );
+  void Assess( vtkTable*,
+               vtkMultiBlockDataSet*,
+               vtkTable* ) VTK_OVERRIDE;
 
   /**
    * Calculate p-value. This will be overridden using the object factory with an
@@ -108,10 +108,10 @@ protected:
    * This one does nothing because the API is not sufficient for tables indexed
    * by a separate summary table.
    */
-  virtual void SelectAssessFunctor( vtkTable* outData,
-                                    vtkDataObject* inMeta,
-                                    vtkStringArray* rowNames,
-                                    AssessFunctor*& dfunc );
+  void SelectAssessFunctor( vtkTable* outData,
+                            vtkDataObject* inMeta,
+                            vtkStringArray* rowNames,
+                            AssessFunctor*& dfunc ) VTK_OVERRIDE;
   /**
    * Provide the appropriate assessment functor.
    * This one is the one that is actually used.

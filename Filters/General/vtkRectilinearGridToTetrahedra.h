@@ -64,7 +64,7 @@ class VTKFILTERSGENERAL_EXPORT vtkRectilinearGridToTetrahedra : public vtkUnstru
 {
 public:
   vtkTypeMacro(vtkRectilinearGridToTetrahedra,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Form 5 Tetrahedra per cube. Do not RememberVoxelId.
@@ -116,14 +116,14 @@ public:
 
 protected:
   vtkRectilinearGridToTetrahedra();
-  ~vtkRectilinearGridToTetrahedra() {}
+  ~vtkRectilinearGridToTetrahedra() VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   int RememberVoxelId;
   int TetraPerCell;
 
-  virtual int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
  private:
   vtkRectilinearGridToTetrahedra(const vtkRectilinearGridToTetrahedra&) VTK_DELETE_FUNCTION;

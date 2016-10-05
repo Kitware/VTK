@@ -108,7 +108,7 @@ class VTKFILTERSCORE_EXPORT vtkDelaunay3D : public vtkUnstructuredGridAlgorithm
 {
 public:
   vtkTypeMacro(vtkDelaunay3D,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object with Alpha = 0.0; Tolerance = 0.001; Offset = 2.5;
@@ -251,7 +251,7 @@ public:
   /**
    * Return the MTime also considering the locator.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -265,9 +265,9 @@ public:
 
 protected:
   vtkDelaunay3D();
-  ~vtkDelaunay3D();
+  ~vtkDelaunay3D() VTK_OVERRIDE;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   double Alpha;
   int AlphaTets;
@@ -298,7 +298,7 @@ protected:
                                vtkIdList *tetras, vtkIdList *faces,
                                vtkIncrementalPointLocator *Locator);
 
-  virtual int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 private: //members added for performance
   vtkIdList *Tetras; //used in InsertPoint
   vtkIdList *Faces;  //used in InsertPoint

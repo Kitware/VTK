@@ -40,16 +40,16 @@ public:
    */
   static vtkPointConnectivityFilter *New();
   vtkTypeMacro(vtkPointConnectivityFilter,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
 protected:
   vtkPointConnectivityFilter();
-  ~vtkPointConnectivityFilter();
+  ~vtkPointConnectivityFilter() VTK_OVERRIDE;
 
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   vtkPointConnectivityFilter(const vtkPointConnectivityFilter&) VTK_DELETE_FUNCTION;

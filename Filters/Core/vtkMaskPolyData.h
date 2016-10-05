@@ -35,7 +35,7 @@ class VTKFILTERSCORE_EXPORT vtkMaskPolyData : public vtkPolyDataAlgorithm
 public:
   static vtkMaskPolyData *New();
   vtkTypeMacro(vtkMaskPolyData,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -55,9 +55,9 @@ public:
 
 protected:
   vtkMaskPolyData();
-  ~vtkMaskPolyData() {}
+  ~vtkMaskPolyData() VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   int OnRatio; // every OnRatio entity is on; all others are off.
   vtkIdType Offset;  // offset (or starting point id)
 

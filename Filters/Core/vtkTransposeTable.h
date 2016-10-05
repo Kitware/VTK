@@ -38,7 +38,7 @@ class VTKFILTERSCORE_EXPORT vtkTransposeTable : public vtkTableAlgorithm
 public:
   static vtkTransposeTable* New();
   vtkTypeMacro(vtkTransposeTable, vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -73,11 +73,11 @@ public:
 
 protected:
   vtkTransposeTable();
-  ~vtkTransposeTable();
+  ~vtkTransposeTable() VTK_OVERRIDE;
 
   int RequestData(vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
   bool AddIdColumn;
   bool UseIdColumn;

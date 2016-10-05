@@ -49,7 +49,7 @@ class VTKFILTERSGENERAL_EXPORT vtkYoungsMaterialInterface : public vtkMultiBlock
 public:
   static vtkYoungsMaterialInterface* New();
   vtkTypeMacro(vtkYoungsMaterialInterface,vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -186,12 +186,12 @@ public:
 
 protected:
   vtkYoungsMaterialInterface ();
-  virtual ~vtkYoungsMaterialInterface ();
+  ~vtkYoungsMaterialInterface () VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
-  virtual int RequestData(vtkInformation *request,
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *request,
              vtkInformationVector **inputVector,
-             vtkInformationVector *outputVector);
+             vtkInformationVector *outputVector) VTK_OVERRIDE;
 
   /**
    * Serial implementation of the material aggregation.

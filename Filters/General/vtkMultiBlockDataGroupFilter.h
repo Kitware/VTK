@@ -33,7 +33,7 @@ class VTKFILTERSGENERAL_EXPORT vtkMultiBlockDataGroupFilter : public vtkMultiBlo
 {
 public:
   vtkTypeMacro(vtkMultiBlockDataGroupFilter,vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object with PointIds and CellIds on; and ids being generated
@@ -53,19 +53,19 @@ public:
 
 protected:
   vtkMultiBlockDataGroupFilter();
-  ~vtkMultiBlockDataGroupFilter();
+  ~vtkMultiBlockDataGroupFilter() VTK_OVERRIDE;
 
-  virtual int RequestInformation(vtkInformation *,
+  int RequestInformation(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *,
+                  vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *);
-  virtual int RequestData(vtkInformation *,
+                  vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 private:
   vtkMultiBlockDataGroupFilter(const vtkMultiBlockDataGroupFilter&) VTK_DELETE_FUNCTION;

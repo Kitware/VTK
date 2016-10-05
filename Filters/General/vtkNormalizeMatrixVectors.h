@@ -40,7 +40,7 @@ class VTKFILTERSGENERAL_EXPORT vtkNormalizeMatrixVectors : public vtkArrayDataAl
 public:
   static vtkNormalizeMatrixVectors* New();
   vtkTypeMacro(vtkNormalizeMatrixVectors, vtkArrayDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -60,12 +60,12 @@ public:
 
 protected:
   vtkNormalizeMatrixVectors();
-  ~vtkNormalizeMatrixVectors();
+  ~vtkNormalizeMatrixVectors() VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
   int VectorDimension;
   double PValue;

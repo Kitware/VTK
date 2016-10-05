@@ -43,7 +43,7 @@ class VTKFILTERSGEOMETRY_EXPORT vtkRectilinearGridPartitioner :
 public:
   static vtkRectilinearGridPartitioner *New();
   vtkTypeMacro(vtkRectilinearGridPartitioner, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream &oss, vtkIndent indent);
+  void PrintSelf(ostream &oss, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -69,7 +69,7 @@ public:
 
 protected:
   vtkRectilinearGridPartitioner();
-  virtual ~vtkRectilinearGridPartitioner();
+  ~vtkRectilinearGridPartitioner() VTK_OVERRIDE;
 
   /**
    * Extracts the coordinates
@@ -81,10 +81,10 @@ protected:
       vtkDoubleArray *zcoords );
 
   // Standard Pipeline methods
-  virtual int RequestData(
-     vtkInformation*,vtkInformationVector**,vtkInformationVector*);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
-  virtual int FillOutputPortInformation(int port, vtkInformation *info);
+  int RequestData(
+     vtkInformation*,vtkInformationVector**,vtkInformationVector*) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   int NumberOfPartitions;
   int NumberOfGhostLayers;

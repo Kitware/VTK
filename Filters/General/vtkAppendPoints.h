@@ -36,7 +36,7 @@ class VTKFILTERSGENERAL_EXPORT vtkAppendPoints : public vtkPolyDataAlgorithm
 public:
   static vtkAppendPoints *New();
   vtkTypeMacro(vtkAppendPoints,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -64,12 +64,12 @@ public:
 
 protected:
   vtkAppendPoints();
-  ~vtkAppendPoints();
+  ~vtkAppendPoints() VTK_OVERRIDE;
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *,
-                          vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int, vtkInformation *);
+  int RequestData(vtkInformation *,
+                  vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
 
   char* InputIdArrayName;
   int OutputPointsPrecision;

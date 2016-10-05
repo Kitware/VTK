@@ -59,7 +59,7 @@ class VTKFILTERSGENERAL_EXPORT vtkSplineFilter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkSplineFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct the class with no limit on the number of subdivisions
@@ -152,10 +152,10 @@ public:
 
 protected:
   vtkSplineFilter();
-  ~vtkSplineFilter();
+  ~vtkSplineFilter() VTK_OVERRIDE;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   int       MaximumNumberOfSubdivisions;
   int       Subdivide;

@@ -65,7 +65,7 @@ class VTKFILTERSGENERAL_EXPORT vtkTemporalStatistics : public vtkPassInputTypeAl
 public:
   vtkTypeMacro(vtkTemporalStatistics, vtkPassInputTypeAlgorithm);
   static vtkTemporalStatistics *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -107,7 +107,7 @@ public:
 
 protected:
   vtkTemporalStatistics();
-  ~vtkTemporalStatistics();
+  ~vtkTemporalStatistics() VTK_OVERRIDE;
 
   int ComputeAverage;
   int ComputeMaximum;
@@ -117,20 +117,20 @@ protected:
   // Used when iterating the pipeline to keep track of which timestep we are on.
   int CurrentTimeIndex;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
-  virtual int RequestDataObject(vtkInformation *request,
-                                vtkInformationVector **inputVector,
-                                vtkInformationVector *outputVector);
-  virtual int RequestInformation(vtkInformation *request,
-                                 vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector);
-  virtual int RequestUpdateExtent(vtkInformation *request,
-                                  vtkInformationVector **inputVector,
-                                  vtkInformationVector *outputVector);
-  virtual int RequestData(vtkInformation *request,
+  int RequestDataObject(vtkInformation *request,
+                        vtkInformationVector **inputVector,
+                        vtkInformationVector *outputVector) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *request,
+                         vtkInformationVector **inputVector,
+                         vtkInformationVector *outputVector) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+                          vtkInformationVector *outputVector) VTK_OVERRIDE;
+  int RequestData(vtkInformation *request,
+                  vtkInformationVector **inputVector,
+                  vtkInformationVector *outputVector) VTK_OVERRIDE;
 
   virtual void InitializeStatistics(vtkDataObject *input,
                                     vtkDataObject *output);

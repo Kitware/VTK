@@ -52,7 +52,7 @@ public:
   vtkTypeMacro(vtkBooleanOperationPolyDataFilter,
                vtkPolyDataAlgorithm);
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   enum OperationType
   {
@@ -96,7 +96,7 @@ public:
 
 protected:
   vtkBooleanOperationPolyDataFilter();
-  ~vtkBooleanOperationPolyDataFilter();
+  ~vtkBooleanOperationPolyDataFilter() VTK_OVERRIDE;
 
   /**
    * Labels triangles in mesh as part of the intersection or union surface.
@@ -104,8 +104,8 @@ protected:
   void SortPolyData(vtkPolyData* input, vtkIdList* intersectionList,
                     vtkIdList* unionList);
 
-  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
-  int FillInputPortInformation(int, vtkInformation*);
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
 private:
   vtkBooleanOperationPolyDataFilter(const vtkBooleanOperationPolyDataFilter&) VTK_DELETE_FUNCTION;

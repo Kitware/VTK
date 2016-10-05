@@ -53,7 +53,7 @@ class VTKFILTERSSTATISTICS_EXPORT vtkAutoCorrelativeStatistics : public vtkStati
 {
 public:
   vtkTypeMacro(vtkAutoCorrelativeStatistics, vtkStatisticsAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkAutoCorrelativeStatistics* New();
 
   //@{
@@ -72,39 +72,39 @@ public:
   /**
    * Given a collection of models, calculate aggregate model
    */
-  virtual void Aggregate( vtkDataObjectCollection*,
-                          vtkMultiBlockDataSet* );
+  void Aggregate( vtkDataObjectCollection*,
+                  vtkMultiBlockDataSet* ) VTK_OVERRIDE;
 
 protected:
   vtkAutoCorrelativeStatistics();
-  ~vtkAutoCorrelativeStatistics();
+  ~vtkAutoCorrelativeStatistics() VTK_OVERRIDE;
 
   /**
    * Execute the calculations required by the Learn option, given some input Data
    * NB: input parameters are unused.
    */
-  virtual void Learn( vtkTable*,
-                      vtkTable*,
-                      vtkMultiBlockDataSet* );
+  void Learn( vtkTable*,
+              vtkTable*,
+              vtkMultiBlockDataSet* ) VTK_OVERRIDE;
 
   /**
    * Execute the calculations required by the Derive option.
    */
-  virtual void Derive( vtkMultiBlockDataSet* );
+  void Derive( vtkMultiBlockDataSet* ) VTK_OVERRIDE;
 
   /**
    * Execute the calculations required by the Test option.
    */
-  virtual void Test( vtkTable*,
+  void Test( vtkTable*,
                      vtkMultiBlockDataSet*,
-                     vtkTable* ) { return; };
+                     vtkTable* ) VTK_OVERRIDE { return; };
 
   /**
    * Execute the calculations required by the Assess option.
    */
-  virtual void Assess( vtkTable* inData,
-                       vtkMultiBlockDataSet* inMeta,
-                       vtkTable* outData )
+  void Assess( vtkTable* inData,
+               vtkMultiBlockDataSet* inMeta,
+               vtkTable* outData ) VTK_OVERRIDE
   { this->Superclass::Assess( inData, inMeta, outData, 1 ); }
 
   /**
@@ -116,10 +116,10 @@ protected:
   /**
    * Provide the appropriate assessment functor.
    */
-  virtual void SelectAssessFunctor( vtkTable* outData,
-                                    vtkDataObject* inMeta,
-                                    vtkStringArray* rowNames,
-                                    AssessFunctor*& dfunc );
+  void SelectAssessFunctor( vtkTable* outData,
+                            vtkDataObject* inMeta,
+                            vtkStringArray* rowNames,
+                            AssessFunctor*& dfunc ) VTK_OVERRIDE;
 
   vtkIdType SliceCardinality;
 

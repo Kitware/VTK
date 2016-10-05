@@ -32,7 +32,7 @@ class VTKFILTERSGEOMETRY_EXPORT vtkDataSetRegionSurfaceFilter : public vtkDataSe
 public:
   static vtkDataSetRegionSurfaceFilter* New();
   vtkTypeMacro(vtkDataSetRegionSurfaceFilter, vtkDataSetSurfaceFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -43,14 +43,14 @@ public:
   vtkGetStringMacro(RegionArrayName);
   //@}
 
-  virtual int UnstructuredGridExecute(vtkDataSet *input,
-                                      vtkPolyData *output);
+  int UnstructuredGridExecute(vtkDataSet *input,
+                                      vtkPolyData *output) VTK_OVERRIDE;
 
   //make it clear we want all the recordOrigCellId signatures from our parent
   using vtkDataSetSurfaceFilter::RecordOrigCellId;
 
   //override one of the signatures
-  virtual void RecordOrigCellId(vtkIdType newIndex, vtkFastGeomQuad *quad);
+  void RecordOrigCellId(vtkIdType newIndex, vtkFastGeomQuad *quad) VTK_OVERRIDE;
 
   //@{
   /**
@@ -99,25 +99,25 @@ public:
 
 protected:
   vtkDataSetRegionSurfaceFilter();
-  ~vtkDataSetRegionSurfaceFilter();
+  ~vtkDataSetRegionSurfaceFilter() VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   /// Implementation of the algorithm.
-  virtual int RequestData(vtkInformation *,
+  int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *);
+                          vtkInformationVector *) VTK_OVERRIDE;
 
   virtual void InsertQuadInHash(vtkIdType a, vtkIdType b, vtkIdType c,
                                 vtkIdType d, vtkIdType sourceId, vtkIdType faceId);
-  virtual void InsertQuadInHash(vtkIdType a, vtkIdType b, vtkIdType c,
-                                vtkIdType d, vtkIdType sourceId)
+  void InsertQuadInHash(vtkIdType a, vtkIdType b, vtkIdType c,
+                                vtkIdType d, vtkIdType sourceId) VTK_OVERRIDE
   {
     this->InsertQuadInHash(a,b,c,d,sourceId, -1); //for -Woverloaded-virtual comp warning
   }
 
-  virtual void InsertTriInHash(vtkIdType a, vtkIdType b, vtkIdType c,
-                       vtkIdType sourceId, vtkIdType faceId);
+  void InsertTriInHash(vtkIdType a, vtkIdType b, vtkIdType c,
+                       vtkIdType sourceId, vtkIdType faceId) VTK_OVERRIDE;
   virtual void InsertTriInHash(vtkIdType a, vtkIdType b, vtkIdType c,
                        vtkIdType sourceId)
   {

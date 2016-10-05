@@ -37,12 +37,12 @@ public:
   static vtkHierarchicalDataSetGeometryFilter *New();
   vtkTypeMacro(vtkHierarchicalDataSetGeometryFilter,
     vtkCompositeDataGeometryFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 
 protected:
   vtkHierarchicalDataSetGeometryFilter();
-  ~vtkHierarchicalDataSetGeometryFilter();
+  ~vtkHierarchicalDataSetGeometryFilter() VTK_OVERRIDE;
 
 private:
   vtkHierarchicalDataSetGeometryFilter(const vtkHierarchicalDataSetGeometryFilter&) VTK_DELETE_FUNCTION;

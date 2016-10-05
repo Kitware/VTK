@@ -44,7 +44,7 @@ public:
   static vtkPolyDataStreamer *New();
 
   vtkTypeMacro(vtkPolyDataStreamer,vtkStreamerBase);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -70,19 +70,19 @@ public:
 
 protected:
   vtkPolyDataStreamer();
-  ~vtkPolyDataStreamer();
+  ~vtkPolyDataStreamer() VTK_OVERRIDE;
 
   // see algorithm for more info
-  virtual int FillOutputPortInformation(int port, vtkInformation* info);
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
-  virtual int ExecutePass(vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+  int ExecutePass(vtkInformationVector **inputVector,
+                  vtkInformationVector *outputVector) VTK_OVERRIDE;
 
-  virtual int PostExecute(vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+  int PostExecute(vtkInformationVector **inputVector,
+                  vtkInformationVector *outputVector) VTK_OVERRIDE;
 
   int ColorByPiece;
 private:

@@ -48,17 +48,17 @@ class VTKFILTERSSTATISTICS_EXPORT vtkComputeQuartiles : public vtkTableAlgorithm
 public:
   static vtkComputeQuartiles* New();
   vtkTypeMacro(vtkComputeQuartiles, vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkComputeQuartiles();
-  ~vtkComputeQuartiles();
+  ~vtkComputeQuartiles() VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation (int port, vtkInformation *info);
+  int FillInputPortInformation (int port, vtkInformation *info) VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *request,
-                          vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+  int RequestData(vtkInformation *request,
+                  vtkInformationVector **inputVector,
+                  vtkInformationVector *outputVector) VTK_OVERRIDE;
 
   void ComputeTable(vtkDataObject*, vtkTable*, vtkIdType);
 

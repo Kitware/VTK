@@ -40,7 +40,7 @@ class VTKFILTERSSOURCES_EXPORT vtkPlatonicSolidSource : public vtkPolyDataAlgori
 public:
   static vtkPlatonicSolidSource *New();
   vtkTypeMacro(vtkPlatonicSolidSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -72,9 +72,9 @@ public:
 
 protected:
   vtkPlatonicSolidSource();
-  ~vtkPlatonicSolidSource() {}
+  ~vtkPlatonicSolidSource() VTK_OVERRIDE {}
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   int SolidType;
   int OutputPointsPrecision;
 

@@ -64,13 +64,13 @@ public:
    */
   static vtkFlyingEdgesPlaneCutter *New();
   vtkTypeMacro(vtkFlyingEdgesPlaneCutter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
    * The modified time depends on the delegated cut plane.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -113,18 +113,18 @@ public:
 
 protected:
   vtkFlyingEdgesPlaneCutter();
-  ~vtkFlyingEdgesPlaneCutter();
+  ~vtkFlyingEdgesPlaneCutter() VTK_OVERRIDE;
 
   vtkPlane *Plane;
   int ComputeNormals;
   int InterpolateAttributes;
   int ArrayComponent;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                  vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 private:
   vtkFlyingEdgesPlaneCutter(const vtkFlyingEdgesPlaneCutter&) VTK_DELETE_FUNCTION;

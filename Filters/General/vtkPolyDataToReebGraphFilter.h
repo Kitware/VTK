@@ -37,7 +37,7 @@ class VTKFILTERSGENERAL_EXPORT vtkPolyDataToReebGraphFilter :
 public:
   static vtkPolyDataToReebGraphFilter* New();
   vtkTypeMacro(vtkPolyDataToReebGraphFilter, vtkDirectedGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -51,16 +51,16 @@ public:
 
 protected:
   vtkPolyDataToReebGraphFilter();
-  ~vtkPolyDataToReebGraphFilter();
+  ~vtkPolyDataToReebGraphFilter() VTK_OVERRIDE;
 
   int FieldId;
 
-  int FillInputPortInformation(int portNumber, vtkInformation *);
-  int FillOutputPortInformation(int, vtkInformation *);
+  int FillInputPortInformation(int portNumber, vtkInformation *) VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
 
   int RequestData(vtkInformation*,
                   vtkInformationVector**,
-                  vtkInformationVector*);
+                  vtkInformationVector*) VTK_OVERRIDE;
 
 private:
   vtkPolyDataToReebGraphFilter(const vtkPolyDataToReebGraphFilter&) VTK_DELETE_FUNCTION;

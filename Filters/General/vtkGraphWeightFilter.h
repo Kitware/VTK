@@ -40,15 +40,15 @@ class VTKFILTERSGENERAL_EXPORT vtkGraphWeightFilter : public vtkGraphAlgorithm
 {
 public:
   vtkTypeMacro(vtkGraphWeightFilter, vtkGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkGraphWeightFilter(){}
-  ~vtkGraphWeightFilter(){}
+  ~vtkGraphWeightFilter() VTK_OVERRIDE {}
 
   int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *);
+                  vtkInformationVector **,
+                  vtkInformationVector *) VTK_OVERRIDE;
 
   /**
    * Compute the weight on the 'graph' for a particular 'edge'.

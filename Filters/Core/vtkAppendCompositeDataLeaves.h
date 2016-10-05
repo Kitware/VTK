@@ -66,7 +66,7 @@ public:
   static vtkAppendCompositeDataLeaves* New();
 
   vtkTypeMacro(vtkAppendCompositeDataLeaves,vtkCompositeDataSetAlgorithm);
-  void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
   //@{
   /**
@@ -81,23 +81,23 @@ public:
 
 protected:
   vtkAppendCompositeDataLeaves();
-  ~vtkAppendCompositeDataLeaves();
+  ~vtkAppendCompositeDataLeaves() VTK_OVERRIDE;
 
   /**
    * Since vtkCompositeDataSet is an abstract class and we output the same types as the input,
    * we must override the default implementation.
    */
-  virtual int RequestDataObject( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
+  int RequestDataObject( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
 
   /**
    * Iterates over the datasets and appends corresponding notes.
    */
-  virtual int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
+  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
 
   /**
    * The input is repeatable, so we override the default implementation.
    */
-  virtual int FillInputPortInformation( int port, vtkInformation* info );
+  int FillInputPortInformation( int port, vtkInformation* info ) VTK_OVERRIDE;
 
   /**
    * When leaf nodes are unstructured grids, this uses a vtkAppendFilter to merge them.

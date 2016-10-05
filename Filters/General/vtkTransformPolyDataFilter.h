@@ -47,12 +47,12 @@ class VTKFILTERSGENERAL_EXPORT vtkTransformPolyDataFilter : public vtkPolyDataAl
 public:
   static vtkTransformPolyDataFilter *New();
   vtkTypeMacro(vtkTransformPolyDataFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Return the MTime also considering the transform.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -74,9 +74,9 @@ public:
 
 protected:
   vtkTransformPolyDataFilter();
-  ~vtkTransformPolyDataFilter();
+  ~vtkTransformPolyDataFilter() VTK_OVERRIDE;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   vtkAbstractTransform *Transform;
   int OutputPointsPrecision;

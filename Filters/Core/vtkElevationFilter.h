@@ -46,7 +46,7 @@ class VTKFILTERSCORE_EXPORT vtkElevationFilter : public vtkDataSetAlgorithm
 public:
   static vtkElevationFilter* New();
   vtkTypeMacro(vtkElevationFilter, vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -76,11 +76,11 @@ public:
 
 protected:
   vtkElevationFilter();
-  ~vtkElevationFilter();
+  ~vtkElevationFilter() VTK_OVERRIDE;
 
   int RequestData(vtkInformation*,
                   vtkInformationVector**,
-                  vtkInformationVector*);
+                  vtkInformationVector*) VTK_OVERRIDE;
 
   double LowPoint[3];
   double HighPoint[3];

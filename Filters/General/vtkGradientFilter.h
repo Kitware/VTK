@@ -43,7 +43,7 @@ class VTKFILTERSGENERAL_EXPORT vtkGradientFilter : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkGradientFilter, vtkDataSetAlgorithm);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkGradientFilter *New();
 
@@ -163,13 +163,13 @@ public:
 
 protected:
   vtkGradientFilter();
-  ~vtkGradientFilter();
+  ~vtkGradientFilter() VTK_OVERRIDE;
 
-  virtual int RequestUpdateExtent(vtkInformation *,
-                                  vtkInformationVector **,
-                                  vtkInformationVector *);
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+  int RequestUpdateExtent(vtkInformation *,
+                          vtkInformationVector **,
+                          vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                  vtkInformationVector *) VTK_OVERRIDE;
 
   /**
    * Compute the gradients for grids that are not a vtkImageData,

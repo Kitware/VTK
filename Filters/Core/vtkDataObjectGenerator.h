@@ -48,7 +48,7 @@ class VTKFILTERSCORE_EXPORT vtkDataObjectGenerator
  public:
   static vtkDataObjectGenerator *New();
   vtkTypeMacro(vtkDataObjectGenerator,vtkDataObjectAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -60,20 +60,20 @@ class VTKFILTERSCORE_EXPORT vtkDataObjectGenerator
 
 protected:
   vtkDataObjectGenerator();
-  ~vtkDataObjectGenerator();
+  ~vtkDataObjectGenerator() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *req,
+  int RequestData(vtkInformation *req,
                   vtkInformationVector **inV,
-                  vtkInformationVector *outV);
-  virtual int RequestDataObject(vtkInformation *req,
+                  vtkInformationVector *outV) VTK_OVERRIDE;
+  int RequestDataObject(vtkInformation *req,
                   vtkInformationVector **inV,
-                  vtkInformationVector *outV);
-  virtual int RequestInformation(vtkInformation *req,
+                  vtkInformationVector *outV) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *req,
                   vtkInformationVector **inV,
-                  vtkInformationVector *outV);
-  virtual int RequestUpdateExtent(vtkInformation *req,
+                  vtkInformationVector *outV) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *req,
                   vtkInformationVector **inV,
-                  vtkInformationVector *outV);
+                  vtkInformationVector *outV) VTK_OVERRIDE;
 
   //the string to parse to create a structure
   char *Program;

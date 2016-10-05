@@ -51,7 +51,7 @@ class VTKFILTERSGENERAL_EXPORT vtkImageMarchingCubes : public vtkPolyDataAlgorit
 public:
   static vtkImageMarchingCubes *New();
   vtkTypeMacro(vtkImageMarchingCubes,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -70,7 +70,7 @@ public:
   /**
    * Because we delegate to vtkContourValues & refer to vtkImplicitFunction
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -133,7 +133,7 @@ public:
 
 protected:
   vtkImageMarchingCubes();
-  ~vtkImageMarchingCubes();
+  ~vtkImageMarchingCubes() VTK_OVERRIDE;
 
   int NumberOfSlicesPerChunk;
   vtkIdType InputMemoryLimit;
@@ -146,8 +146,8 @@ protected:
   int LocatorMinX;
   int LocatorMinY;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   void March(vtkImageData *inData, int chunkMin, int chunkMax,
              int numContours, double *values);

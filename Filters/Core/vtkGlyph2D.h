@@ -37,7 +37,7 @@ class VTKFILTERSCORE_EXPORT vtkGlyph2D : public vtkGlyph3D
 {
 public:
   vtkTypeMacro(vtkGlyph2D,vtkGlyph3D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object with scaling on, scaling mode is by scalar value,
@@ -49,9 +49,9 @@ public:
 
 protected:
   vtkGlyph2D() {}
-  ~vtkGlyph2D() {}
+  ~vtkGlyph2D() VTK_OVERRIDE {}
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   vtkGlyph2D(const vtkGlyph2D&) VTK_DELETE_FUNCTION;

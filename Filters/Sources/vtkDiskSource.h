@@ -35,7 +35,7 @@ class VTKFILTERSSOURCES_EXPORT vtkDiskSource : public vtkPolyDataAlgorithm
 public:
   static vtkDiskSource *New();
   vtkTypeMacro(vtkDiskSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -81,9 +81,9 @@ public:
 
 protected:
   vtkDiskSource();
-  ~vtkDiskSource() {}
+  ~vtkDiskSource() VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   double InnerRadius;
   double OuterRadius;
   int RadialResolution;

@@ -55,7 +55,7 @@ class VTKFILTERSGENERAL_EXPORT vtkDicer : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkDicer,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -130,7 +130,7 @@ public:
 
 protected:
   vtkDicer();
-  ~vtkDicer() {}
+  ~vtkDicer() VTK_OVERRIDE {}
 
   virtual void UpdatePieceMeasures(vtkDataSet *input);
 

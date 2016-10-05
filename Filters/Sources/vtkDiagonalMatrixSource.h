@@ -39,7 +39,7 @@ class VTKFILTERSSOURCES_EXPORT vtkDiagonalMatrixSource : public vtkArrayDataAlgo
 public:
   static vtkDiagonalMatrixSource* New();
   vtkTypeMacro(vtkDiagonalMatrixSource, vtkArrayDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Determines whether the output matrix will be dense or sparse
   enum StorageType
@@ -103,12 +103,12 @@ public:
 
 protected:
   vtkDiagonalMatrixSource();
-  ~vtkDiagonalMatrixSource();
+  ~vtkDiagonalMatrixSource() VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
 private:
   vtkDiagonalMatrixSource(const vtkDiagonalMatrixSource&) VTK_DELETE_FUNCTION;

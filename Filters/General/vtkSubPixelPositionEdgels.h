@@ -48,7 +48,7 @@ class VTKFILTERSGENERAL_EXPORT vtkSubPixelPositionEdgels : public vtkPolyDataAlg
 public:
   static vtkSubPixelPositionEdgels *New();
   vtkTypeMacro(vtkSubPixelPositionEdgels,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -72,11 +72,11 @@ public:
 
 protected:
   vtkSubPixelPositionEdgels();
-  ~vtkSubPixelPositionEdgels();
+  ~vtkSubPixelPositionEdgels() VTK_OVERRIDE;
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   void Move(int xdim, int ydim, int zdim, int x, int y,
             float *img, vtkDataArray *inVecs,

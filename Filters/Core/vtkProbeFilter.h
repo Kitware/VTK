@@ -52,7 +52,7 @@ class VTKFILTERSCORE_EXPORT vtkProbeFilter : public vtkDataSetAlgorithm
 public:
   static vtkProbeFilter *New();
   vtkTypeMacro(vtkProbeFilter,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -160,7 +160,7 @@ public:
 
 protected:
   vtkProbeFilter();
-  ~vtkProbeFilter();
+  ~vtkProbeFilter() VTK_OVERRIDE;
 
   int PassCellArrays;
   int PassPointArrays;
@@ -171,12 +171,12 @@ protected:
   double Tolerance;
   bool ComputeTolerance;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **,
+    vtkInformationVector *) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *, vtkInformationVector **,
+    vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
+    vtkInformationVector *) VTK_OVERRIDE;
 
   /**
    * Call at end of RequestData() to pass attribute data respecting the

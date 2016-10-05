@@ -40,7 +40,7 @@ public:
   static vtkAppendSelection *New();
 
   vtkTypeMacro(vtkAppendSelection,vtkSelectionAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -99,12 +99,12 @@ public:
 
 protected:
   vtkAppendSelection();
-  ~vtkAppendSelection();
+  ~vtkAppendSelection() VTK_OVERRIDE;
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *,
-                          vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int, vtkInformation *);
+  int RequestData(vtkInformation *,
+                  vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
 
  private:
   // hide the superclass' AddInput() from the user and the compiler

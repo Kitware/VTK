@@ -47,7 +47,7 @@ class VTKFILTERSCORE_EXPORT vtkCompositeDataProbeFilter : public vtkProbeFilter
 public:
   static vtkCompositeDataProbeFilter* New();
   vtkTypeMacro(vtkCompositeDataProbeFilter, vtkProbeFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -69,13 +69,13 @@ public:
 
 protected:
   vtkCompositeDataProbeFilter();
-  ~vtkCompositeDataProbeFilter();
+  ~vtkCompositeDataProbeFilter() VTK_OVERRIDE;
 
   /**
    * Change input information to accept composite datasets as the input which
    * is probed into.
    */
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   /**
    * Builds the field list using the composite dataset source.
@@ -85,18 +85,18 @@ protected:
   /**
    * Initializes output and various arrays which keep track for probing status.
    */
-  virtual void InitializeForProbing(vtkDataSet *input, vtkDataSet *output);
+  void InitializeForProbing(vtkDataSet *input, vtkDataSet *output) VTK_OVERRIDE;
 
   /**
    * Handle composite input.
    */
-  virtual int RequestData(vtkInformation *,
-    vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *,
+    vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   /**
    * Create a default executive.
    */
-  virtual vtkExecutive* CreateDefaultExecutive();
+  vtkExecutive* CreateDefaultExecutive() VTK_OVERRIDE;
 
   bool PassPartialArrays;
 private:

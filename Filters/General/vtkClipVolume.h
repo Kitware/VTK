@@ -84,7 +84,7 @@ class VTKFILTERSGENERAL_EXPORT vtkClipVolume : public vtkUnstructuredGridAlgorit
 {
 public:
   vtkTypeMacro(vtkClipVolume,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct with user-specified implicit function; InsideOut turned off;
@@ -192,16 +192,16 @@ public:
   /**
    * Return the mtime also considering the locator and clip function.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkClipVolume(vtkImplicitFunction *cf=NULL);
-  ~vtkClipVolume();
+  ~vtkClipVolume() VTK_OVERRIDE;
 
   void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   void ClipTets(double value, vtkTetra *clipTetra, vtkDataArray *clipScalars,
                 vtkDataArray *cellScalars, vtkIdList *tetraIds,

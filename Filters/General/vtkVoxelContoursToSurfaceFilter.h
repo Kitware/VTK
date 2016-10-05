@@ -51,7 +51,7 @@ class VTKFILTERSGENERAL_EXPORT vtkVoxelContoursToSurfaceFilter : public vtkPolyD
 public:
   static vtkVoxelContoursToSurfaceFilter *New();
   vtkTypeMacro(vtkVoxelContoursToSurfaceFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -69,9 +69,9 @@ public:
 
 protected:
   vtkVoxelContoursToSurfaceFilter();
-  ~vtkVoxelContoursToSurfaceFilter();
+  ~vtkVoxelContoursToSurfaceFilter() VTK_OVERRIDE;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   int     MemoryLimitInBytes;
 

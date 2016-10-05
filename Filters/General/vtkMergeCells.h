@@ -59,7 +59,7 @@ class VTKFILTERSGENERAL_EXPORT vtkMergeCells : public vtkObject
 {
 public:
   vtkTypeMacro(vtkMergeCells, vtkObject);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkMergeCells *New();
 
@@ -157,7 +157,7 @@ public:
 protected:
 
   vtkMergeCells();
-  ~vtkMergeCells();
+  ~vtkMergeCells() VTK_OVERRIDE;
 
 private:
 

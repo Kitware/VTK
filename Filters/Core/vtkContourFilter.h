@@ -64,7 +64,7 @@ class VTKFILTERSCORE_EXPORT vtkContourFilter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkContourFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object with initial range (0,1) and single contour value
@@ -89,7 +89,7 @@ public:
   /**
    * Modified GetMTime Because we delegate to vtkContourValues
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -197,17 +197,17 @@ public:
 
 protected:
   vtkContourFilter();
-  ~vtkContourFilter();
+  ~vtkContourFilter() VTK_OVERRIDE;
 
   void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
-  virtual int RequestUpdateExtent(vtkInformation*,
-                                  vtkInformationVector**,
-                                  vtkInformationVector*);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation* request,
+                  vtkInformationVector** inputVector,
+                  vtkInformationVector* outputVector) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation*,
+                          vtkInformationVector**,
+                          vtkInformationVector*) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   vtkContourValues *ContourValues;
   int ComputeNormals;

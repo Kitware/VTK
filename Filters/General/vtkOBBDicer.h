@@ -43,7 +43,7 @@ class VTKFILTERSGENERAL_EXPORT vtkOBBDicer : public vtkDicer
 {
 public:
   vtkTypeMacro(vtkOBBDicer,vtkDicer);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Instantiate an object.
@@ -52,10 +52,10 @@ public:
 
 protected:
   vtkOBBDicer() {}
-  ~vtkOBBDicer() {}
+  ~vtkOBBDicer() VTK_OVERRIDE {}
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   //implementation ivars and methods
   void BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr, vtkDataSet *input);

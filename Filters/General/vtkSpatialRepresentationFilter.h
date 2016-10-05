@@ -59,7 +59,7 @@ class VTKFILTERSGENERAL_EXPORT vtkSpatialRepresentationFilter : public vtkMultiB
 public:
   static vtkSpatialRepresentationFilter *New();
   vtkTypeMacro(vtkSpatialRepresentationFilter,vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -98,11 +98,11 @@ public:
 
 protected:
   vtkSpatialRepresentationFilter();
-  ~vtkSpatialRepresentationFilter();
+  ~vtkSpatialRepresentationFilter() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation*,
-                          vtkInformationVector**,
-                          vtkInformationVector*);
+  int RequestData(vtkInformation*,
+                  vtkInformationVector**,
+                  vtkInformationVector*) VTK_OVERRIDE;
 
   int MaximumLevel;
   bool GenerateLeaves;
@@ -110,7 +110,7 @@ protected:
   vtkLocator *SpatialRepresentation;
 
   void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
-  virtual int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 private:
   vtkSpatialRepresentationFilter(const vtkSpatialRepresentationFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSpatialRepresentationFilter&) VTK_DELETE_FUNCTION;

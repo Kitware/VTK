@@ -68,7 +68,7 @@ class VTKFILTERSGENERAL_EXPORT vtkPassArrays : public vtkDataObjectAlgorithm
 public:
   static vtkPassArrays* New();
   vtkTypeMacro(vtkPassArrays,vtkDataObjectAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Adds an array to pass through.
@@ -136,31 +136,31 @@ public:
   /**
    * This is required to capture REQUEST_DATA_OBJECT requests.
    */
-  virtual int ProcessRequest(vtkInformation* request,
-                             vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector);
+  int ProcessRequest(vtkInformation* request,
+                     vtkInformationVector** inputVector,
+                     vtkInformationVector* outputVector) VTK_OVERRIDE;
 
 protected:
   vtkPassArrays();
-  ~vtkPassArrays();
+  ~vtkPassArrays() VTK_OVERRIDE;
 
   /**
    * Override to limit types of supported input types to non-composite
    * datasets
    */
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   /**
    * Creates the same output type as the input type.
    */
-  virtual int RequestDataObject(vtkInformation* request,
-                                vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector);
+  int RequestDataObject(vtkInformation* request,
+                        vtkInformationVector** inputVector,
+                        vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
   bool RemoveArrays;
   bool UseFieldTypes;

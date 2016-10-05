@@ -85,11 +85,11 @@ struct ArrayPair : public BaseArrayPair
     BaseArrayPair(num,numComp,outArray), Input(in), Output(out), NullValue(null)
   {
   }
-  virtual ~ArrayPair()  //calm down some finicky compilers
+  ~ArrayPair() VTK_OVERRIDE  //calm down some finicky compilers
   {
   }
 
-  virtual void Copy(vtkIdType inId, vtkIdType outId)
+  void Copy(vtkIdType inId, vtkIdType outId) VTK_OVERRIDE
   {
     for (int j=0; j < this->NumComp; ++j)
     {
@@ -97,8 +97,8 @@ struct ArrayPair : public BaseArrayPair
     }
   }
 
-  virtual void Interpolate(int numWeights, const vtkIdType *ids,
-                           const double *weights, vtkIdType outId)
+  void Interpolate(int numWeights, const vtkIdType *ids,
+                           const double *weights, vtkIdType outId) VTK_OVERRIDE
   {
     for (int j=0; j < this->NumComp; ++j)
     {
@@ -111,7 +111,7 @@ struct ArrayPair : public BaseArrayPair
     }
   }
 
-  virtual void InterpolateEdge(vtkIdType v0, vtkIdType v1, double t, vtkIdType outId)
+  void InterpolateEdge(vtkIdType v0, vtkIdType v1, double t, vtkIdType outId) VTK_OVERRIDE
   {
     double v;
     vtkIdType numComp=this->NumComp;
@@ -123,7 +123,7 @@ struct ArrayPair : public BaseArrayPair
     }
   }
 
-  virtual void AssignNullValue(vtkIdType outId)
+  void AssignNullValue(vtkIdType outId) VTK_OVERRIDE
   {
     for (int j=0; j < this->NumComp; ++j)
     {
@@ -131,7 +131,7 @@ struct ArrayPair : public BaseArrayPair
     }
   }
 
-  virtual void Realloc(vtkIdType sze)
+  void Realloc(vtkIdType sze) VTK_OVERRIDE
   {
       this->OutputArray->WriteVoidPointer(0,sze*this->NumComp);
       this->Output = static_cast<T*>(this->OutputArray->GetVoidPointer(0));
@@ -152,11 +152,11 @@ struct RealArrayPair : public BaseArrayPair
     BaseArrayPair(num,numComp,outArray), Input(in), Output(out), NullValue(null)
   {
   }
-  virtual ~RealArrayPair()  //calm down some finicky compilers
+  ~RealArrayPair() VTK_OVERRIDE  //calm down some finicky compilers
   {
   }
 
-  virtual void Copy(vtkIdType inId, vtkIdType outId)
+  void Copy(vtkIdType inId, vtkIdType outId) VTK_OVERRIDE
   {
     for (int j=0; j < this->NumComp; ++j)
     {
@@ -164,8 +164,8 @@ struct RealArrayPair : public BaseArrayPair
     }
   }
 
-  virtual void Interpolate(int numWeights, const vtkIdType *ids,
-                           const double *weights, vtkIdType outId)
+  void Interpolate(int numWeights, const vtkIdType *ids,
+                           const double *weights, vtkIdType outId) VTK_OVERRIDE
   {
     for (int j=0; j < this->NumComp; ++j)
     {
@@ -178,7 +178,7 @@ struct RealArrayPair : public BaseArrayPair
     }
   }
 
-  virtual void InterpolateEdge(vtkIdType v0, vtkIdType v1, double t, vtkIdType outId)
+  void InterpolateEdge(vtkIdType v0, vtkIdType v1, double t, vtkIdType outId) VTK_OVERRIDE
   {
     double v;
     vtkIdType numComp=this->NumComp;
@@ -190,7 +190,7 @@ struct RealArrayPair : public BaseArrayPair
     }
   }
 
-  virtual void AssignNullValue(vtkIdType outId)
+  void AssignNullValue(vtkIdType outId) VTK_OVERRIDE
   {
     for (int j=0; j < this->NumComp; ++j)
     {
@@ -198,7 +198,7 @@ struct RealArrayPair : public BaseArrayPair
     }
   }
 
-  virtual void Realloc(vtkIdType sze)
+  void Realloc(vtkIdType sze) VTK_OVERRIDE
   {
       this->OutputArray->WriteVoidPointer(0,sze*this->NumComp);
       this->Output = static_cast<TOutput*>(this->OutputArray->GetVoidPointer(0));

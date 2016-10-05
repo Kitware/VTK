@@ -52,7 +52,7 @@ class VTKFILTERSGENERAL_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocato
     class vtkCellTreeNode;
 
     vtkTypeMacro(vtkCellTreeLocator,vtkAbstractCellLocator);
-    void PrintSelf(ostream& os, vtkIndent indent);
+    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
     /**
      * Constructor sets the maximum number of cells in a leaf to 8
@@ -64,24 +64,24 @@ class VTKFILTERSGENERAL_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocato
       * Test a point to find if it is inside a cell. Returns the cellId if inside
       * or -1 if not.
       */
-    virtual vtkIdType FindCell(double pos[3], double vtkNotUsed, vtkGenericCell *cell,  double pcoords[3],
-                                       double* weights );
+    vtkIdType FindCell(double pos[3], double vtkNotUsed, vtkGenericCell *cell,  double pcoords[3],
+                       double* weights ) VTK_OVERRIDE;
 
     /**
      * Return intersection point (if any) AND the cell which was intersected by
      * the finite line. The cell is returned as a cell id and as a generic cell.
      */
-    virtual int IntersectWithLine(double a0[3], double a1[3], double tol,
-                                      double& t, double x[3], double pcoords[3],
-                                      int &subId, vtkIdType &cellId,
-                                      vtkGenericCell *cell);
+    int IntersectWithLine(double a0[3], double a1[3], double tol,
+                          double& t, double x[3], double pcoords[3],
+                          int &subId, vtkIdType &cellId,
+                          vtkGenericCell *cell) VTK_OVERRIDE;
 
     /**
      * Return a list of unique cell ids inside of a given bounding box. The
      * user must provide the vtkIdList to populate. This method returns data
      * only after the locator has been built.
      */
-    virtual void FindCellsWithinBounds(double *bbox, vtkIdList *cells);
+    void FindCellsWithinBounds(double *bbox, vtkIdList *cells) VTK_OVERRIDE;
 
     /*
       if the borland compiler is ever removed, we can use these declarations
@@ -94,9 +94,9 @@ class VTKFILTERSGENERAL_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocato
     /**
      * reimplemented from vtkAbstractCellLocator to support bad compilers
      */
-    virtual int IntersectWithLine(
+    int IntersectWithLine(
       double p1[3], double p2[3], double tol, double& t, double x[3],
-      double pcoords[3], int &subId)
+      double pcoords[3], int &subId) VTK_OVERRIDE
     {
       return this->Superclass::IntersectWithLine(p1, p2, tol, t, x, pcoords, subId);
     }
@@ -107,16 +107,16 @@ class VTKFILTERSGENERAL_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocato
      * This function is a modification from the vtkModifiedBSPTree class using the
      * data structures in the paper to find intersections.
      */
-    virtual int IntersectWithLine(
+    int IntersectWithLine(
       double p1[3], double p2[3], double tol, double &t, double x[3],
-      double pcoords[3], int &subId, vtkIdType &cellId);
+      double pcoords[3], int &subId, vtkIdType &cellId) VTK_OVERRIDE;
 
     /**
      * reimplemented from vtkAbstractCellLocator to support bad compilers
      */
-    virtual int IntersectWithLine(
+    int IntersectWithLine(
       const double p1[3], const double p2[3],
-      vtkPoints *points, vtkIdList *cellIds)
+      vtkPoints *points, vtkIdList *cellIds) VTK_OVERRIDE
     {
       return this->Superclass::IntersectWithLine(p1, p2, points, cellIds);
     }
@@ -124,19 +124,19 @@ class VTKFILTERSGENERAL_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocato
     /**
      * reimplemented from vtkAbstractCellLocator to support bad compilers
      */
-    virtual vtkIdType FindCell(double x[3])
+    vtkIdType FindCell(double x[3]) VTK_OVERRIDE
     { return this->Superclass::FindCell(x); }
 
     //@{
     /**
      * Satisfy vtkLocator abstract interface.
      */
-    virtual void FreeSearchStructure();
-    virtual void GenerateRepresentation(int level, vtkPolyData *pd);
+    void FreeSearchStructure() VTK_OVERRIDE;
+    void GenerateRepresentation(int level, vtkPolyData *pd) VTK_OVERRIDE;
     virtual void BuildLocatorInternal();
     virtual void BuildLocatorIfNeeded();
     virtual void ForceBuildLocator();
-    virtual void BuildLocator();
+    void BuildLocator() VTK_OVERRIDE;
     //@}
 
     //@{
@@ -201,7 +201,7 @@ class VTKFILTERSGENERAL_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocato
 
 protected:
      vtkCellTreeLocator();
-    ~vtkCellTreeLocator();
+    ~vtkCellTreeLocator() VTK_OVERRIDE;
 
    // Test ray against node BBox : clip t values to extremes
   bool RayMinMaxT(const double origin[3],

@@ -68,7 +68,7 @@ class VTKFILTERSCORE_EXPORT vtkPolyDataConnectivityFilter : public vtkPolyDataAl
 {
 public:
   vtkTypeMacro(vtkPolyDataConnectivityFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -223,10 +223,10 @@ public:
 
 protected:
   vtkPolyDataConnectivityFilter();
-  ~vtkPolyDataConnectivityFilter();
+  ~vtkPolyDataConnectivityFilter() VTK_OVERRIDE;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   int ColorRegions; //boolean turns on/off scalar gen for separate regions
   int ExtractionMode; //how to extract regions

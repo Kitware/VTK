@@ -51,7 +51,7 @@ class VTKFILTERSGEOMETRY_EXPORT vtkDataSetSurfaceFilter : public vtkPolyDataAlgo
 public:
   static vtkDataSetSurfaceFilter *New();
   vtkTypeMacro(vtkDataSetSurfaceFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -171,14 +171,14 @@ public:
 
 protected:
   vtkDataSetSurfaceFilter();
-  ~vtkDataSetSurfaceFilter();
+  ~vtkDataSetSurfaceFilter() VTK_OVERRIDE;
 
   int UseStrips;
 
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 
   // Helper methods.

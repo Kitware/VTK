@@ -83,7 +83,7 @@ class VTKFILTERSCORE_EXPORT vtkDataObjectToDataSetFilter : public vtkDataSetAlgo
 public:
   static vtkDataObjectToDataSetFilter *New();
   vtkTypeMacro(vtkDataObjectToDataSetFilter,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Get the input to the filter.
@@ -275,14 +275,14 @@ public:
 
 protected:
   vtkDataObjectToDataSetFilter();
-  ~vtkDataObjectToDataSetFilter();
+  ~vtkDataObjectToDataSetFilter() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *); //generate output data
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
-  virtual int RequestDataObject(vtkInformation *, vtkInformationVector **,
-                                vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE; //generate output data
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestDataObject(vtkInformation *, vtkInformationVector **,
+                                vtkInformationVector *) VTK_OVERRIDE;
 
   char Updating;
 

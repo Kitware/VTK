@@ -32,7 +32,7 @@ class VTKFILTERSGENERAL_EXPORT vtkTableToPolyData : public vtkPolyDataAlgorithm
 public:
   static vtkTableToPolyData* New();
   vtkTypeMacro(vtkTableToPolyData, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -135,18 +135,18 @@ public:
 
 protected:
   vtkTableToPolyData();
-  ~vtkTableToPolyData();
+  ~vtkTableToPolyData() VTK_OVERRIDE;
 
   /**
    * Overridden to specify that input must be a vtkTable.
    */
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   /**
    * Convert input vtkTable to vtkPolyData.
    */
-  virtual int RequestData(vtkInformation* request,
-    vtkInformationVector** inputVector, vtkInformationVector* outputVector);
+  int RequestData(vtkInformation* request,
+    vtkInformationVector** inputVector, vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   char* XColumn;
   char* YColumn;

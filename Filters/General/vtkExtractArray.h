@@ -40,7 +40,7 @@ class VTKFILTERSGENERAL_EXPORT vtkExtractArray : public vtkArrayDataAlgorithm
 public:
   static vtkExtractArray* New();
   vtkTypeMacro(vtkExtractArray, vtkArrayDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -52,14 +52,14 @@ public:
 
 protected:
   vtkExtractArray();
-  ~vtkExtractArray();
+  ~vtkExtractArray() VTK_OVERRIDE;
 
-  int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
 private:
   vtkExtractArray(const vtkExtractArray&) VTK_DELETE_FUNCTION;

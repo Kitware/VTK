@@ -110,11 +110,11 @@ public:
 
 protected:
   vtkProgrammableSource();
-  ~vtkProgrammableSource();
+  ~vtkProgrammableSource() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestDataObject(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestDataObject(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   ProgrammableMethodCallbackType ExecuteMethod; //function to invoke
   ProgrammableMethodCallbackType ExecuteMethodArgDelete;

@@ -39,7 +39,7 @@ public:
   static vtkSynchronizedTemplatesCutter3D *New();
 
   vtkTypeMacro(vtkSynchronizedTemplatesCutter3D,vtkSynchronizedTemplates3D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Needed by templated functions.
@@ -66,14 +66,14 @@ public:
 
 protected:
   vtkSynchronizedTemplatesCutter3D();
-  ~vtkSynchronizedTemplatesCutter3D();
+  ~vtkSynchronizedTemplatesCutter3D() VTK_OVERRIDE;
 
   vtkImplicitFunction *CutFunction;
   int OutputPointsPrecision;
 
-  virtual int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *);
+  int RequestData(vtkInformation *,
+                  vtkInformationVector **,
+                  vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   vtkSynchronizedTemplatesCutter3D(const vtkSynchronizedTemplatesCutter3D&) VTK_DELETE_FUNCTION;

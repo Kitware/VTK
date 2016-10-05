@@ -52,7 +52,7 @@ class VTKFILTERSCORE_EXPORT vtkMarchingSquares : public vtkPolyDataAlgorithm
 public:
   static vtkMarchingSquares *New();
   vtkTypeMacro(vtkMarchingSquares,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -84,7 +84,7 @@ public:
   /**
    * Because we delegate to vtkContourValues
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   void SetLocator(vtkIncrementalPointLocator *locator);
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
@@ -97,10 +97,10 @@ public:
 
 protected:
   vtkMarchingSquares();
-  ~vtkMarchingSquares();
+  ~vtkMarchingSquares() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   vtkContourValues *ContourValues;
   int ImageRange[6];

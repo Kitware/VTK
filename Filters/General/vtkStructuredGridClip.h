@@ -39,7 +39,7 @@ class VTKFILTERSGENERAL_EXPORT vtkStructuredGridClip : public vtkStructuredGridA
 public:
   static vtkStructuredGridClip *New();
   vtkTypeMacro(vtkStructuredGridClip,vtkStructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -67,7 +67,7 @@ public:
 
 protected:
   vtkStructuredGridClip();
-  ~vtkStructuredGridClip() {}
+  ~vtkStructuredGridClip() VTK_OVERRIDE {}
 
   // Time when OutputImageExtent was computed.
   vtkTimeStamp CTime;
@@ -76,15 +76,15 @@ protected:
 
   int ClipData;
 
-  virtual int RequestInformation (vtkInformation *,
-                                  vtkInformationVector **,
-                                  vtkInformationVector *);
+  int RequestInformation (vtkInformation *,
+                          vtkInformationVector **,
+                          vtkInformationVector *) VTK_OVERRIDE;
 
   void CopyData(vtkStructuredGrid *inData, vtkStructuredGrid *outData, int *ext);
 
-  virtual int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *);
+  int RequestData(vtkInformation *,
+                  vtkInformationVector **,
+                  vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   vtkStructuredGridClip(const vtkStructuredGridClip&) VTK_DELETE_FUNCTION;

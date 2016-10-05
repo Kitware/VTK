@@ -35,7 +35,7 @@ class VTKFILTERSGENERAL_EXPORT vtkMultiBlockMergeFilter
 {
 public:
   vtkTypeMacro(vtkMultiBlockMergeFilter,vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object with PointIds and CellIds on; and ids being generated
@@ -55,13 +55,13 @@ public:
 
 protected:
   vtkMultiBlockMergeFilter();
-  ~vtkMultiBlockMergeFilter();
+  ~vtkMultiBlockMergeFilter() VTK_OVERRIDE;
 
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   int IsMultiPiece(vtkMultiBlockDataSet*);
 

@@ -45,12 +45,12 @@ class VTKFILTERSGENERAL_EXPORT vtkTransformFilter : public vtkPointSetAlgorithm
 public:
   static vtkTransformFilter *New();
   vtkTypeMacro(vtkTransformFilter,vtkPointSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Return the MTime also considering the transform.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -60,7 +60,7 @@ public:
   vtkGetObjectMacro(Transform,vtkAbstractTransform);
   //@}
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   //@{
   /**
@@ -74,14 +74,14 @@ public:
 
 protected:
   vtkTransformFilter();
-  ~vtkTransformFilter();
+  ~vtkTransformFilter() VTK_OVERRIDE;
 
   int RequestDataObject(vtkInformation *request,
                         vtkInformationVector **inputVector,
-                        vtkInformationVector *outputVector);
+                        vtkInformationVector *outputVector) VTK_OVERRIDE;
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) VTK_OVERRIDE;
 
   vtkAbstractTransform *Transform;
   int OutputPointsPrecision;

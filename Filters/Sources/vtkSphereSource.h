@@ -41,7 +41,7 @@ class VTKFILTERSSOURCES_EXPORT vtkSphereSource : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkSphereSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct sphere with radius=0.5 and default resolution 8 in both Phi
@@ -142,10 +142,10 @@ public:
 
 protected:
   vtkSphereSource(int res=8);
-  ~vtkSphereSource() {}
+  ~vtkSphereSource() VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   double Radius;
   double Center[3];
