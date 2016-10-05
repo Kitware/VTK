@@ -39,6 +39,14 @@ public:
   vtkSetStringMacro(ScaleArray);
   //@}
 
+  //@{
+  /**
+   * This value will be used for the radius is the scale
+   * array is not provided.
+   */
+   vtkSetMacro(Radius, float);
+   vtkGetMacro(Radius, float);
+
   /**
    * This calls RenderPiece (twice when transparent)
    */
@@ -88,6 +96,7 @@ protected:
 
   // used for transparency
   bool Invert;
+  float Radius;
 
 private:
   vtkOpenGLSphereMapper(const vtkOpenGLSphereMapper&) VTK_DELETE_FUNCTION;
