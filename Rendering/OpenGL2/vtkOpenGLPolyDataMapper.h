@@ -488,6 +488,10 @@ protected:
   unsigned int TimerQuery;
   vtkSmartPointer<vtkValuePassHelper> ValuePassHelper;
 
+  // are we currently drawing spheres/tubes
+  bool DrawingSpheres(vtkOpenGLHelper &cellBO, vtkActor *actor);
+  bool DrawingTubes(vtkOpenGLHelper &cellBO, vtkActor *actor);
+
 private:
   vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLPolyDataMapper&) VTK_DELETE_FUNCTION;

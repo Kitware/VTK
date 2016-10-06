@@ -111,11 +111,25 @@ public:
   /**
    * Set/Get rendering of points as spheres. The size of the
    * sphere in pixels is controlled by the PointSize
-   * attribute.
+   * attribute. Note that half spheres may be rendered
+   * instead of spheres.
    */
   vtkGetMacro(RenderPointsAsSpheres, bool);
   vtkSetMacro(RenderPointsAsSpheres, bool);
   vtkBooleanMacro(RenderPointsAsSpheres, bool);
+  //@}
+
+  //@{
+  /**
+   * Set/Get rendering of lines as tubes. The width of the
+   * line in pixels is controlled by the LineWidth
+   * attribute. May not be supported on every platform
+   * and the implementation may be half tubes, or something
+   * only tube like in appearance.
+   */
+  vtkGetMacro(RenderLinesAsTubes, bool);
+  vtkSetMacro(RenderLinesAsTubes, bool);
+  vtkBooleanMacro(RenderLinesAsTubes, bool);
   //@}
 
   //@{
@@ -482,6 +496,7 @@ protected:
   int FrontfaceCulling;
   bool Lighting;
   bool RenderPointsAsSpheres;
+  bool RenderLinesAsTubes;
 
   int Shading;
 

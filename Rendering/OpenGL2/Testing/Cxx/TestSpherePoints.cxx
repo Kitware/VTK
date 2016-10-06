@@ -22,6 +22,7 @@
 #include "vtkSphereSource.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
+#include "vtkLight.h"
 
 #include "vtkRenderWindowInteractor.h"
 
@@ -38,6 +39,11 @@ int TestSpherePoints(int argc, char *argv[])
   vtkNew<vtkRenderWindowInteractor>  iren;
   iren->SetRenderWindow(renderWindow.Get());
 
+  vtkNew<vtkLight>light;
+  light->SetPosition(0,1,0);
+  light->SetLightTypeToSceneLight();
+//  renderer->AddLight(light.Get());
+
   vtkNew<vtkSphereSource> sphere;
   sphere->SetThetaResolution(16);
   sphere->SetPhiResolution(16);
@@ -53,6 +59,10 @@ int TestSpherePoints(int argc, char *argv[])
   vtkNew<vtkProperty> backProp;
   backProp->SetDiffuseColor(0.4, 0.65, 0.8);
   actor->SetBackfaceProperty(backProp.Get());
+  actor->GetProperty()->EdgeVisibilityOn();
+  actor->GetProperty()->SetLineWidth(7.0);
+  actor->GetProperty()->RenderLinesAsTubesOn();
+  actor->GetProperty()->SetEdgeColor(1.0,1.0,1.0);
 //  actor->GetProperty()->SetRepresentationToWireframe();
   }
 
@@ -67,7 +77,7 @@ int TestSpherePoints(int argc, char *argv[])
   actor->GetProperty()->SetDiffuse(0.7);
   actor->GetProperty()->SetSpecularPower(20.0);
   actor->GetProperty()->RenderPointsAsSpheresOn();
-  actor->GetProperty()->SetPointSize(12.0);
+  actor->GetProperty()->SetPointSize(14.0);
   actor->GetProperty()->SetRepresentationToPoints();
   }
 

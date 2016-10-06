@@ -132,6 +132,10 @@ int TestCompositePolyDataMapper2Spheres(int argc, char* argv[])
     vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
   actor->GetProperty()->SetEdgeColor(1,0,0);
+  actor->GetProperty()->RenderLinesAsTubesOn();
+  actor->GetProperty()->EdgeVisibilityOn();
+  actor->GetProperty()->SetLineWidth(7.0);
+//  actor->GetProperty()->SetRepresentationToWireframe();
   ren->AddActor(actor);
 
   mapper2->SetInputData((vtkPolyData *)(data.GetPointer()));
@@ -141,7 +145,7 @@ int TestCompositePolyDataMapper2Spheres(int argc, char* argv[])
   actor2->GetProperty()->SetEdgeColor(1,1,0.3);
   actor2->GetProperty()->RenderPointsAsSpheresOn();
   actor2->GetProperty()->SetRepresentationToPoints();
-  actor2->GetProperty()->SetPointSize(12.0);
+  actor2->GetProperty()->SetPointSize(14.0);
   ren->AddActor(actor2);
 
 

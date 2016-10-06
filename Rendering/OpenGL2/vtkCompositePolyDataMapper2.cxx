@@ -402,7 +402,7 @@ void vtkCompositeMapperHelper2::DrawIBO(
       glLineWidth(actor->GetProperty()->GetLineWidth());
     }
 
-    if (this->DrawingEdges)
+    if (this->DrawingEdges && !this->DrawingTubes(CellBO, actor))
     {
       vtkProperty *ppty = actor->GetProperty();
       float diffuseColor[3] = {0.0, 0.0, 0.0};
@@ -411,7 +411,6 @@ void vtkCompositeMapperHelper2::DrawIBO(
       ambientColor[0] = acol[0];
       ambientColor[1] = acol[1];
       ambientColor[2] = acol[2];
-
       prog->SetUniform3f("diffuseColorUniform", diffuseColor);
       prog->SetUniform3f("ambientColorUniform", ambientColor);
     }
