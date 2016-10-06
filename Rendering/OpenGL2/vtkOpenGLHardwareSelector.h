@@ -63,7 +63,7 @@ public:
   virtual void RenderProcessId(unsigned int processid);
 
   // we need to initialze the depth buffer
-  virtual bool CaptureBuffers();
+  virtual void BeginSelection();
 
 protected:
   vtkOpenGLHardwareSelector();
