@@ -217,6 +217,11 @@ void vtkPNGReader::ExecuteInformation()
   this->DataExtent[2] = 0;
   this->DataExtent[3] = height - 1;
 
+  png_uint_32 x_pixels_per_meter, y_pixels_per_meter;
+  x_pixels_per_meter = png_get_x_pixels_per_meter(png_ptr, info_ptr);
+  y_pixels_per_meter = png_get_y_pixels_per_meter(png_ptr, info_ptr);
+  this->SetDataSpacing(1000.0/x_pixels_per_meter, 1000.0/y_pixels_per_meter, 1);
+
   if (bit_depth <= 8)
   {
     this->SetDataScalarTypeToUnsignedChar();
