@@ -84,6 +84,7 @@
 
 class vtkActor;
 class vtkActor2D;
+class vtkBillboardTextActor3D;
 class vtkCollection;
 class vtkCoordinate;
 class vtkImageData;
@@ -135,6 +136,8 @@ protected:
    * at the end of the override for default handling.
    */
   virtual void HandleSpecialProp(vtkProp *prop, vtkRenderer *ren);
+  void DrawBillboardTextActor3D(vtkBillboardTextActor3D *textAct,
+                                vtkRenderer *ren);
   void DrawTextActor(vtkTextActor *textAct, vtkRenderer *ren);
   void DrawTextActor3D(vtkTextActor3D *textAct, vtkRenderer *ren);
   void DrawTextMapper(vtkTextMapper *textMap, vtkActor2D *textAct,

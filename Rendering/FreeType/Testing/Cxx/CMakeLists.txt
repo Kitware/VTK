@@ -4,6 +4,7 @@ set(TestMathTextFreeTypeTextRendererNoMath_ARGS
   DATA{../Data/Fonts/DejaVuSans.ttf}
 )
 vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestBillboardTextActor3D.cxx
   TestFTStringToPath.cxx
   TestFreeTypeTextMapperNoMath.cxx
   TestFreeTypeTools.cxx,NO_VALID

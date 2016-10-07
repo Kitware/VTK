@@ -43,7 +43,7 @@ float vtkGL2PSUtilities::LineWidthFactor = 5.f / 7.f;
 
 void vtkGL2PSUtilities::DrawString(const char *str,
                                    vtkTextProperty *tprop, double pos[3],
-                                   double backgroundDepth)
+                                   double)
 {
   if (!str)
   {
@@ -67,22 +67,27 @@ void vtkGL2PSUtilities::DrawString(const char *str,
     vtkTextRenderer::Metrics metrics;
     if (tren->GetMetrics(tprop, str, metrics, dpi))
     {
-      double bgPos[3] = { pos[0], pos[1], backgroundDepth };
+      double bgPos[4] = { pos[0], pos[1], pos[2], 1. };
       vtkGL2PSUtilities::ProjectPoint(bgPos);
+      bgPos[2] += 1e-6;
 
-      double bgVerts[12];
-      bgVerts[0] = bgPos[0] + static_cast<double>(metrics.TopLeft[0]);
-      bgVerts[1] = bgPos[1] + static_cast<double>(metrics.TopLeft[1]);
-      bgVerts[2] = bgPos[2];
-      bgVerts[3] = bgPos[0] + static_cast<double>(metrics.BottomLeft[0]);
-      bgVerts[4] = bgPos[1] + static_cast<double>(metrics.BottomLeft[1]);
-      bgVerts[5] = bgPos[2];
-      bgVerts[6] = bgPos[0] + static_cast<double>(metrics.BottomRight[0]);
-      bgVerts[7] = bgPos[1] + static_cast<double>(metrics.BottomRight[1]);
-      bgVerts[8] = bgPos[2];
-      bgVerts[9]  = bgPos[0] + static_cast<double>(metrics.TopRight[0]);
-      bgVerts[10] = bgPos[1] + static_cast<double>(metrics.TopRight[1]);
-      bgVerts[11] = bgPos[2];
+      double bgVerts[16];
+      bgVerts[0]  = bgPos[0] + static_cast<double>(metrics.TopLeft[0]);
+      bgVerts[1]  = bgPos[1] + static_cast<double>(metrics.TopLeft[1]);
+      bgVerts[2]  = bgPos[2];
+      bgVerts[3]  = bgPos[3];
+      bgVerts[4]  = bgPos[0] + static_cast<double>(metrics.BottomLeft[0]);
+      bgVerts[5]  = bgPos[1] + static_cast<double>(metrics.BottomLeft[1]);
+      bgVerts[6]  = bgPos[2];
+      bgVerts[7]  = bgPos[3];
+      bgVerts[8]  = bgPos[0] + static_cast<double>(metrics.BottomRight[0]);
+      bgVerts[9]  = bgPos[1] + static_cast<double>(metrics.BottomRight[1]);
+      bgVerts[10] = bgPos[2];
+      bgVerts[11] = bgPos[3];
+      bgVerts[12] = bgPos[0] + static_cast<double>(metrics.TopRight[0]);
+      bgVerts[13] = bgPos[1] + static_cast<double>(metrics.TopRight[1]);
+      bgVerts[14] = bgPos[2];
+      bgVerts[15] = bgPos[3];
 
       vtkGL2PSUtilities::UnprojectPoints(bgVerts, 4);
 
@@ -93,7 +98,7 @@ void vtkGL2PSUtilities::DrawString(const char *str,
                 tprop->GetBackgroundColor()[1],
                 tprop->GetBackgroundColor()[2],
                 tprop->GetBackgroundOpacity());
-      glVertexPointer(3, GL_DOUBLE, 0, bgVerts);
+      glVertexPointer(3, GL_DOUBLE, 4 * sizeof(double), bgVerts);
       glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     }
   }
@@ -136,7 +141,7 @@ void vtkGL2PSUtilities::DrawString(const char *str,
       static_cast<unsigned char>(rgbd[2]*255),
       static_cast<unsigned char>(tprop->GetOpacity()*255)};
 
-    double devicePos[3] = {pos[0], pos[1], pos[2]};
+    double devicePos[4] = { pos[0], pos[1], pos[2], 1. };
     vtkGL2PSUtilities::ProjectPoint(devicePos);
 
     vtkGL2PSUtilities::DrawPath(path.GetPointer(), pos, devicePos, rgba, NULL,
@@ -804,7 +809,7 @@ void vtkGL2PSUtilities::DrawPathSVG(vtkPath *path, double rasterPos[3],
 }
 
 
-inline void vtkGL2PSUtilities::ProjectPoint(double point[3],
+inline void vtkGL2PSUtilities::ProjectPoint(double point[4],
                                             vtkMatrix4x4 *actorMatrix)
 {
   // Build transformation matrix
@@ -840,12 +845,8 @@ inline void vtkGL2PSUtilities::ProjectPoint(double point[3],
   const double zFactor1 = (depthRange[1] - depthRange[0]) * 0.5;
   const double zFactor2 = (depthRange[1] + depthRange[0]) * 0.5;
 
-  double tmp[4] = {point[0], point[1], point[2], 1.0};
-  vtkGL2PSUtilities::ProjectPoint(tmp, transformMatrix.GetPointer(), viewport,
+  vtkGL2PSUtilities::ProjectPoint(point, transformMatrix.GetPointer(), viewport,
                                   halfWidth, halfHeight, zFactor1, zFactor2);
-  point[0] = tmp[0];
-  point[1] = tmp[1];
-  point[2] = tmp[2];
 }
 
 inline void vtkGL2PSUtilities::ProjectPoint(double point[4],
@@ -971,14 +972,11 @@ void vtkGL2PSUtilities::UnprojectPoints(double *points3D, vtkIdType numPoints,
   const double zFactor1 = (depthRange[1] - depthRange[0]) * 0.5;
   const double zFactor2 = (depthRange[1] + depthRange[0]) * 0.5;
 
-  double point[4];
   for (vtkIdType i = 0; i < numPoints; ++i)
   {
-    std::copy(points3D + (i * 3), points3D + ((i + 1) * 3), point);
-    point[3] = 1.0;
+    double *point = points3D + (i * 4);
     vtkGL2PSUtilities::UnprojectPoint(point, transformMatrix.GetPointer(),
                                       viewport, halfWidth, halfHeight, zFactor1,
                                       zFactor2);
-    std::copy(point, point + 3, points3D + (i * 3));
   }
 }
