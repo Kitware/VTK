@@ -251,9 +251,8 @@ void vtkSmartVolumeMapper::Render( vtkRenderer *ren, vtkVolume *vol )
 // Initialize the render
 // We need to determine whether the GPU or CPU mapper are supported
 // First we need to know what input scalar field we are working with to find
-// out how many components it has. If it has more than one, and we are considering
-// them to be independent components, then we know that neither the RayCast mapper
-// nor the GPU mapper will work.
+// out how many components it has. If it has more than one and we are considering
+// them to be independent components, then only GPU Mapper will be supported.
 // ----------------------------------------------------------------------------
 void vtkSmartVolumeMapper::Initialize(vtkRenderer *ren, vtkVolume *vol)
 {
@@ -264,24 +263,24 @@ void vtkSmartVolumeMapper::Initialize(vtkRenderer *ren, vtkVolume *vol)
     return;
   }
 
-  int usingCellColors=0;
-  // In order to perform a GetScalars we need to make sure that the
-  // input is up to date
-//  input->UpdateInformation();
-//  input->SetUpdateExtentToWholeExtent();
-//  input->Update();
+  int usingCellColors = 0;
+  vtkDataArray* scalars = this->GetScalars(input, this->ScalarMode,
+                                           this->ArrayAccessMode,
+                                           this->ArrayId, this->ArrayName,
+                                           usingCellColors);
 
-  if ( usingCellColors )
+  int const numComp = scalars->GetNumberOfComponents();
+  this->RayCastSupported = (usingCellColors || numComp > 1) ? 0 : 1;
+
+  if (!this->RayCastSupported &&
+    this->RequestedRenderMode == vtkSmartVolumeMapper::RayCastRenderMode)
   {
-    this->RayCastSupported = 0;
-  }
-  else
-  {
-    this->RayCastSupported = 1;
+    vtkWarningMacro("Data array "<< this->ArrayName << " is not supported by"
+      "FixedPointVolumeRCMapper (either cell data or multiple components).");
   }
 
   // Make the window current because we need the OpenGL context
-  vtkRenderWindow *win=ren->GetRenderWindow();
+  vtkRenderWindow* win = ren->GetRenderWindow();
   win->MakeCurrent();
 
   this->GPUSupported = this->GPUMapper->IsRenderSupported(win,
@@ -437,10 +436,9 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
       // if the GPU mapper cannot hand the size of the volume.
       this->GPUMapper->GetReductionRatio(scale);
 
-      // Check if a single component or magnitude are being rendered
-      // and adjust the input or component weights
       if (this->VectorMode != DISABLED)
       {
+        // Adjust the input or component weights depending on the active mode
         this->SetupVectorMode(vol);
       }
 
@@ -498,7 +496,7 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
 // ----------------------------------------------------------------------------
 void vtkSmartVolumeMapper::SetupVectorMode(vtkVolume* vol)
 {
-  vtkImageData *input = this->GetInput();
+  vtkImageData* input = this->GetInput();
   if (!input)
   {
     vtkErrorMacro("Failed to setup vector rendering mode! No input.");
@@ -507,32 +505,39 @@ void vtkSmartVolumeMapper::SetupVectorMode(vtkVolume* vol)
   int cellFlag = 0;
   vtkDataArray* dataArray  = this->GetScalars(input, this->ScalarMode,
     this->ArrayAccessMode, this->ArrayId, this->ArrayName, cellFlag);
-  vtkVolumeProperty* volProp = vol->GetProperty();
   int const numComponents = dataArray->GetNumberOfComponents();
 
   switch (this->VectorMode)
   {
     case MAGNITUDE:
     {
-      // Compute the magnitude if not already available
-      if (input->GetMTime() > this->InputDataMagnitude->GetMTime() &&
-        numComponents > 1)
+      // ParaView sets mode as MAGNITUDE when there is a single component,
+      // so check whether magnitude makes sense.
+      if (numComponents > 1)
       {
-        // Proxy dataset (set the active attribute for the magnitude filter)
-        this->InputDataMagnitude->ShallowCopy(input);
-        int id = this->InputDataMagnitude->GetPointData()->SetActiveAttribute(
-          dataArray->GetName(), vtkDataSetAttributes::SCALARS);
-        if (id < 0)
+        // Recompute magnitude if not up to date
+        if (input->GetMTime() > this->InputDataMagnitude->GetMTime())
         {
-          vtkErrorMacro("Failed to set the active attribute in magnitude filter!");
+          // Proxy dataset (set the active attribute for the magnitude filter)
+          vtkImageData* tempInput = vtkImageData::New();
+          tempInput->ShallowCopy(input);
+          int const id = tempInput->GetPointData()->SetActiveAttribute(
+            dataArray->GetName(), vtkDataSetAttributes::SCALARS);
+
+          if (id < 0)
+          {
+            vtkErrorMacro("Failed to set the active attribute in magnitude filter!");
+          }
+
+          this->ImageMagnitude->SetInputData(tempInput);
+          this->ImageMagnitude->Update();
+          tempInput->Delete();
         }
 
-        this->ImageMagnitude->SetInputData(this->InputDataMagnitude);
-        this->ImageMagnitude->Update();
-      }
-
-        this->GPUMapper->SetInputDataObject(this->ImageMagnitude->GetOutput());
+        this->InputDataMagnitude->ShallowCopy(this->ImageMagnitude->GetOutput());
+        this->GPUMapper->SetInputDataObject(this->InputDataMagnitude);
         this->GPUMapper->SelectScalarArray("Magnitude");
+      }
     }
     break;
 
@@ -544,6 +549,7 @@ void vtkSmartVolumeMapper::SetupVectorMode(vtkVolume* vol)
       // To follow the current ParaView convention, the first TF is set on the currently
       // selected component. TODO:  A more robust future integration of independent
       // components in ParaView should set these TF's already per component.
+      vtkVolumeProperty* volProp = vol->GetProperty();
       vtkColorTransferFunction* colortf = volProp->GetRGBTransferFunction(0);
       if (!colortf)
       {
@@ -577,26 +583,29 @@ void vtkSmartVolumeMapper::SetupVectorMode(vtkVolume* vol)
 // ----------------------------------------------------------------------------
 void vtkSmartVolumeMapper::ConnectMapperInput(vtkVolumeMapper *m)
 {
-  assert("pre: m_exists" && m!=0);
+  assert("pre: m_exists" && m != NULL);
 
-  vtkImageData *input2=m->GetInput();
-  bool needShallowCopy=false;
-  if(input2==0)
+  bool needShallowCopy = false;
+  vtkImageData* imData = m->GetInput();
+
+  if (imData == NULL || imData == this->InputDataMagnitude)
   {
-    // make sure we not create a shallow copy each time to avoid
-    // performance penalty.
-    input2=vtkImageData::New();
-    m->SetInputDataObject(input2);
-    input2->Delete();
-    needShallowCopy=true;
+    imData = vtkImageData::New();
+    m->SetInputDataObject(imData);
+    needShallowCopy = true;
+    imData->Delete();
   }
   else
   {
-    needShallowCopy=input2->GetMTime()<this->GetInput()->GetMTime();
+    needShallowCopy =
+      imData->GetMTime() < this->GetInput()->GetMTime();
+
+    m->SetInputDataObject(imData);
   }
-  if(needShallowCopy)
+
+  if (needShallowCopy)
   {
-    input2->ShallowCopy(this->GetInput());
+    imData->ShallowCopy(this->GetInput());
   }
 }
 
