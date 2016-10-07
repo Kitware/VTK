@@ -210,7 +210,9 @@ void vtkBillboardTextActor3D::PrintSelf(std::ostream &os, vtkIndent indent)
      << indent << "InputMTime: " << this->InputMTime << "\n"
      << indent << "TextRenderer: " << this->TextRenderer.Get() << "\n"
      << indent << "AnchorDC: " << this->AnchorDC[0] << " " << this->AnchorDC[1]
-     << " " << this->AnchorDC[2] << "\n";
+     << " " << this->AnchorDC[2] << "\n"
+     << indent << "DisplayOffset: " << this->DisplayOffset[0] << " "
+     << this->DisplayOffset[1] << "\n";
 
   os << indent << "Image:\n";
   this->Image->PrintSelf(os, indent.GetNextIndent());
@@ -337,6 +339,7 @@ vtkBillboardTextActor3D::vtkBillboardTextActor3D()
     RenderedDPI(-1)
 {
   std::fill(this->AnchorDC, this->AnchorDC + 3, 0.);
+  std::fill(this->DisplayOffset, this->DisplayOffset + 2, 0);
 
   // Connect internal rendering pipeline:
   this->Texture->InterpolateOff();
@@ -480,6 +483,10 @@ void vtkBillboardTextActor3D::GenerateQuad(vtkRenderer *ren)
   // Round down to an exact pixel:
   anchorDC[0] = std::floor(anchorDC[0]);
   anchorDC[1] = std::floor(anchorDC[1]);
+
+  // Apply the requested offset:
+  anchorDC[0] += static_cast<double>(this->DisplayOffset[0]);
+  anchorDC[1] += static_cast<double>(this->DisplayOffset[1]);
 
   // Cached for OpenGL2 GL2PS exports:
   this->AnchorDC[0] = anchorDC[0];
