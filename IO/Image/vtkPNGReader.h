@@ -81,6 +81,15 @@ public:
    */
   size_t GetNumberOfTextChunks();
 
+  //@{
+  /**
+   * Set/Get if data spacing should be calculated from the PNG file.
+   * Default is false.
+   */
+  vtkSetMacro(ReadSpacingFromFile, bool);
+  vtkGetMacro(ReadSpacingFromFile, bool);
+  vtkBooleanMacro(ReadSpacingFromFile, bool);
+  //@}
 protected:
   vtkPNGReader();
   ~vtkPNGReader();
@@ -100,5 +109,6 @@ private:
 
   class vtkInternals;
   vtkInternals* Internals;
+  bool ReadSpacingFromFile;
 };
 #endif
