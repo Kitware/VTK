@@ -15,6 +15,11 @@
 #ifndef vtk_jsoncpp_h
 #define vtk_jsoncpp_h
 
+/* Needed for VTK_BUILD_SHARED_LIBS */
+#ifndef VTK_BUILD_SHARED_LIBS
+#cmakedefine VTK_BUILD_SHARED_LIBS
+#endif
+
 /* Use the JsonCpp library configured for VTK.  */
 #cmakedefine VTK_USE_SYSTEM_JSONCPP
 #ifdef VTK_USE_SYSTEM_JSONCPP
