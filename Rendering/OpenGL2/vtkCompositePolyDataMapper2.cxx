@@ -1321,6 +1321,7 @@ void vtkCompositePolyDataMapper2::ReleaseGraphicsResources(vtkWindow* win)
     miter->second->Delete();
   }
   this->Helpers.clear();
+  this->Modified();
   this->Superclass::ReleaseGraphicsResources(win);
 }
 
