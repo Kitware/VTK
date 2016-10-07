@@ -833,7 +833,7 @@ int vtkPSurfaceLICComposite::MakeDecompDisjoint(
   // accumulate contrib from remote data
   size_t remSize = 4*ne;
   vector<int> rem(remSize);
-  int *pRem = &rem[0];
+  int *pRem = ne ? &rem[0] : NULL;
   for (size_t e=0; e<ne; ++e, pRem+=4)
   {
     tmpOut1[e].second.GetData(pRem);
@@ -842,7 +842,7 @@ int vtkPSurfaceLICComposite::MakeDecompDisjoint(
   MPI_Op parUnion = this->PixelOps->GetUnion();
   MPI_Allreduce(
         MPI_IN_PLACE,
-        &rem[0],
+        ne ? &rem[0] : NULL,
         (int)remSize,
         MPI_INT,
         parUnion,
@@ -850,7 +850,6 @@ int vtkPSurfaceLICComposite::MakeDecompDisjoint(
 
   // move from flat order back to rank indexed order and remove
   // empty extents
-  pRem = &rem[0];
   out.resize(this->CommSize);
   for (size_t e=0; e<ne; ++e, pRem+=4)
   {
