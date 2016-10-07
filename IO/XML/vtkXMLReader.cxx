@@ -46,6 +46,7 @@
 #include <functional>
 #include <locale> // C++ locale
 #include <sstream>
+#include <vector>
 #include <sys/stat.h>
 
 vtkCxxSetObjectMacro(vtkXMLReader,ReaderErrorObserver,vtkCommand);
@@ -499,14 +500,14 @@ int vtkXMLReader::RequestInformation(vtkInformation *request,
     this->TimeStepRange[1] = (numTimesteps > 0 ? numTimesteps-1 : 0);
     if (numTimesteps != 0)
     {
-      double* timeSteps = new double[numTimesteps];
-      for (int i = 0; i<numTimesteps; i++)
+      std::vector<double> timeSteps(numTimesteps);
+      for (int i = 0; i < numTimesteps; i++)
       {
         timeSteps[i] = i;
       }
       vtkInformation* outInfo = outputVector->GetInformationObject(0);
       outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
-                   timeSteps,
+                   &timeSteps[0],
                    numTimesteps);
       double timeRange[2];
       timeRange[0] = timeSteps[0];
