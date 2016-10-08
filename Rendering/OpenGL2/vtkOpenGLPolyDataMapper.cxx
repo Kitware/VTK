@@ -329,7 +329,7 @@ bool vtkOpenGLPolyDataMapper::HaveWideLines(
     // actually support them, check the range to see if we
       // really need have to implement our own wide lines
     vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
-    return !(renWin &&
+    return actor->GetProperty()->GetRenderLinesAsTubes() || !(renWin &&
       renWin->GetMaximumHardwareLineWidth() >= actor->GetProperty()->GetLineWidth());
   }
   return false;
@@ -1208,10 +1208,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
   // of the sphere, See the document
   // PixelsToZBufferConversion in this directory for
   // the derivation of the equations used.
-  if (actor->GetProperty()->GetRenderPointsAsSpheres() &&
-      !this->DrawingEdges &&
-      (this->LastBoundBO == &this->Points ||
-        actor->GetProperty()->GetRepresentation() == VTK_POINTS))
+  if (this->DrawingSpheres(*this->LastBoundBO, actor))
   {
     vtkShaderProgram::Substitute(FSSource,
       "//VTK::Normal::Dec",
@@ -1221,10 +1218,13 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
       );
     vtkShaderProgram::Substitute(FSSource,
       "//VTK::Normal::Impl",
-      " float len = length(vec2(2.0*gl_PointCoord.x - 1.0, 2.0*gl_PointCoord.y - 1.0));\n"
-      " if (len > 1.0) { discard; }\n"
+
+      " float xpos = 2.0*gl_PointCoord.x - 1.0;\n"
+      " float ypos = 1.0 - 2.0*gl_PointCoord.y;\n"
+      " float len2 = xpos*xpos+ ypos*ypos;\n"
+      " if (len2 > 1.0) { discard; }\n"
       " vec3 normalVCVSOutput = normalize(\n"
-      "   vec3(2.0*gl_PointCoord.x - 1.0, 2.0*gl_PointCoord.y - 1.0, sqrt(1.0 - len*len)));\n"
+      "   vec3(2.0*gl_PointCoord.x - 1.0, 1.0 - 2.0*gl_PointCoord.y, sqrt(1.0 - len2)));\n"
 
       " gl_FragDepth = gl_FragCoord.z + normalVCVSOutput.z*ZCalcS*ZCalcR;\n"
       " if (cameraParallel == 0) {\n"
@@ -1234,7 +1234,69 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
 
      shaders[vtkShader::Fragment]->SetSource(FSSource);
      return;
-   }
+  }
+
+  // Render lines as tubes if so requested
+  // To get the correct zbuffer values we have to
+  // adjust the incoming z value based on the shape
+  // of the tube, See the document
+  // PixelsToZBufferConversion in this directory for
+  // the derivation of the equations used.
+
+  // note these are not real tubes. They are wide
+  // lines that are fudged a bit to look like tubes
+  // this approach is simpler than the OpenGLStickMapper
+  // but results in things that are not really tubes
+  // for best results use points as spheres with
+  // these tubes and make sure the point Width is
+  // twice the tube width
+  if (this->DrawingTubes(*this->LastBoundBO, actor))
+  {
+    std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
+
+    vtkShaderProgram::Substitute(FSSource,
+      "//VTK::Normal::Dec",
+      "varying vec3 tubeBasis1;\n"
+      "varying vec3 tubeBasis2;\n"
+      "uniform float ZCalcS;\n"
+      "uniform float ZCalcR;\n"
+      "uniform int cameraParallel;\n"
+      );
+    vtkShaderProgram::Substitute(FSSource,
+      "//VTK::Normal::Impl",
+
+      "float len2 = tubeBasis1.x*tubeBasis1.x + tubeBasis1.y*tubeBasis1.y;\n"
+      "float lenZ = clamp(sqrt(1.0 - len2),0.0,1.0);\n"
+      "vec3 normalVCVSOutput = normalize(tubeBasis1 + tubeBasis2*lenZ);\n"
+      " gl_FragDepth = gl_FragCoord.z + lenZ*ZCalcS*ZCalcR/clamp(tubeBasis2.z,0.5,1.0);\n"
+      " if (cameraParallel == 0) {\n"
+      "  float ZCalcQ = (lenZ*ZCalcR/clamp(tubeBasis2.z,0.5,1.0) - 1.0);\n"
+      "  gl_FragDepth = (ZCalcS - gl_FragCoord.z) / ZCalcQ + ZCalcS; }\n"
+      );
+
+    vtkShaderProgram::Substitute(GSSource,
+      "//VTK::Normal::Dec",
+      "in vec4 vertexVCVSOutput[];\n"
+      "out vec3 tubeBasis1;\n"
+      "out vec3 tubeBasis2;\n"
+      );
+
+    vtkShaderProgram::Substitute(GSSource,
+      "//VTK::Normal::Start",
+      "vec3 lineDir = normalize(vertexVCVSOutput[1].xyz - vertexVCVSOutput[0].xyz);\n"
+      "tubeBasis2 = normalize(cross(lineDir, vec3(normal, 0.0)));\n"
+      "tubeBasis2 = tubeBasis2*sign(tubeBasis2.z);\n"
+      );
+
+    vtkShaderProgram::Substitute(GSSource,
+      "//VTK::Normal::Impl",
+      "tubeBasis1 = 2.0*vec3(normal*((j+1)%2 - 0.5), 0.0);\n"
+      );
+
+    shaders[vtkShader::Geometry]->SetSource(GSSource);
+    shaders[vtkShader::Fragment]->SetSource(FSSource);
+    return;
+  }
 
   if (this->LastLightComplexity[this->LastBoundBO] > 0)
   {
@@ -1531,6 +1593,24 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
   //cout << "FS: " << shaders[vtkShader::Fragment]->GetSource() << endl;
 }
 
+bool vtkOpenGLPolyDataMapper::DrawingSpheres(vtkOpenGLHelper &cellBO, vtkActor *actor)
+{
+  return ((&cellBO == &this->Points ||
+      actor->GetProperty()->GetRepresentation() == VTK_POINTS) &&
+      actor->GetProperty()->GetRenderPointsAsSpheres() &&
+      !this->DrawingEdges);
+}
+
+bool vtkOpenGLPolyDataMapper::DrawingTubes(vtkOpenGLHelper &cellBO, vtkActor *actor)
+{
+  return (actor->GetProperty()->GetRenderLinesAsTubes() &&
+      (&cellBO == &this->Lines ||
+       &cellBO == &this->TrisEdges ||
+       &cellBO == &this->TriStripsEdges ||
+       (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME &&
+        &cellBO != &this->Points)));
+}
+
 //-----------------------------------------------------------------------------
 bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
   vtkOpenGLHelper &cellBO, vtkRenderer* ren, vtkActor *actor)
@@ -1554,13 +1634,11 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
       (!isTrisOrStrips && actor->GetProperty()->GetInterpolation() != VTK_FLAT && haveNormals));
   }
 
-  if ((&cellBO == &this->Points ||
-      actor->GetProperty()->GetRepresentation() == VTK_POINTS) &&
-      actor->GetProperty()->GetRenderPointsAsSpheres() &&
-      !this->DrawingEdges)
-    {
+  // we sphering or tubing? Yes I made sphere into a verb
+  if (this->DrawingTubes(cellBO, actor) || this->DrawingSpheres(cellBO, actor))
+  {
     needLighting = true;
-    }
+  }
 
   // do we need lighting?
   if (actor->GetProperty()->GetLighting() && needLighting)
@@ -1912,7 +1990,8 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(
   vtkActor *actor)
 {
   // for unlit and headlight there are no lighting parameters
-  if (this->LastLightComplexity[&cellBO] < 2 || this->DrawingEdges)
+  if (this->LastLightComplexity[&cellBO] < 2 ||
+      (this->DrawingEdges && !this->DrawingTubes(cellBO, actor)))
   {
     return;
   }
@@ -2051,19 +2130,28 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(vtkOpenGLHelper &cellBO,
   cam->GetKeyMatrices(ren, wcvc, norms, vcdc, wcdc);
 
   if (program->IsUniformUsed("ZCalcR"))
-    {
+  {
     if (cam->GetParallelProjection())
-      {
+    {
       program->SetUniformf("ZCalcS", vcdc->GetElement(2,2));
-      }
-    else
-      {
-      program->SetUniformf("ZCalcS", -0.5*vcdc->GetElement(2,2) + 0.5);
-      }
-    program->SetUniformf("ZCalcR",
-      actor->GetProperty()->GetPointSize()/
-        (ren->GetSize()[0] * vcdc->GetElement(0,0)));
     }
+    else
+    {
+      program->SetUniformf("ZCalcS", -0.5*vcdc->GetElement(2,2) + 0.5);
+    }
+    if (this->DrawingSpheres(cellBO, actor))
+    {
+      program->SetUniformf("ZCalcR",
+        actor->GetProperty()->GetPointSize()/
+          (ren->GetSize()[0] * vcdc->GetElement(0,0)));
+    }
+    else
+    {
+      program->SetUniformf("ZCalcR",
+        actor->GetProperty()->GetLineWidth()/
+          (ren->GetSize()[0] * vcdc->GetElement(0,0)));
+    }
+  }
 
   if (this->VBO->GetCoordShiftAndScaleEnabled())
   {
@@ -2155,17 +2243,23 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(vtkOpenGLHelper &cellB
   float opacity = static_cast<float>(ppty->GetOpacity());
   double *aColor = this->DrawingEdges ?
     ppty->GetEdgeColor() : ppty->GetAmbientColor();
-  double aIntensity = this->DrawingEdges ? 1.0 : ppty->GetAmbient();
+  double aIntensity = (this->DrawingEdges && !this->DrawingTubes(cellBO, actor))
+    ? 1.0 : ppty->GetAmbient();
   float ambientColor[3] = {static_cast<float>(aColor[0] * aIntensity),
     static_cast<float>(aColor[1] * aIntensity),
     static_cast<float>(aColor[2] * aIntensity)};
-  double *dColor = ppty->GetDiffuseColor();
-  double dIntensity = this->DrawingEdges ? 0.0 : ppty->GetDiffuse();
+
+  double *dColor = this->DrawingEdges ?
+    ppty->GetEdgeColor() : ppty->GetDiffuseColor();
+  double dIntensity = (this->DrawingEdges && !this->DrawingTubes(cellBO, actor))
+    ? 0.0 : ppty->GetDiffuse();
   float diffuseColor[3] = {static_cast<float>(dColor[0] * dIntensity),
     static_cast<float>(dColor[1] * dIntensity),
     static_cast<float>(dColor[2] * dIntensity)};
+
   double *sColor = ppty->GetSpecularColor();
-  double sIntensity = this->DrawingEdges ? 0.0 : ppty->GetSpecular();
+  double sIntensity = (this->DrawingEdges && !this->DrawingTubes(cellBO, actor))
+    ? 0.0 : ppty->GetSpecular();
   float specularColor[3] = {static_cast<float>(sColor[0] * sIntensity),
     static_cast<float>(sColor[1] * sIntensity),
     static_cast<float>(sColor[2] * sIntensity)};
