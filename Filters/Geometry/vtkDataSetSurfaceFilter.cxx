@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkDataSetSurfaceFilter.h"
 
+#include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellIterator.h"
@@ -1045,7 +1046,6 @@ int vtkDataSetSurfaceFilter::DataSetExecute(vtkDataSet *input,
   int i, j;
   vtkIdType numPts=input->GetNumberOfPoints();
   vtkIdType numCells=input->GetNumberOfCells();
-  vtkGenericCell *cell;
   vtkCell *face;
   double x[3];
   vtkIdList *cellIds;
@@ -1088,8 +1088,6 @@ int vtkDataSetSurfaceFilter::DataSetExecute(vtkDataSet *input,
 
   vtkDebugMacro(<<"Executing geometry filter");
 
-  cell = vtkGenericCell::New();
-
   // Allocate
   //
   newPts = vtkPoints::New();
@@ -1116,12 +1114,11 @@ int vtkDataSetSurfaceFilter::DataSetExecute(vtkDataSet *input,
       this->UpdateProgress (static_cast<double>(cellId)/numCells);
       abort = this->GetAbortExecute();
     }
-
-    input->GetCell(cellId,cell);
     if (mayBlank && !sgridInput->IsCellVisible(cellId))
     {
       continue;
     }
+    vtkCell *cell = input->GetCell(cellId);
     switch (cell->GetCellDimension())
     {
       // create new points and then cell
@@ -1188,7 +1185,6 @@ int vtkDataSetSurfaceFilter::DataSetExecute(vtkDataSet *input,
 
   // Update ourselves and release memory
   //
-  cell->Delete();
   output->SetPoints(newPts);
   newPts->Delete();
   if (this->OriginalCellIds)
