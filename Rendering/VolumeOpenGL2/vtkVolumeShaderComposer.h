@@ -189,7 +189,9 @@ namespace vtkvolume
       \nuniform bool in_cellFlag;\
       \n uniform bool in_useJittering;\
       \n uniform bool in_clampDepthToBackface;\
-      ");
+      \n\
+      \nuniform vec2 in_averageIPRange;"
+      );
 
     if (lightingComplexity > 0 || hasGradientOpacity)
     {
@@ -573,11 +575,10 @@ namespace vtkvolume
       \n  vec4 finalColor = vec4(0.0);"
     );
 
+    // Shading for composite blending only
     int shadeReqd = volProperty->GetShade() &&
-                    (mapper->GetBlendMode() !=
-                     vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND) &&
-                    (mapper->GetBlendMode() !=
-                     vtkVolumeMapper::MINIMUM_INTENSITY_BLEND);
+                    (mapper->GetBlendMode() ==
+                     vtkVolumeMapper::COMPOSITE_BLEND);
 
     if (shadeReqd || volProperty->HasGradientOpacity())
     {
@@ -1007,6 +1008,15 @@ namespace vtkvolume
         \n  vec4 l_minValue = vec4(1.0);"
       );
     }
+    else if (mapper->GetBlendMode() == vtkVolumeMapper::AVERAGE_INTENSITY_BLEND)
+    {
+      return std::string("\
+        \n  //We get data between 0.0 - 1.0 range\
+        \n  vec4 l_avgValue = vec4(0.0);\
+        \n  // Keep track of number of samples\
+        \n  uvec4 l_numSamples = uvec4(0);"
+      );
+    }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
     {
       return std::string("\
@@ -1150,6 +1160,43 @@ namespace vtkvolume
           \n        {\
           \n        l_firstValue = false;\
           \n        }"
+        );
+      }
+    }
+    else if (mapper->GetBlendMode() == vtkVolumeMapper::AVERAGE_INTENSITY_BLEND)
+    {
+      if (noOfComponents > 1  && independentComponents)
+      {
+        shaderStr += std::string("\
+        \n       for (int i = 0; i < in_noOfComponents; ++i)\
+        \n         {\
+        \n         // Get the intensity in volume scalar range\
+        \n         float intensity = in_scalarsRange[i][0] +\
+        \n                           (in_scalarsRange[i][1] -\
+        \n                            in_scalarsRange[i][0]) * scalar[i];\
+        \n         if (in_averageIPRange.x <= intensity &&\
+        \n             intensity <= in_averageIPRange.y)\
+        \n           {\
+        \n           float opacity = computeOpacity(scalar, i);\
+        \n           l_avgValue[i] += scalar[i];\
+        \n           ++l_numSamples[i];\
+        \n           }\
+        \n         }"
+        );
+      }
+      else
+      {
+        shaderStr += std::string("\
+        \n      // Get the intensity in volume scalar range\
+        \n      float intensity = in_scalarsRange[0][0] +\
+        \n                        (in_scalarsRange[0][1] -\
+        \n                         in_scalarsRange[0][0]) * scalar.x;\
+        \n      if (in_averageIPRange.x <= intensity &&\
+        \n          intensity <= in_averageIPRange.y)\
+        \n        {\
+        \n        l_avgValue.w += scalar.x;\
+        \n        ++l_numSamples.w;\
+        \n        }"
         );
       }
     }
@@ -1428,6 +1475,47 @@ namespace vtkvolume
           \n                            computeOpacity(l_minValue));\
           \n  g_fragColor.rgb = g_srcColor.rgb * g_srcColor.a;\
           \n  g_fragColor.a = g_srcColor.a;"
+        );
+      }
+    }
+    else if (mapper->GetBlendMode() == vtkVolumeMapper::AVERAGE_INTENSITY_BLEND)
+    {
+      if (noOfComponents > 1 && independentComponents)
+      {
+        return std::string("\
+          \n  g_srcColor = vec4(0);\
+          \n  for (int i = 0; i < in_noOfComponents; ++i)\
+          \n    {\
+          \n    if (l_numSamples[i] == uint(0))\
+          \n      {\
+          \n      continue;\
+          \n      }\
+          \n    l_avgValue[i] /= l_numSamples[i];\
+          \n    vec4 tmp = computeColor(l_avgValue,\
+          \n                            computeOpacity(l_avgValue, i), i);\
+          \n    g_srcColor[0] += tmp[0] * tmp[3] * in_componentWeight[i];\
+          \n    g_srcColor[1] += tmp[1] * tmp[3] * in_componentWeight[i];\
+          \n    g_srcColor[2] += tmp[2] * tmp[3] * in_componentWeight[i];\
+          \n    g_srcColor[3] += tmp[3] * in_componentWeight[i];\
+          \n    }\
+          \n  g_fragColor = g_srcColor;"
+        );
+      }
+      else
+      {
+        return std::string("\
+         \n  if (l_numSamples.w == uint(0))\
+         \n    {\
+         \n    g_fragColor = vec4(0);\
+         \n    }\
+         \n  else\
+         \n    {\
+         \n    l_avgValue.w /= l_numSamples.w;\
+         \n    g_srcColor = computeColor(l_avgValue,\
+         \n                              computeOpacity(l_avgValue));\
+         \n    g_fragColor.rgb = g_srcColor.rgb * g_srcColor.a;\
+         \n    g_fragColor.a = g_srcColor.a;\
+         \n    }"
         );
       }
     }

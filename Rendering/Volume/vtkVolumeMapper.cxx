@@ -27,6 +27,8 @@ vtkVolumeMapper::vtkVolumeMapper()
   int i;
 
   this->BlendMode = vtkVolumeMapper::COMPOSITE_BLEND;
+  this->AverageIPScalarRange[0] = VTK_DOUBLE_MIN;
+  this->AverageIPScalarRange[1] = VTK_DOUBLE_MAX;
 
   this->Cropping = 0;
   for ( i = 0; i < 3; i++ )

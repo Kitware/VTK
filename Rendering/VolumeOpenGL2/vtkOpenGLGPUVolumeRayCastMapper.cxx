@@ -3770,6 +3770,19 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
     this->Impl->SetPickingId(ren);
   }
 
+  // Set the scalar range to be considered for average ip blend
+  //--------------------------------------------------------------------------
+  double avgRange[2];
+  this->GetAverageIPScalarRange(avgRange);
+  if (avgRange[1] < avgRange[0])
+  {
+    double tmp = avgRange[1];
+    avgRange[1] = avgRange[0];
+    avgRange[0] = tmp;
+  }
+  vtkInternal::ToFloat(avgRange[0], avgRange[1], fvalue2);
+  prog->SetUniform2fv("in_averageIPRange", 1, &fvalue2);
+
   // Finally set the scale and bias for color correction
   //--------------------------------------------------------------------------
   prog->SetUniformf("in_scale", 1.0 / this->FinalColorWindow);

@@ -60,13 +60,11 @@ public:
 
   //@{
   /**
-   * Set/Get the blend mode. Currently this is only supported
-   * by the vtkFixedPointVolumeRayCastMapper - other mappers
-   * have different ways to set this (supplying a function
-   * to a vtkVolumeRayCastMapper) or don't have any options
-   * (vtkVolumeTextureMapper2D supports only compositing).
+   * Set/Get the blend mode.
    * Additive blend mode adds scalars along the ray and multiply them by
    * their opacity mapping value.
+   * Average blend mode averages scalars and determines the final color by
+   * passing the average through the color and opacity transfer functions.
    */
   vtkSetMacro( BlendMode, int );
   void SetBlendModeToComposite()
@@ -75,9 +73,24 @@ public:
     { this->SetBlendMode( vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND ); }
   void SetBlendModeToMinimumIntensity()
     { this->SetBlendMode( vtkVolumeMapper::MINIMUM_INTENSITY_BLEND ); }
+  void SetBlendModeToAverageIntensity()
+    { this->SetBlendMode( vtkVolumeMapper::AVERAGE_INTENSITY_BLEND ); }
   void SetBlendModeToAdditive()
     { this->SetBlendMode( vtkVolumeMapper::ADDITIVE_BLEND ); }
   vtkGetMacro( BlendMode, int );
+  //@}
+
+  //@{
+  /**
+   * Set/Get the scalar range to be considered for average intensity projection
+   * blend mode. Only scalar values between this range will be averaged during
+   * ray casting. This can be useful when volume rendering CT datasets where the
+   * areas occupied by air would deviate the final rendering. By default, the
+   * range is set to (VTK_DOUBLE_MIN, VTK_DOUBLE_MAX).
+   * \sa SetBlendModeToAverageIntensity()
+   */
+  vtkSetVector2Macro(AverageIPScalarRange, double);
+  vtkGetVectorMacro(AverageIPScalarRange, double, 2);
   //@}
 
   //@{
@@ -154,6 +167,7 @@ public:
     COMPOSITE_BLEND,
     MAXIMUM_INTENSITY_BLEND,
     MINIMUM_INTENSITY_BLEND,
+    AVERAGE_INTENSITY_BLEND,
     ADDITIVE_BLEND
   };
 
@@ -168,6 +182,9 @@ protected:
     int inputExtent[6]);
 
   int   BlendMode;
+
+  // Threshold range for average intensity projection
+  double AverageIPScalarRange[2];
 
   // Cropping variables, and a method for converting the world
   // coordinate cropping region planes to voxel coordinates
