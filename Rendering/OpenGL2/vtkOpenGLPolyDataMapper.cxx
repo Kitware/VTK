@@ -50,8 +50,10 @@
 #include "vtkTextureObject.h"
 #include "vtkTransform.h"
 #include "vtkUnsignedIntArray.h"
+#if GL_ES_VERSION_2_0 != 1 && GL_ES_VERSION_3_0 != 1
 #include "vtkValuePass.h"
 #include "vtkValuePassHelper.h"
+#endif
 #include "vtkShadowMapPass.h"
 
 // Bring in our fragment lit shader symbols.
@@ -115,7 +117,9 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->TimerQuery = 0;
   this->ResourceCallback = new vtkOpenGLResourceFreeCallback<vtkOpenGLPolyDataMapper>(this,
     &vtkOpenGLPolyDataMapper::ReleaseGraphicsResources);
+#if GL_ES_VERSION_2_0 != 1 && GL_ES_VERSION_3_0 != 1
   this->ValuePassHelper = vtkSmartPointer<vtkValuePassHelper>::New();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -212,7 +216,9 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
     this->CellNormalBuffer->ReleaseGraphicsResources();
   }
 
+#if GL_ES_VERSION_2_0 != 1 && GL_ES_VERSION_3_0 != 1
   this->ValuePassHelper->ReleaseGraphicsResources(win);
+#endif
 
   if (this->AppleBugPrimIDBuffer)
   {
@@ -587,10 +593,12 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
     "  vec3 diffuseColor;\n"
     "  float opacity;\n";
 
+#if GL_ES_VERSION_2_0 != 1 && GL_ES_VERSION_3_0 != 1
   if (this->ValuePassHelper->GetRenderingMode() == vtkValuePass::FLOATING_POINT)
   {
     this->ValuePassHelper->UpdateShaders(VSSource, FSSource, colorImpl);
   }
+#endif
 
   if (this->LastLightComplexity[this->LastBoundBO])
   {
@@ -801,12 +809,14 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
   }
 
   int lastLightComplexity = this->LastLightComplexity[this->LastBoundBO];
+#if GL_ES_VERSION_2_0 != 1 && GL_ES_VERSION_3_0 != 1
   if (info && info->Has(vtkValuePass::RENDER_VALUES()))
   {
     // Although vtkValuePass::FLOATING_POINT does not require this, it is for
     // simplicity left unchanged (only required when using INVERTIBLE_LUT mode).
     lastLightComplexity = 0;
   }
+#endif
 
   switch (lastLightComplexity)
   {
@@ -1700,8 +1710,11 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
       cellBO.ShaderSourceTime < this->CurrentInput->GetMTime() ||
       cellBO.ShaderSourceTime < this->SelectionStateChanged ||
       cellBO.ShaderSourceTime < renderPassMTime ||
-      cellBO.ShaderSourceTime < this->LightComplexityChanged[&cellBO] ||
-      this->ValuePassHelper->RequiresShaderRebuild())
+      cellBO.ShaderSourceTime < this->LightComplexityChanged[&cellBO]
+#if GL_ES_VERSION_2_0 != 1 && GL_ES_VERSION_3_0 != 1
+      || this->ValuePassHelper->RequiresShaderRebuild()
+#endif
+      )
   {
     return true;
   }
@@ -1833,10 +1846,12 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
       }
     }
 
+#if GL_ES_VERSION_2_0 != 1 && GL_ES_VERSION_3_0 != 1
     if (this->ValuePassHelper->GetRenderingMode() == vtkValuePass::FLOATING_POINT)
     {
       this->ValuePassHelper->BindAttributes(cellBO);
     }
+#endif
 
     cellBO.AttributeUpdateTime.Modified();
   }
@@ -1889,10 +1904,12 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
     cellBO.Program->SetUniformi("textureN", tunit);
   }
 
+#if GL_ES_VERSION_2_0 != 1 && GL_ES_VERSION_3_0 != 1
   if (this->ValuePassHelper->GetRenderingMode() == vtkValuePass::FLOATING_POINT)
   {
     this->ValuePassHelper->BindUniforms(cellBO);
   }
+#endif
 
   // Handle render pass setup:
   vtkInformation *info = actor->GetPropertyKeys();
@@ -2472,10 +2489,12 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
     this->CellNormalTexture->Activate();
   }
 
+#if GL_ES_VERSION_2_0 != 1 && GL_ES_VERSION_3_0 != 1
   if (this->ValuePassHelper->GetRenderingMode() == vtkValuePass::FLOATING_POINT)
   {
     this->ValuePassHelper->RenderPieceStart(actor, this->CurrentInput);
   }
+#endif
 
   // If we are coloring by texture, then load the texture map.
   // Use Map as indicator, because texture hangs around.
@@ -2708,10 +2727,12 @@ void vtkOpenGLPolyDataMapper::RenderPieceFinish(vtkRenderer* ren,
     this->CellNormalTexture->Deactivate();
   }
 
+#if GL_ES_VERSION_2_0 != 1 && GL_ES_VERSION_3_0 != 1
   if (this->ValuePassHelper->GetRenderingMode() == vtkValuePass::FLOATING_POINT)
   {
     this->ValuePassHelper->RenderPieceFinish();
   }
+#endif
 
   this->UpdateProgress(1.0);
 }
@@ -2834,7 +2855,9 @@ void vtkOpenGLPolyDataMapper::UpdateBufferObjects(vtkRenderer *ren, vtkActor *ac
   // Checks for the pass's rendering mode and updates its configuration.
   // Depending on the case, updates the mapper's color mapping or allocates
   // a buffer.
+#if GL_ES_VERSION_2_0 != 1 && GL_ES_VERSION_3_0 != 1
   this->ValuePassHelper->UpdateConfiguration(ren, act, this, this->CurrentInput);
+#endif
 
   // Rebuild buffers if needed
   if (this->GetNeedToRebuildBufferObjects(ren,act))

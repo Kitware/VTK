@@ -80,7 +80,6 @@ set(Module_SRCS
   vtkTransformFeedback.cxx
   vtkTranslucentPass.cxx
   vtkVolumetricPass.cxx
-  vtkValuePassHelper.cxx
   )
 
 if (NOT DEFINED OPENGL_ES_VERSION)
@@ -91,6 +90,7 @@ if (NOT DEFINED OPENGL_ES_VERSION)
     vtkPixelBufferObject.cxx
     vtkRenderbuffer.cxx
     vtkValuePass.cxx
+    vtkValuePassHelper.cxx
     )
 else()
   if (${OPENGL_ES_VERSION} MATCHES 3.0)
@@ -100,6 +100,7 @@ else()
       vtkPixelBufferObject.cxx
       vtkRenderbuffer.cxx
       vtkValuePass.cxx
+      vtkValuePassHelper.cxx
       )
   endif()
 endif()
