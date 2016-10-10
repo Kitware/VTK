@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
+
 #
 # Instructions:
 # 1. Download and install the Android NDK.
@@ -58,11 +60,6 @@ else()
   set(VTK_BUILD_COMMAND BUILD_COMMAND make)
 endif()
 
-set(BUILD_ALWAYS_STRING)
-if(${CMAKE_VERSION} GREATER 3.0)
-  set(BUILD_ALWAYS_STRING BUILD_ALWAYS 1)
-endif()
-
 # Compile a minimal VTK for its compile tools
 macro(compile_vtk_tools)
   ExternalProject_Add(
@@ -72,7 +69,7 @@ macro(compile_vtk_tools)
     BINARY_DIR ${CMAKE_BINARY_DIR}/CompileTools
     INSTALL_COMMAND ""
     ${VTK_BUILD_COMMAND} vtkCompileTools
-    ${BUILD_ALWAYS_STRING}
+    BUILD_ALWAYS 1
     CMAKE_CACHE_ARGS
       -DCMAKE_BUILD_TYPE:STRING=Release
       -DVTK_BUILD_ALL_MODULES:BOOL=OFF
@@ -150,7 +147,7 @@ macro(crosscompile target toolchain_file)
     BINARY_DIR ${BUILD_DIR}/${target}
     INSTALL_DIR ${INSTALL_DIR}/${target}
     DEPENDS vtk-compile-tools
-    ${BUILD_ALWAYS_STRING}
+    BUILD_ALWAYS 1
     CMAKE_ARGS
       -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_DIR}/${target}
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
