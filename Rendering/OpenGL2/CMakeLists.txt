@@ -309,8 +309,7 @@ elseif(ANDROID)
     vtkEGLRenderWindow.cxx
     )
   include_directories(
-    "${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/include"
-    "${ANDROID_NDK}/sources/android/native_app_glue"
+    "${CMAKE_ANDROID_NDK}/sources/android/native_app_glue"
     )
 elseif(APPLE_IOS)
   # Add some custom overrides
@@ -360,7 +359,9 @@ endif()
 
 if(ANDROID)
   target_link_libraries(${vtk-module}
-    LINK_PUBLIC ${OPENGL_egl_LIBRARY})
+    LINK_PUBLIC ${OPENGL_egl_LIBRARY}
+    LINK_PRIVATE android
+    )
 endif()
 
 if (APPLE_IOS)

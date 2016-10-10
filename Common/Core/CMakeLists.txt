@@ -720,3 +720,7 @@ endif()
 vtk_module_library(vtkCommonCore ${Module_SRCS})
 
 vtk_module_link_libraries(vtkCommonCore LINK_PRIVATE ${CMAKE_THREAD_LIBS} LINK_PUBLIC ${VTK_SMP_IMPLEMENTATION_LIBRARIES})
+
+if(ANDROID)
+  target_link_libraries(vtkCommonCore LINK_PRIVATE log)
+endif()
