@@ -198,7 +198,8 @@ void vtkChartMatrix::SetGutterY(float value)
 
 void vtkChartMatrix::SetSpecificResize(const vtkVector2i& index, const vtkVector2f& resize)
 {
-  if (this->SpecificResize[index] != resize)
+  if (this->SpecificResize.find(index) == this->SpecificResize.end() ||
+    this->SpecificResize[index] != resize)
     {
     this->SpecificResize[index] = resize;
     this->LayoutIsDirty = true;
