@@ -71,6 +71,10 @@ vtkProperty::vtkProperty()
   this->EdgeColor[1] = 0;
   this->EdgeColor[2] = 0;
 
+  this->VertexColor[0] = 0.5;
+  this->VertexColor[1] = 1.0;
+  this->VertexColor[2] = 0.5;
+
   this->Ambient = 0.0;
   this->Diffuse = 1.0;
   this->Specular = 0.0;
@@ -79,6 +83,7 @@ vtkProperty::vtkProperty()
   this->Interpolation = VTK_GOURAUD;
   this->Representation = VTK_SURFACE;
   this->EdgeVisibility = 0;
+  this->VertexVisibility = 0;
   this->BackfaceCulling = 0;
   this->FrontfaceCulling = 0;
   this->PointSize = 1.0;
@@ -112,6 +117,7 @@ void vtkProperty::DeepCopy(vtkProperty *p)
     this->SetDiffuseColor(p->GetDiffuseColor());
     this->SetSpecularColor(p->GetSpecularColor());
     this->SetEdgeColor(p->GetEdgeColor());
+    this->SetVertexColor(p->GetVertexColor());
     this->SetAmbient(p->GetAmbient());
     this->SetDiffuse(p->GetDiffuse());
     this->SetSpecular(p->GetSpecular());
@@ -120,6 +126,7 @@ void vtkProperty::DeepCopy(vtkProperty *p)
     this->SetInterpolation(p->GetInterpolation());
     this->SetRepresentation(p->GetRepresentation());
     this->SetEdgeVisibility(p->GetEdgeVisibility());
+    this->SetVertexVisibility(p->GetVertexVisibility());
     this->SetBackfaceCulling(p->GetBackfaceCulling());
     this->SetFrontfaceCulling(p->GetFrontfaceCulling());
     this->SetPointSize(p->GetPointSize());
@@ -443,6 +450,10 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
     << this->EdgeColor[1] << ", " << this->EdgeColor[2] << ")\n";
   os << indent << "Edge Visibility: "
     << (this->EdgeVisibility ? "On\n" : "Off\n");
+  os << indent << "Vertex Color: (" << this->VertexColor[0] << ", "
+    << this->VertexColor[1] << ", " << this->VertexColor[2] << ")\n";
+  os << indent << "Vertex Visibility: "
+    << (this->VertexVisibility ? "On\n" : "Off\n");
   os << indent << "Interpolation: ";
   switch (this->Interpolation)
   {

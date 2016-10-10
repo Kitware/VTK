@@ -373,10 +373,10 @@ void vtkOpenGLSphereMapper::BuildBufferObjects(
   }
 
   // create the IBO
-  this->Points.IBO->IndexCount = 0;
-  this->Lines.IBO->IndexCount = 0;
-  this->TriStrips.IBO->IndexCount = 0;
-  this->Tris.IBO->IndexCount = this->VBO->VertexCount;
+  this->Primitives[PrimitivePoints].IBO->IndexCount = 0;
+  this->Primitives[PrimitiveLines].IBO->IndexCount = 0;
+  this->Primitives[PrimitiveTriStrips].IBO->IndexCount = 0;
+  this->Primitives[PrimitiveTris].IBO->IndexCount = this->VBO->VertexCount;
   this->VBOBuildTime.Modified();
 }
 
@@ -401,10 +401,10 @@ void vtkOpenGLSphereMapper::Render(vtkRenderer *ren, vtkActor *act)
 void vtkOpenGLSphereMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
 {
   // draw polygons
-  if (this->Tris.IBO->IndexCount)
+  if (this->Primitives[PrimitiveTris].IBO->IndexCount)
   {
     // First we do the triangles, update the shader, set uniforms, etc.
-    this->UpdateShaders(this->Tris, ren, actor);
+    this->UpdateShaders(this->Primitives[PrimitiveTris], ren, actor);
     glDrawArrays(GL_TRIANGLES, 0,
                 static_cast<GLuint>(this->VBO->VertexCount));
   }

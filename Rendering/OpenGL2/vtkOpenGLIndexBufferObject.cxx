@@ -22,6 +22,8 @@
 
 #include "vtk_glew.h"
 
+#include <set>
+
 vtkStandardNewMacro(vtkOpenGLIndexBufferObject)
 
 vtkOpenGLIndexBufferObject::vtkOpenGLIndexBufferObject()
@@ -499,6 +501,68 @@ size_t vtkOpenGLIndexBufferObject::CreateEdgeFlagIndexBuffer(
   }
   std::vector<unsigned int> indexArray;
   AppendEdgeFlagIndexBuffer(indexArray, cells, 0, ef);
+  this->Upload(indexArray, vtkOpenGLIndexBufferObject::ElementArrayBuffer);
+  this->IndexCount = indexArray.size();
+  return indexArray.size();
+}
+
+// used to create an IBO for point primatives
+void vtkOpenGLIndexBufferObject::AppendVertexIndexBuffer(
+  std::vector<unsigned int> &indexArray,
+  vtkCellArray **cells,
+  vtkIdType vOffset)
+{
+  vtkIdType* indices(NULL);
+  vtkIdType npts(0);
+
+  // we use a set to make them unique
+  std::set<vtkIdType> vertsUsed;
+  for (int j = 0; j < 4; j++)
+  {
+    for (cells[j]->InitTraversal(); cells[j]->GetNextCell(npts, indices); )
+    {
+      for (int i = 0; i < npts; ++i)
+      {
+        vertsUsed.insert(static_cast<unsigned int>(*(indices++)+vOffset));
+      }
+    }
+  }
+
+  // now put them into the vector
+  size_t targetSize = indexArray.size() +
+    vertsUsed.size();
+  if (targetSize > indexArray.capacity())
+  {
+    if (targetSize < indexArray.capacity()*1.5)
+    {
+      targetSize = indexArray.capacity()*1.5;
+    }
+    indexArray.reserve(targetSize);
+  }
+
+  for (std::set<vtkIdType>::const_iterator i = vertsUsed.begin(); i != vertsUsed.end(); i++)
+  {
+    indexArray.push_back(*i);
+  }
+
+}
+
+// used to create an IBO for triangle primatives
+size_t vtkOpenGLIndexBufferObject::CreateVertexIndexBuffer(vtkCellArray **cells)
+{
+  unsigned long totalCells = 0;
+  for (int i = 0; i < 4; i++)
+  {
+    totalCells += cells[i]->GetNumberOfCells();
+  }
+
+  if (!totalCells)
+  {
+    this->IndexCount = 0;
+    return 0;
+  }
+  std::vector<unsigned int> indexArray;
+  AppendVertexIndexBuffer(indexArray, cells, 0);
   this->Upload(indexArray, vtkOpenGLIndexBufferObject::ElementArrayBuffer);
   this->IndexCount = indexArray.size();
   return indexArray.size();

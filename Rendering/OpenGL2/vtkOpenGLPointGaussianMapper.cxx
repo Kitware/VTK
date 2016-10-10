@@ -696,10 +696,11 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
   this->VBO->VertexCount = splatCount;
 
   // we use no IBO
-  this->Points.IBO->IndexCount = 0;
-  this->Lines.IBO->IndexCount = 0;
-  this->TriStrips.IBO->IndexCount = 0;
-  this->Tris.IBO->IndexCount = this->VBO->VertexCount;
+  for (int i = PrimitiveStart; i < PrimitiveEnd; i++)
+  {
+    this->Primitives[i].IBO->IndexCount = 0;
+  }
+  this->Primitives[PrimitiveTris].IBO->IndexCount = this->VBO->VertexCount;
   this->VBOBuildTime.Modified();
 }
 
@@ -723,7 +724,7 @@ void vtkOpenGLPointGaussianMapperHelper::RenderPieceDraw(vtkRenderer* ren, vtkAc
       glBlendFunc( GL_SRC_ALPHA, GL_ONE);  // additive for emissive sources
     }
     // First we do the triangles or points, update the shader, set uniforms, etc.
-    this->UpdateShaders(this->Tris, ren, actor);
+    this->UpdateShaders(this->Primitives[PrimitiveTris], ren, actor);
     if (this->UsingPoints)
     {
       glDrawArrays(GL_POINTS, 0,

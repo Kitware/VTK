@@ -34,6 +34,7 @@ public:
   vtkTimeStamp ShaderSourceTime;
   vtkOpenGLVertexArrayObject *VAO;
   vtkTimeStamp AttributeUpdateTime;
+  int PrimitiveType;
 
   vtkOpenGLIndexBufferObject *IBO;
 

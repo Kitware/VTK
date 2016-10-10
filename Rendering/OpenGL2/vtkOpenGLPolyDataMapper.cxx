@@ -107,12 +107,11 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->FragmentShaderCode = 0;
   this->GeometryShaderCode = 0;
 
-  this->LastLightComplexity[&this->Points] = -1;
-  this->LastLightComplexity[&this->Lines] = -1;
-  this->LastLightComplexity[&this->Tris] = -1;
-  this->LastLightComplexity[&this->TriStrips] = -1;
-  this->LastLightComplexity[&this->TrisEdges] = -1;
-  this->LastLightComplexity[&this->TriStripsEdges] = -1;
+  for (int i = PrimitiveStart; i < PrimitiveEnd; i++)
+  {
+    this->LastLightComplexity[&this->Primitives[i]] = -1;
+    this->Primitives[i].PrimitiveType = i;
+  }
 
   this->TimerQuery = 0;
   this->ResourceCallback = new vtkOpenGLResourceFreeCallback<vtkOpenGLPolyDataMapper>(this,
@@ -188,12 +187,10 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
   }
 
   this->VBO->ReleaseGraphicsResources();
-  this->Points.ReleaseGraphicsResources(win);
-  this->Lines.ReleaseGraphicsResources(win);
-  this->Tris.ReleaseGraphicsResources(win);
-  this->TriStrips.ReleaseGraphicsResources(win);
-  this->TrisEdges.ReleaseGraphicsResources(win);
-  this->TriStripsEdges.ReleaseGraphicsResources(win);
+  for (int i = PrimitiveStart; i < PrimitiveEnd; i++)
+  {
+    this->Primitives[i].ReleaseGraphicsResources(win);
+  }
 
   if (this->InternalColorTexture)
   {
@@ -322,12 +319,8 @@ bool vtkOpenGLPolyDataMapper::HaveWideLines(
   vtkRenderer *ren,
   vtkActor *actor)
 {
-  if ((this->LastBoundBO == &this->Lines ||
-       this->LastBoundBO == &this->TrisEdges ||
-       this->LastBoundBO == &TriStripsEdges ||
-       (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME &&
-          (this->LastBoundBO == &this->Tris ||
-            this->LastBoundBO == &this->TriStrips)))
+  if (this->GetOpenGLMode(actor->GetProperty()->GetRepresentation(),
+      this->LastBoundBO->PrimitiveType) == GL_LINES
       && actor->GetProperty()->GetLineWidth() > 1.0
       && vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
   {
@@ -1605,20 +1598,17 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
 
 bool vtkOpenGLPolyDataMapper::DrawingSpheres(vtkOpenGLHelper &cellBO, vtkActor *actor)
 {
-  return ((&cellBO == &this->Points ||
-      actor->GetProperty()->GetRepresentation() == VTK_POINTS) &&
-      actor->GetProperty()->GetRenderPointsAsSpheres() &&
+  return (actor->GetProperty()->GetRenderPointsAsSpheres() &&
+    this->GetOpenGLMode(actor->GetProperty()->GetRepresentation(),
+      cellBO.PrimitiveType) == GL_POINTS &&
       !this->DrawingEdges);
 }
 
 bool vtkOpenGLPolyDataMapper::DrawingTubes(vtkOpenGLHelper &cellBO, vtkActor *actor)
 {
   return (actor->GetProperty()->GetRenderLinesAsTubes() &&
-      (&cellBO == &this->Lines ||
-       &cellBO == &this->TrisEdges ||
-       &cellBO == &this->TriStripsEdges ||
-       (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME &&
-        &cellBO != &this->Points)));
+    this->GetOpenGLMode(actor->GetProperty()->GetRepresentation(),
+      cellBO.PrimitiveType) == GL_LINES);
 }
 
 //-----------------------------------------------------------------------------
@@ -1639,7 +1629,8 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
   }
   else  // wireframe or surface rep
   {
-    bool isTrisOrStrips = (&cellBO == &this->Tris || &cellBO == &this->TriStrips);
+    bool isTrisOrStrips =
+      (cellBO.PrimitiveType == PrimitiveTris || cellBO.PrimitiveType == PrimitiveTriStrips);
     needLighting = (isTrisOrStrips ||
       (!isTrisOrStrips && actor->GetProperty()->GetInterpolation() != VTK_FLAT && haveNormals));
   }
@@ -2260,6 +2251,8 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(vtkOpenGLHelper &cellB
   float opacity = static_cast<float>(ppty->GetOpacity());
   double *aColor = this->DrawingEdges ?
     ppty->GetEdgeColor() : ppty->GetAmbientColor();
+  aColor = cellBO.PrimitiveType == PrimitiveVertices ?
+    ppty->GetVertexColor() : aColor;
   double aIntensity = (this->DrawingEdges && !this->DrawingTubes(cellBO, actor))
     ? 1.0 : ppty->GetAmbient();
   float ambientColor[3] = {static_cast<float>(aColor[0] * aIntensity),
@@ -2268,6 +2261,8 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(vtkOpenGLHelper &cellB
 
   double *dColor = this->DrawingEdges ?
     ppty->GetEdgeColor() : ppty->GetDiffuseColor();
+  dColor = cellBO.PrimitiveType == PrimitiveVertices ?
+    ppty->GetVertexColor() : dColor;
   double dIntensity = (this->DrawingEdges && !this->DrawingTubes(cellBO, actor))
     ? 0.0 : ppty->GetDiffuse();
   float diffuseColor[3] = {static_cast<float>(dColor[0] * dIntensity),
@@ -2373,23 +2368,23 @@ void vtkOpenGLPolyDataMapper::GetCoincidentParameters(
   {
     double f = 0.0;
     double u = 0.0;
-    if (this->LastBoundBO == &this->Points ||
+    int primType = this->LastBoundBO->PrimitiveType;
+    if (primType == PrimitivePoints ||
         prop->GetRepresentation() == VTK_POINTS)
     {
       this->GetCoincidentTopologyPointOffsetParameter(u);
     }
-    else if (this->LastBoundBO == &this->Lines ||
+    else if (primType == PrimitiveLines ||
         prop->GetRepresentation() == VTK_WIREFRAME)
     {
       this->GetCoincidentTopologyLineOffsetParameters(f,u);
     }
-    else if (this->LastBoundBO == &this->Tris ||
-          this->LastBoundBO == &this->TriStrips)
+    else if (primType == PrimitiveTris || primType == PrimitiveTriStrips)
     {
       this->GetCoincidentTopologyPolygonOffsetParameters(f,u);
     }
-    if (this->LastBoundBO == &this->TrisEdges ||
-        this->LastBoundBO == &this->TriStripsEdges)
+    if (primType == PrimitiveTrisEdges ||
+        primType == PrimitiveTriStripsEdges)
     {
       this->GetCoincidentTopologyPolygonOffsetParameters(f,u);
       f /= 2;
@@ -2524,141 +2519,45 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
     pointPicking = true;
   }
 
-  // draw points
-  if (this->Points.IBO->IndexCount)
-  {
-    // render points for point picking in a special way
-    if (pointPicking)
-    {
-#if GL_ES_VERSION_2_0 != 1
-      glPointSize(2.0);
-#endif
-    }
+  vtkProperty *prop = actor->GetProperty();
+  bool draw_surface_with_edges =
+    (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
 
-    // Update/build/etc the shader.
-    this->UpdateShaders(this->Points, ren, actor);
-    this->Points.IBO->Bind();
-    glDrawRangeElements(GL_POINTS, 0,
-                        static_cast<GLuint>(this->VBO->VertexCount - 1),
-                        static_cast<GLsizei>(this->Points.IBO->IndexCount),
-                        GL_UNSIGNED_INT,
-                        reinterpret_cast<const GLvoid *>(NULL));
-    this->Points.IBO->Release();
-    this->PrimitiveIDOffset += (int)this->Points.IBO->IndexCount;
-  }
-
-  // draw lines
-  if (this->Lines.IBO->IndexCount)
+  for (int i = PrimitiveStart;
+       i < (selector ? PrimitiveTriStrips + 1 :  PrimitiveEnd); i++)
   {
-    this->UpdateShaders(this->Lines, ren, actor);
-    if (!this->HaveWideLines(ren,actor))
-    {
-      glLineWidth(actor->GetProperty()->GetLineWidth());
-    }
-    this->Lines.IBO->Bind();
-    if (representation == VTK_POINTS)
+    this->DrawingEdges =
+      draw_surface_with_edges && (i == PrimitiveTrisEdges
+          || i == PrimitiveTriStripsEdges);
+    if (this->Primitives[i].IBO->IndexCount)
     {
       if (pointPicking)
       {
   #if GL_ES_VERSION_2_0 != 1
-        glPointSize(4.0);
+        glPointSize(this->GetPointPickingPrimitiveSize(i));
   #endif
       }
-      glDrawRangeElements(GL_POINTS, 0,
-                          static_cast<GLuint>(this->VBO->VertexCount - 1),
-                          static_cast<GLsizei>(this->Lines.IBO->IndexCount),
-                          GL_UNSIGNED_INT,
-                          reinterpret_cast<const GLvoid *>(NULL));
-    }
-    else
-    {
-      glDrawRangeElements(GL_LINES, 0,
-                          static_cast<GLuint>(this->VBO->VertexCount - 1),
-                          static_cast<GLsizei>(this->Lines.IBO->IndexCount),
-                          GL_UNSIGNED_INT,
-                          reinterpret_cast<const GLvoid *>(NULL));
-    }
-    this->Lines.IBO->Release();
-    this->PrimitiveIDOffset = this->PrimitiveIDOffset +
-      static_cast<int>((representation == VTK_POINTS ? this->Lines.IBO->IndexCount
-        : this->Lines.IBO->IndexCount/2));
-  }
 
-  // draw polygons
-  if (this->Tris.IBO->IndexCount)
-  {
-    // First we do the triangles, update the shader, set uniforms, etc.
-    this->UpdateShaders(this->Tris, ren, actor);
-    if (!this->HaveWideLines(ren,actor) && representation == VTK_WIREFRAME)
-    {
-      glLineWidth(actor->GetProperty()->GetLineWidth());
-    }
-    this->Tris.IBO->Bind();
-    GLenum mode = (representation == VTK_POINTS) ? GL_POINTS :
-      (representation == VTK_WIREFRAME) ? GL_LINES : GL_TRIANGLES;
-    if (pointPicking)
-    {
-#if GL_ES_VERSION_2_0 != 1
-      glPointSize(6.0);
-#endif
-    }
-    glDrawRangeElements(mode, 0,
-                      static_cast<GLuint>(this->VBO->VertexCount - 1),
-                      static_cast<GLsizei>(this->Tris.IBO->IndexCount),
-                      GL_UNSIGNED_INT,
-                      reinterpret_cast<const GLvoid *>(NULL));
-    this->Tris.IBO->Release();
-    this->PrimitiveIDOffset = this->PrimitiveIDOffset +
-      static_cast<int>((representation == VTK_POINTS ? this->Tris.IBO->IndexCount
-        : (representation == VTK_WIREFRAME ? this->Tris.IBO->IndexCount/2
-          : this->Tris.IBO->IndexCount/3)));
-  }
+      // Update/build/etc the shader.
+      this->UpdateShaders(this->Primitives[i], ren, actor);
+      GLenum mode = this->GetOpenGLMode(representation, i);
 
-  // draw strips
-  if (this->TriStrips.IBO->IndexCount)
-  {
-    // Use the tris shader program/VAO, but triStrips ibo.
-    this->UpdateShaders(this->TriStrips, ren, actor);
-    this->TriStrips.IBO->Bind();
-    if (representation == VTK_POINTS)
-    {
-      if (pointPicking)
-      {
-  #if GL_ES_VERSION_2_0 != 1
-        glPointSize(6.0);
-  #endif
-      }
-      glDrawRangeElements(GL_POINTS, 0,
-                          static_cast<GLuint>(this->VBO->VertexCount - 1),
-                          static_cast<GLsizei>(this->TriStrips.IBO->IndexCount),
-                          GL_UNSIGNED_INT,
-                          reinterpret_cast<const GLvoid *>(NULL));
-    }
-    if (representation == VTK_WIREFRAME)
-    {
-      if (!this->HaveWideLines(ren,actor))
+      if (mode == GL_LINES && !this->HaveWideLines(ren,actor))
       {
         glLineWidth(actor->GetProperty()->GetLineWidth());
       }
-      glDrawRangeElements(GL_LINES, 0,
+
+      this->Primitives[i].IBO->Bind();
+      glDrawRangeElements(mode, 0,
                           static_cast<GLuint>(this->VBO->VertexCount - 1),
-                          static_cast<GLsizei>(this->TriStrips.IBO->IndexCount),
+                          static_cast<GLsizei>(this->Primitives[i].IBO->IndexCount),
                           GL_UNSIGNED_INT,
                           reinterpret_cast<const GLvoid *>(NULL));
+      this->Primitives[i].IBO->Release();
+
+      int stride = (mode == GL_POINTS ? 1 : (mode == GL_LINES ? 2 : 3));
+      this->PrimitiveIDOffset += (int)this->Primitives[i].IBO->IndexCount/stride;
     }
-    if (representation == VTK_SURFACE)
-    {
-      glDrawRangeElements(GL_TRIANGLES, 0,
-                          static_cast<GLuint>(this->VBO->VertexCount - 1),
-                          static_cast<GLsizei>(this->TriStrips.IBO->IndexCount),
-                          GL_UNSIGNED_INT,
-                          reinterpret_cast<const GLvoid *>(NULL));
-    }
-    this->TriStrips.IBO->Release();
-    this->PrimitiveIDOffset = this->PrimitiveIDOffset +
-      static_cast<int>((representation == VTK_POINTS ? this->TriStrips.IBO->IndexCount
-        : (representation == VTK_WIREFRAME ? this->TriStrips.IBO->IndexCount/2
-          : this->TriStrips.IBO->IndexCount/3)));
   }
 
   if (selector && (
@@ -2772,71 +2671,9 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
 
   this->RenderPieceStart(ren, actor);
   this->RenderPieceDraw(ren, actor);
-  this->RenderEdges(ren,actor);
+//  this->RenderEdges(ren,actor);
   this->RenderPieceFinish(ren, actor);
 }
-
-void vtkOpenGLPolyDataMapper::RenderEdges(vtkRenderer* ren, vtkActor *actor)
-{
-  vtkProperty *prop = actor->GetProperty();
-  bool draw_surface_with_edges =
-    (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
-
-  if (!draw_surface_with_edges)
-  {
-    return;
-  }
-
-  this->DrawingEdges = true;
-
-  // draw polygons
-  if (this->TrisEdges.IBO->IndexCount)
-  {
-    // First we do the triangles, update the shader, set uniforms, etc.
-    this->UpdateShaders(this->TrisEdges, ren, actor);
-    if (!this->HaveWideLines(ren,actor))
-    {
-      glLineWidth(actor->GetProperty()->GetLineWidth());
-    }
-    this->TrisEdges.IBO->Bind();
-    glDrawRangeElements(GL_LINES, 0,
-                        static_cast<GLuint>(this->VBO->VertexCount - 1),
-                        static_cast<GLsizei>(this->TrisEdges.IBO->IndexCount),
-                        GL_UNSIGNED_INT,
-                        reinterpret_cast<const GLvoid *>(NULL));
-    this->TrisEdges.IBO->Release();
-  }
-
-  // draw strips
-  if (this->TriStripsEdges.IBO->IndexCount)
-  {
-    // Use the tris shader program/VAO, but triStrips ibo.
-    this->UpdateShaders(this->TriStripsEdges, ren, actor);
-    if (!this->HaveWideLines(ren,actor))
-    {
-      glLineWidth(actor->GetProperty()->GetLineWidth());
-    }
-    this->TriStripsEdges.IBO->Bind();
-    glDrawRangeElements(GL_LINES, 0,
-                        static_cast<GLuint>(this->VBO->VertexCount - 1),
-                        static_cast<GLsizei>(this->TriStripsEdges.IBO->IndexCount),
-                        GL_UNSIGNED_INT,
-                        reinterpret_cast<const GLvoid *>(NULL));
-    this->TriStripsEdges.IBO->Release();
-  }
-
-  this->DrawingEdges = false;
-
-/*
-    // Disable textures when rendering the surface edges.
-    // This ensures that edges are always drawn solid.
-    glDisable(GL_TEXTURE_2D);
-
-    this->Information->Set(vtkPolyDataPainter::DISABLE_SCALAR_COLOR(), 1);
-    this->Information->Remove(vtkPolyDataPainter::DISABLE_SCALAR_COLOR());
-    */
-}
-
 
 //-------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ComputeBounds()
@@ -3569,17 +3406,17 @@ void vtkOpenGLPolyDataMapper::BuildIBO(
 
   if (this->IBOBuildString != toString.str())
   {
-    this->Points.IBO->CreatePointIndexBuffer(prims[0]);
+    this->Primitives[PrimitivePoints].IBO->CreatePointIndexBuffer(prims[0]);
 
     if (representation == VTK_POINTS)
     {
-      this->Lines.IBO->CreatePointIndexBuffer(prims[1]);
-      this->Tris.IBO->CreatePointIndexBuffer(prims[2]);
-      this->TriStrips.IBO->CreatePointIndexBuffer(prims[3]);
+      this->Primitives[PrimitiveLines].IBO->CreatePointIndexBuffer(prims[1]);
+      this->Primitives[PrimitiveTris].IBO->CreatePointIndexBuffer(prims[2]);
+      this->Primitives[PrimitiveTriStrips].IBO->CreatePointIndexBuffer(prims[3]);
     }
     else // WIREFRAME OR SURFACE
     {
-      this->Lines.IBO->CreateLineIndexBuffer(prims[1]);
+      this->Primitives[PrimitiveLines].IBO->CreateLineIndexBuffer(prims[1]);
 
       if (representation == VTK_WIREFRAME)
       {
@@ -3598,19 +3435,19 @@ void vtkOpenGLPolyDataMapper::BuildIBO(
         }
         if (ef)
         {
-          this->Tris.IBO->CreateEdgeFlagIndexBuffer(prims[2], ef);
+          this->Primitives[PrimitiveTris].IBO->CreateEdgeFlagIndexBuffer(prims[2], ef);
         }
         else
         {
-          this->Tris.IBO->CreateTriangleLineIndexBuffer(prims[2]);
+          this->Primitives[PrimitiveTris].IBO->CreateTriangleLineIndexBuffer(prims[2]);
         }
-        this->TriStrips.IBO->CreateStripIndexBuffer(prims[3], true);
+        this->Primitives[PrimitiveTriStrips].IBO->CreateStripIndexBuffer(prims[3], true);
       }
-     else // SURFACE
-     {
-        this->Tris.IBO->CreateTriangleIndexBuffer(prims[2], poly->GetPoints());
-        this->TriStrips.IBO->CreateStripIndexBuffer(prims[3], false);
-     }
+    else // SURFACE
+      {
+        this->Primitives[PrimitiveTris].IBO->CreateTriangleIndexBuffer(prims[2], poly->GetPoints());
+        this->Primitives[PrimitiveTriStrips].IBO->CreateStripIndexBuffer(prims[3], false);
+      }
     }
 
     // when drawing edges also build the edge IBOs
@@ -3631,13 +3468,19 @@ void vtkOpenGLPolyDataMapper::BuildIBO(
       }
       if (ef)
       {
-        this->TrisEdges.IBO->CreateEdgeFlagIndexBuffer(prims[2], ef);
+        this->Primitives[PrimitiveTrisEdges].IBO->CreateEdgeFlagIndexBuffer(prims[2], ef);
       }
       else
       {
-        this->TrisEdges.IBO->CreateTriangleLineIndexBuffer(prims[2]);
+        this->Primitives[PrimitiveTrisEdges].IBO->CreateTriangleLineIndexBuffer(prims[2]);
       }
-      this->TriStripsEdges.IBO->CreateStripIndexBuffer(prims[3], true);
+      this->Primitives[PrimitiveTriStripsEdges].IBO->CreateStripIndexBuffer(prims[3], true);
+    }
+
+    if (prop->GetVertexVisibility())
+    {
+      // for all 4 types of primitives add their verts into the IBO
+      this->Primitives[PrimitiveVertices].IBO->CreateVertexIndexBuffer(prims);
     }
 
     this->IBOBuildString = toString.str();
@@ -3710,6 +3553,40 @@ void vtkOpenGLPolyDataMapper::SetVBOShiftScaleMethod(int m)
   this->VBO->SetCoordShiftAndScaleMethod(
     static_cast<vtkOpenGLVertexBufferObject::ShiftScaleMethod>(m));
 }
+
+int vtkOpenGLPolyDataMapper::GetOpenGLMode(
+  int representation,
+  int primType)
+{
+  if (representation == VTK_POINTS ||
+      primType == PrimitivePoints ||
+      primType == PrimitiveVertices)
+  {
+    return GL_POINTS;
+  }
+  if (representation == VTK_WIREFRAME ||
+      primType == PrimitiveLines ||
+      primType == PrimitiveTrisEdges ||
+      primType == PrimitiveTriStripsEdges)
+  {
+    return GL_LINES;
+  }
+  return GL_TRIANGLES;
+}
+
+int vtkOpenGLPolyDataMapper::GetPointPickingPrimitiveSize(int primType)
+{
+  if (primType == PrimitivePoints)
+  {
+    return 2;
+  }
+  if (primType == PrimitiveLines)
+  {
+    return 4;
+  }
+  return 6;
+}
+
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)

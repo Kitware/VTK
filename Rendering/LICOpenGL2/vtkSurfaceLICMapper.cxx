@@ -210,7 +210,6 @@ void vtkSurfaceLICMapper::RenderPiece(
   this->LICInterface->PrepareForGeometry();
   this->RenderPieceStart(renderer, actor);
   this->RenderPieceDraw(renderer, actor);
-  this->RenderEdges(renderer,actor);
   this->RenderPieceFinish(renderer, actor);
   this->LICInterface->CompletedGeometry();
 
