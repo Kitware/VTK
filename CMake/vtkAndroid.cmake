@@ -51,15 +51,6 @@ if (NOT EXISTS ${CMAKE_INSTALL_PREFIX})
     "Install path ${CMAKE_INSTALL_PREFIX} does not exist.")
 endif()
 
-# First, determine how to build
-if (CMAKE_GENERATOR MATCHES "NMake Makefiles")
-  set(VTK_BUILD_COMMAND BUILD_COMMAND nmake)
-elseif (CMAKE_GENERATOR MATCHES "Ninja")
-  set(VTK_BUILD_COMMAND BUILD_COMMAND ninja)
-else()
-  set(VTK_BUILD_COMMAND BUILD_COMMAND make)
-endif()
-
 # Compile a minimal VTK for its compile tools
 macro(compile_vtk_tools)
   ExternalProject_Add(
@@ -68,7 +59,7 @@ macro(compile_vtk_tools)
     PREFIX ${CMAKE_BINARY_DIR}/CompileTools
     BINARY_DIR ${CMAKE_BINARY_DIR}/CompileTools
     INSTALL_COMMAND ""
-    ${VTK_BUILD_COMMAND} vtkCompileTools
+    BUILD_COMMAND ${CMAKE_COMMAND} --build . --config $<CONFIGURATION> --target vtkCompileTools
     BUILD_ALWAYS 1
     CMAKE_CACHE_ARGS
       -DCMAKE_BUILD_TYPE:STRING=Release
