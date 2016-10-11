@@ -589,6 +589,7 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
       n += 2;
     }
     unsigned int multiSampleAttributeIndex = 0;
+    unsigned int multiSampleBuffersIndex = 0;
     if (this->MultiSamples > 1 &&
         wglewIsSupported("WGL_ARB_multisample"))
     {
@@ -596,6 +597,7 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
       attrib[n+1] = 1;
       attrib[n+2] = WGL_SAMPLES_ARB;
       attrib[n+3] = this->MultiSamples;
+      multiSampleBuffersIndex = n+1;
       multiSampleAttributeIndex = n+3;
       n += 4;
     }
@@ -604,15 +606,20 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
       || numFormats == 0)
     {
       // If the requested number of multisamples does not work, try
-      // scaling down the number of multisamples a few times.
+      // scaling down the number of multisamples
       if (multiSampleAttributeIndex)
       {
         attrib[multiSampleAttributeIndex] /= 2;
         if (!wglChoosePixelFormatARB(hDC, attrib, 0, 1,
               &pixelFormat, &numFormats) || numFormats == 0)
         {
-          attrib[multiSampleAttributeIndex] /= 2;
-          wglChoosePixelFormatARB(hDC, attrib, 0, 1, &pixelFormat, &numFormats);
+          // try disabling multisampling altogether
+          if (multiSampleBuffersIndex)
+          {
+            attrib[multiSampleBuffersIndex] = 0;
+            attrib[multiSampleAttributeIndex] = 0;
+            wglChoosePixelFormatARB(hDC, attrib, 0, 1, &pixelFormat, &numFormats);
+          }
         }
       }
       // try dropping stereo
