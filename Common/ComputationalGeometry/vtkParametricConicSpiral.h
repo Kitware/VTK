@@ -135,7 +135,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricConicSpiral :
     double N;
 
   private:
-    vtkParametricConicSpiral(const vtkParametricConicSpiral&)
+    vtkParametricConicSpiral(const vtkParametricConicSpiral&)\
     VTK_DELETE_FUNCTION;
     void operator=(const vtkParametricConicSpiral&) VTK_DELETE_FUNCTION;
 };
