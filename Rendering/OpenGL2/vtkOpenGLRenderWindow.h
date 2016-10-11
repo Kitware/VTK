@@ -398,7 +398,7 @@ protected:
 
   std::map<const vtkTextureObject *, int> TextureResourceIds;
 
-  int GetPixelData(int x, int y, int x2, int y2, int front, unsigned char* data);
+  virtual int GetPixelData(int x, int y, int x2, int y2, int front, unsigned char* data);
   int GetRGBAPixelData(int x, int y, int x2, int y2, int front, float* data);
   int GetRGBACharPixelData(int x, int y, int x2, int y2, int front,
                            unsigned char* data);
