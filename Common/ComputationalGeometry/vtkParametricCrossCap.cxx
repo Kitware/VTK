@@ -23,15 +23,15 @@ vtkParametricCrossCap::vtkParametricCrossCap()
 {
   // Preset triangulation parameters
   this->MinimumU = 0;
-  this->MinimumV = 0;
   this->MaximumU = vtkMath::Pi();
+  this->MinimumV = 0;
   this->MaximumV = vtkMath::Pi();
 
   this->JoinU = 1;
   this->JoinV = 1;
   this->TwistU = 1;
   this->TwistV = 1;
-  this->ClockwiseOrdering = 1;
+  this->ClockwiseOrdering = 0;
   this->DerivativesAvailable = 1;
 }
 
@@ -41,7 +41,8 @@ vtkParametricCrossCap::~vtkParametricCrossCap()
 }
 
 //----------------------------------------------------------------------------
-void vtkParametricCrossCap::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
+void vtkParametricCrossCap::Evaluate(double uvw[3], double Pt[3],
+                                     double Duvw[9])
 {
 
   double u = uvw[0];
@@ -71,7 +72,8 @@ void vtkParametricCrossCap::Evaluate(double uvw[3], double Pt[3], double Duvw[9]
 }
 
 //----------------------------------------------------------------------------
-double vtkParametricCrossCap::EvaluateScalar(double *, double *, double *)
+double vtkParametricCrossCap::EvaluateScalar(double *, double *,
+    double *)
 {
   return 0;
 }
@@ -79,5 +81,5 @@ double vtkParametricCrossCap::EvaluateScalar(double *, double *, double *)
 //----------------------------------------------------------------------------
 void vtkParametricCrossCap::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
