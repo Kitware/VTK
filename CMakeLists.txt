@@ -27,6 +27,10 @@ if(NOT DEFINED CMAKE_MACOSX_RPATH)
   set(CMAKE_MACOSX_RPATH 0)
 endif()
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Android" AND CMAKE_VERSION VERSION_LESS 3.7)
+  message(FATAL_ERROR "CMake 3.7 or above is required to build for Android")
+endif()
+
 project(VTK)
 
 if (NOT CMAKE_VERSION VERSION_LESS "3.1")
@@ -152,20 +156,20 @@ if (ANDROID OR APPLE_IOS)
      CACHE STRING "Output from TRY_RUN" FORCE)
 
   # need int version for CPP
-  if (${OPENGL_ES_VERSION} MATCHES 2.0)
+  if (OPENGL_ES_VERSION STREQUAL "2.0")
     set(OPENGL_ES_VERSION_INT 20)
   endif()
-  if (${OPENGL_ES_VERSION} MATCHES 3.0)
+  if (OPENGL_ES_VERSION STREQUAL "3.0")
     set(OPENGL_ES_VERSION_INT 30)
   endif()
 
   if (APPLE_IOS)
     unset(OPENGL_INCLUDE_DIR CACHE)
-    if (${OPENGL_ES_VERSION} MATCHES 2.0)
+    if (OPENGL_ES_VERSION STREQUAL "2.0")
       find_path(OPENGL_INCLUDE_DIR ES2/gl.h
                 ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks/OpenGLES.framework/Headers
                 ${_OPENGL_INCLUDE_DIR})
-    elseif (${OPENGL_ES_VERSION} MATCHES 3.0)
+    elseif (OPENGL_ES_VERSION STREQUAL "3.0")
       find_path(OPENGL_INCLUDE_DIR ES3/gl.h
                 ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks/OpenGLES.framework/Headers
                 ${_OPENGL_INCLUDE_DIR})
@@ -181,36 +185,14 @@ if (ANDROID OR APPLE_IOS)
     unset(OPENGL_gl_LIBRARY CACHE)
     unset(OPENGL_egl_LIBRARY CACHE)
 
-    if (${OPENGL_ES_VERSION} MATCHES 2.0)
-      find_path(OPENGL_INCLUDE_DIR GLES2/gl2.h
-         ${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/include
-         ${_OPENGL_INCLUDE_PATH}
-         NO_DEFAULT_PATH
-         )
-      find_library(OPENGL_gl_LIBRARY
-         NAMES GLESv2
-         PATHS
-           ${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/lib
-           ${_OPENGL_LIB_PATH}
-         )
-    elseif (${OPENGL_ES_VERSION} MATCHES 3.0)
-      find_path(OPENGL_INCLUDE_DIR GLES3/gl3.h
-         ${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/include
-         ${_OPENGL_INCLUDE_PATH}
-         )
-      find_library(OPENGL_gl_LIBRARY
-         NAMES GLESv3
-         PATHS
-           ${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/lib
-           ${_OPENGL_LIB_PATH}
-         )
+    if (OPENGL_ES_VERSION STREQUAL "2.0")
+      find_path(OPENGL_INCLUDE_DIR GLES2/gl2.h)
+      find_library(OPENGL_gl_LIBRARY NAMES GLESv2)
+    elseif (OPENGL_ES_VERSION STREQUAL "3.0")
+      find_path(OPENGL_INCLUDE_DIR GLES3/gl3.h)
+      find_library(OPENGL_gl_LIBRARY NAMES GLESv3)
     endif()
-    find_library(OPENGL_egl_LIBRARY
-       NAMES EGL
-       PATHS
-         ${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/lib
-         ${_OPENGL_LIB_PATH}
-       )
+    find_library(OPENGL_egl_LIBRARY NAMES EGL)
   endif()
 else()
   # Choose static or shared libraries.
