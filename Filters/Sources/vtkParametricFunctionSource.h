@@ -239,8 +239,7 @@ class VTKFILTERSSOURCES_EXPORT vtkParametricFunctionSource : public
      */
     void MakeTriangles(vtkCellArray * strips, int PtsU, int PtsV);
 
-    vtkParametricFunctionSource(const vtkParametricFunctionSource&)\
-    VTK_DELETE_FUNCTION;
+    vtkParametricFunctionSource(const vtkParametricFunctionSource&) VTK_DELETE_FUNCTION;
     void operator=(const vtkParametricFunctionSource&) VTK_DELETE_FUNCTION;
 
 };
