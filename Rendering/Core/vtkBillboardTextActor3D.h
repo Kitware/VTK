@@ -49,6 +49,15 @@ public:
   /** @} */
 
   /**
+   * Can be used to set a fixed offset from the anchor point.
+   * Use display coordinates.
+   * @{
+   */
+  vtkGetVector2Macro(DisplayOffset, int)
+  vtkSetVector2Macro(DisplayOffset, int)
+  /** @} */
+
+  /**
    * The vtkTextProperty object that controls the rendered text.
    * @{
    */
@@ -104,6 +113,9 @@ protected:
   // Text specification:
   char *Input;
   vtkTextProperty *TextProperty;
+
+  // Offset in display coordinates.
+  int DisplayOffset[2];
 
   // Cached metadata to determine if things need rebuildin'
   int RenderedDPI;
