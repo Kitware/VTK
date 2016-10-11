@@ -218,8 +218,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricRandomHills :
     int previousAllowRandomGeneration;
 
   private:
-    vtkParametricRandomHills(const vtkParametricRandomHills&)\
-    VTK_DELETE_FUNCTION;
+    vtkParametricRandomHills(const vtkParametricRandomHills&) VTK_DELETE_FUNCTION;
     void operator=(const vtkParametricRandomHills&) VTK_DELETE_FUNCTION;
 
     /**
