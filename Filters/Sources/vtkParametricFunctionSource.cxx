@@ -87,7 +87,8 @@ namespace
       *(idPtr++) = id3;
     }
   }
-}
+
+} // anonymous namespace
 
 //----------------------------------------------------------------------------
 void vtkParametricFunctionSource::MakeTriangles(vtkCellArray * cells,

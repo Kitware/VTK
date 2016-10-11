@@ -67,7 +67,7 @@ void vtkParametricConicSpiral::Evaluate(double uvw[3], double Pt[3],
   Pt[1] = this->A * (1 - v * inv2pi) * snv * (1 + cu) + this->C * snv;
   Pt[2] = this->B * v * inv2pi + this->A * (1 - v * inv2pi) * su;
 
-  //The derivatives are:
+  // The derivatives are:
   Du[0] = -this->A * (1 - v * inv2pi) * cnv * su;
   Dv[0] = -this->A * inv2pi * cnv * (1 + cu) - this->A *
           (1 - v * inv2pi) * snv * this->N * (1 + cu) - this->C * snv * N;

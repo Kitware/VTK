@@ -26,6 +26,7 @@ namespace
   */
   double SgnPower(double x, double n)
   {
+    const double eps = 1.0e-06;
     if (x == 0)
     {
       return 0;
@@ -35,7 +36,11 @@ namespace
       return 1;
     }
     double sgn = (x < 0) ? -1 : 1;
-    return sgn * std::pow(std::abs(x), n);
+    if (std::abs(x) > eps)
+    {
+      return sgn * std::pow(std::abs(x), n);
+    }
+    return 0;
   }
 
 } // anonymous namespace
@@ -85,13 +90,13 @@ void vtkParametricSuperEllipsoid::Evaluate(double uvw[3], double Pt[3],
   double cv = cos(v);
   double sv = sin(v);
 
-  //double tmp = this->Power(sv, N1);
-  double tmp = SgnPower(cv, N1);
+  double tmp = SgnPower(cv, this->N1);
 
   // The point
   Pt[0] = this->YRadius * tmp * SgnPower(su, this->N2);
   Pt[1] = this->XRadius * tmp * SgnPower(cu, this->N2);
   Pt[2] = this->ZRadius * SgnPower(sv, this->N1);
+
 }
 
 //----------------------------------------------------------------------------
