@@ -25,15 +25,15 @@ vtkParametricBohemianDome::vtkParametricBohemianDome() :
 {
   // Preset triangulation parameters
   this->MinimumU = -vtkMath::Pi();
-  this->MinimumV = -vtkMath::Pi();
   this->MaximumU = vtkMath::Pi();
+  this->MinimumV = -vtkMath::Pi();
   this->MaximumV = vtkMath::Pi();
 
   this->JoinU = 1;
   this->JoinV = 1;
   this->TwistU = 0;
   this->TwistV = 1;
-  this->ClockwiseOrdering = 1;
+  this->ClockwiseOrdering = 0;
   this->DerivativesAvailable = 1;
 }
 
@@ -43,7 +43,8 @@ vtkParametricBohemianDome::~vtkParametricBohemianDome()
 }
 
 //----------------------------------------------------------------------------//
-void vtkParametricBohemianDome::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
+void vtkParametricBohemianDome::Evaluate(double uvw[3], double Pt[3],
+    double Duvw[9])
 {
   // Copy the parameters out of the vector, for the sake of convenience.
   double u = uvw[0];
@@ -63,23 +64,24 @@ void vtkParametricBohemianDome::Evaluate(double uvw[3], double Pt[3], double Duv
 
   // Location of the point. This parametrization was taken from:
   // http://mathworld.wolfram.com/BohemianDome.html
-  Pt[0] = this->A*cosu;
-  Pt[1] = this->A*sinu + this->B*cosv;
-  Pt[2] = this->C*sinv;
+  Pt[0] = this->A * cosu;
+  Pt[1] = this->A * sinu + this->B * cosv;
+  Pt[2] = this->C * sinv;
 
   // The derivative with respect to u:
-  Du[0] = -this->A*sinu;
-  Du[1] = this->A*cosu;
+  Du[0] = -this->A * sinu;
+  Du[1] = this->A * cosu;
   Du[2] = 0.;
 
   // The derivative with respect to v:
   Dv[0] = 0.;
-  Dv[1] = -this->B*sinv;
-  Dv[2] = this->C*cosv;
+  Dv[1] = -this->B * sinv;
+  Dv[2] = this->C * cosv;
 }
 
 //----------------------------------------------------------------------------//
-double vtkParametricBohemianDome::EvaluateScalar(double *, double *, double *)
+double vtkParametricBohemianDome::EvaluateScalar(double *, double *,
+    double *)
 {
   return 0;
 }
@@ -87,5 +89,5 @@ double vtkParametricBohemianDome::EvaluateScalar(double *, double *, double *)
 //----------------------------------------------------------------------------//
 void vtkParametricBohemianDome::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

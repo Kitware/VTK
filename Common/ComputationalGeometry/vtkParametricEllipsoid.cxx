@@ -27,15 +27,15 @@ vtkParametricEllipsoid::vtkParametricEllipsoid() :
 {
   // Preset triangulation parameters
   this->MinimumU = 0;
-  this->MinimumV = 0;
   this->MaximumU = 2.0 * vtkMath::Pi();
+  this->MinimumV = 0;
   this->MaximumV = vtkMath::Pi();
 
   this->JoinU = 1;
   this->JoinV = 0;
   this->TwistU = 0;
   this->TwistV = 0;
-  this->ClockwiseOrdering = 1;
+  this->ClockwiseOrdering = 0;
   this->DerivativesAvailable = 1;
 }
 
@@ -45,14 +45,15 @@ vtkParametricEllipsoid::~vtkParametricEllipsoid()
 }
 
 //----------------------------------------------------------------------------
-void vtkParametricEllipsoid::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
+void vtkParametricEllipsoid::Evaluate(double uvw[3], double Pt[3],
+                                      double Duvw[9])
 {
   double u = uvw[0];
   double v = uvw[1];
   double *Du = Duvw;
   double *Dv = Duvw + 3;
 
-  for ( int i = 0; i < 3; ++i)
+  for (int i = 0; i < 3; ++i)
   {
     Pt[i] = Du[i] = Dv[i] = 0;
   }
@@ -63,17 +64,17 @@ void vtkParametricEllipsoid::Evaluate(double uvw[3], double Pt[3], double Duvw[9
   double sv = sin(v);
 
   // The point
-  Pt[0] = this->XRadius*sv*cu;
-  Pt[1] = this->YRadius*sv*su;
-  Pt[2] = this->ZRadius*cv;
+  Pt[0] = this->XRadius * sv * cu;
+  Pt[1] = this->YRadius * sv * su;
+  Pt[2] = this->ZRadius * cv;
 
   //The derivatives are:
-  Du[0] = -this->XRadius*sv*su;
-  Du[1] = this->YRadius*sv*cu;
+  Du[0] = -this->XRadius * sv * su;
+  Du[1] = this->YRadius * sv * cu;
   Du[2] = 0;
-  Dv[0] = this->XRadius*cv*cu;
-  Dv[1] = this->YRadius*cv*su;
-  Dv[2] = -this->ZRadius*sv;
+  Dv[0] = this->XRadius * cv * cu;
+  Dv[1] = this->YRadius * cv * su;
+  Dv[2] = -this->ZRadius * sv;
 
 }
 
@@ -86,7 +87,7 @@ double vtkParametricEllipsoid::EvaluateScalar(double*, double*, double*)
 //----------------------------------------------------------------------------
 void vtkParametricEllipsoid::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "X scale factor: " << this->XRadius << "\n";
   os << indent << "Y scale factor: " << this->YRadius << "\n";
