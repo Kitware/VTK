@@ -79,11 +79,11 @@ void vtkHiddenLineRemovalPass::Render(const vtkRenderState *s)
     }
     if (isWireframe)
     {
-      wireframeProps.push_back(actor);
+      wireframeProps.push_back(prop);
     }
     else
     {
-      otherProps.push_back(actor);
+      otherProps.push_back(prop);
     }
   }
 
