@@ -334,10 +334,10 @@ public:
   };
 
   vtkSetClampMacro(VectorMode, int, -1, 1);
-  vtkSetClampMacro(VectorComponent, int, 0, 3);
+  vtkGetMacro(VectorMode, int);
 
-  int VectorMode;
-  int VectorComponent;
+  vtkSetClampMacro(VectorComponent, int, 0, 3);
+  vtkGetMacro(VectorComponent, int);
   //@}
 
 protected:
@@ -477,6 +477,18 @@ protected:
    * distance based on whether the render is interactive or still.
    */
   int InteractiveAdjustSampleDistances;
+
+  //@{
+  /**
+   * VectorMode is a special rendering mode for 3-component vectors which makes
+   * use of GPURayCastMapper's independent-component capabilities. In this mode,
+   * a single component in the vector can be selected for rendering. In addition,
+   * the mapper can compute a scalar field representing the magnitude of this vector
+   * using a vtkImageMagnitude object (MAGNITUDE mode).
+   */
+  int VectorMode;
+  int VectorComponent;
+  //@}
 
 private:
   /**
