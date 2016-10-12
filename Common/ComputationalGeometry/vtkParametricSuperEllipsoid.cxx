@@ -93,8 +93,8 @@ void vtkParametricSuperEllipsoid::Evaluate(double uvw[3], double Pt[3],
   double tmp = SgnPower(cv, this->N1);
 
   // The point
-  Pt[0] = this->YRadius * tmp * SgnPower(su, this->N2);
-  Pt[1] = this->XRadius * tmp * SgnPower(cu, this->N2);
+  Pt[0] = this->XRadius * tmp * SgnPower(su, this->N2);
+  Pt[1] = this->YRadius * tmp * SgnPower(cu, this->N2);
   Pt[2] = this->ZRadius * SgnPower(sv, this->N1);
 
 }
