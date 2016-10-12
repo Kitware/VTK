@@ -23,15 +23,15 @@ vtkParametricEnneper::vtkParametricEnneper()
 {
   // Preset triangulation parameters
   this->MinimumU = -2.0;
-  this->MinimumV = -2.0;
   this->MaximumU = 2.0;
+  this->MinimumV = -2.0;
   this->MaximumV = 2.0;
 
   this->JoinU = 0;
   this->JoinV = 0;
   this->TwistU = 0;
   this->TwistV = 0;
-  this->ClockwiseOrdering = 1;
+  this->ClockwiseOrdering = 0;
   this->DerivativesAvailable = 1;
 
 }
@@ -42,7 +42,8 @@ vtkParametricEnneper::~vtkParametricEnneper()
 }
 
 //----------------------------------------------------------------------------
-void vtkParametricEnneper::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
+void vtkParametricEnneper::Evaluate(double uvw[3], double Pt[3],
+                                    double Duvw[9])
 {
 
   double u = uvw[0];
@@ -51,21 +52,22 @@ void vtkParametricEnneper::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
   double *Dv = Duvw + 3;
 
   // The point
-  Pt[0] = u-u*u*u/3+u*v*v;
-  Pt[1] = v-v*v*v/3+u*u*v;
-  Pt[2] = u*u-v*v;
+  Pt[0] = u - u * u * u / 3 + u * v * v;
+  Pt[1] = v - v * v * v / 3 + u * u * v;
+  Pt[2] = u * u - v * v;
 
   //The derivatives are:
-  Du[0] = 1-u*u+v*v;
-  Dv[0] = 2*u*v;
-  Du[1] = 2*u*v;
-  Dv[1] = 1-v*v+u*u;
-  Du[2] = 2*u;
-  Dv[2] = -2*v;
+  Du[0] = 1 - u * u + v * v;
+  Dv[0] = 2 * u * v;
+  Du[1] = 2 * u * v;
+  Dv[1] = 1 - v * v + u * u;
+  Du[2] = 2 * u;
+  Dv[2] = -2 * v;
 }
 
 //----------------------------------------------------------------------------
-double vtkParametricEnneper::EvaluateScalar(double *, double *, double *)
+double vtkParametricEnneper::EvaluateScalar(double *, double *,
+    double *)
 {
   return 0;
 }
@@ -73,5 +75,5 @@ double vtkParametricEnneper::EvaluateScalar(double *, double *, double *)
 //----------------------------------------------------------------------------
 void vtkParametricEnneper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

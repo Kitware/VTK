@@ -34,64 +34,66 @@
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"
 
-class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricPluckerConoid : public vtkParametricFunction
+class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricPluckerConoid :
+  public vtkParametricFunction
 {
-public:
+  public:
 
 
-  vtkTypeMacro(vtkParametricPluckerConoid,vtkParametricFunction);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    vtkTypeMacro(vtkParametricPluckerConoid, vtkParametricFunction);
+    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  //@{
-  /**
-   * This is the number of folds in the conoid.
-   */
-  vtkGetMacro(N, int);
-  vtkSetMacro(N, int);
-  //@}
+    //@{
+    /**
+     * This is the number of folds in the conoid.
+     */
+    vtkGetMacro(N, int);
+    vtkSetMacro(N, int);
+    //@}
 
-  /**
-   * Construct Plucker's conoid surface with the following parameters:
-   * (MinimumU, MaximumU) = (0., 3.),
-   * (MinimumV, MaximumV) = (0., pi),
-   * JoinU = 0, JoinV = 0,
-   * TwistU = 0, TwistV = 0;
-   * ClockwiseOrdering = 1,
-   * DerivativesAvailable = 1,
-   */
-  static vtkParametricPluckerConoid *New();
+    /**
+     * Construct Plucker's conoid surface with the following parameters:
+     * (MinimumU, MaximumU) = (0., 3.),
+     * (MinimumV, MaximumV) = (0., 2*pi),
+     * JoinU = 0, JoinV = 0,
+     * TwistU = 0, TwistV = 0;
+     * ClockwiseOrdering = 0,
+     * DerivativesAvailable = 1,
+     */
+    static vtkParametricPluckerConoid *New();
 
-  /**
-   * Return the parametric dimension of the class.
-   */
-  int GetDimension() VTK_OVERRIDE {return 2;}
+    /**
+     * Return the parametric dimension of the class.
+     */
+    int GetDimension() VTK_OVERRIDE {return 2;}
 
-  /**
-   * Plucker's conoid surface.
+    /**
+     * Plucker's conoid surface.
 
-   * This function performs the mapping \f$f(u,v) \rightarrow (x,y,x)\f$, returning it
-   * as Pt. It also returns the partial derivatives Du and Dv.
-   * \f$Pt = (x, y, z), D_u\vec{f} = (dx/du, dy/du, dz/du), D_v\vec{f} = (dx/dv, dy/dv, dz/dv)\f$ .
-   * Then the normal is \f$N = D_u\vec{f} \times D_v\vec{f}\f$ .
-   */
-  void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) VTK_OVERRIDE;
+     * This function performs the mapping \f$f(u,v) \rightarrow (x,y,x)\f$, returning it
+     * as Pt. It also returns the partial derivatives Du and Dv.
+     * \f$Pt = (x, y, z), D_u\vec{f} = (dx/du, dy/du, dz/du), D_v\vec{f} = (dx/dv, dy/dv, dz/dv)\f$ .
+     * Then the normal is \f$N = D_u\vec{f} \times D_v\vec{f}\f$ .
+     */
+    void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) VTK_OVERRIDE;
 
-  /**
-   * Calculate a user defined scalar using one or all of uvw, Pt, Duvw.
-   * This method simply returns 0.
-   */
-  double EvaluateScalar(double uvw[3], double Pt[3], double Duvw[9]) VTK_OVERRIDE;
+    /**
+     * Calculate a user defined scalar using one or all of uvw, Pt, Duvw.
+     * This method simply returns 0.
+     */
+    double EvaluateScalar(double uvw[3], double Pt[3],
+                          double Duvw[9]) VTK_OVERRIDE;
 
-protected:
-  vtkParametricPluckerConoid();
-  ~vtkParametricPluckerConoid() VTK_OVERRIDE;
+  protected:
+    vtkParametricPluckerConoid();
+    ~vtkParametricPluckerConoid() VTK_OVERRIDE;
 
-  // Variables
-  int N;
+    // Variables
+    int N;
 
-private:
-  vtkParametricPluckerConoid(const vtkParametricPluckerConoid&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkParametricPluckerConoid&) VTK_DELETE_FUNCTION;
+  private:
+    vtkParametricPluckerConoid(const vtkParametricPluckerConoid&) VTK_DELETE_FUNCTION;
+    void operator=(const vtkParametricPluckerConoid&) VTK_DELETE_FUNCTION;
 };
 
 #endif
