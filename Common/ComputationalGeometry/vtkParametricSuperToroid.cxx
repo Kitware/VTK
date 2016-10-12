@@ -26,6 +26,7 @@ namespace
   */
   double SgnPower(double x, double n)
   {
+    const double eps = 1.0e-06;
     if (x == 0)
     {
       return 0;
@@ -93,8 +94,8 @@ void vtkParametricSuperToroid::Evaluate(double uvw[3], double Pt[3],
                 this->N2);
 
   // The point
-  Pt[0] = this->YRadius * tmp * SgnPower(su, this->N1);
-  Pt[1] = this->XRadius * tmp * SgnPower(cu, this->N1);
+  Pt[0] = this->XRadius * tmp * SgnPower(su, this->N1);
+  Pt[1] = this->YRadius * tmp * SgnPower(cu, this->N1);
   Pt[2] = this->ZRadius * this->CrossSectionRadius * SgnPower(sv,
           this->N2);
 }
