@@ -375,6 +375,11 @@ void vtkOpenGLRenderWindow::OpenGLInit()
 {
   OpenGLInitContext();
   OpenGLInitState();
+
+  // This is required for some reason when using vtkSynchronizedRenderers.
+  // Without it, the initial render of an offscreen context will always be
+  // empty:
+  glFlush();
 }
 
 void vtkOpenGLRenderWindow::OpenGLInitState()
