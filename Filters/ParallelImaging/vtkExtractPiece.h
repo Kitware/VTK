@@ -12,13 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractPiece
-// .SECTION Description
-// vtkExtractPiece returns the appropriate piece of each
-// sub-dataset in the vtkCompositeDataSet.
-// This filter can handle sub-datasets of type vtkImageData, vtkPolyData,
-// vtkRectilinearGrid, vtkStructuredGrid, and vtkUnstructuredGrid; it does
-// not handle sub-grids of type vtkCompositeDataSet.
+/**
+ * @class   vtkExtractPiece
+ *
+ * vtkExtractPiece returns the appropriate piece of each
+ * sub-dataset in the vtkCompositeDataSet.
+ * This filter can handle sub-datasets of type vtkImageData, vtkPolyData,
+ * vtkRectilinearGrid, vtkStructuredGrid, and vtkUnstructuredGrid; it does
+ * not handle sub-grids of type vtkCompositeDataSet.
+*/
 
 #ifndef vtkExtractPiece_h
 #define vtkExtractPiece_h
@@ -76,8 +78,8 @@ protected:
                                int piece, int numberOfPieces, int ghostLevel,
                                vtkCompositeDataIterator* iter);
 private:
-  vtkExtractPiece(const vtkExtractPiece&); // Not implemented.
-  void operator=(const vtkExtractPiece&); // Not implemented.
+  vtkExtractPiece(const vtkExtractPiece&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExtractPiece&) VTK_DELETE_FUNCTION;
 };
 
 #endif

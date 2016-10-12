@@ -31,9 +31,9 @@ public:
 
   void VoidCallback() { this->VoidEventCounts++; }
   void CallbackWithArguments(vtkObject*, unsigned long event, void*)
-    {
+  {
     this->EventCounts[event]++;
-    }
+  }
 };
 vtkStandardNewMacro(vtkHandler);
 
@@ -48,9 +48,9 @@ public:
 public:
   void VoidCallback() { this->VoidEventCounts++; }
   void CallbackWithArguments(vtkObject*, unsigned long event, void*)
-    {
+  {
     this->EventCounts[event]++;
-    }
+  }
 };
 
 int OtherHandler::VoidEventCounts = 0;
@@ -104,22 +104,22 @@ int TestObservers(int, char*[])
     vtkHandler::EventCounts[1000] == 0 &&
     vtkHandler::EventCounts[1001] == 2 &&
     vtkHandler::EventCounts[1002] == 1)
-    {
+  {
     cout << "All vtkObject callback counts as expected." << endl;
-    }
+  }
   else
-    {
+  {
     cerr << "Mismatched callback counts for VTK observer." << endl;
     volcano->Delete();
     return 1;
-    }
+  }
 
   // ---------------------------------
   // Test again, with smart pointers
   vtkHandler::VoidEventCounts = 0;
 
   // Make a scope for the smart pointer
-    {
+  {
     vtkSmartPointer<vtkHandler> handler2 = vtkSmartPointer<vtkHandler>::New();
 
     event0 = volcano->AddObserver(
@@ -140,7 +140,7 @@ int TestObservers(int, char*[])
     volcano->InvokeEvent(1005);
 
     // end the scope, which deletes the observer
-    }
+  }
 
   // continue invoking, to make sure that
   // no events to to the deleted observer
@@ -161,15 +161,15 @@ int TestObservers(int, char*[])
     vtkHandler::EventCounts[1003] == 0 &&
     vtkHandler::EventCounts[1004] == 2 &&
     vtkHandler::EventCounts[1005] == 1)
-    {
+  {
     cout << "All smart pointer callback counts as expected." << endl;
-    }
+  }
   else
-    {
+  {
     cerr << "Mismatched callback counts for smart pointer observer." << endl;
     volcano->Delete();
     return 1;
-    }
+  }
 
   // ---------------------------------
   // Test yet again, this time with a non-VTK object
@@ -209,10 +209,10 @@ int TestObservers(int, char*[])
     OtherHandler::EventCounts[1006] == 0 &&
     OtherHandler::EventCounts[1007] == 2 &&
     OtherHandler::EventCounts[1008] == 1)
-    {
+  {
     cout << "All non-VTK observer callback counts as expected." << endl;
     return 0;
-    }
+  }
 
   cerr << "Mismatched callback counts for non-VTK observer." << endl;
   return 1;

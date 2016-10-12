@@ -129,13 +129,13 @@ int TestGenericProbeFilter(int argc, char* argv[])
   geom->Delete();
 
   if(geom->GetOutput()->GetPointData()!=0)
-    {
+  {
     if(geom->GetOutput()->GetPointData()->GetScalars()!=0)
-      {
+    {
       mapper2->SetScalarRange( geom->GetOutput()->GetPointData()->
                               GetScalars()->GetRange());
-      }
     }
+  }
   vtkActor *actor2 = vtkActor::New();
   actor2->SetMapper(mapper2);
   mapper2->Delete();
@@ -177,13 +177,13 @@ int TestGenericProbeFilter(int argc, char* argv[])
   probe->Delete();
 
   if(probe->GetOutput()->GetPointData()!=0)
-    {
+  {
     if(probe->GetOutput()->GetPointData()->GetScalars()!=0)
-      {
+    {
       mapper->SetScalarRange( probe->GetOutput()->GetPointData()->
                               GetScalars()->GetRange());
-      }
     }
+  }
 
   vtkActor *actor = vtkActor::New();
   actor->SetMapper(mapper);
@@ -214,13 +214,13 @@ int TestGenericProbeFilter(int argc, char* argv[])
   stdProbe->Delete();
 
   if(stdProbe->GetOutput()->GetPointData()!=0)
-    {
+  {
     if(stdProbe->GetOutput()->GetPointData()->GetScalars()!=0)
-      {
+    {
       mapper4->SetScalarRange( stdProbe->GetOutput()->GetPointData()->
                                GetScalars()->GetRange());
-      }
     }
+  }
 
   vtkActor *actor4 = vtkActor::New();
   actor4->SetMapper(mapper4);
@@ -235,9 +235,9 @@ int TestGenericProbeFilter(int argc, char* argv[])
   renWin->Render();
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Cleanup
   iren->Delete();

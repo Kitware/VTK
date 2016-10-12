@@ -13,13 +13,16 @@
 
 =========================================================================*/
 
-// .NAME vtkOpenGLPropItem - Sync Context2D state with vtk camera.
-//
-// .SECTION Description
-// The vtkContext2D framework modifies the GL state directly, while some actors
-// and mappers rely on the modelview/projection matrices from vtkCamera. This
-// class is a layer between the two that updates the camera with the current
-// OpenGL state.
+/**
+ * @class   vtkOpenGLPropItem
+ * @brief   Sync Context2D state with vtk camera.
+ *
+ *
+ * The vtkContext2D framework modifies the GL state directly, while some actors
+ * and mappers rely on the modelview/projection matrices from vtkCamera. This
+ * class is a layer between the two that updates the camera with the current
+ * OpenGL state.
+*/
 
 #ifndef vtkOpenGLPropItem_h
 #define vtkOpenGLPropItem_h
@@ -52,8 +55,8 @@ private:
   vtkNew<vtkCamera> CameraCache;
   vtkContext2D *Painter;
 
-  vtkOpenGLPropItem(const vtkOpenGLPropItem &); // Not implemented.
-  void operator=(const vtkOpenGLPropItem &); // Not implemented.
+  vtkOpenGLPropItem(const vtkOpenGLPropItem &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLPropItem &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkOpenGLPropItem_h

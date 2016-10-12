@@ -57,13 +57,13 @@ void vtkSpherePuzzle::Reset()
 
   this->Modified();
   for (idx = 0; idx < 32; ++idx)
-    {
+  {
     this->State[idx] = idx;
     this->PieceMask[idx] = 0;
-    }
+  }
   this->Transform->Identity();
   for (idx = 0; idx < 4; ++idx)
-    {
+  {
     this->Colors[0 + idx*8*3] = 255;
     this->Colors[1 + idx*8*3] = 0;
     this->Colors[2 + idx*8*3] = 0;
@@ -95,7 +95,7 @@ void vtkSpherePuzzle::Reset()
     this->Colors[21 + idx*8*3] = 255;
     this->Colors[22 + idx*8*3] = 50;
     this->Colors[23 + idx*8*3] = 150;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -134,9 +134,9 @@ int vtkSpherePuzzle::RequestData(
   tf->SetInputConnection(sphere->GetOutputPort());
 
   for (j = 0; j < 4; ++j)
-    {
+  {
     for (i = 0; i < 8; ++i)
-      {
+    {
       color = this->State[count] * 3;
       sphere->SetStartTheta((360.0 * (double)(i) / 8.0));
       sphere->SetEndTheta((360.0 * (double)(i+1) / 8.0));
@@ -144,40 +144,40 @@ int vtkSpherePuzzle::RequestData(
       sphere->SetEndPhi((180.0 * (double)(j+1) / 4.0));
       tmp = vtkPolyData::New();
       if (this->PieceMask[count])
-        { // Spheres original output is transforms input. Put it back.
+      { // Spheres original output is transforms input. Put it back.
         tf->Update();
         tmp->ShallowCopy(tf->GetOutput());
-        }
+      }
       else
-        { // Piece not involved in partial move. Just use the sphere.
+      { // Piece not involved in partial move. Just use the sphere.
         sphere->Update();
         tmp->ShallowCopy(sphere->GetOutput());
-        }
+      }
       // Now create the colors for the faces.
       num = tmp->GetNumberOfPoints();
       for (k = 0; k < num; ++k)
-        {
+      {
         r = this->Colors[color];
         g = this->Colors[color+1];
         b = this->Colors[color+2];
         // Lighten the active pieces
         if (this->Active && this->PieceMask[count])
-          {
+        {
           r = r + (unsigned char)((255 - r) * 0.4);
           g = g + (unsigned char)((255 - g) * 0.4);
           b = b + (unsigned char)((255 - b) * 0.4);
-          }
+        }
         scalars->InsertNextValue(r);
         scalars->InsertNextValue(g);
         scalars->InsertNextValue(b);
-        }
+      }
 
       // append all the pieces.
       append->AddInputData(tmp);
       tmp->FastDelete();
       ++count;
-      }
     }
+  }
 
   append->Update();
 
@@ -204,15 +204,15 @@ void vtkSpherePuzzle::MarkHorizontal(int section)
   int i;
 
   for (i = 0; i < 32; ++i)
-    {
+  {
     this->PieceMask[i] = 0;
-    }
+  }
   // Find the start of the section.
   section = section * 8;
   for (i = 0; i < 8; ++i)
-    {
+  {
     this->PieceMask[i+section] = 1;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -221,17 +221,17 @@ void vtkSpherePuzzle::MarkVertical(int section)
   int i, j, offset;
 
   for (i = 0; i < 32; ++i)
-    {
+  {
     this->PieceMask[i] = 1;
-    }
+  }
   for (i = 0; i < 4; ++i)
-    {
+  {
     offset = (section + i) % 8;
     for (j = 0; j < 4; ++j)
-      {
+    {
       this->PieceMask[offset+(j*8)] = 0;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -249,45 +249,45 @@ void vtkSpherePuzzle::MoveHorizontal(int slab, int percentage, int rightFlag)
 
   // Move zero does nothing.
   if (percentage <= 0)
-    {
+  {
     return;
-    }
+  }
 
   // Offset is used to determine which pieces are involved.
   offset = slab * 8;
 
   // Move 100 percent changes state.
   if (percentage >= 100)
-    { // Just do the state change.
+  { // Just do the state change.
     if (rightFlag)
-      {
+    {
       tmp = this->State[offset+7];
       for (i = 7; i > 0; --i)
-        {
-        this->State[i+offset] = this->State[i-1+offset];
-        }
-      this->State[offset] = tmp;
-      }
-    else
       {
+        this->State[i+offset] = this->State[i-1+offset];
+      }
+      this->State[offset] = tmp;
+    }
+    else
+    {
       tmp = this->State[offset];
       for (i = 0; i < 7; ++i)
-        {
+      {
         this->State[i+offset] = this->State[i+1+offset];
-        }
-      this->State[offset+7] = tmp;
       }
-    return;
+      this->State[offset+7] = tmp;
     }
+    return;
+  }
 
   // Partial move.
   // This does not change the state.  It is ust for animating
   // the move.
   // Setup the pieces that are involved in the move.
   if ( ! rightFlag)
-    {
+  {
     percentage = -percentage;
-    }
+  }
   this->Transform->RotateZ(((double)(percentage) / 100.0)
                            * (360.0 / 8.0) );
 }
@@ -307,9 +307,9 @@ void vtkSpherePuzzle::MoveVertical(int half, int percentage, int rightFlag)
 
   // Move zero does nothing.
   if (percentage <= 0)
-    {
+  {
     return;
-    }
+  }
 
   off0 = (4+half) % 8;
   off1 = (5+half) % 8;
@@ -318,7 +318,7 @@ void vtkSpherePuzzle::MoveVertical(int half, int percentage, int rightFlag)
 
   // Move 100 percent changes state.
   if (percentage >= 100)
-    { // Just do the state change.
+  { // Just do the state change.
     tmp = this->State[off0];
     this->State[off0] = this->State[24+off3];
     this->State[24+off3] = tmp;
@@ -352,14 +352,14 @@ void vtkSpherePuzzle::MoveVertical(int half, int percentage, int rightFlag)
     this->State[8+off3] = this->State[16+off0];
     this->State[16+off0] = tmp;
     return;
-    }
+  }
 
   // Partial move.
   // This does not change the state.  It is use for animating the move.
   if (rightFlag)
-    {
+  {
     percentage = -percentage;
-    }
+  }
   theta = (double)(half) * vtkMath::Pi() / 4.0;
   this->Transform->RotateWXYZ(((double)(percentage)/100.0)*(360.0/2.0),
                               sin(theta), -cos(theta), 0.0);
@@ -378,10 +378,10 @@ int vtkSpherePuzzle::SetPoint(double x, double y, double z)
   this->Modified();
 
   if (x < 0.2 && x > -0.2 && y < 0.2 && y > -0.2 && z < 0.2 && z > -0.2)
-    {
+  {
     this->Active = 0;
     return 0;
-    }
+  }
 
   // normalize
   pt[0] = x;
@@ -406,27 +406,27 @@ int vtkSpherePuzzle::SetPoint(double x, double y, double z)
   xp = 1.0 - xn;
   yp = 1.0 - yn;
   if (xn > 0.2 && xp > 0.2 && yn > 0.2 && yp > 0.2)
-    { // Do nothing in the center of the face.
+  { // Do nothing in the center of the face.
     this->Active = 0;
     return 0;
-    }
+  }
   this->Active = 1;
   if (xn < xp && xn < yp && xn < yn)
-    {
+  {
     this->VerticalFlag = 1;
     this->RightFlag = (yn < yp);
     this->Section = xi+2;
     this->MarkVertical(this->Section);
     return this->Section + this->VerticalFlag * 10 + this->RightFlag * 100;
-    }
+  }
   if (xp < xn && xp < yp && xp < yn)
-    {
+  {
     this->VerticalFlag = 1;
     this->RightFlag = (yp < yn);
     this->Section = xi+7;
     this->MarkVertical(this->Section);
     return this->Section + this->VerticalFlag * 10 + this->RightFlag * 100;
-    }
+  }
   // The remaining options move a horizontal slab.
   this->VerticalFlag = 0;
   this->RightFlag = (xn > xp);
@@ -439,19 +439,19 @@ int vtkSpherePuzzle::SetPoint(double x, double y, double z)
 void vtkSpherePuzzle::MovePoint(int percentage)
 {
   if ( ! this->Active)
-    {
+  {
     return;
-    }
+  }
   this->Modified();
 
   if (this->VerticalFlag)
-    {
+  {
     this->MoveVertical(this->Section, percentage, this->RightFlag);
-    }
+  }
   else
-    {
+  {
     this->MoveHorizontal(this->Section, percentage, this->RightFlag);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -462,8 +462,8 @@ void vtkSpherePuzzle::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "State: " << this->State[0];
   for (idx = 1; idx < 16; ++idx)
-    {
+  {
     os << ", " << this->State[idx];
-    }
+  }
   os << endl;
 }

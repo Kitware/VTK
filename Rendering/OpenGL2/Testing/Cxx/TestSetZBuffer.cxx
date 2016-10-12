@@ -70,25 +70,25 @@ int TestSetZBuffer(int argc, char *argv[])
   std::vector<float> depth;
   depth.reserve(90000);
   for (int i = 0; i < 300; i++)
-    {
+  {
     for (int j = 0; j < 300; j++)
-      {
+    {
       depth.push_back((j > 149 ? 0.0 : 1.0));
-      }
     }
+  }
 
   renderer->SetPreserveDepthBuffer(1);
   for (int i = 0; i < 4; i++)
-    {
+  {
     renderWindow->SetZbufferData(0,0,299,299,&(depth[0]));
     renderWindow->Render();
-    }
+  }
 
   int retVal = vtkRegressionTestImage( renderWindow.Get() );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

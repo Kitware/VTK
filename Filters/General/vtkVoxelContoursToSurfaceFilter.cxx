@@ -56,14 +56,14 @@ void vtkVoxelContoursToSurfaceFilter::AddLineToLineList( double x1, double y1,
 {
   // Do we need to increase the size of our list?
   if ( this->LineListLength >= this->LineListSize )
-    {
+  {
     // Double the space we had before
     double *newList = new double[this->LineListSize*4*2];
     memcpy( newList, this->LineList, 4*this->LineListSize*sizeof(double) );
     delete [] this->LineList;
     this->LineList = newList;
     this->LineListSize *= 2;
-    }
+  }
 
   // Now we are sure we have space - add the line
   this->LineList[4*this->LineListLength + 0] = x1;
@@ -82,7 +82,7 @@ void vtkVoxelContoursToSurfaceFilter::SortLineList()
 
   // Make sure we have enough space in our sorted list
   if ( this->SortedListSize < this->LineListLength )
-    {
+  {
     delete [] this->SortedXList;
     delete [] this->SortedYList;
     delete [] this->WorkingList;
@@ -108,7 +108,7 @@ void vtkVoxelContoursToSurfaceFilter::SortLineList()
     // used during the CastXLines and CastYLines methods, and is
     // the same size as the number of lines.
     this->IntersectionList = new double[this->LineListLength];
-    }
+  }
 
   // Copy the lines into the lists
   memcpy( this->SortedXList, this->LineList,
@@ -119,61 +119,61 @@ void vtkVoxelContoursToSurfaceFilter::SortLineList()
   // Now sort on x and y
   // Use a simple bubble sort - will improve if necessary
   for ( i = 0; i < this->LineListLength; i++ )
-    {
+  {
     // swap x entry if necessary to keep min x the first endpoint
     if ( this->SortedXList[4*i + 0] > this->SortedXList[4*i + 2] )
-      {
+    {
       tmpval = this->SortedXList[4*i];
       this->SortedXList[4*i] = this->SortedXList[4*i + 2];
       this->SortedXList[4*i + 2] = tmpval;
       tmpval = this->SortedXList[4*i + 1];
       this->SortedXList[4*i + 1] = this->SortedXList[4*i + 3];
       this->SortedXList[4*i + 3] = tmpval;
-      }
+    }
 
     // swap y entry if necessary to keep min y the first endpoint
     if ( this->SortedYList[4*i + 1] > this->SortedYList[4*i + 3] )
-      {
+    {
       tmpval = this->SortedYList[4*i];
       this->SortedYList[4*i] = this->SortedYList[4*i + 2];
       this->SortedYList[4*i + 2] = tmpval;
       tmpval = this->SortedYList[4*i + 1];
       this->SortedYList[4*i + 1] = this->SortedYList[4*i + 3];
       this->SortedYList[4*i + 3] = tmpval;
-      }
+    }
 
     // Sort x list
     for ( j = i; j > 0; j-- )
-      {
+    {
       if ( this->SortedXList[j*4] < this->SortedXList[(j-1)*4] )
-        {
+      {
         memcpy( tmp, this->SortedXList + j*4, 4*sizeof(double) );
         memcpy( this->SortedXList + j*4,
                 this->SortedXList + (j-1)*4, 4*sizeof(double) );
         memcpy( this->SortedXList + (j-1)*4, tmp, 4*sizeof(double) );
-        }
-      else
-        {
-        break;
-        }
       }
+      else
+      {
+        break;
+      }
+    }
 
     // Sort y list
     for ( j = i; j > 0; j-- )
-      {
+    {
       if ( this->SortedYList[j*4+1] < this->SortedYList[(j-1)*4+1] )
-        {
+      {
         memcpy( tmp, this->SortedYList + j*4, 4*sizeof(double) );
         memcpy( this->SortedYList + j*4, this->SortedYList + (j-1)*4,
                 4*sizeof(double) );
         memcpy( this->SortedYList + (j-1)*4, tmp, 4*sizeof(double) );
-        }
+      }
       else
-        {
+      {
         break;
-        }
       }
     }
+  }
 }
 
 
@@ -199,7 +199,7 @@ void vtkVoxelContoursToSurfaceFilter::CastLines( float *slicePtr,
 
   // this is the x direction
   if ( type == 0 )
-    {
+  {
     low1 = gridOrigin[0];
     high1 = gridOrigin[0] + (double)gridSize[0];
     low2 = gridOrigin[1];
@@ -211,10 +211,10 @@ void vtkVoxelContoursToSurfaceFilter::CastLines( float *slicePtr,
     offset2 = 2;
     offset3 = 1;
     offset4 = 3;
-    }
+  }
   // This is the y direction
   else
-    {
+  {
     low1 = gridOrigin[1];
     high1 = gridOrigin[1] + (double)gridSize[1];
     low2 = gridOrigin[0];
@@ -226,7 +226,7 @@ void vtkVoxelContoursToSurfaceFilter::CastLines( float *slicePtr,
     offset2 = 3;
     offset3 = 0;
     offset4 = 2;
-    }
+  }
 
   // Initialize the working list to nothing. We will start
   // looking at index = 0 for the next line to add to the
@@ -236,33 +236,33 @@ void vtkVoxelContoursToSurfaceFilter::CastLines( float *slicePtr,
 
   // Loop through the x or y lines
   for ( axis1 = low1, currSlice = 0; axis1 < high1; axis1 += 1.0, currSlice++ )
-    {
+  {
     // Initialize the intersection list to nothing
     this->IntersectionListLength = 0;
 
     // Add lines to the working list if necessary
     for ( ; index < this->LineListLength; index++ )
-      {
+    {
       if ( sortedList[4*index + offset1] < axis1 )
-        {
+      {
         this->WorkingList[this->WorkingListLength] = index;
         this->WorkingListLength++;
-        }
-      else
-        {
-        break;
-        }
       }
+      else
+      {
+        break;
+      }
+    }
 
     // Do the intersections, removing lines from the
     // working list if necessary
     for ( i = 0; i < this->WorkingListLength; i++ )
-      {
+    {
       line = sortedList + 4*this->WorkingList[i];
 
       // Yes, it intersects, add it to the intersection list
       if ( line[offset1] < axis1 && line[offset2] > axis1 )
-        {
+      {
         // Compute the intersection distance
         // For x lines this is y = y1 + (y2 - y1)*((x - x1)/(x2 - x1))
         // For y lines this is x = x1 + (x2 - x1)*((y - y1)/(y2 - y1))
@@ -272,87 +272,87 @@ void vtkVoxelContoursToSurfaceFilter::CastLines( float *slicePtr,
 
         // Make sure this distance is sorted
         for ( j = this->IntersectionListLength; j > 0; j-- )
-          {
+        {
           if ( this->IntersectionList[j] < this->IntersectionList[j-1] )
-            {
+          {
             tmp = this->IntersectionList[j];
             this->IntersectionList[j] = this->IntersectionList[j-1];
             this->IntersectionList[j-1] = tmp;
-            }
-          else
-            {
-            break;
-            }
           }
-        this->IntersectionListLength++;
+          else
+          {
+            break;
+          }
         }
+        this->IntersectionListLength++;
+      }
       // No, it doesn't intersect, remove it from the working list
       else
-        {
+      {
         for ( j = i; j < (this->WorkingListLength-1); j++ )
-          {
+        {
           this->WorkingList[j] = this->WorkingList[j+1];
-          }
+        }
         this->WorkingListLength--;
         i--;
-        }
       }
+    }
 
     // Now we have all the intersections for the x or y line, in sorted
     // order. Use them to fill in distances (as long as there are
     // any)
     if ( this->IntersectionListLength )
-      {
+    {
       currSlicePtr = slicePtr + currSlice*increment2;
       currentIntersection = 0;
       // We are starting outside which has a negative distance
       sign = -1.0;
       for ( axis2 = low2; axis2 < high2; axis2 += 1.0 )
-        {
+      {
         while( currentIntersection < this->IntersectionListLength &&
                this->IntersectionList[currentIntersection] < axis2 )
 
-          {
+        {
           currentIntersection++;
 
           // Each time we cross a line we are moving across an
           // inside/outside boundary
           sign *= -1.0;
-          }
+        }
         // We are now positioned at an x or y value between currentIntersection
         // and currentIntersection - 1 (except at boundaries where we are
         // before intersection 0 or after the last intersection)
 
         if ( currentIntersection == 0 )
-          {
+        {
           d1 = axis2 - this->IntersectionList[currentIntersection];
           *currSlicePtr = (*currSlicePtr > d1 )?(*currSlicePtr):(d1);
-          }
+        }
         else if ( currentIntersection == this->IntersectionListLength )
-          {
+        {
           d1 = this->IntersectionList[currentIntersection-1] - axis2;
           *currSlicePtr = (*currSlicePtr > d1 )?(*currSlicePtr):(d1);
-          }
+        }
         else
-          {
+        {
           d1 = axis2 - this->IntersectionList[currentIntersection-1];
           d2 = this->IntersectionList[currentIntersection] - axis2;
           d1 = ( d1 < d2 )?(d1):(d2);
           if ( type == 0 )
-            {
+          {
             *currSlicePtr = sign*d1;
-            }
+          }
           else
-            {
+          {
             *currSlicePtr =
               (sign*(*currSlicePtr) < d1 )?(*currSlicePtr):(sign*d1);
-            }
           }
+        }
 
         currSlicePtr += increment1;
-        }
       }
     }
+  }
 }
 
 void vtkVoxelContoursToSurfaceFilter::PushDistances( float *volumePtr,
@@ -364,85 +364,85 @@ void vtkVoxelContoursToSurfaceFilter::PushDistances( float *volumePtr,
 
   // Push distances along x (both ways) and y (both ways) on each slice
   for ( k = 0; k < chunkSize; k++ )
-    {
+  {
     // Do the x rows
     for ( j = 0; j < gridSize[1]; j++ )
-      {
+    {
       vptr = volumePtr + k*gridSize[0]*gridSize[1] + j*gridSize[0];
       vptr++;
 
       // first one way
       for ( i = 1; i < gridSize[0]; i++ )
-        {
+      {
         if ( *vptr > 0 &&  *(vptr-1) + 1 < *(vptr) )
-          {
+        {
           *vptr = *(vptr-1) + 1;
-          }
-        else if ( *vptr < 0 && *(vptr-1) - 1 > *(vptr) )
-          {
-          *vptr = *(vptr-1) - 1;
-          }
-        vptr++;
         }
+        else if ( *vptr < 0 && *(vptr-1) - 1 > *(vptr) )
+        {
+          *vptr = *(vptr-1) - 1;
+        }
+        vptr++;
+      }
 
       vptr -= 2;
       i    -= 2;
 
       // then the other
       for ( ; i >= 0; i-- )
-        {
+      {
         if ( *vptr > 0 &&  *(vptr+1) + 1 < *(vptr) )
-          {
+        {
           *vptr = *(vptr+1) + 1;
-          }
-        else if ( *vptr < 0 && *(vptr+1) - 1 > *(vptr) )
-          {
-          *vptr = *(vptr+1) - 1;
-          }
         }
-
+        else if ( *vptr < 0 && *(vptr+1) - 1 > *(vptr) )
+        {
+          *vptr = *(vptr+1) - 1;
+        }
       }
+
+    }
 
 
     // Do the y columns
     for ( i = 0; i < gridSize[0]; i++ )
-      {
+    {
       vptr = volumePtr + k*gridSize[0]*gridSize[1] + i;
 
       vptr+=gridSize[0];
 
       // first one way
       for ( j = 1; j < gridSize[1]; j++ )
-        {
+      {
         if ( *vptr > 0 &&  *(vptr-gridSize[0]) + 1 < *(vptr) )
-          {
+        {
           *vptr = *(vptr-gridSize[0]) + 1;
-          }
-        else if ( *vptr < 0 && *(vptr-gridSize[0]) - 1 > *(vptr) )
-          {
-          *vptr = *(vptr-gridSize[0]) - 1;
-          }
-        vptr += gridSize[0];
         }
+        else if ( *vptr < 0 && *(vptr-gridSize[0]) - 1 > *(vptr) )
+        {
+          *vptr = *(vptr-gridSize[0]) - 1;
+        }
+        vptr += gridSize[0];
+      }
 
       vptr -= 2*gridSize[0];
       j    -= 2;
 
       // then the other
       for ( ; j >= 0; j-- )
-        {
+      {
         if ( *vptr > 0 &&  *(vptr+gridSize[0]) + 1 < *(vptr) )
-          {
+        {
           *vptr = *(vptr+gridSize[0]) + 1;
-          }
-        else if ( *vptr < 0 && *(vptr+gridSize[0]) - 1 > *(vptr) )
-          {
-          *vptr = *(vptr+gridSize[0]) - 1;
-          }
         }
-
+        else if ( *vptr < 0 && *(vptr+gridSize[0]) - 1 > *(vptr) )
+        {
+          *vptr = *(vptr+gridSize[0]) - 1;
+        }
       }
+
     }
+  }
 }
 
 // Append data sets into single unstructured grid
@@ -486,9 +486,9 @@ int vtkVoxelContoursToSurfaceFilter::RequestData(
   input->GetBounds( contourBounds );
 
   if (contourBounds[0] > contourBounds[1])
-    { // empty input
+  { // empty input
     return 1;
-    }
+  }
 
   // From the bounds, compute the grid size, and origin
 
@@ -517,9 +517,9 @@ int vtkVoxelContoursToSurfaceFilter::RequestData(
   // Stay within memory limit. There are 4 bytes per double.
   chunkSize = this->MemoryLimitInBytes / ( gridSize[0] * gridSize[1] * 4 );
   if ( chunkSize > gridSize[2] )
-    {
+  {
     chunkSize = gridSize[2];
-    }
+  }
 
   currentSlice          = 0;
   currentZ              = contourBounds[4] - 1.0;
@@ -547,7 +547,7 @@ int vtkVoxelContoursToSurfaceFilter::RequestData(
   inputPolys->GetNextCell( npts, pts );
 
   while ( currentSlice <= lastSlice )
-    {
+  {
     // Make sure the origin of the volume is in the right
     // place so that the appended polydata all matches up
     // nicely.
@@ -556,48 +556,48 @@ int vtkVoxelContoursToSurfaceFilter::RequestData(
                        this->Spacing[2] * (currentSlice - (currentSlice!=0)) );
 
     for ( i = currentIndex; i < chunkSize; i++ )
-      {
+    {
       slicePtr = volumePtr + i * gridSize[0] * gridSize[1];
 
       // Clear out the slice memory - set it all to a large negative
       // value indicating no surfaces are nearby, and we assume we
       // are outside of any surface
       for ( j = 0; j < gridSize[0] * gridSize[1]; j++ )
-        {
+      {
         *(slicePtr+j) = -9.99e10;
-        }
+      }
 
       // If we are past the end, don't do anything
       if ( currentSlice > lastSlice )
-        {
+      {
         continue;
-        }
+      }
 
       this->LineListLength = 0;
 
       // Read in the lines for the contours on this slice
       while ( currentInputCellIndex < numberOfInputCells )
-        {
+      {
         // Check if we are still on the right z slice
         input->GetPoint( pts[0], point1 );
         if ( point1[2] != currentZ )
-          {
+        {
           break;
-          }
+        }
 
         // This contour is on the right z slice - add the lines
         // to our list
         for ( j = 0; j < npts; j++ )
-          {
+        {
           input->GetPoint( pts[j], point1 );
           input->GetPoint( pts[(j+1)%npts], point2 );
           this->AddLineToLineList( point1[0], point1[1],
                                    point2[0], point2[1] );
-          }
+        }
 
         inputPolys->GetNextCell( npts, pts );
         currentInputCellIndex++;
-        }
+      }
 
       // Sort the contours in x and y
       this->SortLineList();
@@ -610,7 +610,7 @@ int vtkVoxelContoursToSurfaceFilter::RequestData(
       currentSlice++;
       currentIndex++;
       currentZ += 1.0;
-      }
+    }
 
     this->PushDistances( volumePtr, gridSize, chunkSize );
 
@@ -626,15 +626,15 @@ int vtkVoxelContoursToSurfaceFilter::RequestData(
 
 
     if ( currentSlice <= lastSlice )
-      {
+    {
       // Copy last slice to first slice
       memcpy( volumePtr, volumePtr + (chunkSize-1)*gridSize[0]*gridSize[1],
               sizeof(float) * gridSize[0] * gridSize[1] );
 
       // reset currentIndex to 1
       currentIndex = 1;
-      }
     }
+  }
 
   appendFilter->Update();
 

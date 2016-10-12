@@ -80,7 +80,7 @@ void vtkContextView::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Context: " << this->Context << "\n";
   if (this->Context)
-    {
+  {
     this->Context->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
 }

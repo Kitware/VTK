@@ -80,75 +80,75 @@ int vtkGaussianCubeReader::RequestData(
   vtkImageData *grid = this->GetGridOutput();
 
   if (!this->FileName)
-    {
+  {
     return 0;
-    }
+  }
 
   if ((fp = fopen(this->FileName, "r")) == NULL)
-    {
+  {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
     return 0;
-    }
+  }
 
   if (!fgets(title, 256, fp))
-    {
+  {
     vtkErrorMacro ("GaussianCubeReader error reading file: " << this->FileName
                    << " Premature EOF while reading title.");
     fclose (fp);
     return 0;
-    }
+  }
   if(strtok(title, ":") != NULL)
-    {
+  {
     if(strtok(NULL, ":") != NULL)
-      {
+    {
       strcpy(data_name, strtok(NULL, ":"));
       fprintf(stderr,"label = %s\n", data_name);
-      }
     }
+  }
   if (!fgets(title, 256, fp))
-    {
+  {
     vtkErrorMacro ("GaussianCubeReader error reading file: " << this->FileName
                    << " Premature EOF while reading title.");
     fclose (fp);
     return 0;
-    }
+  }
 
   // Read in number of atoms, x-origin, y-origin z-origin
   //
   if (fscanf(fp, "%d %lf %lf %lf", &(this->NumberOfAtoms), &elements[3], &elements[7], &elements[11]) != 4)
-    {
+  {
     vtkErrorMacro ("GaussianCubeReader error reading file: " << this->FileName
                    << " Premature EOF while reading atoms, x-origin y-origin z-origin.");
     fclose (fp);
     return 0;
-    }
+  }
   if(this->NumberOfAtoms < 0 )
-    {
+  {
     this->NumberOfAtoms = -this->NumberOfAtoms;
     orbitalCubeFile = true;
-    }
+  }
 
   if (fscanf(fp, "%d %lf %lf %lf", &n1, &elements[0], &elements[4], &elements[8]) != 4)
-    {
+  {
     vtkErrorMacro ("GaussianCubeReader error reading file: " << this->FileName
                    << " Premature EOF while reading elements.");
     fclose (fp);
     return 0;
-    }
+  }
   if (fscanf(fp, "%d %lf %lf %lf", &n2, &elements[1], &elements[5], &elements[9]) != 4)
-    {
+  {
     vtkErrorMacro ("GaussianCubeReader error reading file: " << this->FileName
                    << " Premature EOF while reading elements.");
     fclose (fp);
     return 0;
-    }
+  }
   if (fscanf(fp, "%d %lf %lf %lf", &n3, &elements[2], &elements[6], &elements[10]) != 4)
-    {
+  {
     vtkErrorMacro ("GaussianCubeReader error reading file: " << this->FileName
                    << " Premature EOF while reading elements.");
     fclose (fp);
     return 0;
-    }
+  }
   elements[12] = 0;
   elements[13] = 0;
   elements[14] = 0;
@@ -162,25 +162,25 @@ int vtkGaussianCubeReader::RequestData(
   this->ReadMolecule(fp, output);
 
   if(orbitalCubeFile)
-    {
+  {
     if (fscanf(fp,"%d", &numberOfOrbitals) != 1)
-      {
+    {
       vtkErrorMacro ("GaussianCubeReader error reading file: " << this->FileName
                      << " Premature EOF while reading number of orbitals.");
       fclose (fp);
       return 0;
-      }
+    }
     for(k = 0; k < numberOfOrbitals; k++)
-      {
+    {
       if (fscanf(fp,"%f", &tmp) != 1)
-        {
+      {
         vtkErrorMacro ("GaussianCubeReader error reading file: " << this->FileName
                        << " Premature EOF while reading orbitals.");
         fclose (fp);
         return 0;
-        }
       }
     }
+  }
 
   vtkInformation *gridInfo = this->GetExecutive()->GetOutputInformation(1);
   gridInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
@@ -201,24 +201,24 @@ int vtkGaussianCubeReader::RequestData(
   N1N2 = n1*n2;
 
   for(i = 0; i < n1; i++)
-    {
+  {
     JN1 = 0;
     for(j = 0; j < n2; j++)
-      {
+    {
       for(k = 0; k < n3; k++)
-        {
+      {
         if (fscanf(fp,"%f", &tmp) != 1)
-          {
+        {
           vtkErrorMacro ("GaussianCubeReader error reading file: " << this->FileName
                          << " Premature EOF while reading scalars.");
           fclose (fp);
           return 0;
-          }
-        cubedata[k*N1N2 + JN1 + i] = tmp;
         }
-      JN1 += n1;
+        cubedata[k*N1N2 + JN1 + i] = tmp;
       }
+      JN1 += n1;
     }
+  }
   fclose(fp);
 
   return 1;
@@ -232,14 +232,14 @@ void vtkGaussianCubeReader::ReadSpecificMolecule(FILE* fp)
   float dummy;
 
   for(i = 0; i < this->NumberOfAtoms; i++)
-    {
+  {
     if (fscanf(fp, "%d %f %f %f %f", &j, &dummy, x, x+1, x+2) != 5)
-      {
+    {
       vtkErrorMacro ("GaussianCubeReader error reading file: " << this->FileName
                      << " Premature EOF while reading molecule.");
       fclose (fp);
       return;
-      }
+    }
     this->Transform->TransformPoint(x, x);
     this->Points->InsertNextPoint(x);
     this->AtomType->InsertNextValue(j-1);
@@ -250,16 +250,16 @@ void vtkGaussianCubeReader::ReadSpecificMolecule(FILE* fp)
     this->SecondaryStructuresBegin->InsertNextValue(0);
     this->SecondaryStructuresEnd->InsertNextValue(0);
     this->IsHetatm->InsertNextValue(0);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 vtkImageData *vtkGaussianCubeReader::GetGridOutput()
 {
   if (this->GetNumberOfOutputPorts() < 2)
-    {
+  {
     return NULL;
-    }
+  }
   return vtkImageData::SafeDownCast(
     this->GetExecutive()->GetOutputData(1));
 }
@@ -273,14 +273,14 @@ void vtkGaussianCubeReader::PrintSelf(ostream& os, vtkIndent indent)
 
   os << "Transform: ";
   if( this->Transform )
-    {
+  {
     os << endl;
     this->Transform->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -297,63 +297,63 @@ int vtkGaussianCubeReader::RequestInformation(
   char title[256];
 
   if (!this->FileName)
-    {
+  {
     return 0;
-    }
+  }
 
   if ((fp = fopen(this->FileName, "r")) == NULL)
-    {
+  {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
     return 0;
-    }
+  }
 
   if (!fgets(title, 256, fp))
-    {
+  {
     vtkErrorMacro ("GaussianCubeReader error reading file: " << this->FileName
                    << " Premature EOF while reading title.");
     fclose (fp);
     return 0;
-    }
+  }
   if (!fgets(title, 256, fp))
-    {
+  {
     vtkErrorMacro ("GaussianCubeReader error reading file: " << this->FileName
                    << " Premature EOF while reading title.");
     fclose (fp);
     return 0;
-    }
+  }
 
   // Read in number of atoms, x-origin, y-origin z-origin
   double tmpd;
   int n1, n2, n3;
   if (fscanf(fp, "%d %lf %lf %lf", &n1, &tmpd, &tmpd, &tmpd) != 4)
-    {
+  {
     vtkErrorMacro ("GaussianCubeReader error reading file: " << this->FileName
                    << " Premature EOF while grid size.");
     fclose (fp);
     return 0;
-    }
+  }
 
   if (fscanf(fp, "%d %lf %lf %lf", &n1, &tmpd, &tmpd, &tmpd) != 4)
-    {
+  {
     vtkErrorMacro ("GaussianCubeReader error reading file: " << this->FileName
                    << " Premature EOF while grid size.");
     fclose (fp);
     return 0;
-    }
+  }
   if (fscanf(fp, "%d %lf %lf %lf", &n2, &tmpd, &tmpd, &tmpd) != 4)
-    {
+  {
     vtkErrorMacro ("GaussianCubeReader error reading file: " << this->FileName
                    << " Premature EOF while grid size.");
     fclose (fp);
     return 0;
-    }
+  }
   if (fscanf(fp, "%d %lf %lf %lf", &n3, &tmpd, &tmpd, &tmpd) != 4)
-    {
+  {
     vtkErrorMacro ("GaussianCubeReader error reading file: " << this->FileName
                    << " Premature EOF while grid size.");
     fclose (fp);
     return 0;
-    }
+  }
 
   vtkDebugMacro(<< "Grid Size " << n1 << " " << n2 << " " << n3);
   gridInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
@@ -372,9 +372,9 @@ int vtkGaussianCubeReader::FillOutputPortInformation(int port,
                                                      vtkInformation* info)
 {
   if(port == 0)
-    {
+  {
     return this->Superclass::FillOutputPortInformation(port, info);
-    }
+  }
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
   return 1;
 }

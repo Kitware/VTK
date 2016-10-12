@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLDataSetWriter - Write any type of VTK XML file.
-// .SECTION Description
-// vtkXMLDataSetWriter is a wrapper around the VTK XML file format
-// writers.  Given an input vtkDataSet, the correct writer is
-// automatically selected based on the type of input.
-
-// .SECTION See Also
-// vtkXMLImageDataWriter vtkXMLStructuredGridWriter
-// vtkXMLRectilinearGridWriter vtkXMLPolyDataWriter
-// vtkXMLUnstructuredGridWriter
+/**
+ * @class   vtkXMLDataSetWriter
+ * @brief   Write any type of VTK XML file.
+ *
+ * vtkXMLDataSetWriter is a wrapper around the VTK XML file format
+ * writers.  Given an input vtkDataSet, the correct writer is
+ * automatically selected based on the type of input.
+ *
+ * @sa
+ * vtkXMLImageDataWriter vtkXMLStructuredGridWriter
+ * vtkXMLRectilinearGridWriter vtkXMLPolyDataWriter
+ * vtkXMLUnstructuredGridWriter
+*/
 
 #ifndef vtkXMLDataSetWriter_h
 #define vtkXMLDataSetWriter_h
@@ -38,15 +41,17 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLDataSetWriter* New();
 
-  // Description:
-  // Get/Set the writer's input.
+  /**
+   * Get/Set the writer's input.
+   */
   vtkDataSet* GetInput();
 
-  // Description:
-  // Creates a writer for the given dataset type. May return NULL for
-  // unsupported/unrecognized dataset types. Returns a new instance. The caller
-  // is responsible of calling vtkObject::Delete() or vtkObject::UnRegister() on
-  // it when done.
+  /**
+   * Creates a writer for the given dataset type. May return NULL for
+   * unsupported/unrecognized dataset types. Returns a new instance. The caller
+   * is responsible of calling vtkObject::Delete() or vtkObject::UnRegister() on
+   * it when done.
+   */
   static vtkXMLWriter* NewWriter(int dataset_type);
 
 protected:
@@ -74,8 +79,8 @@ protected:
 
 
 private:
-  vtkXMLDataSetWriter(const vtkXMLDataSetWriter&);  // Not implemented.
-  void operator=(const vtkXMLDataSetWriter&);  // Not implemented.
+  vtkXMLDataSetWriter(const vtkXMLDataSetWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLDataSetWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

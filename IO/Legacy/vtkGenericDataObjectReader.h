@@ -12,22 +12,25 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGenericDataObjectReader - class to read any type of vtk data object
-// .SECTION Description
-// vtkGenericDataObjectReader is a class that provides instance variables and methods
-// to read any type of data object in Visualization Toolkit (vtk) format.  The
-// output type of this class will vary depending upon the type of data
-// file. Convenience methods are provided to return the data as a particular
-// type. (See text for format description details).
-// The superclass of this class, vtkDataReader, provides many methods for
-// controlling the reading of the data file, see vtkDataReader for more
-// information.
-// .SECTION Caveats
-// Binary files written on one system may not be readable on other systems.
-// .SECTION See Also
-// vtkDataReader vtkGraphReader vtkPolyDataReader vtkRectilinearGridReader
-// vtkStructuredPointsReader vtkStructuredGridReader vtkTableReader
-// vtkTreeReader vtkUnstructuredGridReader
+/**
+ * @class   vtkGenericDataObjectReader
+ * @brief   class to read any type of vtk data object
+ *
+ * vtkGenericDataObjectReader is a class that provides instance variables and methods
+ * to read any type of data object in Visualization Toolkit (vtk) format.  The
+ * output type of this class will vary depending upon the type of data
+ * file. Convenience methods are provided to return the data as a particular
+ * type. (See text for format description details).
+ * The superclass of this class, vtkDataReader, provides many methods for
+ * controlling the reading of the data file, see vtkDataReader for more
+ * information.
+ * @warning
+ * Binary files written on one system may not be readable on other systems.
+ * @sa
+ * vtkDataReader vtkGraphReader vtkPolyDataReader vtkRectilinearGridReader
+ * vtkStructuredPointsReader vtkStructuredGridReader vtkTableReader
+ * vtkTreeReader vtkUnstructuredGridReader
+*/
 
 #ifndef vtkGenericDataObjectReader_h
 #define vtkGenericDataObjectReader_h
@@ -37,6 +40,7 @@
 
 class vtkDataObject;
 class vtkGraph;
+class vtkMolecule;
 class vtkPolyData;
 class vtkRectilinearGrid;
 class vtkStructuredGrid;
@@ -52,18 +56,24 @@ public:
   vtkTypeMacro(vtkGenericDataObjectReader,vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the output of this filter
+  //@{
+  /**
+   * Get the output of this filter
+   */
   vtkDataObject *GetOutput();
   vtkDataObject *GetOutput(int idx);
+  //@}
 
-  // Description:
-  // Get the output as various concrete types. This method is typically used
-  // when you know exactly what type of data is being read.  Otherwise, use
-  // the general GetOutput() method. If the wrong type is used NULL is
-  // returned.  (You must also set the filename of the object prior to
-  // getting the output.)
+  //@{
+  /**
+   * Get the output as various concrete types. This method is typically used
+   * when you know exactly what type of data is being read.  Otherwise, use
+   * the general GetOutput() method. If the wrong type is used NULL is
+   * returned.  (You must also set the filename of the object prior to
+   * getting the output.)
+   */
   vtkGraph *GetGraphOutput();
+  vtkMolecule *GetMoleculeOutput();
   vtkPolyData *GetPolyDataOutput();
   vtkRectilinearGrid *GetRectilinearGridOutput();
   vtkStructuredGrid *GetStructuredGridOutput();
@@ -71,14 +81,17 @@ public:
   vtkTable *GetTableOutput();
   vtkTree *GetTreeOutput();
   vtkUnstructuredGrid *GetUnstructuredGridOutput();
+  //@}
 
-  // Description:
-  // This method can be used to find out the type of output expected without
-  // needing to read the whole file.
+  /**
+   * This method can be used to find out the type of output expected without
+   * needing to read the whole file.
+   */
   virtual int ReadOutputType();
 
-  // Description:
-  // See vtkAlgorithm for information.
+  /**
+   * See vtkAlgorithm for information.
+   */
   virtual int ProcessRequest(vtkInformation *, vtkInformationVector **,
                              vtkInformationVector *);
 
@@ -95,8 +108,8 @@ protected:
                                  vtkInformationVector *);
 
 private:
-  vtkGenericDataObjectReader(const vtkGenericDataObjectReader&);  // Not implemented.
-  void operator=(const vtkGenericDataObjectReader&);  // Not implemented.
+  vtkGenericDataObjectReader(const vtkGenericDataObjectReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGenericDataObjectReader&) VTK_DELETE_FUNCTION;
 
   template<typename ReaderT, typename DataT>
     void ReadData(const char* dataClass, vtkDataObject* output);

@@ -88,13 +88,13 @@ bool GL2PSMathTextScalingTest::Paint(vtkContext2D *painter)
   painter->GetTextProp()->SetVerticalJustificationToBottom();
 
   for (int i = 0; i < 10; ++i)
-    {
+  {
     int fontSize = 5 + i * 3;
     float y = 600 - ((pow(i, 1.2) + 1) * 40);
     painter->GetTextProp()->SetFontSize(fontSize);
     painter->DrawString(5, y, "Text");
     painter->DrawMathTextString(120, y, "MathText");
-    }
+  }
 
   return true;
 }

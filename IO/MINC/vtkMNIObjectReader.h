@@ -45,19 +45,22 @@ THE USE OR INABILITY TO USE THE SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGES.
 
 =========================================================================*/
-// .NAME vtkMNIObjectReader - A reader for MNI surface mesh files.
-// .SECTION Description
-// The MNI .obj file format is used to store geometrical data.  This
-// file format was developed at the McConnell Brain Imaging Centre at
-// the Montreal Neurological Institute and is used by their software.
-// Only polygon and line files are supported by this reader, but for
-// those formats, all data elements are read including normals, colors,
-// and surface properties.  ASCII and binary file types are supported.
-// .SECTION See Also
-// vtkMINCImageReader vtkMNIObjectWriter vtkMNITransformReader
-// .SECTION Thanks
-// Thanks to David Gobbi for writing this class and Atamai Inc. for
-// contributing it to VTK.
+/**
+ * @class   vtkMNIObjectReader
+ * @brief   A reader for MNI surface mesh files.
+ *
+ * The MNI .obj file format is used to store geometrical data.  This
+ * file format was developed at the McConnell Brain Imaging Centre at
+ * the Montreal Neurological Institute and is used by their software.
+ * Only polygon and line files are supported by this reader, but for
+ * those formats, all data elements are read including normals, colors,
+ * and surface properties.  ASCII and binary file types are supported.
+ * @sa
+ * vtkMINCImageReader vtkMNIObjectWriter vtkMNITransformReader
+ * @par Thanks:
+ * Thanks to David Gobbi for writing this class and Atamai Inc. for
+ * contributing it to VTK.
+*/
 
 #ifndef vtkMNIObjectReader_h
 #define vtkMNIObjectReader_h
@@ -78,29 +81,36 @@ public:
   vtkTypeMacro(vtkMNIObjectReader,vtkPolyDataAlgorithm);
 
   static vtkMNIObjectReader *New();
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Set the file name.
+  //@{
+  /**
+   * Set the file name.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Get the entension for this file format.
+  /**
+   * Get the entension for this file format.
+   */
   virtual const char* GetFileExtensions() {
     return ".obj"; }
 
-  // Description:
-  // Get the name of this file format.
+  /**
+   * Get the name of this file format.
+   */
   virtual const char* GetDescriptiveName() {
     return "MNI object"; }
 
-  // Description:
-  // Test whether the specified file can be read.
+  /**
+   * Test whether the specified file can be read.
+   */
   virtual int CanReadFile(const char* name);
 
-  // Description:
-  // Get the property associated with the object.
+  /**
+   * Get the property associated with the object.
+   */
   virtual vtkProperty *GetProperty() { return this->Property; };
 
 protected:
@@ -141,8 +151,8 @@ protected:
                           vtkInformationVector* outInfo);
 
 private:
-  vtkMNIObjectReader(const vtkMNIObjectReader&); // Not implemented
-  void operator=(const vtkMNIObjectReader&);  // Not implemented
+  vtkMNIObjectReader(const vtkMNIObjectReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMNIObjectReader&) VTK_DELETE_FUNCTION;
 
 };
 

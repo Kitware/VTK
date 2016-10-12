@@ -12,34 +12,37 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageRectilinearWipe - make a rectilinear combination of two images.
-// .SECTION Description
-// vtkImageRectilinearWipe makes a rectilinear combination of two
-// images. The two input images must correspond in size, scalar type and
-// number of components.
-// The resulting image has four possible configurations
-// called:
-//   Quad - alternate input 0 and input 1 horizontally and
-//     vertically. Select this with SetWipeModeToQuad. The Position
-//     specifies the location of the quad intersection.
-//   Corner - 3 of one input and 1 of the other. Select the location of
-//     input 0 with with SetWipeModeToLowerLeft, SetWipeModeToLowerRight,
-//     SetWipeModeToUpperLeft and SetWipeModeToUpperRight. The Position
-//     selects the location of the corner.
-//   Horizontal - alternate input 0 and input 1 with a vertical
-//     split. Select this with SetWipeModeToHorizontal. Position[0]
-//     specifies the location of the vertical transition between input 0
-//     and input 1.
-//   Vertical - alternate input 0 and input 1 with a horizontal
-//     split. Only the y The intersection point of the rectilinear points
-//     is controlled with the Point ivar.
-
-// .SECTION Thanks
-// This work was supported by PHS Research Grant No. 1 P41 RR13218-01
-// from the National Center for Research Resources.
-
-// .SECTION See Also
-// vtkImageCheckerboard
+/**
+ * @class   vtkImageRectilinearWipe
+ * @brief   make a rectilinear combination of two images.
+ *
+ * vtkImageRectilinearWipe makes a rectilinear combination of two
+ * images. The two input images must correspond in size, scalar type and
+ * number of components.
+ * The resulting image has four possible configurations
+ * called:
+ *   Quad - alternate input 0 and input 1 horizontally and
+ *     vertically. Select this with SetWipeModeToQuad. The Position
+ *     specifies the location of the quad intersection.
+ *   Corner - 3 of one input and 1 of the other. Select the location of
+ *     input 0 with with SetWipeModeToLowerLeft, SetWipeModeToLowerRight,
+ *     SetWipeModeToUpperLeft and SetWipeModeToUpperRight. The Position
+ *     selects the location of the corner.
+ *   Horizontal - alternate input 0 and input 1 with a vertical
+ *     split. Select this with SetWipeModeToHorizontal. Position[0]
+ *     specifies the location of the vertical transition between input 0
+ *     and input 1.
+ *   Vertical - alternate input 0 and input 1 with a horizontal
+ *     split. Only the y The intersection point of the rectilinear points
+ *     is controlled with the Point ivar.
+ *
+ * @par Thanks:
+ * This work was supported by PHS Research Grant No. 1 P41 RR13218-01
+ * from the National Center for Research Resources.
+ *
+ * @sa
+ * vtkImageCheckerboard
+*/
 
 #ifndef vtkImageRectilinearWipe_h
 #define vtkImageRectilinearWipe_h
@@ -62,40 +65,49 @@ public:
   vtkTypeMacro(vtkImageRectilinearWipe,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set/Get the location of the image transition. Note that position is
-  // specified in pixels.
+  //@{
+  /**
+   * Set/Get the location of the image transition. Note that position is
+   * specified in pixels.
+   */
   vtkSetVector2Macro(Position,int);
   vtkGetVectorMacro(Position,int,2);
+  //@}
 
-  // Description:
-  // Set/Get the location of the wipe axes. The default is X,Y (ie vector
-  // values of 0 and 1).
+  //@{
+  /**
+   * Set/Get the location of the wipe axes. The default is X,Y (ie vector
+   * values of 0 and 1).
+   */
   vtkSetVector2Macro(Axis,int);
   vtkGetVectorMacro(Axis,int,2);
+  //@}
 
-  // Description:
-  // Set the two inputs to this filter.
+  /**
+   * Set the two inputs to this filter.
+   */
   virtual void SetInput1Data(vtkDataObject *in) { this->SetInputData(0,in); }
   virtual void SetInput2Data(vtkDataObject *in) { this->SetInputData(1,in); }
 
-  // Description:
-  // Specify the wipe mode. This mode determnis how input 0 and input
-  // 1 are combined to produce the output. Each mode uses one or both
-  // of the values stored in Position.
-  //   SetWipeToQuad - alternate input 0 and input 1 horizontally and
-  //     vertically. The Position specifies the location of the quad
-  //     intersection.
-  //   SetWipeToLowerLeft{LowerRight,UpperLeft.UpperRight} - 3 of one
-  //     input and 1 of the other. Select the location of input 0 to the
-  //     LowerLeft{LowerRight,UpperLeft,UpperRight}. Position
-  //     selects the location of the corner.
-  //   SetWipeToHorizontal - alternate input 0 and input 1 with a vertical
-  //     split. Position[0] specifies the location of the vertical
-  //     transition between input 0 and input 1.
-  //   SetWipeToVertical - alternate input 0 and input 1 with a
-  //     horizontal split. Position[1] specifies the location of the
-  //     horizonal transition between input 0 and input 1.
+  //@{
+  /**
+   * Specify the wipe mode. This mode determnis how input 0 and input
+   * 1 are combined to produce the output. Each mode uses one or both
+   * of the values stored in Position.
+   * SetWipeToQuad - alternate input 0 and input 1 horizontally and
+   * vertically. The Position specifies the location of the quad
+   * intersection.
+   * SetWipeToLowerLeft{LowerRight,UpperLeft.UpperRight} - 3 of one
+   * input and 1 of the other. Select the location of input 0 to the
+   * LowerLeft{LowerRight,UpperLeft,UpperRight}. Position
+   * selects the location of the corner.
+   * SetWipeToHorizontal - alternate input 0 and input 1 with a vertical
+   * split. Position[0] specifies the location of the vertical
+   * transition between input 0 and input 1.
+   * SetWipeToVertical - alternate input 0 and input 1 with a
+   * horizontal split. Position[1] specifies the location of the
+   * horizonal transition between input 0 and input 1.
+   */
   vtkSetClampMacro(Wipe,int,VTK_WIPE_QUAD,VTK_WIPE_UPPER_RIGHT);
   vtkGetMacro(Wipe,int);
   void SetWipeToQuad()
@@ -112,6 +124,7 @@ public:
     {this->SetWipe(VTK_WIPE_UPPER_LEFT);}
   void SetWipeToUpperRight()
     {this->SetWipe(VTK_WIPE_UPPER_RIGHT);}
+  //@}
 
 protected:
   vtkImageRectilinearWipe();
@@ -129,8 +142,8 @@ protected:
   int Axis[2];
 
 private:
-  vtkImageRectilinearWipe(const vtkImageRectilinearWipe&);  // Not implemented.
-  void operator=(const vtkImageRectilinearWipe&);  // Not implemented.
+  vtkImageRectilinearWipe(const vtkImageRectilinearWipe&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageRectilinearWipe&) VTK_DELETE_FUNCTION;
 };
 
 #endif

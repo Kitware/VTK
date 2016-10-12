@@ -1,5 +1,6 @@
 vtk_add_test_python(
-  VToXLoop.py NO_VALID NO_RT NO_DATA
+  VToXLoop.py,NO_VALID,NO_RT,NO_DATA
+  ReadXdmfPolyhedron.py,NO_VALID,NO_RT
   )
 
 if (VTK_USE_LARGE_DATA)

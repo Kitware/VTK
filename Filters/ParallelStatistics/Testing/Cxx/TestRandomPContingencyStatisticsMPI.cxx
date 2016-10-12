@@ -78,19 +78,19 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
   vtkTable* inputData = vtkTable::New();
   // Discrete rounded normal samples
   for ( int c = 0; c < nVariables; ++ c )
-    {
+  {
     intArray[c] = vtkIntArray::New();
     intArray[c]->SetNumberOfComponents( 1 );
     intArray[c]->SetName( columnNames[c] );
 
     for ( int r = 0; r < args->nVals; ++ r )
-      {
+    {
       intArray[c]->InsertNextValue( static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) ) );
-      }
+    }
 
     inputData->AddColumn( intArray[c] );
     intArray[c]->Delete();
-    }
+  }
 
   // Entropies in the summary table should normally be retrieved as follows:
   //   column 2: H(X,Y)
@@ -127,12 +127,12 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
   timer->StopTimer();
 
   if ( com->GetLocalProcessId() == args->ioRank )
-    {
+  {
     cout << "\n## Completed parallel calculation of contingency statistics (with assessment):\n"
          << "   Wall time: "
          << timer->GetElapsedTime()
          << " sec.\n";
-    }
+  }
 
   // Now perform verifications
   vtkTable* outputSummary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
@@ -145,9 +145,9 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
 
   // Verify that all processes have the same grand total and contingency tables size
   if ( com->GetLocalProcessId() == args->ioRank )
-    {
+  {
     cout << "\n## Verifying that all processes have the same grand total and contingency tables size.\n";
-    }
+  }
 
   // Gather all grand totals
   int GT_l = outputContingency->GetValueByName( 0, "Cardinality" ).ToInt();
@@ -161,9 +161,9 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
 
   // Print out all grand totals
   if ( com->GetLocalProcessId() == args->ioRank )
-    {
+  {
     for ( int i = 0; i < numProcs; ++ i )
-      {
+    {
       cout << "     On process "
            << i
            << ", grand total = "
@@ -173,45 +173,45 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
            << "\n";
 
       if ( GT_g[i] != testIntValue )
-        {
+      {
         vtkGenericWarningMacro("Incorrect grand total:"
                                << GT_g[i]
                                << " <> "
                                << testIntValue
                                << ")");
         *(args->retVal) = 1;
-        }
       }
     }
+  }
 
   // Verify that information entropies on all processes make sense
   if ( com->GetLocalProcessId() == args->ioRank )
-    {
+  {
     cout << "\n## Verifying that information entropies are consistent on all processes.\n";
-    }
+  }
 
   testIntValue = outputSummary->GetNumberOfColumns();
 
   if ( testIntValue != nEntropies + 2 )
-    {
+  {
     vtkGenericWarningMacro("Reported an incorrect number of columns in the summary table: "
                            << testIntValue
                            << " != "
                            << nEntropies + 2
                            << ".");
     *(args->retVal) = 1;
-    }
+  }
   else
-    {
+  {
     // For each row in the summary table, fetch variable names and information entropies
     for ( vtkIdType k = 0; k < nRowSumm; ++ k )
-      {
+    {
       // Get local information entropies from summary table
       double* H_l = new double[nEntropies];
       for ( vtkIdType c = 0; c < nEntropies; ++ c )
-        {
+      {
         H_l[c] = outputSummary->GetValue( k, iEntropies[c] ).ToDouble();
-        }
+      }
 
       // Gather all local entropies
       double* H_g = new double[nEntropies * numProcs];
@@ -221,7 +221,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
 
       // Print out all entropies
       if ( com->GetLocalProcessId() == args->ioRank )
-        {
+      {
         // Get variable names
         cout << "   (X,Y) = ("
              << outputSummary->GetValue( k, 0 ).ToString()
@@ -230,17 +230,17 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
              << "):\n";
 
         for ( int i = 0; i < numProcs; ++ i )
-          {
+        {
           cout << "     On process "
                << i;
 
           for ( vtkIdType c = 0; c < nEntropies; ++ c )
-            {
+          {
             cout << ", "
                  << outputSummary->GetColumnName( iEntropies[c] )
                  << " = "
                  << H_g[nEntropies * i + c];
-            }
+          }
 
           cout << "\n";
 
@@ -248,67 +248,67 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
           testDoubleValue1 = H_g[nEntropies * i + 1] + H_g[nEntropies * i + 2]; // H(Y|X)+ H(X|Y)
 
           if ( testDoubleValue1 > H_g[nEntropies * i] )
-            {
+          {
             vtkGenericWarningMacro("Reported inconsistent information entropies: H(X,Y) = "
                                    << H_g[nEntropies * i]
                                    << " < "
                                    << testDoubleValue1
                                    << " = H(Y|X)+ H(X|Y).");
             *(args->retVal) = 1;
-            }
           }
-        cout << "   where H(X,Y) = - Sum_{x,y} p(x,y) log p(x,y) and H(X|Y) = - Sum_{x,y} p(x,y) log p(x|y).\n";
         }
+        cout << "   where H(X,Y) = - Sum_{x,y} p(x,y) log p(x,y) and H(X|Y) = - Sum_{x,y} p(x,y) log p(x|y).\n";
+      }
 
       // Clean up
       delete [] H_l;
       delete [] H_g;
-      }
     }
+  }
 
   // Verify that the local and global CDFs sum to 1 within presribed relative tolerance
   if ( com->GetLocalProcessId() == args->ioRank )
-    {
+  {
     cout << "\n## Verifying that local and global CDFs sum to 1 (within "
          << args->absTol
          << " absolute tolerance).\n";
-    }
+  }
 
   vtkIdTypeArray* keys = vtkArrayDownCast<vtkIdTypeArray>( outputContingency->GetColumnByName( "Key" ) );
   if ( ! keys )
-    {
+  {
     cout << "*** Error: "
          << "Empty contingency table column 'Key' on process "
          << com->GetLocalProcessId()
          << ".\n";
-    }
+  }
 
   vtkStdString proName = "P";
   vtkDoubleArray* prob = vtkArrayDownCast<vtkDoubleArray>( outputContingency->GetColumnByName( proName ) );
   if ( ! prob )
-    {
+  {
     cout << "*** Error: "
          << "Empty contingency table column '"
          << proName
          << "' on process "
          << com->GetLocalProcessId()
          << ".\n";
-    }
+  }
 
   // Calculate local CDFs
   double* cdf_l = new double[nRowSumm];
   for ( vtkIdType k = 0; k < nRowSumm; ++ k )
-    {
+  {
     cdf_l[k] = 0;
-    }
+  }
 
   int n = outputContingency->GetNumberOfRows();
 
   // Skip first entry which is reserved for the cardinality
   for ( vtkIdType r = 1; r < n; ++ r )
-    {
+  {
     cdf_l[keys->GetValue( r )] += prob->GetValue( r );
-    }
+  }
 
   // Gather all local CDFs
   double* cdf_g = new double[nRowSumm * numProcs];
@@ -318,9 +318,9 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
 
   // Print out all local and global CDFs
   if ( com->GetLocalProcessId() == args->ioRank )
-    {
+  {
     for ( vtkIdType k = 0; k < nRowSumm; ++ k )
-      {
+    {
       // Get variable names
       cout << "   (X,Y) = ("
            << outputSummary->GetValue( k, 0 ).ToString()
@@ -329,7 +329,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
            << "):\n";
 
       for ( int i = 0; i < numProcs; ++ i )
-        {
+      {
         testDoubleValue1 = cdf_l[k];
         testDoubleValue2 = cdf_g[i * nRowSumm + k];
 
@@ -343,20 +343,20 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
 
         // Verify that local CDF = 1 (within absTol)
         if ( fabs ( 1. - testDoubleValue1 ) > args->absTol )
-          {
+        {
           vtkGenericWarningMacro("Incorrect local CDF.");
           *(args->retVal) = 1;
-          }
+        }
 
         // Verify that global CDF = 1 (within absTol)
         if ( fabs ( 1. - testDoubleValue2 ) > args->absTol )
-          {
+        {
           vtkGenericWarningMacro("Incorrect global CDF.");
           *(args->retVal) = 1;
-          }
         }
       }
     }
+  }
 
   // Clean up
   delete [] GT_g;
@@ -378,11 +378,11 @@ int TestRandomPContingencyStatisticsMPI( int argc, char* argv[] )
 
   // If an MPI controller was not created, terminate in error.
   if ( ! controller->IsA( "vtkMPIController" ) )
-    {
+  {
     vtkGenericWarningMacro("Failed to initialize a MPI controller.");
     controller->Delete();
     return 1;
-    }
+  }
 
   vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast( controller->GetCommunicator() );
 
@@ -397,7 +397,7 @@ int TestRandomPContingencyStatisticsMPI( int argc, char* argv[] )
                 &flag );
 
   if ( ( ! flag ) || ( *ioPtr == MPI_PROC_NULL ) )
-    {
+  {
     // Getting MPI attributes did not return any I/O node found.
     ioRank = MPI_PROC_NULL;
     vtkGenericWarningMacro("No MPI I/O nodes found.");
@@ -408,23 +408,23 @@ int TestRandomPContingencyStatisticsMPI( int argc, char* argv[] )
     controller->Delete();
 
     return -1;
-    }
+  }
   else
-    {
+  {
     if ( *ioPtr == MPI_ANY_SOURCE )
-      {
+    {
       // Anyone can do the I/O trick--just pick node 0.
       ioRank = 0;
-      }
+    }
     else
-      {
+    {
       // Only some nodes can do I/O. Make sure everyone agrees on the choice (min).
       com->AllReduce( ioPtr,
                       &ioRank,
                       1,
                       vtkCommunicator::MIN_OP );
-      }
     }
+  }
 
   // **************************** Parse command line ***************************
   // Set default argument values
@@ -454,27 +454,27 @@ int TestRandomPContingencyStatisticsMPI( int argc, char* argv[] )
 
   // If incorrect arguments were provided, provide some help and terminate in error.
   if ( ! clArgs.Parse() )
-    {
+  {
     if ( com->GetLocalProcessId() == ioRank )
-      {
+    {
       cerr << "Usage: "
            << clArgs.GetHelp()
            << "\n";
-      }
+    }
 
     controller->Finalize();
     controller->Delete();
 
     return 1;
-    }
+  }
 
   // ************************** Initialize test *********************************
   if ( com->GetLocalProcessId() == ioRank )
-    {
+  {
     cout << "\n# Process "
          << ioRank
          << " will be the I/O node.\n";
-    }
+  }
 
 
   // Parameters for regression test.
@@ -489,13 +489,13 @@ int TestRandomPContingencyStatisticsMPI( int argc, char* argv[] )
   // Check how many processes have been made available
   int numProcs = controller->GetNumberOfProcesses();
   if ( controller->GetLocalProcessId() == ioRank )
-    {
+  {
     cout << "\n# Running test with "
          << numProcs
          << " processes and standard deviation = "
          << args.stdev
          << ".\n";
-    }
+  }
 
   // Execute the function named "process" on both processes
   controller->SetSingleMethod( RandomContingencyStatistics, &args );
@@ -503,9 +503,9 @@ int TestRandomPContingencyStatisticsMPI( int argc, char* argv[] )
 
   // Clean up and exit
   if ( com->GetLocalProcessId() == ioRank )
-    {
+  {
     cout << "\n# Test completed.\n\n";
-    }
+  }
 
   controller->Finalize();
   controller->Delete();

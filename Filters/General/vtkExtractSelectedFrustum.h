@@ -12,23 +12,26 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractSelectedFrustum - Returns the portion of the input dataset that
-// lies within a selection frustum.
-//
-// .SECTION Description
-// This class intersects the input DataSet with a frustum and determines which
-// cells and points lie within the frustum. The frustum is defined with a
-// vtkPlanes containing six cutting planes. The output is a DataSet that is
-// either a shallow copy of the input dataset with two new "vtkInsidedness"
-// attribute arrays, or a completely new UnstructuredGrid that contains only
-// the cells and points of the input that are inside the frustum. The
-// PreserveTopology flag controls which occurs. When PreserveTopology is off
-// this filter adds a scalar array called vtkOriginalCellIds that says what
-// input cell produced each output cell. This is an example of a Pedigree ID
-// which helps to trace back results.
-//
-// .SECTION See Also
-// vtkExtractGeometry, vtkAreaPicker, vtkExtractSelection, vtkSelection
+/**
+ * @class   vtkExtractSelectedFrustum
+ * @brief   Returns the portion of the input dataset that
+ * lies within a selection frustum.
+ *
+ *
+ * This class intersects the input DataSet with a frustum and determines which
+ * cells and points lie within the frustum. The frustum is defined with a
+ * vtkPlanes containing six cutting planes. The output is a DataSet that is
+ * either a shallow copy of the input dataset with two new "vtkInsidedness"
+ * attribute arrays, or a completely new UnstructuredGrid that contains only
+ * the cells and points of the input that are inside the frustum. The
+ * PreserveTopology flag controls which occurs. When PreserveTopology is off
+ * this filter adds a scalar array called vtkOriginalCellIds that says what
+ * input cell produced each output cell. This is an example of a Pedigree ID
+ * which helps to trace back results.
+ *
+ * @sa
+ * vtkExtractGeometry, vtkAreaPicker, vtkExtractSelection, vtkSelection
+*/
 
 #ifndef vtkExtractSelectedFrustum_h
 #define vtkExtractSelectedFrustum_h
@@ -48,72 +51,93 @@ class VTKFILTERSGENERAL_EXPORT vtkExtractSelectedFrustum : public vtkExtractSele
 public:
   static vtkExtractSelectedFrustum *New();
   vtkTypeMacro(vtkExtractSelectedFrustum, vtkExtractSelectionBase);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Return the MTime taking into account changes to the Frustum
-  unsigned long GetMTime();
+  /**
+   * Return the MTime taking into account changes to the Frustum
+   */
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
-  // Description:
-  // Set the selection frustum. The planes object must contain six planes.
+  //@{
+  /**
+   * Set the selection frustum. The planes object must contain six planes.
+   */
   virtual void SetFrustum(vtkPlanes*);
   vtkGetObjectMacro(Frustum,vtkPlanes);
+  //@}
 
-  // Description:
-  // Given eight vertices, creates a frustum.
-  // each pt is x,y,z,1
-  // in the following order
-  // near lower left, far lower left
-  // near upper left, far upper left
-  // near lower right, far lower right
-  // near upper right, far upper right
+  /**
+   * Given eight vertices, creates a frustum.
+   * each pt is x,y,z,1
+   * in the following order
+   * near lower left, far lower left
+   * near upper left, far upper left
+   * near lower right, far lower right
+   * near upper right, far upper right
+   */
   void CreateFrustum(double vertices[32]);
 
-  // Description:
-  // Return eight points that define the selection frustum. Valid if
-  // create Frustum was used, invalid if SetFrustum was.
+  //@{
+  /**
+   * Return eight points that define the selection frustum. Valid if
+   * create Frustum was used, invalid if SetFrustum was.
+   */
   vtkGetObjectMacro(ClipPoints, vtkPoints);
+  //@}
 
-  // Description:
-  // Sets/gets the intersection test type.
+  //@{
+  /**
+   * Sets/gets the intersection test type.
+   */
   vtkSetMacro(FieldType,int);
   vtkGetMacro(FieldType,int);
+  //@}
 
-  // Description:
-  // Sets/gets the intersection test type. Only meaningful when fieldType is
-  // vtkSelection::POINT
+  //@{
+  /**
+   * Sets/gets the intersection test type. Only meaningful when fieldType is
+   * vtkSelection::POINT
+   */
   vtkSetMacro(ContainingCells,int);
   vtkGetMacro(ContainingCells,int);
+  //@}
 
-  // Description:
-  // Does a quick test on the AABBox defined by the bounds.
+  /**
+   * Does a quick test on the AABBox defined by the bounds.
+   */
   int OverallBoundsTest(double *bounds);
 
-  // Description:
-  // When On, this returns an unstructured grid that outlines selection area.
-  // Off is the default.
+  //@{
+  /**
+   * When On, this returns an unstructured grid that outlines selection area.
+   * Off is the default.
+   */
   vtkSetMacro(ShowBounds,int);
   vtkGetMacro(ShowBounds,int);
   vtkBooleanMacro(ShowBounds,int);
+  //@}
 
-  // Description:
-  // When on, extracts cells outside the frustum instead of inside.
+  //@{
+  /**
+   * When on, extracts cells outside the frustum instead of inside.
+   */
   vtkSetMacro(InsideOut,int);
   vtkGetMacro(InsideOut,int);
   vtkBooleanMacro(InsideOut,int);
+  //@}
 
 protected:
   vtkExtractSelectedFrustum(vtkPlanes *f=NULL);
-  ~vtkExtractSelectedFrustum();
+  ~vtkExtractSelectedFrustum() VTK_OVERRIDE;
 
   // sets up output dataset
-  virtual int RequestDataObject(vtkInformation* request,
-                                vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector);
+  int RequestDataObject(vtkInformation* request,
+                        vtkInformationVector** inputVector,
+                        vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   //execution
-  virtual int RequestData(vtkInformation *,
-                          vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *,
+                          vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   int ABoxFrustumIsect(double bounds[], vtkCell *cell);
   int FrustumClipPolygon(int nverts,
                          double *ivlist, double *wvlist, double *ovlist);
@@ -146,8 +170,8 @@ protected:
   int ShowBounds;
 
 private:
-  vtkExtractSelectedFrustum(const vtkExtractSelectedFrustum&);  // Not implemented.
-  void operator=(const vtkExtractSelectedFrustum&);  // Not implemented.
+  vtkExtractSelectedFrustum(const vtkExtractSelectedFrustum&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExtractSelectedFrustum&) VTK_DELETE_FUNCTION;
 
 };
 

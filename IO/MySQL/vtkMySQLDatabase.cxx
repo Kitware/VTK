@@ -60,9 +60,9 @@ vtkMySQLDatabase::vtkMySQLDatabase() :
 vtkMySQLDatabase::~vtkMySQLDatabase()
 {
   if ( this->IsOpen() )
-    {
+  {
     this->Close();
-    }
+  }
   this->SetDatabaseType( 0 );
   this->SetHostName( 0 );
   this->SetUser( 0 );
@@ -91,7 +91,7 @@ void vtkMySQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
 bool vtkMySQLDatabase::IsSupported(int feature)
 {
   switch (feature)
-    {
+  {
     case VTK_SQL_FEATURE_BATCH_OPERATIONS:
     case VTK_SQL_FEATURE_NAMED_PLACEHOLDERS:
       return false;
@@ -107,13 +107,13 @@ bool vtkMySQLDatabase::IsSupported(int feature)
     {
     if (mysql_get_client_version() >= 40108 &&
         mysql_get_server_version(& this->Private->NullConnection) >= 40100)
-      {
+    {
       return true;
-      }
+    }
     else
-      {
+    {
       return false;
-      }
+    }
     };
 
     case VTK_SQL_FEATURE_QUERY_SIZE:
@@ -130,25 +130,25 @@ bool vtkMySQLDatabase::IsSupported(int feature)
                   << "vtkSQLDatabase.h for a list of possible features.");
     return false;
     };
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
 bool vtkMySQLDatabase::Open( const char* password )
 {
   if ( this->IsOpen() )
-    {
+  {
     vtkGenericWarningMacro( "Open(): Database is already open." );
     return true;
-    }
+  }
 
   assert(this->Private->Connection == NULL);
 
   if ( this->Reconnect )
-    {
+  {
     my_bool recon = true;
     mysql_options( &this->Private->NullConnection, MYSQL_OPT_RECONNECT, &recon );
-    }
+  }
 
   this->Private->Connection =
     mysql_real_connect( &this->Private->NullConnection,
@@ -160,37 +160,37 @@ bool vtkMySQLDatabase::Open( const char* password )
                         0, 0);
 
   if (this->Private->Connection == NULL)
-    {
+  {
     vtkErrorMacro(<<"Open() failed with error: "
                   << mysql_error(& this->Private->NullConnection));
     return false;
-    }
+  }
   else
-    {
+  {
     vtkDebugMacro(<<"Open() succeeded.");
 
     if ( this->Password != password )
-      {
+    {
       delete [] this->Password;
       this->Password = password ? vtksys::SystemTools::DuplicateString( password ) : 0;
-      }
+    }
 
     return true;
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
 void vtkMySQLDatabase::Close()
 {
   if (! this->IsOpen())
-    {
+  {
     return; // not an error
-    }
+  }
   else
-    {
+  {
     mysql_close(this->Private->Connection);
     this->Private->Connection = NULL;
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -212,42 +212,42 @@ vtkStringArray* vtkMySQLDatabase::GetTables()
 {
   this->Tables->Resize(0);
   if ( ! this->IsOpen() )
-    {
+  {
     vtkErrorMacro(<<"GetTables(): Database is closed!");
     return this->Tables;
-    }
+  }
   else
-    {
+  {
     MYSQL_RES* tableResult = mysql_list_tables(
       this->Private->Connection, NULL );
 
     if ( ! tableResult )
-      {
+    {
       vtkErrorMacro(<<"GetTables(): MySQL returned error: "
                     << mysql_error(this->Private->Connection));
       return this->Tables;
-      }
+    }
 
     MYSQL_ROW row;
     int i=0;
 
     while ( tableResult )
-      {
+    {
       mysql_data_seek( tableResult, i );
       row = mysql_fetch_row( tableResult );
       if ( ! row )
-        {
+      {
         break;
-        }
+      }
 
       this->Tables->InsertNextValue( row[0] );
       ++ i;
-      }
+    }
       // Done with processing so free it
       mysql_free_result( tableResult );
 
     return this->Tables;
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -256,26 +256,26 @@ vtkStringArray* vtkMySQLDatabase::GetRecord(const char *table)
   vtkStringArray *results = vtkStringArray::New();
 
   if (!this->IsOpen())
-    {
+  {
     vtkErrorMacro(<<"GetRecord: Database is not open!");
     return results;
-    }
+  }
 
   MYSQL_RES *record =
     mysql_list_fields(this->Private->Connection, table, 0);
 
   if (!record)
-    {
+  {
     vtkErrorMacro(<<"GetRecord: MySQL returned error: "
                   << mysql_error(this->Private->Connection));
     return results;
-    }
+  }
 
   MYSQL_FIELD *field;
   while ((field = mysql_fetch_field(record)))
-    {
+  {
     results->InsertNextValue(field->name);
-    }
+  }
 
   mysql_free_result(record);
   return results;
@@ -285,29 +285,29 @@ vtkStringArray* vtkMySQLDatabase::GetRecord(const char *table)
 bool vtkMySQLDatabase::HasError()
 {
   if (this->Private->Connection)
-    {
+  {
     return (mysql_errno(this->Private->Connection)!=0);
-    }
+  }
   else
-    {
+  {
     return (mysql_errno(& this->Private->NullConnection)!=0);
-    }
+  }
 }
 
 const char* vtkMySQLDatabase::GetLastErrorText()
 {
   if (this->Private->Connection)
-    {
+  {
     return mysql_error( this->Private->Connection );
-    }
+  }
   else if (this->HasError())
-    {
+  {
     return mysql_error( & this->Private->NullConnection );
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -317,27 +317,27 @@ vtkStdString vtkMySQLDatabase::GetURL()
   url = this->GetDatabaseType();
   url += "://";
   if ( this->GetUser() && strlen( this->GetUser() ) )
-    {
+  {
     url += this->GetUser();
     url += "@";
-    }
+  }
   if ( this->GetHostName() && strlen( this->GetHostName() ) )
-    {
+  {
     url += this->GetHostName();
-    }
+  }
   else
-    {
+  {
     url += "localhost";
-    }
+  }
   if (
     this->GetServerPort() >= 0 &&
     this->GetServerPort() != VTK_MYSQL_DEFAULT_PORT
     )
-    {
+  {
     std::ostringstream stream;
     stream << ":" << this->GetServerPort();
     url += stream.str();
-    }
+  }
   url += "/";
   if ( this->GetDatabaseName() && strlen( this->GetDatabaseName() ) )
     url += this->GetDatabaseName();
@@ -357,29 +357,29 @@ bool vtkMySQLDatabase::ParseURL(const char* URL)
 
   if ( ! vtksys::SystemTools::ParseURL(
       urlstr, protocol, username, password, hostname, dataport, database) )
-    {
+  {
     vtkGenericWarningMacro( "Invalid URL: \"" << urlstr.c_str() << "\"" );
     return false;
-    }
+  }
 
   if ( protocol == "mysql" )
-    {
+  {
     if ( username.size() )
-      {
+    {
       this->SetUser(username.c_str());
-      }
+    }
     if ( password.size() )
-      {
+    {
       this->SetPassword(password.c_str());
-      }
+    }
     if ( dataport.size() )
-      {
+    {
       this->SetServerPort(atoi(dataport.c_str()));
-      }
+    }
     this->SetHostName(hostname.c_str());
     this->SetDatabaseName(database.c_str());
     return true;
-    }
+  }
   return false;
 }
 
@@ -397,7 +397,7 @@ vtkStdString vtkMySQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sch
   vtkStdString colTypeStr;
 
   switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
-    {
+  {
     case vtkSQLDatabaseSchema::SERIAL:
       colTypeStr = "INT NOT NULL AUTO_INCREMENT";
       break;
@@ -434,23 +434,23 @@ vtkStdString vtkMySQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sch
     case vtkSQLDatabaseSchema::TIMESTAMP:
       colTypeStr = "TIMESTAMP";
       break;
-    }
+  }
 
   if ( colTypeStr.size() )
-    {
+  {
     queryStr << " " << colTypeStr;
-    }
+  }
   else // if ( colTypeStr.size() )
-    {
+  {
     vtkGenericWarningMacro( "Unable to get column specification: unsupported data type " << colType );
     return vtkStdString();
-    }
+  }
 
   // Decide whether size is allowed, required, or unused
   int colSizeType = 0;
 
   switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
-    {
+  {
     case vtkSQLDatabaseSchema::SERIAL:
       colSizeType =  0;
       break;
@@ -487,44 +487,44 @@ vtkStdString vtkMySQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sch
     case vtkSQLDatabaseSchema::TIMESTAMP:
       colSizeType =  0;
       break;
-    }
+  }
 
   // Specify size if allowed or required
   if ( colSizeType )
-    {
+  {
     int colSize = schema->GetColumnSizeFromHandle( tblHandle, colHandle );
     // IF size is provided but absurd,
     // OR, if size is required but not provided OR absurd,
     // THEN assign the default size.
     if ( ( colSize < 0 ) || ( colSizeType == -1 && colSize < 1 ) )
-      {
+    {
       colSize = VTK_SQL_DEFAULT_COLUMN_SIZE;
-      }
+    }
     if ( colType == vtkSQLDatabaseSchema::BLOB )
-      {
+    {
       if ( colSize >= 1<<24 )
-        {
+      {
         colTypeStr = "LONGBLOB";
-        }
-      else if ( colSize >= 1<<16 )
-        {
-        colTypeStr = "MEDIUMBLOB";
-        }
       }
+      else if ( colSize >= 1<<16 )
+      {
+        colTypeStr = "MEDIUMBLOB";
+      }
+    }
 
     // At this point, we have either a valid size if required, or a possibly null valid size
     // if not required. Thus, skip sizing in the latter case.
     if ( colSize > 0 )
-      {
+    {
       queryStr << "(" << colSize << ")";
-      }
     }
+  }
 
   vtkStdString attStr = schema->GetColumnAttributesFromHandle( tblHandle, colHandle );
   if ( attStr.size() )
-    {
+  {
     queryStr << " " << attStr;
-    }
+  }
 
   return queryStr.str();
 }
@@ -541,7 +541,7 @@ vtkStdString vtkMySQLDatabase::GetIndexSpecification( vtkSQLDatabaseSchema* sche
 
   int idxType = schema->GetIndexTypeFromHandle( tblHandle, idxHandle );
   switch ( idxType )
-    {
+  {
     case vtkSQLDatabaseSchema::PRIMARY_KEY:
       queryStr += "PRIMARY KEY ";
       mustUseName = false;
@@ -554,39 +554,39 @@ vtkStdString vtkMySQLDatabase::GetIndexSpecification( vtkSQLDatabaseSchema* sche
       break;
     default:
       return vtkStdString();
-    }
+  }
 
   // No index_name for PRIMARY KEYs
   if ( mustUseName )
-    {
+  {
     queryStr += schema->GetIndexNameFromHandle( tblHandle, idxHandle );
-    }
+  }
   queryStr += " (";
 
   // Loop over all column names of the index
   int numCnm = schema->GetNumberOfColumnNamesInIndex( tblHandle, idxHandle );
   if ( numCnm < 0 )
-    {
+  {
     vtkGenericWarningMacro( "Unable to get index specification: index has incorrect number of columns " << numCnm );
     return vtkStdString();
-    }
+  }
 
   bool firstCnm = true;
   for ( int cnmHandle = 0; cnmHandle < numCnm; ++ cnmHandle )
-    {
+  {
     if ( firstCnm )
-      {
+    {
       firstCnm = false;
-      }
+    }
     else
-      {
+    {
       queryStr += ",";
-      }
+    }
     // With MySQL, the column name must be enclosed between backquotes
     queryStr += "`";
     queryStr += schema->GetIndexColumnNameFromHandle( tblHandle, idxHandle, cnmHandle );
     queryStr += "` ";
-    }
+  }
   queryStr += ")";
 
   return queryStr;
@@ -596,9 +596,9 @@ vtkStdString vtkMySQLDatabase::GetIndexSpecification( vtkSQLDatabaseSchema* sche
 bool vtkMySQLDatabase::CreateDatabase( const char* dbName, bool dropExisting = false )
 {
   if ( dropExisting )
-    {
+  {
     this->DropDatabase( dbName );
-    }
+  }
   vtkStdString queryStr;
   queryStr = "CREATE DATABASE ";
   queryStr += dbName;
@@ -606,24 +606,24 @@ bool vtkMySQLDatabase::CreateDatabase( const char* dbName, bool dropExisting = f
   char* tmpName = this->DatabaseName;
   bool needToReopen = false;
   if ( ! strcmp( dbName, tmpName ) )
-    {
+  {
     this->Close();
     this->DatabaseName = 0;
     needToReopen = true;
-    }
+  }
   if ( this->IsOpen() || this->Open( this->Password ) )
-    {
+  {
     vtkSQLQuery* query = this->GetQueryInstance();
     query->SetQuery( queryStr.c_str() );
     status = query->Execute();
     query->Delete();
-    }
+  }
   if ( needToReopen )
-    {
+  {
     this->Close();
     this->DatabaseName = tmpName;
     this->Open( this->Password );
-    }
+  }
   return status;
 }
 
@@ -636,23 +636,23 @@ bool vtkMySQLDatabase::DropDatabase( const char* dbName )
   char* tmpName = this->DatabaseName;
   bool dropSelf = false;
   if ( ! strcmp( dbName, tmpName ) )
-    {
+  {
     this->Close();
     this->DatabaseName = 0;
     dropSelf = true;
-    }
+  }
   if ( this->IsOpen() || this->Open( this->Password ) )
-    {
+  {
     vtkSQLQuery* query = this->GetQueryInstance();
     query->SetQuery( queryStr.c_str() );
     status = query->Execute();
     query->Delete();
-    }
+  }
   if ( dropSelf )
-    {
+  {
     this->Close();
     this->DatabaseName = tmpName;
-    }
+  }
   return status;
 }
 

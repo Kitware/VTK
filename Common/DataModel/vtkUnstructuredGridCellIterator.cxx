@@ -57,8 +57,13 @@ void vtkUnstructuredGridCellIterator::SetUnstructuredGrid(
   vtkCellArray *cellArray = ug ? ug->GetCells() : NULL;
   vtkPoints *points = ug ? ug->GetPoints() : NULL;
 
+  if(points)
+  {
+    this->Points->SetDataType(points->GetDataType());
+  }
+
   if (ug && cellTypeArray && cellArray && points)
-    {
+  {
     // Cell types
     this->CellTypeBegin = this->CellTypeEnd = this->CellTypePtr
         = cellTypeArray ? cellTypeArray->GetPointer(0) : NULL;
@@ -74,19 +79,19 @@ void vtkUnstructuredGridCellIterator::SetUnstructuredGrid(
     vtkIdTypeArray *faces = ug->GetFaces();
     vtkIdTypeArray *facesLocs = ug->GetFaceLocations();
     if (faces && facesLocs)
-      {
+    {
       this->FacesBegin = faces->GetPointer(0);
       this->FacesLocsBegin = this->FacesLocsPtr = facesLocs->GetPointer(0);
-      }
+    }
     else
-      {
+    {
       this->FacesBegin = NULL;
       this->FacesLocsBegin = NULL;
       this->FacesLocsPtr = NULL;
-      }
     }
+  }
   else
-    {
+  {
     this->CellTypeBegin = NULL;
     this->CellTypePtr = NULL;
     this->CellTypeEnd = NULL;
@@ -96,7 +101,7 @@ void vtkUnstructuredGridCellIterator::SetUnstructuredGrid(
     this->ConnectivityBegin= NULL;
     this->ConnectivityPtr = NULL;
     this->UnstructuredGridPoints = NULL;
-    }
+  }
 
   this->SkippedCells = 0;
 }
@@ -108,13 +113,13 @@ void vtkUnstructuredGridCellIterator::CatchUpSkippedCells()
   // in IncrementToNextCell() too expensive, so we delay it until here. Special
   // cases are used for 0 or 1 skipped cells to reduce the number of jumps.
   switch (this->SkippedCells)
-    {
+  {
     default:
       while (this->SkippedCells > 1)
-        {
+      {
         this->ConnectivityPtr += *this->ConnectivityPtr + 1;
         this->SkippedCells--;
-        }
+      }
       assert(this->SkippedCells == 1);
       VTK_FALLTHROUGH;
     case 1:
@@ -214,9 +219,9 @@ inline vtkIdType FaceSetSize(vtkIdType *begin)
   vtkIdType *result = begin;
   vtkIdType numFaces = *(result++);
   while (numFaces-- > 0)
-    {
+  {
     result += *result + 1;
-    }
+  }
   return result - begin;
 }
 } // end anon namespace
@@ -228,15 +233,15 @@ void vtkUnstructuredGridCellIterator::FetchFaces()
   // in IncrementToNextCell()). Check FacesLocsBegin to determine validity of
   // the pointer.
   if (this->FacesLocsBegin && *this->FacesLocsPtr >= 0)
-    {
+  {
     vtkIdType *faceSet = this->FacesBegin + *this->FacesLocsPtr;
     vtkIdType facesSize = FaceSetSize(faceSet);
     this->Faces->SetNumberOfIds(facesSize);
     vtkIdType *tmpPtr = this->Faces->GetPointer(0);
     std::copy(faceSet, faceSet + facesSize, tmpPtr);
-    }
+  }
   else
-    {
+  {
     this->Faces->SetNumberOfIds(0);
-    }
+  }
 }

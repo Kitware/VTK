@@ -54,10 +54,10 @@ int TestLinePlot2(int, char * [])
   int numPoints = 31;
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
-    {
+  {
     table->SetValue(i, 0, data_x[i] );
     table->SetValue(i, 1, data_y[i]);
-    }
+  }
 
   // Add a plot of points, setting the colors etc
   vtkPlot *line = chart->AddPlot(vtkChart::POINTS);

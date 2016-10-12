@@ -63,21 +63,21 @@ static bool vtkDirectedAcyclicGraphDFSVisit(
   color[u] = DFS_GRAY;
   g->GetOutEdges(u, adj);
   while (adj->HasNext())
-    {
+  {
     vtkOutEdgeType e = adj->Next();
     vtkIdType v = e.Target;
     if (color[v] == DFS_WHITE)
-      {
+    {
       if (!vtkDirectedAcyclicGraphDFSVisit(g, v, color, adj))
-        {
-        return false;
-        }
-      }
-    else if (color[v] == DFS_GRAY)
       {
-      return false;
+        return false;
       }
     }
+    else if (color[v] == DFS_GRAY)
+    {
+      return false;
+    }
+  }
   return true;
 }
 
@@ -85,19 +85,19 @@ static bool vtkDirectedAcyclicGraphDFSVisit(
 bool vtkDirectedAcyclicGraph::IsStructureValid(vtkGraph *g)
 {
   if (!g)
-    {
+  {
     return false;
-    }
+  }
   if (vtkDirectedAcyclicGraph::SafeDownCast(g))
-    {
+  {
     return true;
-    }
+  }
 
   // Empty graph is a valid DAG.
   if (g->GetNumberOfVertices() == 0)
-    {
+  {
     return true;
-    }
+  }
 
   // A directed graph is acyclic iff a depth-first search of
   // the graph yields no back edges.
@@ -108,15 +108,15 @@ bool vtkDirectedAcyclicGraph::IsStructureValid(vtkGraph *g)
   vtkSmartPointer<vtkOutEdgeIterator> adj =
     vtkSmartPointer<vtkOutEdgeIterator>::New();
   for (vtkIdType s = 0; s < numVerts; ++s)
-    {
+  {
     if (color[s] == DFS_WHITE)
-      {
+    {
       if (!vtkDirectedAcyclicGraphDFSVisit(g, s, color, adj))
-        {
+      {
         return false;
-        }
       }
     }
+  }
   return true;
 }
 

@@ -58,7 +58,7 @@ int TestAVIWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   cout << "Writing file TestAVIWriter.avi..." << endl;
   w->Start();
   for ( cc = 2; cc < 99; cc ++ )
-    {
+  {
     cout << ".";
     Fractal0->SetMaximumNumberOfIterations(cc);
     table->SetTableRange(0, cc);
@@ -66,7 +66,7 @@ int TestAVIWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     table->ForceBuild();
     table->SetTableValue(cc-1, 0, 0, 0);
     w->Write();
-    }
+  }
   w->End();
   cout << endl;
   cout << "Done writing file TestAVIWriter.avi..." << endl;
@@ -77,15 +77,15 @@ int TestAVIWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   cout << "TestAVIWriter.avi file exists: " << exists << endl;
   cout << "TestAVIWriter.avi file length: " << length << endl;
   if (!exists)
-    {
+  {
     err = 3;
     cerr << "ERROR: 3 - Test failing because TestAVIWriter.avi file doesn't exist..." << endl;
-    }
+  }
   if (0==length)
-    {
+  {
     err = 4;
     cerr << "ERROR: 4 - Test failing because TestAVIWriter.avi file has zero length..." << endl;
-    }
+  }
 
   colorize->Delete();
   table->Delete();

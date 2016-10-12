@@ -129,16 +129,16 @@ public:
         ((f2.Idx[1] != min2 && f2.Idx[1] != max2) ? f2.Idx[1] : f2.Idx[2]);
 
       if (min1 == min2)
-        {
+      {
         if (mid1 == mid2)
-          {
+        {
           return max1 < max2;
-          }
-        else
-          {
-          return mid1 < mid2;
-          }
         }
+        else
+        {
+          return mid1 < mid2;
+        }
+      }
       return min1 < min2;
     }
   };
@@ -219,12 +219,12 @@ public:
   {
     unsigned int max = 0;
     for (unsigned int i = 0; i < this->NumberOfBuckets; i++)
-      {
+    {
       if (this->ScalarTable[i].GetSize() > max)
-        {
+      {
         max = this->ScalarTable[i].GetSize();
-        }
       }
+    }
     return max;
   }
 };
@@ -295,28 +295,28 @@ void vtkHAVSVolumeMapper::InitializePrimitives(vtkVolume *vol)
   vtkUnstructuredGridBase *ugrid = this->GetInput();
   vtkIdType numCells = ugrid->GetNumberOfCells();
   if (!numCells)
-    {
+  {
     this->InitializationError = vtkHAVSVolumeMapper::NO_CELLS;
     return;
-    }
+  }
   bool tetrahedra = true;
   vtkSmartPointer<vtkCellIterator> cellIter =
       vtkSmartPointer<vtkCellIterator>::Take(ugrid->NewCellIterator());
   for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal();
        cellIter->GoToNextCell())
-    {
+  {
     if (cellIter->GetNumberOfPoints() != 4 &&
         cellIter->GetNumberOfPoints() != 3)
-      {
+    {
       tetrahedra = false;
       break;
-      }
     }
+  }
   if (!tetrahedra)
-    {
+  {
     this->InitializationError = vtkHAVSVolumeMapper::NON_TETRAHEDRA;
     return;
-    }
+  }
 
   delete [] this->Vertices;
   delete [] this->Triangles;
@@ -340,9 +340,9 @@ void vtkHAVSVolumeMapper::InitializePrimitives(vtkVolume *vol)
   // Insert faces into an stl set
   for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal();
        cellIter->GoToNextCell())
-    {
+  {
     if (cellIter->GetNumberOfPoints() == 4)
-      {
+    {
       vtkIdList *ids = cellIter->GetPointIds();
 
       vtkHAVSFace f1(ids->GetId(0), ids->GetId(1), ids->GetId(2));
@@ -359,27 +359,27 @@ void vtkHAVSVolumeMapper::InitializePrimitives(vtkVolume *vol)
       if (!result2.second) { (*result2.first).Boundary = false; }
       if (!result3.second) { (*result3.first).Boundary = false; }
       if (!result4.second) { (*result4.first).Boundary = false; }
-      }
+    }
     else if (cellIter->GetNumberOfPoints() == 3)
-      {
+    {
       vtkIdList *ids = cellIter->GetPointIds();
       vtkHAVSFace f1(ids->GetId(0), ids->GetId(1), ids->GetId(2));
       result1 = faceSetContainer->FaceSet.insert(f1);
       if (!result1.second) { (*result1.first).Boundary = false; }
-      }
     }
+  }
 
   int boundaryCount = 0;
   std::set<vtkHAVSFace, vtkHAVSFaceSetPIMPL::vtkHAVSLTFace>::iterator it;
   it = faceSetContainer->FaceSet.begin();
   while(it != faceSetContainer->FaceSet.end())
-    {
+  {
     vtkHAVSFace f = *it++;
     if (f.Boundary)
-      {
+    {
       boundaryCount++;
-      }
     }
+  }
 
   this->NumberOfVertices = ugrid->GetNumberOfPoints();
   this->NumberOfTriangles = static_cast<unsigned int>(faceSetContainer->FaceSet.size());
@@ -399,13 +399,13 @@ void vtkHAVSVolumeMapper::InitializePrimitives(vtkVolume *vol)
 
   // Fill up vertices
   for (unsigned int i = 0; i < this->NumberOfVertices; i++)
-    {
+  {
     double *p = ugrid->GetPoint(i);
     for (int j = 0; j < 3; j++)
-      {
+    {
       this->Vertices[i*3+j] = (float)p[j];
-      }
     }
+  }
 
   // Fill up triangles with unique tetrahedra faces
   int iFaceCount = 0;
@@ -413,39 +413,39 @@ void vtkHAVSVolumeMapper::InitializePrimitives(vtkVolume *vol)
   int faceCount = 0;
   it = faceSetContainer->FaceSet.begin();
   while(it != faceSetContainer->FaceSet.end())
-    {
+  {
     vtkHAVSFace f = *it++;
     if (f.Boundary)
-      {
+    {
       this->BoundaryTriangles[bFaceCount++] = faceCount;
-      }
-    else
-      {
-      this->InternalTriangles[iFaceCount++] = faceCount;
-      }
-    for (int j = 0; j < 3; j++)
-      {
-      this->Triangles[faceCount*3+j] = f.Idx[j];
-      }
-    faceCount++;
     }
+    else
+    {
+      this->InternalTriangles[iFaceCount++] = faceCount;
+    }
+    for (int j = 0; j < 3; j++)
+    {
+      this->Triangles[faceCount*3+j] = f.Idx[j];
+    }
+    faceCount++;
+  }
 
   delete faceSetContainer;
 
   // Calculate triangle centers and max edge length
   float max = 0.0;
   for (unsigned int i = 0; i < this->NumberOfTriangles; i++)
-    {
+  {
     int t1 = this->Triangles[i*3+0];
     int t2 = this->Triangles[i*3+1];
     int t3 = this->Triangles[i*3+2];
     double p1[3], p2[3], p3[3];
     for (int j = 0; j < 3; j++)
-      {
+    {
       p1[j] = this->Vertices[t1*3+j];
       p2[j] = this->Vertices[t2*3+j];
       p3[j] = this->Vertices[t3*3+j];
-      }
+    }
     float d1 = (p2[0]-p1[0])*(p2[0]-p1[0])+(p2[1]-p1[1])*(p2[1]-p1[1])+
       (p2[2]-p1[2])*(p2[2]-p1[2]);
     float d2 = (p3[0]-p1[0])*(p3[0]-p1[0])+(p3[1]-p1[1])*(p3[1]-p1[1])+
@@ -456,10 +456,10 @@ void vtkHAVSVolumeMapper::InitializePrimitives(vtkVolume *vol)
     if (d2 > max) { max = d2; }
     if (d3 > max) { max = d3; }
     for (int j = 0; j < 3; j++)
-      {
+    {
       this->Centers[i*3+j] = (p1[j] + p2[j] + p3[j])/3.0;
-      }
     }
+  }
 
   this->MaxEdgeLength = sqrt(max);
   this->LevelOfDetailMaxEdgeLength = ugrid->GetLength();
@@ -483,35 +483,35 @@ void vtkHAVSVolumeMapper::InitializeScalars()
                                               this->ArrayName,
                                               UsingCellColor);
   if (!scalarData)
-    {
+  {
     this->InitializationError = vtkHAVSVolumeMapper::NO_SCALARS;
     return;
-    }
+  }
   if (UsingCellColor)
-    {
+  {
     this->InitializationError = vtkHAVSVolumeMapper::CELL_DATA;
     return;
-    }
+  }
 
   this->NumberOfScalars = scalarData->GetNumberOfTuples();
   this->Scalars = new float[this->NumberOfScalars];
 
   for (unsigned int i = 0; i < this->NumberOfScalars; i++)
-    {
+  {
     double *s = scalarData->GetTuple(i);
     this->Scalars[i] = (float)s[0];
-    }
+  }
 
   // Normalize scalars
   if (this->NumberOfScalars)
-    {
+  {
     scalarData->GetRange(this->ScalarRange,0);
     double diff = this->ScalarRange[1]-this->ScalarRange[0];
     for (unsigned int i = 0; i < this->NumberOfScalars; i++)
-      {
+    {
       this->Scalars[i] = (this->Scalars[i] - this->ScalarRange[0])/diff;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -520,9 +520,9 @@ void vtkHAVSVolumeMapper::SetLevelOfDetailMethod(int method)
 {
   this->LevelOfDetailMethod = method;
   if (this->Initialized)
-    {
+  {
     InitializeLevelOfDetail();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -530,50 +530,50 @@ void vtkHAVSVolumeMapper::SetLevelOfDetailMethod(int method)
 void vtkHAVSVolumeMapper::InitializeLevelOfDetail()
 {
   if (this->LevelOfDetailMethod == VTK_FIELD_LEVEL_OF_DETAIL)
-    {
+  {
     if (!this->Scalars) { return; }
 
     const int nBuckets = 128;
     vtkHAVSScalarHistogram levelOfDetailScalarHistogram(nBuckets);
 
     for (unsigned int i = 0; i < this->NumberOfInternalTriangles; i++)
-      {
+    {
       unsigned int f = this->InternalTriangles[i];
       float s1 = this->Scalars[this->Triangles[f*3+0]];
       float s2 = this->Scalars[this->Triangles[f+3+1]];
       float s3 = this->Scalars[this->Triangles[f+3+2]];
       levelOfDetailScalarHistogram.AddFace((s1+s2+s3)/3.0, f);
-      }
+    }
 
     unsigned int vertCount = 0;
     for (unsigned int i = 0; i < levelOfDetailScalarHistogram.GetMaxBucketSize(); i++)
-      {
+    {
       for (unsigned int j = 0; j < levelOfDetailScalarHistogram.GetNumberOfBuckets(); j++)
-        {
+      {
         if (i < levelOfDetailScalarHistogram.GetBucketSize(j))
-          {
+        {
           this->InternalTriangles[vertCount++] = levelOfDetailScalarHistogram.GetFace(j,i);
-          }
         }
       }
     }
+  }
   else if (this->LevelOfDetailMethod == VTK_AREA_LEVEL_OF_DETAIL)
-    {
+  {
     vtkHAVSSortedFace *areas = new vtkHAVSSortedFace[this->NumberOfInternalTriangles];
     vtkHAVSSortedFace *tmp = new vtkHAVSSortedFace[this->NumberOfInternalTriangles];
     for (unsigned int i = 0; i < this->NumberOfInternalTriangles; i++)
-      {
+    {
       unsigned int f = this->InternalTriangles[i];
       int t1 = this->Triangles[f*3+0];
       int t2 = this->Triangles[f*3+1];
       int t3 = this->Triangles[f*3+2];
       double p1[3], p2[3], p3[3];
       for (int j = 0; j < 3; j++)
-        {
+      {
         p1[j] = this->Vertices[t1*3+j];
         p2[j] = this->Vertices[t2*3+j];
         p3[j] = this->Vertices[t3*3+j];
-        }
+      }
 
       // Calculate edge lengths
       float d1 = (p2[0]-p1[0])*(p2[0]-p1[0])+(p2[1]-p1[1])*(p2[1]-p1[1])+
@@ -597,18 +597,18 @@ void vtkHAVSVolumeMapper::InitializeLevelOfDetail()
 
       vtkHAVSSortedFace a(f, total.ui);
       areas[i] = a;
-      }
+    }
 
     this->FRadixSort(areas, tmp, 0, this->NumberOfInternalTriangles);
 
     // Put ranked triangles back into array
     for (unsigned int i = 0; i < this->NumberOfInternalTriangles; i++)
-      {
+    {
       this->InternalTriangles[i] = areas[this->NumberOfInternalTriangles-1-i].Face;
-      }
+    }
     delete [] areas;
     delete [] tmp;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -616,22 +616,22 @@ void vtkHAVSVolumeMapper::InitializeLevelOfDetail()
 void vtkHAVSVolumeMapper::UpdateLevelOfDetail(float renderTime)
 {
   if (this->LevelOfDetail)
-    {
+  {
     float adjust = this->LevelOfDetailTargetTime/renderTime;
     if (adjust <= 0.9 || adjust >= 1.1)
-      {
+    {
       this->CurrentLevelOfDetail *= adjust;
       if (this->CurrentLevelOfDetail > 100.0) { this->CurrentLevelOfDetail = 100.0; }
-      }
+    }
 
     this->LevelOfDetailTriangleCount =
       (unsigned int)(this->NumberOfBoundaryTriangles +
                      (this->CurrentLevelOfDetail/100.0)*(float)this->NumberOfInternalTriangles);
-    }
+  }
   else
-    {
+  {
     this->LevelOfDetailTriangleCount = this->NumberOfTriangles;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -648,12 +648,12 @@ void vtkHAVSVolumeMapper::InitializeLookupTables(vtkVolume *vol)
   this->UnitDistance = property->GetScalarOpacityUnitDistance();
 
   if (property->GetColorChannels() == 1)
-    {
+  {
     vtkPiecewiseFunction *gray = property->GetGrayTransferFunction();
     vtkPiecewiseFunction *alpha = property->GetScalarOpacity();
     double g, a;
     for (int i = 0; i < this->TransferFunctionSize; i++)
-      {
+    {
       g = gray->GetValue(x);
       a = alpha->GetValue(x);
 
@@ -663,15 +663,15 @@ void vtkHAVSVolumeMapper::InitializeLookupTables(vtkVolume *vol)
       this->TransferFunction[i*4+3] = a / this->UnitDistance;
 
       x+=dx;
-      }
     }
+  }
   else
-    {
+  {
     vtkColorTransferFunction *colors = property->GetRGBTransferFunction();
     vtkPiecewiseFunction *alpha = property->GetScalarOpacity();
     double c[3], a;
     for (int i = 0; i < this->TransferFunctionSize; i++)
-      {
+    {
       colors->GetColor(x,c);
       a = alpha->GetValue(x);
 
@@ -681,8 +681,8 @@ void vtkHAVSVolumeMapper::InitializeLookupTables(vtkVolume *vol)
       this->TransferFunction[i*4+3] = a / this->UnitDistance;
 
       x+=dx;
-      }
     }
+  }
 }
 
 //--------------------------------------------------------------------------
@@ -699,11 +699,11 @@ vtkHAVSVolumeMapper::FRadix(int byte, int len, vtkHAVSSortedFace *source, vtkHAV
     index[i]=index[i-1]+count[i-1];
 
   for (i=0; i<(unsigned int)len; i++ )
-    {
+  {
     k = &source[i];
     j = *(unsigned int *)&k->Distance;
     dest[index[(j >> (byte*8))&0xff]++] = *k;
-    }
+  }
 }
 
 //--------------------------------------------------------------------------
@@ -722,13 +722,13 @@ vtkHAVSVolumeMapper::FRadixSort(vtkHAVSSortedFace *array, vtkHAVSSortedFace *tem
 
   // Generate count arrays
   for (i=0; i<(unsigned int)len; i++)
-    {
+  {
     u = uints[i].Distance;
     count[0][u & 0xff]++;
     count[1][(u >> 8) & 0xff]++;
     count[2][(u >> 16) & 0xff]++;
     count[3][(u >> 24) & 0xff]++;
-    }
+  }
 
   // Start sorting
   this->FRadix(0, len, uints, temp, count[0]);
@@ -746,7 +746,7 @@ void vtkHAVSVolumeMapper::PartialVisibilitySort(float *eye)
   unsigned int i;
 
   for (i = 0; i < this->NumberOfBoundaryTriangles; i++)
-    {
+  {
     unsigned int f = this->BoundaryTriangles[i];
     float *fc = &this->Centers[f*3];
     dist2 = (eye[0]-fc[0])*(eye[0]-fc[0]) +
@@ -760,12 +760,12 @@ void vtkHAVSVolumeMapper::PartialVisibilitySort(float *eye)
     floatToInt.f = dist2;
     sFace = vtkHAVSSortedFace(f, floatToInt.i);
     this->SortedFaces[sFaceCount++] = sFace;
-    }
+  }
 
   unsigned int internalCount =
     this->LevelOfDetailTriangleCount - this->NumberOfBoundaryTriangles;
   for (i = 0; i < internalCount; i++)
-    {
+  {
     unsigned int f = this->InternalTriangles[i];
     float *fc = &this->Centers[f*3];
     dist2 = (eye[0]-fc[0])*(eye[0]-fc[0]) +
@@ -779,20 +779,20 @@ void vtkHAVSVolumeMapper::PartialVisibilitySort(float *eye)
     floatToInt.f = dist2;
     sFace = vtkHAVSSortedFace(f, floatToInt.i);
     this->SortedFaces[sFaceCount++] = sFace;
-    }
+  }
 
   // Sort indices
   this->FRadixSort(this->SortedFaces, this->RadixTemp, 0, this->LevelOfDetailTriangleCount);
 
   // Reorder triangles for rendering
   for(i = 0; i < this->LevelOfDetailTriangleCount; i++)
-    {
+  {
     for(unsigned int j = 0; j < 3; j++)
-      {
+    {
       this->OrderedTriangles[i*3+j] =
         (unsigned int)this->Triangles[this->SortedFaces[i].Face*3+j];
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -800,35 +800,35 @@ bool vtkHAVSVolumeMapper::CheckInitializationError()
 {
   if (this->InitializationError ==
       vtkHAVSVolumeMapper::NO_INIT_ERROR)
-    {
+  {
     return false;
-    }
+  }
 
   if (this->InitializationError ==
       vtkHAVSVolumeMapper::NON_TETRAHEDRA)
-    {
+  {
     vtkErrorMacro(<< "Non-tetrahedral cells not supported!");
-    }
+  }
   else if (this->InitializationError ==
            vtkHAVSVolumeMapper::UNSUPPORTED_EXTENSIONS)
-    {
+  {
     vtkErrorMacro(<< "Required OpenGL extensions not supported!" );
-    }
+  }
   else if (this->InitializationError ==
            vtkHAVSVolumeMapper::NO_SCALARS)
-    {
+  {
     vtkErrorMacro(<< "Can't use HAVS without scalars!");
-    }
+  }
   else if (this->InitializationError ==
            vtkHAVSVolumeMapper::CELL_DATA)
-    {
+  {
     vtkErrorMacro(<< "Can't use HAVS with cell data!");
-    }
+  }
   else if (this->InitializationError ==
            vtkHAVSVolumeMapper::NO_CELLS)
-    {
+  {
     vtkErrorMacro(<< "No Cells!");
-    }
+  }
   return true;
 }
 

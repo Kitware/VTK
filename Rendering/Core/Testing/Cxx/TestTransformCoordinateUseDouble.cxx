@@ -69,7 +69,7 @@ int TestTransformCoordinateUseDouble(int argc, char *argv[])
   renderWindow->AddRenderer(emptyRenderer.GetPointer());
 
   while (--i)
-    {
+  {
     vtkNew<vtkRenderer> renderer;
     renderer->SetViewport(x , y , x + width, y + height);
 
@@ -90,18 +90,18 @@ int TestTransformCoordinateUseDouble(int argc, char *argv[])
     renderWindow->AddRenderer(renderer.GetPointer());
 
     if ( i % 2 )
-      {
+    {
       x += width;
       y -= height;
       height *= 2.;
-      }
+    }
     else
-      {
+    {
       x -= width;
       y += height;
       width *= 2.;
-      }
     }
+  }
 
   //Render and interact
   vtkNew<vtkRenderWindowInteractor> interactor;
@@ -112,9 +112,9 @@ int TestTransformCoordinateUseDouble(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage(renderWindow.GetPointer());
   if(retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     interactor->Start();
-    }
+  }
 
   return !retVal;
 }

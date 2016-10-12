@@ -78,9 +78,9 @@ int vtkTableReader::RequestUpdateExtent(
 
   // make sure piece is valid
   if (piece < 0 || piece >= numPieces)
-    {
+  {
     return 1;
-    }
+  }
 
   return 1;
 }
@@ -95,82 +95,82 @@ int vtkTableReader::RequestData(
 
   // Return all data in the first piece ...
   if(outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
-    {
+  {
     return 1;
-    }
+  }
 
   vtkDebugMacro(<<"Reading vtk table...");
 
   if(!this->OpenVTKFile() || !this->ReadHeader())
-    {
+  {
     return 1;
-    }
+  }
 
   // Read table-specific stuff
   char line[256];
   if(!this->ReadString(line))
-    {
+  {
     vtkErrorMacro(<<"Data file ends prematurely!");
     this->CloseVTKFile();
     return 1;
-    }
+  }
 
   if(strncmp(this->LowerCase(line),"dataset", (unsigned long)7))
-    {
+  {
     vtkErrorMacro(<< "Unrecognized keyword: " << line);
     this->CloseVTKFile();
     return 1;
-    }
+  }
 
   if(!this->ReadString(line))
-    {
+  {
     vtkErrorMacro(<<"Data file ends prematurely!");
     this->CloseVTKFile ();
     return 1;
-    }
+  }
 
   if(strncmp(this->LowerCase(line),"table", 5))
-    {
+  {
     vtkErrorMacro(<< "Cannot read dataset type: " << line);
     this->CloseVTKFile();
     return 1;
-    }
+  }
 
   vtkTable* const output = vtkTable::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   while(true)
-    {
+  {
     if(!this->ReadString(line))
-      {
+    {
       break;
-      }
+    }
 
     if(!strncmp(this->LowerCase(line), "field", 5))
-      {
+    {
       vtkFieldData* const field_data = this->ReadFieldData();
       output->SetFieldData(field_data);
       field_data->Delete();
       continue;
-      }
+    }
 
     if(!strncmp(this->LowerCase(line), "row_data", 8))
-      {
+    {
       int row_count = 0;
       if(!this->Read(&row_count))
-        {
+      {
         vtkErrorMacro(<<"Cannot read number of rows!");
         this->CloseVTKFile();
         return 1;
-        }
+      }
 
 
       this->ReadRowData(output, row_count);
       continue;
-      }
+    }
 
     vtkErrorMacro(<< "Unrecognized keyword: " << line);
-    }
+  }
 
   vtkDebugMacro(<< "Read " << output->GetNumberOfRows() <<" rows in "
                 << output->GetNumberOfColumns() <<" columns.\n");

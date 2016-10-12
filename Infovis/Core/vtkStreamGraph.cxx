@@ -51,13 +51,13 @@ vtkStreamGraph::vtkStreamGraph()
 vtkStreamGraph::~vtkStreamGraph()
 {
   if (this->CurrentGraph)
-    {
+  {
     this->CurrentGraph->Delete();
-    }
+  }
   if (this->MergeGraphs)
-    {
+  {
     this->MergeGraphs->Delete();
-    }
+  }
   this->SetEdgeWindowArrayName(0);
 }
 
@@ -81,25 +81,25 @@ int vtkStreamGraph::RequestData(
 
   // First pass: make a copy of the graph and we're done
   if (!this->CurrentGraph->GetGraph())
-    {
+  {
     if (vtkDirectedGraph::SafeDownCast(input))
-      {
+    {
       vtkSmartPointer<vtkMutableDirectedGraph> g = vtkSmartPointer<vtkMutableDirectedGraph>::New();
       this->CurrentGraph->SetGraph(g);
-      }
+    }
     else
-      {
+    {
       vtkSmartPointer<vtkMutableUndirectedGraph> g = vtkSmartPointer<vtkMutableUndirectedGraph>::New();
       this->CurrentGraph->SetGraph(g);
-      }
+    }
     this->CurrentGraph->GetGraph()->DeepCopy(input);
     if (!output->CheckedShallowCopy(input))
-      {
+    {
       vtkErrorMacro("Output graph format invalid.");
       return 0;
-      }
-    return 1;
     }
+    return 1;
+  }
 
   progress = 0.2;
   this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
@@ -109,9 +109,9 @@ int vtkStreamGraph::RequestData(
   this->MergeGraphs->SetEdgeWindow(this->EdgeWindow);
 
   if (!this->MergeGraphs->ExtendGraph(this->CurrentGraph, input))
-    {
+  {
     return 0;
-    }
+  }
 
   progress = 0.9;
   this->InvokeEvent(vtkCommand::ProgressEvent, &progress);

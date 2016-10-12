@@ -103,20 +103,20 @@ int TestPOVExporter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   cout << "TestPOVExporter.pov file exists: " << exists << endl;
   cout << "TestPOVExporter.pov file length: " << length << endl;
   if (!exists)
-    {
+  {
     err = 1;
     cerr << "ERROR: 1 - Test failing because TestPOVExporter.pov file doesn't exist..." << endl;
-    }
+  }
   else
-    {
+  {
     vtksys::SystemTools::RemoveFile("TestPOVExporter.pov");
-    }
+  }
 
   if (0==length)
-    {
+  {
     err = 2;
     cerr << "ERROR: 2 - Test failing because TestPOVExporter.pov file has zero length..." << endl;
-    }
+  }
 
   renWin->Delete();
   ren->Delete();

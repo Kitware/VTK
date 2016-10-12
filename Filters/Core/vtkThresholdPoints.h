@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkThresholdPoints - extracts points whose scalar value satisfies threshold criterion
-// .SECTION Description
-// vtkThresholdPoints is a filter that extracts points from a dataset that
-// satisfy a threshold criterion. The criterion can take three forms:
-// 1) greater than a particular value; 2) less than a particular value; or
-// 3) between a particular value. The output of the filter is polygonal data.
-// .SECTION See Also
-// vtkThreshold
+/**
+ * @class   vtkThresholdPoints
+ * @brief   extracts points whose scalar value satisfies threshold criterion
+ *
+ * vtkThresholdPoints is a filter that extracts points from a dataset that
+ * satisfy a threshold criterion. The criterion can take three forms:
+ * 1) greater than a particular value; 2) less than a particular value; or
+ * 3) between a particular value. The output of the filter is polygonal data.
+ * @sa
+ * vtkThreshold
+*/
 
 #ifndef vtkThresholdPoints_h
 #define vtkThresholdPoints_h
@@ -32,46 +35,58 @@ class VTKFILTERSCORE_EXPORT vtkThresholdPoints : public vtkPolyDataAlgorithm
 public:
   static vtkThresholdPoints *New();
   vtkTypeMacro(vtkThresholdPoints,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Criterion is cells whose scalars are less or equal to lower threshold.
+  /**
+   * Criterion is cells whose scalars are less or equal to lower threshold.
+   */
   void ThresholdByLower(double lower);
 
-  // Description:
-  // Criterion is cells whose scalars are greater or equal to upper threshold.
+  /**
+   * Criterion is cells whose scalars are greater or equal to upper threshold.
+   */
   void ThresholdByUpper(double upper);
 
-  // Description:
-  // Criterion is cells whose scalars are between lower and upper thresholds
-  // (inclusive of the end values).
+  /**
+   * Criterion is cells whose scalars are between lower and upper thresholds
+   * (inclusive of the end values).
+   */
   void ThresholdBetween(double lower, double upper);
 
-  // Description:
-  // Set/Get the upper threshold.
+  //@{
+  /**
+   * Set/Get the upper threshold.
+   */
   vtkSetMacro(UpperThreshold,double);
   vtkGetMacro(UpperThreshold,double);
+  //@}
 
-  // Description:
-  // Set/Get the lower threshold.
+  //@{
+  /**
+   * Set/Get the lower threshold.
+   */
   vtkSetMacro(LowerThreshold,double);
   vtkGetMacro(LowerThreshold,double);
+  //@}
 
-  // Description:
-  // Set/get the desired precision for the output types. See the documentation
-  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
-  // the available precision settings.
+  //@{
+  /**
+   * Set/get the desired precision for the output types. See the documentation
+   * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+   * the available precision settings.
+   */
   vtkSetMacro(OutputPointsPrecision,int);
   vtkGetMacro(OutputPointsPrecision,int);
+  //@}
 
 protected:
   vtkThresholdPoints();
-  ~vtkThresholdPoints() {}
+  ~vtkThresholdPoints() VTK_OVERRIDE {}
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   double LowerThreshold;
   double UpperThreshold;
@@ -84,8 +99,8 @@ protected:
   int Between(double s) {return ( s >= this->LowerThreshold ?
                                ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );};
 private:
-  vtkThresholdPoints(const vtkThresholdPoints&);  // Not implemented.
-  void operator=(const vtkThresholdPoints&);  // Not implemented.
+  vtkThresholdPoints(const vtkThresholdPoints&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkThresholdPoints&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -62,13 +62,13 @@ int vtkImageGradient::RequestInformation(vtkInformation*,
 
   // Shrink output image extent by one pixel if not handling boundaries.
   if(!this->HandleBoundaries)
-    {
+  {
     for(int idx = 0; idx < this->Dimensionality; ++idx)
-      {
+    {
       extent[idx*2] += 1;
       extent[idx*2 + 1] -= 1;
-      }
     }
+  }
 
   // Store the new whole extent for the output.
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);
@@ -108,7 +108,7 @@ int vtkImageGradient::RequestUpdateExtent(vtkInformation*,
   // In order to do central differencing we need one more layer of
   // input pixels than we are producing output pixels.
   for(int idx = 0; idx < this->Dimensionality; ++idx)
-    {
+  {
     inUExt[idx*2] -= 1;
     inUExt[idx*2+1] += 1;
 
@@ -116,17 +116,17 @@ int vtkImageGradient::RequestUpdateExtent(vtkInformation*,
     // must clip the needed extent within the whole extent of the
     // input.
     if (this->HandleBoundaries)
-      {
+    {
       if (inUExt[idx*2] < wholeExtent[idx*2])
-        {
+      {
         inUExt[idx*2] = wholeExtent[idx*2];
-        }
+      }
       if (inUExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
-        {
+      {
         inUExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
-        }
       }
     }
+  }
 
   // Store the update extent needed from the intput.
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inUExt, 6);
@@ -190,23 +190,23 @@ void vtkImageGradientExecute(vtkImageGradient *self,
 
   // Loop through output pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
-    {
+  {
     useZMin = ((idxZ + outExt[4]) <= wholeExtent[4]) ? 0 : -inIncs[2];
     useZMax = ((idxZ + outExt[4]) >= wholeExtent[5]) ? 0 : inIncs[2];
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
-      {
+    {
       if (!id)
-        {
+      {
         if (!(count%target))
-          {
+        {
           self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
         }
+        count++;
+      }
       useYMin = ((idxY + outExt[2]) <= wholeExtent[2]) ? 0 : -inIncs[1];
       useYMax = ((idxY + outExt[2]) >= wholeExtent[3]) ? 0 : inIncs[1];
       for (idxX = 0; idxX <= maxX; idxX++)
-        {
+      {
         useXMin = ((idxX + outExt[0]) <= wholeExtent[0]) ? 0 : -inIncs[0];
         useXMax = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];
 
@@ -224,22 +224,22 @@ void vtkImageGradientExecute(vtkImageGradient *self,
         *outPtr = d;
         outPtr++;
         if (axesNum == 3)
-          {
+        {
           // do z axis
           d = static_cast<double>(inPtr[useZMin]);
           d -= static_cast<double>(inPtr[useZMax]);
           d *= r[2]; // multiply by the data spacing
           *outPtr = d;
           outPtr++;
-          }
-        inPtr++;
         }
+        inPtr++;
+      }
       outPtr += outIncY;
       inPtr += inIncY;
-      }
+    }
     outPtr += outIncZ;
     inPtr += inIncZ;
-    }
+  }
 }
 
 int vtkImageGradient::RequestData(
@@ -263,22 +263,22 @@ int vtkImageGradient::RequestData(
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ue2);
   int* ie =  input->GetExtent();
   for (int i=0; i<3; i++)
-    {
+  {
     if (ue[2*i] < ie[2*i])
-      {
+    {
       ue2[2*i] = ie[2*i];
-      }
-    if (ue[2*i+1] > ie[2*i+1])
-      {
-      ue2[2*i+1] = ie[2*i+1];
-      }
     }
+    if (ue[2*i+1] > ie[2*i+1])
+    {
+      ue2[2*i+1] = ie[2*i+1];
+    }
+  }
   outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ue2, 6);
 
   if (!this->Superclass::RequestData(request, inputVector, outputVector))
-    {
+  {
     return 0;
-    }
+  }
   vtkImageData* output = vtkImageData::GetData(outputVector);
   vtkDataArray* outArray = output->GetPointData()->GetScalars();
   std::ostringstream newname;
@@ -287,10 +287,10 @@ int vtkImageGradient::RequestData(
   outArray->SetName(newname.str().c_str());
   // Why not pass the original array?
   if (this->GetInputArrayToProcess(0, inputVector))
-    {
+  {
     output->GetPointData()->AddArray(
         this->GetInputArrayToProcess(0, inputVector));
-    }
+  }
   // Restore the previous update extent. See code above for details.
   outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ue, 6);
   return 1;
@@ -314,23 +314,23 @@ void vtkImageGradient::ThreadedRequestData(vtkInformation*,
 
   // The ouptut scalar type must be double to store proper gradients.
   if(output->GetScalarType() != VTK_DOUBLE)
-    {
+  {
     vtkErrorMacro("Execute: output ScalarType is "
                   << output->GetScalarType() << "but must be double.");
     return;
-    }
+  }
 
   vtkDataArray* inputArray = this->GetInputArrayToProcess(0, inputVector);
   if (!inputArray)
-    {
+  {
     vtkErrorMacro("No input array was found. Cannot execute");
     return;
-    }
+  }
 
   // Gradient makes sense only with one input component.  This is not
   // a Jacobian filter.
   if(inputArray->GetNumberOfComponents() != 1)
-    {
+  {
     vtkErrorMacro(
       "Execute: input has more than one component. "
       "The input to gradient should be a single component image. "
@@ -338,13 +338,13 @@ void vtkImageGradient::ThreadedRequestData(vtkInformation*,
       "run it though RGBToHSV then ExtractComponents to get the V "
       "components. That's probably what you want anyhow.");
     return;
-    }
+  }
 
   void* inPtr = inputArray->GetVoidPointer(0);
   double* outPtr = static_cast<double *>(
     output->GetScalarPointerForExtent(outExt));
   switch(inputArray->GetDataType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageGradientExecute(this, input, static_cast<VTK_TT*>(inPtr),
                               output, outPtr, outExt, threadId)
@@ -352,5 +352,5 @@ void vtkImageGradient::ThreadedRequestData(vtkInformation*,
     default:
       vtkErrorMacro("Execute: Unknown ScalarType " << input->GetScalarType());
       return;
-    }
+  }
 }

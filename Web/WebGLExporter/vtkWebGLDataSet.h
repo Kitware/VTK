@@ -12,9 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWebGLDataSet
-// .SECTION Description
-// vtkWebGLDataSet represent vertices, lines, polygons, and triangles.
+/**
+ * @class   vtkWebGLDataSet
+ *
+ * vtkWebGLDataSet represent vertices, lines, polygons, and triangles.
+*/
 
 #ifndef vtkWebGLDataSet_h
 #define vtkWebGLDataSet_h
@@ -70,8 +72,8 @@ protected:
   std::string MD5;
 
 private:
-  vtkWebGLDataSet(const vtkWebGLDataSet&); // Not implemented
-  void operator=(const vtkWebGLDataSet&);   // Not implemented
+  vtkWebGLDataSet(const vtkWebGLDataSet&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWebGLDataSet&) VTK_DELETE_FUNCTION;
 };
 
 #endif

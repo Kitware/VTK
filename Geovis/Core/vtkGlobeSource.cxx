@@ -75,11 +75,11 @@ void vtkGlobeSource::ComputeGlobePoint(
   x[2] = n2 * radius;
 
   if (normal)
-    {
+  {
     normal[0] = n0;
     normal[1] = n1;
     normal[2] = n2;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -90,13 +90,13 @@ void vtkGlobeSource::ComputeLatitudeLongitude(
   double S = sqrt(x[0]*x[0] + x[1]*x[1]);
   phi = acos(x[2] / rho);
   if (x[0] >= 0)
-    {
+  {
     theta = asin(x[1] / S);
-    }
+  }
   else
-    {
+  {
     theta = vtkMath::Pi() - asin(x[1] / S);
-    }
+  }
   phi =   vtkMath::DegreesFromRadians( vtkMath::Pi() / 2.0 - phi );
   theta = vtkMath::DegreesFromRadians( theta - vtkMath::Pi()/2.0 );
 }
@@ -143,10 +143,10 @@ int vtkGlobeSource::RequestData(
   // I am going to compute the curtain height based on the level of the
   // terrain patch.
   if(this->AutoCalculateCurtainHeight)
-    {
+  {
     this->CurtainHeight = (this->EndLongitude-this->StartLongitude)
       * this->Radius / 3600.0;
-    }
+  }
 
   // get the ouptut
   vtkPolyData *output = vtkPolyData::SafeDownCast(
@@ -212,67 +212,67 @@ int vtkGlobeSource::RequestData(
 
   // Create points and point data.
   for (j=0; j<this->LatitudeResolution; j++)
-    {
+  {
     phi = this->StartLatitude + j*deltaLatitude;
     for (i=0; i < this->LongitudeResolution; i++)
-      {
+    {
       theta = this->StartLongitude + i*deltaLongitude;
       this->AddPoint(theta, phi, this->Radius,
                      newPoints, newNormals,
                      newLongitudeArray, newLatitudeArray,
                      newLatLongArray);
-      }
+    }
     this->UpdateProgress(
       0.10 + 0.50*j/static_cast<float>(this->LatitudeResolution));
-    }
+  }
 
   // Create the extra points for the curtains.
   for (i=0; i < this->LongitudeResolution; i++)
-    {
+  {
     theta = this->StartLongitude + i*deltaLongitude;
     phi = this->StartLatitude;
     this->AddPoint(theta, phi, this->Radius-this->CurtainHeight,
                    newPoints, newNormals,
                    newLongitudeArray, newLatitudeArray,
                    newLatLongArray);
-    }
+  }
   for (i=0; i < this->LongitudeResolution; i++)
-    {
+  {
     theta = this->StartLongitude + i*deltaLongitude;
     phi = this->EndLatitude;
     this->AddPoint(theta, phi, this->Radius-this->CurtainHeight,
                    newPoints, newNormals,
                    newLongitudeArray, newLatitudeArray,
                    newLatLongArray);
-    }
+  }
   for (j=0; j < this->LatitudeResolution; j++)
-    {
+  {
     theta = this->StartLongitude;
     phi = this->StartLatitude + j*deltaLatitude;
     this->AddPoint(theta, phi, this->Radius-this->CurtainHeight,
                    newPoints, newNormals,
                    newLongitudeArray, newLatitudeArray,
                    newLatLongArray);
-    }
+  }
   for (j=0; j < this->LatitudeResolution; j++)
-    {
+  {
     theta = this->EndLongitude;
     phi = this->StartLatitude + j*deltaLatitude;
     this->AddPoint(theta, phi, this->Radius-this->CurtainHeight,
                    newPoints, newNormals,
                    newLongitudeArray, newLatitudeArray,
                    newLatLongArray);
-    }
+  }
 
 
   // Generate mesh connectivity
   vtkIdType rowId = 0;
   vtkIdType cornerId;
   for (j=1; j < this->LatitudeResolution; ++j)
-    {
+  {
     cornerId = rowId;
     for (i=1; i < this->LongitudeResolution; ++i)
-      {
+    {
       pts[0] = cornerId;
       pts[2] = cornerId + this->LongitudeResolution;
       pts[1] = pts[2] + 1;
@@ -281,11 +281,11 @@ int vtkGlobeSource::RequestData(
       pts[1] = cornerId + 1;
       newPolys->InsertNextCell(3, pts);
       ++cornerId;
-      }
+    }
     rowId += this->LongitudeResolution;
     this->UpdateProgress(
       0.70 + 0.30*j/static_cast<double>(this->LatitudeResolution));
-    }
+  }
 
   // Create curtain quads.
   vtkIdType curtainPointId =
@@ -293,47 +293,47 @@ int vtkGlobeSource::RequestData(
   vtkIdType edgeOffset;
   edgeOffset = 0;
   for (i=1; i < this->LongitudeResolution; ++i)
-    {
+  {
     pts[0] = edgeOffset + i; // i starts at 1.
     pts[1] = pts[0] - 1;
     pts[2] = curtainPointId;
     pts[3] = curtainPointId + 1;
     newPolys->InsertNextCell(4, pts);
     ++curtainPointId;
-    }
+  }
   ++curtainPointId; // Skip 2 to the next edge.
   edgeOffset = (this->LongitudeResolution)*(this->LatitudeResolution-1);
   for (i=1; i < this->LongitudeResolution; ++i)
-    {
+  {
     pts[0] = edgeOffset + i - 1; // i starts at 1
     pts[1] = pts[0] + 1;
     pts[2] = curtainPointId + 1;
     pts[3] = curtainPointId;
     newPolys->InsertNextCell(4, pts);
     ++curtainPointId;
-    }
+  }
   ++curtainPointId;
   edgeOffset = 0;
   for (j=1; j < this->LatitudeResolution; ++j)
-    {
+  {
     pts[0] = edgeOffset + j*this->LongitudeResolution;
     pts[1] = pts[0] - this->LongitudeResolution;
     pts[2] = curtainPointId;
     pts[3] = curtainPointId + 1;
     newPolys->InsertNextCell(4, pts);
     ++curtainPointId;
-    }
+  }
   ++curtainPointId;
   edgeOffset = (this->LongitudeResolution-1);
   for (j=1; j < this->LatitudeResolution; ++j)
-    {
+  {
     pts[0] = edgeOffset + (j-1)*this->LongitudeResolution;
     pts[1] = pts[0] + this->LongitudeResolution;
     pts[2] = curtainPointId + 1;
     pts[3] = curtainPointId;
     newPolys->InsertNextCell(4, pts);
     ++curtainPointId;
-    }
+  }
 
 
   // Update ourselves and release memeory

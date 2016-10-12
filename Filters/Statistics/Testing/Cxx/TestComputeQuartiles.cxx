@@ -12,17 +12,17 @@
   { \
   std::string expectedMsg(msg); \
   if (!observer->GetError()) \
-    { \
+  { \
     std::cout << "ERROR: Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
-    } \
+  } \
   else \
-    { \
+  { \
     std::string gotMsg(observer->GetErrorMessage()); \
     if (gotMsg.find(expectedMsg) == std::string::npos) \
-      { \
+    { \
       std::cout << "ERROR: Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-      } \
     } \
+  } \
   } \
   observer->Clear()
 
@@ -62,10 +62,10 @@ int TestComputeQuartiles(int , char * [])
     };
 
   for (int i = 0; i < numNotes; ++i)
-    {
+  {
     table->SetValue(i, 0, MathValue[i]);
     table->SetValue(i, 1, FrenchValue[i]);
-    }
+  }
 
   // Run Compute Quantiles
   vtkNew<vtkComputeQuartiles> quartiles;
@@ -94,19 +94,19 @@ int TestComputeQuartiles(int , char * [])
   bool ret = EXIT_SUCCESS;
 
   for (int i = 0; i < 5; i++)
-    {
+  {
     if (outTable->GetValue(i, 0).ToFloat() != MathQuartiles[i] ||
       outTable->GetValue(i, 1).ToFloat() != FrenchQuartiles[i])
-      {
+    {
       ret = EXIT_FAILURE;
-      }
     }
+  }
 
   if (ret != EXIT_SUCCESS)
-    {
+  {
     cout << "Failure!" << endl;
     outTable->Dump();
-    }
+  }
 
   return ret;
 }

@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGaussianCubeReader2 - Read a Gaussian Cube file and output a
-// vtkMolecule object and a vtkImageData
-// .SECTION Description
-//
-// .SECTION Thanks
-// Dr. Jean M. Favre who developed and contributed this class.
+/**
+ * @class   vtkGaussianCubeReader2
+ * @brief   Read a Gaussian Cube file and output a
+ * vtkMolecule object and a vtkImageData
+ *
+ *
+ * @par Thanks:
+ * Dr. Jean M. Favre who developed and contributed this class.
+*/
 
 #ifndef vtkGaussianCubeReader2_h
 #define vtkGaussianCubeReader2_h
@@ -35,19 +38,26 @@ public:
   vtkTypeMacro(vtkGaussianCubeReader2,vtkMoleculeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get/Set the output (vtkMolecule) that the reader will fill
+  //@{
+  /**
+   * Get/Set the output (vtkMolecule) that the reader will fill
+   */
   vtkMolecule *GetOutput();
   void SetOutput(vtkMolecule *);
+  //@}
 
-  // Description:
-  // Get/Set the output (vtkImageData) that the reader will fill
+  /**
+   * Get/Set the output (vtkImageData) that the reader will fill
+   */
   vtkImageData *GetGridOutput();
 
-  // Description:
-  // Get/Set the name of the CML file
+  //@{
+  /**
+   * Get/Set the name of the CML file
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
 protected:
   vtkGaussianCubeReader2();
@@ -61,8 +71,8 @@ protected:
 
   char *FileName;
 private:
-  vtkGaussianCubeReader2(const vtkGaussianCubeReader2&);  // Not implemented.
-  void operator=(const vtkGaussianCubeReader2&);  // Not implemented.
+  vtkGaussianCubeReader2(const vtkGaussianCubeReader2&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGaussianCubeReader2&) VTK_DELETE_FUNCTION;
 };
 
 #endif

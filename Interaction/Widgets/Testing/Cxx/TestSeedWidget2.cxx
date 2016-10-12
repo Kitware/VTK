@@ -1346,17 +1346,17 @@ class vtkSeedCallback2 : public vtkCommand
 public:
   static vtkSeedCallback2 *New()
     { return new vtkSeedCallback2; }
-  virtual void Execute(vtkObject*, unsigned long eid, void*)
-    {
+  void Execute(vtkObject*, unsigned long eid, void*) VTK_OVERRIDE
+  {
       if ( eid == vtkCommand::CursorChangedEvent )
-        {
+      {
         std::cout << "cursor changed\n";
-        }
+      }
       else
-        {
+      {
         std::cout << "point placed\n";
-        }
-    }
+      }
+  }
 };
 
 

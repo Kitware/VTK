@@ -58,9 +58,9 @@ vtkGenericAttributeCollection::vtkGenericAttributeCollection()
 vtkGenericAttributeCollection::~vtkGenericAttributeCollection()
 {
   for(unsigned int i=0; i < this->AttributeInternalVector->Vector.size(); ++i)
-    {
+  {
     this->AttributeInternalVector->Vector[i]->Delete();
-    }
+  }
   delete this->AttributeInternalVector;
   delete this->AttributeIndices;
 }
@@ -75,10 +75,10 @@ void vtkGenericAttributeCollection::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Number Of Attributes: " << this->GetNumberOfAttributes() << "\n";
   for(i=0; i<c; ++i)
-    {
+  {
     os << indent << "Attribute #"<<i<<":\n";
     this->GetAttribute(i)->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
 
   c=this->GetNumberOfAttributesToInterpolate();
   os << indent << "Number Of Attributes to interpolate: " << c << endl;
@@ -86,9 +86,9 @@ void vtkGenericAttributeCollection::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Attributes to interpolate:";
 
   for(i=0; i<c; ++i)
-    {
+  {
     os << ' ' << this->AttributesToInterpolate[i];
-    }
+  }
   os << endl;
 
   os << indent << "Active Attribute: " << this->ActiveAttribute << endl;
@@ -185,17 +185,17 @@ int vtkGenericAttributeCollection::FindAttribute(const char *name)
   int i=0;
 
   while((i<numAtt)&&(result==-1))
-    {
+  {
     attributeName=this->GetAttribute(i)->GetName();
     if(attributeName!=0)
-      {
+    {
       if(strcmp( attributeName, name ) == 0)
-        {
+      {
         result=i;
-        }
       }
-    ++i;
     }
+    ++i;
+  }
 
   assert("post: valid_result" && ((result==-1) ||
                                   ((result>=0) &&
@@ -250,9 +250,9 @@ void vtkGenericAttributeCollection::InsertAttribute(int i, vtkGenericAttribute *
 #endif
 
   if(this->AttributeInternalVector->Vector[i]!=0)
-    {
+  {
     this->AttributeInternalVector->Vector[i]->Delete();
-    }
+  }
   this->AttributeInternalVector->Vector[i] = a;
   a->Register( this );
   this->Modified();
@@ -291,9 +291,9 @@ void vtkGenericAttributeCollection::RemoveAttribute(int i)
 void vtkGenericAttributeCollection::Reset()
 {
   for(unsigned int i = 0; i < this->AttributeInternalVector->Vector.size(); ++i)
-    {
+  {
     this->AttributeInternalVector->Vector[i]->Delete();
-    }
+  }
   this->AttributeInternalVector->Vector.clear();
   this->AttributeIndices->Vector.clear();
   this->Modified();
@@ -317,17 +317,17 @@ void vtkGenericAttributeCollection::DeepCopy(vtkGenericAttributeCollection *othe
 
   int c = static_cast<int>(this->AttributeInternalVector->Vector.size());
   for(int i=0; i<c; i++)
-    {
+  {
     if(this->AttributeInternalVector->Vector[i] == 0)
-      {
+    {
       this->AttributeInternalVector->Vector[i] =
         other->AttributeInternalVector->Vector[i]->NewInstance();
-      }
+    }
     this->AttributeInternalVector->Vector[i]->DeepCopy(
       other->AttributeInternalVector->Vector[i]);
     // Dont need to copy the contents of AttributeIndices: it will be
     // recomputed because of the following Moditied call.
-    }
+  }
   this->Modified();
 
   assert("post: same_size" && this->GetNumberOfAttributes()==other->GetNumberOfAttributes());
@@ -346,12 +346,12 @@ void vtkGenericAttributeCollection::ShallowCopy(vtkGenericAttributeCollection *o
   this->AttributeIndices->Vector = other->AttributeIndices->Vector;
   int c = static_cast<int>(this->AttributeInternalVector->Vector.size());
   for (int i=0; i<c; ++i)
-    {
+  {
     if (this->AttributeInternalVector->Vector[i] != 0)
-      {
+    {
       this->AttributeInternalVector->Vector[i]->Register( this );
-      }
     }
+  }
   this->Modified();
 
   assert("post: same_size" && this->GetNumberOfAttributes()==other->GetNumberOfAttributes());
@@ -360,18 +360,18 @@ void vtkGenericAttributeCollection::ShallowCopy(vtkGenericAttributeCollection *o
 //----------------------------------------------------------------------------
 // Description:
 // Collection is composite object and need to check each part for MTime.
-unsigned long int vtkGenericAttributeCollection::GetMTime()
+vtkMTimeType vtkGenericAttributeCollection::GetMTime()
 {
-  unsigned long result;
-  unsigned long mtime;
+  vtkMTimeType result;
+  vtkMTimeType mtime;
 
   result = vtkObject::GetMTime();
 
   for(int i = 0; i < this->GetNumberOfAttributes(); ++i)
-    {
+  {
     mtime = this->GetAttribute(i)->GetMTime();
     result = ( mtime > result ? mtime : result );
-    }
+  }
 
   return result;
 }
@@ -383,7 +383,7 @@ unsigned long int vtkGenericAttributeCollection::GetMTime()
 void vtkGenericAttributeCollection::ComputeNumbers()
 {
   if ( this->GetMTime() > this->ComputeTime )
-    {
+  {
     int nb = 0;
     int pnb = 0;
     int count;
@@ -394,21 +394,21 @@ void vtkGenericAttributeCollection::ComputeNumbers()
     int c = this->GetNumberOfAttributes();
 
     for(int i = 0; i < c; ++i)
-      {
+    {
       count = this->GetAttribute(i)->GetNumberOfComponents();
       memory=memory+this->GetAttribute(i)->GetActualMemorySize();
       if(count > maxNb)
-        {
+      {
         maxNb = count;
-        }
+      }
       nb += count;
       if(this->GetAttribute(i)->GetCentering()==vtkPointCentered)
-        {
+      {
         pnb += count;
         this->AttributeIndices->Vector[i]=firstComponentIndex;
         firstComponentIndex=firstComponentIndex+count;
-        }
       }
+    }
     this->NumberOfComponents = nb;
     this->NumberOfPointCenteredComponents = pnb;
     this->MaxNumberOfComponents = maxNb;
@@ -419,7 +419,7 @@ void vtkGenericAttributeCollection::ComputeNumbers()
     assert("check: positiveMaxNumber" && this->MaxNumberOfComponents>=0);
     assert("check: valid_number" && this->MaxNumberOfComponents<=this->NumberOfComponents);
     this->ComputeTime.Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -470,13 +470,13 @@ int vtkGenericAttributeCollection::HasAttribute(int size,
   int i;
 
   if(size != 0)
-    {
+  {
     i = 0;
     while( !result && i++ < size )
-      {
+    {
       result = attributes[i] == attribute;
-      }
     }
+  }
   return result;
 }
 
@@ -494,9 +494,9 @@ void vtkGenericAttributeCollection::SetAttributesToInterpolate(int size,
 
   this->NumberOfAttributesToInterpolate = size;
   for(int i=0; i<size; ++i)
-    {
+  {
     this->AttributesToInterpolate[i] = attributes[i];
-    }
+  }
 
   assert("post: is_set" && (this->GetNumberOfAttributesToInterpolate()==size));
 }
@@ -510,9 +510,9 @@ void vtkGenericAttributeCollection::SetAttributesToInterpolateToAll()
 
   this->NumberOfAttributesToInterpolate = this->GetMaxNumberOfComponents();
   for(int i=0; i<this->NumberOfAttributesToInterpolate; ++i)
-    {
+  {
     this->AttributesToInterpolate[i] = i;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

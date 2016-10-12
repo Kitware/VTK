@@ -39,21 +39,21 @@ static void PrintSelectionNodes(vtkSmartPointer<vtkSelection>& sel, const char* 
   vtkIdType numNodes = sel->GetNumberOfNodes();
 
   if(tag)
-    {
+  {
     cout << tag << endl;
-    }
+  }
 
   for(int iNode=0; iNode < numNodes; iNode++)
-    {
+  {
     if(tag) cout << "\t";
     cout << "Node: " << iNode << endl;
     vtkIdType listSize = sel->GetNode(iNode)->GetSelectionList()->GetNumberOfTuples();
     for(int iVal=0; iVal < listSize; iVal++)
-      {
+    {
       if(tag) cout << "\t";
       cout << "\t" << iVal << "\t" << sel->GetNode(iNode)->GetSelectionList()->GetVariantValue(iVal) << endl;
-      }
     }
+  }
 }
 #endif
 
@@ -105,36 +105,36 @@ int TestSelectionSubtract(int,char *[])
   bool failed = false;
   cout << "Check # of nodes == 1 ....... ";
   if(sel1->GetNumberOfNodes() != 1)
-    {
+  {
     cout << "FAILED" << endl;
     failed = true;
-    }
+  }
   else
-    {
+  {
     cout << "OK" << endl;
-    }
+  }
 
   cout << "Check # of tuples == 1 ...... ";
   if(sel1->GetNode(0)->GetSelectionList()->GetNumberOfTuples() != 1)
-    {
+  {
     cout << "FAILED" << endl;
     failed = true;
-    }
+  }
   else
-    {
+  {
     cout << "OK" << endl;
-    }
+  }
 
   cout << "Check selection value is 2 .. ";
   if(sel1->GetNode(0)->GetSelectionList()->GetVariantValue(0) != 2)
-    {
+  {
     cout << "FAILED" << endl;
     failed = true;
-    }
+  }
   else
-    {
+  {
     cout << "OK" << endl;
-    }
+  }
 
   return failed ? EXIT_FAILURE : EXIT_SUCCESS;
 }

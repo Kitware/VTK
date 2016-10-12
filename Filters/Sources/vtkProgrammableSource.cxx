@@ -65,9 +65,9 @@ vtkProgrammableSource::~vtkProgrammableSource()
 {
   // delete the current arg if there is one and a delete meth
   if ((this->ExecuteMethodArg)&&(this->ExecuteMethodArgDelete))
-    {
+  {
     (*this->ExecuteMethodArgDelete)(this->ExecuteMethodArg);
-    }
+  }
 }
 
 // Specify the function to use to generate the source data. Note
@@ -76,16 +76,16 @@ void vtkProgrammableSource::SetExecuteMethod(void (*f)(void *),
   void *arg)
 {
   if ( f != this->ExecuteMethod || arg != this->ExecuteMethodArg )
-    {
+  {
     // delete the current arg if there is one and a delete meth
     if ((this->ExecuteMethodArg)&&(this->ExecuteMethodArgDelete))
-      {
+    {
       (*this->ExecuteMethodArgDelete)(this->ExecuteMethodArg);
-      }
+    }
     this->ExecuteMethod = f;
     this->ExecuteMethodArg = arg;
     this->Modified();
-    }
+  }
 }
 
 // Set the arg delete method. This is used to free user memory.
@@ -93,20 +93,20 @@ void vtkProgrammableSource::SetExecuteMethodArgDelete(
   void (*f)(void *))
 {
   if ( f != this->ExecuteMethodArgDelete)
-    {
+  {
     this->ExecuteMethodArgDelete = f;
     this->Modified();
-    }
+  }
 }
 
 void vtkProgrammableSource::SetRequestInformationMethod(
   void (*f)(void *))
 {
   if ( f != this->RequestInformationMethod )
-    {
+  {
     this->RequestInformationMethod = f;
     this->Modified();
-    }
+  }
 }
 
 
@@ -117,9 +117,9 @@ void vtkProgrammableSource::SetRequestInformationMethod(
 vtkPolyData *vtkProgrammableSource::GetPolyDataOutput()
 {
   if (this->GetNumberOfOutputPorts() < 5)
-    {
+  {
     return NULL;
-    }
+  }
 
   this->RequestedDataType = VTK_POLY_DATA;
   return vtkPolyData::SafeDownCast(
@@ -130,9 +130,9 @@ vtkPolyData *vtkProgrammableSource::GetPolyDataOutput()
 vtkStructuredPoints *vtkProgrammableSource::GetStructuredPointsOutput()
 {
   if (this->GetNumberOfOutputPorts() < 5)
-    {
+  {
     return NULL;
-    }
+  }
 
   this->RequestedDataType = VTK_STRUCTURED_POINTS;
   return vtkStructuredPoints::SafeDownCast(
@@ -143,9 +143,9 @@ vtkStructuredPoints *vtkProgrammableSource::GetStructuredPointsOutput()
 vtkStructuredGrid *vtkProgrammableSource::GetStructuredGridOutput()
 {
   if (this->GetNumberOfOutputPorts() < 5)
-    {
+  {
     return NULL;
-    }
+  }
 
   this->RequestedDataType = VTK_STRUCTURED_GRID;
   return vtkStructuredGrid::SafeDownCast(
@@ -156,9 +156,9 @@ vtkStructuredGrid *vtkProgrammableSource::GetStructuredGridOutput()
 vtkUnstructuredGrid *vtkProgrammableSource::GetUnstructuredGridOutput()
 {
   if (this->GetNumberOfOutputPorts() < 5)
-    {
+  {
     return NULL;
-    }
+  }
 
   this->RequestedDataType = VTK_UNSTRUCTURED_GRID;
   return vtkUnstructuredGrid::SafeDownCast(
@@ -169,9 +169,9 @@ vtkUnstructuredGrid *vtkProgrammableSource::GetUnstructuredGridOutput()
 vtkRectilinearGrid *vtkProgrammableSource::GetRectilinearGridOutput()
 {
   if (this->GetNumberOfOutputPorts() < 5)
-    {
+  {
     return NULL;
-    }
+  }
 
   this->RequestedDataType = VTK_RECTILINEAR_GRID;
   return vtkRectilinearGrid::SafeDownCast(
@@ -187,9 +187,9 @@ int vtkProgrammableSource::RequestData(
 
   // Now invoke the procedure, if specified.
   if ( this->ExecuteMethod != NULL )
-    {
+  {
     (*this->ExecuteMethod)(this->ExecuteMethodArg);
-    }
+  }
 
   return 1;
 }
@@ -202,120 +202,120 @@ int vtkProgrammableSource::RequestDataObject(
   vtkInformation *outInfo;
   vtkDataSet *output = 0;
   switch (this->RequestedDataType)
-    {
+  {
     case VTK_POLY_DATA:
       outInfo = outputVector->GetInformationObject(0);
       if (!outInfo)
-        {
+      {
         output = vtkPolyData::New();
-        }
+      }
       else
-        {
+      {
         output = vtkPolyData::SafeDownCast(
           outInfo->Get(vtkDataObject::DATA_OBJECT()));
         if (!output)
-          {
+        {
           output = vtkPolyData::New();
-          }
-        else
-          {
-          return 1;
-          }
         }
+        else
+        {
+          return 1;
+        }
+      }
       this->GetExecutive()->SetOutputData(0, output);
       output->Delete();
       break;
     case VTK_STRUCTURED_POINTS:
       outInfo = outputVector->GetInformationObject(1);
       if (!outInfo)
-        {
+      {
         output = vtkStructuredPoints::New();
-        }
+      }
       else
-        {
+      {
         output = vtkStructuredPoints::SafeDownCast(
           outInfo->Get(vtkDataObject::DATA_OBJECT()));
         if (!output)
-          {
+        {
           output = vtkStructuredPoints::New();
-          }
-        else
-          {
-          return 1;
-          }
         }
+        else
+        {
+          return 1;
+        }
+      }
       this->GetExecutive()->SetOutputData(1, output);
       output->Delete();
       break;
     case VTK_STRUCTURED_GRID:
       outInfo = outputVector->GetInformationObject(2);
       if (!outInfo)
-        {
+      {
         output = vtkStructuredGrid::New();
-        }
+      }
       else
-        {
+      {
         output = vtkStructuredGrid::SafeDownCast(
           outInfo->Get(vtkDataObject::DATA_OBJECT()));
         if (!output)
-          {
+        {
           output = vtkStructuredGrid::New();
-          }
-        else
-          {
-          return 1;
-          }
         }
+        else
+        {
+          return 1;
+        }
+      }
       this->GetExecutive()->SetOutputData(2, output);
       output->Delete();
       break;
     case VTK_UNSTRUCTURED_GRID:
       outInfo = outputVector->GetInformationObject(3);
       if (!outInfo)
-        {
+      {
         output = vtkUnstructuredGrid::New();
-        }
+      }
       else
-        {
+      {
         output = vtkUnstructuredGrid::SafeDownCast(
           outInfo->Get(vtkDataObject::DATA_OBJECT()));
         if (!output)
-          {
+        {
           output = vtkUnstructuredGrid::New();
-          }
-        else
-          {
-          return 1;
-          }
         }
+        else
+        {
+          return 1;
+        }
+      }
       this->GetExecutive()->SetOutputData(3, output);
       output->Delete();
       break;
     case VTK_RECTILINEAR_GRID:
       outInfo = outputVector->GetInformationObject(4);
       if (!outInfo)
-        {
+      {
         output = vtkRectilinearGrid::New();
-        }
+      }
       else
-        {
+      {
         output = vtkRectilinearGrid::SafeDownCast(
           outInfo->Get(vtkDataObject::DATA_OBJECT()));
         if (!output)
-          {
+        {
           output = vtkRectilinearGrid::New();
-          }
-        else
-          {
-          return 1;
-          }
         }
+        else
+        {
+          return 1;
+        }
+      }
       this->GetExecutive()->SetOutputData(3, output);
       output->Delete();
       break;
     default:
       return 0;
-    }
+  }
   return 1;
 }
 
@@ -327,9 +327,9 @@ int vtkProgrammableSource::RequestInformation(vtkInformation *,
 
   // Now invoke the procedure, if specified.
   if ( this->RequestInformationMethod != NULL )
-    {
+  {
     (*this->RequestInformationMethod)(NULL);
-    }
+  }
 
   return 1;
 }

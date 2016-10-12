@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGraphWeightEuclideanDistanceFilter - Weights the edges of a
-// graph based on the Euclidean distance between the points.
-//
-// .SECTION Description
-// Weights the edges of a graph based on the Euclidean distance between the points.
+/**
+ * @class   vtkGraphWeightEuclideanDistanceFilter
+ * @brief   Weights the edges of a
+ * graph based on the Euclidean distance between the points.
+ *
+ *
+ * Weights the edges of a graph based on the Euclidean distance between the points.
+*/
 
 #ifndef vtkGraphWeightEuclideanDistanceFilter_h
 #define vtkGraphWeightEuclideanDistanceFilter_h
@@ -31,24 +34,26 @@ class VTKFILTERSGENERAL_EXPORT vtkGraphWeightEuclideanDistanceFilter : public vt
  public:
   static vtkGraphWeightEuclideanDistanceFilter *New();
   vtkTypeMacro(vtkGraphWeightEuclideanDistanceFilter, vtkGraphWeightFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkGraphWeightEuclideanDistanceFilter(){}
-  ~vtkGraphWeightEuclideanDistanceFilter(){}
+  ~vtkGraphWeightEuclideanDistanceFilter() VTK_OVERRIDE {}
 
-  // Description:
-  // Compute the Euclidean distance between the Points defined for the
-  // verticies of a specified 'edge'.
-  float ComputeWeight(vtkGraph* const graph, const vtkEdgeType& edge) const;
+  /**
+   * Compute the Euclidean distance between the Points defined for the
+   * verticies of a specified 'edge'.
+   */
+  float ComputeWeight(vtkGraph* const graph, const vtkEdgeType& edge) const VTK_OVERRIDE;
 
-  // Description:
-  // Ensure that 'graph' has Points defined.
-  bool CheckRequirements(vtkGraph* const graph) const;
+  /**
+   * Ensure that 'graph' has Points defined.
+   */
+  bool CheckRequirements(vtkGraph* const graph) const VTK_OVERRIDE;
 
 private:
-  vtkGraphWeightEuclideanDistanceFilter(const vtkGraphWeightEuclideanDistanceFilter&);  // Not implemented.
-  void operator=(const vtkGraphWeightEuclideanDistanceFilter&);  // Not implemented.
+  vtkGraphWeightEuclideanDistanceFilter(const vtkGraphWeightEuclideanDistanceFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGraphWeightEuclideanDistanceFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

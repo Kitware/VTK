@@ -41,10 +41,10 @@ int TestAngularPeriodicFilter(int argc, char* argv[])
   vtkNew<vtkTesting> testHelper;
   testHelper->AddArguments(argc, argv);
   if (!testHelper->IsFlagSpecified("-D"))
-    {
+  {
     std::cerr << "Error : -D /path/to/data was not specified.";
     return EXIT_FAILURE;
-    }
+  }
   std::string dataRoot = testHelper->GetDataRoot();
   std::string inputFileName = dataRoot + "/Data/periodicPiece.vtu";
   reader->SetFileName(inputFileName.c_str());
@@ -137,9 +137,9 @@ int TestAngularPeriodicFilter(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(renWin.GetPointer());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

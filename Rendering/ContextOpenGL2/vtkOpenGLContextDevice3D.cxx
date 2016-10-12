@@ -59,13 +59,13 @@ public:
   void SetGLCapability(GLenum capability, GLboolean state)
   {
     if (state)
-      {
+    {
       glEnable(capability);
-      }
+    }
     else
-      {
+    {
       glDisable(capability);
-      }
+    }
     vtkOpenGLStaticCheckErrorMacro("failed after SetGLCapability");
   }
 
@@ -95,9 +95,9 @@ public:
   void SetLineType(int type)
   {
   if (type == vtkPen::SOLID_LINE || type == vtkPen::NO_PEN)
-    {
+  {
     return;
-    }
+  }
   vtkGenericWarningMacro(<< "Line Stipples are no longer supported");
   }
 
@@ -146,9 +146,9 @@ void vtkOpenGLContextDevice3D::Begin(vtkViewport* vtkNotUsed(viewport))
 {
   this->ModelMatrix->Identity();
   for (int i = 0; i < 6; i++)
-    {
+  {
     this->ClippingPlaneStates[i] = false;
-    }
+  }
 }
 
 void vtkOpenGLContextDevice3D::SetMatrices(vtkShaderProgram *prog)
@@ -171,16 +171,16 @@ void vtkOpenGLContextDevice3D::SetMatrices(vtkShaderProgram *prog)
   int numClipPlanes = 0;
   float planeEquations[6][4];
   for (int i = 0; i < 6; i++)
-    {
+  {
     if (this->ClippingPlaneStates[i])
-      {
+    {
       planeEquations[numClipPlanes][0] = this->ClippingPlaneValues[i*4];
       planeEquations[numClipPlanes][1] = this->ClippingPlaneValues[i*4+1];
       planeEquations[numClipPlanes][2] = this->ClippingPlaneValues[i*4+2];
       planeEquations[numClipPlanes][3] = this->ClippingPlaneValues[i*4+3];
       numClipPlanes++;
-      }
     }
+  }
   prog->SetUniformi("numClipPlanes", numClipPlanes);
   prog->SetUniform4fv("clipPlanes", 6, planeEquations);
 }
@@ -195,45 +195,45 @@ void vtkOpenGLContextDevice3D::BuildVBO(
   int cOffset = 0;
   int tOffset = 0;
   if (colors)
-    {
+  {
     cOffset = stride;
     stride++;
-    }
+  }
   if (tcoords)
-    {
+  {
     tOffset = stride;
     stride += 2;
-    }
+  }
 
   std::vector<float> va;
   va.resize(nv*stride);
   vtkucfloat c;
   for (int i = 0; i < nv; i++)
-    {
+  {
     va[i*stride] = f[i*3];
     va[i*stride+1] = f[i*3+1];
     va[i*stride+2] = f[i*3+2];
     if (colors)
-      {
+    {
       c.c[0] = colors[nc*i];
       c.c[1] = colors[nc*i+1];
       c.c[2] = colors[nc*i+2];
       if (nc == 4)
-        {
-        c.c[3] = colors[nc*i+3];
-        }
-      else
-        {
-        c.c[3] =  255;
-        }
-      va[i*stride+cOffset] = c.f;
-      }
-    if (tcoords)
       {
+        c.c[3] = colors[nc*i+3];
+      }
+      else
+      {
+        c.c[3] =  255;
+      }
+      va[i*stride+cOffset] = c.f;
+    }
+    if (tcoords)
+    {
       va[i*stride+tOffset] = tcoords[i*2];
       va[i*stride+tOffset+1] = tcoords[i*2+1];
-      }
     }
+  }
 
   // upload the data
   cellBO->IBO->Upload(va, vtkOpenGLBufferObject::ArrayBuffer);
@@ -243,31 +243,31 @@ void vtkOpenGLContextDevice3D::BuildVBO(
         "vertexMC", 0,
         sizeof(float)*stride,
         VTK_FLOAT, 3, false))
-    {
+  {
     vtkErrorMacro(<< "Error setting vertexMC in shader VAO.");
-    }
+  }
   if (colors)
-    {
+  {
     if (!cellBO->VAO->AddAttributeArray(
           cellBO->Program, cellBO->IBO,
           "vertexScalar", sizeof(float)*cOffset,
           sizeof(float)*stride,
           VTK_UNSIGNED_CHAR, 4, true))
-      {
-      vtkErrorMacro(<< "Error setting vertexScalar in shader VAO.");
-      }
-    }
-  if (tcoords)
     {
+      vtkErrorMacro(<< "Error setting vertexScalar in shader VAO.");
+    }
+  }
+  if (tcoords)
+  {
     if (!cellBO->VAO->AddAttributeArray(
           cellBO->Program, cellBO->IBO,
           "tcoordMC", sizeof(float)*tOffset,
           sizeof(float)*stride,
           VTK_FLOAT, 2, false))
-      {
+    {
       vtkErrorMacro(<< "Error setting tcoordMC in shader VAO.");
-      }
     }
+  }
 
   cellBO->VAO->Bind();
 }
@@ -275,7 +275,7 @@ void vtkOpenGLContextDevice3D::BuildVBO(
 void vtkOpenGLContextDevice3D::ReadyVBOProgram()
 {
   if (!this->VBO->Program)
-    {
+  {
     this->VBO->Program  =
         this->RenderWindow->GetShaderCache()->ReadyShaderProgram(
         // vertex shader
@@ -307,17 +307,17 @@ void vtkOpenGLContextDevice3D::ReadyVBOProgram()
         "  gl_FragData[0] = vertexColor; }",
         // geometry shader
         "");
-    }
+  }
   else
-    {
+  {
     this->RenderWindow->GetShaderCache()->ReadyShaderProgram(this->VBO->Program);
-    }
+  }
 }
 
 void vtkOpenGLContextDevice3D::ReadyVCBOProgram()
 {
   if (!this->VCBO->Program)
-    {
+  {
     this->VCBO->Program  =
         this->RenderWindow->GetShaderCache()->ReadyShaderProgram(
         // vertex shader
@@ -352,24 +352,24 @@ void vtkOpenGLContextDevice3D::ReadyVCBOProgram()
         "  gl_FragData[0] = vertexColor; }",
         // geometry shader
         "");
-    }
+  }
   else
-    {
+  {
     this->RenderWindow->GetShaderCache()->ReadyShaderProgram(this->VCBO->Program);
-    }
+  }
 }
 
 bool vtkOpenGLContextDevice3D::HaveWideLines()
 {
   if (this->Pen->GetWidth() > 1.0
       && vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
-    {
+  {
     // we have wide lines, but the OpenGL implementation may
     // actually support them, check the range to see if we
     // really need have to implement our own wide lines
     return !(this->RenderWindow &&
       this->RenderWindow->GetMaximumHardwareLineWidth() >= this->Pen->GetWidth());
-    }
+  }
   return false;
 }
 
@@ -381,9 +381,9 @@ void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
   assert("n must be greater than 0" && n > 0);
 
   if (this->Pen->GetLineType() == vtkPen::NO_PEN)
-    {
+  {
     return;
-    }
+  }
 
   vtkOpenGLClearErrorMacro();
 
@@ -393,25 +393,25 @@ void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
 
   vtkOpenGLHelper *cbo = 0;
   if (colors)
-    {
+  {
     this->ReadyVCBOProgram();
     cbo = this->VCBO;
-    }
+  }
   else
-    {
+  {
     this->ReadyVBOProgram();
     cbo = this->VBO;
     if (this->HaveWideLines())
-      {
+    {
       vtkWarningMacro(<< "a line width has been requested that is larger than your system supports");
-      }
+    }
     else
-      {
+    {
       glLineWidth(this->Pen->GetWidth());
-      }
+    }
     cbo->Program->SetUniform4uc("vertexColor",
       this->Pen->GetColor());
-    }
+  }
 
   this->BuildVBO(cbo, verts, n, colors, nc, NULL);
   this->SetMatrices(cbo->Program);
@@ -436,9 +436,9 @@ void vtkOpenGLContextDevice3D::DrawLines(const float *verts, int n,
   assert("n must be greater than 0" && n > 0);
 
   if (this->Pen->GetLineType() == vtkPen::NO_PEN)
-    {
+  {
     return;
-    }
+  }
 
   vtkOpenGLClearErrorMacro();
 
@@ -447,24 +447,24 @@ void vtkOpenGLContextDevice3D::DrawLines(const float *verts, int n,
   this->Storage->SetLineType(this->Pen->GetLineType());
 
   if (this->Pen->GetWidth() > 1.0)
-    {
+  {
     vtkErrorMacro(<< "lines wider than 1.0 are not supported\n");
-    }
+  }
   glLineWidth(this->Pen->GetWidth());
 
   vtkOpenGLHelper *cbo = 0;
   if (colors)
-    {
+  {
     this->ReadyVCBOProgram();
     cbo = this->VCBO;
-    }
+  }
   else
-    {
+  {
     this->ReadyVBOProgram();
     cbo = this->VBO;
     cbo->Program->SetUniform4uc("vertexColor",
       this->Pen->GetColor());
-    }
+  }
 
   this->BuildVBO(cbo, verts, n, colors, nc, NULL);
   this->SetMatrices(cbo->Program);
@@ -494,17 +494,17 @@ void vtkOpenGLContextDevice3D::DrawPoints(const float *verts, int n,
 
   vtkOpenGLHelper *cbo = 0;
   if (colors)
-    {
+  {
     this->ReadyVCBOProgram();
     cbo = this->VCBO;
-    }
+  }
   else
-    {
+  {
     this->ReadyVBOProgram();
     cbo = this->VBO;
     cbo->Program->SetUniform4uc("vertexColor",
       this->Pen->GetColor());
-    }
+  }
 
   this->BuildVBO(cbo, verts, n, colors, nc, NULL);
   this->SetMatrices(cbo->Program);
@@ -532,17 +532,17 @@ void vtkOpenGLContextDevice3D::DrawTriangleMesh(const float *mesh, int n,
 
   vtkOpenGLHelper *cbo = 0;
   if (colors)
-    {
+  {
     this->ReadyVCBOProgram();
     cbo = this->VCBO;
-    }
+  }
   else
-    {
+  {
     this->ReadyVBOProgram();
     cbo = this->VBO;
     cbo->Program->SetUniform4uc("vertexColor",
       this->Pen->GetColor());
-    }
+  }
 
   this->BuildVBO(cbo, mesh, n, colors, nc, NULL);
   this->SetMatrices(cbo->Program);
@@ -601,21 +601,21 @@ void vtkOpenGLContextDevice3D::SetClipping(const vtkRecti &rect)
                   this->Storage->Dim.GetX(), this->Storage->Dim.GetY()};
 
   if (rect.GetX() > 0 && rect.GetX() < vp[2] )
-    {
+  {
     vp[0] += rect.GetX();
-    }
+  }
   if (rect.GetY() > 0 && rect.GetY() < vp[3])
-    {
+  {
     vp[1] += rect.GetY();
-    }
+  }
   if (rect.GetWidth() > 0 && rect.GetWidth() < vp[2])
-    {
+  {
     vp[2] = rect.GetWidth();
-    }
+  }
   if (rect.GetHeight() > 0 && rect.GetHeight() < vp[3])
-    {
+  {
     vp[3] = rect.GetHeight();
-    }
+  }
 
   glScissor(vp[0], vp[1], vp[2], vp[3]);
 }
@@ -623,22 +623,22 @@ void vtkOpenGLContextDevice3D::SetClipping(const vtkRecti &rect)
 void vtkOpenGLContextDevice3D::EnableClipping(bool enable)
 {
   if (enable)
-    {
+  {
     glEnable(GL_SCISSOR_TEST);
-    }
+  }
   else
-    {
+  {
     glDisable(GL_SCISSOR_TEST);
-    }
+  }
 }
 
 void vtkOpenGLContextDevice3D::EnableClippingPlane(int i, double *planeEquation)
 {
   if (i >= 6)
-    {
+  {
     vtkOpenGLCheckErrorMacro("only 6 ClippingPlane allowed");
     return;
-    }
+  }
   this->ClippingPlaneStates[i] = true;
   this->ClippingPlaneValues[i*4] = planeEquation[0];
   this->ClippingPlaneValues[i*4+1] = planeEquation[1];
@@ -649,10 +649,10 @@ void vtkOpenGLContextDevice3D::EnableClippingPlane(int i, double *planeEquation)
 void vtkOpenGLContextDevice3D::DisableClippingPlane(int i)
 {
   if (i >= 6)
-    {
+  {
     vtkOpenGLCheckErrorMacro("only 6 ClippingPlane allowed");
     return;
-    }
+  }
   this->ClippingPlaneStates[i] = false;
 }
 

@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageFourierCenter - Shifts constant frequency to center for
-// display.
-// .SECTION Description
-// Is used for dispaying images in frequency space.  FFT converts spatial
-// images into frequency space, but puts the zero frequency at the origin.
-// This filter shifts the zero frequency to the center of the image.
-// Input and output are assumed to be doubles.
+/**
+ * @class   vtkImageFourierCenter
+ * @brief   Shifts constant frequency to center for
+ * display.
+ *
+ * Is used for dispaying images in frequency space.  FFT converts spatial
+ * images into frequency space, but puts the zero frequency at the origin.
+ * This filter shifts the zero frequency to the center of the image.
+ * Input and output are assumed to be doubles.
+*/
 
 #ifndef vtkImageFourierCenter_h
 #define vtkImageFourierCenter_h
@@ -49,8 +52,8 @@ protected:
     int outExt[6],
     int threadId);
 private:
-  vtkImageFourierCenter(const vtkImageFourierCenter&);  // Not implemented.
-  void operator=(const vtkImageFourierCenter&);  // Not implemented.
+  vtkImageFourierCenter(const vtkImageFourierCenter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageFourierCenter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -40,23 +40,23 @@ void vtkEdgeSubdivisionCriterion::ResetFieldList()
 int vtkEdgeSubdivisionCriterion::PassField( int sourceId, int sourceSize, vtkStreamingTessellator* t )
 {
   if ( sourceSize + this->FieldOffsets[ this->NumberOfFields ] > vtkStreamingTessellator::MaxFieldSize )
-    {
+  {
     vtkErrorMacro( "PassField source size (" << sourceSize << ") was too large for vtkStreamingTessellator" );
-    }
+  }
 
   int off = this->GetOutputField( sourceId );
   if ( off == -1 )
-    {
+  {
     this->FieldIds[ this->NumberOfFields ] = sourceId;
     off = this->FieldOffsets[ this->NumberOfFields ];
     t->SetFieldSize( -1, this->FieldOffsets[ ++this->NumberOfFields ] = off + sourceSize );
     this->Modified();
-    }
+  }
   else
-    {
+  {
     off = this->FieldOffsets[ off ];
     vtkWarningMacro( "Field " << sourceId << " is already being passed as offset " << off << "." );
-    }
+  }
 
   return off;
 }
@@ -69,10 +69,10 @@ bool vtkEdgeSubdivisionCriterion::DontPassField( int sourceId, vtkStreamingTesse
 
   int sz = this->FieldOffsets[id+1] - this->FieldOffsets[id];
   for ( int i=id+1; i<this->GetNumberOfFields(); ++i )
-    {
+  {
     this->FieldIds[i-1] = this->FieldIds[i];
     this->FieldOffsets[i] = this->FieldOffsets[i+1] - sz;
-    }
+  }
   t->SetFieldSize( -1, this->FieldOffsets[ this->GetNumberOfFields() ] );
   this->Modified();
 
@@ -149,28 +149,28 @@ bool vtkEdgeSubdivisionCriterion::FixedFieldErrorEval( const double*, double* p1
   int id = 0;
   double mag;
   while ( criteria )
-    {
+  {
     if ( ! (criteria & 1) )
-      {
+    {
       criteria >>= 1;
       ++id;
       continue;
-      }
+    }
 
     mag = 0.;
     int fsz = this->FieldOffsets[id+1] - this->FieldOffsets[id];
     for ( int c=0; c<fsz; ++c )
-      {
+    {
       double tmp = real_pf[c+field_start] - p1[c+field_start];
       mag += tmp*tmp;
-      }
+    }
     if ( mag > AllowableL2Error2[id] )
-      {
+    {
       return true;
-      }
+    }
     criteria >>= 1;
     ++id;
-    }
+  }
 
   return false;
 }

@@ -73,15 +73,15 @@ int vtkPBGLCollapseGraphRequestData(
     vtkPBGLDistributedGraphHelper::SafeDownCast(input->GetDistributedGraphHelper());
 
   if (!input_arr)
-    {
+  {
     vtkErrorWithObjectMacro(self, "Invalid input array.");
     return 0;
-    }
+  }
   if (input_arr->GetNumberOfComponents() != 1)
-    {
+  {
     vtkErrorWithObjectMacro(self, "Input array must have a single component.");
     return 0;
-    }
+  }
 
   // Distributed input array
   typedef vtkDistributedVertexPropertyMapType<vtkAbstractArray>::type
@@ -111,14 +111,14 @@ int vtkPBGLCollapseGraphRequestData(
   vtkDataSetAttributes* in_edata = input->GetEdgeData();
   vtkDataSetAttributes* out_edata = builder->GetEdgeData();
   for (int a = 0; a < in_edata->GetNumberOfArrays(); ++a)
-    {
+  {
     vtkAbstractArray* in_arr = in_edata->GetAbstractArray(a);
     vtkSmartPointer<vtkAbstractArray> arr;
     arr.TakeReference(vtkAbstractArray::CreateArray(in_arr->GetDataType()));
     arr->SetName(in_arr->GetName());
     arr->SetNumberOfComponents(in_arr->GetNumberOfComponents());
     out_edata->AddArray(arr);
-    }
+  }
 #endif
 
   // Prepare vertex data.
@@ -134,16 +134,16 @@ int vtkPBGLCollapseGraphRequestData(
   vtkSmartPointer<vtkVertexListIterator> verts = vtkSmartPointer<vtkVertexListIterator>::New();
   input->GetVertices(verts);
   while (verts->HasNext())
-    {
+  {
     vtkIdType v = verts->Next();
     vtkIdType ind = input_helper->GetVertexIndex(v);
     vtkVariant val = input_arr->GetVariantValue(ind);
     if (val.ToString().length() > 0)
-      {
+    {
       builder->LazyAddVertex(input_arr->GetVariantValue(v));
       //builder->AddVertex(input_arr->GetVariantValue(v));
-      }
     }
+  }
   output_helper->Synchronize();
   cerr << "input number of vertices " << input->GetNumberOfVertices() << endl;
   cerr << "builder number of vertices " << builder->GetNumberOfVertices() << endl;
@@ -159,26 +159,26 @@ int vtkPBGLCollapseGraphRequestData(
   //in_etable->SetRowData(in_edata);
   input->GetEdges(edges);
   while (edges->HasNext())
-    {
+  {
     vtkEdgeType e = edges->Next();
     //vtkIdType eid = input_helper->GetEdgeIndex(e.Id);
     //in_etable->GetRow(eid, edata);
     vtkVariant source_val = get(distrib_input_arr, e.Source);
     vtkVariant target_val = get(distrib_input_arr, e.Target);
     if (source_val.ToString().length() > 0 && target_val.ToString().length() > 0)
-      {
+    {
       builder->LazyAddEdge(source_val, target_val);
       //builder->LazyAddEdge(source_val, target_val, edata);
-      }
     }
+  }
   output_helper->Synchronize();
 
   // Copy into output graph
   if (!output->CheckedShallowCopy(builder))
-    {
+  {
     vtkErrorWithObjectMacro(self, "Could not copy to output.");
     return 0;
-    }
+  }
 
   timer->StopTimer();
   cerr << "vtkPBGLCollapseGraph: " << timer->GetElapsedTime() << endl;
@@ -194,10 +194,10 @@ int vtkPBGLCollapseGraph::RequestData(
   vtkGraph* input = vtkGraph::GetData(input_vec[0]);
   vtkAbstractArray* input_arr = this->GetInputAbstractArrayToProcess(0, input_vec);
   if (vtkDirectedGraph::SafeDownCast(input))
-    {
+  {
     return vtkPBGLCollapseGraphRequestData<vtkMutableDirectedGraph>(
       this, input_arr, info, input_vec, output_vec);
-    }
+  }
   return vtkPBGLCollapseGraphRequestData<vtkMutableUndirectedGraph>(
     this, input_arr, info, input_vec, output_vec);
 }

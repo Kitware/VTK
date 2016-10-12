@@ -14,7 +14,10 @@ CMake
 CMakeLists.txt
 CTestConfig.cmake
 Copyright.txt
+Xdmf.dtd
 Xdmf.hpp
+XdmfAggregate.cpp
+XdmfAggregate.hpp
 XdmfAttribute.cpp
 XdmfAttribute.hpp
 XdmfAttributeCenter.cpp
@@ -34,10 +37,14 @@ XdmfGraph.cpp
 XdmfGraph.hpp
 XdmfGrid.cpp
 XdmfGrid.hpp
+XdmfGridTemplate.cpp
+XdmfGridTemplate.hpp
 XdmfGridCollection.cpp
 XdmfGridCollection.hpp
 XdmfGridCollectionType.cpp
 XdmfGridCollectionType.hpp
+XdmfGridController.cpp
+XdmfGridController.hpp
 XdmfItemFactory.cpp
 XdmfItemFactory.hpp
 XdmfMap.cpp
@@ -52,6 +59,8 @@ XdmfSet.cpp
 XdmfSet.hpp
 XdmfSetType.cpp
 XdmfSetType.hpp
+XdmfTemplate.cpp
+XdmfTemplate.hpp
 XdmfTime.cpp
 XdmfTime.hpp
 XdmfTopology.cpp
@@ -87,6 +96,8 @@ core/XdmfHDF5Writer.cpp
 core/XdmfHDF5Writer.hpp
 core/XdmfHeavyDataController.cpp
 core/XdmfHeavyDataController.hpp
+core/XdmfHeavyDataDescription.cpp
+core/XdmfHeavyDataDescription.hpp
 core/XdmfHeavyDataWriter.cpp
 core/XdmfHeavyDataWriter.hpp
 core/XdmfInformation.cpp
@@ -95,6 +106,8 @@ core/XdmfItem.cpp
 core/XdmfItem.hpp
 core/XdmfItemProperty.cpp
 core/XdmfItemProperty.hpp
+core/XdmfPlaceholder.cpp
+core/XdmfPlaceholder.hpp
 core/XdmfSharedPtr.hpp
 core/XdmfSparseMatrix.cpp
 core/XdmfSparseMatrix.hpp
@@ -102,6 +115,8 @@ core/XdmfSubset.cpp
 core/XdmfSubset.hpp
 core/XdmfSystemUtils.cpp
 core/XdmfSystemUtils.hpp
+core/XdmfTIFFController.cpp
+core/XdmfTIFFController.hpp
 core/XdmfVisitor.cpp
 core/XdmfVisitor.hpp
 core/XdmfWriter.cpp
@@ -113,10 +128,12 @@ core/dsm/XdmfDSMBuffer.cpp
 core/dsm/XdmfDSMBuffer.hpp
 core/dsm/XdmfDSMCommMPI.cpp
 core/dsm/XdmfDSMCommMPI.hpp
+core/dsm/XdmfDSMDescription.cpp
+core/dsm/XdmfDSMDescription.hpp
 core/dsm/XdmfDSMDriver.cpp
 core/dsm/XdmfDSMDriver.hpp
-core/dsm/XdmfDSMManager.cpp
-core/dsm/XdmfDSMManager.hpp
+core/dsm/XdmfDSMItemFactory.cpp
+core/dsm/XdmfDSMItemFactory.hpp
 core/dsm/XdmfHDF5ControllerDSM.cpp
 core/dsm/XdmfHDF5ControllerDSM.hpp
 core/dsm/XdmfHDF5WriterDSM.cpp
@@ -124,7 +141,10 @@ core/dsm/XdmfHDF5WriterDSM.hpp
 "
 
 extract_source () {
-    git_archive
+    git archive --worktree-attributes --prefix="$name-reduced/" HEAD -- $paths | \
+        tar -C "$extractdir" -x
+    #prevent VTK from trying to enforce its style rules
+    echo "*        -whitespace" > "$extractdir/.gitattributes"
 }
 
 . "${BASH_SOURCE%/*}/../update-common.sh"

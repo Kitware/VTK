@@ -38,10 +38,10 @@ void vtkContourValues::SetValue(int i, double value)
   i = (i < 0 ? 0 : i);
 
   if ( i >= numContours || value != this->Contours->GetValue(i) )
-    {
+  {
     this->Modified();
     this->Contours->InsertValue(i,value);
-    }
+  }
 }
 
 // Get the ith contour value. The return value will be clamped if the
@@ -67,9 +67,9 @@ void vtkContourValues::GetValues(double *contourValues)
   vtkIdType numContours=this->Contours->GetMaxId()+1;
 
   for ( vtkIdType i=0; i < numContours; i++ )
-    {
+  {
     contourValues[i] = this->Contours->GetValue(i);
-    }
+  }
 }
 
 // Set the number of contours to place into the list. You only really
@@ -83,41 +83,41 @@ void vtkContourValues::SetNumberOfContours(const int number)
   double  *oldValues = NULL;
 
   if ( n != currentNumber )
-    {
+  {
     this->Modified();
 
     // Keep a copy of the old values
     if ( currentNumber > 0 )
-      {
+    {
       oldValues = new double[currentNumber];
       for ( i = 0; i < currentNumber; i++ )
-        {
+      {
         oldValues[i] = this->Contours->GetValue(i);
-        }
       }
+    }
 
     this->Contours->SetNumberOfValues(n);
 
     // Copy them back in since the array may have been re-allocated
     if ( currentNumber > 0 )
-      {
+    {
       vtkIdType limit = (currentNumber < n)?(currentNumber):(n);
       for ( i = 0; i < limit; i++ )
-        {
+      {
         this->Contours->SetValue( i, oldValues[i] );
-        }
-      delete [] oldValues;
       }
-
+      delete [] oldValues;
     }
+
+  }
   // Set the new contour values to 0.0
   if (n > currentNumber)
-    {
+  {
     for ( i = currentNumber; i < n; i++ )
-      {
+    {
       this->Contours->SetValue (i, 0.0);
-      }
     }
+  }
 }
 
 // Generate numContours equally spaced contour values between specified
@@ -140,20 +140,20 @@ void vtkContourValues::GenerateValues(int numContours, double range[2])
 
   this->SetNumberOfContours(numContours);
   if (numContours == 1)
-    {
+  {
     this->SetValue(0, range[0]);
-    }
+  }
   else
-    {
+  {
     for (i= 0; i < numContours; ++i)
-      {
+    {
       // no we cannot factorize the ratio
       // (range[1] - range[0])/(numContours - 1) out of the loop.
       // we want the whole expression to be evaluated on the FPU.
-      // see bug discussion: http://www.vtk.org/Bug/view.php?id=7887
+      // see bug discussion: https://gitlab.kitware.com/vtk/vtk/issues/7887
       this->SetValue(i, range[0] + i*(range[1] - range[0])/(numContours - 1));
-      }
     }
+  }
 }
 
 // Return the number of contours in the
@@ -170,7 +170,7 @@ void vtkContourValues::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Contour Values: \n";
   for ( vtkIdType i=0; i < numContours; i++)
-    {
+  {
     os << indent << "  Value " << i << ": " << this->Contours->GetValue(i) << "\n";
-    }
+  }
 }

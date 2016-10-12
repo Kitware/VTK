@@ -20,6 +20,7 @@ set(Module_SRCS
   vtkExtractSelection.cxx
   vtkExtractTemporalFieldData.cxx
   vtkExtractTensorComponents.cxx
+  vtkExtractTimeSteps.cxx
   vtkExtractUnstructuredGrid.cxx
   vtkExtractVectorComponents.cxx
 

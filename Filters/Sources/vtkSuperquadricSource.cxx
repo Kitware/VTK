@@ -69,67 +69,67 @@ vtkSuperquadricSource::vtkSuperquadricSource(int res)
 void vtkSuperquadricSource::SetPhiResolution(int i)
 {
   if(i < 4)
-    {
+  {
     i = 4;
-    }
+  }
   i = (i+3)/4*4;  // make it divisible by 4
   if(i > VTK_MAX_SUPERQUADRIC_RESOLUTION)
-    {
+  {
     i =  VTK_MAX_SUPERQUADRIC_RESOLUTION;
-    }
+  }
 
   if (this->PhiResolution != i)
-    {
+  {
     this->PhiResolution = i;
     this->Modified ();
-    }
+  }
 }
 
 void vtkSuperquadricSource::SetThetaResolution(int i)
 {
   if(i < 8)
-    {
+  {
     i = 8;
-    }
+  }
   i = (i+7)/8*8; // make it divisible by 8
   if(i > VTK_MAX_SUPERQUADRIC_RESOLUTION)
-    {
+  {
     i =  VTK_MAX_SUPERQUADRIC_RESOLUTION;
-    }
+  }
 
   if (this->ThetaResolution != i)
-    {
+  {
     this->ThetaResolution = i;
     this->Modified ();
-    }
+  }
 }
 
 void vtkSuperquadricSource::SetThetaRoundness(double e)
 {
   if(e < VTK_MIN_SUPERQUADRIC_ROUNDNESS)
-    {
+  {
     e = VTK_MIN_SUPERQUADRIC_ROUNDNESS;
-    }
+  }
 
   if (this->ThetaRoundness != e)
-    {
+  {
     this->ThetaRoundness = e;
     this->Modified();
-    }
+  }
 }
 
 void vtkSuperquadricSource::SetPhiRoundness(double e)
 {
   if(e < VTK_MIN_SUPERQUADRIC_ROUNDNESS)
-    {
+  {
     e = VTK_MIN_SUPERQUADRIC_ROUNDNESS;
-    }
+  }
 
   if (this->PhiRoundness != e)
-    {
+  {
     this->PhiRoundness = e;
     this->Modified();
-    }
+  }
 }
 
 static const double SQ_SMALL_OFFSET = 0.01;
@@ -174,7 +174,7 @@ int vtkSuperquadricSource::RequestData(
   dims[2] = this->Scale[2] * this->Size;
 
   if(this->Toroidal)
-    {
+  {
     phiLim[0] = -vtkMath::Pi();
     phiLim[1] =  vtkMath::Pi();
 
@@ -185,9 +185,9 @@ int vtkSuperquadricSource::RequestData(
     dims[0] /= (alpha + 1.0);
     dims[1] /= (alpha + 1.0);
     dims[2] /= (alpha + 1.0);
-    }
+  }
   else
-    {
+  {
     //Ellipsoidal
     phiLim[0] = -vtkMath::Pi() / 2.0;
     phiLim[1] =  vtkMath::Pi() / 2.0;
@@ -196,7 +196,7 @@ int vtkSuperquadricSource::RequestData(
     thetaLim[1] =  vtkMath::Pi();
 
     alpha = 0.0;
-    }
+  }
 
   deltaPhi = (phiLim[1] - phiLim[0]) / this->PhiResolution;
   deltaPhiTex = 1.0 / this->PhiResolution;
@@ -221,13 +221,13 @@ int vtkSuperquadricSource::RequestData(
 
   // Set the desired precision for the points in the output.
   if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     newPoints->SetDataType(VTK_DOUBLE);
-    }
+  }
   else
-    {
+  {
     newPoints->SetDataType(VTK_FLOAT);
-    }
+  }
 
   newPoints->Allocate(numPts);
   newNormals = vtkFloatArray::New();
@@ -244,9 +244,9 @@ int vtkSuperquadricSource::RequestData(
 
   // generate!
   for(iq = 0; iq < phiSegs; iq++)
-    {
+  {
     for(i = 0; i <= phiSubsegs; i++)
-      {
+    {
       phi = phiLim[0] + deltaPhi*(i + iq*phiSubsegs);
       texCoord[1] = deltaPhiTex*(i + iq*phiSubsegs);
 
@@ -254,37 +254,37 @@ int vtkSuperquadricSource::RequestData(
       // evaluated exactly on a crease;  if that were to happen,
       // large shading errors can occur.
       if(i == 0)
-        {
+      {
         phiOffset =  SQ_SMALL_OFFSET*deltaPhi;
-        }
+      }
       else if (i == phiSubsegs)
-        {
+      {
         phiOffset = -SQ_SMALL_OFFSET*deltaPhi;
-        }
+      }
       else
-        {
+      {
         phiOffset =  0.0;
-        }
+      }
 
       for(jq = 0; jq < thetaSegs; jq++)
-        {
+      {
         for(j = 0; j <= thetaSubsegs; j++)
-          {
+        {
           theta = thetaLim[0] + deltaTheta*(j + jq*thetaSubsegs);
           texCoord[0] = deltaThetaTex*(j + jq*thetaSubsegs);
 
           if(j == 0)
-            {
+          {
             thetaOffset =  SQ_SMALL_OFFSET*deltaTheta;
-            }
+          }
           else if (j == thetaSubsegs)
-            {
+          {
             thetaOffset = -SQ_SMALL_OFFSET*deltaTheta;
-            }
+          }
           else
-            {
+          {
             thetaOffset =  0.0;
-            }
+          }
 
           // This gives a superquadric with axis of symmetry: z
           evalSuperquadric(theta, phi,
@@ -292,7 +292,7 @@ int vtkSuperquadricSource::RequestData(
                            this->ThetaRoundness, this->PhiRoundness,
                            dims, alpha, pt, nv);
           switch (this->AxisOfSymmetry)
-            {
+          {
             case 0:
               // x-axis
               tmp   = pt[0];
@@ -324,21 +324,21 @@ int vtkSuperquadricSource::RequestData(
           }
 
           if((len = vtkMath::Norm(nv)) == 0.0)
-            {
+          {
             len = 1.0;
-            }
+          }
           nv[0] /= len; nv[1] /= len; nv[2] /= len;
 
           if(!this->Toroidal &&
              ((iq == 0 && i == 0) || (iq == (phiSegs-1) && i == phiSubsegs)))
-            {
+          {
 
             // we're at a pole:
             // make sure the pole is at the same location for all evals
             // (the superquadric evaluation is numerically unstable
             // at the poles)
             switch (this->AxisOfSymmetry)
-              {
+            {
               case 0:
                 // x-axis
                 pt[1] = pt[2] = 0.0;
@@ -354,8 +354,8 @@ int vtkSuperquadricSource::RequestData(
                 // z-axis
                 pt[0] = pt[1] = 0.0;
                 break;
-              }
             }
+          }
 
           pt[0] += this->Center[0];
           pt[1] += this->Center[1];
@@ -364,10 +364,10 @@ int vtkSuperquadricSource::RequestData(
           newPoints->InsertNextPoint(pt);
           newNormals->InsertNextTuple(nv);
           newTCoords->InsertNextTuple(texCoord);
-          }
         }
       }
     }
+  }
 
   // mesh!
   // build triangle strips for efficiency....
@@ -376,22 +376,22 @@ int vtkSuperquadricSource::RequestData(
   rowOffset = this->ThetaResolution+thetaSegs;
 
   for(iq = 0; iq < phiSegs; iq++)
-    {
+  {
     for(i = 0; i < phiSubsegs; i++)
-      {
+    {
       pbase = rowOffset*(i +iq*(phiSubsegs+1));
       for(jq = 0; jq < thetaSegs; jq++)
-        {
+      {
         base = pbase + jq*(thetaSubsegs+1);
         for(j = 0; j <= thetaSubsegs; j++)
-          {
+        {
           ptidx[2*j] = base + rowOffset + j;
           ptidx[2*j+1] = base + j;
-          }
-        newPolys->InsertNextCell(ptsPerStrip, ptidx);
         }
+        newPolys->InsertNextCell(ptsPerStrip, ptidx);
       }
     }
+  }
   delete[] ptidx;
 
   output->SetPoints(newPoints);
@@ -435,13 +435,13 @@ static double cf(double w, double m, double a = 0)
   double sgn;
 
   if (w == vtkMath::Pi() || w == -vtkMath::Pi())
-    {
+  {
     c = -1.0;
-    }
+  }
   else
-    {
+  {
     c = cos(w);
-    }
+  }
   sgn = c < 0.0 ? -1.0 : 1.0;
   return a + sgn*pow(sgn*c, m);
 }
@@ -452,13 +452,13 @@ static double sf(double w, double m)
   double sgn;
 
   if (w == vtkMath::Pi() || w == -vtkMath::Pi())
-    {
+  {
     s = 0.0;
-    }
+  }
   else
-    {
+  {
     s = sin(w);
-    }
+  }
   sgn = s < 0.0 ? -1.0 : 1.0;
   return sgn*pow(sgn*s, m);
 }

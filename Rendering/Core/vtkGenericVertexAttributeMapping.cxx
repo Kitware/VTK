@@ -24,13 +24,13 @@ class vtkGenericVertexAttributeMapping::vtkInternal
 {
 public:
   struct vtkInfo
-    {
+  {
     std::string AttributeName;
     std::string ArrayName;
     int FieldAssociation;
     int Component;
     int TextureUnit;
-    };
+  };
 
   typedef std::vector<vtkInfo> VectorType;
   VectorType Mappings;
@@ -55,16 +55,16 @@ void vtkGenericVertexAttributeMapping::AddMapping(
   int component)
 {
   if (!attributeName || !arrayName)
-    {
+  {
     vtkErrorMacro("arrayName and attributeName cannot be null.");
     return;
-    }
+  }
 
   if (this->RemoveMapping(attributeName))
-    {
+  {
     vtkWarningMacro("Replacing existing mapping for attribute "
       << attributeName);
-    }
+  }
 
   vtkInternal::vtkInfo info;
   info.AttributeName = attributeName;
@@ -84,10 +84,10 @@ void vtkGenericVertexAttributeMapping::AddMapping(
   attributeName << unit;
 
   if (this->RemoveMapping(attributeName.str().c_str()))
-    {
+  {
     vtkWarningMacro("Replacing existing mapping for attribute "
       << attributeName.str().c_str());
-    }
+  }
 
   vtkInternal::vtkInfo info;
   info.AttributeName = attributeName.str().c_str();
@@ -104,13 +104,13 @@ bool vtkGenericVertexAttributeMapping::RemoveMapping(const char* attributeName)
   vtkInternal::VectorType::iterator iter;
   for (iter=this->Internal->Mappings.begin();
     iter != this->Internal->Mappings.end(); ++iter)
-    {
+  {
     if (iter->AttributeName == attributeName)
-      {
+    {
       this->Internal->Mappings.erase(iter);
       return true;
-      }
     }
+  }
   return false;
 }
 
@@ -131,10 +131,10 @@ unsigned int vtkGenericVertexAttributeMapping::GetNumberOfMappings()
 const char* vtkGenericVertexAttributeMapping::GetAttributeName(unsigned int index)
 {
   if (index >= this->Internal->Mappings.size())
-    {
+  {
     vtkErrorMacro("Invalid index " << index);
     return 0;
-    }
+  }
   return this->Internal->Mappings[index].AttributeName.c_str();
 }
 
@@ -142,10 +142,10 @@ const char* vtkGenericVertexAttributeMapping::GetAttributeName(unsigned int inde
 const char* vtkGenericVertexAttributeMapping::GetArrayName(unsigned int index)
 {
   if (index >= this->Internal->Mappings.size())
-    {
+  {
     vtkErrorMacro("Invalid index " << index);
     return 0;
-    }
+  }
   return this->Internal->Mappings[index].ArrayName.c_str();
 }
 
@@ -153,10 +153,10 @@ const char* vtkGenericVertexAttributeMapping::GetArrayName(unsigned int index)
 int vtkGenericVertexAttributeMapping::GetFieldAssociation(unsigned int index)
 {
   if (index >= this->Internal->Mappings.size())
-    {
+  {
     vtkErrorMacro("Invalid index " << index);
     return 0;
-    }
+  }
   return this->Internal->Mappings[index].FieldAssociation;
 }
 
@@ -164,10 +164,10 @@ int vtkGenericVertexAttributeMapping::GetFieldAssociation(unsigned int index)
 int vtkGenericVertexAttributeMapping::GetComponent(unsigned int index)
 {
   if (index >= this->Internal->Mappings.size())
-    {
+  {
     vtkErrorMacro("Invalid index " << index);
     return 0;
-    }
+  }
   return this->Internal->Mappings[index].Component;
 }
 
@@ -175,10 +175,10 @@ int vtkGenericVertexAttributeMapping::GetComponent(unsigned int index)
 int vtkGenericVertexAttributeMapping::GetTextureUnit(unsigned int index)
 {
   if (index >= this->Internal->Mappings.size())
-    {
+  {
     vtkErrorMacro("Invalid index " << index);
     return 0;
-    }
+  }
   return this->Internal->Mappings[index].TextureUnit;
 }
 
@@ -189,12 +189,12 @@ void vtkGenericVertexAttributeMapping::PrintSelf(ostream& os, vtkIndent indent)
    vtkInternal::VectorType::iterator iter;
   for (iter=this->Internal->Mappings.begin();
     iter != this->Internal->Mappings.end(); ++iter)
-    {
+  {
     os << indent << "Mapping: "
       << iter->AttributeName.c_str() << ", "
       << iter->ArrayName.c_str() << ", "
       << iter->FieldAssociation << ", "
       << iter->Component << endl;
-    }
+  }
 }
 

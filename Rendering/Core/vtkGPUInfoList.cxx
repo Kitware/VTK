@@ -45,10 +45,10 @@ bool vtkGPUInfoList::IsProbed()
 int vtkGPUInfoList::GetNumberOfGPUs()
 {
   if ( !this->IsProbed() )
-    {
+  {
     vtkErrorMacro("You must first call the Probe method");
     return 0;
-    }
+  }
 
   return static_cast<int>(this->Array->v.size());
 }
@@ -82,16 +82,16 @@ vtkGPUInfoList::vtkGPUInfoList()
 vtkGPUInfoList::~vtkGPUInfoList()
 {
   if(this->Array!=0)
-    {
+  {
     size_t c=this->Array->v.size();
     size_t i=0;
     while(i<c)
-      {
+    {
       this->Array->v[i]->Delete();
       ++i;
-      }
-    delete this->Array;
     }
+    delete this->Array;
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -101,15 +101,15 @@ void vtkGPUInfoList::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "IsProbed: " << this->Probed << endl;
   if(this->Probed)
-    {
+  {
     int c=this->GetNumberOfGPUs();
     os << indent << "Number of GPUs: " << c << endl;
     int i=0;
     while(i<c)
-      {
+    {
       os << indent << " GPU " << i;
       this->GetGPUInfo(i)->PrintSelf(os,indent);
       ++i;
-      }
     }
+  }
 }

@@ -52,22 +52,22 @@ vtkSSAAPass::vtkSSAAPass()
 vtkSSAAPass::~vtkSSAAPass()
 {
   if(this->DelegatePass!=0)
-    {
+  {
       this->DelegatePass->Delete();
-    }
+  }
 
   if(this->FrameBufferObject!=0)
-    {
+  {
     vtkErrorMacro(<<"FrameBufferObject should have been deleted in ReleaseGraphicsResources().");
-    }
+  }
    if(this->Pass1!=0)
-    {
+   {
     vtkErrorMacro(<<"Pass1 should have been deleted in ReleaseGraphicsResources().");
-    }
+   }
    if(this->Pass2!=0)
-    {
+   {
     vtkErrorMacro(<<"Pass2 should have been deleted in ReleaseGraphicsResources().");
-    }
+   }
 }
 
 // ----------------------------------------------------------------------------
@@ -77,13 +77,13 @@ void vtkSSAAPass::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "DelegatePass:";
   if(this->DelegatePass!=0)
-    {
+  {
     this->DelegatePass->PrintSelf(os,indent);
-    }
+  }
   else
-    {
+  {
     os << "(none)" <<endl;
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -102,35 +102,35 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
   vtkOpenGLRenderWindow *renWin = static_cast<vtkOpenGLRenderWindow *>(r->GetRenderWindow());
 
   if(this->DelegatePass == 0)
-    {
+  {
     vtkWarningMacro(<<" no delegate.");
     return;
-    }
+  }
 
   if(!this->SupportProbed)
-    {
+  {
     this->SupportProbed=true;
     // Test for Hardware support. If not supported, just render the delegate.
     bool supported=vtkFrameBufferObject::IsSupported(renWin);
 
     if(!supported)
-      {
+    {
       vtkErrorMacro("FBOs are not supported by the context. Cannot blur the image.");
-      }
+    }
 
     if(supported)
-      {
+    {
       // FBO extension is supported. Is the specific FBO format supported?
       if(this->FrameBufferObject==0)
-        {
+      {
         this->FrameBufferObject=vtkFrameBufferObject::New();
         this->FrameBufferObject->SetContext(renWin);
-        }
+      }
       if(this->Pass1==0)
-        {
+      {
         this->Pass1=vtkTextureObject::New();
         this->Pass1->SetContext(renWin);
-        }
+      }
       this->Pass1->Create2D(64,64,4,VTK_UNSIGNED_CHAR,false);
       this->FrameBufferObject->SetColorBuffer(0,this->Pass1);
       this->FrameBufferObject->SetNumberOfRenderTargets(1);
@@ -143,28 +143,28 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
 #endif
       supported=this->FrameBufferObject->StartNonOrtho(64,64,false);
       if(!supported)
-        {
+      {
         vtkErrorMacro("The requested FBO format is not supported by the context. Cannot blur the image.");
-        }
+      }
       else
-        {
+      {
         this->FrameBufferObject->UnBind();
 #if GL_ES_VERSION_2_0 != 1
         glDrawBuffer(static_cast<GLenum>(savedCurrentDrawBuffer));
 #endif
-        }
       }
-
-    this->Supported=supported;
     }
 
+    this->Supported=supported;
+  }
+
   if(!this->Supported)
-    {
+  {
     this->DelegatePass->Render(s);
     this->NumberOfRenderedProps+=
       this->DelegatePass->GetNumberOfRenderedProps();
     return;
-    }
+  }
 
 #if GL_ES_VERSION_2_0 != 1
   GLint savedDrawBuffer;
@@ -183,24 +183,24 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
   int h = height*sqrt(5.0);
 
   if(this->Pass1==0)
-    {
+  {
     this->Pass1=vtkTextureObject::New();
     this->Pass1->SetContext(renWin);
-    }
+  }
 
   if(this->FrameBufferObject==0)
-    {
+  {
     this->FrameBufferObject=vtkFrameBufferObject::New();
     this->FrameBufferObject->SetContext(renWin);
-    }
+  }
 
   if(this->Pass1->GetWidth() != static_cast<unsigned int>(w) ||
      this->Pass1->GetHeight() != static_cast<unsigned int>(h))
-    {
+  {
     this->Pass1->Create2D(static_cast<unsigned int>(w),
                           static_cast<unsigned int>(h),4,
                           VTK_UNSIGNED_CHAR,false);
-    }
+  }
 
   vtkRenderState s2(r);
   s2.SetPropArrayAndCount(s->GetPropArray(),s->GetPropArrayCount());
@@ -222,18 +222,18 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
 
   // 3. Same FBO, but new color attachment (new TO).
   if(this->Pass2==0)
-    {
+  {
     this->Pass2=vtkTextureObject::New();
     this->Pass2->SetContext(this->FrameBufferObject->GetContext());
-    }
+  }
 
   if(this->Pass2->GetWidth()!=static_cast<unsigned int>(width) ||
      this->Pass2->GetHeight()!=static_cast<unsigned int>(h))
-    {
+  {
     this->Pass2->Create2D(static_cast<unsigned int>(width),
                           static_cast<unsigned int>(h),4,
                           VTK_UNSIGNED_CHAR,false);
-    }
+  }
 
   this->FrameBufferObject->SetColorBuffer(0,this->Pass2);
   this->FrameBufferObject->Start(width,h,false);
@@ -242,7 +242,7 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
   // (this->Pass2 is the fbo render target)
 
   if (!this->SSAAProgram)
-    {
+  {
     this->SSAAProgram = new vtkOpenGLHelper;
     // build the shader source code
 //    std::string VSSource = vtkSSAAPassVS;
@@ -259,20 +259,20 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
 
     // if the shader changed reinitialize the VAO
     if (newShader != this->SSAAProgram->Program)
-      {
+    {
       this->SSAAProgram->Program = newShader;
       this->SSAAProgram->VAO->ShaderProgramChanged(); // reset the VAO as the shader has changed
-      }
+    }
 
     this->SSAAProgram->ShaderSourceTime.Modified();
-    }
+  }
   else
-    {
+  {
     renWin->GetShaderCache()->ReadyShaderProgram(this->SSAAProgram->Program);
-    }
+  }
 
   if(this->SSAAProgram->Program->GetCompiled() != true)
-    {
+  {
     vtkErrorMacro("Couldn't build the shader program. At this point , it can be an error in a shader or a driver bug.");
 
     // restore some state.
@@ -281,7 +281,7 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
     glDrawBuffer(static_cast<GLenum>(savedDrawBuffer));
 #endif
     return;
-    }
+  }
 
   this->Pass1->Activate();
   int sourceId = this->Pass1->GetTextureUnit();
@@ -344,28 +344,28 @@ void vtkSSAAPass::ReleaseGraphicsResources(vtkWindow *w)
   this->Superclass::ReleaseGraphicsResources(w);
 
   if (this->SSAAProgram !=0)
-    {
+  {
     this->SSAAProgram->ReleaseGraphicsResources(w);
     delete this->SSAAProgram;
     this->SSAAProgram = 0;
-    }
+  }
   if(this->FrameBufferObject!=0)
-    {
+  {
     this->FrameBufferObject->Delete();
     this->FrameBufferObject=0;
-    }
+  }
    if(this->Pass1!=0)
-    {
+   {
     this->Pass1->Delete();
     this->Pass1=0;
-    }
+   }
    if(this->Pass2!=0)
-    {
+   {
     this->Pass2->Delete();
     this->Pass2=0;
-    }
+   }
   if(this->DelegatePass!=0)
-    {
+  {
     this->DelegatePass->ReleaseGraphicsResources(w);
-    }
+  }
 }

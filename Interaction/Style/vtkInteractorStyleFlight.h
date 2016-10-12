@@ -13,22 +13,25 @@
 
 =========================================================================*/
 
-// .NAME vtkInteractorStyleFlight - provides flight motion routines
-//
-// .SECTION Description
-// Left  mouse button press produces forward motion.
-// Right mouse button press produces reverse motion.
-// Moving mouse during motion steers user in desired direction.
-// Keyboard controls are:
-// Left/Right/Up/Down Arrows for steering direction
-// 'A' forward, 'Z' reverse motion
-// Ctrl Key causes sidestep instead of steering in mouse and key modes
-// Shift key is accelerator in mouse and key modes
-// Ctrl and Shift together causes Roll in mouse and key modes
-//
-// By default, one "step" of motion corresponds to 1/250th of the diagonal
-// of bounding box of visible actors, '+' and '-' keys allow user to
-// increase or decrease step size.
+/**
+ * @class   vtkInteractorStyleFlight
+ * @brief   provides flight motion routines
+ *
+ *
+ * Left  mouse button press produces forward motion.
+ * Right mouse button press produces reverse motion.
+ * Moving mouse during motion steers user in desired direction.
+ * Keyboard controls are:
+ * Left/Right/Up/Down Arrows for steering direction
+ * 'A' forward, 'Z' reverse motion
+ * Ctrl Key causes sidestep instead of steering in mouse and key modes
+ * Shift key is accelerator in mouse and key modes
+ * Ctrl and Shift together causes Roll in mouse and key modes
+ *
+ * By default, one "step" of motion corresponds to 1/250th of the diagonal
+ * of bounding box of visible actors, '+' and '-' keys allow user to
+ * increase or decrease step size.
+*/
 
 #ifndef vtkInteractorStyleFlight_h
 #define vtkInteractorStyleFlight_h
@@ -47,53 +50,74 @@ public:
   vtkTypeMacro(vtkInteractorStyleFlight,vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Move the Eye/Camera to a specific location (no intermediate
-  // steps are taken
+  /**
+   * Move the Eye/Camera to a specific location (no intermediate
+   * steps are taken
+   */
   void JumpTo(double campos[3], double focpos[3]);
 
-  // Description:
-  // Set the basic unit step size : by default 1/250 of bounding diagonal
+  //@{
+  /**
+   * Set the basic unit step size : by default 1/250 of bounding diagonal
+   */
   vtkSetMacro(MotionStepSize,double);
   vtkGetMacro(MotionStepSize,double);
+  //@}
 
-  // Description:
-  // Set acceleration factor when shift key is applied : default 10
+  //@{
+  /**
+   * Set acceleration factor when shift key is applied : default 10
+   */
   vtkSetMacro(MotionAccelerationFactor,double);
   vtkGetMacro(MotionAccelerationFactor,double);
+  //@}
 
-  // Description:
-  // Set the basic angular unit for turning : default 1 degree
+  //@{
+  /**
+   * Set the basic angular unit for turning : default 1 degree
+   */
   vtkSetMacro(AngleStepSize,double);
   vtkGetMacro(AngleStepSize,double);
+  //@}
 
-  // Description:
-  // Set angular acceleration when shift key is applied : default 5
+  //@{
+  /**
+   * Set angular acceleration when shift key is applied : default 5
+   */
   vtkSetMacro(AngleAccelerationFactor,double);
   vtkGetMacro(AngleAccelerationFactor,double);
+  //@}
 
-  // Description:
-  // Disable motion (temporarily - for viewing etc)
+  //@{
+  /**
+   * Disable motion (temporarily - for viewing etc)
+   */
   vtkSetMacro(DisableMotion,int);
   vtkGetMacro(DisableMotion,int);
   vtkBooleanMacro(DisableMotion,int);
+  //@}
 
-  // Description:
-  // When flying, apply a restorative force to the "Up" vector.
-  // This is activated when the current 'up' is close to the actual 'up'
-  // (as defined in DefaultUpVector). This prevents excessive twisting forces
-  // when viewing from arbitrary angles, but keep the horizon level when
-  // the user is flying over terrain.
+  //@{
+  /**
+   * When flying, apply a restorative force to the "Up" vector.
+   * This is activated when the current 'up' is close to the actual 'up'
+   * (as defined in DefaultUpVector). This prevents excessive twisting forces
+   * when viewing from arbitrary angles, but keep the horizon level when
+   * the user is flying over terrain.
+   */
   vtkSetMacro(RestoreUpVector,int);
   vtkGetMacro(RestoreUpVector,int);
   vtkBooleanMacro(RestoreUpVector,int);
+  //@}
 
   // Specify "up" (by default {0,0,1} but can be changed)
   vtkGetVectorMacro(DefaultUpVector,double,3);
   vtkSetVectorMacro(DefaultUpVector,double,3);
 
-  // Description:
-  // Concrete implementation of Mouse event bindings for flight
+  //@{
+  /**
+   * Concrete implementation of Mouse event bindings for flight
+   */
   virtual void OnMouseMove();
   virtual void OnLeftButtonDown();
   virtual void OnLeftButtonUp();
@@ -101,9 +125,12 @@ public:
   virtual void OnMiddleButtonUp();
   virtual void OnRightButtonDown();
   virtual void OnRightButtonUp();
+  //@}
 
-  // Description:
-  // Concrete implementation of Keyboard event bindings for flight
+  //@{
+  /**
+   * Concrete implementation of Keyboard event bindings for flight
+   */
   virtual void OnChar();
   virtual void OnKeyDown();
   virtual void OnKeyUp();
@@ -116,13 +143,16 @@ public:
   virtual void EndForwardFly();
   virtual void StartReverseFly();
   virtual void EndReverseFly();
+  //@}
 
 protected:
    vtkInteractorStyleFlight();
   ~vtkInteractorStyleFlight();
 
-  // Description:
-  // Routines used internally for computing motion and steering
+  //@{
+  /**
+   * Routines used internally for computing motion and steering
+   */
   void UpdateSteering(vtkCamera *cam);
   void UpdateMouseSteering(vtkCamera *cam);
   void FlyByMouse(vtkCamera* cam);
@@ -150,13 +180,14 @@ protected:
   double        lYaw;
   double        DeltaPitch;
   double        lPitch;
+  //@}
 
   CPIDControl  *PID_Yaw;
   CPIDControl  *PID_Pitch;
 
 private:
-  vtkInteractorStyleFlight(const vtkInteractorStyleFlight&);  // Not implemented.
-  void operator=(const vtkInteractorStyleFlight&);  // Not implemented.
+  vtkInteractorStyleFlight(const vtkInteractorStyleFlight&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInteractorStyleFlight&) VTK_DELETE_FUNCTION;
 };
 
 #endif

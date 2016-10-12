@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMutexLock - mutual exclusion locking class
-// .SECTION Description
-// vtkMutexLock allows the locking of variables which are accessed
-// through different threads.  This header file also defines
-// vtkSimpleMutexLock which is not a subclass of vtkObject.
+/**
+ * @class   vtkMutexLock
+ * @brief   mutual exclusion locking class
+ *
+ * vtkMutexLock allows the locking of variables which are accessed
+ * through different threads.  This header file also defines
+ * vtkSimpleMutexLock which is not a subclass of vtkObject.
+*/
 
 #ifndef vtkMutexLock_h
 #define vtkMutexLock_h
@@ -59,12 +62,14 @@ public:
 
   void Delete() {delete this;}
 
-  // Description:
-  // Lock the vtkMutexLock
+  /**
+   * Lock the vtkMutexLock
+   */
   void Lock( void );
 
-  // Description:
-  // Unlock the vtkMutexLock
+  /**
+   * Unlock the vtkMutexLock
+   */
   void Unlock( void );
 
 protected:
@@ -72,8 +77,8 @@ protected:
   vtkMutexType   MutexLock;
 
 private:
-  vtkSimpleMutexLock(const vtkSimpleMutexLock& other); // no copy constructor
-  vtkSimpleMutexLock& operator=(const vtkSimpleMutexLock& rhs); // no copy assignment
+  vtkSimpleMutexLock(const vtkSimpleMutexLock& other) VTK_DELETE_FUNCTION;
+  vtkSimpleMutexLock& operator=(const vtkSimpleMutexLock& rhs) VTK_DELETE_FUNCTION;
 };
 
 class VTKCOMMONCORE_EXPORT vtkMutexLock : public vtkObject
@@ -82,14 +87,16 @@ public:
   static vtkMutexLock *New();
 
   vtkTypeMacro(vtkMutexLock,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Lock the vtkMutexLock
+  /**
+   * Lock the vtkMutexLock
+   */
   void Lock( void );
 
-  // Description:
-  // Unlock the vtkMutexLock
+  /**
+   * Unlock the vtkMutexLock
+   */
   void Unlock( void );
 
 protected:
@@ -99,8 +106,8 @@ protected:
   vtkSimpleMutexLock   SimpleMutexLock;
   vtkMutexLock() {}
 private:
-  vtkMutexLock(const vtkMutexLock&);  // Not implemented.
-  void operator=(const vtkMutexLock&);  // Not implemented.
+  vtkMutexLock(const vtkMutexLock&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMutexLock&) VTK_DELETE_FUNCTION;
 };
 
 

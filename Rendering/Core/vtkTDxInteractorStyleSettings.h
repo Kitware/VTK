@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTDxInteractorStyleSettings - 3DConnexion device settings
-
-// .SECTION Description
-// vtkTDxInteractorStyleSettings defines settings for 3DConnexion device such
-// as sensitivity, axis filters
-
-// .SECTION See Also
-// vtkInteractorStyle vtkRenderWindowInteractor
-// vtkTDxInteractorStyle
+/**
+ * @class   vtkTDxInteractorStyleSettings
+ * @brief   3DConnexion device settings
+ *
+ *
+ * vtkTDxInteractorStyleSettings defines settings for 3DConnexion device such
+ * as sensitivity, axis filters
+ *
+ * @sa
+ * vtkInteractorStyle vtkRenderWindowInteractor
+ * vtkTDxInteractorStyle
+*/
 
 #ifndef vtkTDxInteractorStyleSettings_h
 #define vtkTDxInteractorStyleSettings_h
@@ -35,62 +38,83 @@ public:
   vtkTypeMacro(vtkTDxInteractorStyleSettings,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Sensitivity of the rotation angle. This can be any value:
-  // positive, negative, null.
-  // - x<-1.0: faster reversed
-  // - x=-1.0: reversed neutral
-  // - -1.0<x<0.0:  reversed slower
-  // - x=0.0: no rotation
-  // - 0.0<x<1.0: slower
-  // - x=1.0: neutral
-  // - x>1.0: faster
+  //@{
+  /**
+   * Sensitivity of the rotation angle. This can be any value:
+   * positive, negative, null.
+   * - x<-1.0: faster reversed
+   * - x=-1.0: reversed neutral
+   * - -1.0<x<0.0:  reversed slower
+   * - x=0.0: no rotation
+   * - 0.0<x<1.0: slower
+   * - x=1.0: neutral
+   * - x>1.0: faster
+   */
   vtkSetMacro(AngleSensitivity,double);
   vtkGetMacro(AngleSensitivity,double);
+  //@}
 
-  // Description:
-  // Use or mask the rotation component around the X-axis. Initial value is
-  // true.
+  //@{
+  /**
+   * Use or mask the rotation component around the X-axis. Initial value is
+   * true.
+   */
   vtkSetMacro(UseRotationX,bool);
   vtkGetMacro(UseRotationX,bool);
+  //@}
 
-  // Description:
-  // Use or mask the rotation component around the Y-axis. Initial value is
-  // true.
+  //@{
+  /**
+   * Use or mask the rotation component around the Y-axis. Initial value is
+   * true.
+   */
   vtkSetMacro(UseRotationY,bool);
   vtkGetMacro(UseRotationY,bool);
+  //@}
 
-  // Description:
-  // Use or mask the rotation component around the Z-axis. Initial value is
-  // true.
+  //@{
+  /**
+   * Use or mask the rotation component around the Z-axis. Initial value is
+   * true.
+   */
   vtkSetMacro(UseRotationZ,bool);
   vtkGetMacro(UseRotationZ,bool);
+  //@}
 
-  // Description:
-  // Sensitivity of the translation along the X-axis. This can be any value:
-  // positive, negative, null.
-  // - x<-1.0: faster reversed
-  // - x=-1.0: reversed neutral
-  // - -1.0<x<0.0:  reversed slower
-  // - x=0.0: no translation
-  // - 0.0<x<1.0: slower
-  // - x=1.0: neutral
-  // - x>1.0: faster
-  // Initial value is 1.0
+  //@{
+  /**
+   * Sensitivity of the translation along the X-axis. This can be any value:
+   * positive, negative, null.
+   * - x<-1.0: faster reversed
+   * - x=-1.0: reversed neutral
+   * - -1.0<x<0.0:  reversed slower
+   * - x=0.0: no translation
+   * - 0.0<x<1.0: slower
+   * - x=1.0: neutral
+   * - x>1.0: faster
+   * Initial value is 1.0
+   */
   vtkSetMacro(TranslationXSensitivity,double);
   vtkGetMacro(TranslationXSensitivity,double);
+  //@}
 
-  // Description:
-  // Sensitivity of the translation along the Y-axis.
-  // See comment of SetTranslationXSensitivity().
+  //@{
+  /**
+   * Sensitivity of the translation along the Y-axis.
+   * See comment of SetTranslationXSensitivity().
+   */
   vtkSetMacro(TranslationYSensitivity,double);
   vtkGetMacro(TranslationYSensitivity,double);
+  //@}
 
-  // Description:
-  // Sensitivity of the translation along the Z-axis.
-  // See comment of SetTranslationXSensitivity().
+  //@{
+  /**
+   * Sensitivity of the translation along the Z-axis.
+   * See comment of SetTranslationXSensitivity().
+   */
   vtkSetMacro(TranslationZSensitivity,double);
   vtkGetMacro(TranslationZSensitivity,double);
+  //@}
 
 protected:
   vtkTDxInteractorStyleSettings();
@@ -106,7 +130,7 @@ protected:
   double TranslationZSensitivity;
 
 private:
-  vtkTDxInteractorStyleSettings(const vtkTDxInteractorStyleSettings&);  // Not implemented.
-  void operator=(const vtkTDxInteractorStyleSettings&);  // Not implemented.
+  vtkTDxInteractorStyleSettings(const vtkTDxInteractorStyleSettings&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTDxInteractorStyleSettings&) VTK_DELETE_FUNCTION;
 };
 #endif

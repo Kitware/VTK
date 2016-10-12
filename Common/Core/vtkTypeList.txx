@@ -54,7 +54,7 @@ public:
   enum {
     Result = (sizeof(DoTest(*MakeFrom())) == sizeof(Small)),
     SameType = false
-    };
+  };
 };
 
 // Specialize for SameType:

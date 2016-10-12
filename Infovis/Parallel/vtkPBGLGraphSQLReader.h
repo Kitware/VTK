@@ -16,24 +16,27 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkPBGLGraphSQLReader - read a vtkGraph from a database
-//
-// .SECTION Description
-//
-// Creates a vtkGraph using two SQL tables.  The edge table
-// must have one row for each edge in the graph.
-// The table must have two columns which represent the source and target
-// vertex ids.
-//
-// The vertex table has one row for each vertex in the graph.
-// The table must have a field whose values match those in the edge table.
-//
-// The source, target, and node ID fields must be of the same type.
-//
-// NOTE: This filter currently only produces the pedigree id field in
-// the vertex attributes, and no edge attributes.
-//
-// @deprecated Not maintained as of VTK 6.2 and will be removed eventually.
+/**
+ * @class   vtkPBGLGraphSQLReader
+ * @brief   read a vtkGraph from a database
+ *
+ *
+ *
+ * Creates a vtkGraph using two SQL tables.  The edge table
+ * must have one row for each edge in the graph.
+ * The table must have two columns which represent the source and target
+ * vertex ids.
+ *
+ * The vertex table has one row for each vertex in the graph.
+ * The table must have a field whose values match those in the edge table.
+ *
+ * The source, target, and node ID fields must be of the same type.
+ *
+ * NOTE: This filter currently only produces the pedigree id field in
+ * the vertex attributes, and no edge attributes.
+ *
+ * @deprecated Not maintained as of VTK 6.2 and will be removed eventually.
+*/
 
 #ifndef vtkPBGLGraphSQLReader_h
 #define vtkPBGLGraphSQLReader_h
@@ -51,56 +54,80 @@ public:
   vtkTypeMacro(vtkPBGLGraphSQLReader,vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // When set, creates a directed graph, as opposed to an undirected graph.
+  //@{
+  /**
+   * When set, creates a directed graph, as opposed to an undirected graph.
+   */
   vtkSetMacro(Directed, bool);
   vtkGetMacro(Directed, bool);
   vtkBooleanMacro(Directed, bool);
+  //@}
 
-  // Description:
-  // The database to connect to.
+  //@{
+  /**
+   * The database to connect to.
+   */
   virtual void SetDatabase(vtkSQLDatabase* db);
   vtkGetObjectMacro(Database, vtkSQLDatabase);
+  //@}
 
-  // Description:
-  // The name of the vertex table in the database.
+  //@{
+  /**
+   * The name of the vertex table in the database.
+   */
   vtkSetStringMacro(VertexTable);
   vtkGetStringMacro(VertexTable);
+  //@}
 
-  // Description:
-  // The name of the edge table in the database.
+  //@{
+  /**
+   * The name of the edge table in the database.
+   */
   vtkSetStringMacro(EdgeTable);
   vtkGetStringMacro(EdgeTable);
+  //@}
 
-  // Description:
-  // The name of the field in the edge query for the source node of each edge.
+  //@{
+  /**
+   * The name of the field in the edge query for the source node of each edge.
+   */
   vtkSetStringMacro(SourceField);
   vtkGetStringMacro(SourceField);
+  //@}
 
-  // Description:
-  // The name of the field in the edge query for the target node of each edge.
+  //@{
+  /**
+   * The name of the field in the edge query for the target node of each edge.
+   */
   vtkSetStringMacro(TargetField);
   vtkGetStringMacro(TargetField);
+  //@}
 
-  // Description:
-  // The name of the field in the node query for the node ID.
+  //@{
+  /**
+   * The name of the field in the node query for the node ID.
+   */
   vtkSetStringMacro(VertexIdField);
   vtkGetStringMacro(VertexIdField);
+  //@}
 
-  // Description:
-  // Get the offset/limit for this process's vertices/edges
+  /**
+   * Get the offset/limit for this process's vertices/edges
+   */
   static void GetRange(int rank, int total,
     vtkIdType size, vtkIdType& offset, vtkIdType& limit);
 
-  // Description:
-  // Set the distribution user data.
+  /**
+   * Set the distribution user data.
+   */
   void SetDistributionUserData(int procs, vtkIdType verts)
     { this->DistributionUserData[0] = procs;
       this->DistributionUserData[1] = verts; }
 
-  // Description:
-  // Get the user data (# procs, # vertices) used to determine
-  // the distribution.
+  /**
+   * Get the user data (# procs, # vertices) used to determine
+   * the distribution.
+   */
   vtkIdType* GetDistributionUserData()
     { return this->DistributionUserData; }
 
@@ -128,8 +155,8 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkPBGLGraphSQLReader(const vtkPBGLGraphSQLReader&); // Not implemented
-  void operator=(const vtkPBGLGraphSQLReader&);   // Not implemented
+  vtkPBGLGraphSQLReader(const vtkPBGLGraphSQLReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPBGLGraphSQLReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif //VTK_LEGACY_REMOVE

@@ -56,9 +56,9 @@ void vtkFixedSizeHandleRepresentation3D::PrintSelf(ostream& os, vtkIndent indent
      << this->HandleSizeToleranceInPixels << endl;
   os << indent << "SphereSource: " << this->SphereSource << endl;
   if (this->SphereSource)
-    {
+  {
     this->SphereSource->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -89,9 +89,9 @@ void vtkFixedSizeHandleRepresentation3D::BuildRepresentation()
 {
   if (!this->GetRenderer() ||
       !this->GetRenderer()->GetActiveCamera())
-    {
+  {
     return;
-    }
+  }
 
   // Compute display position from world position of center. Notation here
   // is such that
@@ -132,7 +132,7 @@ void vtkFixedSizeHandleRepresentation3D::BuildRepresentation()
   // The current size in pixels is not within the tolerance of the desired
   // size. Recompute the required 3D sphere size to achieve this.
   if(fabs(currentSizeInPixels - displayRadius) > radiusTolerance)
-    {
+  {
     // Adjust size
     // Computing radius in physical units which will result in a
     // displayRadius in pixels
@@ -153,5 +153,5 @@ void vtkFixedSizeHandleRepresentation3D::BuildRepresentation()
     this->SphereSource->Update();
 
     this->SetHandle(this->SphereSource->GetOutput());
-    }
+  }
 }

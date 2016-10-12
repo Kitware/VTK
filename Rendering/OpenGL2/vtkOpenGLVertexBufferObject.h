@@ -140,8 +140,8 @@ protected:
   bool CoordShiftAndScaleEnabled;
 
 private:
-  vtkOpenGLVertexBufferObject(const vtkOpenGLVertexBufferObject&); // Not implemented
-  void operator=(const vtkOpenGLVertexBufferObject&); // Not implemented
+  vtkOpenGLVertexBufferObject(const vtkOpenGLVertexBufferObject&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLVertexBufferObject&) VTK_DELETE_FUNCTION;
 };
 
 #endif

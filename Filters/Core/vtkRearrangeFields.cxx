@@ -53,18 +53,18 @@ vtkRearrangeFields::vtkRearrangeFields()
   this->LastId = 0;
   //convert the attribute names to uppercase for local use
   if (vtkRearrangeFields::AttributeNames[0][0] == 0)
-    {
+  {
     for (int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; i++)
-      {
+    {
       int l = static_cast<int>(
         strlen(vtkDataSetAttributes::GetAttributeTypeAsString(i)));
       for (int c = 0; c < l && c < 10; c++)
-        {
+      {
         vtkRearrangeFields::AttributeNames[i][c] =
           toupper(vtkDataSetAttributes::GetAttributeTypeAsString(i)[c]);
-        }
       }
     }
+  }
 }
 
 vtkRearrangeFields::~vtkRearrangeFields()
@@ -93,22 +93,22 @@ int vtkRearrangeFields::RequestData(
   // Apply all operations.
   Operation* cur = this->GetFirst();
   if (cur)
-    {
+  {
     Operation* before;
     do
-      {
+    {
       before = cur;
       cur = cur->Next;
       this->ApplyOperation(before, input, output);
-      }
-    while (cur);
     }
+    while (cur);
+  }
 
   // Pass all.
   if ( output->GetFieldData() && input->GetFieldData() )
-    {
+  {
     output->GetFieldData()->PassData( input->GetFieldData() );
-    }
+  }
   output->GetPointData()->PassData( input->GetPointData() );
   output->GetCellData()->PassData( input->GetCellData() );
 
@@ -123,7 +123,7 @@ vtkFieldData* vtkRearrangeFields::GetFieldDataFromLocation(vtkDataSet* ds,
   vtkFieldData* fd=0;
 
   switch (fieldLoc)
-    {
+  {
     case vtkRearrangeFields::DATA_OBJECT:
       fd = ds->GetFieldData();
       break;
@@ -133,7 +133,7 @@ vtkFieldData* vtkRearrangeFields::GetFieldDataFromLocation(vtkDataSet* ds,
     case vtkRearrangeFields::CELL_DATA:
       fd = ds->GetCellData();
       break;
-    }
+  }
   return fd;
 }
 
@@ -149,79 +149,79 @@ void vtkRearrangeFields::ApplyOperation(Operation* op, vtkDataSet* input,
   vtkFieldData* outputFD = this->GetFieldDataFromLocation(output,
                                                           op->ToFieldLoc);
   if ( !inputFD || !outputFD)
-    {
+  {
     vtkWarningMacro("Can not apply operation " << op->Id
                     << ": Inappropriate input or output location"
                     << " specified for the operation.");
     return;
-    }
+  }
 
   // If the source is specified by name
   if ( op->FieldType == vtkRearrangeFields::NAME )
-    {
+  {
     vtkDebugMacro("Copy by name:" << op->FieldName);
     // Pass the array
     outputFD->AddArray(inputFD->GetArray(op->FieldName));
     // If moving the array, make sure that it is not copied
     // with PassData()
     if ( op->OperationType == vtkRearrangeFields::MOVE )
-      {
+    {
       vtkFieldData* fd = this->GetFieldDataFromLocation(output,
                                                         op->FromFieldLoc);
       fd->CopyFieldOff(op->FieldName);
-      }
+    }
     else if ( op->OperationType == vtkRearrangeFields::COPY )
-      {
-      }
+    {
+    }
     else
-      {
+    {
       vtkWarningMacro("Can not apply operation " << op->Id
                       << ": Inappropriate operation type.");
       return;
-      }
     }
+  }
   // If source is specified as attribute
   else if ( op->FieldType == vtkRearrangeFields::ATTRIBUTE )
-    {
+  {
     vtkDebugMacro("Copy by attribute");
     // Get the attribute and pass it
     vtkDataSetAttributes* dsa = vtkDataSetAttributes::SafeDownCast(inputFD);
     if (!dsa)
-      {
+    {
       vtkWarningMacro("Can not apply operation " << op->Id
                       << ": Input has to be vtkDataSetAttributes.");
       return;
-      }
+    }
     outputFD->AddArray(dsa->GetAbstractAttribute(op->AttributeType));
     // If moving the array, make sure that it is not copied
     // with PassData()
     if ( op->OperationType == vtkRearrangeFields::MOVE )
-      {
+    {
       vtkFieldData* fd = this->GetFieldDataFromLocation(output,
                                                         op->FromFieldLoc);
       vtkDataSetAttributes* dsa2 = vtkDataSetAttributes::SafeDownCast(fd);
       if (dsa2)
-        {
+      {
         dsa2->SetCopyAttribute(op->AttributeType,0);
-        }
       }
+    }
     else if ( op->OperationType == vtkRearrangeFields::COPY )
-      {
-      }
+    {
+    }
     else
-      {
+    {
       vtkWarningMacro("Can not apply operation " << op->Id
                       << ": Inappropriate operation type.");
       return;
-      }
     }
+  }
   else
-    {
+  {
     vtkWarningMacro("Can not apply operation " << op->Id
                     << ": Inappropriate field type"
                     << " specified for the operation.");
     return;
-    }
+  }
 }
 
 // Helper method used by the Tcl bindings. Allows the caller to
@@ -238,72 +238,72 @@ int vtkRearrangeFields::AddOperation(const char* operationType,
   int opType=-1, i;
   // Convert strings to ints and call the appropriate AddOperation()
   for(i=0; i<numOpTypes; i++)
-    {
+  {
     if (!strcmp(operationType, OperationTypeNames[i]))
-      {
+    {
       opType = i;
       break;
-      }
     }
+  }
   if (opType == -1)
-    {
+  {
     vtkErrorMacro("Syntax error in operation.");
     return -1;
-    }
+  }
   int attributeType=-1;
   for(i=0; i<numAttr; i++)
-    {
+  {
     if (!strcmp(name, AttributeNames[i]))
-      {
+    {
       attributeType = i;
       break;
-      }
     }
+  }
 
   int fromLoc=-1;
   for(i=0; i<numFieldLocs; i++)
-    {
+  {
     if (!strcmp(fromFieldLoc, FieldLocationNames[i]))
-      {
+    {
       fromLoc = i;
       break;
-      }
     }
+  }
   if (fromLoc == -1)
-    {
+  {
     vtkErrorMacro("Syntax error in operation.");
     return -1;
-    }
+  }
 
   int toLoc=-1;
   for(i=0; i<numFieldLocs; i++)
-    {
+  {
     if (!strcmp(toFieldLoc, FieldLocationNames[i]))
-      {
+    {
       toLoc = i;
       break;
-      }
     }
+  }
   if (toLoc == -1)
-    {
+  {
     vtkErrorMacro("Syntax error in operation.");
     return -1;
-    }
+  }
 
   if ( attributeType == -1 )
-    {
+  {
     vtkDebugMacro("Adding operation with parameters: "
                   << opType << " " << name << " "
                   << fromLoc << " " << toLoc);
     return this->AddOperation(opType, name, fromLoc, toLoc);
-    }
+  }
   else
-    {
+  {
     vtkDebugMacro("Adding operation with parameters: "
                   << opType << " " << attributeType << " "
                   << fromLoc << " " << toLoc);
     return this->AddOperation(opType, attributeType, fromLoc, toLoc);
-    }
+  }
 }
 
 
@@ -316,24 +316,24 @@ int vtkRearrangeFields::AddOperation(int operationType, const char* name,
   // Syntax and sanity checks.
   if ( (operationType != vtkRearrangeFields::COPY) &&
        (operationType != vtkRearrangeFields::MOVE) )
-    {
+  {
     vtkErrorMacro("Wrong operation type.");
     return -1;
-    }
+  }
   if ( (fromFieldLoc !=  vtkRearrangeFields::DATA_OBJECT) &&
        (fromFieldLoc !=  vtkRearrangeFields::POINT_DATA) &&
        (fromFieldLoc !=  vtkRearrangeFields::CELL_DATA) )
-    {
+  {
     vtkErrorMacro("The source for the field is wrong.");
     return -1;
-    }
+  }
   if ( (toFieldLoc !=  vtkRearrangeFields::DATA_OBJECT) &&
        (toFieldLoc !=  vtkRearrangeFields::POINT_DATA) &&
        (toFieldLoc !=  vtkRearrangeFields::CELL_DATA) )
-    {
+  {
     vtkErrorMacro("The source for the field is wrong.");
     return -1;
-    }
+  }
 
   // Create an operation with the specified parameters.
   Operation* op = new Operation;
@@ -360,30 +360,30 @@ int vtkRearrangeFields::AddOperation(int operationType, int attributeType,
   // Syntax and sanity checks.
   if ( (operationType != vtkRearrangeFields::COPY) &&
        (operationType != vtkRearrangeFields::MOVE) )
-    {
+  {
     vtkErrorMacro("Wrong operation type.");
     return -1;
-    }
+  }
   if ( (fromFieldLoc !=  vtkRearrangeFields::DATA_OBJECT) &&
        (fromFieldLoc !=  vtkRearrangeFields::POINT_DATA) &&
        (fromFieldLoc !=  vtkRearrangeFields::CELL_DATA) )
-    {
+  {
     vtkErrorMacro("The source for the field is wrong.");
     return -1;
-    }
+  }
   if ( (attributeType < 0) ||
        (attributeType > vtkDataSetAttributes::NUM_ATTRIBUTES) )
-    {
+  {
     vtkErrorMacro("Wrong attribute type.");
     return -1;
-    }
+  }
   if ( (toFieldLoc !=  vtkRearrangeFields::DATA_OBJECT) &&
        (toFieldLoc !=  vtkRearrangeFields::POINT_DATA) &&
        (toFieldLoc !=  vtkRearrangeFields::CELL_DATA) )
-    {
+  {
     vtkErrorMacro("The source for the field is wrong.");
     return -1;
-    }
+  }
 
   // Create an operation with the specified parameters.
   Operation* op = new Operation;
@@ -409,9 +409,9 @@ int vtkRearrangeFields::RemoveOperation(const char* operationType,
                                         const char* toFieldLoc)
 {
   if (!operationType || !name || !fromFieldLoc || !toFieldLoc)
-    {
+  {
     return 0;
-    }
+  }
 
   int numAttr = vtkDataSetAttributes::NUM_ATTRIBUTES;
   int numOpTypes = 2;
@@ -419,68 +419,68 @@ int vtkRearrangeFields::RemoveOperation(const char* operationType,
   int opType=-1, i;
   // Convert strings to ints and call the appropriate AddOperation()
   for(i=0; i<numOpTypes; i++)
-    {
+  {
     if (!strcmp(operationType, OperationTypeNames[i]))
-      {
-      opType = i;
-      }
-    }
-  if (opType == -1)
     {
+      opType = i;
+    }
+  }
+  if (opType == -1)
+  {
     vtkErrorMacro("Syntax error in operation.");
     return 0;
-    }
+  }
   int attributeType=-1;
   for(i=0; i<numAttr; i++)
-    {
+  {
     if (!strcmp(name, AttributeNames[i]))
-      {
+    {
       attributeType = i;
-      }
     }
+  }
 
   int fromLoc=-1;
   for(i=0; i<numFieldLocs; i++)
-    {
+  {
     if (!strcmp(fromFieldLoc, FieldLocationNames[i]))
-      {
-      fromLoc = i;
-      }
-    }
-  if (fromLoc == -1)
     {
+      fromLoc = i;
+    }
+  }
+  if (fromLoc == -1)
+  {
     vtkErrorMacro("Syntax error in operation.");
     return 0;
-    }
+  }
 
   int toLoc=-1;
   for(i=0; i<numFieldLocs; i++)
-    {
+  {
     if (!strcmp(toFieldLoc, FieldLocationNames[i]))
-      {
-      toLoc = i;
-      }
-    }
-  if (toLoc == -1)
     {
+      toLoc = i;
+    }
+  }
+  if (toLoc == -1)
+  {
     vtkErrorMacro("Syntax error in operation.");
     return 0;
-    }
+  }
 
   if ( attributeType == -1 )
-    {
+  {
     vtkDebugMacro("Removing operation with parameters: "
                   << opType << " " << name << " "
                   << fromLoc << " " << toLoc);
     return this->RemoveOperation(opType, name, fromLoc, toLoc);
-    }
+  }
   else
-    {
+  {
     vtkDebugMacro("Removing operation with parameters: "
                   << opType << " " << attributeType << " "
                   << fromLoc << " " << toLoc);
     return this->RemoveOperation(opType, attributeType, fromLoc, toLoc);
-    }
+  }
 }
 
 int vtkRearrangeFields::RemoveOperation(int operationId)
@@ -525,11 +525,11 @@ void vtkRearrangeFields::AddOperation(Operation* op)
   op->Next = 0;
 
   if (!this->Head)
-    {
+  {
     this->Head = op;
     this->Tail = op;
     return;
-    }
+  }
   this->Tail->Next = op;
   this->Tail = op;
 }
@@ -538,17 +538,17 @@ void vtkRearrangeFields::DeleteOperation(Operation* op, Operation* before)
 {
   if (!op) { return; }
   if (!before)
-    {
+  {
     this->Head = op->Next;
-    }
+  }
   else
-    {
+  {
     before->Next = op->Next;
     if (!before->Next)
-      {
+    {
       this->Tail=before;
-      }
     }
+  }
   delete op;
 }
 
@@ -560,14 +560,14 @@ Operation* vtkRearrangeFields::FindOperation(int id, Operation*& before)
   before = 0;
   if (cur->Id == id) { return cur; }
   while (cur->Next)
-    {
+  {
     before = cur;
     if (cur->Next->Id == id)
-      {
+    {
       return cur->Next;
-      }
-    cur = cur->Next;
     }
+    cur = cur->Next;
+  }
   return 0;
 }
 
@@ -591,15 +591,15 @@ Operation* vtkRearrangeFields::FindOperation(int operationType,
   if ( (cur->FieldType == vtkRearrangeFields::NAME) &&
        this->CompareOperationsByName(cur, &op)) { return cur; }
   while (cur->Next)
-    {
+  {
     before = cur;
     if ( (cur->Next->FieldType == vtkRearrangeFields::NAME) &&
          this->CompareOperationsByName(cur->Next, &op))
-      {
+    {
       return cur->Next;
-      }
-    cur = cur->Next;
     }
+    cur = cur->Next;
+  }
   return 0;
 }
 
@@ -620,15 +620,15 @@ Operation* vtkRearrangeFields::FindOperation(int operationType,
   if ( (cur->FieldType == vtkRearrangeFields::ATTRIBUTE) &&
        this->CompareOperationsByType(cur, &op)) { return cur; }
   while (cur->Next)
-    {
+  {
     before = cur;
     if ( (cur->Next->FieldType == vtkRearrangeFields::ATTRIBUTE) &&
          this->CompareOperationsByType(cur->Next, &op))
-      {
+    {
       return cur->Next;
-      }
-    cur = cur->Next;
     }
+    cur = cur->Next;
+  }
   return 0;
 }
 
@@ -638,11 +638,11 @@ void vtkRearrangeFields::DeleteAllOperations()
   if (!cur) {return;}
   Operation* before;
   do
-    {
+  {
     before = cur;
     cur = cur->Next;
     delete before;
-    }
+  }
   while (cur);
   this->Head = 0;
   this->Tail = 0;
@@ -694,12 +694,12 @@ void vtkRearrangeFields::PrintAllOperations(ostream& os, vtkIndent indent)
   if (!cur) { return; }
   Operation* before;
   do
-    {
+  {
     before = cur;
     cur = cur->Next;
     os << endl;
     this->PrintOperation(before, os, indent);
-    }
+  }
   while (cur);
 }
 
@@ -709,13 +709,13 @@ void vtkRearrangeFields::PrintOperation(Operation* op, ostream& os, vtkIndent in
   os << indent << "Type: " << op->OperationType << endl;
   os << indent << "Field type: " << op->FieldType << endl;
   if ( op->FieldName)
-    {
+  {
     os << indent << "Field name: " << op->FieldName << endl;
-    }
+  }
   else
-    {
+  {
     os << indent << "Field name: (none)" << endl;
-    }
+  }
   os << indent << "Attribute type: " << op->AttributeType << endl;
   os << indent << "Source field location: " << op->FromFieldLoc << endl;
   os << indent << "Target field location: " << op->ToFieldLoc << endl;

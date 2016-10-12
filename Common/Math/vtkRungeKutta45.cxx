@@ -53,9 +53,9 @@ double vtkRungeKutta45::DC[6] = { 37.0/378.0 - 2825.0/27648.0,
 vtkRungeKutta45::vtkRungeKutta45()
 {
   for(int i=0; i<6; i++)
-    {
+  {
     this->NextDerivs[i] = 0;
-    }
+  }
   this->Adaptive = 1;
 }
 
@@ -63,26 +63,27 @@ vtkRungeKutta45::vtkRungeKutta45()
 vtkRungeKutta45::~vtkRungeKutta45()
 {
   for(int i=0; i<6; i++)
-    {
+  {
     delete[] this->NextDerivs[i];
     this->NextDerivs[i] = 0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkRungeKutta45::Initialize()
 {
   this->vtkInitialValueProblemSolver::Initialize();
-  if (!this->Initialized)
-    {
+  if (!this->FunctionSet || !this->Initialized)
+  {
     return;
-    }
+  }
   // Allocate memory for temporary derivatives array
   for(int i=0; i<6; i++)
-    {
+  {
+    delete[] this->NextDerivs[i];
     this->NextDerivs[i] =
       new double[this->FunctionSet->GetNumberOfFunctions()];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -96,13 +97,13 @@ int vtkRungeKutta45::ComputeNextStep(double* xprev, double* dxprev,
 
   // Step size should always be positive. We'll check anyway.
   if (minStep < 0)
-    {
+  {
     minStep = -minStep;
-    }
+  }
   if (maxStep < 0)
-    {
+  {
     maxStep = -maxStep;
-    }
+  }
 
   delTActual = 0;
 
@@ -110,91 +111,91 @@ int vtkRungeKutta45::ComputeNextStep(double* xprev, double* dxprev,
   double absDT = fabs(delT);
   if ( ((minStep == absDT) && (maxStep == absDT)) ||
        (maxError <= 0.0) )
-    {
+  {
     int retVal = this->ComputeAStep(xprev, dxprev, xnext, t, delT, delTActual, estErr);
     return retVal;
-    }
+  }
   else if ( minStep > maxStep )
-    {
+  {
     return UNEXPECTED_VALUE;
-    }
+  }
 
   double errRatio, tmp, tmp2;
   int retVal, shouldBreak = 0;
 
   // Reduce the step size until estimated error <= maximum allowed error
   while ( estErr > maxError )
-    {
+  {
     if ((retVal =
          this->ComputeAStep(xprev, dxprev, xnext, t, delT, delTActual, estErr)))
-      {
+    {
       return retVal;
-      }
+    }
     // If the step just taken was either min, we are done,
     // break
     absDT = fabs(delT);
     if ( absDT == minStep )
-      {
+    {
       break;
-      }
+    }
 
     errRatio = static_cast<double>(estErr) / static_cast<double>(maxError);
     // Empirical formulae for calculating next step size
     // 0.9 is a safety factor to prevent infinite loops (see reference)
     if ( errRatio == 0.0 ) // avoid pow errors
-      {
+    {
       tmp = delT < 0 ? -minStep : minStep;  // arbitrarily set to minStep
-      }
+    }
     else if ( errRatio > 1 )
-      {
+    {
       tmp = 0.9*delT*pow(errRatio, -0.25);
-      }
+    }
     else
-      {
+    {
       tmp = 0.9*delT*pow(errRatio, -0.2);
-      }
+    }
     tmp2 = fabs(tmp);
 
     // Re-adjust step size if it exceeds the bounds
     // If this happens, calculate once with the extrama step
     // size and break (flagged by setting shouldBreak, see below)
     if (tmp2 > maxStep )
-      {
+    {
       delT = maxStep * delT/fabs(delT);
       shouldBreak = 1;
-      }
+    }
     else if (tmp2 < minStep)
-      {
+    {
       delT = minStep * delT/fabs(delT);
       shouldBreak = 1;
-      }
+    }
     else
-      {
+    {
       delT = tmp;
-      }
+    }
 
     tmp2 = t + delT;
     if ( tmp2 == t )
-      {
+    {
       vtkWarningMacro("Step size underflow. You must choose a larger "
               "tolerance or set the minimum step size to a larger "
               "value.");
       return UNEXPECTED_VALUE;
-      }
+    }
 
     // If the new step size is equal to min or max,
     // calculate once with the extrama step size and break
     // (flagged by setting shouldBreak, see above)
     if (shouldBreak)
-      {
+    {
       if ( (retVal =
             this->ComputeAStep(xprev, dxprev, xnext, t, delT, delTActual, estErr)) )
-        {
+      {
         return retVal;
-        }
-      break;
       }
+      break;
     }
+  }
 
   return 0;
 }
@@ -210,110 +211,110 @@ int vtkRungeKutta45::ComputeAStep(
   actualDelT = 0;
 
   if (!this->FunctionSet)
-    {
+  {
     vtkErrorMacro("No derivative functions are provided!");
     return NOT_INITIALIZED ;
-    }
+  }
 
   if (!this->Initialized)
-    {
+  {
     vtkErrorMacro("Integrator not initialized!");
     return NOT_INITIALIZED;
-    }
+  }
 
 
   numDerivs = this->FunctionSet->GetNumberOfFunctions();
   numVals = numDerivs + 1;
   for(i=0; i<numVals-1; i++)
-    {
+  {
     this->Vals[i] = xprev[i];
-    }
+  }
   this->Vals[numVals-1] = t;
 
   // Obtain the derivatives dx_i at x_i
   if (dxprev)
-    {
+  {
     for(i=0; i<numDerivs; i++)
-      {
+    {
       this->NextDerivs[0][i] = dxprev[i];
-      }
     }
+  }
   else if ( !this->FunctionSet->FunctionValues(this->Vals,
                            this->NextDerivs[0]) )
-    {
+  {
     for(i=0; i<numVals-1; i++)
-      {
+    {
       xnext[i] = this->Vals[i];
-      }
-    return OUT_OF_DOMAIN;
     }
+    return OUT_OF_DOMAIN;
+  }
 
   double sum;
   for (i=1; i<6; i++)
-    {
+  {
     // Step i
     // Calculate k_i (NextDerivs) for each step
     for(j=0; j<numVals-1; j++)
-      {
+    {
       sum = 0;
       for (k=0; k<i; k++)
-        {
+      {
         sum += B[i-1][k]*this->NextDerivs[k][j];
-        }
-      this->Vals[j] = xprev[j] + delT*sum;
       }
+      this->Vals[j] = xprev[j] + delT*sum;
+    }
     this->Vals[numVals-1] = t + delT*A[i-1];
 
     if ( !this->FunctionSet->FunctionValues(this->Vals,
                                             this->NextDerivs[i]) )
-      {
+    {
       for(i=0; i<numVals-1; i++)
-        {
+      {
         xnext[i] = this->Vals[i];
-        }
+      }
       actualDelT = delT;
       return OUT_OF_DOMAIN;
-      }
     }
+  }
 
 
   // Calculate xnext
   for(i=0; i<numDerivs; i++)
-    {
+  {
     sum = 0;
     for (j=0; j<6; j++)
-      {
+    {
       sum += C[j]*this->NextDerivs[j][i];
-      }
-    xnext[i] = xprev[i] + delT*sum;
     }
+    xnext[i] = xprev[i] + delT*sum;
+  }
   actualDelT = delT;
 
   // Calculate norm of error vector
   double err=0;
   for(i=0; i<numDerivs; i++)
-    {
+  {
     sum = 0;
     for (j=0; j<6; j++)
-      {
+    {
       sum += DC[j]*this->NextDerivs[j][i];
-      }
-    err += delT*sum*delT*sum;
     }
+    err += delT*sum*delT*sum;
+  }
   error = sqrt(err);
 
   int numZero = 0;
   for(i=0; i<numDerivs; i++)
-    {
+  {
     if ( xnext[i] == xprev[i] )
-      {
-      numZero++;
-      }
-    }
-  if (numZero == numDerivs)
     {
-    return UNEXPECTED_VALUE;
+      numZero++;
     }
+  }
+  if (numZero == numDerivs)
+  {
+    return UNEXPECTED_VALUE;
+  }
 
   return 0;
 }

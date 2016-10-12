@@ -1,14 +1,6 @@
 vtk_module(vtkGeovisCore
   GROUPS
     Rendering
-  DEPENDS
-    vtkIOXML
-    vtkInteractionWidgets
-    vtkInteractionStyle
-    vtkInfovisLayout
-    vtkViewsCore
-    vtkRenderingCore
-    vtklibproj4
   TEST_DEPENDS
     vtkViewsGeovis
     vtkViewsInfovis
@@ -16,4 +8,24 @@ vtk_module(vtkGeovisCore
     vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionStyle
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkCommonTransforms
+    vtkInfovisCore
+    vtkInteractionStyle
+    vtkInteractionWidgets
+    vtkRenderingCore
+    vtkViewsCore
+    vtklibproj4
+  PRIVATE_DEPENDS
+    vtkCommonSystem
+    vtkFiltersCore
+    vtkFiltersGeneral
+    vtkIOImage
+    vtkIOXML
+    vtkImagingCore
+    vtkImagingSources
+    vtkInfovisLayout
   )

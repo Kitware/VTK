@@ -94,8 +94,8 @@ protected:
   vtkNew<vtkAbstractRenderDevice> RenderDevice; // Render device target.
 
 private:
-  vtkRenderWidget(const vtkRenderWidget&);  // Not implemented.
-  void operator=(const vtkRenderWidget&);  // Not implemented.
+  vtkRenderWidget(const vtkRenderWidget&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRenderWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

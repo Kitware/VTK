@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPlatonicSolidSource - produce polygonal Platonic solids
-// .SECTION Description
-// vtkPlatonicSolidSource can generate each of the five Platonic solids:
-// tetrahedron, cube, octahedron, icosahedron, and dodecahedron. Each of the
-// solids is placed inside a sphere centered at the origin with radius 1.0.
-// To use this class, simply specify the solid to create. Note that this
-// source object creates cell scalars that are (integral value) face numbers.
+/**
+ * @class   vtkPlatonicSolidSource
+ * @brief   produce polygonal Platonic solids
+ *
+ * vtkPlatonicSolidSource can generate each of the five Platonic solids:
+ * tetrahedron, cube, octahedron, icosahedron, and dodecahedron. Each of the
+ * solids is placed inside a sphere centered at the origin with radius 1.0.
+ * To use this class, simply specify the solid to create. Note that this
+ * source object creates cell scalars that are (integral value) face numbers.
+*/
 
 #ifndef vtkPlatonicSolidSource_h
 #define vtkPlatonicSolidSource_h
@@ -37,10 +40,12 @@ class VTKFILTERSSOURCES_EXPORT vtkPlatonicSolidSource : public vtkPolyDataAlgori
 public:
   static vtkPlatonicSolidSource *New();
   vtkTypeMacro(vtkPlatonicSolidSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Specify the type of PlatonicSolid solid to create.
+  //@{
+  /**
+   * Specify the type of PlatonicSolid solid to create.
+   */
   vtkSetClampMacro(SolidType,int,VTK_SOLID_TETRAHEDRON,VTK_SOLID_DODECAHEDRON);
   vtkGetMacro(SolidType,int);
   void SetSolidTypeToTetrahedron()
@@ -53,25 +58,29 @@ public:
     {this->SetSolidType(VTK_SOLID_ICOSAHEDRON);}
   void SetSolidTypeToDodecahedron()
     {this->SetSolidType(VTK_SOLID_DODECAHEDRON);}
+  //@}
 
-  // Description:
-  // Set/get the desired precision for the output points.
-  // vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
-  // vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+  //@{
+  /**
+   * Set/get the desired precision for the output points.
+   * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
+   * vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+   */
   vtkSetMacro(OutputPointsPrecision,int);
   vtkGetMacro(OutputPointsPrecision,int);
+  //@}
 
 protected:
   vtkPlatonicSolidSource();
-  ~vtkPlatonicSolidSource() {}
+  ~vtkPlatonicSolidSource() VTK_OVERRIDE {}
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   int SolidType;
   int OutputPointsPrecision;
 
 private:
-  vtkPlatonicSolidSource(const vtkPlatonicSolidSource&);  // Not implemented.
-  void operator=(const vtkPlatonicSolidSource&);  // Not implemented.
+  vtkPlatonicSolidSource(const vtkPlatonicSolidSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPlatonicSolidSource&) VTK_DELETE_FUNCTION;
 
 };
 

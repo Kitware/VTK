@@ -12,9 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageImportExecutive -
-// .SECTION Description
-// vtkImageImportExecutive
+/**
+ * @class   vtkImageImportExecutive
+ *
+ * vtkImageImportExecutive
+*/
 
 #ifndef vtkImageImportExecutive_h
 #define vtkImageImportExecutive_h
@@ -30,8 +32,9 @@ public:
   vtkTypeMacro(vtkImageImportExecutive,
                        vtkStreamingDemandDrivenPipeline);
 
-  // Description:
-  // Override to implement some requests with callbacks.
+  /**
+   * Override to implement some requests with callbacks.
+   */
   virtual int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inInfo,
                              vtkInformationVector* outInfo);
@@ -41,8 +44,8 @@ protected:
   ~vtkImageImportExecutive() {}
 
 private:
-  vtkImageImportExecutive(const vtkImageImportExecutive&);  // Not implemented.
-  void operator=(const vtkImageImportExecutive&);  // Not implemented.
+  vtkImageImportExecutive(const vtkImageImportExecutive&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageImportExecutive&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkStringOutputWindow - File Specific output window class
-// .SECTION Description
-// Writes debug/warning/error output to a log file instead of the console.
-// To use this class, instantiate it and then call SetInstance(this).
-//
+/**
+ * @class   vtkStringOutputWindow
+ * @brief   File Specific output window class
+ *
+ * Writes debug/warning/error output to a log file instead of the console.
+ * To use this class, instantiate it and then call SetInstance(this).
+ *
+*/
 
 #ifndef vtkStringOutputWindow_h
 #define vtkStringOutputWindow_h
@@ -32,27 +35,29 @@ public:
 
   static vtkStringOutputWindow* New();
 
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Put the text into the log file.
-  // New lines are converted to carriage return new lines.
-  virtual void DisplayText(const char*);
+  /**
+   * Put the text into the log file.
+   * New lines are converted to carriage return new lines.
+   */
+  void DisplayText(const char*) VTK_OVERRIDE;
 
-  // Description:
-  // Get the current output as a string
+  /**
+   * Get the current output as a string
+   */
   std::string GetOutput() { return this->OStream.str(); };
 
 protected:
   vtkStringOutputWindow();
-  virtual ~vtkStringOutputWindow();
+  ~vtkStringOutputWindow() VTK_OVERRIDE;
   void Initialize();
 
   std::ostringstream OStream;
 
 private:
-  vtkStringOutputWindow(const vtkStringOutputWindow&);  // Not implemented.
-  void operator=(const vtkStringOutputWindow&);  // Not implemented.
+  vtkStringOutputWindow(const vtkStringOutputWindow&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStringOutputWindow&) VTK_DELETE_FUNCTION;
 };
 
 

@@ -8,18 +8,9 @@ elseif(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
   set(gl2ps_depends vtkRenderingGL2PSOpenGL2)
   set(gl2ps_test_depends vtkIOExportOpenGL2)
 endif()
-
 vtk_module(vtkIOExport
   GROUPS
     Rendering
-  DEPENDS
-    vtkCommonCore
-    vtkImagingCore
-    vtkRenderingCore
-    ${gl2ps_depends}
-  PRIVATE_DEPENDS
-    vtkIOImage
-    vtkFiltersGeometry
   TEST_DEPENDS
     vtkCommonColor
     vtkChartsCore
@@ -33,4 +24,16 @@ vtk_module(vtkIOExport
     vtkRenderingVolume${VTK_RENDERING_BACKEND}
     vtkViewsContext2D
     ${gl2ps_test_depends}
+  DEPENDS
+    ${gl2ps_depends}
+    vtkCommonCore
+    vtkIOCore
+    vtkRenderingCore
+  PRIVATE_DEPENDS
+    vtkCommonDataModel
+    vtkCommonMath
+    vtkCommonTransforms
+    vtkFiltersGeometry
+    vtkIOImage
+    vtkImagingCore
   )

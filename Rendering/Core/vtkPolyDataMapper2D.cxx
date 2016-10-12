@@ -60,7 +60,7 @@ void vtkPolyDataMapper2D::ShallowCopy(vtkAbstractMapper *mapper)
 {
   vtkPolyDataMapper2D *m = vtkPolyDataMapper2D::SafeDownCast(mapper);
   if (m != NULL)
-    {
+  {
     this->SetLookupTable(m->GetLookupTable());
     this->SetScalarVisibility(m->GetScalarVisibility());
     this->SetScalarRange(m->GetScalarRange());
@@ -70,7 +70,7 @@ void vtkPolyDataMapper2D::ShallowCopy(vtkAbstractMapper *mapper)
     this->ColorByArrayComponent(m->GetArrayName(),m->GetArrayComponent());
     this->ColorByArrayComponent(m->GetArrayId(),m->GetArrayComponent());
     this->SetTransformCoordinate(m->GetTransformCoordinate());
-    }
+  }
 
   // Now do superclass
   this->vtkMapper2D::ShallowCopy(mapper);
@@ -80,17 +80,17 @@ void vtkPolyDataMapper2D::ShallowCopy(vtkAbstractMapper *mapper)
 vtkPolyDataMapper2D::~vtkPolyDataMapper2D()
 {
   if (this->TransformCoordinate)
-    {
+  {
     this->TransformCoordinate->UnRegister(this);
-    }
+  }
   if (this->LookupTable)
-    {
+  {
     this->LookupTable->UnRegister(this);
-    }
+  }
   if (this->Colors != NULL)
-    {
+  {
     this->Colors->UnRegister(this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -104,9 +104,9 @@ void vtkPolyDataMapper2D::SetInputData(vtkPolyData *input)
 vtkPolyData *vtkPolyDataMapper2D::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
-    {
+  {
     return 0;
-    }
+  }
   return vtkPolyData::SafeDownCast(
     this->GetExecutive()->GetInputData(0, 0));
 }
@@ -114,16 +114,16 @@ vtkPolyData *vtkPolyDataMapper2D::GetInput()
 //----------------------------------------------------------------------------
 // Overload standard modified time function. If lookup table is modified,
 // then this object is modified as well.
-unsigned long vtkPolyDataMapper2D::GetMTime()
+vtkMTimeType vtkPolyDataMapper2D::GetMTime()
 {
-  unsigned long mTime = this->MTime;
-  unsigned long lutMTime;
+  vtkMTimeType mTime = this->MTime;
+  vtkMTimeType lutMTime;
 
   if (this->LookupTable != NULL)
-    {
+  {
     lutMTime = this->LookupTable->GetMTime();
     mTime = ( lutMTime > mTime ? lutMTime : mTime );
-    }
+  }
 
   return mTime;
 }
@@ -139,14 +139,14 @@ vtkUnsignedCharArray *vtkPolyDataMapper2D::MapScalars(double alpha)
 
   // Get rid of old colors
   if (this->Colors)
-    {
+  {
     this->Colors->UnRegister(this);
     this->Colors = NULL;
-    }
+  }
 
   // map scalars if necessary
   if (this->ScalarVisibility)
-    {
+  {
     vtkAbstractArray *scalars = vtkAbstractMapper::
       GetAbstractScalars(this->GetInput(), this->ScalarMode, this->ArrayAccessMode,
                          this->ArrayId, this->ArrayName, cellFlag);
@@ -154,30 +154,30 @@ vtkUnsignedCharArray *vtkPolyDataMapper2D::MapScalars(double alpha)
     // from the mapper.  It is now in the lookuptable.  When this feature
     // is removed, we can remove this condition.
     if (scalars == NULL || scalars->GetNumberOfComponents() <= this->ArrayComponent)
-      {
+    {
       this->ArrayComponent = 0;
-      }
+    }
 
     if (scalars)
-      {
+    {
       vtkDataArray *dataArray = vtkArrayDownCast<vtkDataArray>(scalars);
       if (dataArray && dataArray->GetLookupTable())
-        {
+      {
         this->SetLookupTable(dataArray->GetLookupTable());
-        }
+      }
       else
-        {
+      {
         // make sure we have a lookup table
         if (this->LookupTable == NULL)
-          {
-          this->CreateDefaultLookupTable();
-          }
-        this->LookupTable->Build();
-        }
-      if (!this->UseLookupTableScalarRange)
         {
-        this->LookupTable->SetRange(this->ScalarRange);
+          this->CreateDefaultLookupTable();
         }
+        this->LookupTable->Build();
+      }
+      if (!this->UseLookupTableScalarRange)
+      {
+        this->LookupTable->SetRange(this->ScalarRange);
+      }
       this->LookupTable->SetAlpha(alpha);
       // Map Scalar constructs a array and returns it.
       // Not having "New" or "Make" in the name breaks VTK conventions but, ...
@@ -185,8 +185,8 @@ vtkUnsignedCharArray *vtkPolyDataMapper2D::MapScalars(double alpha)
         MapScalars(scalars, this->ColorMode, this->ArrayComponent);
       this->Colors->Register(this);
       this->Colors->Delete();
-      }
     }
+  }
 
   return this->Colors;
 }
@@ -196,9 +196,9 @@ void vtkPolyDataMapper2D::ColorByArrayComponent(int arrayNum, int component)
 {
   if (this->ArrayId == arrayNum && component == this->ArrayComponent &&
       this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
-    {
+  {
     return;
-    }
+  }
   this->Modified();
 
   this->ArrayId = arrayNum;
@@ -212,9 +212,9 @@ void vtkPolyDataMapper2D::ColorByArrayComponent(char* arrayName, int component)
   if (strcmp(this->ArrayName, arrayName) == 0 &&
       component == this->ArrayComponent &&
       this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
-    {
+  {
     return;
-    }
+  }
   this->Modified();
 
   strcpy(this->ArrayName, arrayName);
@@ -227,27 +227,27 @@ void vtkPolyDataMapper2D::ColorByArrayComponent(char* arrayName, int component)
 void vtkPolyDataMapper2D::SetLookupTable(vtkScalarsToColors *lut)
 {
   if (this->LookupTable != lut)
-    {
+  {
     if (lut)
-      {
+    {
       lut->Register(this);
-      }
+    }
     if (this->LookupTable)
-      {
+    {
       this->LookupTable->UnRegister(this);
-      }
+    }
     this->LookupTable = lut;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 vtkScalarsToColors* vtkPolyDataMapper2D::GetLookupTable()
 {
   if (this->LookupTable == NULL)
-    {
+  {
     this->CreateDefaultLookupTable();
-    }
+  }
   return this->LookupTable;
 }
 
@@ -255,9 +255,9 @@ vtkScalarsToColors* vtkPolyDataMapper2D::GetLookupTable()
 void vtkPolyDataMapper2D::CreateDefaultLookupTable()
 {
   if (this->LookupTable)
-    {
+  {
     this->LookupTable->UnRegister(this);
-    }
+  }
   vtkLookupTable* table = vtkLookupTable::New();
   this->LookupTable = table;
   this->LookupTable->Register(this);
@@ -270,7 +270,7 @@ void vtkPolyDataMapper2D::CreateDefaultLookupTable()
 
   vtkDataArray *dataArray = vtkArrayDownCast<vtkDataArray>(abstractArray);
   if (abstractArray && !dataArray)
-    {
+  {
     // Use indexed lookup for non-numeric arrays
     this->LookupTable->IndexedLookupOn();
 
@@ -280,10 +280,10 @@ void vtkPolyDataMapper2D::CreateDefaultLookupTable()
     vtkIdType numProminentValues = prominentValues->GetNumberOfValues();
     table->SetNumberOfTableValues(numProminentValues);
     for (vtkIdType i = 0; i < numProminentValues; ++i)
-      {
+    {
       vtkVariant & variant = prominentValues->GetValue(i);
       this->LookupTable->SetAnnotation(variant, variant.ToString());
-      }
+    }
     prominentValues->Delete();
 
     // Set colors for annotations
@@ -291,7 +291,7 @@ void vtkPolyDataMapper2D::CreateDefaultLookupTable()
     colorSeries->SetColorScheme(vtkColorSeries::BREWER_QUALITATIVE_PAIRED);
     colorSeries->BuildLookupTable(table, vtkColorSeries::CATEGORICAL);
     colorSeries->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -307,21 +307,21 @@ void vtkPolyDataMapper2D::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   if (this->LookupTable)
-    {
+  {
     os << indent << "Lookup Table:\n";
     this->LookupTable->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Lookup Table: (none)\n";
-    }
+  }
 
   os << indent << "Scalar Visibility: "
     << (this->ScalarVisibility ? "On\n" : "Off\n");
 
   os << indent << "Scalar Mode: ";
   switch ( this->ScalarMode )
-    {
+  {
     case VTK_SCALAR_MODE_DEFAULT:
       os << "Default" << endl;
       break;
@@ -337,7 +337,7 @@ void vtkPolyDataMapper2D::PrintSelf(ostream& os, vtkIndent indent)
     case VTK_SCALAR_MODE_USE_CELL_FIELD_DATA:
       os << "Use cell field data" << endl;
       break;
-    }
+  }
 
   double *range = this->GetScalarRange();
   os << indent << "Scalar Range: ("
@@ -349,15 +349,15 @@ void vtkPolyDataMapper2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Color Mode: " << this->GetColorModeAsString() << endl;
 
   if (this->TransformCoordinate)
-    {
+  {
     os << indent << "Transform Coordinate: "
        << this->TransformCoordinate << "\n";
     this->TransformCoordinate->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "No Transform Coordinate\n";
-    }
+  }
   os << indent << "Transform Coordinate use double: "
      << (this->TransformCoordinateUseDouble  ? "True\n" : "False\n") << "\n";
 }

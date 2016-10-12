@@ -88,9 +88,9 @@ vtkImplicitModeller::vtkImplicitModeller()
 vtkImplicitModeller::~vtkImplicitModeller()
 {
   if (this->Threader)
-    {
+  {
     this->Threader->Delete();
-    }
+  }
 }
 
 
@@ -103,23 +103,23 @@ void vtkImplicitModeller::SetOutputScalarType(int type)
 
   scalarMax = this->GetScalarTypeMax(type);
   if (scalarMax) // legal type
-    {
+  {
     int modified = 0;
     if (this->CapValue != scalarMax)
-      {
+    {
       this->CapValue = scalarMax;
       modified = 1;
-      }
+    }
     if (this->OutputScalarType != type)
-      {
+    {
       this->OutputScalarType = type;
       modified = 1;
-      }
-    if (modified)
-      {
-      this->Modified();
-      }
     }
+    if (modified)
+    {
+      this->Modified();
+    }
+  }
 }
 
 void vtkImplicitModeller::SetCapValue(double value)
@@ -129,17 +129,17 @@ void vtkImplicitModeller::SetCapValue(double value)
   // clamp to between 0 and max for scalar type
   double max = this->GetScalarTypeMax(this->OutputScalarType);
   if (this->CapValue != (value < 0 ? 0 : (value > max ? max : value)))
-    {
+  {
     this->CapValue = (value < 0 ? 0 : (value > max ? max : value));
     this->Modified();
-    }
+  }
 }
 
 
 double vtkImplicitModeller::GetScalarTypeMax(int type)
 {
   switch (type)
-    {
+  {
     case VTK_UNSIGNED_CHAR:  return (double)VTK_UNSIGNED_CHAR_MAX;
     case VTK_CHAR:           return (double)VTK_CHAR_MAX;
     case VTK_UNSIGNED_SHORT: return (double)VTK_UNSIGNED_SHORT_MAX;
@@ -151,7 +151,7 @@ double vtkImplicitModeller::GetScalarTypeMax(int type)
     case VTK_FLOAT:          return (double)VTK_FLOAT_MAX;
     case VTK_DOUBLE:         return (double)VTK_DOUBLE_MAX;
     default: return 0;
-    }
+  }
 }
 
 
@@ -172,11 +172,11 @@ void vtkImplicitModeller::StartAppend(int internal)
   double maxDistance;
 
   if (!internal)
-    {
+  {
     // we must call update information because we can't be sure that
     // it has been called.
     this->UpdateInformation();
-    }
+  }
   vtkInformation* outInfo = this->GetOutputInformation(0);
   outInfo->Set(
     vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
@@ -195,9 +195,9 @@ void vtkImplicitModeller::StartAppend(int internal)
   maxDistance = this->CapValue;
   vtkDataArray *newScalars = this->GetOutput()->GetPointData()->GetScalars();
   for (i=0; i<numPts; i++)
-    {
+  {
     newScalars->SetComponent(i, 0, maxDistance);
-    }
+  }
 }
 
 
@@ -206,17 +206,17 @@ void SetOutputDistance(double distance, OT *outputValue, double capValue, double
 {
   // for now, just doing "normal" cast... could consider doing round?
   if (scaleFactor)  // need to scale the distance
-    {
+  {
     *outputValue = static_cast<OT>(distance * scaleFactor);
-    }
+  }
   else
-    {
+  {
     if (capValue && distance > capValue) // clamping iff non-float type
-      {
+    {
       distance = capValue;
-      }
-    *outputValue = static_cast<OT>(distance);
     }
+    *outputValue = static_cast<OT>(distance);
+  }
 }
 
 
@@ -227,13 +227,13 @@ void ConvertToDoubleDistance(const OT &inDistance, double &distance,
                              double &distance2, double scaleFactor)
 {
   if (scaleFactor)
-    {
+  {
     distance = inDistance * scaleFactor;
-    }
+  }
   else
-    {
+  {
     distance = inDistance;
-    }
+  }
   distance2 = distance * distance;
 }
 
@@ -271,81 +271,81 @@ void vtkImplicitModellerAppendExecute(vtkImplicitModeller *self,
   double capValue = 0; // 0 used to indicate not clamping (float or double)
   if (self->GetOutputScalarType() != VTK_FLOAT &&
     self->GetOutputScalarType() != VTK_DOUBLE)
-    {
+  {
     capValue = self->GetCapValue();
     if (self->GetScaleToMaximumDistance())
-      {
+    {
       scaleFactor = capValue / maxDistance;
       toDoubleScaleFactor = maxDistance / capValue;
-      }
     }
+  }
 
   int testIndex = 0;
   for (k = outExt[4]; k <= outExt[5]; k++)
-    {
+  {
     x[2] = spacing[2] * k + origin[2];
     for (j = outExt[2]; j <= outExt[3]; j++)
-      {
+    {
       cellId = -1;
       x[1] = spacing[1] * j + origin[1];
       OT* outSI = outIt.BeginSpan();
       for (i = outExt[0]; i <= outExt[1]; i++, testIndex++)
-        {
+      {
         x[0] = spacing[0] * i + origin[0];
         ConvertToDoubleDistance(*outSI, prevDistance, prevDistance2,
           toDoubleScaleFactor);
         betterDistance = -1;
 
         if (cellId != -1)
-          {
+        {
           cell->EvaluatePosition(x, closestPoint, subId, pcoords,
             distance2, weights);
           if (distance2 <= maxDistance2 && distance2 < prevDistance2)
-            {
+          {
             mDist = sqrt(distance2);
             betterDistance = mDist;
-            }
+          }
           else if (prevDistance2 < maxDistance2)
-            {
+          {
             mDist = prevDistance;
-            }
+          }
           else
-            {
+          {
             mDist = maxDistance;
-            }
           }
+        }
         else if (prevDistance2 < maxDistance2)
-          {
+        {
           mDist = prevDistance;
-          }
+        }
         else
-          {
+        {
           mDist = maxDistance;
-          }
+        }
 
         if (locator->FindClosestPointWithinRadius(x, mDist,
           closestPoint, cell, cellId, subId, distance2) )
-          {
+        {
           if(distance2 <= prevDistance2)
-            {
-            betterDistance = sqrt(distance2);
-            }
-          }
-        else
           {
-          cellId = -1;
+            betterDistance = sqrt(distance2);
           }
+        }
+        else
+        {
+          cellId = -1;
+        }
 
         if (betterDistance != -1)
-          {
+        {
           SetOutputDistance(betterDistance, outSI, capValue, scaleFactor);
-          }
+        }
 
         outSI++;
-        }
-      outIt.NextSpan();
       }
+      outIt.NextSpan();
     }
+  }
   cell->Delete();
   delete [] weights;
 }
@@ -379,9 +379,9 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend( void *arg )
     (((vtkMultiThreader::ThreadInfo *)(arg))->UserData);
 
   if (userData->Input[threadId] == NULL)
-    {
+  {
     return VTK_THREAD_RETURN_VALUE;
-    }
+  }
 
   maxDistance = userData->MaximumDistance;
 
@@ -391,68 +391,68 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend( void *arg )
 
   int *sampleDimensions = userData->Modeller->GetSampleDimensions();
   if (!output->GetPointData()->GetScalars())
-    {
+  {
     vtkGenericWarningMacro("Sanity check failed.");
     return VTK_THREAD_RETURN_VALUE;
-    }
+  }
 
   // break up into slabs based on threadId and threadCount
   slabSize = sampleDimensions[2] / threadCount;
   if (slabSize == 0) // in case threadCount >  sampleDimensions[2]
-    {
+  {
     slabSize = 1;
-    }
+  }
   slabMin = threadId * slabSize;
   if (slabMin >= sampleDimensions[2])
-    {
+  {
     return VTK_THREAD_RETURN_VALUE;
-    }
+  }
   slabMax = slabMin + slabSize - 1;
   if (threadId == threadCount - 1)
-    {
+  {
     slabMax = sampleDimensions[2] - 1;
-    }
+  }
 
 
   bounds = userData->Input[threadId]->GetBounds();
   for (i=0; i<3; i++)
-    {
+  {
     adjBounds[2*i] = bounds[2*i] - maxDistance;
     adjBounds[2*i+1] = bounds[2*i+1] + maxDistance;
-    }
+  }
 
   // compute dimensional bounds in data set
   for (i = 0; i < 3; i++)
-    {
+  {
     outExt[i*2] = (int) ((double)(adjBounds[2*i] - origin[i]) /
       spacing[i]);
     outExt[i*2+1] = (int) ((double)(adjBounds[2*i+1] - origin[i]) /
       spacing[i]);
     if (outExt[i*2] < 0)
-      {
+    {
       outExt[i*2] = 0;
-      }
-    if (outExt[i*2+1] >= sampleDimensions[i])
-      {
-      outExt[i*2+1] = sampleDimensions[i] - 1;
-      }
     }
+    if (outExt[i*2+1] >= sampleDimensions[i])
+    {
+      outExt[i*2+1] = sampleDimensions[i] - 1;
+    }
+  }
 
   // input not close enough to effect this slab
   if (outExt[4] > slabMax || outExt[5] < slabMin)
-    {
+  {
     return VTK_THREAD_RETURN_VALUE;
-    }
+  }
 
   // adjust min/max to match slab
   if (outExt[4] < slabMin)
-    {
+  {
     outExt[4] = slabMin;
-    }
+  }
   if (outExt[5] > slabMax)
-    {
+  {
     outExt[5] = slabMax;
-    }
+  }
 
   vtkCellLocator *locator = vtkCellLocator::New();
 
@@ -469,7 +469,7 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend( void *arg )
   locator->BuildLocator();
 
   switch (userData->Modeller->GetOutputScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImplicitModellerAppendExecute(
         userData->Modeller,
@@ -479,7 +479,7 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend( void *arg )
     default:
       vtkGenericWarningMacro("Execute: Unknown output ScalarType");
       return VTK_THREAD_RETURN_VALUE;
-    }
+  }
 
   locator->Delete();
   return VTK_THREAD_RETURN_VALUE;
@@ -517,14 +517,14 @@ void vtkImplicitModellerAppendExecute(vtkImplicitModeller *self,
   double capValue = 0; // 0 used to indicate not clamping (float or double)
   if (self->GetOutputScalarType() != VTK_FLOAT &&
     self->GetOutputScalarType() != VTK_DOUBLE)
-    {
+  {
     capValue = self->GetCapValue();
     if (self->GetScaleToMaximumDistance())
-      {
+    {
       scaleFactor = capValue / maxDistance;
       toDoubleScaleFactor = maxDistance / capValue;
-      }
     }
+  }
 
   //
   // Traverse all cells; computing distance function on volume points.
@@ -532,48 +532,48 @@ void vtkImplicitModellerAppendExecute(vtkImplicitModeller *self,
   vtkCell *cell;
   updateTime = input->GetNumberOfCells() / 50;  // update every 2%
   if (updateTime < 1)
-    {
+  {
     updateTime = 1;
-    }
+  }
 
   for (cellNum=0; cellNum < input->GetNumberOfCells(); cellNum++)
-    {
+  {
     cell = input->GetCell(cellNum);
     bounds = cell->GetBounds();
     for (i=0; i<3; i++)
-      {
+    {
       adjBounds[2*i] = bounds[2*i] - maxDistance;
       adjBounds[2*i+1] = bounds[2*i+1] + maxDistance;
-      }
+    }
 
     // compute dimensional bounds in data set
     for (i = 0; i < 3; i++)
-      {
+    {
       outExt[i*2] = (int) ((double)(adjBounds[2*i] - origin[i]) /
         spacing[i]);
       outExt[i*2 + 1] = (int) ((double)(adjBounds[2*i+1] - origin[i]) /
         spacing[i]);
       if (outExt[i*2] < 0)
-        {
+      {
         outExt[i*2] = 0;
-        }
-      if (outExt[i*2 + 1] >= sampleDimensions[i])
-        {
-        outExt[i*2 + 1] = sampleDimensions[i] - 1;
-        }
       }
+      if (outExt[i*2 + 1] >= sampleDimensions[i])
+      {
+        outExt[i*2 + 1] = sampleDimensions[i] - 1;
+      }
+    }
 
     vtkImageIterator<OT> outIt(outData, outExt);
 
     for (k = outExt[4]; k <= outExt[5]; k++)
-      {
+    {
       x[2] = spacing[2] * k + origin[2];
       for (j = outExt[2]; j <= outExt[3]; j++)
-        {
+      {
         x[1] = spacing[1] * j + origin[1];
         OT* outSI = outIt.BeginSpan();
         for (i = outExt[0]; i <= outExt[1]; i++)
-          {
+        {
           x[0] = spacing[0] * i + origin[0];
 
           ConvertToDoubleDistance(*outSI, distance, prevDistance2,
@@ -583,21 +583,21 @@ void vtkImplicitModellerAppendExecute(vtkImplicitModeller *self,
           if ( cell->EvaluatePosition(x, closestPoint, subId, pcoords,
             distance2, weights) != -1 && distance2 < prevDistance2 &&
             distance2 <= maxDistance2 )
-            {
+          {
             distance = sqrt(distance2);
             SetOutputDistance(distance, outSI, capValue, scaleFactor);
-            }
-          outSI++;
           }
-        outIt.NextSpan();
+          outSI++;
         }
-      }
-
-    if (cellNum % updateTime == 0)
-      {
-      self->UpdateProgress(double(cellNum + 1) / input->GetNumberOfCells());
+        outIt.NextSpan();
       }
     }
+
+    if (cellNum % updateTime == 0)
+    {
+      self->UpdateProgress(double(cellNum + 1) / input->GetNumberOfCells());
+    }
+  }
   delete [] weights;
 }
 
@@ -615,30 +615,30 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
   vtkImageData *output = this->GetOutput();
 
   if ( !this->BoundsComputed )
-    {
+  {
     this->ComputeModelBounds(input);
-    }
+  }
 
   if (this->ProcessMode == VTK_CELL_MODE)
-    {
+  {
     if (!output->GetPointData()->GetScalars())
-      {
+    {
       vtkErrorMacro("Sanity check failed.");
       return;
-      }
+    }
 
     switch (this->OutputScalarType)
-      {
+    {
       vtkTemplateMacro(
         vtkImplicitModellerAppendExecute( this,
                                           input,
                                           output,
                                           this->InternalMaxDistance,
                                           static_cast<VTK_TT *>(0)));
-     }
     }
+  }
   else
-    {
+  {
     vtkImplicitModellerAppendInfo info;
     double minZ, maxZ;
     int slabMin, slabMax, slabSize, i;
@@ -662,18 +662,18 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
 
     info.Input = new vtkDataSet* [this->NumberOfThreads];
     if (this->NumberOfThreads == 1)
-      {
+    {
       info.Input[0] = input;
-      }
+    }
     else
-      {
+    {
       // if not PolyData, then copy the input for each thread
       if ( input->GetDataObjectType() != VTK_POLY_DATA )
-        {
+      {
         for (i = 0; i < this->NumberOfThreads; i++)
-          {
+        {
           switch( input->GetDataObjectType() )
-            {
+          {
             case VTK_STRUCTURED_GRID:
               info.Input[i] = vtkStructuredGrid::New();
               break;
@@ -690,13 +690,13 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
               vtkErrorMacro(<<"Unexpected DataSet type!");
               delete [] info.Input;
               return;
-            }
-          info.Input[i]->CopyStructure(input);
           }
+          info.Input[i]->CopyStructure(input);
         }
+      }
       else // break up the input data into slabs to help ensure thread safety
 
-        {
+      {
         minClipper = new vtkClipPolyData* [this->NumberOfThreads];
         maxClipper = new vtkClipPolyData* [this->NumberOfThreads];
         minPlane = new vtkPlane* [this->NumberOfThreads];
@@ -704,27 +704,27 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
 
         slabSize = this->SampleDimensions[2] / this->NumberOfThreads;
         if (slabSize == 0) // in case threadCount >  SampleDimensions[2]
-          {
+        {
           slabSize = 1;
-          }
+        }
 
         for (i = 0; i < this->NumberOfThreads; i++)
-          {
+        {
           minPlane[i] = maxPlane[i] = 0;
           //////////////////////////////////////////////////
           // do the 1st clip
           slabMin = i * slabSize;
           if (slabMin >= this->SampleDimensions[2])
-            {
+          {
             break;
-            }
+          }
 
           // get/clip input cells in this slab + maxDistance+
           minZ = spacing[2] * slabMin + origin[2] - this->InternalMaxDistance*1.00001;
           if (minZ < this->ModelBounds[4])
-            {
+          {
             minZ = this->ModelBounds[4];
-            }
+          }
 
           minPlane[i] = vtkPlane::New();
           minPlane[i]->SetNormal(0.0, 0.0, -1.0);
@@ -738,26 +738,26 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
           minClipper[i]->Update();
 
           if ( minClipper[i]->GetOutput()->GetNumberOfCells() == 0 )
-            {
+          {
             info.Input[i] = NULL;
             maxPlane[i] = NULL;
             continue;
-            }
+          }
           minClipper[i]->ReleaseDataFlagOn();
 
           //////////////////////////////////////////////////
           // do the 2nd clip
           slabMax = slabMin + slabSize - 1;
           if (i == this->NumberOfThreads - 1)
-            {
+          {
             slabMax = this->SampleDimensions[2] - 1;
-            }
+          }
 
           maxZ = spacing[2] * slabMax + origin[2] + this->InternalMaxDistance*1.00001;
           if (maxZ > this->ModelBounds[5])
-            {
+          {
             maxZ = this->ModelBounds[5];
-            }
+          }
           maxPlane[i] = vtkPlane::New();
           maxPlane[i]->SetNormal(0.0, 0.0, 1.0);
           maxPlane[i]->SetOrigin(0.0, 0.0, maxZ);
@@ -770,20 +770,20 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
           maxClipper[i]->Update();
 
           if ( maxClipper[i]->GetOutput()->GetNumberOfCells() == 0 )
-            {
-            info.Input[i] = NULL;
-            }
-          else
-            {
-            info.Input[i] = maxClipper[i]->GetOutput();
-            }
-          }
-        for (i++; i < this->NumberOfThreads; i++)
           {
-          minPlane[i] = maxPlane[i] = 0;
+            info.Input[i] = NULL;
+          }
+          else
+          {
+            info.Input[i] = maxClipper[i]->GetOutput();
           }
         }
+        for (i++; i < this->NumberOfThreads; i++)
+        {
+          minPlane[i] = maxPlane[i] = 0;
+        }
       }
+    }
 
     this->Threader->SetSingleMethod( vtkImplicitModeller_ThreadedAppend,
       (void *)&info);
@@ -791,37 +791,37 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
 
     // cleanup
     if (this->NumberOfThreads > 1)
-      {
+    {
       if ( input->GetDataObjectType() != VTK_POLY_DATA )
-        {
+      {
         for (i = 0; i < this->NumberOfThreads; i++)
-          {
+        {
           info.Input[i]->Delete();
-          }
         }
+      }
       else
-        {
+      {
         for (i = 0; i < this->NumberOfThreads; i++)
-          {
+        {
           if (minPlane[i])
-            {
+          {
             minPlane[i]->Delete();
             minClipper[i]->Delete();
-            }
+          }
           if (maxPlane[i])
-            {
+          {
             maxPlane[i]->Delete();
             maxClipper[i]->Delete();
-            }
           }
+        }
         delete [] minPlane;
         delete [] maxPlane;
         delete [] minClipper;
         delete [] maxClipper;
-        }
       }
-    delete [] info.Input;
     }
+    delete [] info.Input;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -832,15 +832,15 @@ void vtkImplicitModeller::EndAppend()
   vtkDebugMacro(<< "End append");
 
   if (!(newScalars =this->GetOutput()->GetPointData()->GetScalars()))
-    {
+  {
     vtkErrorMacro("Sanity check failed.");
     return;
-    }
+  }
 
   if ( this->Capping )
-    {
+  {
     this->Cap(newScalars);
-    }
+  }
   this->UpdateProgress(1.0);
 }
 
@@ -864,18 +864,18 @@ int vtkImplicitModeller::RequestInformation (
                0, this->SampleDimensions[2]-1);
 
   for (i=0; i < 3; i++)
-    {
+  {
     origin[i] = this->ModelBounds[2*i];
     if ( this->SampleDimensions[i] <= 1 )
-      {
+    {
       ar[i] = 1;
-      }
+    }
     else
-      {
+    {
       ar[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
               / (this->SampleDimensions[i] - 1);
-      }
     }
+  }
   outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
   outInfo->Set(vtkDataObject::SPACING(),ar,3);
 
@@ -896,11 +896,11 @@ int vtkImplicitModeller::RequestData(
   vtkDebugMacro(<< "Executing implicit model");
 
   if (input == NULL)
-    {
+  {
     // we do not want to release the data because user might
     // have called Append ...
     return 0;
-    }
+  }
 
   this->StartAppend(1);
   this->Append(input);
@@ -921,57 +921,57 @@ double vtkImplicitModeller::ComputeModelBounds(vtkDataSet *input)
   if ( this->ModelBounds[0] >= this->ModelBounds[1] ||
        this->ModelBounds[2] >= this->ModelBounds[3] ||
        this->ModelBounds[4] >= this->ModelBounds[5] )
-    {
+  {
     if (input != NULL)
-      {
+    {
       bounds = input->GetBounds();
-      }
+    }
     else
-      {
+    {
       vtkDataSet *dsInput = vtkDataSet::SafeDownCast(this->GetInput());
       if (dsInput != NULL)
-        {
+      {
         bounds = dsInput->GetBounds();
-        }
+      }
       else
-        {
+      {
         vtkErrorMacro(
           << "An input must be specified to Compute the model bounds.");
         return VTK_FLOAT_MAX;
-        }
       }
     }
+  }
   else
-    {
+  {
     bounds = this->ModelBounds;
-    }
+  }
 
   for (maxDist=0.0, i=0; i<3; i++)
-    {
+  {
     if ( (bounds[2*i+1] - bounds[2*i]) > maxDist )
-      {
+    {
       maxDist = bounds[2*i+1] - bounds[2*i];
-      }
     }
+  }
 
   // adjust bounds so model fits strictly inside (only if not set previously)
   if ( this->AdjustBounds )
-    {
+  {
     for (i=0; i<3; i++)
-      {
+    {
       this->ModelBounds[2*i] = bounds[2*i] - maxDist*this->AdjustDistance;
       this->ModelBounds[2*i+1] = bounds[2*i+1] + maxDist*this->AdjustDistance;
-      }
     }
+  }
   else  // to handle problem case where bounds not specified and AdjustBounds
     //  not on; will be setting ModelBounds to self if previosusly set
-    {
+  {
     for (i=0; i<3; i++)
-      {
+    {
       this->ModelBounds[2*i] = bounds[2*i];
       this->ModelBounds[2*i+1] = bounds[2*i+1];
-      }
     }
+  }
 
   maxDist *= this->MaximumDistance;
 
@@ -981,10 +981,10 @@ double vtkImplicitModeller::ComputeModelBounds(vtkDataSet *input)
                     this->ModelBounds[4]);
 
   for (i=0; i<3; i++)
-    {
+  {
     tempd[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
       / (this->SampleDimensions[i] - 1);
-    }
+  }
   output->SetSpacing(tempd);
 
   vtkInformation *outInfo = this->GetExecutive()->GetOutputInformation(0);
@@ -1021,34 +1021,34 @@ void vtkImplicitModeller::SetSampleDimensions(int dim[3])
   if ( dim[0] != this->SampleDimensions[0] ||
        dim[1] != this->SampleDimensions[1] ||
        dim[2] != this->SampleDimensions[2] )
-    {
+  {
     if ( dim[0]<1 || dim[1]<1 || dim[2]<1 )
-      {
+    {
       vtkErrorMacro (<< "Bad Sample Dimensions, retaining previous values");
       return;
-      }
+    }
 
     for (dataDim=0, i=0; i<3 ; i++)
-      {
+    {
       if (dim[i] > 1)
-        {
+      {
         dataDim++;
-        }
       }
+    }
 
     if ( dataDim  < 3 )
-      {
+    {
       vtkErrorMacro(<<"Sample dimensions must define a volume!");
       return;
-      }
+    }
 
     for ( i=0; i<3; i++)
-      {
+    {
       this->SampleDimensions[i] = dim[i];
-      }
+    }
 
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1060,67 +1060,67 @@ void vtkImplicitModeller::Cap(vtkDataArray *s)
 
 // i-j planes
   for (j=0; j<this->SampleDimensions[1]; j++)
-    {
+  {
     for (i=0; i<this->SampleDimensions[0]; i++)
-      {
+    {
       s->SetComponent(i+j*this->SampleDimensions[0],0, this->CapValue);
-      }
     }
+  }
   k = this->SampleDimensions[2] - 1;
   idx = k*d01;
   for (j=0; j<this->SampleDimensions[1]; j++)
-    {
+  {
     for (i=0; i<this->SampleDimensions[0]; i++)
-      {
+    {
       s->SetComponent(idx+i+j*this->SampleDimensions[0], 0, this->CapValue);
-      }
     }
+  }
   // j-k planes
   for (k=0; k<this->SampleDimensions[2]; k++)
-    {
+  {
     for (j=0; j<this->SampleDimensions[1]; j++)
-      {
+    {
       s->SetComponent(j*this->SampleDimensions[0]+k*d01,0,this->CapValue);
-      }
     }
+  }
   i = this->SampleDimensions[0] - 1;
   for (k=0; k<this->SampleDimensions[2]; k++)
-    {
+  {
     for (j=0; j<this->SampleDimensions[1]; j++)
-      {
+    {
       s->SetComponent(i+j*this->SampleDimensions[0]+k*d01,0, this->CapValue);
-      }
     }
+  }
   // i-k planes
   for (k=0; k<this->SampleDimensions[2]; k++)
-    {
+  {
     for (i=0; i<this->SampleDimensions[0]; i++)
-      {
+    {
       s->SetComponent(i+k*d01,0, this->CapValue);
-      }
     }
+  }
   j = this->SampleDimensions[1] - 1;
   idx = j*this->SampleDimensions[0];
   for (k=0; k<this->SampleDimensions[2]; k++)
-    {
+  {
     for (i=0; i<this->SampleDimensions[0]; i++)
-      {
+    {
       s->SetComponent(idx+i+k*d01,0, this->CapValue);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
 const char *vtkImplicitModeller::GetProcessModeAsString()
 {
   if (this->ProcessMode == VTK_CELL_MODE)
-    {
+  {
     return "PerCell";
-    }
+  }
   else
-    {
+  {
     return "PerVoxel";
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1140,21 +1140,21 @@ int vtkImplicitModeller::ProcessRequest(vtkInformation* request,
   // If we have no input then we will not generate the output because
   // the user already called StartAppend/Append/EndAppend.
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_NOT_GENERATED()))
-    {
+  {
     if(inputVector[0]->GetNumberOfInformationObjects() == 0)
-      {
+    {
       vtkInformation* outInfo = outputVector->GetInformationObject(0);
       outInfo->Set(vtkDemandDrivenPipeline::DATA_NOT_GENERATED(), 1);
-      }
+    }
     return 1;
-    }
+  }
   else if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
+  {
     if(inputVector[0]->GetNumberOfInformationObjects() == 0)
-      {
+    {
       return 1;
-      }
     }
+  }
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 

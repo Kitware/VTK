@@ -18,17 +18,20 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// .NAME vtkNrrdReader - Read nrrd files file system
-//
-// .SECTION Description
-//
-// .SECTION Bugs
-//
-// There are several limitations on what type of nrrd files we can read.  This
-// reader only supports nrrd files in raw or ascii format.  Other encodings
-// like hex will result in errors.  When reading in detached headers, this only
-// supports reading one file that is detached.
-//
+/**
+ * @class   vtkNrrdReader
+ * @brief   Read nrrd files file system
+ *
+ *
+ *
+ *
+ * @bug
+ * There are several limitations on what type of nrrd files we can read.  This
+ * reader only supports nrrd files in raw or ascii format.  Other encodings
+ * like hex will result in errors.  When reading in detached headers, this only
+ * supports reading one file that is detached.
+ *
+*/
 
 #ifndef vtkNrrdReader_h
 #define vtkNrrdReader_h
@@ -75,8 +78,8 @@ protected:
   int Encoding;
 
 private:
-  vtkNrrdReader(const vtkNrrdReader &);       // Not implemented.
-  void operator=(const vtkNrrdReader &);        // Not implemented.
+  vtkNrrdReader(const vtkNrrdReader &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkNrrdReader &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkNrrdReader_h

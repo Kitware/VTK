@@ -136,22 +136,22 @@ void FindMinMax(
   int size0 = tex->GetWidth();
   size_t nBlocks = blockExts.size();
   for (size_t e=0; e<nBlocks; ++e)
-    {
+  {
     const vtkPixelExtent &blockExt = blockExts[e];
     for (int j=blockExt[2]; j<=blockExt[3]; ++j)
-      {
+    {
       for (int i=blockExt[0]; i<=blockExt[1]; ++i)
-        {
+      {
         size_t id = 4*(size0*j+i);
         if (pHSLColors[id+3] != 0.0f)
-          {
+        {
           float L = pHSLColors[id+2];
           min = min > L ? L : min;
           max = max < L ? L : max;
-          }
         }
       }
     }
+  }
   pbo->UnmapPackedBuffer();
   pbo->Delete();
   #if  vtkSurfaceLICPainterDEBUG >= 1
@@ -174,38 +174,38 @@ void StreamingFindMinMax(
   vtkStaticCheckFrameBufferStatusMacro(vtkgl::FRAMEBUFFER_EXT);
   vector<vtkPixelBufferObject*> pbos(nBlocks, NULL);
   for (size_t e=0; e<nBlocks; ++e)
-    {
+  {
     pbos[e] = fbo->Download(
           blockExts[e].GetData(),
           VTK_FLOAT,
           4,
           GL_FLOAT,
           GL_RGBA);
-    }
+  }
   fbo->RemoveTexColorAttachment(vtkgl::DRAW_FRAMEBUFFER_EXT, 0U);
   fbo->RemoveTexColorAttachment(vtkgl::DRAW_FRAMEBUFFER_EXT, 1U);
   fbo->DeactivateDrawBuffers();
   fbo->DeactivateReadBuffer();
   // map search and release each region
   for (size_t e=0; e<nBlocks; ++e)
-    {
+  {
     vtkPixelBufferObject *&pbo = pbos[e];
     float *pColors = (float*)pbo->MapPackedBuffer();
 
     size_t n = blockExts[e].Size();
     for (size_t i = 0; i<n; ++i)
-      {
+    {
       if (pColors[4*i+3] != 0.0f)
-        {
+      {
         float L = pColors[4*i+2];
         min = min > L ? L : min;
         max = max < L ? L : max;
-        }
       }
+    }
     pbo->UnmapPackedBuffer();
     pbo->Delete();
     pbo = NULL;
-    }
+  }
   #if vtkSurfaceLICPainterDEBUG >= 1
   cerr << "min=" << min << " max=" << max << endl;
   #endif
@@ -217,14 +217,14 @@ integer log base 2
 int ilog2(unsigned int n)
 {
   if (n == 0)
-    {
+  {
     return -1;
-    }
+  }
   unsigned int r = 0;
   while ((n >>= 1))
-    {
+  {
     r += 1;
-    }
+  }
   return r;
 }
 
@@ -238,26 +238,26 @@ class RandomNumberGeneratorInterface
 {
 public:
   RandomNumberGeneratorInterface()
-    {
+  {
     this->RNG = vtkMinimalStandardRandomSequence::New();
-    }
+  }
 
   ~RandomNumberGeneratorInterface()
-    {
+  {
     this->RNG->Delete();
-    }
+  }
 
   /**
   Seed the random number generator
   */
   void SetSeed(int seedVal)
-    {
+  {
     #if 0
     srand(seedVal);
     #else
     this->RNG->SetSeed(seedVal);
     #endif
-    }
+  }
 
   /**
   Get a random number in the range of 0 to 1.
@@ -274,8 +274,8 @@ public:
   }
 
 private:
-  void operator=(const RandomNumberGeneratorInterface &); // not implemented
-  RandomNumberGeneratorInterface(const RandomNumberGeneratorInterface &); // not implemented
+  void operator=(const RandomNumberGeneratorInterface &) VTK_DELETE_FUNCTION;
+  RandomNumberGeneratorInterface(const RandomNumberGeneratorInterface &) VTK_DELETE_FUNCTION;
 
 private:
   vtkMinimalStandardRandomSequence *RNG;
@@ -312,7 +312,7 @@ public:
     UNIFORM = 0,
     GAUSSIAN = 1,
     PERLIN = 2
-    };
+  };
   float *Generate(
         int type,
         int &sideLen,
@@ -388,33 +388,33 @@ void RandomNoise2D::GetValidDimensionAndGrainSize(int type, int &sideLen, int &g
 {
   // perlin noise both side len and grain size need to be powers of 2
   if (type == PERLIN)
-    {
+  {
     sideLen = 1 << ilog2(sideLen);
     grainSize = 1 << ilog2(grainSize);
-    }
+  }
 
   // grains can't be larger than the patch
   if (sideLen < grainSize)
-    {
+  {
     sideLen = grainSize;
-    }
+  }
 
   // generate noise with agiven grainSize size on the patch
   if (sideLen % grainSize)
-    {
+  {
     // grainSize is not an even divsior of sideLen, adjust sideLen to
     // next larger even divisor
     sideLen = grainSize * (sideLen/grainSize + 1);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 int RandomNoise2D::ShouldGenerateValue(double prob)
 {
   if (this->ProbGen.GetRandomNumber() > (1.0 - prob))
-    {
+  {
     return 1;
-    }
+  }
   return 0;
 }
 
@@ -433,7 +433,7 @@ float *RandomNoise2D::Generate(
   this->GetValidDimensionAndGrainSize(type, sideLen, grainSize);
 
   switch (type)
-    {
+  {
     case GAUSSIAN:
       return this->GenerateGaussian(
             sideLen,
@@ -466,7 +466,7 @@ float *RandomNoise2D::Generate(
             impulseProb,
             impulseBgNoiseVal,
             seed);
-    }
+  }
   return NULL;
 }
 
@@ -498,23 +498,23 @@ float *RandomNoise2D::GenerateUniform(
   const int sdim2 = sdim*sdim;
   float *rvals=(float*)malloc(sdim2*sizeof(float));
   for (int i=0; i<sdim2; ++i)
-    {
+  {
     rvals[i] = impulseBgNoiseVal;
-    }
+  }
   for (int j=0; j<sdim; ++j)
-    {
+  {
      for (int i=0; i<sdim; ++i)
-       {
+     {
        int idx=j*sdim+i;
 
        if ((impulseProb == 1.0) || this->ShouldGenerateValue(impulseProb))
-         {
+       {
          int l = static_cast<int>(this->ValueGen.GetRandomNumber()*nLevels);
          l = l > maxLevel ? maxLevel : l; // needed for 1.0
          rvals[idx] = (nLevels == 1) ? maxNoiseVal : (minNoiseVal + (l*1.0f/maxLevel) * noiseRange);
-         }
        }
-    }
+     }
+  }
 
   // map single pixel random values onto a patch of values of
   // the requested grain size
@@ -523,9 +523,9 @@ float *RandomNoise2D::GenerateUniform(
   const int ntup = ncomp*dim2;
   float *noise = (float*)malloc(ntup*sizeof(float));
   for (int j=0; j<sideLen; ++j)
-    {
+  {
      for (int i=0; i<sideLen; ++i)
-       {
+     {
        int idx=ncomp*(j*sideLen+i);
 
        int ii = i/grainSize;
@@ -534,8 +534,8 @@ float *RandomNoise2D::GenerateUniform(
 
        noise[idx] = rvals[iidx];
        noise[idx+1] = 1.0f; // alpha
-       }
-    }
+     }
+  }
   free(rvals);
 
   return noise;
@@ -567,26 +567,26 @@ float *RandomNoise2D::GenerateGaussian(
   const int sdim2 = sdim*sdim;
   float *rvals = (float*)malloc(sdim2*sizeof(float));
   for (int i=0; i<sdim2; ++i)
-    {
+  {
     rvals[i] = 0.0f;
-    }
+  }
   for (int j=0; j<sdim; ++j)
-    {
+  {
     for (int i=0; i<sdim; ++i)
-      {
+    {
       int idx = j*sdim+i;
 
       if ((impulseProb == 1.0) || this->ShouldGenerateValue(impulseProb))
-        {
+      {
         double val = 0.0;
         for (int q=0; q<N; ++q)
-          {
+        {
           val += this->ValueGen.GetRandomNumber();
-          }
-        rvals[idx] = static_cast<float>(val);
         }
+        rvals[idx] = static_cast<float>(val);
       }
     }
+  }
 
   // normalize noise field from eps to nLevels onto 0 to 1
   // and restrict to the requested number of levels
@@ -594,7 +594,7 @@ float *RandomNoise2D::GenerateGaussian(
   float minVal = static_cast<float>(N+1);
   float maxVal = 0.0f;
   for (int i=0; i<sdim2; ++i)
-    {
+  {
     // for impulseProb < 1 background is 0 but pixels that are touched
     // have a much larger value, after normalization the gaussian
     // distribution is compressed and localized near 1. We can fix this
@@ -604,7 +604,7 @@ float *RandomNoise2D::GenerateGaussian(
             (rvals[i] < minVal && rvals[i] > 0.0f ? rvals[i] : minVal);
 
     maxVal = rvals[i]>maxVal ? rvals[i] : maxVal;
-    }
+  }
   float maxMinDiff = maxVal-minVal;
   // because we ignore zero when impulseProb<1 we have to be careful
   // here so that we can support one noise level.
@@ -617,7 +617,7 @@ float *RandomNoise2D::GenerateGaussian(
   maxNoiseVal = maxNoiseVal > 1.0f ? 1.0f : maxNoiseVal;
   float noiseRange = maxNoiseVal - minNoiseVal;
   for (int i=0; i<sdim2; ++i)
-    {
+  {
     // normalize
     float val = rvals[i] < minVal ? rvals[i] : (rvals[i] - minVal)/maxMinDiff;
     // restrict
@@ -626,7 +626,7 @@ float *RandomNoise2D::GenerateGaussian(
     rvals[i]
        = (rvals[i] < minVal) ? impulseBgNoiseVal
        : (nLevels == 1) ? maxNoiseVal : (minNoiseVal + (l*1.0f/maxLevel) * noiseRange);
-    }
+  }
 
   // map single pixel random values onto a patch of values of
   // the requested grain size
@@ -635,9 +635,9 @@ float *RandomNoise2D::GenerateGaussian(
   const int ntup = ncomp*dim2;
   float *noise = (float*)malloc(ntup*sizeof(float));
   for (int j=0; j<sideLen; ++j)
-    {
+  {
      for (int i=0; i<sideLen; ++i)
-       {
+     {
        int idx = ncomp*(j*sideLen+i);
 
        int ii = i/grainSize;
@@ -646,8 +646,8 @@ float *RandomNoise2D::GenerateGaussian(
 
        noise[idx] = rvals[iidx];
        noise[idx+1] = 1.0; // alpha
-       }
-    }
+     }
+  }
   free(rvals);
 
   return noise;
@@ -670,10 +670,10 @@ float *RandomNoise2D::GeneratePerlin(
   const int ntup = ncomp*dim2;
   float *noise = static_cast<float*>(malloc(ntup*sizeof(float)));
   for (int i=0; i<ntup; i+=2)
-    {
+  {
     noise[i  ] = 0.0f;
     noise[i+1] = 1.0f; // alpha channel
-    }
+  }
 
   impulseProb = impulseProb < 0.0 ? 0.0 : impulseProb;
   impulseProb = impulseProb > 1.0 ? 1.0 : impulseProb;
@@ -685,7 +685,7 @@ float *RandomNoise2D::GeneratePerlin(
   //int nIter = ilog2(static_cast<unsigned int>(sideLen-1<nLevels ? sideLen-1 : nLevels));
   int nIter = ilog2(static_cast<unsigned int>(grainSize));
   for (int w=0; w<nIter; ++w)
-    {
+  {
     // reduce range with grain size
     float levelNoiseMin = 0.0f;
     float levelNoiseMax = 0.1f + 0.9f/static_cast<float>(1<<(nIter-1-w));
@@ -735,30 +735,30 @@ float *RandomNoise2D::GeneratePerlin(
       }*/
     // accumulate
     for (int i=0; i<ntup; i+=2)
-      {
+    {
       noise[i] += levelNoise[i];
-      }
-    free(levelNoise);
     }
+    free(levelNoise);
+  }
   // normalize
   float minVal = static_cast<float>(nIter+1);
   float maxVal = 0.0f;
   for (int i=0; i<ntup; i+=2)
-    {
+  {
     float val = noise[i];
     minVal = val<minVal ? val : minVal;
     maxVal = val>maxVal ? val : maxVal;
-    }
+  }
   float maxMinDiff = maxVal - minVal;
   if ( maxMinDiff <= 0.0f )
-    {
+  {
     maxMinDiff = 1.0f;
     minVal = 0.0f;
-    }
+  }
   for (int i=0; i<ntup; i+=2)
-    {
+  {
     noise[i] = (noise[i] - minVal) / maxMinDiff;
-    }
+  }
   return noise;
 }
 
@@ -772,18 +772,19 @@ vtkImageData *vtkGetNoiseResource()
 {
   std::string base64string;
   for (unsigned int cc=0; cc < file_noise200x200_vtk_nb_sections; cc++)
-    {
+  {
     base64string += reinterpret_cast<const char*>(file_noise200x200_vtk_sections[cc]);
-    }
+  }
 
   unsigned char* binaryInput
      = new unsigned char[file_noise200x200_vtk_decoded_length + 10];
 
-  unsigned long binarylength = vtkBase64Utilities::DecodeSafely(
+  unsigned long binarylength = static_cast<unsigned long>(
+    vtkBase64Utilities::DecodeSafely(
         reinterpret_cast<const unsigned char*>(base64string.c_str()),
         base64string.length(),
         binaryInput,
-        file_noise200x200_vtk_decoded_length + 10);
+        file_noise200x200_vtk_decoded_length + 10));
 
   assert("check valid_length"
     && (binarylength == file_noise200x200_vtk_decoded_length));
@@ -820,9 +821,9 @@ public:
   vtkWeakPointer<vtkOpenGLRenderWindow> Context;
   bool GLSupport;
   int Viewsize[2];
-  long long LastInputDataSetMTime;
-  long long LastPropertyMTime;
-  long long LastLUTMTime;
+  vtkMTimeType LastInputDataSetMTime;
+  vtkMTimeType LastPropertyMTime;
+  vtkMTimeType LastLUTMTime;
 
   deque<vtkPixelExtent> BlockExts;
   vtkPixelExtent DataSetExt;
@@ -876,13 +877,13 @@ public:
   // Description:
   // Constructor
   vtkInternals()
-    {
+  {
     const int nLights = vtkLightingHelper::VTK_MAX_LIGHTS;
     for (int i=0; i<nLights; ++i)
-      {
+    {
       this->LightMonitor[i] = vtkSmartPointer<vtkOpenGLLightMonitor>::New();
       this->LightMonitor[i]->SetLightId(i);
-      }
+    }
 
     this->ViewMonitor = vtkSmartPointer<vtkOpenGLModelViewProjectionMonitor>::New();
     this->BGMonitor = vtkSmartPointer<vtkBackgroundColorMonitor>::New();
@@ -910,19 +911,19 @@ public:
 
     this->LightingHelper = vtkSmartPointer<vtkLightingHelper>::New();
     this->ColorMaterialHelper = vtkSmartPointer<vtkColorMaterialHelper>::New();
-    }
+  }
 
   // Description:
   // Destructor
   ~vtkInternals()
-    {
+  {
     this->ClearGraphicsResources();
 
     const int nLights = vtkLightingHelper::VTK_MAX_LIGHTS;
     for (int i=0; i<nLights; ++i)
-      {
+    {
       this->LightMonitor[i] = NULL;
-      }
+    }
     this->ViewMonitor = NULL;
     this->BGMonitor = NULL;
 
@@ -930,17 +931,17 @@ public:
     this->ColorMaterialHelper = NULL;
 
     delete this->Communicator;
-    }
+  }
 
   // Description:
   // Check for OpenGL support
   static bool IsSupported(vtkOpenGLRenderWindow *context)
-    {
+  {
     if (context == NULL)
-      {
+    {
       vtkGenericWarningMacro("OpenGL render window required");
       return false;
-      }
+    }
 
     bool lic2d = vtkLineIntegralConvolution2D::IsSupported(context);
 
@@ -955,7 +956,7 @@ public:
     bool support = lic2d && floatFormats && renderbuffer;
 
     if (!support)
-      {
+    {
       vtkOpenGLExtensionManager *manager = context->GetExtensionManager();
       vtkGenericWarningMacro(
         << "SurfaceLIC is not supported" << endl
@@ -967,14 +968,14 @@ public:
         << "floating point texture formats = " << floatFormats << endl
         << "render buffers = " << renderbuffer);
       return false;
-      }
-    return true;
     }
+    return true;
+  }
 
   // Description:
   // Free textures and shader programs we're holding a reference to.
   void ClearGraphicsResources()
-    {
+  {
     this->ClearTextures();
 
     this->RenderGeometryPass = NULL;
@@ -988,12 +989,12 @@ public:
 
     this->LightingHelper->Initialize(0, VTK_SHADER_TYPE_VERTEX);
     this->ColorMaterialHelper->Initialize(0);
-    }
+  }
 
   // Description:
   // Free textures we're holding a reference to.
   void ClearTextures()
-    {
+  {
     this->DepthImage = NULL;
     this->GeometryImage = NULL;
     this->VectorImage = NULL;
@@ -1004,14 +1005,14 @@ public:
     this->LICImage = NULL;
     this->RGBColorImage = NULL;
     this->HSLColorImage = NULL;
-    }
+  }
 
   // Description:
   // Allocate textures.
   void AllocateTextures(
         vtkRenderWindow *context,
         int *viewsize)
-    {
+  {
     this->AllocateDepthTexture(context, viewsize, this->DepthImage);
     this->AllocateTexture(context, viewsize, this->GeometryImage, vtkTextureObject::Nearest);
     this->AllocateTexture(context, viewsize, this->VectorImage, vtkTextureObject::Linear);
@@ -1021,7 +1022,7 @@ public:
     this->AllocateTexture(context, viewsize, this->LICImage, vtkTextureObject::Nearest);
     this->AllocateTexture(context, viewsize, this->RGBColorImage, vtkTextureObject::Nearest);
     this->AllocateTexture(context, viewsize, this->HSLColorImage, vtkTextureObject::Nearest);
-    }
+  }
 
   // Description:
   // Allocate a size texture, store in the given smart pointer.
@@ -1030,9 +1031,9 @@ public:
         int *viewsize,
         vtkSmartPointer<vtkTextureObject> &tex,
         int filter = vtkTextureObject::Nearest)
-    {
+  {
     if ( !tex )
-      {
+    {
       vtkTextureObject * newTex = vtkTextureObject::New();
       newTex->SetContext(context);
       newTex->SetBaseLevel(0);
@@ -1046,8 +1047,8 @@ public:
       newTex->SetAutoParameters(0);
       tex = newTex;
       newTex->Delete();
-      }
     }
+  }
 
   // Description:
   // Allocate a size texture, store in the given smart pointer.
@@ -1056,38 +1057,38 @@ public:
         vtkRenderWindow *context,
         int *viewsize,
         vtkSmartPointer<vtkTextureObject> &tex)
-    {
+  {
     if ( !tex )
-      {
+    {
       vtkTextureObject * newTex = vtkTextureObject::New();
       newTex->SetContext(context);
       newTex->AllocateDepth(viewsize[0], viewsize[1], vtkTextureObject::Float32);
       newTex->SetAutoParameters(0);
       tex = newTex;
       newTex->Delete();
-      }
     }
+  }
   #else
   void AllocateDepthTexture(
         vtkRenderWindow *context,
         int *viewsize,
         vtkSmartPointer<vtkRenderbuffer> &buf)
-    {
+  {
     if ( !buf )
-      {
+    {
       vtkRenderbuffer * newBuf = vtkRenderbuffer::New();
       newBuf->SetContext(context);
       newBuf->CreateDepthAttachment(viewsize[0], viewsize[1]);
       buf = newBuf;
       newBuf->Delete();
-      }
     }
+  }
   #endif
 
   // Description:
   // After LIC has been computed reset/clean internal state
   void Updated()
-    {
+  {
     this->ContextNeedsUpdate = false;
     this->OutputDataNeedsUpdate = false;
     this->CommunicatorNeedsUpdate = false;
@@ -1095,13 +1096,13 @@ public:
     this->GatherNeedsUpdate = false;
     this->LICNeedsUpdate = false;
     this->ColorNeedsUpdate = false;
-    }
+  }
 
   // Description:
   // Force all stages to re-execute. Necessary if the
   // context or communicator changes.
   void UpdateAll()
-    {
+  {
     this->ContextNeedsUpdate = true;
     this->OutputDataNeedsUpdate= true;
     this->CommunicatorNeedsUpdate= true;
@@ -1109,23 +1110,23 @@ public:
     this->GatherNeedsUpdate= true;
     this->LICNeedsUpdate= true;
     this->ColorNeedsUpdate= true;
-    }
+  }
 
   // Description:
   // Convert viewport to texture coordinates
   void ViewportQuadTextureCoords(GLfloat *tcoords)
-    {
+  {
     tcoords[0] = tcoords[2] = 0.0f;
     tcoords[1] = tcoords[3] = 1.0f;
-    }
+  }
 
   // Description:
   // Convert a viewport to a bounding box and it's texture coordinates for a
   // screen size texture.
   void ViewportQuadPoints(const vtkPixelExtent &viewportExt, GLfloat *quadpts)
-    {
+  {
     viewportExt.GetData(quadpts);
-    }
+  }
 
   // Description:
   // Convert a viewport to a bounding box and it's texture coordinates for a
@@ -1134,7 +1135,7 @@ public:
         const vtkPixelExtent &viewExt,
         const vtkPixelExtent &viewportExt,
         GLfloat *tcoords)
-    {
+  {
     GLfloat viewsize[2];
     viewExt.Size(viewsize);
 
@@ -1147,25 +1148,25 @@ public:
     tcoords[1] = tcoords[1]/viewsize[0];
     tcoords[2] = tcoords[2]/viewsize[1];
     tcoords[3] = tcoords[3]/viewsize[1];
-    }
+  }
 
   // Description:
   // Convert the entire view to a bounding box and it's texture coordinates for
   // a screen size texture.
   void ViewQuadPoints(GLfloat *quadpts)
-    {
+  {
     quadpts[0] = quadpts[2] = 0.0f;
     quadpts[1] = quadpts[3] = 1.0f;
-    }
+  }
 
   // Description:
   // Convert the entire view to a bounding box and it's texture coordinates for
   // a screen size texture.
   void ViewQuadTextureCoords(GLfloat *tcoords)
-    {
+  {
     tcoords[0] = tcoords[2] = 0.0f;
     tcoords[1] = tcoords[3] = 1.0f;
-    }
+  }
 
   // Description:
   // Render a quad (to trigger a shader to run)
@@ -1173,7 +1174,7 @@ public:
         const vtkPixelExtent &viewExt,
         const vtkPixelExtent &viewportExt,
         int nTexUnits)
-    {
+  {
     // cell to node
     vtkPixelExtent next(viewportExt);
     next.CellToNode();
@@ -1188,50 +1189,50 @@ public:
 
     glBegin(GL_QUADS);
     for (int q=0; q<4; ++q)
-      {
+    {
       int qq = 2*q;
       for (int i=0; i<nTexUnits; ++i)
-        {
+      {
         GLenum texUnit = vtkgl::TEXTURE0+i;
         vtkgl::MultiTexCoord2f(texUnit, quadTCoords[ids[qq]], quadTCoords[ids[qq+1]]);
-        }
-      glVertex2f(quadPts[ids[qq]], quadPts[ids[qq+1]]);
       }
-    glEnd();
+      glVertex2f(quadPts[ids[qq]], quadPts[ids[qq+1]]);
     }
+    glEnd();
+  }
 
   // Description:
   // Test to see if some lighting parameters had changed since the
   // last render internal.
   bool LightingChanged()
-    {
+  {
     bool anyChanged = false;
     const int nLights = vtkLightingHelper::VTK_MAX_LIGHTS;
     for (int i=0; i<nLights; ++i) // must look at all
-      {
+    {
       if ( this->LightMonitor[i]->StateChanged() )
-        {
+      {
         anyChanged = true;
-        }
       }
-    return anyChanged;
     }
+    return anyChanged;
+  }
 
   // Description:
   // Test to see if some model view related parameters had changed since
   // the last render internal.
   bool ViewChanged()
-    {
+  {
     return this->ViewMonitor->StateChanged();
-    }
+  }
 
   // Description:
   // Test to see if background colors or mode has changed since the
   // last render internal.
   bool BackgroundChanged(vtkRenderer *ren)
-    {
+  {
     return this->BGMonitor->StateChanged(ren);
-    }
+  }
 
   // Description:
   // Compute the index into the 4x4 OpenGL ordered matrix.
@@ -1248,11 +1249,11 @@ public:
   // positive where more than one clip
   // plane intersects the box.
   bool VisibilityTest(double ndcBBox[24])
-    {
+  {
     // check all points in the direction d
     // at the same time.
     for (int d=0; d<3; ++d)
-      {
+    {
       if (((ndcBBox[     d] < -1.0)
         && (ndcBBox[3  + d] < -1.0)
         && (ndcBBox[6  + d] < -1.0)
@@ -1269,12 +1270,12 @@ public:
         && (ndcBBox[15 + d] > 1.0)
         && (ndcBBox[18 + d] > 1.0)
         && (ndcBBox[21 + d] > 1.0)) )
-        {
+      {
         return false;
-        }
       }
-    return true;
     }
+    return true;
+  }
 
   // Description:
   // Given world space bounds,
@@ -1288,7 +1289,7 @@ public:
           int viewsize[2],
           double bounds[6],
           vtkPixelExtent &screenExt)
-    {
+  {
     // this is how to get the 8 corners of a bounding
     // box from the VTK bounds
     int bbIds[24] = {
@@ -1305,7 +1306,7 @@ public:
     // normalized device coordinate bounding box
     double ndcBBox[24];
     for (int q = 0; q<8; ++q)
-      {
+    {
       int qq = 3*q;
       // bounding box corner
       double wx = bounds[bbIds[qq  ]];
@@ -1322,23 +1323,23 @@ public:
       // we need to do something more robust. this ensures
       // the correct result but its inefficient
       if (ndcw < 0.0)
-        {
+      {
         screenExt = vtkPixelExtent(viewsize[0], viewsize[1]);
         //cerr << "W<0!!!!!!!!!!!!!" << endl;
         return true;
-        }
+      }
 
       // to normalized device coordinates
       ndcw = (ndcw == 0.0 ? 1.0 : 1.0/ndcw);
       ndcBBox[qq  ] *= ndcw;
       ndcBBox[qq+1] *= ndcw;
       ndcBBox[qq+2] *= ndcw;
-      }
+    }
 
     // compute screen extent only if the object
     // is inside the view frustum.
     if (VisibilityTest(ndcBBox))
-      {
+    {
       // these bounds are visible. compute screen
       // space exents
       double vx  = viewsize[0] - 1.0;
@@ -1347,7 +1348,7 @@ public:
       double vy2 = viewsize[1] * 0.5;
       vtkBoundingBox box;
       for (int q=0; q<8; ++q)
-        {
+      {
         int qq = 3*q;
         double sx = (ndcBBox[qq  ] + 1.0) * vx2;
         double sy = (ndcBBox[qq+1] + 1.0) * vy2;
@@ -1355,7 +1356,7 @@ public:
           vtkMath::ClampValue(sx, 0.0, vx),
           vtkMath::ClampValue(sy, 0.0, vy),
           0.0);
-        }
+      }
       // to screen extent
       const double *s0 = box.GetMinPoint();
       const double *s1 = box.GetMaxPoint();
@@ -1364,11 +1365,11 @@ public:
       screenExt[2] = static_cast<int>(s0[1]);
       screenExt[3] = static_cast<int>(s1[1]);
       return true;
-      }
+    }
 
     // these bounds aren't visible
     return false;
-    }
+  }
 
   // Description:
   // Compute screen space extents for each block in the input
@@ -1379,7 +1380,7 @@ public:
         int viewsize[2],
         vtkPixelExtent &dataExt,
         deque<vtkPixelExtent> &blockExts)
-    {
+  {
     // get the modelview projection matrix
     GLdouble P[16];
     GLdouble MV[16];
@@ -1387,114 +1388,114 @@ public:
     glGetDoublev(GL_PROJECTION_MATRIX, P);
     glGetDoublev(GL_MODELVIEW_MATRIX, MV);
     for ( int c = 0; c < 4; c ++ )
-      {
+    {
       for ( int r = 0; r < 4; r ++ )
-        {
+      {
         PMV[c*4+r]
           = P[idx(r,0)] * MV[idx(0,c)]
           + P[idx(r,1)] * MV[idx(1,c)]
           + P[idx(r,2)] * MV[idx(2,c)]
           + P[idx(r,3)] * MV[idx(3,c)];
-        }
       }
+    }
     // dataset case
     vtkDataSet* ds = dynamic_cast<vtkDataSet*>(dobj);
     if (ds && ds->GetNumberOfCells())
-      {
+    {
       double bounds[6];
       ds->GetBounds(bounds);
       if ( vtkBoundingBox::IsValid(bounds)
         && this->ProjectBounds(PMV, viewsize, bounds, dataExt) )
-        {
+      {
         // the dataset is visible
         // add its extent
         blockExts.push_back(dataExt);
         return 1;
-        }
+      }
       //cerr << "ds " << ds << " not visible " << endl;
       return 0;
-      }
+    }
     // composite dataset case
     vtkCompositeDataSet* cd = dynamic_cast<vtkCompositeDataSet*>(dobj);
     if (cd)
-      {
+    {
       // process each block's bounds
       vtkBoundingBox bbox;
       vtkCompositeDataIterator* iter = cd->NewIterator();
       for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-        {
+      {
         ds = dynamic_cast<vtkDataSet*>(iter->GetCurrentDataObject());
         if (ds && ds->GetNumberOfCells())
-          {
+        {
           double bounds[6];
           ds->GetBounds(bounds);
           vtkPixelExtent screenExt;
           if ( vtkBoundingBox::IsValid(bounds)
             && this->ProjectBounds(PMV, viewsize, bounds, screenExt) )
-            {
+          {
             // this block is visible
             // save it's screen extent
             // and accumulate its bounds
             blockExts.push_back(screenExt);
             bbox.AddBounds(bounds);
-            }
-          //else { cerr << "leaf " << ds << " not visible " << endl << endl;}
           }
+          //else { cerr << "leaf " << ds << " not visible " << endl << endl;}
         }
+      }
       iter->Delete();
       // process accumulated dataset bounds
       double bounds[6];
       bbox.GetBounds(bounds);
       if ( vtkBoundingBox::IsValid(bounds)
         && this->ProjectBounds(PMV, viewsize, bounds, dataExt) )
-        {
+      {
         return 1;
-        }
-      return 0;
       }
+      return 0;
+    }
     //cerr << "ds " << ds << " no cells " << endl;
     return 0;
-    }
+  }
 
   // Description:
   // Shrink an extent to tightly bound non-zero values
   void GetPixelBounds(float *rgba, int ni, vtkPixelExtent &ext)
-    {
+  {
     vtkPixelExtent text;
     for (int j=ext[2]; j<=ext[3]; ++j)
-      {
+    {
       for (int i=ext[0]; i<=ext[1]; ++i)
-        {
+      {
         if (rgba[4*(j*ni+i)+3] > 0.0f)
-          {
+        {
           text[0] = text[0] > i ? i : text[0];
           text[1] = text[1] < i ? i : text[1];
           text[2] = text[2] > j ? j : text[2];
           text[3] = text[3] < j ? j : text[3];
-          }
         }
       }
-    ext = text;
     }
+    ext = text;
+  }
 
   // Description:
   // Shrink a set of extents to tightly bound non-zero values
   // cull extent if it's empty
   void GetPixelBounds(float *rgba, int ni, deque<vtkPixelExtent> &blockExts)
-    {
+  {
     vector<vtkPixelExtent> tmpExts(blockExts.begin(),blockExts.end());
     blockExts.clear();
     size_t nBlocks = tmpExts.size();
     for (size_t b=0; b<nBlocks; ++b)
-      {
+    {
       vtkPixelExtent &tmpExt = tmpExts[b];
       GetPixelBounds(rgba, ni, tmpExt);
       if (!tmpExt.Empty())
-        {
+      {
         blockExts.push_back(tmpExt);
-        }
       }
     }
+  }
 };
 
 //----------------------------------------------------------------------------
@@ -1561,10 +1562,10 @@ vtkSurfaceLICPainter::~vtkSurfaceLICPainter()
   delete this->Internals;
 
   if (this->Output)
-    {
+  {
     this->Output->Delete();
     this->Output = 0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1575,14 +1576,14 @@ void vtkSurfaceLICPainter::SetInputArrayToProcess(
   if ( !this->Internals->FieldNameSet
     || (this->Internals->FieldAssociation != fieldAssociation)
     || (this->Internals->FieldName != name) )
-    {
+  {
     this->Internals->FieldAssociation = fieldAssociation;
     this->Internals->FieldName = name;
     this->Internals->FieldNameSet = true;
     this->Internals->HasVectors = false;
     this->Internals->UpdateAll();
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1593,14 +1594,14 @@ void vtkSurfaceLICPainter::SetInputArrayToProcess(
   if ( (this->Internals->FieldAssociation != fieldAssociation)
     || (this->Internals->FieldAttributeType != fieldAttributeType)
     || this->Internals->FieldNameSet )
-    {
+  {
     this->Internals->FieldAssociation = fieldAssociation;
     this->Internals->FieldAttributeType = fieldAttributeType;
     this->Internals->FieldNameSet = false;
     this->Internals->HasVectors = false;
     this->Internals->UpdateAll();
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1609,10 +1610,10 @@ void vtkSurfaceLICPainter::ReleaseGraphicsResources(vtkWindow* win)
   this->Internals->ClearGraphicsResources();
   this->Internals->Context = NULL;
   if (this->Output)
-    {
+  {
     this->Output->Delete();
     this->Output = NULL;
-    }
+  }
   this->Superclass::ReleaseGraphicsResources(win);
 }
 
@@ -1621,9 +1622,9 @@ void vtkSurfaceLICPainter::ReleaseGraphicsResources(vtkWindow* win)
 void vtkSurfaceLICPainter::Set##_name (_type val)           \
 {                                                           \
   if (val == this->_name)                                   \
-    {                                                       \
+  {                                                       \
     return;                                                 \
-    }                                                       \
+  }                                                       \
   _code                                                     \
   this->_name = val;                                        \
   this->Modified();                                         \
@@ -1826,21 +1827,21 @@ void vtkSurfaceLICPainter::SetMaskColor(double *val)
 {
   double rgb[3];
   for (int q=0; q<3; ++q)
-    {
+  {
     rgb[q] = val[q];
     rgb[q] = rgb[q] < 0.0 ? 0.0 : rgb[q];
     rgb[q] = rgb[q] > 1.0 ? 1.0 : rgb[q];
-    }
+  }
   if ( (rgb[0] == this->MaskColor[0])
     && (rgb[1] == this->MaskColor[1])
     && (rgb[2] == this->MaskColor[2]) )
-    {
+  {
     return;
-    }
+  }
   for (int q=0; q<3; ++q)
-    {
+  {
     this->MaskColor[q] = rgb[q];
-    }
+  }
   this->Internals->ColorNeedsUpdate = true;
   this->Modified();
 }
@@ -1851,15 +1852,15 @@ void vtkSurfaceLICPainter::SetEnhanceContrast(int val)
   val = val < ENHANCE_CONTRAST_OFF ? ENHANCE_CONTRAST_OFF : val;
   val = val > ENHANCE_CONTRAST_BOTH ? ENHANCE_CONTRAST_BOTH : val;
   if (val == this->EnhanceContrast)
-    {
+  {
     return;
-    }
+  }
 
   switch ( this->EnhanceContrast )
-    {
+  {
     case ENHANCE_CONTRAST_OFF:
       switch ( val )
-        {
+      {
         case ENHANCE_CONTRAST_LIC:
         case ENHANCE_CONTRAST_BOTH:
           this->Internals->LICNeedsUpdate = true;
@@ -1867,12 +1868,12 @@ void vtkSurfaceLICPainter::SetEnhanceContrast(int val)
         case ENHANCE_CONTRAST_COLOR:
           this->Internals->ColorNeedsUpdate = true;
           break;
-        }
+      }
       break;
 
     case ENHANCE_CONTRAST_LIC:
       switch ( val )
-        {
+      {
         case ENHANCE_CONTRAST_OFF:
         case ENHANCE_CONTRAST_COLOR:
           this->Internals->LICNeedsUpdate = true;
@@ -1880,12 +1881,12 @@ void vtkSurfaceLICPainter::SetEnhanceContrast(int val)
         case ENHANCE_CONTRAST_BOTH:
           this->Internals->ColorNeedsUpdate = true;
           break;
-        }
+      }
       break;
 
     case ENHANCE_CONTRAST_COLOR:
       switch ( val )
-        {
+      {
         case ENHANCE_CONTRAST_LIC:
         case ENHANCE_CONTRAST_BOTH:
           this->Internals->LICNeedsUpdate = true;
@@ -1893,12 +1894,12 @@ void vtkSurfaceLICPainter::SetEnhanceContrast(int val)
         case ENHANCE_CONTRAST_OFF:
           this->Internals->ColorNeedsUpdate = true;
           break;
-        }
+      }
       break;
 
     case ENHANCE_CONTRAST_BOTH:
       switch ( val )
-        {
+      {
         case ENHANCE_CONTRAST_OFF:
           this->Internals->LICNeedsUpdate = true;
           break;
@@ -1909,9 +1910,9 @@ void vtkSurfaceLICPainter::SetEnhanceContrast(int val)
         case ENHANCE_CONTRAST_LIC:
           this->Internals->ColorNeedsUpdate = true;
           break;
-        }
+      }
       break;
-    }
+  }
 
   this->EnhanceContrast = val;
   this->Modified();
@@ -1921,9 +1922,9 @@ void vtkSurfaceLICPainter::SetEnhanceContrast(int val)
 void vtkSurfaceLICPainter::SetNoiseDataSet(vtkImageData *data)
 {
   if (data == this->Internals->Noise)
-    {
+  {
     return;
-    }
+  }
   this->Internals->Noise = data;
   this->Internals->NoiseImage = NULL;
   this->Modified();
@@ -1933,28 +1934,28 @@ void vtkSurfaceLICPainter::SetNoiseDataSet(vtkImageData *data)
 vtkImageData *vtkSurfaceLICPainter::GetNoiseDataSet()
 {
   if (this->Internals->Noise == NULL)
-    {
+  {
     vtkImageData *noise = NULL;
     if ( this->GenerateNoiseTexture )
-      {
+    {
       // report potential issues
       if ( this->NoiseGrainSize >= this->NoiseTextureSize )
-        {
+      {
         vtkErrorMacro(
           "NoiseGrainSize must be smaller than NoiseTextureSize");
-        }
+      }
       if ( this->MinNoiseValue >= this->MaxNoiseValue )
-        {
+      {
         vtkErrorMacro(
           "MinNoiseValue must be smaller than MaxNoiseValue");
-        }
+      }
       if ( (this->ImpulseNoiseProbability == 1.0)
         && (this->NumberOfNoiseLevels < 2) )
-        {
+      {
         vtkErrorMacro(
           "NumberOfNoiseLevels must be greater than 1 "
           "when not generating impulse noise");
-        }
+      }
 
       // generate a custom noise texture based on the
       // current settings.
@@ -1972,9 +1973,9 @@ vtkImageData *vtkSurfaceLICPainter::GetNoiseDataSet()
             static_cast<float>(this->ImpulseNoiseBackgroundValue),
             this->NoiseGeneratorSeed);
       if ( noiseValues == NULL )
-        {
+      {
         vtkErrorMacro("Failed to generate noise.");
-        }
+      }
 
       vtkFloatArray *noiseArray = vtkFloatArray::New();
       noiseArray->SetNumberOfComponents(2);
@@ -1989,18 +1990,18 @@ vtkImageData *vtkSurfaceLICPainter::GetNoiseDataSet()
       noise->GetPointData()->SetScalars(noiseArray);
 
       noiseArray->Delete();
-      }
+    }
     else
-      {
+    {
       // load a predefined noise texture.
       noise = vtkGetNoiseResource();
-      }
+    }
 
     this->Internals->Noise = noise;
     this->Internals->NoiseImage = NULL;
     noise->Delete();
     noise = NULL;
-    }
+  }
 
   return this->Internals->Noise;
 }
@@ -2058,10 +2059,10 @@ bool vtkSurfaceLICPainter::CanRenderSurfaceLIC(vtkActor *actor, int typeFlags)
   // note this also handles non-opengl render window
   if ( this->Internals->ContextNeedsUpdate
     && !vtkSurfaceLICPainter::IsSupported(this->Internals->Context) )
-    {
+  {
     vtkErrorMacro("SurfaceLIC is not supported");
     return false;
-    }
+  }
 
   bool canRender = false;
 
@@ -2078,9 +2079,9 @@ bool vtkSurfaceLICPainter::CanRenderSurfaceLIC(vtkActor *actor, int typeFlags)
     && (typeFlags & (vtkPainter::POLYS|vtkPainter::STRIPS))
     && (polyMode[0] == GL_FILL) // should I be checking backface mode too?
     && glIsEnabled(GL_LIGHTING) )
-    {
+  {
     canRender = true;
-    }
+  }
 
   #if vtkSurfaceLICPainterDEBUG >= 1
   cerr
@@ -2098,47 +2099,47 @@ void vtkSurfaceLICPainter::InitializeResources()
 
   // noise image
   if (!this->Internals->NoiseImage)
-    {
+  {
     initialized = false;
 
     this->UpdateNoiseImage(this->Internals->Context);
-    }
+  }
 
   // compositer for parallel operation
   if (!this->Internals->Compositor)
-    {
+  {
     this->Internals->UpdateAll();
     vtkSurfaceLICComposite *compositor = vtkSurfaceLICComposite::New();
     compositor->SetContext(this->Internals->Context);
     this->Internals->Compositor = compositor;
     compositor->Delete();
-    }
+  }
 
   // image LIC
   if (!this->Internals->LICer)
-    {
+  {
     initialized = false;
 
     vtkLineIntegralConvolution2D *LICer = vtkLineIntegralConvolution2D::New();
     LICer->SetContext(this->Internals->Context);
     this->Internals->LICer = LICer;
     LICer->Delete();
-    }
+  }
 
   // frame buffers
   if (!this->Internals->FBO)
-    {
+  {
     initialized = false;
 
     vtkFrameBufferObject2 * fbo = vtkFrameBufferObject2::New();
     fbo->SetContext(this->Internals->Context);
     this->Internals->FBO = fbo;
     fbo->Delete();
-    }
+  }
 
   // load shader codes
   if (!this->Internals->RenderGeometryPass)
-    {
+  {
     initialized = false;
 
     vtkShaderProgram2 * prog = vtkShaderProgram2::New();
@@ -2164,16 +2165,16 @@ void vtkSurfaceLICPainter::InitializeResources()
 
     prog->Build();
     if (prog->GetLastBuildStatus() != VTK_SHADER_PROGRAM2_LINK_SUCCEEDED)
-      {
+    {
       vtkErrorMacro("geometry shader failed to build.");
-      }
+    }
 
     this->Internals->RenderGeometryPass = prog;
     prog->Delete();
-    }
+  }
 
   if (!this->Internals->ColorPass)
-    {
+  {
     initialized = false;
 
     vtkShaderProgram2 *prog = vtkShaderProgram2::New();
@@ -2188,16 +2189,16 @@ void vtkSurfaceLICPainter::InitializeResources()
 
     prog->Build();
     if (prog->GetLastBuildStatus() != VTK_SHADER_PROGRAM2_LINK_SUCCEEDED)
-      {
+    {
       vtkErrorMacro("scalar color shader failed to build.");
-      }
+    }
 
     this->Internals->ColorPass = prog;
     prog->Delete();
-    }
+  }
 
   if (!this->Internals->ColorEnhancePass)
-    {
+  {
     initialized = false;
 
     vtkShaderProgram2 *prog = vtkShaderProgram2::New();
@@ -2212,16 +2213,16 @@ void vtkSurfaceLICPainter::InitializeResources()
 
     prog->Build();
     if (prog->GetLastBuildStatus() != VTK_SHADER_PROGRAM2_LINK_SUCCEEDED)
-      {
+    {
       vtkErrorMacro("color contrast enhance shader failed to build.");
-      }
+    }
 
     this->Internals->ColorEnhancePass = prog;
     prog->Delete();
-    }
+  }
 
   if (!this->Internals->CopyPass)
-    {
+  {
     initialized = false;
 
     vtkShaderProgram2 *prog = vtkShaderProgram2::New();
@@ -2236,20 +2237,20 @@ void vtkSurfaceLICPainter::InitializeResources()
 
     prog->Build();
     if (prog->GetLastBuildStatus() != VTK_SHADER_PROGRAM2_LINK_SUCCEEDED)
-      {
+    {
       vtkErrorMacro("color contrast enhance shader failed to build.");
-      }
+    }
 
     this->Internals->CopyPass = prog;
     prog->Delete();
-    }
+  }
 
   // if any of the above were not already initialized
   // then execute all stages
   if (!initialized)
-    {
+  {
     this->Internals->UpdateAll();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -2263,9 +2264,9 @@ bool vtkSurfaceLICPainter::NeedToColorLIC()
     || this->Internals->OutputDataNeedsUpdate
     || this->Internals->ContextNeedsUpdate
     || this->AlwaysUpdate )
-    {
+  {
     this->Internals->ColorNeedsUpdate = true;
-    }
+  }
 
   #if vtkSurfaceLICPainterDEBUG >= 1
   cerr
@@ -2285,9 +2286,9 @@ bool vtkSurfaceLICPainter::NeedToComputeLIC()
     || this->Internals->OutputDataNeedsUpdate
     || this->Internals->ContextNeedsUpdate
     || this->AlwaysUpdate )
-    {
+  {
     this->Internals->LICNeedsUpdate = true;
-    }
+  }
 
   #if vtkSurfaceLICPainterDEBUG >= 1
   cerr
@@ -2306,9 +2307,9 @@ bool vtkSurfaceLICPainter::NeedToGatherVectors()
     || this->Internals->CommunicatorNeedsUpdate
     || this->Internals->ContextNeedsUpdate
     || this->AlwaysUpdate )
-    {
+  {
     this->Internals->GatherNeedsUpdate = true;
-    }
+  }
 
   #if vtkSurfaceLICPainterDEBUG >= 1
   cerr
@@ -2331,30 +2332,30 @@ bool vtkSurfaceLICPainter::NeedToRenderGeometry(
     || this->Internals->OutputDataNeedsUpdate
     || this->Internals->ContextNeedsUpdate
     || this->AlwaysUpdate )
-    {
+  {
     this->Internals->GeometryNeedsUpdate = true;
-    }
+  }
 
   // lights changed
   if ( this->Internals->LightingChanged() )
-    {
+  {
     this->Internals->GeometryNeedsUpdate = true;
-    }
+  }
 
   // props changed
-  long long propMTime = actor->GetProperty()->GetMTime();
+  vtkMTimeType propMTime = actor->GetProperty()->GetMTime();
   if ( this->Internals->LastPropertyMTime != propMTime )
-    {
+  {
     this->Internals->LastPropertyMTime = propMTime;
     this->Internals->GeometryNeedsUpdate = true;
-    }
+  }
 
   // background colors changed
   if (this->Internals->BackgroundChanged(renderer))
-    {
+  {
     this->Internals->GeometryNeedsUpdate = true;
     this->Internals->ColorNeedsUpdate = true;
-    }
+  }
 
   #if vtkSurfaceLICPainterDEBUG >= 1
   cerr
@@ -2374,10 +2375,10 @@ bool vtkSurfaceLICPainter::NeedToUpdateCommunicator()
     || this->Internals->OutputDataNeedsUpdate
     || !this->Internals->Communicator
     || this->AlwaysUpdate )
-    {
+  {
     this->Internals->CommunicatorNeedsUpdate = true;
     this->Internals->UpdateAll();
-    }
+  }
 
   #if vtkSurfaceLICPainterDEBUG >= 1
   cerr
@@ -2394,14 +2395,14 @@ bool vtkSurfaceLICPainter::NeedToUpdateOutputData()
 {
   vtkDataObject *input = this->GetInput();
   // input dataset changed
-  long long inputMTime = input->GetMTime();
+  vtkMTimeType inputMTime = input->GetMTime();
   if ( (this->Internals->LastInputDataSetMTime < inputMTime)
     || !this->Output
     || this->AlwaysUpdate)
-    {
+  {
     this->Internals->LastInputDataSetMTime = inputMTime;
     this->Internals->UpdateAll();
-    }
+  }
 
   #if vtkSurfaceLICPainterDEBUG >= 1
   cerr
@@ -2421,21 +2422,21 @@ void vtkSurfaceLICPainter::ValidateContext(vtkRenderer *renderer)
 
   // context changed
   if (this->Internals->Context != context)
-    {
+  {
     modified = true;
     if (this->Internals->Context)
-      {
+    {
       this->ReleaseGraphicsResources(this->Internals->Context);
-      }
-    this->Internals->Context = context;
     }
+    this->Internals->Context = context;
+  }
 
   // viewport size changed
   int viewsize[2];
   renderer->GetTiledSize(&viewsize[0], &viewsize[1]);
   if ( this->Internals->Viewsize[0] != viewsize[0]
     || this->Internals->Viewsize[1] != viewsize[1] )
-    {
+  {
     modified = true;
 
     // udpate view size
@@ -2445,19 +2446,19 @@ void vtkSurfaceLICPainter::ValidateContext(vtkRenderer *renderer)
     // resize textures
     this->Internals->ClearTextures();
     this->Internals->AllocateTextures(context, viewsize);
-    }
+  }
 
   // view changed
   if (this->Internals->ViewChanged())
-    {
+  {
     modified = true;
-    }
+  }
 
   // if anything changed execute all stages
   if (modified)
-    {
+  {
     this->Internals->UpdateAll();
-    }
+  }
 
   #if vtkSurfaceLICPainterDEBUG >= 1
   cerr
@@ -2509,19 +2510,19 @@ void vtkSurfaceLICPainter::ProcessInformation(vtkInformation* info)
 
   // detect when the LUT has been modified
   if (info->Has(vtkScalarsToColorsPainter::LOOKUP_TABLE()))
-    {
+  {
     vtkObjectBase *lutObj = info->Get(vtkScalarsToColorsPainter::LOOKUP_TABLE());
     vtkScalarsToColors *lut = vtkScalarsToColors::SafeDownCast(lutObj);
-    long long lutMTime;
+    vtkMTimeType lutMTime;
     if (lut && ((lutMTime = lut->GetMTime()) > this->Internals->LastLUTMTime))
-      {
+    {
       this->Internals->LastLUTMTime = lutMTime;
       this->Internals->UpdateAll();
       #if vtkSurfaceLICPainterDEBUG >= 1
       LUTNeedsUpdate = true;
       #endif
-      }
     }
+  }
 
   #if vtkSurfaceLICPainterDEBUG >= 1
   cerr
@@ -2561,15 +2562,15 @@ void vtkSurfaceLICPainter::RenderInternal(
   this->ValidateContext(renderer);
 
   if (this->NeedToUpdateOutputData())
-    {
+  {
     // if the input data has changed we need to
     // reload vector attributes and recompute
     // all, but only if the output is valid.
     this->PrepareOutput();
-    }
+  }
 
   if (this->NeedToUpdateCommunicator())
-    {
+  {
     #ifdef vtkSurfaceLICPainterTIME
     this->StartTimerEvent("vtkSurfaceLICPainter::CreateCommunicator");
     #endif
@@ -2581,21 +2582,21 @@ void vtkSurfaceLICPainter::RenderInternal(
     #ifdef vtkSurfaceLICPainterTIME
     this->EndTimerEvent("vtkSurfaceLICPainter::CreateCommunicator");
     #endif
-    }
+  }
   vtkPainterCommunicator *comm = this->Internals->Communicator;
 
   if (comm->GetIsNull())
-    {
+  {
     // other rank's may have some visible data but we
     // have none and should not participate further
     #ifdef vtkSurfaceLICPainterTIME
     this->EndTimerEvent("vtkSurfaceLICPainter::RenderInternal");
     #endif
     return;
-    }
+  }
 
   if (!this->CanRenderSurfaceLIC(actor, typeflags))
-    {
+  {
     // we've determined that there's no work for us, or that the
     // requisite opengl extensions are not available. pass control on
     // to delegate renderer and return.
@@ -2604,7 +2605,7 @@ void vtkSurfaceLICPainter::RenderInternal(
     this->EndTimerEvent("vtkSurfaceLICPainter::RenderInternal");
     #endif
     return;
-    }
+  }
 
   // allocate rendering resources, initialize or update
   // textures and shaders.
@@ -2630,7 +2631,7 @@ void vtkSurfaceLICPainter::RenderInternal(
 
   // ------------------------------------------- render geometry, project vectors onto screen, etc
   if (this->NeedToRenderGeometry(renderer, actor))
-    {
+  {
     #ifdef vtkSurfaceLICPainterTIME
     this->StartTimerEvent("vtkSurfaceLICPainter::RenderGeometry");
     #endif
@@ -2703,11 +2704,11 @@ void vtkSurfaceLICPainter::RenderInternal(
           this->Internals->BlockExts);
     #endif
     #endif
-    }
+  }
 
   // --------------------------------------------- compoiste vectors for parallel LIC
   if (this->NeedToGatherVectors())
-    {
+  {
     #ifdef vtkSurfaceLICPainterTIME
     this->StartTimerEvent("vtkSurfaceLICPainter::GatherVectors");
     #endif
@@ -2733,7 +2734,7 @@ void vtkSurfaceLICPainter::RenderInternal(
           this->AntiAlias);
 
     if (comm->GetMPIInitialized())
-      {
+    {
       // parallel run
       // need to use the communicator provided by the rendering engine
       this->Internals->Compositor->SetCommunicator(comm);
@@ -2743,9 +2744,9 @@ void vtkSurfaceLICPainter::RenderInternal(
       int iErr = 0;
       iErr = this->Internals->Compositor->BuildProgram((float*)pVecPBO);
       if (iErr)
-        {
+      {
         vtkErrorMacro("Failed to construct program, reason " << iErr);
-        }
+      }
 
       // composite vectors
       vtkTextureObject *compositeVectors = this->Internals->CompositeVectorImage;
@@ -2755,9 +2756,9 @@ void vtkSurfaceLICPainter::RenderInternal(
               4,
               compositeVectors);
       if (iErr)
-        {
+      {
         vtkErrorMacro("Failed to composite vectors, reason  " << iErr);
-        }
+      }
 
       // composite mask vectors
       vtkTextureObject *compositeMaskVectors = this->Internals->CompositeMaskVectorImage;
@@ -2769,9 +2770,9 @@ void vtkSurfaceLICPainter::RenderInternal(
               4,
               compositeMaskVectors);
       if (iErr)
-        {
+      {
         vtkErrorMacro("Failed to composite mask vectors, reason " << iErr);
-        }
+      }
       maskVecPBO->UnmapPackedBuffer();
       maskVecPBO->Delete();
 
@@ -2789,9 +2790,9 @@ void vtkSurfaceLICPainter::RenderInternal(
              this->Internals->CompositeMaskVectorImage,
              this->Internals->Compositor->GetDisjointGuardExtents());
       #endif
-      }
+    }
     else
-      {
+    {
       // serial run
       // make the decomposition disjoint and add guard pixels
       this->Internals->Compositor->InitializeCompositeExtents((float*)pVecPBO);
@@ -2805,7 +2806,7 @@ void vtkSurfaceLICPainter::RenderInternal(
       // pass through without compositing
       this->Internals->CompositeVectorImage = this->Internals->VectorImage;
       this->Internals->CompositeMaskVectorImage = this->Internals->MaskVectorImage;
-      }
+    }
 
    vecPBO->UnmapPackedBuffer();
    vecPBO->Delete();
@@ -2813,15 +2814,15 @@ void vtkSurfaceLICPainter::RenderInternal(
    #ifdef vtkSurfaceLICPainterTIME
    this->EndTimerEvent("vtkSurfaceLICPainter::GatherVectors");
    #endif
-   }
+  }
 
   // ------------------------------------------- LIC on screen
   if ( this->NeedToComputeLIC() )
-    {
+  {
     #if vtkSurfaceLICPainterDEBUG >= 2
     ostringstream oss;
     if ( this->GenerateNoiseTexture )
-      {
+    {
       const char *noiseType[3]={"unif","gauss","perl"};
       oss
        << "slicp_noise_"
@@ -2834,11 +2835,11 @@ void vtkSurfaceLICPainter::RenderInternal(
        << "_impulseprob_" << this->ImpulseNoiseProbability
        << "_impulseprob_" << this->ImpulseNoiseBackgroundValue
        << ".vtk";
-      }
+    }
     else
-      {
+    {
       oss << "slicp_noise_default.vtk";
-      }
+    }
     vtkTextureIO::Write(
           mpifn(comm, oss.str().c_str()),
           this->Internals->NoiseImage);
@@ -2868,14 +2869,14 @@ void vtkSurfaceLICPainter::RenderInternal(
     LICer->SetNumberOfSteps(this->NumberOfSteps);
     LICer->SetEnhancedLIC(this->EnhancedLIC);
     switch (this->EnhanceContrast)
-      {
+    {
       case ENHANCE_CONTRAST_LIC:
       case ENHANCE_CONTRAST_BOTH:
         LICer->SetEnhanceContrast(vtkLIC2D::ENHANCE_CONTRAST_ON);
         break;
       default:
         LICer->SetEnhanceContrast(vtkLIC2D::ENHANCE_CONTRAST_OFF);
-      }
+    }
     LICer->SetLowContrastEnhancementFactor(this->LowLICContrastEnhancementFactor);
     LICer->SetHighContrastEnhancementFactor(this->HighLICContrastEnhancementFactor);
     LICer->SetAntiAlias(this->AntiAlias);
@@ -2901,10 +2902,10 @@ void vtkSurfaceLICPainter::RenderInternal(
               this->Internals->NoiseImage));
 
     if (!this->Internals->LICImage)
-      {
+    {
       vtkErrorMacro("Failed to compute image LIC");
       return;
-      }
+    }
 
     #ifdef vtkSurfaceLICPainterTIME
     this->EndTimerEvent("vtkSurfaceLICPainter::ComputeLIC");
@@ -2919,7 +2920,7 @@ void vtkSurfaceLICPainter::RenderInternal(
     // ------------------------------------------- move from LIC decomp back to geometry decomp
     if ( comm->GetMPIInitialized()
       && (this->Internals->Compositor->GetStrategy()!=COMPOSITE_INPLACE ) )
-      {
+    {
       #ifdef vtkSurfaceLICPainterTIME
       this->StartTimerEvent("vtkSurfaceLICPainter::ScatterLIC");
       #endif
@@ -2933,9 +2934,9 @@ void vtkSurfaceLICPainter::RenderInternal(
       vtkTextureObject *newLicImage = NULL;
       int iErr = this->Internals->Compositor->Scatter(pLicPBO, VTK_FLOAT, 4, newLicImage);
       if (iErr)
-        {
+      {
         vtkErrorMacro("Failed to scatter lic");
-        }
+      }
       licPBO->UnmapPackedBuffer();
       licPBO->Delete();
       this->Internals->LICImage = NULL;
@@ -2954,12 +2955,12 @@ void vtkSurfaceLICPainter::RenderInternal(
             this->Internals->LICImage,
             this->Internals->BlockExts);
       #endif
-      }
     }
+  }
 
   // ------------------------------------------- combine scalar colors + LIC
   if ( this->NeedToColorLIC() )
-    {
+  {
     #ifdef vtkSurfaceLICPainterTIME
     this->StartTimerEvent("vtkSurfaceLICPainter::ColorLIC");
     #endif
@@ -2982,7 +2983,7 @@ void vtkSurfaceLICPainter::RenderInternal(
     glClearColor(0.0, 0.0, 0.0, 0.0);
     size_t nBlocks = this->Internals->BlockExts.size();
     for (size_t e=0; e<nBlocks; ++e)
-      {
+    {
       vtkPixelExtent ext = this->Internals->BlockExts[e];
       ext.Grow(2); // halo for linear filtering
       ext &= viewExt;
@@ -2992,7 +2993,7 @@ void vtkSurfaceLICPainter::RenderInternal(
 
       glScissor(ext[0], ext[2], extSize[0], extSize[1]);
       glClear(GL_COLOR_BUFFER_BIT);
-      }
+    }
     glDisable(GL_SCISSOR_TEST);
     #endif
 
@@ -3013,9 +3014,9 @@ void vtkSurfaceLICPainter::RenderInternal(
     colorPass->Use();
 
     for (size_t e=0; e<nBlocks; ++e)
-      {
+    {
       this->Internals->RenderQuad(viewExt, this->Internals->BlockExts[e], 1);
-      }
+    }
 
     colorPass->Restore();
 
@@ -3030,7 +3031,7 @@ void vtkSurfaceLICPainter::RenderInternal(
     // --------------------------------------------- color contrast enhance
     if ( ( this->EnhanceContrast == ENHANCE_CONTRAST_COLOR )
       || ( this->EnhanceContrast == ENHANCE_CONTRAST_BOTH ) )
-      {
+    {
       #if vtkSurfaceLICPainterDEBUG >= 2
       vtkTextureIO::Write(
             mpifn(comm,"slic_color_rgb_in.vtm"),
@@ -3062,7 +3063,7 @@ void vtkSurfaceLICPainter::RenderInternal(
 
       if ( this->Internals->BlockExts.size()
         && ((LMax <= LMin) || (LMin < 0.0f) || (LMax > 1.0f)) )
-        {
+      {
         vtkErrorMacro(
           << comm->GetRank()
           << ": Invalid  range " << LMin << ", " << LMax
@@ -3070,7 +3071,7 @@ void vtkSurfaceLICPainter::RenderInternal(
         LMin = 0.0;
         LMax = 1.0;
         LMaxMinDiff = 1.0;
-        }
+      }
 
       // global collective reduction for parallel operation
       this->GetGlobalMinMax(comm, LMin, LMax);
@@ -3100,9 +3101,9 @@ void vtkSurfaceLICPainter::RenderInternal(
       colorEnhancePass->Use();
 
       for (size_t e=0; e<nBlocks; ++e)
-        {
+      {
         this->Internals->RenderQuad(viewExt, this->Internals->BlockExts[e], 1);
-        }
+      }
 
       colorEnhancePass->Restore();
 
@@ -3116,13 +3117,13 @@ void vtkSurfaceLICPainter::RenderInternal(
       #ifdef vtkSurfaceLICPainterTIME
       this->EndTimerEvent("vtkSurfaceLICPainter::ContrastEnhance");
       #endif
-      }
+    }
     else
-      {
+    {
       fbo->RemoveTexColorAttachment(vtkgl::DRAW_FRAMEBUFFER_EXT, 0U);
       fbo->RemoveTexColorAttachment(vtkgl::DRAW_FRAMEBUFFER_EXT, 1U);
       fbo->DeactivateDrawBuffers();
-      }
+    }
 
     fbo->UnBind(vtkgl::FRAMEBUFFER_EXT);
 
@@ -3132,7 +3133,7 @@ void vtkSurfaceLICPainter::RenderInternal(
            this->Internals->RGBColorImage,
            this->Internals->BlockExts);
     #endif
-    }
+  }
 
   // ----------------------------------------------- depth test and copy to screen
   #ifdef vtkSurfaceLICPainterTIME
@@ -3156,9 +3157,9 @@ void vtkSurfaceLICPainter::RenderInternal(
 
   size_t nBlocks = this->Internals->BlockExts.size();
   for (size_t e=0; e<nBlocks; ++e)
-    {
+  {
     this->Internals->RenderQuad(viewExt, this->Internals->BlockExts[e], 1);
-    }
+  }
 
   copyPass->Restore();
 
@@ -3206,9 +3207,9 @@ vtkDataObject* vtkSurfaceLICPainter::GetOutput()
   #endif
 
   if (this->Enable && this->Output)
-    {
+  {
     return this->Output;
-    }
+  }
   return this->GetInput();
 }
 
@@ -3217,33 +3218,33 @@ bool vtkSurfaceLICPainter::PrepareOutput()
 {
   vtkDataObject* input = this->GetInput();
   if ((input == NULL) || !this->Enable)
-    {
+  {
     if (this->Output)
-      {
+    {
       this->Output->Delete();
       this->Output = NULL;
       this->Internals->HasVectors = false;
-      }
-    return false;
     }
+    return false;
+  }
 
   if (this->Internals->OutputDataNeedsUpdate)
-    {
+  {
     if (this->Output)
-      {
+    {
       this->Output->Delete();
       this->Output = NULL;
-      }
+    }
 
     this->Output = input->NewInstance();
     this->Output->ShallowCopy(input);
     this->Internals->HasVectors = false;
-    }
+  }
 
   if (!this->Internals->HasVectors)
-    {
+  {
     this->Internals->HasVectors = this->VectorsToTCoords(this->Output);
-    }
+  }
 
   return this->Internals->HasVectors;
 }
@@ -3255,33 +3256,33 @@ bool vtkSurfaceLICPainter::VectorsToTCoords(vtkDataObject *dataObj)
 
   vtkCompositeDataSet *cd = vtkCompositeDataSet::SafeDownCast(dataObj);
   if (cd)
-    {
+  {
     vtkCompositeDataIterator* iter = cd->NewIterator();
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-      {
+    {
       vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
       if (ds && ds->GetNumberOfCells())
-        {
+      {
         this->ClearTCoords(ds);
         hasVectors |= this->VectorsToTCoords(ds);
-        }
       }
+    }
     iter->Delete();
     return hasVectors;
-    }
+  }
 
   vtkDataSet* ds = vtkDataSet::SafeDownCast(dataObj);
   if (ds && ds->GetNumberOfCells())
-    {
+  {
     this->ClearTCoords(ds);
     hasVectors |= this->VectorsToTCoords(ds);
-    }
+  }
 
   if ( hasVectors )
-    {
+  {
     // force downstream updates (display lists, etc)
     this->Output->Modified();
-    }
+  }
 
   return hasVectors;
 }
@@ -3294,7 +3295,7 @@ bool vtkSurfaceLICPainter::VectorsToTCoords(vtkDataSet *data)
   bool hasCellVectors = false;
 
   if (this->Internals->FieldNameSet)
-    {
+  {
     vectors
        = vtkArrayDownCast<vtkDataArray>(
             this->GetInputArrayToProcess(
@@ -3302,9 +3303,9 @@ bool vtkSurfaceLICPainter::VectorsToTCoords(vtkDataSet *data)
             this->Internals->FieldName.c_str(),
             data,
             &hasCellVectors));
-    }
+  }
   else
-    {
+  {
     vectors
        = vtkArrayDownCast<vtkDataArray>(
             this->GetInputArrayToProcess(
@@ -3312,33 +3313,33 @@ bool vtkSurfaceLICPainter::VectorsToTCoords(vtkDataSet *data)
             this->Internals->FieldAttributeType,
             data,
             &hasCellVectors));
-    }
+  }
 
   if ( vectors == NULL )
-    {
+  {
     return false;
-    }
+  }
 
   vtkDataSetAttributes *atts = NULL;
   if ( hasCellVectors )
-    {
+  {
     atts = data->GetCellData();
-    }
+  }
   else
-    {
+  {
     atts = data->GetPointData();
-    }
+  }
 
   int id = -1;
   int nArrays = atts->GetNumberOfArrays();
   for (int i=0; i<nArrays; ++i)
-    {
+  {
     if ( atts->GetArray(i) == vectors )
-      {
+    {
       id = i;
       break;
-      }
     }
+  }
   atts->SetActiveAttribute(id, vtkDataSetAttributes::TCOORDS);
   return true;
 }
@@ -3361,29 +3362,29 @@ void vtkSurfaceLICPainter::GetBounds(vtkDataObject* dobj, double bounds[6])
   vtkMath::UninitializeBounds(bounds);
   vtkDataSet* ds = vtkDataSet::SafeDownCast(dobj);
   if (ds)
-    {
+  {
     ds->GetBounds(bounds);
     return;
-    }
+  }
 
   vtkCompositeDataSet* cd = vtkCompositeDataSet::SafeDownCast(dobj);
   if (cd)
-    {
+  {
     vtkBoundingBox bbox;
     vtkCompositeDataIterator* iter = cd->NewIterator();
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-      {
+    {
       ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
       if (ds && ds->GetNumberOfCells())
-        {
+      {
         ds->GetBounds(bounds);
         bbox.AddBounds(bounds);
-        }
       }
+    }
     iter->Delete();
     bbox.GetBounds(bounds);
     return;
-    }
+  }
 
   vtkErrorMacro("unsupported dataset " << dobj->GetClassName());
 }

@@ -39,11 +39,11 @@ void vtkAbstractElectronicData::DeepCopy(vtkDataObject *obj)
   vtkAbstractElectronicData *aed =
       vtkAbstractElectronicData::SafeDownCast(obj);
   if (!aed)
-    {
+  {
     vtkErrorMacro("Can only deep copy from vtkAbstractElectronicData "
                   "or subclass.");
     return;
-    }
+  }
 
   // Call superclass
   this->Superclass::DeepCopy(aed);

@@ -66,33 +66,33 @@ void vtkExtractPolyDataPiece::ComputeCellTags(vtkIntArray *tags,
   cellPtIds = vtkIdList::New();
   // Clear Point ownership.
   for (idx = 0; idx < input->GetNumberOfPoints(); ++idx)
-    {
+  {
     pointOwnership->SetId(idx, -1);
-    }
+  }
 
   // Brute force division.
   // The first N cells go to piece 0 ...
   for (idx = 0; idx < numCells; ++idx)
-    {
+  {
     if ((idx * numPieces / numCells) == piece)
-      {
+    {
       tags->SetValue(idx, 0);
-      }
+    }
     else
-      {
+    {
       tags->SetValue(idx, -1);
-      }
+    }
     // Fill in point ownership mapping.
     input->GetCellPoints(idx, cellPtIds);
     for (j = 0; j < cellPtIds->GetNumberOfIds(); ++j)
-      {
+    {
       ptId = cellPtIds->GetId(j);
       if (pointOwnership->GetId(ptId) == -1)
-        {
+      {
         pointOwnership->SetId(ptId, idx);
-        }
       }
     }
+  }
 
   cellPtIds->Delete();
 
@@ -147,12 +147,12 @@ int vtkExtractPolyDataPiece::RequestData(
   outCD->CopyAllocate(cd);
 
   if (ghostLevel > 0 && this->CreateGhostCells)
-    {
+  {
     cellGhostLevels = vtkUnsignedCharArray::New();
     pointGhostLevels = vtkUnsignedCharArray::New();
     cellGhostLevels->Allocate(input->GetNumberOfCells());
     pointGhostLevels->Allocate(input->GetNumberOfPoints());
-    }
+  }
 
   // Break up cells based on which piece they belong to.
   cellTags = vtkIntArray::New();
@@ -165,12 +165,12 @@ int vtkExtractPolyDataPiece::RequestData(
 
   // Find the layers of ghost cells.
   if (this->CreateGhostCells)
-    {
+  {
     for (i = 0; i < ghostLevel; i++)
-      {
+    {
       this->AddGhostLevel(input, cellTags, i+1);
-      }
     }
+  }
 
   // Filter the cells.
 
@@ -182,47 +182,47 @@ int vtkExtractPolyDataPiece::RequestData(
   pointMap = vtkIdList::New(); //maps old point ids into new
   pointMap->SetNumberOfIds(numPts);
   for (i=0; i < numPts; i++)
-    {
+  {
     pointMap->SetId(i,-1);
-    }
+  }
 
   // Filter the cells
   for (cellId=0; cellId < input->GetNumberOfCells(); cellId++)
-    {
+  {
     if ( cellTags->GetValue(cellId) != -1) // satisfied thresholding
-      {
+    {
       if (cellGhostLevels)
-        {
+      {
         cellGhostLevels->InsertNextValue(
           (cellTags->GetValue(cellId) > 0) ? vtkDataSetAttributes::DUPLICATECELL : 0);
-        }
+      }
 
       cell = input->GetCell(cellId);
       cellPts = cell->GetPointIds();
       numCellPts = cell->GetNumberOfPoints();
 
       for (i=0; i < numCellPts; i++)
-        {
+      {
         ptId = cellPts->GetId(i);
         if ( (newId = pointMap->GetId(ptId)) < 0 )
-          {
+        {
           x = input->GetPoint(ptId);
           newId = newPoints->InsertNextPoint(x);
           if (pointGhostLevels)
-            {
+          {
             pointGhostLevels->InsertNextValue(
               cellTags->GetValue(pointOwnership->GetId(ptId)) > 0 ? vtkDataSetAttributes::DUPLICATEPOINT : 0);
-            }
+          }
           pointMap->SetId(ptId,newId);
           outPD->CopyData(pd,ptId,newId);
-          }
-        newCellPts->InsertId(i,newId);
         }
+        newCellPts->InsertId(i,newId);
+      }
       newCellId = output->InsertNextCell(cell->GetCellType(),newCellPts);
       outCD->CopyData(cd,cellId,newCellId);
       newCellPts->Reset();
-      } // satisfied thresholding
-    } // for all cells
+    } // satisfied thresholding
+  } // for all cells
 
 
   // Split up points that are not used by cells,
@@ -233,29 +233,29 @@ int vtkExtractPolyDataPiece::RequestData(
   vtkIdType count = 0;
   vtkIdType idx;
   for (idx = 0; idx < input->GetNumberOfPoints(); ++idx)
-    {
+  {
     if (pointOwnership->GetId(idx) == -1)
-      {
+    {
       ++count;
-      }
     }
+  }
   vtkIdType count2 = 0;
   for (idx = 0; idx < input->GetNumberOfPoints(); ++idx)
-    {
+  {
     if (pointOwnership->GetId(idx) == -1)
-      {
+    {
       if ((count2 * numPieces / count) == piece)
-        {
+      {
         x = input->GetPoint(idx);
         newId = newPoints->InsertNextPoint(x);
         if (pointGhostLevels)
-          {
+        {
           pointGhostLevels->InsertNextValue(0);
-          }
-        outPD->CopyData(pd,idx,newId);
         }
+        outPD->CopyData(pd,idx,newId);
       }
     }
+  }
 
   vtkDebugMacro(<< "Extracted " << output->GetNumberOfCells()
                 << " number of cells.");
@@ -265,19 +265,19 @@ int vtkExtractPolyDataPiece::RequestData(
   newCellPts->Delete();
 
   if (cellGhostLevels)
-    {
+  {
     cellGhostLevels->SetName(vtkDataSetAttributes::GhostArrayName());
     output->GetCellData()->AddArray(cellGhostLevels);
     cellGhostLevels->Delete();
     cellGhostLevels = 0;
-     }
+  }
   if (pointGhostLevels)
-    {
+  {
     pointGhostLevels->SetName(vtkDataSetAttributes::GhostArrayName());
     output->GetPointData()->AddArray(pointGhostLevels);
     pointGhostLevels->Delete();
     pointGhostLevels = 0;
-    }
+  }
   output->SetPoints(newPoints);
   newPoints->Delete();
 
@@ -309,26 +309,26 @@ void vtkExtractPolyDataPiece::AddGhostLevel(vtkPolyData *input,
   vtkNew<vtkIdList> cellPointIds;
   vtkNew<vtkIdList> neighborIds;
   for (vtkIdType idx = 0; idx < numCells; ++idx)
-    {
+  {
     if(cellTags->GetValue(idx) == level - 1)
-      {
+    {
       input->GetCellPoints(idx, cellPointIds.GetPointer());
       const vtkIdType numCellPoints = cellPointIds->GetNumberOfIds();
       for (vtkIdType j = 0; j < numCellPoints; j++)
-        {
+      {
         const vtkIdType pointId = cellPointIds->GetId(j);
         input->GetPointCells(pointId,neighborIds.GetPointer());
 
         const vtkIdType numNeighbors= neighborIds->GetNumberOfIds();
         for(vtkIdType k= 0; k < numNeighbors; ++k)
-          {
+        {
           const vtkIdType neighborCellId = neighborIds->GetId(k);
           if(cellTags->GetValue(neighborCellId) == -1)
-            {
+          {
             cellTags->SetValue(neighborCellId, level);
-            }
           }
         }
       }
     }
+  }
 }

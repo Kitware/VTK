@@ -54,15 +54,15 @@ int TestOCB(ostream& strm)
   vertexCoords[0][0] = 0.0;
 
   for (j = 0; j < 1; j++)
-    {
+  {
     vertex->CellBoundary (0, vertexCoords[j], ids);
     strm << "vtkVertex \t(" << vertexCoords[j][0] << ") \t= ";
     for (i = 0; i < ids->GetNumberOfIds(); i++)
-      {
+    {
       strm << ids->GetId(i) << ", ";
-      }
-    strm << endl;
     }
+    strm << endl;
+  }
 
   //Poly Vertex
   vtkPolyVertex *polyVertex = vtkPolyVertex::New();
@@ -75,18 +75,18 @@ int TestOCB(ostream& strm)
   polyVertexCoords[0][0] = 0.0;
 
   for (k = 0; k < polyVertex->GetPointIds()->GetNumberOfIds(); k++)
-    {
+  {
     for (j = 0; j < 1; j++)
-      {
+    {
       polyVertex->CellBoundary (k, polyVertexCoords[j], ids);
       strm << "vtkPolyVertex \t(" << polyVertexCoords[j][0] << ") \t= ";
       for (i = 0; i < ids->GetNumberOfIds(); i++)
-        {
+      {
         strm << ids->GetId(i) << ", ";
-        }
-      strm << endl;
       }
+      strm << endl;
     }
+  }
 
   //Line
   vtkLine *line = vtkLine::New();
@@ -99,15 +99,15 @@ int TestOCB(ostream& strm)
   lineCoords[1][0] = .75;
 
   for (j = 0; j < 2; j++)
-    {
+  {
     line->CellBoundary (0, lineCoords[j], ids);
     strm << "vtkLine \t(" << lineCoords[j][0] << ") = \t";
     for (i = 0; i < ids->GetNumberOfIds(); i++)
-      {
+    {
       strm << ids->GetId(i) << ", ";
-      }
-    strm << endl;
     }
+    strm << endl;
+  }
 
   //Poly Line
   vtkPolyLine *polyLine = vtkPolyLine::New();
@@ -122,18 +122,18 @@ int TestOCB(ostream& strm)
   polyLineCoords[1][0] = .75;
 
   for (k = 0; k < polyLine->GetPointIds()->GetNumberOfIds() - 1; k++)
-    {
+  {
     for (j = 0; j < 2; j++)
-      {
+    {
       polyLine->CellBoundary (k, polyLineCoords[j], ids);
       strm << "vtkPolyLine \t(" << polyLineCoords[j][0] << ") = \t";
       for (i = 0; i < ids->GetNumberOfIds(); i++)
-        {
+      {
         strm << ids->GetId(i) << ", ";
-        }
-      strm << endl;
       }
+      strm << endl;
     }
+  }
 
   //Triangle
   vtkTriangle *triangle = vtkTriangle::New();
@@ -148,15 +148,15 @@ int TestOCB(ostream& strm)
   triangleCoords[2][0] = .1; triangleCoords[2][1] = 0.5;
 
   for (j = 0; j < 3; j++)
-    {
+  {
     triangle->CellBoundary (0, triangleCoords[j], ids);
     strm << "vtkTriangle \t(" << triangleCoords[j][0] << ", " << triangleCoords[j][1] << ") = \t";
     for (i = 0; i < ids->GetNumberOfIds(); i++)
-      {
+    {
       strm << ids->GetId(i) << ", ";
-      }
-    strm << endl;
     }
+    strm << endl;
+  }
 
   //Triangle Strip
   vtkTriangleStrip *triangleStrip = vtkTriangleStrip::New();
@@ -173,18 +173,18 @@ int TestOCB(ostream& strm)
   triangleStripCoords[2][0] = .1; triangleStripCoords[2][1] = 0.5;
 
   for (k = 0; k < triangleStrip->GetPointIds()->GetNumberOfIds() - 2; k++)
-    {
+  {
     for (j = 0; j < 3; j++)
-      {
+    {
       triangleStrip->CellBoundary (k, triangleStripCoords[j], ids);
       strm << "vtkTriangleStrip \t(" << triangleStripCoords[j][0] << ", " << triangleStripCoords[j][1] << ") = \t";
       for (i = 0; i < ids->GetNumberOfIds(); i++)
-        {
+      {
         strm << ids->GetId(i) << ", ";
-        }
-      strm << endl;
       }
+      strm << endl;
     }
+  }
 
   //Quad
   vtkQuad *quad = vtkQuad::New();
@@ -201,15 +201,15 @@ int TestOCB(ostream& strm)
   quadCoords[3][0] = .1; quadCoords[3][1] = 0.5;
 
   for (j = 0; j < 4; j++)
-    {
+  {
     quad->CellBoundary (0, quadCoords[j], ids);
     strm << "vtkQuad \t(" << quadCoords[j][0] << ", " << quadCoords[j][1] << ") = \t";
     for (i = 0; i < ids->GetNumberOfIds(); i++)
-      {
+    {
       strm << ids->GetId(i) << ", ";
-      }
-    strm << endl;
     }
+    strm << endl;
+  }
 
   //Pixel
   vtkPixel *pixel = vtkPixel::New();
@@ -226,15 +226,15 @@ int TestOCB(ostream& strm)
   pixelCoords[3][0] = .1; pixelCoords[3][1] = 0.5;
 
   for (j = 0; j < 4; j++)
-    {
+  {
     pixel->CellBoundary (0, pixelCoords[j], ids);
     strm << "vtkPixel \t(" << pixelCoords[j][0] << ", " << pixelCoords[j][1] << ") = \t";
     for (i = 0; i < ids->GetNumberOfIds(); i++)
-      {
+    {
       strm << ids->GetId(i) << ", ";
-      }
-    strm << endl;
     }
+    strm << endl;
+  }
 
   //Polygon
   vtkPolygon *polygon = vtkPolygon::New();
@@ -258,15 +258,15 @@ int TestOCB(ostream& strm)
   polygonCoords[3][0] = .1; polygonCoords[3][1] = 0.5;
 
   for (j = 0; j < 4; j++)
-    {
+  {
     polygon->CellBoundary (0, polygonCoords[j], ids);
     strm << "vtkPolygon \t(" << polygonCoords[j][0] << ", " << polygonCoords[j][1] << ") = \t";
     for (i = 0; i < ids->GetNumberOfIds(); i++)
-      {
+    {
       strm << ids->GetId(i) << ", ";
-      }
-    strm << endl;
     }
+    strm << endl;
+  }
 
   //Tetra
   vtkTetra *tetra = vtkTetra::New();
@@ -284,15 +284,15 @@ int TestOCB(ostream& strm)
   tetraCoords[3][0] = .3; tetraCoords[3][1] = 0.3; tetraCoords[3][2] = 0.3;
 
   for (j = 0; j < 4; j++)
-    {
+  {
     tetra->CellBoundary (0, tetraCoords[j], ids);
     strm << "vtkTetra \t(" << tetraCoords[j][0] << ", " << tetraCoords[j][1] << ", " << tetraCoords[j][2] << ") = \t";
     for (i = 0; i < ids->GetNumberOfIds(); i++)
-      {
+    {
       strm << ids->GetId(i) << ", ";
-      }
-    strm << endl;
     }
+    strm << endl;
+  }
 
   //Voxel
   vtkVoxel *voxel = vtkVoxel::New();
@@ -316,15 +316,15 @@ int TestOCB(ostream& strm)
   voxelCoords[5][0] = .5; voxelCoords[5][1] = 0.9; voxelCoords[5][2] = 0.5;
 
   for (j = 0; j < 6; j++)
-    {
+  {
     voxel->CellBoundary (0, voxelCoords[j], ids);
     strm << "vtkVoxel \t(" << voxelCoords[j][0] << ", " << voxelCoords[j][1] << ", " << voxelCoords[j][2] << ") = \t";
     for (i = 0; i < ids->GetNumberOfIds(); i++)
-      {
+    {
       strm << ids->GetId(i) << ", ";
-      }
-    strm << endl;
     }
+    strm << endl;
+  }
 
   //Wedge
   vtkWedge *wedge = vtkWedge::New();
@@ -346,15 +346,15 @@ int TestOCB(ostream& strm)
   wedgeCoords[5][0] = .5; wedgeCoords[5][1] = 0.9; wedgeCoords[5][2] = 0.5;
 
   for (j = 0; j < 6; j++)
-    {
+  {
     wedge->CellBoundary (0, wedgeCoords[j], ids);
     strm << "vtkWedge \t(" << wedgeCoords[j][0] << ", " << wedgeCoords[j][1] << ", " << wedgeCoords[j][2] << ") = \t";
     for (i = 0; i < ids->GetNumberOfIds(); i++)
-      {
+    {
       strm << ids->GetId(i) << ", ";
-      }
-    strm << endl;
     }
+    strm << endl;
+  }
 
   //Hexahedron
   vtkHexahedron *hexahedron = vtkHexahedron::New();
@@ -380,15 +380,15 @@ int TestOCB(ostream& strm)
   hexahedronCoords[7][0] = .5; hexahedronCoords[7][1] = 0.5; hexahedronCoords[7][2] = 0.9;
 
   for (j = 0; j < 8; j++)
-    {
+  {
     hexahedron->CellBoundary (0, hexahedronCoords[j], ids);
     strm << "vtkHexahedron \t(" << hexahedronCoords[j][0] << ", " << hexahedronCoords[j][1] << ", " << hexahedronCoords[j][2] << ") = \t";
     for (i = 0; i < ids->GetNumberOfIds(); i++)
-      {
+    {
       strm << ids->GetId(i) << ", ";
-      }
-    strm << endl;
     }
+    strm << endl;
+  }
 
   //Pentagonal Prism
   vtkPentagonalPrism *penta = vtkPentagonalPrism::New();
@@ -418,15 +418,15 @@ int TestOCB(ostream& strm)
   pentaCoords[9][0] = 0.0 ; pentaCoords[9][1] = 0.5; pentaCoords[9][2] = 1.0;
 
   for (j = 0; j < 10; j++)
-    {
+  {
     penta->CellBoundary (0, pentaCoords[j], ids);
     strm << "vtkPentagonalPrism \t(" << pentaCoords[j][0] << ", " << pentaCoords[j][1] << ", " << pentaCoords[j][2] << ") = \t";
     for (i = 0; i < ids->GetNumberOfIds(); i++)
-      {
+    {
       strm << ids->GetId(i) << ", ";
-      }
-    strm << endl;
     }
+    strm << endl;
+  }
 
   //Hexagonal Prism
   vtkHexagonalPrism *hexa = vtkHexagonalPrism::New();
@@ -460,15 +460,15 @@ int TestOCB(ostream& strm)
   hexaCoords[11][0] = 0.07 ; hexaCoords[11][1] = 0.3; hexaCoords[11][2] = 0.7;
 
   for (j = 0; j < 12; j++)
-    {
+  {
     hexa->CellBoundary (0, hexaCoords[j], ids);
     strm << "vtkHexagonalPrism \t(" << hexaCoords[j][0] << ", " << hexaCoords[j][1] << ", " << hexaCoords[j][2] << ") = \t";
     for (i = 0; i < ids->GetNumberOfIds(); i++)
-      {
+    {
       strm << ids->GetId(i) << ", ";
-      }
-    strm << endl;
     }
+    strm << endl;
+  }
 
   ids->Delete();
   vertex->Delete();

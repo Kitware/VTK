@@ -1,9 +1,6 @@
 vtk_module(vtkFiltersModeling
   GROUPS
     StandAlone
-  DEPENDS
-    vtkFiltersGeneral
-    vtkFiltersSources
   TEST_DEPENDS
     vtkCommonColor # For vtkBandedPolyDataContourFilter used in a test
     vtkIOXML
@@ -12,4 +9,14 @@ vtk_module(vtkFiltersModeling
     vtkInteractionStyle
   KIT
     vtkFilters
+  DEPENDS
+    vtkCommonExecutionModel
+    vtkCommonMisc
+    vtkFiltersGeneral
+  PRIVATE_DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonTransforms
+    vtkFiltersCore
+    vtkFiltersSources
   )

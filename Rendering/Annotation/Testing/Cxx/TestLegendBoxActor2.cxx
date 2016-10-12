@@ -75,13 +75,13 @@ int TestLegendBoxActor2( int argc, char * argv [] )
   // Create a test pipeline
   //
   for(int i=0; i < 5; ++i)
-    {
+  {
     vtkSmartPointer<vtkSphereSource> sphere =
       vtkSmartPointer<vtkSphereSource>::New();
     sphere->SetRadius(static_cast<double> (10 * (i + 1)));
     sphere->Update();
     actor->SetEntry(i, sphere->GetOutput(), text[i], textColor[i]);
-    }
+  }
 
   // Add the actors to the renderer, set the background and size
   ren1->AddViewProp(actor);
@@ -95,9 +95,9 @@ int TestLegendBoxActor2( int argc, char * argv [] )
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

@@ -36,19 +36,19 @@
   { \
   std::string expectedMsg(msg); \
   if (!errorObserver->GetError()) \
-    { \
+  { \
     std::cout << "Failed to catch any error.. Expected the error message to contain \"" << expectedMsg << std::endl; \
     status++; \
-    } \
+  } \
   else \
-    { \
+  { \
     std::string gotMsg(errorObserver->GetErrorMessage()); \
     if (gotMsg.find(expectedMsg) == std::string::npos) \
-      { \
+    { \
       std::cout << "Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
       status++; \
-      } \
     } \
+  } \
   } \
   errorObserver->Clear()
 
@@ -105,13 +105,13 @@ int UnitTestPMaskPoints (int argc, char* argv[])
   cntrl->Finalize();
   cntrl->Delete();
   if (status)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
   else
-    {
+  {
     return EXIT_SUCCESS;
-    }
+  }
 }
 
 vtkSmartPointer<vtkPolyData> MakePolyData(unsigned int numPoints)
@@ -122,14 +122,14 @@ vtkSmartPointer<vtkPolyData> MakePolyData(unsigned int numPoints)
     vtkSmartPointer<vtkPoints>::New();
   std::vector<double> line;
   for (unsigned int i = 0; i < numPoints; ++i)
-    {
+  {
     line.push_back(static_cast<double>(i));
-    }
+  }
   std::random_shuffle ( line.begin(), line.end() );
   for (unsigned int i = 0; i < numPoints; ++i)
-    {
+  {
     points->InsertNextPoint(line[i], 0.0, 0.0);
-    }
+  }
   polyData->SetPoints(points);
   return polyData;
 }

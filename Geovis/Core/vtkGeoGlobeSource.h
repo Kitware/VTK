@@ -17,11 +17,14 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGeoGlobeSource - Spherical globe source.
-//
-// .SECTION Description
-// vtkGeoGlobeSource is a 3D vtkGeoSource suitable for use in vtkGeoTerrain.
-// It uses the vtkGlobeSource filter to produce terrain patches.
+/**
+ * @class   vtkGeoGlobeSource
+ * @brief   Spherical globe source.
+ *
+ *
+ * vtkGeoGlobeSource is a 3D vtkGeoSource suitable for use in vtkGeoTerrain.
+ * It uses the vtkGlobeSource filter to produce terrain patches.
+*/
 
 #ifndef vtkGeoGlobeSource_h
 #define vtkGeoGlobeSource_h
@@ -38,12 +41,14 @@ public:
   vtkTypeMacro(vtkGeoGlobeSource,vtkGeoSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Fetches a low-resolution sphere for the entire globe.
+  /**
+   * Fetches a low-resolution sphere for the entire globe.
+   */
   virtual bool FetchRoot(vtkGeoTreeNode* root);
 
-  // Description:
-  // Fetches a refined geometry patch, a section of a sphere.
+  /**
+   * Fetches a refined geometry patch, a section of a sphere.
+   */
   virtual bool FetchChild(vtkGeoTreeNode* node, int index, vtkGeoTreeNode* child);
 
 protected:
@@ -51,8 +56,8 @@ protected:
   ~vtkGeoGlobeSource();
 
 private:
-  vtkGeoGlobeSource(const vtkGeoGlobeSource&); // Not implemented
-  void operator=(const vtkGeoGlobeSource&); // Not implemented
+  vtkGeoGlobeSource(const vtkGeoGlobeSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoGlobeSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

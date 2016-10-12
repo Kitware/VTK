@@ -53,19 +53,19 @@ vtkSortDataArray::~vtkSortDataArray()
 void vtkSortDataArray::Sort(vtkIdList *keys, int dir)
 {
   if ( keys == NULL )
-    {
+  {
     return;
-    }
+  }
   vtkIdType *data = keys->GetPointer(0);
   vtkIdType numKeys = keys->GetNumberOfIds();
   if ( dir == 0 )
-    {
+  {
     vtkSMPTools::Sort(data, data + numKeys);
-    }
+  }
   else
-    {
+  {
     vtkSMPTools::Sort(data, data + numKeys, std::greater<vtkIdType>());
-    }
+  }
 }
 
 
@@ -73,36 +73,36 @@ void vtkSortDataArray::Sort(vtkIdList *keys, int dir)
 void vtkSortDataArray::Sort(vtkAbstractArray *keys, int dir)
 {
   if ( keys == NULL )
-    {
+  {
     return;
-    }
+  }
 
   if (keys->GetNumberOfComponents() != 1)
-    {
+  {
     vtkGenericWarningMacro("Can only sort keys that are 1-tuples.");
     return;
-    }
+  }
 
   void *data = keys->GetVoidPointer(0);
   vtkIdType numKeys = keys->GetNumberOfTuples();
 
   if ( dir == 0 )
-    {
+  {
     switch (keys->GetDataType())
-      {
+    {
       vtkExtendedTemplateMacro(vtkSMPTools::Sort(static_cast<VTK_TT *>(data),
                                                  static_cast<VTK_TT *>(data) + numKeys));
-      }
     }
+  }
   else
-    {
+  {
     switch (keys->GetDataType())
-      {
+    {
       vtkExtendedTemplateMacro(vtkSMPTools::Sort(static_cast<VTK_TT *>(data),
                                                  static_cast<VTK_TT *>(data) + numKeys,
                                                  std::greater<VTK_TT>()));
-      }
     }
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -119,9 +119,9 @@ struct KeyComp
   const T *Array;
   KeyComp(T *array) : Array(array) {};
   bool operator() (vtkIdType idx0, vtkIdType idx1) const
-    {
+  {
     return ( Array[idx0] < Array[idx1] );
-    }
+  }
 };
 
 //-----------------------------------------------------------------------------
@@ -152,20 +152,20 @@ void Shuffle1Tuples(vtkIdType *idx, vtkIdType sze, vtkAbstractArray *arrayIn,
   T *postSort = new T [sze];
 
   if ( dir == 0 ) //ascending
-    {
+  {
     for (vtkIdType i=0; i<sze; ++i)
-      {
-      postSort[i] = preSort[idx[i]];
-      }
-    }
-  else
     {
+      postSort[i] = preSort[idx[i]];
+    }
+  }
+  else
+  {
     vtkIdType end=sze-1;
     for (vtkIdType i=0; i<sze; ++i)
-      {
+    {
       postSort[i] = preSort[idx[end-i]];
-      }
     }
+  }
 
   arrayIn->SetVoidArray(postSort, sze, 0,
                         vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
@@ -184,26 +184,26 @@ void ShuffleTuples(vtkIdType *idx, vtkIdType sze, int numComp,
   int k;
   vtkIdType i;
   if ( dir == 0 ) //ascending
-    {
+  {
     for (i=0; i<sze; ++i)
-      {
+    {
       for (k=0; k<numComp; ++k)
-        {
+      {
         postSort[i*numComp+k] = preSort[idx[i]*numComp+k];
-        }
       }
     }
+  }
   else
-    {
+  {
     vtkIdType end=sze-1;
     for (i=0; i<sze; ++i)
-      {
+    {
       for (k=0; k<numComp; ++k)
-        {
+      {
         postSort[i*numComp+k] = preSort[idx[end-i]*numComp+k];
-        }
       }
     }
+  }
 
   arrayIn->SetVoidArray(postSort, sze*numComp, 0,
                         vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
@@ -214,14 +214,14 @@ void ShuffleTuples(vtkIdType *idx, vtkIdType sze, int numComp,
 //---------------------------------------------------------------------------
 // Allocate and initialize sort indices
 vtkIdType* vtkSortDataArray::InitializeSortIndices(vtkIdType num)
-  {
+{
   vtkIdType *idx = new vtkIdType[num];
   for (vtkIdType i=0; i < num; ++i)
-    {
+  {
     idx[i] = i;
-    }
-  return idx;
   }
+  return idx;
+}
 
 
 //---------------------------------------------------------------------------
@@ -232,18 +232,18 @@ GenerateSort1Indices(int dataType, void *dataIn, vtkIdType numKeys,
                      vtkIdType *idx)
 {
   if ( dataType == VTK_VARIANT)
-    {
+  {
     vtkSMPTools::Sort(idx, idx+numKeys,
                       KeyComp<vtkVariant>(static_cast<vtkVariant*>(dataIn)));
-    }
+  }
   else
-    {
+  {
     switch ( dataType )
-      {
+    {
       vtkExtendedTemplateMacro(vtkSMPTools::Sort(idx, idx+numKeys,
                                KeyComp<VTK_TT>(static_cast<VTK_TT *>(dataIn))));
-      }
     }
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -254,23 +254,23 @@ GenerateSortIndices(int dataType, void *dataIn, vtkIdType numKeys,
 {
   // Specialized and faster for single component arrays
   if ( numComp == 1)
-    {
+  {
     return vtkSortDataArray::GenerateSort1Indices(dataType, dataIn, numKeys, idx);
-    }
+  }
 
   if ( dataType == VTK_VARIANT)
-    {
+  {
     vtkSMPTools::Sort(idx, idx+numKeys,
                  TupleComp<vtkVariant>(static_cast<vtkVariant*>(dataIn),numComp,k));
-    }
+  }
   else
-    {
+  {
     switch (dataType)
-      {
+    {
       vtkExtendedTemplateMacro(vtkSMPTools::Sort(idx, idx+numKeys,
                                TupleComp<VTK_TT>(static_cast<VTK_TT *>(dataIn),numComp,k)));
-      }
     }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -281,17 +281,17 @@ Shuffle1Array(vtkIdType *idx, int dataType, vtkIdType numKeys,
               vtkAbstractArray *arr, void *dataIn, int dir)
 {
   if ( dataType == VTK_VARIANT)
-    {
+  {
     Shuffle1Tuples(idx, numKeys, arr, static_cast<vtkVariant*>(dataIn), dir);
-    }
+  }
   else
-    {
+  {
     switch (arr->GetDataType())
-      {
+    {
       vtkExtendedTemplateMacro(Shuffle1Tuples(idx, numKeys, arr,
                                static_cast<VTK_TT *>(dataIn), dir));
-      }
     }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -302,24 +302,24 @@ ShuffleArray(vtkIdType *idx, int dataType, vtkIdType numKeys, int numComp,
 {
   // Specialized for single component arrays
   if ( numComp == 1)
-    {
+  {
     return vtkSortDataArray::Shuffle1Array(idx, dataType, numKeys, arr,
                                            dataIn, dir);
-    }
+  }
 
   if ( dataType == VTK_VARIANT)
-    {
+  {
     ShuffleTuples(idx, numKeys, numComp, arr,
                       static_cast<vtkVariant*>(dataIn), dir);
-    }
+  }
   else
-    {
+  {
     switch (arr->GetDataType())
-      {
+    {
       vtkExtendedTemplateMacro(ShuffleTuples(idx, numKeys, numComp, arr,
                                static_cast<VTK_TT *>(dataIn), dir));
-      }
     }
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -332,20 +332,20 @@ ShuffleIdList(vtkIdType *idx, vtkIdType sze, vtkIdList *arrayIn,
   vtkIdType *postSort = new vtkIdType [sze];
 
   if ( dir == 0 ) //ascending
-    {
+  {
     for (vtkIdType i=0; i<sze; ++i)
-      {
-      postSort[i] = preSort[idx[i]];
-      }
-    }
-  else
     {
+      postSort[i] = preSort[idx[i]];
+    }
+  }
+  else
+  {
     vtkIdType end=sze-1;
     for (vtkIdType i=0; i<sze; ++i)
-      {
+    {
       postSort[i] = preSort[idx[end-i]];
-      }
     }
+  }
 
   arrayIn->SetArray(postSort, sze);
 }
@@ -358,21 +358,21 @@ Sort(vtkAbstractArray *keys, vtkAbstractArray *values, int dir)
 {
   // Check input
   if ( keys == NULL || values == NULL )
-    {
+  {
     return;
-    }
+  }
   if (keys->GetNumberOfComponents() != 1)
-    {
+  {
     vtkGenericWarningMacro("Can only sort keys that are 1-tuples.");
     return;
-    }
+  }
   vtkIdType numKeys = keys->GetNumberOfTuples();
   vtkIdType numValues = values->GetNumberOfTuples();
   if ( numKeys != numValues )
-    {
+  {
     vtkGenericWarningMacro("Could not sort arrays.  Key and value arrays have different sizes.");
     return;
-    }
+  }
 
   // Sort the index array
   vtkIdType *idx = vtkSortDataArray::InitializeSortIndices(numKeys);
@@ -405,21 +405,21 @@ Sort(vtkAbstractArray *keys, vtkIdList *values, int  dir)
 {
   // Check input
   if ( keys == NULL || values == NULL )
-    {
+  {
     return;
-    }
+  }
   if (keys->GetNumberOfComponents() != 1)
-    {
+  {
     vtkGenericWarningMacro("Can only sort keys that are 1-tuples.");
     return;
-    }
+  }
   vtkIdType numKeys = keys->GetNumberOfTuples();
   vtkIdType numIds = values->GetNumberOfIds();
   if ( numKeys != numIds )
-    {
+  {
     vtkGenericWarningMacro("Could not sort arrays.  Key and id arrays have different sizes.");
     return;
-    }
+  }
 
   // Sort the index array
   vtkIdType *idx = vtkSortDataArray::InitializeSortIndices(numKeys);
@@ -449,18 +449,18 @@ SortArrayByComponent( vtkAbstractArray* arr, int k, int dir)
 {
   // Check input
   if ( arr == NULL )
-    {
+  {
     return;
-    }
+  }
   vtkIdType numKeys = arr->GetNumberOfTuples();
   int nc = arr->GetNumberOfComponents();
 
   if ( k < 0 || k >= nc )
-    {
+  {
     vtkGenericWarningMacro( "Cannot sort by column " << k <<
       " since the array only has columns 0 through " << (nc-1) );
     return;
-    }
+  }
 
   // Perform the sort
   vtkIdType *idx = vtkSortDataArray::InitializeSortIndices(numKeys);

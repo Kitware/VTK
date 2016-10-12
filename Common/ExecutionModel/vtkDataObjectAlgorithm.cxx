@@ -71,9 +71,9 @@ vtkDataObject* vtkDataObjectAlgorithm::GetInput()
 vtkDataObject* vtkDataObjectAlgorithm::GetInput(int port)
 {
   if (this->GetNumberOfInputConnections(port) < 1)
-    {
+  {
     return 0;
-    }
+  }
   return this->GetExecutive()->GetInputData(port, 0);
 }
 
@@ -84,26 +84,26 @@ int vtkDataObjectAlgorithm::ProcessRequest(vtkInformation* request,
 {
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
+  {
     return this->RequestData(request, inputVector, outputVector);
-    }
+  }
 
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
-    {
+  {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
-    }
+  }
 
   // Create data object output
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
-    {
+  {
     return this->RequestDataObject(request, inputVector, outputVector);
-    }
+  }
 
   // execute information
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
+  {
     return this->RequestInformation(request, inputVector, outputVector);
-    }
+  }
 
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }

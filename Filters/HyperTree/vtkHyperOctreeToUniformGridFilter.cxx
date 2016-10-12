@@ -74,29 +74,29 @@ int vtkHyperOctreeToUniformGridFilter::RequestInformation (
   spacing[0]=size[0]/(resolutions[0]-1);
 
   if(dim>=2)
-    {
+  {
     resolutions[1]=resolutions[0];
     spacing[1]=size[1]/(resolutions[1]-1);
     this->YExtent=2;
-    }
+  }
   else
-    {
+  {
     resolutions[1]=1;
     spacing[1]=0;
     this->YExtent=1;
-    }
+  }
   if(dim==3)
-    {
+  {
     resolutions[2]=resolutions[0];
     spacing[2]=size[2]/(resolutions[2]-1);
     this->ZExtent=2;
-    }
+  }
   else
-    {
+  {
     resolutions[2]=1;
     spacing[2]=0;
     this->ZExtent=1;
-    }
+  }
 
   outInfo->Set(vtkDataObject::SPACING(),spacing,3);
   outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
@@ -152,29 +152,29 @@ int vtkHyperOctreeToUniformGridFilter::RequestData(
   spacing[0]=input->GetSize()[0]/(resolutions[0]-1);
 
   if(dim>=2)
-    {
+  {
     resolutions[1]=resolutions[0];
     spacing[1]=input->GetSize()[1]/(resolutions[1]-1);
     this->YExtent=2;
-    }
+  }
   else
-    {
+  {
     resolutions[1]=1;
     spacing[1]=0;
     this->YExtent=1;
-    }
+  }
   if(dim==3)
-    {
+  {
     resolutions[2]=resolutions[0];
     spacing[2]=input->GetSize()[2]/(resolutions[2]-1);
     this->ZExtent=2;
-    }
+  }
   else
-    {
+  {
     resolutions[2]=1;
     spacing[2]=0;
     this->ZExtent=1;
-    }
+  }
   output->SetDimensions(resolutions);
   output->SetSpacing(spacing);
 
@@ -204,17 +204,17 @@ int vtkHyperOctreeToUniformGridFilter::RequestData(
   output->GetExtent(extent);
   // the given extent is point-based, we want a cell-based extent:
   if(extent[1]>0)
-    {
+  {
     extent[1]=extent[1]-1;
-    }
+  }
   if(extent[3]>0)
-    {
+  {
     extent[3]=extent[3]-1;
-    }
+  }
   if(extent[5]>0)
-    {
+  {
     extent[5]=extent[5]-1;
-    }
+  }
   this->CopyCellData(extent);
   this->Cursor->UnRegister(this);
   this->Cursor=0;
@@ -234,7 +234,7 @@ void vtkHyperOctreeToUniformGridFilter::CopyCellData(int cellExtent[6])
   assert("pre: valid_zextent" && cellExtent[4]<=cellExtent[5]);
 
   if(this->Cursor->CurrentIsLeaf())
-    {
+  {
     vtkIdType inId=this->Cursor->GetLeafId();
     int ijk[3];
     ijk[2]=cellExtent[4];
@@ -244,28 +244,28 @@ void vtkHyperOctreeToUniformGridFilter::CopyCellData(int cellExtent[6])
 #endif
 
     while(ijk[2]<=cellExtent[5]) // k
-      {
+    {
        ijk[1]=cellExtent[2];
        while(ijk[1]<=cellExtent[3]) // j
-         {
+       {
          ijk[0]=cellExtent[0];
          while(ijk[0]<=cellExtent[1]) // i
-           {
+         {
 #ifndef NDEBUG
            atLeastOne=1;
 #endif
            vtkIdType outId=this->Output->ComputeCellId(ijk);
            this->OutputCD->CopyData(this->InputCD,inId,outId);
            ++ijk[0];
-           }
-         ++ijk[1];
          }
+         ++ijk[1];
+       }
       ++ijk[2];
-      }
-    assert("check: make sure we entered into the loop" && atLeastOne);
     }
+    assert("check: make sure we entered into the loop" && atLeastOne);
+  }
   else
-    {
+  {
     // traverse children (zi|yi|xi)
     int zmid=(cellExtent[4]+cellExtent[5])>>1; // /2
     int ymid=(cellExtent[2]+cellExtent[3])>>1; // /2
@@ -277,19 +277,19 @@ void vtkHyperOctreeToUniformGridFilter::CopyCellData(int cellExtent[6])
     newExtent[4]=cellExtent[4];
     newExtent[5]=zmid;
     while(zi<this->ZExtent)
-      {
+    {
       int yi=0;
       int ychild=zchild;
       newExtent[2]=cellExtent[2];
       newExtent[3]=ymid;
       while(yi<this->YExtent)
-        {
+      {
         int xi=0;
         int child=ychild;
         newExtent[0]=cellExtent[0];
         newExtent[1]=xmid;
         while(xi<2)
-          {
+        {
           this->Cursor->ToChild(child);
           this->CopyCellData(newExtent);
           this->Cursor->ToParent();
@@ -297,18 +297,18 @@ void vtkHyperOctreeToUniformGridFilter::CopyCellData(int cellExtent[6])
           ++xi;
           newExtent[0]=xmid+1;
           newExtent[1]=cellExtent[1];
-          }
+        }
         ++yi;
         ychild+=2;
         newExtent[2]=ymid+1;
         newExtent[3]=cellExtent[3];
-        }
+      }
       ++zi;
       zchild+=4;
       newExtent[4]=zmid+1;
       newExtent[5]=cellExtent[5];
-      }
     }
+  }
 }
 
 //-----------------------------------------------------------------------------

@@ -109,9 +109,9 @@ void vtkExtractStructuredGridHelper::Invalidate()
   this->OutputWholeExtent[5]=-1;
 
   for(int i=0; i < 3; ++i)
-    {
+  {
     this->IndexMap->Mapping[ i ].clear();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -129,21 +129,21 @@ void vtkExtractStructuredGridHelper::Initialize(
       std::equal(wholeExtent, wholeExtent + 6, this->InputWholeExtent) &&
       std::equal(sampleRate, sampleRate + 3, this->SampleRate) &&
       includeBoundary == this->IncludeBoundary)
-    {
+  {
     // Nope.
     return;
-    }
+  }
 
   // Is the VOI valid?
   if (voi[1] < voi[0] || voi[3] < voi[2] || voi[5] < voi[4])
-    {
+  {
     this->Invalidate();
     vtkWarningMacro("Invalid volume of interest: ["
                     << " [ " << voi[0] << ", " << voi[1] << " ], "
                     << " [ " << voi[2] << ", " << voi[3] << " ], "
                     << " [ " << voi[4] << ", " << voi[5] << " ] ]");
     return;
-    }
+  }
 
   // Save the input parameters so we'll know when the map is out of date
   std::copy(voi, voi + 6, this->VOI);
@@ -156,7 +156,7 @@ void vtkExtractStructuredGridHelper::Initialize(
   vtkBoundingBox voiB(voi[0],voi[1],voi[2],voi[3],voi[4],voi[5]);
 
   if(!wExtB.Intersects(voiB))
-    {
+  {
     this->Invalidate();
     vtkDebugMacro(<< "Extent ["
                   << wholeExtent[0] << ", " << wholeExtent[1] << ", "
@@ -166,7 +166,7 @@ void vtkExtractStructuredGridHelper::Initialize(
                   << voi[0] << ", " << voi[1] << ", " << voi[2] << ", "
                   << voi[3] << ", " << voi[4] << ", " << voi[5] << "].");
     return;
-    }
+  }
 
   // Clamp VOI to Whole Extent
   vtkStructuredExtent::Clamp(voi,wholeExtent);
@@ -174,7 +174,7 @@ void vtkExtractStructuredGridHelper::Initialize(
   // Create mapping between output extent and input extent.
   // Compute the output whole extent in the process.
   for(int dim=0; dim < 3; ++dim)
-    {
+  {
     // +2: +1 to include start/end points, +1 in case we need to append an
     // extra point for includeBoundary edge cases.
     this->IndexMap->Mapping[dim].resize(voi[2*dim+1]-voi[2*dim]+2);
@@ -184,16 +184,16 @@ void vtkExtractStructuredGridHelper::Initialize(
     int inIdx = voi[2 * dim] - wholeExtent[2 * dim];
     int idxSize = voi[2 * dim + 1] - wholeExtent[2 * dim];
     while (inIdx <= idxSize)
-      {
+    {
       this->IndexMap->Mapping[dim][outIdx++] = inIdx;
       inIdx += sampleRate[dim];
-      } // END for all points in this dimension, strided by the sample rate
+    } // END for all points in this dimension, strided by the sample rate
 
     if (includeBoundary &&
         this->IndexMap->Mapping[dim][outIdx-1] != idxSize)
-      {
+    {
       this->IndexMap->Mapping[dim][outIdx++] = idxSize;
-      }
+    }
     this->IndexMap->Mapping[dim].resize(outIdx);
 
     // Preserve the extent range when sample rate is 1, otherwise extents start
@@ -204,7 +204,7 @@ void vtkExtractStructuredGridHelper::Initialize(
     this->OutputWholeExtent[2*dim]   = offset;
     this->OutputWholeExtent[2*dim+1] = offset +
         static_cast<int>( this->IndexMap->Mapping[dim].size()-1 );
-    } // END for all dimensions
+  } // END for all dimensions
 }
 
 //-----------------------------------------------------------------------------
@@ -288,43 +288,43 @@ void vtkExtractStructuredGridHelper::ComputeBeginAndEnd(
 
   int uExt[6];
   if( uExtB.IntersectBox(inExtB) )
-    {
+  {
 
     for(int i=0; i < 6; ++i)
-      {
+    {
       uExt[i] = static_cast<int>( roundToInt(uExtB.GetBound(i) ) );
-      }
+    }
 
     // Find the first and last indices in the map that are
     // within data extents. These are the extents of the
     // output data.
     for(int dim=0; dim < 3; ++dim)
-      {
+    {
       for(int idx=0; idx < this->GetSize(dim); ++idx)
-        {
+      {
         int extVal = this->GetMappedExtentValueFromIndex(dim, idx);
         if (extVal >= uExt[2*dim] &&
             extVal <= uExt[2*dim+1] )
-          {
+        {
           begin[dim] = idx;
           break;
-          }
-        } // END for all indices with
+        }
+      } // END for all indices with
 
       for(int idx=this->GetSize(dim)-1; idx >= 0; --idx)
-        {
+      {
         int extVal = this->GetMappedExtentValueFromIndex(dim, idx);
         if (extVal <= uExt[2*dim+1] &&
             extVal >= uExt[2*dim] )
-          {
+        {
           end[dim] = idx;
           break;
-          }
-        } // END for all indices
+        }
+      } // END for all indices
 
-      } // END for all dimensions
+    } // END for all dimensions
 
-    } // END if box intersects
+  } // END if box intersects
 }
 
 //-----------------------------------------------------------------------------
@@ -338,10 +338,10 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
 
   // short-circuit
   if( (pd->GetNumberOfArrays()==0) && (inpnts==NULL) )
-    {
+  {
     // nothing to copy
     return;
-    }
+  }
 
   // Get the size of the input and output
   vtkIdType inSize = vtkStructuredData::GetNumberOfPoints(inExt);
@@ -355,35 +355,35 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
                       K(this->SampleRate) == 1);
 
   if( inpnts != NULL )
-    {
+  {
     assert("pre: output points data-structure is NULL!" && (outpnts != NULL) );
     outpnts->SetDataType( inpnts->GetDataType() );
     outpnts->SetNumberOfPoints( outSize );
-    }
+  }
   outPD->CopyAllocate(pd,outSize,outSize);
 
   // Lists for batching copy operations:
   vtkNew<vtkIdList> srcIds;
   vtkNew<vtkIdList> dstIds;
   if (!canCopyRange)
-    {
+  {
     vtkIdType bufferSize = IMAX(outExt) - IMIN(outExt) + 1;
     srcIds->Allocate(bufferSize);
     dstIds->Allocate(bufferSize);
-    }
+  }
 
   int ijk[3];
   int src_ijk[3];
   for( K(ijk)=KMIN(outExt); K(ijk) <= KMAX(outExt); ++K(ijk) )
-    {
+  {
     K(src_ijk) = useMapping ? this->GetMappedExtentValue(2,K(ijk)) : K(ijk);
 
     for( J(ijk)=JMIN(outExt); J(ijk) <= JMAX(outExt); ++J(ijk) )
-      {
+    {
       J(src_ijk) = useMapping ? this->GetMappedExtentValue(1,J(ijk)) : J(ijk);
 
       if (canCopyRange)
-        {
+      {
         // Find the first point id:
         I(ijk) = IMIN(outExt);
         I(src_ijk) = I(ijk);
@@ -401,15 +401,15 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
                   (dstStart < outSize) );
 
         if (inpnts != NULL)
-          {
-          outpnts->InsertPoints(dstStart, num, srcStart, inpnts);
-          }
-        outPD->CopyData(pd, dstStart, num, srcStart);
-        }
-      else // canCopyRange
         {
+          outpnts->InsertPoints(dstStart, num, srcStart, inpnts);
+        }
+        outPD->CopyData(pd, dstStart, num, srcStart);
+      }
+      else // canCopyRange
+      {
         for( I(ijk)=IMIN(outExt); I(ijk) <= IMAX(outExt); ++I(ijk) )
-          {
+        {
           I(src_ijk) = useMapping ? this->GetMappedExtentValue(0,I(ijk))
                                   : I(ijk);
 
@@ -427,21 +427,21 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
           srcIds->InsertNextId(srcIdx);
           dstIds->InsertNextId(targetIdx);
 
-          } // END for all i
+        } // END for all i
 
         if( inpnts != NULL )
-          {
+        {
           outpnts->InsertPoints(dstIds.GetPointer(), srcIds.GetPointer(), inpnts);
-          } // END if
+        } // END if
         outPD->CopyData(pd, srcIds.GetPointer(), dstIds.GetPointer());
         srcIds->Reset();
         dstIds->Reset();
 
-        } // END else canCopyRange
+      } // END else canCopyRange
 
-      } // END for all j
+    } // END for all j
 
-    } // END for all k
+  } // END for all k
 
 }
 
@@ -455,10 +455,10 @@ void vtkExtractStructuredGridHelper::CopyCellData(int inExt[6], int outExt[6],
 
   // short-circuit
   if( cd->GetNumberOfArrays()==0 )
-    {
+  {
     // nothing to copy
     return;
-    }
+  }
 
   // Get the size of the output & allocate output
   vtkIdType inSize = vtkStructuredData::GetNumberOfCells(inExt);
@@ -482,34 +482,34 @@ void vtkExtractStructuredGridHelper::CopyCellData(int inExt[6], int outExt[6],
   vtkNew<vtkIdList> srcIds;
   vtkNew<vtkIdList> dstIds;
   if (!canCopyRange)
-    {
+  {
     vtkIdType bufferSize = IMAX(outCellExt) - IMIN(outCellExt) + 1;
     srcIds->Allocate(bufferSize);
     dstIds->Allocate(bufferSize);
-    }
+  }
 
   int ijk[3];
   int src_ijk[3];
   for( K(ijk)=KMIN(outCellExt); K(ijk) <= KMAX(outCellExt); ++K(ijk) )
-    {
+  {
     K(src_ijk) = useMapping ? this->GetMappedExtentValue(2, K(ijk)) : K(ijk);
     if (K(src_ijk) == KMAX(this->InputWholeExtent) &&
         KMIN(this->InputWholeExtent) != KMAX(this->InputWholeExtent))
-      {
+    {
       --K(src_ijk);
-      }
+    }
 
     for( J(ijk)=JMIN(outCellExt); J(ijk) <= JMAX(outCellExt); ++J(ijk) )
-      {
+    {
       J(src_ijk) = useMapping ? this->GetMappedExtentValue(1, J(ijk)) : J(ijk);
       if (J(src_ijk) == JMAX(this->InputWholeExtent) &&
           JMIN(this->InputWholeExtent) != JMAX(this->InputWholeExtent))
-        {
+      {
         --J(src_ijk);
-        }
+      }
 
       if (canCopyRange)
-        {
+      {
         // Find the first cell id:
         I(ijk) = IMIN(outCellExt);
         I(src_ijk) = I(ijk);
@@ -529,18 +529,18 @@ void vtkExtractStructuredGridHelper::CopyCellData(int inExt[6], int outExt[6],
                 (dstStart < outSize) );
 
         outCD->CopyData(cd, dstStart, num, srcStart);
-        }
+      }
       else // canCopyRange
-        {
+      {
         for( I(ijk)=IMIN(outCellExt); I(ijk) <= IMAX(outCellExt); ++I(ijk) )
-          {
+        {
           I(src_ijk) = useMapping ? this->GetMappedExtentValue(0, I(ijk))
                                   : I(ijk);
           if (I(src_ijk) == IMAX(this->InputWholeExtent) &&
               IMIN(this->InputWholeExtent) != IMAX(this->InputWholeExtent))
-            {
+          {
             --I(src_ijk);
-            }
+          }
 
           // NOTE: since we are operating on cell extents, ComputePointID below
           // really returns the cell ID
@@ -552,15 +552,15 @@ void vtkExtractStructuredGridHelper::CopyCellData(int inExt[6], int outExt[6],
 
           srcIds->InsertNextId(srcIdx);
           dstIds->InsertNextId(targetIdx);
-          } // END for all i
+        } // END for all i
 
         outCD->CopyData(cd, srcIds.GetPointer(), dstIds.GetPointer());
         srcIds->Reset();
         dstIds->Reset();
 
-        }// END else canCopyRange
-      } // END for all j
-    } // END for all k
+      }// END else canCopyRange
+    } // END for all j
+  } // END for all k
 }
 
 //------------------------------------------------------------------------------
@@ -596,23 +596,23 @@ void vtkExtractStructuredGridHelper::GetPartitionedVOI(const int globalVOI[6],
 
   // Adjust for spacing: (Ex: [3, 9] | [11, 17] )
   for (int dim = 0; dim < 3; ++dim)
-    {
+  {
     // Minimia:
     // Ex: 0 | 7
     int delta = EMIN(partitionedVOI, dim) - EMIN(globalVOI, dim);
     // Ex: 0 | 1
     delta %= sampleRate[dim];
     if (delta != 0)
-      {
+    {
       delta = sampleRate[dim] - delta;
-      }
+    }
     // Ex: 3 | 11
     EMIN(partitionedVOI, dim) += delta;
 
     if (includeBoundary && EMAX(partitionedVOI, dim) == EMAX(globalVOI, dim))
-      {
+    {
       continue;
-      }
+    }
 
     // Maxima:
     // Ex: 7 | 6
@@ -620,7 +620,7 @@ void vtkExtractStructuredGridHelper::GetPartitionedVOI(const int globalVOI[6],
     // Ex: 1 | 0
     delta %= sampleRate[dim];
     EMAX(partitionedVOI, dim) -= delta;
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -651,15 +651,15 @@ void vtkExtractStructuredGridHelper::GetPartitionedOutputExtent(
   // This method computes the PartitionedOutputExtent. The gap [3, 4] will be
   // cleaned up by the parallel filter using vtkStructuredImplicitConnectivity.
   for (int dim = 0; dim < 3; ++dim)
-    {
+  {
     if (sampleRate[dim] == 1)
-      {
+    {
       // If we're not downsampling, just return the partitioned VOI:
       EMIN(partitionedOutputExtent, dim) = EMIN(partitionedVOI, dim);
       EMAX(partitionedOutputExtent, dim) = EMAX(partitionedVOI, dim);
-      }
+    }
     else
-      {
+    {
       // If we downsample, the global output VOI will be offset to start at 0,
       // so we'll adjust the minimum
       // Ex: 0 | 4
@@ -667,22 +667,22 @@ void vtkExtractStructuredGridHelper::GetPartitionedOutputExtent(
           (EMIN(partitionedVOI, dim) - EMIN(globalVOI, dim)) / sampleRate[dim];
 
       if (includeBoundary && EMAX(partitionedVOI, dim) == EMAX(globalVOI, dim))
-        {
+      {
         int length = EMAX(partitionedVOI, dim) - EMIN(globalVOI, dim);
         EMAX(partitionedOutputExtent, dim) = length / sampleRate[dim];
         EMAX(partitionedOutputExtent, dim) +=
             ((length % sampleRate[dim]) == 0) ? 0 : 1;
-        }
+      }
       else {
         // Ex: 3 | 7
         EMAX(partitionedOutputExtent, dim) =
             (EMAX(partitionedVOI, dim) - EMIN(globalVOI, dim)) /
             sampleRate[dim];
-        }
+      }
 
       // Account for any offsets in the OutputWholeExtent:
       EMIN(partitionedOutputExtent, dim) += EMIN(outputWholeExtent, dim);
       EMAX(partitionedOutputExtent, dim) += EMIN(outputWholeExtent, dim);
-      }
     }
+  }
 }

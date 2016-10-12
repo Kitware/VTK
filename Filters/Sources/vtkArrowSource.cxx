@@ -94,18 +94,18 @@ int vtkArrowSource::RequestData(
  tf2->SetInputConnection(append->GetOutputPort());
 
   if (piece == 0 && numPieces > 0)
-    {
+  {
     if (this->Invert)
-      {
+    {
       tf2->Update();
       output->ShallowCopy(tf2->GetOutput());
-      }
+    }
     else
-      {
+    {
       append->Update();
       output->ShallowCopy(append->GetOutput());
-      }
     }
+  }
 
   cone->Delete();
   trans0->Delete();

@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkResliceImageViewerMeasurements - Manage measurements on a resliced image
-// .SECTION Description
-// This class manages measurements on the resliced image. It toggles the
-// the visibility of the measurements based on whether the resliced image
-// is the same orientation as when the measurement was initially placed.
-// .SECTION see also
-// vtkResliceCursor vtkResliceCursorWidget vtkResliceCursorRepresentation
+/**
+ * @class   vtkResliceImageViewerMeasurements
+ * @brief   Manage measurements on a resliced image
+ *
+ * This class manages measurements on the resliced image. It toggles the
+ * the visibility of the measurements based on whether the resliced image
+ * is the same orientation as when the measurement was initially placed.
+ * @sa
+ * vtkResliceCursor vtkResliceCursorWidget vtkResliceCursorRepresentation
+*/
 
 #ifndef vtkResliceImageViewerMeasurements_h
 #define vtkResliceImageViewerMeasurements_h
@@ -43,53 +46,72 @@ class VTKINTERACTIONIMAGE_EXPORT vtkResliceImageViewerMeasurements : public vtkO
 {
 public:
 
-  // Description:
-  // Standard VTK methods.
+  //@{
+  /**
+   * Standard VTK methods.
+   */
   static vtkResliceImageViewerMeasurements *New();
   vtkTypeMacro(vtkResliceImageViewerMeasurements,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // Render the measurements.
+  /**
+   * Render the measurements.
+   */
   virtual void Render();
 
-  // Description:
-  // Add / remove a measurement widget
+  //@{
+  /**
+   * Add / remove a measurement widget
+   */
   virtual void AddItem(vtkAbstractWidget *);
   virtual void RemoveItem(vtkAbstractWidget *);
   virtual void RemoveAllItems();
+  //@}
 
-  // Description:
-  // Methods to change whether the widget responds to interaction.
-  // Set this to Off to disable interaction. On by default.
-  // Subclasses must overide SetProcessEvents() to make sure
-  // that they pass on the flag to all component widgets.
+  //@{
+  /**
+   * Methods to change whether the widget responds to interaction.
+   * Set this to Off to disable interaction. On by default.
+   * Subclasses must overide SetProcessEvents() to make sure
+   * that they pass on the flag to all component widgets.
+   */
   vtkSetClampMacro(ProcessEvents, int, 0, 1);
   vtkGetMacro(ProcessEvents, int);
   vtkBooleanMacro(ProcessEvents, int);
+  //@}
 
-  // Description:
-  // Tolerance for Point-in-Plane check
+  //@{
+  /**
+   * Tolerance for Point-in-Plane check
+   */
   vtkSetMacro( Tolerance, double );
   vtkGetMacro( Tolerance, double );
+  //@}
 
-  // Description:
-  // Set the reslice image viewer. This is automatically done in the class
-  // vtkResliceImageViewer
+  //@{
+  /**
+   * Set the reslice image viewer. This is automatically done in the class
+   * vtkResliceImageViewer
+   */
   virtual void SetResliceImageViewer( vtkResliceImageViewer * );
   vtkGetObjectMacro( ResliceImageViewer, vtkResliceImageViewer );
+  //@}
 
-  // Description:
-  // Update the measurements. This is automatically called when the reslice
-  // cursor's axes are change.
+  /**
+   * Update the measurements. This is automatically called when the reslice
+   * cursor's axes are change.
+   */
   virtual void Update();
 
 protected:
   vtkResliceImageViewerMeasurements();
   ~vtkResliceImageViewerMeasurements();
 
-  // Description:
-  // Check if a measurement widget is on the resliced plane.
+  //@{
+  /**
+   * Check if a measurement widget is on the resliced plane.
+   */
   bool IsItemOnReslicedPlane( vtkAbstractWidget * w );
   bool IsWidgetOnReslicedPlane( vtkDistanceWidget * w );
   bool IsWidgetOnReslicedPlane( vtkAngleWidget * w );
@@ -100,6 +122,7 @@ protected:
   bool IsWidgetOnReslicedPlane( vtkHandleWidget * w );
   bool IsPointOnReslicedPlane( vtkHandleRepresentation * h );
   bool IsPositionOnReslicedPlane( double p[3] );
+  //@}
 
   // Handles the events; centralized here for all widgets.
   static void ProcessEventsHandler(vtkObject* object, unsigned long event,
@@ -119,8 +142,8 @@ protected:
   double Tolerance;
 
 private:
-  vtkResliceImageViewerMeasurements(const vtkResliceImageViewerMeasurements&);  // Not implemented.
-  void operator=(const vtkResliceImageViewerMeasurements&);  // Not implemented.
+  vtkResliceImageViewerMeasurements(const vtkResliceImageViewerMeasurements&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkResliceImageViewerMeasurements&) VTK_DELETE_FUNCTION;
 };
 
 #endif

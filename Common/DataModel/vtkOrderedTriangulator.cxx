@@ -60,10 +60,10 @@ struct OTPoint
 {
   OTPoint() : Type(Inside), Id(0), SortId(0), SortId2(0), OriginalId(0),
               InsertionId(0)
-    {
+  {
       this->X[0] = this->X[1] = this->X[2] = 0.0;
       this->P[0] = this->P[1] = this->P[2] = 0.0;
-    }
+  }
 
   enum PointClassification
     {Inside=0,Outside=1,Boundary=2,Added=3,NoInsert=4};
@@ -109,7 +109,7 @@ struct OTFace //used during tetra construction
   double   N2;
 
   void ComputePseudoNormal()
-    {
+  {
       double v20[3], v10[3];
       v20[0] = this->Points[2]->P[0] - this->Points[0]->P[0];
       v20[1] = this->Points[2]->P[1] - this->Points[0]->P[1];
@@ -119,16 +119,16 @@ struct OTFace //used during tetra construction
       v10[2] = this->Points[1]->P[2] - this->Points[0]->P[2];
       vtkMath::Cross(v10,v20,this->Normal);
       this->N2 = vtkMath::Dot(this->Normal,this->Normal);
-    }
+  }
   int IsValidCavityFace(double X[3],double tol2)
-    {
+  {
       double vp[3], d;
       vp[0] = X[0] - this->Points[0]->P[0];
       vp[1] = X[1] - this->Points[0]->P[1];
       vp[2] = X[2] - this->Points[0]->P[2];
       d = vtkMath::Dot(vp,this->Normal);
       return ( (d > 0.0L && (d*d) > (tol2*this->N2)) ? 1 : 0 );
-    }
+  }
 };
 typedef std::vector<OTFace*>            FaceListType;
 typedef std::vector<OTFace*>::iterator  FaceListIterator;
@@ -151,13 +151,13 @@ struct OTTetra
   void operator delete(void*,vtkHeap*) {}
 
   OTTetra() : Radius2(0.0L), CurrentPointId(-1), Type(OutsideCavity)
-    {
+  {
     this->Center[0] = this->Center[1] = this->Center[2] = 0.0L;
     this->Points[0] = this->Points[1] = this->Points[2] = this->Points[3] = 0;
     this->Neighbors[0] = this->Neighbors[1] =
       this->Neighbors[2] = this->Neighbors[3] = 0;
     this->DeleteMe = 0;
-    }
+  }
 
   // Center and radius squared of circumsphere of this tetra
   double Radius2;
@@ -187,14 +187,14 @@ struct vtkOTMesh
 {
   vtkOTMesh(vtkHeap *heap) :
     NumberOfTetrasClassifiedInside(0), NumberOfTemplates(0)
-    {
+  {
       this->EdgeTable = vtkEdgeTable::New();
       this->Heap = heap;
-    }
+  }
   ~vtkOTMesh()
-    {
+  {
       this->EdgeTable->Delete();
-    }
+  }
 
   PointListType   Points;          //Points in the mesh
   TetraListType   Tetras;          //Tetrahedra in the mesh
@@ -211,7 +211,7 @@ struct vtkOTMesh
   TetraListIterator CurrentTetra;
 
   void Reset()
-    {
+  {
       this->Points.clear();
       this->Tetras.clear();
       this->CavityFaces.clear();
@@ -219,7 +219,7 @@ struct vtkOTMesh
       this->TetraStack.clear();
       this->DegenerateQueue.clear();
       this->EdgeTable->Reset();
-    }
+  }
 
   OTTetra *CreateTetra(OTPoint *p, OTFace *face);
   OTTetra *WalkToTetra(OTTetra *t,double x[3],int depth,double bc[4]);
@@ -244,11 +244,11 @@ struct OTTemplate
   vtkIdType *Tetras;
 
   OTTemplate(vtkIdType numberOfTetras, vtkHeap *heap)
-    {
+  {
       this->NumberOfTetras = numberOfTetras;
       this->Tetras = static_cast<vtkIdType*>(
         heap->AllocateMemory(sizeof(vtkIdType)*numberOfTetras*4) );
-    }
+  }
   void *operator new(size_t size, vtkHeap *heap)
     {return heap->AllocateMemory(size);}
   void operator delete(void*,vtkHeap*) {}
@@ -294,9 +294,9 @@ vtkOrderedTriangulator::~vtkOrderedTriangulator()
 
   TemplatesIterator titer;
   for (titer=this->Templates->begin(); titer != this->Templates->end(); ++titer)
-    {
+  {
     delete (*titer).second;
-    }
+  }
   delete this->Templates;
   this->TemplateHeap->Delete();
 }
@@ -330,9 +330,9 @@ void vtkOrderedTriangulator::InitTriangulation(double bounds[6], int numPts)
   this->Mesh->Points.resize(numPts+6);
 
   for (int i=0; i<6; i++)
-    {
+  {
     this->Bounds[i] = bounds[i];
-    }
+  }
 }
 
 //------------------------------------------------------------------------
@@ -408,14 +408,14 @@ void vtkOrderedTriangulator::Initialize()
   // They all share the same center and radius
   OTTetra *tetras[4];
   for (int i=0; i<4; ++i)
-    {
+  {
     tetras[i] = new(this->Heap) OTTetra();
     this->Mesh->Tetras.push_front(tetras[i]);
     tetras[i]->Center[0] = center[0];
     tetras[i]->Center[1] = center[1];
     tetras[i]->Center[2] = center[2];
     tetras[i]->Radius2 = radius2;
-    }
+  }
 
   //Okay now set up the points and neighbors in the tetras
   tetras[0]->Points[0] = this->Mesh->Points.GetPointer(numPts + 0);
@@ -463,11 +463,11 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, double x[3],
 {
   vtkIdType idx = this->NumberOfPoints++;
   if ( idx >= this->MaximumNumberOfPoints )
-    {
+  {
     vtkErrorMacro(<< "Trying to insert more points than specified max="
       << this->MaximumNumberOfPoints << " idx=" << idx);
     return idx;
-    }
+  }
 
   this->Mesh->Points[idx].Id = id;
   this->Mesh->Points[idx].SortId = id;
@@ -494,10 +494,10 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, vtkIdType sortid,
 {
   vtkIdType idx = this->NumberOfPoints++;
   if ( idx >= this->MaximumNumberOfPoints )
-    {
+  {
     vtkErrorMacro(<< "Trying to insert more points than specified");
     return idx;
-    }
+  }
 
   this->Mesh->Points[idx].Id = id;
   this->Mesh->Points[idx].SortId = sortid;
@@ -525,10 +525,10 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, vtkIdType sortid,
 {
   vtkIdType idx = this->NumberOfPoints++;
   if ( idx >= this->MaximumNumberOfPoints )
-    {
+  {
     vtkErrorMacro(<< "Trying to insert more points than specified");
     return idx;
-    }
+  }
 
   this->Mesh->Points[idx].Id = id;
   this->Mesh->Points[idx].SortId = sortid;
@@ -590,7 +590,7 @@ void OTTetra::GetFacePoints(int i, OTFace *face)
   // that is not inside out; i.e., the ordering produces a positive
   // Jacobian (computed from first three points points to fourth).
   switch (i)
-    {
+  {
     case 0:
       face->Points[0] = this->Points[0];
       face->Points[1] = this->Points[3];
@@ -611,7 +611,7 @@ void OTTetra::GetFacePoints(int i, OTFace *face)
       face->Points[1] = this->Points[1];
       face->Points[2] = this->Points[2];
       break;
-    }
+  }
   face->ComputePseudoNormal();
 }
 
@@ -625,17 +625,17 @@ extern "C" {
 #endif
   {
     if (((OTPoint *)val1)->SortId < ((OTPoint *)val2)->SortId)
-      {
+    {
       return (-1);
-      }
+    }
     else if (((OTPoint *)val1)->SortId > ((OTPoint *)val2)->SortId)
-      {
+    {
       return (1);
-      }
+    }
     else
-      {
+    {
       return (0);
-      }
+    }
   }
 }
 
@@ -647,26 +647,26 @@ extern "C" {
 #endif
   {
     if (((OTPoint *)val1)->SortId2 < ((OTPoint *)val2)->SortId2)
-      {
+    {
       return (-1);
-      }
+    }
     else if (((OTPoint *)val1)->SortId2 > ((OTPoint *)val2)->SortId2)
-      {
+    {
       return (1);
-      }
+    }
 
     if (((OTPoint *)val1)->SortId < ((OTPoint *)val2)->SortId)
-      {
+    {
       return (-1);
-      }
+    }
     else if (((OTPoint *)val1)->SortId > ((OTPoint *)val2)->SortId)
-      {
+    {
       return (1);
-      }
+    }
     else
-      {
+    {
       return (0);
-      }
+    }
   }
 }
 
@@ -696,10 +696,10 @@ inline OTTetra::TetraClassification OTTetra::DetermineType()
         this->Points[2]->Type == OTPoint::Boundary ) &&
        (this->Points[3]->Type == OTPoint::Inside ||
         this->Points[3]->Type == OTPoint::Boundary ) )
-    {
+  {
     this->Type = OTTetra::Inside;
     return OTTetra::Inside;
-    }
+  }
   else if ( (this->Points[0]->Type == OTPoint::Outside ||
              this->Points[0]->Type == OTPoint::Boundary ) &&
             (this->Points[1]->Type == OTPoint::Outside ||
@@ -708,15 +708,15 @@ inline OTTetra::TetraClassification OTTetra::DetermineType()
              this->Points[2]->Type == OTPoint::Boundary ) &&
             (this->Points[3]->Type == OTPoint::Outside ||
              this->Points[3]->Type == OTPoint::Boundary ) )
-    {
+  {
     this->Type = OTTetra::Outside;
     return OTTetra::Outside;
-    }
+  }
   else
-    {
+  {
     this->Type = OTTetra::Exterior;
     return OTTetra::Exterior;
-    }
+  }
 }
 
 //------------------------------------------------------------------------
@@ -725,13 +725,13 @@ inline static int IsAPoint(OTTetra *t, vtkIdType id)
 {
   if ( id == t->Points[0]->InsertionId || id == t->Points[1]->InsertionId ||
        id == t->Points[2]->InsertionId || id == t->Points[3]->InsertionId )
-    {
+  {
     return 1;
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 //------------------------------------------------------------------------
@@ -742,14 +742,14 @@ static void AssignNeighbors(OTTetra* t1, OTTetra* t2)
   int i, index;
 
   for (i=0, index=0; i<4; ++i)
-    {
+  {
     if (IsAPoint(t2,t1->Points[i]->InsertionId) )
-      {
-      index |= CASE_MASK[i];
-      }
-    }
-  switch (index)
     {
+      index |= CASE_MASK[i];
+    }
+  }
+  switch (index)
+  {
     case 11:
       t1->Neighbors[0] = t2;
       break;
@@ -764,17 +764,17 @@ static void AssignNeighbors(OTTetra* t1, OTTetra* t2)
       break;
     default:
       vtkGenericWarningMacro(<<"Really bad");
-    }
+  }
 
   for (i=0, index=0; i<4; ++i)
-    {
+  {
     if (IsAPoint(t1,t2->Points[i]->InsertionId) )
-      {
-      index |= CASE_MASK[i];
-      }
-    }
-  switch (index)
     {
+      index |= CASE_MASK[i];
+    }
+  }
+  switch (index)
+  {
     case 11:
       t2->Neighbors[0] = t1;
       break;
@@ -789,7 +789,7 @@ static void AssignNeighbors(OTTetra* t1, OTTetra* t2)
       break;
     default:
       vtkGenericWarningMacro(<<"Really bad");
-    }
+  }
 }
 
 //------------------------------------------------------------------------
@@ -813,9 +813,9 @@ OTTetra *vtkOTMesh::CreateTetra(OTPoint *p, OTFace *face)
   tetra->Points[3] = p;
 
   if ( face->Neighbor )
-    {
+  {
     AssignNeighbors(tetra,face->Neighbor);
-    }
+  }
 
   return tetra;
 }
@@ -848,58 +848,58 @@ int vtkOTMesh::CreateInsertionCavity(OTPoint* p, OTTetra *initialTet,
   OTTetra *nei, *tetra;
   TetraQueueIterator t;
   for ( int numCycles=0; !this->TetraStack.empty(); numCycles++)
-    {
+  {
     tetra = this->TetraStack.top();
     this->TetraStack.pop();
 
     //for each face, see whether the neighbors are in the cavity
     for (valid=1, i=0; i<4 && valid; ++i)
-      {
+    {
       nei = tetra->Neighbors[i];
       // If a mesh boundary face, the face is added to the
       // list of insertion cavity faces
       if ( nei == 0 )
-        {
+      {
         OTFace *face = new(this->Heap) OTFace;
         tetra->GetFacePoints(i,face);
         face->Neighbor = 0;
         this->CavityFaces.push_back(face);
         valid = face->IsValidCavityFace(p->P,this->Tolerance2);
-        }
+      }
       // Neighbor tetra has not been visited, check for possible face boundary
       else if ( nei->CurrentPointId != p->InsertionId )
-        {
+      {
         this->VisitedTetras.push_back(nei);
         nei->CurrentPointId = p->InsertionId; //mark visited
         if ( nei->InCircumSphere(p->P) )
-          {
+        {
           nei->Type = OTTetra::InCavity;
           this->TetraStack.push(nei);
-          }
+        }
         else //a cavity boundary
-          {
+        {
           nei->Type = OTTetra::OutsideCavity;
           OTFace *face = new(this->Heap) OTFace;
           tetra->GetFacePoints(i,face);
           face->Neighbor = nei;
           this->CavityFaces.push_back(face);
           valid = face->IsValidCavityFace(p->P,this->Tolerance2);
-          }
-        }//if a not-visited face neighbor
+        }
+      }//if a not-visited face neighbor
       // Visited before, add this face as a boundary
       else if ( nei->Type == OTTetra::OutsideCavity )
-        {
+      {
         OTFace *face = new(this->Heap) OTFace;
         tetra->GetFacePoints(i,face);
         face->Neighbor = nei;
         this->CavityFaces.push_back(face);
         valid = face->IsValidCavityFace(p->P,this->Tolerance2);
-        }
-      }//for each of the four tetra faces
+      }
+    }//for each of the four tetra faces
 
     //check for validity
     if ( !valid ) //broke out due to invalid face
-      {
+    {
       somethingNotValid++;
       //add this tetra to queue
       this->DegenerateQueue.push_back(tetra);
@@ -907,18 +907,18 @@ int vtkOTMesh::CreateInsertionCavity(OTPoint* p, OTTetra *initialTet,
       //mark all current tetras unvisited
       for (t = this->VisitedTetras.begin();
            t != this->VisitedTetras.end(); ++t)
-        {
+      {
         (*t)->CurrentPointId = -1;
-        }
+      }
 
       //mark degenerate tetras visited and outside cavity
       TetraQueueIterator titer;
       for ( titer=this->DegenerateQueue.begin();
             titer != this->DegenerateQueue.end(); ++titer)
-        {
+      {
         (*titer)->CurrentPointId = p->InsertionId;
         (*titer)->Type = OTTetra::OutsideCavity;
-        }
+      }
 
       //reinitialize queue
       this->CavityFaces.clear();  //cavity face boundary
@@ -928,41 +928,41 @@ int vtkOTMesh::CreateInsertionCavity(OTPoint* p, OTTetra *initialTet,
       initialTet->CurrentPointId = p->InsertionId;
       initialTet->Type = OTTetra::InCavity;
       this->VisitedTetras.push_back(initialTet);
-      }
+    }
     if ( numCycles > 1000 ) return 0;
-    }//while queue not empty
+  }//while queue not empty
 
   // Make final pass and delete tetras inside the cavity
   for (t = this->VisitedTetras.begin(); t != this->VisitedTetras.end(); ++t)
-    {
+  {
     tetra = *t;
     if ( tetra->CurrentPointId == p->InsertionId &&
          tetra->Type == OTTetra::InCavity )
-      {
+    {
       tetra->DeleteMe = 1;
-      }
     }
+  }
 
   TetraListIterator it;
   for (it = this->Tetras.begin(); it != this->Tetras.end(); )
-    {
+  {
     if ((*it)->DeleteMe)
-      {
+    {
       it = this->Tetras.erase(it);
-      }
-    else
-      {
-      ++it;
-      }
     }
+    else
+    {
+      ++it;
+    }
+  }
 
 #if 0
   //please leave this for debugging purposes
   if ( somethingNotValid )
-    {
+  {
     this->DumpInsertionCavity(p->P);
 //    exit(1);
-    }
+  }
 #endif
 
   return 1;
@@ -978,12 +978,12 @@ int vtkOTMesh::ClassifyTetras()
 
   // loop over all tetras getting the ones with the classification requested
   for (t=this->Tetras.begin(); t != this->Tetras.end(); ++t)
-    {
+  {
     if ( (*t)->DetermineType() == OTTetra::Inside )
-      {
+    {
       numInsideTetras++;
-      }
-    }//for all tetras
+    }
+  }//for all tetras
 
   return numInsideTetras;
 }
@@ -1006,7 +1006,7 @@ void vtkOTMesh::DumpInsertionCavity(double x[3])
 
   for (fptr=this->CavityFaces.begin();
        fptr != this->CavityFaces.end(); ++fptr)
-    {
+  {
     face = *fptr;
     cout << face->Points[0]->P[0] << " "
          << face->Points[0]->P[1] << " "
@@ -1017,7 +1017,7 @@ void vtkOTMesh::DumpInsertionCavity(double x[3])
          << face->Points[2]->P[0] << " "
          << face->Points[2]->P[1] << " "
          << face->Points[2]->P[2] << "\n";
-    }
+  }
 
   //write out point insertion vertex
   cout << x[0] << " " << x[1] << " " << x[2] << "\n\n";
@@ -1030,9 +1030,9 @@ void vtkOTMesh::DumpInsertionCavity(double x[3])
   int idx=0;
   for (fptr=this->CavityFaces.begin();
        fptr != this->CavityFaces.end(); ++fptr, idx+=3)
-    {
+  {
     cout << 3 << " " << idx << " " << idx+1 << " " << idx+2 << "\n";
-    }
+  }
 }
 
 //------------------------------------------------------------------------
@@ -1048,36 +1048,36 @@ vtkOTMesh::WalkToTetra(OTTetra *tetra, double x[3], int depth, double bc[4])
 
   // prevent aimless wandering and death by recursion
   if ( depth > 200 )
-    {
+  {
     return 0;
-    }
+  }
 
   vtkTetra::BarycentricCoords(x, tetra->Points[0]->P, tetra->Points[1]->P,
                               tetra->Points[2]->P, tetra->Points[3]->P, bc);
 
   // find the most negative face
   for ( negValue=VTK_DOUBLE_MAX, numNeg=j=0; j<4; j++ )
-    {
+  {
     if ( bc[j] < -0.000001 ) //if close enough that's okay
-      {
+    {
       numNeg++;
       if ( bc[j] < negValue )
-        {
+      {
         negValue = bc[j];
         neg = j;
-        }
       }
     }
+  }
 
   // if no negatives, then inside this tetra
   if ( numNeg <= 0 )
-    {
+  {
     return tetra;
-    }
+  }
 
   // okay, march towards the most negative direction
   switch (neg)
-    {
+  {
     case 0:
       tetra = tetra->Neighbors[1];
       break;
@@ -1090,16 +1090,16 @@ vtkOTMesh::WalkToTetra(OTTetra *tetra, double x[3], int depth, double bc[4])
     case 3:
       tetra = tetra->Neighbors[3];
       break;
-    }
+  }
 
   if ( tetra )
-    {
+  {
     return this->WalkToTetra(tetra, x, ++depth, bc);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 //------------------------------------------------------------------------
@@ -1114,18 +1114,18 @@ void vtkOrderedTriangulator::Triangulate()
   // Sort the points according to id. The last six points are left
   // where they are (at the end of the list).
   if ( ! this->PreSorted )
-    {
+  {
     if (this->UseTwoSortIds)
-      {
+    {
       qsort(this->Mesh->Points.GetPointer(0), this->NumberOfPoints,
             sizeof(OTPoint), vtkSortOnTwoIds);
-      }
+    }
     else
-      {
+    {
       qsort(this->Mesh->Points.GetPointer(0), this->NumberOfPoints,
             sizeof(OTPoint), vtkSortOnIds);
-      }
     }
+  }
 
   // Prepare the data structures (e.g., mesh) for an ordererd triangulation.
   this->Initialize();
@@ -1134,11 +1134,11 @@ void vtkOrderedTriangulator::Triangulate()
   // as we progress.
   for (ptId=0, p=this->Mesh->Points.GetPointer(0);
        ptId < this->NumberOfPoints; ++p, ++ptId)
-    {
+  {
     if ( p->Type == OTPoint::NoInsert )
-      {
+    {
       continue; //skip this point
-      }
+    }
 
     p->InsertionId = ptId;
 
@@ -1148,10 +1148,10 @@ void vtkOrderedTriangulator::Triangulate()
       this->Mesh->WalkToTetra(*(this->Mesh->Tetras.begin()),p->P,0,bc);
 
     if ( tetra == 0 || !this->Mesh->CreateInsertionCavity(p, tetra, bc) )
-      {
+    {
       vtkDebugMacro(<<"Point not in tetrahedron");
       continue;
-      }
+    }
 
     // For each face on the boundary of the cavity, create a new
     // tetrahedron with the face and point. We've also got to set
@@ -1169,28 +1169,28 @@ void vtkOrderedTriangulator::Triangulate()
 
     for (fptr=this->Mesh->CavityFaces.begin();
          fptr != this->Mesh->CavityFaces.end(); ++fptr)
-      {
+    {
       face = *fptr;
       //create a tetra (it's added to the list of tetras as a side effect)
       tetra = this->Mesh->CreateTetra(p,face);
 
       for (i=0; i<3; ++i)
-        {
+      {
         v1 = face->Points[i%3]->InsertionId;
         v2 = face->Points[(i+1)%3]->InsertionId;
         this->Mesh->EdgeTable->IsEdge(v1,v2,tptr);
         if ( ! tptr )
-          {
+        {
           this->Mesh->EdgeTable->InsertEdge(v1,v2,tetra);
-          }
+        }
         else
-          {
+        {
           neiTetra = static_cast<OTTetra*>(tptr);
           AssignNeighbors(tetra, neiTetra);
-          }
-        }//for three edges
-      }//for each face on the insertion cavity
-    }//for all points to be inserted
+        }
+      }//for three edges
+    }//for each face on the insertion cavity
+  }//for all points to be inserted
 
   // Final classification
   this->Mesh->NumberOfTetrasClassifiedInside = this->Mesh->ClassifyTetras();
@@ -1204,37 +1204,37 @@ void vtkOrderedTriangulator::TemplateTriangulate(int cellType,
 {
   this->CellType = cellType;
   if ( ! this->UseTemplates || cellType != VTK_HEXAHEDRON)
-    {
+  {
     this->Triangulate();
     return;
-    }
+  }
 
   this->NumberOfCellPoints = numPts;
   this->NumberOfCellEdges = numEdges;
 
   // Sort the points according to id.
   if ( ! this->PreSorted )
-    {
+  {
     if (this->UseTwoSortIds)
-      {
+    {
       qsort(this->Mesh->Points.GetPointer(0), this->NumberOfPoints,
             sizeof(OTPoint), vtkSortOnTwoIds);
-      }
+    }
     else
-      {
+    {
       qsort(this->Mesh->Points.GetPointer(0), this->NumberOfPoints,
             sizeof(OTPoint), vtkSortOnIds);
-      }
     }
+  }
 
   if ( ! this->TemplateTriangulation() )
-    {//template triangulation didn't work, triangulate it and add to template cache
+  {//template triangulation didn't work, triangulate it and add to template cache
     int preSorted = this->PreSorted; //prevents resorting
     this->PreSorted = 1;
     this->Triangulate();
     this->AddTemplate();
     this->PreSorted = preSorted;
-    }
+  }
 }
 
 //------------------------------------------------------------------------
@@ -1250,9 +1250,9 @@ vtkIdType vtkOrderedTriangulator::GetTetras(int classification,
   vtkPoints *points = vtkPoints::New();
   points->SetNumberOfPoints(this->NumberOfPoints);
   for ( i=0, p=this->Mesh->Points.begin(); i<this->NumberOfPoints; ++i, ++p)
-    {
+  {
     points->SetPoint(p->InsertionId,p->X);
-    }
+  }
   ugrid->SetPoints(points);
   points->Delete();
 
@@ -1263,19 +1263,19 @@ vtkIdType vtkOrderedTriangulator::GetTetras(int classification,
   // loop over all tetras getting the ones with the classification requested
   vtkIdType pts[4];
   for (t=this->Mesh->Tetras.begin(); t != this->Mesh->Tetras.end(); ++t)
-    {
+  {
     tetra = *t;
 
     if ( tetra->Type == classification || classification == OTTetra::All)
-      {
+    {
       numTetras++;
       pts[0] = tetra->Points[0]->Id;
       pts[1] = tetra->Points[1]->Id;
       pts[2] = tetra->Points[2]->Id;
       pts[3] = tetra->Points[3]->Id;
       ugrid->InsertNextCell(VTK_TETRA,4,pts);
-      }
-    }//for all tetras
+    }
+  }//for all tetras
 
   return numTetras;
 }
@@ -1291,19 +1291,19 @@ vtkIdType vtkOrderedTriangulator::AddTetras(int classification,
 
   // loop over all tetras getting the ones with the classification requested
   for (t=this->Mesh->Tetras.begin(); t != this->Mesh->Tetras.end(); ++t)
-    {
+  {
     tetra = *t;
 
     if ( tetra->Type == classification || classification == OTTetra::All)
-      {
+    {
       numTetras++;
       outConnectivity->InsertNextCell(4);
       outConnectivity->InsertCellPoint(tetra->Points[0]->Id);
       outConnectivity->InsertCellPoint(tetra->Points[1]->Id);
       outConnectivity->InsertCellPoint(tetra->Points[2]->Id);
       outConnectivity->InsertCellPoint(tetra->Points[3]->Id);
-      }
-    }//for all tetras
+    }
+  }//for all tetras
 
   return numTetras;
 }
@@ -1340,30 +1340,30 @@ vtkIdType vtkOrderedTriangulator::AddTetras(int classification,
 
   // loop over all tetras getting the ones with the classification requested
   for (t=this->Mesh->Tetras.begin(); t != this->Mesh->Tetras.end(); ++t)
-    {
+  {
     tetra = *t;
 
     if ( tetra->Type == classification || classification == OTTetra::All)
-      {
+    {
       // Insert the points
       vtkIdType pts[4];
 
       int i=0;
       while(i<4)
-        {
+      {
         if(locator->InsertUniquePoint(tetra->Points[i]->X,pts[i]))
-          {
+        {
           outPD->CopyData(inPD,tetra->Points[i]->Id,pts[i]);
-          }
-        ++i;
         }
+        ++i;
+      }
 
       // Insert the connectivity
       result++;
       vtkIdType newCellId = outConnectivity->InsertNextCell(4,pts);
       outCD->CopyData(inCD,cellId,newCellId);
-      }
-    }//for all tetras
+    }
+  }//for all tetras
 
   return result;
 }
@@ -1385,28 +1385,28 @@ int vtkOrderedTriangulator::GetNextTetra(int classification, vtkTetra *tet,
   while ( this->Mesh->CurrentTetra != this->Mesh->Tetras.end() &&
           (*this->Mesh->CurrentTetra)->Type != classification &&
           (*this->Mesh->CurrentTetra)->Type != OTTetra::All )
-    {
+  {
     ++this->Mesh->CurrentTetra;
-    }
+  }
 
   if ( this->Mesh->CurrentTetra != this->Mesh->Tetras.end() )
-    {
+  {
     OTTetra *tetra = *(this->Mesh->CurrentTetra);
     for (int i=0; i<4; i++)
-      {
+    {
       tet->PointIds->SetId(i,tetra->Points[i]->Id);
       tet->Points->SetPoint(i,tetra->Points[i]->X);
       tetScalars->SetTuple(i,
                            cellScalars->GetTuple(
                              tetra->Points[i]->OriginalId));
-      }
+    }
     ++this->Mesh->CurrentTetra;
     return 1;
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 //------------------------------------------------------------------------
@@ -1423,19 +1423,19 @@ vtkIdType vtkOrderedTriangulator::AddTetras(int classification,
 
   // loop over all tetras getting the ones with the classification requested
   for (t=this->Mesh->Tetras.begin(); t != this->Mesh->Tetras.end(); ++t)
-    {
+  {
     tetra = *t;
 
     if ( tetra->Type == classification || classification == OTTetra::All)
-      {
+    {
       numTetras++;
       for (i=0; i<4; i++)
-        {
+      {
         ptIds->InsertNextId(tetra->Points[i]->Id);
         pts->InsertNextPoint(tetra->Points[i]->X);
-        }
       }
-    }//for all tetras
+    }
+  }//for all tetras
 
   return numTetras;
 }
@@ -1454,19 +1454,19 @@ vtkIdType vtkOrderedTriangulator::AddTetras(int classification,
   // loop over all tetras getting the ones with the classification requested
   vtkIdType pts[4];
   for (t=this->Mesh->Tetras.begin(); t != this->Mesh->Tetras.end(); ++t)
-    {
+  {
     tetra = *t;
 
     if ( tetra->Type == classification || classification == OTTetra::All)
-      {
+    {
       numTetras++;
       pts[0] = tetra->Points[0]->Id;
       pts[1] = tetra->Points[1]->Id;
       pts[2] = tetra->Points[2]->Id;
       pts[3] = tetra->Points[3]->Id;
       ugrid->InsertNextCell(VTK_TETRA,4,pts);
-      }
-    }//for all tetras
+    }
+  }//for all tetras
 
   return numTetras;
 }
@@ -1487,24 +1487,24 @@ vtkIdType vtkOrderedTriangulator::AddTriangles(vtkCellArray *tris)
 
   // loop over all tetras getting the faces classified on the boundary
   for (t=this->Mesh->Tetras.begin(); t != this->Mesh->Tetras.end(); ++t)
-    {
+  {
     tetra = *t;
     tetra->CurrentPointId = VTK_INT_MAX; //mark visited
     for (i=0; i<4; i++)
-      {
+    {
       if ( tetra->Neighbors[i] &&
            tetra->Neighbors[i]->CurrentPointId != VTK_INT_MAX &&
            tetra->Type != tetra->Neighbors[i]->Type )
-        {//face not yet visited
+      {//face not yet visited
         tetra->GetFacePoints(i,face);
         numTris++;
         tris->InsertNextCell(3);
         tris->InsertCellPoint(face->Points[0]->Id);
         tris->InsertCellPoint(face->Points[1]->Id);
         tris->InsertCellPoint(face->Points[2]->Id);
-        }
       }
-    }//for all tetras
+    }
+  }//for all tetras
 
   return numTris;
 }
@@ -1525,28 +1525,28 @@ vtkIdType vtkOrderedTriangulator::AddTriangles(vtkIdType id, vtkCellArray *tris)
 
   // loop over all tetras getting the faces classified on the boundary
   for (t=this->Mesh->Tetras.begin(); t != this->Mesh->Tetras.end(); ++t)
-    {
+  {
     tetra = *t;
     tetra->CurrentPointId = VTK_INT_MAX; //mark visited
     for (i=0; i<4; i++)
-      {
+    {
       if ( tetra->Neighbors[i] &&
            tetra->Neighbors[i]->CurrentPointId != VTK_INT_MAX &&
            tetra->Type != tetra->Neighbors[i]->Type )
-        {//face not yet visited
+      {//face not yet visited
         tetra->GetFacePoints(i,face);
         if ( face->Points[0]->Id == id || face->Points[1]->Id == id ||
              face->Points[2]->Id == id )
-          {
+        {
           numTris++;
           tris->InsertNextCell(3);
           tris->InsertCellPoint(face->Points[0]->Id);
           tris->InsertCellPoint(face->Points[1]->Id);
           tris->InsertCellPoint(face->Points[2]->Id);
-          }
         }
       }
-    }//for all tetras
+    }
+  }//for all tetras
 
   return numTris;
 }
@@ -1582,9 +1582,9 @@ inline TemplateIDType vtkOrderedTriangulator::ComputeTemplateIndex()
   TemplateIDType templateID=0;
 
   for (p=this->Mesh->Points.begin(), i=0; i<this->NumberOfCellPoints; ++i, ++p)
-    {
+  {
     templateID |= ((templateID & mask[i]) | (p->OriginalId << (32-4*(i+1))));
-    }
+  }
 
   return templateID;
 }
@@ -1599,16 +1599,16 @@ void vtkOrderedTriangulator::AddTemplate()
   TemplateList *tlist;
   TemplatesIterator titer = this->Templates->find(this->CellType);
   if ( titer != this->Templates->end() ) //something found
-    {
+  {
     templateMayBeAvailable = 1;
     tlist = (*titer).second;
-    }
+  }
   else //nothing found, have to create an entry for this cell type
-    {
+  {
     templateMayBeAvailable = 0;
     tlist = new TemplateList;
     (*this->Templates)[this->CellType] = tlist;
-    }
+  }
 
   // Create the template: its index and connectivity list
   TemplateIDType index = this->ComputeTemplateIndex();
@@ -1616,11 +1616,11 @@ void vtkOrderedTriangulator::AddTemplate()
   // Make sure template has not been created before
   TemplateListIterator tplate = tlist->find(index);
   if ( templateMayBeAvailable && tplate != tlist->end() )
-    {
+  {
     vtkGenericWarningMacro(<<"Template found when it should not have been");
-    }
+  }
   else
-    {
+  {
     this->Mesh->NumberOfTemplates++;
 
     // The tetras have been classified previously. So allocate space
@@ -1635,17 +1635,17 @@ void vtkOrderedTriangulator::AddTemplate()
     OTTetra *tetra;
     vtkIdType *clist=otplate->Tetras;
     for (t=this->Mesh->Tetras.begin(); t != this->Mesh->Tetras.end(); ++t)
-      {
+    {
       if ( (*t)->Type == OTTetra::Inside )
-        {
+      {
         tetra = *t;
         for (i=0; i<4; i++)
-          {
+        {
           *clist++ = tetra->Points[i]->InsertionId;
-          }
         }
-      }//for all tetras
-    }
+      }
+    }//for all tetras
+  }
 }
 
 
@@ -1656,30 +1656,30 @@ int vtkOrderedTriangulator::TemplateTriangulation()
 {
   TemplatesIterator titer = this->Templates->find(this->CellType);
   if ( titer != this->Templates->end() ) //something found
-    {
+  {
     TemplateIDType index = this->ComputeTemplateIndex();
     TemplateList *tlist = (*titer).second;
     TemplateListIterator tlistIter=tlist->find(index);
     if (  tlistIter != tlist->end() ) //something found
-      {
+    {
       int i, j;
       OTTemplate *tets = (*tlistIter).second;
       vtkIdType numTets = tets->NumberOfTetras;
       vtkIdType *clist = tets->Tetras;
       OTTetra *tetra;
       for (i=0; i<numTets; i++)
-        {
+      {
         tetra = new(this->Heap) OTTetra();
         this->Mesh->Tetras.push_front(tetra);
         tetra->Type = OTTetra::Inside;
         for (j=0; j<4; j++)
-          {
+        {
           tetra->Points[j] = this->Mesh->Points.GetPointer(*clist++);
-          }
-        }//for all tetras in template
+        }
+      }//for all tetras in template
       return 1;
-      }//if a template found
-    }//if a template list for this cell type found
+    }//if a template found
+  }//if a template list for this cell type found
 
   return 0;
 }

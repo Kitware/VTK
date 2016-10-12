@@ -73,12 +73,12 @@ void pipe2(vtkMultiProcessController* vtkNotUsed(controller),
   // Get more data. With every update the XFreq of the rtSource
   // is increased.
   for (int i=0; i<17; i++)
-    {
+  {
     cf->GetOutput()->Update();
     pd->ShallowCopy(cf->GetOutput());
     // Display
     renWin->Render();
-    }
+  }
   // Tell the producer that we are done.
   ip->GetController()->TriggerRMI(0, vtkMultiProcessController::BREAK_RMI_TAG);
 

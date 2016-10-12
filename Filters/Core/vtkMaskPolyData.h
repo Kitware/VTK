@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMaskPolyData - sample subset of input polygonal data cells
-// .SECTION Description
-// vtkMaskPolyData is a filter that sub-samples the cells of input polygonal
-// data. The user specifies every nth item, with an initial offset to begin
-// sampling.
-
-// .SECTION See Also
-// vtkMaskPoints
+/**
+ * @class   vtkMaskPolyData
+ * @brief   sample subset of input polygonal data cells
+ *
+ * vtkMaskPolyData is a filter that sub-samples the cells of input polygonal
+ * data. The user specifies every nth item, with an initial offset to begin
+ * sampling.
+ *
+ * @sa
+ * vtkMaskPoints
+*/
 
 #ifndef vtkMaskPolyData_h
 #define vtkMaskPolyData_h
@@ -32,29 +35,35 @@ class VTKFILTERSCORE_EXPORT vtkMaskPolyData : public vtkPolyDataAlgorithm
 public:
   static vtkMaskPolyData *New();
   vtkTypeMacro(vtkMaskPolyData,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Turn on every nth entity (cell).
+  //@{
+  /**
+   * Turn on every nth entity (cell).
+   */
   vtkSetClampMacro(OnRatio,int,1,VTK_INT_MAX);
   vtkGetMacro(OnRatio,int);
+  //@}
 
-  // Description:
-  // Start with this entity (cell).
+  //@{
+  /**
+   * Start with this entity (cell).
+   */
   vtkSetClampMacro(Offset,vtkIdType,0,VTK_ID_MAX);
   vtkGetMacro(Offset,vtkIdType);
+  //@}
 
 protected:
   vtkMaskPolyData();
-  ~vtkMaskPolyData() {}
+  ~vtkMaskPolyData() VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   int OnRatio; // every OnRatio entity is on; all others are off.
   vtkIdType Offset;  // offset (or starting point id)
 
 private:
-  vtkMaskPolyData(const vtkMaskPolyData&);  // Not implemented.
-  void operator=(const vtkMaskPolyData&);  // Not implemented.
+  vtkMaskPolyData(const vtkMaskPolyData&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMaskPolyData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

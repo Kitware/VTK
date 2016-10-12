@@ -12,29 +12,31 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBiDimensionalRepresentation2D - represent the vtkBiDimensionalWidget
-// .SECTION Description
-// The vtkBiDimensionalRepresentation2D is used to represent the
-// bi-dimensional measure in a 2D (overlay) context. This representation
-// consists of two perpendicular lines defined by four
-// vtkHandleRepresentations. The four handles can be independently
-// manipulated consistent with the orthogonal constraint on the lines. (Note:
-// the four points are referred to as Point1, Point2, Point3 and
-// Point4. Point1 and Point2 define the first line; and Point3 and Point4
-// define the second orthogonal line.)
-//
-// To create this widget, you click to place the first two points. The third
-// point is mirrored with the fourth point; when you place the third point
-// (which is orthogonal to the lined defined by the first two points), the
-// fourth point is dropped as well. After definition, the four points can be
-// moved (in constrained fashion, preserving orthogonality). Further, the
-// entire widget can be translated by grabbing the center point of the widget;
-// each line can be moved along the other line; and the entire widget can be
-// rotated around its center point.
-
-// .SECTION See Also
-// vtkAngleWidget vtkHandleRepresentation vtkBiDimensionalRepresentation
-
+/**
+ * @class   vtkBiDimensionalRepresentation2D
+ * @brief   represent the vtkBiDimensionalWidget
+ *
+ * The vtkBiDimensionalRepresentation2D is used to represent the
+ * bi-dimensional measure in a 2D (overlay) context. This representation
+ * consists of two perpendicular lines defined by four
+ * vtkHandleRepresentations. The four handles can be independently
+ * manipulated consistent with the orthogonal constraint on the lines. (Note:
+ * the four points are referred to as Point1, Point2, Point3 and
+ * Point4. Point1 and Point2 define the first line; and Point3 and Point4
+ * define the second orthogonal line.)
+ *
+ * To create this widget, you click to place the first two points. The third
+ * point is mirrored with the fourth point; when you place the third point
+ * (which is orthogonal to the lined defined by the first two points), the
+ * fourth point is dropped as well. After definition, the four points can be
+ * moved (in constrained fashion, preserving orthogonality). Further, the
+ * entire widget can be translated by grabbing the center point of the widget;
+ * each line can be moved along the other line; and the entire widget can be
+ * rotated around its center point.
+ *
+ * @sa
+ * vtkAngleWidget vtkHandleRepresentation vtkBiDimensionalRepresentation
+*/
 
 #ifndef vtkBiDimensionalRepresentation2D_h
 #define vtkBiDimensionalRepresentation2D_h
@@ -56,31 +58,43 @@ class vtkTextProperty;
 class VTKINTERACTIONWIDGETS_EXPORT vtkBiDimensionalRepresentation2D : public vtkBiDimensionalRepresentation
 {
 public:
-  // Description:
-  // Instantiate the class.
+  /**
+   * Instantiate the class.
+   */
   static vtkBiDimensionalRepresentation2D *New();
 
-  // Description:
-  // Standard VTK methods.
+  //@{
+  /**
+   * Standard VTK methods.
+   */
   vtkTypeMacro(vtkBiDimensionalRepresentation2D,vtkBiDimensionalRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // Retrieve the property used to control the appearance of the two
-  // orthogonal lines.
+  //@{
+  /**
+   * Retrieve the property used to control the appearance of the two
+   * orthogonal lines.
+   */
   vtkGetObjectMacro(LineProperty,vtkProperty2D);
   vtkGetObjectMacro(SelectedLineProperty,vtkProperty2D);
+  //@}
 
-  // Description:
-  // Retrieve the property used to control the appearance of the text
-  // labels.
+  //@{
+  /**
+   * Retrieve the property used to control the appearance of the text
+   * labels.
+   */
   vtkGetObjectMacro(TextProperty,vtkTextProperty);
+  //@}
 
   // Used to communicate about the state of the representation
   enum {Outside=0,NearP1,NearP2,NearP3,NearP4,OnL1Inner,OnL1Outer,OnL2Inner,OnL2Outer,OnCenter};
 
-  // Description:
-  // These are methods that satisfy vtkWidgetRepresentation's API.
+  //@{
+  /**
+   * These are methods that satisfy vtkWidgetRepresentation's API.
+   */
   virtual void BuildRepresentation();
   virtual int ComputeInteractionState(int X, int Y, int modify=0);
   virtual void StartWidgetDefinition(double e[2]);
@@ -89,21 +103,29 @@ public:
   virtual void StartWidgetManipulation(double e[2]);
   virtual void WidgetInteraction(double e[2]);
   virtual void Highlight(int highlightOn);
+  //@}
 
-  // Description:
-  // Methods required by vtkProp superclass.
+  //@{
+  /**
+   * Methods required by vtkProp superclass.
+   */
   virtual void ReleaseGraphicsResources(vtkWindow *w);
   virtual int RenderOverlay(vtkViewport *viewport);
+  //@}
 
-  // Description:
-  // Get the text shown in the widget's label.
+  /**
+   * Get the text shown in the widget's label.
+   */
   char* GetLabelText();
 
-  // Description:
-  // Get the position of the widget's label in display coordinates.
+  //@{
+  /**
+   * Get the position of the widget's label in display coordinates.
+   */
   double* GetLabelPosition();
   void GetLabelPosition(double pos[3]);
   void GetWorldLabelPosition(double pos[3]);
+  //@}
 
 protected:
   vtkBiDimensionalRepresentation2D();
@@ -143,8 +165,8 @@ protected:
                               double dir, double xP[3]);
 
 private:
-  vtkBiDimensionalRepresentation2D(const vtkBiDimensionalRepresentation2D&);  //Not implemented
-  void operator=(const vtkBiDimensionalRepresentation2D&);  //Not implemented
+  vtkBiDimensionalRepresentation2D(const vtkBiDimensionalRepresentation2D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBiDimensionalRepresentation2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

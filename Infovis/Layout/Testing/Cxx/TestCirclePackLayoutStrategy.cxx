@@ -52,10 +52,10 @@ void TestStrategy(vtkCirclePackLayoutStrategy* strategy, vtkTreeAlgorithm* input
   pnt[0] = cinfo[0];
   pnt[1] = cinfo[1];
   if(((int) layout->FindVertex(pnt)) != (vda->GetNumberOfTuples() - 1))
-    {
+  {
     cout << "GetBoundingCircle() and FindVertex() returned incorrect id" << endl;
     exit(1);
-    }
+  }
 
   VTK_CREATE(vtkCirclePackToPolyData, poly);
   poly->SetInputConnection(layout->GetOutputPort());
@@ -643,9 +643,9 @@ int TestCirclePackLayoutStrategy(int argc, char* argv[])
 
   VTK_CREATE(vtkTree, tree);
   if (!tree->CheckedShallowCopy(builder))
-    {
+  {
     cerr << "Invalid tree structure." << endl;
-    }
+  }
 
   VTK_CREATE(vtkTreeFieldAggregator, agg);
   agg->SetInputData(tree);
@@ -663,10 +663,10 @@ int TestCirclePackLayoutStrategy(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     win->Render();
     iren->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
   return !retVal;
 }

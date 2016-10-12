@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPAutoCorrelativeStatistics - A class for parallel auto-correlative statistics
-// .SECTION Description
-// vtkPAutoCorrelativeStatistics is vtkAutoCorrelativeStatistics subclass for parallel datasets.
-// It learns and derives the global statistical model on each node, but assesses each
-// individual data points on the node that owns it.
-
-// .SECTION Thanks
-// This class was written by Philippe Pebay, Kitware SAS 2012.
+/**
+ * @class   vtkPAutoCorrelativeStatistics
+ * @brief   A class for parallel auto-correlative statistics
+ *
+ * vtkPAutoCorrelativeStatistics is vtkAutoCorrelativeStatistics subclass for parallel datasets.
+ * It learns and derives the global statistical model on each node, but assesses each
+ * individual data points on the node that owns it.
+ *
+ * @par Thanks:
+ * This class was written by Philippe Pebay, Kitware SAS 2012.
+*/
 
 #ifndef vtkPAutoCorrelativeStatistics_h
 #define vtkPAutoCorrelativeStatistics_h
@@ -37,21 +40,26 @@ public:
   vtkTypeMacro(vtkPAutoCorrelativeStatistics, vtkAutoCorrelativeStatistics);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get/Set the multiprocess controller. If no controller is set,
-  // single process is assumed.
+  //@{
+  /**
+   * Get/Set the multiprocess controller. If no controller is set,
+   * single process is assumed.
+   */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
 
-  // Description:
-  // Execute the parallel calculations required by the Learn option.
+  /**
+   * Execute the parallel calculations required by the Learn option.
+   */
   virtual void Learn( vtkTable* inData,
                       vtkTable* inParameters,
                       vtkMultiBlockDataSet* outMeta );
 
-  // Description:
-  // Execute the calculations required by the Test option.
-  // NB: Not implemented for more than 1 processor
+  /**
+   * Execute the calculations required by the Test option.
+   * NB: Not implemented for more than 1 processor
+   */
   virtual void Test( vtkTable*,
                      vtkMultiBlockDataSet*,
                      vtkTable* );
@@ -62,8 +70,8 @@ protected:
 
   vtkMultiProcessController* Controller;
 private:
-  vtkPAutoCorrelativeStatistics(const vtkPAutoCorrelativeStatistics&); // Not implemented.
-  void operator=(const vtkPAutoCorrelativeStatistics&); // Not implemented.
+  vtkPAutoCorrelativeStatistics(const vtkPAutoCorrelativeStatistics&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPAutoCorrelativeStatistics&) VTK_DELETE_FUNCTION;
 };
 
 #endif

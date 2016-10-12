@@ -12,24 +12,27 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkLightActor - a cone and a frustum to represent a spotlight.
-// .SECTION Description
-// vtkLightActor is a composite actor used to represent a spotlight. The cone
-// angle is equal to the spotlight angle, the cone apex is at the position of
-// the light, the direction of the light goes from the cone apex to the center
-// of the base of the cone. The square frustum position is the light position,
-// the frustum focal point is in the direction of the light direction. The
-// frustum vertical view angle (aperture) (this is also the horizontal view
-// angle as the frustum is square) is equal to twice the cone angle. The
-// clipping range of the frustum is arbitrary set by the user
-// (initially at 0.5,11.0).
-
-// .SECTION Caveats
-// Right now only spotlight are supported but directional light might be
-// supported in the future.
-
-// .SECTION See Also
-// vtkLight vtkConeSource vtkFrustumSource vtkCameraActor
+/**
+ * @class   vtkLightActor
+ * @brief   a cone and a frustum to represent a spotlight.
+ *
+ * vtkLightActor is a composite actor used to represent a spotlight. The cone
+ * angle is equal to the spotlight angle, the cone apex is at the position of
+ * the light, the direction of the light goes from the cone apex to the center
+ * of the base of the cone. The square frustum position is the light position,
+ * the frustum focal point is in the direction of the light direction. The
+ * frustum vertical view angle (aperture) (this is also the horizontal view
+ * angle as the frustum is square) is equal to twice the cone angle. The
+ * clipping range of the frustum is arbitrary set by the user
+ * (initially at 0.5,11.0).
+ *
+ * @warning
+ * Right now only spotlight are supported but directional light might be
+ * supported in the future.
+ *
+ * @sa
+ * vtkLight vtkConeSource vtkFrustumSource vtkCameraActor
+*/
 
 #ifndef vtkLightActor_h
 #define vtkLightActor_h
@@ -52,40 +55,51 @@ public:
   vtkTypeMacro(vtkLightActor, vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // The spotlight to represent. Initial value is NULL.
+  //@{
+  /**
+   * The spotlight to represent. Initial value is NULL.
+   */
   void SetLight(vtkLight *light);
   vtkGetObjectMacro(Light, vtkLight);
+  //@}
 
-  // Description:
-  // Set/Get the location of the near and far clipping planes along the
-  // direction of projection.  Both of these values must be positive.
-  // Initial values are  (0.5,11.0)
+  //@{
+  /**
+   * Set/Get the location of the near and far clipping planes along the
+   * direction of projection.  Both of these values must be positive.
+   * Initial values are  (0.5,11.0)
+   */
   void SetClippingRange(double dNear, double dFar);
   void SetClippingRange(const double a[2]);
   vtkGetVector2Macro(ClippingRange, double);
+  //@}
 
-  // Description:
-  // Support the standard render methods.
+  /**
+   * Support the standard render methods.
+   */
   virtual int RenderOpaqueGeometry(vtkViewport *viewport);
 
-  // Description:
-  // Does this prop have some translucent polygonal geometry? No.
+  /**
+   * Does this prop have some translucent polygonal geometry? No.
+   */
   virtual int HasTranslucentPolygonalGeometry();
 
-  // Description:
-  // Release any graphics resources that are being consumed by this actor.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
+  /**
+   * Release any graphics resources that are being consumed by this actor.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
   void ReleaseGraphicsResources(vtkWindow *);
 
-  // Description:
-  // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+  /**
+   * Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+   */
   double *GetBounds();
 
-  // Description:
-  // Get the actors mtime plus consider its properties and texture if set.
-  unsigned long int GetMTime();
+  /**
+   * Get the actors mtime plus consider its properties and texture if set.
+   */
+  vtkMTimeType GetMTime();
 
 protected:
   vtkLightActor();
@@ -106,8 +120,8 @@ protected:
   vtkBoundingBox *BoundingBox;
 
 private:
-  vtkLightActor(const vtkLightActor&);  // Not implemented.
-  void operator=(const vtkLightActor&);  // Not implemented.
+  vtkLightActor(const vtkLightActor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLightActor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

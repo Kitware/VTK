@@ -1,8 +1,6 @@
 vtk_module(vtkFiltersHyperTree
   GROUPS
     StandAlone
-  DEPENDS
-    vtkFiltersGeneral
   TEST_DEPENDS
     vtkFiltersModeling
     vtkIOXML
@@ -13,4 +11,13 @@ vtk_module(vtkFiltersHyperTree
     vtkRendering${VTK_RENDERING_BACKEND}
   KIT
     vtkFilters
+  DEPENDS
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkCommonMisc
+    vtkFiltersCore
+  PRIVATE_DEPENDS
+    vtkCommonCore
+    vtkCommonSystem
+    vtkFiltersGeneral
   )

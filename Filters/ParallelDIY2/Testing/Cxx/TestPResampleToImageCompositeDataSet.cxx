@@ -35,7 +35,9 @@
 #include "vtkSmartPointer.h"
 
 #include "vtk_diy2.h"   // must include this before any diy header
+VTKDIY2_PRE_INCLUDE
 #include VTK_DIY2_HEADER(diy/mpi.hpp)
+VTKDIY2_POST_INCLUDE
 
 
 int TestPResampleToImageCompositeDataSet(int argc, char *argv[])
@@ -82,7 +84,7 @@ int TestPResampleToImageCompositeDataSet(int argc, char *argv[])
   pointToCell->SetInputConnection(wavelet->GetOutputPort());
 
   for (int i = 0; i < piecesPerRank; ++i)
-    {
+  {
     int piece = (world.rank() * piecesPerRank) + i;
     int pieceExtent[6];
     extentTranslator->SetPiece(piece);
@@ -92,7 +94,7 @@ int TestPResampleToImageCompositeDataSet(int argc, char *argv[])
     vtkNew<vtkImageData> img;
     img->DeepCopy(vtkImageData::SafeDownCast(pointToCell->GetOutput()));
     input->SetBlock(piece, img.GetPointer());
-    }
+  }
 
 
   // create pipeline
@@ -124,20 +126,20 @@ int TestPResampleToImageCompositeDataSet(int argc, char *argv[])
 
   int retVal;
   if (world.rank() == 0)
-    {
+  {
     prm->ResetAllCameras();
     renWin->Render();
     retVal = vtkRegressionTester::Test(argc, argv, renWin.GetPointer(), 10);
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
-      {
-      prm->StartInteractor();
-      }
-    controller->TriggerBreakRMIs();
-    }
-  else
     {
-    prm->StartServices();
+      prm->StartInteractor();
     }
+    controller->TriggerBreakRMIs();
+  }
+  else
+  {
+    prm->StartServices();
+  }
   world.barrier();
 
   diy::mpi::broadcast(world, retVal, 0);

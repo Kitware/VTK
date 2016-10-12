@@ -38,9 +38,9 @@ vtkDisplayListPainter::~vtkDisplayListPainter()
 void vtkDisplayListPainter::ProcessInformation(vtkInformation* info)
 {
   if (info->Has(IMMEDIATE_MODE_RENDERING()))
-    {
+  {
     this->SetImmediateModeRendering(info->Get(IMMEDIATE_MODE_RENDERING()));
-    }
+  }
 
   this->Superclass::ProcessInformation(info);
 }
@@ -49,9 +49,9 @@ void vtkDisplayListPainter::ProcessInformation(vtkInformation* info)
 double vtkDisplayListPainter::GetTimeToDraw()
 {
   if (this->ImmediateModeRendering)
-    {
+  {
     return this->DelegatePainter->GetTimeToDraw();
-    }
+  }
   return this->TimeToDraw;
 }
 

@@ -94,9 +94,9 @@ int TestQtLabeler(int argc, char *argv[])
     vtkSmartPointer<vtkPoints>::New();
 
   for(i = 0; i < 29; i++)
-    {
+  {
     points->InsertPoint( i, 0.0, 0.0, 0.0 );
-    }
+  }
   points->InsertPoint( 29, 5.0, 5.0, 0.0 );
 
   vtkSmartPointer<vtkCellArray> cells =
@@ -104,9 +104,9 @@ int TestQtLabeler(int argc, char *argv[])
 
   cells->InsertNextCell(30);
   for(i = 0; i < 30; i++)
-    {
+  {
     cells->InsertCellPoint(i);
-    }
+  }
 
   vtkSmartPointer<vtkPolyData> polyData =
     vtkSmartPointer<vtkPolyData>::New();
@@ -233,9 +233,9 @@ int TestQtLabeler(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage( renWin );
 //  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

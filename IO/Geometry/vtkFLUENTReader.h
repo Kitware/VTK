@@ -12,22 +12,25 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkFLUENTReader - reads a dataset in Fluent file format
-// .SECTION Description
-// vtkFLUENTReader creates an unstructured grid dataset. It reads .cas and
-// .dat files stored in FLUENT native format.
-//
-// .SECTION Thanks
-// Thanks to Brian W. Dotson & Terry E. Jordan (Department of Energy, National
-// Energy Technology Laboratory) & Douglas McCorkle (Iowa State University)
-// who developed this class.
-// Please address all comments to Brian Dotson (brian.dotson@netl.doe.gov) &
-// Terry Jordan (terry.jordan@sa.netl.doe.gov)
-// & Doug McCorkle (mccdo@iastate.edu)
-//
-
-// .SECTION See Also
-// vtkGAMBITReader
+/**
+ * @class   vtkFLUENTReader
+ * @brief   reads a dataset in Fluent file format
+ *
+ * vtkFLUENTReader creates an unstructured grid dataset. It reads .cas and
+ * .dat files stored in FLUENT native format.
+ *
+ * @par Thanks:
+ * Thanks to Brian W. Dotson & Terry E. Jordan (Department of Energy, National
+ * Energy Technology Laboratory) & Douglas McCorkle (Iowa State University)
+ * who developed this class.
+ * Please address all comments to Brian Dotson (brian.dotson@netl.doe.gov) &
+ * Terry Jordan (terry.jordan@sa.netl.doe.gov)
+ * & Doug McCorkle (mccdo@iastate.edu)
+ *
+ *
+ * @sa
+ * vtkGAMBITReader
+*/
 
 #ifndef vtkFLUENTReader_h
 #define vtkFLUENTReader_h
@@ -52,49 +55,65 @@ public:
   vtkTypeMacro(vtkFLUENTReader,vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify the file name of the Fluent case file to read.
+  //@{
+  /**
+   * Specify the file name of the Fluent case file to read.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Get the total number of cells. The number of cells is only valid after a
-  // successful read of the data file is performed. Initial value is 0.
+  //@{
+  /**
+   * Get the total number of cells. The number of cells is only valid after a
+   * successful read of the data file is performed. Initial value is 0.
+   */
   vtkGetMacro(NumberOfCells,int);
+  //@}
 
-  // Description:
-  // Get the number of cell arrays available in the input.
+  /**
+   * Get the number of cell arrays available in the input.
+   */
   int GetNumberOfCellArrays(void);
 
-  // Description:
-  // Get the name of the  cell array with the given index in
-  // the input.
+  /**
+   * Get the name of the  cell array with the given index in
+   * the input.
+   */
   const char* GetCellArrayName(int index);
 
-  // Description:
-  // Get/Set whether the cell array with the given name is to
-  // be read.
+  //@{
+  /**
+   * Get/Set whether the cell array with the given name is to
+   * be read.
+   */
   int GetCellArrayStatus(const char* name);
   void SetCellArrayStatus(const char* name, int status);
+  //@}
 
-  // Description:
-  // Turn on/off all cell arrays.
+  //@{
+  /**
+   * Turn on/off all cell arrays.
+   */
   void DisableAllCellArrays();
   void EnableAllCellArrays();
+  //@}
 
-  // Description:
-  // These methods should be used instead of the SwapBytes methods.
-  // They indicate the byte ordering of the file you are trying
-  // to read in. These methods will then either swap or not swap
-  // the bytes depending on the byte ordering of the machine it is
-  // being run on. For example, reading in a BigEndian file on a
-  // BigEndian machine will result in no swapping. Trying to read
-  // the same file on a LittleEndian machine will result in swapping.
-  // As a quick note most UNIX machines are BigEndian while PC's
-  // and VAX tend to be LittleEndian. So if the file you are reading
-  // in was generated on a VAX or PC, SetDataByteOrderToLittleEndian
-  // otherwise SetDataByteOrderToBigEndian. Not used when reading
-  // text files.
+  //@{
+  /**
+   * These methods should be used instead of the SwapBytes methods.
+   * They indicate the byte ordering of the file you are trying
+   * to read in. These methods will then either swap or not swap
+   * the bytes depending on the byte ordering of the machine it is
+   * being run on. For example, reading in a BigEndian file on a
+   * BigEndian machine will result in no swapping. Trying to read
+   * the same file on a LittleEndian machine will result in swapping.
+   * As a quick note most UNIX machines are BigEndian while PC's
+   * and VAX tend to be LittleEndian. So if the file you are reading
+   * in was generated on a VAX or PC, SetDataByteOrderToLittleEndian
+   * otherwise SetDataByteOrderToBigEndian. Not used when reading
+   * text files.
+   */
   void SetDataByteOrderToBigEndian();
   void SetDataByteOrderToLittleEndian();
   int  GetDataByteOrder();
@@ -117,6 +136,7 @@ public:
   struct scalarDataVector;
   struct vectorDataVector;
   struct intVectorVector;
+  //@}
 
 protected:
   vtkFLUENTReader();
@@ -126,12 +146,15 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **,
     vtkInformationVector *);
 
-  // Description:
-  // Set/Get the byte swapping to explicitly swap the bytes of a file.
-  // Not used when reading text files.
+  //@{
+  /**
+   * Set/Get the byte swapping to explicitly swap the bytes of a file.
+   * Not used when reading text files.
+   */
   vtkSetMacro(SwapBytes,int);
   int GetSwapBytes() {return this->SwapBytes;}
   vtkBooleanMacro(SwapBytes,int);
+  //@}
 
   vtkDataArraySelection* CellDataArraySelection;
   char * FileName;
@@ -227,7 +250,7 @@ protected:
   int NumberOfVectors;
 
 private:
-  vtkFLUENTReader(const vtkFLUENTReader&);  // Not implemented.
-  void operator=(const vtkFLUENTReader&);  // Not implemented.
+  vtkFLUENTReader(const vtkFLUENTReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFLUENTReader&) VTK_DELETE_FUNCTION;
 };
 #endif

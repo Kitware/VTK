@@ -44,9 +44,9 @@ int TestThreshold(int, char *[])
   //we we are using a large query range,
   //whether to use continuous range or not should not matter
   if(n1!=n2)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   filter->UseContinuousCellRangeOff();
   filter->ThresholdBetween(L,L);
@@ -54,15 +54,15 @@ int TestThreshold(int, char *[])
   //since we are not using continuous cell range
   //no cell points should fall in the empty interval
   if(filter->GetOutput()->GetNumberOfCells()>0)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
   filter->UseContinuousCellRangeOn();
   filter->Update();
   if(filter->GetOutput()->GetNumberOfCells()==0)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

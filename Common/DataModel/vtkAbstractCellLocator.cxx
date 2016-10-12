@@ -50,9 +50,9 @@ bool vtkAbstractCellLocator::StoreCellBounds()
   vtkIdType numCells = this->DataSet->GetNumberOfCells();
   this->CellBounds = new double [numCells][6];
   for (vtkIdType j=0; j<numCells; j++)
-    {
+  {
     this->DataSet->GetCellBounds(j, CellBounds[j]);
-    }
+  }
   return true;
 }
 //----------------------------------------------------------------------------
@@ -188,17 +188,17 @@ vtkIdType vtkAbstractCellLocator::FindCell(
   //
   static int warning_shown = 0;
   if (!warning_shown)
-    {
+  {
     vtkWarningMacro(<<this->GetClassName() << " Does not implement FindCell"
       << " Reverting to slow DataSet implementation");
     warning_shown = 1;
-    }
+  }
   //
   if (this->DataSet)
-    {
+  {
     returnVal = this->DataSet->FindCell(
       x, NULL, GenCell, 0, tol2, subId, pcoords, weights);
-    }
+  }
   return returnVal;
 }
 //----------------------------------------------------------------------------
@@ -206,10 +206,10 @@ bool vtkAbstractCellLocator::InsideCellBounds(double x[3], vtkIdType cell_ID)
 {
   double cellBounds[6], delta[3] = {0.0, 0.0, 0.0};
   if (this->DataSet)
-    {
+  {
     this->DataSet->GetCellBounds(cell_ID, cellBounds);
     return vtkMath::PointIsWithinBounds(x, cellBounds, delta)!=0;
-    }
+  }
   return 0;
 }
 //----------------------------------------------------------------------------

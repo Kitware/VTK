@@ -49,13 +49,13 @@ void vtkDIMACSGraphWriter::WriteData()
   *fp << "c vtkGraph as DIMACS format\n";
 
   if(vtkDirectedGraph::SafeDownCast(input))
-    {
+  {
     *fp << "c Graph stored as DIRECTED\n";
-    }
+  }
   else
-    {
+  {
     *fp << "c Graph stored as UNDIRECTED\n";
-    }
+  }
 
   const vtkIdType vertex_count = input->GetNumberOfVertices();
   const vtkIdType edge_count = input->GetNumberOfEdges();
@@ -73,22 +73,22 @@ void vtkDIMACSGraphWriter::WriteData()
   VTK_CREATE(vtkEdgeListIterator, edges);
   input->GetEdges(edges);
   if (weight)
-    {
+  {
     while(edges->HasNext())
-      {
+    {
       vtkEdgeType e = edges->Next();
       float value = weight->GetTuple1(e.Id);
       *fp << "e " << e.Source+1 << " " << e.Target+1 << " " << value << "\n";
-      }
     }
+  }
   else
-    {
+  {
     while(edges->HasNext())
-      {
+    {
       vtkEdgeType e = edges->Next();
       *fp << "e " << e.Source+1 << " " << e.Target+1 << " 1\n";
-      }
     }
+  }
 
   // NOTE: Vertices are incremented by 1 since DIMACS files number vertices
   //       from 1..n.

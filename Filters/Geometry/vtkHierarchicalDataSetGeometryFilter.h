@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHierarchicalDataSetGeometryFilter - extract geometry from hierarchical data
-// .SECTION Description
-// Legacy class. Use vtkCompositeDataGeometryFilter instead.
-//
-// .SECTION See Also
-// vtkCompositeDataGeometryFilter
+/**
+ * @class   vtkHierarchicalDataSetGeometryFilter
+ * @brief   extract geometry from hierarchical data
+ *
+ * Legacy class. Use vtkCompositeDataGeometryFilter instead.
+ *
+ * @sa
+ * vtkCompositeDataGeometryFilter
+*/
 
 #ifndef vtkHierarchicalDataSetGeometryFilter_h
 #define vtkHierarchicalDataSetGeometryFilter_h
@@ -34,16 +37,16 @@ public:
   static vtkHierarchicalDataSetGeometryFilter *New();
   vtkTypeMacro(vtkHierarchicalDataSetGeometryFilter,
     vtkCompositeDataGeometryFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 
 protected:
   vtkHierarchicalDataSetGeometryFilter();
-  ~vtkHierarchicalDataSetGeometryFilter();
+  ~vtkHierarchicalDataSetGeometryFilter() VTK_OVERRIDE;
 
 private:
-  vtkHierarchicalDataSetGeometryFilter(const vtkHierarchicalDataSetGeometryFilter&);  // Not implemented.
-  void operator=(const vtkHierarchicalDataSetGeometryFilter&);  // Not implemented.
+  vtkHierarchicalDataSetGeometryFilter(const vtkHierarchicalDataSetGeometryFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHierarchicalDataSetGeometryFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

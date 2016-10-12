@@ -38,34 +38,34 @@ const char *vtkErrorCode::GetStringFromErrorCode(unsigned long error)
 {
   static unsigned long numerrors = 0;
   if(error < FirstVTKErrorCode)
-    {
+  {
     return strerror(static_cast<int>(error));
-    }
+  }
   else
-    {
+  {
     error -= FirstVTKErrorCode;
-    }
+  }
 
   // find length of table
   if (!numerrors)
-    {
+  {
     while (vtkErrorCodeErrorStrings[numerrors] != NULL)
-      {
+    {
       numerrors++;
-      }
     }
+  }
   if (error < numerrors)
-    {
+  {
     return vtkErrorCodeErrorStrings[error];
-    }
+  }
   else if (error == vtkErrorCode::UserError)
-    {
+  {
     return "UserError";
-    }
+  }
   else
-    {
+  {
     return "NoError";
-    }
+  }
 }
 
 unsigned long vtkErrorCode::GetErrorCodeFromString(const char *error)
@@ -73,16 +73,16 @@ unsigned long vtkErrorCode::GetErrorCodeFromString(const char *error)
   unsigned long i;
 
   for (i = 0; vtkErrorCodeErrorStrings[i] != NULL; i++)
-    {
+  {
     if (!strcmp(vtkErrorCodeErrorStrings[i],error))
-      {
-      return i;
-      }
-    }
-  if (!strcmp("UserError",error))
     {
-    return vtkErrorCode::UserError;
+      return i;
     }
+  }
+  if (!strcmp("UserError",error))
+  {
+    return vtkErrorCode::UserError;
+  }
   return vtkErrorCode::NoError;
 }
 

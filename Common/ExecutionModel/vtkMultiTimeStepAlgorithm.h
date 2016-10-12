@@ -12,15 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMultiTimeStepAlgorithm - Superclass for algorithms that would like to
-//  make multiple time requests
-// .SECTION Description
-// This class can be inherited by any algorithm that wishes to make multiple
-// time requests upstream.
-// The child class uses UPDATE_TIME_STEPS to make the time requests and
-// use set of time-stamped data objects are stored in time order
-// in a vtkMultiBlockDataSet object.
-
+/**
+ * @class   vtkMultiTimeStepAlgorithm
+ * @brief   Superclass for algorithms that would like to
+ *  make multiple time requests
+ *
+ * This class can be inherited by any algorithm that wishes to make multiple
+ * time requests upstream.
+ * The child class uses UPDATE_TIME_STEPS to make the time requests and
+ * use set of time-stamped data objects are stored in time order
+ * in a vtkMultiBlockDataSet object.
+*/
 
 #ifndef vtkMultiTimeStepAlgorithm_h
 #define vtkMultiTimeStepAlgorithm_h
@@ -39,61 +41,70 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkMultiTimeStepAlgorithm : public vtkAlgor
 public:
   static vtkMultiTimeStepAlgorithm *New();
   vtkTypeMacro(vtkMultiTimeStepAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 
 protected:
   vtkMultiTimeStepAlgorithm();
 
-  ~vtkMultiTimeStepAlgorithm()
+  ~vtkMultiTimeStepAlgorithm() VTK_OVERRIDE
   {
   };
 
-  // Description:
-  // This is filled by the child class to request multiple time steps
+  /**
+   * This is filled by the child class to request multiple time steps
+   */
   static vtkInformationDoubleVectorKey* UPDATE_TIME_STEPS();
 
 
-  // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
+  //@{
+  /**
+   * This is called by the superclass.
+   * This is the method you should override.
+   */
   virtual int RequestDataObject(vtkInformation*, vtkInformationVector**,  vtkInformationVector*)
   {
     return 1;
   };
+  //@}
 
-  // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
+  //@{
+  /**
+   * This is called by the superclass.
+   * This is the method you should override.
+   */
   virtual int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*)
   {
     return 1;
   };
+  //@}
 
-  // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
+  /**
+   * This is called by the superclass.
+   * This is the method you should override.
+   */
   virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*)
   {
     return 1;
   }
 
-  // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
+  /**
+   * This is called by the superclass.
+   * This is the method you should override.
+   */
   virtual int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*)
   {
     return 1;
   }
 
-  int ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+  int ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
 
   bool CacheData;
   unsigned int NumberOfCacheEntries;
 
 private:
-  vtkMultiTimeStepAlgorithm(const vtkMultiTimeStepAlgorithm&);  // Not implemented.
-  void operator=(const vtkMultiTimeStepAlgorithm&);  // Not implemented.
+  vtkMultiTimeStepAlgorithm(const vtkMultiTimeStepAlgorithm&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMultiTimeStepAlgorithm&) VTK_DELETE_FUNCTION;
 
 
   vtkSmartPointer<vtkMultiBlockDataSet> MDataSet; //stores all the temporal data sets

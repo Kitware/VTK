@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkUnsignedShortArray - dynamic, self-adjusting array of unsigned short
-// .SECTION Description
-// vtkUnsignedShortArray is an array of values of type unsigned short.
-// It provides methods for insertion and retrieval of values and will
-// automatically resize itself to hold new data.
-//
-// The C++ standard does not define the exact size of the unsigned short type,
-// so use of this type directly is discouraged.  If an array of 16 bit
-// unsigned integers is needed, prefer vtkTypeUInt16Array to this class.
+/**
+ * @class   vtkUnsignedShortArray
+ * @brief   dynamic, self-adjusting array of unsigned short
+ *
+ * vtkUnsignedShortArray is an array of values of type unsigned short.
+ * It provides methods for insertion and retrieval of values and will
+ * automatically resize itself to hold new data.
+ *
+ * The C++ standard does not define the exact size of the unsigned short type,
+ * so use of this type directly is discouraged.  If an array of 16 bit
+ * unsigned integers is needed, prefer vtkTypeUInt16Array to this class.
+*/
 
 #ifndef vtkUnsignedShortArray_h
 #define vtkUnsignedShortArray_h
@@ -41,7 +44,7 @@ public:
 #undef vtkDataArray
 #endif
   static vtkUnsignedShortArray* New();
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // This macro expands to the set of method declarations that
   // make up the interface of vtkAOSDataArrayTemplate, which is ignored
@@ -50,32 +53,35 @@ public:
   vtkCreateWrappedArrayInterface(unsigned short);
 #endif
 
-  // Description:
-  // A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+  /**
+   * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+   */
   static vtkUnsignedShortArray* FastDownCast(vtkAbstractArray *source)
   {
     return static_cast<vtkUnsignedShortArray*>(
           Superclass::FastDownCast(source));
   }
 
-  // Description:
-  // Get the minimum data value in its native type.
+  /**
+   * Get the minimum data value in its native type.
+   */
   static unsigned short GetDataTypeValueMin() { return VTK_UNSIGNED_SHORT_MIN; }
 
-  // Description:
-  // Get the maximum data value in its native type.
+  /**
+   * Get the maximum data value in its native type.
+   */
   static unsigned short GetDataTypeValueMax() { return VTK_UNSIGNED_SHORT_MAX; }
 
 protected:
   vtkUnsignedShortArray();
-  ~vtkUnsignedShortArray();
+  ~vtkUnsignedShortArray() VTK_OVERRIDE;
 
 private:
 
   typedef vtkAOSDataArrayTemplate<unsigned short> RealSuperclass;
 
-  vtkUnsignedShortArray(const vtkUnsignedShortArray&);  // Not implemented.
-  void operator=(const vtkUnsignedShortArray&);  // Not implemented.
+  vtkUnsignedShortArray(const vtkUnsignedShortArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnsignedShortArray&) VTK_DELETE_FUNCTION;
 };
 
 // Define vtkArrayDownCast implementation:

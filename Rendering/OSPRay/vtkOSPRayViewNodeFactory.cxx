@@ -21,6 +21,8 @@
 #include "vtkOSPRayLightNode.h"
 #include "vtkOSPRayRendererNode.h"
 #include "vtkOSPRayPolyDataMapperNode.h"
+#include "vtkOSPRayVolumeMapperNode.h"
+#include "vtkOSPRayVolumeNode.h"
 
 vtkViewNode *ren_maker()
 {
@@ -32,6 +34,11 @@ vtkViewNode *act_maker()
 {
   vtkOSPRayActorNode *vn = vtkOSPRayActorNode::New();
   return vn;
+}
+
+vtkViewNode *vol_maker()
+{
+  return vtkOSPRayVolumeNode::New();
 }
 
 vtkViewNode *cam_maker()
@@ -52,6 +59,12 @@ vtkViewNode *pd_maker()
   return vn;
 }
 
+vtkViewNode *vm_maker()
+{
+  vtkOSPRayVolumeMapperNode *vn = vtkOSPRayVolumeMapperNode::New();
+  return vn;
+}
+
 vtkViewNode *cpd_maker()
 {
   vtkOSPRayCompositePolyDataMapper2Node *vn = vtkOSPRayCompositePolyDataMapper2Node::New();
@@ -68,10 +81,15 @@ vtkOSPRayViewNodeFactory::vtkOSPRayViewNodeFactory()
   this->RegisterOverride("vtkOpenGLRenderer", ren_maker);
   this->RegisterOverride("vtkOpenGLActor", act_maker);
   this->RegisterOverride("vtkPVLODActor", act_maker);
+  this->RegisterOverride("vtkPVLODVolume", vol_maker);
+  this->RegisterOverride("vtkVolume", vol_maker);
   this->RegisterOverride("vtkOpenGLCamera", cam_maker);
   this->RegisterOverride("vtkOpenGLLight", light_maker);
   this->RegisterOverride("vtkPainterPolyDataMapper", pd_maker);
   this->RegisterOverride("vtkOpenGLPolyDataMapper", pd_maker);
+  this->RegisterOverride("vtkSmartVolumeMapper", vm_maker);
+  this->RegisterOverride("vtkOSPRayVolumeMapper", vm_maker);
+  this->RegisterOverride("vtkOpenGLGPUVolumeRayCastMapper", vm_maker);
   this->RegisterOverride("vtkCompositePolyDataMapper2", cpd_maker);
 }
 

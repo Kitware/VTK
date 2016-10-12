@@ -1,15 +1,8 @@
 vtk_module(vtkRenderingCore
   GROUPS
     Rendering
-  DEPENDS
-    vtkCommonColor
-    vtkCommonExecutionModel
-    vtkCommonTransforms
-  PRIVATE_DEPENDS
-    vtkFiltersSources
-    vtkFiltersGeometry
-    vtksys
   TEST_DEPENDS
+    vtkIOExodus
     vtkIOLegacy
     vtkIOParallel
     vtkIOXML
@@ -24,4 +17,19 @@ vtk_module(vtkRenderingCore
     vtkFiltersProgrammable
   KIT
     vtkRendering
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkCommonMath
+    vtkFiltersCore
+  PRIVATE_DEPENDS
+    vtkCommonColor
+    vtkCommonComputationalGeometry
+    vtkCommonSystem
+    vtkCommonTransforms
+    vtkFiltersGeneral
+    vtkFiltersGeometry
+    vtkFiltersSources
+    vtksys
   )

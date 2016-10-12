@@ -31,7 +31,7 @@
 //------------------------------------------------------------------------------
 // Description:
 // Writes multi-block dataset to grid
-void WriteMultiBlock(std::string file, vtkMultiBlockDataSet *mbds)
+void WriteMultiBlock(const std::string &file, vtkMultiBlockDataSet *mbds)
 {
   assert("pre: NULL multi-block dataset!" && (mbds != NULL) );
 
@@ -66,11 +66,11 @@ int TestStructuredGridPartitioner( int argc, char *argv[] )
 {
 
   if( argc != 3)
-    {
+  {
     std::cout << "Usage: ./TestStructuredGridPartitioner <vtsfile> <N>\n";
     std::cout.flush();
     return -1;
-    }
+  }
 
   std::string fileName = std::string( argv[1] );
   int NumPartitions    = atoi( argv[2] );

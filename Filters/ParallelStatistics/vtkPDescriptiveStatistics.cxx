@@ -58,39 +58,39 @@ void vtkPDescriptiveStatistics::Learn( vtkTable* inData,
                                        vtkMultiBlockDataSet* outMeta )
 {
   if ( ! outMeta )
-    {
+  {
     return;
-    }
+  }
 
   // First calculate descriptive statistics on local data set
   this->Superclass::Learn( inData, inParameters, outMeta );
 
   vtkTable* primaryTab = vtkTable::SafeDownCast( outMeta->GetBlock( 0 ) );
   if ( ! primaryTab )
-    {
+  {
     return;
-    }
+  }
 
   vtkIdType nRow = primaryTab->GetNumberOfRows();
   if ( ! nRow )
-    {
+  {
     // No statistics were calculated.
     return;
-    }
+  }
 
   // Make sure that parallel updates are needed, otherwise leave it at that.
   int np = this->Controller->GetNumberOfProcesses();
   if ( np < 2 )
-    {
+  {
     return;
-    }
+  }
 
   // Now get ready for parallel calculations
   vtkCommunicator* com = this->Controller->GetCommunicator();
   if ( ! com )
-    {
+  {
     vtkErrorMacro("No parallel communicator.");
-    }
+  }
 
   // (All) gather all sample sizes
   int n_l = primaryTab->GetValueByName( 0, "Cardinality" ).ToInt(); // Cardinality
@@ -99,7 +99,7 @@ void vtkPDescriptiveStatistics::Learn( vtkTable* inData,
 
   // Iterate over all parameter rows
   for ( int r = 0; r < nRow; ++ r )
-    {
+  {
     // Reduce to global extrema
     double extrema_l[2];
     extrema_l[0] = primaryTab->GetValueByName( r, "Minimum" ).ToDouble();
@@ -132,7 +132,7 @@ void vtkPDescriptiveStatistics::Learn( vtkTable* inData,
     double mom4 = M_g[3];
 
     for ( int i = 1; i < np; ++ i )
-      {
+    {
       int ns_l = n_g[i];
       int N = ns + ns_l;
 
@@ -165,7 +165,7 @@ void vtkPDescriptiveStatistics::Learn( vtkTable* inData,
       mean += ns_l * delta_sur_N;
 
       ns = N;
-      }
+    }
 
     primaryTab->SetValueByName( r, "Mean", mean );
     primaryTab->SetValueByName( r, "M2", mom2 );
@@ -177,6 +177,6 @@ void vtkPDescriptiveStatistics::Learn( vtkTable* inData,
 
     // Clean-up
     delete [] M_g;
-    }
+  }
   delete [] n_g;
 }

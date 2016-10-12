@@ -13,13 +13,16 @@
 
 =========================================================================*/
 
-// .NAME vtkOpenGLGL2PSHelper - Access GL2PS functionality.
-//
-// .SECTION Description
-// This class provides convenience functions that can be used to draw into a
-// GL2PS context. Link to vtkRenderingGL2PSOpenGL2 to bring in the
-// vtkOpenGLGL2PSHelperImpl class, the object factory override that implements
-// this interface.
+/**
+ * @class   vtkOpenGLGL2PSHelper
+ * @brief   Access GL2PS functionality.
+ *
+ *
+ * This class provides convenience functions that can be used to draw into a
+ * GL2PS context. Link to vtkRenderingGL2PSOpenGL2 to bring in the
+ * vtkOpenGLGL2PSHelperImpl class, the object factory override that implements
+ * this interface.
+*/
 
 #ifndef vtkOpenGLGL2PSHelper_h
 #define vtkOpenGLGL2PSHelper_h
@@ -43,54 +46,74 @@ public:
   vtkAbstractTypeMacro(vtkOpenGLGL2PSHelper, vtkObject)
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // The global instance. Only set during export.
+  //@{
+  /**
+   * The global instance. Only set during export.
+   */
   static vtkOpenGLGL2PSHelper* GetInstance();
   static void SetInstance(vtkOpenGLGL2PSHelper *);
+  //@}
 
-  // Description:
-  // Get the renderwindow that's being exported.
+  //@{
+  /**
+   * Get the renderwindow that's being exported.
+   */
   vtkGetMacro(RenderWindow, vtkRenderWindow*)
+  //@}
 
   enum State
-    {
+  {
     Inactive = 0, //! No export active
     Background, //! Rendering rasterized props for the background.
     Capture //! Capturing vectorized objects.
-    };
+  };
 
-  // Description:
-  // Get the current export state. Vector images are rendered in two passes:
-  // First, all non-vectorizable props are rendered, and the resulting image
-  // is inserted as a raster image into the background of the exported file
-  // (ActiveState == Background). Next, all vectorizable props are drawn
-  // and captured into GL2PS, where they are drawn over the background image.
-  // Vectorizable props should not draw themselves during the background pass,
-  // and use the vtkOpenGLGL2PSHelper API to draw themselves during the capture
-  // pass.
+  //@{
+  /**
+   * Get the current export state. Vector images are rendered in two passes:
+   * First, all non-vectorizable props are rendered, and the resulting image
+   * is inserted as a raster image into the background of the exported file
+   * (ActiveState == Background). Next, all vectorizable props are drawn
+   * and captured into GL2PS, where they are drawn over the background image.
+   * Vectorizable props should not draw themselves during the background pass,
+   * and use the vtkOpenGLGL2PSHelper API to draw themselves during the capture
+   * pass.
+   */
   vtkGetMacro(ActiveState, State)
+  //@}
 
-  // Description:
-  // Set/Get the current point size.
+  //@{
+  /**
+   * Set/Get the current point size.
+   */
   vtkSetMacro(PointSize, float)
   vtkGetMacro(PointSize, float)
+  //@}
 
-  // Description:
-  // Set/Get the current line width.
+  //@{
+  /**
+   * Set/Get the current line width.
+   */
   vtkSetMacro(LineWidth, float)
   vtkGetMacro(LineWidth, float)
+  //@}
 
-  // Description:
-  // Set/Get the current line stipple pattern per OpenGL convention. Default is
-  // 0xffff.
+  //@{
+  /**
+   * Set/Get the current line stipple pattern per OpenGL convention. Default is
+   * 0xffff.
+   */
   vtkSetMacro(LineStipple, unsigned short)
   vtkGetMacro(LineStipple, unsigned short)
+  //@}
 
-  // Description:
-  // Parse the vertex information in tfc and inject primitives into GL2PS.
-  // ren is used to obtain viewport information to complete the vertex
-  // tranformation into pixel coordinates, and act/col are used to color the
-  // vertices when tfc does not contain color information.
+  //@{
+  /**
+   * Parse the vertex information in tfc and inject primitives into GL2PS.
+   * ren is used to obtain viewport information to complete the vertex
+   * tranformation into pixel coordinates, and act/col are used to color the
+   * vertices when tfc does not contain color information.
+   */
   virtual void ProcessTransformFeedback(vtkTransformFeedback *tfc,
                                         vtkRenderer *ren, vtkActor *act) = 0;
   virtual void ProcessTransformFeedback(vtkTransformFeedback *tfc,
@@ -99,43 +122,48 @@ public:
   virtual void ProcessTransformFeedback(vtkTransformFeedback *tfc,
                                         vtkRenderer *ren,
                                         float col[4]) = 0;
+  //@}
 
-  // Description:
-  // Format the text in str according to tprop and instruct GL2PS to draw it at
-  // pixel coordinate pos. Background depth is the z value for the background
-  // quad, and should be in NDC space.
-  // The drawing is always done in the overlay plane.
-  // @sa TextAsPath
+  /**
+   * Format the text in str according to tprop and instruct GL2PS to draw it at
+   * pixel coordinate pos. Background depth is the z value for the background
+   * quad, and should be in NDC space.
+   * The drawing is always done in the overlay plane.
+   * @sa TextAsPath
+   */
   virtual void DrawString(const std::string &str, vtkTextProperty *tprop,
                           double pos[3], double backgroundDepth,
                           vtkRenderer *ren) = 0;
 
-  // Description:
-  // Generate PS, EPS, or SVG markup from a vtkPath object, and then inject it
-  // into the output using the gl2psSpecial command. The path is translated
-  // uniformly in the scene by windowPos. It is scaled by scale and rotated
-  // counter-clockwise by rotateAngle. The rasterPos is in world coordinates
-  // and determines clipping and depth. If scale is NULL, no scaling is done.
-  // If strokeWidth is positive, the path will be stroked with the indicated
-  // width. If zero or negative, the path will be filled (default).
-  // The label string is inserted into the GL2PS output at the beginning of the
-  // path specification as a comment on supported backends.
+  /**
+   * Generate PS, EPS, or SVG markup from a vtkPath object, and then inject it
+   * into the output using the gl2psSpecial command. The path is translated
+   * uniformly in the scene by windowPos. It is scaled by scale and rotated
+   * counter-clockwise by rotateAngle. The rasterPos is in world coordinates
+   * and determines clipping and depth. If scale is NULL, no scaling is done.
+   * If strokeWidth is positive, the path will be stroked with the indicated
+   * width. If zero or negative, the path will be filled (default).
+   * The label string is inserted into the GL2PS output at the beginning of the
+   * path specification as a comment on supported backends.
+   */
   virtual void DrawPath(vtkPath *path, double rasterPos[3], double windowPos[2],
                         unsigned char rgba[4], double scale[2] = NULL,
                         double rotateAngle = 0.0, float strokeWidth = -1,
                         const char *label = NULL) = 0;
 
-  // Description:
-  // Transform the path using the actor's matrix and current GL state, then
-  // draw it to GL2PS. The label string is inserted into the GL2PS output at the
-  // beginning of the path specification as a comment on supported backends.
+  /**
+   * Transform the path using the actor's matrix and current GL state, then
+   * draw it to GL2PS. The label string is inserted into the GL2PS output at the
+   * beginning of the path specification as a comment on supported backends.
+   */
   virtual void Draw3DPath(vtkPath *path, vtkMatrix4x4 *actorMatrix,
                           double rasterPos[3], unsigned char actorColor[4],
                           vtkRenderer *ren, const char *label = NULL) = 0;
 
-  // Description:
-  // Draw the image at pos.
-  // Image must be RGB or RGBA with float scalars.
+  /**
+   * Draw the image at pos.
+   * Image must be RGB or RGBA with float scalars.
+   */
   virtual void DrawImage(vtkImageData *image, double pos[3]) = 0;
 
 protected:
@@ -162,8 +190,8 @@ protected:
   unsigned short LineStipple;
 
 private:
-  vtkOpenGLGL2PSHelper(const vtkOpenGLGL2PSHelper &); // Not implemented.
-  void operator=(const vtkOpenGLGL2PSHelper &);   // Not implemented.
+  vtkOpenGLGL2PSHelper(const vtkOpenGLGL2PSHelper &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLGL2PSHelper &) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkOpenGLGL2PSHelper_h

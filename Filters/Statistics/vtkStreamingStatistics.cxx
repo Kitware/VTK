@@ -64,23 +64,23 @@ vtkStreamingStatistics::~vtkStreamingStatistics()
 int vtkStreamingStatistics::FillInputPortInformation( int port, vtkInformation* info )
 {
   if ( port == INPUT_DATA )
-    {
+  {
     info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
     info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable" );
     return 1;
-    }
+  }
   else if ( port == INPUT_MODEL )
-    {
+  {
     info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
     info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet" );
     return 1;
-    }
+  }
   else if ( port == LEARN_PARAMETERS )
-    {
+  {
     info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
     info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable" );
     return 1;
-    }
+  }
 
   return 0;
 }
@@ -89,20 +89,20 @@ int vtkStreamingStatistics::FillInputPortInformation( int port, vtkInformation* 
 int vtkStreamingStatistics::FillOutputPortInformation( int port, vtkInformation* info )
 {
   if ( port == OUTPUT_DATA )
-    {
+  {
     info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
     return 1;
-    }
+  }
   else if ( port == OUTPUT_MODEL )
-    {
+  {
     info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet" );
     return 1;
-    }
+  }
   else if ( port == OUTPUT_TEST )
-    {
+  {
     info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
     return 1;
-    }
+  }
 
   return 0;
 }
@@ -133,11 +133,11 @@ int vtkStreamingStatistics::RequestData( vtkInformation*,
 
   // Make sure the statistics algorithm is set
   if ( !this->StatisticsAlgorithm )
-    {
+  {
     vtkErrorMacro("StatisticsAlgorithm not set! Punting!")
     cerr << "StatisticsAlgorithm not set! Punting!" << endl;
     return 0;
-    }
+  }
 
   // Set the input into my stats algorithms
   this->StatisticsAlgorithm->SetInputData(inData);
@@ -166,10 +166,10 @@ void vtkStreamingStatistics::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
   if (this->StatisticsAlgorithm)
-    {
+  {
     os << indent << "StatisticsAlgorithm:\n";
     vtkIndent i2 = indent.GetNextIndent();
     this->StatisticsAlgorithm->PrintSelf(os,i2);
-    }
+  }
   os << indent << "InternalModel: " << this->InternalModel << "\n";
 }

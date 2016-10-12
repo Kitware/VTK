@@ -12,21 +12,24 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLState - Raw OpenGL State.
-// .SECTION Description
-// A vtkOpenGLState object can record the OpenGL state from OpenGL query calls.
-// The only purpose of this class is debugging. It is useful when there is no
-// available OpenGL debugging tool of if the existing OpenGL debugging tools
-// cannot work in special configurations.
-//
-// The typical usage, is to dump the state in a file at different points of
-// an algorithm. To use it, create an instance of vtkOpenGLState by passing it
-// a valid OpenGL context (a vtkOpenGLRenderWindow), call Update(), call
-// PrintSelf() on a ofstream. Debugging consists then to perform a diff between
-// output text files.
-
-// .SECTION Implementation
-// Not all the OpenGL state is covered yet.
+/**
+ * @class   vtkOpenGLState
+ * @brief   Raw OpenGL State.
+ *
+ * A vtkOpenGLState object can record the OpenGL state from OpenGL query calls.
+ * The only purpose of this class is debugging. It is useful when there is no
+ * available OpenGL debugging tool of if the existing OpenGL debugging tools
+ * cannot work in special configurations.
+ *
+ * The typical usage, is to dump the state in a file at different points of
+ * an algorithm. To use it, create an instance of vtkOpenGLState by passing it
+ * a valid OpenGL context (a vtkOpenGLRenderWindow), call Update(), call
+ * PrintSelf() on a ofstream. Debugging consists then to perform a diff between
+ * output text files.
+ *
+ * @par Implementation:
+ * Not all the OpenGL state is covered yet.
+*/
 
 #ifndef vtkOpenGLState_h
 #define vtkOpenGLState_h

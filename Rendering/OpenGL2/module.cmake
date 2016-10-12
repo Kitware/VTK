@@ -1,21 +1,17 @@
 vtk_module(vtkRenderingOpenGL2
   TCL_NAME
     vtkRenderingOpenGLII
-  DEPENDS
-    vtkCommonExecutionModel
   IMPLEMENTS
     vtkRenderingCore
   BACKEND
     OpenGL2
   IMPLEMENTATION_REQUIRED_BY_BACKEND
-  PRIVATE_DEPENDS
-    vtkglew
-    vtksys
   COMPILE_DEPENDS
     vtkUtilitiesEncodeString
   TEST_DEPENDS
     vtkIOLegacy
     vtkRenderingImage
+    vtkRenderingFreeType
     vtkTestingCore
     vtkTestingRendering
     vtkImagingGeneral
@@ -24,4 +20,17 @@ vtk_module(vtkRenderingOpenGL2
     vtkIOPLY
   KIT
     vtkOpenGL
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkRenderingCore
+  PRIVATE_DEPENDS
+    vtkCommonExecutionModel
+    vtkCommonMath
+    vtkCommonSystem
+    vtkCommonTransforms
+    vtkIOImage
+    vtkImagingCore
+    vtkglew
+    vtksys
   )

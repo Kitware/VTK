@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLDataElement - Represents an XML element and those nested inside.
-// .SECTION Description
-// vtkXMLDataElement is used by vtkXMLDataParser to represent an XML
-// element.  It provides methods to access the element's attributes
-// and nested elements in a convenient manner.  This allows easy
-// traversal of an input XML file by vtkXMLReader and its subclasses.
-
-// .SECTION See Also
-// vtkXMLDataParser
+/**
+ * @class   vtkXMLDataElement
+ * @brief   Represents an XML element and those nested inside.
+ *
+ * vtkXMLDataElement is used by vtkXMLDataParser to represent an XML
+ * element.  It provides methods to access the element's attributes
+ * and nested elements in a convenient manner.  This allows easy
+ * traversal of an input XML file by vtkXMLReader and its subclasses.
+ *
+ * @sa
+ * vtkXMLDataParser
+*/
 
 #ifndef vtkXMLDataElement_h
 #define vtkXMLDataElement_h
@@ -34,67 +37,92 @@ class VTKCOMMONDATAMODEL_EXPORT vtkXMLDataElement : public vtkObject
 {
 public:
   vtkTypeMacro(vtkXMLDataElement,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkXMLDataElement* New();
 
-  // Description:
-  // Set/Get the name of the element.  This is its XML tag.
+  //@{
+  /**
+   * Set/Get the name of the element.  This is its XML tag.
+   */
   vtkGetStringMacro(Name);
   virtual void SetName (const char* _arg);
+  //@}
 
-  // Description:
-  // Set/Get the value of the id attribute of the element, if any.
+  //@{
+  /**
+   * Set/Get the value of the id attribute of the element, if any.
+   */
   vtkGetStringMacro(Id);
   vtkSetStringMacro(Id);
+  //@}
 
-  // Description:
-  // Get the attribute with the given name.  If it doesn't exist,
-  // returns 0.
+  /**
+   * Get the attribute with the given name.  If it doesn't exist,
+   * returns 0.
+   */
   const char* GetAttribute(const char* name);
 
-  // Description:
-  // Set the attribute with the given name and value. If it doesn't exist,
-  // adds it.
+  /**
+   * Set the attribute with the given name and value. If it doesn't exist,
+   * adds it.
+   */
   void SetAttribute(const char* name, const char* value);
 
-  // Description:
-  // Set/Get the character data between XML start/end tags.
+  //@{
+  /**
+   * Set/Get the character data between XML start/end tags.
+   */
   void SetCharacterData(const char* c, int length);
   void AddCharacterData(const char* c, size_t length);
   vtkGetStringMacro(CharacterData);
+  //@}
 
-  // Description:
-  // Get the attribute with the given name and converted to a scalar
-  // value.  Returns whether value was extracted.
+  //@{
+  /**
+   * Get the attribute with the given name and converted to a scalar
+   * value.  Returns whether value was extracted.
+   */
   int GetScalarAttribute(const char* name, int& value);
   int GetScalarAttribute(const char* name, float& value);
   int GetScalarAttribute(const char* name, double& value);
+  int GetScalarAttribute(const char* name, long& value);
   int GetScalarAttribute(const char* name, unsigned long& value);
+  //@}
 
-  // Description:
-  // Set the attribute with the given name.
-  // We can not use the same GetScalarAttribute() construct since
-  // the compiler will not be able to resolve between
-  // SetAttribute(..., int) and SetAttribute(..., unsigned long).
+  //@{
+  /**
+   * Set the attribute with the given name.
+   * We can not use the same GetScalarAttribute() construct since
+   * the compiler will not be able to resolve between
+   * SetAttribute(..., int) and SetAttribute(..., unsigned long).
+   */
   void SetIntAttribute(const char* name, int value);
   void SetFloatAttribute(const char* name, float value);
   void SetDoubleAttribute(const char* name, double value);
   void SetUnsignedLongAttribute(const char* name, unsigned long value);
+  //@}
 
-  // Description:
-  // Get the attribute with the given name and converted to a scalar
-  // value.  Returns length of vector read.
+  //@{
+  /**
+   * Get the attribute with the given name and converted to a scalar
+   * value.  Returns length of vector read.
+   */
   int GetVectorAttribute(const char* name, int length, int* value);
   int GetVectorAttribute(const char* name, int length, float* value);
   int GetVectorAttribute(const char* name, int length, double* value);
+  int GetVectorAttribute(const char* name, int length, long* value);
   int GetVectorAttribute(const char* name, int length, unsigned long* value);
+  //@}
 
-  // Description:
-  // Set the attribute with the given name.
+  //@{
+  /**
+   * Set the attribute with the given name.
+   */
   void SetVectorAttribute(const char* name, int length, const int* value);
   void SetVectorAttribute(const char* name, int length, const float* value);
   void SetVectorAttribute(const char* name, int length, const double* value);
   void SetVectorAttribute(const char* name, int length, const unsigned long* value);
+  //@}
 
   int  GetScalarAttribute(const char* name, long long& value);
   int  GetVectorAttribute(const char* name, int length, long long* value);
@@ -103,128 +131,165 @@ public:
   int  GetVectorAttribute(const char* name, int length, unsigned long long* value);
   void SetVectorAttribute(const char* name, int length, unsigned long long const* value);
 
-  // Description:
-  // Get the attribute with the given name and converted to a word type
-  // such as VTK_FLOAT or VTK_UNSIGNED_LONG.
+  /**
+   * Get the attribute with the given name and converted to a word type
+   * such as VTK_FLOAT or VTK_UNSIGNED_LONG.
+   */
   int GetWordTypeAttribute(const char* name, int& value);
 
-  // Description:
-  // Get the number of attributes.
+  //@{
+  /**
+   * Get the number of attributes.
+   */
   vtkGetMacro(NumberOfAttributes, int);
+  //@}
 
-  // Description:
-  // Get the n-th attribute name.
-  // Returns 0 if there is no such attribute.
+  /**
+   * Get the n-th attribute name.
+   * Returns 0 if there is no such attribute.
+   */
   const char* GetAttributeName(int idx);
 
-  // Description:
-  // Get the n-th attribute value.
-  // Returns 0 if there is no such attribute.
+  /**
+   * Get the n-th attribute value.
+   * Returns 0 if there is no such attribute.
+   */
   const char* GetAttributeValue(int idx);
 
-  // Description:
-  // Remove one or all attributes.
+  //@{
+  /**
+   * Remove one or all attributes.
+   */
   virtual void RemoveAttribute(const char *name);
   virtual void RemoveAllAttributes();
+  //@}
 
-  // Description:
-  // Set/Get the parent of this element.
+  //@{
+  /**
+   * Set/Get the parent of this element.
+   */
   vtkXMLDataElement* GetParent();
   void SetParent(vtkXMLDataElement* parent);
+  //@}
 
-  // Description:
-  // Get root of the XML tree this element is part of.
+  /**
+   * Get root of the XML tree this element is part of.
+   */
   virtual vtkXMLDataElement* GetRoot();
 
-  // Description:
-  // Get the number of elements nested in this one.
+  /**
+   * Get the number of elements nested in this one.
+   */
   int GetNumberOfNestedElements();
 
-  // Description:
-  // Get the element nested in this one at the given index.
+  /**
+   * Get the element nested in this one at the given index.
+   */
   vtkXMLDataElement* GetNestedElement(int index);
 
-  // Description:
-  // Add nested element
+  /**
+   * Add nested element
+   */
   void AddNestedElement(vtkXMLDataElement* element);
 
-  // Description:
-  // Remove nested element.
+  /**
+   * Remove nested element.
+   */
   virtual void RemoveNestedElement(vtkXMLDataElement *);
 
-  // Description:
-  // Remove all nested elements.
+  /**
+   * Remove all nested elements.
+   */
   virtual void RemoveAllNestedElements();
 
-  // Description:
-  // Find the first nested element with the given id, given name, or given
-  // name and id.
-  // WARNING: the search is only performed on the children, not
-  // the grand-children.
+  //@{
+  /**
+   * Find the first nested element with the given id, given name, or given
+   * name and id.
+   * WARNING: the search is only performed on the children, not
+   * the grand-children.
+   */
   vtkXMLDataElement* FindNestedElement(const char* id);
   vtkXMLDataElement* FindNestedElementWithName(const char* name);
   vtkXMLDataElement* FindNestedElementWithNameAndId(
     const char* name, const char* id);
   vtkXMLDataElement* FindNestedElementWithNameAndAttribute(
     const char* name, const char* att_name, const char* att_value);
+  //@}
 
-  // Description:
-  // Find the first nested element with given name.
-  // WARNING: the search is performed on the whole XML tree.
+  /**
+   * Find the first nested element with given name.
+   * WARNING: the search is performed on the whole XML tree.
+   */
   vtkXMLDataElement* LookupElementWithName(const char* name);
 
-  // Description:
-  // Lookup the element with the given id, starting at this scope.
+  /**
+   * Lookup the element with the given id, starting at this scope.
+   */
   vtkXMLDataElement* LookupElement(const char* id);
 
-  // Description:
-  // Set/Get the offset from the beginning of the XML document to this element.
+  //@{
+  /**
+   * Set/Get the offset from the beginning of the XML document to this element.
+   */
   vtkGetMacro(XMLByteIndex, vtkTypeInt64);
   vtkSetMacro(XMLByteIndex, vtkTypeInt64);
+  //@}
 
-  // Description:
-  // Check if the instance has the same name, attributes, character data
-  // and nested elements contents than the given element (this method is
-  // applied recursively on the nested elements, and they must be stored in
-  // the same order).
-  // Warning: Id, Parent, XMLByteIndex are ignored.
+  /**
+   * Check if the instance has the same name, attributes, character data
+   * and nested elements contents than the given element (this method is
+   * applied recursively on the nested elements, and they must be stored in
+   * the same order).
+   * Warning: Id, Parent, XMLByteIndex are ignored.
+   */
   virtual int IsEqualTo(vtkXMLDataElement *elem);
 
-  // Description:
-  // Copy this element from another of the same type (elem), recursively.
-  // Old attributes and nested elements are removed, new ones are created
-  // given the contents of 'elem'.
-  // Warning: Parent is ignored.
+  /**
+   * Copy this element from another of the same type (elem), recursively.
+   * Old attributes and nested elements are removed, new ones are created
+   * given the contents of 'elem'.
+   * Warning: Parent is ignored.
+   */
   virtual void DeepCopy(vtkXMLDataElement *elem);
 
-  // Description:
-  // Get/Set the internal character encoding of the attributes.
-  // Default type is VTK_ENCODING_UTF_8.
-  // Note that a vtkXMLDataParser has its own AttributesEncoding ivar. If
-  // this ivar is set to something other than VTK_ENCODING_NONE, it will be
-  // used to set the attribute encoding of each vtkXMLDataElement
-  // created by this vtkXMLDataParser.
+  //@{
+  /**
+   * Get/Set the internal character encoding of the attributes.
+   * Default type is VTK_ENCODING_UTF_8.
+   * Note that a vtkXMLDataParser has its own AttributesEncoding ivar. If
+   * this ivar is set to something other than VTK_ENCODING_NONE, it will be
+   * used to set the attribute encoding of each vtkXMLDataElement
+   * created by this vtkXMLDataParser.
+   */
   vtkSetClampMacro(AttributeEncoding,int,VTK_ENCODING_NONE,VTK_ENCODING_UNKNOWN);
   vtkGetMacro(AttributeEncoding, int);
+  //@}
 
-  // Description:
-  // Prints element tree as XML.
+  //@{
+  /**
+   * Prints element tree as XML.
+   */
   void PrintXML(ostream& os, vtkIndent indent);
   void PrintXML(const char* fname);
+  //@}
 
-  // Description:
-  // Get/Set the width (in number of fields) that character
-  // data (that between open and closing tags ie. <X> ... </X>)
-  // is printed. If the width is less than one the tag's character
-  // data is printed all on one line. If it is greater than one
-  // the character data is streamed insterting line feeds every
-  // width number of fields. See PrintXML.
+  //@{
+  /**
+   * Get/Set the width (in number of fields) that character
+   * data (that between open and closing tags ie. <X> ... </X>)
+   * is printed. If the width is less than one the tag's character
+   * data is printed all on one line. If it is greater than one
+   * the character data is streamed insterting line feeds every
+   * width number of fields. See PrintXML.
+   */
   vtkGetMacro(CharacterDataWidth,int);
   vtkSetMacro(CharacterDataWidth,int);
+  //@}
 
 protected:
   vtkXMLDataElement();
-  ~vtkXMLDataElement();
+  ~vtkXMLDataElement() VTK_OVERRIDE;
 
   // The name of the element from the XML file.
   char* Name;
@@ -276,8 +341,8 @@ protected:
   friend class vtkXMLMaterialParser;
 
 private:
-  vtkXMLDataElement(const vtkXMLDataElement&);  // Not implemented.
-  void operator=(const vtkXMLDataElement&);  // Not implemented.
+  vtkXMLDataElement(const vtkXMLDataElement&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLDataElement&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------
@@ -291,14 +356,14 @@ void vtkXMLDataElement::AddCharacterData(const char* data, size_t length)
   // resize the character data buffer.
   this->EndOfCharacterData+=length;
   if (this->EndOfCharacterData>=this->CharacterDataBufferSize)
-    {
+  {
     while(this->EndOfCharacterData>=this->CharacterDataBufferSize)
-      {
+    {
       this->CharacterDataBufferSize+=this->CharacterDataBlockSize;
-      }
+    }
     this->CharacterData
       = static_cast<char *>(realloc(this->CharacterData,this->CharacterDataBufferSize));
-    }
+  }
   // put the new data at the end of the buffer, and null terminate.
   char *pCD=this->CharacterData+eod;
   memmove(pCD,data,length);

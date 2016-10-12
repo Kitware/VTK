@@ -17,13 +17,16 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkHierarchicalGraphPipeline - helper class for rendering graphs superimposed on a tree.
-//
-// .SECTION Description
-// vtkHierarchicalGraphPipeline renders bundled edges that are meant to be
-// viewed as an overlay on a tree. This class is not for general use, but
-// is used in the internals of vtkRenderedHierarchyRepresentation and
-// vtkRenderedTreeAreaRepresentation.
+/**
+ * @class   vtkHierarchicalGraphPipeline
+ * @brief   helper class for rendering graphs superimposed on a tree.
+ *
+ *
+ * vtkHierarchicalGraphPipeline renders bundled edges that are meant to be
+ * viewed as an overlay on a tree. This class is not for general use, but
+ * is used in the internals of vtkRenderedHierarchyRepresentation and
+ * vtkRenderedTreeAreaRepresentation.
+*/
 
 #ifndef vtkHierarchicalGraphPipeline_h
 #define vtkHierarchicalGraphPipeline_h
@@ -54,86 +57,123 @@ public:
   vtkTypeMacro(vtkHierarchicalGraphPipeline, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // The actor associated with the hierarchical graph.
+  //@{
+  /**
+   * The actor associated with the hierarchical graph.
+   */
   vtkGetObjectMacro(Actor, vtkActor);
+  //@}
 
-  // Description:
-  // The actor associated with the hierarchical graph.
+  //@{
+  /**
+   * The actor associated with the hierarchical graph.
+   */
   vtkGetObjectMacro(LabelActor, vtkActor2D);
+  //@}
 
-  // Description:
-  // The bundling strength for the bundled edges.
+  //@{
+  /**
+   * The bundling strength for the bundled edges.
+   */
   virtual void SetBundlingStrength(double strength);
   virtual double GetBundlingStrength();
+  //@}
 
-  // Description:
-  // The edge label array name.
+  //@{
+  /**
+   * The edge label array name.
+   */
   virtual void SetLabelArrayName(const char* name);
   virtual const char* GetLabelArrayName();
+  //@}
 
-  // Description:
-  // The edge label visibility.
+  //@{
+  /**
+   * The edge label visibility.
+   */
   virtual void SetLabelVisibility(bool vis);
   virtual bool GetLabelVisibility();
   vtkBooleanMacro(LabelVisibility, bool);
+  //@}
 
-  // Description:
-  // The edge label text property.
+  //@{
+  /**
+   * The edge label text property.
+   */
   virtual void SetLabelTextProperty(vtkTextProperty* prop);
   virtual vtkTextProperty* GetLabelTextProperty();
+  //@}
 
-  // Description:
-  // The edge color array.
+  //@{
+  /**
+   * The edge color array.
+   */
   virtual void SetColorArrayName(const char* name);
   virtual const char* GetColorArrayName();
+  //@}
 
-  // Description:
-  // Whether to color the edges by an array.
+  //@{
+  /**
+   * Whether to color the edges by an array.
+   */
   virtual void SetColorEdgesByArray(bool vis);
   virtual bool GetColorEdgesByArray();
   vtkBooleanMacro(ColorEdgesByArray, bool);
+  //@}
 
-  // Description:
-  // The visibility of this graph.
+  //@{
+  /**
+   * The visibility of this graph.
+   */
   virtual void SetVisibility(bool vis);
   virtual bool GetVisibility();
   vtkBooleanMacro(Visibility, bool);
+  //@}
 
-  // Description:
-  // Returns a new selection relevant to this graph based on an input
-  // selection and the view that this graph is contained in.
+  /**
+   * Returns a new selection relevant to this graph based on an input
+   * selection and the view that this graph is contained in.
+   */
   virtual vtkSelection* ConvertSelection(vtkDataRepresentation* rep, vtkSelection* sel);
 
-  // Description:
-  // Sets the input connections for this graph.
-  // graphConn is the input graph connection.
-  // treeConn is the input tree connection.
-  // annConn is the annotation link connection.
+  /**
+   * Sets the input connections for this graph.
+   * graphConn is the input graph connection.
+   * treeConn is the input tree connection.
+   * annConn is the annotation link connection.
+   */
   virtual void PrepareInputConnections(
     vtkAlgorithmOutput* graphConn,
     vtkAlgorithmOutput* treeConn,
     vtkAlgorithmOutput* annConn);
 
-  // Description:
-  // Applies the view theme to this graph.
+  /**
+   * Applies the view theme to this graph.
+   */
   virtual void ApplyViewTheme(vtkViewTheme* theme);
 
-  // Description:
-  // The array to use while hovering over an edge.
+  //@{
+  /**
+   * The array to use while hovering over an edge.
+   */
   vtkSetStringMacro(HoverArrayName);
   vtkGetStringMacro(HoverArrayName);
+  //@}
 
-  // Description:
-  // The spline mode to use in vtkSplineGraphEdges.
-  // vtkSplineGraphEdges::CUSTOM uses a vtkCardinalSpline.
-  // vtkSplineGraphEdges::BSPLINE uses a b-spline.
-  // The default is BSPLINE.
+  //@{
+  /**
+   * The spline mode to use in vtkSplineGraphEdges.
+   * vtkSplineGraphEdges::CUSTOM uses a vtkCardinalSpline.
+   * vtkSplineGraphEdges::BSPLINE uses a b-spline.
+   * The default is BSPLINE.
+   */
   virtual void SetSplineType(int type);
   virtual int GetSplineType();
+  //@}
 
-  // Description:
-  // Register progress with a view.
+  /**
+   * Register progress with a view.
+   */
   void RegisterProgress(vtkRenderView* view);
 
 protected:
@@ -162,8 +202,8 @@ protected:
   char* LabelArrayNameInternal;
 
 private:
-  vtkHierarchicalGraphPipeline(const vtkHierarchicalGraphPipeline&); // Not implemented
-  void operator=(const vtkHierarchicalGraphPipeline&); // Not implemented
+  vtkHierarchicalGraphPipeline(const vtkHierarchicalGraphPipeline&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHierarchicalGraphPipeline&) VTK_DELETE_FUNCTION;
 };
 
 #endif

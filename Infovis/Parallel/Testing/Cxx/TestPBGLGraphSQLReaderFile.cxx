@@ -95,19 +95,19 @@ TestPBGLGraphSQLReaderFile_internal(int argc, char* argv[])
   // =====[ Read MySQL Database Into Graph ]====================================
   VTK_CREATE(vtkSQLiteDatabase, db);
   if( ConnectToDb(argc,argv,db) )
-    {
+  {
     cout << "Failed to connect to database!" << endl;
     return 1;
-    }
+  }
 
   for(vtkIdType testCase=1; testCase<=5; testCase++)
-    {
+  {
     if(executeTestCase(testCase, db))
-      {
+    {
       cerr << "Failed test case: " << testCase << endl;
       return 1;
-      }
     }
+  }
   return 0;
 }
 
@@ -120,10 +120,10 @@ int executeTestCase(vtkIdType testCase, vtkSQLiteDatabase * db)
   // =====[ Read MySQL Database Into Graph ]====================================
   VTK_CREATE(vtkPBGLGraphSQLReader, sqlSrc);
   if( loadGraphFromSQL(db, sqlSrc, testCase, false))
-    {
+  {
     cout << "Failed to load graph" << endl;
     return 1;
-    }
+  }
 
   // =====[ Collect Graph to One Node ]=========================================
   // Note: if there's a problem this will often crash as it touches most of the
@@ -138,19 +138,19 @@ int executeTestCase(vtkIdType testCase, vtkSQLiteDatabase * db)
   vtkIdType numEdges = collectedGraph->GetOutput()->GetNumberOfEdges();
 
   if( validateByCounting(testCase, numVerts, numEdges) )
-    {
+  {
     return 1;
-    }
+  }
 
   for(int i=0; i<world.size(); i++)
-    {
+  {
     world.barrier();
     if(i==world.rank())
-      {
+    {
       cout << "Process " << world.rank() << " passes test #"<< testCase << endl;
       fflush(stdout);
-      }
     }
+  }
   world.barrier();
   return 0;
 }
@@ -164,85 +164,85 @@ int validateByCounting(vtkIdType testCase, vtkIdType numVerts, vtkIdType numEdge
   // print out a bit of debugging info (useful for ctest -V).
 
   for(int i=0; i<world.size(); i++)
-    {
+  {
     world.barrier();
     if(i==world.rank())
-      {
+    {
       cout << "Process " << world.rank() << " has " <<  numVerts << " vertices and "
            << numEdges << " edges." << endl;
       fflush(stdout);
-      }
     }
+  }
   world.barrier();
 
   if(world.rank()==0)
-    {
+  {
     switch(testCase)
-      {
+    {
       case 1:
         if(numVerts != 8 || numEdges != 13)
-          {
+        {
           cout << "Test failed, there should be 8 verts and 13 edges, test found "
                << numVerts << "vertices and " << numEdges << " edges." << endl;
           return 1;
-          }
+        }
         break;
       case 2:
         if(numVerts != 3 || numEdges != 3)
-          {
+        {
           cout << "Test failed, there should be 3 verts and 3 edges, test found "
                << numVerts << "vertices and " << numEdges << " edges." << endl;
           return 1;
-          }
+        }
         break;
       case 3:
         if(numVerts != 4 || numEdges != 5)
-          {
+        {
           cout << "Test failed, there should be 4 verts and 5 edges, test found "
                << numVerts << "vertices and " << numEdges << " edges." << endl;
           return 1;
-          }
+        }
         break;
       case 4:
         if(numVerts != 3 || numEdges != 3)
-          {
+        {
           cout << "Test failed, there should be 8 verts and 13 edges, test found "
                << numVerts << "vertices and " << numEdges << " edges." << endl;
           return 1;
-          }
+        }
         break;
       case 5:
         if(numVerts != 10 || numEdges != 11)
-          {
+        {
           cout << "Test failed, there should be 8 verts and 13 edges, test found "
                << numVerts << "vertices and " << numEdges << " edges." << endl;
           return 1;
-          }
+        }
         break;
       default:
         return 1;
-      };
-    }
+    };
+  }
   else
-    {
+  {
     switch(testCase)
-      {
+    {
       case 1:
       case 2:
       case 3:
       case 4:
       case 5:
         if(numVerts != 0 || numEdges != 0)
-          {
+        {
           cout << "Test failed, there should be 0 verts and 0 edges, test found "
                << numVerts << "vertices and " << numEdges << " edges." << endl;
           return 1;
-          }
+        }
         break;
       default:
         return 1;
-      };
-    }
+    };
+  }
   return 0;
 }
 
@@ -250,7 +250,7 @@ int validateByCounting(vtkIdType testCase, vtkIdType numVerts, vtkIdType numEdge
 
 //=====[ Connect to SQLite Database ]===========================================
 int ConnectToDb(int argc, char* argv[], vtkSQLiteDatabase * db)
-  {
+{
   boost::mpi::communicator world;
 
   char * filename = NULL;
@@ -265,23 +265,23 @@ int ConnectToDb(int argc, char* argv[], vtkSQLiteDatabase * db)
 
   db->Open("");
   if(!db->IsOpen())
-    {
+  {
     cerr << "Could not open database!" << endl;
     cerr << db->GetLastErrorText() << endl;
     return 1;
-    }
+  }
 
 #ifdef DEBUG
   vtkStringArray * tablesList = db->GetTables();
   int numTables = tablesList->GetNumberOfValues();
   cout << "# of tables = " << numTables << endl;
   for(int i=0; i<numTables; i++)
-    {
+  {
     cout << "\t" << tablesList->GetValue(i) << endl;
-    }
+  }
 #endif
   return 0;
-  }
+}
 
 
 
@@ -294,11 +294,11 @@ int loadGraphFromSQL(vtkSQLDatabase * db,
   boost::mpi::communicator world;
 
   if(world.rank()==0)
-    {
+  {
     cout << ">>>\tLoad SQL Graph" << endl;
     cout << "\t-\tLoading test graph #" << testNum << endl;
     fflush(stdout);
-    }
+  }
   world.barrier();
 
   sqlSrc->SetDatabase(db);
@@ -306,7 +306,7 @@ int loadGraphFromSQL(vtkSQLDatabase * db,
   sqlSrc->SetTargetField("recvID");
 
   switch(testNum)
-    {
+  {
     case 1:
       sqlSrc->SetVertexTable("verts1");
       sqlSrc->SetEdgeTable("edges1");
@@ -335,7 +335,7 @@ int loadGraphFromSQL(vtkSQLDatabase * db,
     default:
       cout << "ERROR: Invalid graph selection in test loader" << endl;
       return 1;
-    };
+  };
 
   sqlSrc->SetDirected(directed);
 
@@ -344,10 +344,10 @@ int loadGraphFromSQL(vtkSQLDatabase * db,
   fflush(stdout);
   world.barrier();
   if(world.rank()==0)
-    {
+  {
     cout << "<<<\tLoad SQL Graph" << endl;
     fflush(stdout);
-    }
+  }
   world.barrier();
   return 0;
 }
@@ -360,9 +360,9 @@ int collectDistributedGraphToSingleNode(vtkAlgorithmOutput * inGraph,
 {
   boost::mpi::communicator world;
   if(world.rank()==0)
-    {
+  {
     cout << ">>>\tCollect graph to single node." << endl;
-    }
+  }
   world.barrier();
 
   PBGLCollect->SetInputConnection( inGraph );
@@ -375,9 +375,9 @@ int collectDistributedGraphToSingleNode(vtkAlgorithmOutput * inGraph,
   PBGLCollect->Update(world.rank(), world.size(), 0);
 
   if(world.rank()==0)
-    {
+  {
     cout << "<<<\tCollect graph to single node." << endl;
-    }
+  }
   world.barrier();
 
   return 0;  // success
@@ -406,21 +406,21 @@ void printDistributedGraph(vtkGraph * G)
   world.barrier();
 
   for(int p=0; p<nump; p++)
-    {
+  {
     world.barrier();
     if(p==rank)
       for(int i=0; i<numVertices; i++)
-        {
+      {
         cout << "[" << rank << "]\tvIndx=" << i;
         for(int j=0; j<numVertexArrays; j++)
-          {
+        {
           vtkAbstractArray * A = distribVertexData->GetAbstractArray(j);
           cout << "\ta"<<j<<"='" <<  A->GetVariantValue(i).ToString() << "'";
-          }
-        cout << endl;
         }
+        cout << endl;
+      }
     fflush(stdout);
-    }
+  }
   world.barrier();
 
   // Print out the Edges
@@ -440,10 +440,10 @@ void printDistributedGraph(vtkGraph * G)
   vtkDistributedGraphHelper * helper = G->GetDistributedGraphHelper();
 
   for(int p=0; p<nump; p++)
-    {
+  {
     if(p==rank)
       for(int ei=0; ei<numEdges; ei++)
-        {
+      {
         cout << "[" << rank << "]\teIndx=" << ei
              << "\t(" << helper->GetVertexOwner(G->GetSourceVertex(ei))
              << ":"   << helper->GetVertexIndex(G->GetSourceVertex(ei))
@@ -452,8 +452,8 @@ void printDistributedGraph(vtkGraph * G)
              << ")";
         cout << endl;
         fflush(stdout);
-        }
-    }
+      }
+  }
   world.barrier();
 #endif
 }

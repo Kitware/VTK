@@ -84,10 +84,10 @@ int vtkTransformTextureCoords::RequestData(
   output->CopyStructure( input );
 
   if ( inTCoords == NULL || numPts < 1 )
-    {
+  {
     vtkErrorMacro(<<"No texture coordinates to transform");
     return 1;
-    }
+  }
   transform = vtkTransform::New();
   matrix = vtkMatrix4x4::New();
 
@@ -108,17 +108,17 @@ int vtkTransformTextureCoords::RequestData(
 
   // rotate about z, then x, then y
   if ( this->FlipT )
-    {
+  {
     transform->RotateZ(180.0);
-    }
+  }
   if ( this->FlipR )
-    {
+  {
     transform->RotateX(180.0);
-    }
+  }
   if ( this->FlipS )
-    {
+  {
     transform->RotateY(180.0);
-    }
+  }
 
   // move back from origin and translate
   transform->Translate(this->Origin[0] + this->Position[0],
@@ -134,25 +134,25 @@ int vtkTransformTextureCoords::RequestData(
   int progressInterval = numPts/20+1;
 
   for (ptId=0; ptId < numPts && !abort; ptId++)
-    {
+  {
     if ( !(ptId % progressInterval) )
-      {
+    {
       this->UpdateProgress((double)ptId/numPts);
       abort = this->GetAbortExecute();
-      }
+    }
 
     inTCoords->GetTuple(ptId, TC);
     for (i=0; i<texDim; i++)
-      {
+    {
       newTC[i] = matrix->Element[i][3];
       for (j=0; j<texDim; j++)
-        {
+      {
         newTC[i] += matrix->Element[i][j] * TC[j];
-        }
       }
+    }
 
     newTCoords->InsertTuple(ptId,newTC);
-    }
+  }
 
   // Update self
   //

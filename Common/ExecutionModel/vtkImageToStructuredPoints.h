@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageToStructuredPoints - Attaches image pipeline to VTK.
-// .SECTION Description
-// vtkImageToStructuredPoints changes an image cache format to
-// a structured points dataset.  It takes an Input plus an optional
-// VectorInput. The VectorInput converts the RGB scalar components
-// of the VectorInput to vector pointdata attributes. This filter
-// will try to reference count the data but in some cases it must
-// make a copy.
+/**
+ * @class   vtkImageToStructuredPoints
+ * @brief   Attaches image pipeline to VTK.
+ *
+ * vtkImageToStructuredPoints changes an image cache format to
+ * a structured points dataset.  It takes an Input plus an optional
+ * VectorInput. The VectorInput converts the RGB scalar components
+ * of the VectorInput to vector pointdata attributes. This filter
+ * will try to reference count the data but in some cases it must
+ * make a copy.
+*/
 
 #ifndef vtkImageToStructuredPoints_h
 #define vtkImageToStructuredPoints_h
@@ -35,34 +38,38 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageToStructuredPoints : public vtkImag
 public:
   static vtkImageToStructuredPoints *New();
   vtkTypeMacro(vtkImageToStructuredPoints,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Set/Get the input object from the image pipeline.
+  //@{
+  /**
+   * Set/Get the input object from the image pipeline.
+   */
   void SetVectorInputData(vtkImageData *input);
   vtkImageData *GetVectorInput();
+  //@}
 
-  // Description:
-  // Get the output of the filter.
+  /**
+   * Get the output of the filter.
+   */
   vtkStructuredPoints* GetStructuredPointsOutput();
 
 protected:
   vtkImageToStructuredPoints();
-  ~vtkImageToStructuredPoints();
+  ~vtkImageToStructuredPoints() VTK_OVERRIDE;
 
   // to translate the wholeExtent to have min 0 ( I do not like this hack).
   int Translate[3];
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
-  virtual int FillOutputPortInformation(int, vtkInformation*);
-  virtual int FillInputPortInformation(int, vtkInformation*);
+  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
 private:
-  vtkImageToStructuredPoints(const vtkImageToStructuredPoints&);  // Not implemented.
-  void operator=(const vtkImageToStructuredPoints&);  // Not implemented.
+  vtkImageToStructuredPoints(const vtkImageToStructuredPoints&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageToStructuredPoints&) VTK_DELETE_FUNCTION;
 };
 
 

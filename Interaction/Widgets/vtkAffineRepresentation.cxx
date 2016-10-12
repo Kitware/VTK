@@ -37,9 +37,9 @@ void vtkAffineRepresentation::ShallowCopy(vtkProp *prop)
 {
   vtkAffineRepresentation *rep = vtkAffineRepresentation::SafeDownCast(prop);
   if ( rep )
-    {
+  {
     this->SetTolerance(rep->GetTolerance());
-    }
+  }
   this->Superclass::ShallowCopy(prop);
 }
 

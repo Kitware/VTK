@@ -52,14 +52,14 @@ vtkResliceCursorPolyDataAlgorithm::vtkResliceCursorPolyDataAlgorithm()
     this->ExtrusionFilter1->GetOutputPort());
 
   for (int i = 0; i < 6; i++)
-    {
+  {
     this->SliceBounds[i] = 0;
-    }
+  }
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(4);
 
   for (int i = 0; i < 2; i++)
-    {
+  {
     this->ThickAxes[i] = vtkPolyData::New();
 
     vtkSmartPointer< vtkPoints > points
@@ -69,7 +69,7 @@ vtkResliceCursorPolyDataAlgorithm::vtkResliceCursorPolyDataAlgorithm()
 
     this->ThickAxes[i]->SetPoints(points);
     this->ThickAxes[i]->SetLines(lines);
-    }
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -83,16 +83,16 @@ vtkResliceCursorPolyDataAlgorithm::~vtkResliceCursorPolyDataAlgorithm()
   this->ExtrusionFilter2->Delete();
 
   for (int i = 0; i < 2; i++)
-    {
+  {
     this->ThickAxes[i]->Delete();
-    }
+  }
 }
 
 //---------------------------------------------------------------------------
 void vtkResliceCursorPolyDataAlgorithm::BuildResliceSlabAxisTopology()
 {
   for (int i = 0; i < 2; i++)
-    {
+  {
     const int nPoints = this->GetResliceCursor()->GetHole() ? 8 : 4;
     this->ThickAxes[i]->GetPoints()->SetNumberOfPoints(nPoints);
 
@@ -100,12 +100,12 @@ void vtkResliceCursorPolyDataAlgorithm::BuildResliceSlabAxisTopology()
 
     vtkIdType ptIds[2];
     for (int j = 0; j < nPoints/2; j++)
-      {
+    {
       ptIds[0] = 2*j;
       ptIds[1] = 2*j+1;
       this->ThickAxes[i]->GetLines()->InsertNextCell(2, ptIds);
-      }
     }
+  }
 
 }
 
@@ -147,10 +147,10 @@ int vtkResliceCursorPolyDataAlgorithm::RequestData(
   vtkInformationVector *vtkNotUsed(outputVector))
 {
   if (!this->ResliceCursor)
-    {
+  {
     vtkErrorMacro( << "Reslice Cursor not set !" );
     return -1;
-    }
+  }
 
   this->BuildResliceSlabAxisTopology();
 
@@ -165,13 +165,13 @@ int vtkResliceCursorPolyDataAlgorithm::RequestData(
                                                this->GetCenterlineAxis2());
 
   if (this->ResliceCursor->GetThickMode())
-    {
+  {
     this->GetSlabPolyData(axis1, this->GetPlaneAxis1(), this->ThickAxes[0]);
     this->CutAndClip(this->ThickAxes[0], this->GetThickSlabAxis1());
 
     this->GetSlabPolyData(axis2, this->GetPlaneAxis2(), this->ThickAxes[1]);
     this->CutAndClip(this->ThickAxes[1], this->GetThickSlabAxis2());
-    }
+  }
 
   return 1;
 }
@@ -198,16 +198,16 @@ void vtkResliceCursorPolyDataAlgorithm
 
   // Set the slab points
   for (int i = 0; i < nPoints; i++)
-    {
+  {
     cpd->GetPoint(i, p);
     for (int j = 0; j < 3; j++)
-      {
+    {
       pPlus[j] = p[j] + thickness * thicknessDirection[j];
       pMinus[j] = p[j] - thickness * thicknessDirection[j];
-      }
+    }
     pts->SetPoint(i, pPlus);
     pts->SetPoint(nPoints + i, pMinus);
-    }
+  }
 
   pd->Modified();
 
@@ -217,13 +217,13 @@ void vtkResliceCursorPolyDataAlgorithm
 int vtkResliceCursorPolyDataAlgorithm::GetAxis1()
 {
   if (this->ReslicePlaneNormal == 2)
-    {
+  {
     return 1;
-    }
+  }
   if (this->ReslicePlaneNormal == 1)
-    {
+  {
     return 2;
-    }
+  }
   return 2;
 }
 
@@ -231,13 +231,13 @@ int vtkResliceCursorPolyDataAlgorithm::GetAxis1()
 int vtkResliceCursorPolyDataAlgorithm::GetAxis2()
 {
   if (this->ReslicePlaneNormal == 2)
-    {
+  {
     return 0;
-    }
+  }
   if (this->ReslicePlaneNormal == 1)
-    {
+  {
     return 0;
-    }
+  }
   return 1;
 }
 
@@ -245,13 +245,13 @@ int vtkResliceCursorPolyDataAlgorithm::GetAxis2()
 int vtkResliceCursorPolyDataAlgorithm::GetPlaneAxis1()
 {
   if (this->ReslicePlaneNormal == 2)
-    {
+  {
     return 0;
-    }
+  }
   if (this->ReslicePlaneNormal == 1)
-    {
+  {
     return 0;
-    }
+  }
   return 1;
 }
 
@@ -259,13 +259,13 @@ int vtkResliceCursorPolyDataAlgorithm::GetPlaneAxis1()
 int vtkResliceCursorPolyDataAlgorithm::GetPlaneAxis2()
 {
   if (this->ReslicePlaneNormal == 2)
-    {
+  {
     return 1;
-    }
+  }
   if (this->ReslicePlaneNormal == 1)
-    {
+  {
     return 2;
-    }
+  }
   return 2;
 }
 
@@ -273,12 +273,12 @@ int vtkResliceCursorPolyDataAlgorithm::GetPlaneAxis2()
 int vtkResliceCursorPolyDataAlgorithm::GetOtherPlaneForAxis( int p )
 {
   for (int i = 0; i < 3; i++)
-    {
+  {
     if (i != p && i != this->ReslicePlaneNormal)
-      {
+    {
       return i;
-      }
     }
+  }
 
   return -1;
 }
@@ -314,18 +314,18 @@ void vtkResliceCursorPolyDataAlgorithm
 }
 
 //-------------------------------------------------------------------------
-unsigned long int vtkResliceCursorPolyDataAlgorithm::GetMTime()
+vtkMTimeType vtkResliceCursorPolyDataAlgorithm::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
+  vtkMTimeType mTime=this->Superclass::GetMTime();
   if (this->ResliceCursor)
-    {
-    unsigned long time;
+  {
+    vtkMTimeType time;
     time = this->ResliceCursor->GetMTime();
     if (time > mTime)
-      {
+    {
       mTime = time;
-      }
     }
+  }
   return mTime;
 }
 
@@ -336,24 +336,24 @@ void vtkResliceCursorPolyDataAlgorithm::PrintSelf(
   this->Superclass::PrintSelf(os,indent);
   os << indent << "ResliceCursor: " << this->ResliceCursor << "\n";
   if (this->ResliceCursor)
-    {
+  {
     this->ResliceCursor->PrintSelf(os, indent);
-    }
+  }
   os << indent << "Cutter: " << this->Cutter << "\n";
   if (this->Cutter)
-    {
+  {
     this->Cutter->PrintSelf(os, indent);
-    }
+  }
   os << indent << "ExtrusionFilter1: " << this->ExtrusionFilter1 << "\n";
   if (this->ExtrusionFilter1)
-    {
+  {
     this->ExtrusionFilter1->PrintSelf(os, indent);
-    }
+  }
   os << indent << "ExtrusionFilter2: " << this->ExtrusionFilter2 << "\n";
   if (this->ExtrusionFilter2)
-    {
+  {
     this->ExtrusionFilter2->PrintSelf(os, indent);
-    }
+  }
   os << indent << "ReslicePlaneNormal: " << this->ReslicePlaneNormal << endl;
   os << indent << "Extrude: " << this->Extrude << endl;
 

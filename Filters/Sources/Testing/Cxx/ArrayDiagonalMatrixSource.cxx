@@ -38,7 +38,7 @@
 int ArrayDiagonalMatrixSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     vtkSmartPointer<vtkDiagonalMatrixSource> source = vtkSmartPointer<vtkDiagonalMatrixSource>::New();
     source->SetExtents(3);
     source->SetArrayType(vtkDiagonalMatrixSource::SPARSE);
@@ -85,11 +85,11 @@ int ArrayDiagonalMatrixSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(dense_array->GetValue(vtkArrayCoordinates(2, 2)) == 1.0);
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }
 

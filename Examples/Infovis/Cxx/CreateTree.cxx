@@ -51,13 +51,13 @@ int main(int, char*[])
   vtkTree* tree = vtkTree::New();
   bool validTree = tree->CheckedShallowCopy(graph);
   if (!validTree)
-    {
+  {
     std::cout << "Invalid tree" << std::endl;
     graph->Delete();
     labels->Delete();
     tree->Delete();
     return EXIT_FAILURE;
-    }
+  }
 
   vtkGraphLayoutView* view = vtkGraphLayoutView::New();
   view->SetRepresentationFromInput(tree);

@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractSelectionBase - abstract base class for all extract selection
-// filters.
-// .SECTION Description
-// vtkExtractSelectionBase is an abstract base class for all extract selection
-// filters. It defines some properties common to all extract selection filters.
+/**
+ * @class   vtkExtractSelectionBase
+ * @brief   abstract base class for all extract selection
+ * filters.
+ *
+ * vtkExtractSelectionBase is an abstract base class for all extract selection
+ * filters. It defines some properties common to all extract selection filters.
+*/
 
 #ifndef vtkExtractSelectionBase_h
 #define vtkExtractSelectionBase_h
@@ -28,40 +31,45 @@ class VTKFILTERSGENERAL_EXPORT vtkExtractSelectionBase : public vtkDataObjectAlg
 {
 public:
   vtkTypeMacro(vtkExtractSelectionBase, vtkDataObjectAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Convenience method to specify the selection connection (2nd input
-  // port)
+  /**
+   * Convenience method to specify the selection connection (2nd input
+   * port)
+   */
   void SetSelectionConnection(vtkAlgorithmOutput* algOutput)
-    {
+  {
     this->SetInputConnection(1, algOutput);
-    }
+  }
 
-  // Description:
-  // This flag tells the extraction filter not to convert the selected
-  // output into an unstructured grid, but instead to produce a vtkInsidedness
-  // array and add it to the input dataset. Default value is false(0).
+  //@{
+  /**
+   * This flag tells the extraction filter not to convert the selected
+   * output into an unstructured grid, but instead to produce a vtkInsidedness
+   * array and add it to the input dataset. Default value is false(0).
+   */
   vtkSetMacro(PreserveTopology, int);
   vtkGetMacro(PreserveTopology, int);
   vtkBooleanMacro(PreserveTopology, int);
+  //@}
 
 protected:
   vtkExtractSelectionBase();
-  ~vtkExtractSelectionBase();
+  ~vtkExtractSelectionBase() VTK_OVERRIDE;
 
-  // Description:
-  // Sets up empty output dataset
-  virtual int RequestDataObject(vtkInformation* request,
-                                vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector);
+  /**
+   * Sets up empty output dataset
+   */
+  int RequestDataObject(vtkInformation* request,
+                        vtkInformationVector** inputVector,
+                        vtkInformationVector* outputVector) VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   int PreserveTopology;
 private:
-  vtkExtractSelectionBase(const vtkExtractSelectionBase&); // Not implemented.
-  void operator=(const vtkExtractSelectionBase&); // Not implemented.
+  vtkExtractSelectionBase(const vtkExtractSelectionBase&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExtractSelectionBase&) VTK_DELETE_FUNCTION;
 
 };
 

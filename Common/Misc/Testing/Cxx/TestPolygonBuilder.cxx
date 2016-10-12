@@ -38,25 +38,25 @@ int TestPolygonBuilder(int, char* [])
 
   vtkIdType p[3];
   for (size_t i=0;i<4;i++)
-    {
+  {
     for (size_t j=0;j<3;j++)
       p[j] = triangles[i][j];
     builder.InsertTriangle(p);
-    }
+  }
 
   vtkNew<vtkIdListCollection> polys;
   builder.GetPolygons(polys.GetPointer());
 
   if (polys->GetNumberOfItems()!=1)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   vtkIdList* poly = polys->GetItem(0);
   if(poly->GetNumberOfIds()!=4)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
   poly->Delete();
   polys->RemoveAllItems();
 

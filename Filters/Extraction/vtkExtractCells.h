@@ -17,13 +17,16 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// .NAME vtkExtractCells - subset a vtkDataSet to create a vtkUnstructuredGrid
-//
-// .SECTION Description
-//    Given a vtkDataSet and a list of cell Ids, create a vtkUnstructuredGrid
-//    composed of these cells.  If the cell list is empty when vtkExtractCells
-//    executes, it will set up the ugrid, point and cell arrays, with no points,
-//    cells or data.
+/**
+ * @class   vtkExtractCells
+ * @brief   subset a vtkDataSet to create a vtkUnstructuredGrid
+ *
+ *
+ *    Given a vtkDataSet and a list of cell Ids, create a vtkUnstructuredGrid
+ *    composed of these cells.  If the cell list is empty when vtkExtractCells
+ *    executes, it will set up the ugrid, point and cell arrays, with no points,
+ *    cells or data.
+*/
 
 #ifndef vtkExtractCells_h
 #define vtkExtractCells_h
@@ -42,22 +45,25 @@ public:
 
   static vtkExtractCells *New();
 
-  // Description:
-  // Set the list of cell IDs that the output vtkUnstructuredGrid
-  // will be composed of.  Replaces any other cell ID list supplied
-  // so far.  (Set to NULL to free memory used by cell list.)
+  /**
+   * Set the list of cell IDs that the output vtkUnstructuredGrid
+   * will be composed of.  Replaces any other cell ID list supplied
+   * so far.  (Set to NULL to free memory used by cell list.)
+   */
 
   void SetCellList(vtkIdList *l);
 
-  // Description:
-  // Add the supplied list of cell IDs to those that will be included
-  // in the output vtkUnstructuredGrid.
+  /**
+   * Add the supplied list of cell IDs to those that will be included
+   * in the output vtkUnstructuredGrid.
+   */
 
   void AddCellList(vtkIdList *l);
 
-  // Description:
-  // Add this range of cell IDs to those that will be included
-  // in the output vtkUnstructuredGrid.
+  /**
+   * Add this range of cell IDs to those that will be included
+   * in the output vtkUnstructuredGrid.
+   */
 
   void AddCellRange(vtkIdType from, vtkIdType to);
 
@@ -85,8 +91,8 @@ private:
   int SubSetUGridCellArraySize;
   char InputIsUgrid;
 
-  vtkExtractCells(const vtkExtractCells&); // Not implemented
-  void operator=(const vtkExtractCells&); // Not implemented
+  vtkExtractCells(const vtkExtractCells&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExtractCells&) VTK_DELETE_FUNCTION;
 };
 
 #endif

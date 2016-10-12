@@ -1423,19 +1423,19 @@ class vtkImageCroppingRegionsWidgetCallback : public vtkCommand
 {
 public:
   static vtkImageCroppingRegionsWidgetCallback *New()
-    {
+  {
     return new vtkImageCroppingRegionsWidgetCallback;
-    }
+  }
 
   void Execute( vtkObject *caller, unsigned long vtkNotUsed( event ),
     void* vtkNotUsed(callData) )
-    {
+  {
     vtkImageCroppingRegionsWidget* self =
       reinterpret_cast< vtkImageCroppingRegionsWidget* >( caller );
     if(!self)
-      {
+    {
       return;
-      }
+    }
 
     double* pp = Widget->GetPlanePositions();
     extractVOI->SetVOI(
@@ -1447,7 +1447,7 @@ public:
       static_cast<int>(pp[5]/spacing[2]) );
     extractVOI->Update();
     ren->ResetCamera();
-    }
+  }
 
   vtkImageCroppingRegionsWidget* Widget;
   vtkExtractVOI* extractVOI;

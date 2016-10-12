@@ -12,33 +12,37 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCocoaGLView - Cocoa OpenGL rendering context
-//
-// .SECTION Description
-// This class is a subclass of Cocoa's NSView; it uses Objective-C++.
-// This class overrides several NSView methods.
-// To provide the usual VTK keyboard user interface, it overrides the
-// following methods: acceptsFirstResponder, keyDown:,
-// keyUp:, and flagsChanged:
-// To provide the usual VTK mouse user interface, it overrides the
-// following methods: mouseMoved:, mouseEntered:,
-// mouseExited: scrollWheel:, mouseDown:, rightMouseDown:,
-// otherMouseDown:, mouseDragged:, rightMouseDragged:, otherMouseDragged:,
-// and updateTrackingAreas.
-// To be able to render and draw onscreen, it overrides drawRect:.
-
-// Compatibility notes:
-// - this class was previously a subclass of NSOpenGLView,
-// but starting with VTK 5.0 is now a subclass of NSView.
-// - starting with VTK 6.3 this class overrides the more modern
-// updateTrackingAreas instead of resetCursorRects.
-//
-// .SECTION See Also
-// vtkCocoaRenderWindow vtkCocoaRenderWindowInteractor
+/**
+ * @class   vtkCocoaGLView
+ * @brief   Cocoa OpenGL rendering context
+ *
+ *
+ * This class is a subclass of Cocoa's NSView; it uses Objective-C++.
+ * This class overrides several NSView methods.
+ * To provide the usual VTK keyboard user interface, it overrides the
+ * following methods: acceptsFirstResponder, keyDown:,
+ * keyUp:, and flagsChanged:
+ * To provide the usual VTK mouse user interface, it overrides the
+ * following methods: mouseMoved:, mouseEntered:,
+ * mouseExited: scrollWheel:, mouseDown:, rightMouseDown:,
+ * otherMouseDown:, mouseDragged:, rightMouseDragged:, otherMouseDragged:,
+ * and updateTrackingAreas.
+ * To be able to render and draw onscreen, it overrides drawRect:.
+ *
+ * Compatibility notes:
+ * - this class was previously a subclass of NSOpenGLView,
+ * but starting with VTK 5.0 is now a subclass of NSView.
+ * - starting with VTK 6.3 this class overrides the more modern
+ * updateTrackingAreas instead of resetCursorRects.
+ *
+ * @sa
+ * vtkCocoaRenderWindow vtkCocoaRenderWindowInteractor
+*/
 
 #ifndef vtkCocoaGLView_h
 #define vtkCocoaGLView_h
 
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 #import <Cocoa/Cocoa.h>
 
 // Note: This file should be includable by both pure Objective-C and Objective-C++ source files.
@@ -57,6 +61,7 @@
   typedef void *vtkCocoaRenderWindowInteractorRef;
 #endif
 
+VTKRENDERINGOPENGL2_EXPORT
 @interface vtkCocoaGLView : NSView
 {
   @private

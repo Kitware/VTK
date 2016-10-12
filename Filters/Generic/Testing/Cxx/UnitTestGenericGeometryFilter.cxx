@@ -37,19 +37,19 @@ static vtkSmartPointer<vtkBridgeDataSet> CreateTetraData();
   { \
   std::string expectedMsg(msg); \
   if (!errorObserver->GetError()) \
-    { \
+  { \
     std::cout << "Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
     status++; \
-    } \
+  } \
   else \
-    { \
+  { \
     std::string gotMsg(errorObserver->GetErrorMessage()); \
     if (gotMsg.find(expectedMsg) == std::string::npos) \
-      { \
+    { \
       std::cout << "Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
       status++; \
-      } \
     } \
+  } \
   } \
   errorObserver->Clear()
 
@@ -75,16 +75,16 @@ int UnitTestGenericGeometryFilter(int, char*[])
   std::cout << "# of cells: " << got;
   int expected = xres * yres;
   if (expected != got)
-    {
+  {
     std::cout << " Expected " << expected << " cells"
               << " but got " << got << " cells."
               << " FAILED." << std::endl;
     status++;
-    }
+  }
   else
-    {
+  {
     std::cout << " PASSED." << std::endl;
-    }
+  }
   }
   {
   std::cout << "Testing PointClippingOn()...";
@@ -105,16 +105,16 @@ int UnitTestGenericGeometryFilter(int, char*[])
   std::cout << "# of cells: " << got;
   int expected = xres * yres;
   if (expected != got)
-    {
+  {
     std::cout << " Expected " << expected << " cells"
               << " but got " << got << " cells."
               << " FAILED." << std::endl;
     status++;
-    }
+  }
   else
-    {
+  {
     std::cout << " PASSED." << std::endl;
-    }
+  }
   std::ostringstream fullPrint;
   filter->Print(fullPrint);
 
@@ -134,16 +134,16 @@ int UnitTestGenericGeometryFilter(int, char*[])
   std::cout << "# of cells: " << got;
   int expected = filter->GetCellMaximum() - filter->GetCellMinimum() + 1;
   if (expected != got)
-    {
+  {
     std::cout << " Expected " << expected << " cells"
               << " but got " << got << " cells."
               << " FAILED" << std::endl;
     status++;
-    }
+  }
   else
-    {
+  {
     std::cout << " PASSED." << std::endl;
-    }
+  }
   }
   {
   std::cout << "Testing ExtentClippingOn()...";
@@ -163,22 +163,22 @@ int UnitTestGenericGeometryFilter(int, char*[])
   std::cout << "# of cells: " << got;
   int expected = (xres * yres) - 2 * xres - 2 * (yres - 2);
   if (expected != got)
-    {
+  {
     std::cout << " Expected " << expected << " cells"
               << " but got " << got << " cells."
               << " FAILED." << std::endl;
     status++;
-    }
+  }
   else if (filter->GetOutput()->GetCellData()->GetArray("vtkOriginalCellIds") == NULL)
-    {
+  {
     std::cout << " PassThroughCellIdsOn should produce vtkOriginalCellIds, but did not." << std::endl;
     std::cout << " FAILED." << std::endl;
     status++;
-    }
+  }
   else
-    {
+  {
     std::cout << " PASSED." << std::endl;
-    }
+  }
   }
   {
   std::cout << "Testing with TetraData...";
@@ -195,16 +195,16 @@ int UnitTestGenericGeometryFilter(int, char*[])
   std::cout << "# of cells: " << got;
   int expected = 4;
   if (expected != got)
-    {
+  {
     std::cout << " Expected " << expected << " cells"
               << " but got " << got << " cells."
               << " FAILED." << std::endl;
     status++;
-    }
+  }
   else
-    {
+  {
     std::cout << " PASSED." << std::endl;
-    }
+  }
   }
   {
   std::cout << "Testing errors...";
@@ -223,13 +223,13 @@ int UnitTestGenericGeometryFilter(int, char*[])
   CHECK_ERROR_MSG(errorObserver, "Cell of dimension 0 not handled yet.", status);
 
   if (status)
-    {
+  {
     std::cout << "FAILED." << std::endl;
-    }
+  }
   else
-    {
+  {
     std::cout << "PASSED." << std::endl;
-    }
+  }
   }
   return status;
 }
@@ -247,24 +247,24 @@ vtkSmartPointer<vtkBridgeDataSet> CreatePolyData(const int xres, const int yres)
   cellData->SetName("CellDataTestArray");
   vtkIdType c = 0;
   for (int j = 0; j < yres; ++j)
-    {
+  {
     for (int i = 0; i <xres; ++i)
-      {
+    {
       cellData->SetTuple1(c++, i);
-      }
     }
+  }
   vtkSmartPointer<vtkIntArray> pointData =
     vtkSmartPointer<vtkIntArray>::New();
   pointData->SetNumberOfTuples((xres + 1) * (yres + 1));
   pointData->SetName("PointDataTestArray");
   c = 0;
   for (int j = 0; j < yres + 1; ++j)
-    {
+  {
     for (int i = 0; i <xres + 1; ++i)
-      {
+    {
         pointData->SetTuple1(c++, i);
-      }
     }
+  }
 
   vtkSmartPointer<vtkPolyData> pd =
     vtkSmartPointer<vtkPolyData>::New();
@@ -339,9 +339,9 @@ vtkSmartPointer<vtkBridgeDataSet> CreateTetraData()
   pointData->SetName("PointDataTestArray");
   int c = 0;
   for (vtkIdType id = 0; id < tetra->GetNumberOfPoints(); ++id)
-    {
+  {
     pointData->SetTuple1(c++, id);
-    }
+  }
   unstructuredGrid->GetPointData()->SetScalars(pointData);
 
   vtkSmartPointer<vtkBridgeDataSet> bridge =

@@ -80,17 +80,17 @@ int vtkRecursiveDividingCubes::RequestData(
 
   // make sure we have scalar data
   if ( ! (inScalars = input->GetPointData()->GetScalars()) )
-    {
+  {
     vtkErrorMacro(<<"No scalar data to contour");
     return 1;
-    }
+  }
 
   // just deal with volumes
   if ( input->GetDataDimension() != 3 )
-    {
+  {
     vtkErrorMacro("Bad input: only treats 3D structured point datasets");
     return 1;
-    }
+  }
   input->GetDimensions(dim);
   input->GetSpacing(Spacing);
   input->GetOrigin(origin);
@@ -120,17 +120,17 @@ int vtkRecursiveDividingCubes::RequestData(
   //
   sliceSize = dim[0] * dim[1];
   for ( k=0; k < (dim[2]-1); k++)
-    {
+  {
     kOffset = k*sliceSize;
     X[2] = origin[2] + k*Spacing[2];
 
     for ( j=0; j < (dim[1]-1); j++)
-      {
+    {
       jOffset = j*dim[0];
       X[1] = origin[1] + j*Spacing[1];
 
       for ( i=0; i < (dim[0]-1); i++)
-        {
+      {
         idx  = i + jOffset + kOffset;
         X[0] = origin[0] + i*Spacing[0];
 
@@ -149,18 +149,18 @@ int vtkRecursiveDividingCubes::RequestData(
 
         // loop over 8 points of voxel to check if cell straddles value
         for ( above=below=0, vertNum=0; vertNum < 8; vertNum++ )
-          {
+        {
           if ( voxelScalars->GetComponent(vertNum,0) >= this->Value )
-            {
+          {
             above = 1;
-            }
+          }
           else
-            {
+          {
             below = 1;
-            }
+          }
 
           if ( above && below ) // recursively generate points
-            { //compute voxel normals and subdivide
+          { //compute voxel normals and subdivide
             input->GetPointGradient(i,j,k, inScalars, Normals[0]);
             input->GetPointGradient(i+1,j,k, inScalars, Normals[1]);
             input->GetPointGradient(i,j+1,k, inScalars, Normals[2]);
@@ -171,11 +171,11 @@ int vtkRecursiveDividingCubes::RequestData(
             input->GetPointGradient(i+1,j+1,k+1, inScalars, Normals[7]);
 
             this->SubDivide(X, Spacing, voxelScalars->GetPointer(0));
-            }
           }
         }
       }
     }
+  }
 
   voxelPts->Delete();
   voxelScalars->Delete();
@@ -216,61 +216,61 @@ void vtkRecursiveDividingCubes::SubDivide(double origin[3], double h[3],
   double hNew[3];
 
   for (i=0; i<3; i++)
-    {
+  {
     hNew[i] = h[i] / 2.0;
-    }
+  }
 
   // if subdivided far enough, create point and end termination
   if ( h[0] < this->Distance && h[1] < this->Distance && h[2] < this->Distance )
-    {
+  {
     vtkIdType id;
     double x[3], n[3];
     double p[3], w[8];
 
     for (i=0; i <3; i++)
-      {
+    {
       x[i] = origin[i] + hNew[i];
-      }
+    }
 
     if ( ! (this->Count++ % this->Increment) ) //add a point
-      {
+    {
       id = NewPts->InsertNextPoint(x);
       NewVerts->InsertCellPoint(id);
       for (i=0; i<3; i++)
-        {
+      {
         p[i] = (x[i] - X[i]) / Spacing[i];
-        }
+      }
       this->Voxel->InterpolationFunctions(p,w);
       for (n[0]=n[1]=n[2]=0.0, i=0; i<8; i++)
-        {
+      {
         n[0] += Normals[i][0]*w[i];
         n[1] += Normals[i][1]*w[i];
         n[2] += Normals[i][2]*w[i];
-        }
+      }
       vtkMath::Normalize(n);
       NewNormals->InsertTuple(id,n);
 
       if ( !(NewPts->GetNumberOfPoints() % VTK_POINTS_PER_POLY_VERTEX) )
-        {
+      {
         vtkDebugMacro(<<"point# "<<NewPts->GetNumberOfPoints());
-        }
       }
+    }
 
     return;
-    }
+  }
 
   // otherwise, create eight sub-voxels and recurse
   else
-    {
+  {
     int j, k, idx, above, below, ii;
     double x[3];
     double newValues[8];
     double s[27], scalar;
 
     for (i=0; i<8; i++)
-      {
+    {
       s[i] = values[i];
-      }
+    }
 
     s[8] = (s[0] + s[1]) / 2.0; // edge verts
     s[9] = (s[2] + s[3]) / 2.0;
@@ -295,42 +295,42 @@ void vtkRecursiveDividingCubes::SubDivide(double origin[3], double h[3],
     s[26] = (s[0] + s[1] + s[2] + s[3] + s[4] + s[5] + s[6] + s[7]) / 8.0; //middle
 
     for (k=0; k < 2; k++)
-      {
+    {
       x[2] = origin[2] +  k*hNew[2];
 
       for (j=0; j < 2; j++)
-        {
+      {
         x[1] = origin[1] +  j*hNew[1];
 
         for (i=0; i < 2; i++)
-          {
+        {
           idx = i + j*2 + k*4;
           x[0] = origin[0] +  i*hNew[0];
 
           for (above=below=0,ii=0; ii<8; ii++)
-            {
+          {
             scalar = s[ScalarInterp[idx][ii]];
 
             if ( scalar >= this->Value )
-              {
+            {
               above = 1;
-              }
+            }
             else
-              {
+            {
               below = 1;
-              }
+            }
 
             newValues[ii] = scalar;
-            }
+          }
 
           if ( above && below )
-            {
+          {
             this->SubDivide(x, hNew, newValues);
-            }
           }
         }
       }
     }
+  }
 }
 
 int vtkRecursiveDividingCubes::FillInputPortInformation(int, vtkInformation *info)

@@ -17,21 +17,24 @@
  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
  the U.S. Government retains certain rights in this software.
  -------------------------------------------------------------------------*/
-// .NAME vtkCirclePackLayoutStrategy - abstract superclass for all circle packing
-// layout strategies.
-//
-// .SECTION Description
-// All subclasses of this class perform a circle packing layout on a vtkTree.
-// This involves assigning a circle to each vertex in the tree,
-// and placing that information in a data array with three components per
-// tuple representing (Xcenter, Ycenter, Radius).
-//
-// Instances of subclasses of this class may be assigned as the layout
-// strategy to vtkCirclePackLayout
-//
-// .SECTION Thanks
-// Thanks to Thomas Otahal from Sandia National Laboratories
-// for help developing this class.
+/**
+ * @class   vtkCirclePackLayoutStrategy
+ * @brief   abstract superclass for all circle packing
+ * layout strategies.
+ *
+ *
+ * All subclasses of this class perform a circle packing layout on a vtkTree.
+ * This involves assigning a circle to each vertex in the tree,
+ * and placing that information in a data array with three components per
+ * tuple representing (Xcenter, Ycenter, Radius).
+ *
+ * Instances of subclasses of this class may be assigned as the layout
+ * strategy to vtkCirclePackLayout
+ *
+ * @par Thanks:
+ * Thanks to Thomas Otahal from Sandia National Laboratories
+ * for help developing this class.
+*/
 
 #ifndef vtkCirclePackLayoutStrategy_h
 #define vtkCirclePackLayoutStrategy_h
@@ -49,13 +52,14 @@ public:
     vtkTypeMacro(vtkCirclePackLayoutStrategy,vtkObject);
     void PrintSelf(ostream& os, vtkIndent indent);
 
-    // Description:
-    // Perform the layout of the input tree, and store the circle
-    // bounds of each vertex as a tuple in a data array.
-    // (Xcenter, Ycenter, Radius).
-    //
-    // The sizeArray may be NULL, or may contain the desired
-    // size of each vertex in the tree.
+    /**
+     * Perform the layout of the input tree, and store the circle
+     * bounds of each vertex as a tuple in a data array.
+     * (Xcenter, Ycenter, Radius).
+
+     * The sizeArray may be NULL, or may contain the desired
+     * size of each vertex in the tree.
+     */
     virtual void Layout(vtkTree *inputTree, vtkDataArray *areaArray,
                         vtkDataArray* sizeArray) = 0;
 
@@ -64,8 +68,8 @@ protected:
     ~vtkCirclePackLayoutStrategy();
 
 private:
-    vtkCirclePackLayoutStrategy(const vtkCirclePackLayoutStrategy&);  // Not implemented.
-    void operator=(const vtkCirclePackLayoutStrategy&);  // Not implemented.
+    vtkCirclePackLayoutStrategy(const vtkCirclePackLayoutStrategy&) VTK_DELETE_FUNCTION;
+    void operator=(const vtkCirclePackLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

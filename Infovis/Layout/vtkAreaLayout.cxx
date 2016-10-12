@@ -53,9 +53,9 @@ vtkAreaLayout::~vtkAreaLayout()
 {
   this->SetAreaArrayName(0);
   if (this->LayoutStrategy)
-    {
+  {
     this->LayoutStrategy->Delete();
-    }
+  }
 }
 
 int vtkAreaLayout::RequestData(
@@ -64,15 +64,15 @@ int vtkAreaLayout::RequestData(
   vtkInformationVector *outputVector)
 {
   if (this->LayoutStrategy == NULL)
-    {
+  {
     vtkErrorMacro(<< "Layout strategy must be non-null.");
     return 0;
-    }
+  }
   if (this->AreaArrayName == NULL)
-    {
+  {
     vtkErrorMacro(<< "Sector array name must be non-null.");
     return 0;
-    }
+  }
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
@@ -100,14 +100,14 @@ int vtkAreaLayout::RequestData(
   coordsArray->Delete();
 
   if (!this->EdgeRoutingPoints)
-    {
+  {
     outputEdgeRoutingTree = 0;
-    }
+  }
 
   vtkSmartPointer<vtkDataArray> sizeArray =
     this->GetInputArrayToProcess(0, inputTree);
   if (!sizeArray.GetPointer())
-    {
+  {
     vtkSmartPointer<vtkTreeFieldAggregator> agg =
       vtkSmartPointer<vtkTreeFieldAggregator>::New();
     vtkSmartPointer<vtkTree> t =
@@ -118,7 +118,7 @@ int vtkAreaLayout::RequestData(
     agg->SetLeafVertexUnitSize(true);
     agg->Update();
     sizeArray = agg->GetOutput()->GetVertexData()->GetArray("size");
-    }
+  }
 
   // Okay now layout the tree :)
   this->LayoutStrategy->Layout(outputTree, coordsArray, sizeArray);
@@ -135,9 +135,9 @@ void vtkAreaLayout::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "EdgeRoutingPoints: " << this->EdgeRoutingPoints << endl;
   os << indent << "LayoutStrategy: " << (this->LayoutStrategy ? "" : "(none)") << endl;
   if (this->LayoutStrategy)
-    {
+  {
     this->LayoutStrategy->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
 }
 
 vtkIdType vtkAreaLayout::FindVertex(float pnt[2])
@@ -145,23 +145,23 @@ vtkIdType vtkAreaLayout::FindVertex(float pnt[2])
   // Do we have an output?
   vtkTree* otree = this->GetOutput();
   if (!otree)
-    {
+  {
     vtkErrorMacro(<< "Could not get output tree.");
     return -1;
-    }
+  }
 
   //Get the four tuple array for the points
   vtkDataArray *array = otree->GetVertexData()->
     GetArray(this->AreaArrayName);
   if (!array)
-    {
+  {
     return -1;
-    }
+  }
 
   if( otree->GetNumberOfVertices() == 0)
-    {
+  {
     return -1;
-    }
+  }
 
   return this->LayoutStrategy->FindVertex(otree, array, pnt);
 }
@@ -171,33 +171,33 @@ void vtkAreaLayout::GetBoundingArea(vtkIdType id, float *sinfo)
   // Do we have an output?
   vtkTree* otree = this->GetOutput();
   if (!otree)
-    {
+  {
     vtkErrorMacro(<< "Could not get output tree.");
     return;
-    }
+  }
 
   //Get the four tuple array for the points
   vtkDataArray *array = otree->GetVertexData()->
     GetArray(this->AreaArrayName);
   if (!array)
-    {
+  {
     return;
-    }
+  }
 
   vtkFloatArray *sectorInfo = vtkArrayDownCast<vtkFloatArray>(array);
   sectorInfo->GetTypedTuple(id, sinfo);
 }
 
-unsigned long vtkAreaLayout::GetMTime()
+vtkMTimeType vtkAreaLayout::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   if (this->LayoutStrategy != NULL)
-    {
+  {
     time = this->LayoutStrategy->GetMTime();
     mTime = (time > mTime ? time : mTime);
-    }
+  }
   return mTime;
 }
 

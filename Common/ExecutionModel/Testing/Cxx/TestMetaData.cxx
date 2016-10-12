@@ -54,9 +54,9 @@ protected:
     this->Result = -1;
   }
 
-  virtual int RequestInformation(vtkInformation*,
+  int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
-                                 vtkInformationVector* outputVector)
+                                 vtkInformationVector* outputVector) VTK_OVERRIDE
   {
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
     vtkPolyData* pd = vtkPolyData::New();
@@ -64,18 +64,18 @@ protected:
     pd->Delete();
     return 1;
   }
-  virtual int RequestData(vtkInformation*,
+  int RequestData(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector* outputVector)
+                          vtkInformationVector* outputVector) VTK_OVERRIDE
   {
     // Here we verify that a request set at the end of the pipeline
     // made it to here properly.
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
     if (!outInfo->Has(REQUEST()) ||
         outInfo->Get(REQUEST()) != this->Result)
-      {
+    {
       this->Failed = true;
-      }
+    }
     this->NumberOfExecutions++;
     return 1;
   }
@@ -91,9 +91,9 @@ class vtkInformationMyRequestKey : public vtkInformationIntegerRequestKey
 public:
   vtkInformationMyRequestKey(const char* name, const char* location) :
     vtkInformationIntegerRequestKey(name, location)
-    {
+  {
     this->DataKey = MySource::DATA();
-    }
+  }
 };
 vtkInformationKeySubclassMacro(MySource, REQUEST, MyRequest, IntegerRequest);
 
@@ -109,9 +109,9 @@ int TestMetaData(int, char*[])
   // Do we have the meta-data created by the reader at the end
   // of the pipeline?
   if (!filter->GetOutputInformation(0)->Has(MySource::META_DATA()))
-    {
+  {
     return TEST_FAILURE;
-    }
+  }
 
   filter->GetOutputInformation(0)->Set(MySource::REQUEST(), 2);
   mySource->Result = 2;
@@ -127,13 +127,13 @@ int TestMetaData(int, char*[])
   filter->Update();
 
   if (mySource->NumberOfExecutions != 2)
-    {
+  {
     return TEST_FAILURE;
-    }
+  }
 
   if (mySource->Failed)
-    {
+  {
     return TEST_FAILURE;
-    }
+  }
   return TEST_SUCCESS;
 }

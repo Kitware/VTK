@@ -139,21 +139,21 @@ int VTKBenchmark::Run()
 
   for (this->ImmediateMode = 0; this->ImmediateMode < 2;
        this->ImmediateMode++)
-    {
+  {
     for (this->ScalarColoring = 0; this->ScalarColoring < 2;
          this->ScalarColoring++)
-      {
+    {
       for (this->UseNormals = 0; this->UseNormals < 2;
            this->UseNormals++)
-        {
+      {
         cerr << "Render Rate: "
              << (this->ImmediateMode ? "IMED " : "     ")
              << (this->ScalarColoring ? "SCAL " : "     ")
              << (this->UseNormals ? "NORM " : "     ")
              << this->DrawTheFractal() << " MegaTriangles/Second\n";
-        }
       }
     }
+  }
 
   return 0;
 }
@@ -173,13 +173,13 @@ double VTKBenchmark::DrawTheFractal()
   vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
 
   if (this->UseNormals)
-    {
+  {
     this->Stripper->SetInputConnection(this->Normals->GetOutputPort());
-    }
+  }
   else
-    {
+  {
     this->Stripper->SetInputConnection(this->TriFilter->GetOutputPort());
-    }
+  }
   mapper->SetInputConnection(this->Stripper->GetOutputPort());
   mapper->SetImmediateModeRendering(this->ImmediateMode);
   mapper->SetScalarVisibility(this->ScalarColoring);
@@ -229,9 +229,9 @@ int main( int argc, char *argv[] )
 {
   VTKBenchmark a;
   if (argc > 1)
-    {
+  {
     cerr << argv[0] << " takes no arguments\n";
-    }
+  }
   return a.Run();
 }
 

@@ -52,10 +52,10 @@ void vtkTDxInteractorStyleGeo::OnMotionEvent(
   vtkDebugMacro(<<"vtkTDxInteractorStyleGeo::OnMotionEvent()");
 
   if(this->Renderer==0 || this->Settings==0)
-    {
+  {
     vtkDebugMacro(<<"vtkTDxInteractorStyleGeo::OnMotionEvent() no renderer or no settings");
     return;
-    }
+  }
 
   vtkCamera *c=this->Renderer->GetActiveCamera();
   vtkRenderWindow *w=this->Renderer->GetRenderWindow();

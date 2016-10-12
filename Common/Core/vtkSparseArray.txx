@@ -28,12 +28,11 @@
 template<typename T>
 vtkSparseArray<T>* vtkSparseArray<T>::New()
 {
-  vtkObject* ret = vtkObjectFactory::CreateInstance(typeid(ThisT).name());
-  if(ret)
-    {
-    return static_cast<ThisT*>(ret);
-    }
-  return new ThisT();
+  // Don't use object factory macros on templates, it'll confuse the object
+  // factory.
+  vtkSparseArray<T> *ret = new vtkSparseArray<T>;
+  ret->InitializeObjectBase();
+  return ret;
 }
 
 template<typename T>
@@ -87,19 +86,19 @@ template<typename T>
 const T& vtkSparseArray<T>::GetValue(CoordinateT i)
 {
   if(1 != this->GetDimensions())
-    {
+  {
     vtkErrorMacro(<< "Index-array dimension mismatch.");
     return this->NullValue;
-    }
+  }
 
   // Do a naive linear-search for the time-being ...
   for(vtkIdType row = 0; row != static_cast<vtkIdType>(this->Values.size()); ++row)
-    {
+  {
     if(i != this->Coordinates[0][row])
       continue;
 
     return this->Values[row];
-    }
+  }
 
   return this->NullValue;
 }
@@ -108,14 +107,14 @@ template<typename T>
 const T& vtkSparseArray<T>::GetValue(CoordinateT i, CoordinateT j)
 {
   if(2 != this->GetDimensions())
-    {
+  {
     vtkErrorMacro(<< "Index-array dimension mismatch.");
     return this->NullValue;
-    }
+  }
 
   // Do a naive linear-search for the time-being ...
   for(vtkIdType row = 0; row != static_cast<vtkIdType>(this->Values.size()); ++row)
-    {
+  {
     if(i != this->Coordinates[0][row])
       continue;
 
@@ -123,7 +122,7 @@ const T& vtkSparseArray<T>::GetValue(CoordinateT i, CoordinateT j)
       continue;
 
     return this->Values[row];
-    }
+  }
 
   return this->NullValue;
 }
@@ -132,14 +131,14 @@ template<typename T>
 const T& vtkSparseArray<T>::GetValue(CoordinateT i, CoordinateT j, CoordinateT k)
 {
   if(3 != this->GetDimensions())
-    {
+  {
     vtkErrorMacro(<< "Index-array dimension mismatch.");
     return this->NullValue;
-    }
+  }
 
   // Do a naive linear-search for the time-being ...
   for(vtkIdType row = 0; row != static_cast<vtkIdType>(this->Values.size()); ++row)
-    {
+  {
     if(i != this->Coordinates[0][row])
       continue;
 
@@ -150,7 +149,7 @@ const T& vtkSparseArray<T>::GetValue(CoordinateT i, CoordinateT j, CoordinateT k
       continue;
 
     return this->Values[row];
-    }
+  }
 
   return this->NullValue;
 }
@@ -159,23 +158,23 @@ template<typename T>
 const T& vtkSparseArray<T>::GetValue(const vtkArrayCoordinates& coordinates)
 {
   if(coordinates.GetDimensions() != this->GetDimensions())
-    {
+  {
     vtkErrorMacro(<< "Index-array dimension mismatch.");
     return this->NullValue;
-    }
+  }
 
   // Do a naive linear-search for the time-being ...
   for(vtkIdType row = 0; row != static_cast<vtkIdType>(this->Values.size()); ++row)
-    {
+  {
     for(DimensionT column = 0; column != this->GetDimensions(); ++column)
-      {
+    {
       if(coordinates[column] != this->Coordinates[column][row])
         break;
 
       if(column + 1 == this->GetDimensions())
         return this->Values[row];
-      }
     }
+  }
 
   return this->NullValue;
 }
@@ -190,20 +189,20 @@ template<typename T>
 void vtkSparseArray<T>::SetValue(CoordinateT i, const T& value)
 {
   if(1 != this->GetDimensions())
-    {
+  {
     vtkErrorMacro(<< "Index-array dimension mismatch.");
     return;
-    }
+  }
 
   // Do a naive linear-search for the time-being ...
   for(vtkIdType row = 0; row != static_cast<vtkIdType>(this->Values.size()); ++row)
-    {
+  {
     if(i != this->Coordinates[0][row])
       continue;
 
     this->Values[row] = value;
     return;
-    }
+  }
 
   // Element doesn't already exist, so add it to the end of the list ...
   this->AddValue(i, value);
@@ -213,14 +212,14 @@ template<typename T>
 void vtkSparseArray<T>::SetValue(CoordinateT i, CoordinateT j, const T& value)
 {
   if(2 != this->GetDimensions())
-    {
+  {
     vtkErrorMacro(<< "Index-array dimension mismatch.");
     return;
-    }
+  }
 
   // Do a naive linear-search for the time-being ...
   for(vtkIdType row = 0; row != static_cast<vtkIdType>(this->Values.size()); ++row)
-    {
+  {
     if(i != this->Coordinates[0][row])
       continue;
 
@@ -229,7 +228,7 @@ void vtkSparseArray<T>::SetValue(CoordinateT i, CoordinateT j, const T& value)
 
     this->Values[row] = value;
     return;
-    }
+  }
 
   // Element doesn't already exist, so add it to the end of the list ...
   this->AddValue(i, j, value);
@@ -239,14 +238,14 @@ template<typename T>
 void vtkSparseArray<T>::SetValue(CoordinateT i, CoordinateT j, CoordinateT k, const T& value)
 {
   if(3 != this->GetDimensions())
-    {
+  {
     vtkErrorMacro(<< "Index-array dimension mismatch.");
     return;
-    }
+  }
 
   // Do a naive linear-search for the time-being ...
   for(vtkIdType row = 0; row != static_cast<vtkIdType>(this->Values.size()); ++row)
-    {
+  {
     if(i != this->Coordinates[0][row])
       continue;
 
@@ -258,7 +257,7 @@ void vtkSparseArray<T>::SetValue(CoordinateT i, CoordinateT j, CoordinateT k, co
 
     this->Values[row] = value;
     return;
-    }
+  }
 
   // Element doesn't already exist, so add it to the end of the list ...
   this->AddValue(i, j, k, value);
@@ -268,26 +267,26 @@ template<typename T>
 void vtkSparseArray<T>::SetValue(const vtkArrayCoordinates& coordinates, const T& value)
 {
   if(coordinates.GetDimensions() != this->GetDimensions())
-    {
+  {
     vtkErrorMacro(<< "Index-array dimension mismatch.");
     return;
-    }
+  }
 
   // Do a naive linear-search for the time-being ...
   for(vtkIdType row = 0; row != static_cast<vtkIdType>(this->Values.size()); ++row)
-    {
+  {
     for(DimensionT column = 0; column != this->GetDimensions(); ++column)
-      {
+    {
       if(coordinates[column] != this->Coordinates[column][row])
         break;
 
       if(column + 1 == this->GetDimensions())
-        {
+      {
         this->Values[row] = value;
         return;
-        }
       }
     }
+  }
 
   // Element doesn't already exist, so add it to the end of the list ...
   this->AddValue(coordinates, value);
@@ -337,12 +336,12 @@ struct SortCoordinates
     const std::vector<std::vector<vtkIdType> >& coordinates = *this->Coordinates;
 
     for(vtkIdType i = 0; i != sort.GetDimensions(); ++i)
-      {
+    {
       if(coordinates[sort[i]][lhs] == coordinates[sort[i]][rhs])
         continue;
 
       return coordinates[sort[i]][lhs] < coordinates[sort[i]][rhs];
-      }
+    }
 
     return false;
   }
@@ -355,19 +354,19 @@ template<typename T>
 void vtkSparseArray<T>::Sort(const vtkArraySort& sort)
 {
   if(sort.GetDimensions() < 1)
-    {
+  {
     vtkErrorMacro(<< "Sort must order at least one dimension.");
     return;
-    }
+  }
 
   for(DimensionT i = 0; i != sort.GetDimensions(); ++i)
-    {
+  {
     if(sort[i] < 0 || sort[i] >= this->GetDimensions())
-      {
+    {
       vtkErrorMacro(<< "Sort dimension out-of-bounds.");
       return;
-      }
     }
+  }
 
   const SizeT count = this->GetNonNullSize();
   std::vector<DimensionT> sort_order(count);
@@ -377,11 +376,11 @@ void vtkSparseArray<T>::Sort(const vtkArraySort& sort)
 
   std::vector<DimensionT> temp_coordinates(count);
   for(DimensionT j = 0; j != this->GetDimensions(); ++j)
-    {
+  {
     for(SizeT i = 0; i != count; ++i)
       temp_coordinates[i] = this->Coordinates[j][sort_order[i]];
     std::swap(temp_coordinates, this->Coordinates[j]);
-    }
+  }
 
   std::vector<T> temp_values(count);
   for(SizeT i = 0; i != count; ++i)
@@ -393,10 +392,10 @@ template<typename T>
 std::vector<typename vtkSparseArray<T>::CoordinateT> vtkSparseArray<T>::GetUniqueCoordinates(DimensionT dimension)
 {
   if(dimension < 0 || dimension >= this->GetDimensions())
-    {
+  {
     vtkErrorMacro(<< "Dimension out-of-bounds.");
     return std::vector<CoordinateT>();
-    }
+  }
 
   std::vector<CoordinateT> results(this->Coordinates[dimension]);
   std::sort(results.begin(), results.end());
@@ -408,10 +407,10 @@ template<typename T>
 const typename vtkSparseArray<T>::CoordinateT* vtkSparseArray<T>::GetCoordinateStorage(DimensionT dimension) const
 {
   if(dimension < 0 || dimension >= this->GetDimensions())
-    {
+  {
     vtkErrorMacro(<< "Dimension out-of-bounds.");
     return 0;
-    }
+  }
 
   return &this->Coordinates[dimension][0];
 }
@@ -420,10 +419,10 @@ template<typename T>
 typename vtkSparseArray<T>::CoordinateT* vtkSparseArray<T>::GetCoordinateStorage(DimensionT dimension)
 {
   if(dimension < 0 || dimension >= this->GetDimensions())
-    {
+  {
     vtkErrorMacro(<< "Dimension out-of-bounds.");
     return 0;
-    }
+  }
 
   return &this->Coordinates[dimension][0];
 }
@@ -458,16 +457,16 @@ void vtkSparseArray<T>::SetExtentsFromContents()
   const vtkIdType row_end = row_begin + this->Values.size();
   const DimensionT dimension_count = this->GetDimensions();
   for(DimensionT dimension = 0; dimension != dimension_count; ++dimension)
-    {
+  {
     vtkIdType range_begin = std::numeric_limits<vtkIdType>::max();
     vtkIdType range_end = -std::numeric_limits<vtkIdType>::max();
     for(vtkIdType row = row_begin; row != row_end; ++row)
-      {
+    {
         range_begin = std::min(range_begin, this->Coordinates[dimension][row]);
         range_end = std::max(range_end, this->Coordinates[dimension][row] + 1);
-      }
-    new_extents.Append(vtkArrayRange(range_begin, range_end));
     }
+    new_extents.Append(vtkArrayRange(range_begin, range_end));
+  }
 
   this->Extents = new_extents;
 }
@@ -476,10 +475,10 @@ template<typename T>
 void vtkSparseArray<T>::SetExtents(const vtkArrayExtents& extents)
 {
   if(extents.GetDimensions() != this->GetDimensions())
-    {
+  {
     vtkErrorMacro(<< "Extent-array dimension mismatch.");
     return;
-    }
+  }
 
   this->Extents = extents;
 }
@@ -506,10 +505,10 @@ template<typename T>
 void vtkSparseArray<T>::AddValue(const vtkArrayCoordinates& coordinates, const T& value)
 {
   if(coordinates.GetDimensions() != this->GetDimensions())
-    {
+  {
     vtkErrorMacro(<< "Index-array dimension mismatch.");
     return;
-    }
+  }
 
   this->Values.push_back(value);
 
@@ -540,41 +539,41 @@ bool vtkSparseArray<T>::Validate()
 
   // Now, look for duplicates ...
   for(vtkIdType i = 0; i + 1 < count; ++i)
-    {
+  {
     vtkIdType j;
     for(j = 0; j != dimensions; ++j)
-      {
+    {
       if(this->Coordinates[j][sort_order[i]] != this->Coordinates[j][sort_order[i + 1]])
         break;
-      }
-    if(j == dimensions)
-      {
-      duplicate_count += 1;
-      }
     }
+    if(j == dimensions)
+    {
+      duplicate_count += 1;
+    }
+  }
 
   // Look for out-of-bound coordinates ...
   for(vtkIdType i = 0; i != count; ++i)
-    {
+  {
     for(vtkIdType j = 0; j != dimensions; ++j)
-      {
+    {
       if(this->Coordinates[j][i] < this->Extents[j].GetBegin() || this->Coordinates[j][i] >= this->Extents[j].GetEnd())
-        {
+      {
         ++out_of_bound_count;
         break;
-        }
       }
     }
+  }
 
   if(duplicate_count)
-    {
+  {
     vtkErrorMacro(<< "Array contains " << duplicate_count << " duplicate coordinates.");
-    }
+  }
 
   if(out_of_bound_count)
-    {
+  {
     vtkErrorMacro(<< "Array contains " << out_of_bound_count << " out-of-bound coordinates.");
-    }
+  }
 
   return (0 == duplicate_count) && (0 == out_of_bound_count);
 }

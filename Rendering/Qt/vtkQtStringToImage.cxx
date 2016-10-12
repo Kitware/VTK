@@ -49,23 +49,23 @@ class vtkQtStringToImage::Internals
 {
 public:
   QFont TextPropertyToFont(vtkTextProperty* tprop, int dpi)
-    {
+  {
     QFont fontSpec(tprop->GetFontFamilyAsString());
     fontSpec.setBold(tprop->GetBold());
     fontSpec.setItalic(tprop->GetItalic());
     fontSpec.setPixelSize(static_cast<int>(tprop->GetFontSize() * (dpi / 72.)));
     return fontSpec;
-    }
+  }
 
   QColor TextPropertyToColor(double* fc, double opacity)
-    {
+  {
     QColor textColor(
       static_cast<int>(fc[0]*255),
       static_cast<int>(fc[1]*255),
       static_cast<int>(fc[2]*255),
       static_cast<int>(opacity*255));
     return textColor;
-    }
+  }
 };
 
 //-----------------------------------------------------------------------------
@@ -91,15 +91,15 @@ vtkVector2i vtkQtStringToImage::GetBounds(vtkTextProperty *property,
 {
   vtkVector2i recti(0, 0);
   if (!QApplication::instance())
-    {
+  {
     vtkErrorMacro("You must initialize a QApplication before using this class.");
     return recti;
-    }
+  }
 
   if (!property)
-    {
+  {
     return recti;
-    }
+  }
 
   QFont fontSpec = this->Implementation->TextPropertyToFont(property, dpi);
 
@@ -122,15 +122,15 @@ vtkVector2i vtkQtStringToImage::GetBounds(vtkTextProperty *property,
 {
   vtkVector2i recti(0, 0);
   if (!QApplication::instance())
-    {
+  {
     vtkErrorMacro("You must initialize a QApplication before using this class.");
     return recti;
-    }
+  }
 
   if (!property)
-    {
+  {
     return recti;
-    }
+  }
 
   QFont fontSpec = this->Implementation->TextPropertyToFont(property, dpi);
 
@@ -152,21 +152,21 @@ int vtkQtStringToImage::RenderString(vtkTextProperty *property,
                                      vtkImageData *data, int textDims[2])
 {
   if (!QApplication::instance())
-    {
+  {
     vtkErrorMacro("You must initialize a QApplication before using this class.");
     return 0;
-    }
+  }
   // Get the required size, and initialize a new QImage to draw on.
   vtkVector2i box = this->GetBounds(property, string, dpi);
   if (box.GetX() == 0 || box.GetY() == 0)
-    {
+  {
     return 0;
-    }
+  }
   if (textDims)
-    {
+  {
     textDims[0] = box.GetX();
     textDims[1] = box.GetY();
-    }
+  }
 
   QString text = QString::fromUtf8(string.utf8_str());
   QFont fontSpec = this->Implementation->TextPropertyToFont(property, dpi);
@@ -203,7 +203,7 @@ int vtkQtStringToImage::RenderString(vtkTextProperty *property,
   p.rotate(rotation);
 
   if (property->GetShadow())
-    {
+  {
     p.save();
     p.translate(shOff[0], -shOff[1]);
     double sc[3];
@@ -212,7 +212,7 @@ int vtkQtStringToImage::RenderString(vtkTextProperty *property,
         this->Implementation->TextPropertyToColor(sc, property->GetOpacity());
     p.fillPath(path, shadowColor);
     p.restore();
-    }
+  }
 
   p.fillPath(path, textColor);
 

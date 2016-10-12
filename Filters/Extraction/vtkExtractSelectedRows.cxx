@@ -65,22 +65,22 @@ vtkExtractSelectedRows::~vtkExtractSelectedRows()
 int vtkExtractSelectedRows::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
     return 1;
-    }
+  }
   else if (port == 1)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
     return 1;
-    }
+  }
   else if (port == 2)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkAnnotationLayers");
     return 1;
-    }
+  }
   return 0;
 }
 
@@ -107,18 +107,18 @@ void vtkCopySelectedRows(
   const T* rawPtr = static_cast<T*>(list->GetVoidPointer(0));
   vtkIdType numTuples = list->GetNumberOfTuples();
   if (list->GetNumberOfComponents() != 1 && numTuples > 0)
-    {
+  {
     vtkGenericWarningMacro("NumberOfComponents expected to be 1.");
-    }
+  }
   for (vtkIdType j = 0; j < numTuples; ++j)
-    {
+  {
     vtkIdType val = static_cast<vtkIdType>(rawPtr[j]);
     output->InsertNextRow(input->GetRow(val));
     if (addOriginalRowIdsArray)
-      {
+    {
       originalRowIds->InsertNextValue(val);
-      }
     }
+  }
 }
 
 
@@ -135,25 +135,25 @@ int vtkExtractSelectedRows::RequestData(
   vtkTable* output = vtkTable::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if(!inputSelection && !inputAnnotations)
-    {
+  {
     vtkErrorMacro("No vtkSelection or vtkAnnotationLayers provided as input.");
     return 0;
-    }
+  }
 
   vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
   int numSelections = 0;
   if(inputSelection)
-    {
+  {
     selection->DeepCopy(inputSelection);
     numSelections++;
-    }
+  }
 
   // If input annotations are provided, extract their selections only if
   // they are enabled and not hidden.
   if(inputAnnotations)
-    {
+  {
     for(unsigned int i=0; i<inputAnnotations->GetNumberOfAnnotations(); ++i)
-      {
+    {
       vtkAnnotation* a = inputAnnotations->GetAnnotation(i);
       if ((a->GetInformation()->Has(vtkAnnotation::ENABLE()) &&
           a->GetInformation()->Get(vtkAnnotation::ENABLE())==0) ||
@@ -161,31 +161,31 @@ int vtkExtractSelectedRows::RequestData(
           a->GetInformation()->Get(vtkAnnotation::ENABLE())==1 &&
           a->GetInformation()->Has(vtkAnnotation::HIDE()) &&
           a->GetInformation()->Get(vtkAnnotation::HIDE())==1))
-        {
+      {
         continue;
-        }
+      }
       selection->Union(a->GetSelection());
       numSelections++;
-      }
     }
+  }
 
   // Handle case where there was no input selection and no enabled, non-hidden
   // annotations
   if(numSelections == 0)
-    {
+  {
     output->ShallowCopy(input);
     return 1;
-    }
+  }
 
   // Convert the selection to an INDICES selection
   vtkSmartPointer<vtkSelection> converted;
   converted.TakeReference(vtkConvertSelection::ToSelectionType(
     selection, input, vtkSelectionNode::INDICES, 0, vtkSelectionNode::ROW));
   if (!converted.GetPointer())
-    {
+  {
     vtkErrorMacro("Selection conversion to INDICES failed.");
     return 0;
-    }
+  }
 
   vtkIdTypeArray* originalRowIds = vtkIdTypeArray::New();
   originalRowIds->SetName("vtkOriginalRowIds");
@@ -193,43 +193,43 @@ int vtkExtractSelectedRows::RequestData(
   output->GetRowData()->CopyStructure(input->GetRowData());
 
   for (unsigned int i = 0; i < converted->GetNumberOfNodes(); ++i)
-    {
+  {
     vtkSelectionNode* node = converted->GetNode(i);
     if (node->GetFieldType() == vtkSelectionNode::ROW)
-      {
+    {
       vtkAbstractArray* list = node->GetSelectionList();
       if (list)
-        {
+      {
         int inverse = node->GetProperties()->Get(vtkSelectionNode::INVERSE());
         if (inverse)
-          {
+        {
           vtkIdType numRows = input->GetNumberOfRows();  //How many rows are in the whole dataset
           for (vtkIdType j = 0; j < numRows; ++j)
-            {
+          {
             if(list->LookupValue(j) < 0)
-              {
+            {
               output->InsertNextRow(input->GetRow(j));
               if (this->AddOriginalRowIdsArray)
-                {
+              {
                 originalRowIds->InsertNextValue(j);
-                }
               }
             }
           }
+        }
         else
-          {
+        {
           switch (list->GetDataType())
-            {
+          {
             vtkTemplateMacro(vtkCopySelectedRows<VTK_TT>(list, input, output, originalRowIds, this));
-            }
           }
         }
       }
     }
+  }
   if (this->AddOriginalRowIdsArray)
-    {
+  {
     output->AddColumn(originalRowIds);
-    }
+  }
   originalRowIds->Delete();
   return 1;
 }

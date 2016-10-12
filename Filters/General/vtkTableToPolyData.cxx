@@ -64,10 +64,10 @@ int vtkTableToPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPolyData* output = vtkPolyData::GetData(outputVector, 0);
 
   if (input->GetNumberOfRows() == 0)
-    {
+  {
     // empty input.
     return 1;
-    }
+  }
 
   vtkDataArray* xarray = NULL;
   vtkDataArray* yarray = NULL;
@@ -75,43 +75,43 @@ int vtkTableToPolyData::RequestData(vtkInformation* vtkNotUsed(request),
 
 
   if(this->XColumn && this->YColumn)
-    {
+  {
     xarray = vtkArrayDownCast<vtkDataArray>(
       input->GetColumnByName(this->XColumn));
     yarray = vtkArrayDownCast<vtkDataArray>(
       input->GetColumnByName(this->YColumn));
     zarray = vtkArrayDownCast<vtkDataArray>(
       input->GetColumnByName(this->ZColumn));
-    }
+  }
   else if(this->XColumnIndex >= 0)
-    {
+  {
     xarray = vtkArrayDownCast<vtkDataArray>(
       input->GetColumn(this->XColumnIndex));
     yarray = vtkArrayDownCast<vtkDataArray>(
       input->GetColumn(this->YColumnIndex));
     zarray = vtkArrayDownCast<vtkDataArray>(
       input->GetColumn(this->ZColumnIndex));
-    }
+  }
 
   // zarray is optional
   if(this->Create2DPoints)
-    {
+  {
     if (!xarray || !yarray)
-      {
-      vtkErrorMacro("Failed to locate  the columns to use for the point"
-        " coordinates");
-      return 0;
-      }
-    }
-  else
     {
-    if (!xarray || !yarray || !zarray)
-      {
       vtkErrorMacro("Failed to locate  the columns to use for the point"
         " coordinates");
       return 0;
-      }
     }
+  }
+  else
+  {
+    if (!xarray || !yarray || !zarray)
+    {
+      vtkErrorMacro("Failed to locate  the columns to use for the point"
+        " coordinates");
+      return 0;
+    }
+  }
 
   vtkPoints* newPoints = vtkPoints::New();
 
@@ -120,11 +120,11 @@ int vtkTableToPolyData::RequestData(vtkInformation* vtkNotUsed(request),
     this->YComponent == 1 &&
     this->ZComponent == 2 &&
     xarray->GetNumberOfComponents() == 3)
-    {
+  {
     newPoints->SetData(xarray);
-    }
+  }
   else
-    {
+  {
     // Ideally we determine the smallest data type that can contain the values
     // in all the 3 arrays. For now I am just going with doubles.
     vtkDoubleArray* newData =  vtkDoubleArray::New();
@@ -132,26 +132,26 @@ int vtkTableToPolyData::RequestData(vtkInformation* vtkNotUsed(request),
     newData->SetNumberOfTuples(input->GetNumberOfRows());
     vtkIdType numtuples = newData->GetNumberOfTuples();
     if(this->Create2DPoints)
-      {
+    {
       for (vtkIdType cc=0; cc < numtuples; cc++)
-        {
+      {
         newData->SetComponent(cc, 0, xarray->GetComponent(cc, this->XComponent));
         newData->SetComponent(cc, 1, yarray->GetComponent(cc, this->YComponent));
         newData->SetComponent(cc, 2, 0.0);
-        }
       }
+    }
     else
-      {
+    {
       for (vtkIdType cc=0; cc < numtuples; cc++)
-        {
+      {
         newData->SetComponent(cc, 0, xarray->GetComponent(cc, this->XComponent));
         newData->SetComponent(cc, 1, yarray->GetComponent(cc, this->YComponent));
         newData->SetComponent(cc, 2, zarray->GetComponent(cc, this->ZComponent));
-        }
       }
+    }
     newPoints->SetData(newData);
     newData->Delete();
-    }
+  }
 
   output->SetPoints(newPoints);
   newPoints->Delete();
@@ -160,26 +160,26 @@ int vtkTableToPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   vtkIdType numPts = newPoints->GetNumberOfPoints();
   vtkIdType *ptIds = new vtkIdType[numPts];
   for (vtkIdType cc=0; cc < numPts; cc++)
-    {
+  {
     ptIds[cc] = cc;
-    }
+  }
   output->Allocate(1);
   output->InsertNextCell(VTK_POLY_VERTEX, numPts, ptIds);
   delete [] ptIds;
 
   // Add all other columns as point data.
   for (int cc=0; cc < input->GetNumberOfColumns(); cc++)
-    {
+  {
     vtkAbstractArray* arr = input->GetColumn(cc);
     if(this->PreserveCoordinateColumnsAsDataArrays)
-      {
+    {
       output->GetPointData()->AddArray(arr);
-      }
-    else if (arr != xarray && arr != yarray && arr != zarray)
-      {
-      output->GetPointData()->AddArray(arr);
-      }
     }
+    else if (arr != xarray && arr != yarray && arr != zarray)
+    {
+      output->GetPointData()->AddArray(arr);
+    }
+  }
   return 1;
 }
 

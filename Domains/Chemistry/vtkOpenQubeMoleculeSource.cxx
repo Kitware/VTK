@@ -43,10 +43,10 @@ vtkOpenQubeMoleculeSource::~vtkOpenQubeMoleculeSource()
 {
   this->SetFileName(NULL);
   if (this->CleanUpBasisSet)
-    {
+  {
     delete this->BasisSet;
     this->BasisSet = NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -67,15 +67,15 @@ void vtkOpenQubeMoleculeSource::SetBasisSet(OpenQube::BasisSet *b)
   vtkDebugMacro(<< this->GetClassName() << " (" << this
                 << "): setting BasisSet to " << b);
   if (this->BasisSet != b)
-    {
+  {
     if (this->CleanUpBasisSet)
-      {
+    {
       delete this->BasisSet;
-      }
+    }
     this->BasisSet = b;
     this->CleanUpBasisSetOff();
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -88,40 +88,40 @@ int vtkOpenQubeMoleculeSource::RequestData(
     (vtkDataObject::GetData(outputVector));
 
   if (!output)
-    {
+  {
     vtkWarningMacro(<<"vtkOpenQubeMoleculeSource does not have a vtkMolecule "
                   "as output.");
     return 1;
-    }
+  }
 
   // Obtain basis set
   OpenQube::BasisSet *basisSet = 0;
   if (this->BasisSet)
-    {
+  {
     basisSet = this->BasisSet;
-    }
+  }
   else
-    {
+  {
     if (!this->FileName)
-      {
+    {
       vtkWarningMacro(<<"No FileName or OpenQube::BasisSet specified.");
       return 1;
-      }
+    }
     // We're creating the BasisSet, so we need to clean it up
     this->CleanUpBasisSetOn();
     // Huge padding, better safe than sorry.
     char basisName[strlen(this->FileName) + 256];
     OpenQube::BasisSetLoader::MatchBasisSet(this->FileName, basisName);
     if (!basisName[0])
-      {
+    {
       vtkErrorMacro(<< "OpenQube cannot find matching basis set file for '"
                     << this->FileName << "'");
       return 1;
-      }
+    }
     basisSet = OpenQube::BasisSetLoader::LoadBasisSet(basisName);
     this->BasisSet = basisSet;
     vtkDebugMacro(<<"Loaded basis set file: "<< basisName);
-    }
+  }
 
   // Populate vtkMolecule
   const OpenQube::Molecule &oqmol = basisSet->moleculeRef();
@@ -159,12 +159,12 @@ void vtkOpenQubeMoleculeSource::CopyOQMoleculeToVtkMolecule(
   // Copy atoms
   Eigen::Vector3d pos;
   for (size_t i = 0; i < oqmol->numAtoms(); ++i)
-    {
+  {
     vtkAtom atom = mol->AppendAtom();
     pos = oqmol->atomPos(i);
     atom.SetPosition(vtkVector3d(pos.data()).Cast<float>().GetData());
     atom.SetAtomicNumber(oqmol->atomAtomicNumber(i));
-    }
+  }
 
   // TODO copy bonds (OQ doesn't currently have bonds)
 }

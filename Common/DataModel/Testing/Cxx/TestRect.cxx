@@ -30,38 +30,38 @@ int TestAddPoint(vtkRect<T> & expandRect,
   expandRect.AddPoint(x, y);
 
   if (expandRect.GetX() != expected.GetX())
-    {
+  {
     returnValue = EXIT_FAILURE;
     std::cout << "AddPoint()/GetX() ";
-    }
+  }
 
   if (expandRect.GetY() != expected.GetY())
-    {
+  {
     returnValue = EXIT_FAILURE;
     std::cout << "AddPoint()/GetY() ";
-    }
+  }
 
   if (expandRect.GetWidth() != expected.GetWidth())
-    {
+  {
     returnValue = EXIT_FAILURE;
     std::cout << "AddPoint()/GetWidth() ";
-    }
+  }
 
   if (expandRect.GetHeight() != expected.GetHeight())
-    {
+  {
     returnValue = EXIT_FAILURE;
     std::cout << "AddPoint()/GetHeight() ";
-    }
+  }
 
   if (returnValue != EXIT_SUCCESS)
-    {
+  {
     std::cout << "failed. Expected " << expected << ", got "
               << expandRect << "." << std::endl;
-    }
+  }
   else
-    {
+  {
     std::cout << "passed." << std::endl;
-    }
+  }
 
   return returnValue;
 }
@@ -80,38 +80,38 @@ int TestAddRect(vtkRect<T> & expandRect,
   expandRect.AddRect(addRect);
 
   if (expandRect.GetX() != expected.GetX())
-    {
+  {
     returnValue = EXIT_FAILURE;
     std::cout << "AddRect()/GetX() ";
-    }
+  }
 
   if (expandRect.GetY() != expected.GetY())
-    {
+  {
     returnValue = EXIT_FAILURE;
     std::cout << "AddRect()/GetY() ";
-    }
+  }
 
   if (expandRect.GetWidth() != expected.GetWidth())
-    {
+  {
     returnValue = EXIT_FAILURE;
     std::cout << "AddRect()/GetWidth() ";
-    }
+  }
 
   if (expandRect.GetHeight() != expected.GetHeight())
-    {
+  {
     returnValue = EXIT_FAILURE;
     std::cout << "AddRect()/GetHeight() ";
-    }
+  }
 
   if (returnValue != EXIT_SUCCESS)
-    {
+  {
     std::cout << "failed. Expected " << expected << ", got "
               << expandRect << "." << std::endl;
-    }
+  }
   else
-    {
+  {
     std::cout << "passed." << std::endl;
-    }
+  }
 
   return returnValue;
 }
@@ -126,65 +126,65 @@ int TestRect(int, char *[])
   // Test constructor/getter agreement ---------------------------------------
   vtkRectf rectf(2.0f, 3.0f, 4.0f, 5.0f);
   if (rectf.GetX() != 2.0f)
-    {
+  {
     std::cout << "GetX() failed\n";
     std::cout << rectf << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (rectf.GetY() != 3.0f)
-    {
+  {
     std::cout << "GetY() failed\n";
     std::cout << rectf << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (rectf.GetWidth() != 4.0f)
-    {
+  {
     std::cout << "GetWidth() failed\n";
     std::cout << rectf << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (rectf.GetHeight() != 5.0f)
-    {
+  {
     std::cout << "GetHeight() failed\n";
     std::cout << rectf << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Test Setters/getters ----------------------------------------------------
   rectf.SetX(1.0f);
   if (rectf.GetX() != 1.0f)
-    {
+  {
     std::cout << "SetX()/GetX() failed\n";
     std::cout << rectf << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   rectf.SetY(8.0f);
   if (rectf.GetY() != 8.0f)
-    {
+  {
     std::cout << "SetY()/GetY() failed\n";
     std::cout << rectf << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   rectf.SetWidth(7.0f);
   if (rectf.GetWidth() != 7.0f)
-    {
+  {
     std::cout << "SetWidth()/GetWidth() failed\n";
     std::cout << rectf << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   rectf.SetHeight(9.0f);
   if (rectf.GetHeight() != 9.0f)
-    {
+  {
     std::cout << "SetHeight()/GetHeight() failed\n";
     std::cout << rectf << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Test AddPoint() ----------------------------------------------------------
   vtkRectd expectedRect;
@@ -224,29 +224,29 @@ int TestRect(int, char *[])
   vtkRecti recti(2, 3, 2, 1);
   vtkRecti doesntIntersect(-1, -2, 3, 4);
   if (recti.IntersectsWith(doesntIntersect))
-    {
+  {
     std::cout << "Should not have intersected\n";
     std::cout << "recti:\n";
     std::cout << recti << "\n";
     std::cout << "doesntIntersect:\n";
     std::cout << doesntIntersect << "\n";
     return EXIT_FAILURE;
-    }
+  }
 
   vtkRecti intersects(3, 2, 3, 4);
   if (!recti.IntersectsWith(intersects))
-    {
+  {
     std::cout << "Should have intersected\n";
     std::cout << "recti:\n";
     std::cout << recti << "\n";
     std::cout << "intersect:\n";
     std::cout << intersects << "\n";
-    }
+  }
 
   if (result != EXIT_SUCCESS)
-    {
+  {
     result = EXIT_FAILURE;
-    }
+  }
 
   return result;
 }

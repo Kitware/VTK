@@ -22,34 +22,35 @@ vtkStandardNewMacro(vtkRungeKutta4);
 vtkRungeKutta4::vtkRungeKutta4()
 {
   for(int i=0; i<3; i++)
-    {
+  {
     this->NextDerivs[i] = 0;
-    }
+  }
 }
 
 vtkRungeKutta4::~vtkRungeKutta4()
 {
   for(int i=0; i<3; i++)
-    {
+  {
     delete[] this->NextDerivs[i];
     this->NextDerivs[i] = 0;
-    }
+  }
 }
 
 
 void vtkRungeKutta4::Initialize()
 {
   this->vtkInitialValueProblemSolver::Initialize();
-  if (!this->Initialized)
-    {
+  if (!this->FunctionSet || !this->Initialized)
+  {
     return;
-    }
+  }
   // Allocate memory for temporary derivatives array
   for(int i=0; i<3; i++)
-    {
+  {
+    delete[] this->NextDerivs[i];
     this->NextDerivs[i] =
       new double[this->FunctionSet->GetNumberOfFunctions()];
-    }
+  }
 }
 
 // For a detailed description of Runge-Kutta methods,
@@ -68,82 +69,89 @@ int vtkRungeKutta4::ComputeNextStep(double* xprev, double* dxprev, double* xnext
   error = 0;
 
   if (!this->FunctionSet)
-    {
+  {
     vtkErrorMacro("No derivative functions are provided!");
     return NOT_INITIALIZED;
-    }
+  }
 
   if (!this->Initialized)
-    {
+  {
     vtkErrorMacro("Integrator not initialized!");
     return NOT_INITIALIZED;
-    }
+  }
 
   numDerivs = this->FunctionSet->GetNumberOfFunctions();
   numVals = numDerivs + 1;
   for(i=0; i<numVals-1; i++)
-    {
+  {
     this->Vals[i] = xprev[i];
-    }
+  }
   this->Vals[numVals-1] = t;
 
   //  4th order
   //  1
   if (dxprev)
-    {
+  {
     for(i=0; i<numDerivs; i++)
-      {
-      this->Derivs[i] = dxprev[i];
-      }
-    }
-  else if ( !this->FunctionSet->FunctionValues(this->Vals, this->Derivs) )
     {
-    return OUT_OF_DOMAIN;
+      this->Derivs[i] = dxprev[i];
     }
+  }
+  else if ( !this->FunctionSet->FunctionValues(this->Vals, this->Derivs) )
+  {
+    memcpy(xnext, this->Vals, (numVals-1)*sizeof(double));
+    return OUT_OF_DOMAIN;
+  }
 
   for(i=0; i<numVals-1; i++)
-    {
+  {
     this->Vals[i] = xprev[i] + delT/2.0*this->Derivs[i];
-    }
+  }
   this->Vals[numVals-1] = t + delT/2.0;
 
   // 2
   if (!this->FunctionSet->FunctionValues(this->Vals, this->NextDerivs[0]))
-    {
+  {
+    memcpy(xnext, this->Vals, (numVals-1)*sizeof(double));
+    delTActual = delT/2.0; // we've been able to take half a step
     return OUT_OF_DOMAIN;
-    }
+  }
 
   for(i=0; i<numVals-1; i++)
-    {
+  {
     this->Vals[i] = xprev[i] + delT/2.0*this->NextDerivs[0][i];
-    }
+  }
   this->Vals[numVals-1] = t + delT/2.0;
 
   // 3
   if (!this->FunctionSet->FunctionValues(this->Vals, this->NextDerivs[1]))
-    {
+  {
+    memcpy(xnext, this->Vals, (numVals-1)*sizeof(double));
+    delTActual = delT/2.0; // we've been able to take half a step
     return OUT_OF_DOMAIN;
-    }
+  }
 
   for(i=0; i<numVals-1; i++)
-    {
+  {
     this->Vals[i] = xprev[i] + delT*this->NextDerivs[1][i];
-    }
+  }
   this->Vals[numVals-1] = t + delT;
 
   // 4
   if (!this->FunctionSet->FunctionValues(this->Vals, this->NextDerivs[2]))
-    {
+  {
+    memcpy(xnext, this->Vals, (numVals-1)*sizeof(double));
+    delTActual = delT; // we've been able to take a full step but couldn't finish the algorithm
     return OUT_OF_DOMAIN;
-    }
+  }
 
   for(i=0; i<numDerivs; i++)
-    {
+  {
     xnext[i] = xprev[i] + delT*(this->Derivs[i]/6.0 +
                                 this->NextDerivs[0][i]/3.0 +
                                 this->NextDerivs[1][i]/3.0 +
                                 this->NextDerivs[2][i]/6.0);
-    }
+  }
   delTActual = delT;
   return 0;
 }

@@ -67,7 +67,7 @@ struct ProbePoints
   ProbePoints(vtkPointInterpolator *ptInt, vtkDataSet *input, vtkPointData *inPD,
               vtkPointData *outPD, char *valid) :
     PointInterpolator(ptInt), Input(input), InPD(inPD), OutPD(outPD), Valid(valid)
-    {
+  {
       // Gather information from the interpolator
       this->Kernel = ptInt->GetKernel();
       this->Locator = ptInt->GetLocator();
@@ -77,42 +77,42 @@ struct ProbePoints
 
       // Manage arrays for interpolation
       for (int i=0; i < ptInt->GetNumberOfExcludedArrays(); ++i)
-        {
+      {
         const char *arrayName = ptInt->GetExcludedArray(i);
         vtkDataArray *array = this->InPD->GetArray(arrayName);
         if ( array != NULL )
-          {
+        {
           outPD->RemoveArray(array->GetName());
           this->Arrays.ExcludeArray(array);
-          }
         }
+      }
       this->Arrays.AddArrays(input->GetNumberOfPoints(), inPD, outPD, nullV, this->Promote);
-    }
+  }
 
   // Just allocate a little bit of memory to get started.
   void Initialize()
-    {
+  {
     vtkIdList*& pIds = this->PIds.Local();
     pIds->Allocate(128); //allocate some memory
     vtkDoubleArray*& weights = this->Weights.Local();
     weights->Allocate(128);
-    }
+  }
 
   // When null point is encountered
   void AssignNullPoint(const double x[3], vtkIdList *pIds,
                        vtkDoubleArray *weights, vtkIdType ptId)
-    {
+  {
       if ( this->Strategy == vtkPointInterpolator::MASK_POINTS)
-        {
+      {
         this->Valid[ptId] = 0;
         this->Arrays.AssignNullValue(ptId);
-        }
+      }
       else if ( this->Strategy == vtkPointInterpolator::NULL_VALUE)
-        {
+      {
         this->Arrays.AssignNullValue(ptId);
-        }
+      }
       else //vtkPointInterpolator::CLOSEST_POINT:
-        {
+      {
         pIds->SetNumberOfIds(1);
         vtkIdType pId = this->Locator->FindClosestPoint(x);
         pIds->SetId(0,pId);
@@ -120,37 +120,37 @@ struct ProbePoints
         weights->SetValue(0,1.0);
         this->Arrays.Interpolate(1, pIds->GetPointer(0),
                                  weights->GetPointer(0), ptId);
-        }
-    }
+      }
+  }
 
   // Threaded interpolation method
   void operator() (vtkIdType ptId, vtkIdType endPtId)
-    {
+  {
       double x[3];
       vtkIdList*& pIds = this->PIds.Local();
       vtkIdType numWeights;
       vtkDoubleArray*& weights = this->Weights.Local();
 
       for ( ; ptId < endPtId; ++ptId)
-        {
+      {
         this->Input->GetPoint(ptId,x);
 
         if ( this->Kernel->ComputeBasis(x, pIds) > 0 )
-          {
+        {
           numWeights = this->Kernel->ComputeWeights(x, pIds, weights);
           this->Arrays.Interpolate(numWeights, pIds->GetPointer(0),
                                    weights->GetPointer(0), ptId);
-          }
+        }
         else
-          {
+        {
           this->AssignNullPoint(x, pIds, weights, ptId);
-          }// null point
-        }//for all dataset points
-    }
+        }// null point
+      }//for all dataset points
+  }
 
   void Reduce()
-    {
-    }
+  {
+  }
 
 }; //ProbePoints
 
@@ -165,18 +165,18 @@ struct ImageProbePoints : public ProbePoints
                    double origin[3], double spacing[3], vtkPointData *inPD,
                    vtkPointData *outPD, char *valid) :
     ProbePoints(ptInt, image, inPD, outPD, valid)
-    {
+  {
       for (int i=0; i < 3; ++i)
-        {
+      {
         this->Dims[i] = dims[i];
         this->Origin[i] = origin[i];
         this->Spacing[i] = spacing[i];
-        }
-    }
+      }
+  }
 
   // Threaded interpolation method specialized to image traversal
   void operator() (vtkIdType slice, vtkIdType sliceEnd)
-    {
+  {
       double x[3];
       vtkIdType numWeights;
       double *origin=this->Origin;
@@ -187,35 +187,35 @@ struct ImageProbePoints : public ProbePoints
       vtkDoubleArray*& weights = this->Weights.Local();
 
       for ( ; slice < sliceEnd; ++slice)
-        {
+      {
         x[2] = origin[2] + slice*spacing[2];
         kOffset = slice*sliceSize;
 
         for ( int j=0;  j < dims[1]; ++j)
-          {
+        {
           x[1] = origin[1] + j*spacing[1];
           jOffset = j*dims[0];
 
           for ( int i=0; i < dims[0]; ++i)
-            {
+          {
             x[0] = origin[0] + i*spacing[0];
             ptId = i + jOffset + kOffset;
 
             if ( this->Kernel->ComputeBasis(x, pIds) > 0 )
-              {
+            {
               numWeights = this->Kernel->ComputeWeights(x, pIds, weights);
               this->Arrays.Interpolate(numWeights, pIds->GetPointer(0),
                                        weights->GetPointer(0), ptId);
-              }
+            }
             else
-              {
+            {
               this->AssignNullPoint(x, pIds, weights, ptId);
-              }// null point
+            }// null point
 
-            }//over i
-          }//over j
-        }//over slices
-    }
+          }//over i
+        }//over j
+      }//over slices
+  }
 }; //ImageProbePoints
 
 } //anonymous namespace
@@ -266,9 +266,9 @@ void vtkPointInterpolator::SetSourceData(vtkDataObject *input)
 vtkDataObject *vtkPointInterpolator::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
-    {
+  {
     return NULL;
-    }
+  }
 
   return this->GetExecutive()->GetInputData(1, 0);
 }
@@ -290,17 +290,17 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
 {
   // Make sure there is a kernel
   if ( !this->Kernel )
-    {
+  {
     vtkErrorMacro(<<"Interpolation kernel required\n");
     return;
-    }
+  }
 
   // Start by building the locator
   if ( !this->Locator )
-    {
+  {
     vtkErrorMacro(<<"Point locator required\n");
     return;
-    }
+  }
   this->Locator->SetDataSet(source);
   this->Locator->BuildLocator();
 
@@ -313,43 +313,43 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
   // Masking if requested
   char *mask=NULL;
   if ( this->NullPointsStrategy == vtkPointInterpolator::MASK_POINTS )
-    {
+  {
     this->ValidPointsMask = vtkCharArray::New();
     this->ValidPointsMask->SetNumberOfTuples(numPts);
     mask = this->ValidPointsMask->GetPointer(0);
     std::fill_n(mask, numPts, 1);
-    }
+  }
 
   // Now loop over input points, finding closest points and invoking kernel.
   if ( this->Kernel->GetRequiresInitialization() )
-    {
+  {
     this->Kernel->Initialize(this->Locator, source, inPD);
-    }
+  }
 
   // If the input is image data then there is a faster path
   vtkImageData *imgInput = vtkImageData::SafeDownCast(input);
   if ( imgInput )
-    {
+  {
     int dims[3];
     double origin[3], spacing[3];
     this->ExtractImageDescription(imgInput,dims,origin,spacing);
     ImageProbePoints imageProbe(this, imgInput, dims, origin, spacing,
                                 inPD, outPD, mask);
     vtkSMPTools::For(0, dims[2], imageProbe);//over slices
-    }
+  }
   else
-    {
+  {
     ProbePoints probe(this, input, inPD, outPD, mask);
     vtkSMPTools::For(0, numPts, probe);
-    }
+  }
 
   // Clean up
   if ( mask )
-    {
+  {
     this->ValidPointsMask->SetName(this->ValidPointsMaskArrayName);
     outPD->AddArray(this->ValidPointsMask);
     this->ValidPointsMask->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -359,32 +359,32 @@ PassAttributeData(vtkDataSet* input, vtkDataObject* vtkNotUsed(source),
 {
   // copy point data arrays
   if (this->PassPointArrays)
-    {
+  {
     int numPtArrays = input->GetPointData()->GetNumberOfArrays();
     for (int i=0; i<numPtArrays; ++i)
-      {
+    {
       output->GetPointData()->AddArray(input->GetPointData()->GetArray(i));
-      }
     }
+  }
 
   // copy cell data arrays
   if (this->PassCellArrays)
-    {
+  {
     int numCellArrays = input->GetCellData()->GetNumberOfArrays();
     for (int i=0; i<numCellArrays; ++i)
-      {
+    {
       output->GetCellData()->AddArray(input->GetCellData()->GetArray(i));
-      }
     }
+  }
 
   if (this->PassFieldArrays)
-    {
+  {
     // nothing to do, vtkDemandDrivenPipeline takes care of that.
-    }
+  }
   else
-    {
+  {
     output->GetFieldData()->Initialize();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -407,10 +407,10 @@ int vtkPointInterpolator::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (!source || source->GetNumberOfPoints() < 1 )
-    {
+  {
     vtkWarningMacro(<<"No source points to interpolate from");
     return 1;
-    }
+  }
 
   // Copy the input geometry and topology to the output
   output->CopyStructure(input);
@@ -447,16 +447,16 @@ int vtkPointInterpolator::RequestInformation(
   // Make sure that the scalar type and number of components
   // are propagated from the source not the input.
   if (vtkImageData::HasScalarType(sourceInfo))
-    {
+  {
     vtkImageData::SetScalarType(vtkImageData::GetScalarType(sourceInfo),
                                 outInfo);
-    }
+  }
   if (vtkImageData::HasNumberOfScalarComponents(sourceInfo))
-    {
+  {
     vtkImageData::SetNumberOfScalarComponents(
       vtkImageData::GetNumberOfScalarComponents(sourceInfo),
       outInfo);
-    }
+  }
 
   return 1;
 }
@@ -493,20 +493,20 @@ int vtkPointInterpolator::RequestUpdateExtent(
 }
 
 //--------------------------------------------------------------------------
-unsigned long vtkPointInterpolator::GetMTime()
+vtkMTimeType vtkPointInterpolator::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long mTime2;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType mTime2;
   if ( this->Locator != NULL )
-    {
+  {
     mTime2 = this->Locator->GetMTime();
     mTime = ( mTime2 > mTime ? mTime2 : mTime );
-    }
+  }
   if ( this->Kernel != NULL )
-    {
+  {
     mTime2 = this->Kernel->GetMTime();
     mTime = ( mTime2 > mTime ? mTime2 : mTime );
-    }
+  }
   return mTime;
 }
 
@@ -528,9 +528,9 @@ void vtkPointInterpolator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number of Excluded Arrays:" << this->GetNumberOfExcludedArrays() << endl;
   vtkIndent nextIndent=indent.GetNextIndent();
   for (int i=0; i<this->GetNumberOfExcludedArrays(); ++i)
-    {
+  {
     os << nextIndent << "Excluded Array: " << this->ExcludedArrays[i] << endl;
-    }
+  }
 
   os << indent << "Promote Output Arrays: "
      << (this->PromoteOutputArrays ? "On" : " Off") << "\n";

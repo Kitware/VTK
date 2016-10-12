@@ -111,26 +111,24 @@ int vtkOBJReader::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (!this->FileName)
-    {
+  {
     vtkErrorMacro(<< "A FileName must be specified.");
     return 0;
-    }
+  }
 
   FILE *in = fopen(this->FileName,"r");
 
   if (in == NULL)
-    {
+  {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
     return 0;
-    }
+  }
 
   vtkDebugMacro(<<"Reading file");
 
   // intialise some structures to store the file contents in
   vtkPoints *points = vtkPoints::New();
-  vtkFloatArray *tcoords = vtkFloatArray::New();
-  tcoords->SetNumberOfComponents(2);
-  tcoords->SetName("TCoords");
+  std::vector<vtkFloatArray*> tcoords_vector;
   vtkFloatArray *normals = vtkFloatArray::New();
   normals->SetNumberOfComponents(3);
   normals->SetName("Normals");
@@ -153,12 +151,14 @@ int vtkOBJReader::RequestData(
 
   const int MAX_LINE = 1024;
   char rawLine[MAX_LINE];
+  char tcoordsName[100];
   float xyz[3];
-
-  int lineNr = 0;
   int numPoints = 0;
+
+  // First loop to initialize the data arrays for the different set of texture coordinates
+  int lineNr = 0;
   while (everything_ok && fgets(rawLine, MAX_LINE, in) != NULL)
-    {
+  {
     lineNr++;
     char *pLine = rawLine;
     char *pEnd = rawLine + strlen(rawLine);
@@ -174,202 +174,302 @@ int vtkOBJReader::RequestData(
 
     // terminate command
     if (pLine < pEnd)
-      {
+    {
       *pLine = '\0';
       pLine++;
+    }
+
+    // if line starts by "usemtl", we're listing a new set of texture coordinates
+    if (strcmp(cmd, "usemtl") == 0)
+    {
+      // Read name of texture coordinate
+      if (sscanf(pLine, "%s", tcoordsName) == 1)
+      {
+        // Go to next line to see if any texture coordinates exist
+        if (fgets(rawLine, MAX_LINE, in) != NULL)
+        {
+          lineNr++;
+          pLine = rawLine;
+          pEnd = rawLine + strlen(rawLine);
+          while (isspace(*pLine) && pLine < pEnd) { pLine++; }
+          cmd = pLine;
+          while (!isspace(*pLine) && pLine < pEnd) { pLine++; }
+          if (pLine < pEnd)
+          {
+            *pLine = '\0';
+            pLine++;
+          }
+          // if the line starts by "vt", there are texture coordinates associated
+          if (strcmp(cmd, "vt") == 0)
+          {
+            vtkFloatArray* tcoords = vtkFloatArray::New();
+            tcoords->SetNumberOfComponents(2);
+            tcoords->SetName(tcoordsName);
+            tcoords_vector.push_back(tcoords);
+          }
+        }
+        else
+        {
+          vtkErrorMacro(<<"Error reading continuation line at line " << lineNr);
+          everything_ok = false;
+        }
       }
+      else
+      {
+        vtkErrorMacro(<<"Error reading 'usemtl' at line " << lineNr);
+        everything_ok = false;
+      }
+    }
+  } // (end of first while loop)
+
+  // If no material texture coordinates are found, add default TCoords
+  if(tcoords_vector.size() == 0)
+  {
+    vtkFloatArray *tcoords = vtkFloatArray::New();
+    tcoords->SetNumberOfComponents(2);
+    tcoords->SetName("TCoords");
+    tcoords_vector.push_back(tcoords);
+    strcpy(tcoordsName,"TCoords");
+  }
+
+  // Second loop to parse points, faces, texture coordinates, normals...
+  lineNr = 0;
+  fseek(in, 0, SEEK_SET);
+  while (everything_ok && fgets(rawLine, MAX_LINE, in) != NULL)
+  {
+    lineNr++;
+    char *pLine = rawLine;
+    char *pEnd = rawLine + strlen(rawLine);
+
+    // find the first non-whitespace character
+    while (isspace(*pLine) && pLine < pEnd) { pLine++; }
+
+    // this first non-whitespace is the command
+    const char *cmd = pLine;
+
+    // skip over non-whitespace
+    while (!isspace(*pLine) && pLine < pEnd) { pLine++; }
+
+    // terminate command
+    if (pLine < pEnd)
+    {
+      *pLine = '\0';
+      pLine++;
+    }
 
     // in the OBJ format the first characters determine how to interpret the line:
     if (strcmp(cmd, "v") == 0)
-      {
+    {
       // this is a vertex definition, expect three floats, separated by whitespace:
       if (sscanf(pLine, "%f %f %f", xyz, xyz+1, xyz+2) == 3)
-        {
+      {
         points->InsertNextPoint(xyz);
         numPoints++;
-        }
+      }
       else
-        {
+      {
         vtkErrorMacro(<<"Error reading 'v' at line " << lineNr);
         everything_ok = false;
-        }
       }
-    else if (strcmp(cmd, "vt") == 0)
+    }
+    else if (strcmp(cmd, "usemtl") == 0)
+    {
+      // this is a new material name (for texture coordinates), expect one string:
+      if (sscanf(pLine, "%s", tcoordsName) != 1)
       {
+        vtkErrorMacro(<<"Error reading 'usemtl' at line " << lineNr);
+        everything_ok = false;
+      }
+    }
+    else if (strcmp(cmd, "vt") == 0)
+    {
       // this is a tcoord, expect two floats, separated by whitespace:
       if (sscanf(pLine, "%f %f", xyz, xyz+1) == 2)
+      {
+        for(unsigned int i = 0; i < tcoords_vector.size(); ++i)
         {
-        tcoords->InsertNextTuple(xyz);
+          vtkFloatArray* tcoords = tcoords_vector.at(i);
+          if(strcmp(tcoords->GetName(), tcoordsName) == 0)
+          {
+            // Add data to current array
+            tcoords->InsertNextTuple(xyz);
+          }
+          else
+          {
+            // Add (-1,-1) to other arrays
+            tcoords->InsertNextTuple2(-1.0, -1.0);
+          }
         }
+      }
       else
-        {
+      {
         vtkErrorMacro(<<"Error reading 'vt' at line " << lineNr);
         everything_ok = false;
-        }
       }
+    }
     else if (strcmp(cmd, "vn") == 0)
-      {
+    {
       // this is a normal, expect three floats, separated by whitespace:
       if (sscanf(pLine, "%f %f %f", xyz, xyz+1, xyz+2) == 3)
-        {
+      {
         normals->InsertNextTuple(xyz);
         hasNormals = true;
-        }
+      }
       else
-        {
+      {
         vtkErrorMacro(<<"Error reading 'vn' at line " << lineNr);
         everything_ok = false;
-        }
       }
+    }
     else if (strcmp(cmd, "p") == 0)
-      {
+    {
       // this is a point definition, consisting of 1-based indices separated by whitespace and /
       pointElems->InsertNextCell(0); // we don't yet know how many points are to come
 
       int nVerts=0; // keep a count of how many there are
 
       while (everything_ok && pLine < pEnd)
-        {
+      {
         // find next non-whitespace character
         while (isspace(*pLine) && pLine < pEnd) { pLine++; }
 
         if (pLine < pEnd)         // there is still data left on this line
-          {
+        {
           int iVert;
           if (sscanf(pLine, "%d", &iVert) == 1)
-            {
+          {
             if (iVert < 0)
-              {
-              pointElems->InsertCellPoint(numPoints+iVert);
-              }
-            else
-              {
-              pointElems->InsertCellPoint(iVert-1);
-              }
-            nVerts++;
-            }
-          else if (strcmp(pLine, "\\\n") == 0)
             {
+              pointElems->InsertCellPoint(numPoints+iVert);
+            }
+            else
+            {
+              pointElems->InsertCellPoint(iVert-1);
+            }
+            nVerts++;
+          }
+          else if (strcmp(pLine, "\\\n") == 0)
+          {
             // handle backslash-newline continuation
             if (fgets(rawLine, MAX_LINE, in) != NULL)
-              {
+            {
               lineNr++;
               pLine = rawLine;
               pEnd = rawLine + strlen(rawLine);
               continue;
-              }
+            }
             else
-              {
+            {
               vtkErrorMacro(<<"Error reading continuation line at line " << lineNr);
               everything_ok = false;
-              }
             }
+          }
           else
-            {
+          {
             vtkErrorMacro(<<"Error reading 'p' at line " << lineNr);
             everything_ok = false;
-            }
+          }
           // skip over what we just sscanf'd
           // (find the first whitespace character)
           while (!isspace(*pLine) && pLine < pEnd) { pLine++; }
-          }
         }
+      }
 
       if (nVerts < 1)
-        {
+      {
         vtkErrorMacro
         (
             <<"Error reading file near line " << lineNr
             << " while processing the 'p' command"
         );
         everything_ok = false;
-        }
+      }
 
       // now we know how many points there were in this cell
       pointElems->UpdateCellCount(nVerts);
-      }
+    }
     else if (strcmp(cmd, "l") == 0)
-      {
+    {
       // this is a line definition, consisting of 1-based indices separated by whitespace and /
       lineElems->InsertNextCell(0); // we don't yet know how many points are to come
 
       int nVerts=0; // keep a count of how many there are
 
       while (everything_ok && pLine < pEnd)
-        {
+      {
         // find next non-whitespace character
         while (isspace(*pLine) && pLine < pEnd) { pLine++; }
 
         if (pLine < pEnd)         // there is still data left on this line
-          {
+        {
           int iVert, dummyInt;
           if (sscanf(pLine, "%d/%d", &iVert, &dummyInt) == 2)
-            {
+          {
             // we simply ignore texture information
             if (iVert < 0)
-              {
+            {
               lineElems->InsertCellPoint(numPoints+iVert);
-              }
-            else
-              {
-              lineElems->InsertCellPoint(iVert-1);
-              }
-            nVerts++;
             }
+            else
+            {
+              lineElems->InsertCellPoint(iVert-1);
+            }
+            nVerts++;
+          }
           else if (sscanf(pLine, "%d", &iVert) == 1)
-            {
+          {
             if (iVert < 0)
-              {
-              lineElems->InsertCellPoint(numPoints+iVert);
-              }
-            else
-              {
-              lineElems->InsertCellPoint(iVert-1);
-              }
-            nVerts++;
-            }
-          else if (strcmp(pLine, "\\\n") == 0)
             {
+              lineElems->InsertCellPoint(numPoints+iVert);
+            }
+            else
+            {
+              lineElems->InsertCellPoint(iVert-1);
+            }
+            nVerts++;
+          }
+          else if (strcmp(pLine, "\\\n") == 0)
+          {
             // handle backslash-newline continuation
             if (fgets(rawLine, MAX_LINE, in) != NULL)
-              {
+            {
               lineNr++;
               pLine = rawLine;
               pEnd = rawLine + strlen(rawLine);
               continue;
-              }
+            }
             else
-              {
+            {
               vtkErrorMacro(<<"Error reading continuation line at line " << lineNr);
               everything_ok = false;
-              }
             }
+          }
           else
-            {
+          {
             vtkErrorMacro(<<"Error reading 'l' at line " << lineNr);
             everything_ok = false;
-            }
+          }
           // skip over what we just sscanf'd
           // (find the first whitespace character)
           while (!isspace(*pLine) && pLine < pEnd) { pLine++; }
-          }
         }
+      }
 
       if (nVerts < 2)
-        {
+      {
         vtkErrorMacro
         (
             <<"Error reading file near line " << lineNr
             << " while processing the 'l' command"
         );
         everything_ok = false;
-        }
+      }
 
       // now we know how many points there were in this cell
       lineElems->UpdateCellCount(nVerts);
-      }
+    }
     else if (strcmp(cmd, "f") == 0)
-      {
+    {
       // this is a face definition, consisting of 1-based indices separated by whitespace and /
 
       polys->InsertNextCell(0); // we don't yet know how many points are to come
@@ -379,23 +479,23 @@ int vtkOBJReader::RequestData(
       int nVerts=0, nTCoords=0, nNormals=0; // keep a count of how many of each there are
 
       while (everything_ok && pLine < pEnd)
-        {
+      {
         // find the first non-whitespace character
         while (isspace(*pLine) && pLine < pEnd) { pLine++; }
 
         if (pLine < pEnd)         // there is still data left on this line
-          {
+        {
           int iVert,iTCoord,iNormal;
           if (sscanf(pLine, "%d/%d/%d", &iVert, &iTCoord, &iNormal) == 3)
-            {
+          {
             if (iVert < 0)
-              {
+            {
               polys->InsertCellPoint(numPoints+iVert);
-              }
+            }
             else
-              {
+            {
               polys->InsertCellPoint(iVert-1);
-              }
+            }
             nVerts++;
             tcoord_polys->InsertCellPoint(iTCoord-1);
             nTCoords++;
@@ -405,91 +505,91 @@ int vtkOBJReader::RequestData(
               tcoords_same_as_verts = false;
             if (iNormal != iVert)
               normals_same_as_verts = false;
-            }
+          }
           else if (sscanf(pLine, "%d//%d", &iVert, &iNormal) == 2)
-            {
+          {
             if (iVert < 0)
-              {
+            {
               polys->InsertCellPoint(numPoints+iVert);
-              }
+            }
             else
-              {
+            {
               polys->InsertCellPoint(iVert-1);
-              }
+            }
             nVerts++;
             normal_polys->InsertCellPoint(iNormal-1);
             nNormals++;
             if (iNormal != iVert)
               normals_same_as_verts = false;
-            }
+          }
           else if (sscanf(pLine, "%d/%d", &iVert, &iTCoord) == 2)
-            {
+          {
             if (iVert < 0)
-              {
+            {
               polys->InsertCellPoint(numPoints+iVert);
-              }
+            }
             else
-              {
+            {
               polys->InsertCellPoint(iVert-1);
-              }
+            }
             nVerts++;
             tcoord_polys->InsertCellPoint(iTCoord-1);
             nTCoords++;
             if (iTCoord != iVert)
               tcoords_same_as_verts = false;
-            }
+          }
           else if (sscanf(pLine, "%d", &iVert) == 1)
-            {
+          {
             if (iVert < 0)
-              {
-              polys->InsertCellPoint(numPoints+iVert);
-              }
-            else
-              {
-              polys->InsertCellPoint(iVert-1);
-              }
-            nVerts++;
-            }
-          else if (strcmp(pLine, "\\\n") == 0)
             {
+              polys->InsertCellPoint(numPoints+iVert);
+            }
+            else
+            {
+              polys->InsertCellPoint(iVert-1);
+            }
+            nVerts++;
+          }
+          else if (strcmp(pLine, "\\\n") == 0)
+          {
             // handle backslash-newline continuation
             if (fgets(rawLine, MAX_LINE, in) != NULL)
-              {
+            {
               lineNr++;
               pLine = rawLine;
               pEnd = rawLine + strlen(rawLine);
               continue;
-              }
+            }
             else
-              {
+            {
               vtkErrorMacro(<<"Error reading continuation line at line " << lineNr);
               everything_ok = false;
-              }
             }
+          }
           else
-            {
+          {
             vtkErrorMacro(<<"Error reading 'f' at line " << lineNr);
             everything_ok = false;
-            }
+          }
           // skip over what we just read
           // (find the first whitespace character)
           while (!isspace(*pLine) && pLine < pEnd) { pLine++; }
-          }
         }
+      }
 
       // count of tcoords and normals must be equal to number of vertices or zero
       if ( nVerts < 3 ||
            (nTCoords > 0 && nTCoords != nVerts) ||
            (nNormals > 0 && nNormals != nVerts)
          )
-        {
+      {
         vtkErrorMacro
         (
             <<"Error reading file near line " << lineNr
             << " while processing the 'f' command"
         );
         everything_ok = false;
-        }
+      }
 
       // now we know how many points there were in this cell
       polys->UpdateCellCount(nVerts);
@@ -499,13 +599,13 @@ int vtkOBJReader::RequestData(
       // also make a note of whether any cells have tcoords, and whether any have normals
       if (nTCoords > 0) { hasTCoords = true; }
       if (nNormals > 0) { hasNormals = true; }
-      }
+    }
     else
-      {
+    {
       //vtkDebugMacro(<<"Ignoring line: "<<rawLine);
-      }
+    }
 
-    } // (end of while loop)
+  } // (end of while loop)
 
   } // (end of local scope section)
 
@@ -514,7 +614,7 @@ int vtkOBJReader::RequestData(
 
 
   if (everything_ok)   // (otherwise just release allocated memory and return)
-    {
+  {
     // -- now turn this lot into a useable vtkPolyData --
 
     // if there are no tcoords or normals or they match exactly
@@ -523,47 +623,61 @@ int vtkOBJReader::RequestData(
         (!hasTCoords || tcoords_same_as_verts) &&
         (!hasNormals || normals_same_as_verts)
        )
-      {
+    {
       vtkDebugMacro(<<"Copying file data into the output directly");
 
       output->SetPoints(points);
       if (pointElems->GetNumberOfCells())
-        {
+      {
         output->SetVerts(pointElems);
-        }
+      }
       if (lineElems->GetNumberOfCells())
-        {
+      {
         output->SetLines(lineElems);
-        }
+      }
       if (polys->GetNumberOfCells())
-        {
+      {
         output->SetPolys(polys);
-        }
+      }
 
       // if there is an exact correspondence between tcoords and vertices then can simply
       // assign the tcoords points as point data
       if (hasTCoords && tcoords_same_as_verts)
+      {
+        for(unsigned int i = 0; i < tcoords_vector.size(); ++i)
         {
-        output->GetPointData()->SetTCoords(tcoords);
+          vtkFloatArray* tcoords = tcoords_vector.at(i);
+          output->GetPointData()->AddArray(tcoords);
+          if(i == 0)
+          {
+            output->GetPointData()->SetActiveTCoords(tcoords->GetName());
+          }
         }
+      }
 
       // if there is an exact correspondence between normals and vertices then can simply
       // assign the normals as point data
       if (hasNormals && normals_same_as_verts)
-        {
+      {
         output->GetPointData()->SetNormals(normals);
-        }
-      output->Squeeze();
       }
+      output->Squeeze();
+    }
     // otherwise we can duplicate the vertices as necessary (a bit slower)
     else
-      {
+    {
       vtkDebugMacro(<<"Duplicating vertices so that tcoords and normals are correct");
 
       vtkPoints *new_points = vtkPoints::New();
-      vtkFloatArray *new_tcoords = vtkFloatArray::New();
-      new_tcoords->SetName("TCoords");
-      new_tcoords->SetNumberOfComponents(2);
+      std::vector<vtkFloatArray*> new_tcoords_vector;
+      for(unsigned int i = 0; i < tcoords_vector.size(); ++i)
+      {
+        vtkFloatArray* tcoords = tcoords_vector.at(i);
+        vtkFloatArray *new_tcoords = vtkFloatArray::New();
+        new_tcoords->SetName(tcoords->GetName());
+        new_tcoords->SetNumberOfComponents(2);
+        new_tcoords_vector.push_back(new_tcoords);
+      }
       vtkFloatArray *new_normals = vtkFloatArray::New();
       new_normals->SetNumberOfComponents(3);
       new_normals->SetName("Normals");
@@ -581,7 +695,7 @@ int vtkOBJReader::RequestData(
       vtkIdType n_tcoord_pts=-1,*tcoord_pts=dummy_warning_prevention_mechanism;
       vtkIdType n_normal_pts=-1,*normal_pts=dummy_warning_prevention_mechanism;
       for (int i=0; i<polys->GetNumberOfCells(); ++i)
-        {
+      {
         polys->GetNextCell(n_pts,pts);
         tcoord_polys->GetNextCell(n_tcoord_pts,tcoord_pts);
         normal_polys->GetNextCell(n_normal_pts,normal_pts);
@@ -595,45 +709,58 @@ int vtkOBJReader::RequestData(
             (n_pts != n_tcoord_pts && hasTCoords) ||
             (n_pts != n_normal_pts && hasNormals)
            )
-          {
+        {
           // skip this poly
           vtkDebugMacro(<<"Skipping poly "<<i+1<<" (1-based index)");
-          }
+        }
         else
-          {
+        {
           // copy the corresponding points, tcoords and normals across
           for (int j=0; j<n_pts; ++j)
-            {
+          {
             // copy the tcoord for this point across (if there is one)
             if (n_tcoord_pts>0)
+            {
+              for(unsigned int k = 0; k < tcoords_vector.size(); ++k)
               {
-              new_tcoords->InsertNextTuple(tcoords->GetTuple(tcoord_pts[j]));
+                vtkFloatArray* new_tcoords = new_tcoords_vector.at(k);
+                vtkFloatArray* tcoords = tcoords_vector.at(k);
+                new_tcoords->InsertNextTuple(tcoords->GetTuple(tcoord_pts[j]));
               }
+            }
             // copy the normal for this point across (if there is one)
             if (n_normal_pts>0)
-              {
+            {
               new_normals->InsertNextTuple(normals->GetTuple(normal_pts[j]));
-              }
+            }
             // copy the vertex into the new structure and update
             // the vertex index in the polys structure (pts is a pointer into it)
             pts[j] = new_points->InsertNextPoint(points->GetPoint(pts[j]));
-            }
+          }
           // copy this poly (pointing at the new points) into the new polys list
           new_polys->InsertNextCell(n_pts,pts);
-          }
         }
+      }
 
       // use the new structures for the output
       output->SetPoints(new_points);
       output->SetPolys(new_polys);
       if (hasTCoords)
+      {
+        for(unsigned int i = 0; i < new_tcoords_vector.size(); ++i)
         {
-        output->GetPointData()->SetTCoords(new_tcoords);
+          vtkFloatArray* new_tcoords = new_tcoords_vector.at(i);
+          output->GetPointData()->AddArray(new_tcoords);
+          if(i == 0)
+          {
+            output->GetPointData()->SetActiveTCoords(new_tcoords->GetName());
+          }
         }
+      }
       if (hasNormals)
-        {
+      {
         output->GetPointData()->SetNormals(new_normals);
-        }
+      }
 
       // TODO: fixup for pointElems and lineElems too
 
@@ -641,13 +768,21 @@ int vtkOBJReader::RequestData(
 
       new_points->Delete();
       new_polys->Delete();
-      new_tcoords->Delete();
-      new_normals->Delete();
+      for(unsigned int i = 0; i < new_tcoords_vector.size(); ++i)
+      {
+        vtkFloatArray* new_tcoords = new_tcoords_vector.at(i);
+        new_tcoords->Delete();
       }
+      new_normals->Delete();
     }
+  }
 
   points->Delete();
-  tcoords->Delete();
+  for(unsigned int i = 0; i < tcoords_vector.size(); ++i)
+  {
+    vtkFloatArray* tcoords = tcoords_vector.at(i);
+    tcoords->Delete();
+  }
   normals->Delete();
   polys->Delete();
   tcoord_polys->Delete();

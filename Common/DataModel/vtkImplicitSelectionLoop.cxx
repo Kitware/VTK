@@ -41,9 +41,9 @@ vtkImplicitSelectionLoop::vtkImplicitSelectionLoop()
 vtkImplicitSelectionLoop::~vtkImplicitSelectionLoop()
 {
   if (this->Loop)
-    {
+  {
     this->Loop->Delete();
-    }
+  }
   this->Polygon->Delete();
   this->Polygon = NULL;
 }
@@ -61,34 +61,34 @@ void vtkImplicitSelectionLoop::Initialize()
   this->Polygon->Points->SetNumberOfPoints(numPts);
 
   if ( this->AutomaticNormalGeneration )
-    {
+  {
     // Make sure points define a loop with a normal
     vtkPolygon::ComputeNormal(this->Loop, this->Normal);
     if ( this->Normal[0] == 0.0 && this->Normal[1] == 0.0 &&
          this->Normal[2] == 0.0 )
-      {
+    {
       vtkErrorMacro(<<"Cannot determine inside/outside of loop");
-      }
     }
+  }
 
   // Determine origin point by taking average
   this->Origin[0] = this->Origin[1] = this->Origin[2] = 0.0;
   for (i=0; i<numPts; i++)
-    {
+  {
     this->Loop->GetPoint(i, x);
     this->Origin[0] += x[0];
     this->Origin[1] += x[1];
     this->Origin[2] += x[2];
-    }
+  }
   this->Origin[0] /= numPts; this->Origin[1] /= numPts; this->Origin[2] /= numPts;
 
   // Project points onto plane generating new coordinates
   for (i=0; i<numPts; i++)
-    {
+  {
     this->Loop->GetPoint(i, x);
     vtkPlane::ProjectPoint(x, this->Origin, this->Normal, xProj);
     this->Polygon->Points->SetPoint(i, xProj);
-    }
+  }
 
   this->Polygon->GetBounds(this->Bounds);
   this->DeltaX = VTK_DELTA*(this->Bounds[1]-this->Bounds[0]);
@@ -107,9 +107,9 @@ double vtkImplicitSelectionLoop::EvaluateFunction(double x[3])
   int inside=0;
 
   if ( this->InitializationTime < this->GetMTime() )
-    {
+  {
     this->Initialize();
-    }
+  }
   // Initialize may change the number of points
   numPts = this->Polygon->Points->GetNumberOfPoints();
 
@@ -125,22 +125,22 @@ double vtkImplicitSelectionLoop::EvaluateFunction(double x[3])
        PointInPolygon(xProj , numPts,
                       vtkArrayDownCast<vtkDoubleArray>(this->Polygon->Points->GetData())->GetPointer(0),
                       this->Bounds,this->Normal) == 1 )
-    {
+  {
     inside = 1;
-    }
+  }
 
   // determine distance to boundary
   for (minDist2=VTK_DOUBLE_MAX,i=0; i<numPts; i++)
-    {
+  {
     double p1[3], p2[3];
     this->Polygon->Points->GetPoint(i, p1);
     this->Polygon->Points->GetPoint((i+1)%numPts, p2);
     dist2 = vtkLine::DistanceToLine(xProj, p1, p2, t, closest);
     if ( dist2 < minDist2 )
-      {
+    {
       minDist2 = dist2;
-      }
     }
+  }
 
   minDist2 = static_cast<double>(sqrt(minDist2));
   return (inside ? -minDist2 : minDist2);
@@ -158,9 +158,9 @@ void vtkImplicitSelectionLoop::EvaluateGradient(double x[3], double n[3])
   g0 = this->EvaluateFunction(x); //side-effect is to compute DeltaX, Y, and Z
 
   for (i=0; i<3; i++)
-    {
+  {
     xp[i] = yp[i] = zp[i] = x[i];
-    }
+  }
   xp[0] += this->DeltaX;
   yp[1] += this->DeltaY;
   zp[2] += this->DeltaZ;
@@ -175,16 +175,16 @@ void vtkImplicitSelectionLoop::EvaluateGradient(double x[3], double n[3])
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkImplicitSelectionLoop::GetMTime()
+vtkMTimeType vtkImplicitSelectionLoop::GetMTime()
 {
-  unsigned long mTime=this->vtkImplicitFunction::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->vtkImplicitFunction::GetMTime();
+  vtkMTimeType time;
 
   if ( this->Loop != NULL )
-    {
+  {
     time = this->Loop->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
 
   return mTime;
 }
@@ -195,14 +195,14 @@ void vtkImplicitSelectionLoop::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->Loop )
-    {
+  {
     os << indent << "Loop of " << this->Loop->GetNumberOfPoints()
        << " points defined\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Loop not defined\n";
-    }
+  }
 
   os << indent << "Automatic Normal Generation: "
      << (this->AutomaticNormalGeneration ? "On\n" : "Off\n");

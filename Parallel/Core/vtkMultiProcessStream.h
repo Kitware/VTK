@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMultiProcessStream - stream used to pass data across processes
-// using vtkMultiProcessController.
-// .SECTION Description
-// vtkMultiProcessStream is used to pass data across processes. Using
-// vtkMultiProcessStream it is possible to send data whose length is not known
-// at the receiving end.
-//
-// .SECTION Caveats
-// Note, stream operators cannot be combined with the Push/Pop array operators.
-// For example, if you push an array to the stream,
+/**
+ * @class   vtkMultiProcessStream
+ * @brief   stream used to pass data across processes
+ * using vtkMultiProcessController.
+ *
+ * vtkMultiProcessStream is used to pass data across processes. Using
+ * vtkMultiProcessStream it is possible to send data whose length is not known
+ * at the receiving end.
+ *
+ * @warning
+ * Note, stream operators cannot be combined with the Push/Pop array operators.
+ * For example, if you push an array to the stream,
+*/
 
 #ifndef vtkMultiProcessStream_h
 #define vtkMultiProcessStream_h
@@ -39,8 +42,10 @@ public:
   ~vtkMultiProcessStream();
   vtkMultiProcessStream& operator=(const vtkMultiProcessStream&);
 
-  // Description:
-  // Add-to-stream operators. Adds to the end of the stream.
+  //@{
+  /**
+   * Add-to-stream operators. Adds to the end of the stream.
+   */
   vtkMultiProcessStream& operator << (double value);
   vtkMultiProcessStream& operator << (float value);
   vtkMultiProcessStream& operator << (int value);
@@ -55,9 +60,12 @@ public:
   // a char* to a bool instead of a std::string.
   vtkMultiProcessStream& operator << (const char* value);
   vtkMultiProcessStream& operator << (const vtkMultiProcessStream&);
+  //@}
 
-  // Description:
-  // Remove-from-stream operators. Removes from the head of the stream.
+  //@{
+  /**
+   * Remove-from-stream operators. Removes from the head of the stream.
+   */
   vtkMultiProcessStream& operator >> (double &value);
   vtkMultiProcessStream& operator >> (float &value);
   vtkMultiProcessStream& operator >> (int &value);
@@ -69,9 +77,12 @@ public:
   vtkMultiProcessStream& operator >> (vtkTypeUInt64 &value);
   vtkMultiProcessStream& operator >> (std::string &value);
   vtkMultiProcessStream& operator >> (vtkMultiProcessStream&);
+  //@}
 
-  // Description:
-  // Add-array-to-stream methods. Adds to the end of the stream
+  //@{
+  /**
+   * Add-array-to-stream methods. Adds to the end of the stream
+   */
   void Push(double array[], unsigned int size);
   void Push(float array[], unsigned int size);
   void Push(int array[], unsigned int size);
@@ -80,13 +91,16 @@ public:
   void Push(unsigned char array[], unsigned int size );
   void Push(vtkTypeInt64 array[], unsigned int size );
   void Push(vtkTypeUInt64 array[], unsigned int size );
+  //@}
 
-  // Description:
-  // Remove-array-to-stream methods. Removes from the head of the stream.
-  // Note: If the input array is NULL, the array will be allocated internally
-  // and the calling application is responsible for properly de-allocating it.
-  // If the input array is not NULL, it is expected to match the size of the
-  // data internally, and this method would just fill in the data.
+  //@{
+  /**
+   * Remove-array-to-stream methods. Removes from the head of the stream.
+   * Note: If the input array is NULL, the array will be allocated internally
+   * and the calling application is responsible for properly de-allocating it.
+   * If the input array is not NULL, it is expected to match the size of the
+   * data internally, and this method would just fill in the data.
+   */
   void Pop(double*& array, unsigned int& size);
   void Pop(float*& array, unsigned int& size);
   void Pop(int*& array, unsigned int& size);
@@ -95,43 +109,51 @@ public:
   void Pop(unsigned char*& array, unsigned int& size );
   void Pop(vtkTypeInt64*& array, unsigned int& size );
   void Pop(vtkTypeUInt64*& array, unsigned int& size );
+  //@}
 
 
-  // Description:
-  // Clears everything in the stream.
+  /**
+   * Clears everything in the stream.
+   */
   void Reset();
 
-  // Description:
-  // Returns the size of the stream.
+  /**
+   * Returns the size of the stream.
+   */
   int Size();
 
-  // Description:
-  // Returns the size of the raw data returned by GetRawData. This
-  // includes 1 byte to store the endian type.
+  /**
+   * Returns the size of the raw data returned by GetRawData. This
+   * includes 1 byte to store the endian type.
+   */
   int RawSize()
     {return(this->Size()+1);};
 
-  // Description:
-  // Returns true iff the stream is empty.
+  /**
+   * Returns true iff the stream is empty.
+   */
   bool Empty();
 
-  // Description:
-  // Serialization methods used to save/restore the stream to/from raw data.
-  // Note: The 1st byte of the raw data buffer consists of the endian type.
+  //@{
+  /**
+   * Serialization methods used to save/restore the stream to/from raw data.
+   * Note: The 1st byte of the raw data buffer consists of the endian type.
+   */
   void GetRawData(std::vector<unsigned char>& data) const;
   void GetRawData( unsigned char*& data, unsigned int &size );
   void SetRawData(const std::vector<unsigned char>& data);
   void SetRawData(const unsigned char*, unsigned int size);
+  //@}
 
 private:
   class vtkInternals;
   vtkInternals* Internals;
   unsigned char Endianness;
   enum
-    {
+  {
     BigEndian,
     LittleEndian
-    };
+  };
 };
 
 #endif

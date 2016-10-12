@@ -70,10 +70,10 @@ int R_FindArrayIndex(vtkArrayCoordinates& coordinates, const vtkArrayExtents& ex
   vtkIdType d = coordinates.GetDimensions();
 
   for(i = 0; i < d; ++i)
-    {
+  {
     ret = ret + coordinates[i]*divisor;
     divisor *= extents[i].GetSize();
-    }
+  }
 
   return(ret);
 
@@ -96,19 +96,19 @@ vtkRAdapter::~vtkRAdapter()
 {
 
   if(this->vad)
-    {
+  {
     this->vad->Delete();
-    }
+  }
 
   if(this->vdoc)
-    {
+  {
     this->vdoc->Delete();
-    }
+  }
 
   if(this->vdac)
-    {
+  {
     this->vdac->Delete();
-    }
+  }
 
 }
 
@@ -124,7 +124,7 @@ vtkDataArray* vtkRAdapter::RToVTKDataArray(SEXP variable)
 
 
   if( Rf_isMatrix(variable) || Rf_isVector(variable) )
-    {
+  {
     nc = Rf_ncols(variable);
     nr = Rf_nrows(variable);
 
@@ -136,34 +136,34 @@ vtkDataArray* vtkRAdapter::RToVTKDataArray(SEXP variable)
     data = new double[nc];
 
     for(i=0;i<nr;i++)
-      {
+    {
       for(j=0;j<nc;j++)
-        {
+      {
         if ( isReal(variable) )
-          {
+        {
           data[j] = REAL(variable)[j*nr + i];
-          }
-        else if ( isInteger(variable) )
-          {
-          data[j] = static_cast<double>(INTEGER(variable)[j*nr + i]);
-          }
-        else
-          {
-          vtkErrorMacro(<< "Bad return variable, tried REAL and INTEGER.");
-          }
-        result->InsertTuple(i,data);
         }
+        else if ( isInteger(variable) )
+        {
+          data[j] = static_cast<double>(INTEGER(variable)[j*nr + i]);
+        }
+        else
+        {
+          vtkErrorMacro(<< "Bad return variable, tried REAL and INTEGER.");
+        }
+        result->InsertTuple(i,data);
       }
+    }
 
     delete [] data;
     this->vdac->AddItem(result);
     result->Delete();
     return(result);
-    }
+  }
   else
-    {
+  {
     return(0);
-    }
+  }
 
 }
 
@@ -184,13 +184,13 @@ SEXP vtkRAdapter::VTKDataArrayToR(vtkDataArray* da)
   PROTECT(a = Rf_allocMatrix(REALSXP,nr,nc));
 
   for(i=0;i<nr;i++)
-    {
+  {
     for(j=0;j<nc;j++)
-      {
+    {
       data = da->GetTuple(i);
       REAL(a)[j*nr + i] = data[j];
-      }
     }
+  }
 
   return(a);
 
@@ -211,23 +211,23 @@ vtkArray* vtkRAdapter::RToVTKArray(SEXP variable)
   ndim = static_cast<vtkArray::DimensionT>(length(dims));
 
   if (!isMatrix(variable)&&!isArray(variable)&&isVector(variable))
-    {
+  {
     ndim = 1;
-    }
+  }
 
   extents.SetDimensions(ndim);
 
   if (isMatrix(variable)||isArray(variable))
-    {
+  {
     for(j=0;j<ndim;j++)
-      {
-      extents[j] = vtkArrayRange(0,INTEGER(dims)[j]);
-      }
-    }
-  else
     {
-    extents[0] = vtkArrayRange(0,length(variable));
+      extents[j] = vtkArrayRange(0,INTEGER(dims)[j]);
     }
+  }
+  else
+  {
+    extents[0] = vtkArrayRange(0,length(variable));
+  }
 
   da->Resize(extents);
 
@@ -236,21 +236,21 @@ vtkArray* vtkRAdapter::RToVTKArray(SEXP variable)
   index.SetDimensions(ndim);
 
   for(i=0;i<da->GetSize();i++)
-    {
+  {
     da->GetCoordinatesN(i,index);
     if ( isReal(variable) )
-      {
+    {
       da->SetVariantValue(index,REAL(variable)[i]);
-      }
-    else if ( isInteger(variable) )
-      {
-      da->SetVariantValue(index,static_cast<double>(INTEGER(variable)[i]));
-      }
-    else
-      {
-      vtkErrorMacro(<< "Bad return variable, tried REAL and INTEGER.");
-      }
     }
+    else if ( isInteger(variable) )
+    {
+      da->SetVariantValue(index,static_cast<double>(INTEGER(variable)[i]));
+    }
+    else
+    {
+      vtkErrorMacro(<< "Bad return variable, tried REAL and INTEGER.");
+    }
+  }
 
   this->vad->AddArray(da);
   da->Delete();
@@ -271,23 +271,23 @@ SEXP vtkRAdapter::VTKArrayToR(vtkArray* da)
 
   assert(da->GetExtents().ZeroBased());
   for(j=0;j<da->GetDimensions();j++)
-    {
+  {
     INTEGER(dim)[j] = da->GetExtents()[j].GetSize();
-    }
+  }
 
   PROTECT(a = Rf_allocArray(REALSXP, dim));
 
   for(i=0;i<da->GetSize();i++)
-    {
+  {
     REAL(a)[i] = 0.0;
-    }
+  }
 
   assert(da->GetExtents().ZeroBased());
   for(i=0;i<da->GetNonNullSize();i++)
-    {
+  {
     da->GetCoordinatesN(i,coords);
     REAL(a)[R_FindArrayIndex(coords,da->GetExtents())] = da->GetVariantValue(coords).ToDouble();
-    }
+  }
 
   UNPROTECT(1);
 
@@ -311,29 +311,29 @@ SEXP vtkRAdapter::VTKTableToR(vtkTable* table)
   PROTECT(names = allocVector(STRSXP, nc));
 
   for(j=0;j<nc;j++)
-    {
+  {
     SET_STRING_ELT(names,j,mkChar(table->GetColumn(j)->GetName()));
     if(vtkArrayDownCast<vtkDataArray>(table->GetColumn(j)))
-      {
+    {
       PROTECT(b = allocVector(REALSXP,nr));
       SET_VECTOR_ELT(a,j,b);
       for(i=0;i<nr;i++)
-        {
+      {
         data = table->GetValue(i,j);
         REAL(b)[i] = data.ToDouble();
-        }
       }
+    }
     else
-      {
+    {
       PROTECT(b = allocVector(STRSXP,nr));
       SET_VECTOR_ELT(a,j,b);
       for(i=0;i<nr;i++)
-        {
+      {
         data = table->GetValue(i,j);
         SET_STRING_ELT(b,i,mkChar(data.ToString().c_str()));
-        }
       }
     }
+  }
 
   setAttrib(a,R_NamesSymbol,names);
 
@@ -353,134 +353,134 @@ vtkTable* vtkRAdapter::RToVTKTable(SEXP variable)
   vtkTable* result;
 
   if( isMatrix(variable) )
-    {
+  {
     nc = Rf_ncols(variable);
     nr = Rf_nrows(variable);
     result = vtkTable::New();
     names = getAttrib(variable, R_DimNamesSymbol);
     if(!isNull(names))
-     {
+    {
        vtkStringArray* rowNames = vtkStringArray::New();
        for (i = 0; i < nr; ++i)
-         {
+       {
          std::string rowName = CHAR(STRING_ELT(VECTOR_ELT(names,0),i));
          rowNames->InsertNextValue(rowName);
-         }
+       }
        result->AddColumn(rowNames);
        rowNames->Delete();
-     }
+    }
 
     for(j=0;j<nc;j++)
-      {
+    {
       vtkDoubleArray* da = vtkDoubleArray::New();
       da->SetNumberOfComponents(1);
       if(!isNull(names))
-        {
+      {
         da->SetName(CHAR(STRING_ELT(VECTOR_ELT(names,1),j)));
-        }
+      }
       else
-        {
+      {
         v = j;
         da->SetName(v.ToString().c_str());
-        }
+      }
       for(i=0;i<nr;i++)
-        {
+      {
         da->InsertNextValue(REAL(variable)[j*nr + i]);
-        }
+      }
       result->AddColumn(da);
       da->Delete();
-      }
     }
+  }
   else if( isNewList(variable) )
-    {
+  {
     nc = length(variable);
     nr = length(VECTOR_ELT(variable,0));
     for(j=1;j<nc;j++)
-      {
+    {
       if(isReal(VECTOR_ELT(variable,j)) ||
          isInteger(VECTOR_ELT(variable,j)) ||
          isString(VECTOR_ELT(variable,j)) )
-        {
+      {
         if(length(VECTOR_ELT(variable,j)) != nr)
-          {
+        {
           vtkGenericWarningMacro(<<"Cannot convert R data type to vtkTable");
           return(0);
-          }
-        }
-      else
-        {
-        vtkGenericWarningMacro(<<"Cannot convert R data type to vtkTable");
-        return(0);
         }
       }
+      else
+      {
+        vtkGenericWarningMacro(<<"Cannot convert R data type to vtkTable");
+        return(0);
+      }
+    }
 
     result = vtkTable::New();
     names = getAttrib(variable, R_NamesSymbol);
     SEXP names2 = getAttrib(variable, R_RowNamesSymbol);
     if (!isNull(names2))
-      {
+    {
        vtkStringArray* rowNames = vtkStringArray::New();
        for (i = 0; i < nr; ++i)
-         {
+       {
          std::string rowName = CHAR(STRING_ELT(names2, i));
          rowNames->InsertNextValue(rowName);
-         }
+       }
        result->AddColumn(rowNames);
        rowNames->Delete();
-      }
+    }
 
     vtkAbstractArray *aa;
     for(j=0;j<nc;j++)
-      {
+    {
       if(isReal(VECTOR_ELT(variable,j)))
-        {
+      {
         vtkDoubleArray* da = vtkDoubleArray::New();
         da->SetNumberOfComponents(1);
         aa = da;
         for(i=0;i<nr;i++)
-          {
-          da->InsertNextValue(REAL(VECTOR_ELT(variable,j))[i]);
-          }
-        }
-      else if(isInteger(VECTOR_ELT(variable,j)))
         {
+          da->InsertNextValue(REAL(VECTOR_ELT(variable,j))[i]);
+        }
+      }
+      else if(isInteger(VECTOR_ELT(variable,j)))
+      {
         vtkIntArray* da = vtkIntArray::New();
         da->SetNumberOfComponents(1);
         aa = da;
         for(i=0;i<nr;i++)
-          {
-          da->InsertNextValue(INTEGER(VECTOR_ELT(variable,j))[i]);
-          }
-        }
-      else
         {
+          da->InsertNextValue(INTEGER(VECTOR_ELT(variable,j))[i]);
+        }
+      }
+      else
+      {
         vtkStringArray* da = vtkStringArray::New();
         da->SetNumberOfComponents(1);
         aa = da;
         for(i=0;i<nr;i++)
-          {
+        {
           da->InsertNextValue(CHAR(STRING_ELT(VECTOR_ELT(variable,j),i)));
-          }
         }
+      }
 
       if(!isNull(names))
-        {
+      {
         aa->SetName(CHAR(STRING_ELT(names,j)));
-        }
+      }
       else
-        {
+      {
         v = j;
         aa->SetName(v.ToString().c_str());
-        }
+      }
       result->AddColumn(aa);
       aa->Delete();
-      }
     }
+  }
   else
-    {
+  {
     vtkGenericWarningMacro(<<"Cannot convert R data type to vtkTable");
     return(0);
-    }
+  }
 
   this->vdoc->AddItem(result);
   result->Delete();
@@ -516,29 +516,29 @@ SEXP vtkRAdapter::VTKTreeToR(vtkTree* tree)
   int nVerts = tree->GetNumberOfVertices();
   int *newNodeId = new int[nVerts];//including root vertex 0
   while (iter->HasNext())
-    {// find out all the leaf nodes, and number them sequentially
+  {// find out all the leaf nodes, and number them sequentially
     vtkIdType vertexId = iter->Next();
     newNodeId[vertexId] = 0;//initialize
     if (tree->IsLeaf(vertexId))
-      {
+    {
       leafCount++;
       newNodeId[vertexId] = leafCount;
-      }
     }
+  }
 
   // second tree traverse to reorder the node vertices
   int nodeId = leafCount;
   iter->Restart();
   vtkIdType vertexId;
   while (iter->HasNext())
-    {
+  {
     vertexId = iter->Next();
     if (!tree->IsLeaf(vertexId))
-      {
+    {
       nodeId++;
       newNodeId[vertexId] = nodeId;
-      }
     }
+  }
 
   nedge = tree->GetNumberOfEdges();
   ntip  = leafCount;
@@ -562,7 +562,7 @@ SEXP vtkRAdapter::VTKTreeToR(vtkTree* tree)
   int i = 0;
   vtkDoubleArray * weights = vtkArrayDownCast<vtkDoubleArray>((tree->GetEdgeData())->GetArray("weight"));
   while(edgeIterator->HasNext())
-    {
+  {
     vEdge = edgeIterator->Next();
     e[i]  = newNodeId[vEdge.Source] ;
     e[i + nedge] = newNodeId[vEdge.Target];
@@ -570,26 +570,26 @@ SEXP vtkRAdapter::VTKTreeToR(vtkTree* tree)
     int eNum = tree->GetEdgeId(vEdge.Source, vEdge.Target);
     e_len[i] = weights->GetValue(eNum);
     i++;
-    }
+  }
 
   // fill in  Nnode , tip_label and  node_label
   // use GetAbstractArray() instead of GetArray()
   vtkStringArray * labels = vtkArrayDownCast<vtkStringArray>((tree->GetVertexData())->GetAbstractArray("node name"));
   iter->Restart();
   while (iter->HasNext())
-    {// find out all the leaf nodes, and number them sequentially
+  {// find out all the leaf nodes, and number them sequentially
     vertexId = iter->Next();
     if (tree->IsLeaf(vertexId))
-      {
+    {
       vtkStdString lab = labels->GetValue(vertexId);
       SET_STRING_ELT(tip_label, newNodeId[vertexId]-1, mkChar(lab.c_str()));
-      }
+    }
     else
-      {
+    {
       vtkStdString lab = labels->GetValue(vertexId);
       SET_STRING_ELT(node_label,newNodeId[vertexId]- ntip - 1, mkChar(lab.c_str())); //the starting id of the internal nodes is (ntip + 1)
-      }
     }
+  }
   iter->Delete();
 
   // set all elements
@@ -628,13 +628,13 @@ vtkTree* vtkRAdapter::RToVTKTree(SEXP variable)
   vtkTree * tree = vtkTree::New();
 
   if (isNewList(variable))
-    {
+  {
     int nELT = length(variable);
     if (nELT < 4)
-      {
+    {
       vtkErrorMacro(<<"RToVTKTree(): R tree list does not contain required four elements!");
       return NULL;
-      }
+    }
 
     vtkNew<vtkStringArray> nodeLabels;
     vtkNew<vtkStringArray> tipLabels;
@@ -645,138 +645,138 @@ vtkTree* vtkRAdapter::RToVTKTree(SEXP variable)
     // collect data from R.  The elements of the tree list are apparently not
     // guaranteed to be in any specific order.
     for (int i = 0; i < nELT; ++i)
-      {
+    {
       const char *name = CHAR(STRING_ELT(listNames, i));
 
       if (strcmp(name, "edge") == 0)
-        {
+      {
         SEXP rEdge = VECTOR_ELT(variable, i);
         if (isInteger(rEdge))
-          {
+        {
           edge = INTEGER(rEdge);
           numEdges = length(rEdge)/2;
-          }
+        }
         else
-          {
+        {
           vtkErrorMacro(<<"RToVTKTree(): \"edge\" array is not integer type. ");
           return NULL;
-          }
         }
+      }
 
       else if (strcmp(name, "Nnode") == 0)
-        {
+      {
         SEXP rNnode = VECTOR_ELT(variable, i);
         if (isInteger(rNnode))
-          {
+        {
           numNodes =  INTEGER(rNnode)[0];
           if (length(rNnode) != 1)
-            {
+          {
             vtkErrorMacro(<<"RToVTKTree(): Expect a single scalar of \"Nnode\". ");
             return NULL;
-            }
           }
+        }
         else
-          {
+        {
           vtkErrorMacro(<<"RToVTKTree(): \"Nnode\" is not integer type. ");
           return NULL;
-          }
         }
+      }
 
       else if (strcmp(name, "tip.label") == 0)
-        {
+      {
         rTipLabels = VECTOR_ELT(variable, i);
-        }
+      }
 
       else if (strcmp(name, "edge.length") == 0)
-        {
+      {
         SEXP rEdgeLength = VECTOR_ELT(variable, i);
         numEdgeLengths = length(rEdgeLength);
         if (isReal(rEdgeLength))
-          {
+        {
           edgeLength = REAL(rEdgeLength);
-          }
         }
+      }
 
       else if (strcmp(name, "node.label") == 0)
-        {
+      {
         // optional node labels
         rNodeLabels = VECTOR_ELT(variable, i);
         haveNodeLabels = true;
         numNodeLabels = length(rNodeLabels);
-        }
+      }
 
       else
-        {
+      {
         vtkWarningMacro(<<"Unexpected tree element encountered: " << name);
-        }
       }
+    }
 
     // Perform some safety checks to make sure that the data extracted from R
     // is sane.
     if (numEdges != numEdgeLengths)
-      {
+    {
       vtkErrorMacro(<<"RToVTKTree(): "
                     << "edgeLength's size does not match up with numEdges.");
       return NULL;
-      }
+    }
 
     if (haveNodeLabels && numNodeLabels != numNodes)
-      {
+    {
       vtkErrorMacro(<<"RToVTKTree(): node.label's size does not match numNodes.");
       return NULL;
-      }
+    }
 
     // Populate node & tip label arrays.  If no such labels were specified by R
     // do so with empty strings.
     nodeLabels->SetNumberOfValues(numNodes);
     if (rNodeLabels != NULL && isString(rNodeLabels))
-      {
+    {
       for (int i = 0; i < numNodes; i++)
-        {
+      {
         nodeLabels->SetValue(i, CHAR(STRING_ELT(rNodeLabels, i)));
-        }
       }
+    }
     else
-      {
+    {
       for (int i = 0; i < numNodes; i++)
-        {
+      {
         nodeLabels->SetValue(i, "");
-        }
       }
+    }
 
     int numTips = numEdges - numNodes + 1;
     tipLabels->SetNumberOfValues(numTips);
     if (rTipLabels != NULL && isString(rTipLabels))
-      {
+    {
       for (int i = 0; i < numTips; i++)
-        {
+      {
         tipLabels->SetValue(i, CHAR(STRING_ELT(rTipLabels, i)));
-        }
       }
+    }
     else
-      {
+    {
       for (int i = 0; i < numTips; i++)
-        {
+      {
         tipLabels->SetValue(i, "");
-        }
       }
+    }
 
     //------------  Build the VTKTree -----------
     vtkNew<vtkMutableDirectedGraph> builder;
 
     // Create all of the tree vertices (number of edges +1)
     for(int i = 0; i <= numEdges; i++)
-      {
+    {
       builder->AddVertex();
-      }
+    }
 
     for(int i = 0; i < numEdges; i++)
-      {
+    {
       // -1 because R vertices begin with 1, whereas VTK vertices begin with 0.
       vtkIdType source = edge[i] - 1;
       vtkIdType target = edge[i+numEdges] - 1;
       builder->AddEdge(source, target);
-      }
+    }
 
     // Create the edge weight array
     vtkNew<vtkDoubleArray> weights;
@@ -784,9 +784,9 @@ vtkTree* vtkRAdapter::RToVTKTree(SEXP variable)
     weights->SetName("weight");
     weights->SetNumberOfValues(numEdges);
     for (int i = 0; i < numEdges; i++)
-      {
+    {
       weights->SetValue(i, edgeLength[i]);
-      }
+    }
     builder->GetEdgeData()->AddArray(weights.GetPointer());
 
     // Create the names array
@@ -798,20 +798,20 @@ vtkTree* vtkRAdapter::RToVTKTree(SEXP variable)
     names->SetName("node name");
     names->SetNumberOfValues(numTips + numNodes);
     for (int i = 0; i < numTips; i++)
-      {
+    {
       names->SetValue(i, tipLabels->GetValue(i));
-      }
+    }
     for (int i = 0; i < numNodes; i++)
-      {
+    {
       names->SetValue(i + numTips, nodeLabels->GetValue(i));
-      }
+    }
     builder->GetVertexData()->AddArray(names.GetPointer());
 
     if (!tree->CheckedShallowCopy(builder.GetPointer()))
-      {
+    {
       vtkErrorMacro(<<"Edges do not create a valid tree.");
       return NULL;
-      }
+    }
 
     // Create the "node weight" array for the Vertices, in order to use
     // vtkTreeLayoutStrategy for visualizing the tree using vtkTreeHeatmapItem
@@ -822,17 +822,17 @@ vtkTree* vtkRAdapter::RToVTKTree(SEXP variable)
     treeIterator->SetStartVertex(tree->GetRoot());
     treeIterator->SetTree(tree);
     while (treeIterator->HasNext())
-      {
+    {
       vtkIdType vertex = treeIterator->Next();
       vtkIdType parent = tree->GetParent(vertex);
       double weight = 0.0;
       if (parent >= 0)
-        {
+      {
         weight = weights->GetValue(tree->GetEdgeId(parent, vertex));
         weight += nodeWeights->GetValue(parent);
-        }
-      nodeWeights->SetValue(vertex, weight);
       }
+      nodeWeights->SetValue(vertex, weight);
+    }
 
     nodeWeights->SetName("node weight");
     tree->GetVertexData()->AddArray(nodeWeights.GetPointer());
@@ -840,12 +840,12 @@ vtkTree* vtkRAdapter::RToVTKTree(SEXP variable)
     this->vdoc->AddItem(tree);
     tree->Delete();
     return tree;
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro(<<"RToVTKTree(): R variable is not a list. ");
     return NULL;
-    }
+  }
 }
 
 
@@ -855,19 +855,19 @@ void vtkRAdapter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if(this->vad)
-    {
+  {
     this->vad->PrintSelf(os,indent);
-    }
+  }
 
   if(this->vdoc)
-    {
+  {
     this->vdoc->PrintSelf(os,indent);
-    }
+  }
 
   if(this->vdac)
-    {
+  {
     this->vdac->PrintSelf(os,indent);
-    }
+  }
 
 
 }

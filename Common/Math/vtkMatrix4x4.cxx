@@ -25,9 +25,9 @@ vtkStandardNewMacro(vtkMatrix4x4);
 void vtkMatrix4x4::Zero(double elements[16])
 {
   for (int i = 0; i < 16; i++)
-    {
+  {
     elements[i] = 0.0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -182,18 +182,18 @@ void vtkMatrix4x4::Invert(const double inElements[16],
 
   double det = vtkMatrix4x4::Determinant(inElements);
   if (det == 0.0)
-    {
+  {
     return;
-    }
+  }
 
   // calculate the adjoint matrix
   vtkMatrix4x4::Adjoint(inElements, outElements);
 
   // scale the adjoint matrix to get the inverse
   for (int i = 0; i < 16; i++)
-    {
+  {
     outElements[i] /= det;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -288,9 +288,9 @@ void vtkMatrix4x4::Adjoint(const double elem[16], double outElem[16])
 void vtkMatrix4x4::DeepCopy(double destination[16], const double source[16])
 {
   for (int i = 0; i < 16; i++)
-    {
+  {
     destination[i] = source[i];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -299,14 +299,14 @@ void vtkMatrix4x4::Transpose(const double inElements[16],
                              double outElements[16])
 {
   for (int i = 0; i < 4; i++)
-    {
+  {
     for(int j = i; j < 4; j++)
-      {
+    {
       double temp = inElements[4*i + j];
       outElements[4*i + j] = inElements[4*j + i];
       outElements[4*j + i] = temp;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -316,12 +316,12 @@ void vtkMatrix4x4::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Elements:\n";
   for (int i = 0; i < 4; i++)
-    {
+  {
     os << indent << indent;
     for (int j = 0; j < 4; j++)
-      {
+    {
       os << this->Element[i][j] << " ";
-      }
-    os << "\n";
     }
+    os << "\n";
+  }
 }

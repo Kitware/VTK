@@ -57,10 +57,10 @@ vtkSmartPointerBase::~vtkSmartPointerBase()
   // this smart pointer, and we do not want to include this reference.
   vtkObjectBase* object = this->Object;
   if(object)
-    {
+  {
     this->Object = 0;
     object->UnRegister(0);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -111,9 +111,9 @@ void vtkSmartPointerBase::Register()
 {
   // Add a reference only if the object is not NULL.
   if(this->Object)
-    {
+  {
     this->Object->Register(0);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

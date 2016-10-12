@@ -120,10 +120,10 @@ void vtkPhyloXMLTreeReader::ReadXMLData()
 
   vtkTree *output = this->GetOutput();
   if (!output->CheckedDeepCopy(builder.GetPointer()))
-    {
+  {
     vtkErrorMacro(<<"Edges do not create a valid tree.");
     return;
-    }
+  }
 
   // assign branch color from parent to child where none was specified.
   this->PropagateBranchColor(output);
@@ -131,17 +131,17 @@ void vtkPhyloXMLTreeReader::ReadXMLData()
   // check if our input file contained edge weight information
   bool haveWeights = false;
   for (vtkIdType i = 0; i < weights->GetNumberOfTuples(); ++i)
-    {
+  {
     if (weights->GetValue(i) != 0.0)
-      {
+    {
       haveWeights = true;
       break;
-      }
     }
+  }
   if (!haveWeights)
-    {
+  {
     return;
-    }
+  }
 
   vtkNew<vtkDoubleArray> nodeWeights;
   nodeWeights->SetNumberOfValues(output->GetNumberOfVertices());
@@ -151,17 +151,17 @@ void vtkPhyloXMLTreeReader::ReadXMLData()
   treeIterator->SetStartVertex(output->GetRoot());
   treeIterator->SetTree(output);
   while (treeIterator->HasNext())
-    {
+  {
     vtkIdType vertex = treeIterator->Next();
     vtkIdType parent = output->GetParent(vertex);
     double weight = 0.0;
     if (parent >= 0)
-      {
+    {
       weight = weights->GetValue(output->GetEdgeId(parent, vertex));
       weight += nodeWeights->GetValue(parent);
-      }
-    nodeWeights->SetValue(vertex, weight);
     }
+    nodeWeights->SetValue(vertex, weight);
+  }
 
   nodeWeights->SetName("node weight");
   output->GetVertexData()->AddArray(nodeWeights.GetPointer());
@@ -171,15 +171,15 @@ void vtkPhyloXMLTreeReader::ReadXMLData()
 void vtkPhyloXMLTreeReader::CountNodes(vtkXMLDataElement *element)
 {
   if (strcmp(element->GetName(), "clade") == 0)
-    {
+  {
     this->NumberOfNodes++;
-    }
+  }
 
   int numNested = element->GetNumberOfNestedElements();
   for(int i = 0; i < numNested; ++i)
-    {
+  {
     this->CountNodes(element->GetNestedElement(i));
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -188,59 +188,59 @@ void vtkPhyloXMLTreeReader::ReadXMLElement(vtkXMLDataElement *element,
 {
   bool inspectNested = true;
   if (strcmp(element->GetName(), "clade") == 0)
-    {
+  {
     vtkIdType child = this->ReadCladeElement(element, g, vertex);
     // update our current vertex to this newly created one.
     vertex = child;
-    }
+  }
 
   else if (strcmp(element->GetName(), "name") == 0)
-    {
+  {
     this->ReadNameElement(element, g, vertex);
-    }
+  }
   else if (strcmp(element->GetName(), "description") == 0)
-    {
+  {
     this->ReadDescriptionElement(element, g);
-    }
+  }
 
   else if (strcmp(element->GetName(), "property") == 0)
-    {
+  {
     this->ReadPropertyElement(element, g, vertex);
-    }
+  }
 
   else if (strcmp(element->GetName(), "branch_length") == 0)
-    {
+  {
     this->ReadBranchLengthElement(element, g, vertex);
-    }
+  }
 
   else if (strcmp(element->GetName(), "confidence") == 0)
-    {
+  {
     this->ReadConfidenceElement(element, g, vertex);
-    }
+  }
 
   else if (strcmp(element->GetName(), "color") == 0)
-    {
+  {
     this->ReadColorElement(element, g, vertex);
     inspectNested = false;
-    }
+  }
 
   else if (strcmp(element->GetName(), "phyloxml") != 0 &&
            strcmp(element->GetName(), "phylogeny") != 0)
-    {
+  {
     vtkWarningMacro(<< "Unsupported PhyloXML tag encountered: "
                     << element->GetName());
-    }
+  }
 
   if (!inspectNested)
-    {
+  {
     return;
-    }
+  }
 
   int numNested = element->GetNumberOfNestedElements();
   for(int i = 0; i < numNested; ++i)
-    {
+  {
     this->ReadXMLElement(element->GetNestedElement(i), g, vertex);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -250,18 +250,18 @@ vtkIdType vtkPhyloXMLTreeReader::ReadCladeElement(vtkXMLDataElement *element,
   // add a new vertex to the graph
   vtkIdType vertex = -1;
   if (parent == -1)
-    {
+  {
     vertex = g->AddVertex();
-    }
+  }
   else
-    {
+  {
     vertex = g->AddChild(parent);
     // check for branch length attribute
     double weight = 0.0;
     element->GetScalarAttribute("branch_length", weight);
     g->GetEdgeData()->GetAbstractArray("weight")->SetVariantValue(
       g->GetEdgeId(parent, vertex), vtkVariant(weight));
-    }
+  }
 
   // set a default (blank) name for this vertex here since
   // vtkStringArray does not support a default value.
@@ -277,24 +277,24 @@ void vtkPhyloXMLTreeReader::ReadNameElement(vtkXMLDataElement *element,
 {
   std::string name = "";
   if (element->GetCharacterData() != NULL)
-    {
+  {
     name = this->GetTrimmedString(element->GetCharacterData());
-    }
+  }
   // support for phylogeny-level name (as opposed to clade-level name)
   if (vertex == -1)
-    {
+  {
     vtkNew<vtkStringArray> treeName;
     treeName->SetNumberOfComponents(1);
     treeName->SetName("phylogeny.name");
     treeName->SetNumberOfValues(1);
     treeName->SetValue(0, name);
     g->GetVertexData()->AddArray(treeName.GetPointer());
-    }
+  }
   else
-    {
+  {
     g->GetVertexData()->GetAbstractArray("node name")->SetVariantValue(
       vertex, vtkVariant(name));
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -303,9 +303,9 @@ void vtkPhyloXMLTreeReader::ReadDescriptionElement(vtkXMLDataElement *element,
 {
   std::string description = "";
   if (element->GetCharacterData() != NULL)
-    {
+  {
     description = this->GetTrimmedString(element->GetCharacterData());
-    }
+  }
   vtkNew<vtkStringArray> treeDescription;
   treeDescription->SetNumberOfComponents(1);
   treeDescription->SetName("phylogeny.description");
@@ -320,24 +320,24 @@ void vtkPhyloXMLTreeReader::ReadPropertyElement(vtkXMLDataElement *element,
 {
   const char *datatype = element->GetAttribute("datatype");
   if (!datatype)
-    {
+  {
     vtkErrorMacro(<<"property element is missing the datatype attribute");
     return;
-    }
+  }
 
   const char *ref = element->GetAttribute("ref");
   if (!ref)
-    {
+  {
     vtkErrorMacro(<<"property element is missing the ref attribute");
     return;
-    }
+  }
 
   const char *appliesTo = element->GetAttribute("applies_to");
   if (!appliesTo)
-    {
+  {
     vtkErrorMacro(<<"property element is missing the applies_to attribute");
     return;
-    }
+  }
 
   // get the name of this property from the ref tag.
   std::string propertyName = "property.";
@@ -356,11 +356,11 @@ void vtkPhyloXMLTreeReader::ReadPropertyElement(vtkXMLDataElement *element,
   // check if this property applies to a clade, or to the whole tree
   unsigned int numValues = this->NumberOfNodes;
   if (vertex == -1)
-    {
+  {
     propertyName = "phylogeny." + propertyName;
     numValues = 1;
     vertex = 0;
-    }
+  }
 
   if (typeOfData.compare("string") == 0 ||
       typeOfData.compare("duration") == 0 ||
@@ -377,203 +377,203 @@ void vtkPhyloXMLTreeReader::ReadPropertyElement(vtkXMLDataElement *element,
       typeOfData.compare("token") == 0 ||
       typeOfData.compare("hexBinary") == 0 ||
       typeOfData.compare("base64Binary") == 0)
-    {
+  {
     if (!g->GetVertexData()->HasArray(propertyName.c_str()))
-      {
+    {
       vtkNew<vtkStringArray> propertyArray;
       propertyArray->SetNumberOfComponents(1);
       propertyArray->SetNumberOfValues(numValues);
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray.GetPointer());
-      }
+    }
     g->GetVertexData()->GetAbstractArray(propertyName.c_str())->SetVariantValue(
       vertex, vtkVariant(propertyValue));
-    }
+  }
 
   else if (typeOfData.compare("boolean") == 0)
-    {
+  {
     if (!g->GetVertexData()->HasArray(propertyName.c_str()))
-      {
+    {
       vtkNew<vtkBitArray> propertyArray;
       propertyArray->SetNumberOfComponents(1);
       propertyArray->SetNumberOfValues(numValues);
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray.GetPointer());
-      }
+    }
     int prop = 0;
     if (propertyValue.compare("true") == 0 ||
         propertyValue.compare("1") == 0)
-      {
+    {
       prop = 1;
-      }
+    }
     g->GetVertexData()->GetAbstractArray(propertyName.c_str())->SetVariantValue(
       vertex, vtkVariant(prop));
-    }
+  }
 
   else if (typeOfData.compare("decimal") == 0 ||
            typeOfData.compare("float") == 0 ||
            typeOfData.compare("double") == 0)
-    {
+  {
     if (!g->GetVertexData()->HasArray(propertyName.c_str()))
-      {
+    {
       vtkNew<vtkDoubleArray> propertyArray;
       propertyArray->SetNumberOfComponents(1);
       propertyArray->SetNumberOfValues(numValues);
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray.GetPointer());
-      }
+    }
     double prop = strtod(propertyValue.c_str(), NULL);
     g->GetVertexData()->GetAbstractArray(propertyName.c_str())->SetVariantValue(
       vertex, vtkVariant(prop));
-    }
+  }
 
   else if (typeOfData.compare("int") == 0 ||
            typeOfData.compare("integer") == 0 ||
            typeOfData.compare("nonPositiveInteger") == 0 ||
            typeOfData.compare("negativeInteger") == 0)
-    {
+  {
     if (!g->GetVertexData()->HasArray(propertyName.c_str()))
-      {
+    {
       vtkNew<vtkIntArray> propertyArray;
       propertyArray->SetNumberOfComponents(1);
       propertyArray->SetNumberOfValues(numValues);
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray.GetPointer());
-      }
+    }
     int prop = strtol(propertyValue.c_str(), NULL, 0);
     g->GetVertexData()->GetAbstractArray(propertyName.c_str())->SetVariantValue(
       vertex, vtkVariant(prop));
-    }
+  }
 
   else if (typeOfData.compare("long") == 0)
-    {
+  {
     if (!g->GetVertexData()->HasArray(propertyName.c_str()))
-      {
+    {
       vtkNew<vtkLongArray> propertyArray;
       propertyArray->SetNumberOfComponents(1);
       propertyArray->SetNumberOfValues(numValues);
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray.GetPointer());
-      }
+    }
     long prop = strtol(propertyValue.c_str(), NULL, 0);
     g->GetVertexData()->GetAbstractArray(propertyName.c_str())->SetVariantValue(
       vertex, vtkVariant(prop));
-    }
+  }
 
   else if (typeOfData.compare("short") == 0)
-    {
+  {
     if (!g->GetVertexData()->HasArray(propertyName.c_str()))
-      {
+    {
       vtkNew<vtkShortArray> propertyArray;
       propertyArray->SetNumberOfComponents(1);
       propertyArray->SetNumberOfValues(numValues);
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray.GetPointer());
-      }
+    }
     short prop = strtol(propertyValue.c_str(), NULL, 0);
     g->GetVertexData()->GetAbstractArray(propertyName.c_str())->SetVariantValue(
       vertex, vtkVariant(prop));
-    }
+  }
 
   else if (typeOfData.compare("byte") == 0)
-    {
+  {
     if (!g->GetVertexData()->HasArray(propertyName.c_str()))
-      {
+    {
       vtkNew<vtkCharArray> propertyArray;
       propertyArray->SetNumberOfComponents(1);
       propertyArray->SetNumberOfValues(numValues);
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray.GetPointer());
-      }
+    }
     char prop = strtol(propertyValue.c_str(), NULL, 0);
     g->GetVertexData()->GetAbstractArray(propertyName.c_str())->SetVariantValue(
       vertex, vtkVariant(prop));
-    }
+  }
 
   else if (typeOfData.compare("nonNegativeInteger") == 0 ||
            typeOfData.compare("positiveInteger") == 0 ||
            typeOfData.compare("unsignedInt") == 0)
-    {
+  {
     if (!g->GetVertexData()->HasArray(propertyName.c_str()))
-      {
+    {
       vtkNew<vtkUnsignedIntArray> propertyArray;
       propertyArray->SetNumberOfComponents(1);
       propertyArray->SetNumberOfValues(numValues);
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray.GetPointer());
-      }
+    }
     unsigned int prop = strtoul(propertyValue.c_str(), NULL, 0);
     g->GetVertexData()->GetAbstractArray(propertyName.c_str())->SetVariantValue(
       vertex, vtkVariant(prop));
-    }
+  }
   else if (typeOfData.compare("unsignedLong") == 0)
-    {
+  {
     if (!g->GetVertexData()->HasArray(propertyName.c_str()))
-      {
+    {
       vtkNew<vtkUnsignedLongArray> propertyArray;
       propertyArray->SetNumberOfComponents(1);
       propertyArray->SetNumberOfValues(numValues);
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray.GetPointer());
-      }
+    }
     unsigned long prop = strtoul(propertyValue.c_str(), NULL, 0);
     g->GetVertexData()->GetAbstractArray(propertyName.c_str())->SetVariantValue(
       vertex, vtkVariant(prop));
-    }
+  }
   else if (typeOfData.compare("unsignedShort") == 0)
-    {
+  {
     if (!g->GetVertexData()->HasArray(propertyName.c_str()))
-      {
+    {
       vtkNew<vtkUnsignedShortArray> propertyArray;
       propertyArray->SetNumberOfComponents(1);
       propertyArray->SetNumberOfValues(numValues);
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray.GetPointer());
-      }
+    }
     unsigned short prop = strtoul(propertyValue.c_str(), NULL, 0);
     g->GetVertexData()->GetAbstractArray(propertyName.c_str())->SetVariantValue(
       vertex, vtkVariant(prop));
-    }
+  }
   else if (typeOfData.compare("unsignedByte") == 0)
-    {
+  {
     if (!g->GetVertexData()->HasArray(propertyName.c_str()))
-      {
+    {
       vtkNew<vtkUnsignedCharArray> propertyArray;
       propertyArray->SetNumberOfComponents(1);
       propertyArray->SetNumberOfValues(numValues);
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray.GetPointer());
-      }
+    }
     unsigned char prop = strtoul(propertyValue.c_str(), NULL, 0);
     g->GetVertexData()->GetAbstractArray(propertyName.c_str())->SetVariantValue(
       vertex, vtkVariant(prop));
-    }
+  }
 
   vtkAbstractArray *propertyArray =
     g->GetVertexData()->GetAbstractArray(propertyName.c_str());
 
   // add annotations to this array if it was just created.
   if (propertyArray->GetInformation()->GetNumberOfKeys() == 0)
-    {
+  {
     // authority (required attribute)
     vtkInformationStringKey *authorityKey =
-      new vtkInformationStringKey("authority", "vtkPhyloXMLTreeReader");
+      vtkInformationStringKey::MakeKey("authority", "vtkPhyloXMLTreeReader");
     propertyArray->GetInformation()->Set(authorityKey, authority.c_str());
 
     // applies_to (required attribute)
     vtkInformationStringKey *appliesToKey =
-      new vtkInformationStringKey("applies_to", "vtkPhyloXMLTreeReader");
+      vtkInformationStringKey::MakeKey("applies_to", "vtkPhyloXMLTreeReader");
     propertyArray->GetInformation()->Set(appliesToKey, appliesTo);
 
     // unit (optional attribute)
     const char *unit = element->GetAttribute("unit");
     if (unit)
-      {
+    {
       vtkInformationStringKey *unitKey =
-        new vtkInformationStringKey("unit", "vtkPhyloXMLTreeReader");
+        vtkInformationStringKey::MakeKey("unit", "vtkPhyloXMLTreeReader");
       propertyArray->GetInformation()->Set(unitKey, unit);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -597,18 +597,18 @@ void vtkPhyloXMLTreeReader::ReadConfidenceElement(vtkXMLDataElement *element,
   // get the confidence value
   double confidence = 0.0;
   if (element->GetCharacterData() != NULL)
-    {
+  {
     std::string confidenceStr =
       this->GetTrimmedString(element->GetCharacterData());
     confidence = strtod(confidenceStr.c_str(), NULL);
-    }
+  }
 
   // get the confidence type
   const char *type = element->GetAttribute("type");
 
   // support for phylogeny-level name (as opposed to clade-level name)
   if (vertex == -1)
-    {
+  {
     vtkNew<vtkDoubleArray> treeConfidence;
     treeConfidence->SetNumberOfComponents(1);
     treeConfidence->SetName("phylogeny.confidence");
@@ -617,15 +617,15 @@ void vtkPhyloXMLTreeReader::ReadConfidenceElement(vtkXMLDataElement *element,
 
     // add the confidence type as an Information type on this array
     vtkInformationStringKey *key =
-      new vtkInformationStringKey("type", "vtkPhyloXMLTreeReader");
+      vtkInformationStringKey::MakeKey("type", "vtkPhyloXMLTreeReader");
     treeConfidence->GetInformation()->Set(key, type);
 
     g->GetVertexData()->AddArray(treeConfidence.GetPointer());
-    }
+  }
   else
-    {
+  {
     if (!g->GetVertexData()->HasArray("confidence"))
-      {
+    {
       vtkNew<vtkDoubleArray> confidenceArray;
       confidenceArray->SetNumberOfComponents(1);
       confidenceArray->SetNumberOfValues(this->NumberOfNodes);
@@ -633,14 +633,14 @@ void vtkPhyloXMLTreeReader::ReadConfidenceElement(vtkXMLDataElement *element,
 
       // add the confidence type as an Information type on this array
       vtkInformationStringKey *key =
-        new vtkInformationStringKey("type", "vtkPhyloXMLTreeReader");
+        vtkInformationStringKey::MakeKey("type", "vtkPhyloXMLTreeReader");
       confidenceArray->GetInformation()->Set(key, type);
 
       g->GetVertexData()->AddArray(confidenceArray.GetPointer());
-      }
+    }
     g->GetVertexData()->GetAbstractArray("confidence")->SetVariantValue(
       vertex, vtkVariant(confidence));
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -653,32 +653,32 @@ void vtkPhyloXMLTreeReader::ReadColorElement(vtkXMLDataElement *element,
   unsigned char blue = 0;
   int numNested = element->GetNumberOfNestedElements();
   for(int i = 0; i < numNested; ++i)
-    {
+  {
     vtkXMLDataElement *childElement = element->GetNestedElement(i);
     if (childElement->GetCharacterData() == NULL)
-      {
+    {
       continue;
-      }
+    }
     std::string childVal =
       this->GetTrimmedString(childElement->GetCharacterData());
     unsigned char val = static_cast<unsigned char>(strtod(childVal.c_str(), NULL));
     if (strcmp(childElement->GetName(), "red") == 0)
-      {
+    {
       red = val;
-      }
-    else if (strcmp(childElement->GetName(), "green") == 0)
-      {
-      green = val;
-      }
-    else if (strcmp(childElement->GetName(), "blue") == 0)
-      {
-      blue = val;
-      }
     }
+    else if (strcmp(childElement->GetName(), "green") == 0)
+    {
+      green = val;
+    }
+    else if (strcmp(childElement->GetName(), "blue") == 0)
+    {
+      blue = val;
+    }
+  }
 
   // initialize the color array if necessary
   if (!g->GetVertexData()->HasArray("color"))
-    {
+  {
     vtkNew<vtkUnsignedCharArray> colorArray;
     colorArray->SetNumberOfComponents(3);
     colorArray->SetComponentName(0, "red");
@@ -698,10 +698,10 @@ void vtkPhyloXMLTreeReader::ReadColorElement(vtkXMLDataElement *element,
     this->ColoredVertices->SetNumberOfComponents(1);
     this->ColoredVertices->SetName("colored vertices");
     for (int i = 0; i < this->NumberOfNodes; ++i)
-      {
+    {
       this->ColoredVertices->InsertNextValue(0);
-      }
     }
+  }
 
   // store this color value in the array
   vtkUnsignedCharArray *colorArray = vtkArrayDownCast<vtkUnsignedCharArray>(
@@ -714,26 +714,26 @@ void vtkPhyloXMLTreeReader::ReadColorElement(vtkXMLDataElement *element,
 void vtkPhyloXMLTreeReader::PropagateBranchColor(vtkTree *tree)
 {
   if (!this->HasBranchColor)
-    {
+  {
     return;
-    }
+  }
 
   vtkUnsignedCharArray *colorArray = vtkArrayDownCast<vtkUnsignedCharArray>(
     tree->GetVertexData()->GetAbstractArray("color"));
   if (!colorArray)
-    {
+  {
     return;
-    }
+  }
 
   for (vtkIdType vertex = 1; vertex < tree->GetNumberOfVertices(); ++vertex)
-    {
+  {
     if (this->ColoredVertices->GetValue(vertex) == 0)
-      {
+    {
       vtkIdType parent = tree->GetParent(vertex);
       double *color = colorArray->GetTuple3(parent);
       colorArray->SetTuple3(vertex, color[0], color[1], color[2]);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -744,10 +744,10 @@ std::string vtkPhyloXMLTreeReader::GetTrimmedString(const char *input)
   std::string untrimmed = input;
   size_t strBegin = untrimmed.find_first_not_of(whitespace);
   if (strBegin != std::string::npos)
-    {
+  {
     size_t strEnd = untrimmed.find_last_not_of(whitespace);
     trimmedString = untrimmed.substr(strBegin, strEnd - strBegin + 1);
-    }
+  }
   return trimmedString;
 }
 

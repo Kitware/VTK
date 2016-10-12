@@ -59,10 +59,10 @@ int TestCoincidentGraphLayoutView(int argc, char* argv[])
   vtkIdType i = 0;
 
   for(i = 0; i < 10; i++)
-    {
+  {
     graph->AddVertex();
     points->InsertNextPoint(0.0, 0.0, 0.0);
-    }
+  }
 
   graph->AddVertex();
   points->InsertNextPoint(0.0, 0.0, 0.0);
@@ -82,14 +82,14 @@ int TestCoincidentGraphLayoutView(int argc, char* argv[])
   points->InsertNextPoint(3.0, 0.0, 0.0);
 
   for(i = 1; i < 10; i++)
-    {
+  {
     graph->AddEdge(0, i);
-    }
+  }
 
   for(i = 10; i < 17; i++)
-    {
+  {
     graph->AddEdge(i, i + 1);
-    }
+  }
   graph->AddEdge(0, 10);
 
 
@@ -97,9 +97,9 @@ int TestCoincidentGraphLayoutView(int argc, char* argv[])
   name->SetName("name");
 
   for (i = 0; i < graph->GetNumberOfVertices(); i++)
-    {
+  {
     name->InsertNextValue("Vert" + ToString(i));
-    }
+  }
   graph->GetVertexData()->AddArray(name);
 
   VTK_CREATE(vtkStringArray, label);
@@ -107,10 +107,10 @@ int TestCoincidentGraphLayoutView(int argc, char* argv[])
   VTK_CREATE(vtkIdTypeArray, dist);
   dist->SetName("distance");
   for (i = 0; i < graph->GetNumberOfEdges(); i++)
-    {
+  {
     dist->InsertNextValue(i);
     switch (i % 4)
-      {
+    {
       case 0:
         label->InsertNextValue("a");
         break;
@@ -123,8 +123,8 @@ int TestCoincidentGraphLayoutView(int argc, char* argv[])
       case 3:
         label->InsertNextValue("d");
         break;
-      }
     }
+  }
   graph->GetEdgeData()->AddArray(dist);
   graph->GetEdgeData()->AddArray(label);
 
@@ -147,12 +147,12 @@ int TestCoincidentGraphLayoutView(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();
 
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   return !retVal;
 }

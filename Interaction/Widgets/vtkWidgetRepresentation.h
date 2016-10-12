@@ -12,30 +12,32 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWidgetRepresentation - abstract class defines interface between the widget and widget representation classes
-// .SECTION Description
-// This class is used to define the API for, and partially implement, a
-// representation for different types of widgets. Note that the widget
-// representation (i.e., subclasses of vtkWidgetRepresentation) are a type of
-// vtkProp; meaning that they can be associated with a vtkRenderer end
-// embedded in a scene like any other vtkActor. However,
-// vtkWidgetRepresentation also defines an API that enables it to be paired
-// with a subclass vtkAbstractWidget, meaning that it can be driven by a
-// widget, serving to represent the widget as the widget responds to
-// registered events.
-//
-// The API defined here should be regarded as a guideline for implementing
-// widgets and widget representations. Widget behavior is complex, as is the
-// way the representation responds to the registered widget events, so the API
-// may vary from widget to widget to reflect this complexity.
-
-// .SECTION Caveats
-// The separation of the widget event handling and representation enables
-// users and developers to create new appearances for the widget. It also
-// facilitates parallel processing, where the client application handles
-// events, and remote representations of the widget are slaves to the
-// client (and do not handle events).
-
+/**
+ * @class   vtkWidgetRepresentation
+ * @brief   abstract class defines interface between the widget and widget representation classes
+ *
+ * This class is used to define the API for, and partially implement, a
+ * representation for different types of widgets. Note that the widget
+ * representation (i.e., subclasses of vtkWidgetRepresentation) are a type of
+ * vtkProp; meaning that they can be associated with a vtkRenderer end
+ * embedded in a scene like any other vtkActor. However,
+ * vtkWidgetRepresentation also defines an API that enables it to be paired
+ * with a subclass vtkAbstractWidget, meaning that it can be driven by a
+ * widget, serving to represent the widget as the widget responds to
+ * registered events.
+ *
+ * The API defined here should be regarded as a guideline for implementing
+ * widgets and widget representations. Widget behavior is complex, as is the
+ * way the representation responds to the registered widget events, so the API
+ * may vary from widget to widget to reflect this complexity.
+ *
+ * @warning
+ * The separation of the widget event handling and representation enables
+ * users and developers to create new appearances for the widget. It also
+ * facilitates parallel processing, where the client application handles
+ * events, and remote representations of the widget are slaves to the
+ * client (and do not handle events).
+*/
 
 #ifndef vtkWidgetRepresentation_h
 #define vtkWidgetRepresentation_h
@@ -52,68 +54,78 @@ class vtkRenderer;
 class VTKINTERACTIONWIDGETS_EXPORT vtkWidgetRepresentation : public vtkProp
 {
 public:
-  // Description:
-  // Standard methods for instances of this class.
+  //@{
+  /**
+   * Standard methods for instances of this class.
+   */
   vtkTypeMacro(vtkWidgetRepresentation,vtkProp);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // Enable/Disable the use of a manager to process the picking.
-  // Enabled by default.
+  //@{
+  /**
+   * Enable/Disable the use of a manager to process the picking.
+   * Enabled by default.
+   */
   vtkBooleanMacro(PickingManaged, bool);
   vtkSetMacro(PickingManaged, bool);
   vtkGetMacro(PickingManaged, bool);
+  //@}
 
-  // Description:
-  // Subclasses of vtkWidgetRepresentation must implement these methods. This is
-  // considered the minimum API for a widget representation.
-  // <pre>
-  // SetRenderer() - the renderer in which the representations draws itself.
-  //                 Typically the renderer is set by the associated widget.
-  //                 Use the widget's SetCurrentRenderer() method in most cases;
-  //                 otherwise there is a risk of inconsistent behavior as events
-  //                 and drawing may be performed in different viewports.
-  // BuildRepresentation() - update the geometry of the widget based on its
-  //                         current state.
-  // </pre>
-  // WARNING: The renderer is NOT reference counted by the representation,
-  // in order to avoid reference loops.  Be sure that the representation
-  // lifetime does not extend beyond the renderer lifetime.
+  //@{
+  /**
+   * Subclasses of vtkWidgetRepresentation must implement these methods. This is
+   * considered the minimum API for a widget representation.
+   * <pre>
+   * SetRenderer() - the renderer in which the representations draws itself.
+   * Typically the renderer is set by the associated widget.
+   * Use the widget's SetCurrentRenderer() method in most cases;
+   * otherwise there is a risk of inconsistent behavior as events
+   * and drawing may be performed in different viewports.
+   * BuildRepresentation() - update the geometry of the widget based on its
+   * current state.
+   * </pre>
+   * WARNING: The renderer is NOT reference counted by the representation,
+   * in order to avoid reference loops.  Be sure that the representation
+   * lifetime does not extend beyond the renderer lifetime.
+   */
   virtual void SetRenderer(vtkRenderer *ren);
   virtual vtkRenderer* GetRenderer();
   virtual void BuildRepresentation() = 0;
+  //@}
 
-  // Description:
-  // The following is a suggested API for widget representations. These methods
-  // define the communication between the widget and its representation. These
-  // methods are only suggestions because widgets take on so many different
-  // forms that a universal API is not deemed practical. However, these methods
-  // should be implemented when possible to insure that the VTK widget hierarchy
-  // remains self-consistent.
-  // <pre>
-  // PlaceWidget() - given a bounding box (xmin,xmax,ymin,ymax,zmin,zmax), place
-  //                 the widget inside of it. The current orientation of the widget
-  //                 is preserved, only scaling and translation is performed.
-  // StartWidgetInteraction() - generally corresponds to a initial event (e.g.,
-  //                            mouse down) that starts the interaction process
-  //                            with the widget.
-  // WidgetInteraction() - invoked when an event causes the widget to change
-  //                       appearance.
-  // EndWidgetInteraction() - generally corresponds to a final event (e.g., mouse up)
-  //                          and completes the interaction sequence.
-  // ComputeInteractionState() - given (X,Y) display coordinates in a renderer, with a
-  //                             possible flag that modifies the computation,
-  //                             what is the state of the widget?
-  // GetInteractionState() - return the current state of the widget. Note that the
-  //                         value of "0" typically refers to "outside". The
-  //                         interaction state is strictly a function of the
-  //                         representation, and the widget/represent must agree
-  //                         on what they mean.
-  // Highlight() - turn on or off any highlights associated with the widget.
-  //               Highlights are generally turned on when the widget is selected.
-  // </pre>
-  // Note that subclasses may ignore some of these methods and implement their own
-  // depending on the specifics of the widget.
+  /**
+   * The following is a suggested API for widget representations. These methods
+   * define the communication between the widget and its representation. These
+   * methods are only suggestions because widgets take on so many different
+   * forms that a universal API is not deemed practical. However, these methods
+   * should be implemented when possible to insure that the VTK widget hierarchy
+   * remains self-consistent.
+   * <pre>
+   * PlaceWidget() - given a bounding box (xmin,xmax,ymin,ymax,zmin,zmax), place
+   * the widget inside of it. The current orientation of the widget
+   * is preserved, only scaling and translation is performed.
+   * StartWidgetInteraction() - generally corresponds to a initial event (e.g.,
+   * mouse down) that starts the interaction process
+   * with the widget.
+   * WidgetInteraction() - invoked when an event causes the widget to change
+   * appearance.
+   * EndWidgetInteraction() - generally corresponds to a final event (e.g., mouse up)
+   * and completes the interaction sequence.
+   * ComputeInteractionState() - given (X,Y) display coordinates in a renderer, with a
+   * possible flag that modifies the computation,
+   * what is the state of the widget?
+   * GetInteractionState() - return the current state of the widget. Note that the
+   * value of "0" typically refers to "outside". The
+   * interaction state is strictly a function of the
+   * representation, and the widget/represent must agree
+   * on what they mean.
+   * Highlight() - turn on or off any highlights associated with the widget.
+   * Highlights are generally turned on when the widget is selected.
+   * </pre>
+   * Note that subclasses may ignore some of these methods and implement their own
+   * depending on the specifics of the widget.
+   */
   virtual void PlaceWidget(double* vtkNotUsed(bounds[6])) {}
   virtual void StartWidgetInteraction(double eventPos[2]) { (void)eventPos; }
   virtual void WidgetInteraction(double newEventPos[2]) { (void)newEventPos; }
@@ -123,39 +135,49 @@ public:
     {return this->InteractionState;}
   virtual void Highlight(int vtkNotUsed(highlightOn)) {}
 
-  // Description:
-  // Set/Get a factor representing the scaling of the widget upon placement
-  // (via the PlaceWidget() method). Normally the widget is placed so that
-  // it just fits within the bounding box defined in PlaceWidget(bounds).
-  // The PlaceFactor will make the widget larger (PlaceFactor > 1) or smaller
-  // (PlaceFactor < 1). By default, PlaceFactor is set to 0.5.
+  //@{
+  /**
+   * Set/Get a factor representing the scaling of the widget upon placement
+   * (via the PlaceWidget() method). Normally the widget is placed so that
+   * it just fits within the bounding box defined in PlaceWidget(bounds).
+   * The PlaceFactor will make the widget larger (PlaceFactor > 1) or smaller
+   * (PlaceFactor < 1). By default, PlaceFactor is set to 0.5.
+   */
   vtkSetClampMacro(PlaceFactor,double,0.01,VTK_DOUBLE_MAX);
   vtkGetMacro(PlaceFactor,double);
+  //@}
 
-  // Description:
-  // Set/Get the factor that controls the size of the handles that appear as
-  // part of the widget (if any). These handles (like spheres, etc.)  are
-  // used to manipulate the widget. The HandleSize data member allows you
-  // to change the relative size of the handles. Note that while the handle
-  // size is typically expressed in pixels, some subclasses may use a relative size
-  // with respect to the viewport. (As a corollary, the value of this ivar is often
-  // set by subclasses of this class during instance instantiation.)
+  //@{
+  /**
+   * Set/Get the factor that controls the size of the handles that appear as
+   * part of the widget (if any). These handles (like spheres, etc.)  are
+   * used to manipulate the widget. The HandleSize data member allows you
+   * to change the relative size of the handles. Note that while the handle
+   * size is typically expressed in pixels, some subclasses may use a relative size
+   * with respect to the viewport. (As a corollary, the value of this ivar is often
+   * set by subclasses of this class during instance instantiation.)
+   */
   vtkSetClampMacro(HandleSize,double,0.001,1000);
   vtkGetMacro(HandleSize,double);
+  //@}
 
-  // Description:
-  // Some subclasses use this data member to keep track of whether to render
-  // or not (i.e., to minimize the total number of renders).
+  //@{
+  /**
+   * Some subclasses use this data member to keep track of whether to render
+   * or not (i.e., to minimize the total number of renders).
+   */
   vtkGetMacro( NeedToRender, int );
   vtkSetClampMacro( NeedToRender, int, 0, 1 );
   vtkBooleanMacro( NeedToRender, int );
+  //@}
 
-  // Description:
-  // Methods to make this class behave as a vtkProp. They are repeated here (from the
-  // vtkProp superclass) as a reminder to the widget implementor. Failure to implement
-  // these methods properly may result in the representation not appearing in the scene
-  // (i.e., not implementing the Render() methods properly) or leaking graphics resources
-  // (i.e., not implementing ReleaseGraphicsResources() properly).
+  /**
+   * Methods to make this class behave as a vtkProp. They are repeated here (from the
+   * vtkProp superclass) as a reminder to the widget implementor. Failure to implement
+   * these methods properly may result in the representation not appearing in the scene
+   * (i.e., not implementing the Render() methods properly) or leaking graphics resources
+   * (i.e., not implementing ReleaseGraphicsResources() properly).
+   */
   virtual double *GetBounds() {return NULL;}
   virtual void ShallowCopy(vtkProp *prop);
   virtual void GetActors(vtkPropCollection *) {}
@@ -200,30 +222,35 @@ protected:
   // Manager or not. True by default.
   bool PickingManaged;
 
-  // Description:
-  // Register internal Pickers in the Picking Manager.
-  // Must be reimplemented by concrete widget representations to register
-  // their pickers.
+  /**
+   * Register internal Pickers in the Picking Manager.
+   * Must be reimplemented by concrete widget representations to register
+   * their pickers.
+   */
   virtual void RegisterPickers();
 
-  // Description:
-  // Unregister internal pickers from the Picking Manager.
+  /**
+   * Unregister internal pickers from the Picking Manager.
+   */
   virtual void UnRegisterPickers();
 
-  // Description:
-  // Update the pickers registered in the Picking Manager when pickers are
-  // modified.
+  /**
+   * Update the pickers registered in the Picking Manager when pickers are
+   * modified.
+   */
   virtual void PickersModified();
 
-  // Description:
-  // Return the picking manager associated on the context on which the widget
-  // representation currently belong.
+  /**
+   * Return the picking manager associated on the context on which the widget
+   * representation currently belong.
+   */
   vtkPickingManager* GetPickingManager();
 
-  // Description:
-  // Proceed to a pick, whether through the PickingManager if the picking is
-  // managed or directly using the registered picker, and return the assembly
-  // path.
+  /**
+   * Proceed to a pick, whether through the PickingManager if the picking is
+   * managed or directly using the registered picker, and return the assembly
+   * path.
+   */
   vtkAssemblyPath* GetAssemblyPath(double X, double Y, double Z,
                                    vtkAbstractPropPicker* picker);
 
@@ -243,8 +270,8 @@ protected:
   vtkTimeStamp  BuildTime;
 
 private:
-  vtkWidgetRepresentation(const vtkWidgetRepresentation&);  //Not implemented
-  void operator=(const vtkWidgetRepresentation&);  //Not implemented
+  vtkWidgetRepresentation(const vtkWidgetRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWidgetRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

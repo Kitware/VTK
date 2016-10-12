@@ -74,13 +74,13 @@ void vtkPOutlineCornerFilter::SetCornerFactor(double cornerFactor)
                                  : cornerFactor));
 
   if ( this->CornerFactor != tempCornerFactor)
-    {
+  {
     std::cerr << "CornerFactor: " << tempCornerFactor
               << std::endl;
     this->CornerFactor = tempCornerFactor;
     this->Internals->SetCornerFactor(tempCornerFactor);
     this->Modified();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------

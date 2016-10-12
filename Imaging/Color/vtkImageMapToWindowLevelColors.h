@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageMapToWindowLevelColors - map the input image through a lookup table and window / level it
-// .SECTION Description
-// The vtkImageMapToWindowLevelColors filter will take an input image of any
-// valid scalar type, and map the first component of the image through a
-// lookup table.  This resulting color will be modulated with value obtained
-// by a window / level operation. The result is an image of type
-// VTK_UNSIGNED_CHAR. If the lookup table is not set, or is set to NULL, then
-// the input data will be passed through if it is already of type
-// VTK_UNSIGNED_CHAR.
-//
-// .SECTION See Also
-// vtkLookupTable vtkScalarsToColors
+/**
+ * @class   vtkImageMapToWindowLevelColors
+ * @brief   map the input image through a lookup table and window / level it
+ *
+ * The vtkImageMapToWindowLevelColors filter will take an input image of any
+ * valid scalar type, and map the first component of the image through a
+ * lookup table.  This resulting color will be modulated with value obtained
+ * by a window / level operation. The result is an image of type
+ * VTK_UNSIGNED_CHAR. If the lookup table is not set, or is set to NULL, then
+ * the input data will be passed through if it is already of type
+ * VTK_UNSIGNED_CHAR.
+ *
+ * @sa
+ * vtkLookupTable vtkScalarsToColors
+*/
 
 #ifndef vtkImageMapToWindowLevelColors_h
 #define vtkImageMapToWindowLevelColors_h
@@ -39,19 +42,25 @@ public:
   vtkTypeMacro(vtkImageMapToWindowLevelColors,vtkImageMapToColors);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set / Get the Window to use -> modulation will be performed on the
-  // color based on (S - (L - W/2))/W where S is the scalar value, L is
-  // the level and W is the window.
+  //@{
+  /**
+   * Set / Get the Window to use -> modulation will be performed on the
+   * color based on (S - (L - W/2))/W where S is the scalar value, L is
+   * the level and W is the window.
+   */
   vtkSetMacro( Window, double );
   vtkGetMacro( Window, double );
+  //@}
 
-  // Description:
-  // Set / Get the Level to use -> modulation will be performed on the
-  // color based on (S - (L - W/2))/W where S is the scalar value, L is
-  // the level and W is the window.
+  //@{
+  /**
+   * Set / Get the Level to use -> modulation will be performed on the
+   * color based on (S - (L - W/2))/W where S is the scalar value, L is
+   * the level and W is the window.
+   */
   vtkSetMacro( Level, double );
   vtkGetMacro( Level, double );
+  //@}
 
 protected:
   vtkImageMapToWindowLevelColors();
@@ -71,8 +80,8 @@ protected:
   double Level;
 
 private:
-  vtkImageMapToWindowLevelColors(const vtkImageMapToWindowLevelColors&);  // Not implemented.
-  void operator=(const vtkImageMapToWindowLevelColors&);  // Not implemented.
+  vtkImageMapToWindowLevelColors(const vtkImageMapToWindowLevelColors&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageMapToWindowLevelColors&) VTK_DELETE_FUNCTION;
 };
 
 #endif

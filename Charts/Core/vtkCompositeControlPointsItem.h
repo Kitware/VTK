@@ -13,16 +13,19 @@
 
 =========================================================================*/
 
-// .NAME vtkCompositeControlPointsItem - Control points for
-// vtkCompositeFunction.
-// .SECTION Description
-// vtkCompositeControlPointsItem draws the control points of a vtkPiecewiseFunction
-// and a vtkColorTransferFunction.
-// .SECTION See Also
-// vtkControlPointsItem
-// vtkColorTransferControlPointsItem
-// vtkCompositeTransferFunctionItem
-// vtkPiecewisePointHandleItem
+/**
+ * @class   vtkCompositeControlPointsItem
+ * @brief   Control points for
+ * vtkCompositeFunction.
+ *
+ * vtkCompositeControlPointsItem draws the control points of a vtkPiecewiseFunction
+ * and a vtkColorTransferFunction.
+ * @sa
+ * vtkControlPointsItem
+ * vtkColorTransferControlPointsItem
+ * vtkCompositeTransferFunctionItem
+ * vtkPiecewisePointHandleItem
+*/
 
 #ifndef vtkCompositeControlPointsItem_h
 #define vtkCompositeControlPointsItem_h
@@ -40,77 +43,94 @@ public:
   vtkTypeMacro(vtkCompositeControlPointsItem, vtkColorTransferControlPointsItem);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Creates a piecewise control points object
+  /**
+   * Creates a piecewise control points object
+   */
   static vtkCompositeControlPointsItem* New();
 
-  // Description:
-  // Set the color transfer function to draw its points
+  /**
+   * Set the color transfer function to draw its points
+   */
   virtual void SetColorTransferFunction(vtkColorTransferFunction* function);
 
-  // Description
-  // Utility function that calls SetPiecewiseFunction()
+  //@{
+  /**
+   * Utility function that calls SetPiecewiseFunction()
+   */
   void SetOpacityFunction(vtkPiecewiseFunction* opacity);
   vtkGetObjectMacro(OpacityFunction, vtkPiecewiseFunction);
+  //@}
 
   enum PointsFunctionType{
     ColorPointsFunction = 1,
     OpacityPointsFunction = 2,
     ColorAndOpacityPointsFunction = 3
   };
-  // Description:
-  // PointsFunction controls wether the points represent the
-  // ColorTransferFunction, OpacityTransferFunction or both.
-  // If ColorPointsFunction, only the points of the ColorTransfer function are
-  // used.
-  // If OpacityPointsFunction, only the points of the Opacity function are used
-  // If ColorAndOpacityPointsFunction, the points of both functions are shared
-  // by both functions.
-  // ColorAndOpacityPointsFunction by default.
-  // Note: Set the mode before the functions are set. ColorPointsFunction is
-  // not fully supported.
+  //@{
+  /**
+   * PointsFunction controls wether the points represent the
+   * ColorTransferFunction, OpacityTransferFunction or both.
+   * If ColorPointsFunction, only the points of the ColorTransfer function are
+   * used.
+   * If OpacityPointsFunction, only the points of the Opacity function are used
+   * If ColorAndOpacityPointsFunction, the points of both functions are shared
+   * by both functions.
+   * ColorAndOpacityPointsFunction by default.
+   * Note: Set the mode before the functions are set. ColorPointsFunction is
+   * not fully supported.
+   */
   vtkSetMacro(PointsFunction, int);
   vtkGetMacro(PointsFunction, int);
+  //@}
 
-  // Description:
-  // Add a point to the function. Returns the index of the point (0 based),
-  // or -1 on error.
-  // Subclasses should reimplement this function to do the actual work.
+  /**
+   * Add a point to the function. Returns the index of the point (0 based),
+   * or -1 on error.
+   * Subclasses should reimplement this function to do the actual work.
+   */
   virtual vtkIdType AddPoint(double* newPos);
 
-  // Description:
-  // Remove a point of the function. Returns the index of the point (0 based),
-  // or -1 on error.
-  // Subclasses should reimplement this function to do the actual work.
+  /**
+   * Remove a point of the function. Returns the index of the point (0 based),
+   * or -1 on error.
+   * Subclasses should reimplement this function to do the actual work.
+   */
   virtual vtkIdType RemovePoint(double* pos);
 
-  // Description:
-  // If UseOpacityPointHandles is true, when the current point is
-  // double clicked, a vtkPiecewisePointHandleItem will show up so
-  // that the sharpness and mid point can be adjusted in the scene
-  // with those handles
-  // False by default.
+  //@{
+  /**
+   * If UseOpacityPointHandles is true, when the current point is
+   * double clicked, a vtkPiecewisePointHandleItem will show up so
+   * that the sharpness and mid point can be adjusted in the scene
+   * with those handles
+   * False by default.
+   */
   vtkSetMacro(UseOpacityPointHandles, bool);
   vtkGetMacro(UseOpacityPointHandles, bool);
+  //@}
 
-  // Description:
-  // Mouse move event. To take care of some special Key stroke
+  //@{
+  /**
+   * Mouse move event. To take care of some special Key stroke
+   */
   virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
   virtual bool MouseDoubleClickEvent(const vtkContextMouseEvent &mouse);
   virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
+  //@}
 
 protected:
   vtkCompositeControlPointsItem();
   virtual ~vtkCompositeControlPointsItem();
 
-  // Description:
-  // Returns true if control points are to be rendered in log-space. This is
-  // true when vtkScalarsToColors is using log-scale, for example.
+  /**
+   * Returns true if control points are to be rendered in log-space. This is
+   * true when vtkScalarsToColors is using log-scale, for example.
+   */
   virtual bool UsingLogScale();
 
   virtual void emitEvent(unsigned long event, void* params);
 
-  virtual unsigned long int GetControlPointsMTime();
+  virtual vtkMTimeType GetControlPointsMTime();
 
   virtual vtkIdType GetNumberOfPoints()const;
   virtual void DrawPoint(vtkContext2D* painter, vtkIdType index);
@@ -128,8 +148,8 @@ protected:
   bool UseOpacityPointHandles;
 
 private:
-  vtkCompositeControlPointsItem(const vtkCompositeControlPointsItem &); // Not implemented.
-  void operator=(const vtkCompositeControlPointsItem &);   // Not implemented.
+  vtkCompositeControlPointsItem(const vtkCompositeControlPointsItem &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompositeControlPointsItem &) VTK_DELETE_FUNCTION;
 };
 
 #endif

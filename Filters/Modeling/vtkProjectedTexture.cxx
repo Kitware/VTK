@@ -67,12 +67,12 @@ void vtkProjectedTexture::SetFocalPoint(double x, double y, double z)
   if (this->Orientation[0] != orientation[0] ||
       this->Orientation[1] != orientation[1] ||
       this->Orientation[2] != orientation[2])
-    {
+  {
     this->Orientation[0] = orientation[0];
     this->Orientation[1] = orientation[1];
     this->Orientation[2] = orientation[2];
     this->Modified();
-    }
+  }
   this->FocalPoint[0] = x;
   this->FocalPoint[1] = y;
   this->FocalPoint[2] = z;
@@ -139,13 +139,13 @@ int vtkProjectedTexture::RequestData(
 
   // compute s-t coordinates
   for (i = 0; i < numPts; i++)
-    {
+  {
       output->GetPoint(i, p);
 
       for (j = 0; j < 3; j++)
-        {
+      {
         diff[j] = p[j] - this->Position[j];
-        }
+      }
 
       proj = vtkMath::Dot(diff, this->Orientation);
 
@@ -156,77 +156,77 @@ int vtkProjectedTexture::RequestData(
       // the azimuth must be calculated based on a new baseline difference to
       // include the mirror separation.
       if (this->CameraMode == VTK_PROJECTED_TEXTURE_USE_TWO_MIRRORS)
-        {
+      {
         // First calculate elevation coordinate t.
         if(proj < 1.0e-10 && proj > -1.0e-10)
-          {
+        {
           vtkWarningMacro(<<"Singularity:  point located at elevation frustum Position");
           tcoords[1] = tOffset;
-          }
+        }
         else
-          {
+        {
           for (j = 0; j < 3; j++)
-            {
+          {
             diff[j] = diff[j]/proj - this->Orientation[j];
-            }
+          }
 
           t = vtkMath::Dot(diff, upv);
           tcoords[1] = t * tScale + tOffset;
-          }
+        }
 
         // Now with t complete, continue on to calculate coordinate s
         // by offsetting the center of the lens back by MirrorSeparation
         // in direction opposite to the orientation.
         for (j = 0; j < 3; j++)
-          {
+        {
           diff[j] = p[j] - this->Position[j] + (this->MirrorSeparation*this->Orientation[j]);
-          }
+        }
 
         proj = vtkMath::Dot(diff, this->Orientation);
 
         if(proj < 1.0e-10 && proj > -1.0e-10)
-          {
+        {
           vtkWarningMacro(<<"Singularity:  point located at azimuth frustum Position");
           tcoords[0] = sOffset;
-          }
+        }
         else
-          {
+        {
           for (j = 0; j < 3; j++)
-            {
+          {
             diff[j] = diff[j]/proj - this->Orientation[j];
-            }
+          }
 
           s = vtkMath::Dot(diff, rightv);
           sSize = this->AspectRatio[0] / (this->AspectRatio[2] + this->MirrorSeparation);
           sScale = (this->SRange[1] - this->SRange[0])/sSize;
           sOffset = (this->SRange[1] - this->SRange[0])/2.0 + this->SRange[0];
           tcoords[0] = s * sScale + sOffset;
-          }
         }
+      }
       else
-        {
+      {
         if(proj < 1.0e-10 && proj > -1.0e-10)
-          {
+        {
           vtkWarningMacro(<<"Singularity:  point located at frustum Position");
           tcoords[0] = sOffset;
           tcoords[1] = tOffset;
-          }
+        }
         else
-          {
+        {
           for (j = 0; j < 3; j++)
-            {
+          {
             diff[j] = diff[j]/proj - this->Orientation[j];
-            }
+          }
 
           s = vtkMath::Dot(diff, rightv);
           t = vtkMath::Dot(diff, upv);
 
           tcoords[0] = s * sScale + sOffset;
           tcoords[1] = t * tScale + tOffset;
-          }
         }
+      }
       newTCoords->SetTuple(i,tcoords);
-    }
+  }
   //
   // Update ourselves
   //

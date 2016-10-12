@@ -69,27 +69,27 @@ int vtkCylinderSource::RequestData(
 //
 
   if ( this->Capping )
-    {
+  {
     numPts = 4*this->Resolution;
     numPolys = this->Resolution + 2;
-    }
+  }
   else
-    {
+  {
     numPts = 2*this->Resolution;
     numPolys = this->Resolution;
-    }
+  }
 
   newPoints = vtkPoints::New();
 
   // Set the desired precision for the points in the output.
   if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     newPoints->SetDataType(VTK_DOUBLE);
-    }
+  }
   else
-    {
+  {
     newPoints->SetDataType(VTK_FLOAT);
-    }
+  }
 
   newPoints->Allocate(numPts);
   newNormals = vtkFloatArray::New();
@@ -107,7 +107,7 @@ int vtkCylinderSource::RequestData(
 // Generate points and point data for sides
 //
   for (i=0; i<this->Resolution; i++)
-    {
+  {
     // x coordinate
     nbot[0] = ntop[0] = cos(i*angle);
     xbot[0] = (nbot[0] * this->Radius) + center[0];
@@ -133,25 +133,25 @@ int vtkCylinderSource::RequestData(
     newTCoords->InsertTuple(idx+1,tctop);
     newNormals->InsertTuple(idx,nbot);
     newNormals->InsertTuple(idx+1,ntop);
-    }
+  }
 //
 // Generate polygons for sides
 //
   for (i=0; i<this->Resolution; i++)
-    {
+  {
     pts[0] = 2*i;
     pts[1] = pts[0] + 1;
     pts[2] = (pts[1] + 2) % (2*this->Resolution);
     pts[3] = pts[2] - 1;
     newPolys->InsertNextCell(4,pts);
-    }
+  }
 //
 // Generate points and point data for top/bottom polygons
 //
   if ( this->Capping )
-    {
+  {
     for (i=0; i<this->Resolution; i++)
-      {
+    {
       // x coordinate
       xbot[0] = xtop[0] = this->Radius * cos(i*angle);
       nbot[0] = ntop[0] = 0.0;
@@ -181,22 +181,22 @@ int vtkCylinderSource::RequestData(
       newPoints->InsertPoint(idx+this->Resolution-i-1,xtop);
       newTCoords->InsertTuple(idx+this->Resolution-i-1,tctop);
       newNormals->InsertTuple(idx+this->Resolution-i-1,ntop);
-      }
+    }
 //
 // Generate polygons for top/bottom polygons
 //
     for (i=0; i<this->Resolution; i++)
-      {
+    {
       pts[i] = 2*this->Resolution + i;
-      }
+    }
     newPolys->InsertNextCell(this->Resolution,pts);
     for (i=0; i<this->Resolution; i++)
-      {
+    {
       pts[i] = 3*this->Resolution + i;
-      }
+    }
     newPolys->InsertNextCell(this->Resolution,pts);
 
-    } // if capping
+  } // if capping
 //
 // Update ourselves and release memory
 //

@@ -12,10 +12,13 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkHierarchicalBoxDataIterator.h--Empty class for backwards compatibility
-//
-// .SECTION Description
-//  Empty class for backwards compatibility.
+/**
+ * @class   vtkHierarchicalBoxDataIterator
+ *
+ *
+ *  Empty class for backwards compatibility.
+*/
+
 #ifndef vtkHierarchicalBoxDataIterator_h
 #define vtkHierarchicalBoxDataIterator_h
 
@@ -28,15 +31,15 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHierarchicalBoxDataIterator :
   public:
     static vtkHierarchicalBoxDataIterator* New();
     vtkTypeMacro(vtkHierarchicalBoxDataIterator,vtkUniformGridAMRDataIterator);
-    void PrintSelf(ostream &os, vtkIndent indent);
+    void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   protected:
     vtkHierarchicalBoxDataIterator();
-    virtual ~vtkHierarchicalBoxDataIterator();
+    ~vtkHierarchicalBoxDataIterator() VTK_OVERRIDE;
 
   private:
-    vtkHierarchicalBoxDataIterator(const vtkHierarchicalBoxDataIterator&); // Not implemented
-    void operator=(const vtkHierarchicalBoxDataIterator&); // Not implemented
+    vtkHierarchicalBoxDataIterator(const vtkHierarchicalBoxDataIterator&) VTK_DELETE_FUNCTION;
+    void operator=(const vtkHierarchicalBoxDataIterator&) VTK_DELETE_FUNCTION;
 };
 
 #endif /* VTKHIERARCHICALBOXDATAITERATOR_H_ */

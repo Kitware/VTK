@@ -57,17 +57,17 @@ int vtkGraphAnnotationLayersFilter::FillInputPortInformation(int port,
   vtkInformation* info)
 {
   if (port == 0)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),
       "vtkGraph");
     return 1;
-    }
+  }
   else if (port == 1)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),
       "vtkAnnotationLayers");
     return 1;
-    }
+  }
   return 0;
 }
 
@@ -124,16 +124,16 @@ void vtkGraphAnnotationLayersFilter::SetRenderer(vtkRenderer* renderer)
 }
 
 //-----------------------------------------------------------------------------
-unsigned long vtkGraphAnnotationLayersFilter::GetMTime()
+vtkMTimeType vtkGraphAnnotationLayersFilter::GetMTime()
 {
   if (this->ConvexHullFilter)
-    {
+  {
     return this->ConvexHullFilter->GetMTime();
-    }
+  }
   else
-    {
+  {
     return this->MTime;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -167,40 +167,40 @@ int vtkGraphAnnotationLayersFilter::RequestData(vtkInformation *vtkNotUsed(reque
   vtkIdType hullId = 0;
   for (unsigned annotationId = 0; annotationId < numberOfAnnotations;
     ++annotationId)
-    {
+  {
     vtkAnnotation* annotation = layers->GetAnnotation(annotationId);
     if (annotation->GetInformation()->Get(vtkAnnotation::ENABLE()) == 0)
-      {
+    {
       continue;
-      }
+    }
 
     vtkSelection* selection = annotation->GetSelection();
     unsigned numberOfSelectionNodes = selection->GetNumberOfNodes();
 
     for (unsigned selectionNodeId = 0; selectionNodeId < numberOfSelectionNodes;
       ++selectionNodeId)
-      {
+    {
       vtkSmartPointer<vtkPoints> hullPoints = vtkSmartPointer<vtkPoints>::New();
 
       hullId++;
       vtkSelectionNode* selectionNode = selection->GetNode(selectionNodeId);
       if (selectionNode->GetFieldType() != vtkSelectionNode::VERTEX)
-        {
+      {
         continue;
-        }
+      }
       vtkIdTypeArray* vertexIds = vtkArrayDownCast<vtkIdTypeArray>(
         selectionNode->GetSelectionList());
 
       // Get points from graph
       vtkIdType numberOfNodePoints = vertexIds->GetNumberOfTuples();
       if (numberOfNodePoints == 0)
-        {
+      {
         continue;
-        }
+      }
       for (vtkIdType i = 0; i < numberOfNodePoints; ++i)
-        {
+      {
         hullPoints->InsertNextPoint(inputPoints->GetPoint(vertexIds->GetValue(i)));
-        }
+      }
 
       // Create filled polygon
       vtkSmartPointer<vtkPolyData> hullPolyData =
@@ -225,28 +225,28 @@ int vtkGraphAnnotationLayersFilter::RequestData(vtkInformation *vtkNotUsed(reque
         static_cast<unsigned char>(color[2] * 255),
         static_cast<unsigned char>(opacity * 255) };
       for (vtkIdType i = 0; i < numberOfCells; ++i)
-        {
+      {
         outColors->InsertNextTypedTuple(outColor);
-        }
+      }
       hullPolyData->GetCellData()->AddArray(outColors);
       outColors->Delete();
 
       vtkIdTypeArray* hullIds = vtkIdTypeArray::New();
       hullIds->SetName("Hull id");
       for (vtkIdType i = 0; i < numberOfCells; ++i)
-        {
+      {
         hullIds->InsertNextValue(hullId);
-        }
+      }
       hullPolyData->GetCellData()->AddArray(hullIds);
       hullIds->Delete();
 
       vtkStringArray* hullName = vtkStringArray::New();
       hullName->SetName("Hull name");
       for (vtkIdType i = 0; i < numberOfCells; ++i)
-        {
+      {
         hullName->InsertNextValue(
           annotation->GetInformation()->Get(vtkAnnotation::LABEL()));
-        }
+      }
       hullPolyData->GetCellData()->AddArray(hullName);
       hullName->Delete();
 
@@ -254,36 +254,36 @@ int vtkGraphAnnotationLayersFilter::RequestData(vtkInformation *vtkNotUsed(reque
       hullCentreVertex->SetName("Hull point");
       hullCentreVertex->SetNumberOfComponents(3);
       for (vtkIdType i = 0; i < numberOfCells; ++i)
-        {
+      {
         hullCentreVertex->InsertNextTuple(
           inputPoints->GetPoint(representativeVertex));
-        }
+      }
       hullPolyData->GetCellData()->AddArray(hullCentreVertex);
       hullCentreVertex->Delete();
 
       this->HullAppend->AddInputData(hullPolyData);
 
       if (this->ConvexHullFilter->GetOutline())
-        {
+      {
         vtkSmartPointer<vtkPolyData> outlinePolyData =
           vtkSmartPointer<vtkPolyData>::New();
         outlinePolyData->ShallowCopy(ConvexHullFilter->GetOutput(1));
         this->OutlineAppend->AddInputData(outlinePolyData);
-        }
-      } // Next selection node.
-    } // Next annotation.
+      }
+    } // Next selection node.
+  } // Next annotation.
 
   // Send data to output
   if (this->HullAppend->GetNumberOfInputConnections(0) > 0)
-    {
+  {
     this->HullAppend->Update();
     outputHull->ShallowCopy(this->HullAppend->GetOutput());
-    }
+  }
   if (this->OutlineAppend->GetNumberOfInputConnections(0) > 0)
-    {
+  {
     this->OutlineAppend->Update();
     outputOutline->ShallowCopy(this->OutlineAppend->GetOutput());
-    }
+  }
   return 1;
 }
 
@@ -293,12 +293,12 @@ void vtkGraphAnnotationLayersFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "ConvexHull2D: ";
     if (this->ConvexHullFilter)
-      {
+    {
       os << endl;
       this->ConvexHullFilter->PrintSelf(os, indent.GetNextIndent());
-      }
+    }
     else
-      {
+    {
       os << "(none)" << endl;
-      }
+    }
 }

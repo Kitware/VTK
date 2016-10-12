@@ -79,26 +79,26 @@ struct CommunicationLinks {
   // Description:
   // Default constructor
   CommunicationLinks()
-    {
+  {
     this->RcvBuffersAllocated = false;
-    }
+  }
 
   // Description:
   // Destructor
   ~CommunicationLinks()
-    {
+  {
     // Clear all rank buffers
     std::set<int>::iterator rankIter = this->NeighboringRanks.begin();
 
     for( ; rankIter != this->NeighboringRanks.end(); ++rankIter)
-      {
+    {
       int rank = *rankIter;
       if( this->RcvBuffers.find(rank) != this->RcvBuffers.end() )
-        {
+      {
         delete [] this->RcvBuffers[rank];
         this->RcvBuffers[rank] = NULL;
-        } // END if buffer entry for rank exists
-      } // END for all neighboring ranks
+      } // END if buffer entry for rank exists
+    } // END for all neighboring ranks
 
     this->SndBuffers.clear();
     this->RcvBuffers.clear();
@@ -110,35 +110,35 @@ struct CommunicationLinks {
     this->RcvNodeLinks.clear();
     this->SndCellLinks.clear();
     this->RcvCellLinks.clear();
-    }
+  }
 
   // Description:
   // Returns the local ID on the ghosted grid for the given node global ID.
   vtkIdType GetTargetNodeId(const int vtkNotUsed(rmtRank),const vtkIdType globalIdx)
-    {
+  {
     if(this->TargetNodeMapping.find(globalIdx)==this->TargetNodeMapping.end())
-      {
+    {
       std::cerr << "ERROR: rmt node received has not target node mapping!\n";
       return -1;
-      }
-    return(this->TargetNodeMapping[globalIdx]);
     }
+    return(this->TargetNodeMapping[globalIdx]);
+  }
 
   // Description:
   // Returns the local ID on the ghosted grid for the given (rmtRank,rmtCellId)
   // pair.
   vtkIdType GetTargetCellId(const int rmtRank,const vtkIdType rmtCellId)
-    {
+  {
     std::pair<int,vtkIdType> rmtInfo;
     rmtInfo.first  = rmtRank;
     rmtInfo.second = rmtCellId;
     if(this->TargetCellMapping.find(rmtInfo) == this->TargetCellMapping.end())
-      {
+    {
       std::cerr << "ERROR: rmt cell received has no target cell mapping!\n";
       return -1;
-      }
-    return( this->TargetCellMapping[rmtInfo] );
     }
+    return( this->TargetCellMapping[rmtInfo] );
+  }
 
   // Description:
   // Enqueues a receive on the node with the given local/global ID from
@@ -147,7 +147,7 @@ struct CommunicationLinks {
         const vtkIdType localIdx,
         const vtkIdType globalIdx,
         const int rmtRank)
-    {
+  {
     this->NeighboringRanks.insert( rmtRank );
 
     NodeLink lnk;
@@ -155,18 +155,18 @@ struct CommunicationLinks {
     lnk.GlobalIdx = globalIdx;
     lnk.LocalIdx  = localIdx;
     if(this->RcvNodeLinks.find(rmtRank) == this->RcvNodeLinks.end())
-      {
+    {
       std::vector< NodeLink > lnks;
       lnks.push_back( lnk );
       this->RcvNodeLinks[ rmtRank ] = lnks;
-      }
+    }
     else
-      {
+    {
       this->RcvNodeLinks[ rmtRank ].push_back( lnk );
-      }
+    }
 
     this->TargetNodeMapping[ globalIdx ] = localIdx;
-    }
+  }
 
   // Description:
   // Enqueues a send on the node with the given local/global ID to the given
@@ -175,7 +175,7 @@ struct CommunicationLinks {
         const vtkIdType localIdx,
         const vtkIdType globalIdx,
         const int rmtRank)
-    {
+  {
     this->NeighboringRanks.insert( rmtRank );
 
     NodeLink lnk;
@@ -183,16 +183,16 @@ struct CommunicationLinks {
     lnk.GlobalIdx = globalIdx;
     lnk.LocalIdx  = localIdx;
     if(this->SndNodeLinks.find(rmtRank) == this->SndNodeLinks.end())
-      {
+    {
       std::vector< NodeLink > lnks;
       lnks.push_back( lnk );
       this->SndNodeLinks[ rmtRank ] = lnks;
-      }
-    else
-      {
-      this->SndNodeLinks[ rmtRank ].push_back( lnk );
-      }
     }
+    else
+    {
+      this->SndNodeLinks[ rmtRank ].push_back( lnk );
+    }
+  }
 
   // Description:
   // Enqueues a cell link to the communication lists.
@@ -201,43 +201,43 @@ struct CommunicationLinks {
       const vtkIdType ghostCell,
       const vtkIdType rmtCell,
       const int rmtRank)
-    {
+  {
     this->NeighboringRanks.insert( rmtRank );
 
     SndLink sndlnk;
     sndlnk.Rank      = rmtRank;
     sndlnk.SourceIdx = adjCell;
     if(this->SndCellLinks.find(rmtRank) == this->SndCellLinks.end())
-      {
+    {
       std::vector< SndLink > sndlinks;
       sndlinks.push_back(sndlnk);
       this->SndCellLinks[rmtRank] = sndlinks;
-      }
+    }
     else
-      {
+    {
       this->SndCellLinks[rmtRank].push_back(sndlnk);
-      }
+    }
 
     RcvLink rcvlnk;
     rcvlnk.Rank      = rmtRank;
     rcvlnk.SourceIdx = rmtCell;
     rcvlnk.TargetIdx = ghostCell;
     if(this->RcvCellLinks.find(rmtRank) == this->RcvCellLinks.end())
-      {
+    {
       std::vector<RcvLink> rcvlinks;
       rcvlinks.push_back(rcvlnk);
       this->RcvCellLinks[rmtRank] = rcvlinks;
-      }
+    }
     else
-      {
+    {
       this->RcvCellLinks[rmtRank].push_back(rcvlnk);
-      }
+    }
 
     std::pair<int,vtkIdType> rmtInfo;
     rmtInfo.first  = rmtRank;
     rmtInfo.second = rmtCell;
     this->TargetCellMapping[ rmtInfo ] = ghostCell;
-    }
+  }
 
   // Maps a receiver node globalID to its localID w.r.t. the ghosted grid.
   // Used when filling in ghost zone nodes.
@@ -288,9 +288,9 @@ std::string Hash(vtkIdType* ids, const vtkIdType N)
   std::sort(ids,ids+N);
   std::ostringstream oss;
   for(vtkIdType i=0; i < N; ++i)
-    {
+  {
     oss << ids[i] << ".";
-    } // END for all N
+  } // END for all N
   return( oss.str() );
 }
 
@@ -305,9 +305,9 @@ std::string GetHashCode(vtkCell* c)
   nodeList.reserve( c->GetNumberOfPoints() );
 
   for(vtkIdType nodeIdx=0; nodeIdx < c->GetNumberOfPoints(); ++nodeIdx)
-    {
+  {
     nodeList.push_back( c->GetPointId(nodeIdx) );
-    }
+  }
   assert("post: nodeList size mismatch!" &&
        (static_cast<vtkIdType>(nodeList.size())==c->GetNumberOfPoints()) );
 
@@ -315,9 +315,9 @@ std::string GetHashCode(vtkCell* c)
 
   std::ostringstream oss;
   for(unsigned int i=0; i < nodeList.size(); ++i)
-    {
+  {
     oss << nodeList[ i ] << ".";
-    }
+  }
   return( oss.str() );
 }
 
@@ -344,45 +344,45 @@ struct MeshLinks {
   // Description:
   // Clears all data-structures
   void Clear()
-    {
+  {
     this->Global2LocalNodeIdx.clear();
     this->FaceLinks.clear();
-    }
+  }
 
   // Description:
   // Links faces in the mesh to cells
   void AddFaceLink(const std::string& face, vtkIdType cellIdx)
-    {
+  {
     if( this->HasFace(face) )
-      {
+    {
       this->FaceLinks[face].insert(cellIdx);
-      }
+    }
     else
-      {
+    {
       std::set<vtkIdType> cells;
       cells.insert(cellIdx);
       this->FaceLinks[face] = cells;
-      }
     }
+  }
 
   // Description:
   // Given a global ID of a node, this method returns the
   // corresponding local ID w.r.t. the input grid. A -1
   // is returned if the node does not exist.
   vtkIdType GetLocalNodeID(const vtkIdType globalIdx)
-    {
+  {
     if( this->Global2LocalNodeIdx.find(globalIdx) !=
         this->Global2LocalNodeIdx.end())
-      {
+    {
       return this->Global2LocalNodeIdx[globalIdx];
-      }
-    return -1;
     }
+    return -1;
+  }
 
   // Description:
   // Builds cell links for the given *boundary* grid.
   void BuildLinks(vtkUnstructuredGrid* grid)
-    {
+  {
     vtkIdType numCells = grid->GetNumberOfCells();
 
     vtkPointData* PD = grid->GetPointData();
@@ -407,9 +407,9 @@ struct MeshLinks {
 
     // Add global2Local node index
     for(vtkIdType p=0; p < grid->GetNumberOfPoints(); ++p)
-      {
+    {
       this->Global2LocalNodeIdx[ globalIdPtr[p] ] = localIdPtr[p];
-      } // END for all points
+    } // END for all points
 
     // Add face-adjacency information
 
@@ -419,28 +419,28 @@ struct MeshLinks {
     std::vector<vtkIdType>  nodes;
 
     for(vtkIdType c=0; c < numCells; ++c)
-      {
+    {
       ///@todo: optimize this -- use table lookup to get face ids, at least
       ///  for all linear cells.
       vtkCell* cell          = grid->GetCell(c);
       vtkIdType localCellIdx = cellIdPtr[ c ];
       // Add face links
       for(int f=0; f < cell->GetNumberOfFaces(); ++f)
-        {
+      {
         vtkCell* face      = cell->GetFace( f );
         int N              = face->GetNumberOfPoints();
         vtkIdType* nodePtr = face->GetPointIds()->GetPointer(0);
 
         nodes.resize(N);
         for(int i=0; i < N; ++i)
-          {
+        {
           nodes[i] = globalIdPtr[ nodePtr[i] ];
-          } // END for all face nodes
+        } // END for all face nodes
         std::string hashCode = Hash(&nodes[0],N);
         this->AddFaceLink(hashCode,localCellIdx);
-        } // END for all cell faces
-      } // END for all cells
-    } // END BuildLinks
+      } // END for all cell faces
+    } // END for all cells
+  } // END BuildLinks
 
   // Maps global nodes Ids on the local boundary grid to the local nodes
   // in the input mesh
@@ -518,19 +518,19 @@ struct GridInfo
   void Clear()
   {
     if( this->BoundaryGrid != NULL)
-      {
+    {
       this->BoundaryGrid->Delete();
       this->BoundaryGrid = NULL;
-      }
+    }
 
     for(unsigned int i=0; i < this->RmtBGrids.size(); ++i)
-      {
+    {
       if( this->RmtBGrids[ i ] != NULL )
-        {
+      {
         this->RmtBGrids[ i ]->Delete();
         this->RmtBGrids[ i ] = NULL;
-        }
       }
+    }
     this->RmtBGrids.clear();
 
     this->BoundaryGridLinks.Clear();
@@ -553,23 +553,23 @@ struct GridInfo
   {
     std::string hashCode = GetHashCode(face);
     if( this->FaceList.find(hashCode)==this->FaceList.end())
-      {
+    {
       FaceInfo f;
       for(vtkIdType nodeIdx=0; nodeIdx < face->GetNumberOfPoints(); ++nodeIdx)
-        {
+      {
         f.FaceIds.push_back( face->GetPointId(nodeIdx) );
-        } // END for all nodes on the face
+      } // END for all nodes on the face
       f.CellAdjacency[0] = cellidx;
       f.Count = 1;
       this->FaceList[hashCode] = f;
-      } // END if
+    } // END if
     else
-      {
+    {
       // this is the 2nd time we encounter this face
       assert(this->FaceList[hashCode].Count==1);
       this->FaceList[hashCode].CellAdjacency[1] = cellidx;
       this->FaceList[hashCode].Count++;
-      } // END else
+    } // END else
   }
 
 };
@@ -604,9 +604,9 @@ vtkPUnstructuredGridConnectivity::~vtkPUnstructuredGridConnectivity()
   this->Controller = NULL;
 
   if( this->GhostedGrid != NULL )
-    {
+  {
     this->GhostedGrid->Delete();
-    }
+  }
 
   delete this->AuxiliaryData;
   delete this->CommLists;
@@ -627,9 +627,9 @@ void vtkPUnstructuredGridConnectivity::RegisterGrid(
 {
   assert("pre: gridPtr != NULL" && (gridPtr != NULL) );
   if( this->InputGrid != NULL )
-    {
+  {
     vtkErrorMacro("Only one grid per process is currently supported!");
-    }
+  }
   this->InputGrid = gridPtr;
 }
 
@@ -642,23 +642,23 @@ void vtkPUnstructuredGridConnectivity::BuildGhostZoneConnectivity()
   assert("pre: auxiliary data is NULL!" && (this->AuxiliaryData != NULL) );
 
   if(this->Controller->GetNumberOfProcesses() <= 1 )
-    {
+  {
     // short-circuit
     return;
-    }
+  }
 
   if(this->GlobalIDFieldName == NULL)
-    {
+  {
     // We assume "GlobalID" as the default
     this->GlobalIDFieldName = new char[9];
     strncpy(this->GlobalIDFieldName,"GlobalID", 9);
-    }
+  }
 
   // STEP 0: Ensure the input grid has GlobalID information
   if( !this->InputGrid->GetPointData()->HasArray(this->GlobalIDFieldName) )
-    {
+  {
     vtkErrorMacro("Input grid has no global ID information");
-    }
+  }
 
   // STEP 1: Build auxiliary data-structures and extract boundary grid
   this->ExtractBoundaryGrid();
@@ -691,9 +691,9 @@ void vtkPUnstructuredGridConnectivity::UpdateGhosts()
   assert("pre: controller is NULL!" && (this->Controller != NULL) );
 
   if(this->Controller->GetNumberOfProcesses() <= 1)
-    {
+  {
     // return;
-    }
+  }
 
   // STEP 0: copies local data from the input grid to the ghosted grid
   this->SynchLocalData();
@@ -714,7 +714,7 @@ void vtkPUnstructuredGridConnectivity::UpdateGhosts()
   // STEP 4: post receives
   std::set<int>::iterator rankIter = this->CommLists->NeighboringRanks.begin();
   for( ;rankIter != this->CommLists->NeighboringRanks.end(); ++rankIter)
-    {
+  {
     int rank = *rankIter;
     assert("pre: cannot find rcv buffer size for rank!" &&
            (this->CommLists->RcvBufferSizes.find(rank)!=
@@ -733,12 +733,12 @@ void vtkPUnstructuredGridConnectivity::UpdateGhosts()
         rqsts[rqstIdx]
         );
     ++rqstIdx;
-    } // END for all ranks
+  } // END for all ranks
 
   // STEP 5: post sends
   rankIter = this->CommLists->NeighboringRanks.begin();
   for( ;rankIter != this->CommLists->NeighboringRanks.end(); ++rankIter)
-    {
+  {
     int rank = *rankIter;
     assert("pre: cannot find snd buffer size for rank!" &&
            (this->CommLists->SndBufferSizes.find(rank)!=
@@ -755,7 +755,7 @@ void vtkPUnstructuredGridConnectivity::UpdateGhosts()
         rqsts[rqstIdx]
         );
     ++rqstIdx;
-    } // END for all ranks
+  } // END for all ranks
 
   // STEP 6: wait all
   this->Controller->WaitAll(2*numNeis,rqsts);
@@ -790,7 +790,7 @@ void vtkPUnstructuredGridConnectivity::FillGhostZoneCells(
 
   // Loop through all arrays
   for(int arrayIdx=0; arrayIdx < ghostData->GetNumberOfArrays(); ++arrayIdx)
-    {
+  {
 
     vtkDataArray* ghostArray = ghostData->GetArray(arrayIdx);
     assert("pre: array by that name not found on ghosted grid!" &&
@@ -807,13 +807,13 @@ void vtkPUnstructuredGridConnectivity::FillGhostZoneCells(
 
     // loop through all the tuples of the array & copy values to the ghostzone
     for(vtkIdType tuple=0; tuple < ghostArray->GetNumberOfTuples(); ++tuple)
-      {
+    {
       vtkIdType cellId = cellIdx[ tuple ];
       vtkIdType target = this->CommLists->GetTargetCellId(neiRank,cellId);
       CD->CopyTuple(ghostArray,targetArray,tuple,target);
-      } // END for all tuples
+    } // END for all tuples
 
-    } // END for all arrays
+  } // END for all arrays
 
 }
 
@@ -839,11 +839,11 @@ void vtkPUnstructuredGridConnectivity::FillGhostZoneNodes(
 
   // Loop through all arrays
   for(int arrayIdx=0; arrayIdx < ghostData->GetNumberOfArrays(); ++arrayIdx)
-    {
+  {
 
     vtkDataArray* ghostArray = ghostData->GetArray( arrayIdx );
     if(strcmp(ghostArray->GetName(),this->GlobalIDFieldName)!=0)
-      {
+    {
       assert("pre: array by that name not found on ghosted grid!" &&
               PD->HasArray(ghostArray->GetName()));
 
@@ -860,15 +860,15 @@ void vtkPUnstructuredGridConnectivity::FillGhostZoneNodes(
       // loop through all the tuples of the array & copy values to the
       // ghostzone, i.e., the target array.
       for(vtkIdType tuple=0; tuple < ghostArray->GetNumberOfTuples(); ++tuple)
-        {
+      {
         vtkIdType globalId = globalIdx[ tuple ];
         vtkIdType targetId = this->CommLists->GetTargetNodeId(neiRank,globalId);
         PD->CopyTuple(ghostArray,targetArray,tuple,targetId);
-        } // END for all tuples
+      } // END for all tuples
 
-      } // END if not the global ID field name
+    } // END if not the global ID field name
 
-    } // END for all arrays
+  } // END for all arrays
 }
 
 //------------------------------------------------------------------------------
@@ -882,9 +882,9 @@ void vtkPUnstructuredGridConnectivity::CreatePersistentRcvBuffers()
 
   // short-circuit here if the buffers have been already allocated
   if( this->CommLists->RcvBuffersAllocated )
-    {
+  {
     return;
-    }
+  }
 
   // Allocate MPI request objects for non-blocking point-to-point comm.
   int numNeis = static_cast<int>(this->CommLists->NeighboringRanks.size());
@@ -895,18 +895,18 @@ void vtkPUnstructuredGridConnectivity::CreatePersistentRcvBuffers()
   int rqstIdx = 0;
   std::set<int>::iterator rankIter = this->CommLists->NeighboringRanks.begin();
   for(;rankIter != this->CommLists->NeighboringRanks.end(); ++rankIter)
-    {
+  {
     int rank = *rankIter;
     this->CommLists->RcvBufferSizes[rank] = 0;
     this->Controller->NoBlockReceive(
         &this->CommLists->RcvBufferSizes[rank],1,rank,0,rqsts[rqstIdx]);
     ++rqstIdx;
-    } // END for all neighboring ranks, post receives
+  } // END for all neighboring ranks, post receives
 
   // Post sends
   rankIter = this->CommLists->NeighboringRanks.begin();
   for(;rankIter != this->CommLists->NeighboringRanks.end(); ++rankIter)
-    {
+  {
     int rank = *rankIter;
     assert("pre: cannot find send bytestream for rank" &&
            (this->CommLists->SndBufferSizes.find(rank)!=
@@ -914,7 +914,7 @@ void vtkPUnstructuredGridConnectivity::CreatePersistentRcvBuffers()
     this->Controller->NoBlockSend(
         &this->CommLists->SndBufferSizes[rank],1,rank,0,rqsts[rqstIdx]);
     ++rqstIdx;
-    } // END for all neighboring ranks, post sends
+  } // END for all neighboring ranks, post sends
 
   // Wait all
   this->Controller->WaitAll(2*numNeis,rqsts);
@@ -923,7 +923,7 @@ void vtkPUnstructuredGridConnectivity::CreatePersistentRcvBuffers()
   // Allocate buffers for each neighboring rank
   rankIter = this->CommLists->NeighboringRanks.begin();
   for(;rankIter != this->CommLists->NeighboringRanks.end(); ++rankIter)
-    {
+  {
     int rank = *rankIter;
     assert("pre: cannot find buffersize for rank!" &&
            (this->CommLists->RcvBufferSizes.find(rank) !=
@@ -937,7 +937,7 @@ void vtkPUnstructuredGridConnectivity::CreatePersistentRcvBuffers()
 
     // Allocate receive buffer
     this->CommLists->RcvBuffers[ rank ] = new unsigned char[size];
-    } // END for all neighboring ranks
+  } // END for all neighboring ranks
 
   // Set RcvBuffersAllocated to true
   this->CommLists->RcvBuffersAllocated = true;
@@ -953,7 +953,7 @@ void vtkPUnstructuredGridConnectivity::DeSerializeGhostZones()
   vtkMultiProcessStream bytestream;
   std::set<int>::iterator rankIter = this->CommLists->NeighboringRanks.begin();
   for( ;rankIter != this->CommLists->NeighboringRanks.end(); ++rankIter)
-    {
+  {
     int rank = *rankIter;
     assert("pre: no rcv buffer for rank!" &&
             (this->CommLists->RcvBuffers.find(rank)!=
@@ -1002,7 +1002,7 @@ void vtkPUnstructuredGridConnectivity::DeSerializeGhostZones()
     ghostCD->Delete();
     delete [] globalIdx;
     delete [] cellIdx;
-    } // END for all neighboring ranks
+  } // END for all neighboring ranks
 }
 
 //------------------------------------------------------------------------------
@@ -1018,7 +1018,7 @@ void vtkPUnstructuredGridConnectivity::SerializeGhostZones()
   vtkMultiProcessStream bytestream;
   std::set<int>::iterator rankIter = this->CommLists->NeighboringRanks.begin();
   for(;rankIter != this->CommLists->NeighboringRanks.end(); ++rankIter)
-    {
+  {
     int rank = *rankIter;
 
     assert("pre: rank not found in SndNodeLinks!" &&
@@ -1043,10 +1043,10 @@ void vtkPUnstructuredGridConnectivity::SerializeGhostZones()
     tupleIds->SetNumberOfIds( static_cast<vtkIdType>(nodelinks->size()) );
     unsigned int lnk = 0;
     for(; lnk < static_cast<unsigned int>(nodelinks->size()); ++lnk)
-      {
+    {
       globalIdx[lnk] = (*nodelinks)[lnk].GlobalIdx;
       tupleIds->SetId(static_cast<vtkIdType>(lnk),(*nodelinks)[lnk].LocalIdx);
-      } // END for all links
+    } // END for all links
 
     // serialize the global IDs s.t. the remote rank knows which node to
     // update once the data is transferred.
@@ -1065,9 +1065,9 @@ void vtkPUnstructuredGridConnectivity::SerializeGhostZones()
     vtkIdList* cellIds = vtkIdList::New();
     cellIds->SetNumberOfIds(celllinks->size());
     for(lnk=0; lnk < celllinks->size(); ++lnk)
-      {
+    {
       cellIds->SetId(lnk,(*celllinks)[lnk].SourceIdx);
-      } // END for all links
+    } // END for all links
 
     // serialize the cellIds s.t. the remote rank knows which cell to update
     // once the data is transfered
@@ -1081,14 +1081,14 @@ void vtkPUnstructuredGridConnectivity::SerializeGhostZones()
     this->CommLists->SndBufferSizes[rank] = bytestream.RawSize();
     if(this->CommLists->SndBuffers.find(rank) ==
         this->CommLists->SndBuffers.end())
-      {
+    {
       std::vector<unsigned char> buffer;
       this->CommLists->SndBuffers[rank] = buffer;
-      } // END if no snd buffer entry found for rank
+    } // END if no snd buffer entry found for rank
 
     this->CommLists->SndBuffers[rank].resize(bytestream.RawSize());
     bytestream.GetRawData(this->CommLists->SndBuffers[rank]);
-    } // END for all neighboring ranks
+  } // END for all neighboring ranks
 }
 
 //------------------------------------------------------------------------------
@@ -1112,14 +1112,14 @@ void vtkPUnstructuredGridConnectivity::SynchLocalData()
 
   // STEP 2: Copy point-data
   for(int arrayIdx=0; arrayIdx < sourcePD->GetNumberOfArrays(); ++arrayIdx)
-    {
+  {
     vtkDataArray* field = sourcePD->GetArray( arrayIdx );
 
     // NOTE: The global IDs are copied upon construction since when the
     // ghosted grid is constructed (in BuildGhostedGridAndCommLists() )
     // global IDs need to be taken in to account!
     if( strcmp(field->GetName(),this->GlobalIDFieldName)!=0 )
-      {
+    {
       int ncomp         = field->GetNumberOfComponents();
       assert("pre: ncomp must be at lease 1" && (ncomp >= 1) );
 
@@ -1130,24 +1130,24 @@ void vtkPUnstructuredGridConnectivity::SynchLocalData()
 
       vtkDataArray* ghostedField = NULL;
       if( !targetPD->HasArray(field->GetName()))
-        {
+      {
         ghostedField = vtkDataArray::CreateDataArray(field->GetDataType());
         ghostedField->SetName(field->GetName());
         ghostedField->SetNumberOfComponents(ncomp);
         ghostedField->SetNumberOfTuples(ntuples);
         targetPD->AddArray(ghostedField);
         ghostedField->Delete();
-        } // END if array does not exist
+      } // END if array does not exist
       ghostedField = targetPD->GetArray(field->GetName());
       assert("pre: ghosted field is NULL!" && (ghostedField != NULL) );
       memcpy(ghostedField->GetVoidPointer(0),field->GetVoidPointer(0),
              intuples*ncomp*field->GetDataTypeSize());
-      } // END if the array is not a global ID field
-    } // END for all point data arrays
+    } // END if the array is not a global ID field
+  } // END for all point data arrays
 
   // STEP 3: Copy cell-data
   for(int arrayIdx=0; arrayIdx < sourceCD->GetNumberOfArrays(); ++arrayIdx)
-    {
+  {
     vtkDataArray* field = sourceCD->GetArray( arrayIdx );
     int ncomp         = field->GetNumberOfComponents();
     assert("pre: ncomp must be at lease 1" && (ncomp >= 1) );
@@ -1158,25 +1158,25 @@ void vtkPUnstructuredGridConnectivity::SynchLocalData()
 
     vtkDataArray* ghostedField = NULL;
     if(!targetCD->HasArray(field->GetName()))
-      {
+    {
       ghostedField = vtkDataArray::CreateDataArray(field->GetDataType());
       ghostedField->SetName(field->GetName());
       ghostedField->SetNumberOfComponents(ncomp);
       ghostedField->SetNumberOfTuples(ntuples);
       targetCD->AddArray(ghostedField);
       ghostedField->Delete();
-      } // END if array does not exists
+    } // END if array does not exists
 
     ghostedField = targetCD->GetArray(field->GetName());
     assert("pre: ghosted field is NULL!" && (ghostedField != NULL) );
     memcpy(ghostedField->GetVoidPointer(0),field->GetVoidPointer(0),
            intuples*ncomp*field->GetDataTypeSize());
-    } // END for all cell data arrays
+  } // END for all cell data arrays
 
   // STEP 4: Finally, mark ghost cells. The ghost cells are marked only
   // the first time UpdateGhosts() is called.
   if( !targetCD->HasArray("GHOSTCELL") )
-    {
+  {
     vtkIntArray* ghostCellArray = vtkIntArray::New();
     ghostCellArray->SetName("GHOSTCELL");
     ghostCellArray->SetNumberOfComponents(1);
@@ -1184,21 +1184,21 @@ void vtkPUnstructuredGridConnectivity::SynchLocalData()
     int* ghostCellPtr = static_cast<int*>(ghostCellArray->GetVoidPointer(0));
     vtkIdType ncells = this->GhostedGrid->GetNumberOfCells();
     for(vtkIdType cellIdx=0; cellIdx < ncells; ++cellIdx)
-      {
+    {
       if(cellIdx < this->InputGrid->GetNumberOfCells())
-        {
+      {
         // cell is not a ghost
         ghostCellPtr[cellIdx] = 0;
-        } // END if the cell is local
+      } // END if the cell is local
       else
-        {
+      {
         // cell is a ghost cell
         ghostCellPtr[cellIdx] = 1;
-        } // END else
-      } // END for all cells
+      } // END else
+    } // END for all cells
     this->GhostedGrid->GetCellData()->AddArray(ghostCellArray);
     ghostCellArray->Delete();
-    } // END if no ghostcell array
+  } // END if no ghostcell array
 }
 
 //------------------------------------------------------------------------------
@@ -1220,9 +1220,9 @@ void vtkPUnstructuredGridConnectivity::EnqueueNodeLinks(
   // STEP 0: Put the shared nodes in a set, s.t. we can do easy look up
   std::set<vtkIdType> sharedNodes;
   for(vtkIdType idx=0; idx < shared->GetNumberOfIds(); ++idx)
-    {
+  {
     sharedNodes.insert(shared->GetId(idx));
-    }
+  }
   assert("post: shared nodes mismatch!" &&
       (shared->GetNumberOfIds()==static_cast<vtkIdType>(sharedNodes.size())));
 
@@ -1247,14 +1247,14 @@ void vtkPUnstructuredGridConnectivity::EnqueueNodeLinks(
   // cell that are not on the shared interface with the ghost cell are
   // enqueued to be *sent* to the remote process of the ghost cell.
   for(vtkIdType idx=0; idx < npts; ++idx)
-    {
+  {
     vtkIdType localId  = pts[idx];
     vtkIdType globalId = globalIdxArray[ localId ];
     if(sharedNodes.find(globalId) == sharedNodes.end() )
-      {
+    {
       this->CommLists->EnqueueNodeSend(localId,globalId,rmtRank);
-      } // END if node not at a shared interface
-    } // END for all adjacent cell nodes
+    } // END if node not at a shared interface
+  } // END for all adjacent cell nodes
 
   // STEP 5: Get pointer to the connectivity list of the ghost cell
   npts = 0;
@@ -1267,14 +1267,14 @@ void vtkPUnstructuredGridConnectivity::EnqueueNodeLinks(
   // that are not on the shared interface with the local adjacent cell are
   // enqueued to *receive* from the remote process that owns the ghost cell.
   for(vtkIdType idx=0; idx < npts; ++idx)
-    {
+  {
     vtkIdType localId  = pts[idx];
     vtkIdType globalId = globalIdxArray[ localId ];
     if( sharedNodes.find(globalId) == sharedNodes.end() )
-      {
+    {
       this->CommLists->EnqueueNodeRcv(localId,globalId,rmtRank);
-      } // END if node not at a shared interface
-    } // END for all ghost cell nodes
+    } // END if node not at a shared interface
+  } // END for all ghost cell nodes
 }
 
 //------------------------------------------------------------------------------
@@ -1296,7 +1296,7 @@ bool vtkPUnstructuredGridConnectivity::IsCellConnected(
 
   // Check faces
   for(int f=0; f < c->GetNumberOfFaces(); ++f)
-    {
+  {
     vtkCell* face      = c->GetFace( f );
     int N              = face->GetNumberOfPoints();
     vtkIdType* nodePtr = face->GetPointIds()->GetPointer(0);
@@ -1304,7 +1304,7 @@ bool vtkPUnstructuredGridConnectivity::IsCellConnected(
      nodes.resize(N);
      shared->SetNumberOfIds(N);
      for(int i=0; i < N; ++i)
-       {
+     {
 
 #ifndef NDEBUG
        assert("pre: face node out-of-bounds!" &&
@@ -1313,18 +1313,18 @@ bool vtkPUnstructuredGridConnectivity::IsCellConnected(
 
        nodes[i] = globalId[ nodePtr[i] ];
        shared->SetId(i,nodes[i]);
-       } // END for all face nodes
+     } // END for all face nodes
 
      std::string hashCode = vtk::details::Hash(&nodes[0],N);
      if( this->AuxiliaryData->BoundaryGridLinks.HasFace( hashCode ) )
-       {
+     {
        assert("pre: boundary faces must have at most one cell" &&
         this->AuxiliaryData->BoundaryGridLinks.FaceLinks[hashCode].size()==1);
        adjCell =
          *(this->AuxiliaryData->BoundaryGridLinks.FaceLinks[hashCode].begin());
        return true;
-       } // END if
-    } // END for all faces
+     } // END if
+  } // END for all faces
 
 
   // cell is not connected to the boundary grid of this process
@@ -1346,7 +1346,7 @@ void vtkPUnstructuredGridConnectivity::InsertGhostCellNodes(
 
   double pnt[3];
   for(vtkIdType node=0; node < ghostCell->GetNumberOfPoints(); ++node)
-    {
+  {
     // mesh index of the point w.r.t. the boundary grid
     vtkIdType meshId   = ghostCell->GetPointId(node);
 
@@ -1358,18 +1358,18 @@ void vtkPUnstructuredGridConnectivity::InsertGhostCellNodes(
         this->AuxiliaryData->BoundaryGridLinks.GetLocalNodeID(globalId);
 
     if( localId != -1 )
-      {
+    {
       // node is a boundary node
       cellPts[ node ] = localId;
-      } // END if
+    } // END if
     else if( this->AuxiliaryData->NodeHistory.find( globalId ) !=
              this->AuxiliaryData->NodeHistory.end() )
-      {
+    {
       // we have previously inserted that node
       cellPts[ node ] = this->AuxiliaryData->NodeHistory[ globalId ];
-      } // END else if
+    } // END else if
     else
-      {
+    {
       // insert the node & update the history
       bGrid->GetPoint(meshId,pnt);
       vtkIdType idx = this->GhostedGrid->GetPoints()->InsertNextPoint(pnt);
@@ -1386,8 +1386,8 @@ void vtkPUnstructuredGridConnectivity::InsertGhostCellNodes(
       assert("post: ghost grid global ID array size mismatch" &&
              (this->GhostedGrid->GetNumberOfPoints()==
               ghostGridGlobalIdx->GetNumberOfTuples()) );
-      } // END else
-    } // END for all nodes
+    } // END else
+  } // END for all nodes
 }
 
 //------------------------------------------------------------------------------
@@ -1432,13 +1432,13 @@ void vtkPUnstructuredGridConnectivity::ProcessRemoteGrid(
   std::vector<vtkIdType> cellPts;
   vtkIdList* sharedIds = vtkIdList::New();
   for(vtkIdType c=0; c < bGrid->GetNumberOfCells(); ++c)
-    {
+  {
     vtkCell* cell     = bGrid->GetCell(c);
     vtkIdType rmtCell = rmtCellIdx[c];
 
     if(this->IsCellConnected(
           cell,globalIdx,bGrid->GetNumberOfPoints(),adjCell,sharedIds))
-      {
+    {
       // Sanity checks
       assert("pre: number of sharedIds must be at least 2" &&
               (sharedIds->GetNumberOfIds()>=2) );
@@ -1457,7 +1457,7 @@ void vtkPUnstructuredGridConnectivity::ProcessRemoteGrid(
       std::string hc = vtk::details::Hash(&cellNodesCopy[0],cellNodesCopy.size());
       if( this->AuxiliaryData->CellHistory.find(hc) ==
           this->AuxiliaryData->CellHistory.end() )
-        {
+      {
         vtkIdType ghostCellIdx =
             this->GhostedGrid->InsertNextCell(
                 cell->GetCellType(),cell->GetNumberOfPoints(),&cellPts[0]);
@@ -1472,10 +1472,10 @@ void vtkPUnstructuredGridConnectivity::ProcessRemoteGrid(
 
         // update history s.t. we avoid adding duplicate cells.
         this->AuxiliaryData->CellHistory.insert(hc);
-        } // END if
+      } // END if
 
-      } // END if the cell is connected
-    } // END for all cells
+    } // END if the cell is connected
+  } // END for all cells
 
   // Delete sharedIds object
   sharedIds->Delete();
@@ -1519,11 +1519,11 @@ void vtkPUnstructuredGridConnectivity::BuildGhostedGridAndCommLists()
   // are face-adjacent and insert them to the ghosted grid.
   unsigned int i=0;
   for(;i<static_cast<unsigned int>(this->AuxiliaryData->RmtBGrids.size()); ++i)
-    {
+  {
     int rmtRank = this->AuxiliaryData->CandidateRanks[ i ];
     this->ProcessRemoteGrid(
         rmtRank,this->AuxiliaryData->RmtBGrids[i]);
-    } // END for all remote grids
+  } // END for all remote grids
 }
 
 //------------------------------------------------------------------------------
@@ -1539,22 +1539,22 @@ void vtkPUnstructuredGridConnectivity::ExchangeBoundaryGridSizes(int size)
   // STEP 0: Post receives for each candidate rank
   int idx = 0;
   for(int i=0; i < numCandidates; ++i)
-   {
+  {
    int rmtRank = this->AuxiliaryData->CandidateRanks[ i ];
    this->Controller->NoBlockReceive(
        &this->AuxiliaryData->RmtBGridSizes[i],1,rmtRank,
        0,rqsts[idx]);
    ++idx;
-   } // END for all candidate ranks
+  } // END for all candidate ranks
 
   // STEP 1: Post sends
   for(int i=0; i < numCandidates; ++i)
-    {
+  {
     int rmtRank = this->AuxiliaryData->CandidateRanks[ i ];
     this->Controller->NoBlockSend(
         &size,1,rmtRank,0,rqsts[idx]);
     ++idx;
-    }
+  }
 
   // STEP 2: Block until communication
   this->Controller->WaitAll(2*numCandidates,rqsts);
@@ -1586,14 +1586,14 @@ void vtkPUnstructuredGridConnectivity::ExchangeBoundaryGrids()
 
   int idx = 0;
   for(int i=0; i < numCandidates; ++i)
-    {
+  {
     int rmtRank = this->AuxiliaryData->CandidateRanks[ i ];
     int size    = this->AuxiliaryData->RmtBGridSizes[ i ];
     RawData[i]  = new unsigned char[size];
     this->Controller->NoBlockReceive(
         RawData[i],size,rmtRank,0,rqsts[idx]);
     ++idx;
-    } // END for all candidates
+  } // END for all candidates
 
   // STEP 3: Post sends
   unsigned char* data = NULL;
@@ -1601,12 +1601,12 @@ void vtkPUnstructuredGridConnectivity::ExchangeBoundaryGrids()
   bytestream.GetRawData(data,size);
 
   for(int i=0; i < numCandidates; ++i)
-    {
+  {
     int rmtRank = this->AuxiliaryData->CandidateRanks[ i ];
     this->Controller->NoBlockSend(
         data,size,rmtRank,0,rqsts[idx]);
     ++idx;
-    } // END for all candidates
+  } // END for all candidates
 
   // STEP 4: Block until communication is complete
   this->Controller->WaitAll(2*numCandidates,rqsts);
@@ -1617,7 +1617,7 @@ void vtkPUnstructuredGridConnectivity::ExchangeBoundaryGrids()
   this->AuxiliaryData->RmtBGrids.resize(numCandidates,NULL);
   vtkMultiProcessStream tmpStream;
   for(int i=0; i < numCandidates; ++i)
-    {
+  {
     int sz = this->AuxiliaryData->RmtBGridSizes[ i ];
     tmpStream.Reset();
     tmpStream.SetRawData(RawData[i],sz);
@@ -1636,7 +1636,7 @@ void vtkPUnstructuredGridConnectivity::ExchangeBoundaryGrids()
 
     delete [] RawData[i];
     RawData[i] = NULL;
-    } // END for all candidates
+  } // END for all candidates
 
   this->Controller->Barrier();
 }
@@ -1659,9 +1659,9 @@ void vtkPUnstructuredGridConnectivity::BoundingBoxCollision()
   vtkBoundingBox localBox(this->AuxiliaryData->GridBounds);
   vtkBoundingBox rmtBox;
   for(int i=0; i < N; ++i)
-    {
+  {
     if(i != myRank)
-      {
+    {
       rmtBox.SetBounds(
           this->AuxiliaryData->GlobalGridBounds[i*6],   // xmin
           this->AuxiliaryData->GlobalGridBounds[i*6+1], // xmax
@@ -1672,11 +1672,11 @@ void vtkPUnstructuredGridConnectivity::BoundingBoxCollision()
           );
 
       if(localBox.Intersects(rmtBox))
-        {
+      {
         this->AuxiliaryData->CandidateRanks.push_back( i );
-        } // END if
-      } // END if remote rank
-    } // END for all remote bounding boxes
+      } // END if
+    } // END if remote rank
+  } // END for all remote bounding boxes
 }
 
 //------------------------------------------------------------------------------
@@ -1707,13 +1707,13 @@ bool vtkPUnstructuredGridConnectivity::IsCellOnBoundary(
   assert("pre: null cell nodes array!" && (cellNodes != NULL) );
 
   for(int i=0; i < N; ++i)
-    {
+  {
     if(this->AuxiliaryData->SurfaceNodes.find(cellNodes[i]) !=
         this->AuxiliaryData->SurfaceNodes.end() )
-      {
+    {
       return true;
-      } // END if
-    } // END for all nodes of the cell
+    } // END if
+  } // END for all nodes of the cell
 
   return false;
 }
@@ -1723,18 +1723,18 @@ void vtkPUnstructuredGridConnectivity::MarkFaces()
 {
   vtkIdType numCells = this->InputGrid->GetNumberOfCells();
   for(vtkIdType cellIdx=0; cellIdx < numCells; ++cellIdx)
-    {
+  {
     vtkCell* cell = this->InputGrid->GetCell( cellIdx );
     assert("pre: cell is NULL!" && (cell != NULL) );
 
     /// @todo: optimize this using lookup tables, at least for linear cells,
     /// since we only need the IDs of the faces
     for(int faceIdx=0; faceIdx < cell->GetNumberOfFaces(); ++faceIdx)
-      {
+    {
       vtkCell* face = cell->GetFace( faceIdx );
       this->AuxiliaryData->UpdateFaceList(face,cellIdx);
-      } // END for all faces
-    }  // END for all cells
+    } // END for all faces
+  }  // END for all cells
 
 }
 
@@ -1745,24 +1745,24 @@ void vtkPUnstructuredGridConnectivity::ExtractSurfaceMesh()
 
   iter = this->AuxiliaryData->FaceList.begin();
   for(;iter != this->AuxiliaryData->FaceList.end(); ++iter)
-    {
+  {
     assert("pre: a face can only be adjacent to at most two cells!" &&
             (iter->second.Count <= 2) );
 
     if(iter->second.Count==1)
-     {
+    {
      assert("pre: duplicate boundary face!" &&
          this->AuxiliaryData->SurfaceMesh.find(iter->first)==
              this->AuxiliaryData->SurfaceMesh.end());
 
      this->AuxiliaryData->SurfaceMesh[ iter->first ] = iter->second;
      for(unsigned int i=0; i < iter->second.FaceIds.size(); ++i)
-       {
+     {
        this->AuxiliaryData->SurfaceNodes.insert(iter->second.FaceIds[i]);
-       } // END for all bndry face ids
-     } // END if face on boundary
+     } // END for all bndry face ids
+    } // END if face on boundary
 
-    } // END for all faces on the input mesh
+  } // END for all faces on the input mesh
 }
 
 //------------------------------------------------------------------------------
@@ -1802,11 +1802,11 @@ void vtkPUnstructuredGridConnectivity::ExtractBoundaryCell(
   // of the boundary and the cell connectivity for this cell.
   double pt[3];
   for(vtkIdType nodeIdx=0; nodeIdx < numCellNodes; ++nodeIdx)
-    {
+  {
     vtkIdType ptIdx = cellNodes[ nodeIdx ]; // local idx w.r.t. input grid
     if( this->AuxiliaryData->BndryNodeMap.find(ptIdx) ==
         this->AuxiliaryData->BndryNodeMap.end() )
-      {
+    {
       // insert new point on the boundary grid from the input grid
       this->InputGrid->GetPoint(ptIdx,pt);
 
@@ -1817,14 +1817,14 @@ void vtkPUnstructuredGridConnectivity::ExtractBoundaryCell(
 
       // update the node map
       this->AuxiliaryData->BndryNodeMap[ptIdx] = idx;
-      }
+    }
     else
-      {
+    {
       // node has already been inserted to the boundary grid, just update
       // the connectivity
       cellConnectivity[nodeIdx] = this->AuxiliaryData->BndryNodeMap[ptIdx];
-      }
-    } // END for all cell nodes
+    }
+  } // END for all cell nodes
 
   // STEP 4: Insert the cell in to the boundary grid
   this->AuxiliaryData->BoundaryGrid->InsertNextCell(
@@ -1888,7 +1888,7 @@ void vtkPUnstructuredGridConnectivity::ExtractBoundaryGrid()
   vtkIdType numNodes = 0;    // numNodes in cell
   vtkIdType* nodes   = NULL; // pointer to the cell Ids
   for(vtkIdType cellIdx=0; cellIdx < numCells; ++cellIdx)
-    {
+  {
     // Get point IDs of the cell. Note, this method returns a "read-only"
     // pointer to the underlying connectivity array for the cell in query.
     // No memory is allocated.
@@ -1896,7 +1896,7 @@ void vtkPUnstructuredGridConnectivity::ExtractBoundaryGrid()
     assert("pre: nodes ptr should not be NULL!" && (nodes != NULL) );
 
     if( this->IsCellOnBoundary(nodes,numNodes) )
-      {
+    {
       this->ExtractBoundaryCell(
           cellIdx,numNodes,nodes,
           points,
@@ -1904,8 +1904,8 @@ void vtkPUnstructuredGridConnectivity::ExtractBoundaryGrid()
           globalidx
           );
       localCellIdx->InsertNextValue(cellIdx);
-      } // END if cell on boundary
-    } // END for all cells
+    } // END if cell on boundary
+  } // END for all cells
 
   // STEP 3: Return any memory that was allocated but not used.
   points->Squeeze();
@@ -1964,7 +1964,7 @@ void vtkPUnstructuredGridConnectivity::SerializeUnstructuredGrid(
   vtkIdType n       = 0;    // number of nodes of each cell
   vtkIdType* cnodes = NULL; // pointer to the cell connectivity array
   for(vtkIdType cellIdx=0; cellIdx < g->GetNumberOfCells(); ++cellIdx)
-    {
+  {
     // push the cell type
     bytestream << g->GetCellType(cellIdx);
 
@@ -1976,7 +1976,7 @@ void vtkPUnstructuredGridConnectivity::SerializeUnstructuredGrid(
 
     // push the cell connectivity
     bytestream.Push(cnodes,n);
-    } // END for all cells
+  } // END for all cells
 
   // serialize the point data
   vtkFieldDataSerializer::Serialize(g->GetPointData(),bytestream);
@@ -2021,7 +2021,7 @@ void vtkPUnstructuredGridConnectivity::DeSerializeUnstructuredGrid(
   vtkIdType n       = 0;
   std::vector<vtkIdType> cnodes;
   for(vtkIdType cellIdx=0; cellIdx < numCells; ++cellIdx)
-    {
+  {
     bytestream >> cellType >> n;
     cnodes.resize( n );
     vtkIdType* cnodesPtr = &cnodes[0];
@@ -2029,7 +2029,7 @@ void vtkPUnstructuredGridConnectivity::DeSerializeUnstructuredGrid(
     bytestream.Pop(cnodesPtr,N);
 
     g->InsertNextCell(cellType,n,cnodesPtr);
-    } // END for all cells
+  } // END for all cells
 
   g->Squeeze();
 

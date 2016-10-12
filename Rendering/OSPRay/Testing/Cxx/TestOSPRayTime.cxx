@@ -72,7 +72,7 @@ int TestOSPRayTime(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   renWin->Render();
 
   for (int i = 0; i < 20; i++)
-    {
+  {
     double updateTime = (double)(i%10)/10.0;
     cerr << "t=" << updateTime << endl;
     renderer->SetActiveCamera(camera);
@@ -80,7 +80,7 @@ int TestOSPRayTime(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), updateTime);
     renderer->ResetCameraClippingRange();
     renWin->Render();
-    }
+  }
   iren->Start();
 
   return 0;

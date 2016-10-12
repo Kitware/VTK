@@ -36,9 +36,9 @@ void vtkCompositeDataIterator::SetDataSet(vtkCompositeDataSet* ds)
 {
   vtkSetObjectBodyMacro(DataSet, vtkCompositeDataSet, ds);
   if(ds)
-    {
+  {
     this->GoToFirstItem();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

@@ -13,15 +13,18 @@
 
 =========================================================================*/
 
-// .NAME vtkAngularPeriodicDataArray - Map native an Array into an angulat
-// periodic array
-//
-// .SECTION Description
-// Map an array into a periodic array. Data from the original array aare
-// rotated (on the fly) by the specified angle along the specified axis
-// around the specified point. Lookup is not implemented.
-// Creating the array is virtually free, accessing a tuple require some
-// computation.
+/**
+ * @class   vtkAngularPeriodicDataArray
+ * @brief   Map native an Array into an angulat
+ * periodic array
+ *
+ *
+ * Map an array into a periodic array. Data from the original array aare
+ * rotated (on the fly) by the specified angle along the specified axis
+ * around the specified point. Lookup is not implemented.
+ * Creating the array is virtually free, accessing a tuple require some
+ * computation.
+*/
 
 #ifndef vtkAngularPeriodicDataArray_h
 #define vtkAngularPeriodicDataArray_h
@@ -42,45 +45,57 @@ public:
                                vtkPeriodicDataArray<Scalar>)
   vtkAOSArrayNewInstanceMacro(vtkAngularPeriodicDataArray<Scalar>)
   static vtkAngularPeriodicDataArray *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Initialize the mapped array with the original input data array.
-  virtual void InitializeArray(vtkAOSDataArrayTemplate<Scalar>* inputData);
+  /**
+   * Initialize the mapped array with the original input data array.
+   */
+  void InitializeArray(vtkAOSDataArrayTemplate<Scalar>* inputData);
 
-  // Description:
-  // Set/Get the rotation angle in degrees. Default is 0.
+  //@{
+  /**
+   * Set/Get the rotation angle in degrees. Default is 0.
+   */
   void SetAngle(double angle);
   vtkGetMacro(Angle, double);
+  //@}
 
-  // Description:
-  // Set/Get the rotation center. Default is 0,0,0.
+  //@{
+  /**
+   * Set/Get the rotation center. Default is 0,0,0.
+   */
   void SetCenter(double* center);
   vtkGetVector3Macro(Center, double);
+  //@}
 
-  // Description:
-  // Set/Get the rotation axis. Default is VTK_PERIODIC_ARRAY_AXIS_X axis.
+  //@{
+  /**
+   * Set/Get the rotation axis. Default is VTK_PERIODIC_ARRAY_AXIS_X axis.
+   */
   void SetAxis(int axis);
   vtkGetMacro(Axis, int);
   void SetAxisToX(void) { this->SetAxisType(VTK_PERIODIC_ARRAY_AXIS_X); }
   void SetAxisToY(void) { this->SetAxisType(VTK_PERIODIC_ARRAY_AXIS_Y); }
   void SetAxisToZ(void) { this->SetAxisType(VTK_PERIODIC_ARRAY_AXIS_Z); }
+  //@}
 
 protected:
   vtkAngularPeriodicDataArray();
   ~vtkAngularPeriodicDataArray();
 
-  // Description:
-  // Transform the provided tuple
-  virtual void Transform(Scalar* tuple) const;
+  /**
+   * Transform the provided tuple
+   */
+  void Transform(Scalar* tuple) const VTK_OVERRIDE;
 
-  // Description:
-  // Update rotation matrix from Axis, Angle and Center
+  /**
+   * Update rotation matrix from Axis, Angle and Center
+   */
   void UpdateRotationMatrix();
 
 private:
-  vtkAngularPeriodicDataArray(const vtkAngularPeriodicDataArray &); // Not implemented.
-  void operator=(const vtkAngularPeriodicDataArray &); // Not implemented.
+  vtkAngularPeriodicDataArray(const vtkAngularPeriodicDataArray &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAngularPeriodicDataArray &) VTK_DELETE_FUNCTION;
 
   double Angle;            // Rotation angle in degrees
   double AngleInRadians;   // Rotation angle in radians

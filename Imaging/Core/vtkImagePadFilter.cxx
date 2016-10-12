@@ -31,10 +31,10 @@ vtkImagePadFilter::vtkImagePadFilter()
 
   // Initialize output image extent to INVALID
   for (idx = 0; idx < 3; ++idx)
-    {
+  {
     this->OutputWholeExtent[idx * 2] = 0;
     this->OutputWholeExtent[idx * 2 + 1] = -1;
-    }
+  }
   // Set Output numberOfScalarComponents to INVALID
   this->OutputNumberOfScalarComponents = -1;
 }
@@ -45,18 +45,18 @@ void vtkImagePadFilter::SetOutputWholeExtent(int extent[6])
   int idx, modified = 0;
 
   for (idx = 0; idx < 6; ++idx)
-    {
+  {
     if (this->OutputWholeExtent[idx] != extent[idx])
-      {
+    {
       this->OutputWholeExtent[idx] = extent[idx];
       modified = 1;
-      }
     }
+  }
 
   if (modified)
-    {
+  {
     this->Modified();
-    }
+  }
 }
 //----------------------------------------------------------------------------
 void vtkImagePadFilter::SetOutputWholeExtent(int minX, int maxX,
@@ -78,9 +78,9 @@ void vtkImagePadFilter::GetOutputWholeExtent(int extent[6])
   int idx;
 
   for (idx = 0; idx < 6; ++idx)
-    {
+  {
     extent[idx] = this->OutputWholeExtent[idx];
-    }
+  }
 }
 
 
@@ -96,27 +96,27 @@ int vtkImagePadFilter::RequestInformation (
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
   if (this->OutputWholeExtent[0] > this->OutputWholeExtent[1])
-    {
+  {
     // invalid setting, it has not been set, so default to whole Extent
     inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                 this->OutputWholeExtent);
-    }
+  }
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                this->OutputWholeExtent,6);
 
   if (this->OutputNumberOfScalarComponents < 0)
-    {
+  {
     vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo,
       vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
     if (!inScalarInfo)
-      {
+    {
       vtkErrorMacro("Missing scalar field on input information!");
       return 0;
-      }
+    }
     // invalid setting, it has not been set, so default to input.
     this->OutputNumberOfScalarComponents
       = inScalarInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS());
-    }
+  }
   vtkDataObject::SetPointDataActiveScalarInfo(outInfo, -1,
     this->OutputNumberOfScalarComponents);
   return 1;
@@ -130,26 +130,26 @@ void vtkImagePadFilter::ComputeInputUpdateExtent (int inExt[6],
 
   // Clip
   for (idx = 0; idx < 3; ++idx)
-    {
+  {
     inExt[idx*2] = outExt[idx*2];
     inExt[idx*2+1] = outExt[idx*2+1];
     if (inExt[idx*2] < wholeExtent[idx*2])
-      {
+    {
       inExt[idx*2] = wholeExtent[idx*2];
-      }
-    if (inExt[idx*2] > wholeExtent[idx*2 + 1])
-      {
-      inExt[idx*2] = wholeExtent[idx*2 + 1];
-      }
-    if (inExt[idx*2+1] < wholeExtent[idx*2])
-      {
-      inExt[idx*2+1] = wholeExtent[idx*2];
-      }
-    if (inExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
-      {
-      inExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
-      }
     }
+    if (inExt[idx*2] > wholeExtent[idx*2 + 1])
+    {
+      inExt[idx*2] = wholeExtent[idx*2 + 1];
+    }
+    if (inExt[idx*2+1] < wholeExtent[idx*2])
+    {
+      inExt[idx*2+1] = wholeExtent[idx*2];
+    }
+    if (inExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
+    {
+      inExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
+    }
+  }
 }
 
 //----------------------------------------------------------------------------

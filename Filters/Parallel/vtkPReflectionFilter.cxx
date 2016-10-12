@@ -39,18 +39,18 @@ int vtkPReflectionFilter::ComputeBounds(vtkDataObject* input, double bounds[6])
   vtkBoundingBox bbox;
 
   if (this->Superclass::ComputeBounds(input, bounds))
-    {
+  {
     bbox.SetBounds(bounds);
-    }
+  }
 
   if (this->Controller)
-    {
+  {
     this->Controller->GetCommunicator()->ComputeGlobalBounds(
       this->Controller->GetLocalProcessId(),
       this->Controller->GetNumberOfProcesses(),
       &bbox);
     bbox.GetBounds(bounds);
-    }
+  }
 
   return 1;
 }

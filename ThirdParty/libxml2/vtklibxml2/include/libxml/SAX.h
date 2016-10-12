@@ -112,9 +112,6 @@ XMLPUBFUN void XMLCALL
                 endElement                      (void *ctx,
                                                  const xmlChar *name);
 XMLPUBFUN void XMLCALL          
-                reference                       (void *ctx,
-                                                 const xmlChar *name);
-XMLPUBFUN void XMLCALL          
                 characters                      (void *ctx,
                                                  const xmlChar *ch,
                                                  int len);

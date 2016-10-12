@@ -59,9 +59,9 @@ void vtkImageToImageStencil::SetInputData(vtkImageData *input)
 vtkImageData *vtkImageToImageStencil::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
-    {
+  {
     return NULL;
-    }
+  }
 
   return vtkImageData::SafeDownCast(
     this->GetExecutive()->GetInputData(0, 0));
@@ -72,11 +72,11 @@ vtkImageData *vtkImageToImageStencil::GetInput()
 void vtkImageToImageStencil::ThresholdByUpper(double thresh)
 {
   if (this->LowerThreshold != thresh || this->UpperThreshold < VTK_FLOAT_MAX)
-    {
+  {
     this->LowerThreshold = thresh;
     this->UpperThreshold = VTK_FLOAT_MAX;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -84,11 +84,11 @@ void vtkImageToImageStencil::ThresholdByUpper(double thresh)
 void vtkImageToImageStencil::ThresholdByLower(double thresh)
 {
   if (this->UpperThreshold != thresh || this->LowerThreshold > -VTK_FLOAT_MAX)
-    {
+  {
     this->UpperThreshold = thresh;
     this->LowerThreshold = -VTK_FLOAT_MAX;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -96,11 +96,11 @@ void vtkImageToImageStencil::ThresholdByLower(double thresh)
 void vtkImageToImageStencil::ThresholdBetween(double lower, double upper)
 {
   if (this->LowerThreshold != lower || this->UpperThreshold != upper)
-    {
+  {
     this->LowerThreshold = lower;
     this->UpperThreshold = upper;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -132,13 +132,13 @@ int vtkImageToImageStencil::RequestData(
   target++;
 
   for (int idZ = extent[4]; idZ <= extent[5]; idZ++)
-    {
+  {
     for (int idY = extent[2]; idY <= extent[3]; idY++)
-      {
+    {
       if (count%target == 0)
-        {
+      {
         this->UpdateProgress(count/(50.0*target));
-        }
+      }
       count++;
 
       int state = 1; // inside or outside, start outside
@@ -151,30 +151,30 @@ int vtkImageToImageStencil::RequestData(
                   (idY - extent[2])));
 
       for (int idX = extent[0]; idX <= extent[1]; idX++)
-        {
+      {
         int newstate = 1;
         double value = inScalars->GetComponent(idS++,0);
         if (value >= lowerThreshold && value <= upperThreshold)
-          {
+        {
           newstate = -1;
           if (newstate != state)
-            { // sub extent starts
+          { // sub extent starts
             r1 = idX;
-            }
           }
+        }
         else if (newstate != state)
-          { // sub extent ends
+        { // sub extent ends
           r2 = idX - 1;
           data->InsertNextExtent(r1, r2, idY, idZ);
-          }
-        state = newstate;
-        } // for idX
-      if (state < 0)
-        { // if inside at end, cap off the sub extent
-        data->InsertNextExtent(r1, extent[1], idY, idZ);
         }
-      } // for idY
-    } // for idZ
+        state = newstate;
+      } // for idX
+      if (state < 0)
+      { // if inside at end, cap off the sub extent
+        data->InsertNextExtent(r1, extent[1], idY, idZ);
+      }
+    } // for idY
+  } // for idZ
 
   return 1;
 }
@@ -238,18 +238,18 @@ int vtkImageToImageStencil::RequestUpdateExtent(
 
   // if invalid, use the current data extent if allocated
   if (extent[0] > extent[1] || extent[2] > extent[3] || extent[4] > extent[5])
-    {
+  {
     for (int j = 0; j < 6; j += 2)
-      {
+    {
       extent[j] = extent[j+1] = wholeExtent[j];
-      }
+    }
     vtkImageData *inData = vtkImageData::SafeDownCast(
       inInfo->Get(vtkDataObject::DATA_OBJECT()));
     if (inData)
-      {
+    {
       inData->GetExtent(extent);
-      }
     }
+  }
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);
   return 1;

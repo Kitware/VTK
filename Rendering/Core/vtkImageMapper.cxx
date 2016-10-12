@@ -63,16 +63,16 @@ void vtkImageMapper::SetInputData(vtkImageData *input)
 vtkImageData *vtkImageMapper::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
-    {
+  {
     return 0;
-    }
+  }
   return vtkImageData::SafeDownCast(
     this->GetExecutive()->GetInputData(0, 0));
 }
 
-unsigned long int vtkImageMapper::GetMTime()
+vtkMTimeType vtkImageMapper::GetMTime()
 {
-  unsigned long mTime=this->vtkMapper2D::GetMTime();
+  vtkMTimeType mTime=this->vtkMapper2D::GetMTime();
   return mTime;
 }
 
@@ -110,30 +110,30 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
   vtkImageData *data;
 
   if (!viewport)
-    {
+  {
     vtkErrorMacro (<< "vtkImageMapper::Render - Null viewport argument");
     return;
-    }
+  }
 
   if (!actor)
-    {
+  {
     vtkErrorMacro (<<"vtkImageMapper::Render - Null actor argument");
     return;
-    }
+  }
 
 
   if (!this->GetInputAlgorithm())
-    {
+  {
     vtkDebugMacro(<< "vtkImageMapper::Render - Please Set the input.");
     return;
-    }
+  }
 
   this->GetInputAlgorithm()->UpdateInformation();
 
   vtkInformation* inInfo = this->GetInputInformation();
 
   if (!this->UseCustomExtents)
-    {
+  {
     // start with the wholeExtent
     int wholeExtent[6];
     inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
@@ -167,21 +167,21 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
 
     // Now clip to imager extents
     if (pos[0] + wholeExtent[0] < 0)
-      {
+    {
       this->DisplayExtent[0] = -pos[0];
-      }
+    }
     if ((pos[0]+wholeExtent[1]) > vSize[0])
-      {
+    {
       this->DisplayExtent[1] = vSize[0] - pos[0];
-      }
+    }
     if (pos[1] + wholeExtent[2] < 0)
-      {
+    {
       this->DisplayExtent[2] = -pos[1];
-      }
+    }
     if ((pos[1]+wholeExtent[3]) > vSize[1])
-      {
+    {
       this->DisplayExtent[3] = vSize[1] - pos[1];
-      }
+    }
 
     // check for the condition where no pixels are visible.
     if (this->DisplayExtent[0] > wholeExtent[1] ||
@@ -190,18 +190,18 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
       this->DisplayExtent[3] < wholeExtent[2] ||
       this->DisplayExtent[4] > wholeExtent[5] ||
       this->DisplayExtent[5] < wholeExtent[4])
-      {
+    {
       return;
-      }
+    }
 
     this->GetInputAlgorithm()->UpdateExtent(this->DisplayExtent);
 
     // set the position adjustment
     this->PositionAdjustment[0] = this->DisplayExtent[0];
     this->PositionAdjustment[1] = this->DisplayExtent[2];
-    }
+  }
   else // UseCustomExtents
-    {
+  {
     this->DisplayExtent[0] = this->CustomDisplayExtents[0];
     this->DisplayExtent[1] = this->CustomDisplayExtents[1];
     this->DisplayExtent[2] = this->CustomDisplayExtents[2];
@@ -213,15 +213,15 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
     this->PositionAdjustment[0] = 0;
     this->PositionAdjustment[1] = 0;
     this->GetInputAlgorithm()->UpdateWholeExtent();
-    }
+  }
 
   // Get the region from the input
   data = this->GetInput();
   if ( !data)
-    {
+  {
     vtkErrorMacro(<< "Render: Could not get data from input.");
     return;
-    }
+  }
 
   this->RenderData(viewport, data, actor);
 }
@@ -232,9 +232,9 @@ int vtkImageMapper::GetWholeZMin()
   int *extent;
 
   if ( ! this->GetInput())
-    {
+  {
     return 0;
-    }
+  }
   this->GetInputAlgorithm()->UpdateInformation();
   extent = this->GetInputInformation()->Get(
     vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
@@ -247,9 +247,9 @@ int vtkImageMapper::GetWholeZMax()
   int *extent;
 
   if ( ! this->GetInput())
-    {
+  {
     return 0;
-    }
+  }
   this->GetInputAlgorithm()->UpdateInformation();
   extent = this->GetInputInformation()->Get(
     vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());

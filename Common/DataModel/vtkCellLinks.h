@@ -12,22 +12,25 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCellLinks - object represents upward pointers from points to list of cells using each point
-// .SECTION Description
-// vtkCellLinks is a supplemental object to vtkCellArray and vtkCellTypes,
-// enabling access from points to the cells using the points. vtkCellLinks is
-// a list of cell ids, each such link representing a dynamic list of cell ids
-// using the point. The information provided by this object can be used to
-// determine neighbors and construct other local topological information.
-
-// .SECTION Caveats
-// Note that this class is designed to support incremental link construction.
-// More efficient cell links structures can be built with vtkStaticCellLinks
-// (and vtkStaticCellLinksTemplate). However these other classes are typically
-// meant for one-time (static) construction.
-
-// .SECTION See Also
-// vtkCellArray vtkCellTypes vtkStaticCellLinks vtkStaticCellLinksTemplate
+/**
+ * @class   vtkCellLinks
+ * @brief   object represents upward pointers from points to list of cells using each point
+ *
+ * vtkCellLinks is a supplemental object to vtkCellArray and vtkCellTypes,
+ * enabling access from points to the cells using the points. vtkCellLinks is
+ * a list of cell ids, each such link representing a dynamic list of cell ids
+ * using the point. The information provided by this object can be used to
+ * determine neighbors and construct other local topological information.
+ *
+ * @warning
+ * Note that this class is designed to support incremental link construction.
+ * More efficient cell links structures can be built with vtkStaticCellLinks
+ * (and vtkStaticCellLinksTemplate). However these other classes are typically
+ * meant for one-time (static) construction.
+ *
+ * @sa
+ * vtkCellArray vtkCellTypes vtkStaticCellLinks vtkStaticCellLinksTemplate
+*/
 
 #ifndef vtkCellLinks_h
 #define vtkCellLinks_h
@@ -48,108 +51,130 @@ public:
     vtkIdType *cells;
   };
 
-  // Description:
-  // Standard methods to instantiate, print, and obtain type information.
+  //@{
+  /**
+   * Standard methods to instantiate, print, and obtain type information.
+   */
   static vtkCellLinks *New();
   vtkTypeMacro(vtkCellLinks,vtkAbstractCellLinks);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  //@}
 
-  // Description:
-  // Build the link list array. All subclasses of vtkAbstractCellLinks
-  // must support this method.
-  virtual void BuildLinks(vtkDataSet *data);
+  /**
+   * Build the link list array. All subclasses of vtkAbstractCellLinks
+   * must support this method.
+   */
+  void BuildLinks(vtkDataSet *data) VTK_OVERRIDE;
 
-  // Description:
-  // Build the link list array with a provided connectivity array.
+  /**
+   * Build the link list array with a provided connectivity array.
+   */
   void BuildLinks(vtkDataSet *data, vtkCellArray *Connectivity);
 
-  // Description:
-  // Allocate the specified number of links (i.e., number of points) that
-  // will be built.
+  /**
+   * Allocate the specified number of links (i.e., number of points) that
+   * will be built.
+   */
   void Allocate(vtkIdType numLinks, vtkIdType ext=1000);
 
-  // Description:
-  // Clear out any previously allocated data structures
+  /**
+   * Clear out any previously allocated data structures
+   */
   void Initialize();
 
-  // Description:
-  // Get a link structure given a point id.
+  /**
+   * Get a link structure given a point id.
+   */
   Link &GetLink(vtkIdType ptId) {return this->Array[ptId];};
 
-  // Description:
-  // Get the number of cells using the point specified by ptId.
+  /**
+   * Get the number of cells using the point specified by ptId.
+   */
   unsigned short GetNcells(vtkIdType ptId) { return this->Array[ptId].ncells;};
 
-  // Description:
-  // Return a list of cell ids using the point.
+  /**
+   * Return a list of cell ids using the point.
+   */
   vtkIdType *GetCells(vtkIdType ptId) {return this->Array[ptId].cells;};
 
-  // Description:
-  // Insert a new point into the cell-links data structure. The size parameter
-  // is the initial size of the list.
+  /**
+   * Insert a new point into the cell-links data structure. The size parameter
+   * is the initial size of the list.
+   */
   vtkIdType InsertNextPoint(int numLinks);
 
-  // Description:
-  // Insert a cell id into the list of cells (at the end) using the cell id
-  // provided. (Make sure to extend the link list (if necessary) using the
-  // method ResizeCellList().)
+  /**
+   * Insert a cell id into the list of cells (at the end) using the cell id
+   * provided. (Make sure to extend the link list (if necessary) using the
+   * method ResizeCellList().)
+   */
   void InsertNextCellReference(vtkIdType ptId, vtkIdType cellId);
 
-  // Description:
-  // Delete point (and storage) by destroying links to using cells.
+  /**
+   * Delete point (and storage) by destroying links to using cells.
+   */
   void DeletePoint(vtkIdType ptId);
 
-  // Description:
-  // Delete the reference to the cell (cellId) from the point (ptId). This
-  // removes the reference to the cellId from the cell list, but does not
-  // resize the list (recover memory with ResizeCellList(), if necessary).
+  /**
+   * Delete the reference to the cell (cellId) from the point (ptId). This
+   * removes the reference to the cellId from the cell list, but does not
+   * resize the list (recover memory with ResizeCellList(), if necessary).
+   */
   void RemoveCellReference(vtkIdType cellId, vtkIdType ptId);
 
-  // Description:
-  // Add the reference to the cell (cellId) from the point (ptId). This
-  // adds a reference to the cellId from the cell list, but does not resize
-  // the list (extend memory with ResizeCellList(), if necessary).
+  /**
+   * Add the reference to the cell (cellId) from the point (ptId). This
+   * adds a reference to the cellId from the cell list, but does not resize
+   * the list (extend memory with ResizeCellList(), if necessary).
+   */
   void AddCellReference(vtkIdType cellId, vtkIdType ptId);
 
-  // Description:
-  // Change the length of a point's link list (i.e., list of cells using a
-  // point) by the size specified.
+  /**
+   * Change the length of a point's link list (i.e., list of cells using a
+   * point) by the size specified.
+   */
   void ResizeCellList(vtkIdType ptId, int size);
 
-  // Description:
-  // Reclaim any unused memory.
+  /**
+   * Reclaim any unused memory.
+   */
   void Squeeze();
 
-  // Description:
-  // Reset to a state of no entries without freeing the memory.
+  /**
+   * Reset to a state of no entries without freeing the memory.
+   */
   void Reset();
 
-  // Description:
-  // Return the memory in kibibytes (1024 bytes) consumed by this cell links array.
-  // Used to support streaming and reading/writing data. The value
-  // returned is guaranteed to be greater than or equal to the memory
-  // required to actually represent the data represented by this object.
-  // The information returned is valid only after the pipeline has
-  // been updated.
+  /**
+   * Return the memory in kibibytes (1024 bytes) consumed by this cell links array.
+   * Used to support streaming and reading/writing data. The value
+   * returned is guaranteed to be greater than or equal to the memory
+   * required to actually represent the data represented by this object.
+   * The information returned is valid only after the pipeline has
+   * been updated.
+   */
   unsigned long GetActualMemorySize();
 
-  // Description:
-  // Standard DeepCopy method.  Since this object contains no reference
-  // to other objects, there is no ShallowCopy.
+  /**
+   * Standard DeepCopy method.  Since this object contains no reference
+   * to other objects, there is no ShallowCopy.
+   */
   void DeepCopy(vtkCellLinks *src);
 
 protected:
   vtkCellLinks():Array(NULL),Size(0),MaxId(-1),Extend(1000) {}
-  virtual ~vtkCellLinks();
+  ~vtkCellLinks() VTK_OVERRIDE;
 
-  // Description:
-  // Increment the count of the number of cells using the point.
+  /**
+   * Increment the count of the number of cells using the point.
+   */
   void IncrementLinkCount(vtkIdType ptId) { this->Array[ptId].ncells++;};
 
   void AllocateLinks(vtkIdType n);
 
-  // Description:
-  // Insert a cell id into the list of cells using the point.
+  /**
+   * Insert a cell id into the list of cells using the point.
+   */
   void InsertCellReference(vtkIdType ptId, unsigned short pos,
                            vtkIdType cellId);
 
@@ -160,8 +185,8 @@ protected:
   Link *Resize(vtkIdType sz);  // function to resize data
 
 private:
-  vtkCellLinks(const vtkCellLinks&);  // Not implemented.
-  void operator=(const vtkCellLinks&);  // Not implemented.
+  vtkCellLinks(const vtkCellLinks&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCellLinks&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------
@@ -194,17 +219,17 @@ inline void vtkCellLinks::RemoveCellReference(vtkIdType cellId, vtkIdType ptId)
   int ncells=this->Array[ptId].ncells;
 
   for (int i=0; i < ncells; i++)
-    {
+  {
     if (cells[i] == cellId)
-      {
+    {
       for (int j=i; j < (ncells-1); j++)
-        {
+      {
         cells[j] = cells[j+1];
-        }
+      }
       this->Array[ptId].ncells--;
       break;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------

@@ -12,10 +12,13 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkLevelIdScalars.h -- Empty class for backwards compatibility
-//
-// .SECTION Description
-//  Empty class for backwards compatibility.
+/**
+ * @class   vtkLevelIdScalars
+ *
+ *
+ *  Empty class for backwards compatibility.
+*/
+
 #ifndef vtkLevelIdScalars_h
 #define vtkLevelIdScalars_h
 
@@ -28,15 +31,15 @@ class VTKFILTERSGENERAL_EXPORT vtkLevelIdScalars :
   public:
     static vtkLevelIdScalars* New();
     vtkTypeMacro(vtkLevelIdScalars,vtkOverlappingAMRLevelIdScalars);
-    void PrintSelf(ostream& os, vtkIndent indent);
+    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   protected:
     vtkLevelIdScalars();
-    virtual ~vtkLevelIdScalars();
+    ~vtkLevelIdScalars() VTK_OVERRIDE;
 
   private:
-    vtkLevelIdScalars(const vtkLevelIdScalars&); // Not implemented
-    void operator=(const vtkLevelIdScalars&); // Not implemented
+    vtkLevelIdScalars(const vtkLevelIdScalars&) VTK_DELETE_FUNCTION;
+    void operator=(const vtkLevelIdScalars&) VTK_DELETE_FUNCTION;
 };
 
 #endif /* VTKLEVELIDSCALARS_H_ */

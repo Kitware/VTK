@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHyperOctreeClipCutPointsGrabber - A concrete implementation of
-// vtkHyperOctreePointsGrabber used by vtkClipHyperOctree and
-// vtkHyperOctreeCutter.
-// .SECTION See Also
-// vtkHyperOctreeClipCut, vtkHyperOctreeClipCutClipCutPointsGrabber,
-// vtkClipHyperOctree, vtkHyperOctreeClipCutCutter
+/**
+ * @class   vtkHyperOctreeClipCutPointsGrabber
+ * @brief   A concrete implementation of
+ * vtkHyperOctreePointsGrabber used by vtkClipHyperOctree and
+ * vtkHyperOctreeCutter.
+ * @sa
+ * vtkHyperOctreeClipCut, vtkHyperOctreeClipCutClipCutPointsGrabber,
+ * vtkClipHyperOctree, vtkHyperOctreeClipCutCutter
+*/
 
 #ifndef vtkHyperOctreeClipCutPointsGrabber_h
 #define vtkHyperOctreeClipCutPointsGrabber_h
@@ -39,48 +42,55 @@ public:
 
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the dimension of the hyperoctree.
-  // \pre valid_dim: (dim==2 || dim==3)
-  // \post is_set: GetDimension()==dim
+  /**
+   * Set the dimension of the hyperoctree.
+   * \pre valid_dim: (dim==2 || dim==3)
+   * \post is_set: GetDimension()==dim
+   */
   virtual void SetDimension(int dim);
 
-  // Description:
-  // Initialize the points insertion scheme.
-  // Actually, it is just a trick to initialize the IdSet from the filter.
-  // The IdSet class cannot be shared with the filter because it is a Pimpl.
-  // It is used by clip,cut and contour filters to build the points
-  // that lie on an hyperoctant.
-  // \pre only_in_3d: GetDimension()==3
+  /**
+   * Initialize the points insertion scheme.
+   * Actually, it is just a trick to initialize the IdSet from the filter.
+   * The IdSet class cannot be shared with the filter because it is a Pimpl.
+   * It is used by clip,cut and contour filters to build the points
+   * that lie on an hyperoctant.
+   * \pre only_in_3d: GetDimension()==3
+   */
   virtual void InitPointInsertion();
 
-  // Description:
-  // Insert a point, assuming the point is unique and does not require a
-  // locator. Tt does not mean it does not use a locator. It just mean that
-  // some implementation may skip the use of a locator.
+  /**
+   * Insert a point, assuming the point is unique and does not require a
+   * locator. Tt does not mean it does not use a locator. It just mean that
+   * some implementation may skip the use of a locator.
+   */
   virtual void InsertPoint(vtkIdType ptId,
                            double pt[3],
                            double pcoords[3],
                            int ijk[3]);
 
-  // Description:
-  // Insert a point using a locator.
+  /**
+   * Insert a point using a locator.
+   */
   virtual void InsertPointWithMerge(vtkIdType ptId,
                                     double pt[3],
                                     double pcoords[3],
                                     int ijk[3]);
 
-  // Description:
-  // Insert a point in the quadtree case.
+  /**
+   * Insert a point in the quadtree case.
+   */
   virtual void InsertPoint2D(double pt[3],
                              int ijk[3]);
 
-  // Description:
-  // Return the ordered triangulator.
+  /**
+   * Return the ordered triangulator.
+   */
   vtkOrderedTriangulator *GetTriangulator();
 
-  // Description:
-  // Return the polygon.
+  /**
+   * Return the polygon.
+   */
   vtkPolygon *GetPolygon();
 
 
@@ -94,8 +104,8 @@ protected:
   vtkHyperOctreeIdSet *IdSet;
 
 private:
-  vtkHyperOctreeClipCutPointsGrabber(const vtkHyperOctreeClipCutPointsGrabber&);  // Not implemented.
-  void operator=(const vtkHyperOctreeClipCutPointsGrabber&);    // Not implemented.
+  vtkHyperOctreeClipCutPointsGrabber(const vtkHyperOctreeClipCutPointsGrabber&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHyperOctreeClipCutPointsGrabber&) VTK_DELETE_FUNCTION;
 };
 
 #endif

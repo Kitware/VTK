@@ -181,18 +181,18 @@ static void trilin_line_intersection( float start[3], float vec[3],
     ****/
   if ( (c0 >= 0.0 && c1 >= 0.0 && c2 >= 0.0 && c3 >= 0.0)
        || (c0 <= 0.0 && c1 <= 0.0 && c2 <= 0.0 && c3 <= 0.0))
-    {
+  {
     return;
-    }
+  }
 
   vtkPolynomialSolversUnivariate::SolveCubic( c0, c1, c2, c3, &r1, &r2, &r3, &num_roots );
 
   /* Remove Negative Solutions And Store In Distance Array */
   pos_dist_num = 0;
   for( root=0; root < num_roots; root++ )
-    {
+  {
       switch( root )
-        {
+      {
         case 0:
           dist = r1;
           break;
@@ -201,51 +201,51 @@ static void trilin_line_intersection( float start[3], float vec[3],
           break;
         case 2:
           dist = r3;
-        }
+      }
 
       if( dist >= 0.0 )
-        {
+      {
           solution->local_distance[pos_dist_num] = dist;
           pos_dist_num += 1;
-        }
-    }
+      }
+  }
 
   solution->num_intersections = pos_dist_num;
 
   /* Sort The Solutions Based On Distance */
   if( pos_dist_num == 2 )
-    {
+  {
       if( solution->local_distance[0] > solution->local_distance[1] )
-        {
+      {
           temp = solution->local_distance[0];
           solution->local_distance[0] = solution->local_distance[1];
           solution->local_distance[1] = temp;
-        }
-    }
+      }
+  }
   else if( pos_dist_num == 3 )
-    {
+  {
       if( solution->local_distance[0] > solution->local_distance[1] )
-        {
+      {
           temp = solution->local_distance[0];
           solution->local_distance[0] = solution->local_distance[1];
           solution->local_distance[1] = temp;
-        }
+      }
       if( solution->local_distance[1] > solution->local_distance[2] )
-        {
+      {
           temp = solution->local_distance[1];
           solution->local_distance[1] = solution->local_distance[2];
           solution->local_distance[2] = temp;
-        }
+      }
       if( solution->local_distance[0] > solution->local_distance[1] )
-        {
+      {
           temp = solution->local_distance[0];
           solution->local_distance[0] = solution->local_distance[1];
           solution->local_distance[1] = temp;
-        }
-    }
+      }
+  }
 
   for( root=0; root < solution->num_intersections; root++ )
-    {
+  {
       /**********************************************/
       /* Determine The (x,y,z) Position Of Solution */
       /**********************************************/
@@ -256,7 +256,7 @@ static void trilin_line_intersection( float start[3], float vec[3],
       solution->local_position[root][0] = x;
       solution->local_position[root][1] = y;
       solution->local_position[root][2] = z;
-    }
+  }
 }
 
 // This is the templated function that actually casts a ray and computes
@@ -349,40 +349,40 @@ void vtkCastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   end_voxel_z = vtkMath::Floor(ray_end[2]) + tstep_z;
 
   if (ray_direction_x != 0.0)
-    {
+  {
       tmax_x = fabs((float)((voxel_x+(tstep_x==1)) - ray_position_x) /
                     ray_direction_x);
       tdelta_x = fabs(1.0 / ray_direction_x);
-    }
+  }
   else
-    {
+  {
       tmax_x = VTK_FLOAT_MAX;
       tdelta_x = VTK_FLOAT_MAX;
-    }
+  }
 
   if (ray_direction_y != 0.0)
-    {
+  {
       tmax_y = fabs((float)((voxel_y+(tstep_y==1)) - ray_position_y) /
                     ray_direction_y);
       tdelta_y = fabs(1.0 / ray_direction_y);
-    }
+  }
   else
-    {
+  {
       tmax_y = VTK_FLOAT_MAX;
       tdelta_y = VTK_FLOAT_MAX;
-    }
+  }
 
   if (ray_direction_z != 0.0)
-    {
+  {
       tmax_z = fabs((float)((voxel_z+(tstep_z==1)) - ray_position_z) /
                     ray_direction_z);
       tdelta_z = fabs(1.0 / ray_direction_z);
-    }
+  }
   else
-    {
+  {
       tmax_z = VTK_FLOAT_MAX;
       tdelta_z = VTK_FLOAT_MAX;
-    }
+  }
 
   dptr = data_ptr +
     voxel_x * xinc +
@@ -394,12 +394,12 @@ void vtkCastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   found_intersection = FALSE;
 
   while ( found_intersection == FALSE )
-    {
+  {
       // We've taken another step
       steps_this_ray++;
 
       if ( A >= isovalue )
-        {
+      {
           found_intersection = TRUE;
 
           volumeRed   = staticInfo->Color[0];
@@ -407,7 +407,7 @@ void vtkCastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
           volumeBlue  = staticInfo->Color[2];
 
           if ( staticInfo->Shading )
-            {
+          {
               // Get diffuse shading table pointers
               red_d_shade = staticInfo->RedDiffuseShadingTable;
               green_d_shade = staticInfo->GreenDiffuseShadingTable;
@@ -438,91 +438,91 @@ void vtkCastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
               dynamicInfo->Color[1] = ( g > 1.0 ) ? 1.0 : g;
               dynamicInfo->Color[2] = ( b > 1.0 ) ? 1.0 : b;
               dynamicInfo->Color[3] = 1.0;
-            }
+          }
           else
-            {
+          {
               // No shading
               dynamicInfo->Color[0] = volumeRed;
               dynamicInfo->Color[1] = volumeGreen;
               dynamicInfo->Color[2] = volumeBlue;
               dynamicInfo->Color[3] = 1.0;
-            }
-        }
+          }
+      }
 
       if ( found_intersection == FALSE )
-        {
+      {
           if (tmax_x < tmax_y)
-            {
+          {
               if (tmax_x < tmax_z)
-                {
+              {
                   voxel_x += tstep_x;
 
                   if (voxel_x < 0 || voxel_x >= x_voxels-1
                       || voxel_x == end_voxel_x )
-                    {
+                  {
                       found_intersection = TRUE;
-                    }
+                  }
                   else
-                    {
+                  {
                       tmax_x += tdelta_x;
                       dptr += tstep_x * xinc;
                       A = *dptr;
-                    }
-                }
+                  }
+              }
               else
-                {
+              {
                   voxel_z += tstep_z;
 
                   if (voxel_z < 0 ||  voxel_z >= z_voxels-1
                       || voxel_z == end_voxel_z )
-                    {
+                  {
                       found_intersection = TRUE;
-                    }
+                  }
                   else
-                    {
+                  {
                       tmax_z += tdelta_z;
                       dptr += tstep_z * zinc;
                       A = *dptr;
-                    }
-                }
-            }
+                  }
+              }
+          }
           else
-            {
+          {
               if (tmax_y < tmax_z)
-                {
+              {
                   voxel_y += tstep_y;
 
                   if (voxel_y < 0 ||  voxel_y >= y_voxels-1
                       || voxel_y == end_voxel_y )
-                    {
+                  {
                       found_intersection = TRUE;
-                    }
+                  }
                   else
-                    {
+                  {
                       tmax_y += tdelta_y;
                       dptr += tstep_y * yinc;
                       A = *dptr;
-                    }
-                }
+                  }
+              }
               else
-                {
+              {
                   voxel_z += tstep_z;
 
                   if (voxel_z < 0 || voxel_z >= z_voxels-1
                       || voxel_z == end_voxel_z )
-                    {
+                  {
                       found_intersection = TRUE;
-                    }
+                  }
                   else
-                    {
+                  {
                       tmax_z += tdelta_z;
                       dptr += tstep_z * zinc;
                       A = *dptr;
-                    }
-                }
-            }
-        }
-    }
+                  }
+              }
+          }
+      }
+  }
 
   dynamicInfo->NumberOfStepsTaken = steps_this_ray;
 
@@ -606,9 +606,9 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
        voxel_y >= y_voxels - 1 ||
        voxel_z >= z_voxels - 1 ||
        voxel_x < 0 || voxel_y < 0 || voxel_z < 0 )
-    {
+  {
     return;
-    }
+  }
 
   // Set the local variable to be isovalue for the surface
   isovalue = cast_function->IsoValue;
@@ -622,40 +622,40 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   end_voxel_z = vtkMath::Floor(ray_end[2]) + tstep_z;
 
   if (ray_direction_x != 0.0)
-    {
+  {
     tmax_x = fabs((float)((voxel_x+(tstep_x==1)) - ray_position_x) /
                   ray_direction_x);
     tdelta_x = fabs(1.0 / ray_direction_x);
-    }
+  }
   else
-    {
+  {
     tmax_x = VTK_FLOAT_MAX;
     tdelta_x = VTK_FLOAT_MAX;
-    }
+  }
 
   if (ray_direction_y != 0.0)
-    {
+  {
     tmax_y = fabs((float)((voxel_y+(tstep_y==1)) - ray_position_y) /
                   ray_direction_y);
     tdelta_y = fabs(1.0 / ray_direction_y);
-    }
+  }
   else
-    {
+  {
     tmax_y = VTK_FLOAT_MAX;
     tdelta_y = VTK_FLOAT_MAX;
-    }
+  }
 
   if (ray_direction_z != 0.0)
-    {
+  {
     tmax_z = fabs((float)((voxel_z+(tstep_z==1)) - ray_position_z) /
                   ray_direction_z);
     tdelta_z = fabs(1.0 / ray_direction_z);
-    }
+  }
   else
-    {
+  {
     tmax_z = VTK_FLOAT_MAX;
     tdelta_z = VTK_FLOAT_MAX;
-    }
+  }
 
   dptr = data_ptr +
     voxel_x * xinc +
@@ -683,7 +683,7 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   found_intersection = FALSE;
 
   while ( found_intersection == FALSE )
-    {
+  {
 
     // We've taken another step
     steps_this_ray++;
@@ -694,7 +694,7 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
          && ( A <= isovalue || B <= isovalue || C <= isovalue ||
               D <= isovalue || E <= isovalue || F <= isovalue ||
               G <= isovalue || H <= isovalue ) )
-      {
+    {
       trilin_origin[0] = ray_start[0] - voxel_x;
       trilin_origin[1] = ray_start[1] - voxel_y;
       trilin_origin[2] = ray_start[2] - voxel_z;
@@ -706,11 +706,11 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
           (double) isovalue, &line_info );
 
       if ( line_info.num_intersections > 0 )
-        {
+      {
 
         for (loop=0;  loop<line_info.num_intersections;
              loop++)
-          {
+        {
           float* pos = line_info.local_position[loop];
           point_x = pos[0] + voxel_x;
           point_y = pos[1] + voxel_y;
@@ -719,13 +719,13 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
           if ((VTK_In_Range(point_x, (static_cast<double>(voxel_x) - 0.001), (static_cast<double>(voxel_x) + 1.001))) &&
               (VTK_In_Range(point_y, (static_cast<double>(voxel_y) - 0.001), (static_cast<double>(voxel_y) + 1.001))) &&
               (VTK_In_Range(point_z, (static_cast<double>(voxel_z) - 0.001), (static_cast<double>(voxel_z) + 1.001))))
-            {
+          {
             break;
-            }
           }
+        }
 
         if ( loop < line_info.num_intersections )
-          {
+        {
           found_intersection = TRUE;
 
           volumeRed   = staticInfo->Color[0];
@@ -733,7 +733,7 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
           volumeBlue  = staticInfo->Color[2];
 
           if ( staticInfo->Shading )
-            {
+          {
             // Get diffuse shading table pointers
             red_d_shade = staticInfo->RedDiffuseShadingTable;
             green_d_shade = staticInfo->GreenDiffuseShadingTable;
@@ -859,37 +859,37 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
             dynamicInfo->Color[2] =
               ( blue_shaded_value > 1.0 ) ? 1.0 : blue_shaded_value;
             dynamicInfo->Color[3] = 1.0;
-            }
+          }
           else
-            {
+          {
               // No shading
               dynamicInfo->Color[0] = volumeRed;
               dynamicInfo->Color[1] = volumeGreen;
               dynamicInfo->Color[2] = volumeBlue;
               dynamicInfo->Color[3] = 1.0;
-            }
           }
         }
       }
+    }
     if ( found_intersection == FALSE )
-      {
+    {
       if (tmax_x < tmax_y)
-        {
+      {
         if (tmax_x < tmax_z)
-          {
+        {
           voxel_x += tstep_x;
 
           if (voxel_x < 0 || voxel_x >= x_voxels-1
               || voxel_x == end_voxel_x )
-            {
+          {
             found_intersection = TRUE;
-            }
+          }
           else
-            {
+          {
             tmax_x += tdelta_x;
             dptr += tstep_x * xinc;
             if (tstep_x > 0)
-              {
+            {
               A = B;
               C = D;
               E = F;
@@ -898,9 +898,9 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
               D = *(dptr + Dinc);
               F = *(dptr + Finc);
               H = *(dptr + Hinc);
-              }
+            }
             else
-              {
+            {
               B = A;
               D = C;
               F = E;
@@ -909,24 +909,24 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
               C = *(dptr + Cinc);
               E = *(dptr + Einc);
               G = *(dptr + Ginc);
-              }
             }
           }
+        }
         else
-          {
+        {
           voxel_z += tstep_z;
 
           if (voxel_z < 0 ||  voxel_z >= z_voxels-1
               || voxel_z == end_voxel_z )
-            {
+          {
             found_intersection = TRUE;
-            }
+          }
           else
-            {
+          {
             tmax_z += tdelta_z;
             dptr += tstep_z * zinc;
             if (tstep_z > 0)
-              {
+            {
               A = E;
               B = F;
               C = G;
@@ -935,9 +935,9 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
               F = *(dptr + Finc);
               G = *(dptr + Ginc);
               H = *(dptr + Hinc);
-              }
+            }
             else
-              {
+            {
               E = A;
               F = B;
               G = C;
@@ -946,27 +946,27 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
               B = *(dptr + Binc);
               C = *(dptr + Cinc);
               D = *(dptr + Dinc);
-              }
             }
           }
         }
+      }
       else
-        {
+      {
         if (tmax_y < tmax_z)
-          {
+        {
           voxel_y += tstep_y;
 
           if (voxel_y < 0 ||  voxel_y >= y_voxels-1
               || voxel_y == end_voxel_y )
-            {
+          {
             found_intersection = TRUE;
-            }
+          }
           else
-            {
+          {
             tmax_y += tdelta_y;
             dptr += tstep_y * yinc;
             if (tstep_y > 0)
-              {
+            {
               A = C;
               B = D;
               E = G;
@@ -975,9 +975,9 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
               D = *(dptr + Dinc);
               G = *(dptr + Ginc);
               H = *(dptr + Hinc);
-              }
+            }
             else
-              {
+            {
               C = A;
               D = B;
               G = E;
@@ -986,24 +986,24 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
               B = *(dptr + Binc);
               E = *(dptr + Einc);
               F = *(dptr + Finc);
-              }
             }
           }
+        }
         else
-          {
+        {
             voxel_z += tstep_z;
 
             if (voxel_z < 0 || voxel_z >= z_voxels-1
                 || voxel_z == end_voxel_z )
-              {
+            {
               found_intersection = TRUE;
-              }
+            }
             else
-              {
+            {
                 tmax_z += tdelta_z;
                 dptr += tstep_z * zinc;
                 if (tstep_z > 0)
-                  {
+                {
                   A = E;
                   B = F;
                   C = G;
@@ -1012,9 +1012,9 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
                   F = *(dptr + Finc);
                   G = *(dptr + Ginc);
                   H = *(dptr + Hinc);
-                  }
+                }
                 else
-                  {
+                {
                   E = A;
                   F = B;
                   G = C;
@@ -1023,12 +1023,12 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
                   B = *(dptr + Binc);
                   C = *(dptr + Cinc);
                   D = *(dptr + Dinc);
-                  }
-              }
-          }
+                }
+            }
         }
       }
     }
+  }
 
   dynamicInfo->NumberOfStepsTaken = steps_this_ray;
 }
@@ -1063,10 +1063,10 @@ void vtkVolumeRayCastIsosurfaceFunction::CastRay(
 
   // Cast the ray for the data type and shading/interpolation type
   if ( staticInfo->InterpolationType == VTK_NEAREST_INTERPOLATION )
-    {
+  {
       // Nearest neighbor
       switch ( staticInfo->ScalarDataType )
-        {
+      {
         case VTK_UNSIGNED_CHAR:
           vtkCastRay_NN
             ( this, (unsigned char *)data_ptr, dynamicInfo, staticInfo );
@@ -1078,13 +1078,13 @@ void vtkVolumeRayCastIsosurfaceFunction::CastRay(
         default:
           vtkWarningMacro ( << "Unsigned char and unsigned short are the only supported datatypes for rendering" );
           break;
-        }
-    }
+      }
+  }
   else if ( staticInfo->InterpolationType == VTK_LINEAR_INTERPOLATION )
-    {
+  {
       // Trilinear interpolation
       switch ( staticInfo->ScalarDataType )
-        {
+      {
         case VTK_UNSIGNED_CHAR:
           vtkCastRay_Trilin
             ( this, (unsigned char *)data_ptr, dynamicInfo, staticInfo );
@@ -1096,8 +1096,8 @@ void vtkVolumeRayCastIsosurfaceFunction::CastRay(
         default:
           vtkWarningMacro ( << "Unsigned char and unsigned short are the only supported datatypes for rendering" );
           break;
-        }
-    }
+      }
+  }
 }
 
 float vtkVolumeRayCastIsosurfaceFunction::GetZeroOpacityThreshold(vtkVolume *)
@@ -1116,21 +1116,21 @@ void vtkVolumeRayCastIsosurfaceFunction::SpecificFunctionInitialize(
   volume_property = vol->GetProperty();
 
   if ( volume_property->GetColorChannels() == 1 )
-    {
+  {
     staticInfo->Color[0] =
       volume_property->GetGrayTransferFunction()->GetValue( this->IsoValue );
     staticInfo->Color[1] = staticInfo->Color[0];
     staticInfo->Color[2] = staticInfo->Color[0];
-    }
+  }
   else if ( volume_property->GetColorChannels() == 3 )
-    {
+  {
     staticInfo->Color[0] =
       volume_property->GetRGBTransferFunction()->GetRedValue( this->IsoValue );
     staticInfo->Color[1] =
       volume_property->GetRGBTransferFunction()->GetGreenValue( this->IsoValue );
     staticInfo->Color[2] =
       volume_property->GetRGBTransferFunction()->GetBlueValue( this->IsoValue );
-    }
+  }
 }
 
 // Print method for vtkVolumeRayCastIsosurfaceFunction

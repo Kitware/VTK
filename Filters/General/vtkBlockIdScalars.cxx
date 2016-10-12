@@ -45,17 +45,17 @@ int vtkBlockIdScalars::RequestData(
   vtkMultiBlockDataSet *input = vtkMultiBlockDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!input)
-    {
+  {
     return 0;
-    }
+  }
 
   vtkInformation* info = outputVector->GetInformationObject(0);
   vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::SafeDownCast(
     info->Get(vtkDataObject::DATA_OBJECT()));
   if (!output)
-    {
+  {
     return 0;
-    }
+  }
 
   unsigned int numBlocks = input->GetNumberOfBlocks();
   output->SetNumberOfBlocks(numBlocks);
@@ -67,18 +67,18 @@ int vtkBlockIdScalars::RequestData(
   int blockIdx = 0;
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
     iter->GoToNextItem(), blockIdx++)
-    {
+  {
     vtkDataObject* dObj = iter->GetCurrentDataObject();
     if (dObj)
-      {
+    {
       vtkDataObject* block = this->ColorBlock(dObj, blockIdx);
       if (block)
-        {
+      {
         output->SetDataSet(iter, block);
         block->Delete();
-        }
       }
     }
+  }
 
   iter->Delete();
   return 1;
@@ -90,7 +90,7 @@ vtkDataObject* vtkBlockIdScalars::ColorBlock(
 {
   vtkDataObject* output = 0;
   if (input->IsA("vtkCompositeDataSet"))
-    {
+  {
     vtkCompositeDataSet* mbInput = vtkCompositeDataSet::SafeDownCast(input);
 
     output = input->NewInstance();
@@ -101,21 +101,21 @@ vtkDataObject* vtkBlockIdScalars::ColorBlock(
     vtkCompositeDataIterator* inIter = mbInput->NewIterator();
     for (inIter->InitTraversal(); !inIter->IsDoneWithTraversal();
       inIter->GoToNextItem())
-      {
+    {
       vtkDataObject* src = inIter->GetCurrentDataObject();
       vtkDataObject* dest = 0;
       if (src)
-        {
+      {
         dest = this->ColorBlock(src, group);
-        }
-      mbOutput->SetDataSet(inIter, dest);
       }
+      mbOutput->SetDataSet(inIter, dest);
     }
+  }
   else
-    {
+  {
     vtkDataSet* ds = vtkDataSet::SafeDownCast(input);
     if (ds)
-      {
+    {
       output = ds->NewInstance();
       output->ShallowCopy(ds);
       vtkDataSet* dsOutput = vtkDataSet::SafeDownCast(output);
@@ -123,14 +123,14 @@ vtkDataObject* vtkBlockIdScalars::ColorBlock(
       vtkUnsignedCharArray* cArray = vtkUnsignedCharArray::New();
       cArray->SetNumberOfTuples(numCells);
       for (vtkIdType cellIdx=0; cellIdx<numCells; cellIdx++)
-        {
+      {
         cArray->SetValue(cellIdx, group);
-        }
+      }
       cArray->SetName("BlockIdScalars");
       dsOutput->GetCellData()->AddArray(cArray);
       cArray->Delete();
-      }
     }
+  }
   return output;
 }
 

@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPolyDataReader - Read VTK XML PolyData files.
-// .SECTION Description
-// vtkXMLPolyDataReader reads the VTK XML PolyData file format.  One
-// polygonal data file can be read to produce one output.  Streaming
-// is supported.  The standard extension for this reader's file format
-// is "vtp".  This reader is also used to read a single piece of the
-// parallel file format.
-
-// .SECTION See Also
-// vtkXMLPPolyDataReader
+/**
+ * @class   vtkXMLPolyDataReader
+ * @brief   Read VTK XML PolyData files.
+ *
+ * vtkXMLPolyDataReader reads the VTK XML PolyData file format.  One
+ * polygonal data file can be read to produce one output.  Streaming
+ * is supported.  The standard extension for this reader's file format
+ * is "vtp".  This reader is also used to read a single piece of the
+ * parallel file format.
+ *
+ * @sa
+ * vtkXMLPPolyDataReader
+*/
 
 #ifndef vtkXMLPolyDataReader_h
 #define vtkXMLPolyDataReader_h
@@ -38,17 +41,23 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLPolyDataReader *New();
 
-  // Description:
-  // Get the reader's output.
+  //@{
+  /**
+   * Get the reader's output.
+   */
   vtkPolyData *GetOutput();
   vtkPolyData *GetOutput(int idx);
+  //@}
 
-  // Description:
-  // Get the number of verts/lines/strips/polys in the output.
+  //@{
+  /**
+   * Get the number of verts/lines/strips/polys in the output.
+   */
   virtual vtkIdType GetNumberOfVerts();
   virtual vtkIdType GetNumberOfLines();
   virtual vtkIdType GetNumberOfStrips();
   virtual vtkIdType GetNumberOfPolys();
+  //@}
 
 protected:
   vtkXMLPolyDataReader();
@@ -106,8 +115,8 @@ protected:
   unsigned long PolysOffset;
 
 private:
-  vtkXMLPolyDataReader(const vtkXMLPolyDataReader&);  // Not implemented.
-  void operator=(const vtkXMLPolyDataReader&);  // Not implemented.
+  vtkXMLPolyDataReader(const vtkXMLPolyDataReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLPolyDataReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

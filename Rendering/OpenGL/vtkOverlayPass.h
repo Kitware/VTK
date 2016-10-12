@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOverlayPass - Render the overlay geometry with property key
-// filtering.
-// .SECTION Description
-// vtkOverlayPass renders the overlay geometry of all the props that have the
-// keys contained in vtkRenderState.
-//
-// This pass expects an initialized depth buffer and color buffer.
-// Initialized buffers means they have been cleared with farest z-value and
-// background color/gradient/transparent color.
-//
-// .SECTION See Also
-// vtkRenderPass vtkDefaultPass
+/**
+ * @class   vtkOverlayPass
+ * @brief   Render the overlay geometry with property key
+ * filtering.
+ *
+ * vtkOverlayPass renders the overlay geometry of all the props that have the
+ * keys contained in vtkRenderState.
+ *
+ * This pass expects an initialized depth buffer and color buffer.
+ * Initialized buffers means they have been cleared with farest z-value and
+ * background color/gradient/transparent color.
+ *
+ * @sa
+ * vtkRenderPass vtkDefaultPass
+*/
 
 #ifndef vtkOverlayPass_h
 #define vtkOverlayPass_h
@@ -38,23 +41,26 @@ public:
   vtkTypeMacro(vtkOverlayPass,vtkDefaultPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Perform rendering according to a render state \p s.
-  // \pre s_exists: s!=0
+  /**
+   * Perform rendering according to a render state \p s.
+   * \pre s_exists: s!=0
+   */
   virtual void Render(const vtkRenderState *s);
 
  protected:
-  // Description:
-  // Default constructor.
+  /**
+   * Default constructor.
+   */
   vtkOverlayPass();
 
-  // Description:
-  // Destructor.
+  /**
+   * Destructor.
+   */
   virtual ~vtkOverlayPass();
 
  private:
-  vtkOverlayPass(const vtkOverlayPass&);  // Not implemented.
-  void operator=(const vtkOverlayPass&);  // Not implemented.
+  vtkOverlayPass(const vtkOverlayPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOverlayPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

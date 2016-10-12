@@ -13,19 +13,22 @@
 
 =========================================================================*/
 
-// .NAME vtkDirectionEncoder - encode a direction into a one or two byte value
-//
-// .SECTION Description
-// Given a direction, encode it into an integer value. This value should
-// be less than 65536, which is the maximum number of encoded directions
-// supported by this superclass. A direction encoded is used to encode
-// normals in a volume for use during volume rendering, and the
-// amount of space that is allocated per normal is 2 bytes.
-// This is an abstract superclass - see the subclasses for specific
-// implementation details.
-//
-// .SECTION see also
-// vtkRecursiveSphereDirectionEncoder
+/**
+ * @class   vtkDirectionEncoder
+ * @brief   encode a direction into a one or two byte value
+ *
+ *
+ * Given a direction, encode it into an integer value. This value should
+ * be less than 65536, which is the maximum number of encoded directions
+ * supported by this superclass. A direction encoded is used to encode
+ * normals in a volume for use during volume rendering, and the
+ * amount of space that is allocated per normal is 2 bytes.
+ * This is an abstract superclass - see the subclasses for specific
+ * implementation details.
+ *
+ * @sa
+ * vtkRecursiveSphereDirectionEncoder
+*/
 
 #ifndef vtkDirectionEncoder_h
 #define vtkDirectionEncoder_h
@@ -36,36 +39,43 @@
 class VTKRENDERINGVOLUME_EXPORT vtkDirectionEncoder : public vtkObject
 {
 public:
-  // Description:
-  // Get the name of this class
+  //@{
+  /**
+   * Get the name of this class
+   */
   vtkTypeMacro(vtkDirectionEncoder,vtkObject);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  //@}
 
-  // Description:
-  // Given a normal vector n, return the encoded direction
+  /**
+   * Given a normal vector n, return the encoded direction
+   */
   virtual int GetEncodedDirection( float n[3] )=0;
 
-  // Description:
-  /// Given an encoded value, return a pointer to the normal vector
+  /**
+   * / Given an encoded value, return a pointer to the normal vector
+   */
   virtual float *GetDecodedGradient( int value )=0;
 
-  // Description:
-  // Return the number of encoded directions
+  /**
+   * Return the number of encoded directions
+   */
   virtual  int GetNumberOfEncodedDirections( void )=0;
 
-  // Description:
-  // Get the decoded gradient table. There are
-  // this->GetNumberOfEncodedDirections() entries in the table, each
-  // containing a normal (direction) vector. This is a flat structure -
-  // 3 times the number of directions floats in an array.
+  /**
+   * Get the decoded gradient table. There are
+   * this->GetNumberOfEncodedDirections() entries in the table, each
+   * containing a normal (direction) vector. This is a flat structure -
+   * 3 times the number of directions floats in an array.
+   */
   virtual float *GetDecodedGradientTable( void )=0;
 
 protected:
   vtkDirectionEncoder() {}
   ~vtkDirectionEncoder() {}
 private:
-  vtkDirectionEncoder(const vtkDirectionEncoder&);  // Not implemented.
-  void operator=(const vtkDirectionEncoder&);  // Not implemented.
+  vtkDirectionEncoder(const vtkDirectionEncoder&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDirectionEncoder&) VTK_DELETE_FUNCTION;
 };
 
 

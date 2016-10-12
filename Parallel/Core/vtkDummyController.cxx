@@ -46,17 +46,17 @@ void vtkDummyController::PrintSelf(ostream& os, vtkIndent indent)
 void vtkDummyController::SingleMethodExecute()
 {
   if (this->SingleMethod)
-    {
+  {
     // Should we set the global controller here?  I'm going to say no since
     // we are not really a parallel job or at the very least not the global
     // controller.
 
     (this->SingleMethod)(this, this->SingleData);
-    }
+  }
   else
-    {
+  {
     vtkWarningMacro("SingleMethod not set.");
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -68,15 +68,15 @@ void vtkDummyController::MultipleMethodExecute()
   void *multipleData;
   this->GetMultipleMethod(i, multipleMethod, multipleData);
   if (multipleMethod)
-    {
+  {
     // Should we set the global controller here?  I'm going to say no since
     // we are not really a parallel job or at the very least not the global
     // controller.
 
     (multipleMethod)(this, multipleData);
-    }
+  }
   else
-    {
+  {
     vtkWarningMacro("MultipleMethod " << i << " not set.");
-    }
+  }
 }

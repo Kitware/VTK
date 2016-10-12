@@ -113,13 +113,13 @@ int TestClipHyperOctree(int argc, char* argv[])
   mapper3d->SetLookupTable(lut3d);
 
   if(surface3d->GetOutput()->GetCellData()!=0)
-    {
+  {
     if(surface3d->GetOutput()->GetCellData()->GetScalars()!=0)
-      {
+    {
       mapper3d->SetScalarRange( surface3d->GetOutput()->GetCellData()->
                               GetScalars()->GetRange());
-      }
     }
+  }
 
   vtkActor *actor3d = vtkActor::New();
   actor3d->SetMapper(mapper3d);
@@ -192,13 +192,13 @@ int TestClipHyperOctree(int argc, char* argv[])
   mapper2d->SetLookupTable(lut2d);
 
   if(surface2d->GetOutput()->GetCellData()!=0)
-    {
+  {
     if(surface2d->GetOutput()->GetCellData()->GetScalars()!=0)
-      {
+    {
       mapper2d->SetScalarRange( surface2d->GetOutput()->GetCellData()->
                               GetScalars()->GetRange());
-      }
     }
+  }
 
   vtkActor *actor2d = vtkActor::New();
   actor2d->SetPosition(5,0,0);
@@ -272,13 +272,13 @@ int TestClipHyperOctree(int argc, char* argv[])
   mapper1d->SetLookupTable(lut1d);
 
   if(surface1d->GetOutput()->GetCellData()!=0)
-    {
+  {
     if(surface1d->GetOutput()->GetCellData()->GetScalars()!=0)
-      {
+    {
       mapper1d->SetScalarRange( surface1d->GetOutput()->GetCellData()->
                               GetScalars()->GetRange());
-      }
     }
+  }
 
   vtkActor *actor1d = vtkActor::New();
   actor1d->SetPosition(10,0,0);
@@ -305,9 +305,9 @@ int TestClipHyperOctree(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Cleanup
   renderer->Delete();

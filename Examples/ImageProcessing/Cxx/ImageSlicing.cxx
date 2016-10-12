@@ -64,8 +64,8 @@ public:
   vtkRenderWindowInteractor *GetInteractor() {
     return this->Interactor; };
 
-  virtual void Execute(vtkObject *, unsigned long event, void *)
-    {
+  void Execute(vtkObject *, unsigned long event, void *) VTK_OVERRIDE
+  {
     vtkRenderWindowInteractor *interactor = this->GetInteractor();
 
     int lastPos[2];
@@ -74,17 +74,17 @@ public:
     interactor->GetEventPosition(currPos);
 
     if (event == vtkCommand::LeftButtonPressEvent)
-      {
+    {
       this->Slicing = 1;
-      }
+    }
     else if (event == vtkCommand::LeftButtonReleaseEvent)
-      {
+    {
       this->Slicing = 0;
-      }
+    }
     else if (event == vtkCommand::MouseMoveEvent)
-      {
+    {
       if (this->Slicing)
-        {
+      {
         vtkImageReslice *reslice = this->ImageReslice;
 
         // Increment slice position by deltaY of mouse
@@ -105,18 +105,18 @@ public:
         matrix->SetElement(1, 3, center[1]);
         matrix->SetElement(2, 3, center[2]);
         interactor->Render();
-        }
+      }
       else
-        {
+      {
         vtkInteractorStyle *style = vtkInteractorStyle::SafeDownCast(
           interactor->GetInteractorStyle());
         if (style)
-          {
+        {
           style->OnMouseMove();
-          }
         }
       }
-    };
+    }
+  };
 
 private:
 
@@ -134,10 +134,10 @@ private:
 int main (int argc, char *argv[])
 {
   if (argc < 2)
-    {
+  {
     cout << "Usage: " << argv[0] << " DATADIR/headsq/quarter" << endl;
     return 1;
-    }
+  }
 
   // Start by loading some data.
   vtkSmartPointer<vtkImageReader2> reader =

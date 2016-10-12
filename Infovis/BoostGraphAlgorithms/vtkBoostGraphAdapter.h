@@ -17,13 +17,15 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkDirectedGraph*ToBoostAdapter - adapter to the boost graph library (www.boost.org)
-//
-// .SECTION Description
-// Including this header allows you to use a vtkDirectedGraph* in boost algorithms.
-// To do this, first wrap the class in a vtkDirectedGraph* or
-// vtkUndirectedGraph* depending on whether your graph is directed or undirected.
-// You may then use these objects directly in boost graph algorithms.
+/**
+ * @class   vtkDirectedGraph
+ *
+ *
+ * Including this header allows you to use a vtkDirectedGraph* in boost algorithms.
+ * To do this, first wrap the class in a vtkDirectedGraph* or
+ * vtkUndirectedGraph* depending on whether your graph is directed or undirected.
+ * You may then use these objects directly in boost graph algorithms.
+*/
 
 #ifndef vtkBoostGraphAdapter_h
 #define vtkBoostGraphAdapter_h
@@ -59,12 +61,12 @@ namespace boost {
 #define vtkPropertyMapMacro(T, V)                       \
   template <>                                           \
   struct property_traits<T*>                            \
-    {                                                   \
+  {                                                   \
     typedef V value_type;                               \
     typedef V reference;                                \
     typedef vtkIdType key_type;                         \
     typedef read_write_property_map_tag category;       \
-    };                                                  \
+  };                                                  \
                                                         \
   inline property_traits<T*>::reference                 \
   get(                                                  \
@@ -159,7 +161,7 @@ namespace boost {
                            bidirectional_traversal_tag,
                            vtkIdType,
                            vtkIdType>
-    {
+  {
     public:
       explicit vtk_vertex_iterator(vtkIdType i = 0) : index(i) {}
 
@@ -175,7 +177,7 @@ namespace boost {
       vtkIdType index;
 
       friend class iterator_core_access;
-    };
+  };
 
   class vtk_edge_iterator :
     public iterator_facade<vtk_edge_iterator,
@@ -183,36 +185,36 @@ namespace boost {
                            forward_traversal_tag,
                            vtkEdgeType,
                            vtkIdType>
-    {
+  {
     public:
       explicit vtk_edge_iterator(vtkGraph *g = 0, vtkIdType v = 0) :
         directed(false), vertex(v), lastVertex(v), iter(0), end(0), graph(g)
-        {
+      {
         if (graph)
-          {
+        {
           lastVertex = graph->GetNumberOfVertices();
-          }
+        }
 
         vtkIdType myRank = -1;
         vtkDistributedGraphHelper *helper
           = this->graph? this->graph->GetDistributedGraphHelper() : 0;
         if (helper)
-          {
+        {
           myRank = this->graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
           vertex = helper->MakeDistributedId(myRank, vertex);
           lastVertex = helper->MakeDistributedId(myRank, lastVertex);
-          }
+        }
 
         if (graph != 0)
-          {
+        {
           directed = (vtkDirectedGraph::SafeDownCast(graph) != 0);
           while (vertex < lastVertex && this->graph->GetOutDegree(vertex) == 0)
-            {
+          {
             ++vertex;
-            }
+          }
 
           if (vertex < lastVertex)
-            {
+          {
             // Get the outgoing edges of the first vertex that has outgoing
             // edges
             vtkIdType nedges;
@@ -220,7 +222,7 @@ namespace boost {
             end = iter + nedges;
 
             if (!directed)
-              {
+            {
               while(iter != 0
                     && (// Skip non-local edges
                         (helper && helper->GetEdgeOwner(iter->Id) != myRank)
@@ -229,17 +231,17 @@ namespace boost {
                               && myRank == helper->GetVertexOwner(iter->Target))
                              || !helper)
                             && vertex > iter->Target)))
-                {
+              {
                 this->inc();
-                }
               }
             }
+          }
           else
-            {
+          {
             iter = 0;
-            }
           }
         }
+      }
 
     private:
       vtkEdgeType dereference() const
@@ -249,17 +251,17 @@ namespace boost {
         { return vertex == other.vertex && iter == other.iter; }
 
       void increment()
-        {
+      {
         inc();
         if (!directed)
-          {
+        {
           vtkIdType myRank = -1;
           vtkDistributedGraphHelper *helper
             = this->graph? this->graph->GetDistributedGraphHelper() : 0;
           if (helper)
-            {
+          {
             myRank = this->graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
-            }
+          }
 
           while (iter != 0
                  && (// Skip non-local edges
@@ -269,36 +271,36 @@ namespace boost {
                            && myRank == helper->GetVertexOwner(iter->Target))
                           || !helper)
                          && vertex > iter->Target)))
-            {
+          {
             inc();
-            }
           }
         }
+      }
 
       void inc()
-        {
+      {
         ++iter;
         if (iter == end)
-          {
+        {
           // Find a vertex with nonzero out degree.
           ++vertex;
           while (vertex < lastVertex && this->graph->GetOutDegree(vertex) == 0)
-            {
+          {
             ++vertex;
-            }
+          }
 
           if (vertex < lastVertex)
-            {
+          {
             vtkIdType nedges;
             graph->GetOutEdges(vertex, iter, nedges);
             end = iter + nedges;
-            }
+          }
           else
-            {
+          {
             iter = 0;
-            }
           }
         }
+      }
 
       bool directed;
       vtkIdType vertex;
@@ -308,7 +310,7 @@ namespace boost {
       vtkGraph *graph;
 
       friend class iterator_core_access;
-    };
+  };
 
   class vtk_out_edge_pointer_iterator :
     public iterator_facade<vtk_out_edge_pointer_iterator,
@@ -316,20 +318,20 @@ namespace boost {
                            bidirectional_traversal_tag,
                            vtkEdgeType,
                            ptrdiff_t>
-    {
+  {
     public:
       explicit vtk_out_edge_pointer_iterator(vtkGraph *g = 0, vtkIdType v = 0, bool end = false) :
         vertex(v)
       {
         if (g)
-          {
+        {
           vtkIdType nedges;
           g->GetOutEdges(vertex, iter, nedges);
           if (end)
-            {
+          {
             iter += nedges;
-            }
           }
+        }
       }
 
     private:
@@ -345,7 +347,7 @@ namespace boost {
       const vtkOutEdgeType *iter;
 
       friend class iterator_core_access;
-    };
+  };
 
   class vtk_in_edge_pointer_iterator :
     public iterator_facade<vtk_in_edge_pointer_iterator,
@@ -353,20 +355,20 @@ namespace boost {
                            bidirectional_traversal_tag,
                            vtkEdgeType,
                            ptrdiff_t>
-    {
+  {
     public:
       explicit vtk_in_edge_pointer_iterator(vtkGraph *g = 0, vtkIdType v = 0, bool end = false) :
         vertex(v)
       {
         if (g)
-          {
+        {
           vtkIdType nedges;
           g->GetInEdges(vertex, iter, nedges);
           if (end)
-            {
+          {
             iter += nedges;
-            }
           }
+        }
       }
 
     private:
@@ -382,7 +384,7 @@ namespace boost {
       const vtkInEdgeType *iter;
 
       friend class iterator_core_access;
-    };
+  };
 
   //===========================================================================
   // vtkGraph
@@ -453,22 +455,22 @@ namespace boost {
   };
 
   inline bool has_no_edges(vtkGraph* g)
-    {
+  {
       return ((g->GetNumberOfEdges() > 0) ? false : true);
-    }
+  }
 
   inline void remove_edge(graph_traits<vtkGraph*>::edge_descriptor e,
                           vtkGraph* g)
-    {
+  {
     if(vtkMutableDirectedGraph::SafeDownCast(g))
-      {
+    {
       vtkMutableDirectedGraph::SafeDownCast(g)->RemoveEdge(e.Id);
-      }
-    else if(vtkMutableUndirectedGraph::SafeDownCast(g))
-      {
-      vtkMutableUndirectedGraph::SafeDownCast(g)->RemoveEdge(e.Id);
-      }
     }
+    else if(vtkMutableUndirectedGraph::SafeDownCast(g))
+    {
+      vtkMutableUndirectedGraph::SafeDownCast(g)->RemoveEdge(e.Id);
+    }
+  }
 
   //===========================================================================
   // vtkDirectedGraph
@@ -838,11 +840,11 @@ vertices(vtkGraph *g)
   typedef boost::graph_traits< vtkGraph* >::vertex_iterator Iter;
   vtkIdType start = 0;
   if (vtkDistributedGraphHelper *helper = g->GetDistributedGraphHelper())
-    {
+  {
     int rank =
       g->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
     start = helper->MakeDistributedId(rank, start);
-    }
+  }
 
   return std::make_pair( Iter(start),
                                 Iter(start + g->GetNumberOfVertices()) );
@@ -975,12 +977,12 @@ namespace boost {
 
   template <>
   struct property_traits<vtkGraphEdgeMap>
-    {
+  {
     typedef vtkIdType value_type;
     typedef vtkIdType reference;
     typedef vtkEdgeType key_type;
     typedef readable_property_map_tag category;
-    };
+  };
 
   inline property_traits<vtkGraphEdgeMap>::reference
   get(
@@ -1033,12 +1035,12 @@ namespace boost {
 
   template <>
   struct property_traits<vtkGraphIndexMap>
-    {
+  {
     typedef vtkIdType value_type;
     typedef vtkIdType reference;
     typedef vtkIdType key_type;
     typedef readable_property_map_tag category;
-    };
+  };
 
   inline property_traits<vtkGraphIndexMap>::reference
   get(

@@ -44,9 +44,9 @@ vtkCollection::~vtkCollection()
 void vtkCollection::DeleteElement(vtkCollectionElement *e)
 {
   if (e->Item != NULL)
-    {
+  {
     e->Item->UnRegister(this);
-    }
+  }
   delete e;
 }
 
@@ -56,23 +56,23 @@ RemoveElement(vtkCollectionElement *elem, vtkCollectionElement *prev)
 {
   assert(elem);
   if (prev)
-    {
+  {
     prev->Next = elem->Next;
-    }
+  }
   else
-    {
+  {
     this->Top = elem->Next;
-    }
+  }
 
   if (!elem->Next)
-    {
+  {
     this->Bottom = prev;
-    }
+  }
 
   if ( this->Current == elem )
-    {
+  {
     this->Current = elem->Next;
-    }
+  }
 
   this->NumberOfItems--;
   this->DeleteElement(elem);
@@ -86,13 +86,13 @@ void vtkCollection::AddItem(vtkObject *a)
   elem = new vtkCollectionElement;
 
   if (!this->Top)
-    {
+  {
     this->Top = elem;
-    }
+  }
   else
-    {
+  {
     this->Bottom->Next = elem;
-    }
+  }
   this->Bottom = elem;
 
   a->Register(this);
@@ -109,9 +109,9 @@ void vtkCollection::AddItem(vtkObject *a)
 void vtkCollection::InsertItem(int i, vtkObject *a)
 {
   if( i >= this->NumberOfItems || !this->Top )
-    {
+  {
     return;
-    }
+  }
 
   vtkCollectionElement *elem;
 
@@ -119,32 +119,32 @@ void vtkCollection::InsertItem(int i, vtkObject *a)
   vtkCollectionElement *curr = this->Top;
 
   if( i < 0 )
-    {
+  {
     this->Top = elem;
     elem->Next = curr;
-    }
+  }
   else
-    {
+  {
     vtkCollectionElement *next = curr->Next;
 
     int j = 0;
     while( j != i )
-      {
+    {
       curr = next;
       next = curr->Next;
       j++;
-      }
+    }
 
     curr->Next = elem;
     if( curr == this->Bottom )
-      {
+    {
       this->Bottom = elem;
-      }
-    else
-      {
-      elem->Next = next;
-      }
     }
+    else
+    {
+      elem->Next = next;
+    }
+  }
 
   a->Register(this);
   elem->Item = a;
@@ -160,26 +160,26 @@ void vtkCollection::InsertItem(int i, vtkObject *a)
 void vtkCollection::RemoveItem(vtkObject *a)
 {
   if (!this->Top)
-    {
+  {
     return;
-    }
+  }
 
   vtkCollectionElement *prev = NULL;
   vtkCollectionElement *elem = this->Top;
   for (int i = 0; i < this->NumberOfItems; i++)
-    {
+  {
     if (elem->Item == a)
-      {
+    {
       this->RemoveElement(elem, prev);
       this->Modified();
       return;
-      }
+    }
     else
-      {
+    {
       prev = elem;
       elem = elem->Next;
-      }
     }
+  }
 }
 
 // Remove all objects from the list.
@@ -187,14 +187,14 @@ void vtkCollection::RemoveAllItems()
 {
   // Don't modify if collection is empty
   if(this->NumberOfItems == 0)
-    {
+  {
     return;
-    }
+  }
 
   while (this->NumberOfItems)
-    {
+  {
     this->RemoveElement(this->Top, NULL);
-    }
+  }
 
   this->Modified();
 }
@@ -207,22 +207,22 @@ int vtkCollection::IsItemPresent(vtkObject *a)
   vtkCollectionElement *elem;
 
   if (!this->Top)
-    {
+  {
     return 0;
-    }
+  }
 
   elem = this->Top;
   for (i = 0; i < this->NumberOfItems; i++)
-    {
+  {
     if (elem->Item == a)
-      {
+    {
       return i + 1;
-      }
-    else
-      {
-      elem = elem->Next;
-      }
     }
+    else
+    {
+      elem = elem->Next;
+    }
+  }
 
   return 0;
 }
@@ -243,31 +243,31 @@ vtkObject *vtkCollection::GetItemAsObject(int i)
   vtkCollectionElement *elem=this->Top;
 
   if (i < 0)
-    {
+  {
     return NULL;
-    }
+  }
 
   if (i == this->NumberOfItems - 1)
-    {
+  {
     // optimize for the special case where we're looking for the last elem
     elem = this->Bottom;
-    }
+  }
   else
-    {
+  {
     while (elem != NULL && i > 0)
-      {
+    {
       elem = elem->Next;
       i--;
-      }
     }
+  }
   if ( elem != NULL )
-    {
+  {
     return elem->Item;
-    }
+  }
   else
-    {
+  {
     return NULL;
-    }
+  }
 }
 
 
@@ -277,26 +277,26 @@ void vtkCollection::ReplaceItem(int i, vtkObject *a)
   vtkCollectionElement *elem;
 
   if( i < 0 || i >= this->NumberOfItems )
-    {
+  {
     return;
-    }
+  }
 
   elem = this->Top;
   if (i == this->NumberOfItems - 1)
-    {
+  {
     elem = this->Bottom;
-    }
+  }
   else
-    {
+  {
     for (int j = 0; j < i; j++, elem = elem->Next )
       {}
-    }
+  }
 
   // Take care of reference counting
   if (elem->Item != NULL)
-    {
+  {
     elem->Item->UnRegister(this);
-    }
+  }
   a->Register(this);
 
   // j == i
@@ -316,17 +316,17 @@ void vtkCollection::RemoveItem(int i)
   vtkCollectionElement *elem,*prev;
 
   if( i < 0 || i >= this->NumberOfItems )
-    {
+  {
     return;
-    }
+  }
 
   elem = this->Top;
   prev = NULL;
   for (int j = 0; j < i; j++)
-    {
+  {
     prev = elem;
     elem = elem->Next;
-    }
+  }
 
   this->RemoveElement(elem, prev);
   this->Modified();
@@ -356,7 +356,7 @@ void vtkCollection::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
   for(vtkCollectionElement* elem = this->Top; elem; elem = elem->Next)
-    {
+  {
     vtkGarbageCollectorReport(collector, elem->Item, "Element");
-    }
+  }
 }

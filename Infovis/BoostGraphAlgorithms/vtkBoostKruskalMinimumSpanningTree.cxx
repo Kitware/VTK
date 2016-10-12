@@ -89,19 +89,19 @@ int vtkBoostKruskalMinimumSpanningTree::RequestData(
 
   // Retrieve the edge-weight array.
   if (!this->EdgeWeightArrayName)
-    {
+  {
     vtkErrorMacro("Edge-weight array name is required");
     return 0;
-    }
+  }
   vtkDataArray* edgeWeightArray = input->GetEdgeData()->GetArray(this->EdgeWeightArrayName);
 
   // Does the edge-weight array exist at all?
   if (edgeWeightArray == NULL)
-    {
+  {
     vtkErrorMacro("Could not find edge-weight array named "
                   << this->EdgeWeightArrayName);
     return 0;
-    }
+  }
 
   // Send the property map through both the multiplier and the
   // helper (for edge_descriptor indexing)
@@ -112,27 +112,27 @@ int vtkBoostKruskalMinimumSpanningTree::RequestData(
   // Run the algorithm
   std::vector<vtkEdgeType> mstEdges;
   if (vtkDirectedGraph::SafeDownCast(input))
-    {
+  {
     vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(input);
     kruskal_minimum_spanning_tree(g, std::back_inserter(mstEdges), weight_map(weight_helper));
-    }
+  }
   else
-    {
+  {
     vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(input);
     kruskal_minimum_spanning_tree(g, std::back_inserter(mstEdges), weight_map(weight_helper));
-    }
+  }
 
   // Select the minimum spanning tree edges.
   if (!strcmp(OutputSelectionType,"MINIMUM_SPANNING_TREE_EDGES"))
-    {
+  {
     vtkIdTypeArray* ids = vtkIdTypeArray::New();
 
     // Add the ids of each MST edge.
     for (std::vector<vtkEdgeType>::iterator i = mstEdges.begin();
          i != mstEdges.end(); ++i)
-      {
+    {
       ids->InsertNextValue(i->Id);
-      }
+    }
 
     vtkSmartPointer<vtkSelectionNode> node =
       vtkSmartPointer<vtkSelectionNode>::New();
@@ -141,7 +141,7 @@ int vtkBoostKruskalMinimumSpanningTree::RequestData(
     node->SetContentType(vtkSelectionNode::INDICES);
     node->SetFieldType(vtkSelectionNode::EDGE);
     ids->Delete();
-    }
+  }
 
   return 1;
 }
@@ -152,9 +152,9 @@ int vtkBoostKruskalMinimumSpanningTree::FillInputPortInformation(
 {
   // now add our info
   if (port == 0)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
-    }
+  }
   return 1;
 }
 
@@ -164,9 +164,9 @@ int vtkBoostKruskalMinimumSpanningTree::FillOutputPortInformation(
 {
   // now add our info
   if (port == 0)
-    {
+  {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkSelection");
-    }
+  }
   return 1;
 }
 

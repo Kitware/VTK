@@ -80,16 +80,16 @@ int main()
   renWin->SetSize( 300, 300 );
 
   //
-  // Now we loop over 360 degreeees and render the cone each time.
+  // Now we loop over 360 degrees and render the cone each time.
   //
   int i;
   for (i = 0; i < 360; ++i)
-    {
+  {
     // render the image
     renWin->Render();
     // rotate the active camera by one degree
     ren1->GetActiveCamera()->Azimuth( 1 );
-    }
+  }
 
   //
   // Free up any objects we created. All instances in VTK are deleted by

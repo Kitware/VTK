@@ -12,70 +12,72 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBrokenLineWidget - 3D widget for manipulating a broken line
-// .SECTION Description
-// This 3D widget defines a broken line that can be interactively placed in a
-// scene. The broken line has handles, the number of which can be changed, plus it
-// can be picked on the broken line itself to translate or rotate it in the scene.
-// A nice feature of the object is that the vtkBrokenLineWidget, like any 3D
-// widget, will work with the current interactor style. That is, if
-// vtkBrokenLineWidget does not handle an event, then all other registered
-// observers (including the interactor style) have an opportunity to process
-// the event. Otherwise, the vtkBrokenLineWidget will terminate the processing of
-// the event that it handles.
-//
-// To use this object, just invoke SetInteractor() with the argument of the
-// method a vtkRenderWindowInteractor.  You may also wish to invoke
-// "PlaceWidget()" to initially position the widget. The interactor will act
-// normally until the "i" key (for "interactor") is pressed, at which point the
-// vtkBrokenLineWidget will appear. (See superclass documentation for information
-// about changing this behavior.) Events that occur outside of the widget
-// (i.e., no part of the widget is picked) are propagated to any other
-// registered obsevers (such as the interaction style).  Turn off the widget
-// by pressing the "i" key again (or invoke the Off() method).
-//
-// The button actions and key modifiers are as follows for controlling the
-// widget:
-// 1) left button down on and drag one of the spherical handles to change the
-// shape of the broken line: the handles act as "control points".
-// 2) left button or middle button down on a line segment forming the broken line
-// allows uniform translation of the widget.
-// 3) ctrl + middle button down on the widget enables spinning of the widget
-// about its center.
-// 4) right button down on the widget enables scaling of the widget. By moving
-// the mouse "up" the render window the broken line will be made bigger; by moving
-// "down" the render window the widget will be made smaller.
-// 5) ctrl key + right button down on any handle will erase it providing there
-// will be two or more points remaining to form a broken line.
-// 6) shift key + right button down on any line segment will insert a handle
-// onto the broken line at the cursor position.
-//
-// The vtkBrokenLineWidget has several methods that can be used in conjunction with
-// other VTK objects. The GetPolyData() method can be used to get the
-// polygonal representation and can be used for things like seeding
-// streamlines or probing other data sets. Typical usage of the widget is to
-// make use of the StartInteractionEvent, InteractionEvent, and
-// EndInteractionEvent events. The InteractionEvent is called on mouse motion;
-// the other two events are called on button down and button up (either left or
-// right button).
-//
-// Some additional features of this class include the ability to control the
-// properties of the widget. You can set the properties of the selected and
-// unselected representations of the broken line. For example, you can set the
-// property for the handles and broken line. In addition there are methods to
-// constrain the broken line so that it is aligned with a plane.  Note that a simple
-// ruler widget can be derived by setting the resolution to 1, the number of
-// handles to 2, and calling the GetSummedLength method!
-
-// .SECTION Thanks
-// This class was written by Philippe Pebay, Kitware SAS 2012
-// This work was supported by CEA/DIF - Commissariat a l'Energie Atomique, 
-// Centre DAM Ile-De-France, BP12, F-91297 Arpajon, France.
-
-// .SECTION See Also
-// vtk3DWidget vtkBoxWidget vtkLineWidget vtkPointWidget vtkSphereWidget
-// vtkImagePlaneWidget vtkImplicitPlaneWidget vtkPlaneWidget
-
+/**
+ * @class   vtkBrokenLineWidget
+ * @brief   3D widget for manipulating a broken line
+ *
+ * This 3D widget defines a broken line that can be interactively placed in a
+ * scene. The broken line has handles, the number of which can be changed, plus it
+ * can be picked on the broken line itself to translate or rotate it in the scene.
+ * A nice feature of the object is that the vtkBrokenLineWidget, like any 3D
+ * widget, will work with the current interactor style. That is, if
+ * vtkBrokenLineWidget does not handle an event, then all other registered
+ * observers (including the interactor style) have an opportunity to process
+ * the event. Otherwise, the vtkBrokenLineWidget will terminate the processing of
+ * the event that it handles.
+ *
+ * To use this object, just invoke SetInteractor() with the argument of the
+ * method a vtkRenderWindowInteractor.  You may also wish to invoke
+ * "PlaceWidget()" to initially position the widget. The interactor will act
+ * normally until the "i" key (for "interactor") is pressed, at which point the
+ * vtkBrokenLineWidget will appear. (See superclass documentation for information
+ * about changing this behavior.) Events that occur outside of the widget
+ * (i.e., no part of the widget is picked) are propagated to any other
+ * registered obsevers (such as the interaction style).  Turn off the widget
+ * by pressing the "i" key again (or invoke the Off() method).
+ *
+ * The button actions and key modifiers are as follows for controlling the
+ * widget:
+ * 1) left button down on and drag one of the spherical handles to change the
+ * shape of the broken line: the handles act as "control points".
+ * 2) left button or middle button down on a line segment forming the broken line
+ * allows uniform translation of the widget.
+ * 3) ctrl + middle button down on the widget enables spinning of the widget
+ * about its center.
+ * 4) right button down on the widget enables scaling of the widget. By moving
+ * the mouse "up" the render window the broken line will be made bigger; by moving
+ * "down" the render window the widget will be made smaller.
+ * 5) ctrl key + right button down on any handle will erase it providing there
+ * will be two or more points remaining to form a broken line.
+ * 6) shift key + right button down on any line segment will insert a handle
+ * onto the broken line at the cursor position.
+ *
+ * The vtkBrokenLineWidget has several methods that can be used in conjunction with
+ * other VTK objects. The GetPolyData() method can be used to get the
+ * polygonal representation and can be used for things like seeding
+ * streamlines or probing other data sets. Typical usage of the widget is to
+ * make use of the StartInteractionEvent, InteractionEvent, and
+ * EndInteractionEvent events. The InteractionEvent is called on mouse motion;
+ * the other two events are called on button down and button up (either left or
+ * right button).
+ *
+ * Some additional features of this class include the ability to control the
+ * properties of the widget. You can set the properties of the selected and
+ * unselected representations of the broken line. For example, you can set the
+ * property for the handles and broken line. In addition there are methods to
+ * constrain the broken line so that it is aligned with a plane.  Note that a simple
+ * ruler widget can be derived by setting the resolution to 1, the number of
+ * handles to 2, and calling the GetSummedLength method!
+ *
+ * @par Thanks:
+ * This class was written by Philippe Pebay, Kitware SAS 2012
+ * This work was supported by CEA/DIF - Commissariat a l'Energie Atomique,
+ * Centre DAM Ile-De-France, BP12, F-91297 Arpajon, France.
+ *
+ * @sa
+ * vtk3DWidget vtkBoxWidget vtkLineWidget vtkPointWidget vtkSphereWidget
+ * vtkImagePlaneWidget vtkImplicitPlaneWidget vtkPlaneWidget
+*/
 
 #ifndef vtkBrokenLineWidget_h
 #define vtkBrokenLineWidget_h
@@ -103,15 +105,18 @@ class vtkTransform;
 class VTKINTERACTIONWIDGETS_EXPORT vtkBrokenLineWidget : public vtk3DWidget
 {
 public:
-  // Description:
-  // Instantiate the object.
+  /**
+   * Instantiate the object.
+   */
   static vtkBrokenLineWidget *New();
 
   vtkTypeMacro(vtkBrokenLineWidget,vtk3DWidget);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Methods that satisfy the superclass' API.
+  //@{
+  /**
+   * Methods that satisfy the superclass' API.
+   */
   virtual void SetEnabled(int);
   virtual void PlaceWidget(double bounds[6]);
   void PlaceWidget()
@@ -119,21 +124,26 @@ public:
   void PlaceWidget(double xmin, double xmax, double ymin, double ymax,
                    double zmin, double zmax)
     {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
+  //@}
 
-  // Description:
-  // Force the broken line widget to be projected onto one of the orthogonal planes.
-  // Remember that when the state changes, a ModifiedEvent is invoked.
-  // This can be used to snap the broken line to the plane if it is originally
-  // not aligned.  The normal in SetProjectionNormal is 0,1,2 for YZ,XZ,XY
-  // planes respectively and 3 for arbitrary oblique planes when the widget
-  // is tied to a vtkPlaneSource.
+  //@{
+  /**
+   * Force the broken line widget to be projected onto one of the orthogonal planes.
+   * Remember that when the state changes, a ModifiedEvent is invoked.
+   * This can be used to snap the broken line to the plane if it is originally
+   * not aligned.  The normal in SetProjectionNormal is 0,1,2 for YZ,XZ,XY
+   * planes respectively and 3 for arbitrary oblique planes when the widget
+   * is tied to a vtkPlaneSource.
+   */
   vtkSetMacro(ProjectToPlane,int);
   vtkGetMacro(ProjectToPlane,int);
   vtkBooleanMacro(ProjectToPlane,int);
+  //@}
 
-  // Description:
-  // Set up a reference to a vtkPlaneSource that could be from another widget
-  // object, e.g. a vtkPolyDataSourceWidget.
+  /**
+   * Set up a reference to a vtkPlaneSource that could be from another widget
+   * object, e.g. a vtkPolyDataSourceWidget.
+   */
   void SetPlaneSource(vtkPlaneSource* plane);
 
   vtkSetClampMacro(ProjectionNormal,int,VTK_PROJECTION_YZ,VTK_PROJECTION_OBLIQUE);
@@ -147,73 +157,97 @@ public:
   void SetProjectionNormalToOblique()
     { this->SetProjectionNormal(3); }
 
-  // Description:
-  // Set the position of broken line handles and points in terms of a plane's
-  // position. i.e., if ProjectionNormal is 0, all of the x-coordinate
-  // values of the points are set to position. Any value can be passed (and is
-  // ignored) to update the broken line points when Projection normal is set to 3
-  // for arbritrary plane orientations.
+  //@{
+  /**
+   * Set the position of broken line handles and points in terms of a plane's
+   * position. i.e., if ProjectionNormal is 0, all of the x-coordinate
+   * values of the points are set to position. Any value can be passed (and is
+   * ignored) to update the broken line points when Projection normal is set to 3
+   * for arbritrary plane orientations.
+   */
   void SetProjectionPosition(double position);
   vtkGetMacro(ProjectionPosition, double);
+  //@}
 
-  // Description:
-  // Grab the polydata (including points) that defines the broken line.  The
-  // polydata consists of points and line segments numbering nHandles
-  // and nHandles - 1, respectively. Points are guaranteed to be up-to-date when
-  // either the InteractionEvent or  EndInteraction events are invoked. The
-  // user provides the vtkPolyData and the points and polyline are added to it.
+  /**
+   * Grab the polydata (including points) that defines the broken line.  The
+   * polydata consists of points and line segments numbering nHandles
+   * and nHandles - 1, respectively. Points are guaranteed to be up-to-date when
+   * either the InteractionEvent or  EndInteraction events are invoked. The
+   * user provides the vtkPolyData and the points and polyline are added to it.
+   */
   void GetPolyData(vtkPolyData *pd);
 
-  // Description:
-  // Set/Get the handle properties (the spheres are the handles). The
-  // properties of the handles when selected and unselected can be manipulated.
+  //@{
+  /**
+   * Set/Get the handle properties (the spheres are the handles). The
+   * properties of the handles when selected and unselected can be manipulated.
+   */
   virtual void SetHandleProperty(vtkProperty*);
   vtkGetObjectMacro(HandleProperty, vtkProperty);
   virtual void SetSelectedHandleProperty(vtkProperty*);
   vtkGetObjectMacro(SelectedHandleProperty, vtkProperty);
+  //@}
 
-  // Description:
-  // Set/Get the line properties. The properties of the line when selected
-  // and unselected can be manipulated.
+  //@{
+  /**
+   * Set/Get the line properties. The properties of the line when selected
+   * and unselected can be manipulated.
+   */
   virtual void SetLineProperty(vtkProperty*);
   vtkGetObjectMacro(LineProperty, vtkProperty);
   virtual void SetSelectedLineProperty(vtkProperty*);
   vtkGetObjectMacro(SelectedLineProperty, vtkProperty);
+  //@}
 
-  // Description:
-  // Set/Get the number of handles for this widget.
+  //@{
+  /**
+   * Set/Get the number of handles for this widget.
+   */
   virtual void SetNumberOfHandles(int npts);
   vtkGetMacro(NumberOfHandles, int);
+  //@}
 
-  // Description:
-  // Set/Get the position of the broken line handles. Call GetNumberOfHandles
-  // to determine the valid range of handle indices.
+  //@{
+  /**
+   * Set/Get the position of the broken line handles. Call GetNumberOfHandles
+   * to determine the valid range of handle indices.
+   */
   void SetHandlePosition(int handle, double x, double y, double z);
   void SetHandlePosition(int handle, double xyz[3]);
   void GetHandlePosition(int handle, double xyz[3]);
   double* GetHandlePosition(int handle);
+  //@}
 
-  // Description:
-  // Get the summed lengths of the individual straight line segments.
+  /**
+   * Get the summed lengths of the individual straight line segments.
+   */
   double GetSummedLength();
 
-  // Description:
-  // Convenience method to allocate and set the handles from a vtkPoints
-  // instance.
+  /**
+   * Convenience method to allocate and set the handles from a vtkPoints
+   * instance.
+   */
   void InitializeHandles(vtkPoints* points);
 
-  // Description:
-  // Turn on / off event processing for this widget. If off, the widget will
-  // not respond to user interaction
+  //@{
+  /**
+   * Turn on / off event processing for this widget. If off, the widget will
+   * not respond to user interaction
+   */
   vtkSetClampMacro(ProcessEvents, int, 0, 1);
   vtkGetMacro(ProcessEvents, int);
   vtkBooleanMacro( ProcessEvents, int );
+  //@}
 
-  // Description:
-  // Set/Get the size factor to be applied to the handle radii.
-  // Default: 1.
+  //@{
+  /**
+   * Set/Get the size factor to be applied to the handle radii.
+   * Default: 1.
+   */
   vtkSetClampMacro(HandleSizeFactor, double, 0., 100.);
   vtkGetMacro(HandleSizeFactor, double);
+  //@}
 
 protected:
   vtkBrokenLineWidget();
@@ -310,8 +344,8 @@ protected:
   double HandleSizeFactor;
 
 private:
-  vtkBrokenLineWidget(const vtkBrokenLineWidget&);  //Not implemented
-  void operator=(const vtkBrokenLineWidget&);  //Not implemented
+  vtkBrokenLineWidget(const vtkBrokenLineWidget&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBrokenLineWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

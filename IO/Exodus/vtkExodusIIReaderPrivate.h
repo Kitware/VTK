@@ -415,10 +415,10 @@ public:
   // from one spatial file to another and avoiding have to read it for each of
   // the files.
   void SetTimesOverrides(const std::vector<double>& times)
-    {
+  {
     this->Times = times;
     this->SkipUpdateTimeInformation = true;
-    }
+  }
 
   // Because Parts, Materials, and assemblies are not stored as arrays,
   // but rather as maps to the element blocks they make up,
@@ -830,8 +830,8 @@ protected:
 
   vtkMutableDirectedGraph* SIL;
 private:
-  vtkExodusIIReaderPrivate( const vtkExodusIIReaderPrivate& ); // Not implemented.
-  void operator = ( const vtkExodusIIReaderPrivate& ); // Not implemented.
+  vtkExodusIIReaderPrivate( const vtkExodusIIReaderPrivate& ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkExodusIIReaderPrivate& ) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkExodusIIReaderPrivate_h

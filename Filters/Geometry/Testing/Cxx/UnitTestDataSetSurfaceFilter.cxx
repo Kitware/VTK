@@ -61,19 +61,19 @@ static vtkSmartPointer<vtkDataSet> CreateGenericCellData(int cellType);
   { \
   std::string expectedMsg(msg); \
   if (!errorObserver->GetError()) \
-    { \
+  { \
     std::cout << "Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
     status++; \
-    } \
+  } \
   else \
-    { \
+  { \
     std::string gotMsg(errorObserver->GetErrorMessage()); \
     if (gotMsg.find(expectedMsg) == std::string::npos) \
-      { \
+    { \
       std::cout << "Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
       status++; \
-      } \
     } \
+  } \
   } \
   errorObserver->Clear()
 
@@ -81,19 +81,19 @@ static vtkSmartPointer<vtkDataSet> CreateGenericCellData(int cellType);
   { \
   std::string expectedMsg(msg); \
   if (!warningObserver->GetWarning()) \
-    { \
+  { \
     std::cout << "Failed to catch any warning. Expected the warning message to contain \"" << expectedMsg << std::endl; \
     status++; \
-    } \
+  } \
   else \
-    { \
+  { \
     std::string gotMsg(warningObserver->GetWarningMessage()); \
     if (gotMsg.find(expectedMsg) == std::string::npos) \
-      { \
+    { \
       std::cout << "Warning message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
       status++; \
-      } \
     } \
+  } \
   } \
   warningObserver->Clear()
 
@@ -101,18 +101,13 @@ namespace test
 {
 // What to expect for a cell
 class CellDescription
-  {
+{
   public:
   CellDescription (int cellType, int numCells)
-    {
+  {
     this->Type = cellType;
     this->Cells = numCells;
-    }
-  CellDescription(const CellDescription &cell)
-    {
-    this->Type = cell.Type;
-    this->Cells = cell.Cells;
-    }
+  }
   CellDescription() : Type(0), Cells(0)
     {}
   int Type;
@@ -159,7 +154,7 @@ int UnitTestDataSetSurfaceFilter(int, char*[])
 
   std::map <std::string, test::CellDescription>::iterator it;
   for (it = typesToProcess.begin(); it != typesToProcess.end(); ++it)
-    {
+  {
     std::cout << "Testing (" << it->first << ")...";
     vtkSmartPointer<vtkDataSetSurfaceFilter> filter =
       vtkSmartPointer<vtkDataSetSurfaceFilter>::New();
@@ -167,29 +162,29 @@ int UnitTestDataSetSurfaceFilter(int, char*[])
     filter->PassThroughCellIdsOn();
     filter->PassThroughPointIdsOn();
     if (it->first == "QuadraticTriangle" || it->first == "QuadraticQuad")
-      {
+    {
       filter->SetNonlinearSubdivisionLevel(0);
-      }
+    }
     if (it->first == "TriQuadraticHexahedron")
-      {
+    {
       filter->SetNonlinearSubdivisionLevel(3);
-      }
+    }
     filter->Update();
     int got = filter->GetOutput()->GetNumberOfCells();
     int expected = it->second.Cells;
     if (got != expected)
-      {
+    {
       std::cout << " got " << got << " cells but expected " << expected;
       std::cout << " FAILED." << std::endl;
       status++;
-      }
+    }
     else
-      {
+    {
       std::cout << " # of cells: " << got;
       std::cout << " PASSED." << std::endl;
-      }
-    std::cout.flush();
     }
+    std::cout.flush();
+  }
   }
   {
   std::cout << "Testing default settings (PolyData)...";
@@ -434,14 +429,14 @@ int UnitTestDataSetSurfaceFilter(int, char*[])
   int status1 = 0;
   CHECK_ERROR_MSG(errorObserver, "Strips are not supported for uniform grid!", status1);
   if (status1)
-    {
+  {
     std::cout << " FAILED." << std::endl;
     status++;
-    }
+  }
   else
-    {
+  {
     std::cout << " PASSED." << std::endl;
-    }
+  }
   }
   {
   std::cout << "Testing cells == 0 warning...";
@@ -457,14 +452,14 @@ int UnitTestDataSetSurfaceFilter(int, char*[])
   int status1 = 0;
   CHECK_WARNING_MSG(warningObserver, "Number of cells is zero, no data to process.", status1);
   if (status1)
-    {
+  {
     std::cout << " FAILED." << std::endl;
     status++;
-    }
+  }
   else
-    {
+  {
     std::cout << " PASSED." << std::endl;
-    }
+  }
   }
   {
   std::cout << "Testing DataSetExecute cells == 0 warning...";
@@ -485,14 +480,14 @@ int UnitTestDataSetSurfaceFilter(int, char*[])
   int status1 = 0;
   CHECK_WARNING_MSG(warningObserver, "Number of cells is zero, no data to process.", status1);
   if (status1)
-    {
+  {
     std::cout << " FAILED." << std::endl;
     status++;
-    }
+  }
   else
-    {
+  {
     std::cout << " PASSED." << std::endl;
-    }
+  }
   }
   {
   std::cout << "Testing StructuredExecute invalid dataset error...";
@@ -518,14 +513,14 @@ int UnitTestDataSetSurfaceFilter(int, char*[])
   int status1 = 0;
   CHECK_ERROR_MSG(errorObserver, "Invalid data set type: 4", status1);
   if (status1)
-    {
+  {
     std::cout << " FAILED." << std::endl;
     status++;
-    }
+  }
   else
-    {
+  {
     std::cout << " PASSED." << std::endl;
-    }
+  }
   }
   {
   std::cout << "Testing BadAttributes error...";
@@ -543,14 +538,14 @@ int UnitTestDataSetSurfaceFilter(int, char*[])
   int status1 = 0;
   CHECK_ERROR_MSG(errorObserver, "Point array PointDataTestArray with 1 components, only has 2 tuples but there are 3 points", status1);
   if (status1)
-    {
+  {
     std::cout << " FAILED." << std::endl;
     status++;
-    }
+  }
   else
-    {
+  {
     std::cout << " PASSED." << std::endl;
-    }
+  }
   }
   return status;
 }
@@ -612,18 +607,18 @@ vtkSmartPointer<vtkDataSet> CreatePolygonData(int sides)
   cellData->SetName("CellDataTestArray");
   vtkIdType c = 0;
   for (vtkIdType i = 0; i < polygon->GetOutput()->GetNumberOfCells(); ++i)
-    {
+  {
       cellData->SetTuple1(c++, i);
-    }
+  }
   vtkSmartPointer<vtkIntArray> pointData =
     vtkSmartPointer<vtkIntArray>::New();
   pointData->SetNumberOfTuples(polygon->GetOutput()->GetNumberOfPoints());
   pointData->SetName("PointDataTestArray");
   c = 0;
   for (int i = 0; i < polygon->GetOutput()->GetNumberOfPoints(); ++i)
-    {
+  {
       pointData->SetTuple1(c++, i);
-    }
+  }
 
   vtkSmartPointer<vtkPolyData> pd =
     vtkSmartPointer<vtkPolyData>::New();
@@ -669,9 +664,9 @@ vtkSmartPointer<vtkDataSet> CreateTetraData()
   pointData->SetName("PointDataTestArray");
   int c = 0;
   for (vtkIdType id = 0; id < tetra->GetNumberOfPoints(); ++id)
-    {
+  {
     pointData->SetTuple1(c++, id);
-    }
+  }
   unstructuredGrid->GetPointData()->SetScalars(pointData);
 
   return unstructuredGrid;
@@ -682,13 +677,13 @@ vtkSmartPointer<vtkDataSet> CreateQuadraticWedgeData()
     vtkSmartPointer<vtkQuadraticWedge>::New();
   double *pcoords = aWedge->GetParametricCoords();
   for (int i = 0; i < aWedge->GetNumberOfPoints(); ++i)
-    {
+  {
     aWedge->GetPointIds()->SetId(i, i);
     aWedge->GetPoints()->SetPoint(i,
                                   *(pcoords + 3 * i),
                                   *(pcoords + 3 * i + 1),
                                   *(pcoords + 3 * i + 2));
-    }
+  }
 
   vtkSmartPointer<vtkUnstructuredGrid> unstructuredGrid =
     vtkSmartPointer<vtkUnstructuredGrid>::New();
@@ -711,23 +706,23 @@ vtkSmartPointer<vtkDataSet> CreateUniformGrid(
   image->AllocateScalars(VTK_UNSIGNED_CHAR,1);
 
   for(unsigned int x = 0; x < dimx; x++)
-    {
+  {
     for(unsigned int y = 0; y < dimy; y++)
-      {
+    {
       for(unsigned int z = 0; z < dimz; z++)
-        {
+      {
         unsigned char* pixel = static_cast<unsigned char*>(image->GetScalarPointer(x,y,0));
         if(x < dimx/2)
-          {
+        {
           pixel[0] = 50;
-          }
+        }
         else
-          {
+        {
           pixel[0] = 150;
-          }
         }
       }
     }
+  }
   return image;
 }
 
@@ -737,26 +732,26 @@ vtkSmartPointer<vtkDataSet> CreateGenericCellData(int cellType)
     vtkSmartPointer<vtkGenericCell>::New();
   aCell->SetCellType(cellType);
   if (aCell->RequiresInitialization())
-    {
+  {
     aCell->Initialize();
-    }
+  }
 
   int numPts   = aCell->GetNumberOfPoints();
   double *pcoords = aCell->GetParametricCoords();
   for(int j=0; j<numPts; ++j)
-    {
+  {
     aCell->GetPointIds()->SetId(j,j);
     aCell->GetPoints()->SetPoint(j, pcoords + 3*j);
-    }
+  }
 
   vtkSmartPointer<vtkIntArray> pointData =
     vtkSmartPointer<vtkIntArray>::New();
   pointData->SetNumberOfTuples(numPts);
   pointData->SetName("PointDataTestArray");
   for(int j=0; j<numPts; ++j)
-    {
+  {
     pointData->SetTuple1(j, j);
-    }
+  }
 
   vtkSmartPointer<vtkUnstructuredGrid> unstructuredGrid =
     vtkSmartPointer<vtkUnstructuredGrid>::New();
@@ -812,27 +807,27 @@ vtkSmartPointer<vtkDataSet> CreateStructuredGrid(bool blank)
   z = 0.0;
 
   for(unsigned int k = 0; k < 2; k++)
-    {
+  {
     z += 2.0;
     for(unsigned int j = 0; j < 3; j++)
-      {
+    {
       y += 1.0;
       for(unsigned int i = 0; i < 2; i++)
-        {
+      {
         x += .5;
         points->InsertNextPoint(x, y, z);
-        }
       }
     }
+  }
 
   // Specify the dimensions of the grid
   grid->SetDimensions(2,3,2);
   grid->SetPoints(points);
 
   if (blank)
-    {
+  {
     grid->BlankPoint(points->GetNumberOfPoints() / 2);
-    }
+  }
   return grid;
 }
 
@@ -859,9 +854,9 @@ vtkSmartPointer<vtkDataSet> CreateBadAttributes()
   pointData->SetNumberOfTuples(2);
   pointData->SetName("PointDataTestArray");
   for(int j=0; j<2; ++j)
-    {
+  {
     pointData->SetTuple1(j, j);
-    }
+  }
 
   vtkSmartPointer<vtkCellArray> cellArray =
     vtkSmartPointer<vtkCellArray>::New();

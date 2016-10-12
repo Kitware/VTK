@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkVoxel - a cell that represents a 3D orthogonal parallelepiped
-// .SECTION Description
-// vtkVoxel is a concrete implementation of vtkCell to represent a 3D
-// orthogonal parallelepiped. Unlike vtkHexahedron, vtkVoxel has interior
-// angles of 90 degrees, and sides are parallel to coordinate axes. This
-// results in large increases in computational performance.
-
-// .SECTION See Also
-// vtkConvexPointSet vtkHexahedron vtkPyramid vtkTetra vtkWedge
+/**
+ * @class   vtkVoxel
+ * @brief   a cell that represents a 3D orthogonal parallelepiped
+ *
+ * vtkVoxel is a concrete implementation of vtkCell to represent a 3D
+ * orthogonal parallelepiped. Unlike vtkHexahedron, vtkVoxel has interior
+ * angles of 90 degrees, and sides are parallel to coordinate axes. This
+ * results in large increases in computational performance.
+ *
+ * @sa
+ * vtkConvexPointSet vtkHexahedron vtkPyramid vtkTetra vtkWedge
+*/
 
 #ifndef vtkVoxel_h
 #define vtkVoxel_h
@@ -37,73 +40,87 @@ class VTKCOMMONDATAMODEL_EXPORT vtkVoxel : public vtkCell3D
 public:
   static vtkVoxel *New();
   vtkTypeMacro(vtkVoxel,vtkCell3D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // See vtkCell3D API for description of these methods.
-  virtual void GetEdgePoints(int edgeId, int* &pts);
-  virtual void GetFacePoints(int faceId, int* &pts);
-  virtual double *GetParametricCoords();
+  //@{
+  /**
+   * See vtkCell3D API for description of these methods.
+   */
+  void GetEdgePoints(int edgeId, int* &pts) VTK_OVERRIDE;
+  void GetFacePoints(int faceId, int* &pts) VTK_OVERRIDE;
+  double *GetParametricCoords() VTK_OVERRIDE;
+  //@}
 
-  // Description:
-  // See the vtkCell API for descriptions of these methods.
-  int GetCellType() {return VTK_VOXEL;}
-  int GetCellDimension() {return 3;}
-  int GetNumberOfEdges() {return 12;}
-  int GetNumberOfFaces() {return 6;}
-  vtkCell *GetEdge(int edgeId);
-  vtkCell *GetFace(int faceId);
-  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
+  //@{
+  /**
+   * See the vtkCell API for descriptions of these methods.
+   */
+  int GetCellType() VTK_OVERRIDE {return VTK_VOXEL;}
+  int GetCellDimension() VTK_OVERRIDE {return 3;}
+  int GetNumberOfEdges() VTK_OVERRIDE {return 12;}
+  int GetNumberOfFaces() VTK_OVERRIDE {return 6;}
+  vtkCell *GetEdge(int edgeId) VTK_OVERRIDE;
+  vtkCell *GetFace(int faceId) VTK_OVERRIDE;
+  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) VTK_OVERRIDE;
   void Contour(double value, vtkDataArray *cellScalars,
                vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
-               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
+               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd) VTK_OVERRIDE;
   int EvaluatePosition(double x[3], double* closestPoint,
                        int& subId, double pcoords[3],
-                       double& dist2, double *weights);
+                       double& dist2, double *weights) VTK_OVERRIDE;
   void EvaluateLocation(int& subId, double pcoords[3], double x[3],
-                        double *weights);
+                        double *weights) VTK_OVERRIDE;
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
-                        double x[3], double pcoords[3], int& subId);
-  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
+                        double x[3], double pcoords[3], int& subId) VTK_OVERRIDE;
+  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) VTK_OVERRIDE;
   void Derivatives(int subId, double pcoords[3], double *values,
-                   int dim, double *derivs);
+                   int dim, double *derivs) VTK_OVERRIDE;
+  //@}
 
-  // Description:
-  // @deprecated Replaced by vtkVoxel::InterpolateDerivs as of VTK 5.2
+  /**
+   * @deprecated Replaced by vtkVoxel::InterpolateDerivs as of VTK 5.2
+   */
   static void InterpolationDerivs(double pcoords[3], double derivs[24]);
-  // Description:
-  // Compute the interpolation functions/derivatives
-  // (aka shape functions/derivatives)
-  virtual void InterpolateFunctions(double pcoords[3], double weights[8])
-    {
+  //@{
+  /**
+   * Compute the interpolation functions/derivatives
+   * (aka shape functions/derivatives)
+   */
+  void InterpolateFunctions(double pcoords[3], double weights[8]) VTK_OVERRIDE
+  {
     vtkVoxel::InterpolationFunctions(pcoords,weights);
-    }
-  virtual void InterpolateDerivs(double pcoords[3], double derivs[24])
-    {
+  }
+  void InterpolateDerivs(double pcoords[3], double derivs[24]) VTK_OVERRIDE
+  {
     vtkVoxel::InterpolationDerivs(pcoords,derivs);
-    }
+  }
+  //@}
 
-  // Description:
-  // Compute the interpolation functions.
-  // This static method is for convenience. Use the member function
-  // if you already have an instance of a voxel.
+  /**
+   * Compute the interpolation functions.
+   * This static method is for convenience. Use the member function
+   * if you already have an instance of a voxel.
+   */
   static void InterpolationFunctions(double pcoords[3], double weights[8]);
 
-  // Description:
-  // Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
-  // Ids are related to the cell, not to the dataset.
+  //@{
+  /**
+   * Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
+   * Ids are related to the cell, not to the dataset.
+   */
   static int *GetEdgeArray(int edgeId);
   static int *GetFaceArray(int faceId);
+  //@}
 
 protected:
   vtkVoxel();
-  ~vtkVoxel();
+  ~vtkVoxel() VTK_OVERRIDE;
 
 private:
-  vtkVoxel(const vtkVoxel&);  // Not implemented.
-  void operator=(const vtkVoxel&);  // Not implemented.
+  vtkVoxel(const vtkVoxel&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVoxel&) VTK_DELETE_FUNCTION;
 
   vtkLine *Line;
   vtkPixel *Pixel;

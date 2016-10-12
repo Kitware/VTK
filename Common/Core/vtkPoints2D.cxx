@@ -36,15 +36,17 @@ vtkPoints2D* vtkPoints2D::New(int dataType)
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPoints2D");
   if (ret)
-    {
+  {
     if (dataType != VTK_FLOAT)
-      {
+    {
       static_cast<vtkPoints2D*>(ret)->SetDataType(dataType);
-      }
-    return static_cast<vtkPoints2D*>(ret);
     }
+    return static_cast<vtkPoints2D*>(ret);
+  }
   // If the factory was unable to create the object, then create it here.
-  return new vtkPoints2D(dataType);
+  vtkPoints2D *result = new vtkPoints2D(dataType);
+  result->InitializeObjectBase();
+  return result;
 }
 
 vtkPoints2D* vtkPoints2D::New()
@@ -77,37 +79,37 @@ void vtkPoints2D::GetPoints(vtkIdList *ptIds, vtkPoints2D *fp)
 {
   vtkIdType num = ptIds->GetNumberOfIds();
   for (vtkIdType i = 0; i < num; i++)
-    {
+  {
     fp->InsertPoint(i, this->GetPoint(ptIds->GetId(i)));
-    }
+  }
 }
 
 // Determine (xmin,xmax, ymin,ymax, zmin,zmax) bounds of points.
 void vtkPoints2D::ComputeBounds()
 {
   if (this->GetMTime() > this->ComputeTime)
-    {
+  {
     this->Bounds[0] = this->Bounds[2] =  VTK_DOUBLE_MAX;
     this->Bounds[1] = this->Bounds[3] = -VTK_DOUBLE_MAX;
     for (vtkIdType i = 0; i < this->GetNumberOfPoints(); ++i)
-      {
+    {
       double x[2];
       this->GetPoint(i, x);
       for (int j = 0; j < 2; ++j)
-        {
+      {
         if (x[j] < this->Bounds[2*j])
-          {
+        {
           this->Bounds[2*j] = x[j];
-          }
+        }
         if (x[j] > this->Bounds[2*j+1])
-          {
+        {
           this->Bounds[2*j+1] = x[j];
-          }
         }
       }
+    }
 
     this->ComputeTime.Modified();
-    }
+  }
 }
 
 // Return the bounds of the points.
@@ -145,9 +147,9 @@ int vtkPoints2D::GetDataType()
 void vtkPoints2D::SetDataType(int dataType)
 {
   if (dataType == this->Data->GetDataType())
-    {
+  {
     return;
-    }
+  }
 
   this->Data->Delete();
   this->Data = vtkDataArray::CreateDataArray(dataType);
@@ -161,21 +163,21 @@ void vtkPoints2D::SetDataType(int dataType)
 void vtkPoints2D::SetData(vtkDataArray *data)
 {
   if (data != this->Data && data != NULL)
-    {
+  {
     if (data->GetNumberOfComponents() != this->Data->GetNumberOfComponents())
-      {
+    {
       vtkErrorMacro(<<"Number of components is different...can't set data");
       return;
-      }
+    }
     this->Data->UnRegister(this);
     this->Data = data;
     this->Data->Register(this);
     if (!this->Data->GetName())
-      {
+    {
       this->Data->SetName("Points2D");
-      }
-    this->Modified();
     }
+    this->Modified();
+  }
 }
 
 // Deep copy of data. Checks consistency to make sure this operation
@@ -183,19 +185,19 @@ void vtkPoints2D::SetData(vtkDataArray *data)
 void vtkPoints2D::DeepCopy(vtkPoints2D *da)
 {
   if (da == NULL)
-    {
+  {
     return;
-    }
+  }
   if (da->Data != this->Data && da->Data != NULL)
-    {
+  {
     if (da->Data->GetNumberOfComponents() != this->Data->GetNumberOfComponents())
-      {
+    {
       vtkErrorMacro(<<"Number of components is different...can't copy");
       return;
-      }
+    }
     this->Data->DeepCopy(da->Data);
     this->Modified();
-    }
+  }
 }
 
 // Shallow copy of data (i.e. via reference counting). Checks
@@ -217,13 +219,13 @@ void vtkPoints2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Data: " << this->Data << "\n";
   os << indent << "Data Array Name: ";
   if ( this->Data->GetName() )
-    {
+  {
     os << this->Data->GetName() << "\n";
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
 
   os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
   double *bounds = this->GetBounds();

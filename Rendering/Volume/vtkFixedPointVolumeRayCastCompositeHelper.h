@@ -14,15 +14,18 @@
 
 =========================================================================*/
 
-// .NAME vtkFixedPointVolumeRayCastCompositeHelper - A helper that generates composite images for the volume ray cast mapper
-// .SECTION Description
-// This is one of the helper classes for the vtkFixedPointVolumeRayCastMapper.
-// It will generate composite images using an alpha blending operation.
-// This class should not be used directly, it is a helper class for
-// the mapper and has no user-level API.
-//
-// .SECTION see also
-// vtkFixedPointVolumeRayCastMapper
+/**
+ * @class   vtkFixedPointVolumeRayCastCompositeHelper
+ * @brief   A helper that generates composite images for the volume ray cast mapper
+ *
+ * This is one of the helper classes for the vtkFixedPointVolumeRayCastMapper.
+ * It will generate composite images using an alpha blending operation.
+ * This class should not be used directly, it is a helper class for
+ * the mapper and has no user-level API.
+ *
+ * @sa
+ * vtkFixedPointVolumeRayCastMapper
+*/
 
 #ifndef vtkFixedPointVolumeRayCastCompositeHelper_h
 #define vtkFixedPointVolumeRayCastCompositeHelper_h
@@ -50,8 +53,8 @@ protected:
   ~vtkFixedPointVolumeRayCastCompositeHelper();
 
 private:
-  vtkFixedPointVolumeRayCastCompositeHelper(const vtkFixedPointVolumeRayCastCompositeHelper&);  // Not implemented.
-  void operator=(const vtkFixedPointVolumeRayCastCompositeHelper&);  // Not implemented.
+  vtkFixedPointVolumeRayCastCompositeHelper(const vtkFixedPointVolumeRayCastCompositeHelper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFixedPointVolumeRayCastCompositeHelper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

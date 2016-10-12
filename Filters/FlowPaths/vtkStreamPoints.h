@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkStreamPoints - generate points along streamer separated by constant time increment
-// .SECTION Description
-// vtkStreamPoints is a filter that generates points along a streamer.
-// The points are separated by a constant time increment. The resulting visual
-// effect (especially when coupled with vtkGlyph3D) is an indication of
-// particle speed.
-
-// .SECTION See Also
-// vtkStreamer vtkStreamLine vtkDashedStreamLine
+/**
+ * @class   vtkStreamPoints
+ * @brief   generate points along streamer separated by constant time increment
+ *
+ * vtkStreamPoints is a filter that generates points along a streamer.
+ * The points are separated by a constant time increment. The resulting visual
+ * effect (especially when coupled with vtkGlyph3D) is an indication of
+ * particle speed.
+ *
+ * @sa
+ * vtkStreamer vtkStreamLine vtkDashedStreamLine
+*/
 
 #ifndef vtkStreamPoints_h
 #define vtkStreamPoints_h
@@ -36,14 +39,18 @@ public:
   vtkTypeMacro(vtkStreamPoints,vtkStreamer);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Construct object with time increment set to 1.0.
+  /**
+   * Construct object with time increment set to 1.0.
+   */
   static vtkStreamPoints *New();
 
-  // Description:
-  // Specify the separation of points in terms of absolute time.
+  //@{
+  /**
+   * Specify the separation of points in terms of absolute time.
+   */
   vtkSetClampMacro(TimeIncrement,double,0.000001,VTK_DOUBLE_MAX);
   vtkGetMacro(TimeIncrement,double);
+  //@}
 
 protected:
   vtkStreamPoints();
@@ -56,8 +63,8 @@ protected:
   double TimeIncrement;
 
 private:
-  vtkStreamPoints(const vtkStreamPoints&);  // Not implemented.
-  void operator=(const vtkStreamPoints&);  // Not implemented.
+  vtkStreamPoints(const vtkStreamPoints&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStreamPoints&) VTK_DELETE_FUNCTION;
 };
 
 #endif // VTK_LEGACY_REMOVE

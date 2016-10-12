@@ -85,13 +85,13 @@ void ReadHeader(istream& stream, vtkArrayExtents& extents, vtkArrayExtents::Size
 
   extents.SetDimensions(0);
   while(temp_extents.size() > 1)
-    {
+  {
     const vtkArrayExtents::CoordinateT begin = temp_extents.front();
     temp_extents.erase(temp_extents.begin());
     const vtkArrayExtents::CoordinateT end = temp_extents.front();
     temp_extents.erase(temp_extents.begin());
     extents.Append(vtkArrayRange(begin, end));
-    }
+  }
 
   if(extents.GetDimensions() < 1)
     throw std::runtime_error("Array cannot have fewer than one dimension.");
@@ -105,11 +105,11 @@ void ReadHeader(istream& stream, vtkArrayExtents& extents, vtkArrayExtents::Size
 
   // Load dimension-labels ...
   for(vtkArrayExtents::DimensionT i = 0; i != extents.GetDimensions(); ++i)
-    {
+  {
     std::string label;
     std::getline(stream, label);
     array->SetDimensionLabel(i, label);
-    }
+  }
 }
 
 void ReadEndianOrderMark(istream& stream, bool& swap_endian)
@@ -147,11 +147,11 @@ vtkSparseArray<ValueT>* ReadSparseArrayBinary(istream& stream)
   array->ReserveStorage(non_null_size);
 
   for(vtkArray::DimensionT i = 0; i != array->GetDimensions(); ++i)
-    {
+  {
     stream.read(
       reinterpret_cast<char*>(array->GetCoordinateStorage(i)),
       non_null_size * sizeof(vtkArray::CoordinateT));
-    }
+  }
 
   // Read array values ...
   stream.read(
@@ -178,43 +178,43 @@ vtkSparseArray<vtkStdString>* ReadSparseArrayBinary<vtkStdString>(istream& strea
   // Read the array NULL value ...
   std::string null_value;
   for(int character = stream.get(); stream; character = stream.get())
-    {
+  {
     if(character == 0)
-      {
+    {
       array->SetNullValue(null_value);
       break;
-      }
-    else
-      {
-      null_value += character;
-      }
     }
+    else
+    {
+      null_value += character;
+    }
+  }
 
   // Read array coordinates ...
   array->ReserveStorage(non_null_size);
 
   for(vtkArray::DimensionT i = 0; i != array->GetDimensions(); ++i)
-    {
+  {
     stream.read(
       reinterpret_cast<char*>(array->GetCoordinateStorage(i)),
       non_null_size * sizeof(vtkArray::CoordinateT));
-    }
+  }
 
   // Read array values ...
   std::string buffer;
   vtkArray::SizeT n = 0;
   for(int character = stream.get(); stream; character = stream.get())
-    {
+  {
     if(character == 0)
-      {
+    {
       array->SetValueN(n++, buffer);
       buffer.resize(0);
-      }
-    else
-      {
-      buffer += character;
-      }
     }
+    else
+    {
+      buffer += character;
+    }
+  }
 
   array->Register(0);
   return array;
@@ -236,43 +236,43 @@ vtkSparseArray<vtkUnicodeString>* ReadSparseArrayBinary<vtkUnicodeString>(istrea
   // Read the array NULL value ...
   std::string null_value;
   for(int character = stream.get(); stream; character = stream.get())
-    {
+  {
     if(character == 0)
-      {
+    {
       array->SetNullValue(vtkUnicodeString::from_utf8(null_value));
       break;
-      }
-    else
-      {
-      null_value += character;
-      }
     }
+    else
+    {
+      null_value += character;
+    }
+  }
 
   // Read array coordinates ...
   array->ReserveStorage(non_null_size);
 
   for(vtkArray::DimensionT i = 0; i != array->GetDimensions(); ++i)
-    {
+  {
     stream.read(
       reinterpret_cast<char*>(array->GetCoordinateStorage(i)),
       non_null_size * sizeof(vtkArray::CoordinateT));
-    }
+  }
 
   // Read array values ...
   std::string buffer;
   vtkArray::SizeT n = 0;
   for(int character = stream.get(); stream; character = stream.get())
-    {
+  {
     if(character == 0)
-      {
+    {
       array->SetValueN(n++, vtkUnicodeString::from_utf8(buffer));
       buffer.resize(0);
-      }
-    else
-      {
-      buffer += character;
-      }
     }
+    else
+    {
+      buffer += character;
+    }
+  }
 
   array->Register(0);
   return array;
@@ -322,17 +322,17 @@ vtkDenseArray<vtkStdString>* ReadDenseArrayBinary<vtkStdString>(istream& stream)
   std::string buffer;
   vtkArray::SizeT n = 0;
   for(int character = stream.get(); stream; character = stream.get())
-    {
+  {
     if(character == 0)
-      {
+    {
       array->SetValueN(n++, buffer);
       buffer.resize(0);
-      }
-    else
-      {
-      buffer += character;
-      }
     }
+    else
+    {
+      buffer += character;
+    }
+  }
 
   array->Register(0);
   return array;
@@ -355,17 +355,17 @@ vtkDenseArray<vtkUnicodeString>* ReadDenseArrayBinary<vtkUnicodeString>(istream&
   std::string buffer;
   vtkArray::SizeT n = 0;
   for(int character = stream.get(); stream; character = stream.get())
-    {
+  {
     if(character == 0)
-      {
+    {
       array->SetValueN(n++, vtkUnicodeString::from_utf8(buffer));
       buffer.resize(0);
-      }
-    else
-      {
-      buffer += character;
-      }
     }
+    else
+    {
+      buffer += character;
+    }
+  }
 
   array->Register(0);
   return array;
@@ -408,7 +408,7 @@ vtkSparseArray<ValueT>* ReadSparseArrayAscii(istream& stream)
   // Read the stream contents ...
   vtkArray::SizeT value_count = 0;
   for(; value_count < non_null_size; ++value_count)
-    {
+  {
     std::getline(stream, line_buffer);
 
     if(!stream)
@@ -418,18 +418,18 @@ vtkSparseArray<ValueT>* ReadSparseArrayAscii(istream& stream)
     line_stream.str(line_buffer);
 
     for(vtkArray::DimensionT j = 0; j != array->GetDimensions(); ++j)
-      {
+    {
       line_stream >> *(coordinates[j] + value_count);
       if(!extents[j].Contains(*(coordinates[j] + value_count)))
         throw std::runtime_error("Coordinate out-of-bounds.");
       if(!line_stream)
         throw std::runtime_error("Missing coordinate.");
-      }
+    }
 
     ExtractValue(line_stream, *(value + value_count));
     if(!line_stream)
       throw std::runtime_error("Missing value.");
-    }
+  }
 
   // Ensure we loaded enough values ...
   if(value_count != non_null_size)
@@ -458,13 +458,13 @@ vtkDenseArray<ValueT>* ReadDenseArrayAscii(istream& stream)
   vtkArray::SizeT n = 0;
   vtkArrayCoordinates coordinates;
   for(; n < non_null_size; ++n)
-    {
+  {
     ExtractValue(stream, value);
     if (!stream)
       break;
     extents.GetRightToLeftCoordinatesN(n, coordinates);
     array->SetValue(coordinates, value);
-    }
+  }
 
   if(n != non_null_size)
     throw std::runtime_error("Stream doesn't contain enough values.");
@@ -472,9 +472,9 @@ vtkDenseArray<ValueT>* ReadDenseArrayAscii(istream& stream)
   // If there is more in the stream (e.g. in vtkArrayDataReader),
   // eat the newline so the stream is ready for the next vtkArray.
   if(stream)
-    {
+  {
     stream.get();
-    }
+  }
 
   array->Register(0);
   return array;
@@ -521,21 +521,21 @@ int vtkArrayReader::RequestData(
   vtkInformationVector* outputVector)
 {
   try
-    {
+  {
     vtkArray* array = NULL;
     if(this->ReadFromInputString)
-      {
+    {
       array = this->Read(this->InputString);
-      }
+    }
     else
-      {
+    {
       if(!this->FileName)
         throw std::runtime_error("FileName not set.");
 
       ifstream file(this->FileName, std::ios::binary);
 
       array = this->Read(file);
-      }
+    }
     if(!array)
       throw std::runtime_error("Error reading array.");
 
@@ -545,11 +545,11 @@ int vtkArrayReader::RequestData(
     array->Delete();
 
     return 1;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     vtkErrorMacro(<< e.what());
-    }
+  }
 
   return 0;
 }
@@ -563,7 +563,7 @@ vtkArray* vtkArrayReader::Read(vtkStdString str)
 vtkArray* vtkArrayReader::Read(istream& stream)
 {
   try
-    {
+  {
     // Read enough of the file header to identify the type ...
     std::string header_string;
     std::getline(stream, header_string);
@@ -582,69 +582,69 @@ vtkArray* vtkArrayReader::Read(istream& stream)
 
     bool read_binary = false;
     if(header_file_type == "binary")
-      {
+    {
       read_binary = true;
-      }
+    }
     else if(header_file_type != "ascii")
-      {
+    {
       throw std::runtime_error("Unknown file type: " + header_file_type);
-      }
+    }
 
     if(header_magic == "vtk-sparse-array")
-      {
-      if(header_type == "integer")
-        {
-        return (read_binary ? ReadSparseArrayBinary<vtkIdType>(stream) : ReadSparseArrayAscii<vtkIdType>(stream));
-        }
-      else if(header_type == "double")
-        {
-        return (read_binary ? ReadSparseArrayBinary<double>(stream) : ReadSparseArrayAscii<double>(stream));
-        }
-      else if(header_type == "string")
-        {
-        return (read_binary ? ReadSparseArrayBinary<vtkStdString>(stream) : ReadSparseArrayAscii<vtkStdString>(stream));
-        }
-      else if(header_type == "unicode-string")
-        {
-        return (read_binary ? ReadSparseArrayBinary<vtkUnicodeString>(stream) : ReadSparseArrayAscii<vtkUnicodeString>(stream));
-        }
-      else
-        {
-        throw std::runtime_error("Unknown array type: " + header_type);
-        }
-      }
-    else if(header_magic == "vtk-dense-array")
-      {
-      if(header_type == "integer")
-        {
-        return (read_binary ? ReadDenseArrayBinary<vtkIdType>(stream) : ReadDenseArrayAscii<vtkIdType>(stream));
-        }
-      else if(header_type == "double")
-        {
-        return (read_binary ? ReadDenseArrayBinary<double>(stream) : ReadDenseArrayAscii<double>(stream));
-        }
-      else if(header_type == "string")
-        {
-        return (read_binary ? ReadDenseArrayBinary<vtkStdString>(stream) : ReadDenseArrayAscii<vtkStdString>(stream));
-        }
-      else if(header_type == "unicode-string")
-        {
-        return (read_binary ? ReadDenseArrayBinary<vtkUnicodeString>(stream) : ReadDenseArrayAscii<vtkUnicodeString>(stream));
-        }
-      else
-        {
-        throw std::runtime_error("Unknown array type: " + header_type);
-        }
-      }
-    else
-      {
-      throw std::runtime_error("Unknown file type: " + header_magic);
-      }
-    }
-  catch(std::exception& e)
     {
-    vtkGenericWarningMacro(<< e.what());
+      if(header_type == "integer")
+      {
+        return (read_binary ? ReadSparseArrayBinary<vtkIdType>(stream) : ReadSparseArrayAscii<vtkIdType>(stream));
+      }
+      else if(header_type == "double")
+      {
+        return (read_binary ? ReadSparseArrayBinary<double>(stream) : ReadSparseArrayAscii<double>(stream));
+      }
+      else if(header_type == "string")
+      {
+        return (read_binary ? ReadSparseArrayBinary<vtkStdString>(stream) : ReadSparseArrayAscii<vtkStdString>(stream));
+      }
+      else if(header_type == "unicode-string")
+      {
+        return (read_binary ? ReadSparseArrayBinary<vtkUnicodeString>(stream) : ReadSparseArrayAscii<vtkUnicodeString>(stream));
+      }
+      else
+      {
+        throw std::runtime_error("Unknown array type: " + header_type);
+      }
     }
+    else if(header_magic == "vtk-dense-array")
+    {
+      if(header_type == "integer")
+      {
+        return (read_binary ? ReadDenseArrayBinary<vtkIdType>(stream) : ReadDenseArrayAscii<vtkIdType>(stream));
+      }
+      else if(header_type == "double")
+      {
+        return (read_binary ? ReadDenseArrayBinary<double>(stream) : ReadDenseArrayAscii<double>(stream));
+      }
+      else if(header_type == "string")
+      {
+        return (read_binary ? ReadDenseArrayBinary<vtkStdString>(stream) : ReadDenseArrayAscii<vtkStdString>(stream));
+      }
+      else if(header_type == "unicode-string")
+      {
+        return (read_binary ? ReadDenseArrayBinary<vtkUnicodeString>(stream) : ReadDenseArrayAscii<vtkUnicodeString>(stream));
+      }
+      else
+      {
+        throw std::runtime_error("Unknown array type: " + header_type);
+      }
+    }
+    else
+    {
+      throw std::runtime_error("Unknown file type: " + header_magic);
+    }
+  }
+  catch(std::exception& e)
+  {
+    vtkGenericWarningMacro(<< e.what());
+  }
 
   return 0;
 }

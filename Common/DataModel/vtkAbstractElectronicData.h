@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAbstractElectronicData - Provides access to and storage of
-// chemical electronic data
-// .SECTION Description
+/**
+ * @class   vtkAbstractElectronicData
+ * @brief   Provides access to and storage of
+ * chemical electronic data
+ *
+*/
 
 #ifndef vtkAbstractElectronicData_h
 #define vtkAbstractElectronicData_h
@@ -28,31 +31,37 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAbstractElectronicData : public vtkDataObject
 {
 public:
   vtkTypeMacro(vtkAbstractElectronicData,vtkDataObject);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Returns the number of molecular orbitals available.
+  /**
+   * Returns the number of molecular orbitals available.
+   */
   virtual vtkIdType GetNumberOfMOs() = 0;
 
-  // Description:
-  // Returns the number of electrons in the molecule.
+  /**
+   * Returns the number of electrons in the molecule.
+   */
   virtual vtkIdType GetNumberOfElectrons() = 0;
 
-  // Description:
-  // Returns the vtkImageData for the requested molecular orbital.
+  /**
+   * Returns the vtkImageData for the requested molecular orbital.
+   */
   virtual vtkImageData * GetMO(vtkIdType orbitalNumber) = 0;
 
-  // Description:
-  // Returns vtkImageData for the molecule's electron density. The data
-  // will be calculated when first requested, and cached for later requests.
+  /**
+   * Returns vtkImageData for the molecule's electron density. The data
+   * will be calculated when first requested, and cached for later requests.
+   */
   virtual vtkImageData * GetElectronDensity() = 0;
 
-  // Description:
-  // Returns vtkImageData for the Highest Occupied Molecular Orbital.
+  /**
+   * Returns vtkImageData for the Highest Occupied Molecular Orbital.
+   */
   vtkImageData * GetHOMO() {return this->GetMO(this->GetHOMOOrbitalNumber());}
 
-  // Description:
-  // Returns vtkImageData for the Lowest Unoccupied Molecular Orbital.
+  /**
+   * Returns vtkImageData for the Lowest Unoccupied Molecular Orbital.
+   */
   vtkImageData * GetLUMO() {return this->GetMO(this->GetLUMOOrbitalNumber());}
 
   // Descripition:
@@ -69,40 +78,46 @@ public:
     return static_cast<vtkIdType>( this->GetNumberOfElectrons() / 2 );
   }
 
-  // Description:
-  // Returns true if the given orbital number is the Highest Occupied
-  // Molecular Orbital, false otherwise.
+  /**
+   * Returns true if the given orbital number is the Highest Occupied
+   * Molecular Orbital, false otherwise.
+   */
   bool IsHOMO(vtkIdType orbitalNumber)
   {
     return (orbitalNumber == this->GetHOMOOrbitalNumber());
   }
 
-  // Description:
-  // Returns true if the given orbital number is the Lowest Unoccupied
-  // Molecular Orbital, false otherwise.
+  /**
+   * Returns true if the given orbital number is the Lowest Unoccupied
+   * Molecular Orbital, false otherwise.
+   */
   bool IsLUMO(vtkIdType orbitalNumber)
   {
     return (orbitalNumber == this->GetLUMOOrbitalNumber());
   }
 
-  // Description:
-  // Deep copies the data object into this.
-  virtual void DeepCopy(vtkDataObject *obj);
+  /**
+   * Deep copies the data object into this.
+   */
+  void DeepCopy(vtkDataObject *obj) VTK_OVERRIDE;
 
-  // Description:
-  // Get the padding between the molecule and the cube boundaries. This is
-  // used to determine the dataset's bounds.
+  //@{
+  /**
+   * Get the padding between the molecule and the cube boundaries. This is
+   * used to determine the dataset's bounds.
+   */
   vtkGetMacro(Padding, double);
+  //@}
 
 protected:
   vtkAbstractElectronicData();
-  ~vtkAbstractElectronicData();
+  ~vtkAbstractElectronicData() VTK_OVERRIDE;
 
   double Padding;
 
 private:
-  vtkAbstractElectronicData(const vtkAbstractElectronicData&); // Not implemented
-  void operator=(const vtkAbstractElectronicData&); // Not implemented
+  vtkAbstractElectronicData(const vtkAbstractElectronicData&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAbstractElectronicData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

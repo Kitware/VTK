@@ -18,15 +18,18 @@
 //the U.S. Government retains certain rights in this software.
 //-------------------------------------------------------------------------
 
-// .NAME vtkXGMLReader - Reads XGML graph files.
-// This reader is developed for a simple graph file format based
-// loosely on the "GML" notation.  This implementation is based
-// heavily on the vtkTulipReader class that forms part of the
-// Titan toolkit.
-
-// .SECTION Thanks
-// Thanks to David Duke from the University of Leeds for providing this
-// implementation.
+/**
+ * @class   vtkXGMLReader
+ * @brief   Reads XGML graph files.
+ * This reader is developed for a simple graph file format based
+ * loosely on the "GML" notation.  This implementation is based
+ * heavily on the vtkTulipReader class that forms part of the
+ * Titan toolkit.
+ *
+ * @par Thanks:
+ * Thanks to David Duke from the University of Leeds for providing this
+ * implementation.
+*/
 
 #ifndef vtkXGMLReader_h
 #define vtkXGMLReader_h
@@ -41,10 +44,13 @@ public:
   vtkTypeMacro(vtkXGMLReader, vtkUndirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // The XGML file name.
+  //@{
+  /**
+   * The XGML file name.
+   */
   vtkGetStringMacro(FileName);
   vtkSetStringMacro(FileName);
+  //@}
 
 protected:
   vtkXGMLReader();
@@ -58,8 +64,8 @@ protected:
 private:
   char* FileName;
 
-  vtkXGMLReader(const vtkXGMLReader&);  // Not implemented.
-  void operator=(const vtkXGMLReader&);  // Not implemented.
+  vtkXGMLReader(const vtkXGMLReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXGMLReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkXGMLReader_h

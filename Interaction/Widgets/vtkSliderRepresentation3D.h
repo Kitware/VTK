@@ -12,17 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSliderRepresentation3D - provide the representation for a vtkSliderWidget with a 3D skin
-// .SECTION Description
-// This class is used to represent and render a vtkSliderWidget. To use this
-// class, you must at a minimum specify the end points of the
-// slider. Optional instance variable can be used to modify the appearance of
-// the widget.
-//
-
-// .SECTION See Also
-// vtkSliderWidget
-
+/**
+ * @class   vtkSliderRepresentation3D
+ * @brief   provide the representation for a vtkSliderWidget with a 3D skin
+ *
+ * This class is used to represent and render a vtkSliderWidget. To use this
+ * class, you must at a minimum specify the end points of the
+ * slider. Optional instance variable can be used to modify the appearance of
+ * the widget.
+ *
+ *
+ * @sa
+ * vtkSliderWidget
+*/
 
 #ifndef vtkSliderRepresentation3D_h
 #define vtkSliderRepresentation3D_h
@@ -47,91 +49,126 @@ class vtkMatrix4x4;
 class VTKINTERACTIONWIDGETS_EXPORT vtkSliderRepresentation3D : public vtkSliderRepresentation
 {
 public:
-  // Description:
-  // Instantiate the class.
+  /**
+   * Instantiate the class.
+   */
   static vtkSliderRepresentation3D *New();
 
-  // Description:
-  // Standard methods for the class.
+  //@{
+  /**
+   * Standard methods for the class.
+   */
   vtkTypeMacro(vtkSliderRepresentation3D,vtkSliderRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // Position the first end point of the slider. Note that this point is an
-  // instance of vtkCoordinate, meaning that Point 1 can be specified in a
-  // variety of coordinate systems, and can even be relative to another
-  // point. To set the point, you'll want to get the Point1Coordinate and
-  // then invoke the necessary methods to put it into the correct coordinate
-  // system and set the correct initial value.
+  //@{
+  /**
+   * Position the first end point of the slider. Note that this point is an
+   * instance of vtkCoordinate, meaning that Point 1 can be specified in a
+   * variety of coordinate systems, and can even be relative to another
+   * point. To set the point, you'll want to get the Point1Coordinate and
+   * then invoke the necessary methods to put it into the correct coordinate
+   * system and set the correct initial value.
+   */
   vtkCoordinate *GetPoint1Coordinate();
   void SetPoint1InWorldCoordinates(double x, double y, double z);
+  //@}
 
-  // Description:
-  // Position the second end point of the slider. Note that this point is an
-  // instance of vtkCoordinate, meaning that Point 1 can be specified in a
-  // variety of coordinate systems, and can even be relative to another
-  // point. To set the point, you'll want to get the Point2Coordinate and
-  // then invoke the necessary methods to put it into the correct coordinate
-  // system and set the correct initial value.
+  //@{
+  /**
+   * Position the second end point of the slider. Note that this point is an
+   * instance of vtkCoordinate, meaning that Point 1 can be specified in a
+   * variety of coordinate systems, and can even be relative to another
+   * point. To set the point, you'll want to get the Point2Coordinate and
+   * then invoke the necessary methods to put it into the correct coordinate
+   * system and set the correct initial value.
+   */
   vtkCoordinate *GetPoint2Coordinate();
   void SetPoint2InWorldCoordinates(double x, double y, double z);
+  //@}
 
-  // Description:
-  // Specify the title text for this widget. If the value is not set, or set
-  // to the empty string "", then the title text is not displayed.
+  //@{
+  /**
+   * Specify the title text for this widget. If the value is not set, or set
+   * to the empty string "", then the title text is not displayed.
+   */
   virtual void SetTitleText(const char*);
   virtual const char* GetTitleText();
+  //@}
 
-  // Description:
-  // Specify whether to use a sphere or cylinder slider shape. By default, a
-  // sphere shape is used.
+  //@{
+  /**
+   * Specify whether to use a sphere or cylinder slider shape. By default, a
+   * sphere shape is used.
+   */
   vtkSetClampMacro(SliderShape,int,SphereShape,CylinderShape);
   vtkGetMacro(SliderShape, int);
   void SetSliderShapeToSphere() { this->SetSliderShape(SphereShape); }
   void SetSliderShapeToCylinder() { this->SetSliderShape(CylinderShape); }
+  //@}
 
-  // Description:
-  // Set the rotation of the slider widget around the axis of the widget. This is
-  // used to control which way the widget is initially oriented. (This is especially
-  // important for the label and title.)
+  //@{
+  /**
+   * Set the rotation of the slider widget around the axis of the widget. This is
+   * used to control which way the widget is initially oriented. (This is especially
+   * important for the label and title.)
+   */
   vtkSetMacro(Rotation,double);
   vtkGetMacro(Rotation,double);
+  //@}
 
-  // Description:
-  // Get the slider properties. The properties of the slider when selected
-  // and unselected can be manipulated.
+  //@{
+  /**
+   * Get the slider properties. The properties of the slider when selected
+   * and unselected can be manipulated.
+   */
   vtkGetObjectMacro(SliderProperty,vtkProperty);
+  //@}
 
-  // Description:
-  // Get the properties for the tube and end caps.
+  //@{
+  /**
+   * Get the properties for the tube and end caps.
+   */
   vtkGetObjectMacro(TubeProperty,vtkProperty);
   vtkGetObjectMacro(CapProperty,vtkProperty);
+  //@}
 
-  // Description:
-  // Get the selection property. This property is used to modify the appearance of
-  // selected objects (e.g., the slider).
+  //@{
+  /**
+   * Get the selection property. This property is used to modify the appearance of
+   * selected objects (e.g., the slider).
+   */
   vtkGetObjectMacro(SelectedProperty,vtkProperty);
+  //@}
 
-  // Description:
-  // Methods to interface with the vtkSliderWidget.
+  //@{
+  /**
+   * Methods to interface with the vtkSliderWidget.
+   */
   virtual void PlaceWidget(double bounds[6]);
   virtual void BuildRepresentation();
   virtual void StartWidgetInteraction(double eventPos[2]);
   virtual void WidgetInteraction(double newEventPos[2]);
   virtual void Highlight(int);
+  //@}
 
-  // Decsription:
-  // Methods supporting the rendering process.
+  //@{
+  /**
+   * Methods supporting the rendering process.
+   */
   virtual double *GetBounds();
   virtual void GetActors(vtkPropCollection*);
   virtual void ReleaseGraphicsResources(vtkWindow*);
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int HasTranslucentPolygonalGeometry();
+  //@}
 
-  // Description:
-  // Override GetMTime to include point coordinates
-  virtual unsigned long GetMTime();
+  /**
+   * Override GetMTime to include point coordinates
+   */
+  virtual vtkMTimeType GetMTime();
 
 protected:
   vtkSliderRepresentation3D();
@@ -213,8 +250,8 @@ protected:
 
 
 private:
-  vtkSliderRepresentation3D(const vtkSliderRepresentation3D&);  //Not implemented
-  void operator=(const vtkSliderRepresentation3D&);  //Not implemented
+  vtkSliderRepresentation3D(const vtkSliderRepresentation3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSliderRepresentation3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

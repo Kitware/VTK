@@ -3,9 +3,15 @@ vtk_module(vtkInteractionStyle
     Rendering
   IMPLEMENTS
     vtkRenderingCore
-  PRIVATE_DEPENDS
-    vtkFiltersSources
-    vtkFiltersExtraction
   KIT
     vtkInteraction
+  DEPENDS
+    vtkCommonDataModel
+    vtkRenderingCore
+  PRIVATE_DEPENDS
+    vtkCommonCore
+    vtkCommonMath
+    vtkCommonTransforms
+    vtkFiltersExtraction
+    vtkFiltersSources
   )

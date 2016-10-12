@@ -19,11 +19,14 @@
 
 =========================================================================*/
 
-// .NAME vtkArrayToTable - Converts one- and two-dimensional vtkArrayData
-// objects to vtkTable
-//
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+/**
+ * @class   vtkArrayToTable
+ * @brief   Converts one- and two-dimensional vtkArrayData
+ * objects to vtkTable
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+*/
 
 #ifndef vtkArrayToTable_h
 #define vtkArrayToTable_h
@@ -50,8 +53,8 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkArrayToTable(const vtkArrayToTable&); // Not implemented
-  void operator=(const vtkArrayToTable&);   // Not implemented
+  vtkArrayToTable(const vtkArrayToTable&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkArrayToTable&) VTK_DELETE_FUNCTION;
 };
 
 #endif

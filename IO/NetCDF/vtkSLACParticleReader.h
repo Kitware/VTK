@@ -20,18 +20,20 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// .NAME vtkSLACParticleReader
-//
-// .SECTION Description
-//
-// A reader for a data format used by Omega3p, Tau3p, and several other tools
-// used at the Standford Linear Accelerator Center (SLAC).  The underlying
-// format uses netCDF to store arrays, but also imposes some conventions
-// to store a list of particles in 3D space.
-//
-// This reader supports pieces, but in actuality only loads anything in
-// piece 0.  All other pieces are empty.
-//
+/**
+ * @class   vtkSLACParticleReader
+ *
+ *
+ *
+ * A reader for a data format used by Omega3p, Tau3p, and several other tools
+ * used at the Standford Linear Accelerator Center (SLAC).  The underlying
+ * format uses netCDF to store arrays, but also imposes some conventions
+ * to store a list of particles in 3D space.
+ *
+ * This reader supports pieces, but in actuality only loads anything in
+ * piece 0.  All other pieces are empty.
+ *
+*/
 
 #ifndef vtkSLACParticleReader_h
 #define vtkSLACParticleReader_h
@@ -54,8 +56,9 @@ public:
   vtkGetStringMacro(FileName);
   vtkSetStringMacro(FileName);
 
-  // Description:
-  // Returns true if the given file can be read by this reader.
+  /**
+   * Returns true if the given file can be read by this reader.
+   */
   static int CanReadFile(const char *filename);
 
 protected:
@@ -72,18 +75,19 @@ protected:
                           vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector);
 
-  // Description:
-  // Convenience function that checks the dimensions of a 2D netCDF array that
-  // is supposed to be a set of tuples.  It makes sure that the number of
-  // dimensions is expected and that the number of components in each tuple
-  // agree with what is expected.  It then returns the number of tuples.  An
-  // error is emitted and 0 is returned if the checks fail.
+  /**
+   * Convenience function that checks the dimensions of a 2D netCDF array that
+   * is supposed to be a set of tuples.  It makes sure that the number of
+   * dimensions is expected and that the number of components in each tuple
+   * agree with what is expected.  It then returns the number of tuples.  An
+   * error is emitted and 0 is returned if the checks fail.
+   */
   virtual vtkIdType GetNumTuplesInVariable(int ncFD, int varId,
                                            int expectedNumComponents);
 
 private:
-  vtkSLACParticleReader(const vtkSLACParticleReader &);         // Not implemented
-  void operator=(const vtkSLACParticleReader &);        // Not implemented
+  vtkSLACParticleReader(const vtkSLACParticleReader &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSLACParticleReader &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkSLACParticleReader_h

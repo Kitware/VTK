@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLRepresentationPainter - painter handling representation
-// using OpenGL.
-// .SECTION Description
-// This is OpenGL implementation of a painter handling representation
-// i.e. Points, Wireframe, Surface.
+/**
+ * @class   vtkOpenGLRepresentationPainter
+ * @brief   painter handling representation
+ * using OpenGL.
+ *
+ * This is OpenGL implementation of a painter handling representation
+ * i.e. Points, Wireframe, Surface.
+*/
 
 #ifndef vtkOpenGLRepresentationPainter_h
 #define vtkOpenGLRepresentationPainter_h
@@ -33,28 +36,31 @@ public:
   vtkTypeMacro(vtkOpenGLRepresentationPainter, vtkRepresentationPainter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // This painter overrides GetTimeToDraw() to never pass the request to the
-  // delegate. This is done since this class may propagate a single render
-  // request multiple times to the delegate. In that case the time accumulation
-  // responsibility is borne by the painter causing the multiple rendering
-  // requests i.e. this painter itself.
+  /**
+   * This painter overrides GetTimeToDraw() to never pass the request to the
+   * delegate. This is done since this class may propagate a single render
+   * request multiple times to the delegate. In that case the time accumulation
+   * responsibility is borne by the painter causing the multiple rendering
+   * requests i.e. this painter itself.
+   */
   virtual double GetTimeToDraw()
-    {
+  {
     return this->TimeToDraw;
-    }
+  }
 
 protected:
   vtkOpenGLRepresentationPainter();
   ~vtkOpenGLRepresentationPainter();
 
-  // Description:
-  // Changes the polygon mode according to the representation.
+  /**
+   * Changes the polygon mode according to the representation.
+   */
   void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
                       unsigned long typeflags,bool forceCompileOnly);
+
 private:
-  vtkOpenGLRepresentationPainter(const vtkOpenGLRepresentationPainter&); // Not implemented.
-  void operator=(const vtkOpenGLRepresentationPainter&); // Not implemented.
+  vtkOpenGLRepresentationPainter(const vtkOpenGLRepresentationPainter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLRepresentationPainter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

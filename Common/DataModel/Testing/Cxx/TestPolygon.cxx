@@ -47,43 +47,153 @@ int TestPolygon(int,char *[])
   double area = polygon->ComputeArea();
 
   if(!fuzzyCompare(area, 4.0))
-    {
+  {
     cerr << "ERROR:  polygon area is " << area << ", should be 4.0" << endl;
     return EXIT_FAILURE;
-    }
+  }
+
+  // Test convexity. First, ensure the square is convex.
+  {
+  vtkIdType idTypeArray[4] = {0,1,2,3};
+
+  vtkSmartPointer<vtkIdTypeArray> idArray =
+    vtkSmartPointer<vtkIdTypeArray>::New();
+  for(int i = 0; i < polygon->GetNumberOfPoints(); i++)
+  {
+    idArray->InsertNextValue(i);
+  }
+
+  bool convex;
+  convex = polygon->IsConvex();
+  convex &= vtkPolygon::IsConvex(polygon->GetPoints(),
+                                 polygon->GetNumberOfPoints(), idTypeArray);
+  convex &= vtkPolygon::IsConvex(idArray,polygon->GetPoints());
+  convex &= vtkPolygon::IsConvex(polygon->GetPoints());
+
+  if (!convex)
+  {
+    cerr << "ERROR:  polygon should be classified as convex" << endl;
+    return EXIT_FAILURE;
+  }
+  }
+
+  // Next, create a nonconvex element and test it.
+  {
+  polygon->GetPoints()->SetPoint(3, 1.5, 0.5, 0.0);
+
+  vtkIdType idTypeArray[4] = {0,1,2,3};
+
+  vtkSmartPointer<vtkIdTypeArray> idArray =
+    vtkSmartPointer<vtkIdTypeArray>::New();
+  for(int i = 0; i < polygon->GetNumberOfPoints(); i++)
+  {
+    idArray->InsertNextValue(i);
+  }
+
+  bool nonconvex;
+  nonconvex = !polygon->IsConvex();
+  nonconvex &= !vtkPolygon::IsConvex(polygon->GetPoints(),
+                                     polygon->GetNumberOfPoints(), idTypeArray);
+  nonconvex &= !vtkPolygon::IsConvex(idArray,polygon->GetPoints());
+  nonconvex &= !vtkPolygon::IsConvex(polygon->GetPoints());
+
+  if (!nonconvex)
+  {
+    cerr << "ERROR:  polygon should be classified as nonconvex" << endl;
+    return EXIT_FAILURE;
+  }
+  }
+
+  // Next, create an element with a colinear point and test it.
+  {
+  polygon->GetPoints()->SetPoint(3, 1.0, 1.0, 0.0);
+
+  vtkIdType idTypeArray[4] = {0,1,2,3};
+
+  vtkSmartPointer<vtkIdTypeArray> idArray =
+    vtkSmartPointer<vtkIdTypeArray>::New();
+  for(int i = 0; i < polygon->GetNumberOfPoints(); i++)
+  {
+    idArray->InsertNextValue(i);
+  }
+
+  bool convex;
+  convex = polygon->IsConvex();
+  convex &= vtkPolygon::IsConvex(polygon->GetPoints(),
+                                 polygon->GetNumberOfPoints(), idTypeArray);
+  convex &= vtkPolygon::IsConvex(idArray,polygon->GetPoints());
+  convex &= vtkPolygon::IsConvex(polygon->GetPoints());
+
+  if (!convex)
+  {
+    cerr << "ERROR:  polygon should be classified as convex" << endl;
+    return EXIT_FAILURE;
+  }
+  }
+
+
+  // Finally, create an element with a degenerate point and test it.
+  {
+  polygon->GetPoints()->SetPoint(3, 2.0, 2.0, 0.0);
+
+  vtkIdType idTypeArray[4] = {0,1,2,3};
+
+  vtkSmartPointer<vtkIdTypeArray> idArray =
+    vtkSmartPointer<vtkIdTypeArray>::New();
+  for(int i = 0; i < polygon->GetNumberOfPoints(); i++)
+  {
+    idArray->InsertNextValue(i);
+  }
+
+  bool convex;
+  convex = polygon->IsConvex();
+  convex &= vtkPolygon::IsConvex(polygon->GetPoints(),
+                                 polygon->GetNumberOfPoints(),idTypeArray);
+  convex &= vtkPolygon::IsConvex(idArray,polygon->GetPoints());
+  convex &= vtkPolygon::IsConvex(polygon->GetPoints());
+
+  if (!convex)
+  {
+    cerr << "ERROR:  polygon should be classified as convex" << endl;
+    return EXIT_FAILURE;
+  }
+  }
+
+  // return the element to its original state.
+  polygon->GetPoints()->SetPoint(3, 0.0, 2.0, 0.0);
 
   //////// Test Normal : void vtkPolygon::ComputeNormal (int numPts, double *pts, double n[3]) ///////////
   double normal[3];
   double points[12];
   for(int i = 0; i < polygon->GetNumberOfPoints(); i++)
-    {
+  {
     double p[3];
     polygon->GetPoints()->GetPoint(i,p);
     points[0 + i*3] = p[0];
     points[1 + i*3] = p[1];
     points[2 + i*3] = p[2];
-    }
+  }
 
   vtkPolygon::ComputeNormal(polygon->GetNumberOfPoints(), points, normal);
 
   if(!fuzzyCompare(normal[0], 0.0) || !fuzzyCompare(normal[1], 0.0) || !fuzzyCompare(normal[2], 1.0))
-    {
+  {
     cerr << "ERROR: The normal (" << normal[0] << ", " << normal[1] << ", " << normal[2] << " is incorrect (should be (0,0,1))" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   ///////// Test Normal : void vtkPolygon::ComputeNormal(vtkIdTypeArray *ids, vtkPoints *p, double n[3]) /////////
   vtkSmartPointer<vtkIdTypeArray> idArray = vtkSmartPointer<vtkIdTypeArray>::New();
   for(int i = 0; i < polygon->GetNumberOfPoints(); i++)
-    {
+  {
     idArray->InsertNextValue(i);
-    }
+  }
   vtkPolygon::ComputeNormal(idArray, polygon->GetPoints(), normal);
   if(!fuzzyCompare(normal[0], 0.0) || !fuzzyCompare(normal[1], 0.0) || !fuzzyCompare(normal[2], 1.0))
-    {
+  {
     cerr << "ERROR: The normal (" << normal[0] << ", " << normal[1] << ", " << normal[2] << " is incorrect (should be (0,0,1))" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   //////////////////// Polygon intersection test //////////////////
   {
@@ -104,13 +214,13 @@ int TestPolygon(int,char *[])
   double points1[12];
 
   for(int i = 0; i < polygon1->GetNumberOfPoints(); i++)
-    {
+  {
     double p[3];
     polygon1->GetPoints()->GetPoint(i,p);
     points1[0 + i*3] = p[0];
     points1[1 + i*3] = p[1];
     points1[2 + i*3] = p[2];
-    }
+  }
 
   double bounds1[6];
   polygon1->GetBounds(bounds1);
@@ -131,13 +241,13 @@ int TestPolygon(int,char *[])
 
   double points2[12];
   for(int i = 0; i < polygon2->GetNumberOfPoints(); i++)
-    {
+  {
     double p[3];
     polygon2->GetPoints()->GetPoint(i,p);
     points2[0 + i*3] = p[0];
     points2[1 + i*3] = p[1];
     points2[2 + i*3] = p[2];
-    }
+  }
 
   double bounds2[6];
   polygon2->GetBounds(bounds2);
@@ -154,9 +264,9 @@ int TestPolygon(int,char *[])
                                                        1e-6, intersection);
 
   if(!intersect)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   }
 

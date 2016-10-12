@@ -77,10 +77,10 @@ vtkRenderLargeImage::vtkRenderLargeImage()
 vtkRenderLargeImage::~vtkRenderLargeImage()
 {
   if (this->Input)
-    {
+  {
     this->Input->UnRegister(this);
     this->Input = NULL;
-    }
+  }
   delete this->StoredData;
 }
 
@@ -90,14 +90,14 @@ void vtkRenderLargeImage::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->Input )
-    {
+  {
     os << indent << "Input:\n";
     this->Input->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Input: (none)\n";
-    }
+  }
 
   os << indent << "Magnification: " << this->Magnification << "\n";
 }
@@ -116,17 +116,17 @@ int vtkRenderLargeImage::ProcessRequest(vtkInformation* request,
 {
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
+  {
     this->RequestData(request, inputVector, outputVector);
     return 1;
-    }
+  }
 
   // execute information
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
+  {
     this->RequestInformation(request, inputVector, outputVector);
     return 1;
-    }
+  }
 
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
@@ -143,10 +143,10 @@ void vtkRenderLargeImage::RequestInformation (
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   if (this->Input == NULL )
-    {
+  {
     vtkErrorMacro(<<"Please specify a renderer as input!");
     return;
-    }
+  }
 
   // set the extent, if the VOI has not been set then default to
   int wExt[6];
@@ -199,10 +199,10 @@ void vtkRenderLargeImage::RequestData(
   double background2[3];
 
   if (this->GetOutput()->GetScalarType() != VTK_UNSIGNED_CHAR)
-    {
+  {
     vtkErrorMacro("mismatch in scalar types!");
     return;
-    }
+  }
 
   // Get the requested extents.
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
@@ -225,14 +225,14 @@ void vtkRenderLargeImage::RequestData(
   // save original background colors
   gradientBackground = this->Input->GetGradientBackground();
   if (gradientBackground)
-    {
+  {
     background1[0] = this->Input->GetBackground()[0];
     background1[1] = this->Input->GetBackground()[1];
     background1[2] = this->Input->GetBackground()[2];
     background2[0] = this->Input->GetBackground2()[0];
     background2[1] = this->Input->GetBackground2()[1];
     background2[2] = this->Input->GetBackground2()[2];
-    }
+  }
 
   // store the old view angle & set the new
   cam = this->Input->GetActiveCamera();
@@ -247,18 +247,18 @@ void vtkRenderLargeImage::RequestData(
   // are we double buffering?  If so, read from back buffer ....
   doublebuffer = this->Input->GetRenderWindow()->GetDoubleBuffer();
   if (doublebuffer)
-    {
+  {
     // save swap buffer state to restore later
     swapbuffers = this->Input->GetRenderWindow()->GetSwapBuffers();
     this->Input->GetRenderWindow()->SetSwapBuffers(0);
-    }
+  }
 
   // render each of the tiles required to fill this request
   double ySize = static_cast<double>(inWindowExtent[3] - inWindowExtent[2] + 1);
   for (y = inWindowExtent[2]; y <= inWindowExtent[3]; y++)
-    {
+  {
     for (x = inWindowExtent[0]; x <= inWindowExtent[1]; x++)
-      {
+    {
       cam->SetWindowCenter(x*2 - this->Magnification*(1-windowCenter[0]) + 1,
                            y*2 - this->Magnification*(1-windowCenter[1]) + 1);
       // shift 2D actors to correct origin for this tile
@@ -266,7 +266,7 @@ void vtkRenderLargeImage::RequestData(
 
       // update gradient background colors for this tile
       if (gradientBackground)
-        {
+      {
         double t1 = y / ySize;
         double t2 = (y + 1) / ySize;
         double tileBackground1[3] = { (1.0 - t1) * background1[0] + t1 * background2[0],
@@ -278,7 +278,7 @@ void vtkRenderLargeImage::RequestData(
 
         this->Input->SetBackground(tileBackground1);
         this->Input->SetBackground2(tileBackground2);
-        }
+      }
 
       // Render
       this->Input->GetRenderWindow()->Render();
@@ -289,14 +289,14 @@ void vtkRenderLargeImage::RequestData(
       // now stuff the pixels into the data row by row
       colStart = inExtent[0] - x*size[0];
       if (colStart < 0)
-        {
+      {
         colStart = 0;
-        }
+      }
       colEnd = size[0] - 1;
       if (colEnd > (inExtent[1] - x*size[0]))
-        {
+      {
         colEnd = inExtent[1] - x*size[0];
-        }
+      }
       rowSize = colEnd - colStart + 1;
 
       // get the output pointer and do arith on it if necc
@@ -307,29 +307,29 @@ void vtkRenderLargeImage::RequestData(
 
       rowStart = inExtent[2] - y*size[1];
       if (rowStart < 0)
-        {
+      {
         rowStart = 0;
-        }
+      }
       rowEnd = size[1] - 1;
       if (rowEnd > (inExtent[3] - y*size[1]))
-        {
+      {
         rowEnd = (inExtent[3] - y*size[1]);
-        }
+      }
       for (row = rowStart; row <= rowEnd; row++)
-        {
+      {
         memcpy(outPtr + row*inIncr[1] + colStart*inIncr[0],
                pixels + row*size[0]*3 + colStart*3, rowSize*3);
-        }
+      }
       // free the memory
       delete [] pixels;
-      }
     }
+  }
 
   // restore the state of the SwapBuffers bit before we mucked with it.
   if (doublebuffer && swapbuffers)
-    {
+  {
     this->Input->GetRenderWindow()->SetSwapBuffers(swapbuffers);
-    }
+  }
 
   cam->SetViewAngle(viewAngle);
   cam->SetParallelScale(parallelScale);
@@ -338,10 +338,10 @@ void vtkRenderLargeImage::RequestData(
 
   // restore original background colors
   if (gradientBackground)
-    {
+  {
     this->Input->SetBackground(background1);
     this->Input->SetBackground2(background2);
-    }
+  }
 }
 //----------------------------------------------------------------------------
 int vtkRenderLargeImage::FillOutputPortInformation(
@@ -369,15 +369,15 @@ void vtkRenderLargeImage::Rescale2DActors()
   //
   rc = this->Input->GetRenderWindow()->GetRenderers();
   for (rc->InitTraversal(); (aren = rc->GetNextItem()); )
-    {
+  {
     pc = aren->GetViewProps();
     if (pc)
-      {
+    {
       for ( pc->InitTraversal(); (aProp = pc->GetNextProp()); )
-        {
+      {
         actor = vtkActor2D::SafeDownCast((aProp));
         if (actor)
-          {
+        {
           // put the actor in our list for retrieval later
           this->StoredData->StoredActors->AddItem(actor);
           // Copy all existing coordinate stuff
@@ -417,10 +417,10 @@ void vtkRenderLargeImage::Rescale2DActors()
           n1->SetValue(d1[0], d1[1]);
           n2->SetValue(d2[0], d2[1]);
           //
-          }
         }
       }
     }
+  }
 }
 //----------------------------------------------------------------------------
 // On each tile we must subtract the origin of each actor to ensure
@@ -434,7 +434,7 @@ void vtkRenderLargeImage::Shift2DActors(int x, int y)
   //
   for (this->StoredData->StoredActors->InitTraversal(), i=0;
     (actor = this->StoredData->StoredActors->GetNextItem()); i++)
-    {
+  {
     c1 = actor->GetPositionCoordinate();
     c2 = actor->GetPosition2Coordinate();
     c1->GetValue(d1);
@@ -445,7 +445,7 @@ void vtkRenderLargeImage::Shift2DActors(int x, int y)
     d2[1] = this->StoredData->Coords2[i].second - y;
     c1->SetValue(d1);
     c2->SetValue(d2);
-    }
+  }
 }
 //----------------------------------------------------------------------------
 // On each tile we must subtract the origin of each actor to ensure
@@ -459,7 +459,7 @@ void vtkRenderLargeImage::Restore2DActors()
   //
   for (this->StoredData->StoredActors->InitTraversal(), i=0;
     (actor = this->StoredData->StoredActors->GetNextItem()); i++)
-    {
+  {
     c1 = actor->GetPositionCoordinate();
     c2 = actor->GetPosition2Coordinate();
     n1 = vtkCoordinate::SafeDownCast(this->StoredData->Coord1s->GetItemAsObject(i));
@@ -471,7 +471,7 @@ void vtkRenderLargeImage::Restore2DActors()
     c2->SetCoordinateSystem(n2->GetCoordinateSystem());
     c2->SetReferenceCoordinate(n2->GetReferenceCoordinate());
     c2->SetValue(n2->GetValue());
-    }
+  }
   this->StoredData->Coord1s->RemoveAllItems();
   this->StoredData->Coord2s->RemoveAllItems();
   this->StoredData->StoredActors->RemoveAllItems();

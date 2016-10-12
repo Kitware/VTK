@@ -36,10 +36,10 @@ int TestImplicitPolyDataDistance(int argc, char* argv[])
     vtkSmartPointer<vtkTesting>::New();
   testHelper->AddArguments(argc, argv);
   if (!testHelper->IsFlagSpecified("-D"))
-    {
+  {
     std::cerr << "Error: -D /path/to/data was not specified.";
     return EXIT_FAILURE;
-    }
+  }
 
   std::string dataRoot = testHelper->GetDataRoot();
   std::string fileName = dataRoot + "/Data/CuspySurface.vtp";
@@ -59,9 +59,9 @@ int TestImplicitPolyDataDistance(int argc, char* argv[])
   implicitDistance->SetNoClosestPoint(noClosestPoint);
   implicitDistance->GetNoClosestPoint(noClosestPoint);
   if(noClosestPoint[0] != 1.0 && noClosestPoint[1] != 1.0 && noClosestPoint[2] != 1.0)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   // Compute distances to test points, saving those within the cuspy surface for display
   vtkNew<vtkPoints> insidePoints;
@@ -71,22 +71,22 @@ int TestImplicitPolyDataDistance(int argc, char* argv[])
   double zRange[2] = {1.63, 102};
   const double spacing = 10.0;
   for (double z = zRange[0]; z < zRange[1]; z += spacing)
-    {
+  {
     for (double y = yRange[0]; y < yRange[1]; y += spacing)
-      {
+    {
       for (double x = xRange[0]; x < xRange[1]; x += spacing)
-        {
+      {
         double point[3] = {x, y, z};
         double surfacePoint[3];
         double distance = implicitDistance->EvaluateFunctionAndGetClosestPoint(point, surfacePoint);
         if (distance <= 0.0)
-          {
+        {
           insidePoints->InsertNextPoint(point);
           surfacePoints->InsertNextPoint(surfacePoint);
-          }
         }
       }
     }
+  }
 
   // Set up inside points data structure
   vtkNew<vtkPolyData> insidePointsPolyData;
@@ -164,9 +164,9 @@ int TestImplicitPolyDataDistance(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(renWin.GetPointer());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

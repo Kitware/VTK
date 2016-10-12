@@ -91,22 +91,22 @@ int vtkBivariateLinearTableThreshold::RequestData(vtkInformation* vtkNotUsed(req
   vtkTable* outRowDataTable = vtkTable::GetData( outputVector, OUTPUT_ROW_DATA );
 
   if (!inTable || this->GetNumberOfColumnsToThreshold() != 2)
-    {
+  {
     return 1;
-    }
+  }
 
   if (!outRowIdsTable)
-    {
+  {
     vtkErrorMacro(<<"No output table, for some reason.");
     return 0;
-    }
+  }
 
   vtkSmartPointer<vtkIdTypeArray> outIds = vtkSmartPointer<vtkIdTypeArray>::New();
   if (!ApplyThreshold(inTable,outIds))
-    {
+  {
     vtkErrorMacro(<<"Error during threshold application.");
     return 0;
-    }
+  }
 
   outRowIdsTable->Initialize();
   outRowIdsTable->AddColumn(outIds);
@@ -114,18 +114,18 @@ int vtkBivariateLinearTableThreshold::RequestData(vtkInformation* vtkNotUsed(req
   outRowDataTable->Initialize();
   vtkIdType numColumns = inTable->GetNumberOfColumns();
   for (vtkIdType i=0; i<numColumns; i++)
-    {
+  {
     vtkDataArray* a = vtkDataArray::CreateDataArray(inTable->GetColumn(i)->GetDataType());
     a->SetNumberOfComponents(inTable->GetColumn(i)->GetNumberOfComponents());
     a->SetName(inTable->GetColumn(i)->GetName());
     outRowDataTable->AddColumn(a);
     a->Delete();
-    }
+  }
 
   for (vtkIdType i=0; i<outIds->GetNumberOfTuples(); i++)
-    {
+  {
     outRowDataTable->InsertNextRow(inTable->GetRow(outIds->GetValue(i)));
-    }
+  }
 
   return 1;
 }
@@ -133,10 +133,10 @@ int vtkBivariateLinearTableThreshold::RequestData(vtkInformation* vtkNotUsed(req
 int vtkBivariateLinearTableThreshold::FillInputPortInformation( int port, vtkInformation* info )
 {
   if (port == 0)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
     return 1;
-    }
+  }
 
   return 0;
 }
@@ -145,10 +145,10 @@ int vtkBivariateLinearTableThreshold::FillOutputPortInformation( int port, vtkIn
 {
   if ( port == OUTPUT_ROW_IDS ||
        port == OUTPUT_ROW_DATA)
-    {
+  {
     info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
     return 1;
-    }
+  }
 
   return 0;
 }
@@ -168,15 +168,15 @@ int vtkBivariateLinearTableThreshold::GetNumberOfColumnsToThreshold()
 void vtkBivariateLinearTableThreshold::GetColumnToThreshold(vtkIdType idx, vtkIdType& column, vtkIdType& component)
 {
   if (idx < 0 || idx >= (int)this->Implementation->ColumnsToThreshold.size())
-    {
+  {
     column = -1;
     component = -1;
-    }
+  }
   else
-    {
+  {
     column = this->Implementation->ColumnsToThreshold[idx];
     component = this->Implementation->ColumnComponentsToThreshold[idx];
-    }
+  }
 }
 
 void vtkBivariateLinearTableThreshold::ClearColumnsToThreshold()
@@ -201,10 +201,10 @@ int vtkBivariateLinearTableThreshold::ApplyThreshold(vtkTable* tableToThreshold,
   vtkIdType column1,column2,component1,component2;
 
   if (this->GetNumberOfColumnsToThreshold() != 2)
-    {
+  {
     vtkErrorMacro(<<"This threshold only works on two columns at a time.  Received: "<<this->GetNumberOfColumnsToThreshold());
     return 0;
-    }
+  }
 
   this->GetColumnToThreshold(0,column1,component1);
   this->GetColumnToThreshold(1,column2,component2);
@@ -213,20 +213,20 @@ int vtkBivariateLinearTableThreshold::ApplyThreshold(vtkTable* tableToThreshold,
   vtkDataArray* a2 = vtkArrayDownCast<vtkDataArray>(tableToThreshold->GetColumn(column2));
 
   if (!a1 || !a2)
-    {
+  {
     vtkErrorMacro(<<"Wrong number of arrays received.");
     return 0;
-    }
+  }
 
   if (a1->GetNumberOfTuples() != a2->GetNumberOfTuples())
-    {
+  {
     vtkErrorMacro(<<"Two arrays to threshold must have the same number of tuples.");
     return 0;
-    }
+  }
 
   int (vtkBivariateLinearTableThreshold::*thresholdFunc)(double,double) = NULL;
   switch (this->LinearThresholdType)
-    {
+  {
     case vtkBivariateLinearTableThreshold::BLT_ABOVE:
       thresholdFunc = &vtkBivariateLinearTableThreshold::ThresholdAbove;
       break;
@@ -242,21 +242,21 @@ int vtkBivariateLinearTableThreshold::ApplyThreshold(vtkTable* tableToThreshold,
     default:
       vtkErrorMacro(<<"Threshold type not defined: "<<this->LinearThresholdType);
       return 0;
-    }
+  }
 
   acceptedIds->Initialize();
   vtkIdType numTuples = a1->GetNumberOfTuples();
   double v1,v2;
   for (int i=0; i<numTuples; i++)
-    {
+  {
     v1 = a1->GetComponent(i,component1);
     v2 = a2->GetComponent(i,component2);
 
     if ((this->*thresholdFunc)(v1,v2))
-      {
+    {
       acceptedIds->InsertNextValue(i);
-      }
     }
+  }
 
   return 1;
 }
@@ -310,16 +310,16 @@ int vtkBivariateLinearTableThreshold::ThresholdAbove(double x, double y)
 {
   double* c,v;
   for (int i=0; i<this->NumberOfLineEquations; i++)
-    {
+  {
     c = this->LineEquations->GetTuple3(i);
     v = c[0]*x + c[1]*y + c[2];
 
     if ((this->GetInclusive() && v >= 0) ||
         (!this->GetInclusive() && v > 0))
-      {
+    {
       return 1;
-      }
     }
+  }
   return 0;
 }
 
@@ -327,16 +327,16 @@ int vtkBivariateLinearTableThreshold::ThresholdBelow(double x, double y)
 {
   double* c,v;
   for (int i=0; i<this->NumberOfLineEquations; i++)
-    {
+  {
     c = this->LineEquations->GetTuple3(i);
     v = c[0]*x + c[1]*y + c[2];
 
     if ((this->GetInclusive() && v <= 0) ||
         (!this->GetInclusive() && v < 0))
-      {
+    {
       return 1;
-      }
     }
+  }
   return 0;
 }
 
@@ -344,11 +344,11 @@ int vtkBivariateLinearTableThreshold::ThresholdNear(double x, double y)
 {
   double* c,v;
   for (int i=0; i<this->NumberOfLineEquations; i++)
-    {
+  {
     c = this->LineEquations->GetTuple3(i);
 
     if (this->UseNormalizedDistance)
-      {
+    {
       double dx = fabs(x-(-c[1]*y-c[2])/c[0]);
       double dy = fabs(y-(-c[0]*x-c[2])/c[1]);
 
@@ -356,18 +356,18 @@ int vtkBivariateLinearTableThreshold::ThresholdNear(double x, double y)
       double dyn = dy/this->ColumnRanges[1];
 
       v = sqrt(dxn*dxn+dyn*dyn);
-      }
+    }
     else
-      {
+    {
       v = fabs(c[0]*x + c[1]*y + c[2]);
-      }
+    }
 
     if ((this->GetInclusive() && v <= this->DistanceThreshold) ||
         (!this->GetInclusive() && v < this->DistanceThreshold))
-      {
+    {
       return 1;
-      }
     }
+  }
 
   return 0;
 }

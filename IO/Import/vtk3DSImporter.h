@@ -12,13 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtk3DSImporter - imports 3D Studio files.
-// .SECTION Description
-// vtk3DSImporter imports 3D Studio files into vtk.
-
-// .SECTION See Also
-// vtkImporter
-
+/**
+ * @class   vtk3DSImporter
+ * @brief   imports 3D Studio files.
+ *
+ * vtk3DSImporter imports 3D Studio files into vtk.
+ *
+ * @sa
+ * vtkImporter
+*/
 
 #ifndef vtk3DSImporter_h
 #define vtk3DSImporter_h
@@ -37,20 +39,27 @@ public:
   vtkTypeMacro(vtk3DSImporter,vtkImporter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify the name of the file to read.
+  //@{
+  /**
+   * Specify the name of the file to read.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Set/Get the computation of normals. If on, imported geometry will
-  // be run through vtkPolyDataNormals.
+  //@{
+  /**
+   * Set/Get the computation of normals. If on, imported geometry will
+   * be run through vtkPolyDataNormals.
+   */
   vtkSetMacro(ComputeNormals,int);
   vtkGetMacro(ComputeNormals,int);
   vtkBooleanMacro(ComputeNormals,int);
+  //@}
 
-  // Description:
-  // Return the file pointer to the open file.
+  /**
+   * Return the file pointer to the open file.
+   */
   FILE *GetFileFD() {return this->FileFD;};
 
   vtk3DSOmniLight *OmniList;
@@ -77,8 +86,8 @@ protected:
   FILE *FileFD;
   int ComputeNormals;
 private:
-  vtk3DSImporter(const vtk3DSImporter&);  // Not implemented.
-  void operator=(const vtk3DSImporter&);  // Not implemented.
+  vtk3DSImporter(const vtk3DSImporter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtk3DSImporter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

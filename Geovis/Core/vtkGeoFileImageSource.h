@@ -17,13 +17,16 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGeoFileImageSource - A tiled image source on disk.
-//
-// .SECTION Description
-// vtkGeoFileImageSource is a vtkGeoSource that fetches .vti images from
-// disk in a directory with a certain naming scheme. You may use
-// vtkGeoAlignedImageRepresentation's SaveDatabase method to generate
-// an database of image tiles in this format.
+/**
+ * @class   vtkGeoFileImageSource
+ * @brief   A tiled image source on disk.
+ *
+ *
+ * vtkGeoFileImageSource is a vtkGeoSource that fetches .vti images from
+ * disk in a directory with a certain naming scheme. You may use
+ * vtkGeoAlignedImageRepresentation's SaveDatabase method to generate
+ * an database of image tiles in this format.
+*/
 
 #ifndef vtkGeoFileImageSource_h
 #define vtkGeoFileImageSource_h
@@ -45,26 +48,31 @@ public:
   vtkGeoFileImageSource();
   ~vtkGeoFileImageSource();
 
-  // Description:
-  // Fetches the root image representing the whole globe.
+  /**
+   * Fetches the root image representing the whole globe.
+   */
   virtual bool FetchRoot(vtkGeoTreeNode* root);
 
-  // Description:
-  // Fetches the child image of a parent from disk.
+  /**
+   * Fetches the child image of a parent from disk.
+   */
   virtual bool FetchChild(vtkGeoTreeNode* node, int index, vtkGeoTreeNode* child);
 
-  // Description:
-  // The path the tiled image database.
+  //@{
+  /**
+   * The path the tiled image database.
+   */
   vtkSetStringMacro(Path);
   vtkGetStringMacro(Path);
+  //@}
 
 protected:
 
   bool ReadImage(int level, int id, vtkGeoImageNode* node);
 
 private:
-  vtkGeoFileImageSource(const vtkGeoFileImageSource&); // Not implemented
-  void operator=(const vtkGeoFileImageSource&); // Not implemented
+  vtkGeoFileImageSource(const vtkGeoFileImageSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoFileImageSource&) VTK_DELETE_FUNCTION;
 
   char* Path;
 };

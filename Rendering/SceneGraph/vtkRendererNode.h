@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkRendererNode - vtkViewNode specialized for vtkRenderers
-// .SECTION Description
-// State storage and graph traversal for vtkRenderer
+/**
+ * @class   vtkRendererNode
+ * @brief   vtkViewNode specialized for vtkRenderers
+ *
+ * State storage and graph traversal for vtkRenderer
+*/
 
 #ifndef vtkRendererNode_h
 #define vtkRendererNode_h
@@ -32,12 +35,14 @@ public:
   vtkTypeMacro(vtkRendererNode, vtkViewNode);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //Description:
-  //Build containers for our child nodes.
+  /**
+   * Build containers for our child nodes.
+   */
   virtual void Build(bool prepass);
 
-  //Description:
-  //Synchronize our state
+  /**
+   * Synchronize our state
+   */
   virtual void Synchronize(bool prepass);
 
 protected:
@@ -47,8 +52,8 @@ protected:
   int Size[2];
 
 private:
-  vtkRendererNode(const vtkRendererNode&); // Not implemented.
-  void operator=(const vtkRendererNode&); // Not implemented.
+  vtkRendererNode(const vtkRendererNode&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRendererNode&) VTK_DELETE_FUNCTION;
 };
 
 #endif

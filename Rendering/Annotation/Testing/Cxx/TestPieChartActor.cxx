@@ -39,9 +39,9 @@ int TestPieChartActor( int argc, char * argv [] )
   bitter->SetNumberOfTuples(numTuples);
 
   for (int i=0; i<numTuples; i++)
-    {
+  {
     bitter->SetTuple1(i, vtkMath::Random(1,100));
-    }
+  }
 
   vtkDataObject *dobj = vtkDataObject::New();
   dobj->GetFieldData()->AddArray(bitter);
@@ -54,12 +54,12 @@ int TestPieChartActor( int argc, char * argv [] )
   actor->GetProperty()->SetColor(0.1,0.1,0.1);
   actor->GetLegendActor()->SetNumberOfEntries(numTuples);
   for (int i=0; i<numTuples; i++)
-    {
+  {
     double red=vtkMath::Random(0,1);
     double green=vtkMath::Random(0,1);
     double blue=vtkMath::Random(0,1);
     actor->SetPieceColor(i,red,green,blue);
-    }
+  }
   actor->SetPieceLabel(0,"oil");
   actor->SetPieceLabel(1,"gas");
   actor->SetPieceLabel(2,"water");
@@ -88,9 +88,9 @@ int TestPieChartActor( int argc, char * argv [] )
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   bitter->Delete();
   dobj->Delete();

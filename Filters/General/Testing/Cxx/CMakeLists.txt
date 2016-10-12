@@ -21,11 +21,14 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestContourTriangulatorCutter.cxx
   TestContourTriangulator.cxx
   TestContourTriangulatorMarching.cxx
+  TestCountFaces.cxx,NO_VALID
+  TestCountVertices.cxx,NO_VALID
   TestDeformPointSet.cxx
   TestDensifyPolyData.cxx
   TestDistancePolyDataFilter.cxx
   TestGraphWeightEuclideanDistanceFilter.cxx,NO_VALID
   TestImageDataToPointSet.cxx,NO_VALID
+  TestIntersectionPolyDataFilter3.cxx
   TestIntersectionPolyDataFilter2.cxx,NO_VALID
   TestIntersectionPolyDataFilter.cxx
   TestRectilinearGridToPointSet.cxx,NO_VALID

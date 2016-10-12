@@ -19,11 +19,13 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// .NAME vtkContinuousValueWidgetRepresentation - provide the representation for a continuous value
-// .SECTION Description
-// This class is used mainly as a superclass for continuous value widgets
-//
-
+/**
+ * @class   vtkContinuousValueWidgetRepresentation
+ * @brief   provide the representation for a continuous value
+ *
+ * This class is used mainly as a superclass for continuous value widgets
+ *
+*/
 
 #ifndef vtkContinuousValueWidgetRepresentation_h
 #define vtkContinuousValueWidgetRepresentation_h
@@ -35,21 +37,27 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkContinuousValueWidgetRepresentation :
   public vtkWidgetRepresentation
 {
 public:
-  // Description:
-  // Standard methods for the class.
+  //@{
+  /**
+   * Standard methods for the class.
+   */
   vtkTypeMacro(vtkContinuousValueWidgetRepresentation,
                        vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // Methods to interface with the vtkSliderWidget. The PlaceWidget() method
-  // assumes that the parameter bounds[6] specifies the location in display
-  // space where the widget should be placed.
+  //@{
+  /**
+   * Methods to interface with the vtkSliderWidget. The PlaceWidget() method
+   * assumes that the parameter bounds[6] specifies the location in display
+   * space where the widget should be placed.
+   */
   virtual void PlaceWidget(double bounds[6]);
   virtual void BuildRepresentation() {}
   virtual void StartWidgetInteraction(double eventPos[2]) = 0;
   virtual void WidgetInteraction(double eventPos[2]) = 0;
 //  virtual void Highlight(int);
+  //@}
 
   // Enums are used to describe what is selected
   enum _InteractionState
@@ -71,8 +79,8 @@ protected:
 
 private:
   vtkContinuousValueWidgetRepresentation
-  (const vtkContinuousValueWidgetRepresentation&);  //Not implemented
-  void operator=(const vtkContinuousValueWidgetRepresentation&); // Not implemented
+  (const vtkContinuousValueWidgetRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkContinuousValueWidgetRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

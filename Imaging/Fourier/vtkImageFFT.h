@@ -12,17 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageFFT -  Fast Fourier Transform.
-// .SECTION Description
-// vtkImageFFT implements a  fast Fourier transform.  The input
-// can have real or complex data in any components and data types, but
-// the output is always complex doubles with real values in component0, and
-// imaginary values in component1.  The filter is fastest for images that
-// have power of two sizes.  The filter uses a butterfly diagram for each
-// prime factor of the dimension.  This makes images with prime number dimensions
-// (i.e. 17x17) much slower to compute.  Multi dimensional (i.e volumes)
-// FFT's are decomposed so that each axis executes serially.
-
+/**
+ * @class   vtkImageFFT
+ * @brief    Fast Fourier Transform.
+ *
+ * vtkImageFFT implements a  fast Fourier transform.  The input
+ * can have real or complex data in any components and data types, but
+ * the output is always complex doubles with real values in component0, and
+ * imaginary values in component1.  The filter is fastest for images that
+ * have power of two sizes.  The filter uses a butterfly diagram for each
+ * prime factor of the dimension.  This makes images with prime number dimensions
+ * (i.e. 17x17) much slower to compute.  Multi dimensional (i.e volumes)
+ * FFT's are decomposed so that each axis executes serially.
+*/
 
 #ifndef vtkImageFFT_h
 #define vtkImageFFT_h
@@ -55,8 +57,8 @@ protected:
     int outExt[6],
     int threadId);
 private:
-  vtkImageFFT(const vtkImageFFT&);  // Not implemented.
-  void operator=(const vtkImageFFT&);  // Not implemented.
+  vtkImageFFT(const vtkImageFFT&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageFFT&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -16,12 +16,15 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkDSPFilterDefinition - used by the Exodus readers
-// .SECTION Description
-// vtkDSPFilterDefinition is used by vtkExodusReader, vtkExodusIIReader and
-// vtkPExodusReader to do temporal smoothing of data
-// .SECTION See Also
-// vtkDSPFilterGroup vtkExodusReader vtkExodusIIReader vtkPExodusReader
+/**
+ * @class   vtkDSPFilterDefinition
+ * @brief   used by the Exodus readers
+ *
+ * vtkDSPFilterDefinition is used by vtkExodusReader, vtkExodusIIReader and
+ * vtkPExodusReader to do temporal smoothing of data
+ * @sa
+ * vtkDSPFilterGroup vtkExodusReader vtkExodusIIReader vtkPExodusReader
+*/
 
 #ifndef vtkDSPFilterDefinition_h
 #define vtkDSPFilterDefinition_h
@@ -78,8 +81,8 @@ class VTKFILTERSHYBRID_EXPORT vtkDSPFilterDefinition : public vtkObject
 protected:
 
 private:
-  vtkDSPFilterDefinition(const vtkDSPFilterDefinition&); // Not implemented
-  void operator=(const vtkDSPFilterDefinition&); // Not implemented
+  vtkDSPFilterDefinition(const vtkDSPFilterDefinition&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDSPFilterDefinition&) VTK_DELETE_FUNCTION;
 };
 
 

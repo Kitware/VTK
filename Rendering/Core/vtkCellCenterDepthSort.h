@@ -22,16 +22,19 @@
  * statement of authorship are reproduced on all copies.
  */
 
-// .NAME vtkCellCenterDepthSort - A simple implementation of vtkCellDepthSort.
-//
-// .SECTION Description
-// vtkCellCenterDepthSort is a simple and fast implementation of depth
-// sort, but it only provides approximate results.  The sorting algorithm
-// finds the centroids of all the cells.  It then performs the dot product
-// of the centroids against a vector pointing in the direction of the
-// camera transformed into object space.  It then performs an ordinary sort
-// on the result.
-//
+/**
+ * @class   vtkCellCenterDepthSort
+ * @brief   A simple implementation of vtkCellDepthSort.
+ *
+ *
+ * vtkCellCenterDepthSort is a simple and fast implementation of depth
+ * sort, but it only provides approximate results.  The sorting algorithm
+ * finds the centroids of all the cells.  It then performs the dot product
+ * of the centroids against a vector pointing in the direction of the
+ * camera transformed into object space.  It then performs an ordinary sort
+ * on the result.
+ *
+*/
 
 #ifndef vtkCellCenterDepthSort_h
 #define vtkCellCenterDepthSort_h
@@ -71,8 +74,8 @@ protected:
 private:
   vtkCellCenterDepthSortStack *ToSort;
 
-  vtkCellCenterDepthSort(const vtkCellCenterDepthSort &);  // Not implemented.
-  void operator=(const vtkCellCenterDepthSort &);  // Not implemented.
+  vtkCellCenterDepthSort(const vtkCellCenterDepthSort &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCellCenterDepthSort &) VTK_DELETE_FUNCTION;
 };
 
 #endif

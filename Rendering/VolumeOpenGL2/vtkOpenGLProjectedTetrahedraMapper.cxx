@@ -72,11 +72,11 @@ class vtkOpenGLProjectedTetrahedraMapper::vtkInternals
 {
 public:
   vtkInternals()
-    {
+  {
     this->FrameBufferObjectId = 0;
     this->RenderBufferObjectIds[0] = 0;
     this->RenderBufferObjectIds[1] = 0;
-    }
+  }
   GLuint FrameBufferObjectId;
   GLuint RenderBufferObjectIds[2];
 };
@@ -130,22 +130,22 @@ bool vtkOpenGLProjectedTetrahedraMapper::IsSupported(vtkRenderWindow *rwin)
 {
   vtkOpenGLRenderWindow *context = vtkOpenGLRenderWindow::SafeDownCast(rwin);
   if (!context)
-    {
+  {
     vtkErrorMacro(
       << "Support for " << rwin->GetClassName() << " not implemented");
     return false;
-    }
+  }
 
   // use render to FBO when it's supported
   this->CanDoFloatingPointFrameBuffer = false;
   if (this->UseFloatingPointFrameBuffer)
-    {
+  {
 #if GL_ES_VERSION_2_0 != 1
     if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
-      {
+    {
       this->CanDoFloatingPointFrameBuffer = true;
       return true;
-      }
+    }
 #endif
 
     this->CanDoFloatingPointFrameBuffer
@@ -156,11 +156,11 @@ bool vtkOpenGLProjectedTetrahedraMapper::IsSupported(vtkRenderWindow *rwin)
       = true;
 #endif
     if (!this->CanDoFloatingPointFrameBuffer)
-      {
+    {
       vtkWarningMacro(
         "Missing FBO support. The algorithm may produce visual artifacts.");
-      }
     }
+  }
 
   return true;
 }
@@ -169,9 +169,9 @@ bool vtkOpenGLProjectedTetrahedraMapper::IsSupported(vtkRenderWindow *rwin)
 void vtkOpenGLProjectedTetrahedraMapper::Initialize(vtkRenderer *renderer)
 {
   if (this->Initialized)
-    {
+  {
     return;
-    }
+  }
 
   this->Initialized = true;
 
@@ -179,10 +179,10 @@ void vtkOpenGLProjectedTetrahedraMapper::Initialize(vtkRenderer *renderer)
     = vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
   this->HasHardwareSupport = renwin != NULL && this->IsSupported(renwin);
   if (!this->HasHardwareSupport)
-    {
+  {
     // this is an error since there's no fallback.
     vtkErrorMacro("The required extensions are not supported.");
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -196,13 +196,13 @@ bool vtkOpenGLProjectedTetrahedraMapper::AllocateFBOResources(vtkRenderer *r)
     && (!this->FloatingPointFrameBufferResourcesAllocated
     || (size[0] != this->CurrentFBOWidth)
     || (size[0] != this->CurrentFBOHeight)) )
-    {
+  {
     this->CurrentFBOWidth = size[0];
     this->CurrentFBOHeight = size[1];
 
     // reserver handles fbo and renderbuffers
     if (!this->FloatingPointFrameBufferResourcesAllocated)
-      {
+    {
       glGenFramebuffers(1, &this->Internals->FrameBufferObjectId);
       vtkOpenGLCheckErrorMacro("failed at glGenFramebuffers");
 
@@ -210,7 +210,7 @@ bool vtkOpenGLProjectedTetrahedraMapper::AllocateFBOResources(vtkRenderer *r)
       vtkOpenGLCheckErrorMacro("failed at glGenRenderBuffers");
 
       this->FloatingPointFrameBufferResourcesAllocated = true;
-      }
+    }
 
     GLint winSampleBuffers = 0;
     glGetIntegerv(GL_SAMPLE_BUFFERS, &winSampleBuffers);
@@ -281,16 +281,16 @@ bool vtkOpenGLProjectedTetrahedraMapper::AllocateFBOResources(vtkRenderer *r)
     // verify that it is usable
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if(status != GL_FRAMEBUFFER_COMPLETE)
-      {
+    {
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
       vtkWarningMacro(
         "Missing FBO support. The algorithm may produce visual artifacts.");
       this->CanDoFloatingPointFrameBuffer = false;
       return false;
-      }
+    }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     this->CanDoFloatingPointFrameBuffer = true;
-    }
+  }
 
   return true;
 }
@@ -301,7 +301,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ReleaseGraphicsResources(vtkWindow *win
   this->Initialized = false;
 
   if (this->FloatingPointFrameBufferResourcesAllocated)
-    {
+  {
       this->FloatingPointFrameBufferResourcesAllocated = false;
 
       glDeleteFramebuffers(1, &this->Internals->FrameBufferObjectId);
@@ -312,7 +312,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ReleaseGraphicsResources(vtkWindow *win
       vtkOpenGLCheckErrorMacro("failed at glDeleteRenderbuffers");
       this->Internals->RenderBufferObjectIds[0] = 0;
       this->Internals->RenderBufferObjectIds[1] = 0;
-    }
+  }
 
   this->VBO->ReleaseGraphicsResources();
   this->Tris.ReleaseGraphicsResources(win);
@@ -330,19 +330,25 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
   this->Initialize(renderer);
 
   if (!this->HasHardwareSupport)
-    {
+  {
     return;
-    }
+  }
 
   // make sure our shader program is loaded and ready to go
-  vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
+  vtkOpenGLRenderWindow *renWin =
+    vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
+
+  if (renWin == NULL)
+  {
+    vtkErrorMacro("Invalid vtkOpenGLRenderWindow");
+  }
 
   vtkUnstructuredGridBase *input = this->GetInput();
   vtkVolumeProperty *property = volume->GetProperty();
 
   // has something changed that would require us to recreate the shader?
   if (!this->Tris.Program)
-    {
+  {
     // build the shader source code
     std::string VSSource = vtkglProjectedTetrahedraVS;
     std::string FSSource = vtkglProjectedTetrahedraFS;
@@ -356,59 +362,59 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
 
     // if the shader changed reinitialize the VAO
     if (newShader != this->Tris.Program)
-      {
+    {
       this->Tris.Program = newShader;
       this->Tris.VAO->ShaderProgramChanged(); // reset the VAO as the shader has changed
-      }
+    }
 
     this->Tris.ShaderSourceTime.Modified();
-    }
+  }
   else
-    {
+  {
     renWin->GetShaderCache()->ReadyShaderProgram(this->Tris.Program);
-    }
+  }
 
   // Check to see if input changed.
   if (   (this->InputAnalyzedTime < this->MTime)
       || (this->InputAnalyzedTime < input->GetMTime()) )
-    {
+  {
     this->GaveError = 0;
     float max_cell_size2 = 0;
 
     if (input->GetNumberOfCells() == 0)
-      {
+    {
       // Apparently, the input has no cells.  Just do nothing.
       return;
-      }
+    }
 
     vtkSmartPointer<vtkCellIterator> cellIter =
         vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
     for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal();
          cellIter->GoToNextCell())
-      {
+    {
       vtkIdType npts = cellIter->GetNumberOfPoints();
       if (npts != 4)
-        {
+      {
         if (!this->GaveError)
-          {
+        {
           vtkErrorMacro("Encountered non-tetrahedra cell!");
           this->GaveError = 1;
-          }
-        continue;
         }
+        continue;
+      }
       vtkIdType *pts = cellIter->GetPointIds()->GetPointer(0);
       for (int j = 0; j < 6; j++)
-        {
+      {
         double p1[3], p2[3];
         input->GetPoint(pts[tet_edges[j][0]], p1);
         input->GetPoint(pts[tet_edges[j][1]], p2);
         float size2 = (float)vtkMath::Distance2BetweenPoints(p1, p2);
         if (size2 > max_cell_size2)
-          {
+        {
           max_cell_size2 = size2;
-          }
         }
       }
+    }
 
     this->MaxCellSize = (float)sqrt(max_cell_size2);
 
@@ -417,57 +423,57 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
     // than calling the sqrt function.
     this->SqrtTableBias = (SqrtTableSize-1)/max_cell_size2;
     for (int i = 0; i < SqrtTableSize; i++)
-      {
+    {
       this->SqrtTable[i] = (float)sqrt(i/this->SqrtTableBias);
-      }
+    }
 
     this->InputAnalyzedTime.Modified();
-    }
+  }
 
   if (renderer->GetRenderWindow()->CheckAbortStatus() || this->GaveError)
-    {
+  {
     vtkOpenGLCheckErrorMacro("failed during Render");
     return;
-    }
+  }
 
   if (renderer->GetRenderWindow()->CheckAbortStatus())
-    {
+  {
     vtkOpenGLCheckErrorMacro("failed during Render");
     return;
-    }
+  }
 
   // Check to see if we need to remap colors.
   if (   (this->ColorsMappedTime < this->MTime)
       || (this->ColorsMappedTime < input->GetMTime())
       || (this->LastProperty != property)
       || (this->ColorsMappedTime < property->GetMTime()) )
-    {
+  {
     vtkDataArray *scalars = this->GetScalars(input, this->ScalarMode,
                                              this->ArrayAccessMode,
                                              this->ArrayId, this->ArrayName,
                                              this->UsingCellColors);
     if (!scalars)
-      {
+    {
       vtkErrorMacro(<< "Can't use projected tetrahedra without scalars!");
       vtkOpenGLCheckErrorMacro("failed during Render");
       return;
-      }
+    }
 
     vtkProjectedTetrahedraMapper::MapScalarsToColors(this->Colors, property,
                                                      scalars);
 
     this->ColorsMappedTime.Modified();
     this->LastProperty = property;
-    }
+  }
   if (renderer->GetRenderWindow()->CheckAbortStatus())
-    {
+  {
     vtkOpenGLCheckErrorMacro("failed during Render");
     return;
-    }
+  }
 
   this->Timer->StartTimer();
 
-  this->ProjectTetrahedra(renderer, volume);
+  this->ProjectTetrahedra(renderer, volume, renWin);
 
   this->Timer->StopTimer();
   this->TimeToDraw = this->Timer->GetElapsedTime();
@@ -483,13 +489,13 @@ inline float vtkOpenGLProjectedTetrahedraMapper::GetCorrectedDepth(
                                          float linear_depth_correction)
 {
   if (use_linear_depth_correction)
-    {
+  {
     float depth = linear_depth_correction*(z1 - z2);
     if (depth < 0) depth = -depth;
     return depth;
-    }
+  }
   else
-    {
+  {
     float eye1[3], eye2[3], invw;
 
     // This code does the same as the commented code above, but also collects
@@ -523,14 +529,15 @@ inline float vtkOpenGLProjectedTetrahedraMapper::GetCorrectedDepth(
 
     float dist2 = vtkMath::Distance2BetweenPoints(eye1, eye2);
     return this->SqrtTable[(int)(dist2*this->SqrtTableBias)];
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer,
-                                                           vtkVolume *volume)
+  vtkVolume *volume, vtkOpenGLRenderWindow* renWin)
 {
   vtkOpenGLClearErrorMacro();
+  unsigned int const defaultFBO = renWin->GetFrameBufferObject();
 
   // after mucking about with FBO bindings be sure
   // we're saving the default fbo attributes/blend function
@@ -538,7 +545,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
 
   if (this->UseFloatingPointFrameBuffer
     && this->CanDoFloatingPointFrameBuffer)
-    {
+  {
     // bind draw+read to set it up
     glBindFramebuffer(GL_FRAMEBUFFER,
           this->Internals->FrameBufferObjectId);
@@ -549,12 +556,13 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
 
     GLenum status = glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER);
     if (status!= GL_FRAMEBUFFER_COMPLETE)
-      {
+    {
       vtkErrorMacro("FBO is incomplete " << status);
-      }
+    }
 
     // read from default
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, defaultFBO);
+
     // draw to fbo
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER,
                            this->Internals->FrameBufferObjectId);
@@ -567,7 +575,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
                       GL_NEAREST);
 
     vtkOpenGLCheckErrorMacro("failed at glBlitFramebuffer");
-    }
+  }
 
   // TODO:
   // There are some caching optimizations that could be used
@@ -585,9 +593,9 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
   this->VisibilitySort->InitTraversal();
 
   if (renderer->GetRenderWindow()->CheckAbortStatus())
-    {
+  {
     return;
-    }
+  }
 
   vtkMatrix4x4 *wcdc;
   vtkMatrix4x4 *wcvc;
@@ -597,16 +605,16 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
   cam->GetKeyMatrices(renderer,wcvc,norms,vcdc,wcdc);
   float projection_mat[16];
   for(int i = 0; i < 4; ++i)
-    {
+  {
     for (int j = 0; j < 4; ++j)
-      {
+    {
       projection_mat[i*4+j] = vcdc->GetElement(i, j);
-      }
     }
+  }
 
   float modelview_mat[16];
   if (!volume->GetIsIdentity())
-    {
+  {
     vtkMatrix4x4 *tmpMat = vtkMatrix4x4::New();
     vtkMatrix4x4 *tmpMat2 = vtkMatrix4x4::New();
     vtkMatrix4x4 *mcwc = volume->GetMatrix();
@@ -615,25 +623,25 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
     vtkMatrix4x4::Multiply4x4(tmpMat2, mcwc, tmpMat);
     tmpMat->Transpose();
     for(int i = 0; i < 4; ++i)
-      {
+    {
       for (int j = 0; j < 4; ++j)
-        {
+      {
         modelview_mat[i*4+j] = tmpMat->GetElement(i, j);
-        }
       }
+    }
     tmpMat->Delete();
     tmpMat2->Delete();
-    }
+  }
   else
-    {
+  {
     for(int i = 0; i < 4; ++i)
-      {
+    {
       for (int j = 0; j < 4; ++j)
-        {
+      {
         modelview_mat[i*4+j] = wcvc->GetElement(i, j);
-        }
       }
     }
+  }
 
   // Get the inverse projection matrix so that we can convert distances in
   // clipping space to distances in world or eye space.
@@ -660,7 +668,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
                                  && (projection_mat[11] == 0.0)
                                  && (projection_mat[15] == 1.0) );
   if (use_linear_depth_correction)
-    {
+  {
     float pos1[3], *pos2;
 
     pos1[0] = inverse_projection_mat[8] + inverse_projection_mat[12];
@@ -670,7 +678,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
     pos2 = inverse_projection_mat + 12;
 
     linear_depth_correction = sqrt(vtkMath::Distance2BetweenPoints(pos1, pos2));
-    }
+  }
   // Transform all the points.
   vtkProjectedTetrahedraMapper::TransformPoints(input->GetPoints(),
                                                 projection_mat, modelview_mat,
@@ -678,9 +686,9 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
   float *points = this->TransformedPoints->GetPointer(0);
 
   if (renderer->GetRenderWindow()->CheckAbortStatus())
-    {
+  {
     return;
-    }
+  }
 
   glDepthMask(GL_FALSE);
 
@@ -732,13 +740,13 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
   for (vtkIdTypeArray *sorted_cell_ids = this->VisibilitySort->GetNextCells();
        sorted_cell_ids != NULL;
        sorted_cell_ids = this->VisibilitySort->GetNextCells())
-    {
+  {
     this->UpdateProgress((double)numcellsrendered/totalnumcells);
 
     if (renderer->GetRenderWindow()->CheckAbortStatus())
-      {
+    {
       break;
-      }
+    }
     vtkIdType *cell_ids = sorted_cell_ids->GetPointer(0);
     vtkIdType num_cell_ids = sorted_cell_ids->GetNumberOfTuples();
 
@@ -748,14 +756,14 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
     indexArray.resize(0);
 
     for (vtkIdType i = 0; i < num_cell_ids; i++)
-      {
+    {
       vtkIdType cell = cell_ids[i];
       input->GetCellPoints(cell, cellPointIds.GetPointer());
       int j;
 
       // Get the data for the tetrahedra.
       for (j = 0; j < 4; j++)
-        {
+      {
         // Assuming we only have tetrahedra, each entry in cells has 5
         // components.
         const float *p = points + 3 * cellPointIds->GetId(j);
@@ -765,13 +773,13 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
 
         const unsigned char *c;
         if (this->UsingCellColors)
-          {
+        {
           c = colors + 4*cell;
-          }
+        }
         else
-          {
+        {
           c = colors + 4 * cellPointIds->GetId(j);
-          }
+        }
 
         tet_colors[j*3 + 0] = c[0];
         tet_colors[j*3 + 1] = c[1];
@@ -779,7 +787,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
 
         tet_texcoords[j*2 + 0] = static_cast<float>(c[3])/255.0f;
         tet_texcoords[j*2 + 1] = 0;
-        }
+      }
 
       // Do not render this cell if it is outside of the cutting planes.  For
       // most planes, cut if all points are outside.  For the near plane, cut if
@@ -797,9 +805,9 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
               && (tet_points[2*3+2] >  1.0f) && (tet_points[3*3+2] >  1.0f) )
           || (   (tet_points[0*3+2] < -1.0f) || (tet_points[1*3+2] < -1.0f)
               || (tet_points[2*3+2] < -1.0f) || (tet_points[3*3+2] < -1.0f) ) )
-        {
+      {
         continue;
-        }
+      }
 
       // The classic PT algorithm uses face normals to determine the
       // projection class and then do calculations individually.  However,
@@ -827,20 +835,20 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
       if (   (face_dir1 * face_dir2 >= 0)
           && (   (face_dir1 != 0)       // Handle a special case where 2 faces
               || (face_dir2 != 0) ) )   // are perpendicular to the view plane.
-        {
+      {
         segment1[0] = 0;  segment1[1] = 3;
         segment2[0] = 1;  segment2[1] = 2;
-        }
+      }
       else if (face_dir1 * face_dir3 >= 0)
-        {
+      {
         segment1[0] = 0;  segment1[1] = 2;
         segment2[0] = 1;  segment2[1] = 3;
-        }
+      }
       else      // Unless the tet is degenerate, face_dir2*face_dir3 >= 0
-        {
+      {
         segment1[0] = 0;  segment1[1] = 1;
         segment2[0] = 2;  segment2[1] = 3;
-        }
+      }
 
 #define VEC3SUB(Z,X,Y)          \
   (Z)[0] = (X)[0] - (Y)[0];     \
@@ -884,7 +892,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
       float beta = (A[1]*C[0]-A[0]*C[1])/denominator;
 
       if ((alpha >= 0) && (alpha <= 1))
-        {
+      {
         // The two segments intersect.  This corresponds to class 2 in
         // Shirley and Tuchman (or one of the degenerate cases).
 
@@ -949,24 +957,24 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
         indices[5] = segment1[0];
         // add the cells to the IBO
         for (int cellIdx = 0; cellIdx < 4; cellIdx++)
-          {
+        {
           indexArray.push_back(indices[0]+numPts);
           indexArray.push_back(indices[cellIdx+1]+numPts);
           indexArray.push_back(indices[cellIdx+2]+numPts);
-          }
         }
+      }
       else
-        {
+      {
         // The two segments do not intersect.  This corresponds to class 1
         // in Shirley and Tuchman.
         if (alpha <= 0)
-          {
+        {
           // Flip segment1 so that alpha is >= 1.  P1 and P2 are also
           // flipped as are C1-C2 and T1-T2.  Note that this will
           // invalidate A.  B and beta are unaffected.
           std::swap(segment1[0], segment1[1]);
           alpha = 1 - alpha;
-          }
+        }
         // From here on, we can assume P2 is the "thick" point.
 
         // Find the depth under the thick point.  Use the alpha and beta
@@ -983,12 +991,12 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
         // Fix color at thick point.  Average color with color of opposite
         // face.
         for (j = 0; j < 3; j++)
-          {
+        {
           float edgec = C3[j] + beta*(C4[j]-C3[j]);
           float pointc = C1[j];
           float facec = (edgec + (alpha-1)*pointc)/alpha;
           C2[j] = (unsigned char)(0.5f*(facec + C2[j]));
-          }
+        }
 
 //         tet_colors[3*segment1[0] + 0] = 0;
 //         tet_colors[3*segment1[0] + 1] = 255;
@@ -1023,17 +1031,17 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
 
         // add the cells to the IBO
         for (int cellIdx = 0; cellIdx < 3; cellIdx++)
-          {
+        {
           indexArray.push_back(indices[0]+numPts);
           indexArray.push_back(indices[cellIdx+1]+numPts);
           indexArray.push_back(indices[cellIdx+2]+numPts);
-          }
         }
+      }
 
       // add the points to the VBO
       union { unsigned char c[4]; float f; } v = { { 0, 0, 0, 255 } };
       for (int ptIdx = 0; ptIdx < 5; ptIdx++)
-        {
+      {
         *(it++) = tet_points[ptIdx*3];
         *(it++) = tet_points[ptIdx*3+1];
         *(it++) = tet_points[ptIdx*3+2];
@@ -1043,9 +1051,9 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
         *(it++) = v.f;
         *(it++) = tet_texcoords[ptIdx*2]; // attenuation
         *(it++) = tet_texcoords[ptIdx*2+1]; // depth
-        }
-      numPts += 5;
       }
+      numPts += 5;
+    }
 
     this->VBO->Upload(packedVBO, vtkOpenGLBufferObject::ArrayBuffer);
     this->VBO->VertexCount = numPts;
@@ -1054,36 +1062,36 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
     this->Tris.VAO->Bind();
     if (this->Tris.IBO->IndexCount && (
         this->Tris.ShaderSourceTime > this->Tris.AttributeUpdateTime))
-      {
+    {
       if (!this->Tris.VAO->AddAttributeArray(this->Tris.Program, this->VBO,
                                       "vertexDC", this->VBO->VertexOffset,
                                       this->VBO->Stride, VTK_FLOAT, 3, false))
-        {
+      {
         vtkErrorMacro(<< "Error setting 'vertexDC' in shader VAO.");
-        }
+      }
       if (!this->Tris.VAO->AddAttributeArray(this->Tris.Program, this->VBO,
                                       "scalarColor", this->VBO->ColorOffset,
                                       this->VBO->Stride, VTK_UNSIGNED_CHAR,
                                       this->VBO->ColorComponents, true))
-        {
+      {
         vtkErrorMacro(<< "Error setting 'scalarColor' in shader VAO.");
-        }
+      }
       if (!this->Tris.VAO->AddAttributeArray(this->Tris.Program, this->VBO,
                                       "attenuationArray", this->VBO->TCoordOffset,
                                       this->VBO->Stride, VTK_FLOAT,
                                       1, false))
-        {
+      {
         vtkErrorMacro(<< "Error setting attenuation in shader VAO.");
-        }
+      }
       if (!this->Tris.VAO->AddAttributeArray(this->Tris.Program, this->VBO,
                                       "depthArray", this->VBO->TCoordOffset+sizeof(float),
                                       this->VBO->Stride, VTK_FLOAT,
                                       1, false))
-        {
+      {
         vtkErrorMacro(<< "Error setting depth in shader VAO.");
-        }
-      this->Tris.AttributeUpdateTime.Modified();
       }
+      this->Tris.AttributeUpdateTime.Modified();
+    }
 
     this->Tris.IBO->Upload(indexArray, vtkOpenGLBufferObject::ElementArrayBuffer);
     this->Tris.IBO->IndexCount = indexArray.size();
@@ -1097,11 +1105,11 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
     this->Tris.VAO->Release();
     this->VBO->Release();
     numcellsrendered += num_cell_ids;
-    }
+  }
 
   if (this->UseFloatingPointFrameBuffer
     && this->CanDoFloatingPointFrameBuffer)
-    {
+  {
     // copy from our fbo to the default one
     glBindFramebuffer(GL_FRAMEBUFFER,
           this->Internals->FrameBufferObjectId);
@@ -1111,15 +1119,15 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
 
     GLenum status = glCheckFramebufferStatus(GL_READ_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)
-      {
+    {
       vtkErrorMacro("FBO is incomplete " << status);
-      }
+    }
 
     // read from fbo
     glBindFramebuffer(GL_READ_FRAMEBUFFER,
                       this->Internals->FrameBufferObjectId);
     // draw to default fbo
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, defaultFBO);
 
     glBlitFramebuffer(0, 0, this->CurrentFBOWidth, this->CurrentFBOHeight,
                       0, 0, this->CurrentFBOWidth, this->CurrentFBOHeight,
@@ -1128,8 +1136,8 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
     vtkOpenGLCheckErrorMacro("failed at glBlitFramebuffer");
 
     // restore default fbo for both read+draw
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    }
+    glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO);
+  }
 
   // Restore the blend function.
   vtkOpenGLCheckErrorMacro("failed at glPopAttrib");

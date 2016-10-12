@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOSPRayCompositePolyDataMapper2Node - links vtkActor and vtkMapper to OSPRay
-// .SECTION Description
-// Translates vtkActor/Mapper state into OSPRay rendering calls
+/**
+ * @class   vtkOSPRayCompositePolyDataMapper2Node
+ * @brief   links vtkActor and vtkMapper to OSPRay
+ *
+ * Translates vtkActor/Mapper state into OSPRay rendering calls
+*/
 
 #ifndef vtkOSPRayCompositePolyDataMapper2Node_h
 #define vtkOSPRayCompositePolyDataMapper2Node_h
@@ -36,9 +39,15 @@ public:
   vtkTypeMacro(vtkOSPRayCompositePolyDataMapper2Node, vtkOSPRayPolyDataMapperNode);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //Description:
-  //Make ospray calls to render me.
+  /**
+   * Make ospray calls to render me.
+   */
   virtual void Render(bool prepass);
+
+  /**
+   * Invalidates cached rendering data.
+   */
+  virtual void Invalidate(bool prepass);
 
 protected:
   vtkOSPRayCompositePolyDataMapper2Node();
@@ -63,7 +72,7 @@ protected:
 
 
 private:
-  vtkOSPRayCompositePolyDataMapper2Node(const vtkOSPRayCompositePolyDataMapper2Node&); // Not implemented.
-  void operator=(const vtkOSPRayCompositePolyDataMapper2Node&); // Not implemented.
+  vtkOSPRayCompositePolyDataMapper2Node(const vtkOSPRayCompositePolyDataMapper2Node&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOSPRayCompositePolyDataMapper2Node&) VTK_DELETE_FUNCTION;
 };
 #endif

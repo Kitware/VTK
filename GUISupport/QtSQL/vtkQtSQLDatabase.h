@@ -17,10 +17,13 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkQtSQLDatabase - maintains a connection to an sql database
-//
-// .SECTION Description
-// Implements a vtkSQLDatabase using an underlying Qt QSQLDatabase.
+/**
+ * @class   vtkQtSQLDatabase
+ * @brief   maintains a connection to an sql database
+ *
+ *
+ * Implements a vtkSQLDatabase using an underlying Qt QSQLDatabase.
+*/
 
 #ifndef vtkQtSQLDatabase_h
 #define vtkQtSQLDatabase_h
@@ -44,94 +47,125 @@ public:
   vtkTypeMacro(vtkQtSQLDatabase, vtkSQLDatabase);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Open a new connection to the database.
-  // You need to set up any database parameters before calling this function.
-  // Returns true is the database was opened successfully, and false otherwise.
+  /**
+   * Open a new connection to the database.
+   * You need to set up any database parameters before calling this function.
+   * Returns true is the database was opened successfully, and false otherwise.
+   */
   virtual bool Open(const char* password);
 
-  // Description:
-  // Close the connection to the database.
+  /**
+   * Close the connection to the database.
+   */
   virtual void Close();
 
-  // Description:
-  // Return whether the database has an open connection
+  /**
+   * Return whether the database has an open connection
+   */
   virtual bool IsOpen();
 
-  // Description:
-  // Return an empty query on this database.
+  /**
+   * Return an empty query on this database.
+   */
   virtual vtkSQLQuery* GetQueryInstance();
 
-  // Description:
-  // Get the list of tables from the database
+  /**
+   * Get the list of tables from the database
+   */
   vtkStringArray* GetTables();
 
-  // Description:
-  // Get the list of fields for a particular table
+  /**
+   * Get the list of fields for a particular table
+   */
   vtkStringArray* GetRecord(const char *table);
 
-  // Description:
-  // Returns a list of columns for a particular table.
-  // Note that this is mainly for use with the VTK parallel server.
-  // Serial VTK developers should prefer to use GetRecord() instead.
+  /**
+   * Returns a list of columns for a particular table.
+   * Note that this is mainly for use with the VTK parallel server.
+   * Serial VTK developers should prefer to use GetRecord() instead.
+   */
   vtkStringArray* GetColumns();
 
-  // Description:
-  // Set the table used by GetColumns()
-  // Note that this is mainly for use with the VTK parallel server.
-  // Serial VTK developers should prefer to use GetRecord() instead.
+  /**
+   * Set the table used by GetColumns()
+   * Note that this is mainly for use with the VTK parallel server.
+   * Serial VTK developers should prefer to use GetRecord() instead.
+   */
   void SetColumnsTable(const char* table);
 
-  // Description:
-  // Return whether a feature is supported by the database.
+  /**
+   * Return whether a feature is supported by the database.
+   */
   virtual bool IsSupported(int feature);
 
-  // Description:
-  // Did the last operation generate an error
+  /**
+   * Did the last operation generate an error
+   */
   bool HasError();
 
-  // Description:
-  // Get the last error text from the database
+  /**
+   * Get the last error text from the database
+   */
   const char* GetLastErrorText();
 
-  // Description:
-  // String representing Qt database type (e.g. "mysql").
+  //@{
+  /**
+   * String representing Qt database type (e.g. "mysql").
+   */
   vtkGetStringMacro(DatabaseType);
   vtkSetStringMacro(DatabaseType);
+  //@}
 
-  // Description:
-  // The database server host name.
+  //@{
+  /**
+   * The database server host name.
+   */
   vtkSetStringMacro(HostName);
   vtkGetStringMacro(HostName);
+  //@}
 
-  // Description:
-  // The user name for connecting to the database server.
+  //@{
+  /**
+   * The user name for connecting to the database server.
+   */
   vtkSetStringMacro(UserName);
   vtkGetStringMacro(UserName);
+  //@}
 
-  // Description:
-  // The name of the database to connect to.
+  //@{
+  /**
+   * The name of the database to connect to.
+   */
   vtkSetStringMacro(DatabaseName);
   vtkGetStringMacro(DatabaseName);
+  //@}
 
-  // Description:
-  // Additional options for the database.
+  //@{
+  /**
+   * Additional options for the database.
+   */
   vtkSetStringMacro(ConnectOptions);
   vtkGetStringMacro(ConnectOptions);
+  //@}
 
-  // Description:
-  // The port used for connecting to the database.
+  //@{
+  /**
+   * The port used for connecting to the database.
+   */
   vtkSetClampMacro(Port, int, 0, 65535);
   vtkGetMacro(Port, int);
+  //@}
 
-  // Description:
-  // Create a the proper subclass given a URL.
-  // The URL format for SQL databases is a true URL of the form:
-  //   'protocol://'[[username[':'password]'@']hostname[':'port]]'/'[dbname] .
+  /**
+   * Create a the proper subclass given a URL.
+   * The URL format for SQL databases is a true URL of the form:
+   * 'protocol://'[[username[':'password]'@']hostname[':'port]]'/'[dbname] .
+   */
   static vtkSQLDatabase* CreateFromURL( const char* URL );
 
-  // Description:
-  // Get the URL of the database.
+  /**
+   * Get the URL of the database.
+   */
   virtual vtkStdString GetURL();
 
 protected:
@@ -149,10 +183,11 @@ protected:
 
   friend class vtkQtSQLQuery;
 
-  // Description:
-  // Overridden to determine connection parameters given the URL.
-  // This is called by CreateFromURL() to initialize the instance.
-  // Look at CreateFromURL() for details about the URL format.
+  /**
+   * Overridden to determine connection parameters given the URL.
+   * This is called by CreateFromURL() to initialize the instance.
+   * Look at CreateFromURL() for details about the URL format.
+   */
   virtual bool ParseURL(const char* url);
 private:
 
@@ -168,8 +203,8 @@ private:
   // Used to assign unique identifiers for database instances
   static int id;
 
-  vtkQtSQLDatabase(const vtkQtSQLDatabase &); // Not implemented.
-  void operator=(const vtkQtSQLDatabase &); // Not implemented.
+  vtkQtSQLDatabase(const vtkQtSQLDatabase &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQtSQLDatabase &) VTK_DELETE_FUNCTION;
 };
 
 #endif // (QT_EDITION & QT_MODULE_SQL)

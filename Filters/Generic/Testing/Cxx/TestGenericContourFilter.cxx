@@ -107,13 +107,13 @@ int TestGenericContourFilter(int argc, char* argv[])
   mapper->SetInputConnection( contour->GetOutputPort() );
 
   if(contour->GetOutput()->GetPointData()!=0)
-    {
+  {
     if(contour->GetOutput()->GetPointData()->GetScalars()!=0)
-      {
+    {
       mapper->SetScalarRange( contour->GetOutput()->GetPointData()->
                               GetScalars()->GetRange());
-      }
     }
+  }
 
   vtkActor *actor = vtkActor::New();
   actor->SetMapper(mapper);
@@ -125,9 +125,9 @@ int TestGenericContourFilter(int argc, char* argv[])
   renWin->Render();
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Cleanup
   renderer->Delete();

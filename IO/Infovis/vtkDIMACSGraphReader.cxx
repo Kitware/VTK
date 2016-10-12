@@ -113,24 +113,24 @@ int vtkDIMACSGraphReader::buildGenericGraph(vtkGraph     * output,
 
   // Set up vertex attribute array for vertex-weights.
   if(this->VertexAttributeArrayName)
-    {
+  {
     ArrayVertexAttributes->SetName(this->VertexAttributeArrayName);
-    }
+  }
   else
-    {
+  {
     ArrayVertexAttributes->SetName(defaultVertexAttrArrayName);
-    }
+  }
   ArrayVertexAttributes->SetNumberOfTuples(this->numVerts);
 
   // Set up Edge attribute array for edge-weights.
   if(this->EdgeAttributeArrayName)
-    {
+  {
     ArrayEdgeAttributes->SetName(this->EdgeAttributeArrayName);
-    }
+  }
   else
-    {
+  {
     ArrayEdgeAttributes->SetName(defaultEdgeAttrArrayName);
-    }
+  }
   ArrayEdgeAttributes->SetNumberOfTuples(this->numEdges);
 
   // Set up Pedigree-IDs arrays.
@@ -141,25 +141,25 @@ int vtkDIMACSGraphReader::buildGenericGraph(vtkGraph     * output,
 
   // Allocate Vertices in the graph builder
   for(int i=0; i<this->numVerts; i++)
-    {
+  {
     builder->AddVertex();
     vertexPedigreeIds->SetValue(i, i+1);
-    }
+  }
 
   // set starting edge id number.
   int baseEdgeId = 1;
 
   ifstream IFP(this->FileName);
   if(IFP.is_open())
-    {
+  {
     while( vtksys::SystemTools::GetLineFromStream(IFP,S) )
-      {
+    {
       int value;
       istringstream iss(S);
       char lineType;
       iss >> lineType;
       switch(lineType)
-        {
+      {
         case 'n':  /* vertex (node) definition */
             iss >> iVertexID >> value;
             ArrayVertexAttributes->SetValue(iVertexID-1, value);
@@ -167,28 +167,28 @@ int vtkDIMACSGraphReader::buildGenericGraph(vtkGraph     * output,
             break;
         case 'a':  /* edge arc */
         case 'e':
-            {
+        {
             iss >> iEdgeU >> iEdgeV >> value;
 
             if(iEdgeU==0 || iEdgeV==0)
-              {
+            {
               vtkErrorMacro(<<"DIMACS graph vertices are numbered 1..n; 0 is not allowed");
               return 0;
-              }
+            }
 
             vtkEdgeType edgeObj = builder->AddEdge(iEdgeU-1, iEdgeV-1);
             ArrayEdgeAttributes->SetValue(edgeObj.Id, value);
             edgePedigreeIds->SetValue(currentEdgeId, currentEdgeId+baseEdgeId);
             currentEdgeId++;
-            }
+        }
             break;
         case 'c': /* Comment line, ignore it! */
             break;
         default:
             break;
-        };
-      }
+      };
     }
+  }
 
   // Add the pedigree ids to the graph
   builder->GetVertexData()->SetPedigreeIds( vertexPedigreeIds );
@@ -199,10 +199,10 @@ int vtkDIMACSGraphReader::buildGenericGraph(vtkGraph     * output,
   builder->GetEdgeData()->AddArray(ArrayEdgeAttributes);
 
   if (!output->CheckedShallowCopy(builder))
-    {
+  {
     vtkErrorMacro(<<"Invalid graph structure");
     return 0;
-    }
+  }
   return 1;
 }
 
@@ -245,15 +245,15 @@ int vtkDIMACSGraphReader::buildMaxflowGraph(vtkGraph * output)
   edgeCapacityArray->SetNumberOfTuples(this->numEdges);
 
   for(int i=0; i<this->numVerts; i++)
-    {
+  {
     vertexSourceArray->SetValue(i,0);
     vertexSinkArray->SetValue(i,0);
-    }
+  }
 
   for(int i=0; i<this->numEdges; i++)
-    {
+  {
     edgeCapacityArray->SetValue(i,0);
-    }
+  }
 
   // Set up Pedigree-IDs arrays.
   vertexPedigreeIds->SetName("vertex id");
@@ -263,71 +263,71 @@ int vtkDIMACSGraphReader::buildMaxflowGraph(vtkGraph * output)
 
   // Allocate Vertices in the graph builder
   for(int i=0; i<this->numVerts; i++)
-    {
+  {
     builder->AddVertex();
     vertexPedigreeIds->SetValue(i, i+1);
-    }
+  }
 
   // set starting edge id number.
   int baseEdgeId = 1;
 
   ifstream IFP(this->FileName);
   if(IFP.is_open())
-    {
+  {
     while( vtksys::SystemTools::GetLineFromStream(IFP,S) )
-      {
+    {
       istringstream iss(S);
       char lineType;
       iss >> lineType;
       switch(lineType)
-        {
+      {
         case 'n':  /* vertex (node) definition */
             iss >> iVertexID >> sAttribute;
             vertexPedigreeIds->SetValue(iVertexID-1, iVertexID);
 
             if(sAttribute == "s" && numSrcs==0)
-              {
+            {
               numSrcs++;
               vertexSourceArray->SetValue(iVertexID-1, 1);
-              }
+            }
             else if(sAttribute == "t" && numSinks==0)
-              {
+            {
               numSinks++;
               vertexSinkArray->SetValue(iVertexID-1, 1);
-              }
+            }
             else
-              {
+            {
               vtkWarningMacro(<< "In DIMACS Max-Flow file: "
                               << this->FileName
                               << "  multiple sources or sinks specified!"
                               << endl
                               << "  Ignoring all but first source/sink found.");
-              }
+            }
             break;
         case 'a':  /* edge arc */
-            {
+        {
             int edgeCapacity;
             iss >> iEdgeU >> iEdgeV >> edgeCapacity;
 
             if(iEdgeU==0 || iEdgeV==0)
-              {
+            {
               vtkErrorMacro(<<"DIMACS graph vertices are numbered 1..n; 0 is not allowed");
               return 0;
-              }
+            }
 
             vtkEdgeType edgeObj = builder->AddEdge(iEdgeU-1, iEdgeV-1);
             edgeCapacityArray->SetValue(edgeObj.Id, edgeCapacity);
             edgePedigreeIds->SetValue(currentEdgeId, currentEdgeId+baseEdgeId);
             currentEdgeId++;
-            }
+        }
             break;
         case 'c': /* Comment line, ignore it! */
             break;
         default:
             break;
-        };
-      }
+      };
     }
+  }
 
   // Add the pedigree ids to the graph
   builder->GetVertexData()->SetPedigreeIds( vertexPedigreeIds );
@@ -340,10 +340,10 @@ int vtkDIMACSGraphReader::buildMaxflowGraph(vtkGraph * output)
 
 
   if (!output->CheckedShallowCopy(builder))
-    {
+  {
     vtkErrorMacro(<<"Invalid graph structure");
     return 0;
-    }
+  }
   return 1;
 }
 
@@ -373,54 +373,54 @@ int vtkDIMACSGraphReader::buildColoringGraph(vtkGraph * output)
 
   // Allocate Vertices in the graph builder
   for(int i=0; i<this->numVerts; i++)
-    {
+  {
     builder->AddVertex();
     vertexPedigreeIds->SetValue(i, i+1);
-    }
+  }
 
   // set starting edge id number.
   int baseEdgeId = 1;
 
   ifstream IFP(this->FileName);
   if(IFP.is_open())
-    {
+  {
     while( vtksys::SystemTools::GetLineFromStream(IFP,S) )
-      {
+    {
       istringstream iss(S);
       char lineType;
       iss >> lineType;
       switch(lineType)
-        {
+      {
         case 'e':  /* edge arc */
-            {
+        {
             iss >> iEdgeU >> iEdgeV;
 
             if(iEdgeU==0 || iEdgeV==0)
-              {
+            {
               vtkErrorMacro(<<"DIMACS graph vertices are numbered 1..n; 0 is not allowed");
               return 0;
-              }
+            }
 
             builder->AddEdge(iEdgeU-1, iEdgeV-1);
             edgePedigreeIds->SetValue(currentEdgeId, currentEdgeId+baseEdgeId);
             currentEdgeId++;
-            }
+        }
             break;
         default:
             break;
-        };
-      }
+      };
     }
+  }
 
   // Add the pedigree ids to the graph
   builder->GetVertexData()->SetPedigreeIds( vertexPedigreeIds );
   builder->GetEdgeData()->SetPedigreeIds( edgePedigreeIds );
 
   if (!output->CheckedShallowCopy(builder))
-    {
+  {
     vtkErrorMacro(<<"Invalid graph structure");
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -435,17 +435,17 @@ int vtkDIMACSGraphReader::buildColoringGraph(vtkGraph * output)
 int vtkDIMACSGraphReader::ReadGraphMetaData()
 {
   if (this->FileName == NULL)
-    {
+  {
     vtkErrorMacro("File name undefined");
     return 0;
-    }
+  }
 
   ifstream IFP(this->FileName);
   if(!IFP.is_open())
-    {
+  {
     vtkErrorMacro("Could not open file " << this->FileName << ".");
     return(0);
-    }
+  }
   vtkStdString S;
   bool foundProblemLine = false;
   bool foundMultipleProblemLines = false;
@@ -453,46 +453,46 @@ int vtkDIMACSGraphReader::ReadGraphMetaData()
   // Look at lines until we find the problem line (this should always
   // be one of the first lines in a DIMACS graph)
   while(!foundProblemLine && vtksys::SystemTools::GetLineFromStream(IFP,S))
-    {
+  {
     istringstream iss(S);
     char lineType;
     iss >> lineType;
     switch(lineType)
-      {
+    {
       case 'p':
         if( !foundProblemLine )
-          {
+        {
           foundProblemLine = true;
           iss >> this->dimacsProblemStr
               >> this->numVerts
               >> this->numEdges;
-          }
+        }
         else
-          {
+        {
           foundMultipleProblemLines = true;
-          }
-      };
-    }
+        }
+    };
+  }
   IFP.close();
 
   if(!foundProblemLine)
-    {
+  {
     vtkErrorMacro(<< "Error in DIMACS file: " << this->FileName
                   << ", could not find a problem description line.");
     return 0;
-    }
+  }
 
   if(foundMultipleProblemLines)
-    {
+  {
     vtkWarningMacro(<< "Found multiple problem lines in DIMACS file: "
                     << this->FileName << "; using the first one found.");
-    }
+  }
 
   // Set directed if necessary
   if(this->dimacsProblemStr == "max")
-    {
+  {
     this->Directed = true;
-    }
+  }
 
   this->fileOk = true;
 
@@ -508,29 +508,29 @@ int vtkDIMACSGraphReader::RequestData(vtkInformation       *  vtkNotUsed(request
 {
   int rval=0;
   if( !this->fileOk )
-    {
+  {
     return 0;
-    }
+  }
 
   vtkGraph * output = vtkGraph::GetData(outputVector);
 
   if(this->dimacsProblemStr == "edge")
-    {
+  {
     vtkDebugMacro("Loading DIMACS coloring problem graph.");
     rval = buildColoringGraph(output);
-    }
+  }
   else if(this->dimacsProblemStr == "max")
-    {
+  {
     vtkDebugMacro("Loading DIMACS max-flow problem graph.");
     rval = buildMaxflowGraph(output);
-    }
+  }
   else
-    {
+  {
     vtkDebugMacro("Loading DIMACS default graph.");
     vtkStdString vWeightName = "weight";
     vtkStdString eWeightName = "weight";
     rval = buildGenericGraph(output, vWeightName, eWeightName);
-    }
+  }
   return rval;
 }
 
@@ -546,18 +546,18 @@ int vtkDIMACSGraphReader::RequestDataObject(vtkInformation*,
   vtkDataObject *current = this->GetExecutive()->GetOutputData(0);
   if (!current || (this->Directed && !vtkDirectedGraph::SafeDownCast(current))
                || (!this->Directed && vtkDirectedGraph::SafeDownCast(current)))
-    {
+  {
     vtkGraph *output = 0;
     if (this->Directed)
-      {
+    {
       output = vtkDirectedGraph::New();
-      }
+    }
     else
-      {
+    {
       output = vtkUndirectedGraph::New();
-      }
+    }
     this->GetExecutive()->SetOutputData(0, output);
     output->Delete();
-    }
+  }
   return 1;
 }

@@ -38,9 +38,9 @@ void InitializePolyData(vtkPolyData *polyData, int dataType)
   vtkSmartPointer<vtkCellArray> verts = vtkSmartPointer<vtkCellArray>::New();
   verts->InsertNextCell(8);
   for(unsigned int i = 0; i < 8; ++i)
-    {
+  {
     verts->InsertCellPoint(i);
-    }
+  }
   verts->Squeeze();
 
   polyData->SetVerts(verts);
@@ -125,44 +125,44 @@ int TestFeatureEdges(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   int dataType = FeatureEdges(VTK_FLOAT, vtkAlgorithm::DEFAULT_PRECISION);
 
   if(dataType != VTK_FLOAT)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   dataType = FeatureEdges(VTK_DOUBLE, vtkAlgorithm::DEFAULT_PRECISION);
 
   if(dataType != VTK_DOUBLE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   dataType = FeatureEdges(VTK_FLOAT, vtkAlgorithm::SINGLE_PRECISION);
 
   if(dataType != VTK_FLOAT)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   dataType = FeatureEdges(VTK_DOUBLE, vtkAlgorithm::SINGLE_PRECISION);
 
   if(dataType != VTK_FLOAT)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   dataType = FeatureEdges(VTK_FLOAT, vtkAlgorithm::DOUBLE_PRECISION);
 
   if(dataType != VTK_DOUBLE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   dataType = FeatureEdges(VTK_DOUBLE, vtkAlgorithm::DOUBLE_PRECISION);
 
   if(dataType != VTK_DOUBLE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

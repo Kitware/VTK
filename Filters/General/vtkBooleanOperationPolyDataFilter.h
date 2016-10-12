@@ -12,22 +12,24 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBooleanOperationPolyDataFilter
-// .SECTION Description
-//
-// Computes the boundary of the union, intersection, or difference
-// volume computed from the volumes defined by two input surfaces. The
-// two surfaces do not need to be manifold, but if they are not,
-// unexpected results may be obtained. The resulting surface is
-// available in the first output of the filter. The second output
-// contains a set of polylines that represent the intersection between
-// the two input surfaces.
-//
-// This code was contributed in the VTK Journal paper:
-// "Boolean Operations on Surfaces in VTK Without External Libraries"
-// by Cory Quammen, Chris Weigle C., Russ Taylor
-// http://hdl.handle.net/10380/3262
-// http://www.midasjournal.org/browse/publication/797
+/**
+ * @class   vtkBooleanOperationPolyDataFilter
+ *
+ *
+ * Computes the boundary of the union, intersection, or difference
+ * volume computed from the volumes defined by two input surfaces. The
+ * two surfaces do not need to be manifold, but if they are not,
+ * unexpected results may be obtained. The resulting surface is
+ * available in the first output of the filter. The second output
+ * contains a set of polylines that represent the intersection between
+ * the two input surfaces.
+ *
+ * This code was contributed in the VTK Journal paper:
+ * "Boolean Operations on Surfaces in VTK Without External Libraries"
+ * by Cory Quammen, Chris Weigle C., Russ Taylor
+ * http://hdl.handle.net/10380/3262
+ * http://www.midasjournal.org/browse/publication/797
+*/
 
 #ifndef vtkBooleanOperationPolyDataFilter_h
 #define vtkBooleanOperationPolyDataFilter_h
@@ -42,14 +44,15 @@ class vtkIdList;
 class VTKFILTERSGENERAL_EXPORT vtkBooleanOperationPolyDataFilter : public vtkPolyDataAlgorithm
 {
 public:
-  // Description:
-  // Construct object that computes the boolean surface.
+  /**
+   * Construct object that computes the boolean surface.
+   */
   static vtkBooleanOperationPolyDataFilter *New();
 
   vtkTypeMacro(vtkBooleanOperationPolyDataFilter,
                vtkPolyDataAlgorithm);
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   enum OperationType
   {
@@ -58,8 +61,10 @@ public:
     VTK_DIFFERENCE
   };
 
-  // Description:
-  // Set the boolean operation to perform. Defaults to union.
+  //@{
+  /**
+   * Set the boolean operation to perform. Defaults to union.
+   */
   vtkSetClampMacro( Operation, int, VTK_UNION, VTK_DIFFERENCE );
   vtkGetMacro( Operation, int );
   void SetOperationToUnion()
@@ -68,59 +73,73 @@ public:
   { this->SetOperation( VTK_INTERSECTION ); }
   void SetOperationToDifference()
   { this->SetOperation( VTK_DIFFERENCE ); }
+  //@}
 
-  // Description:
-  // Turn on/off cell reorientation of the intersection portion of the
-  // surface when the operation is set to DIFFERENCE. Defaults to on.
+  //@{
+  /**
+   * Turn on/off cell reorientation of the intersection portion of the
+   * surface when the operation is set to DIFFERENCE. Defaults to on.
+   */
   vtkSetMacro( ReorientDifferenceCells, int );
   vtkGetMacro( ReorientDifferenceCells, int );
   vtkBooleanMacro( ReorientDifferenceCells, int );
+  //@}
 
-  // Description:
-  // Set/get the tolerance used to determine when a point's absolute
-  // distance is considered to be zero. Defaults to 1e-6.
+  //@{
+  /**
+   * Set/get the tolerance used to determine when a point's absolute
+   * distance is considered to be zero. Defaults to 1e-6.
+   */
   vtkSetMacro(Tolerance, double);
   vtkGetMacro(Tolerance, double);
+  //@}
 
 protected:
   vtkBooleanOperationPolyDataFilter();
-  ~vtkBooleanOperationPolyDataFilter();
+  ~vtkBooleanOperationPolyDataFilter() VTK_OVERRIDE;
 
-  // Description:
-  // Labels triangles in mesh as part of the intersection or union surface.
+  /**
+   * Labels triangles in mesh as part of the intersection or union surface.
+   */
   void SortPolyData(vtkPolyData* input, vtkIdList* intersectionList,
                     vtkIdList* unionList);
 
-  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
-  int FillInputPortInformation(int, vtkInformation*);
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
 private:
-  vtkBooleanOperationPolyDataFilter(const vtkBooleanOperationPolyDataFilter&); // Not implemented
-  void operator=(const vtkBooleanOperationPolyDataFilter&); // Not implemented
+  vtkBooleanOperationPolyDataFilter(const vtkBooleanOperationPolyDataFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBooleanOperationPolyDataFilter&) VTK_DELETE_FUNCTION;
 
-  // Description:
-  // Copies cells with indices given by  from one vtkPolyData to
-  // another. The point and cell field lists are used to determine
-  // which fields should be copied.
+  /**
+   * Copies cells with indices given by  from one vtkPolyData to
+   * another. The point and cell field lists are used to determine
+   * which fields should be copied.
+   */
   void CopyCells(vtkPolyData* in, vtkPolyData* out, int idx,
                  vtkDataSetAttributes::FieldList & pointFieldList,
                  vtkDataSetAttributes::FieldList & cellFieldList,
                  vtkIdList* cellIds, bool reverseCells);
 
-  // Description:
-  // Tolerance used to determine when a point's absolute
-  // distance is considered to be zero.
+  /**
+   * Tolerance used to determine when a point's absolute
+   * distance is considered to be zero.
+   */
   double Tolerance;
 
-  // Description:
-  // Which operation to perform.
-  // Can be VTK_UNION, VTK_INTERSECTION, or VTK_DIFFERENCE.
+  /**
+   * Which operation to perform.
+   * Can be VTK_UNION, VTK_INTERSECTION, or VTK_DIFFERENCE.
+   */
   int Operation;
 
-  // Description:
-  // Determines if cells from the intersection surface should be
-  // reversed in the difference surface.
+  //@{
+  /**
+   * Determines if cells from the intersection surface should be
+   * reversed in the difference surface.
+   */
   int ReorientDifferenceCells;
 };
+  //@}
 
 #endif

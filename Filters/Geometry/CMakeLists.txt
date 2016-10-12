@@ -4,6 +4,7 @@ set(Module_SRCS
   vtkHierarchicalDataSetGeometryFilter.cxx
   vtkImageDataGeometryFilter.cxx
   vtkImageDataToUniformGrid.cxx
+  vtkLinearToQuadraticCellsFilter.cxx
   vtkProjectSphereFilter.cxx
   vtkRectilinearGridGeometryFilter.cxx
   vtkStructuredGridGeometryFilter.cxx
@@ -11,6 +12,7 @@ set(Module_SRCS
   vtkUnstructuredGridGeometryFilter.cxx
 
   vtkDataSetSurfaceFilter.cxx
+  vtkDataSetRegionSurfaceFilter.cxx
 
   vtkAbstractGridConnectivity.cxx
   vtkDataSetGhostGenerator.cxx

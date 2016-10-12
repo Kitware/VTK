@@ -17,9 +17,11 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkRenderedHierarchyRepresentation -
-//
-// .SECTION Description
+/**
+ * @class   vtkRenderedHierarchyRepresentation
+ *
+ *
+*/
 
 #ifndef vtkRenderedHierarchyRepresentation_h
 #define vtkRenderedHierarchyRepresentation_h
@@ -34,14 +36,17 @@ public:
   vtkTypeMacro(vtkRenderedHierarchyRepresentation, vtkRenderedGraphRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  //
+  //@{
+  /**
+
+   */
   virtual void SetGraphEdgeLabelArrayName(const char* name)
     { this->SetGraphEdgeLabelArrayName(name, 0); }
   virtual void SetGraphEdgeLabelArrayName(const char* name, int idx);
   virtual const char* GetGraphEdgeLabelArrayName()
     { return this->GetGraphEdgeLabelArrayName(0); }
   virtual const char* GetGraphEdgeLabelArrayName(int idx);
+  //@}
 
   virtual void SetGraphEdgeLabelVisibility(bool vis)
     { this->SetGraphEdgeLabelVisibility(vis, 0); }
@@ -86,13 +91,16 @@ public:
     { return this->GetBundlingStrength(0); }
   virtual double GetBundlingStrength(int idx);
 
-  // Description:
-  // Sets the spline type for the graph edges.
-  // vtkSplineGraphEdges::CUSTOM uses a vtkCardinalSpline.
-  // vtkSplineGraphEdges::BSPLINE uses a b-spline.
-  // The default is BSPLINE.
+  //@{
+  /**
+   * Sets the spline type for the graph edges.
+   * vtkSplineGraphEdges::CUSTOM uses a vtkCardinalSpline.
+   * vtkSplineGraphEdges::BSPLINE uses a b-spline.
+   * The default is BSPLINE.
+   */
   virtual void SetGraphSplineType(int type, int idx);
   virtual int GetGraphSplineType(int idx);
+  //@}
 
   virtual void SetGraphEdgeLabelFontSize(int size)
     { this->SetGraphEdgeLabelFontSize(size, 0); }
@@ -105,21 +113,26 @@ protected:
   vtkRenderedHierarchyRepresentation();
   ~vtkRenderedHierarchyRepresentation();
 
-  // Description:
-  // Called by the view to add/remove this representation.
+  //@{
+  /**
+   * Called by the view to add/remove this representation.
+   */
   virtual bool AddToView(vtkView* view);
   virtual bool RemoveFromView(vtkView* view);
+  //@}
 
-  // Description:
-  // Whether idx is a valid graph index.
+  /**
+   * Whether idx is a valid graph index.
+   */
   bool ValidIndex(int idx);
 
   virtual vtkSelection* ConvertSelection(vtkView* view, vtkSelection* sel);
 
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
-  // Description:
-  // Sets up the input connections for this representation.
+  /**
+   * Sets up the input connections for this representation.
+   */
   virtual int RequestData(
     vtkInformation* request,
     vtkInformationVector** inputVector,
@@ -131,8 +144,8 @@ protected:
   Internals* Implementation;
 
 private:
-  vtkRenderedHierarchyRepresentation(const vtkRenderedHierarchyRepresentation&); // Not implemented
-  void operator=(const vtkRenderedHierarchyRepresentation&);   // Not implemented
+  vtkRenderedHierarchyRepresentation(const vtkRenderedHierarchyRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRenderedHierarchyRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

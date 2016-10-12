@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPDBReader - read Molecular Data files
-// .SECTION Description
-// vtkPDBReader is a source object that reads Molecule files
-// The FileName must be specified
-//
-// .SECTION Thanks
-// Dr. Jean M. Favre who developed and contributed this class
+/**
+ * @class   vtkPDBReader
+ * @brief   read Molecular Data files
+ *
+ * vtkPDBReader is a source object that reads Molecule files
+ * The FileName must be specified
+ *
+ * @par Thanks:
+ * Dr. Jean M. Favre who developed and contributed this class
+*/
 
 #ifndef vtkPDBReader_h
 #define vtkPDBReader_h
@@ -42,8 +45,8 @@ protected:
   void ReadSpecificMolecule(FILE* fp);
 
 private:
-  vtkPDBReader(const vtkPDBReader&);  // Not implemented.
-  void operator=(const vtkPDBReader&);  // Not implemented.
+  vtkPDBReader(const vtkPDBReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPDBReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

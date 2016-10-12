@@ -80,12 +80,12 @@ void vtkXMLPUnstructuredGridReader::SetupOutputTotals()
   // Find the total size of the output.
   this->TotalNumberOfCells = 0;
   for (int i = this->StartPiece; i < this->EndPiece; ++i)
-    {
+  {
     if(this->PieceReaders[i])
-      {
+    {
       this->TotalNumberOfCells += this->PieceReaders[i]->GetNumberOfCells();
-      }
     }
+  }
 
   // Data reading will start at the beginning of the output.
   this->StartCell = 0;
@@ -119,18 +119,18 @@ void vtkXMLPUnstructuredGridReader::SetupNextPiece()
 {
   this->Superclass::SetupNextPiece();
   if (this->PieceReaders[this->Piece])
-    {
+  {
     this->StartCell += this->PieceReaders[this->Piece]->GetNumberOfCells();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 int vtkXMLPUnstructuredGridReader::ReadPieceData()
 {
   if (!this->Superclass::ReadPieceData())
-    {
+  {
     return 0;
-    }
+  }
 
   vtkPointSet* ips = this->GetPieceInputAsPointSet(this->Piece);
   vtkUnstructuredGrid* input = static_cast<vtkUnstructuredGrid*>(ips);
@@ -141,9 +141,9 @@ int vtkXMLPUnstructuredGridReader::ReadPieceData()
   // appended.
   vtkIdType startLoc = 0;
   if (output->GetCells()->GetData())
-    {
+  {
     startLoc = output->GetCells()->GetData()->GetNumberOfTuples();
-    }
+  }
 
   // Copy the Cells.
   this->CopyCellArray(
@@ -156,43 +156,43 @@ int vtkXMLPUnstructuredGridReader::ReadPieceData()
   vtkIdType* outLocs = outLocations->GetPointer(this->StartCell);
   vtkIdType numCells = inLocations->GetNumberOfTuples();
   for (vtkIdType i = 0;i < numCells; ++i)
-    {
+  {
     outLocs[i] = inLocs[i] + startLoc;
-    }
+  }
 
   // Copy Faces and FaceLocations with offset adjustment if they exist
   if(vtkIdTypeArray* inputFaces = input->GetFaces())
-    {
+  {
     vtkIdTypeArray* inputFaceLocations = input->GetFaceLocations();
     vtkIdTypeArray* outputFaces = output->GetFaces();
     if(!outputFaces)
-      {
+    {
       output->InitializeFacesRepresentation(0);
       outputFaces = output->GetFaces();
-      }
+    }
     vtkIdTypeArray* outputFaceLocations = output->GetFaceLocations();
     for (vtkIdType i = 0;i < numCells; ++i)
-      {
+    {
       outputFaceLocations->InsertNextValue(outputFaces->GetMaxId() + 1);
       vtkIdType location = inputFaceLocations->GetValue(i);
       vtkIdType numFaces = inputFaces->GetValue(location);
       location++;
       outputFaces->InsertNextValue(numFaces);
       for (vtkIdType f = 0;f < numFaces; f++)
-        {
+      {
         vtkIdType numPoints = inputFaces->GetValue(location);
         outputFaces->InsertNextValue(numPoints);
         location++;
         for (vtkIdType p = 0;p < numPoints; p++)
-          {
+        {
           // only the point ids get the offset
           outputFaces->InsertNextValue(
             inputFaces->GetValue(location)+this->StartPoint);
           location++;
-          }
         }
       }
     }
+  }
 
   // Copy the corresponding cell types.
   vtkUnsignedCharArray* inTypes = input->GetCellTypesArray();
@@ -210,13 +210,13 @@ void vtkXMLPUnstructuredGridReader::CopyArrayForCells(
   vtkDataArray* inArray, vtkDataArray* outArray)
 {
   if (!this->PieceReaders[this->Piece])
-    {
+  {
     return;
-    }
+  }
   if (!inArray || !outArray)
-    {
+  {
     return;
-    }
+  }
 
   vtkIdType numCells = this->PieceReaders[this->Piece]->GetNumberOfCells();
   vtkIdType components = outArray->GetNumberOfComponents();
@@ -244,11 +244,11 @@ void vtkXMLPUnstructuredGridReader::SqueezeOutputArrays(vtkDataObject* output)
 {
   vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast(output);
   if(vtkIdTypeArray* outputFaces = grid->GetFaces())
-    {
+  {
     outputFaces->Squeeze();
-    }
+  }
   if(vtkIdTypeArray* outputFaceLocations = grid->GetFaceLocations())
-    {
+  {
     outputFaceLocations->Squeeze();
-    }
+  }
 }

@@ -30,26 +30,26 @@
 int TestMathTextFreeTypeTextRenderer(int argc, char *argv[])
 {
   if (argc < 2)
-    {
+  {
     cerr << "Missing font filename." << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   std::string uncodeFontFile(argv[1]);
 
   vtkNew<vtkTextRenderer> tren;
   if (tren.GetPointer() == NULL)
-    {
+  {
     std::cerr << "Object factory cannot find vtkTextRenderer override.\n";
     return EXIT_FAILURE;
-    }
+  }
 
   if (strcmp(tren->GetClassName(), "vtkMathTextFreeTypeTextRenderer") != 0)
-    {
+  {
     std::cerr << "Object factory returning unrecognized vtkTextRenderer "
                  "override: " << tren->GetClassName() << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   vtkStdString str = "Sample multiline\ntext rendered\nusing FreeTypeTools.";
 

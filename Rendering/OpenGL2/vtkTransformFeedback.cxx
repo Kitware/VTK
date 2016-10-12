@@ -56,9 +56,9 @@ size_t vtkTransformFeedback::GetBytesPerVertex() const
   typedef std::vector<VaryingMetaData>::const_iterator IterT;
   for (IterT it = this->Varyings.begin(), itEnd = this->Varyings.end();
        it != itEnd; ++it)
-    {
+  {
     result += this->GetBytesPerVertex(it->Role);
-    }
+  }
 
   return result;
 }
@@ -84,7 +84,7 @@ void vtkTransformFeedback::SetNumberOfVertices(int drawMode,
 {
 #ifdef GL_SUPPORTED
   switch (static_cast<GLenum>(drawMode))
-    {
+  {
     case GL_POINTS:
       this->SetNumberOfVertices(inputVerts);
       this->SetPrimitiveMode(GL_POINTS);
@@ -113,7 +113,7 @@ void vtkTransformFeedback::SetNumberOfVertices(int drawMode,
       this->SetNumberOfVertices(inputVerts);
       this->SetPrimitiveMode(GL_TRIANGLES);
       return;
-    }
+  }
 
   vtkErrorMacro("Unknown draw mode enum value: " << drawMode);
   this->SetNumberOfVertices(0);
@@ -135,19 +135,19 @@ void vtkTransformFeedback::BindVaryings(vtkShaderProgram *prog)
 {
 #ifdef GL_SUPPORTED
   if (this->Varyings.empty())
-    {
+  {
     vtkErrorMacro(<<"No capture varyings specified.");
     return;
-    }
+  }
 
   vtkOpenGLClearErrorMacro();
 
   std::vector<const char*> vars;
   vars.reserve(this->Varyings.size());
   for (size_t i = 0; i < this->Varyings.size(); ++i)
-    {
+  {
     vars.push_back(this->Varyings[i].Identifier.c_str());
-    }
+  }
 
   glTransformFeedbackVaryings(static_cast<GLuint>(prog->GetHandle()),
                               static_cast<GLsizei>(vars.size()),
@@ -167,10 +167,10 @@ void vtkTransformFeedback::BindBuffer()
 {
 #ifdef GL_SUPPORTED
   if (!this->VaryingsBound)
-    {
+  {
     vtkErrorMacro("Varyings not yet bound!");
     return;
-    }
+  }
 
   vtkOpenGLClearErrorMacro();
   this->ReleaseGraphicsResources();
@@ -193,10 +193,10 @@ void vtkTransformFeedback::ReadBuffer()
 {
 #ifdef GL_SUPPORTED
   if (this->BufferHandle == 0)
-    {
+  {
     vtkErrorMacro("BufferHandle not set by BindBuffer().");
     return;
-    }
+  }
 
   glEndTransformFeedback();
 
@@ -222,11 +222,11 @@ void vtkTransformFeedback::ReleaseGraphicsResources()
 {
 #ifdef GL_SUPPORTED
   if (this->BufferHandle)
-    {
+  {
     GLuint tbo = static_cast<GLuint>(this->BufferHandle);
     glDeleteBuffers(1, &tbo);
     this->BufferHandle = 0;
-    }
+  }
 #endif // GL_SUPPORTED
 }
 
@@ -234,9 +234,9 @@ void vtkTransformFeedback::ReleaseGraphicsResources()
 void vtkTransformFeedback::ReleaseBufferData(bool freeBuffer)
 {
   if (freeBuffer)
-    {
+  {
     delete [] this->BufferData;
-    }
+  }
   this->BufferData = NULL;
 }
 

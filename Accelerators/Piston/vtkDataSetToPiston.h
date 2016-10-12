@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDataSetToPiston - converts a DataSet to a PistonDataObject
-// .SECTION Description
-// Converts vtkDataSets that reside on the CPU into piston data that
-// resides on the GPU. Afterward vtkPistonAlgorithms will processed
-// it there.
-//
-// .SECTION See Also
-// vtkPistonToDataSet
+/**
+ * @class   vtkDataSetToPiston
+ * @brief   converts a DataSet to a PistonDataObject
+ *
+ * Converts vtkDataSets that reside on the CPU into piston data that
+ * resides on the GPU. Afterward vtkPistonAlgorithms will processed
+ * it there.
+ *
+ * @sa
+ * vtkPistonToDataSet
+*/
 
 #ifndef vtkDataSetToPiston_h
 #define vtkDataSetToPiston_h
@@ -39,19 +42,21 @@ protected:
   vtkDataSetToPiston();
   ~vtkDataSetToPiston();
 
-  // Description:
-  // Method that does the actual calculation. Funnels down to ExecuteData.
+  /**
+   * Method that does the actual calculation. Funnels down to ExecuteData.
+   */
   virtual int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
 
-  // Description:
-  // Overridden to say that we require vtkDataSet inputs
+  /**
+   * Overridden to say that we require vtkDataSet inputs
+   */
   virtual int FillInputPortInformation(int, vtkInformation*);
 
 private:
-  vtkDataSetToPiston(const vtkDataSetToPiston&);  // Not implemented.
-  void operator=(const vtkDataSetToPiston&);  // Not implemented.
+  vtkDataSetToPiston(const vtkDataSetToPiston&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataSetToPiston&) VTK_DELETE_FUNCTION;
 };
 
 #endif

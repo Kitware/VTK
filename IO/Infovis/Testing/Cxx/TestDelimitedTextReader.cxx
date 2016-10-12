@@ -48,23 +48,23 @@ int TestDelimitedTextReader(int argc, char *argv[])
                                                      "UTF-16BE"};
 
   for(int index = 0;index<NUM_TEST_FILES;index++)
-    {
+  {
     char *filename = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                                           testOneFNames[index]);
 
     vtkDelimitedTextReader *reader = vtkDelimitedTextReader::New();
 
     if(!strcmp(UnicodeCharacterSet[index],"ASCII"))
-      {
+    {
       reader->SetFieldDelimiterCharacters(":");
       reader->SetStringDelimiter('"');
-      }
+    }
     else
-      {
+    {
       reader->SetUnicodeFieldDelimiters(vtkUnicodeString::from_utf8(":"));
       reader->SetUnicodeStringDelimiters(vtkUnicodeString::from_utf8("\""));
       reader->SetUnicodeCharacterSet(UnicodeCharacterSet[index]);
-      }
+    }
 
     reader->SetUseStringDelimiter(true);
     reader->SetFileName(filename);
@@ -78,15 +78,15 @@ int TestDelimitedTextReader(int argc, char *argv[])
     table->Dump();
 
     if (table->GetNumberOfRows() != 6)
-      {
+    {
       cout << "ERROR: Wrong number of rows." << endl;
       return 1;
-      }
+    }
     if (table->GetNumberOfColumns() != 4)
-      {
+    {
       cout << "ERROR: Wrong number of columns." << endl;
       return 1;
-      }
+    }
 
     reader->Delete();
     delete [] filename;
@@ -95,14 +95,14 @@ int TestDelimitedTextReader(int argc, char *argv[])
     reader = vtkDelimitedTextReader::New();
 
     if(!strcmp(UnicodeCharacterSet[index],"ASCII"))
-      {
+    {
       reader->SetFieldDelimiterCharacters(",");
-      }
+    }
     else
-      {
+    {
       reader->SetUnicodeFieldDelimiters(vtkUnicodeString::from_utf8(","));
       reader->SetUnicodeCharacterSet(UnicodeCharacterSet[index]);
-      }
+    }
 
     filename = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                                     testTwoFNames[index]);
@@ -118,19 +118,19 @@ int TestDelimitedTextReader(int argc, char *argv[])
     table->Dump();
 
     if (table->GetNumberOfRows() != 1)
-      {
+    {
       cout << "ERROR: Wrong number of rows." << endl;
       return 1;
-      }
+    }
     if (table->GetNumberOfColumns() != 9)
-      {
+    {
       cout << "ERROR: Wrong number of columns." << endl;
       return 1;
-      }
+    }
 
     delete [] filename;
     reader->Delete();
-    }
+  }
 
   return 0;
 }

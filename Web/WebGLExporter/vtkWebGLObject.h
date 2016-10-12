@@ -12,9 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWebGLObject
-// .SECTION Description
-// vtkWebGLObject represent and manipulate an WebGL object and its data.
+/**
+ * @class   vtkWebGLObject
+ *
+ * vtkWebGLObject represent and manipulate an WebGL object and its data.
+*/
 
 #ifndef vtkWebGLObject_h
 #define vtkWebGLObject_h
@@ -31,7 +33,7 @@ enum WebGLObjectTypes {
   wPOINTS = 0,
   wLINES = 1,
   wTRIANGLES = 2
-  };
+};
 
 class VTKWEBGLEXPORTER_EXPORT vtkWebGLObject : public vtkObject
 {
@@ -45,10 +47,11 @@ public:
   virtual int GetBinarySize(int part);
   virtual int GetNumberOfParts();
 
-  // Description:
-  // This is a wrapper friendly method for access the binary data.
-  // The binary data for the requested part will be copied into the
-  // given vtkUnsignedCharArray.
+  /**
+   * This is a wrapper friendly method for access the binary data.
+   * The binary data for the requested part will be copied into the
+   * given vtkUnsignedCharArray.
+   */
   void GetBinaryData(int part, vtkUnsignedCharArray* buffer);
 
   void SetLayer(int l);
@@ -92,8 +95,8 @@ protected:
     bool interactAtServer;
 
 private:
-  vtkWebGLObject(const vtkWebGLObject&); // Not implemented
-  void operator=(const vtkWebGLObject&);   // Not implemented
+  vtkWebGLObject(const vtkWebGLObject&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWebGLObject&) VTK_DELETE_FUNCTION;
 };
 
 #endif

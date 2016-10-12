@@ -17,13 +17,16 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGeoProjectionSource - A 2D geographic geometry source
-//
-// .SECTION Description
-// vtkGeoProjectionSource is a vtkGeoSource suitable for use in vtkTerrain2D.
-// This source uses the libproj4 library to produce geometry patches at
-// multiple resolutions. Each patch covers a specific region in projected
-// space.
+/**
+ * @class   vtkGeoProjectionSource
+ * @brief   A 2D geographic geometry source
+ *
+ *
+ * vtkGeoProjectionSource is a vtkGeoSource suitable for use in vtkTerrain2D.
+ * This source uses the libproj4 library to produce geometry patches at
+ * multiple resolutions. Each patch covers a specific region in projected
+ * space.
+*/
 
 #ifndef vtkGeoProjectionSource_h
 #define vtkGeoProjectionSource_h
@@ -45,23 +48,33 @@ public:
   vtkGeoProjectionSource();
   ~vtkGeoProjectionSource();
 
-  // Description:
-  // Blocking methods for sources with low latency.
+  //@{
+  /**
+   * Blocking methods for sources with low latency.
+   */
   virtual bool FetchRoot(vtkGeoTreeNode* root);
   virtual bool FetchChild(vtkGeoTreeNode* node, int index, vtkGeoTreeNode* child);
+  //@}
 
-  // Description:
-  // The projection ID defining the projection. Initial value is 0.
+  //@{
+  /**
+   * The projection ID defining the projection. Initial value is 0.
+   */
   vtkGetMacro(Projection, int);
   virtual void SetProjection(int projection);
+  //@}
 
-  // Description:
-  // The minimum number of cells per node.
+  //@{
+  /**
+   * The minimum number of cells per node.
+   */
   vtkGetMacro(MinCellsPerNode, int);
   vtkSetMacro(MinCellsPerNode, int);
+  //@}
 
-  // Description:
-  // Return the projection transformation used by this 2D terrain.
+  /**
+   * Return the projection transformation used by this 2D terrain.
+   */
   virtual vtkAbstractTransform* GetTransform();
 
 protected:
@@ -74,8 +87,8 @@ protected:
   vtkAbstractTransform* Transform;
 
 private:
-  vtkGeoProjectionSource(const vtkGeoProjectionSource&); // Not implemented
-  void operator=(const vtkGeoProjectionSource&); // Not implemented
+  vtkGeoProjectionSource(const vtkGeoProjectionSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoProjectionSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

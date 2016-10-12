@@ -17,13 +17,16 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGeoAlignedImageRepresentation - A multi-resolution image tree
-//
-// .SECTION Description
-// vtkGeoAlignedImageRepresentation represents a high resolution image
-// over the globle. It has an associated vtkGeoSource which is responsible
-// for fetching new data. This class keeps the fetched data in a quad-tree
-// structure organized by latitude and longitude.
+/**
+ * @class   vtkGeoAlignedImageRepresentation
+ * @brief   A multi-resolution image tree
+ *
+ *
+ * vtkGeoAlignedImageRepresentation represents a high resolution image
+ * over the globle. It has an associated vtkGeoSource which is responsible
+ * for fetching new data. This class keeps the fetched data in a quad-tree
+ * structure organized by latitude and longitude.
+*/
 
 #ifndef vtkGeoAlignedImageRepresentation_h
 #define vtkGeoAlignedImageRepresentation_h
@@ -42,52 +45,61 @@ public:
   vtkTypeMacro(vtkGeoAlignedImageRepresentation,vtkDataRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Retrieve the most refined image patch that covers the specified
-  // latitude and longitude bounds (lat-min, lat-max, long-min, long-max).
+  /**
+   * Retrieve the most refined image patch that covers the specified
+   * latitude and longitude bounds (lat-min, lat-max, long-min, long-max).
+   */
   virtual vtkGeoImageNode* GetBestImageForBounds(double bounds[4]);
 
-  // Description:
-  // The source for this representation. This must be set first before
-  // calling GetBestImageForBounds.
+  /**
+   * The source for this representation. This must be set first before
+   * calling GetBestImageForBounds.
+   */
   virtual vtkGeoSource* GetSource()
     { return this->GeoSource; }
   virtual void SetSource(vtkGeoSource* source);
 
-  // Description:
-  // Serialize the database to the specified directory.
-  // Each image is stored as a .vti file.
-  // The Origin and Spacing of the saved image contain (lat-min, long-min)
-  // and (lat-max, long-max), respectively.
-  // Files are named based on their level and id within that level.
+  /**
+   * Serialize the database to the specified directory.
+   * Each image is stored as a .vti file.
+   * The Origin and Spacing of the saved image contain (lat-min, long-min)
+   * and (lat-max, long-max), respectively.
+   * Files are named based on their level and id within that level.
+   */
   void SaveDatabase(const char* path);
 
 protected:
   vtkGeoAlignedImageRepresentation();
   ~vtkGeoAlignedImageRepresentation();
 
-  // Description:
-  // The source for creating image nodes.
+  //@{
+  /**
+   * The source for creating image nodes.
+   */
   void SetGeoSource(vtkGeoSource* source);
   vtkGeoSource* GeoSource;
+  //@}
 
-  // Description:
-  // The root of the image tree.
+  /**
+   * The root of the image tree.
+   */
   vtkGeoImageNode* Root;
 
-  // Description:
-  // Initialize the representation with the current source.
+  /**
+   * Initialize the representation with the current source.
+   */
   void Initialize();
 
-  // Description:
-  // Print information about the image tree.
+  /**
+   * Print information about the image tree.
+   */
   void PrintTree(ostream& os, vtkIndent indent, vtkGeoImageNode* root);
 
   vtkGeoTreeNodeCache* Cache;
 
 private:
-  vtkGeoAlignedImageRepresentation(const vtkGeoAlignedImageRepresentation&); // Not implemented
-  void operator=(const vtkGeoAlignedImageRepresentation&); // Not implemented
+  vtkGeoAlignedImageRepresentation(const vtkGeoAlignedImageRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoAlignedImageRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

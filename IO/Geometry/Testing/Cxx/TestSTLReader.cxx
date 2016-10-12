@@ -11,10 +11,10 @@
 int TestSTLReader(int argc, char *argv[])
 {
   if (argc < 2)
-    {
+  {
     std::cerr << "Required parameters: <filename>" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   std::string inputFilename = argv[1];
 
@@ -48,9 +48,9 @@ int TestSTLReader(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage( renderWindow );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renderWindowInteractor->Start();
-    }
+  }
 
   return !retVal;
 }

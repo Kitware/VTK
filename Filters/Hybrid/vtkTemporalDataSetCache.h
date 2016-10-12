@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTemporalDataSetCache - cache time steps
-// .SECTION Description
-// vtkTemporalDataSetCache cache time step requests of a temporal dataset,
-// when cached data is requested it is returned using a shallow copy.
-// .SECTION Thanks
-// Ken Martin (Kitware) and John Bidiscombe of
-// CSCS - Swiss National Supercomputing Centre
-// for creating and contributing this class.
-// For related material, please refer to :
-// John Biddiscombe, Berk Geveci, Ken Martin, Kenneth Moreland, David Thompson,
-// "Time Dependent Processing in a Parallel Pipeline Architecture",
-// IEEE Visualization 2007.
+/**
+ * @class   vtkTemporalDataSetCache
+ * @brief   cache time steps
+ *
+ * vtkTemporalDataSetCache cache time step requests of a temporal dataset,
+ * when cached data is requested it is returned using a shallow copy.
+ * @par Thanks:
+ * Ken Martin (Kitware) and John Bidiscombe of
+ * CSCS - Swiss National Supercomputing Centre
+ * for creating and contributing this class.
+ * For related material, please refer to :
+ * John Biddiscombe, Berk Geveci, Ken Martin, Kenneth Moreland, David Thompson,
+ * "Time Dependent Processing in a Parallel Pipeline Architecture",
+ * IEEE Visualization 2007.
+*/
 
 #ifndef vtkTemporalDataSetCache_h
 #define vtkTemporalDataSetCache_h
@@ -40,11 +43,14 @@ public:
   vtkTypeMacro(vtkTemporalDataSetCache, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // This is the maximum number of time steps that can be retained in memory.
-  // it defaults to 10.
+  //@{
+  /**
+   * This is the maximum number of time steps that can be retained in memory.
+   * it defaults to 10.
+   */
   void SetCacheSize(int size);
   vtkGetMacro(CacheSize,int);
+  //@}
 
 protected:
   vtkTemporalDataSetCache();
@@ -56,8 +62,9 @@ protected:
   CacheType;
   CacheType Cache;
 
-  // Description:
-  // see vtkAlgorithm for details
+  /**
+   * see vtkAlgorithm for details
+   */
   virtual int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector);
@@ -77,8 +84,8 @@ protected:
                           vtkInformationVector *);
 
 private:
-  vtkTemporalDataSetCache(const vtkTemporalDataSetCache&);  // Not implemented.
-  void operator=(const vtkTemporalDataSetCache&);  // Not implemented.
+  vtkTemporalDataSetCache(const vtkTemporalDataSetCache&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTemporalDataSetCache&) VTK_DELETE_FUNCTION;
 };
 
 

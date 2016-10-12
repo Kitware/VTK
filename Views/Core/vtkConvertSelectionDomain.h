@@ -17,23 +17,26 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkConvertSelectionDomain - Convert a selection from one domain to another
-//
-// .SECTION Description
-// vtkConvertSelectionDomain converts a selection from one domain to another
-// using known domain mappings. The domain mappings are described by a
-// vtkMultiBlockDataSet containing one or more vtkTables.
-//
-// The first input port is for the input selection (or collection of annotations
-// in a vtkAnnotationLayers object), while the second port
-// is for the multi-block of mappings, and the third port is for the
-// data that is being selected on.
-//
-// If the second or third port is not set, this filter will pass the
-// selection/annotation to the output unchanged.
-//
-// The second output is the selection associated with the "current annotation"
-// normally representing the current interactive selection.
+/**
+ * @class   vtkConvertSelectionDomain
+ * @brief   Convert a selection from one domain to another
+ *
+ *
+ * vtkConvertSelectionDomain converts a selection from one domain to another
+ * using known domain mappings. The domain mappings are described by a
+ * vtkMultiBlockDataSet containing one or more vtkTables.
+ *
+ * The first input port is for the input selection (or collection of annotations
+ * in a vtkAnnotationLayers object), while the second port
+ * is for the multi-block of mappings, and the third port is for the
+ * data that is being selected on.
+ *
+ * If the second or third port is not set, this filter will pass the
+ * selection/annotation to the output unchanged.
+ *
+ * The second output is the selection associated with the "current annotation"
+ * normally representing the current interactive selection.
+*/
 
 #ifndef vtkConvertSelectionDomain_h
 #define vtkConvertSelectionDomain_h
@@ -66,8 +69,8 @@ protected:
     int port, vtkInformation* info);
 
 private:
-  vtkConvertSelectionDomain(const vtkConvertSelectionDomain&);  // Not implemented.
-  void operator=(const vtkConvertSelectionDomain&);  // Not implemented.
+  vtkConvertSelectionDomain(const vtkConvertSelectionDomain&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkConvertSelectionDomain&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkIdTypeArray - dynamic, self-adjusting array of vtkIdType
-// .SECTION Description
-// vtkIdTypeArray is an array of values of type vtkIdType.
-// It provides methods for insertion and retrieval of values and will
-// automatically resize itself to hold new data.
+/**
+ * @class   vtkIdTypeArray
+ * @brief   dynamic, self-adjusting array of vtkIdType
+ *
+ * vtkIdTypeArray is an array of values of type vtkIdType.
+ * It provides methods for insertion and retrieval of values and will
+ * automatically resize itself to hold new data.
+*/
 
 #ifndef vtkIdTypeArray_h
 #define vtkIdTypeArray_h
@@ -37,7 +40,7 @@ public:
 #undef vtkDataArray
 #endif
   static vtkIdTypeArray* New();
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // This macro expands to the set of method declarations that
   // make up the interface of vtkAOSDataArrayTemplate, which is ignored
@@ -46,44 +49,48 @@ public:
   vtkCreateWrappedArrayInterface(vtkIdType);
 #else
 
-  // Description:
-  // Get the data type.
-  int GetDataType()
-    {
+  /**
+   * Get the data type.
+   */
+  int GetDataType() VTK_OVERRIDE
+  {
       // This needs to overwritten from superclass because
       // the templated superclass is not able to differentiate
       // vtkIdType from a long long or an int since vtkIdType
       // is simply a typedef. This means that
       // vtkAOSDataArrayTemplate<vtkIdType> != vtkIdTypeArray.
       return VTK_ID_TYPE;
-    }
+  }
 #endif
 
-  // Description:
-  // A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+  /**
+   * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+   */
   static vtkIdTypeArray* FastDownCast(vtkAbstractArray *source)
   {
     return static_cast<vtkIdTypeArray*>(Superclass::FastDownCast(source));
   }
 
-  // Description:
-  // Get the minimum data value in its native type.
+  /**
+   * Get the minimum data value in its native type.
+   */
   static vtkIdType GetDataTypeValueMin() { return VTK_ID_MIN; }
 
-  // Description:
-  // Get the maximum data value in its native type.
+  /**
+   * Get the maximum data value in its native type.
+   */
   static vtkIdType GetDataTypeValueMax() { return VTK_ID_MAX; }
 
 protected:
   vtkIdTypeArray();
-  ~vtkIdTypeArray();
+  ~vtkIdTypeArray() VTK_OVERRIDE;
 
 private:
 
   typedef vtkAOSDataArrayTemplate<vtkIdType> RealSuperclass;
 
-  vtkIdTypeArray(const vtkIdTypeArray&);  // Not implemented.
-  void operator=(const vtkIdTypeArray&);  // Not implemented.
+  vtkIdTypeArray(const vtkIdTypeArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkIdTypeArray&) VTK_DELETE_FUNCTION;
 };
 
 // Define vtkArrayDownCast implementation:

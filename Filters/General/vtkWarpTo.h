@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWarpTo - deform geometry by warping towards a point
-// .SECTION Description
-// vtkWarpTo is a filter that modifies point coordinates by moving the
-// points towards a user specified position.
+/**
+ * @class   vtkWarpTo
+ * @brief   deform geometry by warping towards a point
+ *
+ * vtkWarpTo is a filter that modifies point coordinates by moving the
+ * points towards a user specified position.
+*/
 
 #ifndef vtkWarpTo_h
 #define vtkWarpTo_h
@@ -28,43 +31,52 @@ class VTKFILTERSGENERAL_EXPORT vtkWarpTo : public vtkPointSetAlgorithm
 public:
   static vtkWarpTo *New();
   vtkTypeMacro(vtkWarpTo,vtkPointSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Set/Get the value to scale displacement.
+  //@{
+  /**
+   * Set/Get the value to scale displacement.
+   */
   vtkSetMacro(ScaleFactor,double);
   vtkGetMacro(ScaleFactor,double);
+  //@}
 
-  // Description:
-  // Set/Get the position to warp towards.
+  //@{
+  /**
+   * Set/Get the position to warp towards.
+   */
   vtkGetVectorMacro(Position,double,3);
   vtkSetVector3Macro(Position,double);
+  //@}
 
-  // Description:
-  // Set/Get the Absolute ivar. Turning Absolute on causes scale factor
-  // of the new position to be one unit away from Position.
+  //@{
+  /**
+   * Set/Get the Absolute ivar. Turning Absolute on causes scale factor
+   * of the new position to be one unit away from Position.
+   */
   vtkSetMacro(Absolute,int);
   vtkGetMacro(Absolute,int);
   vtkBooleanMacro(Absolute,int);
+  //@}
 
-  int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 protected:
   vtkWarpTo();
-  ~vtkWarpTo() {}
+  ~vtkWarpTo() VTK_OVERRIDE {}
 
   int RequestDataObject(vtkInformation *request,
                         vtkInformationVector **inputVector,
-                        vtkInformationVector *outputVector);
+                        vtkInformationVector *outputVector) VTK_OVERRIDE;
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) VTK_OVERRIDE;
   double ScaleFactor;
   double Position[3];
   int   Absolute;
 private:
-  vtkWarpTo(const vtkWarpTo&);  // Not implemented.
-  void operator=(const vtkWarpTo&);  // Not implemented.
+  vtkWarpTo(const vtkWarpTo&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWarpTo&) VTK_DELETE_FUNCTION;
 };
 
 #endif

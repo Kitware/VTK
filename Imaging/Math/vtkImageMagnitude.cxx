@@ -64,25 +64,25 @@ void vtkImageMagnitudeExecute(vtkImageMagnitude *self,
 
   // Loop through output pixels
   while (!outIt.IsAtEnd())
-    {
+  {
     T* inSI = inIt.BeginSpan();
     T* outSI = outIt.BeginSpan();
     T* outSIEnd = outIt.EndSpan();
     while (outSI != outSIEnd)
-      {
+    {
       // now process the components
       sum = 0.0;
       for (idxC = 0; idxC < maxC; idxC++)
-        {
+      {
         sum += static_cast<float>(*inSI * *inSI);
         ++inSI;
-        }
+      }
       *outSI = static_cast<T>(sqrt(sum));
       ++outSI;
-      }
+    }
     inIt.NextSpan();
     outIt.NextSpan();
-    }
+  }
 }
 
 
@@ -97,29 +97,29 @@ void vtkImageMagnitude::ThreadedExecute (vtkImageData *inData,
   // This is really meta data and should be set in ExecuteInformation,
   // but there are some issues to solve first.
   if (id == 0 && outData->GetPointData()->GetScalars())
-    {
+  {
     outData->GetPointData()->GetScalars()->SetName("Magnitude");
-    }
+  }
   vtkDebugMacro(<< "Execute: inData = " << inData
   << ", outData = " << outData);
 
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
-    {
+  {
     vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
     << ", must match out ScalarType " << outData->GetScalarType());
     return;
-    }
+  }
 
   switch (inData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageMagnitudeExecute( this, inData, outData,
                                 outExt, id, static_cast<VTK_TT *>(0)));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
-    }
+  }
 }
 
 

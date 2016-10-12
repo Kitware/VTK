@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLPolyDataMapper - a PolyDataMapper for the OpenGL library
-// .SECTION Description
-// vtkOpenGLPolyDataMapper is a subclass of vtkPolyDataMapper.
-// vtkOpenGLPolyDataMapper is a geometric PolyDataMapper for the OpenGL
-// rendering library.
-// @deprecated Replaced by vtkPainterPolyDataMapper as of VTK 6.2.
+/**
+ * @class   vtkOpenGLPolyDataMapper
+ * @brief   a PolyDataMapper for the OpenGL library
+ *
+ * vtkOpenGLPolyDataMapper is a subclass of vtkPolyDataMapper.
+ * vtkOpenGLPolyDataMapper is a geometric PolyDataMapper for the OpenGL
+ * rendering library.
+ * @deprecated Replaced by vtkPainterPolyDataMapper as of VTK 6.2.
+*/
 
 #ifndef vtkOpenGLPolyDataMapper_h
 #define vtkOpenGLPolyDataMapper_h
@@ -39,20 +42,23 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapp
 public:
   static vtkOpenGLPolyDataMapper *New();
   vtkTypeMacro(vtkOpenGLPolyDataMapper,vtkPolyDataMapper);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Implement superclass render method.
+  /**
+   * Implement superclass render method.
+   */
   virtual void RenderPiece(vtkRenderer *ren, vtkActor *a);
 
-  // Description:
-  // Release any graphics resources that are being consumed by this mapper.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
+  /**
+   * Release any graphics resources that are being consumed by this mapper.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
   void ReleaseGraphicsResources(vtkWindow *);
 
-  // Description:
-  // Draw method for OpenGL.
+  /**
+   * Draw method for OpenGL.
+   */
   virtual int Draw(vtkRenderer *ren, vtkActor *a);
 
 protected:
@@ -106,8 +112,8 @@ protected:
   vtkOpenGLTexture* InternalColorTexture;
 
 private:
-  vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&);  // Not implemented.
-  void operator=(const vtkOpenGLPolyDataMapper&);  // Not implemented.
+  vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLPolyDataMapper&) VTK_DELETE_FUNCTION;
 };
 #endif // VTK_LEGACY_REMOVE
 #endif

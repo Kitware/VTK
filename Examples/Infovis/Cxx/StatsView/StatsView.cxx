@@ -87,20 +87,20 @@ void StatsView::slotOpenSQLiteDB()
     "SQLite Files (*.db);;All Files (*.*)");
 
   if (fileName.isNull())
-    {
+  {
     cerr << "Could not open file" << endl;
     return;
-    }
+  }
 
   // Create SQLite reader
   QString fullName = "sqlite://" + fileName;
   vtkSQLiteDatabase* db = vtkSQLiteDatabase::SafeDownCast( vtkSQLDatabase::CreateFromURL( fullName.toLatin1() ) );
   bool status = db->Open("");
   if ( ! status )
-    {
+  {
     cerr << "Couldn't open database.\n";
     return;
-    }
+  }
 
   // Query database
   vtkSQLQuery* query = db->GetQueryInstance();

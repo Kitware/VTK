@@ -12,27 +12,29 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkStructuredImplicitConnectivity -- Communicates data among a
-// a distributed structured dataset that is implicitly connected among
-// partitions without abutting. This creates a gap between partitions and
-// introduces a cell that spans multiple zones. This typically arises with
-// finite difference grids, which are partitioned with respect to the
-// nodes of the grid, or, when a filter samples the grid, e.g., to get a
-// lower resolution representation.
-//
-// .SECTION Description
-// This class is intended as a lower-level helper for higher level VTK filters
-// that provides functionality for resolving the implicit connectivity (gap)
-// between two or more partitions of a distributed structured dataset.
-//
-// .SECTION Caveats
-// The present implementation requires:
-// <ul>
-//  <li> one block/grid per rank. </li>
-//  <li> 2-D (XY,YZ or XZ planes) or 3-D datasets. </li>
-//  <li> node-center fields must match across processes. </li>
-// </ul>
-//
+/**
+ * @class   vtkStructuredImplicitConnectivity
+ * a distributed structured dataset that is implicitly connected among
+ * partitions without abutting. This creates a gap between partitions and
+ * introduces a cell that spans multiple zones. This typically arises with
+ * finite difference grids, which are partitioned with respect to the
+ * nodes of the grid, or, when a filter samples the grid, e.g., to get a
+ * lower resolution representation.
+ *
+ *
+ * This class is intended as a lower-level helper for higher level VTK filters
+ * that provides functionality for resolving the implicit connectivity (gap)
+ * between two or more partitions of a distributed structured dataset.
+ *
+ * @warning
+ * The present implementation requires:
+ * <ul>
+ *  <li> one block/grid per rank. </li>
+ *  <li> 2-D (XY,YZ or XZ planes) or 3-D datasets. </li>
+ *  <li> node-center fields must match across processes. </li>
+ * </ul>
+ *
+*/
 
 #ifndef vtkStructuredImplicitConnectivity_h
 #define vtkStructuredImplicitConnectivity_h
@@ -70,11 +72,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   vtkTypeMacro(vtkStructuredImplicitConnectivity,vtkObject);
 
-  // Description:
-  // \brief Sets the whole extent for the distributed structured domain.
-  // \param wholeExt the extent of the entire domain (in).
-  // \note All ranks must call this method with the same whole extent.
-  // \post this->DomainInfo != NULL
+  /**
+   * \brief Sets the whole extent for the distributed structured domain.
+   * \param wholeExt the extent of the entire domain (in).
+   * \note All ranks must call this method with the same whole extent.
+   * \post this->DomainInfo != NULL
+   */
   void SetWholeExtent(int wholeExt[6]);
 
   // \brief Registers the structured grid dataset belonging to this process.
@@ -111,42 +114,48 @@ public:
         vtkPointData* pointData
         );
 
-  // Description:
-  // \brief Finds implicit connectivity for a distributed structured dataset.
-  // \note This is a collective operation, all ranks must call this method.
-  // \pre this->Controller != NULL
-  // \pre this->DomainInfo != NULL
+  /**
+   * \brief Finds implicit connectivity for a distributed structured dataset.
+   * \note This is a collective operation, all ranks must call this method.
+   * \pre this->Controller != NULL
+   * \pre this->DomainInfo != NULL
+   */
   void EstablishConnectivity();
 
-  // Description:
-  // \brief Checks if there is implicit connectivity.
-  // \return status true if implicit connectivity in one or more dimensions.
+  /**
+   * \brief Checks if there is implicit connectivity.
+   * \return status true if implicit connectivity in one or more dimensions.
+   */
   bool HasImplicitConnectivity();
 
-  // Description:
-  // \brief Exchanges one layer (row or column) of data between neighboring
-  // grids to fix the implicit connectivity.
-  // \note This is a collective operation, all ranks must call this method.
-  // \pre this->Controller != NULL
-  // \pre this->DomainInfo != NULL
+  /**
+   * \brief Exchanges one layer (row or column) of data between neighboring
+   * grids to fix the implicit connectivity.
+   * \note This is a collective operation, all ranks must call this method.
+   * \pre this->Controller != NULL
+   * \pre this->DomainInfo != NULL
+   */
   void ExchangeData();
 
-  // Description:
-  // \brief Gets the output structured grid instance on this process.
-  // \param gridID the ID of the grid
-  // \param grid pointer to data-structure where to store the output.
+  /**
+   * \brief Gets the output structured grid instance on this process.
+   * \param gridID the ID of the grid
+   * \param grid pointer to data-structure where to store the output.
+   */
   void GetOutputStructuredGrid(const int gridID, vtkStructuredGrid* grid);
 
-  // Description:
-  // \brief Gets the output uniform grid instance on this process.
-  // \param gridID the ID of the grid.
-  // \param grid pointer to data-structure where to store the output.
+  /**
+   * \brief Gets the output uniform grid instance on this process.
+   * \param gridID the ID of the grid.
+   * \param grid pointer to data-structure where to store the output.
+   */
   void GetOutputImageData(const int gridID, vtkImageData* grid);
 
-  // Description:
-  // \brief Gets the output rectilinear grid instance on this process.
-  // \param gridID the ID of the grid.
-  // \param grid pointer to data-structure where to store the output.
+  /**
+   * \brief Gets the output rectilinear grid instance on this process.
+   * \param gridID the ID of the grid.
+   * \param grid pointer to data-structure where to store the output.
+   */
   void GetOutputRectilinearGrid(const int gridID, vtkRectilinearGrid* grid);
 
 protected:
@@ -160,53 +169,63 @@ protected:
   vtk::detail::StructuredGrid* OutputGrid;
   vtk::detail::CommunicationManager* CommManager;
 
-  // Description:
-  // \brief Checks if the data description matches globally.
+  /**
+   * \brief Checks if the data description matches globally.
+   */
   bool GlobalDataDescriptionMatch();
 
-  // Description:
-  // \brief Packs the data to send into a bytestream
+  /**
+   * \brief Packs the data to send into a bytestream
+   */
   void PackData(int ext[6], vtkMultiProcessStream& bytestream);
 
-  // Description:
-  // \brief Unpacks the data to the output grid
+  /**
+   * \brief Unpacks the data to the output grid
+   */
   void UnPackData(unsigned char* buffer, unsigned int size);
 
-  // Description:
-  // \brief Allocates send/rcv buffers needed to carry out the communication.
+  /**
+   * \brief Allocates send/rcv buffers needed to carry out the communication.
+   */
   void AllocateBuffers(const int dim);
 
-  // Description:
-  // \brief Computes the neighbors with implicit connectivity.
+  /**
+   * \brief Computes the neighbors with implicit connectivity.
+   */
   void ComputeNeighbors();
 
-  // Description:
-  // \brief Constructs the output data-structures.
+  /**
+   * \brief Constructs the output data-structures.
+   */
   void ConstructOutput();
 
-  // Description:
-  // \brief Grows grid along a given dimension.
-  // \param dim the dimension in query.
+  /**
+   * \brief Grows grid along a given dimension.
+   * \param dim the dimension in query.
+   */
   void GrowGrid(const int dim);
 
-  // Description:
-  // \brief Updates the list of neighbors after growing the grid along the
-  // given dimension dim.
-  // \param dim the dimension in query.
+  /**
+   * \brief Updates the list of neighbors after growing the grid along the
+   * given dimension dim.
+   * \param dim the dimension in query.
+   */
   void UpdateNeighborList(const int dim);
 
-  // Description:
-  // \brief Gets whether there is implicit connectivity across all processes.
+  /**
+   * \brief Gets whether there is implicit connectivity across all processes.
+   */
   void GetGlobalImplicitConnectivityState();
 
-  // Description:
-  // \brief Exchanges extents among processes.
-  // \pre this->Controller != NULL.
-  // \note This method is collective operation. All ranks must call it.
+  /**
+   * \brief Exchanges extents among processes.
+   * \pre this->Controller != NULL.
+   * \note This method is collective operation. All ranks must call it.
+   */
   void ExchangeExtents();
 
 private:
-  vtkStructuredImplicitConnectivity(const vtkStructuredImplicitConnectivity&); // Not implemented
-  void operator=(const vtkStructuredImplicitConnectivity&); // Not implemented
+  vtkStructuredImplicitConnectivity(const vtkStructuredImplicitConnectivity&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStructuredImplicitConnectivity&) VTK_DELETE_FUNCTION;
 };
 #endif

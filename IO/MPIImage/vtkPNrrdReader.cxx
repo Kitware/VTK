@@ -76,14 +76,14 @@
   { \
   int __my_result = funcall; \
   if (__my_result != MPI_SUCCESS) \
-    { \
+  { \
     char errormsg[MPI_MAX_ERROR_STRING]; \
     int dummy; \
     MPI_Error_string(__my_result, errormsg, &dummy); \
     vtkErrorMacro(<< "Received error when calling" << endl \
                   << #funcall << endl << endl \
                   << errormsg); \
-    } \
+  } \
   }
 #endif // VTK_USE_MPI_IO
 
@@ -106,9 +106,9 @@ inline void vtkPNrrdReaderMaskBits(T *data, vtkIdType length,
   if ((_mask == (vtkTypeUInt64)~0UL) || (mask == (T)~0) || (_mask == 0)) return;
 
   for (vtkIdType i = 0; i < length; i++)
-    {
+  {
     data[i] &= mask;
-    }
+  }
 }
 
 // Override float and double because masking bits for them makes no sense.
@@ -159,12 +159,12 @@ void vtkPNrrdReader::PrintSelf(ostream &os, vtkIndent indent)
 int vtkPNrrdReader::GetDataScalarTypeSize()
 {
   switch (this->GetDataScalarType())
-    {
+  {
     vtkTemplateMacro(return sizeof(VTK_TT));
     default:
       vtkErrorMacro("Unknown data type.");
       return 0;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -175,20 +175,20 @@ void vtkPNrrdReader::PartitionController(const int extent[6])
   int numZ = this->DataExtent[5] - this->DataExtent[4] + 1;
 
   if ((this->GetFileDimensionality() == 3) || (numZ == 1))
-    {
+  {
     // Everyone reads from the same single file.  No need to partion controller.
     this->SetGroupedController(this->Controller);
     return;
-    }
+  }
 
   // The following algorithm will have overflow problems if there are more
   // than 2^15 files.  I doubt anyone will ever be crazy enough to set up a
   // large 3D image with that many slice files, but just in case...
   if (numZ >= 32768)
-    {
+  {
     vtkErrorMacro("I do not support more than 32768 files.");
     return;
-    }
+  }
 
   // Hash the Z extent.  This is guaranteed to be unique for any pair of
   // extents (within the constraint given above).
@@ -216,18 +216,18 @@ void vtkPNrrdReader::PartitionController(const int *)
 unsigned long vtkPNrrdReader::GetHeaderSize(vtkMPIOpaqueFileHandle &file)
 {
   if (this->ManualHeaderSize)
-    {
+  {
     return this->HeaderSize;
-    }
+  }
   else
-    {
+  {
     this->ComputeDataIncrements();
 
     MPI_Offset size;
     MPICall(MPI_File_get_size(file.Handle, &size));
     return static_cast<unsigned long>
       (size - this->DataIncrements[this->GetFileDimensionality()]);
-    }
+  }
 }
 #else // VTK_USE_MPI_IO
 unsigned long vtkPNrrdReader::GetHeaderSize(vtkMPIOpaqueFileHandle &)
@@ -248,11 +248,11 @@ void vtkPNrrdReader::SetupFileView(vtkMPIOpaqueFileHandle &file,
   int arrayOfStarts[3];
 
   for (int i = 0; i < this->GetFileDimensionality(); i++)
-    {
+  {
     arrayOfSizes[i] = this->DataExtent[i*2+1] - this->DataExtent[i*2] + 1;
     arrayOfSubSizes[i] = extent[i*2+1] - extent[i*2] + 1;
     arrayOfStarts[i] = extent[i*2];
-    }
+  }
   // Adjust for base size of data type and tuple size.
   int baseSize = this->GetDataScalarTypeSize() * this->NumberOfScalarComponents;
   arrayOfSizes[0] *= baseSize;
@@ -294,10 +294,10 @@ void vtkPNrrdReader::ReadSlice(int slice, const int extent[6], void *buffer)
                          this->InternalFileName, MPI_MODE_RDONLY,
                          MPI_INFO_NULL, &file.Handle);
   if (!(result == MPI_SUCCESS))
-    {
+  {
     vtkErrorMacro("Could not open file: " << this->InternalFileName);
     return;
-    }
+  }
 
   // Set up the file view based on the extents.
   this->SetupFileView(file, extent);
@@ -311,22 +311,22 @@ void vtkPNrrdReader::ReadSlice(int slice, const int extent[6], void *buffer)
 
   vtkIdType pos = 0;
   while (length > pos)
-    {
+  {
     MPI_Status stat;
     // we know this will fit in an int because it can't exceed VTK_INT_MAX.
-    const int remaining = std::min(static_cast<size_t>(length - pos),
-                                   static_cast<size_t>(VTK_INT_MAX));
+    const int remaining = static_cast<int>(std::min(length - pos,
+       static_cast<vtkIdType>(VTK_INT_MAX)));
     MPICall(MPI_File_read(file.Handle, (static_cast<char*>(buffer)) + pos, remaining,
                           MPI_BYTE, &stat));
     int rd = 0;
     MPICall(MPI_Get_elements(&stat, MPI_BYTE, &rd));
     if (MPI_UNDEFINED == rd)
-      {
+    {
       vtkErrorMacro("Error obtaining number of values read in " << remaining <<
                     "-byte read.");
-      }
-    pos += static_cast<vtkIdType>(rd);
     }
+    pos += static_cast<vtkIdType>(rd);
+  }
 
   MPICall(MPI_File_close(&file.Handle));
 }
@@ -362,19 +362,19 @@ void vtkPNrrdReader::TransformData(vtkImageData *data)
   vtkIdType dataExtentSize[3];
   vtkIdType fileExtentSize[3];
   for (int i = 0; i < 3; i++)
-    {
+  {
     dataMinExtent[i] = MY_MIN(dataExtent[2*i], dataExtent[2*i+1]);
     fileMinExtent[i] = MY_MIN(fileExtent[2*i], fileExtent[2*i+1]);
     dataExtentSize[i] = MY_ABS(dataExtent[2*i+1] - dataExtent[2*i]) + 1;
     fileExtentSize[i] = MY_ABS(fileExtent[2*i+1] - fileExtent[2*i]) + 1;
-    }
+  }
 
   for (vtkIdType file_k = 0; file_k < fileExtentSize[2]; file_k++)
-    {
+  {
     for (vtkIdType file_j = 0; file_j < fileExtentSize[1]; file_j++)
-      {
+    {
       for (vtkIdType file_i = 0; file_i < fileExtentSize[0]; file_i++)
-        {
+      {
         double fileXYZ[3];
         fileXYZ[0] = file_i + fileMinExtent[0];
         fileXYZ[1] = file_j + fileMinExtent[1];
@@ -391,9 +391,9 @@ void vtkPNrrdReader::TransformData(vtkImageData *data)
           = ((data_k*dataExtentSize[1] + data_j)*dataExtentSize[0]) + data_i;
 
         dataData->SetTuple(dataTuple, fileTuple, fileData);
-        }
       }
     }
+  }
 
   data->GetPointData()->SetScalars(dataData);
   dataData->Delete();
@@ -414,19 +414,19 @@ void vtkPNrrdReader::ExecuteDataWithInformation(vtkDataObject *output,
   vtkMPIController *MPIController
     = vtkMPIController::SafeDownCast(this->Controller);
   if (!MPIController)
-    {
+  {
     this->Superclass::ExecuteDataWithInformation(output, outInfo);
     return;
-    }
+  }
 
   vtkImageData *data = this->AllocateOutputData(output, outInfo);
 
   if (!this->FileName && !this->FilePattern && !this->FileNames)
-    {
+  {
     vtkErrorMacro("Either a valid FileName, FileNames, or FilePattern"
                   " must be specified.");
     return;
-    }
+  }
 
   // VTK stores images in traditional "right handed" coordinates.  That is, the
   // origin is in the lower left corner.  Many images, especially those with RGB
@@ -434,19 +434,19 @@ void vtkPNrrdReader::ExecuteDataWithInformation(vtkDataObject *output,
   // to flip the y axis.
   vtkTransform *saveTransform = this->Transform;
   if (!this->FileLowerLeft)
-    {
+  {
     vtkTransform *newTransform = vtkTransform::New();
     if (this->Transform)
-      {
+    {
       newTransform->Concatenate(this->Transform);
-      }
+    }
     else
-      {
+    {
       newTransform->Identity();
-      }
+    }
     newTransform->Scale(1.0, -1.0, 1.0);
     this->Transform = newTransform;
-    }
+  }
 
   // Get information on data partion requested.
   int inExtent[6];
@@ -492,46 +492,46 @@ void vtkPNrrdReader::ExecuteDataWithInformation(vtkDataObject *output,
   char *dataBuffer = reinterpret_cast<char *>(data->GetScalarPointer());
 
   if (this->GetFileDimensionality() == 3)
-    {
+  {
     // Everything is in one big file.  Read it all in one shot.
     this->ReadSlice(0, outExtent, dataBuffer);
-    }
+  }
   else // this->GetFileDimensionality() == 2
-    {
+  {
     // Read everything slice-by-slice.
     char *ptr = dataBuffer;
     for (int slice = outExtent[4]; slice <= outExtent[5]; slice++)
-      {
+    {
       this->UpdateProgress(  (0.9*(slice-outExtent[4]))
                            / (outExtent[5]-outExtent[4]+1));
       this->ReadSlice(slice, outExtent, ptr);
       ptr += typeSize*outIncrements[2];
-      }
     }
+  }
 
   this->UpdateProgress(0.9);
 
   // Swap bytes as necessary.
   if (this->GetSwapBytes() && typeSize > 1)
-    {
+  {
     vtkByteSwap::SwapVoidRange(dataBuffer, numValues, typeSize);
-    }
+  }
 
   // Mask bits as necessary.
   switch (this->GetDataScalarType())
-    {
+  {
     vtkTemplateMacro(vtkPNrrdReaderMaskBits((VTK_TT *)dataBuffer, numValues,
                                                this->DataMask));
-    }
+  }
 
   // Perform permutation transformation of data if necessary.
   this->TransformData(data);
 
   if (!this->FileLowerLeft)
-    {
+  {
     this->Transform->Delete();
     this->Transform = saveTransform;
-    }
+  }
 
   // Done with this for now.
   this->SetGroupedController(NULL);
@@ -544,20 +544,20 @@ void vtkPNrrdReader::ExecuteDataWithInformation(vtkDataObject *output,
 int vtkPNrrdReader::ReadHeader()
 {
   if (!this->Controller)
-    {
+  {
     vtkErrorMacro(<< "No MPI Controller available.");
     return 0;
-    }
+  }
 
   VTK_CREATE(vtkCharArray, headerBuffer);
   // Read the header on process 0 and broadcast to everyone else.
   if (this->Controller->GetLocalProcessId() == 0)
-    {
+  {
     if(!this->ReadHeaderInternal(headerBuffer))
-      {
+    {
       return 0;
-      }
     }
+  }
 
   this->Controller->Broadcast(headerBuffer, 0);
 

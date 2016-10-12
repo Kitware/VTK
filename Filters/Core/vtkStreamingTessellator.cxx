@@ -102,10 +102,10 @@ vtkStreamingTessellator::vtkStreamingTessellator()
   this->Callback3 = DefaultFacet3Callback;
   this->MaximumNumberOfSubdivisions = 3;
   for ( int i=0; i<4; ++i )
-    {
+  {
     this->EmbeddingDimension[i] = i;
     this->PointDimension[i] = i+3; // By default, FieldSize = 0
-    }
+  }
 
 }
 
@@ -118,67 +118,67 @@ vtkStreamingTessellator::~vtkStreamingTessellator()
 void vtkStreamingTessellator::SetEmbeddingDimension( int k, int d )
 {
   if ( d > 8 )
-    {
+  {
     vtkErrorMacro( "Embedding dimension may not be > 8. (You asked for " << d << "). Truncating to 8." );
     d = 8;
-    }
+  }
 
   if ( k == 0 || k < -1 || k >= 4 )
-    {
+  {
     vtkWarningMacro( "Invalid argument k=" << k );
     return;
-    }
+  }
 
   if ( k < 0 )
-    {
+  {
     for ( k=0; k<4; k++ )
       if ( this->EmbeddingDimension[k] != d )
-        {
+      {
         this->PointDimension[k] += d - this->EmbeddingDimension[k] ;
         this->EmbeddingDimension[k] = d;
         this->Modified();
-        }
+      }
     return;
-    }
+  }
   if ( this->EmbeddingDimension[k] != d )
-    {
+  {
     this->PointDimension[k] += d - this->EmbeddingDimension[k] ;
     this->EmbeddingDimension[k] = d;
     this->Modified();
-    }
+  }
 }
 
 void vtkStreamingTessellator::SetFieldSize( int k, int s )
 {
   if ( s > vtkStreamingTessellator::MaxFieldSize )
-    {
+  {
     vtkErrorMacro( "Embedding dimension may not be > " << MaxFieldSize << ". (You asked for " << s << "). Truncating to " << MaxFieldSize );
     s = vtkStreamingTessellator::MaxFieldSize;
-    }
+  }
 
   if ( k == 0 || k < -1 || k >= 4 )
-    {
+  {
     vtkWarningMacro( "Invalid argument k=" << k );
     return;
-    }
+  }
 
   if ( k < 0 )
-    {
+  {
     // Use field size for all facet types (point, line, triangle, tet, ...)
     for ( k=0; k<4; k++ )
       if ( this->PointDimension[k] != s + this->EmbeddingDimension[k] + 3 )
-        {
+      {
         this->PointDimension[k] = s + this->EmbeddingDimension[k] + 3;
         this->Modified();
-        }
+      }
     return;
-    }
+  }
 
   if ( this->PointDimension[k] != s + this->EmbeddingDimension[k] + 3 )
-    {
+  {
     this->PointDimension[k] = s + this->EmbeddingDimension[k] + 3;
     this->Modified();
-    }
+  }
 }
 
 void vtkStreamingTessellator::SetMaximumNumberOfSubdivisions( int num_subdiv_in )
@@ -187,10 +187,10 @@ void vtkStreamingTessellator::SetMaximumNumberOfSubdivisions( int num_subdiv_in 
     return;
 
   if ( num_subdiv_in < 0 )
-    {
+  {
     vtkErrorMacro( "MaximumNumberOfSubdivisions must be 0 or greater (you requested " << num_subdiv_in << ")" );
     return;
-    }
+  }
 
   this->MaximumNumberOfSubdivisions = num_subdiv_in;
   this->Modified();
@@ -259,7 +259,7 @@ const void* vtkStreamingTessellator::GetConstPrivateData() const
 void vtkStreamingTessellator::SetSubdivisionAlgorithm( vtkEdgeSubdivisionCriterion* a )
 {
   if ( a != this->Algorithm )
-    {
+  {
     if ( this->Algorithm )
       this->Algorithm->UnRegister( this );
 
@@ -268,7 +268,7 @@ void vtkStreamingTessellator::SetSubdivisionAlgorithm( vtkEdgeSubdivisionCriteri
 
     if ( this->Algorithm )
       this->Algorithm->Register( this );
-    }
+  }
 }
 
 vtkEdgeSubdivisionCriterion* vtkStreamingTessellator::GetSubdivisionAlgorithm()
@@ -290,13 +290,13 @@ static bool compareHopfCrossStringDist( const double* a0, const double* a1, cons
   double SqMagA = 0.;
   double SqMagB = 0.;
   for (int i=0; i<3; i++)
-    {
+  {
     double tmp;
     tmp = a0[i] - a1[i];
     SqMagA += tmp * tmp;
     tmp = b0[i] - b1[i];
     SqMagB += tmp * tmp;
-    }
+  }
   return SqMagA < SqMagB;
 }
 
@@ -323,13 +323,13 @@ void vtkStreamingTessellator::AdaptivelySample1Facet( double* v0, double* v1, in
   std::fill(midpt0,midpt0+this->PointDimension[1],0.);
 
   if ( maxDepth-- > 0 )
-    {
+  {
       for ( int i=0; i<this->PointDimension[1]; i++ )
         midpt0[i] = (v0[i] + v1[i])/2.;
 
       if ( this->Algorithm->EvaluateEdge( v0, midpt0, v1, 3+this->EmbeddingDimension[1] ) )
         edgeCode += 1;
-    }
+  }
 
   switch (edgeCode) {
     // No edges to subdivide
@@ -359,14 +359,14 @@ void vtkStreamingTessellator::AdaptivelySample2Facet( double* v0, double* v1, do
   std::fill(midpt2,midpt2+this->PointDimension[2],0.);
 
   if ( maxDepth-- > 0 )
-    {
+  {
 
     for ( int i=0; i<this->PointDimension[2]; i++ )
-      {
+    {
       midpt0[i] = (v0[i] + v1[i])/2.;
       midpt1[i] = (v1[i] + v2[i])/2.;
       midpt2[i] = (v2[i] + v0[i])/2.;
-      }
+    }
 
     if ( (move & 1) && Algorithm->EvaluateEdge( v0, midpt0, v1, 3+this->EmbeddingDimension[2] ) )
       edgeCode += 1;
@@ -380,14 +380,14 @@ void vtkStreamingTessellator::AdaptivelySample2Facet( double* v0, double* v1, do
     double dist2=0.;
     double tmp;
     for ( int j=0; j<3; ++j )
-      {
+    {
       tmp = v0[j] - v1[j];
       dist0 += tmp*tmp;
       tmp = v1[j] - v2[j];
       dist1 += tmp*tmp;
       tmp = v2[j] - v0[j];
       dist2 += tmp*tmp;
-      }
+    }
 
     if ( edgeCode & 1 ) dist0 /= 2.;
     if ( edgeCode & 2 ) dist1 /= 2.;
@@ -395,26 +395,26 @@ void vtkStreamingTessellator::AdaptivelySample2Facet( double* v0, double* v1, do
 
 #define MAR2 2.25
     if ( (!(edgeCode & 1)) && (move&1) && ((dist0/dist1 > MAR2) || (dist0/dist2 > MAR2)) )
-      {
+    {
       edgeCode += 1;
       move &= 6;
-      }
+    }
     if ( (!(edgeCode & 2)) && (move&2) && ((dist1/dist0 > MAR2) || (dist1/dist2 > MAR2)) )
-      {
+    {
       edgeCode += 2;
       move &= 5;
-      }
+    }
     if ( (!(edgeCode & 4)) && (move&4) && ((dist2/dist1 > MAR2) || (dist2/dist0 > MAR2)) )
-      {
+    {
       edgeCode += 4;
       move &= 3;
-      }
-#endif // UGLY_ASPECT_RATIO_HACK
     }
+#endif // UGLY_ASPECT_RATIO_HACK
+  }
 
 #ifdef DBG_MIDPTS
   if ( maxDepth == 0 )
-    {
+  {
     fprintf( stderr, "midpoint of v%d (%g %g %g/%g %g %g)-v%d (%g %g %g/%g %g %g) = (%g %g %g/%g %g %g)\n",
       0, v0[0], v0[1], v0[2], v0[3], v0[4], v0[5],
       1, v1[0], v1[1], v1[2], v1[3], v1[4], v1[5],
@@ -432,11 +432,11 @@ void vtkStreamingTessellator::AdaptivelySample2Facet( double* v0, double* v1, do
       0, v0[0], v0[1], v0[2], v0[3], v0[4], v0[5],
          midpt2[0], midpt2[1], midpt2[2], midpt2[3], midpt2[4], midpt2[5]
     );
-    }
+  }
 #endif // DBG_MIDPTS
 
   switch (edgeCode)
-    {
+  {
     // No edges to subdivide
   case 0:
     Callback2( v0, v1, v2, this->Algorithm, this->PrivateData, this->ConstPrivateData );
@@ -460,41 +460,41 @@ void vtkStreamingTessellator::AdaptivelySample2Facet( double* v0, double* v1, do
   case 3:
     this->AdaptivelySample2Facet( midpt0, v1, midpt1, maxDepth, move | 4 );
     if ( compareHopfCrossStringDist( v2, midpt0, v0, midpt1 ) )
-      {
+    {
       this->AdaptivelySample2Facet( midpt0, midpt1,   v2  , maxDepth, move | 5 );
       this->AdaptivelySample2Facet(   v0,   midpt0,   v2  , maxDepth, move | 2 );
-      }
+    }
     else
-      {
+    {
       this->AdaptivelySample2Facet(   v0  , midpt0, midpt1, maxDepth, move | 6 );
       this->AdaptivelySample2Facet(   v0,   midpt1,   v2  , maxDepth, move | 1 );
-      }
+    }
     break;
   case 5:
     this->AdaptivelySample2Facet( v0, midpt0, midpt2, maxDepth, move | 2 );
     if ( compareHopfCrossStringDist( v2, midpt0, v1, midpt2 ) )
-      {
+    {
       this->AdaptivelySample2Facet( midpt0,   v1,     v2  , maxDepth, move | 4 );
       this->AdaptivelySample2Facet( midpt2, midpt0,   v2  , maxDepth, move | 3 );
-      }
+    }
     else
-      {
+    {
       this->AdaptivelySample2Facet( midpt0,   v1,   midpt2, maxDepth, move | 6 );
       this->AdaptivelySample2Facet( midpt2,   v1,     v2,   maxDepth, move | 1 );
-      }
+    }
     break;
   case 6:
     this->AdaptivelySample2Facet( midpt2, midpt1, v2, maxDepth, move | 1 );
     if ( compareHopfCrossStringDist( v0, midpt1, v1, midpt2 ) )
-      {
+    {
       this->AdaptivelySample2Facet(   v0,   midpt1, midpt2, maxDepth, move | 3 );
       this->AdaptivelySample2Facet(   v0,     v1,   midpt1, maxDepth, move | 4 );
-      }
+    }
     else
-      {
+    {
       this->AdaptivelySample2Facet(   v0,     v1,   midpt2, maxDepth, move | 2 );
       this->AdaptivelySample2Facet( midpt2,   v1,   midpt1, maxDepth, move | 5 );
-      }
+    }
     break;
 
     // Three edges to subdivide
@@ -504,7 +504,7 @@ void vtkStreamingTessellator::AdaptivelySample2Facet( double* v0, double* v1, do
     this->AdaptivelySample2Facet( midpt0,   v1  , midpt1, maxDepth, move | 4 );
     this->AdaptivelySample2Facet( midpt2, midpt1,   v2  , maxDepth, move | 1 );
     break;
-    }
+  }
 }
 
 void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, double* v2, double* v3, int maxDepth ) const
@@ -532,16 +532,16 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
 
   double edgeLength2[6];
   if ( maxDepth-- > 0 )
-    {
+  {
     for ( int i=0; i<this->PointDimension[3]; i++ )
-      {
+    {
       midpt0[i] = (v0[i] + v1[i])/2.;
       midpt1[i] = (v1[i] + v2[i])/2.;
       midpt2[i] = (v2[i] + v0[i])/2.;
       midpt3[i] = (v0[i] + v3[i])/2.;
       midpt4[i] = (v1[i] + v3[i])/2.;
       midpt5[i] = (v2[i] + v3[i])/2.;
-      }
+    }
 
     if ( Algorithm->EvaluateEdge( v0, midpt0, v1, 3+this->EmbeddingDimension[3] ) )
       edgeCode |=  1;
@@ -560,7 +560,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
     edgeLength2[0] = edgeLength2[1] = edgeLength2[2] = edgeLength2[3]
       = edgeLength2[4] = edgeLength2[5] = 0;
     for ( int c=0; c<3; ++c )
-      {
+    {
       double tmp;
       tmp = v1[c] - v0[c];
       edgeLength2[0] += tmp*tmp;
@@ -574,16 +574,16 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
       edgeLength2[4] += tmp*tmp;
       tmp = v3[c] - v2[c];
       edgeLength2[5] += tmp*tmp;
-      }
     }
+  }
 
   if ( edgeCode == 0 )
-    {
+  {
     // No edges to subdivide
     Callback3( v0, v1, v2, v3, this->Algorithm, this->PrivateData, this->ConstPrivateData );
-    }
+  }
   else
-    {
+  {
     // Do the subdivision
     double* vertices[10] =
     {
@@ -600,15 +600,15 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
 
     // 1. Permute the tetrahedron into our canonical configuration
     for ( i=0; i<4; ++i )
-      {
+    {
       permuted[i] = vertices[ vtkStreamingTessellator::PermutationsFromIndex[P][i] ];
-      }
+    }
     for ( i=4; i<10; ++i )
-      {
+    {
       // permute the edge lengths, too
       permuted[i] = vertices[ vtkStreamingTessellator::PermutationsFromIndex[P][i] ];
       permlen[i-4]  = edgeLength2[ vtkStreamingTessellator::PermutationsFromIndex[P][i] - 4 ];
-      }
+    }
     // Add our local (heap) storage for face points to the list.
     permuted[10] = facept0;
     permuted[11] = facept1;
@@ -624,7 +624,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
     // 2. Generate tetrahedra based on the configuration.
     //    Note that case 0 is handled above (edgeCode == 0).
     switch (C)
-      {
+    {
 
     case 1: // Ruprecht-Müller Case 1
       VTK_TESSELLATOR_INCR_CASE_COUNT(0);
@@ -638,20 +638,20 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         (permlen[0] <= permlen[1] ? 1 : 0) | (permlen[0] >= permlen[1] ? 2 : 0) |
         0;
       if ( (comparisonBits & 3) == 3 )
-        {
+      {
         // Compute face point
         for ( i=0; i<this->PointDimension[3]; i++ )
-          {
+        {
           permuted[10][i] = (permuted[0][i] + permuted[2][i])*0.375 + permuted[1][i]/4.;
-          }
         }
+      }
       VTK_TESSELLATOR_INCR_CASE_COUNT(1);
       outputTets.push( vtkStreamingTessellator::TetrahedralDecompositions + 9 );
       outputPerm.push( vtkStreamingTessellator::PermutationsFromIndex[0] );
       outputSign.push( 1 );
       VTK_TESSELLATOR_INCR_SUBCASE_COUNT(1,0);
       switch (comparisonBits)
-        {
+      {
         case 2: // 0>1
           outputTets.push( vtkStreamingTessellator::TetrahedralDecompositions + 14 );
           outputPerm.push( vtkStreamingTessellator::PermutationsFromIndex[0] );
@@ -670,7 +670,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
           outputSign.push( 1 );
           VTK_TESSELLATOR_INCR_SUBCASE_COUNT(1,3);
           break;
-        }
+      }
       break;
     case 3: // Ruprecht-Müller Case 2b
       VTK_TESSELLATOR_INCR_CASE_COUNT(2);
@@ -686,36 +686,36 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         (permlen[2] <= permlen[3] ? 16 : 0) | (permlen[2] >= permlen[3] ? 32 : 0) |
         0;
       if ( (comparisonBits & 3) == 3 )
-        {
+      {
         // Compute face point
         for ( i=0; i<this->PointDimension[3]; i++ )
-          {
+        {
           permuted[10][i] = (permuted[1][i] + permuted[2][i])*0.375 + permuted[0][i]/4.;
-          }
         }
+      }
       if ( (comparisonBits & 12) == 12 )
-        {
+      {
         // Compute face point
         for ( i=0; i<this->PointDimension[3]; i++ )
-          {
+        {
           permuted[11][i] = (permuted[1][i] + permuted[3][i])*0.375 + permuted[0][i]/4.;
-          }
         }
+      }
       if ( (comparisonBits & 48) == 48 )
-        {
+      {
         // Compute face point
         for ( i=0; i<this->PointDimension[3]; i++ )
-          {
+        {
           permuted[13][i] = (permuted[2][i] + permuted[3][i])*0.375 + permuted[0][i]/4.;
-          }
         }
+      }
       VTK_TESSELLATOR_INCR_CASE_COUNT(3);
       outputTets.push( vtkStreamingTessellator::TetrahedralDecompositions + 66 );
       outputPerm.push( vtkStreamingTessellator::PermutationsFromIndex[0] );
       outputSign.push( 1 );
       VTK_TESSELLATOR_INCR_SUBCASE_COUNT(3,0);
       switch (comparisonBits)
-        {
+      {
         case 42: // 0>2>3<0
           outputTets.push( vtkStreamingTessellator::TetrahedralDecompositions + 71 );
           outputPerm.push( vtkStreamingTessellator::PermutationsFromIndex[0] );
@@ -794,7 +794,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
           outputSign.push( 1 );
           VTK_TESSELLATOR_INCR_SUBCASE_COUNT(3,13);
           break;
-        }
+      }
       break;
     case 5: // Ruprecht-Müller Case 3b
       VTK_TESSELLATOR_INCR_CASE_COUNT(4);
@@ -809,24 +809,24 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         (permlen[0] <= permlen[1] ? 4 : 0) | (permlen[0] >= permlen[1] ? 8 : 0) |
         0;
       if ( (comparisonBits & 3) == 3 )
-        {
+      {
         // Compute face point
         for ( i=0; i<this->PointDimension[3]; i++ )
-          {
+        {
           permuted[11][i] = (permuted[1][i] + permuted[3][i])*0.375 + permuted[0][i]/4.;
-          }
         }
+      }
       if ( (comparisonBits & 12) == 12 )
-        {
+      {
         // Compute face point
         for ( i=0; i<this->PointDimension[3]; i++ )
-          {
+        {
           permuted[10][i] = (permuted[0][i] + permuted[2][i])*0.375 + permuted[1][i]/4.;
-          }
         }
+      }
       VTK_TESSELLATOR_INCR_CASE_COUNT(5);
       switch (comparisonBits)
-        {
+      {
         case 10: // 0>1,0>3
           outputTets.push( vtkStreamingTessellator::TetrahedralDecompositions + 188 );
           outputPerm.push( vtkStreamingTessellator::PermutationsFromIndex[0] );
@@ -881,7 +881,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
           outputSign.push( 1 );
           VTK_TESSELLATOR_INCR_SUBCASE_COUNT(5,8);
           break;
-        }
+      }
       break;
     case 7: // Ruprecht-Müller Case 3d
       comparisonBits =
@@ -889,24 +889,24 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         (permlen[0] <= permlen[4] ? 4 : 0) | (permlen[0] >= permlen[4] ? 8 : 0) |
         0;
       if ( (comparisonBits & 3) == 3 )
-        {
+      {
         // Compute face point
         for ( i=0; i<this->PointDimension[3]; i++ )
-          {
+        {
           permuted[10][i] = (permuted[1][i] + permuted[2][i])*0.375 + permuted[0][i]/4.;
-          }
         }
+      }
       if ( (comparisonBits & 12) == 12 )
-        {
+      {
         // Compute face point
         for ( i=0; i<this->PointDimension[3]; i++ )
-          {
+        {
           permuted[11][i] = (permuted[0][i] + permuted[3][i])*0.375 + permuted[1][i]/4.;
-          }
         }
+      }
       VTK_TESSELLATOR_INCR_CASE_COUNT(6);
       switch (comparisonBits)
-        {
+      {
         case 10: // 0>4,0>2
           outputTets.push( vtkStreamingTessellator::TetrahedralDecompositions + 371 );
           outputPerm.push( vtkStreamingTessellator::PermutationsFromIndex[0] );
@@ -961,7 +961,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
           outputSign.push( 1 );
           VTK_TESSELLATOR_INCR_SUBCASE_COUNT(6,8);
           break;
-        }
+      }
       break;
     case 8: // Ruprecht-Müller Case 4a
       comparisonBits =
@@ -969,28 +969,28 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         (permlen[3] <= permlen[4] ? 4 : 0) | (permlen[3] >= permlen[4] ? 8 : 0) |
         0;
       if ( (comparisonBits & 3) == 3 )
-        {
+      {
         // Compute face point
         for ( i=0; i<this->PointDimension[3]; i++ )
-          {
+        {
           permuted[12][i] = (permuted[1][i] + permuted[2][i])*0.375 + permuted[3][i]/4.;
-          }
         }
+      }
       if ( (comparisonBits & 12) == 12 )
-        {
+      {
         // Compute face point
         for ( i=0; i<this->PointDimension[3]; i++ )
-          {
+        {
           permuted[11][i] = (permuted[0][i] + permuted[1][i])*0.375 + permuted[3][i]/4.;
-          }
         }
+      }
       VTK_TESSELLATOR_INCR_CASE_COUNT(7);
       outputTets.push( vtkStreamingTessellator::TetrahedralDecompositions + 554 );
       outputPerm.push( vtkStreamingTessellator::PermutationsFromIndex[0] );
       outputSign.push( 1 );
       VTK_TESSELLATOR_INCR_SUBCASE_COUNT(7,0);
       switch (comparisonBits)
-        {
+      {
         case 5: // 5>4>3
           outputTets.push( vtkStreamingTessellator::TetrahedralDecompositions + 563 );
           outputPerm.push( vtkStreamingTessellator::PermutationsFromIndex[0] );
@@ -1045,7 +1045,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
           outputSign.push( 1 );
           VTK_TESSELLATOR_INCR_SUBCASE_COUNT(7,9);
           break;
-        }
+      }
       break;
     case 9: // Ruprecht-Müller Case 4b
       comparisonBits =
@@ -1055,40 +1055,40 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         (permlen[3] <= permlen[4] ? 64 : 0) | (permlen[3] >= permlen[4] ? 128 : 0) |
         0;
       if ( (comparisonBits & 3) == 3 )
-        {
+      {
         // Compute face point
         for ( i=0; i<this->PointDimension[3]; i++ )
-          {
+        {
           permuted[13][i] = (permuted[2][i] + permuted[3][i])*0.375 + permuted[0][i]/4.;
-          }
         }
+      }
       if ( (comparisonBits & 12) == 12 )
-        {
+      {
         // Compute face point
         for ( i=0; i<this->PointDimension[3]; i++ )
-          {
+        {
           permuted[10][i] = (permuted[1][i] + permuted[0][i])*0.375 + permuted[2][i]/4.;
-          }
         }
+      }
       if ( (comparisonBits & 48) == 48 )
-        {
+      {
         // Compute face point
         for ( i=0; i<this->PointDimension[3]; i++ )
-          {
+        {
           permuted[12][i] = (permuted[2][i] + permuted[3][i])*0.375 + permuted[1][i]/4.;
-          }
         }
+      }
       if ( (comparisonBits & 192) == 192 )
-        {
+      {
         // Compute face point
         for ( i=0; i<this->PointDimension[3]; i++ )
-          {
+        {
           permuted[11][i] = (permuted[0][i] + permuted[1][i])*0.375 + permuted[3][i]/4.;
-          }
         }
+      }
       VTK_TESSELLATOR_INCR_CASE_COUNT(8);
       switch (comparisonBits)
-        {
+      {
         case 85: // 2>1,3>2,4>3,4>1
           outputTets.push( vtkStreamingTessellator::TetrahedralDecompositions + 697 );
           outputPerm.push( vtkStreamingTessellator::PermutationsFromIndex[0] );
@@ -1395,7 +1395,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
           outputSign.push( 1 );
           VTK_TESSELLATOR_INCR_SUBCASE_COUNT(8,50);
           break;
-        }
+      }
       break;
     case 10: // Ruprecht-Müller Case 5
       comparisonBits =
@@ -1403,28 +1403,28 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         (permlen[3] <= permlen[4] ? 4 : 0) | (permlen[3] >= permlen[4] ? 8 : 0) |
         0;
       if ( (comparisonBits & 3) == 3 )
-        {
+      {
         // Compute face point
         for ( i=0; i<this->PointDimension[3]; i++ )
-          {
+        {
           permuted[10][i] = (permuted[1][i] + permuted[0][i])*0.375 + permuted[2][i]/4.;
-          }
         }
+      }
       if ( (comparisonBits & 12) == 12 )
-        {
+      {
         // Compute face point
         for ( i=0; i<this->PointDimension[3]; i++ )
-          {
+        {
           permuted[11][i] = (permuted[0][i] + permuted[1][i])*0.375 + permuted[3][i]/4.;
-          }
         }
+      }
       VTK_TESSELLATOR_INCR_CASE_COUNT(9);
       outputTets.push( vtkStreamingTessellator::TetrahedralDecompositions + 1091 );
       outputPerm.push( vtkStreamingTessellator::PermutationsFromIndex[0] );
       outputSign.push( 1 );
       VTK_TESSELLATOR_INCR_SUBCASE_COUNT(9,0);
       switch (comparisonBits)
-        {
+      {
         case 10: // 1>2,3>4
           outputTets.push( vtkStreamingTessellator::TetrahedralDecompositions + 1100 );
           outputPerm.push( vtkStreamingTessellator::PermutationsFromIndex[0] );
@@ -1479,7 +1479,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
           outputSign.push( 1 );
           VTK_TESSELLATOR_INCR_SUBCASE_COUNT(9,9);
           break;
-        }
+      }
       break;
     case 11: // Ruprecht-Müller Case 6
       VTK_TESSELLATOR_INCR_CASE_COUNT(10);
@@ -1492,7 +1492,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
       outputSign.push( 1 );
       VTK_TESSELLATOR_INCR_SUBCASE_COUNT(10,1);
       break;
-      }
+    }
 
     vtkIdType* tets;
     vtkIdType  ntets;
@@ -1505,7 +1505,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
     }
 #endif // PARAVIEW_DEBUG_TESSELLATOR
     while ( ! outputTets.empty() )
-      {
+    {
       tets = outputTets.top();
       ntets = *tets;
       tets++;
@@ -1518,31 +1518,31 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
 
       int t;
       if ( sgn > 0 )
-        {
+      {
         for ( t = 0; t < ntets; ++t )
-          {
+        {
           this->AdaptivelySample3Facet(
             permuted[ perm[ tets[0] ] ], permuted[ perm[ tets[1] ] ],
             permuted[ perm[ tets[2] ] ], permuted[ perm[ tets[3] ] ],
             maxDepth );
           tets += 4;
-          }
         }
+      }
       else
-        {
+      {
         // we have an inverted tet... reverse the first 2 vertices
         // so the orientation is positive.
         for ( t = 0; t < ntets; ++t )
-          {
+        {
           this->AdaptivelySample3Facet(
             permuted[ perm[ tets[1] ] ], permuted[ perm[ tets[0] ] ],
             permuted[ perm[ tets[2] ] ], permuted[ perm[ tets[3] ] ],
             maxDepth );
           tets += 4;
-          }
         }
       }
     }
+  }
 }
 
 

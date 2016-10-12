@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInformationStringVectorKey - Key for String vector values.
-// .SECTION Description
-// vtkInformationStringVectorKey is used to represent keys for String
-// vector values in vtkInformation.h
+/**
+ * @class   vtkInformationStringVectorKey
+ * @brief   Key for String vector values.
+ *
+ * vtkInformationStringVectorKey is used to represent keys for String
+ * vector values in vtkInformation.h
+*/
 
 #ifndef vtkInformationStringVectorKey_h
 #define vtkInformationStringVectorKey_h
@@ -25,51 +28,61 @@
 
 #include "vtkCommonInformationKeyManager.h" // Manage instances of this type.
 
+#include <string> // for std::string compat
+
 class VTKCOMMONCORE_EXPORT vtkInformationStringVectorKey : public vtkInformationKey
 {
 public:
   vtkTypeMacro(vtkInformationStringVectorKey,vtkInformationKey);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkInformationStringVectorKey(const char* name, const char* location,
                                  int length=-1);
-  ~vtkInformationStringVectorKey();
+  ~vtkInformationStringVectorKey() VTK_OVERRIDE;
 
-  // Description:
-  // This method simply returns a new vtkInformationStringVectorKey, given a
-  // name, a location and a required length. This method is provided for
-  // wrappers. Use the constructor directly from C++ instead.
+  /**
+   * This method simply returns a new vtkInformationStringVectorKey, given a
+   * name, a location and a required length. This method is provided for
+   * wrappers. Use the constructor directly from C++ instead.
+   */
   static vtkInformationStringVectorKey* MakeKey(const char* name, const char* location,
     int length=-1)
-    {
+  {
     return new vtkInformationStringVectorKey(name, location, length);
-    }
+  }
 
-  // Description:
-  // Get/Set the value associated with this key in the given
-  // information object.
+  //@{
+  /**
+   * Get/Set the value associated with this key in the given
+   * information object.
+   */
   void Append(vtkInformation* info, const char* value);
   void Set(vtkInformation* info, const char* value, int idx = 0);
+  void Append(vtkInformation* info, const std::string &value);
+  void Set(vtkInformation* info, const std::string &value, int idx = 0);
   const char* Get(vtkInformation* info, int idx = 0);
   int Length(vtkInformation* info);
+  //@}
 
-  // Description:
-  // Copy the entry associated with this key from one information
-  // object to another.  If there is no entry in the first information
-  // object for this key, the value is removed from the second.
-  virtual void ShallowCopy(vtkInformation* from, vtkInformation* to);
+  /**
+   * Copy the entry associated with this key from one information
+   * object to another.  If there is no entry in the first information
+   * object for this key, the value is removed from the second.
+   */
+  void ShallowCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
 
-  // Description:
-  // Print the key's value in an information object to a stream.
-  virtual void Print(ostream& os, vtkInformation* info);
+  /**
+   * Print the key's value in an information object to a stream.
+   */
+  void Print(ostream& os, vtkInformation* info) VTK_OVERRIDE;
 
 protected:
   // The required length of the vector value (-1 is no restriction).
   int RequiredLength;
 
 private:
-  vtkInformationStringVectorKey(const vtkInformationStringVectorKey&);  // Not implemented.
-  void operator=(const vtkInformationStringVectorKey&);  // Not implemented.
+  vtkInformationStringVectorKey(const vtkInformationStringVectorKey&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInformationStringVectorKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

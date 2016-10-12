@@ -44,14 +44,14 @@ vtkProp3DFollower::vtkProp3DFollower()
 vtkProp3DFollower::~vtkProp3DFollower()
 {
   if (this->Camera)
-    {
+  {
     this->Camera->UnRegister(this);
-    }
+  }
 
   if (this->Device)
-    {
+  {
     this->Device->Delete();
-    }
+  }
 
   this->InternalMatrix->Delete();
 }
@@ -60,18 +60,18 @@ vtkProp3DFollower::~vtkProp3DFollower()
 void vtkProp3DFollower::SetProp3D(vtkProp3D *prop)
 {
   if (this->Device != prop)
-    {
+  {
     if ( this->Device != NULL )
-      {
+    {
       this->Device->Delete();
-      }
+    }
     this->Device = prop;
     if ( this->Device != NULL )
-      {
+    {
       this->Device->Register(this);
-      }
-    this->Modified();
     }
+    this->Modified();
+  }
 }
 
 
@@ -87,7 +87,7 @@ void vtkProp3DFollower::ComputeMatrix()
 {
   if ( this->GetMTime() > this->MatrixMTime ||
        (this->Camera && this->Camera->GetMTime() > this->MatrixMTime) )
-    {
+  {
     this->GetOrientation();
     this->Transform->Push();
     this->Transform->Identity();
@@ -107,7 +107,7 @@ void vtkProp3DFollower::ComputeMatrix()
     this->Transform->RotateZ(this->Orientation[2]);
 
     if (this->Camera)
-      {
+    {
       double *pos, *vup, distance;
       double Rx[3], Ry[3], Rz[3];
 
@@ -120,23 +120,23 @@ void vtkProp3DFollower::ComputeMatrix()
       vup = this->Camera->GetViewUp();
 
       if (this->Camera->GetParallelProjection())
-        {
+      {
         this->Camera->GetDirectionOfProjection(Rz);
         Rz[0] = -Rz[0];
         Rz[1] = -Rz[1];
         Rz[2] = -Rz[2];
-        }
+      }
       else
-        {
+      {
         distance = sqrt(
           (pos[0] - this->Position[0])*(pos[0] - this->Position[0]) +
           (pos[1] - this->Position[1])*(pos[1] - this->Position[1]) +
           (pos[2] - this->Position[2])*(pos[2] - this->Position[2]));
         for (int i = 0; i < 3; i++)
-          {
+        {
           Rz[i] = (pos[i] - this->Position[i])/distance;
-          }
         }
+      }
 
       //instead use the view right angle:
       double dop[3], vur[3];
@@ -160,7 +160,7 @@ void vtkProp3DFollower::ComputeMatrix()
       matrix->Element[2][2] = Rz[2];
 
       this->Transform->Concatenate(matrix);
-      }
+    }
 
     // translate to projection reference point PRP
     // this is the camera's position blasted through
@@ -171,30 +171,30 @@ void vtkProp3DFollower::ComputeMatrix()
 
     // apply user defined matrix last if there is one
     if (this->UserMatrix)
-      {
+    {
       this->Transform->Concatenate(this->UserMatrix);
-      }
+    }
 
     this->Transform->PreMultiply();
     this->Transform->GetMatrix(this->Matrix);
     this->MatrixMTime.Modified();
     this->Transform->Pop();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 double *vtkProp3DFollower::GetBounds()
 {
   if ( this->Device )
-    {
+  {
     this->ComputeMatrix();
     this->Device->SetUserMatrix(this->Matrix);
     return this->Device->GetBounds();
-    }
+  }
   else
-    {
+  {
     return NULL;
-    }
+  }
 }
 
 
@@ -202,9 +202,9 @@ double *vtkProp3DFollower::GetBounds()
 void vtkProp3DFollower::ReleaseGraphicsResources(vtkWindow *w)
 {
   if ( this->Device )
-    {
+  {
     this->Device->ReleaseGraphicsResources(w);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -213,28 +213,28 @@ void vtkProp3DFollower::ReleaseGraphicsResources(vtkWindow *w)
 int vtkProp3DFollower::HasTranslucentPolygonalGeometry()
 {
   if ( this->Device )
-    {
+  {
     return this->Device->HasTranslucentPolygonalGeometry();
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------
 int vtkProp3DFollower::RenderOpaqueGeometry(vtkViewport *vp)
 {
   if ( this->Device )
-    {
+  {
     this->ComputeMatrix();
     this->Device->SetUserMatrix(this->Matrix);
 
     if (this->GetVisibility())
-      {
+    {
       return this->Device->RenderOpaqueGeometry(vp);
-      }
     }
+  }
   return 0;
 }
 
@@ -242,14 +242,14 @@ int vtkProp3DFollower::RenderOpaqueGeometry(vtkViewport *vp)
 int vtkProp3DFollower::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
 {
   if ( this->Device )
-    {
+  {
     this->ComputeMatrix();
     this->Device->SetUserMatrix(this->Matrix);
     if (this->GetVisibility())
-      {
+    {
       return this->Device->RenderTranslucentPolygonalGeometry(vp);
-      }
     }
+  }
   return 0;
 }
 
@@ -257,14 +257,14 @@ int vtkProp3DFollower::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
 int vtkProp3DFollower::RenderVolumetricGeometry(vtkViewport *vp)
 {
   if ( this->Device )
-    {
+  {
     this->ComputeMatrix();
     this->Device->SetUserMatrix(this->Matrix);
     if (this->GetVisibility())
-      {
+    {
       return this->Device->RenderVolumetricGeometry(vp);
-      }
     }
+  }
   return 0;
 }
 
@@ -273,9 +273,9 @@ void vtkProp3DFollower::ShallowCopy(vtkProp *prop)
 {
   vtkProp3DFollower *f = vtkProp3DFollower::SafeDownCast(prop);
   if ( f != NULL )
-    {
+  {
     this->SetCamera(f->GetCamera());
-    }
+  }
 
   // Now do superclass
   this->vtkProp3D::ShallowCopy(prop);
@@ -285,22 +285,22 @@ void vtkProp3DFollower::ShallowCopy(vtkProp *prop)
 void vtkProp3DFollower::InitPathTraversal()
 {
   if ( this->Device )
-    {
+  {
     this->Device->InitPathTraversal();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 vtkAssemblyPath *vtkProp3DFollower::GetNextPath()
 {
   if ( this->Device )
-    {
+  {
     return this->Device->GetNextPath();
-    }
+  }
   else
-    {
+  {
     return NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -309,12 +309,12 @@ void vtkProp3DFollower::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->Camera )
-    {
+  {
     os << indent << "Camera:\n";
     this->Camera->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Camera: (none)\n";
-    }
+  }
 }

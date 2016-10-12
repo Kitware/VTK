@@ -78,21 +78,21 @@ int TestGPURayCastMapperSampleDistance(int argc, char* argv[])
                                               volumeProperty.GetPointer());
   int retVal;
   if (valid)
-    {
+  {
     renderWindow->Render();
     iren->Initialize();
 
     retVal = vtkRegressionTestImage( renderWindow.GetPointer() );
     if( retVal == vtkRegressionTester::DO_INTERACTOR)
-      {
-      iren->Start();
-      }
-    }
-  else
     {
+      iren->Start();
+    }
+  }
+  else
+  {
     retVal = vtkTesting::PASSED;
     cout << "Required extensions not supported." << endl;
-    }
+  }
 
   return !((retVal == vtkTesting::PASSED) ||
            (retVal == vtkTesting::DO_INTERACTOR));

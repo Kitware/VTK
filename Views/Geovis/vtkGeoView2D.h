@@ -17,25 +17,28 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGeoView2D - A 2D geospatial view.
-//
-// .SECTION Description
-// vtkGeoView is a 2D globe view. The globe may contain a multi-resolution
-// geometry source (vtkGeoTerrain2D), multiple multi-resolution image sources
-// (vtkGeoAlignedImageRepresentation), as well as other representations such
-// as vtkGeoGraphRepresentation2D. At a minimum, the view must have a terrain
-// and one image representation. By default, you may select in the view with
-// the left mouse button, pan with the middle button, and zoom with the right
-// mouse button or scroll wheel.
-//
-// Each terrain or image representation contains a vtkGeoSource subclass which
-// generates geometry or imagery at multiple resolutions. As the camera
-// position changes, the terrain and/or image representations may ask its
-// vtkGeoSource to refine the geometry. This refinement is performed on a
-// separate thread, and the data is added to the view when it becomes available.
-//
-// .SECTION See Also
-// vtkGeoTerrain2D vtkGeoAlignedImageRepresentation vtkGeoSource
+/**
+ * @class   vtkGeoView2D
+ * @brief   A 2D geospatial view.
+ *
+ *
+ * vtkGeoView is a 2D globe view. The globe may contain a multi-resolution
+ * geometry source (vtkGeoTerrain2D), multiple multi-resolution image sources
+ * (vtkGeoAlignedImageRepresentation), as well as other representations such
+ * as vtkGeoGraphRepresentation2D. At a minimum, the view must have a terrain
+ * and one image representation. By default, you may select in the view with
+ * the left mouse button, pan with the middle button, and zoom with the right
+ * mouse button or scroll wheel.
+ *
+ * Each terrain or image representation contains a vtkGeoSource subclass which
+ * generates geometry or imagery at multiple resolutions. As the camera
+ * position changes, the terrain and/or image representations may ask its
+ * vtkGeoSource to refine the geometry. This refinement is performed on a
+ * separate thread, and the data is added to the view when it becomes available.
+ *
+ * @sa
+ * vtkGeoTerrain2D vtkGeoAlignedImageRepresentation vtkGeoSource
+*/
 
 #ifndef vtkGeoView2D_h
 #define vtkGeoView2D_h
@@ -60,16 +63,19 @@ public:
   vtkGetObjectMacro(Surface, vtkGeoTerrain2D);
   virtual void SetSurface(vtkGeoTerrain2D* surf);
 
-  // Description:
-  // Returns the transform associated with the surface.
+  /**
+   * Returns the transform associated with the surface.
+   */
   virtual vtkAbstractTransform* GetTransform();
 
-  // Description:
-  // Apply the view theme to this view.
+  /**
+   * Apply the view theme to this view.
+   */
   virtual void ApplyViewTheme(vtkViewTheme* theme);
 
-  // Description:
-  // Update and render the view.
+  /**
+   * Update and render the view.
+   */
   virtual void Render();
 
 protected:
@@ -79,8 +85,8 @@ protected:
   virtual void PrepareForRendering();
 
 private:
-  vtkGeoView2D(const vtkGeoView2D&); // Not implemented
-  void operator=(const vtkGeoView2D&); // Not implemented
+  vtkGeoView2D(const vtkGeoView2D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoView2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

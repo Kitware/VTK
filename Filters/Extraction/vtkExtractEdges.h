@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractEdges - extract cell edges from any type of data
-// .SECTION Description
-// vtkExtractEdges is a filter to extract edges from a dataset. Edges
-// are extracted as lines or polylines.
-
-// .SECTION See Also
-// vtkFeatureEdges
+/**
+ * @class   vtkExtractEdges
+ * @brief   extract cell edges from any type of data
+ *
+ * vtkExtractEdges is a filter to extract edges from a dataset. Edges
+ * are extracted as lines or polylines.
+ *
+ * @sa
+ * vtkFeatureEdges
+*/
 
 #ifndef vtkExtractEdges_h
 #define vtkExtractEdges_h
@@ -35,19 +38,24 @@ public:
   vtkTypeMacro(vtkExtractEdges,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set / get a spatial locator for merging points. By
-  // default an instance of vtkMergePoints is used.
+  //@{
+  /**
+   * Set / get a spatial locator for merging points. By
+   * default an instance of vtkMergePoints is used.
+   */
   void SetLocator(vtkIncrementalPointLocator *locator);
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
+  //@}
 
-  // Description:
-  // Create default locator. Used to create one when none is specified.
+  /**
+   * Create default locator. Used to create one when none is specified.
+   */
   void CreateDefaultLocator();
 
-  // Description:
-  // Return MTime also considering the locator.
-  unsigned long GetMTime();
+  /**
+   * Return MTime also considering the locator.
+   */
+  vtkMTimeType GetMTime();
 
 protected:
   vtkExtractEdges();
@@ -60,8 +68,8 @@ protected:
 
   vtkIncrementalPointLocator *Locator;
 private:
-  vtkExtractEdges(const vtkExtractEdges&);  // Not implemented.
-  void operator=(const vtkExtractEdges&);  // Not implemented.
+  vtkExtractEdges(const vtkExtractEdges&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExtractEdges&) VTK_DELETE_FUNCTION;
 };
 
 #endif

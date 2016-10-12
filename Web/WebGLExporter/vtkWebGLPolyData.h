@@ -12,9 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWebGLPolyData
-// .SECTION Description
-// PolyData representation for WebGL.
+/**
+ * @class   vtkWebGLPolyData
+ *
+ * PolyData representation for WebGL.
+*/
 
 #ifndef vtkWebGLPolyData_h
 #define vtkWebGLPolyData_h
@@ -62,10 +64,8 @@ protected:
   ~vtkWebGLPolyData();
 
 private:
-  vtkWebGLPolyData(const vtkWebGLPolyData&); // Not implemented
-  void operator=(const vtkWebGLPolyData&);   // Not implemented
-
-  vtkTriangleFilter* TriangleFilter;
+  vtkWebGLPolyData(const vtkWebGLPolyData&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWebGLPolyData&) VTK_DELETE_FUNCTION;
 
   class vtkInternal;
   vtkInternal* Internal;

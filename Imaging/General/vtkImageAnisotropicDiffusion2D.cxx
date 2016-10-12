@@ -55,31 +55,31 @@ vtkImageAnisotropicDiffusion2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Faces: " << this->Faces << "\n";
 
   if (this->Edges)
-    {
+  {
     os << indent << "Edges: On\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Edges: Off\n";
-    }
+  }
 
   if (this->Corners)
-    {
+  {
     os << indent << "Corners: On\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Corners: Off\n";
-    }
+  }
 
   if (this->GradientMagnitudeThreshold)
-    {
+  {
     os << indent << "GradientMagnitudeThreshold: On\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "GradientMagnitudeThreshold: Off\n";
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -91,9 +91,9 @@ void vtkImageAnisotropicDiffusion2D::SetNumberOfIterations(int num)
 
   vtkDebugMacro(<< "SetNumberOfIterations: " << num);
   if (this->NumberOfIterations == num)
-    {
+  {
     return;
-    }
+  }
 
   this->Modified();
   temp = num*2 + 1;
@@ -128,13 +128,13 @@ void vtkImageAnisotropicDiffusion2D::ThreadedRequestData(
 
   // this filter expects that input is the same type as output.
   if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
-    {
+  {
     vtkErrorMacro("Execute: input ScalarType, "
                   << inData[0][0]->GetScalarType()
                   << ", must match out ScalarType "
                   << outData[0]->GetScalarType());
     return;
-    }
+  }
 
   ar = inData[0][0]->GetSpacing();
 
@@ -155,17 +155,17 @@ void vtkImageAnisotropicDiffusion2D::ThreadedRequestData(
   // (but never get smaller than output region).
   for (idx = this->NumberOfIterations - 1;
        !this->AbortExecute && idx >= 0; --idx)
-    {
+  {
     if (!id)
-      {
+    {
       this->UpdateProgress(static_cast<double>(this->NumberOfIterations - idx)
                            /this->NumberOfIterations);
-      }
+    }
     this->Iterate(in, out, ar[0], ar[1], outExt, idx);
     temp = in;
     in = out;
     out = temp;
-    }
+  }
 
   // copy results into output.
   outData[0]->CopyAndCastFrom(in,outExt);
@@ -205,35 +205,35 @@ void vtkImageAnisotropicDiffusion2D::Iterate(vtkImageData *inData,
   // Compute direction specific diffusion thresholds and factors.
   sum = 0.0;
   if (this->Edges)
-    {
+  {
     th0 = ar0 * this->DiffusionThreshold;
     df0 = 1.0 / ar0;
     th1 = ar1 * this->DiffusionThreshold;
     df1 = 1.0 / ar1;
     // two edges per direction.
     sum += 2.0 * (df0 + df1);
-    }
+  }
   if (this->Corners)
-    {
+  {
     temp = sqrt(ar0*ar0 + ar1*ar1);
     th01 = temp * this->DiffusionThreshold;
     df01 = 1 / temp;
     // four corners per plane
     sum += 4 * (df01);
-    }
+  }
 
   if (sum > 0.0)
-    {
+  {
     temp = this->DiffusionFactor / sum;
     df0 *= temp;
     df1 *= temp;
     df01 *= temp;
-    }
+  }
   else
-    {
+  {
     vtkWarningMacro(<< "Iterate: NO NEIGHBORS");
     return;
-    }
+  }
 
   // Compute the shrinking extent to loop over.
   min0 = coreExtent[0] - count;
@@ -256,7 +256,7 @@ void vtkImageAnisotropicDiffusion2D::Iterate(vtkImageData *inData,
   max2 = inMax2;
 
   for (idxC = 0; idxC < maxC; idxC++)
-    {
+  {
     inPtr2 = static_cast<double *>(inData->GetScalarPointer(min0, min1, min2));
     outPtr2 =
       static_cast<double *>(outData->GetScalarPointer(min0, min1, min2));
@@ -264,21 +264,21 @@ void vtkImageAnisotropicDiffusion2D::Iterate(vtkImageData *inData,
     outPtr2 += idxC;
 
     for (idx2 = min2; idx2 <= max2; ++idx2, inPtr2+=inInc2, outPtr2+=outInc2)
-      {
+    {
       inPtr1 = inPtr2;
       outPtr1 = outPtr2;
       for (idx1 = min1; idx1 <= max1; ++idx1, inPtr1+=inInc1, outPtr1+=outInc1)
-        {
+      {
         inPtr0 = inPtr1;
         outPtr0 = outPtr1;
         for (idx0 = min0; idx0 <= max0; ++idx0, inPtr0+=inInc0, outPtr0+=outInc0)
-          {
+        {
           // Copy center
           *outPtr0 = *inPtr0;
 
           // Special case for gradient magnitude threhsold
           if (this->GradientMagnitudeThreshold)
-            {
+          {
             double d0, d1;
             // compute the gradient magnitude (central differences).
             d0  = (idx0 != inMax0) ? inPtr0[inInc0] : *inPtr0;
@@ -290,99 +290,99 @@ void vtkImageAnisotropicDiffusion2D::Iterate(vtkImageData *inData,
             // If magnitude is big, don't diffuse.
             d0 = sqrt(d0*d0 + d1*d1);
             if (d0 > this->DiffusionThreshold)
-              {
+            {
               // hack to not diffuse
               th0 = th1 = th01 = 0.0;
-              }
+            }
             else
-              {
+            {
               // hack to diffuse
               th0 = th1 = th01 = VTK_DOUBLE_MAX;
-              }
             }
+          }
 
           // Start diffusing
           if (this->Edges)
-            {
+          {
             // left
             if (idx0 != inMin0)
-              {
+            {
               temp = inPtr0[-inInc0] - *inPtr0;
               if (fabs(temp) < th0)
-                {
+              {
                 *outPtr0 += temp * df0;
-                }
-              }
-            // right
-            if (idx0 != inMax0)
-              {
-              temp = inPtr0[inInc0] - *inPtr0;
-              if (fabs(temp) < th0)
-                {
-                *outPtr0 += temp * df0;
-                }
-              }
-            // up
-            if (idx1 != inMin1)
-              {
-              temp = inPtr0[-inInc1] - *inPtr0;
-              if (fabs(temp) < th1)
-                {
-                *outPtr0 += temp * df1;
-                }
-              }
-            // down
-            if (idx1 != inMax1)
-              {
-              temp = inPtr0[inInc1] - *inPtr0;
-              if (fabs(temp) < th1)
-                {
-                *outPtr0 += temp * df1;
-                }
               }
             }
+            // right
+            if (idx0 != inMax0)
+            {
+              temp = inPtr0[inInc0] - *inPtr0;
+              if (fabs(temp) < th0)
+              {
+                *outPtr0 += temp * df0;
+              }
+            }
+            // up
+            if (idx1 != inMin1)
+            {
+              temp = inPtr0[-inInc1] - *inPtr0;
+              if (fabs(temp) < th1)
+              {
+                *outPtr0 += temp * df1;
+              }
+            }
+            // down
+            if (idx1 != inMax1)
+            {
+              temp = inPtr0[inInc1] - *inPtr0;
+              if (fabs(temp) < th1)
+              {
+                *outPtr0 += temp * df1;
+              }
+            }
+          }
 
           if (this->Corners)
-            {
+          {
             // left up
             if (idx0 != inMin0 && idx1 != inMin1)
-              {
+            {
               temp = inPtr0[-inInc0-inInc1] - *inPtr0;
               if (fabs(temp) < th01)
-                {
+              {
                 *outPtr0 += temp * df01;
-                }
               }
+            }
             // right up
             if (idx0 != inMax0 && idx1 != inMin1)
-              {
+            {
               temp = inPtr0[inInc0-inInc1] - *inPtr0;
               if (fabs(temp) < th01)
-                {
+              {
                 *outPtr0 += temp * df01;
-                }
               }
+            }
             // left down
             if (idx0 != inMin0 && idx1 != inMax1)
-              {
+            {
               temp = inPtr0[-inInc0+inInc1] - *inPtr0;
               if (fabs(temp) < th01)
-                {
+              {
                 *outPtr0 += temp * df01;
-                }
               }
+            }
             // right down
             if (idx0 != inMax0 && idx1 != inMax1)
-              {
+            {
               temp = inPtr0[inInc0+inInc1] - *inPtr0;
               if (fabs(temp) < th01)
-                {
+              {
                 *outPtr0 += temp * df01;
-                }
               }
             }
           }
         }
       }
     }
+  }
 }

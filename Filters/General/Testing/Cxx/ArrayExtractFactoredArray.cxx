@@ -37,7 +37,7 @@
 int ArrayExtractFactoredArray(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     vtkSmartPointer<vtkSparseArray<double> > a = vtkSmartPointer<vtkSparseArray<double> >::New();
     vtkSmartPointer<vtkSparseArray<double> > b = vtkSmartPointer<vtkSparseArray<double> >::New();
 
@@ -57,11 +57,11 @@ int ArrayExtractFactoredArray(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(extract->GetOutput()->GetArray(static_cast<vtkIdType>(0)) == b.GetPointer());
 
     return EXIT_SUCCESS;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     std::cout << e.what() << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 }
 

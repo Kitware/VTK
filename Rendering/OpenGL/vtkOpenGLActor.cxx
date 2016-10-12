@@ -34,11 +34,11 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
   // get opacity
   double opacity = this->GetProperty()->GetOpacity();
   if (opacity == 1.0)
-    {
+  {
     glDepthMask(GL_TRUE);
-    }
+  }
   else
-    {
+  {
     // Add this check here for GL_SELECT mode
     // If we are not picking, then don't write to the zbuffer
     // because we probably haven't sorted the polygons. If we
@@ -47,25 +47,25 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
     GLint param;
     glGetIntegerv(GL_RENDER_MODE, &param);
     if (param == GL_SELECT )
-      {
+    {
       glDepthMask(GL_TRUE);
-      }
+    }
     else
-      {
+    {
       if (ren->GetLastRenderingUsedDepthPeeling())
-        {
+      {
         glDepthMask(GL_TRUE); // transparency with depth peeling
-        }
+      }
       else
-        {
+      {
         glDepthMask(GL_FALSE); // transparency with alpha blending
-        }
       }
     }
+  }
 
   // build transformation
   if (!this->IsIdentity)
-    {
+  {
     // compute the transposed matrix
     double mat[16];
     vtkMatrix4x4::Transpose(*this->GetMatrix()->Element, mat);
@@ -74,22 +74,22 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glMultMatrixd(mat);
-    }
+  }
 
   // send a render to the mapper; update pipeline
   mapper->Render(ren, this);
 
   // pop transformation matrix
   if (!this->IsIdentity)
-    {
+  {
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
-    }
+  }
 
   if (opacity != 1.0)
-    {
+  {
     glDepthMask(GL_TRUE);
-    }
+  }
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }

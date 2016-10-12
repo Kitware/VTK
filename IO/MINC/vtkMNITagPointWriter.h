@@ -45,19 +45,22 @@ THE USE OR INABILITY TO USE THE SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGES.
 
 =========================================================================*/
-// .NAME vtkMNITagPointWriter - A writer for MNI tag point files.
-// .SECTION Description
-// The MNI .tag file format is used to store tag points, for use in
-// either registration or labelling of data volumes.  This file
-// format was developed at the McConnell Brain Imaging Centre at
-// the Montreal Neurological Institute and is used by their software.
-// Tag points can be stored for either one volume or two volumes,
-// and this filter can take one or two inputs.  Alternatively, the
-// points to be written can be specified by calling SetPoints().
-// .SECTION See Also
-// vtkMINCImageReader vtkMNIObjectReader vtkMNITransformReader
-// .SECTION Thanks
-// Thanks to David Gobbi for contributing this class to VTK.
+/**
+ * @class   vtkMNITagPointWriter
+ * @brief   A writer for MNI tag point files.
+ *
+ * The MNI .tag file format is used to store tag points, for use in
+ * either registration or labelling of data volumes.  This file
+ * format was developed at the McConnell Brain Imaging Centre at
+ * the Montreal Neurological Institute and is used by their software.
+ * Tag points can be stored for either one volume or two volumes,
+ * and this filter can take one or two inputs.  Alternatively, the
+ * points to be written can be specified by calling SetPoints().
+ * @sa
+ * vtkMINCImageReader vtkMNIObjectReader vtkMNITransformReader
+ * @par Thanks:
+ * Thanks to David Gobbi for contributing this class to VTK.
+*/
 
 #ifndef vtkMNITagPointWriter_h
 #define vtkMNITagPointWriter_h
@@ -78,68 +81,93 @@ public:
   vtkTypeMacro(vtkMNITagPointWriter,vtkWriter);
 
   static vtkMNITagPointWriter *New();
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Get the entension for this file format.
+  /**
+   * Get the entension for this file format.
+   */
   virtual const char* GetFileExtensions() {
     return ".tag"; }
 
-  // Description:
-  // Get the name of this file format.
+  /**
+   * Get the name of this file format.
+   */
   virtual const char* GetDescriptiveName() {
     return "MNI tags"; }
 
-  // Description:
-  // Set the points (unless you set them as inputs).
+  //@{
+  /**
+   * Set the points (unless you set them as inputs).
+   */
   virtual void SetPoints(int port, vtkPoints *points);
   virtual void SetPoints(vtkPoints *points) {
     this->SetPoints(0, points); }
   virtual vtkPoints *GetPoints(int port);
   virtual vtkPoints *GetPoints() {
     return this->GetPoints(0); }
+  //@}
 
-  // Description:
-  // Set the labels (unless the input PointData has an
-  // array called LabelText). Labels are optional.
+  //@{
+  /**
+   * Set the labels (unless the input PointData has an
+   * array called LabelText). Labels are optional.
+   */
   virtual void SetLabelText(vtkStringArray *a);
   vtkGetObjectMacro(LabelText, vtkStringArray);
+  //@}
 
-  // Description:
-  // Set the weights (unless the input PointData has an
-  // array called Weights).  Weights are optional.
+  //@{
+  /**
+   * Set the weights (unless the input PointData has an
+   * array called Weights).  Weights are optional.
+   */
   virtual void SetWeights(vtkDoubleArray *a);
   vtkGetObjectMacro(Weights, vtkDoubleArray);
+  //@}
 
-  // Description:
-  // Set the structure ids (unless the input PointData has
-  // an array called StructureIds).  These are optional.
+  //@{
+  /**
+   * Set the structure ids (unless the input PointData has
+   * an array called StructureIds).  These are optional.
+   */
   virtual void SetStructureIds(vtkIntArray *a);
   vtkGetObjectMacro(StructureIds, vtkIntArray);
+  //@}
 
-  // Description:
-  // Set the structure ids (unless the input PointData has
-  // an array called PatientIds).  These are optional.
+  //@{
+  /**
+   * Set the structure ids (unless the input PointData has
+   * an array called PatientIds).  These are optional.
+   */
   virtual void SetPatientIds(vtkIntArray *a);
   vtkGetObjectMacro(PatientIds, vtkIntArray);
+  //@}
 
-  // Description:
-  // Set comments to be added to the file.
+  //@{
+  /**
+   * Set comments to be added to the file.
+   */
   vtkSetStringMacro(Comments);
   vtkGetStringMacro(Comments);
+  //@}
 
-  // Description:
-  // Write the file.
+  /**
+   * Write the file.
+   */
   virtual int Write();
 
-  // Description:
-  // Get the MTime.
-  virtual unsigned long GetMTime();
+  /**
+   * Get the MTime.
+   */
+  virtual vtkMTimeType GetMTime();
 
-  // Description:
-  // Specify file name of vtk polygon data file to write.
+  //@{
+  /**
+   * Specify file name of vtk polygon data file to write.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
 protected:
   vtkMNITagPointWriter();
@@ -168,8 +196,8 @@ protected:
   void CloseFile(ostream *fp);
 
 private:
-  vtkMNITagPointWriter(const vtkMNITagPointWriter&); // Not implemented
-  void operator=(const vtkMNITagPointWriter&);  // Not implemented
+  vtkMNITagPointWriter(const vtkMNITagPointWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMNITagPointWriter&) VTK_DELETE_FUNCTION;
 
 };
 

@@ -52,7 +52,7 @@ void vtkInteractorStyleJoystickActor::OnMouseMove()
   int y = this->Interactor->GetEventPosition()[1];
 
   switch (this->State)
-    {
+  {
     case VTKIS_ROTATE:
     case VTKIS_PAN:
     case VTKIS_DOLLY:
@@ -61,7 +61,7 @@ void vtkInteractorStyleJoystickActor::OnMouseMove()
       this->FindPokedRenderer(x, y);
       this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -73,30 +73,30 @@ void vtkInteractorStyleJoystickActor::OnLeftButtonDown()
   this->FindPokedRenderer(x, y);
   this->FindPickedActor(x, y);
   if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
-    {
+  {
     return;
-    }
+  }
 
   this->GrabFocus(this->EventCallbackCommand);
   if (this->Interactor->GetShiftKey())
-    {
+  {
     this->StartPan();
-    }
+  }
   else if (this->Interactor->GetControlKey())
-    {
+  {
     this->StartSpin();
-    }
+  }
   else
-    {
+  {
     this->StartRotate();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::OnLeftButtonUp()
 {
   switch (this->State)
-    {
+  {
     case VTKIS_PAN:
       this->EndPan();
       break;
@@ -108,11 +108,11 @@ void vtkInteractorStyleJoystickActor::OnLeftButtonUp()
     case VTKIS_ROTATE:
       this->EndRotate();
       break;
-    }
+  }
   if ( this->Interactor )
-    {
+  {
     this->ReleaseFocus();
-    }
+  }
 }
 
 
@@ -125,26 +125,26 @@ void vtkInteractorStyleJoystickActor::OnMiddleButtonDown()
   this->FindPokedRenderer(x, y);
   this->FindPickedActor(x, y);
   if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
-    {
+  {
     return;
-    }
+  }
 
   this->GrabFocus(this->EventCallbackCommand);
   if (this->Interactor->GetControlKey())
-    {
+  {
     this->StartDolly();
-    }
+  }
   else
-    {
+  {
     this->StartPan();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::OnMiddleButtonUp()
 {
   switch (this->State)
-    {
+  {
     case VTKIS_DOLLY:
       this->EndDolly();
       break;
@@ -152,12 +152,12 @@ void vtkInteractorStyleJoystickActor::OnMiddleButtonUp()
     case VTKIS_PAN:
       this->EndPan();
       break;
-    }
+  }
 
   if ( this->Interactor )
-    {
+  {
     this->ReleaseFocus();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -169,9 +169,9 @@ void vtkInteractorStyleJoystickActor::OnRightButtonDown()
   this->FindPokedRenderer(x, y);
   this->FindPickedActor(x, y);
   if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
-    {
+  {
     return;
-    }
+  }
 
   this->GrabFocus(this->EventCallbackCommand);
   this->StartUniformScale();
@@ -181,24 +181,24 @@ void vtkInteractorStyleJoystickActor::OnRightButtonDown()
 void vtkInteractorStyleJoystickActor::OnRightButtonUp()
 {
   switch (this->State)
-    {
+  {
     case VTKIS_USCALE:
       this->EndUniformScale();
       if ( this->Interactor )
-        {
+      {
         this->ReleaseFocus();
-        }
+      }
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::Rotate()
 {
   if ( this->CurrentRenderer == NULL || this->InteractionProp == NULL )
-    {
+  {
     return;
-    }
+  }
 
   vtkRenderWindowInteractor *rwi = this->Interactor;
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
@@ -246,22 +246,22 @@ void vtkInteractorStyleJoystickActor::Rotate()
     (rwi->GetEventPosition()[1] - disp_obj_center[1]) / radius;
 
   if (nxf > 1.0)
-    {
+  {
     nxf = 1.0;
-    }
+  }
   else if (nxf < -1.0)
-    {
+  {
     nxf = -1.0;
-    }
+  }
 
   if (nyf > 1.0)
-    {
+  {
     nyf = 1.0;
-    }
+  }
   else if (nyf < -1.0)
-    {
+  {
     nyf = -1.0;
-    }
+  }
 
   double newXAngle =
     vtkMath::DegreesFromRadians( asin( nxf ) ) / this->MotionFactor;
@@ -298,9 +298,9 @@ void vtkInteractorStyleJoystickActor::Rotate()
   delete [] rotate;
 
   if (this->AutoAdjustCameraClippingRange)
-    {
+  {
     this->CurrentRenderer->ResetCameraClippingRange();
-    }
+  }
 
   rwi->Render();
 }
@@ -309,9 +309,9 @@ void vtkInteractorStyleJoystickActor::Rotate()
 void vtkInteractorStyleJoystickActor::Spin()
 {
   if ( this->CurrentRenderer == NULL || this->InteractionProp == NULL )
-    {
+  {
     return;
-    }
+  }
 
   vtkRenderWindowInteractor *rwi = this->Interactor;
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
@@ -323,20 +323,20 @@ void vtkInteractorStyleJoystickActor::Spin()
   double view_point[3];
 
   if (cam->GetParallelProjection())
-    {
+  {
     // If parallel projection, want to get the view plane normal...
     cam->ComputeViewPlaneNormal();
     cam->GetViewPlaneNormal(motion_vector);
-    }
+  }
   else
-    {
+  {
     // Perspective projection, get vector from eye to center of actor
     cam->GetPosition(view_point);
     motion_vector[0] = view_point[0] - obj_center[0];
     motion_vector[1] = view_point[1] - obj_center[1];
     motion_vector[2] = view_point[2] - obj_center[2];
     vtkMath::Normalize(motion_vector);
-    }
+  }
 
   double disp_obj_center[3];
 
@@ -348,13 +348,13 @@ void vtkInteractorStyleJoystickActor::Spin()
   double yf = (rwi->GetEventPosition()[1] - disp_obj_center[1]) / center[1];
 
   if (yf > 1.0)
-    {
+  {
     yf = 1.0;
-    }
+  }
   else if (yf < -1.0)
-    {
+  {
     yf = -1.0;
-    }
+  }
 
   double newAngle =
     vtkMath::DegreesFromRadians( asin( yf ) ) / this->MotionFactor;
@@ -380,9 +380,9 @@ void vtkInteractorStyleJoystickActor::Spin()
   delete [] rotate;
 
   if (this->AutoAdjustCameraClippingRange)
-    {
+  {
     this->CurrentRenderer->ResetCameraClippingRange();
-    }
+  }
 
   rwi->Render();
 }
@@ -391,9 +391,9 @@ void vtkInteractorStyleJoystickActor::Spin()
 void vtkInteractorStyleJoystickActor::Pan()
 {
   if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
-    {
+  {
     return;
-    }
+  }
 
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
@@ -417,20 +417,20 @@ void vtkInteractorStyleJoystickActor::Pan()
   motion_vector[2] = (new_pick_point[2] - obj_center[2]) / this->MotionFactor;
 
   if (this->InteractionProp->GetUserMatrix() != NULL)
-    {
+  {
     vtkTransform *t = vtkTransform::New();
     t->PostMultiply();
     t->SetMatrix(this->InteractionProp->GetUserMatrix());
     t->Translate(motion_vector[0], motion_vector[1], motion_vector[2]);
     this->InteractionProp->GetUserMatrix()->DeepCopy(t->GetMatrix());
     t->Delete();
-    }
+  }
   else
-    {
+  {
     this->InteractionProp->AddPosition(motion_vector[0],
                                        motion_vector[1],
                                        motion_vector[2]);
-    }
+  }
 
   rwi->Render();
 }
@@ -439,9 +439,9 @@ void vtkInteractorStyleJoystickActor::Pan()
 void vtkInteractorStyleJoystickActor::Dolly()
 {
   if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
-    {
+  {
     return;
-    }
+  }
 
   vtkRenderWindowInteractor *rwi = this->Interactor;
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
@@ -473,25 +473,25 @@ void vtkInteractorStyleJoystickActor::Dolly()
   motion_vector[2] = (view_point[2] - view_focus[2]) * dollyFactor;
 
   if (this->InteractionProp->GetUserMatrix() != NULL)
-    {
+  {
     vtkTransform *t = vtkTransform::New();
     t->PostMultiply();
     t->SetMatrix(this->InteractionProp->GetUserMatrix());
     t->Translate(motion_vector[0], motion_vector[1], motion_vector[2]);
     this->InteractionProp->GetUserMatrix()->DeepCopy(t->GetMatrix());
     t->Delete();
-    }
+  }
   else
-    {
+  {
     this->InteractionProp->AddPosition(motion_vector[0],
                                        motion_vector[1],
                                        motion_vector[2]);
-    }
+  }
 
   if (this->AutoAdjustCameraClippingRange)
-    {
+  {
     this->CurrentRenderer->ResetCameraClippingRange();
-    }
+  }
 
   rwi->Render();
 }
@@ -500,9 +500,9 @@ void vtkInteractorStyleJoystickActor::Dolly()
 void vtkInteractorStyleJoystickActor::UniformScale()
 {
   if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
-    {
+  {
     return;
-    }
+  }
 
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
@@ -533,9 +533,9 @@ void vtkInteractorStyleJoystickActor::UniformScale()
                         scale);
 
   if (this->AutoAdjustCameraClippingRange)
-    {
+  {
     this->CurrentRenderer->ResetCameraClippingRange();
-    }
+  }
 
   rwi->Render();
 }
@@ -552,13 +552,13 @@ void vtkInteractorStyleJoystickActor::FindPickedActor(int x, int y)
   this->InteractionPicker->Pick(x, y, 0.0, this->CurrentRenderer);
   vtkProp *prop = this->InteractionPicker->GetViewProp();
   if (prop != NULL)
-    {
+  {
     this->InteractionProp = vtkProp3D::SafeDownCast(prop);
-    }
+  }
   else
-    {
+  {
     this->InteractionProp = NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -577,26 +577,26 @@ void vtkInteractorStyleJoystickActor::Prop3DTransform(vtkProp3D *prop3D,
   vtkTransform *newTransform = vtkTransform::New();
   newTransform->PostMultiply();
   if (prop3D->GetUserMatrix() != NULL)
-    {
+  {
     newTransform->SetMatrix(prop3D->GetUserMatrix());
-    }
+  }
   else
-    {
+  {
     newTransform->SetMatrix(oldMatrix);
-    }
+  }
 
   newTransform->Translate(-(boxCenter[0]), -(boxCenter[1]), -(boxCenter[2]));
 
   for (int i = 0; i < numRotation; i++)
-    {
+  {
     newTransform->RotateWXYZ(rotate[i][0], rotate[i][1],
                              rotate[i][2], rotate[i][3]);
-    }
+  }
 
   if ((scale[0] * scale[1] * scale[2]) != 0.0)
-    {
+  {
     newTransform->Scale(scale[0], scale[1], scale[2]);
-    }
+  }
 
   newTransform->Translate(boxCenter[0], boxCenter[1], boxCenter[2]);
 
@@ -606,15 +606,15 @@ void vtkInteractorStyleJoystickActor::Prop3DTransform(vtkProp3D *prop3D,
   newTransform->Translate(orig[0], orig[1], orig[2]);
 
   if (prop3D->GetUserMatrix() != NULL)
-    {
+  {
     newTransform->GetMatrix(prop3D->GetUserMatrix());
-    }
+  }
   else
-    {
+  {
     prop3D->SetPosition(newTransform->GetPosition());
     prop3D->SetScale(newTransform->GetScale());
     prop3D->SetOrientation(newTransform->GetOrientation());
-    }
+  }
   oldMatrix->Delete();
   newTransform->Delete();
 }

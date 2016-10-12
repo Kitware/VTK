@@ -34,13 +34,13 @@ void Printf(vtkMPIController* comm, const char* format, ...)
   assert("pre: format argument is NULL!" && (format != NULL) );
 
   if( comm->GetLocalProcessId() == 0 )
-    {
+  {
     va_list argptr;
     va_start(argptr,format);
     vprintf(format,argptr);
     fflush(stdout);
     va_end(argptr);
-    }
+  }
 
   comm->Barrier();
 }
@@ -60,7 +60,7 @@ void SynchronizedPrintf(vtkMPIController* comm, const char* format, ...)
   int* nullmsg = NULL;
 
   if(rank == 0)
-    {
+  {
     // STEP 0: print message
     printf("[%d]: ", rank);
     fflush(stdout);
@@ -73,12 +73,12 @@ void SynchronizedPrintf(vtkMPIController* comm, const char* format, ...)
 
     // STEP 1: signal next process (if any) to print
     if( numRanks > 1)
-      {
-      comm->NoBlockSend(nullmsg,0,rank+1,0,rqst);
-      } // END if
-    } // END first rank
-  else if( rank == numRanks-1 )
     {
+      comm->NoBlockSend(nullmsg,0,rank+1,0,rqst);
+    } // END if
+  } // END first rank
+  else if( rank == numRanks-1 )
+  {
     // STEP 0: Block until previous process completes
     comm->Receive(nullmsg,0,rank-1,0);
 
@@ -90,9 +90,9 @@ void SynchronizedPrintf(vtkMPIController* comm, const char* format, ...)
     vprintf(format,argptr);
     fflush(stdout);
     va_end(argptr);
-    } // END last rank
+  } // END last rank
   else
-    {
+  {
     // STEP 0: Block until previous process completes
     comm->Receive(nullmsg,0,rank-1,0);
 
@@ -107,7 +107,7 @@ void SynchronizedPrintf(vtkMPIController* comm, const char* format, ...)
 
     // STEP 2: signal next process to print
     comm->NoBlockSend(nullmsg,0,rank+1,0,rqst);
-    }
+  }
 
   comm->Barrier();
 }

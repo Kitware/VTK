@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImplicitFunctionToImageStencil - clip an image with a function
-// .SECTION Description
-// vtkImplicitFunctionToImageStencil will convert a vtkImplicitFunction into
-// a stencil that can be used with vtkImageStencil or with other classes
-// that apply a stencil to an image.
-// .SECTION see also
-// vtkImplicitFunction vtkImageStencil vtkPolyDataToImageStencil
+/**
+ * @class   vtkImplicitFunctionToImageStencil
+ * @brief   clip an image with a function
+ *
+ * vtkImplicitFunctionToImageStencil will convert a vtkImplicitFunction into
+ * a stencil that can be used with vtkImageStencil or with other classes
+ * that apply a stencil to an image.
+ * @sa
+ * vtkImplicitFunction vtkImageStencil vtkPolyDataToImageStencil
+*/
 
 #ifndef vtkImplicitFunctionToImageStencil_h
 #define vtkImplicitFunctionToImageStencil_h
@@ -36,19 +39,26 @@ public:
   vtkTypeMacro(vtkImplicitFunctionToImageStencil, vtkImageStencilSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify the implicit function to convert into a stencil.
+  //@{
+  /**
+   * Specify the implicit function to convert into a stencil.
+   */
   virtual void SetInput(vtkImplicitFunction*);
   vtkGetObjectMacro(Input, vtkImplicitFunction);
+  //@}
 
-  // Description:
-  // Set the threshold value for the implicit function.
+  //@{
+  /**
+   * Set the threshold value for the implicit function.
+   */
   vtkSetMacro(Threshold, double);
   vtkGetMacro(Threshold, double);
+  //@}
 
-  // Description:
-  // Override GetMTime() to account for the implicit function.
-  unsigned long GetMTime();
+  /**
+   * Override GetMTime() to account for the implicit function.
+   */
+  vtkMTimeType GetMTime();
 
 protected:
   vtkImplicitFunctionToImageStencil();
@@ -61,8 +71,8 @@ protected:
   double Threshold;
 
 private:
-  vtkImplicitFunctionToImageStencil(const vtkImplicitFunctionToImageStencil&);  // Not implemented.
-  void operator=(const vtkImplicitFunctionToImageStencil&);  // Not implemented.
+  vtkImplicitFunctionToImageStencil(const vtkImplicitFunctionToImageStencil&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImplicitFunctionToImageStencil&) VTK_DELETE_FUNCTION;
 };
 
 #endif

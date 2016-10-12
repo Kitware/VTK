@@ -85,9 +85,9 @@ vtkIdType vtkXMLHyperOctreeReader::GetNumberOfPoints()
   vtkIdType numPts = 0;
   vtkDataSet* output = vtkDataSet::SafeDownCast(this->GetCurrentOutput());
   if (output)
-    {
+  {
     numPts = output->GetNumberOfPoints();
-    }
+  }
   return numPts;
 }
 
@@ -97,9 +97,9 @@ vtkIdType vtkXMLHyperOctreeReader::GetNumberOfCells()
   vtkIdType numCells = 0;
   vtkDataSet* output = vtkDataSet::SafeDownCast(this->GetCurrentOutput());
   if (output)
-    {
+  {
     numCells = output->GetNumberOfCells();
-    }
+  }
   return numCells;
 }
 
@@ -142,23 +142,23 @@ void vtkXMLHyperOctreeReader::ReadXMLData()
   double origin[3];
 
   if (!ePrimary->GetScalarAttribute("Dimension", dimension))
-    {
+  {
     dimension = 3;
-    }
+  }
 
   if (ePrimary->GetVectorAttribute("Size", 3, size) != 3)
-    {
+  {
     size[0] = 1;
     size[1] = 1;
     size[2] = 1;
-    }
+  }
 
   if (ePrimary->GetVectorAttribute("Origin", 3, origin) != 3)
-    {
+  {
     origin[0] = 0;
     origin[1] = 0;
     origin[2] = 0;
-    }
+  }
 
   vtkHyperOctree *output = vtkHyperOctree::SafeDownCast(
       this->GetCurrentOutput());
@@ -172,14 +172,14 @@ void vtkXMLHyperOctreeReader::ReadXMLData()
   // will be defined.
   int numNested = ePrimary->GetNumberOfNestedElements();
   for (int i = 0; i < numNested; ++i)
-    {
+  {
     vtkXMLDataElement* eNested = ePrimary->GetNestedElement(i);
     if (strcmp(eNested->GetName(), "Topology") == 0)
-      {
+    {
       this->ReadTopology(eNested);
       break;
-      }
     }
+  }
 
   //Read the pointdata and celldata attribute data.
   //We only have one piece so this will suffice.
@@ -199,9 +199,9 @@ void vtkXMLHyperOctreeReader::ReadTopology(vtkXMLDataElement *elem)
   //Find the topology array and read it into a vtkIntArray
   int numNested = elem->GetNumberOfNestedElements();
   if (numNested != 1)
-    {
+  {
     return;
-    }
+  }
 
   vtkXMLDataElement* tElem = elem->GetNestedElement(0);
 
@@ -209,37 +209,37 @@ void vtkXMLHyperOctreeReader::ReadTopology(vtkXMLDataElement *elem)
   vtkAbstractArray* a = this->CreateArray(tElem);
   vtkDataArray *tda = vtkArrayDownCast<vtkDataArray>(a);
   if (!tda)
-    {
+  {
     if (a)
-      {
+    {
       a->Delete();
-      }
-    return;
     }
+    return;
+  }
 
   int numTuples;
   if (!tElem->GetScalarAttribute("NumberOfTuples", numTuples))
-    {
+  {
     tda->Delete();
     return;
-    }
+  }
 
   tda->SetNumberOfTuples(numTuples);
   if (!this->ReadArrayValues(tElem, 0, tda, 0, numTuples* tda->GetNumberOfComponents())
 
    /* this->ReadData(tElem, tda->GetVoidPointer(0), tda->GetDataType(),
                       0, numTuples*tda->GetNumberOfComponents())*/)
-    {
+  {
     tda->Delete();
     return;
-    }
+  }
 
   vtkIntArray *ta = vtkArrayDownCast<vtkIntArray>(tda);
   if (!ta)
-    {
+  {
     tda->Delete();
     return;
-    }
+  }
 
   this->SetProgressRange(progressRange, 1, fractions);
 
@@ -250,11 +250,11 @@ void vtkXMLHyperOctreeReader::ReadTopology(vtkXMLDataElement *elem)
   //Where in the array we need to read from next.
   this->ArrayIndex = 0;
   if (!this->BuildNextCell(ta, cursor, cursor->GetNumberOfChildren()))
-    {
+  {
     vtkErrorMacro( << "Problem reading topology. ");
     ta->Delete();
     return ;
-    }
+  }
 
   //Cleanup
   cursor->Delete();
@@ -269,9 +269,9 @@ int vtkXMLHyperOctreeReader::BuildNextCell(
   int nodeType = ta->GetValue(this->ArrayIndex);
 
   if (nodeType == 1)
-    {
+  {
     //leaf, stop now
-    }
+  }
 /*
   else if (nodeType == 2)
     {
@@ -281,26 +281,26 @@ int vtkXMLHyperOctreeReader::BuildNextCell(
     }
 */
   else
-    {
+  {
     //internal node
     //subdivide
     vtkHyperOctree::SafeDownCast(this->GetCurrentOutput())->SubdivideLeaf(cursor);
     //then keep going down
     int i = 0;
     while (i < nchildren)
-      {
+    {
       cursor->ToChild(i);
 
       this->ArrayIndex++;
       if (!this->BuildNextCell(ta, cursor, nchildren))
-        {
+      {
         //IO failure somewhere below
         return 0;
-        }
+      }
 
       cursor->ToParent();
       ++i;
-      }
     }
+  }
   return 1;
 }

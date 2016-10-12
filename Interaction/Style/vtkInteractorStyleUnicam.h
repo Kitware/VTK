@@ -20,60 +20,62 @@
  * be used, reproduced, and distributed without permission.
  */
 
-// .NAME vtkInteractorStyleUnicam - provides Unicam navigation style
-// .SECTION Description
-// UniCam is a camera interactor.  Here, just the primary features of the
-// UniCam technique are implemented.  UniCam requires just one mouse button
-// and supports context sensitive dollying, panning, and rotation.  (In this
-// implementation, it uses the right mouse button, leaving the middle and
-// left available for other functions.) For more information, see the paper
-// at:
-//
-//    ftp://ftp.cs.brown.edu/pub/papers/graphics/research/unicam.pdf
-//
-// The following is a brief description of the UniCam Camera Controls.  You
-// can perform 3 operations on the camera: rotate, pan, and dolly the camera.
-// All operations are reached through the right mouse button & mouse
-// movements.
-//
-// IMPORTANT: UniCam assumes there is an axis that makes sense as a "up"
-// vector for the world.  By default, this axis is defined to be the
-// vector <0,0,1>.  You can set it explicitly for the data you are
-// viewing with the 'SetWorldUpVector(..)' method in C++, or similarly
-// in Tcl/Tk (or other interpreted languages).
-//
-// 1. ROTATE:
-//
-// Position the cursor over the point you wish to rotate around and press and
-// release the left mouse button.  A 'focus dot' appears indicating the
-// point that will be the center of rotation.  To rotate, press and hold the
-// left mouse button and drag the mouse.. release the button to complete the
-// rotation.
-//
-// Rotations can be done without placing a focus dot first by moving the
-// mouse cursor to within 10% of the window border & pressing and holding the
-// left button followed by dragging the mouse.  The last focus dot position
-// will be re-used.
-//
-// 2. PAN:
-//
-// Click and hold the left mouse button, and initially move the mouse left
-// or right.  The point under the initial pick will pick correlate w/ the
-// mouse tip-- (i.e., direct manipulation).
-//
-// 3. DOLLY (+ PAN):
-//
-// Click and hold the left mouse button, and initially move the mouse up or
-// down.  Moving the mouse down will dolly towards the picked point, and moving
-// the mouse up will dolly away from it.  Dollying occurs relative to the
-// picked point which simplifies the task of dollying towards a region of
-// interest. Left and right mouse movements will pan the camera left and right.
-//
-// .SECTION Caveats
-// (NOTE: This implementation of Unicam assumes a perspective camera.  It
-// could be modified relatively easily to also support an orthographic
-// projection.)
-
+/**
+ * @class   vtkInteractorStyleUnicam
+ * @brief   provides Unicam navigation style
+ *
+ * UniCam is a camera interactor.  Here, just the primary features of the
+ * UniCam technique are implemented.  UniCam requires just one mouse button
+ * and supports context sensitive dollying, panning, and rotation.  (In this
+ * implementation, it uses the right mouse button, leaving the middle and
+ * left available for other functions.) For more information, see the paper
+ * at:
+ *
+ *    ftp://ftp.cs.brown.edu/pub/papers/graphics/research/unicam.pdf
+ *
+ * The following is a brief description of the UniCam Camera Controls.  You
+ * can perform 3 operations on the camera: rotate, pan, and dolly the camera.
+ * All operations are reached through the right mouse button & mouse
+ * movements.
+ *
+ * IMPORTANT: UniCam assumes there is an axis that makes sense as a "up"
+ * vector for the world.  By default, this axis is defined to be the
+ * vector <0,0,1>.  You can set it explicitly for the data you are
+ * viewing with the 'SetWorldUpVector(..)' method in C++, or similarly
+ * in Tcl/Tk (or other interpreted languages).
+ *
+ * 1. ROTATE:
+ *
+ * Position the cursor over the point you wish to rotate around and press and
+ * release the left mouse button.  A 'focus dot' appears indicating the
+ * point that will be the center of rotation.  To rotate, press and hold the
+ * left mouse button and drag the mouse.. release the button to complete the
+ * rotation.
+ *
+ * Rotations can be done without placing a focus dot first by moving the
+ * mouse cursor to within 10% of the window border & pressing and holding the
+ * left button followed by dragging the mouse.  The last focus dot position
+ * will be re-used.
+ *
+ * 2. PAN:
+ *
+ * Click and hold the left mouse button, and initially move the mouse left
+ * or right.  The point under the initial pick will pick correlate w/ the
+ * mouse tip-- (i.e., direct manipulation).
+ *
+ * 3. DOLLY (+ PAN):
+ *
+ * Click and hold the left mouse button, and initially move the mouse up or
+ * down.  Moving the mouse down will dolly towards the picked point, and moving
+ * the mouse up will dolly away from it.  Dollying occurs relative to the
+ * picked point which simplifies the task of dollying towards a region of
+ * interest. Left and right mouse movements will pan the camera left and right.
+ *
+ * @warning
+ * (NOTE: This implementation of Unicam assumes a perspective camera.  It
+ * could be modified relatively easily to also support an orthographic
+ * projection.)
+*/
 
 #ifndef vtkInteractorStyleUnicam_h
 #define vtkInteractorStyleUnicam_h
@@ -115,16 +117,20 @@ public:
   void SetWorldUpVector(double x, double y, double z);
   vtkGetVectorMacro(WorldUpVector, double, 3);
 
-  // Description:
-  // Concrete implementation of event bindings
+  //@{
+  /**
+   * Concrete implementation of event bindings
+   */
   virtual void OnMouseMove();
   virtual void OnLeftButtonDown();
   virtual void OnLeftButtonUp();
   virtual void OnLeftButtonMove();
+  //@}
 
-  // Description:
-  // OnTimer calls RotateCamera, RotateActor etc which should be overridden by
-  // style subclasses.
+  /**
+   * OnTimer calls RotateCamera, RotateActor etc which should be overridden by
+   * style subclasses.
+   */
   virtual void OnTimer();
 
 protected:
@@ -175,8 +181,8 @@ protected:
   // return the aspect ratio of the current window
   double WindowAspect();
 private:
-  vtkInteractorStyleUnicam(const vtkInteractorStyleUnicam&);  // Not implemented.
-  void operator=(const vtkInteractorStyleUnicam&);  // Not implemented.
+  vtkInteractorStyleUnicam(const vtkInteractorStyleUnicam&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInteractorStyleUnicam&) VTK_DELETE_FUNCTION;
 };
 
 #endif  // vtkInteractorStyleUnicam_h

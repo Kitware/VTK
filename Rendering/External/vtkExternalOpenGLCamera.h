@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExternalOpenGLCamera - OpenGL camera
-// .SECTION Description
-// vtkExternalOpenGLCamera is a concrete implementation of the abstract class
-// vtkCamera.  vtkExternalOpenGLCamera interfaces to the OpenGL rendering library.
-// This class extends vtkOpenGLCamera by introducing API wherein the camera
-// matrices can be set explicitly by the application.
+/**
+ * @class   vtkExternalOpenGLCamera
+ * @brief   OpenGL camera
+ *
+ * vtkExternalOpenGLCamera is a concrete implementation of the abstract class
+ * vtkCamera.  vtkExternalOpenGLCamera interfaces to the OpenGL rendering library.
+ * This class extends vtkOpenGLCamera by introducing API wherein the camera
+ * matrices can be set explicitly by the application.
+*/
 
 #ifndef vtkExternalOpenGLCamera_h
 #define vtkExternalOpenGLCamera_h
@@ -31,42 +34,47 @@ class VTKRENDERINGEXTERNAL_EXPORT vtkExternalOpenGLCamera :
 public:
   static vtkExternalOpenGLCamera *New();
   vtkTypeMacro(vtkExternalOpenGLCamera, vtkOpenGLCamera);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Implement base class method.
+  /**
+   * Implement base class method.
+   */
   void Render(vtkRenderer *ren);
 
-  // Description:
-  // Set the view transform matrix
+  /**
+   * Set the view transform matrix
+   */
   void SetViewTransformMatrix(const double elements[16]);
 
-  // Description:
-  // Set the projection matrix
+  /**
+   * Set the projection matrix
+   */
   void SetProjectionTransformMatrix(const double elements[16]);
 
 protected:
   vtkExternalOpenGLCamera();
   ~vtkExternalOpenGLCamera() {}
 
-  // Description:
-  // These methods should only be used within vtkCamera.cxx.
-  // Bypass computation if user provided the projection transform
+  /**
+   * These methods should only be used within vtkCamera.cxx.
+   * Bypass computation if user provided the projection transform
+   */
   void ComputeProjectionTransform(double aspect,
                                   double nearz,
                                   double farz);
 
-  // Description:
-  // These methods should only be used within vtkCamera.cxx.
-  // Bypass computation if user provided the view transform
+  /**
+   * These methods should only be used within vtkCamera.cxx.
+   * Bypass computation if user provided the view transform
+   */
   void ComputeViewTransform();
 
 private:
   bool UserProvidedProjectionTransform;
   bool UserProvidedViewTransform;
 
-  vtkExternalOpenGLCamera(const vtkExternalOpenGLCamera&);  // Not implemented.
-  void operator=(const vtkExternalOpenGLCamera&);  // Not implemented.
+  vtkExternalOpenGLCamera(const vtkExternalOpenGLCamera&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExternalOpenGLCamera&) VTK_DELETE_FUNCTION;
 };
 
 #endif

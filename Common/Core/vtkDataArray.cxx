@@ -26,6 +26,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationInformationVectorKey.h"
+#include "vtkInformationStringKey.h"
 #include "vtkInformationVector.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
@@ -64,13 +65,13 @@ struct DeepCopyWorker
   {
     vtkIdType numTuples = src->GetNumberOfTuples();
     for (int comp; comp < src->GetNumberOfComponents(); ++comp)
-      {
+    {
       ValueType *srcBegin = src->GetComponentArrayPointer(comp);
       ValueType *srcEnd = srcBegin + numTuples;
       ValueType *dstBegin = dst->GetComponentArrayPointer(comp);
 
       std::copy(srcBegin, srcEnd, dstBegin);
-      }
+    }
   }
 
   // Generic implementation:
@@ -86,12 +87,12 @@ struct DeepCopyWorker
     int comps = src->GetNumberOfComponents();
 
     for (vtkIdType t = 0; t < tuples; ++t)
-      {
+    {
       for (int c = 0; c < comps; ++c)
-        {
+      {
         d.Set(t, c, static_cast<DestType>(s.Get(t, c)));
-        }
       }
+    }
   }
 };
 
@@ -121,18 +122,18 @@ struct InterpolateMultiTupleWorker
     int numComp = src->GetNumberOfComponents();
 
     for (int c = 0; c < numComp; ++c)
-      {
+    {
       double val = 0.;
       for (vtkIdType tupleId = 0; tupleId < this->NumTuples; ++tupleId)
-        {
+      {
         vtkIdType t = this->TupleIds[tupleId];
         double weight = this->Weights[tupleId];
         val += weight * static_cast<double>(s.Get(t, c));
-        }
+      }
       DestType valT;
       vtkMath::RoundDoubleToIntegralIfNecessary(val, &valT);
       d.Insert(this->DestTuple, c, valT);
-      }
+    }
   }
 };
 
@@ -164,12 +165,12 @@ struct InterpolateTupleWorker
     DestType valT;
 
     for (int c = 0; c < numComps; ++c)
-      {
+    {
       val = s1.Get(this->SrcTuple1, c) * oneMinusT +
             s2.Get(this->SrcTuple2, c) * this->Weight;
       vtkMath::RoundDoubleToIntegralIfNecessary(val, &valT);
       d.Insert(this->DstTuple, c, valT);
-      }
+    }
   }
 };
 
@@ -194,14 +195,14 @@ struct GetTuplesFromListWorker
     vtkIdType dstTuple = 0;
 
     while (srcTuple != srcTupleEnd)
-      {
+    {
       for (int c = 0; c < numComps; ++c)
-        {
+      {
         d.Set(dstTuple, c, static_cast<DestType>(s.Get(*srcTuple, c)));
-        }
+      }
       ++srcTuple;
       ++dstTuple;
-      }
+    }
   }
 };
 
@@ -227,12 +228,12 @@ struct GetTuplesRangeWorker
     for (vtkIdType srcT = this->Start, dstT = 0;
          srcT <= this->End;
          ++srcT, ++dstT)
-      {
+    {
       for (int c = 0; c < numComps; ++c)
-        {
+      {
         d.Set(dstT, c, static_cast<DestType>(s.Get(srcT, c)));
-        }
       }
+    }
   }
 };
 
@@ -256,9 +257,9 @@ struct SetTupleArrayWorker
 
     int numComps = src->GetNumberOfComponents();
     for (int c = 0; c < numComps; ++c)
-      {
+    {
       d.Set(this->DstTuple, c, static_cast<DestType>(s.Get(this->SrcTuple, c)));
-      }
+    }
   }
 };
 
@@ -283,14 +284,14 @@ struct SetTuplesIdListWorker
     vtkIdType numTuples = this->SrcTuples->GetNumberOfIds();
     int numComps = src->GetNumberOfComponents();
     for (vtkIdType t = 0; t < numTuples; ++t)
-      {
+    {
       vtkIdType srcT = this->SrcTuples->GetId(t);
       vtkIdType dstT = this->DstTuples->GetId(t);
       for (int c = 0; c < numComps; ++c)
-        {
+      {
         d.Set(dstT, c, static_cast<DestType>(s.Get(srcT, c)));
-        }
       }
+    }
   }
 };
 
@@ -323,47 +324,47 @@ struct SetTuplesRangeWorker
     vtkIdType dstT = this->DstStartTuple;
 
     while (srcT < srcTEnd)
-      {
+    {
       for (vtkIdType t = 0; t < this->NumTuples; ++t)
-        {
+      {
         for (int c = 0; c < numComps; ++c)
-          {
+        {
           d.Set(dstT, c, static_cast<DestType>(s.Get(srcT, c)));
-          }
         }
+      }
       ++srcT;
       ++dstT;
-      }
+    }
   }
 };
 
 template<typename InfoType, typename KeyType>
 bool hasValidKey(InfoType info, KeyType key,
-                   unsigned long mtime, double range[2] )
+                   vtkMTimeType mtime, double range[2] )
 {
   if ( info->Has( key ) )
-    {
+  {
     if ( mtime <= info->GetMTime() )
-      {
+    {
       info->Get( key, range );
       return true;
-      }
     }
+  }
   return false;
 }
 
 template<typename InfoType, typename KeyType, typename ComponentKeyType>
 bool hasValidKey(InfoType info, KeyType key, ComponentKeyType ckey,
-                   unsigned long mtime, double range[2], int comp )
+                   vtkMTimeType mtime, double range[2], int comp )
 {
   if ( info->Has( key ) )
-    {
+  {
     if ( mtime <= info->GetMTime() )
-      {
+    {
       info->Get( key )->GetInformationObject(comp)->Get( ckey, range );
       return true;
-      }
     }
+  }
   return false;
 }
 
@@ -371,6 +372,7 @@ bool hasValidKey(InfoType info, KeyType key, ComponentKeyType ckey,
 
 vtkInformationKeyRestrictedMacro(vtkDataArray, COMPONENT_RANGE, DoubleVector, 2);
 vtkInformationKeyRestrictedMacro(vtkDataArray, L2_NORM_RANGE, DoubleVector, 2);
+vtkInformationKeyMacro(vtkDataArray, UNITS_LABEL, String);
 
 //----------------------------------------------------------------------------
 // Construct object with default tuple dimension (number of components) of 1.
@@ -385,9 +387,9 @@ vtkDataArray::vtkDataArray()
 vtkDataArray::~vtkDataArray()
 {
   if ( this->LookupTable )
-    {
+  {
     this->LookupTable->Delete();
-    }
+  }
   this->SetName(0);
 }
 
@@ -395,17 +397,17 @@ vtkDataArray::~vtkDataArray()
 void vtkDataArray::DeepCopy(vtkAbstractArray* aa)
 {
   if ( aa == NULL )
-    {
+  {
     return;
-    }
+  }
 
   vtkDataArray *da = vtkDataArray::FastDownCast(aa);
   if (da == NULL)
-    {
+  {
     vtkErrorMacro(<< "Input array is not a vtkDataArray ("
                   << aa->GetClassName() << ")");
     return;
-    }
+  }
 
   this->DeepCopy(da);
 }
@@ -418,12 +420,12 @@ void vtkDataArray::DeepCopy(vtkDataArray *da)
 {
   // Match the behavior of the old AttributeData
   if ( da == NULL )
-    {
+  {
     return;
-    }
+  }
 
   if ( this != da )
-    {
+  {
     this->Superclass::DeepCopy( da ); // copy Information object
 
     vtkIdType numTuples = da->GetNumberOfTuples();
@@ -434,18 +436,18 @@ void vtkDataArray::DeepCopy(vtkDataArray *da)
 
     DeepCopyWorker worker;
     if (!vtkArrayDispatch::Dispatch2::Execute(da, this, worker))
-      {
+    {
       // If dispatch fails, use fallback:
       worker(da, this);
-      }
+    }
 
     this->SetLookupTable(0);
     if (da->LookupTable)
-      {
+    {
       this->LookupTable = da->LookupTable->NewInstance();
       this->LookupTable->DeepCopy(da->LookupTable);
-      }
     }
+  }
 
   this->Squeeze();
 }
@@ -463,50 +465,50 @@ void vtkDataArray::SetTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
 {
   vtkDataArray *srcDA = vtkDataArray::FastDownCast(source);
   if (!srcDA)
-    {
+  {
     vtkErrorMacro("Source array must be a vtkDataArray subclass (got "
                   << source->GetClassName() << ").");
     return;
-    }
+  }
 
   if (!vtkDataTypesCompare(source->GetDataType(), this->GetDataType()))
-    {
+  {
     vtkErrorMacro("Type mismatch: Source: " << source->GetDataTypeAsString()
                   << " Dest: " << this->GetDataTypeAsString());
     return;
-    }
+  }
 
   if (source->GetNumberOfComponents() != this->GetNumberOfComponents())
-    {
+  {
     vtkErrorMacro("Number of components do not match: Source: "
                   << source->GetNumberOfComponents() << " Dest: "
                   << this->GetNumberOfComponents());
     return;
-    }
+  }
 
   SetTupleArrayWorker worker(srcTupleIdx, dstTupleIdx);
   if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(srcDA, this, worker))
-    {
+  {
     worker(srcDA, this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkDataArray::SetTuple(vtkIdType i, const float *source)
 {
   for (int c = 0; c < this->NumberOfComponents; ++c)
-    {
+  {
     this->SetComponent(i, c, static_cast<double>(source[c]));
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkDataArray::SetTuple(vtkIdType i, const double *source)
 {
   for (int c = 0; c < this->NumberOfComponents; ++c)
-    {
+  {
     this->SetComponent(i, c, source[c]);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -515,13 +517,13 @@ void vtkDataArray::InsertTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
 {
   vtkIdType newSize = (dstTupleIdx + 1) * this->NumberOfComponents;
   if (this->Size < newSize)
-    {
+  {
     if (!this->Resize(dstTupleIdx + 1))
-      {
+    {
       vtkErrorMacro("Resize failed.");
       return;
-      }
     }
+  }
 
   this->MaxId = std::max(this->MaxId, newSize - 1);
 
@@ -542,70 +544,70 @@ void vtkDataArray::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
                                 vtkAbstractArray *src)
 {
   if (dstIds->GetNumberOfIds() == 0)
-    {
+  {
     return;
-    }
+  }
   if (dstIds->GetNumberOfIds() != srcIds->GetNumberOfIds())
-    {
+  {
     vtkErrorMacro("Mismatched number of tuples ids. Source: "
                   << srcIds->GetNumberOfIds() << " Dest: "
                   << dstIds->GetNumberOfIds());
     return;
-    }
+  }
   if (!vtkDataTypesCompare(src->GetDataType(), this->GetDataType()))
-    {
+  {
     vtkErrorMacro("Data type mismatch: Source: " << src->GetDataTypeAsString()
                   << " Dest: " << this->GetDataTypeAsString());
     return;
-    }
+  }
   if (src->GetNumberOfComponents() != this->GetNumberOfComponents())
-    {
+  {
     vtkErrorMacro("Number of components do not match: Source: "
                   << src->GetNumberOfComponents() << " Dest: "
                   << this->GetNumberOfComponents());
     return;
-    }
+  }
   vtkDataArray *srcDA = vtkDataArray::FastDownCast(src);
   if (!srcDA)
-    {
+  {
     vtkErrorMacro("Source array must be a subclass of vtkDataArray. Got: "
                   << src->GetClassName());
     return;
-    }
+  }
 
   vtkIdType maxSrcTupleId = srcIds->GetId(0);
   vtkIdType maxDstTupleId = dstIds->GetId(0);
   for (int i = 0; i < dstIds->GetNumberOfIds(); ++i)
-    {
+  {
     maxSrcTupleId = std::max(maxSrcTupleId, srcIds->GetId(i));
     maxDstTupleId = std::max(maxDstTupleId, dstIds->GetId(i));
-    }
+  }
 
   if (maxSrcTupleId >= src->GetNumberOfTuples())
-    {
+  {
     vtkErrorMacro("Source array too small, requested tuple at index "
                   << maxSrcTupleId << ", but there are only "
                   << src->GetNumberOfTuples() << " tuples in the array.");
     return;
-    }
+  }
 
   vtkIdType newSize = (maxDstTupleId + 1) * this->NumberOfComponents;
   if (this->Size < newSize)
-    {
+  {
     if (!this->Resize(maxDstTupleId + 1))
-      {
+    {
       vtkErrorMacro("Resize failed.");
       return;
-      }
     }
+  }
 
   this->MaxId = std::max(this->MaxId, newSize - 1);
 
   SetTuplesIdListWorker worker(srcIds, dstIds);
   if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(srcDA, this, worker))
-    {
+  {
     worker(srcDA, this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -613,58 +615,58 @@ void vtkDataArray::InsertTuples(vtkIdType dstStart, vtkIdType n,
                                 vtkIdType srcStart, vtkAbstractArray *src)
 {
   if (n == 0)
-    {
+  {
     return;
-    }
+  }
   if (!vtkDataTypesCompare(src->GetDataType(), this->GetDataType()))
-    {
+  {
     vtkErrorMacro("Data type mismatch: Source: " << src->GetDataTypeAsString()
                   << " Dest: " << this->GetDataTypeAsString());
     return;
-    }
+  }
   if (src->GetNumberOfComponents() != this->GetNumberOfComponents())
-    {
+  {
     vtkErrorMacro("Number of components do not match: Source: "
                   << src->GetNumberOfComponents() << " Dest: "
                   << this->GetNumberOfComponents());
     return;
-    }
+  }
   vtkDataArray *srcDA = vtkDataArray::FastDownCast(src);
   if (!srcDA)
-    {
+  {
     vtkErrorMacro("Source array must be a subclass of vtkDataArray. Got: "
                   << src->GetClassName());
     return;
-    }
+  }
 
   vtkIdType maxSrcTupleId = srcStart + n - 1;
   vtkIdType maxDstTupleId = dstStart + n - 1;
 
   if (maxSrcTupleId >= src->GetNumberOfTuples())
-    {
+  {
     vtkErrorMacro("Source array too small, requested tuple at index "
                   << maxSrcTupleId << ", but there are only "
                   << src->GetNumberOfTuples() << " tuples in the array.");
     return;
-    }
+  }
 
   vtkIdType newSize = (maxDstTupleId + 1) * this->NumberOfComponents;
   if (this->Size < newSize)
-    {
+  {
     if (!this->Resize(maxDstTupleId + 1))
-      {
+    {
       vtkErrorMacro("Resize failed.");
       return;
-      }
     }
+  }
 
   this->MaxId = std::max(this->MaxId, newSize - 1);
 
   SetTuplesRangeWorker worker(srcStart, dstStart, n);
   if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(srcDA, this, worker))
-    {
+  {
     worker(srcDA, this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -686,16 +688,16 @@ void vtkDataArray::SetComponent(vtkIdType tupleIdx, int compIdx, double value)
   double *tuple=new double[this->NumberOfComponents];
 
   if ( tupleIdx < this->GetNumberOfTuples() )
-    {
+  {
     this->GetTuple(tupleIdx,tuple);
-    }
+  }
   else
-    {
+  {
     for (int k=0; k<this->NumberOfComponents; k++)
-      {
+    {
       tuple[k] = 0.0;
-      }
     }
+  }
 
   tuple[compIdx] = value;
   this->SetTuple(tupleIdx,tuple);
@@ -710,16 +712,16 @@ void vtkDataArray::InsertComponent(vtkIdType tupleIdx, int compIdx,
   double *tuple=new double[this->NumberOfComponents];
 
   if ( tupleIdx < this->GetNumberOfTuples() )
-    {
+  {
     this->GetTuple(tupleIdx,tuple);
-    }
+  }
   else
-    {
+  {
     for (int k=0; k<this->NumberOfComponents; k++)
-      {
+    {
       tuple[k] = 0.0;
-      }
     }
+  }
 
   tuple[compIdx] = value;
   this->InsertTuple(tupleIdx,tuple);
@@ -738,13 +740,13 @@ void vtkDataArray::GetData(vtkIdType tupleMin, vtkIdType tupleMax, int compMin,
   double *ptr=data->WritePointer(0,(tupleMax-tupleMin+1)*(compMax-compMin+1));
 
   for (j=tupleMin; j <= tupleMax; j++)
-    {
+  {
     this->GetTuple(j,tuple);
     for (i=compMin; i <= compMax; i++)
-      {
+    {
       *ptr++ = tuple[i];
-      }
     }
+  }
   delete [] tuple;
 }
 
@@ -756,26 +758,26 @@ void vtkDataArray::InterpolateTuple(vtkIdType dstTupleIdx, vtkIdList *tupleIds,
                                     vtkAbstractArray* source,  double* weights)
 {
   if (!vtkDataTypesCompare(this->GetDataType(), source->GetDataType()))
-    {
+  {
     vtkErrorMacro("Cannot interpolate arrays of different type.");
     return;
-    }
+  }
 
   vtkDataArray *da = vtkDataArray::FastDownCast(source);
   if (!da)
-    {
+  {
     vtkErrorMacro(<<"Source array is not a vtkDataArray.");
     return;
-    }
+  }
 
   int numComps = this->GetNumberOfComponents();
   if (da->GetNumberOfComponents() != numComps)
-    {
+  {
     vtkErrorMacro("Number of components do not match: Source: "
                   << source->GetNumberOfComponents() << " Dest: "
                   << this->GetNumberOfComponents());
     return;
-    }
+  }
 
   vtkIdType numIds=tupleIds->GetNumberOfIds();
   vtkIdType *ids=tupleIds->GetPointer(0);
@@ -784,30 +786,30 @@ void vtkDataArray::InterpolateTuple(vtkIdType dstTupleIdx, vtkIdList *tupleIds,
                   this->GetDataType() == VTK_BIT;
 
   if (!fallback)
-    {
+  {
     InterpolateMultiTupleWorker worker(dstTupleIdx, ids, numIds, weights);
     // Use fallback if dispatch fails.
     fallback = !vtkArrayDispatch::Dispatch2SameValueType::Execute(da, this,
                                                                   worker);
-    }
+  }
 
   // Fallback to a separate implementation that checks vtkDataArray::GetDataType
   // rather than relying on API types, since we'll need to round differently
   // depending on type, and the API type for vtkDataArray is always double.
   if (fallback)
-    {
+  {
     bool doRound = !(this->GetDataType() == VTK_FLOAT ||
                      this->GetDataType() == VTK_DOUBLE);
     double typeMin = this->GetDataTypeMin();
     double typeMax = this->GetDataTypeMax();
 
     for (int c = 0; c < numComps; ++c)
-      {
+    {
       double val = 0.;
       for (vtkIdType j = 0; j < numIds; ++j)
-        {
+      {
         val += weights[j] * da->GetComponent(ids[j], c);
-        }
+      }
 
       // Clamp to data type range:
       val = std::max(val, typeMin);
@@ -815,13 +817,13 @@ void vtkDataArray::InterpolateTuple(vtkIdType dstTupleIdx, vtkIdList *tupleIds,
 
       // Round for floating point types:
       if (doRound)
-        {
+      {
         val = std::floor((val >= 0.) ? (val + 0.5) : (val - 0.5));
-        }
+      }
 
       this->InsertComponent(dstTupleIdx, c, val);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -838,50 +840,50 @@ void vtkDataArray::InterpolateTuple(vtkIdType dstTuple,
 
   if (!vtkDataTypesCompare(type, source1->GetDataType()) ||
       !vtkDataTypesCompare(type, source2->GetDataType()))
-    {
+  {
     vtkErrorMacro("All arrays to InterpolateValue must be of same type.");
     return;
-    }
+  }
 
   if (srcTuple1 >= source1->GetNumberOfTuples())
-    {
+  {
     vtkErrorMacro("Tuple 1 out of range for provided array. "
                   "Requested tuple: " << srcTuple1 << " "
                   "Tuples: " << source1->GetNumberOfTuples());
     return;
-    }
+  }
 
   if (srcTuple2 >= source2->GetNumberOfTuples())
-    {
+  {
     vtkErrorMacro("Tuple 2 out of range for provided array. "
                   "Requested tuple: " << srcTuple2 << " "
                   "Tuples: " << source2->GetNumberOfTuples());
     return;
-    }
+  }
 
   vtkDataArray *src1DA = vtkDataArray::FastDownCast(source1);
   vtkDataArray *src2DA = vtkDataArray::FastDownCast(source2);
   if (!src1DA || !src2DA)
-    {
+  {
     vtkErrorMacro("Both arrays must be vtkDataArray subclasses.");
     return;
-    }
+  }
 
   bool fallback = type == VTK_BIT;
 
   if (!fallback)
-    {
+  {
     InterpolateTupleWorker worker(srcTuple1, srcTuple2, dstTuple, t);
     // Use fallback if dispatch fails:
     fallback = !vtkArrayDispatch::Dispatch3SameValueType::Execute(
           src1DA, src2DA, this, worker);
-    }
+  }
 
   // Fallback to a separate implementation that checks vtkDataArray::GetDataType
   // rather than relying on API types, since we'll need to round differently
   // depending on type, and the API type for vtkDataArray is always double.
   if (fallback)
-    {
+  {
     bool doRound = !(this->GetDataType() == VTK_FLOAT ||
                      this->GetDataType() == VTK_DOUBLE);
     double typeMin = this->GetDataTypeMin();
@@ -891,7 +893,7 @@ void vtkDataArray::InterpolateTuple(vtkIdType dstTuple,
     double in2;
     double out;
     for (int c = 0; c < numComp; c++)
-      {
+    {
       in1 = src1DA->GetComponent(srcTuple1, c);
       in2 = src2DA->GetComponent(srcTuple2, c);
       out = in1 + t * (in2 - in1);
@@ -900,21 +902,21 @@ void vtkDataArray::InterpolateTuple(vtkIdType dstTuple,
       out = std::min(out, typeMax);
       // Round if needed:
       if (doRound)
-        {
+      {
         out = std::floor((out >= 0.) ? (out + 0.5) : (out - 0.5));
-        }
-      this->InsertComponent(dstTuple, c, out);
       }
+      this->InsertComponent(dstTuple, c, out);
     }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkDataArray::CreateDefaultLookupTable()
 {
   if ( this->LookupTable )
-    {
+  {
     this->LookupTable->UnRegister(this);
-    }
+  }
   this->LookupTable = vtkLookupTable::New();
   // make sure it is built
   // otherwise problems with InsertScalar trying to map through
@@ -926,18 +928,18 @@ void vtkDataArray::CreateDefaultLookupTable()
 void vtkDataArray::SetLookupTable(vtkLookupTable* lut)
 {
   if ( this->LookupTable != lut )
-    {
+  {
     if ( this->LookupTable )
-      {
+    {
       this->LookupTable->UnRegister(this);
-      }
+    }
     this->LookupTable = lut;
     if ( this->LookupTable )
-      {
+    {
       this->LookupTable->Register(this);
-      }
-    this->Modified();
     }
+    this->Modified();
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -945,10 +947,10 @@ double* vtkDataArray::GetTupleN(vtkIdType i, int n)
 {
   int numComp = this->GetNumberOfComponents();
   if (numComp != n)
-    {
+  {
     vtkErrorMacro("The number of components do not match the number requested: "
                   << numComp << " != " << n);
-    }
+  }
   return this->GetTuple(i);
 }
 
@@ -957,10 +959,10 @@ double vtkDataArray::GetTuple1(vtkIdType i)
 {
   int numComp = this->GetNumberOfComponents();
   if (numComp != 1)
-    {
+  {
     vtkErrorMacro("The number of components do not match the number requested: "
                   << numComp << " != 1");
-    }
+  }
   return *(this->GetTuple(i));
 }
 
@@ -995,10 +997,10 @@ void vtkDataArray::SetTuple1(vtkIdType i, double value)
 {
   int numComp = this->GetNumberOfComponents();
   if (numComp != 1)
-    {
+  {
     vtkErrorMacro("The number of components do not match the number requested: "
                   << numComp << " != 1");
-    }
+  }
   this->SetTuple(i, &value);
 }
 //----------------------------------------------------------------------------
@@ -1007,10 +1009,10 @@ void vtkDataArray::SetTuple2(vtkIdType i, double val0, double val1)
   double tuple[2];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 2)
-    {
+  {
     vtkErrorMacro("The number of components do not match the number requested: "
                   << numComp << " != 2");
-    }
+  }
   tuple[0] = val0;
   tuple[1] = val1;
   this->SetTuple(i, tuple);
@@ -1022,10 +1024,10 @@ void vtkDataArray::SetTuple3(vtkIdType i, double val0, double val1,
   double tuple[3];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 3)
-    {
+  {
     vtkErrorMacro("The number of components do not match the number requested: "
                   << numComp << " != 3");
-    }
+  }
   tuple[0] = val0;
   tuple[1] = val1;
   tuple[2] = val2;
@@ -1038,10 +1040,10 @@ void vtkDataArray::SetTuple4(vtkIdType i, double val0, double val1,
   double tuple[4];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 4)
-    {
+  {
     vtkErrorMacro("The number of components do not match the number requested: "
                   << numComp << " != 4");
-    }
+  }
   tuple[0] = val0;
   tuple[1] = val1;
   tuple[2] = val2;
@@ -1056,10 +1058,10 @@ void vtkDataArray::SetTuple6(vtkIdType i, double val0, double val1,
   double tuple[6];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 6)
-    {
+  {
     vtkErrorMacro("The number of components do not match the number requested: "
                   << numComp << " != 6");
-    }
+  }
   tuple[0] = val0;
   tuple[1] = val1;
   tuple[2] = val2;
@@ -1076,10 +1078,10 @@ void vtkDataArray::SetTuple9(vtkIdType i, double val0, double val1,
   double tuple[9];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 9)
-    {
+  {
     vtkErrorMacro("The number of components do not match the number requested: "
                   << numComp << " != 9");
-    }
+  }
   tuple[0] = val0;
   tuple[1] = val1;
   tuple[2] = val2;
@@ -1097,10 +1099,10 @@ void vtkDataArray::InsertTuple1(vtkIdType i, double value)
 {
   int numComp = this->GetNumberOfComponents();
   if (numComp != 1)
-    {
+  {
     vtkErrorMacro("The number of components do not match the number requested: "
                   << numComp << " != 1");
-    }
+  }
   this->InsertTuple(i, &value);
 }
 //----------------------------------------------------------------------------
@@ -1109,10 +1111,10 @@ void vtkDataArray::InsertTuple2(vtkIdType i, double val0, double val1)
   double tuple[2];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 2)
-    {
+  {
     vtkErrorMacro("The number of components do not match the number requested: "
                   << numComp << " != 2");
-    }
+  }
   tuple[0] = val0;
   tuple[1] = val1;
   this->InsertTuple(i, tuple);
@@ -1124,10 +1126,10 @@ void vtkDataArray::InsertTuple3(vtkIdType i, double val0, double val1,
   double tuple[3];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 3)
-    {
+  {
     vtkErrorMacro("The number of components do not match the number requested: "
                   << numComp << " != 3");
-    }
+  }
   tuple[0] = val0;
   tuple[1] = val1;
   tuple[2] = val2;
@@ -1140,10 +1142,10 @@ void vtkDataArray::InsertTuple4(vtkIdType i, double val0, double val1,
   double tuple[4];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 4)
-    {
+  {
     vtkErrorMacro("The number of components do not match the number requested: "
                   << numComp << " != 4");
-    }
+  }
   tuple[0] = val0;
   tuple[1] = val1;
   tuple[2] = val2;
@@ -1157,10 +1159,10 @@ void vtkDataArray::InsertTuple6(vtkIdType i, double val0, double val1,
                                 double val5)
 {
   if (this->NumberOfComponents != 6)
-    {
+  {
     vtkErrorMacro("The number of components do not match the number requested: "
                   << this->NumberOfComponents << " != 6");
-    }
+  }
   double tuple[6] = {val0, val1, val2, val3, val4, val5};
   this->InsertTuple(i, tuple);
 }
@@ -1173,10 +1175,10 @@ void vtkDataArray::InsertTuple9(vtkIdType i, double val0, double val1,
   double tuple[9];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 9)
-    {
+  {
     vtkErrorMacro("The number of components do not match the number requested: "
                   << numComp << " != 9");
-    }
+  }
   tuple[0] = val0;
   tuple[1] = val1;
   tuple[2] = val2;
@@ -1194,10 +1196,10 @@ void vtkDataArray::InsertNextTuple1(double value)
 {
   int numComp = this->GetNumberOfComponents();
   if (numComp != 1)
-    {
+  {
     vtkErrorMacro("The number of components do not match the number requested: "
                   << numComp << " != 1");
-    }
+  }
   this->InsertNextTuple(&value);
 }
 //----------------------------------------------------------------------------
@@ -1206,10 +1208,10 @@ void vtkDataArray::InsertNextTuple2(double val0, double val1)
   double tuple[2];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 2)
-    {
+  {
     vtkErrorMacro("The number of components do not match the number requested: "
                   << numComp << " != 2");
-    }
+  }
   tuple[0] = val0;
   tuple[1] = val1;
   this->InsertNextTuple(tuple);
@@ -1221,10 +1223,10 @@ void vtkDataArray::InsertNextTuple3(double val0, double val1,
   double tuple[3];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 3)
-    {
+  {
     vtkErrorMacro("The number of components do not match the number requested: "
                   << numComp << " != 3");
-    }
+  }
   tuple[0] = val0;
   tuple[1] = val1;
   tuple[2] = val2;
@@ -1237,10 +1239,10 @@ void vtkDataArray::InsertNextTuple4(double val0, double val1,
   double tuple[4];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 4)
-    {
+  {
     vtkErrorMacro("The number of components do not match the number requested: "
                   << numComp << " != 4");
-    }
+  }
   tuple[0] = val0;
   tuple[1] = val1;
   tuple[2] = val2;
@@ -1253,10 +1255,10 @@ void vtkDataArray::InsertNextTuple6(double val0, double val1, double val2,
                                     double val3, double val4, double val5)
 {
   if (this->NumberOfComponents != 6)
-    {
+  {
     vtkErrorMacro("The number of components do not match the number requested: "
                   << this->NumberOfComponents << " != 6");
-    }
+  }
 
   double tuple[6] = {val0, val1, val2, val3, val4, val5};
   this->InsertNextTuple(tuple);
@@ -1271,10 +1273,10 @@ void vtkDataArray::InsertNextTuple9(double val0, double val1,
   double tuple[9];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 9)
-    {
+  {
     vtkErrorMacro("The number of components do not match the number requested: "
                   << numComp << " != 9");
-    }
+  }
   tuple[0] = val0;
   tuple[1] = val1;
   tuple[2] = val2;
@@ -1309,10 +1311,10 @@ vtkDataArray* vtkDataArray::CreateDataArray(int dataType)
   vtkAbstractArray* aa = vtkAbstractArray::CreateArray(dataType);
   vtkDataArray* da = vtkDataArray::FastDownCast(aa);
   if (!da && aa)
-    {
+  {
     // Requested array is not a vtkDataArray. Delete the allocated array.
     aa->Delete();
-    }
+  }
   return da;
 }
 
@@ -1321,25 +1323,25 @@ void vtkDataArray::GetTuples(vtkIdList *tupleIds, vtkAbstractArray *aa)
 {
   vtkDataArray *da = vtkDataArray::FastDownCast(aa);
   if (!da)
-    {
+  {
     vtkErrorMacro("Input is not a vtkDataArray, but " << aa->GetClassName());
     return;
-    }
+  }
 
   if ((da->GetNumberOfComponents() != this->GetNumberOfComponents()))
-    {
+  {
     vtkErrorMacro("Number of components for input and output do not match.\n"
                   "Source: " << this->GetNumberOfComponents() << "\n"
                   "Destination: " << da->GetNumberOfComponents());
     return;
-    }
+  }
 
   GetTuplesFromListWorker worker(tupleIds);
   if (!vtkArrayDispatch::Dispatch2::Execute(this, da, worker))
-    {
+  {
     // Use fallback if dispatch fails.
     worker(this, da);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1347,43 +1349,43 @@ void vtkDataArray::GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *aa)
 {
   vtkDataArray* da = vtkDataArray::FastDownCast(aa);
   if (!da)
-    {
+  {
     vtkWarningMacro("Input is not a vtkDataArray.");
     return;
-    }
+  }
 
   if ((da->GetNumberOfComponents() != this->GetNumberOfComponents()))
-    {
+  {
     vtkErrorMacro("Number of components for input and output do not match.\n"
                   "Source: " << this->GetNumberOfComponents() << "\n"
                   "Destination: " << da->GetNumberOfComponents());
     return;
-    }
+  }
 
   GetTuplesRangeWorker worker(p1, p2);
   if (!vtkArrayDispatch::Dispatch2::Execute(this, da, worker))
-    {
+  {
     // Use fallback if dispatch fails.
     worker(this, da);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkDataArray::FillComponent(int compIdx, double value)
 {
   if (compIdx < 0 || compIdx >= this->GetNumberOfComponents())
-    {
+  {
     vtkErrorMacro(<< "Specified component " << compIdx << " is not in [0, "
     << this->GetNumberOfComponents() << ")" );
     return;
-    }
+  }
 
   vtkIdType i;
 
   for (i = 0; i < this->GetNumberOfTuples(); i++)
-    {
+  {
     this->SetComponent(i, compIdx, value);
-    }
+  }
 }
 
 
@@ -1392,34 +1394,34 @@ void vtkDataArray::CopyComponent(int dstComponent, vtkDataArray *src,
                                  int srcComponent)
 {
   if (this->GetNumberOfTuples() != src->GetNumberOfTuples())
-    {
+  {
     vtkErrorMacro(<< "Number of tuples in 'from' ("
     << src->GetNumberOfTuples() << ") and 'to' ("
     << this->GetNumberOfTuples() << ") do not match.");
     return;
-    }
+  }
 
   if (dstComponent < 0 || dstComponent >= this->GetNumberOfComponents())
-    {
+  {
     vtkErrorMacro(<< "Specified component " << dstComponent
                   << " in 'to' array is not in [0, "
                   << this->GetNumberOfComponents() << ")" );
     return;
-    }
+  }
 
   if (srcComponent < 0 || srcComponent >= src->GetNumberOfComponents())
-    {
+  {
     vtkErrorMacro(<< "Specified component " << srcComponent
                   << " in 'from' array is not in [0, "
                   << src->GetNumberOfComponents() << ")" );
     return;
-    }
+  }
 
   vtkIdType i;
   for (i = 0; i < this->GetNumberOfTuples(); i++)
-    {
+  {
     this->SetComponent(i, dstComponent, src->GetComponent(i, srcComponent));
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1431,13 +1433,13 @@ double vtkDataArray::GetMaxNorm()
 
   maxNorm = 0.0;
   for (i=0; i<this->GetNumberOfTuples(); i++)
-    {
+  {
     norm = vtkMath::Norm(this->GetTuple(i), nComponents);
     if ( norm > maxNorm )
-      {
+    {
       maxNorm = norm;
-      }
     }
+  }
 
   return maxNorm;
 }
@@ -1453,9 +1455,9 @@ int vtkDataArray::CopyInformation(vtkInformation* infoFrom, int deep)
   vtkInformation *myInfo=this->GetInformation();
   // Range:
   if (myInfo->Has( L2_NORM_RANGE() ))
-    {
+  {
     myInfo->Remove( L2_NORM_RANGE() );
-    }
+  }
 
   return 1;
 }
@@ -1466,14 +1468,14 @@ void vtkDataArray::ComputeRange(double range[2], int comp)
   //this method needs a large refactoring to be way easier to read
 
   if ( comp >= this->NumberOfComponents )
-    { // Ignore requests for nonexistent components.
+  { // Ignore requests for nonexistent components.
     return;
-    }
+  }
   // If we got component -1 on a vector array, compute vector magnitude.
   if (comp < 0 && this->NumberOfComponents == 1)
-    {
+  {
     comp = 0;
-    }
+  }
 
   range[0] = vtkTypeTraits<double>::Max();
   range[1] = vtkTypeTraits<double>::Min();
@@ -1481,49 +1483,49 @@ void vtkDataArray::ComputeRange(double range[2], int comp)
   vtkInformation* info = this->GetInformation();
   vtkInformationDoubleVectorKey* rkey;
   if ( comp < 0 )
-    {
+  {
     rkey = L2_NORM_RANGE();
     //hasValidKey will update range to the cached value if it exists.
     if( !hasValidKey(info,rkey,this->GetMTime(),range) )
-      {
+    {
 
       this->ComputeVectorRange(range);
       info->Set( rkey, range, 2 );
-      }
-    return;
     }
+    return;
+  }
   else
-    {
+  {
     rkey = COMPONENT_RANGE();
 
     //hasValidKey will update range to the cached value if it exists.
     if( !hasValidKey(info, PER_COMPONENT(), rkey,
                        this->GetMTime(), range, comp))
-      {
+    {
       double* allCompRanges = new double[this->NumberOfComponents*2];
       const bool computed = this->ComputeScalarRange(allCompRanges);
       if(computed)
-        {
+      {
         //construct the keys and add them to the info object
         vtkInformationVector* infoVec = vtkInformationVector::New();
         info->Set( PER_COMPONENT(), infoVec );
 
         infoVec->SetNumberOfInformationObjects( this->NumberOfComponents );
         for ( int i = 0; i < this->NumberOfComponents; ++i )
-          {
+        {
           infoVec->GetInformationObject( i )->Set( rkey,
                                                    allCompRanges+(i*2),
                                                    2 );
-          }
+        }
         infoVec->FastDelete();
 
         //update the range passed in since we have a valid range.
         range[0] = allCompRanges[comp*2];
         range[1] = allCompRanges[(comp*2)+1];
-        }
-      delete[] allCompRanges;
       }
+      delete[] allCompRanges;
     }
+  }
 }
 
 namespace
@@ -1569,9 +1571,9 @@ bool vtkDataArray::ComputeScalarRange(double* ranges)
 {
   ScalarRangeDispatchWrapper worker(ranges);
   if (!vtkArrayDispatch::Dispatch::Execute(this, worker))
-    {
+  {
     worker(this);
-    }
+  }
   return worker.Success;
 }
 
@@ -1580,9 +1582,9 @@ bool vtkDataArray::ComputeVectorRange(double range[2])
 {
   VectorRangeDispatchWrapper worker(range);
   if (!vtkArrayDispatch::Dispatch::Execute(this, worker))
-    {
+  {
     worker(this);
-    }
+  }
   return worker.Success;
 }
 
@@ -1615,7 +1617,7 @@ void vtkDataArray::GetDataTypeRange(int type, double range[2])
 double vtkDataArray::GetDataTypeMin(int type)
 {
   switch (type)
-    {
+  {
     case VTK_BIT:                return static_cast<double>(VTK_BIT_MIN);
     case VTK_SIGNED_CHAR:        return static_cast<double>(VTK_SIGNED_CHAR_MIN);
     case VTK_UNSIGNED_CHAR:      return static_cast<double>(VTK_UNSIGNED_CHAR_MIN);
@@ -1632,14 +1634,14 @@ double vtkDataArray::GetDataTypeMin(int type)
     case VTK_DOUBLE:             return static_cast<double>(VTK_DOUBLE_MIN);
     case VTK_ID_TYPE:            return static_cast<double>(VTK_ID_MIN);
     default: return 0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 double vtkDataArray::GetDataTypeMax(int type)
 {
   switch (type)
-    {
+  {
     case VTK_BIT:                return static_cast<double>(VTK_BIT_MAX);
     case VTK_SIGNED_CHAR:        return static_cast<double>(VTK_SIGNED_CHAR_MAX);
     case VTK_UNSIGNED_CHAR:      return static_cast<double>(VTK_UNSIGNED_CHAR_MAX);
@@ -1656,16 +1658,16 @@ double vtkDataArray::GetDataTypeMax(int type)
     case VTK_DOUBLE:             return static_cast<double>(VTK_DOUBLE_MAX);
     case VTK_ID_TYPE:            return static_cast<double>(VTK_ID_MAX);
     default: return 1;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkDataArray::RemoveLastTuple()
 {
   if (this->GetNumberOfTuples() > 0)
-    {
+  {
     this->Resize(this->GetNumberOfTuples() - 1);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1675,24 +1677,24 @@ void vtkDataArray::PrintSelf(ostream& os, vtkIndent indent)
 
   const char* name = this->GetName();
   if (name)
-    {
+  {
     os << indent << "Name: " << name << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Name: (none)\n";
-    }
+  }
   os << indent << "Number Of Components: " << this->NumberOfComponents << "\n";
   os << indent << "Number Of Tuples: " << this->GetNumberOfTuples() << "\n";
   os << indent << "Size: " << this->Size << "\n";
   os << indent << "MaxId: " << this->MaxId << "\n";
   if ( this->LookupTable )
-    {
+  {
     os << indent << "Lookup Table:\n";
     this->LookupTable->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "LookupTable: (none)\n";
-    }
+  }
 }

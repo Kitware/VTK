@@ -13,13 +13,16 @@
 
 =========================================================================*/
 
-// .NAME vtkPiecewisePointHandleItem - a vtkContextItem that draws handles
-//       around a point of a piecewise function
-//
-// .SECTION Description
-// This is a vtkContextItem that can be placed into a vtkContextScene. It draws
-// handles around a given point of a piecewise function so that the curve can
-// be adjusted using these handles.
+/**
+ * @class   vtkPiecewisePointHandleItem
+ * @brief   a vtkContextItem that draws handles
+ *       around a point of a piecewise function
+ *
+ *
+ * This is a vtkContextItem that can be placed into a vtkContextScene. It draws
+ * handles around a given point of a piecewise function so that the curve can
+ * be adjusted using these handles.
+*/
 
 #ifndef vtkPiecewisePointHandleItem_h
 #define vtkPiecewisePointHandleItem_h
@@ -42,51 +45,65 @@ public:
   static vtkPiecewisePointHandleItem *New();
   static void CallRedraw(vtkObject* sender, unsigned long event, void* receiver, void* params);
 
-  // Description:
-  // Set the parent item, which should be a vtkControlPointItem
+  /**
+   * Set the parent item, which should be a vtkControlPointItem
+   */
   virtual void SetParent(vtkAbstractContextItem *parent);
 
-  // Description:
-  // Paint event for the item.
+  /**
+   * Paint event for the item.
+   */
   virtual bool Paint(vtkContext2D *painter);
 
-  // Description:
-  // The current point id in the piecewise function being handled.
+  //@{
+  /**
+   * The current point id in the piecewise function being handled.
+   */
   vtkSetMacro(CurrentPointIndex, vtkIdType);
   vtkGetMacro(CurrentPointIndex, vtkIdType);
+  //@}
 
-  // Description
-  // Set the PieceWiseFunction the handles will manipulate
+  //@{
+  /**
+   * Set the PieceWiseFunction the handles will manipulate
+   */
   virtual void SetPiecewiseFunction(vtkPiecewiseFunction* piecewiseFunc);
   vtkWeakPointer<vtkPiecewiseFunction> GetPiecewiseFunction();
+  //@}
 
-  // Description:
-  // Returns the index of the handle if pos is over any of the handles,
-  // otherwise return -1;
+  /**
+   * Returns the index of the handle if pos is over any of the handles,
+   * otherwise return -1;
+   */
   int IsOverHandle(float* pos);
 
-  // Description:
-  // Returns true if the supplied x, y coordinate is inside the item.
+  /**
+   * Returns true if the supplied x, y coordinate is inside the item.
+   */
   virtual bool Hit(const vtkContextMouseEvent &mouse);
 
-  // Description:
-  // Mouse move event.
+  /**
+   * Mouse move event.
+   */
   virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
 
-  // Description:
-  // Mouse button down event.
+  /**
+   * Mouse button down event.
+   */
   virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
 
-  // Description:
-  // Mouse button release event.
+  /**
+   * Mouse button release event.
+   */
   virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
 
 protected:
   vtkPiecewisePointHandleItem();
   ~vtkPiecewisePointHandleItem();
 
-  // Description:
-  // Redraw all the handles
+  /**
+   * Redraw all the handles
+   */
   virtual void Redraw();
 
   int MouseOverHandleIndex;
@@ -97,8 +114,8 @@ protected:
   vtkCallbackCommand* Callback;
 
 private:
-  vtkPiecewisePointHandleItem(const vtkPiecewisePointHandleItem &); // Not implemented.
-  void operator=(const vtkPiecewisePointHandleItem &);   // Not implemented.
+  vtkPiecewisePointHandleItem(const vtkPiecewisePointHandleItem &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPiecewisePointHandleItem &) VTK_DELETE_FUNCTION;
 
   class InternalPiecewisePointHandleInfo;
   InternalPiecewisePointHandleInfo* Internal;

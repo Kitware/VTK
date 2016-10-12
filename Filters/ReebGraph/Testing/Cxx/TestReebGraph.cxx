@@ -4281,19 +4281,19 @@ double AreaSimplificationMetric::ComputeMetric(vtkDataSet *mesh,
   std::map<vtkIdType, bool> visitedTriangles;
 
   for(int i = 0; i < vertexList->GetNumberOfTuples(); i++)
-    {
+  {
     int vId = vertexList->GetVariantValue(i).ToInt();
     vtkIdList *starTriangleList = vtkIdList::New();
 
     mesh->GetPointCells(vId, starTriangleList);
 
     for(int j = 0; j < starTriangleList->GetNumberOfIds(); j++)
-      {
+    {
       vtkIdType tId = starTriangleList->GetId(j);
       vtkTriangle *t = vtkTriangle::SafeDownCast(mesh->GetCell(tId));
       std::map<vtkIdType, bool>::iterator tIt = visitedTriangles.find(tId);
       if(tIt == visitedTriangles.end())
-        {
+      {
         if((scalarField->GetComponent(t->GetPointIds()->GetId(0), 0)
           <= fieldUpperBound)
           &&(scalarField->GetComponent(t->GetPointIds()->GetId(1), 0)
@@ -4306,16 +4306,16 @@ double AreaSimplificationMetric::ComputeMetric(vtkDataSet *mesh,
           >= fieldLowerBound)
           &&(scalarField->GetComponent(t->GetPointIds()->GetId(2), 0)
           >= fieldLowerBound))
-          {
+        {
           // the triangle fully maps inside the arc function interval
           cumulativeArea += t->ComputeArea();
-          }
-        visitedTriangles[tId] = true;
         }
+        visitedTriangles[tId] = true;
       }
+    }
 
     starTriangleList->Delete();
-    }
+  }
 
   return cumulativeArea/(this->UpperBound - this->LowerBound);
 }
@@ -4398,7 +4398,7 @@ int DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skeleton)
     skeleton->GetNumberOfColumns()*skeleton->GetNumberOfRows());
 
   for(int i = 0; i < skeleton->GetNumberOfColumns(); i++)
-    {
+  {
     vtkDoubleArray *arc = vtkArrayDownCast<vtkDoubleArray>(skeleton->GetColumn(i));
 
     // critical point at the origin of the arc
@@ -4419,19 +4419,19 @@ int DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skeleton)
     // now add the samples to the skeleton polyData
     int initialSampleId = sampleId;
     for(int j = 0; j < arc->GetNumberOfTuples(); j++)
-      {
+    {
       arc->GetTypedTuple(j, point);
       skeletonSamples->SetPoint(sampleId, point);
       sampleId++;
-      }
+    }
     for(int j = 1; j < arc->GetNumberOfTuples(); j++)
-      {
+    {
       vtkIdType samplePair[2];
       samplePair[0] = j - 1 + initialSampleId;
       samplePair[1] = j + initialSampleId;
       embeddedSkeleton->InsertNextCell(VTK_LINE, 2, samplePair);
-      }
     }
+  }
   embeddedSkeleton->SetPoints(skeletonSamples);
   free(point);
   skeletonSamples->Delete();
@@ -4521,7 +4521,7 @@ int DisplayVolumeSkeleton(vtkUnstructuredGrid* vtkNotUsed(volumeMesh), vtkTable 
     skeleton->GetNumberOfColumns()*skeleton->GetNumberOfRows());
 
   for(int i = 0; i < skeleton->GetNumberOfColumns(); i++)
-    {
+  {
     vtkDoubleArray *arc = vtkArrayDownCast<vtkDoubleArray>(skeleton->GetColumn(i));
 
     // critical point at the origin of the arc
@@ -4542,19 +4542,19 @@ int DisplayVolumeSkeleton(vtkUnstructuredGrid* vtkNotUsed(volumeMesh), vtkTable 
     // now add the samples to the skeleton polyData
     int initialSampleId = sampleId;
     for(int j = 0; j < arc->GetNumberOfTuples(); j++)
-      {
+    {
       arc->GetTypedTuple(j, point);
       skeletonSamples->SetPoint(sampleId, point);
       sampleId++;
-      }
+    }
     for(int j = 1; j < arc->GetNumberOfTuples(); j++)
-      {
+    {
       vtkIdType samplePair[2];
       samplePair[0] = j - 1 + initialSampleId;
       samplePair[1] = j + initialSampleId;
       embeddedSkeleton->InsertNextCell(VTK_LINE, 2, samplePair);
-      }
     }
+  }
   embeddedSkeleton->SetPoints(skeletonSamples);
   free(point);
   skeletonSamples->Delete();
@@ -4616,7 +4616,7 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   vtkDoubleArray *surfaceScalarField = vtkDoubleArray::New();
   surfaceScalarField->SetNumberOfTuples(surfaceMesh->GetNumberOfPoints());
   for(vtkIdType vId = 0; vId < surfaceMesh->GetNumberOfPoints(); vId++)
-    {
+  {
     double *p = (double *) malloc(sizeof(double)*3);
     surfaceMesh->GetPoint(vId, p);
     double scalarValue = p[1];
@@ -4625,7 +4625,7 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
 
     surfaceScalarField->SetTuple1(vId, scalarValue);
     free(p);
-    }
+  }
   surfaceMesh->GetPointData()->SetScalars(surfaceScalarField);
 
   cout << "   Test 2D.1 Reeb graph computation... " << endl;
@@ -4639,10 +4639,10 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   if(surfaceReebGraph->GetNumberOfEdges() == 12)
     cout << "OK!" << endl;
   else
-    {
+  {
     cout << "Failed!" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   cout << "   Test 2D.2 Customized Reeb graph simplification... " << endl;
   vtkReebGraphSimplificationFilter *surfaceSimplification =
@@ -4653,10 +4653,10 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   // determining the maximum area
   double globalArea = 0;
   for(int i = 0; i < surfaceMesh->GetNumberOfCells(); i++)
-    {
+  {
     vtkTriangle *t = vtkTriangle::SafeDownCast(surfaceMesh->GetCell(i));
     globalArea += t->ComputeArea();
-    }
+  }
   metric->SetUpperBound(globalArea);
   surfaceSimplification->SetSimplificationMetric(metric);
 
@@ -4670,10 +4670,10 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   if(simplifiedSurfaceReebGraph->GetNumberOfEdges() == 12)
     cout << "OK!" << endl;
   else
-    {
+  {
     cout << "Failed!" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   cout << "   Test 2D.3 Reeb graph traversal..." << endl;
   errorCode = DisplayReebGraph(simplifiedSurfaceReebGraph);
@@ -4681,10 +4681,10 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   if(!errorCode)
     cout << "OK!" << endl;
   else
-    {
+  {
     cout << "Failed! (code " << errorCode << ")" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   cout << "   Test 2D.4 Reeb graph based surface skeleton... " << endl;
   vtkReebGraphSurfaceSkeletonFilter *surfaceSkeletonFilter =
@@ -4699,10 +4699,10 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   if(surfaceSkeleton->GetNumberOfColumns() == 12)
     cout << "OK!" << endl;
   else
-    {
+  {
     cout << "Failed!" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   cout << "   Test 2D.5 Area contour spectrum..." << endl;
   vtkAreaContourSpectrumFilter *areaSpectrumFilter =
@@ -4716,10 +4716,10 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   if(areaSpectrum->GetNumberOfRows() == 100)
     cout << "OK!" << endl;
   else
-    {
+  {
     cout << "Failed!" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
   cout << "   Test 2D.6 Reeb graph to split tree filter..." << endl;
@@ -4760,12 +4760,12 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   vtkDoubleArray *volumeScalarField = vtkDoubleArray::New();
   volumeScalarField->SetNumberOfTuples(volumeMesh->GetNumberOfPoints());
   for(vtkIdType vId = 0; vId < volumeMesh->GetNumberOfPoints(); vId++)
-    {
+  {
     double *p = (double *) malloc(sizeof(double)*3);
     volumeMesh->GetPoint(vId, p);
     volumeScalarField->SetTuple1(vId, p[1]);
     free(p);
-    }
+  }
   volumeMesh->GetPointData()->SetScalars(volumeScalarField);
 
   cout << "   Test 3D.1 Reeb graph computation... " << endl;
@@ -4778,10 +4778,10 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   if(volumeReebGraph->GetNumberOfEdges() == 10)
     cout << "OK!" << endl;
   else
-    {
+  {
     cout << "Failed!" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   cout << "   Test 3D.2 Customized Reeb graph simplification... " << endl;
   // in this example, we don't define any custom simplification metric and use
@@ -4796,10 +4796,10 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   if(simplifiedVolumeReebGraph->GetNumberOfEdges() == 10)
     cout << "OK!" << endl;
   else
-    {
+  {
     cout << "Failed!" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   cout << "   Test 3D.3 Reeb graph traversal..." << endl;
   errorCode = DisplayReebGraph(simplifiedVolumeReebGraph);
@@ -4807,10 +4807,10 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   if(!errorCode)
     cout << "OK!" << endl;
   else
-    {
+  {
     cout << "Failed! (code " << errorCode << ")" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   cout << "   Test 3D.4 Reeb graph based volume skeleton... " << endl;
   vtkReebGraphVolumeSkeletonFilter *volumeSkeletonFilter =
@@ -4824,10 +4824,10 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   if(volumeSkeleton->GetNumberOfColumns() == 10)
     cout << "OK!" << endl;
   else
-    {
+  {
     cout << "Failed!" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
   cout << "   Test 3D.5 Volume contour spectrum..." << endl;
@@ -4842,10 +4842,10 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   if(volumeSpectrum->GetNumberOfRows() == 100)
     cout << "OK!" << endl;
   else
-    {
+  {
     cout << "Failed!" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   cout << "   Test 3D.6 Reeb graph to join tree filter..." << endl;
   cout << "      Not currently tested..." << endl;

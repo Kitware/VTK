@@ -40,9 +40,9 @@ bool vtkGeoGlobeSource::FetchRoot(vtkGeoTreeNode* r)
 {
   vtkGeoTerrainNode* root = 0;
   if (!(root = vtkGeoTerrainNode::SafeDownCast(r)))
-    {
+  {
     vtkErrorMacro(<< "Can only fetch surface nodes from this source.");
-    }
+  }
 
   vtkSmartPointer<vtkGlobeSource> source =
     vtkSmartPointer<vtkGlobeSource>::New();
@@ -71,14 +71,14 @@ bool vtkGeoGlobeSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTreeNode*
 {
   vtkGeoTerrainNode* parent = 0;
   if (!(parent = vtkGeoTerrainNode::SafeDownCast(p)))
-    {
+  {
     vtkErrorMacro(<< "Can only fetch surface nodes from this source.");
-    }
+  }
   vtkGeoTerrainNode* child = 0;
   if (!(child = vtkGeoTerrainNode::SafeDownCast(c)))
-    {
+  {
     vtkErrorMacro(<< "Can only fetch surface nodes from this source.");
-    }
+  }
 
   double lonRange[2];
   double latRange[2];
@@ -91,21 +91,21 @@ bool vtkGeoGlobeSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTreeNode*
   int level = parent->GetLevel() + 1;
   child->SetLevel(level);
   if (index / 2)
-    {
+  {
     child->SetLatitudeRange(center[1], latRange[1]);
-    }
+  }
   else
-    {
+  {
     child->SetLatitudeRange(latRange[0], center[1]);
-    }
+  }
   if (index % 2)
-    {
+  {
     child->SetLongitudeRange(center[0], lonRange[1]);
-    }
+  }
   else
-    {
+  {
     child->SetLongitudeRange(lonRange[0], center[0]);
-    }
+  }
 
   int id = 0;
   id = parent->GetId() | (index << (2*level - 2));

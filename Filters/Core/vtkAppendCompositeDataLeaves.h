@@ -12,41 +12,44 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAppendCompositeDataLeaves - appends one or more composite datasets with the same structure together into a single output composite dataset
-// .SECTION Description
-// vtkAppendCompositeDataLeaves is a filter that takes input composite datasets with the same
-// structure: (1) the same number of entries and -- if any children are composites -- the
-// same constraint holds from them; and (2) the same type of dataset at each position.
-// It then creates an output dataset with the same structure whose leaves contain all the
-// cells from the datasets at the corresponding leaves of the input datasets.
-//
-// Currently, this filter only supports "appending" of a few types for the leaf
-// nodes and the logic used for each supported data type is as follows:
-//
-// \li vtkUnstructuredGrid - appends all unstructured grids from the leaf
-//     location on all inputs into a single unstructured grid for the
-//     corresponding location in the output composite dataset. PointData and
-//     CellData arrays are extracted and appended only if they are available in
-//     all datasets.(For example, if one dataset has scalars but another does
-//     not, scalars will not be appended.)
-//
-// \li vtkPolyData - appends all polydatas from the leaf location on all inputs
-//     into a single polydata for the corresponding location in the output
-//     composite dataset. PointData and CellData arrays are extracted and
-//     appended only if they are available in all datasets.(For example, if one
-//     dataset has scalars but another does not, scalars will not be appended.)
-//
-// \li vtkImageData/vtkUniformGrid - simply passes the first non-null
-//     grid for a particular location to corresponding location in the output.
-//
-// \li vtkTable - simply passes the first non-null vtkTable for a particular
-//     location to the corresponding location in the output.
-//
-// Other types of leaf datasets will be ignored and their positions in the
-// output dataset will be NULL pointers.
-//
-// .SECTION See Also
-// vtkAppendPolyData vtkAppendFilter
+/**
+ * @class   vtkAppendCompositeDataLeaves
+ * @brief   appends one or more composite datasets with the same structure together into a single output composite dataset
+ *
+ * vtkAppendCompositeDataLeaves is a filter that takes input composite datasets with the same
+ * structure: (1) the same number of entries and -- if any children are composites -- the
+ * same constraint holds from them; and (2) the same type of dataset at each position.
+ * It then creates an output dataset with the same structure whose leaves contain all the
+ * cells from the datasets at the corresponding leaves of the input datasets.
+ *
+ * Currently, this filter only supports "appending" of a few types for the leaf
+ * nodes and the logic used for each supported data type is as follows:
+ *
+ * \li vtkUnstructuredGrid - appends all unstructured grids from the leaf
+ *     location on all inputs into a single unstructured grid for the
+ *     corresponding location in the output composite dataset. PointData and
+ *     CellData arrays are extracted and appended only if they are available in
+ *     all datasets.(For example, if one dataset has scalars but another does
+ *     not, scalars will not be appended.)
+ *
+ * \li vtkPolyData - appends all polydatas from the leaf location on all inputs
+ *     into a single polydata for the corresponding location in the output
+ *     composite dataset. PointData and CellData arrays are extracted and
+ *     appended only if they are available in all datasets.(For example, if one
+ *     dataset has scalars but another does not, scalars will not be appended.)
+ *
+ * \li vtkImageData/vtkUniformGrid - simply passes the first non-null
+ *     grid for a particular location to corresponding location in the output.
+ *
+ * \li vtkTable - simply passes the first non-null vtkTable for a particular
+ *     location to the corresponding location in the output.
+ *
+ * Other types of leaf datasets will be ignored and their positions in the
+ * output dataset will be NULL pointers.
+ *
+ * @sa
+ * vtkAppendPolyData vtkAppendFilter
+*/
 
 #ifndef vtkAppendCompositeDataLeaves_h
 #define vtkAppendCompositeDataLeaves_h
@@ -63,56 +66,65 @@ public:
   static vtkAppendCompositeDataLeaves* New();
 
   vtkTypeMacro(vtkAppendCompositeDataLeaves,vtkCompositeDataSetAlgorithm);
-  void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
-  // Description:
-  // Set/get whether the field data of each dataset in the composite dataset is copied to the output.
-  // If AppendFieldData is non-zero, then field data arrays from all the inputs are added
-  // to the output. If there are duplicates, the array on the first input encountered is taken.
+  //@{
+  /**
+   * Set/get whether the field data of each dataset in the composite dataset is copied to the output.
+   * If AppendFieldData is non-zero, then field data arrays from all the inputs are added
+   * to the output. If there are duplicates, the array on the first input encountered is taken.
+   */
   vtkSetMacro(AppendFieldData,int);
   vtkGetMacro(AppendFieldData,int);
   vtkBooleanMacro(AppendFieldData,int);
+  //@}
 
 protected:
   vtkAppendCompositeDataLeaves();
-  ~vtkAppendCompositeDataLeaves();
+  ~vtkAppendCompositeDataLeaves() VTK_OVERRIDE;
 
-  // Description:
-  // Since vtkCompositeDataSet is an abstract class and we output the same types as the input,
-  // we must override the default implementation.
-  virtual int RequestDataObject( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
+  /**
+   * Since vtkCompositeDataSet is an abstract class and we output the same types as the input,
+   * we must override the default implementation.
+   */
+  int RequestDataObject( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
 
-  // Description:
-  // Iterates over the datasets and appends corresponding notes.
-  virtual int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
+  /**
+   * Iterates over the datasets and appends corresponding notes.
+   */
+  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
 
-  // Description:
-  // The input is repeatable, so we override the default implementation.
-  virtual int FillInputPortInformation( int port, vtkInformation* info );
+  /**
+   * The input is repeatable, so we override the default implementation.
+   */
+  int FillInputPortInformation( int port, vtkInformation* info ) VTK_OVERRIDE;
 
-  // Description:
-  // When leaf nodes are unstructured grids, this uses a vtkAppendFilter to merge them.
+  /**
+   * When leaf nodes are unstructured grids, this uses a vtkAppendFilter to merge them.
+   */
   virtual void AppendUnstructuredGrids(vtkInformationVector* inputVector,
     int i, int numInputs, vtkCompositeDataIterator* iter, vtkCompositeDataSet* output );
 
-  // Description:
-  // When leaf nodes are polydata, this uses a vtkAppendPolyData to merge them.
+  /**
+   * When leaf nodes are polydata, this uses a vtkAppendPolyData to merge them.
+   */
   virtual void AppendPolyData(vtkInformationVector* inputVector,
     int i, int numInputs, vtkCompositeDataIterator* iter, vtkCompositeDataSet* output );
 
-  // Description:
-  // Both AppendUnstructuredGrids and AppendPolyData call AppendFieldDataArrays. If
-  // AppendFieldData is non-zero, then field data arrays from all the inputs are added
-  // to the output. If there are duplicates, the array on the first input encountered
-  // is taken.
+  /**
+   * Both AppendUnstructuredGrids and AppendPolyData call AppendFieldDataArrays. If
+   * AppendFieldData is non-zero, then field data arrays from all the inputs are added
+   * to the output. If there are duplicates, the array on the first input encountered
+   * is taken.
+   */
   virtual void AppendFieldDataArrays(vtkInformationVector* inputVector,
     int i, int numInputs, vtkCompositeDataIterator* iter, vtkDataSet* dset );
 
   int AppendFieldData;
 
 private:
-  vtkAppendCompositeDataLeaves ( const vtkAppendCompositeDataLeaves& ); // Not implemented.
-  void operator = ( const vtkAppendCompositeDataLeaves& ); // Not implemented.
+  vtkAppendCompositeDataLeaves ( const vtkAppendCompositeDataLeaves& ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkAppendCompositeDataLeaves& ) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkAppendCompositeDataLeaves_h

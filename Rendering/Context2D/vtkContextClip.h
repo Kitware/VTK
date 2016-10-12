@@ -13,12 +13,15 @@
 
 =========================================================================*/
 
-// .NAME vtkContextClip - all children of this item are clipped
-// by the specified area.
-//
-// .SECTION Description
-// This class can be used to clip the rendering of an item inside a rectangular
-// area.
+/**
+ * @class   vtkContextClip
+ * @brief   all children of this item are clipped
+ * by the specified area.
+ *
+ *
+ * This class can be used to clip the rendering of an item inside a rectangular
+ * area.
+*/
 
 #ifndef vtkContextClip_h
 #define vtkContextClip_h
@@ -33,27 +36,32 @@ public:
   vtkTypeMacro(vtkContextClip, vtkAbstractContextItem);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Creates a vtkContextClip object.
+  /**
+   * Creates a vtkContextClip object.
+   */
   static vtkContextClip *New();
 
-  // Description:
-  // Perform any updates to the item that may be necessary before rendering.
-  // The scene should take care of calling this on all items before their
-  // Paint function is invoked.
+  /**
+   * Perform any updates to the item that may be necessary before rendering.
+   * The scene should take care of calling this on all items before their
+   * Paint function is invoked.
+   */
   virtual void Update();
 
-  // Description:
-  // Paint event for the item, called whenever the item needs to be drawn.
+  /**
+   * Paint event for the item, called whenever the item needs to be drawn.
+   */
   virtual bool Paint(vtkContext2D *painter);
 
-  // Description:
-  // Set the origin, width and height of the clipping rectangle. These are in
-  // pixel coordinates.
+  /**
+   * Set the origin, width and height of the clipping rectangle. These are in
+   * pixel coordinates.
+   */
   virtual void SetClip(float x, float y, float width, float height);
 
-  // Description:
-  // Get the clipping rectangle parameters in pixel coordinates:
+  /**
+   * Get the clipping rectangle parameters in pixel coordinates:
+   */
   virtual void GetRect(float rect[4]);
   virtual float GetX() { return Dims[0]; }
   virtual float GetY() { return Dims[1]; }
@@ -67,8 +75,8 @@ protected:
   float Dims[4];
 
 private:
-  vtkContextClip(const vtkContextClip &); // Not implemented.
-  void operator=(const vtkContextClip &);   // Not implemented.
+  vtkContextClip(const vtkContextClip &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkContextClip &) VTK_DELETE_FUNCTION;
 
 };
 

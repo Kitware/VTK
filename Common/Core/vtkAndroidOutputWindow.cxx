@@ -37,16 +37,16 @@ vtkAndroidOutputWindow::~vtkAndroidOutputWindow()
 void vtkAndroidOutputWindow::DisplayErrorText(const char* someText)
 {
   if(!someText)
-    {
+  {
     return;
-    }
+  }
 
   std::istringstream stream(someText);
   std::string line;
   while (std::getline(stream, line))
-    {
+  {
     __android_log_print(ANDROID_LOG_ERROR, "VTK", line.c_str());
-    }
+  }
   this->InvokeEvent(vtkCommand::ErrorEvent, (void*)someText);
 }
 
@@ -54,16 +54,16 @@ void vtkAndroidOutputWindow::DisplayErrorText(const char* someText)
 void vtkAndroidOutputWindow::DisplayWarningText(const char* someText)
 {
   if(!someText)
-    {
+  {
     return;
-    }
+  }
 
   std::istringstream stream(someText);
   std::string line;
   while (std::getline(stream, line))
-    {
+  {
     __android_log_print(ANDROID_LOG_WARN, "VTK", line.c_str());
-    }
+  }
   this->InvokeEvent(vtkCommand::WarningEvent,(void*) someText);
 }
 
@@ -71,48 +71,48 @@ void vtkAndroidOutputWindow::DisplayWarningText(const char* someText)
 void vtkAndroidOutputWindow::DisplayGenericWarningText(const char* someText)
 {
   if(!someText)
-    {
+  {
     return;
-    }
+  }
 
   std::istringstream stream(someText);
   std::string line;
   while (std::getline(stream, line))
-    {
+  {
     __android_log_print(ANDROID_LOG_WARN, "VTK", line.c_str());
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkAndroidOutputWindow::DisplayDebugText(const char* someText)
 {
   if(!someText)
-    {
+  {
     return;
-    }
+  }
 
   std::istringstream stream(someText);
   std::string line;
   while (std::getline(stream, line))
-    {
+  {
     __android_log_print(ANDROID_LOG_DEBUG, "VTK", line.c_str());
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkAndroidOutputWindow::DisplayText(const char* someText)
 {
   if(!someText)
-    {
+  {
     return;
-    }
+  }
 
   std::istringstream stream(someText);
   std::string line;
   while (std::getline(stream, line))
-    {
+  {
     __android_log_print(ANDROID_LOG_INFO, "VTK", line.c_str());
-    }
+  }
 }
 
 

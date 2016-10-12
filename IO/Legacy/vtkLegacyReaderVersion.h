@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkLegacyReaderVersion - version number for legacy readers/writers
+/**
+ * @class   vtkLegacyReaderVersion
+ * @brief   version number for legacy readers/writers
+*/
 
 #ifndef vtkLegacyReaderVersion_h
 #define vtkLegacyReaderVersion_h
 
 const int vtkLegacyReaderMajorVersion = 4;
-const int vtkLegacyReaderMinorVersion = 0;
+const int vtkLegacyReaderMinorVersion = 1;
 
 #endif // vtkLegacyReaderVersion_h
 // VTK-HeaderTest-Exclude: vtkLegacyReaderVersion.h

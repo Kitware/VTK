@@ -26,10 +26,10 @@ void vtkSystemInformationPrintFile(const char* name, ostream& os)
   os << "================================================================\n";
   struct stat fs;
   if(stat(name, &fs) != 0)
-    {
+  {
     os << "The file \"" << name << "\" does not exist.\n";
     return;
-    }
+  }
 
 #ifdef _WIN32
   ifstream fin(name, ios::in | ios::binary);
@@ -38,7 +38,7 @@ void vtkSystemInformationPrintFile(const char* name, ostream& os)
 #endif
 
   if(fin)
-    {
+  {
     os << "Contents of \"" << name << "\":\n";
     os << "----------------------------------------------------------------\n";
     const int bufferSize = 4096;
@@ -49,28 +49,28 @@ void vtkSystemInformationPrintFile(const char* name, ostream& os)
     // before using the data, but the fin.gcount() will be zero if an
     // error occurred.  Therefore, the loop should be safe everywhere.
     while(fin)
-      {
+    {
       fin.read(buffer, bufferSize);
       if(fin.gcount())
-        {
+      {
         os.write(buffer, fin.gcount());
-        }
       }
+    }
     os.flush();
-    }
+  }
   else
-    {
+  {
     os << "Error opening \"" << name << "\" for reading.\n";
-    }
+  }
 }
 
 int TestSystemInformation(int argc, char* argv[])
 {
   if(argc != 2)
-    {
+  {
     cerr << "Usage: TestSystemInformation <top-of-build-tree>\n";
     return 1;
-    }
+  }
   std::string build_dir = argv[1];
   build_dir += "/";
 
@@ -88,10 +88,10 @@ int TestSystemInformation(int argc, char* argv[])
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
   for(const char** f = files; *f; ++f)
-    {
+  {
     std::string fname = build_dir + *f;
     vtkSystemInformationPrintFile(fname.c_str(), cout);
-    }
+  }
 
   return 0;
 }

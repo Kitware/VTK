@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPointData - represent and manipulate point attribute data
-// .SECTION Description
-// vtkPointData is a class that is used to represent and manipulate
-// point attribute data (e.g., scalars, vectors, normals, texture
-// coordinates, etc.) Most of the functionality is handled by
-// vtkDataSetAttributes
+/**
+ * @class   vtkPointData
+ * @brief   represent and manipulate point attribute data
+ *
+ * vtkPointData is a class that is used to represent and manipulate
+ * point attribute data (e.g., scalars, vectors, normals, texture
+ * coordinates, etc.) Most of the functionality is handled by
+ * vtkDataSetAttributes
+*/
 
 #ifndef vtkPointData_h
 #define vtkPointData_h
@@ -31,16 +34,16 @@ public:
   static vtkPointData *New();
 
   vtkTypeMacro(vtkPointData,vtkDataSetAttributes);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   void NullPoint(vtkIdType ptId);
 
 protected:
   vtkPointData() {}
-  ~vtkPointData() {}
+  ~vtkPointData() VTK_OVERRIDE {}
 
 private:
-  vtkPointData(const vtkPointData&);  // Not implemented.
-  void operator=(const vtkPointData&);  // Not implemented.
+  vtkPointData(const vtkPointData&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPointData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

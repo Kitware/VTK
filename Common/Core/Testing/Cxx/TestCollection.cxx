@@ -41,20 +41,20 @@ int TestCollection(int,char *[])
 static bool IsEqual(vtkCollection* collection, const std::vector<vtkSmartPointer<vtkIntArray> >& v)
 {
   if (collection->GetNumberOfItems() != static_cast<int>(v.size()))
-    {
+  {
     return false;
-    }
+  }
   vtkIntArray* dataArray = 0;
   vtkCollectionSimpleIterator it;
   int i = 0;
   for (collection->InitTraversal(it);
        (dataArray = vtkIntArray::SafeDownCast(collection->GetNextItemAsObject(it))) ; ++i)
-    {
+  {
     if (v[i] != dataArray)
-      {
+    {
       return false;
-      }
     }
+  }
   return true;
 }
 
@@ -65,17 +65,17 @@ bool TestRegister()
   collection->AddItem(object);
   object->Delete();
   if (object->GetReferenceCount() != 1)
-    {
+  {
     std::cout << object->GetReferenceCount() << std::endl;
     return false;
-    }
+  }
   object->Register(0);
   collection->RemoveItem(object);
   if (object->GetReferenceCount() != 1)
-    {
+  {
     std::cout << object->GetReferenceCount() << std::endl;
     return false;
-    }
+  }
   object->UnRegister(0);
   return true;
 }
@@ -85,26 +85,26 @@ bool TestRemoveItem(int index, bool removeIndex)
   vtkNew<vtkCollection> collection;
   std::vector<vtkSmartPointer<vtkIntArray> > objects;
   for (int i = 0; i < 10; ++i)
-    {
+  {
     vtkNew<vtkIntArray> object;
     collection->AddItem(object.GetPointer());
     objects.push_back(object.GetPointer());
-    }
+  }
   if (removeIndex)
-    {
+  {
     collection->RemoveItem(index);
-    }
+  }
   else
-    {
+  {
     vtkObject* objectToRemove = objects[index];
     collection->RemoveItem(objectToRemove);
-    }
+  }
   objects.erase(objects.begin() + index);
   if (!IsEqual(collection.GetPointer(), objects))
-    {
+  {
     std::cout << "TestRemoveItem failed:" << std::endl;
     collection->Print(std::cout);
     return false;
-    }
+  }
   return true;
 }

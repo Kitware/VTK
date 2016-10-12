@@ -72,9 +72,9 @@ TestSpherePlaneIntersection(bool joinSegments)
   stripper->SetInputConnection(intersectionPolyDataFilter->GetOutputPort());
 
   if (joinSegments)
-    {
+  {
     stripper->SetJoinContiguousSegments(true);
-    }
+  }
 
   stripper->Update();
   vtkSmartPointer<vtkPolyDataMapper> intersectionMapper = vtkSmartPointer<
@@ -82,19 +82,19 @@ TestSpherePlaneIntersection(bool joinSegments)
   intersectionMapper->SetInputConnection(stripper->GetOutputPort());
 
   if (joinSegments)
-    {
+  {
     if (intersectionMapper->GetInput()->GetNumberOfLines() != 2)
-      {
-      return true;
-      }
-    }
-  else
     {
-    if (intersectionMapper->GetInput()->GetNumberOfLines() != 6)
-      {
-      return false;
-      }
+      return true;
     }
+  }
+  else
+  {
+    if (intersectionMapper->GetInput()->GetNumberOfLines() != 6)
+    {
+      return false;
+    }
+  }
 
   return true;
 }
@@ -103,14 +103,14 @@ int
 TestStripper(int, char *[])
 {
   if (!TestSpherePlaneIntersection(false))
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   if (!TestSpherePlaneIntersection(true))
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

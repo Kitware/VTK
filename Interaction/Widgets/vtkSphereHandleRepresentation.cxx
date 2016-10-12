@@ -105,9 +105,9 @@ void vtkSphereHandleRepresentation::PlaceWidget(double bds[6])
   this->SetWorldPosition(center);
 
   for (i=0; i<6; i++)
-    {
+  {
     this->InitialBounds[i] = bounds[i];
-    }
+  }
   this->InitialLength = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
                              (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
                              (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
@@ -178,18 +178,18 @@ int vtkSphereHandleRepresentation::ComputeInteractionState(int X, int Y, int vtk
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->CursorPicker);
 
   if ( path != NULL )
-    {
+  {
 //    this->InteractionState = vtkHandleRepresentation::Nearby;
       this->InteractionState = vtkHandleRepresentation::Selecting;
-    }
+  }
   else
-    {
+  {
     this->InteractionState = vtkHandleRepresentation::Outside;
     if ( this->ActiveRepresentation )
-      {
+    {
       this->VisibilityOff();
-      }
     }
+  }
 
   return this->InteractionState;
 }
@@ -199,47 +199,47 @@ int vtkSphereHandleRepresentation::DetermineConstraintAxis(int constraint, doubl
 {
   // Look for trivial cases
   if ( ! this->Constrained )
-    {
+  {
     return -1;
-    }
+  }
   else if ( constraint >= 0 && constraint < 3 )
-    {
+  {
     return constraint;
-    }
+  }
 
   // Okay, figure out constraint. First see if the choice is
   // outside the hot spot
   if ( ! this->WaitingForMotion )
-    {
+  {
     double p[3], d2, tol;
     this->CursorPicker->GetPickPosition(p);
     d2 = vtkMath::Distance2BetweenPoints(p,this->StartEventPosition);
     tol = this->HotSpotSize*this->InitialLength;
     if ( d2 > (tol*tol) )
-      {
+    {
       this->WaitingForMotion = 0;
       return this->CursorPicker->GetCellId();
-      }
+    }
     else
-      {
+    {
       this->WaitingForMotion = 1;
       this->WaitCount = 0;
       return -1;
-      }
     }
+  }
   else if ( this->WaitingForMotion && x )
-    {
+  {
     double v[3];
     this->WaitingForMotion = 0;
     v[0] = fabs(x[0] - this->StartEventPosition[0]);
     v[1] = fabs(x[1] - this->StartEventPosition[1]);
     v[2] = fabs(x[2] - this->StartEventPosition[2]);
     return ( v[0]>v[1] ? (v[0]>v[2]?0:2) : (v[1]>v[2]?1:2));
-    }
+  }
   else
-    {
+  {
     return -1;
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -257,17 +257,17 @@ void vtkSphereHandleRepresentation::StartWidgetInteraction(double startEventPos[
         startEventPos[0], startEventPos[1], 0., this->CursorPicker);
 
   if ( path != NULL )
-    {
+  {
 //    this->InteractionState = vtkHandleRepresentation::Nearby;
       this->InteractionState = vtkHandleRepresentation::Selecting;
     this->ConstraintAxis = this->DetermineConstraintAxis(-1,NULL);
     this->CursorPicker->GetPickPosition(this->LastPickPosition);
-    }
+  }
   else
-    {
+  {
     this->InteractionState = vtkHandleRepresentation::Outside;
     this->ConstraintAxis = -1;
-    }
+  }
 }
 
 
@@ -297,26 +297,26 @@ void vtkSphereHandleRepresentation::WidgetInteraction(double eventPos[2])
   // Process the motion
   if ( this->InteractionState == vtkHandleRepresentation::Selecting ||
        this->InteractionState == vtkHandleRepresentation::Translating )
-    {
+  {
     if ( !this->WaitingForMotion || this->WaitCount++ > 3 )
-      {
+    {
       this->ConstraintAxis =
         this->DetermineConstraintAxis(this->ConstraintAxis,pickPoint);
       if ( this->InteractionState == vtkHandleRepresentation::Selecting && !this->TranslationMode )
-        {
+      {
         this->MoveFocus(prevPickPoint, pickPoint);
-        }
+      }
       else
-        {
+      {
         this->Translate(prevPickPoint, pickPoint);
-        }
       }
     }
+  }
 
   else if ( this->InteractionState == vtkHandleRepresentation::Scaling )
-    {
+  {
     this->Scale(prevPickPoint, pickPoint, eventPos);
-    }
+  }
 
   // Book keeping
   this->LastEventPosition[0] = eventPos[0];
@@ -337,15 +337,15 @@ void vtkSphereHandleRepresentation::MoveFocus(double *p1, double *p2)
   double focus[3];
   this->Sphere->GetCenter(focus);
   if ( this->ConstraintAxis >= 0 )
-    {
+  {
     focus[this->ConstraintAxis] += v[this->ConstraintAxis];
-    }
+  }
   else
-    {
+  {
     focus[0] += v[0];
     focus[1] += v[1];
     focus[2] += v[2];
-    }
+  }
 
   this->SetWorldPosition(focus);
 }
@@ -364,20 +364,20 @@ void vtkSphereHandleRepresentation::Translate(double *p1, double *p2)
   double newFocus[3];
 
   if ( this->ConstraintAxis >= 0 )
-    {//move along axis
+  {//move along axis
     for (int i=0; i<3; i++)
-      {
+    {
       if ( i != this->ConstraintAxis )
-        {
+      {
         v[i] = 0.0;
-        }
       }
     }
+  }
 
   for (int i=0; i<3; i++)
-    {
+  {
     newFocus[i] = pos[i] + v[i];
-    }
+  }
   this->SetWorldPosition(newFocus);
 
   double radius = this->SizeHandlesInPixels(1.0,newFocus);
@@ -415,13 +415,13 @@ void vtkSphereHandleRepresentation::Scale(double *p1, double *p2, double eventPo
           (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
 
   if ( eventPos[1] > this->LastEventPosition[1] )
-    {
+  {
     sf = 1.0 + sf;
-    }
+  }
   else
-    {
+  {
     sf = 1.0 - sf;
-    }
+  }
 
   this->CurrentHandleSize *= sf;
   this->CurrentHandleSize = (this->CurrentHandleSize < 0.001 ? 0.001 : this->CurrentHandleSize);
@@ -433,13 +433,13 @@ void vtkSphereHandleRepresentation::Scale(double *p1, double *p2, double eventPo
 void vtkSphereHandleRepresentation::Highlight(int highlight)
 {
   if ( highlight )
-    {
+  {
     this->Actor->SetProperty(this->SelectedProperty);
-    }
+  }
   else
-    {
+  {
     this->Actor->SetProperty(this->Property);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -459,17 +459,17 @@ void vtkSphereHandleRepresentation::BuildRepresentation()
   if ( this->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
-    {
+  {
     if ( ! this->Placed )
-      {
+    {
       this->ValidPick = 1;
       this->Placed = 1;
-      }
+    }
 
     this->SizeBounds();
     this->Sphere->Update();
     this->BuildTime.Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -478,12 +478,12 @@ void vtkSphereHandleRepresentation::ShallowCopy(vtkProp *prop)
   vtkSphereHandleRepresentation *rep =
     vtkSphereHandleRepresentation::SafeDownCast(prop);
   if ( rep )
-    {
+  {
     this->SetTranslationMode(rep->GetTranslationMode());
     this->SetProperty(rep->GetProperty());
     this->SetSelectedProperty(rep->GetSelectedProperty());
     this->SetHotSpotSize(rep->GetHotSpotSize());
-    }
+  }
   this->Superclass::ShallowCopy(prop);
 }
 
@@ -493,12 +493,12 @@ void vtkSphereHandleRepresentation::DeepCopy(vtkProp *prop)
   vtkSphereHandleRepresentation *rep =
     vtkSphereHandleRepresentation::SafeDownCast(prop);
   if ( rep )
-    {
+  {
     this->SetTranslationMode(rep->GetTranslationMode());
     this->Property->DeepCopy(rep->GetProperty());
     this->SelectedProperty->DeepCopy(rep->GetSelectedProperty());
     this->SetHotSpotSize(rep->GetHotSpotSize());
-    }
+  }
   this->Superclass::DeepCopy(prop);
 }
 
@@ -540,9 +540,9 @@ void vtkSphereHandleRepresentation::SetProperty(vtkProperty * p)
 {
   vtkSetObjectBodyMacro(Property, vtkProperty, p);
   if (p)
-    {
+  {
     this->Actor->SetProperty( p );
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -553,21 +553,21 @@ void vtkSphereHandleRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Hot Spot Size: " << this->HotSpotSize << "\n";
   if ( this->Property )
-    {
+  {
     os << indent << "Property: " << this->Property << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Property: (none)\n";
-    }
+  }
   if ( this->SelectedProperty )
-    {
+  {
     os << indent << "Selected Property: " << this->SelectedProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Selected Property: (none)\n";
-    }
+  }
 
   os << indent << "Translation Mode: " << (this->TranslationMode ? "On\n" : "Off\n");
   os << indent << "Sphere: " << this->Sphere << "\n";

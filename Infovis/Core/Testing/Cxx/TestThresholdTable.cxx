@@ -73,28 +73,28 @@ int TestThresholdTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   // Perform error checking
   if (!intArrOut)
-    {
+  {
     cerr << "int array undefined in output" << endl;
     errors++;
-    }
+  }
   else if (intArrOut->GetNumberOfTuples() != 2)
-    {
+  {
     cerr << "int threshold should have 2 tuples, instead has " << intArrOut->GetNumberOfTuples() << endl;
     errors++;
-    }
+  }
   else
-    {
+  {
     if (intArrOut->GetValue(0) != 3)
-      {
+    {
       cerr << "int array [0] should be 3 but is " << intArrOut->GetValue(0) << endl;
       errors++;
-      }
+    }
     if (intArrOut->GetValue(1) != 4)
-      {
+    {
       cerr << "int array [1] should be 4 but is " << intArrOut->GetValue(1) << endl;
       errors++;
-      }
     }
+  }
 
   threshold->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, "doubleArr");
   threshold->SetMaxValue(vtkVariant(1.2));
@@ -105,33 +105,33 @@ int TestThresholdTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   // Perform error checking
   if (!doubleArrOut)
-    {
+  {
     cerr << "double array undefined in output" << endl;
     errors++;
-    }
+  }
   else if (doubleArrOut->GetNumberOfTuples() != 3)
-    {
+  {
     cerr << "double threshold should have 3 tuples, instead has " << intArrOut->GetNumberOfTuples() << endl;
     errors++;
-    }
+  }
   else
-    {
+  {
     if (doubleArrOut->GetValue(0) != 1.0)
-      {
+    {
       cerr << "double array [0] should be 1.0 but is " << doubleArrOut->GetValue(0) << endl;
       errors++;
-      }
+    }
     if (doubleArrOut->GetValue(1) != 1.1)
-      {
+    {
       cerr << "double array [1] should be 1.1 but is " << doubleArrOut->GetValue(1) << endl;
       errors++;
-      }
+    }
     if (doubleArrOut->GetValue(2) != 1.2)
-      {
+    {
       cerr << "double array [2] should be 1.2 but is " << doubleArrOut->GetValue(2) << endl;
       errors++;
-      }
     }
+  }
 
   threshold->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, "stringArr");
   threshold->SetMinValue(vtkVariant("10"));
@@ -143,33 +143,33 @@ int TestThresholdTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   // Perform error checking
   if (!stringArrOut)
-    {
+  {
     cerr << "string array undefined in output" << endl;
     errors++;
-    }
+  }
   else if (stringArrOut->GetNumberOfTuples() != 3)
-    {
+  {
     cerr << "string threshold should have 3 tuples, instead has " << stringArrOut->GetNumberOfTuples() << endl;
     errors++;
-    }
+  }
   else
-    {
+  {
     if (stringArrOut->GetValue(0) != "10")
-      {
+    {
       cerr << "string array [0] should be 10 but is " << stringArrOut->GetValue(0) << endl;
       errors++;
-      }
+    }
     if (stringArrOut->GetValue(1) != "13")
-      {
+    {
       cerr << "string array [1] should be 13 but is " << stringArrOut->GetValue(1) << endl;
       errors++;
-      }
+    }
     if (stringArrOut->GetValue(2) != "14")
-      {
+    {
       cerr << "string array [2] should be 14 but is " << stringArrOut->GetValue(2) << endl;
       errors++;
-      }
     }
+  }
 
   return errors;
 }

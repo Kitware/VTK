@@ -38,10 +38,10 @@ vtkSmartPyObject::vtkSmartPyObject(const vtkSmartPyObject &other) :
 vtkSmartPyObject::~vtkSmartPyObject()
 {
   if (Py_IsInitialized())
-    {
+  {
     vtkPythonScopeGilEnsurer gilEnsurer;
     Py_XDECREF(this->Object);
-    }
+  }
 }
 
 //--------------------------------------------------------------------

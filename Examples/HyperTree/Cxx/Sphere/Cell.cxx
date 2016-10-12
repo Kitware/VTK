@@ -33,9 +33,9 @@ Cell::Cell (int id, vector<Node*> nodes)
   _count++;
 
   for (vector<Node*>::iterator it = _nodes.begin(); it != _nodes.end(); it++)
-    {
+  {
     (*it)->registerCell (this);
-    }
+  }
 
 }
 
@@ -44,9 +44,9 @@ Cell::Cell (int id, vector<Node*> nodes)
 Cell::~Cell()
 {
   for (vector<Node*>::iterator it = _nodes.begin(); it != _nodes.end(); it++)
-    {
+  {
     (*it)->unregisterCell (this);
-    }
+  }
   delete [] _nodeIds;
 }
 
@@ -58,14 +58,14 @@ void Cell::refineIfNeeded()
 
   double v1 = computeValue (_nodes[0]);
   for (int i = 1; i < 8; i++)
-    {
+  {
     double v2 = computeValue (_nodes[i]);
     if (v1*v2 < 0)
-      {
+    {
       this->refine();
       return;
-      }
     }
+  }
 }
 
 /*-------------------------------------------------------------------------
@@ -80,9 +80,9 @@ void Cell::refine ()
 
   // desenregistrement de la maille aupres des noeuds
   for (vector<Node*>::iterator it = _nodes.begin(); it != _nodes.end(); it++)
-    {
+  {
     (*it)->unregisterCell (this);
-    }
+  }
   delete [] _nodeIds;
 
   _count--;
@@ -110,9 +110,9 @@ vtkIdType * Cell::getNodeIds()
   _nodeIds = new vtkIdType[_nodes.size()+1];
   int index = 0;
   for (vector<Node*>::iterator it = _nodes.begin(); it != _nodes.end(); it++)
-    {
+  {
     _nodeIds[index++] = (*it)->getId();
-    }
+  }
   _nodeIds[index++] = -1;
   return _nodeIds;
 }
@@ -123,10 +123,10 @@ void Cell::replaceNode (Node* oldNode, Node* newNode)
 {
   vector<Node*>::iterator it = std::find (_nodes.begin(), _nodes.end(), oldNode);
   if (it != _nodes.end())
-    {
+  {
     _nodes.insert (it, newNode);
     _nodes.erase (it);
     oldNode->unregisterCell (this);
     newNode->registerCell (this);
-    }
+  }
 }

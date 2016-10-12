@@ -12,11 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageGaussianSource - Create an image with Gaussian pixel values.
-// .SECTION Description
-// vtkImageGaussianSource just produces images with pixel values determined
-// by a Gaussian.
-
+/**
+ * @class   vtkImageGaussianSource
+ * @brief   Create an image with Gaussian pixel values.
+ *
+ * vtkImageGaussianSource just produces images with pixel values determined
+ * by a Gaussian.
+*/
 
 #ifndef vtkImageGaussianSource_h
 #define vtkImageGaussianSource_h
@@ -31,25 +33,35 @@ public:
   vtkTypeMacro(vtkImageGaussianSource,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set/Get the extent of the whole output image.
+  /**
+   * Set/Get the extent of the whole output image.
+   */
   void SetWholeExtent(int xMinx, int xMax, int yMin, int yMax,
                       int zMin, int zMax);
 
-  // Description:
-  // Set/Get the center of the Gaussian.
+  //@{
+  /**
+   * Set/Get the center of the Gaussian.
+   */
   vtkSetVector3Macro(Center, double);
   vtkGetVector3Macro(Center, double);
+  //@}
 
-  // Description:
-  // Set/Get the Maximum value of the gaussian
+  //@{
+  /**
+   * Set/Get the Maximum value of the gaussian
+   */
   vtkSetMacro(Maximum, double);
   vtkGetMacro(Maximum, double);
+  //@}
 
-  // Description:
-  // Set/Get the standard deviation of the gaussian
+  //@{
+  /**
+   * Set/Get the standard deviation of the gaussian
+   */
   vtkSetMacro(StandardDeviation, double);
   vtkGetMacro(StandardDeviation, double);
+  //@}
 
 protected:
   vtkImageGaussianSource();
@@ -63,8 +75,8 @@ protected:
   virtual int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
-  vtkImageGaussianSource(const vtkImageGaussianSource&);  // Not implemented.
-  void operator=(const vtkImageGaussianSource&);  // Not implemented.
+  vtkImageGaussianSource(const vtkImageGaussianSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageGaussianSource&) VTK_DELETE_FUNCTION;
 };
 
 

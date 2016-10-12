@@ -63,7 +63,7 @@
   for(int rank=0; rank<NumProcs; rank++){\
     Controller->Barrier();\
     if(rank==Rank) cout<<"("<<this->Rank<<")"<<x<<endl;\
-    }
+  }
 #define Assert(a,msg)\
 {\
     if(!a) \
@@ -147,10 +147,10 @@ namespace
       unsigned int size =sizeof(T);
       char* value = reinterpret_cast<char*>(&t);
       for(unsigned int i=0; i<size;i++)
-        {
+      {
         AssertGe(Size,this->Head-this->Data);
         *(this->Head++) = (*(value++));
-        }
+      }
       return (*this);
     }
 
@@ -199,19 +199,19 @@ namespace
   inline void UpdateBB(double* a, const double* b)
   {
     for(int i=0; i<=4; i+=2)
-      {
+    {
       if(b[i]<a[i])
-        {
-        a[i] = b[i];
-        }
-      }
-    for(int i=1; i<=5; i+=2)
       {
-      if(b[i]>a[i])
-        {
         a[i] = b[i];
-        }
       }
+    }
+    for(int i=1; i<=5; i+=2)
+    {
+      if(b[i]>a[i])
+      {
+        a[i] = b[i];
+      }
+    }
   }
 }
 
@@ -263,18 +263,18 @@ public:
   void CopyTail(PStreamTracerPoint* other)
   {
     if(other->Tail)
-      {
+    {
       vtkPointData* pd = other->Tail->GetPointData();
       if(!this->Tail)
-        {
-        AllocateTail(pd);
-        }
-      this->Tail->GetPointData()->DeepCopy(pd);
-      }
-    else
       {
-      Tail = NULL;
+        AllocateTail(pd);
       }
+      this->Tail->GetPointData()->DeepCopy(pd);
+    }
+    else
+    {
+      Tail = NULL;
+    }
   }
 
 
@@ -282,14 +282,14 @@ public:
   void AllocateTail(vtkPointData* pd)
   {
     if(!this->Tail)
-      {
+    {
       Tail = vtkSmartPointer<vtkPolyData>::New();
       vtkNew<vtkPoints> points;
-        {
+      {
         points->SetNumberOfPoints(1);
-        }
-        Tail->SetPoints(points.GetPointer());
       }
+        Tail->SetPoints(points.GetPointer());
+    }
 
 
     this->Tail->GetPointData()->CopyAllocate(pd);
@@ -300,9 +300,9 @@ public:
     int size(0);
     vtkPointData* data = this->GetTail()->GetPointData();
     for(int i=0; i<data->GetNumberOfArrays();i++)
-      {
+    {
       size+= data->GetArray(i)->GetNumberOfComponents();
-      }
+    }
     return size*sizeof(double) + sizeof(PStreamTracerPoint);
   }
 
@@ -321,33 +321,33 @@ public:
     char hasTail(0);
     stream>> hasTail;
     if(hasTail)
-      {
+    {
       double x[3];
       for(int i=0; i<3; i++)
-        {
+      {
         stream>>x[i];
-        }
+      }
       AssertNe(this->Tail,NULL); //someone should have allocated it by prototype
       this->Tail->SetPoints( vtkSmartPointer<vtkPoints>::New());
       this->Tail->GetPoints()->InsertNextPoint(x);
 
       vtkPointData* pointData = this->Tail->GetPointData();
       for(int i=0; i<pointData->GetNumberOfArrays();i++)
-        {
+      {
         int numComponents = pointData->GetArray(i)->GetNumberOfComponents();
         std::vector<double> xi(numComponents);
         for(int j=0; j<numComponents; j++)
-          {
+        {
           double& xj(xi[j]);
           stream>>xj;
-          }
-        pointData->GetArray(i)->InsertNextTuple(&xi[0]);
         }
+        pointData->GetArray(i)->InsertNextTuple(&xi[0]);
       }
+    }
     else
-      {
+    {
       this->Tail = NULL;
-      }
+    }
   }
 
   virtual void Write(MyStream& stream)
@@ -364,23 +364,23 @@ public:
     stream<<(char)(this->Tail!=NULL);
 
     if(this->Tail)
-      {
+    {
       double* x = this->Tail->GetPoints()->GetPoint(0);
       for(int i=0; i<3; i++)
-        {
+      {
         stream<<x[i];
-        }
+      }
       vtkPointData* pData = this->Tail->GetPointData();
       int numArrays(pData->GetNumberOfArrays());
       for(int i=0; i<numArrays;i++)
-        {
+      {
         vtkDataArray* arr = pData->GetArray(i);
         int numComponents = arr->GetNumberOfComponents();
         double* y = arr->GetTuple(0);
         for(int j=0; j<numComponents;j++)
           stream<<y[j];
-        }
       }
+    }
   }
 
 private:
@@ -469,18 +469,18 @@ public:
     InitBB(bb);
 
     if(data)
-      {
+    {
       vtkCompositeDataIterator * iter = data->NewIterator();
       iter->InitTraversal();
       while ( !iter->IsDoneWithTraversal() )
-        {
+      {
         vtkDataSet* dataSet = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
         AssertNe(dataSet,NULL);
         UpdateBB(bb,dataSet->GetBounds());
         iter->GoToNextItem();
-        }
-      iter->Delete();
       }
+      iter->Delete();
+    }
 
     PRINT(bb[0]<<" "<<bb[1]<<" "<<bb[2]<<" "<<bb[3]<<" "<<bb[4]<<" "<<bb[5]);
     this->Controller->AllGather(bb,&this->BoundingBoxes[0],6);
@@ -488,10 +488,10 @@ public:
 #ifdef DEBUGTRACE
     cout<<"("<<Rank<<") BoundingBoxes: ";
     for(int i=0; i<NumProcs;i++)
-      {
+    {
       double* box = this->GetBoundingBox(i);
       cout<<box[0]<<" "<<box[1]<<" "<<box[2]<<" "<<box[3]<<" "<<box[4]<<" "<<box[5]<<";  ";
-      }
+    }
     cout<<endl;
 #endif
   }
@@ -504,12 +504,12 @@ public:
   {
     for(int rank=CNext(this->Rank,this->NumProcs);
         rank!=Rank;rank=CNext(rank,this->NumProcs))
-      {
+    {
       if(InBB(p,GetBoundingBox(rank)))
-        {
+      {
         return rank;
-        }
       }
+    }
     return -1;
   }
 private:
@@ -528,9 +528,9 @@ private:
   void InitBoundingBoxes(int num)
   {
     for(int i=0; i<6*num; i++)
-      {
+    {
       this->BoundingBoxes.push_back(0);
-      }
+    }
   }
   std::vector<double> BoundingBoxes;
 };
@@ -577,27 +577,27 @@ public:
 
     int numSeeds = seedIds->GetNumberOfIds();
     for (int i = 0; i < numSeeds; i ++ )
-      {
+    {
       double seed[3];
       seeds->GetTuple(seedIds->GetId(i),seed);
       vtkSmartPointer<PStreamTracerPoint> point = NewPoint(i,seed,integrationDirections->GetValue(i));
       if(this->InBound(point))
-        {
+      {
         out.push_back(point.GetPointer());
-        }
       }
+    }
     if(seeds)
-      {
+    {
       seeds->Delete();
-      }
+    }
     if(seedIds)
-      {
+    {
       seedIds->Delete();
-      }
+    }
     if(integrationDirections)
-      {
+    {
       integrationDirections->Delete();
-      }
+    }
 
     maxId = numSeeds-1;
 
@@ -614,24 +614,24 @@ public:
     this->VecName = NULL;
     this->Input0 = 0;
     if(!tracer->EmptyData)
-      {
+    {
       vtkCompositeDataIterator* iter = tracer->InputData->NewIterator();
       vtkSmartPointer<vtkCompositeDataIterator> iterP(iter);
       iter->Delete();
       iterP->GoToFirstItem();
       if(!iterP->IsDoneWithTraversal())
-        {
+      {
         Input0 = vtkDataSet::SafeDownCast(iterP->GetCurrentDataObject());
         //iterP->GotoNextitem();
-        }
+      }
       vtkDataArray* vectors = tracer->GetInputArrayToProcess(0,this->Input0,this->VecType);
       this->VecName = vectors->GetName();
-      }
+    }
 
     if(!tracer->EmptyData)
-      {
+    {
       this->CreatePrototype(this->Input0->GetPointData(),VecType,VecName);
-      }
+    }
   }
 
 protected:
@@ -653,15 +653,15 @@ protected:
     protoPD->AddArray(time);
 
     if(fieldType==vtkDataObject::FIELD_ASSOCIATION_CELLS)
-      {
+    {
       vtkSmartPointer<vtkDoubleArray> velocityVectors = vtkSmartPointer<vtkDoubleArray>::New();
       velocityVectors->SetName(vecName);
       velocityVectors->SetNumberOfComponents(3);
       protoPD->AddArray(velocityVectors);
-      }
+    }
 
     if(Tracer->GetComputeVorticity())
-      {
+    {
       vtkSmartPointer<vtkDoubleArray> vorticity = vtkSmartPointer<vtkDoubleArray>::New();
       vorticity->SetName("Vorticity");
       vorticity->SetNumberOfComponents(3);
@@ -674,16 +674,16 @@ protected:
       vtkSmartPointer<vtkDoubleArray> angularVel  = vtkSmartPointer<vtkDoubleArray>::New();
       angularVel->SetName("AngularVelocity");
       protoPD->AddArray(angularVel);
-      }
+    }
 
     if(Tracer->GenerateNormalsInIntegrate)
-      {
+    {
       PRINT("Generate normals prototype");
       vtkSmartPointer<vtkDoubleArray> normals = vtkSmartPointer<vtkDoubleArray>::New();
       normals->SetName("Normals");
       normals->SetNumberOfComponents(3);
       protoPD->AddArray(normals);
-      }
+    }
     AssertEq(this->Proto->GetTail(),NULL);
     this->Proto->AllocateTail(protoPD.GetPointer());
   }
@@ -736,9 +736,9 @@ public:
     vtkSmartPointer<PStreamTracerPoint>  p = vtkSmartPointer<PStreamTracerPoint>::New();
     p->SetId(id);
     if(x)
-      {
+    {
       p->SetSeed(x);
-      }
+    }
     p->SetDirection(dir);
     return p;
   }
@@ -762,17 +762,17 @@ public:
     vtkAMRInterpolatedVelocityField* amrFunc = vtkAMRInterpolatedVelocityField::SafeDownCast(func);
     assert(amrFunc);
     if(amrPoint->GetLevel()>=0)
-      {
+    {
       amrFunc->SetLastDataSet(amrPoint->GetLevel(),amrPoint->GetGridId());
 #ifdef DEBUGTRACE
       vtkUniformGrid* grid = this->AMR->GetDataSet(amrPoint->GetLevel(),amrPoint->GetGridId());
       if(!grid || !InBB(amrPoint->GetSeed(),grid->GetBounds()))
-        {
+      {
         PRINT("WARNING: Bad AMR Point "<<(grid)<<" "<<amrPoint->GetSeed()[0]<<" "<<amrPoint->GetSeed()[1]<<" "<<amrPoint->GetSeed()[2]<<
               " "<<amrPoint->GetLevel()<<" "<<amrPoint->GetGridId());
-        }
-#endif
       }
+#endif
+    }
   }
 
 
@@ -782,21 +782,21 @@ public:
     vtkAMRInterpolatedVelocityField* amrFunc = vtkAMRInterpolatedVelocityField::SafeDownCast(func);
     unsigned int level, id;
     if(amrFunc->GetLastDataSetLocation(level,id))
-      {
+    {
       amrPoint->SetLevel(level);
       amrPoint->SetId(id);
       int blockIndex = this->AMR->GetCompositeIndex(level,id);
       amrPoint->SetRank(this->BlockProcess[blockIndex]);
       return true;
-      }
+    }
     else
-      {
+    {
       PRINT("Invalid AMR : "<<point->GetSeed()[0]<<" "<<point->GetSeed()[1]<<" "<<point->GetSeed()[2]<<" "<<"Probably out of bound");
       amrPoint->SetLevel(-1);
       amrPoint->SetGridId(-1);
       amrPoint->SetRank(-1);
       return false;
-      }
+    }
   }
 
   //this assume that p's AMR information has been set correctly
@@ -805,9 +805,9 @@ public:
   {
     AMRPStreamTracerPoint* amrp = AMRPStreamTracerPoint::SafeDownCast(p);
     if(amrp->GetLevel()<0)
-      {
+    {
       return false;
-      }
+    }
     AssertNe(amrp,NULL);
     vtkUniformGrid* grid= this->AMR->GetDataSet(amrp->GetLevel(),amrp->GetGridId());
     return grid!=NULL;
@@ -820,27 +820,27 @@ public:
     vtkSmartPointer<PStreamTracerPoint>  p  = amrp;
     p->SetId(id);
     if(x)
-      {
+    {
       p->SetSeed(x);
-      }
+    }
     p->SetDirection(dir);
 
     if(x)
-      {
+    {
       unsigned int level, gridId;
       if(vtkAMRInterpolatedVelocityField::FindGrid(x,this->AMR,level,gridId))
-        {
+      {
         amrp->SetLevel((int)level);
         amrp->SetGridId((int)gridId);
         int blockIndex =this->AMR->GetCompositeIndex(level,gridId);
         int process  =this->BlockProcess[blockIndex];
         AssertGe(process,0);
         amrp->SetRank(process);
-        }
-      else
-        {
-        }
       }
+      else
+      {
+      }
+    }
 
     return p;
   }
@@ -900,47 +900,47 @@ namespace
     double p[3];
     pts->GetPoint(poly->GetId(0),p);
     for(int j=1; j<n;j++)
-      {
+    {
       int pIndex = poly->GetId(j);
       double q[3];
       pts->GetPoint(pIndex,q);
       s+= sqrt( vtkMath::Distance2BetweenPoints(p,q));
       memcpy(p,q,3*sizeof(double));
-      }
+    }
     return s;
   }
 
   inline void PrintNames(ostream& out, vtkPointData* a)
   {
     for(int i=0; i<a->GetNumberOfArrays();i++)
-      {
+    {
       out<< a->GetArray(i)->GetName()<<" ";
-      }
+    }
     out<<endl;
   }
 
   inline bool SameShape(vtkPointData* a, vtkPointData* b)
   {
     if (!a || !b)
-      {
+    {
       return false;
-      }
+    }
 
     if(a->GetNumberOfArrays()!=b->GetNumberOfArrays())
-      {
+    {
       PrintNames(cerr,a);
       PrintNames(cerr,b);
       return false;
-      }
+    }
 
     int numArrays(a->GetNumberOfArrays());
     for(int i=0; i<numArrays;i++)
-      {
+    {
       if(a->GetArray(i)->GetNumberOfComponents()!=b->GetArray(i)->GetNumberOfComponents())
-        {
+      {
         return false;
-        }
       }
+    }
 
     return true;
   }
@@ -1062,66 +1062,66 @@ namespace
       AssertGe(MaxId,0);
       int numSeeds  = static_cast<int>(seeds.size());
       this->HasData.clear();
-        {
+      {
         for(int i=0; i<NumProcs;i++)
           this->HasData.push_back(0);
 
         std::vector<int> hasDataIn(NumProcs);
         for(int i=0; i<NumProcs;i++)
-          {
+        {
           hasDataIn[i] = i==Rank? hasData: 0;
-          }
-        this->Controller->AllReduce(&hasDataIn[0],&this->HasData[0],NumProcs,vtkCommunicator::MAX_OP);
         }
+        this->Controller->AllReduce(&hasDataIn[0],&this->HasData[0],NumProcs,vtkCommunicator::MAX_OP);
+      }
 
       for(int i=0; i<NumProcs;i++)
-        {
+      {
         if(this->HasData[i])
-          {
+        {
           this->Leader=i;
           break;
-          }
         }
+      }
 
       std::vector<int> processMap0(MaxId+1);
       for(int i=0; i<MaxId+1; i++)
-        {
+      {
         processMap0[i] = -1;
-        }
+      }
       for (int i = 0; i < numSeeds; i ++ )
-        {
+      {
         int rank  = seeds[i]->GetRank();
         int id = seeds[i]->GetId();
         if(rank<0 && this->Locator)
-          {
+        {
           rank = this->Locator->InCurrentProcess(seeds[i]->GetSeed())? this->Rank : -1;
-          }
-        processMap0[id] = rank;
         }
+        processMap0[id] = rank;
+      }
 
       std::vector<int> processMap(MaxId+1);
       this->Controller->AllReduce(&processMap0[0], &processMap[0],MaxId+1,vtkCommunicator::MAX_OP);
 
       int totalNumTasks(0);
       for (int id = 0; id <=MaxId; id++)
-        {
+      {
         if(processMap[id]>=0)
-          {
+        {
           totalNumTasks++;
-          }
         }
+      }
       this->TotalNumTasks = Rank==this->Leader? totalNumTasks: INT_MAX; //only the master process knows how many are left
 
       for (int i = 0; i < numSeeds; i++ )
-        {
+      {
         int id = seeds[i]->GetId();
         if(processMap[id]==Rank)
-          {
+        {
           vtkNew<Task> task;
           task->Point = seeds[i];
           NTasks.push_back(task.GetPointer());
-          }
         }
+      }
       ALLPRINT(NTasks.size()<<" initial seeds out of "<<totalNumTasks);
 
     }
@@ -1129,69 +1129,69 @@ namespace
     Task* NextTask()
     {
       if(!this->HasData[Rank])
-        {
+      {
         return NULL;
-        }
+      }
 
       //---------------------------------------------------------
       // Send messages
       //---------------------------------------------------------
 
       while(!this->PTasks.empty())
-        {
+      {
         vtkSmartPointer<Task> task  = PTasks.back();
         PTasks.pop_back();
 
         if(task->GetTraceTerminated())
-          {
+        {
           //send to the master process
           this->Send(TaskFinished,this->Leader,task);
-          }
+        }
         else
-          {
+        {
           if(!task->GetTraceExtended())
-            {
+          {
             //increment the peak
             task->NumPeeks++;
             PRINT("Skip "<<task->GetId()<<" with "<<task->NumPeeks<<" Peeks");
-            }
+          }
           else
-            {
+          {
             task->NumPeeks=1;
-            }
+          }
           int nextProcess = -1;
           if(task->NumPeeks<this->NumProcs)
-            {
+          {
             nextProcess = NextProcess(task);
             if(nextProcess>=0)
-              {
+            {
               task->IncHop();
               //send it to the next guy
               this->Send(NewTask,NextProcess(task),task);
-              }
-            }
-
-          if(nextProcess<0)
-            {
-            this->Send(TaskFinished,this->Leader,task); //no one can do it, norminally finished
-            PRINT("Bail on "<<task->GetId());
             }
           }
+
+          if(nextProcess<0)
+          {
+            this->Send(TaskFinished,this->Leader,task); //no one can do it, norminally finished
+            PRINT("Bail on "<<task->GetId());
+          }
         }
+      }
 
       //---------------------------------------------------------
       // Receive messages
       //---------------------------------------------------------
 
       do
-        {
+      {
         this->Receive(this->TotalNumTasks!=0 && this->Msgs.empty() && NTasks.empty()); //wait if there is nothing to do
         while(!this->Msgs.empty())
-          {
+        {
           Message msg = this->Msgs.back();
           this->Msgs.pop_back();
           switch(msg)
-            {
+          {
             case NewTask: break;
             case TaskFinished:
               AssertEq(Rank,this->Leader);
@@ -1203,31 +1203,31 @@ namespace
               this->TotalNumTasks=0;
               break;
             default: assert(false);
-            }
           }
-        }while(this->TotalNumTasks!=0 && NTasks.empty());
+        }
+      }while(this->TotalNumTasks!=0 && NTasks.empty());
 
       vtkSmartPointer<Task> nextTask;
       if(NTasks.empty())
-        {
+      {
         AssertEq( this->TotalNumTasks,0);
         if(this->Rank==this->Leader)   //let everyeone know
-          {
+        {
           for(int i=(this->Rank+1)%NumProcs; i!=this->Rank;i=(i+1)%NumProcs)
-            {
+          {
             if(this->HasData[i])
-              {
+            {
               this->Send(NoMoreTasks,i,0);
-              }
             }
           }
         }
+      }
       else
-        {
+      {
         nextTask = this->NTasks.back();
         this->NTasks.pop_back();
         this->PTasks.push_back(nextTask);
-        }
+      }
 
       return nextTask;
     }
@@ -1235,16 +1235,16 @@ namespace
     ~TaskManager()
     {
       for( BufferList::iterator itr=SendBuffers.begin();itr!=SendBuffers.end();itr++)
-        {
+      {
         MessageBuffer* buf = *itr;
         AssertNe(buf->GetRequest().Test(),0);
         delete buf;
-        }
+      }
       if(this->ReceiveBuffer)
-        {
+      {
         this->ReceiveBuffer->GetRequest().Cancel();
         delete ReceiveBuffer;
-        }
+      }
     }
   private:
     ProcessLocator* Locator;
@@ -1266,13 +1266,13 @@ namespace
     void Send(int msg, int rank, Task* task)
     {
       if(task && (msg==TaskFinished))
-        {
+      {
         PRINT("Done in "<<task->Point->GetNumSteps()<<" steps "<<task->NumHops<<" hops");
-        }
+      }
       if(rank==this->Rank)
-        {
+      {
         switch(msg)
-          {
+        {
           case TaskFinished:
             this->TotalNumTasks--;
             PRINT(TotalNumTasks<<" tasks left");
@@ -1280,10 +1280,10 @@ namespace
           default:
             PRINT("Unhandled message "<<msg);
             assert(false);
-          }
         }
+      }
       else
-        {
+      {
         MessageBuffer& buf = this->NewSendBuffer();
         MessageStream& outStream(buf.GetStream());
 
@@ -1291,23 +1291,23 @@ namespace
         AssertNe(this->Rank,rank);
 
         if(task)
-          {
+        {
           outStream<<(*task);
-          }
+        }
 
         AssertGe(this->MessageSize,outStream.GetLength());
         this->Controller->NoBlockSend(outStream.GetRawData(),outStream.GetLength(),rank,561,buf.GetRequest());
 
         NumSends++;
         if(task)
-          {
+        {
           PRINT("Send "<<msg<<"; task "<<task->GetId());//<<" "<<task->Seed[0]<<" "<<task->Seed[1]<<" "<<task->Seed[2]<<" to "<<rank);
-          }
-        else
-          {
-          PRINT("Send "<<msg);
-          }
         }
+        else
+        {
+          PRINT("Send "<<msg);
+        }
+      }
 
     }
     int NextProcess(Task* task)
@@ -1315,14 +1315,14 @@ namespace
       PStreamTracerPoint* p = task->GetPoint();
       int rank = p->GetRank();
       if(rank>=0)
-        {
+      {
         return rank;
-        }
+      }
 
       if(this->Locator)
-        {
+      {
         rank = this->Locator->FindNextProcess(p->GetSeed());
-        }
+      }
       AssertNe(rank,Rank);
       return rank;
     }
@@ -1349,17 +1349,17 @@ namespace
       //remove all empty buffers
       BufferList::iterator itr = SendBuffers.begin();
       while(itr!=SendBuffers.end())
-        {
+      {
         MessageBuffer* buf(*itr);
         BufferList::iterator next = itr;
         next++;
         if(buf->GetRequest().Test())
-          {
+        {
           delete buf;
           SendBuffers.erase(itr);
-          }
-        itr = next;
         }
+        itr = next;
+      }
 
       MessageBuffer* buf = new MessageBuffer(this->MessageSize);
       SendBuffers.push_back(buf);
@@ -1375,42 +1375,42 @@ namespace
       this->StartTimer();
 #endif
       if(ReceiveBuffer && wait)
-        {
+      {
         ReceiveBuffer->GetRequest().Wait();
-        }
+      }
 
       if(ReceiveBuffer && ReceiveBuffer->GetRequest().Test())
-        {
+      {
         MyStream& inStream(ReceiveBuffer->GetStream());
         inStream >>msg >> sender;
         this->Msgs.push_back( (Message)msg);
         if(msg==NewTask)
-          {
+        {
           PRINT("Received message "<<msg<<" from "<<sender)
 
           vtkSmartPointer<Task> task = this->NewTaskInstance();
           this->Read(inStream,*task);
           PRINT("Received task "<<task->GetId());//<<" "<<task->Seed[0]<<" "<<task->Seed[1]<<" "<<task->Seed[2]);
           this->NTasks.push_back(task);
-          }
-        delete ReceiveBuffer;  ReceiveBuffer = NULL;
         }
+        delete ReceiveBuffer;  ReceiveBuffer = NULL;
+      }
       if(ReceiveBuffer==NULL)
-        {
+      {
         ReceiveBuffer = new MessageBuffer(this->MessageSize);
         MyStream& inStream(ReceiveBuffer->GetStream());
         this->Controller->NoBlockReceive(inStream.GetRawData(),
                                          inStream.GetSize(),
                                          vtkMultiProcessController::ANY_SOURCE,561,
                                          ReceiveBuffer->GetRequest());
-        }
+      }
 
 #ifdef DEBUGTRACE
       double time = this->StopTimer();
       if(msg>=0)
-        {
+      {
         this->ReceiveTime+=time;
-        }
+      }
 #endif
 
     }
@@ -1433,9 +1433,9 @@ vtkPStreamTracer::vtkPStreamTracer()
 {
   this->Controller = vtkMultiProcessController::GetGlobalController();
   if (this->Controller)
-    {
+  {
     this->Controller->Register(this);
-    }
+  }
   this->Interpolator = 0;
   this->GenerateNormalsInIntegrate = 0;
 
@@ -1445,10 +1445,10 @@ vtkPStreamTracer::vtkPStreamTracer()
 vtkPStreamTracer::~vtkPStreamTracer()
 {
   if (this->Controller)
-    {
+  {
     this->Controller->UnRegister(this);
     this->Controller = 0;
-    }
+  }
   this->SetInterpolator(0);
 }
 
@@ -1467,30 +1467,30 @@ int vtkPStreamTracer::RequestUpdateExtent(
 
   int numInputs = this->GetNumberOfInputConnections(0);
   for (int idx = 0; idx < numInputs; ++idx)
-    {
+  {
     vtkInformation *info = inputVector[0]->GetInformationObject(idx);
     if (info)
-      {
+    {
       info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
                 piece);
       info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
                 numPieces);
       info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
                 ghostLevel);
-      }
     }
+  }
 
 
   vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
   if (sourceInfo)
-    {
+  {
     sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
                     0);
     sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
                     1);
     sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
                     ghostLevel);
-    }
+  }
 
   return 1;
 }
@@ -1501,12 +1501,12 @@ int vtkPStreamTracer::RequestData(
   vtkInformationVector *outputVector)
 {
   if (!vtkMPIController::SafeDownCast(this->Controller) || this->Controller->GetNumberOfProcesses() == 1)
-    {
+  {
     this->GenerateNormalsInIntegrate = 1;
     int result = vtkStreamTracer::RequestData(request,inputVector,outputVector);
     this->GenerateNormalsInIntegrate = 0;
     return result;
-    }
+  }
 
   this->Rank = this->Controller->GetLocalProcessId();
   this->NumProcs = this->Controller->GetNumberOfProcesses();
@@ -1515,17 +1515,17 @@ int vtkPStreamTracer::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   if (!this->SetupOutput(inInfo, outInfo))
-    {
+  {
     return 0;
-    }
+  }
 
   vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
   vtkDataSet *source = 0;
   if (sourceInfo)
-    {
+  {
     source = vtkDataSet::SafeDownCast(
       sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
-    }
+  }
   vtkPolyData* output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -1537,7 +1537,7 @@ int vtkPStreamTracer::RequestData(
   int maxCellSize = 0;
   func = NULL;
   if (this->CheckInputs(func, &maxCellSize) != VTK_OK)
-    {
+  {
     vtkDebugMacro("No appropriate inputs have been found..");
     this->EmptyData = 1;
     PRINT("Has Empty Data")
@@ -1546,26 +1546,26 @@ int vtkPStreamTracer::RequestData(
     // when this->InputData is NULL ---- no any data has been assigned
     // to this process
     if ( func )
-      {
+    {
       func->Delete();
       func = NULL;
-      }
     }
+  }
   else
-    {
+  {
     func->SetCaching(0);
     this->SetInterpolator(func);
     func->Delete();
-    }
+  }
 
   if(vtkOverlappingAMR::SafeDownCast(this->InputData))
-    {
+  {
     this->Utils = vtkSmartPointer<AMRPStreamTracerUtils>::New();
-    }
+  }
   else
-    {
+  {
     this->Utils = vtkSmartPointer<PStreamTracerUtils>::New();
-    }
+  }
   this->Utils->Initialize(this);
   ALLPRINT("Vec Name: "<<this->Utils->GetVecName());
   typedef std::vector< vtkSmartPointer<vtkPolyData> > traceOutputsType;
@@ -1583,7 +1583,7 @@ int vtkPStreamTracer::RequestData(
   std::vector<int> traceIds;
   int iterations = 0;
   while( (task = taskManager.NextTask()))
-    {
+  {
     iterations++;
     PStreamTracerPoint* point = task->GetPoint();
 
@@ -1599,20 +1599,20 @@ int vtkPStreamTracer::RequestData(
     task->SetTraceExtended(traceOut->GetNumberOfPoints()>0);
 
     if(task->GetTraceExtended() && task->GetPoint()->GetTail())
-      {
+    {
       // if we got this streamline from another process then this
       // process is responsible for filling in the gap over
       // the subdomain boundary
       this->Prepend(traceOut,task->GetPoint()->GetTail());
-      }
+    }
 
     int resTerm=vtkStreamTracer::OUT_OF_DOMAIN;
     vtkIntArray* resTermArray = vtkArrayDownCast<vtkIntArray>(
       traceOut->GetCellData()->GetArray("ReasonForTermination"));
     if (resTermArray)
-      {
+    {
       resTerm = resTermArray->GetValue(0);
-      }
+    }
 
     //construct a new seed from the last point
     task->SetTraceTerminated(this->Controller->GetNumberOfProcesses()==1
@@ -1620,26 +1620,26 @@ int vtkPStreamTracer::RequestData(
                              || point->GetPropagation() > this->MaximumPropagation
                              || point->GetNumSteps()    >=  this->MaximumNumberOfSteps);
     if(task->GetTraceExtended() && !task->GetTraceTerminated())
-      {
+    {
       task->SetTraceTerminated(!this->TraceOneStep(traceOut,func,point)); //we don't know where to go, just terminate it
-      }
+    }
     if(!task->GetTraceTerminated())
-      {
+    {
       task->SetTraceTerminated(!this->Utils->PreparePoint(point,func));
-      }
+    }
 
     traceIds.push_back(task->GetId());
     traceOutputs.push_back(traceOut);
-    }
+  }
 
   this->Controller->Barrier();
 
 #ifdef LOGTRACE
   double receiveTime = taskManager.ComputeReceiveTime();
   if(this->Rank==0)
-    {
+  {
     PRINT("Total receive time: "<<receiveTime)
-    }
+  }
   this->Controller->Barrier();
 #endif
 
@@ -1650,21 +1650,21 @@ int vtkPStreamTracer::RequestData(
   vtkNew<vtkAppendPolyData> append;
   for (traceOutputsType::iterator it = traceOutputs.begin();
        it != traceOutputs.end(); it++)
-    {
+  {
     vtkPolyData* inp = it->GetPointer();
     if ( inp->GetNumberOfCells() > 0 )
-      {
-      append->AddInputData(inp);
-      }
-    }
-  if (append->GetNumberOfInputConnections(0) > 0)
     {
+      append->AddInputData(inp);
+    }
+  }
+  if (append->GetNumberOfInputConnections(0) > 0)
+  {
     append->Update();
     vtkPolyData* appoutput = append->GetOutput();
     output->CopyStructure(appoutput);
     output->GetPointData()->PassData(appoutput->GetPointData());
     output->GetCellData()->PassData(appoutput->GetCellData());
-    }
+  }
 
 
   this->InputData->UnRegister(this);
@@ -1673,44 +1673,44 @@ int vtkPStreamTracer::RequestData(
   int maxSeeds(maxId+1);
   std::vector<double> lengths(maxSeeds);
   for(int i=0; i<maxSeeds;i++)
-    {
+  {
     lengths[i] = 0;
-    }
+  }
 
   AssertEq(traceOutputs.size(),traceIds.size());
   for(unsigned int i=0; i<traceOutputs.size();i++)
-    {
+  {
     vtkPolyData* poly = traceOutputs[i];
     int id = traceIds[i];
     double length(0);
     vtkCellArray* lines = poly->GetLines();
     if(lines)
-      {
+    {
       lines->InitTraversal();
       vtkNew<vtkIdList> trace;
       lines->GetNextCell(trace.GetPointer());
       length= ComputeLength(trace.GetPointer(),poly->GetPoints());
-      }
-    lengths[id] += length;
     }
+    lengths[id] += length;
+  }
   std::vector<double> totalLengths(maxSeeds);
   this->Controller->AllReduce(&lengths[0],&totalLengths[0],maxSeeds,vtkCommunicator::SUM_OP);
 
   int numNonZeros(0);
   double totalLength(0);
   for(int i=0; i<maxSeeds;i++)
-    {
+  {
     totalLength+=totalLengths[i];
     if(totalLengths[i]>0)
-      {
+    {
       numNonZeros++;
-      }
     }
+  }
 
   if(this->Rank==0)
-    {
+  {
     PRINT("Summary: "<<maxSeeds<<" seeds,"<<numNonZeros<<" traces"<<" total length "<<totalLength);
-    }
+  }
 
 #endif
   PRINT("Done in "<<iterations<<" iterations");
@@ -1776,14 +1776,14 @@ void vtkPStreamTracer::Trace( vtkDataSet *input,
   point->SetIntegrationTime(integrationTime);
 
   if(this->GenerateNormalsInIntegrate)
-    {
+  {
     this->GenerateNormals(traceOut, point->GetNormal(), vecName);
-    }
+  }
 
   if(traceOut->GetNumberOfPoints()>0)
-    {
+  {
     if (traceOut->GetLines()->GetNumberOfCells()==0)
-      {
+    {
       PRINT( "Fix Single Point Path")
       AssertEq(traceOut->GetNumberOfPoints(),1); //fix it
       vtkNew<vtkCellArray> newCells;
@@ -1798,14 +1798,14 @@ void vtkPStreamTracer::Trace( vtkDataSet *input,
       retVals->SetNumberOfTuples(1);
       retVals->SetValue(0, vtkStreamTracer::OUT_OF_DOMAIN);
       traceOut->GetCellData()->AddArray(retVals.GetPointer());
-      }
+    }
 
     vtkNew<vtkIntArray> ids;
     ids->SetName("SeedIds");
     ids->SetNumberOfTuples(1);
     ids->SetValue(0, point->GetId());
     traceOut->GetCellData()->AddArray(ids.GetPointer());
-    }
+  }
   Assert(SameShape(traceOut->GetPointData(),this->Utils->GetProto()->GetTail()->GetPointData()),"trace data does not match prototype");
 
 }
@@ -1837,18 +1837,18 @@ bool vtkPStreamTracer::TraceOneStep(vtkPolyData* traceOut,  vtkAbstractInterpola
 
   vtkDataArray* normals = traceOut->GetPointData()->GetArray("Normals");
   if (normals)
-    {
+  {
     normals->GetTuple(lastPointIndex, outNormal);
-    }
+  }
 
   bool res = d>0;
   if(res)
-    {
+  {
     Assert(SameShape(traceOut->GetPointData(),this->Utils->GetProto()->GetTail()->GetPointData()),"Point data mismatch");
     point->Reseed(outPoint,outNormal,traceOut,lastPointIndex,
                   point->GetPropagation()+d, point->GetIntegrationTime()+timeStepTaken);
     AssertEq(point->GetTail()->GetPointData()->GetNumberOfTuples(),1);
-    }
+  }
 
   return res;
 }
@@ -1876,17 +1876,17 @@ void vtkPStreamTracer::Prepend(vtkPolyData* pathPoly, vtkPolyData* headPoly)
   Assert(SameShape(headData,pathData),"Prepend failure");
   int numArrays(headData->GetNumberOfArrays());
   for(int i=0; i<numArrays;i++)
-    {
+  {
     pathData->CopyTuple(headData->GetAbstractArray(i),pathData->GetAbstractArray(i),0,newPointId);
-    }
+  }
 
   PRINT("Prepend Point "<<newPointId<<" "<<newPoint[0]<<" "<<newPoint[1]<<" "<<newPoint[2]);
   vtkNew<vtkIdList> newPath;
   newPath->InsertNextId(newPointId);
   for(int i=0; i<nPoints;i++)
-    {
+  {
     newPath->InsertNextId(path[i]);
-    }
+  }
 
   pathCells->Reset();
   pathCells->InsertNextCell(newPath.GetPointer());

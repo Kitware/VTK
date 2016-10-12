@@ -47,12 +47,12 @@ namespace
 
 #define myassert(Cond)                                  \
   if (!(Cond))                                          \
-    {                                                   \
+  {                                                   \
       cerr << "error (" __FILE__ ":" << dec << __LINE__ \
            << ") assertion \"" #Cond "\" failed."       \
            << endl;                                     \
     MPI_Abort(MPI_COMM_WORLD, -1);                      \
-    }
+  }
 
 void TestPSQLGraphReader()
 {
@@ -64,34 +64,34 @@ void TestPSQLGraphReader()
   db->SetDatabaseFileName(":memory:");
   bool ok = db->Open("");
   if (!ok)
-    {
+  {
     cerr << "Could not open database!" << endl;
     cerr << db->GetLastErrorText() << endl;
     return;
-    }
+  }
   vtkSmartPointer<vtkSQLQuery> query;
   query.TakeReference(db->GetQueryInstance());
   query->SetQuery("create table vertices (id INTEGER, name VARCHAR(10), color INTEGER)");
   query->Execute();
   for (int i = 0; i < vertices; ++i)
-    {
+  {
     oss.str("");
     oss << "insert into vertices values(" << i << ","
       << vtkVariant(i).ToString() << "," << i % 2 << ")" << endl;
     query->SetQuery(oss.str().c_str());
     query->Execute();
-    }
+  }
   query->SetQuery("create table edges (source INTEGER, target INTEGER, name VARCHAR(10))");
   query->Execute();
   for (int i = 0; i < vertices; ++i)
-    {
+  {
     oss.str("");
     oss << "insert into edges values(" << i << ", "
       << (i+1)%vertices << ", "
       << vtkVariant(i).ToString() << ")" << endl;
     query->SetQuery(oss.str().c_str());
     query->Execute();
-    }
+  }
 
   // Create the reader
   vtkSmartPointer<vtkPBGLGraphSQLReader> reader =
@@ -124,25 +124,25 @@ void TestPSQLGraphReader()
     vtkSmartPointer<vtkVertexListIterator>::New();
   output->GetVertices(vit);
   while (vit->HasNext())
-    {
+  {
     vtkIdType v = vit->Next();
     int ind = output->GetDistributedGraphHelper()->GetVertexIndex(v);
     int owner = output->GetDistributedGraphHelper()->GetVertexOwner(v);
     int color = colorArr->GetVariantValue(ind).ToInt();
     cerr << "PROCESS " << rank << " vertex: " << hex << v
       << "," << color << endl;
-    }
+  }
   vtkSmartPointer<vtkEdgeListIterator> it =
     vtkSmartPointer<vtkEdgeListIterator>::New();
   output->GetEdges(it);
   while (it->HasNext())
-    {
+  {
     vtkEdgeType e = it->Next();
     vtkIdType ind = output->GetDistributedGraphHelper()->GetEdgeIndex(e.Id);
     cerr << "PROCESS " << rank << " edge: " << hex << e.Id
       << " (" << e.Source << "," << e.Target << ")"
       << " index: " << ind << endl;
-    }
+  }
 }
 
 }

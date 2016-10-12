@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMPIMultiBlockPLOT3DReader - vtkMultiBlockPLOT3DReader subclass that
-// uses MPI-IO to efficiently read binary files for 3D domains in parallel using
-// MPI-IO.
-// .SECTION Description
-// vtkMPIMultiBlockPLOT3DReader extends vtkMultiBlockPLOT3DReader to use MPI-IO
-// instead of POSIX IO to read file in parallel.
+/**
+ * @class   vtkMPIMultiBlockPLOT3DReader
+ * @brief   vtkMultiBlockPLOT3DReader subclass that
+ * uses MPI-IO to efficiently read binary files for 3D domains in parallel using
+ * MPI-IO.
+ *
+ * vtkMPIMultiBlockPLOT3DReader extends vtkMultiBlockPLOT3DReader to use MPI-IO
+ * instead of POSIX IO to read file in parallel.
+*/
 
 #ifndef vtkMPIMultiBlockPLOT3DReader_h
 #define vtkMPIMultiBlockPLOT3DReader_h
@@ -32,20 +35,24 @@ public:
   vtkTypeMacro(vtkMPIMultiBlockPLOT3DReader, vtkMultiBlockPLOT3DReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Use this to override using MPI-IO. When set to false (default is true),
-  // this class will simply forward all method calls to the superclass.
+  //@{
+  /**
+   * Use this to override using MPI-IO. When set to false (default is true),
+   * this class will simply forward all method calls to the superclass.
+   */
   vtkSetMacro(UseMPIIO, bool);
   vtkGetMacro(UseMPIIO, bool);
   vtkBooleanMacro(UseMPIIO, bool);
+  //@}
 
 protected:
   vtkMPIMultiBlockPLOT3DReader();
   ~vtkMPIMultiBlockPLOT3DReader();
 
-  // Description:
-  // Determines we should use MPI-IO for the current file. We don't use MPI-IO
-  // for 2D files or ASCII files.
+  /**
+   * Determines we should use MPI-IO for the current file. We don't use MPI-IO
+   * for 2D files or ASCII files.
+   */
   bool CanUseMPIIO();
 
   virtual int OpenFileForDataRead(void*& fp, const char* fname);
@@ -68,8 +75,8 @@ protected:
     const vtkMultiBlockPLOT3DReaderRecord& currentRecord);
   bool UseMPIIO;
 private:
-  vtkMPIMultiBlockPLOT3DReader(const vtkMPIMultiBlockPLOT3DReader&); // Not implemented.
-  void operator=(const vtkMPIMultiBlockPLOT3DReader&); // Not implemented.
+  vtkMPIMultiBlockPLOT3DReader(const vtkMPIMultiBlockPLOT3DReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMPIMultiBlockPLOT3DReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

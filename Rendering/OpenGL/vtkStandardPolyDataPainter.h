@@ -21,19 +21,21 @@
  * statement of authorship are reproduced on all copies.
  */
 
-// .NAME vtkStandardPolyDataPainter - A standard implementation of vtkPolyDataPainter.
-//
-// .SECTION Description
-// vtkStandardPolyDataPainter is a catch-all painter.  It should work with pretty
-// much any vtkPolyData, and attributes, and vtkPolyDataPainterDeviceAdapter.  On
-// the flip side, the vtkStandardPolyDataPainter will be slower than the more
-// special purpose painters.
-// .SECTION See Also
-// vtkDefaultPainter
-// .SECTION Thanks
-// Support for generic vertex attributes in VTK was contributed in
-// collaboration with Stephane Ploix at EDF.
-
+/**
+ * @class   vtkStandardPolyDataPainter
+ * @brief   A standard implementation of vtkPolyDataPainter.
+ *
+ *
+ * vtkStandardPolyDataPainter is a catch-all painter.  It should work with pretty
+ * much any vtkPolyData, and attributes, and vtkPolyDataPainterDeviceAdapter.  On
+ * the flip side, the vtkStandardPolyDataPainter will be slower than the more
+ * special purpose painters.
+ * @sa
+ * vtkDefaultPainter
+ * @par Thanks:
+ * Support for generic vertex attributes in VTK was contributed in
+ * collaboration with Stephane Ploix at EDF.
+*/
 
 #ifndef vtkStandardPolyDataPainter_h
 #define vtkStandardPolyDataPainter_h
@@ -60,9 +62,10 @@ protected:
   vtkStandardPolyDataPainter();
   ~vtkStandardPolyDataPainter();
 
-  // Description:
-  // Generates rendering primitives of appropriate type(s). Multiple types
-  // of preimitives can be requested by or-ring the primitive flags.
+  /**
+   * Generates rendering primitives of appropriate type(s). Multiple types
+   * of preimitives can be requested by or-ring the primitive flags.
+   */
   virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
                               unsigned long typeflags, bool forceCompileOnly);
 
@@ -72,17 +75,18 @@ protected:
                  vtkRenderer *renderer,
                  int buildnormals, int interpolation);
 
-  // Description:
-  // Called before RenderInternal() if the Information has been changed
-  // since the last time this method was called.
+  /**
+   * Called before RenderInternal() if the Information has been changed
+   * since the last time this method was called.
+   */
   virtual void ProcessInformation(vtkInformation*);
 
   void UpdateGenericAttributesCache(vtkShaderDeviceAdapter2 *shaderDevice2);
 
   vtkIdType TotalCells;
 private:
-  vtkStandardPolyDataPainter(const vtkStandardPolyDataPainter&); // Not implemented.
-  void operator=(const vtkStandardPolyDataPainter&); // Not implemented.
+  vtkStandardPolyDataPainter(const vtkStandardPolyDataPainter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStandardPolyDataPainter&) VTK_DELETE_FUNCTION;
 
   class vtkInternal;
   vtkInternal* Internal;

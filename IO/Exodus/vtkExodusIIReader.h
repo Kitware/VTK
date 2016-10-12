@@ -17,20 +17,22 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// .NAME vtkExodusIIReader - Read exodus 2 files .ex2
-// .SECTION Description
-// vtkExodusIIReader is a unstructured grid source object that reads ExodusII
-// files.  Most of the meta data associated with the file is loaded when
-// UpdateInformation is called.  This includes information like Title, number
-// of blocks, number and names of arrays. This data can be retrieved from
-// methods in this reader. Separate arrays that are meant to be a single
-// vector, are combined internally for convenience.  To be combined, the array
-// names have to be identical except for a trailing X,Y and Z (or x,y,z).  By
-// default cell and point arrays are not loaded.  However, the user can flag
-// arrays to load with the methods "SetPointArrayStatus" and
-// "SetCellArrayStatus".  The reader DOES NOT respond to piece requests
-//
-
+/**
+ * @class   vtkExodusIIReader
+ * @brief   Read exodus 2 files .ex2
+ *
+ * vtkExodusIIReader is a unstructured grid source object that reads ExodusII
+ * files.  Most of the meta data associated with the file is loaded when
+ * UpdateInformation is called.  This includes information like Title, number
+ * of blocks, number and names of arrays. This data can be retrieved from
+ * methods in this reader. Separate arrays that are meant to be a single
+ * vector, are combined internally for convenience.  To be combined, the array
+ * names have to be identical except for a trailing X,Y and Z (or x,y,z).  By
+ * default cell and point arrays are not loaded.  However, the user can flag
+ * arrays to load with the methods "SetPointArrayStatus" and
+ * "SetCellArrayStatus".  The reader DOES NOT respond to piece requests
+ *
+*/
 
 #ifndef vtkExodusIIReader_h
 #define vtkExodusIIReader_h
@@ -55,72 +57,94 @@ public:
   vtkTypeMacro(vtkExodusIIReader,vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Determine if the file can be readed with this reader.
+  /**
+   * Determine if the file can be readed with this reader.
+   */
   int CanReadFile(const char* fname);
 
   //virtual void Modified();
 
-  // Description:
-  // Return the object's MTime. This is overridden to include the timestamp of its internal class.
-  virtual unsigned long GetMTime();
+  /**
+   * Return the object's MTime. This is overridden to include the timestamp of its internal class.
+   */
+  virtual vtkMTimeType GetMTime();
 
-  // Description:
-  // Return the MTime of the internal data structure.
-  // This is really only intended for use by vtkPExodusIIReader in order
-  // to determine if the filename is newer than the metadata.
-  virtual unsigned long GetMetadataMTime();
+  /**
+   * Return the MTime of the internal data structure.
+   * This is really only intended for use by vtkPExodusIIReader in order
+   * to determine if the filename is newer than the metadata.
+   */
+  virtual vtkMTimeType GetMetadataMTime();
 
-  // Description:
-  // Specify file name of the Exodus file.
+  //@{
+  /**
+   * Specify file name of the Exodus file.
+   */
   virtual void SetFileName( const char* fname );
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Specify file name of the xml file.
+  //@{
+  /**
+   * Specify file name of the xml file.
+   */
   virtual void SetXMLFileName( const char* fname );
   vtkGetStringMacro(XMLFileName);
+  //@}
 
-  // Description:
-  // Which TimeStep to read.
+  //@{
+  /**
+   * Which TimeStep to read.
+   */
   vtkSetMacro(TimeStep, int);
   vtkGetMacro(TimeStep, int);
+  //@}
 
-  // Description:
-  // Convenience method to set the mode-shape which is same as
-  // this->SetTimeStep(val-1);
+  /**
+   * Convenience method to set the mode-shape which is same as
+   * this->SetTimeStep(val-1);
+   */
   void SetModeShape(int val)
-    {
+  {
     this->SetTimeStep(val-1);
-    }
+  }
 
-  // Description:
-  // Since ModeShapes are expected to run from [1,N] rather than [0, N-1],
-  // this method will return the TimeStepRange offset by 1. Note this method
-  // returns the potential mode shapes range irrespective of whether
-  // this->HasModeShapes is set to true.
+  //@{
+  /**
+   * Since ModeShapes are expected to run from [1,N] rather than [0, N-1],
+   * this method will return the TimeStepRange offset by 1. Note this method
+   * returns the potential mode shapes range irrespective of whether
+   * this->HasModeShapes is set to true.
+   */
   vtkGetVector2Macro(ModeShapesRange, int);
+  //@}
 
-  // Description:
-  // Returns the available range of valid integer time steps.
-  // Note this method returns the potential timesteps range irrespective of
-  // whether this->HasModeShapes is set to false.
+  //@{
+  /**
+   * Returns the available range of valid integer time steps.
+   * Note this method returns the potential timesteps range irrespective of
+   * whether this->HasModeShapes is set to false.
+   */
   vtkGetVector2Macro(TimeStepRange,int);
+  //@}
 
-  // Description:
-  // Extra cell data array that can be generated.  By default, this array
-  // is ON.  The value of the array is the integer id found
-  // in the exodus file. The name of the array is returned by
-  // GetBlockIdArrayName(). For cells representing elements from
-  // an Exodus element block, this is set to the element block ID. For
-  // cells representing edges from an Exodus edge block, this is the
-  // edge block ID. Similarly, this is the face block ID for cells
-  // representing faces from an Exodus face block. The same holds
-  // for cells representing entries of node, edge, face, side, and element sets.
+  //@{
+  /**
+   * Extra cell data array that can be generated.  By default, this array
+   * is ON.  The value of the array is the integer id found
+   * in the exodus file. The name of the array is returned by
+   * GetBlockIdArrayName(). For cells representing elements from
+   * an Exodus element block, this is set to the element block ID. For
+   * cells representing edges from an Exodus edge block, this is the
+   * edge block ID. Similarly, this is the face block ID for cells
+   * representing faces from an Exodus face block. The same holds
+   * for cells representing entries of node, edge, face, side, and element sets.
+   */
   virtual void SetGenerateObjectIdCellArray( int g );
   int GetGenerateObjectIdCellArray();
   vtkBooleanMacro(GenerateObjectIdCellArray, int);
   static const char *GetObjectIdArrayName() { return "ObjectId"; }
+  //@}
 
   virtual void SetGenerateGlobalElementIdArray( int g );
   int GetGenerateGlobalElementIdArray();
@@ -144,11 +168,13 @@ public:
   virtual void SetFileId( int f );
   int GetFileId();
 
-  // Description:
-  // Extra cell data array that can be generated.  By default, this array
-  // is off.  The value of the array is the integer global id of the cell.
-  // The name of the array is returned by GetGlobalElementIdArrayName()
-  // ***NOTE*** No more "unique" global ID. Instead we have an arbitrary number of maps.
+  //@{
+  /**
+   * Extra cell data array that can be generated.  By default, this array
+   * is off.  The value of the array is the integer global id of the cell.
+   * The name of the array is returned by GetGlobalElementIdArrayName()
+   * ***NOTE*** No more "unique" global ID. Instead we have an arbitrary number of maps.
+   */
   enum {
     SEARCH_TYPE_ELEMENT=0,
     SEARCH_TYPE_NODE,
@@ -211,6 +237,7 @@ public:
     EDGE_ID = 106,             //!< edge id map (old-style edge_num_map or first new-style edge map) array
     ENTITY_COUNTS = 109        //!< polyhedra per-entity count ex_get_block returns the sum for polyhedra
   };
+  //@}
 
   static const char* GetGlobalElementIdArrayName() { return "GlobalElementId"; }
   static const char* GetPedigreeElementIdArrayName() { return "PedigreeElementId"; }
@@ -233,71 +260,91 @@ public:
       int searchType );
   static const char* GetImplicitEdgeIdArrayName() { return "ImplicitEdgeId"; }
 
-  // Description:
-  // Extra point data array that can be generated.  By default, this array
-  // is ON.  The value of the array is the integer id of the node.
-  // The id is relative to the entire data set.
-  // The name of the array is returned by GlobalNodeIdArrayName().
+  //@{
+  /**
+   * Extra point data array that can be generated.  By default, this array
+   * is ON.  The value of the array is the integer id of the node.
+   * The id is relative to the entire data set.
+   * The name of the array is returned by GlobalNodeIdArrayName().
+   */
   static const char* GetGlobalNodeIdArrayName() { return "GlobalNodeId"; }
   static const char* GetPedigreeNodeIdArrayName() { return "PedigreeNodeId"; }
   static int GetGlobalNodeID( vtkDataSet *data, int localID );
   static int GetGlobalNodeID( vtkDataSet *data, int localID,
       int searchType );
   static const char* GetImplicitNodeIdArrayName() { return "ImplicitNodeId"; }
+  //@}
 
-  // Description:
-  // Get the name of the array that stores the mapping from side set
-  // cells back to the global id of the elements they bound.
+  /**
+   * Get the name of the array that stores the mapping from side set
+   * cells back to the global id of the elements they bound.
+   */
   static const char* GetSideSetSourceElementIdArrayName() { return "SourceElementId"; }
 
-  // Description:
-  // Get the name of the array that stores the mapping from side set
-  // cells back to the canonical side of the elements they bound.
+  /**
+   * Get the name of the array that stores the mapping from side set
+   * cells back to the canonical side of the elements they bound.
+   */
   static const char* GetSideSetSourceElementSideArrayName() { return "SourceElementSide"; }
-  // Description:
-  // Geometric locations can include displacements.  By default,
-  // this is ON.  The nodal positions are 'displaced' by the
-  // standard exodus displacment vector. If displacements
-  // are turned 'off', the user can explicitly add them by
-  // applying a warp filter.
+  //@{
+  /**
+   * Geometric locations can include displacements.  By default,
+   * this is ON.  The nodal positions are 'displaced' by the
+   * standard exodus displacment vector. If displacements
+   * are turned 'off', the user can explicitly add them by
+   * applying a warp filter.
+   */
   virtual void SetApplyDisplacements( int d );
   int GetApplyDisplacements();
   vtkBooleanMacro(ApplyDisplacements, int);
   virtual void SetDisplacementMagnitude( float s );
   float GetDisplacementMagnitude();
+  //@}
 
-  // Description:
-  // Set/Get whether the Exodus sequence number corresponds to time steps or mode shapes.
-  // By default, HasModeShapes is false unless two time values in the Exodus file are identical,
-  // in which case it is true.
+  //@{
+  /**
+   * Set/Get whether the Exodus sequence number corresponds to time steps or mode shapes.
+   * By default, HasModeShapes is false unless two time values in the Exodus file are identical,
+   * in which case it is true.
+   */
   virtual void SetHasModeShapes( int ms );
   int GetHasModeShapes();
   vtkBooleanMacro(HasModeShapes,int);
+  //@}
 
-  // Description:
-  // Set/Get the time used to animate mode shapes.
-  // This is a number between 0 and 1 that is used to scale the \a DisplacementMagnitude
-  // in a sinusoidal pattern. Specifically, the displacement vector for each vertex is scaled by
-  // \f$ \mathrm{DisplacementMagnitude} cos( 2\pi \mathrm{ModeShapeTime} ) \f$ before it is
-  // added to the vertex coordinates.
+  //@{
+  /**
+   * Set/Get the time used to animate mode shapes.
+   * This is a number between 0 and 1 that is used to scale the \a DisplacementMagnitude
+   * in a sinusoidal pattern. Specifically, the displacement vector for each vertex is scaled by
+   * \f$ \mathrm{DisplacementMagnitude} cos( 2\pi \mathrm{ModeShapeTime} ) \f$ before it is
+   * added to the vertex coordinates.
+   */
   virtual void SetModeShapeTime( double phase );
   double GetModeShapeTime();
+  //@}
 
-  // Description:
-  // If this flag is on (the default) and HasModeShapes is also on, then this
-  // reader will report a continuous time range [0,1] and animate the
-  // displacements in a periodic sinusoid.  If this flag is off and
-  // HasModeShapes is on, this reader ignores time.  This flag has no effect if
-  // HasModeShapes is off.
+  //@{
+  /**
+   * If this flag is on (the default) and HasModeShapes is also on, then this
+   * reader will report a continuous time range [0,1] and animate the
+   * displacements in a periodic sinusoid.  If this flag is off and
+   * HasModeShapes is on, this reader ignores time.  This flag has no effect if
+   * HasModeShapes is off.
+   */
   virtual void SetAnimateModeShapes(int flag);
   int GetAnimateModeShapes();
   vtkBooleanMacro(AnimateModeShapes, int);
+  //@}
 
-  // Description:
-  // Access to meta data generated by UpdateInformation.
+  //@{
+  /**
+   * Access to meta data generated by UpdateInformation.
+   */
   const char* GetTitle();
   int GetDimensionality();
   int GetNumberOfTimeSteps();
+  //@}
 
   int GetNumberOfNodesInFile();
   int GetNumberOfEdgesInFile();
@@ -320,11 +367,13 @@ public:
   void SetObjectStatus( int objectType, int objectIndex, int status );
   void SetObjectStatus( int objectType, const char* objectName, int status );
 
-  // Descriptions:
-  // By default arrays are not loaded.  These methods allow the user to select
-  // which arrays they want to load.  You can get information about the arrays
-  // by first caling UpdateInformation, and using GetPointArrayName ...
-  // (Developer Note) This meta data is all accessed through vtkExodusMetadata
+  //@{
+  /**
+   * By default arrays are not loaded.  These methods allow the user to select
+   * which arrays they want to load.  You can get information about the arrays
+   * by first caling UpdateInformation, and using GetPointArrayName ...
+   * (Developer Note) This meta data is all accessed through vtkExodusMetadata
+   */
   int GetNumberOfObjectArrays( int objectType );
   const char* GetObjectArrayName( int objectType, int arrayIndex );
   int GetObjectArrayIndex( int objectType, const char* arrayName );
@@ -334,12 +383,15 @@ public:
     { return this->GetObjectArrayStatus( objectType, this->GetObjectArrayIndex( objectType, arrayName ) ); }
   void SetObjectArrayStatus( int objectType, int arrayIndex, int status );
   void SetObjectArrayStatus( int objectType, const char* arrayName, int status );
+  //@}
 
-  // Descriptions:
-  // By default attributes are not loaded.  These methods allow the user to select
-  // which attributes they want to load.  You can get information about the attributes
-  // by first caling UpdateInformation, and using GetObjectAttributeName ...
-  // (Developer Note) This meta data is all accessed through vtkExodusMetadata
+  //@{
+  /**
+   * By default attributes are not loaded.  These methods allow the user to select
+   * which attributes they want to load.  You can get information about the attributes
+   * by first caling UpdateInformation, and using GetObjectAttributeName ...
+   * (Developer Note) This meta data is all accessed through vtkExodusMetadata
+   */
   int GetNumberOfObjectAttributes( int objectType, int objectIndex );
   const char* GetObjectAttributeName( int objectType, int objectIndex, int attribIndex );
   int GetObjectAttributeIndex( int objectType, int objectIndex, const char* attribName );
@@ -351,16 +403,19 @@ public:
   void SetObjectAttributeStatus( int objectType, int objectIndex, const char* attribName, int status )
     { this->SetObjectAttributeStatus( objectType, objectIndex,
       this->GetObjectAttributeIndex( objectType, objectIndex, attribName ), status ); }
+  //@}
 
   virtual vtkIdType GetTotalNumberOfNodes();
   virtual vtkIdType GetTotalNumberOfEdges();
   virtual vtkIdType GetTotalNumberOfFaces();
   virtual vtkIdType GetTotalNumberOfElements();
 
-  // Descriptions:
-  // By default all parts are loaded. These methods allow the user to select
-  // which parts they want to load.  You can get information about the parts
-  // by first caling UpdateInformation, and using GetPartArrayName ...
+  //@{
+  /**
+   * By default all parts are loaded. These methods allow the user to select
+   * which parts they want to load.  You can get information about the parts
+   * by first caling UpdateInformation, and using GetPartArrayName ...
+   */
   int GetNumberOfPartArrays();
   const char* GetPartArrayName(int arrayIdx);
   int GetPartArrayID( const char *name );
@@ -369,13 +424,16 @@ public:
   void SetPartArrayStatus(const char*, int flag);
   int GetPartArrayStatus(int index);
   int GetPartArrayStatus(const char*);
+  //@}
 
 
-  // Descriptions:
-  // By default all materials are loaded. These methods allow the user to
-  // select which materials they want to load.  You can get information
-  // about the materials by first caling UpdateInformation, and using
-  // GetMaterialArrayName ...
+  //@{
+  /**
+   * By default all materials are loaded. These methods allow the user to
+   * select which materials they want to load.  You can get information
+   * about the materials by first caling UpdateInformation, and using
+   * GetMaterialArrayName ...
+   */
   int GetNumberOfMaterialArrays();
   const char* GetMaterialArrayName(int arrayIdx);
   int GetMaterialArrayID( const char *name );
@@ -383,12 +441,15 @@ public:
   void SetMaterialArrayStatus(const char*, int flag);
   int GetMaterialArrayStatus(int index);
   int GetMaterialArrayStatus(const char*);
+  //@}
 
-  // Descriptions:
-  // By default all assemblies are loaded. These methods allow the user to
-  // select which assemblies they want to load.  You can get information
-  // about the assemblies by first caling UpdateInformation, and using
-  // GetAssemblyArrayName ...
+  //@{
+  /**
+   * By default all assemblies are loaded. These methods allow the user to
+   * select which assemblies they want to load.  You can get information
+   * about the assemblies by first caling UpdateInformation, and using
+   * GetAssemblyArrayName ...
+   */
   int GetNumberOfAssemblyArrays();
   const char* GetAssemblyArrayName(int arrayIdx);
   int GetAssemblyArrayID( const char *name );
@@ -396,31 +457,37 @@ public:
   void SetAssemblyArrayStatus(const char*, int flag);
   int GetAssemblyArrayStatus(int index);
   int GetAssemblyArrayStatus(const char*);
+  //@}
 
-  // Descriptions:
-  // By default all hierarchy entries are loaded. These methods allow
-  //the user to
-  // select which hierarchy entries they want to load.  You can get information
-  // about the hierarchy entries by first caling UpdateInformation, and using
-  // GetHierarchyArrayName ...
-  //these methods do not call functions in metaData. They call functions on
-  //the ExodusXMLParser since it seemed silly to duplicate all the information
+  //@{
+  /**
+   * By default all hierarchy entries are loaded. These methods allow
+   * the user to
+   * select which hierarchy entries they want to load.  You can get information
+   * about the hierarchy entries by first caling UpdateInformation, and using
+   * GetHierarchyArrayName ...
+   * these methods do not call functions in metaData. They call functions on
+   * the ExodusXMLParser since it seemed silly to duplicate all the information
+   */
   int GetNumberOfHierarchyArrays();
   const char* GetHierarchyArrayName(int arrayIdx);
   void SetHierarchyArrayStatus(int index, int flag);
   void SetHierarchyArrayStatus(const char*, int flag);
   int GetHierarchyArrayStatus(int index);
   int GetHierarchyArrayStatus(const char*);
+  //@}
 
   vtkGetMacro(DisplayType,int);
   virtual void SetDisplayType(int type);
 
-  // Descriptions:
-  // return boolean indicating whether the type,name is a valid variable
+  /**
+   * return boolean indicating whether the type,name is a valid variable
+   */
   int IsValidVariable( const char *type, const char *name );
 
-  // Descriptions:
-  // Return the id of the type,name variable
+  /**
+   * Return the id of the type,name variable
+   */
   int GetVariableID ( const char *type, const char *name );
 
   void SetAllArrayStatus( int otype, int status );
@@ -635,60 +702,72 @@ public:
   void SetElementSetResultArrayStatus(const char* name, int flag)
     { this->SetObjectArrayStatus(ELEM_SET, name, flag); }
 
-  // Description:
-  // Reset the user-specified parameters and flush internal arrays
-  // so that the reader state is just as it was after the reader was
-  // instantiated.
-  //
-  // It doesn't make sense to let users reset only the internal state;
-  // both the settings and the state are changed by this call.
+  /**
+   * Reset the user-specified parameters and flush internal arrays
+   * so that the reader state is just as it was after the reader was
+   * instantiated.
+
+   * It doesn't make sense to let users reset only the internal state;
+   * both the settings and the state are changed by this call.
+   */
   void Reset();
 
-  // Description:
-  // Reset the user-specified parameters to their default values.
-  // The only settings not affected are the filename and/or pattern
-  // because these have no default.
-  //
-  // Resetting the settings but not the state allows users to
-  // keep the active cache but return to initial array selections, etc.
+  /**
+   * Reset the user-specified parameters to their default values.
+   * The only settings not affected are the filename and/or pattern
+   * because these have no default.
+
+   * Resetting the settings but not the state allows users to
+   * keep the active cache but return to initial array selections, etc.
+   */
   void ResetSettings();
 
-  // Description:
-  // Clears out the cache entries.
+  /**
+   * Clears out the cache entries.
+   */
   void ResetCache();
 
-  // Description:
-  // Set the size of the cache in MiB.
+  /**
+   * Set the size of the cache in MiB.
+   */
   void SetCacheSize(double CacheSize);
 
-  // Description:
-  // Get the size of the cache in MiB.
+  /**
+   * Get the size of the cache in MiB.
+   */
   double GetCacheSize();
 
-  // Description:
-  // Should the reader output only points used by elements in the output mesh,
-  // or all the points. Outputting all the points is much faster since the
-  // point array can be read straight from disk and the mesh connectivity need
-  // not be altered. Squeezing the points down to the minimum set needed to
-  // produce the output mesh is useful for glyphing and other point-based
-  // operations. On large parallel datasets, loading all the points implies
-  // loading all the points on all processes and performing subsequent
-  // filtering on a much larger set.
-  //
-  // By default, SqueezePoints is true for backwards compatibility.
+  //@{
+  /**
+   * Should the reader output only points used by elements in the output mesh,
+   * or all the points. Outputting all the points is much faster since the
+   * point array can be read straight from disk and the mesh connectivity need
+   * not be altered. Squeezing the points down to the minimum set needed to
+   * produce the output mesh is useful for glyphing and other point-based
+   * operations. On large parallel datasets, loading all the points implies
+   * loading all the points on all processes and performing subsequent
+   * filtering on a much larger set.
+
+   * By default, SqueezePoints is true for backwards compatibility.
+   */
   void SetSqueezePoints(bool sp);
   bool GetSqueezePoints();
+  //@}
 
   virtual void Dump();
 
-  // Description:
-  // SIL describes organization of/relationships between classifications
-  // eg. blocks/materials/hierarchies.
+  /**
+   * SIL describes organization of/relationships between classifications
+   * eg. blocks/materials/hierarchies.
+   */
   vtkGraph* GetSIL();
 
-  // Description:
-  // Every time the SIL is updated a this will return a different value.
+  //@{
+  /**
+   * Every time the SIL is updated a this will return a different value.
+   */
   vtkGetMacro(SILUpdateStamp, int);
+  //@}
 
 protected:
   vtkExodusIIReader();
@@ -701,22 +780,24 @@ protected:
   virtual void SetMetadata( vtkExodusIIReaderPrivate* );
   vtkGetObjectMacro(Metadata,vtkExodusIIReaderPrivate);
 
-  // Description:
-  // Returns true if XMLFileName has already been set. Otherwise, look for the XML
-  // metadata file in the same directory as the data file(s) using the following
-  // possible file names:
-  //     DATA_FILE_NAME.xml
-  //     DATA_FILE_NAME.dart
-  //     artifact.dta
-  //  Return true if found, false otherwise
+  /**
+   * Returns true if XMLFileName has already been set. Otherwise, look for the XML
+   * metadata file in the same directory as the data file(s) using the following
+   * possible file names:
+   * DATA_FILE_NAME.xml
+   * DATA_FILE_NAME.dart
+   * artifact.dta
+   * Return true if found, false otherwise
+   */
   bool FindXMLFile();
 
   // Time query function. Called by ExecuteInformation().
   // Fills the TimestepValues array.
   void GetAllTimes(vtkInformationVector*);
 
-  // Description:
-  // Populates the TIME_STEPS and TIME_RANGE keys based on file metadata.
+  /**
+   * Populates the TIME_STEPS and TIME_RANGE keys based on file metadata.
+   */
   void AdvertiseTimeSteps( vtkInformation* outputInfo );
 
   int ProcessRequest( vtkInformation *, vtkInformationVector **, vtkInformationVector *);
@@ -746,8 +827,8 @@ protected:
 
   friend class vtkPExodusIIReader;
 private:
-  vtkExodusIIReader(const vtkExodusIIReader&); // Not implemented
-  void operator=(const vtkExodusIIReader&); // Not implemented
+  vtkExodusIIReader(const vtkExodusIIReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExodusIIReader&) VTK_DELETE_FUNCTION;
 
   void AddDisplacements(vtkUnstructuredGrid* output);
   int ModeShapesRange[2];

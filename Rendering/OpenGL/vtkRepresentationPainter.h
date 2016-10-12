@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkRepresentationPainter - painter that handles representation.
-// .SECTION Description
-// This painter merely defines the interface.
-// Subclasses will change the polygon rendering mode dependent on
-// the graphics library.
+/**
+ * @class   vtkRepresentationPainter
+ * @brief   painter that handles representation.
+ *
+ * This painter merely defines the interface.
+ * Subclasses will change the polygon rendering mode dependent on
+ * the graphics library.
+*/
 
 #ifndef vtkRepresentationPainter_h
 #define vtkRepresentationPainter_h
@@ -36,8 +39,8 @@ protected:
   ~vtkRepresentationPainter();
 
 private:
-  vtkRepresentationPainter(const vtkRepresentationPainter&); // Not implemented.
-  void operator=(const vtkRepresentationPainter&); // Not implemented.
+  vtkRepresentationPainter(const vtkRepresentationPainter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRepresentationPainter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

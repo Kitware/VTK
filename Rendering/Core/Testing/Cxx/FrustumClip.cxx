@@ -70,9 +70,9 @@ int FrustumClip( int argc, char *argv[] )
   double ped[24];
   int i;
   for (i = 0; i < 24; ++i)
-    {
+  {
     ped[i] = planeequations[i];
-    }
+  }
   implictplanes->SetFrustumPlanes(ped);
 
   vtkClipPolyData *clipper = vtkClipPolyData::New();
@@ -91,9 +91,9 @@ int FrustumClip( int argc, char *argv[] )
   int retVal = vtkRegressionTestImage( renWin );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
   // Clean up
   renderer->Delete();
   renWin->Delete();

@@ -40,49 +40,49 @@ void PrepArray(bool byName, bool drawCell, int arrayIndex, int arrayComponent,
                double *&minmax)
 {
   if (drawCell)
-    {
+  {
     if (arrayIndex > dataset->GetCellData()->GetNumberOfArrays())
-      {
+    {
       arrayIndex = 0;
-      }
+    }
     values = dataset->GetCellData()->GetArray(arrayIndex);
     if (arrayComponent > values->GetNumberOfComponents())
-      {
+    {
       arrayComponent = 0;
-      }
+    }
     cerr << "Drawing CELL " << values->GetName() << " [" << arrayComponent << "]" << endl;
     if (!byName)
-      {
-      painter->SetInputArrayToProcess(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA, arrayIndex);
-      }
-    else
-      {
-      painter->SetInputArrayToProcess(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA, values->GetName());
-      }
-    minmax = values->GetRange(arrayComponent);
-    }
-  else
     {
+      painter->SetInputArrayToProcess(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA, arrayIndex);
+    }
+    else
+    {
+      painter->SetInputArrayToProcess(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA, values->GetName());
+    }
+    minmax = values->GetRange(arrayComponent);
+  }
+  else
+  {
     if (arrayIndex > dataset->GetPointData()->GetNumberOfArrays())
-      {
+    {
       arrayIndex = 0;
-      }
+    }
     values = dataset->GetPointData()->GetArray(arrayIndex);
     if (arrayComponent > values->GetNumberOfComponents())
-      {
+    {
       arrayComponent = 0;
-      }
+    }
     cerr << "Drawing POINT " << values->GetName() << " [" << arrayComponent << "]" << endl;
     if (!byName)
-      {
+    {
       painter->SetInputArrayToProcess(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA, arrayIndex);
-      }
-    else
-      {
-      painter->SetInputArrayToProcess(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA, values->GetName());
-      }
-    minmax = values->GetRange(arrayComponent);
     }
+    else
+    {
+      painter->SetInputArrayToProcess(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA, values->GetName());
+    }
+    minmax = values->GetRange(arrayComponent);
+  }
   painter->SetInputComponentToProcess(arrayComponent);
   painter->SetScalarRange(minmax[0], minmax[1]);
 }
@@ -97,28 +97,28 @@ int TestValuePainter(int argc, char* argv[])
   bool interactive = false;
 
   for (int i = 0; i < argc; i++)
-    {
+  {
     if (!strcmp(argv[i],"index"))
-      {
+    {
       byName = false;
-      }
-    if (!strcmp(argv[i],"point"))
-      {
-      drawCell = false;
-      }
-    if (!strcmp(argv[i],"N"))
-      {
-      arrayIndex = atoi(argv[i+1]);
-      }
-    if (!strcmp(argv[i],"C"))
-      {
-      arrayComponent = atoi(argv[i+1]);
-      }
-    if (!strcmp(argv[i],"-I"))
-      {
-      interactive = true;
-      }
     }
+    if (!strcmp(argv[i],"point"))
+    {
+      drawCell = false;
+    }
+    if (!strcmp(argv[i],"N"))
+    {
+      arrayIndex = atoi(argv[i+1]);
+    }
+    if (!strcmp(argv[i],"C"))
+    {
+      arrayComponent = atoi(argv[i+1]);
+    }
+    if (!strcmp(argv[i],"-I"))
+    {
+      interactive = true;
+    }
+  }
 
   vtkSmartPointer<vtkPolyData> dataset = vtkSmartPointer<vtkPolyData>::New();
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -133,9 +133,9 @@ int TestValuePainter(int argc, char* argv[])
   dataset->GetPointData()->AddArray(vectors);
   double vector[3];
   for (unsigned int i = 0; i < TESTVP_MAX; i++)
-    {
+  {
     for (unsigned int j = 0; j < TESTVP_MAX; j++)
-      {
+    {
       points->InsertNextPoint(i,j,0.0);
       scalars->InsertNextValue((double)i/TESTVP_MAX+10);
       vector[0] = sin((double)j/TESTVP_MAX*6.1418);
@@ -143,8 +143,8 @@ int TestValuePainter(int argc, char* argv[])
       vector[2] = 1.0;
       vtkMath::Normalize(vector);
       vectors->InsertNextTuple3(vector[0],vector[1],vector[2]);
-      }
     }
+  }
 
   vtkSmartPointer<vtkCellArray> cells = vtkSmartPointer<vtkCellArray>::New();
   dataset->SetPolys(cells);
@@ -157,9 +157,9 @@ int TestValuePainter(int argc, char* argv[])
   vectors->SetName("Cell Vector Array 1");
   dataset->GetCellData()->AddArray(vectors);
   for (unsigned int i = 0; i < (TESTVP_MAX-1); i++)
-    {
+  {
     for (unsigned int j = 0; j < (TESTVP_MAX-1); j++)
-      {
+    {
       cells->InsertNextCell(4);
       cells->InsertCellPoint(i*TESTVP_MAX    +j);
       cells->InsertCellPoint(i*TESTVP_MAX    +j+1);
@@ -172,8 +172,8 @@ int TestValuePainter(int argc, char* argv[])
       vector[2] = 1.0;
       vtkMath::Normalize(vector);
       vectors->InsertNextTuple3(vector[0],vector[1],vector[2]);
-      }
     }
+  }
 
   vtkSmartPointer<vtkPainterPolyDataMapper> mapper =
     vtkSmartPointer<vtkPainterPolyDataMapper>::New();
@@ -217,31 +217,31 @@ int TestValuePainter(int argc, char* argv[])
 
   //iterate to look for leaks and such
   for (int i = 0; i < 8; i++)
-    {
+  {
     bool _byName = true;
     bool _drawCell = true;
     vtkFieldData *fd = dataset->GetCellData();
     if (i<4)
-      {
+    {
       _byName = false;
-      }
+    }
     if (i%2)
-      {
+    {
       _drawCell = false;
       fd = dataset->GetPointData();
-      }
+    }
     for (int j = 0; j < fd->GetNumberOfArrays(); j++)
-      {
+    {
       for (int k = 0; k < fd->GetArray(j)->GetNumberOfComponents(); k++)
-        {
+      {
         PrepArray(_byName, _drawCell, j, k, dataset, values, painter, minmax);
         renderWindow->Render();
 
         //std::string v;
         //cin >> v;
-        }
       }
     }
+  }
 
   PrepArray(byName, drawCell, arrayIndex, arrayComponent,
             dataset, values, painter,
@@ -259,50 +259,50 @@ int TestValuePainter(int argc, char* argv[])
   std::set<double> found;
   double value;
   for (int i = 0; i < id->GetNumberOfPoints(); i++)
-    {
+  {
     vtkValuePainter::ColorToValue(ptr, minmax[0], scale, value);
     if (found.find(value)==found.end())
-      {
+    {
       found.insert(value);
       cerr << "READ "
            << std::hex
            << (int) ptr[0] << (int) ptr[1] << (int) ptr[2] << "\t"
            << std::dec
            << value << endl;
-      }
-    ptr+=3;
     }
+    ptr+=3;
+  }
 
   std::set<double>::iterator it;
   double min = VTK_DOUBLE_MAX;
   double max = VTK_DOUBLE_MIN;
   for (it = found.begin(); it != found.end(); ++it)
-    {
+  {
     if (*it < min)
-      {
+    {
       min = *it;
-      }
-    if (*it > max)
-      {
-      max = *it;
-      }
     }
+    if (*it > max)
+    {
+      max = *it;
+    }
+  }
   bool fail = false;
   if (fabs(min - -10.0) > 0.12)
-    {
+  {
     cerr << "ERROR min value not correct" << endl;
     fail = true;
-    }
+  }
   if (fabs(max - -9.0) > 0.12)
-    {
+  {
     cerr << "ERROR max value not correct" << endl;
     fail = true;
-    }
+  }
 
   if (interactive)
-    {
+  {
     renderWindowInteractor->Start();
-    }
+  }
 
   return fail;
 }

@@ -13,19 +13,22 @@
 
 =========================================================================*/
 
-// .NAME vtkEncodedGradientShader - Compute shading tables for encoded normals.
-//
-// .SECTION Description
-// vtkEncodedGradientShader computes shading tables for encoded normals
-// that indicates the amount of diffuse and specular illumination that is
-// received from all light sources at a surface location with that normal.
-// For diffuse illumination this is accurate, but for specular illumination
-// it is approximate for perspective projections since the center view
-// direction is always used as the view direction. Since the shading table is
-// dependent on the volume (for the transformation that must be applied to
-// the normals to put them into world coordinates) there is a shading table
-// per volume. This is necessary because multiple volumes can share a
-// volume mapper.
+/**
+ * @class   vtkEncodedGradientShader
+ * @brief   Compute shading tables for encoded normals.
+ *
+ *
+ * vtkEncodedGradientShader computes shading tables for encoded normals
+ * that indicates the amount of diffuse and specular illumination that is
+ * received from all light sources at a surface location with that normal.
+ * For diffuse illumination this is accurate, but for specular illumination
+ * it is approximate for perspective projections since the center view
+ * direction is always used as the view direction. Since the shading table is
+ * dependent on the volume (for the transformation that must be applied to
+ * the normals to put them into world coordinates) there is a shading table
+ * per volume. This is necessary because multiple volumes can share a
+ * volume mapper.
+*/
 
 #ifndef vtkEncodedGradientShader_h
 #define vtkEncodedGradientShader_h
@@ -45,56 +48,68 @@ public:
   static vtkEncodedGradientShader *New();
   vtkTypeMacro(vtkEncodedGradientShader,vtkObject);
 
-  // Description:
-  // Print the vtkEncodedGradientShader
+  /**
+   * Print the vtkEncodedGradientShader
+   */
   void PrintSelf( ostream& os, vtkIndent indent );
 
-  // Description:
-  // Set / Get the intensity diffuse / specular light used for the
-  // zero normals.
+  //@{
+  /**
+   * Set / Get the intensity diffuse / specular light used for the
+   * zero normals.
+   */
   vtkSetClampMacro( ZeroNormalDiffuseIntensity,  float, 0.0f, 1.0f);
   vtkGetMacro( ZeroNormalDiffuseIntensity, float );
   vtkSetClampMacro( ZeroNormalSpecularIntensity, float, 0.0f, 1.0f);
   vtkGetMacro( ZeroNormalSpecularIntensity, float );
+  //@}
 
-  // Description:
-  // Cause the shading table to be updated
+  /**
+   * Cause the shading table to be updated
+   */
   void UpdateShadingTable( vtkRenderer *ren, vtkVolume *vol,
                            vtkEncodedGradientEstimator *gradest);
 
-  // Description:
-  // Get the red/green/blue shading table.
+  //@{
+  /**
+   * Get the red/green/blue shading table.
+   */
   float *GetRedDiffuseShadingTable(    vtkVolume *vol );
   float *GetGreenDiffuseShadingTable(  vtkVolume *vol );
   float *GetBlueDiffuseShadingTable(   vtkVolume *vol );
   float *GetRedSpecularShadingTable(   vtkVolume *vol );
   float *GetGreenSpecularShadingTable( vtkVolume *vol );
   float *GetBlueSpecularShadingTable(  vtkVolume *vol );
+  //@}
 
-  // Description:
-  // Set the active component for shading. This component's
-  // ambient / diffuse / specular / specular power values will
-  // be used to create the shading table. The default is 1.0
+  //@{
+  /**
+   * Set the active component for shading. This component's
+   * ambient / diffuse / specular / specular power values will
+   * be used to create the shading table. The default is 1.0
+   */
   vtkSetClampMacro( ActiveComponent, int, 0, 3 );
   vtkGetMacro( ActiveComponent, int );
+  //@}
 
 protected:
   vtkEncodedGradientShader();
   ~vtkEncodedGradientShader();
 
-  // Description:
-  // Build a shading table for a light with the specified direction,
-  // and color for an object of the specified material properties.
-  // material[0] = ambient, material[1] = diffuse, material[2] = specular
-  // and material[3] = specular exponent.  If the ambient flag is 1,
-  // then ambient illumination is added. If not, then this means we
-  // are calculating the "other side" of two sided lighting, so no
-  // ambient intensity is added in. If the update flag is 0,
-  // the shading table is overwritten with these new shading values.
-  // If the updateFlag is 1, then the computed light contribution is
-  // added to the current shading table values. There is one shading
-  // table per volume, and the index value indicated which index table
-  // should be used. It is computed in the UpdateShadingTable method.
+  /**
+   * Build a shading table for a light with the specified direction,
+   * and color for an object of the specified material properties.
+   * material[0] = ambient, material[1] = diffuse, material[2] = specular
+   * and material[3] = specular exponent.  If the ambient flag is 1,
+   * then ambient illumination is added. If not, then this means we
+   * are calculating the "other side" of two sided lighting, so no
+   * ambient intensity is added in. If the update flag is 0,
+   * the shading table is overwritten with these new shading values.
+   * If the updateFlag is 1, then the computed light contribution is
+   * added to the current shading table values. There is one shading
+   * table per volume, and the index value indicated which index table
+   * should be used. It is computed in the UpdateShadingTable method.
+   */
   void  BuildShadingTable( int index,
                            double lightDirection[3],
                            double lightAmbientColor[3],
@@ -123,8 +138,8 @@ protected:
   float    ZeroNormalDiffuseIntensity;
   float    ZeroNormalSpecularIntensity;
 private:
-  vtkEncodedGradientShader(const vtkEncodedGradientShader&);  // Not implemented.
-  void operator=(const vtkEncodedGradientShader&);  // Not implemented.
+  vtkEncodedGradientShader(const vtkEncodedGradientShader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkEncodedGradientShader&) VTK_DELETE_FUNCTION;
 };
 
 

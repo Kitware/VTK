@@ -44,7 +44,7 @@ void vtkInformationIntegerPointerKey::PrintSelf(ostream& os, vtkIndent indent)
 class vtkInformationIntegerPointerValue: public vtkObjectBase
 {
 public:
-  vtkTypeMacro(vtkInformationIntegerPointerValue, vtkObjectBase);
+  vtkBaseTypeMacro(vtkInformationIntegerPointerValue, vtkObjectBase);
   int* Value;
   unsigned int Length;
 };
@@ -54,9 +54,9 @@ void vtkInformationIntegerPointerKey::Set(vtkInformation* info, int* value,
                                           int length)
 {
   if(value)
-    {
+  {
     if(this->RequiredLength >= 0 && length != this->RequiredLength)
-      {
+    {
       vtkErrorWithObjectMacro(
         info,
         "Cannot store integer vector of length " << length
@@ -65,21 +65,21 @@ void vtkInformationIntegerPointerKey::Set(vtkInformation* info, int* value,
         << this->RequiredLength << ".  Removing the key instead.");
       this->SetAsObjectBase(info, 0);
       return;
-      }
+    }
 
     // Allocate a new value.
     vtkInformationIntegerPointerValue* v =
       new vtkInformationIntegerPointerValue;
-    this->ConstructClass("vtkInformationIntegerPointerValue");
+    v->InitializeObjectBase();
     v->Value = value;
     v->Length = length;
     this->SetAsObjectBase(info, v);
     v->Delete();
-    }
+  }
   else
-    {
+  {
     this->SetAsObjectBase(info, 0);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -99,9 +99,9 @@ void vtkInformationIntegerPointerKey::Get(vtkInformation* info,
     static_cast<vtkInformationIntegerPointerValue *>
     (this->GetAsObjectBase(info));
   if(v && value)
-    {
+  {
     memcpy(value, v->Value, v->Length*sizeof(int));
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -125,16 +125,16 @@ void vtkInformationIntegerPointerKey::Print(ostream& os, vtkInformation* info)
 {
   // Print the value.
   if(this->Has(info))
-    {
+  {
     int* value = this->Get(info);
     int length = this->Length(info);
     const char* sep = "";
     for(int i=0; i < length; ++i)
-      {
+    {
       os << sep << value[i];
       sep = " ";
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -143,8 +143,8 @@ int* vtkInformationIntegerPointerKey::GetWatchAddress(vtkInformation* info)
   if(vtkInformationIntegerPointerValue* v =
      static_cast<vtkInformationIntegerPointerValue *>
      (this->GetAsObjectBase(info)))
-    {
+  {
     return v->Value;
-    }
+  }
   return 0;
 }

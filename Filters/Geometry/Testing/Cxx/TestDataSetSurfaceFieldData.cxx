@@ -37,50 +37,50 @@ int TestDataSet(vtkDataSet* ds, int expectedValue)
   surfacer->SetInputData(ds);
   surfacer->Update();
   if (!surfacer->GetOutput())
-    {
+  {
     std::cout << "No output!\n";
     return EXIT_FAILURE;
-    }
+  }
 
   vtkFieldData* fieldData = surfacer->GetOutput()->GetFieldData();
   const char* className = ds->GetClassName();
   if (fieldData == NULL || fieldData->GetNumberOfArrays() == 0)
-    {
+  {
     std::cerr << "No field data was associated with data set type " << className << "\n";
     return EXIT_FAILURE;
-    }
+  }
   else
-    {
+  {
     std::cout << "Have field data for surface from data set type " << className << "\n";
 
     vtkIntArray* array = vtkArrayDownCast<vtkIntArray>(fieldData->GetArray(0));
     if (!array)
-      {
+    {
       std::cerr << "Field data array was not of type vtkIntArray for data set type"
                 << className << "\n";
       return EXIT_FAILURE;
-      }
+    }
     else if (array->GetNumberOfTuples() < 1)
-      {
+    {
       std::cerr << "No tuples in field data array for surface from data set type "
                 << className << "\n";
       return EXIT_FAILURE;
-      }
+    }
     else
-      {
+    {
       int value = 0;
       array->GetTypedTuple(0, &value);
 
       std::cout << "Block value " << value << "\n";
       if (value != expectedValue)
-        {
+      {
         std::cerr << "Unexpected block field array value " << value
                   << " for surface from data set type " << className
                   << ". Expected " << expectedValue << "\n";
         return EXIT_FAILURE;
-        }
       }
     }
+  }
 
   return EXIT_SUCCESS;
 }
@@ -166,28 +166,28 @@ int TestUnstructuredGrid()
 int TestDataSetSurfaceFieldData(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   if (TestImageData() != EXIT_SUCCESS)
-    {
+  {
     std::cerr << "TestImageData failed\n";
     return EXIT_FAILURE;
-    }
+  }
 
   if (TestPolyData() != EXIT_SUCCESS)
-    {
+  {
     std::cerr << "TestPolyData failed\n";
     return EXIT_FAILURE;
-    }
+  }
 
   if (TestStructuredGrid() != EXIT_SUCCESS)
-    {
+  {
     std::cerr << "TestStructuredGrid failed\n";
     return EXIT_FAILURE;
-    }
+  }
 
   if (TestUnstructuredGrid() != EXIT_SUCCESS)
-    {
+  {
     std::cerr << "TestUnstructuredGrid failed\n";
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

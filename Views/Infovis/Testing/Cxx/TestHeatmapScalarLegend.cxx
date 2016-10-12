@@ -77,10 +77,10 @@ int TestHeatmapScalarLegend(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(contextView->GetRenderWindow());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     contextView->GetRenderWindow()->Render();
     contextView->GetInteractor()->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
   return !retVal;
 }

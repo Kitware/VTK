@@ -17,18 +17,21 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// .NAME vtkExtractUserDefinedPiece - Return user specified piece with ghost cells
-//
-// .SECTION Description
-// Provided a function that determines which cells are zero-level
-// cells ("the piece"), this class outputs the piece with the
-// requested number of ghost levels.  The only difference between
-// this class and the class it is derived from is that the
-// zero-level cells are specified by a function you provide,
-// instead of determined by dividing up the cells based on cell Id.
-//
-// .SECTION See Also
-// vtkExtractUnstructuredGridPiece
+/**
+ * @class   vtkExtractUserDefinedPiece
+ * @brief   Return user specified piece with ghost cells
+ *
+ *
+ * Provided a function that determines which cells are zero-level
+ * cells ("the piece"), this class outputs the piece with the
+ * requested number of ghost levels.  The only difference between
+ * this class and the class it is derived from is that the
+ * zero-level cells are specified by a function you provide,
+ * instead of determined by dividing up the cells based on cell Id.
+ *
+ * @sa
+ * vtkExtractUnstructuredGridPiece
+*/
 
 #ifndef vtkExtractUserDefinedPiece_h
 #define vtkExtractUserDefinedPiece_h
@@ -41,7 +44,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkExtractUserDefinedPiece : public vtkExtractUn
 public:
   vtkTypeMacro(vtkExtractUserDefinedPiece, vtkExtractUnstructuredGridPiece);
   static vtkExtractUserDefinedPiece *New();
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   typedef int (*UserDefFunc)(vtkIdType cellID, vtkUnstructuredGrid *grid, void *constantData);
 
@@ -70,8 +73,8 @@ protected:
                                    vtkUnstructuredGrid *input);
 
 private:
-  vtkExtractUserDefinedPiece(const vtkExtractUserDefinedPiece&); // Not implemented
-  void operator=(const vtkExtractUserDefinedPiece&); // Not implemented
+  vtkExtractUserDefinedPiece(const vtkExtractUserDefinedPiece&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExtractUserDefinedPiece&) VTK_DELETE_FUNCTION;
 
   void *ConstantData;
   int ConstantDataLen;

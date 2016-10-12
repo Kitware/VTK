@@ -83,11 +83,11 @@ int TestInteractorStyleImageProperty(int argc, char *argv[])
   renderWindowInteractor->Initialize();
 
   for (int sliceOrder = 0; sliceOrder < 4; sliceOrder++)
-    {
+  {
     renderer->RemoveAllViewProps();
 
     switch(sliceOrder)
-      {
+    {
       case 0:
         //Adding the slice to the renderer before the other prop.
         renderer->AddViewProp(imageSlice);
@@ -109,7 +109,7 @@ int TestInteractorStyleImageProperty(int argc, char *argv[])
         //No slice, so no image property should be found.
         renderer->AddViewProp(textActor);
         break;
-      }
+    }
 
     renderWindowInteractor->Render();
 
@@ -121,11 +121,11 @@ int TestInteractorStyleImageProperty(int argc, char *argv[])
     style->OnLeftButtonUp();
 
     if (!foundProperty ^ (sliceOrder == 3))
-      {
+    {
       cerr << "TestInteractorStyleImagePropertyInternal failed with sliceOrder parameter " << sliceOrder << "." << std::endl;
       return EXIT_FAILURE;
-      }
     }
+  }
 
   return  EXIT_SUCCESS;
 }

@@ -71,9 +71,9 @@ void vtkInformation::PrintSelf(ostream& os, vtkIndent indent)
 
   // Print the request if one is set.
   if(this->Request)
-    {
+  {
     os << indent << "Request: " << this->Request->GetName() << "\n";
-    }
+  }
   this->PrintKeys(os, indent);
 }
 
@@ -83,7 +83,7 @@ void vtkInformation::PrintKeys(ostream& os, vtkIndent indent)
   typedef vtkInformationInternals::MapType MapType;
   for(MapType::const_iterator i = this->Internal->Map.begin();
       i != this->Internal->Map.end(); ++i)
-    {
+  {
     // Print the key name first.
     vtkInformationKey* key = i->first;
     os << indent << key->GetName() << ": ";
@@ -91,7 +91,7 @@ void vtkInformation::PrintKeys(ostream& os, vtkIndent indent)
     // Ask the key to print its value.
     key->Print(os, this);
     os << "\n";
-    }
+  }
 }
 
 
@@ -122,9 +122,9 @@ int vtkInformation::GetNumberOfKeys()
   int numberOfKeys = 0;
   for (infoIterator->InitTraversal(); !infoIterator->IsDoneWithTraversal();
     infoIterator->GoToNextItem())
-    {
+  {
     numberOfKeys++;
-    }
+  }
   return numberOfKeys;
 }
 
@@ -133,31 +133,31 @@ void vtkInformation::SetAsObjectBase(vtkInformationKey* key,
                                      vtkObjectBase* newvalue)
 {
   if(!key)
-    {
+  {
     return;
-    }
+  }
   typedef vtkInformationInternals::MapType MapType;
   MapType::iterator i = this->Internal->Map.find(key);
   if(i != this->Internal->Map.end())
-    {
+  {
     vtkObjectBase* oldvalue = i->second;
     if(newvalue)
-      {
+    {
       i->second = newvalue;
       newvalue->Register(0);
-      }
-    else
-      {
-      this->Internal->Map.erase(i);
-      }
-    oldvalue->UnRegister(0);
     }
-  else if(newvalue)
+    else
     {
+      this->Internal->Map.erase(i);
+    }
+    oldvalue->UnRegister(0);
+  }
+  else if(newvalue)
+  {
     MapType::value_type entry(key, newvalue);
     this->Internal->Map.insert(entry);
     newvalue->Register(0);
-    }
+  }
   this->Modified(key);
 }
 
@@ -166,14 +166,14 @@ const vtkObjectBase* vtkInformation::GetAsObjectBase(
   const vtkInformationKey* key) const
 {
   if(key)
-    {
+  {
     typedef vtkInformationInternals::MapType MapType;
     MapType::const_iterator i = this->Internal->Map.find(const_cast<vtkInformationKey*>(key));
     if(i != this->Internal->Map.end())
-      {
+    {
       return i->second;
-      }
     }
+  }
   return 0;
 }
 
@@ -181,14 +181,14 @@ const vtkObjectBase* vtkInformation::GetAsObjectBase(
 vtkObjectBase* vtkInformation::GetAsObjectBase(vtkInformationKey* key)
 {
   if(key)
-    {
+  {
     typedef vtkInformationInternals::MapType MapType;
     MapType::const_iterator i = this->Internal->Map.find(key);
     if(i != this->Internal->Map.end())
-      {
+    {
       return i->second;
-      }
     }
+  }
   return 0;
 }
 
@@ -204,14 +204,14 @@ void vtkInformation::Copy(vtkInformation* from, int deep)
   vtkInformationInternals* oldInternal = this->Internal;
   this->Internal = new vtkInformationInternals;
   if(from)
-    {
+  {
     typedef vtkInformationInternals::MapType MapType;
     for(MapType::const_iterator i = from->Internal->Map.begin();
         i != from->Internal->Map.end(); ++i)
-      {
+    {
       this->CopyEntry(from, i->first, deep);
-      }
     }
+  }
   delete oldInternal;
 }
 
@@ -219,14 +219,14 @@ void vtkInformation::Copy(vtkInformation* from, int deep)
 void vtkInformation::Append(vtkInformation* from, int deep)
 {
   if(from)
-    {
+  {
     typedef vtkInformationInternals::MapType MapType;
     for(MapType::const_iterator i = from->Internal->Map.begin();
         i != from->Internal->Map.end(); ++i)
-      {
+    {
       this->CopyEntry(from, i->first, deep);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -234,13 +234,13 @@ void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationKey* key, int deep)
 {
   if (!deep)
-    {
+  {
     key->ShallowCopy(from, this);
-    }
+  }
   else
-    {
+  {
     key->DeepCopy(from, this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -248,13 +248,13 @@ void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationDataObjectKey* key, int deep)
 {
   if (!deep)
-    {
+  {
     key->ShallowCopy(from, this);
-    }
+  }
   else
-    {
+  {
     key->DeepCopy(from, this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -262,13 +262,13 @@ void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationInformationKey* key, int deep)
 {
   if (!deep)
-    {
+  {
     key->ShallowCopy(from, this);
-    }
+  }
   else
-    {
+  {
     key->DeepCopy(from, this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -277,13 +277,13 @@ void vtkInformation::CopyEntry(vtkInformation* from,
                                int deep)
 {
   if (!deep)
-    {
+  {
     key->ShallowCopy(from, this);
-    }
+  }
   else
-    {
+  {
     key->DeepCopy(from, this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -291,13 +291,13 @@ void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationIntegerKey* key, int deep)
 {
   if (!deep)
-    {
+  {
     key->ShallowCopy(from, this);
-    }
+  }
   else
-    {
+  {
     key->DeepCopy(from, this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -305,13 +305,13 @@ void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationRequestKey* key, int deep)
 {
   if (!deep)
-    {
+  {
     key->ShallowCopy(from, this);
-    }
+  }
   else
-    {
+  {
     key->DeepCopy(from, this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -319,13 +319,13 @@ void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationIntegerVectorKey* key, int deep)
 {
   if (!deep)
-    {
+  {
     key->ShallowCopy(from, this);
-    }
+  }
   else
-    {
+  {
     key->DeepCopy(from, this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -334,13 +334,13 @@ void vtkInformation::CopyEntry(vtkInformation *from,
                                int deep)
 {
   if (!deep)
-    {
+  {
     key->ShallowCopy(from, this);
-    }
+  }
   else
-    {
+  {
     key->DeepCopy(from, this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -348,13 +348,13 @@ void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationDoubleVectorKey* key, int deep)
 {
   if (!deep)
-    {
+  {
     key->ShallowCopy(from, this);
-    }
+  }
   else
-    {
+  {
     key->DeepCopy(from, this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -362,13 +362,13 @@ void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationVariantKey* key, int deep)
 {
   if (!deep)
-    {
+  {
     key->ShallowCopy(from, this);
-    }
+  }
   else
-    {
+  {
     key->DeepCopy(from, this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -376,13 +376,13 @@ void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationVariantVectorKey* key, int deep)
 {
   if (!deep)
-    {
+  {
     key->ShallowCopy(from, this);
-    }
+  }
   else
-    {
+  {
     key->DeepCopy(from, this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -390,13 +390,13 @@ void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationStringKey* key, int deep)
 {
   if (!deep)
-    {
+  {
     key->ShallowCopy(from, this);
-    }
+  }
   else
-    {
+  {
     key->DeepCopy(from, this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -404,13 +404,13 @@ void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationUnsignedLongKey* key, int deep)
 {
   if (!deep)
-    {
+  {
     key->ShallowCopy(from, this);
-    }
+  }
   else
-    {
+  {
     key->DeepCopy(from, this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -418,13 +418,13 @@ void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationStringVectorKey* key, int deep)
 {
   if (!deep)
-    {
+  {
     key->ShallowCopy(from, this);
-    }
+  }
   else
-    {
+  {
     key->DeepCopy(from, this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -434,9 +434,9 @@ void vtkInformation::CopyEntries(vtkInformation* from,
   int numberOfKeys = from->Length(key);
   vtkInformationKey** keys = from->Get(key);
   for(int i=0; i < numberOfKeys; ++i)
-    {
+  {
     this->CopyEntry(from, keys[i], deep);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -469,21 +469,21 @@ int vtkInformation::Has(vtkInformationRequestKey* key)
 //----------------------------------------------------------------------------
 #define VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(name, type)                  \
   void vtkInformation::Set(vtkInformation##name##Key* key, type value)      \
-    {                                                                       \
+  {                                                                       \
     key->Set(this, value);                                                  \
-    }                                                                       \
+  }                                                                       \
   void vtkInformation::Remove(vtkInformation##name##Key* key)               \
-    {                                                                       \
+  {                                                                       \
     key->vtkInformation##name##Key::Remove(this);                           \
-    }                                                                       \
+  }                                                                       \
   type vtkInformation::Get(vtkInformation##name##Key* key)                  \
-    {                                                                       \
+  {                                                                       \
     return key->Get(this);                                                  \
-    }                                                                       \
+  }                                                                       \
   int vtkInformation::Has(vtkInformation##name##Key* key)                   \
-    {                                                                       \
+  {                                                                       \
     return key->vtkInformation##name##Key::Has(this);                       \
-    }
+  }
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(IdType, vtkIdType);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Integer, int);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Double, double);
@@ -500,41 +500,58 @@ VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Variant, const vtkVariant&);
 #define VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(name, type)                  \
   void vtkInformation::Append(vtkInformation##name##VectorKey* key,         \
                               type value)                                   \
-    {                                                                       \
+  {                                                                       \
     key->Append(this, value);                                               \
-    }                                                                       \
+  }                                                                       \
   void vtkInformation::Set(vtkInformation##name##VectorKey* key,            \
                            type const* value, int length)                         \
-    {                                                                       \
+  {                                                                       \
     key->Set(this, value, length);                                          \
-    }                                                                       \
+  }                                                                       \
   type* vtkInformation::Get(vtkInformation##name##VectorKey* key)           \
-    {                                                                       \
+  {                                                                       \
     return key->Get(this);                                                  \
-    }                                                                       \
+  }                                                                       \
   type vtkInformation::Get(vtkInformation##name##VectorKey* key, int idx)   \
-    {                                                                       \
+  {                                                                       \
     return key->Get(this, idx);                                             \
-    }                                                                       \
+  }                                                                       \
   void vtkInformation::Get(vtkInformation##name##VectorKey* key,            \
                            type* value)                                     \
-    {                                                                       \
+  {                                                                       \
     key->Get(this, value);                                                  \
-    }                                                                       \
+  }                                                                       \
   int vtkInformation::Length(vtkInformation##name##VectorKey* key)          \
-    {                                                                       \
+  {                                                                       \
     return key->Length(this);                                               \
-    }                                                                       \
+  }                                                                       \
   void vtkInformation::Remove(vtkInformation##name##VectorKey* key)         \
-    {                                                                       \
+  {                                                                       \
     key->vtkInformation##name##VectorKey::Remove(this);                     \
-    }                                                                       \
+  }                                                                       \
   int vtkInformation::Has(vtkInformation##name##VectorKey* key)             \
-    {                                                                       \
+  {                                                                       \
     return key->vtkInformation##name##VectorKey::Has(this);                 \
-    }
+  }
 VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Integer, int);
 VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Double, double);
+
+// String keys can accept std::string.
+void vtkInformation::Append(vtkInformationStringVectorKey *key,
+                            const std::string &value)
+{
+  this->Append(key, value.c_str());
+}
+void vtkInformation::Set(vtkInformationStringVectorKey* key,
+                         const std::string &value, int idx)
+{
+  this->Set(key, value.c_str(), idx);
+}
+void vtkInformation::Set(vtkInformationStringKey* key,
+                         const std::string &value)
+{
+  this->Set(key, value.c_str());
+}
 
 // Variant vector key is slightly different to accommodate efficient
 // pass-by-reference instead of pass-by-value calls.
@@ -578,30 +595,30 @@ int vtkInformation::Has(vtkInformationVariantVectorKey* key)
 // the scalar string key.
 void vtkInformation::Append(vtkInformationStringVectorKey* key,
                             const char* value)
-  {
+{
   key->Append(this, value);
-  }
+}
 void vtkInformation::Set(vtkInformationStringVectorKey* key,
     const char* value, int idx)
-  {
+{
   key->Set(this, value, idx);
-  }
+}
 const char* vtkInformation::Get(vtkInformationStringVectorKey* key, int idx)
-  {
+{
   return key->Get(this, idx);
-  }
+}
 int vtkInformation::Length(vtkInformationStringVectorKey* key)
-  {
+{
   return key->Length(this);
-  }
+}
 void vtkInformation::Remove(vtkInformationStringVectorKey* key)
-  {
+{
   key->vtkInformationStringVectorKey::Remove(this);
-  }
+}
 int vtkInformation::Has(vtkInformationStringVectorKey* key)
-  {
+{
   return key->vtkInformationStringVectorKey::Has(this);
-  }
+}
 
 
 //------------------------------------------------------------------------------
@@ -662,7 +679,7 @@ VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Key, vtkInformationKey*);
   void vtkInformation::Set(vtkInformation##name##VectorKey* key,            \
                            atype value1, atype value2, atype value3,        \
                            atype value4, atype value5, atype value6)        \
-    {                                                                       \
+  {                                                                       \
     type value[6];                                                          \
     value[0] = value1;                                                      \
     value[1] = value2;                                                      \
@@ -671,16 +688,16 @@ VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Key, vtkInformationKey*);
     value[4] = value5;                                                      \
     value[5] = value6;                                                      \
     key->Set(this, value, 6);                                               \
-    }                                                                       \
+  }                                                                       \
   void vtkInformation::Set(vtkInformation##name##VectorKey* key,            \
                            atype value1, atype value2, atype value3)        \
-    {                                                                       \
+  {                                                                       \
     type value[3];                                                          \
     value[0] = value1;                                                      \
     value[1] = value2;                                                      \
     value[2] = value3;                                                      \
     key->Set(this, value, 3);                                               \
-    }
+  }
 #define VTK_INFORMATION_DEFINE_VECTOR_VALUE_PROPERTY(name, type)            \
         VTK_INFORMATION_DEFINE_VECTOR_VALUE2_PROPERTY(name, type, type)
 VTK_INFORMATION_DEFINE_VECTOR_VALUE_PROPERTY(Integer, int);
@@ -694,30 +711,30 @@ VTK_INFORMATION_DEFINE_VECTOR_VALUE2_PROPERTY(Variant, vtkVariant, const vtkVari
 #define VTK_INFORMATION_DEFINE_POINTER_PROPERTY(name, type)                  \
   void vtkInformation::Set(vtkInformation##name##PointerKey* key,            \
                            type* value, int length)                         \
-    {                                                                       \
+  {                                                                       \
     key->Set(this, value, length);                                          \
-    }                                                                       \
+  }                                                                       \
   type* vtkInformation::Get(vtkInformation##name##PointerKey* key)           \
-    {                                                                       \
+  {                                                                       \
     return key->Get(this);                                                  \
-    }                                                                       \
+  }                                                                       \
   void vtkInformation::Get(vtkInformation##name##PointerKey* key,            \
                            type* value)                                     \
-    {                                                                       \
+  {                                                                       \
     key->Get(this, value);                                                  \
-    }                                                                       \
+  }                                                                       \
   int vtkInformation::Length(vtkInformation##name##PointerKey* key)          \
-    {                                                                       \
+  {                                                                       \
     return key->Length(this);                                               \
-    }                                                                       \
+  }                                                                       \
   void vtkInformation::Remove(vtkInformation##name##PointerKey* key)         \
-    {                                                                       \
+  {                                                                       \
     key->vtkInformation##name##PointerKey::Remove(this);                    \
-    }                                                                       \
+  }                                                                       \
   int vtkInformation::Has(vtkInformation##name##PointerKey* key)             \
-    {                                                                       \
+  {                                                                       \
     return key->vtkInformation##name##PointerKey::Has(this);                \
-    }
+  }
 VTK_INFORMATION_DEFINE_POINTER_PROPERTY(Integer, int);
 #undef VTK_INFORMATION_DEFINE_POINTER_PROPERTY
 
@@ -993,9 +1010,9 @@ void vtkInformation::ReportReferences(vtkGarbageCollector* collector)
   typedef vtkInformationInternals::MapType MapType;
   for(MapType::const_iterator i = this->Internal->Map.begin();
       i != this->Internal->Map.end(); ++i)
-    {
+  {
     i->first->Report(this, collector);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1003,14 +1020,14 @@ void vtkInformation::ReportAsObjectBase(vtkInformationKey* key,
                                         vtkGarbageCollector* collector)
 {
   if(key)
-    {
+  {
     typedef vtkInformationInternals::MapType MapType;
     MapType::iterator i = this->Internal->Map.find(key);
     if(i != this->Internal->Map.end())
-      {
+    {
       vtkGarbageCollectorReport(collector, i->second, key->GetName());
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------

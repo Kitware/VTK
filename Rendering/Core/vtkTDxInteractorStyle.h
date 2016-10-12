@@ -12,19 +12,22 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTDxInteractorStyle - provide 3DConnexion device event-driven interface to the rendering window
-
-// .SECTION Description
-// vtkTDxInteractorStyle is an abstract class defining an event-driven
-// interface to support 3DConnexion device events send by
-// vtkRenderWindowInteractor.
-// vtkRenderWindowInteractor forwards events in a platform independent form to
-// vtkInteractorStyle which can then delegate some processing to
-// vtkTDxInteractorStyle.
-
-// .SECTION See Also
-// vtkInteractorStyle vtkRenderWindowInteractor
-// vtkTDxInteractorStyleCamera
+/**
+ * @class   vtkTDxInteractorStyle
+ * @brief   provide 3DConnexion device event-driven interface to the rendering window
+ *
+ *
+ * vtkTDxInteractorStyle is an abstract class defining an event-driven
+ * interface to support 3DConnexion device events send by
+ * vtkRenderWindowInteractor.
+ * vtkRenderWindowInteractor forwards events in a platform independent form to
+ * vtkInteractorStyle which can then delegate some processing to
+ * vtkTDxInteractorStyle.
+ *
+ * @sa
+ * vtkInteractorStyle vtkRenderWindowInteractor
+ * vtkTDxInteractorStyleCamera
+*/
 
 #ifndef vtkTDxInteractorStyle_h
 #define vtkTDxInteractorStyle_h
@@ -42,36 +45,43 @@ public:
   vtkTypeMacro(vtkTDxInteractorStyle,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Action on motion event. Default implementation is empty.
-  // \pre: motionInfo_exist: motionInfo!=0
+  /**
+   * Action on motion event. Default implementation is empty.
+   * \pre: motionInfo_exist: motionInfo!=0
+   */
   virtual void OnMotionEvent(vtkTDxMotionEventInfo *motionInfo);
 
-  // Description:
-  // Action on button pressed event. Default implementation is empty.
+  /**
+   * Action on button pressed event. Default implementation is empty.
+   */
   virtual void OnButtonPressedEvent(int button);
 
-  // Description:
-  // Action on button released event. Default implementation is empty.
+  /**
+   * Action on button released event. Default implementation is empty.
+   */
   virtual void OnButtonReleasedEvent(int button);
 
-  // Description:
-  // Dispatch the events TDxMotionEvent, TDxButtonPressEvent and
-  // TDxButtonReleaseEvent to OnMotionEvent(), OnButtonPressedEvent() and
-  // OnButtonReleasedEvent() respectively.
-  // It is called by the vtkInteractorStyle.
-  // This method is virtual for convenient but you should really override
-  // the On*Event() methods only.
-  // \pre renderer can be null.
+  /**
+   * Dispatch the events TDxMotionEvent, TDxButtonPressEvent and
+   * TDxButtonReleaseEvent to OnMotionEvent(), OnButtonPressedEvent() and
+   * OnButtonReleasedEvent() respectively.
+   * It is called by the vtkInteractorStyle.
+   * This method is virtual for convenient but you should really override
+   * the On*Event() methods only.
+   * \pre renderer can be null.
+   */
   virtual void ProcessEvent(vtkRenderer *renderer,
                             unsigned long event,
                             void *calldata);
 
-  // Description:
-  // 3Dconnexion device settings. (sensitivity, individual axis filters).
-  // Initial object is not null.
+  //@{
+  /**
+   * 3Dconnexion device settings. (sensitivity, individual axis filters).
+   * Initial object is not null.
+   */
   vtkGetObjectMacro(Settings,vtkTDxInteractorStyleSettings);
   virtual void SetSettings(vtkTDxInteractorStyleSettings *settings);
+  //@}
 
 protected:
   vtkTDxInteractorStyle();
@@ -82,7 +92,7 @@ protected:
   vtkRenderer *Renderer;
 
 private:
-  vtkTDxInteractorStyle(const vtkTDxInteractorStyle&);  // Not implemented.
-  void operator=(const vtkTDxInteractorStyle&);  // Not implemented.
+  vtkTDxInteractorStyle(const vtkTDxInteractorStyle&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTDxInteractorStyle&) VTK_DELETE_FUNCTION;
 };
 #endif

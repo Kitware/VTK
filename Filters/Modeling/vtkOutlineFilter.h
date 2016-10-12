@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOutlineFilter - create wireframe outline for arbitrary data set
-// .SECTION Description
-// vtkOutlineFilter is a filter that generates a wireframe outline of any
-// data set. The outline consists of the twelve edges of the dataset
-// bounding box.
+/**
+ * @class   vtkOutlineFilter
+ * @brief   create wireframe outline for arbitrary data set
+ *
+ * vtkOutlineFilter is a filter that generates a wireframe outline of any
+ * data set. The outline consists of the twelve edges of the dataset
+ * bounding box.
+*/
 
 #ifndef vtkOutlineFilter_h
 #define vtkOutlineFilter_h
@@ -33,11 +36,14 @@ public:
   vtkTypeMacro(vtkOutlineFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Generate solid faces for the box. This is off by default.
+  //@{
+  /**
+   * Generate solid faces for the box. This is off by default.
+   */
   vtkSetMacro(GenerateFaces, int);
   vtkBooleanMacro(GenerateFaces, int);
   vtkGetMacro(GenerateFaces, int);
+  //@}
 
 protected:
   vtkOutlineFilter();
@@ -49,8 +55,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkOutlineFilter(const vtkOutlineFilter&);  // Not implemented.
-  void operator=(const vtkOutlineFilter&);  // Not implemented.
+  vtkOutlineFilter(const vtkOutlineFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOutlineFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

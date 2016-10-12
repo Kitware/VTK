@@ -42,9 +42,9 @@ vtkImageReader::vtkImageReader()
   int idx;
 
   for (idx = 0; idx < 3; ++idx)
-    {
+  {
     this->DataVOI[idx*2] = this->DataVOI[idx*2 + 1] = 0;
-    }
+  }
 
   this->DataMask = static_cast<vtkTypeUInt64>(~0UL);
   this->Transform = NULL;
@@ -74,18 +74,18 @@ void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Data Mask: " << this->DataMask << "\n";
   os << indent << "DataVOI: (" << this->DataVOI[0];
   for (idx = 1; idx < 6; ++idx)
-    {
+  {
     os << ", " << this->DataVOI[idx];
-    }
+  }
   os << ")\n";
   if ( this->Transform )
-    {
+  {
     os << indent << "Transform: " << this->Transform << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Transform: (none)\n";
-    }
+  }
 
   os << indent << "ScalarArrayName: "
      << (this->ScalarArrayName ? this->ScalarArrayName : "(none)") << endl;
@@ -114,13 +114,13 @@ int vtkImageReader::RequestInformation (
   if (this->DataVOI[0] || this->DataVOI[1] ||
       this->DataVOI[2] || this->DataVOI[3] ||
       this->DataVOI[4] || this->DataVOI[5])
-    {
+  {
     this->ComputeTransformedExtent(this->DataVOI,extent);
-    }
+  }
   else
-    {
+  {
     this->ComputeTransformedExtent(this->DataExtent,extent);
-    }
+  }
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent, 6);
 
   // set the spacing
@@ -141,45 +141,45 @@ int vtkImageReader::OpenAndSeekFile(int dataExtent[6], int idx)
   unsigned long streamStart;
 
   if (!this->FileName && !this->FilePattern)
-    {
+  {
     vtkErrorMacro(<<"Either a FileName or FilePattern must be specified.");
     return 0;
-    }
+  }
   this->ComputeInternalFileName(idx);
   this->OpenFile();
   if ( !this->File )
-    {
+  {
     return 0;
-    }
+  }
   // convert data extent into constants that can be used to seek.
   streamStart =
     (dataExtent[0] - this->DataExtent[0]) * this->DataIncrements[0];
 
   if (this->FileLowerLeft)
-    {
+  {
     streamStart = streamStart +
       (dataExtent[2] - this->DataExtent[2]) * this->DataIncrements[1];
-    }
+  }
   else
-    {
+  {
     streamStart = streamStart +
       (this->DataExtent[3] - this->DataExtent[2] - dataExtent[2]) *
       this->DataIncrements[1];
-    }
+  }
 
   // handle three and four dimensional files
   if (this->GetFileDimensionality() >= 3)
-    {
+  {
     streamStart = streamStart +
       (dataExtent[4] - this->DataExtent[4]) * this->DataIncrements[2];
-    }
+  }
 
   streamStart += this->GetHeaderSize(idx);
 
   // error checking
   this->File->seekg(static_cast<long>(streamStart), ios::beg);
   if (this->File->fail())
-    {
+  {
     vtkErrorMacro(<< "File operation failed: " << streamStart << ", ext: "
                   << dataExtent[0] << ", " << dataExtent[1] << ", "
                   << dataExtent[2] << ", " << dataExtent[3] << ", "
@@ -189,7 +189,7 @@ int vtkImageReader::OpenAndSeekFile(int dataExtent[6], int idx)
                   << this->DataExtent[2] << ", " << this->DataExtent[3] << ", "
                   << this->DataExtent[4] << ", " << this->DataExtent[5]);
     return 0;
-    }
+  }
   return 1;
 }
 
@@ -228,17 +228,17 @@ void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
   // compute outPtr2
   outPtr2 = outPtr;
   if (outIncr[0] < 0)
-    {
+  {
     outPtr2 = outPtr2 - outIncr[0]*(dataExtent[1] - dataExtent[0]);
-    }
+  }
   if (outIncr[1] < 0)
-    {
+  {
     outPtr2 = outPtr2 - outIncr[1]*(dataExtent[3] - dataExtent[2]);
-    }
+  }
   if (outIncr[2] < 0)
-    {
+  {
     outPtr2 = outPtr2 - outIncr[2]*(dataExtent[5] - dataExtent[4]);
-    }
+  }
 
   // length of a row, num pixels read at a time
   pixelRead = dataExtent[1] - dataExtent[0] + 1;
@@ -251,12 +251,12 @@ void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
 
   // read from the bottom up
   if (!self->GetFileLowerLeft())
-    {
+  {
     streamSkip0 = (long)(-static_cast<long>(streamRead)
                          - self->GetDataIncrements()[1]);
     streamSkip1 = (long)(self->GetDataIncrements()[2] +
       (dataExtent[3] - dataExtent[2] + 1)* self->GetDataIncrements()[1]);
-    }
+  }
 
 
   // create a buffer to hold a row of the data
@@ -268,31 +268,31 @@ void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
 
   // read the data row by row
   if (self->GetFileDimensionality() == 3)
-    {
+  {
     if ( !self->OpenAndSeekFile(dataExtent,0) )
-      {
+    {
       delete [] buf;
       return;
-      }
     }
+  }
   for (idx2 = dataExtent[4]; idx2 <= dataExtent[5]; ++idx2)
-    {
+  {
     if (self->GetFileDimensionality() == 2)
-      {
+    {
       if ( !self->OpenAndSeekFile(dataExtent,idx2) )
-        {
+      {
         delete [] buf;
         return;
-        }
       }
+    }
     outPtr1 = outPtr2;
     for (idx1 = dataExtent[2];
          !self->AbortExecute && idx1 <= dataExtent[3]; ++idx1)
-      {
+    {
       if (!(count%target))
-        {
+      {
         self->UpdateProgress(count/(50.0*target));
-        }
+      }
       count++;
       outPtr0 = outPtr1;
 
@@ -305,7 +305,7 @@ void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
       if ( static_cast<unsigned long>(self->GetFile()->gcount()) !=
            streamRead || self->GetFile()->fail())
 #endif
-        {
+      {
         vtkGenericWarningMacro("File operation failed. row = " << idx1
                                << ", Tried to Read = " << streamRead
                                << ", Read = " << self->GetFile()->gcount()
@@ -314,37 +314,37 @@ void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
                                << ", FilePos = " << static_cast<vtkIdType>(self->GetFile()->tellg()));
         delete [] buf;
         return;
-        }
+      }
       // handle swapping
       if (self->GetSwapBytes())
-        {
+      {
         // pixelSkip is the number of components in data
         vtkByteSwap::SwapVoidRange(buf, pixelRead*pixelSkip, sizeof(IT));
-        }
+      }
 
       // copy the bytes into the typed data
       inPtr = buf;
       for (idx0 = dataExtent[0]; idx0 <= dataExtent[1]; ++idx0)
-        {
+      {
         // Copy pixel into the output.
         if (DataMask == static_cast<vtkTypeUInt64>(~0UL))
-          {
+        {
           for (comp = 0; comp < pixelSkip; comp++)
-            {
+          {
             outPtr0[comp] = (OT)(inPtr[comp]);
-            }
           }
+        }
         else
-          {
+        {
           for (comp = 0; comp < pixelSkip; comp++)
-            {
+          {
             outPtr0[comp] = (OT)((vtkTypeUInt64)(inPtr[comp]) & DataMask);
-            }
           }
+        }
         // move to next pixel
         inPtr += pixelSkip;
         outPtr0 += outIncr[0];
-        }
+      }
 
       // move to the next row in the file and data
       filePos = self->GetFile()->tellg();
@@ -363,30 +363,30 @@ void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
       // seems that after a read that just reaches EOF, tellg reports a -1.
       // clear() does not work, so we have to reopen the file.
       if (filePos == -1)
-        {
+      {
         self->OpenFile();
         self->GetFile()->seekg(0,ios::end);
         filePos = self->GetFile()->tellg();
-        }
+      }
 #endif
       // watch for case where we might rewind too much
       // if that happens, store the value in correction and apply later
       if (filePos + streamSkip0 >= 0)
-        {
+      {
         self->GetFile()->seekg(static_cast<long>(self->GetFile()->tellg()) + streamSkip0, ios::beg);
         correction = 0;
-        }
-      else
-        {
-        correction = streamSkip0;
-        }
-      outPtr1 += outIncr[1];
       }
+      else
+      {
+        correction = streamSkip0;
+      }
+      outPtr1 += outIncr[1];
+    }
     // move to the next image in the file and data
     self->GetFile()->seekg(static_cast<long>(self->GetFile()->tellg()) + streamSkip1 + correction,
                       ios::beg);
     outPtr2 += outIncr[2];
-    }
+  }
 
   // delete the temporary buffer
   delete [] buf;
@@ -404,12 +404,12 @@ void vtkImageReaderUpdate1(vtkImageReader *self, vtkImageData *data, T *inPtr)
   // Call the correct templated function for the input
   outPtr = data->GetScalarPointer();
   switch (data->GetScalarType())
-    {
+  {
     vtkTemplateMacro(vtkImageReaderUpdate2(self, data, inPtr,
                                            (VTK_TT *)(outPtr)));
     default:
       vtkGenericWarningMacro("Update1: Unknown data type\n");
-    }
+  }
 }
 //----------------------------------------------------------------------------
 // This function reads a data from a file.  The datas extent/axes
@@ -422,15 +422,15 @@ void vtkImageReader::ExecuteDataWithInformation(vtkDataObject *output,
   void *ptr = NULL;
 
   if (!this->FileName && !this->FilePattern)
-    {
+  {
     vtkErrorMacro("Either a valid FileName or FilePattern must be specified.");
     return;
-    }
+  }
 
   if (!data->GetPointData()->GetScalars())
-    {
+  {
     return;
-    }
+  }
   data->GetPointData()->GetScalars()->SetName(this->ScalarArrayName);
 
 #ifndef NDEBUG
@@ -443,11 +443,11 @@ void vtkImageReader::ExecuteDataWithInformation(vtkDataObject *output,
 
   // Call the correct templated function for the output
   switch (this->GetDataScalarType())
-    {
+  {
     vtkTemplateMacro(vtkImageReaderUpdate1(this, data, (VTK_TT *)(ptr)));
     default:
       vtkErrorMacro(<< "UpdateFromFile: Unknown data type");
-    }
+  }
 }
 
 
@@ -457,21 +457,21 @@ void vtkImageReader::ExecuteDataWithInformation(vtkDataObject *output,
 void vtkImageReader::ComputeTransformedSpacing (double Spacing[3])
 {
   if (!this->Transform)
-    {
+  {
     memcpy (Spacing, this->DataSpacing, 3 * sizeof (double));
-    }
+  }
   else
-    {
+  {
     double transformedSpacing[3];
     memcpy (transformedSpacing, this->DataSpacing, 3 * sizeof (double));
     this->Transform->TransformVector(transformedSpacing, transformedSpacing);
 
     for (int i = 0; i < 3; i++)
-      {
+    {
       Spacing[i] = fabs(transformedSpacing[i]);
-      }
-    vtkDebugMacro("Transformed Spacing " << Spacing[0] << ", " << Spacing[1] << ", " << Spacing[2]);
     }
+    vtkDebugMacro("Transformed Spacing " << Spacing[0] << ", " << Spacing[1] << ", " << Spacing[2]);
+  }
 }
 
 // if the spacing is negative we need to tranlate the origin
@@ -480,11 +480,11 @@ void vtkImageReader::ComputeTransformedSpacing (double Spacing[3])
 void vtkImageReader::ComputeTransformedOrigin (double origin[3])
 {
   if (!this->Transform)
-    {
+  {
     memcpy (origin, this->DataOrigin, 3 * sizeof (double));
-    }
+  }
   else
-    {
+  {
     double transformedOrigin[3];
     double transformedSpacing[3];
     int transformedExtent[6];
@@ -498,19 +498,19 @@ void vtkImageReader::ComputeTransformedOrigin (double origin[3])
     this->ComputeTransformedExtent(this->DataExtent,transformedExtent);
 
     for (int i = 0; i < 3; i++)
-      {
+    {
       if (transformedSpacing[i] < 0)
-        {
+      {
         origin[i] = transformedOrigin[i] + transformedSpacing[i]*
           (transformedExtent[i*2+1] -  transformedExtent[i*2] + 1);
-        }
-      else
-        {
-        origin[i] = transformedOrigin[i];
-        }
       }
-    vtkDebugMacro("Transformed Origin " << origin[0] << ", " << origin[1] << ", " << origin[2]);
+      else
+      {
+        origin[i] = transformedOrigin[i];
+      }
     }
+    vtkDebugMacro("Transformed Origin " << origin[0] << ", " << origin[1] << ", " << origin[2]);
+  }
 }
 
 void vtkImageReader::ComputeTransformedExtent(int inExtent[6],
@@ -522,12 +522,12 @@ void vtkImageReader::ComputeTransformedExtent(int inExtent[6],
   int dataExtent[6];
 
   if (!this->Transform)
-    {
+  {
     memcpy (outExtent, inExtent, 6 * sizeof (int));
     memcpy (dataExtent, this->DataExtent, 6 * sizeof(int));
-    }
+  }
   else
-    {
+  {
     // need to know how far to translate to start at 000
     // first transform the data extent
     transformedExtent[0] = this->DataExtent[0];
@@ -547,14 +547,14 @@ void vtkImageReader::ComputeTransformedExtent(int inExtent[6],
     dataExtent[5] = (int) transformedExtent[2];
 
     for (idx = 0; idx < 6; idx += 2)
-      {
+    {
       if (dataExtent[idx] > dataExtent[idx+1])
-        {
+      {
         temp = dataExtent[idx];
         dataExtent[idx] = dataExtent[idx+1];
         dataExtent[idx+1] = temp;
-        }
       }
+    }
 
     // now transform the inExtent
     transformedExtent[0] = inExtent[0];
@@ -572,20 +572,20 @@ void vtkImageReader::ComputeTransformedExtent(int inExtent[6],
     outExtent[1] = (int) transformedExtent[0];
     outExtent[3] = (int) transformedExtent[1];
     outExtent[5] = (int) transformedExtent[2];
-    }
+  }
 
   for (idx = 0; idx < 6; idx += 2)
-    {
+  {
     if (outExtent[idx] > outExtent[idx+1])
-      {
+    {
       temp = outExtent[idx];
       outExtent[idx] = outExtent[idx+1];
       outExtent[idx+1] = temp;
-      }
+    }
     // do the slide to 000 origin by subtracting the minimum extent
     outExtent[idx] -= dataExtent[idx];
     outExtent[idx+1] -= dataExtent[idx];
-    }
+  }
 
   vtkDebugMacro(<< "Transformed extent are:"
   << outExtent[0] << ", " << outExtent[1] << ", "
@@ -601,17 +601,17 @@ void vtkImageReader::ComputeInverseTransformedExtent(int inExtent[6],
   int idx;
 
   if (!this->Transform)
-    {
+  {
     memcpy (outExtent, inExtent, 6 * sizeof (int));
     for (idx = 0; idx < 6; idx += 2)
-      {
+    {
       // do the slide to 000 origin by subtracting the minimum extent
       outExtent[idx] += this->DataExtent[idx];
       outExtent[idx+1] += this->DataExtent[idx];
-      }
     }
+  }
   else
-    {
+  {
     // need to know how far to translate to start at 000
     int dataExtent[6];
     // first transform the data extent
@@ -632,21 +632,21 @@ void vtkImageReader::ComputeInverseTransformedExtent(int inExtent[6],
     dataExtent[5] = (int) transformedExtent[2];
 
     for (idx = 0; idx < 6; idx += 2)
-      {
+    {
       if (dataExtent[idx] > dataExtent[idx+1])
-        {
+      {
         temp = dataExtent[idx];
         dataExtent[idx] = dataExtent[idx+1];
         dataExtent[idx+1] = temp;
-        }
       }
+    }
 
     for (idx = 0; idx < 6; idx += 2)
-      {
+    {
       // do the slide to 000 origin by subtracting the minimum extent
       inExtent[idx] += dataExtent[idx];
       inExtent[idx+1] += dataExtent[idx];
-      }
+    }
 
     transformedExtent[0] = inExtent[0];
     transformedExtent[1] = inExtent[2];
@@ -667,15 +667,15 @@ void vtkImageReader::ComputeInverseTransformedExtent(int inExtent[6],
     outExtent[5] = (int) transformedExtent[2];
 
     for (idx = 0; idx < 6; idx += 2)
-      {
+    {
       if (outExtent[idx] > outExtent[idx+1])
-        {
+      {
         temp = outExtent[idx];
         outExtent[idx] = outExtent[idx+1];
         outExtent[idx+1] = temp;
-        }
       }
     }
+  }
 
     vtkDebugMacro(<< "Inverse Transformed extent are:"
     << outExtent[0] << ", " << outExtent[1] << ", "
@@ -689,11 +689,11 @@ void vtkImageReader::ComputeTransformedIncrements(vtkIdType inIncr[3],
   double transformedIncr[3];
 
   if (!this->Transform)
-    {
+  {
     memcpy (outIncr, inIncr, 3 * sizeof (vtkIdType));
-    }
+  }
   else
-    {
+  {
     transformedIncr[0] = inIncr[0];
     transformedIncr[1] = inIncr[1];
     transformedIncr[2] = inIncr[2];
@@ -703,7 +703,7 @@ void vtkImageReader::ComputeTransformedIncrements(vtkIdType inIncr[3],
     outIncr[2] = (vtkIdType) transformedIncr[2];
     vtkDebugMacro(<< "Transformed Incr are:"
     << outIncr[0] << ", " << outIncr[1] << ", " << outIncr[2]);
-    }
+  }
 }
 
 
@@ -713,11 +713,11 @@ void vtkImageReader::ComputeInverseTransformedIncrements(vtkIdType inIncr[3],
   double transformedIncr[3];
 
   if (!this->Transform)
-    {
+  {
     memcpy (outIncr, inIncr, 3 * sizeof (vtkIdType));
-    }
+  }
   else
-    {
+  {
     transformedIncr[0] = inIncr[0];
     transformedIncr[1] = inIncr[1];
     transformedIncr[2] = inIncr[2];
@@ -728,5 +728,5 @@ void vtkImageReader::ComputeInverseTransformedIncrements(vtkIdType inIncr[3],
     outIncr[2] = (vtkIdType) transformedIncr[2];
     vtkDebugMacro(<< "Inverse Transformed Incr are:"
     << outIncr[0] << ", " << outIncr[1] << ", " << outIncr[2]);
-    }
+  }
 }

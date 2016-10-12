@@ -12,14 +12,17 @@
      PURPOSE. See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkProStarReader - Reads geometry in proSTAR (STARCD) file format.
-// .SECTION Description
-// vtkProStarReader creates an unstructured grid dataset.
-// It reads .cel/.vrt files stored in proSTAR (STARCD) ASCII format.
-//
-// .SECTION Thanks
-// Reader written by Mark Olesen
-//
+/**
+ * @class   vtkProStarReader
+ * @brief   Reads geometry in proSTAR (STARCD) file format.
+ *
+ * vtkProStarReader creates an unstructured grid dataset.
+ * It reads .cel/.vrt files stored in proSTAR (STARCD) ASCII format.
+ *
+ * @par Thanks:
+ * Reader written by Mark Olesen
+ *
+*/
 
 #ifndef vtkProStarReader_h
 #define vtkProStarReader_h
@@ -34,20 +37,27 @@ public:
   vtkTypeMacro(vtkProStarReader,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify the file name prefix of the cel/vrt files to read.
-  // The reader will try to open FileName.cel and FileName.vrt files.
+  //@{
+  /**
+   * Specify the file name prefix of the cel/vrt files to read.
+   * The reader will try to open FileName.cel and FileName.vrt files.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // The proSTAR files are often in millimeters.
-  // Specify an alternative scaling factor.
+  //@{
+  /**
+   * The proSTAR files are often in millimeters.
+   * Specify an alternative scaling factor.
+   */
   vtkSetClampMacro(ScaleFactor, double, 0, VTK_DOUBLE_MAX);
   vtkGetMacro(ScaleFactor, double);
+  //@}
 
-  // Description:
-  // The type of material represented by the cell
+  /**
+   * The type of material represented by the cell
+   */
   enum cellType
   {
     starcdFluidType = 1,
@@ -58,8 +68,9 @@ public:
     starcdPointType = 6
   };
 
-  // Description:
-  // The primitive cell shape
+  /**
+   * The primitive cell shape
+   */
   enum shapeType
   {
     starcdPoint = 1,
@@ -81,16 +92,18 @@ protected:
   int RequestData
     (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
-  // Description:
-  // The name of the file to be read.  If it has a .cel, .vrt, or .inp
-  // extension it will be truncated and later appended when reading
-  // the appropriate files.  Otherwise those extensions will be appended
-  // to FileName when opening the files.
+  /**
+   * The name of the file to be read.  If it has a .cel, .vrt, or .inp
+   * extension it will be truncated and later appended when reading
+   * the appropriate files.  Otherwise those extensions will be appended
+   * to FileName when opening the files.
+   */
   char *FileName;
 
-  // Description:
-  // The coordinates are multiplied by ScaleFactor when setting them.
-  // The default value is 1.
+  /**
+   * The coordinates are multiplied by ScaleFactor when setting them.
+   * The default value is 1.
+   */
   double ScaleFactor;
 
 private:
@@ -104,7 +117,7 @@ private:
   bool ReadVrtFile(vtkUnstructuredGrid *output, idMapping& pointMapping);
   bool ReadCelFile(vtkUnstructuredGrid *output, const idMapping& pointMapping);
 
-  vtkProStarReader(const vtkProStarReader&); // Not implemented.
-  void operator=(const vtkProStarReader&); // Not implemented.
+  vtkProStarReader(const vtkProStarReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkProStarReader&) VTK_DELETE_FUNCTION;
 };
 #endif

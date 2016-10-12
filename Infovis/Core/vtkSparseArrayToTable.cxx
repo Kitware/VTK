@@ -48,7 +48,7 @@ static bool Convert(vtkArray* Array, const char* ValueColumn, vtkTable* Table)
   const vtkIdType value_count = array->GetNonNullSize();
 
   for(vtkIdType dimension = 0; dimension != dimensions; ++dimension)
-    {
+  {
     vtkIdType* const array_coordinates = array->GetCoordinateStorage(dimension);
 
     vtkIdTypeArray* const table_coordinates = vtkIdTypeArray::New();
@@ -57,7 +57,7 @@ static bool Convert(vtkArray* Array, const char* ValueColumn, vtkTable* Table)
     std::copy(array_coordinates, array_coordinates + value_count, table_coordinates->GetPointer(0));
     Table->AddColumn(table_coordinates);
     table_coordinates->Delete();
-    }
+  }
 
   ValueT* const array_values = array->GetValueStorage();
 
@@ -104,11 +104,11 @@ void vtkSparseArrayToTable::PrintSelf(ostream& os, vtkIndent indent)
 int vtkSparseArrayToTable::FillInputPortInformation(int port, vtkInformation* info)
 {
   switch(port)
-    {
+  {
     case 0:
       info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkArrayData");
       return 1;
-    }
+  }
 
   return 0;
 }
@@ -121,7 +121,7 @@ int vtkSparseArrayToTable::RequestData(
   vtkInformationVector* outputVector)
 {
   try
-    {
+  {
     vtkArrayData* const input_array_data = vtkArrayData::GetData(inputVector[0]);
     if(input_array_data->GetNumberOfArrays() != 1)
       throw std::runtime_error("vtkSparseArrayToTable requires a vtkArrayData containing exactly one array.");
@@ -132,11 +132,11 @@ int vtkSparseArrayToTable::RequestData(
 
     if(Convert<double, vtkDoubleArray>(input_array, this->ValueColumn, output_table)) return 1;
     if(Convert<vtkStdString, vtkStringArray>(input_array, this->ValueColumn, output_table)) return 1;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     vtkErrorMacro(<< e.what());
-    }
+  }
 
   return 0;
 }

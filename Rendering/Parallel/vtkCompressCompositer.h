@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCompressCompositer - Implements compressed tree based compositing.
-//
-// .SECTION Description
-// vtkCompressCompositer operates in multiple processes.  Each compositer has
-// a render window.  They use vtkMultiProcessController to communicate
-// the color and depth buffer to process 0's render window.
-// It will not handle transparency.  Compositing is run length encoding
-// of background pixels.
-//
-// SECTION See Also
-// vtkCompositeManager.
+/**
+ * @class   vtkCompressCompositer
+ * @brief   Implements compressed tree based compositing.
+ *
+ *
+ * vtkCompressCompositer operates in multiple processes.  Each compositer has
+ * a render window.  They use vtkMultiProcessController to communicate
+ * the color and depth buffer to process 0's render window.
+ * It will not handle transparency.  Compositing is run length encoding
+ * of background pixels.
+ *
+ * SECTION See Also
+ * vtkCompositeManager.
+*/
 
 #ifndef vtkCompressCompositer_h
 #define vtkCompressCompositer_h
@@ -44,9 +47,10 @@ public:
   virtual void CompositeBuffer(vtkDataArray *pBuf, vtkFloatArray *zBuf,
                                vtkDataArray *pTmp, vtkFloatArray *zTmp);
 
-  // Description:
-  // I am granting access to these methods and making them static
-  // So I can create a TileDisplayCompositer which uses compression.
+  /**
+   * I am granting access to these methods and making them static
+   * So I can create a TileDisplayCompositer which uses compression.
+   */
   static void Compress(vtkFloatArray *zIn, vtkDataArray *pIn,
                        vtkFloatArray *zOut, vtkDataArray *pOut);
 
@@ -68,8 +72,8 @@ protected:
   vtkTimerLog *Timer;
 
 private:
-  vtkCompressCompositer(const vtkCompressCompositer&); // Not implemented
-  void operator=(const vtkCompressCompositer&); // Not implemented
+  vtkCompressCompositer(const vtkCompressCompositer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompressCompositer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

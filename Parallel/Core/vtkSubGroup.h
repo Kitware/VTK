@@ -17,24 +17,27 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// .NAME vtkSubGroup - scalable collective communication for a
-//      subset of members of a parallel VTK application
-//
-// .SECTION Description
-//     This class provides scalable broadcast, reduce, etc. using
-//     only a vtkMultiProcessController. It does not require MPI.
-//     Users are vtkPKdTree and vtkDistributedDataFilter.
-//
-// .SECTION Note
-// This class will be deprecated soon.  Instead of using this class, use the
-// collective and subgrouping operations now built into
-// vtkMultiProcessController.  The only reason this class is not deprecated
-// already is because vtkPKdTree relies heavily on this class in ways that are
-// not easy to work around.  Since vtkPKdTree is due for a major overhaul
-// anyway, we are leaving things the way they are for now.
-//
-// .SECTION See Also
-//      vtkPKdTree vtkDistributedDataFilter
+/**
+ * @class   vtkSubGroup
+ * @brief   scalable collective communication for a
+ *      subset of members of a parallel VTK application
+ *
+ *
+ *     This class provides scalable broadcast, reduce, etc. using
+ *     only a vtkMultiProcessController. It does not require MPI.
+ *     Users are vtkPKdTree and vtkDistributedDataFilter.
+ *
+ * @attention
+ * This class will be deprecated soon.  Instead of using this class, use the
+ * collective and subgrouping operations now built into
+ * vtkMultiProcessController.  The only reason this class is not deprecated
+ * already is because vtkPKdTree relies heavily on this class in ways that are
+ * not easy to work around.  Since vtkPKdTree is due for a major overhaul
+ * anyway, we are leaving things the way they are for now.
+ *
+ * @sa
+ *      vtkPKdTree vtkDistributedDataFilter
+*/
 
 #ifndef vtkSubGroup_h
 #define vtkSubGroup_h
@@ -55,13 +58,14 @@ public:
   // The wrapper gets confused here and falls down.
   enum {MINOP = 1, MAXOP = 2, SUMOP = 3};
 
-  // Description:
-  //    Initialize a communication subgroup for the processes
-  //    with rank p0 through p1 of the given communicator.  (So
-  //    vtkSubGroup is limited to working with subgroups that
-  //    are identified by a contiguous set of rank IDs.)
-  //    The third argument is the callers rank, which must
-  //    in the range from p0 through p1.
+  /**
+   * Initialize a communication subgroup for the processes
+   * with rank p0 through p1 of the given communicator.  (So
+   * vtkSubGroup is limited to working with subgroups that
+   * are identified by a contiguous set of rank IDs.)
+   * The third argument is the callers rank, which must
+   * in the range from p0 through p1.
+   */
 
   int Initialize(int p0, int p1, int me, int tag, vtkCommunicator *c);
 
@@ -134,7 +138,7 @@ private:
 
   vtkCommunicator *comm;
 
-  vtkSubGroup(const vtkSubGroup&); // Not implemented
-  void operator=(const vtkSubGroup&); // Not implemented
+  vtkSubGroup(const vtkSubGroup&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSubGroup&) VTK_DELETE_FUNCTION;
 };
 #endif

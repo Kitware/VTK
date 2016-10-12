@@ -69,43 +69,43 @@ Java_vtk_vtkPanel_RenderCreate(JNIEnv *env, jobject canvas, jobject id0)
   /* Get the AWT */
   awt.version = JAWT_VERSION_1_3;
   if (JAWT_GetAWT(env, &awt) == JNI_FALSE)
-    {
+  {
 #ifndef VTK_JAVA_DEBUG
     printf("AWT Not found\n");
 #endif
     return 1;
-    }
+  }
 
   /* Get the drawing surface */
   ds = awt.GetDrawingSurface(env, canvas);
   if (ds == NULL)
-    {
+  {
 #ifndef VTK_JAVA_DEBUG
     printf("NULL drawing surface\n");
 #endif
     return 1;
-    }
+  }
 
   /* Lock the drawing surface */
   lock = ds->Lock(ds);
   if((lock & JAWT_LOCK_ERROR) != 0)
-    {
+  {
 #ifndef VTK_JAVA_DEBUG
     printf("Error locking surface\n");
 #endif
     awt.FreeDrawingSurface(ds);
     return 1;
-    }
+  }
 
   /* Get the drawing surface info */
   dsi = ds->GetDrawingSurfaceInfo(ds);
   if (dsi == NULL)
-    {
+  {
     printf("Error getting surface info\n");
     ds->Unlock(ds);
     awt.FreeDrawingSurface(ds);
     return 1;
-    }
+  }
 
 // Here is the win32 drawing code
 #if defined(_WIN32)
@@ -118,9 +118,9 @@ Java_vtk_vtkPanel_RenderCreate(JNIEnv *env, jobject canvas, jobject id0)
   temp0->SetParentId((void *)dsi_win->hdc);
 // use mac code
 #elif defined(__APPLE__)
-  JAWT_MacOSXDrawingSurfaceInfo* dsi_mac;
-  dsi_mac = (JAWT_MacOSXDrawingSurfaceInfo*)dsi->platformInfo;
-  temp0->SetWindowId(dsi_mac->cocoaViewRef);
+  JAWT_DrawingSurfaceInfo* dsi_mac;
+  dsi_mac = (JAWT_DrawingSurfaceInfo*)dsi->platformInfo;
+  // temp0->SetWindowId(dsi_mac->cocoaViewRef); // Wrong but allow compilation
 // otherwise use X11 code
 #else
   JAWT_X11DrawingSurfaceInfo* dsi_x11;
@@ -141,9 +141,9 @@ Java_vtk_vtkPanel_RenderCreate(JNIEnv *env, jobject canvas, jobject id0)
 
 #if defined(WIN32_JAWT_LOCK_HACK)
   if (WJLH_init_check == 0)
-    {
+  {
     WJLH_init_check = 1;
-    }
+  }
   WJLH_lock_map[hash] = 1;
 #endif
   return 0;
@@ -170,43 +170,43 @@ Java_vtk_rendering_awt_vtkInternalAwtComponent_RenderCreate(JNIEnv *env, jobject
   /* Get the AWT */
   awt.version = JAWT_VERSION_1_3;
   if (JAWT_GetAWT(env, &awt) == JNI_FALSE)
-    {
+  {
 #ifndef VTK_JAVA_DEBUG
     printf("AWT Not found\n");
 #endif
     return 1;
-    }
+  }
 
   /* Get the drawing surface */
   ds = awt.GetDrawingSurface(env, canvas);
   if (ds == NULL)
-    {
+  {
 #ifndef VTK_JAVA_DEBUG
     printf("NULL drawing surface\n");
 #endif
     return 1;
-    }
+  }
 
   /* Lock the drawing surface */
   lock = ds->Lock(ds);
   if((lock & JAWT_LOCK_ERROR) != 0)
-    {
+  {
 #ifndef VTK_JAVA_DEBUG
     printf("Error locking surface\n");
 #endif
     awt.FreeDrawingSurface(ds);
     return 1;
-    }
+  }
 
   /* Get the drawing surface info */
   dsi = ds->GetDrawingSurfaceInfo(ds);
   if (dsi == NULL)
-    {
+  {
     printf("Error getting surface info\n");
     ds->Unlock(ds);
     awt.FreeDrawingSurface(ds);
     return 1;
-    }
+  }
 
 // Here is the win32 drawing code
 #if defined(_WIN32)
@@ -219,9 +219,9 @@ Java_vtk_rendering_awt_vtkInternalAwtComponent_RenderCreate(JNIEnv *env, jobject
   temp0->SetParentId((void *)dsi_win->hdc);
 // use mac code
 #elif defined(__APPLE__)
-  JAWT_MacOSXDrawingSurfaceInfo* dsi_mac;
-  dsi_mac = (JAWT_MacOSXDrawingSurfaceInfo*)dsi->platformInfo;
-  temp0->SetWindowId(dsi_mac->cocoaViewRef);
+  JAWT_DrawingSurfaceInfo* dsi_mac;
+  dsi_mac = (JAWT_DrawingSurfaceInfo*)dsi->platformInfo;
+  // temp0->SetWindowId(dsi_mac->cocoaViewRef); // Wrong but allow compilation
 // otherwise use X11 code
 #else
   JAWT_X11DrawingSurfaceInfo* dsi_x11;
@@ -242,9 +242,9 @@ Java_vtk_rendering_awt_vtkInternalAwtComponent_RenderCreate(JNIEnv *env, jobject
 
 #if defined(WIN32_JAWT_LOCK_HACK)
   if (WJLH_init_check == 0)
-    {
+  {
     WJLH_init_check = 1;
-    }
+  }
   WJLH_lock_map[hash] = 1;
 #endif
   return 0;
@@ -268,22 +268,22 @@ Java_vtk_vtkPanel_Lock(JNIEnv *env,
   /* Get the AWT */
   awt.version = JAWT_VERSION_1_3;
   if (JAWT_GetAWT(env, &awt) == JNI_FALSE)
-    {
+  {
 #ifndef VTK_JAVA_DEBUG
     printf("AWT Not found\n");
 #endif
     return 1;
-    }
+  }
 
   /* Get the drawing surface */
   ds = awt.GetDrawingSurface(env, canvas);
   if (ds == NULL)
-    {
+  {
 #ifndef VTK_JAVA_DEBUG
     printf("NULL drawing surface\n");
 #endif
     return 1;
-    }
+  }
 
 #if defined(WIN32_JAWT_LOCK_HACK)
   int hash;
@@ -298,13 +298,13 @@ Java_vtk_vtkPanel_Lock(JNIEnv *env,
   /* Lock the drawing surface */
   lock = ds->Lock(ds);
   if((lock & JAWT_LOCK_ERROR) != 0)
-    {
+  {
 #ifndef VTK_JAVA_DEBUG
     printf("Error locking surface\n");
 #endif
     awt.FreeDrawingSurface(ds);
     return 1;
-    }
+  }
 #if defined(WIN32_JAWT_LOCK_HACK)
   }
 #endif
@@ -325,22 +325,22 @@ Java_vtk_vtkPanel_UnLock(JNIEnv *env,
   /* Get the AWT */
   awt.version = JAWT_VERSION_1_3;
   if (JAWT_GetAWT(env, &awt) == JNI_FALSE)
-    {
+  {
 #ifndef VTK_JAVA_DEBUG
     printf("AWT Not found\n");
 #endif
     return 1;
-    }
+  }
 
   /* Get the drawing surface */
   ds = awt.GetDrawingSurface(env, canvas);
   if (ds == NULL)
-    {
+  {
 #ifndef VTK_JAVA_DEBUG
     printf("NULL drawing surface\n");
 #endif
     return 1;
-    }
+  }
 
 #if defined(WIN32_JAWT_LOCK_HACK)
   int hash;

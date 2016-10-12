@@ -39,6 +39,8 @@ vtkFrameBufferObject2::vtkFrameBufferObject2()
   this->PreviousReadFBO = 0;
   this->PreviousDrawBuffer = GL_NONE;
   this->PreviousReadBuffer = GL_NONE;
+  this->LastViewportSize[0] = -1;
+  this->LastViewportSize[1] = -1;
 }
 
 //----------------------------------------------------------------------------
@@ -66,12 +68,12 @@ void vtkFrameBufferObject2::DestroyFBO()
   // we are(eg smart pointers), in which case we should
   // do nothing.
   if (this->Context && (this->FBOIndex!=0))
-    {
+  {
     GLuint fbo=static_cast<GLuint>(this->FBOIndex);
     glDeleteFramebuffers(1,&fbo);
     vtkOpenGLCheckErrorMacro("failed at glDeleteFramebuffers");
     this->FBOIndex=0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -79,9 +81,9 @@ bool vtkFrameBufferObject2::IsSupported(vtkRenderWindow *win)
 {
   vtkOpenGLRenderWindow *renWin=vtkOpenGLRenderWindow::SafeDownCast(win);
   if(renWin!=0)
-    {
+  {
     return true;
-    }
+  }
   return false;
 }
 
@@ -97,27 +99,27 @@ void vtkFrameBufferObject2::SetContext(vtkRenderWindow *renWin)
 {
   // avoid pointless re-assignment
   if (this->Context==renWin)
-    {
+  {
     return;
-    }
+  }
   // free previous resources
   this->DestroyFBO();
   this->Context = NULL;
   this->Modified();
   // all done if assigned null
   if (!renWin)
-    {
+  {
     return;
-    }
+  }
   // check for support
   vtkOpenGLRenderWindow *context
     = dynamic_cast<vtkOpenGLRenderWindow*>(renWin);
   if ( !context
     || !this->LoadRequiredExtensions(renWin))
-    {
+  {
     vtkErrorMacro("Context does not support the required extensions");
     return;
-    }
+  }
   // intialize
   this->Context=renWin;
   this->Context->MakeCurrent();
@@ -150,7 +152,7 @@ void vtkFrameBufferObject2::SaveCurrentBuffers()
 void vtkFrameBufferObject2::RestorePreviousBuffers(unsigned int mode)
 {
   switch((GLenum)mode)
-    {
+  {
     case GL_FRAMEBUFFER:
       glDrawBuffer((GLenum)this->PreviousDrawBuffer);
       vtkOpenGLCheckErrorMacro("failed at glDrawBuffer");
@@ -168,7 +170,7 @@ void vtkFrameBufferObject2::RestorePreviousBuffers(unsigned int mode)
       glReadBuffer((GLenum)this->PreviousReadBuffer);
       vtkOpenGLCheckErrorMacro("failed at glReadBuffer");
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -176,7 +178,7 @@ void vtkFrameBufferObject2::Bind(unsigned int mode)
 {
   assert(this->FBOIndex!=0); // need to call glGenFramebuffers first
 
-  // need to ensure that binding is esxtablished *every* time because
+  // need to ensure that binding is established *every* time because
   // if other code binds over us then all of our subsequent calls
   // will affect that fbo not ours.
   glBindFramebuffer((GLenum)mode, this->FBOIndex);
@@ -205,9 +207,9 @@ void vtkFrameBufferObject2::ActivateDrawBuffers(unsigned int *ids, int num)
   assert(num<17); // a practical limit, increase if needed
   GLenum colorAtts[16];
   for (int i=0; i<num; ++i)
-    {
+  {
     colorAtts[i] = GL_COLOR_ATTACHMENT0 + ids[i];
-    }
+  }
   glDrawBuffers(num, &colorAtts[0]);
   vtkOpenGLCheckErrorMacro("failed at glDrawBuffers");
 }
@@ -218,9 +220,9 @@ void vtkFrameBufferObject2::ActivateDrawBuffers(unsigned int num)
   assert(num<17); // a practical limit, increase if needed
   GLenum colorAtts[16];
   for (unsigned int i=0; i<num; ++i)
-    {
+  {
     colorAtts[i] = GL_COLOR_ATTACHMENT0 + i;
-    }
+  }
   glDrawBuffers(num, &colorAtts[0]);
   vtkOpenGLCheckErrorMacro("failed at glDrawBuffers");
 }
@@ -279,9 +281,9 @@ void vtkFrameBufferObject2::RemoveTexColorAttachments(
       unsigned int num)
 {
   for (unsigned int i=0; i<num; ++i)
-    {
+  {
     this->AddTexColorAttachment(mode, i, 0U);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -324,9 +326,9 @@ void vtkFrameBufferObject2::RemoveRenColorAttachments(
       unsigned int num)
 {
   for (unsigned int i=0; i<num; ++i)
-    {
+  {
     this->AddRenColorAttachment(mode, i, 0U);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -468,7 +470,7 @@ vtkPixelBufferObject *vtkFrameBufferObject2::DownloadColor1(
   assert(this->Context);
   GLenum oglChannel = 0;
   switch (channel)
-    {
+  {
     case 0:
       oglChannel = GL_RED;
       break;
@@ -481,7 +483,7 @@ vtkPixelBufferObject *vtkFrameBufferObject2::DownloadColor1(
     default:
       vtkErrorMacro("Inavlid channel");
       return NULL;
-    }
+  }
 
   return this->Download(
       extent,
@@ -552,12 +554,60 @@ void vtkFrameBufferObject2::Download(
 }
 
 //-----------------------------------------------------------------------------
+int* vtkFrameBufferObject2::GetLastSize(bool forceUpdate)
+{
+  if (forceUpdate)
+    this->QueryViewportSize();
+
+  return this->LastViewportSize;
+}
+
+//-----------------------------------------------------------------------------
+int* vtkFrameBufferObject2::GetLastSize()
+{
+  this->QueryViewportSize();
+  return this->LastViewportSize;
+}
+
+//-----------------------------------------------------------------------------
+void vtkFrameBufferObject2::GetLastSize(int &width, int &height)
+{
+  this->QueryViewportSize();
+  width = this->LastViewportSize[0];
+  height = this->LastViewportSize[1];
+}
+
+//-----------------------------------------------------------------------------
+void vtkFrameBufferObject2::GetLastSize(int size[2])
+{
+  this->GetLastSize(size[0], size[1]);
+}
+
+//-----------------------------------------------------------------------------
+void vtkFrameBufferObject2::QueryViewportSize()
+{
+  if (!this->Context)
+  {
+    vtkErrorMacro("Failed to query viewport size because"
+      "there is no context set!");
+    return;
+  }
+
+  GLint vp[4];
+  glGetIntegerv(GL_VIEWPORT, vp);
+  vtkOpenGLStaticCheckErrorMacro("Error querying viewport size!");
+
+  this->LastViewportSize[0] = vp[2];
+  this->LastViewportSize[1] = vp[3];
+}
+
+//-----------------------------------------------------------------------------
 int vtkFrameBufferObject2::GetOpenGLType(int vtkType)
 {
   // convert vtk type to open gl type
   int oglType = 0;
   switch (vtkType)
-    {
+  {
     case VTK_FLOAT:
       oglType = GL_FLOAT;
       break;
@@ -576,7 +626,7 @@ int vtkFrameBufferObject2::GetOpenGLType(int vtkType)
     default:
       vtkErrorMacro("Unsupported type");
       return 0;
-    }
+  }
   return oglType;
 }
 
@@ -585,7 +635,7 @@ int vtkFrameBufferObject2::GetOpenGLType(int vtkType)
 #define vtkFBOStrErrorMacro(status, str, ok) \
   ok = false; \
   switch(status) \
-    { \
+  { \
     case GL_FRAMEBUFFER_COMPLETE: \
       str = "FBO complete"; \
       ok = true; \
@@ -607,7 +657,7 @@ int vtkFrameBufferObject2::GetOpenGLType(int vtkType)
       break; \
     default: \
       str = "Unknown status"; \
-    }
+  }
 
 // ----------------------------------------------------------------------------
 bool vtkFrameBufferObject2::GetFrameBufferStatus(
@@ -618,7 +668,7 @@ bool vtkFrameBufferObject2::GetFrameBufferStatus(
   desc = "error";
   GLenum status = glCheckFramebufferStatus((GLenum)mode);
   switch(status)
-    {
+  {
     case GL_FRAMEBUFFER_COMPLETE:
       desc = "FBO complete";
       ok = true;
@@ -654,11 +704,11 @@ bool vtkFrameBufferObject2::GetFrameBufferStatus(
 #endif
     default:
       desc = "Unknown status";
-    }
+  }
   if (!ok)
-    {
+  {
     return false;
-    }
+  }
   return true;
 }
 
@@ -670,7 +720,7 @@ int vtkFrameBufferObject2::CheckFrameBufferStatus(unsigned int mode)
   GLenum status = glCheckFramebufferStatus((GLenum)mode);
   vtkOpenGLCheckErrorMacro("failed at glCheckFramebufferStatus");
   switch(status)
-    {
+  {
     case GL_FRAMEBUFFER_COMPLETE:
       str = "FBO complete";
       ok = true;
@@ -706,12 +756,12 @@ int vtkFrameBufferObject2::CheckFrameBufferStatus(unsigned int mode)
 #endif
     default:
       str = "Unknown status";
-    }
+  }
   if (!ok)
-    {
+  {
     vtkErrorMacro("The framebuffer is incomplete : " << str);
     return 0;
-    }
+  }
   return 1;
 }
 
@@ -727,5 +777,7 @@ void vtkFrameBufferObject2::PrintSelf(ostream& os, vtkIndent indent)
     << indent << "PreviousReadFBO=" << this->PreviousReadFBO << endl
     << indent << "PreviousDrawBuffer=" << this->PreviousDrawBuffer << endl
     << indent << "PreviousReadBuffer=" << this->PreviousReadBuffer << endl
+    << indent << "Last Viewport Size =" << "[" << this->LastViewportSize[0] << ", "
+      << this->LastViewportSize[1] << "]" << endl
     << endl;
 }

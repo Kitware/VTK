@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkViewNode - a node within a VTK scene graph
-// .SECTION Description
-// This is the superclass for all nodes within a VTK scene graph. It
-// contains the API for a node. It supports the essential operations such
-// as graph creation, state storage and traversal. Child classes adapt this
-// to VTK's major rendering classes. Grandchild classes adapt those to
-// for APIs of different rendering libraries.
+/**
+ * @class   vtkViewNode
+ * @brief   a node within a VTK scene graph
+ *
+ * This is the superclass for all nodes within a VTK scene graph. It
+ * contains the API for a node. It supports the essential operations such
+ * as graph creation, state storage and traversal. Child classes adapt this
+ * to VTK's major rendering classes. Grandchild classes adapt those to
+ * for APIs of different rendering libraries.
+*/
 
 #ifndef vtkViewNode_h
 #define vtkViewNode_h
@@ -38,50 +41,73 @@ public:
   vtkTypeMacro(vtkViewNode, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //Description:
-  //This is the VTK class that this node stands in for.
+  //@{
+  /**
+   * This is the VTK class that this node stands in for.
+   */
   vtkGetObjectMacro(Renderable, vtkObject);
+  //@}
 
-  //Description:
-  //Builds myself.
+  /**
+   * Builds myself.
+   */
   virtual void Build(bool /* prepass */) {};
 
-  //Description:
-  //Ensures that my state agrees with my Renderable's.
+  /**
+   * Ensures that my state agrees with my Renderable's.
+   */
   virtual void Synchronize(bool /* prepass */) {};
 
-  //Description:
-  //Makes calls to make self visible.
+  /**
+   * Makes calls to make self visible.
+   */
   virtual void Render(bool /*prepass*/) {};
 
-  //Description:
-  //Access the node that owns this one.
+  /**
+   * Clear any cached data.
+   */
+  virtual void Invalidate(bool /*prepass*/) {};
+
+  //@{
+  /**
+   * Access the node that owns this one.
+   */
   virtual void SetParent(vtkViewNode*);
   virtual vtkViewNode * GetParent();
+  //@}
 
-  //Description:
-  //Access nodes that this one owns.
+  //@{
+  /**
+   * Access nodes that this one owns.
+   */
   virtual void SetChildren(vtkViewNodeCollection*);
   vtkGetObjectMacro(Children, vtkViewNodeCollection);
+  //@}
 
-  //Description:
-  //A factory that creates particular subclasses for different
-  //rendering back ends.
+  //@{
+  /**
+   * A factory that creates particular subclasses for different
+   * rendering back ends.
+   */
   virtual void SetMyFactory(vtkViewNodeFactory*);
   vtkGetObjectMacro(MyFactory, vtkViewNodeFactory);
+  //@}
 
-  //Description:
-  //Returns the view node that corresponding to the provided object
-  //Will return NULL if a match is not found in self or descendents
+  /**
+   * Returns the view node that corresponding to the provided object
+   * Will return NULL if a match is not found in self or descendents
+   */
   vtkViewNode* GetViewNodeFor(vtkObject *);
 
-  // Description:
-  // Find the first parent/grandparent of the desired type
+  /**
+   * Find the first parent/grandparent of the desired type
+   */
   vtkViewNode *GetFirstAncestorOfType(const char *type);
 
-  // Description:
-  // Alow explicit setting of the renderable for a
-  // view node.
+  /**
+   * Alow explicit setting of the renderable for a
+   * view node.
+   */
   virtual void SetRenderable(vtkObject *);
 
   // if you want to traverse your children in a specific order
@@ -90,13 +116,15 @@ public:
 
   virtual void TraverseAllPasses();
 
-  //Descriptions:
-  //Allows smart caching
-  unsigned long RenderTime;
+  /**
+   * Allows smart caching
+   */
+  vtkMTimeType RenderTime;
 
-  //Description:
-  //internal mechanics of graph traversal and actions
-  enum operation_type{noop, build, synchronize, render};
+  /**
+   * internal mechanics of graph traversal and actions
+   */
+  enum operation_type{noop, build, synchronize, render, invalidate};
 
 protected:
   vtkViewNode();
@@ -106,25 +134,33 @@ protected:
 
   void Apply(int operation, bool prepass);
 
-  // Description::
-  //convienience method to add node or nodes
-  //if missing from our current list
+  //@{
+  /**
+   * convienience method to add node or nodes
+   * if missing from our current list
+   */
   void AddMissingNode(vtkObject *obj);
   void AddMissingNodes(vtkCollection *col);
+  //@}
 
-  // Description::
-  // Called first before adding missing nodes.
-  // Keeps track of the nodes that should be in the collection
+  //@{
+  /**
+   * Called first before adding missing nodes.
+   * Keeps track of the nodes that should be in the collection
+   */
   void PrepareNodes();
   vtkCollection *PreparedNodes;
+  //@}
 
-  // Description:
-  // Called after PrepareNodes and AddMissingNodes
-  // removes any extra leftover nodes
+  /**
+   * Called after PrepareNodes and AddMissingNodes
+   * removes any extra leftover nodes
+   */
   void RemoveUnusedNodes();
 
-  //Description:
-  //Create the correct ViewNode subclass for the passed in object.
+  /**
+   * Create the correct ViewNode subclass for the passed in object.
+   */
   virtual vtkViewNode *CreateViewNode(vtkObject *obj);
 
   vtkObject *Renderable;
@@ -135,8 +171,8 @@ protected:
   friend class vtkViewNodeFactory;
 
 private:
-  vtkViewNode(const vtkViewNode&); // Not implemented.
-  void operator=(const vtkViewNode&); // Not implemented.
+  vtkViewNode(const vtkViewNode&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkViewNode&) VTK_DELETE_FUNCTION;
 };
 
 #endif

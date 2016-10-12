@@ -46,81 +46,81 @@ int TestOSG(ostream& strm)
 
   vtkPoints *xyzpoints = vtkPoints::New();
   for (k = 0; k < 20; k++)
-    {
+  {
       for (j = 0; j < 20; j++)
-        {
+      {
         for (i = 0; i < 20; i++)
-          {
+        {
           xyzpoints->InsertNextPoint((double) i, (double) j, (double) k);
-          }
         }
-    }
+      }
+  }
   sg3D->SetDimensions(20,20,20);
   sg3D->SetPoints(xyzpoints); xyzpoints->Delete();
 
   vtkPoints *xypoints = vtkPoints::New();
   for (j = 0; j < 20; j++)
-    {
+  {
     for (i = 0; i < 20; i++)
-      {
+    {
       xypoints->InsertNextPoint((double) i, (double) j, 0.0);
-      }
     }
+  }
   sg2Dxy->SetDimensions(20,20,1);
   sg2Dxy->SetPoints(xypoints); xypoints->Delete();
 
   vtkPoints *xzpoints = vtkPoints::New();
   for (k = 0; k < 20; k++)
-    {
+  {
     for (i = 0; i < 20; i++)
-      {
+    {
       xzpoints->InsertNextPoint((double) i, 0.0, (double) k);
-      }
     }
+  }
   sg2Dxz->SetDimensions(20,1,20);
   sg2Dxz->SetPoints(xzpoints); xzpoints->Delete();
 
   vtkPoints *yzpoints = vtkPoints::New();
   for (k = 0; k < 20; k++)
-    {
+  {
     for (j = 0; j < 20; j++)
-      {
+    {
       yzpoints->InsertNextPoint(0.0, (double) j, (double) k);
-      }
     }
+  }
   sg2Dyz->SetDimensions(1,20,20);
   sg2Dyz->SetPoints(yzpoints); yzpoints->Delete();
 
   vtkPoints *xpoints = vtkPoints::New();
   for (i = 0; i < 20; i++)
-    {
+  {
     xpoints->InsertNextPoint((double) i, 0.0, 0.0);
-    }
+  }
   sg1Dx->SetDimensions(20,1,1);
   sg1Dx->SetPoints(xpoints); xpoints->Delete();
 
   vtkPoints *ypoints = vtkPoints::New();
   for (j = 0; j < 20; j++)
-    {
+  {
     ypoints->InsertNextPoint(0.0, (double) j, 0.0);
-    }
+  }
   sg1Dy->SetDimensions(1,20,1);
   sg1Dy->SetPoints(ypoints); ypoints->Delete();
   strm << *sg1Dy;
 
   vtkPoints *zpoints = vtkPoints::New();
   for (k = 0; k < 20; k++)
-    {
+  {
     zpoints->InsertNextPoint(0.0, 0.0, (double) k);
-    }
+  }
   sg1Dz->SetDimensions(1,1,20);
   sg1Dz->SetPoints(zpoints); zpoints->Delete();
 
   vtkPoints *onepoints = vtkPoints::New();
   for (k = 0; k < 1; k++)
-    {
+  {
     onepoints->InsertNextPoint(0.0, 0.0, 0.0);
-    }
+  }
   sg0D->SetDimensions(1,1,1);
   sg0D->SetPoints(onepoints); onepoints->Delete();
 
@@ -130,18 +130,18 @@ int TestOSG(ostream& strm)
 
   int l = 0;
   for (k = 0; k < 20; k++)
-    {
+  {
     for (j = 0; j < 20; j++)
-      {
+    {
       for (i = 0; i < 20; i++)
-        {
+      {
         shortScalars3D->InsertComponent(l,0,i);
         shortScalars3D->InsertComponent(l,0,j);
         shortScalars3D->InsertComponent(l,0,k);
         l++;
-        }
       }
     }
+  }
 
   vtkShortArray *shortScalars2D = vtkShortArray::New();
   shortScalars2D->SetNumberOfComponents(2);
@@ -149,14 +149,14 @@ int TestOSG(ostream& strm)
 
   l = 0;
   for (j = 0; j < 20; j++)
-    {
+  {
     for (i = 0; i < 20; i++)
-      {
+    {
       shortScalars2D->InsertComponent(l,0,i);
       shortScalars2D->InsertComponent(l,0,j);
       l++;
-      }
     }
+  }
 
   vtkShortArray *shortScalars1D = vtkShortArray::New();
   shortScalars1D->SetNumberOfComponents(1);
@@ -164,10 +164,10 @@ int TestOSG(ostream& strm)
 
   l = 0;
   for (i = 0; i < 20; i++)
-    {
+  {
     shortScalars1D->InsertComponent(l,0,i);
     l++;
-    }
+  }
 
   vtkShortArray *shortScalars0D = vtkShortArray::New();
   shortScalars0D->SetNumberOfComponents(1);
@@ -209,9 +209,9 @@ int TestOSG(ostream& strm)
   sg3D->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   i = 10; j = 15;
@@ -221,9 +221,9 @@ int TestOSG(ostream& strm)
   sg2Dxy->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
 
@@ -234,9 +234,9 @@ int TestOSG(ostream& strm)
   sg2Dxz->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   i = 10; j = 15;
@@ -246,9 +246,9 @@ int TestOSG(ostream& strm)
   sg2Dyz->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   i = 10;
@@ -258,9 +258,9 @@ int TestOSG(ostream& strm)
   sg1Dx->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   i = 10;
@@ -270,9 +270,9 @@ int TestOSG(ostream& strm)
   sg1Dy->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   i = 10;
@@ -282,9 +282,9 @@ int TestOSG(ostream& strm)
   sg1Dz->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   cellId = 0;
@@ -293,9 +293,9 @@ int TestOSG(ostream& strm)
   sg0D->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   // Test Thread Safe GetCell
@@ -490,10 +490,10 @@ int TestOSG(ostream& strm)
   dummyCell = 0;
   vtkCell *found = sg2Dxy->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == NULL)
-    {
+  {
     strm << "FindAndGetCell(sg2Dxy) not found!" << endl;
     return 1;
-    }
+  }
 
   strm << "FindAndGetCell(sg2Dxy): " << *found;
   strm << "pcoords: "
@@ -507,10 +507,10 @@ int TestOSG(ostream& strm)
   dummyCell = 0;
   found = sg2Dxz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == NULL)
-    {
+  {
     strm << "FindAndGetCell(sg2Dxz) not found!" << endl;
     return 1;
-    }
+  }
 
   strm << "FindAndGetCell(sg2Dxz): " << *found;
   strm << "pcoords: "
@@ -524,10 +524,10 @@ int TestOSG(ostream& strm)
   dummyCell = 0;
   found = sg2Dyz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == NULL)
-    {
+  {
     strm << "FindAndGetCell(sg2Dyz) not found!" << endl;
     return 1;
-    }
+  }
 
   strm << "FindAndGetCell(sg2Dyz): " << *found;
   strm << "pcoords: "
@@ -539,10 +539,10 @@ int TestOSG(ostream& strm)
   dummyCell = 0;
   found = sg1Dx->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == NULL)
-    {
+  {
     strm << "FindAndGetCell(sg1Dx) not found!" << endl;
     return 1;
-    }
+  }
 
   strm << "FindAndGetCell(sg1Dx): " << *found;
   strm << "pcoords: "
@@ -555,10 +555,10 @@ int TestOSG(ostream& strm)
   dummyCell = 0;
   found = sg1Dy->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == NULL)
-    {
+  {
     strm << "FindAndGetCell(sg1Dy) not found!" << endl;
     return 1;
-    }
+  }
 
   strm << "FindAndGetCell(sg1Dy): " << *found;
   strm << "pcoords: "
@@ -571,10 +571,10 @@ int TestOSG(ostream& strm)
   dummyCell = 0;
   found = sg1Dz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == NULL)
-    {
+  {
     strm << "FindAndGetCell(sg1Dz) not found!" << endl;
     return 1;
-    }
+  }
 
   strm << "FindAndGetCell(sg1Dz): " << *found;
   strm << "pcoords: "

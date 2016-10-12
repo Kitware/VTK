@@ -71,26 +71,26 @@ vtkIdType vtkDistributedGraphHelper::GetVertexOwner(vtkIdType v) const
     = this->Graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
 
   if (numProcs > 1)
-    {
+  {
     // An alternative to this obfuscated code is to provide
     // an 'unsigned' equivalent to vtkIdType.  Could then safely
     // do a logical right-shift of bits, e.g.:
     //   owner = (vtkIdTypeUnsigned) v >> this->indexBits;
     if (v & this->signBitMask)
-      {
+    {
       owner ^= this->signBitMask;               // remove sign bit
       vtkIdType tmp = owner >> this->indexBits; // so can right-shift
       owner = tmp | this->highBitShiftMask;     // and append sign bit back
-      }
+    }
     else
-      {
-      owner = v >> this->indexBits;
-      }
-    }
-  else  // numProcs = 1
     {
-    owner = 0;
+      owner = v >> this->indexBits;
     }
+  }
+  else  // numProcs = 1
+  {
+    owner = 0;
+  }
 
   return owner;
 }
@@ -103,10 +103,10 @@ vtkIdType vtkDistributedGraphHelper::GetVertexIndex(vtkIdType v) const
     = this->Graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
 
   if (numProcs > 1)
-    {
+  {
     // Shift off the Owner bits.  (Would a mask be faster?)
     index = (v << this->procBits) >> this->procBits;
-    }
+  }
 
   return index;
 }
@@ -119,22 +119,22 @@ vtkIdType vtkDistributedGraphHelper::GetEdgeOwner(vtkIdType e_id) const
     this->Graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
 
   if (numProcs > 1)
-    {
+  {
     if (e_id & this->signBitMask)
-      {
+    {
       owner ^= this->signBitMask;               // remove sign bit
       vtkIdType tmp = owner >> this->indexBits; // so can right-shift
       owner = tmp | this->highBitShiftMask;     // and append sign bit back
-      }
+    }
     else
-      {
-      owner = e_id >> this->indexBits;
-      }
-    }
-  else  // numProcs = 1
     {
-    owner = 0;
+      owner = e_id >> this->indexBits;
     }
+  }
+  else  // numProcs = 1
+  {
+    owner = 0;
+  }
 
   return owner;
 }
@@ -147,10 +147,10 @@ vtkIdType vtkDistributedGraphHelper::GetEdgeIndex(vtkIdType e_id) const
     = this->Graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
 
   if (numProcs > 1)
-    {
+  {
     // Shift off the Owner bits.  (Would a mask be faster?)
     index = (e_id << this->procBits) >> this->procBits;
-    }
+  }
 
   return index;
 }
@@ -162,10 +162,10 @@ vtkIdType vtkDistributedGraphHelper::MakeDistributedId(int owner, vtkIdType loca
     = this->Graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
 
   if (numProcs > 1)
-    {
+  {
     assert(owner >= 0 && owner < numProcs);
     return (static_cast<vtkIdType>(owner) << this->indexBits) | local;
-    }
+  }
 
   return local;
 }
@@ -182,10 +182,10 @@ void vtkDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
   // The following is integer arith equiv of ceil(log2(numProcs)):
   int numProcBits = 0;
   while( tmp != 0 )
-    {
+  {
     tmp >>= 1;
     numProcBits++;
-    }
+  }
   if (numProcs == 1)  numProcBits = 1;
 
   this->signBitMask = VTK_ID_MIN;
@@ -212,43 +212,43 @@ GetVertexOwnerByPedigreeId(const vtkVariant& pedigreeId)
   vtkIdType numProcs
     = this->Graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
   if (this->VertexDistribution)
-    {
+  {
     return (this->VertexDistribution(pedigreeId,
                                      this->VertexDistributionUserData)
             % numProcs);
-    }
+  }
 
   // Hash the variant in a very lame way.
   double numericValue;
   vtkStdString stringValue;
   const unsigned char *charsStart, *charsEnd;
   if (pedigreeId.IsNumeric())
-    {
+  {
     // Convert every numeric value into a double.
     numericValue = pedigreeId.ToDouble();
 
     // Hash the characters in the double.
     charsStart = reinterpret_cast<const unsigned char*>(&numericValue);
     charsEnd = charsStart + sizeof(double);
-    }
+  }
   else if (pedigreeId.GetType() == VTK_STRING)
-    {
+  {
     stringValue = pedigreeId.ToString();
     charsStart = reinterpret_cast<const unsigned char*>(stringValue.c_str());
     charsEnd = charsStart + stringValue.size();
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro("Cannot hash vertex pedigree ID of type "
                   << pedigreeId.GetType());
     return 0;
-    }
+  }
 
   unsigned long hash = 5381;
   for (; charsStart != charsEnd; ++charsStart)
-    {
+  {
     hash = ((hash << 5) + hash) ^ *charsStart;
-    }
+  }
 
   return hash % numProcs;
 }

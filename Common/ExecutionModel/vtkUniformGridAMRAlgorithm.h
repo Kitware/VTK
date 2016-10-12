@@ -12,12 +12,14 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkUniformGridAMRAlgorithm.h -- Superclass for algorithms that produce
-//  vtkUniformGridAMR as output.
-//
-// .SECTION Description
-//  A base class for all algorithms that take as input any type of data object
-//  including composite datasets and produce vtkUniformGridAMR in the output.
+/**
+ * @class   vtkUniformGridAMRAlgorithm
+ *  vtkUniformGridAMR as output.
+ *
+ *
+ *  A base class for all algorithms that take as input any type of data object
+ *  including composite datasets and produce vtkUniformGridAMR in the output.
+*/
 
 #ifndef vtkUniformGridAMRAlgorithm_h
 #define vtkUniformGridAMRAlgorithm_h
@@ -35,70 +37,85 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUniformGridAMRAlgorithm : public vtkAlgo
   public:
     static vtkUniformGridAMRAlgorithm* New();
     vtkTypeMacro(vtkUniformGridAMRAlgorithm, vtkAlgorithm);
-    void PrintSelf(ostream& os, vtkIndent indent);
+    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-    // Description:
-    // Get the output data object for a port on this algorithm
+    //@{
+    /**
+     * Get the output data object for a port on this algorithm
+     */
     vtkUniformGridAMR* GetOutput();
     vtkUniformGridAMR* GetOutput(int);
+    //@}
 
-    // Description:
-    // Set an input of this algorithm.
+    //@{
+    /**
+     * Set an input of this algorithm.
+     */
     void SetInputData(vtkDataObject*);
     void SetInputData(int,vtkDataObject*);
+    //@}
 
-    // Description:
-    // See vtkAlgorithm for details
-    virtual int ProcessRequest(vtkInformation* request,
+    /**
+     * See vtkAlgorithm for details
+     */
+    int ProcessRequest(vtkInformation* request,
                                vtkInformationVector** inputVector,
-                               vtkInformationVector* outputVector );
+                               vtkInformationVector* outputVector ) VTK_OVERRIDE;
 
   protected:
     vtkUniformGridAMRAlgorithm();
-    virtual ~vtkUniformGridAMRAlgorithm();
+    ~vtkUniformGridAMRAlgorithm() VTK_OVERRIDE;
 
-    // Description:
-    // This is called by the superclass.
-    // This is the method you should override.
+    /**
+     * This is called by the superclass.
+     * This is the method you should override.
+     */
     virtual int RequestDataObject(vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*) {return 1;};
 
-    // Description:
-    // This is called by the superclass.
-    // This is the method you should override.
+    /**
+     * This is called by the superclass.
+     * This is the method you should override.
+     */
     virtual int RequestInformation(vtkInformation*,
                                    vtkInformationVector**,
                                    vtkInformationVector*) {return 1;};
 
-    // Description:
-    // This is called by the superclass.
-    // This is the method you should override.
+    /**
+     * This is called by the superclass.
+     * This is the method you should override.
+     */
     virtual int RequestData(vtkInformation*,
                             vtkInformationVector**,
                             vtkInformationVector*) {return 1;};
 
-    // Description:
-    // This is called by the superclass.
-    // This is the method you should override.
+    /**
+     * This is called by the superclass.
+     * This is the method you should override.
+     */
     virtual int RequestUpdateExtent(vtkInformation*,
                                     vtkInformationVector**,
                                     vtkInformationVector*) { return 1; };
 
-    // Description:
-    // Create a default executive
-    virtual vtkExecutive* CreateDefaultExecutive();
+    /**
+     * Create a default executive
+     */
+    vtkExecutive* CreateDefaultExecutive() VTK_OVERRIDE;
 
-    // Description:
-    // See algorithm for more info.
-    virtual int FillOutputPortInformation(int port, vtkInformation* info);
-    virtual int FillInputPortInformation(int port, vtkInformation* info);
+    //@{
+    /**
+     * See algorithm for more info.
+     */
+    int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+    int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+    //@}
 
     vtkDataObject *GetInput(int port);
 
   private:
-    vtkUniformGridAMRAlgorithm(const vtkUniformGridAMRAlgorithm&); // Not implemented
-    void operator=(const vtkUniformGridAMRAlgorithm&); // Not implemented
+    vtkUniformGridAMRAlgorithm(const vtkUniformGridAMRAlgorithm&) VTK_DELETE_FUNCTION;
+    void operator=(const vtkUniformGridAMRAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif /* VTKUNIFORMGRIDAMRALGORITHM_H_ */

@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOSPRayPolyDataMapperNode - links vtkActor and vtkMapper to OSPRay
-// .SECTION Description
-// Translates vtkActor/Mapper state into OSPRay rendering calls
+/**
+ * @class   vtkOSPRayPolyDataMapperNode
+ * @brief   links vtkActor and vtkMapper to OSPRay
+ *
+ * Translates vtkActor/Mapper state into OSPRay rendering calls
+*/
 
 #ifndef vtkOSPRayPolyDataMapperNode_h
 #define vtkOSPRayPolyDataMapperNode_h
@@ -33,9 +36,15 @@ public:
   vtkTypeMacro(vtkOSPRayPolyDataMapperNode, vtkPolyDataMapperNode);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //Description:
-  //Make ospray calls to render me.
+  /**
+   * Make ospray calls to render me.
+   */
   virtual void Render(bool prepass);
+
+  /**
+   * Invalidates cached rendering data.
+   */
+  virtual void Invalidate(bool prepass);
 
 protected:
   vtkOSPRayPolyDataMapperNode();
@@ -52,7 +61,7 @@ protected:
   void AddMeshesToModel(void *arg);
 
 private:
-  vtkOSPRayPolyDataMapperNode(const vtkOSPRayPolyDataMapperNode&); // Not implemented.
-  void operator=(const vtkOSPRayPolyDataMapperNode&); // Not implemented.
+  vtkOSPRayPolyDataMapperNode(const vtkOSPRayPolyDataMapperNode&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOSPRayPolyDataMapperNode&) VTK_DELETE_FUNCTION;
 };
 #endif

@@ -150,13 +150,13 @@ void vtkCameraRepresentation::BuildRepresentation()
 void vtkCameraRepresentation::AddCameraToPath()
 {
   if ( ! this->Camera )
-    {
+  {
     return;
-    }
+  }
   if ( ! this->Interpolator )
-    {
+  {
     this->Interpolator = vtkCameraInterpolator::New();
-    }
+  }
   this->CurrentTime = static_cast<double>(
     this->Interpolator->GetNumberOfCameras());
   this->Interpolator->AddCamera(this->CurrentTime,this->Camera);
@@ -169,32 +169,32 @@ void vtkCameraRepresentation::AnimatePath(vtkRenderWindowInteractor *rwi)
   vtkCameraInterpolator *camInt = this->Interpolator;
 
   if ( ! camInt || ! rwi )
-    {
+  {
     return;
-    }
+  }
 
   int numCameras = camInt->GetNumberOfCameras();
   if ( numCameras <= 0 )
-    {
+  {
     return;
-    }
+  }
   double delT = static_cast<double>(numCameras - 1) / this->NumberOfFrames;
 
   double t=0.0;
   for (int i=0; i < this->NumberOfFrames; i++, t+=delT)
-    {
+  {
     camInt->InterpolateCamera(t,this->Camera);
     rwi->Render();
-    }
+  }
 }
 
 //-------------------------------------------------------------------------
 void vtkCameraRepresentation::InitializePath()
 {
   if ( ! this->Interpolator )
-    {
+  {
     return;
-    }
+  }
   this->Interpolator->Initialize();
   this->CurrentTime = 0.0;
 }
@@ -253,14 +253,14 @@ void vtkCameraRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->Property )
-    {
+  {
     os << indent << "Property:\n";
     this->Property->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Property: (none)\n";
-    }
+  }
 
   os << indent << "Camera Interpolator: " << this->Interpolator << "\n";
   os << indent << "Camera: " << this->Camera << "\n";

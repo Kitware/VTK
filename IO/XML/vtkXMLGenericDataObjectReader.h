@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLGenericDataObjectReader - Read any type of vtk data object
-// .SECTION Description
-// vtkXMLGenericDataObjectReader reads any type of vtk data object encoded
-// in XML format.
-
-// .SECTION See Also
-// vtkGenericDataObjectReader
+/**
+ * @class   vtkXMLGenericDataObjectReader
+ * @brief   Read any type of vtk data object
+ *
+ * vtkXMLGenericDataObjectReader reads any type of vtk data object encoded
+ * in XML format.
+ *
+ * @sa
+ * vtkGenericDataObjectReader
+*/
 
 #ifndef vtkXMLGenericDataObjectReader_h
 #define vtkXMLGenericDataObjectReader_h
@@ -42,17 +45,22 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLGenericDataObjectReader *New();
 
-  // Description:
-  // Get the reader's output.
+  //@{
+  /**
+   * Get the reader's output.
+   */
   vtkDataObject *GetOutput();
   vtkDataObject *GetOutput(int idx);
+  //@}
 
-  // Description:
-  // Get the output as various concrete types. This method is typically used
-  // when you know exactly what type of data is being read.  Otherwise, use
-  // the general GetOutput() method. If the wrong type is used NULL is
-  // returned.  (You must also set the filename of the object prior to
-  // getting the output.)
+  //@{
+  /**
+   * Get the output as various concrete types. This method is typically used
+   * when you know exactly what type of data is being read.  Otherwise, use
+   * the general GetOutput() method. If the wrong type is used NULL is
+   * returned.  (You must also set the filename of the object prior to
+   * getting the output.)
+   */
   vtkHierarchicalBoxDataSet *GetHierarchicalBoxDataSetOutput();
   vtkHyperOctree *GetHyperOctreeOutput();
   vtkImageData *GetImageDataOutput();
@@ -61,30 +69,36 @@ public:
   vtkRectilinearGrid *GetRectilinearGridOutput();
   vtkStructuredGrid *GetStructuredGridOutput();
   vtkUnstructuredGrid *GetUnstructuredGridOutput();
+  //@}
 
-  // Description:
-  // Overridden method.
+  /**
+   * Overridden method.
+   */
   vtkIdType GetNumberOfPoints();
 
-  // Description:
-  // Overridden method.
+  /**
+   * Overridden method.
+   */
   vtkIdType GetNumberOfCells();
 
-  // Description:
-  // Overridden method. Not Used. Delegated.
+  /**
+   * Overridden method. Not Used. Delegated.
+   */
   void SetupEmptyOutput();
 
-  // Description:
-  // This method can be used to find out the type of output expected without
-  // needing to read the whole file.
+  /**
+   * This method can be used to find out the type of output expected without
+   * needing to read the whole file.
+   */
   virtual int ReadOutputType(const char *name, bool &parallel);
 
 protected:
   vtkXMLGenericDataObjectReader();
   ~vtkXMLGenericDataObjectReader();
 
-  // Description:
-  // Overridden method. Not used. Return "vtkDataObject".
+  /**
+   * Overridden method. Not used. Return "vtkDataObject".
+   */
   const char* GetDataSetName();
 
 
@@ -103,8 +117,8 @@ protected:
   vtkXMLReader *Reader; // actual reader
 
 private:
-  vtkXMLGenericDataObjectReader(const vtkXMLGenericDataObjectReader&);  // Not implemented.
-  void operator=(const vtkXMLGenericDataObjectReader&);  // Not implemented.
+  vtkXMLGenericDataObjectReader(const vtkXMLGenericDataObjectReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLGenericDataObjectReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

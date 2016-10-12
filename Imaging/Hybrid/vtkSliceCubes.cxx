@@ -71,65 +71,65 @@ void ComputePointGradient(int i, int j, int k, int dims[3],
 
   // x-direction
   if ( i == 0 )
-    {
+  {
     sp = s1[i+1 + j*dims[0]];
     sm = s1[i + j*dims[0]];
     n[0] = (sm - sp) / Spacing[0];
-    }
+  }
   else if ( i == (dims[0]-1) )
-    {
+  {
     sp = s1[i + j*dims[0]];
     sm = s1[i-1 + j*dims[0]];
     n[0] = (sm - sp) / Spacing[0];
-    }
+  }
   else
-    {
+  {
     sp = s1[i+1 + j*dims[0]];
     sm = s1[i-1 + j*dims[0]];
     n[0] = 0.5 * (sm - sp) / Spacing[0];
-    }
+  }
 
   // y-direction
   if ( j == 0 )
-    {
+  {
     sp = s1[i + (j+1)*dims[0]];
     sm = s1[i + j*dims[0]];
     n[1] = (sm - sp) / Spacing[1];
-    }
+  }
   else if ( j == (dims[1]-1) )
-    {
+  {
     sp = s1[i + j*dims[0]];
     sm = s1[i + (j-1)*dims[0]];
     n[1] = (sm - sp) / Spacing[1];
-    }
+  }
   else
 
-    {
+  {
     sp = s1[i + (j+1)*dims[0]];
     sm = s1[i + (j-1)*dims[0]];
     n[1] = 0.5 * (sm - sp) / Spacing[1];
-    }
+  }
 
   // z-direction
   // z-direction
   if ( k == 0 )
-    {
+  {
     sp = s2[i + j*dims[0]];
     sm = s1[i + j*dims[0]];
     n[2] = (sm - sp) / Spacing[2];
-    }
+  }
   else if ( k == (dims[2]-1) )
-    {
+  {
     sp = s1[i + j*dims[0]];
     sm = s0[i + j*dims[0]];
     n[2] = (sm - sp) / Spacing[2];
-    }
+  }
   else
-    {
+  {
     sp = s2[i + j*dims[0]];
     sm = s0[i + j*dims[0]];
     n[2] = 0.5 * (sm - sp) / Spacing[2];
-    }
+  }
 }
 
 template <class T, class S>
@@ -160,11 +160,11 @@ int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3],
   triCases =  vtkMarchingCubesTriangleCases::GetCases();
 
   if ( slice == NULL ) //have to do conversion to double slice-by-slice
-    {
+  {
     sliceSize = dims[0] * dims[1];
     doubleScalars = vtkDoubleArray::New();
     doubleScalars->Allocate(sliceSize);
-    }
+  }
 
   slice2scalars = scalars;
   slice2scalars->Register(NULL);
@@ -172,19 +172,19 @@ int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3],
   if (debug)  vtkGenericWarningMacro(<< "  Slice# " << imageRange[0]);
 
   if ( slice2scalars == NULL )
-    {
+  {
     return 0;
-    }
+  }
   if ( slice != NULL )
-    {
+  {
     slice1 = slice2 = slice2scalars->GetPointer(0);
-    }
+  }
   else
-    {//get as double
+  {//get as double
     numComp = scalars->GetNumberOfComponents();
     slice2scalars->GetData(0,sliceSize-1,0,numComp-1,doubleScalars);
     slice1 = slice2 = (T *) doubleScalars->GetPointer(0);
-    }
+  }
 
   sp = reader->GetImage(imageRange[0]+1);
   slice3scalars = (S *) sp->GetPointData()->GetScalars();
@@ -194,30 +194,30 @@ int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3],
   if (debug)  vtkGenericWarningMacro(<< "  Slice# " << imageRange[0]+1 );
 
   if ( slice != NULL )
-    {
+  {
     slice3 = slice3scalars->GetPointer(0);
-    }
+  }
   else
-    {//get as double: cast is ok because this code is only executed for double type
+  {//get as double: cast is ok because this code is only executed for double type
     slice3scalars->GetData(0,sliceSize-1,0,numComp-1,doubleScalars);
     slice3 = (T *) doubleScalars->GetPointer(0);
-    }
+  }
 
   if ( !slice2 || !slice3 )
-    {
+  {
     vtkGenericWarningMacro(<< "Cannot allocate data!");
     return 0;
-    }
+  }
 
   // Generate triangles and normals from slices
   for (k=0; k < (dims[2]-1); k++)
-    {
+  {
 
     // swap things around
     if ( slice0scalars != NULL )
-      {
+    {
       slice0scalars->Delete();
-      }
+    }
     slice0scalars = slice1scalars;
     slice0 = slice1;
     slice1scalars = slice2scalars;
@@ -225,37 +225,37 @@ int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3],
     slice2scalars = slice3scalars;
     slice2 = slice3;
     if ( k < (dims[2]-2) )
-      {
+    {
       if (debug)  vtkGenericWarningMacro(<< "  Slice# " << imageRange[0]+k+2);
       sp = reader->GetImage(imageRange[0]+k+2);
       slice3scalars = (S *) sp->GetPointData()->GetScalars();
       if ( slice3scalars == NULL )
-        {
+      {
         vtkGenericWarningMacro(<< "Can't read all the requested slices");
         goto PREMATURE_TERMINATION;
-        }
+      }
       slice3scalars->Register(NULL);
       sp->Delete();
       if ( slice != NULL )
-        {
+      {
         slice3 = slice3scalars->GetPointer(0);
-        }
+      }
       else
-        {//get as double
+      {//get as double
         slice3scalars->GetData(0,sliceSize-1,0,numComp-1,doubleScalars);
         slice3 = (T *) doubleScalars->GetPointer(0);
-        }
       }
+    }
 
     pts[0][2] = origin[2] + k*Spacing[2];
     zp = origin[2] + (k+1)*Spacing[2];
     for ( j=0; j < (dims[1]-1); j++)
-      {
+    {
       jOffset = j*dims[0];
       pts[0][1] = origin[1] + j*Spacing[1];
       yp = origin[1] + (j+1)*Spacing[1];
       for ( i=0; i < (dims[0]-1); i++)
-        {
+      {
         //get scalar values
         idx = i + jOffset;
         s[0] = slice1[idx];
@@ -269,17 +269,17 @@ int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3],
 
         // Build the case table
         for ( ii=0, index = 0; ii < 8; ii++)
-          {
+        {
           if ( s[ii] >= value )
-            {
+          {
             index |= CASE_MASK[ii];
-            }
           }
+        }
 
         if ( index == 0 || index == 255 ) // no surface
-          {
+        {
           continue;
-          }
+        }
         //create voxel points
         pts[0][0] = origin[0] + i*Spacing[0];
         xp = origin[0] + (i+1)*Spacing[0];
@@ -334,9 +334,9 @@ int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3],
         edge = triCase->edges;
 
         for ( ; edge[0] > -1; edge += 3 )
-          {
+        {
           for (ii=0; ii<3; ii++) //insert triangle
-            {
+          {
             vert = edges[edge[ii]];
             t = (value - s[vert[0]]) / (s[vert[1]] - s[vert[0]]);
             x1 = pts[vert[0]];
@@ -344,52 +344,52 @@ int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3],
             n1 = grad[vert[0]];
             n2 = grad[vert[1]];
             for (jj=0; jj<3; jj++)
-              {
+            {
               point[jj] = x1[jj] + t * (x2[jj] - x1[jj]);
               point[jj+3] = n1[jj] + t * (n2[jj] - n1[jj]);
               if (point[jj] < xmin[jj] )
-                {
+              {
                 xmin[jj] = point[jj];
-                }
-              if (point[jj] > xmax[jj] )
-                {
-                xmax[jj] = point[jj];
-                }
               }
+              if (point[jj] > xmax[jj] )
+              {
+                xmax[jj] = point[jj];
+              }
+            }
             vtkMath::Normalize(point+3);
             // swap bytes if necessary
             bool status=vtkByteSwap::SwapWrite4BERange(point,6,outFP);
             if(!status)
-              {
+            {
               vtkGenericWarningMacro(<< "SwapWrite failed!");
-              }
             }
+          }
           numTriangles++;
-          }//for each triangle
-        }//for i
-      }//for j
-    }//for k
+        }//for each triangle
+      }//for i
+    }//for j
+  }//for k
 
   // Close things down
   PREMATURE_TERMINATION:
 
   fclose(outFP);
   if ( slice == NULL )
-    {
+  {
     doubleScalars->Delete();
-    }
+  }
   if (slice0scalars && slice0scalars != slice1scalars)
-    {
+  {
     slice0scalars->Delete();
-    }
+  }
   if (slice3scalars && slice3scalars != slice2scalars)
-    {
+  {
     slice3scalars->Delete();
-    }
+  }
   if (slice1scalars)
-    {
+  {
     slice1scalars->Delete();
-    }
+  }
   slice2scalars->Delete();
 
   return numTriangles;
@@ -407,22 +407,22 @@ void vtkSliceCubes::Execute()
   // check input/initalize
   vtkDebugMacro(<< "Executing slice cubes");
   if ( this->Reader == NULL )
-   {
+  {
    vtkErrorMacro(<<"No reader specified...can't generate isosurface");
    return;
-   }
+  }
 
   if ( this->FileName == NULL )
-   {
+  {
    vtkErrorMacro(<<"No FileName specified...can't output isosurface");
    return;
-   }
+  }
 
   if ( (outFP = fopen(this->FileName, "wb")) == NULL )
-   {
+  {
    vtkErrorMacro(<<"Cannot open specified output file...");
    return;
-   }
+  }
 
   // get image dimensions from the readers first slice
   this->Reader->GetImageRange(imageRange);
@@ -434,188 +434,188 @@ void vtkSliceCubes::Execute()
   dims[2] = (imageRange[1] - imageRange[0] + 1);
 
   if ( (dims[0]*dims[1]*dims[2]) <= 1 || dims[2] < 2 )
-    {
+  {
     vtkErrorMacro(<<"Bad dimensions...slice must be 3D volume");
     fclose(outFP);
     return;
-    }
+  }
 
   xmin[0]=xmin[1]=xmin[2] = VTK_DOUBLE_MAX;
   xmax[0]=xmax[1]=xmax[2] = -VTK_DOUBLE_MAX;
 
   inScalars = tempStructPts->GetPointData()->GetScalars();
   if ( inScalars == NULL )
-    {
+  {
     vtkErrorMacro(<<"Must have scalars to generate isosurface");
     tempStructPts->Delete();
     fclose(outFP);
     return;
-    }
+  }
   inScalars->Register(this);
   tempStructPts->Delete();
 
   if (inScalars->GetNumberOfComponents() == 1 )
-    {
+  {
     switch (inScalars->GetDataType())
-      {
+    {
       case VTK_CHAR:
-        {
+      {
         vtkCharArray *scalars = (vtkCharArray *)inScalars;
         char *s = scalars->GetPointer(0);
         vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
                              Spacing,this->Value,
                              xmin,xmax,outFP,this->Reader,this->Debug);
-        }
+      }
       break;
       case VTK_UNSIGNED_CHAR:
-        {
+      {
         vtkUnsignedCharArray *scalars = (vtkUnsignedCharArray *)inScalars;
         unsigned char *s = scalars->GetPointer(0);
         vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
                              Spacing,this->Value,
                              xmin,xmax,outFP,this->Reader,this->Debug);
-        }
+      }
       break;
       case VTK_SHORT:
-        {
+      {
         vtkShortArray *scalars = (vtkShortArray *)inScalars;
         short *s = scalars->GetPointer(0);
         vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
                              Spacing,this->Value,
                              xmin,xmax,outFP,this->Reader,this->Debug);
-        }
+      }
       break;
       case VTK_UNSIGNED_SHORT:
-        {
+      {
         vtkUnsignedShortArray *scalars = (vtkUnsignedShortArray *)inScalars;
         unsigned short *s = scalars->GetPointer(0);
         vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
                              Spacing,this->Value,
                              xmin,xmax,outFP,this->Reader,this->Debug);
-        }
+      }
       break;
       case VTK_INT:
-        {
+      {
         vtkIntArray *scalars = (vtkIntArray *)inScalars;
         int *s = scalars->GetPointer(0);
         vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
                              Spacing,this->Value,
                              xmin,xmax,outFP,this->Reader,this->Debug);
-        }
+      }
       break;
       case VTK_UNSIGNED_INT:
-        {
+      {
         vtkUnsignedIntArray *scalars = (vtkUnsignedIntArray *)inScalars;
         unsigned int *s = scalars->GetPointer(0);
         vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
                              Spacing,this->Value,
                              xmin,xmax,outFP,this->Reader,this->Debug);
-        }
+      }
       break;
       case VTK_LONG:
-        {
+      {
         vtkLongArray *scalars = (vtkLongArray *)inScalars;
         long *s = scalars->GetPointer(0);
         vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
                              Spacing,this->Value,
                              xmin,xmax,outFP,this->Reader,this->Debug);
-        }
+      }
       break;
       case VTK_UNSIGNED_LONG:
-        {
+      {
         vtkUnsignedLongArray *scalars = (vtkUnsignedLongArray *)inScalars;
         unsigned long *s = scalars->GetPointer(0);
         vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
                              Spacing,this->Value,
                              xmin,xmax,outFP,this->Reader,this->Debug);
-        }
+      }
       break;
       case VTK_FLOAT:
-        {
+      {
         vtkFloatArray *scalars = (vtkFloatArray *)inScalars;
         float *s = scalars->GetPointer(0);
         vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
                              Spacing,this->Value,
                              xmin,xmax,outFP,this->Reader,this->Debug);
-        }
+      }
       break;
       case VTK_DOUBLE:
-        {
+      {
         vtkDoubleArray *scalars = (vtkDoubleArray *)inScalars;
         double *s = scalars->GetPointer(0);
         vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
                              Spacing,this->Value,
                              xmin,xmax,outFP,this->Reader,this->Debug);
-        }
+      }
       break;
-      }//switch
-    }
+    }//switch
+  }
 
   else //multiple components have to convert
-    {
+  {
     vtkDoubleArray *scalars = (vtkDoubleArray *)inScalars;
     double *s = NULL; //clue to convert data to double
     vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
                          Spacing,this->Value,
                          xmin,xmax,outFP,this->Reader,this->Debug);
-    }
+  }
 
   inScalars->UnRegister(this);
 
   if ( this->LimitsFileName )
-    {
+  {
     int i;
     float t;
 
     if ( (outFP = fopen(this->LimitsFileName, "wb")) == NULL )
-      {
+    {
       vtkWarningMacro(<<"Sorry, couldn't write limits file...");
-      }
+    }
     else
-      {
+    {
       bool status=true;
       float forigin[3];
       for (i=0; i<3 && status; i++)
-        {
+      {
         t = origin[i] + (dims[i] - 1)*Spacing[i];
         forigin[i] = (float)origin[i];
         status=vtkByteSwap::SwapWrite4BERange(forigin+i,1,outFP);
         if(!status)
-          {
+        {
           vtkWarningMacro(<<"SwapWrite failed.");
-          }
+        }
         // swap if necessary
         if(status)
-          {
+        {
           status=vtkByteSwap::SwapWrite4BERange(&t,1,outFP);
           if(!status)
-            {
-            vtkWarningMacro(<<"SwapWrite failed.");
-            }
-          }
-        }
-      float ftmp;
-      for (i=0; i<3 && status; i++)
-        {
-        ftmp = (float)xmin[i];
-        status=vtkByteSwap::SwapWrite4BERange(&ftmp,1,outFP);
-        if(!status)
           {
-          vtkWarningMacro(<<"SwapWrite failed.");
-          }
-        ftmp = (float)xmax[i];
-        if(status)
-          {
-          status=vtkByteSwap::SwapWrite4BERange(&ftmp,1,outFP);
-          if(!status)
-            {
             vtkWarningMacro(<<"SwapWrite failed.");
-            }
           }
         }
       }
-     fclose(outFP);
+      float ftmp;
+      for (i=0; i<3 && status; i++)
+      {
+        ftmp = (float)xmin[i];
+        status=vtkByteSwap::SwapWrite4BERange(&ftmp,1,outFP);
+        if(!status)
+        {
+          vtkWarningMacro(<<"SwapWrite failed.");
+        }
+        ftmp = (float)xmax[i];
+        if(status)
+        {
+          status=vtkByteSwap::SwapWrite4BERange(&ftmp,1,outFP);
+          if(!status)
+          {
+            vtkWarningMacro(<<"SwapWrite failed.");
+          }
+        }
+      }
     }
+     fclose(outFP);
+  }
 }
 
 void vtkSliceCubes::PrintSelf(ostream& os, vtkIndent indent)
@@ -625,14 +625,14 @@ void vtkSliceCubes::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Iso Value: " << this->Value << "\n";
 
   if ( this->Reader )
-    {
+  {
     os << indent << "Reader:\n";
     this->Reader->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Reader: (none)\n";
-    }
+  }
 
   os << indent << "File Name: "
      << (this->FileName ? this->FileName : "(none)") << "\n";

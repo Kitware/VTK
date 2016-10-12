@@ -32,19 +32,19 @@ class vtkExtractDataSets::vtkInternals
 {
 public:
   struct Node
-    {
+  {
     unsigned int Level;
     unsigned int Index;
 
     bool operator() (const Node& n1, const Node& n2) const
-      {
+    {
       if (n1.Level == n2.Level)
-        {
+      {
         return (n1.Index < n2.Index);
-        }
-      return (n1.Level < n2.Level);
       }
-    };
+      return (n1.Level < n2.Level);
+    }
+  };
 
 
   typedef std::set<Node, Node> DatasetsType;
@@ -124,20 +124,20 @@ int vtkExtractDataSets::RequestData(
   output->SetNumberOfBlocks( input->GetNumberOfLevels() );
   unsigned int blk = 0;
   for( ; blk < output->GetNumberOfBlocks(); ++blk )
-    {
+  {
       vtkMultiPieceDataSet *mpds = vtkMultiPieceDataSet::New();
 //      mpds->SetNumberOfPieces( input->GetNumberOfDataSets( blk ) );
       output->SetBlock( blk, mpds );
       mpds->Delete();
-    } // END for all blocks/levels
+  } // END for all blocks/levels
 
   // STEP 3: Loop over sected blocks
   vtkInternals::DatasetsType::iterator iter = this->Internals->Datasets.begin();
   for (;iter != this->Internals->Datasets.end(); ++iter)
-    {
+  {
     vtkUniformGrid* inUG = input->GetDataSet(iter->Level, iter->Index);
     if( inUG )
-      {
+    {
       vtkMultiPieceDataSet *mpds =
        vtkMultiPieceDataSet::SafeDownCast( output->GetBlock(iter->Level) );
       assert( "pre: mpds is NULL!" && (mpds!=NULL) );
@@ -150,8 +150,8 @@ int vtkExtractDataSets::RequestData(
       clone->GetCellData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
       mpds->SetPiece( out_index, clone );
       clone->Delete();
-      }
-    } // END for all selected items
+    }
+  } // END for all selected items
 
   return 1;
 }

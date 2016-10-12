@@ -35,16 +35,18 @@ This algorithm is the result of joint work by Electricité de France,
 CNRS, Collège de France and Université J. Fourier as part of the
 Ph.D. thesis of Christian BOUCHENY.
 ------------------------------------------------------------------------*/
-// .NAME vtkDepthImageProcessingPass - Convenient class for post-processing
-// passes. Based on vtkImageProcessingPass, but writes depth as well
-// in a texture
-// .SECTION Description
-// Abstract class with some convenient methods frequently used in subclasses.
-//
-// .SECTION Implementation
-
-// .SECTION See Also
-// vtkRenderPass vtkDepthImageProcessingPass vtkEDLShading
+/**
+ * @class   vtkDepthImageProcessingPass
+ * @brief   Convenient class for post-processing
+ * passes. Based on vtkImageProcessingPass, but writes depth as well
+ * in a texture
+ *
+ * Abstract class with some convenient methods frequently used in subclasses.
+ *
+ *
+ * @sa
+ * vtkRenderPass vtkDepthImageProcessingPass vtkEDLShading
+*/
 
 #ifndef vtkDepthImageProcessingPass_h
 #define vtkDepthImageProcessingPass_h
@@ -63,37 +65,44 @@ public:
   vtkTypeMacro(vtkDepthImageProcessingPass, vtkImageProcessingPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Release graphics resources and ask components to release their own
-  // resources.
-  // \pre w_exists: w!=0
+  /**
+   * Release graphics resources and ask components to release their own
+   * resources.
+   * \pre w_exists: w!=0
+   */
   void ReleaseGraphicsResources(vtkWindow *w);
 
-  // Description:
-  // Delegate for rendering the image to be processed.
-  // If it is NULL, nothing will be rendered and a warning will be emitted.
-  // It is usually set to a vtkCameraPass or to a post-processing pass.
-  // Initial value is a NULL pointer.
+  //@{
+  /**
+   * Delegate for rendering the image to be processed.
+   * If it is NULL, nothing will be rendered and a warning will be emitted.
+   * It is usually set to a vtkCameraPass or to a post-processing pass.
+   * Initial value is a NULL pointer.
+   */
   vtkGetObjectMacro(DelegatePass,vtkRenderPass);
   virtual void SetDelegatePass(vtkRenderPass *delegatePass);
+  //@}
 
  protected:
-  // Description:
-  // Default constructor. DelegatePass is set to NULL.
+  /**
+   * Default constructor. DelegatePass is set to NULL.
+   */
   vtkDepthImageProcessingPass();
 
-  // Description:
-  // Destructor.
+  /**
+   * Destructor.
+   */
   virtual ~vtkDepthImageProcessingPass();
 
-  // Description:
-  // Render delegate with a image of different dimensions than the
-  // original one.
-  // \pre s_exists: s!=0
-  // \pre fbo_exists: fbo!=0
-  // \pre fbo_has_context: fbo->GetContext()!=0
-  // \pre colortarget_exists: colortarget!=0
-  // \pre colortarget_has_context: colortarget->GetContext()!=0
+  /**
+   * Render delegate with a image of different dimensions than the
+   * original one.
+   * \pre s_exists: s!=0
+   * \pre fbo_exists: fbo!=0
+   * \pre fbo_has_context: fbo->GetContext()!=0
+   * \pre colortarget_exists: colortarget!=0
+   * \pre colortarget_has_context: colortarget->GetContext()!=0
+   */
   virtual void RenderDelegate(const vtkRenderState *s,
                       int width,
                       int height,
@@ -103,10 +112,11 @@ public:
                       vtkTextureObject *colortarget,
                       vtkTextureObject *depthtarget);
 
-  // Description:
-  // Read parent size - for sake of code clarity
-  // This function is generic, can be useful in multiple image-based rendering classes
-  // \pre s_exists: s!=0
+  /**
+   * Read parent size - for sake of code clarity
+   * This function is generic, can be useful in multiple image-based rendering classes
+   * \pre s_exists: s!=0
+   */
   void ReadWindowSize(const vtkRenderState* s);
 
   vtkRenderPass *DelegatePass;
@@ -117,8 +127,8 @@ public:
   int    ExtraPixels; // w(h) = width(height) + 2*extrapixels
 
  private:
-  vtkDepthImageProcessingPass(const vtkDepthImageProcessingPass&);  // Not implemented.
-  void operator=(const vtkDepthImageProcessingPass&);  // Not implemented.
+  vtkDepthImageProcessingPass(const vtkDepthImageProcessingPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDepthImageProcessingPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

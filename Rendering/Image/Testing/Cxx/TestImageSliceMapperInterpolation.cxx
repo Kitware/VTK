@@ -52,7 +52,7 @@ int TestImageSliceMapperInterpolation(int argc, char* argv[])
   delete[] fname;
 
   for (int i = 0; i < 4; i++)
-    {
+  {
     vtkRenderer *renderer = vtkRenderer::New();
     vtkCamera *camera = renderer->GetActiveCamera();
     renderer->SetBackground(0.1, 0.2, 0.4);
@@ -70,33 +70,33 @@ int TestImageSliceMapperInterpolation(int argc, char* argv[])
     renderer->AddViewProp(image);
 
     if (i < 3)
-      {
+    {
       image->GetProperty()->SetColorWindow(1000);
       image->GetProperty()->SetColorLevel(1500);
       image->GetProperty()->SetInterpolationType(i);
-      }
+    }
     else
-      {
+    {
       vtkLookupTable *table = vtkLookupTable::New();
       table->Build();
       table->SetRange(1000, 2000);
       image->GetProperty()->SetLookupTable(table);
       image->GetProperty()->UseLookupTableScalarRangeOn();
       table->Delete();
-      }
+    }
 
     image->Delete();
     camera->ParallelProjectionOn();
     renderer->ResetCamera();
     camera->SetParallelScale(10.0);
-    }
+  }
 
   renWin->Render();
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
+  {
     iren->Start();
-    }
+  }
   iren->Delete();
 
   reader->Delete();

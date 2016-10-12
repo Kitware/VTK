@@ -22,10 +22,10 @@ bool vtkExodusIIReaderVariableCheck::Start( std::string name, const int* truth, 
   bool result = this->StartInternal( name, truth, numTruth );
   bool atLeastOne = false;
   for ( int i = 0; i < numTruth; ++ i )
-    {
+  {
     if ( truth[i] )
       atLeastOne = true;
-    }
+  }
   return result && atLeastOne;
 }
 
@@ -44,19 +44,19 @@ int vtkExodusIIReaderVariableCheck::Accept(
   ainfo.Source = vtkExodusIIReaderPrivate::Result;
   ainfo.Components = static_cast<int>( len );
   for ( unsigned int i = 0; i < len; ++ i )
-    {
+  {
     ainfo.OriginalIndices.push_back( startIndex + i + 1 /* FORTRAN. Blech. */ );
     ainfo.OriginalNames.push_back( this->OriginalNames[i] );
-    }
+  }
   ainfo.GlomType = this->GlomType;
   ainfo.StorageType = VTK_DOUBLE;
   ainfo.Status = 0;
   ainfo.ObjectTruth = this->SeqTruth;
   this->UniquifyName( ainfo, arr );
   if ( priv )
-    {
+  {
     priv->GetInitialObjectArrayStatus( objtyp, &ainfo );
-    }
+  }
   arr.push_back( ainfo );
   return static_cast<int>( this->Length() );
 }
@@ -76,12 +76,12 @@ bool vtkExodusIIReaderVariableCheck::CheckTruth( const int* truth )
     return false;
 
   for ( std::vector<int>::iterator it = this->SeqTruth.begin(); it != this->SeqTruth.end(); ++ it, ++ truth )
-    {
+  {
     if ( *truth != *it )
-      {
+    {
       return false;
-      }
     }
+  }
 
   return true;
 }
@@ -93,18 +93,18 @@ bool vtkExodusIIReaderVariableCheck::UniquifyName(
   bool nameChanged = false;
   std::vector<vtkExodusIIReaderPrivate::ArrayInfoType>::iterator it = arrays.begin();
   while ( it != arrays.end() )
-    {
+  {
     if ( it->Name == ainfo.Name )
-      {
+    {
       nameChanged = true;
       ainfo.Name.append( "_" );
       it = arrays.begin(); // Have to start over now that we've changed the name.
-      }
-    else
-      {
-      ++ it;
-      }
     }
+    else
+    {
+      ++ it;
+    }
+  }
   return nameChanged;
 }
 
@@ -131,7 +131,7 @@ vtkExodusIIReaderVectorCheck::vtkExodusIIReaderVectorCheck( const char* seq, int
   this->Endings.insert( this->Endings.begin(), seq, seq + n );
   this->Endings = vtksys::SystemTools::LowerCase( this->Endings );
   switch ( n )
-    {
+  {
   case 2:
     this->GlomType = vtkExodusIIReaderPrivate::Vector2;
     break;
@@ -141,19 +141,19 @@ vtkExodusIIReaderVectorCheck::vtkExodusIIReaderVectorCheck( const char* seq, int
   default:
     this->GlomType = -1; // Oops. What goes here?
     break;
-    }
+  }
 }
 
 bool vtkExodusIIReaderVectorCheck::StartInternal( std::string name, const int*, int )
 {
   std::string::size_type len = name.size();
   if ( len > 1 && tolower( name[len - 1] ) == this->Endings[0] )
-    {
+  {
     this->Prefix = name.substr( 0, len - 1 );
     this->OriginalNames.push_back( name );
     this->StillAdding = true;
     return true;
-    }
+  }
   this->StillAdding = false;
   this->Prefix = "";
   return false;
@@ -165,19 +165,19 @@ bool vtkExodusIIReaderVectorCheck::Add( std::string name, const int* truth )
     ( ! this->StillAdding ) ||
     ( this->OriginalNames.size() >= this->Endings.size() ) ||
     ( ! this->CheckTruth( truth ) ) )
-    {
+  {
     this->StillAdding = false;
     return false;
-    }
+  }
   std::string::size_type len = name.size();
   if (
     ( len != this->Prefix.size() + 1 ) ||
     ( name.substr( 0, len - 1 ) != this->Prefix ) ||
     ( tolower( name[len - 1] ) != this->Endings[this->OriginalNames.size()] ) )
-    {
+  {
     this->StillAdding = false;
     return false;
-    }
+  }
 
   this->OriginalNames.push_back( name );
   return true;
@@ -229,26 +229,26 @@ vtkExodusIIReaderTensorCheck::vtkExodusIIReaderTensorCheck( const char* seq, int
 {
   this->NumEndings = vtkMath::Binomial( rank + dim - 1, rank );
   if ( n == (int) this->NumEndings && rank > 0 && dim > 0 )
-    {
+  {
     this->Dimension = dim;
     this->Rank = rank;
     this->Endings.insert( this->Endings.begin(), seq, seq + n * rank );
     this->Endings = vtksys::SystemTools::LowerCase( this->Endings );
     if ( this->Rank == 1 && this->Dimension == 2 )
-      {
-      this->GlomType = vtkExodusIIReaderPrivate::Vector2;
-      }
-    else if ( this->Rank == 1 && this->Dimension == 3 )
-      {
-      this->GlomType = vtkExodusIIReaderPrivate::Vector3;
-      }
-    else
-      {
-      this->GlomType = vtkExodusIIReaderPrivate::SymmetricTensor;
-      }
-    }
-  else
     {
+      this->GlomType = vtkExodusIIReaderPrivate::Vector2;
+    }
+    else if ( this->Rank == 1 && this->Dimension == 3 )
+    {
+      this->GlomType = vtkExodusIIReaderPrivate::Vector3;
+    }
+    else
+    {
+      this->GlomType = vtkExodusIIReaderPrivate::SymmetricTensor;
+    }
+  }
+  else
+  {
     vtkGenericWarningMacro(
       "Invalid number of tensor endings " << n << " for "
       "rank " << rank << " and dimension " << dim << "; expected "
@@ -256,7 +256,7 @@ vtkExodusIIReaderTensorCheck::vtkExodusIIReaderTensorCheck( const char* seq, int
       " = " << this->NumEndings );
     this->GlomType = -1;
     this->NumEndings = 0;
-    }
+  }
 }
 
 bool vtkExodusIIReaderTensorCheck::StartInternal( std::string name, const int*, int )
@@ -264,12 +264,12 @@ bool vtkExodusIIReaderTensorCheck::StartInternal( std::string name, const int*, 
   std::string::size_type len = name.size();
   if ( ( len > (unsigned) this->Rank ) &&
     vtksys::SystemTools::LowerCase( name.substr(len - this->Rank ) ) == this->Endings.substr( 0, this->Rank ) )
-    {
+  {
     this->Prefix = name.substr( 0, len - this->Rank );
     this->OriginalNames.push_back( name );
     this->StillAdding = true;
     return true;
-    }
+  }
   this->Prefix = "";
   this->StillAdding = false;
   return false;
@@ -281,24 +281,24 @@ bool vtkExodusIIReaderTensorCheck::Add( std::string name, const int* truth )
     ( ! this->StillAdding ) ||
     ( this->OriginalNames.size() >= this->NumEndings ) ||
     ( ! this->CheckTruth( truth ) ) )
-    {
+  {
     this->StillAdding = false;
     return false;
-    }
+  }
   std::string::size_type len = name.size();
   if (
     ( len != this->Prefix.size() + this->Rank ) ||
     ( name.substr( 0, len - this->Rank ) != this->Prefix ) )
-    {
+  {
     this->StillAdding = false;
     return false;
-    }
+  }
   std::string::size_type endingOffset = this->OriginalNames.size() * this->Rank;
   if ( vtksys::SystemTools::LowerCase( name.substr( len - this->Rank ) ) != this->Endings.substr( endingOffset, this->Rank )  )
-    {
+  {
     this->StillAdding = false;
     return false;
-    }
+  }
 
   this->OriginalNames.push_back( name );
   return true;
@@ -320,7 +320,7 @@ vtkExodusIIReaderIntPointCheck::vtkExodusIIReaderIntPointCheck()
 bool vtkExodusIIReaderIntPointCheck::StartInternal( std::string name, const int*, int )
 {
   if ( this->RegExp.find( name ) )
-    {
+  {
     this->VarName = this->RegExp.match( 1 );
     this->CellType = this->RegExp.match( 2 );
     this->Prefix = this->VarName + "_" + this->CellType;
@@ -328,12 +328,12 @@ bool vtkExodusIIReaderIntPointCheck::StartInternal( std::string name, const int*
     // so verify that the integration domain has a rank appropriate to the cell type.
     // This also verifies that the cell type is valid and initializes IntPtMin, IntPtMax, and IntPtNames.
     if ( this->StartIntegrationPoints( this->CellType, this->RegExp.match( 3 ) ) )
-      {
+    {
       this->OriginalNames.push_back( name );
       this->StillAdding = true;
       return true;
-      }
     }
+  }
   this->Prefix = "";
   this->StillAdding = false;
   return false;
@@ -344,20 +344,20 @@ bool vtkExodusIIReaderIntPointCheck::Add( std::string name, const int* )
   if (
     ( ! this->StillAdding ) ||
     ( this->Rank == 0 ) )
-    {
+  {
     this->StillAdding = false;
     return false;
-    }
+  }
   std::string::size_type nlen = name.size();
   std::string::size_type plen = this->Prefix.size();
   if (
     ( nlen != plen + this->Rank + 3 /* for "_GP" */ ) ||
     ( name.substr( 0, plen ) != this->Prefix ) ||
     ( ! this->AddIntegrationPoint( name.substr( nlen - this->Rank ) ) ) )
-    {
+  {
     this->StillAdding = false;
     return false;
-    }
+  }
 
   this->OriginalNames.push_back( name );
   return true;
@@ -374,9 +374,9 @@ std::vector<std::string>::size_type vtkExodusIIReaderIntPointCheck::Length()
   //        wedge, or pyramidal elements depending on how they are parameterized.
   vtkTypeUInt64 numExpected = 1;
   for ( unsigned int i = 0; i < this->IntPtMax.size(); ++ i )
-    {
+  {
     numExpected *= ( this->IntPtMax[i] - this->IntPtMin[i] + 1 );
-    }
+  }
   if ( numExpected < 1 || numExpected != this->OriginalNames.size() )
     return 0;
 
@@ -394,10 +394,10 @@ bool vtkExodusIIReaderIntPointCheck::StartIntegrationPoints(
   std::string cellType, std::string iptName )
 {
   struct
-    {
+  {
     const char* RE;
     int Rank;
-    }
+  }
   cellTypes[] =
     {
       { "[Qq][Uu][Aa][Dd]", 2 },
@@ -410,34 +410,34 @@ bool vtkExodusIIReaderIntPointCheck::StartIntegrationPoints(
   vtksys::RegularExpression ctrexp;
   std::string::size_type expectedRank = static_cast<std::string::size_type>( -1 );
   for ( unsigned int i = 0; i < sizeof(cellTypes)/sizeof(cellTypes[0]); ++ i )
-    {
+  {
     ctrexp.compile( cellTypes[i].RE );
     if ( ctrexp.find( cellType ) )
-      {
+    {
       expectedRank = cellTypes[i].Rank;
       break;
-      }
     }
+  }
   std::string::size_type rank = iptName.size();
   if ( expectedRank > 0 && rank != expectedRank )
-    {
+  {
     this->Rank = 0;
     return false;
-    }
+  }
   this->Rank = rank;
   this->IntPtMin.clear();
   this->IntPtMax.clear();
   for ( std::string::size_type i = 0; i < rank; ++ i )
-    {
+  {
     int ival = iptName[i] - '0';
     if ( ival < 0 || ival > 9 )
-      {
+    {
       this->Rank = 0;
       return false;
-      }
+    }
     this->IntPtMin.push_back( ival );
     this->IntPtMax.push_back( ival );
-    }
+  }
   this->IntPtNames.clear(); // clear out any old values
   this->IntPtNames.insert( iptName );
   return true;
@@ -447,29 +447,29 @@ bool vtkExodusIIReaderIntPointCheck::AddIntegrationPoint( std::string iptName )
 {
   std::string::size_type rank = iptName.size();
   if ( rank != this->Rank )
-    {
+  {
     this->Rank = 0;
     return false;
-    }
+  }
   std::pair<std::set<std::string>::iterator,bool> result;
   result = this->IntPtNames.insert( iptName );
   if ( ! result.second )
-    { // Oops, this integration point is a duplicate.
+  { // Oops, this integration point is a duplicate.
     this->Rank = 0;
     return false;
-    }
+  }
   for ( std::string::size_type i = 0; i < rank; ++ i )
-    {
+  {
     int ival = iptName[i] - '0';
     if ( ival < 0 || ival > 9 )
-      {
+    {
       this->Rank = 0;
       return false;
-      }
+    }
     if ( this->IntPtMin[i] > ival )
       this->IntPtMin[i] = ival;
     if ( this->IntPtMax[i] < ival )
       this->IntPtMax[i] = ival;
-    }
+  }
   return true;
 }

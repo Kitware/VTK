@@ -38,15 +38,15 @@ void vtkImageDecomposeFilter::PrintSelf(ostream& os, vtkIndent indent)
 void vtkImageDecomposeFilter::SetDimensionality(int dim)
 {
   if (this->Dimensionality == dim)
-    {
+  {
     return;
-    }
+  }
 
   if (dim < 1 || dim > 3)
-    {
+  {
     vtkErrorMacro("SetDimensionality: Bad dim: " << dim);
     return;
-    }
+  }
 
   this->Dimensionality = dim;
   this->SetNumberOfIterations(dim);
@@ -61,7 +61,7 @@ void vtkImageDecomposeFilter::PermuteIncrements(vtkIdType *increments,
                                                 vtkIdType &inc2)
 {
   switch (this->Iteration)
-    {
+  {
     case 0:
       inc0 = increments[0];
       inc1 = increments[1];
@@ -77,7 +77,7 @@ void vtkImageDecomposeFilter::PermuteIncrements(vtkIdType *increments,
       inc2 = increments[1];
       inc0 = increments[2];
       break;
-    }
+  }
 }
 
 
@@ -87,7 +87,7 @@ void vtkImageDecomposeFilter::PermuteExtent(int *extent, int &min0, int &max0,
                                             int &min2, int &max2)
 {
   switch (this->Iteration)
-    {
+  {
     case 0:
       min0 = extent[0];       max0 = extent[1];
       min1 = extent[2];       max1 = extent[3];
@@ -103,7 +103,7 @@ void vtkImageDecomposeFilter::PermuteExtent(int *extent, int &min0, int &max0,
       min2 = extent[2];       max2 = extent[3];
       min0 = extent[4];       max0 = extent[5];
       break;
-    }
+  }
 }
 
 

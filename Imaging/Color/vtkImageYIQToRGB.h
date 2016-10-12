@@ -12,12 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageRGBToYIQ - Converts YIQ components to RGB.
-// .SECTION Description
-// For each pixel with Y, I, and Q components this
-// filter output the color coded as RGB.
-// Output type must be the same as input type.
-
+/**
+ * @class   vtkImageRGBToYIQ
+ * @brief   Converts YIQ components to RGB.
+ *
+ * For each pixel with Y, I, and Q components this
+ * filter output the color coded as RGB.
+ * Output type must be the same as input type.
+*/
 
 #ifndef vtkImageYIQToRGB_h
 #define vtkImageYIQToRGB_h
@@ -45,8 +47,8 @@ protected:
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int ext[6], int id);
 private:
-  vtkImageYIQToRGB(const vtkImageYIQToRGB&);  // Not implemented.
-  void operator=(const vtkImageYIQToRGB&);  // Not implemented.
+  vtkImageYIQToRGB(const vtkImageYIQToRGB&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageYIQToRGB&) VTK_DELETE_FUNCTION;
 };
 
 #endif

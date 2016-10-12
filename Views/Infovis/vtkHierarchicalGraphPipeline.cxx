@@ -223,12 +223,12 @@ vtkSelection* vtkHierarchicalGraphPipeline::ConvertSelection(vtkDataRepresentati
 {
   vtkSelection* converted = vtkSelection::New();
   for (unsigned int j = 0; j < sel->GetNumberOfNodes(); ++j)
-    {
+  {
     vtkSelectionNode* node = sel->GetNode(j);
     vtkProp* prop = vtkProp::SafeDownCast(
       node->GetProperties()->Get(vtkSelectionNode::PROP()));
     if (prop == this->Actor)
-      {
+    {
       vtkDataObject* input = this->Bundle->GetInputDataObject(0, 0);
       vtkDataObject* poly = this->GraphToPoly->GetOutput();
       vtkSmartPointer<vtkSelection> edgeSel =
@@ -241,19 +241,19 @@ vtkSelection* vtkHierarchicalGraphPipeline::ConvertSelection(vtkDataRepresentati
       vtkSelection* polyConverted = vtkConvertSelection::ToSelectionType(
         edgeSel, poly, vtkSelectionNode::PEDIGREEIDS);
       for (unsigned int i = 0; i < polyConverted->GetNumberOfNodes(); ++i)
-        {
+      {
         polyConverted->GetNode(i)->SetFieldType(vtkSelectionNode::EDGE);
-        }
+      }
       vtkSelection* edgeConverted = vtkConvertSelection::ToSelectionType(
         polyConverted, input, rep->GetSelectionType(), rep->GetSelectionArrayNames());
       for (unsigned int i = 0; i < edgeConverted->GetNumberOfNodes(); ++i)
-        {
+      {
         converted->AddNode(edgeConverted->GetNode(i));
-        }
+      }
       polyConverted->Delete();
       edgeConverted->Delete();
-      }
     }
+  }
   return converted;
 }
 
@@ -275,23 +275,23 @@ void vtkHierarchicalGraphPipeline::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Actor: ";
   if (this->Actor && this->Bundle->GetNumberOfInputConnections(0) > 0)
-    {
+  {
     os << "\n";
     this->Actor->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
   os << indent << "LabelActor: ";
   if (this->LabelActor && this->Bundle->GetNumberOfInputConnections(0) > 0)
-    {
+  {
     os << "\n";
     this->LabelActor->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
   os << indent << "HoverArrayName: " << (this->HoverArrayName ? this->HoverArrayName : "(none)") << "\n";
 }

@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkFileOutputWindow - File Specific output window class
-// .SECTION Description
-// Writes debug/warning/error output to a log file instead of the console.
-// To use this class, instantiate it and then call SetInstance(this).
-//
+/**
+ * @class   vtkFileOutputWindow
+ * @brief   File Specific output window class
+ *
+ * Writes debug/warning/error output to a log file instead of the console.
+ * To use this class, instantiate it and then call SetInstance(this).
+ *
+*/
 
 #ifndef vtkFileOutputWindow_h
 #define vtkFileOutputWindow_h
@@ -32,37 +35,47 @@ public:
 
   static vtkFileOutputWindow* New();
 
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Put the text into the log file.
-  // New lines are converted to carriage return new lines.
-  virtual void DisplayText(const char*);
+  /**
+   * Put the text into the log file.
+   * New lines are converted to carriage return new lines.
+   */
+  void DisplayText(const char*) VTK_OVERRIDE;
 
-  // Description:
-  // Sets the name for the log file.
+  //@{
+  /**
+   * Sets the name for the log file.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Turns on buffer flushing for the output
-  // to the log file.
+  //@{
+  /**
+   * Turns on buffer flushing for the output
+   * to the log file.
+   */
   vtkSetMacro(Flush, int);
   vtkGetMacro(Flush, int);
   vtkBooleanMacro(Flush, int);
+  //@}
 
-  // Description:
-  // Setting append will cause the log file to be
-  // opened in append mode.  Otherwise, if the log file exists,
-  // it will be overwritten each time the vtkFileOutputWindow
-  // is created.
+  //@{
+  /**
+   * Setting append will cause the log file to be
+   * opened in append mode.  Otherwise, if the log file exists,
+   * it will be overwritten each time the vtkFileOutputWindow
+   * is created.
+   */
   vtkSetMacro(Append, int);
   vtkGetMacro(Append, int);
   vtkBooleanMacro(Append, int);
+  //@}
 
 protected:
   vtkFileOutputWindow();
-  virtual ~vtkFileOutputWindow();
+  ~vtkFileOutputWindow() VTK_OVERRIDE;
   void Initialize();
 
   char* FileName;
@@ -71,8 +84,8 @@ protected:
   int Append;
 
 private:
-  vtkFileOutputWindow(const vtkFileOutputWindow&);  // Not implemented.
-  void operator=(const vtkFileOutputWindow&);  // Not implemented.
+  vtkFileOutputWindow(const vtkFileOutputWindow&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFileOutputWindow&) VTK_DELETE_FUNCTION;
 };
 
 

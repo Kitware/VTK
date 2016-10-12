@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkViewNodeCollection - collection of view nodes
-// .SECTION Description
-// vtk centric collection of vtkViewNodes
+/**
+ * @class   vtkViewNodeCollection
+ * @brief   collection of view nodes
+ *
+ * vtk centric collection of vtkViewNodes
+*/
 
 #ifndef vtkViewNodeCollection_h
 #define vtkViewNodeCollection_h
@@ -32,22 +35,26 @@ public:
   vtkTypeMacro(vtkViewNodeCollection, vtkCollection);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Add a ViewNode to the list.
+  /**
+   * Add a ViewNode to the list.
+   */
   void AddItem(vtkViewNode *a);
 
-  // Description:
-  // Get the next ViewNode in the list. NULL is returned when the collection is
-  // exhausted.
+  /**
+   * Get the next ViewNode in the list. NULL is returned when the collection is
+   * exhausted.
+   */
   vtkViewNode *GetNextItem();
 
-  // Description:
-  // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth.
+  /**
+   * Reentrant safe way to get an object in a collection. Just pass the
+   * same cookie back and forth.
+   */
   vtkViewNode *GetNextViewNode(vtkCollectionSimpleIterator &cookie);
 
-  // Description:
-  // Return true only if we have viewnode for obj.
+  /**
+   * Return true only if we have viewnode for obj.
+   */
   bool IsRenderablePresent(vtkObject *obj);
 
 protected:
@@ -59,8 +66,8 @@ private:
   void AddItem(vtkObject *o)
     { this->vtkCollection::AddItem(o); }
 
-  vtkViewNodeCollection(const vtkViewNodeCollection&); // Not implemented.
-  void operator=(const vtkViewNodeCollection&); // Not implemented.
+  vtkViewNodeCollection(const vtkViewNodeCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkViewNodeCollection&) VTK_DELETE_FUNCTION;
 };
 
 #endif

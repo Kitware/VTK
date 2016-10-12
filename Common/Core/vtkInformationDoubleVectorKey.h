@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInformationDoubleVectorKey - Key for double vector values.
-// .SECTION Description
-// vtkInformationDoubleVectorKey is used to represent keys for double
-// vector values in vtkInformation.h
+/**
+ * @class   vtkInformationDoubleVectorKey
+ * @brief   Key for double vector values.
+ *
+ * vtkInformationDoubleVectorKey is used to represent keys for double
+ * vector values in vtkInformation.h
+*/
 
 #ifndef vtkInformationDoubleVectorKey_h
 #define vtkInformationDoubleVectorKey_h
@@ -29,49 +32,55 @@ class VTKCOMMONCORE_EXPORT vtkInformationDoubleVectorKey : public vtkInformation
 {
 public:
   vtkTypeMacro(vtkInformationDoubleVectorKey,vtkInformationKey);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkInformationDoubleVectorKey(const char* name, const char* location,
                                  int length=-1);
-  ~vtkInformationDoubleVectorKey();
+  ~vtkInformationDoubleVectorKey() VTK_OVERRIDE;
 
-  // Description:
-  // This method simply returns a new vtkInformationDoubleVectorKey, given a
-  // name, a location and a required length. This method is provided for
-  // wrappers. Use the constructor directly from C++ instead.
+  /**
+   * This method simply returns a new vtkInformationDoubleVectorKey, given a
+   * name, a location and a required length. This method is provided for
+   * wrappers. Use the constructor directly from C++ instead.
+   */
   static vtkInformationDoubleVectorKey* MakeKey(const char* name, const char* location,
     int length=-1)
-    {
+  {
     return new vtkInformationDoubleVectorKey(name, location, length);
-    }
+  }
 
-  // Description:
-  // Get/Set the value associated with this key in the given
-  // information object.
+  //@{
+  /**
+   * Get/Set the value associated with this key in the given
+   * information object.
+   */
   void Append(vtkInformation* info, double value);
   void Set(vtkInformation* info, const double* value, int length);
   double* Get(vtkInformation* info);
   double  Get(vtkInformation* info, int idx);
   void Get(vtkInformation* info, double* value);
   int Length(vtkInformation* info);
+  //@}
 
-  // Description:
-  // Copy the entry associated with this key from one information
-  // object to another.  If there is no entry in the first information
-  // object for this key, the value is removed from the second.
-  virtual void ShallowCopy(vtkInformation* from, vtkInformation* to);
+  /**
+   * Copy the entry associated with this key from one information
+   * object to another.  If there is no entry in the first information
+   * object for this key, the value is removed from the second.
+   */
+  void ShallowCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
 
-  // Description:
-  // Print the key's value in an information object to a stream.
-  virtual void Print(ostream& os, vtkInformation* info);
+  /**
+   * Print the key's value in an information object to a stream.
+   */
+  void Print(ostream& os, vtkInformation* info) VTK_OVERRIDE;
 
 protected:
   // The required length of the vector value (-1 is no restriction).
   int RequiredLength;
 
 private:
-  vtkInformationDoubleVectorKey(const vtkInformationDoubleVectorKey&);  // Not implemented.
-  void operator=(const vtkInformationDoubleVectorKey&);  // Not implemented.
+  vtkInformationDoubleVectorKey(const vtkInformationDoubleVectorKey&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInformationDoubleVectorKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

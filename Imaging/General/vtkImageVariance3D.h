@@ -12,15 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageVariance3D - Variance in a neighborhood.
-// .SECTION Description
-// vtkImageVariance3D replaces each pixel with a measurement of
-// pixel variance in a elliptical neighborhood centered on that pixel.
-// The value computed is not exactly the variance.
-// The difference between the neighbor values and center value is computed
-// and squared for each neighbor.  These values are summed and divided by
-// the total number of neighbors to produce the output value.
-
+/**
+ * @class   vtkImageVariance3D
+ * @brief   Variance in a neighborhood.
+ *
+ * vtkImageVariance3D replaces each pixel with a measurement of
+ * pixel variance in a elliptical neighborhood centered on that pixel.
+ * The value computed is not exactly the variance.
+ * The difference between the neighbor values and center value is computed
+ * and squared for each neighbor.  These values are summed and divided by
+ * the total number of neighbors to produce the output value.
+*/
 
 #ifndef vtkImageVariance3D_h
 #define vtkImageVariance3D_h
@@ -38,9 +40,10 @@ public:
   vtkTypeMacro(vtkImageVariance3D,vtkImageSpatialAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // This method sets the size of the neighborhood.  It also sets the default
-  // middle of the neighborhood and computes the Elliptical foot print.
+  /**
+   * This method sets the size of the neighborhood.  It also sets the default
+   * middle of the neighborhood and computes the Elliptical foot print.
+   */
   void SetKernelSize(int size0, int size1, int size2);
 
 protected:
@@ -63,8 +66,8 @@ protected:
                           vtkInformationVector *outputVector);
 
 private:
-  vtkImageVariance3D(const vtkImageVariance3D&);  // Not implemented.
-  void operator=(const vtkImageVariance3D&);  // Not implemented.
+  vtkImageVariance3D(const vtkImageVariance3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageVariance3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

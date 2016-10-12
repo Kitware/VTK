@@ -4,9 +4,11 @@ if (NOT WIN32)
 
   set(Module_SRCS
     vtkPResampleToImage.cxx
+    vtkPResampleWithDataSet.cxx
     )
 
   vtk_add_override(vtkResampleToImage vtkPResampleToImage)
+  vtk_add_override(vtkResampleWithDataSet vtkPResampleWithDataSet)
 
   vtk_object_factory_configure("${vtk_module_overrides}")
   list(APPEND Module_SRCS

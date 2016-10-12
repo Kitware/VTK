@@ -136,12 +136,12 @@ static void CheckWinding(vtkBoxClipDataSet* alg)
 
   vtkIdType npts, *pts;
   while (cells->GetNextCell(npts, pts))
-    {
+  {
     if (npts != 4)
-      {
+    {
       std::cout << "Weird.  I got something that is not a tetrahedra." << std::endl;
       continue;
-      }
+    }
 
     double p0[3], p1[3], p2[3], p3[3];
     points->GetPoint(pts[0], p0);
@@ -162,11 +162,11 @@ static void CheckWinding(vtkBoxClipDataSet* alg)
     d[0] = p3[0] - p0[0];    d[1] = p3[1] - p0[1];    d[2] = p3[2] - p0[2];
 
     if (vtkMath::Dot(n, d) < 0)
-      {
+    {
       std::cout << "Found a tetrahedra with bad winding." << std::endl;
       throw BoxClipTriangulateFailed();
-      }
     }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -185,42 +185,42 @@ static vtkSmartPointer<vtkUnstructuredGrid> BuildInput(int type,
   std::vector<vtkIdType> idsLeft;
 
   for (i = 0; i < NumPoints; i++)
-    {
+  {
     idsLeft.push_back(i);
-    }
+  }
 
   while (!idsLeft.empty())
-    {
+  {
     vtkIdType next
       = vtkMath::Round(vtkMath::Random(-0.49, idsLeft.size() - 0.51));
     std::vector<vtkIdType>::iterator nextp = idsLeft.begin() + next;
     idMap.push_back(*nextp);
     idsLeft.erase(nextp, nextp + 1);
-    }
+  }
 
   // Build shuffled points.
   VTK_CREATE(vtkPoints, points);
   points->SetNumberOfPoints(NumPoints);
   for (i = 0; i < NumPoints; i++)
-    {
+  {
     points->SetPoint(idMap[i], PointData + 3*i);
-    }
+  }
   input->SetPoints(points);
 
   // Add the cells with indices properly mapped.
   VTK_CREATE(vtkIdList, ptIds);
   const vtkIdType *c = cells;
   for (i = 0; i < numcells; i++)
-    {
+  {
     vtkIdType npts = *c;  c++;
     ptIds->Initialize();
     for (vtkIdType j = 0; j < npts; j++)
-      {
+    {
       ptIds->InsertNextId(idMap[*c]);
       c++;
-      }
-    input->InsertNextCell(type, ptIds);
     }
+    input->InsertNextCell(type, ptIds);
+  }
 
   return input;
 }
@@ -242,31 +242,31 @@ static void Check2DPrimitive(int type, vtkIdType numcells,
   vtkUnstructuredGrid *output = clipper->GetOutput();
 
   if (output->GetNumberOfCells() < 1)
-    {
+  {
     std::cout << "Output has no cells!" << std::endl;
     throw BoxClipTriangulateFailed();
-    }
+  }
 
   // Check to make sure all the normals point in the z direction.
   vtkCellArray *outCells = output->GetCells();
   outCells->InitTraversal();
   vtkIdType npts, *pts;
   while (outCells->GetNextCell(npts, pts))
-    {
+  {
     if (npts != 3)
-      {
+    {
       std::cout << "Got a primitive that is not a triangle!" << std::endl;
       throw BoxClipTriangulateFailed();
-      }
+    }
 
     double n[3];
     vtkTriangle::ComputeNormal(output->GetPoints(), npts, pts, n);
     if ((n[0] > 0.1) || (n[1] > 0.1) || (n[2] < 0.9))
-      {
+    {
       std::cout << "Primitive is facing the wrong way!" << std::endl;
       throw BoxClipTriangulateFailed();
-      }
     }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -286,10 +286,10 @@ static void Check3DPrimitive(int type, vtkIdType numcells,
   vtkUnstructuredGrid *output = clipper->GetOutput();
 
   if (output->GetNumberOfCells() < 1)
-    {
+  {
     std::cout << "Output has no cells!" << std::endl;
     throw BoxClipTriangulateFailed();
-    }
+  }
 
 #if 0
   VTK_CREATE(vtkExtractEdges, edges);
@@ -315,11 +315,11 @@ static void Check3DPrimitive(int type, vtkIdType numcells,
   surface->Update();
 
   if (surface->GetOutput()->GetNumberOfCells() != numSurfacePolys)
-    {
+  {
     std::cout << "Expected " << numSurfacePolys << " triangles on the surface, got "
          << surface->GetOutput()->GetNumberOfCells() << std::endl;
     throw BoxClipTriangulateFailed();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -334,7 +334,7 @@ int BoxClipTriangulate(int, char *[])
   vtkMath::Random();
 
   try
-    {
+  {
     std::cout << "Checking triangle strip." << std::endl;
     Check2DPrimitive(VTK_TRIANGLE_STRIP, NumTriStripCells, TriStripCells);
 
@@ -362,11 +362,11 @@ int BoxClipTriangulate(int, char *[])
     std::cout << "Checking pyramids." << std::endl;
     Check3DPrimitive(VTK_PYRAMID, NumPyramidCells, PyramidCells,
                      NumExpectedPyramidSurfacePolys);
-    }
+  }
   catch (BoxClipTriangulateFailed)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

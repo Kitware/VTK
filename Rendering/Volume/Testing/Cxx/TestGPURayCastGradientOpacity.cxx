@@ -112,9 +112,9 @@ int TestGPURayCastGradientOpacity(int argc, char* argv[])
 
   int retVal = vtkTesting::Test(argc, argv, renWin.GetPointer(), 90);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !((retVal == vtkTesting::PASSED) ||
            (retVal == vtkTesting::DO_INTERACTOR));

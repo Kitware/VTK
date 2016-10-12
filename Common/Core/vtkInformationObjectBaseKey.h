@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInformationObjectBaseKey - Key for vtkObjectBase values.
-// .SECTION Description
-// vtkInformationObjectBaseKey is used to represent keys in
-// vtkInformation for values that are vtkObjectBase instances.
+/**
+ * @class   vtkInformationObjectBaseKey
+ * @brief   Key for vtkObjectBase values.
+ *
+ * vtkInformationObjectBaseKey is used to represent keys in
+ * vtkInformation for values that are vtkObjectBase instances.
+*/
 
 #ifndef vtkInformationObjectBaseKey_h
 #define vtkInformationObjectBaseKey_h
@@ -31,38 +34,44 @@ class VTKCOMMONCORE_EXPORT vtkInformationObjectBaseKey : public vtkInformationKe
 {
 public:
   vtkTypeMacro(vtkInformationObjectBaseKey,vtkInformationKey);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkInformationObjectBaseKey(const char* name, const char* location,
                               const char* requiredClass=0);
-  ~vtkInformationObjectBaseKey();
+  ~vtkInformationObjectBaseKey() VTK_OVERRIDE;
 
-  // Description:
-  // This method simply returns a new vtkInformationObjectBaseKey, given a
-  // name, location and optionally a required class (a classname to restrict
-  // which class types can be set with this key). This method is provided
-  // for wrappers. Use the constructor directly from C++ instead.
+  /**
+   * This method simply returns a new vtkInformationObjectBaseKey, given a
+   * name, location and optionally a required class (a classname to restrict
+   * which class types can be set with this key). This method is provided
+   * for wrappers. Use the constructor directly from C++ instead.
+   */
   static vtkInformationObjectBaseKey* MakeKey(const char* name, const char* location,
                                              const char* requiredClass=0)
-    {
+  {
     return new vtkInformationObjectBaseKey(name, location, requiredClass);
-    }
+  }
 
-  // Description:
-  // Get/Set the value associated with this key in the given
-  // information object.
+  //@{
+  /**
+   * Get/Set the value associated with this key in the given
+   * information object.
+   */
   void Set(vtkInformation* info, vtkObjectBase*);
   vtkObjectBase* Get(vtkInformation* info);
+  //@}
 
-  // Description:
-  // Copy the entry associated with this key from one information
-  // object to another.  If there is no entry in the first information
-  // object for this key, the value is removed from the second.
-  virtual void ShallowCopy(vtkInformation* from, vtkInformation* to);
+  /**
+   * Copy the entry associated with this key from one information
+   * object to another.  If there is no entry in the first information
+   * object for this key, the value is removed from the second.
+   */
+  void ShallowCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
 
-  // Description:
-  // Report a reference this key has in the given information object.
-  virtual void Report(vtkInformation* info, vtkGarbageCollector* collector);
+  /**
+   * Report a reference this key has in the given information object.
+   */
+  void Report(vtkInformation* info, vtkGarbageCollector* collector) VTK_OVERRIDE;
 
 protected:
   // The type required of all objects stored with this key.
@@ -71,8 +80,8 @@ protected:
   vtkInformationKeySetStringMacro(RequiredClass);
 
 private:
-  vtkInformationObjectBaseKey(const vtkInformationObjectBaseKey&);  // Not implemented.
-  void operator=(const vtkInformationObjectBaseKey&);  // Not implemented.
+  vtkInformationObjectBaseKey(const vtkInformationObjectBaseKey&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInformationObjectBaseKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLImageDataWriter - Write VTK XML ImageData files.
-// .SECTION Description
-// vtkXMLImageDataWriter writes the VTK XML ImageData file format.
-// One image data input can be written into one file in any number of
-// streamed pieces.  The standard extension for this writer's file
-// format is "vti".  This writer is also used to write a single piece
-// of the parallel file format.
-
-// .SECTION See Also
-// vtkXMLPImageDataWriter
+/**
+ * @class   vtkXMLImageDataWriter
+ * @brief   Write VTK XML ImageData files.
+ *
+ * vtkXMLImageDataWriter writes the VTK XML ImageData file format.
+ * One image data input can be written into one file in any number of
+ * streamed pieces.  The standard extension for this writer's file
+ * format is "vti".  This writer is also used to write a single piece
+ * of the parallel file format.
+ *
+ * @sa
+ * vtkXMLPImageDataWriter
+*/
 
 #ifndef vtkXMLImageDataWriter_h
 #define vtkXMLImageDataWriter_h
@@ -38,12 +41,14 @@ public:
   vtkTypeMacro(vtkXMLImageDataWriter,vtkXMLStructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get/Set the writer's input.
+  /**
+   * Get/Set the writer's input.
+   */
   vtkImageData* GetInput();
 
-  // Description:
-  // Get the default file extension for files written by this writer.
+  /**
+   * Get the default file extension for files written by this writer.
+   */
   const char* GetDefaultFileExtension();
 
 protected:
@@ -58,8 +63,8 @@ protected:
   const char* GetDataSetName();
 
 private:
-  vtkXMLImageDataWriter(const vtkXMLImageDataWriter&);  // Not implemented.
-  void operator=(const vtkXMLImageDataWriter&);  // Not implemented.
+  vtkXMLImageDataWriter(const vtkXMLImageDataWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLImageDataWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -19,11 +19,14 @@
 
 =========================================================================*/
 
-// .NAME vtkTypeTemplate - Provides the equivalent of vtkTypeMacro
-// for use with template classes
-//
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+/**
+ * @class   vtkTypeTemplate
+ * @brief   Provides the equivalent of vtkTypeMacro
+ * for use with template classes
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+*/
 
 #ifndef vtkTypeTemplate_h
 #define vtkTypeTemplate_h
@@ -51,9 +54,9 @@ public:
   {
     if(o &&
        o->IsA(vtkTypeTemplate<ThisT, BaseT>::GetClassNameInternalCachedName()))
-      {
+    {
       return static_cast<ThisT*>(o);
-      }
+    }
 
     return 0;
   }
@@ -67,20 +70,20 @@ protected:
   // We don't expose this publicly, because the typename we generate
   // for our template instantiations isn't human-readable, unlike
   // "normal" VTK classes.
-  static int IsTypeOf(const char* type)
+  static vtkTypeBool IsTypeOf(const char* type)
   {
     if (strcmp(vtkTypeTemplate<ThisT, BaseT>::GetClassNameInternalCachedName(),
                type) == 0)
-      {
+    {
       return 1;
-      }
+    }
     return BaseT::IsTypeOf(type);
   }
 
   // We don't expose this publicly, because the typename we generate
   // for our template instantiations isn't human-readable, unlike
   // "normal" VTK classes.
-  virtual int IsA(const char *type)
+  vtkTypeBool IsA(const char *type) VTK_OVERRIDE
   {
     return this->IsTypeOf(type);
   }
@@ -92,9 +95,8 @@ protected:
   }
 
 private:
-  // not implemented:
-  vtkTypeTemplate(const vtkTypeTemplate<ThisT, BaseT>&);
-  void operator=(const vtkTypeTemplate<ThisT, BaseT>&);
+  vtkTypeTemplate(const vtkTypeTemplate<ThisT, BaseT>&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTypeTemplate<ThisT, BaseT>&) VTK_DELETE_FUNCTION;
 
   static const char* GetClassNameInternalCachedName()
   {
@@ -102,7 +104,7 @@ private:
     return thisType.c_str();
   }
 
-  virtual const char* GetClassNameInternal() const
+  const char* GetClassNameInternal() const VTK_OVERRIDE
   {
     return this->GetClassNameInternalCachedName();
   }

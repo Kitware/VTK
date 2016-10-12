@@ -99,9 +99,9 @@ int TestCubeAxesInnerGridAll( int argc, char * argv [] )
 
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   cout << camera->GetFocalPoint()[0] << ", " << camera->GetFocalPoint()[1] << ", " << camera->GetFocalPoint()[2] << endl;
   cout << camera->GetPosition()[0] << ", " << camera->GetPosition()[1] << ", " << camera->GetPosition()[2] << endl;

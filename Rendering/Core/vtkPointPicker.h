@@ -12,20 +12,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPointPicker - select a point by shooting a ray into a graphics window
-// .SECTION Description
-
-// vtkPointPicker is used to select a point by shooting a ray into a graphics
-// window and intersecting with actor's defining geometry - specifically its
-// points. Beside returning coordinates, actor, and mapper, vtkPointPicker
-// returns the id of the point projecting closest onto the ray (within the
-// specified tolerance).  Ties are broken (i.e., multiple points all
-// projecting within the tolerance along the pick ray) by choosing the point
-// closest to the ray.
-//
-
-// .SECTION See Also
-// vtkPicker vtkCellPicker.
+/**
+ * @class   vtkPointPicker
+ * @brief   select a point by shooting a ray into a graphics window
+ *
+ *
+ * vtkPointPicker is used to select a point by shooting a ray into a graphics
+ * window and intersecting with actor's defining geometry - specifically its
+ * points. Beside returning coordinates, actor, and mapper, vtkPointPicker
+ * returns the id of the point projecting closest onto the ray (within the
+ * specified tolerance).  Ties are broken (i.e., multiple points all
+ * projecting within the tolerance along the pick ray) by choosing the point
+ * closest to the ray.
+ *
+ *
+ * @sa
+ * vtkPicker vtkCellPicker.
+*/
 
 #ifndef vtkPointPicker_h
 #define vtkPointPicker_h
@@ -40,16 +43,22 @@ public:
   vtkTypeMacro(vtkPointPicker,vtkPicker);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the id of the picked point. If PointId = -1, nothing was picked.
+  //@{
+  /**
+   * Get the id of the picked point. If PointId = -1, nothing was picked.
+   */
   vtkGetMacro(PointId, vtkIdType);
+  //@}
 
-  // Description:
-  // Specify whether the point search should be based on cell points or
-  // directly on the point list.
+  //@{
+  /**
+   * Specify whether the point search should be based on cell points or
+   * directly on the point list.
+   */
   vtkSetMacro(UseCells, int);
   vtkGetMacro(UseCells, int);
   vtkBooleanMacro(UseCells, int);
+  //@}
 
 protected:
   vtkPointPicker();
@@ -64,8 +73,8 @@ protected:
   void Initialize();
 
 private:
-  vtkPointPicker(const vtkPointPicker&);  // Not implemented.
-  void operator=(const vtkPointPicker&);  // Not implemented.
+  vtkPointPicker(const vtkPointPicker&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPointPicker&) VTK_DELETE_FUNCTION;
 };
 
 #endif

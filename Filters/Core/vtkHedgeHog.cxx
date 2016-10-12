@@ -65,47 +65,47 @@ int vtkHedgeHog::RequestData(
   pd = input->GetPointData();
   inVectors = pd->GetVectors();
   if ( numPts < 1 )
-    {
+  {
     vtkErrorMacro(<<"No input data");
     return 1;
-    }
+  }
   if ( !inVectors && this->VectorMode == VTK_USE_VECTOR)
-    {
+  {
     vtkErrorMacro(<<"No vectors in input data");
     return 1;
-    }
+  }
 
   inNormals = pd->GetNormals();
   if ( !inNormals && this->VectorMode == VTK_USE_NORMAL)
-    {
+  {
     vtkErrorMacro(<<"No normals in input data");
     return 1;
-    }
+  }
   outputPD->CopyAllocate(pd, 2*numPts);
 
   newPts = vtkPoints::New();
 
     // Set the desired precision for the points in the output.
   if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
-    {
+  {
     vtkPointSet *inputPointSet = vtkPointSet::SafeDownCast(input);
     if(inputPointSet)
-      {
+    {
       newPts->SetDataType(inputPointSet->GetPoints()->GetDataType());
-      }
+    }
     else
-      {
+    {
       newPts->SetDataType(VTK_FLOAT);
-      }
     }
+  }
   else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
-    {
+  {
     newPts->SetDataType(VTK_FLOAT);
-    }
+  }
   else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     newPts->SetDataType(VTK_DOUBLE);
-    }
+  }
 
   newPts->SetNumberOfPoints(2*numPts);
   newLines = vtkCellArray::New();
@@ -114,29 +114,29 @@ int vtkHedgeHog::RequestData(
   // Loop over all points, creating oriented line
   //
   for (ptId=0; ptId < numPts; ptId++)
-    {
+  {
     if ( ! (ptId % 10000) ) //abort/progress
-      {
+    {
         this->UpdateProgress(static_cast<double>(ptId)/numPts);
       if (this->GetAbortExecute())
-        {
+      {
         break;
-        }
       }
+    }
 
     input->GetPoint(ptId, x);
     if (this->VectorMode == VTK_USE_VECTOR)
-      {
+    {
       inVectors->GetTuple(ptId, v);
-      }
+    }
     else
-      {
+    {
       inNormals->GetTuple(ptId, v);
-      }
+    }
     for (i=0; i<3; i++)
-      {
+    {
       newX[i] = x[i] + this->ScaleFactor * v[i];
-      }
+    }
 
     pts[0] = ptId;
     pts[1] = ptId + numPts;;
@@ -148,7 +148,7 @@ int vtkHedgeHog::RequestData(
 
     outputPD->CopyData(pd,ptId,pts[0]);
     outputPD->CopyData(pd,ptId,pts[1]);
-    }
+  }
 
   // Update ourselves and release memory
   //

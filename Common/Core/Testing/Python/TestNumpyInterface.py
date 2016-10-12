@@ -47,6 +47,22 @@ elev3.SetLowPoint(0, 0, -10)
 elev3.SetHighPoint(0, 0, 10)
 elev3.SetScalarRange(0, 20)
 
+elev3.Update()
+
+dobj = vtk.vtkImageData()
+dobj.DeepCopy(elev3.GetOutput())
+ds1 = dsa.WrapDataObject(dobj)
+elev_copy = numpy.copy(ds1.PointData['Elevation'])
+elev_copy[1] = numpy.nan
+ghosts = numpy.zeros(ds1.GetNumberOfPoints(), dtype=numpy.uint8)
+ghosts[1] = vtk.vtkDataSetAttributes.DUPLICATEPOINT
+ds1.PointData.append(ghosts, vtk.vtkDataSetAttributes.GhostArrayName())
+assert algs.make_point_mask_from_NaNs(ds1, elev_copy)[1] == vtk.vtkDataSetAttributes.DUPLICATEPOINT | vtk.vtkDataSetAttributes.HIDDENPOINT
+
+cell_array = numpy.zeros(ds1.GetNumberOfCells())
+cell_array[1] = numpy.nan
+assert algs.make_cell_mask_from_NaNs(ds1, cell_array)[1] == vtk.vtkDataSetAttributes.HIDDENCELL
+
 g3 = vtk.vtkMultiBlockDataGroupFilter()
 g3.AddInputConnection(elev3.GetOutputPort())
 g3.AddInputConnection(elev3.GetOutputPort())
@@ -100,6 +116,20 @@ assert algs.all(algs.det(g) == 2)
 assert algs.all(algs.eigenvalue(g) == [2, 1, 1])
 
 assert algs.all(randomVec[:,0] == randomVec[:,0])
+
+int_array1 = numpy.array([1, 0, 1], dtype=numpy.int)
+int_array2 = numpy.array([0, 1, 0], dtype=numpy.int)
+assert algs.all(algs.bitwise_or(int_array1, int_array2) == 1)
+assert algs.all(algs.bitwise_or(int_array1, dsa.NoneArray) == int_array1)
+assert algs.all(algs.bitwise_or(dsa.NoneArray, int_array1) == int_array1)
+
+comp_array1 = dsa.VTKCompositeDataArray([int_array1, int_array2])
+comp_array2 = dsa.VTKCompositeDataArray([int_array2, int_array1])
+comp_array3 = dsa.VTKCompositeDataArray([int_array2, dsa.NoneArray])
+assert algs.all(algs.bitwise_or(comp_array1, comp_array2) == 1)
+assert algs.all(algs.bitwise_or(comp_array1, dsa.NoneArray) == comp_array1)
+assert algs.all(algs.bitwise_or(dsa.NoneArray, comp_array1) == comp_array1)
+assert algs.all(algs.bitwise_or(comp_array1, comp_array3) == dsa.VTKCompositeDataArray([algs.bitwise_or(int_array1, int_array2), int_array2]))
 
 ssource = vtk.vtkSphereSource()
 ssource.Update()

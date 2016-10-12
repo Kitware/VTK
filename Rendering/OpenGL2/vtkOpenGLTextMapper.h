@@ -13,7 +13,10 @@
 
 =========================================================================*/
 
-// .NAME vtkOpenGLTextMapper - vtkTextMapper override for OpenGL2.
+/**
+ * @class   vtkOpenGLTextMapper
+ * @brief   vtkTextMapper override for OpenGL2.
+*/
 
 #ifndef vtkOpenGLTextMapper_h
 #define vtkOpenGLTextMapper_h
@@ -40,8 +43,8 @@ protected:
                    vtkOpenGLGL2PSHelper *gl2ps);
 
 private:
-  vtkOpenGLTextMapper(const vtkOpenGLTextMapper&); // Not implemented
-  void operator=(const vtkOpenGLTextMapper&); // Not implemented
+  vtkOpenGLTextMapper(const vtkOpenGLTextMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLTextMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkOpenGLTextMapper_h

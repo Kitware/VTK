@@ -13,10 +13,13 @@
 
 =========================================================================*/
 
-// .NAME vtkIndent - a simple class to control print indentation
-// .SECTION Description
-// vtkIndent is used to control indentation during the chaining print
-// process. This way nested objects can correctly indent themselves.
+/**
+ * @class   vtkIndent
+ * @brief   a simple class to control print indentation
+ *
+ * vtkIndent is used to control indentation during the chaining print
+ * process. This way nested objects can correctly indent themselves.
+*/
 
 #ifndef vtkIndent_h
 #define vtkIndent_h
@@ -34,13 +37,15 @@ public:
   explicit vtkIndent(int ind=0) {this->Indent=ind;};
   static vtkIndent *New();
 
-  // Description:
-  // Determine the next indentation level. Keep indenting by two until the
-  // max of forty.
+  /**
+   * Determine the next indentation level. Keep indenting by two until the
+   * max of forty.
+   */
   vtkIndent GetNextIndent();
 
-  // Description:
-  // Print out the indentation. Basically output a bunch of spaces.
+  /**
+   * Print out the indentation. Basically output a bunch of spaces.
+   */
   friend VTKCOMMONCORE_EXPORT ostream& operator<<(ostream& os, const vtkIndent& o);
 
 protected:

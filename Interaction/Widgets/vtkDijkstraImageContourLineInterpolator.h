@@ -12,26 +12,28 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDijkstraImageContourLineInterpolator - Contour interpolator for placing points on an image.
-//
-// .SECTION Description
-// vtkDijkstraImageContourLineInterpolator interpolates and places
-// contour points on images. The class interpolates nodes by
-// computing a graph laying on the image data. By graph, we mean
-// that the line interpolating the two end points traverses along
-// pixels so as to form a shortest path. A Dijkstra algorithm is
-// used to compute the path.
-//
-// The class is meant to be used in conjunction with
-// vtkImageActorPointPlacer. One reason for this coupling is a
-// performance issue: both classes need to perform a cell pick, and
-// coupling avoids multiple cell picks (cell picks are slow).  Another
-// issue is that the interpolator may need to set the image input to
-// its vtkDijkstraImageGeodesicPath ivar.
-//
-// .SECTION See Also
-// vtkContourWidget vtkContourLineInterpolator vtkDijkstraImageGeodesicPath
-
+/**
+ * @class   vtkDijkstraImageContourLineInterpolator
+ * @brief   Contour interpolator for placing points on an image.
+ *
+ *
+ * vtkDijkstraImageContourLineInterpolator interpolates and places
+ * contour points on images. The class interpolates nodes by
+ * computing a graph laying on the image data. By graph, we mean
+ * that the line interpolating the two end points traverses along
+ * pixels so as to form a shortest path. A Dijkstra algorithm is
+ * used to compute the path.
+ *
+ * The class is meant to be used in conjunction with
+ * vtkImageActorPointPlacer. One reason for this coupling is a
+ * performance issue: both classes need to perform a cell pick, and
+ * coupling avoids multiple cell picks (cell picks are slow).  Another
+ * issue is that the interpolator may need to set the image input to
+ * its vtkDijkstraImageGeodesicPath ivar.
+ *
+ * @sa
+ * vtkContourWidget vtkContourLineInterpolator vtkDijkstraImageGeodesicPath
+*/
 
 #ifndef vtkDijkstraImageContourLineInterpolator_h
 #define vtkDijkstraImageContourLineInterpolator_h
@@ -46,32 +48,42 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkDijkstraImageContourLineInterpolator
                        : public vtkContourLineInterpolator
 {
 public:
-  // Description:
-  // Standard methods for instances of this class.
+  //@{
+  /**
+   * Standard methods for instances of this class.
+   */
   vtkTypeMacro(vtkDijkstraImageContourLineInterpolator,
                               vtkContourLineInterpolator);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
   static vtkDijkstraImageContourLineInterpolator *New();
 
-  // Description:
-  // Subclasses that wish to interpolate a line segment must implement this.
-  // For instance vtkBezierContourLineInterpolator adds nodes between idx1
-  // and idx2, that allow the contour to adhere to a bezier curve.
+  /**
+   * Subclasses that wish to interpolate a line segment must implement this.
+   * For instance vtkBezierContourLineInterpolator adds nodes between idx1
+   * and idx2, that allow the contour to adhere to a bezier curve.
+   */
   virtual int InterpolateLine( vtkRenderer *ren,
                                vtkContourRepresentation *rep,
                                int idx1, int idx2 );
 
-  // Description:
-  // Set the image data for the vtkDijkstraImageGeodesicPath.
-  // If not set, the interpolator uses the image data input to the image actor.
-  // The image actor is obtained from the expected vtkImageActorPointPlacer.
+  //@{
+  /**
+   * Set the image data for the vtkDijkstraImageGeodesicPath.
+   * If not set, the interpolator uses the image data input to the image actor.
+   * The image actor is obtained from the expected vtkImageActorPointPlacer.
+   */
   virtual void SetCostImage( vtkImageData* );
   vtkGetObjectMacro( CostImage, vtkImageData );
+  //@}
 
-  // Description:
-  // access to the internal dijkstra path
+  //@{
+  /**
+   * access to the internal dijkstra path
+   */
   vtkGetObjectMacro( DijkstraImageGeodesicPath, vtkDijkstraImageGeodesicPath );
+  //@}
 
 protected:
   vtkDijkstraImageContourLineInterpolator();
@@ -82,9 +94,9 @@ protected:
 
 private:
   vtkDijkstraImageContourLineInterpolator(
-    const vtkDijkstraImageContourLineInterpolator&);  //Not implemented
+    const vtkDijkstraImageContourLineInterpolator&) VTK_DELETE_FUNCTION;
   void operator=(const
-    vtkDijkstraImageContourLineInterpolator&);  //Not implemented
+    vtkDijkstraImageContourLineInterpolator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -50,10 +50,10 @@
   { \
     int errorcode = call; \
     if (errorcode != NC_NOERR) \
-      { \
+    { \
       vtkErrorMacro(<< "netCDF Error: " << nc_strerror(errorcode)); \
       return 0; \
-      } \
+    } \
   }
 
 #define WRAP_NETCDF(call) \
@@ -65,7 +65,11 @@
 #ifdef VTK_USE_64BIT_IDS
 #ifdef NC_INT64
 // This may or may not work with the netCDF 4 library reading in netCDF 3 files.
-#define nc_get_vars_vtkIdType nc_get_vars_longlong
+#if VTK_ID_TYPE_IMPL == VTK_LONG
+# define nc_get_vars_vtkIdType nc_get_vars_long
+#else
+# define nc_get_vars_vtkIdType nc_get_vars_longlong
+#endif
 #else // NC_INT64
 static int nc_get_vars_vtkIdType(int ncid, int varid, const size_t start[],
                                  const size_t count[], const ptrdiff_t stride[],
@@ -76,9 +80,9 @@ static int nc_get_vars_vtkIdType(int ncid, int varid, const size_t start[],
   WRAP_NETCDF(nc_inq_varndims(ncid, varid, &numdims));
   vtkIdType numValues = 1;
   for (int dim = 0; dim < numdims; dim++)
-    {
+  {
     numValues *= count[dim];
-    }
+  }
 
   // Step 2, read the data in as 32 bit integers.  Recast the input buffer
   // so we do not have to create a new one.
@@ -90,9 +94,9 @@ static int nc_get_vars_vtkIdType(int ncid, int varid, const size_t start[],
   // uncopied 32 bit numbers with 64 bit numbers.  We can do that by copying
   // backwards.
   for (vtkIdType i = numValues-1; i >= 0; i--)
-    {
+  {
     ip[i] = static_cast<vtkIdType>(smallIp[i]);
-    }
+  }
 
   return NC_NOERR;
 }
@@ -130,29 +134,29 @@ public:
                                bool quiet=false) {
     int errorcode = nc_open(filename, omode, &this->fd);
     if (errorcode != NC_NOERR)
-      {
+    {
       if (!quiet)
-        {
+      {
         vtkGenericWarningMacro(<< "Could not open " << filename << endl
                                << nc_strerror(errorcode));
-        }
-      this->fd = -1;
       }
+      this->fd = -1;
+    }
   }
   ~vtkSLACParticleReaderAutoCloseNetCDF() {
     if (this->fd != -1)
-      {
+    {
       nc_close(this->fd);
-      }
+    }
   }
   int operator()() const { return this->fd; }
   bool Valid() const { return this->fd != -1; }
 protected:
   int fd;
 private:
-  vtkSLACParticleReaderAutoCloseNetCDF();       // Not implemented
-  vtkSLACParticleReaderAutoCloseNetCDF(const vtkSLACParticleReaderAutoCloseNetCDF &); // Not implemented
-  void operator=(const vtkSLACParticleReaderAutoCloseNetCDF &); // Not implemented
+  vtkSLACParticleReaderAutoCloseNetCDF() VTK_DELETE_FUNCTION;
+  vtkSLACParticleReaderAutoCloseNetCDF(const vtkSLACParticleReaderAutoCloseNetCDF &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSLACParticleReaderAutoCloseNetCDF &) VTK_DELETE_FUNCTION;
 };
 
 //=============================================================================
@@ -207,12 +211,12 @@ vtkIdType vtkSLACParticleReader::GetNumTuplesInVariable(int ncFD, int varId,
   int numDims;
   CALL_NETCDF(nc_inq_varndims(ncFD, varId, &numDims));
   if (numDims != 2)
-    {
+  {
     char name[NC_MAX_NAME+1];
     CALL_NETCDF(nc_inq_varname(ncFD, varId, name));
     vtkErrorMacro(<< "Wrong dimensions on " << name);
     return 0;
-    }
+  }
 
   int dimIds[2];
   CALL_NETCDF(nc_inq_vardimid(ncFD, varId, dimIds));
@@ -220,12 +224,12 @@ vtkIdType vtkSLACParticleReader::GetNumTuplesInVariable(int ncFD, int varId,
   size_t dimLength;
   CALL_NETCDF(nc_inq_dimlen(ncFD, dimIds[1], &dimLength));
   if (static_cast<int>(dimLength) != expectedNumComponents)
-    {
+  {
     char name[NC_MAX_NAME+1];
     CALL_NETCDF(nc_inq_varname(ncFD, varId, name));
     vtkErrorMacro(<< "Unexpected tuple size on " << name);
     return 0;
-    }
+  }
 
   CALL_NETCDF(nc_inq_dimlen(ncFD, dimIds[0], &dimLength));
   return static_cast<vtkIdType>(dimLength);
@@ -238,10 +242,10 @@ int vtkSLACParticleReader::RequestInformation(
                                  vtkInformationVector *outputVector)
 {
   if (!this->FileName)
-    {
+  {
     vtkErrorMacro("No filename specified.");
     return 0;
-    }
+  }
 
   vtkSLACParticleReaderAutoCloseNetCDF ncFD(this->FileName, NC_NOWRITE);
   if (!ncFD.Valid()) return 0;
@@ -268,10 +272,10 @@ int vtkSLACParticleReader::RequestData(vtkInformation *vtkNotUsed(request),
   vtkPolyData *output = vtkPolyData::GetData(outputVector);
 
   if (!this->FileName)
-    {
+  {
     vtkErrorMacro("No filename specified.");
     return 0;
-    }
+  }
 
   vtkSLACParticleReaderAutoCloseNetCDF ncFD(this->FileName, NC_NOWRITE);
   if (!ncFD.Valid()) return 0;
@@ -327,9 +331,9 @@ int vtkSLACParticleReader::RequestData(vtkInformation *vtkNotUsed(request),
   VTK_CREATE(vtkCellArray, verts);
   verts->Allocate(verts->EstimateSize(numParticles, 1));
   for (vtkIdType i = 0; i < numParticles; i++)
-    {
+  {
     verts->InsertNextCell(1, &i);
-    }
+  }
   output->SetVerts(verts);
 
   int timeVar;

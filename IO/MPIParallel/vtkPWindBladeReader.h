@@ -12,19 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPWindBladeReader - class for reading WindBlade data files
-// .SECTION Description
-// vtkPWindBladeReader is a source object that reads WindBlade files
-// which are block binary files with tags before and after each block
-// giving the number of bytes within the block.  The number of data
-// variables dumped varies.  There are 3 output ports with the first
-// being a structured grid with irregular spacing in the Z dimension.
-// The second is an unstructured grid only read on on process 0 and
-// used to represent the blade.  The third is also a structured grid
-// with irregular spacing on the Z dimension.  Only the first and
-// second output ports have time dependent data.
-// Parallel version of vtkWindBladeReader.h
-
+/**
+ * @class   vtkPWindBladeReader
+ * @brief   class for reading WindBlade data files
+ *
+ * vtkPWindBladeReader is a source object that reads WindBlade files
+ * which are block binary files with tags before and after each block
+ * giving the number of bytes within the block.  The number of data
+ * variables dumped varies.  There are 3 output ports with the first
+ * being a structured grid with irregular spacing in the Z dimension.
+ * The second is an unstructured grid only read on on process 0 and
+ * used to represent the blade.  The third is also a structured grid
+ * with irregular spacing on the Z dimension.  Only the first and
+ * second output ports have time dependent data.
+ * Parallel version of vtkWindBladeReader.h
+*/
 
 #ifndef vtkPWindBladeReader_h
 #define vtkPWindBladeReader_h
@@ -62,8 +64,8 @@ protected:
 private:
   PWindBladeReaderInternal * PInternal;
 
-  vtkPWindBladeReader(const vtkPWindBladeReader &); // Not implemented.
-  void operator=(const vtkPWindBladeReader &); // Not implemented.
+  vtkPWindBladeReader(const vtkPWindBladeReader &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPWindBladeReader &) VTK_DELETE_FUNCTION;
 };
 
 #endif

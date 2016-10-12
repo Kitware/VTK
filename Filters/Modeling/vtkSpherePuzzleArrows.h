@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSpherePuzzleArrows - Visualize permutation of the sphere puzzle.
-// .SECTION Description
-// vtkSpherePuzzleArrows creates
+/**
+ * @class   vtkSpherePuzzleArrows
+ * @brief   Visualize permutation of the sphere puzzle.
+ *
+ * vtkSpherePuzzleArrows creates
+*/
 
 #ifndef vtkSpherePuzzleArrows_h
 #define vtkSpherePuzzleArrows_h
@@ -34,15 +37,18 @@ public:
 
   static vtkSpherePuzzleArrows *New();
 
-  // Description:
-  // Permutation is an array of puzzle piece ids.
-  // Arrows will be generated for any id that does not contain itself.
-  // Permutation[3] = 3 will produce no arrow.
-  // Permutation[3] = 10 will draw an arrow from location 3 to 10.
+  //@{
+  /**
+   * Permutation is an array of puzzle piece ids.
+   * Arrows will be generated for any id that does not contain itself.
+   * Permutation[3] = 3 will produce no arrow.
+   * Permutation[3] = 10 will draw an arrow from location 3 to 10.
+   */
   vtkSetVectorMacro(Permutation,int,32);
   vtkGetVectorMacro(Permutation,int,32);
   void SetPermutationComponent(int comp, int val);
   void SetPermutation(vtkSpherePuzzle *puz);
+  //@}
 
 protected:
   vtkSpherePuzzleArrows();
@@ -56,8 +62,8 @@ protected:
   double Radius;
 
 private:
-  vtkSpherePuzzleArrows(const vtkSpherePuzzleArrows&); // Not implemented
-  void operator=(const vtkSpherePuzzleArrows&); // Not implemented
+  vtkSpherePuzzleArrows(const vtkSpherePuzzleArrows&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSpherePuzzleArrows&) VTK_DELETE_FUNCTION;
 };
 
 #endif

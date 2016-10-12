@@ -54,10 +54,10 @@ bool vtkGeoFileImageSource::FetchRoot(vtkGeoTreeNode* r)
 {
   vtkGeoImageNode* root = 0;
   if (!(root = vtkGeoImageNode::SafeDownCast(r)))
-    {
+  {
     vtkErrorMacro(<< "Can only fetch image nodes from this source.");
     return false;
-    }
+  }
 
   root->SetLatitudeRange(-270, 90);
   root->SetLongitudeRange(-180, 180);
@@ -70,49 +70,49 @@ bool vtkGeoFileImageSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTreeN
 {
   vtkGeoImageNode* parent = 0;
   if (!(parent = vtkGeoImageNode::SafeDownCast(p)))
-    {
+  {
     vtkErrorMacro(<< "Can only fetch image nodes from this source.");
     return false;
-    }
+  }
   vtkGeoImageNode* child = 0;
   if (!(child = vtkGeoImageNode::SafeDownCast(c)))
-    {
+  {
     vtkErrorMacro(<< "Can only fetch image nodes from this source.");
     return false;
-    }
+  }
 
   if (parent->GetLevel() == -1)
-    {
+  {
     // Child 0 is the dummy western hemisphere, child 1 is the dummy eastern hemisphere
     // Child 2 is the western hemisphere, child 3 is the eastern hemisphere
     if (index == 0)
-      {
+    {
       vtkSmartPointer<vtkImageData> dummyImageWest = vtkSmartPointer<vtkImageData>::New();
       dummyImageWest->SetOrigin(-180.0, -270.0, 0.0);
       dummyImageWest->SetSpacing(0.0, -90.0, 0.0);
       child->GetTexture()->SetInputData(dummyImageWest);
       child->SetLatitudeRange(-270, -90);
       child->SetLongitudeRange(-180, 0);
-      }
+    }
     else if (index == 1)
-      {
+    {
       vtkSmartPointer<vtkImageData> dummyImageEast = vtkSmartPointer<vtkImageData>::New();
       dummyImageEast->SetOrigin(0.0, -270.0, 0.0);
       dummyImageEast->SetSpacing(180.0, -90.0, 0.0);
       child->GetTexture()->SetInputData(dummyImageEast);
       child->SetLatitudeRange(-270, -90);
       child->SetLongitudeRange(0, 180);
-      }
-    else if (index == 2)
-      {
-      this->ReadImage(0, 0, child);
-      }
-    else
-      {
-      this->ReadImage(0, 1, child);
-      }
-    return true;
     }
+    else if (index == 2)
+    {
+      this->ReadImage(0, 0, child);
+    }
+    else
+    {
+      this->ReadImage(0, 1, child);
+    }
+    return true;
+  }
 
   int level = parent->GetLevel() + 1;
   int id = parent->GetId() | (index << (2*level-1));
@@ -134,7 +134,7 @@ bool vtkGeoFileImageSource::ReadImage(int level, int id, vtkGeoImageNode* node)
   std::ifstream in;
   in.open(ss.str().c_str(), std::ifstream::in);
   if (in.fail())
-    {
+  {
     // Make a dummy image
     in.close();
     vtkSmartPointer<vtkImageData> dummy = vtkSmartPointer<vtkImageData>::New();
@@ -146,7 +146,7 @@ bool vtkGeoFileImageSource::ReadImage(int level, int id, vtkGeoImageNode* node)
     dummy->SetSpacing(node->GetLongitudeRange()[1], node->GetLatitudeRange()[1], 0.0);
     node->GetTexture()->SetInputData(dummy);
     return false;
-    }
+  }
   in.close();
 
   // Read the file

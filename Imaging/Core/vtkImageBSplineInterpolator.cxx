@@ -50,9 +50,9 @@ vtkImageBSplineInterpolator::vtkImageBSplineInterpolator()
 vtkImageBSplineInterpolator::~vtkImageBSplineInterpolator()
 {
   if (this->KernelLookupTable)
-    {
+  {
     this->FreeKernelLookupTable();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -87,10 +87,10 @@ void vtkImageBSplineInterpolator::SetSplineDegree(int degree)
   degree = ((degree > mindegree) ? degree : mindegree);
   degree = ((degree < maxdegree) ? degree : maxdegree);
   if (this->SplineDegree != degree)
-    {
+  {
     this->SplineDegree = degree;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -101,14 +101,14 @@ void vtkImageBSplineInterpolator::InternalDeepCopy(
     vtkImageBSplineInterpolator::SafeDownCast(a);
 
   if (obj)
-    {
+  {
     this->SetSplineDegree(obj->SplineDegree);
-    }
+  }
 
   if (this->KernelLookupTable)
-    {
+  {
     this->FreeKernelLookupTable();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -118,9 +118,9 @@ void vtkImageBSplineInterpolator::InternalUpdate()
 
   if (this->InterpolationInfo->InterpolationMode != mode ||
       this->KernelLookupTable == NULL)
-    {
+  {
     this->BuildKernelLookupTable();
-    }
+  }
 
   this->InterpolationInfo->InterpolationMode = mode;
   this->InterpolationInfo->ExtraInfo = this->KernelLookupTable;
@@ -158,11 +158,11 @@ void vtkBSplineKernel::BSpline(F *kernel, int m, int n)
 
   // special case for order zero
   if (n == 0)
-    {
+  {
     int k = m*(n + 1)/2;
     do { *kernel++ = 1.0; } while (--k);
     return;
-    }
+  }
 
   // for offset of zero, weights are symmetrical
   vtkImageBSplineInternals::GetInterpolationWeights(
@@ -171,11 +171,11 @@ void vtkBSplineKernel::BSpline(F *kernel, int m, int n)
   F *kernel2 = kernel;
   int k2 = kn;
   do
-    {
+  {
     --weights2;
     *kernel2 = *weights2;
     kernel2 += m;
-    }
+  }
   while (--k2);
 
   // need the opposite end of the kernel array
@@ -183,7 +183,7 @@ void vtkBSplineKernel::BSpline(F *kernel, int m, int n)
 
   int j = m/2;
   if (j) do
-    {
+  {
     kernel++;
     kernel2--;
     offset += delta;
@@ -195,22 +195,22 @@ void vtkBSplineKernel::BSpline(F *kernel, int m, int n)
     F *kernel1 = kernel2;
     int k = km;
     do
-      {
+    {
       --weights1;
       *kernel1 = *weights1;
       kernel1 -= m;
-      }
+    }
     while (--k);
     kernel1 = kernel;
     k = kn;
     do
-      {
+    {
       --weights1;
       *kernel1 = *weights1;
       kernel1 += m;
-      }
-    while (--k);
     }
+    while (--k);
+  }
   while (--j);
 }
 
@@ -220,10 +220,10 @@ template<class T, class F>
 void vtkBSplineInterpWeights(T *kernel, F *fX, F fx, int m)
 {
   if (m == 0)
-    {
+  {
     fX[0] = 1;
     return;
-    }
+  }
 
   // table bins per unit
   int p = VTK_BSPLINE_KERNEL_TABLE_DIVISIONS;
@@ -239,7 +239,7 @@ void vtkBSplineInterpWeights(T *kernel, F *fX, F fx, int m)
   F s = 0;
   int i = (1 - ((n + 1) >> 1))*p - offset;
   do
-    {
+  {
     int i0 = i;
     int i1 = i + 1;
     int ni = -i0;
@@ -251,7 +251,7 @@ void vtkBSplineInterpWeights(T *kernel, F *fX, F fx, int m)
     s += y;
     i += p;
     fX++;
-    }
+  }
   while (--n);
 }
 #endif
@@ -321,52 +321,52 @@ void vtkImageBSplineInterpolate<F, T>::BSpline(
   int zi = inIdZ0 - m2;
 
   switch (info->BorderMode)
-    {
+  {
     case VTK_IMAGE_BORDER_REPEAT:
-      {
+    {
       int l = 0;
       int mm = m;
       do
-        {
+      {
         factX[l] = vtkInterpolationMath::Wrap(xi, minX, maxX)*inIncX;
         factY[l] = vtkInterpolationMath::Wrap(yi, minY, maxY)*inIncY;
         factZ[l] = vtkInterpolationMath::Wrap(zi, minZ, maxZ)*inIncZ;
         l++; xi++; yi++; zi++;
-        }
-      while (--mm);
       }
+      while (--mm);
+    }
       break;
 
     case VTK_IMAGE_BORDER_MIRROR:
-      {
+    {
       int l = 0;
       int mm = m;
       do
-        {
+      {
         factX[l] = vtkInterpolationMath::Mirror(xi, minX, maxX)*inIncX;
         factY[l] = vtkInterpolationMath::Mirror(yi, minY, maxY)*inIncY;
         factZ[l] = vtkInterpolationMath::Mirror(zi, minZ, maxZ)*inIncZ;
         l++; xi++; yi++; zi++;
-        }
-      while (--mm);
       }
+      while (--mm);
+    }
       break;
 
     default:
-      {
+    {
       int l = 0;
       int mm = m;
       do
-        {
+      {
         factX[l] = vtkInterpolationMath::Clamp(xi, minX, maxX)*inIncX;
         factY[l] = vtkInterpolationMath::Clamp(yi, minY, maxY)*inIncY;
         factZ[l] = vtkInterpolationMath::Clamp(zi, minZ, maxZ)*inIncZ;
         l++; xi++; yi++; zi++;
-        }
-      while (--mm);
       }
-      break;
+      while (--mm);
     }
+      break;
+  }
 
   // compute the kernel weights (pad X for loop unrolling)
   F fX[VTK_BSPLINE_KERNEL_SIZE_MAX + 4];
@@ -401,16 +401,16 @@ void vtkImageBSplineInterpolate<F, T>::BSpline(
   tmpfXl[2] = 0;
 
   do // loop over components
-    {
+  {
     F val = 0;
     int k = 0;
     do // loop over z
-      {
+    {
       F ifz = fZ[k];
       vtkIdType factz = factZ[k];
       int j = 0;
       do // loop over y
-        {
+      {
         F ify = fY[j];
         F fzy = ifz*ify;
         vtkIdType factzy = factz + factY[j];
@@ -422,24 +422,24 @@ void vtkImageBSplineInterpolate<F, T>::BSpline(
         // unroll inner loop for efficiency
         int l = lm;
         do
-          {
+        {
           tmpval += tmpfX[0]*tmpPtr[tmpfactX[0]];
           tmpval += tmpfX[1]*tmpPtr[tmpfactX[1]];
           tmpval += tmpfX[2]*tmpPtr[tmpfactX[2]];
           tmpval += tmpfX[3]*tmpPtr[tmpfactX[3]];
           tmpfX += 4;
           tmpfactX += 4;
-          }
+        }
         while (--l);
         val += fzy*tmpval;
-        }
-      while (++j <= ny);
       }
+      while (++j <= ny);
+    }
     while (++k <= nz);
 
     *outPtr++ = val;
     inPtr++;
-    }
+  }
   while (--numscalars);
 }
 
@@ -451,14 +451,14 @@ void vtkImageBSplineInterpolatorGetInterpolationFunc(
   int dataType, int vtkNotUsed(interpolationMode))
 {
   switch (dataType)
-    {
+  {
     vtkTemplateAliasMacro(
       *interpolate =
         &(vtkImageBSplineInterpolate<F, VTK_TT>::BSpline)
       );
     default:
       *interpolate = 0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -498,7 +498,7 @@ void vtkImageBSplineRowInterpolate<F, T>::BSpline(
 
   int numscalars = weights->NumberOfComponents;
   for (int i = n; i > 0; --i)
-    {
+  {
     // allow unrolling of inner loop
     F fX1[VTK_BSPLINE_KERNEL_SIZE_MAX + 4];
     vtkIdType factX1[VTK_BSPLINE_KERNEL_SIZE_MAX + 4];
@@ -506,10 +506,10 @@ void vtkImageBSplineRowInterpolate<F, T>::BSpline(
     vtkIdType *tmpfactX = factX1;
     int ii = stepX;
     do
-      {
+    {
       *tmpfX++ = *fX++;
       *tmpfactX++ = *factX++;
-      }
+    }
     while (--ii);
     vtkIdType lfactX = *(tmpfactX-1);
     tmpfX[0] = 0.0;
@@ -522,16 +522,16 @@ void vtkImageBSplineRowInterpolate<F, T>::BSpline(
     const T *inPtr0 = inPtr;
     int c = numscalars;
     do // loop over components
-      {
+    {
       F val = 0;
       int k = 0;
       do // loop over z
-        {
+      {
         F ifz = fZ[k];
         vtkIdType factz = factZ[k];
         int j = 0;
         do // loop over y
-          {
+        {
           F ify = fY[j];
           F fzy = ifz*ify;
           vtkIdType factzy = factz + factY[j];
@@ -543,26 +543,26 @@ void vtkImageBSplineRowInterpolate<F, T>::BSpline(
           // unroll inner loop for efficiency
           int l = lm;
           do
-            {
+          {
             tmpval += tmpfX[0]*tmpPtr[tmpfactX[0]];
             tmpval += tmpfX[1]*tmpPtr[tmpfactX[1]];
             tmpval += tmpfX[2]*tmpPtr[tmpfactX[2]];
             tmpval += tmpfX[3]*tmpPtr[tmpfactX[3]];
             tmpfX += 4;
             tmpfactX += 4;
-            }
+          }
           while (--l);
           val += fzy*tmpval;
-          }
-        while (++j < stepY);
         }
+        while (++j < stepY);
+      }
       while (++k < stepZ);
 
       *outPtr++ = val;
       inPtr0++;
-      }
-    while (--c);
     }
+    while (--c);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -575,13 +575,13 @@ void vtkImageBSplineInterpolatorGetRowInterpolationFunc(
   int scalarType, int vtkNotUsed(interpolationMode))
 {
   switch (scalarType)
-    {
+  {
     vtkTemplateAliasMacro(
       *summation = &(vtkImageBSplineRowInterpolate<F,VTK_TT>::BSpline)
       );
     default:
       *summation = 0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -598,17 +598,18 @@ void vtkImageBSplineInterpolatorPrecomputeWeights(
   int m = degree + 1;
 
   // set up input positions table for interpolation
+  bool validClip = true;
   for (int j = 0; j < 3; j++)
-    {
+  {
     // set k to the row for which the element in column j is nonzero,
     // and set matrow to the elements of that row
     int k = 0;
     const F *matrow = newmat;
     while (k < 3 && matrow[j] == 0)
-      {
+    {
       k++;
       matrow += 4;
-      }
+    }
 
     // get the extents
     clipExt[2*j] = outExt[2*j];
@@ -639,7 +640,7 @@ void vtkImageBSplineInterpolatorPrecomputeWeights(
 
     int region = 0;
     for (int i = outExt[2*j]; i <= outExt[2*j+1]; i++)
-      {
+    {
       F point = matrow[3] + i*matrow[j];
 
       // offset for odd-size kernels
@@ -648,50 +649,50 @@ void vtkImageBSplineInterpolatorPrecomputeWeights(
       int idx = vtkInterpolationMath::Floor(point + offset, f);
       f -= offset;
       if (step > 1)
-        {
+      {
         idx -= m2;
-        }
+      }
 
       // compute the weights and offsets
       vtkIdType inInc = weights->Increments[k];
       if (inCount == 1)
-        {
+      {
         positions[step*i] = 0;
         constants[step*i] = static_cast<F>(1);
-        }
+      }
       else
-        {
+      {
         // initialization is needed to avoid a warning for gcc 4.9.2, but
         // not for other compilers or for valgrind
         int inId[VTK_BSPLINE_KERNEL_SIZE_MAX] = VTK_BSPLINE_INT_INITIALIZER;
 
         int l = 0;
         switch (weights->BorderMode)
-          {
+        {
           case VTK_IMAGE_BORDER_REPEAT:
             do
-              {
+            {
               inId[l] = vtkInterpolationMath::Wrap(idx++, minExt, maxExt);
-              }
+            }
             while (++l < m);
             break;
 
           case VTK_IMAGE_BORDER_MIRROR:
             do
-              {
+            {
               inId[l] = vtkInterpolationMath::Mirror(idx++, minExt, maxExt);
-              }
+            }
             while (++l < m);
             break;
 
           default:
              do
-              {
+             {
               inId[l] = vtkInterpolationMath::Clamp(idx++, minExt, maxExt);
-              }
+             }
             while (++l < m);
             break;
-          }
+        }
 
         F g[VTK_BSPLINE_KERNEL_SIZE_MAX];
 #ifdef VTK_BSPLINE_USE_KERNEL_TABLE
@@ -700,61 +701,71 @@ void vtkImageBSplineInterpolatorPrecomputeWeights(
         vtkImageBSplineInternals::GetInterpolationWeights(g, f, m-1);
 #endif
         if (step == m)
-          {
+        {
           int ll = 0;
           do
-            {
+          {
             positions[step*i + ll] = inId[ll]*inInc;
             constants[step*i + ll] = g[ll];
-            }
-          while (++ll < step);
           }
+          while (++ll < step);
+        }
         else
-          {
+        {
           // it gets tricky if the data is thinner than the kernel
           F gg[VTK_BSPLINE_KERNEL_SIZE_MAX];
           int ll = 0;
           do { gg[ll] = 0; } while (++ll < m);
           ll = 0;
           do
-            {
+          {
             int rIdx = inId[ll];
             gg[rIdx] += g[ll];
-            }
+          }
           while (++ll < m);
           ll = 0;
           do
-            {
+          {
             positions[step*i + ll] = ll*inInc;
             constants[step*i + ll] = gg[ll];
-            }
-          while (++ll < step);
           }
+          while (++ll < step);
         }
+      }
 
       if (point >= minBounds && point <= maxBounds)
-        {
+      {
         if (region == 0)
-          { // entering the input extent
+        { // entering the input extent
           region = 1;
           clipExt[2*j] = i;
-          }
         }
+      }
       else
-        {
+      {
         if (region == 1)
-          { // leaving the input extent
+        { // leaving the input extent
           region = 2;
           clipExt[2*j+1] = i - 1;
-          }
         }
       }
-
-    if (region == 0)
-      { // never entered input extent!
-      clipExt[2*j] = clipExt[2*j+1] + 1;
-      }
     }
+
+    if (region == 0 || clipExt[2*j] > clipExt[2*j+1])
+    { // never entered input extent!
+      validClip = false;
+    }
+  }
+
+  if (!validClip)
+  {
+    // output extent doesn't itersect input extent
+    for (int j = 0; j < 3; j++)
+    {
+      clipExt[2*j] = outExt[2*j];
+      clipExt[2*j + 1] = outExt[2*j] - 1;
+    }
+  }
 }
 
 
@@ -828,9 +839,9 @@ void vtkImageBSplineInterpolator::BuildKernelLookupTable()
 {
 #ifdef VTK_BSPLINE_USE_KERNEL_TABLE
   if (this->KernelLookupTable)
-    {
+  {
     this->FreeKernelLookupTable();
-    }
+  }
 
   float *kernel = 0;
 
@@ -849,9 +860,9 @@ void vtkImageBSplineInterpolator::BuildKernelLookupTable()
 
   // pad with a few zeros
   for (int j = 0; j < 4; j++)
-    {
+  {
     kernel[size + j] = 0.0;
-    }
+  }
 
   this->KernelLookupTable = kernel;
 #endif

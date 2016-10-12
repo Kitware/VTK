@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageGradient - Computes the gradient vector.
-// .SECTION Description
-// vtkImageGradient computes the gradient vector of an image.  The
-// vector results are stored as scalar components. The Dimensionality
-// determines whether to perform a 2d or 3d gradient. The default is
-// two dimensional XY gradient.  OutputScalarType is always
-// double. Gradient is computed using central differences.
+/**
+ * @class   vtkImageGradient
+ * @brief   Computes the gradient vector.
+ *
+ * vtkImageGradient computes the gradient vector of an image.  The
+ * vector results are stored as scalar components. The Dimensionality
+ * determines whether to perform a 2d or 3d gradient. The default is
+ * two dimensional XY gradient.  OutputScalarType is always
+ * double. Gradient is computed using central differences.
+*/
 
 #ifndef vtkImageGradient_h
 #define vtkImageGradient_h
@@ -33,19 +36,25 @@ public:
   vtkTypeMacro(vtkImageGradient,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Determines how the input is interpreted (set of 2d slices ...)
+  //@{
+  /**
+   * Determines how the input is interpreted (set of 2d slices ...)
+   */
   vtkSetClampMacro(Dimensionality,int,2,3);
   vtkGetMacro(Dimensionality,int);
+  //@}
 
-  // Description:
-  // Get/Set whether to handle boundaries.  If enabled, boundary
-  // pixels are treated as duplicated so that central differencing
-  // works for the boundary pixels.  If disabled, the output whole
-  // extent of the image is reduced by one pixel.
+  //@{
+  /**
+   * Get/Set whether to handle boundaries.  If enabled, boundary
+   * pixels are treated as duplicated so that central differencing
+   * works for the boundary pixels.  If disabled, the output whole
+   * extent of the image is reduced by one pixel.
+   */
   vtkSetMacro(HandleBoundaries, int);
   vtkGetMacro(HandleBoundaries, int);
   vtkBooleanMacro(HandleBoundaries, int);
+  //@}
 
 protected:
   vtkImageGradient();
@@ -72,8 +81,8 @@ protected:
                            int outExt[6],
                            int threadId);
 private:
-  vtkImageGradient(const vtkImageGradient&);  // Not implemented.
-  void operator=(const vtkImageGradient&);  // Not implemented.
+  vtkImageGradient(const vtkImageGradient&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageGradient&) VTK_DELETE_FUNCTION;
 };
 
 #endif

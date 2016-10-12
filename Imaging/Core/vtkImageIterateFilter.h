@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageIterateFilter - Multiple executes per update.
-// .SECTION Description
-// vtkImageIterateFilter is a filter superclass that supports calling execute
-// multiple times per update.  The largest hack/open issue is that the input
-// and output caches are temporarily changed to "fool" the subclasses.  I
-// believe the correct solution is to pass the in and out cache to the
-// subclasses methods as arguments.  Now the data is passes.  Can the caches
-// be passed, and data retrieved from the cache?
+/**
+ * @class   vtkImageIterateFilter
+ * @brief   Multiple executes per update.
+ *
+ * vtkImageIterateFilter is a filter superclass that supports calling execute
+ * multiple times per update.  The largest hack/open issue is that the input
+ * and output caches are temporarily changed to "fool" the subclasses.  I
+ * believe the correct solution is to pass the in and out cache to the
+ * subclasses methods as arguments.  Now the data is passes.  Can the caches
+ * be passed, and data retrieved from the cache?
+*/
 
 #ifndef vtkImageIterateFilter_h
 #define vtkImageIterateFilter_h
@@ -33,11 +36,14 @@ public:
   vtkTypeMacro(vtkImageIterateFilter,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get which iteration is current being performed. Normally the
-  // user will not access this method.
+  //@{
+  /**
+   * Get which iteration is current being performed. Normally the
+   * user will not access this method.
+   */
   vtkGetMacro(Iteration,int);
   vtkGetMacro(NumberOfIterations,int);
+  //@}
 
 protected:
   vtkImageIterateFilter();
@@ -78,8 +84,8 @@ protected:
   vtkInformationVector* InputVector;
   vtkInformationVector* OutputVector;
 private:
-  vtkImageIterateFilter(const vtkImageIterateFilter&);  // Not implemented.
-  void operator=(const vtkImageIterateFilter&);  // Not implemented.
+  vtkImageIterateFilter(const vtkImageIterateFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageIterateFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

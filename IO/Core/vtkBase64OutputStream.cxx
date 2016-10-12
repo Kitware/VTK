@@ -73,9 +73,9 @@ inline int vtkBase64OutputStream::EncodeEnding(unsigned char c0)
 int vtkBase64OutputStream::StartWriting()
 {
   if(!this->Superclass::StartWriting())
-    {
+  {
     return 0;
-    }
+  }
   this->BufferLength = 0;
   return 1;
 }
@@ -84,15 +84,15 @@ int vtkBase64OutputStream::StartWriting()
 int vtkBase64OutputStream::EndWriting()
 {
   if(this->BufferLength == 1)
-    {
+  {
     if(!this->EncodeEnding(this->Buffer[0])) { return 0; }
     this->BufferLength = 0;
-    }
+  }
   else if(this->BufferLength == 2)
-    {
+  {
     if(!this->EncodeEnding(this->Buffer[0], this->Buffer[1])) { return 0; }
     this->BufferLength = 0;
-    }
+  }
   return 1;
 }
 
@@ -104,31 +104,31 @@ int vtkBase64OutputStream::Write(void const* data, size_t length)
   unsigned char const* end = in+length;
 
   if(totalLength >= 3)
-    {
+  {
     if(this->BufferLength == 1)
-      {
+    {
       if(!this->EncodeTriplet(this->Buffer[0], in[0], in[1])) { return 0; }
       in += 2;
       this->BufferLength = 0;
-      }
+    }
     else if(this->BufferLength == 2)
-      {
+    {
       if(!this->EncodeTriplet(this->Buffer[0], this->Buffer[1], in[0]))
         { return 0; }
       in += 1;
       this->BufferLength = 0;
-      }
     }
+  }
 
   while((end - in) >= 3)
-    {
+  {
     if(!this->EncodeTriplet(in[0], in[1], in[2])) { return 0; }
     in += 3;
-    }
+  }
 
   while(in != end)
-    {
+  {
     this->Buffer[this->BufferLength++] = *in++;
-    }
+  }
   return 1;
 }

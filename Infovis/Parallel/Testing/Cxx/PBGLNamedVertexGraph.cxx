@@ -43,12 +43,12 @@ static const int ImmediateAddEdgeChance = 3;
 
 #define myassert(Cond)                                  \
   if (!(Cond))                                          \
-    {                                                   \
+  {                                                   \
       cerr << "error (" __FILE__ ":" << dec << __LINE__ \
            << ") assertion \"" #Cond "\" failed."       \
            << endl;                                     \
     MPI_Abort(MPI_COMM_WORLD, -1);                      \
-    }
+  }
 
 void TestNamedUndirectedGraph()
 {
@@ -71,15 +71,15 @@ void TestNamedUndirectedGraph()
 
   // Build the graph itself.
   if (rank == 0)
-    {
+  {
     graph->AddEdge("Bloomington", "Indianapolis");
     graph->AddEdge("Indianapolis", "Chicago");
-    }
+  }
   else if (rank == numProcs - 1)
-    {
+  {
     graph->AddEdge("Indianapolis", "Cincinnati");
     graph->AddEdge("Indianapolis", "Louisville");
-    }
+  }
   helper->Synchronize();
 
   // Display the vertices (and their names)
@@ -87,26 +87,26 @@ void TestNamedUndirectedGraph()
     = vtkSmartPointer<vtkVertexListIterator>::New();
   graph->GetVertices(vertices);
   while (vertices->HasNext())
-    {
+  {
     vtkIdType vertex = vertices->Next();
     vtkVariant pedigreeId
       = pedigreeIds->GetValue(helper->GetVertexIndex(vertex));
     cout << "Rank #" << rank << ": vertex " << pedigreeId.ToString() << " ("
          << hex << vertex << ")\n";
     cout.flush();
-    }
+  }
 
   // Display the edges
   vtkSmartPointer<vtkEdgeListIterator> edges
     = vtkSmartPointer<vtkEdgeListIterator>::New();
   graph->GetEdges(edges);
   while (edges->HasNext())
-    {
+  {
     vtkEdgeType edge = edges->Next();
     cout << "Rank #" << rank << ": edge (" << hex << edge.Source << ", "
          << edge.Target << ")\n";
     cout.flush();
-    }
+  }
 }
 
 void TestWithStringArray()
@@ -130,15 +130,15 @@ void TestWithStringArray()
 
   // Build the graph itself.
   if (rank == 0)
-    {
+  {
     graph->AddEdge("Bloomington", "Indianapolis");
     graph->AddEdge("Indianapolis", "Chicago");
-    }
+  }
   else if (rank == numProcs - 1)
-    {
+  {
     graph->AddEdge("Indianapolis", "Cincinnati");
     graph->AddEdge("Indianapolis", "Louisville");
-    }
+  }
   helper->Synchronize();
 
   // Display the vertices (and their names)
@@ -146,26 +146,26 @@ void TestWithStringArray()
     = vtkSmartPointer<vtkVertexListIterator>::New();
   graph->GetVertices(vertices);
   while (vertices->HasNext())
-    {
+  {
     vtkIdType vertex = vertices->Next();
     vtkStdString pedigreeId
       = pedigreeIds->GetValue(helper->GetVertexIndex(vertex));
     cout << "Rank #" << rank << ": vertex " << pedigreeId << " ("
          << hex << vertex << ")\n";
     cout.flush();
-    }
+  }
 
   // Display the edges
   vtkSmartPointer<vtkEdgeListIterator> edges
     = vtkSmartPointer<vtkEdgeListIterator>::New();
   graph->GetEdges(edges);
   while (edges->HasNext())
-    {
+  {
     vtkEdgeType edge = edges->Next();
     cout << "Rank #" << rank << ": edge (" << hex << edge.Source << ", "
          << edge.Target << ")\n";
     cout.flush();
-    }
+  }
 }
 
 void TestWithIntArray()
@@ -189,15 +189,15 @@ void TestWithIntArray()
 
   // Build the graph itself.
   if (rank == 0)
-    {
+  {
     graph->AddEdge(vtkVariant(17), vtkVariant(42));
     graph->AddEdge(vtkVariant(42), vtkVariant(19));
-    }
+  }
   else if (rank == numProcs - 1)
-    {
+  {
     graph->AddEdge(vtkVariant(42), vtkVariant(11));
     graph->AddEdge(vtkVariant(42), vtkVariant(13));
-    }
+  }
   helper->Synchronize();
 
   // Display the vertices (and their names)
@@ -205,25 +205,25 @@ void TestWithIntArray()
     = vtkSmartPointer<vtkVertexListIterator>::New();
   graph->GetVertices(vertices);
   while (vertices->HasNext())
-    {
+  {
     vtkIdType vertex = vertices->Next();
     int pedigreeId = pedigreeIds->GetValue(helper->GetVertexIndex(vertex));
     cout << "Rank #" << rank << ": vertex " << dec << pedigreeId << " ("
          << hex << vertex << ")\n";
     cout.flush();
-    }
+  }
 
   // Display the edges
   vtkSmartPointer<vtkEdgeListIterator> edges
     = vtkSmartPointer<vtkEdgeListIterator>::New();
   graph->GetEdges(edges);
   while (edges->HasNext())
-    {
+  {
     vtkEdgeType edge = edges->Next();
     cout << "Rank #" << rank << ": edge (" << hex << edge.Source << ", "
          << edge.Target << ")\n";
     cout.flush();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

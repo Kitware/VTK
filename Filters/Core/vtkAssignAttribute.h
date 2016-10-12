@@ -12,44 +12,47 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAssignAttribute - Labels/marks a field as an attribute
-// .SECTION Description
-// vtkAssignAttribute is used to label/mark a field (vtkDataArray) as an attribute.
-// A field name or an attribute to labeled can be specified. For example:
-// @verbatim
-// aa->Assign("foo", vtkDataSetAttributes::SCALARS,
-//            vtkAssignAttribute::POINT_DATA);
-// @endverbatim
-// tells vtkAssignAttribute to make the array in the point data called
-// "foo" the active scalars. On the other hand,
-// @verbatim
-// aa->Assign(vtkDataSetAttributes::VECTORS, vtkDataSetAttributes::SCALARS,
-//            vtkAssignAttribute::POINT_DATA);
-// @endverbatim
-// tells vtkAssignAttribute to make the active vectors also the active
-// scalars. The same can be done more easily from Tcl by using the Assign()
-// method which takes strings:
-// @verbatim
-// aa Assign "foo" SCALARS POINT_DATA
-// or
-// aa Assign SCALARS VECTORS POINT_DATA
-//
-// AttributeTypes: SCALARS, VECTORS, NORMALS, TCOORDS, TENSORS
-// Attribute locations: POINT_DATA, CELL_DATA
-// @endverbatim
-
-// .SECTION Caveats
-// When using Tcl, Java, Python or Visual Basic bindings, the array name
-// can not be one of the  AttributeTypes when calling Assign() which takes
-// strings as arguments. The Tcl (Java etc.) command will
-// always assume the string corresponds to an attribute type when
-// the argument is one of the AttributeTypes. In this situation,
-// use the Assign() which takes enums.
-
-// .SECTION See Also
-// vtkFieldData vtkDataSet vtkDataObjectToDataSetFilter
-// vtkDataSetAttributes vtkDataArray vtkRearrangeFields
-// vtkSplitField vtkMergeFields
+/**
+ * @class   vtkAssignAttribute
+ * @brief   Labels/marks a field as an attribute
+ *
+ * vtkAssignAttribute is used to label/mark a field (vtkDataArray) as an attribute.
+ * A field name or an attribute to labeled can be specified. For example:
+ * @verbatim
+ * aa->Assign("foo", vtkDataSetAttributes::SCALARS,
+ *            vtkAssignAttribute::POINT_DATA);
+ * @endverbatim
+ * tells vtkAssignAttribute to make the array in the point data called
+ * "foo" the active scalars. On the other hand,
+ * @verbatim
+ * aa->Assign(vtkDataSetAttributes::VECTORS, vtkDataSetAttributes::SCALARS,
+ *            vtkAssignAttribute::POINT_DATA);
+ * @endverbatim
+ * tells vtkAssignAttribute to make the active vectors also the active
+ * scalars. The same can be done more easily from Tcl by using the Assign()
+ * method which takes strings:
+ * @verbatim
+ * aa Assign "foo" SCALARS POINT_DATA
+ * or
+ * aa Assign SCALARS VECTORS POINT_DATA
+ *
+ * AttributeTypes: SCALARS, VECTORS, NORMALS, TCOORDS, TENSORS
+ * Attribute locations: POINT_DATA, CELL_DATA
+ * @endverbatim
+ *
+ * @warning
+ * When using Tcl, Java, Python or Visual Basic bindings, the array name
+ * can not be one of the  AttributeTypes when calling Assign() which takes
+ * strings as arguments. The Tcl (Java etc.) command will
+ * always assume the string corresponds to an attribute type when
+ * the argument is one of the AttributeTypes. In this situation,
+ * use the Assign() which takes enums.
+ *
+ * @sa
+ * vtkFieldData vtkDataSet vtkDataObjectToDataSetFilter
+ * vtkDataSetAttributes vtkDataArray vtkRearrangeFields
+ * vtkSplitField vtkMergeFields
+*/
 
 #ifndef vtkAssignAttribute_h
 #define vtkAssignAttribute_h
@@ -65,23 +68,27 @@ class VTKFILTERSCORE_EXPORT vtkAssignAttribute : public vtkPassInputTypeAlgorith
 {
 public:
   vtkTypeMacro(vtkAssignAttribute,vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Create a new vtkAssignAttribute.
+  /**
+   * Create a new vtkAssignAttribute.
+   */
   static vtkAssignAttribute *New();
 
-  // Description:
-  // Label an attribute as another attribute.
+  /**
+   * Label an attribute as another attribute.
+   */
   void Assign(int inputAttributeType, int attributeType, int attributeLoc);
 
-  // Description:
-  // Label an array as an attribute.
+  /**
+   * Label an array as an attribute.
+   */
   void Assign(const char* fieldName, int attributeType, int attributeLoc);
 
-  // Description:
-  // Helper method used by other language bindings. Allows the caller to
-  // specify arguments as strings instead of enums.
+  /**
+   * Helper method used by other language bindings. Allows the caller to
+   * specify arguments as strings instead of enums.
+   */
   void Assign(const char* name, const char* attributeType,
               const char* attributeLoc);
 
@@ -104,11 +111,11 @@ protected:
   };
 
   vtkAssignAttribute();
-  virtual ~vtkAssignAttribute();
+  ~vtkAssignAttribute() VTK_OVERRIDE;
 
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int FillInputPortInformation(int, vtkInformation *);
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
 
   char* FieldName;
   int FieldTypeAssignment;
@@ -119,8 +126,8 @@ protected:
   static char AttributeLocationNames[vtkAssignAttribute::NUM_ATTRIBUTE_LOCS][12];
   static char AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][20];
 private:
-  vtkAssignAttribute(const vtkAssignAttribute&);  // Not implemented.
-  void operator=(const vtkAssignAttribute&);  // Not implemented.
+  vtkAssignAttribute(const vtkAssignAttribute&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAssignAttribute&) VTK_DELETE_FUNCTION;
 };
 
 #endif

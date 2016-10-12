@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkJSONImageWriter - Writes vtkImageData to a JSON file.
-// .SECTION Description
-// vtkJSONImageWriter writes a JSON file which will describe the
-// data inside a vtkImageData.
+/**
+ * @class   vtkJSONImageWriter
+ * @brief   Writes vtkImageData to a JSON file.
+ *
+ * vtkJSONImageWriter writes a JSON file which will describe the
+ * data inside a vtkImageData.
+*/
 
 #ifndef vtkJSONImageWriter_h
 #define vtkJSONImageWriter_h
@@ -30,23 +33,33 @@ public:
   vtkTypeMacro(vtkJSONImageWriter,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify file name for the image file.
+  //@{
+  /**
+   * Specify file name for the image file.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Specify ArrayName to export. By default NULL which will dump ALL arrays.
+  //@{
+  /**
+   * Specify ArrayName to export. By default NULL which will dump ALL arrays.
+   */
   vtkSetStringMacro(ArrayName);
   vtkGetStringMacro(ArrayName);
+  //@}
 
-  // Description:
-  // Specify Slice in Z to export. By default -1 which will dump the full 3D domain.
+  //@{
+  /**
+   * Specify Slice in Z to export. By default -1 which will dump the full 3D domain.
+   */
   vtkSetMacro(Slice, int);
   vtkGetMacro(Slice, int);
+  //@}
 
-  // Description:
-  // The main interface which triggers the writer to start.
+  /**
+   * The main interface which triggers the writer to start.
+   */
   virtual void Write();
 
 protected:
@@ -62,8 +75,8 @@ protected:
                           vtkInformationVector* outputVector);
 
 private:
-  vtkJSONImageWriter(const vtkJSONImageWriter&);  // Not implemented.
-  void operator=(const vtkJSONImageWriter&);  // Not implemented.
+  vtkJSONImageWriter(const vtkJSONImageWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkJSONImageWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHierarchicalDataExtractDataSets - extract a number of datasets
-// .SECTION Description
-// Legacy class. Use vtkExtractDataSets instead.
-//
-// .SECTION See Also
-// vtkExtractDataSets
+/**
+ * @class   vtkHierarchicalDataExtractDataSets
+ * @brief   extract a number of datasets
+ *
+ * Legacy class. Use vtkExtractDataSets instead.
+ *
+ * @sa
+ * vtkExtractDataSets
+*/
 
 #ifndef vtkHierarchicalDataExtractDataSets_h
 #define vtkHierarchicalDataExtractDataSets_h
@@ -40,8 +43,8 @@ protected:
   ~vtkHierarchicalDataExtractDataSets();
 
 private:
-  vtkHierarchicalDataExtractDataSets(const vtkHierarchicalDataExtractDataSets&);  // Not implemented.
-  void operator=(const vtkHierarchicalDataExtractDataSets&);  // Not implemented.
+  vtkHierarchicalDataExtractDataSets(const vtkHierarchicalDataExtractDataSets&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHierarchicalDataExtractDataSets&) VTK_DELETE_FUNCTION;
 };
 
 #endif

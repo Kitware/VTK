@@ -82,46 +82,46 @@ int vtkDataSetGradient::RequestData(vtkInformation * vtkNotUsed(request),
   vtkDataSet* _input = vtkDataSet::SafeDownCast( inInfo->Get(vtkDataObject::DATA_OBJECT()) );
 
   if( _input==0 || _output==0 )
-    {
+  {
     vtkErrorMacro(<<"Missing input or output \n");
     return 0;
-    }
+  }
 
   // get array to compute gradient from
   vtkDataArray* inArray = this->GetInputArrayToProcess( 0, _input );
   if( inArray==0 )
-    {
+  {
     inArray = _input->GetPointData()->GetScalars();
-    }
+  }
   if( inArray==0 )
-    {
+  {
     inArray = _input->GetCellData()->GetScalars();
-    }
+  }
 
   if( inArray==0 )
-    {
+  {
     vtkErrorMacro(<<"no  input array to process\n");
     return 0;
-    }
+  }
 
   vtkDebugMacro(<<"Input array to process : "<<inArray->GetName()<<"\n");
 
   bool pointData;
   if( _input->GetCellData()->GetArray(inArray->GetName()) == inArray )
-    {
+  {
     pointData = false;
     vtkDebugMacro(<<"cell data to point gradient\n");
-    }
+  }
   else if( _input->GetPointData()->GetArray(inArray->GetName()) == inArray )
-    {
+  {
     pointData = true;
     vtkDebugMacro(<<"point data to cell gradient\n");
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro(<<"input array must be cell or point data\n");
     return 0;
-    }
+  }
 
   // we're just adding a scalar field
   _output->ShallowCopy( _input );
@@ -129,17 +129,17 @@ int vtkDataSetGradient::RequestData(vtkInformation * vtkNotUsed(request),
   vtkDataArray* cqsArray = _output->GetFieldData()->GetArray("GradientPrecomputation");
   vtkDataArray* sizeArray = _output->GetCellData()->GetArray("CellSize");
   if( cqsArray==0 || sizeArray==0 )
-    {
+  {
     vtkDebugMacro(<<"Couldn't find field array 'GradientPrecomputation', computing it right now.\n");
     vtkDataSetGradientPrecompute::GradientPrecompute(_output);
     cqsArray = _output->GetFieldData()->GetArray("GradientPrecomputation");
     sizeArray = _output->GetCellData()->GetArray("CellSize");
     if( cqsArray==0 || sizeArray==0 )
-      {
+    {
       vtkErrorMacro(<<"Computation of field array 'GradientPrecomputation' or 'CellSize' failed.\n");
       return 0;
-      }
     }
+  }
 
   vtkIdType nCells = _input->GetNumberOfCells();
   vtkIdType nPoints = _input->GetNumberOfPoints();
@@ -149,31 +149,31 @@ int vtkDataSetGradient::RequestData(vtkInformation * vtkNotUsed(request),
   gradientArray->SetNumberOfComponents(3);
 
   if( pointData ) // compute cell gradient from point data
-    {
+  {
     gradientArray->SetNumberOfTuples( nCells );
     vtkIdType cellPoint = 0;
     for(vtkIdType i=0;i<nCells;i++)
-      {
+    {
       vtkCell* cell = _input->GetCell(i);
       int np = cell->GetNumberOfPoints();
       double gradient[3] = {0,0,0};
       for(int p=0;p<np;p++)
-        {
+      {
         double cqs[3], scalar;
         cqsArray->GetTuple( cellPoint++ , cqs );
         scalar = inArray->GetTuple1( cell->GetPointId(p) );
         SCALE_VEC( cqs , scalar );
         ADD_VEC( gradient , cqs );
-        }
+      }
       SCALE_VEC( gradient , ( 1.0 / sizeArray->GetTuple1(i) ) );
       gradientArray->SetTuple( i , gradient );
-      }
+    }
 
     _output->GetCellData()->AddArray( gradientArray );
     //_output->GetCellData()->SetVectors( gradientArray );
-    }
+  }
   else // compute point gradient from cell data
-    {
+  {
     gradientArray->SetNumberOfTuples( nPoints );
     gradientArray->FillComponent(0, 0.0);
     gradientArray->FillComponent(1, 0.0);
@@ -181,17 +181,17 @@ int vtkDataSetGradient::RequestData(vtkInformation * vtkNotUsed(request),
     double * gradient = gradientArray->WritePointer(0,nPoints*3);
     double * gradientDivisor = new double [nPoints];
     for(vtkIdType i=0;i<nPoints;i++)
-      {
+    {
       gradientDivisor[i] = 0.0;
-      }
+    }
     vtkIdType cellPoint = 0;
     for(vtkIdType i=0;i<nCells;i++)
-      {
+    {
       vtkCell* cell = _input->GetCell(i);
       int np = cell->GetNumberOfPoints();
       double scalar = inArray->GetTuple1( i );
       for(int p=0;p<np;p++)
-        {
+      {
         double cqs[3];
         double pointCoord[3];
         vtkIdType pointId = cell->GetPointId(p);
@@ -200,16 +200,16 @@ int vtkDataSetGradient::RequestData(vtkInformation * vtkNotUsed(request),
         scalar *= cell->GetCellDimension();
         SCALE_VEC( (gradient+pointId*3) , scalar );
         gradientDivisor[pointId] += vtkMath::Dot(cqs,pointCoord);
-        }
       }
+    }
     for(vtkIdType i=0;i<nPoints;i++)
-      {
+    {
       SCALE_VEC( (gradient+i*3) , (1.0/gradientDivisor[i]) );
-      }
+    }
     delete [] gradientDivisor;
     _output->GetPointData()->AddArray( gradientArray );
     //_output->GetPointData()->SetVectors( gradientArray );
-    }
+  }
   gradientArray->Delete();
 
   vtkDebugMacro(<<_output->GetClassName()<<" @ "<<_output<<" :\n");

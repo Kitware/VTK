@@ -1,9 +1,6 @@
 vtk_module(vtkFiltersAMR
   GROUPS
     StandAlone
-  DEPENDS
-    vtkParallelCore
-    vtkFiltersGeneral
   TEST_DEPENDS
     vtkImagingCore
     vtkIOAMR
@@ -11,4 +8,14 @@ vtk_module(vtkFiltersAMR
     vtkTestingRendering
   KIT
     vtkParallel
+  DEPENDS
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+  PRIVATE_DEPENDS
+    vtkCommonCore
+    vtkCommonMath
+    vtkCommonSystem
+    vtkFiltersCore
+    vtkIOXML
+    vtkParallelCore
   )

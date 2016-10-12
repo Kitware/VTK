@@ -54,17 +54,17 @@ void vtkMatrixToHomogeneousTransform::Inverse()
 void vtkMatrixToHomogeneousTransform::InternalUpdate()
 {
   if (this->Input)
-    {
+  {
     this->Matrix->DeepCopy(this->Input);
     if (this->InverseFlag)
-      {
-      this->Matrix->Invert();
-      }
-    }
-  else
     {
-    this->Matrix->Identity();
+      this->Matrix->Invert();
     }
+  }
+  else
+  {
+    this->Matrix->Identity();
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -77,9 +77,9 @@ void vtkMatrixToHomogeneousTransform::InternalDeepCopy(
   this->SetInput(transform->Input);
 
   if (this->InverseFlag != transform->InverseFlag)
-    {
+  {
     this->Inverse();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -90,17 +90,17 @@ vtkAbstractTransform *vtkMatrixToHomogeneousTransform::MakeTransform()
 
 //----------------------------------------------------------------------------
 // Get the MTime
-unsigned long vtkMatrixToHomogeneousTransform::GetMTime()
+vtkMTimeType vtkMatrixToHomogeneousTransform::GetMTime()
 {
-  unsigned long mtime = this->vtkHomogeneousTransform::GetMTime();
+  vtkMTimeType mtime = this->vtkHomogeneousTransform::GetMTime();
 
   if (this->Input)
-    {
-    unsigned long matrixMTime = this->Input->GetMTime();
+  {
+    vtkMTimeType matrixMTime = this->Input->GetMTime();
     if (matrixMTime > mtime)
-      {
+    {
       return matrixMTime;
-      }
     }
+  }
   return mtime;
 }

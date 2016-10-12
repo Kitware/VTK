@@ -48,9 +48,9 @@ int TestStreamTracerSurface(int argc, char* argv[])
   vtkDataSet* calcData = calc->GetOutput();
   vtkIdType nLine = static_cast<vtkIdType>(sqrt(static_cast<double>(calcData->GetNumberOfPoints())));
   for (vtkIdType i = 0; i < nLine; i += 10)
-    {
+  {
     points->InsertNextPoint(calcData->GetPoint(i * (nLine - 1) + nLine));
-    }
+  }
 
   vtkNew<vtkPolyData> pointsPolydata;
   pointsPolydata->SetPoints(points.Get());
@@ -95,8 +95,8 @@ int TestStreamTracerSurface(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(renWin.GetPointer());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
   return !retVal;
 }

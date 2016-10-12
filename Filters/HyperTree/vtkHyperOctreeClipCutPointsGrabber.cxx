@@ -46,14 +46,14 @@ vtkHyperOctreeClipCutPointsGrabber::vtkHyperOctreeClipCutPointsGrabber()
 vtkHyperOctreeClipCutPointsGrabber::~vtkHyperOctreeClipCutPointsGrabber()
 {
   if(this->Triangulator!=0)
-    {
+  {
     this->Triangulator->UnRegister(this);
     delete this->IdSet;
-    }
+  }
   if(this->Polygon!=0)
-    {
+  {
     this->Polygon->UnRegister(this);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -65,24 +65,24 @@ void vtkHyperOctreeClipCutPointsGrabber::SetDimension(int dim)
 {
   assert("pre: valid_dim" && (dim==2 || dim==3));
   if(dim!=this->Dimension)
-    {
+  {
     if(dim==3)
-      {
+    {
       this->Polygon->UnRegister(this);
       this->Polygon=0;
       this->Triangulator=vtkOrderedTriangulator::New();
       this->IdSet=new vtkHyperOctreeIdSet;
-      }
+    }
     else
-      {
+    {
        this->Triangulator->UnRegister(this);
        this->Triangulator=0;
        delete this->IdSet;
        this->IdSet=0;
        this->Polygon=vtkPolygon::New();
-      }
-    this->Dimension=dim;
     }
+    this->Dimension=dim;
+  }
   assert("post: is_set" && GetDimension()==dim);
 }
 
@@ -124,10 +124,10 @@ void vtkHyperOctreeClipCutPointsGrabber::InsertPointWithMerge(
   int vtkNotUsed(ijk)[3])
 {
   if(this->IdSet->Set.find(ptId)==this->IdSet->Set.end()) // not find
-    {
+  {
     this->IdSet->Set.insert(ptId);
     this->Triangulator->InsertPoint(ptId,pt,pcoords,0);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------

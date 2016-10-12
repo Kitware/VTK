@@ -30,12 +30,12 @@
 static int vtkGetArrayIndex(vtkDataSetAttributes* dsa, vtkAbstractArray* array)
 {
   for (int cc=0; cc < dsa->GetNumberOfArrays(); cc++)
-    {
+  {
     if (dsa->GetAbstractArray(cc) == array)
-      {
+    {
       return cc;
-      }
     }
+  }
   return -1;
 }
 
@@ -59,17 +59,17 @@ vtkAssignAttribute::vtkAssignAttribute()
 
   //convert the attribute names to uppercase for local use
   if (vtkAssignAttribute::AttributeNames[0][0] == 0)
-    {
+  {
     for (int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; i++)
-      {
+    {
       int l = static_cast<int>(strlen(vtkDataSetAttributes::GetAttributeTypeAsString(i)));
       for (int c = 0; c < l && c < 19; c++)
-        {
+      {
         vtkAssignAttribute::AttributeNames[i][c] =
           toupper(vtkDataSetAttributes::GetAttributeTypeAsString(i)[c]);
-        }
       }
     }
+  }
 }
 
 vtkAssignAttribute::~vtkAssignAttribute()
@@ -82,23 +82,23 @@ void vtkAssignAttribute::Assign(const char* fieldName, int attributeType,
                                 int attributeLoc)
 {
   if (!fieldName)
-    {
+  {
     return;
-    }
+  }
 
   if ( (attributeType < 0) ||
        (attributeType > vtkDataSetAttributes::NUM_ATTRIBUTES) )
-    {
+  {
     vtkErrorMacro("Wrong attribute type.");
     return;
-    }
+  }
 
   if ( (attributeLoc < 0) ||
        (attributeLoc > vtkAssignAttribute::NUM_ATTRIBUTE_LOCS) )
-    {
+  {
     vtkErrorMacro("The source for the field is wrong.");
     return;
-    }
+  }
 
   this->Modified();
   delete[] this->FieldName;
@@ -117,17 +117,17 @@ void vtkAssignAttribute::Assign(int inputAttributeType, int attributeType,
        (attributeType > vtkDataSetAttributes::NUM_ATTRIBUTES) ||
        (inputAttributeType < 0) ||
        (inputAttributeType > vtkDataSetAttributes::NUM_ATTRIBUTES))
-    {
+  {
     vtkErrorMacro("Wrong attribute type.");
     return;
-    }
+  }
 
   if ( (attributeLoc < 0) ||
        (attributeLoc > vtkAssignAttribute::NUM_ATTRIBUTE_LOCS) )
-    {
+  {
     vtkErrorMacro("The source for the field is wrong.");
     return;
-    }
+  }
 
   this->Modified();
   this->AttributeType = attributeType;
@@ -141,9 +141,9 @@ void vtkAssignAttribute::Assign(const char* name,
                                 const char* attributeLoc)
 {
   if (!name || !attributeType || !attributeLoc)
-    {
+  {
     return;
-    }
+  }
 
   int numAttr = vtkDataSetAttributes::NUM_ATTRIBUTES;
   int numAttributeLocs = vtkAssignAttribute::NUM_ATTRIBUTE_LOCS;
@@ -152,52 +152,52 @@ void vtkAssignAttribute::Assign(const char* name,
   // Convert strings to ints and call the appropriate Assign()
   int inputAttributeType=-1;
   for(i=0; i<numAttr; i++)
-    {
+  {
     if (!strcmp(name, AttributeNames[i]))
-      {
+    {
       inputAttributeType = i;
       break;
-      }
     }
+  }
 
   int attrType=-1;
   for(i=0; i<numAttr; i++)
-    {
+  {
     if (!strcmp(attributeType, AttributeNames[i]))
-      {
+    {
       attrType = i;
       break;
-      }
     }
+  }
   if ( attrType == -1 )
-    {
+  {
     vtkErrorMacro("Target attribute type is invalid.");
     return;
-    }
+  }
 
   int loc=-1;
   for(i=0; i<numAttributeLocs; i++)
-    {
+  {
     if (!strcmp(attributeLoc, AttributeLocationNames[i]))
-      {
+    {
       loc = i;
       break;
-      }
     }
+  }
   if (loc == -1)
-    {
+  {
     vtkErrorMacro("Target location for the attribute is invalid.");
     return;
-    }
+  }
 
   if ( inputAttributeType == -1 )
-    {
+  {
     this->Assign(name, attrType, loc);
-    }
+  }
   else
-    {
+  {
     this->Assign(inputAttributeType, attrType, loc);
-    }
+  }
 }
 
 int vtkAssignAttribute::RequestInformation(vtkInformation *vtkNotUsed(request),
@@ -210,10 +210,10 @@ int vtkAssignAttribute::RequestInformation(vtkInformation *vtkNotUsed(request),
 
   if ((this->AttributeType != -1) &&
       (this->AttributeLocationAssignment != -1) && (this->FieldTypeAssignment != -1))
-    {
+  {
     int fieldAssociation = vtkDataObject::FIELD_ASSOCIATION_POINTS;
     switch (this->AttributeLocationAssignment)
-      {
+    {
       case POINT_DATA:
         fieldAssociation = vtkDataObject::FIELD_ASSOCIATION_POINTS;
         break;
@@ -226,25 +226,41 @@ int vtkAssignAttribute::RequestInformation(vtkInformation *vtkNotUsed(request),
       default:
         fieldAssociation = vtkDataObject::FIELD_ASSOCIATION_EDGES;
         break;
-      }
+    }
     if (this->FieldTypeAssignment == vtkAssignAttribute::NAME && this->FieldName)
-      {
+    {
       vtkDataObject::SetActiveAttribute(outInfo, fieldAssociation,
         this->FieldName, this->AttributeType);
+      vtkInformation *inputAttributeInfo = vtkDataObject::GetNamedFieldInformation(
+        inInfo, fieldAssociation, this->FieldName);
+      if (inputAttributeInfo)
+      {
+        const int type = inputAttributeInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE());
+        const int numComponents = inputAttributeInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS());
+        const int numTuples = inputAttributeInfo->Get(vtkDataObject::FIELD_NUMBER_OF_TUPLES());
+
+        vtkDataObject::SetActiveAttributeInfo(outInfo, fieldAssociation,
+          this->AttributeType, this->FieldName, type, numComponents, numTuples);
       }
+    }
     else if (this->FieldTypeAssignment == vtkAssignAttribute::ATTRIBUTE  &&
       this->InputAttributeType != -1)
-      {
+    {
       vtkInformation *inputAttributeInfo = vtkDataObject::GetActiveFieldInformation(
         inInfo, fieldAssociation, this->InputAttributeType);
       if (inputAttributeInfo) // do we have an active field of requested type
-        {
-        vtkDataObject::SetActiveAttribute(outInfo, fieldAssociation,
-          inputAttributeInfo->Get( vtkDataObject::FIELD_NAME() ),
-          this->AttributeType);
-        }
+      {
+        const char * name = inputAttributeInfo->Get(vtkDataObject::FIELD_NAME());
+        const int type = inputAttributeInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE());
+        const int numComponents = inputAttributeInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS());
+        const int numTuples = inputAttributeInfo->Get(vtkDataObject::FIELD_NUMBER_OF_TUPLES());
+
+        vtkDataObject::SetActiveAttribute(outInfo, fieldAssociation, name, this->AttributeType);
+        vtkDataObject::SetActiveAttributeInfo(outInfo, fieldAssociation,
+          this->AttributeType, name, type, numComponents, numTuples);
       }
     }
+  }
 
   return 1;
 }
@@ -265,20 +281,20 @@ int vtkAssignAttribute::RequestData(
 
   vtkDataSetAttributes* ods=0;
   if (vtkDataSet::SafeDownCast(input))
-    {
+  {
     vtkDataSet *dsInput = vtkDataSet::SafeDownCast(input);
     vtkDataSet *dsOutput = vtkDataSet::SafeDownCast(output);
     // This has to be here because it initialized all field datas.
     dsOutput->CopyStructure( dsInput );
 
     if ( dsOutput->GetFieldData() && dsInput->GetFieldData() )
-      {
+    {
       dsOutput->GetFieldData()->PassData( dsInput->GetFieldData() );
-      }
+    }
     dsOutput->GetPointData()->PassData( dsInput->GetPointData() );
     dsOutput->GetCellData()->PassData( dsInput->GetCellData() );
     switch (this->AttributeLocationAssignment)
-      {
+    {
       case vtkAssignAttribute::POINT_DATA:
         ods = dsOutput->GetPointData();
         break;
@@ -288,15 +304,15 @@ int vtkAssignAttribute::RequestData(
       default:
         vtkErrorMacro(<<"Data must be point or cell for vtkDataSet");
         return 0;
-      }
     }
+  }
   else
-    {
+  {
     vtkGraph *graphInput = vtkGraph::SafeDownCast(input);
     vtkGraph *graphOutput = vtkGraph::SafeDownCast(output);
     graphOutput->ShallowCopy( graphInput );
     switch (this->AttributeLocationAssignment)
-      {
+    {
       case vtkAssignAttribute::VERTEX_DATA:
         ods = graphOutput->GetVertexData();
         break;
@@ -306,20 +322,20 @@ int vtkAssignAttribute::RequestData(
       default:
         vtkErrorMacro(<<"Data must be vertex or edge for vtkGraph");
         return 0;
-      }
     }
+  }
 
   if ((this->AttributeType != -1) &&
       (this->AttributeLocationAssignment != -1) && (this->FieldTypeAssignment != -1))
-    {
+  {
     // Get the appropriate output DataSetAttributes
     if (this->FieldTypeAssignment == vtkAssignAttribute::NAME && this->FieldName)
-      {
+    {
       ods->SetActiveAttribute(this->FieldName, this->AttributeType);
-      }
+    }
     else if (this->FieldTypeAssignment == vtkAssignAttribute::ATTRIBUTE  &&
              (this->InputAttributeType != -1))
-      {
+    {
       // If labeling an attribute as another attribute, we
       // need to get it's index and call SetActiveAttribute()
       // with that index
@@ -328,15 +344,15 @@ int vtkAssignAttribute::RequestData(
       // if (attributeIndices[this->InputAttributeType] != -1)
       vtkAbstractArray *oaa = ods->GetAbstractAttribute(this->InputAttributeType);
       if (oaa)
-        {
+      {
         // Use array index to mark this array active and not its name since VTK
         // arrays not necessarily have names.
         int arrIndex = vtkGetArrayIndex(ods, oaa);
         assert (arrIndex >= 0); // arrIndex cannot be -1. Doesn't make sense.
         ods->SetActiveAttribute(arrIndex,this->AttributeType);
-        }
       }
     }
+  }
 
   return 1;
 }
@@ -355,13 +371,13 @@ void vtkAssignAttribute::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Field name: ";
   if (this->FieldName)
-    {
+  {
     os << this->FieldName << endl;
-    }
+  }
   else
-    {
+  {
     os << "(none)" << endl;
-    }
+  }
   os << indent << "Field type: " << this->FieldTypeAssignment << endl;
   os << indent << "Attribute type: " << this->AttributeType << endl;
   os << indent << "Input attribute type: " << this->InputAttributeType

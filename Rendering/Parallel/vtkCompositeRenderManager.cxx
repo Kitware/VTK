@@ -69,9 +69,9 @@ void vtkCompositeRenderManager::PreRenderProcessing()
   // Turn swap buffers off before the render so the end render method has a
   // chance to add to the back buffer.
   if (this->UseBackBuffer)
-    {
+  {
     this->RenderWindow->SwapBuffersOff();
-    }
+  }
 
   this->SavedMultiSamplesSetting = this->RenderWindow->GetMultiSamples();
   this->RenderWindow->SetMultiSamples(0);
@@ -83,13 +83,13 @@ void vtkCompositeRenderManager::PostRenderProcessing()
   this->RenderWindow->SetMultiSamples(this->SavedMultiSamplesSetting);
 
   if (!this->UseCompositing || this->CheckForAbortComposite())
-    {
+  {
     vtkTimerLog::MarkEndEvent("Compositing");
     return;
-    }
+  }
 
   if (this->Controller->GetNumberOfProcesses() > 1)
-    {
+  {
     // Read in data.
     this->ReadReducedImage();
     this->Timer->StartTimer();
@@ -113,15 +113,15 @@ void vtkCompositeRenderManager::PostRenderProcessing()
 
     this->Timer->StopTimer();
     this->ImageProcessingTime = this->Timer->GetElapsedTime();
-    }
+  }
 
   this->WriteFullImage();
 
   // Swap buffers here
   if (this->UseBackBuffer)
-    {
+  {
     this->RenderWindow->SwapBuffersOn();
-    }
+  }
   this->RenderWindow->Frame();
 
   vtkTimerLog::MarkEndEvent("Compositing");

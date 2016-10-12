@@ -44,11 +44,11 @@ int TestSimpleBondPerceiver(int , char *[])
   numBonds = bonder->GetOutput()->GetNumberOfBonds();
 
   if (numBonds != 13)
-    {
+  {
     cout << "Number of bonds in test molecule: "
          << numBonds << " (should be 13)\n";
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

@@ -12,9 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCachedStreamingDemandDrivenPipeline -
-// .SECTION Description
-// vtkCachedStreamingDemandDrivenPipeline
+/**
+ * @class   vtkCachedStreamingDemandDrivenPipeline
+ *
+ * vtkCachedStreamingDemandDrivenPipeline
+*/
 
 #ifndef vtkCachedStreamingDemandDrivenPipeline_h
 #define vtkCachedStreamingDemandDrivenPipeline_h
@@ -24,7 +26,6 @@
 
 class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
-class vtkCachedStreamingDemandDrivenPipelineInternals;
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkCachedStreamingDemandDrivenPipeline :
   public vtkStreamingDemandDrivenPipeline
@@ -33,35 +34,36 @@ public:
   static vtkCachedStreamingDemandDrivenPipeline* New();
   vtkTypeMacro(vtkCachedStreamingDemandDrivenPipeline,
                        vtkStreamingDemandDrivenPipeline);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // This is the maximum number of images that can be retained in memory.
-  // it defaults to 10.
+  //@{
+  /**
+   * This is the maximum number of images that can be retained in memory.
+   * it defaults to 10.
+   */
   void SetCacheSize(int size);
   vtkGetMacro(CacheSize, int);
+  //@}
 
 protected:
   vtkCachedStreamingDemandDrivenPipeline();
-  ~vtkCachedStreamingDemandDrivenPipeline();
+  ~vtkCachedStreamingDemandDrivenPipeline() VTK_OVERRIDE;
 
-  virtual int NeedToExecuteData(int outputPort,
+  int NeedToExecuteData(int outputPort,
                                 vtkInformationVector** inInfoVec,
-                                vtkInformationVector* outInfoVec);
-  virtual int ExecuteData(vtkInformation* request,
+                                vtkInformationVector* outInfoVec) VTK_OVERRIDE;
+  int ExecuteData(vtkInformation* request,
                           vtkInformationVector** inInfoVec,
-                          vtkInformationVector* outInfoVec);
+                          vtkInformationVector* outInfoVec) VTK_OVERRIDE;
 
   int CacheSize;
 
   vtkDataObject **Data;
-  unsigned long *Times;
+  vtkMTimeType *Times;
 
 private:
-  vtkCachedStreamingDemandDrivenPipelineInternals* CachedStreamingDemandDrivenInternal;
-private:
-  vtkCachedStreamingDemandDrivenPipeline(const vtkCachedStreamingDemandDrivenPipeline&);  // Not implemented.
-  void operator=(const vtkCachedStreamingDemandDrivenPipeline&);  // Not implemented.
+  vtkCachedStreamingDemandDrivenPipeline(const vtkCachedStreamingDemandDrivenPipeline&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCachedStreamingDemandDrivenPipeline&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -20,15 +20,17 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// .NAME vtkPSLACReader
-//
-// .SECTION Description
-//
-// Extends the vtkSLACReader to read in partitioned pieces.  Due to the nature
-// of the data layout, this reader only works in a data parallel mode where
-// each process in a parallel job simultaneously attempts to read the piece
-// corresponding to the local process id.
-//
+/**
+ * @class   vtkPSLACReader
+ *
+ *
+ *
+ * Extends the vtkSLACReader to read in partitioned pieces.  Due to the nature
+ * of the data layout, this reader only works in a data parallel mode where
+ * each process in a parallel job simultaneously attempts to read the piece
+ * corresponding to the local process id.
+ *
+*/
 
 #ifndef vtkPSLACReader_h
 #define vtkPSLACReader_h
@@ -45,13 +47,16 @@ public:
   static vtkPSLACReader *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // The controller used to communicate partition data.  The number of pieces
-  // requested must agree with the number of processes, the piece requested must
-  // agree with the local process id, and all process must invoke
-  // ProcessRequests of this filter simultaneously.
+  //@{
+  /**
+   * The controller used to communicate partition data.  The number of pieces
+   * requested must agree with the number of processes, the piece requested must
+   * agree with the local process id, and all process must invoke
+   * ProcessRequests of this filter simultaneously.
+   */
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
   virtual void SetController(vtkMultiProcessController *);
+  //@}
 
 protected:
   vtkPSLACReader();
@@ -89,29 +94,37 @@ protected:
 
   virtual int MeshUpToDate();
 
-  // Description:
-  // Reads point data arrays.  Called by ReadCoordinates and ReadFieldData.
+  /**
+   * Reads point data arrays.  Called by ReadCoordinates and ReadFieldData.
+   */
   virtual vtkSmartPointer<vtkDataArray> ReadPointDataArray(int ncFD, int varId);
 
   class vtkInternal;
   vtkInternal *Internal;
 
-  // Description:
-  // The number of pieces and the requested piece to load.  Synonymous with
-  // the number of processes and the local process id.
+  //@{
+  /**
+   * The number of pieces and the requested piece to load.  Synonymous with
+   * the number of processes and the local process id.
+   */
   int NumberOfPieces;
   int RequestedPiece;
+  //@}
 
-  // Description:
-  // The number of points defined in the mesh file.
+  /**
+   * The number of points defined in the mesh file.
+   */
   vtkIdType NumberOfGlobalPoints;
 
-  // Description:
-  // The number of midpoints defined in the mesh file
+  /**
+   * The number of midpoints defined in the mesh file
+   */
   vtkIdType NumberOfGlobalMidpoints;
 
-  // Description:
-  // The start/end points read by the given process.
+  //@{
+  /**
+   * The start/end points read by the given process.
+   */
   vtkIdType StartPointRead(int process) {
     return process*(this->NumberOfGlobalPoints/this->NumberOfPieces + 1);
   }
@@ -120,15 +133,19 @@ protected:
     if (result > this->NumberOfGlobalPoints) result=this->NumberOfGlobalPoints;
     return result;
   }
+  //@}
 
-  // Description:
-  // Piece information from the last call.
+  //@{
+  /**
+   * Piece information from the last call.
+   */
   int NumberOfPiecesCache;
   int RequestedPieceCache;
+  //@}
 
 private:
-  vtkPSLACReader(const vtkPSLACReader &);       // Not implemented
-  void operator=(const vtkPSLACReader &);       // Not implemented
+  vtkPSLACReader(const vtkPSLACReader &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPSLACReader &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkPSLACReader_h

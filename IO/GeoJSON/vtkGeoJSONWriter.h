@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGeoJSONWriter - Convert vtkPolyData to Geo JSON format.
-// .SECTION Description
-// Outputs a Geo JSON (http://www.geojson.org) description of the input
-// polydata data set.
+/**
+ * @class   vtkGeoJSONWriter
+ * @brief   Convert vtkPolyData to Geo JSON format.
+ *
+ * Outputs a Geo JSON (http://www.geojson.org) description of the input
+ * polydata data set.
+*/
 
 #ifndef vtkGeoJSONWriter_h
 #define vtkGeoJSONWriter_h
@@ -32,50 +35,67 @@ public:
   virtual void PrintSelf( ostream& os, vtkIndent indent );
   vtkTypeMacro(vtkGeoJSONWriter,vtkWriter);
 
-  //Decription:
-  // Accessor for name of the file that will be opened on WriteData
+  //@{
+  /**
+   * Accessor for name of the file that will be opened on WriteData
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Enable writing to an OutputString instead of the default, a file.
+  //@{
+  /**
+   * Enable writing to an OutputString instead of the default, a file.
+   */
   vtkSetMacro(WriteToOutputString,bool);
   vtkGetMacro(WriteToOutputString,bool);
   vtkBooleanMacro(WriteToOutputString,bool);
+  //@}
 
-  // Description:
-  // When WriteToOutputString in on, then a string is allocated, written to,
-  // and can be retrieved with these methods.  The string is deleted during
-  // the next call to write ...
+  //@{
+  /**
+   * When WriteToOutputString in on, then a string is allocated, written to,
+   * and can be retrieved with these methods.  The string is deleted during
+   * the next call to write ...
+   */
   vtkGetMacro(OutputStringLength, int);
   vtkGetStringMacro(OutputString);
   unsigned char *GetBinaryOutputString()
-    {
+  {
     return reinterpret_cast<unsigned char *>(this->OutputString);
-    }
+  }
+  //@}
 
-  // Description:
-  // Controls how data attributes are written out.
-  // When 0, data attributes are ignored and not written at all.
-  // When 1, values are mapped through a lookup table and colors are written to the output.
-  // When 2, which is the default, the values are written directly.
+  //@{
+  /**
+   * Controls how data attributes are written out.
+   * When 0, data attributes are ignored and not written at all.
+   * When 1, values are mapped through a lookup table and colors are written to the output.
+   * When 2, which is the default, the values are written directly.
+   */
   vtkSetMacro(ScalarFormat,int);
   vtkGetMacro(ScalarFormat,int);
+  //@}
 
-  // Description:
-  // Controls the lookup table to use when ValueMode is set to map colors;
+  //@{
+  /**
+   * Controls the lookup table to use when ValueMode is set to map colors;
+   */
   void SetLookupTable(vtkLookupTable *lut);
   vtkGetObjectMacro(LookupTable, vtkLookupTable);
+  //@}
 
-  // Description:
-  // When WriteToOutputString is on, this method returns a copy of the
-  // output string in a vtkStdString.
+  /**
+   * When WriteToOutputString is on, this method returns a copy of the
+   * output string in a vtkStdString.
+   */
   vtkStdString GetOutputStdString();
 
-  // Description:
-  // This convenience method returns the string, sets the IVAR to NULL,
-  // so that the user is responsible for deleting the string.
-  // I am not sure what the name should be, so it may change in the future.
+  /**
+   * This convenience method returns the string, sets the IVAR to NULL,
+   * so that the user is responsible for deleting the string.
+   * I am not sure what the name should be, so it may change in the future.
+   */
   char *RegisterAndGetOutputString();
 
 protected:
@@ -107,8 +127,8 @@ protected:
   char* FileName;
 
 private:
-  vtkGeoJSONWriter(const vtkGeoJSONWriter&);  // Not implemented.
-  void operator=(const vtkGeoJSONWriter&);       // Not implemented.
+  vtkGeoJSONWriter(const vtkGeoJSONWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoJSONWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkGeoJSONWriter_h

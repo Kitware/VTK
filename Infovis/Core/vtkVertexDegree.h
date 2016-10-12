@@ -17,12 +17,15 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkVertexDegree - Adds an attribute array with the degree of each vertex
-//
-// .SECTION Description
-// Adds an attribute array with the degree of each vertex. By default the name
-// of the array will be "VertexDegree", but that can be changed by calling
-// SetOutputArrayName("foo");
+/**
+ * @class   vtkVertexDegree
+ * @brief   Adds an attribute array with the degree of each vertex
+ *
+ *
+ * Adds an attribute array with the degree of each vertex. By default the name
+ * of the array will be "VertexDegree", but that can be changed by calling
+ * SetOutputArrayName("foo");
+*/
 
 #ifndef vtkVertexDegree_h
 #define vtkVertexDegree_h
@@ -38,10 +41,13 @@ public:
   vtkTypeMacro(vtkVertexDegree, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the output array name. If no output array name is
-  // set then the name 'VertexDegree' is used.
+  //@{
+  /**
+   * Set the output array name. If no output array name is
+   * set then the name 'VertexDegree' is used.
+   */
   vtkSetStringMacro(OutputArrayName);
+  //@}
 
 protected:
   vtkVertexDegree();
@@ -53,8 +59,8 @@ private:
 
   char* OutputArrayName;
 
-  vtkVertexDegree(const vtkVertexDegree&);  // Not implemented.
-  void operator=(const vtkVertexDegree&);  // Not implemented.
+  vtkVertexDegree(const vtkVertexDegree&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVertexDegree&) VTK_DELETE_FUNCTION;
 };
 
 #endif

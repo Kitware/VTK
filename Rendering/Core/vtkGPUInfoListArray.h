@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGPUInfoListArray - Internal class vtkGPUInfoList.
-// .SECTION Description
-// vtkGPUInfoListArray is just a PIMPL mechanism for vtkGPUInfoList.
+/**
+ * @class   vtkGPUInfoListArray
+ * @brief   Internal class vtkGPUInfoList.
+ *
+ * vtkGPUInfoListArray is just a PIMPL mechanism for vtkGPUInfoList.
+*/
 
 #ifndef vtkGPUInfoListArray_h
 #define vtkGPUInfoListArray_h

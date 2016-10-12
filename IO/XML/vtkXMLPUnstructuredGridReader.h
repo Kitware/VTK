@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPUnstructuredGridReader - Read PVTK XML UnstructuredGrid files.
-// .SECTION Description
-// vtkXMLPUnstructuredGridReader reads the PVTK XML UnstructuredGrid
-// file format.  This reads the parallel format's summary file and
-// then uses vtkXMLUnstructuredGridReader to read data from the
-// individual UnstructuredGrid piece files.  Streaming is supported.
-// The standard extension for this reader's file format is "pvtu".
-
-// .SECTION See Also
-// vtkXMLUnstructuredGridReader
+/**
+ * @class   vtkXMLPUnstructuredGridReader
+ * @brief   Read PVTK XML UnstructuredGrid files.
+ *
+ * vtkXMLPUnstructuredGridReader reads the PVTK XML UnstructuredGrid
+ * file format.  This reads the parallel format's summary file and
+ * then uses vtkXMLUnstructuredGridReader to read data from the
+ * individual UnstructuredGrid piece files.  Streaming is supported.
+ * The standard extension for this reader's file format is "pvtu".
+ *
+ * @sa
+ * vtkXMLUnstructuredGridReader
+*/
 
 #ifndef vtkXMLPUnstructuredGridReader_h
 #define vtkXMLPUnstructuredGridReader_h
@@ -38,10 +41,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLPUnstructuredGridReader *New();
 
-  // Description:
-  // Get the reader's output.
+  //@{
+  /**
+   * Get the reader's output.
+   */
   vtkUnstructuredGrid *GetOutput();
   vtkUnstructuredGrid *GetOutput(int idx);
+  //@}
 
 protected:
   vtkXMLPUnstructuredGridReader();
@@ -66,8 +72,8 @@ protected:
   vtkIdType StartCell;
 
 private:
-  vtkXMLPUnstructuredGridReader(const vtkXMLPUnstructuredGridReader&);  // Not implemented.
-  void operator=(const vtkXMLPUnstructuredGridReader&);  // Not implemented.
+  vtkXMLPUnstructuredGridReader(const vtkXMLPUnstructuredGridReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLPUnstructuredGridReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

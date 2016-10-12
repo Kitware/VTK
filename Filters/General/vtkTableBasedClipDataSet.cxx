@@ -134,9 +134,9 @@ public:
   inline vtkTableBasedClipperEdgeHashEntry * GetFreeEdgeHashEntry()
   {
     if ( freeEntryindex <= 0 )
-      {
+    {
       AllocateEdgeHashEntryPool();
-      }
+    }
     freeEntryindex --;
     return freeEntrylist[ freeEntryindex ];
   }
@@ -144,10 +144,10 @@ public:
   inline void ReRegisterEdgeHashEntry( vtkTableBasedClipperEdgeHashEntry * q )
   {
     if ( freeEntryindex >= FREE_ENTRY_LIST_SIZE - 1 )
-      {
+    {
       // We've got plenty, so ignore this one.
       return;
-      }
+    }
     freeEntrylist[ freeEntryindex ] = q;
     freeEntryindex ++;
   }
@@ -182,8 +182,8 @@ protected:
 
   private:
   vtkTableBasedClipperEdgeHashTable
-                  ( const vtkTableBasedClipperEdgeHashTable & ); // Not implemented.
-  void operator = ( const vtkTableBasedClipperEdgeHashTable & ); // Not implemented.
+                  ( const vtkTableBasedClipperEdgeHashTable & ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkTableBasedClipperEdgeHashTable & ) VTK_DELETE_FUNCTION;
 };
 // ---- vtkTableBasedClipperEdgeHashTable (end)
 
@@ -205,9 +205,9 @@ class  vtkTableBasedClipperDataSetFromVolume
 
   private:
   vtkTableBasedClipperDataSetFromVolume
-    ( const vtkTableBasedClipperDataSetFromVolume & ); // Not implemented.
+    ( const vtkTableBasedClipperDataSetFromVolume & ) VTK_DELETE_FUNCTION;
   void operator =
-    ( const vtkTableBasedClipperDataSetFromVolume & ); // Not implemented.
+    ( const vtkTableBasedClipperDataSetFromVolume & ) VTK_DELETE_FUNCTION;
 };
 
 vtkTableBasedClipperPointList::vtkTableBasedClipperPointList()
@@ -218,9 +218,9 @@ vtkTableBasedClipperPointList::vtkTableBasedClipperPointList()
   list = new TableBasedClipperPointEntry * [ listSize ];
   list[0] = new TableBasedClipperPointEntry[pointsPerList];
   for ( int i = 1; i < listSize; i ++ )
-    {
+  {
     list[i] = NULL;
-    }
+  }
 
   currentList  = 0;
   currentPoint = 0;
@@ -229,16 +229,16 @@ vtkTableBasedClipperPointList::vtkTableBasedClipperPointList()
 vtkTableBasedClipperPointList::~vtkTableBasedClipperPointList()
 {
   for ( int i = 0; i < listSize; i ++ )
-    {
+  {
     if ( list[i] != NULL )
-      {
+    {
       delete [] list[i];
-      }
-    else
-      {
-      break;
-      }
     }
+    else
+    {
+      break;
+    }
+  }
 
   delete [] list;
 }
@@ -247,10 +247,10 @@ int vtkTableBasedClipperPointList::GetList
   ( int listId, const TableBasedClipperPointEntry *& outlist) const
 {
   if ( listId < 0 || listId > currentList )
-    {
+  {
     outlist = NULL;
     return 0;
-    }
+  }
 
   outlist = list[ listId ];
   return ( listId == currentList ? currentPoint : pointsPerList );
@@ -272,30 +272,30 @@ int vtkTableBasedClipperPointList::GetTotalNumberOfPoints() const
 int vtkTableBasedClipperPointList::AddPoint( int pt0, int pt1, double percent )
 {
   if ( currentPoint >= pointsPerList )
-    {
+  {
     if (  ( currentList + 1 )  >=  listSize  )
-      {
+    {
       TableBasedClipperPointEntry ** tmpList = new
       TableBasedClipperPointEntry  * [ 2 * listSize ];
       for ( int i = 0; i < listSize; i ++ )
-        {
+      {
         tmpList[i] = list[i];
-        }
+      }
 
       for ( int i = listSize; i < listSize * 2; i ++ )
-        {
+      {
         tmpList[i] = NULL;
-        }
+      }
 
       listSize *= 2;
       delete [] list;
       list = tmpList;
-      }
+    }
 
     currentList ++;
     list[ currentList ] = new TableBasedClipperPointEntry[ pointsPerList ];
     currentPoint = 0;
-    }
+  }
 
   list[ currentList ][ currentPoint ].ptIds[0] = pt0;
   list[ currentList ][ currentPoint ].ptIds[1] = pt1;
@@ -332,27 +332,27 @@ vtkTableBasedClipperEdgeHashEntryMemoryManager()
 {
   int npools = static_cast<int> ( edgeHashEntrypool.size() );
   for ( int i = 0; i < npools; i ++ )
-    {
+  {
     vtkTableBasedClipperEdgeHashEntry * pool = edgeHashEntrypool[i];
     delete [] pool;
-    }
+  }
 }
 
 void vtkTableBasedClipperEdgeHashEntryMemoryManager::AllocateEdgeHashEntryPool()
 {
   if ( freeEntryindex == 0 )
-    {
+  {
     vtkTableBasedClipperEdgeHashEntry * newlist = new
     vtkTableBasedClipperEdgeHashEntry[ POOL_SIZE ];
     edgeHashEntrypool.push_back( newlist );
 
     for ( int i = 0; i < POOL_SIZE; i ++ )
-      {
+    {
       freeEntrylist[i] = &( newlist[i] );
-      }
+    }
 
     freeEntryindex = POOL_SIZE;
-    }
+  }
 }
 
 vtkTableBasedClipperEdgeHashTable::
@@ -362,9 +362,9 @@ vtkTableBasedClipperEdgeHashTable( int nh, vtkTableBasedClipperPointList & p )
   nHashes = nh;
   hashes  = new vtkTableBasedClipperEdgeHashEntry * [ nHashes ];
   for ( int i = 0; i < nHashes; i ++ )
-    {
+  {
     hashes[i] = NULL;
-    }
+  }
 }
 
 vtkTableBasedClipperEdgeHashTable::~vtkTableBasedClipperEdgeHashTable()
@@ -378,9 +378,9 @@ int vtkTableBasedClipperEdgeHashTable::GetKey( int p1, int p2 )
 
   // In case of overflows and modulo with negative numbers.
   if ( rv < 0 )
-    {
+  {
     rv += nHashes;
-    }
+  }
 
   return rv;
 }
@@ -392,17 +392,17 @@ int vtkTableBasedClipperEdgeHashTable::AddPoint
   double percent;
 
   if ( ap2 < ap1 )
-    {
+  {
     p1      = ap2;
     p2      = ap1;
     percent = 1.0 - apercent;
-    }
+  }
   else
-    {
+  {
     p1      = ap1;
     p2      = ap2;
     percent = apercent;
-    }
+  }
 
   int key = GetKey( p1, p2 );
 
@@ -411,17 +411,17 @@ int vtkTableBasedClipperEdgeHashTable::AddPoint
   //
   vtkTableBasedClipperEdgeHashEntry * cur = hashes[ key ];
   while ( cur != NULL )
-    {
+  {
     if (  cur->IsMatch( p1, p2 )  )
-      {
+    {
       //
       // We found a match.
       //
       return cur->GetPointId();
-      }
+    }
 
     cur = cur->GetNext();
-    }
+  }
 
   //
   // There was no match.  We will have to add a new entry.
@@ -481,8 +481,8 @@ class vtkTableBasedClipperHexList : public vtkTableBasedClipperShapeList
 {
   public:
                    vtkTableBasedClipperHexList();
-    virtual       ~vtkTableBasedClipperHexList();
-    virtual int    GetVTKType() const { return VTK_HEXAHEDRON; }
+          ~vtkTableBasedClipperHexList() VTK_OVERRIDE;
+    int    GetVTKType() const VTK_OVERRIDE { return VTK_HEXAHEDRON; }
     void           AddHex( int, int, int, int, int, int, int, int, int );
 };
 
@@ -491,8 +491,8 @@ class vtkTableBasedClipperWedgeList : public vtkTableBasedClipperShapeList
 {
   public:
                    vtkTableBasedClipperWedgeList();
-    virtual       ~vtkTableBasedClipperWedgeList();
-    virtual int    GetVTKType() const { return VTK_WEDGE; }
+          ~vtkTableBasedClipperWedgeList() VTK_OVERRIDE;
+    int    GetVTKType() const VTK_OVERRIDE { return VTK_WEDGE; }
     void           AddWedge( int, int, int, int, int, int, int );
 };
 
@@ -501,8 +501,8 @@ class vtkTableBasedClipperPyramidList : public vtkTableBasedClipperShapeList
 {
   public:
                    vtkTableBasedClipperPyramidList();
-    virtual       ~vtkTableBasedClipperPyramidList();
-    virtual int    GetVTKType() const { return VTK_PYRAMID; }
+          ~vtkTableBasedClipperPyramidList() VTK_OVERRIDE;
+    int    GetVTKType() const VTK_OVERRIDE { return VTK_PYRAMID; }
     void           AddPyramid( int, int, int, int, int, int );
 };
 
@@ -511,8 +511,8 @@ class vtkTableBasedClipperTetList : public vtkTableBasedClipperShapeList
 {
   public:
                    vtkTableBasedClipperTetList();
-    virtual       ~vtkTableBasedClipperTetList();
-    virtual int    GetVTKType() const { return VTK_TETRA; }
+          ~vtkTableBasedClipperTetList() VTK_OVERRIDE;
+    int    GetVTKType() const VTK_OVERRIDE { return VTK_TETRA; }
     void           AddTet( int, int, int, int, int );
 };
 
@@ -521,8 +521,8 @@ class vtkTableBasedClipperQuadList : public vtkTableBasedClipperShapeList
 {
   public:
                    vtkTableBasedClipperQuadList();
-    virtual       ~vtkTableBasedClipperQuadList();
-    virtual int    GetVTKType() const { return VTK_QUAD; }
+          ~vtkTableBasedClipperQuadList() VTK_OVERRIDE;
+    int    GetVTKType() const VTK_OVERRIDE { return VTK_QUAD; }
     void           AddQuad( int, int, int, int, int );
 };
 
@@ -531,8 +531,8 @@ class vtkTableBasedClipperTriList : public vtkTableBasedClipperShapeList
 {
   public:
                    vtkTableBasedClipperTriList();
-    virtual       ~vtkTableBasedClipperTriList();
-    virtual int    GetVTKType() const { return VTK_TRIANGLE; }
+          ~vtkTableBasedClipperTriList() VTK_OVERRIDE;
+    int    GetVTKType() const VTK_OVERRIDE { return VTK_TRIANGLE; }
     void           AddTri( int, int, int, int );
 };
 
@@ -541,8 +541,8 @@ class vtkTableBasedClipperLineList : public vtkTableBasedClipperShapeList
 {
   public:
                    vtkTableBasedClipperLineList();
-    virtual       ~vtkTableBasedClipperLineList();
-    virtual int    GetVTKType() const { return VTK_LINE; }
+          ~vtkTableBasedClipperLineList() VTK_OVERRIDE;
+    int    GetVTKType() const VTK_OVERRIDE { return VTK_LINE; }
     void           AddLine( int, int, int );
 };
 
@@ -551,8 +551,8 @@ class vtkTableBasedClipperVertexList : public vtkTableBasedClipperShapeList
 {
   public:
                    vtkTableBasedClipperVertexList();
-    virtual       ~vtkTableBasedClipperVertexList();
-    virtual int    GetVTKType() const { return VTK_VERTEX; }
+          ~vtkTableBasedClipperVertexList() VTK_OVERRIDE;
+    int    GetVTKType() const VTK_OVERRIDE { return VTK_VERTEX; }
     void           AddVertex( int, int );
 };
 
@@ -603,7 +603,7 @@ class  vtkTableBasedClipperVolumeFromVolume :
   public:
               vtkTableBasedClipperVolumeFromVolume
               ( int precision, int nPts, int ptSizeGuess );
-    virtual  ~vtkTableBasedClipperVolumeFromVolume() { }
+     ~vtkTableBasedClipperVolumeFromVolume() VTK_OVERRIDE { }
 
     void      ConstructDataSet( vtkDataSet *,
                                 vtkUnstructuredGrid *, double * );
@@ -677,9 +677,9 @@ vtkTableBasedClipperCentroidPointList::vtkTableBasedClipperCentroidPointList()
   list    = new TableBasedClipperCentroidPointEntry * [ listSize ];
   list[0] = new TableBasedClipperCentroidPointEntry[ pointsPerList ];
   for (int i = 1; i < listSize; i ++ )
-    {
+  {
     list[i] = NULL;
-    }
+  }
 
   currentList  = 0;
   currentPoint = 0;
@@ -688,16 +688,16 @@ vtkTableBasedClipperCentroidPointList::vtkTableBasedClipperCentroidPointList()
 vtkTableBasedClipperCentroidPointList::~vtkTableBasedClipperCentroidPointList()
 {
   for ( int i = 0; i < listSize; i ++ )
-    {
+  {
     if ( list[i] != NULL )
-      {
+    {
       delete [] list[i];
-      }
-    else
-      {
-      break;
-      }
     }
+    else
+    {
+      break;
+    }
+  }
 
   delete [] list;
 }
@@ -706,10 +706,10 @@ int  vtkTableBasedClipperCentroidPointList::GetList
    ( int listId, const TableBasedClipperCentroidPointEntry *& outlist ) const
 {
   if ( listId < 0 || listId > currentList )
-    {
+  {
     outlist = NULL;
     return 0;
-    }
+  }
 
   outlist = list[ listId ];
   return ( listId == currentList ? currentPoint : pointsPerList );
@@ -731,38 +731,38 @@ int  vtkTableBasedClipperCentroidPointList::GetTotalNumberOfPoints() const
 int  vtkTableBasedClipperCentroidPointList::AddPoint( int npts, int * pts )
 {
   if ( currentPoint >= pointsPerList )
-    {
+  {
     if (  ( currentList + 1 )  >=  listSize  )
-      {
+    {
       TableBasedClipperCentroidPointEntry ** tmpList = new
       TableBasedClipperCentroidPointEntry * [ 2 * listSize ];
 
       for ( int i = 0; i < listSize; i ++ )
-        {
+      {
         tmpList[i] = list[i];
-        }
+      }
 
       for (int i = listSize; i < listSize * 2; i ++ )
-        {
+      {
         tmpList[i] = NULL;
-        }
+      }
 
       listSize *= 2;
       delete [] list;
       list = tmpList;
-      }
+    }
 
     currentList ++;
     list[ currentList ] = new TableBasedClipperCentroidPointEntry
                               [ pointsPerList ];
     currentPoint = 0;
-    }
+  }
 
   list[ currentList ][ currentPoint ].nPts = npts;
   for ( int i = 0; i < npts; i ++ )
-    {
+  {
     list[ currentList ][ currentPoint ].ptIds[i] = pts[i];
-    }
+  }
   currentPoint ++;
 
   return ( GetTotalNumberOfPoints() - 1 );
@@ -778,9 +778,9 @@ vtkTableBasedClipperShapeList::vtkTableBasedClipperShapeList( int size )
   list[0] = new int[  ( shapeSize + 1 ) * shapesPerList  ];
 
   for ( int i = 1; i < listSize; i ++ )
-    {
+  {
     list[i] = NULL;
-    }
+  }
 
   currentList  = 0;
   currentShape = 0;
@@ -789,16 +789,16 @@ vtkTableBasedClipperShapeList::vtkTableBasedClipperShapeList( int size )
 vtkTableBasedClipperShapeList::~vtkTableBasedClipperShapeList()
 {
   for (int i = 0; i < listSize; i ++ )
-    {
+  {
     if ( list[i] != NULL )
-      {
+    {
       delete [] list[i];
-      }
-    else
-      {
-      break;
-      }
     }
+    else
+    {
+      break;
+    }
+  }
 
   delete [] list;
 }
@@ -807,10 +807,10 @@ int  vtkTableBasedClipperShapeList::GetList
    ( int listId, const int *& outlist ) const
 {
   if ( listId < 0 || listId > currentList )
-    {
+  {
     outlist = NULL;
     return 0;
-    }
+  }
 
   outlist = list[ listId ];
   return ( listId == currentList ? currentShape : shapesPerList );
@@ -842,30 +842,30 @@ void vtkTableBasedClipperHexList::AddHex( int cellId,
      int v1, int v2, int v3, int v4, int v5, int v6, int v7, int v8 )
 {
   if ( currentShape >= shapesPerList )
-    {
+  {
     if (  ( currentList + 1) >= listSize  )
-      {
+    {
       int ** tmpList = new int * [ 2 * listSize ];
 
       for ( int i = 0; i < listSize; i ++ )
-        {
+      {
         tmpList[i] = list[i];
-        }
+      }
 
       for ( int i = listSize; i < listSize * 2; i ++ )
-        {
+      {
         tmpList[i] = NULL;
-        }
+      }
 
       listSize *= 2;
       delete [] list;
       list = tmpList;
-      }
+    }
 
     currentList ++;
     list[ currentList ] = new int[  ( shapeSize + 1 ) * shapesPerList  ];
     currentShape = 0;
-    }
+  }
 
   int idx = ( shapeSize + 1 )* currentShape;
   list[ currentList ][ idx + 0 ] = cellId;
@@ -893,29 +893,29 @@ void vtkTableBasedClipperWedgeList::AddWedge
    ( int cellId, int v1, int v2, int v3, int v4, int v5, int v6 )
 {
   if (currentShape >= shapesPerList)
-    {
+  {
     if ((currentList+1) >= listSize)
-      {
+    {
       int ** tmpList = new int * [ 2 * listSize ];
       for ( int i = 0; i < listSize; i ++ )
-        {
+      {
         tmpList[i] = list[i];
-        }
+      }
 
       for ( int i = listSize; i < listSize * 2; i ++ )
-        {
+      {
         tmpList[i] = NULL;
-        }
+      }
 
       listSize *= 2;
       delete [] list;
       list = tmpList;
-      }
+    }
 
     currentList ++;
     list[ currentList ] = new int[  ( shapeSize + 1 ) * shapesPerList  ];
     currentShape = 0;
-    }
+  }
 
   int idx = ( shapeSize + 1 ) * currentShape;
   list[ currentList ][ idx + 0 ] = cellId;
@@ -941,30 +941,30 @@ void vtkTableBasedClipperPyramidList::AddPyramid
    ( int cellId, int v1, int v2, int v3, int v4, int v5 )
 {
   if (currentShape >= shapesPerList)
-    {
+  {
     if (  ( currentList + 1 ) >= listSize  )
-      {
+    {
       int ** tmpList = new int * [ 2 * listSize ];
 
       for ( int i = 0; i < listSize; i ++ )
-        {
+      {
         tmpList[i] = list[i];
-        }
+      }
 
       for ( int i = listSize; i < listSize * 2; i ++ )
-        {
+      {
         tmpList[i] = NULL;
-        }
+      }
 
       listSize *= 2;
       delete [] list;
       list = tmpList;
-      }
+    }
 
     currentList ++;
     list[ currentList ] = new int[  ( shapeSize + 1 ) * shapesPerList  ];
     currentShape = 0;
-    }
+  }
 
   int idx = ( shapeSize + 1 ) * currentShape;
   list[ currentList ][ idx + 0 ] = cellId;
@@ -989,30 +989,30 @@ void vtkTableBasedClipperTetList::AddTet
    ( int cellId, int v1,int v2,int v3,int v4 )
 {
   if ( currentShape >= shapesPerList )
-    {
+  {
     if (  ( currentList + 1 )  >=  listSize  )
-      {
+    {
       int ** tmpList = new int * [ 2 * listSize ];
 
       for ( int i = 0; i < listSize; i ++ )
-        {
+      {
         tmpList[i] = list[i];
-        }
+      }
 
       for ( int i = listSize; i < listSize * 2; i ++ )
-        {
+      {
         tmpList[i] = NULL;
-        }
+      }
 
       listSize *= 2;
       delete [] list;
       list = tmpList;
-      }
+    }
 
     currentList ++;
     list[ currentList ] = new int[  ( shapeSize + 1 ) * shapesPerList  ];
     currentShape = 0;
-    }
+  }
 
   int idx = ( shapeSize + 1 ) * currentShape;
   list[ currentList ][ idx + 0 ] = cellId;
@@ -1036,29 +1036,29 @@ void vtkTableBasedClipperQuadList::AddQuad
    ( int cellId, int v1,int v2,int v3,int v4 )
 {
   if ( currentShape >= shapesPerList )
-    {
+  {
     if (  ( currentList + 1 ) >= listSize  )
-      {
+    {
       int ** tmpList = new int * [ 2 * listSize ];
       for ( int i = 0; i < listSize; i ++ )
-        {
+      {
         tmpList[i] = list[i];
-        }
+      }
 
       for ( int i = listSize; i < listSize * 2; i ++ )
-        {
+      {
         tmpList[i] = NULL;
-        }
+      }
 
       listSize *= 2;
       delete [] list;
       list = tmpList;
-      }
+    }
 
     currentList ++;
     list[ currentList ] = new int[  ( shapeSize + 1 ) * shapesPerList  ];
     currentShape = 0;
-    }
+  }
 
   int idx = ( shapeSize + 1 ) * currentShape;
   list[ currentList ][ idx + 0 ] = cellId;
@@ -1082,29 +1082,29 @@ void vtkTableBasedClipperTriList::AddTri
    ( int cellId, int v1,int v2,int v3 )
 {
   if ( currentShape >= shapesPerList )
-    {
+  {
     if (  ( currentList + 1 ) >= listSize  )
-      {
+    {
       int ** tmpList = new int * [ 2 * listSize ];
       for ( int i = 0; i < listSize; i ++ )
-        {
+      {
         tmpList[i] = list[i];
-        }
+      }
 
       for ( int i = listSize; i < listSize * 2; i ++ )
-        {
+      {
         tmpList[i] = NULL;
-        }
+      }
 
       listSize *= 2;
       delete [] list;
       list = tmpList;
-      }
+    }
 
     currentList ++;
     list[ currentList ] = new int[  ( shapeSize + 1 ) * shapesPerList  ];
     currentShape = 0;
-    }
+  }
 
   int idx = ( shapeSize + 1 ) * currentShape;
   list[ currentList ][ idx + 0 ] = cellId;
@@ -1126,29 +1126,29 @@ vtkTableBasedClipperLineList::~vtkTableBasedClipperLineList()
 void vtkTableBasedClipperLineList::AddLine( int cellId, int v1,int v2 )
 {
   if ( currentShape >= shapesPerList )
-    {
+  {
     if (  ( currentList + 1 )  >=  listSize  )
-      {
+    {
       int ** tmpList = new int * [ 2 * listSize ];
       for ( int i = 0; i < listSize; i ++ )
-        {
+      {
         tmpList[i] = list[i];
-        }
+      }
 
       for ( int i = listSize; i < listSize * 2; i ++ )
-        {
+      {
         tmpList[i] = NULL;
-        }
+      }
 
       listSize *= 2;
       delete [] list;
       list = tmpList;
-      }
+    }
 
     currentList ++;
     list[ currentList ] = new int[  ( shapeSize + 1 ) * shapesPerList  ];
     currentShape = 0;
-    }
+  }
 
   int idx = ( shapeSize + 1 ) * currentShape;
   list[ currentList ][ idx + 0 ] = cellId;
@@ -1169,29 +1169,29 @@ vtkTableBasedClipperVertexList::~vtkTableBasedClipperVertexList()
 void vtkTableBasedClipperVertexList::AddVertex( int cellId, int v1 )
 {
   if ( currentShape >= shapesPerList )
-    {
+  {
     if (  ( currentList + 1 ) >= listSize  )
-      {
+    {
       int ** tmpList = new int * [ 2 * listSize ];
       for ( int i = 0; i < listSize; i ++ )
-        {
+      {
         tmpList[i] = list[i];
-        }
+      }
 
       for ( int i = listSize; i < listSize * 2; i ++ )
-        {
+      {
         tmpList[i] = NULL;
-        }
+      }
 
       listSize *= 2;
       delete [] list;
       list = tmpList;
-      }
+    }
 
     currentList ++;
     list[ currentList ] = new int[  ( shapeSize + 1 ) * shapesPerList  ];
     currentShape = 0;
-    }
+  }
 
   int idx = ( shapeSize + 1) * currentShape;
   list[ currentList ][ idx + 0 ] = cellId;
@@ -1246,41 +1246,41 @@ void vtkTableBasedClipperVolumeFromVolume::
   //
   int * ptLookup = new int[ numPrevPts ];
   for ( i = 0; i < numPrevPts; i ++ )
-    {
+  {
     ptLookup[i] = -1;
-    }
+  }
 
   int numUsed = 0;
   for ( i = 0; i < nshapes; i ++ )
-    {
+  {
     int nlists = shapes[i]->GetNumberOfLists();
     int npts_per_shape = shapes[i]->GetShapeSize();
 
     for ( j = 0; j < nlists; j ++ )
-      {
+    {
       const int * list;
       int listSize = shapes[i]->GetList( j, list );
 
       for ( k = 0; k < listSize; k ++ )
-        {
+      {
         list ++; // skip the cell id entry
 
         for ( l = 0; l < npts_per_shape; l ++ )
-          {
+        {
           int pt = *list;
           list ++;
 
           if ( pt >= 0 && pt < numPrevPts )
-            {
+          {
             if ( ptLookup[pt] == -1 )
-              {
+            {
               ptLookup[pt] = numUsed ++;
-              }
             }
           }
         }
       }
     }
+  }
 
   //
   // Set up the output points and its point data.
@@ -1289,25 +1289,25 @@ void vtkTableBasedClipperVolumeFromVolume::
 
   // set precision for the points in the output
   if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
-    {
+  {
     vtkPointSet *inputPointSet = vtkPointSet::SafeDownCast(input);
     if(inputPointSet)
-      {
+    {
       outPts->SetDataType(inputPointSet->GetPoints()->GetDataType());
-      }
+    }
     else
-      {
+    {
       outPts->SetDataType(VTK_FLOAT);
-      }
     }
+  }
   else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
-    {
+  {
     outPts->SetDataType(VTK_FLOAT);
-    }
+  }
   else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     outPts->SetDataType(VTK_DOUBLE);
-    }
+  }
 
   int centroidStart  = numUsed + pt_list.GetTotalNumberOfPoints();
   int nOutPts        = centroidStart + centroid_list.GetTotalNumberOfPoints();
@@ -1315,42 +1315,42 @@ void vtkTableBasedClipperVolumeFromVolume::
   outPD->CopyAllocate( inPD, nOutPts );
 
   if ( origNodes != NULL )
-    {
+  {
     newOrigNodes = vtkIntArray::New();
     newOrigNodes->SetNumberOfComponents( origNodes->GetNumberOfComponents() );
     newOrigNodes->SetNumberOfTuples( nOutPts );
     newOrigNodes->SetName( origNodes->GetName() );
-    }
+  }
 
   //
   // Copy over all the points from the input that are actually used in the
   // output.
   //
   for ( i = 0; i < numPrevPts; i ++ )
-    {
+  {
     if ( ptLookup[i] == -1 )
-      {
+    {
       continue;
-      }
+    }
 
     if ( cps.hasPtsList )
-      {
+    {
       outPts->SetPoint( ptLookup[i], cps.pts_ptr + 3 * i );
-      }
+    }
     else
-      {
+    {
       int I = i % cps.dims[0];
       int J = (i / cps.dims[0]) % cps.dims[1];
       int K = i / ( cps.dims[0] * cps.dims[1] );
       outPts->SetPoint( ptLookup[i], cps.X[I], cps.Y[J], cps.Z[K] );
-      }
+    }
 
     outPD->CopyData( inPD, i, ptLookup[i] );
     if ( newOrigNodes )
-      {
+    {
       newOrigNodes->SetTuple(  ptLookup[i], origNodes->GetTuple( i )  );
-      }
     }
+  }
 
   int ptIdx = numUsed;
 
@@ -1360,11 +1360,11 @@ void vtkTableBasedClipperVolumeFromVolume::
   //
   int nLists = pt_list.GetNumberOfLists();
   for ( i = 0; i < nLists; i ++ )
-    {
+  {
     const TableBasedClipperPointEntry * pe_list = NULL;
     int nPts = pt_list.GetList( i, pe_list );
     for ( j = 0; j < nPts; j ++ )
-      {
+    {
       const TableBasedClipperPointEntry & pe = pe_list[j];
       double pt[3];
       int idx1 = pe.ptIds[0];
@@ -1377,12 +1377,12 @@ void vtkTableBasedClipperVolumeFromVolume::
       double pt1_storage[3];
       double pt2_storage[3];
       if ( cps.hasPtsList )
-        {
+      {
         pt1 = cps.pts_ptr + 3 * idx1;
         pt2 = cps.pts_ptr + 3 * idx2;
-        }
+      }
       else
-        {
+      {
         pt1 = pt1_storage;
         pt2 = pt2_storage;
         int I = idx1 % cps.dims[0];
@@ -1397,7 +1397,7 @@ void vtkTableBasedClipperVolumeFromVolume::
         pt2[0] = cps.X[I];
         pt2[1] = cps.Y[J];
         pt2[2] = cps.Z[K];
-        }
+      }
 
       // Now that we have the original points, calculate the new one.
       double p  = pe.percent;
@@ -1409,13 +1409,13 @@ void vtkTableBasedClipperVolumeFromVolume::
       outPD->InterpolateEdge( inPD, ptIdx, pe.ptIds[0], pe.ptIds[1], bp );
 
       if ( newOrigNodes )
-        {
+      {
         int id = ( bp <= 0.5 ? pe.ptIds[0] : pe.ptIds[1] );
         newOrigNodes->SetTuple(  ptIdx, origNodes->GetTuple( id )  );
-        }
-      ptIdx ++;
       }
+      ptIdx ++;
     }
+  }
 
   //
   // Now construct the new "centroid" points and add them to the points list.
@@ -1423,11 +1423,11 @@ void vtkTableBasedClipperVolumeFromVolume::
   nLists = centroid_list.GetNumberOfLists();
   vtkIdList * idList = vtkIdList::New();
   for ( i = 0; i < nLists; i ++ )
-    {
+  {
     const TableBasedClipperCentroidPointEntry * ce_list = NULL;
     int nPts = centroid_list.GetList( i, ce_list );
     for ( j = 0; j < nPts; j ++ )
-      {
+    {
       const TableBasedClipperCentroidPointEntry & ce = ce_list[j];
       idList->SetNumberOfIds( ce.nPts );
       double pts[8][3];
@@ -1435,30 +1435,30 @@ void vtkTableBasedClipperVolumeFromVolume::
       double pt[3] = { 0.0, 0.0, 0.0 };
       double weight_factor = 1.0 / ce.nPts;
       for ( k = 0; k < ce.nPts; k ++ )
-        {
+      {
         weights[k] = 1.0 * weight_factor;
         int id = 0;
 
         if ( ce.ptIds[k] < 0 )
-          {
+        {
           id = centroidStart - 1 - ce.ptIds[k];
-          }
+        }
         else
         if ( ce.ptIds[k] >= numPrevPts )
-          {
+        {
           id = numUsed + ( ce.ptIds[k] - numPrevPts );
-          }
+        }
         else
-          {
+        {
           id = ptLookup[ ce.ptIds[k] ];
-          }
+        }
 
         idList->SetId( k, id );
         outPts->GetPoint( id, pts[k] );
         pt[0] += pts[k][0];
         pt[1] += pts[k][1];
         pt[2] += pts[k][2];
-        }
+      }
       pt[0] *= weight_factor;
       pt[1] *= weight_factor;
       pt[2] *= weight_factor;
@@ -1466,16 +1466,16 @@ void vtkTableBasedClipperVolumeFromVolume::
       outPts->SetPoint( ptIdx, pt );
       outPD->InterpolatePoint( outPD, ptIdx, idList, weights );
       if ( newOrigNodes )
-        {
+      {
         // these 'created' nodes have no original designation
         for ( int z = 0; z < newOrigNodes->GetNumberOfComponents(); z ++ )
-          {
+        {
           newOrigNodes->SetComponent( ptIdx, z, -1 );
-          }
         }
-      ptIdx ++;
       }
+      ptIdx ++;
     }
+  }
   idList->Delete();
 
   //
@@ -1486,12 +1486,12 @@ void vtkTableBasedClipperVolumeFromVolume::
   outPts->Delete();
 
   if ( newOrigNodes )
-    {
+  {
     // AddArray will overwrite an already existing array with
     // the same name, exactly what we want here.
     outPD->AddArray( newOrigNodes );
     newOrigNodes->Delete();
-    }
+  }
 
   //
   // Now set up the shapes and the cell data.
@@ -1502,11 +1502,11 @@ void vtkTableBasedClipperVolumeFromVolume::
   int ncells    = 0;
   int conn_size = 0;
   for ( i = 0; i < nshapes; i ++ )
-    {
+  {
     int ns     = shapes[i]->GetTotalNumberOfShapes();
     ncells    += ns;
     conn_size += ( shapes[i]->GetShapeSize() + 1 ) * ns;
-    }
+  }
 
   outCD->CopyAllocate( inCD, ncells );
 
@@ -1525,50 +1525,50 @@ void vtkTableBasedClipperVolumeFromVolume::
   vtkIdType ids[1024]; // 8 (for hex) should be max, but...
   int current_index = 0;
   for ( i = 0; i < nshapes; i ++ )
-    {
+  {
     const int * list;
     nlists = shapes[i]->GetNumberOfLists();
     int shapesize = shapes[i]->GetShapeSize();
     int vtk_type = shapes[i]->GetVTKType();
 
     for ( j = 0; j < nlists; j ++ )
-      {
+    {
       int listSize = shapes[i]->GetList( j, list );
 
       for ( k = 0; k < listSize; k ++ )
-        {
+      {
         outCD->CopyData( inCD, list[0], cellId );
 
         for ( l = 0; l < shapesize; l ++ )
-          {
+        {
           if (  list[ l + 1 ] < 0  )
-            {
+          {
             ids[l] = centroidStart - 1 - list[ l + 1 ];
-            }
+          }
           else
           if (  list[ l + 1 ] >= numPrevPts  )
-            {
+          {
             ids[l] = numUsed + (  list[ l + 1 ] - numPrevPts  );
-            }
-          else
-            {
-            ids[l] = ptLookup[  list[ l + 1 ]  ];
-            }
           }
+          else
+          {
+            ids[l] = ptLookup[  list[ l + 1 ]  ];
+          }
+        }
         list += shapesize + 1;
         *nl ++ = shapesize;
         *cl ++ = current_index;
         *ct ++ = vtk_type;
         for ( l = 0; l < shapesize; l ++ )
-          {
+        {
           *nl ++ = ids[l];
-          }
+        }
 
         current_index += shapesize + 1;
         cellId ++;
-        }
       }
     }
+  }
 
   vtkCellArray * cells = vtkCellArray::New();
   cells->SetCells( ncells, nlist );
@@ -1636,10 +1636,10 @@ vtkTableBasedClipDataSet::vtkTableBasedClipDataSet( vtkImplicitFunction * cf )
 vtkTableBasedClipDataSet::~vtkTableBasedClipDataSet()
 {
   if ( this->Locator )
-    {
+  {
     this->Locator->UnRegister( this );
     this->Locator = NULL;
-    }
+  }
   this->SetClipFunction( NULL );
   this->InternalProgressObserver->Delete();
   this->InternalProgressObserver = NULL;
@@ -1661,28 +1661,28 @@ void vtkTableBasedClipDataSet::InternalProgressCallback
   this->UpdateProgress( progress );
 
   if ( this->AbortExecute )
-    {
+  {
     algorithm->SetAbortExecute( 1 );
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
-unsigned long vtkTableBasedClipDataSet::GetMTime()
+vtkMTimeType vtkTableBasedClipDataSet::GetMTime()
 {
-  unsigned long time;
-  unsigned long mTime = this->Superclass::GetMTime();
+  vtkMTimeType time;
+  vtkMTimeType mTime = this->Superclass::GetMTime();
 
   if ( this->ClipFunction != NULL )
-    {
+  {
     time  = this->ClipFunction->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
 
   if ( this->Locator != NULL )
-    {
+  {
     time  = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
 
   return mTime;
 }
@@ -1690,9 +1690,9 @@ unsigned long vtkTableBasedClipDataSet::GetMTime()
 vtkUnstructuredGrid *vtkTableBasedClipDataSet::GetClippedOutput()
 {
   if ( !this->GenerateClippedOutput )
-    {
+  {
     return NULL;
-    }
+  }
 
   return vtkUnstructuredGrid::SafeDownCast
         (  this->GetExecutive()->GetOutputData( 1 )  );
@@ -1703,20 +1703,20 @@ void vtkTableBasedClipDataSet::SetLocator
    ( vtkIncrementalPointLocator * locator )
 {
   if ( this->Locator == locator)
-    {
+  {
     return;
-    }
+  }
 
   if ( this->Locator )
-    {
+  {
     this->Locator->UnRegister( this );
     this->Locator = NULL;
-    }
+  }
 
   if ( locator )
-    {
+  {
     locator->Register( this );
-    }
+  }
 
   this->Locator = locator;
   this->Modified();
@@ -1726,11 +1726,11 @@ void vtkTableBasedClipDataSet::SetLocator
 void vtkTableBasedClipDataSet::CreateDefaultLocator()
 {
   if ( this->Locator == NULL )
-    {
+  {
     this->Locator = vtkMergePoints::New();
     this->Locator->Register( this );
     this->Locator->Delete();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1779,19 +1779,19 @@ int vtkTableBasedClipDataSet::RequestData( vtkInformation * vtkNotUsed( request 
 
   // handling exceptions
   if ( numbPnts < 1 )
-    {
+  {
     vtkDebugMacro( << "No data to clip" << endl );
     outputUG = NULL;
     return 1;
-    }
+  }
 
   if ( !this->ClipFunction && this->GenerateClipScalars )
-    {
+  {
     vtkErrorMacro( << "Cannot generate clip scalars "
                    << "if no clip function defined" << endl );
     outputUG = NULL;
     return 1;
-    }
+  }
 
 
   vtkDataArray   * clipAray = NULL;
@@ -1799,122 +1799,122 @@ int vtkTableBasedClipDataSet::RequestData( vtkInformation * vtkNotUsed( request 
 
   // check whether the cells are clipped with input scalars or a clip function
   if ( this->ClipFunction )
-    {
+  {
     pScalars = vtkDoubleArray::New();
     pScalars->SetNumberOfTuples( numbPnts );
     pScalars->SetName( "ClipDataSetScalars" );
 
     // enable clipDataSetScalars to be passed to the output
     if ( this->GenerateClipScalars )
-      {
+    {
       cpyInput->GetPointData()->SetScalars( pScalars );
-      }
+    }
 
     for ( i = 0; i < numbPnts; i ++ )
-      {
+    {
       double s = this->ClipFunction->FunctionValue(  cpyInput->GetPoint( i )  );
       pScalars->SetTuple1( i, s );
-      }
+    }
 
     clipAray = pScalars;
-    }
+  }
   else //using input scalars
-    {
+  {
     clipAray = this->GetInputArrayToProcess( 0, inputVector );
     if ( !clipAray )
-      {
+    {
       vtkErrorMacro( << "no input scalars." << endl );
       return 1;
-      }
     }
+  }
 
   int    gridType = cpyInput->GetDataObjectType();
   double isoValue = ( !this->ClipFunction || this->UseValueAsOffset )
                     ?  this->Value  :  0.0;
   if ( gridType == VTK_IMAGE_DATA || gridType == VTK_STRUCTURED_POINTS )
-    {
+  {
     this->ClipImageData( cpyInput.GetPointer(), clipAray, isoValue, outputUG );
     if (clippedOutputUG)
-      {
+    {
       this->InsideOut = !(this->InsideOut);
       this->ClipImageData( cpyInput.GetPointer(), clipAray, isoValue,
                          clippedOutputUG );
       this->InsideOut = !(this->InsideOut);
-      }
     }
+  }
   else
   if ( gridType == VTK_POLY_DATA )
-    {
+  {
     this->ClipPolyData( cpyInput.GetPointer(), clipAray, isoValue, outputUG );
     if (clippedOutputUG)
-      {
+    {
       this->InsideOut = !(this->InsideOut);
       this->ClipPolyData( cpyInput.GetPointer(), clipAray, isoValue,
                           clippedOutputUG );
       this->InsideOut = !(this->InsideOut);
-      }
     }
+  }
   else
   if ( gridType == VTK_RECTILINEAR_GRID )
-    {
+  {
     this->ClipRectilinearGridData( cpyInput.GetPointer(), clipAray,
                                    isoValue, outputUG );
     if (clippedOutputUG)
-      {
+    {
       this->InsideOut = !(this->InsideOut);
       this->ClipRectilinearGridData( cpyInput.GetPointer(), clipAray, isoValue,
                                      clippedOutputUG );
       this->InsideOut = !(this->InsideOut);
-      }
     }
+  }
   else
   if ( gridType == VTK_STRUCTURED_GRID )
-    {
+  {
     this->ClipStructuredGridData( cpyInput.GetPointer(), clipAray,
                                   isoValue, outputUG );
     if (clippedOutputUG)
-      {
+    {
       this->InsideOut = !(this->InsideOut);
       this->ClipStructuredGridData( cpyInput.GetPointer(), clipAray, isoValue,
                                     clippedOutputUG );
       this->InsideOut = !(this->InsideOut);
-      }
     }
+  }
   else
   if ( gridType == VTK_UNSTRUCTURED_GRID )
-    {
+  {
     this->ClipUnstructuredGridData( cpyInput.GetPointer(), clipAray,
                                     isoValue, outputUG );
     if (clippedOutputUG)
-      {
+    {
       this->InsideOut = !(this->InsideOut);
       this->ClipUnstructuredGridData( cpyInput.GetPointer(), clipAray, isoValue,
                                       clippedOutputUG );
       this->InsideOut = !(this->InsideOut);
-      }
     }
+  }
   else
-    {
+  {
     this->ClipDataSet( cpyInput.GetPointer(), clipAray, outputUG );
     if (clippedOutputUG)
-      {
+    {
       this->InsideOut = !(this->InsideOut);
       this->ClipDataSet( cpyInput.GetPointer(), clipAray, clippedOutputUG );
       this->InsideOut = !(this->InsideOut);
-      }
     }
+  }
 
   outputUG->Squeeze();
 
   if (clippedOutputUG)
-    {
+  {
     clippedOutputUG->Squeeze();
-    }
+  }
 
   if ( pScalars )
-    {
+  {
     pScalars->Delete();
-    }
+  }
   pScalars = NULL;
   outputUG = NULL;
   clippedOutputUG = NULL;
@@ -1936,9 +1936,9 @@ void vtkTableBasedClipDataSet::ClipDataSet( vtkDataSet * pDataSet,
   clipData->SetGenerateClipScalars( this->GenerateClipScalars );
 
   if ( !this->ClipFunction )
-    {
+  {
     pDataSet->GetPointData()->SetScalars( clipAray );
-    }
+  }
 
   clipData->Update();
   unstruct->ShallowCopy( clipData->GetOutput() );
@@ -1972,16 +1972,16 @@ void vtkTableBasedClipDataSet::ClipImageData( vtkDataSet * inputGrd,
   pzCoords = vtkDoubleArray::New();
   vtkDoubleArray * tmpArays[3] = { pxCoords, pyCoords, pzCoords };
   for ( j = 0; j < 3; j ++ )
-    {
+  {
     tmpArays[j]->SetNumberOfComponents( 1 );
     tmpArays[j]->SetNumberOfTuples( dataDims[j] );
     for ( tmpValue  = dataBBox[ j << 1 ], i = 0; i < dataDims[j]; i ++,
           tmpValue += spacings[j] )
-      {
+    {
       tmpArays[j]->SetComponent( i, 0, tmpValue );
-      }
-    tmpArays[j] = NULL;
     }
+    tmpArays[j] = NULL;
+  }
 
   rectGrid = vtkRectilinearGrid::New();
   rectGrid->SetDimensions( dataDims );
@@ -2027,14 +2027,14 @@ void vtkTableBasedClipDataSet::ClipPolyData( vtkDataSet * inputGrd,
   int         numCants = 0;  // number of cells not clipped by this filter
 
   for ( i = 0; i < numCells; i ++ )
-    {
+  {
     int         cellType = polyData->GetCellType( i );
     bool        bCanClip = false;
     vtkIdType * pntIndxs = NULL;
     polyData->GetCellPoints( i, numbPnts, pntIndxs );
 
     switch ( cellType )
-      {
+    {
       case VTK_TETRA:
       case VTK_PYRAMID:
       case VTK_WEDGE:
@@ -2049,19 +2049,19 @@ void vtkTableBasedClipDataSet::ClipPolyData( vtkDataSet * inputGrd,
       default:
            bCanClip = false;
            break;
-      }
+    }
 
     if ( bCanClip )
-      {
+    {
       double    grdDiffs[8];
       int       caseIndx = 0;
 
       for ( j = numbPnts - 1; j >= 0; j -- )
-        {
+      {
         grdDiffs[j] = clipAray->GetComponent( pntIndxs[j], 0 ) - isoValue;
         caseIndx   += (  ( grdDiffs[j] >= 0.0 ) ? 1 : 0  );
         caseIndx  <<= (  1 - ( !j )  );
-        }
+      }
 
       int             startIdx = 0;
       int             nOutputs = 0;
@@ -2070,7 +2070,7 @@ void vtkTableBasedClipDataSet::ClipPolyData( vtkDataSet * inputGrd,
       unsigned char * thisCase = NULL;
 
       switch ( cellType )
-        {
+      {
         case VTK_TETRA:
           startIdx = vtkTableBasedClipperClipTables::StartClipShapesTet[ caseIndx ];
           thisCase =&vtkTableBasedClipperClipTables::ClipShapesTet[ startIdx ];
@@ -2133,18 +2133,18 @@ void vtkTableBasedClipDataSet::ClipPolyData( vtkDataSet * inputGrd,
           nOutputs = vtkTableBasedClipperClipTables::NumClipShapesVtx[ caseIndx ];
           edgeVtxs = NULL;
           break;
-        }
+      }
 
       int  intrpIds[4];
       for ( j = 0; j < nOutputs; j ++ )
-        {
+      {
         int      nCellPts = 0;
         int      intrpIdx = -1;
         int      theColor = -1;
         unsigned char theShape = *thisCase ++;
 
         switch ( theShape )
-          {
+        {
           case ST_HEX:
             nCellPts = 8;
             theColor = *thisCase ++;
@@ -2193,37 +2193,37 @@ void vtkTableBasedClipDataSet::ClipPolyData( vtkDataSet * inputGrd,
           default:
             vtkErrorMacro( << "An invalid output shape was found in "
                            << "the ClipCases." << endl );
-          }
+        }
 
         if ( (!this->InsideOut && theColor == COLOR0 ) ||
              ( this->InsideOut && theColor == COLOR1 )
            )
-          {
+        {
           // We don't want this one; it's the wrong side.
           thisCase += nCellPts;
           continue;
-          }
+        }
 
         int   shapeIds[8];
         for ( int p = 0; p < nCellPts; p ++ )
-          {
+        {
           unsigned char pntIndex = *thisCase ++;
 
           if ( pntIndex <= P7 )
-            {
+          {
             shapeIds[p] = pntIndxs[ pntIndex ];
-            }
+          }
           else
           if ( pntIndex >= EA && pntIndex <= EL )
-            {
+          {
             int pt1Index = edgeVtxs[ pntIndex - EA ][0];
             int pt2Index = edgeVtxs[ pntIndex - EA ][1];
             if ( pt2Index < pt1Index )
-              {
+            {
               int temp = pt2Index;
               pt2Index = pt1Index;
               pt1Index = temp;
-              }
+            }
             double pt1ToPt2 = grdDiffs[ pt2Index ] - grdDiffs[ pt1Index ];
             double pt1ToIso = 0.0 - grdDiffs[ pt1Index ];
             double p1Weight = 1.0 - pt1ToIso / pt1ToPt2;
@@ -2232,21 +2232,21 @@ void vtkTableBasedClipDataSet::ClipPolyData( vtkDataSet * inputGrd,
             int    pntIndx2 = pntIndxs[ pt2Index ];
 
             shapeIds[p] = visItVFV->AddPoint( pntIndx1, pntIndx2, p1Weight );
-            }
+          }
           else
           if ( pntIndex >= N0 && pntIndex <= N3 )
-            {
+          {
             shapeIds[p] = intrpIds[ pntIndex - N0 ];
-            }
+          }
           else
-            {
+          {
             vtkErrorMacro( << "An invalid output point value "
                            << "was found in the ClipCases." << endl );
-            }
           }
+        }
 
         switch ( theShape )
-          {
+        {
           case ST_HEX:
             visItVFV->AddHex( i, shapeIds[0], shapeIds[1],
                                  shapeIds[2], shapeIds[3], shapeIds[4],
@@ -2288,52 +2288,52 @@ void vtkTableBasedClipDataSet::ClipPolyData( vtkDataSet * inputGrd,
           case ST_PNT:
             intrpIds[intrpIdx] = visItVFV->AddCentroidPoint( nCellPts, shapeIds );
             break;
-          }
         }
+      }
 
       edgeVtxs = NULL;
       thisCase = NULL;
-      }
+    }
     else
-      {
+    {
       if ( numCants == 0 )
-        {
+      {
         specials->GetCellData()
                 ->CopyAllocate( polyData->GetCellData(), numCells );
-        }
+      }
 
       specials->InsertNextCell( cellType, numbPnts, pntIndxs );
       specials->GetCellData()
               ->CopyData( polyData->GetCellData(), i, numCants );
       numCants ++;
-      }
+    }
 
     pntIndxs = NULL;
-    }
+  }
 
 
   int         toDelete = 0;
   double    * theCords = NULL;
   vtkPoints * inputPts = polyData->GetPoints();
   if ( inputPts->GetDataType() == VTK_DOUBLE )
-    {
+  {
     theCords = static_cast < double * > (  inputPts->GetVoidPointer( 0 )  );
-    }
+  }
   else
-    {
+  {
     toDelete = 1;
     numbPnts = inputPts->GetNumberOfPoints();
     theCords = new double [ numbPnts * 3 ];
     for ( i = 0; i < numbPnts; i ++ )
-      {
+    {
       inputPts->GetPoint( i, theCords + ( i << 1 ) + i );
-      }
     }
+  }
   inputPts = NULL;
 
 
   if ( numCants > 0 )
-    {
+  {
     vtkUnstructuredGrid * vtkUGrid  = vtkUnstructuredGrid::New();
     this->ClipDataSet( specials, clipAray, vtkUGrid );
 
@@ -2353,19 +2353,19 @@ void vtkTableBasedClipDataSet::ClipPolyData( vtkDataSet * inputGrd,
     appender = NULL;
     vtkUGrid = NULL;
     visItGrd = NULL;
-    }
+  }
   else
-    {
+  {
     visItVFV->ConstructDataSet( polyData, outputUG, theCords );
-    }
+  }
 
 
   specials->Delete();
   delete visItVFV;
   if ( toDelete )
-    {
+  {
     delete [] theCords;
-    }
+  }
   specials = NULL;
   visItVFV = NULL;
   theCords = NULL;
@@ -2402,23 +2402,23 @@ void vtkTableBasedClipDataSet::ClipRectilinearGridData( vtkDataSet * inputGrd,
 
   int* shiftLUT[3];
   if (isTwoDim && twoDimType == XZ)
-    {
+  {
     shiftLUT[0] = shiftLUTx;
     shiftLUT[1] = shiftLUTz;
     shiftLUT[2] = shiftLUTy;
-    }
+  }
   else if (isTwoDim && twoDimType == YZ)
-    {
+  {
     shiftLUT[0] = shiftLUTy;
     shiftLUT[1] = shiftLUTz;
     shiftLUT[2] = shiftLUTx;
-    }
+  }
   else
-    {
+  {
     shiftLUT[0] = shiftLUTx;
     shiftLUT[1] = shiftLUTy;
     shiftLUT[2] = shiftLUTz;
-    }
+  }
 
   int   cellDims[3] = { rectDims[0] - 1, rectDims[1] - 1, rectDims[2] - 1 };
   int   cyStride    = (cellDims[0] ? cellDims[0] : 1);
@@ -2427,7 +2427,7 @@ void vtkTableBasedClipDataSet::ClipRectilinearGridData( vtkDataSet * inputGrd,
   int   pzStride    = rectDims[0] * rectDims[1];
 
   for ( i = 0; i < numCells; i ++ )
-    {
+  {
     int    caseIndx = 0;
     int    nCellPts = isTwoDim ? 4 : 8;
     int    theCellI = (cellDims[0] > 0 ? i % cellDims[0] : 0);
@@ -2436,7 +2436,7 @@ void vtkTableBasedClipDataSet::ClipRectilinearGridData( vtkDataSet * inputGrd,
     double grdDiffs[8];
 
     for ( j = nCellPts - 1; j >= 0; j -- )
-      {
+    {
       grdDiffs[j] = clipAray->GetComponent
                               (  ( theCellK + shiftLUT[2][j] ) * pzStride +
                                  ( theCellJ + shiftLUT[1][j] ) * pyStride +
@@ -2444,34 +2444,34 @@ void vtkTableBasedClipDataSet::ClipRectilinearGridData( vtkDataSet * inputGrd,
                               ) - isoValue;
       caseIndx   += (  ( grdDiffs[j] >= 0.0 ) ? 1 : 0  );
       caseIndx  <<= (  1 - ( !j )  );
-      }
+    }
 
     int             nOutputs;
     int             intrpIds[4];
     unsigned char * thisCase = NULL;
 
     if ( isTwoDim )
-      {
+    {
       thisCase = &vtkTableBasedClipperClipTables::ClipShapesQua
                [  vtkTableBasedClipperClipTables::StartClipShapesQua[ caseIndx ]  ];
       nOutputs = vtkTableBasedClipperClipTables::NumClipShapesQua[ caseIndx ];
-      }
+    }
     else
-      {
+    {
       thisCase = &vtkTableBasedClipperClipTables::ClipShapesHex
                [  vtkTableBasedClipperClipTables::StartClipShapesHex[ caseIndx ]  ];
       nOutputs = vtkTableBasedClipperClipTables::NumClipShapesHex[ caseIndx ];
-      }
+    }
 
     for ( j = 0; j < nOutputs; j++ )
-      {
+    {
       int      intrpIdx = -1;
       int      theColor = -1;
       unsigned char theShape = *thisCase ++;
 
       nCellPts = 0;
       switch ( theShape )
-        {
+      {
         case ST_HEX:
           nCellPts = 8;
           theColor = *thisCase ++;
@@ -2521,24 +2521,24 @@ void vtkTableBasedClipDataSet::ClipRectilinearGridData( vtkDataSet * inputGrd,
         default:
           vtkErrorMacro( << "An invalid output shape was found in "
                          << "the ClipCases." << endl );
-        }
+      }
 
       if ( (!this->InsideOut && theColor == COLOR0 ) ||
            ( this->InsideOut && theColor == COLOR1 )
          )
-        {
+      {
         // We don't want this one; it's the wrong side.
         thisCase += nCellPts;
         continue;
-        }
+      }
 
       int   shapeIds[8];
       for ( int p = 0; p < nCellPts; p ++ )
-        {
+      {
         unsigned char pntIndex = *thisCase ++;
 
         if ( pntIndex <= P7 )
-          {
+        {
           // We know pt P0 must be >P0 since we already
           // assume P0 == 0.  This is why we do not
           // bother subtracting P0 from pt here.
@@ -2547,21 +2547,21 @@ void vtkTableBasedClipDataSet::ClipRectilinearGridData( vtkDataSet * inputGrd,
                           (  theCellJ + shiftLUT[1][ pntIndex ]  ) * pyStride +
                           (  theCellK + shiftLUT[2][ pntIndex ]  ) * pzStride
                       );
-          }
+        }
         else
         if ( pntIndex >= EA && pntIndex <= EL )
-          {
+        {
           int pt1Index = vtkTableBasedClipperTriangulationTables::
                          HexVerticesFromEdges[ pntIndex - EA ][0];
           int pt2Index = vtkTableBasedClipperTriangulationTables::
                          HexVerticesFromEdges[ pntIndex - EA ][1];
 
           if ( pt2Index < pt1Index )
-            {
+          {
             int temp = pt2Index;
             pt2Index = pt1Index;
             pt1Index = temp;
-            }
+          }
 
           double pt1ToPt2 = grdDiffs[ pt2Index ] - grdDiffs[ pt1Index ];
           double pt1ToIso = 0.0 - grdDiffs[ pt1Index ];
@@ -2604,21 +2604,21 @@ void vtkTableBasedClipDataSet::ClipRectilinearGridData( vtkDataSet * inputGrd,
           // expected closed one. This is due to the use of hash instead of a
           // point-locator based detection of duplicate points.
           shapeIds[p] = visItVFV->AddPoint( pntIndx1, pntIndx2, p1Weight );
-          }
+        }
         else
         if ( pntIndex >= N0 && pntIndex <= N3 )
-          {
+        {
           shapeIds[p] = intrpIds[ pntIndex - N0 ];
-          }
+        }
         else
-          {
+        {
           vtkErrorMacro( << "An invalid output point value "
                          << "was found in the ClipCases." << endl );
-          }
         }
+      }
 
       switch ( theShape )
-        {
+      {
         case ST_HEX:
           visItVFV->AddHex( i, shapeIds[0], shapeIds[1],
                                shapeIds[2], shapeIds[3], shapeIds[4],
@@ -2661,11 +2661,11 @@ void vtkTableBasedClipDataSet::ClipRectilinearGridData( vtkDataSet * inputGrd,
           intrpIds[ intrpIdx ] = visItVFV->AddCentroidPoint
                                            ( nCellPts, shapeIds );
           break;
-        }
       }
+    }
 
     thisCase = NULL;
-    }
+  }
 
 
   int            toDelete    = 0;
@@ -2676,30 +2676,30 @@ void vtkTableBasedClipDataSet::ClipRectilinearGridData( vtkDataSet * inputGrd,
        rectGrid->GetYCoordinates()->GetDataType() == VTK_DOUBLE &&
        rectGrid->GetZCoordinates()->GetDataType() == VTK_DOUBLE
      )
-    {
+  {
     theCords[0] = static_cast < double * >
                   (  rectGrid->GetXCoordinates()->GetVoidPointer( 0 )  );
     theCords[1] = static_cast < double * >
                   (  rectGrid->GetYCoordinates()->GetVoidPointer( 0 )  );
     theCords[2] = static_cast < double * >
                   (  rectGrid->GetZCoordinates()->GetVoidPointer( 0 )  );
-    }
+  }
   else
-    {
+  {
     toDelete    = 1;
     theArays[0] = rectGrid->GetXCoordinates();
     theArays[1] = rectGrid->GetYCoordinates();
     theArays[2] = rectGrid->GetZCoordinates();
     for ( j = 0; j < 3; j ++ )
-      {
+    {
       theCords[j] = new double [ rectDims[j] ];
       for ( i = 0; i < rectDims[j]; i ++ )
-        {
+      {
         theCords[j][i] = theArays[j]->GetComponent( i, 0 );
-        }
-      theArays[j] = NULL;
       }
+      theArays[j] = NULL;
     }
+  }
 
   visItVFV->ConstructDataSet
             ( rectGrid,
@@ -2710,13 +2710,13 @@ void vtkTableBasedClipDataSet::ClipRectilinearGridData( vtkDataSet * inputGrd,
   rectGrid = NULL;
 
   for ( i = 0; i < 3; i ++ )
-    {
+  {
     if ( toDelete )
-      {
+    {
       delete [] theCords[i];
-      }
-    theCords[i] = NULL;
     }
+    theCords[i] = NULL;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -2749,23 +2749,23 @@ void vtkTableBasedClipDataSet::ClipStructuredGridData( vtkDataSet * inputGrd,
 
   int* shiftLUT[3];
   if (isTwoDim && twoDimType == XZ)
-    {
+  {
     shiftLUT[0] = shiftLUTx;
     shiftLUT[1] = shiftLUTz;
     shiftLUT[2] = shiftLUTy;
-    }
+  }
   else if (isTwoDim && twoDimType == YZ)
-    {
+  {
     shiftLUT[0] = shiftLUTy;
     shiftLUT[1] = shiftLUTz;
     shiftLUT[2] = shiftLUTx;
-    }
+  }
   else
-    {
+  {
     shiftLUT[0] = shiftLUTx;
     shiftLUT[1] = shiftLUTy;
     shiftLUT[2] = shiftLUTz;
-    }
+  }
 
   int   numbPnts    = 0;
   int   cellDims[3] = { gridDims[0] - 1, gridDims[1] - 1, gridDims[2] - 1 };
@@ -2775,7 +2775,7 @@ void vtkTableBasedClipDataSet::ClipStructuredGridData( vtkDataSet * inputGrd,
   int   pzStride    = gridDims[0] * gridDims[1];
 
   for ( i = 0; i < numCells; i ++ )
-    {
+  {
     int    caseIndx = 0;
     int    theCellI = (cellDims[0] > 0 ? i % cellDims[0] : 0);
     int    theCellJ = (cellDims[1] > 0 ? ( i / cyStride ) % cellDims[1] : 0);
@@ -2785,7 +2785,7 @@ void vtkTableBasedClipDataSet::ClipStructuredGridData( vtkDataSet * inputGrd,
     numbPnts = isTwoDim ? 4 : 8;
 
     for ( j = numbPnts - 1; j >= 0; j -- )
-      {
+    {
       int pntIndex = ( theCellI + shiftLUT[0][j] ) +
                      ( theCellJ + shiftLUT[1][j] ) * pyStride +
                      ( theCellK + shiftLUT[2][j] ) * pzStride;
@@ -2793,34 +2793,34 @@ void vtkTableBasedClipDataSet::ClipStructuredGridData( vtkDataSet * inputGrd,
       grdDiffs[j]  = clipAray->GetComponent( pntIndex, 0 ) - isoValue;
       caseIndx    += (  ( grdDiffs[j] >= 0.0 ) ? 1 : 0  );
       caseIndx   <<= (  1 - ( !j )  );
-      }
+    }
 
     int             nOutputs;
     int             intrpIds[4];
     unsigned char * thisCase = NULL;
 
     if ( isTwoDim )
-      {
+    {
       thisCase = &vtkTableBasedClipperClipTables::ClipShapesQua
                [  vtkTableBasedClipperClipTables::StartClipShapesQua[ caseIndx ]  ];
       nOutputs = vtkTableBasedClipperClipTables::NumClipShapesQua[ caseIndx ];
-      }
+    }
     else
-      {
+    {
       thisCase = &vtkTableBasedClipperClipTables::ClipShapesHex
                [  vtkTableBasedClipperClipTables::StartClipShapesHex[ caseIndx ]  ];
       nOutputs = vtkTableBasedClipperClipTables::NumClipShapesHex[ caseIndx ];
-      }
+    }
 
     for ( j = 0; j < nOutputs; j ++ )
-      {
+    {
       int      nCellPts = 0;
       int      intrpIdx = -1;
       int      theColor = -1;
       unsigned char theShape = *thisCase ++;
 
       switch ( theShape )
-        {
+      {
         case ST_HEX:
           nCellPts = 8;
           theColor = *thisCase ++;
@@ -2870,24 +2870,24 @@ void vtkTableBasedClipDataSet::ClipStructuredGridData( vtkDataSet * inputGrd,
         default:
           vtkErrorMacro( << "An invalid output shape was found in "
                          << "the ClipCases." << endl );
-        }
+      }
 
       if ( (!this->InsideOut && theColor == COLOR0 ) ||
            ( this->InsideOut && theColor == COLOR1 )
          )
-        {
+      {
         // We don't want this one; it's the wrong side.
         thisCase += nCellPts;
         continue;
-        }
+      }
 
       int   shapeIds[8];
       for ( int p = 0; p < nCellPts; p ++ )
-        {
+      {
         unsigned char pntIndex = *thisCase ++;
 
         if ( pntIndex <= P7 )
-          {
+        {
           // We know pt P0 must be >P0 since we already
           // assume P0 == 0.  This is why we do not
           // bother subtracting P0 from pt here.
@@ -2896,21 +2896,21 @@ void vtkTableBasedClipDataSet::ClipStructuredGridData( vtkDataSet * inputGrd,
                           (  theCellJ + shiftLUT[1][ pntIndex ]  ) * pyStride +
                           (  theCellK + shiftLUT[2][ pntIndex ]  ) * pzStride
                       );
-          }
+        }
         else
         if ( pntIndex >= EA && pntIndex <= EL )
-          {
+        {
           int  pt1Index = vtkTableBasedClipperTriangulationTables::
                           HexVerticesFromEdges[ pntIndex - EA ][0];
           int  pt2Index = vtkTableBasedClipperTriangulationTables::
                           HexVerticesFromEdges[ pntIndex - EA ][1];
 
           if ( pt2Index < pt1Index )
-            {
+          {
             int temp = pt2Index;
             pt2Index = pt1Index;
             pt1Index = temp;
-            }
+          }
 
           double pt1ToPt2 = grdDiffs[ pt2Index] - grdDiffs[ pt1Index ];
           double pt1ToIso = 0.0 - grdDiffs[ pt1Index ];
@@ -2928,21 +2928,21 @@ void vtkTableBasedClipDataSet::ClipStructuredGridData( vtkDataSet * inputGrd,
                  );
 
           shapeIds[p] = visItVFV->AddPoint( pntIndx1, pntIndx2, p1Weight );
-          }
+        }
         else
         if ( pntIndex >= N0 && pntIndex <= N3 )
-          {
+        {
           shapeIds[p] = intrpIds[ pntIndex - N0 ];
-          }
+        }
         else
-          {
+        {
           vtkErrorMacro( << "An invalid output point value "
                          << "was found in the ClipCases." << endl );
-          }
         }
+      }
 
       switch ( theShape )
-        {
+      {
         case ST_HEX:
           visItVFV->AddHex( i, shapeIds[0], shapeIds[1],
                                shapeIds[2], shapeIds[3], shapeIds[4],
@@ -2985,29 +2985,29 @@ void vtkTableBasedClipDataSet::ClipStructuredGridData( vtkDataSet * inputGrd,
           intrpIds[ intrpIdx ] = visItVFV->AddCentroidPoint
                                            ( nCellPts, shapeIds );
           break;
-        }
       }
+    }
 
     thisCase = NULL;
-    }
+  }
 
   int         toDelete = 0;
   double    * theCords = NULL;
   vtkPoints * inputPts = strcGrid->GetPoints();
   if ( inputPts->GetDataType() == VTK_DOUBLE )
-    {
+  {
     theCords = static_cast < double * > (  inputPts->GetVoidPointer( 0 )  );
-    }
+  }
   else
-    {
+  {
     toDelete = 1;
     numbPnts = inputPts->GetNumberOfPoints();
     theCords = new double [ numbPnts * 3 ];
     for ( i = 0; i < numbPnts; i ++ )
-      {
+    {
       inputPts->GetPoint( i, theCords + ( i << 1 ) + i );
-      }
     }
+  }
   inputPts = NULL;
 
   visItVFV->ConstructDataSet( strcGrid, outputUG, theCords );
@@ -3015,9 +3015,9 @@ void vtkTableBasedClipDataSet::ClipStructuredGridData( vtkDataSet * inputGrd,
 
   delete visItVFV;
   if ( toDelete )
-    {
+  {
     delete [] theCords;
-    }
+  }
   visItVFV = NULL;
   theCords = NULL;
   strcGrid = NULL;
@@ -3047,14 +3047,14 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGridData( vtkDataSet * inputGrd,
   specials->Allocate( numCells );
 
   for ( i = 0; i < numCells; i ++ )
-    {
+  {
     int         cellType = unstruct->GetCellType( i );
     vtkIdType * pntIndxs = NULL;
     unstruct->GetCellPoints( i, numbPnts, pntIndxs );
 
     bool     bCanClip = false;
     switch ( cellType )
-      {
+    {
       case VTK_TETRA:
       case VTK_PYRAMID:
       case VTK_WEDGE:
@@ -3071,19 +3071,19 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGridData( vtkDataSet * inputGrd,
       default:
            bCanClip = false;
            break;
-      }
+    }
 
     if ( bCanClip )
-      {
+    {
       int    caseIndx = 0;
       double grdDiffs[8];
 
       for ( j = numbPnts-1; j >= 0; j -- )
-        {
+      {
         grdDiffs[j] = clipAray->GetComponent( pntIndxs[j], 0 ) - isoValue;
         caseIndx   += (  ( grdDiffs[j] >= 0.0 ) ? 1 : 0  );
         caseIndx  <<= (  1 - ( !j )  );
-        }
+      }
 
       int               startIdx = 0;
       int               nOutputs = 0;
@@ -3093,7 +3093,7 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGridData( vtkDataSet * inputGrd,
 
       // start index, split case, number of output, and vertices from edges
       switch ( cellType )
-        {
+      {
         case VTK_TETRA:
           startIdx = vtkTableBasedClipperClipTables::StartClipShapesTet[ caseIndx ];
           thisCase =&vtkTableBasedClipperClipTables::ClipShapesTet[ startIdx ];
@@ -3172,11 +3172,11 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGridData( vtkDataSet * inputGrd,
           nOutputs = vtkTableBasedClipperClipTables::NumClipShapesVtx[ caseIndx ];
           edgeVtxs = NULL;
           break;
-        }
+      }
 
       int   intrpIds[4];
       for ( j = 0; j < nOutputs; j ++ )
-        {
+      {
         int      nCellPts = 0;
         int      theColor = -1;
         int      intrpIdx = -1;
@@ -3184,7 +3184,7 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGridData( vtkDataSet * inputGrd,
 
         // number of points and color
         switch ( theShape )
-          {
+        {
           case ST_HEX:
             nCellPts = 8;
             theColor = *thisCase ++;
@@ -3234,40 +3234,40 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGridData( vtkDataSet * inputGrd,
           default:
             vtkErrorMacro( << "An invalid output shape was found "
                            << "in the ClipCases." << endl );
-          }
+        }
 
         if ( (!this->InsideOut && theColor == COLOR0 ) ||
              ( this->InsideOut && theColor == COLOR1 )
            )
-          {
+        {
           // We don't want this one; it's the wrong side.
           thisCase += nCellPts;
           continue;
-          }
+        }
 
         int   shapeIds[8];
         for ( int p = 0; p < nCellPts; p ++ )
-          {
+        {
           unsigned char pntIndex = *thisCase ++;
 
           if ( pntIndex <= P7 )
-            {
+          {
             // We know pt P0 must be >P0 since we already
             // assume P0 == 0.  This is why we do not
             // bother subtracting P0 from pt here.
             shapeIds[p] = pntIndxs[ pntIndex ];
-            }
+          }
           else
           if ( pntIndex >= EA && pntIndex <= EL )
-            {
+          {
             int  pt1Index = edgeVtxs[ pntIndex-EA ][0];
             int  pt2Index = edgeVtxs[ pntIndex-EA ][1];
             if ( pt2Index < pt1Index )
-              {
+            {
               int temp = pt2Index;
               pt2Index = pt1Index;
               pt1Index = temp;
-              }
+            }
             double pt1ToPt2 = grdDiffs[ pt2Index ] - grdDiffs[ pt1Index ];
             double pt1ToIso = 0.0 - grdDiffs[ pt1Index ];
             double p1Weight = 1.0 - pt1ToIso / pt1ToPt2;
@@ -3276,21 +3276,21 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGridData( vtkDataSet * inputGrd,
             int    pntIndx2 = pntIndxs[ pt2Index ];
 
             shapeIds[p] = visItVFV->AddPoint( pntIndx1, pntIndx2, p1Weight );
-            }
+          }
           else
           if ( pntIndex >= N0 && pntIndex <= N3 )
-            {
+          {
             shapeIds[p] = intrpIds[ pntIndex - N0 ];
-            }
+          }
           else
-            {
+          {
             vtkErrorMacro( << "An invalid output point value was found "
                            << "in the ClipCases." << endl );
-            }
           }
+        }
 
         switch ( theShape )
-          {
+        {
           case ST_HEX:
             visItVFV->AddHex( i, shapeIds[0], shapeIds[1],
                                  shapeIds[2], shapeIds[3], shapeIds[4],
@@ -3333,65 +3333,65 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGridData( vtkDataSet * inputGrd,
             intrpIds[ intrpIdx ] = visItVFV->AddCentroidPoint
                                              ( nCellPts, shapeIds );
             break;
-          }
         }
+      }
 
       edgeVtxs = NULL;
       thisCase = NULL;
-      }
+    }
     else if (cellType == VTK_POLYHEDRON)
-      {
+    {
       if ( numCants == 0 )
-        {
+      {
           specials->GetCellData()
                   ->CopyAllocate( unstruct->GetCellData(), numCells );
-        }
+      }
       vtkIdType nfaces, *facePtIds;
       unstruct->GetFaceStream(i, nfaces, facePtIds);
       specials->InsertNextCell(cellType, nfaces, facePtIds);
       specials->GetCellData()
               ->CopyData( unstruct->GetCellData(), i, numCants );
       numCants ++;
-      }
+    }
     else
-      {
+    {
       if ( numCants == 0 )
-        {
+      {
           specials->GetCellData()
                   ->CopyAllocate( unstruct->GetCellData(), numCells );
-        }
+      }
       specials->InsertNextCell( cellType, numbPnts, pntIndxs );
       specials->GetCellData()
               ->CopyData( unstruct->GetCellData(), i, numCants );
       numCants ++;
-      }
+    }
 
     pntIndxs = NULL;
-    }
+  }
 
   int         toDelete = 0;
   double    * theCords = NULL;
   vtkPoints * inputPts = unstruct->GetPoints();
   if ( inputPts->GetDataType() == VTK_DOUBLE )
-    {
+  {
     theCords = static_cast < double * > (  inputPts->GetVoidPointer( 0 )  );
-    }
+  }
   else
-    {
+  {
     toDelete = 1;
     numbPnts = inputPts->GetNumberOfPoints();
     theCords = new double [ numbPnts * 3 ];
     for ( i = 0; i < numbPnts; i ++ )
-      {
+    {
       inputPts->GetPoint( i, theCords + ( i << 1 ) + i );
-      }
     }
+  }
   inputPts = NULL;
 
 
   // the stuff that can not be clipped
   if ( numCants > 0 )
-    {
+  {
     vtkUnstructuredGrid * vtkUGrid  = vtkUnstructuredGrid::New();
     this->ClipDataSet( specials, clipAray, vtkUGrid );
 
@@ -3411,18 +3411,18 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGridData( vtkDataSet * inputGrd,
     appender = NULL;
     vtkUGrid = NULL;
     visItGrd = NULL;
-    }
+  }
   else
-    {
+  {
     visItVFV->ConstructDataSet( unstruct, outputUG, theCords );
-    }
+  }
 
   specials->Delete();
   delete visItVFV;
   if ( toDelete )
-    {
+  {
     delete [] theCords;
-    }
+  }
   specials = NULL;
   visItVFV = NULL;
   theCords = NULL;
@@ -3436,23 +3436,23 @@ void vtkTableBasedClipDataSet::PrintSelf( ostream & os, vtkIndent indent )
 
   os << indent << "Merge Tolerance: " << this->MergeTolerance << "\n";
   if ( this->ClipFunction )
-    {
+  {
     os << indent << "Clip Function: " << this->ClipFunction << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Clip Function: (none)\n";
-    }
+  }
   os << indent << "InsideOut: " << (this->InsideOut ? "On\n" : "Off\n");
   os << indent << "Value: " << this->Value << "\n";
   if ( this->Locator )
-    {
+  {
     os << indent << "Locator: " << this->Locator << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Locator: (none)\n";
-    }
+  }
 
   os << indent << "Generate Clip Scalars: "
      << (this->GenerateClipScalars ? "On\n" : "Off\n");

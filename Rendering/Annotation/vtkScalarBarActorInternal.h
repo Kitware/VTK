@@ -26,11 +26,11 @@ public:
     *  that need a contiguous array pointer as input.
     */
   T** PointerArray()
-    {
+  {
     // NB: This is relatively evil. But much cheaper than copying the array.
     // It assumes the compiler won't pad the class.
     return reinterpret_cast<T**>(&((*this)[0]));
-    }
+  }
 };
 
 /// A structure to represent pixel coordinates for text or swatch bounds.
@@ -54,7 +54,7 @@ class vtkScalarBarActorInternal
 {
 public:
   vtkScalarBarActorInternal()
-    {
+  {
     this->Viewport = 0;
     this->SwatchColors = 0;
     this->SwatchPts = 0;
@@ -76,7 +76,7 @@ public:
     this->AboveRangeSwatch = 0;
     this->AboveRangeSwatchMapper = 0;
     this->AboveRangeSwatchActor = 0;
-    }
+  }
 
   // Define types for smart vectors containing various base classes.
   typedef vtkSmartVector<vtkTextActor> ActorVector;

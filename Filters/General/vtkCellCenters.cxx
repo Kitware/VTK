@@ -64,10 +64,10 @@ int vtkCellCenters::RequestData(
   outPD=output->GetPointData();
 
   if ( (numCells = input->GetNumberOfCells()) < 1 )
-    {
+  {
     vtkDebugMacro(<<"No cells to generate center points for");
     return 1;
-    }
+  }
 
   newPts = vtkPoints::New();
   newPts->SetNumberOfPoints(numCells);
@@ -77,67 +77,67 @@ int vtkCellCenters::RequestData(
   vtkIdType progressInterval = numCells/10 + 1;
   int hasEmptyCells = 0;
   for (cellId=0; cellId < numCells && !abort; cellId++)
-    {
+  {
     if ( ! (cellId % progressInterval) )
-      {
+    {
       vtkDebugMacro(<<"Processing #" << cellId);
       this->UpdateProgress (0.5*cellId/numCells);
       abort = this->GetAbortExecute();
-      }
+    }
 
     cell = input->GetCell(cellId);
     if (cell->GetCellType() != VTK_EMPTY_CELL)
-      {
+    {
       subId = cell->GetParametricCenter(pcoords);
       cell->EvaluateLocation(subId, pcoords, x, weights);
       newPts->SetPoint(cellId,x);
-      }
-    else
-      {
-      hasEmptyCells = 1;
-      }
     }
+    else
+    {
+      hasEmptyCells = 1;
+    }
+  }
 
   if ( this->VertexCells )
-    {
+  {
     vtkIdType pts[1];
     vtkCellData *outCD=output->GetCellData();
     vtkCellArray *verts = vtkCellArray::New();
     verts->Allocate(verts->EstimateSize(1,numCells),1);
 
     for (cellId=0; cellId < numCells && !abort; cellId++)
-      {
+    {
       if ( ! (cellId % progressInterval) )
-        {
+      {
         vtkDebugMacro(<<"Processing #" << cellId);
         this->UpdateProgress (0.5+0.5*cellId/numCells);
         abort = this->GetAbortExecute();
-        }
+      }
 
       cell = input->GetCell(cellId);
       if (cell->GetCellType() != VTK_EMPTY_CELL)
-        {
+      {
         pts[0] = cellId;
         verts->InsertNextCell(1,pts);
-        }
       }
+    }
 
     output->SetVerts(verts);
     verts->Delete();
     if (!hasEmptyCells)
-      {
+    {
       outCD->PassData(inCD); //only if verts are generated
-      }
     }
+  }
 
   // clean up and update output
   output->SetPoints(newPts);
   newPts->Delete();
 
   if (!hasEmptyCells)
-    {
+  {
     outPD->PassData(inCD); //because number of points = number of cells
-    }
+  }
   delete [] weights;
 
   return 1;

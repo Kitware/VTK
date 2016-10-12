@@ -90,9 +90,9 @@ void vtkImageCanvasSource2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DefaultZ: " << this->DefaultZ << endl;
   os << indent << "DrawColor: (" << this->DrawColor[0];
   for (idx = 1; idx < 4; ++idx)
-    {
+  {
     os << ", " << this->DrawColor[idx];
-    }
+  }
   os << ")\n";
   os << indent << "Ratio: ("
      << this->Ratio[0] << ", " << this->Ratio[1] << ", " << this->Ratio[2]
@@ -123,11 +123,11 @@ void vtkImageCanvasSource2DDrawImage(vtkImageData *image, vtkImageData *simage,
   ptr1 = ptr;
   sptr1 = sptr;
   for (idx1 = min1; idx1 <= max1; ++idx1)
-    {
+  {
     ptr0 = ptr1;
     sptr0 = sptr1;
     for (idx0 = min0; idx0 <= max0; ++idx0)
-      {
+    {
       ptrV = ptr0;
       sptrV = sptr0;
 
@@ -135,22 +135,22 @@ void vtkImageCanvasSource2DDrawImage(vtkImageData *image, vtkImageData *simage,
 
       // Assign color to pixel.
       for (idxV = 0; idxV <= maxV; ++idxV)
-        {
+      {
         *ptrV = *(sptrV + sinc);
         ptrV++;
         if ( sinc < smaxV )
-          {
+        {
           sinc++;
-          }
         }
+      }
       //sptrV += smaxV;
 
       ptr0 += inc0;
       sptr0 += sinc0;
-      }
+    }
     ptr1 += inc1;
     sptr1 += sinc1;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -159,9 +159,9 @@ void vtkImageCanvasSource2D::DrawImage(int x0, int y0,
                                        int width, int height)
 {
   if ( !image )
-    {
+  {
     return;
-    }
+  }
 
   vtkImageClip* clip = vtkImageClip::New();
   clip->SetInputData(image);
@@ -171,29 +171,29 @@ void vtkImageCanvasSource2D::DrawImage(int x0, int y0,
   int z = this->DefaultZ;
   image->GetExtent(ext);
   if ( sx < 0 )
-    {
+  {
     sx = ext[0];
-    }
+  }
   if ( sy < 0 )
-    {
+  {
     sy = ext[2];
-    }
+  }
   if ( width < 0 )
-    {
+  {
     width = ext[1] - ext[0] + 1;
-    }
+  }
   else
-    {
+  {
     width = vtkMath::Min(width, ext[1] - ext[0] + 1);
-    }
+  }
   if ( height < 0 )
-    {
+  {
     height = ext[3] - ext[2] + 1;
-    }
+  }
   else
-    {
+  {
     height = vtkMath::Min(height, ext[3] - ext[2] + 1);
-    }
+  }
   ext[0] = vtkMath::Max(sx, ext[0]);
   ext[1] = vtkMath::Max(sx+width-1, ext[1]);
   ext[2] = vtkMath::Max(sy, ext[2]);
@@ -213,19 +213,19 @@ void vtkImageCanvasSource2D::DrawImage(int x0, int y0,
 
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0)
-    {
+  {
     min0 = int(double(min0) * this->Ratio[0]);
     max0 = int(double(max0) * this->Ratio[0]);
-    }
+  }
   if (this->Ratio[1] != 1.0)
-    {
+  {
     min1 = int(double(min1) * this->Ratio[1]);
     max1 = int(double(max1) * this->Ratio[1]);
-    }
+  }
   if (this->Ratio[2] != 1.0)
-    {
+  {
     z = int(double(z) * this->Ratio[2]);
-    }
+  }
   // Clip the data to keep in in bounds
   extent = this->ImageData->GetExtent();
   min0 = (min0 < extent[0]) ? extent[0] : min0;
@@ -243,7 +243,7 @@ void vtkImageCanvasSource2D::DrawImage(int x0, int y0,
   ptr = this->ImageData->GetScalarPointer(min0, min1, z);
   sptr = ic->GetOutput()->GetScalarPointer(ext[0], ext[2], 0);
   switch (this->ImageData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(vtkImageCanvasSource2DDrawImage(this->ImageData,
                                                      ic->GetOutput(),
                                                      static_cast<VTK_TT *>(ptr),
@@ -251,7 +251,7 @@ void vtkImageCanvasSource2D::DrawImage(int x0, int y0,
                                                      min0,max0, min1,max1));
     default:
       vtkErrorMacro(<< "FillBox: Cannot handle ScalarType.");
-    }
+  }
   ic->Delete();
   clip->Delete();
   this->Modified();
@@ -275,24 +275,24 @@ void vtkImageCanvasSource2DFillBox(vtkImageData *image,
 
   ptr1 = ptr;
   for (idx1 = min1; idx1 <= max1; ++idx1)
-    {
+  {
     ptr0 = ptr1;
     for (idx0 = min0; idx0 <= max0; ++idx0)
-      {
+    {
       ptrV = ptr0;
       pf = drawColor;
 
       // Assign color to pixel.
       for (idxV = 0; idxV <= maxV; ++idxV)
-        {
+      {
         *ptrV = static_cast<T>(*pf++);
         ptrV++;
-        }
+      }
 
       ptr0 += inc0;
-      }
-    ptr1 += inc1;
     }
+    ptr1 += inc1;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -305,19 +305,19 @@ void vtkImageCanvasSource2D::FillBox(int min0, int max0, int min1, int max1)
 
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0)
-    {
+  {
     min0 = int(double(min0) * this->Ratio[0]);
     max0 = int(double(max0) * this->Ratio[0]);
-    }
+  }
   if (this->Ratio[1] != 1.0)
-    {
+  {
     min1 = int(double(min1) * this->Ratio[1]);
     max1 = int(double(max1) * this->Ratio[1]);
-    }
+  }
   if (this->Ratio[2] != 1.0)
-    {
+  {
     z = int(double(z) * this->Ratio[2]);
-    }
+  }
 
   // Clip the data to keep in in bounds
   extent = this->ImageData->GetExtent();
@@ -334,14 +334,14 @@ void vtkImageCanvasSource2D::FillBox(int min0, int max0, int min1, int max1)
 
   ptr = this->ImageData->GetScalarPointer(min0, min1, z);
   switch (this->ImageData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(vtkImageCanvasSource2DFillBox(this->ImageData,
                                                    this->DrawColor,
                                                    static_cast<VTK_TT *>(ptr),
                                                    min0,max0, min1,max1));
     default:
       vtkErrorMacro(<< "FillBox: Cannot handle ScalarType.");
-    }
+  }
   this->Modified();
 }
 
@@ -373,12 +373,12 @@ void vtkImageCanvasSource2DFillTube(vtkImageData *image,
   bk = n0 * b0 + n1 * b1;
   // Make sure the vector is pointing in the correct direction.
   if (ak < bk)
-    {
+  {
     ak = -ak;
     bk = -bk;
     n0 = -n0;
     n1 = -n1;
-    }
+  }
 
   image->GetExtent(min0, max0, min1, max1, min2, max2);
   maxV = image->GetNumberOfScalarComponents() - 1;
@@ -386,16 +386,16 @@ void vtkImageCanvasSource2DFillTube(vtkImageData *image,
   image->GetIncrements(inc0, inc1, inc2);
   ptr1 = ptr;
   for (idx1 = min1; idx1 <= max1; ++idx1)
-    {
+  {
     ptr0 = ptr1;
     for (idx0 = min0; idx0 <= max0; ++idx0)
-      {
+    {
       // check to see if pixel is in the tube.
       // project point onto normal vector.
       k = n0 * idx0 + n1 * idx1;
       // Check that point is inbetween end points.
       if ( k >= bk && k <= ak)
-        {
+      {
         // Compute actual projection point.
         fract = static_cast<double>(k - bk) / static_cast<double>(ak - bk);
         v0 = b0 + fract * static_cast<double>(a0 - b0);
@@ -404,22 +404,22 @@ void vtkImageCanvasSource2DFillTube(vtkImageData *image,
         v0 -= static_cast<double>(idx0);
         v1 -= static_cast<double>(idx1);
         if (radius >= sqrt(v0*v0 + v1*v1))
-          {
+        {
           ptrV = ptr0;
           pf = drawColor;
           // Assign color to pixel.
           for (idxV = 0; idxV <= maxV; ++idxV)
-            {
+          {
             *ptrV = static_cast<T>(*pf++);
             ptrV++;
-            }
           }
         }
+      }
 
       ptr0 += inc0;
-      }
-    ptr1 += inc1;
     }
+    ptr1 += inc1;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -433,27 +433,27 @@ void vtkImageCanvasSource2D::FillTube(int a0, int a1,
 
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0)
-    {
+  {
     a0 = int(double(a0) * this->Ratio[0]);
     b0 = int(double(b0) * this->Ratio[0]);
     radius = int(double(radius) * this->Ratio[0]);
-    }
+  }
   if (this->Ratio[1] != 1.0)
-    {
+  {
     a1 = int(double(a1) * this->Ratio[1]);
     b1 = int(double(b1) * this->Ratio[1]);
-    }
+  }
   if (this->Ratio[2] != 1.0)
-    {
+  {
     z = int(double(z) * this->Ratio[2]);
-    }
+  }
 
   z = (z < extent[4]) ? extent[4] : z;
   z = (z > extent[5]) ? extent[5] : z;
 
   ptr = this->ImageData->GetScalarPointer(extent[0], extent[2], z);
   switch (this->ImageData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageCanvasSource2DFillTube(this->ImageData,
                                      this->DrawColor,
@@ -462,7 +462,7 @@ void vtkImageCanvasSource2D::FillTube(int a0, int a1,
                                      radius));
     default:
       vtkErrorMacro(<< "FillTube: Cannot handle ScalarType.");
-    }
+  }
   this->Modified();
 }
 
@@ -491,21 +491,21 @@ void vtkImageCanvasSource2DFillTriangle(vtkImageData *image,
 
   // index1 of b must be between a, and c
   if((b1 < a1 && a1 < c1) || (b1 > a1 && a1 > c1))
-    { // swap b and a
+  { // swap b and a
     temp = b0;  b0 = a0;  a0 = temp;
     temp = b1;  b1 = a1;  a1 = temp;
-    }
+  }
   if((b1 < c1 && c1 < a1) || (b1 > c1 && c1 > a1))
-    { // swap b and c
+  { // swap b and c
     temp = b0;  b0 = c0;  c0 = temp;
     temp = b1;  b1 = c1;  c1 = temp;
-    }
+  }
   // Make life easier and order points so that ay < by < cy
   if(c1 < a1)
-    { // swap c and a
+  { // swap c and a
     temp = a0;  a0 = c0;  c0 = temp;
     temp = a1;  a1 = c1;  c1 = temp;
-    }
+  }
 
   image->GetExtent(min0, max0, min1, max1, min2, max2);
   z = (z < min2) ? min2 : z;
@@ -517,69 +517,69 @@ void vtkImageCanvasSource2DFillTriangle(vtkImageData *image,
   shortStep = static_cast<double>(b0 - a0) / static_cast<double>(b1 - a1 + 1);
   shortT = static_cast<double>(a0) + (0.5 * shortStep);
   for (idx1 = a1; idx1 < b1; ++idx1)
-    {
+  {
     // Fill row long to short (y = idx1)
     left = static_cast<int>(shortT + 0.5);
     right = static_cast<int>(longT + 0.5);
     if (left > right)
-      {
+    {
       temp = left;   left = right;   right = temp;
-      }
+    }
     for (idx0 = left; idx0 <= right; ++idx0)
-      {
+    {
       if (idx0 >= min0 && idx0 <= max0 && idx1 >= min1 && idx1 <= max1)
-        {
+      {
         ptr = static_cast<T *>(image->GetScalarPointer(idx0, idx1, z));
         if (ptr)
-          {
+        {
           pf = drawColor;
           // Assign color to pixel.
           for (idxV = 0; idxV <= maxV; ++idxV)
-            {
+          {
             *ptr = static_cast<T>(*pf++);
             ptr++;
-            }
           }
         }
       }
+    }
 
     longT += longStep;
     shortT += shortStep;
-    }
+  }
 
   // fill the second half of the triangle
   shortStep = static_cast<double>(c0 - b0) / static_cast<double>(c1 - b1 + 1);
   shortT = static_cast<double>(b0) + (0.5 * shortStep);
   for (idx1 = b1; idx1 < c1; ++idx1)
-    {
+  {
     // Fill row long to short (y = idx1)
     left = static_cast<int>(shortT + 0.5);
     right = static_cast<int>(longT + 0.5);
     if (left > right)
-      {
+    {
       temp = left;   left = right;   right = temp;
-      }
+    }
     for (idx0 = left; idx0 <= right; ++idx0)
-      {
+    {
       if (idx0 >= min0 && idx0 <= max0 && idx1 >= min1 && idx1 <= max1)
-        {
+      {
         ptr = static_cast<T *>(image->GetScalarPointer(idx0, idx1, z));
         if (ptr)
-          {
+        {
           pf = drawColor;
           // Assign color to pixel.
           for (idxV = 0; idxV <= maxV; ++idxV)
-            {
+          {
             *ptr = static_cast<T>(*pf++);
             ptr++;
-            }
           }
         }
       }
+    }
 
     longT += longStep;
     shortT += shortStep;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -592,25 +592,25 @@ void vtkImageCanvasSource2D::FillTriangle(int a0,int a1, int b0,int b1,
 
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0)
-    {
+  {
     a0 = static_cast<int>(static_cast<double>(a0) * this->Ratio[0]);
     b0 = static_cast<int>(static_cast<double>(b0) * this->Ratio[0]);
     c0 = static_cast<int>(static_cast<double>(c0) * this->Ratio[0]);
-    }
+  }
   if (this->Ratio[1] != 1.0)
-    {
+  {
     a1 = static_cast<int>(static_cast<double>(a1) * this->Ratio[1]);
     b1 = static_cast<int>(static_cast<double>(b1) * this->Ratio[1]);
     c1 = static_cast<int>(static_cast<double>(c1) * this->Ratio[1]);
-    }
+  }
   if (this->Ratio[2] != 1.0)
-    {
+  {
     z = static_cast<int>(static_cast<double>(z) * this->Ratio[2]);
-    }
+  }
 
   ptr = this->ImageData->GetScalarPointer();
   switch (this->ImageData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageCanvasSource2DFillTriangle(this->ImageData,
                                          this->DrawColor,
@@ -618,7 +618,7 @@ void vtkImageCanvasSource2D::FillTriangle(int a0,int a1, int b0,int b1,
                                          a0,a1, b0,b1, c0,c1, z));
     default:
       vtkErrorMacro(<< "FillTriangle: Cannot handle ScalarType.");
-    }
+  }
   this->Modified();
 }
 
@@ -643,17 +643,17 @@ void vtkImageCanvasSource2DDrawPoint(vtkImageData *image,
   maxV = image->GetNumberOfScalarComponents() - 1;
 
   if (p0 >= min0 && p0 <= max0 && p1 >= min1 && p1 <= max1)
-    {
+  {
     ptr = static_cast<T *>(image->GetScalarPointer(p0, p1, z));
 
     pf = drawColor;
     // Assign color to pixel.
     for (idxV = 0; idxV <= maxV; ++idxV)
-      {
+    {
       *ptr = static_cast<T>(*pf++);
       ptr++;
-      }
     }
+  }
 }
 
 
@@ -669,20 +669,20 @@ void vtkImageCanvasSource2D::DrawPoint(int p0, int p1)
 
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0)
-    {
+  {
     p0 = int(double(p0) * this->Ratio[0]);
-    }
+  }
   if (this->Ratio[1] != 1.0)
-    {
+  {
     p1 = int(double(p1) * this->Ratio[1]);
-    }
+  }
   if (this->Ratio[2] != 1.0)
-    {
+  {
     z = int(double(z) * this->Ratio[2]);
-    }
+  }
 
   switch (this->ImageData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageCanvasSource2DDrawPoint(this->ImageData,
                                       this->DrawColor,
@@ -691,7 +691,7 @@ void vtkImageCanvasSource2D::DrawPoint(int p0, int p1)
                                       z));
     default:
       vtkErrorMacro(<< "DrawPoint: Cannot handle ScalarType.");
-    }
+  }
   this->Modified();
 }
 
@@ -726,27 +726,27 @@ void vtkImageCanvasSource2DDrawCircle(vtkImageData *image,
   y = 0.0;
 
   for (idx = 0; idx < numberOfSteps; ++idx)
-    {
+  {
     p0 = c0+static_cast<int>(x);
     p1 = c1+static_cast<int>(y);
     if (p0 >= min0 && p0 <= max0 && p1 >= min1 && p1 <= max1)
-      {
+    {
       ptr = static_cast<T *>(image->GetScalarPointer(p0, p1, z));
 
       pf = drawColor;
       // Assign color to pixel.
       for (idxV = 0; idxV <= maxV; ++idxV)
-        {
+      {
         *ptr = static_cast<T>(*pf++);
         ptr++;
-        }
       }
+    }
 
     // rotate the point
     temp = thetaCos * x + thetaSin * y;
     y = thetaCos * y - thetaSin * x;
     x = temp;
-    }
+  }
 }
 
 
@@ -762,21 +762,21 @@ void vtkImageCanvasSource2D::DrawCircle(int c0, int c1, double radius)
 
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0)
-    {
+  {
     c0 = int(double(c0) * this->Ratio[0]);
     radius = int(double(radius) * this->Ratio[0]);
-    }
+  }
   if (this->Ratio[1] != 1.0)
-    {
+  {
     c1 = int(double(c1) * this->Ratio[1]);
-    }
+  }
   if (this->Ratio[2] != 1.0)
-    {
+  {
     z = int(double(z) * this->Ratio[2]);
-    }
+  }
 
   switch (this->ImageData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageCanvasSource2DDrawCircle(this->ImageData,
                                        this->DrawColor,
@@ -786,7 +786,7 @@ void vtkImageCanvasSource2D::DrawCircle(int c0, int c1, double radius)
                                        z));
     default:
       vtkErrorMacro(<< "DrawCircle: Cannot handle ScalarType.");
-    }
+  }
   this->Modified();
 }
 
@@ -815,25 +815,25 @@ void vtkImageCanvasSource2DDrawSegment(vtkImageData *image,
 
   // make sure we are stepping in the positive direction.
   if (p0 < 0)
-    {
+  {
     p0 = -p0;
     inc0 = -inc0;
-    }
+  }
   if (p1 < 0)
-    {
+  {
     p1 = -p1;
     inc1 = -inc1;
-    }
+  }
 
   // Compute the number of steps needed.
   if (p0 > p1)
-    {
+  {
     numberOfSteps = p0;
-    }
+  }
   else
-    {
+  {
     numberOfSteps = p1;
-    }
+  }
 
   // Compute the step vector.
   s0 = static_cast<double>(p0) / static_cast<double>(numberOfSteps);
@@ -845,36 +845,36 @@ void vtkImageCanvasSource2DDrawSegment(vtkImageData *image,
   pf = drawColor;
   // Assign color to pixel.
   for (idxV = 0; idxV <= maxV; ++idxV)
-    {
+  {
     *ptrV = static_cast<T>(*pf++);
     ptrV++;
-    }
+  }
 
   for (idx = 0; idx < numberOfSteps; ++idx)
-    {
+  {
     f0 += s0;
     if (f0 > 1.0)
-      {
+    {
       ptr += inc0;
       f0 -= 1.0;
-      }
+    }
     f1 += s1;
     if (f1 > 1.0)
-      {
+    {
       ptr += inc1;
       f1 -= 1.0;
-      }
+    }
 
     ptrV = ptr;
     pf = drawColor;
 
     // Assign color to pixel.
     for (idxV = 0; idxV <= maxV; ++idxV)
-      {
+    {
       *ptrV = static_cast<T>(*pf++);
       ptrV++;
-      }
     }
+  }
 }
 
 
@@ -891,19 +891,19 @@ void vtkImageCanvasSource2D::DrawSegment(int a0, int a1, int b0, int b1)
 
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0)
-    {
+  {
     a0 = static_cast<int>(static_cast<double>(a0) * this->Ratio[0]);
     b0 = static_cast<int>(static_cast<double>(b0) * this->Ratio[0]);
-    }
+  }
   if (this->Ratio[1] != 1.0)
-    {
+  {
     a1 = static_cast<int>(static_cast<double>(a1) * this->Ratio[1]);
     b1 = static_cast<int>(static_cast<double>(b1) * this->Ratio[1]);
-    }
+  }
   if (this->Ratio[2] != 1.0)
-    {
+  {
     z = static_cast<int>(static_cast<double>(z) * this->Ratio[2]);
-    }
+  }
 
   // check to make sure line segment is in bounds.
   extent = this->ImageData->GetExtent();
@@ -911,19 +911,19 @@ void vtkImageCanvasSource2D::DrawSegment(int a0, int a1, int b0, int b1)
   z = (z > extent[5]) ? extent[5] : z;
   if (a0 < extent[0] || a0 > extent[1] || b0 < extent[0] || b0 > extent[1] ||
       a1 < extent[2] || a1 > extent[3] || b1 < extent[2] || b1 > extent[3])
-    {
+  {
     if ( ! this->ClipSegment(a0,a1,b0,b1))
-      {
+    {
       // non of the segment is in the data.
       return;
-      }
     }
+  }
 
   ptr = this->ImageData->GetScalarPointer(b0, b1, z);
   a0 -= b0;
   a1 -= b1;
   switch (this->ImageData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageCanvasSource2DDrawSegment(this->ImageData,
                                         this->DrawColor,
@@ -931,7 +931,7 @@ void vtkImageCanvasSource2D::DrawSegment(int a0, int a1, int b0, int b1)
                                         a0, a1));
     default:
       vtkErrorMacro(<< "DrawSegment: Cannot handle ScalarType.");
-    }
+  }
   this->Modified();
 }
 
@@ -951,92 +951,92 @@ int vtkImageCanvasSource2D::ClipSegment(int &a0, int &a1, int &b0, int &b1)
   // Check planes
   // Both out of bounds
   if (a0 < min0 && b0 < min0)
-    {
+  {
     return 0;
-    }
+  }
   // first out of bounds.
   if (a0 < min0 && b0 >= min0)
-    {
+  {
     // interpolate to find point on bounding plane.
     fract = static_cast<double>(b0 - min0) / static_cast<double>(b0 - a0);
     a0 = min0;
     a1 = b1 + static_cast<int>(fract * static_cast<double>(a1 - b1));
-    }
+  }
   // second out of bounds.
   if (b0 < min0 && a0 >= min0)
-    {
+  {
     // interpolate to find point on bounding plane.
     fract = static_cast<double>(a0 - min0) / static_cast<double>(a0 - b0);
     b0 = min0;
     b1 = a1 + static_cast<int>(fract * static_cast<double>(b1 - a1));
-    }
+  }
 
   // Both out of bounds
   if (a0 > max0 && b0 > max0)
-    {
+  {
     return 0;
-    }
+  }
   // first out of bounds.
   if (a0 > max0 && b0 <= max0)
-    {
+  {
     // interpolate to find point on bounding plane.
     fract = static_cast<double>(b0 - max0) / static_cast<double>(b0 - a0);
     a0 = max0;
     a1 = b1 + static_cast<int>(fract * static_cast<double>(a1 - b1));
-    }
+  }
   // second out of bounds.
   if (b0 > max0 && a0 <= max0)
-    {
+  {
     // interpolate to find point on bounding plane.
     fract = static_cast<double>(a0 - max0) / static_cast<double>(a0 - b0);
     b0 = max0;
     b1 = a1 + static_cast<int>(fract * static_cast<double>(b1 - a1));
-    }
+  }
 
 
   // Both out of bounds
   if (a1 < min1 && b1 < min1)
-    {
+  {
     return 0;
-    }
+  }
   // first out of bounds.
   if (a1 < min1 && b1 >= min1)
-    {
+  {
     // interpolate to find point on bounding plane.
     fract = static_cast<double>(b1 - min1) / static_cast<double>(b1 - a1);
     a1 = min1;
     a0 = b0 + static_cast<int>(fract * static_cast<double>(a0 - b0));
-    }
+  }
   // second out of bounds.
   if (b1 < min1 && a1 >= min1)
-    {
+  {
     // interpolate to find point on bounding plane.
     fract = static_cast<double>(a1 - min1) / static_cast<double>(a1 - b1);
     b1 = min1;
     b0 = a0 + static_cast<int>(fract * static_cast<double>(b0 - a0));
-    }
+  }
 
   // Both out of bounds
   if (a1 > max1 && b1 > max1)
-    {
+  {
     return 0;
-    }
+  }
   // first out of bounds.
   if (a1 > max1 && b1 <= max1)
-    {
+  {
     // interpolate to find point on bounding plane.
     fract = static_cast<double>(b1 - max1) / static_cast<double>(b1 - a1);
     a1 = max1;
     a0 = b0 + static_cast<int>(fract * static_cast<double>(a0 - b0));
-    }
+  }
   // second out of bounds.
   if (b1 > max1 && a1 <= max1)
-    {
+  {
     // interpolate to find point on bounding plane.
     fract = static_cast<double>(a1 - max1) / static_cast<double>(a1 - b1);
     b1 = max1;
     b0 = a0 + static_cast<int>(fract * static_cast<double>(b0 - a0));
-    }
+  }
 
   this->Modified();
   return 1;
@@ -1064,20 +1064,20 @@ void vtkImageCanvasSource2DDrawSegment3D(vtkImageData *image,
 
   // make sure we are stepping in the positive direction.
   if (p0 < 0)
-    {
+  {
     p0 = -p0;
     inc0 = -inc0;
-    }
+  }
   if (p1 < 0)
-    {
+  {
     p1 = -p1;
     inc1 = -inc1;
-    }
+  }
   if (p2 < 0)
-    {
+  {
     p2 = -p2;
     inc2 = -inc2;
-    }
+  }
 
   // Compute the number of steps needed.
   numberOfSteps = (p0 > p1) ? p0 : p1;
@@ -1095,41 +1095,41 @@ void vtkImageCanvasSource2DDrawSegment3D(vtkImageData *image,
   pf = drawColor;
   // Assign color to pixel.
   for (idxV = 0; idxV <= maxV; ++idxV)
-    {
+  {
     *ptrV = static_cast<T>(*pf++);
     ptrV++;
-    }
+  }
 
   for (idx = 0; idx < numberOfSteps; ++idx)
-    {
+  {
     f0 += s0;
     if (f0 > 1.0)
-      {
+    {
       ptr += inc0;
       f0 -= 1.0;
-      }
+    }
     f1 += s1;
     if (f1 > 1.0)
-      {
+    {
       ptr += inc1;
       f1 -= 1.0;
-      }
+    }
     f2 += s2;
     if (f2 > 1.0)
-      {
+    {
       ptr += inc2;
       f2 -= 1.0;
-      }
+    }
 
     ptrV = ptr;
     pf = drawColor;
     // Assign color to pixel.
     for (idxV = 0; idxV <= maxV; ++idxV)
-      {
+    {
       *ptrV = static_cast<T>(*pf++);
       ptrV++;
-      }
     }
+  }
 }
 
 
@@ -1143,20 +1143,20 @@ void vtkImageCanvasSource2D::DrawSegment3D(double *a, double *b)
 
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0)
-    {
+  {
     a[0] = static_cast<int>(static_cast<double>(a[0]) * this->Ratio[0]);
     b[0] = static_cast<int>(static_cast<double>(b[0]) * this->Ratio[0]);
-    }
+  }
   if (this->Ratio[1] != 1.0)
-    {
+  {
     a[1] = static_cast<int>(static_cast<double>(a[1]) * this->Ratio[1]);
     b[1] = static_cast<int>(static_cast<double>(b[1]) * this->Ratio[1]);
-    }
+  }
   if (this->Ratio[2] != 1.0)
-    {
+  {
     a[2] = static_cast<int>(static_cast<double>(a[2]) * this->Ratio[2]);
     b[2] = static_cast<int>(static_cast<double>(b[2]) * this->Ratio[2]);
-    }
+  }
 
   ptr = this->ImageData->GetScalarPointer(static_cast<int>(floor(b[0] + 0.5)),
                                           static_cast<int>(floor(b[1] + 0.5)),
@@ -1165,7 +1165,7 @@ void vtkImageCanvasSource2D::DrawSegment3D(double *a, double *b)
   a1 = static_cast<int>(floor(a[1] - b[1] + 0.5));
   a2 = static_cast<int>(floor(a[2] - b[2] + 0.5));
   switch (this->ImageData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageCanvasSource2DDrawSegment3D(this->ImageData,
                                           this->DrawColor,
@@ -1173,7 +1173,7 @@ void vtkImageCanvasSource2D::DrawSegment3D(double *a, double *b)
                                           a0, a1, a2));
     default:
       vtkErrorMacro(<< "DrawSegment3D: Cannot handle ScalarType.");
-    }
+  }
   this->Modified();
 }
 
@@ -1203,22 +1203,22 @@ void vtkImageCanvasSource2DFill(vtkImageData *image, double *color,
   ptrV = ptr;
   temp = 1;
   for (idxV = 0; idxV <= maxV; ++idxV)
-    {
+  {
     // Save the fill color
     fillColor[idxV] = *ptrV;
     drawColor[idxV] = static_cast<T>(color[idxV]);
     if (*ptrV != drawColor[idxV])
-      {
+    {
       temp = 0;
-      }
-    ptrV++;
     }
+    ptrV++;
+  }
   if (temp)
-    { // fill the same as draw
+  { // fill the same as draw
     vtkGenericWarningMacro(
       "Fill: Cannot handle draw color same as fill color" );
     return;
-    }
+  }
 
   // Create the seed
   pixel = vtkImageCanvasSource2DPixel::New();
@@ -1231,43 +1231,43 @@ void vtkImageCanvasSource2DFill(vtkImageData *image, double *color,
   ptrV = static_cast<T *>(last->Pointer);
   ptrC = drawColor;
   for (idxV = 0; idxV <= maxV; ++idxV)
-    {
+  {
     *ptrV = *ptrC++;
     ptrV++;
-    }
+  }
 
   while (first)
-    {
+  {
     ptr = static_cast<T *>(first->Pointer);
 
     // check bounds for -x neighbor
     if (first->X > min0)
-      {
+    {
       // Get the neighbor
       ptrV = ptr - inc0;
       // compare color
       ptrC = fillColor;
       temp = 1;
       for (idxV = 0; idxV <= maxV; ++idxV)
-        {
+      {
         if (*ptrV != *ptrC++)
-          {
+        {
           temp = 0;
           break;
-          }
-        ptrV++;
         }
+        ptrV++;
+      }
       if (temp)
-        { // color match add a new seed to end of list
+      { // color match add a new seed to end of list
         if (heap)
-          {
+        {
           pixel = heap;
           heap = heap->Next;
-          }
+        }
         else
-          {
+        {
           pixel = vtkImageCanvasSource2DPixel::New();
-          }
+        }
         pixel->X = first->X-1;
         pixel->Y = first->Y;
         pixel->Pointer = static_cast<void *>(ptr - inc0);
@@ -1278,41 +1278,41 @@ void vtkImageCanvasSource2DFill(vtkImageData *image, double *color,
         ptrV = static_cast<T *>(last->Pointer);
         ptrC = drawColor;
         for (idxV = 0; idxV <= maxV; ++idxV)
-          {
+        {
           *ptrV = *ptrC++;
           ptrV++;
-          }
         }
       }
+    }
 
     // check bounds for +x neighbor
     if (first->X < max0)
-      {
+    {
       // Get the neighbor
       ptrV = ptr + inc0;
       // compare color
       ptrC = fillColor;
       temp = 1;
       for (idxV = 0; idxV <= maxV; ++idxV)
-        {
+      {
         if (*ptrV != *ptrC++)
-          {
+        {
           temp = 0;
           break;
-          }
-        ptrV++;
         }
+        ptrV++;
+      }
       if (temp)
-        { // color match add a new seed to end of list
+      { // color match add a new seed to end of list
         if (heap)
-          {
+        {
           pixel = heap;
           heap = heap->Next;
-          }
+        }
         else
-          {
+        {
           pixel = vtkImageCanvasSource2DPixel::New();
-          }
+        }
         pixel->X = first->X+1;
         pixel->Y = first->Y;
         pixel->Pointer = static_cast<void *>(ptr + inc0);
@@ -1323,41 +1323,41 @@ void vtkImageCanvasSource2DFill(vtkImageData *image, double *color,
         ptrV = static_cast<T *>(last->Pointer);
         ptrC = drawColor;
         for (idxV = 0; idxV <= maxV; ++idxV)
-          {
+        {
           *ptrV = *ptrC++;
           ptrV++;
-          }
         }
       }
+    }
 
     // check bounds for -y neighbor
     if (first->Y > min1)
-      {
+    {
       // Get the neighbor
       ptrV = ptr - inc1;
       // compare color
       ptrC = fillColor;
       temp = 1;
       for (idxV = 0; idxV <= maxV; ++idxV)
-        {
+      {
         if (*ptrV != *ptrC++)
-          {
+        {
           temp = 0;
           break;
-          }
-        ptrV++;
         }
+        ptrV++;
+      }
       if (temp)
-        { // color match add a new seed to end of list
+      { // color match add a new seed to end of list
         if (heap)
-          {
+        {
           pixel = heap;
           heap = heap->Next;
-          }
+        }
         else
-          {
+        {
           pixel = vtkImageCanvasSource2DPixel::New();
-          }
+        }
         pixel->X = first->X;
         pixel->Y = first->Y-1;
         pixel->Pointer = static_cast<void *>(ptr - inc1);
@@ -1368,41 +1368,41 @@ void vtkImageCanvasSource2DFill(vtkImageData *image, double *color,
         ptrV = static_cast<T *>(last->Pointer);
         ptrC = drawColor;
         for (idxV = 0; idxV <= maxV; ++idxV)
-          {
+        {
           *ptrV = *ptrC++;
           ptrV++;
-          }
         }
       }
+    }
 
     // check bounds for +y neighbor
     if (first->Y < max1)
-      {
+    {
       // Get the neighbor
       ptrV = ptr + inc1;
       // compare color
       ptrC = fillColor;
       temp = 1;
       for (idxV = 0; idxV <= maxV; ++idxV)
-        {
+      {
         if (*ptrV != *ptrC++)
-          {
+        {
           temp = 0;
           break;
-          }
-        ptrV++;
         }
+        ptrV++;
+      }
       if (temp)
-        { // color match add a new seed to end of list
+      { // color match add a new seed to end of list
         if (heap)
-          {
+        {
           pixel = heap;
           heap = heap->Next;
-          }
+        }
         else
-          {
+        {
           pixel = vtkImageCanvasSource2DPixel::New();
-          }
+        }
         pixel->X = first->X;
         pixel->Y = first->Y+1;
         pixel->Pointer = static_cast<void *>(ptr + inc1);
@@ -1413,27 +1413,27 @@ void vtkImageCanvasSource2DFill(vtkImageData *image, double *color,
         ptrV = static_cast<T *>(last->Pointer);
         ptrC = drawColor;
         for (idxV = 0; idxV <= maxV; ++idxV)
-          {
+        {
           *ptrV = *ptrC++;
           ptrV++;
-          }
         }
       }
+    }
 
     // remove the first from the list.
     pixel = first;
     first = first->Next;
     pixel->Next = heap;
     heap = pixel;
-    }
+  }
 
   // free the heap
   while (heap)
-    {
+  {
     pixel = heap;
     heap = heap->Next;
     delete pixel;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1447,17 +1447,17 @@ void vtkImageCanvasSource2D::FillPixel(int x, int y)
 
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0)
-    {
+  {
     x = static_cast<int>(static_cast<double>(x) * this->Ratio[0]);
-    }
+  }
   if (this->Ratio[1] != 1.0)
-    {
+  {
     y = static_cast<int>(static_cast<double>(y) * this->Ratio[1]);
-    }
+  }
   if (this->Ratio[2] != 1.0)
-    {
+  {
     z = static_cast<int>(static_cast<double>(z) * this->Ratio[2]);
-    }
+  }
 
   z = (z < ext[4]) ? ext[4] : z;
   z = (z > ext[5]) ? ext[5] : z;
@@ -1465,7 +1465,7 @@ void vtkImageCanvasSource2D::FillPixel(int x, int y)
   ptr = this->ImageData->GetScalarPointer(x, y, z);
 
   switch (this->ImageData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageCanvasSource2DFill(this->ImageData,
                                  this->DrawColor,
@@ -1473,7 +1473,7 @@ void vtkImageCanvasSource2D::FillPixel(int x, int y)
                                  x, y));
     default:
       vtkErrorMacro(<< "Fill: Cannot handle ScalarType.");
-    }
+  }
   this->Modified();
 }
 
@@ -1495,54 +1495,54 @@ void vtkImageCanvasSource2D::SetExtent(int xMin, int xMax,
   int modified = 0;
 
   if (this->WholeExtent[0] != xMin)
-    {
+  {
     modified = 1;
     this->WholeExtent[0] = xMin ;
-    }
+  }
   if (this->WholeExtent[1] != xMax)
-    {
+  {
     modified = 1;
     this->WholeExtent[1] = xMax ;
-    }
+  }
   if (this->WholeExtent[2] != yMin)
-    {
+  {
     modified = 1;
     this->WholeExtent[2] = yMin ;
-    }
+  }
   if (this->WholeExtent[3] != yMax)
-    {
+  {
     modified = 1;
     this->WholeExtent[3] = yMax ;
-    }
+  }
   if (this->WholeExtent[4] != zMin)
-    {
+  {
     modified = 1;
     this->WholeExtent[4] = zMin ;
-    }
+  }
   if (this->WholeExtent[5] != zMax)
-    {
+  {
     modified = 1;
     this->WholeExtent[5] = zMax ;
-    }
+  }
   if (modified)
-    {
+  {
     this->Modified();
     this->ImageData->SetExtent(this->WholeExtent);
     this->ImageData->AllocateScalars(
       this->ImageData->GetScalarType(),
       this->ImageData->GetNumberOfScalarComponents());
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkImageCanvasSource2D::SetScalarType(int t)
 {
   if (this->ImageData->GetScalarType() != t)
-    {
+  {
     this->Modified();
     this->ImageData->AllocateScalars(
       t, this->ImageData->GetNumberOfScalarComponents());
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1556,11 +1556,11 @@ int vtkImageCanvasSource2D::GetScalarType() const
 void vtkImageCanvasSource2D::SetNumberOfScalarComponents(int t)
 {
   if (this->ImageData->GetNumberOfScalarComponents() != t)
-    {
+  {
     this->Modified();
     this->ImageData->AllocateScalars(
       this->ImageData->GetScalarType(), t);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1611,9 +1611,9 @@ int vtkImageCanvasSource2D::RequestData (
 void vtkImageCanvasSource2D::InitializeCanvasVolume(vtkImageData* volume)
 {
   if (!volume)
-    {
+  {
     return;
-    }
+  }
 
   // Set the whole extent to the extent of the volume
   volume->GetExtent(this->WholeExtent);

@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkShader2Collection - a list of Shader2 objects.
-// .SECTION Description
-// vtkShader2Collection represents and provides methods to manipulate a
-// list of Shader2 objects. The list is unsorted and duplicate entries are not
-// prevented.
-
-// .SECTION see also
-// vtkShader2 vtkCollection
+/**
+ * @class   vtkShader2Collection
+ * @brief   a list of Shader2 objects.
+ *
+ * vtkShader2Collection represents and provides methods to manipulate a
+ * list of Shader2 objects. The list is unsorted and duplicate entries are not
+ * prevented.
+ *
+ * @sa
+ * vtkShader2 vtkCollection
+*/
 
 #ifndef vtkShader2Collection_h
 #define vtkShader2Collection_h
@@ -36,70 +39,83 @@ class VTKRENDERINGOPENGL_EXPORT vtkShader2Collection : public vtkCollection
   vtkTypeMacro(vtkShader2Collection,vtkCollection);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Modified GetMTime because the collection time depends on the
-  // content of the shaders.
-  unsigned long GetMTime();
+  /**
+   * Modified GetMTime because the collection time depends on the
+   * content of the shaders.
+   */
+  vtkMTimeType GetMTime();
 
-  // Description:
-  // Add a shader to the list.
+  /**
+   * Add a shader to the list.
+   */
   void AddItem(vtkShader2 *shader);
 
-  // Description:
-  // Get the next shader in the list.
+  /**
+   * Get the next shader in the list.
+   */
   vtkShader2 *GetNextShader();
 
-  // Description:
-  // Get the last shader in the list.
+  /**
+   * Get the last shader in the list.
+   */
   vtkShader2 *GetLastShader();
 
-  // Description:
-  // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth.
+  /**
+   * Reentrant safe way to get an object in a collection. Just pass the
+   * same cookie back and forth.
+   */
   vtkShader2 *GetNextShader(vtkCollectionSimpleIterator &cookie);
 
-  // Description:
-  // Add the elements of `other' to the end of `this'.
-  // \pre other_exists: other!=0
-  // \pre not_self: other!=this
-  // \post added: this->GetNumberOfItems()=old this->GetNumberOfItems()+other->GetNumberOfItems()
+  /**
+   * Add the elements of `other' to the end of `this'.
+   * \pre other_exists: other!=0
+   * \pre not_self: other!=this
+   * \post added: this->GetNumberOfItems()=old this->GetNumberOfItems()+other->GetNumberOfItems()
+   */
   void AddCollection(vtkShader2Collection *other);
 
-  // Description:
-  // Remove the elements of `other' from `this'. It assumes that `this' already
-  // has all the elements of `other' added contiguously.
-  // \pre other_exists: other!=0
-  // \pre not_self: other!=this
-  // \post removed: this->GetNumberOfItems()=old this->GetNumberOfItems()-other->GetNumberOfItems()
+  /**
+   * Remove the elements of `other' from `this'. It assumes that `this' already
+   * has all the elements of `other' added contiguously.
+   * \pre other_exists: other!=0
+   * \pre not_self: other!=this
+   * \post removed: this->GetNumberOfItems()=old this->GetNumberOfItems()-other->GetNumberOfItems()
+   */
   void RemoveCollection(vtkShader2Collection *other);
 
-  // Description:
-  // Tells if at least one of the shaders is a vertex shader.
-  // If yes, it means the vertex processing of the fixed-pipeline is bypassed.
-  // If no, it means the vertex processing of the fixed-pipeline is used.
+  /**
+   * Tells if at least one of the shaders is a vertex shader.
+   * If yes, it means the vertex processing of the fixed-pipeline is bypassed.
+   * If no, it means the vertex processing of the fixed-pipeline is used.
+   */
   bool HasVertexShaders();
 
-  // Description:
-  // Tells if at least one of the shaders is a tessellation control shader.
+  /**
+   * Tells if at least one of the shaders is a tessellation control shader.
+   */
   bool HasTessellationControlShaders();
 
-  // Description:
-  // Tells if at least one of the shaders is a tessellation evaluation shader.
+  /**
+   * Tells if at least one of the shaders is a tessellation evaluation shader.
+   */
   bool HasTessellationEvaluationShaders();
 
-  // Description:
-  // Tells if at least one of the shaders is a geometry shader.
+  /**
+   * Tells if at least one of the shaders is a geometry shader.
+   */
   bool HasGeometryShaders();
 
-  // Description:
-  // Tells if at least one of the shaders is a fragment shader.
-  // If yes, it means the fragment processing of the fixed-pipeline is
-  // bypassed.
-  // If no, it means the fragment processing of the fixed-pipeline is used.
+  /**
+   * Tells if at least one of the shaders is a fragment shader.
+   * If yes, it means the fragment processing of the fixed-pipeline is
+   * bypassed.
+   * If no, it means the fragment processing of the fixed-pipeline is used.
+   */
   bool HasFragmentShaders();
 
-  // Description:
-  // Release OpenGL resources (shader id of each item).
+  /**
+   * Release OpenGL resources (shader id of each item).
+   */
   void ReleaseGraphicsResources();
 
 protected:
@@ -112,8 +128,8 @@ private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o);
 
-  vtkShader2Collection(const vtkShader2Collection&);  // Not implemented.
-  void operator=(const vtkShader2Collection&);  // Not implemented.
+  vtkShader2Collection(const vtkShader2Collection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkShader2Collection&) VTK_DELETE_FUNCTION;
 };
 
 #endif

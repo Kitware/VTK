@@ -31,19 +31,19 @@ static vtkSmartPointer<vtkTetra> MakeTetra();
   { \
   std::string expectedMsg(msg); \
   if (!errorObserver->GetError()) \
-    { \
+  { \
     std::cout << "Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
     status++; \
-    } \
+  } \
   else \
-    { \
+  { \
     std::string gotMsg(errorObserver->GetErrorMessage()); \
     if (gotMsg.find(expectedMsg) == std::string::npos) \
-      { \
+    { \
       std::cout << "Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
       status++; \
-      } \
     } \
+  } \
   } \
   errorObserver->Clear()
 
@@ -65,14 +65,14 @@ int UnitTestPlanesIntersection(int, char*[])
   vtkPlanesIntersection *aPlanes =
     vtkPlanesIntersection::Convert3DCell(aTetra);
   if (aTetra->GetNumberOfFaces() != aPlanes->GetNumberOfPlanes())
-    {
+  {
     status++;
     std::cout << "FAILED" << std::endl;
-    }
+  }
   else
-    {
+  {
     std::cout << "PASSED" << std::endl;
-    }
+  }
   aPlanes->Delete();
   }
 
@@ -83,16 +83,16 @@ int UnitTestPlanesIntersection(int, char*[])
     vtkPlanesIntersection::Convert3DCell(aTetra);
   int numVertices = aPlanes->GetNumberOfRegionVertices();
   if (numVertices != 4)
-    {
+  {
     std::cout << " GetNumberOfRegionVertices() got " << numVertices
               << " but expected 4 ";
     std::cout << "FAILED" << std::endl;
     ++status;
-    }
+  }
   else
-    {
+  {
     std::cout << "PASSED" << std::endl;
-    }
+  }
   aPlanes->Delete();
   }
 
@@ -117,10 +117,10 @@ int UnitTestPlanesIntersection(int, char*[])
     bounds,
     polygon->GetOutput()->GetPoints());
   if (result == 0)
-    {
+  {
     ++status4;
     std::cout << " PolygonIntersectsBBox() fails bbox contains ";
-    }
+  }
 
   // bbox outside
   vtkBoundingBox bbox3(100, 200, 100, 200, 100, 200);
@@ -130,10 +130,10 @@ int UnitTestPlanesIntersection(int, char*[])
     bounds,
     polygon->GetOutput()->GetPoints());
   if (result != 0)
-    {
+  {
     ++status4;
     std::cout << " PolygonIntersectsBBox() fils bbox outside ";
-    }
+  }
 
   // bbox straddles
   vtkBoundingBox bbox2(0, 200, 0, 200, 0, 200);
@@ -143,19 +143,19 @@ int UnitTestPlanesIntersection(int, char*[])
     bounds,
     polygon->GetOutput()->GetPoints());
   if (result != 0)
-    {
+  {
     ++status4;
     std::cout << " PolygonIntersectsBBox() fils bbox outside ";
-    }
+  }
 
   if (status4)
-    {
+  {
     std::cout << "FAILED" << std::endl;
-    }
+  }
   else
-    {
+  {
     std::cout << "PASSED" << std::endl;
-    }
+  }
   }
 
   {
@@ -186,9 +186,9 @@ int UnitTestPlanesIntersection(int, char*[])
   aPlanes->Print(planesPrint);
 
   if (aPlanes->IntersectsRegion(points) == 0)
-    {
+  {
     ++status2;
-    }
+  }
   points->SetPoint(0, -.01, -.01, -.01);
   points->SetPoint(1, .01, -.01, -.01);
   points->SetPoint(2, .01, .01, -.01);
@@ -201,9 +201,9 @@ int UnitTestPlanesIntersection(int, char*[])
   points->Modified();
   // box is entirely inside
   if (aPlanes->IntersectsRegion(points) != 1)
-    {
+  {
     ++status2;
-    }
+  }
 
   points->SetPoint(0, 1000.0, 1000.0, 1000.0);
   points->SetPoint(1, 2000.0, 1000.0, 1000.0);
@@ -218,10 +218,10 @@ int UnitTestPlanesIntersection(int, char*[])
 
   // box is entirely outside
   if (aPlanes->IntersectsRegion(points) != 0)
-    {
+  {
     std::cout << "Box entirely outside failed ";
     ++status2;
-    }
+  }
   points->SetPoint(0, 0.0, 0.0, 0.0);
   points->SetPoint(1, 10.0, 0.0, 0.0);
   points->SetPoint(2, 10.0, 10.0, 0.0);
@@ -235,21 +235,21 @@ int UnitTestPlanesIntersection(int, char*[])
 
   // box straddles region
   if (aPlanes->IntersectsRegion(points) != 1)
-    {
+  {
     std::cout << "Box straddling region failed ";
     ++status2;
-    }
+  }
 
   aPlanes->Delete();
   if (status2)
-    {
+  {
     std::cout << "FAILED" << std::endl;
     ++status;
-    }
+  }
   else
-    {
+  {
     std::cout << "PASSED" << std::endl;
-    }
+  }
   }
 
   {
@@ -266,11 +266,11 @@ int UnitTestPlanesIntersection(int, char*[])
     &(*regionVertices.begin()),
     numberOfRegionVertices);
   if (got != numberOfRegionVertices)
-    {
+  {
     ++status3;
     std::cout << " GetRegionVertices() got " << got
               << " but expected " << numberOfRegionVertices << " ";
-    }
+  }
   aPlanes->SetRegionVertices(
     &(*regionVertices.begin()),
     numberOfRegionVertices);
@@ -284,11 +284,11 @@ int UnitTestPlanesIntersection(int, char*[])
     &(*regionVertices.begin()),
     1);
   if (got != 1)
-    {
+  {
     ++status3;
     std::cout << " GetRegionVertices() got " << got
               << " but expected 1 ";
-    }
+  }
 
   vtkSmartPointer<vtkPlanesIntersection> regionPlane =
     vtkSmartPointer<vtkPlanesIntersection>::New();
@@ -315,14 +315,14 @@ int UnitTestPlanesIntersection(int, char*[])
   CHECK_ERROR_MSG("invalid region", status3);
 
   if (status3)
-    {
+  {
     ++status;
     std::cout << "FAILED" << std::endl;
-    }
+  }
   else
-    {
+  {
     std::cout << "PASSED" << std::endl;
-    }
+  }
   aPlanes->Delete();
   }
 
@@ -354,11 +354,11 @@ int UnitTestPlanesIntersection(int, char*[])
 
   int numberOfRegionVertices = aPlanes->GetNumRegionVertices();
   if (numberOfRegionVertices != 8)
-    {
+  {
     ++status5;
     std::cout << " GetNumRegionVertices() got " << numberOfRegionVertices
               << " but expected 8 ";
-    }
+  }
   std::vector<double> regionVertices(numberOfRegionVertices * 3);
 
   aPlanes->GetRegionVertices(
@@ -369,14 +369,14 @@ int UnitTestPlanesIntersection(int, char*[])
     numberOfRegionVertices);
 
   if (status5)
-    {
+  {
     ++status;
     std::cout << "FAILED" << std::endl;
-    }
+  }
   else
-    {
+  {
     std::cout << "PASSED" << std::endl;
-    }
+  }
   }
 
   {
@@ -409,14 +409,14 @@ int UnitTestPlanesIntersection(int, char*[])
 
   int status1 = 0;
   if (empty->IntersectsRegion(points) != 0)
-    {
+  {
     ++status1;
     std::cout << "FAILED" << std::endl;
-    }
+  }
   else
-    {
+  {
     CHECK_ERROR_MSG("invalid region - less than 4 planes", status1);
-    }
+  }
 
   // Invalid Region
   vtkSmartPointer<vtkPlanesIntersection> invalidRegion =
@@ -441,14 +441,14 @@ int UnitTestPlanesIntersection(int, char*[])
   invalidRegion->SetNormals(normals);
 
   if (invalidRegion->IntersectsRegion(points) != 0)
-    {
+  {
     ++status1;
     std::cout << "FAILED" << std::endl;
-    }
+  }
   else
-    {
+  {
     CHECK_ERROR_MSG("Invalid region: zero-volume intersection", status1);
-    }
+  }
   vtkSmartPointer<vtkPlanesIntersection> invalidBox =
     vtkSmartPointer<vtkPlanesIntersection>::New();
   invalidBox->AddObserver(vtkCommand::ErrorEvent, errorObserver);
@@ -487,34 +487,34 @@ int UnitTestPlanesIntersection(int, char*[])
   badBox->InsertNextPoint(xmax, ymax, zmax);
 
   if (invalidBox->IntersectsRegion(badBox) != 0)
-    {
+  {
     ++status1;
     std::cout << "FAILED" << std::endl;
-    }
+  }
   else
-    {
+  {
     CHECK_ERROR_MSG("invalid box", status1);
-    }
+  }
 
   if (status1)
-    {
+  {
     ++status;
     std::cout << "FAILED" << std::endl;
-    }
+  }
   else
-    {
+  {
     std::cout << "PASSED" << std::endl;
-    }
+  }
   }
 
   if (status)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
   else
-    {
+  {
     return EXIT_SUCCESS;
-    }
+  }
 }
 
 

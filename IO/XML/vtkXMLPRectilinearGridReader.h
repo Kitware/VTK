@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPRectilinearGridReader - Read PVTK XML RectilinearGrid files.
-// .SECTION Description
-// vtkXMLPRectilinearGridReader reads the PVTK XML RectilinearGrid
-// file format.  This reads the parallel format's summary file and
-// then uses vtkXMLRectilinearGridReader to read data from the
-// individual RectilinearGrid piece files.  Streaming is supported.
-// The standard extension for this reader's file format is "pvtr".
-
-// .SECTION See Also
-// vtkXMLRectilinearGridReader
+/**
+ * @class   vtkXMLPRectilinearGridReader
+ * @brief   Read PVTK XML RectilinearGrid files.
+ *
+ * vtkXMLPRectilinearGridReader reads the PVTK XML RectilinearGrid
+ * file format.  This reads the parallel format's summary file and
+ * then uses vtkXMLRectilinearGridReader to read data from the
+ * individual RectilinearGrid piece files.  Streaming is supported.
+ * The standard extension for this reader's file format is "pvtr".
+ *
+ * @sa
+ * vtkXMLRectilinearGridReader
+*/
 
 #ifndef vtkXMLPRectilinearGridReader_h
 #define vtkXMLPRectilinearGridReader_h
@@ -38,10 +41,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLPRectilinearGridReader *New();
 
-  // Description:
-  // Get the reader's output.
+  //@{
+  /**
+   * Get the reader's output.
+   */
   vtkRectilinearGrid *GetOutput();
   vtkRectilinearGrid *GetOutput(int idx);
+  //@}
 
 protected:
   vtkXMLPRectilinearGridReader();
@@ -65,8 +71,8 @@ protected:
   vtkXMLDataElement* PCoordinatesElement;
 
 private:
-  vtkXMLPRectilinearGridReader(const vtkXMLPRectilinearGridReader&);  // Not implemented.
-  void operator=(const vtkXMLPRectilinearGridReader&);  // Not implemented.
+  vtkXMLPRectilinearGridReader(const vtkXMLPRectilinearGridReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLPRectilinearGridReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

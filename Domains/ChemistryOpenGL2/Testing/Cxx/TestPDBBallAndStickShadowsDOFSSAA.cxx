@@ -73,12 +73,12 @@ int TestPDBBallAndStickShadowsDOFSSAA(int argc, char *argv[])
   const unsigned short numColors = lut->GetNumberOfColors();
   double rgb[4];
   for (vtkIdType i = 0; static_cast<unsigned int>(i) < numColors; ++i)
-    {
+  {
     lut->GetTableValue(i, rgb);
     lut->SetTableValue(i, 0.45 + rgb[0]*0.55,
       0.45 + rgb[1]*0.55, 0.45 + rgb[2]*0.55);
-    }
-  molmapper->GetFastAtomMapper()->SetLookupTable(lut.Get());
+  }
+  molmapper->SetLookupTable(lut.Get());
 
 
   vtkNew<vtkActor> actor;
@@ -190,11 +190,11 @@ int TestPDBBallAndStickShadowsDOFSSAA(int argc, char *argv[])
   int numRenders = 5;
   timer->StartTimer();
   for (int i = 0; i < numRenders; ++i)
-    {
+  {
     ren->GetActiveCamera()->Azimuth(85.0/numRenders);
     ren->GetActiveCamera()->Elevation(85.0/numRenders);
     win->Render();
-    }
+  }
   timer->StopTimer();
   double elapsed = timer->GetElapsedTime();
   cerr << "interactive render time: " << elapsed / numRenders << endl;
@@ -215,8 +215,8 @@ int TestPDBBallAndStickShadowsDOFSSAA(int argc, char *argv[])
   int retVal = vtkRegressionTestImage( win.Get() );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
   return !retVal;
 }

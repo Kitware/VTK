@@ -12,24 +12,27 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTransformPolyDataFilter - transform points and associated normals and vectors for polygonal dataset
-// .SECTION Description
-// vtkTransformPolyDataFilter is a filter to transform point
-// coordinates and associated point and cell normals and
-// vectors. Other point and cell data is passed through the filter
-// unchanged. This filter is specialized for polygonal data. See
-// vtkTransformFilter for more general data.
-//
-// An alternative method of transformation is to use vtkActor's methods
-// to scale, rotate, and translate objects. The difference between the
-// two methods is that vtkActor's transformation simply effects where
-// objects are rendered (via the graphics pipeline), whereas
-// vtkTransformPolyDataFilter actually modifies point coordinates in the
-// visualization pipeline. This is necessary for some objects
-// (e.g., vtkProbeFilter) that require point coordinates as input.
-
-// .SECTION See Also
-// vtkTransform vtkTransformFilter vtkActor
+/**
+ * @class   vtkTransformPolyDataFilter
+ * @brief   transform points and associated normals and vectors for polygonal dataset
+ *
+ * vtkTransformPolyDataFilter is a filter to transform point
+ * coordinates and associated point and cell normals and
+ * vectors. Other point and cell data is passed through the filter
+ * unchanged. This filter is specialized for polygonal data. See
+ * vtkTransformFilter for more general data.
+ *
+ * An alternative method of transformation is to use vtkActor's methods
+ * to scale, rotate, and translate objects. The difference between the
+ * two methods is that vtkActor's transformation simply effects where
+ * objects are rendered (via the graphics pipeline), whereas
+ * vtkTransformPolyDataFilter actually modifies point coordinates in the
+ * visualization pipeline. This is necessary for some objects
+ * (e.g., vtkProbeFilter) that require point coordinates as input.
+ *
+ * @sa
+ * vtkTransform vtkTransformFilter vtkActor
+*/
 
 #ifndef vtkTransformPolyDataFilter_h
 #define vtkTransformPolyDataFilter_h
@@ -44,35 +47,42 @@ class VTKFILTERSGENERAL_EXPORT vtkTransformPolyDataFilter : public vtkPolyDataAl
 public:
   static vtkTransformPolyDataFilter *New();
   vtkTypeMacro(vtkTransformPolyDataFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Return the MTime also considering the transform.
-  unsigned long GetMTime();
+  /**
+   * Return the MTime also considering the transform.
+   */
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
-  // Description:
-  // Specify the transform object used to transform points.
+  //@{
+  /**
+   * Specify the transform object used to transform points.
+   */
   virtual void SetTransform(vtkAbstractTransform*);
   vtkGetObjectMacro(Transform,vtkAbstractTransform);
+  //@}
 
-  // Description:
-  // Set/get the desired precision for the output types. See the documentation
-  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
-  // the available precision settings.
+  //@{
+  /**
+   * Set/get the desired precision for the output types. See the documentation
+   * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+   * the available precision settings.
+   */
   vtkSetMacro(OutputPointsPrecision,int);
   vtkGetMacro(OutputPointsPrecision,int);
+  //@}
 
 protected:
   vtkTransformPolyDataFilter();
-  ~vtkTransformPolyDataFilter();
+  ~vtkTransformPolyDataFilter() VTK_OVERRIDE;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   vtkAbstractTransform *Transform;
   int OutputPointsPrecision;
 private:
-  vtkTransformPolyDataFilter(const vtkTransformPolyDataFilter&);  // Not implemented.
-  void operator=(const vtkTransformPolyDataFilter&);  // Not implemented.
+  vtkTransformPolyDataFilter(const vtkTransformPolyDataFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTransformPolyDataFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -17,24 +17,27 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// .NAME vtkPlanesIntersection - A vtkPlanesIntersection object is a
-//    vtkPlanes object that can compute whether the arbitrary convex region
-//    bounded by it's planes intersects an axis-aligned box.
-//
-// .SECTION Description
-//    A subclass of vtkPlanes, this class determines whether it
-//    intersects an axis aligned box.   This is motivated by the
-//    need to intersect the axis aligned region of a spacial
-//    decomposition of volume data with various other regions.
-//    It uses the algorithm from Graphics Gems IV, page 81.
-//
-// .SECTION Caveat
-//    An instance of vtkPlanes can be redefined by changing the planes,
-//    but this subclass then will not know if the region vertices are
-//    up to date.  (Region vertices can be specified in SetRegionVertices
-//    or computed by the subclass.)  So Delete and recreate if you want
-//    to change the set of planes.
-//
+/**
+ * @class   vtkPlanesIntersection
+ * @brief   A vtkPlanesIntersection object is a
+ *    vtkPlanes object that can compute whether the arbitrary convex region
+ *    bounded by it's planes intersects an axis-aligned box.
+ *
+ *
+ *    A subclass of vtkPlanes, this class determines whether it
+ *    intersects an axis aligned box.   This is motivated by the
+ *    need to intersect the axis aligned region of a spacial
+ *    decomposition of volume data with various other regions.
+ *    It uses the algorithm from Graphics Gems IV, page 81.
+ *
+ * @par Caveat:
+ *    An instance of vtkPlanes can be redefined by changing the planes,
+ *    but this subclass then will not know if the region vertices are
+ *    up to date.  (Region vertices can be specified in SetRegionVertices
+ *    or computed by the subclass.)  So Delete and recreate if you want
+ *    to change the set of planes.
+ *
+*/
 
 #ifndef vtkPlanesIntersection_h
 #define vtkPlanesIntersection_h
@@ -51,14 +54,15 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPlanesIntersection : public vtkPlanes
   vtkTypeMacro(vtkPlanesIntersection, vtkPlanes);
 
 public:
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkPlanesIntersection *New();
 
-  // Description:
-  //   It helps if you know the vertices of the convex region.
-  //   If you don't, we will calculate them.  Region vertices
-  //   are 3-tuples.
+  /**
+   * It helps if you know the vertices of the convex region.
+   * If you don't, we will calculate them.  Region vertices
+   * are 3-tuples.
+   */
 
   void SetRegionVertices(vtkPoints *pts);
   void SetRegionVertices(double *v, int nvertices);
@@ -70,26 +74,29 @@ public:
   }
   int GetRegionVertices(double *v, int nvertices);
 
-  // Description:
-  //   Return 1 if the axis aligned box defined by R intersects
-  //   the region defined by the planes, or 0 otherwise.
+  /**
+   * Return 1 if the axis aligned box defined by R intersects
+   * the region defined by the planes, or 0 otherwise.
+   */
 
   int IntersectsRegion(vtkPoints *R);
 
-  // Description:
-  //   A convenience function provided by this class, returns
-  //   1 if the polygon defined in pts intersects the bounding
-  //   box defined in bounds, 0 otherwise.
-  //
-  //   The points must define a planar polygon.
+  /**
+   * A convenience function provided by this class, returns
+   * 1 if the polygon defined in pts intersects the bounding
+   * box defined in bounds, 0 otherwise.
+
+   * The points must define a planar polygon.
+   */
 
   static int PolygonIntersectsBBox(double bounds[6], vtkPoints *pts);
 
-  // Description:
-  //   Another convenience function provided by this class, returns
-  //   the vtkPlanesIntersection object representing a 3D
-  //   cell.  The point IDs for each face must be given in
-  //   counter-clockwise order from the outside of the cell.
+  /**
+   * Another convenience function provided by this class, returns
+   * the vtkPlanesIntersection object representing a 3D
+   * cell.  The point IDs for each face must be given in
+   * counter-clockwise order from the outside of the cell.
+   */
 
   static vtkPlanesIntersection *Convert3DCell(vtkCell *cell);
 
@@ -102,7 +109,7 @@ protected:
   static int Invert3x3(double M[3][3]);
 
   vtkPlanesIntersection();
-  ~vtkPlanesIntersection();
+  ~vtkPlanesIntersection() VTK_OVERRIDE;
 
 private:
 
@@ -126,8 +133,8 @@ private:
   //    the ccw hull of that region projected in 3 orthog. directions
   vtkPointsProjectedHull *RegionPts;
 
-  vtkPlanesIntersection(const vtkPlanesIntersection&); // Not implemented
-  void operator=(const vtkPlanesIntersection&); // Not implemented
+  vtkPlanesIntersection(const vtkPlanesIntersection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPlanesIntersection&) VTK_DELETE_FUNCTION;
 };
 #endif
 

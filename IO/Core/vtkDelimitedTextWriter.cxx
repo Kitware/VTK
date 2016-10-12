@@ -70,32 +70,32 @@ int vtkDelimitedTextWriter::FillInputPortInformation(
 bool vtkDelimitedTextWriter::OpenStream()
 {
   if (this->WriteToOutputString)
-    {
+  {
     this->Stream = new std::ostringstream;
-    }
+  }
   else
-    {
+  {
     if ( !this->FileName )
-      {
+    {
       vtkErrorMacro(<< "No FileName specified! Can't write!");
       this->SetErrorCode(vtkErrorCode::NoFileNameError);
       return false;
-      }
+    }
 
     vtkDebugMacro(<<"Opening file for writing...");
 
     ofstream *fptr = new ofstream(this->FileName, ios::out);
 
     if (fptr->fail())
-      {
+    {
       vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
       this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
       delete fptr;
       return false;
-      }
+    }
 
     this->Stream = fptr;
-    }
+  }
 
   return true;
 }
@@ -109,25 +109,25 @@ void vtkDelimitedTextWriterGetDataString(
   int numComps = iter->GetNumberOfComponents();
   vtkIdType index = tupleIndex* numComps;
   for (int cc=0; cc < numComps; cc++)
-    {
+  {
     if ((index+cc) < iter->GetNumberOfValues())
-      {
+    {
       if (*first == false)
-        {
+      {
         (*stream) << writer->GetFieldDelimiter();
-        }
+      }
       *first = false;
       (*stream) << iter->GetValue(index+cc);
-      }
-    else
-      {
-      if (*first == false)
-        {
-        (*stream) << writer->GetFieldDelimiter();
-        }
-      *first = false;
-      }
     }
+    else
+    {
+      if (*first == false)
+      {
+        (*stream) << writer->GetFieldDelimiter();
+      }
+      *first = false;
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -139,36 +139,36 @@ void vtkDelimitedTextWriterGetDataString(
   int numComps = iter->GetNumberOfComponents();
   vtkIdType index = tupleIndex* numComps;
   for (int cc=0; cc < numComps; cc++)
-    {
+  {
     if ((index+cc) < iter->GetNumberOfValues())
-      {
+    {
       if (*first == false)
-        {
+      {
         (*stream) << writer->GetFieldDelimiter();
-        }
+      }
       *first = false;
       (*stream) << writer->GetString(iter->GetValue(index+cc));
-      }
-    else
-      {
-      if (*first == false)
-        {
-        (*stream) << writer->GetFieldDelimiter();
-        }
-      *first = false;
-      }
     }
+    else
+    {
+      if (*first == false)
+      {
+        (*stream) << writer->GetFieldDelimiter();
+      }
+      *first = false;
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 vtkStdString vtkDelimitedTextWriter::GetString(vtkStdString string)
 {
   if (this->UseStringDelimiter && this->StringDelimiter)
-    {
+  {
     vtkStdString temp = this->StringDelimiter;
     temp += string + this->StringDelimiter;
     return temp;
-    }
+  }
   return string;
 }
 
@@ -177,13 +177,13 @@ void vtkDelimitedTextWriter::WriteData()
 {
   vtkTable* rg = vtkTable::SafeDownCast(this->GetInput());
   if (rg)
-    {
+  {
     this->WriteTable(rg);
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro(<< "CSVWriter can only write vtkTable.");
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -192,9 +192,9 @@ void vtkDelimitedTextWriter::WriteTable(vtkTable* table)
   vtkIdType numRows = table->GetNumberOfRows();
   vtkDataSetAttributes* dsa = table->GetRowData();
   if (!this->OpenStream())
-    {
+  {
     return;
-    }
+  }
 
   std::vector<vtkSmartPointer<vtkArrayIterator> > columnsIters;
 
@@ -203,54 +203,54 @@ void vtkDelimitedTextWriter::WriteTable(vtkTable* table)
   bool first = true;
   // Write headers:
   for (cc=0; cc < numArrays; cc++)
-    {
+  {
     vtkAbstractArray* array = dsa->GetAbstractArray(cc);
     for (int comp=0; comp < array->GetNumberOfComponents(); comp++)
-      {
+    {
       if (!first)
-        {
+      {
         (*this->Stream) << this->FieldDelimiter;
-        }
+      }
       first = false;
 
       std::ostringstream array_name;
       array_name << array->GetName();
       if (array->GetNumberOfComponents() > 1)
-        {
+      {
         array_name << ":" << comp;
-        }
-      (*this->Stream) << this->GetString(array_name.str());
       }
+      (*this->Stream) << this->GetString(array_name.str());
+    }
     vtkArrayIterator* iter = array->NewIterator();
     columnsIters.push_back(iter);
     iter->Delete();
-    }
+  }
   (*this->Stream) << "\n";
 
   for (vtkIdType index=0; index < numRows; index++)
-    {
+  {
     first = true;
     std::vector<vtkSmartPointer<vtkArrayIterator> >::iterator iter;
     for (iter = columnsIters.begin(); iter != columnsIters.end(); ++iter)
-      {
+    {
       switch ((*iter)->GetDataType())
-        {
+      {
         vtkArrayIteratorTemplateMacro(
           vtkDelimitedTextWriterGetDataString(static_cast<VTK_TT*>(iter->GetPointer()),
             index, this->Stream, this, &first));
         case VTK_VARIANT:
-          {
+        {
           vtkDelimitedTextWriterGetDataString(static_cast<vtkArrayIteratorTemplate<vtkVariant>*>(iter->GetPointer()),
             index, this->Stream, this, &first);
           break;
-          }
         }
       }
-    (*this->Stream) << "\n";
     }
+    (*this->Stream) << "\n";
+  }
 
   if (this->WriteToOutputString)
-    {
+  {
     std::ostringstream *ostr =
       static_cast<std::ostringstream*>(this->Stream);
 
@@ -258,7 +258,7 @@ void vtkDelimitedTextWriter::WriteTable(vtkTable* table)
     size_t strLen = ostr->str().size();
     this->OutputString = new char[strLen+1];
     memcpy(this->OutputString, ostr->str().c_str(), strLen+1);
-    }
+  }
   delete this->Stream;
   this->Stream = 0;
 }

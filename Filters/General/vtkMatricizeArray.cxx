@@ -56,24 +56,24 @@ int vtkMatricizeArray::RequestData(
 {
   vtkArrayData* const input = vtkArrayData::GetData(inputVector[0]);
   if(input->GetNumberOfArrays() != 1)
-    {
+  {
     vtkErrorMacro(<< "vtkMatricizeArray requires vtkArrayData containing exactly one array as input.");
     return 0;
-    }
+  }
 
   vtkSparseArray<double>* const input_array = vtkSparseArray<double>::SafeDownCast(
     input->GetArray(static_cast<vtkIdType>(0)));
   if(!input_array)
-    {
+  {
     vtkErrorMacro(<< "vtkMatricizeArray requires a vtkSparseArray<double> as input.");
     return 0;
-    }
+  }
 
   if(this->SliceDimension < 0 || this->SliceDimension >= input_array->GetDimensions())
-    {
+  {
     vtkErrorMacro(<< "Slice dimension " << this->SliceDimension << " out-of-range for array with " << input_array->GetDimensions() << " dimensions.");
     return 0;
-    }
+  }
 
   vtkSparseArray<double>* const output_array = vtkSparseArray<double>::New();
 
@@ -93,17 +93,17 @@ int vtkMatricizeArray::RequestData(
   // later-on and eliminate an inner-loop comparison.
   std::vector<vtkIdType> strides(input_array->GetDimensions());
   for(vtkIdType i = input_array->GetDimensions() - 1, stride = 1; i >= 0; --i)
-    {
+  {
     if(i == this->SliceDimension)
-      {
+    {
       strides[i] = 0;
-      }
+    }
     else
-      {
+    {
       strides[i] = stride;
       stride *= input_extents[i].GetSize();
-      }
     }
+  }
 
   std::vector<vtkIdType> temp(input_array->GetDimensions());
 
@@ -111,7 +111,7 @@ int vtkMatricizeArray::RequestData(
   vtkArrayCoordinates new_coordinates(0, 0);
   const vtkIdType element_count = input_array->GetNonNullSize();
   for(vtkIdType n = 0; n != element_count; ++n)
-    {
+  {
     input_array->GetCoordinatesN(n, coordinates);
 
     new_coordinates[0] = coordinates[this->SliceDimension];
@@ -121,7 +121,7 @@ int vtkMatricizeArray::RequestData(
     new_coordinates[1] = std::accumulate(temp.begin(), temp.end(), 0);
 
     output_array->AddValue(new_coordinates, input_array->GetValueN(n));
-    }
+  }
 
   vtkArrayData* const output = vtkArrayData::GetData(outputVector);
   output->ClearArrays();

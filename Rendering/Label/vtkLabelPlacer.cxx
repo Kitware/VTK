@@ -52,20 +52,20 @@ class vtkLabelPlacer::Internal
 public:
   /// A single label's coordinates (adjusted so that the lower left screen coords are <0,0>).
   struct LabelRect
-    {
+  {
     float x[4]; // xmin, xmax, ymin, ymax
-    };
+  };
   /// A rectangular tile on the screen. It contains a set of labels that overlap it.
   struct ScreenTile
-    {
+  {
     std::vector<LabelRect> Labels;
     ScreenTile() { }
     /// Is there space to place the given rectangle in this tile so that it doesn't overlap any labels in this tile?
     bool IsSpotOpen( float& opacity, struct LabelRect& r )
-      {
+    {
       float d0, d1, d2, d3;
       for ( std::vector<LabelRect>::iterator it = this->Labels.begin(); it != this->Labels.end(); ++ it )
-        {
+      {
         d0 = it->x[0] - r.x[1];
         d1 = r.x[0] - it->x[1];
         d2 = it->x[2] - r.x[3];
@@ -79,20 +79,20 @@ public:
         d0 = d0 < d1 ? d0 : d1;
         d2 = d2 < d3 ? d2 : d3;
         if ( d0 < 1. && d2 < 1. )
-          {
+        {
           if ( d0 < opacity ) opacity = d0;
           if ( d2 < opacity ) opacity = d2;
-          }
         }
-      return true;
       }
+      return true;
+    }
     /// Prepare for the next frame.
     void Reset() { this->Labels.clear(); }
     void Insert( const LabelRect& rect )
-      {
+    {
       this->Labels.push_back( rect );
-      }
-    };
+    }
+  };
   std::vector<std::vector<ScreenTile> > Tiles;
   float ScreenOrigin[2];
   float TileSize[2];
@@ -102,7 +102,7 @@ public:
   static int DumpPlaced;
 
   Internal( float viewport[4], float tilesize[2] )
-    {
+  {
     this->NewLabelsPlaced = vtkSmartPointer<vtkIdTypeArray>::New();
     this->LastLabelsPlaced = vtkSmartPointer<vtkIdTypeArray>::New();
     this->ScreenOrigin[0] = viewport[0];
@@ -114,10 +114,10 @@ public:
     this->Tiles.resize( this->NumTiles[0] );
     for ( int i = 0; i < this->NumTiles[0]; ++ i )
       this->Tiles[i].resize( this->NumTiles[1] );
-    }
+  }
 
   bool PlaceLabel( float& opacity, float x0, float x1, float x2, float x3 )
-    {
+  {
     // Translate to origin to simplify bucketing
     LabelRect r;
     r.x[0] = x0 - ScreenOrigin[0];
@@ -141,29 +141,29 @@ public:
     if ( ty1 >= this->NumTiles[1] ) { ty1 = this->NumTiles[1] - 1; ry1 = ty1; }
     // Check all applicable tiles for overlap.
     for ( int tx = tx0; tx <= tx1; ++ tx )
-      {
+    {
       for ( int ty = ty0; ty <= ty1; ++ ty )
-        {
+      {
         std::vector<ScreenTile>* trow = &this->Tiles[tx];
         // Do this check here for speed, even though we repeat w/ small mod below.
         if ( ! (*trow)[ty].IsSpotOpen( opacity, r ) )
           return false;
-        }
       }
+    }
     // OK, we made it this far... we can place the label.
     // Add it to each tile it overlaps.
     for ( int tx = tx0; tx <= tx1; ++ tx )
-      {
+    {
       for ( int ty = ty0; ty <= ty1; ++ ty )
-        {
+      {
         this->Tiles[tx][ty].Insert( r );
-        }
       }
-    return true;
     }
+    return true;
+  }
 
   void Reset( float viewport[4], float tileSize[2] )
-    {
+  {
     // Clear out any tiles we get to reuse
     for ( int tx = 0; tx < this->NumTiles[0]; ++ tx )
       for ( int ty = 0; ty < this->NumTiles[1]; ++ ty )
@@ -187,7 +187,7 @@ public:
     this->LastLabelsPlaced = this->NewLabelsPlaced;
     this->NewLabelsPlaced = tmp;
     this->NewLabelsPlaced->Reset();
-    }
+  }
 };
 
 int vtkLabelPlacer::Internal::DumpPlaced = 0;
@@ -242,11 +242,11 @@ void vtkLabelPlacer::SetRenderer( vtkRenderer* ren )
 {
   // Do not keep a reference count to avoid a reference loop
   if ( this->Renderer != ren )
-    {
+  {
     this->Renderer = ren;
     this->VisiblePoints->SetRenderer(ren);
     this->Modified();
-    }
+  }
 }
 
 void vtkLabelPlacer::PrintSelf( ostream& os, vtkIndent indent )
@@ -279,75 +279,75 @@ void vtkLabelPlacer::SetGravity( int gravity )
     return;
 
   if ( ! ( gravity & HorizontalBitMask ) )
-    {
+  {
     vtkWarningMacro( "Ignoring gravity " << gravity << " with no horizontal bit set" );
     return;
-    }
+  }
 
   if ( ! ( gravity & VerticalBitMask ) )
-    {
+  {
     vtkWarningMacro( "Ignoring gravity " << gravity << " with no vertical bit set" );
     return;
-    }
+  }
 
   this->Gravity = gravity;
   this->Modified();
 }
 
-unsigned long vtkLabelPlacer::GetMTime()
+vtkMTimeType vtkLabelPlacer::GetMTime()
 {
   // Check for minimal changes
   if ( this->Renderer )
-    {
+  {
     int* sz = this->Renderer->GetSize();
     if ( this->LastRendererSize[0] != sz[0]
       || this->LastRendererSize[1] != sz[1] )
-      {
+    {
       this->LastRendererSize[0] = sz[0];
       this->LastRendererSize[1] = sz[1];
       this->Modified();
-      }
+    }
     vtkCamera* cam = this->Renderer->GetActiveCamera();
     if ( cam )
-      {
+    {
       double* pos = cam->GetPosition();
       if ( this->LastCameraPosition[0] != pos[0]
         || this->LastCameraPosition[1] != pos[1]
         || this->LastCameraPosition[2] != pos[2] )
-        {
+      {
         this->LastCameraPosition[0] = pos[0];
         this->LastCameraPosition[1] = pos[1];
         this->LastCameraPosition[2] = pos[2];
         this->Modified();
-        }
+      }
       double* fp = cam->GetFocalPoint();
       if ( this->LastCameraFocalPoint[0] != fp[0]
         || this->LastCameraFocalPoint[1] != fp[1]
         || this->LastCameraFocalPoint[2] != fp[2] )
-        {
+      {
         this->LastCameraFocalPoint[0] = fp[0];
         this->LastCameraFocalPoint[1] = fp[1];
         this->LastCameraFocalPoint[2] = fp[2];
         this->Modified();
-        }
+      }
       double* up = cam->GetViewUp();
       if ( this->LastCameraViewUp[0] != up[0]
         || this->LastCameraViewUp[1] != up[1]
         || this->LastCameraViewUp[2] != up[2] )
-        {
+      {
         this->LastCameraViewUp[0] = up[0];
         this->LastCameraViewUp[1] = up[1];
         this->LastCameraViewUp[2] = up[2];
         this->Modified();
-        }
+      }
       double scale = cam->GetParallelScale();
       if( this->LastCameraParallelScale != scale)
-        {
+      {
         this->LastCameraParallelScale = scale;
         this->Modified();
-        }
       }
     }
+  }
   return Superclass::GetMTime();
 }
 
@@ -364,32 +364,32 @@ int vtkLabelPlacer::RequestData(
   vtkInformationVector* outputVector )
 {
   if ( ! this->Renderer )
-    {
+  {
     vtkErrorMacro( "No renderer -- can't determine screen space size." );
     return 0;
-    }
+  }
 
   if ( ! this->Renderer->GetRenderWindow() )
-    {
+  {
     vtkErrorMacro( "No render window -- can't get window size to query z buffer." );
     return 0;
-    }
+  }
 
   // This will trigger if you do something like ResetCamera before the Renderer or
   // RenderWindow have allocated their appropriate system resources (like creating
   // an OpenGL context)." Resource allocation must occur before we can use the Z
   // buffer.
   if ( this->Renderer->GetRenderWindow()->GetNeverRendered() )
-    {
+  {
     vtkDebugMacro( "RenderWindow not initialized -- aborting update." );
     return 1;
-    }
+  }
 
   vtkCamera* cam = this->Renderer->GetActiveCamera();
   if ( ! cam )
-    {
+  {
     return 1;
-    }
+  }
 
   vtkInformation* inInfo  =  inputVector[0]->GetInformationObject( 0 );
   vtkInformation* outInfo0 = outputVector->GetInformationObject( 0 );
@@ -412,15 +412,15 @@ int vtkLabelPlacer::RequestData(
   vtkUnicodeStringArray* nameUArr0 = vtkUnicodeStringArray::New();
 
   if( this->UseUnicodeStrings )
-    {
+  {
     nameUArr0->SetName( "LabelText" );
     ouData0->GetPointData()->AddArray( nameUArr0 );
-    }
+  }
   else
-    {
+  {
     nameArr0->SetName( "LabelText" );
     ouData0->GetPointData()->AddArray( nameArr0 );
-    }
+  }
     nameArr0->Delete();
     nameUArr0->Delete();
 
@@ -447,78 +447,78 @@ int vtkLabelPlacer::RequestData(
     inData->GetIconIndices());
 
   if ( ! inData )
-    {
+  {
     // vtkErrorMacro( "No input data" );
     return 1;
-    }
+  }
 
   vtkPoints* ipts = inData->GetPoints();
   if ( ! ipts )
-    {
+  {
     return 1;
-    }
+  }
   vtkDataArray* isz = inData->GetPointData()->GetArray( "LabelSize" );
   if ( ! isz ) //|| isz->GetNumberOfComponents() > 2 )
-    {
+  {
     vtkWarningMacro( "Missing or improper label size point array -- output will be empty." );
     return 1;
-    }
+  }
 
   // If the renderer size is zero, silently place no labels.
   int* renSize = this->Renderer->GetSize();
   if ( renSize[0] == 0 || renSize[1] == 0 )
-    {
+  {
     return 1;
-    }
+  }
 
   if ( ! ouData0 || ! ouData1 )
-    {
+  {
     vtkErrorMacro( "No output data." );
     return 0;
-    }
+  }
 
   // Prepare both icon and text output datasets
   vtkPoints* opts0 = ouData0->GetPoints();
   if ( ! opts0 )
-    {
+  {
     opts0 = vtkPoints::New();
     ouData0->SetPoints( opts0 );
     opts0->FastDelete();
-    }
+  }
   ouData0->Allocate();
 
   vtkPoints* opts1 = ouData1->GetPoints();
   if ( ! opts1 )
-    {
+  {
     opts1 = vtkPoints::New();
     ouData1->SetPoints( opts1 );
     opts1->FastDelete();
-    }
+  }
   ouData1->Allocate();
 
   vtkPoints* opts2 = ouData2->GetPoints();
   if ( ! opts2 )
-    {
+  {
     opts2 = vtkPoints::New();
     ouData2->SetPoints( opts2 );
     opts2->FastDelete();
-    }
+  }
   ouData2->Allocate();
 
   vtkPoints* opts3 = ouData3->GetPoints();
   vtkCellArray* ocells3 = ouData3->GetLines();
   if ( ! opts3 )
-    {
+  {
     opts3 = vtkPoints::New();
     ouData3->SetPoints( opts3 );
     opts3->FastDelete();
-    }
+  }
   if( ! ocells3 )
-    {
+  {
     ocells3 = vtkCellArray::New();
     ouData3->SetLines( ocells3 );
     ocells3->FastDelete();
-    }
+  }
   ouData3->Allocate();
 
   int tvpsz[4]; // tiled viewport size (and origin)
@@ -536,13 +536,13 @@ int vtkLabelPlacer::RequestData(
     ! this->Buckets ||
     this->Buckets->NumTiles[0] * this->Buckets->TileSize[0] < tvpsz[2] ||
     this->Buckets->NumTiles[1] * this->Buckets->TileSize[1] < tvpsz[3] )
-    {
+  {
     this->Buckets = new Internal( kdbounds, tileSize );
-    }
+  }
   else
-    {
+  {
     this->Buckets->Reset( kdbounds, tileSize );
-    }
+  }
 
   float * zPtr = NULL;
   int placed = 0;
@@ -563,17 +563,17 @@ int vtkLabelPlacer::RequestData(
   unsigned long iteratedLabelArea = 0;
   double camVec[3];
   if ( this->PositionsAsNormals )
-    {
+  {
     cam->GetViewPlaneNormal( camVec );
-    }
+  }
 
   vtkLabelHierarchyIterator* inIter = inData->NewIterator(
     this->IteratorType, this->Renderer, cam, frustumPlanes, this->PositionsAsNormals, tileSize );
 
   if (this->OutputTraversedBounds)
-    {
+  {
     inIter->SetTraversedBounds( ouData2 );
-    }
+  }
   vtkSmartPointer<vtkTimerLog> timer = vtkSmartPointer<vtkTimerLog>::New();
   timer->StartTimer();
 
@@ -581,27 +581,27 @@ int vtkLabelPlacer::RequestData(
   this->Buckets->NewLabelsPlaced->Initialize();
 
   if(this->UseDepthBuffer)
-    {
+  {
     zPtr = this->VisiblePoints->Initialize(true);
-    }
+  }
 
   timer->StopTimer();
   vtkDebugMacro("Iterator initialization time: " << timer->GetElapsedTime());
   timer->StartTimer();
   for ( ; ! inIter->IsAtEnd(); inIter->Next() )
-    {
+  {
     // Ignore labels that don't have text or an icon.
     vtkIdType labelType = inIter->GetType();
     int gravity = this->Gravity;
     if ( labelType == 0 )
-      {
+    {
       gravity = HorizontalLeftBit | VerticalBaselineBit;
-      }
+    }
     if ( labelType < 0 || labelType > 1 )
-      {
+    {
       vtkDebugMacro("Arf. Bad label type " << labelType);
       continue;
-      }
+    }
 
     inIter->GetPoint( x );
     // Cull points behind the camera. Cannot rely on hither-yon planes because the camera
@@ -611,25 +611,25 @@ int vtkLabelPlacer::RequestData(
     double* eye = cam->GetPosition();
     double* dir = cam->GetViewPlaneNormal();
     if ( ( x[0] - eye[0] ) * dir[0] + ( x[1] - eye[1] ) * dir[1] + ( x[2] - eye[2] ) * dir[2] > 0 )
-      {
+    {
       continue;
-      }
+    }
 
     // Ignore labels pointing the wrong direction (HACK)
     if ( this->PositionsAsNormals )
-      {
+    {
       if ( camVec[0] * x[0] + camVec[1] * x[1] + camVec[2] * x[2] < 0. )
-        {
+      {
         continue;
-        }
       }
+    }
 
     // Test for occlusion using the z-buffer
     if (this->UseDepthBuffer && !this->VisiblePoints->IsPointOccluded(x, zPtr))
-      {
+    {
       occluded++;
       continue;
-      }
+    }
 
     this->AnchorTransform->SetValue( x );
     dispx = this->AnchorTransform->GetComputedDisplayValue( this->Renderer );
@@ -646,7 +646,7 @@ int vtkLabelPlacer::RequestData(
     // FIXME: Don't count area clipped off by viewport when culling above is fixed.
     double t1, t2;
     switch ( gravity & HorizontalBitMask )
-      {
+    {
     case HorizontalLeftBit:
       t1 = dispx[0] < kdbounds[0] ? kdbounds[0] : dispx[0];
       t2 = dispx[0] + sz[0];
@@ -674,14 +674,14 @@ int vtkLabelPlacer::RequestData(
       ll[0] = ul[0] = t1;
       lr[0] = ur[0] = t2;
       break;
-      }
+    }
     if ( ll[0] > kdbounds[1] || lr[0] < kdbounds[0] )
-      {
+    {
       continue; // cull label not in frame
-      }
+    }
 
     switch ( gravity & VerticalBitMask )
-      {
+    {
     case VerticalBottomBit:
     case VerticalBaselineBit:
       t1 = dispx[1] < kdbounds[2] ? kdbounds[2] : dispx[1];
@@ -710,71 +710,71 @@ int vtkLabelPlacer::RequestData(
       ll[1] = lr[1] = t1;
       ul[1] = ur[1] = t2;
       break;
-      }
+    }
     if ( ll[1] > kdbounds[3] || lr[1] < kdbounds[2] )
-      {
+    {
       continue; // cull label not in frame
-      }
+    }
 
     if ( this->Debug )
-      {
+    {
       vtkDebugMacro("Try: " << inIter->GetLabelId() << " (" << ll[0] << ", " << ll[1] << "  " << ur[0] << "," << ur[1] << ")");
       if ( labelType == 0 )
-        {
+      {
         if( this->UseUnicodeStrings )
-          {
-          vtkDebugMacro("Area: " << renderedLabelArea << "  /  " << allowableLabelArea << " \"" << nameUArr->GetValue( inIter->GetLabelId() ).utf8_str() << "\"");
-          }
-        else
-          {
-          vtkDebugMacro("Area: " << renderedLabelArea << "  /  " << allowableLabelArea << " \"" << nameArr->GetValue( inIter->GetLabelId() ).c_str() << "\"");
-          }
-        }
-      else
         {
-        vtkDebugMacro("Area: " << renderedLabelArea << "  /  " << allowableLabelArea);
+          vtkDebugMacro("Area: " << renderedLabelArea << "  /  " << allowableLabelArea << " \"" << nameUArr->GetValue( inIter->GetLabelId() ).utf8_str() << "\"");
+        }
+        else
+        {
+          vtkDebugMacro("Area: " << renderedLabelArea << "  /  " << allowableLabelArea << " \"" << nameArr->GetValue( inIter->GetLabelId() ).c_str() << "\"");
         }
       }
+      else
+      {
+        vtkDebugMacro("Area: " << renderedLabelArea << "  /  " << allowableLabelArea);
+      }
+    }
 
     iteratedLabelArea += static_cast<unsigned long>( sz[0] * sz[1] );
 
     // TODO: Is this necessary?
 #if 0
     if ( iteratedLabelArea > 5 * allowableLabelArea )
-      {
+    {
       vtkDebugMacro("Early exit due to large iterated label area");
       break;
-      }
+    }
 #endif
 
     float opacity = 1.;
     if ( this->Buckets->PlaceLabel( opacity, ll[0], ur[0], ll[1], ur[1] ) )
-      {
+    {
       renderedLabelArea += static_cast<unsigned long>( sz[0] * sz[1] );
 #if 0
       if ( renderedLabelArea > allowableLabelArea )
-        {
+      {
         vtkDebugMacro("Early exit due to large rendered label area");
         break;
-        }
+      }
 #endif // 0
       vtkIdType conn[4];
       OutputCoordinates coordSys = static_cast<OutputCoordinates>( this->OutputCoordinateSystem );
       if ( labelType == 0 )
-        { // label is text
+      { // label is text
         if ( this->Buckets->DumpPlaced )
-          {
+        {
           if( this->UseUnicodeStrings )
-            {
-            vtkDebugMacro(<< ll[0] << " -- " << ur[0] << ", " << ll[1] << " -- " << ur[1] << ": " << nameUArr->GetValue( inIter->GetLabelId() ).utf8_str());
-            }
-          else
-            {
-            vtkDebugMacro(<< ll[0] << " -- " << ur[0] << ", " << ll[1] << " -- " << ur[1] << ": " << nameArr->GetValue( inIter->GetLabelId() ).c_str());
-            }
-          }
-        switch ( coordSys )
           {
+            vtkDebugMacro(<< ll[0] << " -- " << ur[0] << ", " << ll[1] << " -- " << ur[1] << ": " << nameUArr->GetValue( inIter->GetLabelId() ).utf8_str());
+          }
+          else
+          {
+            vtkDebugMacro(<< ll[0] << " -- " << ur[0] << ", " << ll[1] << " -- " << ur[1] << ": " << nameArr->GetValue( inIter->GetLabelId() ).c_str());
+          }
+        }
+        switch ( coordSys )
+        {
         default:
         case WORLD:
           conn[0] = opts0->InsertNextPoint( x );
@@ -782,28 +782,28 @@ int vtkLabelPlacer::RequestData(
         case DISPLAY:
           conn[0] = opts0->InsertNextPoint( dispx[0], dispx[1], 0. );
           break;
-          }
+        }
         // Store the anchor point in world coordinates
         ouData0->InsertNextCell( VTK_VERTEX, 1, conn );
         if( this->UseUnicodeStrings )
-          {
+        {
           nameUArr0->InsertNextValue( nameUArr->GetValue( inIter->GetLabelId() ) );
-          }
+        }
         else
-          {
+        {
           nameArr0->InsertNextValue( nameArr->GetValue( inIter->GetLabelId() ) );
-          }
+        }
         opArr0->InsertNextValue( opacity );
         idArr0->InsertNextValue( 0 );
-        }
+      }
       else
-        { // label is an icon
+      { // label is an icon
         if ( this->Buckets->DumpPlaced )
-          {
+        {
           vtkDebugMacro(<< ll[0] << " -- " << ur[0] << ", " << ll[1] << " -- " << ur[1] << ": Icon " << iconIndexArr->GetValue( inIter->GetLabelId() ));
-          }
+        }
         switch ( coordSys )
-          {
+        {
         default:
         case WORLD:
           conn[0] = opts1->InsertNextPoint( x );
@@ -811,18 +811,18 @@ int vtkLabelPlacer::RequestData(
         case DISPLAY:
           conn[0] = opts1->InsertNextPoint( dispx[0], dispx[1], 0. );
           break;
-          }
+        }
         vtkIdType cid = ouData1->InsertNextCell( VTK_VERTEX, 1, conn ); (void)cid;
         vtkDebugMacro("     Point: " << conn[0] << " (" << x[0] << "," << x[1] << "," << x[2] << ") Vertex: " << cid);
         iconIndexArr1->InsertNextValue( iconIndexArr->GetValue( inIter->GetLabelId() ) );
-        }
+      }
 
       // Handle Spokes for perturbed points
       if(this->GeneratePerturbedLabelSpokes)
-        {
+      {
         //inData->CenterPts
         //inData->
-        }
+      }
 
 
       // Uncomment to actually store the previous labels.
@@ -830,8 +830,8 @@ int vtkLabelPlacer::RequestData(
       this->Buckets->NewLabelsPlaced->InsertNextValue( inIter->GetLabelId() );
       vtkDebugMacro("Placed: " << inIter->GetLabelId() << " (" << ll[0] << ", " << ll[1] << "  " << ur[0] << "," << ur[1] << ") " << labelType);
       placed++;
-      }
     }
+  }
   vtkDebugMacro("------");
   //cout << "Not Placed: " << notPlaced << endl;
   //cout << "Labels Occluded: " << occluded << endl;

@@ -37,9 +37,9 @@ std::string StringExtent(int ext[6])
   std::ostringstream oss;
   oss.clear(); oss.str("");
   for( int i=0; i < 3; ++i )
-    {
+  {
     oss << "[" << ext[i*2] << " " << ext[i*2+1] << "] ";
-    }
+  }
   return( oss.str() );
 }
 
@@ -51,14 +51,14 @@ int CheckExtents(int ext[6], int exp[6])
   std::cout << "...";
   std::cout.flush();
   for( int i=0; i < 6; ++i )
-    {
+  {
     if( ext[i] != exp[i ] )
-      {
+    {
       std::cout << "[ERROR]\n";
       std::cout.flush();
       return 1;
-      } // END if
-    } // END for
+    } // END if
+  } // END for
   std::cout << "[OK]\n";
   std::cout.flush();
   return 0;
@@ -599,35 +599,35 @@ int TestAssignmentOperator()
   // Allocate A with default values
   vtkStructuredAMRNeighbor A;
   if( A.GetRelationShipString() != "UNDEFINED" )
-    {
+  {
     ++rc;
-    }
+  }
 
   // Allocate B and set som ivars arbitrarily
   vtkStructuredAMRNeighbor B;
   B.GridLevel = B.NeighborLevel = 100;
   B.RelationShip = vtkStructuredAMRNeighbor::SAME_LEVEL_SIBLING;
   if( B.GetRelationShipString() != "SAME_LEVEL_SIBLING" )
-    {
+  {
     ++rc;
-    }
+  }
 
   // Reset B to initial
   B = A;
 
   // Ensure initial values for ivars
   if( B.GridLevel != -1 )
-    {
+  {
     ++rc;
-    }
+  }
   if( B.NeighborLevel != -1 )
-    {
+  {
     ++rc;
-    }
+  }
   if( B.RelationShip != vtkStructuredAMRNeighbor::UNDEFINED )
-    {
+  {
     ++rc;
-    }
+  }
   return( rc );
 }
 
@@ -638,52 +638,52 @@ int TestGetRelationShipString()
   vtkStructuredAMRNeighbor A;
   A.RelationShip = vtkStructuredAMRNeighbor::PARENT;
   if( A.GetRelationShipString() != "PARENT" )
-    {
+  {
     std::cerr << "Expected PARENT\n";
     ++rc;
-    } 
+  }
 
   A.RelationShip = vtkStructuredAMRNeighbor::PARTIALLY_OVERLAPPING_PARENT;
   if( A.GetRelationShipString() != "PARTIALLY_OVERLAPPING_PARENT" )
-    {
+  {
     std::cerr << "Expected PARTIALY_OVERLAPPING_PARENT\n";
     ++rc;
-    }
+  }
 
   A.RelationShip = vtkStructuredAMRNeighbor::CHILD;
   if( A.GetRelationShipString() != "CHILD" )
-    {
+  {
     std::cerr << "Expected CHILD\n";
     ++rc;
-    }
+  }
 
   A.RelationShip = vtkStructuredAMRNeighbor::PARTIALLY_OVERLAPPING_CHILD;
   if( A.GetRelationShipString() != "PARTIALLY_OVERLAPPING_CHILD" )
-    {
+  {
     std::cerr << "Expected PARTIALLY_OVERLAPPING_CHILD\n";
     ++rc;
-    }
+  }
 
   A.RelationShip = vtkStructuredAMRNeighbor::SAME_LEVEL_SIBLING;
   if( A.GetRelationShipString() != "SAME_LEVEL_SIBLING" )
-    {
+  {
     std::cerr << "Expected SAME_LEVEL_SIBLING\n";
     ++rc;
-    }
+  }
 
   A.RelationShip = vtkStructuredAMRNeighbor::COARSE_TO_FINE_SIBLING;
   if( A.GetRelationShipString() != "COARSE_TO_FINE_SIBLING" )
-    {
+  {
     std::cerr << "Expected COARSE_TO_FINE_SIBLING\n";
     ++rc;
-    }
+  }
 
   A.RelationShip = vtkStructuredAMRNeighbor::FINE_TO_COARSE_SIBLING;
   if( A.GetRelationShipString() != "FINE_TO_COARSE_SIBLING" )
-    {
+  {
     std::cerr << "Expected FINE_TO_COARSE_SIBLING\n";
     ++rc;
-    }
+  }
 
   return( rc );
 }

@@ -12,14 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCompositeRenderManager - An object to control sort-last parallel rendering.
-//
-// .SECTION Description:
-// vtkCompositeRenderManager is a subclass of vtkParallelRenderManager that
-// uses compositing to do parallel rendering.  This class has
-// replaced vtkCompositeManager.
-//
-
+/**
+ * @class   vtkCompositeRenderManager
+ * @brief   An object to control sort-last parallel rendering.
+ *
+ *
+ * vtkCompositeRenderManager is a subclass of vtkParallelRenderManager that
+ * uses compositing to do parallel rendering.  This class has
+ * replaced vtkCompositeManager.
+ *
+*/
 
 #ifndef vtkCompositeRenderManager_h
 #define vtkCompositeRenderManager_h
@@ -37,14 +39,20 @@ public:
   static vtkCompositeRenderManager *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Set/Get the composite algorithm.
+  //@{
+  /**
+   * Set/Get the composite algorithm.
+   */
   void SetCompositer(vtkCompositer *c);
   vtkGetObjectMacro(Compositer, vtkCompositer);
+  //@}
 
-  // Description:
-  // Get rendering metrics.
+  //@{
+  /**
+   * Get rendering metrics.
+   */
   vtkGetMacro(ImageProcessingTime, double);
+  //@}
 
 protected:
   vtkCompositeRenderManager();
@@ -62,8 +70,8 @@ protected:
   int SavedMultiSamplesSetting;
 
 private:
-  vtkCompositeRenderManager(const vtkCompositeRenderManager &);//Not implemented
-  void operator=(const vtkCompositeRenderManager &);  //Not implemented
+  vtkCompositeRenderManager(const vtkCompositeRenderManager &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompositeRenderManager &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkCompositeRenderManager_h

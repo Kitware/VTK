@@ -117,89 +117,89 @@ void vtkQuadraticPolygonTest::InitializeSquareWithQuadraticEdge()
 int vtkQuadraticPolygonTest::TestGetSet()
 {
   if (this->GetCellType() != VTK_QUADRATIC_POLYGON)
-    {
+  {
     cerr << "ERROR:  quadratic polygon type is " << this->GetCellType()
          << ", should be " << VTK_QUADRATIC_POLYGON << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (this->GetCellDimension() != 2)
-    {
+  {
     cerr << "ERROR:  quadratic polygon dim is "
          << this->GetCellDimension()
          << ", should be 2" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (this->GetNumberOfEdges() != 4)
-    {
+  {
     cerr << "ERROR:  quadratic polygon edges number is "
          << this->GetNumberOfEdges()
          << ", should be 4" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (this->GetNumberOfFaces() != 0)
-    {
+  {
     cerr << "ERROR:  quadratic polygon faces number is "
          << this->GetNumberOfFaces()
          << ", should be 0" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (this->GetFace(0) != 0)
-    {
+  {
     cerr << "ERROR:  quadratic polygon face is " << this->GetFace(0)
          << ", should be 0" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (this->GetEdge(0)->PointIds->GetId(0) != 0)
-    {
+  {
     cerr << "ERROR:  quadratic polygon edge[0] point[0] id is "
          << this->GetEdge(0)->PointIds->GetId(0)
          << ", should be 0" << endl;
     return EXIT_FAILURE;
-    }
+  }
   if (this->GetEdge(0)->PointIds->GetId(1) != 1)
-    {
+  {
     cerr << "ERROR:  quadratic polygon edge[0] point[1] id is "
          << this->GetEdge(0)->PointIds->GetId(1)
          << ", should be 1" << endl;
     return EXIT_FAILURE;
-    }
+  }
   if (this->GetEdge(0)->PointIds->GetId(2) != 4)
-    {
+  {
     cerr << "ERROR:  quadratic polygon edge[0] point[2] id is "
          << this->GetEdge(0)->PointIds->GetId(2)
          << ", should be 4" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (this->IsPrimaryCell() != 0)
-    {
+  {
     cerr << "ERROR:  quadratic polygon primary boolean is "
          << this->IsPrimaryCell()
          << ", should be 0" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (!this->GetUseMVCInterpolation())
-    {
+  {
     cerr << "ERROR:  quadratic polygon MVC boolean is "
          << this->GetUseMVCInterpolation()
          << ", should be 1" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   this->SetUseMVCInterpolation(false);
   if (this->GetUseMVCInterpolation())
-    {
+  {
     cerr << "ERROR:  quadratic polygon MVC boolean is "
          << this->GetUseMVCInterpolation()
          << ", should be 0" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }
@@ -211,9 +211,9 @@ int vtkQuadraticPolygonTest::TestGetPermutations()
   vtkNew<vtkIdList> permutationToPolygonRef;
   permutationToPolygonRef->SetNumberOfIds(8);
   for (vtkIdType i = 0; i < 8; i++)
-    {
+  {
     permutationToPolygonRef->SetId(i, temp[i]);
-    }
+  }
 
   // computed permutation
   vtkNew<vtkIdList> permutationToPolygon;
@@ -224,9 +224,9 @@ int vtkQuadraticPolygonTest::TestGetPermutations()
   vtkNew<vtkIdList> permutationFromPolygonRef;
   permutationFromPolygonRef->SetNumberOfIds(8);
   for (vtkIdType i = 0; i < 8; i++)
-    {
+  {
     permutationFromPolygonRef->SetId(i, temp2[i]);
-    }
+  }
 
   // computed permutation
   vtkNew<vtkIdList> permutationFromPolygon;
@@ -234,18 +234,18 @@ int vtkQuadraticPolygonTest::TestGetPermutations()
     permutationFromPolygon.GetPointer());
 
   for (vtkIdType i = 0; i < 8; i++)
-    {
+  {
     if (permutationToPolygonRef->GetId(i) != permutationToPolygon->GetId(i))
-      {
+    {
       cerr << "ERROR:  permutation to polygon is wrong" << endl;
       return EXIT_FAILURE;
-      }
+    }
     if (permutationFromPolygonRef->GetId(i) != permutationFromPolygon->GetId(i))
-      {
+    {
       cerr << "ERROR:  permutation from polygon is wrong" << endl;
       return EXIT_FAILURE;
-      }
     }
+  }
 
   return EXIT_SUCCESS;
 }
@@ -257,40 +257,40 @@ int vtkQuadraticPolygonTest::TestInitializePolygon()
   vtkNew<vtkIdList> permutationToPolygonRef;
   permutationToPolygonRef->SetNumberOfIds(8);
   for (vtkIdType i = 0; i < 8; i++)
-    {
+  {
     permutationToPolygonRef->SetId(i, temp[i]);
-    }
+  }
 
   this->InitializePolygon();
   vtkPolygon *polygon = this->Polygon;
 
   for (vtkIdType i = 0; i < 8; i++)
-    {
+  {
     if (this->GetPointIds()->GetId(i) !=
          polygon->GetPointIds()->GetId(permutationToPolygonRef->GetId(i)))
-      {
+    {
       cerr << "ERROR:  quadratic polygon point id at index " << i
            << " is " << this->GetPointIds()->GetId(i)
            << ", should be "
            << polygon->GetPointIds()->GetId(permutationToPolygonRef->GetId(i))
            << endl;
       return EXIT_FAILURE;
-      }
+    }
     for (int j = 0; j < 3; j++)
-      {
+    {
       if (!this->IsClose( this->GetPoints()->GetPoint(i)[j] ,
                            polygon->GetPoints()->GetPoint(permutationToPolygonRef->GetId(i))[j]
                         ))
-        {
+      {
         cerr << "ERROR:  quadratic polygon point at index " << i
              << " (coord " << j << ") is " << this->GetPoints()->GetPoint(i)[j]
              << ", should be "
              << polygon->GetPoints()->GetPoint(permutationToPolygonRef->GetId(i))[j]
              << endl;
         return EXIT_FAILURE;
-        }
       }
     }
+  }
 
   return EXIT_SUCCESS;
 }
@@ -305,30 +305,30 @@ int vtkQuadraticPolygonTest::TestIntersectWithLine()
   int intersect = this->IntersectWithLine(p1, p2, 0.0, t, x, pcoords, subId);
 
   if (x[0] != 2.5 || x[1] != 1.0 || x[2] != 0.0)
-    {
+  {
     cerr << "ERROR:  vtkQuadraticPolygon::IntersectWithLine returns point ("
          << x[0] << "," << x[1] << "," << x[2] << ")"
          << ", should return point (2.5,1.0,0.0)" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (!intersect)
-    {
+  {
     cerr << "ERROR:  vtkQuadraticPolygon::IntersectWithLine returns " << intersect
          << ", should return 1" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   p1[0] = 3.5;
   p2[0] = 3.5;
   intersect = this->IntersectWithLine(p1, p2, 0.0, t, x, pcoords, subId);
 
   if (intersect)
-    {
+  {
     cerr << "ERROR:  vtkQuadraticPolygon::IntersectWithLine returns " << intersect
          << ", should return 0" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }
@@ -346,25 +346,25 @@ int vtkQuadraticPolygonTest::TestInterpolateFunctions()
 
   int i;
   for (i = 0; i < nbPoints/2; i++)
-    {
+  {
     if (!this->IsClose(weights[i],w1))
-      {
+    {
       cerr << "ERROR:  quadratic polygon weights is " << weights[i]
            << ", should be " << w1 << endl;
       delete [] weights;
       return EXIT_FAILURE;
-      }
     }
+  }
   for ( ; i < nbPoints; i++)
-    {
+  {
     if (!this->IsClose(weights[i],w2))
-      {
+    {
       cerr << "ERROR:  quadratic polygon weights is " << weights[i]
            << ", should be " << w2 << endl;
       delete [] weights;
       return EXIT_FAILURE;
-      }
     }
+  }
 
   delete [] weights;
   return EXIT_SUCCESS;
@@ -383,25 +383,25 @@ int vtkQuadraticPolygonTest::TestInterpolateFunctionsUsingMVC()
 
   int i;
   for (i = 0; i < nbPoints/2; i++)
-    {
+  {
     if (!this->IsClose(weights[i],w1))
-      {
+    {
       cerr << "ERROR:  quadratic polygon weights is " << weights[i]
            << ", should be " << w1 << endl;
       delete [] weights;
       return EXIT_FAILURE;
-      }
     }
+  }
   for ( ; i < nbPoints; i++)
-    {
+  {
     if (!this->IsClose(weights[i],w2))
-      {
+    {
       cerr << "ERROR:  quadratic polygon weights is " << weights[i]
            << ", should be " << w2 << endl;
       delete [] weights;
       return EXIT_FAILURE;
-      }
     }
+  }
 
   delete [] weights;
   return EXIT_SUCCESS;

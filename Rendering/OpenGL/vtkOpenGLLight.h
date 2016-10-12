@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLLight - OpenGL light
-// .SECTION Description
-// vtkOpenGLLight is a concrete implementation of the abstract class vtkLight.
-// vtkOpenGLLight interfaces to the OpenGL rendering library.
+/**
+ * @class   vtkOpenGLLight
+ * @brief   OpenGL light
+ *
+ * vtkOpenGLLight is a concrete implementation of the abstract class vtkLight.
+ * vtkOpenGLLight interfaces to the OpenGL rendering library.
+*/
 
 #ifndef vtkOpenGLLight_h
 #define vtkOpenGLLight_h
@@ -30,10 +33,11 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLLight : public vtkLight
 public:
   static vtkOpenGLLight *New();
   vtkTypeMacro(vtkOpenGLLight, vtkLight);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Implement base class method.
+  /**
+   * Implement base class method.
+   */
   void Render(vtkRenderer *ren, int light_index);
 
 protected:
@@ -41,8 +45,8 @@ protected:
   ~vtkOpenGLLight() {}
 
 private:
-  vtkOpenGLLight(const vtkOpenGLLight&);  // Not implemented.
-  void operator=(const vtkOpenGLLight&);  // Not implemented.
+  vtkOpenGLLight(const vtkOpenGLLight&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLLight&) VTK_DELETE_FUNCTION;
 };
 
 #endif

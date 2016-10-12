@@ -39,19 +39,19 @@ public:
   vtkTypeMacro(vtkMPIOutputWindow,vtkOutputWindow);
 
   void DisplayText(const char* t)
-    {
+  {
       if (this->Controller && vtkMPIController::Initialized)
-        {
+      {
         cout << "Process id: " << this->Controller->GetLocalProcessId()
              << " >> ";
-        }
+      }
       cout << t;
-    }
+  }
 
   vtkMPIOutputWindow()
-    {
+  {
       this->Controller = 0;
-    }
+  }
 
   friend class vtkMPIController;
 
@@ -66,6 +66,7 @@ protected:
 void vtkMPIController::CreateOutputWindow()
 {
   vtkMPIOutputWindow* window = new vtkMPIOutputWindow;
+  window->InitializeObjectBase();
   window->Controller = this;
   this->OutputWindow = window;
   vtkOutputWindow::SetInstance(this->OutputWindow);
@@ -79,14 +80,14 @@ vtkMPIController::vtkMPIController()
 {
   // If MPI was already initialized obtain rank and size.
   if (vtkMPIController::Initialized)
-    {
+  {
     this->InitializeCommunicator(vtkMPICommunicator::GetWorldCommunicator());
     // Copy vtkMPIController::WorldRMICommunicataor which is created when
     // MPI is initialized
     vtkMPICommunicator* comm = vtkMPICommunicator::New();
     comm->CopyFrom(vtkMPIController::WorldRMICommunicator);
     this->RMICommunicator = comm;
-    }
+  }
 
   this->OutputWindow = 0;
 }
@@ -96,9 +97,9 @@ vtkMPIController::~vtkMPIController()
 {
   this->SetCommunicator(0);
   if (this->RMICommunicator)
-    {
+  {
     this->RMICommunicator->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -118,17 +119,17 @@ void vtkMPIController::TriggerRMIInternal(int remoteProcessId,
     this->RMICommunicator);
   int use_ssend = mpiComm->GetUseSsend();
   if (vtkMPIController::UseSsendForRMI == 1 && use_ssend == 0)
-    {
+  {
     mpiComm->SetUseSsend(1);
-    }
+  }
 
   this->Superclass::TriggerRMIInternal(remoteProcessId,
     arg, argLength, rmiTag, propagate);
 
   if (vtkMPIController::UseSsendForRMI == 1 && use_ssend == 0)
-    {
+  {
     mpiComm->SetUseSsend(0);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -142,17 +143,17 @@ void vtkMPIController::Initialize(int* argc, char*** argv,
                                   int initializedExternally)
 {
   if (vtkMPIController::Initialized)
-    {
+  {
     vtkWarningMacro("Already initialized.");
     return;
-    }
+  }
 
   // Can be done once in the program.
   vtkMPIController::Initialized = 1;
   if (initializedExternally == 0)
-    {
+  {
     MPI_Init(argc, argv);
-    }
+  }
   this->InitializeCommunicator(vtkMPICommunicator::GetWorldCommunicator());
 
   int tmp;
@@ -183,24 +184,24 @@ const char* vtkMPIController::GetProcessorName()
 void vtkMPIController::Finalize(int finalizedExternally)
 {
   if (vtkMPIController::Initialized)
-    {
+  {
     vtkMPIController::WorldRMICommunicator->Delete();
     vtkMPIController::WorldRMICommunicator = 0;
     vtkMPICommunicator::WorldCommunicator->Delete();
     vtkMPICommunicator::WorldCommunicator = 0;
     this->SetCommunicator(0);
     if (this->RMICommunicator)
-      {
+    {
       this->RMICommunicator->Delete();
       this->RMICommunicator = 0;
-      }
+    }
     if (finalizedExternally == 0)
-      {
+    {
       MPI_Finalize();
-      }
+    }
     vtkMPIController::Initialized = 0;
     this->Modified();
-    }
+  }
 
 }
 
@@ -210,19 +211,19 @@ void vtkMPIController::Finalize(int finalizedExternally)
 void vtkMPIController::InitializeCommunicator(vtkMPICommunicator* comm)
 {
   if (this->Communicator != comm)
-    {
+  {
     if (this->Communicator != 0)
-      {
+    {
       this->Communicator->UnRegister(this);
-      }
+    }
     this->Communicator = comm;
     if (this->Communicator != 0)
-      {
+    {
       this->Communicator->Register(this);
-      }
+    }
 
     this->Modified();
-    }
+  }
 
 
 }
@@ -232,15 +233,15 @@ void vtkMPIController::InitializeCommunicator(vtkMPICommunicator* comm)
 void vtkMPIController::InitializeRMICommunicator()
 {
   if ( this->RMICommunicator )
-    {
+  {
     this->RMICommunicator->Delete();
     this->RMICommunicator = 0;
-    }
+  }
   if (this->Communicator)
-    {
+  {
     this->RMICommunicator = vtkMPICommunicator::New();
     ((vtkMPICommunicator*)this->RMICommunicator)->Duplicate((vtkMPICommunicator*)this->Communicator);
-    }
+  }
 }
 
 void vtkMPIController::SetCommunicator(vtkMPICommunicator* comm)
@@ -254,23 +255,23 @@ void vtkMPIController::SetCommunicator(vtkMPICommunicator* comm)
 void vtkMPIController::SingleMethodExecute()
 {
   if(!vtkMPIController::Initialized)
-    {
+  {
     vtkWarningMacro("MPI has to be initialized first.");
     return;
-    }
+  }
 
   if (this->GetLocalProcessId() < this->GetNumberOfProcesses())
-    {
+  {
     if (this->SingleMethod)
-      {
+    {
       vtkMultiProcessController::SetGlobalController(this);
       (this->SingleMethod)(this, this->SingleData);
-      }
-    else
-      {
-      vtkWarningMacro("SingleMethod not set.");
-      }
     }
+    else
+    {
+      vtkWarningMacro("SingleMethod not set.");
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -278,28 +279,28 @@ void vtkMPIController::SingleMethodExecute()
 void vtkMPIController::MultipleMethodExecute()
 {
   if(!vtkMPIController::Initialized)
-    {
+  {
     vtkWarningMacro("MPI has to be initialized first.");
     return;
-    }
+  }
 
   int i = this->GetLocalProcessId();
 
   if (i < this->GetNumberOfProcesses())
-    {
+  {
     vtkProcessFunctionType multipleMethod;
     void *multipleData;
     this->GetMultipleMethod(i, multipleMethod, multipleData);
     if (multipleMethod)
-      {
+    {
       vtkMultiProcessController::SetGlobalController(this);
       (multipleMethod)(this, multipleData);
-      }
-    else
-      {
-      vtkWarningMacro("MultipleMethod " << i << " not set.");
-      }
     }
+    else
+    {
+      vtkWarningMacro("MultipleMethod " << i << " not set.");
+    }
+  }
 }
 
 char* vtkMPIController::ErrorString(int err)
@@ -337,9 +338,9 @@ vtkMPIController *vtkMPIController::PartitionController(int localColor,
   VTK_CREATE(vtkMPICommunicator, subcomm);
 
   if (!subcomm->SplitInitialize(this->Communicator, localColor, localKey))
-    {
+  {
     return NULL;
-    }
+  }
 
   vtkMPIController *controller = vtkMPIController::New();
   controller->SetCommunicator(subcomm);
@@ -382,9 +383,9 @@ bool vtkMPIController::TestAll(
 
   myMPICommunicator->TestAll( count, requests, flag );
   if( flag )
-    {
+  {
     return true;
-    }
+  }
   return false;
 }
 
@@ -400,9 +401,9 @@ bool vtkMPIController::TestAny(
 
   myMPICommunicator->TestAny( count, requests, idx, flag );
   if( flag )
-    {
+  {
     return true;
-    }
+  }
   return false;
 }
 
@@ -427,13 +428,13 @@ bool vtkMPIController::TestSome(
          (N > 0) && (N < (count-1) ) );
 
   if( N > 0 )
-    {
+  {
     completed->Resize( N );
     return true;
-    }
+  }
   else
-    {
+  {
     completed->Resize( 0 );
     return false;
-    }
+  }
 }

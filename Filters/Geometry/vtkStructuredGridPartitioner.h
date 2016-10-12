@@ -12,16 +12,18 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkStructuredGridPartitioner.h -- Partitions a structured grid by RCB
-//
-// .SECTION Description
-//  A concrete implementation of vtkMultiBlockDataSetAlgorithm that provides
-//  functionality for partitioning a VTK structured grid dataset. The partition-
-//  ing method used is Recursive Coordinate Bisection (RCB) where each time the
-//  longest dimension is split.
-//
-// .SECTION See Also
-//  vtkUniformGridPartitioner vtkRectilinearGridPartitioner
+/**
+ * @class   vtkStructuredGridPartitioner
+ *
+ *
+ *  A concrete implementation of vtkMultiBlockDataSetAlgorithm that provides
+ *  functionality for partitioning a VTK structured grid dataset. The partition-
+ *  ing method used is Recursive Coordinate Bisection (RCB) where each time the
+ *  longest dimension is split.
+ *
+ * @sa
+ *  vtkUniformGridPartitioner vtkRectilinearGridPartitioner
+*/
 
 #ifndef vtkStructuredGridPartitioner_h
 #define vtkStructuredGridPartitioner_h
@@ -41,45 +43,55 @@ class VTKFILTERSGEOMETRY_EXPORT vtkStructuredGridPartitioner :
 public:
   static vtkStructuredGridPartitioner *New();
   vtkTypeMacro(vtkStructuredGridPartitioner, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream &oss, vtkIndent indent );
+  void PrintSelf(ostream &oss, vtkIndent indent ) VTK_OVERRIDE;
 
-  // Description:
-  // Set/Get macro for the number of subdivisions.
+  //@{
+  /**
+   * Set/Get macro for the number of subdivisions.
+   */
   vtkGetMacro(NumberOfPartitions,int);
   vtkSetMacro(NumberOfPartitions,int);
+  //@}
 
-  // Description:
-  // Set/Get macro for the number of ghost layers.
+  //@{
+  /**
+   * Set/Get macro for the number of ghost layers.
+   */
   vtkGetMacro(NumberOfGhostLayers,int);
   vtkSetMacro(NumberOfGhostLayers,int);
+  //@}
 
-  // Description:
-  // Set/Get & boolean macro for the DuplicateNodes property.
+  //@{
+  /**
+   * Set/Get & boolean macro for the DuplicateNodes property.
+   */
   vtkGetMacro(DuplicateNodes,int);
   vtkSetMacro(DuplicateNodes,int);
   vtkBooleanMacro(DuplicateNodes,int);
+  //@}
 
 protected:
   vtkStructuredGridPartitioner();
-  virtual ~vtkStructuredGridPartitioner();
+  ~vtkStructuredGridPartitioner() VTK_OVERRIDE;
 
-  // Description:
-  // Extracts the coordinates of the sub-grid from the whole grid.
+  /**
+   * Extracts the coordinates of the sub-grid from the whole grid.
+   */
   vtkPoints* ExtractSubGridPoints(vtkStructuredGrid *wholeGrid,int subext[6]);
 
   // Standard Pipeline methods
-  virtual int RequestData(
-     vtkInformation*,vtkInformationVector**,vtkInformationVector*);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
-  virtual int FillOutputPortInformation(int port, vtkInformation *info);
+  int RequestData(
+     vtkInformation*,vtkInformationVector**,vtkInformationVector*) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   int NumberOfPartitions;
   int NumberOfGhostLayers;
   int DuplicateNodes;
 
 private:
-  vtkStructuredGridPartitioner(const vtkStructuredGridPartitioner &); // Not implemented
-  void operator=(const vtkStructuredGridPartitioner &); // Not implemented
+  vtkStructuredGridPartitioner(const vtkStructuredGridPartitioner &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStructuredGridPartitioner &) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkStructuredGridPartitioner_h */

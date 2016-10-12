@@ -35,10 +35,10 @@ vtkBrush::vtkBrush() : BrushColor(0, 0, 0, 255)
 vtkBrush::~vtkBrush()
 {
   if (this->Texture)
-    {
+  {
     this->Texture->Delete();
     this->Texture = 0;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -126,18 +126,18 @@ unsigned char vtkBrush::GetOpacity()
 void vtkBrush::GetColorF(double color[4])
 {
   for (int i = 0; i < 4; ++i)
-    {
+  {
     color[i] = this->Color[i] / 255.0;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 void vtkBrush::GetColor(unsigned char color[4])
 {
   for (int i = 0; i < 4; ++i)
-    {
+  {
     color[i] = this->Color[i];
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -156,9 +156,9 @@ void vtkBrush::SetTexture(vtkImageData* image)
 void vtkBrush::DeepCopy(vtkBrush *brush)
 {
   if (!brush)
-    {
+  {
     return;
-    }
+  }
   this->BrushColor = brush->BrushColor;
   this->TextureProperties = brush->TextureProperties;
   this->SetTexture(brush->Texture);

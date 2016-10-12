@@ -73,9 +73,9 @@
 // by a signal (EINTR).
 #define vtkRestartInterruptedSystemCallMacro(_call,_ret)\
   do                                                    \
-    {                                                   \
+  {                                                   \
     (_ret)=(_call);                                     \
-    }                                                   \
+  }                                                   \
   while (((_ret)==vtkSocketErrorReturnMacro)            \
     && (vtkErrnoMacro==vtkSocketErrorIdMacro(EINTR)));
 
@@ -111,9 +111,9 @@ const char *wsaStrerror(int wsaeid)
   int ok;
   ok=FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,0,wsaeid,0,buf,256,0);
   if (!ok)
-    {
+  {
     return 0;
-    }
+  }
   return buf;
 }
 #endif
@@ -128,10 +128,10 @@ vtkSocket::vtkSocket()
 vtkSocket::~vtkSocket()
 {
   if (this->SocketDescriptor != -1)
-    {
+  {
     this->CloseSocket(this->SocketDescriptor);
     this->SocketDescriptor = -1;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -141,10 +141,10 @@ int vtkSocket::CreateSocket()
   int sock;
   vtkRestartInterruptedSystemCallMacro(socket(AF_INET,SOCK_STREAM, 0), sock);
   if (sock == vtkSocketErrorReturnMacro)
-    {
+  {
     vtkSocketErrorMacro(vtkErrnoMacro, "Socket error in call to socket.");
     return -1;
-    }
+  }
 
   // Elimate windows 0.2 second delay sending (buffering) data.
   int on = 1;
@@ -153,10 +153,10 @@ int vtkSocket::CreateSocket()
     setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (char*)&on, sizeof(on)),
     iErr);
   if (iErr == vtkSocketErrorReturnMacro)
-    {
+  {
     vtkSocketErrorMacro(vtkErrnoMacro, "Socket error in call to setsockopt.");
     return -1;
-    }
+  }
 
   return sock;
 #else
@@ -193,19 +193,19 @@ int vtkSocket::BindSocket(int socketdescriptor, int port)
     iErr);
 #endif
   if (iErr == vtkSocketErrorReturnMacro)
-    {
+  {
     vtkSocketErrorMacro(vtkErrnoMacro, "Socket error in call to setsockopt.");
     return -1;
-    }
+  }
 
   vtkRestartInterruptedSystemCallMacro(
     bind(socketdescriptor,reinterpret_cast<sockaddr*>(&server),sizeof(server)),
     iErr);
   if (iErr == vtkSocketErrorReturnMacro)
-    {
+  {
     vtkSocketErrorMacro(vtkErrnoMacro, "Socket error in call to bind.");
     return -1;
-    }
+  }
 
   return 0;
 #else
@@ -220,19 +220,19 @@ int vtkSocket::Accept(int socketdescriptor)
 {
 #ifndef VTK_SOCKET_FAKE_API
   if (socketdescriptor < 0)
-    {
+  {
     vtkErrorMacro("Invalid descriptor.");
     return -1;
-    }
+  }
 
   int newDescriptor;
   vtkRestartInterruptedSystemCallMacro(
     accept(socketdescriptor, 0, 0), newDescriptor);
   if (newDescriptor == vtkSocketErrorReturnMacro)
-    {
+  {
     vtkSocketErrorMacro(vtkErrnoMacro, "Socket error in call to accept.");
     return -1;
-    }
+  }
 
   return newDescriptor;
 #else
@@ -246,18 +246,18 @@ int vtkSocket::Listen(int socketdescriptor)
 {
 #ifndef VTK_SOCKET_FAKE_API
   if (socketdescriptor < 0)
-    {
+  {
     vtkErrorMacro("Invalid descriptor.");
     return -1;
-    }
+  }
 
   int iErr;
   vtkRestartInterruptedSystemCallMacro(listen(socketdescriptor, 1), iErr);
   if (iErr == vtkSocketErrorReturnMacro)
-    {
+  {
     vtkSocketErrorMacro(vtkErrnoMacro, "Socket error in call to listen.");
     return -1;
-    }
+  }
 
   return 0;
 #else
@@ -271,51 +271,51 @@ int vtkSocket::SelectSocket(int socketdescriptor, unsigned long msec)
 {
 #ifndef VTK_SOCKET_FAKE_API
   if (socketdescriptor < 0 )
-    {
+  {
     vtkErrorMacro("Invalid descriptor.");
     return -1;
-    }
+  }
 
   fd_set rset;
   int res;
   do
-    {
+  {
     struct timeval tval;
     struct timeval* tvalptr = 0;
     if (msec>0)
-      {
+    {
       tval.tv_sec = msec / 1000;
       tval.tv_usec = (msec % 1000)*1000;
       tvalptr = &tval;
-      }
+    }
 
     FD_ZERO(&rset);
     FD_SET(socketdescriptor, &rset);
 
     // block until socket is readable.
     res = select(socketdescriptor+1, &rset, 0, 0, tvalptr);
-    }
+  }
   while ((res == vtkSocketErrorReturnMacro)
     && (vtkErrnoMacro == vtkSocketErrorIdMacro(EINTR)));
 
   if (res == 0)
-    {
+  {
     // time out
     return 0;
-    }
+  }
   else
   if (res == vtkSocketErrorReturnMacro)
-    {
+  {
     // error in the call
     vtkSocketErrorMacro(vtkErrnoMacro, "Socket error in call to select.");
     return -1;
-    }
+  }
   else
   if (!FD_ISSET(socketdescriptor, &rset))
-     {
+  {
      vtkErrorMacro("Socket error in select. Descriptor not selected.");
      return -1;
-     }
+  }
 
   // NOTE: not checking for pending errors,these will be handled
   // in the next call to read/recv
@@ -338,63 +338,63 @@ int vtkSocket::SelectSockets(const int* sockets_to_select, int size,
   *selected_index = -1;
 
   if (size < 0)
-    {
+  {
     vtkGenericWarningMacro("Can't select fewer than 0.");
     return -1;
-    }
+  }
 
   fd_set rset;
   int res = -1;
   do
-    {
+  {
     struct timeval tval;
     struct timeval* tvalptr = 0;
     if (msec>0)
-      {
+    {
       tval.tv_sec = msec / 1000;
       tval.tv_usec = msec % 1000;
       tvalptr = &tval;
-      }
+    }
 
     FD_ZERO(&rset);
     int max_fd = -1;
     for (int i=0; i<size; i++)
-      {
+    {
       FD_SET(sockets_to_select[i],&rset);
       max_fd = (sockets_to_select[i] > max_fd ? sockets_to_select[i] : max_fd);
-      }
+    }
 
     // block until one socket is ready to read.
     res = select(max_fd + 1, &rset, 0, 0, tvalptr);
-    }
+  }
   while ((res == vtkSocketErrorReturnMacro)
     && (vtkErrnoMacro == vtkSocketErrorIdMacro(EINTR)));
 
   if (res==0)
-    {
+  {
     // time out
     return 0;
-    }
+  }
   else
   if (res == vtkSocketErrorReturnMacro)
-    {
+  {
     // error in the call
     vtkSocketGenericErrorMacro("Socket error in call to select.");
     return -1;
-    }
+  }
 
   // find the first socket which has some activity.
   for (int i=0; i<size; i++)
-    {
+  {
     if ( FD_ISSET(sockets_to_select[i],&rset) )
-      {
+    {
       // NOTE: not checking for pending errors, these
       // will be handled in the next call to read/recv
 
       *selected_index = i;
       return 1;
-      }
     }
+  }
 
   // no activity on any of the sockets
   vtkGenericWarningMacro("Socket error in select. No descriptor selected.");
@@ -413,23 +413,23 @@ int vtkSocket::Connect(int socketdescriptor, const char* hostName, int port)
 {
 #ifndef VTK_SOCKET_FAKE_API
   if (socketdescriptor < 0)
-    {
+  {
     vtkErrorMacro("Invalid descriptor.");
     return -1;
-    }
+  }
 
   struct hostent* hp;
   hp = gethostbyname(hostName);
   if (!hp)
-    {
+  {
     unsigned long addr = inet_addr(hostName);
     hp = gethostbyaddr((char *)&addr, sizeof(addr), AF_INET);
-    }
+  }
   if (!hp)
-    {
+  {
     vtkErrorMacro("Unknown host: " << hostName);
     return -1;
-    }
+  }
 
   struct sockaddr_in name;
   name.sin_family = AF_INET;
@@ -440,14 +440,14 @@ int vtkSocket::Connect(int socketdescriptor, const char* hostName, int port)
     = connect(socketdescriptor, reinterpret_cast<sockaddr*>(&name),sizeof(name));
   if ( (iErr == vtkSocketErrorReturnMacro )
     && (vtkErrnoMacro == vtkSocketErrorIdMacro(EINTR)) )
-    {
+  {
     // Restarting an interrupted connect call only works on linux,
     // other unix require a call to select which blocks until the
     // connection is complete.
     // See Stevens 2d ed, 15.4 p413, "interrupted connect"
     iErr = this->SelectSocket(socketdescriptor,0);
     if (iErr == -1)
-      {
+    {
       // SelectSocket doesn't test for pending errors.
       int pendingErr;
 #if defined(VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T)
@@ -460,27 +460,27 @@ int vtkSocket::Connect(int socketdescriptor, const char* hostName, int port)
         getsockopt(socketdescriptor, SOL_SOCKET, SO_ERROR, (char *)&pendingErr, &pendingErrLen),
         iErr);
       if (iErr == vtkSocketErrorReturnMacro)
-        {
+      {
         vtkSocketErrorMacro(
           vtkErrnoMacro, "Socket error in call to getsockopt.");
         return -1;
-        }
+      }
       else
       if (pendingErr)
-        {
+      {
         vtkSocketErrorMacro(
           pendingErr, "Socket error pending from call to connect.");
         return -1;
-        }
       }
     }
+  }
   else
   if (iErr == vtkSocketErrorReturnMacro)
-    {
+  {
     vtkSocketErrorMacro(
       vtkErrnoMacro, "Socket error in call to connect.");
     return -1;
-    }
+  }
 
   return 0;
 #else
@@ -508,11 +508,11 @@ int vtkSocket::GetPort(int sock)
     getsockname(sock, reinterpret_cast<sockaddr*>(&sockinfo), &sizebuf),
     iErr);
   if (iErr == vtkSocketErrorReturnMacro)
-    {
+  {
     vtkSocketErrorMacro(
       vtkErrnoMacro, "Socket error in call to getsockname.");
     return 0;
-    }
+  }
   return ntohs(sockinfo.sin_port);
 #else
   static_cast<void>(sock);
@@ -525,19 +525,19 @@ void vtkSocket::CloseSocket(int socketdescriptor)
 {
 #ifndef VTK_SOCKET_FAKE_API
   if (socketdescriptor < 0)
-    {
+  {
     vtkErrorMacro("Invalid descriptor.");
     return;
-    }
+  }
   int iErr;
   vtkRestartInterruptedSystemCallMacro(
     vtkCloseSocketMacro(socketdescriptor),
     iErr);
   if (iErr == vtkSocketErrorReturnMacro)
-    {
+  {
     vtkSocketErrorMacro(
       vtkErrnoMacro, "Socket error in call to close/closesocket.");
-    }
+  }
 #else
   static_cast<void>(socketdescriptor);
   return;
@@ -549,31 +549,31 @@ int vtkSocket::Send(const void* data, int length)
 {
 #ifndef VTK_SOCKET_FAKE_API
   if (!this->GetConnected())
-    {
+  {
     vtkErrorMacro("Not connected.");
     return 0;
-    }
+  }
   if (length == 0)
-    {
+  {
     // nothing to send.
     return 1;
-    }
+  }
   const char* buffer = reinterpret_cast<const char*>(data);
   int total = 0;
   do
-    {
+  {
     int flags=0;
     int nSent;
     vtkRestartInterruptedSystemCallMacro(
       send(this->SocketDescriptor, buffer+total, length-total, flags),
       nSent);
     if (nSent == vtkSocketErrorReturnMacro)
-      {
+    {
       vtkSocketErrorMacro(vtkErrnoMacro, "Socket error in call to send.");
       return 0;
-      }
+    }
     total += nSent;
-    } while(total < length);
+  } while(total < length);
 
   return 1;
 #else
@@ -588,10 +588,10 @@ int vtkSocket::Receive(void* data, int length, int readFully/*=1*/)
 {
 #ifndef VTK_SOCKET_FAKE_API
   if (!this->GetConnected())
-    {
+  {
     vtkErrorMacro("Not connected.");
     return 0;
-    }
+  }
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
   int trys = 0;
@@ -600,36 +600,36 @@ int vtkSocket::Receive(void* data, int length, int readFully/*=1*/)
   char* buffer = reinterpret_cast<char*>(data);
   int total = 0;
   do
-    {
+  {
     int nRecvd;
     vtkRestartInterruptedSystemCallMacro(
       recv(this->SocketDescriptor, buffer+total, length-total, 0),
       nRecvd);
 
     if (nRecvd == 0)
-      {
+    {
       // peer shut down
       return 0;
-      }
+    }
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
     if ((nRecvd == vtkSocketErrorReturnMacro)
       && (WSAGetLastError() == WSAENOBUFS))
-      {
+    {
       // On long messages, Windows recv sometimes fails with WSAENOBUFS, but
       // will work if you try again.
       if ((trys++ < 1000))
-        {
+      {
         Sleep(1);
         continue;
-        }
+      }
       vtkSocketErrorMacro(vtkErrnoMacro, "Socket error in call to recv.");
       return 0;
-      }
+    }
 #endif
 
     total += nRecvd;
-    }
+  }
   while( readFully && (total < length));
 
   return total;

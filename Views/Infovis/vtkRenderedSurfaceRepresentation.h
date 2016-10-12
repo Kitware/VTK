@@ -17,13 +17,16 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkRenderedSurfaceRepresentation - Displays a geometric dataset as a surface.
-//
-// .SECTION Description
-// vtkRenderedSurfaceRepresentation is used to show a geometric dataset in a view.
-// The representation uses a vtkGeometryFilter to convert the dataset to
-// polygonal data (e.g. volumetric data is converted to its external surface).
-// The representation may then be added to vtkRenderView.
+/**
+ * @class   vtkRenderedSurfaceRepresentation
+ * @brief   Displays a geometric dataset as a surface.
+ *
+ *
+ * vtkRenderedSurfaceRepresentation is used to show a geometric dataset in a view.
+ * The representation uses a vtkGeometryFilter to convert the dataset to
+ * polygonal data (e.g. volumetric data is converted to its external surface).
+ * The representation may then be added to vtkRenderView.
+*/
 
 #ifndef vtkRenderedSurfaceRepresentation_h
 #define vtkRenderedSurfaceRepresentation_h
@@ -50,62 +53,72 @@ public:
   vtkTypeMacro(vtkRenderedSurfaceRepresentation, vtkRenderedRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //Description:
-  //Sets the color array name
+  /**
+   * Sets the color array name
+   */
   virtual void SetCellColorArrayName(const char* arrayName);
   virtual const char* GetCellColorArrayName()
     { return this->GetCellColorArrayNameInternal(); }
 
-  // Description:
-  // Apply a theme to this representation.
+  /**
+   * Apply a theme to this representation.
+   */
   virtual void ApplyViewTheme(vtkViewTheme* theme);
 
 protected:
   vtkRenderedSurfaceRepresentation();
   ~vtkRenderedSurfaceRepresentation();
 
-  // Description:
-  // Sets the input pipeline connection to this representation.
+  /**
+   * Sets the input pipeline connection to this representation.
+   */
   virtual int RequestData(
     vtkInformation* request,
     vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);
 
-  // Description:
-  // Performs per-render operations.
+  /**
+   * Performs per-render operations.
+   */
   virtual void PrepareForRendering(vtkRenderView* view);
 
-  // Description:
-  // Adds the representation to the view.  This is called from
-  // vtkView::AddRepresentation().
+  /**
+   * Adds the representation to the view.  This is called from
+   * vtkView::AddRepresentation().
+   */
   virtual bool AddToView(vtkView* view);
 
-  // Description:
-  // Removes the representation to the view.  This is called from
-  // vtkView::RemoveRepresentation().
+  /**
+   * Removes the representation to the view.  This is called from
+   * vtkView::RemoveRepresentation().
+   */
   virtual bool RemoveFromView(vtkView* view);
 
-  // Description:
-  // Convert the selection to a type appropriate for sharing with other
-  // representations through vtkAnnotationLink.
-  // If the selection cannot be applied to this representation, returns NULL.
+  /**
+   * Convert the selection to a type appropriate for sharing with other
+   * representations through vtkAnnotationLink.
+   * If the selection cannot be applied to this representation, returns NULL.
+   */
   virtual vtkSelection* ConvertSelection(vtkView* view, vtkSelection* selection);
 
-  // Description:
-  // Internal pipeline objects.
+  //@{
+  /**
+   * Internal pipeline objects.
+   */
   vtkTransformFilter*   TransformFilter;
   vtkApplyColors*       ApplyColors;
   vtkGeometryFilter*    GeometryFilter;
   vtkPolyDataMapper*    Mapper;
   vtkActor*             Actor;
+  //@}
 
   vtkGetStringMacro(CellColorArrayNameInternal);
   vtkSetStringMacro(CellColorArrayNameInternal);
   char* CellColorArrayNameInternal;
 
 private:
-  vtkRenderedSurfaceRepresentation(const vtkRenderedSurfaceRepresentation&);  // Not implemented.
-  void operator=(const vtkRenderedSurfaceRepresentation&);  // Not implemented.
+  vtkRenderedSurfaceRepresentation(const vtkRenderedSurfaceRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRenderedSurfaceRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

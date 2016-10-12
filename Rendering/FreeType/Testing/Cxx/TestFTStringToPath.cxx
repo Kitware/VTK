@@ -37,7 +37,7 @@ public:
   static StringToPathContextTest *New();
   vtkTypeMacro(StringToPathContextTest, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 
   void SetPath(vtkPath *path) { this->Path = path; }
 
@@ -96,9 +96,9 @@ bool StringToPathContextTest::Paint(vtkContext2D *painter)
   vtkIntArray *codes = this->Path->GetCodes();
 
   if (points->GetNumberOfPoints() != codes->GetNumberOfTuples())
-    {
+  {
     return false;
-    }
+  }
 
   // scaling factor and offset to ensure that the points will fit the view:
   double scale = 5.16591;
@@ -108,13 +108,13 @@ bool StringToPathContextTest::Paint(vtkContext2D *painter)
   double point[3];
   painter->GetPen()->SetWidth(2);
   for (vtkIdType i = 0; i < points->GetNumberOfPoints(); ++i)
-    {
+  {
     points->GetPoint(i, point);
     int code = codes->GetValue(i);
 
     painter->GetPen()->SetColorF(color[code]);
     painter->DrawPoint(point[0]*scale + offset, point[1]*scale + offset);
-    }
+  }
 
   return true;
 }

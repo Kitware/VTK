@@ -48,9 +48,9 @@ int vtkPProbeFilter::RequestData(vtkInformation *request,
                                  vtkInformationVector *outputVector)
 {
   if (!this->Superclass::RequestData(request, inputVector, outputVector))
-    {
+  {
     return 0;
-    }
+  }
 
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkDataSet *output = vtkDataSet::SafeDownCast(
@@ -59,24 +59,24 @@ int vtkPProbeFilter::RequestData(vtkInformation *request,
   int procid = 0;
   int numProcs = 1;
   if ( this->Controller )
-    {
+  {
     procid = this->Controller->GetLocalProcessId();
     numProcs = this->Controller->GetNumberOfProcesses();
-    }
+  }
 
   vtkIdType numPoints = this->NumberOfValidPoints;
   if ( procid )
-    {
+  {
     // Satellite node
     this->Controller->Send(&numPoints, 1, 0, PROBE_COMMUNICATION_TAG);
     if ( numPoints > 0 )
-      {
-      this->Controller->Send(output, 0, PROBE_COMMUNICATION_TAG);
-      }
-    output->ReleaseData();
-    }
-  else if ( numProcs > 1 )
     {
+      this->Controller->Send(output, 0, PROBE_COMMUNICATION_TAG);
+    }
+    output->ReleaseData();
+  }
+  else if ( numProcs > 1 )
+  {
     vtkIdType numRemoteValidPoints = 0;
     vtkDataSet *remoteProbeOutput = output->NewInstance();
     vtkPointData *remotePointData;
@@ -85,10 +85,10 @@ int vtkPProbeFilter::RequestData(vtkInformation *request,
     vtkIdType k;
     vtkIdType pointId;
     for (i = 1; i < numProcs; i++)
-      {
+    {
       this->Controller->Receive(&numRemoteValidPoints, 1, i, PROBE_COMMUNICATION_TAG);
       if (numRemoteValidPoints > 0)
-        {
+      {
         this->Controller->Receive(remoteProbeOutput, i, PROBE_COMMUNICATION_TAG);
 
         remotePointData = remoteProbeOutput->GetPointData();
@@ -102,34 +102,34 @@ int vtkPProbeFilter::RequestData(vtkInformation *request,
         vtkIdType numRemotePoints = remoteProbeOutput->GetNumberOfPoints();
         if (output->GetNumberOfCells() != remoteProbeOutput->GetNumberOfCells() ||
             output->GetNumberOfPoints() != remoteProbeOutput->GetNumberOfPoints())
-          {
+        {
           vtkErrorMacro("vtkPProbeFilter assumes the whole geometry dataset "
                         "(which determines positions to probe) is available "
                         "on all nodes, however nodes 0 is different than node "
                         << i);
-          }
+        }
         else if (maskArray)
-          {
+        {
           for (pointId=0; pointId < numRemotePoints; ++pointId)
-            {
+          {
             if (maskArray->GetValue(pointId) == 1)
-              {
+            {
               for (k = 0; k < pointData->GetNumberOfArrays(); ++k)
-                {
+              {
                 vtkAbstractArray *oaa = pointData->GetArray(k);
                 vtkAbstractArray *raa = remotePointData->GetArray(oaa->GetName());
                 if (raa != NULL)
-                  {
+                {
                   oaa->SetTuple(pointId, pointId, raa);
-                  }
                 }
               }
             }
           }
         }
       }
-    remoteProbeOutput->Delete();
     }
+    remoteProbeOutput->Delete();
+  }
 
   return 1;
 }
@@ -174,14 +174,14 @@ int vtkPProbeFilter::RequestUpdateExtent(vtkInformation *,
 int vtkPProbeFilter::FillInputPortInformation(int port, vtkInformation *info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
-    {
+  {
     return 0;
-    }
+  }
 
   if (port == 1)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
-    }
+  }
   return 1;
 }
 

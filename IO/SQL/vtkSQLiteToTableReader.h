@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSQLiteToTableReader - Read an SQLite table as a vtkTable
-// .SECTION Description
-// vtkSQLiteToTableReader reads a table from an SQLite database and
-// outputs it as a vtkTable.
+/**
+ * @class   vtkSQLiteToTableReader
+ * @brief   Read an SQLite table as a vtkTable
+ *
+ * vtkSQLiteToTableReader reads a table from an SQLite database and
+ * outputs it as a vtkTable.
+*/
 
 #ifndef vtkSQLiteToTableReader_h
 #define vtkSQLiteToTableReader_h
@@ -39,8 +42,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
 private:
-  vtkSQLiteToTableReader(const vtkSQLiteToTableReader&); // Not implemented.
-  void operator=(const vtkSQLiteToTableReader&); // Not implemented.
+  vtkSQLiteToTableReader(const vtkSQLiteToTableReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSQLiteToTableReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

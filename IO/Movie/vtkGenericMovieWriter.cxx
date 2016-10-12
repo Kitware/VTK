@@ -56,30 +56,30 @@ const char *vtkGenericMovieWriter::GetStringFromErrorCode(unsigned long error)
 {
   static unsigned long numerrors = 0;
   if(error < UserError)
-    {
+  {
     return vtkErrorCode::GetStringFromErrorCode(error);
-    }
+  }
   else
-    {
+  {
     error -= UserError;
-    }
+  }
 
   if (!numerrors)
-    {
+  {
     while (vtkMovieWriterErrorStrings[numerrors] != NULL)
-      {
+    {
       numerrors++;
-      }
     }
+  }
 
   if (error < numerrors)
-    {
+  {
     return vtkMovieWriterErrorStrings[error];
-    }
+  }
   else
-    {
+  {
     return "Unknown Error";
-    }
+  }
 }
 
 

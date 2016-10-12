@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLLightingPainter - painter that manages lighting.
-// .SECTION Description
-// This painter manages lighting.
-// Ligting is disabled when rendering points/lines and no normals are present
-// or rendering Polygons/TStrips and representation is points and no normals
-// are present.
+/**
+ * @class   vtkOpenGLLightingPainter
+ * @brief   painter that manages lighting.
+ *
+ * This painter manages lighting.
+ * Ligting is disabled when rendering points/lines and no normals are present
+ * or rendering Polygons/TStrips and representation is points and no normals
+ * are present.
+*/
 
 #ifndef vtkOpenGLLightingPainter_h
 #define vtkOpenGLLightingPainter_h
@@ -34,12 +37,13 @@ public:
   vtkTypeMacro(vtkOpenGLLightingPainter, vtkLightingPainter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // This painter overrides GetTimeToDraw() to never pass the request to the
-  // delegate. This is done since this class may propagate a single render
-  // request multiple times to the delegate. In that case the time accumulation
-  // responsibility is borne by the painter causing the multiple rendering
-  // requests i.e. this painter itself.
+  /**
+   * This painter overrides GetTimeToDraw() to never pass the request to the
+   * delegate. This is done since this class may propagate a single render
+   * request multiple times to the delegate. In that case the time accumulation
+   * responsibility is borne by the painter causing the multiple rendering
+   * requests i.e. this painter itself.
+   */
   virtual double GetTimeToDraw()
     { return this->TimeToDraw; }
 
@@ -47,17 +51,18 @@ protected:
   vtkOpenGLLightingPainter();
   ~vtkOpenGLLightingPainter();
 
-  // Description:
-  // Setups lighting state before calling render on delegate
-  // painter.
+  /**
+   * Setups lighting state before calling render on delegate
+   * painter.
+   */
   virtual void RenderInternal(vtkRenderer *renderer,
                               vtkActor *actor,
                               unsigned long typeflags,
                               bool forceCompileOnly);
 
 private:
-  vtkOpenGLLightingPainter(const vtkOpenGLLightingPainter&); // Not implemented.
-  void operator=(const vtkOpenGLLightingPainter&); // Not implemented.
+  vtkOpenGLLightingPainter(const vtkOpenGLLightingPainter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLLightingPainter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -19,32 +19,34 @@
 
 =========================================================================*/
 
-// .NAME vtkArrayDataWriter - Serialize vtkArrayData to a file or stream.
-//
-// .SECTION Description
-// vtkArrayDataWriter serializes vtkArrayData using a text-based
-// format that is human-readable and easily parsed (default option).  The
-// WriteBinary array option can be used to serialize the vtkArrayData
-// using a binary format that is optimized for rapid throughput.
-//
-// vtkArrayDataWriter can be used in two distinct ways: first, it can be used as a
-// normal pipeline filter, which writes its inputs to a file.  Alternatively, static
-// methods are provided for writing vtkArrayData instances to files or arbitrary c++
-// streams.
-//
-// Inputs:
-//   Input port 0: (required) vtkArrayData object.
-//
-// Output Format:
-//   See http://www.kitware.com/InfovisWiki/index.php/N-Way_Array_File_Formats for
-//   details on how vtkArrayDataWriter encodes data.
-//
-// .SECTION See Also
-// vtkArrayDataReader
-//
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-
+/**
+ * @class   vtkArrayDataWriter
+ * @brief   Serialize vtkArrayData to a file or stream.
+ *
+ *
+ * vtkArrayDataWriter serializes vtkArrayData using a text-based
+ * format that is human-readable and easily parsed (default option).  The
+ * WriteBinary array option can be used to serialize the vtkArrayData
+ * using a binary format that is optimized for rapid throughput.
+ *
+ * vtkArrayDataWriter can be used in two distinct ways: first, it can be used as a
+ * normal pipeline filter, which writes its inputs to a file.  Alternatively, static
+ * methods are provided for writing vtkArrayData instances to files or arbitrary c++
+ * streams.
+ *
+ * Inputs:
+ *   Input port 0: (required) vtkArrayData object.
+ *
+ * Output Format:
+ *   See http://www.kitware.com/InfovisWiki/index.php/N-Way_Array_File_Formats for
+ *   details on how vtkArrayDataWriter encodes data.
+ *
+ * @sa
+ * vtkArrayDataReader
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+*/
 
 #ifndef vtkArrayDataWriter_h
 #define vtkArrayDataWriter_h
@@ -63,55 +65,71 @@ public:
   vtkTypeMacro(vtkArrayDataWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get / set the filename where data will be stored (when used as a filter).
+  //@{
+  /**
+   * Get / set the filename where data will be stored (when used as a filter).
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Get / set whether data will be written in binary format (when used as a filter).
+  //@{
+  /**
+   * Get / set whether data will be written in binary format (when used as a filter).
+   */
   vtkSetMacro(Binary, int);
   vtkGetMacro(Binary, int);
   vtkBooleanMacro(Binary, int);
+  //@}
 
-  // Description:
-  // The output string. This is only set when WriteToOutputString is set.
+  /**
+   * The output string. This is only set when WriteToOutputString is set.
+   */
   virtual vtkStdString GetOutputString()
     { return this->OutputString; }
 
-  // Description:
-  // Whether to output to a string instead of to a file, which is the default.
+  //@{
+  /**
+   * Whether to output to a string instead of to a file, which is the default.
+   */
   vtkSetMacro(WriteToOutputString, bool);
   vtkGetMacro(WriteToOutputString, bool);
   vtkBooleanMacro(WriteToOutputString, bool);
+  //@}
 
   virtual int Write(); // This is necessary to get Write() wrapped for scripting languages.
 
-  // Description:
-  // Writes input port 0 data to a file, using an arbitrary filename and binary flag.
+  /**
+   * Writes input port 0 data to a file, using an arbitrary filename and binary flag.
+   */
   bool Write(const vtkStdString& FileName, bool WriteBinary = false);
 
-  // Description:
-  // Write an arbitrary array to a file, without using the pipeline.
+  /**
+   * Write an arbitrary array to a file, without using the pipeline.
+   */
   static bool Write(vtkArrayData* array, const vtkStdString& file_name, bool WriteBinary = false);
 
-  // Description:
-  // Write input port 0 data to an arbitrary stream.  Note: streams should always be opened in
-  // binary mode, to prevent problems reading files on Windows.
+  /**
+   * Write input port 0 data to an arbitrary stream.  Note: streams should always be opened in
+   * binary mode, to prevent problems reading files on Windows.
+   */
   bool Write(ostream& stream, bool WriteBinary = false);
 
-  // Description:
-  // Write arbitrary data to a stream without using the pipeline.  Note: streams should always
-  // be opened in binary mode, to prevent problems reading files on Windows.
+  /**
+   * Write arbitrary data to a stream without using the pipeline.  Note: streams should always
+   * be opened in binary mode, to prevent problems reading files on Windows.
+   */
   static bool Write(vtkArrayData* array, ostream& stream, bool WriteBinary = false);
 
-  // Description:
-  // Write input port 0 data to a string. Note that the WriteBinary argument is not
-  // optional in order to not clash with the inherited Write() method.
+  /**
+   * Write input port 0 data to a string. Note that the WriteBinary argument is not
+   * optional in order to not clash with the inherited Write() method.
+   */
   vtkStdString Write(bool WriteBinary);
 
-  // Description:
-  // Write arbitrary data to a string without using the pipeline.
+  /**
+   * Write arbitrary data to a string without using the pipeline.
+   */
   static vtkStdString Write(vtkArrayData* array, bool WriteBinary = false);
 
 protected:
@@ -127,8 +145,8 @@ protected:
   vtkStdString OutputString;
 
 private:
-  vtkArrayDataWriter(const vtkArrayDataWriter&);  // Not implemented.
-  void operator=(const vtkArrayDataWriter&);  // Not implemented.
+  vtkArrayDataWriter(const vtkArrayDataWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkArrayDataWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

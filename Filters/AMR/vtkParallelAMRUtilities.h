@@ -12,14 +12,16 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkParallelAMRUtilities -- Support for distributed AMR operations
-//
-// .SECTION Description
-//  A concrete instance of vtkObject that employs a singleton design
-//  pattern and implements functionality for AMR specific operations.
-//
-// .SECTION See Also
-//  vtkOverlappingAMR, vtkAMRBox
+/**
+ * @class   vtkParallelAMRUtilities
+ *
+ *
+ *  A concrete instance of vtkObject that employs a singleton design
+ *  pattern and implements functionality for AMR specific operations.
+ *
+ * @sa
+ *  vtkOverlappingAMR, vtkAMRBox
+*/
 
 #ifndef vtkParallelAMRUtilities_h
 #define vtkParallelAMRUtilities_h
@@ -39,30 +41,33 @@ public:
   vtkTypeMacro(vtkParallelAMRUtilities,vtkAMRUtilities);
   void PrintSelf(ostream& os, vtkIndent indent );
 
-  // Description:
-  // This method detects and strips partially overlapping cells from a
-  // given AMR dataset. If ghost layers are detected, they are removed and
-  // new grid instances are created to represent the stripped
-  // data-set otherwise, each block is shallow-copied.
-  //
-  // .SECTION Assumptions
-  // 1) The ghosted AMR data must have complete metadata information.
+  /**
+   * This method detects and strips partially overlapping cells from a
+   * given AMR dataset. If ghost layers are detected, they are removed and
+   * new grid instances are created to represent the stripped
+   * data-set otherwise, each block is shallow-copied.
+
+   * .SECTION Assumptions
+   * 1) The ghosted AMR data must have complete metadata information.
+   */
   static void StripGhostLayers(
       vtkOverlappingAMR *ghostedAMRData,
       vtkOverlappingAMR *strippedAMRData,
       vtkMultiProcessController *myController);
 
-  // Description:
-  // Compute map from block indices to process ids
+  /**
+   * Compute map from block indices to process ids
+   */
   static void DistributeProcessInformation(vtkOverlappingAMR* amr, vtkMultiProcessController *myController, std::vector<int>& ProcessMap);
 
-  // Description:
-  // Blank cells in overlapping AMR
+  /**
+   * Blank cells in overlapping AMR
+   */
   static void BlankCells(vtkOverlappingAMR* amr,  vtkMultiProcessController *myController);
 
 private:
-  vtkParallelAMRUtilities(const vtkParallelAMRUtilities&); // Not implemented
-  void operator=(const vtkParallelAMRUtilities&); // Not implemented
+  vtkParallelAMRUtilities(const vtkParallelAMRUtilities&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkParallelAMRUtilities&) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkParallelAMRUtilities_h */

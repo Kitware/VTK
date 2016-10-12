@@ -31,17 +31,17 @@
   { \
   std::string expectedMsg(msg); \
   if (!observer->GetError()) \
-    { \
+  { \
     std::cout << "ERROR: Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
-    } \
+  } \
   else \
-    { \
+  { \
     std::string gotMsg(observer->GetErrorMessage()); \
     if (gotMsg.find(expectedMsg) == std::string::npos) \
-      { \
+    { \
       std::cout << "ERROR: Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-      } \
     } \
+  } \
   } \
   observer->Clear()
 
@@ -92,72 +92,72 @@ int TestMFIXReader(int argc, char *argv[])
   int numberOfCellArrays = reader->GetNumberOfCellArrays();
   std::cout << "----- Default array settings" << std::endl;
   for (int i = 0; i < numberOfCellArrays; ++i)
-    {
+  {
     const char * name = reader->GetCellArrayName(i);
     std::cout << "  Cell Array: " << i
               << " is named " << name
               << " and is "
               << (reader->GetCellArrayStatus(name) ? "Enabled" : "Disabled")
               << std::endl;
-    }
+  }
 
   // 2) Disable one array
   std::cout << "----- Disable one array" << std::endl;
   const char * arrayName = reader->GetCellArrayName(0);
   reader->SetCellArrayStatus(arrayName, 0);
   if (reader->GetCellArrayStatus(arrayName) != 0)
-    {
+  {
     std::cout << "ERROR:  Cell Array: " << "0"
               << " is named " << arrayName
               << " and should be disabled"
               << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // 3) Disable all arrays
   std::cout << "----- Disable all arrays" << std::endl;
   reader->DisableAllCellArrays();
   for (int i = 0; i < numberOfCellArrays; ++i)
-    {
+  {
     const char * name = reader->GetCellArrayName(i);
     if (reader->GetCellArrayStatus(name) != 0)
-      {
+    {
       std::cout << "ERROR: " << "  Cell Array: " << i
                 << " is named " << name
                 << " and should be disabled"
                 << std::endl;
       return EXIT_FAILURE;
-      }
     }
+  }
 
   // 4) Enable one array
   std::cout << "----- Enable one array" << std::endl;
   arrayName = reader->GetCellArrayName(0);
   reader->SetCellArrayStatus(arrayName, 1);
   if (reader->GetCellArrayStatus(arrayName) != 1)
-    {
+  {
     std::cout << "ERROR:  Cell Array: " << "0"
               << " is named " << arrayName
               << " and should be disabled"
               << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // 5) Enable all arrays
   std::cout << "----- Enable all arrays" << std::endl;
   reader->EnableAllCellArrays();
   for (int i = 0; i < numberOfCellArrays; ++i)
-    {
+  {
     const char * name = reader->GetCellArrayName(i);
     if (reader->GetCellArrayStatus(name) != 1)
-      {
+    {
       std::cout << "ERROR: " << "  Cell Array: " << i
                 << " is named " << name
                 << " and should be enabled"
                 << std::endl;
       return EXIT_FAILURE;
-      }
     }
+  }
 
   reader->Print(std::cout);
 
@@ -186,9 +186,9 @@ int TestMFIXReader(int argc, char *argv[])
   int retVal = vtkRegressionTestImage( renderWindow );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renderWindowInteractor->Start();
-    }
+  }
 
   return EXIT_SUCCESS;
 }

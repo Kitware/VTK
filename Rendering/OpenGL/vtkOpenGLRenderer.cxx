@@ -15,7 +15,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGLRenderer.h"
 
 #include "vtkCuller.h"
+#include "vtkHiddenLineRemovalPass.h"
 #include "vtkLightCollection.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLLight.h"
@@ -105,19 +107,19 @@ void vtkOpenGLRenderer::ClearLights (void)
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, Info);
 
   if ( this->TwoSidedLighting )
-    {
+  {
     glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
-    }
+  }
   else
-    {
+  {
     glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 0);
-    }
+  }
 
   // now delete all the old lights
   for (curLight = GL_LIGHT0; curLight < GL_LIGHT0 + VTK_MAX_LIGHTS; curLight++)
-    {
+  {
     glDisable(static_cast<GLenum>(curLight));
-    }
+  }
 
   this->NumberOfLightsBound = 0;
 
@@ -141,20 +143,20 @@ int vtkOpenGLRenderer::UpdateLights ()
   vtkCollectionSimpleIterator sit;
   for(this->Lights->InitTraversal(sit);
       (light = this->Lights->GetNextLight(sit)); )
-    {
+  {
     status = light->GetSwitch();
     if ((status > 0.0)&& (curLight < (GL_LIGHT0+VTK_MAX_LIGHTS)))
-      {
+    {
       curLight++;
       count++;
-      }
     }
+  }
 
   if( !count )
-    {
+  {
     vtkDebugMacro(<<"No lights are on, creating one.");
     this->CreateLight();
-    }
+  }
 
   count = 0;
   curLight= this->NumberOfLightsBound + GL_LIGHT0;
@@ -165,22 +167,22 @@ int vtkOpenGLRenderer::UpdateLights ()
 
   for(this->Lights->InitTraversal(sit);
       (light = this->Lights->GetNextLight(sit)); )
-    {
+  {
 
     status = light->GetSwitch();
 
     // if the light is on then define it and bind it.
     // also make sure we still have room.
     if ((status > 0.0)&& (curLight < (GL_LIGHT0+VTK_MAX_LIGHTS)))
-      {
+    {
       light->Render(this,curLight);
       glEnable(static_cast<GLenum>(curLight));
 
       // increment the current light by one
       curLight++;
       count++;
-      }
     }
+  }
 
   this->NumberOfLightsBound = curLight - GL_LIGHT0;
 
@@ -201,9 +203,9 @@ int vtkOpenGLRenderer::GetUseTextureUniformVariable()
   GLint result=vtkgl::GetUniformLocation(this->ProgramShader,"useTexture");
   vtkOpenGLCheckErrorMacro("failed at glGetUniformLocation");
   if(result==-1)
-    {
+  {
     vtkErrorMacro(<<"useTexture is not a uniform variable");
-    }
+  }
   return result;
 }
 
@@ -216,9 +218,9 @@ int vtkOpenGLRenderer::GetTextureUniformVariable()
   GLint result=vtkgl::GetUniformLocation(this->ProgramShader,"texture");
   vtkOpenGLCheckErrorMacro("failed at glGetUniformLocation");
   if(result==-1)
-    {
+  {
     vtkErrorMacro(<<"texture is not a uniform variable");
-    }
+  }
   return result;
 }
 
@@ -240,14 +242,14 @@ void vtkOpenGLRenderer::DeviceRender(void)
   vtkTimerLog::MarkStartEvent("OpenGL Dev Render");
 
   if(this->Pass!=0)
-    {
+  {
     vtkRenderState s(this);
     s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
     s.SetFrameBuffer(0);
     this->Pass->Render(&s);
-    }
+  }
   else
-    {
+  {
     // Do not remove this MakeCurrent! Due to Start / End methods on
     // some objects which get executed during a pipeline update,
     // other windows might get rendered since the last time
@@ -273,14 +275,37 @@ void vtkOpenGLRenderer::DeviceRender(void)
     GLint mvDepth;
     glGetIntegerv(GL_MODELVIEW_STACK_DEPTH, &mvDepth);
     if (mvDepth>1)
-      {
+    {
       glPopMatrix();
-      }
-
-    vtkOpenGLCheckErrorMacro("failed after DeviceRender");
     }
 
+    vtkOpenGLCheckErrorMacro("failed after DeviceRender");
+  }
+
   vtkTimerLog::MarkEndEvent("OpenGL Dev Render");
+}
+
+// ----------------------------------------------------------------------------
+void vtkOpenGLRenderer::DeviceRenderOpaqueGeometry()
+{
+  bool useHLR =
+      this->UseHiddenLineRemoval &&
+      vtkHiddenLineRemovalPass::WireframePropsExist(this->PropArray,
+                                                    this->PropArrayCount);
+
+  if (useHLR)
+  {
+    vtkNew<vtkHiddenLineRemovalPass> hlrPass;
+    vtkRenderState s(this);
+    s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
+    s.SetFrameBuffer(0);
+    hlrPass->Render(&s);
+    this->NumberOfPropsRendered += hlrPass->GetNumberOfRenderedProps();
+  }
+  else
+  {
+    this->Superclass::DeviceRenderOpaqueGeometry();
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -296,18 +321,18 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
   vtkOpenGLExtensionManager *extensions = NULL;
 
   if(this->UseDepthPeeling)
-    {
+  {
     vtkOpenGLRenderWindow *context
       = vtkOpenGLRenderWindow::SafeDownCast(this->RenderWindow);
     if (!context)
-      {
+    {
       vtkErrorMacro("OpenGL render window is required.")
       return;
-      }
+    }
     extensions = context->GetExtensionManager();
 
     if(!this->DepthPeelingIsSupportedChecked)
-      {
+    {
       this->DepthPeelingIsSupportedChecked=1;
 
       int supports_GL_1_3=extensions->ExtensionSupported("GL_VERSION_1_3");
@@ -319,46 +344,46 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       int supports_fragment_shader;
       int supports_shader_objects;
       if(supports_GL_2_0)
-        {
+      {
         supports_vertex_shader=1;
         supports_fragment_shader=1;
         supports_shader_objects=1;
-        }
+      }
       else
-        {
+      {
         supports_vertex_shader=extensions->ExtensionSupported("GL_ARB_vertex_shader");
         supports_fragment_shader=extensions->ExtensionSupported("GL_ARB_fragment_shader");
         supports_shader_objects=extensions->ExtensionSupported("GL_ARB_shader_objects");
-        }
+      }
       int supports_multitexture=supports_GL_1_3 || extensions->ExtensionSupported("GL_ARB_multitexture");
       int supports_occlusion_query;
       int supports_shadow_funcs;
       if(supports_GL_1_5)
-        {
+      {
         supports_occlusion_query=1;
         supports_shadow_funcs=1;
-        }
+      }
       else
-        {
+      {
         supports_occlusion_query=extensions->ExtensionSupported("GL_ARB_occlusion_query");
         supports_shadow_funcs=extensions->ExtensionSupported("GL_EXT_shadow_funcs");
-        }
+      }
 
       int supports_depth_texture;
       int supports_shadow;
       int supports_blend_func_separate;
       if(supports_GL_1_4)
-        {
+      {
         supports_depth_texture=1;
         supports_blend_func_separate=1;
         supports_shadow=1;
-        }
+      }
       else
-        {
+      {
         supports_depth_texture=extensions->ExtensionSupported("GL_ARB_depth_texture");
         supports_shadow=extensions->ExtensionSupported("GL_ARB_shadow");
         supports_blend_func_separate=extensions->ExtensionSupported("GL_EXT_blend_func_separate");
-        }
+      }
 
       int supports_GL_ARB_texture_rectangle=extensions->ExtensionSupported("GL_ARB_texture_rectangle");
 
@@ -369,14 +394,14 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       // it.
       int supports_edge_clamp=extensions->ExtensionSupported("GL_VERSION_1_2");
       if(!supports_edge_clamp)
-        {
+      {
         supports_edge_clamp=extensions->ExtensionSupported("GL_SGIS_texture_edge_clamp");
         if(!supports_edge_clamp)
-          {
+        {
           // nvidia cards.
           supports_edge_clamp=extensions->ExtensionSupported("GL_EXT_texture_edge_clamp");
-          }
         }
+      }
 
       GLint alphaBits;
       glGetIntegerv(GL_ALPHA_BITS, &alphaBits);
@@ -418,45 +443,45 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
         driver_support;
 
       if(this->DepthPeelingIsSupported)
-        {
+      {
         vtkDebugMacro("depth peeling supported");
         if(supports_GL_1_3)
-          {
+        {
           extensions->LoadExtension("GL_VERSION_1_3");
-          }
+        }
         else
-          {
+        {
           extensions->LoadCorePromotedExtension("GL_ARB_multitexture");
-          }
+        }
         // GL_ARB_depth_texture, GL_ARB_shadow and GL_EXT_shadow_funcs
         // don't introduce new functions.
         if(supports_GL_1_4)
-          {
+        {
           extensions->LoadExtension("GL_VERSION_1_4");
-          }
+        }
         else
-          {
+        {
           extensions->LoadCorePromotedExtension("GL_EXT_blend_func_separate");
-          }
+        }
 
         if(supports_GL_2_0)
-          {
+        {
           extensions->LoadExtension("GL_VERSION_2_0");
-          }
+        }
         else
-          {
+        {
           extensions->LoadCorePromotedExtension("GL_ARB_vertex_shader");
           extensions->LoadCorePromotedExtension("GL_ARB_fragment_shader");
           extensions->LoadCorePromotedExtension("GL_ARB_shader_objects");
-          }
+        }
         if(supports_GL_1_5)
-          {
+        {
           extensions->LoadExtension("GL_VERSION_1_5");
-          }
+        }
         else
-          {
+        {
           extensions->LoadCorePromotedExtension("GL_ARB_occlusion_query");
-          }
+        }
 
         extensions->LoadExtension("GL_ARB_texture_rectangle");
 
@@ -477,74 +502,74 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
         this->DepthPeelingIsSupported = params==GL_TRUE;
         vtkgl::DeleteShader(shader);
         if(!this->DepthPeelingIsSupported)
-          {
+        {
           vtkDebugMacro("this OpenGL implementation does not support "
                         "GL_ARB_texture_rectangle in GLSL code");
-          }
         }
+      }
       else
-        {
+      {
         vtkDebugMacro(<<"depth peeling is not supported.");
         if(!supports_depth_texture)
-          {
+        {
           vtkDebugMacro(<<"neither OpenGL 1.4 nor GL_ARB_depth_texture is supported");
-          }
+        }
         if(!supports_shadow)
-          {
+        {
           vtkDebugMacro(<<"neither OpenGL 1.4 nor GL_ARB_shadow is supported");
-          }
+        }
         if(!supports_shadow_funcs)
-          {
+        {
           vtkDebugMacro(<<"neither OpenGL 1.5 nor GL_EXT_shadow_funcs is supported");
-          }
+        }
         if(!supports_vertex_shader)
-          {
+        {
           vtkDebugMacro(<<"neither OpenGL 2.0 nor GL_ARB_vertex_shader is supported");
-          }
+        }
         if(!supports_fragment_shader)
-          {
+        {
           vtkDebugMacro(<<"neither OpenGL 2.0 nor GL_ARB_fragment_shader is supported");
-          }
+        }
         if(!supports_shader_objects)
-          {
+        {
           vtkDebugMacro(<<"neither OpenGL 2.0 nor GL_ARB_shader_objects is supported");
-          }
+        }
         if(!supports_occlusion_query)
-          {
+        {
           vtkDebugMacro(<<"neither OpenGL 1.5 nor GL_ARB_occlusion_query is supported");
-          }
+        }
         if(!supports_multitexture)
-          {
+        {
           vtkDebugMacro(<<"neither OpenGL 1.3 nor GL_ARB_multitexture is supported");
-          }
+        }
         if(!supports_GL_ARB_texture_rectangle)
-          {
+        {
           vtkDebugMacro(<<"GL_ARB_texture_rectangle is not supported");
-          }
+        }
         if(!supports_edge_clamp)
-          {
+        {
           vtkDebugMacro(<<"neither OpenGL 1.2 nor GL_SGIS_texture_edge_clamp nor GL_EXT_texture_edge_clamp is not supported");
-          }
+        }
         if(!supportsAtLeast8AlphaBits)
-          {
+        {
           vtkDebugMacro(<<"at least 8 alpha bits is not supported");
-          }
+        }
         if (!driver_support)
-          {
+        {
           vtkDebugMacro(<<"buggy driver (Mesa < 6.5.3 or ATI)");
-          }
         }
       }
     }
+  }
 
   if(!this->UseDepthPeeling || !this->DepthPeelingIsSupported)
-    {
+  {
     // just alpha blending
     this->LastRenderingUsedDepthPeeling=0;
     this->UpdateTranslucentPolygonalGeometry();
-    }
+  }
   else
-    {
+  {
     // depth peeling.
 
     // get the viewport dimensions
@@ -555,13 +580,13 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     GLint depthBits;
     glGetIntegerv(GL_DEPTH_BITS,&depthBits);
     if(depthBits==16)
-      {
+    {
       this->DepthFormat=vtkgl::DEPTH_COMPONENT16_ARB;
-      }
+    }
     else
-      {
+    {
       this->DepthFormat=vtkgl::DEPTH_COMPONENT24_ARB;
-      }
+    }
 
     vtkgl::ActiveTexture(vtkgl::TEXTURE1);
 
@@ -578,7 +603,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
 
     if ( extensions->DriverIsATI()
        && !extensions->GetIgnoreDriverBugs("ATI proxy query bug.") )
-      {
+    {
       // The ATI Radeon HD drivers currently choke on the proxy
       // query, but depth peeling has been confirmed to work. For
       // those driver fall back on the weaker max texture size
@@ -587,13 +612,13 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTexSize);
       if ( (this->ViewportWidth > maxTexSize)
         || (this->ViewportHeight > maxTexSize) )
-        {
+      {
         depthTexSupport = 0;
         colorTexSupport = 0;
-        }
       }
+    }
     else
-      {
+    {
       // Not a buggy ATI driver, it's OK to make the proxy query.
       GLuint proxyQueryTex = 0;
       glGenTextures(1, &proxyQueryTex);
@@ -617,10 +642,10 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
 
       glBindTexture(vtkgl::TEXTURE_RECTANGLE_ARB, 0);
       glDeleteTextures(1, &proxyQueryTex);
-      }
+    }
 
     if (!(depthTexSupport && colorTexSupport))
-      {
+    {
       // GPU does not support a view sized texture in this format.
       // Do alpha blending technique instead.
       vtkWarningMacro(
@@ -634,7 +659,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       this->LastRenderingUsedDepthPeeling = 0;
       this->UpdateTranslucentPolygonalGeometry();
       return;
-      }
+    }
 
     // 1. Grab the RGBAZ of the opaque layer.
     GLuint opaqueLayerZ=0;
@@ -706,38 +731,38 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     int multiSampleStatus=glIsEnabled(vtkgl::MULTISAMPLE);
 
     if(multiSampleStatus)
-      {
+    {
       glDisable(vtkgl::MULTISAMPLE);
-      }
+    }
     glDisable(GL_BLEND);
     GLuint nbPixels=0;
     GLuint previousNbPixels=0;
     int l=0;
     while(!stop)
-      {
+    {
       vtkgl::BeginQuery(vtkgl::SAMPLES_PASSED,queryId);
       stop=!this->RenderPeel(l);
       vtkgl::EndQuery(vtkgl::SAMPLES_PASSED);
       // blocking call
       previousNbPixels=nbPixels;
       if(!stop || l>0) // stop && l==0 <=> no translucent geometry
-        {
+      {
         vtkgl::GetQueryObjectuiv(queryId,vtkgl::QUERY_RESULT,&nbPixels);
         if(!stop)
-          {
+        {
           stop=(nbPixels<=threshold) || (nbPixels==previousNbPixels);
           ++l;
           if(!stop && !infiniteLoop)
-            {
+          {
             stop=l>=this->MaximumNumberOfPeels;
-            }
           }
         }
       }
+    }
     if(multiSampleStatus)
-      {
+    {
       glEnable(vtkgl::MULTISAMPLE);
-      }
+    }
     // The two following lines are taken from vtkOpenGLProperty to
     // reset texturing state after rendering the props.
     glDisable(GL_TEXTURE_2D);
@@ -745,11 +770,11 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     glDepthFunc(GL_LEQUAL);
     vtkgl::DeleteQueries(1,&queryId);
     if(this->TransparentLayerZ!=0)
-      {
+    {
       GLuint transparentLayerZ=static_cast<GLuint>(this->TransparentLayerZ);
       glDeleteTextures(1,&transparentLayerZ);
       this->TransparentLayerZ=0;
-      }
+    }
 
     // Finally, draw sorted opacity
     glMatrixMode(GL_PROJECTION);
@@ -793,7 +818,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     std::list<GLuint>::reverse_iterator it=this->LayerList->List.rbegin();
     std::list<GLuint>::reverse_iterator itEnd=this->LayerList->List.rend();
     while(it!=itEnd)
-      {
+    {
       glBindTexture(vtkgl::TEXTURE_RECTANGLE_ARB,(*it));
 
       glBegin(GL_QUADS);
@@ -807,7 +832,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       glVertex2f(0, this->ViewportHeight);
       glEnd();
       ++it;
-      }
+    }
     // Restore the default blend function for the next stage (overlay)
     glPopAttrib();
 
@@ -820,10 +845,10 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     glPopMatrix();
     // Destroy the shader
     if(this->ProgramShader!=0)
-      {
+    {
       vtkgl::DeleteProgram(this->ProgramShader);
       this->ProgramShader=0;
-      }
+    }
 
     // Destroy the layers
     size_t c=this->LayerList->List.size();
@@ -831,11 +856,11 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     std::list<GLuint>::const_iterator it2=this->LayerList->List.begin();
     size_t layer=0;
     while(layer<c)
-      {
+    {
       ids[layer]=(*it2);
       ++layer;
       ++it2;
-      }
+    }
     glDeleteTextures(static_cast<GLsizei>(c),ids);
     delete[] ids;
     delete this->LayerList;
@@ -843,7 +868,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
 
     glDeleteTextures(1,&opaqueLayerRgba);
     glDeleteTextures(1,&opaqueLayerZ);
-    }
+  }
 
   vtkOpenGLCheckErrorMacro("failed after DeviceRenderTranslucentPolygonalGeometry");
 }
@@ -859,26 +884,26 @@ void vtkOpenGLRenderer::CheckCompilation(
   GLint params;
   vtkgl::GetShaderiv(fs,vtkgl::COMPILE_STATUS,&params);
   if(params==GL_TRUE)
-    {
+  {
     vtkDebugMacro(<<"shader source compiled successfully");
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro(<<"shader source compile error");
     // include null terminator
     vtkgl::GetShaderiv(fs,vtkgl::INFO_LOG_LENGTH,&params);
     if(params>0)
-      {
+    {
       char *buffer=new char[params];
       vtkgl::GetShaderInfoLog(fs,params,0,buffer);
       vtkErrorMacro(<<"log: "<<buffer);
       delete[] buffer;
-      }
-    else
-      {
-      vtkErrorMacro(<<"no log");
-      }
     }
+    else
+    {
+      vtkErrorMacro(<<"no log");
+    }
+  }
   vtkOpenGLCheckErrorMacro("failed after CheckCompilation");
 }
 
@@ -896,9 +921,9 @@ int vtkOpenGLRenderer::RenderPeel(int layer)
 
   GLbitfield mask=GL_COLOR_BUFFER_BIT;
   if(layer>0)
-    {
+  {
     mask=mask|GL_DEPTH_BUFFER_BIT;
-    }
+  }
 
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glClear(mask);
@@ -908,7 +933,7 @@ int vtkOpenGLRenderer::RenderPeel(int layer)
   vtkgl::ActiveTexture(vtkgl::TEXTURE1 );
 
   if(this->ProgramShader==0)
-    {
+  {
     this->ProgramShader=vtkgl::CreateProgram();
     GLuint shader=vtkgl::CreateShader(vtkgl::FRAGMENT_SHADER);
     vtkgl::ShaderSource(shader,1,const_cast<const char **>(&vtkOpenGLRenderer_PeelingFS),0);
@@ -920,89 +945,89 @@ int vtkOpenGLRenderer::RenderPeel(int layer)
     GLint params;
     vtkgl::GetProgramiv(static_cast<GLuint>(this->ProgramShader),vtkgl::LINK_STATUS,&params);
     if(params==GL_TRUE)
-      {
+    {
       vtkDebugMacro(<<"program linked successfully");
-      }
+    }
     else
-      {
+    {
       vtkErrorMacro(<<"program link error");
       // include null terminator
       vtkgl::GetProgramiv(static_cast<GLuint>(this->ProgramShader),vtkgl::INFO_LOG_LENGTH,&params);
       if(params>0)
-        {
+      {
 #if 1
         char *buffer=new char[params];
         vtkgl::GetProgramInfoLog(static_cast<GLuint>(this->ProgramShader),params,0,buffer);
         vtkErrorMacro(<<"log: "<<buffer);
         delete[] buffer;
 #endif
-        }
-      else
-        {
-        vtkErrorMacro(<<"no log: ");
-        }
       }
-    vtkgl::DeleteShader(shader); // reference counting
+      else
+      {
+        vtkErrorMacro(<<"no log: ");
+      }
     }
+    vtkgl::DeleteShader(shader); // reference counting
+  }
 
   if(layer>0)
-    {
+  {
     glBindTexture(vtkgl::TEXTURE_RECTANGLE_ARB,this->TransparentLayerZ);
     vtkgl::UseProgram(this->ProgramShader);
     GLint uShadowTex=vtkgl::GetUniformLocation(this->ProgramShader,"shadowTex");
     if(uShadowTex!=-1)
-      {
+    {
       vtkgl::Uniform1i(uShadowTex,1);
-      }
+    }
     else
-      {
+    {
       vtkErrorMacro(<<"error: shadowTex is not a uniform.");
-      }
+    }
     GLint uOpaqueShadowTex=vtkgl::GetUniformLocation(this->ProgramShader,"opaqueShadowTex");
     if(uOpaqueShadowTex!=-1)
-      {
+    {
       vtkgl::Uniform1i(uOpaqueShadowTex,2);
-      }
+    }
     else
-      {
+    {
       vtkErrorMacro(<<"error: opaqueShadowTex is not a uniform.");
-      }
+    }
 
     GLint uOffsetX=vtkgl::GetUniformLocation(this->ProgramShader,"offsetX");
     if(uOffsetX!=-1)
-      {
+    {
       vtkgl::Uniform1f(uOffsetX,this->ViewportX);
-      }
+    }
     else
-      {
+    {
       vtkErrorMacro(<<"error: offsetX is not a uniform.");
-      }
+    }
 
     GLint uOffsetY=vtkgl::GetUniformLocation(this->ProgramShader,"offsetY");
     if(uOffsetY!=-1)
-      {
+    {
       vtkgl::Uniform1f(uOffsetY,this->ViewportY);
-      }
-    else
-      {
-      vtkErrorMacro(<<"error: offsetY is not a uniform.");
-      }
     }
+    else
+    {
+      vtkErrorMacro(<<"error: offsetY is not a uniform.");
+    }
+  }
   vtkgl::ActiveTexture(vtkgl::TEXTURE0 );
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   this->DepthPeelingHigherLayer=layer>0;
   int numberOfRenderedProps=this->UpdateTranslucentPolygonalGeometry();
   if(layer>0)
-    {
+  {
     this->DepthPeelingHigherLayer=0;
     vtkgl::UseProgram(0);
-    }
+  }
 
   vtkgl::ActiveTexture(vtkgl::TEXTURE1 );
   if(layer==0)
-    {
+  {
     if(numberOfRenderedProps>0)
-      {
+    {
       GLuint transparentLayerZ;
       glGenTextures(1,&transparentLayerZ);
       this->TransparentLayerZ=static_cast<unsigned int>(transparentLayerZ);
@@ -1028,14 +1053,14 @@ int vtkOpenGLRenderer::RenderPeel(int layer)
       glTexImage2D(vtkgl::TEXTURE_RECTANGLE_ARB,0,this->DepthFormat,
                    this->ViewportWidth,this->ViewportHeight, 0,
                    GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
-      }
     }
+  }
   else
-    {
+  {
     glBindTexture(vtkgl::TEXTURE_RECTANGLE_ARB,this->TransparentLayerZ);
-    }
+  }
   if((layer==0 && numberOfRenderedProps>0) || layer>0)
-    {
+  {
     // Grab the z-buffer
     glCopyTexSubImage2D(vtkgl::TEXTURE_RECTANGLE_ARB, 0, 0, 0, this->ViewportX,
                         this->ViewportY,this->ViewportWidth,
@@ -1065,12 +1090,12 @@ int vtkOpenGLRenderer::RenderPeel(int layer)
 
     vtkOpenGLCheckErrorMacro("failed after RenderPeel");
     return 1;
-    }
+  }
   else
-    {
+  {
     vtkOpenGLCheckErrorMacro("failed after RenderPeel");
     return 0;
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -1094,19 +1119,19 @@ void vtkOpenGLRenderer::Clear(void)
   GLbitfield  clear_mask = 0;
 
   if (! this->Transparent())
-    {
+  {
     glClearColor( static_cast<GLclampf>(this->Background[0]),
                   static_cast<GLclampf>(this->Background[1]),
                   static_cast<GLclampf>(this->Background[2]),
                   static_cast<GLclampf>(0.0));
     clear_mask |= GL_COLOR_BUFFER_BIT;
-    }
+  }
 
   if (!this->GetPreserveDepthBuffer())
-    {
+  {
     glClearDepth(static_cast<GLclampf>(1.0));
     clear_mask |= GL_DEPTH_BUFFER_BIT;
-    }
+  }
 
   vtkDebugMacro(<< "glClear\n");
   glClear(clear_mask);
@@ -1114,7 +1139,7 @@ void vtkOpenGLRenderer::Clear(void)
   // If gradient background is turned on, draw it now.
   if (!this->Transparent() &&
       (this->GradientBackground || this->TexturedBackground))
-    {
+  {
     double tile_viewport[4];
     this->GetRenderWindow()->GetTileViewport(tile_viewport);
     glPushAttrib(GL_ENABLE_BIT | GL_TRANSFORM_BIT);
@@ -1143,7 +1168,7 @@ void vtkOpenGLRenderer::Clear(void)
 
         //top vertices
         if(this->TexturedBackground && this->BackgroundTexture)
-          {
+        {
           glEnable(GL_TEXTURE_2D);
 
           this->BackgroundTexture->Render(this);
@@ -1159,7 +1184,7 @@ void vtkOpenGLRenderer::Clear(void)
           // below the threshold. Here we have to enable it so that it won't
           // rejects the fragments of the quad as the alpha is set to 0 on it.
           glDisable(GL_ALPHA_TEST);
-          }
+        }
 
         glBegin(GL_QUADS);
         glColor4d(this->Background[0],this->Background[1],this->Background[2],
@@ -1187,7 +1212,7 @@ void vtkOpenGLRenderer::Clear(void)
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
     glPopAttrib();
-    }
+  }
   vtkOpenGLCheckErrorMacro("failed after Clear");
 }
 
@@ -1217,10 +1242,14 @@ void vtkOpenGLRenderer::StartPick(unsigned int pickFromSize)
 
 void vtkOpenGLRenderer::ReleaseGraphicsResources(vtkWindow *w)
 {
-  if (w && this->Pass)
+  if (w)
+  {
+    vtkRenderer::ReleaseGraphicsResources(w);
+    if (this->Pass)
     {
-    this->Pass->ReleaseGraphicsResources(w);
+      this->Pass->ReleaseGraphicsResources(w);
     }
+  }
 }
 
 void vtkOpenGLRenderer::UpdatePickId()
@@ -1268,33 +1297,33 @@ void vtkOpenGLRenderer::DonePick()
   GLuint* ptr = this->PickInfo->PickBuffer;
   this->PickInfo->PickedId = 0;
   for(unsigned int k =0; k < hits; k++)
-    {
+  {
     int num_names = *ptr;
     int save = 0;
     ptr++; // move to first depth value
     if(*ptr <= depth)
-      {
+    {
       depth = *ptr;
       save = 1;
-      }
+    }
     ptr++; // move to next depth value
     if(*ptr <= depth)
-      {
+    {
       depth = *ptr;
       save = 1;
-      }
+    }
     // move to first name picked
     ptr++;
     if(save)
-      {
+    {
       this->PickInfo->PickedId = *ptr;
-      }
+    }
     // skip additional names
     ptr += num_names;
-    }
+  }
   // If there was a pick, then get the Z value
   if(this->PickInfo->PickedId)
-    {
+  {
     // convert from pick depth described as:
     // Returned depth values are mapped such that the largest unsigned
     // integer value corresponds to window coordinate depth 1.0,
@@ -1305,7 +1334,7 @@ void vtkOpenGLRenderer::DonePick()
     // Clamp to range [0,1]
     this->PickedZ = (this->PickedZ < 0.0) ? 0.0 : this->PickedZ;
     this->PickedZ = (this->PickedZ > 1.0) ? 1.0: this->PickedZ;
-    }
+  }
 
   //Don't delete the list, keep it around in case caller wants all
   //of the hits. Delete it elsewhere when needed.
@@ -1332,14 +1361,14 @@ vtkOpenGLRenderer::~vtkOpenGLRenderer()
   delete this->PickInfo;
 
   if(this->ShaderProgram!=0)
-    {
+  {
     this->ShaderProgram->Delete();
-    }
+  }
 
   if(this->Pass!=0)
-    {
+  {
     this->Pass->UnRegister(this);
-    }
+  }
 }
 
 unsigned int vtkOpenGLRenderer::GetNumPickedIds()
@@ -1351,16 +1380,16 @@ int vtkOpenGLRenderer::GetPickedIds(unsigned int atMost,
                                     unsigned int *callerBuffer)
 {
   if (!this->PickInfo->PickBuffer)
-    {
+  {
     return 0;
-    }
+  }
 
   unsigned int max = (atMost < this->PickInfo->NumPicked) ? atMost : this->PickInfo->NumPicked;
   GLuint* iptr = this->PickInfo->PickBuffer;
   unsigned int *optr = callerBuffer;
   unsigned int k;
   for(k =0; k < max; k++)
-    {
+  {
     int num_names = *iptr;
     iptr++; // move to first depth value
     iptr++; // move to next depth value
@@ -1369,6 +1398,6 @@ int vtkOpenGLRenderer::GetPickedIds(unsigned int atMost,
     optr++;
     // skip additional names
     iptr += num_names;
-    }
+  }
   return k;
 }

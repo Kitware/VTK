@@ -70,36 +70,36 @@ vtkBoundedPlanePointPlacer::~vtkBoundedPlanePointPlacer()
   this->RemoveAllBoundingPlanes();
 
   if ( this->ObliquePlane )
-    {
+  {
     this->ObliquePlane->UnRegister(this);
     this->ObliquePlane = NULL;
-    }
+  }
 
   if (this->BoundingPlanes)
-    {
+  {
     this->BoundingPlanes->UnRegister(this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
 void vtkBoundedPlanePointPlacer::SetProjectionPosition(double position)
 {
   if ( this->ProjectionPosition != position )
-    {
+  {
     this->ProjectionPosition = position;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
 void vtkBoundedPlanePointPlacer::AddBoundingPlane(vtkPlane *plane)
 {
   if (this->BoundingPlanes == NULL)
-    {
+  {
     this->BoundingPlanes = vtkPlaneCollection::New();
     this->BoundingPlanes->Register(this);
     this->BoundingPlanes->Delete();
-    }
+  }
 
   this->BoundingPlanes->AddItem(plane);
 }
@@ -108,41 +108,41 @@ void vtkBoundedPlanePointPlacer::AddBoundingPlane(vtkPlane *plane)
 void vtkBoundedPlanePointPlacer::RemoveBoundingPlane(vtkPlane *plane)
 {
   if (this->BoundingPlanes )
-    {
+  {
     this->BoundingPlanes->RemoveItem(plane);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
 void vtkBoundedPlanePointPlacer::RemoveAllBoundingPlanes()
 {
   if ( this->BoundingPlanes )
-    {
+  {
     this->BoundingPlanes->RemoveAllItems();
     this->BoundingPlanes->Delete();
     this->BoundingPlanes = NULL;
-    }
+  }
 }
 //----------------------------------------------------------------------
 
 void vtkBoundedPlanePointPlacer::SetBoundingPlanes(vtkPlanes *planes)
 {
   if (!planes)
-    {
+  {
     return;
-    }
+  }
 
   vtkPlane *plane;
   int numPlanes = planes->GetNumberOfPlanes();
 
   this->RemoveAllBoundingPlanes();
   for (int i=0; i<numPlanes ; i++)
-    {
+  {
     plane = vtkPlane::New();
     planes->GetPlane(i, plane);
     this->AddBoundingPlane(plane);
     plane->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -191,7 +191,7 @@ int vtkBoundedPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
                                     farWorldPoint,
                                     normal, origin,
                                     distance, position ) )
-    {
+  {
     // Fill in the information now before validating it.
     // This is because we should return the best information
     // we can since this may be part of an UpdateWorldPosition
@@ -204,21 +204,21 @@ int vtkBoundedPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
 
     // Now check against the bounding planes
     if ( this->BoundingPlanes )
-      {
+    {
       vtkPlane *p;
 
       this->BoundingPlanes->InitTraversal();
 
       while ( (p = this->BoundingPlanes->GetNextItem()) )
-        {
+      {
         if ( p->EvaluateFunction( position ) < this->WorldTolerance )
-          {
+        {
           return 0;
-          }
         }
       }
-    return 1;
     }
+    return 1;
+  }
 
   return 0;
 }
@@ -235,19 +235,19 @@ int vtkBoundedPlanePointPlacer::ValidateWorldPosition( double worldPos[3] )
 {
     // Now check against the bounding planes
     if ( this->BoundingPlanes )
-      {
+    {
       vtkPlane *p;
 
       this->BoundingPlanes->InitTraversal();
 
       while ( (p = this->BoundingPlanes->GetNextItem()) )
-        {
+      {
         if ( p->EvaluateFunction( worldPos ) < this->WorldTolerance )
-          {
+        {
           return 0;
-          }
         }
       }
+    }
   return 1;
 }
 
@@ -286,17 +286,17 @@ void vtkBoundedPlanePointPlacer::GetCurrentOrientation( double worldOrient[9] )
   double v[3];
   if ( fabs( z[0] ) >= fabs( z[1] ) &&
        fabs( z[0] ) >= fabs( z[2] ) )
-    {
+  {
     v[0] = 0;
     v[1] = 1;
     v[2] = 0;
-    }
+  }
   else
-    {
+  {
     v[0] = 1;
     v[1] = 0;
     v[2] = 0;
-    }
+  }
 
   vtkMath::Cross( z, v, y );
   vtkMath::Cross( y, z, x );
@@ -306,7 +306,7 @@ void vtkBoundedPlanePointPlacer::GetCurrentOrientation( double worldOrient[9] )
 void vtkBoundedPlanePointPlacer::GetProjectionNormal( double normal[3] )
 {
   switch ( this->ProjectionNormal )
-    {
+  {
     case vtkBoundedPlanePointPlacer::XAxis:
       normal[0] = 1.0;
       normal[1] = 0.0;
@@ -325,14 +325,14 @@ void vtkBoundedPlanePointPlacer::GetProjectionNormal( double normal[3] )
     case vtkBoundedPlanePointPlacer::Oblique:
       this->ObliquePlane->GetNormal(normal);
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------
 void vtkBoundedPlanePointPlacer::GetProjectionOrigin( double origin[3] )
 {
   switch ( this->ProjectionNormal )
-    {
+  {
     case vtkBoundedPlanePointPlacer::XAxis:
       origin[0] = this->ProjectionPosition;
       origin[1] = 0.0;
@@ -351,7 +351,7 @@ void vtkBoundedPlanePointPlacer::GetProjectionOrigin( double origin[3] )
     case vtkBoundedPlanePointPlacer::Oblique:
       this->ObliquePlane->GetOrigin(origin);
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -368,14 +368,14 @@ double vtkBoundedPlanePointPlacer
 
   pc->InitTraversal();
   while ( vtkPlane * p = pc->GetNextItem() )
-    {
+  {
     const double d = p->EvaluateFunction( pos );
     if (d < minD)
-      {
+    {
       minD = d;
       minPlane = p;
-      }
     }
+  }
 
   vtkPlane::ProjectPoint( pos, minPlane->GetOrigin(),
                           minPlane->GetNormal(), closestPt );
@@ -389,40 +389,40 @@ void vtkBoundedPlanePointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Projection Normal: ";
   if ( this->ProjectionNormal == vtkBoundedPlanePointPlacer::XAxis )
-    {
+  {
     os << "XAxis\n";
-    }
+  }
   else if ( this->ProjectionNormal == vtkBoundedPlanePointPlacer::YAxis )
-    {
+  {
     os << "YAxis\n";
-    }
+  }
   else if ( this->ProjectionNormal == vtkBoundedPlanePointPlacer::ZAxis )
-    {
+  {
     os << "ZAxis\n";
-    }
+  }
   else //if ( this->ProjectionNormal == vtkBoundedPlanePointPlacer::Oblique )
-    {
+  {
     os << "Oblique\n";
-    }
+  }
 
   os << indent << "Projection Position: " << this->ProjectionPosition << "\n";
 
   os << indent << "Bounding Planes:\n";
   if ( this->BoundingPlanes )
-    {
+  {
     this->BoundingPlanes->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << " (none)\n";
-    }
+  }
   os << indent << "Oblique plane:\n";
   if ( this->ObliquePlane )
-    {
+  {
     this->ObliquePlane->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << " (none)\n";
-    }
+  }
 }

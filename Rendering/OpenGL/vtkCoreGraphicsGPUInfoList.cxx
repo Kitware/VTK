@@ -29,7 +29,7 @@ vtkStandardNewMacro(vtkCoreGraphicsGPUInfoList);
 void vtkCoreGraphicsGPUInfoList::Probe()
 {
   if(!this->Probed)
-    {
+  {
     this->Probed=true;
     this->Array=new vtkGPUInfoListArray;
 
@@ -44,9 +44,9 @@ void vtkCoreGraphicsGPUInfoList::Probe()
     CGLError error = CGLQueryRendererInfo(0xFFFFFFFF, &infoObj, &count);
 
     if ((error == kCGLNoError) && (count > 0))
-      {
+    {
       for (GLint i = 0; i < count; i++)
-        {
+      {
         GLint vramGL = 0;
         vtkTypeUInt64 vramVTK = 0;
 #if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
@@ -59,21 +59,21 @@ void vtkCoreGraphicsGPUInfoList::Probe()
 
         // The software renderer will return a video memory of 0, so ignore it.
         if ((error == kCGLNoError) && (vramVTK > 0))
-          {
+        {
           vtkGPUInfo *info=vtkGPUInfo::New();
           info->SetDedicatedVideoMemory(vramVTK);
 
           this->Array->v.push_back(info);
-          }
         }
       }
+    }
     else
-      {
+    {
       this->Array->v.resize(0);
-      }
+    }
 
     CGLDestroyRendererInfo(infoObj);
-    }
+  }
   assert("post: probed" && this->IsProbed());
 }
 

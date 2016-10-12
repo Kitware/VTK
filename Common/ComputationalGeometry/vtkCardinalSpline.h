@@ -12,16 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCardinalSpline - computes an interpolating spline using a
-// a Cardinal basis.
-
-// .SECTION Description
-// vtkCardinalSpline is a concrete implementation of vtkSpline using a
-// Cardinal basis.
-
-// .SECTION See Also
-// vtkSpline vtkKochanekSpline
-
+/**
+ * @class   vtkCardinalSpline
+ * @brief   computes an interpolating spline using a
+ * a Cardinal basis.
+ *
+ *
+ * vtkCardinalSpline is a concrete implementation of vtkSpline using a
+ * Cardinal basis.
+ *
+ * @sa
+ * vtkSpline vtkKochanekSpline
+*/
 
 #ifndef vtkCardinalSpline_h
 #define vtkCardinalSpline_h
@@ -35,23 +37,26 @@ public:
   static vtkCardinalSpline *New();
 
   vtkTypeMacro(vtkCardinalSpline,vtkSpline);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description
-  // Compute Cardinal Splines for each dependent variable
-  void Compute ();
+  /**
+   * Compute Cardinal Splines for each dependent variable
+   */
+  void Compute () VTK_OVERRIDE;
 
-  // Description:
-  // Evaluate a 1D cardinal spline.
-  virtual double Evaluate (double t);
+  /**
+   * Evaluate a 1D cardinal spline.
+   */
+  double Evaluate (double t) VTK_OVERRIDE;
 
-  // Description:
-  // Deep copy of cardinal spline data.
-  virtual void DeepCopy(vtkSpline *s);
+  /**
+   * Deep copy of cardinal spline data.
+   */
+  void DeepCopy(vtkSpline *s) VTK_OVERRIDE;
 
 protected:
   vtkCardinalSpline();
-  ~vtkCardinalSpline() {}
+  ~vtkCardinalSpline() VTK_OVERRIDE {}
 
   void Fit1D (int n, double *x, double *y, double *w, double coefficients[][4],
               int leftConstraint, double leftValue, int rightConstraint,
@@ -61,8 +66,8 @@ protected:
                     double coefficients[][4]);
 
 private:
-  vtkCardinalSpline(const vtkCardinalSpline&);  // Not implemented.
-  void operator=(const vtkCardinalSpline&);  // Not implemented.
+  vtkCardinalSpline(const vtkCardinalSpline&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCardinalSpline&) VTK_DELETE_FUNCTION;
 };
 
 #endif

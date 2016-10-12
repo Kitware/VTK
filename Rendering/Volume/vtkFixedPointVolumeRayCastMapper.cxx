@@ -91,9 +91,9 @@ void vtkFixedPointVolumeRayCastMapperComputeCS1CGradients( T *dataPtr,
   unsigned char       *magPtr;
 
   if ( thread_id == 0 )
-    {
+  {
     me->InvokeEvent( vtkCommand::VolumeMapperComputeGradientsStartEvent, NULL );
-    }
+  }
 
   double avgSpacing = (spacing[0]+spacing[1]+spacing[2])/3.0;
 
@@ -107,13 +107,13 @@ void vtkFixedPointVolumeRayCastMapperComputeCS1CGradients( T *dataPtr,
   zinc = yinc*static_cast<vtkIdType>(dim[1]);
 
   if ( scalarRange[1] - scalarRange[0] )
-    {
+  {
     scale = 255.0 / (0.25*(scalarRange[1] - scalarRange[0]));
-    }
+  }
   else
-    {
+  {
     scale = 1.0;
-    }
+  }
 
   x_start = 0;
   x_limit = dim[0];
@@ -141,12 +141,12 @@ void vtkFixedPointVolumeRayCastMapperComputeCS1CGradients( T *dataPtr,
   int *dzBuffer = new int[dim[0]];
 
   for ( z = z_start; z < z_limit; z++ )
-    {
+  {
     unsigned short *gradientDirPtr = gradientNormal[z];
     unsigned char *gradientMagPtr = gradientMagnitude[z];
 
     for ( y = y_start; y < y_limit; y++ )
-      {
+    {
       xlow = x_start;
       xhigh = x_limit;
 
@@ -158,85 +158,85 @@ void vtkFixedPointVolumeRayCastMapperComputeCS1CGradients( T *dataPtr,
       // add this into our dxBuffer
       dxBuffer[0] = *dptr;
       for ( x = xlow+1; x < xhigh; x++ )
-        {
+      {
         *(dxBuffer+x) = *(dptr+x-1);
-        }
+      }
 
       // subtract this from our dxBuffer
       for ( x = xlow; x < xhigh-1; x++ )
-        {
+      {
         *(dxBuffer+x) -= *(dptr+x+1);
-        }
+      }
       dxBuffer[xhigh-1] -= dptr[xhigh-1];
 
       // working on dy - need the row before and the row after.
       // first, the row before, or this row if we are at the edge
       if ( y > 0 )
-        {
+      {
         dptr = dataPtr + z * zinc + (y-1) * yinc + xlow;
-        }
+      }
       else
-        {
+      {
         dptr = dataPtr + z * zinc + y * yinc + xlow;
-        }
+      }
       // add this into our dyBuffer
       for ( x = xlow; x < xhigh; x++ )
-        {
+      {
         dyBuffer[x] = dptr[x];
-        }
+      }
 
       // now the row after
       if ( y < y_limit-1 )
-        {
+      {
         dptr = dataPtr + z * zinc + (y+1) * yinc + xlow;
-        }
+      }
       else
-        {
+      {
         dptr = dataPtr + z * zinc + y * yinc + xlow;
-        }
+      }
       // subtract this from our dyBuffer
       for ( x = xlow; x < xhigh; x++ )
-        {
+      {
         dyBuffer[x] -= dptr[x];
-        }
+      }
 
       // Find the pointer for the slice before - use this if there is
       // no slice before
       if ( z > 0 )
-        {
+      {
         dptr = dataPtr + (z-1) * zinc + y * yinc + xlow;
-        }
+      }
       else
-        {
+      {
         dptr = dataPtr + z * zinc + y * yinc + xlow;
-        }
+      }
 
       // add this into our dzBuffer
       for ( x = xlow; x < xhigh; x++ )
-        {
+      {
         dzBuffer[x] = dptr[x];
-        }
+      }
 
       // Find the pointer for the slice after - use this if there is
       // no slice after
       if ( z < z_limit-1 )
-        {
+      {
         dptr = dataPtr + (z+1) * zinc + y * yinc + xlow;
-        }
+      }
       else
-        {
+      {
         dptr = dataPtr + z * zinc + y * yinc + xlow;
-        }
+      }
 
       // add this into our dzBuffer
       for ( x = xlow; x < xhigh; x++ )
-        {
+      {
         dzBuffer[x] -= dptr[x];
-        }
+      }
 
       // now one more loop to generate the normals
       for ( x = xlow; x < xhigh; x++ )
-        {
+      {
         n[0] = dxBuffer[x];
         n[1] = dyBuffer[x];
         n[2] = dzBuffer[x];
@@ -262,39 +262,39 @@ void vtkFixedPointVolumeRayCastMapperComputeCS1CGradients( T *dataPtr,
 
         // Normalize the gradient direction
         if ( t > 0.0 )
-          {
+        {
           n[0] /= t;
           n[1] /= t;
           n[2] /= t;
-          }
+        }
         else
-          {
+        {
           n[0] = n[1] = n[2] = 0.0;
-          }
+        }
 
         *(magPtr++) = static_cast<unsigned char>(gvalue + 0.5);
         *(dirPtr++) = directionEncoder->GetEncodedDirection( n );
-        }
       }
+    }
 
     if ( (z/thread_count)%8 == 7 && thread_id == 0)
-      {
+    {
       double args[1];
       args[0] =
         static_cast<float>(z - z_start) /
         static_cast<float>(z_limit - z_start - 1);
       me->InvokeEvent( vtkCommand::VolumeMapperComputeGradientsProgressEvent, args );
-      }
     }
+  }
 
   delete[] dxBuffer;
   delete[] dyBuffer;
   delete[] dzBuffer;
 
   if ( thread_id == 0 )
-    {
+  {
     me->InvokeEvent( vtkCommand::VolumeMapperComputeGradientsEndEvent, NULL );
-    }
+  }
 
 }
 
@@ -324,7 +324,7 @@ VTK_THREAD_RETURN_TYPE vtkFPVRCMSwitchOnDataType( void *arg )
   mapper->GetCurrentScalars()->GetRange(scalarRange, 0);
 
   if ( scalarType == VTK_UNSIGNED_CHAR )
-    {
+  {
     vtkFixedPointVolumeRayCastMapperComputeCS1CGradients(
       (unsigned char *)(dataPtr), dim, spacing, scalarRange,
       mapper->GradientNormal,
@@ -332,9 +332,9 @@ VTK_THREAD_RETURN_TYPE vtkFPVRCMSwitchOnDataType( void *arg )
       mapper->DirectionEncoder,
       thread_id, thread_count,
       mapper);
-    }
+  }
   else if ( scalarType == VTK_UNSIGNED_SHORT )
-    {
+  {
     vtkFixedPointVolumeRayCastMapperComputeCS1CGradients(
       (unsigned short *)(dataPtr), dim, spacing, scalarRange,
       mapper->GradientNormal,
@@ -342,9 +342,9 @@ VTK_THREAD_RETURN_TYPE vtkFPVRCMSwitchOnDataType( void *arg )
       mapper->DirectionEncoder,
       thread_id, thread_count,
       mapper);
-    }
+  }
   else if ( scalarType == VTK_CHAR )
-    {
+  {
     vtkFixedPointVolumeRayCastMapperComputeCS1CGradients(
       (char *)(dataPtr), dim, spacing, scalarRange,
       mapper->GradientNormal,
@@ -352,9 +352,9 @@ VTK_THREAD_RETURN_TYPE vtkFPVRCMSwitchOnDataType( void *arg )
       mapper->DirectionEncoder,
       thread_id, thread_count,
       mapper);
-    }
+  }
   else if ( scalarType == VTK_SHORT )
-    {
+  {
     vtkFixedPointVolumeRayCastMapperComputeCS1CGradients(
       (short *)(dataPtr), dim, spacing, scalarRange,
       mapper->GradientNormal,
@@ -362,7 +362,7 @@ VTK_THREAD_RETURN_TYPE vtkFPVRCMSwitchOnDataType( void *arg )
       mapper->DirectionEncoder,
       thread_id, thread_count,
       mapper);
-    }
+  }
 
   return VTK_THREAD_RETURN_VALUE;
 }
@@ -395,13 +395,7 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
   unsigned short      *dirPtr, *cdirPtr;
   unsigned char       *magPtr, *cmagPtr;
 
-  int thread_id = 0;
-  int thread_count = 1;
-
-  if ( thread_id == 0 )
-    {
-    me->InvokeEvent( vtkCommand::VolumeMapperComputeGradientsStartEvent, NULL );
-    }
+  me->InvokeEvent( vtkCommand::VolumeMapperComputeGradientsStartEvent, NULL );
 
   double avgSpacing = (spacing[0]+spacing[1]+spacing[2])/3.0;
 
@@ -420,39 +414,37 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
   zstep = components*zinc;
 
   if ( !independent )
-    {
+  {
     if ( scalarRange[components-1][1] - scalarRange[components-1][0] )
-      {
-      scale[0] = 255.0 / (0.25*(scalarRange[components-1][1] - scalarRange[components-1][0]));
-      }
-    else
-      {
-      scale[0] = 0.0;
-      }
-    }
-  else
     {
+      scale[0] = 255.0 / (0.25*(scalarRange[components-1][1] - scalarRange[components-1][0]));
+    }
+    else
+    {
+      scale[0] = 0.0;
+    }
+  }
+  else
+  {
     for (c = 0; c < components; c++ )
-      {
+    {
       if ( scalarRange[c][1] - scalarRange[c][0] )
-        {
+      {
         scale[c] = 255.0 / (0.25*(scalarRange[c][1] - scalarRange[c][0]));
-        }
+      }
       else
-        {
+      {
         scale[c] = 1.0;
-        }
       }
     }
+  }
 
   x_start = 0;
   x_limit = dim[0];
   y_start = 0;
   y_limit = dim[1];
-  z_start = (int)(( (float)thread_id / (float)thread_count ) *
-                  dim[2] );
-  z_limit = (int)(( (float)(thread_id + 1) / (float)thread_count ) *
-                  dim[2] );
+  z_start = 0;
+  z_limit = dim[2];
 
   // Do final error checking on limits - make sure they are all within bounds
   // of the scalar input
@@ -470,19 +462,19 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
 
   float tolerance[4];
   for ( c = 0; c < components; c++ )
-    {
+  {
     tolerance[c] = .00001 * (scalarRange[c][1] - scalarRange[c][0]);
-    }
+  }
 
   // Loop through all the data and compute the encoded normal and
   // gradient magnitude for each scalar location
   for ( z = z_start; z < z_limit; z++ )
-    {
+  {
     unsigned short *gradientDirPtr = gradientNormal[z];
     unsigned char *gradientMagPtr = gradientMagnitude[z];
 
     for ( y = y_start; y < y_limit; y++ )
-      {
+    {
       xlow = x_start;
       xhigh = x_limit;
 
@@ -492,9 +484,9 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
       magPtr  = gradientMagPtr    + (y * yinc + xlow)*increment;
 
       for ( x = xlow; x < xhigh; x++ )
-        {
+      {
         for ( c = 0; ( independent && c < components ) || c == 0; c++ )
-          {
+        {
           cdptr   = dptr   + ((independent)?(c):(components-1));
           cdirPtr = dirPtr + ((independent)?(c):(0));
           cmagPtr = magPtr + ((independent)?(c):(0));
@@ -503,51 +495,51 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
           // 1, 2, and 3 units.
           int foundGradient = 0;
           for ( int d = 1; d <= 3 && !foundGradient; d++ )
-            {
+          {
             // Use a central difference method if possible,
             // otherwise use a forward or backward difference if
             // we are on the edge
             // Compute the X component
             if ( x < d )
-              {
+            {
               n[0] = 2.0*((float)*(cdptr) - (float)*(cdptr+d*xstep));
-              }
+            }
             else if ( x >= dim[0] - d )
-              {
+            {
               n[0] = 2.0*((float)*(cdptr-d*xstep) - (float)*(cdptr));
-              }
+            }
             else
-              {
+            {
             n[0] = (float)*(cdptr-d*xstep) - (float)*(cdptr+d*xstep);
-              }
+            }
 
             // Compute the Y component
             if ( y < d )
-              {
+            {
               n[1] = 2.0*((float)*(cdptr) - (float)*(cdptr+d*ystep));
-              }
+            }
             else if ( y >= dim[1] - d )
-              {
+            {
               n[1] = 2.0*((float)*(cdptr-d*ystep) - (float)*(cdptr));
-              }
+            }
             else
-              {
+            {
               n[1] = (float)*(cdptr-d*ystep) - (float)*(cdptr+d*ystep);
-              }
+            }
 
             // Compute the Z component
             if ( z < d )
-              {
+            {
               n[2] = 2.0*((float)*(cdptr) - (float)*(cdptr+d*zstep));
-              }
+            }
             else if ( z >= dim[2] - d )
-              {
+            {
               n[2] = 2.0*((float)*(cdptr-d*zstep) - (float)*(cdptr));
-              }
+            }
             else
-              {
+            {
               n[2] = (float)*(cdptr-d*zstep) - (float)*(cdptr+d*zstep);
-              }
+            }
 
             // Take care of the aspect ratio of the data
             // Scaling in the vtkVolume is isotropic, so this is the
@@ -566,23 +558,23 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
             gvalue = t * scale[c];
 
             if ( d > 1 )
-              {
+            {
               gvalue = 0;
-              }
+            }
 
             gvalue = (gvalue<0.0)?(0.0):(gvalue);
             gvalue = (gvalue>255.0)?(255.0):(gvalue);
 
             // Normalize the gradient direction
             if ( t > tolerance[c] )
-              {
+            {
               n[0] /= t;
               n[1] /= t;
               n[2] /= t;
               foundGradient = 1;
-              }
+            }
             else
-              {
+            {
               n[0] = n[1] = n[2] = 0.0;
             }
           }
@@ -590,27 +582,24 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
 
           *cmagPtr = static_cast<unsigned char>(gvalue + 0.5);
           *cdirPtr = directionEncoder->GetEncodedDirection( n );
-          }
+        }
 
         dptr    +=   components;
         dirPtr  +=   increment;
         magPtr  +=   increment;
-        }
       }
-    if ( (z/thread_count)%8 == 7 )
-      {
+    }
+    if ( z%8 == 7 )
+    {
       double args[1];
       args[0] =
         static_cast<float>(z - z_start) /
         static_cast<float>(z_limit - z_start - 1);
       me->InvokeEvent( vtkCommand::VolumeMapperComputeGradientsProgressEvent, args );
-      }
     }
+  }
 
-  if ( thread_id == 0 )
-    {
-    me->InvokeEvent( vtkCommand::VolumeMapperComputeGradientsEndEvent, NULL );
-    }
+  me->InvokeEvent( vtkCommand::VolumeMapperComputeGradientsEndEvent, NULL );
 }
 
 //----------------------------------------------------------------------------
@@ -668,7 +657,7 @@ vtkFixedPointVolumeRayCastMapper::vtkFixedPointVolumeRayCastMapper()
 
   int i;
   for ( i = 0; i < 4; i++ )
-    {
+  {
     this->SavedRGBFunction[i]             = NULL;
     this->SavedGrayFunction[i]            = NULL;
     this->SavedScalarOpacityFunction[i]   = NULL;
@@ -676,7 +665,7 @@ vtkFixedPointVolumeRayCastMapper::vtkFixedPointVolumeRayCastMapper()
     this->SavedColorChannels[i]           = 0;
     this->SavedScalarOpacityDistance[i]   = 0;
     this->TableSize[i]                    = 0;
-    }
+  }
 
   this->SavedSampleDistance          = 0;
   this->SavedBlendMode               = -1;
@@ -701,9 +690,9 @@ vtkFixedPointVolumeRayCastMapper::vtkFixedPointVolumeRayCastMapper()
 
   this->CroppingRegionMask[0] = 1;
   for ( i = 1; i < 27; i++ )
-    {
+  {
     this->CroppingRegionMask[i] = this->CroppingRegionMask[i-1]*2;
-    }
+  }
 
   this->NumTransformedClippingPlanes = 0;
   this->TransformedClippingPlanes    = NULL;
@@ -783,10 +772,10 @@ vtkFixedPointVolumeRayCastMapper::~vtkFixedPointVolumeRayCastMapper()
   this->CompositeGOShadeHelper->Delete();
 
   if ( this->RayCastImage )
-    {
+  {
     this->RayCastImage->Delete();
     this->RayCastImage = NULL;
-    }
+  }
 
   delete [] this->RenderTimeTable;
   delete [] this->RenderVolumeTable;
@@ -797,42 +786,42 @@ vtkFixedPointVolumeRayCastMapper::~vtkFixedPointVolumeRayCastMapper()
 
   int i;
   if ( this->GradientNormal )
-    {
+  {
     // Contiguous? Delete in one chunk otherwise delete slice by slice
     if ( this->ContiguousGradientNormal )
-      {
+    {
       delete [] this->ContiguousGradientNormal;
       this->ContiguousGradientNormal = NULL;
-      }
+    }
     else
-      {
+    {
       for ( i = 0; i < this->NumberOfGradientSlices; i++ )
-        {
+      {
         delete [] this->GradientNormal[i];
-        }
       }
+    }
     delete [] this->GradientNormal;
     this->GradientNormal = NULL;
-    }
+  }
 
   if ( this->GradientMagnitude )
-    {
+  {
     // Contiguous? Delete in one chunk otherwise delete slice by slice
     if ( this->ContiguousGradientMagnitude )
-      {
+    {
       delete [] this->ContiguousGradientMagnitude;
       this->ContiguousGradientMagnitude = NULL;
-      }
+    }
     else
-      {
+    {
       for ( i = 0; i < this->NumberOfGradientSlices; i++ )
-        {
+      {
         delete [] this->GradientMagnitude[i];
-        }
       }
+    }
     delete [] this->GradientMagnitude;
     this->GradientMagnitude = NULL;
-    }
+  }
 
   this->DirectionEncoder->Delete();
   this->GradientShader->Delete();
@@ -860,29 +849,29 @@ float vtkFixedPointVolumeRayCastMapper::ComputeRequiredImageSampleDistance( floa
   float oldTime;
 
   if ( vol )
-    {
+  {
     oldTime = this->RetrieveRenderTime( ren, vol );
-    }
+  }
   else
-    {
+  {
     oldTime = this->RetrieveRenderTime( ren );
-    }
+  }
 
   float newTime = desiredTime;
 
   if ( oldTime == 0.0 )
-    {
+  {
     if ( newTime > 10 )
-      {
-      result = this->MinimumImageSampleDistance;
-      }
-    else
-      {
-      result = this->MaximumImageSampleDistance / 2.0;
-      }
-    }
-  else
     {
+      result = this->MinimumImageSampleDistance;
+    }
+    else
+    {
+      result = this->MaximumImageSampleDistance / 2.0;
+    }
+  }
+  else
+  {
     oldTime /= (this->ImageSampleDistance * this->ImageSampleDistance);
     result = this->ImageSampleDistance * sqrt(oldTime / newTime);
     result = (result > this->MaximumImageSampleDistance)?
@@ -890,7 +879,7 @@ float vtkFixedPointVolumeRayCastMapper::ComputeRequiredImageSampleDistance( floa
     result =
       (result<this->MinimumImageSampleDistance)?
       (this->MinimumImageSampleDistance):(result);
-    }
+  }
 
   return result;
 }
@@ -901,13 +890,13 @@ float vtkFixedPointVolumeRayCastMapper::RetrieveRenderTime( vtkRenderer *ren,
   int i;
 
   for ( i = 0; i < this->RenderTableEntries; i++ )
-    {
+  {
     if ( this->RenderVolumeTable[i] == vol &&
          this->RenderRendererTable[i] == ren )
-      {
+    {
       return this->RenderTimeTable[i];
-      }
     }
+  }
 
   return 0.0;
 }
@@ -917,12 +906,12 @@ float vtkFixedPointVolumeRayCastMapper::RetrieveRenderTime( vtkRenderer *ren )
   int i;
 
   for ( i = 0; i < this->RenderTableEntries; i++ )
-    {
+  {
     if ( this->RenderRendererTable[i] == ren )
-      {
+    {
       return this->RenderTimeTable[i];
-      }
     }
+  }
 
   return 0.0;
 }
@@ -933,27 +922,27 @@ void vtkFixedPointVolumeRayCastMapper::StoreRenderTime( vtkRenderer *ren,
 {
   int i;
   for ( i = 0; i < this->RenderTableEntries; i++ )
-    {
+  {
     if ( this->RenderVolumeTable[i] == vol &&
          this->RenderRendererTable[i] == ren )
-      {
+    {
       this->RenderTimeTable[i] = time;
       return;
-      }
     }
+  }
 
 
   // Need to increase size
   if ( this->RenderTableEntries >= this->RenderTableSize )
-    {
+  {
     if ( this->RenderTableSize == 0 )
-      {
+    {
       this->RenderTableSize = 10;
-      }
+    }
     else
-      {
+    {
       this->RenderTableSize *= 2;
-      }
+    }
 
     float        *oldTimePtr     = this->RenderTimeTable;
     vtkVolume   **oldVolumePtr   = this->RenderVolumeTable;
@@ -964,16 +953,16 @@ void vtkFixedPointVolumeRayCastMapper::StoreRenderTime( vtkRenderer *ren,
     this->RenderRendererTable = new vtkRenderer *[this->RenderTableSize];
 
     for (i = 0; i < this->RenderTableEntries; i++ )
-      {
+    {
       this->RenderTimeTable[i] = oldTimePtr[i];
       this->RenderVolumeTable[i] = oldVolumePtr[i];
       this->RenderRendererTable[i] = oldRendererPtr[i];
-      }
+    }
 
     delete [] oldTimePtr;
     delete [] oldVolumePtr;
     delete [] oldRendererPtr;
-    }
+  }
 
   this->RenderTimeTable[this->RenderTableEntries] = time;
   this->RenderVolumeTable[this->RenderTableEntries] = vol;
@@ -990,9 +979,9 @@ void vtkFixedPointVolumeRayCastMapper::SetNumberOfThreads( int num )
 int vtkFixedPointVolumeRayCastMapper::GetNumberOfThreads()
 {
   if (this->Threader)
-    {
+  {
     return this->Threader->GetNumberOfThreads();
-    }
+  }
   return 0;
 }
 
@@ -1020,18 +1009,18 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
   if ( input != this->SavedMinMaxInput ||
        input->GetMTime() > this->SpaceLeapFilter->GetLastMinMaxBuildTime() ||
        this->CurrentScalars != this->PreviousScalars )
-    {
+  {
     needToUpdate |= 0x03;
-    }
+  }
 
   // Do the gradient magnitudes need to be filled in?
   if ( this->GradientOpacityRequired && // done
        ( needToUpdate&0x02 ||  // done
          this->SavedGradientsMTime.GetMTime() >
          this->SpaceLeapFilter->GetLastMinMaxBuildTime() ) )
-    {
+  {
     needToUpdate |= 0x05;
-    }
+  }
 
   // Have the parameters changed which means the flags need
   // to be recomputed. Actually, we could be checking just
@@ -1042,14 +1031,14 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
   if ( !(needToUpdate&0x01) &&
        this->SavedParametersMTime.GetMTime() >
        this->SpaceLeapFilter->GetLastMinMaxFlagTime() )
-    {
+  {
     needToUpdate |= 0x01;
-    }
+  }
 
   if ( !needToUpdate )
-    {
+  {
     return;
-    }
+  }
 
 
   // Set the update flags, telling the filter what to update...
@@ -1066,12 +1055,12 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
   this->SpaceLeapFilter->SetTableShift(this->TableShift);
   this->SpaceLeapFilter->SetTableScale(this->TableScale);
   for (unsigned int compIdx = 0; compIdx < 4; ++compIdx)
-    {
+  {
     this->SpaceLeapFilter->SetScalarOpacityTable(
           compIdx, this->ScalarOpacityTable[compIdx]);
     this->SpaceLeapFilter->SetGradientOpacityTable(
           compIdx, this->GradientOpacityTable[compIdx]);
-    }
+  }
   this->SpaceLeapFilter->SetCache(this->MinMaxVolumeCache);
   this->SpaceLeapFilter->Update();
   this->MinMaxVolume =
@@ -1092,9 +1081,9 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
 
 
   if ( needToUpdate&0x02 )
-    {
+  {
     this->SavedMinMaxInput = input;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1104,10 +1093,10 @@ void vtkFixedPointVolumeRayCastMapper::UpdateCroppingRegions()
 
   int i;
   for ( i = 0; i < 6; i++ )
-    {
+  {
     this->FixedPointCroppingRegionPlanes[i] =
       this->ToFixedPointPosition( this->VoxelCroppingRegionPlanes[i] );
-    }
+  }
 
 }
 
@@ -1148,17 +1137,17 @@ int vtkFixedPointVolumeRayCastMapper::PerImageInitialization( vtkRenderer *ren,
   // the adjusted image sample distance be less than the minimum image sample
   // distance or more than the maximum image sample distance.
   if ( this->AutoAdjustSampleDistances )
-    {
+  {
     this->ImageSampleDistance =
       this->ComputeRequiredImageSampleDistance( vol->GetAllocatedRenderTime(), ren, vol );
 
     // If this is an interactive render (faster than 1 frame per second) then we'll
     // increase the sample distance along the ray to improve performance
     if ( vol->GetAllocatedRenderTime() < 1.0 )
-      {
+    {
       this->SampleDistance = this->InteractiveSampleDistance;
-      }
     }
+  }
 
   // Pass the ImageSampleDistance on the RayCastImage
   this->RayCastImage->SetImageSampleDistance( this->ImageSampleDistance );
@@ -1173,7 +1162,7 @@ int vtkFixedPointVolumeRayCastMapper::PerImageInitialization( vtkRenderer *ren,
     static_cast<int>(height/this->ImageSampleDistance) );
 
   if ( multiRender )
-    {
+  {
     this->UpdateCroppingRegions();
     this->ComputeMatrices( inputOrigin,
                            inputSpacing,
@@ -1181,10 +1170,10 @@ int vtkFixedPointVolumeRayCastMapper::PerImageInitialization( vtkRenderer *ren,
                            ren, vol );
 
     if ( !this->ComputeRowBounds( ren, 1, 0, inputExtent )  )
-      {
+    {
       return 0;
-      }
     }
+  }
 
   return 1;
 }
@@ -1199,15 +1188,15 @@ void vtkFixedPointVolumeRayCastMapper::PerVolumeInitialization( vtkRenderer *ren
 
   // make sure that we have scalar input and update the scalar input
   if ( input == NULL )
-    {
+  {
     vtkErrorMacro(<< "No Input!");
     return;
-    }
+  }
   else
-    {
+  {
     vtkAlgorithm* inAlg = this->GetInputAlgorithm();
     inAlg->UpdateWholeExtent();
-    }
+  }
 
   int usingCellColors;
   this->CurrentScalars =
@@ -1218,10 +1207,10 @@ void vtkFixedPointVolumeRayCastMapper::PerVolumeInitialization( vtkRenderer *ren
                       usingCellColors );
 
   if ( usingCellColors )
-    {
+  {
     vtkErrorMacro("Cell Scalars not supported");
     return;
-    }
+  }
 
   // Compute some matrices from voxels to view and vice versa based
   // on the whole input
@@ -1242,43 +1231,32 @@ void vtkFixedPointVolumeRayCastMapper::PerVolumeInitialization( vtkRenderer *ren
 
   // Adjust the sample spacing if necessary
   if ( this->LockSampleDistanceToInputSpacing )
-    {
-    // compute 1/2 the average spacing
-    double dist =
-      (inputSpacing[0] + inputSpacing[1] + inputSpacing[2])/6.0;
-    double avgNumVoxels =
-      pow(static_cast<double>((inputExtent[1] - inputExtent[0]) *
-                              (inputExtent[3] - inputExtent[2]) *
-                              (inputExtent[5] - inputExtent[4])),
-          static_cast<double>(0.333));
-
-    if (avgNumVoxels < 100)
-      {
-      dist *= 0.01 + (1 - 0.01) * avgNumVoxels / 100;
-      }
+  {
+    double const dist = this->SpacingAdjustedSampleDistance(inputSpacing,
+      inputExtent);
 
     // Need to treat interactive renders differently, because if
     // AutoAdjustSampleDistances is on, then we doubled the sample
     // distance
     if ( this->AutoAdjustSampleDistances &&
          vol->GetAllocatedRenderTime() < 1.0 )
-      {
+    {
       if ( this->SampleDistance / (dist*2) < 0.999 ||
            this->SampleDistance / (dist*2) > 1.001)
-        {
+      {
         this->OldSampleDistance         = dist;
         this->SampleDistance            = dist*2;
         this->InteractiveSampleDistance = dist*2;
-        }
       }
+    }
     else if ( this->SampleDistance / dist < 0.999 ||
               this->SampleDistance / dist > 1.001 )
-      {
+    {
       this->OldSampleDistance         = dist;
       this->SampleDistance            = dist;
       this->InteractiveSampleDistance = dist*2;
-      }
     }
+  }
 
   this->UpdateColorTable( vol );
   this->UpdateGradients( vol );
@@ -1309,17 +1287,17 @@ void vtkFixedPointVolumeRayCastMapper::PerSubVolumeInitialization( vtkRenderer *
   // a 1 for that flag
   int imageFlag = (multiRender)?(0):(1);
   if ( !this->ComputeRowBounds( ren, imageFlag, 1, inputExtent )  )
-    {
+  {
     this->AbortRender();
     return;
-    }
+  }
 
   // If this is part of a multiRender, then we've already captured the z buffer,
   // otherwise we need to do it here
   if ( !multiRender )
-    {
+  {
     this->CaptureZBuffer( ren );
-    }
+  }
 
   this->InitializeRayInfo( vol );
 }
@@ -1342,20 +1320,20 @@ void vtkFixedPointVolumeRayCastMapper::DisplayRenderedImage( vtkRenderer *ren,
 {
   float depth;
   if ( this->IntermixIntersectingGeometry )
-    {
+  {
     depth = this->MinimumViewDistance;
-    }
+  }
   else
-    {
+  {
     depth = -1;
-    }
+  }
 
 
   if( this->FinalColorWindow != 1.0 ||
       this->FinalColorLevel != 0.5 )
-    {
+  {
     this->ApplyFinalColorWindowLevel();
-    }
+  }
 
   this->ImageDisplayHelper->
     RenderTexture( vol, ren,
@@ -1380,10 +1358,10 @@ void vtkFixedPointVolumeRayCastMapper::ApplyFinalColorWindowLevel()
   int i, j;
 
   for ( j = 0; j < fullSize[1]; j++ )
-    {
+  {
     iptr = image + 4*j*fullSize[0];
     for ( i = 0; i < size[0]; i++ )
-      {
+    {
       int tmp;
 
       // Red component
@@ -1409,8 +1387,8 @@ void vtkFixedPointVolumeRayCastMapper::ApplyFinalColorWindowLevel()
       // alpha - do nothing
       iptr++;
       iptr++;
-      }
     }
+  }
 }
 
 // This method should be called when the render is aborted to restore previous values.
@@ -1435,7 +1413,7 @@ void vtkFixedPointVolumeRayCastMapper::CaptureZBuffer( vtkRenderer *ren )
   // geometry? If so, do it here
   if ( this->IntermixIntersectingGeometry &&
        ren->GetNumberOfPropsRendered() )
-    {
+  {
     int x1, x2, y1, y2;
 
     // turn ImageOrigin into (x1,y1) in window (not viewport!)
@@ -1480,11 +1458,11 @@ void vtkFixedPointVolumeRayCastMapper::CaptureZBuffer( vtkRenderer *ren )
                                             this->RayCastImage->GetZBuffer() );
 
     this->RayCastImage->UseZBufferOn();
-    }
+  }
   else
-    {
+  {
     this->RayCastImage->UseZBufferOff();
-    }
+  }
 }
 
 
@@ -1497,6 +1475,20 @@ void vtkFixedPointVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol 
 //                    << " is  > 1. This class does not produce repeatable results when the number of threads exceeds 1.");
 //    this->ThreadWarning = false;
 //    }
+
+
+  if(this->GetBlendMode()!=vtkVolumeMapper::COMPOSITE_BLEND &&
+     this->GetBlendMode()!=vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND &&
+     this->GetBlendMode()!=vtkVolumeMapper::MINIMUM_INTENSITY_BLEND &&
+     this->GetBlendMode()!=vtkVolumeMapper::AVERAGE_INTENSITY_BLEND &&
+     this->GetBlendMode()!=vtkVolumeMapper::ADDITIVE_BLEND)
+  {
+    vtkErrorMacro(<< "Selected blend mode not supported. "
+                  << "Only Composite, MIP, MinIP, averageIP and additive modes "
+                  << "are supported by the fixed point implementation.");
+    return;
+  }
+
   this->Timer->StartTimer();
 
   // Since we are passing in a value of 0 for the multiRender flag
@@ -1518,25 +1510,25 @@ void vtkFixedPointVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol 
   vtkRenderWindow *renWin=ren->GetRenderWindow();
 
   if ( renWin && renWin->CheckAbortStatus() )
-    {
+  {
     this->AbortRender();
     return;
-    }
+  }
 
   this->PerSubVolumeInitialization( ren, vol, 0 );
   if ( renWin && renWin->CheckAbortStatus() )
-    {
+  {
     this->AbortRender();
     return;
-    }
+  }
 
   this->RenderSubVolume();
 
   if ( renWin && renWin->CheckAbortStatus() )
-    {
+  {
     this->AbortRender();
     return;
-    }
+  }
 
   this->DisplayRenderedImage( ren, vol );
 
@@ -1564,43 +1556,43 @@ VTK_THREAD_RETURN_TYPE FixedPointVolumeRayCastMapper_CastRays( void *arg )
   vtkFixedPointVolumeRayCastMapper *me = (vtkFixedPointVolumeRayCastMapper *)(((vtkMultiThreader::ThreadInfo *)arg)->UserData);
 
   if ( !me )
-    {
+  {
     vtkGenericWarningMacro("Irrecoverable error: no mapper specified");
     return VTK_THREAD_RETURN_VALUE;
-    }
+  }
 
   vtkVolume *vol = me->GetVolume();
 
   if ( me->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND ||
        me->GetBlendMode() == vtkVolumeMapper::MINIMUM_INTENSITY_BLEND )
-    {
+  {
     me->GetMIPHelper()->GenerateImage( threadID, threadCount, vol, me );
-    }
+  }
   else
-    {
+  {
     if ( me->GetShadingRequired() == 0 )
-      {
+    {
       if ( me->GetGradientOpacityRequired() == 0 )
-        {
+      {
         me->GetCompositeHelper()->GenerateImage( threadID, threadCount, vol, me );
-        }
-      else
-        {
-        me->GetCompositeGOHelper()->GenerateImage( threadID, threadCount, vol, me );
-        }
       }
-    else
-      {
-      if ( me->GetGradientOpacityRequired() == 0 )
-        {
-        me->GetCompositeShadeHelper()->GenerateImage( threadID, threadCount, vol, me );
-        }
       else
-        {
-        me->GetCompositeGOShadeHelper()->GenerateImage( threadID, threadCount, vol, me );
-        }
+      {
+        me->GetCompositeGOHelper()->GenerateImage( threadID, threadCount, vol, me );
       }
     }
+    else
+    {
+      if ( me->GetGradientOpacityRequired() == 0 )
+      {
+        me->GetCompositeShadeHelper()->GenerateImage( threadID, threadCount, vol, me );
+      }
+      else
+      {
+        me->GetCompositeGOShadeHelper()->GenerateImage( threadID, threadCount, vol, me );
+      }
+    }
+  }
 
   return VTK_THREAD_RETURN_VALUE;
 }
@@ -1697,25 +1689,25 @@ void vtkFixedPointVolumeRayCastMapper::CreateCanonicalView( vtkVolume *vol,
 
   int i, j;
   for ( j = 0; j < dim[1]; j++ )
-    {
+  {
     for ( i = 0; i < dim[0]; i++ )
-      {
+    {
       if ( j < origin[1] || (j-origin[1]) >= inUseSize[1] ||
            i < origin[0] || (i-origin[0]) >= inUseSize[0] )
-        {
+      {
         *(outPtr++) = 0;
         *(outPtr++) = 0;
         *(outPtr++) = 0;
-        }
+      }
       else
-        {
+      {
         unsigned short *tmp = inPtr + (j-origin[1])*memorySize[0]*4 + (i-origin[0])*4;
         *(outPtr++) = (*(tmp++))>>7;
         *(outPtr++) = (*(tmp++))>>7;
         *(outPtr++) = (*(tmp++))>>7;
-        }
       }
     }
+  }
 
   // Restore
 
@@ -1805,7 +1797,7 @@ void vtkFixedPointVolumeRayCastMapper::ComputeRayInfo( int x, int y, unsigned in
                                              rayEnd,
                                              this->NumTransformedClippingPlanes,
                                              this->TransformedClippingPlanes ) ) )
-    {
+  {
     double worldRayDirection[3];
     worldRayDirection[0] = rayDirection[0]*this->SavedSpacing[0];
     worldRayDirection[1] = rayDirection[1]*this->SavedSpacing[1];
@@ -1825,32 +1817,32 @@ void vtkFixedPointVolumeRayCastMapper::ComputeRayInfo( int x, int y, unsigned in
     int steps = -1;
 
     if ( diff[0] >= diff[1] && diff[0] >= diff[2] && rayDirection[0])
-      {
+    {
       steps = 1 + static_cast<int>( diff[0] /
                                     ((rayDirection[0]<0)?(-rayDirection[0]):(rayDirection[0])) );
-      }
+    }
 
     if ( diff[1] >= diff[0] && diff[1] >= diff[2] && rayDirection[1])
-      {
+    {
       steps = 1 + static_cast<int>( diff[1] /
                                     ((rayDirection[1]<0)?(-rayDirection[1]):(rayDirection[1])) );
-      }
+    }
 
     if ( diff[2] >= diff[0] && diff[2] >= diff[1] && rayDirection[2])
-      {
+    {
       steps = 1 + static_cast<int>( diff[2] /
                                     ((rayDirection[2]<0)?(-rayDirection[2]):(rayDirection[2])) );
-      }
+    }
 
     if ( steps > 0 )
-      {
+    {
       rayStart[0] = originalRayStart[0] + steps*rayDirection[0];
       rayStart[1] = originalRayStart[1] + steps*rayDirection[1];
       rayStart[2] = originalRayStart[2] + steps*rayDirection[2];
-      }
+    }
 
     if ( rayStart[0] > 0.0 && rayStart[1] > 0.0 && rayStart[2] > 0.0 )
-      {
+    {
       pos[0] = this->ToFixedPointPosition(rayStart[0]);
       pos[1] = this->ToFixedPointPosition(rayStart[1]);
       pos[2] = this->ToFixedPointPosition(rayStart[2]);
@@ -1862,85 +1854,85 @@ void vtkFixedPointVolumeRayCastMapper::ComputeRayInfo( int x, int y, unsigned in
       int stepsValid = 0;
       unsigned int currSteps;
       for ( stepLoop = 0; stepLoop < 3; stepLoop++ )
-        {
+      {
         if ( !( dir[stepLoop]&0x7fffffff ) )
-          {
+        {
           continue;
-          }
+        }
 
         unsigned int endVal = this->ToFixedPointPosition(rayEnd[stepLoop]);
 
         if ( dir[stepLoop]&0x80000000 )
-          {
+        {
           if ( endVal > pos[stepLoop] )
-            {
+          {
             currSteps = static_cast<unsigned int>(
               1 + (endVal - pos[stepLoop])/(dir[stepLoop]&0x7fffffff));
-            }
-          else
-            {
-            currSteps = 0;
-            }
           }
-        else
+          else
           {
-          if ( pos[stepLoop] > endVal )
-            {
-            currSteps = 1 + (pos[stepLoop]- endVal)/dir[stepLoop];
-            }
-          else
-            {
             currSteps = 0;
-            }
           }
+        }
+        else
+        {
+          if ( pos[stepLoop] > endVal )
+          {
+            currSteps = 1 + (pos[stepLoop]- endVal)/dir[stepLoop];
+          }
+          else
+          {
+            currSteps = 0;
+          }
+        }
 
         if ( !stepsValid || currSteps < *numSteps )
-          {
+        {
           *numSteps = currSteps;
           stepsValid = 1;
-          }
         }
       }
     }
+  }
 }
 
 void vtkFixedPointVolumeRayCastMapper::InitializeRayInfo( vtkVolume   *vol )
 {
   if ( !vol )
-    {
+  {
     return;
-    }
+  }
 
   // Copy the viewToVoxels matrix to 16 floats
   int i, j;
   for ( j = 0; j < 4; j++ )
-    {
+  {
     for ( i = 0; i < 4; i++ )
-      {
+    {
       this->ViewToVoxelsArray[j*4+i] =
         static_cast<float>(this->ViewToVoxelsMatrix->GetElement(j,i));
-      }
     }
+  }
 
   // Copy the worldToVoxels matrix to 16 floats
   for ( j = 0; j < 4; j++ )
-    {
+  {
     for ( i = 0; i < 4; i++ )
-      {
+    {
       this->WorldToVoxelsArray[j*4+i] =
         static_cast<float>(this->WorldToVoxelsMatrix->GetElement(j,i));
-      }
     }
+  }
 
   // Copy the voxelsToWorld matrix to 16 floats
   for ( j = 0; j < 4; j++ )
-    {
+  {
     for ( i = 0; i < 4; i++ )
-      {
+    {
       this->VoxelsToWorldArray[j*4+i] =
         static_cast<float>(this->VoxelsToWorldMatrix->GetElement(j,i));
-      }
     }
+  }
 
   int dim[3];
   this->GetInput()->GetDimensions(dim);
@@ -1959,13 +1951,13 @@ void vtkFixedPointVolumeRayCastMapper::InitializeRayInfo( vtkVolume   *vol )
 
   // Do we have any clipping planes
   if ( this->NumTransformedClippingPlanes > 0 )
-    {
+  {
     // Allocate some space to store the plane equations
     this->TransformedClippingPlanes = new float [4*this->NumTransformedClippingPlanes];
 
     // loop through all the clipping planes
     for ( i = 0; i < this->NumTransformedClippingPlanes; i++ )
-      {
+    {
       // Convert plane into voxel coordinate system
       double worldNormal[3], worldOrigin[3];
       double inputOrigin[4];
@@ -1983,28 +1975,28 @@ void vtkFixedPointVolumeRayCastMapper::InitializeRayInfo( vtkVolume   *vol )
                       planePtr[1]*planePtr[1] +
                       planePtr[2]*planePtr[2] );
       if ( t )
-        {
+      {
         planePtr[0] /= t;
         planePtr[1] /= t;
         planePtr[2] /= t;
-        }
+      }
 
       planePtr[3] = -(planePtr[0]*inputOrigin[0] +
                       planePtr[1]*inputOrigin[1] +
                       planePtr[2]*inputOrigin[2]);
-      }
     }
+  }
 
   // If we have a simple crop box then we can tighten the bounds
   if ( this->Cropping && this->CroppingRegionFlags == 0x2000 )
-    {
+  {
     this->CroppingBounds[0] = this->VoxelCroppingRegionPlanes[0];
     this->CroppingBounds[1] = this->VoxelCroppingRegionPlanes[1];
     this->CroppingBounds[2] = this->VoxelCroppingRegionPlanes[2];
     this->CroppingBounds[3] = this->VoxelCroppingRegionPlanes[3];
     this->CroppingBounds[4] = this->VoxelCroppingRegionPlanes[4];
     this->CroppingBounds[5] = this->VoxelCroppingRegionPlanes[5];
-    }
+  }
 
   this->CroppingBounds[0] = (this->CroppingBounds[0] < 0)?(0):(this->CroppingBounds[0]);
   this->CroppingBounds[0] = (this->CroppingBounds[0] > dim[0]-1)?(dim[0]-1):(this->CroppingBounds[0]);
@@ -2061,23 +2053,23 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkRenderer *ren,
   camPos[3] = 1.0;
   this->WorldToVoxelsMatrix->MultiplyPoint( camPos, camPos );
   if ( camPos[3] )
-    {
+  {
     camPos[0] /= camPos[3];
     camPos[1] /= camPos[3];
     camPos[2] /= camPos[3];
-    }
+  }
 
 
   // If we have a simple crop box then we can tighten the bounds
   if ( this->Cropping && this->CroppingRegionFlags == 0x2000 )
-    {
+  {
     bounds[0] = this->VoxelCroppingRegionPlanes[0];
     bounds[1] = this->VoxelCroppingRegionPlanes[1];
     bounds[2] = this->VoxelCroppingRegionPlanes[2];
     bounds[3] = this->VoxelCroppingRegionPlanes[3];
     bounds[4] = this->VoxelCroppingRegionPlanes[4];
     bounds[5] = this->VoxelCroppingRegionPlanes[5];
-    }
+  }
 
 
   if ( camPos[0] >= bounds[0] &&
@@ -2086,43 +2078,43 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkRenderer *ren,
        camPos[1] <= bounds[3] &&
        camPos[2] >= bounds[4] &&
        camPos[2] <= bounds[5] )
-    {
+  {
     insideFlag = 1;
-    }
+  }
 
   // Copy the voxelsToView matrix to 16 floats
   float voxelsToViewMatrix[16];
   for ( j = 0; j < 4; j++ )
-    {
+  {
     for ( i = 0; i < 4; i++ )
-      {
+    {
       voxelsToViewMatrix[j*4+i] =
         static_cast<float>(this->VoxelsToViewMatrix->GetElement(j,i));
-      }
     }
+  }
 
   // Convert the voxel bounds to view coordinates to find out the
   // size and location of the image we need to generate.
   int idx = 0;
   if ( insideFlag )
-    {
+  {
     minX = -1.0;
     maxX =  1.0;
     minY = -1.0;
     maxY =  1.0;
     minZ =  0.001;
     maxZ =  0.001;
-    }
+  }
   else
-    {
+  {
     for ( k = 0; k < 2; k++ )
-      {
+    {
       voxelPoint[2] = bounds[4+k];
       for ( j = 0; j < 2; j++ )
-        {
+      {
         voxelPoint[1] = bounds[2+j];
         for ( i = 0; i < 2; i++ )
-          {
+        {
           voxelPoint[0] = bounds[i];
           vtkVRCMultiplyPointMacro( voxelPoint, viewPoint[idx],
                                     voxelsToViewMatrix );
@@ -2134,19 +2126,19 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkRenderer *ren,
           minZ = (viewPoint[idx][2]<minZ)?(viewPoint[idx][2]):(minZ);
           maxZ = (viewPoint[idx][2]>maxZ)?(viewPoint[idx][2]):(maxZ);
           idx++;
-          }
         }
       }
     }
+  }
 
   if ( minZ < 0.001 || maxZ > 0.9999 )
-    {
+  {
     minX = -1.0;
     maxX =  1.0;
     minY = -1.0;
     maxY =  1.0;
     insideFlag = 1;
-    }
+  }
 
   this->MinimumViewDistance =
     (minZ<0.001)?(0.001):((minZ>0.999)?(0.999):(minZ));
@@ -2175,9 +2167,9 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkRenderer *ren,
          maxX > imageViewportSize[0]-1 ) ||
        ( minY > imageViewportSize[1]-1 &&
          maxY > imageViewportSize[1]-1 ) )
-    {
+  {
     return 0;
-    }
+  }
 
   int oldImageMemorySize[2];
   oldImageMemorySize[0] = imageMemorySize[0];
@@ -2200,13 +2192,13 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkRenderer *ren,
   imageMemorySize[0] = 32;
   imageMemorySize[1] = 32;
   while ( imageMemorySize[0] < imageInUseSize[0] )
-    {
+  {
     imageMemorySize[0] *= 2;
-    }
+  }
   while ( imageMemorySize[1] < imageInUseSize[1] )
-    {
+  {
     imageMemorySize[1] *= 2;
-    }
+  }
 
   imageOrigin[0] = static_cast<int>(minX);
   imageOrigin[1] = static_cast<int>(minY);
@@ -2216,22 +2208,22 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkRenderer *ren,
   // cause the image to be recreated
   if ( oldImageMemorySize[0] > 4*imageMemorySize[0] ||
        oldImageMemorySize[1] > 4*imageMemorySize[1] )
-    {
+  {
     oldImageMemorySize[0] = 0;
-    }
+  }
 
   // If the old image is big enough (but not too big - we handled
   // that above) then we'll bump up our required size to the
   // previous one. This will keep us from thrashing.
   if ( oldImageMemorySize[0] >= imageMemorySize[0] &&
        oldImageMemorySize[1] >= imageMemorySize[1] )
-    {
+  {
     imageMemorySize[0] = oldImageMemorySize[0];
     imageMemorySize[1] = oldImageMemorySize[1];
-    }
+  }
 
   if ( imageFlag )
-    {
+  {
     this->RayCastImage->SetImageOrigin( imageOrigin );
     this->RayCastImage->SetImageMemorySize( imageMemorySize );
     this->RayCastImage->SetImageInUseSize( imageInUseSize );
@@ -2240,7 +2232,7 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkRenderer *ren,
     // clear it.
     if ( imageMemorySize[0] > oldImageMemorySize[0] ||
          imageMemorySize[1] > oldImageMemorySize[1] )
-      {
+    {
       this->RayCastImage->AllocateImage();
       delete [] this->RowBounds;
       delete [] this->OldRowBounds;
@@ -2248,7 +2240,7 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkRenderer *ren,
       this->RayCastImage->ClearImage();
 
       if ( rowBoundsFlag )
-        {
+      {
         // Create the row bounds array. This will store the start / stop pixel
         // for each row. This helps eleminate work in areas outside the bounding
         // hexahedron since a bounding box is not very tight. We keep the old ones
@@ -2257,20 +2249,20 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkRenderer *ren,
         this->OldRowBounds = new int [2*imageMemorySize[1]];
 
         for ( i = 0; i < imageMemorySize[1]; i++ )
-          {
+        {
           this->RowBounds[i*2]      = imageMemorySize[0];
           this->RowBounds[i*2+1]    = -1;
           this->OldRowBounds[i*2]   = imageMemorySize[0];
           this->OldRowBounds[i*2+1] = -1;
-          }
         }
       }
     }
+  }
 
   if ( !rowBoundsFlag )
-    {
+  {
     return 1;
-    }
+  }
 
 
   // Swap the row bounds
@@ -2282,15 +2274,15 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkRenderer *ren,
   // If we are inside the volume our row bounds indicate every ray must be
   // cast - we don't need to intersect with the 12 lines
   if ( insideFlag )
-    {
+  {
     for ( j = 0; j < imageInUseSize[1]; j++ )
-      {
+    {
       this->RowBounds[j*2] = 0;
       this->RowBounds[j*2+1] = imageInUseSize[0] - 1;
-      }
     }
+  }
   else
-    {
+  {
     // create an array of lines where the y value of the first vertex is less
     // than or equal to the y value of the second vertex. There are 12 lines,
     // each containing x1, y1, x2, y2 values.
@@ -2302,7 +2294,7 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkRenderer *ren,
                             {0,4}, {1,5}, {2,6}, {3,7}};
 
     for ( i = 0; i < 12; i++ )
-      {
+    {
       x1 = (viewPoint[lineIndex[i][0]][0]+1.0) *
         0.5*imageViewportSize[0] - imageOrigin[0];
 
@@ -2316,32 +2308,32 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkRenderer *ren,
         0.5*imageViewportSize[1] - imageOrigin[1];
 
       if ( y1 < y2 )
-        {
+      {
         lines[i][0] = x1;
         lines[i][1] = y1;
         lines[i][2] = x2;
         lines[i][3] = y2;
-        }
+      }
       else
-        {
+      {
         lines[i][0] = x2;
         lines[i][1] = y2;
         lines[i][2] = x1;
         lines[i][3] = y1;
-        }
       }
+    }
 
     // Now for each row in the image, find out the start / stop pixel
     // If min > max, then no intersection occurred
     for ( j = 0; j < imageInUseSize[1]; j++ )
-      {
+    {
       this->RowBounds[j*2] = imageMemorySize[0];
       this->RowBounds[j*2+1] = -1;
       for ( i = 0; i < 12; i++ )
-        {
+      {
         if ( j >= lines[i][1] && j <= lines[i][3] &&
              ( lines[i][1] != lines[i][3] ) )
-          {
+        {
           x1 = lines[i][0] +
             (static_cast<float>(j) - lines[i][1])/(lines[i][3] - lines[i][1]) *
             (lines[i][2] - lines[i][0] );
@@ -2358,76 +2350,76 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkRenderer *ren,
             imageInUseSize[0]-1):(xhigh);
 
           if ( xlow < this->RowBounds[j*2] )
-            {
+          {
             this->RowBounds[j*2] = xlow;
-            }
+          }
           if ( xhigh > this->RowBounds[j*2+1] )
-            {
+          {
             this->RowBounds[j*2+1] = xhigh;
-            }
           }
         }
+      }
       // If they are the same this is either a point on the cube or
       // all lines were out of bounds (all on one side or the other)
       // It is safe to ignore the point (since the ray isn't likely
       // to travel through it enough to actually take a sample) and it
       // must be ignored in the case where all lines are out of range
       if ( this->RowBounds[j*2] == this->RowBounds[j*2+1] )
-        {
+      {
         this->RowBounds[j*2] = imageMemorySize[0];
         this->RowBounds[j*2+1] = -1;
-        }
       }
     }
+  }
 
   for ( j = imageInUseSize[1]; j < imageMemorySize[1]; j++ )
-    {
+  {
     this->RowBounds[j*2] = imageMemorySize[0];
     this->RowBounds[j*2+1] = -1;
-    }
+  }
 
   unsigned short *image = this->RayCastImage->GetImage();
 
   for ( j = 0; j < imageMemorySize[1]; j++ )
-    {
+  {
     if ( j%64 == 1 &&
          this->RenderWindow && this->RenderWindow->CheckAbortStatus() )
-      {
+    {
       return 0;
-      }
+    }
 
     // New bounds are not overlapping with old bounds - clear between
     // old bounds only
     if ( this->RowBounds[j*2+1] < this->OldRowBounds[j*2] ||
          this->RowBounds[j*2]   > this->OldRowBounds[j*2+1] )
-      {
+    {
       ucptr = image + 4*( j*imageMemorySize[0] +
                                 this->OldRowBounds[j*2] );
       for ( i = 0;
             i <= (this->OldRowBounds[j*2+1] - this->OldRowBounds[j*2]);
             i++ )
-        {
+      {
         *(ucptr++) = 0;
         *(ucptr++) = 0;
         *(ucptr++) = 0;
         *(ucptr++) = 0;
-        }
       }
+    }
     // New bounds do overlap with old bounds
     else
-      {
+    {
       // Clear from old min to new min
       ucptr = image + 4*( j*imageMemorySize[0] +
                           this->OldRowBounds[j*2] );
       for ( i = 0;
             i < (this->RowBounds[j*2] - this->OldRowBounds[j*2]);
             i++ )
-        {
+      {
         *(ucptr++) = 0;
         *(ucptr++) = 0;
         *(ucptr++) = 0;
         *(ucptr++) = 0;
-        }
+      }
 
       // Clear from new max to old max
       ucptr = image + 4*( j*imageMemorySize[0] +
@@ -2435,15 +2427,15 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkRenderer *ren,
       for ( i = 0;
             i < (this->OldRowBounds[j*2+1] - this->RowBounds[j*2+1]);
             i++ )
-        {
+      {
         *(ucptr++) = 0;
         *(ucptr++) = 0;
         *(ucptr++) = 0;
         *(ucptr++) = 0;
-        }
-
       }
+
     }
+  }
 
   return 1;
 }
@@ -2541,7 +2533,7 @@ int vtkFixedPointVolumeRayCastMapper::ClipRayAgainstClippingPlanes( float raySta
 
   // loop through all the clipping planes
   for ( i = 0; i < numClippingPlanes; i++ )
-    {
+  {
     planePtr = clippingPlanes + 4*i;
 
     dp =
@@ -2550,65 +2542,65 @@ int vtkFixedPointVolumeRayCastMapper::ClipRayAgainstClippingPlanes( float raySta
       planePtr[2]*rayDir[2];
 
     if ( dp != 0.0 )
-      {
+    {
       t =
         -( planePtr[0]*rayStart[0] +
            planePtr[1]*rayStart[1] +
            planePtr[2]*rayStart[2] + planePtr[3]) / dp;
 
       if ( t > 0.0 && t < 1.0 )
-        {
+      {
         point[0] = rayStart[0] + t*rayDir[0];
         point[1] = rayStart[1] + t*rayDir[1];
         point[2] = rayStart[2] + t*rayDir[2];
 
         if ( dp > 0.0 )
-          {
+        {
           rayStart[0] = point[0];
           rayStart[1] = point[1];
           rayStart[2] = point[2];
-          }
+        }
         else
-          {
+        {
           rayEnd[0] = point[0];
           rayEnd[1] = point[1];
           rayEnd[2] = point[2];
-          }
+        }
 
         rayDir[0] = rayEnd[0] - rayStart[0];
         rayDir[1] = rayEnd[1] - rayStart[1];
         rayDir[2] = rayEnd[2] - rayStart[2];
 
-        }
+      }
       // If the clipping plane is outside the ray segment, then
       // figure out if that means the ray segment goes to zero (if so
       // return 0) or doesn't affect it (if so do nothing)
       else
-        {
+      {
         if ( dp >= 0.0 && t >= 1.0 )
-          {
+        {
           return 0;
-          }
+        }
         if ( dp <= 0.0 && t <= 0.0 )
-          {
+        {
           return 0;
-          }
         }
       }
+    }
     else
-      {
+    {
       // rayDir is perpendicular to planePtr; i.e., the ray does not
       // intersect the plane. Determine which side of the plane the ray
       // is on.
       float side = planePtr[0]*rayStart[0] + planePtr[1]*rayStart[1] +
         planePtr[2]*rayStart[2] + planePtr[3];
       if (side < 0)
-        {
+      {
         // clip
         return 0;
-        }
       }
     }
+  }
 
   return 1;
 }
@@ -2629,40 +2621,40 @@ int vtkFixedPointVolumeRayCastMapper::ClipRayAgainstVolume( float rayStart[3],
        rayStart[0] < bounds[0] ||
        rayStart[1] < bounds[2] ||
        rayStart[2] < bounds[4] )
-    {
+  {
     for ( loop = 0; loop < 3; loop++ )
-      {
+    {
       diff = 0;
 
       if ( rayStart[loop] < (bounds[2*loop]+0.01) )
-        {
+      {
         diff = (bounds[2*loop]+0.01) - rayStart[loop];
-        }
+      }
       else if ( rayStart[loop] > (bounds[2*loop+1]-0.01) )
-        {
+      {
         diff = (bounds[2*loop+1]-0.01) - rayStart[loop];
-        }
+      }
 
       if ( diff )
-        {
+      {
         if ( rayDirection[loop] != 0.0 )
-          {
+        {
           t = diff / rayDirection[loop];
-          }
+        }
         else
-          {
+        {
           t = -1.0;
-          }
+        }
 
         if ( t > 0.0 )
-          {
+        {
           rayStart[0] += rayDirection[0] * t;
           rayStart[1] += rayDirection[1] * t;
           rayStart[2] += rayDirection[2] * t;
-          }
         }
       }
     }
+  }
 
   // If the voxel still isn't inside the volume, then this ray
   // doesn't really intersect the volume
@@ -2673,9 +2665,9 @@ int vtkFixedPointVolumeRayCastMapper::ClipRayAgainstVolume( float rayStart[3],
        rayStart[0] < bounds[0] ||
        rayStart[1] < bounds[2] ||
        rayStart[2] < bounds[4] )
-    {
+  {
     return 0;
-    }
+  }
 
   // The ray does intersect the volume, and we have a starting
   // position that is inside the volume
@@ -2685,40 +2677,40 @@ int vtkFixedPointVolumeRayCastMapper::ClipRayAgainstVolume( float rayStart[3],
        rayEnd[0] < bounds[0] ||
        rayEnd[1] < bounds[2] ||
        rayEnd[2] < bounds[4] )
-    {
+  {
     for ( loop = 0; loop < 3; loop++ )
-      {
+    {
       diff = 0;
 
       if ( rayEnd[loop] < (bounds[2*loop]+0.01) )
-        {
+      {
         diff = (bounds[2*loop]+0.01) - rayEnd[loop];
-        }
+      }
       else if ( rayEnd[loop] > (bounds[2*loop+1]-0.01) )
-        {
+      {
         diff = (bounds[2*loop+1]-0.01) - rayEnd[loop];
-        }
+      }
 
       if ( diff )
-        {
+      {
         if ( rayDirection[loop] != 0.0 )
-          {
+        {
           t = diff / rayDirection[loop];
-          }
+        }
         else
-          {
+        {
           t = 1.0;
-          }
+        }
 
         if ( t < 0.0 )
-          {
+        {
           rayEnd[0] += rayDirection[0] * t;
           rayEnd[1] += rayDirection[1] * t;
           rayEnd[2] += rayDirection[2] * t;
-          }
         }
       }
     }
+  }
 
   // To be absolutely certain our ray remains inside the volume,
   // recompute the ray direction (since it has changed - it is not
@@ -2743,16 +2735,16 @@ int vtkFixedPointVolumeRayCastMapper::ClipRayAgainstVolume( float rayStart[3],
        rayEnd[0] < bounds[0] ||
        rayEnd[1] < bounds[2] ||
        rayEnd[2] < bounds[4] )
-    {
+  {
       return 0;
-    }
+  }
 
   if ( (rayEnd[0]-rayStart[0])*rayDirection[0] < 0.0 ||
        (rayEnd[1]-rayStart[1])*rayDirection[1] < 0.0 ||
        (rayEnd[2]-rayStart[2])*rayDirection[2] < 0.0 )
-    {
+  {
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -2777,9 +2769,9 @@ void vtkFixedPointVolumeRayCastMapper::ComputeGradients( vtkVolume *vol )
  double scalarRange[4][2];
  int c;
  for ( c = 0; c < components; c++ )
-   {
+ {
    this->CurrentScalars->GetRange(scalarRange[c], c);
-   }
+ }
 
  vtkIdType sliceSize = (static_cast<vtkIdType>(dim[0])*
                         static_cast<vtkIdType>(dim[1])*
@@ -2790,43 +2782,43 @@ void vtkFixedPointVolumeRayCastMapper::ComputeGradients( vtkVolume *vol )
 
  // Delete the prior gradient normal information
  if ( this->GradientNormal )
-   {
+ {
    // Contiguous? Delete in one chunk otherwise delete slice by slice
    if ( this->ContiguousGradientNormal )
-     {
+   {
      delete [] this->ContiguousGradientNormal;
      this->ContiguousGradientNormal = NULL;
-     }
+   }
    else
-     {
+   {
      for ( i = 0; i < this->NumberOfGradientSlices; i++ )
-       {
+     {
        delete [] this->GradientNormal[i];
-       }
      }
+   }
    delete [] this->GradientNormal;
    this->GradientNormal = NULL;
-   }
+ }
 
  // Delete the prior gradient magnitude information
  if ( this->GradientMagnitude )
-   {
+ {
    // Contiguous? Delete in one chunk otherwise delete slice by slice
    if ( this->ContiguousGradientMagnitude )
-     {
+   {
      delete [] this->ContiguousGradientMagnitude;
      this->ContiguousGradientMagnitude = NULL;
-     }
+   }
    else
-     {
+   {
      for ( i = 0; i < this->NumberOfGradientSlices; i++ )
-       {
+     {
        delete [] this->GradientMagnitude[i];
-       }
      }
+   }
    delete [] this->GradientMagnitude;
    this->GradientMagnitude = NULL;
-   }
+ }
 
   this->NumberOfGradientSlices = numSlices;
   this->GradientNormal  = new unsigned short *[numSlices];
@@ -2837,57 +2829,57 @@ void vtkFixedPointVolumeRayCastMapper::ComputeGradients( vtkVolume *vol )
   // NOTE: Standard behavior is to catch std::bad_alloc, but it's
   // CMemoryException if hosted by MFC.
   try
-    {
+  {
     this->ContiguousGradientNormal = new unsigned short [numSlices * sliceSize];
-    }
+  }
   catch(...)
-    {
+  {
     this->ContiguousGradientNormal = NULL;
-    }
+  }
   try
-    {
+  {
     this->ContiguousGradientMagnitude = new unsigned char [numSlices * sliceSize];
-    }
+  }
   catch(...)
-    {
+  {
     this->ContiguousGradientMagnitude = NULL;
-    }
+  }
 
   if ( this->ContiguousGradientNormal )
-    {
+  {
     // We were able to allocate contiguous space - we just need to set the
     // slice pointers here
     for ( i = 0; i < numSlices; i++ )
-      {
-      this->GradientNormal[i]  = this->ContiguousGradientNormal + i*sliceSize;
-      }
-    }
-  else
     {
+      this->GradientNormal[i]  = this->ContiguousGradientNormal + i*sliceSize;
+    }
+  }
+  else
+  {
     // We were not able to allocate contigous space - allocate it slice by slice
     for ( i = 0; i < numSlices; i++ )
-      {
+    {
       this->GradientNormal[i]  = new unsigned short [sliceSize];
-      }
     }
+  }
 
   if ( this->ContiguousGradientMagnitude )
-    {
+  {
     // We were able to allocate contiguous space - we just need to set the
     // slice pointers here
     for ( i = 0; i < numSlices; i++ )
-      {
-      this->GradientMagnitude[i]  = this->ContiguousGradientMagnitude + i*sliceSize;
-      }
-    }
-  else
     {
+      this->GradientMagnitude[i]  = this->ContiguousGradientMagnitude + i*sliceSize;
+    }
+  }
+  else
+  {
     // We were not able to allocate contigous space - allocate it slice by slice
     for ( i = 0; i < numSlices; i++ )
-      {
+    {
       this->GradientMagnitude[i] = new unsigned char [sliceSize];
-      }
     }
+  }
 
   vtkTimerLog *timer = vtkTimerLog::New();
   timer->StartTimer();
@@ -2897,16 +2889,16 @@ void vtkFixedPointVolumeRayCastMapper::ComputeGradients( vtkVolume *vol )
         scalarType == VTK_CHAR ||
         scalarType == VTK_UNSIGNED_SHORT ||
         scalarType == VTK_SHORT ) )
-    {
+  {
       this->Threader->SetSingleMethod( vtkFPVRCMSwitchOnDataType,
                                        (vtkObject *)this );
       this->Threader->SingleMethodExecute();
-    }
+  }
 
   else
-    {
+  {
     switch ( scalarType )
-      {
+    {
       vtkTemplateMacro(
         vtkFixedPointVolumeRayCastMapperComputeGradients(
           (VTK_TT *)(dataPtr), dim, spacing, components,
@@ -2915,8 +2907,8 @@ void vtkFixedPointVolumeRayCastMapper::ComputeGradients( vtkVolume *vol )
           this->GradientMagnitude,
           this->DirectionEncoder,
           this) );
-      }
     }
+  }
 
   timer->StopTimer();
   //cout << "Gradients computed in " << timer->GetElapsedTime() << " seconds " << endl;
@@ -2927,16 +2919,16 @@ int vtkFixedPointVolumeRayCastMapper::UpdateShadingTable( vtkRenderer *ren,
                                                           vtkVolume *vol )
 {
   if ( this->ShadingRequired == 0 )
-    {
+  {
     return 0;
-    }
+  }
 
   // How many components?
   int components = this->CurrentScalars->GetNumberOfComponents();
 
   int c;
   for ( c = 0; c < ((vol->GetProperty()->GetIndependentComponents())?(components):(1)); c++ )
-    {
+  {
     this->GradientShader->SetActiveComponent( c );
     this->GradientShader->UpdateShadingTable( ren, vol, this->GradientEstimator );
 
@@ -2952,11 +2944,11 @@ int vtkFixedPointVolumeRayCastMapper::UpdateShadingTable( vtkRenderer *ren,
 
     int i;
     for ( i = 0; i < this->DirectionEncoder->GetNumberOfEncodedDirections(); i++ )
-      {
+    {
       *(tablePtr++) = static_cast<unsigned short>((*(rptr++))*VTKKW_FP_SCALE + 0.5);
       *(tablePtr++) = static_cast<unsigned short>((*(gptr++))*VTKKW_FP_SCALE + 0.5);
       *(tablePtr++) = static_cast<unsigned short>((*(bptr++))*VTKKW_FP_SCALE + 0.5);
-      }
+    }
 
     r = this->GradientShader->GetRedSpecularShadingTable(vol);
     g = this->GradientShader->GetGreenSpecularShadingTable(vol);
@@ -2970,12 +2962,12 @@ int vtkFixedPointVolumeRayCastMapper::UpdateShadingTable( vtkRenderer *ren,
 
 
     for ( i = 0; i < this->DirectionEncoder->GetNumberOfEncodedDirections(); i++ )
-      {
+    {
       *(tablePtr++) = static_cast<unsigned short>((*(rptr++))*VTKKW_FP_SCALE + 0.5);
       *(tablePtr++) = static_cast<unsigned short>((*(gptr++))*VTKKW_FP_SCALE + 0.5);
       *(tablePtr++) = static_cast<unsigned short>((*(bptr++))*VTKKW_FP_SCALE + 0.5);
-      }
     }
+  }
 
   return 1;
 }
@@ -2991,33 +2983,33 @@ int vtkFixedPointVolumeRayCastMapper::UpdateGradients( vtkVolume *vol )
   vtkImageData *input = this->GetInput();
 
   if ( vol->GetProperty()->GetShade() )
-    {
+  {
     needToUpdate = 1;
     this->ShadingRequired = 1;
-    }
+  }
 
   for ( int c = 0; c < this->CurrentScalars->GetNumberOfComponents(); c++ )
-    {
+  {
     vtkPiecewiseFunction *f = vol->GetProperty()->GetGradientOpacity(c);
     if ( strcmp(f->GetType(), "Constant") || f->GetValue(0.0) != 1.0 )
-      {
+    {
       needToUpdate = 1;
       this->GradientOpacityRequired = 1;
-      }
     }
+  }
 
   if ( !needToUpdate )
-    {
+  {
     return 0;
-    }
+  }
 
   // Check if the input has changed
   if ( input == this->SavedGradientsInput &&
        this->CurrentScalars == this->PreviousScalars &&
        input->GetMTime() < this->SavedGradientsMTime.GetMTime() )
-    {
+  {
     return 0;
-    }
+  }
 
   this->ComputeGradients( vol );
 
@@ -3039,34 +3031,34 @@ int vtkFixedPointVolumeRayCastMapper::UpdateColorTable( vtkVolume *vol )
   if ( input != this->SavedParametersInput ||
        this->CurrentScalars != this->PreviousScalars ||
        input->GetMTime() > this->SavedParametersMTime.GetMTime() )
-    {
+  {
     needToUpdate = 1;
-    }
+  }
 
   // What is the blending mode?
   int blendMode = this->GetBlendMode();
   if ( blendMode != this->SavedBlendMode )
-    {
+  {
     needToUpdate = 1;
 
     if ( this->GetBlendMode() == vtkVolumeMapper::MINIMUM_INTENSITY_BLEND )
-      {
+    {
       this->FlipMIPComparison = 1;
-      }
-    else
-      {
-      this->FlipMIPComparison = 0;
-      }
     }
+    else
+    {
+      this->FlipMIPComparison = 0;
+    }
+  }
 
   // How many components?
   int components = this->CurrentScalars->GetNumberOfComponents();
 
   // Has the sample distance changed?
   if ( this->SavedSampleDistance != this->SampleDistance )
-    {
+  {
     needToUpdate = 1;
-    }
+  }
 
   vtkColorTransferFunction *rgbFunc[4];
   vtkPiecewiseFunction     *grayFunc[4];
@@ -3078,87 +3070,87 @@ int vtkFixedPointVolumeRayCastMapper::UpdateColorTable( vtkVolume *vol )
   int c;
 
   for ( c = 0; c < ((vol->GetProperty()->GetIndependentComponents())?(components):(1)); c++ )
-    {
+  {
     colorChannels[c]         = vol->GetProperty()->GetColorChannels(c);
     if ( colorChannels[c] == 1 )
-      {
+    {
       rgbFunc[c]               = NULL;
       grayFunc[c]              = vol->GetProperty()->GetGrayTransferFunction(c);
-      }
+    }
     else
-      {
+    {
       rgbFunc[c]               = vol->GetProperty()->GetRGBTransferFunction(c);
       grayFunc[c]              = NULL;
-      }
+    }
     scalarOpacityFunc[c]     = vol->GetProperty()->GetScalarOpacity(c);
     gradientOpacityFunc[c]   = vol->GetProperty()->GetGradientOpacity(c);
     scalarOpacityDistance[c] = vol->GetProperty()->GetScalarOpacityUnitDistance(c);
 
     // Has the number of color channels changed?
     if ( this->SavedColorChannels[c] != colorChannels[c] )
-      {
+    {
       needToUpdate = 1;
-      }
+    }
 
     // Has the color transfer function changed in some way,
     // and we are using it?
     if ( colorChannels[c] == 3 )
-      {
+    {
       if ( this->SavedRGBFunction[c] != rgbFunc[c] ||
            this->SavedParametersMTime.GetMTime() < rgbFunc[c]->GetMTime() )
-        {
+      {
         needToUpdate = 1;
-        }
       }
+    }
 
     // Has the gray transfer function changed in some way,
     // and we are using it?
     if ( colorChannels[c] == 1 )
-      {
+    {
       if ( this->SavedGrayFunction[c] != grayFunc[c] ||
            this->SavedParametersMTime.GetMTime() < grayFunc[c]->GetMTime() )
-        {
+      {
         needToUpdate = 1;
-        }
       }
+    }
 
     // Has the scalar opacity transfer function changed in some way?
     if ( this->SavedScalarOpacityFunction[c] != scalarOpacityFunc[c] ||
          this->SavedParametersMTime.GetMTime() < scalarOpacityFunc[c]->GetMTime() )
-      {
+    {
       needToUpdate = 1;
-      }
+    }
 
     // Has the gradient opacity transfer function changed in some way?
     if ( this->SavedGradientOpacityFunction[c] != gradientOpacityFunc[c] ||
          this->SavedParametersMTime.GetMTime() < gradientOpacityFunc[c]->GetMTime() )
-      {
+    {
       needToUpdate = 1;
-      }
+    }
 
     // Has the distance over which the scalar opacity function is defined changed?
     if ( this->SavedScalarOpacityDistance[c] != scalarOpacityDistance[c] )
-      {
+    {
       needToUpdate = 1;
-      }
     }
+  }
 
   // If we have not found any need to update, return now
   if ( !needToUpdate )
-    {
+  {
     return 0;
-    }
+  }
 
 
   for ( c = 0; c < ((vol->GetProperty()->GetIndependentComponents())?(components):(1)); c++ )
-    {
+  {
     this->SavedRGBFunction[c]             = rgbFunc[c];
     this->SavedGrayFunction[c]            = grayFunc[c];
     this->SavedScalarOpacityFunction[c]   = scalarOpacityFunc[c];
     this->SavedGradientOpacityFunction[c] = gradientOpacityFunc[c];
     this->SavedColorChannels[c]           = colorChannels[c];
     this->SavedScalarOpacityDistance[c]   = scalarOpacityDistance[c];
-    }
+  }
 
   this->SavedSampleDistance          = this->SampleDistance;
   this->SavedBlendMode               = blendMode;
@@ -3174,7 +3166,7 @@ int vtkFixedPointVolumeRayCastMapper::UpdateColorTable( vtkVolume *vol )
   // Find the scalar range
   double scalarRange[4][2];
   for ( c = 0; c < components; c++ )
-    {
+  {
     this->CurrentScalars->GetRange(scalarRange[c], c);
 
     // Is the difference between max and min less than 32768? If so, and if
@@ -3191,63 +3183,63 @@ int vtkFixedPointVolumeRayCastMapper::UpdateColorTable( vtkVolume *vol )
     if ( scalarType == VTK_FLOAT ||
          scalarType == VTK_DOUBLE ||
          scalarRange[c][1] - scalarRange[c][0] > 32767 )
-      {
+    {
       arraySizeNeeded = 32768;
       offset          = -scalarRange[c][0];
 
       if ( scalarRange[c][1] - scalarRange[c][0] )
-        {
-        scale = 32767.0 / (scalarRange[c][1] - scalarRange[c][0]);
-        }
-      else
-        {
-        scale = 1.0;
-        }
-      }
-    else
       {
+        scale = 32767.0 / (scalarRange[c][1] - scalarRange[c][0]);
+      }
+      else
+      {
+        scale = 1.0;
+      }
+    }
+    else
+    {
       arraySizeNeeded = (int)(scalarRange[c][1] - scalarRange[c][0] + 1);
       offset          = -scalarRange[c][0];
       scale           = 1.0;
-      }
+    }
 
     this->TableSize[c]   = arraySizeNeeded;
     this->TableShift[c]  = offset;
     this->TableScale[c]  = scale;
-    }
+  }
 
   if ( vol->GetProperty()->GetIndependentComponents() )
-    {
+  {
     for ( c = 0; c < components; c++ )
-      {
+    {
       // Sample the transfer functions between the min and max.
       if ( colorChannels[c] == 1 )
-        {
+      {
         float tmpArray2[32768];
         grayFunc[c]->GetTable( scalarRange[c][0], scalarRange[c][1],
                                this->TableSize[c], tmpArray2 );
         for ( int index = 0; index < this->TableSize[c]; index++ )
-          {
+        {
           tmpArray[3*index  ] = tmpArray2[index];
           tmpArray[3*index+1] = tmpArray2[index];
           tmpArray[3*index+2] = tmpArray2[index];
-          }
         }
+      }
       else
-        {
+      {
         rgbFunc[c]->GetTable( scalarRange[c][0], scalarRange[c][1],
                               this->TableSize[c], tmpArray );
-        }
+      }
       // Convert color to short format
       for ( i = 0; i < this->TableSize[c]; i++ )
-        {
+      {
         this->ColorTable[c][3*i  ] =
           static_cast<unsigned short>(tmpArray[3*i  ]*VTKKW_FP_SCALE + 0.5);
         this->ColorTable[c][3*i+1] =
           static_cast<unsigned short>(tmpArray[3*i+1]*VTKKW_FP_SCALE + 0.5);
         this->ColorTable[c][3*i+2] =
           static_cast<unsigned short>(tmpArray[3*i+2]*VTKKW_FP_SCALE + 0.5);
-        }
+      }
 
       scalarOpacityFunc[c]->GetTable( scalarRange[c][0], scalarRange[c][1],
                                    this->TableSize[c], tmpArray );
@@ -3255,85 +3247,85 @@ int vtkFixedPointVolumeRayCastMapper::UpdateColorTable( vtkVolume *vol )
       // Correct the opacity array for the spacing between the planes if we are
       // using a composite blending operation
       if ( this->BlendMode == vtkVolumeMapper::COMPOSITE_BLEND )
-        {
+      {
         float *ptr = tmpArray;
         double factor;
-          {
+        {
           factor = this->SampleDistance / vol->GetProperty()->GetScalarOpacityUnitDistance(c);
-          }
+        }
 
         for ( i = 0; i < this->TableSize[c]; i++ )
-          {
+        {
           if ( *ptr > 0.0001 )
-            {
+          {
             *ptr =  1.0-pow((double)(1.0-(*ptr)),factor);
-            }
-          ptr++;
           }
+          ptr++;
         }
+      }
 
       // Convert tables to short format
       for ( i = 0; i < this->TableSize[c]; i++ )
-        {
+      {
         this->ScalarOpacityTable[c][i] =
           static_cast<unsigned short>(tmpArray[i]*VTKKW_FP_SCALE + 0.5);
-        }
+      }
 
       if ( scalarRange[c][1] - scalarRange[c][0] )
-        {
+      {
         gradientOpacityFunc[c]->GetTable( 0,
                                           (scalarRange[c][1] - scalarRange[c][0])*0.25,
                                           256, tmpArray );
 
         for ( i = 0; i < 256; i++ )
-          {
+        {
           this->GradientOpacityTable[c][i] =
             static_cast<unsigned short>(tmpArray[i]*VTKKW_FP_SCALE + 0.5);
-          }
         }
+      }
       else
-        {
+      {
         for ( i = 0; i < 256; i++ )
-          {
+        {
           this->GradientOpacityTable[c][i] = 0x0000;
-          }
         }
       }
     }
+  }
   else
-    {
+  {
     if ( components ==  2 )
-      {
+    {
       // Sample the transfer functions between the min and max.
       if ( colorChannels[0] == 1 )
-        {
+      {
         float tmpArray2[32768];
         grayFunc[0]->GetTable( scalarRange[0][0], scalarRange[0][1],
                                this->TableSize[0], tmpArray2 );
         for ( int index = 0; index < this->TableSize[0]; index++ )
-          {
+        {
           tmpArray[3*index  ] = tmpArray2[index];
           tmpArray[3*index+1] = tmpArray2[index];
           tmpArray[3*index+2] = tmpArray2[index];
-          }
         }
+      }
       else
-        {
+      {
         rgbFunc[0]->GetTable( scalarRange[0][0], scalarRange[0][1],
                            this->TableSize[0], tmpArray );
-        }
+      }
 
       // Convert color to short format
       for ( i = 0; i < this->TableSize[0]; i++ )
-        {
+      {
         this->ColorTable[0][3*i  ] =
           static_cast<unsigned short>(tmpArray[3*i  ]*VTKKW_FP_SCALE + 0.5);
         this->ColorTable[0][3*i+1] =
           static_cast<unsigned short>(tmpArray[3*i+1]*VTKKW_FP_SCALE + 0.5);
         this->ColorTable[0][3*i+2] =
           static_cast<unsigned short>(tmpArray[3*i+2]*VTKKW_FP_SCALE + 0.5);
-        }
       }
+    }
 
     // The opacity table is indexed with the last component
     scalarOpacityFunc[0]->GetTable( scalarRange[components-1][0], scalarRange[components-1][1],
@@ -3342,48 +3334,48 @@ int vtkFixedPointVolumeRayCastMapper::UpdateColorTable( vtkVolume *vol )
     // Correct the opacity array for the spacing between the planes if we are
     // using a composite blending operation
     if ( this->BlendMode == vtkVolumeMapper::COMPOSITE_BLEND )
-      {
+    {
       float *ptr = tmpArray;
       double factor =
         this->SampleDistance / vol->GetProperty()->GetScalarOpacityUnitDistance();
       for ( i = 0; i < this->TableSize[components-1]; i++ )
-        {
+      {
         if ( *ptr > 0.0001 )
-          {
+        {
           *ptr =  1.0-pow((double)(1.0-(*ptr)),factor);
-          }
-        ptr++;
         }
+        ptr++;
       }
+    }
 
       // Convert tables to short format
       for ( i = 0; i < this->TableSize[components-1]; i++ )
-        {
+      {
         this->ScalarOpacityTable[0][i] =
           static_cast<unsigned short>(tmpArray[i]*VTKKW_FP_SCALE + 0.5);
-        }
+      }
 
       if ( scalarRange[components-1][1] - scalarRange[components-1][0] )
-        {
+      {
         gradientOpacityFunc[0]->GetTable( 0,
                                           (scalarRange[components-1][1] -
                                            scalarRange[components-1][0])*0.25,
                                           256, tmpArray );
 
         for ( i = 0; i < 256; i++ )
-          {
+        {
           this->GradientOpacityTable[0][i] =
             static_cast<unsigned short>(tmpArray[i]*VTKKW_FP_SCALE + 0.5);
-          }
         }
+      }
       else
-        {
+      {
         for ( i = 0; i < 256; i++ )
-          {
+        {
           this->GradientOpacityTable[0][i] = 0x0000;
-          }
         }
-    }
+      }
+  }
 
   return 1;
 }
@@ -3460,7 +3452,7 @@ void vtkFixedPointVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
 void vtkFixedPointVolumeRayCastMapper::ReleaseGraphicsResources(vtkWindow *win)
 {
   if (win && this->ImageDisplayHelper)
-    {
+  {
     this->ImageDisplayHelper->ReleaseGraphicsResources(win);
-    }
+  }
 }

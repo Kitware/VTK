@@ -94,55 +94,55 @@ void vtkImageGridSourceExecute(vtkImageGridSource *self,
 
   // Loop through output pixel
   for (idxZ = outExt[4]; idxZ <= outExt[5]; idxZ++)
-    {
+  {
     if (gridSpacing[2])
-      {
+    {
       zval = (idxZ % gridSpacing[2] == gridOrigin[2]);
-      }
+    }
     else
-      {
+    {
       zval = 0;
-      }
+    }
     for (idxY = outExt[2]; !self->GetAbortExecute() && idxY<=outExt[3]; idxY++)
-      {
+    {
       if (gridSpacing[1])
-        {
+      {
         yval = (idxY % gridSpacing[1] == gridOrigin[1]);
-        }
+      }
       else
-        {
+      {
         yval = 0;
-        }
+      }
       if (id == 0)
-        {
+      {
         if (!(count%target))
-          {
+        {
           self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
         }
+        count++;
+      }
 
       if (gridSpacing[0])
-        {
+      {
         for (idxX = outExt[0]; idxX <= outExt[1]; idxX++)
-          {
+        {
           xval = (idxX % gridSpacing[0] == gridOrigin[0]);
 
           // not very efficient, but it gets the job done
           *outPtr++ = ((zval|yval|xval) ? lineValue : fillValue);
-          }
         }
-      else
-        {
-        for (idxX = outExt[0]; idxX <= outExt[1]; idxX++)
-          {
-          *outPtr++ = ((zval|yval) ? lineValue : fillValue);
-          }
-        }
-      outPtr += outIncY;
       }
-    outPtr += outIncZ;
+      else
+      {
+        for (idxX = outExt[0]; idxX <= outExt[1]; idxX++)
+        {
+          *outPtr++ = ((zval|yval) ? lineValue : fillValue);
+        }
+      }
+      outPtr += outIncY;
     }
+    outPtr += outIncZ;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -155,13 +155,13 @@ void vtkImageGridSource::ExecuteDataWithInformation(vtkDataObject *output,
 
   // Call the correct templated function for the output
   switch (this->GetDataScalarType())
-    {
+  {
     vtkTemplateMacro(vtkImageGridSourceExecute(this, data,
                                                static_cast<VTK_TT *>(outPtr),
                                                outExt, 0));
     default:
       vtkErrorMacro(<< "Execute: Unknown data type");
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

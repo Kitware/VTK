@@ -1,9 +1,6 @@
 vtk_module(vtkFiltersSelection
   GROUPS
     StandAlone
-  DEPENDS
-    vtkCommonComputationalGeometry
-    vtkFiltersCore
   TEST_DEPENDS
     vtkFiltersExtraction
     vtkIOLegacy
@@ -14,4 +11,9 @@ vtk_module(vtkFiltersSelection
     vtkInteractionStyle
   KIT
     vtkFilters
+  DEPENDS
+    vtkCommonCore
+    vtkCommonExecutionModel
+  PRIVATE_DEPENDS
+    vtkCommonDataModel
   )

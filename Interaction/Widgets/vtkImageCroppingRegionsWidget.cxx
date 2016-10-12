@@ -43,7 +43,7 @@ vtkImageCroppingRegionsWidget::vtkImageCroppingRegionsWidget()
     vtkImageCroppingRegionsWidget::ProcessEvents);
 
   for (i = 0; i < 4; i++)
-    {
+  {
     this->LineSources[i] = vtkLineSource::New();
     this->LineActors[i] = vtkActor2D::New();
     vtkPolyDataMapper2D *pdm = vtkPolyDataMapper2D::New();
@@ -56,21 +56,21 @@ vtkImageCroppingRegionsWidget::vtkImageCroppingRegionsWidget()
     pdm->SetInputConnection(
       this->LineSources[i]->GetOutputPort());
     pdm->Delete();
-    }
+  }
 
   vtkPoints *points = vtkPoints::New();
   points->Allocate(16);
   for (i = 0; i < 16; i++)
-    {
+  {
     points->InsertNextPoint(0.0, 0.0, 0.0);
-    }
+  }
 
   for (i = 0; i < 9; i++)
-    {
+  {
     this->RegionPolyData[i] = vtkPolyData::New();
     this->RegionPolyData[i]->Allocate(1, 1);
     this->RegionPolyData[i]->SetPoints(points);
-    }
+  }
 
   points->Delete();
 
@@ -104,7 +104,7 @@ vtkImageCroppingRegionsWidget::vtkImageCroppingRegionsWidget()
   this->RegionPolyData[8]->InsertNextCell(VTK_QUAD, 4, ptIds);
 
   for (i = 0; i < 9; i++)
-    {
+  {
     vtkPolyDataMapper2D *pdm = vtkPolyDataMapper2D::New();
     vtkCoordinate *tcoord = vtkCoordinate::New();
     tcoord->SetCoordinateSystemToWorld();
@@ -118,7 +118,7 @@ vtkImageCroppingRegionsWidget::vtkImageCroppingRegionsWidget()
 
     pdm->SetInputData(this->RegionPolyData[i]);
     pdm->Delete();
-    }
+  }
 
   this->SliceOrientation = vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_XY;
   this->Slice = 0;
@@ -129,10 +129,10 @@ vtkImageCroppingRegionsWidget::vtkImageCroppingRegionsWidget()
   this->VolumeMapper = NULL;
 
   for (i = 0; i < 6; i += 2)
-    {
+  {
     this->InitialBounds[i] = this->PlanePositions[i] = 0;
     this->InitialBounds[i + 1] = this->PlanePositions[i + 1] = 1;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -141,20 +141,20 @@ vtkImageCroppingRegionsWidget::~vtkImageCroppingRegionsWidget()
   int i;
 
   for (i = 0; i < 4; i++)
-    {
+  {
     this->LineSources[i]->Delete();
     this->LineSources[i] = NULL;
     this->LineActors[i]->Delete();
     this->LineActors[i] = NULL;
-    }
+  }
 
   for (i = 0; i < 9; i++)
-    {
+  {
     this->RegionPolyData[i]->Delete();
     this->RegionPolyData[i]= NULL;
     this->RegionActors[i]->Delete();
     this->RegionActors[i] = NULL;
-    }
+  }
 
   this->SetVolumeMapper(NULL);
 }
@@ -164,9 +164,9 @@ void vtkImageCroppingRegionsWidget::SetCroppingRegionFlags(int flags)
 {
   if (this->CroppingRegionFlags == flags ||
       flags < 0x0 || flags > 0x7ffffff)
-    {
+  {
     return;
-    }
+  }
 
   this->CroppingRegionFlags = flags;
   this->Modified();
@@ -178,9 +178,9 @@ void vtkImageCroppingRegionsWidget::SetCroppingRegionFlags(int flags)
 double vtkImageCroppingRegionsWidget::GetSlicePosition()
 {
   if (!this->VolumeMapper || !this->VolumeMapper->GetInput())
-    {
+  {
     return 0.0;
-    }
+  }
 
   double *origin = this->VolumeMapper->GetInput()->GetOrigin();
   double *spacing = this->VolumeMapper->GetInput()->GetSpacing();
@@ -193,9 +193,9 @@ double vtkImageCroppingRegionsWidget::GetSlicePosition()
 void vtkImageCroppingRegionsWidget::UpdateOpacity()
 {
   if (!this->VolumeMapper || !this->VolumeMapper->GetInput())
-    {
+  {
     return;
-    }
+  }
 
   static int indices[][9] = {{ 0,  9, 18,  3, 12, 21,  6, 15, 24},
                              { 1, 10, 19,  4, 13, 22,  7, 16, 25},
@@ -212,27 +212,27 @@ void vtkImageCroppingRegionsWidget::UpdateOpacity()
   int sliceId = this->SliceOrientation * 3;
   if (slice_pos >= this->PlanePositions[this->SliceOrientation * 2] &&
       slice_pos <= this->PlanePositions[this->SliceOrientation * 2 + 1])
-    {
+  {
     sliceId += 1;
-    }
+  }
   else if (slice_pos > this->PlanePositions[this->SliceOrientation * 2 + 1])
-    {
+  {
     sliceId += 2;
-    }
+  }
 
   int compare = 1;
   int i;
   for (i = 0; i < 9; i++)
-    {
+  {
     if ((compare << indices[sliceId][i]) & this->CroppingRegionFlags)
-      {
+    {
       this->RegionActors[i]->GetProperty()->SetOpacity(0.0);
-      }
-    else
-      {
-      this->RegionActors[i]->GetProperty()->SetOpacity(0.3);
-      }
     }
+    else
+    {
+      this->RegionActors[i]->GetProperty()->SetOpacity(0.3);
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -256,15 +256,15 @@ void vtkImageCroppingRegionsWidget::SetPlanePositions(double xMin, double xMax,
       this->PlanePositions[3] == positions[3] &&
       this->PlanePositions[4] == positions[4] &&
       this->PlanePositions[5] == positions[5])
-    {
+  {
     return;
-    }
+  }
 
   int i;
   for (i = 0; i < 6; i++)
-    {
+  {
     this->PlanePositions[i] = positions[i];
-    }
+  }
 
   this->VolumeMapper->SetCroppingRegionPlanes(this->PlanePositions);
   this->UpdateGeometry();
@@ -277,33 +277,33 @@ void vtkImageCroppingRegionsWidget::ConstrainPlanePositions(double positions[6])
   double tmp;
 
   for (i = 0; i < 6; i += 2)
-    {
+  {
     if (positions[i] > positions[i + 1])
-      {
+    {
       tmp = positions[i];
       positions[i] = positions[i + 1];
       positions[i + 1] = tmp;
-      }
+    }
     if (positions[i] < this->InitialBounds[i] ||
         positions[i] > this->InitialBounds[i + 1])
-      {
+    {
       positions[i] = this->InitialBounds[i];
-      }
+    }
     if (positions[i + 1] < this->InitialBounds[i] ||
         positions[i + 1] > this->InitialBounds[i + 1])
-      {
+    {
       positions[i + 1] = this->InitialBounds[i + 1];
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkImageCroppingRegionsWidget::UpdateGeometry()
 {
   if (!this->VolumeMapper || !this->VolumeMapper->GetInput())
-    {
+  {
     return;
-    }
+  }
 
   // Could use any of the 9 region poly data because they share points
 
@@ -314,7 +314,7 @@ void vtkImageCroppingRegionsWidget::UpdateGeometry()
   double *bounds = this->InitialBounds;
 
   switch (this->SliceOrientation)
-    {
+  {
     case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_YZ:
       this->LineSources[0]->SetPoint1(slice_pos, plane_pos[2], bounds[4]);
       this->LineSources[0]->SetPoint2(slice_pos, plane_pos[2], bounds[5]);
@@ -398,7 +398,7 @@ void vtkImageCroppingRegionsWidget::UpdateGeometry()
       points->SetPoint(14, plane_pos[1], bounds[3], slice_pos);
       points->SetPoint(15, bounds[1], bounds[3], slice_pos);
       break;
-    }
+  }
 
   this->UpdateOpacity();
 }
@@ -407,28 +407,28 @@ void vtkImageCroppingRegionsWidget::UpdateGeometry()
 void vtkImageCroppingRegionsWidget::SetEnabled(int enabling)
 {
   if (!this->Interactor)
-    {
+  {
     vtkErrorMacro(
       <<"The interactor must be set prior to enabling/disabling widget");
     return;
-    }
+  }
 
   if (this->Enabled == enabling)
-    {
+  {
     return;
-    }
+  }
 
   int count;
   if (enabling)
-    {
+  {
     this->SetCurrentRenderer(
       this->Interactor->FindPokedRenderer(
         this->Interactor->GetLastEventPosition()[0],
         this->Interactor->GetLastEventPosition()[1]));
     if (this->CurrentRenderer == NULL)
-      {
+    {
       return;
-      }
+    }
 
     this->Enabled = 1;
 
@@ -457,14 +457,14 @@ void vtkImageCroppingRegionsWidget::SetEnabled(int enabling)
     this->CurrentRenderer->AddViewProp(this->LineActors[2]);
     this->CurrentRenderer->AddViewProp(this->LineActors[3]);
     for (count = 0; count < 9; count++)
-      {
+    {
       this->CurrentRenderer->AddViewProp(this->RegionActors[count]);
-      }
+    }
 
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
-    }
+  }
   else
-    {
+  {
     this->Enabled = 0;
 
     // Don't listen for events any more
@@ -474,19 +474,19 @@ void vtkImageCroppingRegionsWidget::SetEnabled(int enabling)
     // Turn off the cropping regions
 
     if (this->CurrentRenderer)
-      {
+    {
       this->CurrentRenderer->RemoveActor(this->LineActors[0]);
       this->CurrentRenderer->RemoveActor(this->LineActors[1]);
       this->CurrentRenderer->RemoveActor(this->LineActors[2]);
       this->CurrentRenderer->RemoveActor(this->LineActors[3]);
       for (count = 0; count < 9; count++)
-        {
+      {
         this->CurrentRenderer->RemoveActor(this->RegionActors[count]);
-        }
       }
+    }
 
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
-    }
+  }
 
   this->Interactor->Render();
 }
@@ -501,7 +501,7 @@ void vtkImageCroppingRegionsWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
     reinterpret_cast<vtkImageCroppingRegionsWidget *>(clientdata);
 
   switch (event)
-    {
+  {
     case vtkCommand::LeftButtonPressEvent:
     case vtkCommand::MiddleButtonPressEvent:
     case vtkCommand::RightButtonPressEvent:
@@ -515,16 +515,16 @@ void vtkImageCroppingRegionsWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
     case vtkCommand::RightButtonReleaseEvent:
       self->OnButtonRelease();
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkImageCroppingRegionsWidget::OnButtonPress()
 {
   if (this->MouseCursorState == vtkImageCroppingRegionsWidget::NoLine)
-    {
+  {
     return;
-    }
+  }
 
   this->Moving = 1;
   this->EventCallbackCommand->SetAbortFlag(1);
@@ -537,9 +537,9 @@ void vtkImageCroppingRegionsWidget::OnButtonPress()
 void vtkImageCroppingRegionsWidget::OnButtonRelease()
 {
   if (this->MouseCursorState == vtkImageCroppingRegionsWidget::NoLine)
-    {
+  {
     return;
-    }
+  }
 
   this->Moving = 0;
   this->EventCallbackCommand->SetAbortFlag(1);
@@ -556,9 +556,9 @@ void vtkImageCroppingRegionsWidget::OnButtonRelease()
 void vtkImageCroppingRegionsWidget::OnMouseMove()
 {
   if (this->Moving)
-    {
+  {
     switch (this->MouseCursorState)
-      {
+    {
       case vtkImageCroppingRegionsWidget::MovingH1:
       case vtkImageCroppingRegionsWidget::MovingH2:
         this->MoveHorizontalLine();
@@ -573,15 +573,15 @@ void vtkImageCroppingRegionsWidget::OnMouseMove()
       case vtkImageCroppingRegionsWidget::MovingH2AndV2:
         this->MoveIntersectingLines();
         break;
-      }
+    }
     this->UpdateCursorIcon();
     this->EventCallbackCommand->SetAbortFlag(1);
     this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
-    }
+  }
   else
-    {
+  {
     this->UpdateCursorIcon();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -592,67 +592,67 @@ void vtkImageCroppingRegionsWidget::MoveHorizontalLine()
   int i;
 
   for (i = 0; i < 6; i++)
-    {
+  {
     planes[i] = this->PlanePositions[i];
-    }
+  }
 
   int x = this->Interactor->GetEventPosition()[0];
   int y = this->Interactor->GetEventPosition()[1];
 
   if (!this->ComputeWorldCoordinate(x, y, newPosition))
-    {
+  {
     return;
-    }
+  }
 
   if (this->MouseCursorState == vtkImageCroppingRegionsWidget::MovingH1)
-    {
+  {
     switch (this->SliceOrientation)
-      {
+    {
       case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_YZ:
       case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_XZ:
         if (newPosition[2] < planes[5])
-          {
+        {
           planes[4] = newPosition[2];
-          }
+        }
         break;
       case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_XY:
         if (newPosition[1] < planes[3])
-          {
+        {
           planes[2] = newPosition[1];
-          }
+        }
         break;
-      }
+    }
 
     this->SetPlanePositions(planes);
     this->InvokeEvent(
       vtkImageCroppingRegionsWidget::CroppingPlanesPositionChangedEvent, planes);
     this->EventCallbackCommand->SetAbortFlag(1);
     this->Interactor->Render();
-    }
+  }
   else if (this->MouseCursorState == vtkImageCroppingRegionsWidget::MovingH2)
-    {
+  {
     switch (this->SliceOrientation)
-      {
+    {
       case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_YZ:
       case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_XZ:
         if (newPosition[2] > planes[4])
-          {
+        {
           planes[5] = newPosition[2];
-          }
+        }
         break;
       case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_XY:
         if (newPosition[1] > planes[2])
-          {
+        {
           planes[3] = newPosition[1];
-          }
+        }
         break;
-      }
+    }
     this->SetPlanePositions(planes);
     this->InvokeEvent(
       vtkImageCroppingRegionsWidget::CroppingPlanesPositionChangedEvent, planes);
     this->EventCallbackCommand->SetAbortFlag(1);
     this->Interactor->Render();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -663,67 +663,67 @@ void vtkImageCroppingRegionsWidget::MoveVerticalLine()
   int i;
 
   for (i = 0; i < 6; i++)
-    {
+  {
     planes[i] = this->PlanePositions[i];
-    }
+  }
 
   int x = this->Interactor->GetEventPosition()[0];
   int y = this->Interactor->GetEventPosition()[1];
 
   if (!this->ComputeWorldCoordinate(x, y, newPosition))
-    {
+  {
     return;
-    }
+  }
 
   if (this->MouseCursorState == vtkImageCroppingRegionsWidget::MovingV1)
-    {
+  {
     switch (this->SliceOrientation)
-      {
+    {
       case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_YZ:
         if (newPosition[1] < planes[3])
-          {
+        {
           planes[2] = newPosition[1];
-          }
+        }
         break;
       case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_XZ:
       case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_XY:
         if (newPosition[0] < planes[1])
-          {
+        {
           planes[0] = newPosition[0];
-          }
+        }
         break;
-      }
+    }
     this->SetPlanePositions(planes);
     this->InvokeEvent(
       vtkImageCroppingRegionsWidget::CroppingPlanesPositionChangedEvent, planes);
     this->EventCallbackCommand->SetAbortFlag(1);
     this->Interactor->Render();
-    }
+  }
   else if (this->MouseCursorState == vtkImageCroppingRegionsWidget::MovingV2)
-    {
+  {
     switch (this->SliceOrientation)
-      {
+    {
       case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_YZ:
         if (newPosition[1] > planes[2])
-          {
+        {
           planes[3] = newPosition[1];
-          }
+        }
         break;
       case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_XZ:
       case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_XY:
         if (newPosition[0] > planes[0])
-          {
+        {
           planes[1] = newPosition[0];
-          }
+        }
         break;
-      }
+    }
 
     this->SetPlanePositions(planes);
     this->InvokeEvent(
       vtkImageCroppingRegionsWidget::CroppingPlanesPositionChangedEvent, planes);
     this->EventCallbackCommand->SetAbortFlag(1);
     this->Interactor->Render();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -734,54 +734,54 @@ void vtkImageCroppingRegionsWidget::MoveIntersectingLines()
   int i;
 
   for (i = 0; i < 6; i++)
-    {
+  {
     planes[i] = this->PlanePositions[i];
-    }
+  }
 
   int x = this->Interactor->GetEventPosition()[0];
   int y = this->Interactor->GetEventPosition()[1];
 
   if (!this->ComputeWorldCoordinate(x, y, newPosition))
-    {
+  {
     return;
-    }
+  }
 
   switch (this->MouseCursorState)
-    {
+  {
     case vtkImageCroppingRegionsWidget::MovingH1AndV1:
       switch (this->SliceOrientation)
-        {
+      {
         case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_YZ:
           if (newPosition[1] < planes[3])
-            {
+          {
             planes[2] = newPosition[1];
-            }
+          }
           if (newPosition[2] < planes[5])
-            {
+          {
             planes[4] = newPosition[2];
-            }
+          }
           break;
         case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_XZ:
           if (newPosition[0] < planes[1])
-            {
+          {
             planes[0] = newPosition[0];
-            }
+          }
           if (newPosition[2] < planes[5])
-            {
+          {
             planes[4] = newPosition[2];
-            }
+          }
           break;
         case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_XY:
           if (newPosition[0] < planes[1])
-            {
+          {
             planes[0] = newPosition[0];
-            }
+          }
           if (newPosition[1] < planes[3])
-            {
+          {
             planes[2] = newPosition[1];
-            }
+          }
           break;
-        }
+      }
 
       this->SetPlanePositions(planes);
       this->InvokeEvent(
@@ -791,38 +791,38 @@ void vtkImageCroppingRegionsWidget::MoveIntersectingLines()
       break;
     case vtkImageCroppingRegionsWidget::MovingH1AndV2:
       switch (this->SliceOrientation)
-        {
+      {
         case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_YZ:
           if (newPosition[1] > planes[2])
-            {
+          {
             planes[3] = newPosition[1];
-            }
+          }
           if (newPosition[2] < planes[5])
-            {
+          {
             planes[4] = newPosition[2];
-            }
+          }
           break;
         case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_XZ:
           if (newPosition[0] > planes[0])
-            {
+          {
             planes[1] = newPosition[0];
-            }
+          }
           if (newPosition[2] < planes[5])
-            {
+          {
             planes[4] = newPosition[2];
-            }
+          }
           break;
         case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_XY:
           if (newPosition[0] > planes[0])
-            {
+          {
             planes[1]  = newPosition[0];
-            }
+          }
           if (newPosition[1] < planes[3])
-            {
+          {
             planes[2] = newPosition[1];
-            }
+          }
           break;
-        }
+      }
 
       this->SetPlanePositions(planes);
       this->InvokeEvent(vtkImageCroppingRegionsWidget::CroppingPlanesPositionChangedEvent,
@@ -832,38 +832,38 @@ void vtkImageCroppingRegionsWidget::MoveIntersectingLines()
       break;
     case vtkImageCroppingRegionsWidget::MovingH2AndV1:
       switch (this->SliceOrientation)
-        {
+      {
         case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_YZ:
           if (newPosition[1] < planes[3])
-            {
+          {
             planes[2] = newPosition[1];
-            }
+          }
           if (newPosition[2] > planes[4])
-            {
+          {
             planes[5] = newPosition[2];
-            }
+          }
           break;
         case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_XZ:
           if (newPosition[0] < planes[1])
-            {
+          {
             planes[0] = newPosition[0];
-            }
+          }
           if (newPosition[2] > planes[4])
-            {
+          {
             planes[5] = newPosition[2];
-            }
+          }
           break;
         case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_XY:
           if (newPosition[0] < planes[1])
-            {
+          {
             planes[0] = newPosition[0];
-            }
+          }
           if (newPosition[1] > planes[2])
-            {
+          {
             planes[3] = newPosition[1];
-            }
+          }
           break;
-        }
+      }
 
       this->SetPlanePositions(planes);
       this->InvokeEvent(vtkImageCroppingRegionsWidget::CroppingPlanesPositionChangedEvent,
@@ -873,38 +873,38 @@ void vtkImageCroppingRegionsWidget::MoveIntersectingLines()
       break;
     case vtkImageCroppingRegionsWidget::MovingH2AndV2:
       switch (this->SliceOrientation)
-        {
+      {
         case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_YZ:
           if (newPosition[1] > planes[2])
-            {
+          {
             planes[3] = newPosition[1];
-            }
+          }
           if (newPosition[2] > planes[4])
-            {
+          {
             planes[5] = newPosition[2];
-            }
+          }
           break;
         case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_XZ:
           if (newPosition[0] > planes[0])
-            {
+          {
             planes[1] = newPosition[0];
-            }
+          }
           if (newPosition[2] > planes[4])
-            {
+          {
             planes[5] = newPosition[2];
-            }
+          }
           break;
         case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_XY:
           if (newPosition[0] > planes[0])
-            {
+          {
             planes[1] = newPosition[0];
-            }
+          }
           if (newPosition[1] > planes[2])
-            {
+          {
             planes[3] = newPosition[1];
-            }
+          }
           break;
-        }
+      }
 
       this->SetPlanePositions(planes);
       this->InvokeEvent(vtkImageCroppingRegionsWidget::CroppingPlanesPositionChangedEvent,
@@ -912,22 +912,22 @@ void vtkImageCroppingRegionsWidget::MoveIntersectingLines()
       this->EventCallbackCommand->SetAbortFlag(1);
       this->Interactor->Render();
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkImageCroppingRegionsWidget::UpdateCursorIcon()
 {
   if (!this->Enabled)
-    {
+  {
     this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_DEFAULT);
     return;
-    }
+  }
 
   if (!this->CurrentRenderer || this->Moving)
-    {
+  {
     return;
-    }
+  }
 
   double slice_pos = this->GetSlicePosition();
   double *plane_pos = this->PlanePositions;
@@ -942,7 +942,7 @@ void vtkImageCroppingRegionsWidget::UpdateCursorIcon()
   double lineY2 = 0.0;
 
   switch (this->SliceOrientation)
-    {
+  {
     case vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_YZ:
       this->CurrentRenderer->SetWorldPoint(
         slice_pos, plane_pos[2], bounds[4], 1);
@@ -1002,7 +1002,7 @@ void vtkImageCroppingRegionsWidget::UpdateCursorIcon()
       this->CurrentRenderer->WorldToDisplay();
       lineY2 = this->CurrentRenderer->GetDisplayPoint()[1];
       break;
-    }
+  }
 
   double xDist1 = fabs(x - lineX1);
   double xDist2 = fabs(x - lineX2);
@@ -1012,52 +1012,52 @@ void vtkImageCroppingRegionsWidget::UpdateCursorIcon()
   int pState = this->MouseCursorState;
 
   if (xDist1 < 3)
-    {
+  {
     if (yDist1 < 3)
-      {
+    {
       this->MouseCursorState = vtkImageCroppingRegionsWidget::MovingH1AndV1;
-      }
+    }
     else if (yDist2 < 3)
-      {
+    {
       this->MouseCursorState = vtkImageCroppingRegionsWidget::MovingH2AndV1;
-      }
+    }
     else
-      {
+    {
       this->MouseCursorState = vtkImageCroppingRegionsWidget::MovingV1;
-      }
     }
+  }
   else if (xDist2 < 3)
-    {
+  {
     if (yDist1 < 3)
-      {
+    {
       this->MouseCursorState = vtkImageCroppingRegionsWidget::MovingH1AndV2;
-      }
+    }
     else if (yDist2 < 3)
-      {
+    {
       this->MouseCursorState = vtkImageCroppingRegionsWidget::MovingH2AndV2;
-      }
+    }
     else
-      {
+    {
       this->MouseCursorState = vtkImageCroppingRegionsWidget::MovingV2;
-      }
     }
+  }
   else if (yDist1 < 3)
-    {
+  {
     this->MouseCursorState = vtkImageCroppingRegionsWidget::MovingH1;
-    }
+  }
   else if (yDist2 < 3)
-    {
+  {
     this->MouseCursorState = vtkImageCroppingRegionsWidget::MovingH2;
-    }
+  }
   else
-    {
+  {
     this->MouseCursorState = vtkImageCroppingRegionsWidget::NoLine;
-    }
+  }
 
   if (pState == this->MouseCursorState)
-    {
+  {
     return;
-    }
+  }
 
   this->SetMouseCursor(this->MouseCursorState);
 
@@ -1067,7 +1067,7 @@ void vtkImageCroppingRegionsWidget::UpdateCursorIcon()
 void vtkImageCroppingRegionsWidget::SetMouseCursor(int state)
 {
   switch (state)
-    {
+  {
     case vtkImageCroppingRegionsWidget::MovingH1AndV1:
     case vtkImageCroppingRegionsWidget::MovingH2AndV1:
     case vtkImageCroppingRegionsWidget::MovingH1AndV2:
@@ -1085,7 +1085,7 @@ void vtkImageCroppingRegionsWidget::SetMouseCursor(int state)
     case vtkImageCroppingRegionsWidget::NoLine:
       this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_DEFAULT);
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1093,9 +1093,9 @@ int vtkImageCroppingRegionsWidget::ComputeWorldCoordinate(
   int x, int y, double* coord)
 {
   if (!this->CurrentRenderer)
-    {
+  {
     return 0;
-    }
+  }
 
   this->CurrentRenderer->SetWorldPoint(
     this->InitialBounds[0], this->InitialBounds[2], this->InitialBounds[4], 1.0);
@@ -1106,11 +1106,11 @@ int vtkImageCroppingRegionsWidget::ComputeWorldCoordinate(
   this->CurrentRenderer->DisplayToWorld();
   double *worldPoint = this->CurrentRenderer->GetWorldPoint();
   if (worldPoint[3] != 0.0)
-    {
+  {
     worldPoint[0] = (double)((double)worldPoint[0] / (double)worldPoint[3]);
     worldPoint[1] = (double)((double)worldPoint[1] / (double)worldPoint[3]);
     worldPoint[2] = (double)((double)worldPoint[2] / (double)worldPoint[3]);
-    }
+  }
 
   coord[0] = worldPoint[0];
   coord[1] = worldPoint[1];
@@ -1123,9 +1123,9 @@ int vtkImageCroppingRegionsWidget::ComputeWorldCoordinate(
       worldPoint[idx1] > this->InitialBounds[idx1 * 2 + 1] ||
       worldPoint[idx2] < this->InitialBounds[idx2 * 2] ||
       worldPoint[idx2] > this->InitialBounds[idx2 * 2 + 1])
-    {
+  {
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -1210,21 +1210,21 @@ void vtkImageCroppingRegionsWidget::GetLine4Color(double rgb[3])
 void vtkImageCroppingRegionsWidget::SetVolumeMapper(vtkVolumeMapper *arg)
 {
   if (this->VolumeMapper == arg)
-    {
+  {
     return;
-    }
+  }
 
   if (this->VolumeMapper)
-    {
+  {
     this->VolumeMapper->UnRegister(this);
-    }
+  }
 
   this->VolumeMapper = arg;
 
   if (this->VolumeMapper)
-    {
+  {
     this->VolumeMapper->Register(this);
-    }
+  }
 
   this->Modified();
 
@@ -1240,14 +1240,14 @@ void vtkImageCroppingRegionsWidget::PlaceWidget(double bounds[6])
   this->AdjustBounds(bounds, this->InitialBounds, center);
 
   for (int i = 0; i < 3; i++)
-    {
+  {
     if (this->InitialBounds[i * 2] > this->InitialBounds[i * 2 + 1])
-      {
+    {
       double temp = this->InitialBounds[i * 2];
       this->InitialBounds[i * 2] = this->InitialBounds[i * 2 + 1];
       this->InitialBounds[i * 2 + 1] = temp;
-      }
     }
+  }
 
   // Bounds have changed, let's try to place the plane at the same positions
   // and they will be constrain automatically
@@ -1260,11 +1260,11 @@ void vtkImageCroppingRegionsWidget::UpdateAccordingToInput()
 {
   vtkVolumeMapper *mapper = this->GetVolumeMapper();
   if (mapper)
-    {
+  {
     this->PlaceWidget(mapper->GetBounds());
     this->SetPlanePositions(mapper->GetCroppingRegionPlanes());
     this->SetCroppingRegionFlags(mapper->GetCroppingRegionFlags());
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1277,27 +1277,27 @@ void vtkImageCroppingRegionsWidget::SetSlice(int num)
   this->UpdateGeometry();
 
   if (this->Interactor)
-    {
+  {
     this->Interactor->Render();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkImageCroppingRegionsWidget::SetSliceOrientation(int arg)
 {
   if (this->SliceOrientation == arg)
-    {
+  {
     return;
-    }
+  }
 
   this->SliceOrientation = arg;
 
   this->UpdateGeometry();
 
   if (this->Interactor)
-    {
+  {
     this->Interactor->Render();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

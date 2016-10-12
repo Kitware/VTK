@@ -112,9 +112,9 @@ int vtkMNITagPointReader::CanReadFile(const char* fname)
   // from being created on older compilers.
   struct stat fs;
   if(stat(fname, &fs) != 0)
-    {
+  {
     return 0;
-    }
+  }
 
   // Try to read the first line of the file.
   int status = 0;
@@ -122,17 +122,17 @@ int vtkMNITagPointReader::CanReadFile(const char* fname)
   ifstream infile(fname);
 
   if (infile.good())
-    {
+  {
     status = 1;
     char linetext[256];
     infile.getline(linetext, 256);
     if (strncmp(linetext, "MNI Tag Point File", 18) != 0)
-      {
+    {
       status = 0;
-      }
+    }
 
     infile.close();
-    }
+  }
 
   return status;
 }
@@ -149,12 +149,12 @@ int vtkMNITagPointReader::ReadLine(
   pos = linetext.begin();
 
   if (infile.fail())
-    {
+  {
     if (infile.eof())
-      {
+    {
       return 0;
-      }
     }
+  }
 
   return 1;
 }
@@ -168,33 +168,33 @@ int vtkMNITagPointReader::ReadLineAfterComments(
   // Comment lines start with '%'
   std::string comments;
   do
-    {
+  {
     this->ReadLine(infile, linetext, pos);
     while (pos != linetext.end() && isspace(*pos))
-      {
+    {
       ++pos;
-      }
+    }
     if (linetext.length() != 0 && linetext[0] == '%')
-      {
+    {
       if (comments.length() > 0)
-        {
-        comments.push_back('\n');
-        }
-      if (linetext.length())
-        {
-        comments.append(linetext);
-        }
-      }
-    else if (linetext.length() != 0 && pos != linetext.end())
       {
+        comments.push_back('\n');
+      }
+      if (linetext.length())
+      {
+        comments.append(linetext);
+      }
+    }
+    else if (linetext.length() != 0 && pos != linetext.end())
+    {
       delete [] this->Comments;
       this->Comments = new char[comments.length() + 1];
       strncpy(this->Comments, comments.c_str(), comments.length());
       this->Comments[comments.length()] = '\0';
 
       return 1;
-      }
     }
+  }
   while (infile.good());
 
   return 0;
@@ -207,25 +207,25 @@ int vtkMNITagPointReader::SkipWhitespace(
   int nl)
 {
   while (infile.good())
-    {
+  {
     // Skip leading whitespace
     while (pos != linetext.end() && isspace(*pos))
-      {
+    {
       ++pos;
-      }
+    }
 
     if (pos != linetext.end())
-      {
+    {
       return 1;
-      }
+    }
 
     if (nl == 0)
-      {
+    {
       break;
-      }
+    }
 
     this->ReadLine(infile, linetext, pos);
-    }
+  }
 
   return 0;
 }
@@ -241,20 +241,20 @@ int vtkMNITagPointReader::ParseLeftHandSide(
 
   // Read alphanumeric plus underscore
   if (pos != linetext.end() && !isdigit(*pos))
-    {
+  {
     while (pos != linetext.end() && (isalnum(*pos) || *pos == '_'))
-      {
+    {
       identifier.push_back(*pos);
       ++pos;
-      }
     }
+  }
 
   // Check for equals
   this->SkipWhitespace(infile, linetext, pos, 1);
   if (pos == linetext.end() || *pos != '=')
-    {
+  {
     return 0;
-    }
+  }
 
   // Eat the equals
   ++pos;
@@ -277,19 +277,19 @@ int vtkMNITagPointReader::ParseStringValue(
   this->SkipWhitespace(infile, linetext, pos, 0);
 
   if (pos != linetext.end() && *pos == '\"')
-    {
+  {
     // eat the opening quote
     ++pos;
 
     // read the string
     while (pos != linetext.end() && *pos != '\"')
-      {
+    {
       char c = *pos;
       ++pos;
       if (c == '\\')
-        {
+      {
         if (pos != linetext.end())
-          {
+        {
           c = '\0';
           static char ctrltable[] = {
             '\a', 'a', '\b', 'b', '\f', 'f', '\n', 'n', '\r', 'r',
@@ -297,59 +297,59 @@ int vtkMNITagPointReader::ParseStringValue(
             };
 
           if (*pos >= 0 && *pos <= 9)
-            {
+          {
             for (int j = 0; j < 3 && pos != linetext.end() &&
                  *pos >= 0 && *pos <= 9; ++j, ++pos)
-              {
-              c = ((c << 3) | (*pos - '0'));
-              }
-            }
-          else if (*pos == 'x')
             {
+              c = ((c << 3) | (*pos - '0'));
+            }
+          }
+          else if (*pos == 'x')
+          {
             ++pos;
             for (int j = 0; j < 2 && pos != linetext.end() &&
                  isalnum(*pos); ++j, ++pos)
-              {
+            {
               char x = tolower(*pos);
               if (x >= '0' && x <= '9')
-                {
+              {
                 c = ((c << 4) | (x - '0'));
-                }
+              }
               else if (x >= 'a' && x <= 'f')
-                {
+              {
                 c = ((c << 4) | (x - 'a' + 10));
-                }
               }
-            }
-          else
-            {
-            for (int ci = 0; ctrltable[ci] != '\0'; ci += 2)
-              {
-              if (*pos == ctrltable[ci+1])
-                {
-                c = ctrltable[ci];
-                break;
-                }
-              }
-            if (c == '\0')
-              {
-              c = *pos;
-              }
-            ++pos;
             }
           }
+          else
+          {
+            for (int ci = 0; ctrltable[ci] != '\0'; ci += 2)
+            {
+              if (*pos == ctrltable[ci+1])
+              {
+                c = ctrltable[ci];
+                break;
+              }
+            }
+            if (c == '\0')
+            {
+              c = *pos;
+            }
+            ++pos;
+          }
         }
+      }
 
       data.push_back(c);
-      }
     }
+  }
 
   if (pos == linetext.end())
-    {
+  {
     vtkErrorMacro("Syntax error " << this->FileName
                   << ":" << this->LineNumber);
     return 0;
-    }
+  }
 
   // eat the trailing quote
   ++pos;
@@ -367,27 +367,27 @@ int vtkMNITagPointReader::ParseIntValues(
 
   int i = 0;
   while (pos != linetext.end() && *pos != ';' && i < n)
-    {
+  {
     const char *cp = linetext.c_str() + (pos - linetext.begin());
     char *ep = 0;
     long val = strtol(cp, &ep, 10);
     if (ep == cp)
-      {
+    {
       vtkErrorMacro("Syntax error " << this->FileName
                     << ":" << this->LineNumber);
       return 0;
-      }
+    }
     pos += (ep - cp);
     values[i++] = static_cast<int>(val);
     this->SkipWhitespace(infile, linetext, pos, 0);
-    }
+  }
 
   if (i != n)
-    {
+  {
     vtkErrorMacro("Not enough values: " << this->FileName
                   << ":" << this->LineNumber);
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -403,27 +403,27 @@ int vtkMNITagPointReader::ParseFloatValues(
 
   int i = 0;
   while (pos != linetext.end() && *pos != ';' && i < n)
-    {
+  {
     const char *cp = linetext.c_str() + (pos - linetext.begin());
     char *ep = 0;
     double val = strtod(cp, &ep);
     if (ep == cp)
-      {
+    {
       vtkErrorMacro("Syntax error " << this->FileName
                     << ":" << this->LineNumber);
       return 0;
-      }
+    }
     pos += (ep - cp);
     values[i++] = val;
     this->SkipWhitespace(infile, linetext, pos, 0);
-    }
+  }
 
   if (i != n)
-    {
+  {
     vtkErrorMacro("Not enough values: " << this->FileName
                   << ":" << this->LineNumber);
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -434,18 +434,18 @@ int vtkMNITagPointReader::ReadFile(
 {
   // Check that the file name has been set.
   if (!this->FileName)
-    {
+  {
     vtkErrorMacro("ReadFile: No file name has been set");
     return 0;
-    }
+  }
 
   // Make sure that the file exists.
   struct stat fs;
   if(stat(this->FileName, &fs) != 0)
-    {
+  {
     vtkErrorMacro("ReadFile: Can't open file " << this->FileName);
     return 0;
-    }
+  }
 
   // Make sure that the file is readable.
   ifstream infile(this->FileName);
@@ -453,20 +453,20 @@ int vtkMNITagPointReader::ReadFile(
   std::string::iterator pos = linetext.begin();
 
   if (infile.fail())
-    {
+  {
     vtkErrorMacro("ReadFile: Can't read the file " << this->FileName);
     return 0;
-    }
+  }
 
   // Read the first line
   this->LineNumber = 0;
   this->ReadLine(infile, linetext, pos);
   if (strncmp(linetext.c_str(), "MNI Tag Point File", 18) != 0)
-    {
+  {
     vtkErrorMacro("ReadFile: File is not a MNI tag file: " << this->FileName);
     infile.close();
     return 0;
-    }
+  }
 
   // Read the number of volumes
   this->ReadLine(infile, linetext, pos);
@@ -479,12 +479,12 @@ int vtkMNITagPointReader::ReadFile(
       (numVolumes != 1 && numVolumes != 2) ||
       !this->SkipWhitespace(infile, linetext, pos, 0) ||
       *pos != ';')
-    {
+  {
     vtkErrorMacro("ReadFile: Line must be Volumes = 1; or Volumes = 2; "
                   << this->FileName << ":" << this->LineNumber);
     infile.close();
     return 0;
-    }
+  }
 
   this->NumberOfVolumes = numVolumes;
 
@@ -494,12 +494,12 @@ int vtkMNITagPointReader::ReadFile(
   // Rad the tag points
   if (!this->ParseLeftHandSide(infile, linetext, pos, identifier) ||
       strcmp(identifier.c_str(), "Points") != 0)
-    {
+  {
     vtkErrorMacro("ReadFile: Cannot find Points in file; " << this->FileName);
     infile.close();
     linetext.clear();
     return 0;
-    }
+  }
 
   vtkPoints *points[2];
   points[0] = vtkPoints::New();
@@ -513,69 +513,69 @@ int vtkMNITagPointReader::ReadFile(
   int errorOccurred = 0;
   this->SkipWhitespace(infile, linetext, pos, 1);
   for (vtkIdType count = 0; infile.good() && *pos != ';'; count++)
-    {
+  {
     for (int i = 0; i < numVolumes; i++)
-      {
+    {
       double point[3];
       if (!this->ParseFloatValues(infile, linetext, pos, point, 3))
-        {
+      {
         errorOccurred = 1;
         break;
-        }
+      }
       points[i]->InsertNextPoint(point);
       verts->InsertNextCell(1);
       verts->InsertCellPoint(count);
-      }
+    }
     if (errorOccurred)
-      {
+    {
       break;
-      }
+    }
 
     this->SkipWhitespace(infile, linetext, pos, 0);
     if (pos != linetext.end() && *pos != '\"' && *pos != ';')
-      {
+    {
       double weight;
       int structureId;
       int patientId;
       if (!this->ParseFloatValues(infile, linetext, pos, &weight, 1) ||
           !this->ParseIntValues(infile, linetext, pos, &structureId, 1) ||
           !this->ParseIntValues(infile, linetext, pos, &patientId, 1))
-        {
+      {
         errorOccurred = 1;
         break;
-        }
+      }
       vtkIdType lastCount = weights->GetNumberOfTuples();
       weights->InsertValue(count, weight);
       structureIds->InsertValue(count, structureId);
       patientIds->InsertValue(count, patientId);
       for (vtkIdType j = lastCount; j < count; j++)
-        {
+      {
         weights->SetValue(j, 0.0);
         structureIds->SetValue(j, -1);
         patientIds->SetValue(j, -1);
-        }
       }
+    }
 
     this->SkipWhitespace(infile, linetext, pos, 0);
     if (pos != linetext.end() && *pos == '\"')
-      {
+    {
       vtkStdString stringval;
       if (!this->ParseStringValue(infile, linetext, pos, stringval))
-        {
+      {
         errorOccurred = 1;
         break;
-        }
-      labels->InsertValue(count, stringval);
       }
+      labels->InsertValue(count, stringval);
+    }
 
     this->SkipWhitespace(infile, linetext, pos, 1);
-    }
+  }
 
   // Close the file
   infile.close();
 
   if (!errorOccurred)
-    {
+  {
     output1->SetPoints(points[0]);
     output2->SetPoints(points[1]);
 
@@ -589,27 +589,27 @@ int vtkMNITagPointReader::ReadFile(
     labels->SetName("LabelText");
 
     for (int k = 0; k < this->NumberOfVolumes; k++)
-      {
+    {
       output[k]->SetVerts(verts);
 
       if (weights->GetNumberOfTuples())
-        {
+      {
         output[k]->GetPointData()->AddArray(weights);
-        }
+      }
       if (structureIds->GetNumberOfTuples())
-        {
+      {
         output[k]->GetPointData()->AddArray(structureIds);
-        }
+      }
       if (patientIds->GetNumberOfTuples())
-        {
+      {
         output[k]->GetPointData()->AddArray(patientIds);
-        }
+      }
       if (labels->GetNumberOfValues())
-        {
+      {
         output[k]->GetPointData()->AddArray(labels);
-        }
       }
     }
+  }
 
   points[0]->Delete();
   points[1]->Delete();
@@ -637,17 +637,17 @@ vtkPoints *vtkMNITagPointReader::GetPoints(int port)
   this->Update();
 
   if (port < 0 || port >= this->NumberOfVolumes)
-    {
+  {
     return 0;
-    }
+  }
 
   vtkPolyData *output = static_cast<vtkPolyData *>(
     this->GetOutputDataObject(port));
 
   if (output)
-    {
+  {
     return output->GetPoints();
-    }
+  }
 
   return 0;
 }
@@ -661,10 +661,10 @@ vtkStringArray *vtkMNITagPointReader::GetLabelText()
     this->GetOutputDataObject(0));
 
   if (output)
-    {
+  {
     return vtkArrayDownCast<vtkStringArray>(
       output->GetPointData()->GetAbstractArray("LabelText"));
-    }
+  }
 
   return 0;
 }
@@ -678,10 +678,10 @@ vtkDoubleArray *vtkMNITagPointReader::GetWeights()
     this->GetOutputDataObject(0));
 
   if (output)
-    {
+  {
     return vtkArrayDownCast<vtkDoubleArray>(
       output->GetPointData()->GetArray("Weights"));
-    }
+  }
 
   return 0;
 }
@@ -695,10 +695,10 @@ vtkIntArray *vtkMNITagPointReader::GetStructureIds()
     this->GetOutputDataObject(0));
 
   if (output)
-    {
+  {
     return vtkArrayDownCast<vtkIntArray>(
       output->GetPointData()->GetArray("StructureIds"));
-    }
+  }
 
   return 0;
 }
@@ -712,10 +712,10 @@ vtkIntArray *vtkMNITagPointReader::GetPatientIds()
     this->GetOutputDataObject(0));
 
   if (output)
-    {
+  {
     return vtkArrayDownCast<vtkIntArray>(
       output->GetPointData()->GetArray("PatientIds"));
-    }
+  }
 
   return 0;
 }
@@ -749,9 +749,9 @@ int vtkMNITagPointReader::RequestData(
       > 0 ||
       outInfo2->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER())
       > 0)
-    {
+  {
     return 0;
-    }
+  }
 
   // read the file
   return this->ReadFile(output1, output2);

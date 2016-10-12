@@ -38,16 +38,16 @@ vtkGeneralizedKernel::~vtkGeneralizedKernel()
 
 //----------------------------------------------------------------------------
 vtkIdType vtkGeneralizedKernel::
-ComputeBasis(double x[3], vtkIdList *pIds)
+ComputeBasis(double x[3], vtkIdList *pIds, vtkIdType)
 {
   if ( this->KernelFootprint == vtkGeneralizedKernel::RADIUS )
-    {
+  {
     this->Locator->FindPointsWithinRadius(this->Radius, x, pIds);
-    }
+  }
   else
-    {
+  {
     this->Locator->FindClosestNPoints(this->NumberOfPoints, x, pIds);
-    }
+  }
 
   return pIds->GetNumberOfIds();
 }

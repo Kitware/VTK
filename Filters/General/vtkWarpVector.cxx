@@ -70,22 +70,22 @@ int vtkWarpVector::RequestDataObject(vtkInformation *request,
   vtkRectilinearGrid *inRect = vtkRectilinearGrid::GetData(inputVector[0]);
 
   if (inImage || inRect)
-    {
+  {
     vtkStructuredGrid *output = vtkStructuredGrid::GetData(outputVector);
     if (!output)
-      {
+    {
       vtkNew<vtkStructuredGrid> newOutput;
       outputVector->GetInformationObject(0)->Set(
         vtkDataObject::DATA_OBJECT(), newOutput.GetPointer());
-      }
-    return 1;
     }
+    return 1;
+  }
   else
-    {
+  {
     return this->Superclass::RequestDataObject(request,
                                                inputVector,
                                                outputVector);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -113,23 +113,23 @@ struct WarpVectorDispatch2Points
     assert(outPtArray->GetNumberOfComponents() == 3);
 
     for (vtkIdType t = 0; t < numTuples; ++t)
-      {
+    {
       if (!(t & 0xfff))
-        {
+      {
         this->Self->UpdateProgress(t / static_cast<double>(numTuples));
         if (this->Self->GetAbortExecute())
-          {
+        {
           return;
-          }
         }
+      }
 
       for (int c = 0; c < 3; ++c)
-        {
+      {
         PointValueT val = inPtArray->GetTypedComponent(t, c) +
             scaleFactor * this->Vectors->GetTypedComponent(t, c);
         outPtArray->SetTypedComponent(t, c, val);
-        }
       }
+    }
   }
 };
 
@@ -152,9 +152,9 @@ struct WarpVectorDispatch1Vector
     WarpVectorDispatch2Points<VectorArrayT> worker(this->Self, vectors);
     if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(
           this->InPoints, this->OutPoints, worker))
-      {
+    {
       vtkGenericWarningMacro("Error dispatching point arrays.");
-      }
+    }
   }
 };
 } // end anon namespace
@@ -169,36 +169,36 @@ int vtkWarpVector::RequestData(
   vtkPointSet *output = vtkPointSet::GetData(outputVector);
 
   if (!input)
-    {
+  {
     // Try converting image data.
     vtkImageData *inImage = vtkImageData::GetData(inputVector[0]);
     if (inImage)
-      {
+    {
       vtkNew<vtkImageDataToPointSet> image2points;
       image2points->SetInputData(inImage);
       image2points->Update();
       input = image2points->GetOutput();
-      }
     }
+  }
 
   if (!input)
-    {
+  {
     // Try converting rectilinear grid.
     vtkRectilinearGrid *inRect = vtkRectilinearGrid::GetData(inputVector[0]);
     if (inRect)
-      {
+    {
       vtkNew<vtkRectilinearGridToPointSet> rect2points;
       rect2points->SetInputData(inRect);
       rect2points->Update();
       input = rect2points->GetOutput();
-      }
     }
+  }
 
   if (!input)
-    {
+  {
     vtkErrorMacro(<< "Invalid or missing input");
     return 0;
-    }
+  }
 
   vtkPoints *points;
   vtkIdType numPts;
@@ -207,18 +207,18 @@ int vtkWarpVector::RequestData(
   output->CopyStructure( input );
 
   if (input == NULL || input->GetPoints() == NULL)
-    {
+  {
     return 1;
-    }
+  }
   numPts = input->GetPoints()->GetNumberOfPoints();
 
   vtkDataArray *vectors = this->GetInputArrayToProcess(0,inputVector);
 
   if ( !vectors || !numPts)
-    {
+  {
     vtkDebugMacro(<<"No input data");
     return 1;
-    }
+  }
 
   // SETUP AND ALLOCATE THE OUTPUT
   numPts = input->GetNumberOfPoints();
@@ -236,9 +236,9 @@ int vtkWarpVector::RequestData(
   WarpVectorDispatch1Vector worker(this, input->GetPoints()->GetData(),
                                    output->GetPoints()->GetData());
   if (!vtkArrayDispatch::Dispatch::Execute(vectors, worker))
-    {
+  {
     vtkWarningMacro("Dispatch failed for vector array.");
-    }
+  }
 
   // now pass the data.
   output->GetPointData()->CopyNormalsOff(); // distorted geometry

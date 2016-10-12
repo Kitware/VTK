@@ -56,25 +56,25 @@ void vtkUniformGridGhostDataGenerator::ComputeOrigin(
   assert("pre: Multi-block dataset is NULL" && (in != NULL) );
 
   for( unsigned int i=0; i < in->GetNumberOfBlocks(); ++i )
-    {
+  {
     vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast(in->GetBlock(i));
     assert("pre: grid block is NULL" && (grid != NULL) );
 
     double blkOrigin[3];
     grid->GetOrigin( blkOrigin );
     if( blkOrigin[0] < this->GlobalOrigin[0] )
-      {
+    {
       this->GlobalOrigin[0] = blkOrigin[0];
-      }
+    }
     if( blkOrigin[1] < this->GlobalOrigin[1] )
-      {
+    {
       this->GlobalOrigin[1] = blkOrigin[1];
-      }
+    }
     if( blkOrigin[2] < this->GlobalOrigin[2] )
-      {
+    {
       this->GlobalOrigin[2] = blkOrigin[2];
-      }
-    } // END for all blocks
+    }
+  } // END for all blocks
 }
 
 //------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ void vtkUniformGridGhostDataGenerator::RegisterGrids(vtkMultiBlockDataSet *in)
           vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
 
   for( unsigned int i=0; i < in->GetNumberOfBlocks(); ++i )
-    {
+  {
     vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast( in->GetBlock( i ) );
     assert("pre: grid block is NULL" && (grid != NULL) );
 
@@ -118,7 +118,7 @@ void vtkUniformGridGhostDataGenerator::RegisterGrids(vtkMultiBlockDataSet *in)
         grid->GetPointData(),
         grid->GetCellData(),
         NULL);
-    } // END for all blocks
+  } // END for all blocks
 }
 
 //------------------------------------------------------------------------------
@@ -141,7 +141,7 @@ void vtkUniformGridGhostDataGenerator::CreateGhostedDataSet(
   int dims[3];
 
   for( unsigned int i=0; i < out->GetNumberOfBlocks(); ++i )
-    {
+  {
     // STEP 0: Get the computed ghosted grid extent
     this->GridConnectivity->GetGhostedGridExtent( i,ghostedExtent );
 
@@ -170,7 +170,7 @@ void vtkUniformGridGhostDataGenerator::CreateGhostedDataSet(
 
     out->SetBlock(i,ghostedGrid);
     ghostedGrid->Delete();
-    } // END for all blocks
+  } // END for all blocks
 }
 
 //------------------------------------------------------------------------------

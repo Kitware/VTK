@@ -53,9 +53,9 @@ int TestColorByPointDataStringArray(int argc, char* argv[])
 
   // Round-robin assignment of color strings
   for (int i = 0; i < polydata->GetNumberOfPoints(); ++i)
-    {
+  {
     sArray->SetValue(i, colors[i % 5].ToString());
-    }
+  }
 
   vtkPointData* cd = polydata->GetPointData();
   cd->AddArray(sArray.Get());
@@ -104,9 +104,9 @@ int TestColorByPointDataStringArray(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(renderWindow.Get());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

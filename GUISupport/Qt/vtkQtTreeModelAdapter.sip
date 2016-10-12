@@ -17,7 +17,7 @@ public:
   virtual void SetVTKDataObject(vtkDataObject *data);
   virtual vtkDataObject* GetVTKDataObject() const;
 
-  unsigned long GetVTKDataObjectMTime() const;
+  vtkMTimeType GetVTKDataObjectMTime() const;
 
   virtual vtkSelection* QModelIndexListToVTKIndexSelection(const QModelIndexList qmil) const;
   virtual QItemSelection VTKIndexSelectionToQItemSelection(vtkSelection *vtksel) const;

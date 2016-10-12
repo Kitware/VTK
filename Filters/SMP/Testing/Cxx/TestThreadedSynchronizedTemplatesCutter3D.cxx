@@ -87,13 +87,13 @@ int TestThreadedSynchronizedTemplatesCutter3D(int, char *[])
     pc->GetOutputDataObject(0))->NewIterator());
   iter->InitTraversal();
   while(!iter->IsDoneWithTraversal())
-    {
+  {
     vtkPolyData* piece =
       static_cast<vtkPolyData*>(iter->GetCurrentDataObject());
     appender->AddInputData(piece);
     ++numPieces;
     iter->GoToNextItem();
-    }
+  }
   tl->StartTimer();
   appender->Update();
   tl->StopTimer();
@@ -117,12 +117,12 @@ int TestThreadedSynchronizedTemplatesCutter3D(int, char *[])
        << npoints2 << endl;
 
   if (npoints1 == npoints2 && ntriangles1 == ntriangles2)
-    {
+  {
     cout << "Outputs match" << endl;
     cout << "speedup = " << serialTime/parallelTime << "x with "
          << numPieces << " threads" << endl;
     return EXIT_SUCCESS;
-    }
+  }
 
   cout << "Outputs don't match" << endl;
   return EXIT_FAILURE;

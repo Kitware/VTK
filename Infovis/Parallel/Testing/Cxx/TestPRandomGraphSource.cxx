@@ -63,52 +63,52 @@ int TestPRandomGraphSource(int argc, char* argv[])
   bool doMST = true;
 
   if (argc > 2)
-    {
+  {
     wantVertices = boost::lexical_cast<vtkIdType>(argv[1]);
     wantEdges = boost::lexical_cast<vtkIdType>(argv[2]);
-    }
+  }
 
   // The Dehne-Gotz minimum spanning tree algorithm actually allocates
   // O(|V|) memory, where |V| is the size of the full distributed
   // graph. For this reason, we won't (by default) run the minimum
   // spanning tree algorithm with > 1 million vertices.
   if (wantVertices > 1000000)
-    {
+  {
     doMST = false;
-    }
+  }
 
   for (int argIdx = 3; argIdx < argc; ++argIdx)
-    {
+  {
       std::string arg = argv[argIdx];
       if (arg == "--print")
-        {
+      {
         doPrint = true;
-        }
+      }
       else if (arg == "--only-connected")
-        {
+      {
         onlyConnected = true;
-        }
+      }
       else if (arg == "--no-bfs")
-        {
+      {
         doBFS = false;
-        }
+      }
       else if (arg == "--no-coloring")
-        {
+      {
         doColoring = false;
-        }
+      }
       else if (arg == "--no-connected-components")
-        {
+      {
         doConnectedComponents = false;
-        }
+      }
       else if (arg == "--no-minumum-spanning-tree")
-        {
+      {
         doMST = false;
-        }
+      }
       else if (arg == "--minumum-spanning-tree")
-        {
+      {
         doMST = true;
-        }
-    }
+      }
+  }
 
   vtkIdType totalNumberOfVertices;
   vtkIdType totalNumberOfEdges;
@@ -122,12 +122,12 @@ int TestPRandomGraphSource(int argc, char* argv[])
   source->SetNumberOfEdges(wantEdges);
 
   if (!onlyConnected)
-    {
+  {
     if (world.rank() == 0)
-      {
+    {
       cerr << "Testing simple random generator (" << wantVertices << ", "
            << wantEdges << ")..." << endl;
-      }
+    }
     source->Update();
     g = source->GetOutput();
 
@@ -135,32 +135,32 @@ int TestPRandomGraphSource(int argc, char* argv[])
       = boost::mpi::all_reduce(world, g->GetNumberOfVertices(),
                                std::plus<vtkIdType>());
     if (totalNumberOfVertices != wantVertices)
-      {
+    {
       cerr << "ERROR: Wrong number of vertices ("
            << totalNumberOfVertices << " != " << wantVertices << ")" << endl;
       errors++;
-      }
+    }
 
     totalNumberOfEdges
       = boost::mpi::all_reduce(world, g->GetNumberOfEdges(),
                                std::plus<vtkIdType>());
     if (totalNumberOfEdges != wantEdges)
-      {
+    {
       cerr << "ERROR: Wrong number of edges ("
            << totalNumberOfEdges << " != " << wantEdges << ")" << endl;
       errors++;
-      }
-    if (world.rank() == 0)
-      {
-      cerr << "...done." << endl;
-      }
     }
+    if (world.rank() == 0)
+    {
+      cerr << "...done." << endl;
+    }
+  }
 
   if (world.rank() == 0)
-    {
+  {
     cerr << "Testing simple tree+random generator (" << wantVertices << ", "
          << wantEdges << ")..." << endl;
-    }
+  }
   source->SetStartWithTree(true);
   source->Update();
   g = source->GetOutput();
@@ -169,35 +169,35 @@ int TestPRandomGraphSource(int argc, char* argv[])
     = boost::mpi::all_reduce(world, g->GetNumberOfVertices(),
                              std::plus<vtkIdType>());
   if (totalNumberOfVertices != wantVertices)
-    {
+  {
     cerr << "ERROR: Wrong number of vertices ("
          << totalNumberOfVertices << " != " << wantVertices << ")" << endl;
     errors++;
-    }
+  }
 
   totalNumberOfEdges
     = boost::mpi::all_reduce(world, g->GetNumberOfEdges(),
                              std::plus<vtkIdType>());
   if (totalNumberOfEdges != wantEdges + wantVertices - 1)
-    {
+  {
     cerr << "ERROR: Wrong number of edges ("
          << totalNumberOfEdges << " != " << (wantEdges + wantVertices - 1)
          << ")" << endl;
     errors++;
-    }
+  }
 
   if (world.rank() == 0)
-    {
+  {
     cerr << "...done." << endl;
-    }
+  }
 
   if (doPrint)
-    {
+  {
     vtkSmartPointer<vtkVertexListIterator> vertices
       = vtkSmartPointer<vtkVertexListIterator>::New();
     g->GetVertices(vertices);
     while (vertices->HasNext())
-      {
+    {
       vtkIdType u = vertices->Next();
 
       vtkSmartPointer<vtkOutEdgeIterator> outEdges
@@ -205,15 +205,15 @@ int TestPRandomGraphSource(int argc, char* argv[])
 
       g->GetOutEdges(u, outEdges);
       while (outEdges->HasNext())
-        {
+      {
         vtkOutEdgeType e = outEdges->Next();
         cerr << "  " << u << " -- " << e.Target << endl;
-        }
       }
     }
+  }
 
   if (doBFS)
-    {
+  {
     vtkSmartPointer<vtkPBGLBreadthFirstSearch> bfs
       = vtkSmartPointer<vtkPBGLBreadthFirstSearch>::New();
     bfs->SetInputData(g);
@@ -221,45 +221,45 @@ int TestPRandomGraphSource(int argc, char* argv[])
 
     // Run the breadth-first search
     if (world.rank() == 0)
-      {
+    {
       cerr << "Breadth-first search...";
-      }
+    }
     boost::mpi::timer timer;
     bfs->Update(world.rank(), world.size(), 0);
 
     // Verify the results of the breadth-first search
     if (world.rank() == 0)
-      {
+    {
       cerr << " done in " << timer.elapsed() << " seconds" << endl;
-      }
     }
+  }
 
   if (doColoring)
-    {
+  {
     vtkSmartPointer<vtkPBGLVertexColoring> coloring
       = vtkSmartPointer<vtkPBGLVertexColoring>::New();
     coloring->SetInputData(g);
 
     // Run the vertex-coloring
     if (world.rank() == 0)
-      {
+    {
       cerr << "Vertex coloring...";
-      }
+    }
     boost::mpi::timer timer;
     coloring->Update(world.rank(), world.size(), 0);
 
     if (world.rank() == 0)
-      {
+    {
       cerr << " done in " << timer.elapsed() << " seconds" << endl;
-      }
+    }
 
     if (doVerify)
-      {
+    {
       vtkGraph* output = vtkGraph::SafeDownCast(coloring->GetOutput());
       if (world.rank() == 0)
-        {
+      {
         cerr << " Verifying vertex coloring...";
-        }
+      }
 
       // Turn the color array into a property map
       vtkIdTypeArray* colorArray
@@ -275,60 +275,60 @@ int TestPRandomGraphSource(int argc, char* argv[])
         = vtkSmartPointer<vtkVertexListIterator>::New();
       output->GetVertices(vertices);
       while (vertices->HasNext())
-        {
+      {
         vtkIdType u = vertices->Next();
         vtkSmartPointer<vtkOutEdgeIterator> outEdges
           = vtkSmartPointer<vtkOutEdgeIterator>::New();
 
         output->GetOutEdges(u, outEdges);
         while (outEdges->HasNext())
-          {
+        {
           vtkOutEdgeType e = outEdges->Next();
           if (get(colorMap, u) == get(colorMap, e.Target))
-            {
+          {
             cerr << "ERROR: Found adjacent vertices " << u << " and "
                  << e.Target << " with the same color value ("
                  << get(colorMap, u) << ")" << endl;
             ++errors;
-            }
           }
         }
+      }
 
       output->GetDistributedGraphHelper()->Synchronize();
 
       if (world.rank() == 0)
-        {
+      {
         cerr << " done in " << timer.elapsed() << " seconds" << endl;
-        }
       }
     }
+  }
 
   if (doConnectedComponents)
-    {
+  {
     vtkSmartPointer<vtkPBGLConnectedComponents> cc
       = vtkSmartPointer<vtkPBGLConnectedComponents>::New();
     cc->SetInputData(g);
 
     // Run the connected components algorithm
     if (world.rank() == 0)
-      {
+    {
       cerr << "Connected components...";
-      }
+    }
     boost::mpi::timer timer;
     cc->Update(world.rank(), world.size(), 0);
 
     if (world.rank() == 0)
-      {
+    {
       cerr << " done in " << timer.elapsed() << " seconds" << endl;
-      }
+    }
 
     if (doVerify)
-      {
+    {
       vtkGraph* output = vtkGraph::SafeDownCast(cc->GetOutput());
       if (world.rank() == 0)
-        {
+      {
         cerr << " Verifying connected components...";
-        }
+      }
 
       // Turn the component array into a property map
       vtkIdTypeArray* componentArray
@@ -344,37 +344,37 @@ int TestPRandomGraphSource(int argc, char* argv[])
         = vtkSmartPointer<vtkVertexListIterator>::New();
       output->GetVertices(vertices);
       while (vertices->HasNext())
-        {
+      {
         vtkIdType u = vertices->Next();
         vtkSmartPointer<vtkOutEdgeIterator> outEdges
           = vtkSmartPointer<vtkOutEdgeIterator>::New();
 
         output->GetOutEdges(u, outEdges);
         while (outEdges->HasNext())
-          {
+        {
           vtkOutEdgeType e = outEdges->Next();
           if (get(componentMap, u) != get(componentMap, e.Target))
-            {
+          {
             cerr << "ERROR: Found adjacent vertices " << u << " and "
                  << e.Target << " with different component values ("
                  << get(componentMap, u) << " and "
                  << get(componentMap, e.Target) << ")" << endl;
             ++errors;
-            }
           }
         }
+      }
 
       output->GetDistributedGraphHelper()->Synchronize();
 
       if (world.rank() == 0)
-        {
+      {
         cerr << " done in " << timer.elapsed() << " seconds" << endl;
-        }
       }
     }
+  }
 
   if (doMST)
-    {
+  {
     vtkSmartPointer<vtkPBGLMinimumSpanningTree> mst
       = vtkSmartPointer<vtkPBGLMinimumSpanningTree>::New();
     mst->SetInputData(g);
@@ -387,23 +387,23 @@ int TestPRandomGraphSource(int argc, char* argv[])
     edgeWeightArray->SetNumberOfTuples(g->GetNumberOfEdges());
     vtkMath::RandomSeed(1177 + 17 * world.rank());
     for (vtkIdType i = 0; i < g->GetNumberOfEdges(); ++i)
-      {
+    {
       edgeWeightArray->SetTuple1(i, vtkMath::Random());
-      }
+    }
 
     // Run the shortest paths algorithm.
     if (world.rank() == 0)
-      {
+    {
       cerr << "Minimum spanning tree...";
-      }
+    }
     boost::mpi::timer timer;
     mst->Update(world.rank(), world.size(), 0);
 
     if (world.rank() == 0)
-      {
+    {
       cerr << " done in " << timer.elapsed() << " seconds" << endl;
-      }
     }
+  }
 
   return errors;
 }

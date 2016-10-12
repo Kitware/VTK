@@ -12,17 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkStructuredPoints - A subclass of ImageData.
-// .SECTION Description
-// StructuredPoints is a subclass of ImageData that requires the data extent
-// to exactly match the update extent. Normall image data allows that the
-// data extent may be larger than the update extent.
-// StructuredPoints also defines the origin differently that vtkImageData.
-// For structured points the origin is the location of first point.
-// Whereas images define the origin as the location of point 0, 0, 0.
-// Image Origin is stored in ivar, and structured points
-// have special methods for setting/getting the origin/extents.
-
+/**
+ * @class   vtkStructuredPoints
+ * @brief   A subclass of ImageData.
+ *
+ * StructuredPoints is a subclass of ImageData that requires the data extent
+ * to exactly match the update extent. Normall image data allows that the
+ * data extent may be larger than the update extent.
+ * StructuredPoints also defines the origin differently that vtkImageData.
+ * For structured points the origin is the location of first point.
+ * Whereas images define the origin as the location of point 0, 0, 0.
+ * Image Origin is stored in ivar, and structured points
+ * have special methods for setting/getting the origin/extents.
+*/
 
 #ifndef vtkStructuredPoints_h
 #define vtkStructuredPoints_h
@@ -37,16 +39,17 @@ public:
   static vtkStructuredPoints *New();
   vtkTypeMacro(vtkStructuredPoints,vtkImageData);
 
-  // Description:
-  // To simplify filter superclasses,
-  int GetDataObjectType() {return VTK_STRUCTURED_POINTS;}
+  /**
+   * To simplify filter superclasses,
+   */
+  int GetDataObjectType() VTK_OVERRIDE {return VTK_STRUCTURED_POINTS;}
 
 protected:
   vtkStructuredPoints();
-  ~vtkStructuredPoints() {}
+  ~vtkStructuredPoints() VTK_OVERRIDE {}
 private:
-  vtkStructuredPoints(const vtkStructuredPoints&);  // Not implemented.
-  void operator=(const vtkStructuredPoints&);  // Not implemented.
+  vtkStructuredPoints(const vtkStructuredPoints&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStructuredPoints&) VTK_DELETE_FUNCTION;
 };
 
 #endif

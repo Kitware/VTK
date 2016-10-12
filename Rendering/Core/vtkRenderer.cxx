@@ -22,6 +22,7 @@
 #include "vtkCullerCollection.h"
 #include "vtkCuller.h"
 #include "vtkFrustumCoverageCuller.h"
+#include "vtkFXAAOptions.h"
 #include "vtkObjectFactory.h"
 #include "vtkHardwareSelector.h"
 #include "vtkInformation.h"
@@ -44,6 +45,7 @@ vtkCxxSetObjectMacro(vtkRenderer, Information, vtkInformation);
 vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
 vtkCxxSetObjectMacro(vtkRenderer, BackgroundTexture, vtkTexture);
 vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
+vtkCxxSetObjectMacro(vtkRenderer, FXAAOptions, vtkFXAAOptions);
 
 //----------------------------------------------------------------------------
 // Return NULL if no override is supplied.
@@ -117,7 +119,12 @@ vtkRenderer::vtkRenderer()
 
   this->GL2PSSpecialPropCollection = NULL;
 
+  this->UseFXAA = false;
+  this->FXAAOptions = vtkFXAAOptions::New();
+
   this->UseShadows = 0;
+
+  this->UseHiddenLineRemoval = 0;
 
   this->UseDepthPeeling=0;
   this->OcclusionRatio=0.0;
@@ -142,16 +149,16 @@ vtkRenderer::~vtkRenderer()
   this->SetRenderWindow( NULL );
 
   if (this->ActiveCamera)
-    {
+  {
     this->ActiveCamera->UnRegister(this);
     this->ActiveCamera = NULL;
-    }
+  }
 
   if (this->CreatedLight)
-    {
+  {
     this->CreatedLight->UnRegister(this);
     this->CreatedLight = NULL;
-    }
+  }
 
   delete [] this->BackingImage;
 
@@ -164,15 +171,21 @@ vtkRenderer::~vtkRenderer()
   this->Cullers->Delete();
   this->Cullers = NULL;
 
+  if (this->FXAAOptions != NULL)
+  {
+    this->FXAAOptions->Delete();
+    this->FXAAOptions = NULL;
+  }
+
   if(this->Delegate!=0)
-    {
+  {
     this->Delegate->UnRegister(this);
-    }
+  }
 
   if(this->BackgroundTexture != NULL)
-    {
+  {
     this->BackgroundTexture->Delete();
-    }
+  }
 
   this->SetInformation(0);
 }
@@ -180,28 +193,28 @@ vtkRenderer::~vtkRenderer()
 void vtkRenderer::ReleaseGraphicsResources(vtkWindow *renWin)
 {
   if(this->BackgroundTexture != 0)
-    {
+  {
     this->BackgroundTexture->ReleaseGraphicsResources(renWin);
-    }
+  }
   vtkProp *aProp;
   vtkCollectionSimpleIterator pit;
   this->Props->InitTraversal(pit);
   for ( aProp = this->Props->GetNextProp(pit);
         aProp != NULL;
         aProp = this->Props->GetNextProp(pit) )
-    {
+  {
     aProp->ReleaseGraphicsResources(renWin);
-    }
+  }
 }
 
 // Concrete render method.
 void vtkRenderer::Render(void)
 {
   if(this->Delegate!=0 && this->Delegate->GetUsed())
-    {
+  {
       this->Delegate->Render(this);
       return;
-    }
+  }
 
   double   t1, t2;
   int      i;
@@ -210,10 +223,10 @@ void vtkRenderer::Render(void)
 
   // If Draw is not on, ignore the render.
   if (!this->Draw)
-    {
+  {
     vtkDebugMacro("Ignoring render because Draw is off.");
     return;
-    }
+  }
 
   t1 = vtkTimerLog::GetUniversalTime();
 
@@ -228,7 +241,7 @@ void vtkRenderer::Render(void)
       this->RenderWindow->GetMTime() < this->RenderTime &&
       this->BackingStoreSize[0] == size[0] &&
       this->BackingStoreSize[1] == size[1])
-    {
+  {
     int mods = 0;
     vtkLight *light;
 
@@ -236,33 +249,33 @@ void vtkRenderer::Render(void)
     vtkCollectionSimpleIterator sit;
     for(this->Lights->InitTraversal(sit);
         (light = this->Lights->GetNextLight(sit)); )
-      {
+    {
       if (light->GetSwitch() &&
           light->GetMTime() > this->RenderTime)
-        {
+      {
         mods = 1;
         goto completed_mod_check;
-        }
       }
+    }
     vtkCollectionSimpleIterator pit;
     for (this->Props->InitTraversal(pit);
          (aProp = this->Props->GetNextProp(pit)); )
-      {
+    {
       // if it's invisible, we can skip the rest
       if (aProp->GetVisibility())
-        {
+      {
         if (aProp->GetRedrawMTime() > this->RenderTime)
-          {
+        {
           mods = 1;
           goto completed_mod_check;
-          }
         }
       }
+    }
 
     completed_mod_check:
 
     if (!mods)
-      {
+    {
       int rx1, ry1, rx2, ry2;
 
       // backing store should be OK, lets use it
@@ -278,8 +291,8 @@ void vtkRenderer::Render(void)
       this->RenderWindow->SetPixelData(rx1,ry1,rx2,ry2,this->BackingImage,0);
       this->InvokeEvent(vtkCommand::EndEvent,NULL);
       return;
-      }
     }
+  }
 
   // Create the initial list of visible props
   // This will be passed through AllocateTime(), where
@@ -290,36 +303,36 @@ void vtkRenderer::Render(void)
   // Fill these in later (in AllocateTime) - get a
   // count of them there too
   if ( this->Props->GetNumberOfItems() > 0 )
-    {
+  {
     this->PropArray = new vtkProp *[this->Props->GetNumberOfItems()];
-    }
+  }
   else
-    {
+  {
     this->PropArray = NULL;
-    }
+  }
 
   this->PropArrayCount = 0;
   vtkCollectionSimpleIterator pit;
   for ( this->Props->InitTraversal(pit);
         (aProp = this->Props->GetNextProp(pit)); )
-    {
+  {
     if ( aProp->GetVisibility() )
-      {
+    {
       this->PropArray[this->PropArrayCount++] = aProp;
-      }
     }
+  }
 
   if ( this->PropArrayCount == 0 )
-    {
+  {
     vtkDebugMacro( << "There are no visible props!" );
-    }
+  }
   else
-    {
+  {
     // Call all the culling methods to set allocated time
     // for each prop and re-order the prop list if desired
 
     this->AllocateTime();
-    }
+  }
 
   // do the render library specific stuff
   this->DeviceRender();
@@ -329,12 +342,12 @@ void vtkRenderer::Render(void)
   // estimated render time to zero, so that when we add back
   // in the old value we have set it correctly.
   if ( this->RenderWindow->GetAbortRender() )
-    {
+  {
     for ( i = 0; i < this->PropArrayCount; i++ )
-      {
+    {
       this->PropArray[i]->RestoreEstimatedRenderTime();
-      }
     }
+  }
 
   // Clean up the space we allocated before. If the PropArray exists,
   // they all should exist
@@ -342,7 +355,7 @@ void vtkRenderer::Render(void)
   this->PropArray = NULL;
 
   if (this->BackingStore)
-    {
+  {
     delete [] this->BackingImage;
 
     int rx1, ry1, rx2, ry2;
@@ -356,7 +369,7 @@ void vtkRenderer::Render(void)
     this->BackingImage = this->RenderWindow->GetPixelData(rx1,ry1,rx2,ry2,0);
     this->BackingStoreSize[0] = size[0];
     this->BackingStoreSize[1] = size[1];
-    }
+  }
 
 
   // If we aborted, do not record the last render time.
@@ -364,18 +377,24 @@ void vtkRenderer::Render(void)
   // EstimatedRenderTimes.  We can try to adjust for bad
   // estimates with the TimeFactor.
   if ( ! this->RenderWindow->GetAbortRender() )
-    {
+  {
     // Measure the actual RenderTime
     t2 = vtkTimerLog::GetUniversalTime();
     this->LastRenderTimeInSeconds = static_cast<double>(t2 - t1);
 
     if (this->LastRenderTimeInSeconds == 0.0)
-      {
+    {
       this->LastRenderTimeInSeconds = 0.0001;
-      }
-    this->TimeFactor = this->AllocatedRenderTime/this->LastRenderTimeInSeconds;
     }
+    this->TimeFactor = this->AllocatedRenderTime/this->LastRenderTimeInSeconds;
+  }
   this->InvokeEvent(vtkCommand::EndEvent,NULL);
+}
+
+// ----------------------------------------------------------------------------
+void vtkRenderer::DeviceRenderOpaqueGeometry()
+{
+  this->UpdateOpaquePolygonalGeometry();
 }
 
 // ----------------------------------------------------------------------------
@@ -409,7 +428,7 @@ double vtkRenderer::GetTimeFactor()
 int vtkRenderer::UpdateCamera ()
 {
   if (!this->ActiveCamera)
-    {
+  {
     vtkDebugMacro(<< "No cameras are on, creating one.");
     // the get method will automagically create a camera
     // and reset it since one hasn't been specified yet.
@@ -418,7 +437,7 @@ int vtkRenderer::UpdateCamera ()
     // will already have been created as part of the
     // DoStereoRender() method.
     this->GetActiveCameraAndResetIfCreated();
-    }
+  }
 
   // update the viewing transformation
   this->ActiveCamera->Render(this);
@@ -441,41 +460,41 @@ int vtkRenderer::UpdateLightsGeometryToFollowCamera()
   vtkCollectionSimpleIterator sit;
   for(this->Lights->InitTraversal(sit);
       (light = this->Lights->GetNextLight(sit)); )
-    {
+  {
     if (light->LightTypeIsSceneLight())
-      {
+    {
       // Do nothing. Don't reset the transform matrix because applications
       // may have set a custom matrix. Only reset the transform matrix in
       // vtkLight::SetLightTypeToSceneLight()
-      }
+    }
     else if (light->LightTypeIsHeadlight())
-      {
+    {
       // update position and orientation of light to match camera.
       light->SetPosition(camera->GetPosition());
       light->SetFocalPoint(camera->GetFocalPoint());
-      }
-    else if (light->LightTypeIsCameraLight())
-      {
-      light->SetTransformMatrix(lightMatrix);
-      }
-    else
-      {
-      vtkErrorMacro(<< "light has unknown light type");
-      }
     }
+    else if (light->LightTypeIsCameraLight())
+    {
+      light->SetTransformMatrix(lightMatrix);
+    }
+    else
+    {
+      vtkErrorMacro(<< "light has unknown light type");
+    }
+  }
   return 1;
 }
 
 int vtkRenderer::UpdateLightGeometry()
 {
   if (this->LightFollowCamera)
-    {
+  {
     // only update the light's geometry if this Renderer is tracking
     // this lights.  That allows one renderer to view the lights that
     // another renderer is setting up.
 
     return this->UpdateLightsGeometryToFollowCamera();
-    }
+  }
 
   return 1;
 }
@@ -518,21 +537,21 @@ void vtkRenderer::AllocateTime()
   // vtkRenderWindow).
 
   if ( this->Cullers->GetNumberOfItems())
-    {
+  {
     this->GetActiveCameraAndResetIfCreated();
-    }
+  }
 
   vtkCollectionSimpleIterator sit;
   for (this->Cullers->InitTraversal(sit);
        (aCuller=this->Cullers->GetNextCuller(sit));)
-    {
+  {
     totalTime =
       aCuller->Cull(this,this->PropArray, this->PropArrayCount,initialized );
-    }
+  }
 
   // loop through all props and set the AllocatedRenderTime
   for ( i = 0; i < this->PropArrayCount; i++ )
-    {
+  {
     aProp = this->PropArray[i];
 
     // If we don't have an outer cull method in any of the cullers,
@@ -546,7 +565,7 @@ void vtkRenderer::AllocateTime()
       SetAllocatedRenderTime(( renderTime / totalTime ) *
                              this->AllocatedRenderTime,
                              this );
-    }
+  }
 }
 
 // Ask actors to render themselves. As a side effect will cause
@@ -558,12 +577,12 @@ int vtkRenderer::UpdateGeometry()
   this->NumberOfPropsRendered = 0;
 
   if ( this->PropArrayCount == 0 )
-    {
+  {
     return 0;
-    }
+  }
 
   if (this->Selector)
-    {
+  {
     // When selector is present, we are performing a selection,
     // so do the selection rendering pass instead of the normal passes.
     // Delegate the rendering of the props to the selector itself.
@@ -572,7 +591,7 @@ int vtkRenderer::UpdateGeometry()
     this->RenderTime.Modified();
     vtkDebugMacro("Rendered " << this->NumberOfPropsRendered << " actors" );
     return this->NumberOfPropsRendered;
-    }
+  }
 
   // We can render everything because if it was
   // not visible it would not have been put in the
@@ -580,43 +599,38 @@ int vtkRenderer::UpdateGeometry()
   // no time (culled) it would have been removed from
   // the list
 
-  // loop through props and give them a chance to
-  // render themselves as opaque geometry
-  for ( i = 0; i < this->PropArrayCount; i++ )
-    {
-    this->NumberOfPropsRendered +=
-      this->PropArray[i]->RenderOpaqueGeometry(this);
-    }
+  // Opaque geometry first:
+  this->DeviceRenderOpaqueGeometry();
 
   // do the render library specific stuff about translucent polygonal geometry.
   // As it can be expensive, do a quick check if we can skip this step
   int hasTranslucentPolygonalGeometry=0;
   for ( i = 0; !hasTranslucentPolygonalGeometry && i < this->PropArrayCount;
         i++ )
-    {
+  {
     hasTranslucentPolygonalGeometry=
       this->PropArray[i]->HasTranslucentPolygonalGeometry();
-    }
+  }
   if(hasTranslucentPolygonalGeometry)
-    {
+  {
     this->DeviceRenderTranslucentPolygonalGeometry();
-    }
+  }
 
   // loop through props and give them a chance to
   // render themselves as volumetric geometry.
   for ( i = 0; i < this->PropArrayCount; i++ )
-    {
+  {
     this->NumberOfPropsRendered +=
       this->PropArray[i]->RenderVolumetricGeometry(this);
-    }
+  }
 
   // loop through props and give them a chance to
   // render themselves as an overlay (or underlay)
   for ( i = 0; i < this->PropArrayCount; i++ )
-    {
+  {
     this->NumberOfPropsRendered +=
       this->PropArray[i]->RenderOverlay(this);
-    }
+  }
 
   this->RenderTime.Modified();
 
@@ -639,11 +653,23 @@ int vtkRenderer::UpdateTranslucentPolygonalGeometry()
   // loop through props and give them a chance to
   // render themselves as translucent geometry
   for (int i = 0; i < this->PropArrayCount; i++ )
-    {
+  {
     int rendered=this->PropArray[i]->RenderTranslucentPolygonalGeometry(this);
     this->NumberOfPropsRendered += rendered;
     result+=rendered;
-    }
+  }
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+int vtkRenderer::UpdateOpaquePolygonalGeometry()
+{
+  int result = 0;
+  for (int i = 0; i < this->PropArrayCount; i++ )
+  {
+    result += this->PropArray[i]->RenderOpaqueGeometry(this);
+  }
+  this->NumberOfPropsRendered += result;
   return result;
 }
 
@@ -659,10 +685,10 @@ void vtkRenderer::SetLayer(int layer)
   vtkDebugMacro(<< this->GetClassName() << " (" << this
                 << "): setting Layer to " << layer);
   if (this->Layer != layer)
-    {
+  {
     this->Layer = layer;
     this->Modified();
-    }
+  }
   this->SetPreserveColorBuffer(layer == 0 ? 0 : 1);
 }
 
@@ -670,19 +696,19 @@ void vtkRenderer::SetLayer(int layer)
 void vtkRenderer::SetActiveCamera(vtkCamera *cam)
 {
   if (this->ActiveCamera == cam)
-    {
+  {
     return;
-    }
+  }
 
   if (this->ActiveCamera)
-    {
+  {
     this->ActiveCamera->UnRegister(this);
     this->ActiveCamera = NULL;
-    }
+  }
   if (cam)
-    {
+  {
     cam->Register(this);
-    }
+  }
 
   this->ActiveCamera = cam;
   this->Modified();
@@ -701,7 +727,7 @@ vtkCamera* vtkRenderer::MakeCamera()
 vtkCamera *vtkRenderer::GetActiveCamera()
 {
   if ( this->ActiveCamera == NULL )
-    {
+  {
     vtkCamera *cam = this->MakeCamera();
     this->SetActiveCamera(cam);
     cam->Delete();
@@ -712,7 +738,7 @@ vtkCamera *vtkRenderer::GetActiveCamera()
     // GetActiveCameraAndResetIfCreated which will reset the camera
     // if it gets created
     // this->ResetCamera();
-    }
+  }
 
   return this->ActiveCamera;
 }
@@ -721,10 +747,10 @@ vtkCamera *vtkRenderer::GetActiveCamera()
 vtkCamera *vtkRenderer::GetActiveCameraAndResetIfCreated()
 {
   if (this->ActiveCamera == NULL)
-    {
+  {
     this->GetActiveCamera();
     this->ResetCamera();
-    }
+  }
   return this->ActiveCamera;
 }
 
@@ -771,9 +797,9 @@ vtkActorCollection *vtkRenderer::GetActors()
   vtkCollectionSimpleIterator pit;
   for (this->Props->InitTraversal(pit);
        (aProp = this->Props->GetNextProp(pit)); )
-    {
+  {
     aProp->GetActors(this->Actors);
-    }
+  }
   return this->Actors;
 }
 
@@ -788,9 +814,9 @@ vtkVolumeCollection *vtkRenderer::GetVolumes()
   vtkCollectionSimpleIterator pit;
   for (this->Props->InitTraversal(pit);
        (aProp = this->Props->GetNextProp(pit)); )
-    {
+  {
     aProp->GetVolumes(this->Volumes);
-    }
+  }
   return this->Volumes;
 }
 
@@ -840,16 +866,16 @@ vtkLight *vtkRenderer::MakeLight()
 void vtkRenderer::CreateLight(void)
 {
   if ( !this->AutomaticLightCreation )
-    {
+  {
     return;
-    }
+  }
 
   if (this->CreatedLight)
-    {
+  {
     this->RemoveLight(this->CreatedLight);
     this->CreatedLight->UnRegister(this);
     this->CreatedLight = NULL;
-    }
+  }
 
   // I do not see why UnRegister is used on CreatedLight, but lets be
   // consistent.
@@ -883,58 +909,58 @@ void vtkRenderer::ComputeVisiblePropBounds( double allBounds[6] )
   vtkCollectionSimpleIterator pit;
   for (this->Props->InitTraversal(pit);
        (prop = this->Props->GetNextProp(pit)); )
-    {
+  {
     // if it's invisible, or if its bounds should be ignored,
     // or has no geometry, we can skip the rest
     if ( prop->GetVisibility() && prop->GetUseBounds())
-      {
+    {
       bounds = prop->GetBounds();
       // make sure we haven't got bogus bounds
       if ( bounds != NULL && vtkMath::AreBoundsInitialized(bounds))
-        {
+      {
         nothingVisible = 0;
 
         if (bounds[0] < allBounds[0])
-          {
+        {
           allBounds[0] = bounds[0];
-          }
+        }
         if (bounds[1] > allBounds[1])
-          {
+        {
           allBounds[1] = bounds[1];
-          }
+        }
         if (bounds[2] < allBounds[2])
-          {
+        {
           allBounds[2] = bounds[2];
-          }
+        }
         if (bounds[3] > allBounds[3])
-          {
+        {
           allBounds[3] = bounds[3];
-          }
+        }
         if (bounds[4] < allBounds[4])
-          {
+        {
           allBounds[4] = bounds[4];
-          }
+        }
         if (bounds[5] > allBounds[5])
-          {
+        {
           allBounds[5] = bounds[5];
-          }
-        }//not bogus
-      }
+        }
+      }//not bogus
     }
+  }
 
   if ( nothingVisible )
-    {
+  {
     vtkMath::UninitializeBounds(allBounds);
     vtkDebugMacro(<< "Can't compute bounds, no 3D props are visible");
     return;
-    }
+  }
 }
 
 double *vtkRenderer::ComputeVisiblePropBounds()
-  {
+{
   this->ComputeVisiblePropBounds(this->ComputedVisiblePropBounds);
   return this->ComputedVisiblePropBounds;
-  }
+}
 
 // Automatically set up the camera based on the visible actors.
 // The camera will reposition itself to view the center point of the actors,
@@ -947,13 +973,13 @@ void vtkRenderer::ResetCamera()
   this->ComputeVisiblePropBounds( allBounds );
 
   if (!vtkMath::AreBoundsInitialized(allBounds))
-    {
+  {
     vtkDebugMacro( << "Cannot reset camera!" );
-    }
+  }
   else
-    {
+  {
     this->ResetCamera(allBounds);
-    }
+  }
 
   // Here to let parallel/distributed compositing intercept
   // and do the right thing.
@@ -969,13 +995,13 @@ void vtkRenderer::ResetCameraClippingRange()
   this->ComputeVisiblePropBounds( allBounds );
 
   if (!vtkMath::AreBoundsInitialized(allBounds))
-    {
+  {
     vtkDebugMacro( << "Cannot reset camera clipping range!" );
-    }
+  }
   else
-    {
+  {
     this->ResetCameraClippingRange(allBounds);
-    }
+  }
 
   // Here to let parallel/distributed compositing intercept
   // and do the right thing.
@@ -998,14 +1024,14 @@ void vtkRenderer::ResetCamera(double bounds[6])
 
   this->GetActiveCamera();
   if ( this->ActiveCamera != NULL )
-    {
+  {
     this->ActiveCamera->GetViewPlaneNormal(vn);
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro(<< "Trying to reset non-existant camera");
     return;
-    }
+  }
 
   // Reset the perspective zoom factors, otherwise subsequent zooms will cause
   // the view angle to become very small and cause bad depth sorting.
@@ -1052,31 +1078,31 @@ void vtkRenderer::ResetCamera(double bounds[6])
   this->GetAspect(aspect);
 
   if(aspect[0]>=1.0) // horizontal window, deal with vertical angle|scale
-    {
+  {
     if(this->ActiveCamera->GetUseHorizontalViewAngle())
-      {
-      angle=2.0*atan(tan(angle*0.5)/aspect[0]);
-      }
-    }
-  else // vertical window, deal with horizontal angle|scale
     {
+      angle=2.0*atan(tan(angle*0.5)/aspect[0]);
+    }
+  }
+  else // vertical window, deal with horizontal angle|scale
+  {
     if(!this->ActiveCamera->GetUseHorizontalViewAngle())
-      {
+    {
       angle=2.0*atan(tan(angle*0.5)*aspect[0]);
-      }
+    }
 
     parallelScale=parallelScale/aspect[0];
-    }
+  }
 
   distance =radius/sin(angle*0.5);
 
   // check view-up vector against view plane normal
   vup = this->ActiveCamera->GetViewUp();
   if ( fabs(vtkMath::Dot(vup,vn)) > 0.999 )
-    {
+  {
     vtkWarningMacro(<<"Resetting view-up since view plane normal is parallel");
     this->ActiveCamera->SetViewUp(-vup[2], vup[0], vup[1]);
-    }
+  }
 
   // update the camera
   this->ActiveCamera->SetFocalPoint(center[0],center[1],center[2]);
@@ -1116,29 +1142,29 @@ void vtkRenderer::ResetCameraClippingRange( double bounds[6] )
 
   // Don't reset the clipping range when we don't have any 3D visible props
   if (!vtkMath::AreBoundsInitialized(bounds))
-    {
+  {
     return;
-    }
+  }
 
   this->GetActiveCameraAndResetIfCreated();
   if ( this->ActiveCamera == NULL )
-    {
+  {
     vtkErrorMacro(<< "Trying to reset clipping range of non-existant camera");
     return;
-    }
+  }
 
   if(!this->ActiveCamera->GetUseOffAxisProjection())
-    {
+  {
     this->ActiveCamera->GetViewPlaneNormal(vn);
     this->ActiveCamera->GetPosition(position);
     this->ExpandBounds(bounds, this->ActiveCamera->GetModelTransformMatrix());
-    }
+  }
   else
-    {
+  {
     this->ActiveCamera->GetEyePosition(position);
     this->ActiveCamera->GetEyePlaneNormal(vn);
     this->ExpandBounds(bounds, this->ActiveCamera->GetModelViewTransformMatrix());
-    }
+  }
 
   a = -vn[0];
   b = -vn[1];
@@ -1151,42 +1177,42 @@ void vtkRenderer::ResetCameraClippingRange( double bounds[6] )
 
   // Find the closest / farthest bounding box vertex
   for ( k = 0; k < 2; k++ )
-    {
+  {
     for ( j = 0; j < 2; j++ )
-      {
+    {
       for ( i = 0; i < 2; i++ )
-        {
+      {
         dist = a*bounds[i] + b*bounds[2+j] + c*bounds[4+k] + d;
         range[0] = (dist<range[0])?(dist):(range[0]);
         range[1] = (dist>range[1])?(dist):(range[1]);
-        }
       }
     }
+  }
 
   // do not let far - near be less than 0.1 of the window height
   // this is for cases such as 2D images which may have zero range
   double minGap = 0.0;
   if(this->ActiveCamera->GetParallelProjection())
-    {
+  {
     minGap = 0.1*this->ActiveCamera->GetParallelScale();
-    }
+  }
   else
-    {
+  {
     double angle=vtkMath::RadiansFromDegrees(this->ActiveCamera->GetViewAngle());
     minGap = 0.2*tan(angle/2.0)*range[1];
-    }
+  }
   if (range[1] - range[0] < minGap)
-    {
+  {
     minGap = minGap - range[1] + range[0];
     range[1] += minGap/2.0;
     range[0] -= minGap/2.0;
-    }
+  }
 
   // Do not let the range behind the camera throw off the calculation.
   if (range[0] < 0.0)
-    {
+  {
     range[0] = 0.0;
-    }
+  }
 
   // Give ourselves a little breathing room
   range[0] = 0.99*range[0] - (range[1] - range[0])*this->ClippingRangeExpansion;
@@ -1199,25 +1225,25 @@ void vtkRenderer::ResetCameraClippingRange( double bounds[6] )
   // from being behind the camera or too close in front. How close is too
   // close depends on the resolution of the depth buffer
   if (!this->NearClippingPlaneTolerance)
-    {
+  {
     this->NearClippingPlaneTolerance = 0.01;
     if (this->RenderWindow)
-      {
+    {
       int ZBufferDepth = this->RenderWindow->GetDepthBufferSize();
       if ( ZBufferDepth > 16 )
-        {
+      {
         this->NearClippingPlaneTolerance = 0.001;
-        }
       }
     }
+  }
 
   // make sure the front clipping range is not too far from the far clippnig
   // range, this is to make sure that the zbuffer resolution is effectively
   // used
   if (range[0] < this->NearClippingPlaneTolerance*range[1])
-    {
+  {
     range[0] = this->NearClippingPlaneTolerance*range[1];
-    }
+  }
 
   this->ActiveCamera->SetClippingRange( range );
 }
@@ -1245,35 +1271,12 @@ void vtkRenderer::ResetCameraClippingRange(double xmin, double xmax,
 // no reference counting!
 void vtkRenderer::SetRenderWindow(vtkRenderWindow *renwin)
 {
-  vtkProp *aProp;
-
   if (renwin != this->RenderWindow)
-    {
-    // This renderer is be dis-associated with its previous render window.
-    // this information needs to be passed to the renderer's actors and
-    // volumes so they can release and render window specific (or graphics
-    // context specific) information (such as display lists and texture ids)
-    vtkCollectionSimpleIterator pit;
-    this->Props->InitTraversal(pit);
-    for ( aProp = this->Props->GetNextProp(pit);
-          aProp != NULL;
-          aProp = this->Props->GetNextProp(pit) )
-      {
-      aProp->ReleaseGraphicsResources(this->RenderWindow);
-      }
-    // what about lights?
-    // what about cullers?
-
+  {
     this->ReleaseGraphicsResources(this->RenderWindow);
-
-    if(this->BackgroundTexture != 0 && this->RenderWindow!=0)
-      {
-      this->BackgroundTexture->ReleaseGraphicsResources(this->RenderWindow);
-      }
-
     this->VTKWindow = renwin;
     this->RenderWindow = renwin;
-    }
+  }
 }
 
 // Given a pixel location, return the Z value
@@ -1284,14 +1287,14 @@ double vtkRenderer::GetZ (int x, int y)
 
   zPtr = this->RenderWindow->GetZbufferData (x, y, x, y);
   if (zPtr)
-    {
+  {
     z = *zPtr;
     delete [] zPtr;
-    }
+  }
   else
-    {
+  {
     z = 1.0;
-    }
+  }
   return z;
 }
 
@@ -1314,11 +1317,11 @@ void vtkRenderer::ViewToWorld(double &x, double &y, double &z)
   double result[4];
 
   if (this->ActiveCamera == NULL)
-    {
+  {
     vtkErrorMacro("ViewToWorld: no active camera, cannot compute view to world, returning 0,0,0");
     x = y = z = 0.0;
     return;
-    }
+  }
 
   // get the perspective transformation from the active camera
   vtkMatrix4x4 *matrix = this->ActiveCamera->
@@ -1339,11 +1342,11 @@ void vtkRenderer::ViewToWorld(double &x, double &y, double &z)
   // Get the transformed vector & set WorldPoint
   // while we are at it try to keep w at one
   if (result[3])
-    {
+  {
     x = result[0] / result[3];
     y = result[1] / result[3];
     z = result[2] / result[3];
-    }
+  }
 }
 
 // Convert world point coordinates to view coordinates.
@@ -1365,11 +1368,11 @@ void vtkRenderer::WorldToView(double &x, double &y, double &z)
 
   // get the perspective transformation from the active camera
   if (!this->ActiveCamera)
-    {
+  {
     vtkErrorMacro("WorldToView: no active camera, cannot compute world to view, returning 0,0,0");
     x = y = z = 0.0;
     return;
-    }
+  }
   vtkMatrix4x4::DeepCopy(mat, this->ActiveCamera->
                 GetCompositeProjectionTransformMatrix(
                   this->GetTiledAspectRatio(),0,1));
@@ -1380,11 +1383,11 @@ void vtkRenderer::WorldToView(double &x, double &y, double &z)
   view[3] = x*mat[12] + y*mat[13] + z*mat[14] + mat[15];
 
   if (view[3] != 0.0)
-    {
+  {
     x = view[0]/view[3];
     y = view[1]/view[3];
     z = view[2]/view[3];
-    }
+  }
 }
 
 void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
@@ -1456,13 +1459,13 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Delegate:";
   if(this->Delegate!=0)
-    {
+  {
       os << "exists" << endl;
-    }
+  }
   else
-    {
+  {
       os << "null" << endl;
-    }
+  }
   os << indent << "Selector: " << this->Selector << endl;
 
   os << indent << "TexturedBackground: "
@@ -1470,23 +1473,23 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "BackgroundTexture:";
   if(this->BackgroundTexture != 0)
-    {
+  {
     os << "exists" << endl;
-    }
+  }
   else
-    {
+  {
     os << "null" << endl;
-    }
+  }
 
   os << indent << "Pass:";
   if(this->Pass!=0)
-    {
+  {
       os << "exists" << endl;
-    }
+  }
   else
-    {
+  {
       os << "null" << endl;
-    }
+  }
 
 }
 
@@ -1499,12 +1502,12 @@ int vtkRenderer::VisibleActorCount()
   vtkCollectionSimpleIterator pit;
   for (this->Props->InitTraversal(pit);
        (aProp = this->Props->GetNextProp(pit)); )
-    {
+  {
     if (aProp->GetVisibility())
-      {
+    {
       count++;
-      }
     }
+  }
   return count;
 }
 
@@ -1517,30 +1520,30 @@ int vtkRenderer::VisibleVolumeCount()
   vtkCollectionSimpleIterator pit;
   for (this->Props->InitTraversal(pit);
         (aProp = this->Props->GetNextProp(pit)); )
-    {
+  {
     if (aProp->GetVisibility())
-      {
+    {
       count++;
-      }
     }
+  }
   return count;
 }
 
-unsigned long int vtkRenderer::GetMTime()
+vtkMTimeType vtkRenderer::GetMTime()
 {
-  unsigned long mTime=this-> vtkViewport::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this-> vtkViewport::GetMTime();
+  vtkMTimeType time;
 
   if ( this->ActiveCamera != NULL )
-    {
+  {
     time = this->ActiveCamera ->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
   if ( this->CreatedLight != NULL )
-    {
+  {
     time = this->CreatedLight ->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
 
   return mTime;
 }
@@ -1561,13 +1564,13 @@ vtkAssemblyPath* vtkRenderer::PickProp(double selectionX1, double selectionY1,
   // Initialize the pick (we're picking a path, the path
   // includes info about nodes)
   if (this->PickFromProps)
-    {
+  {
     props = this->PickFromProps;
-    }
+  }
   else
-    {
+  {
     props = this->Props;
-    }
+  }
   // number determined from number of rendering passes plus reserved "0" slot
   numberPickFrom = 2*props->GetNumberOfPaths()*3 + 1;
 
@@ -1586,13 +1589,13 @@ vtkAssemblyPath* vtkRenderer::PickProp(double selectionX1, double selectionY1,
 
   // Get the pick id of the object that was picked
   if ( this->PickedProp != NULL )
-    {
+  {
     this->PickedProp->UnRegister(this);
     this->PickedProp = NULL;
-    }
+  }
   unsigned int pickedId = this->GetPickedId();
   if ( pickedId != 0 )
-    {
+  {
     pickedId--; // pick ids start at 1, so move back one
 
     // wrap around, as there are thrice as many pickid's as PathArrayCount,
@@ -1602,26 +1605,26 @@ vtkAssemblyPath* vtkRenderer::PickProp(double selectionX1, double selectionY1,
     pickedId = pickedId % static_cast<unsigned int>(this->PathArrayCount);
     this->PickedProp = this->PathArray[pickedId];
     this->PickedProp->Register(this);
-    }
+  }
 
   //convert the list of picked props from integers to prop pointers
   if (this->PickResultProps != NULL)
-    {
+  {
     this->PickResultProps->Delete();
     this->PickResultProps = NULL;
-    }
+  }
   this->PickResultProps = vtkPropCollection::New();
   unsigned int numPicked = this->GetNumPickedIds();
   unsigned int *idBuff = new unsigned int[numPicked];
   this->GetPickedIds(numPicked, idBuff);
   unsigned int nextId;
   for (unsigned int pIdx = 0; pIdx < numPicked; pIdx++)
-    {
+  {
     nextId = idBuff[pIdx] - 1; // pick ids start at 1, so move back one
     nextId = nextId % static_cast<unsigned int>(this->PathArrayCount);
     vtkProp *propCandidate = this->PathArray[nextId]->GetLastNode()->GetViewProp();
     this->PickResultProps->AddItem(propCandidate);
-    }
+  }
 
   // Clean up stuff from picking after we use it
   delete [] idBuff;
@@ -1642,9 +1645,9 @@ void vtkRenderer::PickRender(vtkPropCollection *props)
 
   this->InvokeEvent(vtkCommand::StartEvent,NULL);
   if( props->GetNumberOfItems() <= 0)
-    {
+  {
     return;
-    }
+  }
 
   // Create a place to store all props that remain after culling
   vtkPropCollection* pickFrom = vtkPropCollection::New();
@@ -1655,22 +1658,22 @@ void vtkRenderer::PickRender(vtkPropCollection *props)
   // put into the Paths list directly.
   vtkCollectionSimpleIterator pit;
   for (  props->InitTraversal(pit); (aProp = props->GetNextProp(pit)); )
-    {
+  {
     if ( aProp->GetPickable() && aProp->GetVisibility() )
-      {
+    {
       if ( aProp->IsA("vtkProp3D") )
-        {
+      {
         pickFrom->AddItem(aProp);
-        }
+      }
       else //must be some other type of prop (e.g., vtkActor2D)
-        {
+      {
         for ( aProp->InitPathTraversal(); (path=aProp->GetNextPath()); )
-          {
+        {
           this->PathArray[this->PathArrayCount++] = path;
-          }
         }
-      }//pickable & visible
-    }//for all props
+      }
+    }//pickable & visible
+  }//for all props
 
   // For a first pass at the pick process, just use a vtkPicker to
   // intersect with bounding boxes of the objects.  This should greatly
@@ -1682,15 +1685,15 @@ void vtkRenderer::PickRender(vtkPropCollection *props)
   vtkAreaPicker *aCullPicker = NULL;
   vtkProp3DCollection* cullPicked;
   if (this->GetPickWidth()==1 && this->GetPickHeight()==1)
-    {
+  {
     // Create a picker to do the culling process
     pCullPicker = vtkPicker::New();
 
     // Add each of the Actors from the pickFrom list into the picker
     for ( pickFrom->InitTraversal(pit); (aProp = pickFrom->GetNextProp(pit)); )
-      {
+    {
       pCullPicker->AddPickList(aProp);
-      }
+    }
 
     // make sure this selects from the pickers list and not the renderers list
     pCullPicker->PickFromListOn();
@@ -1699,16 +1702,16 @@ void vtkRenderer::PickRender(vtkPropCollection *props)
     pCullPicker->Pick(this->GetPickX(), this->GetPickY(), 0, this);
 
     cullPicked = pCullPicker->GetProp3Ds();
-    }
+  }
   else
-    {
+  {
     aCullPicker = vtkAreaPicker::New();
 
     // Add each of the Actors from the pickFrom list into the picker
     for ( pickFrom->InitTraversal(pit); (aProp = pickFrom->GetNextProp(pit)); )
-      {
+    {
       aCullPicker->AddPickList(aProp);
-      }
+    }
 
     // make sure this selects from the pickers list and not the renderers list
     aCullPicker->PickFromListOn();
@@ -1719,39 +1722,39 @@ void vtkRenderer::PickRender(vtkPropCollection *props)
                           this);
 
     cullPicked = aCullPicker->GetProp3Ds();
-    }
+  }
 
   // Put all the ones that were picked by the cull process
   // into the PathArray to be picked from
   vtkCollectionSimpleIterator p3dit;
   for (cullPicked->InitTraversal(p3dit);
        (aProp = cullPicked->GetNextProp3D(p3dit));)
-    {
+  {
     if ( aProp != NULL )
-      {
+    {
       for ( aProp->InitPathTraversal(); (path=aProp->GetNextPath()); )
-        {
+      {
         this->PathArray[this->PathArrayCount++] = path;
-        }
       }
     }
+  }
 
   // Clean picking support objects up
   pickFrom->Delete();
   if (pCullPicker)
-    {
+  {
     pCullPicker->Delete();
-    }
+  }
   if (aCullPicker)
-    {
+  {
     aCullPicker->Delete();
-    }
+  }
 
   if ( this->PathArrayCount == 0 )
-    {
+  {
     vtkDebugMacro( << "There are no visible props!" );
     return;
-    }
+  }
 
   // do the render library specific pick render
   this->DevicePickRender();
@@ -1764,9 +1767,9 @@ void vtkRenderer::PickGeometry()
   this->NumberOfPropsRendered = 0;
 
   if ( this->PathArrayCount == 0 )
-    {
+  {
     return ;
-    }
+  }
 
   // We have to take care about prop's visible & pickable parameters
   // because in the case of Assembly, the previous culling pass
@@ -1777,63 +1780,63 @@ void vtkRenderer::PickGeometry()
   vtkProp *prop;
   vtkMatrix4x4 *matrix;
   for ( i = 0; i < this->PathArrayCount; i++ )
-    {
+  {
     this->UpdatePickId();
     prop = this->PathArray[i]->GetLastNode()->GetViewProp();
     if (prop->GetVisibility() && prop->GetPickable())
-      {
+    {
       matrix = this->PathArray[i]->GetLastNode()->GetMatrix();
       prop->PokeMatrix(matrix);
       this->NumberOfPropsRendered += prop->RenderOpaqueGeometry(this);
       prop->PokeMatrix(NULL);
-      }
     }
+  }
 
   // loop through props and give them a chance to
   // render themselves as translucent polygonal geometry
   for ( i = 0; i < this->PathArrayCount; i++ )
-    {
+  {
     this->UpdatePickId();
     prop = this->PathArray[i]->GetLastNode()->GetViewProp();
     if (prop->GetVisibility() && prop->GetPickable())
-      {
+    {
       matrix = this->PathArray[i]->GetLastNode()->GetMatrix();
       prop->PokeMatrix(matrix);
       this->NumberOfPropsRendered +=
         prop->RenderTranslucentPolygonalGeometry(this);
       prop->PokeMatrix(NULL);
-      }
     }
+  }
 
   // loop through props and give them a chance to
   // render themselves as volumetric geometry
   for ( i = 0; i < this->PathArrayCount; i++ )
-    {
+  {
     this->UpdatePickId();
     prop = this->PathArray[i]->GetLastNode()->GetViewProp();
     if (prop->GetVisibility() && prop->GetPickable())
-      {
+    {
       matrix = this->PathArray[i]->GetLastNode()->GetMatrix();
       prop->PokeMatrix(matrix);
       this->NumberOfPropsRendered +=
         prop->RenderVolumetricGeometry(this);
       prop->PokeMatrix(NULL);
-      }
     }
+  }
 
   for ( i = 0; i < this->PathArrayCount; i++ )
-    {
+  {
     this->UpdatePickId();
     prop = this->PathArray[i]->GetLastNode()->GetViewProp();
     if (prop->GetVisibility() && prop->GetPickable())
-      {
+    {
       matrix = this->PathArray[i]->GetLastNode()->GetMatrix();
       prop->PokeMatrix(matrix);
       this->NumberOfPropsRendered +=
         prop->RenderOverlay(this);
       prop->PokeMatrix(NULL);
-      }
     }
+  }
 
   vtkDebugMacro( << "Pick Rendered " <<
                     this->NumberOfPropsRendered << " actors" );
@@ -1843,16 +1846,16 @@ void vtkRenderer::PickGeometry()
 void vtkRenderer::ExpandBounds(double bounds[6], vtkMatrix4x4 *matrix)
 {
   if(!bounds)
-    {
+  {
     vtkErrorMacro(<<"ERROR: Invalid bounds\n");
     return;
-    }
+  }
 
   if(!matrix)
-    {
+  {
     vtkErrorMacro("<<ERROR: Invalid matrix \n");
     return;
-    }
+  }
 
   // Expand the bounding box by model view transform matrix.
   double pt[8][4] = {{bounds[0], bounds[2], bounds[5], 1.0},
@@ -1867,28 +1870,28 @@ void vtkRenderer::ExpandBounds(double bounds[6], vtkMatrix4x4 *matrix)
   // \note: Assuming that matrix doesn not have projective component. Hence not
   // dividing by the homogeneous coordinate after multiplication
   for (int i = 0; i < 8; ++i)
-    {
+  {
       matrix->MultiplyPoint(pt[i],pt[i]);
-    }
+  }
 
   // min = mpx = pt[0]
   double min[4], max[4];
   for (int i = 0; i < 4; ++i)
-    {
+  {
       min[i] = pt[0][i];
       max[i] = pt[0][i];
-    }
+  }
 
   for (int i = 1; i < 8; ++i)
-    {
+  {
       for (int j = 0; j < 3; ++j)
-        {
+      {
           if(min[j] > pt[i][j])
             min[j] = pt[i][j];
           if(max[j] < pt[i][j])
             max[j] = pt[i][j];
-        }
-    }
+      }
+  }
 
   // Copy values back to bounds.
   bounds[0] = min[0];
@@ -1924,9 +1927,9 @@ double vtkRenderer::GetTiledAspectRatio()
 
   double finalAspect = 1.0;
   if(vsize && usize)
-    {
+  {
     finalAspect = aspectModification*usize/vsize;
-    }
+  }
   return finalAspect;
 }
 
@@ -1934,10 +1937,10 @@ int vtkRenderer::CaptureGL2PSSpecialProp(vtkProp *prop)
 {
   if (this->GL2PSSpecialPropCollection &&
       !this->GL2PSSpecialPropCollection->IsItemPresent(prop))
-    {
+  {
     this->GL2PSSpecialPropCollection->AddItem(prop);
     return 1;
-    }
+  }
 
   return 0;
 }

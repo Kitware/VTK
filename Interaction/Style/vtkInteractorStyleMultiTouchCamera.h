@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInteractorStyleMultiTouchCamera - multitouch manipulation of the camera
-// .SECTION Description
-// vtkInteractorStyleMultiTouchCamera allows the user to interactively
-// manipulate (rotate, pan, etc.) the camera, the viewpoint of the scene
-// using multitouch gestures in addition to regular gestures
-
-// .SECTION See Also
-// vtkInteractorStyleTrackballActor vtkInteractorStyleJoystickCamera
-// vtkInteractorStyleJoystickActor
+/**
+ * @class   vtkInteractorStyleMultiTouchCamera
+ * @brief   multitouch manipulation of the camera
+ *
+ * vtkInteractorStyleMultiTouchCamera allows the user to interactively
+ * manipulate (rotate, pan, etc.) the camera, the viewpoint of the scene
+ * using multitouch gestures in addition to regular gestures
+ *
+ * @sa
+ * vtkInteractorStyleTrackballActor vtkInteractorStyleJoystickCamera
+ * vtkInteractorStyleJoystickActor
+*/
 
 #ifndef vtkInteractorStyleMultiTouchCamera_h
 #define vtkInteractorStyleMultiTouchCamera_h
@@ -36,19 +39,22 @@ public:
   vtkTypeMacro(vtkInteractorStyleMultiTouchCamera,vtkInteractorStyleTrackballCamera);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Event bindings for gestures
+  //@{
+  /**
+   * Event bindings for gestures
+   */
   virtual void OnRotate();
   virtual void OnPinch();
   virtual void OnPan();
+  //@}
 
 protected:
   vtkInteractorStyleMultiTouchCamera();
   ~vtkInteractorStyleMultiTouchCamera();
 
 private:
-  vtkInteractorStyleMultiTouchCamera(const vtkInteractorStyleMultiTouchCamera&);  // Not implemented.
-  void operator=(const vtkInteractorStyleMultiTouchCamera&);  // Not implemented.
+  vtkInteractorStyleMultiTouchCamera(const vtkInteractorStyleMultiTouchCamera&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInteractorStyleMultiTouchCamera&) VTK_DELETE_FUNCTION;
 };
 
 #endif

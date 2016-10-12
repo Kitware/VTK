@@ -12,22 +12,25 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkVolumeRayCastMIPFunction - A maximum intensity projection ray caster for volumes
-//
-// .SECTION Description
-// vtkVolumeRayCastMIPFunction is a volume ray cast function that
-// computes the maximum value encountered along the ray. This is
-// either the maximum scalar value, or the maximum opacity, as
-// defined by the MaximizeMethod. The color and opacity returned
-// by this function is based on the color, scalar opacity, and
-// gradient opacity transfer functions defined in the vtkVolumeProperty
-// of the vtkVolume.
-//
-// .SECTION See Also
-// vtkVolumeRayCastFunction vtkVolumeRayCastMapper vtkVolumeProperty
-// vtkVolumeRayCastCompositeFunction vtkVolumeRayCastIsosurfaceFunction
-// vtkVolume vtkVolumeProperty
-// @deprecated
+/**
+ * @class   vtkVolumeRayCastMIPFunction
+ * @brief   A maximum intensity projection ray caster for volumes
+ *
+ *
+ * vtkVolumeRayCastMIPFunction is a volume ray cast function that
+ * computes the maximum value encountered along the ray. This is
+ * either the maximum scalar value, or the maximum opacity, as
+ * defined by the MaximizeMethod. The color and opacity returned
+ * by this function is based on the color, scalar opacity, and
+ * gradient opacity transfer functions defined in the vtkVolumeProperty
+ * of the vtkVolume.
+ *
+ * @sa
+ * vtkVolumeRayCastFunction vtkVolumeRayCastMapper vtkVolumeProperty
+ * vtkVolumeRayCastCompositeFunction vtkVolumeRayCastIsosurfaceFunction
+ * vtkVolume vtkVolumeProperty
+ * @deprecated
+*/
 
 #ifndef vtkVolumeRayCastMIPFunction_h
 #define vtkVolumeRayCastMIPFunction_h
@@ -48,13 +51,16 @@ public:
   void PrintSelf( ostream& os, vtkIndent indent );
 
 
-  // Description:
-  // Get the scalar value below which all scalar values have zero opacity.
+  /**
+   * Get the scalar value below which all scalar values have zero opacity.
+   */
   float GetZeroOpacityThreshold( vtkVolume *vol );
 
 
-  // Description:
-  // Set the MaximizeMethod to either ScalarValue or Opacity.
+  //@{
+  /**
+   * Set the MaximizeMethod to either ScalarValue or Opacity.
+   */
   vtkSetClampMacro( MaximizeMethod, int,
         VTK_MAXIMIZE_SCALAR_VALUE, VTK_MAXIMIZE_OPACITY );
   vtkGetMacro(MaximizeMethod,int);
@@ -63,6 +69,7 @@ public:
   void SetMaximizeMethodToOpacity()
     {this->SetMaximizeMethod(VTK_MAXIMIZE_OPACITY);}
   const char *GetMaximizeMethodAsString(void);
+  //@}
 
   void CastRay( vtkVolumeRayCastDynamicInfo *dynamicInfo,
                 vtkVolumeRayCastStaticInfo *staticInfo );
@@ -79,8 +86,8 @@ protected:
                                    vtkVolumeRayCastMapper *mapper );
 
 private:
-  vtkVolumeRayCastMIPFunction(const vtkVolumeRayCastMIPFunction&);  // Not implemented.
-  void operator=(const vtkVolumeRayCastMIPFunction&);  // Not implemented.
+  vtkVolumeRayCastMIPFunction(const vtkVolumeRayCastMIPFunction&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVolumeRayCastMIPFunction&) VTK_DELETE_FUNCTION;
 };
 
 

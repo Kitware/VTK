@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLShaderCache - manage Shader Programs within a context
-// .SECTION Description
-// vtkOpenGLShaderCache manages shader program compilation and binding
+/**
+ * @class   vtkOpenGLShaderCache
+ * @brief   manage Shader Programs within a context
+ *
+ * vtkOpenGLShaderCache manages shader program compilation and binding
+*/
 
 #ifndef vtkOpenGLShaderCache_h
 #define vtkOpenGLShaderCache_h
@@ -33,7 +36,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLShaderCache : public vtkObject
 public:
   static vtkOpenGLShaderCache *New();
   vtkTypeMacro(vtkOpenGLShaderCache, vtkObject);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // make sure the specified shaders are compiled, linked, and bound
   virtual vtkShaderProgram *ReadyShaderProgram(
@@ -53,19 +56,22 @@ public:
   virtual vtkShaderProgram *ReadyShaderProgram(
       vtkShaderProgram *shader, vtkTransformFeedback *cap = NULL);
 
-  // Description:
-  // Release the current shader.  Basically go back to
-  // having no shaders loaded.  This is useful for old
-  // legacy code that relies on no shaders being loaded.
+  /**
+   * Release the current shader.  Basically go back to
+   * having no shaders loaded.  This is useful for old
+   * legacy code that relies on no shaders being loaded.
+   */
   void ReleaseCurrentShader();
 
-  // Description:
-  // Free up any resources being used by the provided shader
+  /**
+   * Free up any resources being used by the provided shader
+   */
   virtual void ReleaseGraphicsResources(vtkWindow *win);
 
-  // Description:
-  // Get/Clear the last Shader bound, called by shaders as they release
-  // their graphics resources
+  /**
+   * Get/Clear the last Shader bound, called by shaders as they release
+   * their graphics resources
+   */
   virtual void ClearLastShaderBound() { this->LastShaderBound = NULL; }
   vtkGetObjectMacro(LastShaderBound, vtkShaderProgram);
 
@@ -92,8 +98,8 @@ protected:
   vtkShaderProgram *LastShaderBound;
 
 private:
-  vtkOpenGLShaderCache(const vtkOpenGLShaderCache&);  // Not implemented.
-  void operator=(const vtkOpenGLShaderCache&);  // Not implemented.
+  vtkOpenGLShaderCache(const vtkOpenGLShaderCache&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLShaderCache&) VTK_DELETE_FUNCTION;
 
 };
 

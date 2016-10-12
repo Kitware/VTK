@@ -12,19 +12,22 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGAMBITReader - reads a dataset in Fluent GAMBIT neutral file format
-// .SECTION Description
-// vtkGAMBITReader creates an unstructured grid dataset. It reads ASCII files
-// stored in GAMBIT neutral format, with optional data stored at the nodes or
-// at the cells of the model. A cell-based fielddata stores the material id.
-
-// .SECTION Thanks
-// Thanks to Jean M. Favre (CSCS, Swiss Center for Scientific Computing) who
-// developed this class.
-// Please address all comments to Jean Favre (jfavre at cscs.ch)
-
-// .SECTION See Also
-// vtkAVSucdReader
+/**
+ * @class   vtkGAMBITReader
+ * @brief   reads a dataset in Fluent GAMBIT neutral file format
+ *
+ * vtkGAMBITReader creates an unstructured grid dataset. It reads ASCII files
+ * stored in GAMBIT neutral format, with optional data stored at the nodes or
+ * at the cells of the model. A cell-based fielddata stores the material id.
+ *
+ * @par Thanks:
+ * Thanks to Jean M. Favre (CSCS, Swiss Center for Scientific Computing) who
+ * developed this class.
+ * Please address all comments to Jean Favre (jfavre at cscs.ch)
+ *
+ * @sa
+ * vtkAVSucdReader
+*/
 
 #ifndef vtkGAMBITReader_h
 #define vtkGAMBITReader_h
@@ -40,25 +43,37 @@ public:
   vtkTypeMacro(vtkGAMBITReader,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify the file name of the GAMBIT data file to read.
+  //@{
+  /**
+   * Specify the file name of the GAMBIT data file to read.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Get the total number of cells. The number of cells is only valid after a
-  // successful read of the data file is performed.
+  //@{
+  /**
+   * Get the total number of cells. The number of cells is only valid after a
+   * successful read of the data file is performed.
+   */
   vtkGetMacro(NumberOfCells,int);
+  //@}
 
-  // Description:
-  // Get the total number of nodes. The number of nodes is only valid after a
-  // successful read of the data file is performed.
+  //@{
+  /**
+   * Get the total number of nodes. The number of nodes is only valid after a
+   * successful read of the data file is performed.
+   */
   vtkGetMacro(NumberOfNodes,int);
+  //@}
 
-  // Description:
-  // Get the number of data components at the nodes and cells.
+  //@{
+  /**
+   * Get the number of data components at the nodes and cells.
+   */
   vtkGetMacro(NumberOfNodeFields,int);
   vtkGetMacro(NumberOfCellFields,int);
+  //@}
 
 protected:
   vtkGAMBITReader();
@@ -101,8 +116,8 @@ private:
   void ReadMaterialTypes(vtkUnstructuredGrid *output);
   void ReadBoundaryConditionSets(vtkUnstructuredGrid *output);
 
-  vtkGAMBITReader(const vtkGAMBITReader&);  // Not implemented.
-  void operator=(const vtkGAMBITReader&);  // Not implemented.
+  vtkGAMBITReader(const vtkGAMBITReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGAMBITReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

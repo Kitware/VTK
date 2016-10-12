@@ -27,10 +27,10 @@ void vtkX3DExporterJavaHelper::SetFastInfosetJarLocation(const char* location)
   vtkX3DExporterJavaHelper::FastInfosetJarLocation = 0;
 
   if ( location )
-    {
+  {
     vtkX3DExporterJavaHelper::FastInfosetJarLocation = new char[ strlen(location) + 1 ];
     strcpy(vtkX3DExporterJavaHelper::FastInfosetJarLocation, location);
-    }
+  }
 }
 
 char* vtkX3DExporterJavaHelper::FastInfosetJarLocation = 0;
@@ -38,9 +38,9 @@ char* vtkX3DExporterJavaHelper::FastInfosetJarLocation = 0;
 //----------------------------------------------------------------------------
 #define vtkX3DCheckJNIObject(str, className) \
   if ( !className ) \
-    {\
+  {\
     cerr << "Cannot find required " << str << ": " << #className << endl; \
-    }
+  }
 
 //----------------------------------------------------------------------------
 class vtkX3DExporterJavaHelperInternal
@@ -49,8 +49,8 @@ public:
   vtkX3DExporterJavaHelperInternal() :
     JavaVirtualMachine(0), JavaEnvironment(0), X3DBinaryConverterClass_Write(0),
     X3DBinaryConverterClass_Close(0), X3DBinaryConverterObject(0)
-    {
-    }
+  {
+  }
   JavaVM* JavaVirtualMachine;
   JNIEnv* JavaEnvironment;
   jmethodID X3DBinaryConverterClass_Write;
@@ -58,21 +58,21 @@ public:
   jobject X3DBinaryConverterObject;
 
   jcharArray ConvertToJChar(JNIEnv* env, const char* message)
-    {
+  {
     const size_t len = strlen(message);
     jcharArray array = env->NewCharArray(len);
     jchar *jarray = env->GetCharArrayElements(array,NULL);
     size_t cc;
     for ( cc = 0; cc < len; ++ cc )
-      {
+    {
       jarray[cc] = message[cc];
-      }
+    }
     env->ReleaseCharArrayElements(array,jarray,0);
     return array;
-    }
+  }
 
   jobject CreateString(JNIEnv* env, const char* message)
-    {
+  {
     jclass java_lang_String = env->FindClass("java/lang/String");
     jmethodID java_lang_String_Constructor_From_Array = env->GetMethodID(java_lang_String,
       "<init>", "([C)V");
@@ -81,7 +81,7 @@ public:
       java_lang_String, java_lang_String_Constructor_From_Array, inputFileNameArray);
     env->DeleteLocalRef(inputFileNameArray);
     return inputFileNameString;
-    }
+  }
 };
 
 //----------------------------------------------------------------------------
@@ -93,19 +93,19 @@ vtkX3DExporterJavaHelper::vtkX3DExporterJavaHelper()
   jsize numVMs = 0;
   jint status = JNI_GetCreatedJavaVMs(&VMs, 10, &numVMs);
   if ( numVMs > 0 )
-    {
+  {
     this->Internal->JavaVirtualMachine = VMs;
     status = this->Internal->JavaVirtualMachine->GetEnv(
       (void**)&this->Internal->JavaEnvironment, JNI_VERSION_1_2);
     if ( status != 0 )
-      {
+    {
       vtkErrorMacro("Cannot attach to the Java Virtual Machine");
       delete this->Internal;
       return;
-      }
     }
+  }
   if ( !this->Internal->JavaEnvironment )
-    {
+  {
     JavaVMInitArgs args;
     JavaVMOption options[1];
 
@@ -116,14 +116,14 @@ vtkX3DExporterJavaHelper::vtkX3DExporterJavaHelper()
     args.nOptions = 1;
     std::string str;
     if ( vtkX3DExporterJavaHelper::FastInfosetJarLocation )
-      {
+    {
       str = "-Djava.class.path=";
       str += vtkX3DExporterJavaHelper::FastInfosetJarLocation;
-      }
+    }
     else
-      {
+    {
       str = "-Djava.class.path=FastInfoset.jar";
-      }
+    }
     char* classPath = new char[str.size()+1];
     strcpy(classPath, str.c_str());
     options[0].optionString = classPath;
@@ -133,12 +133,12 @@ vtkX3DExporterJavaHelper::vtkX3DExporterJavaHelper()
     jint res = JNI_CreateJavaVM(&this->Internal->JavaVirtualMachine, (void **)&this->Internal->JavaEnvironment, &args);
     delete [] classPath;
     if ( res != 0 )
-      {
+    {
       vtkErrorMacro("Cannot create VM: " << res);
       delete this->Internal;
       return;
-      }
     }
+  }
 
   vtkX3DCheckJNIObject("VM", this->Internal->JavaEnvironment);
 }
@@ -147,19 +147,19 @@ vtkX3DExporterJavaHelper::vtkX3DExporterJavaHelper()
 vtkX3DExporterJavaHelper::~vtkX3DExporterJavaHelper()
 {
   if ( this->Internal )
-    {
+  {
     //this->Internal->JavaVirtualMachine->DestroyJavaVM();
     delete this->Internal;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 int vtkX3DExporterJavaHelper::OpenFile(const char* fileName)
 {
   if ( !this->Internal )
-    {
+  {
     return 0;
-    }
+  }
   jclass x3dConverterClass = this->Internal->JavaEnvironment->FindClass("vtkX3DBinaryConverter");
   vtkX3DCheckJNIObject("Class", x3dConverterClass);
   jmethodID constructorId = this->Internal->JavaEnvironment->GetMethodID(
@@ -185,16 +185,16 @@ int vtkX3DExporterJavaHelper::OpenFile(const char* fileName)
 int vtkX3DExporterJavaHelper::Write(const char* data, vtkIdType length)
 {
   if ( !this->Internal )
-    {
+  {
     return 0;
-    }
+  }
   jbyteArray array = this->Internal->JavaEnvironment->NewByteArray(length);
   jbyte *jarray = this->Internal->JavaEnvironment->GetByteArrayElements(array,NULL);
   vtkIdType cc;
   for ( cc = 0; cc < length; ++ cc )
-    {
+  {
     jarray[cc] = data[cc];
-    }
+  }
   this->Internal->JavaEnvironment->ReleaseByteArrayElements(array,jarray,0);
   this->Internal->JavaEnvironment->CallVoidMethod(this->Internal->X3DBinaryConverterObject, this->Internal->X3DBinaryConverterClass_Write,
     array);
@@ -205,9 +205,9 @@ int vtkX3DExporterJavaHelper::Write(const char* data, vtkIdType length)
 int vtkX3DExporterJavaHelper::Close()
 {
   if ( !this->Internal )
-    {
+  {
     return 0;
-    }
+  }
   this->Internal->JavaEnvironment->CallVoidMethod(this->Internal->X3DBinaryConverterObject, this->Internal->X3DBinaryConverterClass_Close);
   return 1;
 }

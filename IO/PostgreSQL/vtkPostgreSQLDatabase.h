@@ -18,27 +18,30 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkPostgreSQLDatabase - maintain a connection to a PostgreSQL database
-//
-// .SECTION Description
-//
-// PostgreSQL (http://www.postgres.org) is a BSD-licensed SQL database.
-// It's large, fast, and can not be easily embedded
-// inside other applications.  Its databases are stored in files that
-// belong to another process.
-//
-// This class provides a VTK interface to PostgreSQL.  You do need to
-// download external libraries: we need a copy of PostgreSQL 8
-// (currently 8.2 or 8.3) so that we can link against the libpq C
-// interface.
-//
-// .SECTION Thanks
-//
-// Thanks to David Thompson and Andy Wilson from Sandia National
-// Laboratories for implementing this class.
-//
-// .SECTION See Also
-// vtkPostgreSQLQuery
+/**
+ * @class   vtkPostgreSQLDatabase
+ * @brief   maintain a connection to a PostgreSQL database
+ *
+ *
+ *
+ * PostgreSQL (http://www.postgres.org) is a BSD-licensed SQL database.
+ * It's large, fast, and can not be easily embedded
+ * inside other applications.  Its databases are stored in files that
+ * belong to another process.
+ *
+ * This class provides a VTK interface to PostgreSQL.  You do need to
+ * download external libraries: we need a copy of PostgreSQL 8
+ * (currently 8.2 or 8.3) so that we can link against the libpq C
+ * interface.
+ *
+ *
+ * @par Thanks:
+ * Thanks to David Thompson and Andy Wilson from Sandia National
+ * Laboratories for implementing this class.
+ *
+ * @sa
+ * vtkPostgreSQLQuery
+*/
 
 #ifndef vtkPostgreSQLDatabase_h
 #define vtkPostgreSQLDatabase_h
@@ -62,137 +65,172 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkPostgreSQLDatabase *New();
 
-  // Description:
-  // Open a new connection to the database.  You need to set the
-  // filename before calling this function.  Returns true if the
-  // database was opened successfully; false otherwise.
+  /**
+   * Open a new connection to the database.  You need to set the
+   * filename before calling this function.  Returns true if the
+   * database was opened successfully; false otherwise.
+   */
   bool Open( const char* password = 0 );
 
-  // Description:
-  // Close the connection to the database.
+  /**
+   * Close the connection to the database.
+   */
   void Close();
 
-  // Description:
-  // Return whether the database has an open connection
+  /**
+   * Return whether the database has an open connection
+   */
   bool IsOpen();
 
-  // Description:
-  // Return an empty query on this database.
+  /**
+   * Return an empty query on this database.
+   */
   vtkSQLQuery* GetQueryInstance();
 
-  // Description:
-  // Did the last operation generate an error
+  /**
+   * Did the last operation generate an error
+   */
   virtual bool HasError();
 
-  // Description:
-  // Get the last error text from the database
+  /**
+   * Get the last error text from the database
+   */
   const char* GetLastErrorText();
 
-  // Description:
-  // String representing database type (e.g. "psql").
+  //@{
+  /**
+   * String representing database type (e.g. "psql").
+   */
   vtkGetStringMacro(DatabaseType);
+  //@}
 
-  // Description:
-  // The database server host name.
+  //@{
+  /**
+   * The database server host name.
+   */
   virtual void SetHostName( const char* );
   vtkGetStringMacro(HostName);
+  //@}
 
-  // Description:
-  // The user name for connecting to the database server.
+  //@{
+  /**
+   * The user name for connecting to the database server.
+   */
   virtual void SetUser( const char* );
   vtkGetStringMacro(User);
+  //@}
 
-  // Description:
-  // The user's password for connecting to the database server.
+  /**
+   * The user's password for connecting to the database server.
+   */
   virtual void SetPassword( const char* );
 
-  // Description:
-  // The name of the database to connect to.
+  //@{
+  /**
+   * The name of the database to connect to.
+   */
   virtual void SetDatabaseName( const char* );
   vtkGetStringMacro(DatabaseName);
+  //@}
 
-  // Description:
-  // Additional options for the database.
+  //@{
+  /**
+   * Additional options for the database.
+   */
   virtual void SetConnectOptions( const char* );
   vtkGetStringMacro(ConnectOptions);
+  //@}
 
-  // Description:
-  // The port used for connecting to the database.
+  //@{
+  /**
+   * The port used for connecting to the database.
+   */
   virtual void SetServerPort( int );
   virtual int GetServerPortMinValue()
-    {
+  {
     return 0;
-    }
+  }
   virtual int GetServerPortMaxValue()
-    {
+  {
     return VTK_INT_MAX;
-    }
+  }
   vtkGetMacro(ServerPort, int);
+  //@}
 
-  // Description:
-  // Get a URL referencing the current database connection.
-  // This is not well-defined if the HostName and DatabaseName
-  // have not been set. The URL will be of the form
-  // <code>'psql://'[username[':'password]'@']hostname[':'port]'/'database</code> .
+  /**
+   * Get a URL referencing the current database connection.
+   * This is not well-defined if the HostName and DatabaseName
+   * have not been set. The URL will be of the form
+   * <code>'psql://'[username[':'password]'@']hostname[':'port]'/'database</code> .
+   */
   virtual vtkStdString GetURL();
 
-  // Description:
-  // Get the list of tables from the database
+  /**
+   * Get the list of tables from the database
+   */
   vtkStringArray* GetTables();
 
-  // Description:
-  // Get the list of fields for a particular table
+  /**
+   * Get the list of fields for a particular table
+   */
   vtkStringArray* GetRecord( const char* table );
 
-  // Description:
-  // Return whether a feature is supported by the database.
+  /**
+   * Return whether a feature is supported by the database.
+   */
   bool IsSupported( int feature );
 
-  // Description:
-  // Return a list of databases on the server.
+  /**
+   * Return a list of databases on the server.
+   */
   vtkStringArray* GetDatabases();
 
-  // Description:
-  // Create a new database, optionally dropping any existing database of the same name.
-  // Returns true when the database is properly created and false on failure.
+  /**
+   * Create a new database, optionally dropping any existing database of the same name.
+   * Returns true when the database is properly created and false on failure.
+   */
   bool CreateDatabase( const char* dbName, bool dropExisting = false );
 
-  // Description:
-  // Drop a database if it exists.
-  // Returns true on success and false on failure.
+  /**
+   * Drop a database if it exists.
+   * Returns true on success and false on failure.
+   */
   bool DropDatabase( const char* dbName );
 
-  // Description:
-  // Return the SQL string with the syntax to create a column inside a
-  // "CREATE TABLE" SQL statement.
-  // NB: this method implements the PostgreSQL-specific syntax:
-  // <column name> <column type> <column attributes>
+  /**
+   * Return the SQL string with the syntax to create a column inside a
+   * "CREATE TABLE" SQL statement.
+   * NB: this method implements the PostgreSQL-specific syntax:
+   * <column name> <column type> <column attributes>
+   */
   virtual vtkStdString GetColumnSpecification(
     vtkSQLDatabaseSchema* schema, int tblHandle, int colHandle );
 
-  // Description:
-  // Overridden to determine connection parameters given the URL.
-  // This is called by CreateFromURL() to initialize the instance.
-  // Look at CreateFromURL() for details about the URL format.
+  /**
+   * Overridden to determine connection parameters given the URL.
+   * This is called by CreateFromURL() to initialize the instance.
+   * Look at CreateFromURL() for details about the URL format.
+   */
   virtual bool ParseURL(const char* url);
 
 protected:
   vtkPostgreSQLDatabase();
   ~vtkPostgreSQLDatabase();
 
-  // Description:
-  // Create or refresh the map from Postgres column types to VTK array types.
-  //
-  // Postgres defines a table for types so that users may define types.
-  // This adaptor does not support user-defined types or even all of the
-  // default types defined by Postgres (some are inherently difficult to
-  // translate into VTK since Postgres allows columns to have composite types,
-  // vector-valued types, and extended precision types that vtkVariant does
-  // not support.
-  //
-  // This routine examines the pg_types table to get a map from Postgres column
-  // type IDs (stored as OIDs) to VTK array types. It is called whenever a new
-  // database connection is initiated.
+  /**
+   * Create or refresh the map from Postgres column types to VTK array types.
+
+   * Postgres defines a table for types so that users may define types.
+   * This adaptor does not support user-defined types or even all of the
+   * default types defined by Postgres (some are inherently difficult to
+   * translate into VTK since Postgres allows columns to have composite types,
+   * vector-valued types, and extended precision types that vtkVariant does
+   * not support.
+
+   * This routine examines the pg_types table to get a map from Postgres column
+   * type IDs (stored as OIDs) to VTK array types. It is called whenever a new
+   * database connection is initiated.
+   */
   void UpdateDataTypeMap();
 
   vtkSetStringMacro(DatabaseType);
@@ -214,8 +252,8 @@ protected:
   char* LastErrorText;
 
 private:
-  vtkPostgreSQLDatabase( const vtkPostgreSQLDatabase& ); // Not implemented.
-  void operator = ( const vtkPostgreSQLDatabase& ); // Not implemented.
+  vtkPostgreSQLDatabase( const vtkPostgreSQLDatabase& ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkPostgreSQLDatabase& ) VTK_DELETE_FUNCTION;
 };
 
 // This is basically the body of the SetStringMacro but with a
@@ -229,21 +267,21 @@ private:
     if ( this->name && _arg && (!strcmp(this->name,_arg))) { return;} \
     delete [] this->name; \
     if (_arg) \
-      { \
+    { \
           size_t n = strlen(_arg) + 1; \
           char *cp1 =  new char[n]; \
           const char *cp2 = (_arg); \
           this->name = cp1; \
           do { *cp1++ = *cp2++; } while ( --n ); \
-      } \
+    } \
      else \
-      { \
+     { \
           this->name = NULL; \
-      } \
+     } \
     this->Modified(); \
     this->timeStamp.Modified(); \
     this->Close(); /* Force a re-open on next query */ \
-    }
+  }
 
 vtkSetStringPlusMTimeMacro(vtkPostgreSQLDatabase,HostName,URLMTime);
 vtkSetStringPlusMTimeMacro(vtkPostgreSQLDatabase,User,URLMTime);
@@ -255,12 +293,12 @@ inline void vtkPostgreSQLDatabase::SetServerPort( int _arg )
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting ServerPort to " << _arg );
   if ( this->ServerPort != ( _arg < 0 ? 0 : ( _arg > VTK_INT_MAX ? VTK_INT_MAX : _arg ) ) )
-    {
+  {
     this->ServerPort = ( _arg < 0 ? 0 : ( _arg > VTK_INT_MAX ? VTK_INT_MAX : _arg ) );
     this->Modified();
     this->URLMTime.Modified();
     this->Close(); // Force a re-open on next query
-    }
+  }
 }
 
 #endif // vtkPostgreSQLDatabase_h

@@ -54,24 +54,24 @@ void vtkHyperTreeGridAxisCut::PrintSelf( ostream& os, vtkIndent indent )
   this->Superclass::PrintSelf( os, indent );
 
   if( this->Input )
-    {
+  {
     os << indent << "Input:\n";
     this->Input->PrintSelf( os, indent.GetNextIndent() );
-    }
+  }
   else
-    {
+  {
     os << indent << "Input: ( none )\n";
-    }
+  }
 
   if( this->Output )
-    {
+  {
     os << indent << "Output:\n";
     this->Output->PrintSelf( os, indent.GetNextIndent() );
-    }
+  }
   else
-    {
+  {
     os << indent << "Output: ( none )\n";
-    }
+  }
 
   os << indent << "Plane Normal Axis : " << this->PlaneNormalAxis << endl;
   os << indent << "Plane Position : " << this->PlanePosition << endl;
@@ -101,10 +101,10 @@ int vtkHyperTreeGridAxisCut::RequestData( vtkInformation*,
 
   // This filter is only for 2D slices of 3D grids
   if ( this->Input->GetDimension() != 3 )
-    {
+  {
     vtkErrorMacro( "Axis cut only works with 3D trees." );
     return 0;
-    }
+  }
 
   // Initialize output cell data
   this->InData =
@@ -142,7 +142,7 @@ void vtkHyperTreeGridAxisCut::ProcessTrees()
   vtkHyperTreeGrid::vtkHyperTreeIterator it;
   this->Input->InitializeTreeIterator( it );
   while ( it.GetNextTree( index ) )
-    {
+  {
     // Storage for super cursors
     vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor superCursor;
 
@@ -151,7 +151,7 @@ void vtkHyperTreeGridAxisCut::ProcessTrees()
 
     // Traverse and populate dual recursively
     this->RecursiveProcessTree( &superCursor );
-    } // it
+  } // it
 
   // Set output geometry and topology
   this->Output->SetPoints( this->Points );
@@ -197,21 +197,21 @@ void vtkHyperTreeGridAxisCut::RecursiveProcessTree( void* sc )
   vtkHyperTreeGrid::vtkHyperTreeSimpleCursor* cursor0 = superCursor->GetCursor( 0 );
 
   if ( cursor0->IsLeaf() )
-    {
+  {
     // Cursor is a leaf
     ProcessLeaf3D( sc );
-    }
+  }
   else
-    {
+  {
     // If cursor is not at leaf, recurse to all children
     int numChildren = this->Input->GetNumberOfChildren();
     for ( int child = 0; child < numChildren; ++ child )
-      {
+    {
       vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor newSuperCursor;
       this->Input->InitializeSuperCursorChild( superCursor,&newSuperCursor, child );
       this->RecursiveProcessTree( &newSuperCursor );
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -227,24 +227,24 @@ void vtkHyperTreeGridAxisCut::ProcessLeaf3D( void* sc )
 
   // If leaf is masked, skip it
   if ( this->Input->GetMaterialMask()->GetValue( inId ) )
-    {
+  {
     return;
-    }
+  }
 
   // Terminate if the node does not touch the plane.
   if ( superCursor->Origin[this->PlaneNormalAxis] > this->PlanePosition ||
     ( superCursor->Origin[this->PlaneNormalAxis] +
     superCursor->Size[this->PlaneNormalAxis] < this->PlanePosition ) )
-    {
+  {
     return;
-    }
+  }
 
   // Create rectangles at plane/grid intersection
   double k = ( this->PlanePosition - superCursor->Origin[this->PlaneNormalAxis] ) /
     superCursor->Size[this->PlaneNormalAxis];
   int axis1, axis2;
   switch ( this->PlaneNormalAxis )
-    {
+  {
     case 0:
       axis1 = 1;
       axis2 = 2;
@@ -260,7 +260,7 @@ void vtkHyperTreeGridAxisCut::ProcessLeaf3D( void* sc )
     default:
       vtkErrorMacro( "Bad Axis." );
       return;
-    }
+  }
 
   this->AddFace( inId, superCursor->Origin, superCursor->Size, k,
     this->PlaneNormalAxis, axis1, axis2 );

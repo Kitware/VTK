@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPOutlineFilterInternals - create wireframe outline (or corners) for arbitrary data set
-// .SECTION Description
-// vtkPOutlineFilterInternals has common code for vtkOutlineFilter and
-// vtkOutlineCornerFilter. It assumes the filter is operated in a data parallel
-// pipeline.
+/**
+ * @class   vtkPOutlineFilterInternals
+ * @brief   create wireframe outline (or corners) for arbitrary data set
+ *
+ * vtkPOutlineFilterInternals has common code for vtkOutlineFilter and
+ * vtkOutlineCornerFilter. It assumes the filter is operated in a data parallel
+ * pipeline.
+*/
 
 #ifndef vtkPOutlineFilterInternals_h
 #define vtkPOutlineFilterInternals_h
@@ -29,6 +32,7 @@ class vtkBoundingBox;
 class vtkDataObject;
 class vtkDataObjectTree;
 class vtkDataSet;
+class vtkGraph;
 class vtkInformation;
 class vtkInformationVector;
 class vtkMultiProcessController;
@@ -55,6 +59,7 @@ private:
   int RequestData(vtkUniformGridAMR* amr, vtkPolyData* output);
   int RequestData(vtkDataObjectTree* cd, vtkPolyData* output);
   int RequestData(vtkDataSet* ds, vtkPolyData* output);
+  int RequestData(vtkGraph* graph, vtkPolyData* output);
 
 
   void CollectCompositeBounds(vtkDataObject* input);

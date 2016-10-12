@@ -101,7 +101,7 @@ void MyProcess::Execute()
   vtkDataSet *ds = NULL;
 
   if (me == 0)
-    {
+  {
     char* fname =
       vtkTestUtilities::ExpandDataFileName(
         this->Argc, this->Argv, "Data/tetraMesh.vtk");
@@ -124,18 +124,18 @@ void MyProcess::Execute()
     go = 1;
 
     if ((ds == NULL) || (ds->GetNumberOfCells() == 0))
-      {
-      if (ds)
-        {
-        cout << "Failure: input file has no cells" << endl;
-        }
-      go = 0;
-      }
-    }
-  else
     {
-    ds = static_cast<vtkDataSet *>(ug);
+      if (ds)
+      {
+        cout << "Failure: input file has no cells" << endl;
+      }
+      go = 0;
     }
+  }
+  else
+  {
+    ds = static_cast<vtkDataSet *>(ug);
+  }
 
   vtkMPICommunicator *comm =
     vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
@@ -143,12 +143,12 @@ void MyProcess::Execute()
   comm->Broadcast(&go, 1, 0);
 
   if (!go)
-    {
+  {
     dsr->Delete();
     ug->Delete();
     prm->Delete();
     return;
-    }
+  }
 
   // DATA DISTRIBUTION FILTER
 
@@ -213,7 +213,7 @@ void MyProcess::Execute()
   const int MY_RETURN_VALUE_MESSAGE=0x11;
 
   if (me == 0)
-    {
+  {
     renderer->ResetCamera();
     vtkCamera *camera = renderer->GetActiveCamera();
     //camera->UpdateViewport(renderer);
@@ -237,18 +237,18 @@ void MyProcess::Execute()
       vtkRegressionTester::Test(this->Argc,this->Argv,renWin, 10);
 
     if (ncells != 152)
-      {
+    {
       this->ReturnValue = vtkTesting::FAILED;
-      }
+    }
     for (i=1; i < numProcs; i++)
-      {
+    {
       this->Controller->Send(&this->ReturnValue,1,i,MY_RETURN_VALUE_MESSAGE);
-      }
+    }
 
     prm->StopServices();
-    }
+  }
   else
-    {
+  {
     dd->UseMinimalMemoryOn();
     dd->SetBoundaryModeToAssignToOneRegion();
 
@@ -259,10 +259,10 @@ void MyProcess::Execute()
 
     prm->StartServices();
     this->Controller->Receive(&this->ReturnValue,1,0,MY_RETURN_VALUE_MESSAGE);
-    }
+  }
 
   if (0 && this->ReturnValue == vtkTesting::PASSED)
-    {
+  {
     // Now try using the memory conserving *Lean methods.  The
     // image produced should be identical
 
@@ -272,7 +272,7 @@ void MyProcess::Execute()
     mapper->Update();
 
     if (me == 0)
-      {
+    {
       renderer->ResetCamera();
       vtkCamera *camera = renderer->GetActiveCamera();
       camera->UpdateViewport(renderer);
@@ -286,19 +286,19 @@ void MyProcess::Execute()
                                                   10);
 
       for (i=1; i < numProcs; i++)
-        {
+      {
         this->Controller->Send(&this->ReturnValue,1,i,MY_RETURN_VALUE_MESSAGE);
-        }
+      }
 
       prm->StopServices();
-      }
+    }
     else
-      {
+    {
       prm->StartServices();
       this->Controller->Receive(&this->ReturnValue,1,0,
                                 MY_RETURN_VALUE_MESSAGE);
-      }
     }
+  }
 
   // CLEAN UP
 
@@ -332,24 +332,24 @@ int DistributedData(int argc, char *argv[])
   int me = contr->GetLocalProcessId();
 
   if (numProcs != 2)
-    {
+  {
     if (me == 0)
-      {
+    {
       cout << "DistributedData test requires 2 processes" << endl;
-      }
+    }
     contr->Delete();
     return retVal;
-    }
+  }
 
   if (!contr->IsA("vtkMPIController"))
-    {
+  {
     if (me == 0)
-      {
+    {
       cout << "DistributedData test requires MPI" << endl;
-      }
+    }
     contr->Delete();
     return retVal;   // is this the right error val?   TODO
-    }
+  }
 
   MyProcess *p=MyProcess::New();
   p->SetArgs(argc,argv);

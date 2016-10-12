@@ -45,43 +45,43 @@ void GenerateDescriptorAndMaterial(int depth, int sx, int sy, int sz, int branch
   vtkIdType l = sx * sy * sz;
   vtkIdType s = 1;
   for ( int j = 0; j < depth; j++ )
-    {
+  {
     for ( int i = 0; i < l; i++ )
-      {
+    {
       if ( j > 0 && i%s == 0 )
-        {
+      {
         d << " ";
         if ( j > 1 )
-          {
+        {
           m << " ";
-          }
         }
+      }
       d << "R";
       if ( j > 0 )
-        {
+      {
         m << "1";
-        }
-
       }
+
+    }
     s *= branch * branch;
     l *= branch * branch;
     d << " |";
     if ( j > 0 )
-      {
+    {
       m << " |";
-      }
     }
+  }
 
   for ( int i = 0; i < l; i++ )
-    {
+  {
     if ( i%(s/branch) == 0 )
-      {
+    {
       d << " ";
       m << " ";
-      }
+    }
     d << ".";
     m << "1";
-    }
+  }
 }
 
 void GenerateDescriptorAndMaterial(int depth, int sx, int sy, int sz, int branch,
@@ -90,25 +90,25 @@ void GenerateDescriptorAndMaterial(int depth, int sx, int sy, int sz, int branch
   vtkIdType l = sx * sy * sz;
   vtkIdType s = 1;
   for ( int j = 0; j < depth - 1; j++ )
-    {
+  {
     for ( int i = 0; i < l; i++ )
-      {
+    {
       d->InsertNextValue(1);
       if ( j > 0 )
-        {
+      {
         m->InsertNextValue(1);
-        }
       }
+    }
     s *= branch * branch;
     l *= branch * branch;
-    }
+  }
 
   for ( int i = 0; i < l; i++ )
-    {
+  {
     d->InsertNextValue(0);
     m->InsertNextValue(1);
-    }
   }
+}
 
 int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
 {
@@ -130,9 +130,9 @@ int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
   htGrid->UseMaterialMaskOn();
   vtkNew<vtkIdTypeArray> zero;
   for ( int i = 0; i < sx * sy * sz; i++ )
-    {
+  {
     zero->InsertNextValue(i);
-    }
+  }
   htGrid->SetLevelZeroMaterialIndex( zero.GetPointer() );
   vtkNew<vtkBitArray> desc;
   vtkNew<vtkBitArray> mat;
@@ -164,9 +164,9 @@ int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
   vtkIdType nbPoints = htGrid->GetOutput()->GetNumberOfPoints();
   idArray->SetNumberOfValues( nbPoints );
   for ( vtkIdType i = 0; i < nbPoints; ++ i )
-    {
+  {
     idArray->SetValue( i, i );
-    }
+  }
   htGrid->GetOutput()->GetPointData()->SetScalars( idArray.GetPointer() );
 
   // Geometry
@@ -265,9 +265,9 @@ int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
 
   int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 70 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

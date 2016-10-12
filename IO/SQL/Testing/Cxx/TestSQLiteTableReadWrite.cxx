@@ -35,10 +35,10 @@ bool CompareAsciiFiles(const char* file1, const char* file2);
 int TestSQLiteTableReadWrite(int argc, char *argv[])
 {
   if ( argc <= 1 )
-    {
+  {
     std::cerr << "Usage: " << argv[0] << " <.vtk table file>" << std::endl;
     return 1;
-    }
+  }
   std::cerr << "reading a vtkTable from file" << std::endl;
   vtkSmartPointer<vtkTableReader> tableFileReader =
     vtkSmartPointer<vtkTableReader>::New();
@@ -51,10 +51,10 @@ int TestSQLiteTableReadWrite(int argc, char *argv[])
     vtkSQLDatabase::CreateFromURL( "sqlite://local.db" ) );
   bool status = db->Open("", vtkSQLiteDatabase::CREATE_OR_CLEAR);
   if ( ! status )
-    {
+  {
     std::cerr << "Couldn't open database using CREATE_OR_CLEAR.\n";
     return 1;
-    }
+  }
 
   std::cerr << "creating an SQLite table from a vtkTable" << std::endl;
   vtkSmartPointer<vtkTableToSQLiteWriter> writerToTest =
@@ -83,16 +83,16 @@ int TestSQLiteTableReadWrite(int argc, char *argv[])
   std::cerr << "verifying that it's the same as what we started with...";
   int result = 0;
   if(!CompareAsciiFiles(argv[1], "TestSQLiteTableReadWrite.vtk"))
-    {
+  {
     std::cerr << argv[1] << " differs from TestSQLiteTableReadWrite.vtk" << std::endl;
     PrintFile(argv[1], std::cerr);
     PrintFile("TestSQLiteTableReadWrite.vtk", std::cerr);
     result = 1;
-    }
+  }
   else
-    {
+  {
     std::cerr << "it is!" << std::endl;
-    }
+  }
 
   //drop the table we created
   vtkSQLQuery* query = db->GetQueryInstance();
@@ -115,27 +115,27 @@ void PrintFile(const char* name, std::ostream& os)
   os << "File \"" << name << "\"";
   struct stat fs;
   if(stat(name, &fs) != 0)
-    {
+  {
     os << " does not exist.\n";
     return;
-    }
+  }
   else
-    {
+  {
     os << " has " << fs.st_size << " bytes";
-    }
+  }
 
   std::ifstream fin(name);
   if(fin)
-    {
+  {
     os << ":\n" << div << "\n";
     os << fin.rdbuf();
     os << div << "\n";
     os.flush();
-    }
+  }
   else
-    {
+  {
     os << " but cannot be opened for read.\n";
-    }
+  }
 }
 
 bool CompareAsciiFiles(const char* file1, const char* file2)
@@ -143,36 +143,39 @@ bool CompareAsciiFiles(const char* file1, const char* file2)
   // Open the two files for read
   std::ifstream fin1(file1);
   if(!fin1)
-    {
+  {
     std::cerr << file2 << " cannot be opened for read.\n";
     return false;
-    }
+  }
   std::ifstream fin2(file2);
   if(!fin2)
-    {
+  {
     std::cerr << file2 << " cannot be opened for read.\n";
     return false;
-    }
+  }
   unsigned int lineNo = 0;
   bool status = true;
   std::string line1, line2;
   while (!fin1.eof() && !fin2.eof())
-    {
+  {
     std::getline(fin1, line1);
     std::getline(fin2, line2);
     if (fin1.eof() && !fin2.eof())
-      {
+    {
       status = false;
       break;
-      }
+    }
     else if (!fin1.eof() && fin2.eof())
-      {
+    {
       status = false;
       break;
-      }
+    }
     lineNo++;
-    if (line1 != line2)
-      {
+
+    // The first line contains version information -- skip it so we don't
+    // have to update the input file for irrelevent version changes.
+    if (lineNo > 1 && line1 != line2)
+    {
       std::cerr << "ERROR: line " << lineNo << " in file " << file1
                 << ":\n" << line1
                 << " does not match line in " << file2
@@ -180,8 +183,8 @@ bool CompareAsciiFiles(const char* file1, const char* file2)
                 << std::endl;
       status = false;
       break;
-      }
     }
+  }
   fin1.close();
   fin2.close();
   return status;

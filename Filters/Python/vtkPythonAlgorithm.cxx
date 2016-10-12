@@ -28,26 +28,26 @@ void vtkPythonAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 
   vtkSmartPyObject str;
   if (this->Object)
-    {
+  {
     str.TakeReference(PyObject_Str(this->Object));
-    }
+  }
 
   os << indent << "Object: " << Object << std::endl;
   if (str)
-    {
+  {
     os << indent << "Object (string): ";
 #ifndef VTK_PY3K
     os << PyString_AsString(str);
 #else
     PyObject *bytes = PyUnicode_EncodeLocale(str, VTK_PYUNICODE_ENC);
     if (bytes)
-      {
+    {
       os << PyBytes_AsString(bytes);
       Py_DECREF(bytes);
-      }
+    }
 #endif
     os << std::endl;
-    }
+  }
 }
 
 vtkPythonAlgorithm::vtkPythonAlgorithm()
@@ -78,18 +78,18 @@ vtkPythonAlgorithm::~vtkPythonAlgorithm()
 //          block comment /**/ for void functions using this macro
 #define VTK_GET_METHOD(var, obj, method, failValue)          \
   if (!obj)                                                  \
-    {                                                        \
+  {                                                        \
     return failValue;                                        \
-    }                                                        \
+  }                                                        \
   vtkSmartPyObject var(PyObject_GetAttrString(obj, method)); \
   if (!var)                                                  \
-    {                                                        \
+  {                                                        \
     return failValue;                                        \
-    }                                                        \
+  }                                                        \
   if (!PyCallable_Check(var))                                \
-    {                                                        \
+  {                                                        \
     return failValue;                                        \
-    }
+  }
 
 static PyObject* VTKToPython(vtkObjectBase* obj)
 {
@@ -111,15 +111,15 @@ static std::string GetPythonErrorString()
   vtkSmartPyObject sTraceback(traceback);
 
   if (!sType)
-    {
+  {
     return "No error from Python?!";
-    }
+  }
 
   std::string exc_string;
 
   vtkSmartPyObject tbModule(PyImport_ImportModule("traceback"));
   if (tbModule)
-    {
+  {
     vtkSmartPyObject formatFunction(PyObject_GetAttrString(tbModule.GetPointer(), "format_exception"));
 
     vtkSmartPyObject args(PyTuple_New(3));
@@ -140,42 +140,42 @@ static std::string GetPythonErrorString()
     PyObject** lst = PySequence_Fast_ITEMS(fastFormatList.GetPointer());
     exc_string = "\n";
     for (Py_ssize_t i = 0; i < sz; ++i)
-      {
+    {
       PyObject* str = lst[i];
 #ifndef VTK_PY3K
       exc_string += PyString_AsString(str);
 #else
       PyObject *bytes = PyUnicode_EncodeLocale(str, VTK_PYUNICODE_ENC);
       if (bytes)
-        {
+      {
         exc_string += PyBytes_AsString(bytes);
         Py_DECREF(bytes);
-        }
-#endif
       }
+#endif
     }
+  }
   else
-    {
+  {
     vtkSmartPyObject pyexc_string(PyObject_Str(sValue));
     if (pyexc_string)
-      {
+    {
 #ifndef VTK_PY3K
       exc_string = PyString_AsString(pyexc_string);
 #else
       PyObject *bytes = PyUnicode_EncodeLocale(
         pyexc_string, VTK_PYUNICODE_ENC);
       if (bytes)
-        {
+      {
         exc_string = PyBytes_AsString(bytes);
         Py_DECREF(bytes);
-        }
+      }
 #endif
-      }
-    else
-      {
-      exc_string = "<Unable to convert Python error to string>";
-      }
     }
+    else
+    {
+      exc_string = "<Unable to convert Python error to string>";
+    }
+  }
 
   PyErr_Clear();
 
@@ -185,16 +185,16 @@ static std::string GetPythonErrorString()
 int vtkPythonAlgorithm::CheckResult(const char* method, const vtkSmartPyObject &res)
 {
   if (!res)
-    {
+  {
     std::string pymsg = GetPythonErrorString();
     vtkErrorMacro("Failure when calling method: \""
       << method << "\": " << pymsg << ".");
     return 0;
-    }
+  }
   if (!PyInt_Check(res))
-    {
+  {
     return 0;
-    }
+  }
 
   int code = PyInt_AsLong(res);
 
@@ -204,9 +204,9 @@ int vtkPythonAlgorithm::CheckResult(const char* method, const vtkSmartPyObject &
 void vtkPythonAlgorithm::SetPythonObject(PyObject* obj)
 {
   if (!obj)
-    {
+  {
     return;
-    }
+  }
 
   Py_XDECREF(this->Object);
 
@@ -254,10 +254,10 @@ int vtkPythonAlgorithm::ProcessRequest(vtkInformation* request,
   int nports = this->GetNumberOfInputPorts();
   PyObject* pyininfos = PyTuple_New(nports);
   for (int i = 0; i < nports; ++i)
-    {
+  {
     PyObject* pyininfo = VTKToPython(inInfo[i]);
     PyTuple_SET_ITEM(pyininfos, i, pyininfo);
-    }
+  }
   PyTuple_SET_ITEM(args.GetPointer(), 2, pyininfos);
 
   PyObject* pyoutinfo = VTKToPython(outInfo);

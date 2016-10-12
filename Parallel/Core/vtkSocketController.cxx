@@ -46,17 +46,17 @@ vtkSocketController::~vtkSocketController()
 void vtkSocketController::Initialize(int* , char***)
 {
   if (vtkSocketController::Initialized)
-    {
+  {
     vtkWarningMacro("Already initialized.");
     return;
-    }
+  }
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
   WSAData wsaData;
   if (WSAStartup(WSA_VERSION, &wsaData))
-    {
+  {
     vtkErrorMacro("Could not initialize sockets !");
-    }
+  }
 #endif
   vtkSocketController::Initialized = 1;
 
@@ -66,19 +66,19 @@ void vtkSocketController::Initialize(int* , char***)
 void vtkSocketController::SetCommunicator(vtkSocketCommunicator* comm)
 {
   if (comm == this->Communicator)
-    {
+  {
     return;
-    }
+  }
   if (this->Communicator)
-    {
+  {
     this->Communicator->UnRegister(this);
-    }
+  }
   this->Communicator = comm;
   this->RMICommunicator = comm;
   if (comm)
-    {
+  {
     comm->Register(this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -126,15 +126,15 @@ vtkMultiProcessController *vtkSocketController::CreateCompliantController()
   // This hack creates sub controllers with differing orders of the processes
   // that will map the ids to be unique on each process.
   if (vtkSocketCommunicator::SafeDownCast(this->Communicator)->GetIsServer())
-    {
+  {
     group->AddProcessId(1);
     group->AddProcessId(0);
-    }
+  }
   else
-    {
+  {
     group->AddProcessId(0);
     group->AddProcessId(1);
-    }
+  }
 
   vtkMultiProcessController *compliantController
     = this->CreateSubController(group);

@@ -47,7 +47,7 @@ bool vtkOpenGLRenderPass::SetShaderParameters(vtkShaderProgram *,
 }
 
 //------------------------------------------------------------------------------
-unsigned long int vtkOpenGLRenderPass::GetShaderStageMTime()
+vtkMTimeType vtkOpenGLRenderPass::GetShaderStageMTime()
 {
   return 0;
 }
@@ -68,17 +68,17 @@ void vtkOpenGLRenderPass::PreRender(const vtkRenderState *s)
   assert("Render state valid." && s);
   size_t numProps = s->GetPropArrayCount();
   for (size_t i = 0; i < numProps; ++i)
-    {
+  {
     vtkProp *prop = s->GetPropArray()[i];
     vtkInformation *info = prop->GetPropertyKeys();
     if (!info)
-      {
+    {
       info = vtkInformation::New();
       prop->SetPropertyKeys(info);
       info->FastDelete();
-      }
-    info->Append(vtkOpenGLRenderPass::RenderPasses(), this);
     }
+    info->Append(vtkOpenGLRenderPass::RenderPasses(), this);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -87,16 +87,16 @@ void vtkOpenGLRenderPass::PostRender(const vtkRenderState *s)
   assert("Render state valid." && s);
   size_t numProps = s->GetPropArrayCount();
   for (size_t i = 0; i < numProps; ++i)
-    {
+  {
     vtkProp *prop = s->GetPropArray()[i];
     vtkInformation *info = prop->GetPropertyKeys();
     if (info)
-      {
+    {
       info->Remove(vtkOpenGLRenderPass::RenderPasses(), this);
       if (info->Length(vtkOpenGLRenderPass::RenderPasses()) == 0)
-        {
+      {
         info->Remove(vtkOpenGLRenderPass::RenderPasses());
-        }
       }
     }
+  }
 }

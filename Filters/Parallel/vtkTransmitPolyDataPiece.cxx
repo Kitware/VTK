@@ -63,23 +63,23 @@ int vtkTransmitPolyDataPiece::RequestData(
 
   int procId;
   if (this->Controller == NULL)
-    {
+  {
     vtkErrorMacro("Could not find Controller.");
     return 0;
-    }
+  }
 
   procId = this->Controller->GetLocalProcessId();
   if (procId == 0)
-    {
+  {
     // It is important to synchronize these calls (all processes execute)
     // cerr << "Root Execute\n";
     this->RootExecute(input, output, outInfo);
-    }
+  }
   else
-    {
+  {
     // cerr << "Satellite Execute " << procId << endl;
     this->SatelliteExecute(procId, output, outInfo);
-    }
+  }
 
   return 1;
 }
@@ -116,11 +116,11 @@ void vtkTransmitPolyDataPiece::RootExecute(vtkPolyData *input,
   // Now do each of the satellite requests.
   numProcs = this->Controller->GetNumberOfProcesses();
   for (i = 1; i < numProcs; ++i)
-    {
+  {
     this->Controller->Receive(ext, 3, i, 22341);
     extract->UpdatePiece(ext[0], ext[1], ext[2]);
     this->Controller->Send(extract->GetOutput(), i, 22342);
-    }
+  }
   tmp->Delete();
   extract->Delete();
 }

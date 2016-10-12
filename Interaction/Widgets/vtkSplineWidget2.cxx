@@ -75,10 +75,10 @@ void vtkSplineWidget2::SelectAction(vtkAbstractWidget *w)
   // Okay, make sure that the pick is in the current renderer
   if ( !self->CurrentRenderer ||
        !self->CurrentRenderer->IsInViewport(X,Y) )
-    {
+  {
     self->WidgetState = vtkSplineWidget2::Start;
     return;
-    }
+  }
 
   // Begin the widget interaction which has the side effect of setting the
   // interaction state.
@@ -88,9 +88,9 @@ void vtkSplineWidget2::SelectAction(vtkAbstractWidget *w)
   self->WidgetRep->StartWidgetInteraction(e);
   int interactionState = self->WidgetRep->GetInteractionState();
   if ( interactionState == vtkSplineRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // We are definitely selected
   self->WidgetState = vtkSplineWidget2::Active;
@@ -98,23 +98,23 @@ void vtkSplineWidget2::SelectAction(vtkAbstractWidget *w)
 
   if (interactionState == vtkSplineRepresentation::OnLine &&
     self->Interactor->GetControlKey())
-    {
+  {
     // Add point.
     reinterpret_cast<vtkSplineRepresentation*>(self->WidgetRep)->
       SetInteractionState(vtkSplineRepresentation::Inserting);
-    }
+  }
   else if (interactionState == vtkSplineRepresentation::OnHandle &&
     self->Interactor->GetShiftKey())
-    {
+  {
     // remove point.
     reinterpret_cast<vtkSplineRepresentation*>(self->WidgetRep)->
       SetInteractionState(vtkSplineRepresentation::Erasing);
-    }
+  }
   else
-    {
+  {
     reinterpret_cast<vtkSplineRepresentation*>(self->WidgetRep)->
       SetInteractionState(vtkSplineRepresentation::Moving);
-    }
+  }
 
   // start the interaction
   self->EventCallbackCommand->SetAbortFlag(1);
@@ -143,10 +143,10 @@ void vtkSplineWidget2::ScaleAction(vtkAbstractWidget *w)
   // Okay, make sure that the pick is in the current renderer
   if ( !self->CurrentRenderer ||
        !self->CurrentRenderer->IsInViewport(X,Y) )
-    {
+  {
     self->WidgetState = vtkSplineWidget2::Start;
     return;
-    }
+  }
 
   // Begin the widget interaction which has the side effect of setting the
   // interaction state.
@@ -156,9 +156,9 @@ void vtkSplineWidget2::ScaleAction(vtkAbstractWidget *w)
   self->WidgetRep->StartWidgetInteraction(e);
   int interactionState = self->WidgetRep->GetInteractionState();
   if ( interactionState == vtkSplineRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // We are definitely selected
   self->WidgetState = vtkSplineWidget2::Active;
@@ -181,9 +181,9 @@ void vtkSplineWidget2::MoveAction(vtkAbstractWidget *w)
 
   // See whether we're active
   if ( self->WidgetState == vtkSplineWidget2::Start )
-    {
+  {
     return;
-    }
+  }
 
   // compute some info we need for all cases
   int X = self->Interactor->GetEventPosition()[0];
@@ -206,9 +206,9 @@ void vtkSplineWidget2::EndSelectAction(vtkAbstractWidget *w)
 {
   vtkSplineWidget2 *self = reinterpret_cast<vtkSplineWidget2*>(w);
   if ( self->WidgetState == vtkSplineWidget2::Start )
-    {
+  {
     return;
-    }
+  }
 
   // compute some info we need for all cases
   int X = self->Interactor->GetEventPosition()[0];
@@ -237,9 +237,9 @@ void vtkSplineWidget2::EndSelectAction(vtkAbstractWidget *w)
 void vtkSplineWidget2::CreateDefaultRepresentation()
 {
   if ( ! this->WidgetRep )
-    {
+  {
     this->WidgetRep = vtkSplineRepresentation::New();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

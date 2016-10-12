@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLStructuredGridWriter - Write VTK XML StructuredGrid files.
-// .SECTION Description
-// vtkXMLStructuredGridWriter writes the VTK XML StructuredGrid file
-// format.  One structured grid input can be written into one file in
-// any number of streamed pieces.  The standard extension for this
-// writer's file format is "vts".  This writer is also used to write a
-// single piece of the parallel file format.
-
-// .SECTION See Also
-// vtkXMLPStructuredGridWriter
+/**
+ * @class   vtkXMLStructuredGridWriter
+ * @brief   Write VTK XML StructuredGrid files.
+ *
+ * vtkXMLStructuredGridWriter writes the VTK XML StructuredGrid file
+ * format.  One structured grid input can be written into one file in
+ * any number of streamed pieces.  The standard extension for this
+ * writer's file format is "vts".  This writer is also used to write a
+ * single piece of the parallel file format.
+ *
+ * @sa
+ * vtkXMLPStructuredGridWriter
+*/
 
 #ifndef vtkXMLStructuredGridWriter_h
 #define vtkXMLStructuredGridWriter_h
@@ -38,12 +41,14 @@ public:
   vtkTypeMacro(vtkXMLStructuredGridWriter,vtkXMLStructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get/Set the writer's input.
+  /**
+   * Get/Set the writer's input.
+   */
   vtkStructuredGrid* GetInput();
 
-  // Description:
-  // Get the default file extension for files written by this writer.
+  /**
+   * Get the default file extension for files written by this writer.
+   */
   const char* GetDefaultFileExtension();
 
 protected:
@@ -68,8 +73,8 @@ protected:
   virtual void DeletePositionArrays();
 
 private:
-  vtkXMLStructuredGridWriter(const vtkXMLStructuredGridWriter&);  // Not implemented.
-  void operator=(const vtkXMLStructuredGridWriter&);  // Not implemented.
+  vtkXMLStructuredGridWriter(const vtkXMLStructuredGridWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLStructuredGridWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

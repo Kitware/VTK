@@ -37,7 +37,7 @@ static void ExecuteConvolve (float* kernel, int kernelSize, float* image, float*
   int i, j, k, kStart, iStart, iEnd, count;
 
   for ( i = 0; i < imageSize; ++i )
-    {
+  {
     outImage[i] = 0.0;
 
 //    iStart = i - center;
@@ -56,58 +56,58 @@ static void ExecuteConvolve (float* kernel, int kernelSize, float* image, float*
     iStart = i - center;
     k = kernelSize - 1;
     while ( iStart < 0 )
-      {
+    {
       outImage[i] += image[0] * kernel[k];
       ++iStart;
       --k;
-      }
+    }
 
     iEnd = i + center;
     k = 0;
     while ( iEnd > imageSize - 1 )
-      {
+    {
       outImage[i] += image[imageSize - 1] * kernel[k];
       ++k;
       --iEnd;
-      }
+    }
 
 
     kStart = center + i;
     if ( kStart > kernelSize - 1 )
-      {
+    {
       kStart = kernelSize - 1;
-      }
+    }
     count = iEnd - iStart + 1;
     for ( j = 0; j < count; ++j )
-      {
+    {
       outImage[i] += image[j+iStart] * kernel[kStart-j];
-      }
     }
+  }
 }
 
 // Description:
 // Overload standard modified time function. If kernel arrays are modified,
 // then this object is modified as well.
-unsigned long vtkImageSeparableConvolution::GetMTime()
+vtkMTimeType vtkImageSeparableConvolution::GetMTime()
 {
-  unsigned long mTime=this->vtkImageDecomposeFilter::GetMTime();
-  unsigned long kTime;
+  vtkMTimeType mTime=this->vtkImageDecomposeFilter::GetMTime();
+  vtkMTimeType kTime;
 
   if ( this->XKernel )
-    {
+  {
     kTime = this->XKernel->GetMTime();
     mTime = kTime > mTime ? kTime : mTime;
-    }
+  }
   if ( this->YKernel )
-    {
+  {
     kTime = this->YKernel->GetMTime();
     mTime = kTime > mTime ? kTime : mTime;
-    }
+  }
   if ( this->YKernel )
-    {
+  {
     kTime = this->YKernel->GetMTime();
     mTime = kTime > mTime ? kTime : mTime;
-    }
+  }
   return mTime;
 }
 
@@ -147,7 +147,7 @@ int vtkImageSeparableConvolution::IterativeRequestUpdateExtent(
 
   vtkFloatArray* KernelArray = NULL;
   switch ( this->GetIteration() )
-    {
+  {
     case 0:
       KernelArray = this->GetXKernel();
       break;
@@ -157,13 +157,13 @@ int vtkImageSeparableConvolution::IterativeRequestUpdateExtent(
     case 2:
       KernelArray = this->GetZKernel();
       break;
-    }
+  }
   int kernelSize = 0;
   if ( KernelArray )
-    {
+  {
     kernelSize = KernelArray->GetNumberOfTuples();
     kernelSize = static_cast<int>((kernelSize - 1) / 2.0);
-    }
+  }
 
   int* outExt = output->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 
@@ -172,16 +172,16 @@ int vtkImageSeparableConvolution::IterativeRequestUpdateExtent(
   memcpy(inExt, outExt, 6 * sizeof(int));
   inExt[this->Iteration * 2] = outExt[this->Iteration * 2] - kernelSize;
   if ( inExt[this->Iteration * 2] < wholeExtent[this->Iteration * 2] )
-    {
+  {
     inExt[this->Iteration * 2] = wholeExtent[this->Iteration * 2];
-    }
+  }
 
   inExt[this->Iteration * 2 + 1] =
     outExt[this->Iteration * 2 + 1] + kernelSize;
   if ( inExt[this->Iteration * 2 + 1] > wholeExtent[this->Iteration * 2 + 1] )
-    {
+  {
     inExt[this->Iteration * 2 + 1] = wholeExtent[this->Iteration * 2 + 1];
-    }
+  }
 
   input->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt,6);
 
@@ -220,7 +220,7 @@ void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
 
   vtkFloatArray* KernelArray = NULL;
   switch ( self->GetIteration() )
-    {
+  {
     case 0:
       KernelArray = self->GetXKernel();
       break;
@@ -230,21 +230,21 @@ void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
     case 2:
       KernelArray = self->GetZKernel();
       break;
-    }
+  }
   int kernelSize = 0;
   float* kernel = NULL;
 
   if ( KernelArray )
-    {
+  {
     // Allocate the arrays
     kernelSize = KernelArray->GetNumberOfTuples();
     kernel = new float[kernelSize];
     // Copy the kernel
     for ( i = 0; i < kernelSize; i++ )
-      {
+    {
       kernel[i] = KernelArray->GetValue ( i );
-      }
     }
+  }
 
   int imageSize = inMax0 + 1;
   float* image = new float[imageSize];
@@ -256,52 +256,52 @@ void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
   inPtr2 = static_cast<T *>(inData->GetScalarPointerForExtent(inExt));
   outPtr2 = static_cast<float *>(outData->GetScalarPointerForExtent(outExt));
   for (idx2 = inMin2; idx2 <= inMax2; ++idx2)
-    {
+  {
     inPtr1 = inPtr2;
     outPtr1 = outPtr2;
     for (idx1 = inMin1; !self->AbortExecute && idx1 <= inMax1; ++idx1)
-      {
+    {
       if (!(count%target))
-        {
+      {
         self->UpdateProgress(count/(50.0*target));
-        }
+      }
       count++;
       inPtr0 = inPtr1;
       imagePtr = image;
       for (idx0 = inMin0; idx0 <= inMax0; ++idx0)
-        {
+      {
         *imagePtr = static_cast<float>(*inPtr0);
         inPtr0 += inInc0;
         ++imagePtr;
-        }
+      }
 
       // Call the method that performs the convolution
       if ( kernel )
-        {
+      {
         ExecuteConvolve ( kernel, kernelSize, image, outImage, imageSize );
         imagePtr = outImage;
-        }
+      }
       else
-        {
+      {
         // If we don't have a kernel, just copy to the output
         imagePtr = image;
-        }
+      }
 
       // Copy to output, be aware that we only copy to the extent that was asked for
       outPtr0 = outPtr1;
       imagePtr = imagePtr + (outMin0 - inMin0);
       for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
-        {
+      {
         *outPtr0 = (*imagePtr);
         outPtr0 += outInc0;
         ++imagePtr;
-        }
+      }
       inPtr1 += inInc1;
       outPtr1 += outInc1;
-      }
+    }
     inPtr2 += inInc2;
     outPtr2 += outInc2;
-    }
+  }
 
   delete [] image;
   delete [] outImage;
@@ -330,49 +330,49 @@ int vtkImageSeparableConvolution::IterativeRequestData(
   outData->AllocateScalars(outInfo);
 
   if ( XKernel )
-    {
+  {
     // Check for a filter of odd length
     if ( 1 - ( XKernel->GetNumberOfTuples() % 2 ) )
-      {
+    {
       vtkErrorMacro ( << "Execute:  XKernel must have odd length" );
       return 1;
-      }
     }
+  }
   if ( YKernel )
-    {
+  {
     // Check for a filter of odd length
     if ( 1 - ( YKernel->GetNumberOfTuples() % 2 ) )
-      {
+    {
       vtkErrorMacro ( << "Execute:  YKernel must have odd length" );
       return 1;
-      }
     }
+  }
   if ( ZKernel )
-    {
+  {
     // Check for a filter of odd length
     if ( 1 - ( ZKernel->GetNumberOfTuples() % 2 ) )
-      {
+    {
       vtkErrorMacro ( << "Execute:  ZKernel must have odd length" );
       return 1;
-      }
     }
+  }
 
   if (inData->GetNumberOfScalarComponents() != 1)
-    {
+  {
     vtkErrorMacro(<< "ImageSeparableConvolution only works on 1 component input for the moment.");
     return 1;
-    }
+  }
 
   // this filter expects that the output be floats.
   if (outData->GetScalarType() != VTK_FLOAT)
-    {
+  {
     vtkErrorMacro(<< "Execute: Output must be be type float.");
     return 1;
-    }
+  }
 
   // choose which templated function to call.
   switch (inData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageSeparableConvolutionExecute(
         this, inData, outData, static_cast<VTK_TT*>(0),
@@ -381,7 +381,7 @@ int vtkImageSeparableConvolution::IterativeRequestData(
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return 1;
-    }
+  }
 
   return 1;
 }
@@ -391,30 +391,30 @@ void vtkImageSeparableConvolution::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->XKernel )
-    {
+  {
     os << indent << "XKernel:\n";
     this->XKernel->PrintSelf ( os, indent.GetNextIndent() );
-    }
+  }
   else
-    {
+  {
     os << indent << "XKernel: (not defined)\n";
-    }
+  }
   if ( this->YKernel )
-    {
+  {
     os << indent << "YKernel:\n";
     this->YKernel->PrintSelf ( os, indent.GetNextIndent() );
-    }
+  }
   else
-    {
+  {
     os << indent << "YKernel: (not defined)\n";
-    }
+  }
   if ( this->ZKernel )
-    {
+  {
     os << indent << "ZKernel:\n";
     this->ZKernel->PrintSelf ( os, indent.GetNextIndent() );
-    }
+  }
   else
-    {
+  {
     os << indent << "ZKernel: (not defined)\n";
-    }
+  }
 }

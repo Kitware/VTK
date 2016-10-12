@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSynchronizedTemplates2D - generate isoline(s) from a structured points set
-// .SECTION Description
-// vtkSynchronizedTemplates2D is a 2D implementation of the synchronized
-// template algorithm. Note that vtkContourFilter will automatically
-// use this class when appropriate.
-
-// .SECTION Caveats
-// This filter is specialized to 2D images.
-
-// .SECTION See Also
-// vtkContourFilter vtkSynchronizedTemplates3D
+/**
+ * @class   vtkSynchronizedTemplates2D
+ * @brief   generate isoline(s) from a structured points set
+ *
+ * vtkSynchronizedTemplates2D is a 2D implementation of the synchronized
+ * template algorithm. Note that vtkContourFilter will automatically
+ * use this class when appropriate.
+ *
+ * @warning
+ * This filter is specialized to 2D images.
+ *
+ * @sa
+ * vtkContourFilter vtkSynchronizedTemplates3D
+*/
 
 #ifndef vtkSynchronizedTemplates2D_h
 #define vtkSynchronizedTemplates2D_h
@@ -39,83 +42,98 @@ class VTKFILTERSCORE_EXPORT vtkSynchronizedTemplates2D : public vtkPolyDataAlgor
 public:
   static vtkSynchronizedTemplates2D *New();
   vtkTypeMacro(vtkSynchronizedTemplates2D,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Because we delegate to vtkContourValues
-  unsigned long int GetMTime();
+  /**
+   * Because we delegate to vtkContourValues
+   */
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
-  // Description:
-  // Set a particular contour value at contour number i. The index i ranges
-  // between 0<=i<NumberOfContours.
+  /**
+   * Set a particular contour value at contour number i. The index i ranges
+   * between 0<=i<NumberOfContours.
+   */
   void SetValue(int i, double value) {this->ContourValues->SetValue(i,value);}
 
-  // Description:
-  // Get the ith contour value.
+  /**
+   * Get the ith contour value.
+   */
   double GetValue(int i) {return this->ContourValues->GetValue(i);}
 
-  // Description:
-  // Get a pointer to an array of contour values. There will be
-  // GetNumberOfContours() values in the list.
+  /**
+   * Get a pointer to an array of contour values. There will be
+   * GetNumberOfContours() values in the list.
+   */
   double *GetValues() {return this->ContourValues->GetValues();}
 
-  // Description:
-  // Fill a supplied list with contour values. There will be
-  // GetNumberOfContours() values in the list. Make sure you allocate
-  // enough memory to hold the list.
+  /**
+   * Fill a supplied list with contour values. There will be
+   * GetNumberOfContours() values in the list. Make sure you allocate
+   * enough memory to hold the list.
+   */
   void GetValues(double *contourValues) {
     this->ContourValues->GetValues(contourValues);}
 
-  // Description:
-  // Set the number of contours to place into the list. You only really
-  // need to use this method to reduce list size. The method SetValue()
-  // will automatically increase list size as needed.
+  /**
+   * Set the number of contours to place into the list. You only really
+   * need to use this method to reduce list size. The method SetValue()
+   * will automatically increase list size as needed.
+   */
   void SetNumberOfContours(int number) {
     this->ContourValues->SetNumberOfContours(number);}
 
-  // Description:
-  // Get the number of contours in the list of contour values.
+  /**
+   * Get the number of contours in the list of contour values.
+   */
   int GetNumberOfContours() {
     return this->ContourValues->GetNumberOfContours();}
 
-  // Description:
-  // Generate numContours equally spaced contour values between specified
-  // range. Contour values will include min/max range values.
+  /**
+   * Generate numContours equally spaced contour values between specified
+   * range. Contour values will include min/max range values.
+   */
   void GenerateValues(int numContours, double range[2]) {
     this->ContourValues->GenerateValues(numContours, range);}
 
-  // Description:
-  // Generate numContours equally spaced contour values between specified
-  // range. Contour values will include min/max range values.
+  /**
+   * Generate numContours equally spaced contour values between specified
+   * range. Contour values will include min/max range values.
+   */
   void GenerateValues(int numContours, double rangeStart, double rangeEnd)
     {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
 
-  // Description:
-  // Option to set the point scalars of the output.  The scalars will be the
-  // iso value of course.  By default this flag is on.
+  //@{
+  /**
+   * Option to set the point scalars of the output.  The scalars will be the
+   * iso value of course.  By default this flag is on.
+   */
   vtkSetMacro(ComputeScalars,int);
   vtkGetMacro(ComputeScalars,int);
   vtkBooleanMacro(ComputeScalars,int);
+  //@}
 
-  // Description:
-  // Set/get which component of the scalar array to contour on; defaults to 0.
+  //@{
+  /**
+   * Set/get which component of the scalar array to contour on; defaults to 0.
+   */
   vtkSetMacro(ArrayComponent, int);
   vtkGetMacro(ArrayComponent, int);
+  //@}
 
 protected:
   vtkSynchronizedTemplates2D();
-  ~vtkSynchronizedTemplates2D();
+  ~vtkSynchronizedTemplates2D() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
   vtkContourValues *ContourValues;
 
   int ComputeScalars;
   int ArrayComponent;
 
 private:
-  vtkSynchronizedTemplates2D(const vtkSynchronizedTemplates2D&);  // Not implemented.
-  void operator=(const vtkSynchronizedTemplates2D&);  // Not implemented.
+  vtkSynchronizedTemplates2D(const vtkSynchronizedTemplates2D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSynchronizedTemplates2D&) VTK_DELETE_FUNCTION;
 };
 
 

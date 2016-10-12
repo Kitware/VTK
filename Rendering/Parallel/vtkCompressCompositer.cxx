@@ -87,15 +87,15 @@ vtkCompressCompositer::vtkCompressCompositer()
 vtkCompressCompositer::~vtkCompressCompositer()
 {
   if (this->InternalPData)
-    {
+  {
     this->InternalPData->Delete();
     this->InternalPData = NULL;
-    }
+  }
   if (this->InternalZData)
-    {
+  {
     this->InternalZData->Delete();
     this->InternalZData = NULL;
-    }
+  }
 
   this->Timer->Delete();
   this->Timer = NULL;
@@ -119,42 +119,42 @@ int vtkCompressCompositerCompress(float *zIn, P *pIn, float *zOut, P *pOut,
   // Do not go past the last pixel (zbuf check/correct)
   endZ = zIn+numPixels-1;
   if (*zIn < 0.0 || *zIn > 1.0)
-    {
+  {
     *zIn = 1.0;
-    }
+  }
   while (zIn < endZ)
-    {
+  {
     ++length;
     // Always copy the first pixel value.
     *pOut++ = *pIn++;
     // Find the length of any compressed run.
     compressCount = 0;
     while (*zIn == 1.0 && zIn < endZ)
-      {
+    {
       ++compressCount;
       ++zIn;
       if (*zIn < 0.0 || *zIn > 1.0)
-        {
+      {
         *zIn = 1.0;
-        }
       }
+    }
 
     if (compressCount > 0)
-      { // Only compress runs of 2 or more.
+    { // Only compress runs of 2 or more.
       // Move the pixel pointer past compressed region.
       pIn += (compressCount-1);
       // Set the special z value.
       *zOut++ = (float)(compressCount);
-      }
+    }
     else
-      {
+    {
       *zOut++ = *zIn++;
       if (*zIn < 0.0 || *zIn > 1.0)
-        {
+      {
         *zIn = 1.0;
-        }
       }
     }
+  }
   // Put the last pixel in.
   *pOut = *pIn;
   *zOut = *zIn;
@@ -182,40 +182,40 @@ void vtkCompressCompositer::Compress(vtkFloatArray *zIn, vtkDataArray *pIn,
   // This is just a complex switch statement
   // to call the correct templated function.
   if (pIn->GetDataType() == VTK_UNSIGNED_CHAR)
-    {
+  {
     if (pIn->GetNumberOfComponents() == 3)
-      {
+    {
       length = vtkCompressCompositerCompress(
         pzf1, reinterpret_cast<vtkCharRGBType*>(ppv1),
         pzf2, reinterpret_cast<vtkCharRGBType*>(ppv2),
         totalPixels);
-      }
+    }
     else if (pIn->GetNumberOfComponents() == 4)
-      {
+    {
       length = vtkCompressCompositerCompress(
         pzf1, reinterpret_cast<vtkCharRGBAType*>(ppv1),
         pzf2, reinterpret_cast<vtkCharRGBAType*>(ppv2),
         totalPixels);
-      }
+    }
     else
-      {
+    {
       vtkGenericWarningMacro("Pixels have unexpected number of components.");
       return;
-      }
     }
+  }
   else if (pIn->GetDataType() == VTK_FLOAT &&
            pIn->GetNumberOfComponents() == 4)
-    {
+  {
     length = vtkCompressCompositerCompress(
       pzf1, reinterpret_cast<vtkFloatRGBAType*>(ppv1),
       pzf2, reinterpret_cast<vtkFloatRGBAType*>(ppv2),
       totalPixels);
-    }
+  }
   else
-    {
+  {
     vtkGenericWarningMacro("Unexpected pixel type.");
     return;
-    }
+  }
 
   zOut->SetNumberOfTuples(length);
   pOut->SetNumberOfTuples(length);
@@ -238,24 +238,24 @@ void vtkCompressCompositerUncompress(float *zIn, P *pIn, float *zOut, P *pOut,
   endZ = zIn + lengthIn;
 
   while (zIn < endZ)
-    {
+  {
     // Expand any compressed data.
     if (*zIn > 1.0)
-      {
+    {
       background = *pIn++;
       count = (int)(*zIn++);
       while (count-- > 0)
-        {
+      {
         *pOut++ = background;
         *zOut++ = 1.0;
-        }
-      }
-    else
-      {
-      *pOut++ = *pIn++;
-      *zOut++ = *zIn++;
       }
     }
+    else
+    {
+      *pOut++ = *pIn++;
+      *zOut++ = *zIn++;
+    }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -278,43 +278,43 @@ void vtkCompressCompositer::Uncompress(vtkFloatArray *zIn, vtkDataArray *pIn,
   // This is just a complex switch statement
   // to call the correct templated function.
   if (pIn->GetDataType() == VTK_UNSIGNED_CHAR)
-    {
+  {
     if (pIn->GetNumberOfComponents() == 3)
-      {
+    {
       vtkCompressCompositerUncompress(pzf1,
                                       reinterpret_cast<vtkCharRGBType*>(ppv1),
                                       pzf2,
                                       reinterpret_cast<vtkCharRGBType*>(ppv2),
                                       lengthIn);
-      }
+    }
     else if (pIn->GetNumberOfComponents() == 4)
-      {
+    {
       vtkCompressCompositerUncompress(pzf1,
                                       reinterpret_cast<vtkCharRGBAType*>(ppv1),
                                       pzf2,
                                       reinterpret_cast<vtkCharRGBAType*>(ppv2),
                                       lengthIn);
-      }
+    }
     else
-      {
+    {
       vtkGenericWarningMacro("Pixels have unexpected number of components.");
       return;
-      }
     }
+  }
   else if (pIn->GetDataType() == VTK_FLOAT &&
            pIn->GetNumberOfComponents() == 4)
-    {
+  {
     vtkCompressCompositerUncompress(pzf1,
                                     reinterpret_cast<vtkFloatRGBAType*>(ppv1),
                                     pzf2,
                                     reinterpret_cast<vtkFloatRGBAType*>(ppv2),
                                     lengthIn);
-    }
+  }
   else
-    {
+  {
     vtkGenericWarningMacro("Unexpected pixel type.");
     return;
-    }
+  }
 
   //zOut->SetNumberOfTuples(lengthOut);
   pOut->SetNumberOfTuples(lengthOut);
@@ -348,43 +348,43 @@ int vtkCompressCompositerCompositePair(float *z1, P *p1, float *z2, P *p2,
   endZ1 = z1 + length1;
 
   while(z1 != endZ1)
-    {
+  {
     // Initialize a new state if necessary.
     if (cCount1 == 0 && *z1 > 1.0)
-      { // Detect a new run in buffer 1.
+    { // Detect a new run in buffer 1.
       cCount1 = (int)(*z1);
-      }
+    }
     if (cCount2 == 0 && *z2 > 1.0)
-      { // Detect a new run in buffer 2.
+    { // Detect a new run in buffer 2.
       cCount2 = (int)(*z2);
-      }
+    }
 
     // Case 1: Neither buffer is compressed.
     // We could keep the length of uncompressed runs ...
     if (cCount1 == 0 && cCount2 == 0)
-      {
+    {
       // Loop through buffers doing standard compositing.
       while (*z1 <= 1.0 && *z2 <= 1.0 && z1 != endZ1)
-        {
+      {
         if (*z1 < *z2)
-          {
+        {
           *zOut++ = *z1++;
           ++z2;
           *pOut++ = *p1++;
           ++p2;
-          }
+        }
         else
-          {
+        {
           *zOut++ = *z2++;
           ++z1;
           *pOut++ = *p2++;
           ++p1;
-          }
         }
-      // Let the next iteration determine the new state (counts).
       }
+      // Let the next iteration determine the new state (counts).
+    }
     else if (cCount1 > 0 && cCount2 > 0)
-      { // segment where both are compressed
+    { // segment where both are compressed
       // Pick the smaller compressed run an duplicate in output.
       cCount3 = (cCount1 < cCount2) ? cCount1 : cCount2;
       cCount2 -= cCount3;
@@ -394,49 +394,49 @@ int vtkCompressCompositerCompositePair(float *z1, P *p1, float *z2, P *p2,
       // either pixel will do.
       *pOut++ = *p1;
       if (cCount1 == 0)
-        {
+      {
         ++z1;
         ++p1;
-        }
+      }
       if (cCount2 == 0)
-        {
+      {
         ++z2;
         ++p2;
-        }
       }
+    }
     else if (cCount1 > 0 && cCount2 == 0)
-      { //1 is in a compressed run but 2 is not.
+    { //1 is in a compressed run but 2 is not.
       // Copy from 2 until we hit a compressed region,
       // or we run out of the 1 compressed run.
       while (cCount1 && *z2 <= 1.0)
-        {
+      {
         *zOut++ = *z2++;
         *pOut++ = *p2++;
         --cCount1;
-        }
+      }
       if (cCount1 == 0)
-        {
+      {
         ++z1;
         ++p1;
-        }
       }
+    }
     else if (cCount1 == 0 && cCount2 > 0)
-      { //2 is in a compressed run but 1 is not.
+    { //2 is in a compressed run but 1 is not.
       // Copy from 1 until we hit a compressed region,
       // or we run out of the 2 compressed run.
       while (cCount2 && *z1 <= 1.0)
-        {
+      {
         *zOut++ = *z1++;
         *pOut++ = *p1++;
         --cCount2;
-        }
+      }
       if (cCount2 == 0)
-        {
+      {
         ++z2;
         ++p2;
-        }
-      } // end case if.
-    } // while not finished (process cases).
+      }
+    } // end case if.
+  } // while not finished (process cases).
   // Here is a scary way to determine the length of the new buffer.
   length3 = zOut - startZOut;
 
@@ -465,43 +465,43 @@ void vtkCompressCompositer::CompositeImagePair(
   // This is just a complex switch statement
   // to call the correct templated function.
   if (localP->GetDataType() == VTK_UNSIGNED_CHAR)
-    {
+  {
     if (localP->GetNumberOfComponents() == 3)
-      {
+    {
       l3 = vtkCompressCompositerCompositePair(
         z1, reinterpret_cast<vtkCharRGBType*>(p1),
         z2, reinterpret_cast<vtkCharRGBType*>(p2),
         z3, reinterpret_cast<vtkCharRGBType*>(p3),
                                               length1);
-      }
+    }
     else if (localP->GetNumberOfComponents() == 4)
-      {
+    {
       l3 = vtkCompressCompositerCompositePair(
         z1, reinterpret_cast<vtkCharRGBAType*>(p1),
         z2, reinterpret_cast<vtkCharRGBAType*>(p2),
         z3, reinterpret_cast<vtkCharRGBAType*>(p3),
         length1);
-      }
+    }
     else
-      {
+    {
       vtkGenericWarningMacro("Pixels have unexpected number of components.");
       return;
-      }
     }
+  }
   else if (localP->GetDataType() == VTK_FLOAT &&
            localP->GetNumberOfComponents() == 4)
-    {
+  {
     l3 = vtkCompressCompositerCompositePair(
       z1, reinterpret_cast<vtkFloatRGBAType*>(p1),
       z2, reinterpret_cast<vtkFloatRGBAType*>(p2),
       z3, reinterpret_cast<vtkFloatRGBAType*>(p3),
       length1);
-    }
+  }
   else
-    {
+  {
     vtkGenericWarningMacro("Unexpected pixel type.");
     return;
-    }
+  }
 
   outZ->SetNumberOfTuples(l3);
   outP->SetNumberOfTuples(l3);
@@ -519,14 +519,14 @@ inline int vtkTCLog2(int j, int& exact)
   int counter=0;
   exact = 1;
   while(j)
-    {
+  {
     if ( ( j & 1 ) && (j >> 1) )
-      {
+    {
       exact = 0;
-      }
+    }
     j = j >> 1;
     counter++;
-    }
+  }
   return counter-1;
 }
 
@@ -554,41 +554,41 @@ void vtkCompressCompositer::CompositeBuffer(vtkDataArray *pBuf,
       this->InternalPData->GetDataType() != pBuf->GetDataType() ||
       this->InternalPData->GetNumberOfTuples() != pBuf->GetNumberOfTuples() ||
       this->InternalPData->GetSize() < pBuf->GetSize())
-    {
+  {
     if (this->InternalPData)
-      {
+    {
       vtkCompositer::DeleteArray(this->InternalPData);
       this->InternalPData = NULL;
-      }
+    }
     if (pBuf->GetDataType() == VTK_UNSIGNED_CHAR)
-      {
+    {
       this->InternalPData = vtkUnsignedCharArray::New();
       vtkCompositer::ResizeUnsignedCharArray(
         static_cast<vtkUnsignedCharArray*>(this->InternalPData),
         numComps, pBuf->GetSize());
-      }
+    }
     else
-      {
+    {
       this->InternalPData = vtkFloatArray::New();
       vtkCompositer::ResizeFloatArray(
         static_cast<vtkFloatArray*>(this->InternalPData),
         numComps, pBuf->GetSize());
-      }
     }
+  }
   // Now float array.
   if (this->InternalZData == NULL ||
       this->InternalZData->GetSize() < zBuf->GetSize())
-    {
+  {
     if (this->InternalZData)
-      {
+    {
       vtkCompositer::DeleteArray(this->InternalZData);
       this->InternalZData = NULL;
-      }
+    }
     this->InternalZData = vtkFloatArray::New();
     vtkCompositer::ResizeFloatArray(
       static_cast<vtkFloatArray*>(this->InternalZData),
       1, zBuf->GetSize());
-    }
+  }
 
   // Compress the incoming buffers (in place operation).
   this->Compress(zBuf, pBuf, zTmp, pTmp);
@@ -601,41 +601,41 @@ void vtkCompressCompositer::CompositeBuffer(vtkDataArray *pBuf,
 
   // not a power of 2 -- need an additional level
   if ( !exactLog )
-    {
+  {
     logProcs++;
-    }
+  }
 
 #ifdef MPIPROALLOC
   vtkCommunicator::SetUseCopy(0);
 #endif
   for (i = 0; i < logProcs; i++)
-    {
+  {
     if ((myId % (int)vtkTCPow2(i)) == 0)
-      { // Find participants
+    { // Find participants
       if ((myId % (int)vtkTCPow2(i+1)) < vtkTCPow2(i))
-        {
+      {
         // receivers
         id = myId+vtkTCPow2(i);
 
         // only send or receive if sender or receiver id is valid
         // (handles non-power of 2 cases)
         if (id < numProcs)
-          {
+        {
           this->Controller->Receive(&bufSize, 1, id, 98);
           this->Controller->Receive(zBuf->GetPointer(0), bufSize, id, 99);
           this->Controller->Receive(&bufSize, 1, id, 98);
           if (pTmp->GetDataType() == VTK_UNSIGNED_CHAR)
-            {
+          {
             this->Controller->Receive(reinterpret_cast<unsigned char*>
                                       (pBuf->GetVoidPointer(0)),
                                       bufSize, id, 99);
-            }
+          }
           else
-            {
+          {
             this->Controller->Receive(reinterpret_cast<float*>
                                       (pBuf->GetVoidPointer(0)),
                                       bufSize, id, 99);
-            }
+          }
 
           // notice the result is stored as the local data
           this->CompositeImagePair(z1, p1, zBuf, pBuf, z2, p2);
@@ -646,34 +646,34 @@ void vtkCompressCompositer::CompositeBuffer(vtkDataArray *pBuf,
           z1 = z2;
           p2 = p3;
           z2 = z3;
-          }
         }
+      }
       else
-        { // The current data is always in buffer 1.
+      { // The current data is always in buffer 1.
         id = myId-vtkTCPow2(i);
         if (id < numProcs)
-          {
+        {
           bufSize = z1->GetNumberOfTuples();
           this->Controller->Send(&bufSize, 1, id, 98);
           this->Controller->Send(z1->GetPointer(0), bufSize, id, 99);
           bufSize = p1->GetNumberOfTuples() * numComps;
           this->Controller->Send(&bufSize, 1, id, 98);
           if (p1->GetDataType() == VTK_UNSIGNED_CHAR)
-            {
+          {
             this->Controller->Send(reinterpret_cast<unsigned char*>
                                    (p1->GetVoidPointer(0)),
                                    bufSize, id, 99);
-            }
+          }
           else
-            {
+          {
             this->Controller->Send(reinterpret_cast<float*>
                                    (p1->GetVoidPointer(0)),
                                    bufSize, id, 99);
-            }
           }
         }
       }
     }
+  }
 
 #ifdef MPIPROALLOC
   vtkCommunicator::SetUseCopy(1);
@@ -681,10 +681,10 @@ void vtkCompressCompositer::CompositeBuffer(vtkDataArray *pBuf,
 
 
   if (myId == 0)
-    {
+  {
     // Now we want to decompress into the original buffers.
     this->Uncompress(z1, p1, zBuf, pBuf, uncompressedLength);
-    }
+  }
 
   //this->Timer->StopTimer();
   //float time = this->Timer->GetElapsedTime();

@@ -34,16 +34,16 @@ void vtkTextWidget::SetTextActor(vtkTextActor *textActor)
 {
   vtkTextRepresentation *textRep = reinterpret_cast<vtkTextRepresentation*>(this->WidgetRep);
   if ( ! textRep )
-    {
+  {
     this->CreateDefaultRepresentation();
     textRep = reinterpret_cast<vtkTextRepresentation*>(this->WidgetRep);
-    }
+  }
 
   if ( textRep->GetTextActor() != textActor )
-    {
+  {
     textRep->SetTextActor(textActor);
     this->Modified();
-    }
+  }
 }
 
 
@@ -52,22 +52,22 @@ vtkTextActor *vtkTextWidget::GetTextActor()
 {
   vtkTextRepresentation *textRep = reinterpret_cast<vtkTextRepresentation*>(this->WidgetRep);
   if ( ! textRep )
-    {
+  {
     return NULL;
-    }
+  }
   else
-    {
+  {
     return textRep->GetTextActor();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
 void vtkTextWidget::CreateDefaultRepresentation()
 {
   if ( ! this->WidgetRep )
-    {
+  {
     this->WidgetRep = vtkTextRepresentation::New();
-    }
+  }
 }
 
 //-------------------------------------------------------------------------

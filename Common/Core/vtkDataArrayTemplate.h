@@ -12,9 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDataArrayTemplate
-// .SECTION Description
-// vtkDataArrayTemplate is deprecated, use vtkAOSDataArrayTemplate instead.
+/**
+ * @class   vtkDataArrayTemplate
+ *
+ * vtkDataArrayTemplate is deprecated, use vtkAOSDataArrayTemplate instead.
+*/
 
 #ifndef vtkDataArrayTemplate_h
 #define vtkDataArrayTemplate_h
@@ -40,8 +42,8 @@ protected:
   ~vtkDataArrayTemplate() {}
 
 private:
-  vtkDataArrayTemplate(const vtkDataArrayTemplate&); // Not implemented.
-  void operator=(const vtkDataArrayTemplate&); // Not implemented.
+  vtkDataArrayTemplate(const vtkDataArrayTemplate&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataArrayTemplate&) VTK_DELETE_FUNCTION;
 };
 
 #endif // VTK_LEGACY_REMOVE

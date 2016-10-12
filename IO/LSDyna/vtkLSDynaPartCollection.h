@@ -123,9 +123,9 @@ public:
   template<typename T>
   void FillCellUserId(T *buffer,const LSDynaMetaData::LSDYNA_TYPES& type,
     const vtkIdType& startId, const vtkIdType& numCells)
-    {
+  {
     this->FillCellUserIdArray(buffer,type,startId,numCells);
-    }
+  }
 
 protected:
   vtkLSDynaPartCollection();
@@ -165,8 +165,8 @@ protected:
                          vtkLSDynaPart** parts, const vtkIdType numParts);
 
 private:
-  vtkLSDynaPartCollection( const vtkLSDynaPartCollection& ); // Not implemented.
-  void operator = ( const vtkLSDynaPartCollection& ); // Not implemented.
+  vtkLSDynaPartCollection( const vtkLSDynaPartCollection& ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkLSDynaPartCollection& ) VTK_DELETE_FUNCTION;
 
   LSDynaMetaData *MetaData;
 

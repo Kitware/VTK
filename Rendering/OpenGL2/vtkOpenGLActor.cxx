@@ -58,26 +58,26 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
   // get opacity
   bool opaque = (this->GetIsOpaque() != 0);
   if (opaque)
-    {
+  {
     glDepthMask(GL_TRUE);
-    }
+  }
   else
-    {
+  {
     vtkHardwareSelector* selector = ren->GetSelector();
     bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != NULL);
     if (picking)
-      {
+    {
       glDepthMask(GL_TRUE);
-      }
+    }
     else
-      {
+    {
       // check for deptgh peeling
       vtkInformation *info = this->GetPropertyKeys();
       if (info && info->Has(vtkOpenGLActor::GLDepthMaskOverride()))
-        {
+      {
         int override = info->Get(vtkOpenGLActor::GLDepthMaskOverride());
         switch (override)
-          {
+        {
           case 0:
             glDepthMask(GL_FALSE);
             break;
@@ -87,22 +87,22 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
           default:
             // Do nothing.
             break;
-          }
-        }
-      else
-        {
-        glDepthMask(GL_FALSE); // transparency with alpha blending
         }
       }
+      else
+      {
+        glDepthMask(GL_FALSE); // transparency with alpha blending
+      }
     }
+  }
 
   // send a render to the mapper; update pipeline
   mapper->Render(ren, this);
 
   if (!opaque)
-    {
+  {
     glDepthMask(GL_TRUE);
-    }
+  }
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
@@ -117,30 +117,30 @@ void vtkOpenGLActor::GetKeyMatrices(vtkMatrix4x4 *&mcwc, vtkMatrix3x3 *&normMat)
 {
   // has the actor changed?
   if (this->GetMTime() > this->KeyMatrixTime)
-    {
+  {
     this->ComputeMatrix();
     this->MCWCMatrix->DeepCopy(this->Matrix);
     this->MCWCMatrix->Transpose();
 
     if (this->GetIsIdentity())
-      {
+    {
       this->NormalMatrix->Identity();
-      }
+    }
     else
-      {
+    {
       this->NormalTransform->SetMatrix(this->Matrix);
       vtkMatrix4x4 *mat4 = this->NormalTransform->GetMatrix();
       for(int i = 0; i < 3; ++i)
-        {
+      {
         for (int j = 0; j < 3; ++j)
-          {
+        {
           this->NormalMatrix->SetElement(i, j, mat4->GetElement(i, j));
-          }
         }
       }
+    }
     this->NormalMatrix->Invert();
     this->KeyMatrixTime.Modified();
-    }
+  }
 
   mcwc = this->MCWCMatrix;
   normMat = this->NormalMatrix;

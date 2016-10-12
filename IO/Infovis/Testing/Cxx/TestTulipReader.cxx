@@ -60,12 +60,12 @@ int TestTulipReader(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Initialize();
     iren->Start();
 
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   return !retVal;
 }

@@ -6,7 +6,10 @@ very specific web application.
 from time import time
 import os, sys, logging, types, inspect, traceback, logging, re
 
-from vtkWebCorePython import vtkWebApplication, vtkWebInteractionEvent
+try:
+    from vtk.vtkWebCore import vtkWebApplication, vtkWebInteractionEvent
+except ImportError:
+    from vtkWebCore import vtkWebApplication, vtkWebInteractionEvent
 from autobahn.wamp import register as exportRpc
 
 # =============================================================================
@@ -110,6 +113,9 @@ class vtkWebMouseHandler(vtkWebProtocol):
         retVal = self.getApplication().HandleInteractionEvent(view, pvevent)
         del pvevent
 
+        if retVal:
+            self.getApplication().InvokeEvent('PushRender')
+
         return retVal
 
 # =============================================================================
@@ -135,6 +141,7 @@ class vtkWebViewPort(vtkWebProtocol):
             pass
 
         self.getApplication().InvalidateCache(view)
+        self.getApplication().InvokeEvent('PushRender')
 
         return str(self.getGlobalId(view))
 
@@ -147,6 +154,7 @@ class vtkWebViewPort(vtkWebProtocol):
         # FIXME seb: view.OrientationAxesVisibility = (showAxis if 1 else 0);
 
         self.getApplication().InvalidateCache(view)
+        self.getApplication().InvokeEvent('PushRender')
 
         return str(self.getGlobalId(view))
 
@@ -159,6 +167,7 @@ class vtkWebViewPort(vtkWebProtocol):
         # FIXME seb: view.CenterAxesVisibility = (showAxis if 1 else 0);
 
         self.getApplication().InvalidateCache(view)
+        self.getApplication().InvokeEvent('PushRender')
 
         return str(self.getGlobalId(view))
 
@@ -171,6 +180,8 @@ class vtkWebViewPort(vtkWebProtocol):
         camera.SetCameraViewUp(view_up)
         camera.SetCameraPosition(position)
         self.getApplication().InvalidateCache(view)
+
+        self.getApplication().InvokeEvent('PushRender')
 
 # =============================================================================
 #

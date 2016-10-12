@@ -62,44 +62,44 @@ float vtkStrahlerMetric::CalculateStrahler(
 
   // A leaf node has a Strahler value of 1.
   if (nrChildren == 0)
-    {
+  {
     strahler = 1.0;
-    }
+  }
   else
-    {
+  {
     // Non-leaf node: find the Strahler values of the children.
     childStrahler = new float[nrChildren];
     tree->GetOutEdges(root, children);
     for (vtkIdType i = 0; i < nrChildren; i++)
-      {
+    {
       childStrahler[i] = this->CalculateStrahler(
         children->Next().Target,
         metric,
         tree);
-      }
+    }
     // Determine if the children have the same strahler values
     same = true;
     maxStrahler = childStrahler[0];
     for (vtkIdType j = 1; j < nrChildren; j++)
-      {
+    {
       same = same && (maxStrahler == childStrahler[j]);
       if (maxStrahler <  childStrahler[j])
-        {
+      {
         maxStrahler = childStrahler[j];
-        }
       }
+    }
     // Calculate the strahler value for this node
     strahler = (same) ? maxStrahler + nrChildren - 1
       : maxStrahler + nrChildren - 2;
 
     delete [] childStrahler;
-    }
+  }
   // Record the strahler value within the array.
   metric->InsertValue(root, strahler);
   if (strahler > this->MaxStrahler)
-    {
+  {
     this->MaxStrahler = strahler;
-    }
+  }
   return strahler;
 }
 
@@ -136,12 +136,12 @@ int vtkStrahlerMetric::RequestData(vtkInformation *vtkNotUsed(request),
     input);
 
   if (this->Normalize)
-    {
+  {
     for (vtkIdType i = 0; i < input->GetNumberOfVertices(); i++)
-      {
+    {
       metric->SetValue(i, metric->GetValue(i)/this->MaxStrahler);
-      }
     }
+  }
 
   output->GetVertexData()->AddArray(metric);
   metric->Delete();

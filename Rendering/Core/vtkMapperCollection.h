@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMapperCollection - a list of mappers
-// .SECTION Description
-// vtkMapperCollection represents and provides methods to manipulate a list of
-// mappers (i.e., vtkMapper and subclasses). The list is unsorted and duplicate
-// entries are not prevented.
-
-// .SECTION see also
-// vtkMapper vtkCollection
+/**
+ * @class   vtkMapperCollection
+ * @brief   a list of mappers
+ *
+ * vtkMapperCollection represents and provides methods to manipulate a list of
+ * mappers (i.e., vtkMapper and subclasses). The list is unsorted and duplicate
+ * entries are not prevented.
+ *
+ * @sa
+ * vtkMapper vtkCollection
+*/
 
 #ifndef vtkMapperCollection_h
 #define vtkMapperCollection_h
@@ -34,26 +37,30 @@ class VTKRENDERINGCORE_EXPORT vtkMapperCollection : public vtkCollection
  public:
   static vtkMapperCollection *New();
   vtkTypeMacro(vtkMapperCollection, vtkCollection);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Add an mapper to the list.
+  /**
+   * Add an mapper to the list.
+   */
   void AddItem(vtkMapper *a)
     { this->vtkCollection::AddItem(static_cast<vtkObject *>(a)); }
 
-  // Description:
-  // Get the next mapper in the list.
+  /**
+   * Get the next mapper in the list.
+   */
   vtkMapper *GetNextItem()
     { return static_cast<vtkMapper *>(this->GetNextItemAsObject()); }
 
-  // Description:
-  // Get the last mapper in the list.
+  /**
+   * Get the last mapper in the list.
+   */
   vtkMapper *GetLastItem()
     { return this->Bottom ? static_cast<vtkMapper*>(this->Bottom->Item) : 0; }
 
-  // Description:
-  // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth.
+  /**
+   * Reentrant safe way to get an object in a collection. Just pass the
+   * same cookie back and forth.
+   */
   vtkMapper *GetNextMapper(vtkCollectionSimpleIterator &cookie)
     { return static_cast<vtkMapper *>(this->GetNextItemAsObject(cookie)); }
 
@@ -67,8 +74,8 @@ private:
     { this->vtkCollection::AddItem(o); }
 
 private:
-  vtkMapperCollection(const vtkMapperCollection&);  // Not implemented.
-  void operator=(const vtkMapperCollection&);  // Not implemented.
+  vtkMapperCollection(const vtkMapperCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMapperCollection&) VTK_DELETE_FUNCTION;
 };
 
 #endif

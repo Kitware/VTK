@@ -55,10 +55,10 @@ void vtkImageSinusoidSource::SetDirection(double v0, double v1, double v2)
   sum = v0*v0 + v1*v1 + v2*v2;
 
   if (sum == 0.0)
-    {
+  {
     vtkErrorMacro("Zero direction vector");
     return;
-    }
+  }
 
   // normalize
   sum = 1.0 / sqrt(sum);
@@ -68,9 +68,9 @@ void vtkImageSinusoidSource::SetDirection(double v0, double v1, double v2)
 
   if (this->Direction[0] == v0 && this->Direction[1] == v1
       && this->Direction[2] == v2)
-    {
+  {
     return;
-    }
+  }
 
   this->Direction[0] = v0;
   this->Direction[1] = v1;
@@ -87,39 +87,39 @@ void vtkImageSinusoidSource::SetWholeExtent(int xMin, int xMax,
   int modified = 0;
 
   if (this->WholeExtent[0] != xMin)
-    {
+  {
     modified = 1;
     this->WholeExtent[0] = xMin ;
-    }
+  }
   if (this->WholeExtent[1] != xMax)
-    {
+  {
     modified = 1;
     this->WholeExtent[1] = xMax ;
-    }
+  }
   if (this->WholeExtent[2] != yMin)
-    {
+  {
     modified = 1;
     this->WholeExtent[2] = yMin ;
-    }
+  }
   if (this->WholeExtent[3] != yMax)
-    {
+  {
     modified = 1;
     this->WholeExtent[3] = yMax ;
-    }
+  }
   if (this->WholeExtent[4] != zMin)
-    {
+  {
     modified = 1;
     this->WholeExtent[4] = zMin ;
-    }
+  }
   if (this->WholeExtent[5] != zMax)
-    {
+  {
     modified = 1;
     this->WholeExtent[5] = zMax ;
-    }
+  }
   if (modified)
-    {
+  {
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -155,9 +155,9 @@ void vtkImageSinusoidSource::ExecuteDataWithInformation(vtkDataObject *output,
   unsigned long target;
 
   if (data->GetScalarType() != VTK_DOUBLE)
-    {
+  {
     vtkErrorMacro("Execute: This source only outputs doubles");
-    }
+  }
 
   outExt = data->GetExtent();
 
@@ -176,18 +176,18 @@ void vtkImageSinusoidSource::ExecuteDataWithInformation(vtkDataObject *output,
 
   // Loop through output pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
-    {
+  {
     zContrib = this->Direction[2] * (idxZ + outExt[4]);
     for (idxY = 0; !this->AbortExecute && idxY <= maxY; idxY++)
-      {
+    {
       if (!(count%target))
-        {
+      {
         this->UpdateProgress(count/(50.0*target));
-        }
+      }
       count++;
       yContrib = this->Direction[1] * (idxY + outExt[2]);
       for (idxX = 0; idxX <= maxX; idxX++)
-        {
+      {
         xContrib = this->Direction[0] * static_cast<double>(idxX + outExt[0]);
         // find dot product
         sum = zContrib + yContrib + xContrib;
@@ -195,11 +195,11 @@ void vtkImageSinusoidSource::ExecuteDataWithInformation(vtkDataObject *output,
         *outPtr = this->Amplitude *
           cos((2.0 * vtkMath::Pi() * sum / this->Period) - this->Phase);
         outPtr++;
-        }
-      outPtr += outIncY;
       }
-    outPtr += outIncZ;
+      outPtr += outIncY;
     }
+    outPtr += outIncZ;
+  }
 }
 
 //----------------------------------------------------------------------------

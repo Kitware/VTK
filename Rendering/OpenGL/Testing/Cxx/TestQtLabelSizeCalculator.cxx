@@ -78,17 +78,17 @@ int TestQtLabelSizeCalculator(int argc, char *argv[])
   VTK_CREATE( vtkPoints, points );
 
   for(i = 0; i < 29; i++)
-    {
+  {
     points->InsertPoint( i, 0.0, 0.0, 0.0 );
-    }
+  }
   points->InsertPoint( 29, 5.0, 5.0, 0.0 );
 
   VTK_CREATE( vtkCellArray, cells );
   cells->InsertNextCell(30);
   for(i = 0; i < 30; i++)
-    {
+  {
     cells->InsertCellPoint(i);
-    }
+  }
 
   VTK_CREATE( vtkPolyData, polyData );
   polyData->SetPoints(points);
@@ -187,9 +187,9 @@ int TestQtLabelSizeCalculator(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage( renWin );
 //  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

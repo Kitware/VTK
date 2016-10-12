@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDummyController - Dummy controller for single process applications
-// .SECTION Description
-// This is a dummy controller which can be used by applications which always
-// require a controller but are also compile on systems without threads
-// or mpi.
-// .SECTION see also
-// vtkMultiProcessController
+/**
+ * @class   vtkDummyController
+ * @brief   Dummy controller for single process applications
+ *
+ * This is a dummy controller which can be used by applications which always
+ * require a controller but are also compile on systems without threads
+ * or mpi.
+ * @sa
+ * vtkMultiProcessController
+*/
 
 #ifndef vtkDummyController_h
 #define vtkDummyController_h
@@ -33,44 +36,52 @@ public:
   vtkTypeMacro(vtkDummyController,vtkMultiProcessController);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // This method is for setting up the processes.
+  /**
+   * This method is for setting up the processes.
+   */
   virtual void Initialize(int*, char***, int) {}
   virtual void Initialize(int*, char***) {}
   virtual void Finalize() {}
   virtual void Finalize(int) {}
 
-  // Description:
-  // This method always returns 0.
+  /**
+   * This method always returns 0.
+   */
   int GetLocalProcessId() { return 0; }
 
-  // Description:
-  // Directly calls the single method.
+  /**
+   * Directly calls the single method.
+   */
   virtual void SingleMethodExecute();
 
-  // Description:
-  // Directly calls multiple method 0.
+  /**
+   * Directly calls multiple method 0.
+   */
   virtual void MultipleMethodExecute();
 
-  // Description:
-  // Does nothing.
+  /**
+   * Does nothing.
+   */
   virtual void CreateOutputWindow() {}
 
-  // Description:
-  // If you don't need any special functionality from the controller, you
-  // can swap out the dummy communicator for another one.
+  //@{
+  /**
+   * If you don't need any special functionality from the controller, you
+   * can swap out the dummy communicator for another one.
+   */
   vtkGetObjectMacro(Communicator, vtkCommunicator);
   vtkGetObjectMacro(RMICommunicator, vtkCommunicator);
   virtual void SetCommunicator(vtkCommunicator *);
   virtual void SetRMICommunicator(vtkCommunicator *);
+  //@}
 
 protected:
   vtkDummyController();
   ~vtkDummyController();
 
 private:
-  vtkDummyController(const vtkDummyController&);  // Not implemented.
-  void operator=(const vtkDummyController&);  // Not implemented.
+  vtkDummyController(const vtkDummyController&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDummyController&) VTK_DELETE_FUNCTION;
 };
 
 #endif

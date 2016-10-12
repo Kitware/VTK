@@ -37,38 +37,38 @@ vtkXYPlotWidget::vtkXYPlotWidget()
 vtkXYPlotWidget::~vtkXYPlotWidget()
 {
   if (this->XYPlotActor)
-    {
+  {
     this->XYPlotActor->Delete();
-    }
+  }
 }
 
 //-------------------------------------------------------------------------
 void vtkXYPlotWidget::SetEnabled(int enabling)
 {
   if ( ! this->Interactor )
-    {
+  {
     vtkErrorMacro(<<"The interactor must be set prior to enabling/disabling widget");
     return;
-    }
+  }
 
   if ( enabling )
-    {
+  {
     vtkDebugMacro(<<"Enabling line widget");
     if ( this->Enabled ) //already enabled, just return
-      {
+    {
       return;
-      }
+    }
 
     if ( ! this->CurrentRenderer )
-      {
+    {
       this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(
         this->Interactor->GetLastEventPosition()[0],
         this->Interactor->GetLastEventPosition()[1]));
       if (this->CurrentRenderer == NULL)
-        {
+      {
         return;
-        }
       }
+    }
 
     this->Enabled = 1;
 
@@ -84,14 +84,14 @@ void vtkXYPlotWidget::SetEnabled(int enabling)
     // Add the xy plot
     this->CurrentRenderer->AddViewProp(this->XYPlotActor);
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
-    }
+  }
   else //disabling------------------------------------------
-    {
+  {
     vtkDebugMacro(<<"Disabling line widget");
     if ( ! this->Enabled ) //already disabled, just return
-      {
+    {
       return;
-      }
+    }
     this->Enabled = 0;
 
     // don't listen for events any more
@@ -101,7 +101,7 @@ void vtkXYPlotWidget::SetEnabled(int enabling)
     this->CurrentRenderer->RemoveActor(this->XYPlotActor);
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
     this->SetCurrentRenderer(NULL);
-    }
+  }
 
   this->Interactor->Render();
 }
@@ -116,7 +116,7 @@ void vtkXYPlotWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
 
   //okay, let's do the right thing
   switch(event)
-    {
+  {
     case vtkCommand::LeftButtonPressEvent:
       self->OnLeftButtonDown();
       break;
@@ -126,7 +126,7 @@ void vtkXYPlotWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
     case vtkCommand::MouseMoveEvent:
       self->OnMouseMove();
       break;
-    }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -143,57 +143,57 @@ int vtkXYPlotWidget::ComputeStateBasedOnPosition(int X, int Y,
   int e3 = 0;
   int e4 = 0;
   if (X - pos1[0] < 7)
-    {
+  {
     e1 = 1;
-    }
+  }
   if (pos2[0] - X < 7)
-    {
+  {
     e3 = 1;
-    }
+  }
   if (Y - pos1[1] < 7)
-    {
+  {
     e2 = 1;
-    }
+  }
   if (pos2[1] - Y < 7)
-    {
+  {
     e4 = 1;
-    }
+  }
 
   // assume we are moving
   Result = vtkXYPlotWidget::Moving;
   // unless we are on a corner or edges
   if (e2)
-    {
+  {
     Result = vtkXYPlotWidget::AdjustingE2;
-    }
+  }
   if (e4)
-    {
+  {
     Result = vtkXYPlotWidget::AdjustingE4;
-    }
+  }
   if (e1)
-    {
+  {
     Result = vtkXYPlotWidget::AdjustingE1;
     if (e2)
-      {
-      Result = vtkXYPlotWidget::AdjustingP1;
-      }
-    if (e4)
-      {
-      Result = vtkXYPlotWidget::AdjustingP4;
-      }
-    }
-  if (e3)
     {
+      Result = vtkXYPlotWidget::AdjustingP1;
+    }
+    if (e4)
+    {
+      Result = vtkXYPlotWidget::AdjustingP4;
+    }
+  }
+  if (e3)
+  {
     Result = vtkXYPlotWidget::AdjustingE3;
     if (e2)
-      {
+    {
       Result = vtkXYPlotWidget::AdjustingP2;
-      }
-    if (e4)
-      {
-      Result = vtkXYPlotWidget::AdjustingP3;
-      }
     }
+    if (e4)
+    {
+      Result = vtkXYPlotWidget::AdjustingP3;
+    }
+  }
 
   return Result;
 }
@@ -202,7 +202,7 @@ int vtkXYPlotWidget::ComputeStateBasedOnPosition(int X, int Y,
 void vtkXYPlotWidget::SetCursor(int cState)
 {
   switch (cState)
-    {
+  {
     case vtkXYPlotWidget::AdjustingP1:
       this->RequestCursorShape(VTK_CURSOR_SIZESW);
       break;
@@ -226,7 +226,7 @@ void vtkXYPlotWidget::SetCursor(int cState)
     case vtkXYPlotWidget::Moving:
       this->RequestCursorShape(VTK_CURSOR_SIZEALL);
       break;
-    }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -245,9 +245,9 @@ void vtkXYPlotWidget::OnLeftButtonDown()
 
   // are we not over the xy plot, ignore
   if (X < pos1[0] || X > pos2[0] || Y < pos1[1] || Y > pos2[1])
-    {
+  {
     return;
-    }
+  }
 
   // start a drag, store the normalized view coords
   double X2 = X;
@@ -279,40 +279,40 @@ void vtkXYPlotWidget::OnMouseMove()
   int *pos1, *pos2;
   if (this->State == vtkXYPlotWidget::Outside ||
       this->State == vtkXYPlotWidget::Inside)
-    {
+  {
     pos1 = this->XYPlotActor->GetPositionCoordinate()
       ->GetComputedDisplayValue(this->CurrentRenderer);
     pos2 = this->XYPlotActor->GetPosition2Coordinate()
       ->GetComputedDisplayValue(this->CurrentRenderer);
 
     if (this->State == vtkXYPlotWidget::Outside)
-      {
+    {
       // if we are not over the xy plot, ignore
       if (X < pos1[0] || X > pos2[0] ||
           Y < pos1[1] || Y > pos2[1])
-        {
+      {
         return;
-        }
+      }
       // otherwise change our state to inside
       this->State = vtkXYPlotWidget::Inside;
-      }
+    }
 
     // if inside, set the cursor to the correct shape
     if (this->State == vtkXYPlotWidget::Inside)
-      {
+    {
       // if we have left then change cursor back to default
       if (X < pos1[0] || X > pos2[0] ||
           Y < pos1[1] || Y > pos2[1])
-        {
+      {
         this->State = vtkXYPlotWidget::Outside;
         this->RequestCursorShape(VTK_CURSOR_DEFAULT);
         return;
-        }
+      }
       // adjust the cursor based on our position
       this->SetCursor(this->ComputeStateBasedOnPosition(X,Y,pos1,pos2));
       return;
-      }
     }
+  }
 
   double XF = X;
   double YF = Y;
@@ -333,7 +333,7 @@ void vtkXYPlotWidget::OnMouseMove()
 
   // based on the state, adjust the xy plot parameters
   switch (this->State)
-    {
+  {
     case vtkXYPlotWidget::AdjustingP1:
       par1[0] = par1[0] + XF - this->StartPosition[0];
       par1[1] = par1[1] + YF - this->StartPosition[1];
@@ -375,52 +375,52 @@ void vtkXYPlotWidget::OnMouseMove()
       float centerY = (par1[1] + par2[1])/2.0;
       // what edge is it closest to
       if (fabs(centerX - 0.5) > fabs(centerY - 0.5))
-        {
+      {
         // is it far enough in to consider a change in orientation?
         if (fabs(centerX - 0.5) > 0.2+fabs(centerY - 0.5))
-          {
+        {
           // do we need to change orientation
           if (!this->XYPlotActor->GetExchangeAxes())
-            {
+          {
             this->XYPlotActor->SetExchangeAxes(1);
             // also change the corners
             par2[0] = centerX + centerY - par1[1];
             par2[1] = centerY + centerX - par1[0];
             par1[0] = 2*centerX - par2[0];
             par1[1] = 2*centerY - par2[1];
-            }
           }
         }
+      }
       else
-        {
+      {
         // is it far enough in to consider a change in orientation?
         if (fabs(centerY - 0.5) > 0.2+fabs(centerX - 0.5))
-          {
+        {
           // do we need to change orientation
           if (this->XYPlotActor->GetExchangeAxes())
-            {
+          {
             this->XYPlotActor->SetExchangeAxes(0);
             // also change the corners
             par2[0] = centerX + centerY - par1[1];
             par2[1] = centerY + centerX - par1[0];
             par1[0] = 2*centerX - par2[0];
             par1[1] = 2*centerY - par2[1];
-            }
           }
         }
+      }
       break;
-    }
+  }
 
   // push the change out to the xy plot
   // make sure the xy plot doesn't shrink to nothing
   if (par2[0] > par1[0] && par2[1] > par1[1])
-    {
+  {
     this->XYPlotActor->GetPositionCoordinate()->SetValue(par1[0],par1[1]);
     this->XYPlotActor->GetPosition2Coordinate()->
       SetValue(par2[0] - par1[0], par2[1] - par1[1]);
     this->StartPosition[0] = XF;
     this->StartPosition[1] = YF;
-    }
+  }
 
   // start a drag
   this->EventCallbackCommand->SetAbortFlag(1);
@@ -432,9 +432,9 @@ void vtkXYPlotWidget::OnMouseMove()
 void vtkXYPlotWidget::OnLeftButtonUp()
 {
   if (this->State == vtkXYPlotWidget::Outside)
-    {
+  {
     return;
-    }
+  }
 
   // stop adjusting
   this->State = vtkXYPlotWidget::Outside;

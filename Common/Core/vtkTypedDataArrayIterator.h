@@ -13,19 +13,22 @@
 
 =========================================================================*/
 
-// .NAME vtkTypedDataArrayIterator - STL-style random access iterator for
-// vtkTypedDataArrays.
-//
-// .SECTION Description
-// vtkTypedDataArrayIterator provides an STL-style iterator that can be used to
-// interact with instances of vtkTypedDataArray. It is intended to provide an
-// alternative to using vtkDataArray::GetVoidPointer() that only uses
-// vtkTypedDataArray API functions to retrieve values. It is especially helpful
-// for safely iterating through subclasses of vtkMappedDataArray, which may
-// not use the same memory layout as a typical vtkDataArray.
-//
-// NOTE: This class has been superceded by the newer vtkGenericDataArray and
-// vtkArrayDispatch mechanism.
+/**
+ * @class   vtkTypedDataArrayIterator
+ * @brief   STL-style random access iterator for
+ * vtkTypedDataArrays.
+ *
+ *
+ * vtkTypedDataArrayIterator provides an STL-style iterator that can be used to
+ * interact with instances of vtkTypedDataArray. It is intended to provide an
+ * alternative to using vtkDataArray::GetVoidPointer() that only uses
+ * vtkTypedDataArray API functions to retrieve values. It is especially helpful
+ * for safely iterating through subclasses of vtkMappedDataArray, which may
+ * not use the same memory layout as a typical vtkDataArray.
+ *
+ * NOTE: This class has been superceded by the newer vtkGenericDataArray and
+ * vtkArrayDispatch mechanism.
+*/
 
 #ifndef vtkTypedDataArrayIterator_h
 #define vtkTypedDataArrayIterator_h

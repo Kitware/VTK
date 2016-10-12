@@ -36,11 +36,11 @@ vtkIdType vtkMergePoints::IsInsertedPoint(const double x[3])
   vtkIdList* bucket = this->HashTable[idx];
 
   if ( ! bucket )
-    {
+  {
     return -1;
-    }
+  }
   else // see whether we've got duplicate point
-    {
+  {
     //
     // Check the list of points in that bucket.
     //
@@ -53,7 +53,7 @@ vtkIdType vtkMergePoints::IsInsertedPoint(const double x[3])
     vtkDataArray *dataArray = this->Points->GetData();
     vtkIdType *idArray = bucket->GetPointer(0);
     if (dataArray->GetDataType() == VTK_FLOAT)
-      {
+    {
       float f[3];
       f[0] = static_cast<float>(x[0]);
       f[1] = static_cast<float>(x[1]);
@@ -61,30 +61,30 @@ vtkIdType vtkMergePoints::IsInsertedPoint(const double x[3])
       vtkFloatArray *floatArray = static_cast<vtkFloatArray *>(dataArray);
       float *pt;
       for (vtkIdType i=0; i < nbOfIds; i++)
-        {
+      {
         ptId = idArray[i];
         pt = floatArray->GetPointer(0) + 3*ptId;
         if ( f[0] == pt[0] && f[1] == pt[1] && f[2] == pt[2] )
-          {
-          return ptId;
-          }
-        }
-      }
-    else
-      {
-      // Using the double interface
-      double *pt;
-      for (vtkIdType i=0; i < nbOfIds; i++)
         {
-        ptId = idArray[i];
-        pt = dataArray->GetTuple(ptId);
-        if ( x[0] == pt[0] && x[1] == pt[1] && x[2] == pt[2] )
-          {
           return ptId;
-          }
         }
       }
     }
+    else
+    {
+      // Using the double interface
+      double *pt;
+      for (vtkIdType i=0; i < nbOfIds; i++)
+      {
+        ptId = idArray[i];
+        pt = dataArray->GetTuple(ptId);
+        if ( x[0] == pt[0] && x[1] == pt[1] && x[2] == pt[2] )
+        {
+          return ptId;
+        }
+      }
+    }
+  }
 
   return -1;
 }
@@ -100,7 +100,7 @@ int vtkMergePoints::InsertUniquePoint(const double x[3], vtkIdType &id)
   vtkIdList* bucket = this->HashTable[idx];
 
   if (bucket) // see whether we've got duplicate point
-    {
+  {
     //
     // Check the list of points in that bucket.
     //
@@ -114,7 +114,7 @@ int vtkMergePoints::InsertUniquePoint(const double x[3], vtkIdType &id)
     vtkIdType *idArray = bucket->GetPointer(0);
 
     if (dataArray->GetDataType() == VTK_FLOAT)
-      {
+    {
       float f[3];
       f[0] = static_cast<float>(x[0]);
       f[1] = static_cast<float>(x[1]);
@@ -122,42 +122,42 @@ int vtkMergePoints::InsertUniquePoint(const double x[3], vtkIdType &id)
       vtkFloatArray *floatArray = static_cast<vtkFloatArray *>(dataArray);
       float *pt;
       for (vtkIdType i=0; i < nbOfIds; i++)
-        {
+      {
         ptId = idArray[i];
         pt = floatArray->GetPointer(0) + 3*ptId;
         if ( f[0] == pt[0] && f[1] == pt[1] && f[2] == pt[2] )
-          {
-          // point is already in the list, return 0 and set the id parameter
-          id = ptId;
-          return 0;
-          }
-        }
-      }
-    else
-      {
-      // Using the double interface
-      double *pt;
-      for (vtkIdType i=0; i < nbOfIds; i++)
         {
-        ptId = idArray[i];
-        pt = dataArray->GetTuple(ptId);
-        if ( x[0] == pt[0] && x[1] == pt[1] && x[2] == pt[2] )
-          {
           // point is already in the list, return 0 and set the id parameter
           id = ptId;
           return 0;
-          }
         }
       }
     }
-  else
+    else
     {
+      // Using the double interface
+      double *pt;
+      for (vtkIdType i=0; i < nbOfIds; i++)
+      {
+        ptId = idArray[i];
+        pt = dataArray->GetTuple(ptId);
+        if ( x[0] == pt[0] && x[1] == pt[1] && x[2] == pt[2] )
+        {
+          // point is already in the list, return 0 and set the id parameter
+          id = ptId;
+          return 0;
+        }
+      }
+    }
+  }
+  else
+  {
     // create a bucket point list and insert the point
     bucket = vtkIdList::New();
     bucket->Allocate(this->NumberOfPointsPerBucket/2,
                      this->NumberOfPointsPerBucket/3);
     this->HashTable[idx] = bucket;
-    }
+  }
 
   // point has to be added
   bucket->InsertNextId(this->InsertionPointId);

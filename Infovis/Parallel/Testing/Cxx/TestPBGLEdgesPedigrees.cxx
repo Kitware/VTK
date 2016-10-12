@@ -73,7 +73,7 @@ void UseCase3()
   helper->Synchronize();
 
   if (myRank == 0)
-    {
+  {
     cout << "===================================\n"; cout.flush();
     cout << "owner of A= "<< helper->GetVertexOwnerByPedigreeId(vtkVariant("A")) << endl;
     cout << "owner of B= "<< helper->GetVertexOwnerByPedigreeId(vtkVariant("B")) << endl;
@@ -81,16 +81,16 @@ void UseCase3()
     cout << "owner of D= "<< helper->GetVertexOwnerByPedigreeId(vtkVariant("D")) << endl;
     cout << "owner of E= "<< helper->GetVertexOwnerByPedigreeId(vtkVariant("E")) << endl;
     (cout << " done.\n").flush();
-    }
+  }
 
   int numProps = mdg->GetVertexData()->GetNumberOfArrays();   // # of properties = # of arrays
   if (myRank == 0) cout << "   numProps = "<<numProps<<endl;
   vtkAbstractArray *peds = mdg->GetVertexData()->GetPedigreeIds();
   if (myRank == 0)
-    {
+  {
     if (peds == NULL) cout << "  No peds here!!\n";
     else cout << "  We have peds!\n";
-    }
+  }
 
 
   if (myRank == 0)
@@ -98,7 +98,7 @@ void UseCase3()
   VTK_CREATE(vtkVertexListIterator, vit);
   mdg->GetVertices(vit);
   while (vit->HasNext())
-    {
+  {
     vtkIdType vtx = vit->Next();
     int idx = mdg->GetDistributedGraphHelper()->GetVertexIndex(vtx);
 
@@ -110,32 +110,32 @@ void UseCase3()
 
     cout << myRank<<") "<<"  GetNumberOfArrays= " << mdg->GetVertexData()->GetNumberOfArrays() << endl;
     for (int iprop=0; iprop<numProps; iprop++)
-      {
+    {
       vtkAbstractArray* aa = vtkArrayDownCast<vtkAbstractArray>(mdg->GetVertexData()->GetAbstractArray(iprop));
 //      int idx = helper->GetVertexIndex(vtx);
       cout << "     idx="<<idx<<") = "<< aa->GetVariantValue(idx).ToString() <<endl;
-      }
-    cout.flush();
     }
+    cout.flush();
+  }
 
   if (myRank == 0)
     cout << "=============== dump edges\n"; cout.flush();
   VTK_CREATE(vtkEdgeListIterator, eit);
   mdg->GetEdges(eit);
   while (eit->HasNext())
-    {
+  {
     vtkEdgeType etx = eit->Next();
 
     cerr << "PROCESS " << myRank << " edge: " << hex << etx.Id
       << " (" << etx.Source << "," << etx.Target << ")" <<endl;
-    }
+  }
 
 
   helper->Synchronize();
   if (myRank == 0)
-    {
+  {
     (cout << " -------------done.\n").flush();
-    }
+  }
 }
 
 }

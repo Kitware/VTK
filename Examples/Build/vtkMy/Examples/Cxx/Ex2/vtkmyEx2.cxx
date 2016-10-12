@@ -80,11 +80,11 @@ int main()
   //
   int i;
   for (i = 0; i < 360; ++i)
-    {
+  {
     // Render the image and rotate the active camera by one degree
     renWin->Render();
     ren1->GetActiveCamera()->Azimuth(1);
-    }
+  }
 
   //
   // Free up any objects we created

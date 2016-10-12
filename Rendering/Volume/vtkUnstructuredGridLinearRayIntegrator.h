@@ -22,20 +22,23 @@
  * statement of authorship are reproduced on all copies.
  */
 
-// .NAME vtkUnstructuredGridLinearRayIntegrator - performs piecewise linear ray integration.
-//
-// .SECTION Description
-//
-// vtkUnstructuredGridLinearRayIntegrator performs piecewise linear ray
-// integration.  Considering that transfer functions in VTK are piecewise
-// linear, this class should give the "correct" integration under most
-// circumstances.  However, the computations performed are fairly hefty and
-// should, for the most part, only be used as a benchmark for other, faster
-// methods.
-//
-// .SECTION See Also
-// vtkUnstructuredGridPartialPreIntegration
-//
+/**
+ * @class   vtkUnstructuredGridLinearRayIntegrator
+ * @brief   performs piecewise linear ray integration.
+ *
+ *
+ *
+ * vtkUnstructuredGridLinearRayIntegrator performs piecewise linear ray
+ * integration.  Considering that transfer functions in VTK are piecewise
+ * linear, this class should give the "correct" integration under most
+ * circumstances.  However, the computations performed are fairly hefty and
+ * should, for the most part, only be used as a benchmark for other, faster
+ * methods.
+ *
+ * @sa
+ * vtkUnstructuredGridPartialPreIntegration
+ *
+*/
 
 #ifndef vtkUnstructuredGridLinearRayIntegrator_h
 #define vtkUnstructuredGridLinearRayIntegrator_h
@@ -61,9 +64,11 @@ public:
                          vtkDataArray *farIntersections,
                          float color[4]);
 
-  // Description:
-  // Integrates a single ray segment.  \c color is blended with the result
-  // (with \c color in front).  The result is written back into \c color.
+  //@{
+  /**
+   * Integrates a single ray segment.  \c color is blended with the result
+   * (with \c color in front).  The result is written back into \c color.
+   */
   static void IntegrateRay(double length,
                            double intensity_front, double attenuation_front,
                            double intensity_back, double attenuation_back,
@@ -74,10 +79,12 @@ public:
                            const double color_back[3],
                            double attenuation_back,
                            float color[4]);
+  //@}
 
-  // Description:
-  // Computes Psi (as defined by Moreland and Angel, "A Fast High Accuracy
-  // Volume Renderer for Unstructured Data").
+  /**
+   * Computes Psi (as defined by Moreland and Angel, "A Fast High Accuracy
+   * Volume Renderer for Unstructured Data").
+   */
   static float Psi(float length,
                    float attenuation_front, float attenuation_back);
 
@@ -92,8 +99,8 @@ protected:
   int NumIndependentComponents;
 
 private:
-  vtkUnstructuredGridLinearRayIntegrator(const vtkUnstructuredGridLinearRayIntegrator&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridLinearRayIntegrator&);  // Not implemented.
+  vtkUnstructuredGridLinearRayIntegrator(const vtkUnstructuredGridLinearRayIntegrator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnstructuredGridLinearRayIntegrator&) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkUnstructuredGridLinearRayIntegrator_h

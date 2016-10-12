@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkProp3DCollection - a list of 3D props
-// .SECTION Description
-// vtkProp3DCollection represents and provides methods to manipulate a list of
-// 3D props (i.e., vtkProp3D and subclasses). The list is unsorted and
-// duplicate entries are not prevented.
-
-// .SECTION see also
-// vtkProp3D vtkCollection
+/**
+ * @class   vtkProp3DCollection
+ * @brief   a list of 3D props
+ *
+ * vtkProp3DCollection represents and provides methods to manipulate a list of
+ * 3D props (i.e., vtkProp3D and subclasses). The list is unsorted and
+ * duplicate entries are not prevented.
+ *
+ * @sa
+ * vtkProp3D vtkCollection
+*/
 
 #ifndef vtkProp3DCollection_h
 #define vtkProp3DCollection_h
@@ -33,27 +36,31 @@ class VTKRENDERINGCORE_EXPORT vtkProp3DCollection : public vtkPropCollection
 public:
   static vtkProp3DCollection *New();
   vtkTypeMacro(vtkProp3DCollection,vtkPropCollection);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Add an actor to the list.
+  /**
+   * Add an actor to the list.
+   */
   void AddItem(vtkProp3D *p);
 
-  // Description:
-  // Get the next actor in the list.
+  /**
+   * Get the next actor in the list.
+   */
   vtkProp3D *GetNextProp3D();
 
-  // Description:
-  // Get the last actor in the list.
+  /**
+   * Get the last actor in the list.
+   */
   vtkProp3D *GetLastProp3D();
 
-  // Description:
-  // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth.
+  /**
+   * Reentrant safe way to get an object in a collection. Just pass the
+   * same cookie back and forth.
+   */
   vtkProp3D *GetNextProp3D(vtkCollectionSimpleIterator &cookie)
-    {
+  {
       return static_cast<vtkProp3D *>(this->GetNextItemAsObject(cookie));
-    }
+  }
 
 protected:
   vtkProp3DCollection() {}
@@ -63,17 +70,17 @@ protected:
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o)
-    {
+  {
       this->vtkCollection::AddItem(o);
-    }
+  }
   void AddItem(vtkProp *o)
-    {
+  {
       this->vtkPropCollection::AddItem(o);
-    }
+  }
 
 private:
-  vtkProp3DCollection(const vtkProp3DCollection&);  // Not implemented.
-  void operator=(const vtkProp3DCollection&);  // Not implemented.
+  vtkProp3DCollection(const vtkProp3DCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkProp3DCollection&) VTK_DELETE_FUNCTION;
 };
 
 inline void vtkProp3DCollection::AddItem(vtkProp3D *a)
@@ -89,13 +96,13 @@ inline vtkProp3D *vtkProp3DCollection::GetNextProp3D()
 inline vtkProp3D *vtkProp3DCollection::GetLastProp3D()
 {
   if ( this->Bottom == NULL )
-    {
+  {
     return NULL;
-    }
+  }
   else
-    {
+  {
     return static_cast<vtkProp3D *>(this->Bottom->Item);
-    }
+  }
 }
 
 #endif

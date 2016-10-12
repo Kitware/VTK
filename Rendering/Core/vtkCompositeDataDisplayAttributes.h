@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCompositeDataDisplayAttributes - rendering attributes for a
-// multi-block dataset.
-// .SECTION Description
-// The vtkCompositeDataDisplayAttributes class stores display attributes
-// for individual blocks in a multi-block dataset.
+/**
+ * @class   vtkCompositeDataDisplayAttributes
+ * @brief   rendering attributes for a
+ * multi-block dataset.
+ *
+ * The vtkCompositeDataDisplayAttributes class stores display attributes
+ * for individual blocks in a multi-block dataset.
+*/
 
 #ifndef vtkCompositeDataDisplayAttributes_h
 #define vtkCompositeDataDisplayAttributes_h
@@ -37,70 +40,91 @@ public:
   vtkTypeMacro(vtkCompositeDataDisplayAttributes, vtkObject)
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Returns true if any block has any block visibility is set.
+  /**
+   * Returns true if any block has any block visibility is set.
+   */
   bool HasBlockVisibilities() const;
 
-  // Description:
-  // Set/get the visibility for the block with \p flat_index.
+  //@{
+  /**
+   * Set/get the visibility for the block with \p flat_index.
+   */
   void SetBlockVisibility(unsigned int flat_index, bool visible);
   bool GetBlockVisibility(unsigned int flat_index) const;
+  //@}
 
-  // Description:
-  // Returns true if the block with the given flat_index has a visiblity
-  // set.
+  /**
+   * Returns true if the block with the given flat_index has a visiblity
+   * set.
+   */
   bool HasBlockVisibility(unsigned int flat_index) const;
 
-  // Description:
-  // Removes the block visibility flag for the block with flat_index.
+  /**
+   * Removes the block visibility flag for the block with flat_index.
+   */
   void RemoveBlockVisibility(unsigned int flat_index);
 
-  // Description:
-  // Removes all block visibility flags. The effectively sets the visibility
-  // for all blocks to true.
+  /**
+   * Removes all block visibility flags. The effectively sets the visibility
+   * for all blocks to true.
+   */
   void RemoveBlockVisibilites();
 
-  // Description:
-  // Set/get the color for the block with \p flat_index.
+  //@{
+  /**
+   * Set/get the color for the block with \p flat_index.
+   */
   void SetBlockColor(unsigned int flat_index, const double color[3]);
   void GetBlockColor(unsigned int flat_index, double color[3]) const;
   vtkColor3d GetBlockColor(unsigned int flat_index) const;
+  //@}
 
-  // Description:
-  // Returns true if any block has any block color is set.
+  /**
+   * Returns true if any block has any block color is set.
+   */
   bool HasBlockColors() const;
 
-  // Description:
-  // Returns true if the block with the given \p flat_index has a color.
+  /**
+   * Returns true if the block with the given \p flat_index has a color.
+   */
   bool HasBlockColor(unsigned int flat_index) const;
 
-  // Description:
-  // Removes the block color for the block with \p flat_index.
+  /**
+   * Removes the block color for the block with \p flat_index.
+   */
   void RemoveBlockColor(unsigned int flat_index);
 
-  // Description:
-  // Removes all block colors.
+  /**
+   * Removes all block colors.
+   */
   void RemoveBlockColors();
 
-  // Description:
-  // Set/get the opacity for the block with flat_index.
+  //@{
+  /**
+   * Set/get the opacity for the block with flat_index.
+   */
   void SetBlockOpacity(unsigned int flat_index, double opacity);
   double GetBlockOpacity(unsigned int flat_index) const;
+  //@}
 
-  // Description:
-  // Returns true if any block has an opacity set.
+  /**
+   * Returns true if any block has an opacity set.
+   */
   bool HasBlockOpacities() const;
 
-  // Description:
-  // Returns true if the block with flat_index has an opacity set.
+  /**
+   * Returns true if the block with flat_index has an opacity set.
+   */
   bool HasBlockOpacity(unsigned int flat_index) const;
 
-  // Description:
-  // Removes the set opacity for the block with flat_index.
+  /**
+   * Removes the set opacity for the block with flat_index.
+   */
   void RemoveBlockOpacity(unsigned int flat_index);
 
-  // Description:
-  // Removes all block opacities.
+  /**
+   * Removes all block opacities.
+   */
   void RemoveBlockOpacities();
 
   // If the input \a dobj is a vtkCompositeDataSet, we will loop over the
@@ -117,17 +141,18 @@ protected:
   ~vtkCompositeDataDisplayAttributes();
 
 private:
-  vtkCompositeDataDisplayAttributes(const vtkCompositeDataDisplayAttributes&); // Not implemented.
-  void operator=(const vtkCompositeDataDisplayAttributes&); // Not implemented.
+  vtkCompositeDataDisplayAttributes(const vtkCompositeDataDisplayAttributes&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompositeDataDisplayAttributes&) VTK_DELETE_FUNCTION;
 
-  // Description:
-  // If the input data \a dobj is a vtkCompositeDataSet, we will
-  // loop over the hierarchy recursively starting from intial index
-  // \a flat_index and use only visible blocks, which is
-  // specified in the vtkCompositeDataDisplayAttributes \a cda,
-  // to compute bounds and the result bounds will be set to
-  // the vtkBoundingBox \a bbox. The \a paraentVisible is the
-  // visibility for the starting flat_index.
+  /**
+   * If the input data \a dobj is a vtkCompositeDataSet, we will
+   * loop over the hierarchy recursively starting from intial index
+   * \a flat_index and use only visible blocks, which is
+   * specified in the vtkCompositeDataDisplayAttributes \a cda,
+   * to compute bounds and the result bounds will be set to
+   * the vtkBoundingBox \a bbox. The \a paraentVisible is the
+   * visibility for the starting flat_index.
+   */
   static void ComputeVisibleBoundsInternal(
     vtkCompositeDataDisplayAttributes* cda,
     vtkDataObject *dobj,

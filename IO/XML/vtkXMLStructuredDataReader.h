@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLStructuredDataReader - Superclass for structured data XML readers.
-// .SECTION Description
-// vtkXMLStructuredDataReader provides functionality common to all
-// structured data format readers.
-
-// .SECTION See Also
-// vtkXMLImageDataReader vtkXMLStructuredGridReader
-// vtkXMLRectilinearGridReader
+/**
+ * @class   vtkXMLStructuredDataReader
+ * @brief   Superclass for structured data XML readers.
+ *
+ * vtkXMLStructuredDataReader provides functionality common to all
+ * structured data format readers.
+ *
+ * @sa
+ * vtkXMLImageDataReader vtkXMLStructuredGridReader
+ * vtkXMLRectilinearGridReader
+*/
 
 #ifndef vtkXMLStructuredDataReader_h
 #define vtkXMLStructuredDataReader_h
@@ -34,27 +37,34 @@ public:
   vtkTypeMacro(vtkXMLStructuredDataReader,vtkXMLDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the number of points in the output.
+  /**
+   * Get the number of points in the output.
+   */
   virtual vtkIdType GetNumberOfPoints();
 
-  // Description:
-  // Get the number of cells in the output.
+  /**
+   * Get the number of cells in the output.
+   */
   virtual vtkIdType GetNumberOfCells();
 
-  // Description:
-  // Get/Set whether the reader gets a whole slice from disk when only
-  // a rectangle inside it is needed.  This mode reads more data than
-  // necessary, but prevents many short reads from interacting poorly
-  // with the compression and encoding schemes.
+  //@{
+  /**
+   * Get/Set whether the reader gets a whole slice from disk when only
+   * a rectangle inside it is needed.  This mode reads more data than
+   * necessary, but prevents many short reads from interacting poorly
+   * with the compression and encoding schemes.
+   */
   vtkSetMacro(WholeSlices, int);
   vtkGetMacro(WholeSlices, int);
   vtkBooleanMacro(WholeSlices, int);
+  //@}
 
-  // Description:
-  // For the specified port, copy the information this reader sets up in
-  // SetupOutputInformation to outInfo
+  /**
+   * For the specified port, copy the information this reader sets up in
+   * SetupOutputInformation to outInfo
+   */
   virtual void CopyOutputInformation(vtkInformation *outInfo, int port);
+
 protected:
   vtkXMLStructuredDataReader();
   ~vtkXMLStructuredDataReader();
@@ -110,8 +120,8 @@ protected:
     vtkAbstractArray* array, FieldType type);
 
 private:
-  vtkXMLStructuredDataReader(const vtkXMLStructuredDataReader&);  // Not implemented.
-  void operator=(const vtkXMLStructuredDataReader&);  // Not implemented.
+  vtkXMLStructuredDataReader(const vtkXMLStructuredDataReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLStructuredDataReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

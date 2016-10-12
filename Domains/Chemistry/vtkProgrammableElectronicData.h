@@ -12,8 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkProgrammableElectronicData - Provides access to and storage of
-// user-generated vtkImageData that describes electrons.
+/**
+ * @class   vtkProgrammableElectronicData
+ * @brief   Provides access to and storage of
+ * user-generated vtkImageData that describes electrons.
+*/
 
 #ifndef vtkProgrammableElectronicData_h
 #define vtkProgrammableElectronicData_h
@@ -33,54 +36,74 @@ public:
   vtkTypeMacro(vtkProgrammableElectronicData,vtkAbstractElectronicData);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get/Set the number of molecular orbitals. Setting this will resize this
-  // internal array of MOs.
+  //@{
+  /**
+   * Get/Set the number of molecular orbitals. Setting this will resize this
+   * internal array of MOs.
+   */
   virtual vtkIdType GetNumberOfMOs();
   virtual void SetNumberOfMOs(vtkIdType);
+  //@}
 
-  // Description:
-  // Get/Set the number of electrons in the molecule. Needed for HOMO/LUMO
-  // convenience functions
+  //@{
+  /**
+   * Get/Set the number of electrons in the molecule. Needed for HOMO/LUMO
+   * convenience functions
+   */
   vtkGetMacro(NumberOfElectrons, vtkIdType);
   vtkSetMacro(NumberOfElectrons, vtkIdType);
+  //@}
 
-  // Description:
-  // Get/Set the vtkImageData for the requested molecular orbital.
+  //@{
+  /**
+   * Get/Set the vtkImageData for the requested molecular orbital.
+   */
   virtual vtkImageData * GetMO(vtkIdType orbitalNumber);
   void SetMO(vtkIdType orbitalNumber, vtkImageData *data);
+  //@}
 
-  // Description:
-  // Get/Set the vtkImageData for the molecule's electron density.
+  //@{
+  /**
+   * Get/Set the vtkImageData for the molecule's electron density.
+   */
   vtkGetObjectMacro(ElectronDensity, vtkImageData);
   virtual void SetElectronDensity(vtkImageData *);
+  //@}
 
-  // Description:
-  // Set/Get the padding around the molecule to which the cube extends. This
-  // is used to determine the dataset bounds.
+  //@{
+  /**
+   * Set/Get the padding around the molecule to which the cube extends. This
+   * is used to determine the dataset bounds.
+   */
   vtkSetMacro(Padding, double);
   vtkGetMacro(Padding, double);
+  //@}
 
-  // Description:
-  // Deep copies the data object into this.
+  /**
+   * Deep copies the data object into this.
+   */
   virtual void DeepCopy(vtkDataObject *obj);
 
 protected:
   vtkProgrammableElectronicData();
   ~vtkProgrammableElectronicData();
 
-  // Description:
-  // Electronic data set property
+  /**
+   * Electronic data set property
+   */
   vtkIdType NumberOfElectrons;
 
-  // Description:
-  // Storage for the vtkImageData objects
+  //@{
+  /**
+   * Storage for the vtkImageData objects
+   */
   StdVectorOfImageDataPointers *MOs;
   vtkImageData *ElectronDensity;
+  //@}
 
 private:
-  vtkProgrammableElectronicData(const vtkProgrammableElectronicData&); // Not implemented
-  void operator=(const vtkProgrammableElectronicData&); // Not implemented
+  vtkProgrammableElectronicData(const vtkProgrammableElectronicData&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkProgrammableElectronicData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

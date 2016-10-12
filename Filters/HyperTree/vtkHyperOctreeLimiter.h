@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHyperOctreeLimiter - Limit the tree's depth, averaging data
-//  from lower level branches into the new leaves at the cut points.
-// .SECTION Description
-// This filter returns a lower resolution copy of its input vtkHyperOctree.
-// It does a length/area/volume weighted averaging to obtain data at each
-// cut point. Above the cut level, leaf attribute data is simply copied.
-
-// .SECTION See Also
-// vtkHyperOctree
+/**
+ * @class   vtkHyperOctreeLimiter
+ * @brief   Limit the tree's depth, averaging data
+ *  from lower level branches into the new leaves at the cut points.
+ *
+ * This filter returns a lower resolution copy of its input vtkHyperOctree.
+ * It does a length/area/volume weighted averaging to obtain data at each
+ * cut point. Above the cut level, leaf attribute data is simply copied.
+ *
+ * @sa
+ * vtkHyperOctree
+*/
 
 #ifndef vtkHyperOctreeLimiter_h
 #define vtkHyperOctreeLimiter_h
@@ -37,12 +40,14 @@ public:
   static vtkHyperOctreeLimiter *New();
   vtkTypeMacro(vtkHyperOctreeLimiter, vtkDataSetAlgorithm);
 
-  // Description:
-  // Return the maximum number of levels of the hyperoctree.
+  /**
+   * Return the maximum number of levels of the hyperoctree.
+   */
   int GetMaximumLevel();
 
-  // Description:
-  // Set the maximum number of levels of the hyperoctree.
+  /**
+   * Set the maximum number of levels of the hyperoctree.
+   */
   void SetMaximumLevel(int levels);
 
 protected:
@@ -71,8 +76,8 @@ protected:
   int AccumSize;
 
 private:
-  vtkHyperOctreeLimiter(const vtkHyperOctreeLimiter&);  // Not implemented.
-  void operator=(const vtkHyperOctreeLimiter&);  // Not implemented.
+  vtkHyperOctreeLimiter(const vtkHyperOctreeLimiter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHyperOctreeLimiter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPResampleToImage - sample dataset on a uniform grid in parallel
-// .SECTION Description
-// vtkPResampleToImage is a parallel filter that resamples the input dataset on
-// a uniform grid. It internally uses vtkProbeFilter to do the probing.
-// .SECTION See Also
-// vtkResampleToImage vtkProbeFilter
+/**
+ * @class   vtkPResampleToImage
+ * @brief   sample dataset on a uniform grid in parallel
+ *
+ * vtkPResampleToImage is a parallel filter that resamples the input dataset on
+ * a uniform grid. It internally uses vtkProbeFilter to do the probing.
+ * @sa
+ * vtkResampleToImage vtkProbeFilter
+*/
 
 #ifndef vtkPResampleToImage_h
 #define vtkPResampleToImage_h
@@ -37,11 +40,14 @@ public:
 
   static vtkPResampleToImage *New();
 
-  // Description:
-  // By defualt this filter uses the global controller,
-  // but this method can be used to set another instead.
+  //@{
+  /**
+   * By defualt this filter uses the global controller,
+   * but this method can be used to set another instead.
+   */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
 
 protected:
   vtkPResampleToImage();
@@ -53,8 +59,8 @@ protected:
   vtkMultiProcessController *Controller;
 
 private:
-  vtkPResampleToImage(const vtkPResampleToImage&);  // Not implemented.
-  void operator=(const vtkPResampleToImage&);  // Not implemented.
+  vtkPResampleToImage(const vtkPResampleToImage&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPResampleToImage&) VTK_DELETE_FUNCTION;
 };
 
 #endif

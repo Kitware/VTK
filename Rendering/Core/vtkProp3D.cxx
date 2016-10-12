@@ -64,27 +64,27 @@ vtkProp3D::~vtkProp3D()
   this->Matrix->Delete();
   this->Transform->Delete();
   if (this->UserMatrix)
-    {
+  {
     this->UserMatrix->UnRegister(this);
     this->UserMatrix = NULL;
-    }
+  }
   if (this->CachedProp3D)
-    {
+  {
     this->CachedProp3D->Delete();
     this->CachedProp3D = NULL;
-    }
+  }
   if (this->UserTransform)
-    {
+  {
     this->UserTransform->UnRegister(this);
     this->UserTransform = NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkProp3D::GetMTime()
+vtkMTimeType vtkProp3D::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   time = this->GetUserTransformMatrixMTime();
   mTime = ( time > mTime ? time : mTime );
@@ -93,25 +93,25 @@ unsigned long int vtkProp3D::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkProp3D::GetUserTransformMatrixMTime()
+vtkMTimeType vtkProp3D::GetUserTransformMatrixMTime()
 {
-  unsigned long mTime = 0;
-  unsigned long time;
+  vtkMTimeType mTime = 0;
+  vtkMTimeType time;
 
   // Factored out of GetMTime because there are times we want
   // just this information, without being influenced by other
   // changes that affect this class's or a subclass's mtime.
   // (E.g. see vtkLODProp3D)
   if ( this->UserMatrix != NULL )
-    {
+  {
     mTime = this->UserMatrix->GetMTime();
-    }
+  }
 
   if ( this->UserTransform != NULL )
-    {
+  {
     time = this->UserTransform->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
 
 
   return mTime;
@@ -151,9 +151,9 @@ void vtkProp3D::SetOrientation (double x,double y,double z)
   if (x == this->Orientation[0]
    && y == this->Orientation[1]
    && z == this->Orientation[2])
-    {
+  {
     return;
-    }
+  }
   this->IsIdentity = 0;
 
   // store the coordinates
@@ -294,26 +294,26 @@ void vtkProp3D::SetUserTransform(vtkLinearTransform *transform)
 {
   this->IsIdentity = 0;
   if (transform == this->UserTransform)
-    {
+  {
     return;
-    }
+  }
   if (this->UserTransform)
-    {
+  {
     this->UserTransform->Delete();
     this->UserTransform = NULL;
-    }
+  }
   if (this->UserMatrix)
-    {
+  {
     this->UserMatrix->Delete();
     this->UserMatrix = NULL;
-    }
+  }
   if (transform)
-    {
+  {
     this->UserTransform = transform;
     this->UserTransform->Register(this);
     this->UserMatrix = transform->GetMatrix();
     this->UserMatrix->Register(this);
-    }
+  }
   this->Modified();
 }
 
@@ -322,21 +322,21 @@ void vtkProp3D::SetUserMatrix(vtkMatrix4x4 *matrix)
 {
   this->IsIdentity = 0;
   if (matrix == this->UserMatrix)
-    {
+  {
     return;
-    }
+  }
   if (this->UserTransform)
-    {
+  {
     this->UserTransform->Delete();
     this->UserTransform = NULL;
-    }
+  }
   if (this->UserMatrix)
-    {
+  {
     this->UserMatrix->Delete();
     this->UserMatrix = NULL;
-    }
+  }
   if (matrix)
-    {
+  {
     this->UserMatrix = matrix;
     this->UserMatrix->Register(this);
     vtkMatrixToLinearTransform *transform = vtkMatrixToLinearTransform::New();
@@ -345,7 +345,7 @@ void vtkProp3D::SetUserMatrix(vtkMatrix4x4 *matrix)
     transform->Delete();
     transform->SetInput(matrix);
     this->UserTransform = transform;
-    }
+  }
   this->Modified();
 }
 
@@ -356,18 +356,18 @@ void vtkProp3D::GetMatrix(vtkMatrix4x4 *result)
   this->GetMatrix(mine);
   int idx = 0;
   for (int i =0; i < 4; i++)
-    {
+  {
     for(int j=0; j < 4; j++)
-      {
+    {
       if (mine[idx] != *(&result->Element[i][j]))
-        {
+      {
         memcpy(&result->Element[0][0], mine, 16*sizeof(double));
         result->Modified();
         return;
-        }
-      idx++;
       }
+      idx++;
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -381,13 +381,13 @@ void vtkProp3D::GetMatrix(double result[16])
 void vtkProp3D::ComputeMatrix()
 {
   if (this->IsIdentity)
-    {
+  {
     return;
-    }
+  }
 
   // check whether or not need to rebuild the matrix
   if ( this->GetMTime() > this->MatrixMTime )
-    {
+  {
     this->GetOrientation();
     this->Transform->Push();
     this->Transform->Identity();
@@ -415,16 +415,16 @@ void vtkProp3D::ComputeMatrix()
 
     // apply user defined transform last if there is one
     if (this->UserTransform)
-      {
+    {
       this->Transform->Concatenate(this->UserTransform->GetMatrix());
-      }
+    }
 
     this->Transform->PreMultiply();
     this->Transform->GetMatrix(this->Matrix);
     this->Matrix->Modified();
     this->MatrixMTime.Modified();
     this->Transform->Pop();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -433,9 +433,9 @@ void vtkProp3D::GetBounds(double bounds[6])
 {
   this->GetBounds();
   for (int i=0; i<6; i++)
-    {
+  {
     bounds[i] = this->Bounds[i];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -459,10 +459,10 @@ double vtkProp3D::GetLength()
 
   this->GetBounds();
   for (i=0; i<3; i++)
-    {
+  {
     diff = this->Bounds[2*i+1] - this->Bounds[2*i];
     l += diff * diff;
-    }
+  }
 
   return sqrt(l);
 }
@@ -499,24 +499,24 @@ void vtkProp3D::ShallowCopy(vtkProp *prop)
   vtkProp3D *p = vtkProp3D::SafeDownCast(prop);
 
   if ( p != NULL )
-    {
+  {
     for (i=0; i < 3; i++)
-      {
+    {
       this->Origin[i] = p->Origin[i];
       this->Position[i] = p->Position[i];
       this->Orientation[i] = p->Orientation[i];
       this->Center[i] = p->Center[i];
       this->Scale[i] = p->Scale[i];
-      }
+    }
     this->Transform->DeepCopy(p->Transform);
 
     for (i=0; i < 6; i++)
-      {
+    {
       this->Bounds[i] = p->Bounds[i];
-      }
+    }
 
     this->SetUserTransform(p->UserTransform);
-    }
+  }
 
   // Now do superclass
   this->vtkProp::ShallowCopy(prop);
@@ -530,24 +530,24 @@ void vtkProp3D::PokeMatrix(vtkMatrix4x4 *matrix)
   // have a state consistent with the provided matrix. (The idea
   // is to make sure the GetMatrix() call works properly.)
   if ( matrix != NULL ) //set a new transformation
-    {
+  {
     if ( this->CachedProp3D == NULL )
-      {
+    {
       this->CachedProp3D = vtkActor::New();
-      }
+    }
 
     //The cached Prop3D stores our current values
     //Note: the orientation ivar is not used since the
     //orientation is determined from the transform.
     if ( this->UserTransform &&
          this->UserTransform->GetMatrix() == this->UserMatrix )
-      {
+    {
       this->CachedProp3D->SetUserTransform(this->UserTransform);
-      }
+    }
     else
-      {
+    {
       this->CachedProp3D->SetUserMatrix(this->UserMatrix);
-      }
+    }
     this->CachedProp3D->SetOrigin(this->Origin);
     this->CachedProp3D->SetPosition(this->Position);
     this->CachedProp3D->SetOrientation(this->Orientation);
@@ -563,38 +563,38 @@ void vtkProp3D::PokeMatrix(vtkMatrix4x4 *matrix)
     //the poked matrix is set as the UserMatrix. Since everything else is
     //"non-transformed", this is the final transformation.
     this->SetUserMatrix(matrix);
-    }
+  }
   else //we restore our original state
-    {
+  {
       if( this->CachedProp3D != NULL )
-        {
+      {
           this->CachedProp3D->GetOrigin(this->Origin);
           this->CachedProp3D->GetPosition(this->Position);
           this->CachedProp3D->GetScale(this->Scale);
           if ( this->CachedProp3D->UserTransform &&
                this->CachedProp3D->UserTransform->GetMatrix() ==
                this->CachedProp3D->UserMatrix )
-            {
+          {
             this->SetUserTransform(this->CachedProp3D->UserTransform);
-            }
+          }
           else
-            {
+          {
             this->SetUserMatrix(this->CachedProp3D->UserMatrix);
-            }
+          }
           this->CachedProp3D->SetUserTransform(NULL);
           this->Transform->SetMatrix(this->CachedProp3D->Transform->GetMatrix());
           this->Modified();
-        }
-    }
+      }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkProp3D::InitPathTraversal()
 {
   if ( this->Paths )
-    {
+  {
     this->Paths->Delete();
-    }
+  }
   this->Paths = vtkAssemblyPaths::New();
   vtkAssemblyPath *path = vtkAssemblyPath::New();
   path->AddNode(this,this->GetMatrix());
@@ -608,9 +608,9 @@ void vtkProp3D::InitPathTraversal()
 vtkMatrix4x4* vtkProp3D::GetUserMatrix()
 {
   if (this->UserTransform)
-    {
+  {
     this->UserTransform->Update();
-    }
+  }
   return this->UserMatrix;
 }
 
@@ -636,7 +636,7 @@ void vtkProp3D::PrintSelf(ostream& os, vtkIndent indent)
 
   double *bounds = this->GetBounds();
   if ( bounds != NULL )
-    {
+  {
     os << indent << "Bounds: \n";
     os << indent << "  Xmin,Xmax: ("
        << this->Bounds[0] << ", " << this->Bounds[1] << ")\n";
@@ -644,30 +644,30 @@ void vtkProp3D::PrintSelf(ostream& os, vtkIndent indent)
        << this->Bounds[2] << ", " << this->Bounds[3] << ")\n";
     os << indent << "  Zmin,Zmax: ("
        << this->Bounds[4] << ", " << this->Bounds[5] << ")\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Bounds: (not defined)\n";
-    }
+  }
 
   os << indent << "UserTransform: ";
   if (this->UserTransform)
-    {
+  {
     os << this->UserTransform << "\n";
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
 
   os << indent << "UserMatrix: ";
   if (this->UserMatrix)
-    {
+  {
     os << this->UserMatrix << "\n";
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
 }
 

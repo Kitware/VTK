@@ -46,7 +46,7 @@ void vtkInformationObjectBaseKey::Set(vtkInformation* info,
                                       vtkObjectBase* value)
 {
   if(value && this->RequiredClass && !value->IsA(this->RequiredClass))
-    {
+  {
     vtkErrorWithObjectMacro(
       info,
       "Cannot store object of type " << value->GetClassName()
@@ -55,7 +55,7 @@ void vtkInformationObjectBaseKey::Set(vtkInformation* info,
       << this->RequiredClass << ".  Removing the key instead.");
     this->SetAsObjectBase(info, 0);
     return;
-    }
+  }
   this->SetAsObjectBase(info, value);
 }
 

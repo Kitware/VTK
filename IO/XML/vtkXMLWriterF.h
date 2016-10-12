@@ -74,17 +74,17 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_new, VTKXMLWRITERF_NEW)(
 
   /* Search for a table entry to use for this object.  */
   for(i=1;i <= VTK_XMLWRITERF_MAX; ++i)
-    {
+  {
     if(!vtkXMLWriterF_Table[i])
-      {
+    {
       vtkXMLWriterF_Table[i] = vtkXMLWriterC_New();
       if(vtkXMLWriterF_Table[i])
-        {
+      {
         *self = i;
-        }
-      return;
       }
+      return;
     }
+  }
 }
 
 /*--------------------------------------------------------------------------*/
@@ -95,19 +95,19 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_delete, VTKXMLWRITERF_DELETE)(
 {
   /* Check if the writer object exists.  */
   if(*self > 0 && *self <= VTK_XMLWRITERF_MAX && vtkXMLWriterF_Table[*self])
-    {
+  {
     /* Delete this writer object.  */
     vtkXMLWriterC_Delete(vtkXMLWriterF_Table[*self]);
 
     /* Erase the table entry.  */
     vtkXMLWriterF_Table[*self] = 0;
-    }
+  }
   else
-    {
+  {
     fprintf(stderr,
             "vtkXMLWriterF_Delete called with invalid id %d.\n",
             *self);
-    }
+  }
 
   /* The writer object no longer exists.  Destroy the id.  */
   *self = 0;
@@ -120,15 +120,15 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_setdatamodetype, VTKXMLWRITERF_SETDATAMODETY
   )
 {
   if(*self > 0 && *self <= VTK_XMLWRITERF_MAX && vtkXMLWriterF_Table[*self])
-    {
+  {
     vtkXMLWriterC_SetDataModeType(vtkXMLWriterF_Table[*self], *objType);
-    }
+  }
   else
-    {
+  {
     fprintf(stderr,
             "vtkXMLWriterF_SetDataModeType called with invalid id %d.\n",
             *self);
-    }
+  }
 }
 
 /*--------------------------------------------------------------------------*/
@@ -138,15 +138,15 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_setdataobjecttype, VTKXMLWRITERF_SETDATAOBJE
   )
 {
   if(*self > 0 && *self <= VTK_XMLWRITERF_MAX && vtkXMLWriterF_Table[*self])
-    {
+  {
     vtkXMLWriterC_SetDataObjectType(vtkXMLWriterF_Table[*self], *objType);
-    }
+  }
   else
-    {
+  {
     fprintf(stderr,
             "vtkXMLWriterF_SetDataObjectType called with invalid id %d.\n",
             *self);
-    }
+  }
 }
 
 /*--------------------------------------------------------------------------*/
@@ -156,15 +156,15 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_setextent, VTKXMLWRITERF_SETEXTENT)(
   )
 {
   if(*self > 0 && *self <= VTK_XMLWRITERF_MAX && vtkXMLWriterF_Table[*self])
-    {
+  {
     vtkXMLWriterC_SetExtent(vtkXMLWriterF_Table[*self], extent);
-    }
+  }
   else
-    {
+  {
     fprintf(stderr,
             "vtkXMLWriterF_SetExtent called with invalid id %d.\n",
             *self);
-    }
+  }
 }
 
 /*--------------------------------------------------------------------------*/
@@ -175,16 +175,16 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_setpoints, VTKXMLWRITERF_SETPOINTS)(
   )
 {
   if(*self > 0 && *self <= VTK_XMLWRITERF_MAX && vtkXMLWriterF_Table[*self])
-    {
+  {
     vtkXMLWriterC_SetPoints(vtkXMLWriterF_Table[*self], *dataType,
                             data, *numPoints);
-    }
+  }
   else
-    {
+  {
     fprintf(stderr,
             "vtkXMLWriterF_SetPoints called with invalid id %d.\n",
             *self);
-    }
+  }
 }
 
 /*--------------------------------------------------------------------------*/
@@ -194,15 +194,15 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_setorigin, VTKXMLWRITERF_SETORIGIN)(
   )
 {
   if(*self > 0 && *self <= VTK_XMLWRITERF_MAX && vtkXMLWriterF_Table[*self])
-    {
+  {
     vtkXMLWriterC_SetOrigin(vtkXMLWriterF_Table[*self], origin);
-    }
+  }
   else
-    {
+  {
     fprintf(stderr,
             "vtkXMLWriterF_SetOrigin called with invalid id %d.\n",
             *self);
-    }
+  }
 }
 
 /*--------------------------------------------------------------------------*/
@@ -212,15 +212,15 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_setspacing, VTKXMLWRITERF_SETSPACING)(
   )
 {
   if(*self > 0 && *self <= VTK_XMLWRITERF_MAX && vtkXMLWriterF_Table[*self])
-    {
+  {
     vtkXMLWriterC_SetSpacing(vtkXMLWriterF_Table[*self], spacing);
-    }
+  }
   else
-    {
+  {
     fprintf(stderr,
             "vtkXMLWriterF_SetSpacing called with invalid id %d.\n",
             *self);
-    }
+  }
 }
 
 /*--------------------------------------------------------------------------*/
@@ -231,16 +231,16 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_setcoordinates, VTKXMLWRITERF_SETCOORDINATES
   )
 {
   if(*self > 0 && *self <= VTK_XMLWRITERF_MAX && vtkXMLWriterF_Table[*self])
-    {
+  {
     vtkXMLWriterC_SetCoordinates(vtkXMLWriterF_Table[*self], *axis,
                                  *dataType, data, *numCoordinates);
-    }
+  }
   else
-    {
+  {
     fprintf(stderr,
             "vtkXMLWriterF_SetCoordinates called with invalid id %d.\n",
             *self);
-    }
+  }
 }
 
 /*--------------------------------------------------------------------------*/
@@ -251,16 +251,16 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_setcellswithtype, VTKXMLWRITERF_SETCELLSWITH
   )
 {
   if(*self > 0 && *self <= VTK_XMLWRITERF_MAX && vtkXMLWriterF_Table[*self])
-    {
+  {
     vtkXMLWriterC_SetCellsWithType(vtkXMLWriterF_Table[*self], *cellType,
                                    *ncells, cells, *cellsSize);
-    }
+  }
   else
-    {
+  {
     fprintf(stderr,
             "vtkXMLWriterF_SetCellsWithType called with invalid id %d.\n",
             *self);
-    }
+  }
 }
 
 /*--------------------------------------------------------------------------*/
@@ -271,16 +271,16 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_setcellswithtypes, VTKXMLWRITERF_SETCELLSWIT
   )
 {
   if(*self > 0 && *self <= VTK_XMLWRITERF_MAX && vtkXMLWriterF_Table[*self])
-    {
+  {
     vtkXMLWriterC_SetCellsWithTypes(vtkXMLWriterF_Table[*self], cellTypes,
                                     *ncells, cells, *cellsSize);
-    }
+  }
   else
-    {
+  {
     fprintf(stderr,
             "vtkXMLWriterF_SetCellsWithTypes called with invalid id %d.\n",
             *self);
-    }
+  }
 }
 
 /*--------------------------------------------------------------------------*/
@@ -294,7 +294,7 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_setpointdata, VTKXMLWRITERF_SETPOINTDATA)(
   )
 {
   if(*self > 0 && *self <= VTK_XMLWRITERF_MAX && vtkXMLWriterF_Table[*self])
-    {
+  {
     /* Prepare NULL-terminated strings.  */
     const char* name_ptr = VTK_FORTRAN_REF_STRING_POINTER(name);
     int name_length = VTK_FORTRAN_REF_STRING_LENGTH(name);
@@ -303,13 +303,13 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_setpointdata, VTKXMLWRITERF_SETPOINTDATA)(
     int role_length = VTK_FORTRAN_REF_STRING_LENGTH(role);
     char* role_buffer = malloc(role_length+1);
     if(!name_buffer || !role_buffer)
-      {
+    {
       fprintf(stderr,
               "vtkXMLWriterF_SetPointData failed to allocate name or role.\n");
       if(name_buffer) { free(name_buffer); }
       if(role_buffer) { free(role_buffer); }
       return;
-      }
+    }
     memcpy(name_buffer, name_ptr, name_length);
     name_buffer[name_length] = 0;
     memcpy(role_buffer, role_ptr, role_length);
@@ -323,13 +323,13 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_setpointdata, VTKXMLWRITERF_SETPOINTDATA)(
     /* Free the NULL-terminated strings.  */
     free(name_buffer);
     free(role_buffer);
-    }
+  }
   else
-    {
+  {
     fprintf(stderr,
             "vtkXMLWriterF_SetPointData called with invalid id %d.\n",
             *self);
-    }
+  }
 }
 
 /*--------------------------------------------------------------------------*/
@@ -343,7 +343,7 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_setcelldata, VTKXMLWRITERF_SETCELLDATA)(
   )
 {
   if(*self > 0 && *self <= VTK_XMLWRITERF_MAX && vtkXMLWriterF_Table[*self])
-    {
+  {
     /* Prepare NULL-terminated strings.  */
     const char* name_ptr = VTK_FORTRAN_REF_STRING_POINTER(name);
     int name_length = VTK_FORTRAN_REF_STRING_LENGTH(name);
@@ -352,13 +352,13 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_setcelldata, VTKXMLWRITERF_SETCELLDATA)(
     int role_length = VTK_FORTRAN_REF_STRING_LENGTH(role);
     char* role_buffer = malloc(role_length+1);
     if(!name_buffer || !role_buffer)
-      {
+    {
       fprintf(stderr,
               "vtkXMLWriterF_SetCellData failed to allocate name or role.\n");
       if(name_buffer) { free(name_buffer); }
       if(role_buffer) { free(role_buffer); }
       return;
-      }
+    }
     memcpy(name_buffer, name_ptr, name_length);
     name_buffer[name_length] = 0;
     memcpy(role_buffer, role_ptr, role_length);
@@ -372,13 +372,13 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_setcelldata, VTKXMLWRITERF_SETCELLDATA)(
     /* Free the NULL-terminated strings.  */
     free(name_buffer);
     free(role_buffer);
-    }
+  }
   else
-    {
+  {
     fprintf(stderr,
             "vtkXMLWriterF_SetCellData called with invalid id %d.\n",
             *self);
-    }
+  }
 }
 
 /*--------------------------------------------------------------------------*/
@@ -389,17 +389,17 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_setfilename, VTKXMLWRITERF_SETFILENAME)(
   )
 {
   if(*self > 0 && *self <= VTK_XMLWRITERF_MAX && vtkXMLWriterF_Table[*self])
-    {
+  {
     /* Prepare NULL-terminated string.  */
     const char* name_ptr = VTK_FORTRAN_REF_STRING_POINTER(name);
     int name_length = VTK_FORTRAN_REF_STRING_LENGTH(name);
     char* name_buffer = malloc(name_length+1);
     if(!name_buffer)
-      {
+    {
       fprintf(stderr,
               "vtkXMLWriterF_SetFileName failed to allocate name.\n");
       return;
-      }
+    }
     memcpy(name_buffer, name_ptr, name_length);
     name_buffer[name_length] = 0;
 
@@ -408,13 +408,13 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_setfilename, VTKXMLWRITERF_SETFILENAME)(
 
     /* Free the NULL-terminated string.  */
     free(name_buffer);
-    }
+  }
   else
-    {
+  {
     fprintf(stderr,
             "vtkXMLWriterF_SetFileName called with invalid id %d.\n",
             *self);
-    }
+  }
 }
 
 /*--------------------------------------------------------------------------*/
@@ -424,15 +424,15 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_write, VTKXMLWRITERF_WRITE)(
   )
 {
   if(*self > 0 && *self <= VTK_XMLWRITERF_MAX && vtkXMLWriterF_Table[*self])
-    {
+  {
     *success = vtkXMLWriterC_Write(vtkXMLWriterF_Table[*self]);
-    }
+  }
   else
-    {
+  {
     fprintf(stderr,
             "vtkXMLWriterF_Write called with invalid id %d.\n",
             *self);
-    }
+  }
 }
 
 /*--------------------------------------------------------------------------*/
@@ -442,16 +442,16 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_setnumberoftimesteps, VTKXMLWRITERF_SETNUMBE
   )
 {
   if(*self > 0 && *self <= VTK_XMLWRITERF_MAX && vtkXMLWriterF_Table[*self])
-    {
+  {
     vtkXMLWriterC_SetNumberOfTimeSteps(vtkXMLWriterF_Table[*self],
                                        *numTimeSteps);
-    }
+  }
   else
-    {
+  {
     fprintf(stderr,
             "vtkXMLWriterF_SetNumberOfTimeSteps called with invalid id %d.\n",
             *self);
-    }
+  }
 }
 
 /*--------------------------------------------------------------------------*/
@@ -461,15 +461,15 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_start, VTKXMLWRITERF_START)(
   )
 {
   if(*self > 0 && *self <= VTK_XMLWRITERF_MAX && vtkXMLWriterF_Table[*self])
-    {
+  {
     vtkXMLWriterC_Start(vtkXMLWriterF_Table[*self]);
-    }
+  }
   else
-    {
+  {
     fprintf(stderr,
             "vtkXMLWriterF_Start called with invalid id %d.\n",
             *self);
-    }
+  }
 }
 
 /*--------------------------------------------------------------------------*/
@@ -479,15 +479,15 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_writenexttimestep, VTKXMLWRITERF_WRITENEXTTI
   )
 {
   if(*self > 0 && *self <= VTK_XMLWRITERF_MAX && vtkXMLWriterF_Table[*self])
-    {
+  {
     vtkXMLWriterC_WriteNextTimeStep(vtkXMLWriterF_Table[*self], *timeValue);
-    }
+  }
   else
-    {
+  {
     fprintf(stderr,
             "vtkXMLWriterF_WriteNextTimeStep called with invalid id %d.\n",
             *self);
-    }
+  }
 }
 
 /*--------------------------------------------------------------------------*/
@@ -497,15 +497,15 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_stop, VTKXMLWRITERF_STOP)(
   )
 {
   if(*self > 0 && *self <= VTK_XMLWRITERF_MAX && vtkXMLWriterF_Table[*self])
-    {
+  {
     vtkXMLWriterC_Stop(vtkXMLWriterF_Table[*self]);
-    }
+  }
   else
-    {
+  {
     fprintf(stderr,
             "vtkXMLWriterF_Stop called with invalid id %d.\n",
             *self);
-    }
+  }
 }
 #endif
 // VTK-HeaderTest-Exclude: vtkXMLWriterF.h

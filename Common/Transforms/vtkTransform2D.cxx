@@ -32,15 +32,15 @@ vtkTransform2D::vtkTransform2D()
 vtkTransform2D::~vtkTransform2D()
 {
   if (this->Matrix)
-    {
+  {
     this->Matrix->Delete();
     this->Matrix = NULL;
-    }
+  }
   if (this->InverseMatrix)
-    {
+  {
     this->InverseMatrix->Delete();
     this->InverseMatrix = NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -74,7 +74,7 @@ void vtkTransform2D::InternalDeepCopy(vtkTransform2D *transform)
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkTransform2D::GetMTime()
+vtkMTimeType vtkTransform2D::GetMTime()
 {
   return this->Matrix->GetMTime();
 }
@@ -83,9 +83,9 @@ unsigned long vtkTransform2D::GetMTime()
 void vtkTransform2D::Translate(double x, double y)
 {
   if (x == 0.0 && y == 0.0)
-    {
+  {
     return;
-    }
+  }
   double matrix[3][3];
   vtkMatrix3x3::Identity(*matrix);
   matrix[0][2] = x;
@@ -99,9 +99,9 @@ void vtkTransform2D::Translate(double x, double y)
 void vtkTransform2D::Rotate(double angle)
 {
   if (angle == 0.0)
-    {
+  {
     return;
-    }
+  }
 
   // convert to radians
   angle = vtkMath::RadiansFromDegrees(angle);
@@ -123,9 +123,9 @@ void vtkTransform2D::Rotate(double angle)
 void vtkTransform2D::Scale(double x, double y)
 {
   if (x == 1.0 && y == 1.0)
-    {
+  {
     return;
-    }
+  }
   double matrix[3][3];
   vtkMatrix3x3::Identity(*matrix);
   matrix[0][0] = x;
@@ -201,9 +201,9 @@ void vtkTransform2D::TransformPoints(const float *inPts, float *outPts, int n)
   double *M = this->Matrix->GetData();
 
   for (int i = 0; i < n; ++i)
-    {
+  {
     vtkHomogeneousTransformPoint2D(M, &inPts[2*i], &outPts[2*i]);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -212,9 +212,9 @@ void vtkTransform2D::TransformPoints(const double *inPts, double *outPts, int n)
   double *M = this->Matrix->GetData();
 
   for (int i = 0; i < n; ++i)
-    {
+  {
     vtkHomogeneousTransformPoint2D(M, &inPts[2*i], &outPts[2*i]);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -226,11 +226,11 @@ void vtkTransform2D::TransformPoints(vtkPoints2D *inPts, vtkPoints2D *outPts)
   double point[2];
 
   for (int i = 0; i < n; ++i)
-    {
+  {
     inPts->GetPoint(i,point);
     vtkHomogeneousTransformPoint2D(M,point,point);
     outPts->SetPoint(i, point);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -238,15 +238,15 @@ void vtkTransform2D::InverseTransformPoints(const float *inPts, float *outPts,
                                             int n)
 {
   if (this->Matrix->GetMTime() > this->InverseMatrix->GetMTime())
-    {
+  {
     this->Matrix->Invert(this->Matrix, this->InverseMatrix);
-    }
+  }
   double *M = this->InverseMatrix->GetData();
 
   for (int i = 0; i < n; ++i)
-    {
+  {
     vtkHomogeneousTransformPoint2D(M, &inPts[2*i], &outPts[2*i]);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -254,15 +254,15 @@ void vtkTransform2D::InverseTransformPoints(const double *inPts, double *outPts,
                                             int n)
 {
   if (this->Matrix->GetMTime() > this->InverseMatrix->GetMTime())
-    {
+  {
     this->Matrix->Invert(this->Matrix, this->InverseMatrix);
-    }
+  }
   double *M = this->InverseMatrix->GetData();
 
   for (int i = 0; i < n; ++i)
-    {
+  {
     vtkHomogeneousTransformPoint2D(M, &inPts[2*i], &outPts[2*i]);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -271,16 +271,16 @@ void vtkTransform2D::InverseTransformPoints(vtkPoints2D *inPts, vtkPoints2D *out
   vtkIdType n = inPts->GetNumberOfPoints();
   outPts->SetNumberOfPoints(n);
   if (this->Matrix->GetMTime() > this->InverseMatrix->GetMTime())
-    {
+  {
     this->Matrix->Invert(this->Matrix, this->InverseMatrix);
-    }
+  }
   double *M = this->InverseMatrix->GetData();
   double point[2];
 
   for (int i = 0; i < n; ++i)
-    {
+  {
     inPts->GetPoint(i,point);
     vtkHomogeneousTransformPoint2D(M,point,point);
     outPts->SetPoint(i, point);
-    }
+  }
 }

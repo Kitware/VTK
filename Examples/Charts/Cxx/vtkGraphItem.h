@@ -13,11 +13,14 @@
 
 =========================================================================*/
 
-// .NAME vtkGraphItem - a vtkContextItem that draws a block (optional label).
-//
-// .SECTION Description
-// This is a vtkContextItem that can be placed into a vtkContextScene. It draws
-// a block of the given dimensions, and reacts to mouse events.
+/**
+ * @class   vtkGraphItem
+ * @brief   a vtkContextItem that draws a block (optional label).
+ *
+ *
+ * This is a vtkContextItem that can be placed into a vtkContextScene. It draws
+ * a block of the given dimensions, and reacts to mouse events.
+*/
 
 #ifndef vtkGraphItem_h
 #define vtkGraphItem_h
@@ -38,32 +41,39 @@ public:
   vtkGetObjectMacro(Graph, vtkGraph);
   virtual void SetGraph(vtkGraph* g);
 
-  // Description:
-  // Paint event for the item.
+  /**
+   * Paint event for the item.
+   */
   virtual bool Paint(vtkContext2D *painter);
 
-  // Description:
-  // Returns true if the supplied x, y coordinate is inside the item.
+  /**
+   * Returns true if the supplied x, y coordinate is inside the item.
+   */
   virtual bool Hit(const vtkContextMouseEvent &mouse);
 
-  // Description:
-  // Mouse enter event.
+  /**
+   * Mouse enter event.
+   */
   virtual bool MouseEnterEvent(const vtkContextMouseEvent &mouse);
 
-  // Description:
-  // Mouse move event.
+  /**
+   * Mouse move event.
+   */
   virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
 
-  // Description:
-  // Mouse leave event.
+  /**
+   * Mouse leave event.
+   */
   virtual bool MouseLeaveEvent(const vtkContextMouseEvent &mouse);
 
-  // Description:
-  // Mouse button down event.
+  /**
+   * Mouse button down event.
+   */
   virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
 
-  // Description:
-  // Mouse button release event.
+  /**
+   * Mouse button release event.
+   */
   virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
 
   void UpdatePositions();
@@ -84,8 +94,8 @@ protected:
   Implementation* Impl;
 
 private:
-  vtkGraphItem(const vtkGraphItem &); // Not implemented.
-  void operator=(const vtkGraphItem &);   // Not implemented.
+  vtkGraphItem(const vtkGraphItem &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGraphItem &) VTK_DELETE_FUNCTION;
 
 };
 

@@ -84,7 +84,7 @@ const double origin[3] = {0.0,0.0,0.0};
 
 #ifdef ENABLE_IO
 //------------------------------------------------------------------------------
-void WriteGrid(vtkUniformGrid *grid, std::string prefix)
+void WriteGrid(vtkUniformGrid *grid, const std::string &prefix)
 {
   assert("pre: grid is NULL" && (grid != NULL) );
 
@@ -120,50 +120,50 @@ void GetGridExtent(
 
   // STEP 0: Initialize the extent
   for(int i=0; i < 6; ++i)
-    {
+  {
     ext[i]=0;
-    }
+  }
 
   int level      = Patches[blockIdx][0];
   int *patchBase = &Patches[blockIdx][1];
   if( level == 0 )
-    {
+  {
     for(int i=0; i < dim; ++i)
-      {
+    {
       ext[i*2]   = patchBase[i*2];
       ext[i*2+1] = patchBase[i*2+1];
-      } // END for all dimensions
-    } // END if level is zero
+    } // END for all dimensions
+  } // END if level is zero
   else
-    {
+  {
     for(int i=0; i < dim; ++i)
-      {
+    {
       ext[i*2]   = (level*ratio) * patchBase[i*2];
       ext[i*2+1] = (level*ratio) * patchBase[i*2+1];
-      } // END for all dimensions
-    } // END else
+    } // END for all dimensions
+  } // END else
 }
 
 //------------------------------------------------------------------------------
-void WriteAMR(vtkOverlappingAMR *amr, std::string prefix)
+void WriteAMR(vtkOverlappingAMR *amr, const std::string &prefix)
 {
 #ifdef ENABLE_IO
   std::ostringstream oss;
   oss.clear();
   unsigned int levelIdx = 0;
   for( ;levelIdx < amr->GetNumberOfLevels(); ++levelIdx)
-    {
+  {
     unsigned int dataIdx = 0;
     for( ;dataIdx < amr->GetNumberOfDataSets(levelIdx); ++dataIdx)
-      {
+    {
       oss.str("");
       oss << prefix << "-L" << levelIdx << "-G" << dataIdx;
       if( amr->GetDataSet(levelIdx,dataIdx) != NULL )
-        {
+      {
         WriteGrid(amr->GetDataSet(levelIdx,dataIdx), oss.str() );
-        } // END if grid is not NULL
-      } // END for all data
-    } // END for all levels
+      } // END if grid is not NULL
+    } // END for all data
+  } // END for all levels
 #else
   /* silences some compiler warnings */
   static_cast<void>(amr);
@@ -172,7 +172,7 @@ void WriteAMR(vtkOverlappingAMR *amr, std::string prefix)
 }
 
 //------------------------------------------------------------------------------
-void ApplyXYZFieldToGrid( vtkUniformGrid *grd, std::string prefix )
+void ApplyXYZFieldToGrid( vtkUniformGrid *grd, const std::string &prefix )
 {
   assert( "pre: grd should not be NULL" && (grd != NULL)  );
 
@@ -201,7 +201,7 @@ void ApplyXYZFieldToGrid( vtkUniformGrid *grd, std::string prefix )
   // Compute field arrays
   std::set< vtkIdType > visited;
   for( vtkIdType cellIdx=0; cellIdx < grd->GetNumberOfCells(); ++cellIdx )
-    {
+  {
     vtkCell *c = grd->GetCell( cellIdx );
     assert( "pre: cell is not NULL" && (c != NULL) );
 
@@ -211,7 +211,7 @@ void ApplyXYZFieldToGrid( vtkUniformGrid *grd, std::string prefix )
     double zsum = 0.0;
 
     for( vtkIdType node=0; node < c->GetNumberOfPoints(); ++node )
-      {
+    {
       double xyz[3];
 
       vtkIdType meshPntIdx = c->GetPointId( node );
@@ -221,15 +221,15 @@ void ApplyXYZFieldToGrid( vtkUniformGrid *grd, std::string prefix )
       zsum += xyz[2];
 
       if( visited.find( meshPntIdx ) == visited.end() )
-        {
+      {
         visited.insert( meshPntIdx );
 
 
         nodeXYZArray->SetComponent( meshPntIdx, 0, xyz[0] );
         nodeXYZArray->SetComponent( meshPntIdx, 1, xyz[1] );
         nodeXYZArray->SetComponent( meshPntIdx, 2, xyz[2] );
-        } // END if
-      } // END for all nodes
+      } // END if
+    } // END for all nodes
 
     centroid[0] = xsum / c->GetNumberOfPoints();
     centroid[1] = ysum / c->GetNumberOfPoints();
@@ -238,7 +238,7 @@ void ApplyXYZFieldToGrid( vtkUniformGrid *grd, std::string prefix )
     cellXYZArray->SetComponent( cellIdx, 0, centroid[0] );
     cellXYZArray->SetComponent( cellIdx, 1, centroid[1] );
     cellXYZArray->SetComponent( cellIdx, 2, centroid[2] );
-    } // END for all cells
+  } // END for all cells
 
   // Insert field arrays to grid point/cell data
   CD->AddArray( cellXYZArray );
@@ -307,22 +307,22 @@ vtkUniformGrid* RefinePatch(
 
   // STEP 2: Compute the spacing of the refined patch and its dimensions
   if( level == 0 )
-    {
+  {
     for( int i=0; i < dim; ++i )
-      {
+    {
       h[i]    = h0;
       ndim[i] = patchdims[i];
-      } // END for all dimensions
-    } // END if
+    } // END for all dimensions
+  } // END if
   else
-    {
+  {
     for( int i=0; i < dim; ++i )
-      {
+    {
       int r   = level*ratio;
       h[i]    = h0/static_cast<double>(r);
       ndim[i] = (level*r)*patchdims[i]-(r-1);
-      } // END for all dimensions
-    } // END else
+    } // END for all dimensions
+  } // END else
 
 
   // STEP 3: Construct uniform grid for requested patch
@@ -355,7 +355,7 @@ void Get2DAMRData(vtkOverlappingAMR* amrData, int ratio)
   vtkUniformGrid *refinedPatch = NULL;
   int idxAtLevel[NumLevels] = {0,0};
   for( int patchIdx=0; patchIdx < NumPatches; ++patchIdx )
-    {
+  {
     int patchLevel = Patches[patchIdx][0];
     int *patch     = &Patches[patchIdx][1];
     refinedPatch   = RefinePatch(vgrid,patchLevel,2,patch,ratio);
@@ -364,7 +364,7 @@ void Get2DAMRData(vtkOverlappingAMR* amrData, int ratio)
     idxAtLevel[patchLevel]++;
     refinedPatch->Delete();
     refinedPatch = NULL;
-    }
+  }
   vgrid->Delete();
 }
 
@@ -386,7 +386,7 @@ void Get3DAMRData(vtkOverlappingAMR* amrData, int ratio)
   vtkUniformGrid *refinedPatch = NULL;
   int idxAtLevel[NumLevels] = {0,0};
   for( int patchIdx=0; patchIdx < NumPatches; ++patchIdx )
-    {
+  {
     int patchLevel = Patches[patchIdx][0];
     int *patch     = &Patches[patchIdx][1];
     refinedPatch   = RefinePatch(vgrid,patchLevel,3,patch,ratio);
@@ -395,7 +395,7 @@ void Get3DAMRData(vtkOverlappingAMR* amrData, int ratio)
     idxAtLevel[patchLevel]++;
     refinedPatch->Delete();
     refinedPatch = NULL;
-    }
+  }
   vgrid->Delete();
 }
 
@@ -419,14 +419,14 @@ void RegisterGrids(
   unsigned int levelIdx = 0;
   int ext[6];
   for(;levelIdx < amr->GetNumberOfLevels(); ++levelIdx)
-    {
+  {
     unsigned int dataIdx=0;
     for(;dataIdx < amr->GetNumberOfDataSets(levelIdx); ++dataIdx)
-      {
+    {
       int idx = amr->GetCompositeIndex(levelIdx,dataIdx);
       vtkUniformGrid *grid = amr->GetDataSet(levelIdx,dataIdx);
       if( grid != NULL )
-        {
+      {
         GetGridExtent(idx,dim,ratio,ext);
         gridConnectivity->RegisterGrid(
             idx,levelIdx,ext,
@@ -435,10 +435,10 @@ void RegisterGrids(
             grid->GetPointData(),
             grid->GetCellData(),
             NULL);
-        }
+      }
 
-      } // END for all data
-    } // END for all levels
+    } // END for all data
+  } // END for all levels
 }
 
 //------------------------------------------------------------------------------
@@ -452,23 +452,23 @@ void GetGhostedAMRData(
   assert("pre: Ghosted AMR is NULL" && (ghostedAMR != NULL) );
   std::vector<int> blocksPerLevel;
   for(unsigned int i=0; i<amr->GetNumberOfLevels();i++)
-    {
+  {
     blocksPerLevel.push_back(amr->GetNumberOfDataSets(i));
-    }
+  }
   ghostedAMR->Initialize(
       static_cast<int>(blocksPerLevel.size()), &blocksPerLevel[0]);
 
   unsigned int levelIdx=0;
   for( ;levelIdx < amr->GetNumberOfLevels(); ++levelIdx)
-    {
+  {
     unsigned int dataIdx=0;
     for(;dataIdx < amr->GetNumberOfDataSets(levelIdx); ++dataIdx)
-      {
+    {
       int linearIdx        = amr->GetCompositeIndex(levelIdx,dataIdx);
       vtkUniformGrid *grid = amr->GetDataSet(levelIdx,dataIdx);
 
       if( grid != NULL )
-        {
+      {
         int ghostedExtent[6];
         amrConnectivity->GetGhostedExtent(linearIdx,ghostedExtent);
 
@@ -490,14 +490,14 @@ void GetGhostedAMRData(
 
         ghostedAMR->SetDataSet(levelIdx,dataIdx,ghostedGrid);
         ghostedGrid->Delete();
-        } // END if grid is not null
+      } // END if grid is not null
       else
-        {
+      {
         ghostedAMR->SetDataSet(levelIdx,dataIdx,NULL);
-        } // END else
+      } // END else
 
-      } // END for all data
-    } // END for all levels
+    } // END for all data
+  } // END for all levels
 }
 
 //------------------------------------------------------------------------------
@@ -603,10 +603,10 @@ int TestStructuredAMRGridConnectivity_internal(int argc, char *argv[])
 
   // STEP 1: Loop through are refinement ratios
   for( int i=0; i < nRatios; ++i )
-    {
+  {
     rc += Test2DAMR(ratios[i]);
     rc += Test3DAMR(ratios[i]);
-    } // END for all refinement ratios
+  } // END for all refinement ratios
 
   return( rc );
 }
@@ -619,7 +619,7 @@ int TestSimpleAMRGridConnectivity(int vtkNotUsed(argc), char *argv[])
   int ratio = atoi(argv[2]);
 
   switch( dim )
-    {
+  {
     case 2:
       rc += Test2DAMR( ratio );
       break;
@@ -629,7 +629,7 @@ int TestSimpleAMRGridConnectivity(int vtkNotUsed(argc), char *argv[])
     default:
       std::cerr << "ERROR: Only dimension of 2 and 3 is handled" << std::endl;
       rc = -1;
-    }
+  }
   return( rc );
 }
 
@@ -640,13 +640,13 @@ int TestStructuredAMRGridConnectivity(int argc, char *argv[])
 {
   int rc = 0;
   if( argc > 1 )
-    {
+  {
     rc += TestSimpleAMRGridConnectivity(argc,argv);
-    }
+  }
   else
-    {
+  {
     rc += TestStructuredAMRGridConnectivity_internal(argc, argv);
-    }
+  }
 
   return( rc );
 }

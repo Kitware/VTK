@@ -71,13 +71,13 @@ public:
   // Enum for additional event types supported.
   // These events can be picked up by command observers on the interactor
   enum vtkCustomEvents
-    {
+  {
     ContextMenuEvent = vtkCommand::UserEvent + 100,
     DragEnterEvent,
     DragMoveEvent,
     DragLeaveEvent,
     DropEvent
-    };
+  };
 
 
   // Description:

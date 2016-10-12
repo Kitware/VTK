@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPUnstructuredDataWriter - Superclass for PVTK XML unstructured data writers.
-// .SECTION Description
-// vtkXMLPUnstructuredDataWriter provides PVTK XML writing
-// functionality that is common among all the parallel unstructured
-// data formats.
+/**
+ * @class   vtkXMLPUnstructuredDataWriter
+ * @brief   Superclass for PVTK XML unstructured data writers.
+ *
+ * vtkXMLPUnstructuredDataWriter provides PVTK XML writing
+ * functionality that is common among all the parallel unstructured
+ * data formats.
+*/
 
 #ifndef vtkXMLPUnstructuredDataWriter_h
 #define vtkXMLPUnstructuredDataWriter_h
@@ -42,8 +45,8 @@ protected:
   vtkXMLWriter* CreatePieceWriter(int index);
   void WritePData(vtkIndent indent);
 private:
-  vtkXMLPUnstructuredDataWriter(const vtkXMLPUnstructuredDataWriter&);  // Not implemented.
-  void operator=(const vtkXMLPUnstructuredDataWriter&);  // Not implemented.
+  vtkXMLPUnstructuredDataWriter(const vtkXMLPUnstructuredDataWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLPUnstructuredDataWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

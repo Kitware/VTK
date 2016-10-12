@@ -12,18 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageMask - Combines a mask and an image.
-// .SECTION Description
-// vtkImageMask combines a mask with an image.  Non zero mask
-// implies the output pixel will be the same as the image.
-// If a mask pixel is zero,  then the output pixel
-// is set to "MaskedValue".  The filter also has the option to pass
-// the mask through a boolean not operation before processing the image.
-// This reverses the passed and replaced pixels.
-// The two inputs should have the same "WholeExtent".
-// The mask input should be unsigned char, and the image scalar type
-// is the same as the output scalar type.
-
+/**
+ * @class   vtkImageMask
+ * @brief   Combines a mask and an image.
+ *
+ * vtkImageMask combines a mask with an image.  Non zero mask
+ * implies the output pixel will be the same as the image.
+ * If a mask pixel is zero,  then the output pixel
+ * is set to "MaskedValue".  The filter also has the option to pass
+ * the mask through a boolean not operation before processing the image.
+ * This reverses the passed and replaced pixels.
+ * The two inputs should have the same "WholeExtent".
+ * The mask input should be unsigned char, and the image scalar type
+ * is the same as the output scalar type.
+*/
 
 #ifndef vtkImageMask_h
 #define vtkImageMask_h
@@ -39,8 +41,9 @@ public:
   vtkTypeMacro(vtkImageMask,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // SetGet the value of the output pixel replaced by mask.
+  /**
+   * SetGet the value of the output pixel replaced by mask.
+   */
   void SetMaskedOutputValue(int num, double *v);
   void SetMaskedOutputValue(double v) {this->SetMaskedOutputValue(1, &v);}
   void SetMaskedOutputValue(double v1, double v2)
@@ -50,33 +53,42 @@ public:
   double *GetMaskedOutputValue() {return this->MaskedOutputValue;}
   int GetMaskedOutputValueLength() {return this->MaskedOutputValueLength;}
 
-  // Description:
-  // Set/Get the alpha blending value for the mask
-  // The input image is assumed to be at alpha = 1.0
-  // and the mask image uses this alpha to blend using
-  // an over operator.
+  //@{
+  /**
+   * Set/Get the alpha blending value for the mask
+   * The input image is assumed to be at alpha = 1.0
+   * and the mask image uses this alpha to blend using
+   * an over operator.
+   */
   vtkSetClampMacro ( MaskAlpha, double, 0.0, 1.0 );
   vtkGetMacro ( MaskAlpha, double );
+  //@}
 
-  // Description:
-  // Set the input to be masked.
+  /**
+   * Set the input to be masked.
+   */
   void SetImageInputData(vtkImageData *in);
 
-  // Description:
-  // Set the mask to be used.
+  /**
+   * Set the mask to be used.
+   */
   void SetMaskInputData(vtkImageData *in);
 
-  // Description:
-  // When Not Mask is on, the mask is passed through a boolean not
-  // before it is used to mask the image.  The effect is to pass the
-  // pixels where the input mask is zero, and replace the pixels
-  // where the input value is non zero.
+  //@{
+  /**
+   * When Not Mask is on, the mask is passed through a boolean not
+   * before it is used to mask the image.  The effect is to pass the
+   * pixels where the input mask is zero, and replace the pixels
+   * where the input value is non zero.
+   */
   vtkSetMacro(NotMask,int);
   vtkGetMacro(NotMask,int);
   vtkBooleanMacro(NotMask, int);
+  //@}
 
-  // Description:
-  // Set the two inputs to this filter
+  /**
+   * Set the two inputs to this filter
+   */
   virtual void SetInput1Data(vtkDataObject *in) { this->SetInputData(0,in); }
   virtual void SetInput2Data(vtkDataObject *in) { this->SetInputData(1,in); }
 
@@ -102,8 +114,8 @@ protected:
                                    int extent[6], int threadId);
 
 private:
-  vtkImageMask(const vtkImageMask&);  // Not implemented.
-  void operator=(const vtkImageMask&);  // Not implemented.
+  vtkImageMask(const vtkImageMask&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageMask&) VTK_DELETE_FUNCTION;
 };
 
 #endif

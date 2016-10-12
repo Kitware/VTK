@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDataObjectReader - read vtk field data file
-// .SECTION Description
-// vtkDataObjectReader is a source object that reads ASCII or binary field
-// data files in vtk format. Fields are general matrix structures used
-// represent complex data. (See text for format details).  The output of this
-// reader is a single vtkDataObject.  The superclass of this class,
-// vtkDataReader, provides many methods for controlling the reading of the
-// data file, see vtkDataReader for more information.
-// .SECTION Caveats
-// Binary files written on one system may not be readable on other systems.
-// .SECTION See Also
-// vtkFieldData vtkDataObjectWriter
+/**
+ * @class   vtkDataObjectReader
+ * @brief   read vtk field data file
+ *
+ * vtkDataObjectReader is a source object that reads ASCII or binary field
+ * data files in vtk format. Fields are general matrix structures used
+ * represent complex data. (See text for format details).  The output of this
+ * reader is a single vtkDataObject.  The superclass of this class,
+ * vtkDataReader, provides many methods for controlling the reading of the
+ * data file, see vtkDataReader for more information.
+ * @warning
+ * Binary files written on one system may not be readable on other systems.
+ * @sa
+ * vtkFieldData vtkDataObjectWriter
+*/
 
 #ifndef vtkDataObjectReader_h
 #define vtkDataObjectReader_h
@@ -40,11 +43,14 @@ public:
   vtkTypeMacro(vtkDataObjectReader,vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the output field of this reader.
+  //@{
+  /**
+   * Get the output field of this reader.
+   */
   vtkDataObject *GetOutput();
   vtkDataObject *GetOutput(int idx);
   void SetOutput(vtkDataObject *);
+  //@}
 
 protected:
   vtkDataObjectReader();
@@ -54,8 +60,8 @@ protected:
                           vtkInformationVector *);
   virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
-  vtkDataObjectReader(const vtkDataObjectReader&);  // Not implemented.
-  void operator=(const vtkDataObjectReader&);  // Not implemented.
+  vtkDataObjectReader(const vtkDataObjectReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataObjectReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

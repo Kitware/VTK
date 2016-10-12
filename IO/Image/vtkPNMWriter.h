@@ -12,11 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPNMWriter - Writes PNM (portable any map)  files.
-// .SECTION Description
-// vtkPNMWriter writes PNM file. The data type
-// of the file is unsigned char regardless of the input type.
-
+/**
+ * @class   vtkPNMWriter
+ * @brief   Writes PNM (portable any map)  files.
+ *
+ * vtkPNMWriter writes PNM file. The data type
+ * of the file is unsigned char regardless of the input type.
+*/
 
 #ifndef vtkPNMWriter_h
 #define vtkPNMWriter_h
@@ -29,7 +31,7 @@ class VTKIOIMAGE_EXPORT vtkPNMWriter : public vtkImageWriter
 public:
   static vtkPNMWriter *New();
   vtkTypeMacro(vtkPNMWriter,vtkImageWriter);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkPNMWriter() {}
@@ -40,8 +42,8 @@ protected:
   virtual void WriteFileHeader(
     ofstream *, vtkImageData *, int wExt[6]);
 private:
-  vtkPNMWriter(const vtkPNMWriter&);  // Not implemented.
-  void operator=(const vtkPNMWriter&);  // Not implemented.
+  vtkPNMWriter(const vtkPNMWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPNMWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -49,7 +49,7 @@ class VTKPythonObjectCalldataInvokeEventTest(Testing.vtkTest):
     def test_obj(self):
         self.vtkObj.AddObserver(vtk.vtkCommand.AnyEvent, self.callbackObj)
         self.vtkObj.InvokeEvent(vtk.vtkCommand.ModifiedEvent, self.vtkObjForCallData)
-        self.assertAlmostEqual(self.calldata, self.vtkObjForCallData)
+        self.assertEqual(self.calldata, self.vtkObjForCallData)
 
 
 

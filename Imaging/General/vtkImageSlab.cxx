@@ -78,13 +78,13 @@ int vtkImageSlab::RequestInformation(
   // clamp the range to the whole extent
   this->GetSliceRange(range);
   if (range[0] < extent[2*dimIndex])
-    {
+  {
     range[0] = extent[2*dimIndex];
-    }
+  }
   if (range[1] > extent[2*dimIndex+1])
-    {
+  {
     range[1] = extent[2*dimIndex+1];
-    }
+  }
 
   // set new origin to be in the center of the stack of slices
   sliceSpacing = spacing[dimIndex];
@@ -92,17 +92,17 @@ int vtkImageSlab::RequestInformation(
                       0.5*sliceSpacing*(range[0] + range[1]));
 
   if (this->GetMultiSliceOutput())
-    {
+  {
     // output extent is input extent, decreased by the slice range
     extent[2*dimIndex] -= range[0];
     extent[2*dimIndex+1] -= range[1];
-    }
+  }
   else
-    {
+  {
     // set new extent to single-slice
     extent[2*dimIndex] = 0;
     extent[2*dimIndex+1] = 0;
-    }
+  }
 
   // set the output scalar type
   scalarType = this->GetOutputScalarType();
@@ -115,9 +115,9 @@ int vtkImageSlab::RequestInformation(
 
   // if requested, change the type to float or double
   if (scalarType == VTK_FLOAT || scalarType == VTK_DOUBLE)
-    {
+  {
     vtkDataObject::SetPointDataActiveScalarInfo(outInfo, scalarType, -1);
-    }
+  }
 
   return 1;
 }
@@ -153,13 +153,13 @@ int vtkImageSlab::RequestUpdateExtent(
   // clamp the range to the whole extent
   this->GetSliceRange(range);
   if (range[0] < extent[2*dimIndex])
-    {
+  {
     range[0] = extent[2*dimIndex];
-    }
+  }
   if (range[1] > extent[2*dimIndex+1])
-    {
+  {
     range[1] = extent[2*dimIndex+1];
-    }
+  }
 
   // input range is the output range plus the specified slice range
   inExt[2*dimIndex] += range[0];
@@ -250,40 +250,40 @@ void vtkImageSlabExecute(vtkImageSlab *self,
   // get the dimension along which to do the projection
   int dimIndex = self->GetOrientation();
   if (dimIndex < 0)
-    {
+  {
     dimIndex = 0;
-    }
+  }
   else if (dimIndex > 2)
-    {
+  {
     dimIndex = 2;
-    }
+  }
 
   // clamp the range to the whole extent
   int range[2];
   self->GetSliceRange(range);
   if (range[0] < inExt[2*dimIndex])
-    {
+  {
     range[0] = inExt[2*dimIndex];
-    }
+  }
   if (range[1] > inExt[2*dimIndex+1])
-    {
+  {
     range[1] = inExt[2*dimIndex+1];
-    }
+  }
   int numSlices = range[1] - range[0] + 1;
 
   // trapezoid integration is impossible if only one slice
   if (numSlices <= 1)
-    {
+  {
     trapezoid = 0;
-    }
+  }
 
   // averaging requires double precision summation
   double *rowBuffer = 0;
   if (operation == VTK_IMAGE_SLAB_MEAN ||
       operation == VTK_IMAGE_SLAB_SUM)
-    {
+  {
     rowBuffer = new double[rowlen];
-    }
+  }
 
   unsigned long count = 0;
   unsigned long target = ((unsigned long)(outExt[3]-outExt[2]+1)
@@ -292,158 +292,158 @@ void vtkImageSlabExecute(vtkImageSlab *self,
 
   // Loop through output pixels
   for (int idZ = outExt[4]; idZ <= outExt[5]; idZ++)
-    {
+  {
     T1 *inPtrY = inPtr;
     for (int idY = outExt[2]; idY <= outExt[3]; idY++)
-      {
+    {
       if (!id)
-        {
+      {
         if (!(count%target))
-          {
+        {
           self->UpdateProgress(count/(1.0*target));
-          }
-        count++;
         }
+        count++;
+      }
 
       // ====== code for handling average and sum ======
       if (operation == VTK_IMAGE_SLAB_MEAN ||
           operation == VTK_IMAGE_SLAB_SUM)
-        {
+      {
         T1 *inSlicePtr = inPtrY;
         double *rowPtr = rowBuffer;
 
         // initialize using first row
         T1 *inPtrX = inSlicePtr;
         if (trapezoid)
-          {
+        {
           double f = 0.5;
           for (int j = 0; j < rowlen; j++)
-            {
-            *rowPtr++ = f*(*inPtrX++);
-            }
-          }
-        else
           {
-          for (int j = 0; j < rowlen; j++)
-            {
-            *rowPtr++ = *inPtrX++;
-            }
+            *rowPtr++ = f*(*inPtrX++);
           }
+        }
+        else
+        {
+          for (int j = 0; j < rowlen; j++)
+          {
+            *rowPtr++ = *inPtrX++;
+          }
+        }
         inSlicePtr += inInc[dimIndex];
 
         // perform the summation
         int sumSlices = (trapezoid ? (numSlices-1) : numSlices);
         for (int sliceIdx = 1; sliceIdx < sumSlices; sliceIdx++)
-          {
+        {
           inPtrX = inSlicePtr;
           rowPtr = rowBuffer;
 
           for (int i = 0; i < rowlen; i++)
-            {
+          {
             *rowPtr++ += *inPtrX++;
-            }
-          inSlicePtr += inInc[dimIndex];
           }
+          inSlicePtr += inInc[dimIndex];
+        }
 
         if (trapezoid)
-          {
+        {
           inPtrX = inSlicePtr;
           rowPtr = rowBuffer;
 
           double f = 0.5;
           for (int i = 0; i < rowlen; i++)
-            {
+          {
             *rowPtr++ += f*(*inPtrX++);
-            }
-          }
-
-        rowPtr = rowBuffer;
-        if (operation == VTK_IMAGE_SLAB_MEAN)
-          {
-          // do the division via multiplication
-          double factor = 1.0/sumSlices;
-          for (int k = 0; k < rowlen; k++)
-            {
-            vtkSlabRound((*rowPtr++)*factor, *outPtr++);
-            }
-          }
-        else // VTK_IMAGE_SLAB_SUM
-          {
-          // clamp to limits of numeric type
-          for (int k = 0; k < rowlen; k++)
-            {
-            vtkSlabClamp(*rowPtr++, *outPtr++);
-            }
           }
         }
 
+        rowPtr = rowBuffer;
+        if (operation == VTK_IMAGE_SLAB_MEAN)
+        {
+          // do the division via multiplication
+          double factor = 1.0/sumSlices;
+          for (int k = 0; k < rowlen; k++)
+          {
+            vtkSlabRound((*rowPtr++)*factor, *outPtr++);
+          }
+        }
+        else // VTK_IMAGE_SLAB_SUM
+        {
+          // clamp to limits of numeric type
+          for (int k = 0; k < rowlen; k++)
+          {
+            vtkSlabClamp(*rowPtr++, *outPtr++);
+          }
+        }
+      }
+
       // ====== code for handling max and min ======
       else
-        {
+      {
         T1 *inSlicePtr = inPtrY;
         T2 *outPtrX = outPtr;
 
         // initialize using first row
         T1 *inPtrX = inSlicePtr;
         for (int j = 0; j < rowlen; j++)
-          {
+        {
           *outPtrX++ = *inPtrX++;
-          }
+        }
         inSlicePtr += inInc[dimIndex];
 
         if (operation == VTK_IMAGE_SLAB_MIN)
-          {
+        {
           for (int sliceIdx = 1; sliceIdx < numSlices; sliceIdx++)
-            {
+          {
             inPtrX = inSlicePtr;
             outPtrX = outPtr;
 
             for (int i = 0; i < rowlen; i++)
-              {
+            {
               *outPtrX = ((*outPtrX < *inPtrX) ? *outPtrX : *inPtrX);
               inPtrX++;
               outPtrX++;
-              }
+            }
 
             inSlicePtr += inInc[dimIndex];
-            }
           }
+        }
         else // VTK_IMAGE_SLAB_MAX
-          {
+        {
           for (int sliceIdx = 1; sliceIdx < numSlices; sliceIdx++)
-            {
+          {
             inPtrX = inSlicePtr;
             outPtrX = outPtr;
 
             for (int i = 0; i < rowlen; i++)
-              {
+            {
               *outPtrX = ((*outPtrX > *inPtrX) ? *outPtrX : *inPtrX);
               inPtrX++;
               outPtrX++;
-              }
+            }
 
             inSlicePtr += inInc[dimIndex];
-            }
           }
+        }
 
         outPtr += rowlen;
-        }
+      }
 
       // ====== end of operation-specific code ======
 
       outPtr += outIncY;
       inPtrY += inInc[1];
-      }
+    }
 
     outPtr += outIncZ;
     inPtr += inInc[2];
-    }
+  }
 
   if (operation == VTK_IMAGE_SLAB_MEAN ||
       operation == VTK_IMAGE_SLAB_SUM)
-    {
+  {
     delete [] rowBuffer;
-    }
+  }
 }
 
 } // end of anonymous namespace
@@ -470,13 +470,13 @@ void vtkImageSlab::ThreadedRequestData(vtkInformation *,
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
   this->GetSliceRange(range);
   if (range[0] < extent[2*dimIndex])
-    {
+  {
     range[0] = extent[2*dimIndex];
-    }
+  }
   if (range[1] > extent[2*dimIndex+1])
-    {
+  {
     range[1] = extent[2*dimIndex+1];
-    }
+  }
 
   // initialize input extent to output extent
   inExt[0] = outExt[0];
@@ -500,9 +500,9 @@ void vtkImageSlab::ThreadedRequestData(vtkInformation *,
 
   // and call the execute method
   if (outScalarType == inScalarType)
-    {
+  {
     switch (inScalarType)
-      {
+    {
       vtkTemplateAliasMacro(
         vtkImageSlabExecute(this,
           inData[0][0], static_cast<VTK_TT *>(inPtr),
@@ -510,12 +510,12 @@ void vtkImageSlab::ThreadedRequestData(vtkInformation *,
       default:
         vtkErrorMacro("Execute: Unknown ScalarType");
         return;
-      }
     }
+  }
   else if (outScalarType == VTK_FLOAT)
-    {
+  {
     switch (inScalarType)
-      {
+    {
       vtkTemplateAliasMacro(
         vtkImageSlabExecute( this,
           inData[0][0], static_cast<VTK_TT *>(inPtr),
@@ -523,12 +523,12 @@ void vtkImageSlab::ThreadedRequestData(vtkInformation *,
       default:
         vtkErrorMacro("Execute: Unknown ScalarType");
         return;
-      }
     }
+  }
   else if (outScalarType == VTK_DOUBLE)
-    {
+  {
     switch (inScalarType)
-      {
+    {
       vtkTemplateAliasMacro(
         vtkImageSlabExecute(this,
           inData[0][0], static_cast<VTK_TT *>(inPtr),
@@ -536,13 +536,13 @@ void vtkImageSlab::ThreadedRequestData(vtkInformation *,
       default:
         vtkErrorMacro("Execute: Unknown ScalarType");
         return;
-      }
     }
+  }
   else
-    {
+  {
     vtkErrorMacro("Execute: Unknown ScalarType");
     return;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -565,7 +565,7 @@ void vtkImageSlab::PrintSelf(ostream& os, vtkIndent indent)
 const char *vtkImageSlab::GetOperationAsString()
 {
   switch (this->Operation)
-    {
+  {
     case VTK_IMAGE_SLAB_MIN:
       return "Min";
     case VTK_IMAGE_SLAB_MAX:
@@ -576,5 +576,5 @@ const char *vtkImageSlab::GetOperationAsString()
       return "Sum";
     default:
       return "";
-    }
+  }
 }

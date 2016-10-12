@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkValuePass - Render opaque objects with the vtkValuePainter
-// .SECTION Description
-// This is a render pass draws polygonal data with the vtkValuePainter.
-//
-// .SECTION See Also
-// vtkValuePainter, vtkValuePass
+/**
+ * @class   vtkValuePass
+ * @brief   Render opaque objects with the vtkValuePainter
+ *
+ * This is a render pass draws polygonal data with the vtkValuePainter.
+ *
+ * @sa
+ * vtkValuePainter, vtkValuePass
+*/
 
 #ifndef vtkValuePass_h
 #define vtkValuePass_h
@@ -32,29 +35,35 @@ public:
   vtkTypeMacro(vtkValuePass,vtkOpaquePass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the array to be drawn.
+  //@{
+  /**
+   * Set the array to be drawn.
+   */
   void SetInputArrayToProcess(int fieldAssociation, const char *name);
   void SetInputArrayToProcess(int fieldAssociation, int fieldAttributeType);
   void SetInputComponentToProcess(int comp);
   void SetScalarRange(double min, double max);
+  //@}
 
-  // Description:
-  // Render.
+  /**
+   * Render.
+   */
   virtual void Render(const vtkRenderState *s);
 
  protected:
-  // Description:
-  // Default constructor.
+  /**
+   * Default constructor.
+   */
   vtkValuePass();
 
-  // Description:
-  // Destructor.
+  /**
+   * Destructor.
+   */
   virtual ~vtkValuePass();
 
  private:
-  vtkValuePass(const vtkValuePass&);  // Not implemented.
-  void operator=(const vtkValuePass&);  // Not implemented.
+  vtkValuePass(const vtkValuePass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkValuePass&) VTK_DELETE_FUNCTION;
 
   class vtkInternals;
   vtkInternals *Internals;

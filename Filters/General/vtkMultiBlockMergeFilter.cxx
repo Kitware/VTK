@@ -46,37 +46,37 @@ int vtkMultiBlockMergeFilter::RequestData(
 
   int numInputs = inputVector[0]->GetNumberOfInformationObjects();
   if (numInputs<0)
-    {
+  {
     vtkErrorMacro("Too many inputs to algorithm.")
     return 0;
-    }
+  }
   unsigned int usNInputs = static_cast<unsigned int>(numInputs);
 
   int first = 1;
   for (int idx = 0; idx < numInputs; ++idx)
-    {
+  {
     vtkMultiBlockDataSet* input = 0;
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(idx);
     if (inInfo)
-      {
+    {
       input = vtkMultiBlockDataSet::SafeDownCast(
         inInfo->Get(vtkDataObject::DATA_OBJECT()));
-      }
+    }
     if (input)
-      {
+    {
       if (first)
-        {
+      {
         //shallow copy first input to output to start off with
         //cerr << "Copy first input" << endl;
         output->ShallowCopy(vtkMultiBlockDataSet::SafeDownCast(input));
         first = 0;
-        }
+      }
       else
-        {
+      {
         if (!this->Merge(usNInputs, idx, output, input))
-          {
+        {
           return 0;
-          }
+        }
         /*
         //merge in the inputs data sets into the proper places in the output
         for (unsigned int blk = 0; blk < input->GetNumberOfBlocks(); blk++)
@@ -100,9 +100,9 @@ int vtkMultiBlockMergeFilter::RequestData(
           dsCopy->Delete();
           }
           */
-        }
       }
     }
+  }
 
   return !first;
 }
@@ -112,13 +112,13 @@ int vtkMultiBlockMergeFilter::IsMultiPiece(vtkMultiBlockDataSet* mb)
 {
   unsigned int numBlocks = mb->GetNumberOfBlocks();
   for (unsigned int cc=0; cc < numBlocks; cc++)
-    {
+  {
     vtkDataObject* block = mb->GetBlock(cc);
     if (block && !block->IsA("vtkDataSet"))
-      {
+    {
       return 0;
-      }
     }
+  }
   return 1;
 }
 
@@ -128,15 +128,15 @@ int vtkMultiBlockMergeFilter::Merge(unsigned int numPieces, unsigned int pieceNo
   vtkMultiBlockDataSet* input)
 {
   if (!input && !output)
-    {
+  {
     return 1;
-    }
+  }
 
   if (!input || !output)
-    {
+  {
     vtkErrorMacro("Case not handled");
     return 0;
-    }
+  }
 
   unsigned int numInBlocks = input->GetNumberOfBlocks();
   unsigned int numOutBlocks = output->GetNumberOfBlocks();
@@ -149,35 +149,35 @@ int vtkMultiBlockMergeFilter::Merge(unsigned int numPieces, unsigned int pieceNo
   int mpOutput = this->IsMultiPiece(output);
 
   if (!mpInput && !mpOutput && (numInBlocks == numOutBlocks))
-    {
+  {
     for (unsigned int cc=0; cc < numInBlocks; cc++)
-      {
+    {
       if (!this->Merge(numPieces, pieceNo,
           vtkMultiBlockDataSet::SafeDownCast(output->GetBlock(cc)),
           vtkMultiBlockDataSet::SafeDownCast(input->GetBlock(cc))))
-        {
+      {
         return 0;
-        }
       }
-    return 1;
     }
+    return 1;
+  }
   else if (mpInput && mpOutput)
-    {
+  {
     output->SetNumberOfBlocks(numPieces);
     unsigned int inIndex = 0;
     //inputs are allowed to have either 1 or N datasets in each group
     if (numInBlocks == numPieces)
-      {
+    {
       inIndex = pieceNo;
-      }
+    }
     else if (numInBlocks != 1)
-      {
+    {
       vtkErrorMacro("Case not currently handled.");
       return 0;
-      }
+    }
     output->SetBlock(pieceNo, vtkDataSet::SafeDownCast(input->GetBlock(inIndex)));
     return 1;
-    }
+  }
 
   vtkErrorMacro("Case not currently handled.");
   return 0;

@@ -11,13 +11,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHierarchicalBoxDataSet - Backwards compatibility class
-//
-// .SECTION Description
-// An empty class for backwards compatiblity
-//
-// .SECTION See Also
-// vtkUniformGridAM vtkOverlappingAMR vtkNonOverlappingAMR
+/**
+ * @class   vtkHierarchicalBoxDataSet
+ * @brief   Backwards compatibility class
+ *
+ *
+ * An empty class for backwards compatiblity
+ *
+ * @sa
+ * vtkUniformGridAM vtkOverlappingAMR vtkNonOverlappingAMR
+*/
 
 #ifndef vtkHierarchicalBoxDataSet_h
 #define vtkHierarchicalBoxDataSet_h
@@ -34,28 +37,33 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHierarchicalBoxDataSet:
 public:
   static vtkHierarchicalBoxDataSet *New();
   vtkTypeMacro(vtkHierarchicalBoxDataSet,vtkOverlappingAMR);
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Return a new iterator (the iterator has to be deleted by user).
-  virtual vtkCompositeDataIterator* NewIterator();
+  /**
+   * Return a new iterator (the iterator has to be deleted by user).
+   */
+  VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator() VTK_OVERRIDE;
 
-  // Description:
-  // Return class name of data type (see vtkType.h for definitions).
-  virtual int GetDataObjectType() {return VTK_HIERARCHICAL_BOX_DATA_SET;}
+  /**
+   * Return class name of data type (see vtkType.h for definitions).
+   */
+  int GetDataObjectType() VTK_OVERRIDE {return VTK_HIERARCHICAL_BOX_DATA_SET;}
 
-  // Description:
-  // Retrieve an instance of this class from an information object.
+  //@{
+  /**
+   * Retrieve an instance of this class from an information object.
+   */
   static vtkHierarchicalBoxDataSet* GetData(vtkInformation* info);
   static vtkHierarchicalBoxDataSet* GetData(vtkInformationVector* v, int i=0);
+  //@}
 
 protected:
   vtkHierarchicalBoxDataSet();
-  virtual ~vtkHierarchicalBoxDataSet();
+  ~vtkHierarchicalBoxDataSet() VTK_OVERRIDE;
 
 private:
-  vtkHierarchicalBoxDataSet(const vtkHierarchicalBoxDataSet&); // Not implemented
-  void operator=(const vtkHierarchicalBoxDataSet&); // Not implemented
+  vtkHierarchicalBoxDataSet(const vtkHierarchicalBoxDataSet&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHierarchicalBoxDataSet&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -29,9 +29,9 @@ int main( int argc, char *argv[] )
   int i;
   int RES = 200;
   if (argc > 1)
-    {
+  {
     RES = atoi(argv[1]);
-    }
+  }
   // create a rendering window and both renderers
   vtkRenderer *ren1 = vtkRenderer::New();
   ren1->GetCullers()->InitTraversal();
@@ -76,10 +76,10 @@ int main( int argc, char *argv[] )
 
   // do a azimuth of the cameras 3 degrees per iteration
   for (i = 0; i < 360; i += 3)
-    {
+  {
     ren1->GetActiveCamera()->Azimuth(3);
     renWindow->Render();
-    }
+  }
 
   tl->StopTimer();
 

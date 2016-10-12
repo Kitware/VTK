@@ -17,18 +17,22 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkQtTableModelAdapter - Adapts a table to a Qt item model.
-//
-// .SECTION Description
-// vtkQtTableModelAdapter is a QAbstractItemModel with a vtkTable as its
-// underlying data model.
-//
-// .SECTION See also
-// vtkQtAbstractModelAdapter vtkQtTreeModelAdapter
+/**
+ * @class   vtkQtTableModelAdapter
+ * @brief   Adapts a table to a Qt item model.
+ *
+ *
+ * vtkQtTableModelAdapter is a QAbstractItemModel with a vtkTable as its
+ * underlying data model.
+ *
+ * @sa
+ * vtkQtAbstractModelAdapter vtkQtTreeModelAdapter
+*/
 
 #ifndef vtkQtTableModelAdapter_h
 #define vtkQtTableModelAdapter_h
 
+#include "vtkConfigure.h"
 #include "vtkGUISupportQtModule.h" // For export macro
 #include "vtkQtAbstractModelAdapter.h"
 #include <QImage> // Needed for icon support
@@ -48,17 +52,23 @@ public:
   vtkQtTableModelAdapter(vtkTable* table, QObject *parent = 0);
   ~vtkQtTableModelAdapter();
 
-  // Description:
-  // Set/Get the VTK data object as input to this adapter
+  //@{
+  /**
+   * Set/Get the VTK data object as input to this adapter
+   */
   virtual void SetVTKDataObject(vtkDataObject *data);
   virtual vtkDataObject* GetVTKDataObject() const;
+  //@}
 
-  // Description:
-  // Selection conversion from VTK land to Qt land
+  //@{
+  /**
+   * Selection conversion from VTK land to Qt land
+   */
   virtual vtkSelection* QModelIndexListToVTKIndexSelection(
     const QModelIndexList qmil) const;
   virtual QItemSelection VTKIndexSelectionToQItemSelection(
     vtkSelection *vtksel) const;
+  //@}
 
   virtual void SetKeyColumnName(const char* name);
   virtual void SetColorColumnName(const char* name);
@@ -77,21 +87,25 @@ public:
     NONE = 2
   };
 
-  // Description:
-  // Specify how to color rows if colors are provided by SetColorColumnName().
-  // Default is the vertical header.
+  /**
+   * Specify how to color rows if colors are provided by SetColorColumnName().
+   * Default is the vertical header.
+   */
   void SetDecorationLocation(int s);
 
-  // Description:
-  // Specify how to color rows if colors are provided by SetColorColumnName().
-  // Default is the vertical header.
+  /**
+   * Specify how to color rows if colors are provided by SetColorColumnName().
+   * Default is the vertical header.
+   */
   void SetDecorationStrategy(int s);
 
   bool GetSplitMultiComponentColumns() const;
   void SetSplitMultiComponentColumns(bool value);
 
-  // Description:
-  // Set up the model based on the current table.
+  //@{
+  /**
+   * Set up the model based on the current table.
+   */
   void setTable(vtkTable* table);
   vtkTable* table() const { return this->Table; }
   QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
@@ -104,6 +118,7 @@ public:
   QModelIndex parent(const QModelIndex &index) const;
   int rowCount(const QModelIndex &parent = QModelIndex()) const;
   int columnCount(const QModelIndex &parent = QModelIndex()) const;
+  //@}
 
   virtual bool dropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent) ;
   virtual QMimeData * mimeData ( const QModelIndexList & indexes ) const;
@@ -137,8 +152,8 @@ private:
   class vtkInternal;
   vtkInternal* Internal;
 
-  vtkQtTableModelAdapter(const vtkQtTableModelAdapter &);  // Not implemented
-  void operator=(const vtkQtTableModelAdapter&);  // Not implemented.
+  vtkQtTableModelAdapter(const vtkQtTableModelAdapter &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQtTableModelAdapter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

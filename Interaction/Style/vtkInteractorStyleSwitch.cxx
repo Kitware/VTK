@@ -63,16 +63,16 @@ vtkInteractorStyleSwitch::~vtkInteractorStyleSwitch()
 void vtkInteractorStyleSwitch::SetAutoAdjustCameraClippingRange( int value )
 {
   if ( value == this->AutoAdjustCameraClippingRange )
-    {
+  {
     return;
-    }
+  }
 
   if ( value < 0 || value > 1 )
-    {
+  {
     vtkErrorMacro("Value must be between 0 and 1 for" <<
                   " SetAutoAdjustCameraClippingRange");
     return;
-    }
+  }
 
   this->AutoAdjustCameraClippingRange = value;
   this->JoystickActor->SetAutoAdjustCameraClippingRange( value );
@@ -131,7 +131,7 @@ void vtkInteractorStyleSwitch::SetCurrentStyleToMultiTouchCamera()
 void vtkInteractorStyleSwitch::OnChar()
 {
   switch (this->Interactor->GetKeyCode())
-    {
+  {
     case 'j':
     case 'J':
       this->JoystickOrTrackball = VTKIS_JOYSTICK;
@@ -161,7 +161,7 @@ void vtkInteractorStyleSwitch::OnChar()
       this->MultiTouch = true;
       this->EventCallbackCommand->SetAbortFlag(1);
       break;
-    }
+  }
   // Set the CurrentStyle pointer to the picked style
   this->SetCurrentStyle();
 }
@@ -180,87 +180,87 @@ void vtkInteractorStyleSwitch::SetCurrentStyle()
   // this->Interactor so the callbacks are set for the
   // currentstyle.
   if (this->MultiTouch)
-    {
+  {
     if(this->CurrentStyle != this->MultiTouchCamera)
-      {
+    {
       if(this->CurrentStyle)
-        {
+      {
         this->CurrentStyle->SetInteractor(0);
-        }
-      this->CurrentStyle = this->MultiTouchCamera;
       }
+      this->CurrentStyle = this->MultiTouchCamera;
     }
+  }
   else if (this->JoystickOrTrackball == VTKIS_JOYSTICK &&
       this->CameraOrActor == VTKIS_CAMERA)
-    {
+  {
     if(this->CurrentStyle != this->JoystickCamera)
-      {
+    {
       if(this->CurrentStyle)
-        {
+      {
         this->CurrentStyle->SetInteractor(0);
-        }
-      this->CurrentStyle = this->JoystickCamera;
       }
+      this->CurrentStyle = this->JoystickCamera;
     }
+  }
   else if (this->JoystickOrTrackball == VTKIS_JOYSTICK &&
            this->CameraOrActor == VTKIS_ACTOR)
-    {
+  {
     if(this->CurrentStyle != this->JoystickActor)
-      {
+    {
       if(this->CurrentStyle)
-        {
+      {
         this->CurrentStyle->SetInteractor(0);
-        }
-      this->CurrentStyle = this->JoystickActor;
       }
+      this->CurrentStyle = this->JoystickActor;
     }
+  }
   else if (this->JoystickOrTrackball == VTKIS_TRACKBALL &&
            this->CameraOrActor == VTKIS_CAMERA)
-    {
+  {
     if(this->CurrentStyle != this->TrackballCamera)
-      {
+    {
       if(this->CurrentStyle)
-        {
+      {
         this->CurrentStyle->SetInteractor(0);
-        }
-      this->CurrentStyle = this->TrackballCamera;
       }
+      this->CurrentStyle = this->TrackballCamera;
     }
+  }
   else if (this->JoystickOrTrackball == VTKIS_TRACKBALL &&
            this->CameraOrActor == VTKIS_ACTOR)
-    {
+  {
       if(this->CurrentStyle != this->TrackballActor)
-        {
+      {
         if(this->CurrentStyle)
-          {
+        {
           this->CurrentStyle->SetInteractor(0);
-          }
-        this->CurrentStyle = this->TrackballActor;
         }
-    }
+        this->CurrentStyle = this->TrackballActor;
+      }
+  }
   if (this->CurrentStyle)
-    {
+  {
     this->CurrentStyle->SetInteractor(this->Interactor);
     this->CurrentStyle->SetTDxStyle(this->TDxStyle);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleSwitch::SetInteractor(vtkRenderWindowInteractor *iren)
 {
   if(iren == this->Interactor)
-    {
+  {
     return;
-    }
+  }
   // if we already have an Interactor then stop observing it
   if(this->Interactor)
-    {
+  {
     this->Interactor->RemoveObserver(this->EventCallbackCommand);
-    }
+  }
   this->Interactor = iren;
   // add observers for each of the events handled in ProcessEvents
   if(iren)
-    {
+  {
     iren->AddObserver(vtkCommand::CharEvent,
                       this->EventCallbackCommand,
                       this->Priority);
@@ -268,7 +268,7 @@ void vtkInteractorStyleSwitch::SetInteractor(vtkRenderWindowInteractor *iren)
     iren->AddObserver(vtkCommand::DeleteEvent,
                       this->EventCallbackCommand,
                       this->Priority);
-    }
+  }
   this->SetCurrentStyle();
 }
 
@@ -278,11 +278,11 @@ void vtkInteractorStyleSwitch::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "CurrentStyle " << this->CurrentStyle << "\n";
   if (this->CurrentStyle)
-    {
+  {
     vtkIndent next_indent = indent.GetNextIndent();
     os << next_indent << this->CurrentStyle->GetClassName() << "\n";
     this->CurrentStyle->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

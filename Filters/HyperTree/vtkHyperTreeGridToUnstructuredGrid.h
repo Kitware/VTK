@@ -12,22 +12,25 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHyperTreeGridToUnstructuredGrid - Convert hyper tree grid to
-// unstructured grid.
-//
-// .SECTION Description
-// Make explicit all leaves of a hyper tree grid by converting them to cells
-// of an unstructured grid.
-// Produces segments in 1D, rectangles in 2D, right hexahedra in 3D.
-// NB: The output will contain superimposed inter-element boundaries and pending
-// nodes as a result of T-junctions.
-//
-// .SECTION See Also
-// vtkHyperTreeGrid vtkUnstructuredGrid
-//
-// .SECTION Thanks
-// This class was written by Philippe Pebay and Charles Law, Kitware 2012
-// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
+/**
+ * @class   vtkHyperTreeGridToUnstructuredGrid
+ * @brief   Convert hyper tree grid to
+ * unstructured grid.
+ *
+ *
+ * Make explicit all leaves of a hyper tree grid by converting them to cells
+ * of an unstructured grid.
+ * Produces segments in 1D, rectangles in 2D, right hexahedra in 3D.
+ * NB: The output will contain superimposed inter-element boundaries and pending
+ * nodes as a result of T-junctions.
+ *
+ * @sa
+ * vtkHyperTreeGrid vtkUnstructuredGrid
+ *
+ * @par Thanks:
+ * This class was written by Philippe Pebay and Charles Law, Kitware 2012
+ * This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
+*/
 
 #ifndef vtkHyperTreeGridToUnstructuredGrid_h
 #define vtkHyperTreeGridToUnstructuredGrid_h
@@ -72,8 +75,8 @@ protected:
   vtkCellArray* Cells;
 
 private:
-  vtkHyperTreeGridToUnstructuredGrid(const vtkHyperTreeGridToUnstructuredGrid&);  // Not implemented.
-  void operator=(const vtkHyperTreeGridToUnstructuredGrid&);  // Not implemented.
+  vtkHyperTreeGridToUnstructuredGrid(const vtkHyperTreeGridToUnstructuredGrid&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHyperTreeGridToUnstructuredGrid&) VTK_DELETE_FUNCTION;
 };
 
 #endif

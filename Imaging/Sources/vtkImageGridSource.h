@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageGridSource - Create an image of a grid.
-// .SECTION Description
-// vtkImageGridSource produces an image of a grid.  The
-// default output type is double.
+/**
+ * @class   vtkImageGridSource
+ * @brief   Create an image of a grid.
+ *
+ * vtkImageGridSource produces an image of a grid.  The
+ * default output type is double.
+*/
 
 #ifndef vtkImageGridSource_h
 #define vtkImageGridSource_h
@@ -30,30 +33,44 @@ public:
   vtkTypeMacro(vtkImageGridSource,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set/Get the grid spacing in pixel units.  Default (10,10,0).
-  // A value of zero means no grid.
+  //@{
+  /**
+   * Set/Get the grid spacing in pixel units.  Default (10,10,0).
+   * A value of zero means no grid.
+   */
   vtkSetVector3Macro(GridSpacing,int);
   vtkGetVector3Macro(GridSpacing,int);
+  //@}
 
-  // Description:
-  // Set/Get the grid origin, in ijk integer values.  Default (0,0,0).
+  //@{
+  /**
+   * Set/Get the grid origin, in ijk integer values.  Default (0,0,0).
+   */
   vtkSetVector3Macro(GridOrigin,int);
   vtkGetVector3Macro(GridOrigin,int);
+  //@}
 
-  // Description:
-  // Set the grey level of the lines. Default 1.0.
+  //@{
+  /**
+   * Set the grey level of the lines. Default 1.0.
+   */
   vtkSetMacro(LineValue,double);
   vtkGetMacro(LineValue,double);
+  //@}
 
-  // Description:
-  // Set the grey level of the fill. Default 0.0.
+  //@{
+  /**
+   * Set the grey level of the fill. Default 0.0.
+   */
   vtkSetMacro(FillValue,double);
   vtkGetMacro(FillValue,double);
+  //@}
 
-  // Description:
-  // Set/Get the data type of pixels in the imported data.
-  // As a convenience, the OutputScalarType is set to the same value.
+  //@{
+  /**
+   * Set/Get the data type of pixels in the imported data.
+   * As a convenience, the OutputScalarType is set to the same value.
+   */
   vtkSetMacro(DataScalarType,int);
   void SetDataScalarTypeToDouble(){this->SetDataScalarType(VTK_DOUBLE);}
   void SetDataScalarTypeToInt(){this->SetDataScalarType(VTK_INT);}
@@ -65,22 +82,32 @@ public:
   vtkGetMacro(DataScalarType, int);
   const char *GetDataScalarTypeAsString() {
     return vtkImageScalarTypeNameMacro(this->DataScalarType); }
+  //@}
 
-  // Description:
-  // Set/Get the extent of the whole output image,
-  // Default: (0,255,0,255,0,0)
+  //@{
+  /**
+   * Set/Get the extent of the whole output image,
+   * Default: (0,255,0,255,0,0)
+   */
   vtkSetVector6Macro(DataExtent,int);
   vtkGetVector6Macro(DataExtent,int);
+  //@}
 
-  // Description:
-  // Set/Get the pixel spacing.
+  //@{
+  /**
+   * Set/Get the pixel spacing.
+   */
   vtkSetVector3Macro(DataSpacing,double);
   vtkGetVector3Macro(DataSpacing,double);
+  //@}
 
-  // Description:
-  // Set/Get the origin of the data.
+  //@{
+  /**
+   * Set/Get the origin of the data.
+   */
   vtkSetVector3Macro(DataOrigin,double);
   vtkGetVector3Macro(DataOrigin,double);
+  //@}
 
 protected:
   vtkImageGridSource();
@@ -104,8 +131,8 @@ protected:
   virtual void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation* outInfo);
 
 private:
-  vtkImageGridSource(const vtkImageGridSource&);  // Not implemented.
-  void operator=(const vtkImageGridSource&);  // Not implemented.
+  vtkImageGridSource(const vtkImageGridSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageGridSource&) VTK_DELETE_FUNCTION;
 };
 
 

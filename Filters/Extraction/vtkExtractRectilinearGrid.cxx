@@ -43,9 +43,9 @@ vtkExtractRectilinearGrid::vtkExtractRectilinearGrid()
 vtkExtractRectilinearGrid::~vtkExtractRectilinearGrid()
 {
   if( this->Internal != NULL )
-    {
+  {
     this->Internal->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -55,9 +55,9 @@ int vtkExtractRectilinearGrid::RequestUpdateExtent(
   vtkInformationVector *outputVector)
 {
   if (!this->Internal->IsValid())
-    {
+  {
     return 0;
-    }
+  }
 
   int i;
   // get the info objects
@@ -66,18 +66,18 @@ int vtkExtractRectilinearGrid::RequestUpdateExtent(
   bool emptyExtent = false;
   int uExt[6];
   for (i=0; i<3; i++)
-    {
+  {
     if (this->Internal->GetSize(i) < 1)
-      {
+    {
       uExt[0] = uExt[2] = uExt[4] = 0;
       uExt[1] = uExt[3] = uExt[5] = -1;
       emptyExtent = true;
       break;
-      }
     }
+  }
 
   if (!emptyExtent)
-    {
+  {
     // Find input update extent based on requested output
     // extent
     int oUExt[6];
@@ -86,23 +86,23 @@ int vtkExtractRectilinearGrid::RequestUpdateExtent(
     int oWExt[6]; // For parallel parititon this will be different.
     this->Internal->GetOutputWholeExtent(oWExt);
     for (i=0; i<3; i++)
-      {
+    {
       int idx = oUExt[2*i] - oWExt[2*i]; // Extent value to index
       if (idx < 0 || idx >= (int)this->Internal->GetSize(i))
-        {
+      {
         vtkWarningMacro("Requested extent outside whole extent.")
         idx = 0;
-        }
+      }
       uExt[2*i] = this->Internal->GetMappedExtentValueFromIndex(i, idx);
       int jdx = oUExt[2*i+1] - oWExt[2*i]; // Extent value to index
       if (jdx < idx || jdx >= (int)this->Internal->GetSize(i))
-        {
+      {
         vtkWarningMacro("Requested extent outside whole extent.")
         jdx = 0;
-        }
-      uExt[2*i + 1] = this->Internal->GetMappedExtentValueFromIndex(i, jdx);
       }
+      uExt[2*i + 1] = this->Internal->GetMappedExtentValueFromIndex(i, jdx);
     }
+  }
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExt, 6);
   // We can handle anything.
   inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 0);
@@ -129,10 +129,10 @@ int vtkExtractRectilinearGrid::RequestInformation(
   this->Internal->GetOutputWholeExtent(outWholeExt);
 
   if (!this->Internal->IsValid())
-    {
+  {
     vtkWarningMacro("Error while initializing filter.");
     return 0;
-    }
+  }
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                outWholeExt, 6);
@@ -152,9 +152,9 @@ int vtkExtractRectilinearGrid::RequestData(
                              (this->IncludeBoundary != 0));
 
   if (!this->Internal->IsValid())
-    {
+  {
     return 0;
-    }
+  }
 
   // Set the output extent -- this is how RequestDataImpl knows what to copy.
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
@@ -173,10 +173,10 @@ bool vtkExtractRectilinearGrid::RequestDataImpl(
   if( (this->SampleRate[0] < 1) ||
       (this->SampleRate[1] < 1) ||
       (this->SampleRate[2] < 1) )
-    {
+  {
     vtkErrorMacro("SampleRate must be >= 1 in all 3 dimensions!");
     return false;
-    }
+  }
 
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
@@ -189,9 +189,9 @@ bool vtkExtractRectilinearGrid::RequestDataImpl(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (input->GetNumberOfPoints() == 0)
-    {
+  {
     return true;
-    }
+  }
 
   vtkPointData *pd=input->GetPointData();
   vtkCellData *cd=input->GetCellData();
@@ -217,19 +217,19 @@ bool vtkExtractRectilinearGrid::RequestDataImpl(
   vtkDataArray* out_coords[3];
 
   for(int dim=0; dim < 3; ++dim )
-    {
+  {
     // Allocate coordinates array for this dimension
     out_coords[ dim ] =
         vtkDataArray::CreateDataArray( in_coords[ dim ]->GetDataType() );
     out_coords[ dim ]->SetNumberOfTuples( outDims[ dim ] );
 
     for (int oExtVal = outExt[2*dim]; oExtVal <= outExt[2*dim+1]; ++oExtVal)
-      {
+    {
       int outExtIdx = oExtVal - outExt[2*dim];
       int inExtIdx = this->Internal->GetMappedIndex(dim, outExtIdx);
       out_coords[dim]->SetTuple(outExtIdx, inExtIdx, in_coords[dim]);
-      } // END for all points along this dimension in the output
-    } // END for all dimensions
+    } // END for all points along this dimension in the output
+  } // END for all dimensions
 
   output->SetXCoordinates( out_coords[0] );
   output->SetYCoordinates( out_coords[1] );

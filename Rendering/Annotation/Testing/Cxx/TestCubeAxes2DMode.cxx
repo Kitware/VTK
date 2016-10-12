@@ -117,9 +117,9 @@ int TestCubeAxes2DMode( int argc, char * argv [] )
   renderWindow->Render();
   int retVal = vtkRegressionTestImage( renderWindow );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     interactor->Start();
-    }
+  }
 
   return !retVal;
 }

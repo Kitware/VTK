@@ -80,21 +80,21 @@ int vtkConeSource::RequestData(
 
   piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   if (piece >= this->Resolution && !(piece == 0 && this->Resolution == 0))
-    {
+  {
     return 1;
-    }
+  }
   numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
   maxPieces = this->Resolution != 0 ? this->Resolution : 1;
   if (numPieces > maxPieces)
-    {
+  {
     numPieces = maxPieces;
-    }
+  }
   if (piece >= maxPieces)
-    {
+  {
     // Super class should do this for us,
     // but I put this condition in any way.
     return 1;
-    }
+  }
   start = maxPieces * piece / numPieces;
   end = (maxPieces * (piece+1) / numPieces) - 1;
   createBottom = (this->Capping && (start == 0));
@@ -102,13 +102,13 @@ int vtkConeSource::RequestData(
   vtkDebugMacro("ConeSource Executing");
 
   if ( this->Resolution )
-    {
+  {
     angle = 2.0 * vtkMath::Pi()/this->Resolution;
-    }
+  }
   else
-    {
+  {
     angle = 0.0;
-    }
+  }
 
   // Set things up; allocate memory
   //
@@ -130,16 +130,16 @@ int vtkConeSource::RequestData(
 
   default:
     if (createBottom)
-      {
+    {
       // piece 0 has cap.
       numPts = this->Resolution + 1;
       numPolys = end - start + 2;
-      }
+    }
     else
-      {
+    {
       numPts = end - start + 3;
       numPolys = end - start + 2;
-      }
+    }
     newPolys = vtkCellArray::New();
     newPolys->Allocate(newPolys->EstimateSize(numPolys,this->Resolution));
     break;
@@ -148,13 +148,13 @@ int vtkConeSource::RequestData(
 
   // Set the desired precision for the points in the output.
   if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     newPoints->SetDataType(VTK_DOUBLE);
-    }
+  }
   else
-    {
+  {
     newPoints->SetDataType(VTK_FLOAT);
-    }
+  }
 
   newPoints->Allocate(numPts);
 
@@ -204,49 +204,49 @@ int vtkConeSource::RequestData(
   default: // General case: create Resolution triangles and single cap
     // create the bottom.
     if ( createBottom )
-      {
+    {
       for (i=0; i < this->Resolution; i++)
-        {
+      {
         x[0] = xbot;
         x[1] = this->Radius * cos (i*angle);
         x[2] = this->Radius * sin (i*angle);
         // Reverse the order
         pts[this->Resolution - i - 1] = newPoints->InsertNextPoint(x);
-        }
-      newPolys->InsertNextCell(this->Resolution,pts);
       }
+      newPolys->InsertNextCell(this->Resolution,pts);
+    }
 
     pts[0] = 0;
     if ( ! createBottom)
-      {
+    {
       // we need to create the points also
       x[0] = xbot;
       x[1] = this->Radius * cos (start*angle);
       x[2] = this->Radius * sin (start*angle);
       pts[1] = newPoints->InsertNextPoint(x);
       for (i = start; i <= end; ++i)
-        {
+      {
         x[1] = this->Radius * cos ((i+1)*angle);
         x[2] = this->Radius * sin ((i+1)*angle);
         pts[2] = newPoints->InsertNextPoint(x);
         newPolys->InsertNextCell(3,pts);
         pts[1] = pts[2];
-        }
       }
+    }
     else
-      {
+    {
       // bottom and points have already been created.
       for (i=start; i <= end; i++)
-        {
+      {
         pts[1] = i+1;
         pts[2] = i+2;
         if (pts[2] > this->Resolution)
-          {
+        {
           pts[2] = 1;
-          }
-        newPolys->InsertNextCell(3,pts);
         }
-      } // createBottom
+        newPolys->InsertNextCell(3,pts);
+      }
+    } // createBottom
 
   } //switch
 
@@ -255,31 +255,31 @@ int vtkConeSource::RequestData(
   if ( this->Center[0] != 0.0 || this->Center[1] != 0.0 ||
        this->Center[2] != 0.0 || this->Direction[0] != 1.0 ||
        this->Direction[1] != 0.0 || this->Direction[2] != 0.0 )
-    {
+  {
     vtkTransform *t = vtkTransform::New();
     t->Translate(this->Center[0], this->Center[1], this->Center[2]);
     double vMag = vtkMath::Norm(this->Direction);
     if ( this->Direction[0] < 0.0 )
-      {
+    {
       // flip x -> -x to avoid instability
       t->RotateWXYZ(180.0, (this->Direction[0]-vMag)/2.0,
                     this->Direction[1]/2.0, this->Direction[2]/2.0);
       t->RotateWXYZ(180.0, 0, 1, 0);
-      }
+    }
     else
-      {
+    {
       t->RotateWXYZ(180.0, (this->Direction[0]+vMag)/2.0,
                     this->Direction[1]/2.0, this->Direction[2]/2.0);
-      }
+    }
     float *ipts=
       static_cast<vtkFloatArray *>(newPoints->GetData())->GetPointer(0);
     for (i=0; i<numPts; i++, ipts+=3)
-      {
+    {
       t->TransformPoint(ipts,ipts);
-      }
+    }
 
     t->Delete();
-    }
+  }
 
   // Update ourselves
   //
@@ -287,16 +287,16 @@ int vtkConeSource::RequestData(
   newPoints->Delete();
 
   if ( newPolys )
-    {
+  {
     newPolys->Squeeze(); // we may have estimated size; reclaim some space
     output->SetPolys(newPolys);
     newPolys->Delete();
-    }
+  }
   else
-    {
+  {
     output->SetLines(newLines);
     newLines->Delete();
-    }
+  }
 
   return 1;
 }

@@ -33,7 +33,7 @@ set_source_files_properties(
 
 # Now to generate our object factory.
 set(vtk_module_overrides "vtkInteractorStyleSwitchBase")
-if (ANDROID OR APPLIE_IOS)
+if (ANDROID OR APPLE_IOS)
   set(vtk_module_vtkInteractorStyleSwitchBase_override "vtkInteractorStyleMultiTouchCamera")
 else()
   set(vtk_module_vtkInteractorStyleSwitchBase_override "vtkInteractorStyleSwitch")

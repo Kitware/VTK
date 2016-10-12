@@ -20,7 +20,7 @@ vtkStandardNewMacro(vtkParametricPluckerConoid);
 //----------------------------------------------------------------------------//
 vtkParametricPluckerConoid::vtkParametricPluckerConoid() :
   N(2)
-  {
+{
   // Preset triangulation parameters
   this->MinimumU = 0.;
   this->MinimumV = 0.;
@@ -33,16 +33,16 @@ vtkParametricPluckerConoid::vtkParametricPluckerConoid() :
   this->TwistV = 0;
   this->ClockwiseOrdering = 1;
   this->DerivativesAvailable = 1;
-  }
+}
 
 //----------------------------------------------------------------------------//
 vtkParametricPluckerConoid::~vtkParametricPluckerConoid()
-  {
-  }
+{
+}
 
 //----------------------------------------------------------------------------//
 void vtkParametricPluckerConoid::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
-  {
+{
   // Copy the parameters out of the vector, for the sake of convenience.
   double u = uvw[0];
   double v = uvw[1];
@@ -67,16 +67,16 @@ void vtkParametricPluckerConoid::Evaluate(double uvw[3], double Pt[3], double Du
   Dv[0] = -u*sin(v);
   Dv[1] =  u*cos(v);
   Dv[2] = this->N * cos(this->N * v);
-  }
+}
 
 //----------------------------------------------------------------------------//
 double vtkParametricPluckerConoid::EvaluateScalar(double *, double *, double *)
-  {
+{
   return 0;
-  }
+}
 
 //----------------------------------------------------------------------------//
 void vtkParametricPluckerConoid::PrintSelf(ostream& os, vtkIndent indent)
-  {
+{
   this->Superclass::PrintSelf(os,indent);
-  }
+}

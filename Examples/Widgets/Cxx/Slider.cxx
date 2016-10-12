@@ -28,17 +28,17 @@ class vtkSliderCallback : public vtkCommand
 {
 public:
   static vtkSliderCallback *New()
-    {
+  {
     return new vtkSliderCallback;
-    }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
-    {
+  }
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  {
     vtkSliderWidget *sliderWidget =
       reinterpret_cast<vtkSliderWidget*>(caller);
     int value = static_cast<int>(static_cast<vtkSliderRepresentation *>(sliderWidget->GetRepresentation())->GetValue());
     this->SphereSource->SetPhiResolution(value/2);
     this->SphereSource->SetThetaResolution(value);
-    }
+  }
   vtkSliderCallback():SphereSource(0) {}
   vtkSphereSource *SphereSource;
 };

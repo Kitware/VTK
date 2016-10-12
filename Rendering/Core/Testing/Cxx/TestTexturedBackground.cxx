@@ -53,8 +53,8 @@ int TestTexturedBackground(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
   return !retVal;
 }

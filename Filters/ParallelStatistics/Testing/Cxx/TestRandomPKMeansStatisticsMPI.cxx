@@ -78,11 +78,11 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   int nVariables = args->nVariables;
   std::vector<vtkStdString> columnNames;
   for ( int v = 0; v < nVariables; ++ v )
-    {
+  {
     std::ostringstream columnName;
     columnName << "Variable " << v;
     columnNames.push_back( columnName.str() );
-    }
+  }
 
   // Generate an input table that contains samples of mutually independent Gaussian random variables
   vtkTable* inputData = vtkTable::New();
@@ -94,24 +94,24 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Generate samples
   for ( int v = 0; v < nVariables; ++ v )
-    {
+  {
     doubleArray = vtkDoubleArray::New();
     doubleArray->SetNumberOfComponents( 1 );
     doubleArray->SetName( columnNames.at( v ) );
 
     for ( int c = 0; c < nClusters; ++ c )
-      {
+    {
       double x;
       for ( int r = 0; r < obsPerCluster; ++ r )
-        {
+      {
         x = vtkMath::Gaussian( c * args->meanFactor, args->stdev );
         doubleArray->InsertNextValue( x );
-        }
       }
+    }
 
     inputData->AddColumn( doubleArray );
     doubleArray->Delete();
-    }
+  }
 
   // set up a single set of param data - send out to all and make tables...
   vtkTable* paramData = vtkTable::New();
@@ -121,9 +121,9 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   paramCluster->SetName( "K" );
 
   for( int nInRun = 0; nInRun < nClusters; nInRun++ )
-    {
+  {
     paramCluster->InsertNextValue( nClusters );
-    }
+  }
 
   paramData->AddColumn( paramCluster );
   paramCluster->Delete();
@@ -133,35 +133,35 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   // generate data on one node only
   if( myRank == args->ioRank )
-    {
+  {
     int cIndex = 0;
     for ( int v = 0; v < nVariables; ++ v )
-      {
+    {
       for ( int c = 0; c < nClusters; ++ c )
-        {
+      {
         double x = inputData->GetValue( ( c % nClusters ) * obsPerCluster, v ).ToDouble();
         clusterCoords[cIndex++] = x;
-        }
       }
     }
+  }
 
   // broadcast data to all nodes
   if( !com->Broadcast( clusterCoords, nClusterCoords, args->ioRank) )
-    {
+  {
     vtkGenericWarningMacro("Could not broadcast initial cluster coordinates.");
     *(args->retVal) = 1;
     return;
-    }
+  }
 
   for ( int v = 0; v < nVariables; ++ v )
-    {
+  {
     paramArray = vtkDoubleArray::New();
     paramArray->SetName( columnNames[v] );
     paramArray->SetNumberOfTuples( nClusters );
     memcpy( paramArray->GetPointer( 0 ), &( clusterCoords[v * ( nClusters )]), nClusters * sizeof( double ) );
     paramData->AddColumn( paramArray );
     paramArray->Delete();
-    }
+  }
 
   delete [] clusterCoords;
 
@@ -180,9 +180,9 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Select columns for testing
   for ( int v = 0; v < nVariables; ++ v )
-    {
+  {
     pks->SetColumnStatus( inputData->GetColumnName( v ) , 1 );
-    }
+  }
   pks->RequestSelectedColumns();
 
   // Test (in parallel) with Learn, Derive, and Assess options turned on
@@ -197,7 +197,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   timer->StopTimer();
 
   if ( myRank == args->ioRank )
-    {
+  {
     vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pks->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
 
     cout << "\n## Completed parallel calculation of kmeans statistics (with assessment):\n"
@@ -205,37 +205,37 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
          << timer->GetElapsedTime()
          << " sec.\n";
     for ( unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
-      {
+    {
       vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
       if ( ! b )
-        {
+      {
         vtkIdType testIntValue = 0;
         for( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); r++ )
-          {
+        {
           testIntValue += outputMeta->GetValueByName( r, "Cardinality" ).ToInt();
-          }
+        }
 
         cout << "\n## Computed clusters (cardinality: "
              << testIntValue
              << " / run):\n";
 
         if ( testIntValue != nVals * args->nProcs )
-          {
+        {
           vtkGenericWarningMacro("Sum of cluster cardinalities is incorrect: "
                                << testIntValue
                                << " != "
                                << nVals * args->nProcs
                                << ".");
           *(args->retVal) = 1;
-          }
         }
-      else
-        {
-        cout << "   Ranked cluster: " << "\n";
-        }
-        outputMeta->Dump();
       }
+      else
+      {
+        cout << "   Ranked cluster: " << "\n";
+      }
+        outputMeta->Dump();
     }
+  }
   // Clean up
   pks->Delete();
   inputData->Delete();
@@ -255,11 +255,11 @@ int TestRandomPKMeansStatisticsMPI( int argc, char* argv[] )
 
   // If an MPI controller was not created, terminate in error.
   if ( ! controller->IsA( "vtkMPIController" ) )
-    {
+  {
     vtkGenericWarningMacro("Failed to initialize a MPI controller.");
     controller->Delete();
     return 1;
-    }
+  }
 
   vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast( controller->GetCommunicator() );
 
@@ -274,7 +274,7 @@ int TestRandomPKMeansStatisticsMPI( int argc, char* argv[] )
                 &flag );
 
   if ( ( ! flag ) || ( *ioPtr == MPI_PROC_NULL ) )
-    {
+  {
     // Getting MPI attributes did not return any I/O node found.
     ioRank = MPI_PROC_NULL;
     vtkGenericWarningMacro("No MPI I/O nodes found.");
@@ -285,39 +285,39 @@ int TestRandomPKMeansStatisticsMPI( int argc, char* argv[] )
     controller->Delete();
 
     return -1;
-    }
+  }
   else
-    {
+  {
     if ( *ioPtr == MPI_ANY_SOURCE )
-      {
+    {
       // Anyone can do the I/O trick--just pick node 0.
       ioRank = 0;
-      }
+    }
     else
-      {
+    {
       // Only some nodes can do I/O. Make sure everyone agrees on the choice (min).
       com->AllReduce( ioPtr,
                       &ioRank,
                       1,
                       vtkCommunicator::MIN_OP );
-      }
     }
+  }
 
   if ( com->GetLocalProcessId() == ioRank )
-    {
+  {
     cout << "\n# Process "
          << ioRank
          << " will be the I/O node.\n";
-    }
+  }
 
   // Check how many processes have been made available
   int numProcs = controller->GetNumberOfProcesses();
   if ( controller->GetLocalProcessId() == ioRank )
-    {
+  {
     cout << "\n# Running test with "
          << numProcs
          << " processes...\n";
-    }
+  }
 
   // **************************** Parse command line ***************************
   // Set default argument values
@@ -359,19 +359,19 @@ int TestRandomPKMeansStatisticsMPI( int argc, char* argv[] )
 
   // If incorrect arguments were provided, provide some help and terminate in error.
   if ( ! clArgs.Parse() )
-    {
+  {
     if ( com->GetLocalProcessId() == ioRank )
-      {
+    {
       cerr << "Usage: "
            << clArgs.GetHelp()
            << "\n";
-      }
+    }
 
     controller->Finalize();
     controller->Delete();
 
     return 1;
-    }
+  }
 
   // ************************** Initialize test *********************************
   // Parameters for regression test.
@@ -392,9 +392,9 @@ int TestRandomPKMeansStatisticsMPI( int argc, char* argv[] )
 
   // Clean up and exit
   if ( com->GetLocalProcessId() == ioRank )
-    {
+  {
     cout << "\n# Test completed.\n\n";
-    }
+  }
 
   controller->Finalize();
   controller->Delete();

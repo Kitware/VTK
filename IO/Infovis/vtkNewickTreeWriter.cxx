@@ -67,41 +67,41 @@ void vtkNewickTreeWriter::WriteVertex(ostream *fp, vtkTree* const input,
 {
   vtkIdType numChildren = input->GetNumberOfChildren(vertex);
   if (numChildren > 0)
-    {
+  {
     *fp << "(";
     for (vtkIdType child = 0; child < numChildren; ++child)
-      {
+    {
       this->WriteVertex(fp, input, input->GetChild(vertex, child));
       if (child != numChildren - 1)
-        {
+      {
         *fp << ",";
-        }
       }
-    *fp << ")";
     }
+    *fp << ")";
+  }
 
   if (this->NodeNameArray)
-    {
+  {
     vtkStdString name = this->NodeNameArray->GetVariantValue(vertex).ToString();
     if (name != "")
-      {
+    {
       *fp << name;
-      }
     }
+  }
 
   if (this->EdgeWeightArray)
-    {
+  {
     vtkIdType parent = input->GetParent(vertex);
     if (parent != -1)
-      {
+    {
       vtkIdType edge = input->GetEdgeId(parent, vertex);
       if (edge != -1)
-        {
+      {
         double weight = this->EdgeWeightArray->GetVariantValue(edge).ToDouble();
         *fp << ":" << weight;
-        }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------

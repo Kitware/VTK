@@ -36,15 +36,15 @@ int TestTecplotTableReader(int argc, char *argv[])
   reader->Print(cout);
 
   if (table->GetNumberOfRows() != 171)
-    {
+  {
     cout << "ERROR: Wrong number of rows: " << table->GetNumberOfRows()<<endl;
     return 1;
-    }
+  }
   if (table->GetNumberOfColumns() != 11 + 1) // one extra for pedigree ids
-    {
+  {
     cout << "ERROR: Wrong number of columns: " << table->GetNumberOfColumns()<<endl;
     return 1;
-    }
+  }
 
   reader->Delete();
 

@@ -64,7 +64,7 @@ int TestLinePlot3D(int, char * [])
   float varXDerivative[3];
   const float deltaT = 0.01f;
   for (unsigned int ii = 0; ii < numberOfTimePoints; ++ii)
-    {
+  {
     varXSolution->SetValue(ii, 0, varX[0]);
     varXSolution->SetValue(ii, 1, varX[1]);
     varXSolution->SetValue(ii, 2, varX[2]);
@@ -72,7 +72,7 @@ int TestLinePlot3D(int, char * [])
     varX[0] += varXDerivative[0] * deltaT;
     varX[1] += varXDerivative[1] * deltaT;
     varX[2] += varXDerivative[2] * deltaT;
-    }
+  }
 
   // Set up a 3D scene and add an XYZ chart to it.
   vtkNew<vtkContextView> view;

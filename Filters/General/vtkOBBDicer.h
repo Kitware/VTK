@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOBBDicer - divide dataset into spatially aggregated pieces
-// .SECTION Description
-// vtkOBBDicer separates the cells of a dataset into spatially
-// aggregated pieces using a Oriented Bounding Box (OBB). These pieces
-// can then be operated on by other filters (e.g., vtkThreshold). One
-// application is to break very large polygonal models into pieces and
-// performing viewing and occlusion culling on the pieces.
-//
-// Refer to the superclass documentation (vtkDicer) for more information.
-
-// .SECTION See Also
-// vtkDicer vtkConnectedDicer
+/**
+ * @class   vtkOBBDicer
+ * @brief   divide dataset into spatially aggregated pieces
+ *
+ * vtkOBBDicer separates the cells of a dataset into spatially
+ * aggregated pieces using a Oriented Bounding Box (OBB). These pieces
+ * can then be operated on by other filters (e.g., vtkThreshold). One
+ * application is to break very large polygonal models into pieces and
+ * performing viewing and occlusion culling on the pieces.
+ *
+ * Refer to the superclass documentation (vtkDicer) for more information.
+ *
+ * @sa
+ * vtkDicer vtkConnectedDicer
+*/
 
 #ifndef vtkOBBDicer_h
 #define vtkOBBDicer_h
@@ -40,18 +43,19 @@ class VTKFILTERSGENERAL_EXPORT vtkOBBDicer : public vtkDicer
 {
 public:
   vtkTypeMacro(vtkOBBDicer,vtkDicer);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Instantiate an object.
+  /**
+   * Instantiate an object.
+   */
   static vtkOBBDicer *New();
 
 protected:
   vtkOBBDicer() {}
-  ~vtkOBBDicer() {}
+  ~vtkOBBDicer() VTK_OVERRIDE {}
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   //implementation ivars and methods
   void BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr, vtkDataSet *input);
@@ -60,8 +64,8 @@ protected:
   vtkPoints *PointsList;
 
 private:
-  vtkOBBDicer(const vtkOBBDicer&);  // Not implemented.
-  void operator=(const vtkOBBDicer&);  // Not implemented.
+  vtkOBBDicer(const vtkOBBDicer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOBBDicer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

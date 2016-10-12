@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMapperNode - vtkViewNode specialized for vtkMappers
-// .SECTION Description
-// State storage and graph traversal for vtkMapper
+/**
+ * @class   vtkMapperNode
+ * @brief   vtkViewNode specialized for vtkMappers
+ *
+ * State storage and graph traversal for vtkMapper
+*/
 
 #ifndef vtkMapperNode_h
 #define vtkMapperNode_h
@@ -40,8 +43,8 @@ protected:
   ~vtkMapperNode();
 
  private:
-  vtkMapperNode(const vtkMapperNode&); // Not implemented.
-  void operator=(const vtkMapperNode&); // Not implemented.
+  vtkMapperNode(const vtkMapperNode&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMapperNode&) VTK_DELETE_FUNCTION;
 };
 
 #endif

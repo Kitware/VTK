@@ -17,10 +17,13 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGeoTransform - A transformation between two geographic coordinate systems
-// .SECTION Description
-// This class takes two geographic projections and transforms point
-// coordinates between them.
+/**
+ * @class   vtkGeoTransform
+ * @brief   A transformation between two geographic coordinate systems
+ *
+ * This class takes two geographic projections and transforms point
+ * coordinates between them.
+*/
 
 #ifndef vtkGeoTransform_h
 #define vtkGeoTransform_h
@@ -37,40 +40,55 @@ public:
   virtual void PrintSelf( ostream& os, vtkIndent indent );
   vtkTypeMacro(vtkGeoTransform,vtkAbstractTransform);
 
-  // Description:
-  // The source geographic projection.
+  //@{
+  /**
+   * The source geographic projection.
+   */
   void SetSourceProjection(vtkGeoProjection* source);
   vtkGetObjectMacro(SourceProjection,vtkGeoProjection);
+  //@}
 
-  // Description:
-  // The target geographic projection.
+  //@{
+  /**
+   * The target geographic projection.
+   */
   void SetDestinationProjection(vtkGeoProjection* dest);
   vtkGetObjectMacro(DestinationProjection,vtkGeoProjection);
+  //@}
 
-  // Description:
-  // Transform many points at once.
+  /**
+   * Transform many points at once.
+   */
   virtual void TransformPoints( vtkPoints* src, vtkPoints* dst );
 
-  // Description:
-  // Invert the transformation.
+  /**
+   * Invert the transformation.
+   */
   virtual void Inverse();
 
-  // Description:
-  // This will calculate the transformation without calling Update.
-  // Meant for use only within other VTK classes.
+  //@{
+  /**
+   * This will calculate the transformation without calling Update.
+   * Meant for use only within other VTK classes.
+   */
   virtual void InternalTransformPoint( const float in[3], float out[3] );
   virtual void InternalTransformPoint( const double in[3], double out[3] );
+  //@}
 
-  // Description:
-  // This will transform a point and, at the same time, calculate a
-  // 3x3 Jacobian matrix that provides the partial derivatives of the
-  // transformation at that point.  This method does not call Update.
-  // Meant for use only within other VTK classes.
+  //@{
+  /**
+   * This will transform a point and, at the same time, calculate a
+   * 3x3 Jacobian matrix that provides the partial derivatives of the
+   * transformation at that point.  This method does not call Update.
+   * Meant for use only within other VTK classes.
+   */
   virtual void InternalTransformDerivative( const float in[3], float out[3], float derivative[3][3] );
   virtual void InternalTransformDerivative( const double in[3], double out[3], double derivative[3][3] );
+  //@}
 
-  // Description:
-  // Make another transform of the same type.
+  /**
+   * Make another transform of the same type.
+   */
   virtual vtkAbstractTransform* MakeTransform();
 
 protected:
@@ -83,8 +101,8 @@ protected:
   vtkGeoProjection* DestinationProjection;
 
 private:
-  vtkGeoTransform( const vtkGeoTransform& ); // Not implemented.
-  void operator = ( const vtkGeoTransform& ); // Not implemented.
+  vtkGeoTransform( const vtkGeoTransform& ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkGeoTransform& ) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkGeoTransform_h

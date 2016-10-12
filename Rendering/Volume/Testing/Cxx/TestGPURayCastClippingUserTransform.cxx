@@ -48,17 +48,17 @@ static double* ComputeNormal(double* reference, bool flipSign)
 {
   double* normal = new double[3];
   if (flipSign)
-    {
+  {
     normal[0] = -reference[0];
     normal[1] = -reference[1];
     normal[2] = -reference[2];
-    }
+  }
   else
-    {
+  {
     normal[0] = reference[0];
     normal[1] = reference[1];
     normal[2] = reference[2];
-    }
+  }
 
   return normal;
 }
@@ -70,17 +70,17 @@ static double* ComputeOrigin(double* focalPoint, double* reference,
 
   double* origin = new double[3];
   if (flipSign)
-    {
+  {
     origin[0] = focalPoint[0] - distance * reference[0];
     origin[1] = focalPoint[1] - distance * reference[1];
     origin[2] = focalPoint[2] - distance * reference[2];
-    }
+  }
   else
-    {
+  {
     origin[0] = focalPoint[0] + distance * reference[0];
     origin[1] = focalPoint[1] + distance * reference[1];
     origin[2] = focalPoint[2] + distance * reference[2];
-    }
+  }
 
   return origin;
 }
@@ -128,12 +128,12 @@ class vtkInteractorStyleCallback : public vtkCommand
 {
 public:
   static vtkInteractorStyleCallback *New()
-    {
+  {
     return new vtkInteractorStyleCallback;
-    }
+  }
 
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
-    {
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  {
     vtkInteractorStyle* style = reinterpret_cast<vtkInteractorStyle*>(caller);
 
     vtkCamera * camera = style->GetCurrentRenderer()->GetActiveCamera();
@@ -147,19 +147,19 @@ public:
     slabThickness = 3.0;
     UpdateFrontClippingPlane(frontClippingPlane, normal, focalPoint, slabThickness);
     UpdateRearClippingPlane(rearClippingPlane, normal, focalPoint, slabThickness);
-    }
+  }
 
   vtkInteractorStyleCallback(){}
 
   void SetFrontClippingPlane(vtkPlane* fcPlane)
-    {
+  {
     this->frontClippingPlane = fcPlane;
-    }
+  }
 
   void SetRearClippingPlane(vtkPlane* rcPlane)
-    {
+  {
     this->rearClippingPlane = rcPlane;
-    }
+  }
 
   double slabThickness;
   vtkPlane* frontClippingPlane;
@@ -183,18 +183,18 @@ int TestGPURayCastClippingUserTransform(int argc, char *argv[])
 
   ifstream file(fname, ios::in | ios::binary | ios::ate);
   if (file.is_open())
-    {
+  {
     size = file.tellg();
     memblock = new char[size];
     file.seekg(0, ios::beg);
     file.read(memblock, size);
     file.close();
-    }
+  }
   else
-    {
+  {
     cout << "Unable to open file";
     return 1;
-    }
+  }
 
   // Convert to short
   unsigned short* shortData = new unsigned short[size / 2];
@@ -356,9 +356,9 @@ int TestGPURayCastClippingUserTransform(int argc, char *argv[])
   int retVal = vtkRegressionTestImageThreshold(renWin.GetPointer(), 70);
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
 
   delete[] memblock;

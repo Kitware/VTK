@@ -42,19 +42,19 @@ struct SampleDataSet
   // Contructor
   SampleDataSet(vtkDataSet *input, vtkImplicitFunction *imp, float *s) :
     Input(input), Function(imp), Scalars(s)
-    {
-    }
+  {
+  }
 
   void  operator() (vtkIdType ptId, vtkIdType endPtId)
-    {
+  {
       double x[3];
       float *n = this->Scalars + ptId;
       for ( ; ptId < endPtId; ++ptId )
-        {
+      {
         this->Input->GetPoint(ptId, x);
         *n++ = this->Function->FunctionValue(x);
-        }
-    }
+      }
+  }
 };
 
 struct SampleDataSetWithGradients
@@ -67,24 +67,24 @@ struct SampleDataSetWithGradients
   // Contructor
   SampleDataSetWithGradients(vtkDataSet *input, vtkImplicitFunction *imp, float *s, float *g) :
     Input(input), Function(imp), Scalars(s), Gradients(g)
-    {
-    }
+  {
+  }
 
   void  operator() (vtkIdType ptId, vtkIdType endPtId)
-    {
+  {
       double x[3], g[3];
       float *n = this->Scalars + ptId;
       float *v = this->Gradients + 3*ptId;
       for ( ; ptId < endPtId; ++ptId )
-        {
+      {
         this->Input->GetPoint(ptId, x);
         *n++ = this->Function->FunctionValue(x);
         this->Function->FunctionGradient(x,g);
         *v++ = g[0];
         *v++ = g[1];
         *v++ = g[2];
-        }
-    }
+      }
+  }
 };
 
 } //anonymous namespace
@@ -134,22 +134,22 @@ int vtkSampleImplicitFunctionFilter::RequestData(
 
   // Check the input
   if ( !input || !output )
-    {
+  {
     return 1;
-    }
+  }
   vtkIdType numPts = input->GetNumberOfPoints();
   if ( numPts < 1 )
-    {
+  {
     return 1;
-    }
+  }
 
   // Ensure implicit function is specified
   //
   if ( !this->ImplicitFunction )
-    {
+  {
     vtkErrorMacro(<<"No implicit function specified");
     return 1;
-    }
+  }
 
   // The output geometic structure is the same as the input
   output->CopyStructure(input);
@@ -166,25 +166,25 @@ int vtkSampleImplicitFunctionFilter::RequestData(
   vtkFloatArray *newGradients=NULL;
   float *gradients=NULL;
   if ( this->ComputeGradients )
-    {
+  {
     newGradients = vtkFloatArray::New();
     newGradients->SetNumberOfComponents(3);
     newGradients->SetNumberOfTuples(numPts);
     gradients = newGradients->WritePointer(0,numPts);
-    }
+  }
 
   // Threaded execute
   if ( this->ComputeGradients )
-    {
+  {
     SampleDataSetWithGradients
       sample(input,this->ImplicitFunction,scalars,gradients);
     vtkSMPTools::For(0,numPts, sample);
-    }
+  }
   else
-    {
+  {
     SampleDataSet sample(input,this->ImplicitFunction,scalars);
     vtkSMPTools::For(0,numPts, sample);
-    }
+  }
 
   // Update self
   newScalars->SetName(this->ScalarArrayName);
@@ -193,12 +193,12 @@ int vtkSampleImplicitFunctionFilter::RequestData(
   newScalars->Delete();
 
   if ( this->ComputeGradients )
-    {
+  {
     newGradients->SetName(this->GradientArrayName);
     output->GetPointData()->AddArray(newGradients);
     output->GetPointData()->SetActiveVectors(this->GradientArrayName);
     newGradients->Delete();
-    }
+  }
 
   return 1;
 }
@@ -212,16 +212,16 @@ FillInputPortInformation(int, vtkInformation *info)
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkSampleImplicitFunctionFilter::GetMTime()
+vtkMTimeType vtkSampleImplicitFunctionFilter::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long impFuncMTime;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType impFuncMTime;
 
   if ( this->ImplicitFunction != NULL )
-    {
+  {
     impFuncMTime = this->ImplicitFunction->GetMTime();
     mTime = ( impFuncMTime > mTime ? impFuncMTime : mTime );
-    }
+  }
 
   return mTime;
 }
@@ -241,33 +241,33 @@ void vtkSampleImplicitFunctionFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->ImplicitFunction )
-    {
+  {
     os << indent << "Implicit Function: " << this->ImplicitFunction << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "No Implicit function defined\n";
-    }
+  }
 
   os << indent << "Compute Gradients: " << (this->ComputeGradients ? "On\n" : "Off\n");
 
   os << indent << "Scalar Array Name: ";
   if(this->ScalarArrayName != 0)
-    {
+  {
     os  << this->ScalarArrayName << endl;
-    }
+  }
   else
-    {
+  {
     os  << "(none)" << endl;
-    }
+  }
 
   os << indent << "Gradient Array Name: ";
   if(this->GradientArrayName != 0)
-    {
+  {
     os  << this->GradientArrayName << endl;
-    }
+  }
   else
-    {
+  {
     os  << "(none)" << endl;
-    }
+  }
 }

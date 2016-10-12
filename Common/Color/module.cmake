@@ -1,6 +1,4 @@
 vtk_module(vtkCommonColor
-  DEPENDS
-    vtkCommonDataModel # For vtkColor
   TEST_DEPENDS
     vtkIOImage
     vtkCommonExecutionModel
@@ -10,4 +8,7 @@ vtk_module(vtkCommonColor
     vtkInteractionStyle
   KIT
     vtkCommon
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
 )

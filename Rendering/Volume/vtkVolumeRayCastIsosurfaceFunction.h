@@ -12,21 +12,24 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkVolumeRayCastIsosurfaceFunction - An isosurface ray caster for volumes
-//
-// .SECTION Description
-// vtkVolumeRayCastIsosurfaceFunction is a volume ray cast function that
-// intersects a ray with an analytic isosurface in a scalar field. The color
-// and shading parameters are defined in the vtkVolumeProperty of the
-// vtkVolume, as well as the interpolation type to use when locating the
-// surface (either a nearest neighbor approach or a tri-linear interpolation
-// approach)
-//
-// .SECTION See Also
-// vtkVolumeRayCastFunction vtkVolumeRayCastMapper vtkVolumeProperty
-// vtkVolumeRayCastCompositeFunction vtkVolumeRayCastMIPFunction
-// vtkVolume vtkVolumeProperty
-// @deprecated
+/**
+ * @class   vtkVolumeRayCastIsosurfaceFunction
+ * @brief   An isosurface ray caster for volumes
+ *
+ *
+ * vtkVolumeRayCastIsosurfaceFunction is a volume ray cast function that
+ * intersects a ray with an analytic isosurface in a scalar field. The color
+ * and shading parameters are defined in the vtkVolumeProperty of the
+ * vtkVolume, as well as the interpolation type to use when locating the
+ * surface (either a nearest neighbor approach or a tri-linear interpolation
+ * approach)
+ *
+ * @sa
+ * vtkVolumeRayCastFunction vtkVolumeRayCastMapper vtkVolumeProperty
+ * vtkVolumeRayCastCompositeFunction vtkVolumeRayCastMIPFunction
+ * vtkVolume vtkVolumeProperty
+ * @deprecated
+*/
 
 #ifndef vtkVolumeRayCastIsosurfaceFunction_h
 #define vtkVolumeRayCastIsosurfaceFunction_h
@@ -41,26 +44,33 @@ public:
   vtkTypeMacro(vtkVolumeRayCastIsosurfaceFunction,vtkVolumeRayCastFunction);
   void PrintSelf( ostream& os, vtkIndent indent );
 
-  // Description:
-  // Construct a new vtkVolumeRayCastIsosurfaceFunction
+  /**
+   * Construct a new vtkVolumeRayCastIsosurfaceFunction
+   */
   static vtkVolumeRayCastIsosurfaceFunction *New();
 
-  // Description:
-  // Get the scalar value below which all scalar values have 0 opacity
+  /**
+   * Get the scalar value below which all scalar values have 0 opacity
+   */
   float GetZeroOpacityThreshold( vtkVolume *vol );
 
-  // Description:
-  // Set/Get the value of IsoValue.
+  //@{
+  /**
+   * Set/Get the value of IsoValue.
+   */
   vtkSetMacro( IsoValue, double );
   vtkGetMacro( IsoValue, double );
+  //@}
 
 
-  // Description:
-  // This is the isovalue at which to view a surface
+  /**
+   * This is the isovalue at which to view a surface
+   */
   double IsoValue;
 
-  // Description:
-  // These variables are filled in by SpecificFunctionInitialize
+  /**
+   * These variables are filled in by SpecificFunctionInitialize
+   */
   float       Color[3];
 
   void CastRay( vtkVolumeRayCastDynamicInfo *dynamicInfo,
@@ -76,8 +86,8 @@ protected:
                                    vtkVolumeRayCastMapper *mapper );
 
 private:
-  vtkVolumeRayCastIsosurfaceFunction(const vtkVolumeRayCastIsosurfaceFunction&);  // Not implemented.
-  void operator=(const vtkVolumeRayCastIsosurfaceFunction&);  // Not implemented.
+  vtkVolumeRayCastIsosurfaceFunction(const vtkVolumeRayCastIsosurfaceFunction&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVolumeRayCastIsosurfaceFunction&) VTK_DELETE_FUNCTION;
 };
 #endif // VTK_LEGACY_REMOVE
 #endif

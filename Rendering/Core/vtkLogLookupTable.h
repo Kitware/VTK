@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkLogLookupTable - map scalars into colors using log (base 10) scale
-// .SECTION Description
-// This class is an empty shell.  Use vtkLookupTable with SetScaleToLog10()
-// instead.
-//
-// .SECTION See Also
-// vtkLookupTable
+/**
+ * @class   vtkLogLookupTable
+ * @brief   map scalars into colors using log (base 10) scale
+ *
+ * This class is an empty shell.  Use vtkLookupTable with SetScaleToLog10()
+ * instead.
+ *
+ * @sa
+ * vtkLookupTable
+*/
 
 #ifndef vtkLogLookupTable_h
 #define vtkLogLookupTable_h
@@ -38,8 +41,8 @@ protected:
   vtkLogLookupTable(int sze = 256, int ext = 256);
   ~vtkLogLookupTable() {}
 private:
-  vtkLogLookupTable(const vtkLogLookupTable&);  // Not implemented.
-  void operator=(const vtkLogLookupTable&);  // Not implemented.
+  vtkLogLookupTable(const vtkLogLookupTable&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLogLookupTable&) VTK_DELETE_FUNCTION;
 };
 
 #endif

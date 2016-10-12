@@ -92,9 +92,9 @@ int vtkPolyDataPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
 {
   if ( this->PropPicker->Pick(displayPos[0],
                               displayPos[1], 0.0, ren) )
-    {
+  {
     if (vtkAssemblyPath *path = this->PropPicker->GetPath())
-      {
+    {
 
       // We are checking if the prop present in the path is present
       // in the list supplied to us.. If it is, that prop will be picked.
@@ -106,18 +106,18 @@ int vtkPolyDataPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
       this->SurfaceProps->InitTraversal(sit);
 
       while (vtkProp *p = this->SurfaceProps->GetNextProp(sit))
-        {
+      {
         vtkCollectionSimpleIterator psit;
         path->InitTraversal(psit);
 
         for ( int i = 0; i < path->GetNumberOfItems() && !found ; ++i )
-          {
+        {
           node = path->GetNextNode(psit);
           found = ( node->GetViewProp() == p );
-          }
+        }
 
         if (found)
-          {
+        {
           this->PropPicker->GetPickPosition(worldPos);
 
           // Raise height by 0.01 ... this should be a method..
@@ -133,10 +133,10 @@ int vtkPolyDataPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
           worldPos[2] = w[2];
 
           return 1;
-          }
         }
       }
     }
+  }
 
   return 0;
 }
@@ -178,14 +178,14 @@ void vtkPolyDataPointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "PropPicker: " << this->PropPicker << endl;
   if (this->PropPicker)
-    {
+  {
     this->PropPicker->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
 
   os << indent << "SurfaceProps: " << this->SurfaceProps << endl;
   if (this->SurfaceProps)
-    {
+  {
     this->SurfaceProps->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
 }
 

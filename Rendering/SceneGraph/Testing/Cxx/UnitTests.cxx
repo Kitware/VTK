@@ -43,12 +43,12 @@ public:
   vtkTypeMacro(vtkMyActorNode, vtkActorNode);
   virtual void Render(bool prepass) {
     if (prepass)
-      {
+    {
       cerr << "Render " << this << " " << this->GetClassName() << endl;
       result += "Render ";
       result += this->GetClassName();
       result += "\n";
-      }
+    }
   }
   vtkMyActorNode() {};
   ~vtkMyActorNode() {};
@@ -62,12 +62,12 @@ public:
   vtkTypeMacro(vtkMyCameraNode, vtkCameraNode);
   virtual void Render(bool prepass) {
     if (prepass)
-      {
+    {
       cerr << "Render " << this << " " << this->GetClassName() << endl;
       result += "Render ";
       result += this->GetClassName();
       result += "\n";
-      }
+    }
   }
   vtkMyCameraNode() {};
   ~vtkMyCameraNode() {};
@@ -81,12 +81,12 @@ public:
   vtkTypeMacro(vtkMyLightNode, vtkLightNode);
   virtual void Render( bool prepass) {
     if (prepass)
-      {
+    {
       cerr << "Render " << this << " " << this->GetClassName() << endl;
       result += "Render ";
       result += this->GetClassName();
       result += "\n";
-      }
+    }
   }
   vtkMyLightNode() {};
   ~vtkMyLightNode() {};
@@ -100,12 +100,12 @@ public:
   vtkTypeMacro(vtkMyRendererNode, vtkRendererNode);
   virtual void Render(bool prepass) {
     if (prepass)
-      {
+    {
       cerr << "Render " << this << " " << this->GetClassName() << endl;
       result += "Render ";
       result += this->GetClassName();
       result += "\n";
-      }
+    }
   }
   vtkMyRendererNode() {};
   ~vtkMyRendererNode() {};
@@ -119,12 +119,12 @@ public:
   vtkTypeMacro(vtkMyWindowNode, vtkWindowNode);
   virtual void Render(bool prepass) {
     if (prepass)
-      {
+    {
       cerr << "Render " << this << " " << this->GetClassName() << endl;
       result += "Render ";
       result += this->GetClassName();
       result += "\n";
-      }
+    }
   }
   vtkMyWindowNode() {};
   ~vtkMyWindowNode() {};
@@ -193,10 +193,10 @@ int UnitTests( int vtkNotUsed(argc), char *vtkNotUsed(argv)[] )
   vnc = NULL;
   vn = vnf->CreateNode(vnc);
   if (vn)
-    {
+  {
     cerr << "Shouldn't have made anything" << endl;
     return 1;
-    }
+  }
   cerr << "factory made nothing as it should have" << endl;
 
   vtkRenderWindow *rwin = vtkRenderWindow::New();
@@ -257,10 +257,10 @@ int UnitTests( int vtkNotUsed(argc), char *vtkNotUsed(argv)[] )
   cerr << result << "]" << endl;
   std::string ok_res = "make window\nmake renderer\nmake light\nmake actor\nmake camera\nRender vtkMyWindowNode\nRender vtkMyRendererNode\nRender vtkMyLightNode\nRender vtkMyActorNode\nRender vtkMyCameraNode\n";
   if (result != ok_res)
-    {
+  {
     cerr << "Which does not match [" << endl;
     cerr << ok_res << "]" << endl;
     return 1;
-    }
+  }
   return 0;
 }

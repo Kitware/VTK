@@ -53,13 +53,13 @@ namespace
   {
   public:
     vtkEventCommand(vtkGeoInteractorStyle* selfptr) {this->Self = selfptr;}
-    virtual void Execute(vtkObject *caller, unsigned long eventId,
-                         void * /*callData*/)
+    void Execute(vtkObject *caller, unsigned long eventId,
+                         void * /*callData*/) VTK_OVERRIDE
     {
       if (eventId == vtkCommand::InteractionEvent)
-        {
+      {
         this->Self->WidgetInteraction(caller);
-        }
+      }
     }
     vtkGeoInteractorStyle* Self;
   };
@@ -123,22 +123,22 @@ void vtkGeoInteractorStyle::OnMiddleButtonDown()
                           this->Interactor->GetEventPosition()[1]);
 
   if (this->RubberBandExtentEnabled)
-    {
+  {
     if (this->InRubberBandRectangle(this->Interactor->GetEventPosition()[0],
                                     this->Interactor->GetEventPosition()[1]))
-      {
+    {
       this->RubberBandZoom();
       return;
-      }
     }
+  }
 
   double x = this->Interactor->GetEventPosition()[0];
   double y = this->Interactor->GetEventPosition()[1];
   this->FindPokedRenderer(static_cast<int>(x),static_cast<int>(y));
   if (this->CurrentRenderer == NULL)
-    {
+  {
     return;
-    }
+  }
 
   this->StartPan();
 }
@@ -170,9 +170,9 @@ void vtkGeoInteractorStyle::OnRightButtonDown()
   this->FindPokedRenderer(this->Interactor->GetEventPosition()[0],
                           this->Interactor->GetEventPosition()[1]);
   if (this->CurrentRenderer == NULL)
-    {
+  {
     return;
-    }
+  }
   this->StartDolly();
 }
 
@@ -190,13 +190,13 @@ void vtkGeoInteractorStyle::OnRightButtonUp()
 void vtkGeoInteractorStyle::OnLeftButtonDown()
 {
   if (!this->Interactor)
-    {
+  {
     return;
-    }
+  }
 
   // don't turn on if already rubberbanding
   if (this->RubberBandExtentEnabled == 0)
-    {
+  {
     // This rubber band state should be integrated with the
     this->DraggingRubberBandBoxState = 1;
     // State ivar.
@@ -205,31 +205,31 @@ void vtkGeoInteractorStyle::OnLeftButtonDown()
     this->EndPosition[0] = this->StartPosition[0];
     this->EndPosition[1] = this->StartPosition[1];
     this->FindPokedRenderer(this->StartPosition[0], this->StartPosition[1]);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 void vtkGeoInteractorStyle::OnLeftButtonUp()
 {
   if (!this->Interactor)
-    {
+  {
     return;
-    }
+  }
 
   if (this->RubberBandExtentEnabled)
-    {
+  {
     int xx = this->Interactor->GetEventPosition()[0];
     int yy = this->Interactor->GetEventPosition()[1];
     if (this->InRubberBandRectangle(xx,yy))
-      {
+    {
       this->Interactor->Render();
-      }
+    }
     return;
   }
 
   // If we were dragging a rubber band rectangle.
   if (this->DraggingRubberBandBoxState)
-    {
+  {
     this->DraggingRubberBandBoxState = 0;
     this->RubberBandExtentEnabled = 0;
     this->DisableRubberBandRedraw();
@@ -241,16 +241,16 @@ void vtkGeoInteractorStyle::OnLeftButtonUp()
     rect[2] = this->EndPosition[0];
     rect[3] = this->EndPosition[1];
     if (this->Interactor->GetShiftKey())
-      {
+    {
       rect[4] = vtkInteractorStyleRubberBand3D::SELECT_UNION;
-      }
+    }
     else
-      {
+    {
       rect[4] = vtkInteractorStyleRubberBand3D::SELECT_NORMAL;
-      }
+    }
     this->InvokeEvent(vtkCommand::SelectionChangedEvent, reinterpret_cast<void*>(rect));
     this->Interactor->Render();
-    }
+  }
 }
 
 
@@ -266,9 +266,9 @@ bool vtkGeoInteractorStyle::InRubberBandRectangle( int x, int y)
       x < this->RubberBandExtent[1] &&
       y > this->RubberBandExtent[2] &&
       y < this->RubberBandExtent[3])
-    {
+  {
     return true;
-    }
+  }
   this->Interactor->Render();
   return false;
 }
@@ -291,7 +291,7 @@ int vtkGeoInteractorStyle::GetRayIntersection(double origin[3],
 
   r = b*b - 4.0*a*c;
   if (r < 0.0)
-    {
+  {
     // Set the intersection point to be the point on the ray closest to the
     // earth.  Derivative of distance ak + b = 0, k = -b/a
     k = -b / (2.0 * a);
@@ -299,7 +299,7 @@ int vtkGeoInteractorStyle::GetRayIntersection(double origin[3],
     intersection[1] = origin[1] + k*direction[1];
     intersection[2] = origin[2] + k*direction[2];
     return VTK_ERROR;
-    }
+  }
   k = (-b - sqrt(r)) / (2.0*a);
 
   intersection[0] = origin[0] + k*direction[0];
@@ -307,9 +307,9 @@ int vtkGeoInteractorStyle::GetRayIntersection(double origin[3],
   intersection[2] = origin[2] + k*direction[2];
 
   if (k < 0.0)
-    { // Intersection is behind ray.
+  { // Intersection is behind ray.
     return VTK_ERROR;
-    }
+  }
 
   return VTK_OK;
 }
@@ -453,28 +453,28 @@ void vtkGeoInteractorStyle::OnChar()
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
   switch (rwi->GetKeyCode())
-    {
+  {
     case 'a' :
-      {
+    {
       break;
-      }
+    }
     case 'q' :
-      {
+    {
       break;
-      }
+    }
     case 'r' :
     case 'R' :
-      {
+    {
       this->FindPokedRenderer(rwi->GetEventPosition()[0],
                               rwi->GetEventPosition()[1]);
       this->ResetCamera();
       this->UpdateLights();
       rwi->Render();
       break;
-      }
+    }
     case 'w' :
     case 'W' :
-      {
+    {
       vtkActorCollection *ac;
       vtkActor *anActor, *aPart;
       vtkAssemblyPath *path;
@@ -483,23 +483,23 @@ void vtkGeoInteractorStyle::OnChar()
       ac = this->CurrentRenderer->GetActors();
       vtkCollectionSimpleIterator ait;
       for (ac->InitTraversal(ait); (anActor = ac->GetNextActor(ait)); )
-        {
+      {
         for (anActor->InitPathTraversal(); (path=anActor->GetNextPath()); )
-          {
+        {
           aPart=vtkActor::SafeDownCast(path->GetLastNode()->GetViewProp());
           if(aPart)
-            {
+          {
             aPart->GetProperty()->SetRepresentationToWireframe();
-            }
           }
         }
-      rwi->Render();
       }
+      rwi->Render();
+    }
       break;
 
     case 's' :
     case 'S' :
-      {
+    {
       vtkActorCollection *ac;
       vtkActor *anActor, *aPart;
       vtkAssemblyPath *path;
@@ -508,21 +508,21 @@ void vtkGeoInteractorStyle::OnChar()
       ac = this->CurrentRenderer->GetActors();
       vtkCollectionSimpleIterator ait;
       for (ac->InitTraversal(ait); (anActor = ac->GetNextActor(ait)); )
-        {
+      {
         for (anActor->InitPathTraversal(); (path=anActor->GetNextPath()); )
-          {
+        {
 
           aPart=vtkActor::SafeDownCast(path->GetLastNode()->GetViewProp());
           if(aPart)
-            {
+          {
             aPart->GetProperty()->SetRepresentationToSurface();
-            }
           }
         }
-      rwi->Render();
       }
-      break;
+      rwi->Render();
     }
+      break;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -533,7 +533,7 @@ void vtkGeoInteractorStyle::OnMouseMove()
   int y = this->Interactor->GetEventPosition()[1];
 
   switch (this->State)
-    {
+  {
     case VTKIS_PAN:
       this->FindPokedRenderer(x, y);
       this->Pan();
@@ -545,44 +545,44 @@ void vtkGeoInteractorStyle::OnMouseMove()
       this->Dolly();
       this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
       break;
-    }
+  }
   //rubber band zoom case:
   if (this->Interactor && this->DraggingRubberBandBoxState)
-    {
+  {
     // Get rid of selected extent from previous cycle.
     if (this->RubberBandExtentEnabled)
-      {
+    {
       this->DisableRubberBandRedraw();
       this->Interactor->Render();
       this->RubberBandExtentEnabled = 0;
-      }
+    }
     this->EndPosition[0] = this->Interactor->GetEventPosition()[0];
     this->EndPosition[1] = this->Interactor->GetEventPosition()[1];
 
     // Transfer the position to the extent.
     if (this->StartPosition[0] < this->EndPosition[0])
-      {
+    {
       this->RubberBandExtent[0] = this->StartPosition[0];
       this->RubberBandExtent[1] = this->EndPosition[0];
-      }
+    }
     else
-      {
+    {
       this->RubberBandExtent[0] = this->EndPosition[0];
       this->RubberBandExtent[1] = this->StartPosition[0];
-      }
+    }
     if (this->StartPosition[1] < this->EndPosition[1])
-      {
+    {
       this->RubberBandExtent[2] = this->StartPosition[1];
       this->RubberBandExtent[3] = this->EndPosition[1];
-      }
+    }
     else
-      {
+    {
       this->RubberBandExtent[2] = this->EndPosition[1];
       this->RubberBandExtent[3] = this->StartPosition[1];
-      }
+    }
 
     this->DrawRectangle();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -627,10 +627,10 @@ void vtkGeoInteractorStyle::GetPanCenter(double &px, double &py)
   int hits = 0;
   unsigned int ix, iy;
   for (ix = 0; ix < 9; ++ix)
-    {
+  {
     dx = size[0]*ix/8.0 - size[0]*0.5;
     for (iy = 0; iy < 9; ++iy)
-      {
+    {
       dy = size[1]*iy/8.0 - size[1]*0.5;
 
       // note the duplication of size[1] is intentional in the lines below
@@ -641,22 +641,22 @@ void vtkGeoInteractorStyle::GetPanCenter(double &px, double &py)
       // OK, now we have a new direction.
       // Find an intersection with the world.
       if (this->GetRayIntersection(position, direction2, point) != VTK_ERROR)
-        {
+      {
         resx += dx;
         resy += dy;
         hits++;
-        }
       }
     }
+  }
 
   // compute the result
   px = size[0]*0.5;
   py = size[1]*0.5;
   if (hits)
-    {
+  {
     px += resx/hits;
     py += resy/hits;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -664,9 +664,9 @@ void vtkGeoInteractorStyle::Pan()
 {
   // just change the lat lon
   if (this->CurrentRenderer == NULL)
-    {
+  {
     return;
-    }
+  }
 
   vtkRenderWindowInteractor *rwi = this->Interactor;
   double dxMouse;
@@ -691,18 +691,18 @@ void vtkGeoInteractorStyle::Pan()
                           lonlat2[0], lonlat2[1]);
 
   if (!this->LockHeading)
-    {
+  {
     this->GeoCamera->LockHeadingOff();
-    }
+  }
   this->GeoCamera->SetLongitude(this->GeoCamera->GetLongitude() +
                                 lonlat2[0] - lonlat1[0]);
   this->GeoCamera->SetLatitude(this->GeoCamera->GetLatitude() +
                                lonlat2[1] - lonlat1[1]);
   if (!this->LockHeading)
-    {
+  {
     this->GeoCamera->LockHeadingOn();
     this->CompassWidget->SetHeading(this->GeoCamera->GetHeading()/360.0);
-    }
+  }
 
   this->ResetCameraClippingRange();
   this->UpdateLights();
@@ -715,9 +715,9 @@ void vtkGeoInteractorStyle::Pan()
 void vtkGeoInteractorStyle::Dolly()
 {
   if (this->CurrentRenderer == NULL)
-    {
+  {
     return;
-    }
+  }
 
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
@@ -733,9 +733,9 @@ void vtkGeoInteractorStyle::Dolly()
 void vtkGeoInteractorStyle::Dolly(double factor)
 {
   if (this->CurrentRenderer == NULL)
-    {
+  {
     return;
-    }
+  }
 
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
@@ -775,39 +775,39 @@ void vtkGeoInteractorStyle::RedrawRectangle()
   // Do we need a new background image allocated.
   int numPixels = 0;
   if (this->PixelArray)
-    {
+  {
     numPixels = this->PixelArray->GetNumberOfTuples();
-    }
+  }
   vtkRenderWindow *renWin = this->Interactor->GetRenderWindow();
   int *winSize = renWin->GetSize();
   if (winSize[0] * winSize[1] != numPixels)
-    {
+  {
     this->PixelArray->Initialize();
     this->PixelArray->SetNumberOfComponents(3);
     this->PixelArray->SetNumberOfTuples(winSize[0]*winSize[1]);
     this->PixelDims[0] = winSize[0];
     this->PixelDims[1] = winSize[1];
-    }
+  }
   // Could do some mTime checks but that would only catch refreshes.
   renWin->GetPixelData(0, 0, winSize[0]-1, winSize[1]-1, 1, this->PixelArray);
 
   // Make sure the extent still lies completely inside the window.
   if (this->RubberBandExtent[0] < 0)
-    {
+  {
     this->RubberBandExtent[0] = 0;
-    }
+  }
   if (this->RubberBandExtent[2] < 0)
-    {
+  {
     this->RubberBandExtent[2] = 0;
-    }
+  }
   if (this->RubberBandExtent[1] >= winSize[0])
-    {
+  {
     this->RubberBandExtent[1] = winSize[0]-1;
-    }
+  }
   if (this->RubberBandExtent[3] >= winSize[1])
-    {
+  {
     this->RubberBandExtent[3] = winSize[1]-1;
-    }
+  }
 
   // Now draw the rectangle.
   this->DrawRectangle();
@@ -821,7 +821,7 @@ void vtkGeoInteractorStyle::DrawRectangle()
   // we need to get the background image.
   // Use the callback tag to indicate whether this is the first time or not.
   if (this->RenderCallbackTag == 0)
-    {
+  {
     vtkRenderWindow *renWin = this->Interactor->GetRenderWindow();
 
     this->PixelArray->Initialize();
@@ -836,7 +836,7 @@ void vtkGeoInteractorStyle::DrawRectangle()
 
     // Add a callback (if not already added) that redraws the rectangle.
     this->EnableRubberBandRedraw();
-    }
+  }
 
   vtkUnsignedCharArray *tmpPixelArray = vtkUnsignedCharArray::New();
   tmpPixelArray->DeepCopy(this->PixelArray);
@@ -845,21 +845,21 @@ void vtkGeoInteractorStyle::DrawRectangle()
 
   // Make sure the extent still lies completely inside the window.
   if (this->RubberBandExtent[0] < 0)
-    {
+  {
     this->RubberBandExtent[0] = 0;
-    }
+  }
   if (this->RubberBandExtent[2] < 0)
-    {
+  {
     this->RubberBandExtent[2] = 0;
-    }
+  }
   if (this->RubberBandExtent[1] >= this->PixelDims[0])
-    {
+  {
     this->RubberBandExtent[1] = this->PixelDims[0]-1;
-    }
+  }
   if (this->RubberBandExtent[3] >= this->PixelDims[1])
-    {
+  {
     this->RubberBandExtent[3] = this->PixelDims[1]-1;
-    }
+  }
 
   int min[2], max[2];
   min[0] = this->RubberBandExtent[0];
@@ -870,23 +870,23 @@ void vtkGeoInteractorStyle::DrawRectangle()
   int i;
   int *size = this->PixelDims;
   for (i = min[0]; i <= max[0]; i++)
-    {
+  {
     pixels[3*(min[1]*size[0]+i)] = 255 ^ pixels[3*(min[1]*size[0]+i)];
     pixels[3*(min[1]*size[0]+i)+1] = 255 ^ pixels[3*(min[1]*size[0]+i)+1];
     pixels[3*(min[1]*size[0]+i)+2] = 255 ^ pixels[3*(min[1]*size[0]+i)+2];
     pixels[3*(max[1]*size[0]+i)] = 255 ^ pixels[3*(max[1]*size[0]+i)];
     pixels[3*(max[1]*size[0]+i)+1] = 255 ^ pixels[3*(max[1]*size[0]+i)+1];
     pixels[3*(max[1]*size[0]+i)+2] = 255 ^ pixels[3*(max[1]*size[0]+i)+2];
-    }
+  }
   for (i = min[1]+1; i < max[1]; i++)
-    {
+  {
     pixels[3*(i*size[0]+min[0])] = 255 ^ pixels[3*(i*size[0]+min[0])];
     pixels[3*(i*size[0]+min[0])+1] = 255 ^ pixels[3*(i*size[0]+min[0])+1];
     pixels[3*(i*size[0]+min[0])+2] = 255 ^ pixels[3*(i*size[0]+min[0])+2];
     pixels[3*(i*size[0]+max[0])] = 255 ^ pixels[3*(i*size[0]+max[0])];
     pixels[3*(i*size[0]+max[0])+1] = 255 ^ pixels[3*(i*size[0]+max[0])+1];
     pixels[3*(i*size[0]+max[0])+2] = 255 ^ pixels[3*(i*size[0]+max[0])+2];
-    }
+  }
 
   this->Interactor->GetRenderWindow()->SetPixelData(0, 0,
                                                     size[0]-1, size[1]-1,
@@ -900,15 +900,15 @@ void vtkGeoInteractorStyle::DrawRectangle()
 void vtkGeoInteractorStyle::EnableRubberBandRedraw()
 {
   if (this->RenderCallbackTag != 0)
-    { // Callback has already been added.
+  { // Callback has already been added.
     return;
-    }
+  }
 
   vtkRenderWindow* renWin = this->Interactor->GetRenderWindow();
   if (renWin == 0)
-    {
+  {
     return;
-    }
+  }
 
   // Watch for any render that will disable the rectangle.
   vtkCallbackCommand *cbc;
@@ -925,15 +925,15 @@ void vtkGeoInteractorStyle::EnableRubberBandRedraw()
 void vtkGeoInteractorStyle::DisableRubberBandRedraw()
 {
   if (this->RenderCallbackTag == 0 || this->Interactor == 0)
-    {
+  {
     return;
-    }
+  }
 
   vtkRenderWindow *renWin = this->Interactor->GetRenderWindow();
   if (renWin == 0)
-    {
+  {
     return;
-    }
+  }
 
   renWin->RemoveObserver(this->RenderCallbackTag);
   this->RenderCallbackTag = 0;
@@ -951,19 +951,19 @@ void vtkGeoInteractorStyle::ResetCameraClippingRange()
   double position[3];
 
   if (!this->CurrentRenderer)
-    {
+  {
     return;
-    }
+  }
   camera = this->CurrentRenderer->GetActiveCamera();
   this->GeoCamera->GetPosition(position);
 
   double distAbove = vtkMath::Norm(position) - vtkGeoMath::EarthRadiusMeters();
   // when inside the earth use the default
   if (distAbove < 0)
-    {
+  {
     this->CurrentRenderer->ResetCameraClippingRange();
     return;
-    }
+  }
   this->CurrentRenderer->ResetCameraClippingRange();
   double rng[2];
   camera->GetClippingRange(rng);
@@ -972,10 +972,10 @@ void vtkGeoInteractorStyle::ResetCameraClippingRange()
   // units away from the camera.
   double nearDist = distAbove * 0.5;
   if (rng[0] > nearDist)
-    {
+  {
     rng[0] = nearDist;
     camera->SetClippingRange(rng);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -984,33 +984,33 @@ void vtkGeoInteractorStyle::OnTimer()
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
   switch (this->State)
-    {
+  {
     case VTKIS_NONE:
       if (this->AnimState == VTKIS_ANIM_ON)
-        {
+      {
         if (this->UseTimers)
-          {
+        {
           rwi->DestroyTimer();
-          }
+        }
         rwi->Render();
         if (this->UseTimers)
-          {
+        {
           rwi->CreateTimer(VTKI_TIMER_FIRST);
-          }
         }
+      }
       break;
 
     case VTKIS_TIMER:
       rwi->Render();
       if (this->UseTimers)
-        {
+      {
         rwi->CreateTimer(VTKI_TIMER_UPDATE);
-        }
+      }
       break;
 
     default:
       break;
-    }
+  }
 }
 
 
@@ -1019,9 +1019,9 @@ void vtkGeoInteractorStyle::OnTimer()
 void vtkGeoInteractorStyle::UpdateLights()
 {
   if (!this->CurrentRenderer || !this->Interactor)
-    {
+  {
     return;
-    }
+  }
 
   vtkCamera *camera;
   vtkLightCollection* lights;
@@ -1048,10 +1048,10 @@ void vtkGeoInteractorStyle::UpdateLights()
   vtkCollectionSimpleIterator sit;
   for(lights->InitTraversal(sit);
       (light = lights->GetNextLight(sit)); )
-    {
+  {
     light->SetPosition(position);
     light->SetFocalPoint(focalPoint);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1063,30 +1063,30 @@ void vtkGeoInteractorStyle::StartState(int newstate)
 {
   this->State = newstate;
   if (this->AnimState == VTKIS_ANIM_OFF)
-    {
+  {
     vtkRenderWindowInteractor *rwi = this->Interactor;
     rwi->GetRenderWindow()->SetDesiredUpdateRate(rwi->GetDesiredUpdateRate());
     this->InvokeEvent(vtkCommand::StartInteractionEvent, NULL);
     rwi->SetTimerEventDuration(this->TimerDuration);
     if ( this->UseTimers && !(this->TimerId=rwi->CreateTimer(VTKI_TIMER_FIRST)) )
-      {
+    {
       vtkErrorMacro(<< "Timer start failed");
       this->State = VTKIS_NONE;
-      }
     }
+  }
 }
 
 void vtkGeoInteractorStyle::WidgetInteraction(vtkObject *caller)
 {
   if (caller == this->CompassWidget.GetPointer())
-    {
+  {
     this->GeoCamera->SetHeading(this->CompassWidget->GetHeading()*360.0);
     this->GeoCamera->SetTilt(this->CompassWidget->GetTilt());
     this->GeoCamera->SetDistance(this->CompassWidget->GetDistance());
     this->ResetCameraClippingRange();
     this->UpdateLights();
     this->Interactor->Render();
-    }
+  }
 }
 
 
@@ -1096,22 +1096,22 @@ void vtkGeoInteractorStyle::SetInteractor
   this->Superclass::SetInteractor(interactor);
   this->CompassWidget->SetInteractor(interactor);
   if (interactor)
-    {
+  {
     this->CompassWidget->SetEnabled(1);
-    }
+  }
   else
-    {
+  {
     this->CompassWidget->SetEnabled(0);
-    }
+  }
 }
 
 void vtkGeoInteractorStyle::SetCurrentRenderer(vtkRenderer *ren)
 {
   this->Superclass::SetCurrentRenderer(ren);
   if (ren)
-    {
+  {
     ren->SetActiveCamera(this->GeoCamera->GetVTKCamera());
-    }
+  }
   this->ResetCameraClippingRange();
   this->UpdateLights();
 }

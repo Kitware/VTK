@@ -22,13 +22,10 @@
 #endif
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
-#include "vtkDebugLeaks.h"
-
 
 //----------------------------------------------------------------------------
-
 vtkOutputWindow* vtkOutputWindow::Instance = 0;
-vtkOutputWindowCleanup vtkOutputWindow::Cleanup;
+static unsigned int vtkOutputWindowCleanupCounter = 0;
 
 void vtkOutputWindowDisplayText(const char* message)
 {
@@ -57,12 +54,16 @@ void vtkOutputWindowDisplayDebugText(const char* message)
 
 vtkOutputWindowCleanup::vtkOutputWindowCleanup()
 {
+  ++vtkOutputWindowCleanupCounter;
 }
 
 vtkOutputWindowCleanup::~vtkOutputWindowCleanup()
 {
-  // Destroy any remaining output window.
-  vtkOutputWindow::SetInstance(0);
+  if (--vtkOutputWindowCleanupCounter == 0)
+  {
+    // Destroy any remaining output window.
+    vtkOutputWindow::SetInstance(0);
+  }
 }
 
 vtkOutputWindow::vtkOutputWindow()
@@ -90,20 +91,20 @@ void vtkOutputWindow::DisplayText(const char* txt)
 {
   cerr << txt;
   if (this->PromptUser)
-    {
+  {
     char c = 'n';
     cerr << "\nDo you want to suppress any further messages (y,n,q)?."
               << endl;
     cin >> c;
     if (c == 'y')
-      {
+    {
       vtkObject::GlobalWarningDisplayOff();
-      }
-    if(c == 'q')
-      {
-      this->PromptUser = 0;
-      }
     }
+    if(c == 'q')
+    {
+      this->PromptUser = 0;
+    }
+  }
   this->InvokeEvent(vtkCommand::MessageEvent, (void*)txt);
 }
 
@@ -142,33 +143,25 @@ vtkOutputWindow* vtkOutputWindow::New()
 vtkOutputWindow* vtkOutputWindow::GetInstance()
 {
   if(!vtkOutputWindow::Instance)
-    {
+  {
     // Try the factory first
     vtkOutputWindow::Instance = (vtkOutputWindow*)
       vtkObjectFactory::CreateInstance("vtkOutputWindow");
     // if the factory did not provide one, then create it here
     if(!vtkOutputWindow::Instance)
-      {
-      // if the factory failed to create the object,
-      // then destroy it now, as vtkDebugLeaks::ConstructClass was called
-      // with "vtkOutputWindow", and not the real name of the class
+    {
 #if defined( _WIN32 ) && !defined( VTK_USE_X )
-#ifdef VTK_DEBUG_LEAKS
-      vtkDebugLeaks::DestructClass("vtkOutputWindow");
-#endif
       vtkOutputWindow::Instance = vtkWin32OutputWindow::New();
 #else
 #if defined( ANDROID )
-#ifdef VTK_DEBUG_LEAKS
-      vtkDebugLeaks::DestructClass("vtkOutputWindow");
-#endif
       vtkOutputWindow::Instance = vtkAndroidOutputWindow::New();
 #else
       vtkOutputWindow::Instance = new vtkOutputWindow;
+      vtkOutputWindow::Instance->InitializeObjectBase();
 #endif
 #endif
-      }
     }
+  }
   // return the instance
   return vtkOutputWindow::Instance;
 }
@@ -176,19 +169,19 @@ vtkOutputWindow* vtkOutputWindow::GetInstance()
 void vtkOutputWindow::SetInstance(vtkOutputWindow* instance)
 {
   if (vtkOutputWindow::Instance==instance)
-    {
+  {
     return;
-    }
+  }
   // preferably this will be NULL
   if (vtkOutputWindow::Instance)
-    {
+  {
     vtkOutputWindow::Instance->Delete();
-    }
+  }
   vtkOutputWindow::Instance = instance;
   if (!instance)
-    {
+  {
     return;
-    }
+  }
   // user will call ->Delete() after setting instance
   instance->Register(NULL);
 }

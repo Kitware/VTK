@@ -62,12 +62,12 @@ public:
   {
   };
 
-  ~VolumePickingCommand()
+  ~VolumePickingCommand() VTK_OVERRIDE
   {
   };
 
-  virtual void Execute(vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(eventId),
-    void* vtkNotUsed(callData))
+  void Execute(vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(eventId),
+    void* vtkNotUsed(callData)) VTK_OVERRIDE
   {
     assert(this->Renderer != NULL);
 
@@ -89,7 +89,7 @@ public:
     unsigned int const numProps = result->GetNumberOfNodes();
 
     for (unsigned int n = 0; n < numProps; n++)
-      {
+    {
         vtkSelectionNode* node = result->GetNode(n);
         vtkInformation* properties = node->GetProperties();
         vtkInformationIntegerKey* infoIntKey = node->PROP_ID();
@@ -127,7 +127,7 @@ public:
           continue;
 
         this->OutlineFilter->SetInputConnection(algo->GetOutputPort());
-      }
+    }
 
     result->Delete();
   };
@@ -256,10 +256,10 @@ int TestGPURayCastVolumePicking(int argc, char *argv[])
   // initialize render loop
   int retVal = vtkRegressionTestImage(renWin.GetPointer());
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Initialize();
     iren->Start();
-    }
+  }
 
   areaPicker->Delete();
   rbp->Delete();

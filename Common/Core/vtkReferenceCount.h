@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkReferenceCount - Obsolete / empty subclass of object.
-// .SECTION Description
-// vtkReferenceCount functionality has now been moved into vtkObject
-// .SECTION See Also
-// vtkObject
+/**
+ * @class   vtkReferenceCount
+ * @brief   Obsolete / empty subclass of object.
+ *
+ * vtkReferenceCount functionality has now been moved into vtkObject
+ * @sa
+ * vtkObject
+*/
 
 #ifndef vtkReferenceCount_h
 #define vtkReferenceCount_h
@@ -30,15 +33,15 @@ public:
   static vtkReferenceCount *New();
 
   vtkTypeMacro(vtkReferenceCount,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkReferenceCount();
-  ~vtkReferenceCount();
+  ~vtkReferenceCount() VTK_OVERRIDE;
 
 private:
-  vtkReferenceCount(const vtkReferenceCount&);  // Not implemented.
-  void operator=(const vtkReferenceCount&);  // Not implemented.
+  vtkReferenceCount(const vtkReferenceCount&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkReferenceCount&) VTK_DELETE_FUNCTION;
 };
 
 

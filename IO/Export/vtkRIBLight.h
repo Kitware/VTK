@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkRIBLight - RIP Light
-// .SECTION Description
-// vtkRIBLight is a subclass of vtkLight that allows the user to
-// specify light source shaders and shadow casting lights for use with
-// RenderMan.
-//
-// .SECTION See Also
-// vtkRIBExporter vtkRIBProperty
+/**
+ * @class   vtkRIBLight
+ * @brief   RIP Light
+ *
+ * vtkRIBLight is a subclass of vtkLight that allows the user to
+ * specify light source shaders and shadow casting lights for use with
+ * RenderMan.
+ *
+ * @sa
+ * vtkRIBExporter vtkRIBProperty
+*/
 
 #ifndef vtkRIBLight_h
 #define vtkRIBLight_h
@@ -48,8 +51,8 @@ protected:
   vtkLight *Light;
   int Shadows;
 private:
-  vtkRIBLight(const vtkRIBLight&);  // Not implemented.
-  void operator=(const vtkRIBLight&);  // Not implemented.
+  vtkRIBLight(const vtkRIBLight&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRIBLight&) VTK_DELETE_FUNCTION;
 };
 
 #endif

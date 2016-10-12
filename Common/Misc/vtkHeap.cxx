@@ -67,27 +67,27 @@ void vtkHeap::SetBlockSize(size_t _arg)
     << this->GetClassName() << " (" << this << "): setting BlockSize to "
     << static_cast<int>(_arg));
   if (this->BlockSize != _arg)
-    {
+  {
     this->BlockSize = _arg;
     this->Modified();
-    }
+  }
 }
 
 void* vtkHeap::AllocateMemory(size_t n)
 {
   if ( n%this->Alignment ) //4-byte word alignement
-    {
+  {
     n += this->Alignment - (n%this->Alignment);
-    }
+  }
 
   size_t blockSize = (n > this->BlockSize ? n : this->BlockSize );
   this->NumberOfAllocations++;
 
   if ( ! this->Current ||
        (this->Position + n) >= this->Current->Size )
-    {
+  {
     this->Add(blockSize);
-    }
+  }
 
   char *ptr = this->Current->Data + this->Position;
   this->Position += n;
@@ -104,27 +104,27 @@ void vtkHeap::Add(size_t blockSize)
 
   if ( this->Current && this->Current != this->Last &&
        this->Current->Next->Size >= blockSize ) //reuse
-    {
+  {
     this->Current = this->Current->Next;
-    }
+  }
 
   else //allocate a new block
-    {
+  {
     this->NumberOfBlocks++;
     vtkHeapBlock* block = new vtkHeapBlock(blockSize);
 
     if (!this->Last)
-      {
+    {
       this->First = block;
       this->Current = block;
       this->Last = block;
       return;
-      }
+    }
 
     this->Last->Next = block;
     this->Last = block;
     this->Current = block;
-    }
+  }
 }
 
 void vtkHeap::CleanAll()
@@ -132,9 +132,9 @@ void vtkHeap::CleanAll()
   this->Current = this->First;
   if (!this->Current) { return; }
   while (this->DeleteAndNext())
-    {
+  {
     ;
-    }
+  }
   this->First = this->Current = this->Last = 0;
   this->Position = 0;
 }
@@ -142,16 +142,16 @@ void vtkHeap::CleanAll()
 vtkHeapBlock* vtkHeap::DeleteAndNext()
 {
   if (this->Current)
-    {
+  {
     vtkHeapBlock* tmp = this->Current;
     this->Current = this->Current->Next;
     delete tmp;
     return this->Current;
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 void vtkHeap::Reset()

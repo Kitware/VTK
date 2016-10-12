@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkThreadMessager - A class for performing inter-thread messaging
-// .SECTION Description
-// vtkMultithreader is a class that provides support for messaging between
-// threads multithreaded using pthreads or Windows messaging.
+/**
+ * @class   vtkThreadMessager
+ * @brief   A class for performing inter-thread messaging
+ *
+ * vtkMultithreader is a class that provides support for messaging between
+ * threads multithreaded using pthreads or Windows messaging.
+*/
 
 #ifndef vtkThreadMessager_h
 #define vtkThreadMessager_h
@@ -33,39 +36,44 @@ public:
   static vtkThreadMessager *New();
 
   vtkTypeMacro(vtkThreadMessager,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Wait (block, non-busy) until another thread sends a
-  // message.
+  /**
+   * Wait (block, non-busy) until another thread sends a
+   * message.
+   */
   void WaitForMessage();
 
-  // Description:
-  // Send a message to all threads who are waiting via
-  // WaitForMessage().
+  /**
+   * Send a message to all threads who are waiting via
+   * WaitForMessage().
+   */
   void SendWakeMessage();
 
-  // Description:
-  // pthreads only. If the wait is enabled, the thread who
-  // is to call WaitForMessage() will block until a receiver
-  // thread is ready to receive.
+  /**
+   * pthreads only. If the wait is enabled, the thread who
+   * is to call WaitForMessage() will block until a receiver
+   * thread is ready to receive.
+   */
   void EnableWaitForReceiver();
 
-  // Description:
-  // pthreads only. If the wait is enabled, the thread who
-  // is to call WaitForMessage() will block until a receiver
-  // thread is ready to receive.
+  /**
+   * pthreads only. If the wait is enabled, the thread who
+   * is to call WaitForMessage() will block until a receiver
+   * thread is ready to receive.
+   */
   void DisableWaitForReceiver();
 
-  // Description:
-  // pthreads only.
-  // If wait is enable, this will block until one thread is ready
-  // to receive a message.
+  /**
+   * pthreads only.
+   * If wait is enable, this will block until one thread is ready
+   * to receive a message.
+   */
   void WaitForReceiver();
 
 protected:
   vtkThreadMessager();
-  ~vtkThreadMessager();
+  ~vtkThreadMessager() VTK_OVERRIDE;
 
 #ifdef VTK_USE_PTHREADS
   pthread_mutex_t Mutex;
@@ -77,8 +85,8 @@ protected:
 #endif
 
 private:
-  vtkThreadMessager(const vtkThreadMessager&);  // Not implemented.
-  void operator=(const vtkThreadMessager&);  // Not implemented.
+  vtkThreadMessager(const vtkThreadMessager&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkThreadMessager&) VTK_DELETE_FUNCTION;
 };
 
 #endif

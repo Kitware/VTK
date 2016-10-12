@@ -1,13 +1,6 @@
 vtk_module(vtkIONetCDF
   GROUPS
     StandAlone
-  DEPENDS
-    vtkCommonDataModel
-    vtkCommonSystem
-    vtkIOCore
-  PRIVATE_DEPENDS
-    vtksys
-    vtknetcdf
   TEST_DEPENDS
     vtkCommonExecutionModel
     vtkRendering${VTK_RENDERING_BACKEND}
@@ -15,4 +8,11 @@ vtk_module(vtkIONetCDF
     vtkInteractionStyle
   KIT
     vtkIO
+  DEPENDS
+    vtkCommonCore
+    vtkCommonExecutionModel
+  PRIVATE_DEPENDS
+    vtkCommonDataModel
+    vtknetcdf
+    vtksys
   )

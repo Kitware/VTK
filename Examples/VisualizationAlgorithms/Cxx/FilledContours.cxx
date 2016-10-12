@@ -23,10 +23,10 @@
 int main (int argc, char *argv[])
 {
   if (argc < 3)
-    {
+  {
     std::cerr << "Usage: " << argv[0] << " InputPolyDataFile(.vtp) NumberOfContours" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Read the file
   vtkSmartPointer<vtkXMLPolyDataReader> reader =
@@ -45,15 +45,15 @@ int main (int argc, char *argv[])
   // computation. Here we arbitrarily pick an upper limit of 1000
   int numberOfContours = atoi(argv[2]);
   if (numberOfContours > 1000)
-    {
+  {
     std::cout << "ERROR: the number of contours " << numberOfContours << " exceeds 1000" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   if (numberOfContours <= 0)
-    {
+  {
     std::cout << "ERROR: the number of contours " << numberOfContours << " is <= 0" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   double delta =
     (scalarRange[1] - scalarRange[0]) /
@@ -64,19 +64,19 @@ int main (int argc, char *argv[])
   std::vector<vtkSmartPointer<vtkClipPolyData> > clippersHi;
 
   for (int i = 0; i < numberOfContours; i++)
-    {
+  {
     double valueLo = scalarRange[0] + static_cast<double> (i) * delta;
     double valueHi = scalarRange[0] + static_cast<double> (i + 1) * delta;
     clippersLo.push_back(vtkSmartPointer<vtkClipPolyData>::New());
     clippersLo[i]->SetValue(valueLo);
     if (i == 0)
-      {
+    {
       clippersLo[i]->SetInputConnection(reader->GetOutputPort());
-      }
+    }
     else
-      {
+    {
       clippersLo[i]->SetInputConnection(clippersHi[i - 1]->GetOutputPort(1));
-      }
+    }
     clippersLo[i]->InsideOutOff();
     clippersLo[i]->Update();
 
@@ -87,9 +87,9 @@ int main (int argc, char *argv[])
     clippersHi[i]->InsideOutOn();
     clippersHi[i]->Update();
     if (clippersHi[i]->GetOutput()->GetNumberOfCells() == 0)
-      {
+    {
       continue;
-      }
+    }
 
     vtkSmartPointer<vtkFloatArray> cd =
       vtkSmartPointer<vtkFloatArray>::New();
@@ -99,7 +99,7 @@ int main (int argc, char *argv[])
 
     clippersHi[i]->GetOutput()->GetCellData()->SetScalars(cd);
     appendFilledContours->AddInputConnection(clippersHi[i]->GetOutputPort());
-    }
+  }
 
   vtkSmartPointer<vtkCleanPolyData> filledContours =
     vtkSmartPointer<vtkCleanPolyData>::New();

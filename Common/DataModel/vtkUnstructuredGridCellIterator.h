@@ -12,8 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkUnstructuredGridCellIterator - Implementation of vtkCellIterator
-// specialized for vtkUnstructuredGrid.
+/**
+ * @class   vtkUnstructuredGridCellIterator
+ * @brief   Implementation of vtkCellIterator
+ * specialized for vtkUnstructuredGrid.
+*/
 
 #ifndef vtkUnstructuredGridCellIterator_h
 #define vtkUnstructuredGridCellIterator_h
@@ -33,21 +36,21 @@ class VTKCOMMONDATAMODEL_EXPORT vtkUnstructuredGridCellIterator :
 public:
   static vtkUnstructuredGridCellIterator *New();
   vtkTypeMacro(vtkUnstructuredGridCellIterator, vtkCellIterator)
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  bool IsDoneWithTraversal();
-  vtkIdType GetCellId();
+  bool IsDoneWithTraversal() VTK_OVERRIDE;
+  vtkIdType GetCellId() VTK_OVERRIDE;
 
 protected:
   vtkUnstructuredGridCellIterator();
-  ~vtkUnstructuredGridCellIterator();
+  ~vtkUnstructuredGridCellIterator() VTK_OVERRIDE;
 
-  void ResetToFirstCell();
-  void IncrementToNextCell();
-  void FetchCellType();
-  void FetchPointIds();
-  void FetchPoints();
-  void FetchFaces();
+  void ResetToFirstCell() VTK_OVERRIDE;
+  void IncrementToNextCell() VTK_OVERRIDE;
+  void FetchCellType() VTK_OVERRIDE;
+  void FetchPointIds() VTK_OVERRIDE;
+  void FetchPoints() VTK_OVERRIDE;
+  void FetchFaces() VTK_OVERRIDE;
 
   friend class vtkUnstructuredGrid;
   void SetUnstructuredGrid(vtkUnstructuredGrid *ug);
@@ -71,8 +74,8 @@ protected:
   vtkSmartPointer<vtkPoints> UnstructuredGridPoints;
 
 private:
-  vtkUnstructuredGridCellIterator(const vtkUnstructuredGridCellIterator &); // Not implemented.
-  void operator=(const vtkUnstructuredGridCellIterator &);   // Not implemented.
+  vtkUnstructuredGridCellIterator(const vtkUnstructuredGridCellIterator &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnstructuredGridCellIterator &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkUnstructuredGridCellIterator_h

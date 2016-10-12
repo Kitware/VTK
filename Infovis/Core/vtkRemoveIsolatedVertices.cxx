@@ -57,17 +57,17 @@ int vtkRemoveIsolatedVertices::RequestData(
   vtkSmartPointer<vtkMutableGraphHelper> builder =
     vtkSmartPointer<vtkMutableGraphHelper>::New();
   if (vtkDirectedGraph::SafeDownCast(input))
-    {
+  {
     vtkSmartPointer<vtkMutableDirectedGraph> dir =
       vtkSmartPointer<vtkMutableDirectedGraph>::New();
     builder->SetGraph(dir);
-    }
+  }
   else
-    {
+  {
     vtkSmartPointer<vtkMutableUndirectedGraph> undir =
       vtkSmartPointer<vtkMutableUndirectedGraph>::New();
     builder->SetGraph(undir);
-    }
+  }
 
   // Initialize edge data, vertex data, and points.
   vtkDataSetAttributes *inputEdgeData = input->GetEdgeData();
@@ -91,27 +91,27 @@ int vtkRemoveIsolatedVertices::RequestData(
     vtkSmartPointer<vtkEdgeListIterator>::New();
   input->GetEdges(edgeIter);
   while (edgeIter->HasNext())
-    {
+  {
     vtkEdgeType e = edgeIter->Next();
     vtkIdType source = outputVertex[e.Source];
     if (source < 0)
-      {
+    {
       source = builder->AddVertex();
       outputVertex[e.Source] = source;
       builderVertData->CopyData(inputVertData, e.Source, source);
       builderPoints->InsertNextPoint(inputPoints->GetPoint(e.Source));
-      }
+    }
     vtkIdType target = outputVertex[e.Target];
     if (target < 0)
-      {
+    {
       target = builder->AddVertex();
       outputVertex[e.Target] = target;
       builderVertData->CopyData(inputVertData, e.Target, target);
       builderPoints->InsertNextPoint(inputPoints->GetPoint(e.Target));
-      }
+    }
     vtkEdgeType outputEdge = builder->AddEdge(source, target);
     builderEdgeData->CopyData(inputEdgeData, e.Id, outputEdge.Id);
-    }
+  }
 
   // Pass constructed graph to output.
   vtkGraph* output = vtkGraph::GetData(outputVector);

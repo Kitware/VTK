@@ -12,20 +12,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInterpolateDataSetAttributes - interpolate scalars, vectors, etc. and other dataset attributes
-// .SECTION Description
-// vtkInterpolateDataSetAttributes is a filter that interpolates data set
-// attribute values between input data sets. The input to the filter
-// must be datasets of the same type, same number of cells, and same
-// number of points. The output of the filter is a data set of the same
-// type as the input dataset and whose attribute values have been
-// interpolated at the parametric value specified.
-//
-// The filter is used by specifying two or more input data sets (total of N),
-// and a parametric value t (0 <= t <= N-1). The output will contain
-// interpolated data set attributes common to all input data sets. (For
-// example, if one input has scalars and vectors, and another has just
-// scalars, then only scalars will be interpolated and output.)
+/**
+ * @class   vtkInterpolateDataSetAttributes
+ * @brief   interpolate scalars, vectors, etc. and other dataset attributes
+ *
+ * vtkInterpolateDataSetAttributes is a filter that interpolates data set
+ * attribute values between input data sets. The input to the filter
+ * must be datasets of the same type, same number of cells, and same
+ * number of points. The output of the filter is a data set of the same
+ * type as the input dataset and whose attribute values have been
+ * interpolated at the parametric value specified.
+ *
+ * The filter is used by specifying two or more input data sets (total of N),
+ * and a parametric value t (0 <= t <= N-1). The output will contain
+ * interpolated data set attributes common to all input data sets. (For
+ * example, if one input has scalars and vectors, and another has just
+ * scalars, then only scalars will be interpolated and output.)
+*/
 
 #ifndef vtkInterpolateDataSetAttributes_h
 #define vtkInterpolateDataSetAttributes_h
@@ -40,32 +43,36 @@ class VTKFILTERSGENERAL_EXPORT vtkInterpolateDataSetAttributes : public vtkDataS
 public:
   static vtkInterpolateDataSetAttributes *New();
   vtkTypeMacro(vtkInterpolateDataSetAttributes,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Return the list of inputs to this filter.
+  /**
+   * Return the list of inputs to this filter.
+   */
   vtkDataSetCollection *GetInputList();
 
-  // Description:
-  // Specify interpolation parameter t.
+  //@{
+  /**
+   * Specify interpolation parameter t.
+   */
   vtkSetClampMacro(T,double,0.0,VTK_DOUBLE_MAX);
   vtkGetMacro(T,double);
+  //@}
 
 protected:
   vtkInterpolateDataSetAttributes();
-  ~vtkInterpolateDataSetAttributes();
+  ~vtkInterpolateDataSetAttributes() VTK_OVERRIDE;
 
   void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   vtkDataSetCollection *InputList; // list of data sets to interpolate
   double T; // interpolation parameter
 
 private:
-  vtkInterpolateDataSetAttributes(const vtkInterpolateDataSetAttributes&);  // Not implemented.
-  void operator=(const vtkInterpolateDataSetAttributes&);  // Not implemented.
+  vtkInterpolateDataSetAttributes(const vtkInterpolateDataSetAttributes&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInterpolateDataSetAttributes&) VTK_DELETE_FUNCTION;
 };
 
 #endif

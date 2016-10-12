@@ -73,17 +73,17 @@ int vtkTreeRingToPolyData::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if( inputTree->GetNumberOfVertices() == 0 )
-    {
+  {
     return 1;
-    }
+  }
 
   // Now set the point coordinates, normals, and insert the cell
   vtkDataArray* coordArray = this->GetInputArrayToProcess(0, inputTree);
   if (!coordArray)
-    {
+  {
     vtkErrorMacro("Sectors array not found.");
     return 0;
-    }
+  }
 
   double pt1x[3] = {0.0, 0.0, 0.0};
   double pt2x[3] = {0.0, 0.0, 0.0};
@@ -99,21 +99,21 @@ int vtkTreeRingToPolyData::RequestData(
   this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
 
   for( int i = 0; i < inputTree->GetNumberOfVertices(); i++ )
-    {
+  {
     // Grab coords from the input
     double coords[4];
     if( i == rootId )
-      {
+    {
       //don't draw the root node...
       coords[0] = 0.0;
       coords[1] = 0.0;
       coords[2] = 1.0;
       coords[3] = 1.0;
-      }
+    }
     else
-      {
+    {
       coordArray->GetTuple(i,coords);
-      }
+    }
 
     double radial_length = coords[3] - coords[2];
 
@@ -124,13 +124,13 @@ int vtkTreeRingToPolyData::RequestData(
     double radial_shrink = radial_length*this->ShrinkPercentage;
     double arc_length_shrink;
     if( radial_shrink > 0.25*arc_length )
-      {
+    {
       arc_length_shrink = 0.25*arc_length;
-      }
+    }
     else
-      {
+    {
       arc_length_shrink = radial_shrink;
-      }
+    }
 
     double arc_length_new = arc_length - arc_length_shrink;
     double angle_change = ((arc_length_new/coords[3])/conversion);
@@ -141,25 +141,25 @@ int vtkTreeRingToPolyData::RequestData(
     double start_angle;
     double end_angle;
     if( coords[1] - coords[0] == 360. )
-      {
+    {
       start_angle = coords[0];
       end_angle = coords[1];
-      }
+    }
     else
-      {
+    {
       start_angle = coords[0] + delta_change_each;
       end_angle = coords[1] - delta_change_each;
-      }
+    }
 
     int num_angles = static_cast<int>(end_angle - start_angle);
     if ( num_angles < 1 )
-      {
+    {
       num_angles = 1;
-      }
+    }
     int num_points = 2*num_angles + 2;
     strips->InsertNextCell(num_points);
     for ( int j = 0; j < num_angles; ++j )
-      {
+    {
       ang = start_angle + j;
       cos_ang = cos(vtkMath::RadiansFromDegrees(ang));
       sin_ang = sin(vtkMath::RadiansFromDegrees(ang));
@@ -171,7 +171,7 @@ int vtkTreeRingToPolyData::RequestData(
       pt2 = pts->InsertNextPoint(pt2x);
       strips->InsertCellPoint(pt1);
       strips->InsertCellPoint(pt2);
-      }
+    }
     ang = end_angle;
     cos_ang = cos(vtkMath::RadiansFromDegrees(ang));
     sin_ang = sin(vtkMath::RadiansFromDegrees(ang));
@@ -185,11 +185,11 @@ int vtkTreeRingToPolyData::RequestData(
     strips->InsertCellPoint(pt2);
 
     if ( i%1000 == 0 )
-      {
+    {
       progress = static_cast<double>(i) / inputTree->GetNumberOfVertices() * 0.8;
       this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
-      }
     }
+  }
 
   outputPoly->SetPoints(pts);
   outputPoly->SetStrips(strips);

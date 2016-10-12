@@ -12,12 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageNormalize - Normalizes that scalar components for each point.
-// .SECTION Description
-// For each point, vtkImageNormalize normalizes the vector defined by the
-// scalar components.  If the magnitude of this vector is zero, the output
-// vector is zero also.
-
+/**
+ * @class   vtkImageNormalize
+ * @brief   Normalizes that scalar components for each point.
+ *
+ * For each point, vtkImageNormalize normalizes the vector defined by the
+ * scalar components.  If the magnitude of this vector is zero, the output
+ * vector is zero also.
+*/
 
 #ifndef vtkImageNormalize_h
 #define vtkImageNormalize_h
@@ -41,8 +43,8 @@ protected:
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int extent[6], int id);
 private:
-  vtkImageNormalize(const vtkImageNormalize&);  // Not implemented.
-  void operator=(const vtkImageNormalize&);  // Not implemented.
+  vtkImageNormalize(const vtkImageNormalize&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageNormalize&) VTK_DELETE_FUNCTION;
 };
 
 #endif

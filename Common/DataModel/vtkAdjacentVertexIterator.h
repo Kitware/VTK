@@ -17,18 +17,19 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkAdjacentVertexIterator - Iterates through adjacent vertices in a graph.
-//
-// .SECTION Description
-// vtkAdjacentVertexIterator iterates through all vertices adjacent to a
-// vertex, i.e. the vertices which may be reached by traversing an out edge
-// of the source vertex. Use graph->GetAdjacentVertices(v, it) to initialize
-// the iterator.
-//
-// .SECTION See Also
-//
-// .SECTION Thanks
-//
+/**
+ * @class   vtkAdjacentVertexIterator
+ * @brief   Iterates through adjacent vertices in a graph.
+ *
+ *
+ * vtkAdjacentVertexIterator iterates through all vertices adjacent to a
+ * vertex, i.e. the vertices which may be reached by traversing an out edge
+ * of the source vertex. Use graph->GetAdjacentVertices(v, it) to initialize
+ * the iterator.
+ *
+ *
+ *
+*/
 
 #ifndef vtkAdjacentVertexIterator_h
 #define vtkAdjacentVertexIterator_h
@@ -45,28 +46,36 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAdjacentVertexIterator : public vtkObject
 public:
   static vtkAdjacentVertexIterator *New();
   vtkTypeMacro(vtkAdjacentVertexIterator, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Initialize the iterator with a graph and vertex.
+  /**
+   * Initialize the iterator with a graph and vertex.
+   */
   void Initialize(vtkGraph *g, vtkIdType v);
 
-  // Description:
-  // Get the graph and vertex associated with this iterator.
+  //@{
+  /**
+   * Get the graph and vertex associated with this iterator.
+   */
   vtkGetObjectMacro(Graph, vtkGraph);
   vtkGetMacro(Vertex, vtkIdType);
+  //@}
 
-  // Description:
-  // Returns the next edge in the graph.
+  //@{
+  /**
+   * Returns the next edge in the graph.
+   */
   vtkIdType Next()
   {
     vtkOutEdgeType e = *this->Current;
     ++this->Current;
     return e.Target;
   }
+  //@}
 
-  // Description:
-  // Whether this iterator has more edges.
+  /**
+   * Whether this iterator has more edges.
+   */
   bool HasNext()
   {
     return this->Current != this->End;
@@ -74,11 +83,12 @@ public:
 
 protected:
   vtkAdjacentVertexIterator();
-  ~vtkAdjacentVertexIterator();
+  ~vtkAdjacentVertexIterator() VTK_OVERRIDE;
 
-  // Description:
-  // Protected method for setting the graph used
-  // by Initialize().
+  /**
+   * Protected method for setting the graph used
+   * by Initialize().
+   */
   virtual void SetGraph(vtkGraph *graph);
 
   vtkGraph            *Graph;
@@ -87,8 +97,8 @@ protected:
   vtkIdType             Vertex;
 
 private:
-  vtkAdjacentVertexIterator(const vtkAdjacentVertexIterator&);  // Not implemented.
-  void operator=(const vtkAdjacentVertexIterator&);  // Not implemented.
+  vtkAdjacentVertexIterator(const vtkAdjacentVertexIterator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAdjacentVertexIterator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

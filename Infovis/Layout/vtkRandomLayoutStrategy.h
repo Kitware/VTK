@@ -17,14 +17,17 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkRandomLayoutStrategy - randomly places vertices in 2 or 3 dimensions
-//
-// .SECTION Description
-// Assigns points to the vertices of a graph randomly within a bounded range.
-//
-// .SECION Thanks
-// Thanks to Brian Wylie from Sandia National Laboratories for adding incremental
-// layout capabilities.
+/**
+ * @class   vtkRandomLayoutStrategy
+ * @brief   randomly places vertices in 2 or 3 dimensions
+ *
+ *
+ * Assigns points to the vertices of a graph randomly within a bounded range.
+ *
+ * .SECION Thanks
+ * Thanks to Brian Wylie from Sandia National Laboratories for adding incremental
+ * layout capabilities.
+*/
 
 #ifndef vtkRandomLayoutStrategy_h
 #define vtkRandomLayoutStrategy_h
@@ -40,42 +43,56 @@ public:
   vtkTypeMacro(vtkRandomLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Seed the random number generator used to compute point positions.
-  // This has a significant effect on their final positions when
-  // the layout is complete.
+  //@{
+  /**
+   * Seed the random number generator used to compute point positions.
+   * This has a significant effect on their final positions when
+   * the layout is complete.
+   */
   vtkSetClampMacro(RandomSeed, int, 0, VTK_INT_MAX);
   vtkGetMacro(RandomSeed, int);
+  //@}
 
-  // Description:
-  // Set / get the region in space in which to place the final graph.
-  // The GraphBounds only affects the results if AutomaticBoundsComputation
-  // is off.
+  //@{
+  /**
+   * Set / get the region in space in which to place the final graph.
+   * The GraphBounds only affects the results if AutomaticBoundsComputation
+   * is off.
+   */
   vtkSetVector6Macro(GraphBounds,double);
   vtkGetVectorMacro(GraphBounds,double,6);
+  //@}
 
-  // Description:
-  // Turn on/off automatic graph bounds calculation. If this
-  // boolean is off, then the manually specified GraphBounds is used.
-  // If on, then the input's bounds us used as the graph bounds.
+  //@{
+  /**
+   * Turn on/off automatic graph bounds calculation. If this
+   * boolean is off, then the manually specified GraphBounds is used.
+   * If on, then the input's bounds us used as the graph bounds.
+   */
   vtkSetMacro(AutomaticBoundsComputation, int);
   vtkGetMacro(AutomaticBoundsComputation, int);
   vtkBooleanMacro(AutomaticBoundsComputation, int);
+  //@}
 
-  // Description:
-  // Turn on/off layout of graph in three dimensions. If off, graph
-  // layout occurs in two dimensions. By default, three dimensional
-  // layout is on.
+  //@{
+  /**
+   * Turn on/off layout of graph in three dimensions. If off, graph
+   * layout occurs in two dimensions. By default, three dimensional
+   * layout is on.
+   */
   vtkSetMacro(ThreeDimensionalLayout, int);
   vtkGetMacro(ThreeDimensionalLayout, int);
   vtkBooleanMacro(ThreeDimensionalLayout, int);
+  //@}
 
-  // Description:
-  // Set the graph to layout.
+  /**
+   * Set the graph to layout.
+   */
   void SetGraph(vtkGraph *graph);
 
-  // Description:
-  // Perform the random layout.
+  /**
+   * Perform the random layout.
+   */
   void Layout();
 
 protected:
@@ -88,8 +105,8 @@ protected:
   int   ThreeDimensionalLayout;  //Boolean for a third dimension.
 private:
 
-  vtkRandomLayoutStrategy(const vtkRandomLayoutStrategy&);  // Not implemented.
-  void operator=(const vtkRandomLayoutStrategy&);  // Not implemented.
+  vtkRandomLayoutStrategy(const vtkRandomLayoutStrategy&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRandomLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

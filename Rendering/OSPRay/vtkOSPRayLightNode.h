@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOSPRayLightNode - links vtkLights to OSPRay
-// .SECTION Description
-// Translates vtkLight state into OSPRay rendering calls
+/**
+ * @class   vtkOSPRayLightNode
+ * @brief   links vtkLights to OSPRay
+ *
+ * Translates vtkLight state into OSPRay rendering calls
+*/
 
 #ifndef vtkOSPRayLightNode_h
 #define vtkOSPRayLightNode_h
@@ -30,23 +33,27 @@ public:
   vtkTypeMacro(vtkOSPRayLightNode, vtkLightNode);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //Description:
-  //Make ospray calls to render me.
+  /**
+   * Make ospray calls to render me.
+   */
   virtual void Render(bool prepass);
 
-  //Description:
-  //A global multiplier to all ospray lights.
-  //default is 1.0
+  //@{
+  /**
+   * A global multiplier to all ospray lights.
+   * default is 1.0
+   */
   static void SetLightScale(double s);
   static double GetLightScale();
+  //@}
 
 protected:
   vtkOSPRayLightNode();
   ~vtkOSPRayLightNode();
 
 private:
-  vtkOSPRayLightNode(const vtkOSPRayLightNode&); // Not implemented.
-  void operator=(const vtkOSPRayLightNode&); // Not implemented.
+  vtkOSPRayLightNode(const vtkOSPRayLightNode&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOSPRayLightNode&) VTK_DELETE_FUNCTION;
 
   static double LightScale;
 };

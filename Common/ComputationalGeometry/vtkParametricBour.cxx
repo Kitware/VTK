@@ -19,7 +19,7 @@
 vtkStandardNewMacro(vtkParametricBour);
 //----------------------------------------------------------------------------//
 vtkParametricBour::vtkParametricBour()
-  {
+{
   // Preset triangulation parameters
   this->MinimumU = 0.;
   this->MinimumV = 0.;
@@ -32,16 +32,16 @@ vtkParametricBour::vtkParametricBour()
   this->TwistV = 0;
   this->ClockwiseOrdering = 1;
   this->DerivativesAvailable = 1;
-  }
+}
 
 //----------------------------------------------------------------------------//
 vtkParametricBour::~vtkParametricBour()
-  {
-  }
+{
+}
 
 //----------------------------------------------------------------------------//
 void vtkParametricBour::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
-  {
+{
   // Copy the parameters out of the vector, for the sake of convenience.
   double u = uvw[0];
   double v = uvw[1];
@@ -66,16 +66,16 @@ void vtkParametricBour::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
   Dv[0] = u*(2.*u*cos(v) - 1.)*sin(v);
   Dv[1] = -u*(cos(v) + u*cos(2.*v));
   Dv[2] = -2.*pow(u, 1.5)*sin(1.5*v);
-  }
+}
 
 //----------------------------------------------------------------------------//
 double vtkParametricBour::EvaluateScalar(double *, double *, double *)
-  {
+{
   return 0;
-  }
+}
 
 //----------------------------------------------------------------------------//
 void vtkParametricBour::PrintSelf(ostream& os, vtkIndent indent)
-  {
+{
   this->Superclass::PrintSelf(os,indent);
-  }
+}

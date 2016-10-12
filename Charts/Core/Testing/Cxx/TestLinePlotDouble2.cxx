@@ -45,11 +45,11 @@ int TestLinePlotDouble2(int, char *[])
   float inc = 7.5 / (numPoints - 1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
-    {
+  {
     double x(1 + 1e-11 * inc * i);
     table->SetValue(i, 0, x);
     table->SetValue(i, 1, cos((x - 1.0) * 1.0e11));
-    }
+  }
   vtkPlot *line = chart->AddPlot(vtkChart::LINE);
   line->SetInputData(table.GetPointer(), 0, 1);
 

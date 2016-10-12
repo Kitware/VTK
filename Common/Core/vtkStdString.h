@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkStdString - Wrapper around std::string to keep symbols short.
-// .SECTION Description
-// vtkStdString derives from std::string to provide shorter symbol
-// names than basic_string<...> in namespace std given by the standard
-// STL string.
+/**
+ * @class   vtkStdString
+ * @brief   Wrapper around std::string to keep symbols short.
+ *
+ * vtkStdString derives from std::string to provide shorter symbol
+ * names than basic_string<...> in namespace std given by the standard
+ * STL string.
+*/
 
 #ifndef vtkStdString_h
 #define vtkStdString_h

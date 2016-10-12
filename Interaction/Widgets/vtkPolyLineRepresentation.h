@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPolyLineRepresentation - vtkWidgetRepresentation for a poly line.
-// .SECTION Description
-// vtkPolyLineRepresentation is a vtkCurveRepresentation for a poly
-// line. This 3D widget defines a poly line that can be interactively
-// placed in a scene. The poly line has handles, the number of which
-// can be changed, plus the widget can be picked on the poly line
-// itself to translate or rotate it in the scene.
-// Based on vtkCurveRepresentation
-// .SECTION See Also
-// vtkSplineRepresentation
+/**
+ * @class   vtkPolyLineRepresentation
+ * @brief   vtkWidgetRepresentation for a poly line.
+ *
+ * vtkPolyLineRepresentation is a vtkCurveRepresentation for a poly
+ * line. This 3D widget defines a poly line that can be interactively
+ * placed in a scene. The poly line has handles, the number of which
+ * can be changed, plus the widget can be picked on the poly line
+ * itself to translate or rotate it in the scene.
+ * Based on vtkCurveRepresentation
+ * @sa
+ * vtkSplineRepresentation
+*/
 
 #ifndef vtkPolyLineRepresentation_h
 #define vtkPolyLineRepresentation_h
@@ -40,37 +43,43 @@ public:
   vtkTypeMacro(vtkPolyLineRepresentation, vtkCurveRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Grab the polydata (including points) that defines the poly line.
-  // polydata consists of points and line segments between consecutive
-  // points. Points are guaranteed to be up-to-date when either the
-  // InteractionEvent or EndInteraction events are invoked. The user
-  // provides the vtkPolyData and the points and polyline are added to
-  // it.
+  /**
+   * Grab the polydata (including points) that defines the poly line.
+   * polydata consists of points and line segments between consecutive
+   * points. Points are guaranteed to be up-to-date when either the
+   * InteractionEvent or EndInteraction events are invoked. The user
+   * provides the vtkPolyData and the points and polyline are added to
+   * it.
+   */
   void GetPolyData(vtkPolyData *pd);
 
-  // Description:
-  // Set the number of handles for this widget.
+  /**
+   * Set the number of handles for this widget.
+   */
   virtual void SetNumberOfHandles(int npts);
 
-  // Description:
-  // Get the positions of the handles.
+  /**
+   * Get the positions of the handles.
+   */
   virtual vtkDoubleArray* GetHandlePositions();
 
-  // Description:
-  // Get the true length of the poly line. Calculated as the summed
-  // lengths of the individual straight line segments.
+  /**
+   * Get the true length of the poly line. Calculated as the summed
+   * lengths of the individual straight line segments.
+   */
   double GetSummedLength();
 
-  // Description:
-  // Convenience method to allocate and set the handles from a
-  // vtkPoints instance.  If the first and last points are the same,
-  // the poly line sets Closed to on and disregards the last point,
-  // otherwise Closed remains unchanged.
+  /**
+   * Convenience method to allocate and set the handles from a
+   * vtkPoints instance.  If the first and last points are the same,
+   * the poly line sets Closed to on and disregards the last point,
+   * otherwise Closed remains unchanged.
+   */
   virtual void InitializeHandles(vtkPoints* points);
 
-  // Description:
-  // Build the representation for the poly line.
+  /**
+   * Build the representation for the poly line.
+   */
   virtual void BuildRepresentation();
 
 protected:
@@ -84,8 +93,8 @@ protected:
   virtual void InsertHandleOnLine(double* pos);
 
 private:
-  vtkPolyLineRepresentation(const vtkPolyLineRepresentation&); // Not implemented.
-  void operator=(const vtkPolyLineRepresentation&); // Not implemented.
+  vtkPolyLineRepresentation(const vtkPolyLineRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPolyLineRepresentation&) VTK_DELETE_FUNCTION;
 
 };
 

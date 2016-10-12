@@ -17,10 +17,13 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGeoMath - Useful geographic calculations
-//
-// .SECTION Description
-// vtkGeoMath provides some useful geographic calculations.
+/**
+ * @class   vtkGeoMath
+ * @brief   Useful geographic calculations
+ *
+ *
+ * vtkGeoMath provides some useful geographic calculations.
+*/
 
 #ifndef vtkGeoMath_h
 #define vtkGeoMath_h
@@ -35,19 +38,22 @@ public:
   vtkTypeMacro(vtkGeoMath, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Returns the average radius of the earth in meters.
+  /**
+   * Returns the average radius of the earth in meters.
+   */
   static double EarthRadiusMeters() {return 6356750.0;}
 
-  // Description:
-  // Returns the squared distance between two points.
+  /**
+   * Returns the squared distance between two points.
+   */
   static double DistanceSquared(double pt0[3], double pt1[3]);
 
-  // Description:
-  // Converts a (longitude, latitude, altitude) triple to
-  // world coordinates where the center of the earth is at the origin.
-  // Units are in meters.
-  // Note that having altitude realtive to sea level causes issues.
+  /**
+   * Converts a (longitude, latitude, altitude) triple to
+   * world coordinates where the center of the earth is at the origin.
+   * Units are in meters.
+   * Note that having altitude realtive to sea level causes issues.
+   */
   static void   LongLatAltToRect(double lla[3], double rect[3]);
 
 protected:
@@ -55,8 +61,8 @@ protected:
   ~vtkGeoMath();
 
 private:
-  vtkGeoMath(const vtkGeoMath&);  // Not implemented.
-  void operator=(const vtkGeoMath&);  // Not implemented.
+  vtkGeoMath(const vtkGeoMath&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoMath&) VTK_DELETE_FUNCTION;
 };
 
 #endif

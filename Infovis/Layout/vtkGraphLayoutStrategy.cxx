@@ -27,20 +27,20 @@ void vtkGraphLayoutStrategy::SetGraph(vtkGraph *graph)
   // This method is a cut and paste of vtkCxxSetObjectMacro
   // except for the call to Initialize in the middle :)
   if (graph != this->Graph)
-    {
+  {
     vtkGraph *tmp = this->Graph;
     this->Graph = graph;
     if (this->Graph != NULL)
-      {
+    {
       this->Graph->Register(this);
       this->Initialize();
-      }
-    if (tmp != NULL)
-      {
-      tmp->UnRegister(this);
-      }
-    this->Modified();
     }
+    if (tmp != NULL)
+    {
+      tmp->UnRegister(this);
+    }
+    this->Modified();
+  }
 }
 
 vtkGraphLayoutStrategy::vtkGraphLayoutStrategy()
@@ -62,14 +62,14 @@ void vtkGraphLayoutStrategy::SetWeightEdges(bool state)
   // This method is a cut and paste of vtkSetMacro
   // except for the call to Initialize at the end :)
   if (this->WeightEdges != state)
-    {
+  {
     this->WeightEdges = state;
     this->Modified();
     if(this->Graph)
-      {
+    {
       this->Initialize();
-      }
     }
+  }
 }
 
 void vtkGraphLayoutStrategy::SetEdgeWeightField(const char* weights)
@@ -80,24 +80,24 @@ void vtkGraphLayoutStrategy::SetEdgeWeightField(const char* weights)
   if ( this->EdgeWeightField && weights && (!strcmp(this->EdgeWeightField,weights))) { return;}
   delete [] this->EdgeWeightField;
   if (weights)
-    {
+  {
     size_t n = strlen(weights) + 1;
     char *cp1 =  new char[n];
     const char *cp2 = (weights);
     this->EdgeWeightField = cp1;
     do { *cp1++ = *cp2++; } while ( --n );
-    }
+  }
    else
-    {
+   {
     this->EdgeWeightField = NULL;
-    }
+   }
 
   this->Modified();
 
   if(this->Graph)
-    {
+  {
     this->Initialize();
-    }
+  }
 }
 
 void vtkGraphLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
@@ -105,9 +105,9 @@ void vtkGraphLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Graph: " << (this->Graph ? "" : "(none)") << endl;
   if (this->Graph)
-    {
+  {
     this->Graph->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   os << indent << "WeightEdges: " << (this->WeightEdges ? "True" : "False") << endl;
   os << indent << "EdgeWeightField: " << (this->EdgeWeightField ? this->EdgeWeightField : "(none)") << endl;
 }

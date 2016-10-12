@@ -17,11 +17,14 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkDataObjectToTable - extract field data as a table
-//
-// .SECTION Description
-// This filter is used to extract either the field, cell or point data of
-// any data object as a table.
+/**
+ * @class   vtkDataObjectToTable
+ * @brief   extract field data as a table
+ *
+ *
+ * This filter is used to extract either the field, cell or point data of
+ * any data object as a table.
+*/
 
 #ifndef vtkDataObjectToTable_h
 #define vtkDataObjectToTable_h
@@ -37,19 +40,22 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   enum
-    {
+  {
     FIELD_DATA = 0,
     POINT_DATA = 1,
     CELL_DATA = 2,
     VERTEX_DATA = 3,
     EDGE_DATA = 4
-    };
+  };
 
-  // Description:
-  // The field type to copy into the output table.
-  // Should be one of FIELD_DATA, POINT_DATA, CELL_DATA, VERTEX_DATA, EDGE_DATA.
+  //@{
+  /**
+   * The field type to copy into the output table.
+   * Should be one of FIELD_DATA, POINT_DATA, CELL_DATA, VERTEX_DATA, EDGE_DATA.
+   */
   vtkGetMacro(FieldType, int);
   vtkSetClampMacro(FieldType, int, 0, 4);
+  //@}
 
 protected:
   vtkDataObjectToTable();
@@ -65,8 +71,8 @@ protected:
   int FieldType;
 
 private:
-  vtkDataObjectToTable(const vtkDataObjectToTable&); // Not implemented
-  void operator=(const vtkDataObjectToTable&);   // Not implemented
+  vtkDataObjectToTable(const vtkDataObjectToTable&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataObjectToTable&) VTK_DELETE_FUNCTION;
 };
 
 #endif

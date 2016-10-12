@@ -56,33 +56,33 @@ void vtkPolyDataMapperNode::TransformPoints(vtkActor *act,
   inPos[3] = 1.0;
   double transPos[4];
   for (int i = 0; i < poly->GetNumberOfPoints(); i++)
-    {
+  {
     double *pos = poly->GetPoints()->GetPoint(i);
     bool wasNan = false;
     int fixIndex = i - 1;
     do
-      {
+    {
       wasNan = false;
       for (int j = 0; j < 3; j++)
-        {
-        if (vtkMath::IsNan(pos[j]))
-          {
-          wasNan = true;
-          }
-        }
-      if (wasNan && fixIndex >= 0)
-        {
-        pos = poly->GetPoints()->GetPoint(fixIndex--);
-        }
-      } while (wasNan == true && fixIndex >= 0);
-    if (ident)
       {
+        if (vtkMath::IsNan(pos[j]))
+        {
+          wasNan = true;
+        }
+      }
+      if (wasNan && fixIndex >= 0)
+      {
+        pos = poly->GetPoints()->GetPoint(fixIndex--);
+      }
+    } while (wasNan == true && fixIndex >= 0);
+    if (ident)
+    {
       _vertices.push_back(pos[0]);
       _vertices.push_back(pos[1]);
       _vertices.push_back(pos[2]);
-      }
+    }
     else
-      {
+    {
       inPos[0] = pos[0];
       inPos[1] = pos[1];
       inPos[2] = pos[2];
@@ -91,8 +91,8 @@ void vtkPolyDataMapperNode::TransformPoints(vtkActor *act,
       _vertices.push_back(transPos[0]);
       _vertices.push_back(transPos[1]);
       _vertices.push_back(transPos[2]);
-      }
     }
+  }
 }
 
 namespace {
@@ -112,19 +112,19 @@ namespace {
     vtkIdType* indices(NULL);
     vtkIdType npts(0);
     if (!cells->GetNumberOfCells())
-      {
+    {
       return;
-      }
+    }
     unsigned int cell_id = 0;
     for (cells->InitTraversal(); cells->GetNextCell(npts, indices); )
-      {
+    {
       for (int i = 0; i < npts; ++i)
-        {
+      {
         indexArray.push_back(static_cast<unsigned int>(*(indices++)));
         reverseArray.push_back(cell_id);
-        }
-      cell_id++;
       }
+      cell_id++;
+    }
   }
 
   //----------------------------------------------------------------------------
@@ -139,21 +139,21 @@ namespace {
     vtkIdType* indices(NULL);
     vtkIdType npts(0);
     if (!cells->GetNumberOfCells())
-      {
+    {
       return;
-      }
+    }
     unsigned int cell_id = 0;
     for (cells->InitTraversal(); cells->GetNextCell(npts, indices); )
-      {
+    {
       for (int i = 0; i < npts-1; ++i)
-        {
+      {
         indexArray.push_back(static_cast<unsigned int>(indices[i]));
         indexArray.push_back(static_cast<unsigned int>(indices[i+1]));
         reverseArray.push_back(cell_id);
         reverseArray.push_back(cell_id);
-        }
-      cell_id++;
       }
+      cell_id++;
+    }
   }
 
   //----------------------------------------------------------------------------
@@ -170,22 +170,22 @@ namespace {
     vtkIdType* indices(NULL);
     vtkIdType npts(0);
     if (!cells->GetNumberOfCells())
-      {
+    {
       return;
-      }
+    }
     unsigned int cell_id = 0;
     for (cells->InitTraversal(); cells->GetNextCell(npts, indices); )
-      {
+    {
       for (int i = 0; i < npts; ++i)
-        {
+      {
         indexArray.push_back(static_cast<unsigned int>(indices[i]));
         indexArray.push_back(static_cast<unsigned int>
                              (indices[i < npts-1 ? i+1 : 0]));
         reverseArray.push_back(cell_id);
         reverseArray.push_back(cell_id);
-        }
-      cell_id++;
       }
+      cell_id++;
+    }
   }
 
   //----------------------------------------------------------------------------
@@ -200,9 +200,9 @@ namespace {
     vtkIdType* indices(NULL);
     vtkIdType npts(0);
     if (!cells->GetNumberOfCells())
-      {
+    {
       return;
-      }
+    }
     unsigned int cell_id = 0;
     // the folowing are only used if we have to triangulate a polygon
     // otherwise they just sit at NULL
@@ -211,20 +211,20 @@ namespace {
     vtkPoints *triPoints = NULL;
 
     for (cells->InitTraversal(); cells->GetNextCell(npts, indices); )
-      {
+    {
       // ignore degenerate triangles
       if (npts < 3)
-        {
+      {
         cell_id++;
         continue;
-        }
+      }
 
       // triangulate needed
       if (npts > 3)
-        {
+      {
         // special case for quads, penta, hex which are common
         if (npts == 4)
-          {
+        {
           indexArray.push_back(static_cast<unsigned int>(indices[0]));
           indexArray.push_back(static_cast<unsigned int>(indices[1]));
           indexArray.push_back(static_cast<unsigned int>(indices[2]));
@@ -237,9 +237,9 @@ namespace {
           reverseArray.push_back(cell_id);
           reverseArray.push_back(cell_id);
           reverseArray.push_back(cell_id);
-          }
+        }
         else if (npts == 5)
-          {
+        {
           indexArray.push_back(static_cast<unsigned int>(indices[0]));
           indexArray.push_back(static_cast<unsigned int>(indices[1]));
           indexArray.push_back(static_cast<unsigned int>(indices[2]));
@@ -258,9 +258,9 @@ namespace {
           reverseArray.push_back(cell_id);
           reverseArray.push_back(cell_id);
           reverseArray.push_back(cell_id);
-          }
+        }
         else if (npts == 6)
-          {
+        {
           indexArray.push_back(static_cast<unsigned int>(indices[0]));
           indexArray.push_back(static_cast<unsigned int>(indices[1]));
           indexArray.push_back(static_cast<unsigned int>(indices[2]));
@@ -285,53 +285,53 @@ namespace {
           reverseArray.push_back(cell_id);
           reverseArray.push_back(cell_id);
           reverseArray.push_back(cell_id);
-          }
+        }
         else // 7 sided polygon or higher, do a full smart triangulation
-          {
+        {
           if (!polygon)
-            {
+          {
             polygon = vtkPolygon::New();
             tris = vtkIdList::New();
             triPoints = vtkPoints::New();
-            }
+          }
 
           vtkIdType *triIndices = new vtkIdType[npts];
           triPoints->SetNumberOfPoints(npts);
           for (int i = 0; i < npts; ++i)
-            {
+          {
             int idx = indices[i];
             triPoints->SetPoint(i, points->GetPoint(idx));
             triIndices[i] = i;
-            }
+          }
           polygon->Initialize(npts, triIndices, triPoints);
           polygon->Triangulate(tris);
           for (int j = 0; j < tris->GetNumberOfIds(); ++j)
-            {
+          {
             indexArray.push_back(static_cast<unsigned int>
                                  (indices[tris->GetId(j)]));
             reverseArray.push_back(cell_id);
-            }
-          delete [] triIndices;
           }
+          delete [] triIndices;
         }
+      }
       else
-        {
+      {
         indexArray.push_back(static_cast<unsigned int>(*(indices++)));
         indexArray.push_back(static_cast<unsigned int>(*(indices++)));
         indexArray.push_back(static_cast<unsigned int>(*(indices++)));
         reverseArray.push_back(cell_id);
         reverseArray.push_back(cell_id);
         reverseArray.push_back(cell_id);
-        }
+      }
 
       cell_id++;
-      }
+    }
     if (polygon)
-      {
+    {
       polygon->Delete();
       tris->Delete();
       triPoints->Delete();
-      }
+    }
   }
 
   //----------------------------------------------------------------------------
@@ -346,9 +346,9 @@ namespace {
                               bool wireframeTriStrips)
   {
     if (!cells->GetNumberOfCells())
-      {
+    {
       return;
-      }
+    }
     unsigned int cell_id = 0;
 
     vtkIdType      *pts = 0;
@@ -361,15 +361,15 @@ namespace {
     indexArray.reserve(targetSize);
 
     if (wireframeTriStrips)
-      {
+    {
       for (cells->InitTraversal(); cells->GetNextCell(npts,pts); )
-        {
+      {
         indexArray.push_back(static_cast<unsigned int>(pts[0]));
         indexArray.push_back(static_cast<unsigned int>(pts[1]));
         reverseArray.push_back(cell_id);
         reverseArray.push_back(cell_id);
         for (int j = 0; j < npts-2; ++j)
-          {
+        {
           indexArray.push_back(static_cast<unsigned int>(pts[j]));
           indexArray.push_back(static_cast<unsigned int>(pts[j+2]));
           indexArray.push_back(static_cast<unsigned int>(pts[j+1]));
@@ -378,26 +378,26 @@ namespace {
           reverseArray.push_back(cell_id);
           reverseArray.push_back(cell_id);
           reverseArray.push_back(cell_id);
-          }
-        cell_id++;
         }
+        cell_id++;
       }
+    }
     else
-      {
+    {
       for (cells->InitTraversal(); cells->GetNextCell(npts,pts); )
-        {
+      {
         for (int j = 0; j < npts-2; ++j)
-          {
+        {
           indexArray.push_back(static_cast<unsigned int>(pts[j]));
           indexArray.push_back(static_cast<unsigned int>(pts[j+1+j%2]));
           indexArray.push_back(static_cast<unsigned int>(pts[j+1+(j+1)%2]));
           reverseArray.push_back(cell_id);
           reverseArray.push_back(cell_id);
           reverseArray.push_back(cell_id);
-          }
-        cell_id++;
         }
+        cell_id++;
       }
+    }
   }
 }
 
@@ -422,26 +422,26 @@ void vtkPolyDataMapperNode::MakeConnectivity(vtkPolyData *poly,
 
   CreatePointIndexBuffer(prims[0], vertex_index, vertex_reverse);
   switch (representation)
-    {
+  {
     case VTK_POINTS:
-      {
+    {
       CreatePointIndexBuffer(prims[1], line_index, line_reverse);
       CreatePointIndexBuffer(prims[2], triangle_index, triangle_reverse);
       CreatePointIndexBuffer(prims[3], strip_index, strip_reverse);
       break;
-      }
+    }
     case VTK_WIREFRAME:
-      {
+    {
       CreateLineIndexBuffer(prims[1], line_index, line_reverse);
       CreateTriangleLineIndexBuffer(prims[2], triangle_index, triangle_reverse);
       CreateStripIndexBuffer(prims[3], strip_index, strip_reverse, true);
       break;
-      }
+    }
     default:
-      {
+    {
       CreateLineIndexBuffer(prims[1], line_index, line_reverse);
       CreateTriangleIndexBuffer(prims[2], poly->GetPoints(), triangle_index, triangle_reverse);
       CreateStripIndexBuffer(prims[3], strip_index, strip_reverse, false);
-      }
     }
+  }
 }

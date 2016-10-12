@@ -17,6 +17,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkDataSetAttributes.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkIdTypeArray.h"
+#include "vtkMatrix3x3.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
@@ -33,10 +34,10 @@ vtkStandardNewMacro(vtkMolecule);
 
 //----------------------------------------------------------------------------
 vtkMolecule::vtkMolecule()
+  : ElectronicData(NULL),
+    Lattice(NULL),
+    LatticeOrigin(0., 0., 0.)
 {
-  vtkPoints *points = vtkPoints::New();
-  this->SetPoints(points);
-  points->Delete();
   this->Initialize();
 }
 
@@ -57,7 +58,9 @@ void vtkMolecule::Initialize()
   vertData->SetScalars(atomicNums.GetPointer());
 
   // Nuclear coordinates
-  this->Points->Initialize();
+  vtkPoints *points = vtkPoints::New();
+  this->SetPoints(points);
+  points->Delete();
 
   // Setup edge data
   vtkDataSetAttributes *edgeData = this->GetEdgeData();
@@ -71,7 +74,7 @@ void vtkMolecule::Initialize()
   this->UpdateBondList();
 
   // Electronic data
-  this->ElectronicData = NULL;
+  this->SetElectronicData(NULL);
 
   this->Modified();
 }
@@ -91,26 +94,39 @@ void vtkMolecule::PrintSelf(ostream &os, vtkIndent indent)
 
   os << indent << "Atoms:\n";
   for (vtkIdType i = 0; i < this->GetNumberOfAtoms(); ++i)
-    {
+  {
     this->GetAtom(i).PrintSelf(os, subIndent);
-    }
+  }
 
   os << indent << "Bonds:\n";
   for (vtkIdType i = 0; i < this->GetNumberOfBonds(); ++i)
-    {
+  {
     os << subIndent << "===== Bond " << i << ": =====\n";
     this->GetBond(i).PrintSelf(os, subIndent);
-    }
+  }
+
+  os << indent << "Lattice:\n";
+  if (this->HasLattice())
+  {
+    double *m = this->Lattice->GetData();
+    os << subIndent << "a: " << m[0] << " " << m[3] << " " << m[6] << "\n";
+    os << subIndent << "b: " << m[1] << " " << m[4] << " " << m[7] << "\n";
+    os << subIndent << "c: " << m[2] << " " << m[5] << " " << m[8] << "\n";
+    os << subIndent << "origin: "
+       << this->LatticeOrigin[0] << " "
+       << this->LatticeOrigin[1] << " "
+       << this->LatticeOrigin[2] << "\n";
+  }
 
   os << indent << "Electronic Data:\n";
   if (this->ElectronicData)
-    {
+  {
     this->ElectronicData->PrintSelf(os, subIndent);
-    }
+  }
   else
-    {
+  {
     os << subIndent << "Not set.\n";
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -234,11 +250,7 @@ vtkBond vtkMolecule::GetBond(vtkIdType bondId)
 {
   assert(bondId >= 0 && bondId < this->GetNumberOfBonds());
 
-  if (this->BondListIsDirty)
-    {
-      this->UpdateBondList();
-    }
-  vtkIdTypeArray *bonds = this->GetEdgeList();
+  vtkIdTypeArray *bonds = this->GetBondList();
   // An array with two components holding the bonded atom's ids
   vtkIdType *ids = bonds->GetPointer(2 * bondId);
   return vtkBond (this, bondId, ids[0], ids[1]);
@@ -277,7 +289,7 @@ double vtkMolecule::GetBondLength(vtkIdType bondId)
   assert(bondId >= 0 && bondId < this->GetNumberOfBonds());
 
   // Get list of bonds
-  vtkIdTypeArray *bonds = this->GetEdgeList();
+  vtkIdTypeArray *bonds = this->GetBondList();
   // An array of length two holding the bonded atom's ids
   vtkIdType *ids = bonds->GetPointer(bondId);
 
@@ -319,10 +331,10 @@ void vtkMolecule::ShallowCopy(vtkDataObject *obj)
 {
   vtkMolecule *m = vtkMolecule::SafeDownCast(obj);
   if (!m)
-    {
+  {
     vtkErrorMacro("Can only shallow copy from vtkMolecule or subclass.");
     return;
-    }
+  }
   this->ShallowCopyStructure(m);
   this->ShallowCopyAttributes(m);
 }
@@ -332,14 +344,29 @@ void vtkMolecule::DeepCopy(vtkDataObject *obj)
 {
   vtkMolecule *m = vtkMolecule::SafeDownCast(obj);
   if (!m)
-    {
-    vtkErrorMacro("Can only deel copy from vtkMolecule or subclass.");
+  {
+    vtkErrorMacro("Can only deep copy from vtkMolecule or subclass.");
     return;
-    }
+  }
   this->DeepCopyStructure(m);
   this->DeepCopyAttributes(m);
 }
 
+//----------------------------------------------------------------------------
+bool vtkMolecule::CheckedShallowCopy(vtkGraph *g)
+{
+  bool result = this->Superclass::CheckedShallowCopy(g);
+  this->BondListIsDirty = true;
+  return result;
+}
+
+//----------------------------------------------------------------------------
+bool vtkMolecule::CheckedDeepCopy(vtkGraph *g)
+{
+  bool result = this->Superclass::CheckedDeepCopy(g);
+  this->BondListIsDirty = true;
+  return result;
+}
 
 //----------------------------------------------------------------------------
 void vtkMolecule::ShallowCopyStructure(vtkMolecule *m)
@@ -370,27 +397,48 @@ void vtkMolecule::CopyStructureInternal(vtkMolecule *m, bool deep)
 {
   // Call superclass
   if (deep)
-    {
+  {
     this->Superclass::DeepCopy(m);
-    }
-  else
-    {
-    this->Superclass::ShallowCopy(m);
-    }
   }
+  else
+  {
+    this->Superclass::ShallowCopy(m);
+  }
+
+  if (!m->HasLattice())
+  {
+    this->ClearLattice();
+  }
+  else
+  {
+    if (deep)
+    {
+      vtkNew<vtkMatrix3x3> newLattice;
+      newLattice->DeepCopy(m->Lattice);
+      this->SetLattice(newLattice.Get());
+    }
+    else
+    {
+      this->SetLattice(m->Lattice);
+    }
+    this->LatticeOrigin = m->LatticeOrigin;
+  }
+
+  this->BondListIsDirty = true;
+}
 
 //----------------------------------------------------------------------------
 void vtkMolecule::CopyAttributesInternal(vtkMolecule *m, bool deep)
 {
   if (deep)
-    {
+  {
     if (m->ElectronicData)
       this->ElectronicData->DeepCopy(m->ElectronicData);
-    }
+  }
   else
-    {
+  {
     this->SetElectronicData(m->ElectronicData);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -398,6 +446,20 @@ void vtkMolecule::UpdateBondList()
 {
   this->BuildEdgeList();
   this->BondListIsDirty = false;
+}
+
+//----------------------------------------------------------------------------
+vtkIdTypeArray *vtkMolecule::GetBondList()
+{
+  // Create the edge list if it doesn't exist, or is marked as dirty.
+  vtkIdTypeArray *edgeList = this->BondListIsDirty ? NULL : this->GetEdgeList();
+  if (!edgeList)
+  {
+    this->UpdateBondList();
+    edgeList = this->GetEdgeList();
+  }
+  assert(edgeList != NULL);
+  return edgeList;
 }
 
 //----------------------------------------------------------------------------
@@ -414,9 +476,9 @@ bool vtkMolecule::GetPlaneFromBond(const vtkAtom &atom1, const vtkAtom &atom2,
                                    const vtkVector3f &normal, vtkPlane *plane)
 {
   if (plane == NULL)
-    {
+  {
     return false;
-    }
+  }
 
   vtkVector3f v(atom1.GetPosition() - atom2.GetPosition());
 
@@ -425,9 +487,9 @@ bool vtkMolecule::GetPlaneFromBond(const vtkAtom &atom1, const vtkAtom &atom2,
 
   // Check if vectors are (nearly) parallel
   if (unitV.Compare(n_i.Normalized(), 1e-7))
-    {
+  {
     return false;
-    }
+  }
 
   // calculate projection of n_i onto v
   // TODO Remove or restore this when scalar mult. is supported again
@@ -445,4 +507,116 @@ bool vtkMolecule::GetPlaneFromBond(const vtkAtom &atom1, const vtkAtom &atom2,
   plane->SetOrigin(pos.Cast<double>().GetData());
   plane->SetNormal(realNormal.Cast<double>().GetData());
   return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkMolecule::HasLattice()
+{
+  return this->Lattice.Get() != NULL;
+}
+
+//------------------------------------------------------------------------------
+void vtkMolecule::ClearLattice()
+{
+  this->SetLattice(NULL);
+}
+
+//------------------------------------------------------------------------------
+void vtkMolecule::SetLattice(vtkMatrix3x3 *matrix)
+{
+  if (!matrix)
+  {
+    if (this->Lattice)
+    {
+      // If we're clearing a matrix, zero out the origin:
+      this->LatticeOrigin = vtkVector3d(0., 0., 0.);
+      this->Lattice = NULL;
+      this->Modified();
+    }
+  }
+  else if (this->Lattice != matrix)
+  {
+    this->Lattice = matrix;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkMolecule::SetLattice(const vtkVector3d &a, const vtkVector3d &b,
+                             const vtkVector3d &c)
+{
+  if (this->Lattice.Get() == NULL)
+  {
+    this->Lattice.TakeReference(vtkMatrix3x3::New());
+    this->Modified();
+  }
+
+  double *mat = this->Lattice->GetData();
+  if (mat[0] != a[0] || mat[1] != b[0] || mat[2] != c[0] ||
+      mat[3] != a[1] || mat[4] != b[1] || mat[5] != c[1] ||
+      mat[6] != a[2] || mat[7] != b[2] || mat[8] != c[2])
+  {
+    mat[0] = a[0];
+    mat[1] = b[0];
+    mat[2] = c[0];
+    mat[3] = a[1];
+    mat[4] = b[1];
+    mat[5] = c[1];
+    mat[6] = a[2];
+    mat[7] = b[2];
+    mat[8] = c[2];
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkMatrix3x3 *vtkMolecule::GetLattice()
+{
+  return this->Lattice.Get();
+}
+
+//------------------------------------------------------------------------------
+void vtkMolecule::GetLattice(vtkVector3d &a, vtkVector3d &b, vtkVector3d &c)
+{
+  if (this->Lattice)
+  {
+    double *mat = this->Lattice->GetData();
+    a[0] = mat[0];
+    a[1] = mat[3];
+    a[2] = mat[6];
+    b[0] = mat[1];
+    b[1] = mat[4];
+    b[2] = mat[7];
+    c[0] = mat[2];
+    c[1] = mat[5];
+    c[2] = mat[8];
+  }
+  else
+  {
+    a = b = c = vtkVector3d(0., 0., 0.);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkMolecule::GetLattice(vtkVector3d &a, vtkVector3d &b, vtkVector3d &c,
+                             vtkVector3d &origin)
+{
+  if (this->Lattice)
+  {
+    double *mat = this->Lattice->GetData();
+    a[0] = mat[0];
+    a[1] = mat[3];
+    a[2] = mat[6];
+    b[0] = mat[1];
+    b[1] = mat[4];
+    b[2] = mat[7];
+    c[0] = mat[2];
+    c[1] = mat[5];
+    c[2] = mat[8];
+    origin = this->LatticeOrigin;
+  }
+  else
+  {
+    a = b = c = origin = vtkVector3d(0., 0., 0.);
+  }
 }

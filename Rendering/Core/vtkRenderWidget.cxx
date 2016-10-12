@@ -32,28 +32,28 @@ vtkRenderWidget::~vtkRenderWidget()
 void vtkRenderWidget::SetPosition(const vtkVector2i &pos)
 {
   if (this->Position != pos)
-    {
+  {
     this->Position = pos;
     this->Modified();
-    }
+  }
 }
 
 void vtkRenderWidget::SetSize(const vtkVector2i &size)
 {
   if (this->Size != size)
-    {
+  {
     this->Size = size;
     this->Modified();
-    }
+  }
 }
 
 void vtkRenderWidget::SetName(const std::string &name)
 {
   if (this->Name != name)
-    {
+  {
     this->Name = name;
     this->Modified();
-    }
+  }
 }
 
 void vtkRenderWidget::Render()

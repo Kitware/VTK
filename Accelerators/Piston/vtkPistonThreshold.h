@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPistonThreshold -  A filter that contours on the GPU
-// .SECTION Description
-// This filter uses LANL's Piston library to isocontour on the GPU.
+/**
+ * @class   vtkPistonThreshold
+ * @brief    A filter that contours on the GPU
+ *
+ * This filter uses LANL's Piston library to isocontour on the GPU.
+*/
 
 #ifndef vtkPistonThreshold_h
 #define vtkPistonThreshold_h
@@ -28,21 +31,29 @@ public:
   static vtkPistonThreshold *New();
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //Description:
-  //Choose the lower value of the threshold.
+  //@{
+  /**
+   * Choose the lower value of the threshold.
+   */
   vtkSetMacro(MinValue, float);
   vtkGetMacro(MinValue, float);
+  //@}
 
-  //Description:
-  //Choose the upper value of the threshold.
+  //@{
+  /**
+   * Choose the upper value of the threshold.
+   */
   vtkSetMacro(MaxValue, float);
   vtkGetMacro(MaxValue, float);
+  //@}
+
 protected:
   vtkPistonThreshold();
   ~vtkPistonThreshold();
 
-  // Description:
-  // Method that does the actual calculation.
+  /**
+   * Method that does the actual calculation.
+   */
   virtual int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
@@ -52,8 +63,8 @@ protected:
   float MaxValue;
 
 private:
-  vtkPistonThreshold(const vtkPistonThreshold&);  // Not implemented.
-  void operator=(const vtkPistonThreshold&);  // Not implemented.
+  vtkPistonThreshold(const vtkPistonThreshold&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPistonThreshold&) VTK_DELETE_FUNCTION;
 
 };
 

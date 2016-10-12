@@ -151,37 +151,37 @@ int vtkPassInputTypeAlgorithm::ProcessRequest(
 {
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
+  {
     return this->RequestData(request, inputVector, outputVector);
-    }
+  }
 
   // create the output
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
-    {
+  {
     return this->RequestDataObject(request, inputVector, outputVector);
-    }
+  }
 
   // execute information
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
+  {
     return this->RequestInformation(request, inputVector, outputVector);
-    }
+  }
 
   // set update extent
  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
-    {
+ {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
-    }
+ }
 
  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_TIME()))
-   {
+ {
    this->RequestUpdateTime(request, inputVector, outputVector);
-   }
+ }
 
  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_TIME_DEPENDENT_INFORMATION()))
-   {
+ {
    this->RequestUpdateTimeDependentInformation(request, inputVector, outputVector);
-   }
+ }
 
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
@@ -193,34 +193,34 @@ int vtkPassInputTypeAlgorithm::RequestDataObject(
   vtkInformationVector* outputVector)
 {
   if (this->GetNumberOfInputPorts() == 0 || this->GetNumberOfOutputPorts() == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (!inInfo)
-    {
+  {
     return 0;
-    }
+  }
   vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
 
   if (input)
-    {
+  {
     // for each output
     for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
-      {
+    {
       vtkInformation* info = outputVector->GetInformationObject(i);
       vtkDataObject *output = info->Get(vtkDataObject::DATA_OBJECT());
 
       if (!output || !output->IsA(input->GetClassName()))
-        {
+      {
         vtkDataObject* newOutput = input->NewInstance();
         info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
         newOutput->Delete();
-        }
       }
-    return 1;
     }
+    return 1;
+  }
   return 0;
 }
 

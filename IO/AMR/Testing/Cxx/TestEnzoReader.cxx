@@ -26,15 +26,15 @@ namespace EnzoReaderTest {
 
 //------------------------------------------------------------------------------
 template<class T>
-int CheckValue( std::string name, T actualValue, T expectedValue )
+int CheckValue( const std::string &name, T actualValue, T expectedValue )
 {
     if( actualValue != expectedValue )
-      {
+    {
       std::cerr << "ERROR: " << name << " value mismatch! ";
       std::cerr << "Expected: " << expectedValue << " Actual: " << actualValue;
       std::cerr << std::endl;
       return 1;
-      }
+    }
     return 0;
 }
 
@@ -46,13 +46,13 @@ int ComputeMaxNonEmptyLevel(vtkOverlappingAMR* amr)
   iter->SetSkipEmptyNodes(true);
   int maxLevel(-1);
   for(iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-    {
+  {
     int level = iter->GetCurrentLevel();
     if(level>maxLevel)
-      {
+    {
       maxLevel = level;
-      }
     }
+  }
   iter->Delete();
   return maxLevel+1;
 }
@@ -63,17 +63,17 @@ int ComputeNumberOfVisibileCells(vtkOverlappingAMR* amr)
   vtkCompositeDataIterator* iter = amr->NewIterator();
   iter->SkipEmptyNodesOn();
   for(iter->GoToFirstItem(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-    {
+  {
     vtkUniformGrid* grid = vtkUniformGrid::SafeDownCast(iter->GetCurrentDataObject());
     vtkIdType num = grid->GetNumberOfCells();
     for(vtkIdType i=0; i<num; i++)
-      {
+    {
       if(grid->IsCellVisible(i))
-        {
+      {
         numVisibleCells++;
-        }
       }
     }
+  }
   iter->Delete();
   return numVisibleCells;
 }
@@ -94,7 +94,7 @@ int TestEnzoReader( int argc, char *argv[] )
   vtkOverlappingAMR *amr = NULL;
   myEnzoReader->SetFileName( fileName );
   for(int level = 0; level < myEnzoReader->GetNumberOfLevels(); ++level )
-    {
+  {
     myEnzoReader->SetMaxLevel( level );
     myEnzoReader->Update();
     rc+=EnzoReaderTest::CheckValue("LEVEL",myEnzoReader->GetNumberOfLevels(),8);
@@ -103,7 +103,7 @@ int TestEnzoReader( int argc, char *argv[] )
     amr = myEnzoReader->GetOutput();
     amr->Audit();
     if( amr != NULL )
-      {
+    {
       rc+=EnzoReaderTest::CheckValue(
         "OUTPUT LEVELS",static_cast<int>(ComputeMaxNonEmptyLevel(amr)),level+1);
       rc+=EnzoReaderTest::CheckValue(
@@ -112,13 +112,13 @@ int TestEnzoReader( int argc, char *argv[] )
           NumBlocksPerLevel[level]
           );
       rc+= EnzoReaderTest::CheckValue("Number of Visible cells ",ComputeNumberOfVisibileCells(amr), numVisibleCells[level]);
-      }
+    }
     else
-      {
+    {
       std::cerr << "ERROR: output AMR dataset is NULL!";
       return 1;
-      }
-    } // END for all levels
+    }
+  } // END for all levels
 
   myEnzoReader->Delete();
   delete [] fileName;

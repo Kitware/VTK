@@ -77,47 +77,47 @@ vtkAbstractArray* CreateRandomArray(const char* name,
   arr->SetName(name);
 
   switch(t)
-    {
+  {
     case vtkRRandomTableSource::WILCOXONRANKSUM:
       GetRNGstate();
       for(i=0;i<ntuples;i++)
-        {
+      {
         x = rwilcox(p1,p2);
         arr->SetValue(i,x);
-        }
+      }
       PutRNGstate();
       break;
     case vtkRRandomTableSource::WILCOXONSIGNEDRANK:
       GetRNGstate();
       for(i=0;i<ntuples;i++)
-        {
+      {
         x = rsignrank(p1);
         arr->SetValue(i,x);
-        }
+      }
       PutRNGstate();
       break;
     case vtkRRandomTableSource::LOGISTIC:
       GetRNGstate();
       for(i=0;i<ntuples;i++)
-        {
+      {
         x = rlogis(p1,p2);
         arr->SetValue(i,x);
-        }
+      }
       PutRNGstate();
       break;
     case vtkRRandomTableSource::WEIBULL:
       GetRNGstate();
       for(i=0;i<ntuples;i++)
-        {
+      {
         x = rweibull(p1,p2);
         arr->SetValue(i,x);
-        }
+      }
       PutRNGstate();
       break;
     case vtkRRandomTableSource::POISSON:
       GetRNGstate();
       for(i=0;i<ntuples;i++)
-        {
+      {
         x = rpois(p1);
         arr->SetValue(i,x);
       }
@@ -126,73 +126,73 @@ vtkAbstractArray* CreateRandomArray(const char* name,
     case vtkRRandomTableSource::NEGBINOMIAL:
       GetRNGstate();
       for(i=0;i<ntuples;i++)
-        {
+      {
         x = rnbinom(p1,p2);
         arr->SetValue(i,x);
-        }
+      }
       PutRNGstate();
       break;
     case vtkRRandomTableSource::HYPERGEOM:
       GetRNGstate();
       for(i=0;i<ntuples;i++)
-        {
+      {
         x = rhyper(p1,p2,p3);
         arr->SetValue(i,x);
-        }
+      }
       PutRNGstate();
       break;
     case vtkRRandomTableSource::GEOM:
       GetRNGstate();
       for(i=0;i<ntuples;i++)
-        {
+      {
         x = rgeom(p1);
         arr->SetValue(i,x);
-        }
+      }
       PutRNGstate();
       break;
     case vtkRRandomTableSource::EXP:
       GetRNGstate();
       for(i=0;i<ntuples;i++)
-        {
+      {
         x = rexp(p1);
         arr->SetValue(i,x);
-        }
+      }
       PutRNGstate();
       break;
     case vtkRRandomTableSource::CAUCHY:
       GetRNGstate();
       for(i=0;i<ntuples;i++)
-        {
+      {
         x = rcauchy(p1,p2);
         arr->SetValue(i,x);
-        }
+      }
       PutRNGstate();
       break;
     case vtkRRandomTableSource::T:
       GetRNGstate();
       for(i=0;i<ntuples;i++)
-        {
+      {
         x = rt(p1);
         arr->SetValue(i,x);
-        }
+      }
       PutRNGstate();
       break;
     case vtkRRandomTableSource::F:
       GetRNGstate();
       for(i=0;i<ntuples;i++)
-        {
+      {
         x = rf(p1,p2);
         arr->SetValue(i,x);
-        }
+      }
       PutRNGstate();
       break;
     case vtkRRandomTableSource::LOGNORMAL:
       GetRNGstate();
       for(i=0;i<ntuples;i++)
-        {
+      {
         x = rlnorm(p1,p2);
         arr->SetValue(i,x);
-        }
+      }
       PutRNGstate();
       break;
     case vtkRRandomTableSource::GAMMA:
@@ -207,58 +207,58 @@ vtkAbstractArray* CreateRandomArray(const char* name,
     case vtkRRandomTableSource::UNIF:
       GetRNGstate();
       for(i=0;i<ntuples;i++)
-        {
+      {
         x = runif(p1,p2);
         arr->SetValue(i,x);
-        }
+      }
       PutRNGstate();
       break;
     case vtkRRandomTableSource::BETA:
       GetRNGstate();
       for(i=0;i<ntuples;i++)
-        {
+      {
         x = rbeta(p1,p2);
         arr->SetValue(i,x);
-        }
+      }
       PutRNGstate();
       break;
     case vtkRRandomTableSource::BINOMIAL:
       GetRNGstate();
       for(i=0;i<ntuples;i++)
-        {
+      {
         x = rbinom(p1,p2);
         arr->SetValue(i,x);
-        }
+      }
       PutRNGstate();
       break;
     case vtkRRandomTableSource::NORMAL:
       GetRNGstate();
       for(i=0;i<ntuples;i++)
-        {
+      {
         x = rnorm(p1,p2);
         arr->SetValue(i,x);
-        }
+      }
       PutRNGstate();
       break;
     case vtkRRandomTableSource::CHISQUARE:
       GetRNGstate();
       for(i=0;i<ntuples;i++)
-        {
+      {
         x = rchisq(p1);
         arr->SetValue(i,x);
-        }
+      }
       PutRNGstate();
       break;
     default:
       GetRNGstate();
       x = rnorm(0.0,1.0);
       for(i=0;i<ntuples;i++)
-        {
+      {
         arr->SetValue(i,x);
-        }
+      }
       PutRNGstate();
       break;
-    }
+  }
 
   return(arr);
 
@@ -309,10 +309,10 @@ void vtkRRandomTableSource::SetNumberOfRows(int nrows)
 {
 
   if(nrows > 0)
-    {
+  {
     this->NumberOfRows = nrows;
     this->Modified();
-    }
+  }
 
 }
 
@@ -361,20 +361,20 @@ void vtkRRandomTableSource::SetStatisticalDistributionForColumn(vtkRRandomTableS
 {
 
   if( (column_index < 0) || (column_index > (int) this->impl->col_list.size() ) )
-    {
+  {
     return;
-    }
+  }
 
   if(column_index  < (int) this->impl->col_list.size())
-    {
+  {
     this->impl->col_list[column_index].t = t;
     this->impl->col_list[column_index].param1 = param1;
     this->impl->col_list[column_index].param2 = param2;
     this->impl->col_list[column_index].param3 = param3;
     this->impl->col_list[column_index].name = ColumnName;
-    }
+  }
   else
-    {
+  {
     ColumnStatsInfo csi;
     csi.t = t;
     csi.param1 = param1;
@@ -382,7 +382,7 @@ void vtkRRandomTableSource::SetStatisticalDistributionForColumn(vtkRRandomTableS
     csi.param3 = param3;
     csi.name = ColumnName;
     this->impl->col_list.push_back(csi);
-    }
+  }
 
 }
 
@@ -404,7 +404,7 @@ int vtkRRandomTableSource::RequestData(
   output1->Initialize();
 
   for(it = this->impl->col_list.begin(); it != this->impl->col_list.end(); it++)
-    {
+  {
     arr = CreateRandomArray((*it).name.c_str(),
                             (*it).t,
                             (*it).param1,
@@ -414,7 +414,7 @@ int vtkRRandomTableSource::RequestData(
     output1->AddColumn(arr);
 
     arr->Delete();
-    }
+  }
 
   return 1;
 

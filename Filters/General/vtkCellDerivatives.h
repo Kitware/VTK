@@ -12,34 +12,38 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCellDerivatives - compute derivatives of scalars and vectors
-// .SECTION Description
-// vtkCellDerivatives is a filter that computes derivatives of scalars
-// and vectors at the center of cells. You can choose to generate
-// different output including the scalar gradient (a vector), computed
-// tensor vorticity (a vector), gradient of input vectors (a tensor),
-// and strain matrix (linearized or Green-Lagrange) of the input vectors
-// (a tensor); or you may choose to pass data through to the output.
-//
-// Note that it is assumed that on input scalars and vector point data
-// is available, which are then used to generate cell vectors and tensors.
-// (The interpolation functions of the cells are used to compute the
-// derivatives which is why point data is required.)
-//
-// Note that the tensor components used to be sent out in column, but they
-// are now sent out not in row.
-
-// .SECTION Caveats
-// The computed derivatives are cell attribute data; you can convert them to
-// point attribute data by using the vtkCellDataToPointData filter.
-// Note that, due to the interpolation function used (obtained using
-// 1/r**2 normalized sum), the derivatives calculated for polygons
-// with more than 4 vertices are inaccurate in most cases.
-//
-// The point data is passed through the filter to the output.
-
-// .SECTION See Also
-// vtkVectorNorm
+/**
+ * @class   vtkCellDerivatives
+ * @brief   compute derivatives of scalars and vectors
+ *
+ * vtkCellDerivatives is a filter that computes derivatives of scalars
+ * and vectors at the center of cells. You can choose to generate
+ * different output including the scalar gradient (a vector), computed
+ * tensor vorticity (a vector), gradient of input vectors (a tensor),
+ * and strain matrix (linearized or Green-Lagrange) of the input vectors
+ * (a tensor); or you may choose to pass data through to the output.
+ *
+ * Note that it is assumed that on input scalars and vector point data
+ * is available, which are then used to generate cell vectors and tensors.
+ * (The interpolation functions of the cells are used to compute the
+ * derivatives which is why point data is required.)
+ *
+ * Note that the tensor components used to be sent out in column, but they
+ * are now sent out not in row.
+ *
+ * @warning
+ * The computed derivatives are cell attribute data; you can convert them to
+ * point attribute data by using the vtkCellDataToPointData filter.
+ * Note that, due to the interpolation function used (obtained using
+ * 1/r**2 normalized sum), the derivatives calculated for polygons
+ * with more than 4 vertices are inaccurate in most cases.
+ *
+ * @warning
+ * The point data is passed through the filter to the output.
+ *
+ * @sa
+ * vtkVectorNorm
+*/
 
 #ifndef vtkCellDerivatives_h
 #define vtkCellDerivatives_h
@@ -60,18 +64,21 @@ class VTKFILTERSGENERAL_EXPORT vtkCellDerivatives : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkCellDerivatives,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Construct to compute the gradient of the scalars and vectors.
+  /**
+   * Construct to compute the gradient of the scalars and vectors.
+   */
   static vtkCellDerivatives *New();
 
-  // Description:
-  // Control how the filter works to generate vector cell data. You
-  // can choose to pass the input cell vectors, compute the gradient
-  // of the input scalars, or extract the vorticity of the computed
-  // vector gradient tensor. By default (VectorModeToComputeGradient),
-  // the filter will take the gradient of the input scalar data.
+  //@{
+  /**
+   * Control how the filter works to generate vector cell data. You
+   * can choose to pass the input cell vectors, compute the gradient
+   * of the input scalars, or extract the vorticity of the computed
+   * vector gradient tensor. By default (VectorModeToComputeGradient),
+   * the filter will take the gradient of the input scalar data.
+   */
   vtkSetMacro(VectorMode,int);
   vtkGetMacro(VectorMode,int);
   void SetVectorModeToPassVectors()
@@ -81,14 +88,17 @@ public:
   void SetVectorModeToComputeVorticity()
     {this->SetVectorMode(VTK_VECTOR_MODE_COMPUTE_VORTICITY);};
   const char *GetVectorModeAsString();
+  //@}
 
-  // Description:
-  // Control how the filter works to generate tensor cell data. You can
-  // choose to pass the input cell tensors, compute the gradient of
-  // the input vectors, or compute the strain tensor (linearized or
-  // Green-Lagrange strain)of the vector gradient tensor. By default
-  // (TensorModeToComputeGradient), the filter will take the gradient
-  // of the vector data to construct a tensor.
+  //@{
+  /**
+   * Control how the filter works to generate tensor cell data. You can
+   * choose to pass the input cell tensors, compute the gradient of
+   * the input vectors, or compute the strain tensor (linearized or
+   * Green-Lagrange strain)of the vector gradient tensor. By default
+   * (TensorModeToComputeGradient), the filter will take the gradient
+   * of the vector data to construct a tensor.
+   */
   vtkSetMacro(TensorMode,int);
   vtkGetMacro(TensorMode,int);
   void SetTensorModeToPassTensors()
@@ -100,17 +110,18 @@ public:
   void SetTensorModeToComputeGreenLagrangeStrain()
     {this->SetTensorMode(VTK_TENSOR_MODE_COMPUTE_GREEN_LAGRANGE_STRAIN);};
   const char *GetTensorModeAsString();
+  //@}
 
 protected:
   vtkCellDerivatives();
-  ~vtkCellDerivatives() {}
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  ~vtkCellDerivatives() VTK_OVERRIDE {}
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   int VectorMode;
   int TensorMode;
 private:
-  vtkCellDerivatives(const vtkCellDerivatives&);  // Not implemented.
-  void operator=(const vtkCellDerivatives&);  // Not implemented.
+  vtkCellDerivatives(const vtkCellDerivatives&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCellDerivatives&) VTK_DELETE_FUNCTION;
 };
 
 #endif

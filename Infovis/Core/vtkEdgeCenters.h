@@ -12,22 +12,25 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkEdgeCenters - generate points at center of edges
-// .SECTION Description
-// vtkEdgeCenters is a filter that takes as input any graph and
-// generates on output points at the center of the cells in the dataset.
-// These points can be used for placing glyphs (vtkGlyph3D) or labeling
-// (vtkLabeledDataMapper). (The center is the parametric center of the
-// cell, not necessarily the geometric or bounding box center.) The edge
-// attributes will be associated with the points on output.
-//
-// .SECTION Caveats
-// You can choose to generate just points or points and vertex cells.
-// Vertex cells are drawn during rendering; points are not. Use the ivar
-// VertexCells to generate cells.
-
-// .SECTION See Also
-// vtkGlyph3D vtkLabeledDataMapper
+/**
+ * @class   vtkEdgeCenters
+ * @brief   generate points at center of edges
+ *
+ * vtkEdgeCenters is a filter that takes as input any graph and
+ * generates on output points at the center of the cells in the dataset.
+ * These points can be used for placing glyphs (vtkGlyph3D) or labeling
+ * (vtkLabeledDataMapper). (The center is the parametric center of the
+ * cell, not necessarily the geometric or bounding box center.) The edge
+ * attributes will be associated with the points on output.
+ *
+ * @warning
+ * You can choose to generate just points or points and vertex cells.
+ * Vertex cells are drawn during rendering; points are not. Use the ivar
+ * VertexCells to generate cells.
+ *
+ * @sa
+ * vtkGlyph3D vtkLabeledDataMapper
+*/
 
 #ifndef vtkEdgeCenters_h
 #define vtkEdgeCenters_h
@@ -41,15 +44,19 @@ public:
   vtkTypeMacro(vtkEdgeCenters,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Construct object with vertex cell generation turned off.
+  /**
+   * Construct object with vertex cell generation turned off.
+   */
   static vtkEdgeCenters *New();
 
-  // Description:
-  // Enable/disable the generation of vertex cells.
+  //@{
+  /**
+   * Enable/disable the generation of vertex cells.
+   */
   vtkSetMacro(VertexCells,int);
   vtkGetMacro(VertexCells,int);
   vtkBooleanMacro(VertexCells,int);
+  //@}
 
 protected:
   vtkEdgeCenters();
@@ -60,8 +67,8 @@ protected:
 
   int VertexCells;
 private:
-  vtkEdgeCenters(const vtkEdgeCenters&);  // Not implemented.
-  void operator=(const vtkEdgeCenters&);  // Not implemented.
+  vtkEdgeCenters(const vtkEdgeCenters&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkEdgeCenters&) VTK_DELETE_FUNCTION;
 };
 
 #endif

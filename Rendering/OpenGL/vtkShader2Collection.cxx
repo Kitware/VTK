@@ -40,20 +40,20 @@ vtkShader2Collection::~vtkShader2Collection()
 }
 
 // ----------------------------------------------------------------------------
-unsigned long vtkShader2Collection::GetMTime()
+vtkMTimeType vtkShader2Collection::GetMTime()
 {
-  unsigned long result = this->Superclass::GetMTime();
+  vtkMTimeType result = this->Superclass::GetMTime();
   this->InitTraversal();
   vtkShader2 *s = this->GetNextShader();
   while (s!=0)
-    {
-    unsigned long time = s->GetMTime();
+  {
+    vtkMTimeType time = s->GetMTime();
     if (time > result)
-      {
+    {
       result = time;
-      }
-    s = this->GetNextShader();
     }
+    s = this->GetNextShader();
+  }
   return result;
 }
 
@@ -97,10 +97,10 @@ void vtkShader2Collection::AddCollection(vtkShader2Collection *other)
   other->InitTraversal();
   vtkShader2 *s = other->GetNextShader();
   while (s)
-    {
+  {
     this->AddItem(s);
     s = other->GetNextShader();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -118,23 +118,23 @@ void vtkShader2Collection::RemoveCollection(vtkShader2Collection *other)
   other->InitTraversal();
   vtkShader2 *s = other->GetNextShader();
   if (s)
-    {
+  {
     // `other' is not an empty list.
     int loc = this->IsItemPresent(s);
     if (loc == 0)
-      {
+    {
       vtkErrorMacro("try to remove the elements of vtkShader2Collection " << other << " but they don't exist in vtkShader2Collection" << this);
       return;
-      }
+    }
     int size = other->GetNumberOfItems();
     --loc;
     int i = 0;
     while (i < size)
-      {
+    {
       this->RemoveItem(loc);
       ++i;
-      }
     }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -147,10 +147,10 @@ bool vtkShader2Collection::HasShadersOfType(int t)
   this->InitTraversal();
   vtkShader2 *s = this->GetNextShader();
   while (!result && s)
-    {
+  {
     result = (s->GetType() == t);
     s = this->GetNextShader();
-    }
+  }
 
   return result;
 }
@@ -207,10 +207,10 @@ void vtkShader2Collection::ReleaseGraphicsResources()
   this->InitTraversal();
   vtkShader2 *s = this->GetNextShader();
   while (s)
-    {
+  {
     s->ReleaseGraphicsResources();
     s = this->GetNextShader();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -223,10 +223,10 @@ void vtkShader2Collection::PrintSelf(ostream& os, vtkIndent indent)
   this->InitTraversal();
   vtkShader2 *s = this->GetNextShader();
   while (s)
-    {
+  {
     os << indent << "shader #" << i << "/" << c <<endl;
     s->PrintSelf(os, indent.GetNextIndent());
     s = this->GetNextShader();
     ++i;
-    }
+  }
 }

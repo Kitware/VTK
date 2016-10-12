@@ -19,29 +19,32 @@
 
 =========================================================================*/
 
-// .NAME vtkTableToSparseArray - converts a vtkTable into a sparse array.
-//
-// .SECTION Description
-// Converts a vtkTable into a sparse array.  Use AddCoordinateColumn() to
-// designate one-to-many table columns that contain coordinates for each
-// array value, and SetValueColumn() to designate the table column that
-// contains array values.
-//
-// Thus, the number of dimensions in the output array will equal the number
-// of calls to AddCoordinateColumn().
-//
-// The coordinate columns will also be used to populate dimension labels
-// in the output array.
-//
-// By default, the extent of the output array will be set to the range
-// [0, largest coordinate + 1) along each dimension.  In some situations
-// you may prefer to set the extents explicitly, using the
-// SetOutputExtents() method.  This is useful when the output array should
-// be larger than its largest coordinates, or when working with partitioned
-// data.
-//
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+/**
+ * @class   vtkTableToSparseArray
+ * @brief   converts a vtkTable into a sparse array.
+ *
+ *
+ * Converts a vtkTable into a sparse array.  Use AddCoordinateColumn() to
+ * designate one-to-many table columns that contain coordinates for each
+ * array value, and SetValueColumn() to designate the table column that
+ * contains array values.
+ *
+ * Thus, the number of dimensions in the output array will equal the number
+ * of calls to AddCoordinateColumn().
+ *
+ * The coordinate columns will also be used to populate dimension labels
+ * in the output array.
+ *
+ * By default, the extent of the output array will be set to the range
+ * [0, largest coordinate + 1) along each dimension.  In some situations
+ * you may prefer to set the extents explicitly, using the
+ * SetOutputExtents() method.  This is useful when the output array should
+ * be larger than its largest coordinates, or when working with partitioned
+ * data.
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+*/
 
 #ifndef vtkTableToSparseArray_h
 #define vtkTableToSparseArray_h
@@ -56,21 +59,30 @@ public:
   vtkTypeMacro(vtkTableToSparseArray, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify the set of input table columns that will be mapped to coordinates
-  // in the output sparse array.
+  //@{
+  /**
+   * Specify the set of input table columns that will be mapped to coordinates
+   * in the output sparse array.
+   */
   void ClearCoordinateColumns();
   void AddCoordinateColumn(const char* name);
+  //@}
 
-  // Description:
-  // Specify the input table column that will be mapped to values in the output array.
+  //@{
+  /**
+   * Specify the input table column that will be mapped to values in the output array.
+   */
   void SetValueColumn(const char* name);
   const char* GetValueColumn();
+  //@}
 
-  // Description:
-  // Explicitly specify the extents of the output array.
+  //@{
+  /**
+   * Explicitly specify the extents of the output array.
+   */
   void ClearOutputExtents();
   void SetOutputExtents(const vtkArrayExtents& extents);
+  //@}
 
 protected:
   vtkTableToSparseArray();
@@ -84,8 +96,8 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkTableToSparseArray(const vtkTableToSparseArray&); // Not implemented
-  void operator=(const vtkTableToSparseArray&);   // Not implemented
+  vtkTableToSparseArray(const vtkTableToSparseArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTableToSparseArray&) VTK_DELETE_FUNCTION;
 
   class implementation;
   implementation* const Implementation;

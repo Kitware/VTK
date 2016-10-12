@@ -46,15 +46,15 @@ bool vtkASCIITextCodec::IsValid(istream& InputStream)
 
   // check the code points for non-ascii characters
   while (!InputStream.eof())
-    {
+  {
     vtkTypeUInt32 CodePoint = InputStream.get() ;
 
     if(!InputStream.eof() && CodePoint > 0x7f)
-      {
+    {
       returnBool = false ;
       break ;
-      }
     }
+  }
 
   // reset the stream
   InputStream.clear() ;
@@ -68,17 +68,17 @@ void vtkASCIITextCodec::ToUnicode(istream& InputStream,
                                   vtkTextCodec::OutputIterator& output)
 {
   while (!InputStream.eof())
-    {
+  {
     vtkTypeUInt32 CodePoint = InputStream.get();
 
     if(!InputStream.eof())
-      {
+    {
       if (CodePoint > 0x7f)
         throw std::runtime_error("Detected a character that isn't valid US-ASCII.");
 
       *output++ = CodePoint;
-      }
     }
+  }
 }
 
 
@@ -87,12 +87,12 @@ vtkUnicodeString::value_type vtkASCIITextCodec::NextUnicode(istream& InputStream
   vtkTypeUInt32 CodePoint = InputStream.get();
 
   if (!InputStream.eof())
-    {
+  {
     if(CodePoint > 0x7f)
       throw std::runtime_error("Detected a character that isn't valid US-ASCII.");
 
     return CodePoint ;
-    }
+  }
   else
     return 0 ;
 }

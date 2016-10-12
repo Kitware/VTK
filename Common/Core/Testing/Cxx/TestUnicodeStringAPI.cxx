@@ -29,11 +29,11 @@
 #define test_expression(expression) \
 { \
   if(!(expression)) \
-    { \
+  { \
     std::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
     throw std::runtime_error(buffer.str()); \
-    } \
+  } \
 }
 
 // Sample strings - nothing risque, I hope ...
@@ -57,7 +57,7 @@ static const vtkTypeUInt16 sample_utf16[] =
 int TestUnicodeStringAPI(int, char*[])
 {
   try
-    {
+  {
     vtkUnicodeString a;
     test_expression(a.empty());
     test_expression(a.character_count() == 0);
@@ -115,11 +115,11 @@ int TestUnicodeStringAPI(int, char*[])
     test_expression(a.substr(1, 4) == vtkUnicodeString::from_utf8("ello"));
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }
 

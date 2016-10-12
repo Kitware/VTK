@@ -19,33 +19,35 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// .NAME vtkMatlabMexAdapter - This is a utility class to convert VTK array
-//  data to and from the Matlab mxArray format.  It is used with the Matlab
-//  Mex and Matlab Engine interfaces.
-//
-// .SECTION Description
-//
-//  The default behavior of each function is to perform a deep copy of the
-//  data.  Set the ShallowCopy argument to true to use the block of memory
-//  that has already been allocated by either VTK or Matlab.  The result of
-//  a shallow copy will produce the transpose of the data in the new system,
-//  because VTK uses row major ordering and Matlab uses column major ordering
-//  for data.
-//
-//  VTK data structures created by this class from Matlab types are stored in
-//  array collections and freed when the class destructor is called.  Use the
-//  Register() method on a returned object to increase its reference count by one,
-//  in order keep the object around after this classes destructor has been called.
-//  The code calling Register() must eventually call Delete() on the object to free
-//  memory.
-//
-// .SECTION See Also
-//  vtkMatlabEngineInterface vtkMatlabEngineFilter
-//
-// .SECTION Thanks
-//  Developed by Thomas Otahal at Sandia National Laboratories.
-//
-
+/**
+ * @class   vtkMatlabMexAdapter
+ * @brief   This is a utility class to convert VTK array
+ *  data to and from the Matlab mxArray format.  It is used with the Matlab
+ *  Mex and Matlab Engine interfaces.
+ *
+ *
+ *
+ *  The default behavior of each function is to perform a deep copy of the
+ *  data.  Set the ShallowCopy argument to true to use the block of memory
+ *  that has already been allocated by either VTK or Matlab.  The result of
+ *  a shallow copy will produce the transpose of the data in the new system,
+ *  because VTK uses row major ordering and Matlab uses column major ordering
+ *  for data.
+ *
+ *  VTK data structures created by this class from Matlab types are stored in
+ *  array collections and freed when the class destructor is called.  Use the
+ *  Register() method on a returned object to increase its reference count by one,
+ *  in order keep the object around after this classes destructor has been called.
+ *  The code calling Register() must eventually call Delete() on the object to free
+ *  memory.
+ *
+ * @sa
+ *  vtkMatlabEngineInterface vtkMatlabEngineFilter
+ *
+ * @par Thanks:
+ *  Developed by Thomas Otahal at Sandia National Laboratories.
+ *
+*/
 
 #ifndef vtkMatlabMexAdapter_h
 #define vtkMatlabMexAdapter_h
@@ -75,40 +77,48 @@ public:
 
   static vtkMatlabMexAdapter *New();
 
-  // Description:
-  // Create a mxArray copy of a vtkDataArray (Allocates memory by default)
+  /**
+   * Create a mxArray copy of a vtkDataArray (Allocates memory by default)
+   */
   mxArray* vtkDataArrayToMxArray(vtkDataArray* aa, bool ShallowCopy = false);
 
-  // Description:
-  // Create a vtkDataArray copy of a Matlab mxArray (Allocates memory by default)
+  /**
+   * Create a vtkDataArray copy of a Matlab mxArray (Allocates memory by default)
+   */
   vtkDataArray* mxArrayTovtkDataArray(const mxArray* mxa, bool ShallowCopy = false);
 
-  // Description:
-  // Create a mxArray copy of a vtkArray (Allocates memory by default)
+  /**
+   * Create a mxArray copy of a vtkArray (Allocates memory by default)
+   */
   mxArray* vtkArrayToMxArray(vtkArray* va);
 
-  // Description:
-  // Create a vtkArray copy of a mxArray (Allocates memory by default)
+  /**
+   * Create a vtkArray copy of a mxArray (Allocates memory by default)
+   */
   vtkArray* mxArrayTovtkArray(mxArray* mxa);
 
-  // Description:
-  // Create a mxArray copy of a vtkGraph (Allocates memory by default)
-  // The result is an n by n connectivity matrix, where n is the number
-  // of nodes in the graph.
+  /**
+   * Create a mxArray copy of a vtkGraph (Allocates memory by default)
+   * The result is an n by n connectivity matrix, where n is the number
+   * of nodes in the graph.
+   */
   mxArray* vtkGraphToMxArray(vtkGraph* ga);
 
-  // Description:
-  // Create a vtkGraph copy of a mxArray (Allocates memory by default)
-  // Input mxArray should be a n by n connectivity matrix, where n is
-  // the number of nodes in the graph.
+  /**
+   * Create a vtkGraph copy of a mxArray (Allocates memory by default)
+   * Input mxArray should be a n by n connectivity matrix, where n is
+   * the number of nodes in the graph.
+   */
   vtkGraph* mxArrayTovtkGraph(mxArray* mxa);
 
-  // Description:
-  // Match Matlab and VTK data types for conversion.
+  /**
+   * Match Matlab and VTK data types for conversion.
+   */
   static mxClassID GetMatlabDataType(vtkDataArray* da);
 
-  // Description:
-  // Match Matlab and VTK data types for conversion.
+  /**
+   * Match Matlab and VTK data types for conversion.
+   */
   static vtkDataArray* GetVTKDataType(mxClassID cid);
 
 protected:
@@ -118,8 +128,8 @@ protected:
 
 private:
 
-  vtkMatlabMexAdapter(const vtkMatlabMexAdapter&); // Not implemented
-  void operator=(const vtkMatlabMexAdapter&); // Not implemented
+  vtkMatlabMexAdapter(const vtkMatlabMexAdapter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMatlabMexAdapter&) VTK_DELETE_FUNCTION;
 
   template<typename T> vtkArray* CopymxArrayToVTKArray(mxArray* mxa, int ValueType);
 

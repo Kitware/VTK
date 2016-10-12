@@ -21,6 +21,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkIntArray.h"
+
 #include <algorithm>
 
 inline void StdStringToUpper(std::string& s)
@@ -64,29 +65,31 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
     << ", " << this->BScale << ")");
   while(fgets(linebuf, sizeof linebuf, fp) != NULL &&
     strncmp("END", linebuf, 3))
-    {
+  {
     char elem[3] = { 0 };
     char c[7] = { 0 };
     sscanf(&linebuf[0],"%6s", c);
     std::string command = c;
     StdStringToUpper(command);
-
     if (command == "ATOM" || command == "HETATM")
-      {
+    {
       sscanf(&linebuf[12], "%4s", dum1);
       sscanf(&linebuf[17], "%3s", dum2);
       chain = linebuf[21];
       sscanf(&linebuf[22], "%d", &resi);
       sscanf(&linebuf[30],"%8f%8f%8f", x, x+1, x+2);
-      sscanf(&linebuf[76], "%2s", elem);
-
+      if (strlen(linebuf) >= 78)
+      {
+        sscanf(&linebuf[76], "%2s", elem);
+      }
       if (elem[0] == '\0')
-        {
+      {
+        // if element symbol was not specified, just use the "Atom name".
         strncpy(elem, dum1, 2);
-        }
+      }
 
       if (!((elem[0]=='H' || elem[0]=='h') && elem[1]=='\0'))
-        { /* skip hydrogen */
+      { /* skip hydrogen */
         this->Points->InsertNextPoint(x);
         this->Residue->InsertNextValue(resi);
         this->Chain->InsertNextValue(chain);
@@ -94,27 +97,27 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
         this->AtomTypeStrings->InsertNextValue(dum1);
         this->IsHetatm->InsertNextValue(command[0] == 'H');
         this->NumberOfAtoms++;
-        }
       }
+    }
     else if (command == "SHEET")
-      {
+    {
       sscanf(&linebuf[21], "%c", &startChain);
       sscanf(&linebuf[22], "%d", &startResi);
       sscanf(&linebuf[32], "%c", &endChain);
       sscanf(&linebuf[33], "%d", &endResi);
       int tuple[4] = { startChain, startResi, endChain, endResi };
       Sheets->InsertNextTypedTuple(tuple);
-      }
+    }
     else if (command == "HELIX")
-      {
+    {
       sscanf(&linebuf[19], "%c", &startChain);
       sscanf(&linebuf[21], "%d", &startResi);
       sscanf(&linebuf[31], "%c", &endChain);
       sscanf(&linebuf[33], "%d", &endResi);
       int tuple[4] = { startChain, startResi, endChain, endResi };
       Helix->InsertNextTypedTuple(tuple);
-      }
     }
+  }
 
   this->Points->Squeeze();
   this->AtomType->Squeeze();
@@ -129,12 +132,12 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
 
   // Assign secondary structures
   for (i = 0; i < this->Points->GetNumberOfPoints(); i++)
-    {
+  {
     this->SecondaryStructures->SetValue(i, 'c');
     resi = this->Residue->GetValue(i);
 
     for (j = 0; j < Sheets->GetNumberOfTuples(); j++)
-      {
+    {
       int sheet[4];
       Sheets->GetTypedTuple(j, sheet);
       if (this->Chain->GetValue(i) != sheet[0]) continue;
@@ -143,10 +146,10 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
       this->SecondaryStructures->SetValue(i, 's');
       if (resi == sheet[1]) this->SecondaryStructuresBegin->SetValue(i, true);
       if (resi == sheet[3]) this->SecondaryStructuresEnd->SetValue(i, true);
-      }
+    }
 
     for (j = 0; j < Helix->GetNumberOfTuples(); j++)
-      {
+    {
       int helix[4];
       Helix->GetTypedTuple(j, helix);
       if (this->Chain->GetValue(i) != helix[0]) continue;
@@ -155,8 +158,8 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
       this->SecondaryStructures->SetValue(i, 'h');
       if (resi == helix[1]) this->SecondaryStructuresBegin->SetValue(i, true);
       else if (resi == helix[3]) this->SecondaryStructuresEnd->SetValue(i, true);
-      }
-   }
+    }
+  }
   Sheets->Delete();
   Helix->Delete();
 }

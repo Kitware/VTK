@@ -68,19 +68,19 @@ vtkHoverWidget::~vtkHoverWidget()
 void vtkHoverWidget::SetEnabled(int enabling)
 {
   if ( enabling ) //----------------
-    {
+  {
     vtkDebugMacro(<<"Enabling widget");
 
     if ( this->Enabled ) //already enabled, just return
-      {
+    {
       return;
-      }
+    }
 
     if ( ! this->Interactor )
-      {
+    {
       vtkErrorMacro(<<"The interactor must be set prior to enabling the widget");
       return;
-      }
+    }
 
     // We're ready to enable
     this->Enabled = 1;
@@ -94,21 +94,21 @@ void vtkHoverWidget::SetEnabled(int enabling)
     this->WidgetState = vtkHoverWidget::Timing;
 
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
-    }
+  }
 
   else //disabling------------------
-    {
+  {
     vtkDebugMacro(<<"Disabling widget");
 
     if ( ! this->Enabled ) //already disabled, just return
-      {
+    {
       return;
-      }
+    }
 
     this->Enabled = 0;
     this->Interactor->RemoveObserver(this->EventCallbackCommand);
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
-    }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -116,15 +116,15 @@ void vtkHoverWidget::MoveAction(vtkAbstractWidget *w)
 {
   vtkHoverWidget *self = reinterpret_cast<vtkHoverWidget*>(w);
   if ( self->WidgetState == vtkHoverWidget::Timing )
-    {
+  {
     self->Interactor->DestroyTimer(self->TimerId);
-    }
+  }
   else //we have already timed out, on this move we begin retiming
-    {
+  {
     self->WidgetState = vtkHoverWidget::Timing;
     self->SubclassEndHoverAction();
     self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
-    }
+  }
   self->TimerId = self->Interactor->CreateRepeatingTimer(self->TimerDuration);
 }
 
@@ -136,13 +136,13 @@ void vtkHoverWidget::HoverAction(vtkAbstractWidget *w)
 
   // If this is the timer event we are waiting for...
   if ( timerId == self->TimerId && self->WidgetState == vtkHoverWidget::Timing )
-    {
+  {
     self->Interactor->DestroyTimer(self->TimerId);
     self->WidgetState = vtkHoverWidget::TimedOut;
     self->SubclassHoverAction();
     self->InvokeEvent(vtkCommand::TimerEvent,NULL);
     self->EventCallbackCommand->SetAbortFlag(1); //no one else gets this timer
-    }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -152,11 +152,11 @@ void vtkHoverWidget::SelectAction(vtkAbstractWidget *w)
 
   // If widget is hovering we grab the selection event
   if ( self->WidgetState == vtkHoverWidget::TimedOut )
-    {
+  {
     self->SubclassSelectAction();
     self->InvokeEvent(vtkCommand::WidgetActivateEvent,NULL);
     self->EventCallbackCommand->SetAbortFlag(1); //no one else gets this event
-    }
+  }
 }
 
 //-------------------------------------------------------------------------

@@ -32,9 +32,9 @@ namespace
 void test_expression(bool valid, std::string msg)
 {
   if(!valid)
-    {
+  {
     throw std::runtime_error(msg);
-    }
+  }
 }
 
 template<typename T, typename U>
@@ -50,9 +50,9 @@ struct lengthCheckFunctor
 {
   template<typename T>
   vtkIdType operator()(const vtkDataArrayDispatcherPointer<T>& array) const
-    {
+  {
     return array.NumberOfComponents * array.NumberOfTuples;
-    }
+  }
 };
 
 
@@ -64,9 +64,9 @@ struct storeLengthFunctor
 
   template<typename T>
   void operator()(vtkDataArrayDispatcherPointer<T> array)
-    {
+  {
     length += array.NumberOfComponents * array.NumberOfTuples;
-    }
+  }
 };
 
 //modifies an array to be sorted, only works with arrays
@@ -75,9 +75,9 @@ struct sortArray
 {
   template<typename T>
   void operator()(vtkDataArrayDispatcherPointer<T> array) const
-    {
+  {
     std::sort(array.RawPointer,array.RawPointer + array.NumberOfTuples);
-    }
+  }
 };
 
 bool TestDataArrayDispatchStatefull()
@@ -146,18 +146,18 @@ bool TestDataArrayDispatchSort()
   doubleArray->SetNumberOfTuples(doubleSize);
 
   for(int i=0; i < doubleSize; i++)
-    {
+  {
     doubleArray->SetValue(i,doubleSize-i);
-    }
+  }
 
   dispatcher.Go(doubleArray.GetPointer());
 
   for(int i=0; i < doubleSize; i++)
-    {
+  {
     test_expression(doubleArray->GetValue(i)==i+1,
                     "sort functor failed");
 
-    }
+  }
 
   return true;
 }

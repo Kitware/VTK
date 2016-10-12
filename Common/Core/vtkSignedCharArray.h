@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSignedCharArray - dynamic, self-adjusting array of signed char
-// .SECTION Description
-// vtkSignedCharArray is an array of values of type signed char.
-// It provides methods for insertion and retrieval of values and will
-// automatically resize itself to hold new data.
+/**
+ * @class   vtkSignedCharArray
+ * @brief   dynamic, self-adjusting array of signed char
+ *
+ * vtkSignedCharArray is an array of values of type signed char.
+ * It provides methods for insertion and retrieval of values and will
+ * automatically resize itself to hold new data.
+*/
 
 #ifndef vtkSignedCharArray_h
 #define vtkSignedCharArray_h
@@ -37,7 +40,7 @@ public:
 #undef vtkDataArray
 #endif
   static vtkSignedCharArray* New();
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // This macro expands to the set of method declarations that
   // make up the interface of vtkAOSDataArrayTemplate, which is ignored
@@ -46,31 +49,34 @@ public:
   vtkCreateWrappedArrayInterface(signed char);
 #endif
 
-  // Description:
-  // A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+  /**
+   * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+   */
   static vtkSignedCharArray* FastDownCast(vtkAbstractArray *source)
   {
     return static_cast<vtkSignedCharArray*>(Superclass::FastDownCast(source));
   }
 
-  // Description:
-  // Get the minimum data value in its native type.
+  /**
+   * Get the minimum data value in its native type.
+   */
   static signed char GetDataTypeValueMin() { return VTK_SIGNED_CHAR_MIN; }
 
-  // Description:
-  // Get the maximum data value in its native type.
+  /**
+   * Get the maximum data value in its native type.
+   */
   static signed char GetDataTypeValueMax() { return VTK_SIGNED_CHAR_MAX; }
 
 protected:
   vtkSignedCharArray();
-  ~vtkSignedCharArray();
+  ~vtkSignedCharArray() VTK_OVERRIDE;
 
 private:
 
   typedef vtkAOSDataArrayTemplate<signed char> RealSuperclass;
 
-  vtkSignedCharArray(const vtkSignedCharArray&);  // Not implemented.
-  void operator=(const vtkSignedCharArray&);  // Not implemented.
+  vtkSignedCharArray(const vtkSignedCharArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSignedCharArray&) VTK_DELETE_FUNCTION;
 };
 
 // Define vtkArrayDownCast implementation:

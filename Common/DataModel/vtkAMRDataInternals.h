@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAMRDataInternals - container of vtkUniformGrid for an AMR data set
-//
-// .SECTION Description
-// vtkAMRDataInternals stores a list of non-empty blocks of an AMR data set
-//
-// .SECTION See Also
-// vtkOverlappingAMR, vtkAMRBox
+/**
+ * @class   vtkAMRDataInternals
+ * @brief   container of vtkUniformGrid for an AMR data set
+ *
+ *
+ * vtkAMRDataInternals stores a list of non-empty blocks of an AMR data set
+ *
+ * @sa
+ * vtkOverlappingAMR, vtkAMRBox
+*/
 
 #ifndef vtkAMRDataInternals_h
 #define vtkAMRDataInternals_h
@@ -44,7 +47,7 @@ public:
   vtkTypeMacro(vtkAMRDataInternals, vtkObject);
 
   void Initialize();
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   void Insert(unsigned int index, vtkUniformGrid* grid);
   vtkUniformGrid* GetDataSet(unsigned int compositeIndex);
@@ -61,7 +64,7 @@ public:
 protected:
 
   vtkAMRDataInternals();
-  ~vtkAMRDataInternals();
+  ~vtkAMRDataInternals() VTK_OVERRIDE;
 
   void GenerateIndex(bool force=false);
 
@@ -70,8 +73,8 @@ protected:
   bool GetInternalIndex(unsigned int compositeIndex, unsigned int& internalIndex);
 
 private:
-  vtkAMRDataInternals(const vtkAMRDataInternals&); // Not implemented.
-  void operator=(const vtkAMRDataInternals&); // Not implemented
+  vtkAMRDataInternals(const vtkAMRDataInternals&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAMRDataInternals&) VTK_DELETE_FUNCTION;
 };
 
 #endif

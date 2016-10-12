@@ -21,6 +21,9 @@ more efficient and flexible that the original PyArg_ParseTuple() code,
 resulting in wrapper code that is faster and more compact.
 -----------------------------------------------------------------------*/
 
+// Keep vtkPythonArgs.h from declaring externs for templates we instantiate
+#define vtkPythonArgs_cxx
+
 #include "vtkPythonArgs.h"
 #include "vtkPythonUtil.h"
 
@@ -34,11 +37,11 @@ resulting in wrapper code that is faster and more compact.
 // Macro to mimic a check done in PyArg_ParseTuple
 #define VTK_PYTHON_FLOAT_CHECK()\
   if (PyFloat_Check(o)) \
-    { \
+  { \
     PyErr_SetString(PyExc_TypeError, \
                       "integer argument expected, got float"); \
     return false; \
-    }
+  }
 
 inline
 bool vtkPythonGetValue(PyObject *o, long &a)
@@ -75,11 +78,11 @@ bool vtkPythonGetUnsignedLongLongValue(PyObject *o, T &a)
 
   // PyLong_AsUnsignedLongLong will fail if "o" is not a PyLong
   if (PyLong_Check(o))
-    {
+  {
     unsigned PY_LONG_LONG i = PyLong_AsUnsignedLongLong(o);
     a = static_cast<T>(i);
     return (i != static_cast<unsigned PY_LONG_LONG>(-1) || !PyErr_Occurred());
-    }
+  }
 
   unsigned long l = PyLong_AsUnsignedLong(o);
   a = static_cast<T>(l);
@@ -91,27 +94,27 @@ template <class T> inline
 bool vtkPythonGetStringValue(PyObject *o, T *&a, const char *exctext)
 {
   if (PyBytes_Check(o))
-    {
+  {
     a = PyBytes_AS_STRING(o);
     return true;
-    }
+  }
 #ifdef Py_USING_UNICODE
   else if (PyUnicode_Check(o))
-    {
+  {
 #if PY_VERSION_HEX >= 0x03030000
     a = PyUnicode_AsUTF8(o);
     return true;
 #else
     PyObject *s = _PyUnicode_AsDefaultEncodedString(o, NULL);
     if (s)
-      {
+    {
       a = PyBytes_AS_STRING(s);
       return true;
-      }
+    }
 
     exctext = "(unicode conversion error)";
 #endif
-    }
+  }
 #endif
 
   PyErr_SetString(PyExc_TypeError, exctext);
@@ -121,16 +124,16 @@ bool vtkPythonGetStringValue(PyObject *o, T *&a, const char *exctext)
 inline bool vtkPythonGetStdStringValue(PyObject *o, std::string &a, const char *exctext)
 {
   if (PyBytes_Check(o))
-    {
+  {
     char* val;
     Py_ssize_t len;
     PyBytes_AsStringAndSize(o, &val, &len);
     a = std::string(val, len);
     return true;
-    }
+  }
 #ifdef Py_USING_UNICODE
   else if (PyUnicode_Check(o))
-    {
+  {
 #if PY_VERSION_HEX >= 0x03030000
     Py_ssize_t len;
     const char* val = PyUnicode_AsUTF8AndSize(o, &len);
@@ -139,17 +142,17 @@ inline bool vtkPythonGetStdStringValue(PyObject *o, std::string &a, const char *
 #else
     PyObject *s = _PyUnicode_AsDefaultEncodedString(o, NULL);
     if (s)
-      {
+    {
       char* val;
       Py_ssize_t len;
       PyBytes_AsStringAndSize(s, &val, &len);
       a = std::string(val, len);
       return true;
-      }
+    }
 
     exctext = "(unicode conversion error)";
 #endif
-    }
+  }
 #endif
 
   PyErr_SetString(PyExc_TypeError, exctext);
@@ -175,25 +178,25 @@ static bool vtkPythonGetValue(
 #ifdef VTK_PY3K
   PyObject *bytes = NULL;
   if (PyUnicode_Check(o))
-    {
+  {
     bytes = PyUnicode_AsUTF8String(o);
     PyBytes_AsStringAndSize(bytes, reinterpret_cast<char **>(&p), &sz);
-    }
+  }
   else
 #endif
   if (PyObject_CheckBuffer(o))
-    {
+  {
     // use the new buffer interface
     if (PyObject_GetBuffer(o, view, PyBUF_SIMPLE) == -1)
-      {
+    {
       return false;
-      }
+    }
     p = view->buf;
     sz = view->len;
 #ifndef VTK_PY3K
     format = view->format;
 #endif
-    }
+  }
 #ifndef VTK_PY3K
   else
 #endif
@@ -201,17 +204,17 @@ static bool vtkPythonGetValue(
 #ifndef VTK_PY3K
   // use the old buffer interface
   if (b && b->bf_getreadbuffer && b->bf_getsegcount)
-    {
+  {
     if (b->bf_getsegcount(o, NULL) == 1)
-      {
+    {
       sz = b->bf_getreadbuffer(o, 0, &p);
-      }
+    }
     else
-      {
+    {
       PyErr_SetString(PyExc_TypeError, "buffer must be single-segment");
       return false;
-      }
     }
+  }
 #endif
 
 #ifdef VTK_PY3K
@@ -220,7 +223,7 @@ static bool vtkPythonGetValue(
   if (p && sz >= 0 && sz <= VTK_INT_MAX &&
       (format == 0 || format[0] == 'c' || format[0] == 'B'))
 #endif
-    {
+  {
     // check for pointer mangled as string
     int s = static_cast<int>(sz);
     a = vtkPythonUtil::UnmanglePointer(
@@ -228,26 +231,26 @@ static bool vtkPythonGetValue(
 #ifdef VTK_PY3K
     Py_DECREF(bytes);
     if (s != 0)
-      {
+    {
       PyErr_SetString(PyExc_TypeError, "requires a _addr_p_void string");
       return false;
-      }
+    }
 #else
     if (s == -1)
-      {
+    {
       // matched _addr_ but not p_void, assume it isn't a swig ptr string:
       // use the buffer's pointer as the argument
       a = p;
-      }
+    }
 #endif
     return true;
-    }
+  }
   else if (p && sz >= 0)
-    {
+  {
     // directly use the pointer to the buffer contents
     a = p;
     return true;
-    }
+  }
 
   PyErr_SetString(PyExc_TypeError,
     "object does not have a readable buffer");
@@ -288,9 +291,9 @@ inline
 bool vtkPythonGetValue(PyObject *o, std::string &a)
 {
   if (vtkPythonGetStdStringValue(o, a, "string is required"))
-    {
+  {
     return true;
-    }
+  }
   return false;
 }
 
@@ -300,11 +303,11 @@ bool vtkPythonGetValue(PyObject *o, vtkUnicodeString &a)
 #ifdef Py_USING_UNICODE
   PyObject *s = PyUnicode_AsUTF8String(o);
   if (s)
-    {
+  {
     a = vtkUnicodeString::from_utf8(PyBytes_AS_STRING(s));
     Py_DECREF(s);
     return true;
-    }
+  }
   return false;
 #else
   a.clear();
@@ -319,14 +322,14 @@ bool vtkPythonGetValue(PyObject *o, char &a)
   static const char exctext[] = "a string of length 1 is required";
   const char *b;
   if (vtkPythonGetStringValue(o, b, exctext))
-    {
+  {
     if (b[0] == '\0' || b[1] == '\0')
-      {
+    {
       a = b[0];
       return true;
-      }
-    PyErr_SetString(PyExc_TypeError, exctext);
     }
+    PyErr_SetString(PyExc_TypeError, exctext);
+  }
   return false;
 }
 
@@ -357,15 +360,15 @@ bool vtkPythonGetValue(PyObject *o, signed char &a)
 {
   long i = 0;
   if (vtkPythonGetValue(o, i))
-    {
+  {
     a = static_cast<signed char>(i);
     if (i >= VTK_SIGNED_CHAR_MIN && i <= VTK_SIGNED_CHAR_MAX)
-      {
+    {
       return true;
-      }
+    }
     PyErr_SetString(PyExc_OverflowError,
                     "value is out of range for signed char");
-    }
+  }
   return false;
 }
 
@@ -374,15 +377,15 @@ bool vtkPythonGetValue(PyObject *o, unsigned char &a)
 {
   long i = 0;
   if (vtkPythonGetValue(o, i))
-    {
+  {
     a = static_cast<unsigned char>(i);
     if (i >= VTK_UNSIGNED_CHAR_MIN && i <= VTK_UNSIGNED_CHAR_MAX)
-      {
+    {
       return true;
-      }
+    }
     PyErr_SetString(PyExc_OverflowError,
                     "value is out of range for unsigned char");
-    }
+  }
   return false;
 }
 
@@ -391,15 +394,15 @@ bool vtkPythonGetValue(PyObject *o, short &a)
 {
   long i = 0;
   if (vtkPythonGetValue(o, i))
-    {
+  {
     a = static_cast<short>(i);
     if (i >= VTK_SHORT_MIN && i <= VTK_SHORT_MAX)
-      {
+    {
       return true;
-      }
+    }
     PyErr_SetString(PyExc_OverflowError,
                     "value is out of range for short");
-    }
+  }
   return false;
 }
 
@@ -408,15 +411,15 @@ bool vtkPythonGetValue(PyObject *o, unsigned short &a)
 {
   long i = 0;
   if (vtkPythonGetValue(o, i))
-    {
+  {
     a = static_cast<unsigned short>(i);
     if (i >= VTK_UNSIGNED_SHORT_MIN && i <= VTK_UNSIGNED_SHORT_MAX)
-      {
+    {
       return true;
-      }
+    }
     PyErr_SetString(PyExc_OverflowError,
                     "value is out of range for unsigned short");
-    }
+  }
   return false;
 }
 
@@ -426,19 +429,19 @@ bool vtkPythonGetValue(PyObject *o, int &a)
 {
   long i = 0;
   if (vtkPythonGetValue(o, i))
-    {
+  {
     a = static_cast<int>(i);
 #if VTK_SIZEOF_INT < VTK_SIZEOF_LONG
     if (i >= VTK_INT_MIN && i <= VTK_INT_MAX)
-      {
+    {
       return true;
-      }
+    }
     PyErr_SetString(PyExc_OverflowError,
                     "value is out of range for int");
 #else
     return true;
 #endif
-    }
+  }
   return false;
 }
 
@@ -448,23 +451,23 @@ bool vtkPythonGetValue(PyObject *o, unsigned int &a)
 #if VTK_SIZEOF_INT < VTK_SIZEOF_LONG
   long i = 0;
   if (vtkPythonGetValue(o, i))
-    {
+  {
     a = static_cast<unsigned int>(i);
     if (i >= VTK_UNSIGNED_INT_MIN && i <= VTK_UNSIGNED_INT_MAX)
-      {
+    {
       return true;
-      }
+    }
     PyErr_SetString(PyExc_OverflowError,
                     "value is out of range for unsigned int");
-    }
+  }
   return false;
 #else
   unsigned long i = 0;
   if (vtkPythonGetValue(o, i))
-    {
+  {
     a = static_cast<unsigned int>(i);
     return true;
-    }
+  }
   return false;
 #endif
 }
@@ -491,59 +494,59 @@ template<class T> inline
 bool vtkPythonGetArray(PyObject *o, T *a, int n)
 {
   if (a)
-    {
+  {
     Py_ssize_t m = n;
 
     if (PyTuple_Check(o))
-      {
+    {
       m = PyTuple_GET_SIZE(o);
       if (m == n)
-        {
+      {
         bool r = true;
         for (int i = 0; i < n && r; i++)
-          {
+        {
           PyObject *s = PyTuple_GET_ITEM(o, i);
           r = vtkPythonGetValue(s, a[i]);
-          }
-        return r;
         }
+        return r;
       }
+    }
     else if (PyList_Check(o))
-      {
+    {
       m = PyList_GET_SIZE(o);
       if (m == n)
-        {
+      {
         bool r = true;
         for (int i = 0; i < n && r; i++)
-          {
+        {
           PyObject *s = PyList_GET_ITEM(o, i);
           r = vtkPythonGetValue(s, a[i]);
-          }
-        return r;
         }
+        return r;
       }
+    }
     else if (PySequence_Check(o))
-      {
+    {
       m = PySequence_Size(o);
       if (m == n)
-        {
+      {
         bool r = true;
         for (int i = 0; i < n && r; i++)
-          {
+        {
           r = false;
           PyObject *s = PySequence_GetItem(o, i);
           if (s && vtkPythonGetValue(s, a[i]))
-            {
+          {
             Py_DECREF(s);
             r = true;
-            }
           }
-        return r;
         }
+        return r;
       }
+    }
 
     return vtkPythonSequenceError(o, n, m);
-    }
+  }
 
   return true;
 }
@@ -555,72 +558,72 @@ template<class T>
 bool vtkPythonGetNArray(PyObject *o, T *a, int ndim, const int *dims)
 {
   if (a)
-    {
+  {
     int inc = 1;
     for (int j = 1; j < ndim; j++)
-      {
+    {
       inc *= dims[j];
-      }
+    }
 
     int n = dims[0];
     Py_ssize_t m = n;
 
     if (PyList_Check(o))
-      {
+    {
       m = PyList_GET_SIZE(o);
       if (m == n)
-        {
+      {
         bool r = true;
         if (ndim > 1)
-          {
+        {
           for (int i = 0; i < n && r; i++)
-            {
+          {
             PyObject *s = PyList_GET_ITEM(o, i);
             r = vtkPythonGetNArray(s, a, ndim-1, dims+1);
             a += inc;
-            }
           }
+        }
         else
-          {
+        {
           for (int i = 0; i < n && r; i++)
-            {
+          {
             PyObject *s = PyList_GET_ITEM(o, i);
             r = vtkPythonGetValue(s, a[i]);
-            }
           }
-        return r;
         }
+        return r;
       }
+    }
     else if (PySequence_Check(o))
-      {
+    {
       m = PySequence_Size(o);
       if (m == n)
-        {
+      {
         bool r = true;
         for (int i = 0; i < n && r; i++)
-          {
+        {
           r = false;
           PyObject *s = PySequence_GetItem(o, i);
           if (s)
-            {
+          {
             if (ndim > 1)
-              {
+            {
               r = vtkPythonGetNArray(s, a, ndim-1, dims+1);
               a += inc;
-              }
-            else
-              {
-              r = vtkPythonGetValue(s, a[i]);
-              }
-            Py_DECREF(s);
             }
+            else
+            {
+              r = vtkPythonGetValue(s, a[i]);
+            }
+            Py_DECREF(s);
           }
-        return r;
         }
+        return r;
       }
+    }
 
     return vtkPythonSequenceError(o, n, m);
-    }
+  }
 
   return true;
 }
@@ -632,51 +635,51 @@ template<class T> inline
 bool vtkPythonSetArray(PyObject *o, const T *a, int n)
 {
   if (a)
-    {
+  {
     Py_ssize_t m = n;
 
     if (PyList_Check(o))
-      {
+    {
       m = PyList_GET_SIZE(o);
       if (m == n)
-        {
+      {
         bool r = true;
         for (int i = 0; i < n && r; i++)
-          {
+        {
           r = false;
           PyObject *s = vtkPythonArgs::BuildValue(a[i]);
           if (s)
-            {
+          {
             Py_DECREF(PyList_GET_ITEM(o, i));
             PyList_SET_ITEM(o, i, s);
             r = true;
-            }
           }
-        return r;
         }
+        return r;
       }
+    }
     else if (PySequence_Check(o))
-      {
+    {
       m = PySequence_Size(o);
       if (m == n)
-        {
+      {
         bool r = true;
         for (int i = 0; i < n && r; i++)
-          {
+        {
           r = false;
           PyObject *s = vtkPythonArgs::BuildValue(a[i]);
           if (s)
-            {
+          {
             r = (PySequence_SetItem(o, i, s) != -1);
             Py_DECREF(s);
-            }
           }
-        return r;
         }
+        return r;
       }
+    }
 
     return vtkPythonSequenceError(o, n, m);
-    }
+  }
 
   return true;
 }
@@ -689,87 +692,87 @@ bool vtkPythonSetNArray(
   PyObject *o, const T *a, int ndim, const int *dims)
 {
   if (a)
-    {
+  {
     int inc = 1;
     for (int j = 1; j < ndim; j++)
-      {
+    {
       inc *= dims[j];
-      }
+    }
 
     int n = dims[0];
     Py_ssize_t m = n;
 
     if (PyList_Check(o))
-      {
+    {
       m = PyList_GET_SIZE(o);
       if (m == n)
-        {
+      {
         bool r = true;
         if (ndim > 1)
-          {
+        {
           for (int i = 0; i < n && r; i++)
-            {
+          {
             PyObject *s = PyList_GET_ITEM(o, i);
             r = vtkPythonSetNArray(s, a, ndim-1, dims+1);
             a += inc;
-            }
           }
+        }
         else
-          {
+        {
           for (int i = 0; i < n && r; i++)
-            {
+          {
             r = false;
             PyObject *s = vtkPythonArgs::BuildValue(a[i]);
             if (s)
-              {
+            {
               Py_DECREF(PyList_GET_ITEM(o, i));
               PyList_SET_ITEM(o, i, s);
               r = true;
-              }
             }
           }
-        return r;
         }
+        return r;
       }
+    }
     else if (PySequence_Check(o))
-      {
+    {
       m = PySequence_Size(o);
       if (m == n)
-        {
+      {
         bool r = true;
         if (ndim > 1)
-          {
+        {
           for (int i = 0; i < n && r; i++)
-            {
+          {
             r = false;
             PyObject *s = PySequence_GetItem(o, i);
             if (s)
-              {
+            {
               r = vtkPythonSetNArray(s, a, ndim-1, dims+1);
               a += inc;
               Py_DECREF(s);
-              }
             }
           }
+        }
         else
-          {
+        {
           for (int i = 0; i < n && r; i++)
-            {
+          {
             r = false;
             PyObject *s = vtkPythonArgs::BuildValue(a[i]);
             if (s)
-              {
+            {
               r = (PySequence_SetItem(o, i, s) != -1);
               Py_DECREF(s);
-              }
             }
           }
-        return r;
         }
+        return r;
       }
+    }
 
     return vtkPythonSequenceError(o, n, m);
-    }
+  }
 
   return true;
 }
@@ -781,15 +784,15 @@ template<class T> inline
 PyObject *vtkPythonBuildTuple(const T *a, int n)
 {
   if (a)
-    {
+  {
     PyObject *t = PyTuple_New(n);
     for (int i = 0; i < n; i++)
-      {
+    {
       PyObject *o = vtkPythonArgs::BuildValue(a[i]);
       PyTuple_SET_ITEM(t, i, o);
-      }
-    return t;
     }
+    return t;
+  }
 
   Py_INCREF(Py_None);
   return Py_None;
@@ -821,23 +824,23 @@ PyObject *vtkPythonArgs::GetSelfFromFirstArg(
   PyObject *self, PyObject *args)
 {
   if (PyType_Check(self))
-    {
+  {
     PyTypeObject *pytype = (PyTypeObject *)self;
     if (PyTuple_GET_SIZE(args) > 0)
-      {
+    {
       self = PyTuple_GET_ITEM(args, 0);
       if (PyObject_TypeCheck(self, pytype))
-        {
+      {
         return self;
-        }
       }
+    }
 
     char buf[256];
     sprintf(buf, "unbound method requires a %.200s as the first argument",
             pytype->tp_name);
     PyErr_SetString(PyExc_TypeError, buf);
     return NULL;
-    }
+  }
 
   PyErr_SetString(PyExc_TypeError, "unbound method requires a vtkobject");
   return NULL;
@@ -867,9 +870,9 @@ vtkObjectBase *vtkPythonArgs::GetArgAsVTKObject(
   PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++);
   vtkObjectBase *r = vtkPythonArgs::GetArgAsVTKObject(o, classname, valid);
   if (!valid)
-    {
+  {
     this->RefineArgTypeError(this->I - this->M - 1);
-    }
+  }
   return r;
 }
 
@@ -887,9 +890,9 @@ void *vtkPythonArgs::GetArgAsSpecialObject(
   PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++);
   void *r = vtkPythonArgs::GetArgAsSpecialObject(o, classname, p);
   if (r == NULL)
-    {
+  {
     this->RefineArgTypeError(this->I - this->M - 1);
-    }
+  }
   return r;
 }
 
@@ -905,9 +908,9 @@ int vtkPythonArgs::GetArgAsEnum(const char *enumname, bool &valid)
   PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++);
   int i = vtkPythonArgs::GetArgAsEnum(o, enumname, valid);
   if (!valid)
-    {
+  {
     this->RefineArgTypeError(this->I - this->M - 1);
-    }
+  }
   return i;
 }
 
@@ -917,19 +920,19 @@ int vtkPythonArgs::GetArgAsEnum(
   long i = 0;
   PyTypeObject *pytype = vtkPythonUtil::FindEnum(enumname);
   if (pytype && PyObject_TypeCheck(o, pytype))
-    {
+  {
     i = PyInt_AsLong(o);
     valid = true;
-    }
+  }
   else
-    {
+  {
     std::string errstring = "expected enum ";
     errstring += enumname;
     errstring += ", got ";
     errstring += Py_TYPE(o)->tp_name;
     PyErr_SetString(PyExc_TypeError, errstring.c_str());
     valid = false;
-    }
+  }
   return i;
 }
 
@@ -942,9 +945,9 @@ void *vtkPythonArgs::GetArgAsSIPObject(const char *classname, bool &valid)
   PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++);
   void *r = vtkPythonArgs::GetArgAsSIPObject(o, classname, valid);
   if (!valid)
-    {
+  {
     this->RefineArgTypeError(this->I - this->M - 1);
-    }
+  }
   return r;
 }
 
@@ -961,9 +964,9 @@ int vtkPythonArgs::GetArgAsSIPEnum(const char *classname, bool &valid)
   PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++);
   int i = vtkPythonArgs::GetArgAsSIPEnum(o, classname, valid);
   if (!valid)
-    {
+  {
     this->RefineArgTypeError(this->I - this->M - 1);
-    }
+  }
   return i;
 }
 
@@ -984,13 +987,13 @@ bool vtkPythonArgs::GetValue(T &a) \
 { \
   PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++); \
   if (PyVTKMutableObject_Check(o)) \
-    { \
+  { \
     o = PyVTKMutableObject_GetValue(o); \
-    } \
+  } \
   if (vtkPythonGetValue(o, a)) \
-    { \
+  { \
     return true; \
-    } \
+  } \
   this->RefineArgTypeError(this->I - this->M - 1); \
   return false; \
 } \
@@ -1027,9 +1030,9 @@ bool vtkPythonArgs::GetArray(T *a, int n) \
 { \
   PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++); \
   if (vtkPythonGetArray(o, a, n)) \
-    { \
+  { \
     return true; \
-    } \
+  } \
   this->RefineArgTypeError(this->I - this->M - 1); \
   return false; \
 }
@@ -1057,9 +1060,9 @@ bool vtkPythonArgs::GetNArray(T *a, int ndim, const int *dims) \
 { \
   PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++); \
   if (vtkPythonGetNArray(o, a, ndim, dims)) \
-    { \
+  { \
     return true; \
-    } \
+  } \
   this->RefineArgTypeError(this->I - this->M - 1); \
   return false; \
 }
@@ -1086,9 +1089,9 @@ bool vtkPythonArgs::GetFunction(PyObject *arg, PyObject *&o)
 {
   o = arg;
   if (o == Py_None || PyCallable_Check(o))
-    {
+  {
     return true;
-    }
+  }
   PyErr_SetString(PyExc_TypeError, "a callable object is required");
   return false;
 }
@@ -1107,9 +1110,9 @@ bool vtkPythonArgs::GetBuffer(T &a, Py_buffer *buf) \
 { \
   PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++); \
   if (vtkPythonGetValue(o, a, buf)) \
-    { \
+  { \
     return true; \
-    } \
+  } \
   this->RefineArgTypeError(this->I - this->M - 1); \
   return false; \
 } \
@@ -1129,17 +1132,17 @@ VTK_PYTHON_GET_BUFFER(const void *)
 bool vtkPythonArgs::SetArgValue(int i, T a) \
 { \
   if (this->M + i < this->N) \
-    { \
+  { \
     PyObject *m = PyTuple_GET_ITEM(this->Args, this->M + i); \
     PyObject *o = vtkPythonArgs::BuildValue(a); \
     int r = PyVTKMutableObject_SetValue(m, o); \
     if (r == 0) \
-      { \
+    { \
       return true; \
-      } \
+    } \
     this->RefineArgTypeError(i); \
     return false; \
-    } \
+  } \
   return true; \
 }
 
@@ -1167,15 +1170,15 @@ VTK_PYTHON_SET_ARG(unsigned long long)
 bool vtkPythonArgs::SetArray(int i, const T *a, int n) \
 { \
   if (this->M + i < this->N) \
-    { \
+  { \
     PyObject *o = PyTuple_GET_ITEM(this->Args, this->M + i); \
     if (vtkPythonSetArray(o, a, n)) \
-      { \
+    { \
       return true; \
-      } \
+    } \
     this->RefineArgTypeError(i); \
     return false; \
-    } \
+  } \
   return true; \
 }
 
@@ -1202,15 +1205,15 @@ bool vtkPythonArgs::SetNArray( \
   int i, const T *a, int ndim, const int *dims) \
 { \
   if (this->M + i < this->N) \
-    { \
+  { \
     PyObject *o = PyTuple_GET_ITEM(this->Args, this->M + i); \
     if (vtkPythonSetNArray(o, a, ndim, dims)) \
-      { \
+    { \
       return true; \
-      } \
+    } \
     this->RefineArgTypeError(i); \
     return false; \
-    } \
+  } \
   return true; \
 }
 
@@ -1279,7 +1282,7 @@ bool vtkPythonArgs::RefineArgTypeError(int i)
   if (PyErr_ExceptionMatches(PyExc_TypeError) ||
       PyErr_ExceptionMatches(PyExc_ValueError) ||
       PyErr_ExceptionMatches(PyExc_OverflowError))
-    {
+  {
     PyObject *exc;
     PyObject *val, *newval;
     PyObject *frame;
@@ -1289,25 +1292,25 @@ bool vtkPythonArgs::RefineArgTypeError(int i)
 #ifdef VTK_PY3K
     const char *cp = "";
     if (val && !PyUnicode_Check(val))
-      {
+    {
       Py_DECREF(val);
       val = 0;
-      }
+    }
     newval = PyUnicode_FromFormat("%s argument %d: %V",
       this->MethodName, i+1, val, cp);
 #else
     const char *cp = "";
     if (val && PyString_Check(val))
-      {
+    {
       cp = PyString_AsString(val);
-      }
+    }
     newval = PyString_FromFormat("%s argument %d: %s",
       this->MethodName, i+1, cp);
 #endif
 
     Py_XDECREF(val);
     PyErr_Restore(exc, newval, frame);
-    }
+  }
   return false;
 }
 
@@ -1317,15 +1320,15 @@ bool vtkPythonSequenceError(PyObject *o, Py_ssize_t n, Py_ssize_t m)
 {
   char text[80];
   if (m == n)
-    {
+  {
     sprintf(text, "expected a sequence of %ld value%s, got %s",
             (long)n, ((n == 1) ? "" : "s"), Py_TYPE(o)->tp_name);
-    }
+  }
   else
-    {
+  {
     sprintf(text, "expected a sequence of %ld value%s, got %ld values",
             (long)n, ((n == 1) ? "" : "s"), (long)m);
-    }
+  }
   PyErr_SetString(PyExc_TypeError, text);
   return false;
 }
@@ -1336,12 +1339,47 @@ int vtkPythonArgs::GetArgSize(int i)
 {
   int size = 0;
   if (this->M + i < this->N)
-    {
+  {
     PyObject *o = PyTuple_GET_ITEM(this->Args, this->M + i);
     if (PySequence_Check(o))
-      {
+    {
       size = static_cast<int>(PySequence_Size(o));
-      }
     }
+  }
   return size;
 }
+
+//--------------------------------------------------------------------
+// Check if 'm' equals 'n', and report an error for arg i if not.
+bool vtkPythonArgs::CheckSizeHint(int i, Py_ssize_t m, Py_ssize_t n)
+{
+  if (this->M + i < this->N)
+  {
+    if (m != n)
+    {
+      PyObject *o = PyTuple_GET_ITEM(this->Args, this->M + i);
+      return vtkPythonSequenceError(o, n, m);
+    }
+  }
+  return true;
+}
+
+//--------------------------------------------------------------------
+// Use stack space for small arrays, heap for large arrays.
+template<class T>
+vtkPythonArgs::Array<T>::Array(Py_ssize_t n) : Pointer(0)
+{
+  if (n > basicsize)
+  {
+    this->Pointer = new T[n];
+  }
+  else if (n != 0)
+  {
+    this->Pointer = this->Storage;
+  }
+}
+
+// Instantiate the Array class template over all types:
+vtkPythonArgsTemplateMacro(
+  template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array
+)

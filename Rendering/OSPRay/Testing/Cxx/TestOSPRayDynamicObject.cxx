@@ -72,7 +72,7 @@ int TestOSPRayDynamicObject(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   double inc = 1.0/(double)MAXFRAME;
 
   for (int i = 0; i < MAXFRAME; i++)
-    {
+  {
     double I = (double)i/(double)MAXFRAME;
     renWin->SetSize(400+i,400-i);
     sphere->SetThetaResolution(3+i);
@@ -82,19 +82,19 @@ int TestOSPRayDynamicObject(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     light->SetDiffuseColor(lColor[0],lColor[1],lColor[2]);
 
     if (i < (MAXFRAME/2))
-      {
+    {
       position[2] += inc*5;
-      }
+    }
     else
-      {
+    {
       position[2] -= inc*5;
-      }
+    }
 
     camera->SetPosition(position);
 
     renderer->SetBackground(0.0,I,1-I);
     renWin->Render();
-    }
+  }
 
   iren->Start();
 

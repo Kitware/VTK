@@ -53,19 +53,19 @@ int main(int argc, char* argv[])
   const char* labelArray = ".tagname";
   const char* colorArray = NULL;
   if (argc < 2)
-    {
+  {
     usage();
     return 0;
-    }
+  }
   char* filename = argv[1];
   if (argc >= 3)
-    {
+  {
     labelArray = argv[2];
-    }
+  }
   if (argc >= 4)
-    {
+  {
     colorArray = argv[3];
-    }
+  }
 
   // Read in the XML file into a tree.
   // This creates a tree with string columns for every attribute
@@ -85,40 +85,40 @@ int main(int argc, char* argv[])
   stringToNumeric->Update();
   vtkTree* tree = vtkTree::SafeDownCast(stringToNumeric->GetOutput());
   if (tree->GetVertexData()->GetAbstractArray(labelArray) == NULL)
-    {
+  {
     cerr << "ERROR: The label attribute " << labelArray << " is not defined in the file." << endl;
     reader->Delete();
     stringToNumeric->Delete();
     usage();
     return 0;
-    }
+  }
   if (colorArray &&
       tree->GetVertexData()->GetAbstractArray(colorArray) == NULL)
-    {
+  {
     cerr << "ERROR: The color attribute " << colorArray << " is not defined in the file." << endl;
     reader->Delete();
     stringToNumeric->Delete();
     usage();
     return 0;
-    }
+  }
   if (colorArray &&
       vtkArrayDownCast<vtkDataArray>(tree->GetVertexData()->GetAbstractArray(colorArray)) == NULL)
-    {
+  {
     cerr << "ERROR: The color attribute " << colorArray << " does not have numeric values." << endl;
     reader->Delete();
     stringToNumeric->Delete();
     usage();
     return 0;
-    }
+  }
 
   // If coloring the vertices, get the range of the color array.
   double colorRange[2] = {0, 1};
   if (colorArray)
-    {
+  {
     vtkDataArray* color = vtkArrayDownCast<vtkDataArray>(
       tree->GetVertexData()->GetAbstractArray(colorArray));
     color->GetRange(colorRange);
-    }
+  }
 
   // Layout the tree using vtkGraphLayout.
   vtkGraphLayout* layout = vtkGraphLayout::New();
@@ -155,11 +155,11 @@ int main(int argc, char* argv[])
   vtkPolyDataMapper* vertMapper = vtkPolyDataMapper::New();
   vertMapper->SetInputConnection(vertGlyph->GetOutputPort());
   if (colorArray)
-    {
+  {
     vertMapper->SetScalarModeToUsePointFieldData();
     vertMapper->SelectColorArray(colorArray);
     vertMapper->SetScalarRange(colorRange);
-    }
+  }
 
   // Create an actor for the vertices.  Move the actor forward
   // in the z direction so it is drawn on top of the edge actor.
@@ -176,10 +176,10 @@ int main(int argc, char* argv[])
   labelMapper->GetLabelTextProperty()->SetJustificationToLeft();
   labelMapper->GetLabelTextProperty()->SetColor(0, 0, 0);
   if (labelArray)
-    {
+  {
     labelMapper->SetLabelModeToLabelFieldData();
     labelMapper->SetFieldDataName(labelArray);
-    }
+  }
   vtkActor2D* labelActor = vtkActor2D::New();
   labelActor->SetMapper(labelMapper);
 

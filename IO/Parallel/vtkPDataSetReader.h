@@ -12,11 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPDataSetReader - Manages reading pieces of a data set.
-// .SECTION Description
-// vtkPDataSetReader will read a piece of a file, it takes as input
-// a metadata file that lists all of the files in a data set.
-
+/**
+ * @class   vtkPDataSetReader
+ * @brief   Manages reading pieces of a data set.
+ *
+ * vtkPDataSetReader will read a piece of a file, it takes as input
+ * a metadata file that lists all of the files in a data set.
+*/
 
 #ifndef vtkPDataSetReader_h
 #define vtkPDataSetReader_h
@@ -33,18 +35,25 @@ public:
   vtkTypeMacro(vtkPDataSetReader,vtkDataSetAlgorithm);
   static vtkPDataSetReader *New();
 
-  // Description:
-  // This file to open and read.
+  //@{
+  /**
+   * This file to open and read.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // This is set when UpdateInformation is called.
-  // It shows the type of the output.
+  //@{
+  /**
+   * This is set when UpdateInformation is called.
+   * It shows the type of the output.
+   */
   vtkGetMacro(DataType, int);
+  //@}
 
-  // Description:
-  // Called to determine if the file can be read by the reader.
+  /**
+   * Called to determine if the file can be read by the reader.
+   */
   int CanReadFile(const char* filename);
 
 protected:
@@ -102,8 +111,8 @@ protected:
   int **PieceExtents;
 
 private:
-  vtkPDataSetReader(const vtkPDataSetReader&); // Not implemented
-  void operator=(const vtkPDataSetReader&); // Not implemented
+  vtkPDataSetReader(const vtkPDataSetReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPDataSetReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

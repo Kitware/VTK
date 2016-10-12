@@ -9,6 +9,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestXMLToString.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestXMLWriterWithDataArrayFallback.cxx,NO_VALID
   TestDataObjectXMLIO.cxx,NO_VALID
+  TestReadDuplicateDataArrayNames.cxx,No_DATA,NO_VALID
   )
 
 # Each of these most be added in a separate vtk_add_test_cxx
@@ -29,3 +30,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
 )
 
 vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+
+add_executable(TestXMLCInterface MACOSX_BUNDLE TestXMLCInterface.c)
+target_link_libraries(TestXMLCInterface LINK_PRIVATE vtkIOXML)
+add_test(NAME TestXMLCInterface COMMAND TestXMLCInterface)

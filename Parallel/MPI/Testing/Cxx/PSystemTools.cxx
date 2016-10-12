@@ -40,40 +40,40 @@ int PSystemTools(int argc, char* argv[])
 
   std::string str;
   if(controller->GetLocalProcessId() == 0)
-    {
+  {
     str = "test";
-    }
+  }
   vtkPSystemTools::BroadcastString(str, 0);
   if(str != "test")
-    {
+  {
     vtkGenericWarningMacro("BroadcastString failed for process " <<
                            controller->GetLocalProcessId());
     retVal++;
-    }
+  }
 
   str = vtkPSystemTools::GetCurrentWorkingDirectory();
   std::string substr = str.substr(str.size()-24, str.size());
   if(substr != "Parallel/MPI/Testing/Cxx")
-    {
+  {
     vtkGenericWarningMacro("GetCurrentWorkingDirectory failed for process " <<
                            controller->GetLocalProcessId());
     retVal++;
-    }
+  }
 
   if(!vtkPSystemTools::FileIsDirectory(str))
-    {
+  {
     vtkGenericWarningMacro("FileIsDirectory failed for process " <<
                            controller->GetLocalProcessId());
     retVal++;
-    }
+  }
 
   str += "/cmake_install.cmake";
   if(!vtkPSystemTools::FileExists(str))
-    {
+  {
     vtkGenericWarningMacro("FileExists failed for process " <<
                            controller->GetLocalProcessId());
     retVal++;
-    }
+  }
 
 
   controller->SetGlobalController(NULL);

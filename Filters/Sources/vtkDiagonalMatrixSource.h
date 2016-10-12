@@ -19,11 +19,14 @@
 
 =========================================================================*/
 
-// .NAME vtkDiagonalMatrixSource - generates a sparse or dense square matrix
-// with user-specified values for the diagonal, superdiagonal, and subdiagonal.
-//
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+/**
+ * @class   vtkDiagonalMatrixSource
+ * @brief   generates a sparse or dense square matrix
+ * with user-specified values for the diagonal, superdiagonal, and subdiagonal.
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+*/
 
 #ifndef vtkDiagonalMatrixSource_h
 #define vtkDiagonalMatrixSource_h
@@ -36,7 +39,7 @@ class VTKFILTERSSOURCES_EXPORT vtkDiagonalMatrixSource : public vtkArrayDataAlgo
 public:
   static vtkDiagonalMatrixSource* New();
   vtkTypeMacro(vtkDiagonalMatrixSource, vtkArrayDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Determines whether the output matrix will be dense or sparse
   enum StorageType
@@ -48,50 +51,68 @@ public:
   vtkGetMacro(ArrayType, int);
   vtkSetMacro(ArrayType, int);
 
-  // Description:
-  // Stores the extents of the output matrix (which is square)
+  //@{
+  /**
+   * Stores the extents of the output matrix (which is square)
+   */
   vtkGetMacro(Extents, vtkIdType);
   vtkSetMacro(Extents, vtkIdType);
+  //@}
 
-  // Description:
-  // Stores the value that will be assigned to diagonal elements (default: 1)
+  //@{
+  /**
+   * Stores the value that will be assigned to diagonal elements (default: 1)
+   */
   vtkGetMacro(Diagonal, double);
   vtkSetMacro(Diagonal, double);
+  //@}
 
-  // Description:
-  // Stores the value that will be assigned to superdiagonal elements (default: 0)
+  //@{
+  /**
+   * Stores the value that will be assigned to superdiagonal elements (default: 0)
+   */
   vtkGetMacro(SuperDiagonal, double);
   vtkSetMacro(SuperDiagonal, double);
+  //@}
 
-  // Description:
-  // Stores the value that will be assigned to subdiagonal elements (default: 0)
+  //@{
+  /**
+   * Stores the value that will be assigned to subdiagonal elements (default: 0)
+   */
   vtkGetMacro(SubDiagonal, double);
   vtkSetMacro(SubDiagonal, double);
+  //@}
 
-  // Description:
-  // Controls the output matrix row dimension label.
-  // Default: "rows"
+  //@{
+  /**
+   * Controls the output matrix row dimension label.
+   * Default: "rows"
+   */
   vtkGetStringMacro(RowLabel);
   vtkSetStringMacro(RowLabel);
+  //@}
 
-  // Description:
-  // Controls the output matrix column dimension label.
-  // Default: "columns"
+  //@{
+  /**
+   * Controls the output matrix column dimension label.
+   * Default: "columns"
+   */
   vtkGetStringMacro(ColumnLabel);
   vtkSetStringMacro(ColumnLabel);
+  //@}
 
 protected:
   vtkDiagonalMatrixSource();
-  ~vtkDiagonalMatrixSource();
+  ~vtkDiagonalMatrixSource() VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
 private:
-  vtkDiagonalMatrixSource(const vtkDiagonalMatrixSource&); // Not implemented
-  void operator=(const vtkDiagonalMatrixSource&);   // Not implemented
+  vtkDiagonalMatrixSource(const vtkDiagonalMatrixSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDiagonalMatrixSource&) VTK_DELETE_FUNCTION;
 
   vtkArray* GenerateDenseArray();
   vtkArray* GenerateSparseArray();

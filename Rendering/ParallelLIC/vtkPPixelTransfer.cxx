@@ -46,7 +46,7 @@ int vtkPPixelTransfer::Execute(
 {
   // first layer of dispatch
   switch(srcType)
-    {
+  {
     vtkTemplateMacro(
         return this->Execute(
             comm,
@@ -58,7 +58,7 @@ int vtkPPixelTransfer::Execute(
             reqs,
             types,
             tag););
-    }
+  }
   return 0;
 }
 

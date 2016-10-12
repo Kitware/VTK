@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCharArray - dynamic, self-adjusting array of char
-// .SECTION Description
-// vtkCharArray is an array of values of type char.  It provides
-// methods for insertion and retrieval of values and will
-// automatically resize itself to hold new data.
+/**
+ * @class   vtkCharArray
+ * @brief   dynamic, self-adjusting array of char
+ *
+ * vtkCharArray is an array of values of type char.  It provides
+ * methods for insertion and retrieval of values and will
+ * automatically resize itself to hold new data.
+*/
 
 #ifndef vtkCharArray_h
 #define vtkCharArray_h
@@ -37,7 +40,7 @@ public:
 #undef vtkDataArray
 #endif
   static vtkCharArray* New();
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // This macro expands to the set of method declarations that
   // make up the interface of vtkAOSDataArrayTemplate, which is ignored
@@ -46,31 +49,34 @@ public:
   vtkCreateWrappedArrayInterface(char);
 #endif
 
-  // Description:
-  // A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+  /**
+   * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+   */
   static vtkCharArray* FastDownCast(vtkAbstractArray *source)
   {
     return static_cast<vtkCharArray*>(Superclass::FastDownCast(source));
   }
 
-  // Description:
-  // Get the minimum data value in its native type.
+  /**
+   * Get the minimum data value in its native type.
+   */
   static char GetDataTypeValueMin() { return VTK_CHAR_MIN; }
 
-  // Description:
-  // Get the maximum data value in its native type.
+  /**
+   * Get the maximum data value in its native type.
+   */
   static char GetDataTypeValueMax() { return VTK_CHAR_MAX; }
 
 protected:
   vtkCharArray();
-  ~vtkCharArray();
+  ~vtkCharArray() VTK_OVERRIDE;
 
 private:
 
   typedef vtkAOSDataArrayTemplate<char> RealSuperclass;
 
-  vtkCharArray(const vtkCharArray&);  // Not implemented.
-  void operator=(const vtkCharArray&);  // Not implemented.
+  vtkCharArray(const vtkCharArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCharArray&) VTK_DELETE_FUNCTION;
 };
 
 // Define vtkArrayDownCast implementation:

@@ -12,21 +12,24 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDataSetTriangleFilter - triangulate any type of dataset
-// .SECTION Description
-// vtkDataSetTriangleFilter generates n-dimensional simplices from any input
-// dataset. That is, 3D cells are converted to tetrahedral meshes, 2D cells
-// to triangles, and so on. The triangulation is guaranteed to be compatible.
-//
-// This filter uses simple 1D and 2D triangulation techniques for cells
-// that are of topological dimension 2 or less. For 3D cells--due to the
-// issue of face compatibility across quadrilateral faces (which way to
-// orient the diagonal?)--a fancier ordered Delaunay triangulation is used.
-// This approach produces templates on the fly for triangulating the
-// cells. The templates are then used to do the actual triangulation.
-//
-// .SECTION See Also
-// vtkOrderedTriangulator vtkTriangleFilter
+/**
+ * @class   vtkDataSetTriangleFilter
+ * @brief   triangulate any type of dataset
+ *
+ * vtkDataSetTriangleFilter generates n-dimensional simplices from any input
+ * dataset. That is, 3D cells are converted to tetrahedral meshes, 2D cells
+ * to triangles, and so on. The triangulation is guaranteed to be compatible.
+ *
+ * This filter uses simple 1D and 2D triangulation techniques for cells
+ * that are of topological dimension 2 or less. For 3D cells--due to the
+ * issue of face compatibility across quadrilateral faces (which way to
+ * orient the diagonal?)--a fancier ordered Delaunay triangulation is used.
+ * This approach produces templates on the fly for triangulating the
+ * cells. The templates are then used to do the actual triangulation.
+ *
+ * @sa
+ * vtkOrderedTriangulator vtkTriangleFilter
+*/
 
 #ifndef vtkDataSetTriangleFilter_h
 #define vtkDataSetTriangleFilter_h
@@ -41,23 +44,26 @@ class VTKFILTERSGENERAL_EXPORT vtkDataSetTriangleFilter : public vtkUnstructured
 public:
   static vtkDataSetTriangleFilter *New();
   vtkTypeMacro(vtkDataSetTriangleFilter,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // When On this filter will cull all 1D and 2D cells from the output.
-  // The default is Off.
+  //@{
+  /**
+   * When On this filter will cull all 1D and 2D cells from the output.
+   * The default is Off.
+   */
   vtkSetMacro(TetrahedraOnly, int);
   vtkGetMacro(TetrahedraOnly, int);
   vtkBooleanMacro(TetrahedraOnly, int);
+  //@}
 
 protected:
   vtkDataSetTriangleFilter();
-  ~vtkDataSetTriangleFilter();
+  ~vtkDataSetTriangleFilter() VTK_OVERRIDE;
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   // Used to triangulate 3D cells
   vtkOrderedTriangulator *Triangulator;
@@ -69,8 +75,8 @@ protected:
   int TetrahedraOnly;
 
 private:
-  vtkDataSetTriangleFilter(const vtkDataSetTriangleFilter&);  // Not implemented.
-  void operator=(const vtkDataSetTriangleFilter&);  // Not implemented.
+  vtkDataSetTriangleFilter(const vtkDataSetTriangleFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataSetTriangleFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

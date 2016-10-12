@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOverrideInformation - Factory object override information
-// .SECTION Description
-// vtkOverrideInformation is used to represent the information about
-// a class which is overriden in a vtkObjectFactory.
-//
+/**
+ * @class   vtkOverrideInformation
+ * @brief   Factory object override information
+ *
+ * vtkOverrideInformation is used to represent the information about
+ * a class which is overriden in a vtkObjectFactory.
+ *
+*/
 
 #ifndef vtkOverrideInformation_h
 #define vtkOverrideInformation_h
@@ -31,55 +34,71 @@ class VTKCOMMONCORE_EXPORT vtkOverrideInformation : public vtkObject
 public:
   static vtkOverrideInformation* New();
   vtkTypeMacro(vtkOverrideInformation,vtkObject);
-  // Description:
-  // Print ObjectFactor to stream.
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  /**
+   * Print ObjectFactor to stream.
+   */
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Returns the name of the class being overriden.  For example,
-  // if you had a factory that provided an override for
-  // vtkVertex, then this funciton would return "vtkVertex"
+  /**
+   * Returns the name of the class being overriden.  For example,
+   * if you had a factory that provided an override for
+   * vtkVertex, then this funciton would return "vtkVertex"
+   */
   const char* GetClassOverrideName()
-    {
+  {
       return this->ClassOverrideName;
-    }
+  }
 
-  // Description:
-  // Returns the name of the class that will override the class.
-  // For example, if you had a factory that provided an override for
-  // vtkVertex called vtkMyVertex, then this would return "vtkMyVertex"
+  /**
+   * Returns the name of the class that will override the class.
+   * For example, if you had a factory that provided an override for
+   * vtkVertex called vtkMyVertex, then this would return "vtkMyVertex"
+   */
   const char* GetClassOverrideWithName()
-    {
+  {
       return this->ClassOverrideWithName;
-    }
+  }
 
-  // Description:
-  // Return a human readable or GUI displayable description of this
-  // override.
+  /**
+   * Return a human readable or GUI displayable description of this
+   * override.
+   */
   const char* GetDescription()
-    {
+  {
       return this->Description;
-    }
+  }
 
-  // Description:
-  // Return the specific object factory that this override occurs in.
+  /**
+   * Return the specific object factory that this override occurs in.
+   */
   vtkObjectFactory* GetObjectFactory()
-    {
+  {
       return this->ObjectFactory;
-    }
-  // Description:
-  // Set the class override name
+  }
+
+  //@{
+  /**
+   * Set the class override name
+   */
   vtkSetStringMacro(ClassOverrideName);
-  // Set the class override with name
+
+  /**
+   * Set the class override with name
+   */
   vtkSetStringMacro(ClassOverrideWithName);
-  // Set the description
+
+  /**
+   * Set the description
+   */
   vtkSetStringMacro(Description);
+  //@}
+
 protected:
   virtual void SetObjectFactory(vtkObjectFactory*);
 
 private:
   vtkOverrideInformation();
-  ~vtkOverrideInformation();
+  ~vtkOverrideInformation() VTK_OVERRIDE;
   // allow the object factory to set the values in this
   // class, but only the object factory
 
@@ -90,8 +109,8 @@ private:
   char* Description;
   vtkObjectFactory* ObjectFactory;
 private:
-  vtkOverrideInformation(const vtkOverrideInformation&);  // Not implemented.
-  void operator=(const vtkOverrideInformation&);  // Not implemented.
+  vtkOverrideInformation(const vtkOverrideInformation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOverrideInformation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

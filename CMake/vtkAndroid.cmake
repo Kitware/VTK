@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
+
 #
 # Instructions:
 # 1. Download and install the Android NDK.
@@ -24,7 +26,7 @@ else()
   set(ANDROID_NDK "/opt/android-ndk" CACHE PATH "Path to the Android NDK")
 endif()
 set(ANDROID_NATIVE_API_LEVEL "21" CACHE STRING "Android Native API Level")
-set(ANDROID_ARCH_NAME "arm" CACHE STRING "Target Android architecture")
+set(ANDROID_ARCH_ABI "armeabi" CACHE STRING "Target Android architecture/abi")
 
 # find android
 find_program(ANDROID_EXECUTABLE
@@ -49,20 +51,6 @@ if (NOT EXISTS ${CMAKE_INSTALL_PREFIX})
     "Install path ${CMAKE_INSTALL_PREFIX} does not exist.")
 endif()
 
-# First, determine how to build
-if (CMAKE_GENERATOR MATCHES "NMake Makefiles")
-  set(VTK_BUILD_COMMAND BUILD_COMMAND nmake)
-elseif (CMAKE_GENERATOR MATCHES "Ninja")
-  set(VTK_BUILD_COMMAND BUILD_COMMAND ninja)
-else()
-  set(VTK_BUILD_COMMAND BUILD_COMMAND make)
-endif()
-
-set(BUILD_ALWAYS_STRING)
-if(${CMAKE_VERSION} GREATER 3.0)
-  set(BUILD_ALWAYS_STRING BUILD_ALWAYS 1)
-endif()
-
 # Compile a minimal VTK for its compile tools
 macro(compile_vtk_tools)
   ExternalProject_Add(
@@ -71,8 +59,8 @@ macro(compile_vtk_tools)
     PREFIX ${CMAKE_BINARY_DIR}/CompileTools
     BINARY_DIR ${CMAKE_BINARY_DIR}/CompileTools
     INSTALL_COMMAND ""
-    ${VTK_BUILD_COMMAND} vtkCompileTools
-    ${BUILD_ALWAYS_STRING}
+    BUILD_COMMAND ${CMAKE_COMMAND} --build . --config $<CONFIGURATION> --target vtkCompileTools
+    BUILD_ALWAYS 1
     CMAKE_CACHE_ARGS
       -DCMAKE_BUILD_TYPE:STRING=Release
       -DVTK_BUILD_ALL_MODULES:BOOL=OFF
@@ -87,21 +75,15 @@ compile_vtk_tools()
 
 # Hide some CMake configs from the user
 mark_as_advanced(
-  VTK_IOS_BUILD
   BUILD_SHARED_LIBS
   CMAKE_INSTALL_PREFIX
   CMAKE_OSX_ARCHITECTURES
   CMAKE_OSX_DEPLOYMENT_TARGET
-  CMAKE_OSX_ROOT
   VTK_RENDERING_BACKEND
 )
 
 # Now cross-compile VTK with the android toolchain
 set(android_cmake_flags
-  -DANDROID_NDK:PATH=${ANDROID_NDK}
-  -DANDROID_NATIVE_API_LEVEL:STRING=${ANDROID_NATIVE_API_LEVEL}
-  -DANDROID_DEFAULT_NDK_API_LEVEL:STRING=${ANDROID_NATIVE_API_LEVEL}
-  -DANDROID_ARCH_NAME:STRING=${ANDROID_ARCH_NAME}
   -DANDROID_EXECUTABLE:FILE=${ANDROID_EXECUTABLE}
   -DANT_EXECUTABLE:FILE=${ANT_EXECUTABLE}
   -DBUILD_SHARED_LIBS:BOOL=OFF
@@ -142,29 +124,35 @@ if (OPENGL_ES_VERSION STREQUAL "3.0")
     )
 endif()
 
-macro(crosscompile target toolchain_file)
+macro(crosscompile target api abi out_build_dir)
+  set(_ANDROID_API "${api}")
+  set(_ANDROID_ABI "${abi}")
+  set(_ANDROID_DIR "${target}-${api}-${abi}")
+  set(_ANDROID_TOOLCHAIN ${BUILD_DIR}/${_ANDROID_DIR}-toolchain.cmake)
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/CMake/vtkAndroid-toolchain.cmake.in
+    ${_ANDROID_TOOLCHAIN} @ONLY)
   ExternalProject_Add(
     ${target}
     SOURCE_DIR ${CMAKE_SOURCE_DIR}
-    PREFIX ${PREFIX_DIR}/${target}
-    BINARY_DIR ${BUILD_DIR}/${target}
-    INSTALL_DIR ${INSTALL_DIR}/${target}
+    PREFIX ${PREFIX_DIR}/${_ANDROID_DIR}
+    BINARY_DIR ${BUILD_DIR}/${_ANDROID_DIR}
+    INSTALL_DIR ${INSTALL_DIR}/${_ANDROID_DIR}
     DEPENDS vtk-compile-tools
-    ${BUILD_ALWAYS_STRING}
+    BUILD_ALWAYS 1
     CMAKE_ARGS
       -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_DIR}/${target}
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-      -DCMAKE_TOOLCHAIN_FILE:PATH=CMake/${toolchain_file}
-      -DANDROID_NDK:PATH=${ANDROID_NDK}
+      -DCMAKE_TOOLCHAIN_FILE:PATH=${_ANDROID_TOOLCHAIN}
       -DVTKCompileTools_DIR:PATH=${CMAKE_BINARY_DIR}/CompileTools
       ${android_cmake_flags}
   )
+  set(${out_build_dir} "${BUILD_DIR}/${_ANDROID_DIR}")
 endmacro()
-crosscompile(vtk-android android.toolchain.cmake)
+crosscompile(vtk-android "${ANDROID_NATIVE_API_LEVEL}" "${ANDROID_ARCH_ABI}" vtk_android_build_dir)
 
 add_test(NAME AndroidNative
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeExternals/Build/vtk-android/Examples/Android/NativeVTK/bin
+    WORKING_DIRECTORY ${vtk_android_build_dir}/Examples/Android/NativeVTK/bin
     COMMAND ${CMAKE_COMMAND}
-    -DWORKINGDIR=${CMAKE_CURRENT_BINARY_DIR}/CMakeExternals/Build/vtk-android/Examples/Android/NativeVTK/bin
+    -DWORKINGDIR=${vtk_android_build_dir}/Examples/Android/NativeVTK/bin
     -P ${CMAKE_CURRENT_SOURCE_DIR}/Examples/Android/NativeVTK/runtest.cmake
   )

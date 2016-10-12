@@ -43,15 +43,15 @@ int vtkBezierContourLineInterpolator::InterpolateLine( vtkRenderer *vtkNotUsed(r
   int tmp = 3;
 
   while ( 2*tmp < this->MaximumCurveLineSegments )
-    {
+  {
     tmp *= 2;
     maxRecursion++;
-    }
+  }
 
   if ( maxRecursion == 0 )
-    {
+  {
     return 1;
-    }
+  }
 
   // There are four control points with 3 components each, plus one
   // value for the recursion depth of this point
@@ -86,7 +86,7 @@ int vtkBezierContourLineInterpolator::InterpolateLine( vtkRenderer *vtkNotUsed(r
   stackCount++;
 
   while ( stackCount )
-    {
+  {
     //process last point on stack
     int recursionLevel = static_cast<int>(controlPointsStack[13*(stackCount-1)]);
 
@@ -104,18 +104,18 @@ int vtkBezierContourLineInterpolator::InterpolateLine( vtkRenderer *vtkNotUsed(r
 
     if ( recursionLevel >= maxRecursion || distance == 0 ||
          (totalDist - distance)/distance < this->MaximumCurveError )
-      {
+    {
       rep->AddIntermediatePointWorldPosition( idx1, p2 );
       rep->AddIntermediatePointWorldPosition( idx1, p3 );
 
       if ( stackCount > 1 )
-        {
-        rep->AddIntermediatePointWorldPosition( idx1, p4 );
-        }
-      stackCount--;
-      }
-    else
       {
+        rep->AddIntermediatePointWorldPosition( idx1, p4 );
+      }
+      stackCount--;
+    }
+    else
+    {
       double p12[3], p23[3], p34[3], p123[3], p234[3], p1234[3];
 
       this->ComputeMidpoint( p1, p2, p12 );
@@ -163,8 +163,8 @@ int vtkBezierContourLineInterpolator::InterpolateLine( vtkRenderer *vtkNotUsed(r
       p3[2] = p34[2];
 
       stackCount++;
-      }
     }
+  }
 
   delete [] controlPointsStack;
 
@@ -186,36 +186,36 @@ void vtkBezierContourLineInterpolator::GetSpan( int nodeIndex,
   nodeIndices->SetNumberOfComponents(2);
 
   for ( int i = 0; i < 4; i++ )
-    {
+  {
     index[0] = start++;
     index[1] = end++;
 
     if ( rep->GetClosedLoop() )
-      {
+    {
       if ( index[0] < 0 )
-        {
+      {
         index[0] += rep->GetNumberOfNodes();
-        }
-      if ( index[1] < 0 )
-        {
-        index[1] += rep->GetNumberOfNodes();
-        }
-      if ( index[0] >= rep->GetNumberOfNodes() )
-        {
-        index[0] -= rep->GetNumberOfNodes();
-        }
-      if ( index[1] >= rep->GetNumberOfNodes() )
-        {
-        index[1] -= rep->GetNumberOfNodes();
-        }
       }
+      if ( index[1] < 0 )
+      {
+        index[1] += rep->GetNumberOfNodes();
+      }
+      if ( index[0] >= rep->GetNumberOfNodes() )
+      {
+        index[0] -= rep->GetNumberOfNodes();
+      }
+      if ( index[1] >= rep->GetNumberOfNodes() )
+      {
+        index[1] -= rep->GetNumberOfNodes();
+      }
+    }
 
     if ( index[0] >= 0 && index[0] < rep->GetNumberOfNodes() &&
          index[1] >= 0 && index[1] < rep->GetNumberOfNodes() )
-      {
+    {
       nodeIndices->InsertNextTypedTuple( index );
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------

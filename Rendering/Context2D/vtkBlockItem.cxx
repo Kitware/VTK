@@ -58,28 +58,28 @@ bool vtkBlockItem::Paint(vtkContext2D *painter)
   painter->GetPen()->SetColor(0, 0, 0);
 
   if (this->MouseOver)
-    {
+  {
     painter->GetBrush()->SetColor(255, 0, 0);
-    }
+  }
   else
-    {
+  {
     painter->GetBrush()->SetColor(0, 255, 0);
-    }
+  }
   painter->DrawRect(this->Dimensions[0], this->Dimensions[1],
                     this->Dimensions[2], this->Dimensions[3]);
 
   float x = this->Dimensions[0] + 0.5 * this->Dimensions[2];
   float y = this->Dimensions[1] + 0.5 * this->Dimensions[3];
   if (this->Label)
-    {
+  {
     painter->DrawString(x, y, this->Label);
-    }
+  }
 
   if (this->scalarFunction)
-    {
+  {
     // We have a function pointer - do something...
     ;
-    }
+  }
 
   this->PaintChildren(painter);
   return true;
@@ -93,13 +93,13 @@ bool vtkBlockItem::Hit(const vtkContextMouseEvent &mouse)
       pos[0] < this->Dimensions[0] + this->Dimensions[2] &&
       pos[1] > this->Dimensions[1] &&
       pos[1] < this->Dimensions[1] + this->Dimensions[3])
-    {
+  {
     return true;
-    }
+  }
   else
-    {
+  {
     return this->vtkAbstractContextItem::Hit(mouse);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -116,16 +116,16 @@ bool vtkBlockItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
   vtkVector2f delta = mouse.GetPos() - mouse.GetLastPos();
 
   if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
-    {
+  {
     // Move the block by this amount
     this->Dimensions[0] += delta.GetX();
     this->Dimensions[1] += delta.GetY();
 
     this->GetScene()->SetDirty(true);
     return true;
-    }
+  }
   else if (mouse.GetButton() == mouse.MIDDLE_BUTTON)
-    {
+  {
     // Resize the block by this amount
     this->Dimensions[0] += delta.GetX();
     this->Dimensions[1] += delta.GetY();
@@ -134,16 +134,16 @@ bool vtkBlockItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 
     this->GetScene()->SetDirty(true);
     return true;
-    }
+  }
   else if (mouse.GetButton() == mouse.RIGHT_BUTTON)
-    {
+  {
     // Resize the block by this amount
     this->Dimensions[2] += delta.GetX();
     this->Dimensions[3] += delta.GetY();
 
     this->GetScene()->SetDirty(true);
     return true;
-    }
+  }
   return false;
 }
 
@@ -171,10 +171,10 @@ bool vtkBlockItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &)
 void vtkBlockItem::SetLabel(const vtkStdString &label)
 {
   if (this->Label != label)
-    {
+  {
     this->Label = label;
     this->Modified();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------

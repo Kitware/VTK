@@ -12,22 +12,25 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkUncertaintyTubeFilter - generate uncertainty tubes along a polyline
-// .SECTION Description
-// vtkUncertaintyTubeFilter is a filter that generates ellipsoidal (in cross
-// section) tubes that follows a polyline. The input is a vtkPolyData with
-// polylines that have associated vector point data. The vector data represents
-// the uncertainty of the polyline in the x-y-z directions.
-//
-// .SECTION Caveats
-// The vector uncertainty values define an axis-aligned ellipsoid at each
-// polyline point. The uncertainty tubes can be envisioned as the
-// interpolation of these ellipsoids between the points defining the
-// polyline (or rather, the interpolation of the cross section of the
-// ellipsoids alog the polyline).
-
-// .SECTION See Also
-// vtkTensorGlyph vtkStreamTracer
+/**
+ * @class   vtkUncertaintyTubeFilter
+ * @brief   generate uncertainty tubes along a polyline
+ *
+ * vtkUncertaintyTubeFilter is a filter that generates ellipsoidal (in cross
+ * section) tubes that follows a polyline. The input is a vtkPolyData with
+ * polylines that have associated vector point data. The vector data represents
+ * the uncertainty of the polyline in the x-y-z directions.
+ *
+ * @warning
+ * The vector uncertainty values define an axis-aligned ellipsoid at each
+ * polyline point. The uncertainty tubes can be envisioned as the
+ * interpolation of these ellipsoids between the points defining the
+ * polyline (or rather, the interpolation of the cross section of the
+ * ellipsoids alog the polyline).
+ *
+ * @sa
+ * vtkTensorGlyph vtkStreamTracer
+*/
 
 #ifndef vtkUncertaintyTubeFilter_h
 #define vtkUncertaintyTubeFilter_h
@@ -40,27 +43,34 @@ class vtkTubeArray;
 class VTKFILTERSGENERAL_EXPORT vtkUncertaintyTubeFilter : public vtkPolyDataAlgorithm
 {
 public:
-  // Description:
-  // Standard methods for printing and obtaining type information for instances of this class.
+  //@{
+  /**
+   * Standard methods for printing and obtaining type information for instances of this class.
+   */
   vtkTypeMacro(vtkUncertaintyTubeFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  //@}
 
-  // Description:
-  // Object factory method to instantiate this class.
+  /**
+   * Object factory method to instantiate this class.
+   */
   static vtkUncertaintyTubeFilter *New();
 
-  // Description:
-  // Set / get the number of sides for the tube. At a minimum,
-  // the number of sides is 3.
+  //@{
+  /**
+   * Set / get the number of sides for the tube. At a minimum,
+   * the number of sides is 3.
+   */
   vtkSetClampMacro(NumberOfSides,int,3,VTK_INT_MAX);
   vtkGetMacro(NumberOfSides,int);
+  //@}
 
 protected:
   vtkUncertaintyTubeFilter();
-  ~vtkUncertaintyTubeFilter();
+  ~vtkUncertaintyTubeFilter() VTK_OVERRIDE;
 
   // Integrate data
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   int BuildTubes(vtkPointData *pd, vtkPointData *outPD,
                  vtkCellData *cd, vtkCellData *outCD, vtkPolyData *output);
 
@@ -72,8 +82,8 @@ protected:
   int NumberOfSides;
 
 private:
-  vtkUncertaintyTubeFilter(const vtkUncertaintyTubeFilter&);  // Not implemented.
-  void operator=(const vtkUncertaintyTubeFilter&);  // Not implemented.
+  vtkUncertaintyTubeFilter(const vtkUncertaintyTubeFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUncertaintyTubeFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

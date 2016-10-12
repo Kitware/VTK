@@ -12,26 +12,29 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkFacetWriter - reads a dataset in Facet format
-// .SECTION Description
-// vtkFacetWriter creates an unstructured grid dataset. It reads ASCII files
-// stored in Facet format
-//
-// The facet format looks like this:
-// FACET FILE ...
-// nparts
-// Part 1 name
-// 0
-// npoints 0 0
-// p1x p1y p1z
-// p2x p2y p2z
-// ...
-// 1
-// Part 1 name
-// ncells npointspercell
-// p1c1 p2c1 p3c1 ... pnc1 materialnum partnum
-// p1c2 p2c2 p3c2 ... pnc2 materialnum partnum
-// ...
+/**
+ * @class   vtkFacetWriter
+ * @brief   reads a dataset in Facet format
+ *
+ * vtkFacetWriter creates an unstructured grid dataset. It reads ASCII files
+ * stored in Facet format
+ *
+ * The facet format looks like this:
+ * FACET FILE ...
+ * nparts
+ * Part 1 name
+ * 0
+ * npoints 0 0
+ * p1x p1y p1z
+ * p2x p2y p2z
+ * ...
+ * 1
+ * Part 1 name
+ * ncells npointspercell
+ * p1c1 p2c1 p3c1 ... pnc1 materialnum partnum
+ * p1c2 p2c2 p3c2 ... pnc2 materialnum partnum
+ * ...
+*/
 
 #ifndef vtkFacetWriter_h
 #define vtkFacetWriter_h
@@ -48,13 +51,17 @@ public:
   vtkTypeMacro(vtkFacetWriter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify file name of Facet datafile to read
+  //@{
+  /**
+   * Specify file name of Facet datafile to read
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Write data
+  /**
+   * Write data
+   */
   void Write();
 
   void WriteToStream(ostream* ost);
@@ -77,8 +84,8 @@ protected:
   ostream *OutputStream;
 
 private:
-  vtkFacetWriter(const vtkFacetWriter&);  // Not implemented.
-  void operator=(const vtkFacetWriter&);  // Not implemented.
+  vtkFacetWriter(const vtkFacetWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFacetWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkResliceCursorPicker - ray-cast cell picker for the reslice cursor
-// .SECTION Description
-// This class is is used by the vtkResliceCursorWidget to pick reslice axes
-// drawn by a vtkResliceCursorActor. The class returns the axes picked if
-// any, whether one has picked the center. It takes as input an instance
-// of vtkResliceCursorPolyDataAlgorithm. This is all done internally by
-// vtkResliceCursorWidget and as such users are not expected to use this
-// class directly, unless they are overriding the behaviour of
-// vtkResliceCursorWidget.
-// .SECTION see also
-// vtkResliceCursor vtkResliceCursorWidget
+/**
+ * @class   vtkResliceCursorPicker
+ * @brief   ray-cast cell picker for the reslice cursor
+ *
+ * This class is is used by the vtkResliceCursorWidget to pick reslice axes
+ * drawn by a vtkResliceCursorActor. The class returns the axes picked if
+ * any, whether one has picked the center. It takes as input an instance
+ * of vtkResliceCursorPolyDataAlgorithm. This is all done internally by
+ * vtkResliceCursorWidget and as such users are not expected to use this
+ * class directly, unless they are overriding the behaviour of
+ * vtkResliceCursorWidget.
+ * @sa
+ * vtkResliceCursor vtkResliceCursorWidget
+*/
 
 #ifndef vtkResliceCursorPicker_h
 #define vtkResliceCursorPicker_h
@@ -33,7 +36,6 @@
 class vtkPolyData;
 class vtkGenericCell;
 class vtkResliceCursorPolyDataAlgorithm;
-class vtkIdList;
 class vtkMatrix4x4;
 class vtkPlane;
 
@@ -44,32 +46,40 @@ public:
   vtkTypeMacro(vtkResliceCursorPicker, vtkPicker);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Perform pick operation with selection point provided. Normally the
-  // first two values are the (x,y) pixel coordinates for the pick, and
-  // the third value is z=0. The return value will be non-zero if
-  // something was successfully picked.
+  /**
+   * Perform pick operation with selection point provided. Normally the
+   * first two values are the (x,y) pixel coordinates for the pick, and
+   * the third value is z=0. The return value will be non-zero if
+   * something was successfully picked.
+   */
   virtual int Pick(double selectionX, double selectionY, double selectionZ,
                    vtkRenderer *renderer);
 
-  // Description:
-  // Get the picked axis
+  //@{
+  /**
+   * Get the picked axis
+   */
   vtkGetMacro( PickedAxis1, int );
   vtkGetMacro( PickedAxis2, int );
   vtkGetMacro( PickedCenter, int );
+  //@}
 
-  // Description:
-  // Set the reslice cursor algorithm. One must be set
+  //@{
+  /**
+   * Set the reslice cursor algorithm. One must be set
+   */
   virtual void SetResliceCursorAlgorithm(
       vtkResliceCursorPolyDataAlgorithm * );
   vtkGetObjectMacro( ResliceCursorAlgorithm,
                      vtkResliceCursorPolyDataAlgorithm );
+  //@}
 
   virtual void SetTransformMatrix( vtkMatrix4x4 * );
 
-  // Description:
-  // Overloaded pick method that returns the picked coordinates of the current
-  // resliced  plane in world coordinates when given a display position
+  /**
+   * Overloaded pick method that returns the picked coordinates of the current
+   * resliced  plane in world coordinates when given a display position
+   */
   void Pick(
     double displayPos[2], double world[3], vtkRenderer *ren );
 
@@ -94,13 +104,12 @@ private:
   int PickedAxis1;
   int PickedAxis2;
   int PickedCenter;
-  vtkIdList *PointIds;
   vtkMatrix4x4 * TransformMatrix;
   vtkPlane     * Plane;
 
 private:
-  vtkResliceCursorPicker(const vtkResliceCursorPicker&);  // Not implemented.
-  void operator=(const vtkResliceCursorPicker&);  // Not implemented.
+  vtkResliceCursorPicker(const vtkResliceCursorPicker&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkResliceCursorPicker&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkFunctionSet - Abstract interface for sets of functions
-// .SECTION Description
-// vtkFunctionSet specifies an abstract interface for set of functions
-// of the form F_i = F_i(x_j) where F (with i=1..m) are the functions
-// and x (with j=1..n) are the independent variables.
-// The only supported operation is the  function evaluation at x_j.
-
-// .SECTION See Also
-// vtkImplicitDataSet vtkInterpolatedVelocityField
-// vtkInitialValueProblemSolver
+/**
+ * @class   vtkFunctionSet
+ * @brief   Abstract interface for sets of functions
+ *
+ * vtkFunctionSet specifies an abstract interface for set of functions
+ * of the form F_i = F_i(x_j) where F (with i=1..m) are the functions
+ * and x (with j=1..n) are the independent variables.
+ * The only supported operation is the  function evaluation at x_j.
+ *
+ * @sa
+ * vtkImplicitDataSet vtkInterpolatedVelocityField
+ * vtkInitialValueProblemSolver
+*/
 
 #ifndef vtkFunctionSet_h
 #define vtkFunctionSet_h
@@ -33,39 +36,42 @@ class VTKCOMMONMATH_EXPORT vtkFunctionSet : public vtkObject
 {
 public:
   vtkTypeMacro(vtkFunctionSet,vtkObject);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Evaluate functions at x_j.
-  // x and f have to point to valid double arrays of appropriate
-  // sizes obtained with GetNumberOfFunctions() and
-  // GetNumberOfIndependentVariables.
+  /**
+   * Evaluate functions at x_j.
+   * x and f have to point to valid double arrays of appropriate
+   * sizes obtained with GetNumberOfFunctions() and
+   * GetNumberOfIndependentVariables.
+   */
   virtual int FunctionValues(double* x, double* f) = 0;
 
-  // Description:
-  // Return the number of functions. Note that this is constant for
-  // a given type of set of functions and can not be changed at
-  // run time.
+  /**
+   * Return the number of functions. Note that this is constant for
+   * a given type of set of functions and can not be changed at
+   * run time.
+   */
   virtual int GetNumberOfFunctions() {
     return this->NumFuncs; }
 
-  // Description:
-  // Return the number of independent variables. Note that this is
-  // constant for a given type of set of functions and can not be changed
-  // at run time.
+  /**
+   * Return the number of independent variables. Note that this is
+   * constant for a given type of set of functions and can not be changed
+   * at run time.
+   */
   virtual int GetNumberOfIndependentVariables() {
     return this->NumIndepVars; }
 
 protected:
   vtkFunctionSet();
-  ~vtkFunctionSet() {}
+  ~vtkFunctionSet() VTK_OVERRIDE {}
 
   int NumFuncs;
   int NumIndepVars;
 
 private:
-  vtkFunctionSet(const vtkFunctionSet&);  // Not implemented.
-  void operator=(const vtkFunctionSet&);  // Not implemented.
+  vtkFunctionSet(const vtkFunctionSet&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFunctionSet&) VTK_DELETE_FUNCTION;
 };
 
 #endif

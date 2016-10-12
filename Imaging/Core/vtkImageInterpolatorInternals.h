@@ -12,7 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInterpolatorInternals - internals for vtkImageInterpolator
+/**
+ * @class   vtkInterpolatorInternals
+ * @brief   internals for vtkImageInterpolator
+*/
 
 #ifndef vtkImageInterpolatorInternals_h
 #define vtkImageInterpolatorInternals_h

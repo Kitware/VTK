@@ -46,43 +46,43 @@ int TestStaticCellLinks( int, char *[] )
   cout << "Volume:\n";
   cout << "   Lower Left corner (numCells, cells): " << ncells << " (";
   for (int i=0; i<ncells; ++i)
-    {
+  {
     cout << imcells[i];
     if ( i < (ncells-1) ) cout << "," ;
-    }
+  }
   cout << ")\n";
   if ( ncells != 1 || imcells[0] != 0 )
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   ncells = imlinks->GetNumberOfCells(13);
   imcells = imlinks->GetCells(13);
   cout << "   Center (ncells, cells): " << ncells << " (";
   for (int i=0; i<ncells; ++i)
-    {
+  {
     cout << imcells[i];
     if ( i < (ncells-1) ) cout << "," ;
-    }
+  }
   cout << ")\n";
   if ( ncells != 8 )
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   ncells = imlinks->GetNumberOfCells(26);
   imcells = imlinks->GetCells(26);
   cout << "   Upper Right corner (ncells, cells): " << ncells << " (";
   for (int i=0; i<ncells; ++i)
-    {
+  {
     cout << imcells[i];
     if ( i < (ncells-1) ) cout << "," ;
-    }
+  }
   cout << ")\n";
   if ( ncells != 1 || imcells[0] != 7 )
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   //----------------------------------------------------------------------------
   // Unstructured grid
@@ -109,43 +109,43 @@ int TestStaticCellLinks( int, char *[] )
   cout << "\nUnstructured Grid:\n";
   cout << "   Lower Left corner (numCells, cells): " << numCells << " (";
   for (int i=0; i<numCells; ++i)
-    {
+  {
     cout << cells[i];
     if ( i < (numCells-1) ) cout << "," ;
-    }
+  }
   cout << ")\n";
   if ( numCells != 1 || cells[0] != 0 )
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   numCells = slinks.GetNumberOfCells(13);
   cells = slinks.GetCells(13);
   cout << "   Center (numCells, cells): " << numCells << " (";
   for (int i=0; i<numCells; ++i)
-    {
+  {
     cout << cells[i];
     if ( i < (numCells-1) ) cout << "," ;
-    }
+  }
   cout << ")\n";
   if ( numCells != 8 )
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   numCells = slinks.GetNumberOfCells(26);
   cells = slinks.GetCells(26);
   cout << "   Upper Right corner (numCells, cells): " << numCells << " (";
   for (int i=0; i<numCells; ++i)
-    {
+  {
     cout << cells[i];
     if ( i < (numCells-1) ) cout << "," ;
-    }
+  }
   cout << ")\n";
   if ( numCells != 1 || cells[0] != 7 )
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   //----------------------------------------------------------------------------
   // Polydata
@@ -166,30 +166,30 @@ int TestStaticCellLinks( int, char *[] )
   cout << "\nPolydata:\n";
   cout << "   Pole: (numCells, cells): " << numCells << " (";
   for (int i=0; i<numCells; ++i)
-    {
+  {
     cout << cells[i];
     if ( i < (numCells-1) ) cout << "," ;
-    }
+  }
   cout << ")\n";
   if ( numCells != 12 )
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   // The next point is at near the equator
   numCells = slinks.GetNumberOfCells(5);
   cells = slinks.GetCells(5);
   cout << "   Equator: (numCells, cells): " << numCells << " (";
   for (int i=0; i<numCells; ++i)
-    {
+  {
     cout << cells[i];
     if ( i < (numCells-1) ) cout << "," ;
-    }
+  }
   cout << ")\n";
   if ( numCells != 6 )
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

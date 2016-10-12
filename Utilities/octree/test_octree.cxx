@@ -1,7 +1,5 @@
 #include <octree>
 
-#include "vtkObject.h" // for vtkstd STL stuff
-
 #include <iostream>
 
 int main()

@@ -12,37 +12,39 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkUniformGridGhostDataGenerator.h--Ghost generator for uniform grids.
-//
-// .SECTION Description
-//  A concrete implementation of vtkDataSetGhostGenerator for generating ghost
-//  data on partitioned uniform grids on a single process. For a distributed
-//  data-set see vtkPUniformGridGhostDataGenerator.
-//
-// .SECTION Caveats
-//  <ol>
-//   <li>
-//    The input multi-block dataset must:
-//    <ul>
-//      <li> Have the whole-extent set </li>
-//      <li> Each block must be an instance of vtkUniformGrid </li>
-//      <li> Each block must have its corresponding global extent set in the
-//           meta-data using the PIECE_EXTENT() key </li>
-//      <li> The spacing of each block is the same </li>
-//      <li> All blocks must have the same fields loaded </li>
-//    </ul>
-//   </li>
-//   <li>
-//    The code currently does not handle the following cases:
-//    <ul>
-//      <li>Ghost cells along Periodic boundaries</li>
-//      <li>Growing ghost layers beyond the extents of the neighboring grid</li>
-//    </ul>
-//   </li>
-//  </ol>
-//
-// .SECTION See Also
-//  vtkDataSetGhostGenerator, vtkPUniformGhostDataGenerator
+/**
+ * @class   vtkUniformGridGhostDataGenerator
+ *
+ *
+ *  A concrete implementation of vtkDataSetGhostGenerator for generating ghost
+ *  data on partitioned uniform grids on a single process. For a distributed
+ *  data-set see vtkPUniformGridGhostDataGenerator.
+ *
+ * @warning
+ *  <ol>
+ *   <li>
+ *    The input multi-block dataset must:
+ *    <ul>
+ *      <li> Have the whole-extent set </li>
+ *      <li> Each block must be an instance of vtkUniformGrid </li>
+ *      <li> Each block must have its corresponding global extent set in the
+ *           meta-data using the PIECE_EXTENT() key </li>
+ *      <li> The spacing of each block is the same </li>
+ *      <li> All blocks must have the same fields loaded </li>
+ *    </ul>
+ *   </li>
+ *   <li>
+ *    The code currently does not handle the following cases:
+ *    <ul>
+ *      <li>Ghost cells along Periodic boundaries</li>
+ *      <li>Growing ghost layers beyond the extents of the neighboring grid</li>
+ *    </ul>
+ *   </li>
+ *  </ol>
+ *
+ * @sa
+ *  vtkDataSetGhostGenerator, vtkPUniformGhostDataGenerator
+*/
 
 #ifndef vtkUniformGridGhostDataGenerator_h
 #define vtkUniformGridGhostDataGenerator_h
@@ -61,42 +63,47 @@ class VTKFILTERSGEOMETRY_EXPORT vtkUniformGridGhostDataGenerator :
 public:
   static vtkUniformGridGhostDataGenerator* New();
   vtkTypeMacro(vtkUniformGridGhostDataGenerator,vtkDataSetGhostGenerator);
-  void PrintSelf(ostream& os, vtkIndent indent );
+  void PrintSelf(ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
 protected:
   vtkUniformGridGhostDataGenerator();
-  virtual ~vtkUniformGridGhostDataGenerator();
+  ~vtkUniformGridGhostDataGenerator() VTK_OVERRIDE;
 
-  // Description:
-  // Computes the global origin
+  /**
+   * Computes the global origin
+   */
   void ComputeOrigin(vtkMultiBlockDataSet *in);
 
-  // Description:
-  // Computes the global spacing vector
+  /**
+   * Computes the global spacing vector
+   */
   void ComputeGlobalSpacingVector(vtkMultiBlockDataSet *in);
 
-  // Description:
-  // Registers the grid associated with this instance of multi-block.
+  /**
+   * Registers the grid associated with this instance of multi-block.
+   */
   void RegisterGrids(vtkMultiBlockDataSet *in);
 
-  // Description:
-  // Creates the output
+  /**
+   * Creates the output
+   */
   void CreateGhostedDataSet(
       vtkMultiBlockDataSet *in,
       vtkMultiBlockDataSet *out );
 
-  // Description:
-  // Generates ghost layers.
+  /**
+   * Generates ghost layers.
+   */
   void GenerateGhostLayers(
-      vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out);
+      vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out) VTK_OVERRIDE;
 
   double GlobalSpacing[3];
   double GlobalOrigin[3];
   vtkStructuredGridConnectivity *GridConnectivity;
 
 private:
-  vtkUniformGridGhostDataGenerator(const vtkUniformGridGhostDataGenerator&); // Not implemented
-  void operator=(const vtkUniformGridGhostDataGenerator&); // Not implemented
+  vtkUniformGridGhostDataGenerator(const vtkUniformGridGhostDataGenerator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUniformGridGhostDataGenerator&) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkUniformGridGhostDataGenerator_h */

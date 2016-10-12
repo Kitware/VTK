@@ -80,14 +80,14 @@ vtkUndirectedGraph *vtkUndirectedGraph::GetData(vtkInformationVector *v, int i)
 bool vtkUndirectedGraph::IsStructureValid(vtkGraph *g)
 {
   if (!g)
-    {
+  {
     return false;
-    }
+  }
 
   if (vtkUndirectedGraph::SafeDownCast(g))
-    {
+  {
     return true;
-    }
+  }
 
   // Verify that there are no in edges and that each edge
   // appears in exactly two edge lists.
@@ -97,35 +97,35 @@ bool vtkUndirectedGraph::IsStructureValid(vtkGraph *g)
   vtkSmartPointer<vtkOutEdgeIterator> outIter =
     vtkSmartPointer<vtkOutEdgeIterator>::New();
   for (vtkIdType v = 0; v < g->GetNumberOfVertices(); ++v)
-    {
+  {
     if (g->GetInDegree(v) > 0)
-      {
+    {
       return false;
-      }
+    }
     g->GetOutEdges(v, outIter);
     while (outIter->HasNext())
-      {
+    {
       vtkOutEdgeType e = outIter->Next();
       if (place[e.Id] == v)
-        {
+      {
         return false;
-        }
+      }
       place[e.Id] = v;
       count[e.Id]++;
       // Count loops twice so they should all have count == 2
       if (v == e.Target)
-        {
-        count[e.Id]++;
-        }
-      }
-    }
-  for (vtkIdType i = 0; i < g->GetNumberOfEdges(); ++i)
-    {
-    if (count[i] != 2)
       {
-      return false;
+        count[e.Id]++;
       }
     }
+  }
+  for (vtkIdType i = 0; i < g->GetNumberOfEdges(); ++i)
+  {
+    if (count[i] != 2)
+    {
+      return false;
+    }
+  }
 
   return true;
 }

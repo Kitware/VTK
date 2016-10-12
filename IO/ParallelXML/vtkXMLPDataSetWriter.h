@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPDataSetWriter - Write any type of PVTK XML file.
-// .SECTION Description
-// vtkXMLPDataSetWriter is a wrapper around the PVTK XML file format
-// writers.  Given an input vtkDataSet, the correct writer is
-// automatically selected based on the type of input.
-
-// .SECTION See Also
-// vtkXMLPImageDataWriter vtkXMLPStructuredGridWriter
-// vtkXMLPRectilinearGridWriter vtkXMLPPolyDataWriter
-// vtkXMLPUnstructuredGridWriter
+/**
+ * @class   vtkXMLPDataSetWriter
+ * @brief   Write any type of PVTK XML file.
+ *
+ * vtkXMLPDataSetWriter is a wrapper around the PVTK XML file format
+ * writers.  Given an input vtkDataSet, the correct writer is
+ * automatically selected based on the type of input.
+ *
+ * @sa
+ * vtkXMLPImageDataWriter vtkXMLPStructuredGridWriter
+ * vtkXMLPRectilinearGridWriter vtkXMLPPolyDataWriter
+ * vtkXMLPUnstructuredGridWriter
+*/
 
 #ifndef vtkXMLPDataSetWriter_h
 #define vtkXMLPDataSetWriter_h
@@ -36,8 +39,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLPDataSetWriter* New();
 
-  // Description:
-  // Get/Set the writer's input.
+  /**
+   * Get/Set the writer's input.
+   */
   vtkDataSet* GetInput();
 
 protected:
@@ -56,8 +60,8 @@ protected:
   vtkXMLWriter* CreatePieceWriter(int index);
 
 private:
-  vtkXMLPDataSetWriter(const vtkXMLPDataSetWriter&);  // Not implemented.
-  void operator=(const vtkXMLPDataSetWriter&);  // Not implemented.
+  vtkXMLPDataSetWriter(const vtkXMLPDataSetWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLPDataSetWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

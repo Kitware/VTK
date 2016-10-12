@@ -45,11 +45,11 @@ namespace
 #define test_expression(expression) \
 { \
   if(!(expression)) \
-    { \
+  { \
     std::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
     throw std::runtime_error(buffer.str()); \
-    } \
+  } \
 }
 
 bool doubleEquals(double left, double right, double epsilon) {
@@ -69,7 +69,7 @@ bool stringEquals(const char * left, const char * right) {
 int TestRInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     int buf_size = 2000;
     char* out_buffer = new char[buf_size];
     out_buffer[0] = '\0';
@@ -84,22 +84,22 @@ int TestRInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     da->SetNumberOfComponents(3);
     for( int cc = 0; cc < 10; cc ++ )
-      {
+    {
       da->InsertNextTuple3( cc + 0.1, cc + 0.2, cc + 0.3);
-      }
+    }
     rint->AssignVTKDataArrayToRVariable(da, "d");
     rint->EvalRscript("d[,1] = d[,1] - 0.1\n\
                        d[,2] = d[,2] - 0.2\n\
                        d[,3] = d[,3] - 0.3\n");
     vtkDoubleArray* rda = vtkArrayDownCast<vtkDoubleArray>(rint->AssignRVariableToVTKDataArray("d"));
     for(int i = 0;i<rda->GetNumberOfTuples();i++)
-      {
+    {
       double* iv = da->GetTuple3(i);
       double* rv = rda->GetTuple3(i);
       test_expression(doubleEquals(iv[0] - 0.1,rv[0],0.001));
       test_expression(doubleEquals(iv[1] - 0.2,rv[1],0.001));
       test_expression(doubleEquals(iv[2] - 0.3,rv[2],0.001));
-      }
+    }
 
     dda->Resize(vtkArrayExtents(3, 3, 3));
     dda->Fill(64.0);
@@ -109,17 +109,17 @@ int TestRInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     assert(rdda->GetExtents().ZeroBased());
     const vtkArrayExtents extents = rdda->GetExtents();
     for(int i = 0; i != extents[0].GetSize(); ++i)
-      {
+    {
       for(int j = 0; j != extents[1].GetSize(); ++j)
-        {
+      {
         for(int k = 0; k != extents[2].GetSize(); ++k)
-          {
+        {
           test_expression(doubleEquals(sqrt(dda->GetValue(vtkArrayCoordinates(i, j, k))),
                                        rdda->GetValue(vtkArrayCoordinates(i, j, k)),
                                        0.001));
-          }
         }
       }
+    }
 
     rts->SetNumberOfRows(20);
     rts->SetStatisticalDistributionForColumn(vtkRRandomTableSource::NORMAL,0.0,1.0,0.0,"Variable One",0);
@@ -133,14 +133,14 @@ int TestRInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
                        t = t - t\n");
     vtkTable* table = rint->AssignRVariableToVTKTable("t");
     for(int i=0;i<table->GetNumberOfColumns();i++)
-      {
+    {
       for(int j=0;j<table->GetNumberOfRows();j++)
-        {
+      {
         double i_val = itable->GetValue(i,j).ToDouble() - itable->GetValue(i,j).ToDouble();
         double r_val = table->GetValue(i,j).ToDouble();
         test_expression(doubleEquals(i_val,r_val,0.0001));
-        }
       }
+    }
 
     //----------------test vtkTree <==> R Tree
     // 1) construct a vtkTree
@@ -177,10 +177,10 @@ int TestRInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     vtkSmartPointer<vtkTree> itree = vtkSmartPointer<vtkTree>::New();
     if ( ! itree->CheckedDeepCopy(graph.GetPointer()))
-      {
+    {
       std::cout<<"Edges do not create a valid tree."<<std::endl;
       return 1;
-      };
+    };
 
 
     //2) test VTKTree to R
@@ -195,11 +195,11 @@ int TestRInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkDoubleArray* r_edge = vtkArrayDownCast<vtkDoubleArray>(rint->AssignRVariableToVTKDataArray("edge"));
     int EDGE_ARRAY[5][2] = { {4,5},{5,6},{5,3},{6,1},{6,2} };
     for ( int i = 0; i< r_edge->GetNumberOfTuples(); i++)
-      {
+    {
       double * tup = r_edge->GetTuple(i);
       test_expression(doubleEquals(tup[0],double( EDGE_ARRAY[i][0]), 0.001));
       test_expression(doubleEquals(tup[1],double( EDGE_ARRAY[i][1]), 0.001));
-      }
+    }
     //check Nnode
     vtkDoubleArray* r_Nnode= vtkArrayDownCast<vtkDoubleArray>(rint->AssignRVariableToVTKDataArray("Nnode"));
     test_expression(doubleEquals(r_Nnode->GetValue(0),double(3), 0.001));
@@ -213,10 +213,10 @@ int TestRInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkDoubleArray* r_edge_length= vtkArrayDownCast<vtkDoubleArray>(rint->AssignRVariableToVTKDataArray("edge_length"));
     double e_weights[5] = {1.0,2.0,3.0,1.0,1.0};
     for (int i = 0; i < r_edge_length->GetNumberOfTuples(); i++)
-      {
+    {
       double * r_weights = r_edge_length->GetTuple(i);
       test_expression(doubleEquals(r_weights[0],double( e_weights[i]), 0.001));
-      }
+    }
 
 
     // 3) test R to VTKTree
@@ -228,18 +228,18 @@ int TestRInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     //check edge data
     for (int i = 0; i < vtk_tr->GetNumberOfEdges(); i++)
-      {
+    {
       vtkDoubleArray * edge_weights = vtkArrayDownCast<vtkDoubleArray>(vtk_tr->GetEdgeData()->GetArray("weight"));
       test_expression(doubleEquals(edge_weights->GetValue(i),double( e_weights[i]), 0.001));
-      }
+    }
 
     //check vertex data
     const char *  t_names[] ={"a","b","c","","",""};
     for (int i = 0; i < vtk_tr->GetNumberOfVertices(); i++)
-      {
+    {
       vtkStringArray * v_names = vtkArrayDownCast<vtkStringArray>(vtk_tr->GetVertexData()->GetAbstractArray("node name"));
       test_expression(stringEquals(v_names->GetValue(i).c_str(), t_names[i] ));
-      }
+    }
 
 
     delete [] out_buffer;
@@ -248,11 +248,11 @@ int TestRInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     da->Delete();
     rint->Delete();
     return 0;
-    }
+  }
   catch( std::exception& e )
-    {
+  {
     cerr << e.what()
       << "\n";
     return 1;
-    }
+  }
 }

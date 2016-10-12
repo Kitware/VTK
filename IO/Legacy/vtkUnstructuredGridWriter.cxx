@@ -45,16 +45,16 @@ void vtkUnstructuredGridWriter::WriteData()
   vtkDebugMacro(<<"Writing vtk unstructured grid data...");
 
   if ( !(fp=this->OpenVTKFile()) || !this->WriteHeader(fp) )
-    {
+  {
     if (fp)
-      {
+    {
       vtkErrorMacro("Ran out of disk space; deleting file: "
                     << this->FileName);
       this->CloseVTKFile(fp);
       unlink(this->FileName);
-      }
-    return;
     }
+    return;
+  }
   //
   // Write unstructured grid specific stuff
   //
@@ -62,88 +62,88 @@ void vtkUnstructuredGridWriter::WriteData()
 
   // Write data owned by the dataset
   if (!this->WriteDataSetData(fp, input))
-    {
+  {
     vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
     this->CloseVTKFile(fp);
     unlink(this->FileName);
     return;
-    }
+  }
 
   if (!this->WritePoints(fp, input->GetPoints()))
-    {
+  {
     vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
     this->CloseVTKFile(fp);
     unlink(this->FileName);
     return;
-    }
+  }
 
   // Write cells. Check for faces so that we can handle them if present:
   if (input->GetFaces() != NULL)
-    {
+  {
     // Handle face data:
     if (!this->WriteCellsAndFaces(fp, input, "CELLS"))
-      {
+    {
       vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
       this->CloseVTKFile(fp);
       unlink(this->FileName);
       return;
-      }
     }
+  }
   else
-    {
+  {
     // Fall back to superclass:
     if (!this->WriteCells(fp, input->GetCells(),"CELLS"))
-      {
+    {
       vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
       this->CloseVTKFile(fp);
       unlink(this->FileName);
       return;
-      }
     }
+  }
 
   //
   // Cell types are a little more work
   //
   if ( input->GetCells() )
-    {
+  {
     ncells = input->GetCells()->GetNumberOfCells();
     types = new int[ncells];
     for (cellId=0; cellId < ncells; cellId++)
-      {
+    {
       types[cellId] = input->GetCellType(cellId);
-      }
+    }
 
     *fp << "CELL_TYPES " << ncells << "\n";
     if ( this->FileType == VTK_ASCII )
-      {
+    {
       for (cellId=0; cellId<ncells; cellId++)
-        {
-        *fp << types[cellId] << "\n";
-        }
-      }
-    else
       {
+        *fp << types[cellId] << "\n";
+      }
+    }
+    else
+    {
       // swap the bytes if necc
       vtkByteSwap::SwapWrite4BERange(types,ncells,fp);
-      }
+    }
     *fp << "\n";
     delete [] types;
-    }
+  }
 
   if (!this->WriteCellData(fp, input))
-    {
+  {
     vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
     this->CloseVTKFile(fp);
     unlink(this->FileName);
     return;
-    }
+  }
   if (!this->WritePointData(fp, input))
-    {
+  {
     vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
     this->CloseVTKFile(fp);
     unlink(this->FileName);
     return;
-    }
+  }
 
   this->CloseVTKFile(fp);
 }
@@ -152,9 +152,9 @@ int vtkUnstructuredGridWriter::WriteCellsAndFaces(
     ostream *fp, vtkUnstructuredGrid *grid, const char *label)
 {
   if (!grid->GetCells())
-    {
+  {
     return 1;
-    }
+  }
 
   // Create a copy of the cell data with the face streams expanded.
   // Do this before writing anything so that we know the size.
@@ -166,59 +166,59 @@ int vtkUnstructuredGridWriter::WriteCellsAndFaces(
       vtkSmartPointer<vtkCellIterator>::Take(grid->NewCellIterator());
 
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
-    {
+  {
     if (it->GetCellType() != VTK_POLYHEDRON)
-      {
+    {
       vtkIdType cellSize = it->GetNumberOfPoints();
       cells.push_back(static_cast<int>(cellSize));
       std::copy(it->GetPointIds()->GetPointer(0),
                 it->GetPointIds()->GetPointer(cellSize),
                 std::back_inserter(cells));
-      }
+    }
     else
-      {
+    {
       vtkIdType cellSize = it->GetFaces()->GetNumberOfIds();
       cells.push_back(static_cast<int>(cellSize));
       std::copy(it->GetFaces()->GetPointer(0),
                 it->GetFaces()->GetPointer(cellSize),
                 std::back_inserter(cells));
-      }
     }
+  }
 
   if (cells.empty())
-    { // Nothing to do.
+  { // Nothing to do.
     return 1;
-    }
+  }
 
   *fp << label << " " << grid->GetNumberOfCells() << " "
       << cells.size() << "\n";
 
   if ( this->FileType == VTK_ASCII )
-    { // Write each cell out to a separate line, must traverse:
+  { // Write each cell out to a separate line, must traverse:
     std::vector<int>::const_iterator cellStart = cells.begin();
     std::vector<int>::const_iterator cellEnd;
     vtkIdType nCells = grid->GetNumberOfCells();
     while (nCells-- > 0)
-      {
+    {
       cellEnd = cellStart + (*cellStart + 1);
       while (cellStart != cellEnd)
         *fp << static_cast<int>(*cellStart++) << " ";
       *fp << "\n";
-      }
     }
+  }
   else
-    {
+  {
     // Just dump the cell data
     vtkByteSwap::SwapWrite4BERange(&cells[0], cells.size(), fp);
     *fp << "\n";
-    }
+  }
 
   fp->flush();
   if (fp->fail())
-    {
+  {
     this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
     return 0;
-    }
+  }
 
   return 1;
 }

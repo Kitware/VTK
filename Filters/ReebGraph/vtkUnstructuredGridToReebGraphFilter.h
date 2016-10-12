@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkUnstructuredGridToReebGraphFilter - generate a Reeb graph from a
-// scalar field defined on a vtkUnstructuredGrid.
-// .SECTION Description
-// The filter will first try to pull as a scalar field the vtkDataArray with
-// Id 'fieldId' of the mesh's vtkPointData.
-// If this field does not exist, the filter will use the vtkElevationFilter to
-// generate a default scalar field.
+/**
+ * @class   vtkUnstructuredGridToReebGraphFilter
+ * @brief   generate a Reeb graph from a
+ * scalar field defined on a vtkUnstructuredGrid.
+ *
+ * The filter will first try to pull as a scalar field the vtkDataArray with
+ * Id 'fieldId' of the mesh's vtkPointData.
+ * If this field does not exist, the filter will use the vtkElevationFilter to
+ * generate a default scalar field.
+*/
 
 #ifndef vtkUnstructuredGridToReebGraphFilter_h
 #define vtkUnstructuredGridToReebGraphFilter_h
@@ -37,10 +40,13 @@ public:
     vtkDirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the scalar field id (default = 0).
+  //@{
+  /**
+   * Set the scalar field id (default = 0).
+   */
   vtkSetMacro(FieldId, int);
   vtkGetMacro(FieldId, int);
+  //@}
 
   vtkReebGraph* GetOutput();
 
@@ -59,8 +65,8 @@ protected:
                   vtkInformationVector*);
 
 private:
-  vtkUnstructuredGridToReebGraphFilter(const vtkUnstructuredGridToReebGraphFilter&); // Not implemented.
-  void operator=(const vtkUnstructuredGridToReebGraphFilter&); // Not implemented.
+  vtkUnstructuredGridToReebGraphFilter(const vtkUnstructuredGridToReebGraphFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnstructuredGridToReebGraphFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

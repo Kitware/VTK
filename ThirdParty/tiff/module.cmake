@@ -1,6 +1,6 @@
 vtk_module(vtktiff
+  EXCLUDE_FROM_WRAPPING
   DEPENDS
     vtkjpeg
     vtkzlib
-  EXCLUDE_FROM_WRAPPING
   )

@@ -51,7 +51,6 @@
 
 ============================================================================*/
 
-#include <XdmfDSMManager.hpp>
 #include <XdmfDSMBuffer.hpp>
 #include <XdmfDSMCommMPI.hpp>
 #include <XdmfError.hpp>
@@ -60,26 +59,26 @@
 #include <H5public.h>
 #include <hdf5.h>
 
+#include <sstream>
+#include <map>
+
 typedef struct XDMF_dsm_t
 {
-  H5FD_t pub;           /* public stuff, must be first             */
-  char *name;           /* for equivalence testing                 */
-  MPI_Comm intra_comm;  /* intra-communicator                      */
-  int intra_rank;       /* this process's rank in intra_comm       */
-  int intra_size;       /* total number of processes in intra_comm */
-  void *local_buf_ptr;  /* underlying local DSM buffer             */
-  size_t local_buf_len; /* local DSM buffer length                 */
-  haddr_t eoa;          /* end of address marker                   */
-  haddr_t eof;          /* end of file marker                      */
-  haddr_t start;        /* current DSM start address               */
-  haddr_t end;          /* current DSM end address                 */
-  hbool_t read_only;    /* file access is read-only                */
-  hbool_t dirty;        /* dirty marker                            */
+  H5FD_t pub;            /* public stuff, must be first             */
+  char *name;            /* for equivalence testing                 */
+  void *local_buf_ptr;   /* underlying local DSM buffer             */
+  size_t local_buf_len;  /* local DSM buffer length                 */
+  haddr_t eoa;           /* end of address marker                   */
+  haddr_t eof;           /* end of file marker                      */
+  haddr_t start;         /* current DSM start address               */
+  haddr_t end;           /* current DSM end address                 */
+  hbool_t read_only;     /* file access is read-only                */
+  hbool_t dirty;         /* dirty marker                            */
+  unsigned int numPages; /* number of pages assigned to the file    */
 } XDMF_dsm_t;
 
 typedef struct XDMF_dsm_fapl_t
 {
-  MPI_Comm intra_comm;      /* intra-communicator          */
   void  *local_buf_ptr;     /* local buffer pointer        */
   size_t local_buf_len;     /* local buffer length         */
 } XDMF_dsm_fapl_t;
@@ -94,7 +93,9 @@ typedef struct
 static hid_t XDMF_DSM_g = 0;
 
 //from driver
-XdmfDSMManager *dsmManager = NULL;
+XdmfDSMBuffer *dsmBuffer = NULL;
+std::map<std::string, unsigned int> fileEOF; // holding previously created files
+std::map<std::string, std::vector<unsigned int> > filePages;
 
 #define MAXADDR                 ((haddr_t)((~(size_t)0)-1))
 #define ADDR_OVERFLOW(A)        (HADDR_UNDEF==(A) || (A) > (haddr_t)MAXADDR)
@@ -104,6 +105,7 @@ XdmfDSMManager *dsmManager = NULL;
                                  (size_t)((A)+(Z))<(size_t)(A))
 
 extern "C" {
+
 #include "H5FDprivate.h"  /* File drivers           */
 #include "H5private.h"    /* Generic Functions      */
 #include "H5ACprivate.h"  /* Metadata cache         */
@@ -125,7 +127,7 @@ static H5FD_t  *XDMF_dsm_open(const char *name, unsigned flags, hid_t fapl_id,
 static herr_t   XDMF_dsm_close(H5FD_t *_file);
 static herr_t   XDMF_dsm_query(const H5FD_t *_f1, unsigned long *flags);
 static haddr_t  XDMF_dsm_get_eoa(const H5FD_t *_file, H5FD_mem_t type);
-static herr_t   XDMF_dsm_set_eoa(H5FD_t *_file, H5FD_mem_t type, haddr_t addr);
+static herr_t   XDMF_dsm_set_eoa(H5FD_t * _file, H5FD_mem_t type, haddr_t addr);
 static haddr_t  XDMF_dsm_get_eof(const H5FD_t *_file);
 static herr_t   XDMF_dsm_read(H5FD_t *_file, H5FD_mem_t type, hid_t fapl_id,
     haddr_t addr, size_t size, void *buf);
@@ -223,9 +225,9 @@ XDMF_dsm_init(void)
 
 // Removed because error handling isn't called in this function
 //done:
-//  if (err_occurred) {
-//    /* Nothing */
-//  }
+  if (err_occurred) {
+    /* Nothing */
+  }
 
   FUNC_LEAVE_NOAPI(ret_value)
 }
@@ -289,48 +291,6 @@ done:
   FUNC_LEAVE_NOAPI(ret_value)
 }
 
-herr_t XDMF_dsm_lock(void)
-{
-  herr_t ret_value = SUCCEED;
-
-#if H5_VERSION_GE(1,8,9)
-  FUNC_ENTER_NOAPI(FAIL)
-#else
-  FUNC_ENTER_NOAPI(XDMF_dsm_lock, FAIL)
-#endif
-
-  if (SUCCEED != xdmf_dsm_lock())
-    HGOTO_ERROR(H5E_VFL, H5E_CANTMODIFY, FAIL, "cannot lock")
-
-done:
-  if (err_occurred) {
-    /* Nothing */
-  }
-
-  FUNC_LEAVE_NOAPI(ret_value)
-}
-
-herr_t XDMF_dsm_unlock(unsigned long flag)
-{
-  herr_t ret_value = SUCCEED;
-
-#if H5_VERSION_GE(1,8,9)
-  FUNC_ENTER_NOAPI(FAIL)
-#else
-  FUNC_ENTER_NOAPI(XDMF_dsm_unlock, FAIL)
-#endif
-
-  if (SUCCEED != xdmf_dsm_unlock(flag))
-    HGOTO_ERROR(H5E_VFL, H5E_CANTMODIFY, FAIL, "cannot lock")
-
-done:
-  if (err_occurred) {
-    /* Nothing */
-  }
-
-  FUNC_LEAVE_NOAPI(ret_value)
-}
-
 herr_t
 XDMF_dsm_set_manager(void *manager)
 {
@@ -346,17 +306,18 @@ XDMF_dsm_set_manager(void *manager)
 
 // Removed because error handling isn't called in this function
 //done:
-//  if (err_occurred) {
-//    /* Nothing */
-//  }
+  if (err_occurred) {
+    /* Nothing */
+  }
 
   FUNC_LEAVE_NOAPI(ret_value)
 }
 
 herr_t
 XDMFH5Pset_fapl_dsm(hid_t fapl_id, MPI_Comm intra_comm, void *local_buf_ptr,
-    size_t local_buf_len)
+                    size_t local_buf_len)
 {
+//printf("XDMFH5Pset_fapl_dsm\n");
   XDMF_dsm_fapl_t fa;
   herr_t ret_value = SUCCEED;
   H5P_genplist_t *plist; /* Property list pointer */
@@ -369,15 +330,13 @@ XDMFH5Pset_fapl_dsm(hid_t fapl_id, MPI_Comm intra_comm, void *local_buf_ptr,
   /* Check arguments */
   if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS)))
     HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list")
-  if (MPI_COMM_NULL == intra_comm)
-    HGOTO_ERROR(H5E_PLIST, H5E_BADTYPE, FAIL, "not a valid communicator")
 
   if (!xdmf_dsm_get_manager()) {
 	// throw error here instead of calling alloc
         XdmfError::message(XdmfError::FATAL, "Error: In set_fapl_dsm No manager set");
   }
 
-  if (SUCCEED != xdmf_dsm_get_properties(&fa.intra_comm, &fa.local_buf_ptr, &fa.local_buf_len))
+  if (SUCCEED != xdmf_dsm_get_properties(NULL, &fa.local_buf_ptr, &fa.local_buf_len))
     HGOTO_ERROR(H5E_PLIST, H5E_CANTALLOC, FAIL, "cannot get DSM properties")
 
   if (!xdmf_dsm_is_server() && !xdmf_dsm_is_connected()) {
@@ -418,7 +377,7 @@ XDMFH5Pget_fapl_dsm(hid_t fapl_id, MPI_Comm *intra_comm /* out */,
     HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "bad VFL driver info")
 
   if (intra_comm) {
-    if (MPI_SUCCESS != (mpi_code = MPI_Comm_dup(fa->intra_comm, &intra_comm_tmp)))
+    if (MPI_SUCCESS != (mpi_code = MPI_Comm_dup(dsmBuffer->GetComm()->GetIntraComm(), &intra_comm_tmp)))
       HMPI_GOTO_ERROR(FAIL, "MPI_Comm_dup failed", mpi_code)
     *intra_comm = intra_comm_tmp;
   }
@@ -430,9 +389,6 @@ XDMFH5Pget_fapl_dsm(hid_t fapl_id, MPI_Comm *intra_comm /* out */,
 done:
   if (FAIL == ret_value) {
     /* need to free anything created here */
-    if (intra_comm_tmp != MPI_COMM_NULL) {
-      MPI_Comm_free(&intra_comm_tmp);
-    }
   }
 
   FUNC_LEAVE_API(ret_value)
@@ -441,6 +397,7 @@ done:
 static void *
 XDMF_dsm_fapl_get(H5FD_t *_file)
 {
+//printf("XDMF_dsm_fapl_get\n");
   XDMF_dsm_t *file = (XDMF_dsm_t*) _file;
   XDMF_dsm_fapl_t *fa = NULL;
   void *ret_value = NULL;
@@ -458,11 +415,6 @@ XDMF_dsm_fapl_get(H5FD_t *_file)
   if (NULL == (fa = (XDMF_dsm_fapl_t *) calloc((size_t)1, sizeof(XDMF_dsm_fapl_t))))
     HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
 
-  /* Duplicate communicator. */
-  fa->intra_comm = MPI_COMM_NULL;
-  if (MPI_SUCCESS != (mpi_code = MPI_Comm_dup(file->intra_comm, &fa->intra_comm)))
-    HMPI_GOTO_ERROR(NULL, "MPI_Comm_dup failed", mpi_code)
-
   fa->local_buf_ptr = file->local_buf_ptr;
   fa->local_buf_len = file->local_buf_len;
 
@@ -472,9 +424,6 @@ XDMF_dsm_fapl_get(H5FD_t *_file)
 done:
   if ((NULL == ret_value) && err_occurred) {
     /* need to free anything created here */
-    if (fa && (MPI_COMM_NULL != fa->intra_comm)) {
-      MPI_Comm_free(&fa->intra_comm);
-    }
   }
 
   FUNC_LEAVE_NOAPI(ret_value)
@@ -483,6 +432,7 @@ done:
 static void *
 XDMF_dsm_fapl_copy(const void *_old_fa)
 {
+//printf("XDMF_dsm_fapl_copy\n");
   void *ret_value = NULL;
   const XDMF_dsm_fapl_t *old_fa = (const XDMF_dsm_fapl_t*)_old_fa;
   XDMF_dsm_fapl_t *new_fa = NULL;
@@ -500,23 +450,12 @@ XDMF_dsm_fapl_copy(const void *_old_fa)
   /* Copy the general information */
   HDmemcpy(new_fa, old_fa, sizeof(XDMF_dsm_fapl_t));
 
-  /* Duplicate communicator. */
-  new_fa->intra_comm = MPI_COMM_NULL;
-
-  if (MPI_SUCCESS != (mpi_code = MPI_Comm_dup(old_fa->intra_comm, &new_fa->intra_comm)))
-    HMPI_GOTO_ERROR(NULL, "MPI_Comm_dup failed", mpi_code)
-
   ret_value = new_fa;
 
 done:
   if ((NULL == ret_value) && err_occurred) {
     /* cleanup */
-    if (new_fa && (MPI_COMM_NULL != new_fa->intra_comm)) {
-      MPI_Comm_free(&new_fa->intra_comm);
-    }
-    if (new_fa) {
-      free(new_fa);
-    }
+    if (new_fa) free(new_fa);
   }
 
   FUNC_LEAVE_NOAPI(ret_value)
@@ -536,10 +475,6 @@ XDMF_dsm_fapl_free(void *_fa)
 
   assert(fa);
 
-    /* Free the internal communicator */
-  assert(MPI_COMM_NULL != fa->intra_comm);
-  MPI_Comm_free(&fa->intra_comm);
-
   free(fa);
 
   FUNC_LEAVE_NOAPI(ret_value)
@@ -553,10 +488,11 @@ XDMF_dsm_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxaddr)
   int mpi_size; /* Total number of MPI processes */
   int mpi_code;  /* mpi return code */
   const XDMF_dsm_fapl_t *fa = NULL;
-  MPI_Comm intra_comm_dup = MPI_COMM_NULL;
   H5P_genplist_t *plist; /* Property list pointer */
   H5FD_t *ret_value = NULL;
   herr_t dsm_code = SUCCEED;
+
+  unsigned int * newpages = NULL;
 
 #if H5_VERSION_GE(1,8,9)
   FUNC_ENTER_NOAPI_NOINIT
@@ -581,24 +517,13 @@ XDMF_dsm_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxaddr)
     assert(fa);
   }
 
-  /* Duplicate communicator. */
-  if (MPI_SUCCESS != (mpi_code = MPI_Comm_dup(fa->intra_comm, &intra_comm_dup)))
-    HMPI_GOTO_ERROR(NULL, "MPI_Comm_dup failed", mpi_code)
-
   /* Get the MPI rank of this process and the total number of processes */
-  if (MPI_SUCCESS != (mpi_code = MPI_Comm_rank (fa->intra_comm, &mpi_rank)))
-    HMPI_GOTO_ERROR(NULL, "MPI_Comm_rank failed", mpi_code)
-  if (MPI_SUCCESS != (mpi_code = MPI_Comm_size (fa->intra_comm, &mpi_size)))
-    HMPI_GOTO_ERROR(NULL, "MPI_Comm_size failed", mpi_code)
+  mpi_rank = dsmBuffer->GetComm()->GetId();
+  mpi_size = dsmBuffer->GetComm()->GetIntraSize();
 
   /* Build the return value and initialize it */
   if (NULL == (file = (XDMF_dsm_t *) calloc((size_t)1, sizeof(XDMF_dsm_t))))
     HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
-
-  file->intra_comm = intra_comm_dup;
-
-  file->intra_rank = mpi_rank;
-  file->intra_size = mpi_size;
 
   if (name && *name) {
     file->name = HDstrdup(name);
@@ -611,28 +536,57 @@ XDMF_dsm_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxaddr)
   file->local_buf_ptr = fa->local_buf_ptr;
   file->local_buf_len = fa->local_buf_len;
 
-  /* locking is handled by the user
-  if (SUCCEED != dsm_lock())
-    HGOTO_ERROR(H5E_VFL, H5E_CANTLOCK, NULL, "cannot lock DSM")
-  */
+  // Poll DSM for file information
+  // If file exists fill data from the DSM's results
+  // Otherwise reset data.
+  // For now, multiple files are only supported by paged mode.
+  if (dsmBuffer->GetComm()->GetId() == 0)
+  {
+    if (dsmBuffer->RequestFileDescription(file->name,
+                                          filePages[file->name],
+                                          file->numPages,
+                                          file->start,
+                                          file->end) == XDMF_DSM_FAIL)
+    {
+      // File not found
+      file->numPages = 0;
+      file->start = 0;
+      file->end = 0;
+    }
+  }
 
-  // find the start and end of the entry on core 0
-  if ((file->intra_rank == 0) && (SUCCEED != xdmf_dsm_get_entry(&file->start, &file->end)))
-    dsm_code = FAIL;
 
-  /* Wait for the DSM entry to be updated */
-  if (MPI_SUCCESS != (mpi_code = MPI_Bcast(&dsm_code, sizeof(herr_t),
-      MPI_UNSIGNED_CHAR, 0, file->intra_comm)))
-    HMPI_GOTO_ERROR(NULL, "MPI_Bcast failed", mpi_code)
-  if (SUCCEED != dsm_code)
-    HGOTO_ERROR(H5E_VFL, H5E_CANTRESTORE, NULL, "cannot restore DSM entries")
 
-  if (MPI_SUCCESS != (mpi_code = MPI_Bcast(&file->start, sizeof(haddr_t),
-      MPI_UNSIGNED_CHAR, 0, file->intra_comm)))
-    HMPI_GOTO_ERROR(NULL, "MPI_Bcast failed", mpi_code)
-  if (MPI_SUCCESS != (mpi_code = MPI_Bcast(&file->end, sizeof(haddr_t),
-      MPI_UNSIGNED_CHAR, 0, file->intra_comm)))
-    HMPI_GOTO_ERROR(NULL, "MPI_Bcast failed", mpi_code)
+  dsmBuffer->GetComm()->Broadcast(&file->start,
+                                  sizeof(haddr_t),
+                                  0,
+                                  XDMF_DSM_INTRA_COMM);
+
+  dsmBuffer->GetComm()->Broadcast(&file->end,
+                                  sizeof(haddr_t),
+                                  0,
+                                  XDMF_DSM_INTRA_COMM);
+
+  dsmBuffer->GetComm()->Broadcast(&file->numPages,
+                                  sizeof(unsigned int),
+                                  0,
+                                  XDMF_DSM_INTRA_COMM);
+
+  if (file->numPages > 0)
+  {
+    if (dsmBuffer->GetComm()->GetId() != 0)
+    {
+      filePages[file->name].clear();
+      for (unsigned int i = 0; i < file->numPages; ++i)
+      {
+        filePages[file->name].push_back(0);
+      }
+    }
+    dsmBuffer->GetComm()->Broadcast(&(filePages[file->name][0]),
+                                    sizeof(unsigned int) * file->numPages,
+                                    0,
+                                    XDMF_DSM_INTRA_COMM);
+  }
 
   if (H5F_ACC_RDWR & flags) {
     file->read_only = FALSE;
@@ -642,30 +596,35 @@ XDMF_dsm_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxaddr)
 
   if (H5F_ACC_CREAT & flags) {
     /* Reset start and end markers */
-    file->start = 0;
-    file->end = 0;
-    file->eof = 0;
+    if (fileEOF.count(name) == 0) // Need to store the eof and eoa of the files here
+    {
+      file->start = 0;
+      file->end = 0;
+      file->eof = 0;
+      fileEOF[name] = 0;
+    }
+    else
+    {
+      file->eof = fileEOF[name];
+    }
+
   } else {
     file->eof = file->end - file->start;
   }
 
+  // Poll DSM for page info if in paged mode
+
   /* Don't let any proc return until all have created the file. */
   if ((H5F_ACC_CREAT & flags)) {
-    if (MPI_SUCCESS != (mpi_code = MPI_Barrier(intra_comm_dup)))
-      HMPI_GOTO_ERROR(NULL, "MPI_Barrier failed in open", mpi_code)
+    dsmBuffer->GetComm()->Barrier(XDMF_DSM_INTRA_COMM);
   }
 
   /* Set return value */
   ret_value = (H5FD_t *) file;
 
-//  HGOTO_ERROR(H5E_VFL, H5E_CANTLOCK, NULL, "FAKE ERROR")
-
 done:
   if((ret_value == NULL) && err_occurred) {
     if (file && file->name) HDfree(file->name);
-    if ((MPI_COMM_NULL != intra_comm_dup)) {
-      MPI_Comm_free(&intra_comm_dup);
-    }
     if (file) free(file);
   } /* end if */
 
@@ -692,14 +651,25 @@ XDMF_dsm_close(H5FD_t *_file)
   assert(XDMF_DSM == file->pub.driver_id);
 
   if (!file->read_only) {
-    file->end = MAX((file->start + file->eof), file->end);
+    if (dsmBuffer->GetComm()->GetId() == 0)
+    {
+      // Update DSM file description
+      if (dsmBuffer->RegisterFile(file->name,
+                              &(filePages[file->name][0]),
+                              file->numPages,
+                              file->start,
+                              file->end) == XDMF_DSM_FAIL)
+      {
+        dsm_code = FAIL;
+      }
+    }
 
-    if ((file->intra_rank == 0) && (SUCCEED != xdmf_dsm_update_entry(file->start, file->end)))
-      dsm_code = FAIL;
     /* Wait for the DSM entry to be updated */
-    if (MPI_SUCCESS != (mpi_code = MPI_Bcast(&dsm_code, sizeof(herr_t),
-        MPI_UNSIGNED_CHAR, 0, file->intra_comm)))
-      HMPI_GOTO_ERROR(FAIL, "MPI_Bcast failed", mpi_code)
+    dsmBuffer->GetComm()->Broadcast(&dsm_code,
+                                    sizeof(herr_t),
+                                    0,
+                                    XDMF_DSM_INTRA_COMM);
+
     if (SUCCEED != dsm_code)
       HGOTO_ERROR(H5E_VFL, H5E_CANTUPDATE, FAIL, "cannot update DSM entries")
 
@@ -708,20 +678,32 @@ XDMF_dsm_close(H5FD_t *_file)
        * collective op). Gather all the dirty flags because some processes may
        * not have written yet.
        */
-      if (MPI_SUCCESS != (mpi_code = MPI_Allreduce(MPI_IN_PLACE, &file->dirty,
-          sizeof(hbool_t), MPI_UNSIGNED_CHAR, MPI_MAX, file->intra_comm)))
-        HMPI_GOTO_ERROR(FAIL, "MPI_Allreduce failed", mpi_code)
+      hbool_t * dirtyaccum = new hbool_t[dsmBuffer->GetComm()->GetIntraSize()]();
+
+      dsmBuffer->GetComm()->AllGather(&file->dirty,
+                                      sizeof(hbool_t),
+                                      dirtyaccum,
+                                      sizeof(hbool_t),
+                                      XDMF_DSM_INTRA_COMM);
+
+      for (unsigned int i = 0; i < dsmBuffer->GetComm()->GetIntraSize(); ++i)
+      {
+        if (dirtyaccum[i] > file->dirty)
+        {
+          file->dirty = dirtyaccum[i];
+        }
+      }
+
+      delete dirtyaccum;
   }
 
   /* if ReleaseLockOnClose was set, unlocks using whatever notification
    * unlock_flag was set.
    */
   unlock_flag = (file->dirty) ? XDMF_DSM_NOTIFY_DATA : XDMF_DSM_NOTIFY_NONE;
-  if (SUCCEED != xdmf_dsm_unlock(unlock_flag)) HGOTO_ERROR(H5E_VFL, H5E_CANTUNLOCK, FAIL, "cannot unlock DSM")
 
   /* Release resources */
   if (file->name) HDfree(file->name);
-  if (MPI_COMM_NULL != file->intra_comm) MPI_Comm_free(&file->intra_comm);
   HDmemset(file, 0, sizeof(XDMF_dsm_t));
   free(file);
 
@@ -753,6 +735,7 @@ XDMF_dsm_query(const H5FD_t UNUSED *_file, unsigned long *flags /* out */)
 #ifdef H5FD_FEAT_ALLOCATE_EARLY
     *flags |= H5FD_FEAT_ALLOCATE_EARLY;      /* Allocate space early instead of late */
 #endif
+
   } /* end if */
 
   FUNC_LEAVE_NOAPI(SUCCEED)
@@ -776,7 +759,7 @@ XDMF_dsm_get_eoa(const H5FD_t *_file, H5FD_mem_t UNUSED type)
 }
 
 static herr_t
-XDMF_dsm_set_eoa(H5FD_t *_file, H5FD_mem_t UNUSED type, haddr_t addr)
+XDMF_dsm_set_eoa(H5FD_t * _file, H5FD_mem_t UNUSED type, haddr_t addr)
 {
   XDMF_dsm_t *file = (XDMF_dsm_t*) _file;
   herr_t ret_value = SUCCEED; /* Return value */
@@ -797,19 +780,92 @@ XDMF_dsm_set_eoa(H5FD_t *_file, H5FD_mem_t UNUSED type, haddr_t addr)
 
   file->eoa = addr;
 
+  // If EoA is smaller than the end of the file the address is within page boundaries
+  // If this is not the case then we need to reserve more pages.
+  if ((file->start + file->eoa) > file->end &&
+      (((XdmfDSMBuffer *)xdmf_dsm_get_manager())->GetDsmType() == XDMF_DSM_TYPE_BLOCK_CYCLIC ||
+      ((XdmfDSMBuffer *)xdmf_dsm_get_manager())->GetDsmType() == XDMF_DSM_TYPE_BLOCK_RANDOM) &&
+      !file->read_only)
+  {
+    unsigned int pageCount = file->numPages;
+    unsigned int * newpages;
+    if (dsmBuffer->GetComm()->GetId() == 0)
+    {
+      // Request additional pages to store data
+      dsmBuffer->RequestPages(file->name,
+                              file->start + file->eoa - file->end,
+                              filePages[file->name],
+                              file->numPages,
+                              file->start,
+                              file->end);
+    }
+
+    // If requesting pages resized the pointer
+    // Reset the total length to match the new size.
+    unsigned int currentLength = dsmBuffer->GetLength();
+    dsmBuffer->GetComm()->Broadcast(&currentLength,
+                                    sizeof(unsigned int),
+                                    0,
+                                    XDMF_DSM_INTRA_COMM);
+    if (currentLength != dsmBuffer->GetLength()) {
+      dsmBuffer->UpdateLength(currentLength);
+    }
+
+    dsmBuffer->GetComm()->Broadcast(&file->end,
+                                    sizeof(haddr_t),
+                                    0,
+                                    XDMF_DSM_INTRA_COMM);
+
+    dsmBuffer->GetComm()->Broadcast(&file->numPages,
+                                    sizeof(unsigned int),
+                                    0,
+                                    XDMF_DSM_INTRA_COMM);
+
+    if (pageCount != file->numPages) 
+    {
+      if (dsmBuffer->GetComm()->GetId() != 0)
+      {
+        filePages[file->name].clear();
+        for (unsigned int i = 0; i < file->numPages; ++i)
+        {
+          filePages[file->name].push_back(0);
+        }
+      }
+
+      dsmBuffer->GetComm()->Broadcast(&(filePages[file->name][0]),
+                                      sizeof(unsigned int) * file->numPages,
+                                      0,
+                                      XDMF_DSM_INTRA_COMM);
+    }
+  }
+
   file->end = MAX((file->start + file->eoa), file->end);
   file->eof = file->end - file->start;
+  fileEOF[file->name] = file->eof;
   if (!file->read_only) {
-    if ((file->intra_rank == 0) && (SUCCEED != xdmf_dsm_update_entry(file->start, file->end)))
-      dsm_code = FAIL;
+
+    if (dsmBuffer->GetComm()->GetId() == 0)
+    {
+      // Update DSM file description
+      if (dsmBuffer->RegisterFile(file->name,
+                                  &(filePages[file->name][0]),
+                                  file->numPages,
+                                  file->start,
+                                  file->end) == XDMF_DSM_FAIL)
+      {
+        dsm_code = FAIL;
+      }
+
+    }
+
     /* Wait for the DSM entry to be updated */
-    if (MPI_SUCCESS != (mpi_code = MPI_Bcast(&dsm_code, sizeof(herr_t),
-        MPI_UNSIGNED_CHAR, 0, file->intra_comm)))
-      HMPI_GOTO_ERROR(FAIL, "MPI_Bcast failed", mpi_code)
+      dsmBuffer->GetComm()->Broadcast(&dsm_code,
+                                      sizeof(herr_t),
+                                      0,
+                                      XDMF_DSM_INTRA_COMM);
     if (SUCCEED != dsm_code)
       HGOTO_ERROR(H5E_VFL, H5E_CANTUPDATE, FAIL, "cannot update DSM entries")
   }
-
 done:
   if (err_occurred) {
     /* Nothing */
@@ -869,13 +925,30 @@ XDMF_dsm_read(H5FD_t *_file, H5FD_mem_t UNUSED type, hid_t UNUSED dxpl_id,
     H5_CHECK_OVERFLOW(temp_nbytes,hsize_t,size_t);
     nbytes = MIN(size,(size_t)temp_nbytes);
 
-    /* Read from DSM to BUF */
-    if (SUCCEED != xdmf_dsm_read(file->start + addr, nbytes, buf)) {
-      HGOTO_ERROR(H5E_IO, H5E_READERROR, FAIL, "cannot read from DSM")
-    } else {
+
+    if (((XdmfDSMBuffer *)xdmf_dsm_get_manager())->GetDsmType() == XDMF_DSM_TYPE_BLOCK_CYCLIC ||
+        ((XdmfDSMBuffer *)xdmf_dsm_get_manager())->GetDsmType() == XDMF_DSM_TYPE_BLOCK_RANDOM)
+    {
+      xdmf_dsm_read_pages(&(filePages[file->name][0]), file->numPages, addr, nbytes, buf);
       size -= nbytes;
       addr += nbytes;
       buf = (char*) buf + nbytes;
+    }
+    else if (((XdmfDSMBuffer *)xdmf_dsm_get_manager())->GetDsmType() == XDMF_DSM_TYPE_UNIFORM ||
+             ((XdmfDSMBuffer *)xdmf_dsm_get_manager())->GetDsmType() == XDMF_DSM_TYPE_UNIFORM_RANGE)
+    {
+      /* Read from DSM to BUF */
+      if (SUCCEED != xdmf_dsm_read(file->start + addr, nbytes, buf)) {
+        HGOTO_ERROR(H5E_IO, H5E_READERROR, FAIL, "cannot read from DSM")
+      } else {
+        size -= nbytes;
+        addr += nbytes;
+        buf = (char*) buf + nbytes;
+      }
+    }
+    else
+    {
+      HGOTO_ERROR(H5E_IO, H5E_WRITEERROR, FAIL, "invalid DSM type")
     }
   }
   /* Read zeros for the part which is after the EOF markers */
@@ -890,7 +963,7 @@ done:
 }
 
 static herr_t
-XDMF_dsm_write(H5FD_t *_file, H5FD_mem_t UNUSED type, hid_t UNUSED dxpl_id,
+XDMF_dsm_write(H5FD_t *_file, H5FD_mem_t type, hid_t UNUSED dxpl_id,
     haddr_t addr, size_t size, const void *buf)
 {
   XDMF_dsm_t *file = (XDMF_dsm_t*) _file;
@@ -919,13 +992,24 @@ XDMF_dsm_write(H5FD_t *_file, H5FD_mem_t UNUSED type, hid_t UNUSED dxpl_id,
   if (addr + size > file->eof)
     HGOTO_ERROR(H5E_IO, H5E_NOSPACE, FAIL, "not enough space in DSM")
 
-  /* Write from BUF to DSM */
-  if (SUCCEED != xdmf_dsm_write(file->start + addr, size, buf))
-    HGOTO_ERROR(H5E_IO, H5E_WRITEERROR, FAIL, "cannot write to DSM")
-
+  if (((XdmfDSMBuffer *)xdmf_dsm_get_manager())->GetDsmType() == XDMF_DSM_TYPE_BLOCK_CYCLIC ||
+      ((XdmfDSMBuffer *)xdmf_dsm_get_manager())->GetDsmType() == XDMF_DSM_TYPE_BLOCK_RANDOM)
+  {
+    xdmf_dsm_write_pages(&(filePages[file->name][0]), file->numPages, addr, size, buf);
+  }
+  else if (((XdmfDSMBuffer *)xdmf_dsm_get_manager())->GetDsmType() == XDMF_DSM_TYPE_UNIFORM ||
+           ((XdmfDSMBuffer *)xdmf_dsm_get_manager())->GetDsmType() == XDMF_DSM_TYPE_UNIFORM_RANGE)
+  {
+    /* Write from BUF to DSM */
+    if (SUCCEED != xdmf_dsm_write(file->start + addr, size, buf))
+      HGOTO_ERROR(H5E_IO, H5E_WRITEERROR, FAIL, "cannot write to DSM")
+  }
+  else
+  {
+    HGOTO_ERROR(H5E_IO, H5E_WRITEERROR, FAIL, "invalid DSM type")
+  }
   /* Set dirty flag so that we know someone has written something */
   file->dirty = TRUE;
-
 done:
   if (err_occurred) {
     /* Nothing */
@@ -937,7 +1021,6 @@ done:
 static herr_t
 XDMF_dsm_flush(H5FD_t *_file, hid_t UNUSED dxpl_id, unsigned UNUSED closing)
 {
-  /* H5FD_dsm_t *file = (H5FD_dsm_t*) _file; */
   herr_t ret_value = SUCCEED; /* Return value */
 
 #if H5_VERSION_GE(1,8,9)
@@ -945,33 +1028,6 @@ XDMF_dsm_flush(H5FD_t *_file, hid_t UNUSED dxpl_id, unsigned UNUSED closing)
 #else
   FUNC_ENTER_NOAPI_NOINIT_NOFUNC(XDMF_dsm_flush)
 #endif
-
-  /* Write to backing store */
-  /*
-  if (file->dirty) {
-    haddr_t size = file->eof;
-
-    unsigned char *ptr = file->mem;
-
-    if (0!=HDlseek(file->fd, (off_t)0, SEEK_SET))
-      HGOTO_ERROR(H5E_IO, H5E_SEEKERROR, FAIL, "error seeking in backing store")
-
-      while (size) {
-        ssize_t n;
-
-        H5_CHECK_OVERFLOW(size,hsize_t,size_t);
-        n = HDwrite(file->fd, ptr, (size_t)size);
-        if (n<0 && EINTR==errno)
-          continue;
-        if (n<0)
-          HGOTO_ERROR(H5E_IO, H5E_WRITEERROR, FAIL, "error writing backing store")
-          ptr += (size_t)n;
-        size -= (size_t)n;
-      }
-
-    file->dirty = FALSE;
-  }
-  */
 
   FUNC_LEAVE_NOAPI(ret_value)
 }
@@ -990,7 +1046,7 @@ XDMF_dsm_mpi_rank(const H5FD_t *_file)
   assert(file);
   assert(XDMF_DSM == file->pub.driver_id);
 
-  FUNC_LEAVE_NOAPI(file->intra_rank)
+  FUNC_LEAVE_NOAPI(dsmBuffer->GetComm()->GetId())
 }
 
 static int
@@ -1007,7 +1063,7 @@ XDMF_dsm_mpi_size(const H5FD_t *_file)
   assert(file);
   assert(XDMF_DSM == file->pub.driver_id);
 
-  FUNC_LEAVE_NOAPI(file->intra_size)
+  FUNC_LEAVE_NOAPI(dsmBuffer->GetComm()->GetIntraSize())
 }
 
 static MPI_Comm
@@ -1024,7 +1080,7 @@ XDMF_dsm_communicator(const H5FD_t *_file)
   assert(file);
   assert(XDMF_DSM == file->pub.driver_id);
 
-  FUNC_LEAVE_NOAPI(file->intra_comm)
+  FUNC_LEAVE_NOAPI(dsmBuffer->GetComm()->GetIntraComm())
 }
 
 }
@@ -1033,14 +1089,14 @@ void*
 xdmf_dsm_get_manager()
 {
   void *ret_value = NULL;
-  if (dsmManager) ret_value = static_cast <void*> (dsmManager);
+  if (dsmBuffer) ret_value = static_cast <void*> (dsmBuffer);  
   return(ret_value);
 }
 
 herr_t
 xdmf_dsm_get_properties(MPI_Comm *intra_comm, void **buf_ptr_ptr, size_t *buf_len_ptr)
 {
-  if (!dsmManager) {
+  if (!dsmBuffer) {
     try {
       XdmfError::message(XdmfError::FATAL, "No DSM manager found");
     }
@@ -1049,14 +1105,11 @@ xdmf_dsm_get_properties(MPI_Comm *intra_comm, void **buf_ptr_ptr, size_t *buf_le
     }
   }
 
-  if (intra_comm) {
-    MPI_Comm_dup(dsmManager->GetDsmBuffer()->GetComm()->GetIntraComm(), intra_comm);
-  }
-  if (dsmManager->GetIsServer()) {
+  if (dsmBuffer->GetIsServer()) {
     if (buf_ptr_ptr) *buf_ptr_ptr =
-        dsmManager->GetDsmBuffer()->GetDataPointer();
+        dsmBuffer->GetDataPointer();
     if (buf_len_ptr) *buf_len_ptr =
-        dsmManager->GetDsmBuffer()->GetLength();
+        dsmBuffer->GetLength();
   } else {
     if (buf_ptr_ptr) *buf_ptr_ptr = NULL;
     if (buf_len_ptr) *buf_len_ptr = 0;
@@ -1068,35 +1121,14 @@ xdmf_dsm_get_properties(MPI_Comm *intra_comm, void **buf_ptr_ptr, size_t *buf_le
 void
 xdmf_dsm_set_manager(void *manager)
 {
-  dsmManager = static_cast <XdmfDSMManager*> (manager);
+  dsmBuffer = static_cast <XdmfDSMBuffer*> (manager);
 }
-
-/* generates a Manager if one doesn't already exist. probably a bad idea in most cases
-herr_t
-dsm_alloc(MPI_Comm intra_comm, void *buf_ptr, size_t buf_len)
-{
-  // Check arguments
-  if (dsmManager) DSM_DRIVER_ERROR("DSM manager already allocated")
-  if (intra_comm == MPI_COMM_NULL) DSM_DRIVER_ERROR("invalid intra comm argument")
-  if (buf_ptr && !buf_len) DSM_DRIVER_ERROR("invalid buffer length argument")
-
-  dsmManager = new XdmfDSMManager();
-  dsmManager->SetMpiComm(intra_comm);
-
-  return(SUCCEED);
-}*/
 
 herr_t
 xdmf_dsm_free()
 {
-  if (dsmManager) {
+  if (dsmBuffer) {
     /* probably not required, since the autoallocation is not on
-    if (dsmManager->GetIsAutoAllocated()) {
-      if (dsmManager->GetIsConnected()) dsmManager->Disconnect();
-
-      delete dsmManager;
-      dsmManager = NULL;
-    }
     */
   }
 
@@ -1108,11 +1140,11 @@ xdmf_dsm_is_server()
 {
   hbool_t ret_value = TRUE;
 
-  if (!dsmManager) {
+  if (!dsmBuffer) {
     XdmfError::message(XdmfError::FATAL, "No DSM manager found");
   }
 
-  ret_value = dsmManager->GetIsServer();
+  ret_value = dsmBuffer->GetIsServer();
 
   return(ret_value);
 }
@@ -1120,11 +1152,7 @@ xdmf_dsm_is_server()
 herr_t
 xdmf_dsm_set_options(unsigned long flags)
 {
-  XdmfDSMBuffer *dsmBuffer = NULL;
-  if (dsmManager != NULL) {
-    dsmBuffer = dsmManager->GetDsmBuffer();
-  }
-  else {
+  if (!dsmBuffer) {
     try {
       XdmfError::message(XdmfError::FATAL, "No DSM manager found");
     }
@@ -1133,7 +1161,8 @@ xdmf_dsm_set_options(unsigned long flags)
     }
   }
 
-	// Currently no options to set
+  // Currently no options to set
+  // All options are set via the dsmBuffer during the dsm's creation
 
   return(SUCCEED);
 }
@@ -1143,11 +1172,11 @@ xdmf_dsm_is_connected()
 {
   hbool_t ret_value = TRUE;
 
-  if (!dsmManager) {
+  if (!dsmBuffer) {
     XdmfError::message(XdmfError::FATAL, "No DSM manager found");
   }
 
-  ret_value = dsmManager->GetIsConnected();
+  ret_value = dsmBuffer->GetIsConnected();
 
   return(ret_value);
 }
@@ -1155,18 +1184,17 @@ xdmf_dsm_is_connected()
 herr_t
 xdmf_dsm_connect()
 {
-
-  if (!dsmManager) {
+  if (!dsmBuffer) {
     try {
       XdmfError::message(XdmfError::FATAL, "No DSM manager found");
     }
-    catch (XdmfError e) {
+    catch (XdmfError & e) {
       return FAIL;
     }
   }
 
   // Initialize the connection if it has not been done already
-  if (dsmManager->GetIsConnected()) {
+  if (dsmBuffer->GetIsConnected()) {
     try {
       XdmfError::message(XdmfError::FATAL, "Already Connected");
     }
@@ -1176,7 +1204,7 @@ xdmf_dsm_connect()
   }
 
   try {
-    dsmManager->Connect();
+    dsmBuffer->Connect();
   }
   catch (XdmfError & e) {
     return FAIL;
@@ -1186,16 +1214,9 @@ xdmf_dsm_connect()
 }
 
 herr_t
-xdmf_dsm_update_entry(haddr_t start, haddr_t end)
+xdmf_dsm_lock(char * filename)
 {
-  haddr_t addr;
-  XdmfDSMEntry entry;
-  XdmfDSMBuffer *dsmBuffer = NULL;
-
-  if (dsmManager != NULL) {
-    dsmBuffer = dsmManager->GetDsmBuffer();
-  }
-  else {
+  if (!dsmBuffer) {
     try {
       XdmfError::message(XdmfError::FATAL, "No DSM manager found");
     }
@@ -1204,88 +1225,13 @@ xdmf_dsm_update_entry(haddr_t start, haddr_t end)
     }
   }
 
-  entry.start = start;
-  entry.end   = end;
-
-  addr = (int) (dsmBuffer->GetTotalLength() - sizeof(XdmfDSMEntry) - 1);
-
-  // Do not send anything if the end of the file is 0
-  if (entry.end > 0) {
-    try {
-      dsmBuffer->Put(addr, sizeof(entry), &entry);
-    }
-    catch (XdmfError & e) {
-      return FAIL;
-    }
-  }
-
-  return SUCCEED;
-}
-
-herr_t
-xdmf_dsm_get_entry(haddr_t *start_ptr, haddr_t *end_ptr)
-{
-  haddr_t addr;
-  XdmfDSMEntry entry;
-  XdmfDSMBuffer *dsmBuffer = NULL;
-
-  if (dsmManager != NULL) {
-    dsmBuffer = dsmManager->GetDsmBuffer();
-  }
-  else {
-    try {
-      XdmfError::message(XdmfError::FATAL, "No DSM manager found");
-    }
-    catch (XdmfError & e) {
-      return FAIL;
-    }
-  }
-
-  addr = (int) (dsmBuffer->GetTotalLength() - sizeof(XdmfDSMEntry) - 1);
-
-  try {
-    dsmBuffer->Get(addr, sizeof(entry), &entry);
-  }
-  catch (XdmfError & e) {
-    return FAIL;
-  }
-
-  *start_ptr = entry.start;
-  *end_ptr   = entry.end;
-
-  return SUCCEED;
-}
-
-herr_t
-xdmf_dsm_lock()
-{
-  XdmfDSMBuffer *dsmBuffer = NULL;
-  if (dsmManager != NULL) {
-    dsmBuffer = dsmManager->GetDsmBuffer();
-  }
-  else {
-    try {
-      XdmfError::message(XdmfError::FATAL, "No DSM manager found");
-    }
-    catch (XdmfError & e) {
-      return FAIL;
-    }
-  }
-
-/* behavior will be different here
-  As of right now, controlling race conditions falls on the user
-*/
   return(SUCCEED);
 }
 
 herr_t
-xdmf_dsm_unlock(unsigned long flag)
+xdmf_dsm_unlock(char * filename, unsigned long flag)
 {
-  XdmfDSMBuffer *dsmBuffer = NULL;
-  if (dsmManager != NULL) {
-    dsmBuffer = dsmManager->GetDsmBuffer();
-  }
-  else {
+  if (!dsmBuffer) {
     try {
       XdmfError::message(XdmfError::FATAL, "No DSM manager found");
     }
@@ -1294,20 +1240,18 @@ xdmf_dsm_unlock(unsigned long flag)
     }
   }
 
-/*behavior will be different here
-  As of right now, controlling race conditions falls on the user
-*/
   return(SUCCEED);
 }
+
+
+// When writing and reading, we want to provide a list of pages that the file contains.
+// The appropriate subsections can be retrieved from the pages this way.
+// We may be able to eliminate these calls and just call straight from the buffer in the file driver.
 
 herr_t
 xdmf_dsm_read(haddr_t addr, size_t len, void *buf_ptr)
 {
-  XdmfDSMBuffer *dsmBuffer = NULL;
-  if (dsmManager != NULL) {
-    dsmBuffer = dsmManager->GetDsmBuffer();
-  }
-  else {
+  if (!dsmBuffer) {
     try {
       XdmfError::message(XdmfError::FATAL, "No DSM manager found");
     }
@@ -1322,18 +1266,34 @@ xdmf_dsm_read(haddr_t addr, size_t len, void *buf_ptr)
   catch (XdmfError & e) {
     return FAIL;
   }
+  return(SUCCEED);
+}
 
+herr_t
+xdmf_dsm_read_pages(unsigned int * pages, unsigned int numPages,  haddr_t addr, size_t len, void *buf_ptr)
+{
+  if (!dsmBuffer) {
+    try {
+      XdmfError::message(XdmfError::FATAL, "No DSM manager found");
+    }
+    catch (XdmfError & e) {
+      return FAIL;
+    }
+  }
+
+  try {
+    dsmBuffer->Get(pages, numPages, addr, len, buf_ptr);
+  }
+  catch (XdmfError & e) {
+    return FAIL;
+  }
   return(SUCCEED);
 }
 
 herr_t
 xdmf_dsm_write(haddr_t addr, size_t len, const void *buf_ptr)
 {
-  XdmfDSMBuffer *dsmBuffer = NULL;
-  if (dsmManager != NULL) {
-    dsmBuffer = dsmManager->GetDsmBuffer();
-  }
-  else {
+  if (!dsmBuffer) {
     try {
       XdmfError::message(XdmfError::FATAL, "No DSM manager found");
     }
@@ -1348,6 +1308,26 @@ xdmf_dsm_write(haddr_t addr, size_t len, const void *buf_ptr)
   catch (XdmfError & e) {
     return FAIL;
   }
+  return(SUCCEED);
+}
 
+herr_t
+xdmf_dsm_write_pages(unsigned int * pages, unsigned int numPages, haddr_t addr, size_t len, const void *buf_ptr)
+{
+  if (!dsmBuffer) {
+    try {
+      XdmfError::message(XdmfError::FATAL, "No DSM manager found");
+    }
+    catch (XdmfError & e) {
+      return FAIL;
+    }
+  }
+
+  try {
+    dsmBuffer->Put(pages, numPages, addr, len, buf_ptr);
+  }
+  catch (XdmfError & e) {
+    return FAIL;
+  }
   return(SUCCEED);
 }

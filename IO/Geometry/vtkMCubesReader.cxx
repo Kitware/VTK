@@ -56,10 +56,10 @@ vtkMCubesReader::~vtkMCubesReader()
   delete [] this->LimitsFileName;
 
   if ( this->Locator )
-    {
+  {
     this->Locator->UnRegister(this);
     this->Locator = NULL;
-    }
+  }
 }
 
 int vtkMCubesReader::RequestData(
@@ -96,65 +96,65 @@ int vtkMCubesReader::RequestData(
   //
 
   if ( this->FileName == NULL )
-    {
+  {
     vtkErrorMacro(<< "Please specify input FileName");
     return 0;
-    }
+  }
   if ( (fp = fopen(this->FileName, "rb")) == NULL)
-    {
+  {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
     return 0;
-    }
+  }
 
   // Try to read limits file to get bounds. Otherwise, read data.
   if ( this->LimitsFileName != NULL &&
   (limitp = fopen (this->LimitsFileName, "rb")) != NULL &&
   stat (this->FileName, &buf) == 0 )
-    {
+  {
     bool errorOccurred = false;
 
     // skip first three pairs
     float fbounds[6];
     if (fread (dummy, sizeof(float), 2, limitp) != 2)
-      {
+    {
       errorOccurred = true;
-      }
+    }
     else if (fread (dummy, sizeof(float), 2, limitp) != 2)
-      {
+    {
       errorOccurred = true;
-      }
+    }
     if (fread (dummy, sizeof(float), 2, limitp) != 2)
-      {
+    {
       errorOccurred = true;
-      }
+    }
 
     // next three pairs are x, y, z limits
     for (i = 0; i < 6 && !errorOccurred; i++)
-      {
+    {
       if (fread (&fbounds[i], sizeof (float), 1, limitp) != 1)
-        {
+      {
         errorOccurred = true;
-        }
       }
+    }
 
     if (errorOccurred)
-      {
+    {
       vtkErrorMacro ("MCubesReader error reading file: " << this->LimitsFileName
                      << " Premature EOF while reading limits.");
       fclose (limitp);
       fclose (fp);
       return 0;
-      }
+    }
 
     // do swapping if necc
     if (byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN)
-      {
+    {
       vtkByteSwap::Swap4BERange(fbounds,6);
-      }
+    }
     else
-      {
+    {
       vtkByteSwap::Swap4LERange(fbounds,6);
-      }
+    }
     fclose (limitp);
     bounds[0] = fbounds[0];
     bounds[1] = fbounds[1];
@@ -166,38 +166,38 @@ int vtkMCubesReader::RequestData(
     // calculate the number of triangles and vertices from file size
     numTris = buf.st_size / (18*sizeof(float)); //3 points + normals
     numPts = numTris * 3;
-    }
+  }
   else // read data to get bounds
-    {
+  {
     fseek (fp, this->HeaderSize, 0);
     // cannot use vtkMath uninitialze bounds for this computation
     bounds[0] = bounds[2] = bounds[4] = VTK_DOUBLE_MAX;
     bounds[1] = bounds[3] = bounds[5] = VTK_DOUBLE_MIN;
     for (i=0; fread(&point, sizeof(pointType), 1, fp); i++)
-      {
+    {
       // swap bytes if necc
       if (byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN)
-        {
+      {
         vtkByteSwap::Swap4BERange((float *) (&point),6);
-        }
+      }
       else
-        {
+      {
         vtkByteSwap::Swap4LERange((float *) (&point),6);
-        }
+      }
       for (j=0; j<3; j++)
-        {
+      {
         bounds[2*j] = (bounds[2*j] < point.x[j] ? bounds[2*j] : point.x[j]);
         bounds[2*j+1] = (bounds[2*j+1] > point.x[j] ? bounds[2*j+1] : point.x[j]);
-        }
+      }
 
       if ( i && ((i % 10000) == 0) )
-        {
+      {
         vtkDebugMacro(<<"Triangle vertices #" << i);
-        }
       }
+    }
     numTris = i / 3;
     numPts = i;
-    }
+  }
 //
 // Now re-read and merge
 //
@@ -210,69 +210,69 @@ int vtkMCubesReader::RequestData(
   newPolys->Allocate(newPolys->EstimateSize(numTris,3));
 
   if ( this->Normals )
-    {
+  {
     newNormals = vtkFloatArray::New();
     newNormals->SetNumberOfComponents(3);
     newNormals->Allocate(numPts,numPts);
-    }
+  }
 
   if ( this->Locator == NULL )
-    {
+  {
     this->CreateDefaultLocator();
-    }
+  }
   this->Locator->InitPointInsertion (newPts, bounds);
 
   direction = this->FlipNormals ? -1.0 : 1.0;
 
   double dp[3];
   for ( i=0; i<numTris; i++)
-    {
+  {
     for (j=0; j<3; j++)
-      {
+    {
       int val;
       val = static_cast<int>(
         fread (&point, static_cast<int>(sizeof(pointType)), 1, fp));
       if (val != 1)
-         {
+      {
          vtkErrorMacro(<<"Error reading triange " << i
                        << " (" << numTris << "), point/normal " << j);
-         }
+      }
 
       // swap bytes if necc
       if (byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN)
-        {
+      {
         vtkByteSwap::Swap4BERange((float *) (&point),6);
-        }
+      }
       else
-        {
+      {
         vtkByteSwap::Swap4LERange((float *) (&point),6);
-        }
+      }
       dp[0] = point.x[0];
       dp[1] = point.x[1];
       dp[2] = point.x[2];
       if ( this->Locator->InsertUniquePoint(dp, nodes[j]) )
-        {
+      {
         if ( this->Normals )
-          {
+        {
           for (k=0; k<3; k++)
-            {
+          {
             n[k] = point.n[k] * direction;
-            }
-          newNormals->InsertTuple(nodes[j],n);
           }
+          newNormals->InsertTuple(nodes[j],n);
         }
       }
+    }
     if ( nodes[0] != nodes[1] &&
          nodes[0] != nodes[2] &&
          nodes[1] != nodes[2] )
-      {
+    {
       newPolys->InsertNextCell(3,nodes);
-      }
-    else
-      {
-      numDegenerate++;
-      }
     }
+    else
+    {
+      numDegenerate++;
+    }
+  }
   vtkDebugMacro(<< "Read: "
                 << newPts->GetNumberOfPoints() << " points, "
                 << newPolys->GetNumberOfCells() << " triangles\n"
@@ -289,16 +289,16 @@ int vtkMCubesReader::RequestData(
   newPolys->Delete();
 
   if (this->Normals)
-    {
+  {
     output->GetPointData()->SetNormals(newNormals);
     newNormals->Delete();
-    }
+  }
   output->Squeeze(); // might have merged stuff
 
   if (this->Locator)
-    {
+  {
     this->Locator->Initialize(); //free storage
-    }
+  }
 
   return 1;
 }
@@ -308,18 +308,18 @@ int vtkMCubesReader::RequestData(
 void vtkMCubesReader::SetLocator(vtkIncrementalPointLocator *locator)
 {
   if ( this->Locator == locator )
-    {
+  {
     return;
-    }
+  }
   if ( this->Locator )
-    {
+  {
     this->Locator->UnRegister(this);
     this->Locator = NULL;
-    }
+  }
   if ( locator )
-    {
+  {
     locator->Register(this);
-    }
+  }
   this->Locator = locator;
   this->Modified();
 }
@@ -345,35 +345,35 @@ void vtkMCubesReader::SetDataByteOrderToLittleEndian()
 void vtkMCubesReader::SetDataByteOrder(int byteOrder)
 {
   if ( byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN )
-    {
+  {
     this->SetDataByteOrderToBigEndian();
-    }
+  }
   else
-    {
+  {
     this->SetDataByteOrderToLittleEndian();
-    }
+  }
 }
 
 int vtkMCubesReader::GetDataByteOrder()
 {
 #ifdef VTK_WORDS_BIGENDIAN
   if ( this->SwapBytes )
-    {
+  {
     return VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN;
-    }
+  }
   else
-    {
+  {
     return VTK_FILE_BYTE_ORDER_BIG_ENDIAN;
-    }
+  }
 #else
   if ( this->SwapBytes )
-    {
+  {
     return VTK_FILE_BYTE_ORDER_BIG_ENDIAN;
-    }
+  }
   else
-    {
+  {
     return VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN;
-    }
+  }
 #endif
 }
 
@@ -381,31 +381,31 @@ const char *vtkMCubesReader::GetDataByteOrderAsString()
 {
 #ifdef VTK_WORDS_BIGENDIAN
   if ( this->SwapBytes )
-    {
+  {
     return "LittleEndian";
-    }
+  }
   else
-    {
+  {
     return "BigEndian";
-    }
+  }
 #else
   if ( this->SwapBytes )
-    {
+  {
     return "BigEndian";
-    }
+  }
   else
-    {
+  {
     return "LittleEndian";
-    }
+  }
 #endif
 }
 
 void vtkMCubesReader::CreateDefaultLocator()
 {
   if ( this->Locator == NULL )
-    {
+  {
     this->Locator = vtkMergePoints::New();
-    }
+  }
 }
 
 void vtkMCubesReader::PrintSelf(ostream& os, vtkIndent indent)
@@ -422,25 +422,25 @@ void vtkMCubesReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Swap Bytes: " << (this->SwapBytes ? "On\n" : "Off\n");
 
   if ( this->Locator )
-    {
+  {
     os << indent << "Locator: " << this->Locator << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Locator: (none)\n";
-    }
+  }
 }
 
-unsigned long int vtkMCubesReader::GetMTime()
+vtkMTimeType vtkMCubesReader::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   if ( this->Locator != NULL )
-    {
+  {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
   return mTime;
 }
 

@@ -36,13 +36,13 @@ vtkGeneralTransform::~vtkGeneralTransform()
   this->SetInput(NULL);
 
   if (this->Concatenation)
-    {
+  {
     this->Concatenation->Delete();
-    }
+  }
   if (this->Stack)
-    {
+  {
     this->Stack->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -54,15 +54,15 @@ void vtkGeneralTransform::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfConcatenatedTransforms: " <<
     this->GetNumberOfConcatenatedTransforms() << "\n";
   if (this->GetNumberOfConcatenatedTransforms() != 0)
-    {
+  {
     int n = this->GetNumberOfConcatenatedTransforms();
     for (int i = 0; i < n; i++)
-      {
+    {
       vtkAbstractTransform *t = this->GetConcatenatedTransform(i);
       os << indent << "    " << i << ": " << t->GetClassName() << " at " <<
          t << "\n";
-      }
     }
+  }
 }
 
 //------------------------------------------------------------------------
@@ -82,25 +82,25 @@ void vtkConcatenationTransformPoint(vtkAbstractTransform *input,
 
   // push point through the PreTransforms
   for (; i < nPreTransforms; i++)
-    {
+  {
     concat->GetTransform(i)->InternalTransformPoint(output,output);
-    }
+  }
 
   // push point though the Input, if present
   if (input)
-    {
+  {
     if (concat->GetInverseFlag())
-      {
+    {
       input = input->GetInverse();
-      }
-    input->InternalTransformPoint(output,output);
     }
+    input->InternalTransformPoint(output,output);
+  }
 
   // push point through PostTransforms
   for (; i < nTransforms; i++)
-    {
+  {
     concat->GetTransform(i)->InternalTransformPoint(output,output);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -127,28 +127,28 @@ void vtkConcatenationTransformDerivative(
 
   // push point through the PreTransforms
   for (; i < nPreTransforms; i++)
-    {
+  {
     concat->GetTransform(i)->InternalTransformDerivative(output,output,matrix);
     vtkMath::Multiply3x3(matrix,derivative,derivative);
-    }
+  }
 
   // push point though the Input, if present
   if (input)
-    {
+  {
     if (concat->GetInverseFlag())
-      {
+    {
       input = input->GetInverse();
-      }
+    }
     input->InternalTransformDerivative(output,output,matrix);
     vtkMath::Multiply3x3(matrix,derivative,derivative);
-    }
+  }
 
   // push point through PostTransforms
   for (; i < nTransforms; i++)
-    {
+  {
     concat->GetTransform(i)->InternalTransformDerivative(output,output,matrix);
     vtkMath::Multiply3x3(matrix,derivative,derivative);
-    }
+  }
 }
 
 //------------------------------------------------------------------------
@@ -197,21 +197,21 @@ void vtkGeneralTransform::InternalDeepCopy(vtkAbstractTransform *gtrans)
 
   // copy the stack
   if (transform->Stack)
-    {
+  {
     if (this->Stack == NULL)
-      {
-      this->Stack = vtkTransformConcatenationStack::New();
-      }
-    this->Stack->DeepCopy(transform->Stack);
-    }
-  else
     {
+      this->Stack = vtkTransformConcatenationStack::New();
+    }
+    this->Stack->DeepCopy(transform->Stack);
+  }
+  else
+  {
     if (this->Stack)
-      {
+    {
       this->Stack->Delete();
       this->Stack = NULL;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -219,33 +219,33 @@ void vtkGeneralTransform::InternalUpdate()
 {
   // update the input
   if (this->Input)
-    {
+  {
     if (this->Concatenation->GetInverseFlag())
-      {
+    {
       this->Input->GetInverse()->Update();
-      }
-    else
-      {
-      this->Input->Update();
-      }
     }
+    else
+    {
+      this->Input->Update();
+    }
+  }
 
   // update the concatenation
   int nTransforms = this->Concatenation->GetNumberOfTransforms();
   for (int i = 0; i < nTransforms; i++)
-    {
+  {
     this->Concatenation->GetTransform(i)->Update();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkGeneralTransform::Concatenate(vtkAbstractTransform *transform)
 {
   if (transform->CircuitCheck(this))
-    {
+  {
     vtkErrorMacro("Concatenate: this would create a circular reference.");
     return;
-    }
+  }
   this->Concatenation->Concatenate(transform);
   this->Modified();
 };
@@ -254,23 +254,23 @@ void vtkGeneralTransform::Concatenate(vtkAbstractTransform *transform)
 void vtkGeneralTransform::SetInput(vtkAbstractTransform *input)
 {
   if (this->Input == input)
-    {
+  {
     return;
-    }
+  }
   if (input && input->CircuitCheck(this))
-    {
+  {
     vtkErrorMacro("SetInput: this would create a circular reference.");
     return;
-    }
+  }
   if (this->Input)
-    {
+  {
     this->Input->Delete();
-    }
+  }
   this->Input = input;
   if (this->Input)
-    {
+  {
     this->Input->Register(this);
-    }
+  }
   this->Modified();
 }
 
@@ -279,18 +279,18 @@ int vtkGeneralTransform::CircuitCheck(vtkAbstractTransform *transform)
 {
   if (this->vtkAbstractTransform::CircuitCheck(transform) ||
       (this->Input && this->Input->CircuitCheck(transform)))
-    {
+  {
     return 1;
-    }
+  }
 
   int n = this->Concatenation->GetNumberOfTransforms();
   for (int i = 0; i < n; i++)
-    {
+  {
     if (this->Concatenation->GetTransform(i)->CircuitCheck(transform))
-      {
+    {
       return 1;
-      }
     }
+  }
 
   return 0;
 }
@@ -302,24 +302,24 @@ vtkAbstractTransform *vtkGeneralTransform::MakeTransform()
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkGeneralTransform::GetMTime()
+vtkMTimeType vtkGeneralTransform::GetMTime()
 {
-  unsigned long mtime = this->vtkAbstractTransform::GetMTime();
-  unsigned long mtime2;
+  vtkMTimeType mtime = this->vtkAbstractTransform::GetMTime();
+  vtkMTimeType mtime2;
 
   if (this->Input)
-    {
+  {
     mtime2 = this->Input->GetMTime();
     if (mtime2 > mtime)
-      {
+    {
       mtime = mtime2;
-      }
     }
+  }
   mtime2 = this->Concatenation->GetMaxMTime();
   if (mtime2 > mtime)
-    {
+  {
     return mtime2;
-    }
+  }
   return mtime;
 }
 

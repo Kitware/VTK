@@ -13,14 +13,17 @@
 
 =========================================================================*/
 
-// .NAME vtkPiecewiseControlPointsItem - Control points for
-// vtkPiecewiseFunction.
-// .SECTION Description
-// vtkPiecewiseControlPointsItem draws the control points of a vtkPiecewiseFunction.
-// .SECTION See Also
-// vtkControlPointsItem
-// vtkPiecewiseFunctionItem
-// vtkCompositeTransferFunctionItem
+/**
+ * @class   vtkPiecewiseControlPointsItem
+ * @brief   Control points for
+ * vtkPiecewiseFunction.
+ *
+ * vtkPiecewiseControlPointsItem draws the control points of a vtkPiecewiseFunction.
+ * @sa
+ * vtkControlPointsItem
+ * vtkPiecewiseFunctionItem
+ * vtkCompositeTransferFunctionItem
+*/
 
 #ifndef vtkPiecewiseControlPointsItem_h
 #define vtkPiecewiseControlPointsItem_h
@@ -36,34 +39,44 @@ public:
   vtkTypeMacro(vtkPiecewiseControlPointsItem, vtkControlPointsItem);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Creates a piecewise control points object
+  /**
+   * Creates a piecewise control points object
+   */
   static vtkPiecewiseControlPointsItem* New();
 
-  // Description:
-  // Set the piecewise function to draw its points
+  /**
+   * Set the piecewise function to draw its points
+   */
   virtual void SetPiecewiseFunction(vtkPiecewiseFunction* function);
-  // Description
-  // Get the piecewise function
+  //@{
+  /**
+   * Get the piecewise function
+   */
   vtkGetObjectMacro(PiecewiseFunction, vtkPiecewiseFunction);
+  //@}
 
-  // Description:
-  // Add a point to the function. Returns the index of the point (0 based),
-  // or -1 on error.
-  // Subclasses should reimplement this function to do the actual work.
+  /**
+   * Add a point to the function. Returns the index of the point (0 based),
+   * or -1 on error.
+   * Subclasses should reimplement this function to do the actual work.
+   */
   virtual vtkIdType AddPoint(double* newPos);
 
-  // Description:
-  // Remove a point of the function. Returns the index of the point (0 based),
-  // or -1 on error.
-  // Subclasses should reimplement this function to do the actual work.
+  /**
+   * Remove a point of the function. Returns the index of the point (0 based),
+   * or -1 on error.
+   * Subclasses should reimplement this function to do the actual work.
+   */
   virtual vtkIdType RemovePoint(double* pos);
 
-  // Description:
-  // Controls whether or not control points are drawn (true) or clicked and
-  // moved (false).
-  // False by default.
+  //@{
+  /**
+   * Controls whether or not control points are drawn (true) or clicked and
+   * moved (false).
+   * False by default.
+   */
   vtkSetMacro(StrokeMode, bool);
+  //@}
 
 protected:
   vtkPiecewiseControlPointsItem();
@@ -71,7 +84,7 @@ protected:
 
   virtual void emitEvent(unsigned long event, void* params = 0);
 
-  virtual unsigned long int GetControlPointsMTime();
+  virtual vtkMTimeType GetControlPointsMTime();
 
   virtual vtkIdType GetNumberOfPoints()const;
   virtual void GetControlPoint(vtkIdType index, double *point)const;
@@ -81,8 +94,8 @@ protected:
   vtkPiecewiseFunction* PiecewiseFunction;
 
 private:
-  vtkPiecewiseControlPointsItem(const vtkPiecewiseControlPointsItem &); // Not implemented.
-  void operator=(const vtkPiecewiseControlPointsItem &);   // Not implemented.
+  vtkPiecewiseControlPointsItem(const vtkPiecewiseControlPointsItem &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPiecewiseControlPointsItem &) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -13,7 +13,10 @@
 
 =========================================================================*/
 
-// .NAME vtkOpenGLTextActor - vtkTextActor override.
+/**
+ * @class   vtkOpenGLTextActor
+ * @brief   vtkTextActor override.
+*/
 
 #ifndef vtkOpenGLTextActor_h
 #define vtkOpenGLTextActor_h
@@ -39,8 +42,8 @@ protected:
   int RenderGL2PS(vtkViewport *viewport, vtkOpenGLGL2PSHelper *gl2ps);
 
 private:
-  vtkOpenGLTextActor(const vtkOpenGLTextActor&); // Not implemented
-  void operator=(const vtkOpenGLTextActor&); // Not implemented
+  vtkOpenGLTextActor(const vtkOpenGLTextActor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLTextActor&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkOpenGLTextActor_h

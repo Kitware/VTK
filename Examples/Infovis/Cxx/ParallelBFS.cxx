@@ -57,7 +57,7 @@ int main(int argc, char** argv)
   collect->Update(rank, procs, 0);
 
   if (rank == 0)
-    {
+  {
     vtkSmartPointer<vtkUndirectedGraph> g =
       vtkSmartPointer<vtkUndirectedGraph>::New();
     g->ShallowCopy(collect->GetOutput());
@@ -74,7 +74,7 @@ int main(int argc, char** argv)
     view->GetRenderer()->ResetCamera();
     win->GetInteractor()->Initialize();
     win->GetInteractor()->Start();
-    }
+  }
 
   controller->Finalize();
   return 0;

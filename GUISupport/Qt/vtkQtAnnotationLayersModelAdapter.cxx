@@ -50,18 +50,18 @@ vtkQtAnnotationLayersModelAdapter::vtkQtAnnotationLayersModelAdapter(vtkAnnotati
   : vtkQtAbstractModelAdapter(p), Annotations(t)
 {
   if (this->Annotations != NULL)
-    {
+  {
     this->Annotations->Register(0);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 vtkQtAnnotationLayersModelAdapter::~vtkQtAnnotationLayersModelAdapter()
 {
   if (this->Annotations != NULL)
-    {
+  {
     this->Annotations->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -99,10 +99,10 @@ void vtkQtAnnotationLayersModelAdapter::SetVTKDataObject(vtkDataObject *obj)
 {
   vtkAnnotationLayers *t = vtkAnnotationLayers::SafeDownCast(obj);
   if (obj && !t)
-    {
+  {
     qWarning("vtkQtAnnotationLayersModelAdapter needs a vtkAnnotationLayers for SetVTKDataObject");
     return;
-    }
+  }
 
   // Okay it's a table so set it :)
   this->setAnnotationLayers(t);
@@ -118,12 +118,12 @@ vtkDataObject* vtkQtAnnotationLayersModelAdapter::GetVTKDataObject() const
 void vtkQtAnnotationLayersModelAdapter::setAnnotationLayers(vtkAnnotationLayers* t)
 {
   if (this->Annotations != NULL)
-    {
+  {
     this->Annotations->Delete();
-    }
+  }
   this->Annotations = t;
   if (this->Annotations != NULL)
-    {
+  {
     this->Annotations->Register(0);
 
     // When setting a table, update the QHash tables for column mapping.
@@ -134,22 +134,22 @@ void vtkQtAnnotationLayersModelAdapter::setAnnotationLayers(vtkAnnotationLayers*
     // We will assume the table is totally
     // new and any views should update completely
     emit this->reset();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 bool vtkQtAnnotationLayersModelAdapter::noAnnotationsCheck() const
 {
   if (this->Annotations == NULL)
-    {
+  {
     // It's not necessarily an error to have a null pointer for the
     // table.  It just means that the model is empty.
     return true;
-    }
+  }
   if (this->Annotations->GetNumberOfAnnotations() == 0)
-    {
+  {
     return true;
-    }
+  }
   return false;
 }
 
@@ -164,11 +164,11 @@ vtkAnnotationLayers* vtkQtAnnotationLayersModelAdapter::QModelIndexListToVTKAnno
 
   // Run through the QModelIndexList pulling out vtk indexes
   for (int i = 0; i < qmil.size(); i++)
-    {
+  {
     vtkIdType vtk_index = qmil.at(i).internalId();
     //annotations->AddLayer();
     annotations->AddAnnotation(this->Annotations->GetAnnotation(vtk_index));
-    }
+  }
   return annotations;
 }
 
@@ -258,28 +258,28 @@ QItemSelection vtkQtAnnotationLayersModelAdapter::VTKIndexSelectionToQItemSelect
 QVariant vtkQtAnnotationLayersModelAdapter::data(const QModelIndex &idx, int role) const
 {
   if (this->noAnnotationsCheck())
-    {
+  {
     return QVariant();
-    }
+  }
   if (!idx.isValid())
-    {
+  {
     return QVariant();
-    }
+  }
   if(idx.row() >= static_cast<int>(this->Annotations->GetNumberOfAnnotations()))
-    {
+  {
     return QVariant();
-    }
+  }
 
   vtkAnnotation *a = this->Annotations->GetAnnotation(idx.row());
   int numItems = 0;
   vtkSelection *s = a->GetSelection();
   if(s)
-    {
+  {
     for(unsigned int i=0; i<s->GetNumberOfNodes(); ++i)
-      {
+    {
       numItems += s->GetNode(i)->GetSelectionList()->GetNumberOfTuples();
-      }
     }
+  }
 
   double *color = a->GetInformation()->Get(vtkAnnotation::COLOR());
   int annColor[3];
@@ -288,27 +288,27 @@ QVariant vtkQtAnnotationLayersModelAdapter::data(const QModelIndex &idx, int rol
   annColor[2] = static_cast<int>(255*color[2]);
 
   if (role == Qt::DisplayRole)
-    {
+  {
     switch(idx.column())
-      {
+    {
       case 1:
         return QVariant(numItems);
       case 2:
         return QVariant(a->GetInformation()->Get(vtkAnnotation::LABEL()));
       default:
         return QVariant();
-      }
     }
+  }
   else if (role == Qt::DecorationRole)
-    {
+  {
     switch(idx.column())
-      {
+    {
       case 0:
         return QColor(annColor[0], annColor[1], annColor[2]);
       default:
         return QVariant();
-      }
     }
+  }
 
   return QVariant();
 }
@@ -333,9 +333,9 @@ bool vtkQtAnnotationLayersModelAdapter::setData(const QModelIndex &vtkNotUsed(id
 Qt::ItemFlags vtkQtAnnotationLayersModelAdapter::flags(const QModelIndex &idx) const
 {
   if (!idx.isValid())
-    {
+  {
     return Qt::ItemIsEnabled | Qt::ItemIsDropEnabled;
-    }
+  }
 
   return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDropEnabled | Qt::ItemIsDragEnabled;
 }
@@ -345,14 +345,14 @@ QVariant vtkQtAnnotationLayersModelAdapter::headerData(int section, Qt::Orientat
                     int role) const
 {
   if (this->noAnnotationsCheck())
-    {
+  {
     return QVariant();
-    }
+  }
 
   if(orientation == Qt::Horizontal && role == Qt::DisplayRole)
-    {
+  {
     switch(section)
-      {
+    {
       case 0:
         return QVariant("C");
       case 1:
@@ -361,8 +361,8 @@ QVariant vtkQtAnnotationLayersModelAdapter::headerData(int section, Qt::Orientat
         return QVariant("Label");
       default:
         return QVariant();
-      }
     }
+  }
 
   return QVariant();
 }
@@ -384,13 +384,13 @@ QModelIndex vtkQtAnnotationLayersModelAdapter::parent(const QModelIndex & vtkNot
 int vtkQtAnnotationLayersModelAdapter::rowCount(const QModelIndex & mIndex) const
 {
   if (this->noAnnotationsCheck())
-    {
+  {
     return 0;
-    }
+  }
   if (mIndex == QModelIndex())
-    {
+  {
     return this->Annotations->GetNumberOfAnnotations();
-    }
+  }
   return 0;
 }
 
@@ -398,9 +398,9 @@ int vtkQtAnnotationLayersModelAdapter::rowCount(const QModelIndex & mIndex) cons
 int vtkQtAnnotationLayersModelAdapter::columnCount(const QModelIndex &) const
 {
   if (this->noAnnotationsCheck())
-    {
+  {
     return 0;
-    }
+  }
 
   return 3;
 }

@@ -58,41 +58,41 @@ void vtkHyperTreeGridToUnstructuredGrid::PrintSelf( ostream& os, vtkIndent inden
   this->Superclass::PrintSelf( os, indent );
 
   if( this->Input )
-    {
+  {
     os << indent << "Input:\n";
     this->Input->PrintSelf( os, indent.GetNextIndent() );
-    }
+  }
   else
-    {
+  {
     os << indent << "Input: ( none )\n";
-    }
+  }
 
   if( this->Output )
-    {
+  {
     os << indent << "Output:\n";
     this->Output->PrintSelf( os, indent.GetNextIndent() );
-    }
+  }
   else
-    {
+  {
     os << indent << "Output: ( none )\n";
-    }
+  }
 
   os << indent << "Dimension : " << this->Dimension << endl;
   os << indent << "CellSize : " << this->CellSize << endl;
 
   if ( this->Coefficients )
-    {
+  {
     os << indent << "Coefficients : " << endl;
     for ( unsigned int i = 0; i < this->CellSize; ++ i )
-      {
+    {
       os << indent;
       for ( unsigned int j = 0; j < this->Dimension; ++ j )
-        {
+      {
         os << " " << this->Coefficients[i * this->Dimension + j];
-        }
-      os << endl;
       }
+      os << endl;
     }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -123,7 +123,7 @@ int vtkHyperTreeGridToUnstructuredGrid::RequestData( vtkInformation*,
   // Set instance variables needed for this conversion
   this->Dimension = this->Input->GetDimension();
   switch ( this->Dimension )
-    {
+  {
     case 1:
       this->CellSize = 2;
       this->Coefficients = new unsigned int[2];
@@ -134,30 +134,30 @@ int vtkHyperTreeGridToUnstructuredGrid::RequestData( vtkInformation*,
       this->CellSize = 4;
       this->Coefficients = new unsigned int[8];
       for ( unsigned int i = 0; i < 4; ++ i )
-        {
+      {
         div_t d = div( i, 2 );
         this->Coefficients[2 * i] = d.rem;
         this->Coefficients[2 * i + 1] = d.quot;
-        }
+      }
       break;
     case 3 :
       this->CellSize = 8;
       this->Coefficients = new unsigned int[24];
       for ( unsigned int i = 0; i < 8; ++ i )
-        {
+      {
         div_t d1 = div( i, 2 );
         div_t d2 = div( d1.quot, 2 );
         this->Coefficients[3 * i] = d1.rem;
         this->Coefficients[3 * i + 1] = d2.quot;
         this->Coefficients[3 * i + 2] = d2.rem;
-        }
+      }
       break;
     default:
       vtkErrorMacro( "Incorrect tree dimension: "
                      << this->Dimension
                      << "." );
       return 0;
-    }
+  }
 
   // Initialize output cell data
   this->InData =
@@ -195,7 +195,7 @@ void vtkHyperTreeGridToUnstructuredGrid::ProcessTrees()
   vtkHyperTreeGrid::vtkHyperTreeIterator it;
   it.Initialize( this->Input );
   while ( it.GetNextTree( index ) )
-    {
+  {
     // Storage for super cursors
     vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor superCursor;
 
@@ -209,7 +209,7 @@ void vtkHyperTreeGridToUnstructuredGrid::ProcessTrees()
   // Set output geometry and topology
   this->Output->SetPoints( this->Points );
   switch ( this->CellSize )
-    {
+  {
     case 2:
       this->Output->SetCells( VTK_LINE, this->Cells );
       break;
@@ -221,7 +221,7 @@ void vtkHyperTreeGridToUnstructuredGrid::ProcessTrees()
       break;
     default:
       break;
-    }
+  }
 
   this->Points->UnRegister( this );
   this->Points = 0;
@@ -243,13 +243,13 @@ void vtkHyperTreeGridToUnstructuredGrid::AddCell( vtkIdType inId,
   ids[0] = this->Points->InsertNextPoint( pt );
 
   for ( unsigned int i = 1; i < this->CellSize; ++ i )
-    {
+  {
     for ( unsigned int j = 0; j < this->Dimension; ++ j )
-      {
+    {
       pt[j] = origin[j] + this->Coefficients[i * this->Dimension + j] * size[j];
-      }
-    ids[i] = this->Points->InsertNextPoint( pt );
     }
+    ids[i] = this->Points->InsertNextPoint( pt );
+  }
 
   vtkIdType outId = this->Cells->InsertNextCell( this->CellSize, ids );
   this->OutData->CopyData( this->InData, inId, outId );
@@ -264,25 +264,25 @@ void vtkHyperTreeGridToUnstructuredGrid::RecursiveProcessTree( void* sc )
   vtkHyperTreeGrid::vtkHyperTreeSimpleCursor* cursor = superCursor->GetCursor( 0 );
 
   if ( cursor->IsLeaf() )
-    {
+  {
     // Cursor is a leaf, retrieve its global index
     vtkIdType inId = cursor->GetGlobalNodeIndex();
     // If leaf is masked, skip it
     if ( ! this->Input->GetMaterialMask()->GetValue( inId ) )
-      {
+    {
       // Create cell
       this->AddCell( inId, superCursor->Origin, superCursor->Size );
-      }
     }
+  }
   else
-    {
+  {
      // If cursor is not at leaf, recurse to all children
     int numChildren = this->Input->GetNumberOfChildren();
     for ( int child = 0; child < numChildren; ++ child )
-      {
+    {
       vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor newSuperCursor;
       this->Input->InitializeSuperCursorChild( superCursor,&newSuperCursor, child );
       this->RecursiveProcessTree( &newSuperCursor );
-      }
     }
+  }
 }

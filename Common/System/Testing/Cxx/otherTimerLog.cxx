@@ -42,19 +42,19 @@ void otherTimerLogTest(ostream& strm)
   timer1->SetMaxEntries (3);
   timer1->StartTimer();
   for (j = 0; j < 4; j++)
-    {
+  {
     timer1->FormatAndMarkEvent("%s%d", "start", j);
     for (i = 0; i < 10000000; i++)
-      {
+    {
       a *= a;
-      }
+    }
 #ifndef _WIN32
     sleep (1);
 #else
     Sleep(1000);
 #endif
     timer1->FormatAndMarkEvent("%s%d", "end", j);
-    }
+  }
   timer1->StopTimer();
   strm << *timer1;
   strm << "GetElapsedTime: " << timer1->GetElapsedTime() << endl;

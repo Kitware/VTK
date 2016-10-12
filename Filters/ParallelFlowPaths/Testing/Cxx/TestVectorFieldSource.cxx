@@ -28,39 +28,39 @@ void TestVectorFieldSource::SetExtent(int xMin, int xMax, int yMin, int yMax,
   int modified = 0;
 
   if (this->Extent[0] != xMin)
-    {
+  {
     modified = 1;
     this->Extent[0] = xMin ;
-    }
+  }
   if (this->Extent[1] != xMax)
-    {
+  {
     modified = 1;
     this->Extent[1] = xMax ;
-    }
+  }
   if (this->Extent[2] != yMin)
-    {
+  {
     modified = 1;
     this->Extent[2] = yMin ;
-    }
+  }
   if (this->Extent[3] != yMax)
-    {
+  {
     modified = 1;
     this->Extent[3] = yMax ;
-    }
+  }
   if (this->Extent[4] != zMin)
-    {
+  {
     modified = 1;
     this->Extent[4] = zMin ;
-    }
+  }
   if (this->Extent[5] != zMax)
-    {
+  {
     modified = 1;
     this->Extent[5] = zMax ;
-    }
+  }
   if (modified)
-    {
+  {
     this->Modified();
-    }
+  }
 }
 
 TestVectorFieldSource::TestVectorFieldSource()
@@ -108,25 +108,25 @@ int TestVectorFieldSource::RequestInformation(vtkInformation *,
 void TestVectorFieldSource::GetSpacing(double dx[3])
 {
   for(int i=0; i<3; i++)
-    {
+  {
     dx[i] = (this->BoundingBox[2*i+1]- this->BoundingBox[2*i]) / (this->Extent[2*i+1] - this->Extent[2*i]);
-    }
+  }
 }
 
 void TestVectorFieldSource::GetSize(double dx[3])
 {
   for(int i=0; i<3; i++)
-    {
+  {
     dx[i] = this->BoundingBox[2*i+1]- this->BoundingBox[2*i];
-    }
+  }
 }
 void TestVectorFieldSource::ExecuteDataWithInformation(vtkDataObject *outData,vtkInformation *outInfo)
 {
   vtkImageData* outImage = this->AllocateOutputData(outData,outInfo);
   if (outImage->GetNumberOfPoints() <= 0)
-    {
+  {
     return;
-    }
+  }
 
 
   vtkDataArray* outArray = vtkArrayDownCast<vtkDataArray>(vtkAbstractArray::CreateArray(VTK_FLOAT));
@@ -153,22 +153,22 @@ void TestVectorFieldSource::ExecuteDataWithInformation(vtkDataObject *outData,vt
   double size[3]; GetSize(size);
 
   for (int iz = extent[4]; iz<=extent[5]; iz++)
-   {
+  {
    for (int iy = extent[2]; iy<=extent[3]; iy++)
-     {
+   {
      for (int ix = extent[0]; ix<=extent[1]; ix++)
-       {
+     {
        double x = size[0]*((double)ix)/gridSize[0] + origin[0];
        double y = size[1]*((double)iy)/gridSize[1] + origin[1];
        double z = size[2]*((double)iz)/gridSize[2] + origin[2];
        *(outPtr++) = -z;
        *(outPtr++) = y*0;
        *(outPtr++) = x;
-       }
-     outPtr += stepY;
      }
-   outPtr += stepZ;
+     outPtr += stepY;
    }
+   outPtr += stepZ;
+  }
   outArray->Delete();
 
   // add a constant vector field in the z-direction
@@ -180,9 +180,9 @@ void TestVectorFieldSource::ExecuteDataWithInformation(vtkDataObject *outData,vt
   outImage->GetPointData()->AddArray(velocityArray);
   float velocity[3] = {0, 0, 1};
   for(vtkIdType i=0;i<outImage->GetNumberOfPoints();i++)
-    {
+  {
     velocityArray->SetTuple(i, velocity);
-    }
+  }
 
   velocityArray->Delete();
 }

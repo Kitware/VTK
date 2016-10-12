@@ -325,10 +325,10 @@ int TestStencilWithPolyDataContour(int, char *[])
   points->SetNumberOfPoints(262);
   lines->InsertNextCell(262);
   for (vtkIdType i = 0; i < 262; i++)
-    {
+  {
     points->SetPoint(i, contour[i][0], contour[i][1], 0.0);
     lines->InsertCellPoint(i);
-    }
+  }
 
   // add a couple spurs to make sure PolyDataToImageStencil
   // can deal with them

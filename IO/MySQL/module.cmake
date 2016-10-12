@@ -1,13 +1,16 @@
 vtk_module(vtkIOMySQL
-  DEPENDS
-    vtkCommonDataModel
   IMPLEMENTS
     vtkIOSQL
-  PRIVATE_DEPENDS
-    vtksys
   TEST_DEPENDS
     vtkTestingCore
     vtkTestingIOSQL
   KIT
     vtkIO
+  DEPENDS
+    vtkIOSQL
+  PRIVATE_DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtksys
   )

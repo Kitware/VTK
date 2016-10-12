@@ -20,8 +20,8 @@
   and provides the corresponding python type.
 -----------------------------------------------------------------------*/
 
-#ifndef __PyVTKTemplate_h
-#define __PyVTKTemplate_h
+#ifndef PyVTKTemplate_h
+#define PyVTKTemplate_h
 
 #include "vtkWrappingPythonCoreModule.h" // For export macro
 #include "vtkPython.h"

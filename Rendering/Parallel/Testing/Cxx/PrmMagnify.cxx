@@ -66,8 +66,8 @@ protected:
   vtkImageMandelbrotSource *Mandelbrot;
 
 private:
-  vtkTestMagnifyRenderManager(const vtkTestMagnifyRenderManager &);  // Not implemented.
-  void operator=(const vtkTestMagnifyRenderManager &);  // Not implemented.
+  vtkTestMagnifyRenderManager(const vtkTestMagnifyRenderManager &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTestMagnifyRenderManager &) VTK_DELETE_FUNCTION;
 };
 
 vtkStandardNewMacro(vtkTestMagnifyRenderManager);
@@ -173,32 +173,32 @@ void vtkTestMagnifyRenderManager::ReadReducedImage()
   vtkDataArray *src
     = this->Mandelbrot->GetOutput()->GetPointData()->GetScalars();
   if (src->GetNumberOfTuples() != numpixels)
-    {
+  {
     vtkErrorMacro("Image is wrong size!");
     return;
-    }
+  }
 
   if (this->UseRGBA)
-    {
+  {
     this->ReducedImage->SetNumberOfComponents(4);
-    }
+  }
   else
-    {
+  {
     this->ReducedImage->SetNumberOfComponents(3);
-    }
+  }
   this->ReducedImage->SetNumberOfTuples(numpixels);
 
   double color[4];
   color[3] = 255;
 
   for (vtkIdType i = 0; i < numpixels; i++)
-    {
+  {
     double value = src->GetComponent(i, 0);
     color[0] = value;
     color[1] = (value < 128) ? value : (255 - value);
     color[2] = 255 - value;
     this->ReducedImage->SetTuple(i, color);
-    }
+  }
 }
 
 
@@ -264,13 +264,13 @@ int PrmMagnify(int argc, char *argv[])
   renwin->Render();
   int retVal = vtkRegressionTestImage(renwin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     VTK_CREATE(vtkRenderWindowInteractor, iren);
     iren->SetRenderWindow(renwin);
     renwin->Render();
     iren->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   controller->Finalize();
 

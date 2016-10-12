@@ -17,16 +17,19 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkBoostConnectedComponents - Find the connected components of a graph
-//
-// .SECTION Description
-// vtkBoostConnectedComponents discovers the connected regions of a vtkGraph.
-// Each vertex is assigned a component ID in the vertex array "component".
-// If the graph is undirected, this is the natural connected components
-// of the graph.  If the graph is directed, this filter discovers the
-// strongly connected components of the graph (i.e. the maximal sets of
-// vertices where there is a directed path between any pair of vertices
-// within each set).
+/**
+ * @class   vtkBoostConnectedComponents
+ * @brief   Find the connected components of a graph
+ *
+ *
+ * vtkBoostConnectedComponents discovers the connected regions of a vtkGraph.
+ * Each vertex is assigned a component ID in the vertex array "component".
+ * If the graph is undirected, this is the natural connected components
+ * of the graph.  If the graph is directed, this filter discovers the
+ * strongly connected components of the graph (i.e. the maximal sets of
+ * vertices where there is a directed path between any pair of vertices
+ * within each set).
+*/
 
 #ifndef vtkBoostConnectedComponents_h
 #define vtkBoostConnectedComponents_h
@@ -49,8 +52,8 @@ protected:
 
 private:
 
-  vtkBoostConnectedComponents(const vtkBoostConnectedComponents&);  // Not implemented.
-  void operator=(const vtkBoostConnectedComponents&);  // Not implemented.
+  vtkBoostConnectedComponents(const vtkBoostConnectedComponents&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBoostConnectedComponents&) VTK_DELETE_FUNCTION;
 };
 
 #endif

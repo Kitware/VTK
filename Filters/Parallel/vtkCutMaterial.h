@@ -12,13 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCutMaterial - Automatically computes the cut plane for a material array pair.
-// .SECTION Description
-// vtkCutMaterial computes a cut plane based on an up vector, center of the bounding box
-// and the location of the maximum variable value.
-//  These computed values are available so that they can be used to set the camera
-// for the best view of the plane.
-
+/**
+ * @class   vtkCutMaterial
+ * @brief   Automatically computes the cut plane for a material array pair.
+ *
+ * vtkCutMaterial computes a cut plane based on an up vector, center of the bounding box
+ * and the location of the maximum variable value.
+ *  These computed values are available so that they can be used to set the camera
+ * for the best view of the plane.
+*/
 
 #ifndef vtkCutMaterial_h
 #define vtkCutMaterial_h
@@ -35,33 +37,48 @@ public:
   vtkTypeMacro(vtkCutMaterial,vtkPolyDataAlgorithm);
   static vtkCutMaterial *New();
 
-  // Description:
-  // Cell array that contains the material values.
+  //@{
+  /**
+   * Cell array that contains the material values.
+   */
   vtkSetStringMacro(MaterialArrayName);
   vtkGetStringMacro(MaterialArrayName);
+  //@}
 
-  // Description:
-  // Material to probe.
+  //@{
+  /**
+   * Material to probe.
+   */
   vtkSetMacro(Material, int);
   vtkGetMacro(Material, int);
+  //@}
 
-  // Description:
-  // For now, we just use the cell values.
-  // The array name to cut.
+  //@{
+  /**
+   * For now, we just use the cell values.
+   * The array name to cut.
+   */
   vtkSetStringMacro(ArrayName);
   vtkGetStringMacro(ArrayName);
+  //@}
 
-  // Description:
-  // The last piece of information that specifies the plane.
+  //@{
+  /**
+   * The last piece of information that specifies the plane.
+   */
   vtkSetVector3Macro(UpVector, double);
   vtkGetVector3Macro(UpVector, double);
+  //@}
 
-  // Description:
-  // Accesses to the values computed during the execute method.  They
-  // could be used to get a good camera view for the resulting plane.
+  //@{
+  /**
+   * Accesses to the values computed during the execute method.  They
+   * could be used to get a good camera view for the resulting plane.
+   */
   vtkGetVector3Macro(MaximumPoint, double);
   vtkGetVector3Macro(CenterPoint, double);
   vtkGetVector3Macro(Normal, double);
+  //@}
 
 protected:
   vtkCutMaterial();
@@ -83,8 +100,8 @@ protected:
   vtkPlane *PlaneFunction;
 
 private:
-  vtkCutMaterial(const vtkCutMaterial&);  // Not implemented.
-  void operator=(const vtkCutMaterial&);  // Not implemented.
+  vtkCutMaterial(const vtkCutMaterial&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCutMaterial&) VTK_DELETE_FUNCTION;
 };
 
 #endif

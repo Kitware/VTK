@@ -13,14 +13,17 @@
 
 =========================================================================*/
 
-// .NAME vtkDummyCommunicator - Dummy controller for single process applications.
-//
-// .SECTION Description
-//
-// This is a dummy communicator, which can be used by applications that always
-// require a controller but are also compiled on systems without threads or MPI.
-// Because there is always only one process, no real communication takes place.
-//
+/**
+ * @class   vtkDummyCommunicator
+ * @brief   Dummy controller for single process applications.
+ *
+ *
+ *
+ * This is a dummy communicator, which can be used by applications that always
+ * require a controller but are also compiled on systems without threads or MPI.
+ * Because there is always only one process, no real communication takes place.
+ *
+*/
 
 #ifndef vtkDummyCommunicator_h
 #define vtkDummyCommunicator_h
@@ -35,9 +38,11 @@ public:
   static vtkDummyCommunicator *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Since there is no one to communicate with, these methods just report an
-  // error.
+  //@{
+  /**
+   * Since there is no one to communicate with, these methods just report an
+   * error.
+   */
   virtual int SendVoidArray(const void *, vtkIdType, int, int, int) {
     vtkWarningMacro("There is no one to send to.");
     return 0;
@@ -46,14 +51,15 @@ public:
     vtkWarningMacro("There is no one to receive from.");
     return 0;
   }
+  //@}
 
 protected:
   vtkDummyCommunicator();
   virtual ~vtkDummyCommunicator();
 
 private:
-  vtkDummyCommunicator(const vtkDummyCommunicator &);   // Not implemented
-  void operator=(const vtkDummyCommunicator &);         // Not implemented
+  vtkDummyCommunicator(const vtkDummyCommunicator &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDummyCommunicator &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkDummyCommunicator_h

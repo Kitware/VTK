@@ -47,29 +47,29 @@ static double VTK_MIN_SUPERQUADRIC_ROUNDNESS = 1e-24;
 void vtkSuperquadric::SetThetaRoundness(double e)
 {
   if(e < VTK_MIN_SUPERQUADRIC_ROUNDNESS)
-    {
+  {
     e = VTK_MIN_SUPERQUADRIC_ROUNDNESS;
-    }
+  }
 
   if (this->ThetaRoundness != e)
-    {
+  {
     this->ThetaRoundness = e;
     this->Modified();
-    }
+  }
 }
 
 void vtkSuperquadric::SetPhiRoundness(double e)
 {
   if(e < VTK_MIN_SUPERQUADRIC_ROUNDNESS)
-    {
+  {
     e = VTK_MIN_SUPERQUADRIC_ROUNDNESS;
-    }
+  }
 
   if (this->PhiRoundness != e)
-    {
+  {
     this->PhiRoundness = e;
     this->Modified();
-    }
+  }
 }
 
 // Evaluate Superquadric equation

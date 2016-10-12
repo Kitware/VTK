@@ -77,39 +77,39 @@ int TestTransposeTable(int, char *[])
   vtkTable* outTable = filter->GetOutput();
 
   if (table->GetNumberOfColumns() != outTable->GetNumberOfRows())
-    {
+  {
     cout << "Input table:" << endl;
     table->Dump();
     cout << "Transposed table:" << endl;
     outTable->Dump();
     cout << "Failed: Column/row mismatched!" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (table->GetNumberOfRows() != outTable->GetNumberOfColumns() - 1)
-    {
+  {
     cout << "Input table:" << endl;
     table->Dump();
     cout << "Transposed table:" << endl;
     outTable->Dump();
     cout << "Failed: Row/Column mismatched!" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   for (int i = 0; i < table->GetNumberOfRows(); i++)
-    {
+  {
     std::stringstream ss;
     ss << i;
     vtkAbstractArray* col = outTable->GetColumnByName(ss.str().c_str());
     for (int j = 0; j < table->GetNumberOfColumns(); j++)
-      {
+    {
       if (col->GetVariantValue(j) != table->GetValue(i, j))
-        {
+      {
         cout << "Failed: Column/row mismatched!" << endl;
         return EXIT_FAILURE;
-        }
       }
     }
+  }
 
   // Let's transpose the transposed table and compare it with input table
   vtkNew<vtkTransposeTable> filter2;
@@ -121,18 +121,18 @@ int TestTransposeTable(int, char *[])
   vtkTable* outTable2 = filter2->GetOutput();
 
   for (int i = 0; i < table->GetNumberOfRows(); i++)
-    {
+  {
     for (int j = 0; j < table->GetNumberOfColumns(); j++)
-      {
+    {
       if (table->GetValue(i, j) != outTable2->GetValue(i, j))
-        {
+      {
         cout << "Transposed of transposed table:" << endl;
         outTable2->Dump();
         cout << "Failed: Column/row mismatch!" << endl;
         return EXIT_FAILURE;
-        }
       }
     }
+  }
 
   return EXIT_SUCCESS;
 }

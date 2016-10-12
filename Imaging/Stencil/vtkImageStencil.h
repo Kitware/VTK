@@ -12,11 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageStencil - combine images via a cookie-cutter operation
-// .SECTION Description
-// vtkImageStencil will combine two images together using a stencil.
-// The stencil should be provided in the form of a vtkImageStencilData,
-
+/**
+ * @class   vtkImageStencil
+ * @brief   combine images via a cookie-cutter operation
+ *
+ * vtkImageStencil will combine two images together using a stencil.
+ * The stencil should be provided in the form of a vtkImageStencilData,
+*/
 
 #ifndef vtkImageStencil_h
 #define vtkImageStencil_h
@@ -33,45 +35,61 @@ public:
   vtkTypeMacro(vtkImageStencil, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify the stencil to use.  The stencil can be created
-  // from a vtkImplicitFunction or a vtkPolyData. This
-  // function does not setup a pipeline connection.
+  //@{
+  /**
+   * Specify the stencil to use.  The stencil can be created
+   * from a vtkImplicitFunction or a vtkPolyData. This
+   * function does not setup a pipeline connection.
+   */
   virtual void SetStencilData(vtkImageStencilData *stencil);
   vtkImageStencilData *GetStencil();
+  //@}
 
-  // Description:
-  // Specify the stencil to use. This sets up a pipeline connection.
+  /**
+   * Specify the stencil to use. This sets up a pipeline connection.
+   */
   void SetStencilConnection(vtkAlgorithmOutput* outputPort)
   {
     this->SetInputConnection(2, outputPort);
   }
 
-  // Description:
-  // Reverse the stencil.
+  //@{
+  /**
+   * Reverse the stencil.
+   */
   vtkSetMacro(ReverseStencil, int);
   vtkBooleanMacro(ReverseStencil, int);
   vtkGetMacro(ReverseStencil, int);
+  //@}
 
-  // Description:
-  // Set the second input.  This image will be used for the 'outside' of the
-  // stencil.  If not set, the output voxels will be filled with
-  // BackgroundValue instead.
+  //@{
+  /**
+   * Set the second input.  This image will be used for the 'outside' of the
+   * stencil.  If not set, the output voxels will be filled with
+   * BackgroundValue instead.
+   */
   virtual void SetBackgroundInputData(vtkImageData *input);
   vtkImageData *GetBackgroundInput();
+  //@}
 
-  // Description:
-  // Set the default output value to use when the second input is not set.
+  //@{
+  /**
+   * Set the default output value to use when the second input is not set.
+   */
   void SetBackgroundValue(double val) {
     this->SetBackgroundColor(val,val,val,val); };
   double GetBackgroundValue() {
     return this->BackgroundColor[0]; };
+  //@}
 
-  // Description:
-  // Set the default color to use when the second input is not set.
-  // This is like SetBackgroundValue, but for multi-component images.
+  //@{
+  /**
+   * Set the default color to use when the second input is not set.
+   * This is like SetBackgroundValue, but for multi-component images.
+   */
   vtkSetVector4Macro(BackgroundColor, double);
   vtkGetVector4Macro(BackgroundColor, double);
+  //@}
 
 protected:
   vtkImageStencil();
@@ -89,8 +107,8 @@ protected:
   virtual int FillInputPortInformation(int, vtkInformation*);
 
 private:
-  vtkImageStencil(const vtkImageStencil&);  // Not implemented.
-  void operator=(const vtkImageStencil&);  // Not implemented.
+  vtkImageStencil(const vtkImageStencil&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageStencil&) VTK_DELETE_FUNCTION;
 };
 
 #endif

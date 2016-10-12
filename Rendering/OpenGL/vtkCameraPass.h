@@ -12,19 +12,22 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCameraPass - Implement the camera render pass.
-// .SECTION Description
-// Render the camera.
-//
-// It setups the projection and modelview matrices and can clear the background
-// It calls its delegate once.
-// After its delegate returns, it restore the modelview matrix stack.
-//
-// Its delegate is usually set to a vtkSequencePass with a vtkLigthsPass and
-// a list of passes for the geometry.
-//
-// .SECTION See Also
-// vtkRenderPass
+/**
+ * @class   vtkCameraPass
+ * @brief   Implement the camera render pass.
+ *
+ * Render the camera.
+ *
+ * It setups the projection and modelview matrices and can clear the background
+ * It calls its delegate once.
+ * After its delegate returns, it restore the modelview matrix stack.
+ *
+ * Its delegate is usually set to a vtkSequencePass with a vtkLigthsPass and
+ * a list of passes for the geometry.
+ *
+ * @sa
+ * vtkRenderPass
+*/
 
 #ifndef vtkCameraPass_h
 #define vtkCameraPass_h
@@ -39,50 +42,62 @@ public:
   vtkTypeMacro(vtkCameraPass,vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Perform rendering according to a render state \p s.
-  // \pre s_exists: s!=0
+  /**
+   * Perform rendering according to a render state \p s.
+   * \pre s_exists: s!=0
+   */
   virtual void Render(const vtkRenderState *s);
 
-  // Description:
-  // Release graphics resources and ask components to release their own
-  // resources.
-  // \pre w_exists: w!=0
+  /**
+   * Release graphics resources and ask components to release their own
+   * resources.
+   * \pre w_exists: w!=0
+   */
   void ReleaseGraphicsResources(vtkWindow *w);
 
-  // Description:
-  // Delegate for rendering the geometry.
-  // If it is NULL, nothing will be rendered and a warning will be emitted.
-  // It is usually set to a vtkSequencePass with a vtkLigthsPass and
-  // a list of passes for the geometry.
-  // Initial value is a NULL pointer.
+  //@{
+  /**
+   * Delegate for rendering the geometry.
+   * If it is NULL, nothing will be rendered and a warning will be emitted.
+   * It is usually set to a vtkSequencePass with a vtkLigthsPass and
+   * a list of passes for the geometry.
+   * Initial value is a NULL pointer.
+   */
   vtkGetObjectMacro(DelegatePass,vtkRenderPass);
   virtual void SetDelegatePass(vtkRenderPass *delegatePass);
+  //@}
 
-  // Description:
-  // Used to override the aspect ratio used when computing the projection
-  // matrix. This is useful when rendering for tile-displays for example.
+  //@{
+  /**
+   * Used to override the aspect ratio used when computing the projection
+   * matrix. This is useful when rendering for tile-displays for example.
+   */
   vtkSetMacro(AspectRatioOverride, double);
   vtkGetMacro(AspectRatioOverride, double);
  protected:
-  // Description:
-  // Default constructor. DelegatePass is set to NULL.
+  //@}
+  /**
+   * Default constructor. DelegatePass is set to NULL.
+   */
   vtkCameraPass();
 
-  // Description:
-  // Destructor.
+  //@{
+  /**
+   * Destructor.
+   */
   virtual ~vtkCameraPass();
   virtual void GetTiledSizeAndOrigin(
     const vtkRenderState* render_state,
     int* width, int* height, int *originX,
     int* originY);
+  //@}
 
   vtkRenderPass *DelegatePass;
 
   double AspectRatioOverride;
  private:
-  vtkCameraPass(const vtkCameraPass&);  // Not implemented.
-  void operator=(const vtkCameraPass&);  // Not implemented.
+  vtkCameraPass(const vtkCameraPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCameraPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

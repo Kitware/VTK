@@ -68,10 +68,10 @@
 {
   self = [super init];
   if (self != nil)
-    {
+  {
     // Add your subclass-specific initialization here.
      // If an error occurs here, send a [self release] message and return nil.
-    }
+  }
 
   return self;
 }

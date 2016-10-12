@@ -65,15 +65,15 @@ public:
  protected:
    vtkTemporalSphereSource();
 
-  virtual int RequestInformation(
+  int RequestInformation(
     vtkInformation* request,
     vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
+    vtkInformationVector* outputVector) VTK_OVERRIDE;
 
-  virtual int RequestData(
+  int RequestData(
     vtkInformation* request,
     vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
+    vtkInformationVector* outputVector) VTK_OVERRIDE;
 
 public:
   int TimeStepRange[2];
@@ -141,7 +141,7 @@ int vtkTemporalSphereSource::RequestData(
   this->ActualTimeStep = this->TimeStep;
 
   if (this->TimeStep==0 && outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
-    {
+  {
     double requestedTimeValue = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     this->ActualTimeStep = std::find_if(
       this->TimeStepValues.begin(),
@@ -149,14 +149,14 @@ int vtkTemporalSphereSource::RequestData(
       std::bind2nd( vtkTestTemporalCacheSimpleWithinTolerance( ), requestedTimeValue ))
       - this->TimeStepValues.begin();
     this->ActualTimeStep = this->ActualTimeStep + this->TimeStepRange[0];
-    }
+  }
   else
-    {
+  {
     double timevalue;
     timevalue = this->TimeStepValues[this->ActualTimeStep-this->TimeStepRange[0]];
     vtkDebugMacro(<<"Using manually set t= " << timevalue << " Step : " << this->ActualTimeStep);
     doOutput->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), timevalue);
-    }
+  }
 
   cout << "this->ActualTimeStep : " << this->ActualTimeStep << endl;
 
@@ -172,7 +172,7 @@ public:
   static vtkTestTemporalCacheSimpleExecuteCallback *New()
   { return new vtkTestTemporalCacheSimpleExecuteCallback; }
 
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
   {
     // count the number of timesteps requested
     vtkTemporalSphereSource *sph = vtkTemporalSphereSource::SafeDownCast(caller);
@@ -237,23 +237,23 @@ int TestTemporalCacheSimple(int , char *[])
   int i;
   int j;
   for (j = 0; j < 5; ++j)
-    {
+  {
     for (i = 0; i < 9; ++i)
-      {
+    {
       time = i+0.5;
       info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), time);
       mapper->Modified();
       renderer->ResetCameraClippingRange();
       renWin->Render();
-      }
     }
+  }
 
   vtkAlgorithm::SetDefaultExecutivePrototype(0);
 
   if (executecb->Count == 11)
-    {
+  {
     return 0;
-    }
+  }
 
   return 1;
 }

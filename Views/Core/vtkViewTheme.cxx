@@ -89,381 +89,381 @@ vtkViewTheme::vtkViewTheme()
 vtkViewTheme::~vtkViewTheme()
 {
   if (this->CellLookupTable)
-    {
+  {
     this->CellLookupTable->Delete();
-    }
+  }
   if (this->PointLookupTable)
-    {
+  {
     this->PointLookupTable->Delete();
-    }
+  }
   if (this->CellTextProperty)
-    {
+  {
     this->CellTextProperty->Delete();
-    }
+  }
   if (this->PointTextProperty)
-    {
+  {
     this->PointTextProperty->Delete();
-    }
+  }
 }
 
 //---------------------------------------------------------------------------
 void vtkViewTheme::SetPointHueRange(double mn, double mx)
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->PointLookupTable))
-    {
+  {
     lut->SetHueRange(mn, mx);
     lut->Build();
-    }
+  }
 }
 
 void vtkViewTheme::SetPointHueRange(double rng[2])
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->PointLookupTable))
-    {
+  {
     lut->SetHueRange(rng);
     lut->Build();
-    }
+  }
 }
 
 double* vtkViewTheme::GetPointHueRange()
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->PointLookupTable))
-    {
+  {
     return lut->GetHueRange();
-    }
+  }
   return 0;
 }
 
 void vtkViewTheme::GetPointHueRange(double& mn, double& mx)
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->PointLookupTable))
-    {
+  {
     lut->GetHueRange(mn, mx);
-    }
+  }
 }
 
 void vtkViewTheme::GetPointHueRange(double rng[2])
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->PointLookupTable))
-    {
+  {
     lut->GetHueRange(rng);
-    }
+  }
 }
 
 //---------------------------------------------------------------------------
 void vtkViewTheme::SetPointSaturationRange(double mn, double mx)
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->PointLookupTable))
-    {
+  {
     lut->SetSaturationRange(mn, mx);
     lut->Build();
-    }
+  }
 }
 
 void vtkViewTheme::SetPointSaturationRange(double rng[2])
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->PointLookupTable))
-    {
+  {
     lut->SetSaturationRange(rng);
     lut->Build();
-    }
+  }
 }
 
 double* vtkViewTheme::GetPointSaturationRange()
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->PointLookupTable))
-    {
+  {
     return lut->GetSaturationRange();
-    }
+  }
   return 0;
 }
 
 void vtkViewTheme::GetPointSaturationRange(double& mn, double& mx)
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->PointLookupTable))
-    {
+  {
     lut->GetSaturationRange(mn, mx);
-    }
+  }
 }
 
 void vtkViewTheme::GetPointSaturationRange(double rng[2])
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->PointLookupTable))
-    {
+  {
     lut->GetSaturationRange(rng);
-    }
+  }
 }
 
 //---------------------------------------------------------------------------
 void vtkViewTheme::SetPointValueRange(double mn, double mx)
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->PointLookupTable))
-    {
+  {
     lut->SetValueRange(mn, mx);
     lut->Build();
-    }
+  }
 }
 
 void vtkViewTheme::SetPointValueRange(double rng[2])
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->PointLookupTable))
-    {
+  {
     lut->SetValueRange(rng);
     lut->Build();
-    }
+  }
 }
 
 double* vtkViewTheme::GetPointValueRange()
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->PointLookupTable))
-    {
+  {
     return lut->GetValueRange();
-    }
+  }
   return 0;
 }
 
 void vtkViewTheme::GetPointValueRange(double& mn, double& mx)
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->PointLookupTable))
-    {
+  {
     lut->GetValueRange(mn, mx);
-    }
+  }
 }
 
 void vtkViewTheme::GetPointValueRange(double rng[2])
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->PointLookupTable))
-    {
+  {
     lut->GetValueRange(rng);
-    }
+  }
 }
 
 //---------------------------------------------------------------------------
 void vtkViewTheme::SetPointAlphaRange(double mn, double mx)
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->PointLookupTable))
-    {
+  {
     lut->SetAlphaRange(mn, mx);
     lut->Build();
-    }
+  }
 }
 
 void vtkViewTheme::SetPointAlphaRange(double rng[2])
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->PointLookupTable))
-    {
+  {
     lut->SetAlphaRange(rng);
     lut->Build();
-    }
+  }
 }
 
 double* vtkViewTheme::GetPointAlphaRange()
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->PointLookupTable))
-    {
+  {
     return lut->GetAlphaRange();
-    }
+  }
   return 0;
 }
 
 void vtkViewTheme::GetPointAlphaRange(double& mn, double& mx)
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->PointLookupTable))
-    {
+  {
     lut->GetAlphaRange(mn, mx);
-    }
+  }
 }
 
 void vtkViewTheme::GetPointAlphaRange(double rng[2])
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->PointLookupTable))
-    {
+  {
     lut->GetAlphaRange(rng);
-    }
+  }
 }
 
 //---------------------------------------------------------------------------
 void vtkViewTheme::SetCellHueRange(double mn, double mx)
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->CellLookupTable))
-    {
+  {
     lut->SetHueRange(mn, mx);
     lut->Build();
-    }
+  }
 }
 
 void vtkViewTheme::SetCellHueRange(double rng[2])
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->CellLookupTable))
-    {
+  {
     lut->SetHueRange(rng);
     lut->Build();
-    }
+  }
 }
 
 double* vtkViewTheme::GetCellHueRange()
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->CellLookupTable))
-    {
+  {
     return lut->GetHueRange();
-    }
+  }
   return 0;
 }
 
 void vtkViewTheme::GetCellHueRange(double& mn, double& mx)
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->CellLookupTable))
-    {
+  {
     lut->GetHueRange(mn, mx);
-    }
+  }
 }
 
 void vtkViewTheme::GetCellHueRange(double rng[2])
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->CellLookupTable))
-    {
+  {
     lut->GetHueRange(rng);
-    }
+  }
 }
 
 //---------------------------------------------------------------------------
 void vtkViewTheme::SetCellSaturationRange(double mn, double mx)
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->CellLookupTable))
-    {
+  {
     lut->SetSaturationRange(mn, mx);
     lut->Build();
-    }
+  }
 }
 
 void vtkViewTheme::SetCellSaturationRange(double rng[2])
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->CellLookupTable))
-    {
+  {
     lut->SetSaturationRange(rng);
     lut->Build();
-    }
+  }
 }
 
 double* vtkViewTheme::GetCellSaturationRange()
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->CellLookupTable))
-    {
+  {
     return lut->GetSaturationRange();
-    }
+  }
   return 0;
 }
 
 void vtkViewTheme::GetCellSaturationRange(double& mn, double& mx)
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->CellLookupTable))
-    {
+  {
     lut->GetSaturationRange(mn, mx);
-    }
+  }
 }
 
 void vtkViewTheme::GetCellSaturationRange(double rng[2])
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->CellLookupTable))
-    {
+  {
     lut->GetSaturationRange(rng);
-    }
+  }
 }
 
 //---------------------------------------------------------------------------
 void vtkViewTheme::SetCellValueRange(double mn, double mx)
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->CellLookupTable))
-    {
+  {
     lut->SetValueRange(mn, mx);
     lut->Build();
-    }
+  }
 }
 
 void vtkViewTheme::SetCellValueRange(double rng[2])
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->CellLookupTable))
-    {
+  {
     lut->SetValueRange(rng);
     lut->Build();
-    }
+  }
 }
 
 double* vtkViewTheme::GetCellValueRange()
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->CellLookupTable))
-    {
+  {
     return lut->GetValueRange();
-    }
+  }
   return 0;
 }
 
 void vtkViewTheme::GetCellValueRange(double& mn, double& mx)
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->CellLookupTable))
-    {
+  {
     lut->GetValueRange(mn, mx);
-    }
+  }
 }
 
 void vtkViewTheme::GetCellValueRange(double rng[2])
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->CellLookupTable))
-    {
+  {
     lut->GetValueRange(rng);
-    }
+  }
 }
 
 //---------------------------------------------------------------------------
 void vtkViewTheme::SetCellAlphaRange(double mn, double mx)
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->CellLookupTable))
-    {
+  {
     lut->SetAlphaRange(mn, mx);
     lut->Build();
-    }
+  }
 }
 
 void vtkViewTheme::SetCellAlphaRange(double rng[2])
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->CellLookupTable))
-    {
+  {
     lut->SetAlphaRange(rng);
     lut->Build();
-    }
+  }
 }
 
 double* vtkViewTheme::GetCellAlphaRange()
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->CellLookupTable))
-    {
+  {
     return lut->GetAlphaRange();
-    }
+  }
   return 0;
 }
 
 void vtkViewTheme::GetCellAlphaRange(double& mn, double& mx)
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->CellLookupTable))
-    {
+  {
     lut->GetAlphaRange(mn, mx);
-    }
+  }
 }
 
 void vtkViewTheme::GetCellAlphaRange(double rng[2])
 {
   if (vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->CellLookupTable))
-    {
+  {
     lut->GetAlphaRange(rng);
-    }
+  }
 }
 
 void vtkViewTheme::SetVertexLabelColor(double r, double g, double b)
 {
   if (this->PointTextProperty)
-    {
+  {
     this->PointTextProperty->SetColor(r, g, b);
-    }
+  }
 }
 
 double *vtkViewTheme::GetVertexLabelColor()
@@ -474,9 +474,9 @@ double *vtkViewTheme::GetVertexLabelColor()
 void vtkViewTheme::SetEdgeLabelColor(double r, double g, double b)
 {
   if (this->CellTextProperty)
-    {
+  {
     this->CellTextProperty->SetColor(r, g, b);
-    }
+  }
 }
 
 double *vtkViewTheme::GetEdgeLabelColor()
@@ -581,14 +581,14 @@ vtkViewTheme* vtkViewTheme::CreateMellowTheme()
 bool vtkViewTheme::LookupMatchesPointTheme(vtkScalarsToColors* s2c)
 {
   if (!s2c)
-    {
+  {
     return false;
-    }
+  }
   vtkLookupTable* lut = vtkLookupTable::SafeDownCast(s2c);
   if (!lut)
-    {
+  {
     return false;
-    }
+  }
   if (lut->GetHueRange()[0] == this->GetPointHueRange()[0] &&
       lut->GetHueRange()[1] == this->GetPointHueRange()[1] &&
       lut->GetSaturationRange()[0] == this->GetPointSaturationRange()[0] &&
@@ -597,23 +597,23 @@ bool vtkViewTheme::LookupMatchesPointTheme(vtkScalarsToColors* s2c)
       lut->GetValueRange()[1] == this->GetPointValueRange()[1] &&
       lut->GetAlphaRange()[0] == this->GetPointAlphaRange()[0] &&
       lut->GetAlphaRange()[1] == this->GetPointAlphaRange()[1])
-    {
+  {
     return true;
-    }
+  }
   return false;
 }
 
 bool vtkViewTheme::LookupMatchesCellTheme(vtkScalarsToColors* s2c)
 {
   if (!s2c)
-    {
+  {
     return false;
-    }
+  }
   vtkLookupTable* lut = vtkLookupTable::SafeDownCast(s2c);
   if (!lut)
-    {
+  {
     return false;
-    }
+  }
   if (lut->GetHueRange()[0] == this->GetCellHueRange()[0] &&
       lut->GetHueRange()[1] == this->GetCellHueRange()[1] &&
       lut->GetSaturationRange()[0] == this->GetCellSaturationRange()[0] &&
@@ -622,9 +622,9 @@ bool vtkViewTheme::LookupMatchesCellTheme(vtkScalarsToColors* s2c)
       lut->GetValueRange()[1] == this->GetCellValueRange()[1] &&
       lut->GetAlphaRange()[0] == this->GetCellAlphaRange()[0] &&
       lut->GetAlphaRange()[1] == this->GetCellAlphaRange()[1])
-    {
+  {
     return true;
-    }
+  }
   return false;
 }
 
@@ -669,32 +669,32 @@ void vtkViewTheme::PrintSelf(ostream& os, vtkIndent indent)
      << this->BackgroundColor2[2] << endl;
   os << indent << "PointLookupTable: " << (this->PointLookupTable ? "" : "(none)") << endl;
   if (this->PointLookupTable)
-    {
+  {
     this->PointLookupTable->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   os << indent << "CellLookupTable: " << (this->CellLookupTable ? "" : "(none)") << endl;
   if (this->CellLookupTable)
-    {
+  {
     this->CellLookupTable->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   os << indent << "PointTextProperty: " << (this->PointTextProperty ? "" : "(none)") << endl;
   if (this->PointTextProperty)
-    {
+  {
     this->PointTextProperty->PrintSelf(os, indent.GetNextIndent());
     os << indent << "VertexLabelColor: "
        << this->PointTextProperty->GetColor()[0] << ","
        << this->PointTextProperty->GetColor()[1] << ","
        << this->PointTextProperty->GetColor()[2] << endl;
-    }
+  }
   os << indent << "CellTextProperty: " << (this->CellTextProperty ? "" : "(none)") << endl;
   if (this->CellTextProperty)
-    {
+  {
     this->CellTextProperty->PrintSelf(os, indent.GetNextIndent());
     os << indent << "EdgeLabelColor: "
        << this->CellTextProperty->GetColor()[0] << ","
        << this->CellTextProperty->GetColor()[1] << ","
        << this->CellTextProperty->GetColor()[2] << endl;
-    }
+  }
   os << indent << "ScalePointLookupTable: " << this->ScalePointLookupTable << endl;
   os << indent << "ScaleCellLookupTable: " << this->ScaleCellLookupTable << endl;
 }

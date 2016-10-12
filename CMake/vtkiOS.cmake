@@ -5,6 +5,11 @@ set(PREFIX_DIR ${CMAKE_BINARY_DIR}/CMakeExternals/Prefix)
 set(BUILD_DIR ${CMAKE_BINARY_DIR}/CMakeExternals/Build)
 set(INSTALL_DIR ${CMAKE_BINARY_DIR}/CMakeExternals/Install)
 
+# Remove previous configurations
+file(REMOVE_RECURSE ${PREFIX_DIR})
+file(REMOVE_RECURSE ${BUILD_DIR})
+file(REMOVE_RECURSE ${INSTALL_DIR})
+
 # Options for iOS
 set(OPENGL_ES_VERSION "2.0" CACHE STRING "OpenGL ES version (2.0 or 3.0)")
 set_property(CACHE OPENGL_ES_VERSION PROPERTY STRINGS 2.0 3.0)
@@ -13,6 +18,8 @@ set(IOS_SIMULATOR_ARCHITECTURES "i386;x86_64"
     CACHE STRING "iOS Simulator Architectures")
 set(IOS_DEVICE_ARCHITECTURES "arm64;armv7;armv7s"
     CACHE STRING "iOS Device Architectures")
+
+set(IOS_EMBED_BITCODE ON CACHE BOOL "Embed LLVM bitcode")
 
 set(CMAKE_FRAMEWORK_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/frameworks"
     CACHE PATH "Framework install path")
@@ -174,8 +181,7 @@ crosscompile(vtk-ios-simulator
  )
 
 # for each architecture
-set(IOS_ARCHITECTURES arm64 armv7 armv7s)
-foreach (arch ${IOS_ARCHITECTURES})
+foreach (arch ${IOS_DEVICE_ARCHITECTURES})
   set(CMAKE_CC_ARCH ${arch})
   configure_file(CMake/ios.device.toolchain.cmake.in
                ${CMAKE_CURRENT_BINARY_DIR}/CMake/ios.device.toolchain.${arch}.cmake

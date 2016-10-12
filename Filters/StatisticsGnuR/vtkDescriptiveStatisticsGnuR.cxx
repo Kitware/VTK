@@ -61,15 +61,15 @@ vtkDoubleArray* vtkDescriptiveStatisticsGnuR::CalculatePValues(vtkDoubleArray* s
   // Retrieve the p-values
   vtkDoubleArray* testCol = vtkArrayDownCast<vtkDoubleArray>( ri->AssignRVariableToVTKDataArray( "p" ) );
   if ( ! testCol || testCol->GetNumberOfTuples() != statCol->GetNumberOfTuples() )
-    {
+  {
     vtkWarningMacro( "Something went wrong with the R calculations. Reported p-values will be invalid." );
     testCol = this->Superclass::CalculatePValues( statCol );
-    }
+  }
   else
-    {
+  {
     // increment ref count on testCol so its not cleaned up when the R interface goes away
     testCol->Register(NULL);
-    }
+  }
 
   // Clean up
   ri->Delete();

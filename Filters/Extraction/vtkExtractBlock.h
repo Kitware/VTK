@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractBlock - extracts blocks from a multiblock dataset.
-// .SECTION Description
-// vtkExtractBlock is a filter that extracts blocks from a multiblock dataset.
-// Each node in the multi-block tree is identified by an \c index. The index can
-// be obtained by performing a preorder traversal of the tree (including empty
-// nodes). eg. A(B (D, E), C(F, G)).
-// Inorder traversal yields: A, B, D, E, C, F, G
-// Index of A is 0, while index of C is 4.
+/**
+ * @class   vtkExtractBlock
+ * @brief   extracts blocks from a multiblock dataset.
+ *
+ * vtkExtractBlock is a filter that extracts blocks from a multiblock dataset.
+ * Each node in the multi-block tree is identified by an \c index. The index can
+ * be obtained by performing a preorder traversal of the tree (including empty
+ * nodes). eg. A(B (D, E), C(F, G)).
+ * Inorder traversal yields: A, B, D, E, C, F, G
+ * Index of A is 0, while index of C is 4.
+*/
 
 #ifndef vtkExtractBlock_h
 #define vtkExtractBlock_h
@@ -37,39 +40,49 @@ public:
   vtkTypeMacro(vtkExtractBlock, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Select the block indices to extract.
-  // Each node in the multi-block tree is identified by an \c index. The index can
-  // be obtained by performing a preorder traversal of the tree (including empty
-  // nodes). eg. A(B (D, E), C(F, G)).
-  // Inorder traversal yields: A, B, D, E, C, F, G
-  // Index of A is 0, while index of C is 4.
+  //@{
+  /**
+   * Select the block indices to extract.
+   * Each node in the multi-block tree is identified by an \c index. The index can
+   * be obtained by performing a preorder traversal of the tree (including empty
+   * nodes). eg. A(B (D, E), C(F, G)).
+   * Inorder traversal yields: A, B, D, E, C, F, G
+   * Index of A is 0, while index of C is 4.
+   */
   void AddIndex(unsigned int index);
   void RemoveIndex(unsigned int index);
   void RemoveAllIndices();
+  //@}
 
-  // Description:
-  // When set, the output mutliblock dataset will be pruned to remove empty
-  // nodes. On by default.
+  //@{
+  /**
+   * When set, the output mutliblock dataset will be pruned to remove empty
+   * nodes. On by default.
+   */
   vtkSetMacro(PruneOutput, int);
   vtkGetMacro(PruneOutput, int);
   vtkBooleanMacro(PruneOutput, int);
+  //@}
 
-  // Description:
-  // This is used only when PruneOutput is ON. By default, when pruning the
-  // output i.e. remove empty blocks, if node has only 1 non-null child block,
-  // then that node is removed. To preserve these parent nodes, set this flag to
-  // true. Off by default.
+  //@{
+  /**
+   * This is used only when PruneOutput is ON. By default, when pruning the
+   * output i.e. remove empty blocks, if node has only 1 non-null child block,
+   * then that node is removed. To preserve these parent nodes, set this flag to
+   * true. Off by default.
+   */
   vtkSetMacro(MaintainStructure, int);
   vtkGetMacro(MaintainStructure, int);
   vtkBooleanMacro(MaintainStructure, int);
+  //@}
 
 protected:
   vtkExtractBlock();
   ~vtkExtractBlock();
 
-  // Description:
-  // Internal key, used to avoid pruning of a branch.
+  /**
+   * Internal key, used to avoid pruning of a branch.
+   */
   static vtkInformationIntegerKey* DONT_PRUNE();
 
   /// Implementation of the algorithm.
@@ -88,8 +101,8 @@ protected:
   int PruneOutput;
   int MaintainStructure;
 private:
-  vtkExtractBlock(const vtkExtractBlock&); // Not implemented.
-  void operator=(const vtkExtractBlock&); // Not implemented.
+  vtkExtractBlock(const vtkExtractBlock&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExtractBlock&) VTK_DELETE_FUNCTION;
 
   class vtkSet;
   vtkSet *Indices;

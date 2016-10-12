@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractRectilinearGrid - Extract a sub grid (VOI) from the structured rectilinear dataset.
-// .SECTION Description
-// vtkExtractRectilinearGrid rounds out the set of filters that extract
-// a subgrid out of a larger structured data set.  RIght now, this filter
-// only supports extracting a VOI.  In the future, it might support
-// strides like the vtkExtract grid filter.
-
-// .SECTION See Also
-// vtkExtractGrid vtkImageClip vtkGeometryFilter vtkExtractGeometry vtkExtractVOI
-// vtkStructuredGridGeometryFilter
+/**
+ * @class   vtkExtractRectilinearGrid
+ * @brief   Extract a sub grid (VOI) from the structured rectilinear dataset.
+ *
+ * vtkExtractRectilinearGrid rounds out the set of filters that extract
+ * a subgrid out of a larger structured data set.  RIght now, this filter
+ * only supports extracting a VOI.  In the future, it might support
+ * strides like the vtkExtract grid filter.
+ *
+ * @sa
+ * vtkExtractGrid vtkImageClip vtkGeometryFilter vtkExtractGeometry vtkExtractVOI
+ * vtkStructuredGridGeometryFilter
+*/
 
 #ifndef vtkExtractRectilinearGrid_h
 #define vtkExtractRectilinearGrid_h
@@ -39,32 +42,41 @@ public:
   vtkTypeMacro(vtkExtractRectilinearGrid,vtkRectilinearGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify i-j-k (min,max) pairs to extract. The resulting structured grid
-  // dataset can be of any topological dimension (i.e., point, line, plane,
-  // or 3D grid).
+  //@{
+  /**
+   * Specify i-j-k (min,max) pairs to extract. The resulting structured grid
+   * dataset can be of any topological dimension (i.e., point, line, plane,
+   * or 3D grid).
+   */
   vtkSetVector6Macro(VOI,int);
   vtkGetVectorMacro(VOI,int,6);
+  //@}
 
-  // Description:
-  // Set the sampling rate in the i, j, and k directions. If the rate is > 1,
-  // then the resulting VOI will be subsampled representation of the input.
-  // For example, if the SampleRate=(2,2,2), every other point will be
-  // selected, resulting in a volume 1/8th the original size.
-  // Initial value is (1,1,1).
+  //@{
+  /**
+   * Set the sampling rate in the i, j, and k directions. If the rate is > 1,
+   * then the resulting VOI will be subsampled representation of the input.
+   * For example, if the SampleRate=(2,2,2), every other point will be
+   * selected, resulting in a volume 1/8th the original size.
+   * Initial value is (1,1,1).
+   */
   vtkSetVector3Macro(SampleRate, int);
   vtkGetVectorMacro(SampleRate, int, 3);
+  //@}
 
-  // Description:
-  // Control whether to enforce that the "boundary" of the grid is output in
-  // the subsampling process. (This ivar only has effect when the SampleRate
-  // in any direction is not equal to 1.) When this ivar IncludeBoundary is
-  // on, the subsampling will always include the boundary of the grid even
-  // though the sample rate is not an even multiple of the grid
-  // dimensions. (By default IncludeBoundary is off.)
+  //@{
+  /**
+   * Control whether to enforce that the "boundary" of the grid is output in
+   * the subsampling process. (This ivar only has effect when the SampleRate
+   * in any direction is not equal to 1.) When this ivar IncludeBoundary is
+   * on, the subsampling will always include the boundary of the grid even
+   * though the sample rate is not an even multiple of the grid
+   * dimensions. (By default IncludeBoundary is off.)
+   */
   vtkSetMacro(IncludeBoundary,int);
   vtkGetMacro(IncludeBoundary,int);
   vtkBooleanMacro(IncludeBoundary,int);
+  //@}
 
 protected:
   vtkExtractRectilinearGrid();
@@ -74,11 +86,12 @@ protected:
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
-  // Description:
-  // Implementation for RequestData using a specified VOI. This is because the
-  // parallel filter needs to muck around with the VOI to get spacing and
-  // partitioning to play nice. The VOI is calculated from the output
-  // data object's extents in this implementation.
+  /**
+   * Implementation for RequestData using a specified VOI. This is because the
+   * parallel filter needs to muck around with the VOI to get spacing and
+   * partitioning to play nice. The VOI is calculated from the output
+   * data object's extents in this implementation.
+   */
   bool RequestDataImpl(vtkInformationVector **inputVector,
                        vtkInformationVector *outputVector);
 
@@ -88,8 +101,8 @@ protected:
 
   vtkExtractStructuredGridHelper* Internal;
 private:
-  vtkExtractRectilinearGrid(const vtkExtractRectilinearGrid&);  // Not implemented.
-  void operator=(const vtkExtractRectilinearGrid&);  // Not implemented.
+  vtkExtractRectilinearGrid(const vtkExtractRectilinearGrid&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExtractRectilinearGrid&) VTK_DELETE_FUNCTION;
 };
 
 #endif

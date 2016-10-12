@@ -56,14 +56,14 @@ struct Dispatch<vtkTypeList::TypeList<ArrayHead, ArrayTail> >
   static bool Execute(vtkDataArray *inArray, Worker &worker)
   {
     if (ArrayHead *array = vtkArrayDownCast<ArrayHead>(inArray))
-      {
+    {
       worker(array);
       return true;
-      }
+    }
     else
-      {
+    {
       return Dispatch<ArrayTail>::Execute(inArray, worker);
-      }
+    }
   }
 };
 
@@ -115,13 +115,13 @@ struct Dispatch2<vtkTypeList::TypeList<Array1Head, Array1Tail>, ArrayList2>
                       Worker &worker)
   {
     if (Array1Head *array = vtkArrayDownCast<Array1Head>(array1))
-      {
+    {
       return Trampoline::Execute(array, array2, worker);
-      }
+    }
     else
-      {
+    {
       return NextDispatch::Execute(array1, array2, worker);
-      }
+    }
   }
 };
 
@@ -156,14 +156,14 @@ struct Dispatch2Trampoline<
   static bool Execute(Array1T *array1, vtkDataArray *array2, Worker &worker)
   {
     if (Array2Head *array = vtkArrayDownCast<Array2Head>(array2))
-      {
+    {
       worker(array1, array);
       return true;
-      }
+    }
     else
-      {
+    {
       return NextDispatch::Execute(array1, array2, worker);
-      }
+    }
   }
 };
 
@@ -211,13 +211,13 @@ struct Dispatch2Same<
                       Worker &worker)
   {
     if (ArrayHead *array = vtkArrayDownCast<ArrayHead>(array1))
-      {
+    {
       return Trampoline::Execute(array, array2, worker);
-      }
+    }
     else
-      {
+    {
       return NextDispatch::Execute(array1, array2, worker);
-      }
+    }
   }
 };
 
@@ -287,13 +287,13 @@ public:
                       vtkDataArray *array3, Worker &worker)
   {
     if (ArrayHead *array = vtkArrayDownCast<ArrayHead>(array1))
-      {
+    {
       return Trampoline::Execute(array, array2, array3, worker);
-      }
+    }
     else
-      {
+    {
       return NextDispatch::Execute(array1, array2, array3, worker);
-      }
+    }
   }
 };
 
@@ -334,13 +334,13 @@ public:
                       vtkDataArray *array3, Worker &worker)
   {
     if (ArrayHead *array = vtkArrayDownCast<ArrayHead>(array2))
-      {
+    {
       return Trampoline::Execute(array1, array, array3, worker);
-      }
+    }
     else
-      {
+    {
       return NextDispatch::Execute(array1, array2, array3, worker);
-      }
+    }
   }
 };
 
@@ -380,14 +380,14 @@ public:
                       vtkDataArray *array3, Worker &worker)
   {
     if (ArrayHead *array = vtkArrayDownCast<ArrayHead>(array3))
-      {
+    {
       worker(array1, array2, array);
       return true;
-      }
+    }
     else
-      {
+    {
       return NextDispatch::Execute(array1, array2, array3, worker);
-      }
+    }
   }
 };
 
@@ -444,13 +444,13 @@ public:
                       vtkDataArray *array3, Worker &worker)
   {
     if (ArrayHead *array = vtkArrayDownCast<ArrayHead>(array1))
-      {
+    {
       return Trampoline::Execute(array, array2, array3, worker);
-      }
+    }
     else
-      {
+    {
       return NextDispatch::Execute(array1, array2, array3, worker);
-      }
+    }
   }
 };
 

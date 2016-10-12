@@ -49,7 +49,7 @@ void vtkOpenGLCoincidentTopologyResolutionPainter::RenderInternal(
     (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
   int rct = draw_surface_with_edges? VTK_RESOLVE_OFF: this->ResolveCoincidentTopology;
   switch (rct)
-    {
+  {
   case VTK_RESOLVE_OFF:
     this->Superclass::RenderInternal(renderer, actor,
       typeflags, forceCompileOnly);
@@ -62,25 +62,25 @@ void vtkOpenGLCoincidentTopologyResolutionPainter::RenderInternal(
   case VTK_RESOLVE_SHIFT_ZBUFFER:
     this->RenderShiftZBuffer(renderer, actor, typeflags, forceCompileOnly);
     break;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLCoincidentTopologyResolutionPainter::RenderPolygonOffset(
   vtkRenderer *renderer, vtkActor *actor, unsigned long typeflags,
   bool forceCompileOnly)
-  {
+{
 #ifdef GL_VERSION_1_1
   vtkOpenGLClearErrorMacro();
   if (this->OffsetFaces)
-    {
+  {
     glEnable(GL_POLYGON_OFFSET_FILL);
-    }
+  }
   else
-    {
+  {
     glEnable(GL_POLYGON_OFFSET_LINE);
     glEnable(GL_POLYGON_OFFSET_POINT);
-    }
+  }
   glPolygonOffset(this->PolygonOffsetFactor, this->PolygonOffsetUnits);
 #endif
 
@@ -89,14 +89,14 @@ void vtkOpenGLCoincidentTopologyResolutionPainter::RenderPolygonOffset(
 
 #ifdef GL_VERSION_1_1
   if (this->OffsetFaces)
-    {
+  {
     glDisable(GL_POLYGON_OFFSET_FILL);
-    }
+  }
   else
-    {
+  {
     glDisable(GL_POLYGON_OFFSET_LINE);
     glDisable(GL_POLYGON_OFFSET_POINT);
-    }
+  }
   vtkOpenGLCheckErrorMacro("failed after RenderPolygonOffset");
 #endif
 }
@@ -118,17 +118,17 @@ void vtkOpenGLCoincidentTopologyResolutionPainter::RenderShiftZBuffer(
   GLint oglPolyMode[2];
   glGetIntegerv(GL_POLYGON_MODE, oglPolyMode);
   if ((actorRep == VTK_POINTS) || (oglPolyMode[0] == GL_POINT))
-    {
+  {
     vertFlags |= typeflags & (vtkPainter::POLYS | vtkPainter::STRIPS);
-    }
+  }
   else if ((actorRep == VTK_WIREFRAME) || (oglPolyMode[0] == GL_LINE))
-    {
+  {
     lineFlags |= typeflags & (vtkPainter::POLYS | vtkPainter::STRIPS);
-    }
+  }
   else
-    {
+  {
     polyFlags |= typeflags & (vtkPainter::POLYS | vtkPainter::STRIPS);
-    }
+  }
 
   GLint stackDepth, maxStackDepth;
   glGetIntegerv(GL_PROJECTION_STACK_DEPTH, &stackDepth);
@@ -137,11 +137,11 @@ void vtkOpenGLCoincidentTopologyResolutionPainter::RenderShiftZBuffer(
   // projection matrix stack can be small, so we check to make sure that we
   // can do it.
   if (stackDepth < maxStackDepth)
-    {
+  {
     double range[2];
     renderer->GetActiveCamera()->GetClippingRange(range);
     if (vertFlags)
-      {
+    {
       glMatrixMode(GL_PROJECTION);
       glPushMatrix();
       glTranslated(0.0, 0.0, 2.0*this->ZShift*(range[1]-range[0]));
@@ -150,9 +150,9 @@ void vtkOpenGLCoincidentTopologyResolutionPainter::RenderShiftZBuffer(
                                        forceCompileOnly);
       glMatrixMode(GL_PROJECTION);
       glPopMatrix();
-      }
+    }
     if (lineFlags)
-      {
+    {
       glMatrixMode(GL_PROJECTION);
       glPushMatrix();
       glTranslated(0.0, 0.0, this->ZShift*(range[1]-range[0]));
@@ -161,18 +161,18 @@ void vtkOpenGLCoincidentTopologyResolutionPainter::RenderShiftZBuffer(
                                        forceCompileOnly);
       glMatrixMode(GL_PROJECTION);
       glPopMatrix();
-      }
+    }
     if (polyFlags)
-      {
+    {
       this->Superclass::RenderInternal(renderer, actor, polyFlags,
                                        forceCompileOnly);
-      }
     }
+  }
   else
-    {
+  {
     this->Superclass::RenderInternal(renderer, actor, typeflags,
                                      forceCompileOnly);
-    }
+  }
   vtkOpenGLCheckErrorMacro("failed after RenderShiftZBuffer");
 }
 

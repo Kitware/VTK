@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInformationDataObjectMetaDataKey - key used to define meta-data of type vtkDataObject
-// vtkInformationDataObjectMetaDataKey is a vtkInformationDataObjectKey
-// that (shallow) copies itself downstream during the REQUEST_INFORMATION pass. Hence
-// it can be used to provide meta-data of type vtkDataObject or any subclass.
+/**
+ * @class   vtkInformationDataObjectMetaDataKey
+ * @brief   key used to define meta-data of type vtkDataObject
+ * vtkInformationDataObjectMetaDataKey is a vtkInformationDataObjectKey
+ * that (shallow) copies itself downstream during the REQUEST_INFORMATION pass. Hence
+ * it can be used to provide meta-data of type vtkDataObject or any subclass.
+*/
 
 #ifndef vtkInformationDataObjectMetaDataKey_h
 #define vtkInformationDataObjectMetaDataKey_h
@@ -29,31 +32,33 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkInformationDataObjectMetaDataKey : publi
 {
 public:
   vtkTypeMacro(vtkInformationDataObjectMetaDataKey,vtkInformationDataObjectKey);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkInformationDataObjectMetaDataKey(const char* name, const char* location);
-  ~vtkInformationDataObjectMetaDataKey();
+  ~vtkInformationDataObjectMetaDataKey() VTK_OVERRIDE;
 
-  // Description:
-  // This method simply returns a new vtkInformationDataObjectMetaDataKey, given a
-  // name and a location. This method is provided for wrappers. Use the
-  // constructor directly from C++ instead.
+  /**
+   * This method simply returns a new vtkInformationDataObjectMetaDataKey, given a
+   * name and a location. This method is provided for wrappers. Use the
+   * constructor directly from C++ instead.
+   */
   static vtkInformationDataObjectMetaDataKey* MakeKey(const char* name, const char* location)
-    {
+  {
     return new vtkInformationDataObjectMetaDataKey(name, location);
-    }
+  }
 
-  // Description:
-  // Simply shallow copies the key from fromInfo to toInfo if request
-  // has the REQUEST_INFORMATION() key.
-  // This is used by the pipeline to propagate this key downstream.
-  virtual void CopyDefaultInformation(vtkInformation* request,
+  /**
+   * Simply shallow copies the key from fromInfo to toInfo if request
+   * has the REQUEST_INFORMATION() key.
+   * This is used by the pipeline to propagate this key downstream.
+   */
+  void CopyDefaultInformation(vtkInformation* request,
                                       vtkInformation* fromInfo,
-                                      vtkInformation* toInfo);
+                                      vtkInformation* toInfo) VTK_OVERRIDE;
 
 private:
-  vtkInformationDataObjectMetaDataKey(const vtkInformationDataObjectMetaDataKey&);  // Not implemented.
-  void operator=(const vtkInformationDataObjectMetaDataKey&);  // Not implemented.
+  vtkInformationDataObjectMetaDataKey(const vtkInformationDataObjectMetaDataKey&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInformationDataObjectMetaDataKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

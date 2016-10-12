@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBMPWriter - Writes Windows BMP files.
-// .SECTION Description
-// vtkBMPWriter writes BMP files. The data type
-// of the file is unsigned char regardless of the input type.
-
-// .SECTION See Also
-// vtkBMPReader
+/**
+ * @class   vtkBMPWriter
+ * @brief   Writes Windows BMP files.
+ *
+ * vtkBMPWriter writes BMP files. The data type
+ * of the file is unsigned char regardless of the input type.
+ *
+ * @sa
+ * vtkBMPReader
+*/
 
 #ifndef vtkBMPWriter_h
 #define vtkBMPWriter_h
@@ -31,7 +34,7 @@ class VTKIOIMAGE_EXPORT vtkBMPWriter : public vtkImageWriter
 public:
   static vtkBMPWriter *New();
   vtkTypeMacro(vtkBMPWriter,vtkImageWriter);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkBMPWriter();
@@ -40,8 +43,8 @@ protected:
   virtual void WriteFile(ofstream *file, vtkImageData *data, int ext[6], int wExt[6]);
   virtual void WriteFileHeader(ofstream *, vtkImageData *, int wExt[6]);
 private:
-  vtkBMPWriter(const vtkBMPWriter&);  // Not implemented.
-  void operator=(const vtkBMPWriter&);  // Not implemented.
+  vtkBMPWriter(const vtkBMPWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBMPWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

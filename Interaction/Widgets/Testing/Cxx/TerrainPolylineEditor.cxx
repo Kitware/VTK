@@ -179,7 +179,7 @@ const char TerrainPolylineEditorLog[] =
 int TerrainPolylineEditor(int argc, char * argv[])
 {
   if (argc < 2)
-    {
+  {
     std::cerr
     << "Demonstrates editing capabilities of a contour widget on terrain \n"
     << "data. Additional arguments : \n"
@@ -196,7 +196,7 @@ int TerrainPolylineEditor(int argc, char * argv[])
               << "  [-InitialPath SomeVTKXmlfileContainingPath.vtk]"
               << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Read height field.
   char* fname =
@@ -300,18 +300,18 @@ int TerrainPolylineEditor(int argc, char * argv[])
   //
   interpolator->GetProjector()->SetProjectionModeToHug();
   for (int i = 0; i < argc-1; i++)
-    {
+  {
     if (strcmp("-ProjectionMode", argv[i]) == 0)
-      {
+    {
       interpolator->GetProjector()->SetProjectionMode(atoi(argv[i+1]));
-      }
+    }
     if (strcmp("-HeightOffset", argv[i]) == 0)
-      {
+    {
       interpolator->GetProjector()->SetHeightOffset(atoi(argv[i+1]));
       pointPlacer->SetHeightOffset(atof(argv[i+1]));
-      }
+    }
     if (strcmp("-InitialPath", argv[i]) == 0)
-      {
+    {
       // If we had an input poly as an initial path, build a contour
       // widget from that path.
       //
@@ -320,8 +320,8 @@ int TerrainPolylineEditor(int argc, char * argv[])
       terrainPathReader->SetFileName(argv[i+1]);
       terrainPathReader->Update();
       contourWidget->Initialize( terrainPathReader->GetOutput(), 0 );
-      }
     }
+  }
 
   contourWidget->EnabledOn();
 

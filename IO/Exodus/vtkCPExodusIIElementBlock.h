@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCPExodusIIElementBlock - Uses an Exodus II element block as a
-//  vtkMappedUnstructuredGrid's implementation.
-//
-// .SECTION Description
-// This class allows raw data arrays returned by the Exodus II library to be
-// used directly in VTK without repacking the data into the vtkUnstructuredGrid
-// memory layout. Use the vtkCPExodusIIInSituReader to read an Exodus II file's
-// data into this structure.
+/**
+ * @class   vtkCPExodusIIElementBlock
+ * @brief   Uses an Exodus II element block as a
+ *  vtkMappedUnstructuredGrid's implementation.
+ *
+ *
+ * This class allows raw data arrays returned by the Exodus II library to be
+ * used directly in VTK without repacking the data into the vtkUnstructuredGrid
+ * memory layout. Use the vtkCPExodusIIInSituReader to read an Exodus II file's
+ * data into this structure.
+*/
 
 #ifndef vtkCPExodusIIElementBlock_h
 #define vtkCPExodusIIElementBlock_h
@@ -40,12 +43,13 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   vtkTypeMacro(vtkCPExodusIIElementBlockImpl, vtkObject)
 
-  // Description:
-  // Set the Exodus element block data. 'elements' is the array returned from
-  // ex_get_elem_conn. 'type', 'numElements', and 'nodesPerElement' are obtained
-  // from ex_get_elem_block. Returns true or false depending on whether or not
-  // the element type can be translated into a VTK cell type. This object takes
-  // ownership of the elements array unless this function returns false.
+  /**
+   * Set the Exodus element block data. 'elements' is the array returned from
+   * ex_get_elem_conn. 'type', 'numElements', and 'nodesPerElement' are obtained
+   * from ex_get_elem_block. Returns true or false depending on whether or not
+   * the element type can be translated into a VTK cell type. This object takes
+   * ownership of the elements array unless this function returns false.
+   */
   bool SetExodusConnectivityArray(int *elements, const std::string &type,
                                   int numElements, int nodesPerElement);
 
@@ -72,8 +76,8 @@ protected:
   ~vtkCPExodusIIElementBlockImpl();
 
 private:
-  vtkCPExodusIIElementBlockImpl(const vtkCPExodusIIElementBlockImpl &); // Not implemented.
-  void operator=(const vtkCPExodusIIElementBlockImpl &);   // Not implemented.
+  vtkCPExodusIIElementBlockImpl(const vtkCPExodusIIElementBlockImpl &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCPExodusIIElementBlockImpl &) VTK_DELETE_FUNCTION;
 
   // Convert between Exodus node ids and VTK point ids.
   static vtkIdType NodeToPoint(const int &id)

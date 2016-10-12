@@ -54,9 +54,9 @@ vtkConvexPointSet::~vtkConvexPointSet()
   this->BoundaryTris->Delete();
   this->Triangle->Delete();
   if( this->ParametricCoords )
-    {
+  {
     this->ParametricCoords->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -89,10 +89,10 @@ vtkCell *vtkConvexPointSet::GetFace(int faceId)
   // Each triangle has three points plus number of points
   vtkIdType *cptr = cells + 4*faceId;
   for (int i=0; i<3; i++)
-    {
+  {
     this->Triangle->PointIds->SetId(i,this->PointIds->GetId(cptr[i+1]));
     this->Triangle->Points->SetPoint(i,this->Points->GetPoint(cptr[i+1]));
-    }
+  }
 
   return this->Triangle;
 }
@@ -109,9 +109,9 @@ int vtkConvexPointSet::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   ptIds->Reset();
   pts->Reset();
   if ( numPts < 1 )
-    {
+  {
     return 0;
-    }
+  }
 
   // Initialize Delaunay insertion process.
   // No more than numPts points can be inserted.
@@ -123,11 +123,11 @@ int vtkConvexPointSet::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   // vtkConvexPointSet::PointIds and Points; but sort on the global point
   // id.
   for (vtkIdType i=0; i<numPts; i++)
-    {
+  {
     ptId = this->PointIds->GetId(i);
     this->Points->GetPoint(i, x);
     this->Triangulator->InsertPoint(i, ptId, x, x, 0);
-    }//for all points
+  }//for all points
 
   // triangulate the points
   this->Triangulator->Triangulate();
@@ -152,18 +152,18 @@ void vtkConvexPointSet::Contour(double value,
   vtkIdType ptId, localId;
   vtkIdType numTets = this->TetraIds->GetNumberOfIds() / 4;
   for (vtkIdType i=0; i<numTets; i++)
-    {
+  {
     for (vtkIdType j=0; j<4; j++)
-      {
+    {
       localId = this->TetraIds->GetId(4*i+j);
       ptId = this->PointIds->GetId(localId);
       this->Tetra->PointIds->SetId(j,ptId);
       this->Tetra->Points->SetPoint(j,this->TetraPoints->GetPoint(4*i+j));
       this->TetraScalars->SetValue(j,cellScalars->GetTuple1(localId));
-      }
+    }
     this->Tetra->Contour(value,this->TetraScalars,locator,verts,lines,polys,
                          inPd,outPd,inCd,cellId,outCd);
-    }
+  }
 }
 
 
@@ -180,18 +180,18 @@ void vtkConvexPointSet::Clip(double value,
   vtkIdType ptId, localId;
   int numTets = this->TetraIds->GetNumberOfIds() / 4;
   for (i=0; i<numTets; i++)
-    {
+  {
     for (j=0; j<4; j++)
-      {
+    {
       localId = this->TetraIds->GetId(4*i+j);
       ptId = this->PointIds->GetId(localId);
       this->Tetra->PointIds->SetId(j,ptId);
       this->Tetra->Points->SetPoint(j,this->TetraPoints->GetPoint(4*i+j));
       this->TetraScalars->SetValue(j,cellScalars->GetTuple1(localId));
-      }
+    }
     this->Tetra->Clip(value,this->TetraScalars,locator,tets,inPD,outPD,inCD,
                       cellId, outCD, insideOut);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -202,13 +202,13 @@ int vtkConvexPointSet::CellBoundary(int subId, double pcoords[3],
   // Thanks go to Bart Janssens.
   vtkIdType pntIndx;
   for ( int i = 0; i < 4; i ++ )
-    {
+  {
     pntIndx = this->PointIds
                   ->GetId(  this->TetraIds->GetId( (subId << 2) + i )  );
     this->Tetra->PointIds->SetId( i, pntIndx );
     this->Tetra->Points
         ->SetPoint(  i,  this->TetraPoints->GetPoint( (subId << 2) + i )  );
-    }
+  }
 
   // find the parametrically nearest triangle.
   return this->Tetra->CellBoundary( subId, pcoords, pts );
@@ -229,27 +229,27 @@ int vtkConvexPointSet::EvaluatePosition( double x[3],
   int numTets = this->TetraIds->GetNumberOfIds() >> 2;
 
   for ( minDist2 = VTK_DOUBLE_MAX, i = 0; i < numTets; i ++ )
-    {
+  {
     for ( j = 0; j < 4; j ++ )
-      {
+    {
       ptId = this->PointIds->GetId(  this->TetraIds->GetId( (i << 2) + j )  );
       this->Tetra->PointIds->SetId( j, ptId );
       this->Tetra->Points->SetPoint
             (  j,  this->TetraPoints->GetPoint( (i << 2) + j )  );
-      }
+    }
 
     status = this->Tetra->EvaluatePosition( x, closest, ignoreId, pc, dist2,
                                             tempWeights );
     if ( status != -1 && dist2 < minDist2 )
-      {
+    {
       // init (clear) all the weights since only the vertices of the closest
       // tetrahedron are assigned with valid weights while the rest vertices
       // (of those farther tetrahedra) are simply inited with zero weights
       // (to make no any contribution). This fixes bug #9453
       for ( k = 0; k < numPnts; k ++ )
-        {
+      {
         weights[k] = 0.0;
-        }
+      }
 
       returnStatus = status;
       minDist2 = dist2;
@@ -264,8 +264,8 @@ int vtkConvexPointSet::EvaluatePosition( double x[3],
       weights[  this->TetraIds->GetId( (i << 2) + 1 )  ] = tempWeights[1];
       weights[  this->TetraIds->GetId( (i << 2) + 2 )  ] = tempWeights[2];
       weights[  this->TetraIds->GetId( (i << 2) + 3 )  ] = tempWeights[3];
-      }
     }
+  }
 
   return returnStatus;
 }
@@ -280,13 +280,13 @@ void vtkConvexPointSet::EvaluateLocation( int &  subId, double   pcoords[3],
   vtkIdType pntIndx;
 
   for ( i = 0; i < 4; i ++ )
-    {
+  {
     pntIndx = this->PointIds
                ->GetId(  this->TetraIds->GetId( (subId << 2) + i )  );
     this->Tetra->PointIds->SetId( i, pntIndx );
     this->Tetra->Points
         ->SetPoint(  i,  this->TetraPoints->GetPoint( (subId << 2) + i )  );
-    }
+  }
 
   // use tmpWgts to collect the valid weights of the tetra's four vertices
   this->Tetra->EvaluateLocation( subId, pcoords, x, tmpWgts );
@@ -294,9 +294,9 @@ void vtkConvexPointSet::EvaluateLocation( int &  subId, double   pcoords[3],
   // init the actual array of weights (possibly greater than 4)
   numPnts = this->GetNumberOfPoints();
   for ( i = 0; i < numPnts; i ++ )
-    {
+  {
     weights[i] = 0.0;
-    }
+  }
 
   // update the target weights only
   weights[  this->TetraIds->GetId( (subId << 2)     )  ] = tmpWgts[0];
@@ -319,17 +319,17 @@ int vtkConvexPointSet::IntersectWithLine(double p1[3], double p2[3], double tol,
   int status = 0;
 
   for (minT=VTK_DOUBLE_MAX, i=0; i<numTets; i++)
-    {
+  {
     for (j=0; j<4; j++)
-      {
+    {
       ptId = this->PointIds->GetId(this->TetraIds->GetId(4*i+j));
       this->Tetra->PointIds->SetId(j,ptId);
       this->Tetra->Points->SetPoint(j,this->TetraPoints->GetPoint(4*i+j));
-      }
+    }
 
     if (this->Tetra->IntersectWithLine(p1,p2,tol,t,xTemp,pc,subTest) &&
       t < minT )
-      {
+    {
       status = 1;
       subId = i;
       minT = t;
@@ -339,8 +339,8 @@ int vtkConvexPointSet::IntersectWithLine(double p1[3], double p2[3], double tol,
       pcoords[0] = pc[0];
       pcoords[1] = pc[1];
       pcoords[2] = pc[2];
-      }
     }
+  }
 
   return status;
 }
@@ -352,11 +352,11 @@ void vtkConvexPointSet::Derivatives(int subId, double pcoords[3],
   vtkIdType ptId;
 
   for (int j=0; j<4; j++)
-    {
+  {
     ptId = this->PointIds->GetId(this->TetraIds->GetId(4*subId+j));
     this->Tetra->PointIds->SetId(j,ptId);
     this->Tetra->Points->SetPoint(j,this->TetraPoints->GetPoint(4*subId+j));
-    }
+  }
 
   this->Tetra->Derivatives(subId, pcoords, values, dim, derivs);
 }
@@ -366,23 +366,23 @@ double *vtkConvexPointSet::GetParametricCoords()
 {
   int numPts = this->PointIds->GetNumberOfIds();
   if ( ! this->ParametricCoords )
-    {
+  {
     this->ParametricCoords = vtkDoubleArray::New();
-    }
+  }
 
   this->ParametricCoords->SetNumberOfComponents(3);
   this->ParametricCoords->SetNumberOfTuples(numPts);
   double p[3], x[3], *bounds = this->GetBounds();
   int i, j;
   for (i=0; i < numPts; i++)
-    {
+  {
     this->Points->GetPoint(i, x);
     for (j=0; j<3; j++)
-      {
+    {
       p[j] = (x[j] - bounds[2*j]) / (bounds[2*j+1] - bounds[2*j]);
-      }
-    this->ParametricCoords->SetTuple(i,p);
     }
+    this->ParametricCoords->SetTuple(i,p);
+  }
 
   return this->ParametricCoords->GetPointer(0);
 }
@@ -420,12 +420,12 @@ void vtkConvexPointSet::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Triangle:\n";
   this->Triangle->PrintSelf(os,indent.GetNextIndent());
   if ( this->ParametricCoords )
-    {
+  {
     os << indent << "ParametricCoords " << this->ParametricCoords << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "ParametricCoords: (null)\n";
-    }
+  }
 
 }

@@ -21,17 +21,17 @@ public:
   static vtkAbortCallback *New()
     { return new vtkAbortCallback; }
   virtual void Execute(vtkObject *caller, unsigned long, void*)
-    {
+  {
     vtkWin32OpenGLRenderWindow* ptrWin = reinterpret_cast<vtkWin32OpenGLRenderWindow*>(caller);
     if (ptrWin)
-      {
+    {
       if(ptrWin->GetEventPending())
-        {
+      {
         ptrWin->SetAbortRender( 1 );
        // Beep();
-        }
       }
     }
+  }
   vtkAbortCallback(){}
 };
 

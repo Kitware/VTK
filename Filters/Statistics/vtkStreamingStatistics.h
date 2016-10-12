@@ -17,16 +17,19 @@ PURPOSE.  See the above copyright notice for more information.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
-// .NAME vtkStreamingStatistics - A class for using the statistics filters
-// in a streaming mode.
-//
-// .SECTION Description
-// A class for using the statistics filters in a streaming mode or perhaps
-// an "online, incremental, push" mode.
-//
-// .SECTION Thanks
-// Thanks to the Universe for unfolding in a way that allowed this class
-// to be implemented, also Godzilla for not crushing my computer.
+/**
+ * @class   vtkStreamingStatistics
+ * @brief   A class for using the statistics filters
+ * in a streaming mode.
+ *
+ *
+ * A class for using the statistics filters in a streaming mode or perhaps
+ * an "online, incremental, push" mode.
+ *
+ * @par Thanks:
+ * Thanks to the Universe for unfolding in a way that allowed this class
+ * to be implemented, also Godzilla for not crushing my computer.
+*/
 
 #ifndef vtkStreamingStatistics_h
 #define vtkStreamingStatistics_h
@@ -43,44 +46,46 @@ class VTKFILTERSSTATISTICS_EXPORT vtkStreamingStatistics : public vtkTableAlgori
 {
 public:
   vtkTypeMacro(vtkStreamingStatistics, vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkStreamingStatistics* New();
 
-  // Description:
-  // enumeration values to specify input port types
+  /**
+   * enumeration values to specify input port types
+   */
   enum InputPorts
-    {
+  {
     INPUT_DATA = 0,         //!< Port 0 is for learn data
     LEARN_PARAMETERS = 1,   //!< Port 1 is for learn parameters (initial guesses, etc.)
     INPUT_MODEL = 2         //!< Port 2 is for a priori models
-    };
+  };
 
-  // Description:
-  // enumeration values to specify output port types
+  /**
+   * enumeration values to specify output port types
+   */
   enum OutputIndices
-    {
+  {
     OUTPUT_DATA  = 0,       //!< Output 0 mirrors the input data, plus optional assessment columns
     OUTPUT_MODEL = 1,       //!< Output 1 contains any generated model
     OUTPUT_TEST  = 2        //!< Output 2 contains result of statistical test(s)
-    };
+  };
 
   virtual void SetStatisticsAlgorithm(vtkStatisticsAlgorithm*);
 
 protected:
   vtkStreamingStatistics();
-  ~vtkStreamingStatistics();
+  ~vtkStreamingStatistics() VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation( int port, vtkInformation* info );
-  virtual int FillOutputPortInformation( int port, vtkInformation* info );
+  int FillInputPortInformation( int port, vtkInformation* info ) VTK_OVERRIDE;
+  int FillOutputPortInformation( int port, vtkInformation* info ) VTK_OVERRIDE;
 
-  virtual int RequestData(
+  int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector* );
+    vtkInformationVector* ) VTK_OVERRIDE;
 
 private:
-  vtkStreamingStatistics( const vtkStreamingStatistics& ); // Not implemented
-  void operator = ( const vtkStreamingStatistics& );   // Not implemented
+  vtkStreamingStatistics( const vtkStreamingStatistics& ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkStreamingStatistics& ) VTK_DELETE_FUNCTION;
 
   // Internal statistics algorithm to care for and feed
   vtkStatisticsAlgorithm* StatisticsAlgorithm;

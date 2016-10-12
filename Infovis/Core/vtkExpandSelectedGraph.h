@@ -18,19 +18,21 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// .NAME vtkExpandSelectedGraph - expands a selection set of a vtkGraph
-//
-// .SECTION Description
-// The first input is a vtkSelection containing the selected vertices.
-// The second input is a vtkGraph.
-// This filter 'grows' the selection set in one of the following ways
-// 1) SetBFSDistance controls how many 'hops' the selection is grown
-//    from each seed point in the selection set (defaults to 1)
-// 2) IncludeShortestPaths controls whether this filter tries to
-//    'connect' the vertices in the selection set by computing the
-//    shortest path between the vertices (if such a path exists)
-// Note: IncludeShortestPaths is currently non-functional
-
+/**
+ * @class   vtkExpandSelectedGraph
+ * @brief   expands a selection set of a vtkGraph
+ *
+ *
+ * The first input is a vtkSelection containing the selected vertices.
+ * The second input is a vtkGraph.
+ * This filter 'grows' the selection set in one of the following ways
+ * 1) SetBFSDistance controls how many 'hops' the selection is grown
+ *    from each seed point in the selection set (defaults to 1)
+ * 2) IncludeShortestPaths controls whether this filter tries to
+ *    'connect' the vertices in the selection set by computing the
+ *    shortest path between the vertices (if such a path exists)
+ * Note: IncludeShortestPaths is currently non-functional
+*/
 
 #ifndef vtkExpandSelectedGraph_h
 #define vtkExpandSelectedGraph_h
@@ -48,40 +50,54 @@ public:
   vtkTypeMacro(vtkExpandSelectedGraph,vtkSelectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // A convenience method for setting the second input (i.e. the graph).
+  /**
+   * A convenience method for setting the second input (i.e. the graph).
+   */
   void SetGraphConnection(vtkAlgorithmOutput* in);
 
-  // Description:
-  // Specify the first vtkSelection input and the second vtkGraph input.
+  /**
+   * Specify the first vtkSelection input and the second vtkGraph input.
+   */
   int FillInputPortInformation(int port, vtkInformation* info);
 
-  // Description:
-  // Set/Get BFSDistance which controls how many 'hops' the selection
-  // is grown from each seed point in the selection set (defaults to 1)
+  //@{
+  /**
+   * Set/Get BFSDistance which controls how many 'hops' the selection
+   * is grown from each seed point in the selection set (defaults to 1)
+   */
   vtkSetMacro(BFSDistance, int);
   vtkGetMacro(BFSDistance, int);
+  //@}
 
-  // Description:
-  // Set/Get IncludeShortestPaths controls whether this filter tries to
-  // 'connect' the vertices in the selection set by computing the
-  // shortest path between the vertices (if such a path exists)
-  // Note: IncludeShortestPaths is currently non-functional
+  //@{
+  /**
+   * Set/Get IncludeShortestPaths controls whether this filter tries to
+   * 'connect' the vertices in the selection set by computing the
+   * shortest path between the vertices (if such a path exists)
+   * Note: IncludeShortestPaths is currently non-functional
+   */
   vtkSetMacro(IncludeShortestPaths, bool);
   vtkGetMacro(IncludeShortestPaths, bool);
   vtkBooleanMacro(IncludeShortestPaths, bool);
+  //@}
 
-  // Description:
-  // Set/Get the vertex domain to use in the expansion.
+  //@{
+  /**
+   * Set/Get the vertex domain to use in the expansion.
+   */
   vtkSetStringMacro(Domain);
   vtkGetStringMacro(Domain);
+  //@}
 
-  // Description:
-  // Whether or not to use the domain when deciding to add a vertex to the
-  // expansion. Defaults to false.
+  //@{
+  /**
+   * Whether or not to use the domain when deciding to add a vertex to the
+   * expansion. Defaults to false.
+   */
   vtkSetMacro(UseDomain, bool);
   vtkGetMacro(UseDomain, bool);
   vtkBooleanMacro(UseDomain, bool);
+  //@}
 
 protected:
   vtkExpandSelectedGraph();
@@ -100,8 +116,8 @@ protected:
   bool UseDomain;
 
 private:
-  vtkExpandSelectedGraph(const vtkExpandSelectedGraph&); // Not implemented
-  void operator=(const vtkExpandSelectedGraph&);   // Not implemented
+  vtkExpandSelectedGraph(const vtkExpandSelectedGraph&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExpandSelectedGraph&) VTK_DELETE_FUNCTION;
 
   void BFSExpandSelection(vtkIdTypeArray *selection,
                           vtkGraph *graph);

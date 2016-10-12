@@ -19,14 +19,17 @@
 
 =========================================================================*/
 
-// .NAME vtkBoostLogWeighting - Given an arbitrary-dimension array of doubles,
-// replaces each value x with one of:
-//
-// * The natural logarithm of 1 + x (the default)
-// * The base-2 logarithm of 1 + x
-//
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+/**
+ * @class   vtkBoostLogWeighting
+ * @brief   Given an arbitrary-dimension array of doubles,
+ * replaces each value x with one of:
+ *
+ * * The natural logarithm of 1 + x (the default)
+ * * The base-2 logarithm of 1 + x
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+*/
 
 #ifndef vtkBoostLogWeighting_h
 #define vtkBoostLogWeighting_h
@@ -47,16 +50,22 @@ public:
     BASE_2 = 1
   };
 
-  // Description:
-  // Specify the logarithm base to apply
+  //@{
+  /**
+   * Specify the logarithm base to apply
+   */
   vtkSetMacro(Base, int);
   vtkGetMacro(Base, int);
+  //@}
 
-  // Description:
-  // Specify whether this filter should emit progress events
+  //@{
+  /**
+   * Specify whether this filter should emit progress events
+   */
   vtkSetMacro(EmitProgress, bool);
   vtkGetMacro(EmitProgress, bool);
   vtkBooleanMacro(EmitProgress, bool);
+  //@}
 
 protected:
   vtkBoostLogWeighting();
@@ -68,8 +77,8 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkBoostLogWeighting(const vtkBoostLogWeighting&); // Not implemented
-  void operator=(const vtkBoostLogWeighting&);   // Not implemented
+  vtkBoostLogWeighting(const vtkBoostLogWeighting&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBoostLogWeighting&) VTK_DELETE_FUNCTION;
 
   int Base;
   bool EmitProgress;

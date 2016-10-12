@@ -12,9 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWebGLExporter
-// .SECTION Description
-// vtkWebGLExporter export the data of the scene to be used in the WebGL.
+/**
+ * @class   vtkWebGLExporter
+ *
+ * vtkWebGLExporter export the data of the scene to be used in the WebGL.
+*/
 
 #ifndef vtkWebGLExporter_h
 #define vtkWebGLExporter_h
@@ -40,7 +42,7 @@ typedef enum {
   VTK_ONLYCAMERA = 0,
   VTK_ONLYWIDGET = 1,
   VTK_PARSEALL   = 2
-  } VTKParseType;
+} VTKParseType;
 
 class VTKWEBGLEXPORTER_EXPORT vtkWebGLExporter : public vtkObject
 {
@@ -49,8 +51,10 @@ public:
   vtkTypeMacro(vtkWebGLExporter, vtkObject)
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get all the needed information from the vtkRenderer
+  //@{
+  /**
+   * Get all the needed information from the vtkRenderer
+   */
   void parseScene(vtkRendererCollection* renderers, const char* viewId, int parseType);
   // Generate and return the Metadata
   void exportStaticScene(vtkRendererCollection* renderers, int width, int height, std::string path);
@@ -62,6 +66,7 @@ public:
   void SetCenterOfRotation(float a1, float a2, float a3);
   void SetMaxAllowedSize(int mesh, int lines);
   void SetMaxAllowedSize(int size);
+  //@}
 
   static void ComputeMD5(const unsigned char* content, int size, std::string &hash);
 protected:
@@ -70,12 +75,12 @@ protected:
 
   void parseRenderer(vtkRenderer* render, const char* viewId, bool onlyWidget, void* mapTime);
   void generateRendererData(vtkRendererCollection* renderers, const char* viewId);
-  void parseActor(vtkActor* actor, unsigned long actorTime, size_t rendererId, int layer, bool isWidget);
-  void parseActor2D(vtkActor2D* actor, long actorTime, size_t renderId, int layer, bool isWidget);
+  void parseActor(vtkActor* actor, vtkMTimeType actorTime, size_t rendererId, int layer, bool isWidget);
+  void parseActor2D(vtkActor2D* actor, vtkMTimeType actorTime, size_t renderId, int layer, bool isWidget);
   const char* GenerateExportMetadata();
 
   // Get the dataset from the mapper
-  vtkTriangleFilter* GetPolyData(vtkMapper* mapper, unsigned long& dataMTime);
+  vtkTriangleFilter* GetPolyData(vtkMapper* mapper, vtkMTimeType& dataMTime);
 
   vtkTriangleFilter* TriangleFilter;         // Last Polygon Dataset Parse
   double CameraLookAt[10];                   // Camera Look At (fov, position[3], up[3], eye[3])
@@ -90,8 +95,8 @@ protected:
   bool hasWidget;
 
 private:
-  vtkWebGLExporter(const vtkWebGLExporter&); // Not implemented
-  void operator=(const vtkWebGLExporter&);   // Not implemented
+  vtkWebGLExporter(const vtkWebGLExporter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWebGLExporter&) VTK_DELETE_FUNCTION;
 
   class vtkInternal;
   vtkInternal* Internal;

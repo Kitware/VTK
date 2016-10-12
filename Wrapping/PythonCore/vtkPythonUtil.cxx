@@ -80,12 +80,12 @@ vtkPythonObjectMap::~vtkPythonObjectMap()
 {
   iterator i;
   for (i = this->begin(); i != this->end(); ++i)
-    {
+  {
     for (int j = 0; j < i->second.second; ++j)
-      {
+    {
       i->first->Delete();
-      }
     }
+  }
 }
 
 void
@@ -94,14 +94,14 @@ vtkPythonObjectMap::add(vtkObjectBase* key, PyObject* value)
   key->Register(0);
   iterator i = this->find(key);
   if (i == this->end())
-    {
+  {
     (*this)[key] = std::make_pair(value, 1);
-    }
+  }
   else
-    {
+  {
     i->second.first = value;
     ++i->second.second;
-    }
+  }
 }
 
 void
@@ -109,21 +109,21 @@ vtkPythonObjectMap::remove(vtkObjectBase* key)
 {
   iterator i = this->find(key);
   if (i != this->end())
-    {
+  {
     // Save the object. The iterator will become invalid if the iterator is
     // erased.
     vtkObjectBase* obj = i->first;
     // Remove it from the map if necessary.
     if (!--i->second.second)
-      {
+    {
       this->erase(i);
-      }
+    }
     // Remove a reference to the object. This must be done *after* removing it
     // from the map (if needed) because if there's a callback which reacts when
     // the reference is dropped, it might call RemoveObjectFromMap as well. If
     // it still exists in the map at that point, this becomes an infinite loop.
     obj->Delete();
-    }
+  }
 }
 
 // Keep weak pointers to VTK objects that python no longer has
@@ -167,21 +167,21 @@ class vtkPythonCommandList
 {
 public:
   ~vtkPythonCommandList()
-    {
+  {
     iterator iter;
     for (iter = this->begin(); iter != this->end(); ++iter)
-      {
+    {
       if (iter->GetPointer())
-        {
+      {
         iter->GetPointer()->obj = NULL;
         iter->GetPointer()->ThreadState = NULL;
-        }
       }
     }
+  }
   void findAndErase(vtkPythonCommand* ptr)
-    {
+  {
     this->erase(std::remove(this->begin(), this->end(), ptr), this->end());
-    }
+  }
 };
 
 //--------------------------------------------------------------------
@@ -200,10 +200,10 @@ void vtkPythonUtilDelete()
 void vtkPythonUtilCreateIfNeeded()
 {
   if (vtkPythonMap == NULL)
-    {
+  {
     vtkPythonMap = new vtkPythonUtil();
     Py_AtExit(vtkPythonUtilDelete);
-    }
+  }
 }
 
 //--------------------------------------------------------------------
@@ -234,19 +234,19 @@ vtkPythonUtil::~vtkPythonUtil()
 void vtkPythonUtil::RegisterPythonCommand(vtkPythonCommand* cmd)
 {
   if (cmd)
-    {
+  {
     vtkPythonUtilCreateIfNeeded();
     vtkPythonMap->PythonCommandList->push_back(cmd);
-    }
+  }
 }
 
 //--------------------------------------------------------------------
 void vtkPythonUtil::UnRegisterPythonCommand(vtkPythonCommand* cmd)
 {
   if (cmd && vtkPythonMap)
-    {
+  {
     vtkPythonMap->PythonCommandList->findAndErase(cmd);
-    }
+  }
 }
 
 
@@ -261,43 +261,43 @@ PyObject *vtkPythonUtil::BuildDocString(const char *docstring[])
   // count the number of segments for the docstring
   int n;
   for (n = 0; docstring[n] != NULL; n++)
-    {
+  {
     ;
-    }
+  }
 
   if (n == 0)
-    {
+  {
     result = PyString_FromString("");
-    }
+  }
   else if (n == 1)
-    {
+  {
     result = PyString_FromString(docstring[0]);
-    }
+  }
   else
-    {
+  {
     Py_ssize_t *m = new Py_ssize_t[n];
 
     Py_ssize_t l = 0;
     for (int i = 0; i < n; i++)
-      {
+    {
       m[i] = (Py_ssize_t)strlen(docstring[i]);
       l += m[i];
-      }
+    }
 
     char *data = new char[l + 1];
 
     size_t j = 0;
     for (int i = 0; i < n; i++)
-      {
+    {
       strcpy(&data[j], docstring[i]);
       j += m[i];
-      }
+    }
 
     result = PyString_FromStringAndSize(data, l);
 
     delete [] data;
     delete [] m;
-    }
+  }
 
   return result;
 }
@@ -318,9 +318,9 @@ PyVTKSpecialType *vtkPythonUtil::AddSpecialTypeToMap(
   vtkPythonSpecialTypeMap::iterator i =
     vtkPythonMap->SpecialTypeMap->find(classname);
   if (i != vtkPythonMap->SpecialTypeMap->end())
-    {
+  {
     return 0;
-    }
+  }
 
   i = vtkPythonMap->SpecialTypeMap->insert(i,
     vtkPythonSpecialTypeMap::value_type(
@@ -338,15 +338,15 @@ PyVTKSpecialType *vtkPythonUtil::AddSpecialTypeToMap(
 PyVTKSpecialType *vtkPythonUtil::FindSpecialType(const char *classname)
 {
   if (vtkPythonMap)
-    {
+  {
     vtkPythonSpecialTypeMap::iterator it =
       vtkPythonMap->SpecialTypeMap->find(classname);
 
     if (it != vtkPythonMap->SpecialTypeMap->end())
-      {
+    {
       return &it->second;
-      }
     }
+  }
 
   return NULL;
 }
@@ -380,21 +380,21 @@ void vtkPythonUtil::RemoveObjectFromMap(PyObject *obj)
 #endif
 
   if (vtkPythonMap && vtkPythonMap->ObjectMap->count(pobj->vtk_ptr))
-    {
+  {
     vtkWeakPointerBase wptr;
 
     // check for customized class or dict
     if (pobj->vtk_class->py_type != Py_TYPE(pobj) ||
         PyDict_Size(pobj->vtk_dict))
-      {
+    {
       wptr = pobj->vtk_ptr;
-      }
+    }
 
     vtkPythonMap->ObjectMap->remove(pobj->vtk_ptr);
 
     // if the VTK object still exists, then make a ghost
     if (wptr.GetPointer())
-      {
+    {
       // List of attrs to be deleted
       std::vector<PyObject*> delList;
 
@@ -402,18 +402,18 @@ void vtkPythonUtil::RemoveObjectFromMap(PyObject *obj)
       vtkPythonGhostMap::iterator i =
         vtkPythonMap->GhostMap->begin();
       while (i != vtkPythonMap->GhostMap->end())
-        {
+      {
         if (!i->second.vtk_ptr.GetPointer())
-          {
+        {
           delList.push_back((PyObject *)i->second.vtk_class);
           delList.push_back(i->second.vtk_dict);
           vtkPythonMap->GhostMap->erase(i++);
-          }
-        else
-          {
-          ++i;
-          }
         }
+        else
+        {
+          ++i;
+        }
+      }
 
       // Add this new ghost to the map
       PyVTKObjectGhost &g = (*vtkPythonMap->GhostMap)[pobj->vtk_ptr];
@@ -425,11 +425,11 @@ void vtkPythonUtil::RemoveObjectFromMap(PyObject *obj)
 
       // Delete attrs of erased objects.  Must be done at the end.
       for (size_t j = 0; j < delList.size(); j++)
-        {
+      {
         Py_DECREF(delList[j]);
-        }
       }
     }
+  }
 }
 
 //--------------------------------------------------------------------
@@ -438,68 +438,68 @@ PyObject *vtkPythonUtil::GetObjectFromPointer(vtkObjectBase *ptr)
   PyObject *obj = NULL;
 
   if (ptr && vtkPythonMap)
-    {
+  {
     vtkPythonObjectMap::iterator i =
       vtkPythonMap->ObjectMap->find(ptr);
     if (i != vtkPythonMap->ObjectMap->end())
-      {
+    {
       obj = i->second.first;
-      }
+    }
     if (obj)
-      {
+    {
       Py_INCREF(obj);
       return obj;
-      }
     }
+  }
   else
-    {
+  {
     Py_INCREF(Py_None);
     return Py_None;
-    }
+  }
 
   // search weak list for object, resurrect if it is there
   vtkPythonGhostMap::iterator j =
     vtkPythonMap->GhostMap->find(ptr);
   if (j != vtkPythonMap->GhostMap->end())
-    {
+  {
     if (j->second.vtk_ptr.GetPointer())
-      {
+    {
       obj = PyVTKObject_FromPointer(
         j->second.vtk_class, j->second.vtk_dict, ptr);
-      }
+    }
     Py_DECREF(j->second.vtk_class);
     Py_DECREF(j->second.vtk_dict);
     vtkPythonMap->GhostMap->erase(j);
-    }
+  }
 
   if (obj == NULL)
-    {
+  {
     // create a new object
     PyVTKClass *vtkclass = NULL;
     vtkPythonClassMap::iterator k =
       vtkPythonMap->ClassMap->find(ptr->GetClassName());
     if (k != vtkPythonMap->ClassMap->end())
-      {
+    {
       vtkclass = &k->second;
-      }
+    }
 
     // if the class was not in the map, then find the nearest base class
     // that is, and associate ptr->GetClassName() with that base class
     if (vtkclass == NULL)
-      {
+    {
       const char *classname = ptr->GetClassName();
       vtkclass = vtkPythonUtil::FindNearestBaseClass(ptr);
       vtkPythonClassMap::iterator i =
         vtkPythonMap->ClassMap->find(classname);
       if (i == vtkPythonMap->ClassMap->end())
-        {
+      {
         vtkPythonMap->ClassMap->insert(
           i, vtkPythonClassMap::value_type(classname, *vtkclass));
-        }
       }
+    }
 
     obj = PyVTKObject_FromPointer(vtkclass->py_type, NULL, ptr);
-    }
+  }
 
   return obj;
 }
@@ -511,19 +511,19 @@ const char *vtkPythonUtil::PythonicClassName(const char *classname)
 
   /* check for non-alphanumeric chars */
   if (isalpha(*cp) || *cp == '_')
-    {
+  {
     do { cp++; } while (isalnum(*cp) || *cp == '_');
-    }
+  }
 
   if (*cp != '\0')
-    {
+  {
     /* look up class and get its pythonic name */
     PyVTKClass *o = vtkPythonUtil::FindClass(classname);
     if (o)
-      {
+    {
       classname = vtkPythonUtil::StripModule(o->py_type->tp_name);
-      }
     }
+  }
 
   return classname;
 }
@@ -533,13 +533,13 @@ const char *vtkPythonUtil::StripModule(const char *tpname)
 {
   const char *cp = tpname;
   while (*cp != '.' && *cp != '\0')
-    {
+  {
     cp++;
-    }
+  }
   if (*cp == '.')
-    {
+  {
     return ++cp;
-    }
+  }
   return tpname;
 }
 
@@ -554,9 +554,9 @@ PyVTKClass *vtkPythonUtil::AddClassToMap(
   vtkPythonClassMap::iterator i =
     vtkPythonMap->ClassMap->find(classname);
   if (i != vtkPythonMap->ClassMap->end())
-    {
+  {
     return 0;
-    }
+  }
 
   i = vtkPythonMap->ClassMap->insert(i,
     vtkPythonClassMap::value_type(
@@ -570,14 +570,14 @@ PyVTKClass *vtkPythonUtil::AddClassToMap(
 PyVTKClass *vtkPythonUtil::FindClass(const char *classname)
 {
   if (vtkPythonMap)
-    {
+  {
     vtkPythonClassMap::iterator it =
       vtkPythonMap->ClassMap->find(classname);
     if (it != vtkPythonMap->ClassMap->end())
-      {
+    {
       return &it->second;
-      }
     }
+  }
 
   return NULL;
 }
@@ -594,25 +594,25 @@ PyVTKClass *vtkPythonUtil::FindNearestBaseClass(vtkObjectBase *ptr)
   for (vtkPythonClassMap::iterator classes =
         vtkPythonMap->ClassMap->begin();
        classes != vtkPythonMap->ClassMap->end(); ++classes)
-    {
+  {
     PyVTKClass *pyclass = &classes->second;
 
     if (ptr->IsA(pyclass->vtk_name))
-      {
+    {
       PyTypeObject *base = pyclass->py_type->tp_base;
       // count the hierarchy depth for this class
       for (depth = 0; base != 0; depth++)
-        {
+      {
         base = base->tp_base;
-        }
+      }
       // we want the class that is furthest from vtkObjectBase
       if (depth > maxdepth)
-        {
+      {
         maxdepth = depth;
         nearestbase = pyclass;
-        }
       }
     }
+  }
 
   return nearestbase;
 }
@@ -625,63 +625,63 @@ vtkObjectBase *vtkPythonUtil::GetPointerFromObject(
 
   // convert Py_None to NULL every time
   if (obj == Py_None)
-    {
+  {
     return NULL;
-    }
+  }
 
   // check to ensure it is a vtk object
   if (!PyVTKObject_Check(obj))
-    {
+  {
     obj = PyObject_GetAttrString(obj, "__vtk__");
     if (obj)
-      {
+    {
       PyObject *arglist = Py_BuildValue("()");
       PyObject *result = PyEval_CallObject(obj, arglist);
       Py_DECREF(arglist);
       Py_DECREF(obj);
       if (result == NULL)
-        {
+      {
         return NULL;
-        }
+      }
       if (!PyVTKObject_Check(result))
-        {
+      {
         PyErr_SetString(PyExc_TypeError, "__vtk__() doesn't return a VTK object");
         Py_DECREF(result);
         return NULL;
-        }
+      }
       else
-        {
+      {
         ptr = ((PyVTKObject *)result)->vtk_ptr;
         Py_DECREF(result);
-        }
       }
+    }
     else
-      {
+    {
 #ifdef VTKPYTHONDEBUG
       vtkGenericWarningMacro("Object " << obj << " is not a VTK object!!");
 #endif
       PyErr_SetString(PyExc_TypeError, "method requires a VTK object");
       return NULL;
-      }
     }
+  }
   else
-    {
+  {
     ptr = ((PyVTKObject *)obj)->vtk_ptr;
-    }
+  }
 
 #ifdef VTKPYTHONDEBUG
   vtkGenericWarningMacro("Checking into obj " << obj << " ptr = " << ptr);
 #endif
 
   if (ptr->IsA(result_type))
-    {
+  {
 #ifdef VTKPYTHONDEBUG
     vtkGenericWarningMacro("Got obj= " << obj << " ptr= " << ptr << " " << result_type);
 #endif
     return ptr;
-    }
+  }
   else
-    {
+  {
     char error_string[2048];
 #ifdef VTKPYTHONDEBUG
     vtkGenericWarningMacro("vtk bad argument, type conversion failed.");
@@ -692,7 +692,7 @@ vtkObjectBase *vtkPythonUtil::GetPointerFromObject(
               ((vtkObjectBase *)ptr)->GetClassName()));
     PyErr_SetString(PyExc_TypeError, error_string);
     return NULL;
-    }
+  }
 }
 
 //----------------
@@ -720,14 +720,14 @@ PyObject *vtkPythonUtil::GetObjectFromObject(
 
 #ifdef Py_USING_UNICODE
   if (PyUnicode_Check(arg))
-    {
+  {
     tmp = PyUnicode_AsUTF8String(arg);
     arg = tmp;
-    }
+  }
 #endif
 
   if (PyBytes_Check(arg))
-    {
+  {
     vtkObjectBase *ptr;
     char *ptrText = PyBytes_AsString(arg);
 
@@ -737,36 +737,36 @@ PyObject *vtkPythonUtil::GetObjectFromObject(
     u.l = static_cast<uintptr_t>(l);
 
     if (i <= 0)
-      {
+    {
       i = sscanf(ptrText,"Addr=0x%llx", &l);
       u.l = static_cast<uintptr_t>(l);
-      }
+    }
     if (i <= 0)
-      {
+    {
       i = sscanf(ptrText, "%p", &u.p);
-      }
+    }
     if (i <= 0)
-      {
+    {
       Py_XDECREF(tmp);
       PyErr_SetString(PyExc_ValueError, "could not extract hexidecimal address from argument string");
       return NULL;
-      }
+    }
 
     ptr = static_cast<vtkObjectBase *>(u.p);
 
     if (!ptr->IsA(type))
-      {
+    {
       char error_string[2048];
       sprintf(error_string,"method requires a %.500s address, a %.500s address was provided.",
               type, ptr->GetClassName());
       Py_XDECREF(tmp);
       PyErr_SetString(PyExc_TypeError, error_string);
       return NULL;
-      }
+    }
 
     Py_XDECREF(tmp);
     return vtkPythonUtil::GetObjectFromPointer(ptr);
-    }
+  }
 
   Py_XDECREF(tmp);
   PyErr_SetString(PyExc_TypeError, "method requires a string argument");
@@ -778,10 +778,10 @@ void *vtkPythonUtil::GetPointerFromSpecialObject(
   PyObject *obj, const char *result_type, PyObject **newobj)
 {
   if (vtkPythonMap == NULL)
-    {
+  {
     PyErr_SetString(PyExc_TypeError, "method requires a vtkPythonMap");
     return NULL;
-    }
+  }
 
   const char *object_type =
     vtkPythonUtil::StripModule(Py_TYPE(obj)->tp_name);
@@ -790,14 +790,14 @@ void *vtkPythonUtil::GetPointerFromSpecialObject(
   vtkPythonSpecialTypeMap::iterator it =
     vtkPythonMap->SpecialTypeMap->find(result_type);
   if (it != vtkPythonMap->SpecialTypeMap->end())
-    {
+  {
     PyVTKSpecialType *info = &it->second;
 
     // first, check if object is the desired type
     if (PyObject_TypeCheck(obj, info->py_type))
-      {
+    {
       return ((PyVTKSpecialObject *)obj)->vtk_ptr;
-      }
+    }
 
     // try to construct the special object from the supplied object
     PyObject *sobj = 0;
@@ -807,7 +807,7 @@ void *vtkPythonUtil::GetPointerFromSpecialObject(
 
     // If a constructor signature exists for "obj", call it
     if (meth && meth->ml_meth)
-      {
+    {
       PyObject *args = PyTuple_New(1);
       PyTuple_SET_ITEM(args, 0, obj);
       Py_INCREF(obj);
@@ -815,37 +815,37 @@ void *vtkPythonUtil::GetPointerFromSpecialObject(
       sobj = meth->ml_meth(0, args);
 
       Py_DECREF(args);
-      }
+    }
 
     if (sobj && newobj)
-      {
+    {
       *newobj = sobj;
       return ((PyVTKSpecialObject *)sobj)->vtk_ptr;
-      }
+    }
     else if (sobj)
-      {
+    {
       char error_text[2048];
       Py_DECREF(sobj);
       sprintf(error_text, "cannot pass %.500s as a non-const %.500s reference",
               object_type, result_type);
       PyErr_SetString(PyExc_TypeError, error_text);
       return NULL;
-      }
+    }
 
     // If a TypeError occurred, clear it and set our own error
     PyObject *ex = PyErr_Occurred();
     if (ex != NULL)
-      {
+    {
       if (PyErr_GivenExceptionMatches(ex, PyExc_TypeError))
-        {
+      {
         PyErr_Clear();
-        }
+      }
       else
-        {
+      {
         return NULL;
-        }
       }
     }
+  }
 
 #ifdef VTKPYTHONDEBUG
   vtkGenericWarningMacro("vtk bad argument, type conversion failed.");
@@ -863,9 +863,9 @@ void *vtkPythonUtil::GetPointerFromSpecialObject(
 void vtkPythonUtil::AddNamespaceToMap(PyObject *module)
 {
   if (!PyVTKNamespace_Check(module))
-    {
+  {
     return;
-    }
+  }
 
   vtkPythonUtilCreateIfNeeded();
 
@@ -874,9 +874,9 @@ void vtkPythonUtil::AddNamespaceToMap(PyObject *module)
   vtkPythonNamespaceMap::iterator i =
     vtkPythonMap->NamespaceMap->find(name);
   if (i != vtkPythonMap->NamespaceMap->end())
-    {
+  {
     return;
-    }
+  }
 
   (*vtkPythonMap->NamespaceMap)[name] = module;
 }
@@ -886,32 +886,32 @@ void vtkPythonUtil::AddNamespaceToMap(PyObject *module)
 void vtkPythonUtil::RemoveNamespaceFromMap(PyObject *obj)
 {
   if (vtkPythonMap && PyVTKNamespace_Check(obj))
-    {
+  {
     const char *name = PyVTKNamespace_GetName(obj);
     vtkPythonNamespaceMap::iterator it =
       vtkPythonMap->NamespaceMap->find(name);
     if (it != vtkPythonMap->NamespaceMap->end() &&
         it->second == obj)
-      {
+    {
       // The map has a pointer to the object, but does not hold a
       // reference, therefore there is no decref.
       vtkPythonMap->NamespaceMap->erase(it);
-      }
     }
+  }
 }
 
 //--------------------------------------------------------------------
 PyObject *vtkPythonUtil::FindNamespace(const char *name)
 {
   if (vtkPythonMap)
-    {
+  {
     vtkPythonNamespaceMap::iterator it =
       vtkPythonMap->NamespaceMap->find(name);
     if (it != vtkPythonMap->NamespaceMap->end())
-      {
+    {
       return it->second;
-      }
     }
+  }
 
   return NULL;
 }
@@ -926,9 +926,9 @@ void vtkPythonUtil::AddEnumToMap(PyTypeObject *enumtype)
   vtkPythonEnumMap::iterator i =
     vtkPythonMap->EnumMap->find(StripModule(enumname));
   if (i == vtkPythonMap->EnumMap->end())
-    {
+  {
     (*vtkPythonMap->EnumMap)[enumname] = enumtype;
-    }
+  }
 }
 
 //--------------------------------------------------------------------
@@ -937,14 +937,14 @@ PyTypeObject *vtkPythonUtil::FindEnum(const char *name)
   PyTypeObject *pytype = NULL;
 
   if (vtkPythonMap)
-    {
+  {
     vtkPythonEnumMap::iterator it =
       vtkPythonMap->EnumMap->find(name);
     if (it != vtkPythonMap->EnumMap->end())
-      {
+    {
       pytype = it->second;
-      }
     }
+  }
 
   return pytype;
 }
@@ -975,40 +975,40 @@ void *vtkPythonUtil::UnmanglePointer(char *ptrText, int *len, const char *type)
 
   // Do some minimal checks that it might be a swig pointer.
   if (*len < 256 && *len > 4 && ptrText[0] == '_')
-    {
+  {
     strncpy(text, ptrText, *len);
     text[*len] = '\0';
     i = *len;
     // Allow one null byte, in case trailing null is part of *len
     if (i > 0 && text[i-1] == '\0')
-      {
+    {
       i--;
-      }
+    }
     // Verify that there are no other null bytes
     while (i > 0 && text[i-1] != '\0')
-      {
+    {
       i--;
-      }
+    }
 
     // If no null bytes, then do a full check for a swig pointer
     if (i == 0)
-      {
+    {
       unsigned long long l;
       i = sscanf(text, "_%llx_%s", &l ,typeCheck);
       u.l = static_cast<uintptr_t>(l);
 
       if (strcmp(type,typeCheck) == 0)
-        { // successfully unmangle
+      { // successfully unmangle
         *len = 0;
         return u.p;
-        }
+      }
       else if (i == 2)
-        { // mangled pointer of wrong type
+      { // mangled pointer of wrong type
         *len = -1;
         return NULL;
-        }
       }
     }
+  }
 
   // couldn't unmangle: return string as void pointer if it didn't look
   // like a SWIG mangled pointer
@@ -1026,39 +1026,39 @@ Py_hash_t vtkPythonUtil::VariantHash(const vtkVariant *v)
   // the python vtkVariant is immutable, so its hash can be cached.
 
   switch (v->GetType())
-    {
+  {
     case VTK_OBJECT:
-      {
+    {
       h = _Py_HashPointer(v->ToVTKObject());
       break;
-      }
+    }
 
 #ifdef Py_USING_UNICODE
     case VTK_UNICODE_STRING:
-      {
+    {
       vtkUnicodeString u = v->ToUnicodeString();
       const char *s = u.utf8_str();
       PyObject *tmp = PyUnicode_DecodeUTF8(s, strlen(s), "strict");
       if (tmp == 0)
-        {
+      {
         PyErr_Clear();
         return 0;
-        }
+      }
       h = PyObject_Hash(tmp);
       Py_DECREF(tmp);
       break;
-      }
+    }
 #endif
 
     default:
-      {
+    {
       vtkStdString s = v->ToString();
       PyObject *tmp = PyString_FromString(s.c_str());
       h = PyObject_Hash(tmp);
       Py_DECREF(tmp);
       break;
-      }
     }
+  }
 
   return h;
 }
@@ -1073,9 +1073,9 @@ void vtkPythonVoidFunc(void *arg)
   // Py_Finalize is called, this will cause nasty errors so we return if
   // the interpreter is not initialized.
   if (Py_IsInitialized() == 0)
-    {
+  {
     return;
-    }
+  }
 
 #ifndef VTK_NO_PYTHON_THREADS
   vtkPythonScopeGilEnsurer gilEnsurer(true);
@@ -1087,18 +1087,18 @@ void vtkPythonVoidFunc(void *arg)
   Py_DECREF(arglist);
 
   if (result)
-    {
+  {
     Py_XDECREF(result);
-    }
+  }
   else
-    {
+  {
     if (PyErr_ExceptionMatches(PyExc_KeyboardInterrupt))
-      {
+    {
       cerr << "Caught a Ctrl-C within python, exiting program.\n";
       Py_Exit(1);
-      }
-    PyErr_Print();
     }
+    PyErr_Print();
+  }
 }
 
 //--------------------------------------------------------------------
@@ -1110,18 +1110,18 @@ void vtkPythonVoidFuncArgDelete(void *arg)
   // Py_Finalize is called, this will cause nasty errors so we return if
   // the interpreter is not initialized.
   if (Py_IsInitialized() == 0)
-    {
+  {
     return;
-    }
+  }
 
 #ifndef VTK_NO_PYTHON_THREADS
   vtkPythonScopeGilEnsurer gilEnsurer(true);
 #endif
 
   if (func)
-    {
+  {
     Py_DECREF(func);
-    }
+  }
 }
 
 
@@ -1134,7 +1134,7 @@ static const sipAPIDef *get_sip_api()
   static sipAPIDef *sip_api = NULL;
 
   if(!sip_api)
-    {
+  {
     PyObject *c_api = NULL;
     PyObject *sip_module;
     PyObject *sip_module_dict;
@@ -1163,7 +1163,7 @@ static const sipAPIDef *get_sip_api()
     if (PyCapsule_CheckExact(c_api))
       sip_api = (sipAPIDef *)PyCapsule_GetPointer(c_api, "sip._C_API");
 #endif
-    }
+  }
 
   /* Get the actual pointer from the object. */
   return sip_api;
@@ -1176,47 +1176,47 @@ void* vtkPythonUtil::SIPGetPointerFromObject(PyObject *obj, const char *classnam
   char etext[512];
   const sipAPIDef * api = get_sip_api();
   if(!api)
-    {
+  {
     sprintf(etext, "unable to convert to %.200s without SIP api", classname);
     PyErr_SetString(PyExc_TypeError, etext);
     return NULL;
-    }
+  }
 
   const sipTypeDef * td = api->api_find_type(classname);
   if(!td)
-    {
+  {
     sprintf(etext, "unable to convert to %.200s without a typedef", classname);
     PyErr_SetString(PyExc_TypeError, etext);
     return NULL;
-    }
+  }
 
   if(sipTypeIsEnum(td))
-    {
+  {
     if (!api->api_can_convert_to_enum(obj, td))
-      {
+    {
       sprintf(etext, "unable to convert to %.200s enum", classname);
       PyErr_SetString(PyExc_TypeError, etext);
       return NULL;
-      }
+    }
     // Call PyInt_AsLong() to retrieve the value
     return obj;
-    }
+  }
 
   if(!api->api_can_convert_to_type(obj, td, 0))
-    {
+  {
     sprintf(etext, "unable to convert to %.200s", classname);
     PyErr_SetString(PyExc_TypeError, etext);
     return NULL;
-    }
+  }
 
   int iserr = 0;
   void* ptr = api->api_convert_to_type(obj, td, NULL, 0, NULL, &iserr);
   if(iserr)
-    {
+  {
     sprintf(etext, "error while converting to %.200s", classname);
     PyErr_SetString(PyExc_TypeError, etext);
     return NULL;
-    }
+  }
   return ptr;
 #else
   (void)obj;
@@ -1232,28 +1232,28 @@ PyObject* vtkPythonUtil::SIPGetObjectFromPointer(const void *ptr, const char* cl
 #ifdef VTK_WRAP_PYTHON_SIP
   const sipAPIDef * api = get_sip_api();
   if(!api)
-    {
+  {
     PyErr_SetString(PyExc_TypeError, "Unable to convert to SIP type without api");
     return NULL;
-    }
+  }
 
   const sipTypeDef * td = api->api_find_type(classname);
   if(!td)
-    {
+  {
     PyErr_SetString(PyExc_TypeError, "Unable to convert to SIP type without typedef");
     return NULL;
-    }
+  }
 
   if(sipTypeIsEnum(td))
-    {
+  {
     size_t v = reinterpret_cast<size_t>(ptr);
     return api->api_convert_from_enum(v, td);
-    }
+  }
 
   if(is_new)
-    {
+  {
     return api->api_convert_from_new_type(const_cast<void*>(ptr), td, NULL);
-    }
+  }
 
   return api->api_convert_from_type(const_cast<void*>(ptr), td, NULL);
 

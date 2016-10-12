@@ -57,14 +57,14 @@ vtkMergeGraphs::~vtkMergeGraphs()
 int vtkMergeGraphs::FillInputPortInformation(int port, vtkInformation *info)
 {
   if(port == 0)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
-    }
+  }
   else if(port == 1)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
-    }
+  }
 
   return 1;
 }
@@ -75,14 +75,14 @@ static void vtkMergeGraphsCreateArrayMapping(std::map<vtkAbstractArray*, vtkAbst
 {
   vtkIdType narr1 = data1->GetNumberOfArrays();
   for (int arr1 = 0; arr1 < narr1; ++arr1)
-    {
+  {
     vtkAbstractArray* a1 = data1->GetAbstractArray(arr1);
     vtkAbstractArray* a2 = data2->GetAbstractArray(a1->GetName());
     if (a2 && a1->GetDataType() == a2->GetDataType() && a1->GetNumberOfComponents() == a2->GetNumberOfComponents())
-      {
+    {
       array_map[a1] = a2;
-      }
     }
+  }
   // Force pedigree id array to match
   if (data1->GetPedigreeIds() && data2->GetPedigreeIds())
   array_map[data1->GetPedigreeIds()] = data2->GetPedigreeIds();
@@ -95,22 +95,22 @@ static void vtkMergeGraphsAddRow(vtkDataSetAttributes* data1, vtkIdType index2, 
 {
   int narr1 = data1->GetNumberOfArrays();
   for (int arr1 = 0; arr1 < narr1; ++arr1)
-    {
+  {
     vtkAbstractArray* a1 = data1->GetAbstractArray(arr1);
     if (array_map.find(a1) != array_map.end())
-      {
+    {
       vtkAbstractArray* a2 = array_map[a1];
       a1->InsertNextTuple(index2, a2);
-      }
+    }
     else
-      {
+    {
       vtkIdType num_values = a1->GetNumberOfTuples()*a1->GetNumberOfComponents();
       for (vtkIdType i = 0; i < a1->GetNumberOfComponents(); ++i)
-        {
+      {
         a1->InsertVariantValue(num_values + i, vtkVariant());
-        }
       }
     }
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -130,11 +130,11 @@ int vtkMergeGraphs::RequestData(
 
   vtkInformation* graph2_info = inputVector[1]->GetInformationObject(0);
   if(!graph2_info)
-    {
+  {
     // If no second graph provided, we're done
     output->CheckedShallowCopy(graph1);
     return 1;
-    }
+  }
 
   vtkGraph* graph2 = vtkGraph::SafeDownCast(
     graph2_info->Get(vtkDataObject::DATA_OBJECT()));
@@ -142,27 +142,27 @@ int vtkMergeGraphs::RequestData(
   // Make a copy of the graph
   vtkSmartPointer<vtkMutableGraphHelper> builder = vtkSmartPointer<vtkMutableGraphHelper>::New();
   if (vtkDirectedGraph::SafeDownCast(output))
-    {
+  {
     vtkSmartPointer<vtkMutableDirectedGraph> g = vtkSmartPointer<vtkMutableDirectedGraph>::New();
     builder->SetGraph(g);
-    }
+  }
   else
-    {
+  {
     vtkSmartPointer<vtkMutableUndirectedGraph> g = vtkSmartPointer<vtkMutableUndirectedGraph>::New();
     builder->SetGraph(g);
-    }
+  }
   builder->GetGraph()->DeepCopy(graph1);
 
   if (!this->ExtendGraph(builder, graph2))
-    {
+  {
     return 0;
-    }
+  }
 
   if (!output->CheckedShallowCopy(builder->GetGraph()))
-    {
+  {
     vtkErrorMacro("Output graph format invalid.");
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -172,17 +172,17 @@ int vtkMergeGraphs::ExtendGraph(vtkMutableGraphHelper* builder, vtkGraph* graph2
 {
   vtkAbstractArray* ped_ids1 = builder->GetGraph()->GetVertexData()->GetPedigreeIds();
   if (!ped_ids1)
-    {
+  {
     vtkErrorMacro("First graph must have pedigree ids");
     return 0;
-    }
+  }
 
   vtkAbstractArray* ped_ids2 = graph2->GetVertexData()->GetPedigreeIds();
   if (!ped_ids1)
-    {
+  {
     vtkErrorMacro("Second graph must have pedigree ids");
     return 0;
-    }
+  }
 
   // Find matching vertex arrays
   std::map<vtkAbstractArray*, vtkAbstractArray*> vert_array_map;
@@ -193,15 +193,15 @@ int vtkMergeGraphs::ExtendGraph(vtkMutableGraphHelper* builder, vtkGraph* graph2
   vtkIdType n2 = graph2->GetNumberOfVertices();
   std::vector<vtkIdType> graph2_to_graph1(n2);
   for (vtkIdType vert2 = 0; vert2 < n2; ++vert2)
-    {
+  {
     vtkIdType vert1 = ped_ids1->LookupValue(ped_ids2->GetVariantValue(vert2));
     if (vert1 == -1)
-      {
+    {
       vert1 = builder->AddVertex();
       vtkMergeGraphsAddRow(vert_data1, vert2, vert_array_map);
-      }
-    graph2_to_graph1[vert2] = vert1;
     }
+    graph2_to_graph1[vert2] = vert1;
+  }
 
   // Find matching edge arrays
   std::map<vtkAbstractArray*, vtkAbstractArray*> edge_array_map;
@@ -212,63 +212,63 @@ int vtkMergeGraphs::ExtendGraph(vtkMutableGraphHelper* builder, vtkGraph* graph2
   vtkSmartPointer<vtkEdgeListIterator> it = vtkSmartPointer<vtkEdgeListIterator>::New();
   graph2->GetEdges(it);
   while (it->HasNext())
-    {
+  {
     vtkEdgeType e = it->Next();
     vtkIdType source = graph2_to_graph1[e.Source];
     vtkIdType target = graph2_to_graph1[e.Target];
     if (source != -1 && target != -1)
-      {
+    {
       builder->AddEdge(source, target);
       vtkMergeGraphsAddRow(edge_data1, e.Id, edge_array_map);
-      }
     }
+  }
 
   // Remove edges if using an edge window.
   if (this->UseEdgeWindow)
-    {
+  {
     if (!this->EdgeWindowArrayName)
-      {
+    {
       vtkErrorMacro("EdgeWindowArrayName must not be null if using edge window.");
       return 0;
-      }
+    }
     vtkDataArray* windowArr = vtkArrayDownCast<vtkDataArray>(
       builder->GetGraph()->GetEdgeData()->GetAbstractArray(this->EdgeWindowArrayName));
     if (!windowArr)
-      {
+    {
       vtkErrorMacro("EdgeWindowArrayName not found or not a numeric array.");
       return 0;
-      }
+    }
     double range[2];
     range[0] = VTK_DOUBLE_MAX;
     range[1] = VTK_DOUBLE_MIN;
     vtkIdType numEdges = builder->GetGraph()->GetNumberOfEdges();
     for (vtkIdType i = 0; i < numEdges; ++i)
-      {
+    {
       double val = windowArr->GetTuple1(i);
       if (val < range[0])
-        {
+      {
         range[0] = val;
-        }
-      if (val > range[1])
-        {
-        range[1] = val;
-        }
       }
+      if (val > range[1])
+      {
+        range[1] = val;
+      }
+    }
     double cutoff = range[1] - this->EdgeWindow;
     if (range[0] < cutoff)
-      {
+    {
       vtkSmartPointer<vtkIdTypeArray> edgesToRemove =
         vtkSmartPointer<vtkIdTypeArray>::New();
       for (vtkIdType i = 0; i < numEdges; ++i)
-        {
+      {
         if (windowArr->GetTuple1(i) < cutoff)
-          {
+        {
           edgesToRemove->InsertNextValue(i);
-          }
         }
-      builder->RemoveEdges(edgesToRemove);
       }
+      builder->RemoveEdges(edgesToRemove);
     }
+  }
 
   return 1;
 }

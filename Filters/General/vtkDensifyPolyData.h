@@ -13,19 +13,22 @@
 
 =========================================================================*/
 
-// .NAME vtkDensifyPolyData - Densify the input by adding points at the
-// centroid
-//
-// .SECTION Description
-// The filter takes any polygonal data as input and will tessellate cells that
-// are planar polygons present by fanning out triangles from its centroid.
-// Other cells are simply passed through to the output.  PointData, if present,
-// is interpolated via linear interpolation. CellData for any tessellated cell
-// is simply copied over from its parent cell. Planar polygons are assumed to
-// be convex. Funny things will happen if they are not.
-//
-// The number of subdivisions can be controlled by the parameter
-// NumberOfSubdivisions.
+/**
+ * @class   vtkDensifyPolyData
+ * @brief   Densify the input by adding points at the
+ * centroid
+ *
+ *
+ * The filter takes any polygonal data as input and will tessellate cells that
+ * are planar polygons present by fanning out triangles from its centroid.
+ * Other cells are simply passed through to the output.  PointData, if present,
+ * is interpolated via linear interpolation. CellData for any tessellated cell
+ * is simply copied over from its parent cell. Planar polygons are assumed to
+ * be convex. Funny things will happen if they are not.
+ *
+ * The number of subdivisions can be controlled by the parameter
+ * NumberOfSubdivisions.
+*/
 
 #ifndef vtkDensifyPolyData_h
 #define vtkDensifyPolyData_h
@@ -37,29 +40,32 @@ class VTKFILTERSGENERAL_EXPORT vtkDensifyPolyData : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkDensifyPolyData,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkDensifyPolyData *New();
 
-  // Description:
-  // Number of recursive subdivisions. Initial value is 1.
+  //@{
+  /**
+   * Number of recursive subdivisions. Initial value is 1.
+   */
   vtkSetMacro( NumberOfSubdivisions, unsigned int );
   vtkGetMacro( NumberOfSubdivisions, unsigned int );
+  //@}
 
 protected:
   vtkDensifyPolyData();
-  ~vtkDensifyPolyData();
+  ~vtkDensifyPolyData() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *);
+  int RequestData(vtkInformation *,
+                  vtkInformationVector **,
+                  vtkInformationVector *) VTK_OVERRIDE;
 
   unsigned int NumberOfSubdivisions;
 
 private:
-  virtual int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
-  vtkDensifyPolyData(const vtkDensifyPolyData&);  // Not implemented.
-  void operator=(const vtkDensifyPolyData&);  // Not implemented.
+  vtkDensifyPolyData(const vtkDensifyPolyData&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDensifyPolyData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

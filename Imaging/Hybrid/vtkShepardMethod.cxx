@@ -44,42 +44,42 @@ public:
   vtkShepardAlgorithm(double *origin, double *spacing, int *dims,
                       float *outS, double *sum) :
     Dims(dims), Origin(origin), Spacing(spacing), OutScalars(outS), Sum(sum)
-    {
+  {
       this->SliceSize = this->Dims[0] * this->Dims[1];
-    }
+  }
 
   class SplatP2
-    {
+  {
     public:
       vtkShepardAlgorithm *Algo;
       vtkIdType XMin, XMax, YMin, YMax, ZMin, ZMax;
       double S, X[3];
       SplatP2(vtkShepardAlgorithm *algo) : Algo(algo) {}
       void SetBounds(vtkIdType min[3], vtkIdType max[3])
-        {
+      {
           this->XMin = min[0]; this->XMax = max[0];
           this->YMin = min[1]; this->YMax = max[1];
           this->ZMin = min[2]; this->ZMax = max[2];
-        }
+      }
       void  operator()(vtkIdType slice, vtkIdType end)
-        {
+      {
         vtkIdType i, j, jOffset, kOffset, idx;
         double cx[3], distance2, *sum=this->Algo->Sum;
         float *outS=this->Algo->OutScalars;
         const double *origin=this->Algo->Origin;
         const double *spacing=this->Algo->Spacing;
         for ( ; slice < end; ++slice )
-          {
+        {
           // Loop over all sample points in volume within footprint and
           // evaluate the splat
           cx[2] = origin[2] + spacing[2]*slice;
           kOffset = slice*this->Algo->SliceSize;
           for (j=this->YMin; j<=this->YMax; j++)
-            {
+          {
             cx[1] = origin[1] + spacing[1]*j;
             jOffset = j*this->Algo->Dims[0];
             for (i=this->XMin; i<=this->XMax; i++)
-              {
+            {
               idx = kOffset + jOffset + i;
               cx[0] = origin[0] + spacing[0]*i;
 
@@ -89,54 +89,54 @@ public:
               // then the interpolated point takes on the value of the sample
               // point.
               if ( distance2 == 0.0 )
-                {
+              {
                 sum[idx] = VTK_DOUBLE_MAX; // mark the point as hit
                 outS[idx] = this->S;
-                }
+              }
               else if ( sum[idx] < VTK_DOUBLE_MAX )
-                {
+              {
                 sum[idx] += 1.0 / distance2;
                 outS[idx] += this->S / distance2;
-                }
+              }
 
-              }//i
-            }//j
-          }//k within splat footprint
-        }
-    };
+            }//i
+          }//j
+        }//k within splat footprint
+      }
+  };
 
   class SplatPN
-    {
+  {
     public:
       vtkShepardAlgorithm *Algo;
       vtkIdType XMin, XMax, YMin, YMax, ZMin, ZMax;
       double P, S, X[3];
       SplatPN(vtkShepardAlgorithm *algo, double p) : Algo(algo), P(p) {}
       void SetBounds(vtkIdType min[3], vtkIdType max[3])
-        {
+      {
           this->XMin = min[0]; this->XMax = max[0];
           this->YMin = min[1]; this->YMax = max[1];
           this->ZMin = min[2]; this->ZMax = max[2];
-        }
+      }
       void  operator()(vtkIdType slice, vtkIdType end)
-        {
+      {
         vtkIdType i, j, jOffset, kOffset, idx;
         double cx[3], distance, dp, *sum=this->Algo->Sum;
         float *outS=this->Algo->OutScalars;
         const double *origin=this->Algo->Origin;
         const double *spacing=this->Algo->Spacing;
         for ( ; slice < end; ++slice )
-          {
+        {
           // Loop over all sample points in volume within footprint and
           // evaluate the splat
           cx[2] = origin[2] + spacing[2]*slice;
           kOffset = slice*this->Algo->SliceSize;
           for (j=this->YMin; j<=this->YMax; j++)
-            {
+          {
             cx[1] = origin[1] + spacing[1]*j;
             jOffset = j*this->Algo->Dims[0];
             for (i=this->XMin; i<=this->XMax; i++)
-              {
+            {
               idx = kOffset + jOffset + i;
               cx[0] = origin[0] + spacing[0]*i;
 
@@ -146,51 +146,51 @@ public:
               // then the interpolated point takes on the value of the sample
               // point.
               if ( distance == 0.0 )
-                {
+              {
                 sum[idx] = VTK_DOUBLE_MAX; // mark the point as hit
                 outS[idx] = this->S;
-                }
+              }
               else if ( sum[idx] < VTK_DOUBLE_MAX )
-                {
+              {
                 dp = pow(distance,this->P);
                 sum[idx] += 1.0 / dp;
                 outS[idx] += this->S / dp;
-                }
+              }
 
-              }//i
-            }//j
-          }//k within splat footprint
-        }
-    };
+            }//i
+          }//j
+        }//k within splat footprint
+      }
+  };
 
   class Interpolate
-    {
+  {
     public:
       vtkShepardAlgorithm *Algo;
       double NullValue;
       Interpolate(vtkShepardAlgorithm *algo, double nullV) :
         Algo(algo), NullValue(nullV) {}
       void  operator()(vtkIdType ptId, vtkIdType endPtId)
-        {
+      {
         float *outS = this->Algo->OutScalars;
         const double *sum = this->Algo->Sum;
         for ( ; ptId < endPtId; ++ptId )
-          {
+        {
           if ( sum[ptId] >= VTK_DOUBLE_MAX )
-            {
+          {
             ; //previously set, precise hit
-            }
+          }
           else if ( sum[ptId] != 0.0 )
-            {
+          {
             outS[ptId] /= sum[ptId];
-            }
+          }
           else
-            {
+          {
             outS[ptId] = this->NullValue;
-            }
           }
         }
-    };
+      }
+  };
 }; //Shepard algorithm
 
 
@@ -230,43 +230,43 @@ double vtkShepardMethod::ComputeModelBounds(double origin[3],
   if ( this->ModelBounds[0] >= this->ModelBounds[1] ||
        this->ModelBounds[2] >= this->ModelBounds[3] ||
        this->ModelBounds[4] >= this->ModelBounds[5] )
-    {
+  {
     adjustBounds = 1;
     vtkDataSet *ds = vtkDataSet::SafeDownCast(this->GetInput());
     // ds better be non null otherwise something is very wrong here
     bounds = ds->GetBounds();
-    }
+  }
   else
-    {
+  {
     bounds = this->ModelBounds;
-    }
+  }
 
   for (maxDist=0.0, i=0; i<3; i++)
-    {
+  {
     if ( (bounds[2*i+1] - bounds[2*i]) > maxDist )
-      {
+    {
       maxDist = bounds[2*i+1] - bounds[2*i];
-      }
     }
+  }
   maxDist *= this->MaximumDistance;
 
   // adjust bounds so model fits strictly inside (only if not set previously)
   if ( adjustBounds )
-    {
+  {
     for (i=0; i<3; i++)
-      {
+    {
       this->ModelBounds[2*i] = bounds[2*i] - maxDist;
       this->ModelBounds[2*i+1] = bounds[2*i+1] + maxDist;
-      }
     }
+  }
 
   // Set volume origin and data spacing
   for (i=0; i<3; i++)
-    {
+  {
     origin[i] = this->ModelBounds[2*i];
     spacing[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
             / (this->SampleDimensions[i] - 1);
-    }
+  }
 
   return maxDist;
 }
@@ -289,18 +289,18 @@ int vtkShepardMethod::RequestInformation (
                0, this->SampleDimensions[2]-1);
 
   for (i=0; i < 3; i++)
-    {
+  {
     origin[i] = this->ModelBounds[2*i];
     if ( this->SampleDimensions[i] <= 1 )
-      {
+    {
       ar[i] = 1;
-      }
+    }
     else
-      {
+    {
       ar[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
               / (this->SampleDimensions[i] - 1);
-      }
     }
+  }
   outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
   outInfo->Set(vtkDataObject::SPACING(),ar,3);
 
@@ -344,16 +344,16 @@ int vtkShepardMethod::RequestData(
   // Check input
   //
   if ( (numPts=input->GetNumberOfPoints()) < 1 )
-    {
+  {
     vtkErrorMacro(<<"Points must be defined!");
     return 1;
-    }
+  }
 
   if ( (inScalars = input->GetPointData()->GetScalars()) == NULL )
-    {
+  {
     vtkErrorMacro(<<"Scalars must be defined!");
     return 1;
-    }
+  }
   float *newS = static_cast<float*>(newScalars->GetVoidPointer(0));
 
   newScalars->SetName(inScalars->GetName());
@@ -379,25 +379,25 @@ int vtkShepardMethod::RequestData(
   // different paths are taken.
   //
   if ( this->PowerParameter == 2.0 ) //distance2
-    {
+  {
     vtkShepardAlgorithm::SplatP2 splatF(&algo);
     for (ptId=0; ptId < numPts; ptId++)
-      {
+    {
       if ( ! (ptId % 1000) )
-        {
+      {
         vtkDebugMacro(<<"Inserting point #" << ptId);
         this->UpdateProgress (ptId/numPts);
         if (this->GetAbortExecute())
-          {
+        {
           break;
-          }
         }
+      }
 
       input->GetPoint(ptId,splatF.X);
       splatF.S = inScalars->GetComponent(ptId,0);
 
       for (i=0; i<3; i++) //compute dimensional bounds in data set
-        {
+      {
         min[i] = static_cast<int>(
           static_cast<double>((splatF.X[i] - maxDistance) - origin[i]) / spacing[i]);
         max[i] = static_cast<int>(
@@ -405,33 +405,33 @@ int vtkShepardMethod::RequestData(
         min[i] = (min[i] < 0 ? 0 : min[i]);
         max[i] = (max[i] >= this->SampleDimensions[i] ?
                   this->SampleDimensions[i]-1 : max[i]);
-        }
+      }
 
       splatF.SetBounds(min,max);
       vtkSMPTools::For(min[2],max[2]+1, splatF);
-      }
-    }// power parameter p=2
+    }
+  }// power parameter p=2
 
   else //have to take roots etc so it runs slower
-    {
+  {
     vtkShepardAlgorithm::SplatPN splatF(&algo,this->PowerParameter);
     for (ptId=0; ptId < numPts; ptId++)
-      {
+    {
       if ( ! (ptId % 1000) )
-        {
+      {
         vtkDebugMacro(<<"Inserting point #" << ptId);
         this->UpdateProgress (ptId/numPts);
         if (this->GetAbortExecute())
-          {
+        {
           break;
-          }
         }
+      }
 
       input->GetPoint(ptId,splatF.X);
       splatF.S = inScalars->GetComponent(ptId,0);
 
       for (i=0; i<3; i++) //compute dimensional bounds in data set
-        {
+      {
         min[i] = static_cast<int>(
           static_cast<double>((splatF.X[i] - maxDistance) - origin[i]) / spacing[i]);
         max[i] = static_cast<int>(
@@ -439,12 +439,12 @@ int vtkShepardMethod::RequestData(
         min[i] = (min[i] < 0 ? 0 : min[i]);
         max[i] = (max[i] >= this->SampleDimensions[i] ?
                   this->SampleDimensions[i]-1 : max[i]);
-        }
+      }
 
       splatF.SetBounds(min,max);
       vtkSMPTools::For(min[2],max[2]+1, splatF);
-      }
-    } //p != 2
+    }
+  } //p != 2
 
   // Run through scalars and compute final values
   //
@@ -483,34 +483,34 @@ void vtkShepardMethod::SetSampleDimensions(int dim[3])
   if ( dim[0] != this->SampleDimensions[0] ||
        dim[1] != this->SampleDimensions[1] ||
        dim[2] != this->SampleDimensions[2] )
-    {
+  {
     if ( dim[0]<1 || dim[1]<1 || dim[2]<1 )
-      {
+    {
       vtkErrorMacro (<< "Bad Sample Dimensions, retaining previous values");
       return;
-      }
+    }
 
     for (dataDim=0, i=0; i<3 ; i++)
-      {
+    {
       if (dim[i] > 1)
-        {
+      {
         dataDim++;
-        }
       }
+    }
 
     if ( dataDim  < 3 )
-      {
+    {
       vtkErrorMacro(<<"Sample dimensions must define a 3D volume!");
       return;
-      }
+    }
 
     for ( i=0; i<3; i++)
-      {
+    {
       this->SampleDimensions[i] = dim[i];
-      }
+    }
 
     this->Modified();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------

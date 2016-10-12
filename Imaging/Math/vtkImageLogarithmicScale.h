@@ -12,13 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageLogarithmicScale - Passes each pixel through log function.
-// .SECTION Description
-// vtkImageLogarithmicScale passes each pixel through the function
-// c*log(1+x).  It also handles negative values with the function
-// -c*log(1-x).
-
-
+/**
+ * @class   vtkImageLogarithmicScale
+ * @brief   Passes each pixel through log function.
+ *
+ * vtkImageLogarithmicScale passes each pixel through the function
+ * c*log(1+x).  It also handles negative values with the function
+ * -c*log(1-x).
+*/
 
 #ifndef vtkImageLogarithmicScale_h
 #define vtkImageLogarithmicScale_h
@@ -34,10 +35,13 @@ public:
   vtkTypeMacro(vtkImageLogarithmicScale,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set/Get the scale factor for the logarithmic function.
+  //@{
+  /**
+   * Set/Get the scale factor for the logarithmic function.
+   */
   vtkSetMacro(Constant,double);
   vtkGetMacro(Constant,double);
+  //@}
 
 protected:
   vtkImageLogarithmicScale();
@@ -48,8 +52,8 @@ protected:
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int outExt[6], int id);
 private:
-  vtkImageLogarithmicScale(const vtkImageLogarithmicScale&);  // Not implemented.
-  void operator=(const vtkImageLogarithmicScale&);  // Not implemented.
+  vtkImageLogarithmicScale(const vtkImageLogarithmicScale&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageLogarithmicScale&) VTK_DELETE_FUNCTION;
 };
 
 #endif

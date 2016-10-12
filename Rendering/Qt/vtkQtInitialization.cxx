@@ -29,10 +29,10 @@ vtkQtInitialization::vtkQtInitialization()
 {
   this->Application = NULL;
   if(!QApplication::instance())
-    {
+  {
     int argc = 0;
     this->Application = new QApplication(argc, 0);
-    }
+  }
 }
 
 vtkQtInitialization::~vtkQtInitialization()

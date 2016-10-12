@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOSPRayViewNodeFactory - matches vtk rendering classes to
-// specific ospray ViewNode classes
-// .SECTION Description
-// Ensures that vtkOSPRayPass makes ospray specific translator instances
-// for every VTK rendering pipeline class instance it encounters.
+/**
+ * @class   vtkOSPRayViewNodeFactory
+ * @brief   matches vtk rendering classes to
+ * specific ospray ViewNode classes
+ *
+ * Ensures that vtkOSPRayPass makes ospray specific translator instances
+ * for every VTK rendering pipeline class instance it encounters.
+*/
 
 #ifndef vtkOSPRayViewNodeFactory_h
 #define vtkOSPRayViewNodeFactory_h
@@ -37,8 +40,8 @@ protected:
   ~vtkOSPRayViewNodeFactory();
 
 private:
-  vtkOSPRayViewNodeFactory(const vtkOSPRayViewNodeFactory&); // Not implemented.
-  void operator=(const vtkOSPRayViewNodeFactory&); // Not implemented.
+  vtkOSPRayViewNodeFactory(const vtkOSPRayViewNodeFactory&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOSPRayViewNodeFactory&) VTK_DELETE_FUNCTION;
 };
 
 #endif

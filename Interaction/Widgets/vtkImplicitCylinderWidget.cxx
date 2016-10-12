@@ -30,26 +30,6 @@
 
 vtkStandardNewMacro(vtkImplicitCylinderWidget);
 
-// The implicit cylinder widget observes its representation. The representation
-// may invoke an InteractionEvent when the camera moves when LockedNormalToCamera
-// is enabled.
-class vtkInteractionCallback : public vtkCommand
-{
-public:
-  static vtkInteractionCallback *New()
-    { return new vtkInteractionCallback; }
-  virtual void Execute(vtkObject*, unsigned long eventId, void*)
-    {
-      switch (eventId)
-        {
-        case vtkCommand::ModifiedEvent:
-          this->CylinderWidget->InvokeInteractionCallback();
-          break;
-        }
-    }
-  vtkImplicitCylinderWidget *CylinderWidget;
-};
-
 //----------------------------------------------------------------------------
 vtkImplicitCylinderWidget::vtkImplicitCylinderWidget()
 {
@@ -93,15 +73,11 @@ vtkImplicitCylinderWidget::vtkImplicitCylinderWidget()
                                           vtkEvent::AnyModifier, 29, 1, "Left",
                                           vtkWidgetEvent::Down,
                                           this, vtkImplicitCylinderWidget::MoveCylinderAction);
-
-  this->InteractionCallback = vtkInteractionCallback::New();
-  this->InteractionCallback->CylinderWidget = this;
 }
 
 //----------------------------------------------------------------------------
 vtkImplicitCylinderWidget::~vtkImplicitCylinderWidget()
 {
-  this->InteractionCallback->Delete();
 }
 
 //----------------------------------------------------------------------
@@ -120,16 +96,16 @@ void vtkImplicitCylinderWidget::SelectAction(vtkAbstractWidget *w)
   self->UpdateCursorShape(interactionState);
 
   if ( self->WidgetRep->GetInteractionState() == vtkImplicitCylinderRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   if (self->Interactor->GetControlKey() &&
     interactionState == vtkImplicitCylinderRepresentation::MovingCenter)
-    {
+  {
     reinterpret_cast<vtkImplicitCylinderRepresentation*>(self->WidgetRep)->
       SetInteractionState(vtkImplicitCylinderRepresentation::TranslatingCenter);
-    }
+  }
 
   // We are definitely selected
   self->GrabFocus(self->EventCallbackCommand);
@@ -161,9 +137,9 @@ void vtkImplicitCylinderWidget::TranslateAction(vtkAbstractWidget *w)
   self->UpdateCursorShape(interactionState);
 
   if ( self->WidgetRep->GetInteractionState() == vtkImplicitCylinderRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // We are definitely selected
   self->GrabFocus(self->EventCallbackCommand);
@@ -195,9 +171,9 @@ void vtkImplicitCylinderWidget::ScaleAction(vtkAbstractWidget *w)
   self->UpdateCursorShape(interactionState);
 
   if ( self->WidgetRep->GetInteractionState() == vtkImplicitCylinderRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // We are definitely selected
   self->GrabFocus(self->EventCallbackCommand);
@@ -227,7 +203,7 @@ void vtkImplicitCylinderWidget::MoveAction(vtkAbstractWidget *w)
   int changed = 0;
 
   if (self->ManagesCursor && self->WidgetState != vtkImplicitCylinderWidget::Active)
-    {
+  {
     int oldInteractionState = reinterpret_cast<vtkImplicitCylinderRepresentation*>(
       self->WidgetRep)->GetInteractionState();
 
@@ -238,17 +214,17 @@ void vtkImplicitCylinderWidget::MoveAction(vtkAbstractWidget *w)
     reinterpret_cast<vtkImplicitCylinderRepresentation*>(self->WidgetRep)->
       SetInteractionState(oldInteractionState);
     changed = (changed || state != oldInteractionState) ? 1 : 0;
-    }
+  }
 
   // See whether we're active
   if ( self->WidgetState == vtkImplicitCylinderWidget::Start )
-    {
+  {
     if (changed && self->ManagesCursor)
-      {
+    {
       self->Render();
-      }
-    return;
     }
+    return;
+  }
 
   // Okay, adjust the representation
   double e[2];
@@ -269,9 +245,9 @@ void vtkImplicitCylinderWidget::EndSelectAction(vtkAbstractWidget *w)
 
   if ( self->WidgetState != vtkImplicitCylinderWidget::Active  ||
        self->WidgetRep->GetInteractionState() == vtkImplicitCylinderRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // Return state to not selected
   double e[2];
@@ -303,9 +279,9 @@ void vtkImplicitCylinderWidget::MoveCylinderAction(vtkAbstractWidget *w)
 
   // The cursor must be over part of the widget for these key presses to work
   if ( self->WidgetRep->GetInteractionState() == vtkImplicitCylinderRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // Invoke all of the events associated with moving the cylinder
   self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
@@ -314,13 +290,13 @@ void vtkImplicitCylinderWidget::MoveCylinderAction(vtkAbstractWidget *w)
   double factor = ( self->Interactor->GetControlKey() ? 0.5 : 1.0);
   if (vtkStdString( self->Interactor->GetKeySym() ) == vtkStdString("Down") ||
       vtkStdString( self->Interactor->GetKeySym() ) == vtkStdString("Left"))
-    {
+  {
     self->GetCylinderRepresentation()->BumpCylinder(-1,factor);
-    }
+  }
   else
-    {
+  {
     self->GetCylinderRepresentation()->BumpCylinder(1,factor);
-    }
+  }
   self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
 
   self->EventCallbackCommand->SetAbortFlag(1);
@@ -332,14 +308,9 @@ void vtkImplicitCylinderWidget::MoveCylinderAction(vtkAbstractWidget *w)
 void vtkImplicitCylinderWidget::SetEnabled(int enabling)
 {
   if(this->Enabled == enabling)
-    {
+  {
     return;
-    }
-
-  if(this->GetCurrentRenderer() && !enabling)
-    {
-    this->GetCurrentRenderer()->GetActiveCamera()->RemoveObserver(this->InteractionCallback);
-    }
+  }
 
   Superclass::SetEnabled(enabling);
 }
@@ -348,9 +319,9 @@ void vtkImplicitCylinderWidget::SetEnabled(int enabling)
 void vtkImplicitCylinderWidget::CreateDefaultRepresentation()
 {
   if ( ! this->WidgetRep )
-    {
+  {
     this->WidgetRep = vtkImplicitCylinderRepresentation::New();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -367,37 +338,22 @@ int vtkImplicitCylinderWidget::UpdateCursorShape( int state )
   // So as to change the cursor shape when the mouse is poised over
   // the widget.
   if (this->ManagesCursor)
-    {
+  {
     if (state == vtkImplicitCylinderRepresentation::Outside)
-      {
+    {
       return this->RequestCursorShape(VTK_CURSOR_DEFAULT);
-      }
-    else if (state == vtkImplicitCylinderRepresentation::MovingOutline)
-      {
-      return this->RequestCursorShape(VTK_CURSOR_SIZEALL);
-      }
-    else
-      {
-      return this->RequestCursorShape(VTK_CURSOR_HAND);
-      }
     }
+    else if (state == vtkImplicitCylinderRepresentation::MovingOutline)
+    {
+      return this->RequestCursorShape(VTK_CURSOR_SIZEALL);
+    }
+    else
+    {
+      return this->RequestCursorShape(VTK_CURSOR_HAND);
+    }
+  }
 
   return 0;
-}
-
-//----------------------------------------------------------------------------
-void vtkImplicitCylinderWidget::InvokeInteractionCallback()
-{
-  unsigned long previousMtime;
-  vtkImplicitCylinderRepresentation* widgetRep =
-      reinterpret_cast<vtkImplicitCylinderRepresentation*>(this->WidgetRep);
-
-  previousMtime = widgetRep->GetMTime();
-
-  if(widgetRep->GetMTime() > previousMtime)
-    {
-    this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
-    }
 }
 
 //----------------------------------------------------------------------------

@@ -143,17 +143,17 @@ class vtkIPWCallback : public vtkCommand
 public:
   static vtkIPWCallback *New()
   { return new vtkIPWCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
   {
     vtkImagePlaneWidget *planeWidget = reinterpret_cast<vtkImagePlaneWidget*>(caller);
     if(planeWidget->GetPlaneOrientation() == 3)
-      {
+    {
       Spline->SetProjectionPosition(0);
-      }
+    }
     else
-      {
+    {
       Spline->SetProjectionPosition(planeWidget->GetSlicePosition());
-      }
+    }
     Spline->GetPolyData(Poly);
   }
   vtkIPWCallback():Spline(0),Poly(0){};
@@ -167,7 +167,7 @@ class vtkSWCallback : public vtkCommand
 public:
   static vtkSWCallback *New()
   { return new vtkSWCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
   {
     vtkSplineWidget *spline = reinterpret_cast<vtkSplineWidget*>(caller);
     spline->GetPolyData(Poly);
@@ -361,10 +361,10 @@ int TestSplineWidget( int argc, char *argv[] )
   double pos[3];
   int i;
   for(i=0;i<spline->GetNumberOfHandles();i++)
-    {
+  {
     spline->GetHandlePosition(i,pos);
     spline->SetHandlePosition(i,pos);
-    }
+  }
 
   // Test Closed On Off
   spline->ClosedOn();

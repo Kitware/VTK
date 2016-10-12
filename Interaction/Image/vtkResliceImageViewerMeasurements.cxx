@@ -72,11 +72,11 @@ vtkResliceImageViewerMeasurements::~vtkResliceImageViewerMeasurements()
 {
   // Remove any added observers
   if (this->ResliceImageViewer)
-    {
+  {
     this->ResliceImageViewer->GetResliceCursor()->
         RemoveObservers(vtkResliceCursorWidget::ResliceAxesChangedEvent,
                      this->EventCallbackCommand );
-    }
+  }
 
   this->WidgetCollection->Delete();
   this->EventCallbackCommand->Delete();
@@ -90,7 +90,7 @@ void vtkResliceImageViewerMeasurements
   this->ResliceImageViewer = i;
 
   if(i)
-    {
+  {
     // Add the observer
     i->GetResliceCursor()
       ->AddObserver( vtkResliceCursorWidget::ResliceAxesChangedEvent,
@@ -98,7 +98,7 @@ void vtkResliceImageViewerMeasurements
     i->GetResliceCursor()
       ->AddObserver( vtkResliceCursorWidget::ResliceAxesChangedEvent,
         this->EventCallbackCommand );
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -119,9 +119,9 @@ void vtkResliceImageViewerMeasurements
 
   // if ProcessEvents is Off, we ignore all interaction events.
   if (!self->GetProcessEvents())
-    {
+  {
     return;
-    }
+  }
 
   self->Update();
 }
@@ -131,13 +131,13 @@ void vtkResliceImageViewerMeasurements::Update()
 {
   if (this->ResliceImageViewer->GetResliceMode() !=
     vtkResliceImageViewer::RESLICE_OBLIQUE)
-    {
+  {
     return; // nothing to do.
-    }
+  }
 
   const int nItems = this->WidgetCollection->GetNumberOfItems();
   for (int i = 0; i < nItems; i++)
-    {
+  {
     vtkAbstractWidget *a = vtkAbstractWidget::SafeDownCast(
                         this->WidgetCollection->GetItemAsObject(i) );
 
@@ -146,10 +146,10 @@ void vtkResliceImageViewerMeasurements::Update()
     // seed is handled differently since its really a collection of several
     // markers which may exist on different planes.
     if (!s)
-      {
+    {
       a->SetEnabled(this->IsItemOnReslicedPlane(a));
-      }
     }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -158,33 +158,33 @@ bool vtkResliceImageViewerMeasurements
 {
 
   if (vtkDistanceWidget *dw = vtkDistanceWidget::SafeDownCast( w ))
-    {
+  {
     return this->IsWidgetOnReslicedPlane(dw);
-    }
+  }
   if (vtkAngleWidget *aw = vtkAngleWidget::SafeDownCast( w ))
-    {
+  {
     return this->IsWidgetOnReslicedPlane(aw);
-    }
+  }
   if (vtkBiDimensionalWidget *aw = vtkBiDimensionalWidget::SafeDownCast( w ))
-    {
+  {
     return this->IsWidgetOnReslicedPlane(aw);
-    }
+  }
   if (vtkCaptionWidget *capw = vtkCaptionWidget::SafeDownCast( w ))
-    {
+  {
     return this->IsWidgetOnReslicedPlane(capw);
-    }
+  }
   if (vtkContourWidget *capw = vtkContourWidget::SafeDownCast( w ))
-    {
+  {
     return this->IsWidgetOnReslicedPlane(capw);
-    }
+  }
   if (vtkSeedWidget *s = vtkSeedWidget::SafeDownCast( w ))
-    {
+  {
     return this->IsWidgetOnReslicedPlane(s);
-    }
+  }
   if (vtkHandleWidget *s = vtkHandleWidget::SafeDownCast( w ))
-    {
+  {
     return this->IsWidgetOnReslicedPlane(s);
-    }
+  }
 
   return true;
 }
@@ -194,17 +194,17 @@ bool vtkResliceImageViewerMeasurements
 ::IsWidgetOnReslicedPlane( vtkDistanceWidget * w )
 {
   if (w->GetWidgetState() != vtkDistanceWidget::Manipulate)
-    {
+  {
     return true; // widget is not yet defined.
-    }
+  }
 
   if (vtkDistanceRepresentation *rep =
       vtkDistanceRepresentation::SafeDownCast(w->GetRepresentation()))
-    {
+  {
     return
       this->IsPointOnReslicedPlane( rep->GetPoint1Representation() ) &&
       this->IsPointOnReslicedPlane( rep->GetPoint2Representation() );
-    }
+  }
 
   return true;
 }
@@ -214,18 +214,18 @@ bool vtkResliceImageViewerMeasurements
 ::IsWidgetOnReslicedPlane( vtkAngleWidget * w )
 {
   if (w->GetWidgetState() != vtkAngleWidget::Manipulate)
-    {
+  {
     return true; // widget is not yet defined.
-    }
+  }
 
   if (vtkAngleRepresentation *rep =
       vtkAngleRepresentation::SafeDownCast(w->GetRepresentation()))
-    {
+  {
     return
       this->IsPointOnReslicedPlane( rep->GetPoint1Representation() ) &&
       this->IsPointOnReslicedPlane( rep->GetPoint2Representation() ) &&
       this->IsPointOnReslicedPlane( rep->GetCenterRepresentation() );
-    }
+  }
 
   return true;
 }
@@ -235,19 +235,19 @@ bool vtkResliceImageViewerMeasurements
 ::IsWidgetOnReslicedPlane( vtkBiDimensionalWidget * w )
 {
   if (w->GetWidgetState() != vtkBiDimensionalWidget::Manipulate)
-    {
+  {
     return true; // widget is not yet defined.
-    }
+  }
 
   if (vtkBiDimensionalRepresentation *rep =
       vtkBiDimensionalRepresentation::SafeDownCast(w->GetRepresentation()))
-    {
+  {
     return
       this->IsPointOnReslicedPlane( rep->GetPoint1Representation() ) &&
       this->IsPointOnReslicedPlane( rep->GetPoint2Representation() ) &&
       this->IsPointOnReslicedPlane( rep->GetPoint3Representation() ) &&
       this->IsPointOnReslicedPlane( rep->GetPoint4Representation() );
-    }
+  }
 
   return true;
 }
@@ -265,10 +265,10 @@ bool vtkResliceImageViewerMeasurements
 {
   if (vtkCaptionRepresentation *rep =
       vtkCaptionRepresentation::SafeDownCast(w->GetRepresentation()))
-    {
+  {
     return
       this->IsPointOnReslicedPlane( rep->GetAnchorRepresentation() );
-    }
+  }
 
   return true;
 }
@@ -278,24 +278,24 @@ bool vtkResliceImageViewerMeasurements
 ::IsWidgetOnReslicedPlane( vtkContourWidget * w )
 {
   if (w->GetWidgetState() != vtkContourWidget::Manipulate)
-    {
+  {
     return true; // widget is not yet defined.
-    }
+  }
 
   if (vtkContourRepresentation *rep =
       vtkContourRepresentation::SafeDownCast(w->GetRepresentation()))
-    {
+  {
     const int nNodes = rep->GetNumberOfNodes();
     for (int i = 0; i < nNodes; i++)
-      {
+    {
       double p[3];
       rep->GetNthNodeWorldPosition(i,p);
       if (this->IsPositionOnReslicedPlane(p) == false)
-        {
+      {
         return false;
-        }
       }
     }
+  }
 
   return true;
 }
@@ -306,16 +306,16 @@ bool vtkResliceImageViewerMeasurements
 {
   if (vtkSeedRepresentation *rep =
       vtkSeedRepresentation::SafeDownCast(w->GetRepresentation()))
-    {
+  {
     const int nNodes = rep->GetNumberOfSeeds();
     for (int i = 0; i < nNodes; i++)
-      {
+    {
       w->GetSeed(i)->GetHandleRepresentation()->SetVisibility(
           w->GetEnabled() && this->IsPointOnReslicedPlane(
             w->GetSeed(i)->GetHandleRepresentation()));
 
-      }
     }
+  }
 
   return true;
 }
@@ -337,14 +337,14 @@ bool vtkResliceImageViewerMeasurements
       vtkResliceCursorRepresentation::SafeDownCast(
         this->ResliceImageViewer->GetResliceCursorWidget()
                                       ->GetRepresentation()))
-    {
+  {
     const int planeOrientation =
       rep->GetCursorAlgorithm()->GetReslicePlaneNormal();
     vtkPlane *plane = this->ResliceImageViewer->
         GetResliceCursor()->GetPlane(planeOrientation);
     const double d = plane->DistanceToPlane(p);
     return (d < this->Tolerance);
-    }
+  }
 
   return true;
 }

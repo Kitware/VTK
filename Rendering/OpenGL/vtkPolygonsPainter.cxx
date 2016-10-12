@@ -54,36 +54,36 @@ static inline void vtkOpenGLBeginPolyTriangleOrQuad(int aPrimitive,
                                              vtkPainterDeviceAdapter* device)
 {
   if (aPrimitive == VTK_POLYGON)
-    {
+  {
     switch (npts)
-      {
+    {
       case 3:  // Need to draw a triangle.
         if (previousPrimitive != VTK_TRIANGLE)
-          {
+        {
           // we were not already drawing triangles, were we drawing quads?
           if (previousPrimitive == VTK_QUAD)
-            {
+          {
             // we were previously drawing quads, close down the quads.
             device->EndPrimitive();
-            }
+          }
           // start drawing triangles
           previousPrimitive = VTK_TRIANGLE;
           device->BeginPrimitive(VTK_TRIANGLE);
-          }
+        }
           break;
       case 4:  // Need to draw a quad
         if (previousPrimitive != VTK_QUAD)
-          {
+        {
           // we were not already drawing quads, were we drawing triangles?
           if (previousPrimitive == VTK_TRIANGLE)
-            {
+          {
             // we were previously drawing triangles, close down the triangles.
             device->EndPrimitive();
-            }
+          }
           // start drawing quads
           previousPrimitive = VTK_QUAD;
           device->BeginPrimitive(VTK_QUAD);
-          }
+        }
         break;
       default:
         // if we were supposed to be drawing polygons but were really
@@ -91,19 +91,19 @@ static inline void vtkOpenGLBeginPolyTriangleOrQuad(int aPrimitive,
         // triangles or quads and begin a polygon
         if (previousPrimitive != VTK_PP_INVALID_TYPE
             && previousPrimitive != VTK_POLYGON)
-          {
+        {
           device->EndPrimitive();
-          }
+        }
         previousPrimitive = VTK_POLYGON;
         device->BeginPrimitive(VTK_POLYGON);
         break;
-      }
     }
+  }
   else if (aPrimitive == VTK_VERTEX || aPrimitive == VTK_POLY_VERTEX)
-    {
+  {
     // we are supposed to be drawing points
     if (previousPrimitive != VTK_VERTEX && previousPrimitive != VTK_POLY_VERTEX)
-      {
+    {
       // We were not drawing points before this, switch to points.
       // We don't need to worry about switching from triangles or quads
       // since draw all points before drawing any polygons (i.e. in the polys
@@ -111,13 +111,13 @@ static inline void vtkOpenGLBeginPolyTriangleOrQuad(int aPrimitive,
       // nothing to switch to that is below points).
       previousPrimitive = VTK_VERTEX;
       device->BeginPrimitive(VTK_VERTEX);
-      }
     }
+  }
   else
-    {
+  {
     previousPrimitive = aPrimitive;
     device->BeginPrimitive(aPrimitive);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -127,40 +127,40 @@ static inline void vtkOpenGLBeginPolyTriangleOrQuad(int aPrimitive,
   int previousPrimitive = VTK_PP_INVALID_TYPE; \
   glInitFuncs \
   while (ptIds < endPtIds) \
-    { \
+  { \
     nPts = *ptIds; \
     ++ptIds; \
     vtkOpenGLBeginPolyTriangleOrQuad( prim, previousPrimitive, nPts, device); \
     glCellFuncs \
     while (nPts > 0) \
-      { \
+    { \
       glVertFuncs \
       ++ptIds; \
       --nPts; \
-      } \
+    } \
     cellNum++;\
     if (++count == 10000) \
-      { \
+    { \
       count = 0; \
       this->UpdateProgress(static_cast<double>(cellNum-cellNumStart)/totalCells);\
       if (ren->GetRenderWindow()->CheckAbortStatus()) \
-        { \
+      { \
         break; \
-        } \
       } \
+    } \
     if ((previousPrimitive != VTK_TRIANGLE)  \
         && (previousPrimitive != VTK_QUAD)   \
         && (previousPrimitive != VTK_VERTEX)) \
-      {  \
+    {  \
       device->EndPrimitive(); \
-      } \
     } \
+  } \
   if ((previousPrimitive == VTK_TRIANGLE)  \
       || (previousPrimitive == VTK_QUAD)   \
       || (previousPrimitive == VTK_VERTEX)) \
-    { \
+  { \
     device->EndPrimitive(); \
-    } \
+  } \
 }
 
 //-----------------------------------------------------------------------------
@@ -193,30 +193,30 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
   int primitive = VTK_POLYGON;
 
   if (ca->GetNumberOfCells() == 0)
-    {
+  {
     return 1;
-    }
+  }
   if (n)
-    {
+  {
     normals = n->GetVoidPointer(0);
-    }
+  }
   if (c)
-    {
+  {
     colors = c->GetPointer(0);
     // if these are cell colors then advance to the first cell
     if (idx & VTK_PDM_CELL_COLORS)
-      {
+    {
       colors = colors + cellNum*4;
-      }
     }
+  }
   if (t)
-    {
+  {
     tcoords = t->GetVoidPointer(0);
-    }
+  }
   if (ef)
-    {
+  {
     edgeflags = ef->GetPointer(0);
-    }
+  }
   vtkIdType *ptIds = ca->GetPointer();
   vtkIdType *endPtIds = ptIds + ca->GetNumberOfConnectivityEntries();
   int ptype = p->GetDataType();
@@ -232,20 +232,20 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
 
   // draw all the elements, use fast path if available
   switch (idx)
-    {
+  {
     case 0:
       if (this->BuildNormals)
-        {
+      {
         vtkDrawPolysMacro(primitive,
           device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
             ptype, points, 3**ptIds);, PolyNormal,;);
-        }
+      }
       else
-        {
+      {
         vtkDrawPolysMacro(primitive,
           device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
             ptype, points, 3**ptIds);, ;,;);
-        }
+      }
       break;
 
     case VTK_PDM_NORMALS:
@@ -258,43 +258,43 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
 
     case VTK_PDM_COLORS:
       if (this->BuildNormals)
-        {
+      {
         vtkDrawPolysMacro(primitive,
           device->SendAttribute(vtkPointData::SCALARS, 4,
             VTK_UNSIGNED_CHAR, colors + 4**ptIds);
           device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
             ptype, points, 3**ptIds);,
           PolyNormal,;);
-        }
+      }
       else
-        {
+      {
         vtkDrawPolysMacro(primitive,
           device->SendAttribute(vtkPointData::SCALARS, 4,
             VTK_UNSIGNED_CHAR, colors + 4**ptIds);
           device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
             ptype, points, 3**ptIds);,
           ;,;);
-        }
+      }
       break;
     case VTK_PDM_COLORS  | VTK_PDM_OPAQUE_COLORS:
       if (this->BuildNormals)
-        {
+      {
         vtkDrawPolysMacro(primitive,
           device->SendAttribute(vtkPointData::SCALARS, 3,
             VTK_UNSIGNED_CHAR, colors + 4**ptIds);
           device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
             ptype, points, 3**ptIds);,
           PolyNormal,;);
-        }
+      }
       else
-        {
+      {
         vtkDrawPolysMacro(primitive,
           device->SendAttribute(vtkPointData::SCALARS, 3,
             VTK_UNSIGNED_CHAR, colors + 4**ptIds);
           device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
             ptype, points, 3**ptIds);,
           ;,;);
-        }
+      }
       break;
     case VTK_PDM_NORMALS | VTK_PDM_COLORS:
       vtkDrawPolysMacro(primitive,
@@ -335,23 +335,23 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
       break;
     case VTK_PDM_TCOORDS:
          if (this->BuildNormals)
-           {
+         {
            vtkDrawPolysMacro(primitive,
              device->SendAttribute(vtkPointData::TCOORDS, tcomps,
                ttype, tcoords, tcomps**ptIds);
              device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
                ptype, points, 3**ptIds);,
              PolyNormal,;);
-           }
+         }
          else
-           {
+         {
            vtkDrawPolysMacro(primitive,
              device->SendAttribute(vtkPointData::TCOORDS, 1,
                ttype, tcoords, *ptIds);
              device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
                ptype, points, 3**ptIds);,
              ;,;);
-           }
+         }
       break;
     case VTK_PDM_CELL_NORMALS:
       vtkDrawPolysMacro(primitive,
@@ -422,22 +422,22 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
 
     case VTK_PDM_EDGEFLAGS:
       if (this->BuildNormals)
-        {
+      {
         vtkDrawPolysMacro(primitive,
                           device->SendAttribute(vtkPointData::EDGEFLAG, 1,
                                                 eftype, edgeflags, *ptIds);
                           device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
                                                 ptype, points, 3**ptIds);,
                           PolyNormal,;);
-        }
+      }
       else
-        {
+      {
         vtkDrawPolysMacro(primitive,
                           device->SendAttribute(vtkPointData::EDGEFLAG, 1,
                                                 eftype, edgeflags, *ptIds);
                           device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
                                                 ptype, points, 3**ptIds);, ;,;);
-        }
+      }
       break;
 
     case VTK_PDM_NORMALS | VTK_PDM_EDGEFLAGS:
@@ -452,7 +452,7 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
 
     case VTK_PDM_COLORS | VTK_PDM_EDGEFLAGS:
       if (this->BuildNormals)
-        {
+      {
         vtkDrawPolysMacro(primitive,
                           device->SendAttribute(vtkPointData::EDGEFLAG, 1,
                                                 eftype, edgeflags, *ptIds);
@@ -462,9 +462,9 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
                           device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
                                                 ptype, points, 3**ptIds);,
                           PolyNormal,;);
-        }
+      }
       else
-        {
+      {
         vtkDrawPolysMacro(primitive,
                           device->SendAttribute(vtkPointData::EDGEFLAG, 1,
                                                 eftype, edgeflags, *ptIds);
@@ -474,11 +474,11 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
                           device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
                                                 ptype, points, 3**ptIds);,
                           ;,;);
-        }
+      }
       break;
     case VTK_PDM_COLORS  | VTK_PDM_OPAQUE_COLORS | VTK_PDM_EDGEFLAGS:
       if (this->BuildNormals)
-        {
+      {
         vtkDrawPolysMacro(primitive,
                           device->SendAttribute(vtkPointData::EDGEFLAG, 1,
                                                 eftype, edgeflags, *ptIds);
@@ -488,9 +488,9 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
                           device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
                                                 ptype, points, 3**ptIds);,
                           PolyNormal,;);
-        }
+      }
       else
-        {
+      {
         vtkDrawPolysMacro(primitive,
                           device->SendAttribute(vtkPointData::EDGEFLAG, 1,
                                                 eftype, edgeflags, *ptIds);
@@ -500,7 +500,7 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
                           device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
                                                 ptype, points, 3**ptIds);,
                           ;,;);
-        }
+      }
       break;
     case VTK_PDM_NORMALS | VTK_PDM_COLORS | VTK_PDM_EDGEFLAGS:
       vtkDrawPolysMacro(primitive,
@@ -552,7 +552,7 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
       break;
     case VTK_PDM_TCOORDS | VTK_PDM_EDGEFLAGS:
       if (this->BuildNormals)
-        {
+      {
         vtkDrawPolysMacro(primitive,
                           device->SendAttribute(vtkPointData::EDGEFLAG, 1,
                                                 eftype, edgeflags, *ptIds);
@@ -561,9 +561,9 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
                           device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
                                                 ptype, points, 3**ptIds);,
                           PolyNormal,;);
-        }
+      }
       else
-        {
+      {
         vtkDrawPolysMacro(primitive,
                           device->SendAttribute(vtkPointData::EDGEFLAG, 1,
                                                 eftype, edgeflags, *ptIds);
@@ -572,7 +572,7 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
                           device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
                                                 ptype, points, 3**ptIds);,
                           ;,;);
-        }
+      }
       break;
     case VTK_PDM_CELL_NORMALS | VTK_PDM_EDGEFLAGS:
       vtkDrawPolysMacro(primitive,
@@ -668,16 +668,16 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
 
     default:
       return 0; // let the delegate painter handle it.
-    }
+  }
 
   if (idx & VTK_PDM_EDGEFLAGS)
-    {
+  {
     // Reset the edge flag to 1 so that if the next thing rendered does not
     // have an edge flag, it will have all edges on.
     unsigned char edgeflag = 1;
     device->SendAttribute(vtkPointData::EDGEFLAG, 1, VTK_UNSIGNED_CHAR,
                           &edgeflag, 0);
-    }
+  }
 
   return 1;
 }

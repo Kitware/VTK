@@ -138,13 +138,13 @@ int TestGenericClip(int argc, char* argv[])
   mapper->SetLookupTable(lut);
 
   if(clipper->GetOutput()->GetPointData()!=0)
-    {
+  {
     if(clipper->GetOutput()->GetPointData()->GetScalars()!=0)
-      {
+    {
       mapper->SetScalarRange( clipper->GetOutput()->GetPointData()->
                               GetScalars()->GetRange());
-      }
     }
+  }
 
   vtkActor *actor = vtkActor::New();
   actor->SetMapper(mapper);
@@ -167,9 +167,9 @@ int TestGenericClip(int argc, char* argv[])
   renWin->Render();
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Cleanup
   renderer->Delete();

@@ -70,10 +70,10 @@ public:
   {
 
   if(this->Rinitialized)
-    {
+  {
     this->refcount++;
     return;
-    }
+  }
 
 #ifndef _WIN32
     R_SignalHandlers = 0;
@@ -81,15 +81,15 @@ public:
 
   const char* path = vtksys::SystemTools::GetEnv("R_HOME");
   if (!path)
-    {
+  {
     std::string newPath = "R_HOME=";
     newPath=newPath+VTK_R_HOME;
     vtksys::SystemTools::PutEnv(newPath.c_str());
-    }
+  }
     const char *R_argv[]= {"vtkRInterface", "--gui=none", "--no-save", "--no-readline", "--silent"};
 
     if (!VTK_R_INITIALIZED)
-      {
+    {
       Rf_initialize_R(sizeof(R_argv)/sizeof(R_argv[0]),
                       const_cast<char **>(R_argv));
 
@@ -103,7 +103,7 @@ public:
           setup_Rmainloop();
 
       VTK_R_INITIALIZED = true;
-      }
+    }
 
     this->Rinitialized = 1;
     this->refcount++;
@@ -128,27 +128,27 @@ public:
 
     SEXP cmdexpr = PROTECT(R_ParseVector(cmdSexp, -1, &status, R_NilValue));
     for(int i = 0; i < length(cmdexpr); i++)
-      {
+    {
       R_tryEval(VECTOR_ELT(cmdexpr, i),NULL,&error);
-      }
+    }
     UNPROTECT(2);
 
   };
 
   const char* GetROutputFilePath()
-    {
+  {
     return tmpFilePath.c_str();
-    };
+  };
 
   void CloseR()
-    {
+  {
     this->refcount--;
     if (this->refcount < 1)
-      {
+    {
       delete ins;
       ins = NULL;
-      }
-    };
+    }
+  };
 
 protected:
 
@@ -175,9 +175,9 @@ vtkImplementationRSingleton* vtkImplementationRSingleton::Instance()
 {
 
   if(ins == 0)
-    {
+  {
     ins = new vtkImplementationRSingleton;
-    }
+  }
 
   ins->InitializeR();
   return(ins);
@@ -237,20 +237,20 @@ int vtkRInterface::EvalRscript(const char *string, bool showRoutput)
 
   SEXP cmdexpr = PROTECT(R_ParseVector(cmdSexp, -1, &status, R_NilValue));
   switch (status)
-    {
+  {
     case PARSE_OK:
       for(i = 0; i < length(cmdexpr); i++)
-        {
+      {
         ans = R_tryEval(VECTOR_ELT(cmdexpr, i),NULL,&error);
         if (error)
-          {
+        {
           return 1;
-          }
-        if(showRoutput)
-          {
-          PrintValue(ans);
-          }
         }
+        if(showRoutput)
+        {
+          PrintValue(ans);
+        }
+      }
       break;
 
     case PARSE_INCOMPLETE:
@@ -273,7 +273,7 @@ int vtkRInterface::EvalRscript(const char *string, bool showRoutput)
     default:
       vtkErrorMacro(<<"R parse status is NOT DOCUMENTED");
       return 1;
-    }
+  }
   UNPROTECT(2);
   this->FillOutputBuffer();
   return 0;
@@ -397,9 +397,9 @@ int vtkRInterface::OutputBuffer(char* p, int n)
   this->buffer = p;
   this->buffer_size = n;
   if(this->buffer && (this->buffer_size > 0) )
-    {
+  {
     this->buffer[0] = '\0';
-    }
+  }
   return(1);
 
 }
@@ -413,23 +413,23 @@ int vtkRInterface::FillOutputBuffer()
   long tlen;
 
   if(this->buffer && (this->buffer_size > 0) )
-    {
+  {
     fp = fopen(this->rs->GetROutputFilePath(),"rb");
 
     if(!fp)
-      {
+    {
       vtkErrorMacro(<<"Can't open input file named " << this->rs->GetROutputFilePath());
       return(0);
-      }
+    }
 
     fseek(fp,0,SEEK_END);
     len = ftell(fp);
 
     if(len == 0)
-      {
+    {
       fclose(fp);
       return(1);
-      }
+    }
 
     tlen = ((len >= this->buffer_size) ? this->buffer_size-1 : len);
     fseek(fp,len-tlen,SEEK_SET);
@@ -439,18 +439,18 @@ int vtkRInterface::FillOutputBuffer()
     fclose(fp);
 
     if (rlen != tlen)
-      {
+    {
       vtkErrorMacro(<<"Error while reading file " << this->rs->GetROutputFilePath());
       return(0);
-      }
+    }
 
     return(1);
 
-    }
+  }
   else
-    {
+  {
     return(0);
-    }
+  }
 
 }
 
@@ -463,9 +463,9 @@ void vtkRInterface::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "buffer: " << (this->buffer ? this->buffer : "NULL") << endl;
 
   if(this->vra)
-    {
+  {
     this->vra->PrintSelf(os, indent);
-    }
+  }
 
 }
 

@@ -1,11 +1,13 @@
 vtk_module(vtkIOTecplotTable
   GROUPS
     StandAlone
-  DEPENDS
-    vtkCommonExecutionModel
   TEST_DEPENDS
     vtkTestingCore
+  DEPENDS
+    vtkCommonCore
+    vtkCommonExecutionModel
   PRIVATE_DEPENDS
-    vtksys
+    vtkCommonDataModel
     vtkIOCore
+    vtksys
   )

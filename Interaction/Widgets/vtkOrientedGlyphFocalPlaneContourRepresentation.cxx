@@ -219,22 +219,22 @@ vtkOrientedGlyphFocalPlaneContourRepresentation::~vtkOrientedGlyphFocalPlaneCont
 void vtkOrientedGlyphFocalPlaneContourRepresentation::SetCursorShape(vtkPolyData *shape)
 {
   if ( shape != this->CursorShape )
-    {
+  {
     if ( this->CursorShape )
-      {
+    {
       this->CursorShape->Delete();
-      }
+    }
     this->CursorShape = shape;
     if ( this->CursorShape )
-      {
+    {
       this->CursorShape->Register(this);
-      }
-    if ( this->CursorShape )
-      {
-      this->Glypher->SetSourceData(this->CursorShape);
-      }
-    this->Modified();
     }
+    if ( this->CursorShape )
+    {
+      this->Glypher->SetSourceData(this->CursorShape);
+    }
+    this->Modified();
+  }
 }
 
 //----------------------------------------------------------------------
@@ -247,22 +247,22 @@ vtkPolyData *vtkOrientedGlyphFocalPlaneContourRepresentation::GetCursorShape()
 void vtkOrientedGlyphFocalPlaneContourRepresentation::SetActiveCursorShape(vtkPolyData *shape)
 {
   if ( shape != this->ActiveCursorShape )
-    {
+  {
     if ( this->ActiveCursorShape )
-      {
+    {
       this->ActiveCursorShape->Delete();
-      }
+    }
     this->ActiveCursorShape = shape;
     if ( this->ActiveCursorShape )
-      {
+    {
       this->ActiveCursorShape->Register(this);
-      }
-    if ( this->ActiveCursorShape )
-      {
-      this->ActiveGlypher->SetSourceData(this->ActiveCursorShape);
-      }
-    this->Modified();
     }
+    if ( this->ActiveCursorShape )
+    {
+      this->ActiveGlypher->SetSourceData(this->ActiveCursorShape);
+    }
+    this->Modified();
+  }
 }
 
 //----------------------------------------------------------------------
@@ -296,21 +296,21 @@ int vtkOrientedGlyphFocalPlaneContourRepresentation::ComputeInteractionState(int
   this->VisibilityOn();
   double tol2 = this->PixelTolerance * this->PixelTolerance;
   if ( vtkMath::Distance2BetweenPoints(xyz,pos) <= tol2 )
-    {
+  {
     this->InteractionState = vtkContourRepresentation::Nearby;
     if ( !this->ActiveCursorShape )
-      {
-      this->VisibilityOff();
-      }
-    }
-  else
     {
+      this->VisibilityOff();
+    }
+  }
+  else
+  {
     this->InteractionState = vtkContourRepresentation::Outside;
     if ( !this->CursorShape )
-      {
+    {
       this->VisibilityOff();
-      }
     }
+  }
 
   return this->InteractionState;
 }
@@ -350,17 +350,17 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::WidgetInteraction(double e
 {
   // Process the motion
   if ( this->CurrentOperation == vtkContourRepresentation::Translate )
-    {
+  {
     this->Translate(eventPos);
-    }
+  }
   if ( this->CurrentOperation == vtkContourRepresentation::Shift )
-    {
+  {
     this->ShiftContour(eventPos);
-    }
+  }
   if ( this->CurrentOperation == vtkContourRepresentation::Scale )
-    {
+  {
     this->ScaleContour(eventPos);
-    }
+  }
 
   // Book keeping
   this->LastEventPosition[0] = eventPos[0];
@@ -374,9 +374,9 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::Translate(double eventPos[
   double ref[3];
 
   if ( !this->GetActiveNodeWorldPosition( ref ) )
-    {
+  {
     return;
-    }
+  }
 
   double displayPos[2];
   displayPos[0] = eventPos[0] + this->InteractionOffset[0];
@@ -391,14 +391,14 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::Translate(double eventPos[
   if ( this->PointPlacer->ComputeWorldPosition(this->Renderer,
                                                displayPos, ref, worldPos,
                                                worldOrient ) )
-    {
+  {
     this->SetActiveNodeToWorldPosition(worldPos, worldOrient);
-    }
+  }
   else
-    {
+  {
     // I really want to track the closest point here,
     // but I am postponing this at the moment....
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -408,9 +408,9 @@ eventPos[2])
   double ref[3];
 
   if ( !this->GetActiveNodeWorldPosition( ref ) )
-    {
+  {
     return;
-    }
+  }
 
   double displayPos[2];
   displayPos[0] = eventPos[0] + this->InteractionOffset[0];
@@ -423,7 +423,7 @@ eventPos[2])
   if ( this->PointPlacer->ComputeWorldPosition(this->Renderer,
                                                displayPos, ref, worldPos,
                                                worldOrient ) )
-    {
+  {
 
     this->SetActiveNodeToWorldPosition(worldPos, worldOrient);
 
@@ -433,17 +433,17 @@ eventPos[2])
     vector[2] = worldPos[2] - ref[2];
 
     for ( int i = 0; i < this->GetNumberOfNodes(); i++ )
-      {
+    {
       if( i != this->ActiveNode )
-        {
+      {
         this->GetNthNodeWorldPosition( i, ref );
         worldPos[0] = ref[0] + vector[0];
         worldPos[1] = ref[1] + vector[1];
         worldPos[2] = ref[2] + vector[2];
         this->SetNthNodeWorldPosition( i, worldPos, worldOrient );
-        }
       }
     }
+  }
 }
 //----------------------------------------------------------------------
 void vtkOrientedGlyphFocalPlaneContourRepresentation::ScaleContour(double
@@ -452,9 +452,9 @@ eventPos[2])
   double ref[3];
 
   if ( !this->GetActiveNodeWorldPosition( ref ) )
-    {
+  {
     return;
-    }
+  }
 
   double centroid[3];
   ComputeCentroid( centroid );
@@ -472,26 +472,26 @@ eventPos[2])
   if ( this->PointPlacer->ComputeWorldPosition(this->Renderer,
                                                displayPos, ref, worldPos,
                                                worldOrient ) )
-    {
+  {
     double d2 = vtkMath::Distance2BetweenPoints( worldPos, centroid );
     if( d2 != 0. )
-      {
+    {
       double ratio = sqrt( d2 / r2 );
 //       this->SetActiveNodeToWorldPosition(worldPos, worldOrient);
 
       for ( int i = 0; i < this->GetNumberOfNodes(); i++ )
-        {
+      {
 //         if( i != this->ActiveNode )
-          {
+        {
           this->GetNthNodeWorldPosition( i, ref );
           worldPos[0] = centroid[0] + ratio * ( ref[0] - centroid[0] );
           worldPos[1] = centroid[0] + ratio * ( ref[1] - centroid[1] );
           worldPos[2] = centroid[0] + ratio * ( ref[2] - centroid[2] );
           this->SetNthNodeWorldPosition( i, worldPos, worldOrient );
-          }
         }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -504,12 +504,12 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::ComputeCentroid(
   ioCentroid[2] = 0.;
 
   for ( int i = 0; i < this->GetNumberOfNodes(); i++ )
-    {
+  {
     this->GetNthNodeWorldPosition( i, p );
     ioCentroid[0] += p[0];
     ioCentroid[1] += p[1];
     ioCentroid[2] += p[2];
-    }
+  }
   double inv_N = 1. / static_cast< double >( this->GetNumberOfNodes() );
   ioCentroid[0] *= inv_N;
   ioCentroid[1] *= inv_N;
@@ -559,29 +559,29 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::BuildLines()
 
   int count = this->GetNumberOfNodes();
   for ( i = 0; i < this->GetNumberOfNodes(); i++ )
-    {
+  {
     count += this->GetNumberOfIntermediatePoints(i);
-    }
+  }
 
   points->SetNumberOfPoints(count);
   vtkIdType numLines;
 
   if ( this->ClosedLoop && count > 0 )
-    {
+  {
     numLines = count+1;
-    }
+  }
   else
-    {
+  {
     numLines = count;
-    }
+  }
 
   if ( numLines > 0 )
-    {
+  {
     vtkIdType *lineIndices = new vtkIdType[numLines];
 
     double pos[3];
     for ( i = 0; i < this->GetNumberOfNodes(); i++ )
-      {
+    {
       // Add the node
       this->GetNthNodeDisplayPosition( i, pos );
       points->InsertPoint( index, pos );
@@ -591,22 +591,22 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::BuildLines()
       int numIntermediatePoints = this->GetNumberOfIntermediatePoints(i);
 
       for ( j = 0; j < numIntermediatePoints; j++ )
-        {
+      {
         this->GetIntermediatePointDisplayPosition( i, j, pos );
         points->InsertPoint( index, pos );
         lineIndices[index] = index;
         index++;
-        }
       }
+    }
 
     if ( this->ClosedLoop )
-      {
+    {
       lineIndices[index] = 0;
-      }
+    }
 
     lines->InsertNextCell( numLines, lineIndices );
     delete [] lineIndices;
-    }
+  }
 
   this->Lines->SetPoints( points );
   this->Lines->SetLines( lines );
@@ -628,9 +628,9 @@ vtkMatrix4x4 * vtkOrientedGlyphFocalPlaneContourRepresentation
                        >= this->Renderer->GetMTime() ||
       this->ContourPlaneDirectionCosines->GetMTime()
                        >=    this->Lines->GetMTime() )
-    {
+  {
     return this->ContourPlaneDirectionCosines;
-    }
+  }
 
   vtkMatrix4x4::Transpose(
       this->Renderer->GetActiveCamera()->GetViewTransformMatrix(),
@@ -675,29 +675,29 @@ vtkPolyData * vtkOrientedGlyphFocalPlaneContourRepresentation
 
   int count = this->GetNumberOfNodes();
   for ( i = 0; i < this->GetNumberOfNodes(); i++ )
-    {
+  {
     count += this->GetNumberOfIntermediatePoints(i);
-    }
+  }
 
   points->SetNumberOfPoints(count);
   vtkIdType numLines;
 
   if ( this->ClosedLoop && count > 0 )
-    {
+  {
     numLines = count+1;
-    }
+  }
   else
-    {
+  {
     numLines = count;
-    }
+  }
 
   if ( numLines > 0 )
-    {
+  {
     vtkIdType *lineIndices = new vtkIdType[numLines];
 
     double pos[3];
     for ( i = 0; i < this->GetNumberOfNodes(); i++ )
-      {
+    {
       // Add the node
       this->GetNthNodeWorldPosition( i, pos );
       points->InsertPoint( index, pos );
@@ -707,22 +707,22 @@ vtkPolyData * vtkOrientedGlyphFocalPlaneContourRepresentation
       int numIntermediatePoints = this->GetNumberOfIntermediatePoints(i);
 
       for ( j = 0; j < numIntermediatePoints; j++ )
-        {
+      {
         this->GetIntermediatePointWorldPosition( i, j, pos );
         points->InsertPoint( index, pos );
         lineIndices[index] = index;
         index++;
-        }
       }
+    }
 
     if ( this->ClosedLoop )
-      {
+    {
       lineIndices[index] = 0;
-      }
+    }
 
     lines->InsertNextCell( numLines, lineIndices );
     delete [] lineIndices;
-    }
+  }
 
   this->LinesWorldCoordinates->SetPoints( points );
   this->LinesWorldCoordinates->SetLines( lines );
@@ -790,28 +790,28 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::BuildRepresentation()
 
   if ( this->ActiveNode >= 0 &&
        this->ActiveNode < this->GetNumberOfNodes() )
-    {
+  {
     this->FocalPoint->SetNumberOfPoints(numPoints-1);
     this->FocalData->GetPointData()->GetNormals()->SetNumberOfTuples(numPoints-1);
-    }
+  }
   else
-    {
+  {
     this->FocalPoint->SetNumberOfPoints(numPoints);
     this->FocalData->GetPointData()->GetNormals()->SetNumberOfTuples(numPoints);
-    }
+  }
 
   int i;
   int idx = 0;
   for ( i = 0; i < numPoints; i++ )
-    {
+  {
     if ( i != this->ActiveNode )
-      {
+    {
       double displayPos[3];
       this->GetNthNodeDisplayPosition( i, displayPos );
       this->FocalPoint->SetPoint(idx, displayPos );
       idx++;
-      }
     }
+  }
 
   this->FocalPoint->Modified();
   this->FocalData->GetPointData()->GetNormals()->Modified();
@@ -819,7 +819,7 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::BuildRepresentation()
 
   if ( this->ActiveNode >= 0 &&
        this->ActiveNode < this->GetNumberOfNodes() )
-    {
+  {
       double displayPos[3];
       this->GetNthNodeDisplayPosition( i, displayPos );
       this->ActiveFocalPoint->SetPoint(0, displayPos );
@@ -828,11 +828,11 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::BuildRepresentation()
       this->ActiveFocalData->GetPointData()->GetNormals()->Modified();
       this->ActiveFocalData->Modified();
       this->ActiveActor->VisibilityOn();
-    }
+  }
   else
-    {
+  {
       this->ActiveActor->VisibilityOff();
-    }
+  }
 
 }
 
@@ -858,13 +858,13 @@ int vtkOrientedGlyphFocalPlaneContourRepresentation::RenderOverlay(vtkViewport *
   int count=0;
   count += this->LinesActor->RenderOverlay(viewport);
   if ( this->Actor->GetVisibility() )
-    {
+  {
     count +=  this->Actor->RenderOverlay(viewport);
-    }
+  }
   if ( this->ActiveActor->GetVisibility() )
-    {
+  {
     count +=  this->ActiveActor->RenderOverlay(viewport);
-    }
+  }
   return count;
 }
 
@@ -877,13 +877,13 @@ int vtkOrientedGlyphFocalPlaneContourRepresentation::RenderOpaqueGeometry(vtkVie
 
   int count = this->LinesActor->RenderOpaqueGeometry(viewport);
   if ( this->Actor->GetVisibility() )
-    {
+  {
     count += this->Actor->RenderOpaqueGeometry(viewport);
-    }
+  }
   if ( this->ActiveActor->GetVisibility() )
-    {
+  {
     count += this->ActiveActor->RenderOpaqueGeometry(viewport);
-    }
+  }
   return count;
 }
 
@@ -892,13 +892,13 @@ int vtkOrientedGlyphFocalPlaneContourRepresentation::RenderTranslucentPolygonalG
 {
   int count = this->LinesActor->RenderTranslucentPolygonalGeometry(viewport);
   if ( this->Actor->GetVisibility() )
-    {
+  {
     count += this->Actor->RenderTranslucentPolygonalGeometry(viewport);
-    }
+  }
   if ( this->ActiveActor->GetVisibility() )
-    {
+  {
     count += this->ActiveActor->RenderTranslucentPolygonalGeometry(viewport);
-    }
+  }
   return count;
 }
 
@@ -907,13 +907,13 @@ int vtkOrientedGlyphFocalPlaneContourRepresentation::HasTranslucentPolygonalGeom
 {
   int result = this->LinesActor->HasTranslucentPolygonalGeometry();
   if ( this->Actor->GetVisibility() )
-    {
+  {
     result |= this->Actor->HasTranslucentPolygonalGeometry();
-    }
+  }
   if ( this->ActiveActor->GetVisibility() )
-    {
+  {
     result |= this->ActiveActor->HasTranslucentPolygonalGeometry();
-    }
+  }
   return result;
 }
 
@@ -929,30 +929,30 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::PrintSelf(
     << "," << this->InteractionOffset[1] << ")" << endl;
 
   if ( this->Property )
-    {
+  {
     os << indent << "Property: " << this->Property << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Property: (none)\n";
-    }
+  }
 
   if ( this->ActiveProperty )
-    {
+  {
     os << indent << "Active Property: " << this->ActiveProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Active Property: (none)\n";
-    }
+  }
 
   if ( this->LinesProperty )
-    {
+  {
     os << indent << "Lines Property: " << this->LinesProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Lines Property: (none)\n";
-    }
+  }
 }
 

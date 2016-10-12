@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHierarchicalDataExtractLevel - extact levels between min and max
-// .SECTION Description
-// Legacy class. Use vtkExtractLevel instead.
+/**
+ * @class   vtkHierarchicalDataExtractLevel
+ * @brief   extact levels between min and max
+ *
+ * Legacy class. Use vtkExtractLevel instead.
+*/
 
 #ifndef vtkHierarchicalDataExtractLevel_h
 #define vtkHierarchicalDataExtractLevel_h
@@ -35,8 +38,8 @@ protected:
   ~vtkHierarchicalDataExtractLevel();
 
 private:
-  vtkHierarchicalDataExtractLevel(const vtkHierarchicalDataExtractLevel&);  // Not implemented.
-  void operator=(const vtkHierarchicalDataExtractLevel&);  // Not implemented.
+  vtkHierarchicalDataExtractLevel(const vtkHierarchicalDataExtractLevel&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHierarchicalDataExtractLevel&) VTK_DELETE_FUNCTION;
 };
 
 #endif

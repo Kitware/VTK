@@ -41,9 +41,9 @@ vtkFrustumSource::vtkFrustumSource()
 vtkFrustumSource::~vtkFrustumSource()
 {
   if(this->Planes!=0)
-    {
+  {
     this->Planes->Delete();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -53,18 +53,18 @@ int vtkFrustumSource::RequestData(
   vtkInformationVector *outputVector)
 {
   if(this->Planes==0 || this->Planes->GetNumberOfPlanes()!=6)
-    {
+  {
     vtkErrorMacro(<<" 6 planes required.");
     return 0;
-    }
+  }
   if(this->ShowLines)
-    {
+  {
     if(this->LinesLength<=0.0)
-      {
+    {
       vtkErrorMacro(<<" LinesLength<=0.0");
       return 0;
-      }
     }
+  }
 
   // get the info object
   vtkInformation *outInfo=outputVector->GetInformationObject(0);
@@ -107,7 +107,7 @@ int vtkFrustumSource::RequestData(
   vtkMath::Norm(c);
 
   if(this->ShowLines)
-    {
+  {
     double left[3];
     this->Planes->GetPlane(0)->GetNormal(left);
     double right[3];
@@ -129,37 +129,37 @@ int vtkFrustumSource::RequestData(
      parallelFrustum=leftRightNull && bottomTopNull;
 
      if(parallelFrustum)
-       {
+     {
        // start at near points, just add the 4 extra far points.
        nbPts+=4;
-       }
+     }
      else
-       {
+     {
        if(leftRightNull || bottomTopNull)
-         {
+       {
          // two extra starting points , and 4 extra far points.
          nbPts+=6;
-         }
+       }
        else
-         {
+       {
          // there is an apex, and 4 extra far points
          nbPts+=5;
-         }
        }
+     }
      // parallel frustum = bottom//top && left//right
-    }
+  }
 
   vtkPoints *newPoints=vtkPoints::New();
 
   // Set the desired precision for the points in the output.
   if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     newPoints->SetDataType(VTK_DOUBLE);
-    }
+  }
   else
-    {
+  {
     newPoints->SetDataType(VTK_FLOAT);
-    }
+  }
 
   newPoints->SetNumberOfPoints(nbPts);
   // Ref: Real-Time Rendering, 3rd edition, Thomas Akenine-Moller, Eric Haines,
@@ -257,7 +257,7 @@ int vtkFrustumSource::RequestData(
 
   vtkCellArray *newLines=0;
   if(this->ShowLines)
-    {
+  {
     vtkIdType numLines=4;
 
     newLines=vtkCellArray::New();
@@ -267,67 +267,67 @@ int vtkFrustumSource::RequestData(
 
     // line from lower-left corner
     if(parallelFrustum)
-      {
+    {
       pts[0]=0;
-      }
+    }
     pts[1]=8;
     newLines->InsertNextCell(2,pts);
 
     // line from lower-right corner
     if(parallelFrustum)
-      {
+    {
       ++pts[0];
-      }
+    }
     else
-      {
+    {
       if(leftRightNull)
-        {
+      {
         pts[0]=13;
-        }
       }
+    }
     ++pts[1];
     newLines->InsertNextCell(2,pts);
 
     // line from upper-right corner
     if(parallelFrustum)
-      {
+    {
       ++pts[0];
-      }
+    }
     else
-      {
+    {
        if(bottomTopNull)
-         {
+       {
          pts[0]=13;
-         }
-      }
+       }
+    }
     ++pts[1];
     newLines->InsertNextCell(2,pts);
 
     // line from upper-left corner
     if(parallelFrustum)
-      {
+    {
       ++pts[0];
-      }
+    }
     else
-      {
+    {
       if(leftRightNull)
-        {
+      {
         pts[0]=12;
-        }
       }
+    }
     ++pts[1];
     newLines->InsertNextCell(2,pts);
-    }
+  }
 
   output->SetPoints(newPoints);
   newPoints->Delete();
 
   if(newLines!=0)
-    {
+  {
     newLines->Squeeze(); // since we've estimated size; reclaim some space
     output->SetLines(newLines);
     newLines->Delete();
-    }
+  }
 
   newPolys->Squeeze(); // since we've estimated size; reclaim some space
   output->SetPolys(newPolys);
@@ -383,27 +383,27 @@ void vtkFrustumSource::ComputePoint(int planes[3],
 
   int i=0;
   while(i<3)
-    {
+  {
     pt[i]=(d0*c12[i]+d1*c20[i]+d2*c01[i])/d;
     ++i;
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
 // Description:
 // Modified GetMTime because of Planes.
-unsigned long vtkFrustumSource::GetMTime()
+vtkMTimeType vtkFrustumSource::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
+  vtkMTimeType mTime=this->Superclass::GetMTime();
   if(this->Planes!=0)
-    {
-    unsigned long time;
+  {
+    vtkMTimeType time;
     time = this->Planes->GetMTime();
     if(time>mTime)
-      {
+    {
       mTime=time;
-      }
     }
+  }
   return mTime;
 }
 
@@ -415,23 +415,23 @@ void vtkFrustumSource::PrintSelf(ostream &os,
 
   os << indent << "Planes:";
   if(this->Planes!=0)
-    {
+  {
     this->Planes->PrintSelf(os,indent);
-    }
+  }
   else
-    {
+  {
     os << "(none)" <<endl;
-    }
+  }
 
   os << indent << "ShowLines:";
   if(this->ShowLines)
-    {
+  {
     os << "true" << endl;
-    }
+  }
   else
-    {
+  {
     os << "false" << endl;
-    }
+  }
 
   os << indent << "LinesLength:" << this->LinesLength << endl;
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision

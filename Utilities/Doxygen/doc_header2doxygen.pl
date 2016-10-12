@@ -101,6 +101,10 @@ use File::Path;
 use Text::Wrap;
 use strict;
 
+sub trim {
+   return $_[0] =~ s/^\s+|\s+$//rg;
+}
+
 my ($VERSION, $PROGNAME, $AUTHOR) = (0.9, $0, "Sebastien Barre et al.");
 $PROGNAME =~ s/^.*[\\\/]//;
 
@@ -200,6 +204,7 @@ foreach my $file (@ARGV) {
 print "Converting...\n" if ! exists $args{"stdout"};
 my $intermediate_time = time();
 my $nb_file = 0;
+my @myval = "";
 
 foreach my $source (@files) {
 
@@ -315,19 +320,20 @@ foreach my $source (@files) {
 
         # Insert class description, date, revision, thanks
 
-        push @converted, "/*! \@class   $class_name\n";
-        push @converted, "    \@brief   $class_short_description\n"
+        push @converted, "/**\n";
+        push @converted, " * \@class   $class_name\n";
+        push @converted, " * \@brief   $class_short_description\n"
           if $class_short_description;
 
         if ($date) {
-            push @converted, "\n    $date\n";
+            push @converted, "\n * $date\n";
         }
 
         # WARNING : need a blank line between RCS tags and previous dox tag
 
         if ($revision) {
             push @converted, "\n" if (!$date);
-            push @converted, "    $revision\n";
+            push @converted, " * $revision\n";
         }
 
         # Do not add thanks anymore. Will be done externally.
@@ -391,7 +397,7 @@ foreach my $source (@files) {
 
                 elsif ($type =~ /Description/i) {
                     $tag = "";
-                    push @converted, "\n";
+                    push @converted, " *\n";
                 }
 
                 # Note (@attention). Starts with:
@@ -446,12 +452,12 @@ foreach my $source (@files) {
             elsif ($line =~ /^\/\/(.*)/) {
                 my $remaining = $1;
                 if ($remaining =~ /\S/) {
-                    push @converted, "    $tag\n"
+                    push @converted, " * $tag\n"
                       if $tag ne "" && ! $inblock;
-                    push @converted, $remaining, "\n";
+                    push @converted, " *", $remaining, "\n";
                     $inblock = 1;
                 } else {
-                    push @converted, "\n";
+                    push @converted, " *\n";
                     $inblock = 0;
                 }
             } else {
@@ -461,7 +467,7 @@ foreach my $source (@files) {
                 # with // then the current line is included (was a space).
 
                 if (my $next_line = shift @headerfile) {
-                    push @converted, $line if $next_line =~ /^\/\//;
+                    push @converted, " *", $line if $next_line =~ /^\/\//;
                     unshift @headerfile, $next_line;
                 }
             }
@@ -528,8 +534,13 @@ foreach my $source (@files) {
             # (and/or inline definitions) pertaining to the same description.
 
             my @declarations = ();
+            my $semicnt = 0;
             while ($line && $line =~ /\s*\S/) {
                 push @declarations, $line;
+                if ($line =~ /;$/)
+                {
+                    $semicnt = $semicnt + 1;
+                }
                 # terminate if we encounter another Description line
                 # that doesn't have a leading empty line
                 if ($headerfile[0] !~ /^(\s*)\/\/\s*De(s|c)(s|c)?ription/ ) {
@@ -541,17 +552,35 @@ foreach my $source (@files) {
 
             # If there is more than one declaration or at least a macro,
             # enclose in a group (actually a single multiline declaration will
-            # be enclosed too, but who cares :)...
+            # be enclosed too, but who cares :). (Berk cares, so try and
+            # additionally check and only enclose if multiline has multiple
+            # statements in it.)
 
             my $enclose =
-              (scalar @declarations > 1 || $declarations[0] =~ /vtk.+Macro/);
+                ($declarations[0] =~ /vtk.+Macro/ ||
+                 (scalar @declarations > 1 && $semicnt > 1));
 
             push @converted, "$indent//@\{\n" if $enclose;
-            push @converted,
-            wrap("$indent/*! ", "$indent    ", @description), " */\n"
-              if @description;
+
+            if (@description) {              
+              for my $i (0 .. $#description)
+                {
+                  if ($i eq 0) {
+                    push @converted, "$indent/**\n";
+                  }
+                  if (length(trim($description[$i]))) {
+                    push @converted, "$indent * ", trim($description[$i]), "\n";
+                  } else {
+                    push @converted, "\n";
+                  }
+                    
+                  if ($i eq $#description) {
+                    push @converted, "$indent */\n";
+                  }                  
+                }
+            }
             push @converted, @declarations;
-            push @converted, "$indent//@\}\n" if $enclose;
+            push @converted, "$indent//@\}\n" if $enclose;              
         }
 
         push @converted, $line;

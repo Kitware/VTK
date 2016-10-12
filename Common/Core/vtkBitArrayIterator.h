@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBitArrayIterator - Iterator for vtkBitArray.
-// This iterator iterates over a vtkBitArray. It uses the double interface
-// to get/set bit values.
+/**
+ * @class   vtkBitArrayIterator
+ * @brief   Iterator for vtkBitArray.
+ * This iterator iterates over a vtkBitArray. It uses the double interface
+ * to get/set bit values.
+*/
 
 #ifndef vtkBitArrayIterator_h
 #define vtkBitArrayIterator_h
@@ -28,68 +31,79 @@ class VTKCOMMONCORE_EXPORT vtkBitArrayIterator : public vtkArrayIterator
 public:
   static vtkBitArrayIterator* New();
   vtkTypeMacro(vtkBitArrayIterator, vtkArrayIterator);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Set the array this iterator will iterate over.
-  // After Initialize() has been called, the iterator is valid
-  // so long as the Array has not been modified
-  // (except using the iterator itself).
-  // If the array is modified, the iterator must be re-intialized.
-  virtual void Initialize(vtkAbstractArray* array);
+  /**
+   * Set the array this iterator will iterate over.
+   * After Initialize() has been called, the iterator is valid
+   * so long as the Array has not been modified
+   * (except using the iterator itself).
+   * If the array is modified, the iterator must be re-intialized.
+   */
+  void Initialize(vtkAbstractArray* array) VTK_OVERRIDE;
 
-  // Description:
-  // Get the array.
+  /**
+   * Get the array.
+   */
   vtkAbstractArray* GetArray();
 
-  // Description:
-  // Must be called only after Initialize.
+  /**
+   * Must be called only after Initialize.
+   */
   int* GetTuple(vtkIdType id) ;
 
-  // Description:
-  // Must be called only after Initialize.
+  /**
+   * Must be called only after Initialize.
+   */
   int GetValue(vtkIdType id);
 
-  // Description:
-  // Must be called only after Initialize.
+  /**
+   * Must be called only after Initialize.
+   */
   vtkIdType GetNumberOfTuples();
 
-  // Description:
-  // Must be called only after Initialize.
+  /**
+   * Must be called only after Initialize.
+   */
   vtkIdType GetNumberOfValues();
 
-  // Description:
-  // Must be called only after Initialize.
+  /**
+   * Must be called only after Initialize.
+   */
   int GetNumberOfComponents();
 
-  // Description:
-  // Get the data type from the underlying array.
-  int GetDataType();
+  /**
+   * Get the data type from the underlying array.
+   */
+  int GetDataType() VTK_OVERRIDE;
 
-  // Description:
-  // Get the data type size from the underlying array.
+  /**
+   * Get the data type size from the underlying array.
+   */
   int GetDataTypeSize();
 
-  // Description:
-  // Sets the value at the index. This does not verify if the index is valid.
-  // The caller must ensure that id is less than the maximum number of values.
+  /**
+   * Sets the value at the index. This does not verify if the index is valid.
+   * The caller must ensure that id is less than the maximum number of values.
+   */
   void SetValue(vtkIdType id, int value);
 
-  // Description:
-  // Data type of a value.
+  /**
+   * Data type of a value.
+   */
   typedef int ValueType;
 
 protected:
   vtkBitArrayIterator();
-  ~vtkBitArrayIterator();
+  ~vtkBitArrayIterator() VTK_OVERRIDE;
 
   int *Tuple;
   int TupleSize;
   void SetArray(vtkBitArray* b);
   vtkBitArray* Array;
 private:
-  vtkBitArrayIterator(const vtkBitArrayIterator&); // Not implemented.
-  void operator=(const vtkBitArrayIterator&); // Not implemented.
+  vtkBitArrayIterator(const vtkBitArrayIterator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBitArrayIterator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

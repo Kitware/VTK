@@ -92,7 +92,7 @@ vtkImplicitCylinderRepresentation::vtkImplicitCylinderRepresentation()
   this->OutlineTranslation = 1;
   this->ScaleEnabled = 1;
   this->OutsideBounds = 1;
-  this->ConstrainCenter = 1;
+  this->ConstrainToWidgetBounds = 1;
 
   this->Cyl = vtkPolyData::New();
   vtkPoints *pts = vtkPoints::New();
@@ -284,17 +284,17 @@ int vtkImplicitCylinderRepresentation::ComputeInteractionState(int X, int Y,
   // wraps around things that can be picked; thus the cylinder is the selection
   // of last resort.
   if ( path == NULL )
-    {
+  {
     this->CylPicker->Pick(X, Y, 0., this->Renderer);
     path = this->CylPicker->GetPath();
-    }
+  }
 
   if ( path == NULL ) // Nothing picked
-    {
+  {
     this->SetRepresentationState(vtkImplicitCylinderRepresentation::Outside);
     this->InteractionState = vtkImplicitCylinderRepresentation::Outside;
     return this->InteractionState;
-    }
+  }
 
   // Something picked, continue
   this->ValidPick = 1;
@@ -302,44 +302,44 @@ int vtkImplicitCylinderRepresentation::ComputeInteractionState(int X, int Y,
   // Depending on the interaction state (set by the widget) we modify
   // this state based on what is picked.
   if ( this->InteractionState == vtkImplicitCylinderRepresentation::Moving )
-    {
+  {
     vtkProp *prop = path->GetFirstNode()->GetViewProp();
     if ( prop == this->ConeActor || prop == this->LineActor ||
          prop == this->ConeActor2 || prop == this->LineActor2 )
-      {
+    {
       this->InteractionState = vtkImplicitCylinderRepresentation::RotatingAxis;
       this->SetRepresentationState(vtkImplicitCylinderRepresentation::RotatingAxis);
-      }
+    }
     else if ( prop == this->CylActor || prop == EdgesActor )
-      {
+    {
       this->InteractionState = vtkImplicitCylinderRepresentation::AdjustingRadius;
       this->SetRepresentationState(vtkImplicitCylinderRepresentation::AdjustingRadius);
-      }
+    }
     else if ( prop == this->SphereActor )
-      {
+    {
       this->InteractionState = vtkImplicitCylinderRepresentation::MovingCenter;
       this->SetRepresentationState(vtkImplicitCylinderRepresentation::MovingCenter);
-      }
+    }
     else
-      {
+    {
       if ( this->OutlineTranslation )
-        {
+      {
         this->InteractionState = vtkImplicitCylinderRepresentation::MovingOutline;
         this->SetRepresentationState(vtkImplicitCylinderRepresentation::MovingOutline);
-        }
+      }
       else
-        {
+      {
         this->InteractionState = vtkImplicitCylinderRepresentation::Outside;
         this->SetRepresentationState(vtkImplicitCylinderRepresentation::Outside);
-        }
       }
     }
+  }
 
   // We may add a condition to allow the camera to work IO scaling
   else if ( this->InteractionState != vtkImplicitCylinderRepresentation::Scaling )
-    {
+  {
     this->InteractionState = vtkImplicitCylinderRepresentation::Outside;
-    }
+  }
 
   return this->InteractionState;
 }
@@ -348,9 +348,9 @@ int vtkImplicitCylinderRepresentation::ComputeInteractionState(int X, int Y,
 void vtkImplicitCylinderRepresentation::SetRepresentationState(int state)
 {
   if (this->RepresentationState == state)
-    {
+  {
     return;
-    }
+  }
 
   // Clamp the state
   state = (state < vtkImplicitCylinderRepresentation::Outside ?
@@ -362,39 +362,39 @@ void vtkImplicitCylinderRepresentation::SetRepresentationState(int state)
   this->Modified();
 
   if ( state == vtkImplicitCylinderRepresentation::RotatingAxis )
-    {
+  {
     this->HighlightNormal(1);
     this->HighlightCylinder(1);
-    }
+  }
   else if ( state == vtkImplicitCylinderRepresentation::AdjustingRadius )
-    {
+  {
     this->HighlightCylinder(1);
-    }
+  }
   else if ( state == vtkImplicitCylinderRepresentation::MovingCenter )
-    {
+  {
     this->HighlightNormal(1);
-    }
+  }
   else if ( state == vtkImplicitCylinderRepresentation::MovingOutline )
-    {
+  {
     this->HighlightOutline(1);
-    }
+  }
   else if ( state == vtkImplicitCylinderRepresentation::Scaling &&
             this->ScaleEnabled )
-    {
+  {
     this->HighlightNormal(1);
     this->HighlightCylinder(1);
     this->HighlightOutline(1);
-    }
+  }
   else if ( state == vtkImplicitCylinderRepresentation::TranslatingCenter )
-    {
+  {
     this->HighlightNormal(1);
-    }
+  }
   else
-    {
+  {
     this->HighlightNormal(0);
     this->HighlightCylinder(0);
     this->HighlightOutline(0);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -419,9 +419,9 @@ void vtkImplicitCylinderRepresentation::WidgetInteraction(double e[2])
 
   vtkCamera *camera = this->Renderer->GetActiveCamera();
   if ( !camera )
-    {
+  {
     return;
-    }
+  }
 
   // Compute the two points defining the motion vector
   double pos[3];
@@ -435,31 +435,31 @@ void vtkImplicitCylinderRepresentation::WidgetInteraction(double e[2])
 
   // Process the motion
   if ( this->InteractionState == vtkImplicitCylinderRepresentation::MovingOutline )
-    {
+  {
     this->TranslateOutline(prevPickPoint, pickPoint);
-    }
+  }
   else if ( this->InteractionState == vtkImplicitCylinderRepresentation::MovingCenter )
-    {
+  {
     this->TranslateCenter(prevPickPoint, pickPoint);
-    }
+  }
   else if ( this->InteractionState == vtkImplicitCylinderRepresentation::TranslatingCenter )
-    {
+  {
     this->TranslateCenterOnAxis(prevPickPoint, pickPoint);
-    }
+  }
   else if ( this->InteractionState == vtkImplicitCylinderRepresentation::AdjustingRadius )
-    {
+  {
     this->AdjustRadius(e[0], e[1], prevPickPoint, pickPoint);
-    }
+  }
   else if ( this->InteractionState == vtkImplicitCylinderRepresentation::Scaling &&
     this->ScaleEnabled )
-    {
+  {
     this->Scale(prevPickPoint, pickPoint, e[0], e[1]);
-    }
+  }
   else if ( this->InteractionState == vtkImplicitCylinderRepresentation::RotatingAxis )
-    {
+  {
     camera->GetViewPlaneNormal(vpn);
     this->Rotate(e[0], e[1], prevPickPoint, pickPoint, vpn);
-    }
+  }
 
   this->LastEventPosition[0] = e[0];
   this->LastEventPosition[1] = e[1];
@@ -528,9 +528,9 @@ int vtkImplicitCylinderRepresentation::RenderOpaqueGeometry(vtkViewport *v)
   count += this->SphereActor->RenderOpaqueGeometry(v);
 
   if ( this->DrawCylinder )
-    {
+  {
     count += this->CylActor->RenderOpaqueGeometry(v);
-    }
+  }
 
   return count;
 }
@@ -550,9 +550,9 @@ int vtkImplicitCylinderRepresentation::RenderTranslucentPolygonalGeometry(
   count += this->SphereActor->RenderTranslucentPolygonalGeometry(v);
 
   if ( this->DrawCylinder )
-    {
+  {
     count += this->CylActor->RenderTranslucentPolygonalGeometry(v);
-    }
+  }
 
   return count;
 }
@@ -570,9 +570,9 @@ int vtkImplicitCylinderRepresentation::HasTranslucentPolygonalGeometry()
   result |= this->SphereActor->HasTranslucentPolygonalGeometry();
 
   if ( this->DrawCylinder )
-    {
+  {
     result |= this->CylActor->HasTranslucentPolygonalGeometry();
-    }
+  }
 
   return result;
 }
@@ -588,67 +588,67 @@ void vtkImplicitCylinderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Resolution: " << this->Resolution << "\n";
 
   if ( this->AxisProperty )
-    {
+  {
     os << indent << "Axis Property: " << this->AxisProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Axis Property: (none)\n";
-    }
+  }
   if ( this->SelectedAxisProperty )
-    {
+  {
     os << indent << "Selected Axis Property: "
        << this->SelectedAxisProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Selected Axis Property: (none)\n";
-    }
+  }
 
   if ( this->CylinderProperty )
-    {
+  {
     os << indent << "Cylinder Property: " << this->CylinderProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Cylinder Property: (none)\n";
-    }
+  }
   if ( this->SelectedCylinderProperty )
-    {
+  {
     os << indent << "Selected Cylinder Property: "
        << this->SelectedCylinderProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Selected Cylinder Property: (none)\n";
-    }
+  }
 
   if ( this->OutlineProperty )
-    {
+  {
     os << indent << "Outline Property: " << this->OutlineProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Outline Property: (none)\n";
-    }
+  }
   if ( this->SelectedOutlineProperty )
-    {
+  {
     os << indent << "Selected Outline Property: "
        << this->SelectedOutlineProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Selected Outline Property: (none)\n";
-    }
+  }
 
   if ( this->EdgesProperty )
-    {
+  {
     os << indent << "Edges Property: " << this->EdgesProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Edges Property: (none)\n";
-    }
+  }
 
   os << indent << "Along X Axis: "
      << (this->AlongXAxis ? "On" : "Off") << "\n";
@@ -669,8 +669,8 @@ void vtkImplicitCylinderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
      << (this->OutlineTranslation ? "On" : "Off") << "\n";
   os << indent << "Outside Bounds: "
      << (this->OutsideBounds ? "On" : "Off") << "\n";
-  os << indent << "Constrain Center: "
-     << (this->ConstrainCenter ? "On" : "Off") << "\n";
+  os << indent << "Constrain to Widget Bounds: "
+     << (this->ConstrainToWidgetBounds ? "On" : "Off") << "\n";
   os << indent << "Scale Enabled: "
      << (this->ScaleEnabled ? "On" : "Off") << "\n";
   os << indent << "Draw Cylinder: " << (this->DrawCylinder ? "On" : "Off") << "\n";
@@ -678,7 +678,7 @@ void vtkImplicitCylinderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Representation State: ";
   switch ( this->RepresentationState )
-    {
+  {
     case Outside:
       os << "Outside\n";
       break;
@@ -703,7 +703,7 @@ void vtkImplicitCylinderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     case TranslatingCenter:
       os << "TranslatingCenter\n";
       break;
-    }
+  }
 
   // this->InteractionState is printed in superclass
   // this is commented to avoid PrintSelf errors
@@ -714,21 +714,21 @@ void vtkImplicitCylinderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 void vtkImplicitCylinderRepresentation::HighlightNormal(int highlight)
 {
   if ( highlight )
-    {
+  {
     this->LineActor->SetProperty(this->SelectedAxisProperty);
     this->ConeActor->SetProperty(this->SelectedAxisProperty);
     this->LineActor2->SetProperty(this->SelectedAxisProperty);
     this->ConeActor2->SetProperty(this->SelectedAxisProperty);
     this->SphereActor->SetProperty(this->SelectedAxisProperty);
-    }
+  }
   else
-    {
+  {
     this->LineActor->SetProperty(this->AxisProperty);
     this->ConeActor->SetProperty(this->AxisProperty);
     this->LineActor2->SetProperty(this->AxisProperty);
     this->ConeActor2->SetProperty(this->AxisProperty);
     this->SphereActor->SetProperty(this->AxisProperty);
-    }
+  }
 }
 
 
@@ -736,13 +736,13 @@ void vtkImplicitCylinderRepresentation::HighlightNormal(int highlight)
 void vtkImplicitCylinderRepresentation::HighlightCylinder(int highlight)
 {
   if ( highlight )
-    {
+  {
     this->CylActor->SetProperty(this->SelectedCylinderProperty);
-    }
+  }
   else
-    {
+  {
     this->CylActor->SetProperty(this->CylinderProperty);
-    }
+  }
 }
 
 
@@ -750,13 +750,13 @@ void vtkImplicitCylinderRepresentation::HighlightCylinder(int highlight)
 void vtkImplicitCylinderRepresentation::HighlightOutline(int highlight)
 {
   if ( highlight )
-    {
+  {
     this->OutlineActor->SetProperty(this->SelectedOutlineProperty);
-    }
+  }
   else
-    {
+  {
     this->OutlineActor->SetProperty(this->OutlineProperty);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -778,9 +778,9 @@ void vtkImplicitCylinderRepresentation::Rotate(double X, double Y,
   // Create axis of rotation and angle of rotation
   vtkMath::Cross(vpn,v,axis);
   if ( vtkMath::Normalize(axis) == 0.0 )
-    {
+  {
     return;
-    }
+  }
   int *size = this->Renderer->GetSize();
   double l2 = (X-this->LastEventPosition[0])*(X-this->LastEventPosition[0]) +
     (Y-this->LastEventPosition[1])*(Y-this->LastEventPosition[1]);
@@ -907,13 +907,13 @@ void vtkImplicitCylinderRepresentation::Scale(double *p1, double *p2,
   // Compute the scale factor
   double sf = vtkMath::Norm(v) / this->Outline->GetOutput()->GetLength();
   if ( Y > this->LastEventPosition[1] )
-    {
+  {
     sf = 1.0 + sf;
-    }
+  }
   else
-    {
+  {
     sf = 1.0 - sf;
-    }
+  }
 
   this->Transform->Identity();
   this->Transform->Translate(o[0],o[1],o[2]);
@@ -944,9 +944,9 @@ void vtkImplicitCylinderRepresentation::
 AdjustRadius(double vtkNotUsed(X), double Y, double *p1, double *p2)
 {
   if ( Y == this->LastEventPosition[1] )
-    {
+  {
     return;
-    }
+  }
 
   double dr, radius = this->Cylinder->GetRadius();
   double v[3]; //vector of motion
@@ -957,9 +957,9 @@ AdjustRadius(double vtkNotUsed(X), double Y, double *p1, double *p2)
 
   dr = l / this->Outline->GetOutput()->GetLength();
   if ( Y < this->LastEventPosition[1] )
-    {
+  {
     dr *= -1.0;
-    }
+  }
 
   this->SetRadius(radius + dr);
   this->BuildRepresentation();
@@ -1046,26 +1046,26 @@ void vtkImplicitCylinderRepresentation::PlaceWidget(double bds[6])
 
   this->LineSource->SetPoint1(this->Cylinder->GetCenter());
   if ( this->AlongYAxis )
-    {
+  {
     this->Cylinder->SetAxis(0,1,0);
     this->LineSource->SetPoint2(0,1,0);
-    }
+  }
   else if ( this->AlongZAxis )
-    {
+  {
     this->Cylinder->SetAxis(0,0,1);
     this->LineSource->SetPoint2(0,0,1);
-    }
+  }
   else //default or x-normal
-    {
+  {
     this->Cylinder->SetAxis(1,0,0);
     this->LineSource->SetPoint2(1,0,0);
-    }
+  }
 
   for (i=0; i<6; i++)
-    {
+  {
     this->InitialBounds[i] = bounds[i];
     this->WidgetBounds[i] = bounds[i];
-    }
+  }
 
   this->InitialLength = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
                              (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
@@ -1091,18 +1091,6 @@ void vtkImplicitCylinderRepresentation::SetCenter(double x, double y, double z)
 // the bounding box or the cylinder tends to disappear as it hits the boundary.
 void vtkImplicitCylinderRepresentation::SetCenter(double x[3])
 {
-  double *bounds = this->Outline->GetOutput()->GetBounds();
-  for (int i=0; i<3; i++)
-    {
-    if ( x[i] <= bounds[2*i] )
-      {
-      x[i] = bounds[2*i] + FLT_EPSILON;
-      }
-    else if ( x[i] >= bounds[2*i+1] )
-      {
-      x[i] = bounds[2*i+1] - FLT_EPSILON;
-      }
-    }
   this->Cylinder->SetCenter(x);
   this->BuildRepresentation();
 }
@@ -1132,10 +1120,10 @@ void vtkImplicitCylinderRepresentation::SetAxis(double x, double y, double z)
 
   this->Cylinder->GetAxis(n2);
   if ( n[0] != n2[0] || n[1] != n2[1] || n[2] != n2[2] )
-    {
+  {
     this->Cylinder->SetAxis(n);
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1162,12 +1150,13 @@ void vtkImplicitCylinderRepresentation::GetAxis(double xyz[3])
 // Set the radius the cylinder. The radius must be a positive number.
 void vtkImplicitCylinderRepresentation::SetRadius(double radius)
 {
-  double minRadius = this->Outline->GetOutput()->GetLength() * this->MinRadius;
-  double maxRadius = this->Outline->GetOutput()->GetLength() * this->MaxRadius;
+  if (this->ConstrainToWidgetBounds)
+  {
+    double minRadius = this->Outline->GetOutput()->GetLength() * this->MinRadius;
+    double maxRadius = this->Outline->GetOutput()->GetLength() * this->MaxRadius;
 
-  radius = ( radius < minRadius ? minRadius :
-             (radius > maxRadius ? maxRadius : radius) );
-
+    radius = std::min(maxRadius, std::max(minRadius, radius));
+  }
   this->Cylinder->SetRadius(radius);
   this->BuildRepresentation();
 }
@@ -1183,9 +1172,9 @@ double vtkImplicitCylinderRepresentation::GetRadius()
 void vtkImplicitCylinderRepresentation::SetDrawCylinder(int drawCyl)
 {
   if ( drawCyl == this->DrawCylinder )
-    {
+  {
     return;
-    }
+  }
 
   this->Modified();
   this->DrawCylinder = drawCyl;
@@ -1196,45 +1185,45 @@ void vtkImplicitCylinderRepresentation::SetDrawCylinder(int drawCyl)
 void vtkImplicitCylinderRepresentation::SetAlongXAxis (int var)
 {
   if (this->AlongXAxis != var)
-    {
+  {
     this->AlongXAxis = var;
     this->Modified();
-    }
+  }
   if (var)
-    {
+  {
     this->AlongYAxisOff();
     this->AlongZAxisOff();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::SetAlongYAxis (int var)
 {
   if (this->AlongYAxis != var)
-    {
+  {
     this->AlongYAxis = var;
     this->Modified();
-    }
+  }
   if (var)
-    {
+  {
     this->AlongXAxisOff();
     this->AlongZAxisOff();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::SetAlongZAxis (int var)
 {
   if (this->AlongZAxis != var)
-    {
+  {
     this->AlongZAxis = var;
     this->Modified();
-    }
+  }
   if (var)
-    {
+  {
     this->AlongXAxisOff();
     this->AlongYAxisOff();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1247,9 +1236,9 @@ void vtkImplicitCylinderRepresentation::GetPolyData(vtkPolyData *pd)
 void vtkImplicitCylinderRepresentation::GetCylinder(vtkCylinder *cyl)
 {
   if ( cyl == NULL )
-    {
+  {
     return;
-    }
+  }
 
   cyl->SetAxis(this->Cylinder->GetAxis());
   cyl->SetCenter(this->Cylinder->GetCenter());
@@ -1279,9 +1268,9 @@ void vtkImplicitCylinderRepresentation::PushCylinder(double d)
 {
   vtkCamera *camera = this->Renderer->GetActiveCamera();
   if ( !camera )
-    {
+  {
     return;
-    }
+  }
   double vpn[3], center[3];
   camera->GetViewPlaneNormal(vpn);
   this->Cylinder->GetCenter(center);
@@ -1298,9 +1287,9 @@ void vtkImplicitCylinderRepresentation::PushCylinder(double d)
 void vtkImplicitCylinderRepresentation::BuildRepresentation()
 {
   if ( ! this->Renderer )
-    {
+  {
     return;
-    }
+  }
 
   vtkInformation *info = this->GetPropertyKeys();
   this->OutlineActor->SetPropertyKeys(info);
@@ -1314,76 +1303,82 @@ void vtkImplicitCylinderRepresentation::BuildRepresentation()
 
   if ( this->GetMTime() > this->BuildTime ||
        this->Cylinder->GetMTime() > this->BuildTime )
-    {
+  {
     double *center = this->Cylinder->GetCenter();
     double *axis = this->Cylinder->GetAxis();
 
+
+    double bounds[6];
+    std::copy(this->WidgetBounds, this->WidgetBounds + 6, bounds);
+
     double p2[3];
     if ( !this->OutsideBounds )
-      {
-      double *bounds = this->InitialBounds;
+    {
+      // restrict the center inside InitialBounds
+      double *ibounds = this->InitialBounds;
       for (int i=0; i<3; i++)
+      {
+        if ( center[i] < ibounds[2*i] )
         {
-        if ( center[i] < bounds[2*i] )
-          {
-          center[i] = bounds[2*i];
-          }
-        else if ( center[i] > bounds[2*i+1] )
-          {
-          center[i] = bounds[2*i+1];
-          }
+          center[i] = ibounds[2*i];
         }
-      if ( this->ConstrainCenter )
+        else if ( center[i] > ibounds[2*i+1] )
         {
-        bounds = this->Box->GetBounds();
+          center[i] = ibounds[2*i+1];
+        }
+      }
+    }
+
+    if ( this->ConstrainToWidgetBounds )
+    {
+      if ( !this->OutsideBounds )
+      {
+        // center cannot move outside InitialBounds. Therefore, restrict
+        // movement of the Box.
         double v[3] = { 0.0, 0.0, 0.0 };
         for (int i = 0; i < 3; ++i)
-          {
+        {
           if (center[i] <= bounds[2*i])
-            {
+          {
             v[i] = center[i] - bounds[2*i] - FLT_EPSILON;
-            }
+          }
           else if (center[i] >= bounds[2*i + 1])
-            {
+          {
             v[i] = center[i] - bounds[2*i + 1] + FLT_EPSILON;
-            }
+          }
           bounds[2*i] += v[i];
           bounds[2*i + 1] += v[i];
-          }
-        this->Box->SetOrigin(bounds[0], bounds[2], bounds[4]);
-        this->Outline->Update();
         }
       }
 
-    if ( !this->ConstrainCenter )
-      {
-      double offset = this->Cylinder->GetRadius() * 1.2;
-      double boxBounds[6];
+      // restrict center inside bounds
       for (int i = 0; i < 3; ++i)
-        {
-        boxBounds[2*i] = vtkMath::Min(center[i] - offset, this->WidgetBounds[2*i]);
-        boxBounds[2*i + 1] = vtkMath::Max(center[i] + offset, this->WidgetBounds[2*i + 1]);
-        }
-      this->Box->SetOrigin(boxBounds[0], boxBounds[2], boxBounds[4]);
-      this->Box->SetSpacing(boxBounds[1]-boxBounds[0], boxBounds[3]-boxBounds[2],
-                            boxBounds[5]-boxBounds[4]);
-      this->Outline->Update();
-      }
-    else
       {
-      double *bounds = this->Box->GetBounds();
-      for (int i = 0; i < 3; ++i)
-        {
         if (center[i] <= bounds[2*i])
-          {
+        {
           center[i] = bounds[2*i] + FLT_EPSILON;
-          }
+        }
         if (center[i] >= bounds[2*i + 1])
-          {
+        {
           center[i] = bounds[2*i + 1] - FLT_EPSILON;
-          }
         }
       }
+    }
+    else // cylinder can move freely, adjust the bounds to change with it
+    {
+      double offset = this->Cylinder->GetRadius() * 1.2;
+      for (int i = 0; i < 3; ++i)
+      {
+        bounds[2*i] = vtkMath::Min(center[i] - offset, this->WidgetBounds[2*i]);
+        bounds[2*i + 1] = vtkMath::Max(center[i] + offset, this->WidgetBounds[2*i + 1]);
+      }
+    }
+
+    this->Box->SetOrigin(bounds[0],bounds[2],bounds[4]);
+    this->Box->SetSpacing((bounds[1]-bounds[0]),(bounds[3]-bounds[2]),
+                          (bounds[5]-bounds[4]));
+    this->Outline->Update();
+
 
     // Setup the cylinder axis
     double d = this->Outline->GetOutput()->GetLength();
@@ -1411,22 +1406,22 @@ void vtkImplicitCylinderRepresentation::BuildRepresentation()
 
     // Control the look of the edges
     if ( this->Tubing )
-      {
+    {
       this->EdgesMapper->SetInputConnection(
         this->EdgesTuber->GetOutputPort());
-      }
+    }
     else
-      {
+    {
       this->EdgesMapper->SetInputConnection(
         this->Edges->GetOutputPort());
-      }
+    }
 
     // Construct intersected cylinder
     this->BuildCylinder();
 
     this->SizeHandles();
     this->BuildTime.Modified();
-    }
+  }
 
 }
 
@@ -1472,16 +1467,16 @@ void vtkImplicitCylinderRepresentation::BuildCylinder()
   int i;
   double n1[3], n2[3];
   for (i=0; i<3; i++)
-    {
+  {
     // a little trick to find an othogonal normal
     if ( axis[i] != 0.0 )
-      {
+    {
       n1[(i+2)%3] = 0.0;
       n1[(i+1)%3] = 1.0;
       n1[i] = -axis[(i+1)%3]/axis[i];
       break;
-      }
     }
+  }
   vtkMath::Normalize(n1);
   vtkMath::Cross(axis,n1,n2);
 
@@ -1495,23 +1490,23 @@ void vtkImplicitCylinderRepresentation::BuildCylinder()
   double x[3], n[3], theta;
   double v[3]; v[0] = d*axis[0]; v[1] = d*axis[1]; v[2] = d*axis[2];
   for (pid=0; pid < res; ++pid)
-    {
+  {
     theta = static_cast<double>(pid)/static_cast<double>(res) * 2.0*vtkMath::Pi();
     for (i=0; i<3; ++i)
-      {
+    {
       n[i] = n1[i]*cos(theta) + n2[i]*sin(theta);
       x[i] = center[i] + radius*n[i] + v[i];
-      }
+    }
     pts->SetPoint(pid,x);
     normals->SetTuple(pid,n);
 
     for (i=0; i<3; ++i)
-      {
+    {
       x[i] = center[i] + radius*n[i] - v[i];
-      }
+    }
     pts->SetPoint(res+pid,x);
     normals->SetTuple(res+pid,n);
-    }
+  }
 
   // Now trim the cylinder against the bounding box. Mark edges that do not
   // intersect the bounding box.
@@ -1520,35 +1515,35 @@ void vtkImplicitCylinderRepresentation::BuildCylinder()
   double *bounds = this->Outline->GetOutput()->GetBounds();
   int plane1, plane2;
   for (pid=0; pid < res; ++pid)
-    {
+  {
     pts->GetPoint(pid,x1);
     pts->GetPoint(pid+res,x2);
     if ( ! vtkBox::IntersectWithLine(bounds,x1,x2,t1,t2,p1,p2,plane1,plane2) )
-      {
+    {
       edgeInside[pid] = false;
-      }
+    }
     else
-      {
+    {
       edgeInside[pid] = true;
       pts->SetPoint(pid,p1);
       pts->SetPoint(pid+res,p2);
-      }
     }
+  }
 
   // Create polygons around cylinder. Make sure the edges of the polygon
   // are inside the widget's bounding box.
   vtkIdType ptIds[4];
   for (pid=0; pid < res; ++pid)
-    {
+  {
     if ( edgeInside[pid] && edgeInside[(pid+1)%res] )
-      {
+    {
       ptIds[0] = pid;
       ptIds[3] = (pid + 1) % res;
       ptIds[1] = ptIds[0] + res;
       ptIds[2] = ptIds[3] + res;
       polys->InsertNextCell(4,ptIds);
-      }
     }
+  }
   polys->Modified();
 }
 

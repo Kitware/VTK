@@ -3,13 +3,6 @@ if("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
   list(APPEND __priv_deps vtkglew)
 endif()
 vtk_module(vtkRenderingParallel
-  DEPENDS
-    vtkParallelCore
-    vtkFiltersParallel
-    vtkRendering${VTK_RENDERING_BACKEND}
-  PRIVATE_DEPENDS
-    vtkIOImage
-    ${__priv_deps}
   TEST_DEPENDS
     vtkParallelMPI
     vtkFiltersParallelMPI
@@ -20,4 +13,17 @@ vtk_module(vtkRenderingParallel
     vtkTestingCore
   KIT
     vtkParallel
+  DEPENDS
+    vtkCommonCore
+    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingCore
+  PRIVATE_DEPENDS
+    ${__priv_deps}
+    vtkCommonDataModel
+    vtkCommonMath
+    vtkCommonSystem
+    vtkFiltersParallel
+    vtkIOImage
+    vtkImagingCore
+    vtkParallelCore
   )

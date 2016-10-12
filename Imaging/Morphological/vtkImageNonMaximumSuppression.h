@@ -12,15 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageNonMaximumSuppression - Performs non-maximum suppression
-// .SECTION Description
-// vtkImageNonMaximumSuppression Sets to zero any pixel that is not a peak.
-// If a pixel has a neighbor along the vector that has larger magnitude, the
-// smaller pixel is set to zero.  The filter takes two inputs: a magnitude
-// and a vector.  Output is magnitude information and is always in doubles.
-// Typically this filter is used with vtkImageGradient and
-// vtkImageGradientMagnitude as inputs.
-
+/**
+ * @class   vtkImageNonMaximumSuppression
+ * @brief   Performs non-maximum suppression
+ *
+ * vtkImageNonMaximumSuppression Sets to zero any pixel that is not a peak.
+ * If a pixel has a neighbor along the vector that has larger magnitude, the
+ * smaller pixel is set to zero.  The filter takes two inputs: a magnitude
+ * and a vector.  Output is magnitude information and is always in doubles.
+ * Typically this filter is used with vtkImageGradient and
+ * vtkImageGradientMagnitude as inputs.
+*/
 
 #ifndef vtkImageNonMaximumSuppression_h
 #define vtkImageNonMaximumSuppression_h
@@ -39,22 +41,31 @@ public:
   vtkTypeMacro(vtkImageNonMaximumSuppression,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the magnitude and vector inputs.
+  //@{
+  /**
+   * Set the magnitude and vector inputs.
+   */
   void SetMagnitudeInputData(vtkImageData *input) {this->SetInputData(0,input);};
   void SetVectorInputData(vtkImageData *input) {this->SetInputData(1,input);};
+  //@}
 
-  // Description:
-  // If "HandleBoundariesOn" then boundary pixels are duplicated
-  // So central differences can get values.
+  //@{
+  /**
+   * If "HandleBoundariesOn" then boundary pixels are duplicated
+   * So central differences can get values.
+   */
   vtkSetMacro(HandleBoundaries, int);
   vtkGetMacro(HandleBoundaries, int);
   vtkBooleanMacro(HandleBoundaries, int);
+  //@}
 
-  // Description:
-  // Determines how the input is interpreted (set of 2d slices or a 3D volume)
+  //@{
+  /**
+   * Determines how the input is interpreted (set of 2d slices or a 3D volume)
+   */
   vtkSetClampMacro(Dimensionality,int,2,3);
   vtkGetMacro(Dimensionality,int);
+  //@}
 
 protected:
   vtkImageNonMaximumSuppression();
@@ -79,8 +90,8 @@ protected:
                                    int extent[6], int threadId);
 
 private:
-  vtkImageNonMaximumSuppression(const vtkImageNonMaximumSuppression&);  // Not implemented.
-  void operator=(const vtkImageNonMaximumSuppression&);  // Not implemented.
+  vtkImageNonMaximumSuppression(const vtkImageNonMaximumSuppression&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageNonMaximumSuppression&) VTK_DELETE_FUNCTION;
 };
 
 #endif

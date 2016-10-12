@@ -64,32 +64,40 @@ void vtkOSPRayCompositePolyDataMapper2Node::PrintSelf(ostream& os, vtkIndent ind
   this->Superclass::PrintSelf(os, indent);
 }
 
+//----------------------------------------------------------------------------
+void vtkOSPRayCompositePolyDataMapper2Node::Invalidate(bool prepass)
+{
+  if (prepass)
+  {
+      this->RenderTime = 0;
+  }
+}
 
 //----------------------------------------------------------------------------
 void vtkOSPRayCompositePolyDataMapper2Node::Render(bool prepass)
 {
   if (prepass)
-    {
+  {
     // we use a lot of params from our parent
     vtkOSPRayActorNode *aNode = vtkOSPRayActorNode::SafeDownCast(this->Parent);
     vtkActor *act = vtkActor::SafeDownCast(aNode->GetRenderable());
 
     if (act->GetVisibility() == false)
-      {
+    {
       return;
-      }
+    }
 
     vtkOSPRayRendererNode *orn =
       static_cast<vtkOSPRayRendererNode *>(
         this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
 
     //if there are no changes, just reuse last result
-    unsigned long inTime = aNode->GetMTime();
+    vtkMTimeType inTime = aNode->GetMTime();
     if (this->RenderTime >= inTime)
-      {
+    {
       this->AddMeshesToModel(orn->GetOModel());
       return;
-      }
+    }
 
     this->RenderTime = inTime;
 
@@ -111,13 +119,13 @@ void vtkOSPRayCompositePolyDataMapper2Node::Render(bool prepass)
       vtkCompositePolyDataMapper2::SafeDownCast(act->GetMapper());
     vtkDataObject * dobj = NULL;
     if (cpdm)
-      {
+    {
       dobj = cpdm->GetInputDataObject(0, 0);
       if (dobj)
-        {
+      {
         this->RenderBlock(orn, cpdm, act, dobj, flat_index);
-        }
       }
+    }
 
     this->BlockState.Visibility.pop();
     this->BlockState.Opacity.pop();
@@ -146,24 +154,24 @@ void vtkOSPRayCompositePolyDataMapper2Node::RenderBlock(
 
   bool overrides_visibility = (cda && cda->HasBlockVisibility(flat_index));
   if (overrides_visibility)
-    {
+  {
     this->BlockState.Visibility.push(cda->GetBlockVisibility(flat_index));
-    }
+  }
 
   bool overrides_opacity = (cda && cda->HasBlockOpacity(flat_index));
   if (overrides_opacity)
-    {
+  {
     this->BlockState.Opacity.push(cda->GetBlockOpacity(flat_index));
-    }
+  }
 
   bool overrides_color = (cda && cda->HasBlockColor(flat_index));
   if (overrides_color)
-    {
+  {
     vtkColor3d color = cda->GetBlockColor(flat_index);
     this->BlockState.AmbientColor.push(color);
     this->BlockState.DiffuseColor.push(color);
     this->BlockState.SpecularColor.push(color);
-    }
+  }
 
   // Advance flat-index. After this point, flat_index no longer points to this
   // block.
@@ -172,29 +180,29 @@ void vtkOSPRayCompositePolyDataMapper2Node::RenderBlock(
   vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(dobj);
   vtkMultiPieceDataSet *mpds = vtkMultiPieceDataSet::SafeDownCast(dobj);
   if (mbds || mpds)
-    {
+  {
     unsigned int numChildren = mbds? mbds->GetNumberOfBlocks() :
       mpds->GetNumberOfPieces();
     for (unsigned int cc=0 ; cc < numChildren; cc++)
-      {
+    {
       vtkDataObject* child = mbds ? mbds->GetBlock(cc) : mpds->GetPiece(cc);
       if (child == NULL)
-        {
+      {
         // speeds things up when dealing with NULL blocks (which is common with
         // AMRs).
         flat_index++;
         continue;
-        }
-      this->RenderBlock(orn, cpdm, actor, child, flat_index);
       }
+      this->RenderBlock(orn, cpdm, actor, child, flat_index);
     }
+  }
   else if (dobj && this->BlockState.Visibility.top() == true && this->BlockState.Opacity.top() > 0.0)
-    {
+  {
     // do we have a entry for this dataset?
     // make sure we have an entry for this dataset
     vtkPolyData *ds = vtkPolyData::SafeDownCast(dobj);
     if (ds)
-      {
+    {
       vtkOSPRayActorNode *aNode = vtkOSPRayActorNode::SafeDownCast(this->Parent);
       vtkColor3d &aColor = this->BlockState.AmbientColor.top();
       vtkColor3d &dColor = this->BlockState.DiffuseColor.top();
@@ -205,21 +213,21 @@ void vtkOSPRayCompositePolyDataMapper2Node::RenderBlock(
         aColor.GetData(),
         dColor.GetData(),
         this->BlockState.Opacity.top());
-      }
     }
+  }
 
   if (overrides_color)
-    {
+  {
     this->BlockState.AmbientColor.pop();
     this->BlockState.DiffuseColor.pop();
     this->BlockState.SpecularColor.pop();
-    }
+  }
   if (overrides_opacity)
-    {
+  {
     this->BlockState.Opacity.pop();
-    }
+  }
   if (overrides_visibility)
-    {
+  {
     this->BlockState.Visibility.pop();
-    }
+  }
 }

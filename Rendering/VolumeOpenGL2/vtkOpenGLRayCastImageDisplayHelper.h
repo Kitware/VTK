@@ -13,13 +13,16 @@
 
 =========================================================================*/
 
-// .NAME vtkOpenGLRayCastImageDisplayHelper - OpenGL subclass that draws the image to the screen
-// .SECTION Description
-// This is the concrete implementation of a ray cast image display helper -
-// a helper class responsible for drawing the image to the screen.
-
-// .SECTION see also
-// vtkRayCastImageDisplayHelper
+/**
+ * @class   vtkOpenGLRayCastImageDisplayHelper
+ * @brief   OpenGL subclass that draws the image to the screen
+ *
+ * This is the concrete implementation of a ray cast image display helper -
+ * a helper class responsible for drawing the image to the screen.
+ *
+ * @sa
+ * vtkRayCastImageDisplayHelper
+*/
 
 #ifndef vtkOpenGLRayCastImageDisplayHelper_h
 #define vtkOpenGLRayCastImageDisplayHelper_h
@@ -40,7 +43,7 @@ class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLRayCastImageDisplayHelper
 public:
   static vtkOpenGLRayCastImageDisplayHelper *New();
   vtkTypeMacro(vtkOpenGLRayCastImageDisplayHelper,vtkRayCastImageDisplayHelper);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   void RenderTexture( vtkVolume *vol, vtkRenderer *ren,
                       int imageMemorySize[2],
@@ -84,8 +87,8 @@ protected:
 
 
 private:
-  vtkOpenGLRayCastImageDisplayHelper(const vtkOpenGLRayCastImageDisplayHelper&);  // Not implemented.
-  void operator=(const vtkOpenGLRayCastImageDisplayHelper&);  // Not implemented.
+  vtkOpenGLRayCastImageDisplayHelper(const vtkOpenGLRayCastImageDisplayHelper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLRayCastImageDisplayHelper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

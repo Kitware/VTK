@@ -12,12 +12,15 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCocoaMacOSXSDKCompatibility - Compatibility header
-// .SECTION Description
-// VTK requires the Mac OS X 10.6 SDK or later.
-// However, this file is meant to allow us to use features from newer
-// SDKs by adding workarounds to still support the minimum SDK.
-// It is safe to include this header multiple times.
+/**
+ * @class   vtkCocoaMacOSXSDKCompatibility
+ * @brief   Compatibility header
+ *
+ * VTK requires the Mac OS X 10.6 SDK or later.
+ * However, this file is meant to allow us to use features from newer
+ * SDKs by adding workarounds to still support the minimum SDK.
+ * It is safe to include this header multiple times.
+*/
 
 #include <AvailabilityMacros.h>
 
@@ -32,6 +35,25 @@ PURPOSE.  See the above copyright notice for more information.
 // __has_feature is new in the 10.7 SDK, define it here if it's not yet defined.
 #ifndef __has_feature
   #define __has_feature(x) 0
+#endif
+
+#if (MAC_OS_X_VERSION_MAX_ALLOWED < 101200) && !defined(VTK_DONT_MAP_10_12_ENUMS)
+  // The 10.12 SDK made a bunch of enum names more logical, map old names to new names to continue supporting old SDKs.
+  #define NSWindowStyleMaskBorderless NSBorderlessWindowMask
+  #define NSWindowStyleMaskTitled NSTitledWindowMask
+  #define NSWindowStyleMaskClosable NSClosableWindowMask
+  #define NSWindowStyleMaskMiniaturizable NSMiniaturizableWindowMask
+  #define NSWindowStyleMaskResizable NSResizableWindowMask
+
+  #define NSEventModifierFlagShift NSShiftKeyMask
+  #define NSEventModifierFlagControl NSControlKeyMask
+  #define NSEventModifierFlagOption NSAlternateKeyMask
+  #define NSEventModifierFlagCommand NSCommandKeyMask
+
+  #define NSEventTypeKeyDown NSKeyDown
+  #define NSEventTypeKeyUp NSKeyUp
+  #define NSEventTypeApplicationDefined NSApplicationDefined
+  #define NSEventTypeFlagsChanged NSFlagsChanged
 #endif
 
 // Create handy #defines that indicate the Objective-C memory management model.

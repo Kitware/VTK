@@ -34,11 +34,11 @@ vtkTransformToGrid::vtkTransformToGrid()
   this->GridScalarType = VTK_FLOAT;
 
   for (int i = 0; i < 3; i++)
-    {
+  {
     this->GridExtent[2*i] = this->GridExtent[2*i+1] = 0;
     this->GridOrigin[i] = 0.0;
     this->GridSpacing[i] = 1.0;
-    }
+  }
 
   this->DisplacementScale = 1.0;
   this->DisplacementShift = 0.0;
@@ -63,23 +63,23 @@ void vtkTransformToGrid::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "GridSpacing: (" << this->GridSpacing[0];
   for (i = 1; i < 3; ++i)
-    {
+  {
     os << ", " << this->GridSpacing[i];
-    }
+  }
   os << ")\n";
 
   os << indent << "GridOrigin: (" << this->GridOrigin[0];
   for (i = 1; i < 3; ++i)
-    {
+  {
     os << ", " << this->GridOrigin[i];
-    }
+  }
   os << ")\n";
 
   os << indent << "GridExtent: (" << this->GridExtent[0];
   for (i = 1; i < 6; ++i)
-    {
+  {
     os << ", " << this->GridExtent[i];
-    }
+  }
   os << ")\n";
 
   os << indent << "GridScalarType: " <<
@@ -103,10 +103,10 @@ void vtkTransformToGrid::RequestInformation (
 
 
   if (this->GetInput() == NULL)
-    {
+  {
     vtkErrorMacro("Missing input");
     return;
-    }
+  }
 
   // update the transform, maybe in the future make transforms part of the
   // pipeline
@@ -130,11 +130,11 @@ static void vtkTransformToGridMinMax(vtkTransformToGrid *self, int extent[6],
   transform->Update();
 
   if (!transform)
-    {
+  {
     minDisplacement = -1.0;
     maxDisplacement = +1.0;
     return;
-    }
+  }
 
   double *spacing = self->GetGridSpacing();
   double *origin = self->GetGridOrigin();
@@ -145,34 +145,34 @@ static void vtkTransformToGridMinMax(vtkTransformToGrid *self, int extent[6],
   double point[3],newPoint[3],displacement;
 
   for (int k = extent[4]; k <= extent[5]; k++)
-    {
+  {
     point[2] = k*spacing[2] + origin[2];
     for (int j = extent[2]; j <= extent[3]; j++)
-      {
+    {
       point[1] = j*spacing[1] + origin[1];
       for (int i = extent[0]; i <= extent[1]; i++)
-        {
+      {
         point[0] = i*spacing[0] + origin[0];
 
         transform->InternalTransformPoint(point,newPoint);
 
         for (int l = 0; l < 3; l++)
-          {
+        {
           displacement = newPoint[l] - point[l];
 
           if (displacement > maxDisplacement)
-            {
+          {
             maxDisplacement = displacement;
-            }
+          }
 
           if (displacement < minDisplacement)
-            {
+          {
             minDisplacement = displacement;
-            }
           }
         }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -182,20 +182,20 @@ void vtkTransformToGrid::UpdateShiftScale()
 
   // nothing to do for double or float
   if (gridType == VTK_DOUBLE || gridType == VTK_FLOAT)
-    {
+  {
     this->DisplacementShift = 0.0;
     this->DisplacementScale = 1.0;
     vtkDebugMacro(<< "displacement (scale, shift) = (" <<
                   this->DisplacementScale << ", " <<
                   this->DisplacementShift << ")");
     return;
-    }
+  }
 
   // check mtime
   if (this->ShiftScaleTime.GetMTime() > this->GetMTime())
-    {
+  {
     return;
-    }
+  }
 
   // get the maximum displacement
   double minDisplacement, maxDisplacement;
@@ -209,7 +209,7 @@ void vtkTransformToGrid::UpdateShiftScale()
   double typeMin,typeMax;
 
   switch (gridType)
-    {
+  {
     case VTK_SHORT:
       typeMin = VTK_SHORT_MIN;
       typeMax = VTK_SHORT_MAX;
@@ -229,7 +229,7 @@ void vtkTransformToGrid::UpdateShiftScale()
     default:
       vtkErrorMacro(<< "UpdateShiftScale: Unknown input ScalarType");
       return;
-    }
+  }
 
   this->DisplacementScale = ((maxDisplacement - minDisplacement)/
                              (typeMax - typeMin));
@@ -237,9 +237,9 @@ void vtkTransformToGrid::UpdateShiftScale()
                              (typeMax - typeMin));
 
   if (this->DisplacementScale == 0.0)
-    {
+  {
     this->DisplacementScale = 1.0;
-    }
+  }
 
   vtkDebugMacro(<< "displacement (scale, shift) = (" <<
                 this->DisplacementScale << ", " <<
@@ -290,10 +290,10 @@ void vtkTransformToGridExecute(vtkTransformToGrid *self,
   vtkAbstractTransform *transform = self->GetInput();
   int isIdentity = 0;
   if (transform == 0)
-    {
+  {
     transform = vtkIdentityTransform::New();
     isIdentity = 1;
-    }
+  }
 
   double *spacing = grid->GetSpacing();
   double *origin = grid->GetOrigin();
@@ -312,27 +312,27 @@ void vtkTransformToGridExecute(vtkTransformToGrid *self,
   target++;
 
   for (int k = extent[4]; k <= extent[5]; k++)
-    {
+  {
     point[2] = k*spacing[2] + origin[2];
     T *gridPtr1 = gridPtr0;
 
     for (int j = extent[2]; j <= extent[3]; j++)
-      {
+    {
 
       if (id == 0)
-        {
+      {
         if (count % target == 0)
-          {
+        {
           self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
         }
+        count++;
+      }
 
       point[1] = j*spacing[1] + origin[1];
       gridPtr = gridPtr1;
 
       for (int i = extent[0]; i <= extent[1]; i++)
-        {
+      {
         point[0] = i*spacing[0] + origin[0];
 
         transform->InternalTransformPoint(point,newPoint);
@@ -340,18 +340,18 @@ void vtkTransformToGridExecute(vtkTransformToGrid *self,
         vtkGridRound((newPoint[0] - point[0] - shift)*invScale,*gridPtr++);
         vtkGridRound((newPoint[1] - point[1] - shift)*invScale,*gridPtr++);
         vtkGridRound((newPoint[2] - point[2] - shift)*invScale,*gridPtr++);
-        }
-
-      gridPtr1 += increments[1];
       }
 
-    gridPtr0 += increments[2];
+      gridPtr1 += increments[1];
     }
 
+    gridPtr0 += increments[2];
+  }
+
   if (isIdentity)
-    {
+  {
     transform->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -381,7 +381,7 @@ void vtkTransformToGrid::RequestData(
   int id = 0;
 
   switch (gridType)
-    {
+  {
     case VTK_DOUBLE:
       vtkTransformToGridExecute(this, grid, (double *)(gridPtr), extent,
                                 shift,scale,id);
@@ -408,22 +408,22 @@ void vtkTransformToGrid::RequestData(
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkTransformToGrid::GetMTime()
+vtkMTimeType vtkTransformToGrid::GetMTime()
 {
-  unsigned long mtime = this->Superclass::GetMTime();
+  vtkMTimeType mtime = this->Superclass::GetMTime();
 
   if (this->Input)
-    {
-    unsigned long mtime2 = this->Input->GetMTime();
+  {
+    vtkMTimeType mtime2 = this->Input->GetMTime();
     if (mtime2 > mtime)
-      {
+    {
       mtime = mtime2;
-      }
     }
+  }
 
   return mtime;
 }
@@ -435,37 +435,37 @@ int vtkTransformToGrid::ProcessRequest(vtkInformation* request,
 {
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
+  {
     this->RequestData(request, inputVector, outputVector);
     return 1;
-    }
+  }
 
   // execute information
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
+  {
     this->RequestInformation(request, inputVector, outputVector);
     // after executing set the origin and spacing from the
     // info
     int i;
     for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
-      {
+    {
       vtkInformation* info = outputVector->GetInformationObject(i);
       vtkImageData *output =
         vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
       // if execute info didn't set origin and spacing then we set them
       if (!info->Has(vtkDataObject::ORIGIN()))
-        {
+      {
         info->Set(vtkDataObject::ORIGIN(),0,0,0);
         info->Set(vtkDataObject::SPACING(),1,1,1);
-        }
+      }
       if (output)
-        {
+      {
         output->SetOrigin(info->Get(vtkDataObject::ORIGIN()));
         output->SetSpacing(info->Get(vtkDataObject::SPACING()));
-        }
       }
-    return 1;
     }
+    return 1;
+  }
 
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }

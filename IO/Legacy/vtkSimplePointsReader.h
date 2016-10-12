@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSimplePointsReader - Read a list of points from a file.
-// .SECTION Description
-// vtkSimplePointsReader is a source object that reads a list of
-// points from a file.  Each point is specified by three
-// floating-point values in ASCII format.  There is one point per line
-// of the file.  A vertex cell is created for each point in the
-// output.  This reader is meant as an example of how to write a
-// reader in VTK.
+/**
+ * @class   vtkSimplePointsReader
+ * @brief   Read a list of points from a file.
+ *
+ * vtkSimplePointsReader is a source object that reads a list of
+ * points from a file.  Each point is specified by three
+ * floating-point values in ASCII format.  There is one point per line
+ * of the file.  A vertex cell is created for each point in the
+ * output.  This reader is meant as an example of how to write a
+ * reader in VTK.
+*/
 
 #ifndef vtkSimplePointsReader_h
 #define vtkSimplePointsReader_h
@@ -34,10 +37,13 @@ public:
   vtkTypeMacro(vtkSimplePointsReader,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set/Get the name of the file from which to read points.
+  //@{
+  /**
+   * Set/Get the name of the file from which to read points.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
 protected:
   vtkSimplePointsReader();
@@ -49,8 +55,8 @@ protected:
                   vtkInformationVector**,
                   vtkInformationVector*);
 private:
-  vtkSimplePointsReader(const vtkSimplePointsReader&);  // Not implemented.
-  void operator=(const vtkSimplePointsReader&);  // Not implemented.
+  vtkSimplePointsReader(const vtkSimplePointsReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSimplePointsReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

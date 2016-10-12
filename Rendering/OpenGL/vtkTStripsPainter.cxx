@@ -48,29 +48,29 @@ vtkTStripsPainter::~vtkTStripsPainter()
   vtkIdType nPts; unsigned short count = 0; \
   glInitFuncs \
   while (ptIds < endPtIds) \
-    { \
+  { \
     nPts = *ptIds; \
     ++ptIds; \
     device->BeginPrimitive(prim);\
     glCellFuncs \
     while (nPts > 0) \
-      { \
+    { \
       glVertFuncs \
       ++ptIds; \
       --nPts; \
-      } \
+    } \
     if (++count == 10000) \
-      { \
+    { \
       cellNum += 10000; \
       count = 0; \
       this->UpdateProgress(static_cast<double>(cellNum-cellNumStart)/totalCells); \
       if (ren->GetRenderWindow()->CheckAbortStatus()) \
-        { \
+      { \
         break; \
-        } \
       } \
-      device->EndPrimitive(); \
     } \
+      device->EndPrimitive(); \
+  } \
   cellNum += count; \
 }
 
@@ -80,15 +80,15 @@ vtkTStripsPainter::~vtkTStripsPainter()
 if ( vcount > 2) \
 { \
   if (vcount % 2) \
-    { \
+  { \
     normIdx[0] = ptIds[-2]; normIdx[1] = ptIds[0]; normIdx[2] = ptIds[-1]; \
     vtkTriangle::ComputeNormal(p, 3, normIdx, polyNorm); \
-    } \
+  } \
   else \
-    { \
+  { \
     normIdx[0] = ptIds[-2]; normIdx[1] = ptIds[-1]; normIdx[2] = ptIds[0]; \
     vtkTriangle::ComputeNormal(p, 3, normIdx, polyNorm); \
-    } \
+  } \
   device->SendAttribute(vtkPointData::NORMALS, 3,\
     VTK_DOUBLE, polyNorm); \
 } \
@@ -124,21 +124,21 @@ int vtkTStripsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
   int rep = VTK_TRIANGLE_STRIP;
 
   if (ca->GetNumberOfCells() == 0)
-    {
+  {
     return 1;
-    }
+  }
   if (n)
-    {
+  {
     normals = n->GetVoidPointer(0);
-    }
+  }
   if (c)
-    {
+  {
     colors = c->GetPointer(0);
-    }
+  }
   if (t)
-    {
+  {
     tcoords = t->GetVoidPointer(0);
-    }
+  }
   vtkIdType *ptIds = ca->GetPointer();
   vtkIdType *endPtIds = ptIds + ca->GetNumberOfConnectivityEntries();
 
@@ -152,23 +152,23 @@ int vtkTStripsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
 
   // draw all the elements, use fast path if available
   switch (idx)
-    {
+  {
   case 0:
     if (this->BuildNormals)
-      {
+    {
       vtkDrawPolysMacro(rep,
         TStripNormal;
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
           ptype, points, 3**ptIds);,
         TStripNormalStart,;);
-      }
+    }
     else
-      {
+    {
       vtkDrawPolysMacro(rep,
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
           ptype, points, 3**ptIds);,
         ;,;);
-      }
+    }
     break;
   case VTK_PDM_NORMALS:
     vtkDrawPolysMacro(rep,
@@ -179,7 +179,7 @@ int vtkTStripsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
     break;
   case VTK_PDM_COLORS:
     if (this->BuildNormals)
-      {
+    {
       vtkDrawPolysMacro(rep,
         TStripNormal
         device->SendAttribute(vtkPointData::SCALARS, 4,
@@ -187,20 +187,20 @@ int vtkTStripsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
           ptype, points, 3**ptIds);,
         TStripNormalStart,;);
-      }
+    }
     else
-      {
+    {
       vtkDrawPolysMacro(rep,
         device->SendAttribute(vtkPointData::SCALARS, 4,
           VTK_UNSIGNED_CHAR, colors + (*ptIds<<2));
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
           ptype, points, 3**ptIds);,
         ;,;);
-      }
+    }
     break;
   case VTK_PDM_COLORS  | VTK_PDM_OPAQUE_COLORS:
     if (this->BuildNormals)
-      {
+    {
 
       vtkDrawPolysMacro(rep,
         TStripNormal
@@ -210,16 +210,16 @@ int vtkTStripsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
           ptype, points, 3**ptIds);,
         TStripNormalStart,;);
 
-      }
+    }
     else
-      {
+    {
       vtkDrawPolysMacro(rep,
         device->SendAttribute(vtkPointData::SCALARS, 3,
           VTK_UNSIGNED_CHAR, colors + (*ptIds<<2));
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
           ptype, points, 3**ptIds);,
         ;,;);
-      }
+    }
     break;
   case VTK_PDM_NORMALS | VTK_PDM_COLORS:
     vtkDrawPolysMacro(rep,
@@ -250,7 +250,7 @@ int vtkTStripsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
     break;
   case VTK_PDM_COLORS | VTK_PDM_TCOORDS:
     if (this->BuildNormals)
-      {
+    {
       vtkDrawPolysMacro(rep,
         TStripNormal
         device->SendAttribute(vtkPointData::TCOORDS, tcomps,
@@ -260,9 +260,9 @@ int vtkTStripsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
           ptype, points, 3**ptIds);,
         TStripNormalStart,;);
-      }
+    }
     else
-      {
+    {
       vtkDrawPolysMacro(rep,
         device->SendAttribute(vtkPointData::TCOORDS, tcomps,
           ttype, tcoords, tcomps**ptIds);
@@ -271,11 +271,11 @@ int vtkTStripsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
           ptype, points, 3**ptIds);,
         ;,;);
-      }
+    }
     break;
   case VTK_PDM_COLORS | VTK_PDM_OPAQUE_COLORS | VTK_PDM_TCOORDS:
     if (this->BuildNormals)
-      {
+    {
       vtkDrawPolysMacro(rep,
         TStripNormal
         device->SendAttribute(vtkPointData::TCOORDS, tcomps,
@@ -285,9 +285,9 @@ int vtkTStripsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
           ptype, points, 3**ptIds);,
         TStripNormalStart,;);
-      }
+    }
     else
-      {
+    {
       vtkDrawPolysMacro(rep,
         device->SendAttribute(vtkPointData::TCOORDS, tcomps,
           ttype, tcoords, tcomps**ptIds);
@@ -296,7 +296,7 @@ int vtkTStripsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
           ptype, points, 3**ptIds);,
         ;,;);
-      }
+    }
     break;
   case VTK_PDM_NORMALS | VTK_PDM_COLORS | VTK_PDM_TCOORDS:
     vtkDrawPolysMacro(rep,
@@ -323,7 +323,7 @@ int vtkTStripsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
     break;
   default:
     return 0; // let delegate painter process this render.
-    }
+  }
   return 1;
 }
 

@@ -1,4 +1,5 @@
 set(Module_SRCS
+  vtkAdaptiveSubdivisionFilter.cxx
   vtkBandedPolyDataContourFilter.cxx
   vtkButterflySubdivisionFilter.cxx
   vtkDijkstraGraphGeodesicPath.cxx
@@ -22,6 +23,7 @@ set(Module_SRCS
   vtkSubdivideTetra.cxx
   vtkOutlineFilter.cxx
   vtkSectorSource.cxx
+  vtkVolumeOfRevolutionFilter.cxx
   )
 
 set_source_files_properties(

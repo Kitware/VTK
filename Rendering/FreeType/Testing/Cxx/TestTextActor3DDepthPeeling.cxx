@@ -68,13 +68,13 @@ int TestTextActor3DDepthPeeling(int argc, char* argv[])
 
   renWin->Render();
   if(renderer->GetLastRenderingUsedDepthPeeling())
-    {
+  {
     cout<<"depth peeling was used"<<endl;
-    }
+  }
   else
-    {
+  {
     cout<<"depth peeling was not used (alpha blending instead)"<<endl;
-    }
+  }
 
   renderer->ResetCamera();
 
@@ -82,9 +82,9 @@ int TestTextActor3DDepthPeeling(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Cleanup
   iren->Delete();

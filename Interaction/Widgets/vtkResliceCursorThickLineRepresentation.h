@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkResliceCursorThickLineRepresentation - represents a thick slab of the reslice cursor widget
-// .SECTION Description
-// This class respresents a thick reslice cursor, that can be used to
-// perform interactive thick slab MPR's through data. The class internally
-// uses vtkImageSlabReslice to do its reslicing. The slab thickness is set
-// interactively from the widget. The slab resolution (ie the number of
-// blend points) is set as the minimum spacing along any dimension from
-// the dataset.
-// .SECTION See Also
-// vtkImageSlabReslice vtkResliceCursorLineRepresentation vtkResliceCursorWidget
+/**
+ * @class   vtkResliceCursorThickLineRepresentation
+ * @brief   represents a thick slab of the reslice cursor widget
+ *
+ * This class respresents a thick reslice cursor, that can be used to
+ * perform interactive thick slab MPR's through data. The class internally
+ * uses vtkImageSlabReslice to do its reslicing. The slab thickness is set
+ * interactively from the widget. The slab resolution (ie the number of
+ * blend points) is set as the minimum spacing along any dimension from
+ * the dataset.
+ * @sa
+ * vtkImageSlabReslice vtkResliceCursorLineRepresentation vtkResliceCursorWidget
+*/
 
 #ifndef vtkResliceCursorThickLineRepresentation_h
 #define vtkResliceCursorThickLineRepresentation_h
@@ -32,26 +35,32 @@
 class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursorThickLineRepresentation : public vtkResliceCursorLineRepresentation
 {
 public:
-  // Description:
-  // Instantiate the class.
+  /**
+   * Instantiate the class.
+   */
   static vtkResliceCursorThickLineRepresentation *New();
 
-  // Description:
-  // Standard VTK methods.
+  //@{
+  /**
+   * Standard VTK methods.
+   */
   vtkTypeMacro(vtkResliceCursorThickLineRepresentation,vtkResliceCursorLineRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // INTERNAL - Do not use
-  // Create the thick reformat class. This overrides the superclass
-  // implementation and creates a vtkImageSlabReslice instead of a
-  // vtkImageReslice.
+  /**
+   * INTERNAL - Do not use
+   * Create the thick reformat class. This overrides the superclass
+   * implementation and creates a vtkImageSlabReslice instead of a
+   * vtkImageReslice.
+   */
   virtual void CreateDefaultResliceAlgorithm();
 
-  // Description:
-  // INTERNAL - Do not use
-  // Reslice parameters which are set from vtkResliceCursorWidget based on
-  // user interactions.
+  /**
+   * INTERNAL - Do not use
+   * Reslice parameters which are set from vtkResliceCursorWidget based on
+   * user interactions.
+   */
   virtual void SetResliceParameters(
       double outputSpacingX, double outputSpacingY,
       int extentX, int extentY );
@@ -61,8 +70,8 @@ protected:
   ~vtkResliceCursorThickLineRepresentation();
 
 private:
-  vtkResliceCursorThickLineRepresentation(const vtkResliceCursorThickLineRepresentation&);  //Not implemented
-  void operator=(const vtkResliceCursorThickLineRepresentation&);  //Not implemented
+  vtkResliceCursorThickLineRepresentation(const vtkResliceCursorThickLineRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkResliceCursorThickLineRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

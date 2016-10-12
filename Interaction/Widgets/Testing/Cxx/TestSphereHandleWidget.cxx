@@ -236,12 +236,12 @@ const char TestSphereHandleWidgetEventLog[] =
 int TestSphereHandleWidget(int argc, char*argv[])
 {
   if (argc < 2)
-    {
+  {
     std::cerr
       << "Sphere widget with a sphere handle representation."
       << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Read height field.
   char* fname =

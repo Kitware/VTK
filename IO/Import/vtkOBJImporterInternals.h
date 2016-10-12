@@ -63,7 +63,7 @@ class vtkOBJPolyDataProcessor : public vtkPolyDataAlgorithm
 public:
   static vtkOBJPolyDataProcessor *New();
   vtkTypeMacro(vtkOBJPolyDataProcessor,vtkPolyDataAlgorithm)
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Specify file name of Wavefront .obj file.
@@ -146,8 +146,8 @@ protected:
   int         SuccessParsingFiles;
 
 private:
-  vtkOBJPolyDataProcessor(const vtkOBJPolyDataProcessor&);  // Not implemented.
-  void operator=(const vtkOBJPolyDataProcessor&);  // Not implemented.
+  vtkOBJPolyDataProcessor(const vtkOBJPolyDataProcessor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOBJPolyDataProcessor&) VTK_DELETE_FUNCTION;
 };
 
 class vtkRenderWindow;

@@ -2,12 +2,16 @@ vtk_module(vtkInteractionImage
   GROUPS
     Imaging
     Rendering
-  DEPENDS
-    vtkRenderingCore
-    vtkRenderingFreeType
-    vtkImagingColor
-    vtkInteractionStyle
-    vtkInteractionWidgets
   KIT
     vtkInteraction
+  DEPENDS
+    vtkCommonCore
+    vtkRenderingCore
+  PRIVATE_DEPENDS
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkImagingColor
+    vtkImagingCore
+    vtkInteractionStyle
+    vtkInteractionWidgets
   )

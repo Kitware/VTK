@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOSPRayCameraNode - links vtkCamera to OSPRay
-// .SECTION Description
-// Translates vtkCamera state into OSPRay rendering calls
+/**
+ * @class   vtkOSPRayCameraNode
+ * @brief   links vtkCamera to OSPRay
+ *
+ * Translates vtkCamera state into OSPRay rendering calls
+*/
 
 #ifndef vtkOSPRayCameraNode_h
 #define vtkOSPRayCameraNode_h
@@ -30,8 +33,9 @@ public:
   vtkTypeMacro(vtkOSPRayCameraNode, vtkCameraNode);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //Description:
-  //Make ospray calls to render me.
+  /**
+   * Make ospray calls to render me.
+   */
   virtual void Render(bool prepass);
 
 protected:
@@ -39,8 +43,8 @@ protected:
   ~vtkOSPRayCameraNode();
 
 private:
-  vtkOSPRayCameraNode(const vtkOSPRayCameraNode&); // Not implemented.
-  void operator=(const vtkOSPRayCameraNode&); // Not implemented.
+  vtkOSPRayCameraNode(const vtkOSPRayCameraNode&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOSPRayCameraNode&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -18,7 +18,7 @@
 #include "vtkMPICommunicator.h"
 #include "vtkMPIController.h"
 #include "vtkSynchronizedRenderWindows.h"
-#include "vtkSynchronizedRenderers.h"
+#include "vtkCompositedSynchronizedRenderers.h"
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindowInteractor.h"
@@ -45,13 +45,13 @@ public:
 
   void SetArgs(int anArgc,
                char *anArgv[])
-    {
+  {
       this->Argc=anArgc;
       this->Argv=anArgv;
-    }
+  }
 
   void CreatePipeline(vtkRenderer* renderer)
-    {
+  {
     int num_procs = this->Controller->GetNumberOfProcesses();
     int my_id = this->Controller->GetLocalProcessId();
 
@@ -80,7 +80,7 @@ public:
     mapper->Delete();
     piecescalars->Delete();
     sphere->Delete();
-    }
+  }
 
 protected:
   MyProcess() { this->Argc = 0; this->Argv = NULL; }
@@ -109,7 +109,8 @@ void MyProcess::Execute()
   syncWindows->SetParallelController(this->Controller);
   syncWindows->SetIdentifier(1);
 
-  vtkSynchronizedRenderers* syncRenderers = vtkSynchronizedRenderers::New();
+  vtkCompositedSynchronizedRenderers* syncRenderers =
+    vtkCompositedSynchronizedRenderers::New();
   syncRenderers->SetRenderer(renderer);
   syncRenderers->SetParallelController(this->Controller);
   //syncRenderers->SetImageReductionFactor(3);
@@ -119,7 +120,7 @@ void MyProcess::Execute()
   int retVal;
 
   if (my_id == 0)
-    {
+  {
     vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
     iren->SetRenderWindow(renWin);
     iren->Initialize();
@@ -127,23 +128,23 @@ void MyProcess::Execute()
     retVal = vtkRegressionTester::Test(this->Argc, this->Argv, renWin, 10);
 
     if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-      {
+    {
       iren->Start();
-      }
+    }
     iren->Delete();
 
     this->Controller->TriggerBreakRMIs();
     // This should really be Broadcast
     for (int i = 1; i < numProcs; i++)
-      {
-      this->Controller->Send(&retVal, 1, i, 33);
-      }
-    }
-  else
     {
+      this->Controller->Send(&retVal, 1, i, 33);
+    }
+  }
+  else
+  {
     this->Controller->ProcessRMIs();
     this->Controller->Receive(&retVal, 1, 0, 33);
-    }
+  }
 
   renderer->Delete();
   renWin->Delete();
@@ -174,11 +175,11 @@ int TestParallelRendering(int argc, char *argv[])
   int numProcs = contr->GetNumberOfProcesses();
 
   if (numProcs < 2 && false)
-    {
+  {
     cout << "This test requires at least 2 processes" << endl;
     contr->Delete();
     return retVal;
-    }
+  }
 
   vtkMultiProcessController::SetGlobalController(contr);
 
@@ -194,6 +195,5 @@ int TestParallelRendering(int argc, char *argv[])
   contr->Finalize();
   contr->Delete();
   vtkMultiProcessController::SetGlobalController(0);
-  //return !retVal;
-  return 0;
+  return !retVal;
 }

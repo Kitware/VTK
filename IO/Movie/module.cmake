@@ -6,16 +6,18 @@ endif()
 vtk_module(vtkIOMovie
   GROUPS
     StandAlone
-  DEPENDS
-    vtkCommonDataModel
-    vtkCommonExecutionModel
-    vtkCommonSystem
-    vtkIOCore
-    ${vtkIOMovie_vtkoggtheora}
   TEST_DEPENDS
     vtkTestingCore
     vtkImagingCore
     vtkImagingSources
   KIT
     vtkIO
+  DEPENDS
+    ${vtkIOMovie_vtkoggtheora}
+    vtkCommonExecutionModel
+  PRIVATE_DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonMisc
+    vtkCommonSystem
   )

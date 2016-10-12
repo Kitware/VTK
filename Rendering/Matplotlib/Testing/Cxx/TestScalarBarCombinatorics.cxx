@@ -86,14 +86,14 @@ int TestScalarBarCombinatorics(int argc, char* argv[])
   vtkTesting* t = vtkTesting::New();
   double threshold = 10.;
   for (int cc = 1; cc < argc; ++cc)
-    {
+  {
     if ((cc < argc - 1) && (argv[cc][0] == '-') && (argv[cc][1] == 'E'))
-      {
+    {
       threshold = atof(argv[++cc]);
       continue;
-      }
-    t->AddArgument(argv[cc]);
     }
+    t->AddArgument(argv[cc]);
+  }
 
   vtkNew<vtkRenderer> ren1;
   vtkNew<vtkRenderWindow> renWin;
@@ -109,9 +109,9 @@ int TestScalarBarCombinatorics(int argc, char* argv[])
   std::vector<vtkSmartPointer<vtkScalarBarActor> > actors;
   actors.reserve(numBars);
   for (int c = 0; c < numBars; ++c)
-    {
+  {
     actors.push_back(CreateScalarBar(conditions[c], lutA.GetPointer(), lutB.GetPointer(), ren1.GetPointer()));
-    }
+  }
 
   // Add the actors to the renderer, set the background and size
   //

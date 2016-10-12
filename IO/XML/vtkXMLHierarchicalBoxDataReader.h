@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLHierarchicalBoxDataReader - Reader for hierarchical datasets
-// (for backwards compatibility).
-//
-// .SECTION Description
-// vtkXMLHierarchicalBoxDataReader is an empty subclass of
-// vtkXMLUniformGridAMRReader. This is only for backwards compatibility. Newer
-// code should simply use vtkXMLUniformGridAMRReader.
-//
-// .SECTION Caveats
-// The reader supports reading v1.1 and above. For older versions, use
-// vtkXMLHierarchicalBoxDataFileConverter.
+/**
+ * @class   vtkXMLHierarchicalBoxDataReader
+ * @brief   Reader for hierarchical datasets
+ * (for backwards compatibility).
+ *
+ *
+ * vtkXMLHierarchicalBoxDataReader is an empty subclass of
+ * vtkXMLUniformGridAMRReader. This is only for backwards compatibility. Newer
+ * code should simply use vtkXMLUniformGridAMRReader.
+ *
+ * @warning
+ * The reader supports reading v1.1 and above. For older versions, use
+ * vtkXMLHierarchicalBoxDataFileConverter.
+*/
 
 #ifndef vtkXMLHierarchicalBoxDataReader_h
 #define vtkXMLHierarchicalBoxDataReader_h
@@ -42,8 +45,8 @@ protected:
   ~vtkXMLHierarchicalBoxDataReader();
 
 private:
-  vtkXMLHierarchicalBoxDataReader(const vtkXMLHierarchicalBoxDataReader&);  // Not implemented.
-  void operator=(const vtkXMLHierarchicalBoxDataReader&);  // Not implemented.
+  vtkXMLHierarchicalBoxDataReader(const vtkXMLHierarchicalBoxDataReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLHierarchicalBoxDataReader&) VTK_DELETE_FUNCTION;
 
 };
 

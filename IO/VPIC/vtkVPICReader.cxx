@@ -83,15 +83,15 @@ vtkVPICReader::vtkVPICReader()
   this->MPIController = vtkMultiProcessController::GetGlobalController();
 
   if(this->MPIController)
-    {
+  {
     this->Rank = this->MPIController->GetLocalProcessId();
     this->TotalRank = this->MPIController->GetNumberOfProcesses();
-    }
+  }
   else
-    {
+  {
     this->Rank = 0;
     this->TotalRank = 1;
-    }
+  }
 
   this->UsedRank = 0;
 
@@ -119,16 +119,16 @@ vtkVPICReader::~vtkVPICReader()
   delete this->exchanger;
 
   if (this->data)
-    {
+  {
     for (int var = 0; var < this->NumberOfVariables; var++)
-      {
+    {
       if (this->data[var])
-        {
+      {
         this->data[var]->Delete();
-        }
       }
-    delete [] this->data;
     }
+    delete [] this->data;
+  }
 
   this->SelectionObserver->Delete();
 
@@ -268,10 +268,10 @@ int vtkVPICReader::RequestInformation(
     int processorUsed = this->vpicData->getProcessorUsed();
 
     if(this->MPIController)
-      {
+    {
       this->MPIController->AllReduce(&processorUsed, &this->UsedRank,
                                      1, vtkCommunicator::SUM_OP);
-      }
+    }
 
     this->vpicData->getSubExtent(this->Rank, this->SubExtent);
 
@@ -326,7 +326,7 @@ int vtkVPICReader::RequestInformation(
     }
 
     if (this->TotalRank>1)
-      {
+    {
       // Set up the GridExchange for sharing ghost cells on this view
       int decomposition[DIMENSION];
       this->vpicData->getDecomposition(decomposition);
@@ -336,7 +336,7 @@ int vtkVPICReader::RequestInformation(
       this->exchanger = new GridExchange
         (this->Rank, this->TotalRank, decomposition,
          this->GhostDimension, this->ghostLevel0, this->ghostLevel1);
-      }
+    }
   }
   return 1;
 }
@@ -481,9 +481,9 @@ void vtkVPICReader::LoadVariableData(int var, int timeStep)
 
     // Exchange the single component block retrieved from files to get ghosts
     if (this->TotalRank>1)
-      {
+    {
       this->exchanger->exchangeGrid(block);
-      }
+    }
 
     // Load the ghost component block into ParaView array
     if (this->VariableStruct[var] != TENSOR) {
@@ -568,13 +568,13 @@ vtkImageData* vtkVPICReader::GetOutput()
 vtkImageData* vtkVPICReader::GetOutput(int idx)
 {
   if (idx)
-    {
+  {
     return NULL;
-    }
+  }
   else
-    {
+  {
     return vtkImageData::SafeDownCast( this->GetOutputDataObject(idx) );
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

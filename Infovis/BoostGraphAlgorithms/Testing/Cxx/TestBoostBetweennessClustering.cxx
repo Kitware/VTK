@@ -109,16 +109,16 @@ int TestBoostBetweennessClustering(int vtkNotUsed(argc),
   vtkGraph* og = bbc->GetOutput();
 
   if(!og)
-    {
+  {
     return 1;
-    }
+  }
 
   vtkIntArray* compArray = vtkArrayDownCast<vtkIntArray>(og->GetVertexData()->
                                                      GetArray("component"));
   if(!compArray)
-    {
+  {
     return 1;
-    }
+  }
 
   // Now lets create the correct mapping so that we can compare the results
   // against it.
@@ -138,14 +138,14 @@ int TestBoostBetweennessClustering(int vtkNotUsed(argc),
   vlItr->SetGraph(og);
 
   while(vlItr->HasNext())
-    {
+  {
     vtkIdType id = vlItr->Next();
 
     if(expResults[id] != compArray->GetVariantValue(id).ToInt())
-      {
+    {
       return 1;
-      }
     }
+  }
 
     return 0;
 }

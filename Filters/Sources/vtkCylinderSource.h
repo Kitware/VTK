@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCylinderSource - generate a cylinder centered at origin
-// .SECTION Description
-// vtkCylinderSource creates a polygonal cylinder centered at Center;
-// The axis of the cylinder is aligned along the global y-axis.
-// The height and radius of the cylinder can be specified, as well as the
-// number of sides. It is also possible to control whether the cylinder is
-// open-ended or capped. If you have the end points of the cylinder, you
-// should use a vtkLineSource followed by a vtkTubeFilter instead of the
-// vtkCylinderSource.
+/**
+ * @class   vtkCylinderSource
+ * @brief   generate a cylinder centered at origin
+ *
+ * vtkCylinderSource creates a polygonal cylinder centered at Center;
+ * The axis of the cylinder is aligned along the global y-axis.
+ * The height and radius of the cylinder can be specified, as well as the
+ * number of sides. It is also possible to control whether the cylinder is
+ * open-ended or capped. If you have the end points of the cylinder, you
+ * should use a vtkLineSource followed by a vtkTubeFilter instead of the
+ * vtkCylinderSource.
+*/
 
 #ifndef vtkCylinderSource_h
 #define vtkCylinderSource_h
@@ -35,46 +38,64 @@ class VTKFILTERSSOURCES_EXPORT vtkCylinderSource : public vtkPolyDataAlgorithm
 public:
   static vtkCylinderSource *New();
   vtkTypeMacro(vtkCylinderSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Set the height of the cylinder. Initial value is 1.
+  //@{
+  /**
+   * Set the height of the cylinder. Initial value is 1.
+   */
   vtkSetClampMacro(Height,double,0.0,VTK_DOUBLE_MAX)
   vtkGetMacro(Height,double);
+  //@}
 
-  // Description:
-  // Set the radius of the cylinder. Initial value is 0.5
+  //@{
+  /**
+   * Set the radius of the cylinder. Initial value is 0.5
+   */
   vtkSetClampMacro(Radius,double,0.0,VTK_DOUBLE_MAX)
   vtkGetMacro(Radius,double);
+  //@}
 
-  // Description:
-  // Set/Get cylinder center. Initial value is (0.0,0.0,0.0)
+  //@{
+  /**
+   * Set/Get cylinder center. Initial value is (0.0,0.0,0.0)
+   */
   vtkSetVector3Macro(Center,double);
   vtkGetVectorMacro(Center,double,3);
+  //@}
 
-  // Description:
-  // Set the number of facets used to define cylinder. Initial value is 6.
+  //@{
+  /**
+   * Set the number of facets used to define cylinder. Initial value is 6.
+   */
   vtkSetClampMacro(Resolution,int,2,VTK_CELL_SIZE)
   vtkGetMacro(Resolution,int);
+  //@}
 
-  // Description:
-  // Turn on/off whether to cap cylinder with polygons. Initial value is true.
+  //@{
+  /**
+   * Turn on/off whether to cap cylinder with polygons. Initial value is true.
+   */
   vtkSetMacro(Capping,int);
   vtkGetMacro(Capping,int);
   vtkBooleanMacro(Capping,int);
+  //@}
 
-  // Description:
-  // Set/get the desired precision for the output points.
-  // vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
-  // vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+  //@{
+  /**
+   * Set/get the desired precision for the output points.
+   * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
+   * vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+   */
   vtkSetMacro(OutputPointsPrecision,int);
   vtkGetMacro(OutputPointsPrecision,int);
+  //@}
 
 protected:
   vtkCylinderSource(int res=6);
-  ~vtkCylinderSource() {}
+  ~vtkCylinderSource() VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   double Height;
   double Radius;
   double Center[3];
@@ -83,8 +104,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkCylinderSource(const vtkCylinderSource&);  // Not implemented.
-  void operator=(const vtkCylinderSource&);  // Not implemented.
+  vtkCylinderSource(const vtkCylinderSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCylinderSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

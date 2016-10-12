@@ -165,13 +165,13 @@ int TestHyperOctreeSurfaceFilter(int argc, char* argv[])
   mapper->SetLookupTable(lut);
 
   if(source3d->GetOutput()->GetLeafData()!=0)
-    {
+  {
     if(source3d->GetOutput()->GetLeafData()->GetScalars()!=0)
-      {
+    {
       mapper->SetScalarRange( source3d->GetOutput()->GetLeafData()->
                               GetScalars()->GetRange());
-      }
     }
+  }
 
   source3d->Delete();
 
@@ -199,9 +199,9 @@ int TestHyperOctreeSurfaceFilter(int argc, char* argv[])
   renWin->Render();
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Cleanup
   renderer->Delete();

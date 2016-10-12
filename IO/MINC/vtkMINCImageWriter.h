@@ -45,22 +45,25 @@ THE USE OR INABILITY TO USE THE SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGES.
 
 =========================================================================*/
-// .NAME vtkMINCImageWriter - A writer for MINC files.
-// .SECTION Description
-// MINC is a NetCDF-based medical image file format that was developed
-// at the Montreal Neurological Institute in 1992.
-// The data is written slice-by-slice, and this writer is therefore
-// suitable for streaming MINC data that is larger than the memory
-// size through VTK.  This writer can also produce files with up to
-// 4 dimensions, where the fourth dimension is provided by using
-// AddInput() to specify multiple input data sets.  If you want to
-// set header information for the file, you must supply a
-// vtkMINCImageAttributes
-// .SECTION See Also
-// vtkMINCImageReader vtkMINCImageAttributes
-// .SECTION Thanks
-// Thanks to David Gobbi for writing this class and Atamai Inc. for
-// contributing it to VTK.
+/**
+ * @class   vtkMINCImageWriter
+ * @brief   A writer for MINC files.
+ *
+ * MINC is a NetCDF-based medical image file format that was developed
+ * at the Montreal Neurological Institute in 1992.
+ * The data is written slice-by-slice, and this writer is therefore
+ * suitable for streaming MINC data that is larger than the memory
+ * size through VTK.  This writer can also produce files with up to
+ * 4 dimensions, where the fourth dimension is provided by using
+ * AddInput() to specify multiple input data sets.  If you want to
+ * set header information for the file, you must supply a
+ * vtkMINCImageAttributes
+ * @sa
+ * vtkMINCImageReader vtkMINCImageAttributes
+ * @par Thanks:
+ * Thanks to David Gobbi for writing this class and Atamai Inc. for
+ * contributing it to VTK.
+*/
 
 #ifndef vtkMINCImageWriter_h
 #define vtkMINCImageWriter_h
@@ -82,70 +85,89 @@ public:
   vtkTypeMacro(vtkMINCImageWriter,vtkImageWriter);
 
   static vtkMINCImageWriter *New();
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Get the entension for this file format.
+  /**
+   * Get the entension for this file format.
+   */
   virtual const char* GetFileExtensions() {
     return ".mnc"; }
 
-  // Description:
-  // Get the name of this file format.
+  /**
+   * Get the name of this file format.
+   */
   virtual const char* GetDescriptiveName() {
     return "MINC"; }
 
-  // Description:
-  // Set the file name.
+  /**
+   * Set the file name.
+   */
   virtual void SetFileName(const char *name);
 
-  // Description:
-  // Write the data.  This will attempt to stream the data
-  // slice-by-slice through the pipeline and out to the file,
-  // unless the whole extent of the input has already been
-  // updated.
+  /**
+   * Write the data.  This will attempt to stream the data
+   * slice-by-slice through the pipeline and out to the file,
+   * unless the whole extent of the input has already been
+   * updated.
+   */
   virtual void Write();
 
-  // Description:
-  // Set a matrix that describes the orientation of the data.  The
-  // three columns of this matrix should give the unit-vector
-  // directions for the VTK x, y and z dimensions respectively.
-  // The writer will use this information to determine how to map
-  // the VTK dimensions to the canonical MINC dimensions, and if
-  // necessary, the writer will re-order one or more dimensions
-  // back-to-front to ensure that no MINC dimension ends up with
-  // a direction cosines vector whose dot product with the canonical
-  // unit vector for that dimension is negative.
+  //@{
+  /**
+   * Set a matrix that describes the orientation of the data.  The
+   * three columns of this matrix should give the unit-vector
+   * directions for the VTK x, y and z dimensions respectively.
+   * The writer will use this information to determine how to map
+   * the VTK dimensions to the canonical MINC dimensions, and if
+   * necessary, the writer will re-order one or more dimensions
+   * back-to-front to ensure that no MINC dimension ends up with
+   * a direction cosines vector whose dot product with the canonical
+   * unit vector for that dimension is negative.
+   */
   virtual void SetDirectionCosines(vtkMatrix4x4 *matrix);
   vtkGetObjectMacro(DirectionCosines, vtkMatrix4x4);
+  //@}
 
-  // Description:
-  // Set the slope and intercept for rescaling the intensities.  The
-  // default values are zero, which indicates to the reader that no
-  // rescaling is to be performed.
+  //@{
+  /**
+   * Set the slope and intercept for rescaling the intensities.  The
+   * default values are zero, which indicates to the reader that no
+   * rescaling is to be performed.
+   */
   vtkSetMacro(RescaleSlope, double);
   vtkGetMacro(RescaleSlope, double);
   vtkSetMacro(RescaleIntercept, double);
   vtkGetMacro(RescaleIntercept, double);
+  //@}
 
-  // Description:
-  // Set the image attributes, which contain patient information and
-  // other useful metadata.
+  //@{
+  /**
+   * Set the image attributes, which contain patient information and
+   * other useful metadata.
+   */
   virtual void SetImageAttributes(vtkMINCImageAttributes *attributes);
   virtual vtkMINCImageAttributes *GetImageAttributes() {
     return this->ImageAttributes; };
+  //@}
 
-  // Description:
-  // Set whether to validate that all variable attributes that
-  // have been set are ones that are listed in the MINC standard.
+  //@{
+  /**
+   * Set whether to validate that all variable attributes that
+   * have been set are ones that are listed in the MINC standard.
+   */
   vtkSetMacro(StrictValidation, int);
   vtkBooleanMacro(StrictValidation, int);
   vtkGetMacro(StrictValidation, int);
+  //@}
 
-  // Description:
-  // Set a string value to append to the history of the file.  This
-  // string should describe, briefly, how the file was processed.
+  //@{
+  /**
+   * Set a string value to append to the history of the file.  This
+   * string should describe, briefly, how the file was processed.
+   */
   vtkSetStringMacro(HistoryAddition);
   vtkGetStringMacro(HistoryAddition);
+  //@}
 
 protected:
   vtkMINCImageWriter();
@@ -213,8 +235,8 @@ protected:
                           vtkInformationVector* outputVector);
 
 private:
-  vtkMINCImageWriter(const vtkMINCImageWriter&); // Not implemented
-  void operator=(const vtkMINCImageWriter&);  // Not implemented
+  vtkMINCImageWriter(const vtkMINCImageWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMINCImageWriter&) VTK_DELETE_FUNCTION;
 
 };
 

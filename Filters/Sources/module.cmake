@@ -1,9 +1,6 @@
 vtk_module(vtkFiltersSources
   GROUPS
     StandAlone
-  DEPENDS
-    vtkCommonComputationalGeometry
-    vtkFiltersGeneral
   TEST_DEPENDS
     vtkTestingCore
     vtkTestingRendering
@@ -14,4 +11,13 @@ vtk_module(vtkFiltersSources
     vtkIOParallel
   KIT
     vtkFilters
+  DEPENDS
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+  PRIVATE_DEPENDS
+    vtkCommonComputationalGeometry
+    vtkCommonCore
+    vtkCommonTransforms
+    vtkFiltersCore
+    vtkFiltersGeneral
   )

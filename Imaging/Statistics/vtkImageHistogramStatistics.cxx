@@ -94,7 +94,7 @@ int vtkImageHistogramStatistics::RequestData(
   vtkIdType nx = this->Histogram->GetNumberOfTuples();
   vtkIdType *histogram = this->Histogram->GetPointer(0);
   for (int ix = 0; ix < nx; ++ix)
-    {
+  {
     vtkIdType c = histogram[ix];
     sum += c;
     double dc = static_cast<double>(c);
@@ -105,11 +105,11 @@ int vtkImageHistogramStatistics::RequestData(
     midVal = (sum > midSum ? midVal : ix);
     minVal = (sum > 0 ? minVal : ix);
     maxVal = (c == 0 ? maxVal : ix);
-    }
+  }
   if (minVal < maxVal)
-    {
+  {
     minVal++;
-    }
+  }
 
   double binSpacing = this->BinSpacing;
   double binOrigin = this->BinOrigin;
@@ -121,29 +121,29 @@ int vtkImageHistogramStatistics::RequestData(
   this->Mean = 0.0;
   this->StandardDeviation = 0.0;
   if (total > 0)
-    {
+  {
     this->Mean = mom1/total*binSpacing + binOrigin;
-    }
+  }
   if (total > 1)
-    {
+  {
     double term2 = mom1*mom1/total;
     if ((mom2 - term2) > 1e-10*mom2)
-      {
+    {
       // use the fast method to compute standard deviation
       this->StandardDeviation = sqrt((mom2 - term2)/(total - 1))*binSpacing;
-      }
+    }
     else
-      {
+    {
       // use more accurate method to avoid cancellation error
       double xmean = mom1/total;
       for (int ix = 0; ix < nx; ++ix)
-        {
+      {
         double ixd = xmean - ix;
         mom2 += ixd*ixd*histogram[ix];
-        }
-      this->StandardDeviation = sqrt(mom2/(total - 1))*binSpacing;
       }
+      this->StandardDeviation = sqrt(mom2/(total - 1))*binSpacing;
     }
+  }
 
   // do the autorange: first expand range by 10% at each end
   double lowEF = this->AutoRangeExpansionFactors[0];
@@ -158,13 +158,13 @@ int vtkImageHistogramStatistics::RequestData(
 
   // clamp the auto range to the full data range
   if (this->AutoRange[0] < this->Minimum)
-    {
+  {
     this->AutoRange[0] = this->Minimum;
-    }
+  }
   if (this->AutoRange[1] > this->Maximum)
-    {
+  {
     this->AutoRange[1] = this->Maximum;
-    }
+  }
 
   return 1;
 }

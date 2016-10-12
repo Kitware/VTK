@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSynchronizedTemplatesCutter3D - generate cut surface from structured points
-
-// .SECTION Description
-// vtkSynchronizedTemplatesCutter3D is an implementation of the synchronized
-// template algorithm. Note that vtkCutFilter will automatically
-// use this class when appropriate.
-
-// .SECTION See Also
-// vtkContourFilter vtkSynchronizedTemplates3D
+/**
+ * @class   vtkSynchronizedTemplatesCutter3D
+ * @brief   generate cut surface from structured points
+ *
+ *
+ * vtkSynchronizedTemplatesCutter3D is an implementation of the synchronized
+ * template algorithm. Note that vtkCutFilter will automatically
+ * use this class when appropriate.
+ *
+ * @sa
+ * vtkContourFilter vtkSynchronizedTemplates3D
+*/
 
 #ifndef vtkSynchronizedTemplatesCutter3D_h
 #define vtkSynchronizedTemplatesCutter3D_h
@@ -36,38 +39,45 @@ public:
   static vtkSynchronizedTemplatesCutter3D *New();
 
   vtkTypeMacro(vtkSynchronizedTemplatesCutter3D,vtkSynchronizedTemplates3D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Needed by templated functions.
+  /**
+   * Needed by templated functions.
+   */
   void ThreadedExecute(vtkImageData *data, vtkInformation *outInfo, int);
 
-  // Description
-  // Specify the implicit function to perform the cutting.
+  //@{
+  /**
+   * Specify the implicit function to perform the cutting.
+   */
   virtual void SetCutFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(CutFunction,vtkImplicitFunction);
+  //@}
 
-  // Description:
-  // Set/get the desired precision for the output types. See the documentation
-  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
-  // the available precision settings.
+  //@{
+  /**
+   * Set/get the desired precision for the output types. See the documentation
+   * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+   * the available precision settings.
+   */
   vtkSetClampMacro(OutputPointsPrecision, int, SINGLE_PRECISION, DEFAULT_PRECISION);
   vtkGetMacro(OutputPointsPrecision, int);
+  //@}
 
 protected:
   vtkSynchronizedTemplatesCutter3D();
-  ~vtkSynchronizedTemplatesCutter3D();
+  ~vtkSynchronizedTemplatesCutter3D() VTK_OVERRIDE;
 
   vtkImplicitFunction *CutFunction;
   int OutputPointsPrecision;
 
-  virtual int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *);
+  int RequestData(vtkInformation *,
+                  vtkInformationVector **,
+                  vtkInformationVector *) VTK_OVERRIDE;
 
 private:
-  vtkSynchronizedTemplatesCutter3D(const vtkSynchronizedTemplatesCutter3D&);  // Not implemented.
-  void operator=(const vtkSynchronizedTemplatesCutter3D&);  // Not implemented.
+  vtkSynchronizedTemplatesCutter3D(const vtkSynchronizedTemplatesCutter3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSynchronizedTemplatesCutter3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

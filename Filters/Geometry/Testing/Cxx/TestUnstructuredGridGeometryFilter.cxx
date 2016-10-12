@@ -364,11 +364,11 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   triangleStrip->GetPointIds()->SetNumberOfIds(6);
   int i=0;
   while(i<6)
-    {
+  {
     triangleStrip->GetPointIds()->SetId(i,pointId);
     ++pointId;
     ++i;
-    }
+  }
 
   cellIds->InsertNextValue(cellId);
   ++cellId;
@@ -426,11 +426,11 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   polygon->GetPointIds()->SetNumberOfIds(4);
   i=0;
   while(i<4)
-    {
+  {
     polygon->GetPointIds()->SetId(i,pointId);
     ++pointId;
     ++i;
-    }
+  }
 
   cellIds->InsertNextValue(cellId);
   ++cellId;
@@ -463,11 +463,11 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   polygon->GetPointIds()->SetNumberOfIds(5);
   i=0;
   while(i<5)
-    {
+  {
     polygon->GetPointIds()->SetId(i,pointId);
     ++pointId;
     ++i;
-    }
+  }
 
   cellIds->InsertNextValue(cellId);
   ++cellId;
@@ -504,11 +504,11 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   polygon->GetPointIds()->SetNumberOfIds(6);
   i=0;
   while(i<6)
-    {
+  {
     polygon->GetPointIds()->SetId(i,pointId);
     ++pointId;
     ++i;
-    }
+  }
 
   cellIds->InsertNextValue(cellId);
   ++cellId;
@@ -536,11 +536,11 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   vtkPixel *pixel=vtkPixel::New();
   i=0;
   while(i<4)
-    {
+  {
     pixel->GetPointIds()->SetId(i,pointId);
     ++pointId;
     ++i;
-    }
+  }
 
   cellIds->InsertNextValue(cellId);
   ++cellId;
@@ -568,11 +568,11 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   vtkQuad *quad=vtkQuad::New();
   i=0;
   while(i<4)
-    {
+  {
     quad->GetPointIds()->SetId(i,pointId);
     ++pointId;
     ++i;
-    }
+  }
 
   cellIds->InsertNextValue(cellId);
   ++cellId;
@@ -608,11 +608,11 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   vtkQuadraticTriangle *quadraticTriangle=vtkQuadraticTriangle::New();
   i=0;
   while(i<6)
-    {
+  {
     quadraticTriangle->GetPointIds()->SetId(i,pointId);
     ++pointId;
     ++i;
-    }
+  }
 
   cellIds->InsertNextValue(cellId);
   ++cellId;
@@ -653,11 +653,11 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   vtkBiQuadraticTriangle *BiQuadraticTriangle=vtkBiQuadraticTriangle::New();
   i=0;
   while(i<7)
-    {
+  {
     BiQuadraticTriangle->GetPointIds()->SetId(i,pointId);
     ++pointId;
     ++i;
-    }
+  }
 
   cellIds->InsertNextValue(cellId);
   ++cellId;
@@ -702,11 +702,11 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   vtkQuadraticQuad *quadraticQuad=vtkQuadraticQuad::New();
   i=0;
   while(i<8)
-    {
+  {
     quadraticQuad->GetPointIds()->SetId(i,pointId);
     ++pointId;
     ++i;
-    }
+  }
 
   cellIds->InsertNextValue(cellId);
   ++cellId;
@@ -756,11 +756,11 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   vtkBiQuadraticQuad *biquadraticQuad=vtkBiQuadraticQuad::New();
   i=0;
   while(i<9)
-    {
+  {
     biquadraticQuad->GetPointIds()->SetId(i,pointId);
     ++pointId;
     ++i;
-    }
+  }
 
   cellIds->InsertNextValue(cellId);
   ++cellId;
@@ -798,11 +798,11 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   vtkQuadraticLinearQuad *quadraticLinearQuad=vtkQuadraticLinearQuad::New();
   i=0;
   while(i<6)
-    {
+  {
     quadraticLinearQuad->GetPointIds()->SetId(i,pointId);
     ++pointId;
     ++i;
-    }
+  }
 
   cellIds->InsertNextValue(cellId);
   ++cellId;
@@ -3568,13 +3568,13 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   mapper->SetInputConnection(0, linearGeom->GetOutputPort(0) );
 
  if(linearGeom->GetOutput()->GetPointData()!=0)
-    {
+ {
     if(linearGeom->GetOutput()->GetPointData()->GetScalars()!=0)
-      {
+    {
       mapper->SetScalarRange( linearGeom->GetOutput()->GetPointData()->
                               GetScalars()->GetRange());
-      }
     }
+ }
 
   vtkActor *actor = vtkActor::New();
 //  cout<<"prop="<<actor->GetProperty()->GetBackfaceCulling()<<endl;
@@ -3604,9 +3604,9 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   renWin->Render();
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Cleanup
   renderer->Delete();

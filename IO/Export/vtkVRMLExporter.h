@@ -12,15 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkVRMLExporter - export a scene into VRML 2.0 format.
-// .SECTION Description
-// vtkVRMLExporter is a concrete subclass of vtkExporter that writes VRML 2.0
-// files. This is based on the VRML 2.0 draft #3 but it should be pretty
-// stable since we aren't using any of the newer features.
-//
-// .SECTION See Also
-// vtkExporter
-
+/**
+ * @class   vtkVRMLExporter
+ * @brief   export a scene into VRML 2.0 format.
+ *
+ * vtkVRMLExporter is a concrete subclass of vtkExporter that writes VRML 2.0
+ * files. This is based on the VRML 2.0 draft #3 but it should be pretty
+ * stable since we aren't using any of the newer features.
+ *
+ * @sa
+ * vtkExporter
+*/
 
 #ifndef vtkVRMLExporter_h
 #define vtkVRMLExporter_h
@@ -43,19 +45,26 @@ public:
   vtkTypeMacro(vtkVRMLExporter,vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify the name of the VRML file to write.
+  //@{
+  /**
+   * Specify the name of the VRML file to write.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Specify the Speed of navigation. Default is 4.
+  //@{
+  /**
+   * Specify the Speed of navigation. Default is 4.
+   */
   vtkSetMacro(Speed,double);
   vtkGetMacro(Speed,double);
+  //@}
 
-  // Description:
-  // Set the file pointer to write to. This will override
-  // a FileName if specified.
+  /**
+   * Set the file pointer to write to. This will override
+   * a FileName if specified.
+   */
   void SetFilePointer(FILE *);
 
 protected:
@@ -76,8 +85,8 @@ protected:
   FILE *FilePointer;
   double Speed;
 private:
-  vtkVRMLExporter(const vtkVRMLExporter&);  // Not implemented.
-  void operator=(const vtkVRMLExporter&);  // Not implemented.
+  vtkVRMLExporter(const vtkVRMLExporter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVRMLExporter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

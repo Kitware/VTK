@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInteractorStyleDrawPolygon - draw polygon during mouse move
-// .SECTION Description
-// This interactor style allows the user to draw a polygon in the render
-// window using the left mouse button while mouse is moving.
-// When the mouse button is released, a SelectionChangedEvent will be fired.
+/**
+ * @class   vtkInteractorStyleDrawPolygon
+ * @brief   draw polygon during mouse move
+ *
+ * This interactor style allows the user to draw a polygon in the render
+ * window using the left mouse button while mouse is moving.
+ * When the mouse button is released, a SelectionChangedEvent will be fired.
+*/
 
 #ifndef vtkInteractorStyleDrawPolygon_h
 #define vtkInteractorStyleDrawPolygon_h
@@ -36,20 +39,27 @@ public:
   vtkTypeMacro(vtkInteractorStyleDrawPolygon, vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Event bindings
+  //@{
+  /**
+   * Event bindings
+   */
   virtual void OnMouseMove();
   virtual void OnLeftButtonDown();
   virtual void OnLeftButtonUp();
+  //@}
 
-  // Description:
-  // Whether to draw polygon in screen pixels. Default is ON
+  //@{
+  /**
+   * Whether to draw polygon in screen pixels. Default is ON
+   */
   vtkSetMacro(DrawPolygonPixels, bool);
   vtkGetMacro(DrawPolygonPixels, bool);
   vtkBooleanMacro(DrawPolygonPixels, bool);
+  //@}
 
-  // Description:
-  // Get the current polygon points in display units
+  /**
+   * Get the current polygon points in display units
+   */
   std::vector<vtkVector2i> GetPolygonPoints();
 
 protected:
@@ -67,8 +77,8 @@ protected:
   vtkUnsignedCharArray *PixelArray;
 
 private:
-  vtkInteractorStyleDrawPolygon(const vtkInteractorStyleDrawPolygon&);  // Not implemented
-  void operator=(const vtkInteractorStyleDrawPolygon&);  // Not implemented
+  vtkInteractorStyleDrawPolygon(const vtkInteractorStyleDrawPolygon&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInteractorStyleDrawPolygon&) VTK_DELETE_FUNCTION;
 
   class vtkInternal;
   vtkInternal* Internal;

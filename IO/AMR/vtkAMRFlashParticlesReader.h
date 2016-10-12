@@ -12,11 +12,14 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkAMRFlashParticlesReader.cxx -- Reads Flash particles dataset
-//
-// .SECTION Description
-//  A concrete instance of vtkAMRBaseParticlesReader that implements
-//  functionality for reading flash particle datasets.
+/**
+ * @class   vtkAMRFlashParticlesReader
+ *
+ *
+ *  A concrete instance of vtkAMRBaseParticlesReader that implements
+ *  functionality for reading flash particle datasets.
+*/
+
 #ifndef vtkAMRFlashParticlesReader_h
 #define vtkAMRFlashParticlesReader_h
 
@@ -37,35 +40,40 @@ public:
   vtkTypeMacro( vtkAMRFlashParticlesReader, vtkAMRBaseParticlesReader );
   void PrintSelf(ostream &os, vtkIndent indent );
 
-  // Description:
-  // See vtkAMRBaseParticlesReader::GetTotalNumberOfParticles.
+  /**
+   * See vtkAMRBaseParticlesReader::GetTotalNumberOfParticles.
+   */
   int GetTotalNumberOfParticles();
 
 protected:
   vtkAMRFlashParticlesReader();
   virtual ~vtkAMRFlashParticlesReader();
 
-  // Description:
-  // See vtkAMRBaseParticlesReader::ReadMetaData
+  /**
+   * See vtkAMRBaseParticlesReader::ReadMetaData
+   */
   void ReadMetaData();
 
-  // Description:
-  // See vtkAMRBaseParticlesReader::SetupParticlesDataSelections
+  /**
+   * See vtkAMRBaseParticlesReader::SetupParticlesDataSelections
+   */
   void SetupParticleDataSelections();
 
-  // Description:
-  // See vtkAMRBaseParticlesReader::ReadParticles
+  /**
+   * See vtkAMRBaseParticlesReader::ReadParticles
+   */
   vtkPolyData* ReadParticles( const int blkidx );
 
-  // Description:
-  // Reads the particlles of the given block from the given file.
+  /**
+   * Reads the particlles of the given block from the given file.
+   */
   vtkPolyData* GetParticles( const char* file, const int blkidx );
 
   vtkFlashReaderInternal *Internal;
 
 private:
-  vtkAMRFlashParticlesReader( const vtkAMRFlashParticlesReader& ); // Not implemented
-  void operator=(const vtkAMRFlashParticlesReader& ); // Not implemented
+  vtkAMRFlashParticlesReader( const vtkAMRFlashParticlesReader& ) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAMRFlashParticlesReader& ) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkAMRFlashParticlesReader_h */

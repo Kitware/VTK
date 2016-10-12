@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCellType - define types of cells
-// .SECTION Description
-// vtkCellType defines the allowable cell types in the visualization
-// library (vtk). In vtk, datasets consist of collections of cells.
-// Different datasets consist of different cell types. The cells may be
-// explicitly represented (as in vtkPolyData), or may be implicit to the
-// data type (as in vtkStructuredPoints).
+/**
+ * @class   vtkCellType
+ * @brief   define types of cells
+ *
+ * vtkCellType defines the allowable cell types in the visualization
+ * library (vtk). In vtk, datasets consist of collections of cells.
+ * Different datasets consist of different cell types. The cells may be
+ * explicitly represented (as in vtkPolyData), or may be implicit to the
+ * data type (as in vtkStructuredPoints).
+*/
 
 #ifndef vtkCellType_h
 #define vtkCellType_h

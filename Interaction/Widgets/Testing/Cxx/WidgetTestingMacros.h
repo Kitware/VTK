@@ -27,10 +27,10 @@
 #define EXERCISE_BASIC_OBJECT_METHODS( object ) \
     { \
     if ( object == NULL ) \
-      { \
+    { \
       std::cerr << "EXERCISE_BASIC_OBJECT_METHODS( with NULL object )" << std::endl;  \
       return EXIT_FAILURE;  \
-      } \
+    } \
     object->Print( std::cout );  \
     std::cout << "Name of Class = " << object->GetClassName() << std::endl; \
     std::cout << "Name of Superclass = " << object->Superclass::GetClassName() << std::endl; \
@@ -41,28 +41,28 @@
   object->Set##variable( false ); \
   object->Set##variable( true ); \
   if( object->Get##variable() != 1 ) \
-    {   \
+  {   \
     std::cerr << "Error in Set/Get"#variable << ", Get"#variable << " is " << object->Get##variable() << " instead of 1" << std::endl; \
     return EXIT_FAILURE; \
-    } \
+  } \
   object->Set##variable( false ); \
   if( object->Get##variable() != 0 ) \
-    {   \
+  {   \
     std::cerr << "Error in Set/Get"#variable << ", Get"#variable << " is " << object->Get##variable() << " instead of 0" << std::endl; \
     return EXIT_FAILURE; \
-    } \
+  } \
   object->variable##On(); \
   if( object->Get##variable() != 1 ) \
-    {   \
+  {   \
     std::cerr << "Error in On/Get"#variable << ", Get"#variable << " is " << object->Get##variable() << " instead of 1" << std::endl; \
     return EXIT_FAILURE; \
-    } \
+  } \
   object->variable##Off(); \
   if( object->Get##variable() != 0 ) \
-    {   \
+  {   \
     std::cerr << "Error in Off/Get"#variable << ", Get"#variable << " is " << object->Get##variable() << " instead of 0" << std::endl; \
     return EXIT_FAILURE; \
-    }
+  }
 
 /// test an integer variable on the object by setting it to input value using Set, and
 /// testing it via the Get
@@ -70,10 +70,10 @@
   {                                                        \
     object->Set##variable( value );                        \
     if( object->Get##variable() != value )                 \
-      {                                                    \
+    {                                                    \
       std::cerr << "Error in Set/Get"#variable << " using value " << value << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
   }
 
 /// Test an integer variable on object over the range, calls test set get in
@@ -105,10 +105,10 @@
   {                                             \
     object->Set##variable( value );               \
     if( object->Get##variable() != value )        \
-      {                                         \
+    {                                         \
       std::cerr << "Error in Set/Get"#variable << " using value '" << value << "', got '" << object->Get##variable() << "'" << std::endl; \
       return EXIT_FAILURE;                                      \
-      }                                                         \
+    }                                                         \
   }
 
 /// Test a double variable on object over the range, calls test set get in
@@ -141,10 +141,10 @@
     object->Set##variable( x, y, z );                               \
     double *val = object->Get##variable();                          \
     if( val == NULL || val[0] != x || val[1] != y || val[2] != z )  \
-      {                                                             \
+    {                                                             \
       std::cerr << "Error in Set/Get"#variable << std::endl;        \
       return EXIT_FAILURE;                                          \
-      }                                                             \
+    }                                                             \
   }
 
 
@@ -155,10 +155,10 @@
     object->Set##variable( x, y );                               \
     int *val = object->Get##variable();                          \
     if( val == NULL || val[0] != x || val[1] != y )  \
-      {                                                             \
+    {                                                             \
       std::cerr << "Error in Set/Get"#variable << std::endl;        \
       return EXIT_FAILURE;                                          \
-      }                                                             \
+    }                                                             \
   }
 
 /// test an integer  vector2 variable on the object over the range, calls test set get in
@@ -221,37 +221,37 @@
     const char * originalStringPointer = object->Get##variable();       \
     std::string originalString;                                         \
     if( originalStringPointer != NULL )                                 \
-      {                                                                 \
+    {                                                                 \
       originalString = originalStringPointer;                           \
-      }                                                                 \
+    }                                                                 \
     object->Set##variable( "testing with a const char");                \
     if( strcmp(object->Get##variable(), "testing with a const char") != 0) \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Error in Set/Get"#variable << " with a string literal" << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     std::string string1 = "testingIsGood";                              \
     object->Set##variable( string1.c_str() );                           \
     if( object->Get##variable() != string1 )                            \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Error in Set/Get"#variable << std::endl;            \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     std::string string2 = "moreTestingIsBetter";                        \
     object->Set##variable( string2.c_str() );                           \
     if( object->Get##variable() != string2 )                            \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Error in Set/Get"#variable << std::endl;            \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     if( originalStringPointer != NULL )                                 \
-      {                                                                 \
+    {                                                                 \
       object->Set##variable( originalString.c_str() );                  \
-      }                                                                 \
+    }                                                                 \
     else                                                                \
-      {                                                                 \
+    {                                                                 \
       object->Set##variable( NULL );                                    \
-      }                                                                 \
+    }                                                                 \
   }
 
 /// test a char variable on the object by calling Set/Get
@@ -260,16 +260,16 @@
     const char originalChar = object->Get##variable();                  \
     object->Set##variable( 't');                                        \
     if( object->Get##variable() != 't')                                 \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Error in Set/Get"#variable << " with a literal 't'" << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     object->Set##variable( '3');                                        \
     if( object->Get##variable() != '3')                                 \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Error in Set/Get"#variable << " with a literal '3'" << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     object->Set##variable( originalChar );                              \
   }
 
@@ -284,55 +284,55 @@
     renWin->SetMultiSamples(0);                                         \
     renWin->AddRenderer(ren1);                                          \
     if (object->GetInteractor() != NULL)                                \
-      {                                                                 \
+    {                                                                 \
       std::cout << "Object has an interactor already defined." << std::endl; \
-      }                                                                 \
+    }                                                                 \
     vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New(); \
     iren->SetRenderWindow(renWin);                                      \
     object->SetInteractor(iren);                                        \
     if (object->GetInteractor() != iren)                                \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Error in Set/GetInteractor" << std::endl;           \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     if (object->GetDefaultRenderer() != NULL)                           \
-      {                                                                 \
+    {                                                                 \
       std::cout << "Object has default renderer already defined." << std::endl; \
-      }                                                                 \
+    }                                                                 \
                                                                         \
     vtkSmartPointer<vtkRenderer> ren = vtkSmartPointer<vtkRenderer>::New(); \
     renWin->AddRenderer(ren);                                           \
     object->SetDefaultRenderer(ren);                                    \
     if (object->GetDefaultRenderer() != ren)                            \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Error in Set/GetDefaultRenderer, default renderer is " << (object->GetDefaultRenderer() == NULL ? "NULL" : "not null") << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     object->SetCurrentRenderer(ren);                                    \
     if (object->GetCurrentRenderer() != ren)                            \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Get current renderer failed." << std::endl;         \
-      }                                                                 \
+    }                                                                 \
                                                                         \
     iren->Initialize();                                                 \
     renWin->Render();                                                   \
     if (0)                                                              \
-      {                                                                 \
+    {                                                                 \
       object->CreateDefaultRepresentation();                            \
       TEST_SET_GET_BOOLEAN( object, Enabled);                           \
       object->On();                                                     \
       if (!object->GetEnabled())                                        \
-        {                                                               \
+      {                                                               \
         std::cerr << "Error in On" << std::endl;                        \
         return EXIT_FAILURE;                                            \
-        }                                                               \
+      }                                                               \
       object->Off();                                                    \
       if (object->GetEnabled())                                         \
-        {                                                               \
+      {                                                               \
         std::cerr << "Error in Off" << std::endl;                       \
         return EXIT_FAILURE;                                            \
-        }                                                               \
-      }                                                                 \
+      }                                                               \
+    }                                                                 \
     TEST_SET_GET_DOUBLE( object, Priority, 0.0);                        \
     float min = object->GetPriorityMinValue();                          \
     float max = object->GetPriorityMaxValue();                          \
@@ -347,7 +347,7 @@
                                                                         \
     object->OnChar();                                                   \
     if (0)                                                              \
-      {                                                                 \
+    {                                                                 \
       double worldPt[4];                                                \
       double x = 1.0, y = 1.0, z = 1.0;                                 \
       object->ComputeDisplayToWorld(ren, x, y, z, worldPt);             \
@@ -355,7 +355,7 @@
       double displayPt[3];                                              \
       object->ComputeWorldToDisplay(ren, x, y, z, displayPt);           \
       std::cout << "World " << x << "," << y << "," << z << " to display = " << displayPt[0] << "," << displayPt[1] << "," << displayPt[2] << std::endl; \
-      }                                                                 \
+    }                                                                 \
                                                                         \
     object->GrabFocus(NULL, NULL);                                      \
     object->ReleaseFocus();                                             \
@@ -367,17 +367,17 @@
     EXERCISE_BASIC_INTERACTOR_OBSERVER_METHODS(object); \
     TEST_SET_GET_BOOLEAN( object, ProcessEvents);       \
     if (object->GetEventTranslator() == NULL)  \
-      {                                                 \
+    {                                                 \
       std::cerr << "Error getting event translator, is null." << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     object->CreateDefaultRepresentation();                              \
     object->Render();                                                   \
     if (object->GetParent() != NULL)                                    \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Error, parent is not null." << std::endl;           \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
   }
 
 /// test vtkBorderWidget methods
@@ -416,7 +416,7 @@
                                                         \
     object->Pick();                                     \
                                                         \
-    unsigned long redrawMTime = object->GetRedrawMTime();               \
+    vtkMTimeType redrawMTime = object->GetRedrawMTime();               \
     std::cout << "Redraw Modified Time = " << redrawMTime << std::endl; \
                                                                         \
     vtkSmartPointer< className > copyProp = vtkSmartPointer< className >::New(); \
@@ -432,20 +432,20 @@
     object->PokeMatrix(mat);                                            \
     mat = object->GetMatrix();                                          \
     if (mat == NULL)                                                    \
-      {                                                                 \
+    {                                                                 \
       std::cout << "No matrix." << std::endl;                           \
-      }                                                                 \
+    }                                                                 \
                                                                         \
     vtkSmartPointer<vtkInformation> info =  vtkSmartPointer<vtkInformation>::New(); \
     info = object->GetPropertyKeys();                                   \
     if (info != NULL)                                                   \
-      {                                                                 \
+    {                                                                 \
       info->Print(std::cout);                                            \
-      }                                                                 \
+    }                                                                 \
     else                                                                \
-      {                                                                 \
+    {                                                                 \
       std::cout << "No property keys" << std::endl;                     \
-      }                                                                 \
+    }                                                                 \
     object->SetPropertyKeys(info);                                      \
     std::cout << "Has null required keys? " << object->HasKeys(NULL) << std::endl; \
                                                                         \
@@ -463,28 +463,28 @@
     vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New(); \
     object->AddConsumer(actor);                                         \
     if (object->IsConsumer(actor) != 1)                                 \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Failed IsConsumer check for a valid consumer." << std::endl;\
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     if (object->IsConsumer(NULL) != 0)                                  \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Failed IsConsumer check for a null consumer." << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     vtkSmartPointer<vtkActor> actor2 = object->GetConsumer(0);        \
     if (actor2 != actor)                                                \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Failed get consumer check for a valid consumer." << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     object->RemoveConsumer(actor);                                      \
     actor2 = object->GetConsumer(0);                                    \
     if (actor2 != NULL)                                                 \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Failed get consumer check for an invalid consumer number 0." << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
   }
 
 /// test vtkWidgetRepresentation methods
@@ -503,10 +503,10 @@
     object->SetRenderer(ren1);                                          \
     vtkSmartPointer<vtkRenderer> ren2 = object->GetRenderer();          \
     if (ren2 != ren1)                                                   \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Failure in GetRenderer." << std::endl;              \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
                                                                         \
     object->BuildRepresentation();                                      \
                                                                         \
@@ -514,13 +514,13 @@
     object->PlaceWidget(bounds);                                        \
     double *bounds2 = object->GetBounds();                              \
     if (bounds2 == NULL)                                                \
-      {                                                                 \
+    {                                                                 \
       std::cout << "GetBounds is null." << std::endl;                   \
-      }                                                                 \
+    }                                                                 \
     else                                                                \
-      {                                                                 \
+    {                                                                 \
       std::cout << "Bounds = " << bounds[0] << "," << bounds[1] << "," << bounds[2] << "," << bounds[3] << "," << bounds[4] << "," << bounds[5] << std::endl; \
-      }                                                                 \
+    }                                                                 \
                                                                         \
     double eventPos[2] = {10.0, 10.0};                                  \
     object->StartWidgetInteraction(eventPos);                           \
@@ -567,10 +567,10 @@
     if (pos[0] != pos2[0] ||                                            \
         pos[0] != pos2[0] ||                                            \
         pos[0] != pos2[0])                                              \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Failed to SetCenterDisplayPosition to " << pos2[0] << ", " << pos2[1] << ", " << pos2[2] << ", instead got " << pos[0] << ", " << pos[1] << ", " << pos[2] << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
                                                                         \
     pos[0] = -100.0;                                                    \
     object->SetPoint1DisplayPosition(pos2);                             \
@@ -578,10 +578,10 @@
     if (pos[0] != pos2[0] ||                                            \
         pos[0] != pos2[0] ||                                            \
         pos[0] != pos2[0])                                              \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Failed to SetPoint1DisplayPosition to " << pos2[0] << ", " << pos2[1] << ", " << pos2[2] << ", instead got " << pos[0] << ", " << pos[1] << ", " << pos[2] << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
                                                                         \
     pos[0] = 101.0;                                                     \
     object->SetPoint2DisplayPosition(pos2);                             \
@@ -589,10 +589,10 @@
     if (pos[0] != pos2[0] ||                                            \
         pos[0] != pos2[0] ||                                            \
         pos[0] != pos2[0])                                              \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Failed to SetPoint2DisplayPosition to " << pos2[0] << ", " << pos2[1] << ", " << pos2[2] << ", instead got " << pos[0] << ", " << pos[1] << ", " << pos[2] << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
                                                                         \
     vtkSmartPointer<vtkPointHandleRepresentation2D> phandle = vtkSmartPointer<vtkPointHandleRepresentation2D>::New(); \
     object->SetHandleRepresentation(phandle);                           \
@@ -624,20 +624,20 @@
     object->SetPosition(pos);                                           \
     pos2 = object->GetPosition();                                       \
     if (pos2 == NULL)                                                   \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Failure in Get/Set Position pos, got null position back." << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     else if (pos2[0] != pos[0] ||                                       \
         pos2[1] != pos[1])                                              \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Failure in Get/Set Position pos, expected " << pos[0] << ", " << pos[1] << ", instead got " << pos2[0] << ", " << pos2[1] << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     else                                                                \
-      {                                                                 \
+    {                                                                 \
       std::cout << "Set Position to "  << pos2[0] << ", " << pos2[1]  << std::endl; \
-      }\
+    }\
                                                                         \
     pos[0] = 12.0;                                                      \
     object->SetPosition(pos[0], pos[1]);                                \
@@ -645,19 +645,19 @@
     if (pos2 == NULL ||                                                 \
         pos2[0] != pos[0] ||                                            \
         pos2[1] != pos[1])                                              \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Failure in Get/Set Position x,y, expected " << pos[0] << ", " << pos[1]  << ", instead got " << pos2[0] << ", " << pos2[1]  << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     vtkSmartPointer<vtkCoordinate> coord = object->GetPositionCoordinate(); \
     pos2 = coord->GetValue();                                           \
     if (pos2 == NULL ||                                                 \
         pos2[0] != pos[0] ||                                            \
         pos2[1] != pos[1])                                              \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Failure in Get/ Coordinate, expected " << pos[0] << ", " << pos[1] << ", instead got " << pos2[0] << ", " << pos2[1]  << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
                                                                         \
     pos[0] = 44.0;                                                      \
     object->SetPosition2(pos);                                           \
@@ -665,29 +665,29 @@
     if (pos2 == NULL ||                                                 \
         pos2[0] != pos[0] ||                                            \
         pos2[1] != pos[1])                                              \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Failure in Get/Set Position2 pos, expected " << pos[0] << ", " << pos[1] << ", instead got " << pos2[0] << ", " << pos2[1]  << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     pos[0] = 12.0;                                                      \
     object->SetPosition2(pos[0], pos[1]);                                \
     pos2 = object->GetPosition2();                                       \
     if (pos2 == NULL ||                                                 \
         pos2[0] != pos[0] ||                                            \
         pos2[1] != pos[1])                                              \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Failure in Get/Set Position2 x,y, expected " << pos[0] << ", " << pos[1] << ", instead got " << pos2[0] << ", " << pos2[1] << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     coord = object->GetPosition2Coordinate(); \
     pos2 = coord->GetValue();                                           \
     if (pos2 == NULL ||                                                 \
         pos2[0] != pos[0] ||                                            \
         pos2[1] != pos[1])                                              \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Failure in Get/ Coordinate 2, expected " << pos[0] << ", " << pos[1] << ", instead got " << pos2[0] << ", " << pos2[1] << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
                                                                         \
     TEST_SET_GET_INT(object, ShowBorder, 0);                            \
     TEST_SET_GET_INT(object, ShowBorder, 1);                            \
@@ -706,9 +706,9 @@
                                                                         \
     double *selPoint = object->GetSelectionPoint();                     \
     if (selPoint)                                                       \
-      {                                                                 \
+    {                                                                 \
       std::cout << "Selection Point = " << selPoint[0] << ", " << selPoint[1] << std::endl; \
-      }                                                                 \
+    }                                                                 \
                                                                         \
     TEST_SET_GET_BOOLEAN( object,Moving);                               \
                                                                         \
@@ -747,23 +747,23 @@
     node1->Set##variable(prop1);                                          \
     vtkSmartPointer<vtkProperty> prop = node1->Get##variable();           \
     if (!prop)                                                          \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Got null variable property back after setting it!" << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     double *col = prop->GetColor();                                     \
     if (!col)                                                           \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Got null colour back!" << std::endl;                \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     if (col[0] != colour[0] ||                                          \
         col[1] != colour[1] ||                                          \
         col[2] != colour[2])                                            \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Got wrong colour back after setting it! Expected " << colour[0] << ", " << colour[1] << ", " << colour[2] << ", but got " << col[0] << ", " << col[1] << ", " << col[2] << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
                                                                         \
                                                                         \
   }                                                                     \
@@ -793,23 +793,23 @@
     if (pos2[0] != wpos[0] ||                                            \
         pos2[1] != wpos[1] ||                                            \
         pos2[2] != wpos[2])                                              \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Failure in Get WorldPosition pos2, expected " << wpos[0] << ", " << wpos[1] << ", " << wpos[2] << ", instead got " << pos2[0] << ", " << pos2[1] << ", " << pos2[2] << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     pos3 = object->GetWorldPosition();                                  \
     if (!pos3)                                                          \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Failure in double * GetWorldPosition , expected " << wpos[0] << ", " << wpos[1] <<  ", " << wpos[2] << ", instead got a null pointer." << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     if (pos3[0] != wpos[0] ||                                            \
         pos3[1] != wpos[1] ||                                            \
         pos3[2] != wpos[2])                                              \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Failure in double * GetWorldyPosition , expected " << wpos[0] << ", " << wpos[1] <<  ", " << wpos[2] << ", instead got " << pos3[0] << ", " << pos3[1] << ", " << pos3[2] << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     std::cout << "Done testing world position." << std::endl;           \
                                                                         \
     std::cout << "Testing Set/Get Display Position" << std::endl;       \
@@ -823,22 +823,22 @@
     std::cout << "After GetDisplayPosition second time." << std::endl;  \
     if (pos2[0] != 0 ||                                                 \
         pos2[1] != 0 )                                                  \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Failure in GetDisplayPosition pos2, expected (0,0) instead got " << pos2[0] << ", " << pos2[1] << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     pos3 = object->GetDisplayPosition();                                \
     if (!pos3)                                                          \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Failure in double * GetDisplayPosition, expected (0,0) instead got a null pointer." << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     if (pos3[0] != 0 ||                                            \
         pos3[1] != 0)                                              \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Failure in double * GetDisplayPosition , expected (0,0) instead got " << pos3[0] << ", " << pos3[1] << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     TEST_SET_GET_INT_RANGE(object, Tolerance, 2, 99);                   \
     TEST_SET_GET_BOOLEAN( object, ActiveRepresentation);                \
     TEST_SET_GET_BOOLEAN( object, Constrained);                         \
@@ -854,10 +854,10 @@
     object->SetPointPlacer(pplacer);                                    \
     vtkSmartPointer<vtkPointPlacer> pplacer2 = object->GetPointPlacer(); \
     if (pplacer2 != pplacer)                                            \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Error in Set/Get point placer." << std::endl;       \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     flag = object->CheckConstraint(ren3, posToCheck);                   \
     std::cout << "Check Constraint after setting point placer = " << flag << std::endl; \
   }
@@ -871,15 +871,15 @@
     object->SetHandle(pd);                                              \
     vtkSmartPointer<vtkPolyData> pd2 = object->GetHandle();             \
     if (pd2 == NULL)                                                    \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Error getting handle, null pointer." << std::endl;  \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     if (pd2 != pd)                                                     \
-      {                                                                 \
+    {                                                                 \
       std::cerr << "Error getting handle, not the same as set." << std::endl; \
       return EXIT_FAILURE;                                              \
-      }                                                                 \
+    }                                                                 \
     TEST_SET_GET_PROPERTY(object, Property);                            \
     TEST_SET_GET_PROPERTY(object, SelectedProperty);                    \
                                                                         \
@@ -891,9 +891,9 @@
                                                                         \
     vtkSmartPointer<vtkFollower> follower = object->GetLabelTextActor(); \
     if (follower == NULL)                                               \
-      {                                                                 \
+    {                                                                 \
       std::cout << "Follower is null." << std::endl;                    \
-      }                                                                 \
+    }                                                                 \
                                                                         \
     object->SetUniformScale(-1.0);                                      \
     object->SetUniformScale(0.0);                                       \

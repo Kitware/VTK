@@ -40,9 +40,9 @@ int TestDepthSortPolyData(int argc, char *argv[])
   cam->SetFocalPoint(1,1,0);
 
   for (size_t j = 0; j < sizeof(sortMode)/sizeof(int); ++j)
-    {
+  {
     for (size_t i = 0; i < sizeof(sortDir)/sizeof(int); ++i)
-      {
+    {
       vtkSphereSource *ss = vtkSphereSource::New();
       ss->SetThetaResolution(64);
       ss->SetPhiResolution(64);
@@ -56,14 +56,14 @@ int TestDepthSortPolyData(int argc, char *argv[])
       ds->SortScalarsOn();
       ds->SetInputConnection(ss->GetOutputPort(0));
       if (i == vtkDepthSortPolyData::VTK_DIRECTION_SPECIFIED_VECTOR)
-        {
+      {
         ds->SetOrigin(0.0, 0.0, 0.0);
         ds->SetVector(0.5, 0.5, 0.125);
-        }
+      }
       else
-        {
+      {
         ds->SetCamera(cam);
-        }
+      }
       ss->Delete();
 
       vtkPolyDataMapper *pdm = vtkPolyDataMapper::New();
@@ -90,8 +90,8 @@ int TestDepthSortPolyData(int argc, char *argv[])
 
       ren->AddActor(act);
       act->Delete();
-      }
     }
+  }
 
   cam->Delete();
   cam = ren->GetActiveCamera();
@@ -104,9 +104,9 @@ int TestDepthSortPolyData(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage(renWin);
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   iren->Delete();
   return !retVal;

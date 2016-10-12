@@ -13,11 +13,14 @@
 
 =========================================================================*/
 
-// .NAME vtkContextKeyEvent - data structure to represent key events.
-//
-// .SECTION Description
-// Provides a convenient data structure to represent key events in the
-// vtkContextScene. Passed to vtkAbstractContextItem objects.
+/**
+ * @class   vtkContextKeyEvent
+ * @brief   data structure to represent key events.
+ *
+ *
+ * Provides a convenient data structure to represent key events in the
+ * vtkContextScene. Passed to vtkAbstractContextItem objects.
+*/
 
 #ifndef vtkContextKeyEvent_h
 #define vtkContextKeyEvent_h
@@ -33,21 +36,25 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkContextKeyEvent
 public:
   vtkContextKeyEvent() {}
 
-  // Description:
-  // Set the interactor for the key event.
+  /**
+   * Set the interactor for the key event.
+   */
   void SetInteractor(vtkRenderWindowInteractor *interactor);
 
-  // Description:
-  // Get the interactor for the key event. This can be null, and is provided
-  // only for convenience.
+  /**
+   * Get the interactor for the key event. This can be null, and is provided
+   * only for convenience.
+   */
   vtkRenderWindowInteractor* GetInteractor() const;
 
-  // Description:
-  // Set the position of the mouse when the key was pressed.
+  /**
+   * Set the position of the mouse when the key was pressed.
+   */
   void SetPosition(const vtkVector2i& position) { this->Position = position; }
 
-  // Description:
-  // Get the position of the mouse when the key was pressed.
+  /**
+   * Get the position of the mouse when the key was pressed.
+   */
   vtkVector2i GetPosition() const { return this->Position; }
 
   char GetKeyCode() const;

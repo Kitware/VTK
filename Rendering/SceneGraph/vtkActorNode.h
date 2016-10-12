@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkActorNode - vtkViewNode specialized for vtkActors
-// .SECTION Description
-// State storage and graph traversal for vtkActor/Mapper and Property
-// Made a choice to merge actor, mapper and property together. If there
-// is a compelling reason to separate them we can.
+/**
+ * @class   vtkActorNode
+ * @brief   vtkViewNode specialized for vtkActors
+ *
+ * State storage and graph traversal for vtkActor/Mapper and Property
+ * Made a choice to merge actor, mapper and property together. If there
+ * is a compelling reason to separate them we can.
+*/
 
 #ifndef vtkActorNode_h
 #define vtkActorNode_h
@@ -32,8 +35,9 @@ public:
   vtkTypeMacro(vtkActorNode, vtkViewNode);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //Description:
-  //Build containers for our child nodes.
+  /**
+   * Build containers for our child nodes.
+   */
   virtual void Build(bool prepass);
 
 protected:
@@ -41,8 +45,8 @@ protected:
   ~vtkActorNode();
 
  private:
-  vtkActorNode(const vtkActorNode&); // Not implemented.
-  void operator=(const vtkActorNode&); // Not implemented.
+  vtkActorNode(const vtkActorNode&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkActorNode&) VTK_DELETE_FUNCTION;
 };
 
 #endif

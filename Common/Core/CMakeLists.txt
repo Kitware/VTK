@@ -155,6 +155,8 @@ SET(Module_SRCS
   vtkArrayExtents.cxx
   vtkArrayExtentsList.cxx
   vtkArrayIterator.cxx
+  vtkArrayIteratorTemplate.txx
+  vtkArrayIteratorTemplateInstantiate.cxx
   vtkArrayRange.cxx
   vtkArraySort.cxx
   vtkArrayWeights.cxx
@@ -202,6 +204,7 @@ SET(Module_SRCS
   vtkInformationIntegerVectorKey.cxx
   vtkInformationIterator.cxx
   vtkInformationKey.cxx
+  vtkInformationKeyLookup.cxx
   vtkInformationKeyVectorKey.cxx
   vtkInformationObjectBaseKey.cxx
   vtkInformationObjectBaseVectorKey.cxx
@@ -220,6 +223,7 @@ SET(Module_SRCS
   vtkLookupTable.cxx
   vtkMappedDataArray.txx
   vtkMath.cxx
+  vtkMersenneTwister.cxx
   vtkMinimalStandardRandomSequence.cxx
   vtkMultiThreader.cxx
   vtkMutexLock.cxx
@@ -289,9 +293,7 @@ set(${vtk-module}_HDRS
   vtkArrayInterpolate.h
   vtkArrayInterpolate.txx
   vtkArrayIteratorIncludes.h
-  vtkArrayIteratorTemplate.h
   vtkArrayIteratorTemplateImplicit.txx
-  vtkArrayIteratorTemplate.txx
   vtkArrayPrint.h
   vtkArrayPrint.txx
   vtkAssume.h
@@ -310,6 +312,7 @@ set(${vtk-module}_HDRS
   vtkInformationInternals.h
   vtkMappedDataArray.h
   vtkMathUtilities.h
+  vtkMersenneTwister.h
   vtkNew.h
   vtkPeriodicDataArray.h
   vtkSetGet.h
@@ -539,7 +542,6 @@ set_source_files_properties(
   vtkAbstractArray
   vtkArray
   vtkArrayIterator
-  vtkArrayIteratorTemplate
   vtkCallbackCommand
   vtkCommand
   vtkCommonInformationKeyManager
@@ -583,6 +585,7 @@ set_source_files_properties(
   vtkArrayExtents.cxx
   vtkArrayExtentsList.cxx
   vtkArrayIteratorTemplate.txx
+  vtkArrayIteratorTemplateInstantiate.cxx
   vtkArrayRange.cxx
   vtkArraySort.cxx
   vtkArrayWeights.cxx
@@ -597,6 +600,7 @@ set_source_files_properties(
   vtkGarbageCollectorManager.cxx
   vtkIndent.cxx
   vtkLargeInteger.cxx
+  vtkMersenneTwister_Private.cxx
   vtkOStrStreamWrapper.cxx
   vtkOStreamWrapper.cxx
   vtkOldStyleCallbackCommand.cxx
@@ -619,7 +623,6 @@ set_source_files_properties(
   vtkArrayIteratorIncludes.h
   vtkArrayIteratorTemplate.h
   vtkArrayIteratorTemplateImplicit.txx
-  vtkArrayIteratorTemplate.txx
   vtkArrayPrint.h
   vtkArrayPrint.txx
   vtkAtomicTypeConcepts.h
@@ -668,6 +671,7 @@ set_source_files_properties(
 set_source_files_properties(
   vtkABI.h
   vtkAOSDataArrayTemplate.txx
+  vtkArrayIteratorTemplateInstantiate.cxx
   vtkAtomic.h
   vtkAutoInit.h
   vtkIOStream.cxx
@@ -702,6 +706,7 @@ set_source_files_properties(
   )
 
 set_source_files_properties(
+  vtkArrayIteratorTemplateInstantiate.cxx # Has no header
   vtkSOADataArrayTemplateInstantiate.cxx # Has no header
   PROPERTIES SKIP_HEADER_INSTALL 1
 )
@@ -715,3 +720,7 @@ endif()
 vtk_module_library(vtkCommonCore ${Module_SRCS})
 
 vtk_module_link_libraries(vtkCommonCore LINK_PRIVATE ${CMAKE_THREAD_LIBS} LINK_PUBLIC ${VTK_SMP_IMPLEMENTATION_LIBRARIES})
+
+if(ANDROID)
+  target_link_libraries(vtkCommonCore LINK_PRIVATE log)
+endif()

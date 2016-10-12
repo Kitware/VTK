@@ -71,9 +71,9 @@ vtkDataObject* vtkPiecewiseFunctionAlgorithm::GetInput()
 vtkDataObject* vtkPiecewiseFunctionAlgorithm::GetInput(int port)
 {
   if (this->GetNumberOfInputConnections(port) < 1)
-    {
+  {
     return 0;
-    }
+  }
   return this->GetExecutive()->GetInputData(port, 0);
 }
 
@@ -84,9 +84,9 @@ int vtkPiecewiseFunctionAlgorithm::ProcessRequest(vtkInformation* request,
 {
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
+  {
     return this->RequestData(request, inputVector, outputVector);
-    }
+  }
 
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }

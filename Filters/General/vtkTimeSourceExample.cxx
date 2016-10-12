@@ -56,46 +56,46 @@ void vtkTimeSourceExample::LookupTimeAndValue(double &time, double &value)
 {
   double t = time;
   if (this->Analytic)
-    {
+  {
     time = t;
     //clamp within range
     if (time < this->Steps[0])
-      {
-      time = this->Steps[0];
-      }
-    if (time > this->Steps[this->NumSteps-1])
-      {
-      time = this->Steps[this->NumSteps-1];
-      }
-    value = this->ValueFunction(time);
-    }
-  else
     {
+      time = this->Steps[0];
+    }
+    if (time > this->Steps[this->NumSteps-1])
+    {
+      time = this->Steps[this->NumSteps-1];
+    }
+    value = this->ValueFunction(time);
+  }
+  else
+  {
     int index = -2;
     for (int i = 0; i < this->NumSteps; i++)
-      {
+    {
       if (this->Steps[i] == t)
-        {
+      {
         index = i;
         break;
-        }
+      }
       if (this->Steps[i] > t)
-        {
+      {
         index = i-1;
         break;
-        }
       }
+    }
     if (index == -1)
-      {
+    {
       index = 0;
-      }
+    }
     if (index == -2)
-      {
+    {
       index = this->NumSteps-1;
-      }
+    }
     time = this->Steps[index];
     value = this->Values[index];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -103,12 +103,12 @@ int vtkTimeSourceExample::NumCellsFunction(double t)
 {
   int numCells = 1;
   if (this->Growing)
-    {
+  {
     //goes from 1 to NumSteps/2+1, adding one cell each step, and returns
     double halfSteps = this->NumSteps/2.0;
     numCells = (int)(halfSteps - (fabs(2.0*(t-0.5)*halfSteps)));
     numCells+=1;
-    }
+  }
   return numCells;
 }
 
@@ -127,17 +127,17 @@ vtkTimeSourceExample::vtkTimeSourceExample()
   //times are regularly sampled from 0.0 to 1.0
   this->Steps = new double[this->NumSteps];
   for (int i = 0; i < this->NumSteps; i++)
-    {
+  {
     this->Steps[i] = (double)i/(double)(this->NumSteps-1);
-    }
+  }
 
   //create the table of values at those times for usee when acting as discrete
   this->Values = new double[this->NumSteps];
   for (int i = 0; i < this->NumSteps; i++)
-    {
+  {
     this->Values[i] =
       this->ValueFunction((double)i/(double)(this->NumSteps-1));
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -156,9 +156,9 @@ int vtkTimeSourceExample::RequestInformation(
   )
 {
   if(!this->Superclass::RequestInformation(reqInfo,inVector,outVector))
-    {
+  {
     return 0;
-    }
+  }
 
   vtkInformation *info=outVector->GetInformationObject(0);
 
@@ -175,18 +175,18 @@ int vtkTimeSourceExample::RequestInformation(
   //tell the caller if this filter can provide values ONLY at discrete times
   //or anywhere within the time range
   if (!this->Analytic)
-    {
+  {
     info->Set(
       vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
       this->Steps,
       this->NumSteps);
-    }
+  }
   else
-    {
+  {
     info->Remove(
       vtkStreamingDemandDrivenPipeline::TIME_STEPS()
       );
-    }
+  }
 
   info->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
 
@@ -204,16 +204,16 @@ int vtkTimeSourceExample::RequestData(
   vtkUnstructuredGrid *output= vtkUnstructuredGrid::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!output)
-    {
+  {
     return 0;
-    }
+  }
 
   //determine what time is being asked for
   double reqTime = 0.0;
   //int reqNTS = 0;
   double reqTS(0);
   if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
-    {
+  {
     //reqNTS = outInfo->Length
     //  (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     reqTS = outInfo->Get
@@ -222,7 +222,7 @@ int vtkTimeSourceExample::RequestData(
     //TODO: produce multiblock output when multiple time steps are asked for
     //for now just answer the first one
     reqTime = reqTS;
-    }
+  }
 
   //if analytic compute the value at that time
   //if discrete look up the nearest time and value from the table
@@ -267,11 +267,11 @@ int vtkTimeSourceExample::RequestData(
   vtkPoints *points = vtkPoints::New();
   vtkIdType pid = 0;
   for (int i = 0; i < 2; i++)
-    {
+  {
     for (int j = 0; j < numCells+1; j++)
-      {
+    {
       for (int k = 0; k < 2; k++)
-        {
+      {
         pd->InsertNextValue(value);
         id->InsertNextValue(pid);
         pid++;
@@ -279,9 +279,9 @@ int vtkTimeSourceExample::RequestData(
         yd->InsertNextValue(y+j);
         zd->InsertNextValue(i);
         points->InsertNextPoint(x+k,y+j,i);
-        }
       }
     }
+  }
   output->SetPoints(points);
   points->Delete();
   id->Delete();
@@ -317,11 +317,11 @@ int vtkTimeSourceExample::RequestData(
   vtkIdType ptcells[8];
   vtkIdType cid = 0;
   for (int i = 0; i < 1; i++)
-    {
+  {
     for (int j = 0; j < numCells; j++)
-      {
+    {
       for (int k = 0; k < 1; k++)
-        {
+      {
         cd->InsertNextValue(value);
         id->InsertNextValue(cid);
         cid++;
@@ -338,9 +338,9 @@ int vtkTimeSourceExample::RequestData(
         ptcells[6] = (i+1)*((numCells+1)*2) + (j+1)*2 + (k+0);
         ptcells[7] = (i+1)*((numCells+1)*2) + (j+1)*2 + (k+1);
         output->InsertNextCell(VTK_VOXEL, 8, ptcells);
-        }
       }
     }
+  }
   id->Delete();
   xd->Delete();
   yd->Delete();

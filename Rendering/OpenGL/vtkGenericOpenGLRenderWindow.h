@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGenericOpenGLRenderWindow - platform independent render window
-
-// .SECTION Description
-// vtkGenericOpenGLRenderWindow provides a skeleton for implementing a render window
-// using one's own OpenGL context and drawable.
-// To be effective, one must register an observer for WindowMakeCurrentEvent,
-// WindowIsCurrentEvent and WindowFrameEvent.  When this class sends a WindowIsCurrentEvent,
-// the call data is an bool* which one can use to return whether the context is current.
+/**
+ * @class   vtkGenericOpenGLRenderWindow
+ * @brief   platform independent render window
+ *
+ *
+ * vtkGenericOpenGLRenderWindow provides a skeleton for implementing a render window
+ * using one's own OpenGL context and drawable.
+ * To be effective, one must register an observer for WindowMakeCurrentEvent,
+ * WindowIsCurrentEvent and WindowFrameEvent.  When this class sends a WindowIsCurrentEvent,
+ * the call data is an bool* which one can use to return whether the context is current.
+*/
 
 #ifndef vtkGenericOpenGLRenderWindow_h
 #define vtkGenericOpenGLRenderWindow_h
@@ -105,12 +108,15 @@ public:
   void DestroyWindow();
   // }@
 
-  // Description:
-  // Allow to update state within observer callback without changing
-  // data argument and MTime.
+  //@{
+  /**
+   * Allow to update state within observer callback without changing
+   * data argument and MTime.
+   */
   void SetIsDirect(int newValue);
   void SetSupportsOpenGL(int newValue);
   void SetIsCurrent(bool newValue);
+  //@}
 
 protected:
   int DirectStatus;
@@ -118,8 +124,8 @@ protected:
   bool CurrentStatus;
 
 private:
-  vtkGenericOpenGLRenderWindow(const vtkGenericOpenGLRenderWindow&);  // Not implemented.
-  void operator=(const vtkGenericOpenGLRenderWindow&);  // Not implemented.
+  vtkGenericOpenGLRenderWindow(const vtkGenericOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGenericOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
 };
 
 #endif

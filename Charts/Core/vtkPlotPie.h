@@ -13,9 +13,12 @@
 
 =========================================================================*/
 
-// .NAME vtkPlotPie - Class for drawing a Pie diagram.
-//
-// .SECTION Description
+/**
+ * @class   vtkPlotPie
+ * @brief   Class for drawing a Pie diagram.
+ *
+ *
+*/
 
 #ifndef vtkPlotPie_h
 #define vtkPlotPie_h
@@ -38,44 +41,54 @@ public:
 
   static vtkPlotPie *New();
 
-  // Description:
-  // Paint event for the item.
+  /**
+   * Paint event for the item.
+   */
   virtual bool Paint(vtkContext2D *painter);
 
-  // Description:
-  // Paint legend event for the XY plot, called whenever the legend needs the
-  // plot items symbol/mark/line drawn. A rect is supplied with the lower left
-  // corner of the rect (elements 0 and 1) and with width x height (elements 2
-  // and 3). The plot can choose how to fill the space supplied.
+  /**
+   * Paint legend event for the XY plot, called whenever the legend needs the
+   * plot items symbol/mark/line drawn. A rect is supplied with the lower left
+   * corner of the rect (elements 0 and 1) and with width x height (elements 2
+   * and 3). The plot can choose how to fill the space supplied.
+   */
   bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect, int legendIndex);
 
-  // Description:
-  // Set the dimensions of the pie, arguments 1 and 2 are the x and y coordinate
-  // of the bottom corner. Arguments 3 and 4 are the width and height.
+  /**
+   * Set the dimensions of the pie, arguments 1 and 2 are the x and y coordinate
+   * of the bottom corner. Arguments 3 and 4 are the width and height.
+   */
   void SetDimensions(int arg1, int arg2, int arg3, int arg4);
 
-  // Description:
-  // Set the dimensions of the pie, elements 0 and 1 are the x and y coordinate
-  // of the bottom corner. Elements 2 and 3 are the width and height.
+  /**
+   * Set the dimensions of the pie, elements 0 and 1 are the x and y coordinate
+   * of the bottom corner. Elements 2 and 3 are the width and height.
+   */
   void SetDimensions(int arg[4]);
 
-  // Description:
-  // Get the dimensions of the pie, elements 0 and 1 are the x and y coordinate
-  // of the bottom corner. Elements 2 and 3 are the width and height.
+  //@{
+  /**
+   * Get the dimensions of the pie, elements 0 and 1 are the x and y coordinate
+   * of the bottom corner. Elements 2 and 3 are the width and height.
+   */
   vtkGetVector4Macro(Dimensions, int);
+  //@}
 
-  // Description:
-  // Set the color series to use for the Pie.
+  /**
+   * Set the color series to use for the Pie.
+   */
   void SetColorSeries(vtkColorSeries *colorSeries);
 
-  // Description:
-  // Get the color series used.
+  /**
+   * Get the color series used.
+   */
   vtkColorSeries *GetColorSeries();
 
-  // Description:
-  // Function to query a plot for the nearest point to the specified coordinate.
-  // Returns the index of the data series with which the point is associated or
-  // -1.
+  /**
+   * Function to query a plot for the nearest point to the specified coordinate.
+   * Returns the index of the data series with which the point is associated or
+   * -1.
+   */
   virtual vtkIdType GetNearestPoint(const vtkVector2f& point,
                                     const vtkVector2f& tolerance,
                                     vtkVector2f* location);
@@ -84,27 +97,31 @@ protected:
   vtkPlotPie();
   ~vtkPlotPie();
 
-  // Description:
-  // Update the table cache.
+  /**
+   * Update the table cache.
+   */
   bool UpdateTableCache(vtkTable *table);
 
   int Dimensions[4];
 
-  // Description:
-  // The color series to use for the pie.
+  /**
+   * The color series to use for the pie.
+   */
   vtkSmartPointer<vtkColorSeries> ColorSeries;
 
-  // Description:
-  // Store a well packed set of angles for the wedges of the pie.
+  /**
+   * Store a well packed set of angles for the wedges of the pie.
+   */
   vtkPoints2D *Points;
 
-  // Description:
-  // The point cache is marked dirty until it has been initialized.
+  /**
+   * The point cache is marked dirty until it has been initialized.
+   */
   vtkTimeStamp BuildTime;
 
 private:
-  vtkPlotPie(const vtkPlotPie &);     // Not implemented.
-  void operator=(const vtkPlotPie &); // Not implemented.
+  vtkPlotPie(const vtkPlotPie &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPlotPie &) VTK_DELETE_FUNCTION;
 
   vtkPlotPiePrivate *Private;
 

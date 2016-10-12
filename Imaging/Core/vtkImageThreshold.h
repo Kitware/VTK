@@ -12,12 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageThreshold -  Flexible threshold
-// .SECTION Description
-// vtkImageThreshold can do binary or continuous thresholding for lower, upper
-// or a range of data.  The output data type may be different than the
-// output, but defaults to the same type.
-
+/**
+ * @class   vtkImageThreshold
+ * @brief    Flexible threshold
+ *
+ * vtkImageThreshold can do binary or continuous thresholding for lower, upper
+ * or a range of data.  The output data type may be different than the
+ * output, but defaults to the same type.
+*/
 
 #ifndef vtkImageThreshold_h
 #define vtkImageThreshold_h
@@ -33,47 +35,67 @@ public:
   vtkTypeMacro(vtkImageThreshold,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // The values greater than or equal to the value match.
+  /**
+   * The values greater than or equal to the value match.
+   */
   void ThresholdByUpper(double thresh);
 
-  // Description:
-  // The values less than or equal to the value match.
+  /**
+   * The values less than or equal to the value match.
+   */
   void ThresholdByLower(double thresh);
 
-  // Description:
-  // The values in a range (inclusive) match
+  /**
+   * The values in a range (inclusive) match
+   */
   void ThresholdBetween(double lower, double upper);
 
-  // Description:
-  // Determines whether to replace the pixel in range with InValue
+  //@{
+  /**
+   * Determines whether to replace the pixel in range with InValue
+   */
   vtkSetMacro(ReplaceIn, int);
   vtkGetMacro(ReplaceIn, int);
   vtkBooleanMacro(ReplaceIn, int);
+  //@}
 
-  // Description:
-  // Replace the in range pixels with this value.
+  //@{
+  /**
+   * Replace the in range pixels with this value.
+   */
   void SetInValue(double val);
   vtkGetMacro(InValue, double);
+  //@}
 
-  // Description:
-  // Determines whether to replace the pixel out of range with OutValue
+  //@{
+  /**
+   * Determines whether to replace the pixel out of range with OutValue
+   */
   vtkSetMacro(ReplaceOut, int);
   vtkGetMacro(ReplaceOut, int);
   vtkBooleanMacro(ReplaceOut, int);
+  //@}
 
-  // Description:
-  // Replace the in range pixels with this value.
+  //@{
+  /**
+   * Replace the in range pixels with this value.
+   */
   void SetOutValue(double val);
   vtkGetMacro(OutValue, double);
+  //@}
 
-  // Description:
-  // Get the Upper and Lower thresholds.
+  //@{
+  /**
+   * Get the Upper and Lower thresholds.
+   */
   vtkGetMacro(UpperThreshold, double);
   vtkGetMacro(LowerThreshold, double);
+  //@}
 
-  // Description:
-  // Set the desired output scalar type to cast to
+  //@{
+  /**
+   * Set the desired output scalar type to cast to
+   */
   vtkSetMacro(OutputScalarType, int);
   vtkGetMacro(OutputScalarType, int);
   void SetOutputScalarTypeToDouble()
@@ -98,6 +120,7 @@ public:
     {this->SetOutputScalarType(VTK_SIGNED_CHAR);}
   void SetOutputScalarTypeToUnsignedChar()
     {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);}
+  //@}
 
 protected:
   vtkImageThreshold();
@@ -121,8 +144,8 @@ protected:
                            int extent[6], int id);
 
 private:
-  vtkImageThreshold(const vtkImageThreshold&);  // Not implemented.
-  void operator=(const vtkImageThreshold&);  // Not implemented.
+  vtkImageThreshold(const vtkImageThreshold&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageThreshold&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -1,11 +1,10 @@
 vtk_module(vtkFiltersGeneral
   GROUPS
     StandAlone
-  DEPENDS
-    vtkCommonComputationalGeometry
-    vtkFiltersCore
   TEST_DEPENDS
     vtkFiltersFlowPaths
+    vtkFiltersModeling
+    vtkIOGeometry
     vtkIOLegacy
     vtkIOXML
     vtkImagingMath
@@ -16,4 +15,15 @@ vtk_module(vtkFiltersGeneral
     vtkTestingRendering
   KIT
     vtkFilters
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkCommonMisc
+    vtkFiltersCore
+  PRIVATE_DEPENDS
+    vtkCommonComputationalGeometry
+    vtkCommonMath
+    vtkCommonSystem
+    vtkCommonTransforms
   )

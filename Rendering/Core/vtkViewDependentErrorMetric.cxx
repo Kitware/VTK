@@ -53,10 +53,10 @@ void vtkViewDependentErrorMetric::SetPixelTolerance(double value)
 {
   assert("pre: positive_value" && value>0);
   if(this->PixelTolerance!=value)
-    {
+  {
     this->PixelTolerance=value;
     this->Modified();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -64,10 +64,10 @@ void vtkViewDependentErrorMetric::SetPixelTolerance(double value)
 void vtkViewDependentErrorMetric::SetViewport(vtkViewport *viewport)
 {
   if(this->Viewport!=viewport)
-    {
+  {
     this->Viewport = viewport;
     this->Modified();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -81,16 +81,16 @@ int vtkViewDependentErrorMetric::RequiresEdgeSubdivision(double *leftPoint,
   assert("pre: rightPoint_exists" && rightPoint!=0);
 //  assert("pre: clamped_alpha" && alpha>0 && alpha<1); // or else true
   if( this->GenericCell->IsGeometryLinear() )
-    {
+  {
     //don't need to do anything:
     return 0;
-    }
+  }
 #if 0
   if( !this->RayFrustumIntersection(leftPoint,rightPoint,frustum) && !this->PointFrustumIntersection(midPoint,frustum))
-    {
+  {
     // not in the frustum, don't need subdivision
     return 0;
-    }
+  }
 #endif
 
   // Get the projection of the left, mid and right points
@@ -142,10 +142,10 @@ double vtkViewDependentErrorMetric::GetError(double *leftPoint,
   assert("pre: rightPoint_exists" && rightPoint!=0);
 //  assert("pre: clamped_alpha" && alpha>0 && alpha<1); // or else true
   if( this->GenericCell->IsGeometryLinear() )
-    {
+  {
     //don't need to do anything:
     return 0;
-    }
+  }
 
   // Get the projection of the left, mid and right points
   double leftProjPoint[2];
@@ -210,11 +210,11 @@ void vtkViewDependentErrorMetric::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PixelTolerance: "  << this->PixelTolerance << endl;
   os << indent << "ViewPort: ";
   if( this->Viewport )
-    {
+  {
     this->Viewport->PrintSelf( os << endl, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(none)" << endl;
-    }
+  }
 }

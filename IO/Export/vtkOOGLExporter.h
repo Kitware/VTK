@@ -13,14 +13,16 @@
 
 =========================================================================*/
 
-// .NAME vtkOOGLExporter - export a scene into Geomview OOGL format.
-// .SECTION Description
-// vtkOOGLExporter is a concrete subclass of vtkExporter that writes
-// Geomview OOGL files.
-//
-// .SECTION See Also
-// vtkExporter
-
+/**
+ * @class   vtkOOGLExporter
+ * @brief   export a scene into Geomview OOGL format.
+ *
+ * vtkOOGLExporter is a concrete subclass of vtkExporter that writes
+ * Geomview OOGL files.
+ *
+ * @sa
+ * vtkExporter
+*/
 
 #ifndef vtkOOGLExporter_h
 #define vtkOOGLExporter_h
@@ -38,10 +40,13 @@ public:
   vtkTypeMacro(vtkOOGLExporter,vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify the name of the Geomview file to write.
+  //@{
+  /**
+   * Specify the name of the Geomview file to write.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
 protected:
   vtkOOGLExporter();
@@ -53,8 +58,8 @@ protected:
   char *FileName;
 
 private:
-  vtkOOGLExporter(const vtkOOGLExporter&); // Not implemented
-  void operator=(const vtkOOGLExporter&); // Not implemented
+  vtkOOGLExporter(const vtkOOGLExporter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOOGLExporter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMapper2D - abstract class specifies interface for objects which render 2D actors
-// .SECTION Description
-// vtkMapper2D is an abstract class which defines the interface for objects
-// which render two dimensional actors (vtkActor2D).
-
-// .SECTION See Also
-// vtkActor2D
+/**
+ * @class   vtkMapper2D
+ * @brief   abstract class specifies interface for objects which render 2D actors
+ *
+ * vtkMapper2D is an abstract class which defines the interface for objects
+ * which render two dimensional actors (vtkActor2D).
+ *
+ * @sa
+ * vtkActor2D
+*/
 
 #ifndef vtkMapper2D_h
 #define vtkMapper2D_h
@@ -45,8 +48,8 @@ protected:
   ~vtkMapper2D() {}
 
 private:
-  vtkMapper2D(const vtkMapper2D&);  // Not implemented.
-  void operator=(const vtkMapper2D&);  // Not implemented.
+  vtkMapper2D(const vtkMapper2D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMapper2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

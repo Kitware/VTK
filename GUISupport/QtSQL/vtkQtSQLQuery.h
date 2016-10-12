@@ -17,10 +17,13 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkQtSQLQuery - query class associated with vtkQtSQLDatabase
-//
-// .SECTION Description
-// Implements vtkSQLQuery using an underlying QSQLQuery.
+/**
+ * @class   vtkQtSQLQuery
+ * @brief   query class associated with vtkQtSQLDatabase
+ *
+ *
+ * Implements vtkSQLQuery using an underlying QSQLQuery.
+*/
 
 #ifndef vtkQtSQLQuery_h
 #define vtkQtSQLQuery_h
@@ -42,38 +45,46 @@ public:
   vtkTypeMacro(vtkQtSQLQuery, vtkSQLQuery);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Execute the query.  This must be performed
-  // before any field name or data access functions
-  // are used.
+  /**
+   * Execute the query.  This must be performed
+   * before any field name or data access functions
+   * are used.
+   */
   virtual bool Execute();
 
-  // Description:
-  // The number of fields in the query result.
+  /**
+   * The number of fields in the query result.
+   */
   virtual int GetNumberOfFields();
 
-  // Description:
-  // Return the name of the specified query field.
+  /**
+   * Return the name of the specified query field.
+   */
   virtual const char* GetFieldName(int col);
 
-  // Description:
-  // Return the type of the specified query field, as defined in vtkType.h.
+  /**
+   * Return the type of the specified query field, as defined in vtkType.h.
+   */
   virtual int GetFieldType(int col);
 
-  // Description:
-  // Advance row, return false if past end.
+  /**
+   * Advance row, return false if past end.
+   */
   virtual bool NextRow();
 
-  // Description:
-  // Return data in current row, field c
+  /**
+   * Return data in current row, field c
+   */
   virtual vtkVariant DataValue(vtkIdType c);
 
-  // Description:
-  // Returns true if an error is set, otherwise false.
+  /**
+   * Returns true if an error is set, otherwise false.
+   */
   virtual bool HasError();
 
-  // Description:
-  // Get the last error text from the query
+  /**
+   * Get the last error text from the query
+   */
   virtual const char* GetLastErrorText();
 
 protected:
@@ -90,8 +101,8 @@ private:
 
   char* LastErrorText;
 
-  vtkQtSQLQuery(const vtkQtSQLQuery &); // Not implemented.
-  void operator=(const vtkQtSQLQuery &); // Not implemented.
+  vtkQtSQLQuery(const vtkQtSQLQuery &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQtSQLQuery &) VTK_DELETE_FUNCTION;
 };
 
 #endif // (QT_EDITION & QT_MODULE_SQL)

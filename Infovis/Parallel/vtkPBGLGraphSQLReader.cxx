@@ -51,13 +51,13 @@ vtkIdType IdentityDistribution(const vtkVariant& id, void* user_data)
   int num_procs = static_cast<int>(data[0]);
   int val = id.ToInt() - 1;
   for (vtkIdType i = 0; i < num_procs; ++i)
-    {
+  {
     vtkPBGLGraphSQLReader::GetRange(i, num_procs, data[1], min, size);
     if (val >= min && val < min + size)
-      {
+    {
       return i;
-      }
     }
+  }
   //return static_cast<vtkIdType>(*((int*)user_data));
   //return id.ToInt() % 2;
   return 0;
@@ -107,9 +107,9 @@ void vtkPBGLGraphSQLReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "VertexTable: " << (this->VertexTable ? this->VertexTable : "(null)") << endl;
   os << indent << "Database: " << (this->Database ? "" : "(null)") << endl;
   if (this->Database)
-    {
+  {
     this->Database->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
 }
 
 
@@ -129,35 +129,35 @@ int vtkPBGLGraphSQLReaderRequestData(
   timer->StartTimer();
   // Check for valid inputs
   if (!self->GetDatabase())
-    {
+  {
     vtkGenericWarningMacro("The Database must be defined");
     return 0;
-    }
+  }
   if (!self->GetEdgeTable())
-    {
+  {
     vtkGenericWarningMacro("The EdgeTable must be defined");
     return 0;
-    }
+  }
   if (!self->GetSourceField())
-    {
+  {
     vtkGenericWarningMacro("The SourceField must be defined");
     return 0;
-    }
+  }
   if (!self->GetTargetField())
-    {
+  {
     vtkGenericWarningMacro("The TargetField must be defined");
     return 0;
-    }
+  }
   if (!self->GetVertexTable())
-    {
+  {
     vtkGenericWarningMacro("The VertexTable must be defined");
     return 0;
-    }
+  }
   if (!self->GetVertexIdField())
-    {
+  {
     vtkGenericWarningMacro("The VertexIdField must be defined");
     return 0;
-    }
+  }
 
   vtkGraph* output = vtkGraph::GetData(output_vec);
 
@@ -210,7 +210,7 @@ int vtkPBGLGraphSQLReaderRequestData(
   // Add local vertex data arrays
   // Note: GetNumberOfFields() is analogous to the # of columns in Query Tbl.
   for (int i = 0; i < vertex_query->GetNumberOfFields(); ++i)
-    {
+  {
     vtkStdString field_name = vertex_query->GetFieldName(i);
     vtkSmartPointer<vtkAbstractArray> arr;
     arr.TakeReference(vtkAbstractArray::CreateArray(
@@ -218,22 +218,22 @@ int vtkPBGLGraphSQLReaderRequestData(
     arr->SetName(field_name);
 
     if (field_name == self->GetVertexIdField())
-      {
+    {
       builder->GetVertexData()->SetPedigreeIds(arr);
-      }
-    else
-      {
-      builder->GetVertexData()->AddArray(arr);
-      }
     }
+    else
+    {
+      builder->GetVertexData()->AddArray(arr);
+    }
+  }
   helper->Synchronize();
 
   // Add the vertices
   VTK_CREATE(vtkVariantArray, row);
   while (vertex_query->NextRow(row))
-    {
+  {
     builder->LazyAddVertex(row);
-    }
+  }
   helper->Synchronize();
 
   // -----[ Edges ]-------------------------
@@ -256,7 +256,7 @@ int vtkPBGLGraphSQLReaderRequestData(
 
   // Add local edge data arrays
   for (int i = 0; i < edge_query->GetNumberOfFields(); ++i)
-    {
+  {
     vtkStdString field_name = edge_query->GetFieldName(i);
     vtkSmartPointer<vtkAbstractArray> arr;
     arr.TakeReference(vtkAbstractArray::CreateArray(edge_query->GetFieldType(i)));
@@ -269,14 +269,14 @@ int vtkPBGLGraphSQLReaderRequestData(
          << endl;
     fflush(stdout);
 #endif
-    }
+  }
   helper->Synchronize();
 
   // Add the edges
   int source_id = edge_query->GetFieldIndex(self->GetSourceField());
   int target_id = edge_query->GetFieldIndex(self->GetTargetField());
   while (edge_query->NextRow(row))
-    {
+  {
     vtkVariant source = edge_query->DataValue(source_id);
     vtkVariant target = edge_query->DataValue(target_id);
 
@@ -288,7 +288,7 @@ int vtkPBGLGraphSQLReaderRequestData(
 #endif
 
     builder->LazyAddEdge(source, target, row);
-    }
+  }
 
 #if defined(DEBUG)      // WCMCLEN
   cout << "["<<rank<<"]\tReader: Done adding edges!" << endl;
@@ -302,10 +302,10 @@ int vtkPBGLGraphSQLReaderRequestData(
 
   // Copy into output graph
   if (!output->CheckedShallowCopy(builder))
-    {
+  {
     vtkGenericWarningMacro("Could not copy to output.");
     return 0;
-    }
+  }
 
   timer->StopTimer();
 #ifdef VTKPBGL_REPORT_TIMES
@@ -325,15 +325,15 @@ int vtkPBGLGraphSQLReader::RequestData(
 {
   int rval = 0;
   if (this->Directed)
-    {
+  {
     rval = vtkPBGLGraphSQLReaderRequestData<vtkMutableDirectedGraph>(
               this, info, input_vec, output_vec);
-    }
+  }
   else
-    {
+  {
     rval = vtkPBGLGraphSQLReaderRequestData<vtkMutableUndirectedGraph>(
               this, info, input_vec, output_vec);
-    }
+  }
   return rval;
 }
 
@@ -348,20 +348,20 @@ int vtkPBGLGraphSQLReader::RequestDataObject(
   if (!current
     || (this->Directed && !vtkDirectedGraph::SafeDownCast(current))
     || (!this->Directed && vtkDirectedGraph::SafeDownCast(current)))
-    {
+  {
     vtkGraph *output = 0;
     if (this->Directed)
-      {
+    {
       output = vtkDirectedGraph::New();
-      }
+    }
     else
-      {
+    {
       output = vtkUndirectedGraph::New();
-      }
+    }
     vtkInformation* out_info = output_vec->GetInformationObject(0);
     this->GetExecutive()->SetOutputData(0, output);
     output->Delete();
-    }
+  }
 
   return 1;
 }

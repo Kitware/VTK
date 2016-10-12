@@ -59,7 +59,7 @@ vtkPlaneSource::vtkPlaneSource()
 void vtkPlaneSource::SetResolution(const int xR, const int yR)
 {
   if ( xR != this->XResolution || yR != this->YResolution )
-    {
+  {
     this->XResolution = xR;
     this->YResolution = yR;
 
@@ -67,7 +67,7 @@ void vtkPlaneSource::SetResolution(const int xR, const int yR)
     this->YResolution = (this->YResolution > 0 ? this->YResolution : 1);
 
     this->Modified();
-    }
+  }
 }
 
 int vtkPlaneSource::RequestData(
@@ -94,16 +94,16 @@ int vtkPlaneSource::RequestData(
 
   // Check input
   for ( i=0; i < 3; i++ )
-    {
+  {
     v1[i] = this->Point1[i] - this->Origin[i];
     v2[i] = this->Point2[i] - this->Origin[i];
-    }
+  }
 
   if ( !this->UpdatePlane(v1,v2) )
-    {
+  {
     vtkErrorMacro(<<"Bad plane coordinate system");
     return 0;
-    }
+  }
 
   // Set things up; allocate memory
   //
@@ -114,13 +114,13 @@ int vtkPlaneSource::RequestData(
 
   // Set the desired precision for the points in the output.
   if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     newPoints->SetDataType(VTK_DOUBLE);
-    }
+  }
   else
-    {
+  {
     newPoints->SetDataType(VTK_FLOAT);
-    }
+  }
 
   newPoints->Allocate(numPts);
   newNormals = vtkFloatArray::New();
@@ -136,36 +136,36 @@ int vtkPlaneSource::RequestData(
   // Generate points and point data
   //
   for (numPts=0, i=0; i<(this->YResolution+1); i++)
-    {
+  {
     tc[1] = static_cast<double>(i)/ this->YResolution;
     for (j=0; j<(this->XResolution+1); j++)
-      {
+    {
       tc[0] = static_cast<double>(j) / this->XResolution;
 
       for ( ii=0; ii < 3; ii++)
-        {
+      {
         x[ii] = this->Origin[ii] + tc[0]*v1[ii] + tc[1]*v2[ii];
-        }
+      }
 
       newPoints->InsertPoint(numPts,x);
       newTCoords->InsertTuple(numPts,tc);
       newNormals->InsertTuple(numPts++,this->Normal);
-      }
     }
+  }
 
   // Generate polygon connectivity
   //
   for (i=0; i<this->YResolution; i++)
-    {
+  {
     for (j=0; j<this->XResolution; j++)
-      {
+    {
       pts[0] = j + i*(this->XResolution+1);
       pts[1] = pts[0] + 1;
       pts[2] = pts[0] + this->XResolution + 2;
       pts[3] = pts[0] + this->XResolution + 1;
       newPolys->InsertNextCell(4,pts);
-      }
     }
+  }
 
   // Update ourselves and release memory
   //
@@ -197,31 +197,31 @@ void vtkPlaneSource::SetNormal(double N[3])
   n[1] = N[1];
   n[2] = N[2];
   if ( vtkMath::Normalize(n) == 0.0 )
-    {
+  {
     vtkErrorMacro(<<"Specified zero normal");
     return;
-    }
+  }
 
   // Compute rotation vector using a transformation matrix.
   // Note that if normals are parallel then the rotation is either
   // 0 or 180 degrees.
   double dp = vtkMath::Dot(this->Normal,n);
   if ( dp >= 1.0 )
-    {
+  {
     return; //zero rotation
-    }
+  }
   else if ( dp <= -1.0 )
-    {
+  {
     theta = 180.0;
     rotVector[0] = this->Point1[0] - this->Origin[0];
     rotVector[1] = this->Point1[1] - this->Origin[1];
     rotVector[2] = this->Point1[2] - this->Origin[2];
-    }
+  }
   else
-    {
+  {
     vtkMath::Cross(this->Normal,n,rotVector);
     theta = vtkMath::DegreesFromRadians( acos( dp ) );
-    }
+  }
 
   // create rotation matrix
   vtkTransform *transform = vtkTransform::New();
@@ -259,29 +259,29 @@ void vtkPlaneSource::SetCenter(double center[3])
   if ( this->Center[0] == center[0] &&
        this->Center[1] == center[1] &&
        this->Center[2] == center[2] )
-    {
+  {
     return; //no change
-    }
+  }
   else
-    {
+  {
     int i;
     double v1[3], v2[3];
 
     for ( i=0; i < 3; i++ )
-      {
+    {
       v1[i] = this->Point1[i] - this->Origin[i];
       v2[i] = this->Point2[i] - this->Origin[i];
-      }
+    }
 
     for ( i=0; i < 3; i++ )
-      {
+    {
       this->Center[i] = center[i];
       this->Origin[i] = this->Center[i] - 0.5*(v1[i] + v2[i]);
       this->Point1[i] = this->Origin[i] + v1[i];
       this->Point2[i] = this->Origin[i] + v2[i];
-      }
-    this->Modified();
     }
+    this->Modified();
+  }
 }
 
 // Set the center of the plane. Will modify the Origin, Point1, and Point2
@@ -299,25 +299,25 @@ void vtkPlaneSource::SetPoint1(double pnt[3])
 {
   if ( this->Point1[0] == pnt[0] && this->Point1[1] == pnt[1] &&
        this->Point1[2] == pnt[2] )
-    {
+  {
     return; //no change
-    }
+  }
   else
-    {
+  {
     int i;
     double v1[3], v2[3];
 
     for ( i=0; i < 3; i++ )
-      {
+    {
       this->Point1[i] = pnt[i];
       v1[i] = this->Point1[i] - this->Origin[i];
       v2[i] = this->Point2[i] - this->Origin[i];
-      }
+    }
 
     // set plane normal
     this->UpdatePlane(v1,v2);
     this->Modified();
-    }
+  }
 }
 
 // modifies the normal and origin
@@ -326,24 +326,24 @@ void vtkPlaneSource::SetPoint2(double pnt[3])
   if ( this->Point2[0] == pnt[0] &&
        this->Point2[1] == pnt[1] &&
        this->Point2[2] == pnt[2] )
-    {
+  {
     return; //no change
-    }
+  }
   else
-    {
+  {
     int i;
     double v1[3], v2[3];
 
     for ( i=0; i < 3; i++ )
-      {
+    {
       this->Point2[i] = pnt[i];
       v1[i] = this->Point1[i] - this->Origin[i];
       v2[i] = this->Point2[i] - this->Origin[i];
-      }
+    }
     // set plane normal
     this->UpdatePlane(v1,v2);
     this->Modified();
-    }
+  }
 }
 
 void vtkPlaneSource::SetPoint1(double x, double y, double z)
@@ -368,20 +368,20 @@ void vtkPlaneSource::Push(double distance)
   int i;
 
   if ( distance == 0.0 )
-    {
+  {
     return;
-    }
+  }
   for (i=0; i < 3; i++ )
-    {
+  {
     this->Origin[i] += distance * this->Normal[i];
     this->Point1[i] += distance * this->Normal[i];
     this->Point2[i] += distance * this->Normal[i];
-    }
+  }
   // set the new center
   for ( i=0; i < 3; i++ )
-    {
+  {
     this->Center[i] = 0.5*(this->Point1[i] + this->Point2[i]);
-    }
+  }
 
   this->Modified();
 }
@@ -391,20 +391,20 @@ int vtkPlaneSource::UpdatePlane(double v1[3], double v2[3])
 {
   // set plane center
   for ( int i=0; i < 3; i++ )
-    {
+  {
     this->Center[i] = this->Origin[i] + 0.5*(v1[i] + v2[i]);
-    }
+  }
 
   // set plane normal
   vtkMath::Cross(v1,v2,this->Normal);
   if ( vtkMath::Normalize(this->Normal) == 0.0 )
-    {
+  {
     return 0;
-    }
+  }
   else
-    {
+  {
     return 1;
-    }
+  }
 }
 
 void vtkPlaneSource::PrintSelf(ostream& os, vtkIndent indent)

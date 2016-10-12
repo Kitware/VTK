@@ -64,8 +64,8 @@ protected:
   unsigned long ClassNamesSize;
 
 private:
-  vtkInstantiatorHashTable(const vtkInstantiatorHashTable&);  // Not implemented.
-  void operator=(const vtkInstantiatorHashTable&);  // Not implemented.
+  vtkInstantiatorHashTable(const vtkInstantiatorHashTable&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInstantiatorHashTable&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------
@@ -78,11 +78,11 @@ vtkInstantiatorHashTable::vtkInstantiatorHashTable()
 
   unsigned int i;
   for(i=0;i < this->NumberOfBuckets;++i)
-    {
+  {
     this->BucketCounts[i] = 0;
     this->BucketSizes[i] = 16;
     this->Buckets[i] = new vtkInstantiatorHashNode[this->BucketSizes[i]];
-    }
+  }
 
   this->NumberOfClassNames = 0;
   this->ClassNamesSize = 256;
@@ -94,17 +94,17 @@ vtkInstantiatorHashTable::~vtkInstantiatorHashTable()
 {
   unsigned long i;
   for(i=0; i < this->NumberOfBuckets;++i)
-    {
+  {
     delete [] this->Buckets[i];
-    }
+  }
   delete [] this->BucketSizes;
   delete [] this->BucketCounts;
   delete [] this->Buckets;
 
   for(i=0;i < this->NumberOfClassNames;++i)
-    {
+  {
     delete [] this->ClassNames[i];
-    }
+  }
   delete [] this->ClassNames;
 }
 
@@ -116,13 +116,13 @@ void vtkInstantiatorHashTable::PrintSelf(ostream& os, vtkIndent indent)
   unsigned long maxBucketSize = 0;
   unsigned long minBucketSize = this->NumberOfClassNames;
   for(unsigned long i=0;i < this->NumberOfBuckets;++i)
-    {
+  {
     avgBucketSize += this->BucketCounts[i];
     if(this->BucketCounts[i] > maxBucketSize)
       { maxBucketSize = this->BucketCounts[i]; }
     if(this->BucketCounts[i] < minBucketSize)
       { minBucketSize = this->BucketCounts[i]; }
-    }
+  }
   avgBucketSize /= double(this->NumberOfBuckets);
   os << indent << "Average Bucket Size: " << avgBucketSize << "\n";
   os << indent << "Minimum Bucket Size: " << minBucketSize << "\n";
@@ -161,19 +161,19 @@ void vtkInstantiatorHashTable::Erase(const char* className,
   // each register should have its corresponding unregister.
   unsigned int i;
   for(i=0; i < this->BucketCounts[bucket];++i)
-    {
+  {
     if(((this->Buckets[bucket][i].GetFunction() == function)
         && (strcmp(this->Buckets[bucket][i].GetClassName(), className) == 0)))
-      {
+    {
       unsigned int j;
       --this->BucketCounts[bucket];
       for(j=i;j < this->BucketCounts[bucket];++j)
-        {
+      {
         this->Buckets[bucket][j] = this->Buckets[bucket][j+1];
-        }
-      return;
       }
+      return;
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -184,10 +184,10 @@ vtkInstantiatorHashTable::Find(const char* className)
 
   unsigned int i;
   for(i=0; i < this->BucketCounts[bucket];++i)
-    {
+  {
     if(strcmp(this->Buckets[bucket][i].GetClassName(), className) == 0)
       { return this->Buckets[bucket][i].GetFunction(); }
-    }
+  }
   return 0;
 }
 
@@ -220,7 +220,7 @@ void vtkInstantiatorHashTable::ExtendBucket(unsigned long bucket)
 const char* vtkInstantiatorHashTable::AddClassName(const char* className)
 {
   if(this->NumberOfClassNames == this->ClassNamesSize)
-    {
+  {
     unsigned long newSize = this->ClassNamesSize * 2;
     char** newNames = new char*[newSize];
 
@@ -231,7 +231,7 @@ const char* vtkInstantiatorHashTable::AddClassName(const char* className)
     delete [] this->ClassNames;
     this->ClassNames = newNames;
     this->ClassNamesSize = newSize;
-    }
+  }
 
   char* newName = new char[strlen(className)+1];
   strcpy(newName, className);

@@ -1,12 +1,19 @@
 vtk_module(vtkFiltersParallelImaging
   GROUPS
     StandAlone
-  DEPENDS
-    vtkIOLegacy
-    vtkImagingCore
-    vtkFiltersImaging
-    vtkFiltersParallel
-    vtkParallelCore
   KIT
     vtkParallel
+  DEPENDS
+    vtkCommonExecutionModel
+    vtkFiltersImaging
+    vtkFiltersParallel
+    vtkImagingCore
+  PRIVATE_DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonSystem
+    vtkFiltersExtraction
+    vtkFiltersStatistics
+    vtkImagingGeneral
+    vtkParallelCore
   )

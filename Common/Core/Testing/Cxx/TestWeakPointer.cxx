@@ -68,59 +68,59 @@ int TestWeakPointer(int,char *[])
   testbits = (testbits << 1) | ((da1 > 0) ? 1 : 0);
   testbits = (testbits << 1) | ((da1 >= 0) ? 1 : 0);
   if (testbits != correctbits)
-    {
+  {
     unsigned int diffbits = (testbits ^ correctbits);
     int bitcount = 0;
     while (tests[bitcount] != NULL)
-      {
+    {
       bitcount++;
-      }
-    for (int ib = 0; ib < bitcount; ++ib)
-      {
-      if (((diffbits >> (bitcount - ib - 1)) & 1) != 0)
-        {
-        cerr << "comparison (" << tests[ib] << ") failed!\n";
-        }
-      }
-    rval = 1;
     }
+    for (int ib = 0; ib < bitcount; ++ib)
+    {
+      if (((diffbits >> (bitcount - ib - 1)) & 1) != 0)
+      {
+        cerr << "comparison (" << tests[ib] << ") failed!\n";
+      }
+    }
+    rval = 1;
+  }
 
   (*da1).SetNumberOfComponents(1);
   if(da2)
-    {
+  {
     da2->SetNumberOfComponents(1);
-    }
+  }
   if(!da2)
-    {
+  {
     cerr << "da2 is NULL!" << "\n";
     rval = 1;
-    }
+  }
   cout << "IntArray: " << da2 << "\n";
 
   if (da1.GetPointer() == 0)
-    {
+  {
     cerr << "da1.GetPointer() is NULL\n";
     rval = 1;
-    }
+  }
   if (da2.GetPointer() == 0)
-    {
+  {
     cerr << "da2.GetPointer() is NULL\n";
     rval = 1;
-    }
+  }
   if (da3.Get() != 0)
-    {
+  {
     cerr << "da3.GetPointer() is not NULL\n";
     rval = 1;
-    }
+  }
 
   da2 = 0;
   ia->Delete();
 
   if (da1.GetPointer() != NULL)
-    {
+  {
     cerr << "da1.GetPointer() is not NULL\n";
     rval = 1;
-    }
+  }
 
   return rval;
 }

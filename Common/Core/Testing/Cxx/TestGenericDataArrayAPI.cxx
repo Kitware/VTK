@@ -125,9 +125,9 @@ int TestGenericDataArrayAPI(int, char *[])
   errors += ExerciseGenericDataArray<vtkIdType,          vtkSOADataArrayTemplate<vtkIdType> >();
 
   if (errors > 0)
-    {
+  {
     std::cerr << "Test failed! Error count: " << errors << std::endl;
-    }
+  }
   return errors == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
@@ -205,21 +205,21 @@ int Test_valT_GetValue_valueIdx_const()
 
   // Initialize:
   for (vtkIdType i = 0; i < comps * tuples; ++i)
-    {
+  {
     array->SetValue(i, static_cast<ScalarT>(i % 16));
-    }
+  }
 
   // Verify:
   for (vtkIdType i = 0; i < comps * tuples; ++i)
-    {
+  {
     ScalarT test = array->GetValue(i);
     ScalarT ref = static_cast<ScalarT>(i % 16);
     if (test != ref)
-      {
+    {
       DataArrayAPIError("Data mismatch at value index '" << i << "'. Expected '"
                         << ref << "', got '" << test << "'.");
-      }
     }
+  }
 
   DataArrayAPIFinish();
 }
@@ -238,28 +238,28 @@ int Test_void_GetTypedTuple_tupleIdx_tuple()
   source->SetNumberOfComponents(comps);
   source->SetNumberOfTuples(tuples);
   for (vtkIdType i = 0; i < comps * tuples; ++i)
-    {
+  {
     source->SetValue(i, static_cast<ScalarT>(i % 17));
-    }
+  }
 
   // Test the returned tuples:
   vtkIdType refValue = 0;
   std::vector<ScalarT> tuple(comps);
   for (vtkIdType tupleIdx = 0; tupleIdx < tuples; ++tupleIdx)
-    {
+  {
     source->GetTypedTuple(tupleIdx, &tuple[0]);
     for (int compIdx = 0; compIdx < comps; ++compIdx)
-      {
+    {
       if (tuple[compIdx] != static_cast<ScalarT>(refValue))
-        {
+      {
         DataArrayAPIError("Data mismatch at tuple " << tupleIdx << ", "
                           "component " << compIdx << ": Expected '" << refValue
                           << "', got '" << tuple[compIdx] << "'.");
-        }
+      }
       ++refValue;
       refValue %= 17;
-      }
     }
+  }
 
   DataArrayAPIFinish();
 }
@@ -279,27 +279,27 @@ int Test_valT_GetTypedComponent_tupleIdx_comp_const()
   source->SetNumberOfComponents(comps);
   source->SetNumberOfTuples(tuples);
   for (vtkIdType i = 0; i < comps * tuples; ++i)
-    {
+  {
     source->SetValue(i, static_cast<ScalarT>(i % 17));
-    }
+  }
 
   // Test the returned tuples:
   vtkIdType refValue = 0;
   for (vtkIdType i = 0; i < tuples; ++i)
-    {
+  {
     for (int j = 0; j < comps; ++j)
-      {
+    {
       if (source->GetTypedComponent(i, j) != static_cast<ScalarT>(refValue))
-        {
+      {
         DataArrayAPIError("Data mismatch at tuple " << i << ", "
                           "component " << j << ": Expected '" << refValue
                           << "', got '" << source->GetTypedComponent(i, j)
                           << "'.");
-        }
+      }
       ++refValue;
       refValue %= 17;
-      }
     }
+  }
 
   DataArrayAPIFinish();
 }
@@ -318,21 +318,21 @@ int Test_void_SetValue_valueIdx_value()
   source->SetNumberOfComponents(comps);
   source->SetNumberOfTuples(tuples);
   for (vtkIdType i = 0; i < comps * tuples; ++i)
-    {
+  {
     source->SetValue(i, static_cast<ScalarT>(((i + 1) * (i + 2)) % 17));
-    }
+  }
 
   // Validate:
   for (vtkIdType i = 0; i < comps * tuples; ++i)
-    {
+  {
     ScalarT ref = static_cast<ScalarT>(((i + 1) * (i + 2)) % 17);
     const typename ArrayT::ValueType test = source->GetValue(i);
     if (ref != test)
-      {
+    {
       DataArrayAPIError("Data mismatch at value " << i << ": Expected '"
                         << ref << "', got '" << test << "'.");
-      }
     }
+  }
 
   DataArrayAPIFinish();
 }
@@ -352,29 +352,29 @@ int Test_void_SetTypedTuple_tupleIdx_tuple()
   source->SetNumberOfComponents(comps);
   source->SetNumberOfTuples(tuples);
   for (vtkIdType t = 0; t < tuples; ++t)
-    {
+  {
     std::vector<ScalarT> tuple;
     for (int c = 0; c < comps; ++c)
-      {
+    {
       tuple.push_back(static_cast<ScalarT>(((t * comps) + c) % 17));
-      }
-    source->SetTypedTuple(t, &tuple[0]);
     }
+    source->SetTypedTuple(t, &tuple[0]);
+  }
 
   // Verify:
   for (vtkIdType t = 0; t < tuples; ++t)
-    {
+  {
     for (int c = 0; c < comps; ++c)
-      {
+    {
       ScalarT ref = static_cast<ScalarT>(((t * comps) + c) % 17);
       ScalarT test = source->GetTypedComponent(t, c);
       if (ref != test)
-        {
+      {
         DataArrayAPIError("Data mismatch at tuple " << t << " component " << c
                           << ": Expected " << ref << ", got " << test << ".");
-        }
       }
     }
+  }
 
   DataArrayAPIFinish();
 }
@@ -394,31 +394,31 @@ int Test_void_SetTypedComponent_tupleIdx_comp_value()
   source->SetNumberOfComponents(comps);
   source->SetNumberOfTuples(tuples);
   for (vtkIdType i = 0; i < tuples; ++i)
-    {
+  {
     for (int j = 0; j < comps; ++j)
-      {
+    {
       source->SetTypedComponent(i, j,
                                 static_cast<ScalarT>(((i + 1) * (j + 1)) % 17));
-      }
     }
+  }
 
   // Test the returned tuples:
   std::vector<ScalarT> tuple(comps);
   for (vtkIdType i = 0; i < tuples; ++i)
-    {
+  {
     source->GetTypedTuple(i, &tuple[0]);
     for (int j = 0; j < comps; ++j)
-      {
+    {
       ScalarT test = tuple[j];
       ScalarT ref = static_cast<ScalarT>((i + 1) * (j + 1) % 17);
       if (ref != test)
-        {
+      {
         DataArrayAPIError("Data mismatch at tuple " << i << ", component " << j
                           << ": Expected '" << ref << "', got '" << test
                           << "'.");
-        }
       }
     }
+  }
 
   DataArrayAPIFinish();
 }
@@ -438,9 +438,9 @@ int Test_LookupTypedValue_allSigs()
   RefMap refMap;
   // These are the values we'll be looking for.
   for (ScalarT val = 0; val < 17; ++val)
-    {
+  {
     refMap.insert(std::make_pair(val, vtkIdList::New()));
-    }
+  }
 
   // Initialize source array:
   vtkIdType comps = 9;
@@ -448,20 +448,20 @@ int Test_LookupTypedValue_allSigs()
   array->SetNumberOfComponents(comps);
   array->SetNumberOfTuples(tuples);
   for (vtkIdType valIdx = 0; valIdx < comps * tuples; ++valIdx)
-    {
+  {
     ScalarT val = static_cast<ScalarT>(valIdx % 17);
     array->SetValue(valIdx, val);
     // Update our reference map:
     RefMapIterator it = refMap.find(val);
     assert("Value exists in reference map." && it != refMap.end());
     it->second->InsertNextId(valIdx);
-    }
+  }
 
   // Test the lookup functions.
   vtkNew<vtkIdList> testIdList;
   for (RefMapIterator it = refMap.begin(), itEnd = refMap.end(); it != itEnd;
        ++it)
-    {
+  {
     const ScalarT &val = it->first;
     vtkIdList *refIdList = it->second; // Presorted due to insertion order
     vtkIdType *refIdBegin = refIdList->GetPointer(0);
@@ -472,49 +472,49 @@ int Test_LookupTypedValue_allSigs()
     DataArrayAPIUpdateSignature("vtkIdType LookupTypedValue(ValueType value)");
     vtkIdType testId = array->LookupTypedValue(val);
     if (!std::binary_search(refIdBegin, refIdEnd, testId))
-      {
+    {
       // NonFatal + break so we can clean up.
       DataArrayAPINonFatalError("Looking up value '" << val
                                 << "' returned valueIdx '" << testId
                                 << "', which maps to value '"
                                 << array->GetValue(testId) << "'.");
       break;
-      }
+    }
 
     // Now for the list overload:
     DataArrayAPIUpdateSignature(
           "void LookupTypedValue(ValueType value, vtkIdList* ids)");
     array->LookupTypedValue(val, testIdList.GetPointer());
     if (testIdList->GetNumberOfIds() != refIdList->GetNumberOfIds())
-      {
+    {
       // NonFatal + break so we can clean up.
       DataArrayAPINonFatalError("Looking up value '" << val << "' returned "
                                 << testIdList->GetNumberOfIds() << " ids, but "
                                 << refIdList->GetNumberOfIds()
                                 << "were expected.");
       break;
-      }
+    }
     vtkIdType *testIdBegin = testIdList->GetPointer(0);
     vtkIdType *testIdEnd = testIdList->GetPointer(refIdList->GetNumberOfIds());
     // Ensure the test ids are sorted
     std::sort(testIdBegin, testIdEnd);
     if (!std::equal(testIdBegin, testIdEnd, refIdBegin))
-      {
+    {
       // NonFatal + break so we can clean up.
       DataArrayAPINonFatalError("Looking up all value indices for value '"
                                 << val
                                 << "' did not return the expected result.");
       break;
-      }
     }
+  }
 
   // Cleanup:
   for (RefMapIterator it = refMap.begin(), itEnd = refMap.end(); it != itEnd;
        ++it)
-    {
+  {
     it->second->Delete();
     it->second = NULL;
-    }
+  }
 
   DataArrayAPIFinish();
 }
@@ -532,36 +532,36 @@ int Test_vtkIdType_InsertNextValue_v()
   vtkIdType tuples = 10;
   source->SetNumberOfComponents(comps);
   for (vtkIdType i = 0; i < comps * tuples; ++i)
-    {
+  {
     vtkIdType insertLoc = source->InsertNextValue(static_cast<ScalarT>(i % 17));
     if (insertLoc != i)
-      {
+    {
       DataArrayAPIError("Returned location incorrect. Expected '" << i
                         << "', got '" << insertLoc << "'.");
-      }
+    }
     if (source->GetSize() < i + 1)
-      {
+    {
       DataArrayAPIError("Size should be at least " << i + 1
                         << " values, but is only " << source->GetSize() << ".");
-      }
+    }
     if (source->GetMaxId() != i)
-      {
+    {
       DataArrayAPIError("MaxId should be " << i << ", but is "
                         << source->GetMaxId() << " instead.");
-      }
     }
+  }
 
   // Validate:
   for (vtkIdType i = 0; i < comps * tuples; ++i)
-    {
+  {
     ScalarT ref = static_cast<ScalarT>(i % 17);
     const typename ArrayT::ValueType test = source->GetValue(i);
     if (ref != test)
-      {
+    {
       DataArrayAPIError("Data mismatch at value " << i << ": Expected '"
                         << ref << "', got '" << test << "'.");
-      }
     }
+  }
 
   DataArrayAPIFinish();
 }
@@ -579,32 +579,32 @@ int Test_void_InsertValue_idx_v()
   vtkIdType tuples = 10;
   source->SetNumberOfComponents(comps);
   for (vtkIdType i = 0; i < comps * tuples; ++i)
-    {
+  {
     source->InsertValue(i, static_cast<ScalarT>(i % 17));
 
     if (source->GetSize() < i + 1)
-      {
+    {
       DataArrayAPIError("Size should be at least " << i + 1
                         << " values, but is only " << source->GetSize() << ".");
-      }
+    }
     if (source->GetMaxId() != i)
-      {
+    {
       DataArrayAPIError("MaxId should be " << i << ", but is "
                         << source->GetMaxId() << " instead.");
-      }
     }
+  }
 
   // Validate:
   for (vtkIdType i = 0; i < comps * tuples; ++i)
-    {
+  {
     ScalarT ref = static_cast<ScalarT>(i % 17);
     const typename ArrayT::ValueType test = source->GetValue(i);
     if (ref != test)
-      {
+    {
       DataArrayAPIError("Data mismatch at value " << i << ": Expected '"
                         << ref << "', got '" << test << "'.");
-      }
     }
+  }
 
   DataArrayAPIFinish();
 }
@@ -622,41 +622,41 @@ int Test_void_InsertTypedTuple_idx_t()
   vtkIdType tuples = 10;
   source->SetNumberOfComponents(comps);
   for (vtkIdType t = 0; t < tuples; ++t)
-    {
+  {
     std::vector<ScalarT> tuple;
     for (int c = 0; c < comps; ++c)
-      {
+    {
       tuple.push_back(static_cast<ScalarT>(((t * comps) + c) % 17));
-      }
+    }
     source->InsertTypedTuple(t, &tuple[0]);
     if (source->GetSize() < ((t + 1) * comps))
-      {
+    {
       DataArrayAPIError("Size should be at least " << ((t + 1) * comps)
                         << " values, but is only " << source->GetSize() << ".");
-      }
+    }
     if (source->GetMaxId() != ((t + 1) * comps) - 1)
-      {
+    {
       DataArrayAPIError("MaxId should be " << ((t + 1) * comps) - 1
                         << ", but is " << source->GetMaxId() << " instead.");
-      }
     }
+  }
 
   // Verify:
   for (vtkIdType t = 0; t < tuples; ++t)
-    {
+  {
     for (int c = 0; c < comps; ++c)
-      {
+    {
       if (source->GetTypedComponent(t, c) !=
           static_cast<ScalarT>(((t * comps) + c) % 17))
-        {
+      {
         DataArrayAPIError("Data mismatch at tuple " << t << " component " << c
                           << ": Expected "
                           << static_cast<ScalarT>(((t * comps) + c) % 17)
                           << ", got " << source->GetTypedComponent(t, c)
                           << ".");
-        }
       }
     }
+  }
 
   DataArrayAPIFinish();
 }
@@ -674,46 +674,46 @@ int Test_vtkIdType_InsertNextTypedTuple_t()
   vtkIdType tuples = 10;
   source->SetNumberOfComponents(comps);
   for (vtkIdType t = 0; t < tuples; ++t)
-    {
+  {
     std::vector<ScalarT> tuple;
     for (int c = 0; c < comps; ++c)
-      {
+    {
       tuple.push_back(static_cast<ScalarT>(((t * comps) + c) % 17));
-      }
+    }
     vtkIdType insertLoc = source->InsertNextTypedTuple(&tuple[0]);
     if (insertLoc != t)
-      {
+    {
       DataArrayAPIError("Returned location incorrect. Expected '" << t
                         << "', got '" << insertLoc << "'.");
-      }
+    }
     if (source->GetSize() < ((t + 1) * comps))
-      {
+    {
       DataArrayAPIError("Size should be at least " << ((t + 1) * comps)
                         << " values, but is only " << source->GetSize() << ".");
-      }
+    }
     if (source->GetMaxId() != ((t + 1) * comps) - 1)
-      {
+    {
       DataArrayAPIError("MaxId should be " << ((t + 1) * comps) - 1
                         << ", but is " << source->GetMaxId() << " instead.");
-      }
     }
+  }
 
   // Verify:
   for (vtkIdType t = 0; t < tuples; ++t)
-    {
+  {
     for (int c = 0; c < comps; ++c)
-      {
+    {
       if (source->GetTypedComponent(t, c) !=
           static_cast<ScalarT>(((t * comps) + c) % 17))
-        {
+      {
         DataArrayAPIError("Data mismatch at tuple " << t << " component " << c
                           << ": Expected "
                           << static_cast<ScalarT>(((t * comps) + c) % 17)
                           << ", got " << source->GetTypedComponent(t, c)
                           << ".");
-        }
       }
     }
+  }
 
   DataArrayAPIFinish();
 }
@@ -733,11 +733,11 @@ int Test_vtkIdType_GetNumberOfValues()
   source->SetNumberOfTuples(tuples);
 
   if (source->GetNumberOfValues() != comps * tuples)
-    {
+  {
     DataArrayAPIError("Returned number of values: "
                       << source->GetNumberOfValues() << ", expected "
                       << (comps * tuples) << ".");
-    }
+  }
 
   DataArrayAPIFinish();
 }
@@ -759,12 +759,12 @@ int Test_GetValueRange_all_overloads()
   array->SetNumberOfComponents(comps);
   array->SetNumberOfTuples(tuples);
   for (vtkIdType t = 0; t < tuples; ++t)
-    {
+  {
     for (int c = 0; c < comps; ++c)
-      {
+    {
       array->SetComponent(t, c, (t + 1) * (c + 1));
-      }
     }
+  }
 
   // Just the range of the first component:
   DataArrayAPIUpdateSignature("ValueType* GetValueRange()");
@@ -773,56 +773,56 @@ int Test_GetValueRange_all_overloads()
                                static_cast<ScalarT>(tuples) };
   if (rangePtr[0] != expectedRange[0] ||
       rangePtr[1] != expectedRange[1])
-    {
+  {
     DataArrayAPINonFatalError("First component range expected to be: ["
                               << expectedRange[0] << ", " << expectedRange[1]
                               << "], got [" << rangePtr[0] << ", "
                               << rangePtr[1] << "].");
-    }
+  }
 
   DataArrayAPIUpdateSignature("void GetValueRange(ValueType range[2])");
   ScalarT rangeArray[2];
   array->GetValueRange(rangeArray);
   if (rangeArray[0] != expectedRange[0] ||
       rangeArray[1] != expectedRange[1])
-    {
+  {
     DataArrayAPINonFatalError("First component range expected to be: ["
                               << expectedRange[0] << ", " << expectedRange[1]
                               << "], got [" << rangeArray[0] << ", "
                               << rangeArray[1] << "].");
-    }
+  }
 
   DataArrayAPIUpdateSignature("ValueType* GetValueRange(int comp)");
   for (int c = 0; c < comps; ++c)
-    {
+  {
     expectedRange[0] = static_cast<ScalarT>(c + 1);
     expectedRange[1] = static_cast<ScalarT>(tuples * (c + 1));
     rangePtr = array->GetValueRange(c);
     if (rangePtr[0] != expectedRange[0] ||
         rangePtr[1] != expectedRange[1])
-      {
+    {
       DataArrayAPINonFatalError("Component " << c << " range expected to be: ["
                                 << expectedRange[0] << ", " << expectedRange[1]
                                 << "], got [" << rangePtr[0] << ", "
                                 << rangePtr[1] << "].");
-      }
     }
+  }
 
   DataArrayAPIUpdateSignature("void GetValueRange(ValueType range[2], int comp)");
   for (int c = 0; c < comps; ++c)
-    {
+  {
     expectedRange[0] = static_cast<ScalarT>(c + 1);
     expectedRange[1] = static_cast<ScalarT>(tuples * (c + 1));
     array->GetValueRange(rangeArray, c);
     if (rangeArray[0] != expectedRange[0] ||
         rangeArray[1] != expectedRange[1])
-      {
+    {
       DataArrayAPINonFatalError("Component " << c << " range expected to be: ["
                                 << expectedRange[0] << ", " << expectedRange[1]
                                 << "], got [" << rangeArray[0] << ", "
                                 << rangeArray[1] << "].");
-      }
     }
+  }
 
   DataArrayAPIFinish();
 }

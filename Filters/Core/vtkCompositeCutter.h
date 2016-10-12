@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCompositeCutter - Cut composite data sets with user-specified implicit function
-// .SECTION Description
-// Loop over each data set in the composite input and apply vtkCutter
-// .SECTION See Also
-// vtkCutter
+/**
+ * @class   vtkCompositeCutter
+ * @brief   Cut composite data sets with user-specified implicit function
+ *
+ * Loop over each data set in the composite input and apply vtkCutter
+ * @sa
+ * vtkCutter
+*/
 
 #ifndef vtkCompositeCutter_h
 #define vtkCompositeCutter_h
@@ -31,18 +34,18 @@ public:
 
   static vtkCompositeCutter *New();
 
-  void PrintSelf(ostream& os, vtkIndent indent);;
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;;
 
 protected:
   vtkCompositeCutter(vtkImplicitFunction *cf=NULL);
-  virtual ~vtkCompositeCutter();
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  ~vtkCompositeCutter() VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 private:
-  vtkCompositeCutter(const vtkCompositeCutter&);  // Not implemented.
-  void operator=(const vtkCompositeCutter&);  // Not implemented.
+  vtkCompositeCutter(const vtkCompositeCutter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompositeCutter&) VTK_DELETE_FUNCTION;
 };
 
 

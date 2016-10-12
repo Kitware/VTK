@@ -12,46 +12,49 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInteractorStyleImage - interactive manipulation of the camera specialized for images
-// .SECTION Description
-// vtkInteractorStyleImage allows the user to interactively manipulate
-// (rotate, pan, zoom etc.) the camera. vtkInteractorStyleImage is specially
-// designed to work with images that are being rendered with
-// vtkImageActor. Several events are overloaded from its superclass
-// vtkInteractorStyle, hence the mouse bindings are different. (The bindings
-// keep the camera's view plane normal perpendicular to the x-y plane.) In
-// summary the mouse events for 2D image interaction are as follows:
-// - Left Mouse button triggers window level events
-// - CTRL Left Mouse spins the camera around its view plane normal
-// - SHIFT Left Mouse pans the camera
-// - CTRL SHIFT Left Mouse dollys (a positional zoom) the camera
-// - Middle mouse button pans the camera
-// - Right mouse button dollys the camera.
-// - SHIFT Right Mouse triggers pick events
-//
-// If SetInteractionModeToImageSlicing() is called, then some of the mouse
-// events are changed as follows:
-// - CTRL Left Mouse slices through the image
-// - SHIFT Middle Mouse slices through the image
-// - CTRL Right Mouse spins the camera
-//
-// If SetInteractionModeToImage3D() is called, then some of the mouse
-// events are changed as follows:
-// - SHIFT Left Mouse rotates the camera for oblique slicing
-// - SHIFT Middle Mouse slices through the image
-// - CTRL Right Mouse also slices through the image
-//
-// In all modes, the following key bindings are in effect:
-// - R Reset the Window/Level
-// - X Reset to a sagittal view
-// - Y Reset to a coronal view
-// - Z Reset to an axial view
-//
-// Note that the renderer's actors are not moved; instead the camera is moved.
-
-// .SECTION See Also
-// vtkInteractorStyle vtkInteractorStyleTrackballActor
-// vtkInteractorStyleJoystickCamera vtkInteractorStyleJoystickActor
+/**
+ * @class   vtkInteractorStyleImage
+ * @brief   interactive manipulation of the camera specialized for images
+ *
+ * vtkInteractorStyleImage allows the user to interactively manipulate
+ * (rotate, pan, zoom etc.) the camera. vtkInteractorStyleImage is specially
+ * designed to work with images that are being rendered with
+ * vtkImageActor. Several events are overloaded from its superclass
+ * vtkInteractorStyle, hence the mouse bindings are different. (The bindings
+ * keep the camera's view plane normal perpendicular to the x-y plane.) In
+ * summary the mouse events for 2D image interaction are as follows:
+ * - Left Mouse button triggers window level events
+ * - CTRL Left Mouse spins the camera around its view plane normal
+ * - SHIFT Left Mouse pans the camera
+ * - CTRL SHIFT Left Mouse dollys (a positional zoom) the camera
+ * - Middle mouse button pans the camera
+ * - Right mouse button dollys the camera.
+ * - SHIFT Right Mouse triggers pick events
+ *
+ * If SetInteractionModeToImageSlicing() is called, then some of the mouse
+ * events are changed as follows:
+ * - CTRL Left Mouse slices through the image
+ * - SHIFT Middle Mouse slices through the image
+ * - CTRL Right Mouse spins the camera
+ *
+ * If SetInteractionModeToImage3D() is called, then some of the mouse
+ * events are changed as follows:
+ * - SHIFT Left Mouse rotates the camera for oblique slicing
+ * - SHIFT Middle Mouse slices through the image
+ * - CTRL Right Mouse also slices through the image
+ *
+ * In all modes, the following key bindings are in effect:
+ * - R Reset the Window/Level
+ * - X Reset to a sagittal view
+ * - Y Reset to a coronal view
+ * - Z Reset to an axial view
+ *
+ * Note that the renderer's actors are not moved; instead the camera is moved.
+ *
+ * @sa
+ * vtkInteractorStyle vtkInteractorStyleTrackballActor
+ * vtkInteractorStyleJoystickCamera vtkInteractorStyleJoystickActor
+*/
 
 #ifndef vtkInteractorStyleImage_h
 #define vtkInteractorStyleImage_h
@@ -80,14 +83,19 @@ public:
   vtkTypeMacro(vtkInteractorStyleImage, vtkInteractorStyleTrackballCamera);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Some useful information for handling window level
+  //@{
+  /**
+   * Some useful information for handling window level
+   */
   vtkGetVector2Macro(WindowLevelStartPosition,int);
   vtkGetVector2Macro(WindowLevelCurrentPosition,int);
+  //@}
 
-  // Description:
-  // Event bindings controlling the effects of pressing mouse buttons
-  // or moving the mouse.
+  //@{
+  /**
+   * Event bindings controlling the effects of pressing mouse buttons
+   * or moving the mouse.
+   */
   virtual void OnMouseMove();
   virtual void OnLeftButtonDown();
   virtual void OnLeftButtonUp();
@@ -95,9 +103,11 @@ public:
   virtual void OnMiddleButtonUp();
   virtual void OnRightButtonDown();
   virtual void OnRightButtonUp();
+  //@}
 
-  // Description:
-  // Override the "fly-to" (f keypress) for images.
+  /**
+   * Override the "fly-to" (f keypress) for images.
+   */
   virtual void OnChar();
 
   // These methods for the different interactions in different modes
@@ -116,11 +126,13 @@ public:
   virtual void StartSlice();
   virtual void EndSlice();
 
-  // Description:
-  // Set/Get current mode to 2D or 3D.  The default is 2D.  In 3D mode,
-  // it is possible to rotate the camera to view oblique slices.  In Slicing
-  // mode, it is possible to slice through the data, but not to generate oblique
-  // views by rotating the camera.
+  //@{
+  /**
+   * Set/Get current mode to 2D or 3D.  The default is 2D.  In 3D mode,
+   * it is possible to rotate the camera to view oblique slices.  In Slicing
+   * mode, it is possible to slice through the data, but not to generate oblique
+   * views by rotating the camera.
+   */
   vtkSetClampMacro(InteractionMode, int, VTKIS_IMAGE2D, VTKIS_IMAGE_SLICING);
   vtkGetMacro(InteractionMode, int);
   void SetInteractionModeToImage2D() {
@@ -129,10 +141,13 @@ public:
     this->SetInteractionMode(VTKIS_IMAGE3D); }
   void SetInteractionModeToImageSlicing() {
     this->SetInteractionMode(VTKIS_IMAGE_SLICING); }
+  //@}
 
-  // Description:
-  // Set the orientations that will be used when the X, Y, or Z
-  // keys are pressed.  See SetImageOrientation for more information.
+  //@{
+  /**
+   * Set the orientations that will be used when the X, Y, or Z
+   * keys are pressed.  See SetImageOrientation for more information.
+   */
   vtkSetVector3Macro(XViewRightVector, double);
   vtkGetVector3Macro(XViewRightVector, double);
   vtkSetVector3Macro(XViewUpVector, double);
@@ -145,35 +160,39 @@ public:
   vtkGetVector3Macro(ZViewRightVector, double);
   vtkSetVector3Macro(ZViewUpVector, double);
   vtkGetVector3Macro(ZViewUpVector, double);
+  //@}
 
-  // Description:
-  // Set the view orientation, in terms of the horizontal and
-  // vertical directions of the computer screen.  The first
-  // vector gives the direction that will correspond to moving
-  // horizontally left-to-right across the screen, and the
-  // second vector gives the direction that will correspond to
-  // moving bottom-to-top up the screen.  This method changes
-  // the position of the camera to provide the desired view.
+  /**
+   * Set the view orientation, in terms of the horizontal and
+   * vertical directions of the computer screen.  The first
+   * vector gives the direction that will correspond to moving
+   * horizontally left-to-right across the screen, and the
+   * second vector gives the direction that will correspond to
+   * moving bottom-to-top up the screen.  This method changes
+   * the position of the camera to provide the desired view.
+   */
   void SetImageOrientation(const double leftToRight[3],
                            const double bottomToTop[3]);
 
-  // Description:
-  // Set the image to use for WindowLevel interaction.
-  // Any images for which the Pickable flag is off are ignored.
-  // Images are counted back-to-front, so 0 is the rearmost image.
-  // Negative values can be used to count front-to-back, so -1 is
-  // the frontmost image, -2 is the image behind that one, etc.
-  // The default is to use the frontmost image for interaction.
-  // If the specified image does not exist, then no WindowLevel
-  // interaction will take place.
+  /**
+   * Set the image to use for WindowLevel interaction.
+   * Any images for which the Pickable flag is off are ignored.
+   * Images are counted back-to-front, so 0 is the rearmost image.
+   * Negative values can be used to count front-to-back, so -1 is
+   * the frontmost image, -2 is the image behind that one, etc.
+   * The default is to use the frontmost image for interaction.
+   * If the specified image does not exist, then no WindowLevel
+   * interaction will take place.
+   */
   virtual void SetCurrentImageNumber(int i);
   int GetCurrentImageNumber() { return this->CurrentImageNumber; }
 
-  // Description:
-  // Get the current image property, which is set when StartWindowLevel
-  // is called immediately before StartWindowLevelEvent is generated.
-  // This is the image property of the topmost vtkImageSlice in the
-  // renderer or NULL if no image actors are present.
+  /**
+   * Get the current image property, which is set when StartWindowLevel
+   * is called immediately before StartWindowLevelEvent is generated.
+   * This is the image property of the topmost vtkImageSlice in the
+   * renderer or NULL if no image actors are present.
+   */
   vtkImageProperty *GetCurrentImageProperty() {
     return this->CurrentImageProperty; }
 
@@ -196,8 +215,8 @@ protected:
   double ZViewUpVector[3];
 
 private:
-  vtkInteractorStyleImage(const vtkInteractorStyleImage&);  // Not implemented.
-  void operator=(const vtkInteractorStyleImage&);  // Not implemented.
+  vtkInteractorStyleImage(const vtkInteractorStyleImage&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInteractorStyleImage&) VTK_DELETE_FUNCTION;
 };
 
 #endif

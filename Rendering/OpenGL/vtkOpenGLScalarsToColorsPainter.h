@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLScalarsToColorsPainter - implementation of
-// vtkScalarsToColorsPainter for OpenGL.
-// .SECTION Description
-// vtkOpenGLScalarsToColorsPainter is a concrete subclass of
-// vtkScalarsToColorsPainter which uses OpenGL for color mapping.
+/**
+ * @class   vtkOpenGLScalarsToColorsPainter
+ * @brief   implementation of
+ * vtkScalarsToColorsPainter for OpenGL.
+ *
+ * vtkOpenGLScalarsToColorsPainter is a concrete subclass of
+ * vtkScalarsToColorsPainter which uses OpenGL for color mapping.
+*/
 
 #ifndef vtkOpenGLScalarsToColorsPainter_h
 #define vtkOpenGLScalarsToColorsPainter_h
@@ -35,16 +38,18 @@ public:
     vtkScalarsToColorsPainter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Release any graphics resources that are being consumed by this mapper.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
+  /**
+   * Release any graphics resources that are being consumed by this mapper.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
   virtual void ReleaseGraphicsResources(vtkWindow *);
 
   virtual int GetPremultiplyColorsWithAlpha(vtkActor* actor);
 
-  // Description:
-  // Return the texture size limit, i.e. GL_MAX_TEXTURE_SIZE.
+  /**
+   * Return the texture size limit, i.e. GL_MAX_TEXTURE_SIZE.
+   */
   virtual vtkIdType GetTextureSizeLimit();
 
 protected:
@@ -56,17 +61,18 @@ protected:
   bool AcquiredGraphicsResources;
   bool SupportsSeparateSpecularColor;
 
-  // Description:
-  // Generates rendering primitives of appropriate type(s). Multiple types
-  // of preimitives can be requested by or-ring the primitive flags.
-  // Subclasses may override this method. Default implementation propagates
-  // the call to Deletegate Painter, in any.
+  /**
+   * Generates rendering primitives of appropriate type(s). Multiple types
+   * of preimitives can be requested by or-ring the primitive flags.
+   * Subclasses may override this method. Default implementation propagates
+   * the call to Deletegate Painter, in any.
+   */
   virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
                               unsigned long typeflags, bool forceCompileOnly);
 
 private:
-  vtkOpenGLScalarsToColorsPainter(const vtkOpenGLScalarsToColorsPainter&); // Not implemented.
-  void operator=(const vtkOpenGLScalarsToColorsPainter&); // Not implemented.
+  vtkOpenGLScalarsToColorsPainter(const vtkOpenGLScalarsToColorsPainter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLScalarsToColorsPainter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

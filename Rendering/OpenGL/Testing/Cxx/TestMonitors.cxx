@@ -161,12 +161,12 @@ int TestMonitors(int argc, char* argv[])
   const int nLights = vtkLightingHelper::VTK_MAX_LIGHTS;
   vtkSmartPointer<vtkOpenGLLightMonitor> lightMonitor[nLights];
   for (int i=0; i<nLights; ++i)
-   {
+  {
    lightMonitor[i] = vtkSmartPointer<vtkOpenGLLightMonitor>::New();
    lightMonitor[i]->SetLightId(i);
    lightMonitor[i]->Update();
    lightMonitor[i]->Print(cerr);
-   }
+  }
 
   cerr
     << "Matrices" << endl
@@ -219,14 +219,14 @@ int TestMonitors(int argc, char* argv[])
     << "================" << endl;
   bool lightsChanged = false;
   for (int i=0; i<nLights; ++i)
-   {
+  {
    if (lightMonitor[i]->StateChanged())
-     {
+   {
      cerr << "this light was changed..." << endl;
      lightsChanged = true;
-     }
-   lightMonitor[i]->Print(cerr);
    }
+   lightMonitor[i]->Print(cerr);
+  }
 
   cerr
     << "Matrices" << endl
@@ -251,10 +251,10 @@ int TestMonitors(int argc, char* argv[])
     << endl;
 
   if (!(lightsChanged && matricesChanged && colorChanged))
-    {
+  {
     cerr << "Test fails" << endl;
     return 1;
-    }
+  }
 
   cerr << "Test passes" << endl;
   return 0;

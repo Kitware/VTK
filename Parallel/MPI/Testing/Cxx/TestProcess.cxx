@@ -69,21 +69,21 @@ void MyProcess::Execute()
   const int MY_RETURN_VALUE_MESSAGE=0x11;
 
   if(me==0)
-    {
+  {
     // root node
     this->ReturnValue=0;
     int i=1;
     while(i<numProcs)
-      {
+    {
       this->Controller->Send(&this->ReturnValue,1,i,MY_RETURN_VALUE_MESSAGE);
       ++i;
-      }
     }
+  }
   else
-    {
+  {
     // satellites
     this->Controller->Receive(&this->ReturnValue,1,0,MY_RETURN_VALUE_MESSAGE);
-    }
+  }
 }
 
 }
@@ -110,24 +110,24 @@ int TestProcess(int argc,char *argv[])
   int me=c->GetLocalProcessId();
 
   if(numProcs != 2)
-    {
+  {
     if (me == 0)
-      {
+    {
       cout << "DistributedData test requires 2 processes" << endl;
-      }
+    }
     c->Delete();
     return retVal;
-    }
+  }
 
   if (!c->IsA("vtkMPIController"))
-    {
+  {
     if (me == 0)
-      {
+    {
       cout << "TestProcess test requires MPI" << endl;
-      }
+    }
     c->Delete();
     return retVal;
-    }
+  }
 
   MyProcess *p=MyProcess::New();
   p->SetArgs(argc,argv);

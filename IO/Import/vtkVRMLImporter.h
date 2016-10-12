@@ -12,58 +12,44 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkVRMLImporter - imports VRML 2.0 files.
-// .SECTION Description
-//
-// vtkVRMLImporter imports VRML 2.0 files into VTK.
-// .SECTION Caveats
-//
-// These nodes are currently supported:
-//      Appearance                              IndexedFaceSet
-//      Box                                     IndexedLineSet
-//      Color                                   Material
-//      Cone                                    Shape
-//      Coordinate                              Sphere
-//      Cylinder                                Transform
-//      DirectionalLight
-//
-// As you can see this implementation focuses on getting the geometry
-// translated.  The routes and scripting nodes are ignored since they deal
-// with directly accessing a nodes internal structure based on the VRML
-// spec. Since this is a translation the internal data structures differ
-// greatly from the VRML spec and the External Authoring Interface (see the
-// VRML spec). The DEF/USE mechanism does allow the VTK user to extract
-// objects from the scene and directly manipulate them using the native
-// language (Tcl, Python, Java, or whatever language VTK is wrapped
-// in). This, in a way, removes the need for the route and script mechanism
-// (not completely though).
-// Texture coordinates are attached to the mesh is available but
-// image textures are not loaded.
-// Viewpoints (camera presets) are not imported.
-//
-// .SECTION Thanks
-//  Thanks to Russ Coucher of Areva for numerous bug fixes and a new test.
-//
-// .SECTION See Also
-// vtkImporter
-
-/* ======================================================================
-
-   Importer based on BNF Yacc and Lex parser definition from:
-
-        **************************************************
-        * VRML 2.0 Parser
-        * Copyright (C) 1996 Silicon Graphics, Inc.
-        *
-        * Author(s) :    Gavin Bell
-        *                Daniel Woods (first port)
-        **************************************************
-
-  Ported to VTK By:     Thomas D. Citriniti
-                        Rensselaer Polytechnic Institute
-                        citrit@rpi.edu
-
-=======================================================================*/
+/**
+ * @class   vtkVRMLImporter
+ * @brief   imports VRML 2.0 files.
+ *
+ *
+ * vtkVRMLImporter imports VRML 2.0 files into VTK.
+ *
+ * @warning
+ * These nodes are currently supported:
+ *      Appearance                              IndexedFaceSet
+ *      Box                                     IndexedLineSet
+ *      Color                                   Material
+ *      Cone                                    Shape
+ *      Coordinate                              Sphere
+ *      Cylinder                                Transform
+ *      DirectionalLight
+ *
+ * @warning
+ * As you can see this implementation focuses on getting the geometry
+ * translated.  The routes and scripting nodes are ignored since they deal
+ * with directly accessing a nodes internal structure based on the VRML
+ * spec. Since this is a translation the internal data structures differ
+ * greatly from the VRML spec and the External Authoring Interface (see the
+ * VRML spec). The DEF/USE mechanism does allow the VTK user to extract
+ * objects from the scene and directly manipulate them using the native
+ * language (Tcl, Python, Java, or whatever language VTK is wrapped
+ * in). This, in a way, removes the need for the route and script mechanism
+ * (not completely though).
+ * Texture coordinates are attached to the mesh is available but
+ * image textures are not loaded.
+ * Viewpoints (camera presets) are not imported.
+ *
+ * @par Thanks:
+ *  Thanks to Russ Coucher of Areva for numerous bug fixes and a new test.
+ *
+ * @sa
+ * vtkImporter
+*/
 
 #ifndef vtkVRMLImporter_h
 #define vtkVRMLImporter_h
@@ -93,24 +79,31 @@ public:
   vtkTypeMacro(vtkVRMLImporter, vtkImporter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify the name of the file to read.
+  //@{
+  /**
+   * Specify the name of the file to read.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Specify the resolution for Sphere, Cone and Cylinder shape sources.
-  // Default is 12.
+  //@{
+  /**
+   * Specify the resolution for Sphere, Cone and Cylinder shape sources.
+   * Default is 12.
+   */
   vtkSetMacro(ShapeResolution, int);
   vtkGetMacro(ShapeResolution, int);
+  //@}
 
-  // Description:
-  // In the VRML spec you can DEF and USE nodes (name them),
-  // This routine will return the associated VTK object which
-  // was created as a result of the DEF mechanism
-  // Send in the name from the VRML file, get the VTK object.
-  // You will have to check and correctly cast the object since
-  // this only returns vtkObjects.
+  /**
+   * In the VRML spec you can DEF and USE nodes (name them),
+   * This routine will return the associated VTK object which
+   * was created as a result of the DEF mechanism
+   * Send in the name from the VRML file, get the VTK object.
+   * You will have to check and correctly cast the object since
+   * this only returns vtkObjects.
+   */
   vtkObject* GetVRMLDEFObject(const char *name);
 
 protected:
@@ -125,16 +118,20 @@ protected:
   virtual void ImportLights(vtkRenderer*) {}
   virtual void ImportProperties(vtkRenderer*) {}
 
-  // Description:
-  // Needed by the yacc/lex grammar used
+  //@{
+  /**
+   * Needed by the yacc/lex grammar used
+   */
   virtual void enterNode(const char*);
   virtual void exitNode();
   virtual void enterField(const char*);
   virtual void exitField();
   virtual void useNode(const char*);
+  //@}
 
-  // Description:
-  // Return the file pointer to the open file.
+  /**
+   * Return the file pointer to the open file.
+   */
   FILE *GetFileFD() { return this->FileFD; }
 
   char *FileName;
@@ -167,8 +164,8 @@ private:
   vtkPolyDataMapper* CurrentMapper;
 
 private:
-  vtkVRMLImporter(const vtkVRMLImporter&);  // Not implemented.
-  void operator=(const vtkVRMLImporter&);  // Not implemented.
+  vtkVRMLImporter(const vtkVRMLImporter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVRMLImporter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

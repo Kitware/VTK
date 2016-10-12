@@ -44,10 +44,10 @@ vtkCGMWriter::vtkCGMWriter()
 vtkCGMWriter::~vtkCGMWriter()
 {
   if ( this->Viewport != NULL )
-    {
+  {
     this->Viewport->Delete();
     this->Viewport = NULL;
-    }
+  }
 }
 
 //--------------------------#defines and method descriptions for CGM output
@@ -344,21 +344,21 @@ vtkColorHash::vtkColorHash()
   int i;
   this->Table = new vtkIdList * [VTK_HASH_INDEX];
   for (i=0; i<VTK_HASH_INDEX; i++)
-    {
+  {
     this->Table[i] = NULL;
-    }
+  }
 }
 
 vtkColorHash::~vtkColorHash()
 {
   int i;
   for (i=0; i<VTK_HASH_INDEX; i++)
-    {
+  {
     if ( this->Table[i] != NULL )
-      {
+    {
       this->Table[i]->Delete();
-      }
     }
+  }
   delete [] this->Table;
 }
 
@@ -369,36 +369,36 @@ int vtkColorHash::InsertUniqueColor(cgmImagePtr im, int r, int g, int b)
 
   // If no list, just insert the color
   if ( this->Table[index] == NULL )
-    {
+  {
     this->Table[index] = vtkIdList::New();
     this->Table[index]->Allocate(3,3);
     cgmIndex = cgmImageColorAllocate(im, r, g, b);
     this->Table[index]->InsertNextId(cgmIndex);
-    }
+  }
 
   // otherwise, check to see if color exists
   else
-    {
+  {
     vtkIdType numIds=this->Table[index]->GetNumberOfIds();
     int red, green, blue;
 
     vtkIdType i;
     for (i=0; i<numIds; i++)
-      {
+    {
       cgmIndex = this->Table[index]->GetId(i);
       cgmImageColorGet(im, cgmIndex, red, green, blue);
       if ( r == red && g == green && b == blue )
-        {
-        break;
-        }
-      }
-
-    if ( i >= numIds ) //means didn't find one
       {
-      cgmIndex = cgmImageColorAllocate(im, r, g, b);
-      this->Table[index]->InsertNextId(cgmIndex);
+        break;
       }
     }
+
+    if ( i >= numIds ) //means didn't find one
+    {
+      cgmIndex = cgmImageColorAllocate(im, r, g, b);
+      this->Table[index]->InsertNextId(cgmIndex);
+    }
+  }
 
   return cgmIndex;
 }
@@ -412,14 +412,14 @@ int vtkColorHash::GetColorIndex(cgmImagePtr im, int r, int g, int b)
   int i;
 
   for (i=0; i<numIds; i++)
-    {
+  {
     cgmIndex = this->Table[index]->GetId(i);
     cgmImageColorGet(im, cgmIndex, red, green, blue);
     if ( r == red && g == green && b == blue )
-      {
+    {
       return cgmIndex;
-      }
     }
+  }
 
   return 0;
 }
@@ -436,15 +436,15 @@ static void DefineColors(cgmImagePtr im, int CGMcolors[256])
 
   // use 3-3-2 bits for rgb
   for (blue=0; blue<256; blue+=64)
-    {
+  {
     for (green=0; green<256; green+=32)
-      {
+    {
       for (red=0; red<256; red+=32)
-        {
+      {
         CGMcolors[idx++] = cgmImageColorAllocate(im, red, green, blue);
-        }
       }
     }
+  }
 }
 
 // Define CGM colors from the lookup table provided
@@ -458,10 +458,10 @@ static vtkColorHash *DefineLUTColors(cgmImagePtr im, unsigned char *colors,
   int id;
 
   for (id=0; id < numColors; id++)
-    {
+  {
     ptr = colors + bpp*id;
     switch (bpp)
-      {
+    {
       case 1: case 2:
         r = g = b = *ptr;
         break;
@@ -470,10 +470,10 @@ static vtkColorHash *DefineLUTColors(cgmImagePtr im, unsigned char *colors,
         g = ptr[1];
         b = ptr[2];
         break;
-      }
+    }
 
     colorHash->InsertUniqueColor(im, r, g, b);
-    }
+  }
 
   return colorHash;
 }
@@ -510,17 +510,17 @@ extern "C"
 int vtkCGMqsortCompare(const void *val1, const void *val2)
 {
   if (((vtkSortValues *)val1)->z > ((vtkSortValues *)val2)->z)
-    {
+  {
     return (-1);
-    }
+  }
   else if (((vtkSortValues *)val1)->z < ((vtkSortValues *)val2)->z)
-    {
+  {
     return (1);
-    }
+  }
   else
-    {
+  {
     return (0);
-    }
+  }
 }
 }
 
@@ -534,17 +534,17 @@ void vtkCGMWriter::WriteData()
 
   // Check that there is something to write
   if ( numPts < 1 || numCells < 1 )
-    {
+  {
     vtkErrorMacro(<<"No data to write");
     return;
-    }
+  }
 
   // Try opening the file
   if ( (outf = fopen(this->FileName, "wb")) == NULL )
-    {
+  {
     vtkErrorMacro(<<"Cannot open CGM file");
     return;
-    }
+  }
 
   cgmImagePtr im;
   vtkPoints *inPts=input->GetPoints(), *pts;
@@ -563,44 +563,44 @@ void vtkCGMWriter::WriteData()
   // Generate the points that will be used for output.
   //
   if ( this->Viewport == NULL ) //zero-out z values
-    {
+  {
     input->GetBounds(bounds);
     pts = inPts;
-    }
+  }
   else //transform into view coordinates
-    {
+  {
     vtkPoints *displayPts = vtkPoints::New();
     displayPts->SetNumberOfPoints(numPts);
     for ( i=0; i < numPts; i++ )
-      {
+    {
       inPts->GetPoint(i, x);
       this->Viewport->SetWorldPoint(x[0], x[1], x[2], 1.0);
       this->Viewport->WorldToDisplay();
       this->Viewport->GetDisplayPoint(x);
       displayPts->SetPoint(i, x);
-      }
+    }
     displayPts->GetBounds(bounds);
     pts = displayPts;
-    }
+  }
 
   // Get the bounding box of the points
   //
   xRange = bounds[1] - bounds[0];
   yRange = bounds[3] - bounds[2];
   if ( xRange > yRange )
-    {
+  {
     factor[0] = 1.0;
     factor[1] = yRange/xRange;
     size[0] = this->Resolution;
     size[1] = static_cast<int>(factor[1] * this->Resolution);
-    }
+  }
   else
-    {
+  {
     factor[0] = yRange/xRange;
     factor[1] = 1.0;
     size[0] = static_cast<int>(factor[0] * this->Resolution);
     size[1] = this->Resolution;
-    }
+  }
 
   // Loop over the points again, transforming them into resolution specified
   //
@@ -609,12 +609,12 @@ void vtkCGMWriter::WriteData()
   scaledPts->SetNumberOfPoints(numPts);
   x[2] = 0.0;
   for (i=0; i<numPts; i++)
-    {
+  {
     pts->GetPoint(i,x);
     x[0] = (x[0] - bounds[0]) / xRange * this->Resolution * factor[0];
     x[1] = (x[1] - bounds[2]) / yRange * this->Resolution * factor[1];
     scaledPts->SetPoint(i,x);
-    }
+  }
 
   // Generate the colors according to specified method
   //
@@ -623,31 +623,31 @@ void vtkCGMWriter::WriteData()
   vtkColorHash *colorHash=NULL;
 
   if ( this->ColorMode == VTK_COLOR_MODE_DEFAULT )
-    {
+  {
     if ( inScalars && inScalars->GetDataType() == VTK_UNSIGNED_CHAR )
-      {
+    {
       colorMode = VTK_COLOR_MODE_DEFAULT;
       bpp = inScalars->GetNumberOfComponents();
       colors = static_cast<vtkUnsignedCharArray *>(inScalars)->GetPointer(0);
-      }
+    }
     else
-      {
-      colorMode = VTK_COLOR_MODE_SPECIFIED_COLOR;
-      }
-    }
-  else
     {
-    colorMode = this->ColorMode;
+      colorMode = VTK_COLOR_MODE_SPECIFIED_COLOR;
     }
+  }
+  else
+  {
+    colorMode = this->ColorMode;
+  }
 
   if ( colorMode == VTK_COLOR_MODE_DEFAULT )
-    {
+  {
     colorHash = DefineLUTColors(im, colors, numCells, bpp);
-    }
+  }
   else //random or specified color
-    {
+  {
     DefineColors(im, CGMColors);
-    }
+  }
 
   // Setup creation of the CGM file
   //
@@ -664,34 +664,34 @@ void vtkCGMWriter::WriteData()
   // value which is used for sorting.
   //
   if ( this->Sort )
-    {
+  {
     depth = new vtkSortValues [numCells];
     for ( cellId=0; cellId < numCells; cellId++ )
-      {
+    {
       input->GetCell(cellId, cell);
       id = cell->PointIds->GetId(0);
       pts->GetPoint(id,x);
 
       depth[cellId].z = x[2];
       depth[cellId].cellId = cellId;
-      }
+    }
 
     qsort(depth, numCells, sizeof(vtkSortValues), vtkCGMqsortCompare);
-    }
+  }
 
 
   // Traverse the cells and spit out the appropriate primitives.
   cgmSetShapeEdgeAttrib(im, 1, 0, 0, 0);
   for ( cellId=0; cellId < numCells; cellId++ )
-    {
+  {
     if ( this->Sort )
-      {
+    {
       id = depth[cellId].cellId;
-      }
+    }
     else
-      {
+    {
       id = cellId;
-      }
+    }
 
     input->GetCell(id, cell);
     type = cell->GetCellType();
@@ -699,10 +699,10 @@ void vtkCGMWriter::WriteData()
     p = cell->GetPointIds()->GetPointer(0);
 
     if ( colorMode == VTK_COLOR_MODE_DEFAULT )
-      {
+    {
       ptr = colors + bpp*id;
       switch (bpp)
-        {
+      {
         case 1: case 2:
           rgbColor[0] = *ptr;
           rgbColor[1] = *ptr;
@@ -719,58 +719,58 @@ void vtkCGMWriter::WriteData()
           rgbColor[1] = 0;
           rgbColor[2] = 0;
           break;
-        }
+      }
 
       color = colorHash->GetColorIndex(im, rgbColor[0], rgbColor[1], rgbColor[2]);
-      }
+    }
     else if ( colorMode == VTK_COLOR_MODE_SPECIFIED_COLOR )
-      {
+    {
       color = GetColor(static_cast<int>(this->SpecifiedColor[0] * 255.0),
                        static_cast<int>(this->SpecifiedColor[1] * 255.0),
                        static_cast<int>(this->SpecifiedColor[2] * 255.0),
                        CGMColors);
-      }
+    }
     else //if ( colorMode == VTK_COLOR_MODE_RANDOM_COLORS )
-      {
+    {
       color = GetColor(static_cast<int>(vtkMath::Random(0,255)),
                        static_cast<int>(vtkMath::Random(0,255)),
                        static_cast<int>(vtkMath::Random(0,255)), CGMColors);
-      }
+    }
 
     switch (type)
-      {
+    {
       case VTK_VERTEX: case VTK_POLY_VERTEX:
         for (i=0; i<npts; i++)
-          {
+        {
           scaledPts->GetPoint(p[i], x);
           points[0].x = static_cast<int>(x[0]);
           points[0].y = static_cast<int>(x[1]);
-          }
+        }
         cgmPolyMarker(im, points, 1);
         break;
       case VTK_LINE: case VTK_POLY_LINE:
         for (i=0; i<npts; i++)
-          {
+        {
           scaledPts->GetPoint(p[i], x);
           points[i].x = static_cast<int>(x[0]);
           points[i].y = static_cast<int>(x[1]);
-          }
+        }
         cgmSetLineColor(im, color);
         cgmPolyLine(im, points, npts);
         break;
       case VTK_TRIANGLE: case VTK_QUAD: case VTK_POLYGON:
         for (i=0; i<npts; i++)
-          {
+        {
           scaledPts->GetPoint(p[i], x);
           points[i].x = static_cast<int>(x[0]);
           points[i].y = static_cast<int>(x[1]);
-          }
+        }
         cgmSetShapeFillAttrib(im, 1, color, -1);
         cgmPolygon(im, points, npts);
         break;
       case VTK_TRIANGLE_STRIP:
         for (i=0; i<(npts-2); i++)
-          {
+        {
           scaledPts->GetPoint(p[i], x);
           points[0].x = static_cast<int>(x[0]);
           points[0].y = static_cast<int>(x[1]);
@@ -780,26 +780,26 @@ void vtkCGMWriter::WriteData()
           scaledPts->GetPoint(p[i+2], x);
           points[2].x = static_cast<int>(x[0]);
           points[2].y = static_cast<int>(x[1]);
-          }
+        }
         cgmSetShapeFillAttrib(im, 1, color, -1);
         cgmPolygon(im, points, 3);
         break;
       default:
         vtkErrorMacro(<<"Unsupported CGM type");
-      }
     }
+  }
   if ( colorMode == VTK_COLOR_MODE_DEFAULT )
-    {
+  {
     delete colorHash;
-    }
+  }
 
   cell->Delete();
   scaledPts->Delete();
   delete [] points;
   if ( this->Sort )
-    {
+  {
     delete [] depth;
-    }
+  }
 
   // Write out the CGM file
   cgmImageCgm(im, outf);
@@ -814,32 +814,32 @@ void vtkCGMWriter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->Viewport )
-    {
+  {
     os << indent << "Viewport: "
        << this->Viewport << "\n";
     this->Viewport->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "No Viewport defined\n";
-    }
+  }
 
   os << indent << "Sort: " << (this->Sort ? "On\n" : "Off\n");
 
   os << indent << "Color Mode: ";
   if ( this->ColorMode == VTK_COLOR_MODE_DEFAULT )
-    {
+  {
     os << "Default" << endl;
-    }
+  }
   else if ( this->ColorMode == VTK_COLOR_MODE_SPECIFIED_COLOR )
-    {
+  {
     os << "Specified Color: (" << this->SpecifiedColor[0] << ", "
        << this->SpecifiedColor[1] << ", " << this->SpecifiedColor[2] << ")\n";
-    }
+  }
   else
-    {
+  {
     os << "Random Colors";
-    }
+  }
 
   os << indent << "Resolution: " << this->Resolution << endl;
 }
@@ -857,30 +857,30 @@ static cgmImagePtr cgmImageCreate(int sx, int sy)
 
   im = cgmImageStartCgm();
   if (!im)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   if (!cgmImageSetSize(im, sx,sy))
-    {
+  {
     free (im);
     return 0;
-    }
+  }
 
   if (!cgmCgmHeader(im))
-    {
+  {
     free (im);
     return 0;
-    }
+  }
 
   if (cgmCgmPic(im, 0))
-    {
+  {
     return im;
-    }
+  }
   else
-    {
+  {
     free(im);
     return 0;
-    }
+  }
 }
 
 static int cgmAppNull(unsigned char *es, int x)
@@ -890,10 +890,10 @@ static int cgmAppNull(unsigned char *es, int x)
   int y;
 
   for(y=0; y<x; y++)
-    {
+  {
     *es = '\0';
     es++;
-    }
+  }
   return x;
 }
 
@@ -932,9 +932,9 @@ static int cgmcomhead(unsigned char *es, int elemclass, int id, int len)
   int temp;
 
   if (!es)
-    {
+  {
     return 0; /* the string must be allocated first */
-    }
+  }
 
   /* set the element class */
   *es = static_cast<unsigned char>(elemclass) << 4;
@@ -964,9 +964,9 @@ static int cgmcomheadlong(unsigned char *es, int elemclass, int id, int len)
 
   /* I'm lazy, call cgmcomhead to set the first two bytes */
   if (!cgmcomhead(es, elemclass, id, 31))
-    {
+  {
     return 0;
-    }
+  }
 
   es += 2;
 
@@ -988,33 +988,33 @@ static int cgmAddElem(cgmImagePtr im, unsigned char *es, int octet_count)
   int x; /* counter */
 
   while ((octet_count + 1) >= im->bytestoend)
-    {
+  {
     /* not enough space, must grow elemlist */
     im->listlen = im->listlen + CGMGROWLISTSIZE;
     newlist = static_cast<unsigned char *>(
       realloc(im->elemlist,SIZEOF(unsigned char ) * im->listlen));
     if (newlist)
-      {
+    {
       /* successfully allocated memory */
       im->elemlist = newlist;
       im->bytestoend = im->bytestoend + CGMGROWLISTSIZE;
       im->curelemlist = im->elemlist + (im->listlen - im->bytestoend);
-      }
+    }
     else
-      {
+    {
       /* memory allocation failed, save yurself */
       im->listlen = im->listlen - CGMGROWLISTSIZE;
       return 0;
-      }
     }
+  }
 
   /* ok, if we get to here, there is enough space, so add it. */
   for (x=0; x < octet_count; x++)
-    {
+  {
     *im->curelemlist = static_cast<unsigned char>(*es);
     im->curelemlist++;
     es++;
-    }
+  }
   im->bytestoend = im->bytestoend - octet_count;
   return 1;
 }
@@ -1038,15 +1038,15 @@ static int cgmCgmHeader(cgmImagePtr im)
                       length octets. */
 
   if (im->state != 0)
-    {
+  {
     return 0;
-    }
+  }
 
   headerp = static_cast<unsigned char *>(calloc(1024, SIZEOF(unsigned char )));
   if (!headerp)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   head=headerp;
 
   /*** Attribute: BegMF; Elem Class 0; Elem ID 1 */
@@ -1057,16 +1057,16 @@ static int cgmCgmHeader(cgmImagePtr im)
   head += cgmAppByte(head, static_cast<short int>(blen));
   buf2 = buf;
   while (*buf2)
-    {
+  {
     *head++ = *buf2++;
-    }
+  }
   octet_count += (blen + 3);
   curly = 4 - (octet_count % 4);
   if (curly % 4)
-    {
+  {
     octet_count += curly;
     head += cgmAppNull(head, curly);
-    }
+  }
 
   /*** Attribute: MFVersion; Elem Class 1; Elem ID 1 */
   cgmcomhead(head, 1, 1, 2);
@@ -1081,16 +1081,16 @@ static int cgmCgmHeader(cgmImagePtr im)
   head += cgmAppByte(head, static_cast<short int>(blen));
   buf2 = im->desc;
   while (*buf2)
-    {
+  {
     *head++ = *buf2++;
-    }
+  }
   octet_count += (blen + 5);
   curly = 4 - (octet_count % 4);
   if (curly % 4)
-    {
+  {
     octet_count += curly;
     head += cgmAppNull(head, curly);
-    }
+  }
 
   /*** Attribute: ColrPrec; Elem Class 1; Elem ID 7 */
   cgmcomhead(head, 1, 7, 2);
@@ -1128,50 +1128,50 @@ static int cgmCgmHeader(cgmImagePtr im)
    * correct length. */
   buf = im->fontlist;
   if (0)
-    { /* don't do this if there aren't any fonts */
+  { /* don't do this if there aren't any fonts */
     //      if (buf)  /* don't do this if there aren't any fonts */
     fontlistlen = static_cast<int>(strlen(reinterpret_cast<const char *>(buf))) + 1;
     cgmcomheadlong(head, 1, 13, fontlistlen);
     head +=4;
 
     while (*buf)
-      {
+    {
       blen = 0;
       buf2 = buf;
       while ((*buf) && (*buf != ','))
-        {
+      {
         buf++;
         blen++;
-        }
+      }
       head += cgmAppByte(head, static_cast<short int>(blen));
       while (buf2 < buf)
-        {
+      {
         *head++ = *buf2++;
-        }
-      if (*buf)
-        {
-        buf++;
-        }
       }
+      if (*buf)
+      {
+        buf++;
+      }
+    }
     octet_count += (4 + fontlistlen);
     curly = 4 - (octet_count % 4);
     if (curly % 4)
-      {
+    {
       octet_count += curly;
       head += cgmAppNull(head, curly);
-      }
-    } /* end of check to see if any fonts */
+    }
+  } /* end of check to see if any fonts */
 
   if (cgmAddElem(im, headerp, octet_count))
-    {
+  {
     free(headerp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(headerp);
     return 0;
-    }
+  }
 }
 
 
@@ -1191,25 +1191,25 @@ static int cgmCgmPic(cgmImagePtr im, int sticky)
   int x1,x2,x3,x4; /* needed for setting defaults */
 
   if ((im->state != 0) && (im->state != 2))
-    {
+  {
     return 0;
-    }
+  }
 
   if ((sticky > 2) || (sticky < 0))
-    {
+  {
     return 0; /* invalid sticky bit */
-    }
+  }
 
   /* increment the picture number */
   im->picnum++;
   tb = static_cast<char *>(calloc(4*4, SIZEOF(char) ));
   headerp = static_cast<unsigned char *>(calloc(1024, SIZEOF(unsigned char )));
   if (!tb || !headerp)
-    {
+  {
     free(tb);
     free(headerp);
     return 0; /* memory allocation failed */
-    }
+  }
   head=headerp;
 
   /*** Attribute: BegPic; Elem Class 0; Elem ID 3 */
@@ -1222,21 +1222,21 @@ static int cgmCgmPic(cgmImagePtr im, int sticky)
   head += cgmAppByte(head, static_cast<short int>(blen));
   buf2 = buf;
   while (*buf2)
-    {
+  {
     *head++ = *buf2++;
-    }
+  }
   free(tb);
   octet_count += (blen + 3);
   if (!(blen % 2))
-    {
+  {
     octet_count++;
     head += cgmAppNull(head, 1);
-    }
+  }
   if (octet_count % 4)
-    {
+  {
     octet_count +=2;
     head += cgmAppNull(head, 2);
-    }
+  }
 
   /*** Attribute: ColrMode; Elem Class 2; Elem ID 2 */
   cgmcomhead(head, 2, 2, 2);
@@ -1246,30 +1246,30 @@ static int cgmCgmPic(cgmImagePtr im, int sticky)
   /* Picture Descriptor: Line Width Specification Mode;
    * Elem Class 2; Elem ID 3*/
   if (sticky && (im->linespec != CGMLINESPEC))
-    {
+  {
     cgmcomhead(head, 2, 3, 2);
     head += 2;
     head += cgmAppShort(head, static_cast<short int>(im->linespec));
     octet_count += 4;
-    }
+  }
   /* Picture Descriptor: Marker Size Specification Mode;
    * Elem Class 2; Elem ID 4*/
   if (sticky && (im->markerspec != CGMMARKERSPEC))
-    {
+  {
     cgmcomhead(head, 2, 4, 2);
     head += 2;
     head += cgmAppShort(head, static_cast<short int>(im->markerspec));
     octet_count += 4;
-    }
+  }
   /* Picture Descriptor: Edge Width Specification Mode;
    * Elem Class 2; Elem ID 5*/
   if (sticky && (im->edgespec != CGMEDGESPEC))
-    {
+  {
     cgmcomhead(head, 2, 5, 2);
     head += 2;
     head += cgmAppShort(head, static_cast<short int>(im->edgespec));
     octet_count += 4;
-    }
+  }
 
   /*** Attribute: VDCExt; Elem Class 2; Elem ID 6 */
   cgmcomhead(head, 2, 6, 8);
@@ -1286,85 +1286,85 @@ static int cgmCgmPic(cgmImagePtr im, int sticky)
   octet_count += 2;
 
   if (cgmAddElem(im, headerp, octet_count))
-    {
+  {
     free(headerp);
-    }
+  }
   else
-    {
+  {
     free(headerp);
     return 0;
-    }
+  }
 
   if (sticky)
-    {
+  {
     /* keep defaults the way they are */
     if (sticky == 1)
-      {
+    {
       /* keep the color table */
       if(cgmImageAddColor(im, 0, im->colorsTotal - 1) == -1)
-        {
+      {
         /* no colortable */
         return 1;
-        }
       }
+    }
     else
-      {
+    {
       /* Nuke the color table if there is one */
       cgmImageColorClear(im);
-      }
+    }
     im->state = 1;
     x1=im->ltype; x2=im->lwidth; x3=im->lcolor;
     im->ltype=CGMLTYPE; im->lwidth=CGMLWIDTH; im->lcolor=CGMLCOLOR;
     if(!cgmSetLineAttrib(im, x1, x2, x3))
-      {
+    {
       return 0;
-      }
+    }
 
     x1=im->shapestyle; x2=im->shapecolor; x3=im->shapehatch;
     im->shapestyle=CGMSHAPESTYLE; im->shapecolor=CGMSHAPECOLOR;
     im->shapehatch=CGMSHAPEHATCH;
     if (!cgmSetShapeFillAttrib(im, x1, x2, x3))
-      {
+    {
       return 0;
-      }
+    }
 
     x1=im->edgetype; x2=im->edgewidth;
     x3=im->edgecolor; x4=im->edgevis;
     im->edgetype=CGMEDGETYPE; im->edgewidth=CGMEDGEWIDTH;
     im->edgecolor=CGMEDGECOLOR; im->edgevis=CGMEDGEVIS;
     if (!cgmSetShapeEdgeAttrib(im, x1, x2, x3, x4))
-      {
+    {
       return 0;
-      }
+    }
 
     x1=im->textfont; x2=im->textcolor; x3=im->textheight;
     im->textfont=CGMTEXTFONT; im->textcolor=CGMTEXTCOLOR;
     im->textheight=CGMTEXTHEIGHT;
     if(!cgmSetTextAttrib(im, x1, x2, x3))
-      {
+    {
       return 0;
-      }
+    }
     x1=im->textpath; im->textpath = CGMTEXTPATH;
     if (!cgmSetTextPath(im, x1))
-      {
+    {
       return 0;
-      }
+    }
 
     x1=im->mtype; x2=im->msize; x3=im->mcolor;
     im->ltype=CGMMTYPE; im->lwidth=CGMMSIZE; im->lcolor=CGMMCOLOR;
     if(!cgmSetMarkerAttrib(im, x1, x2, x3))
-      {
-      return 0;
-      }
-    }
-  else
     {
+      return 0;
+    }
+  }
+  else
+  {
     /* reset all the defaults */
     cgmImageSetDefaults(im);
     /* Nuke the color table if there is one */
     cgmImageColorClear(im);
     im->state = 1; /* now we are officially in the picture */
-    }
+  }
 
   return 1;
 }
@@ -1382,9 +1382,9 @@ static int cgmCgmNewPic(cgmImagePtr im, int sticky)
 {
   /* close the current picture */
   if (!cgmImageEndPic(im))
-    {
+  {
     return 0;
-    }
+  }
 
   /* now start the new picture */
   return(cgmCgmPic(im, sticky));
@@ -1414,36 +1414,36 @@ static int cgmSetLineType(cgmImagePtr im, int lntype)
   /* First check and see if the user doesn't want any changes,
    * if so, just return success */
   if (lntype == -1)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Check and see if the value it is being set to is the current
    * value, if so, don't make any changes, just return 1 */
   if (lntype == im->ltype)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Make sure that lntype is between 1 and 5 */
   if ((lntype < 1) || (lntype > 5))
-    {
+  {
     return 0;
-    }
+  }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
 
   if (!cgmcomhead(es, 5, 2, 2))
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 
   es += 2;
   /* set Param_List_Len to 2 (signed int at index precision) */
@@ -1455,16 +1455,16 @@ static int cgmSetLineType(cgmImagePtr im, int lntype)
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     im->ltype = static_cast<short int>(lntype);
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 static int cgmSetLineWidth(cgmImagePtr im, int lnwidth)
@@ -1481,35 +1481,35 @@ static int cgmSetLineWidth(cgmImagePtr im, int lnwidth)
   /* First check and see if the user doesn't want any changes,
    * if so, just return success */
   if (lnwidth == -1)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Check and see if the value it is being set to is the current
    * value, if so, don't make any changes, just return 1 */
   if (lnwidth == im->lwidth)
-    {
+  {
     return 1;
-    }
+  }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
 
   /*gej: line width is 32 bit floating point number, 16 bits before the
    * decimal, 16 bits after if Line Spec is default (1, scaled)
    * if Line Spec is 0 (0, absolute) then it is 16 bit SI */
   if (im->linespec)
-    {
+  {
     if (!cgmcomhead(es, 5, 3, 4))
-      {
+    {
       free(esp);
       return 0;
-      }
+    }
     es += 2;
     octet_count = 2;
     es += cgmAppShort(es, static_cast<short int>(lnwidth));
@@ -1517,32 +1517,32 @@ static int cgmSetLineWidth(cgmImagePtr im, int lnwidth)
     /* the next two (after decimal point) will always be zero */
     es += cgmAppNull(es, 2);
     octet_count += 2;
-    }
+  }
   else
-    {
+  {
     if (!cgmcomhead(es, 5, 3, 2))
-      {
+    {
       free(esp);
       return 0;
-      }
+    }
     octet_count = 2;
     es += 2;
     es += cgmAppShort(es, static_cast<short int>(lnwidth));
     octet_count += 2;
-    }
+  }
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     im->lwidth = lnwidth;
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 static int cgmSetLineColor(cgmImagePtr im, int lncolor)
@@ -1556,38 +1556,38 @@ static int cgmSetLineColor(cgmImagePtr im, int lncolor)
   /* First check and see if the user doesn't want any changes,
    * if so, just return success */
   if (lncolor == -1)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Check and see if the value it is being set to is the current
    * value, if so, don't make any changes, just return 1 */
   if (lncolor == im->lcolor)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Make sure the color they want to use has been allocated.
    * also, that color must be non-negative */
   if ((lncolor >= im->colorsTotal ) || (lncolor < 0))
-    {
+  {
     return 0;  /* you must allocate a color before you use it */
-    }
+  }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
 
 
   if (!cgmcomhead(es, 5, 4, 1))
-    {
+  {
     free (esp);
     return 0;
-    }
+  }
   es += 2;
 
   *es =  0377 & lncolor; /* mask off last 8 bits and put in es */
@@ -1600,16 +1600,16 @@ static int cgmSetLineColor(cgmImagePtr im, int lncolor)
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     im->lcolor = static_cast<short int>(lncolor);
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 static int cgmSetFillStyle(cgmImagePtr im, int instyle)
@@ -1629,38 +1629,38 @@ static int cgmSetFillStyle(cgmImagePtr im, int instyle)
   /* First check and see if the user doesn't want any changes,
    * if so, just return success */
   if (instyle == -1)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Check and see if the value it is being set to is the current
    * value, if so, don't make any changes, just return 1 */
   if (instyle == im->shapestyle)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Make sure that lnhatch is between 0 and 6, but not
    * 2, 5, or 6 */
   if ((instyle < 0) || (instyle > 4) || (instyle == 2))
-    {
+  {
     return 0;
-    }
+  }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
 
   /* set the header to Class 5, ID 22, Length 2 */
   if (!cgmcomhead(es, 5, 22, 2))
-    {
+  {
     free (esp);
     return 0;
-    }
+  }
   es += 2;
 
   /* add in the value of inhatch */
@@ -1670,16 +1670,16 @@ static int cgmSetFillStyle(cgmImagePtr im, int instyle)
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     im->shapestyle = static_cast<short int>(instyle);
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 static int cgmSetFillColor(cgmImagePtr im, int incolor)
@@ -1695,37 +1695,37 @@ static int cgmSetFillColor(cgmImagePtr im, int incolor)
   /* First check and see if the user doesn't want any changes,
    * if so, just return success */
   if (incolor == -1)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Check and see if the value it is being set to is the current
    * value, if so, don't make any changes, just return 1 */
   if (incolor == im->shapecolor)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Make sure the color they want to use has been allocated.
    * also, that color must be non-negative */
   if ((incolor >= im->colorsTotal ) || (incolor < 0))
-    {
+  {
     return 0;  /* you must allocate a color before you use it */
-    }
+  }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
 
   if (!cgmcomhead(es, 5, 23, 1))
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
   es += 2;
 
   *es =  0377 & incolor; /* mask off last 8 bits and put in es */
@@ -1737,16 +1737,16 @@ static int cgmSetFillColor(cgmImagePtr im, int incolor)
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     im->shapecolor = static_cast<short int>(incolor);
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 static int cgmSetFillHatch(cgmImagePtr im, int inhatch)
@@ -1768,37 +1768,37 @@ static int cgmSetFillHatch(cgmImagePtr im, int inhatch)
   /* First check and see if the user doesn't want any changes,
    * if so, just return success */
   if (inhatch == -1)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Check and see if the value it is being set to is the current
    * value, if so, don't make any changes, just return 1 */
   if (inhatch == im->shapehatch)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Make sure that lnhatch is between 1 and 6 */
   if ((inhatch < 1) || (inhatch > 6))
-    {
+  {
     return 0;
-    }
+  }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
 
   /* set the command header to class 5, id 24, length 2 */
   if (!cgmcomhead (es, 5, 24, 2))
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
   es += 2;
 
   /* add in the value of inhatch */
@@ -1812,16 +1812,16 @@ static int cgmSetFillHatch(cgmImagePtr im, int inhatch)
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     im->shapehatch = static_cast<short int>(inhatch);
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 static int cgmSetEdgeType(cgmImagePtr im, int edtype)
@@ -1845,29 +1845,29 @@ static int cgmSetEdgeType(cgmImagePtr im, int edtype)
   /* First check and see if the user doesn't want any changes,
    * if so, just return success */
   if (edtype == -1)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Check and see if the value it is being set to is the current
    * value, if so, don't make any changes, just return 1 */
   if (edtype == im->edgetype)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Make sure that lntype is between 1 and 5 */
   if ((edtype < 1) || (edtype > 5))
-    {
+  {
     return 0;
-    }
+  }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
 
   if(!cgmcomhead(es, 5, 27, 2)) {free(esp);return 0;}
@@ -1880,16 +1880,16 @@ static int cgmSetEdgeType(cgmImagePtr im, int edtype)
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     im->edgetype = static_cast<short int>(edtype);
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 static int cgmSetEdgeWidth(cgmImagePtr im, int edwidth)
@@ -1906,35 +1906,35 @@ static int cgmSetEdgeWidth(cgmImagePtr im, int edwidth)
   /* First check and see if the user doesn't want any changes,
    * if so, just return success */
   if (edwidth == -1)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Check and see if the value it is being set to is the current
    * value, if so, don't make any changes, just return 1 */
   if (edwidth == im->edgewidth)
-    {
+  {
     return 1;
-    }
+  }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
 
   /*gej: edge width is 32 bit floating point number, 16 bits before the
    * decimal, 16 bits after for default edge spec (1, scaled) if
    * edge spec is absolute (0) then just 16 bit SI */
   if (im->edgespec)
-    {
+  {
     if (!cgmcomhead(es, 5, 28, 4))
-      {
+    {
       free(esp);
       return 0;
-      }
+    }
     es += 2;
     octet_count = 2;
     es+= cgmAppShort(es, edwidth);
@@ -1942,32 +1942,32 @@ static int cgmSetEdgeWidth(cgmImagePtr im, int edwidth)
     /* the next two (after decimal point) will always be zero */
     es += cgmAppNull(es, 2);
     octet_count += 2;
-    }
+  }
   else
-    {
+  {
     if (!cgmcomhead(es, 5, 28, 2))
-      {
+    {
       free(esp);
       return 0;
-      }
+    }
     es += 2;
     octet_count = 2;
     es+= cgmAppShort(es, edwidth);
     octet_count+=2;
-    }
+  }
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     im->edgewidth = edwidth;
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 static int cgmSetEdgeColor(cgmImagePtr im, int edcolor)
@@ -1983,36 +1983,36 @@ static int cgmSetEdgeColor(cgmImagePtr im, int edcolor)
   /* First check and see if the user doesn't want any changes,
    * if so, just return success */
   if (edcolor == -1)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Check and see if the value it is being set to is the current
    * value, if so, don't make any changes, just return 1 */
   if (edcolor == im->edgecolor)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Make sure the color they want to use has been allocated.
    * also, that color must be non-negative */
   if ((edcolor >= im->colorsTotal ) || (edcolor < 0))
-    {
+  {
     return 0;  /* you must allocate a color before you use it */
-    }
+  }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
   if (!cgmcomhead(es, 5, 29, 1))
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
   es += 2;
 
   *es =  0377 & edcolor; /* mask off last 8 bits and put in es */
@@ -2024,16 +2024,16 @@ static int cgmSetEdgeColor(cgmImagePtr im, int edcolor)
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     im->edgecolor = static_cast<short int>(edcolor);
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 static int cgmSetEdgeVis(cgmImagePtr im, int edvis)
@@ -2051,30 +2051,30 @@ static int cgmSetEdgeVis(cgmImagePtr im, int edvis)
   /* First check and see if the user doesn't want any changes,
    * if so, just return success */
   if (edvis == -1)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Check and see if the value it is being set to is the current
    * value, if so, don't make any changes, just return 1 */
   if (edvis == im->edgevis)
-    {
+  {
     return 1;
-    }
+  }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
 
   if (!cgmcomhead(es, 5, 30, 2))
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
   es +=2; octet_count = 2;
   temp = edvis >> 8;
   *es = *es | (temp & 0377);
@@ -2085,16 +2085,16 @@ static int cgmSetEdgeVis(cgmImagePtr im, int edvis)
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     im->edgevis = static_cast<short int>(edvis);
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 static int cgmSetTextFont(cgmImagePtr im, int font)
@@ -2121,36 +2121,36 @@ static int cgmSetTextFont(cgmImagePtr im, int font)
   /* First check and see if the user doesn't want any changes,
    * if so, just return success */
   if (font == -1)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Check and see if the value it is being set to is the current
    * value, if so, don't make any changes, just return 1 */
   if (font == im->textfont)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Make sure that font is between 1 and the number of fonts */
   if ((font < 1) || (font > im->numfonts))
-    {
+  {
     return 0;
-    }
+  }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
 
   if(!cgmcomhead(es, 5, 10, 2))
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
   es += 2;
 
   es += cgmAppShort(es, static_cast<short int>(font));
@@ -2159,16 +2159,16 @@ static int cgmSetTextFont(cgmImagePtr im, int font)
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     im->textfont = static_cast<short int>(font);
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 static int cgmSetTextColor(cgmImagePtr im, int color)
@@ -2181,37 +2181,37 @@ static int cgmSetTextColor(cgmImagePtr im, int color)
   /* First check and see if the user doesn't want any changes,
    * if so, just return success */
   if (color == -1)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Check and see if the value it is being set to is the current
    * value, if so, don't make any changes, just return 1 */
   if (color == im->textcolor)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Make sure the color they want to use has been allocated.
    * also, that color must be non-negative */
   if ((color >= im->colorsTotal ) || (color < 0))
-    {
+  {
     return 0;  /* you must allocate a color before you use it */
-    }
+  }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
 
   if(!cgmcomhead(es, 5, 14, 1))
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
   es += 2;
 
   *es =  0377 & color; /* mask off last 8 bits and put in es */
@@ -2222,16 +2222,16 @@ static int cgmSetTextColor(cgmImagePtr im, int color)
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     im->textcolor = static_cast<short int>(color);
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 static int cgmSetTextHeight(cgmImagePtr im, int height)
@@ -2244,30 +2244,30 @@ static int cgmSetTextHeight(cgmImagePtr im, int height)
   /* First check and see if the user doesn't want any changes,
    * if so, just return success */
   if (height == -1)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Check and see if the value it is being set to is the current
    * value, if so, don't make any changes, just return 1 */
   if (height == im->textheight)
-    {
+  {
     return 1;
-    }
+  }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
 
   if(!cgmcomhead(es, 5, 15, 2))
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
   octet_count = 2; es += 2;
 
   es += cgmAppShort(es, height);
@@ -2275,16 +2275,16 @@ static int cgmSetTextHeight(cgmImagePtr im, int height)
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     im->textheight = height;
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 static int cgmSetTextPath(cgmImagePtr im, int tpath)
@@ -2302,30 +2302,30 @@ static int cgmSetTextPath(cgmImagePtr im, int tpath)
   /* First check and see if the user doesn't want any changes,
    * if so, just return success */
   if (tpath == -1)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Check and see if the value it is being set to is the current
    * value, if so, don't make any changes, just return 1 */
   if (tpath == im->textpath)
-    {
+  {
     return 1;
-    }
+  }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>( calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
 
   if (!cgmcomhead(es, 5, 17, 2))
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
   es +=2; octet_count = 2;
 
   es += cgmAppShort(es, static_cast<short int>(tpath));
@@ -2333,16 +2333,16 @@ static int cgmSetTextPath(cgmImagePtr im, int tpath)
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     im->textpath = static_cast<short int>(tpath);
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 #ifdef VTK_NOT_DEFINED
@@ -2367,17 +2367,17 @@ static int cgmSetTextOrient(cgmImagePtr im, int xup, int yup, int xbase, int yba
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
   octet_count = 0;
 
   if (!cgmcomhead(es, 5, 16, 8))
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
   es +=2; octet_count += 2;
 
   /* In the metafile it is a 16 bit signed integer */
@@ -2394,15 +2394,15 @@ static int cgmSetTextOrient(cgmImagePtr im, int xup, int yup, int xbase, int yba
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 #endif
 
@@ -2420,36 +2420,36 @@ static int cgmSetMarkerType(cgmImagePtr im, int mtype)
   /* First check and see if the user doesn't want any changes,
    * if so, just return success */
   if (mtype == -1)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Check and see if the value it is being set to is the current
    * value, if so, don't make any changes, just return 1 */
   if (mtype == im->mtype)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Make sure that mtype is between 1 and 5 */
   if ((mtype < 1) || (mtype > 5))
-    {
+  {
     return 0;
-    }
+  }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>( calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
 
   if (!cgmcomhead(es, 5, 6, 2))
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
   es += 2;
   /* set Param_List_Len to 2 (signed int at index precision) */
 
@@ -2460,16 +2460,16 @@ static int cgmSetMarkerType(cgmImagePtr im, int mtype)
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     im->mtype = static_cast<short int>(mtype);
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 static int cgmSetMarkerSize(cgmImagePtr im, int msize)
@@ -2486,23 +2486,23 @@ static int cgmSetMarkerSize(cgmImagePtr im, int msize)
   /* First check and see if the user doesn't want any changes,
    * if so, just return success */
   if (msize == -1)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Check and see if the value it is being set to is the current
    * value, if so, don't make any changes, just return 1 */
   if (msize == im->msize)
-    {
+  {
     return 1;
-    }
+  }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>( calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
 
 
@@ -2510,7 +2510,7 @@ static int cgmSetMarkerSize(cgmImagePtr im, int msize)
    * decimal, 16 bits after if marker spec is default (1, scaled)
    * for absolute mode (0, absolute) it is 16 bit SI */
   if (im->markerspec)
-    {
+  {
     if (!cgmcomhead(es, 5, 7, 4)) {free(esp);return 0;}
     octet_count = 2;
     es += 2;
@@ -2519,33 +2519,33 @@ static int cgmSetMarkerSize(cgmImagePtr im, int msize)
     /* the next two (after decimal point) will always be zero */
     es += cgmAppNull(es, 2);
     octet_count += 2;
-    }
+  }
   else
-    {
+  {
     if (!cgmcomhead(es, 5, 7, 4))
-      {
+    {
       free(esp);
       return 0;
-      }
+    }
     octet_count = 2;
     es += 2;
     //es += cgmAppShort(es, (short int) msize);
     octet_count += 2;
-    }
+  }
 
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     im->msize = msize;
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 static int cgmSetMarkerColor(cgmImagePtr im, int mcolor)
@@ -2559,38 +2559,38 @@ static int cgmSetMarkerColor(cgmImagePtr im, int mcolor)
   /* First check and see if the user doesn't want any changes,
    * if so, just return success */
   if (mcolor == -1)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Check and see if the value it is being set to is the current
    * value, if so, don't make any changes, just return 1 */
   if (mcolor == im->mcolor)
-    {
+  {
     return 1;
-    }
+  }
 
   /* Make sure the color they want to use has been allocated.
    * also, that color must be non-negative */
   if ((mcolor >= im->colorsTotal ) || (mcolor < 0))
-    {
+  {
     return 0;  /* you must allocate a color before you use it */
-    }
+  }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
 
 
   if (!cgmcomhead(es, 5, 8, 1))
-    {
+  {
     free (esp);
     return 0;
-    }
+  }
   es += 2;
 
   *es =  0377 & mcolor; /* mask off last 8 bits and put in es */
@@ -2603,16 +2603,16 @@ static int cgmSetMarkerColor(cgmImagePtr im, int mcolor)
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     im->mcolor = static_cast<short int>(mcolor);
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 static int cgmSetLineAttrib(cgmImagePtr im, int lntype, int lnwidth,
@@ -2623,17 +2623,17 @@ static int cgmSetLineAttrib(cgmImagePtr im, int lntype, int lnwidth,
  */
 
   if (!cgmSetLineType(im, lntype))
-    {
+  {
     return 0;
-    }
+  }
   if (!cgmSetLineWidth(im, lnwidth))
-    {
+  {
     return 0;
-    }
+  }
   if (!cgmSetLineColor(im, lncolor))
-    {
+  {
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -2655,17 +2655,17 @@ static int cgmSetShapeFillAttrib(cgmImagePtr im, int instyle, int incolor,
  *                   crosshatch, positive/negative slope crosshatch)
  */
   if (!cgmSetFillStyle(im, instyle))
-    {
+  {
     return 0;
-    }
+  }
   if (!cgmSetFillColor(im, incolor))
-    {
+  {
     return 0;
-    }
+  }
   if (!cgmSetFillHatch(im, inhatch))
-    {
+  {
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -2687,21 +2687,21 @@ static int cgmSetShapeEdgeAttrib(cgmImagePtr im, int edtype, int edwidth,
  *     Edge Visibility (integer 0 or 1, corresponding to: Off, On)
  */
   if (!cgmSetEdgeType(im, edtype))
-    {
+  {
     return 0;
-    }
+  }
   if (!cgmSetEdgeWidth(im, edwidth))
-    {
+  {
     return 0;
-    }
+  }
   if (!cgmSetEdgeColor(im, edcolor))
-    {
+  {
     return 0;
-    }
+  }
   if (!cgmSetEdgeVis(im, edvis))
-    {
+  {
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -2727,17 +2727,17 @@ static int cgmSetTextAttrib(cgmImagePtr im, int font, int color, int height)
  */
 
   if(!cgmSetTextFont(im, font))
-    {
+  {
     return 0;
-    }
+  }
   if(!cgmSetTextColor(im, color))
-    {
+  {
     return 0;
-    }
+  }
   if(!cgmSetTextHeight(im, height))
-    {
+  {
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -2749,17 +2749,17 @@ static int cgmSetMarkerAttrib(cgmImagePtr im, int mtype, int msize, int mcolor)
  */
 
   if (!cgmSetMarkerType(im, mtype))
-    {
+  {
     return 0;
-    }
+  }
   if (!cgmSetMarkerSize(im, msize))
-    {
+  {
     return 0;
-    }
+  }
   if (!cgmSetMarkerColor(im, mcolor))
-    {
+  {
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -2768,17 +2768,17 @@ static int cgmImageDestroy(cgmImagePtr im)
 /* gej: should work, unless I make changes to cgmImage Struct */
 {
   if (im->elemlist)
-    {
+  {
     free(im->elemlist);
-    }
+  }
   if (im->desc)
-    {
+  {
     free(im->desc);
-    }
+  }
   if (im->fontlist)
-    {
+  {
     free(im->fontlist);
-    }
+  }
   free(im);
 
   return 1;
@@ -2795,22 +2795,22 @@ static int cgmImageColorClosest(cgmImagePtr im, int r, int g, int b)
   int ct = (-1);
   long mindist = 0;
   for (i=0; (i<(im->colorsTotal)); i++)
-    {
+  {
     long dist;
     if (im->open[i])
-      {
+    {
       continue;
-      }
+    }
     rd = (im->red[i] - r);
     gd = (im->green[i] - g);
     bd = (im->blue[i] - b);
     dist = rd * rd + gd * gd + bd * bd;
     if ((i == 0) || (dist < mindist))
-      {
+    {
       mindist = dist;
       ct = i;
-      }
     }
+  }
   return ct;
 }
 #endif
@@ -2820,9 +2820,9 @@ static int cgmImageColorClear(cgmImagePtr im)
 /* mark all entries in the color table as open */
   short int i;
   for (i=0; (i<(cgmMaxColors)); i++)
-    {
+  {
     im->open[i] = 1;
-    }
+  }
   return 1;
 }
 
@@ -2834,16 +2834,16 @@ static int cgmImageColorExact(cgmImagePtr im, int r, int g, int b)
 {
   short int i;
   for (i=0; (i<(im->colorsTotal)); i++)
-    {
+  {
     if (im->open[i])
-      {
+    {
       continue;
-      }
-    if ((im->red[i] == r) && (im->green[i] == g) && (im->blue[i] == b))
-      {
-      return i;
-      }
     }
+    if ((im->red[i] == r) && (im->green[i] == g) && (im->blue[i] == b))
+    {
+      return i;
+    }
+  }
   return -1;
 }
 #endif
@@ -2857,22 +2857,22 @@ static int cgmImageAddColorIndex(cgmImagePtr im, int r, int g, int b)
   short int i;
   short int ct = (-1);
   for (i=0; (i<(im->colorsTotal)); i++)
-    {
+  {
     if (im->open[i])
-      {
+    {
       ct = i;
       break;
-      }
     }
+  }
   if (ct == (-1))
-    {
+  {
     ct = im->colorsTotal;
     if (ct == cgmMaxColors)
-      {
+    {
       return -1;
-      }
-    im->colorsTotal++;
     }
+    im->colorsTotal++;
+  }
   im->red[ct] = static_cast<short int>(r);
   im->green[ct] = static_cast<short int>(g);
   im->blue[ct] = static_cast<short int>(b);
@@ -2898,79 +2898,79 @@ static int cgmImageAddColor(cgmImagePtr im, int si, int ei)
    */
   /* G E J: find out how many values are being added */
   if (ei < 0)
-    {
+  {
     return -1; /* no colors being added */
-    }
+  }
   numco = ei - si + 1;
 
   if (( numco > 0) && (numco < 10))
-    {
+  {
     /* we can use the short form of the command */
     /* allocate sufficient space. Should be 32 bits * 10 to be safe*/
     cts = static_cast<unsigned char *>( calloc(4*10, SIZEOF(unsigned char ) ));
     if (!cts)
-      {
+    {
       return -1; /* memory allocation failed */
-      }
+    }
     ctsp=cts;
     if (!cgmcomhead(ctsp,5,34,(numco*3)+1))
-      {
+    {
       free(cts);
       return -1;
-      }
-    ctsp +=2; octet_count += 2;
     }
+    ctsp +=2; octet_count += 2;
+  }
   else if ((numco > 9) && (numco < 256))
-    {
+  {
     /* we must use the long form of the command */
     /* allocate sufficient space. Should be 32 bits*256 to be safe*/
     cts = static_cast<unsigned char *>(calloc(256*4, SIZEOF(unsigned char ) ));
     if (!cts)
-      {
+    {
       return -1; /* memory allocation failed */
-      }
+    }
     ctsp=cts;
     if (!cgmcomheadlong(ctsp,5,34,(numco*3)+1))
-      {
+    {
       free(cts);
       return -1;
-      }
+    }
     ctsp +=4; octet_count += 4;
-    }
+  }
   else
-    {
+  {
     return -1;
-    }
+  }
 
   /*ctsp += cgmAppByte(ctsp, (short int) si);*/
   cgmAppByte(ctsp, static_cast<short int>(si));
   ctsp++;
   octet_count++;
   for (numco = si; numco <= ei; numco++)
-    {
+  {
     ctsp += cgmAppByte(ctsp, im->red[numco]);
     ctsp += cgmAppByte(ctsp, im->green[numco]);
     ctsp += cgmAppByte(ctsp, im->blue[numco]);
     octet_count +=3;
-    }
+  }
 
   curly = 4 - (octet_count % 4);
   if (curly % 4)
-    {
+  {
     octet_count += curly;
     //ctsp += cgmAppNull(ctsp, curly);
-    }
+  }
   /* add it to the buffer */
   if (cgmAddElem(im, cts, octet_count))
-    {
+  {
     free(cts);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(cts);
     return -1;
-    }
+  }
 }
 
 static int cgmImageColorAllocate(cgmImagePtr im, int r, int g, int b)
@@ -2982,20 +2982,20 @@ static int cgmImageColorAllocate(cgmImagePtr im, int r, int g, int b)
   short int ct;
   ct = cgmImageAddColorIndex(im, r, g, b);
   if (ct == -1)
-    {
+  {
     return -1;
-    }
+  }
   /* GEJ: w we have successfully alocated it in the color table
    * so let's put it in the CGM as well.
    */
   if (cgmImageAddColor(im, ct, ct) == -1 )
-    {
+  {
     return -1;
-    }
+  }
   else
-    {
+  {
     return ct;
-    }
+  }
 }
 
 #ifdef VTK_NOT_DEFINED
@@ -3003,97 +3003,97 @@ static int cgmImageColor16(cgmImagePtr im)
 {
   int si = cgmImageAddColorIndex(im, 255, 255, 255);
   if (si == -1)
-    {
+  {
     return 0;
-    }
+  }
   int li = -1;
   int ei = cgmImageAddColorIndex(im, 0, 0, 0);
   if (ei != -1)
-    {
+  {
     li = ei;
-    }
+  }
   ei = cgmImageAddColorIndex(im, 128, 0, 0);
   if (ei != -1)
-    {
+  {
     li = ei;
-    }
+  }
   ei = cgmImageAddColorIndex(im, 0, 128, 0);
   if (ei != -1)
-    {
+  {
     li = ei;
-    }
+  }
   ei = cgmImageAddColorIndex(im, 128, 128, 0);
   if (ei != -1)
-    {
+  {
     li = ei;
-    }
+  }
   ei = cgmImageAddColorIndex(im, 0, 0, 128);
   if (ei != -1)
-    {
+  {
     li = ei;
-    }
+  }
   ei = cgmImageAddColorIndex(im, 128, 0, 128);
   if (ei != -1)
-    {
+  {
     li = ei;
-    }
+  }
   ei = cgmImageAddColorIndex(im, 0, 128, 128);
   if (ei != -1)
-    {
+  {
     li = ei;
-    }
+  }
   ei = cgmImageAddColorIndex(im, 128, 128, 128);
   if (ei != -1)
-    {
+  {
     li = ei;
-    }
+  }
   ei = cgmImageAddColorIndex(im, 192, 192, 192);
   if (ei != -1)
-    {
+  {
     li = ei;
-    }
+  }
   ei = cgmImageAddColorIndex(im, 255, 0, 0);
   if (ei != -1)
-    {
+  {
     li = ei;
-    }
+  }
   ei = cgmImageAddColorIndex(im, 0, 255, 0);
   if (ei != -1)
-    {
+  {
     li = ei;
-    }
+  }
   ei = cgmImageAddColorIndex(im, 255, 255, 0);
   if (ei != -1)
-    {
+  {
     li = ei;
-    }
+  }
   ei = cgmImageAddColorIndex(im, 0, 0, 255);
   if (ei != -1)
-    {
+  {
     li = ei;
-    }
+  }
   ei = cgmImageAddColorIndex(im, 255, 0, 255);
   if (ei != -1)
-    {
+  {
     li = ei;
-    }
+  }
   ei = cgmImageAddColorIndex(im, 0, 255, 255);
   if (ei != -1)
-    {
+  {
     li = ei;
-    }
+  }
   if (ei == -1)
-    {
+  {
     ei = li;
-    }
+  }
   if(cgmImageAddColor(im,si,ei) == -1)
-    {
+  {
     return -1;
-    }
+  }
   else
-    {
+  {
     return ei;
-    }
+  }
 }
 
 static int cgmImageColorDeallocate(cgmImagePtr vtkNotUsed(im),  int vtkNotUsed(color))
@@ -3139,23 +3139,23 @@ static int cgmLine(cgmImagePtr im, int x1, int y1, int x2, int y2)
    * ie. the values you give for drawing the line are within
    * the values you created the picture with */
   if (!(cgmImageBoundsSafe(im, x1,y1)) || !(cgmImageBoundsSafe(im, x2,y2)))
-    {
+  {
     return 0;
-    }
+  }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
 
   if (!cgmcomhead(es, 4, 1, 8))
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
   es += 2;
   octet_count = 2;
 
@@ -3187,15 +3187,15 @@ static int cgmLine(cgmImagePtr im, int x1, int y1, int x2, int y2)
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 static int cgmMarker(cgmImagePtr im, int x, int y)
@@ -3211,23 +3211,23 @@ static int cgmMarker(cgmImagePtr im, int x, int y)
    * ie. the values you give for drawing the line are within
    * the values you created the picture with */
   if (!cgmImageBoundsSafe(im, x,y) )
-    {
+  {
     return 0;
-    }
+  }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
 
   if (!cgmcomhead(es, 4, 3, 4))
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
   es += 2;
   octet_count = 2;
 
@@ -3238,15 +3238,15 @@ static int cgmMarker(cgmImagePtr im, int x, int y)
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 static int cgmRectangle(cgmImagePtr im, int x1, int y1, int x2, int y2)
@@ -3269,24 +3269,24 @@ static int cgmRectangle(cgmImagePtr im, int x1, int y1, int x2, int y2)
    * ie. the values you give for drawing the line are within
    * the values you created the picture with */
   if (!(cgmImageBoundsSafe(im, x1,y1)) || !(cgmImageBoundsSafe(im, x2,y2)))
-    {
+  {
     return 0;
-    }
+  }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
 
   /* their are four 16 bit signed integers as attributes */
   if (!cgmcomhead(es, 4, 11, 8))
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
   es +=2; octet_count = 2;
 
   /* now we are ready for the parameter data */
@@ -3317,15 +3317,15 @@ static int cgmRectangle(cgmImagePtr im, int x1, int y1, int x2, int y2)
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 static int cgmCircle(cgmImagePtr im, int cx, int cy, int r)
@@ -3346,24 +3346,24 @@ static int cgmCircle(cgmImagePtr im, int cx, int cy, int r)
    * ie. the values you give for drawing the circle are within
    * the values you created the picture with */
   if (!(cgmImageBoundsSafe(im, cx,cy)))
-    {
+  {
     return 0;
-    }
+  }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
 
   /* their are three 16 bit signed integers as attributes */
   if (!cgmcomhead(es, 4, 12, 6))
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
   es +=2; octet_count = 2;
 
   /* now we are ready for the parameter data */
@@ -3388,15 +3388,15 @@ static int cgmCircle(cgmImagePtr im, int cx, int cy, int r)
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 static int cgmArc3Pt(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,int ey)
@@ -3415,24 +3415,24 @@ static int cgmArc3Pt(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,int ey
    * ie. the values you give for drawing the line are within
    * the values you created the picture with */
   if (!(cgmImageBoundsSafe(im, sx,sy)) || !(cgmImageBoundsSafe(im, ix,iy)) || !(cgmImageBoundsSafe(im, ex, ey)))
-    {
+  {
     return 0;
-    }
+  }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
 
   /* their are six 16 bit signed integers as attributes */
   if (!cgmcomhead(es, 4, 13, 12))
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
   es +=2; octet_count = 2;
 
   /* now we are ready for the parameter data */
@@ -3475,15 +3475,15 @@ static int cgmArc3Pt(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,int ey
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 static int cgmArc3PtClose(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,int ey, int cl)
@@ -3504,30 +3504,30 @@ static int cgmArc3PtClose(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,i
    * ie. the values you give for drawing the line are within
    * the values you created the picture with */
   if (!(cgmImageBoundsSafe(im, sx,sy)) || !(cgmImageBoundsSafe(im, ix,iy)) || !(cgmImageBoundsSafe(im, ex, ey)))
-    {
+  {
     return 0;
-    }
+  }
 
   /* make sure that they close the arc either with pie (0) or chord (1) */
   if ((cl != 0) && (cl != 1))
-    {
+  {
     return 0;
-    }
+  }
 
   /* allocate sufficient space.  should be 32 bits * 6 to be safe */
   es = (unsigned char *) calloc(4*6, SIZEOF(unsigned char ) );
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
 
   /* their are seven 16 bit signed integers as attributes */
   if (!cgmcomhead(es, 4, 14, 14))
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
   es +=2; octet_count = 2;
 
   /* now we are ready for the parameter data */
@@ -3548,15 +3548,15 @@ static int cgmArc3PtClose(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,i
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 static int cgmEllipse(cgmImagePtr im, int cx,int cy, int d1x,int d1y, int d2x,int d2y )
@@ -3574,24 +3574,24 @@ static int cgmEllipse(cgmImagePtr im, int cx,int cy, int d1x,int d1y, int d2x,in
    * ie. the values you give for drawing the line are within
    * the values you created the picture with */
   if (!(cgmImageBoundsSafe(im, cx,cy)) || !(cgmImageBoundsSafe(im, d1x,d1y)) || !(cgmImageBoundsSafe(im, d2x, d2y)))
-    {
+  {
     return 0;
-    }
+  }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
 
   /* their are six 16 bit signed integers as attributes */
   if (!cgmcomhead(es, 4, 17, 12))
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
   es +=2; octet_count = 2;
 
   /* now we are ready for the parameter data */
@@ -3610,15 +3610,15 @@ static int cgmEllipse(cgmImagePtr im, int cx,int cy, int d1x,int d1y, int d2x,in
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 #endif
 
@@ -3641,33 +3641,33 @@ static int cgmPolygon(cgmImagePtr im, cgmPointPtr p, int n)
   int x; /* counter */
 
   if (n < 3)
-    {
+  {
     return 0; /* it is either a point or a line */
-    }
+  }
 
   if (n < 8)
-    {
+  {
     /* It fits in the short form of the command, lets us
      * add it right now, shall we? */
     /* allocate sufficient space. Should be 32 bits*10 to be safe */
     es = static_cast<unsigned char *>( calloc(4*10,SIZEOF(unsigned char )));
     if (!es)
-      {
+    {
       return 0; /* memory allocation failed */
-      }
+    }
     esp=es;
 
     /* their are n*2 16 bit signed integers as attributes */
     if (!cgmcomhead(es, 4, 7, (n*4)))
-      {
+    {
       free(esp);
       return 0;
-      }
+    }
     es +=2; octet_count = 2;
 
-    }
+  }
   else if (n < 8191)
-    {
+  {
     /* there are more than 7 points in it, that sucks */
     /* gej, so basically, for this one, I set the header
      * to cgmcomhead(es, 4, 7, 31) then write a function for the long
@@ -3681,45 +3681,45 @@ static int cgmPolygon(cgmImagePtr im, cgmPointPtr p, int n)
     /* allocate sufficient space.  32 bits*(n+1) to be safe */
     es = static_cast<unsigned char *>(calloc(4*(n+1), SIZEOF(unsigned char )));
     if (!es)
-      {
+    {
       return 0; /* memory allocation failed */
-      }
+    }
     esp=es;
 
     if (!cgmcomheadlong(es, 4, 7, (n*4)))
-      {
+    {
       free(esp);
       return 0;
-      }
-    es +=4; octet_count = 4;
     }
+    es +=4; octet_count = 4;
+  }
   else
-    {
+  {
     /* there are more than 8191 points in it, I am not going to implement
      * that, if you want it that bad, do it yourself. */
     return 0;
-    }
+  }
 
   for (x=0; x<n; x++)
-    {
+  {
     /* now we are ready for the parameter data */
     es += cgmAppShort(es, static_cast<short int>(p->x));
     es += cgmAppShort(es, static_cast<short int>(p->y));
     octet_count += 4;
     p++;
-    }
+  }
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 #ifdef VTK_NOT_DEFINED
@@ -3744,34 +3744,34 @@ static int cgmPolygonSet(cgmImagePtr im, cgmPointPtr p, int n)
   int x; /* counter */
 
   if (n < 3)
-    {
+  {
     return 0; /* it is either a point or a line */
-    }
+  }
 
   if (n < 6)
-    {
+  {
     /* It fits in the short form of the command, lets us
      * add it right now, shall we? */
     /* allocate sufficient space. Should be 48 bits*10 to be safe */
     es = (unsigned char *) calloc(6*10,SIZEOF(unsigned char ));
     if (!es)
-      {
+    {
       return 0; /* memory allocation failed */
-      }
+    }
     esp=es;
 
 
     /* their are n*2 16 bit signed integers as attributes */
     if (!cgmcomhead(es, 4, 8, (n*6)))
-      {
+    {
       free(esp);
       return 0;
-      }
+    }
     es +=2; octet_count = 2;
 
-    }
+  }
   else if (n < 5462)
-    {
+  {
     /* there are more than 5 points in it, that sucks */
     /* gej, so basically, for this one, I set the header
      * to cgmcomhead(es, 4, 7, 31) then write a function for the long
@@ -3785,46 +3785,46 @@ static int cgmPolygonSet(cgmImagePtr im, cgmPointPtr p, int n)
     /* allocate sufficient space.  48 bits*(n+1) to be safe */
     es = (unsigned char *) calloc(6*(n+1), SIZEOF(unsigned char ));
     if (!es)
-      {
+    {
       return 0; /* memory allocation failed */
-      }
+    }
     esp=es;
 
     if (!cgmcomheadlong(es, 4, 8, (n*6)))
-      {
+    {
       free(esp);
       return 0;
-      }
-    es +=4; octet_count = 4;
     }
+    es +=4; octet_count = 4;
+  }
   else
-    {
+  {
     /* there are more than 5462 points in it, I am not going to implement
      * that, if you want it that bad, do it yourself. */
     return 0;
-    }
+  }
 
   for (x=0; x<n; x++)
-    {
+  {
     /* now we are ready for the parameter data */
     es += cgmAppShort(es, (short int) p->x);
     es += cgmAppShort(es, (short int) p->y);
     es += cgmAppShort(es, (short int) p->e);
     octet_count += 6;
     p++;
-    }
+  }
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 #endif
 
@@ -3845,33 +3845,33 @@ static int cgmPolyLine(cgmImagePtr im, cgmPointPtr p, int n)
   int x; /* counter */
 
   if (n < 2)
-    {
+  {
     return 0; /* it is a point */
-    }
+  }
 
   if (n < 8)
-    {
+  {
     /* It fits in the short form of the command, lets us
      * add it right now, shall we? */
     /* allocate sufficient space. Should be 32 bits*10 to be safe */
     es = static_cast<unsigned char *>(calloc(4*10,SIZEOF(unsigned char )));
     if (!es)
-      {
+    {
       return 0; /* memory allocation failed */
-      }
+    }
     esp=es;
 
     /* their are n*2 16 bit signed integers as attributes */
     if (!cgmcomhead(es, 4, 1, (n*4)))
-      {
+    {
       free(esp);
       return 0;
-      }
+    }
     es +=2; octet_count = 2;
 
-    }
+  }
   else if (n < 8191)
-    {
+  {
     /* there are more than 7 points in it, that sucks */
     /* gej, so basically, for this one, I set the header
      * using the long version cgmcomheadlong(es, 4, 1, n*4)
@@ -3881,45 +3881,45 @@ static int cgmPolyLine(cgmImagePtr im, cgmPointPtr p, int n)
     /* allocate sufficient space.  32 bits*(n+1) to be safe */
     es = static_cast<unsigned char *>(calloc(4*(n+1), SIZEOF(unsigned char )));
     if (!es)
-      {
+    {
       return 0; /* memory allocation failed */
-      }
+    }
     esp=es;
 
     if (!cgmcomheadlong(es, 4, 1, (n*4)))
-      {
+    {
       free(esp);
       return 0;
-      }
-    es +=4; octet_count = 4;
     }
+    es +=4; octet_count = 4;
+  }
   else
-    {
+  {
     /* there are more than 8191 points in it, I am not going to implement
      * that, if you want it that bad, do it yourself. */
     return 0;
-    }
+  }
 
   for (x=0; x<n; x++)
-    {
+  {
     /* now we are ready for the parameter data */
     es += cgmAppShort(es, static_cast<short int>(p->x));
     es += cgmAppShort(es, static_cast<short int>(p->y));
     octet_count += 4;
     p++;
-    }
+  }
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 static int cgmPolyMarker(cgmImagePtr im, cgmPointPtr p, int n)
@@ -3939,33 +3939,33 @@ static int cgmPolyMarker(cgmImagePtr im, cgmPointPtr p, int n)
   int x; /* counter */
 
   if (n < 1)
-    {
+  {
     return 0; /* it is nothing */
-    }
+  }
   if (n < 8)
-    {
+  {
     /* It fits in the short form of the command, lets us
      * add it right now, shall we? */
     /* allocate sufficient space. Should be 32 bits*10 to be safe */
     es = static_cast<unsigned char *>( calloc(4*10,SIZEOF(unsigned char )));
     if (!es)
-      {
+    {
       return 0; /* memory allocation failed */
-      }
+    }
     esp=es;
 
 
     /* their are n*2 16 bit signed integers as attributes */
     if (!cgmcomhead(es, 4, 3, (n*4)))
-      {
+    {
       free(esp);
       return 0;
-      }
+    }
     es +=2; octet_count = 2;
 
-    }
+  }
   else if (n < 8191)
-    {
+  {
     /* there are more than 7 points in it, that sucks */
     /* gej, so basically, for this one, I set the header
      * using the long version cgmcomheadlong(es, 4, 1, n*4)
@@ -3975,45 +3975,45 @@ static int cgmPolyMarker(cgmImagePtr im, cgmPointPtr p, int n)
     /* allocate sufficient space.  32 bits*(n+1) to be safe */
     es = static_cast<unsigned char *>(calloc(4*(n+1), SIZEOF(unsigned char )));
     if (!es)
-      {
+    {
       return 0; /* memory allocation failed */
-      }
+    }
     esp=es;
 
     if (!cgmcomheadlong(es, 4, 3, (n*4)))
-      {
+    {
       free(esp);
       return 0;
-      }
-    es +=4; octet_count = 4;
     }
+    es +=4; octet_count = 4;
+  }
   else
-    {
+  {
     /* there are more than 8191 points in it, I am not going to implement
      * that, if you want it that bad, do it yourself. */
     return 0;
-    }
+  }
 
   for (x=0; x<n; x++)
-    {
+  {
     /* now we are ready for the parameter data */
     es += cgmAppShort(es, static_cast<short int>(p->x));
     es += cgmAppShort(es, static_cast<short int>(p->y));
     octet_count += 4;
     p++;
-    }
+  }
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 #ifdef VTK_NOT_DEFINED
@@ -4041,9 +4041,9 @@ static int cgmText(cgmImagePtr im, int x, int y, const char *ts)
    * actually, I am only checking the start of it
    */
   if (!(cgmImageBoundsSafe(im, x, y)))
-    {
+  {
     return 0;
-    }
+  }
 
   /* allocate sufficient space.  should be tslen+ 32 bits * 4 to be safe */
   tslen = strlen(ts);
@@ -4052,22 +4052,22 @@ static int cgmText(cgmImagePtr im, int x, int y, const char *ts)
    * gej: this could go as high as 32767 I think, but lets
    * cut it off at 32700 */
   if ((tslen > 32700) || (tslen < 0))
-    {
+  {
     return 0;
-    }
+  }
 
   es = (unsigned char *) calloc( ((4*4)+tslen), SIZEOF(unsigned char ) );
   if (!es)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   esp=es;
 
   if (!cgmcomheadlong(es, 4, 4, 9+tslen))
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
   es +=4; octet_count = 4;
 
   /* add the x position, the y position, then 1, which signifies
@@ -4088,29 +4088,29 @@ static int cgmText(cgmImagePtr im, int x, int y, const char *ts)
    * a 16 number that was non-negative */
 
   while(*ts)
-    {
+  {
     *es++ = (unsigned char) *ts++;
-    }
+  }
   octet_count +=tslen;
   /* now if the octet_count is not divisible by 4 add null padding */
   curly = 4 - (octet_count % 4);
   if (curly % 4)
-    {
+  {
     octet_count += curly;
     es += cgmAppNull(es, curly);
-    }
+  }
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     free(esp);
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 static int cgmImageLine(cgmImagePtr im, int x1, int y1, int x2, int y2, int color)
@@ -4124,13 +4124,13 @@ static int cgmImageLine(cgmImagePtr im, int x1, int y1, int x2, int y2, int colo
   ltstate = im->ltype;
   /* set the attributes of the line */
   if (!cgmSetLineAttrib(im, 1, -1, color))
-    {
+  {
     return 0;
-    }
+  }
   if (!cgmLine(im, x1, y1, x2, y2))
-    {
+  {
     return 0;/* draw the line */
-    }
+  }
   /* restore the state If it fails, don't return an error, because
    * the line was still drawn */
   cgmSetLineType(im, ltstate);
@@ -4146,14 +4146,14 @@ static int cgmImageDashedLine(cgmImagePtr im, int x1, int y1, int x2, int y2, in
 {
   /* set the attributes of the line */
   if (!cgmSetLineAttrib(im, -1, -1, color))
-    {
+  {
     return 0;
-    }
+  }
   /* generate the line */
   if (!cgmLine(im, x1, y1, x2, y2))
-    {
+  {
     return 0;
-    }
+  }
 
   /* everything is A-OK */
   return 1;
@@ -4174,21 +4174,21 @@ static int cgmImageRectangle(cgmImagePtr im, int x1, int y1, int x2, int y2, int
 /* gej: but I think I will use the cgm rectangle */
 {
   if(!cgmImageLine(im, x1, y1, x2, y1, color))
-    {
+  {
     return 0;
-    }
+  }
   if(!cgmImageLine(im, x1, y2, x2, y2, color))
-    {
+  {
     return 0;
-    }
+  }
   if(!cgmImageLine(im, x1, y1, x1, y2, color))
-    {
+  {
     return 0;
-    }
+  }
   if(!cgmImageLine(im, x2, y1, x2, y2, color))
-    {
+  {
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -4213,9 +4213,9 @@ static int cgmImageSetLineSpec(cgmImagePtr im, int specmode)
  * 1 is scaled (default), 2 is absolute */
 {
   if ((specmode < 0) || (specmode > 2))
-    {
+  {
     return 0;
-    }
+  }
   im->linespec = specmode;
   return 1;
 }
@@ -4226,9 +4226,9 @@ static int cgmImageSetMarkerSpec(cgmImagePtr im, int specmode)
  * 1 is scaled (default), 2 is absolute */
 {
   if ((specmode < 0) || (specmode > 2))
-    {
+  {
     return 0;
-    }
+  }
   im->linespec = specmode;
   return 1;
 }
@@ -4239,9 +4239,9 @@ static int cgmImageSetEdgeSpec(cgmImagePtr im, int specmode)
  * 1 is scaled (default), 2 is absolute */
 {
   if ((specmode < 0) || (specmode > 2))
-    {
+  {
     return 0;
-    }
+  }
   im->edgespec = specmode;
   return 1;
 }
@@ -4255,14 +4255,14 @@ static int cgmImageSetOutput(cgmImagePtr im, FILE *output)
  */
 {
   if(output)
-    {
+  {
     im->outfile = output;
     return 1;
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 #ifdef VTK_NOT_DEFINED
@@ -4276,31 +4276,31 @@ static int cgmImageAddFont(cgmImagePtr im, const char *fontname)
   int listsize;
   oldfonts = im->fontlist;
   if (oldfonts)
-    {
+  {
     listsize = strlen( (char *)oldfonts) + 1 + strlen(fontname) + 1;
-    }
+  }
   else
-    {
+  {
     listsize = strlen(fontname) +1;
-    }
+  }
   im->fontlist=(unsigned char *) calloc(listsize,SIZEOF(unsigned char));
   if (!im->fontlist)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   if (oldfonts)
-    {
+  {
     sprintf((char *)im->fontlist, "%s%s%s", (char *)oldfonts, ",", fontname);
-    }
+  }
   else
-    {
+  {
     sprintf((char *)im->fontlist, "%s", fontname);
-    }
+  }
   im->numfonts++;
   if (oldfonts)
-    {
+  {
     free(oldfonts);
-    }
+  }
   oldfonts = NULL;
   return im->numfonts;
 }
@@ -4323,9 +4323,9 @@ static int cgmImageSetDefaults(cgmImagePtr im)
   /* you must be either before any picture has been created,
    * or after a picture has closed to call this */
   if ((im->state != 0) && (im->state != 2))
-    {
+  {
     return 0;
-    }
+  }
   /* set line_width, line_height, line_color to the defaults */
   im->ltype = CGMLTYPE;
   im->lwidth = CGMLWIDTH;
@@ -4365,17 +4365,17 @@ static cgmImagePtr cgmImageStartCgm()
   cgmImagePtr im;
   im = static_cast<cgmImage *>(calloc(SIZEOF(cgmImage), 1));
   if (!im)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   /* elemlist is set to some number, when it is full, make it bigger */
   im->elemlist = static_cast<unsigned char *>(calloc(CGMSTARTLISTSIZE,
                                                      SIZEOF(unsigned char ) ));
   if (!im->elemlist)
-    {
+  {
     free(im);
     return 0;
-    } /* memory allocation failed */
+  } /* memory allocation failed */
   im->colorsTotal = 0;
   /* you can have multiple pictures in a file,  keep track of
    * which one you are on */
@@ -4391,9 +4391,9 @@ static cgmImagePtr cgmImageStartCgm()
   tmps = "vtk CGM Output file";
   tmpsl = static_cast<int>(strlen(tmps));
   if (tmpsl >250)
-    {
+  {
     tmpsl = 250;
-    }
+  }
   im->desc = static_cast<unsigned char *>( calloc(tmpsl+1, SIZEOF(unsigned char)));
   strncpy(reinterpret_cast<char*>(im->desc), tmps, tmpsl);
   /* The font list can be quite long, but individual font names can
@@ -4407,9 +4407,9 @@ static cgmImagePtr cgmImageStartCgm()
   im->outfile = NULL;
 
   if (!cgmImageSetDefaults(im))
-    {
+  {
     cgmImageDestroy (im);
-    }
+  }
   /* set the state */
   im->state = 0; /* 0 no pictures started, 1 in a picture,
                   * 2 after a picture */
@@ -4425,36 +4425,36 @@ static int cgmImageEndPic(cgmImagePtr im)
 
   /* make sure we are really in a picture before ending it */
   if (im->state != 1)
-    {
+  {
     return 0;
-    }
+  }
 
   esp = static_cast<unsigned char *>(calloc(1024, SIZEOF(unsigned char )));
   if (!esp)
-    {
+  {
     return 0; /* memory allocation failed */
-    }
+  }
   es=esp;
 
   /* Attribute: End Picture; Elem Class 0; Elem ID 5; Length 0  */
   if (!cgmcomhead(es, 0, 5, 0))
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
   octet_count += 2;
 
   if (cgmAddElem(im, esp, octet_count))
-    {
+  {
     free(esp);
     im->state=2;
     return 1;
-    }
+  }
   else
-    {
+  {
     free(esp);
     return 0;
-    }
+  }
 }
 
 static int cgmImageEndCgm (cgmImagePtr im)
@@ -4467,36 +4467,36 @@ static int cgmImageEndCgm (cgmImagePtr im)
 
   cgmImageEndPic(im);
   if (im->state == 2)
-    { /* We have closed the pic, but not the CGM */
+  { /* We have closed the pic, but not the CGM */
     efile = static_cast<unsigned char *>( calloc(4*4,SIZEOF(unsigned char )));
     if (!efile)
-      {
+    {
       return 0; /* memory allocation failed */
-      }
+    }
     efilep=efile;
     /* Attribute: End Metafile; Elem Class 0; Elem ID 2 */
     cgmcomhead(efilep, 0, 2, 0);
 
     if (cgmAddElem(im, efile, 2))
-      {
+    {
       free(efile);
-      }
+    }
     else
-      {
+    {
       free(efile);
       return 0;
-      }
     }
+  }
 
   if (im->outfile)
-    {
+  {
     /* now output the CGM, one byte at a time */
     used = im->listlen - im->bytestoend;
     for (x=0;x < used; x++)
-      {
+    {
       putc(static_cast<unsigned char>(im->elemlist[x]), im->outfile);
-      }
-    } /* else do nothing */
+    }
+  } /* else do nothing */
 
   return 1;
 }

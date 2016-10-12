@@ -113,9 +113,9 @@ int TestAssemblyBounds (int , char *[])
 
   // Scene bounds should match the bounds of the second actor
   for (int i = 0; i < 6; ++i)
-    {
+  {
     if (sceneBounds[i] != clipActor2Bounds[i])
-      {
+    {
       std::cout << "Wrong visible bounds!" << std::endl;
       std::cout << "["  << sceneBounds[0]
                 << ", " << sceneBounds[1]  << "] "
@@ -124,7 +124,7 @@ int TestAssemblyBounds (int , char *[])
                 << "["  << sceneBounds[4]
                 << ", " << sceneBounds[5] << "] " << std::endl;
       return EXIT_FAILURE;
-      }
     }
+  }
   return EXIT_SUCCESS;
 }

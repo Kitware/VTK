@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAndroidOutputWindow - Win32 Specific output window class
-// .SECTION Description
-// This class is used for error and debug message output on the windows
-// platform.   It creates a read only EDIT control to display the
-// output.   This class should not be used directly.   It should
-// only be used through the interface of vtkOutputWindow.  This class
-// only handles one output window per process.  If the window is destroyed,
-// the vtkObject::GlobalWarningDisplayOff() function is called.  The
-// window is created the next time text is written to the window.
+/**
+ * @class   vtkAndroidOutputWindow
+ * @brief   Win32 Specific output window class
+ *
+ * This class is used for error and debug message output on the windows
+ * platform.   It creates a read only EDIT control to display the
+ * output.   This class should not be used directly.   It should
+ * only be used through the interface of vtkOutputWindow.  This class
+ * only handles one output window per process.  If the window is destroyed,
+ * the vtkObject::GlobalWarningDisplayOff() function is called.  The
+ * window is created the next time text is written to the window.
+*/
 
 #ifndef vtkAndroidOutputWindow_h
 #define vtkAndroidOutputWindow_h
@@ -34,18 +37,22 @@ class VTKCOMMONCORE_EXPORT vtkAndroidOutputWindow : public vtkOutputWindow
 public:
 // Methods from vtkObject
   vtkTypeMacro(vtkAndroidOutputWindow,vtkOutputWindow);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Create a vtkAndroidOutputWindow.
+  /**
+   * Create a vtkAndroidOutputWindow.
+   */
   static vtkAndroidOutputWindow* New();
 
-  // Description:  Put the text into the display window.
-  // New lines are converted to carriage return new lines.
+  //@{
+  /**
+   * New lines are converted to carriage return new lines.
+   */
   virtual void DisplayText(const char*);
   virtual void DisplayErrorText(const char*);
   virtual void DisplayWarningText(const char*);
   virtual void DisplayGenericWarningText(const char*);
+  //@}
 
   virtual void DisplayDebugText(const char*);
 
@@ -54,8 +61,8 @@ protected:
   virtual ~vtkAndroidOutputWindow();
 
 private:
-  vtkAndroidOutputWindow(const vtkAndroidOutputWindow&);  // Not implemented.
-  void operator=(const vtkAndroidOutputWindow&);  // Not implemented.
+  vtkAndroidOutputWindow(const vtkAndroidOutputWindow&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAndroidOutputWindow&) VTK_DELETE_FUNCTION;
 };
 
 

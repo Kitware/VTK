@@ -45,16 +45,16 @@ vtkSplineFilter::vtkSplineFilter()
 vtkSplineFilter::~vtkSplineFilter()
 {
   if (this->Spline)
-    {
+  {
     this->Spline->Delete();
     this->Spline = 0;
-    }
+  }
 
   if (this->TCoordMap)
-    {
+  {
     this->TCoordMap->Delete();
     this->TCoordMap = 0;
-    }
+  }
 }
 
 int vtkSplineFilter::RequestData(
@@ -97,15 +97,15 @@ int vtkSplineFilter::RequestData(
   if ( !(inPts=input->GetPoints()) || inPts->GetNumberOfPoints() < 1 ||
       !(inLines = input->GetLines()) ||
        (numLines = inLines->GetNumberOfCells()) < 1 )
-    {
+  {
     return 1;
-    }
+  }
 
   if ( this->Spline == NULL )
-    {
+  {
     vtkWarningMacro(<< "Need to specify a spline!");
     return 1;
-    }
+  }
 
   // Create the geometry and topology
   numNewPts = this->NumberOfSubdivisions * numLines;
@@ -119,14 +119,14 @@ int vtkSplineFilter::RequestData(
         pd->GetScalars() != NULL) ||
        (this->GenerateTCoords == VTK_TCOORDS_FROM_LENGTH ||
         this->GenerateTCoords == VTK_TCOORDS_FROM_NORMALIZED_LENGTH) )
-    {
+  {
     genTCoords = this->GenerateTCoords;
     newTCoords = vtkFloatArray::New();
     newTCoords->SetNumberOfComponents(2);
     newTCoords->Allocate(numNewPts);
     newTCoords->SetName("TCoords");
     outPD->CopyTCoordsOff();
-    }
+  }
   outPD->InterpolateAllocate(pd,numNewPts);
   this->TCoordMap->Allocate(VTK_CELL_SIZE);
 
@@ -147,15 +147,15 @@ int vtkSplineFilter::RequestData(
   //
   for (inCellId=0, inLines->InitTraversal();
        inLines->GetNextCell(npts,pts) && !abort; inCellId++)
-    {
+  {
       this->UpdateProgress(static_cast<double>(inCellId)/numLines);
     abort = this->GetAbortExecute();
 
     if (npts < 2)
-      {
+    {
       vtkWarningMacro(<< "Less than two points in line!");
       continue; //skip tubing this polyline
-      }
+    }
 
     // Generate the points around the polyline. The strip is not created
     // if the polyline is bad.
@@ -164,10 +164,10 @@ int vtkSplineFilter::RequestData(
     numGenPts = this->GeneratePoints(offset, npts, pts, inPts, newPts,
                                      pd, outPD, genTCoords, newTCoords);
     if ( ! numGenPts )
-      {
+    {
       //vtkWarningMacro(<< "Could not generate points!");
       continue; //skip splining
-      }
+    }
 
     // Generate the polyline
     //
@@ -176,7 +176,7 @@ int vtkSplineFilter::RequestData(
     // Compute the new offset for the next polyline
     offset += numGenPts;
 
-    }//for all polylines
+  }//for all polylines
 
   // Update ourselves
   //
@@ -193,10 +193,10 @@ int vtkSplineFilter::RequestData(
   newLines->Delete();
 
   if ( newTCoords )
-    {
+  {
     outPD->SetTCoords(newTCoords);
     newTCoords->Delete();
-    }
+  }
 
   output->Squeeze();
 
@@ -220,29 +220,29 @@ int vtkSplineFilter::GeneratePoints(vtkIdType offset, vtkIdType npts,
   double xPrev[3], x[3], length=0.0, len, t, tc, dist;
   inPts->GetPoint(pts[0],xPrev);
   for (i=1; i < npts; i++)
-    {
+  {
     inPts->GetPoint(pts[i],x);
     len = sqrt(vtkMath::Distance2BetweenPoints(x,xPrev));
     length += len;
     xPrev[0]=x[0]; xPrev[1]=x[1]; xPrev[2]=x[2];
-    }
+  }
   if ( length <= 0.0 )
-    {
+  {
     return 0; //failure
-    }
+  }
 
   // Now we insert points into the splines with the parametric coordinate
   // based on (polyline) length. We keep track of the parametric coordinates
   // of the points for later point interpolation.
   inPts->GetPoint(pts[0],xPrev);
   for (len=0,i=0; i < npts; i++)
-    {
+  {
     inPts->GetPoint(pts[i],x);
     dist = sqrt(vtkMath::Distance2BetweenPoints(x,xPrev));
     if (i > 0 && dist == 0)
-      {
+    {
       continue;
-      }
+    }
     len += dist;
     t = len/length;
     this->TCoordMap->InsertValue(i,t);
@@ -252,18 +252,18 @@ int vtkSplineFilter::GeneratePoints(vtkIdType offset, vtkIdType npts,
     this->ZSpline->AddPoint(t,x[2]);
 
     xPrev[0]=x[0]; xPrev[1]=x[1]; xPrev[2]=x[2];
-    }
+  }
 
   // Compute the number of subdivisions
   vtkIdType numDivs, numNewPts;
   if ( this->Subdivide == VTK_SUBDIVIDE_SPECIFIED )
-    {
+  {
     numDivs = this->NumberOfSubdivisions;
-    }
+  }
   else
-    {
+  {
     numDivs = static_cast<int>(length / this->Length);
-    }
+  }
   numDivs = ( numDivs < 1 ? 1 : (numDivs > this->MaximumNumberOfSubdivisions ?
                                  this->MaximumNumberOfSubdivisions : numDivs));
 
@@ -272,13 +272,13 @@ int vtkSplineFilter::GeneratePoints(vtkIdType offset, vtkIdType npts,
   vtkIdType idx;
   double s, s0=0.0;
   if ( genTCoords == VTK_TCOORDS_FROM_SCALARS )
-    {
+  {
     s0=pd->GetScalars()->GetTuple1(pts[0]);
-    }
+  }
   double tLo = this->TCoordMap->GetValue(0);
   double tHi = this->TCoordMap->GetValue(1);
   for (idx=0, i=0; i < numNewPts; i++)
-    {
+  {
       t = static_cast<double>(i) / numDivs;
     x[0] = this->XSpline->Evaluate(t);
     x[1] = this->YSpline->Evaluate(t);
@@ -287,33 +287,33 @@ int vtkSplineFilter::GeneratePoints(vtkIdType offset, vtkIdType npts,
 
     // interpolate point data
     while ( t > tHi && idx < (npts-2))
-      {
+    {
       idx++;
       tLo = this->TCoordMap->GetValue(idx);
       tHi = this->TCoordMap->GetValue(idx+1);
-      }
+    }
     tc = (t - tLo) / (tHi - tLo);
     outPD->InterpolateEdge(pd,offset+i,pts[idx],pts[idx+1],tc);
 
     // generate texture coordinates if desired
     if ( genTCoords != VTK_TCOORDS_OFF )
-      {
+    {
       if ( genTCoords == VTK_TCOORDS_FROM_NORMALIZED_LENGTH )
-        {
+      {
         tc = t;
-        }
+      }
       else if ( genTCoords == VTK_TCOORDS_FROM_LENGTH )
-        {
+      {
         tc = t * length / this->TextureLength;
-        }
+      }
       else if ( genTCoords == VTK_TCOORDS_FROM_SCALARS )
-        {
+      {
         s = outPD->GetScalars()->GetTuple1(offset+i); //data just interpolated
         tc = (s - s0) / this->TextureLength;
-        }
+      }
       newTCoords->InsertTuple2(offset+i,tc,0.0);
-      } //if generating tcoords
-    } //for all new points
+    } //if generating tcoords
+  } //for all new points
 
   return numNewPts;
 }
@@ -328,43 +328,43 @@ void vtkSplineFilter::GenerateLine(vtkIdType offset, vtkIdType npts,
   outCellId = newLines->InsertNextCell(npts);
   outCD->CopyData(cd,inCellId,outCellId);
   for (i=0; i < npts; i++)
-    {
+  {
     newLines->InsertCellPoint(offset+i);
-    }
+  }
 }
 
 
 const char *vtkSplineFilter::GetSubdivideAsString()
 {
   if ( this->Subdivide == VTK_SUBDIVIDE_SPECIFIED )
-    {
+  {
     return "Specified by Number of Subdivisions";
-    }
+  }
   else
-    {
+  {
     return "Specified by Length";
-    }
+  }
 }
 
 // Return the method of generating the texture coordinates.
 const char *vtkSplineFilter::GetGenerateTCoordsAsString(void)
 {
   if ( this->GenerateTCoords == VTK_TCOORDS_OFF )
-    {
+  {
     return "GenerateTCoordsOff";
-    }
+  }
   else if ( this->GenerateTCoords == VTK_TCOORDS_FROM_SCALARS )
-    {
+  {
     return "GenerateTCoordsFromScalar";
-    }
+  }
   else if ( this->GenerateTCoords == VTK_TCOORDS_FROM_LENGTH )
-    {
+  {
     return "GenerateTCoordsFromLength";
-    }
+  }
   else
-    {
+  {
     return "GenerateTCoordsFromNormalizedLength";
-    }
+  }
 }
 
 void vtkSplineFilter::PrintSelf(ostream& os, vtkIndent indent)

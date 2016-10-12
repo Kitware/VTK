@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDiskSource - create a disk with hole in center
-// .SECTION Description
-// vtkDiskSource creates a polygonal disk with a hole in the center. The
-// disk has zero height. The user can specify the inner and outer radius
-// of the disk, and the radial and circumferential resolution of the
-// polygonal representation.
-// .SECTION See Also
-// vtkLinearExtrusionFilter
+/**
+ * @class   vtkDiskSource
+ * @brief   create a disk with hole in center
+ *
+ * vtkDiskSource creates a polygonal disk with a hole in the center. The
+ * disk has zero height. The user can specify the inner and outer radius
+ * of the disk, and the radial and circumferential resolution of the
+ * polygonal representation.
+ * @sa
+ * vtkLinearExtrusionFilter
+*/
 
 #ifndef vtkDiskSource_h
 #define vtkDiskSource_h
@@ -32,40 +35,55 @@ class VTKFILTERSSOURCES_EXPORT vtkDiskSource : public vtkPolyDataAlgorithm
 public:
   static vtkDiskSource *New();
   vtkTypeMacro(vtkDiskSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Specify inner radius of hole in disc.
+  //@{
+  /**
+   * Specify inner radius of hole in disc.
+   */
   vtkSetClampMacro(InnerRadius,double,0.0,VTK_DOUBLE_MAX)
   vtkGetMacro(InnerRadius,double);
+  //@}
 
-  // Description:
-  // Specify outer radius of disc.
+  //@{
+  /**
+   * Specify outer radius of disc.
+   */
   vtkSetClampMacro(OuterRadius,double,0.0,VTK_DOUBLE_MAX)
   vtkGetMacro(OuterRadius,double);
+  //@}
 
-  // Description:
-  // Set the number of points in radius direction.
+  //@{
+  /**
+   * Set the number of points in radius direction.
+   */
   vtkSetClampMacro(RadialResolution,int,1,VTK_INT_MAX)
   vtkGetMacro(RadialResolution,int);
+  //@}
 
-  // Description:
-  // Set the number of points in circumferential direction.
+  //@{
+  /**
+   * Set the number of points in circumferential direction.
+   */
   vtkSetClampMacro(CircumferentialResolution,int,3,VTK_INT_MAX)
   vtkGetMacro(CircumferentialResolution,int);
+  //@}
 
-  // Description:
-  // Set/get the desired precision for the output points.
-  // vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
-  // vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+  //@{
+  /**
+   * Set/get the desired precision for the output points.
+   * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
+   * vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+   */
   vtkSetMacro(OutputPointsPrecision,int);
   vtkGetMacro(OutputPointsPrecision,int);
+  //@}
 
 protected:
   vtkDiskSource();
-  ~vtkDiskSource() {}
+  ~vtkDiskSource() VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   double InnerRadius;
   double OuterRadius;
   int RadialResolution;
@@ -73,8 +91,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkDiskSource(const vtkDiskSource&);  // Not implemented.
-  void operator=(const vtkDiskSource&);  // Not implemented.
+  vtkDiskSource(const vtkDiskSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDiskSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

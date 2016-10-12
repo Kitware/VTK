@@ -51,16 +51,16 @@ vtkBridgeCellIteratorOnCellList::vtkBridgeCellIteratorOnCellList()
 vtkBridgeCellIteratorOnCellList::~vtkBridgeCellIteratorOnCellList()
 {
   if(this->DataSet!=0)
-    {
+  {
     this->DataSet->Delete();
     this->DataSet=0;
-    }
+  }
 
   if(this->Cells!=0)
-    {
+  {
     this->Cells->Delete();
     this->Cells=0;
-    }
+  }
 
   this->Cell->Delete();
   this->Cell=0;

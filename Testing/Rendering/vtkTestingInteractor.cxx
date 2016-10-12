@@ -41,7 +41,7 @@ void vtkTestingInteractor::Start()
   // Location of the Data directory. If NOTFOUND, suppress regression
   // testing
   if (vtkTestingInteractor::DataDirectory != "VTK_DATA_ROOT-NOTFOUND")
-    {
+  {
     testing->AddArgument("-D");
     testing->AddArgument(vtkTestingInteractor::DataDirectory.c_str());
 
@@ -53,7 +53,7 @@ void vtkTestingInteractor::Start()
     // Regression test the image
     vtkTestingInteractor::TestReturnStatus =
       testing->RegressionTest(vtkTestingInteractor::ErrorThreshold);
-    }
+  }
 
 }
 

@@ -48,7 +48,7 @@ int TestMultipleChartRenderers(int , char * [])
     0.5,0.5,1.0,1.0};
 
   for ( int i=0; i < 4; ++i)
-    {
+  {
     VTK_CREATE(vtkRenderer, ren);
     ren->SetBackground(1.0,1.0,1.0);
     ren->SetViewport(&viewports[i*4]);
@@ -84,12 +84,12 @@ int TestMultipleChartRenderers(int , char * [])
     float inc = 7.5 / (numPoints-1);
     table->SetNumberOfRows(numPoints);
     for (int j = 0; j < numPoints; ++j)
-      {
+    {
       table->SetValue(j, 0, j * inc);
       table->SetValue(j, 1, cos(j * inc) + 0.0);
       table->SetValue(j, 2, sin(j * inc) + 0.0);
       table->SetValue(j, 3, sin(j * inc) + 0.5);
-      }
+    }
 
     // Add multiple line plots, setting the colors etc
     vtkPlot *line = chart->AddPlot(vtkChart::LINE);
@@ -104,7 +104,7 @@ int TestMultipleChartRenderers(int , char * [])
     line->SetInputData(table, 0, 3);
     line->SetColor(0, 0, 255, 255);
     line->SetWidth(4.0);
-    }
+  }
 
   iren->Initialize();
   iren->Start();

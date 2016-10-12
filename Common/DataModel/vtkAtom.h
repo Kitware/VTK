@@ -12,8 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAtom - convenience proxy for vtkMolecule
-// .SECTION Description
+/**
+ * @class   vtkAtom
+ * @brief   convenience proxy for vtkMolecule
+ *
+*/
 
 #ifndef vtkAtom_h
 #define vtkAtom_h
@@ -30,27 +33,35 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAtom
  public:
   void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Return the Id used to identify this atom in the parent molecule.
+  /**
+   * Return the Id used to identify this atom in the parent molecule.
+   */
   vtkIdType GetId() const;
 
-  // Description:
-  // Return the parent molecule of this atom.
+  /**
+   * Return the parent molecule of this atom.
+   */
   vtkMolecule * GetMolecule();
 
-  // Description:
-  // Get/Set the atomic number of this atom
+  //@{
+  /**
+   * Get/Set the atomic number of this atom
+   */
   unsigned short GetAtomicNumber() const;
   void SetAtomicNumber(unsigned short atomicNum);
+  //@}
 
-  // Description:
-  // Get/Set the position of this atom
+  //@{
+  /**
+   * Get/Set the position of this atom
+   */
   void GetPosition(float pos[3]) const;
   void GetPosition(double pos[3]) const;
   void SetPosition(const float pos[3]);
   void SetPosition(float x, float y, float z);
   vtkVector3f GetPosition() const;
   void SetPosition(const vtkVector3f &pos);
+  //@}
 
  protected:
   friend class vtkMolecule;

@@ -67,35 +67,35 @@ void vtkXMLMultiBlockDataReader::ReadVersion0(vtkXMLDataElement* element,
   vtkMultiBlockDataSet* mblock = vtkMultiBlockDataSet::SafeDownCast(composite);
   unsigned int numElems = element->GetNumberOfNestedElements();
   for (unsigned int cc=0; cc < numElems; ++cc)
-    {
+  {
     vtkXMLDataElement* childXML = element->GetNestedElement(cc);
     if (!childXML || !childXML->GetName() ||
       strcmp(childXML->GetName(), "DataSet") != 0)
-      {
+    {
       continue;
-      }
+    }
     int group = 0;
     int index = 0;
     if (childXML->GetScalarAttribute("group", group) &&
       childXML->GetScalarAttribute("dataset", index))
-      {
+    {
       vtkSmartPointer<vtkDataSet> dataset;
       if (this->ShouldReadDataSet(dataSetIndex))
-        {
+      {
         dataset.TakeReference(this->ReadDataset(childXML, filePath));
-        }
+      }
       vtkMultiBlockDataSet* block = vtkMultiBlockDataSet::SafeDownCast(
         mblock->GetBlock(group));
       if (!block)
-        {
+      {
         block = vtkMultiBlockDataSet::New();
         mblock->SetBlock(group, block);
         block->Delete();
-        }
-      block->SetBlock(index, dataset);
       }
-    dataSetIndex++;
+      block->SetBlock(index, dataset);
     }
+    dataSetIndex++;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -106,94 +106,94 @@ void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
   vtkMultiBlockDataSet* mblock = vtkMultiBlockDataSet::SafeDownCast(composite);
   vtkMultiPieceDataSet* mpiece = vtkMultiPieceDataSet::SafeDownCast(composite);
   if (!mblock && !mpiece)
-    {
+  {
     vtkErrorMacro("Unsuported composite dataset.");
     return;
-    }
+  }
 
   if (this->GetFileMajorVersion() < 1)
-    {
+  {
     // Read legacy file.
     this->ReadVersion0(element, composite, filePath, dataSetIndex);
     return;
-    }
+  }
 
   unsigned int maxElems = element->GetNumberOfNestedElements();
   for (unsigned int cc=0; cc < maxElems; ++cc)
-    {
+  {
     vtkXMLDataElement* childXML = element->GetNestedElement(cc);
     if (!childXML || !childXML->GetName())
-      {
+    {
       continue;
-      }
+    }
 
     int index = 0;
     if (!childXML->GetScalarAttribute("index", index))
     // if index not in the structure file, then
     // set up to add at the end
-      {
+    {
       if (mblock)
-        {
+      {
         index = mblock->GetNumberOfBlocks();
-        }
-      else if (mpiece)
-        {
-        index = mpiece->GetNumberOfPieces();
-        }
       }
+      else if (mpiece)
+      {
+        index = mpiece->GetNumberOfPieces();
+      }
+    }
     // child is a leaf node, read and insert.
     const char* tagName = childXML->GetName();
     if (strcmp(tagName, "DataSet") == 0)
-      {
+    {
       vtkSmartPointer<vtkDataSet> childDS;
       const char* name = 0;
       if (this->ShouldReadDataSet(dataSetIndex))
-        {
+      {
         // Read
         childDS.TakeReference(this->ReadDataset(childXML, filePath));
         name = childXML->GetAttribute("name");
-        }
+      }
       // insert
       if (mblock)
-        {
+      {
         mblock->SetBlock(index, childDS);
         mblock->GetMetaData(index)->Set(vtkCompositeDataSet::NAME(), name);
-        }
+      }
       else if (mpiece)
-        {
+      {
         mpiece->SetPiece(index, childDS);
         mpiece->GetMetaData(index)->Set(vtkCompositeDataSet::NAME(), name);
-        }
-      dataSetIndex++;
       }
+      dataSetIndex++;
+    }
     // Child is a multiblock dataset itself. Create it.
     else if (mblock != 0
              && strcmp(tagName, "Block") == 0)
-      {
+    {
       vtkMultiBlockDataSet* childDS = vtkMultiBlockDataSet::New();;
       this->ReadComposite(childXML, childDS, filePath, dataSetIndex);
       const char* name = childXML->GetAttribute("name");
       mblock->SetBlock(index, childDS);
       mblock->GetMetaData(index)->Set(vtkCompositeDataSet::NAME(), name);
       childDS->Delete();
-      }
+    }
     // Child is a multipiece dataset. Create it.
     else if (mblock!=0
              && strcmp(tagName, "Piece") == 0)
-      {
+    {
       vtkMultiPieceDataSet* childDS = vtkMultiPieceDataSet::New();;
       this->ReadComposite(childXML, childDS, filePath, dataSetIndex);
       const char* name = childXML->GetAttribute("name");
       mblock->SetBlock(index, childDS);
       mblock->GetMetaData(index)->Set(vtkCompositeDataSet::NAME(), name);
       childDS->Delete();
-      }
+    }
     else
-      {
+    {
       vtkErrorMacro("Syntax error in file.");
       return;
-      }
     }
+  }
 }
 
 namespace
@@ -204,15 +204,15 @@ namespace
   {
     vtkInformation* piece_metadata = 0;
     if (mblock)
-      {
+    {
       mblock->SetBlock(index, NULL);
       piece_metadata = mblock->GetMetaData(index);
-      }
+    }
     else if (mpiece)
-      {
+    {
       mpiece->SetPiece(index, NULL);
       piece_metadata = mpiece->GetMetaData(index);
-      }
+    }
     return piece_metadata;
   }
 
@@ -228,94 +228,94 @@ int vtkXMLMultiBlockDataReader::FillMetaData(vtkCompositeDataSet* metadata,
 
   unsigned int maxElems = element->GetNumberOfNestedElements();
   for (unsigned int cc=0; cc < maxElems; ++cc)
-    {
+  {
     vtkXMLDataElement* childXML = element->GetNestedElement(cc);
     if (!childXML || !childXML->GetName())
-      {
+    {
       continue;
-      }
+    }
 
     int index = 0;
     if (!childXML->GetScalarAttribute("index", index))
     // if index not in the structure file, then
     // set up to add at the end
-      {
+    {
       if (mblock)
-        {
+      {
         index = mblock->GetNumberOfBlocks();
-        }
-      else if (mpiece)
-        {
-        index = mpiece->GetNumberOfPieces();
-        }
       }
+      else if (mpiece)
+      {
+        index = mpiece->GetNumberOfPieces();
+      }
+    }
     // child is a leaf node, read and insert.
     const char* tagName = childXML->GetName();
     if (strcmp(tagName, "DataSet") == 0)
-      {
+    {
       vtkInformation* piece_metadata = CreateMetaDataIfNecessary(mblock, mpiece, index);
       double bounding_box[6];
       if (childXML->GetVectorAttribute("bounding_box", 6, bounding_box) == 6)
-        {
+      {
         if (piece_metadata)
-          {
+        {
           piece_metadata->Set(
             vtkDataObject::BOUNDING_BOX(),
             bounding_box, 6);
-          }
         }
+      }
       int extent[6];
       if (childXML->GetVectorAttribute("extent", 6, extent) == 6)
-        {
+      {
         if (piece_metadata)
-          {
+        {
           piece_metadata->Set(
             vtkDataObject::PIECE_EXTENT(),
             extent, 6);
-          }
         }
-      dataSetIndex++;
       }
+      dataSetIndex++;
+    }
     // Child is a multiblock dataset itself. Create it.
     else if (mblock != 0
              && strcmp(tagName, "Block") == 0)
-      {
+    {
       vtkMultiBlockDataSet* childDS = vtkMultiBlockDataSet::New();
       this->FillMetaData(childDS, childXML, dataSetIndex);
       if (mblock)
-        {
+      {
         mblock->SetBlock(index, childDS);
-        }
+      }
       else if (mpiece)
-        {
+      {
         vtkErrorMacro("Multipiece data can't have composite children.");
         return 0;
-        }
-      childDS->Delete();
       }
+      childDS->Delete();
+    }
     // Child is a multipiece dataset. Create it.
     else if (mblock!=0
              && strcmp(tagName, "Piece") == 0)
-      {
+    {
       vtkMultiPieceDataSet* childDS = vtkMultiPieceDataSet::New();;
       this->FillMetaData(childDS, childXML, dataSetIndex);
       mblock->SetBlock(index, childDS);
       childDS->Delete();
       int whole_extent[6];
       if (childXML->GetVectorAttribute("whole_extent", 6, whole_extent) == 6)
-        {
+      {
         vtkInformation* piece_metadata = mblock->GetMetaData(index);
         piece_metadata->Set(
           vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
           whole_extent, 6);
-        }
-      }
-    else
-      {
-      vtkErrorMacro("Syntax error in file.");
-      return 0;
       }
     }
+    else
+    {
+      vtkErrorMacro("Syntax error in file.");
+      return 0;
+    }
+  }
   return 1;
 }
 
@@ -328,18 +328,18 @@ int vtkXMLMultiBlockDataReader::RequestInformation(
   this->Superclass::RequestInformation(request, inputVector, outputVector);
 
   if (this->GetFileMajorVersion() < 1)
-    {
+  {
     return 1;
-    }
+  }
 
   vtkInformation* info = outputVector->GetInformationObject(0);
   vtkSmartPointer<vtkMultiBlockDataSet> metadata =
     vtkSmartPointer<vtkMultiBlockDataSet>::New();
   unsigned int dataSetIndex = 0;
   if (!this->FillMetaData(metadata, this->GetPrimaryElement(), dataSetIndex))
-    {
+  {
     return 0;
-    }
+  }
   info->Set(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA(),
             metadata);
 

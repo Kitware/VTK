@@ -102,13 +102,13 @@ int vtkUniformGridPartitioner::RequestData(
   extentPartitioner->SetNumberOfPartitions( this->NumberOfPartitions );
   extentPartitioner->SetNumberOfGhostLayers( this->NumberOfGhostLayers );
   if( this->DuplicateNodes == 1 )
-    {
+  {
     extentPartitioner->DuplicateNodesOn();
-    }
+  }
   else
-    {
+  {
     extentPartitioner->DuplicateNodesOff();
-    }
+  }
 
   // STEP 4: Partition
   extentPartitioner->Partition();
@@ -123,7 +123,7 @@ int vtkUniformGridPartitioner::RequestData(
 
   unsigned int blockIdx = 0;
   for( ; blockIdx < multiblock->GetNumberOfBlocks(); ++blockIdx )
-    {
+  {
     int ext[6];
     extentPartitioner->GetPartitionExtent( blockIdx, ext );
 
@@ -152,7 +152,7 @@ int vtkUniformGridPartitioner::RequestData(
 
     multiblock->SetBlock( blockIdx, subgrid );
     subgrid->Delete();
-    } // END for all blocks
+  } // END for all blocks
 
   extentPartitioner->Delete();
   return 1;

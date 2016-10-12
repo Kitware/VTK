@@ -98,11 +98,11 @@ void vtkShaderProgram2::ReleaseGraphicsResources()
   // do nothing.
   this->Shaders->ReleaseGraphicsResources();
   if (this->Context && (this->Id != 0))
-    {
+  {
     vtkgl::DeleteProgram(this->Id);
     vtkOpenGLCheckErrorMacro("failed at glDeleteProgram");
     this->Id = 0;
-    }
+  }
   this->LastBuildStatus = VTK_SHADER_PROGRAM2_COMPILE_FAILED;
 }
 
@@ -115,14 +115,14 @@ vtkShaderProgram2::~vtkShaderProgram2()
   delete[] this->LastValidateLog;
 
   if (this->UniformVariables)
-    {
+  {
     this->UniformVariables->Delete();
-    }
+  }
 
   if (this->Shaders)
-    {
+  {
     this->Shaders->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -171,27 +171,27 @@ bool vtkShaderProgram2::LoadRequiredExtensions(vtkRenderWindow *renWin)
   this->ExtensionsLoaded = (multiTexture && glsl);
 
   if (this->ExtensionsLoaded)
-    {
+  {
     if (gl13)
-      {
+    {
       e->LoadExtension("GL_VERSION_1_3");
-      }
+    }
     else
-      {
+    {
       e->LoadCorePromotedExtension("GL_ARB_multitexture");
-      }
+    }
     if (gl20)
-      {
+    {
       e->LoadExtension("GL_VERSION_2_0");
-      }
+    }
     else
-      {
+    {
       e->LoadCorePromotedExtension("GL_ARB_shading_language_100");
       e->LoadCorePromotedExtension("GL_ARB_shader_objects");
       e->LoadCorePromotedExtension("GL_ARB_vertex_shader");
       e->LoadCorePromotedExtension("GL_ARB_fragment_shader");
-      }
     }
+  }
 
   return this->ExtensionsLoaded;
 }
@@ -207,28 +207,28 @@ void vtkShaderProgram2::SetContext(vtkRenderWindow *renWin)
 {
   // avoid pointless reassignment
   if (this->Context == renWin)
-    {
+  {
     return;
-    }
+  }
   // free ressources
   this->ReleaseGraphicsResources();
   this->Context = NULL;
   this->Modified();
   // all done if assigned null
   if (!renWin)
-    {
+  {
     return;
-    }
+  }
   // check for support
   vtkOpenGLRenderWindow *context
     = dynamic_cast<vtkOpenGLRenderWindow*>(renWin);
 
   if ( !context
     || !this->LoadRequiredExtensions(renWin) )
-    {
+  {
     vtkErrorMacro("The context does not support the required extensions.");
     return;
-    }
+  }
   // intialize
   this->Context = renWin;
   this->Context->MakeCurrent();
@@ -308,22 +308,22 @@ bool vtkShaderProgram2::DisplayListUnderCreationInCompileMode()
   GLint value;
   glGetIntegerv(GL_LIST_INDEX, &value);
   if (value != 0) // some display list is under construction.
-    {
+  {
     glGetIntegerv(GL_LIST_MODE, &value);
     if (value == GL_COMPILE)
-      {
+    {
       result = true;
-      }
+    }
     else
-      {
+    {
       if (value != GL_COMPILE_AND_EXECUTE)
-        {
+      {
         std::ostringstream ost;
         ost << "Unexpected display list creation mode:" << hex << value << dec;
         vtkErrorMacro(<< ost.str().c_str());
-        }
       }
     }
+  }
   return result;
 }
 
@@ -340,36 +340,36 @@ void vtkShaderProgram2::Use()
   // postpone in GL_COMPILE mode.
 
   if (this->LastBuildStatus == VTK_SHADER_PROGRAM2_LINK_SUCCEEDED)
-    {
+  {
     GLuint progId = static_cast<GLuint>(this->Id);
     if (this->DisplayListUnderCreationInCompileMode())
-      {
+    {
       // don't look at current program, don't save it, don't restore it
       // later.
       vtkgl::UseProgram(progId);
       vtkOpenGLCheckErrorMacro("failed at glUseProgram");
-      }
+    }
     else
-      {
+    {
       GLint value;
       glGetIntegerv(vtkgl::CURRENT_PROGRAM, &value);
       if (static_cast<GLuint>(value) != progId)
-        {
+      {
         this->SavedId = static_cast<unsigned int>(value);
         #ifndef NDEBUG
         if (this->SavedId != 0)
-          {
+        {
           vtkWarningMacro(<<"another program was used (id=" << this->SavedId
                           <<"), our id is" << progId << ".");
-          }
+        }
         #endif
         vtkgl::UseProgram(progId);
         vtkOpenGLCheckErrorMacro("failed at glUseProgram");
-        }
-      assert("check: in_use" && this->IsUsed());
       }
-    this->SendUniforms();
+      assert("check: in_use" && this->IsUsed());
     }
+    this->SendUniforms();
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -381,22 +381,22 @@ void vtkShaderProgram2::Restore()
   assert("pre: current_context_matches" && this->Context->IsCurrent());
 
   if (this->DisplayListUnderCreationInCompileMode())
-    {
+  {
      vtkgl::UseProgram(0);
      this->SavedId = 0;
-    }
+  }
   else
-    {
+  {
     GLint value;
     glGetIntegerv(vtkgl::CURRENT_PROGRAM, &value);
     if (static_cast<GLuint>(value) != static_cast<GLuint>(this->Id))
-      {
+    {
       vtkErrorMacro("Restore failed because the porgram is not in use");
-      }
+    }
     vtkgl::UseProgram(static_cast<GLuint>(this->SavedId));
     vtkOpenGLCheckErrorMacro("failed at glUseProgram");
     this->SavedId = 0;
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -421,39 +421,39 @@ void vtkShaderProgram2::Build()
 
   if (this->Id == 0 || this->LastLinkTime<this->MTime ||
      (this->Shaders && this->LastLinkTime<this->Shaders->GetMTime()))
-    {
+  {
     this->LastBuildStatus=VTK_SHADER_PROGRAM2_COMPILE_FAILED;
     GLuint progId = static_cast<GLuint>(this->Id);
     if (progId == 0)
-      {
+    {
       progId = vtkgl::CreateProgram();
       vtkOpenGLCheckErrorMacro("failed at glCreateProgram");
       if (progId == 0)
-        {
+      {
         vtkErrorMacro("failed to create program");
         return;
-        }
+      }
 
       this->Id = static_cast<unsigned int>(progId);
-      }
+    }
     // Detach all previous shaders (some may have disappeared
     // from this->Shaders)
     GLint numberOfAttachedShaders;
     vtkgl::GetProgramiv(progId, vtkgl::ATTACHED_SHADERS, &numberOfAttachedShaders);
     if (numberOfAttachedShaders > 0)
-      {
+    {
       GLuint *attachedShaders = new GLuint[numberOfAttachedShaders];
       vtkgl::GetAttachedShaders(progId,numberOfAttachedShaders,0, attachedShaders);
       int i = 0;
       while(i < numberOfAttachedShaders)
-        {
+      {
         vtkgl::DetachShader(progId, attachedShaders[i]);
         vtkOpenGLCheckErrorMacro("failed at glDettachShader");
 
         ++i;
-        }
-      delete[] attachedShaders;
       }
+      delete[] attachedShaders;
+    }
 
     // We compile all the shaders, even if one fails so that
     // we can get info logs for all shaders.
@@ -461,43 +461,43 @@ void vtkShaderProgram2::Build()
     this->Shaders->InitTraversal();
     vtkShader2 *s = this->Shaders->GetNextShader();
     while (s)
-      {
+    {
       // Propagate the context to the shader.
       s->SetContext(this->Context);
       s->Compile();
       if (s->GetLastCompileStatus())
-        {
+      {
         vtkgl::AttachShader(progId, static_cast<GLuint>(s->GetId()));
         vtkOpenGLCheckErrorMacro("failed at glAttachShader");
-        }
+      }
       else
-        {
+      {
         compileDone = false;
         if (this->PrintErrors)
-          {
+        {
           vtkErrorMacro(
             <<" a shader failed to compile. Its log is:\n"
             << s->GetLastCompileLog() << "\n. Its source code is:\n"
             << s->GetSourceCode());
-          }
         }
-      s = this->Shaders->GetNextShader();
       }
+      s = this->Shaders->GetNextShader();
+    }
 
     if (compileDone)
-      {
+    {
       this->LastBuildStatus = VTK_SHADER_PROGRAM2_LINK_FAILED;
 
       // It is required to pass geometry shader parameters before linking.
       if (this->HasGeometryShaders())
-        {
+      {
         vtkgl::ProgramParameteriARB(progId, vtkgl::GEOMETRY_INPUT_TYPE_ARB,
                                     static_cast<GLint>(vtkGeometryTypeInVTKToGL[this->GeometryTypeIn]));
         vtkgl::ProgramParameteriARB(progId, vtkgl::GEOMETRY_OUTPUT_TYPE_ARB,
                                     static_cast<GLint>(vtkGeometryTypeOutVTKToGL[this->GeometryTypeOut]));
         vtkgl::ProgramParameteriARB(progId, vtkgl::GEOMETRY_VERTICES_OUT_ARB,
                                     this->GeometryVerticesOut);
-        }
+      }
 
       vtkgl::LinkProgram(progId);
       vtkOpenGLCheckErrorMacro("failed at glLinkProgram");
@@ -505,27 +505,27 @@ void vtkShaderProgram2::Build()
       GLint value;
       vtkgl::GetProgramiv(progId, vtkgl::LINK_STATUS ,&value);
       if (value == GL_TRUE)
-        {
+      {
         this->LastBuildStatus = VTK_SHADER_PROGRAM2_LINK_SUCCEEDED;
-        }
+      }
 
       vtkgl::GetProgramiv(progId, vtkgl::INFO_LOG_LENGTH, &value);
       if (static_cast<size_t>(value)>this->LastLinkLogCapacity)
-        {
+      {
         delete[] this->LastLinkLog;
         this->LastLinkLogCapacity = static_cast<size_t>(value);
         this->LastLinkLog = new char[this->LastLinkLogCapacity];
-        }
+      }
       vtkgl::GetProgramInfoLog(progId, value, 0, this->LastLinkLog);
 
       if (this->LastBuildStatus == VTK_SHADER_PROGRAM2_LINK_SUCCEEDED)
-        {
+      {
         this->LastLinkTime.Modified();
-        }
+      }
       else
-        {
+      {
          if (this->PrintErrors)
-          {
+         {
           vtkErrorMacro(<<" the shader program failed to link. Its log is:\n"
                         << this->GetLastLinkLog() << "the shaders are: ");
           size_t i = 0;
@@ -533,19 +533,19 @@ void vtkShaderProgram2::Build()
           this->Shaders->InitTraversal();
           s = this->Shaders->GetNextShader();
           while (s)
-            {
+          {
             vtkErrorMacro(<<"shader #" << i << "/" << c <<
               " (" <<s->GetTypeAsString()
               <<") log is:\n" << s->GetLastCompileLog()
               << "\n. Its source code is:\n" << s->GetSourceCode());
             s = this->Shaders->GetNextShader();
             ++i;
-            }
-
           }
-        }
+
+         }
       }
     }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -558,33 +558,33 @@ void vtkShaderProgram2::SendUniforms()
 
   bool needUpdate = this->LastSendUniformsTime<this->LastLinkTime;
   if (!needUpdate)
-    {
+  {
     needUpdate=this->UniformVariables!=0 &&
       this->LastSendUniformsTime<this->UniformVariables->GetMTime();
-    }
+  }
 
   this->Shaders->InitTraversal();
   vtkShader2 *s = this->Shaders->GetNextShader();
   vtkUniformVariables *list;
   while (!needUpdate && s)
-    {
+  {
     list = s->GetUniformVariables();
     needUpdate = (list!=0 && this->LastSendUniformsTime<list->GetMTime());
     s = this->Shaders->GetNextShader();
-    }
+  }
 
   if (needUpdate)
-    {
+  {
     bool inListCreation = this->DisplayListUnderCreationInCompileMode();
     bool isUsed = false;
     if (!inListCreation)
-      {
+    {
       isUsed = this->IsUsed();
       if (!isUsed)
-        {
+      {
         this->Use();
-        }
       }
+    }
 
     // NOTE -- a given uniform variable state is held and is set from
     // two different places, in the program and in the shader. If not
@@ -595,47 +595,47 @@ void vtkShaderProgram2::SendUniforms()
     this->Shaders->InitTraversal();
     s = this->Shaders->GetNextShader();
     while (s)
-      {
+    {
       list = s->GetUniformVariables();
       list->Start();
       while(!list->IsAtEnd())
-        {
+      {
         const char *name = list->GetCurrentName();
         GLint uniformId = this->GetUniformLocationInternal(name);
         vtkOpenGLCheckErrorMacro("failed at glGetUniformLocation");
         if (uniformId != -1)
-          {
+        {
           // -1 means is not an active uniform
           // it does not mean it is an error.
           list->SendCurrentUniform(uniformId);
-          }
-        list->Next();
         }
-      s = this->Shaders->GetNextShader();
+        list->Next();
       }
+      s = this->Shaders->GetNextShader();
+    }
 
     // override some of the values of the uniform variables set at the shader
     // level with the uniform values set at the program level.
     list = this->GetUniformVariables();
     list->Start();
     while (!list->IsAtEnd())
-      {
+    {
       const char *name = list->GetCurrentName();
       GLint uniformId = this->GetUniformLocationInternal(name);
       if (uniformId != -1)
-        {
+      {
         // -1 means is not an active uniform
         // it does not mean it is an error.
         list->SendCurrentUniform(uniformId);
-        }
-      list->Next();
       }
+      list->Next();
+    }
 
     if (!inListCreation && !isUsed)
-      {
+    {
       this->Restore();
-      }
     }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -726,7 +726,7 @@ void vtkShaderProgram2::PrintActiveUniformVariables(
   bool isSampler;
   GLenum textureBinding;
   while (i < c)
-    {
+  {
     vtkgl::GetActiveUniform(progId, i, buffSize, 0, &size, &type, name);
     os << indent << i <<" ";
     os << indent;
@@ -735,7 +735,7 @@ void vtkShaderProgram2::PrintActiveUniformVariables(
     textureBinding = GL_TEXTURE_BINDING_1D;
     elementSize = 1;
     switch(type)
-      {
+    {
       case GL_FLOAT:
         os << "float";
         isInt = false;
@@ -870,125 +870,125 @@ void vtkShaderProgram2::PrintActiveUniformVariables(
         isSampler = true;
         textureBinding = vtkgl::TEXTURE_BINDING_RECTANGLE_ARB;
         break;
-      }
+    }
     os << " " << name;
     if (size>1)
-      {
+    {
       os << "[" << size << "]";
-      }
+    }
     os << "=";
     if (size > 1)
-      {
+    {
       os << "{";
-      }
+    }
     GLint *ivalues = 0;
     GLfloat *fvalues = 0;
 
     if (isInt)
-      {
+    {
       ivalues = new GLint[elementSize];
-      }
+    }
     else
-      {
+    {
       fvalues = new GLfloat[elementSize];
-      }
+    }
 
     int element = 0;
     while (element<size)
-      {
+    {
       std::ostringstream ost2;
       ost2 << name;
       if (size > 1)
-        {
+      {
         ost2<<"["<<element<<"]";
-        }
+      }
       vtkStdString arrayElementName;
       arrayElementName = ost2.str();
       GLint loc = vtkgl::GetUniformLocation(progId,arrayElementName);
       if (elementSize > 1)
-        {
+      {
         os << "{";
-        }
+      }
       if (loc == -1)
-        {
+      {
         // this a built-in variable like:
         // gl_DepthRange.near, gl_DepthRange.far, gl_DepthRange.diff,
         // gl_ProjectionMatrixInverse, ...
         // we cannot get the value through vtkgl::GetUniform*()
         os << "<built-in value>";
-        }
+      }
       else
-        {
+      {
         if (isInt)
-          {
+        {
           vtkgl::GetUniformiv(progId, loc, ivalues);
           int j = 0;
           while (j < elementSize)
-            {
+          {
             os << ivalues[j];
             if (j < (elementSize - 1))
-              {
-              os << " ";
-              }
-            ++j;
-            }
-          if (isSampler)
             {
+              os << " ";
+            }
+            ++j;
+          }
+          if (isSampler)
+          {
             os << " (Texture Unit)->";
             GLint savedActiveTextureUnit;
             glGetIntegerv(vtkgl::ACTIVE_TEXTURE,&savedActiveTextureUnit);
             savedActiveTextureUnit = static_cast<GLint>(
               static_cast<GLenum>(savedActiveTextureUnit) - vtkgl::TEXTURE0);
             if (savedActiveTextureUnit != ivalues[0])
-              {
+            {
               vtkgl::ActiveTexture(vtkgl::TEXTURE0 +
                                    static_cast<GLenum>(ivalues[0]));
-              }
+            }
             GLint textureObject;
             glGetIntegerv(textureBinding, &textureObject);
             if (savedActiveTextureUnit != ivalues[0])
-              {
+            {
               vtkgl::ActiveTexture(
                 vtkgl::TEXTURE0 + static_cast<GLenum>(savedActiveTextureUnit));
-              }
-            os << textureObject << " (Texture Object)";
             }
+            os << textureObject << " (Texture Object)";
           }
+        }
         else
-          {
+        {
           vtkgl::GetUniformfv(progId, loc, fvalues);
           int j = 0;
           while(j < elementSize)
-            {
+          {
             os << fvalues[j];
             if (j < (elementSize - 1))
-              {
+            {
               os << " ";
-              }
-            ++j;
             }
+            ++j;
           }
         }
-      if (elementSize > 1)
-        {
-        os << "}";
-        }
-      if (element < (size - 1))
-        {
-        os << " ";
-        }
-      ++element;
       }
+      if (elementSize > 1)
+      {
+        os << "}";
+      }
+      if (element < (size - 1))
+      {
+        os << " ";
+      }
+      ++element;
+    }
     delete[] ivalues;
     delete[] fvalues;
 
     if (size > 1)
-      {
+    {
       os << "}";
-      }
+    }
     os << endl;
     ++i;
-    }
+  }
   delete[] name;
 }
 
@@ -1026,11 +1026,11 @@ bool vtkShaderProgram2::IsValid()
 
   vtkgl::GetProgramiv(progId, vtkgl::INFO_LOG_LENGTH, &value);
   if (static_cast<size_t>(value)>this->LastValidateLogCapacity)
-    {
+  {
     delete[] this->LastValidateLog;
     this->LastValidateLogCapacity = static_cast<size_t>(value);
     this->LastValidateLog = new char[this->LastValidateLogCapacity];
-    }
+  }
   vtkgl::GetProgramInfoLog(progId, value, 0, this->LastValidateLog);
 
   return result;
@@ -1092,27 +1092,27 @@ void vtkShaderProgram2::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Context: ";
   if (this->Context)
-    {
+  {
     os << static_cast<void *>(this->Context) <<endl;
-    }
+  }
   else
-    {
+  {
     os << "none" << endl;
-    }
+  }
 
   os << indent << "PrintErrors: ";
   if (this->PrintErrors)
-    {
+  {
     os << "true" << endl;
-    }
+  }
   else
-    {
+  {
     os << "false" << endl;
-    }
+  }
 
   os << indent << "LastBuildStatus: ";
   switch(this->LastBuildStatus)
-    {
+  {
     case VTK_SHADER_PROGRAM2_COMPILE_FAILED:
       os << "Compile failed";
       break;
@@ -1125,7 +1125,7 @@ void vtkShaderProgram2::PrintSelf(ostream& os, vtkIndent indent)
     default:
       os << "ERROR unknown value!";
       break;
-    }
+  }
   os << endl;
 
   os << indent << "OpenGL Id: " << this->Id << endl;
@@ -1140,21 +1140,21 @@ void vtkShaderProgram2::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "UniformVariables: ";
   if (this->UniformVariables)
-    {
+  {
     this->UniformVariables->PrintSelf(os, indent);
-    }
+  }
   else
-    {
+  {
     os << "none" << endl;
-    }
+  }
 
   os << indent << "Shaders: ";
   if (this->Shaders)
-    {
+  {
     this->Shaders->PrintSelf(os, indent);
-    }
-  else
-    {
-    os << "none" <<  endl;
-    }
   }
+  else
+  {
+    os << "none" <<  endl;
+  }
+}

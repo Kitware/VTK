@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkUniformVariables - GLSL uniform variables
-// .SECTION Description
-// vtkUniformVariables is a list of uniform variables attached to either a
-// vtkShader2 object or to a vtkShaderProgram2. Uniform variables on
-// a vtkShaderProgram2 override values of uniform variables on a vtkShader2.
-
-// .SECTION See Also
-// vtkShader2 vtkShaderProgram2
+/**
+ * @class   vtkUniformVariables
+ * @brief   GLSL uniform variables
+ *
+ * vtkUniformVariables is a list of uniform variables attached to either a
+ * vtkShader2 object or to a vtkShaderProgram2. Uniform variables on
+ * a vtkShaderProgram2 override values of uniform variables on a vtkShader2.
+ *
+ * @sa
+ * vtkShader2 vtkShaderProgram2
+*/
 
 #ifndef vtkUniformVariables_h
 #define vtkUniformVariables_h
@@ -36,11 +39,12 @@ public:
   vtkTypeMacro(vtkUniformVariables,vtkObject);
   void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Set an integer uniform variable.
-  // \pre name_exists: name!=0
-  // \pre value_exists: value!=0
-  // \pre valid_numberOfComponents: numberOfComponents>=1 && numberOfComponents<=4
+  /**
+   * Set an integer uniform variable.
+   * \pre name_exists: name!=0
+   * \pre value_exists: value!=0
+   * \pre valid_numberOfComponents: numberOfComponents>=1 && numberOfComponents<=4
+   */
   void SetUniformi(const char *name,
                    int numberOfComponents,
                    int *value);
@@ -54,11 +58,12 @@ public:
   void SetUniformit(const char *name, T value)
   { this->SetUniformit(name, 1, &value); }
 
-  // Description:
-  // Set an float uniform variable.
-  // \pre name_exists: name!=0
-  // \pre value_exists: value!=0
-  // \pre valid_numberOfComponents: numberOfComponents>=1 && numberOfComponents<=4
+  /**
+   * Set an float uniform variable.
+   * \pre name_exists: name!=0
+   * \pre value_exists: value!=0
+   * \pre valid_numberOfComponents: numberOfComponents>=1 && numberOfComponents<=4
+   */
   void SetUniformf(const char *name,
                    int numberOfComponents,
                    float *value);
@@ -72,89 +77,102 @@ public:
   void SetUniformft(const char *name, T value)
   { this->SetUniformft(name, 1, &value); }
 
-  // Description:
-  // Set an array of integer uniform variables.
-  // The array `value' is of size `numberOfElements'*`numberOfComponents.'.
-  // \pre name_exists: name!=0
-  // \pre value_exists: value!=0
-  // \pre valid_numberOfComponents: numberOfComponents>=1 && numberOfComponents<=4
-  // \pre valid_numberOfElements: numberOfElements>=1
+  /**
+   * Set an array of integer uniform variables.
+   * The array `value' is of size `numberOfElements'*`numberOfComponents.'.
+   * \pre name_exists: name!=0
+   * \pre value_exists: value!=0
+   * \pre valid_numberOfComponents: numberOfComponents>=1 && numberOfComponents<=4
+   * \pre valid_numberOfElements: numberOfElements>=1
+   */
   void SetUniformiv(const char *name,
                     int numberOfComponents,
                     int numberOfElements,
                     int *value);
 
-  // Description:
-  // Set an array of float uniform variables.
-  // The array `value' is of size `numberOfElements'*`numberOfComponents.'.
-  // \pre name_exists: name!=0
-  // \pre value_exists: value!=0
-  // \pre valid_numberOfComponents: numberOfComponents>=1 && numberOfComponents<=4
-  // \pre valid_numberOfElements: numberOfElements>=1
+  /**
+   * Set an array of float uniform variables.
+   * The array `value' is of size `numberOfElements'*`numberOfComponents.'.
+   * \pre name_exists: name!=0
+   * \pre value_exists: value!=0
+   * \pre valid_numberOfComponents: numberOfComponents>=1 && numberOfComponents<=4
+   * \pre valid_numberOfElements: numberOfElements>=1
+   */
   void SetUniformfv(const char *name,
                     int numberOfComponents,
                     int numberOfElements,
                     float *value);
 
-  // Description:
-  // Set a matrix uniform variable.
-  // \pre name_exists: name!=0
-  // \pre value_exists: value!=0
-  // \pre valid_rows:  rows>=2 && rows<=4
-  // \pre valid_columns: columns>=2 && columns<=4
+  /**
+   * Set a matrix uniform variable.
+   * \pre name_exists: name!=0
+   * \pre value_exists: value!=0
+   * \pre valid_rows:  rows>=2 && rows<=4
+   * \pre valid_columns: columns>=2 && columns<=4
+   */
   void SetUniformMatrix(const char *name,
                         int rows,
                         int columns,
                         float *value);
 
-  // Description:
-  // Remove uniform `name' from the list.
+  /**
+   * Remove uniform `name' from the list.
+   */
   void RemoveUniform(const char *name);
 
-  // Description:
-  // Remove all uniforms from the list.
+  /**
+   * Remove all uniforms from the list.
+   */
   void RemoveAllUniforms();
 
-  // Description:
-  // \pre need a valid OpenGL context and a shader program in use.
+  /**
+   * \pre need a valid OpenGL context and a shader program in use.
+   */
   void Send(const char *name,
             int uniformIndex);
 
-  // Description:
-  // Place the internal cursor on the first uniform.
+  /**
+   * Place the internal cursor on the first uniform.
+   */
   void Start();
 
-  // Description:
-  // Is the iteration done?
+  /**
+   * Is the iteration done?
+   */
   bool IsAtEnd();
 
-  // Description:
-  // Name of the uniform at the current cursor position.
-  // \pre not_done: !this->IsAtEnd()
+  /**
+   * Name of the uniform at the current cursor position.
+   * \pre not_done: !this->IsAtEnd()
+   */
   const char *GetCurrentName();
 
-  // Description:
-  // \pre need a valid OpenGL context and a shader program in use.
-  // \pre not_done: !this->IsAtEnd()
+  /**
+   * \pre need a valid OpenGL context and a shader program in use.
+   * \pre not_done: !this->IsAtEnd()
+   */
   void SendCurrentUniform(int uniformIndex);
 
-  // Description:
-  // Move the cursor to the next uniform.
-  // \pre not_done: !this->IsAtEnd()
+  /**
+   * Move the cursor to the next uniform.
+   * \pre not_done: !this->IsAtEnd()
+   */
   void Next();
 
-  // Description:
-  // Copy all the variables from `other'. Any existing variable will be
-  // deleted first.
-  // \pre other_exists: other!=0
-  // \pre not_self: other!=this
+  /**
+   * Copy all the variables from `other'. Any existing variable will be
+   * deleted first.
+   * \pre other_exists: other!=0
+   * \pre not_self: other!=this
+   */
   void DeepCopy(vtkUniformVariables *other);
 
-  // Description:
-  // Copy all the variables from `other'. Any existing variable will be
-  // overwritten.
-  // \pre other_exists: other!=0
-  // \pre not_self: other!=this
+  /**
+   * Copy all the variables from `other'. Any existing variable will be
+   * overwritten.
+   * \pre other_exists: other!=0
+   * \pre not_self: other!=this
+   */
   void Merge(vtkUniformVariables *other);
 
 protected:
@@ -162,8 +180,8 @@ protected:
   virtual ~vtkUniformVariables();
 
 private:
-  vtkUniformVariables(const vtkUniformVariables&);  // Not implemented.
-  void operator=(const vtkUniformVariables&);  // Not implemented.
+  vtkUniformVariables(const vtkUniformVariables&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUniformVariables&) VTK_DELETE_FUNCTION;
 
   vtkUniformVariablesMap *Map;
 };
@@ -176,9 +194,9 @@ void vtkUniformVariables::SetUniformit(const char *name,
 {
   int ivalues[4];
   for (int i=0; i<numberOfComponents; ++i)
-    {
+  {
     ivalues[i] = static_cast<int>(value[i]);
-    }
+  }
   this->SetUniformi(name, numberOfComponents, ivalues);
 }
 
@@ -190,9 +208,9 @@ void vtkUniformVariables::SetUniformft(const char *name,
 {
   float fvalues[4];
   for (int i=0; i<numberOfComponents; ++i)
-    {
+  {
     fvalues[i] = static_cast<float>(value[i]);
-    }
+  }
   this->SetUniformf(name, numberOfComponents, fvalues);
 }
 

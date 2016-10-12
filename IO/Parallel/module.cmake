@@ -1,17 +1,6 @@
 vtk_module(vtkIOParallel
   GROUPS
     StandAlone
-  DEPENDS
-    vtkParallelCore
-    vtkFiltersParallel
-    vtkIONetCDF
-    vtkIOXML
-    vtkIOImage
-  PRIVATE_DEPENDS
-    vtkexodusII
-    vtkjsoncpp
-    vtknetcdf
-    vtksys
   TEST_DEPENDS
     vtkParallelMPI
     vtkRenderingParallel
@@ -19,4 +8,24 @@ vtk_module(vtkIOParallel
     vtkTestingRendering
   KIT
     vtkParallel
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkIOCore
+    vtkIOGeometry
+    vtkIOImage
+    vtkIOLegacy
+    vtkIONetCDF
+  PRIVATE_DEPENDS
+    vtkCommonMisc
+    vtkCommonSystem
+    vtkFiltersCore
+    vtkFiltersExtraction
+    vtkFiltersParallel
+    vtkParallelCore
+    vtkexodusII
+    vtkjsoncpp
+    vtknetcdf
+    vtksys
   )

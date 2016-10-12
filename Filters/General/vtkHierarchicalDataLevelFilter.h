@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHierarchicalDataLevelFilter - generate scalars from levels
-// .SECTION Description
-// Legacy class. Use vtkLevelIdScalars instead.
-//
-// .SECTION See Also
-// vtkLevelIdScalars
+/**
+ * @class   vtkHierarchicalDataLevelFilter
+ * @brief   generate scalars from levels
+ *
+ * Legacy class. Use vtkLevelIdScalars instead.
+ *
+ * @sa
+ * vtkLevelIdScalars
+*/
 
 #ifndef vtkHierarchicalDataLevelFilter_h
 #define vtkHierarchicalDataLevelFilter_h
@@ -29,20 +32,21 @@ class VTKFILTERSGENERAL_EXPORT vtkHierarchicalDataLevelFilter : public vtkLevelI
 {
 public:
   vtkTypeMacro(vtkHierarchicalDataLevelFilter,vtkLevelIdScalars);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Construct object with PointIds and CellIds on; and ids being generated
-  // as scalars.
+  /**
+   * Construct object with PointIds and CellIds on; and ids being generated
+   * as scalars.
+   */
   static vtkHierarchicalDataLevelFilter *New();
 
 protected:
   vtkHierarchicalDataLevelFilter();
-  ~vtkHierarchicalDataLevelFilter();
+  ~vtkHierarchicalDataLevelFilter() VTK_OVERRIDE;
 
 private:
-  vtkHierarchicalDataLevelFilter(const vtkHierarchicalDataLevelFilter&);  // Not implemented.
-  void operator=(const vtkHierarchicalDataLevelFilter&);  // Not implemented.
+  vtkHierarchicalDataLevelFilter(const vtkHierarchicalDataLevelFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHierarchicalDataLevelFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

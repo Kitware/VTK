@@ -3,12 +3,15 @@ if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
 endif()
 vtk_module(vtkGUISupportQtOpenGL
   ${_groups}
-  DEPENDS
-    vtkGUISupportQt
-    vtkRendering${VTK_RENDERING_BACKEND}
   TEST_DEPENDS
     vtkTestingCore
     vtkTestingRendering
     vtkFiltersSources
   EXCLUDE_FROM_WRAPPING
+  DEPENDS
+    vtkCommonCore
+    vtkRendering${VTK_RENDERING_BACKEND}
+  PRIVATE_DEPENDS
+    vtkGUISupportQt
+    vtkInteractionStyle
   )

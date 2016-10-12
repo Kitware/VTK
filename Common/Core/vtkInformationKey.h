@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInformationKey - Superclass for vtkInformation keys.
-// .SECTION Description
-// vtkInformationKey is the superclass for all keys used to access the
-// map represented by vtkInformation.  The vtkInformation::Set and
-// vtkInformation::Get methods of vtkInformation are accessed by
-// information keys.  A key is a pointer to an instance of a subclass
-// of vtkInformationKey.  The type of the subclass determines the
-// overload of Set/Get that is selected.  This ensures that the type
-// of value stored in a vtkInformation instance corresponding to a
-// given key matches the type expected for that key.
+/**
+ * @class   vtkInformationKey
+ * @brief   Superclass for vtkInformation keys.
+ *
+ * vtkInformationKey is the superclass for all keys used to access the
+ * map represented by vtkInformation.  The vtkInformation::Set and
+ * vtkInformation::Get methods of vtkInformation are accessed by
+ * information keys.  A key is a pointer to an instance of a subclass
+ * of vtkInformationKey.  The type of the subclass determines the
+ * overload of Set/Get that is selected.  This ensures that the type
+ * of value stored in a vtkInformation instance corresponding to a
+ * given key matches the type expected for that key.
+*/
 
 #ifndef vtkInformationKey_h
 #define vtkInformationKey_h
@@ -35,102 +38,120 @@ class vtkInformation;
 class VTKCOMMONCORE_EXPORT vtkInformationKey : public vtkObjectBase
 {
 public:
-  vtkTypeMacro(vtkInformationKey,vtkObjectBase);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  vtkBaseTypeMacro(vtkInformationKey,vtkObjectBase);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Prevent normal vtkObject reference counting behavior.
-  virtual void Register(vtkObjectBase*);
+  /**
+   * Prevent normal vtkObject reference counting behavior.
+   */
+  void Register(vtkObjectBase*) VTK_OVERRIDE;
 
-  // Description:
-  // Prevent normal vtkObject reference counting behavior.
-  virtual void UnRegister(vtkObjectBase*);
+  /**
+   * Prevent normal vtkObject reference counting behavior.
+   */
+  void UnRegister(vtkObjectBase*) VTK_OVERRIDE;
 
-  // Description:
-  // Get the name of the key.  This is not the type of the key, but
-  // the name of the key instance.
+  /**
+   * Get the name of the key.  This is not the type of the key, but
+   * the name of the key instance.
+   */
   const char* GetName();
 
-  // Description:
-  // Get the location of the key.  This is the name of the class in
-  // which the key is defined.
+  /**
+   * Get the location of the key.  This is the name of the class in
+   * which the key is defined.
+   */
   const char* GetLocation();
 
-  // Description:
-  // Key instances are static data that need to be created and
-  // destroyed.  The constructor and destructor must be public.  The
-  // name of the static instance and the class in which it is defined
-  // should be passed to the constructor.  They must be string
-  // literals because the strings are not copied.
+  //@{
+  /**
+   * Key instances are static data that need to be created and
+   * destroyed.  The constructor and destructor must be public.  The
+   * name of the static instance and the class in which it is defined
+   * should be passed to the constructor.  They must be string
+   * literals because the strings are not copied.
+   */
   vtkInformationKey(const char* name, const char* location);
-  ~vtkInformationKey();
+  ~vtkInformationKey() VTK_OVERRIDE;
+  //@}
 
-  // Description:
-  // Copy the entry associated with this key from one information
-  // object to another.  If there is no entry in the first information
-  // object for this key, the value is removed from the second.
+  /**
+   * Copy the entry associated with this key from one information
+   * object to another.  If there is no entry in the first information
+   * object for this key, the value is removed from the second.
+   */
   virtual void ShallowCopy(vtkInformation* from, vtkInformation* to)=0;
 
-  // Description:
-  // Duplicate (new instance created) the entry associated with this key from
-  // one information object to another (new instances of any contained
-  // vtkInformation and vtkInformationVector objects are created).
-  // Default implementation simply calls ShallowCopy().
+  /**
+   * Duplicate (new instance created) the entry associated with this key from
+   * one information object to another (new instances of any contained
+   * vtkInformation and vtkInformationVector objects are created).
+   * Default implementation simply calls ShallowCopy().
+   */
   virtual void DeepCopy(vtkInformation *from, vtkInformation *to)
     { this->ShallowCopy(from, to); }
 
-  // Description:
-  // Check whether this key appears in the given information object.
+  /**
+   * Check whether this key appears in the given information object.
+   */
   virtual int Has(vtkInformation* info);
 
-  // Description:
-  // Remove this key from the given information object.
+  /**
+   * Remove this key from the given information object.
+   */
   virtual void Remove(vtkInformation* info);
 
-  // Description:
-  // Report a reference this key has in the given information object.
+  /**
+   * Report a reference this key has in the given information object.
+   */
   virtual void Report(vtkInformation* info, vtkGarbageCollector* collector);
 
-  // Description:
-  // Print the key's value in an information object to a stream.
+  //@{
+  /**
+   * Print the key's value in an information object to a stream.
+   */
   void Print(vtkInformation* info);
   virtual void Print(ostream& os, vtkInformation* info);
+  //@}
 
-  // Description:
-  // This function is only relevant when the pertaining key
-  // is used in a VTK pipeline. Specific keys that handle
-  // pipeline data requests (for example, UPDATE_PIECE_NUMBER)
-  // can overwrite this method to notify the pipeline that a
-  // a filter should be (re-)executed because what is in
-  // the current output is different that what is being requested
-  // by the key. For example, DATA_PIECE_NUMBER != UPDATE_PIECE_NUMBER.
+  /**
+   * This function is only relevant when the pertaining key
+   * is used in a VTK pipeline. Specific keys that handle
+   * pipeline data requests (for example, UPDATE_PIECE_NUMBER)
+   * can overwrite this method to notify the pipeline that a
+   * a filter should be (re-)executed because what is in
+   * the current output is different that what is being requested
+   * by the key. For example, DATA_PIECE_NUMBER != UPDATE_PIECE_NUMBER.
+   */
   virtual bool NeedToExecute(vtkInformation* vtkNotUsed(pipelineInfo),
                              vtkInformation* vtkNotUsed(dobjInfo)) {return false;}
 
-  // Description:
-  // This function is only relevant when the pertaining key
-  // is used in a VTK pipeline. Specific keys that handle
-  // pipeline data requests (for example, UPDATE_PIECE_NUMBER)
-  // can overwrite this method to store in the data information
-  // meta-data about the request that led to the current filter
-  // execution. This meta-data can later be used to compare what
-  // is being requested to decide whether the filter needs to
-  // re-execute. For example, a filter may store the current
-  // UPDATE_PIECE_NUMBER in the data object's information as
-  // the DATA_PIECE_NUMBER. DATA_PIECE_NUMBER can later be compared
-  // to a new UPDATA_PIECE_NUMBER to decide whether a filter should
-  // re-execute.
+  /**
+   * This function is only relevant when the pertaining key
+   * is used in a VTK pipeline. Specific keys that handle
+   * pipeline data requests (for example, UPDATE_PIECE_NUMBER)
+   * can overwrite this method to store in the data information
+   * meta-data about the request that led to the current filter
+   * execution. This meta-data can later be used to compare what
+   * is being requested to decide whether the filter needs to
+   * re-execute. For example, a filter may store the current
+   * UPDATE_PIECE_NUMBER in the data object's information as
+   * the DATA_PIECE_NUMBER. DATA_PIECE_NUMBER can later be compared
+   * to a new UPDATA_PIECE_NUMBER to decide whether a filter should
+   * re-execute.
+   */
   virtual void StoreMetaData(vtkInformation* vtkNotUsed(request),
                              vtkInformation* vtkNotUsed(pipelineInfo),
                              vtkInformation* vtkNotUsed(dobjInfo)) {}
 
-  // Description:
-  // This function is only relevant when the pertaining key
-  // is used in a VTK pipeline. By overwriting this method, a
-  // key can decide if/how to copy itself downstream or upstream
-  // during a particular pipeline pass. For example, meta-data keys
-  // can copy themselves during REQUEST_INFORMATION whereas request
-  // keys can copy themselves during REQUEST_UPDATE_EXTENT.
+  /**
+   * This function is only relevant when the pertaining key
+   * is used in a VTK pipeline. By overwriting this method, a
+   * key can decide if/how to copy itself downstream or upstream
+   * during a particular pipeline pass. For example, meta-data keys
+   * can copy themselves during REQUEST_INFORMATION whereas request
+   * keys can copy themselves during REQUEST_UPDATE_EXTENT.
+   */
   virtual void CopyDefaultInformation(vtkInformation* vtkNotUsed(request),
                                       vtkInformation* vtkNotUsed(fromInfo),
                                       vtkInformation* vtkNotUsed(toInfo)) {}
@@ -141,23 +162,23 @@ protected:
 
 #define vtkInformationKeySetStringMacro(name) \
 virtual void Set##name (const char* _arg) \
-  { \
+{ \
   if ( this->name == NULL && _arg == NULL) { return;} \
   if ( this->name && _arg && (!strcmp(this->name,_arg))) { return;} \
   delete [] this->name; \
   if (_arg) \
-    { \
+  { \
     size_t n = strlen(_arg) + 1; \
     char *cp1 =  new char[n]; \
     const char *cp2 = (_arg); \
     this->name = cp1; \
     do { *cp1++ = *cp2++; } while ( --n ); \
-    } \
+  } \
    else \
-    { \
+   { \
     this->name = NULL; \
-    } \
-  }
+   } \
+}
 
   vtkInformationKeySetStringMacro(Name);
   vtkInformationKeySetStringMacro(Location);
@@ -177,8 +198,8 @@ virtual void Set##name (const char* _arg) \
   void ConstructClass(const char*);
 
 private:
-  vtkInformationKey(const vtkInformationKey&);  // Not implemented.
-  void operator=(const vtkInformationKey&);  // Not implemented.
+  vtkInformationKey(const vtkInformationKey&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInformationKey&) VTK_DELETE_FUNCTION;
 };
 
 // Macros to define an information key instance in a C++ source file.

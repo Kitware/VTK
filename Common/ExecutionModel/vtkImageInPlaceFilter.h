@@ -12,13 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageInPlaceFilter - Filter that operates in place.
-// .SECTION Description
-// vtkImageInPlaceFilter is a filter super class that
-// operates directly on the input region.  The data is copied
-// if the requested region has different extent than the input region
-// or some other object is referencing the input region.
-
+/**
+ * @class   vtkImageInPlaceFilter
+ * @brief   Filter that operates in place.
+ *
+ * vtkImageInPlaceFilter is a filter super class that
+ * operates directly on the input region.  The data is copied
+ * if the requested region has different extent than the input region
+ * or some other object is referencing the input region.
+*/
 
 #ifndef vtkImageInPlaceFilter_h
 #define vtkImageInPlaceFilter_h
@@ -30,21 +32,21 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageInPlaceFilter : public vtkImageAlgo
 {
 public:
   vtkTypeMacro(vtkImageInPlaceFilter,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkImageInPlaceFilter();
-  ~vtkImageInPlaceFilter();
+  ~vtkImageInPlaceFilter() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *request,
+  int RequestData(vtkInformation *request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+                          vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   void CopyData(vtkImageData *in, vtkImageData *out, int* outExt);
 
 private:
-  vtkImageInPlaceFilter(const vtkImageInPlaceFilter&);  // Not implemented.
-  void operator=(const vtkImageInPlaceFilter&);  // Not implemented.
+  vtkImageInPlaceFilter(const vtkImageInPlaceFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageInPlaceFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

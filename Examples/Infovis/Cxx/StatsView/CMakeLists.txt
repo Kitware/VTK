@@ -14,7 +14,16 @@ endif()
 
 project(StatsView)
 
-find_package(VTK)
+find_package(VTK REQUIRED)
+vtk_module_config(VTK
+  vtkCommonDataModel
+  vtkFiltersStatistics
+  vtkIOInfovis
+  vtkIOSQL
+  vtkInfovisCore
+  vtkViewsCore
+  vtkViewsQt
+)
 include(${VTK_USE_FILE})
 
 if("${VTK_QT_VERSION}" STREQUAL "")

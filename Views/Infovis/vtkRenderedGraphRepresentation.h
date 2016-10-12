@@ -17,9 +17,11 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkRenderedGraphRepresentation -
-//
-// .SECTION Description
+/**
+ * @class   vtkRenderedGraphRepresentation
+ *
+ *
+*/
 
 #ifndef vtkRenderedGraphRepresentation_h
 #define vtkRenderedGraphRepresentation_h
@@ -80,11 +82,14 @@ public:
   virtual vtkTextProperty* GetVertexLabelTextProperty();
   vtkSetStringMacro(VertexHoverArrayName);
   vtkGetStringMacro(VertexHoverArrayName);
-  // Description:
-  // Whether to hide the display of vertex labels during mouse interaction.  Default is off.
+  //@{
+  /**
+   * Whether to hide the display of vertex labels during mouse interaction.  Default is off.
+   */
   vtkSetMacro(HideVertexLabelsOnInteraction, bool)
   vtkGetMacro(HideVertexLabelsOnInteraction, bool)
   vtkBooleanMacro(HideVertexLabelsOnInteraction, bool)
+  //@}
 
   // ------------------------------------------------------------------------
   // Edge labels
@@ -100,11 +105,14 @@ public:
   virtual vtkTextProperty* GetEdgeLabelTextProperty();
   vtkSetStringMacro(EdgeHoverArrayName);
   vtkGetStringMacro(EdgeHoverArrayName);
-  // Description:
-  // Whether to hide the display of edge labels during mouse interaction.  Default is off.
+  //@{
+  /**
+   * Whether to hide the display of edge labels during mouse interaction.  Default is off.
+   */
   vtkSetMacro(HideEdgeLabelsOnInteraction, bool)
   vtkGetMacro(HideEdgeLabelsOnInteraction, bool)
   vtkBooleanMacro(HideEdgeLabelsOnInteraction, bool)
+  //@}
 
   // ------------------------------------------------------------------------
   // Vertex icons
@@ -128,15 +136,17 @@ public:
   virtual void SetVertexDefaultIcon(int icon);
   virtual int GetVertexDefaultIcon();
 
-  // Description:
-  // Set the mode to one of
-  // <ul>
-  // <li>vtkApplyIcons::SELECTED_ICON - use VertexSelectedIcon
-  // <li>vtkApplyIcons::SELECTED_OFFSET - use VertexSelectedIcon as offset
-  // <li>vtkApplyIcons::ANNOTATION_ICON - use current annotation icon
-  // <li>vtkApplyIcons::IGNORE_SELECTION - ignore selected elements
-  // </ul>
-  // The default is IGNORE_SELECTION.
+  //@{
+  /**
+   * Set the mode to one of
+   * <ul>
+   * <li>vtkApplyIcons::SELECTED_ICON - use VertexSelectedIcon
+   * <li>vtkApplyIcons::SELECTED_OFFSET - use VertexSelectedIcon as offset
+   * <li>vtkApplyIcons::ANNOTATION_ICON - use current annotation icon
+   * <li>vtkApplyIcons::IGNORE_SELECTION - ignore selected elements
+   * </ul>
+   * The default is IGNORE_SELECTION.
+   */
   virtual void SetVertexIconSelectionMode(int mode);
   virtual int GetVertexIconSelectionMode();
   virtual void SetVertexIconSelectionModeToSelectedIcon()
@@ -147,6 +157,7 @@ public:
     { this->SetVertexIconSelectionMode(2); }
   virtual void SetVertexIconSelectionModeToIgnoreSelection()
     { this->SetVertexIconSelectionMode(3); }
+  //@}
 
   // ------------------------------------------------------------------------
   // Edge icons
@@ -212,18 +223,25 @@ public:
   // ------------------------------------------------------------------------
   // Vertex layout strategy
 
-  // Description:
-  // Set/get the graph layout strategy.
+  //@{
+  /**
+   * Set/get the graph layout strategy.
+   */
   virtual void SetLayoutStrategy(vtkGraphLayoutStrategy* strategy);
   virtual vtkGraphLayoutStrategy* GetLayoutStrategy();
+  //@}
 
-  // Description:
-  // Get/set the layout strategy by name.
+  //@{
+  /**
+   * Get/set the layout strategy by name.
+   */
   virtual void SetLayoutStrategy(const char* name);
   vtkGetStringMacro(LayoutStrategyName);
+  //@}
 
-  // Description:
-  // Set predefined layout strategies.
+  /**
+   * Set predefined layout strategies.
+   */
   void SetLayoutStrategyToRandom()
     { this->SetLayoutStrategy("Random"); }
   void SetLayoutStrategyToForceDirected()
@@ -249,36 +267,39 @@ public:
   void SetLayoutStrategyToSpanTree()
     { this->SetLayoutStrategy("Span Tree"); }
 
-  // Description:
-  // Set the layout strategy to use coordinates from arrays.
-  // The x array must be specified. The y and z arrays are optional.
+  /**
+   * Set the layout strategy to use coordinates from arrays.
+   * The x array must be specified. The y and z arrays are optional.
+   */
   virtual void SetLayoutStrategyToAssignCoordinates(
     const char* xarr, const char* yarr = 0, const char* zarr = 0);
 
-  // Description:
-  // Set the layout strategy to a tree layout. Radial indicates whether to
-  // do a radial or standard top-down tree layout. The angle parameter is the
-  // angular distance spanned by the tree. Leaf spacing is a
-  // value from 0 to 1 indicating how much of the radial layout should be
-  // allocated to leaf nodes (as opposed to between tree branches). The log spacing value is a
-  // non-negative value where > 1 will create expanding levels, < 1 will create
-  // contracting levels, and = 1 makes all levels the same size. See
-  // vtkTreeLayoutStrategy for more information.
+  /**
+   * Set the layout strategy to a tree layout. Radial indicates whether to
+   * do a radial or standard top-down tree layout. The angle parameter is the
+   * angular distance spanned by the tree. Leaf spacing is a
+   * value from 0 to 1 indicating how much of the radial layout should be
+   * allocated to leaf nodes (as opposed to between tree branches). The log spacing value is a
+   * non-negative value where > 1 will create expanding levels, < 1 will create
+   * contracting levels, and = 1 makes all levels the same size. See
+   * vtkTreeLayoutStrategy for more information.
+   */
   virtual void SetLayoutStrategyToTree(
     bool radial,
     double angle = 90,
     double leafSpacing = 0.9,
     double logSpacing = 1.0);
 
-  // Description:
-  // Set the layout strategy to a cosmic tree layout. nodeSizeArrayName is
-  // the array used to size the circles (default is NULL, which makes leaf
-  // nodes the same size). sizeLeafNodesOnly only uses the leaf node sizes,
-  // and computes the parent size as the sum of the child sizes (default true).
-  // layoutDepth stops layout at a certain depth (default is 0, which does the
-  // entire tree). layoutRoot is the vertex that will be considered the root
-  // node of the layout (default is -1, which will use the tree's root).
-  // See vtkCosmicTreeLayoutStrategy for more information.
+  /**
+   * Set the layout strategy to a cosmic tree layout. nodeSizeArrayName is
+   * the array used to size the circles (default is NULL, which makes leaf
+   * nodes the same size). sizeLeafNodesOnly only uses the leaf node sizes,
+   * and computes the parent size as the sum of the child sizes (default true).
+   * layoutDepth stops layout at a certain depth (default is 0, which does the
+   * entire tree). layoutRoot is the vertex that will be considered the root
+   * node of the layout (default is -1, which will use the tree's root).
+   * See vtkCosmicTreeLayoutStrategy for more information.
+   */
   virtual void SetLayoutStrategyToCosmicTree(
     const char* nodeSizeArrayName,
     bool sizeLeafNodesOnly = true,
@@ -288,80 +309,109 @@ public:
   // ------------------------------------------------------------------------
   // Edge layout strategy
 
-  // Description:
-  // Set/get the graph layout strategy.
+  //@{
+  /**
+   * Set/get the graph layout strategy.
+   */
   virtual void SetEdgeLayoutStrategy(vtkEdgeLayoutStrategy* strategy);
   virtual vtkEdgeLayoutStrategy* GetEdgeLayoutStrategy();
   void SetEdgeLayoutStrategyToArcParallel()
     { this->SetEdgeLayoutStrategy("Arc Parallel"); }
   void SetEdgeLayoutStrategyToPassThrough()
     { this->SetEdgeLayoutStrategy("Pass Through"); }
+  //@}
 
-  // Description:
-  // Set the edge layout strategy to a geospatial arced strategy
-  // appropriate for vtkGeoView.
+  /**
+   * Set the edge layout strategy to a geospatial arced strategy
+   * appropriate for vtkGeoView.
+   */
   virtual void SetEdgeLayoutStrategyToGeo(double explodeFactor = 0.2);
 
-  // Description:
-  // Set the edge layout strategy by name.
+  //@{
+  /**
+   * Set the edge layout strategy by name.
+   */
   virtual void SetEdgeLayoutStrategy(const char* name);
   vtkGetStringMacro(EdgeLayoutStrategyName);
+  //@}
 
   // ------------------------------------------------------------------------
   // Miscellaneous
 
-  // Description:
-  // Apply a theme to this representation.
+  /**
+   * Apply a theme to this representation.
+   */
   virtual void ApplyViewTheme(vtkViewTheme* theme);
 
-  // Description:
-  // Set the graph vertex glyph type.
+  //@{
+  /**
+   * Set the graph vertex glyph type.
+   */
   virtual void SetGlyphType(int type);
   virtual int GetGlyphType();
+  //@}
 
-  // Description:
-  // Set whether to scale vertex glyphs.
+  //@{
+  /**
+   * Set whether to scale vertex glyphs.
+   */
   virtual void SetScaling(bool b);
   virtual bool GetScaling();
   vtkBooleanMacro(Scaling, bool);
+  //@}
 
-  // Description:
-  // Set the glyph scaling array name.
+  //@{
+  /**
+   * Set the glyph scaling array name.
+   */
   virtual void SetScalingArrayName(const char* name);
   virtual const char* GetScalingArrayName();
+  //@}
 
-  // Description:
-  // Vertex/edge scalar bar visibility.
+  //@{
+  /**
+   * Vertex/edge scalar bar visibility.
+   */
   virtual void SetVertexScalarBarVisibility(bool b);
   virtual bool GetVertexScalarBarVisibility();
   virtual void SetEdgeScalarBarVisibility(bool b);
   virtual bool GetEdgeScalarBarVisibility();
+  //@}
 
-  // Description:
-  // Obtain the scalar bar widget used to draw a legend for the vertices/edges.
+  //@{
+  /**
+   * Obtain the scalar bar widget used to draw a legend for the vertices/edges.
+   */
   virtual vtkScalarBarWidget* GetVertexScalarBar();
   virtual vtkScalarBarWidget* GetEdgeScalarBar();
+  //@}
 
-  // Description:
-  // Whether the current graph layout is complete.
+  /**
+   * Whether the current graph layout is complete.
+   */
   virtual bool IsLayoutComplete();
 
-  // Description:
-  // Performs another iteration on the graph layout.
+  /**
+   * Performs another iteration on the graph layout.
+   */
   virtual void UpdateLayout();
 
-  // Description:
-  // Compute the bounding box of the selected subgraph.
+  /**
+   * Compute the bounding box of the selected subgraph.
+   */
   void ComputeSelectedGraphBounds( double bounds[6] );
 
 protected:
   vtkRenderedGraphRepresentation();
   ~vtkRenderedGraphRepresentation();
 
-  // Description:
-  // Called by the view to add/remove this representation.
+  //@{
+  /**
+   * Called by the view to add/remove this representation.
+   */
   virtual bool AddToView(vtkView* view);
   virtual bool RemoveFromView(vtkView* view);
+  //@}
 
   virtual void PrepareForRendering(vtkRenderView* view);
 
@@ -369,15 +419,18 @@ protected:
 
   virtual vtkUnicodeString GetHoverTextInternal(vtkSelection* sel);
 
-  // Description:
-  // Connect inputs to internal pipeline.
+  /**
+   * Connect inputs to internal pipeline.
+   */
   virtual int RequestData(
     vtkInformation* request,
     vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);
 
-  // Description:
-  // Internal filter classes.
+  //@{
+  /**
+   * Internal filter classes.
+   */
   vtkSmartPointer<vtkApplyColors>          ApplyColors;
   vtkSmartPointer<vtkVertexDegree>         VertexDegree;
   vtkSmartPointer<vtkPolyData>             EmptyPolyData;
@@ -406,6 +459,7 @@ protected:
   vtkSmartPointer<vtkIconGlyphFilter>      VertexIconGlyph;
   vtkSmartPointer<vtkPolyDataMapper2D>     VertexIconMapper;
   vtkSmartPointer<vtkTexturedActor2D>      VertexIconActor;
+  //@}
 
   char* VertexHoverArrayName;
   char* EdgeHoverArrayName;
@@ -432,8 +486,8 @@ protected:
   bool EdgeSelection;
 
 private:
-  vtkRenderedGraphRepresentation(const vtkRenderedGraphRepresentation&); // Not implemented
-  void operator=(const vtkRenderedGraphRepresentation&);   // Not implemented
+  vtkRenderedGraphRepresentation(const vtkRenderedGraphRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRenderedGraphRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

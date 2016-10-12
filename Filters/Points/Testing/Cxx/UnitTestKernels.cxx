@@ -33,8 +33,8 @@
 #include <cmath>
 #include <sstream>
 
-template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtkIdType numberOfPoints, std::string description = "", bool useProbs = true);
-template<typename T> int TestKernel (vtkSmartPointer<T> kernel, vtkIdType numberOfPoints, std::string description = "");
+template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtkIdType numberOfPoints, const std::string &description = "", bool useProbs = true);
+template<typename T> int TestKernel (vtkSmartPointer<T> kernel, vtkIdType numberOfPoints, const std::string &description = "");
 
 //-----------------------------------------------------------------------------
 int UnitTestKernels(int, char*[])
@@ -231,26 +231,26 @@ int UnitTestKernels(int, char*[])
   return status;
 }
 
-template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtkIdType numberOfPoints, std::string description, bool useProbs)
+template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtkIdType numberOfPoints, const std::string &description, bool useProbs)
 {
   int status = EXIT_SUCCESS;
 
   std::cout << "Testing " << description;
 
   if ( !kernel->IsTypeOf("vtkGeneralizedKernel"))
-    {
+  {
     std::cout << " ERROR: " << kernel->GetClassName()
               << " is not a subclass of vtkGeneralizedKernel";
     std::cout << " FAILED" << std::endl;
     status = EXIT_FAILURE;
-    }
+  }
   if ( !kernel->IsTypeOf("vtkInterpolationKernel"))
-    {
+  {
     std::cout << " ERROR: " << kernel->GetClassName()
               << " is not a subclass of vtkInterpolationKernel";
     std::cout << " FAILED" << std::endl;
     status = EXIT_FAILURE;
-    }
+  }
 
   vtkSmartPointer<vtkSphereSource> sphere =
     vtkSmartPointer<vtkSphereSource>::New();
@@ -273,14 +273,14 @@ template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtk
   refPt[1] = 0.0;
   refPt[2] = 0.0;
   for (vtkIdType id = 0; id < randomSphere->GetOutput()->GetNumberOfPoints(); ++id)
-    {
+  {
     double distance;
     double pt[3];
 
     randomSphere->GetOutput()->GetPoint(id, pt);
     distance = std::sqrt(vtkMath::Distance2BetweenPoints(refPt, pt));
     distances->SetTuple1(id, distance);
-    }
+  }
   distances->SetName("Distances");
 
   randomSphere->GetOutput()->GetPointData()->SetScalars(distances);
@@ -295,7 +295,7 @@ template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtk
   kernel->Print(fullPrint);
 
   for (vtkIdType id = 0; id < sphere->GetOutput()->GetNumberOfPoints(); ++id)
-    {
+  {
     double point[3];
     sphere->GetOutput()->GetPoints()->GetPoint(id, point);
     vtkSmartPointer<vtkIdList> ptIds =
@@ -307,47 +307,47 @@ template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtk
       vtkSmartPointer<vtkDoubleArray>::New();
     probabilities->SetNumberOfTuples(ptIds->GetNumberOfIds());
     for (vtkIdType p = 0; p < ptIds->GetNumberOfIds(); ++p)
-      {
+    {
       double distance;
       double pt[3];
       randomSphere->GetOutput()->GetPoint(p, pt);
       distance = std::sqrt(vtkMath::Distance2BetweenPoints(refPt, pt));
       probabilities->SetTuple1(p, (2.0 - distance) / 2.0);
-      }
+    }
     if (useProbs)
-      {
+    {
       kernel->ComputeWeights(point, ptIds, probabilities, weights);
-      }
+    }
     else
-      {
+    {
       kernel->ComputeWeights(point, ptIds, NULL, weights);
-      }
+    }
     double scalar;
     randomSphere->GetOutput()->GetPointData()->GetArray("Distances")->GetTuple(id, &scalar);
     double probe = 0.0;
     if (id == 0)
-      {
+    {
       std::cout << " # points: " << ptIds->GetNumberOfIds();
-      }
+    }
     for (vtkIdType p = 0; p < ptIds->GetNumberOfIds(); ++p)
-      {
+    {
       double value;
       randomSphere->GetOutput()->GetPointData()->GetArray("Distances")->GetTuple(ptIds->GetId(p), &value);;
       double weight;
       weights->GetTuple(p, &weight);
       probe += weight * value;
-      }
-    meanProbe += probe;
     }
+    meanProbe += probe;
+  }
   meanProbe /= static_cast<double> (sphere->GetOutput()->GetNumberOfPoints());
   std::cout << " Mean probe:" << meanProbe;
 
   if (!vtkMathUtilities::FuzzyCompare(meanProbe, .5, .01))
-    {
+  {
     std::cout << " ERROR: Mean of the probes: " << meanProbe << " is not within .01 of the radius .5";
     std::cout << " FAILED" << std::endl;
     status = EXIT_FAILURE;
-    }
+  }
 
   // Test for exact points
   vtkSmartPointer<vtkStaticPointLocator> exactLocator =
@@ -362,7 +362,7 @@ template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtk
                      sphere->GetOutput(),
                      sphere->GetOutput()->GetPointData());
   for (vtkIdType id = 0; id < sphere->GetOutput()->GetNumberOfPoints(); ++id)
-    {
+  {
     double point[3];
     sphere->GetOutput()->GetPoints()->GetPoint(id, point);
     vtkSmartPointer<vtkIdList> ptIds =
@@ -374,28 +374,28 @@ template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtk
 
     double probe = 0.0;
     for (vtkIdType p = 0; p < ptIds->GetNumberOfIds(); ++p)
-      {
+    {
       double value;
       sphere->GetOutput()->GetPointData()->GetScalars()->GetTuple(ptIds->GetId(p), &value);;
       double weight;
       weights->GetTuple(p, &weight);
       probe += weight * value;
-      }
+    }
     if (!vtkMathUtilities::FuzzyCompare(probe, .5, std::numeric_limits<double>::epsilon()*256.0))
-      {
+    {
       status = EXIT_FAILURE;
       std::cout << "Expected .5 but got " << probe << std::endl;
-      }
     }
+  }
 
   if (status == EXIT_SUCCESS)
-    {
+  {
     std::cout << " PASSED" << std::endl;
-    }
+  }
   return status;
 }
 
-template<typename T> int TestKernel (vtkSmartPointer<T> kernel, vtkIdType numberOfPoints, std::string description)
+template<typename T> int TestKernel (vtkSmartPointer<T> kernel, vtkIdType numberOfPoints, const std::string &description)
 {
   int status = 0;
   std::cout << "Testing " << description;
@@ -424,7 +424,7 @@ template<typename T> int TestKernel (vtkSmartPointer<T> kernel, vtkIdType number
   refPt[1] = 0.0;
   refPt[2] = 0.0;
   for (vtkIdType id = 0; id < randomSphere->GetOutput()->GetNumberOfPoints(); ++id)
-    {
+  {
     double distance;
     double pt[3];
     randomSphere->GetOutput()->GetPoint(id, pt);
@@ -435,7 +435,7 @@ template<typename T> int TestKernel (vtkSmartPointer<T> kernel, vtkIdType number
     normal[1] = pt[1];
     normal[2] = pt[2];
     normals->SetTuple3(id, normal[0], normal[1], normal[2]);
-    }
+  }
   distances->SetName("TestDistances");
   normals->SetName("TestNormals");
 
@@ -451,7 +451,7 @@ template<typename T> int TestKernel (vtkSmartPointer<T> kernel, vtkIdType number
   std::ostringstream fullPrint;
   kernel->Print(fullPrint);
   for (vtkIdType id = 0; id < sphere->GetOutput()->GetNumberOfPoints(); ++id)
-    {
+  {
     double point[3];
     sphere->GetOutput()->GetPoints()->GetPoint(id, point);
     vtkSmartPointer<vtkIdList> ptIds =
@@ -461,30 +461,30 @@ template<typename T> int TestKernel (vtkSmartPointer<T> kernel, vtkIdType number
     kernel->ComputeBasis(point, ptIds);
     kernel->ComputeWeights(point, ptIds, weights);
     if (id == 0)
-      {
+    {
       std::cout << " # points: " << ptIds->GetNumberOfIds();
-      }
+    }
     double scalar;
     randomSphere->GetOutput()->GetPointData()->GetArray("TestDistances")->GetTuple(id, &scalar);
     double probe = 0.0;
     for (vtkIdType p = 0; p < ptIds->GetNumberOfIds(); ++p)
-      {
+    {
       double value;
       randomSphere->GetOutput()->GetPointData()->GetArray("TestDistances")->GetTuple(ptIds->GetId(p), &value);;
       double weight;
       weights->GetTuple(p, &weight);
       probe += weight * value;
-      }
-    meanProbe += probe;
     }
+    meanProbe += probe;
+  }
   meanProbe /= static_cast<double> (sphere->GetOutput()->GetNumberOfPoints());
   std::cout << " Mean probe:" << meanProbe;
   if (!vtkMathUtilities::FuzzyCompare(meanProbe, .5, .01))
-    {
+  {
     std::cout << "ERROR: Mean of the probes: " << meanProbe << " is not within .01 of the radius .5";
     std::cout << " FAILED" << std::endl;
     status = EXIT_FAILURE;
-    }
+  }
 
   // Test for exact points
   vtkSmartPointer<vtkStaticPointLocator> exactLocator =
@@ -499,7 +499,7 @@ template<typename T> int TestKernel (vtkSmartPointer<T> kernel, vtkIdType number
                      sphere->GetOutput(),
                      sphere->GetOutput()->GetPointData());
   for (vtkIdType id = 0; id < sphere->GetOutput()->GetNumberOfPoints(); ++id)
-    {
+  {
     double point[3];
     sphere->GetOutput()->GetPoints()->GetPoint(id, point);
     vtkSmartPointer<vtkIdList> ptIds =
@@ -511,23 +511,23 @@ template<typename T> int TestKernel (vtkSmartPointer<T> kernel, vtkIdType number
 
     double probe = 0.0;
     for (vtkIdType p = 0; p < ptIds->GetNumberOfIds(); ++p)
-      {
+    {
       double value;
       sphere->GetOutput()->GetPointData()->GetScalars()->GetTuple(ptIds->GetId(p), &value);;
       double weight;
       weights->GetTuple(p, &weight);
       probe += weight * value;
-      }
+    }
     if (!vtkMathUtilities::FuzzyCompare(probe, .5, std::numeric_limits<double>::epsilon()*256.0))
-      {
+    {
       status = EXIT_FAILURE;
       std::cout << "Expected .5 but got " << probe << std::endl;
-      }
     }
+  }
 
   if (status == EXIT_SUCCESS)
-    {
+  {
     std::cout << " PASSED" << std::endl;
-    }
+  }
   return status;
 }

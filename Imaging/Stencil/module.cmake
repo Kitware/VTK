@@ -2,9 +2,13 @@ vtk_module(vtkImagingStencil
   GROUPS
     Imaging
     StandAlone
-  DEPENDS
-    vtkCommonComputationalGeometry
-    vtkImagingCore
   KIT
     vtkImaging
+  DEPENDS
+    vtkCommonExecutionModel
+    vtkImagingCore
+  PRIVATE_DEPENDS
+    vtkCommonComputationalGeometry
+    vtkCommonCore
+    vtkCommonDataModel
   )

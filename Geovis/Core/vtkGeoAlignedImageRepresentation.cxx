@@ -41,9 +41,9 @@ static std::pair<vtkGeoImageNode*, double>
 vtkGeoAlignedImageRepresentationFind(vtkGeoSource* source, vtkGeoImageNode* p, double* bounds, vtkGeoTreeNodeCache* nodeList)
 {
   if (!p->HasData())
-    {
+  {
     return std::make_pair(static_cast<vtkGeoImageNode*>(0), 0.0);
-    }
+  }
   double lb[3];
   double ub[3];
   p->GetTexture()->GetImageDataInput(0)->GetOrigin(lb);
@@ -56,7 +56,7 @@ vtkGeoAlignedImageRepresentationFind(vtkGeoSource* source, vtkGeoImageNode* p, d
       ub[0] >= bounds[1] &&
       lb[1] <= bounds[2] &&
       ub[1] >= bounds[3])
-    {
+  {
     nodeList->SendToFront(p);
     std::pair<vtkGeoImageNode*, double> minDist(static_cast<vtkGeoImageNode *>(NULL), VTK_DOUBLE_MAX);
 
@@ -64,69 +64,69 @@ vtkGeoAlignedImageRepresentationFind(vtkGeoSource* source, vtkGeoImageNode* p, d
     vtkCollection* coll = NULL;
 
     if (!child || !child->HasData() || p->GetStatus() == vtkGeoTreeNode::PROCESSING)
-      {
+    {
       // TODO: This multiplier should be configurable
       if ((ub[0] - lb[0]) > 2.0*(bounds[1] - bounds[0]))
-        {
+      {
         // Populate the children
         coll = source->GetRequestedNodes(p);
         if (coll && coll->GetNumberOfItems() == 4)
-          {
+        {
           if (!child)
-            {
+          {
             p->CreateChildren();
-            }
+          }
           for (int c = 0; c < 4; ++c)
-            {
+          {
             vtkGeoImageNode* node = vtkGeoImageNode::SafeDownCast(coll->GetItemAsObject(c));
             if (node)
-              {
+            {
               p->GetChild(c)->SetImage(node->GetImage());
               p->GetChild(c)->SetTexture(node->GetTexture());
               p->GetChild(c)->SetId(node->GetId());
               p->GetChild(c)->SetLevel(node->GetLevel());
               nodeList->SendToFront(p->GetChild(c));
-              }
             }
+          }
           p->SetStatus(vtkGeoTreeNode::NONE);
-          }
+        }
         if (coll)
-          {
+        {
           coll->Delete();
-          }
+        }
         else if(p->GetStatus() == vtkGeoTreeNode::NONE)
-          {
+        {
           p->SetStatus(vtkGeoTreeNode::PROCESSING);
           vtkGeoImageNode * temp = vtkGeoImageNode::New();
           temp->DeepCopy(p);
           source->RequestChildren(temp);
           //source->RequestChildren(p);
-          }
         }
       }
+    }
 
     if (p->GetChild(0))
-      {
+    {
       for (int i = 0; i < 4; ++i)
-        {
+      {
         std::pair<vtkGeoImageNode*, double> subsearch =
           vtkGeoAlignedImageRepresentationFind(source, p->GetChild(i), bounds, nodeList);
         if (subsearch.first && subsearch.second < minDist.second)
-          {
+        {
           minDist = subsearch;
-          }
         }
       }
+    }
     if (minDist.first)
-      {
-      return minDist;
-      }
-    return std::make_pair(p, dist2);
-    }
-  else
     {
-    return std::make_pair(static_cast<vtkGeoImageNode*>(0), 0.0);
+      return minDist;
     }
+    return std::make_pair(p, dist2);
+  }
+  else
+  {
+    return std::make_pair(static_cast<vtkGeoImageNode*>(0), 0.0);
+  }
 }
 
 vtkStandardNewMacro(vtkGeoAlignedImageRepresentation);
@@ -145,36 +145,36 @@ vtkGeoAlignedImageRepresentation::~vtkGeoAlignedImageRepresentation()
 {
   this->SetGeoSource(0);
   if (this->Root)
-    {
+  {
     this->Root->Delete();
-    }
+  }
   if (this->Cache)
-    {
+  {
     this->Cache->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkGeoAlignedImageRepresentation::SetSource(vtkGeoSource* source)
 {
   if (this->GeoSource != source)
-    {
+  {
     this->SetGeoSource(source);
     if (this->GeoSource)
-      {
+    {
       this->Initialize();
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkGeoAlignedImageRepresentation::Initialize()
 {
   if (!this->GeoSource)
-    {
+  {
     vtkErrorMacro(<< "You must set the source before initialization.");
     return;
-    }
+  }
   this->GeoSource->FetchRoot(this->Root);
 }
 
@@ -182,13 +182,13 @@ void vtkGeoAlignedImageRepresentation::Initialize()
 void vtkGeoAlignedImageRepresentation::SaveDatabase(const char* path)
 {
   if (!this->Root)
-    {
+  {
     this->Initialize();
-    }
+  }
   std::stack< vtkSmartPointer<vtkGeoImageNode> > s;
   s.push(this->Root);
   while (!s.empty())
-    {
+  {
     vtkSmartPointer<vtkGeoImageNode> node = s.top();
     s.pop();
 
@@ -204,19 +204,19 @@ void vtkGeoAlignedImageRepresentation::SaveDatabase(const char* path)
 
     // Recurse over children.
     for (int i = 0; i < 4; ++i)
-      {
+    {
       vtkSmartPointer<vtkGeoImageNode> child =
         vtkSmartPointer<vtkGeoImageNode>::New();
       if (this->GeoSource->FetchChild(node, i, child))
-        {
+      {
         // Skip nodes outside range of the world.
         if (child->GetLatitudeRange()[1] > -90.0)
-          {
+        {
           s.push(child);
-          }
         }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -241,10 +241,10 @@ void vtkGeoAlignedImageRepresentation::PrintTree(ostream& os, vtkIndent indent, 
   os << indent << "LongitudeRange: " << root->GetLongitudeRange()[0] << ", " << root->GetLongitudeRange()[1] << endl;
   os << indent << "Level: " << root->GetLevel() << endl;
   if (root->GetChild(0))
-    {
+  {
     for (int i = 0; i < 4; ++i)
-      {
+    {
       this->PrintTree(os, indent.GetNextIndent(), root->GetChild(i));
-      }
     }
+  }
 }

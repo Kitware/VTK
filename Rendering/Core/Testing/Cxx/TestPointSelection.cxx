@@ -12,6 +12,8 @@
 
 =========================================================================*/
 
+#include <algorithm>
+
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 
@@ -36,7 +38,7 @@
 class PointPickCommand : public vtkCommand
 {
 protected:
-  vtkNew<vtkIdTypeArray> PointIds;
+  std::vector<int> PointIds;
   vtkRenderer *Renderer;
   vtkAreaPicker *Picker;
   vtkPolyDataMapper *Mapper;
@@ -49,7 +51,7 @@ public:
   {
   }
 
-  virtual ~PointPickCommand()
+  ~PointPickCommand() VTK_OVERRIDE
   {
   }
 
@@ -58,33 +60,33 @@ public:
   // Find selection node that we're interested in:
   const vtkIdType numNodes = selection->GetNumberOfNodes();
   for (vtkIdType nodeId = 0; nodeId < numNodes; ++nodeId)
-    {
+  {
     vtkSelectionNode *node = selection->GetNode(nodeId);
 
     // Check if the mapper is this instance of MoleculeMapper
     vtkActor *selActor = vtkActor::SafeDownCast(
                node->GetProperties()->Get(vtkSelectionNode::PROP()));
     if (selActor && (selActor->GetMapper() == this->Mapper))
-      {
+    {
       // Separate the selection ids into atoms and bonds
       vtkIdTypeArray *selIds = vtkArrayDownCast<vtkIdTypeArray>(
             node->GetSelectionList());
       if (selIds)
-        {
+      {
         vtkIdType numIds = selIds->GetNumberOfTuples();
         for (vtkIdType i = 0; i < numIds; ++i)
-          {
+        {
           vtkIdType curId = selIds->GetValue(i);
-          this->PointIds->InsertNextValue(curId);
-          }
+          this->PointIds.push_back(curId);
         }
       }
     }
   }
+  }
 
-  vtkIdTypeArray *GetPointIds()
+  std::vector<int> &GetPointIds()
   {
-    return this->PointIds.GetPointer();
+    return this->PointIds;
   }
 
   void SetMapper(vtkPolyDataMapper *m)
@@ -102,11 +104,11 @@ public:
     this->Picker = p;
   }
 
-  virtual void Execute(vtkObject *, unsigned long, void *)
+  void Execute(vtkObject *, unsigned long, void *) VTK_OVERRIDE
   {
     vtkProp3DCollection *props = this->Picker->GetProp3Ds();
     if (props->GetNumberOfItems() != 0)
-      {
+    {
       // If anything was picked during the fast area pick, do a more detailed
       // pick.
       vtkNew<vtkHardwareSelector> selector;
@@ -123,7 +125,7 @@ public:
       this->SetPointIds(result);
       this->DumpPointSelection();
       result->Delete();
-      }
+    }
   }
 
   // Convenience function to print out the atom and bond ids that belong to
@@ -133,10 +135,11 @@ public:
     // Print selection
     cerr << "\n### Selection ###\n";
     cerr << "Points: ";
-    for (vtkIdType i = 0; i < this->PointIds->GetNumberOfTuples(); i++)
-      {
-      cerr << this->PointIds->GetValue(i) << " ";
-      }
+    for (std::vector<int>::iterator i = this->PointIds.begin();
+         i != this->PointIds.end(); i++)
+    {
+      cerr << *i << " ";
+    }
     cerr << endl;
   }
 };
@@ -188,25 +191,26 @@ int TestPointSelection(int argc, char *argv[])
   // Interact if desired
   int retVal = vtkRegressionTestImage(win.GetPointer());
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Verify pick
-  if (com->GetPointIds()->GetNumberOfTuples() < 7 ||
-      com->GetPointIds()->GetValue(0) != 0  ||
-      com->GetPointIds()->GetValue(1) != 26 ||
-      com->GetPointIds()->GetValue(2) != 27 ||
-      com->GetPointIds()->GetValue(3) != 32 ||
-      com->GetPointIds()->GetValue(4) != 33 ||
-      com->GetPointIds()->GetValue(5) != 38 ||
-      com->GetPointIds()->GetValue(6) != 39
+  std::vector<int> &pIds = com->GetPointIds();
+  if (pIds.size() < 7 ||
+      std::find(pIds.begin(), pIds.end(), 0) == pIds.end() ||
+      std::find(pIds.begin(), pIds.end(), 26) == pIds.end() ||
+      std::find(pIds.begin(), pIds.end(), 27) == pIds.end() ||
+      std::find(pIds.begin(), pIds.end(), 32) == pIds.end() ||
+      std::find(pIds.begin(), pIds.end(), 33) == pIds.end() ||
+      std::find(pIds.begin(), pIds.end(), 38) == pIds.end() ||
+      std::find(pIds.begin(), pIds.end(), 39) == pIds.end()
       )
-    {
+  {
     cerr << "Incorrect atoms/bonds picked! (if any picks were performed inter"
             "actively this could be ignored).\n";
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

@@ -27,9 +27,9 @@ vtkVector<A, Size> operator-(const vtkVector<A, Size>& v)
 {
   vtkVector<A, Size> ret;
   for (int i = 0; i < Size; ++i)
-    {
+  {
     ret[i] = -v[i];
-    }
+  }
   return ret;
 }
 
@@ -41,9 +41,9 @@ vtkVector<A, Size> operator+(const vtkVector<A, Size>& v1,
 {
   vtkVector<A, Size> ret;
   for (int i = 0; i < Size; ++i)
-    {
+  {
     ret[i] = v1[i] + v2[i];
-    }
+  }
   return ret;
 }
 
@@ -55,9 +55,9 @@ vtkVector<A, Size> operator-(const vtkVector<A, Size>& v1,
 {
   vtkVector<A, Size> ret;
   for (int i = 0; i < Size; ++i)
-    {
+  {
     ret[i] = v1[i] - v2[i];
-    }
+  }
   return ret;
 }
 
@@ -69,9 +69,9 @@ vtkVector<A, Size> operator*(const vtkVector<A, Size>& v1,
 {
   vtkVector<A, Size> ret;
   for (int i = 0; i < Size; ++i)
-    {
+  {
     ret[i] = v1[i] * v2[i];
-    }
+  }
   return ret;
 }
 
@@ -83,9 +83,9 @@ vtkVector<A, Size> operator*(const vtkVector<A, Size>& v1,
 {
   vtkVector<A, Size> ret;
   for (int i = 0; i < Size; ++i)
-    {
+  {
     ret[i] = v1[i] * scalar;
-    }
+  }
   return ret;
 }
 
@@ -97,9 +97,9 @@ vtkVector<A, Size> operator/(const vtkVector<A, Size>& v1,
 {
   vtkVector<A, Size> ret;
   for (int i = 0; i < Size; ++i)
-    {
+  {
     ret[i] = v1[i] / v2[i];
-    }
+  }
   return ret;
 }
 

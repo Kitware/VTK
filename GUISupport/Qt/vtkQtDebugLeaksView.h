@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkQtDebugLeaksView - view class to display contents of vtkQtDebugLeaksModel
-//
-// .SECTION Description
-// A widget the displays all vtkObjectBase derived objects that are alive in
-// memory.  The widget is designed to be a debugging tool that is instantiated
-// at program startup and displayed as a top level widget.  Simply create the
-// widget and call show().
+/**
+ * @class   vtkQtDebugLeaksView
+ * @brief   view class to display contents of vtkQtDebugLeaksModel
+ *
+ *
+ * A widget the displays all vtkObjectBase derived objects that are alive in
+ * memory.  The widget is designed to be a debugging tool that is instantiated
+ * at program startup and displayed as a top level widget.  Simply create the
+ * widget and call show().
+*/
 
 #ifndef vtkQtDebugLeaksView_h
 #define vtkQtDebugLeaksView_h
@@ -41,20 +44,24 @@ public:
 
   vtkQtDebugLeaksModel* model();
 
-  // Description:
-  // Returns whether or not the regexp filter is enabled
+  /**
+   * Returns whether or not the regexp filter is enabled
+   */
   bool filterEnabled() const;
 
-  // Description:
-  // Enabled or disables the regexp filter
+  /**
+   * Enabled or disables the regexp filter
+   */
   void setFilterEnabled(bool value);
 
-  // Description:
-  // Returns the regexp filter line edit's current text
+  /**
+   * Returns the regexp filter line edit's current text
+   */
   QString filterText() const;
 
-  // Description:
-  // Sets the current text in the regexp filter line edit
+  /**
+   * Sets the current text in the regexp filter line edit
+   */
   void setFilterText(const QString& text);
 
 protected:

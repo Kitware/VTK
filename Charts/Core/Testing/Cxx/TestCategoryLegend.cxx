@@ -39,9 +39,9 @@ int TestCategoryLegend(int argc, char* argv[])
 
   vtkNew<vtkLookupTable> lut;
   for (int i = 0; i < values->GetNumberOfTuples(); ++i)
-    {
+  {
     lut->SetAnnotation(values->GetValue(i), values->GetValue(i).ToString());
-    }
+  }
 
   vtkNew<vtkColorSeries> colorSeries;
   colorSeries->SetColorScheme(vtkColorSeries::BREWER_QUALITATIVE_SET3);
@@ -66,10 +66,10 @@ int TestCategoryLegend(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(contextView->GetRenderWindow());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     contextView->GetRenderWindow()->Render();
     contextView->GetInteractor()->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
   return !retVal;
 }

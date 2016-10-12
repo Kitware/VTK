@@ -35,28 +35,28 @@ namespace
   {
     double values[3];
     for(vtkIdType i=0;i<array->GetNumberOfTuples();i++)
-      {
+    {
       array->GetTuple(i, values);
       for(int j=0;j<3;j++)
-        {
+      {
         if(j == component)
-          {
+        {
           if(values[j] < minValue || values[j] > maxValue)
-            {
+          {
             vtkGenericWarningMacro("Array type " << type << " with name "
                                    << array->GetName() << " has bad value of " << values[j]
                                    << " but should be between " << minValue << " and " << maxValue);
             return false;
-            }
           }
+        }
         else if(values[j] < -0.001 || values[j] > 0.001)
-          {
+        {
           vtkGenericWarningMacro("Array type " << type << " with name " << array->GetName()
                                  << " should be 0 but has value of " << values[j]);
           return false;
-          }
         }
       }
+    }
     return true;
   }
 }
@@ -91,37 +91,37 @@ int TestProjectSphereFilter(int vtkNotUsed(argc), char* [])
 
   vtkDataSet* grid = pointToCell->GetOutput();
   if(grid->GetNumberOfPoints() != 2450)
-    {
+  {
     vtkGenericWarningMacro(
       "Wrong number of points. There are " << grid->GetNumberOfPoints() <<
       " but should be 2450.");
     numberOfErrors++;
-    }
+  }
   if(grid->GetNumberOfCells() != 4700)
-    {
+  {
     vtkGenericWarningMacro(
       "Wrong number of cells. There are " << grid->GetNumberOfCells() <<
       " but should be 4700.");
     numberOfErrors++;
-    }
+  }
 
   if(CheckFieldData("Point", grid->GetPointData()->GetArray("result"), 0, .99, 1.01)
      == false)
-    {
+  {
     numberOfErrors++;
-    }
+  }
 
   if(CheckFieldData("Point", grid->GetPointData()->GetArray("Normals"), 2, .99, 1.01)
      == false)
-    {
+  {
     numberOfErrors++;
-    }
+  }
 
   if(CheckFieldData("Cell", grid->GetCellData()->GetArray("Normals"), 2, .99, 1.01)
      == false)
-    {
+  {
     numberOfErrors++;
-    }
+  }
 
   return numberOfErrors;
 }

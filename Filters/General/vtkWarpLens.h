@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWarpLens - deform geometry by applying lens distortion
-// .SECTION Description
-// vtkWarpLens is a filter that modifies point coordinates by moving
-// in accord with a lens distortion model.
+/**
+ * @class   vtkWarpLens
+ * @brief   deform geometry by applying lens distortion
+ *
+ * vtkWarpLens is a filter that modifies point coordinates by moving
+ * in accord with a lens distortion model.
+*/
 
 #ifndef vtkWarpLens_h
 #define vtkWarpLens_h
@@ -28,65 +31,86 @@ class VTKFILTERSGENERAL_EXPORT vtkWarpLens : public vtkPointSetAlgorithm
 public:
   static vtkWarpLens *New();
   vtkTypeMacro(vtkWarpLens,vtkPointSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Specify second order symmetric radial lens distortion parameter.
-  // This is obsoleted by newer instance variables.
+  //@{
+  /**
+   * Specify second order symmetric radial lens distortion parameter.
+   * This is obsoleted by newer instance variables.
+   */
   void SetKappa(double kappa);
   double GetKappa();
+  //@}
 
-  // Description:
-  // Specify the center of radial distortion in pixels.
-  // This is obsoleted by newer instance variables.
+  //@{
+  /**
+   * Specify the center of radial distortion in pixels.
+   * This is obsoleted by newer instance variables.
+   */
   void SetCenter(double centerX, double centerY);
   double *GetCenter();
+  //@}
 
-  // Description:
-  // Specify the calibrated principal point of the camera/lens
+  //@{
+  /**
+   * Specify the calibrated principal point of the camera/lens
+   */
   vtkSetVector2Macro(PrincipalPoint,double);
   vtkGetVectorMacro(PrincipalPoint,double,2);
+  //@}
 
-  // Description:
-  // Specify the symmetric radial distortion parameters for the lens
+  //@{
+  /**
+   * Specify the symmetric radial distortion parameters for the lens
+   */
   vtkSetMacro(K1,double);
   vtkGetMacro(K1,double);
   vtkSetMacro(K2,double);
   vtkGetMacro(K2,double);
+  //@}
 
-  // Description:
-  // Specify the decentering distortion parameters for the lens
+  //@{
+  /**
+   * Specify the decentering distortion parameters for the lens
+   */
   vtkSetMacro(P1,double);
   vtkGetMacro(P1,double);
   vtkSetMacro(P2,double);
   vtkGetMacro(P2,double);
+  //@}
 
-  // Description:
-  // Specify the imager format width / height in mm
+  //@{
+  /**
+   * Specify the imager format width / height in mm
+   */
   vtkSetMacro(FormatWidth,double);
   vtkGetMacro(FormatWidth,double);
   vtkSetMacro(FormatHeight,double);
   vtkGetMacro(FormatHeight,double);
+  //@}
 
-  // Description:
-  // Specify the image width / height in pixels
+  //@{
+  /**
+   * Specify the image width / height in pixels
+   */
   vtkSetMacro(ImageWidth,int);
   vtkGetMacro(ImageWidth,int);
   vtkSetMacro(ImageHeight,int);
   vtkGetMacro(ImageHeight,int);
+  //@}
 
-  int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 protected:
   vtkWarpLens();
-  ~vtkWarpLens() {}
+  ~vtkWarpLens() VTK_OVERRIDE {}
 
   int RequestDataObject(vtkInformation *request,
                         vtkInformationVector **inputVector,
-                        vtkInformationVector *outputVector);
+                        vtkInformationVector *outputVector) VTK_OVERRIDE;
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) VTK_OVERRIDE;
 
   double PrincipalPoint[2];      // The calibrated principal point of camera/lens in mm
   double K1;                     // Symmetric radial distortion parameters
@@ -98,8 +122,8 @@ protected:
   int ImageWidth;               // image width in pixels
   int ImageHeight;              // image height in pixels
 private:
-  vtkWarpLens(const vtkWarpLens&);  // Not implemented.
-  void operator=(const vtkWarpLens&);  // Not implemented.
+  vtkWarpLens(const vtkWarpLens&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWarpLens&) VTK_DELETE_FUNCTION;
 };
 
 #endif

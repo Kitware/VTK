@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkErrorCode - superclass for error codes
-// .SECTION Description
-// vtkErrorCode is an mechanism for (currently) reader object to
-// return errors during reading file.
+/**
+ * @class   vtkErrorCode
+ * @brief   superclass for error codes
+ *
+ * vtkErrorCode is an mechanism for (currently) reader object to
+ * return errors during reading file.
+*/
 
 #ifndef vtkErrorCode_h
 #define vtkErrorCode_h

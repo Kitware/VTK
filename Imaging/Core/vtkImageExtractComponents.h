@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageExtractComponents - Outputs a single component
-// .SECTION Description
-// vtkImageExtractComponents takes an input with any number of components
-// and outputs some of them.  It does involve a copy of the data.
-
-// .SECTION See Also
-// vtkImageAppendComponents
+/**
+ * @class   vtkImageExtractComponents
+ * @brief   Outputs a single component
+ *
+ * vtkImageExtractComponents takes an input with any number of components
+ * and outputs some of them.  It does involve a copy of the data.
+ *
+ * @sa
+ * vtkImageAppendComponents
+*/
 
 #ifndef vtkImageExtractComponents_h
 #define vtkImageExtractComponents_h
@@ -34,17 +37,23 @@ public:
   vtkTypeMacro(vtkImageExtractComponents,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set/Get the components to extract.
+  //@{
+  /**
+   * Set/Get the components to extract.
+   */
   void SetComponents(int c1);
   void SetComponents(int c1, int c2);
   void SetComponents(int c1, int c2, int c3);
   vtkGetVector3Macro(Components,int);
+  //@}
 
-  // Description:
-  // Get the number of components to extract. This is set implicitly by the
-  // SetComponents() method.
+  //@{
+  /**
+   * Get the number of components to extract. This is set implicitly by the
+   * SetComponents() method.
+   */
   vtkGetMacro(NumberOfComponents,int);
+  //@}
 
 protected:
   vtkImageExtractComponents();
@@ -59,8 +68,8 @@ protected:
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int ext[6], int id);
 private:
-  vtkImageExtractComponents(const vtkImageExtractComponents&);  // Not implemented.
-  void operator=(const vtkImageExtractComponents&);  // Not implemented.
+  vtkImageExtractComponents(const vtkImageExtractComponents&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageExtractComponents&) VTK_DELETE_FUNCTION;
 };
 
 #endif

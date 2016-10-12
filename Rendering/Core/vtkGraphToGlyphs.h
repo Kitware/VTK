@@ -17,15 +17,18 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGraphToGlyphs - create glyphs for graph vertices
-//
-// .SECTION Description
-// Converts a vtkGraph to a vtkPolyData containing a glyph for each vertex.
-// This assumes that the points
-// of the graph have already been filled (perhaps by vtkGraphLayout).
-// The glyphs will automatically be scaled to be the same size in screen
-// coordinates. To do this the filter requires a pointer to the renderer
-// into which the glyphs will be rendered.
+/**
+ * @class   vtkGraphToGlyphs
+ * @brief   create glyphs for graph vertices
+ *
+ *
+ * Converts a vtkGraph to a vtkPolyData containing a glyph for each vertex.
+ * This assumes that the points
+ * of the graph have already been filled (perhaps by vtkGraphLayout).
+ * The glyphs will automatically be scaled to be the same size in screen
+ * coordinates. To do this the filter requires a pointer to the renderer
+ * into which the glyphs will be rendered.
+*/
 
 #ifndef vtkGraphToGlyphs_h
 #define vtkGraphToGlyphs_h
@@ -49,7 +52,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   enum
-    {
+  {
     VERTEX = 1,
     DASH,
     CROSS,
@@ -59,54 +62,72 @@ public:
     CIRCLE,
     DIAMOND,
     SPHERE
-    };
+  };
 
-  // Description:
-  // The glyph type, specified as one of the enumerated values in this
-  // class. VERTEX is a special glyph that cannot be scaled, but instead
-  // is rendered as an OpenGL vertex primitive. This may appear as a box
-  // or circle depending on the hardware.
+  //@{
+  /**
+   * The glyph type, specified as one of the enumerated values in this
+   * class. VERTEX is a special glyph that cannot be scaled, but instead
+   * is rendered as an OpenGL vertex primitive. This may appear as a box
+   * or circle depending on the hardware.
+   */
   vtkSetMacro(GlyphType, int);
   vtkGetMacro(GlyphType, int);
+  //@}
 
-  // Description:
-  // Whether to fill the glyph, or to just render the outline.
+  //@{
+  /**
+   * Whether to fill the glyph, or to just render the outline.
+   */
   vtkSetMacro(Filled, bool);
   vtkGetMacro(Filled, bool);
   vtkBooleanMacro(Filled, bool);
+  //@}
 
-  // Description:
-  // Set the desired screen size of each glyph. If you are using scaling,
-  // this will be the size of the glyph when rendering an object with
-  // scaling value 1.0.
+  //@{
+  /**
+   * Set the desired screen size of each glyph. If you are using scaling,
+   * this will be the size of the glyph when rendering an object with
+   * scaling value 1.0.
+   */
   vtkSetMacro(ScreenSize, double);
   vtkGetMacro(ScreenSize, double);
+  //@}
 
-  // Description:
-  // The renderer in which the glyphs will be placed.
+  //@{
+  /**
+   * The renderer in which the glyphs will be placed.
+   */
   virtual void SetRenderer(vtkRenderer* ren);
   virtual vtkRenderer* GetRenderer();
+  //@}
 
-  // Description:
-  // Whether to use the input array to process in order to scale the
-  // vertices.
+  //@{
+  /**
+   * Whether to use the input array to process in order to scale the
+   * vertices.
+   */
   virtual void SetScaling(bool b);
   virtual bool GetScaling();
+  //@}
 
-  // Description:
-  // The modified time of this filter.
-  virtual unsigned long GetMTime();
+  /**
+   * The modified time of this filter.
+   */
+  virtual vtkMTimeType GetMTime();
 
 protected:
   vtkGraphToGlyphs();
   ~vtkGraphToGlyphs();
 
-  // Description:
-  // Convert the vtkGraph into vtkPolyData.
+  /**
+   * Convert the vtkGraph into vtkPolyData.
+   */
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
-  // Description:
-  // Set the input type of the algorithm to vtkGraph.
+  /**
+   * Set the input type of the algorithm to vtkGraph.
+   */
   int FillInputPortInformation(int port, vtkInformation* info);
 
   vtkSmartPointer<vtkGraphToPoints> GraphToPoints;
@@ -119,8 +140,8 @@ protected:
   double ScreenSize;
 
 private:
-  vtkGraphToGlyphs(const vtkGraphToGlyphs&);  // Not implemented.
-  void operator=(const vtkGraphToGlyphs&);  // Not implemented.
+  vtkGraphToGlyphs(const vtkGraphToGlyphs&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGraphToGlyphs&) VTK_DELETE_FUNCTION;
 };
 
 #endif

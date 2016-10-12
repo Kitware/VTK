@@ -29,7 +29,7 @@ int TestReflectionFilter(int, char *[])
 {
 
   vtkSmartPointer<vtkUnstructuredGrid> pyramid = vtkSmartPointer<vtkUnstructuredGrid>::New();
-    {
+  {
     vtkSmartPointer<vtkPoints> points =  vtkSmartPointer<vtkPoints>::New();
     points->InsertNextPoint(-1,-1,-1);
     points->InsertNextPoint( 1,-1,-1);
@@ -37,7 +37,7 @@ int TestReflectionFilter(int, char *[])
     points->InsertNextPoint(-1, 1,-1);
     points->InsertNextPoint(0,0,1);
     pyramid->SetPoints(points);
-    }
+  }
 
   vtkNew<vtkIdList> verts;
   verts->InsertNextId(0);
@@ -50,7 +50,7 @@ int TestReflectionFilter(int, char *[])
 
 
   for(int i=0; i<2; i++)
-    {
+  {
     vtkSmartPointer<vtkReflectionFilter> reflectionFilter =  vtkSmartPointer<vtkReflectionFilter>::New();
     reflectionFilter->SetInputData(pyramid.GetPointer());
     i==0? reflectionFilter->CopyInputOff() : reflectionFilter->CopyInputOn();
@@ -59,24 +59,24 @@ int TestReflectionFilter(int, char *[])
     vtkUnstructuredGrid* pyramid1 = vtkUnstructuredGrid::SafeDownCast(reflectionFilter->GetOutput());
     vtkNew<vtkIdList> cellIds;
     if(i==0)
-      {
+    {
       AssertMacro(pyramid1->GetNumberOfCells()==1);
-      }
+    }
     else
-      {
+    {
       AssertMacro(pyramid1->GetNumberOfCells()==2);
-      }
+    }
     pyramid1->GetCellPoints(i, cellIds.GetPointer());
     int apex = cellIds->GetId(4);
     int offset = i==0? 0 : 5;
     AssertMacro(apex==4+offset);
     for(int j=0; j<4; j++)
-      {
+    {
       int next = cellIds->GetId((j+1)%4);
       int nextExpected = (cellIds->GetId(j)-offset+3)%4+offset;
       AssertMacro(next ==nextExpected);
-      }
     }
+  }
 
 
   return EXIT_SUCCESS;

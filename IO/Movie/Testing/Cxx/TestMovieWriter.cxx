@@ -58,7 +58,7 @@ int TestMovieWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   cout << "Writing file TestMovieWriter.mpg..." << endl;
   w->Start();
   for ( cc = 2; cc < 99; cc ++ )
-    {
+  {
     cout << ".";
     Fractal0->SetMaximumNumberOfIterations(cc);
     table->SetTableRange(0, cc);
@@ -66,7 +66,7 @@ int TestMovieWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     table->ForceBuild();
     table->SetTableValue(cc-1, 0, 0, 0);
     w->Write();
-    }
+  }
   w->End();
   cout << endl;
   cout << "Done writing file TestMovieWriter.mpg..." << endl;
@@ -77,15 +77,15 @@ int TestMovieWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   cout << "TestMovieWriter.mpg file exists: " << exists << endl;
   cout << "TestMovieWriter.mpg file length: " << length << endl;
   if (!exists)
-    {
+  {
     err = 1;
     cerr << "ERROR: 1 - Test failing because TestMovieWriter.mpg file doesn't exist..." << endl;
-    }
+  }
   if (0==length)
-    {
+  {
     err = 2;
     cerr << "ERROR: 2 - Test failing because TestMovieWriter.mpg file has zero length..." << endl;
-    }
+  }
 
   colorize->Delete();
   table->Delete();

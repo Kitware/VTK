@@ -88,17 +88,17 @@ vtkApplyColors::~vtkApplyColors()
 int vtkApplyColors::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
-    {
+  {
     info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
-    }
+  }
   else if (port == 1)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkAnnotationLayers");
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
-    }
+  }
   return 1;
 }
 
@@ -113,19 +113,19 @@ int vtkApplyColors::RequestData(
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   if (!this->PointColorOutputArrayName || !this->CellColorOutputArrayName)
-    {
+  {
     vtkErrorMacro("Point and cell array names must be valid");
     return 0;
-    }
+  }
 
   // get the input and output
   vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkAnnotationLayers* layers = 0;
   if (layersInfo)
-    {
+  {
     layers = vtkAnnotationLayers::SafeDownCast(
       layersInfo->Get(vtkDataObject::DATA_OBJECT()));
-    }
+  }
   vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
 
   output->ShallowCopy(input);
@@ -140,34 +140,34 @@ int vtkApplyColors::RequestData(
   colorArr1->SetName(this->PointColorOutputArrayName);
   colorArr1->SetNumberOfComponents(4);
   if (graph)
-    {
+  {
     colorArr1->SetNumberOfTuples(graph->GetNumberOfVertices());
     graph->GetVertexData()->AddArray(colorArr1);
-    }
+  }
   else if (dataSet)
-    {
+  {
     colorArr1->SetNumberOfTuples(dataSet->GetNumberOfPoints());
     dataSet->GetPointData()->AddArray(colorArr1);
-    }
+  }
   else
-    {
+  {
     colorArr1->SetNumberOfTuples(table->GetNumberOfRows());
     table->AddColumn(colorArr1);
-    }
+  }
   vtkSmartPointer<vtkUnsignedCharArray> colorArr2 =
     vtkSmartPointer<vtkUnsignedCharArray>::New();
   colorArr2->SetName(this->CellColorOutputArrayName);
   colorArr2->SetNumberOfComponents(4);
   if (graph)
-    {
+  {
     colorArr2->SetNumberOfTuples(graph->GetNumberOfEdges());
     graph->GetEdgeData()->AddArray(colorArr2);
-    }
+  }
   else if (dataSet)
-    {
+  {
     colorArr2->SetNumberOfTuples(dataSet->GetNumberOfCells());
     dataSet->GetCellData()->AddArray(colorArr2);
-    }
+  }
 
   unsigned char pointColor[4];
   pointColor[0] = static_cast<unsigned char>(255*this->DefaultPointColor[0]);
@@ -176,9 +176,9 @@ int vtkApplyColors::RequestData(
   pointColor[3] = static_cast<unsigned char>(255*this->DefaultPointOpacity);
   vtkAbstractArray* arr1 = 0;
   if (this->PointLookupTable && this->UsePointLookupTable)
-    {
+  {
     arr1 = this->GetInputAbstractArrayToProcess(0, inputVector);
-    }
+  }
   this->ProcessColorArray(colorArr1, this->PointLookupTable, arr1,
     pointColor, this->ScalePointLookupTable);
 
@@ -189,14 +189,14 @@ int vtkApplyColors::RequestData(
   cellColor[3] = static_cast<unsigned char>(255*this->DefaultCellOpacity);
   vtkAbstractArray* arr2 = 0;
   if (this->CellLookupTable && this->UseCellLookupTable)
-    {
+  {
     arr2 = this->GetInputAbstractArrayToProcess(1, inputVector);
-    }
+  }
   this->ProcessColorArray(colorArr2, this->CellLookupTable, arr2,
     cellColor, this->ScaleCellLookupTable);
 
   if (layers)
-    {
+  {
     vtkSmartPointer<vtkIdTypeArray> list1 =
       vtkSmartPointer<vtkIdTypeArray>::New();
     vtkSmartPointer<vtkIdTypeArray> list2 =
@@ -205,142 +205,142 @@ int vtkApplyColors::RequestData(
     unsigned char prev[4] = {0, 0, 0, 0};
     unsigned int numAnnotations = layers->GetNumberOfAnnotations();
     for (unsigned int a = 0; a < numAnnotations; ++a)
-      {
+    {
       vtkAnnotation* ann = layers->GetAnnotation(a);
       if (ann->GetInformation()->Has(vtkAnnotation::ENABLE()) &&
           ann->GetInformation()->Get(vtkAnnotation::ENABLE())==0)
-        {
+      {
         continue;
-        }
+      }
       list1->Initialize();
       list2->Initialize();
       vtkSelection* sel = ann->GetSelection();
       bool hasColor = false;
       bool hasOpacity = false;
       if (ann->GetInformation()->Has(vtkAnnotation::COLOR()))
-        {
+      {
         hasColor = true;
         double* color = ann->GetInformation()->Get(vtkAnnotation::COLOR());
         annColor[0] = static_cast<unsigned char>(255*color[0]);
         annColor[1] = static_cast<unsigned char>(255*color[1]);
         annColor[2] = static_cast<unsigned char>(255*color[2]);
-        }
+      }
       if (ann->GetInformation()->Has(vtkAnnotation::OPACITY()))
-        {
+      {
         hasOpacity = true;
         double opacity = ann->GetInformation()->Get(vtkAnnotation::OPACITY());
         annColor[3] = static_cast<unsigned char>(255*opacity);
-        }
+      }
       if (!hasColor && !hasOpacity)
-        {
+      {
         continue;
-        }
+      }
       if (graph)
-        {
+      {
         vtkConvertSelection::GetSelectedVertices(sel, graph, list1);
         vtkConvertSelection::GetSelectedEdges(sel, graph, list2);
-        }
+      }
       else if (dataSet)
-        {
+      {
         vtkConvertSelection::GetSelectedPoints(sel, dataSet, list1);
         vtkConvertSelection::GetSelectedCells(sel, dataSet, list2);
-        }
+      }
       else
-        {
+      {
         vtkConvertSelection::GetSelectedRows(sel, table, list1);
-        }
+      }
       vtkIdType numIds = list1->GetNumberOfTuples();
       unsigned char curColor[4];
       for (vtkIdType i = 0; i < numIds; ++i)
-        {
+      {
         if (list1->GetValue(i) >= colorArr1->GetNumberOfTuples())
-          {
+        {
           continue;
-          }
+        }
         colorArr1->GetTypedTuple(list1->GetValue(i), prev);
         if (hasColor)
-          {
+        {
           curColor[0] = annColor[0];
           curColor[1] = annColor[1];
           curColor[2] = annColor[2];
-          }
+        }
         else
-          {
+        {
           curColor[0] = prev[0];
           curColor[1] = prev[1];
           curColor[2] = prev[2];
-          }
+        }
         if (hasOpacity)
-          {
+        {
           // Combine opacities
           curColor[3] = static_cast<unsigned char>((prev[3]/255.0)*annColor[3]);
-          }
-        else
-          {
-          curColor[3] = prev[3];
-          }
-        colorArr1->SetTypedTuple(list1->GetValue(i), curColor);
         }
+        else
+        {
+          curColor[3] = prev[3];
+        }
+        colorArr1->SetTypedTuple(list1->GetValue(i), curColor);
+      }
       numIds = list2->GetNumberOfTuples();
       for (vtkIdType i = 0; i < numIds; ++i)
-        {
+      {
         if (list2->GetValue(i) >= colorArr2->GetNumberOfTuples())
-          {
+        {
           continue;
-          }
+        }
         colorArr2->GetTypedTuple(list2->GetValue(i), prev);
         if (hasColor)
-          {
+        {
           curColor[0] = annColor[0];
           curColor[1] = annColor[1];
           curColor[2] = annColor[2];
-          }
+        }
         else
-          {
+        {
           curColor[0] = prev[0];
           curColor[1] = prev[1];
           curColor[2] = prev[2];
-          }
+        }
         if (hasOpacity)
-          {
+        {
           // Combine opacities
           curColor[3] = static_cast<unsigned char>((prev[3]/255.0)*annColor[3]);
-          }
-        else
-          {
-          curColor[3] = prev[3];
-          }
-        colorArr2->SetTypedTuple(list2->GetValue(i), curColor);
         }
+        else
+        {
+          curColor[3] = prev[3];
+        }
+        colorArr2->SetTypedTuple(list2->GetValue(i), curColor);
       }
+    }
     if (vtkAnnotation* ann = layers->GetCurrentAnnotation())
-      {
+    {
       vtkSelection* selection = ann->GetSelection();
       list1 = vtkSmartPointer<vtkIdTypeArray>::New();
       list2 = vtkSmartPointer<vtkIdTypeArray>::New();
       unsigned char color1[4] = {0, 0, 0, 255};
       unsigned char color2[4] = {0, 0, 0, 255};
       if (this->UseCurrentAnnotationColor)
-        {
+      {
         if (ann->GetInformation()->Has(vtkAnnotation::COLOR()))
-          {
+        {
           double* color = ann->GetInformation()->Get(vtkAnnotation::COLOR());
           color1[0] = static_cast<unsigned char>(255*color[0]);
           color1[1] = static_cast<unsigned char>(255*color[1]);
           color1[2] = static_cast<unsigned char>(255*color[2]);
-          }
+        }
         if (ann->GetInformation()->Has(vtkAnnotation::OPACITY()))
-          {
+        {
           double opacity = ann->GetInformation()->Get(vtkAnnotation::OPACITY());
           color1[3] = static_cast<unsigned char>(255*opacity);
-          }
-        for (int c = 0; c < 4; ++c)
-          {
-          color2[c] = color1[c];
-          }
         }
-      else
+        for (int c = 0; c < 4; ++c)
         {
+          color2[c] = color1[c];
+        }
+      }
+      else
+      {
         color1[0] = static_cast<unsigned char>(255*this->SelectedPointColor[0]);
         color1[1] = static_cast<unsigned char>(255*this->SelectedPointColor[1]);
         color1[2] = static_cast<unsigned char>(255*this->SelectedPointColor[2]);
@@ -349,41 +349,41 @@ int vtkApplyColors::RequestData(
         color2[1] = static_cast<unsigned char>(255*this->SelectedCellColor[1]);
         color2[2] = static_cast<unsigned char>(255*this->SelectedCellColor[2]);
         color2[3] = static_cast<unsigned char>(255*this->SelectedCellOpacity);
-        }
+      }
       if (graph)
-        {
+      {
         vtkConvertSelection::GetSelectedVertices(selection, graph, list1);
         vtkConvertSelection::GetSelectedEdges(selection, graph, list2);
-        }
+      }
       else if (dataSet)
-        {
+      {
         vtkConvertSelection::GetSelectedPoints(selection, dataSet, list1);
         vtkConvertSelection::GetSelectedCells(selection, dataSet, list2);
-        }
+      }
       else
-        {
+      {
         vtkConvertSelection::GetSelectedRows(selection, table, list1);
-        }
+      }
       vtkIdType numIds = list1->GetNumberOfTuples();
       for (vtkIdType i = 0; i < numIds; ++i)
-        {
+      {
         if (list1->GetValue(i) >= colorArr1->GetNumberOfTuples())
-          {
+        {
           continue;
-          }
-        colorArr1->SetTypedTuple(list1->GetValue(i), color1);
         }
+        colorArr1->SetTypedTuple(list1->GetValue(i), color1);
+      }
       numIds = list2->GetNumberOfTuples();
       for (vtkIdType i = 0; i < numIds; ++i)
-        {
+      {
         if (list2->GetValue(i) >= colorArr2->GetNumberOfTuples())
-          {
+        {
           continue;
-          }
-        colorArr2->SetTypedTuple(list2->GetValue(i), color2);
         }
+        colorArr2->SetTypedTuple(list2->GetValue(i), color2);
       }
-    } // end if (layers)
+    }
+  } // end if (layers)
 
   return 1;
 }
@@ -396,39 +396,39 @@ void vtkApplyColors::ProcessColorArray(
   bool scaleToArray)
 {
   if (lut && arr)
-    {
+  {
     // If scaling is on, use data min/max.
     // Otherwise, use the lookup table range.
     const double* rng = lut->GetRange();
     double minVal = rng[0];
     double maxVal = rng[1];
     if (scaleToArray)
-      {
+    {
       minVal = VTK_DOUBLE_MAX;
       maxVal = VTK_DOUBLE_MIN;
       for (vtkIdType i = 0; i < colorArr->GetNumberOfTuples(); ++i)
-        {
+      {
         double val = arr->GetVariantValue(i).ToDouble();
         if (val > maxVal)
-          {
+        {
           maxVal = val;
-          }
+        }
         if (val < minVal)
-          {
+        {
           minVal = val;
-          }
         }
       }
+    }
 
     // Map the data values through the lookup table.
     double scale = 1.0;
     if (minVal != maxVal)
-      {
+    {
       scale = (rng[1]-rng[0])/(maxVal-minVal);
-      }
+    }
     unsigned char myColor[4] = {0, 0, 0, 0};
     for (vtkIdType i = 0; i < colorArr->GetNumberOfTuples(); ++i)
-      {
+    {
       double val = arr->GetVariantValue(i).ToDouble();
       const unsigned char* mappedColor = lut->MapValue(
         rng[0] + scale*(val - minVal));
@@ -439,29 +439,29 @@ void vtkApplyColors::ProcessColorArray(
       // default color opacity.
       myColor[3] = static_cast<unsigned char>((color[3]/255.0)*mappedColor[3]);
       colorArr->SetTypedTuple(i, myColor);
-      }
     }
+  }
   else
-    {
+  {
     // If no lookup table, use default color.
     for (vtkIdType i = 0; i < colorArr->GetNumberOfTuples(); ++i)
-      {
+    {
       colorArr->SetTypedTuple(i, color);
-      }
     }
+  }
 }
 
-long unsigned int vtkApplyColors::GetMTime()
+vtkMTimeType vtkApplyColors::GetMTime()
 {
-  long unsigned int mtime = Superclass::GetMTime();
+  vtkMTimeType mtime = Superclass::GetMTime();
   if (this->PointLookupTable && this->PointLookupTable->GetMTime() > mtime)
-    {
+  {
     mtime = this->PointLookupTable->GetMTime();
-    }
+  }
   if (this->CellLookupTable && this->CellLookupTable->GetMTime() > mtime)
-    {
+  {
     mtime = this->CellLookupTable->GetMTime();
-    }
+  }
   return mtime;
 }
 
@@ -471,15 +471,15 @@ void vtkApplyColors::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PointLookupTable: "
      << (this->PointLookupTable ? "" : "(none)") << endl;
   if (this->PointLookupTable)
-    {
+  {
     this->PointLookupTable->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   os << indent << "CellLookupTable: "
      << (this->CellLookupTable ? "" : "(none)") << endl;
   if (this->CellLookupTable)
-    {
+  {
     this->CellLookupTable->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   os << indent << "DefaultPointColor: "
     << this->DefaultPointColor[0] << ","
     << this->DefaultPointColor[1] << ","

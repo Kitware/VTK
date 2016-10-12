@@ -12,7 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTStripsPainter - painter for triangle strips.
+/**
+ * @class   vtkTStripsPainter
+ * @brief   painter for triangle strips.
+*/
 
 #ifndef vtkTStripsPainter_h
 #define vtkTStripsPainter_h
@@ -31,14 +34,16 @@ protected:
   vtkTStripsPainter();
   ~vtkTStripsPainter();
 
-  // Description:
-  // The actual rendering happens here. This method is called only when
-  // SupportedPrimitive is present in typeflags when Render() is invoked.
+  /**
+   * The actual rendering happens here. This method is called only when
+   * SupportedPrimitive is present in typeflags when Render() is invoked.
+   */
   virtual int RenderPrimitive(unsigned long flags, vtkDataArray* n,
     vtkUnsignedCharArray* c, vtkDataArray* t, vtkRenderer* ren);
+
 private:
-  vtkTStripsPainter(const vtkTStripsPainter&); // Not implemented.
-  void operator=(const vtkTStripsPainter&); // Not implemented.
+  vtkTStripsPainter(const vtkTStripsPainter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTStripsPainter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

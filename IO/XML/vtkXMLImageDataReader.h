@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLImageDataReader - Read VTK XML ImageData files.
-// .SECTION Description
-// vtkXMLImageDataReader reads the VTK XML ImageData file format.  One
-// image data file can be read to produce one output.  Streaming is
-// supported.  The standard extension for this reader's file format is
-// "vti".  This reader is also used to read a single piece of the
-// parallel file format.
-
-// .SECTION See Also
-// vtkXMLPImageDataReader
+/**
+ * @class   vtkXMLImageDataReader
+ * @brief   Read VTK XML ImageData files.
+ *
+ * vtkXMLImageDataReader reads the VTK XML ImageData file format.  One
+ * image data file can be read to produce one output.  Streaming is
+ * supported.  The standard extension for this reader's file format is
+ * "vti".  This reader is also used to read a single piece of the
+ * parallel file format.
+ *
+ * @sa
+ * vtkXMLPImageDataReader
+*/
 
 #ifndef vtkXMLImageDataReader_h
 #define vtkXMLImageDataReader_h
@@ -38,14 +41,18 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLImageDataReader *New();
 
-  // Description:
-  // Get the reader's output.
+  //@{
+  /**
+   * Get the reader's output.
+   */
   vtkImageData *GetOutput();
   vtkImageData *GetOutput(int idx);
+  //@}
 
-  // Description:
-  // For the specified port, copy the information this reader sets up in
-  // SetupOutputInformation to outInfo
+  /**
+   * For the specified port, copy the information this reader sets up in
+   * SetupOutputInformation to outInfo
+   */
   virtual void CopyOutputInformation(vtkInformation *outInfo, int port);
 
 protected:
@@ -69,8 +76,8 @@ protected:
 
 
 private:
-  vtkXMLImageDataReader(const vtkXMLImageDataReader&);  // Not implemented.
-  void operator=(const vtkXMLImageDataReader&);  // Not implemented.
+  vtkXMLImageDataReader(const vtkXMLImageDataReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLImageDataReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

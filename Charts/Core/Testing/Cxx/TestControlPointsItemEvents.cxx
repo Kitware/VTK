@@ -45,18 +45,18 @@ public:
   }
 
   void Execute( vtkObject *caller, unsigned long event,
-                void *vtkNotUsed(callData) )
+                void *vtkNotUsed(callData) ) VTK_OVERRIDE
   {
   vtkColorTransferFunction* self =
     reinterpret_cast< vtkColorTransferFunction* >( caller );
   if (!self)
-    {
+  {
     return;
-    }
+  }
   if (this->EventSpy.count(event) == 0)
-    {
+  {
     this->EventSpy[event] = 0;
-    }
+  }
   ++this->EventSpy[event];
   std::cout << "InvokedEvent: " << event << this->EventSpy[event] << std::endl;
   }
@@ -116,7 +116,7 @@ int TestControlPointsItemEvents(int, char*[])
       cbk->EventSpy[vtkCommand::EndInteractionEvent] != 1 ||
       cbk->EventSpy[vtkCommand::StartEvent] != 2 ||
       cbk->EventSpy[vtkCommand::EndEvent] != 2)
-    {
+  {
     std::cerr << "Wrong number of fired events : "
               << cbk->EventSpy[vtkCommand::ModifiedEvent] << " "
               << cbk->EventSpy[vtkCommand::StartInteractionEvent] << " "
@@ -125,7 +125,7 @@ int TestControlPointsItemEvents(int, char*[])
               << cbk->EventSpy[vtkCommand::StartEvent] << " "
               << cbk->EventSpy[vtkCommand::EndEvent] << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   cbk->EventSpy.clear();
   // Move all the points to the right.
   controlPoints->MovePoints(vtkVector2f(5, 0.));
@@ -137,7 +137,7 @@ int TestControlPointsItemEvents(int, char*[])
       cbk->EventSpy[vtkCommand::EndInteractionEvent] != 0 ||
       cbk->EventSpy[vtkCommand::StartEvent] != 1 ||
       cbk->EventSpy[vtkCommand::EndEvent] != 1)
-    {
+  {
     std::cerr << "Wrong number of fired events : "
               << cbk->EventSpy[vtkCommand::ModifiedEvent] << " "
               << cbk->EventSpy[vtkCommand::StartInteractionEvent] << " "
@@ -146,7 +146,7 @@ int TestControlPointsItemEvents(int, char*[])
               << cbk->EventSpy[vtkCommand::StartEvent] << " "
               << cbk->EventSpy[vtkCommand::EndEvent] << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   cbk->EventSpy.clear();
 
@@ -168,7 +168,7 @@ int TestControlPointsItemEvents(int, char*[])
       cbk->EventSpy[vtkCommand::EndInteractionEvent] != 0 ||
       cbk->EventSpy[vtkCommand::StartEvent] != 0 ||
       cbk->EventSpy[vtkCommand::EndEvent] != 0)
-    {
+  {
     std::cerr << "Wrong number of fired events : "
               << cbk->EventSpy[vtkCommand::ModifiedEvent] << " "
               << cbk->EventSpy[vtkCommand::StartInteractionEvent] << " "
@@ -177,7 +177,7 @@ int TestControlPointsItemEvents(int, char*[])
               << cbk->EventSpy[vtkCommand::StartEvent] << " "
               << cbk->EventSpy[vtkCommand::EndEvent] << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

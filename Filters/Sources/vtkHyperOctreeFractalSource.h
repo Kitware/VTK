@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHyperOctreeFractalSource - Create an octree from a fractal.
-// hyperoctree
-// .SECTION Description
-//
-// .SECTION See Also
-// vtkHyperOctreeSampleFunction
+/**
+ * @class   vtkHyperOctreeFractalSource
+ * @brief   Create an octree from a fractal.
+ * hyperoctree
+ *
+ *
+ * @sa
+ * vtkHyperOctreeSampleFunction
+*/
 
 #ifndef vtkHyperOctreeFractalSource_h
 #define vtkHyperOctreeFractalSource_h
@@ -31,81 +34,104 @@ class VTKFILTERSSOURCES_EXPORT vtkHyperOctreeFractalSource : public vtkHyperOctr
 {
 public:
   vtkTypeMacro(vtkHyperOctreeFractalSource,vtkHyperOctreeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkHyperOctreeFractalSource *New();
 
-  // Description:
-  // Return the maximum number of levels of the hyperoctree.
-  // \post positive_result: result>=1
+  /**
+   * Return the maximum number of levels of the hyperoctree.
+   * \post positive_result: result>=1
+   */
   int GetMaximumLevel();
 
-  // Description:
-  // Set the maximum number of levels of the hyperoctree. If
-  // GetMinLevels()>=levels, GetMinLevels() is changed to levels-1.
-  // \pre positive_levels: levels>=1
-  // \post is_set: this->GetLevels()==levels
-  // \post min_is_valid: this->GetMinLevels()<this->GetLevels()
+  /**
+   * Set the maximum number of levels of the hyperoctree. If
+   * GetMinLevels()>=levels, GetMinLevels() is changed to levels-1.
+   * \pre positive_levels: levels>=1
+   * \post is_set: this->GetLevels()==levels
+   * \post min_is_valid: this->GetMinLevels()<this->GetLevels()
+   */
   void SetMaximumLevel(int levels);
 
-  // Description:
-  // Return the minimal number of levels of systematic subdivision.
-  // \post positive_result: result>=0
+  //@{
+  /**
+   * Return the minimal number of levels of systematic subdivision.
+   * \post positive_result: result>=0
+   */
   void SetMinimumLevel(int level);
   int GetMinimumLevel();
+  //@}
 
 
   //========== Mandelbrot parameters ==========
 
-  // Description:
-  // Set the projection from  the 4D space (4 parameters / 2 imaginary numbers)
-  // to the axes of the 3D Volume.
-  // 0=C_Real, 1=C_Imaginary, 2=X_Real, 4=X_Imaginary
+  //@{
+  /**
+   * Set the projection from  the 4D space (4 parameters / 2 imaginary numbers)
+   * to the axes of the 3D Volume.
+   * 0=C_Real, 1=C_Imaginary, 2=X_Real, 4=X_Imaginary
+   */
   void SetProjectionAxes(int x, int y, int z);
   void SetProjectionAxes(int a[3]) {this->SetProjectionAxes(a[0],a[1],a[2]);}
   vtkGetVector3Macro(ProjectionAxes, int);
+  //@}
 
-  // Description:
-  // Imaginary and real value for C (constant in equation)
-  // and X (initial value).
+  //@{
+  /**
+   * Imaginary and real value for C (constant in equation)
+   * and X (initial value).
+   */
   vtkSetVector4Macro(OriginCX, double);
   vtkGetVector4Macro(OriginCX, double);
+  //@}
 
-  // Description:
-  // Just a different way of setting the sample.
-  // This sets the size of the 4D volume.
-  // SampleCX is computed from size and extent.
-  // Size is ignored when a dimension i 0 (collapsed).
+  //@{
+  /**
+   * Just a different way of setting the sample.
+   * This sets the size of the 4D volume.
+   * SampleCX is computed from size and extent.
+   * Size is ignored when a dimension i 0 (collapsed).
+   */
   vtkSetVector4Macro(SizeCX, double);
   vtkGetVector4Macro(SizeCX, double);
+  //@}
 
-  // Description:
-  // The maximum number of cycles run to see if the value goes over 2
+  //@{
+  /**
+   * The maximum number of cycles run to see if the value goes over 2
+   */
   vtkSetClampMacro(MaximumNumberOfIterations, unsigned short, 1, 255);
   vtkGetMacro(MaximumNumberOfIterations, unsigned char);
+  //@}
 
-  // Description:
-  // Create a 2D or 3D fractal.
+  //@{
+  /**
+   * Create a 2D or 3D fractal.
+   */
   vtkSetClampMacro(Dimension, int, 2, 3);
   vtkGetMacro(Dimension, int);
+  //@}
 
-  // Description:
-  // Controls when a leaf gets subdivided.  If the corner values span
-  // a larger range than this value, the leaf is subdivided.  This
-  // defaults to 2.
+  //@{
+  /**
+   * Controls when a leaf gets subdivided.  If the corner values span
+   * a larger range than this value, the leaf is subdivided.  This
+   * defaults to 2.
+   */
   vtkSetMacro(SpanThreshold, double);
   vtkGetMacro(SpanThreshold, double);
+  //@}
 
 protected:
   vtkHyperOctreeFractalSource();
-  ~vtkHyperOctreeFractalSource();
+  ~vtkHyperOctreeFractalSource() VTK_OVERRIDE;
 
   int RequestInformation (vtkInformation * vtkNotUsed(request),
                           vtkInformationVector ** vtkNotUsed( inputVector ),
-                          vtkInformationVector *outputVector);
+                          vtkInformationVector *outputVector) VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *) VTK_OVERRIDE;
 
   void Subdivide(vtkHyperOctreeCursor *cursor,
                  int level, vtkHyperOctree *output,
@@ -136,8 +162,8 @@ protected:
   double SpanThreshold;
 
 private:
-  vtkHyperOctreeFractalSource(const vtkHyperOctreeFractalSource&);  // Not implemented.
-  void operator=(const vtkHyperOctreeFractalSource&);  // Not implemented.
+  vtkHyperOctreeFractalSource(const vtkHyperOctreeFractalSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHyperOctreeFractalSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

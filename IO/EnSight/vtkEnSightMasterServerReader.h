@@ -12,7 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkEnSightMasterServerReader - reader for compund EnSight files
+/**
+ * @class   vtkEnSightMasterServerReader
+ * @brief   reader for compund EnSight files
+*/
 
 #ifndef vtkEnSightMasterServerReader_h
 #define vtkEnSightMasterServerReader_h
@@ -30,18 +33,25 @@ public:
 
   static vtkEnSightMasterServerReader* New();
 
-  // Description:
-  // Determine which file should be read for piece
+  /**
+   * Determine which file should be read for piece
+   */
   int DetermineFileName(int piece);
 
-  // Description:
-  // Get the file name that will be read.
+  //@{
+  /**
+   * Get the file name that will be read.
+   */
   vtkGetStringMacro(PieceCaseFileName);
+  //@}
 
-  // Description:
-  // Set or get the current piece.
+  //@{
+  /**
+   * Set or get the current piece.
+   */
   vtkSetMacro(CurrentPiece, int);
   vtkGetMacro(CurrentPiece, int);
+  //@}
 
   int CanReadFile(const char *fname);
 
@@ -60,8 +70,8 @@ protected:
   int CurrentPiece;
 
 private:
-  vtkEnSightMasterServerReader(const vtkEnSightMasterServerReader&);  // Not implemented.
-  void operator=(const vtkEnSightMasterServerReader&);  // Not implemented.
+  vtkEnSightMasterServerReader(const vtkEnSightMasterServerReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkEnSightMasterServerReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

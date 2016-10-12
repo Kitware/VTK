@@ -53,23 +53,23 @@ void vtkOpenGLGL2PSExporter::WriteData()
 {
   // Open file:
   if (this->FilePrefix == NULL)
-    {
+  {
     vtkErrorMacro(<< "Please specify a file prefix to use");
     return;
-    }
+  }
 
   std::ostringstream fname;
   fname << this->FilePrefix << "." << this->GetFileExtension();
   if (this->Compress)
-    {
+  {
     fname << ".gz";
-    }
+  }
   FILE *file = fopen(fname.str().c_str(), "wb");
   if (!file)
-    {
+  {
     vtkErrorMacro("Unable to open file: " << fname.str());
     return;
-    }
+  }
 
   // Setup information that GL2PS will need to export the scene:
   std::string title = (this->Title && this->Title[0]) ? this->Title
@@ -90,22 +90,22 @@ void vtkOpenGLGL2PSExporter::WriteData()
   // Grab the image background:
   vtkNew<vtkImageData> background;
   if (!this->RasterizeBackground(background.GetPointer()))
-    {
+  {
     vtkErrorMacro("Error rasterizing background image. Exported image may be "
                   "incorrect.");
     background->Initialize();
     // Continue with export.
-    }
+  }
 
   // Fixup options for no-opengl-context GL2PS rendering (we don't use the
   // context since we inject all geometry manually):
   options |= GL2PS_NO_OPENGL_CONTEXT | GL2PS_NO_BLENDING;
   // Print warning if the user requested no background -- we always draw it.
   if ((options & GL2PS_DRAW_BACKGROUND) == GL2PS_NONE)
-    {
+  {
     vtkWarningMacro("Ignoring DrawBackground=false setting. The background is "
                     "always drawn on the OpenGL2 backend for GL2PS exports.");
-    }
+  }
   // Turn the option off -- we don't want GL2PS drawing the background, it
   // comes from the raster image we draw in the image.
   options &= ~GL2PS_DRAW_BACKGROUND;
@@ -116,15 +116,15 @@ void vtkOpenGLGL2PSExporter::WriteData()
                              options, GL_RGBA, 0, NULL, 0, 0, 0, 0, file,
                              fname.str().c_str());
   if (err != GL2PS_SUCCESS)
-    {
+  {
     vtkErrorMacro("Error calling gl2psBeginPage. Error code: " << err);
     gl2ps->SetInstance(NULL);
     fclose(file);
     return;
-    }
+  }
 
   if (background->GetNumberOfPoints() > 0)
-    {
+  {
     int dims[3];
     background->GetDimensions(dims);
     GL2PSvertex rasterPos;
@@ -137,14 +137,14 @@ void vtkOpenGLGL2PSExporter::WriteData()
     gl2psDrawPixels(dims[0], dims[1], 0, 0, GL_RGB, GL_FLOAT,
                     background->GetScalarPointer());
     background->ReleaseData();
-    }
+  }
 
   // Render the scene:
   if (!this->CaptureVectorProps())
-    {
+  {
     vtkErrorMacro("Error capturing vectorizable props. Resulting image "
                   "may be incorrect.");
-    }
+  }
 
   // Cleanup
   err = gl2psEndPage();
@@ -152,7 +152,7 @@ void vtkOpenGLGL2PSExporter::WriteData()
   fclose(file);
 
   switch (err)
-    {
+  {
     case GL2PS_SUCCESS:
       break;
     case GL2PS_NO_FEEDBACK:
@@ -161,7 +161,7 @@ void vtkOpenGLGL2PSExporter::WriteData()
     default:
       vtkErrorMacro("Error calling gl2psEndPage. Error code: " << err);
       break;
-    }
+  }
 
   // Re-render the window to remove any lingering after-effects...
   this->RenderWindow->Render();

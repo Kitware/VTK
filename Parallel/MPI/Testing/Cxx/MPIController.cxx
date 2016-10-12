@@ -40,13 +40,13 @@ int CheckNoBlockSends(vtkMPIController* controller)
   vtkMPICommunicator::Request sendRequest;
   data = myRank;
   if(myRank != numRanks - 1)
-    {
+  {
     if(controller->NoBlockSend(&data, 1, myRank+1, mpiTag, sendRequest) == 0)
-      {
+    {
       vtkGenericWarningMacro("Problem with NoBlockSend.");
       retVal = 1;
-      }
     }
+  }
   return retVal;
 }
 
@@ -57,57 +57,57 @@ int CheckNoBlockRecvs(vtkMPIController* controller, int sendSource,
   int myRank = controller->GetLocalProcessId();
   int retVal = 0;
   if(myRank)
-    {
+  {
     int flag = -1, actualSource = -1, size = -1;
     if(controller->Iprobe(sendSource, mpiTag, &flag, &actualSource,
                           &size, &size) == 0)
-      {
+    {
       vtkGenericWarningMacro("Problem with Iprobe " << info);
       retVal = 1;
-      }
+    }
     if(flag != wasMessageSent)
-      {
+    {
       if(wasMessageSent)
-        {
-        vtkGenericWarningMacro("Did not receive the message yet but should have " << info);
-        }
-      else
-        {
-        vtkGenericWarningMacro(" Received a message I shouldn't have " << info);
-        }
-      retVal = 1;
-      }
-    if(wasMessageSent == 0)
-      { // no message sent so no need to check if we can receive it
-      return retVal;
-      }
-    else
       {
+        vtkGenericWarningMacro("Did not receive the message yet but should have " << info);
+      }
+      else
+      {
+        vtkGenericWarningMacro(" Received a message I shouldn't have " << info);
+      }
+      retVal = 1;
+    }
+    if(wasMessageSent == 0)
+    { // no message sent so no need to check if we can receive it
+      return retVal;
+    }
+    else
+    {
       if(actualSource != myRank-1)
-        {
+      {
         vtkGenericWarningMacro("Did not receive the proper source id " << info);
         retVal = 1;
-        }
+      }
       if(size != 1)
-        {
+      {
         vtkGenericWarningMacro("Did not receive the proper size " << info);
         retVal = 1;
-        }
       }
+    }
     int recvData = -1;
     vtkMPICommunicator::Request recvRequest;
     if(controller->NoBlockReceive(&recvData, 1, sendSource, mpiTag, recvRequest) == 0)
-      {
+    {
       vtkGenericWarningMacro("Problem with NoBlockReceive " << info);
       retVal = 1;
-      }
+    }
     recvRequest.Wait();
     if(recvData != myRank - 1)
-      {
+    {
       vtkGenericWarningMacro("Did not receive the proper information " << info);
       retVal = 1;
-      }
     }
+  }
   return retVal;
 }
 
@@ -115,9 +115,9 @@ int CheckNoBlockRecvs(vtkMPIController* controller, int sendSource,
 int ExerciseNoBlockCommunications(vtkMPIController* controller)
 {
   if(controller->GetNumberOfProcesses() == 1)
-    {
+  {
     return 0;
-    }
+  }
   int retVal = CheckNoBlockRecvs(
     controller, vtkMultiProcessController::ANY_SOURCE, 0, "case 1");
 
@@ -175,9 +175,9 @@ int MPIController(int argc, char* argv[])
   genericController.TakeReference(
              controller->vtkMultiProcessController::CreateSubController(group));
   if (!retval)
-    {
+  {
     retval = ExerciseMultiProcessController(genericController);
-    }
+  }
 
   controller->Finalize();
 

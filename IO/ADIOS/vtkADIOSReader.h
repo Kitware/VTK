@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkADIOSReader - Read ADIOS files.
-// .SECTION Description
-// vtkADIOSReader is the base class for all ADIOS readers
+/**
+ * @class   vtkADIOSReader
+ * @brief   Read ADIOS files.
+ *
+ * vtkADIOSReader is the base class for all ADIOS readers
+*/
 
 #ifndef vtkADIOSReader_h
 #define vtkADIOSReader_h
@@ -58,20 +61,26 @@ class VTKIOADIOS_EXPORT vtkADIOSReader : public vtkDataObjectAlgorithm
 public:
   static vtkADIOSReader* New(void);
   vtkTypeMacro(vtkADIOSReader,vtkDataObjectAlgorithm);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Test wether or not a given file should even be attempted for use with this
-  // reader.
+  /**
+   * Test wether or not a given file should even be attempted for use with this
+   * reader.
+   */
   int CanReadFile(const char* name);
 
-  // Description:
-  // Get/Set the inut filename
+  //@{
+  /**
+   * Get/Set the inut filename
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Get/Set the ADIOS read method
+  //@{
+  /**
+   * Get/Set the ADIOS read method
+   */
   vtkGetMacro(ReadMethod, int);
   vtkSetClampMacro(ReadMethod, int,
                    static_cast<int>(ADIOS::ReadMethod_BP),
@@ -81,44 +90,57 @@ public:
   void SetReadMethodDataSpaces()  { this->SetReadMethod(static_cast<int>(ADIOS::ReadMethod_DataSpaces)); }
   void SetReadMethodDIMES()       { this->SetReadMethod(static_cast<int>(ADIOS::ReadMethod_DIMES)); }
   void SetReadMethodFlexPath()    { this->SetReadMethod(static_cast<int>(ADIOS::ReadMethod_FlexPath)); }
+  //@}
 
 
-  // Description:
-  // Get/Set arguments to the ADIOS read method.
+  //@{
+  /**
+   * Get/Set arguments to the ADIOS read method.
+   */
   vtkSetStringMacro(ReadMethodArguments);
   vtkGetStringMacro(ReadMethodArguments);
+  //@}
 
-  // Description:
-  // Set the MPI controller.
+  //@{
+  /**
+   * Set the MPI controller.
+   */
   void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
 
-  // Description:
-  // The main interface which triggers the reader to start
+  /**
+   * The main interface which triggers the reader to start
+   */
   virtual int ProcessRequest(vtkInformation*, vtkInformationVector**,
     vtkInformationVector*);
 
 protected:
 
-  // Description:
-  // Open an ADIOS file and build the directory structure
+  /**
+   * Open an ADIOS file and build the directory structure
+   */
   bool OpenAndReadMetadata(void);
 
-  // Description:
-  // Wait for all scheduled array reads to finish
+  /**
+   * Wait for all scheduled array reads to finish
+   */
   void WaitForReads(void);
 
-  // Description:
-  // Create a VTK object with it's scalar values and allocate any arrays, and
-  // schedule them for reading
+  /**
+   * Create a VTK object with it's scalar values and allocate any arrays, and
+   * schedule them for reading
+   */
   template<typename T>
   T* ReadObject(const std::string& path, int blockId);
 
-  // Description:
-  // Initialize a pre-allocated object with it's appropriate scalars.  These
-  // methods do not perform any validation and assume that the provides ADIOS
-  // structures and vtk objects are properly formed.  Arrays will be scheduled
-  // for reading afterwards
+  //@{
+  /**
+   * Initialize a pre-allocated object with it's appropriate scalars.  These
+   * methods do not perform any validation and assume that the provides ADIOS
+   * structures and vtk objects are properly formed.  Arrays will be scheduled
+   * for reading afterwards
+   */
   void ReadObject(const ADIOS::VarInfo* info, const vtkADIOSDirTree *subDir,
     vtkDataArray* data, int blockId);
   void ReadObject(const vtkADIOSDirTree *dir, vtkCellArray* data, int blockId);
@@ -128,6 +150,7 @@ protected:
   void ReadObject(const vtkADIOSDirTree *dir, vtkImageData* data, int blockId);
   void ReadObject(const vtkADIOSDirTree *dir, vtkPolyData* data, int blockId);
   void ReadObject(const vtkADIOSDirTree *dir, vtkUnstructuredGrid* data, int blockId);
+  //@}
 
   char *FileName;
   int ReadMethod;
@@ -234,8 +257,8 @@ protected:
   int RequestPiece;
 
 private:
-  vtkADIOSReader(const vtkADIOSReader&);  // Not implemented.
-  void operator=(const vtkADIOSReader&);  // Not implemented.
+  vtkADIOSReader(const vtkADIOSReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkADIOSReader&) VTK_DELETE_FUNCTION;
 };
 
 #define DECLARE_EXPLICIT(T) \

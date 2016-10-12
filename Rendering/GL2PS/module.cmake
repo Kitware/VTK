@@ -1,20 +1,24 @@
 if(ANDROID OR APPLE_IOS) # No GL2PS on mobile
   return()
 endif()
-
 vtk_module(vtkRenderingGL2PS
   TCL_NAME vtkRenderingGLtoPS
   BACKEND
     OpenGL
-  DEPENDS
-    vtkRenderingContext${VTK_RENDERING_BACKEND}
-  PRIVATE_DEPENDS
-    vtkRendering${VTK_RENDERING_BACKEND}
-    vtkRenderingFreeType
-    vtkgl2ps
   TEST_DEPENDS
     vtkTestingRendering
     vtkInteractionStyle
   KIT
     vtkOpenGL
+  DEPENDS
+    vtkCommonCore
+    vtkRenderingContext${VTK_RENDERING_BACKEND}
+  PRIVATE_DEPENDS
+    vtkCommonDataModel
+    vtkCommonMath
+    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingContext2D
+    vtkRenderingCore
+    vtkRenderingFreeType
+    vtkgl2ps
 )

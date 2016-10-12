@@ -56,7 +56,7 @@ int ImageResize(int argc, char *argv[])
   double range[2] = { 0, 4095 };
 
   for (int i = 0; i < 4; i++)
-    {
+  {
     vtkSmartPointer<vtkImageResize> resize =
       vtkSmartPointer<vtkImageResize>::New();
     resize->SetInputConnection(reader->GetOutputPort());
@@ -68,22 +68,22 @@ int ImageResize(int argc, char *argv[])
     imageMapper->BorderOn();
 
     if ((i & 1) == 0)
-      {
+    {
       resize->BorderOff();
-      }
+    }
     else
-      {
+    {
       resize->BorderOn();
-      }
+    }
 
     if ((i & 2) == 0)
-      {
+    {
       resize->InterpolateOff();
-      }
+    }
     else
-      {
+    {
       resize->InterpolateOn();
-      }
+    }
 
     vtkSmartPointer<vtkImageSlice> image =
       vtkSmartPointer<vtkImageSlice>::New();
@@ -116,7 +116,7 @@ int ImageResize(int argc, char *argv[])
     camera->ParallelProjectionOn();
     camera->SetParallelScale(128);
 
-    }
+  }
 
   renWin->SetSize(512,512);
 

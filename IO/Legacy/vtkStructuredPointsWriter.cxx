@@ -38,16 +38,16 @@ void vtkStructuredPointsWriter::WriteData()
   vtkDebugMacro(<<"Writing vtk structured points...");
 
   if ( !(fp=this->OpenVTKFile()) || !this->WriteHeader(fp) )
-      {
+  {
       if (fp)
-        {
+      {
         vtkErrorMacro("Ran out of disk space; deleting file: "
                       << this->FileName);
         this->CloseVTKFile(fp);
         unlink(this->FileName);
-        }
-      return;
       }
+      return;
+  }
   //
   // Write structured points specific stuff
   //
@@ -55,12 +55,12 @@ void vtkStructuredPointsWriter::WriteData()
 
   // Write data owned by the dataset
   if (!this->WriteDataSetData(fp, input))
-    {
+  {
     vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
     this->CloseVTKFile(fp);
     unlink(this->FileName);
     return;
-    }
+  }
 
   input->GetDimensions(dim);
   *fp << "DIMENSIONS " << dim[0] << " " << dim[1] << " " << dim[2] << "\n";
@@ -78,19 +78,19 @@ void vtkStructuredPointsWriter::WriteData()
   *fp << "ORIGIN " << origin[0] << " " << origin[1] << " " << origin[2] << "\n";
 
   if (!this->WriteCellData(fp, input))
-    {
+  {
     vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
     this->CloseVTKFile(fp);
     unlink(this->FileName);
     return;
-    }
+  }
   if (!this->WritePointData(fp, input))
-    {
+  {
     vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
     this->CloseVTKFile(fp);
     unlink(this->FileName);
     return;
-    }
+  }
 
   this->CloseVTKFile(fp);
 }

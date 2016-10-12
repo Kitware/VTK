@@ -82,28 +82,28 @@ const char* vtkQtSQLQuery::GetLastErrorText()
 bool vtkQtSQLQuery::Execute()
 {
   if (this->Query == NULL)
-    {
+  {
     vtkErrorMacro("Query string must be non-null.");
     return false;
-    }
+  }
   this->Internals->QtQuery = vtkQtSQLDatabase::SafeDownCast(this->Database)->QtDatabase.exec(this->Query);
 
   QSqlError error = this->Internals->QtQuery.lastError();
   if (error.isValid())
-    {
+  {
     QString errorString;
     errorString.sprintf("Query execute error: %s (type:%d)\n",
       error.text().toLatin1().data(),error.type());
     vtkErrorMacro(<< errorString.toLatin1().data());
     return false;
-    }
+  }
 
   // cache the column names
   this->Internals->FieldNames.clear();
   for (int i = 0; i < this->Internals->QtQuery.record().count(); i++)
-    {
+  {
     this->Internals->FieldNames.push_back(this->Internals->QtQuery.record().fieldName(i).toLatin1().data());
-    }
+  }
   return true;
 }
 
@@ -121,7 +121,7 @@ int QVariantTypeToVTKType(QVariant::Type t)
 {
   int type = -1;
   switch(t)
-    {
+  {
     case QVariant::Bool:
       type = VTK_INT;
       break;
@@ -158,7 +158,7 @@ int QVariantTypeToVTKType(QVariant::Type t)
     default:
       cerr << "Found unknown variant type: " << t << endl;
       type = -1;
-    }
+  }
   return type;
 }
 
@@ -176,29 +176,29 @@ vtkVariant vtkQtSQLQuery::DataValue(vtkIdType c)
 {
   QVariant v = this->Internals->QtQuery.value(c);
   switch (v.type())
-    {
+  {
     case QVariant::Bool:
       return vtkVariant(v.toInt());
     case QVariant::Char:
       return vtkVariant(v.toChar().toLatin1());
     case QVariant::DateTime:
-      {
+    {
       QDateTime dt = v.toDateTime();
       vtkTypeUInt64 timePoint = vtkQtTimePointUtility::QDateTimeToTimePoint(dt);
       return vtkVariant(timePoint);
-      }
+    }
     case QVariant::Date:
-      {
+    {
       QDate date = v.toDate();
       vtkTypeUInt64 timePoint = vtkQtTimePointUtility::QDateToTimePoint(date);
       return vtkVariant(timePoint);
-      }
+    }
     case QVariant::Time:
-      {
+    {
       QTime time = v.toTime();
       vtkTypeUInt64 timePoint = vtkQtTimePointUtility::QTimeToTimePoint(time);
       return vtkVariant(timePoint);
-      }
+    }
     case QVariant::Double:
       return vtkVariant(v.toDouble());
     case QVariant::Int:
@@ -212,19 +212,19 @@ vtkVariant vtkQtSQLQuery::DataValue(vtkIdType c)
     case QVariant::ULongLong:
       return vtkVariant(v.toULongLong());
     case QVariant::ByteArray:
-      {
+    {
       // Carefully storing BLOBs as vtkStrings. This
       // avoids the normal termination problems with
       // zero's in the BLOBs...
       return vtkVariant(vtkStdString(v.toByteArray().data(), v.toByteArray().length()));
-      }
+    }
     case QVariant::Invalid:
       return vtkVariant();
     default:
       vtkErrorMacro(<< "Unhandled Qt variant type "
         << v.type() << " found; returning string variant.");
       return vtkVariant(v.toString().toLatin1().data());
-    }
+  }
 }
 
 #endif // (QT_EDITION & QT_MODULE_SQL)

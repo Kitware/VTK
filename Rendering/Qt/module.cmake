@@ -1,12 +1,17 @@
 vtk_module(vtkRenderingQt
   GROUPS
     Qt
-  DEPENDS
-    vtkRenderingLabel
-  PRIVATE_DEPENDS
-    vtkFiltersTexture
-    vtkFiltersSources
-    vtkGUISupportQt
   TEST_DEPENDS
     vtkTestingCore
+  DEPENDS
+    vtkCommonCore
+    vtkCommonExecutionModel
+    vtkRenderingCore
+    vtkRenderingLabel
+  PRIVATE_DEPENDS
+    vtkCommonDataModel
+    vtkCommonSystem
+    vtkFiltersSources
+    vtkFiltersTexture
+    vtkGUISupportQt
   )

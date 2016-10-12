@@ -49,11 +49,11 @@ int TestORG(ostream& strm)
   vtkDoubleArray *zdata = vtkDoubleArray::New();
 
   for (i = 0; i < 20; i++)
-    {
+  {
     xdata->InsertNextValue((double) i);
     ydata->InsertNextValue((double) i);
     zdata->InsertNextValue((double) i);
-    }
+  }
 
   rg3D->SetDimensions(20,20,20);
   rg3D->SetXCoordinates(xdata);
@@ -90,18 +90,18 @@ int TestORG(ostream& strm)
 
   int l = 0;
   for (k = 0; k < 20; k++)
-    {
+  {
     for (j = 0; j < 20; j++)
-      {
+    {
       for (i = 0; i < 20; i++)
-        {
+      {
         shortScalars3D->InsertComponent(l,0,i);
         shortScalars3D->InsertComponent(l,0,j);
         shortScalars3D->InsertComponent(l,0,k);
         l++;
-        }
       }
     }
+  }
 
   vtkShortArray *shortScalars2D = vtkShortArray::New();
   shortScalars2D->SetNumberOfComponents(2);
@@ -109,14 +109,14 @@ int TestORG(ostream& strm)
 
   l = 0;
   for (j = 0; j < 20; j++)
-    {
+  {
     for (i = 0; i < 20; i++)
-      {
+    {
       shortScalars2D->InsertComponent(l,0,i);
       shortScalars2D->InsertComponent(l,0,j);
       l++;
-      }
     }
+  }
 
   vtkShortArray *shortScalars1D = vtkShortArray::New();
   shortScalars1D->SetNumberOfComponents(1);
@@ -124,10 +124,10 @@ int TestORG(ostream& strm)
 
   l = 0;
   for (i = 0; i < 20; i++)
-    {
+  {
     shortScalars1D->InsertComponent(l,0,i);
     l++;
-    }
+  }
 
   vtkShortArray *shortScalars0D = vtkShortArray::New();
   shortScalars0D->SetNumberOfComponents(1);
@@ -169,9 +169,9 @@ int TestORG(ostream& strm)
   rg3D->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   i = 10; j = 15;
@@ -181,9 +181,9 @@ int TestORG(ostream& strm)
   rg2Dxy->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
 
@@ -194,9 +194,9 @@ int TestORG(ostream& strm)
   rg2Dxz->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   i = 10; j = 15;
@@ -206,9 +206,9 @@ int TestORG(ostream& strm)
   rg2Dyz->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   i = 10;
@@ -218,9 +218,9 @@ int TestORG(ostream& strm)
   rg1Dx->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   i = 10;
@@ -230,9 +230,9 @@ int TestORG(ostream& strm)
   rg1Dy->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   i = 10;
@@ -242,9 +242,9 @@ int TestORG(ostream& strm)
   rg1Dz->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   cellId = 0;
@@ -253,9 +253,9 @@ int TestORG(ostream& strm)
   rg0D->GetCellPoints (cellId, ids);
   strm << "Ids for cell " << cellId << " are ";
   for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
-    {
+  {
     strm << ids->GetId(ii) << " ";
-    }
+  }
   strm << endl << endl;
 
   // Test Thread Safe GetCell
@@ -454,10 +454,10 @@ int TestORG(ostream& strm)
   dummyCell = 0;
   vtkCell *found = rg2Dxy->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == NULL)
-    {
+  {
     strm << "FindAndGetCell(rg2Dxy) not found!" << endl;
     return 1;
-    }
+  }
 
   strm << "FindAndGetCell(rg2Dxy): " << *found;
   strm << "pcoords: "
@@ -471,10 +471,10 @@ int TestORG(ostream& strm)
   dummyCell = 0;
   found = rg2Dxz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == NULL)
-    {
+  {
     strm << "FindAndGetCell(rg2Dxz) not found!" << endl;
     return 1;
-    }
+  }
 
   strm << "FindAndGetCell(rg2Dxz): " << *found;
   strm << "pcoords: "
@@ -488,10 +488,10 @@ int TestORG(ostream& strm)
   dummyCell = 0;
   found = rg2Dyz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == NULL)
-    {
+  {
     strm << "FindAndGetCell(rg2Dyz) not found!" << endl;
     return 1;
-    }
+  }
 
   strm << "FindAndGetCell(rg2Dyz): " << *found;
   strm << "pcoords: "
@@ -503,10 +503,10 @@ int TestORG(ostream& strm)
   dummyCell = 0;
   found = rg1Dx->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == NULL)
-    {
+  {
     strm << "FindAndGetCell(rg1Dx) not found!" << endl;
     return 1;
-    }
+  }
 
   strm << "FindAndGetCell(rg1Dx): " << *found;
   strm << "pcoords: "
@@ -519,10 +519,10 @@ int TestORG(ostream& strm)
   dummyCell = 0;
   found = rg1Dy->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == NULL)
-    {
+  {
     strm << "FindAndGetCell(rg1Dy) not found!" << endl;
     return 1;
-    }
+  }
 
   strm << "FindAndGetCell(rg1Dy): " << *found;
   strm << "pcoords: "
@@ -535,10 +535,10 @@ int TestORG(ostream& strm)
   dummyCell = 0;
   found = rg1Dz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == NULL)
-    {
+  {
     strm << "FindAndGetCell(rg1Dz) not found!" << endl;
     return 1;
-    }
+  }
 
   strm << "FindAndGetCell(rg1Dz): " << *found;
   strm << "pcoords: "

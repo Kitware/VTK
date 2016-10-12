@@ -37,28 +37,28 @@ void vtkDicer::UpdatePieceMeasures(vtkDataSet *input)
   unsigned long memSize = input->GetActualMemorySize();
 
   if ( this->DiceMode == VTK_DICE_MODE_NUMBER_OF_POINTS )
-    {
+  {
     this->NumberOfPieces = static_cast<int>(
       ceil(static_cast<double>(numPts)/this->NumberOfPointsPerPiece));
     this->MemoryLimit = static_cast<unsigned long>(
       ceil(static_cast<double>(memSize)/this->NumberOfPieces));
-    }
+  }
 
   else if ( this->DiceMode == VTK_DICE_MODE_SPECIFIED_NUMBER )
-    {
+  {
     this->NumberOfPointsPerPiece = static_cast<int>(
       ceil(static_cast<double>(numPts)/this->NumberOfPieces));
     this->MemoryLimit = static_cast<unsigned long>(
       ceil(static_cast<double>(memSize)/this->NumberOfPieces));
-    }
+  }
 
   else //this->DiceMode == VTK_DICE_MODE_MEMORY_LIMIT
-    {
+  {
     this->NumberOfPieces = static_cast<int>(
       ceil(static_cast<double>(memSize)/this->MemoryLimit));
     this->NumberOfPointsPerPiece = static_cast<int>(
       ceil(static_cast<double>(numPts)/this->NumberOfPieces));
-    }
+  }
 }
 
 void vtkDicer::PrintSelf(ostream& os, vtkIndent indent)
@@ -80,15 +80,15 @@ void vtkDicer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Field Data: " << (this->FieldData ? "On\n" : "Off\n");
 
   if ( this->DiceMode == VTK_DICE_MODE_NUMBER_OF_POINTS )
-    {
+  {
     os << indent << "Dice Mode: Number Of Points\n";
-    }
+  }
   else if ( this->DiceMode == VTK_DICE_MODE_SPECIFIED_NUMBER )
-    {
+  {
     os << indent << "Dice Mode: Specified Number\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Dice Mode: Memory Limit\n";
-    }
+  }
 }

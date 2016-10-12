@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkLinearSubdivisionFilter - generate a subdivision surface using the Linear Scheme
-// .SECTION Description
-// vtkLinearSubdivisionFilter is a filter that generates output by
-// subdividing its input polydata. Each subdivision iteration create 4
-// new triangles for each triangle in the polydata.
-
-// .SECTION Thanks
-// This work was supported by PHS Research Grant No. 1 P41 RR13218-01
-// from the National Center for Research Resources.
-
-// .SECTION See Also
-// vtkInterpolatingSubdivisionFilter vtkButterflySubdivisionFilter
+/**
+ * @class   vtkLinearSubdivisionFilter
+ * @brief   generate a subdivision surface using the Linear Scheme
+ *
+ * vtkLinearSubdivisionFilter is a filter that generates output by
+ * subdividing its input polydata. Each subdivision iteration create 4
+ * new triangles for each triangle in the polydata.
+ *
+ * @par Thanks:
+ * This work was supported by PHS Research Grant No. 1 P41 RR13218-01
+ * from the National Center for Research Resources.
+ *
+ * @sa
+ * vtkInterpolatingSubdivisionFilter vtkButterflySubdivisionFilter
+*/
 
 #ifndef vtkLinearSubdivisionFilter_h
 #define vtkLinearSubdivisionFilter_h
@@ -39,10 +42,13 @@ class vtkPolyData;
 class VTKFILTERSMODELING_EXPORT vtkLinearSubdivisionFilter : public vtkInterpolatingSubdivisionFilter
 {
 public:
-  // Description:
-  // Construct object with NumberOfSubdivisions set to 1.
+  //@{
+  /**
+   * Construct object with NumberOfSubdivisions set to 1.
+   */
   static vtkLinearSubdivisionFilter *New();
   vtkTypeMacro(vtkLinearSubdivisionFilter,vtkInterpolatingSubdivisionFilter);
+  //@}
 
 protected:
   vtkLinearSubdivisionFilter () {}
@@ -54,8 +60,8 @@ protected:
                                  vtkPointData *outputPD);
 
 private:
-  vtkLinearSubdivisionFilter(const vtkLinearSubdivisionFilter&);  // Not implemented.
-  void operator=(const vtkLinearSubdivisionFilter&);  // Not implemented.
+  vtkLinearSubdivisionFilter(const vtkLinearSubdivisionFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLinearSubdivisionFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

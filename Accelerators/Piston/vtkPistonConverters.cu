@@ -120,7 +120,7 @@ void DeepCopy(vtkPistonReference *tr, vtkPistonReference *other)
 //-----------------------------------------------------------------------------
 bool CheckDirty(vtkDataSet *ds, vtkPistonReference *tr)
 {
-  unsigned long int dstime = ds->GetMTime();
+  vtkMTimeType dstime = ds->GetMTime();
   if (dstime != tr->mtime)
     {
     tr->mtime = dstime;

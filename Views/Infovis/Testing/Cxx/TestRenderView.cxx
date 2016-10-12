@@ -51,16 +51,16 @@ public:
     view->AddObserver(vtkCommand::SelectionChangedEvent, this);
   }
 
-  virtual void Execute(vtkObject*, unsigned long, void*)
+  void Execute(vtkObject*, unsigned long, void*) VTK_OVERRIDE
   {
     for (unsigned int i = 0; i < this->Views.size(); i++)
-      {
+    {
       this->Views[i]->Update();
-      }
+    }
   }
 private:
   TestRenderViewUpdater() { }
-  ~TestRenderViewUpdater() { }
+  ~TestRenderViewUpdater() VTK_OVERRIDE { }
   std::vector<vtkView*> Views;
 };
 

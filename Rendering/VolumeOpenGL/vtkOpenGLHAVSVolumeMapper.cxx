@@ -63,9 +63,9 @@ vtkOpenGLHAVSVolumeMapper::vtkOpenGLHAVSVolumeMapper()
 vtkOpenGLHAVSVolumeMapper::~vtkOpenGLHAVSVolumeMapper()
 {
   if (!this->GPUDataStructures)
-    {
+  {
     delete [] this->OrderedTriangles;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -73,16 +73,16 @@ void vtkOpenGLHAVSVolumeMapper::CheckOpenGLError(const char * str)
 {
   int err = glGetError(); (void)str;
   if ( err != GL_NO_ERROR && this->GetDebug() )
-    {
+  {
     vtkDebugMacro( << "OpenGL Error: " << str );
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkOpenGLHAVSVolumeMapper::ReleaseGraphicsResources(vtkWindow *renWin)
 {
   if (this->Initialized)
-    {
+  {
     static_cast<vtkRenderWindow *>(renWin)->MakeCurrent();
     vtkOpenGLClearErrorMacro();
 
@@ -95,22 +95,22 @@ void vtkOpenGLHAVSVolumeMapper::ReleaseGraphicsResources(vtkWindow *renWin)
 
     int numBuffers = (this->KBufferState == VTK_KBUFFER_SIZE_2)? 2 : 4;
     for (int i = 0; i < numBuffers; i++)
-      {
+    {
       glDeleteTextures(1,reinterpret_cast<GLuint *>(&this->FramebufferTextures[i]));
-      }
+    }
 
     vtkgl::DeleteFramebuffersEXT(1,reinterpret_cast<GLuint *>(&this->FramebufferObject));
     this->Initialized = false;
     if (this->GPUDataStructures)
-      {
+    {
       vtkgl::DeleteBuffers(1, reinterpret_cast<GLuint *>(&this->VBOVertexName));
       vtkgl::DeleteBuffers(1, reinterpret_cast<GLuint *>(&this->VBOTexCoordName));
       vtkgl::DeleteBuffers(1,reinterpret_cast<GLuint *>(&this->VBOVertexIndexName));
       vtkgl::BindBuffer(vtkgl::ARRAY_BUFFER, 0);
       vtkgl::BindBuffer(vtkgl::ELEMENT_ARRAY_BUFFER, 0);
-      }
-    vtkOpenGLCheckErrorMacro("failed after ReleaseGraphicsResources");
     }
+    vtkOpenGLCheckErrorMacro("failed after ReleaseGraphicsResources");
+  }
   this->Superclass::ReleaseGraphicsResources(renWin);
 }
 
@@ -120,10 +120,10 @@ void vtkOpenGLHAVSVolumeMapper::Initialize(vtkRenderer *ren,
 {
   // Check for the required extensions only.
   if (!this->SupportedByHardware(ren))
-    {
+  {
     this->InitializationError = vtkHAVSVolumeMapper::UNSUPPORTED_EXTENSIONS;
     return;
-    }
+  }
 
   vtkOpenGLExtensionManager *extensions=
     static_cast<vtkOpenGLRenderWindow *>(ren->GetRenderWindow())
@@ -142,13 +142,13 @@ void vtkOpenGLHAVSVolumeMapper::Initialize(vtkRenderer *ren,
   int supports_GL_2_0=extensions->ExtensionSupported( "GL_VERSION_2_0" );
 
   if(supports_GL_2_0)
-    {
+  {
     extensions->LoadExtension("GL_VERSION_2_0");
-    }
+  }
   else
-    {
+  {
     extensions->LoadCorePromotedExtension( "GL_ARB_draw_buffers" );
-    }
+  }
 
   // supports_fragment_program && supports_vertex_program as checked
   // by this->SupportedByHardware()
@@ -167,31 +167,31 @@ void vtkOpenGLHAVSVolumeMapper::Initialize(vtkRenderer *ren,
   int supports_vertex_buffer_object;
 
   if(supports_GL_1_5)
-    {
+  {
     supports_vertex_buffer_object=1;
-    }
+  }
   else
-    {
+  {
     supports_vertex_buffer_object =
       extensions->ExtensionSupported( "GL_ARB_vertex_buffer_object" );
-    }
+  }
 
   if(supports_vertex_buffer_object)
-    {
+  {
     if(supports_GL_1_5)
-      {
+    {
       extensions->LoadExtension("GL_VERSION_1_5");
-      }
-    else
-      {
-      extensions->LoadCorePromotedExtension( "GL_ARB_vertex_buffer_object" );
-      }
     }
+    else
+    {
+      extensions->LoadCorePromotedExtension( "GL_ARB_vertex_buffer_object" );
+    }
+  }
 
   if (!supports_vertex_buffer_object)
-    {
+  {
     this->SetGPUDataStructures(false);
-    }
+  }
 
   this->UpdateProgress(0.0);
 
@@ -236,18 +236,18 @@ void vtkOpenGLHAVSVolumeMapper::Initialize(vtkRenderer *ren,
 void vtkOpenGLHAVSVolumeMapper::SetGPUDataStructures(bool gpu)
 {
   if(this->GPUDataStructures!=gpu)
-    {
+  {
     if(!this->GPUDataStructures)
-      {
+    {
       delete [] this->OrderedTriangles;
       this->OrderedTriangles=0;
-      }
+    }
     this->GPUDataStructures = gpu;
     if (this->Initialized)
-      {
+    {
       this->InitializeGPUDataStructures();
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -257,19 +257,19 @@ void vtkOpenGLHAVSVolumeMapper::InitializeGPUDataStructures()
   vtkOpenGLClearErrorMacro();
 
   if (this->GPUDataStructures)
-    {
+  {
     if (VBOVertexName)
-      {
+    {
       vtkgl::DeleteBuffers(1, reinterpret_cast<GLuint *>(&this->VBOVertexName));
-      }
+    }
     if (VBOVertexIndexName)
-      {
+    {
       vtkgl::DeleteBuffers(1,reinterpret_cast<GLuint *>(&this->VBOVertexIndexName));
-      }
+    }
     if (VBOTexCoordName)
-      {
+    {
       vtkgl::DeleteBuffers(1, reinterpret_cast<GLuint *>(&this->VBOTexCoordName));
-      }
+    }
 
     // Build vertex array
     vtkgl::GenBuffers(1, reinterpret_cast<GLuint *>(&this->VBOVertexName));
@@ -295,12 +295,12 @@ void vtkOpenGLHAVSVolumeMapper::InitializeGPUDataStructures()
                          this->NumberOfScalars*sizeof(float),
                          this->Scalars, vtkgl::STATIC_DRAW);
     vtkgl::BindBuffer(vtkgl::ARRAY_BUFFER, 0);
-    }
+  }
   else
-    {
+  {
     delete [] this->OrderedTriangles;
     this->OrderedTriangles = new unsigned int[this->NumberOfTriangles*3];
-    }
+  }
 
   vtkOpenGLCheckErrorMacro("failed after InitializeGPUDataStructures");
 }
@@ -323,7 +323,7 @@ void vtkOpenGLHAVSVolumeMapper::InitializeShaders()
   // Create fragment shaders
   glEnable( vtkgl::FRAGMENT_PROGRAM_ARB );
   if (this->KBufferSize == VTK_KBUFFER_SIZE_2)
-    {
+  {
     vtkgl::GenProgramsARB(1,
                           reinterpret_cast<GLuint *>(&this->FragmentProgramBegin));
     vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB,
@@ -345,9 +345,9 @@ void vtkOpenGLHAVSVolumeMapper::InitializeShaders()
                             vtkgl::PROGRAM_FORMAT_ASCII_ARB,
                             static_cast<GLsizei>(strlen(vtkHAVSVolumeMapper_k2EndFP)),
                             vtkHAVSVolumeMapper_k2EndFP);
-    }
+  }
   else
-    {
+  {
     vtkgl::GenProgramsARB(1,
                           reinterpret_cast<GLuint *>(&this->FragmentProgramBegin));
     vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB,
@@ -369,7 +369,7 @@ void vtkOpenGLHAVSVolumeMapper::InitializeShaders()
                             vtkgl::PROGRAM_FORMAT_ASCII_ARB,
                             static_cast<GLsizei>(strlen(vtkHAVSVolumeMapper_k6EndFP)),
                             vtkHAVSVolumeMapper_k6EndFP);
-    }
+  }
 
   // Disable shaders
   vtkgl::BindProgramARB(vtkgl::VERTEX_PROGRAM_ARB, 0);
@@ -410,7 +410,7 @@ void vtkOpenGLHAVSVolumeMapper::InitializeLookupTables(vtkVolume *vol)
                GL_RGBA,GL_FLOAT, this->TransferFunction);
 
   if (!this->PsiTableTexture)
-    {
+  {
     vtkUnstructuredGridPartialPreIntegration *ppi =
       vtkUnstructuredGridPartialPreIntegration::New();
     ppi->BuildPsiTable();
@@ -427,7 +427,7 @@ void vtkOpenGLHAVSVolumeMapper::InitializeLookupTables(vtkVolume *vol)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE8, tableSize, tableSize,
                  0, GL_LUMINANCE, GL_FLOAT, psiTable);
     ppi->Delete();
-    }
+  }
   vtkOpenGLCheckErrorMacro("failed after InitializeLookupTables");
 }
 
@@ -443,26 +443,26 @@ void vtkOpenGLHAVSVolumeMapper::InitializeFramebufferObject()
   int numBuffers = (this->KBufferState == VTK_KBUFFER_SIZE_2)? 2 : 4;
 
   if (!this->Initialized)
-    {
+  {
     // Create FBO
     vtkgl::GenFramebuffersEXT(1,
                               reinterpret_cast<GLuint *>(&this->FramebufferObject));
     vtkOpenGLCheckErrorMacro("creating FBO");
-    }
+  }
   else
-    {
+  {
     glDeleteTextures(numBuffers,
                      reinterpret_cast<GLuint *>(this->FramebufferTextures));
     vtkgl::DeleteRenderbuffersEXT(1,
                                   reinterpret_cast<GLuint *>(&this->DepthTexture));
-    }
+  }
 
   numBuffers = (this->KBufferSize == VTK_KBUFFER_SIZE_2)? 2 : 4;
 
   // Create FBO textures
   glGenTextures(numBuffers, reinterpret_cast<GLuint *>(this->FramebufferTextures));
   for (int i = 0; i < numBuffers; i++)
-    {
+  {
     glBindTexture(GL_TEXTURE_2D, this->FramebufferTextures[i]);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
@@ -470,7 +470,7 @@ void vtkOpenGLHAVSVolumeMapper::InitializeFramebufferObject()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, vtkgl::RGBA32F_ARB, texSize, texSize, 0,
                  GL_RGBA, GL_FLOAT, 0);
-    }
+  }
 
   vtkOpenGLCheckErrorMacro("creating fbo textures");
 
@@ -491,7 +491,7 @@ void vtkOpenGLHAVSVolumeMapper::InitializeFramebufferObject()
                                   vtkgl::COLOR_ATTACHMENT1_EXT, GL_TEXTURE_2D,
                                   this->FramebufferTextures[1], 0 );
   if (numBuffers == 4)
-    {
+  {
     vtkgl::FramebufferTexture2DEXT( vtkgl::FRAMEBUFFER_EXT,
                                     vtkgl::COLOR_ATTACHMENT2_EXT,
                                     GL_TEXTURE_2D,
@@ -500,7 +500,7 @@ void vtkOpenGLHAVSVolumeMapper::InitializeFramebufferObject()
                                     vtkgl::COLOR_ATTACHMENT3_EXT,
                                     GL_TEXTURE_2D,
                                     this->FramebufferTextures[3], 0 );
-    }
+  }
 
   // Attach depth texture to framebuffer
   vtkgl::BindRenderbufferEXT(vtkgl::RENDERBUFFER_EXT, this->DepthTexture);
@@ -517,9 +517,9 @@ void vtkOpenGLHAVSVolumeMapper::InitializeFramebufferObject()
   // Validate FBO after attaching textures
   if (vtkgl::CheckFramebufferStatusEXT(vtkgl::FRAMEBUFFER_EXT) !=
       vtkgl::FRAMEBUFFER_COMPLETE_EXT && this->GetDebug())
-    {
+  {
     vtkDebugMacro( << "FBO incomplete" );
-    }
+  }
 
   // Disable FBO rendering
   vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,savedFrameBuffer);
@@ -539,20 +539,20 @@ void vtkOpenGLHAVSVolumeMapper::Render(vtkRenderer *ren,
   this->RenderWindow=ren->GetRenderWindow();
 
   if (!this->Initialized)
-    {
+  {
     this->InitializationError =
       vtkHAVSVolumeMapper::NO_INIT_ERROR;
     this->Initialize(ren, vol);
     if (this->CheckInitializationError())
-      {
+    {
       return;
-      }
     }
+  }
 
   if (ren->GetRenderWindow()->CheckAbortStatus())
-    {
+  {
     return;
-    }
+  }
 
   // Check to see if we need to update the lookup table
   if ((this->ColorTransferFunctionMTime <
@@ -560,22 +560,22 @@ void vtkOpenGLHAVSVolumeMapper::Render(vtkRenderer *ren,
       ||(this->AlphaTransferFunctionMTime <
          vol->GetProperty()->GetScalarOpacity()->GetMTime())
       ||(this->UnitDistance != vol->GetProperty()->GetScalarOpacityUnitDistance()))
-    {
+  {
     this->InitializeLookupTables(vol);
     this->ColorTransferFunctionMTime.Modified();
     this->AlphaTransferFunctionMTime.Modified();
-    }
+  }
 
   if (ren->GetRenderWindow()->CheckAbortStatus())
-    {
+  {
     return;
-    }
+  }
 
   // Check to see if we need to update the scalars
   if ((this->ScalarsMTime < this->MTime)
       || (this->ScalarsMTime < this->GetInput()->GetMTime())
       || (this->LastVolume != vol))
-    {
+  {
     this->InitializationError =
       vtkHAVSVolumeMapper::NO_INIT_ERROR;
     this->InitializeScalars();
@@ -583,17 +583,17 @@ void vtkOpenGLHAVSVolumeMapper::Render(vtkRenderer *ren,
     if (this->CheckInitializationError())
       return;
     this->ScalarsMTime.Modified();
-    }
+  }
 
   if (ren->GetRenderWindow()->CheckAbortStatus())
-    {
+  {
     return;
-    }
+  }
 
   // Check to see if we need to update the geometry
   if ((this->UnstructuredGridMTime < this->GetInput()->GetMTime())
       || (this->UnstructuredGridMTime < this->MTime))
-    {
+  {
     this->InitializationError =
       vtkHAVSVolumeMapper::NO_INIT_ERROR;
     this->InitializePrimitives(vol);
@@ -602,12 +602,12 @@ void vtkOpenGLHAVSVolumeMapper::Render(vtkRenderer *ren,
     if (this->CheckInitializationError())
       return;
     this->UnstructuredGridMTime.Modified();
-    }
+  }
 
   if (ren->GetRenderWindow()->CheckAbortStatus())
-    {
+  {
     return;
-    }
+  }
 
   this->Timer->StartTimer();
 
@@ -653,27 +653,27 @@ void vtkOpenGLHAVSVolumeMapper::RenderHAVS(vtkRenderer *ren)
 
   // Keep shaders up to date
   if (this->KBufferSize != this->KBufferState)
-    {
+  {
     this->DeleteShaders();
     this->InitializeShaders();
     // Keep FBO up to date
     this->InitializeFramebufferObject();
-    }
+  }
 
   int vpWidth = screenWidth;
   int vpHeight = screenHeight;
   if (screenWidth > this->FramebufferObjectSize)
-    {
+  {
     vpWidth = this->FramebufferObjectSize;
-    }
+  }
   if (screenHeight > this->FramebufferObjectSize)
-    {
+  {
     vpHeight = this->FramebufferObjectSize;
-    }
+  }
 
   // Bind geometry arrays
   if (this->GPUDataStructures)
-    {
+  {
     glEnableClientState(GL_VERTEX_ARRAY);
     vtkgl::BindBuffer(vtkgl::ARRAY_BUFFER, this->VBOVertexName);
     glVertexPointer(3, GL_FLOAT, 0, static_cast<char *>(NULL));
@@ -682,20 +682,20 @@ void vtkOpenGLHAVSVolumeMapper::RenderHAVS(vtkRenderer *ren)
     glTexCoordPointer(1, GL_FLOAT, 0, static_cast<char *>(NULL));
 
     vtkgl::BindBuffer(vtkgl::ELEMENT_ARRAY_BUFFER, this->VBOVertexIndexName);
-    }
+  }
   else
-    {
+  {
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, this->Vertices);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glTexCoordPointer(1, GL_FLOAT, 0, this->Scalars);
-    }
+  }
 
   if (ren->GetRenderWindow()->CheckAbortStatus())
-    {
+  {
     vtkOpenGLCheckErrorMacro("failed during Render");
     return;
-    }
+  }
 
   // Object-space sorting
   double *e = ren->GetActiveCamera()->GetPosition();
@@ -704,25 +704,25 @@ void vtkOpenGLHAVSVolumeMapper::RenderHAVS(vtkRenderer *ren)
   eye[1] = e[1];
   eye[2] = e[2];
   if (this->GPUDataStructures)
-    {
+  {
     this->OrderedTriangles =
       static_cast<unsigned int *>(vtkgl::MapBuffer(vtkgl::ELEMENT_ARRAY_BUFFER,
                                                    vtkgl::WRITE_ONLY));
-    }
+  }
 
   this->PartialVisibilitySort(eye);
 
   if (this->GPUDataStructures)
-    {
+  {
     vtkgl::UnmapBuffer(vtkgl::ELEMENT_ARRAY_BUFFER);
-    }
+  }
 
   this->UpdateProgress(0.4);
   if (ren->GetRenderWindow()->CheckAbortStatus())
-    {
+  {
     vtkOpenGLCheckErrorMacro("failed during Render");
     return;
-    }
+  }
 
   // Get depth range from OpenGL state for correct z
   GLfloat depthRange[2];
@@ -835,7 +835,7 @@ void vtkOpenGLHAVSVolumeMapper::SetupFBOMRT()
   glBindTexture(GL_TEXTURE_2D, this->FramebufferTextures[1]);
 
   if (numBuffers == 2)
-    {
+  {
     // Bind lookup tables
     glEnable(GL_TEXTURE_2D);
     vtkgl::ActiveTexture(vtkgl::TEXTURE2);
@@ -844,9 +844,9 @@ void vtkOpenGLHAVSVolumeMapper::SetupFBOMRT()
     glEnable(GL_TEXTURE_1D);
     vtkgl::ActiveTexture(vtkgl::TEXTURE3);
     glBindTexture(GL_TEXTURE_1D,this->TransferFunctionTexture);
-    }
+  }
   else
-    {
+  {
     // Bind lookup tables
     vtkgl::ActiveTexture(vtkgl::TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, this->FramebufferTextures[2]);
@@ -861,7 +861,7 @@ void vtkOpenGLHAVSVolumeMapper::SetupFBOMRT()
     glEnable(GL_TEXTURE_1D);
     vtkgl::ActiveTexture(vtkgl::TEXTURE5);
     glBindTexture(GL_TEXTURE_1D,this->TransferFunctionTexture);
-    }
+  }
 
   vtkOpenGLCheckErrorMacro("SetupFBOMRT");
 }
@@ -924,9 +924,9 @@ void vtkOpenGLHAVSVolumeMapper::DrawFBOGeometry()
 
   float scale = this->MaxEdgeLength;
   if (this->LevelOfDetail || !this->PartiallyRemoveNonConvexities)
-    {
+  {
     scale = this->LevelOfDetailMaxEdgeLength;
-    }
+  }
   float params[4] = {1.0f/this->FramebufferObjectSize,
                      1.0f/this->FramebufferObjectSize,
                      scale,
@@ -935,15 +935,15 @@ void vtkOpenGLHAVSVolumeMapper::DrawFBOGeometry()
 
   // Draw geometry
   if (this->GPUDataStructures)
-    {
+  {
     glDrawElements(GL_TRIANGLES, this->LevelOfDetailTriangleCount*3,
                    GL_UNSIGNED_INT, static_cast<char *>(NULL));
-    }
+  }
   else
-    {
+  {
     glDrawElements(GL_TRIANGLES, this->LevelOfDetailTriangleCount*3,
                    GL_UNSIGNED_INT, this->OrderedTriangles);
-    }
+  }
 
   vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB, 0);
   vtkgl::BindProgramARB(vtkgl::VERTEX_PROGRAM_ARB, 0);
@@ -963,9 +963,9 @@ void vtkOpenGLHAVSVolumeMapper::DrawFBOFlush(int screenWidth,
 
   float scale = this->MaxEdgeLength;
   if (this->LevelOfDetail || !this->PartiallyRemoveNonConvexities)
-    {
+  {
     scale = this->LevelOfDetailMaxEdgeLength;
-    }
+  }
   float params[4] = {1.0f/this->FramebufferObjectSize,
                      1.0f/this->FramebufferObjectSize,
                      scale,
@@ -991,7 +991,7 @@ void vtkOpenGLHAVSVolumeMapper::DrawFBOFlush(int screenWidth,
   // Draw k-1 quads to flush k-buffer
   int flushCount = (this->KBufferSize == VTK_KBUFFER_SIZE_2)? 1 : 5;
   for (int i = 0; i < flushCount; i++)
-    {
+  {
     glBegin(GL_QUADS);
     glVertex3f(0.0, 0.0, 0.0);
     glVertex3f(0.0, static_cast<float>(screenHeight), 0.0);
@@ -999,7 +999,7 @@ void vtkOpenGLHAVSVolumeMapper::DrawFBOFlush(int screenWidth,
                static_cast<float>(screenHeight), 0.0);
     glVertex3f(static_cast<float>(screenWidth), 0.0, 0.0);
     glEnd();
-    }
+  }
 
   // Disable shader
   vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB, 0);
@@ -1013,20 +1013,20 @@ void vtkOpenGLHAVSVolumeMapper::DrawFBOFlush(int screenWidth,
 
   // Disable Textures
   if (this->KBufferSize == VTK_KBUFFER_SIZE_2)
-    {
+  {
     vtkgl::ActiveTexture(vtkgl::TEXTURE2);
     glDisable(GL_TEXTURE_2D);
     vtkgl::ActiveTexture(vtkgl::TEXTURE3);
     glDisable(GL_TEXTURE_1D);
-    }
+  }
   else
-    {
+  {
     vtkgl::ActiveTexture(vtkgl::TEXTURE4);
     glDisable(GL_TEXTURE_2D);
     vtkgl::ActiveTexture(vtkgl::TEXTURE5);
     glDisable(GL_TEXTURE_1D);
 
-    }
+  }
 
   vtkgl::ActiveTexture(vtkgl::TEXTURE1);
   glDisable(GL_TEXTURE_2D);
@@ -1039,17 +1039,17 @@ void vtkOpenGLHAVSVolumeMapper::DrawFBOFlush(int screenWidth,
 
   // Disable vertex arrays
   if (this->GPUDataStructures)
-    {
+  {
     vtkgl::BindBuffer(vtkgl::ARRAY_BUFFER, 0);
     vtkgl::BindBuffer(vtkgl::ELEMENT_ARRAY_BUFFER, 0);
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    }
+  }
   else
-    {
+  {
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    }
+  }
 
   vtkOpenGLCheckErrorMacro("failed after DrawFBOFlush");
 }
@@ -1122,12 +1122,12 @@ void vtkOpenGLHAVSVolumeMapper::DrawBlend(int screenWidth, int screenHeight,
 void vtkOpenGLHAVSVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   if(this->RenderWindow!=0)
-    {
+  {
     vtkOpenGLExtensionManager *extensions=
       static_cast<vtkOpenGLRenderWindow *>(this->RenderWindow.GetPointer())
       ->GetExtensionManager();
     if ( this->Initialized )
-      {
+    {
       os << indent << "Supports GL_VERSION_1_3 (edge_clamp (1.2) and"
          << " multitexture (1.3) minimal version required by"
          << " GL_ARB_draw_buffers): "
@@ -1158,8 +1158,8 @@ void vtkOpenGLHAVSVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
       os << indent << "Supports (optional) GL_ARB_vertex_buffer_object: "
          << extensions->ExtensionSupported( "GL_ARB_vertex_buffer_object" )
          <<endl;
-      }
     }
+  }
 
   os << indent << "Framebuffer Object Size: "
      << this->FramebufferObjectSize << endl;
@@ -1183,9 +1183,9 @@ bool vtkOpenGLHAVSVolumeMapper::SupportedByHardware(vtkRenderer *r)
     && !(extensions->DriverGLRendererIsOSMesa()
     && extensions->DriverGLRendererHasToken("llvmpipe"))
     && !extensions->GetIgnoreDriverBugs("Mesa FBO bugs") )
-    {
+  {
     return false;
-    }
+  }
 
   // Temporarily filter out the Macs, as this mapper makes the ATI driver crash
   // (RogueResearch2 on VTK, ATI Radeon X1600 OpenGL Engine 2.0 ATI-1.4.56) and
@@ -1206,14 +1206,14 @@ bool vtkOpenGLHAVSVolumeMapper::SupportedByHardware(vtkRenderer *r)
   int supports_GL_2_0=extensions->ExtensionSupported( "GL_VERSION_2_0" );
   int supports_draw_buffers;
   if(supports_GL_2_0)
-    {
+  {
     supports_draw_buffers=1;
-    }
+  }
   else
-    {
+  {
     supports_draw_buffers=
       extensions->ExtensionSupported( "GL_ARB_draw_buffers" );
-    }
+  }
 
   int supports_GL_ARB_fragment_program =
     extensions->ExtensionSupported( "GL_ARB_fragment_program" );
@@ -1242,9 +1242,9 @@ int vtkOpenGLHAVSVolumeMapper::FillInputPortInformation(int port,
                                                         vtkInformation* info)
 {
   if(!this->Superclass::FillInputPortInformation(port, info))
-    {
+  {
     return 0;
-    }
+  }
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
   return 1;
 }

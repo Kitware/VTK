@@ -99,31 +99,31 @@ vtkClipHyperOctree::vtkClipHyperOctree(vtkImplicitFunction *cf)
 vtkClipHyperOctree::~vtkClipHyperOctree()
 {
   if ( this->Locator )
-    {
+  {
     this->Locator->UnRegister(this);
     this->Locator = NULL;
-    }
+  }
   this->SetClipFunction(NULL);
 }
 
 //----------------------------------------------------------------------------
 // Overload standard modified time function. If Clip functions is modified,
 // then this object is modified as well.
-unsigned long vtkClipHyperOctree::GetMTime()
+vtkMTimeType vtkClipHyperOctree::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   if ( this->ClipFunction != NULL )
-    {
+  {
     time = this->ClipFunction->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
   if ( this->Locator != NULL )
-    {
+  {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
 
   return mTime;
 }
@@ -131,9 +131,9 @@ unsigned long vtkClipHyperOctree::GetMTime()
 vtkUnstructuredGrid *vtkClipHyperOctree::GetClippedOutput()
 {
   if (!this->GenerateClippedOutput)
-    {
+  {
     return NULL;
-    }
+  }
   return vtkUnstructuredGrid::SafeDownCast(
     this->GetExecutive()->GetOutputData(1));
 }
@@ -147,16 +147,16 @@ int vtkClipHyperOctree::RequestData(vtkInformation *vtkNotUsed(request),
                                     vtkInformationVector *outputVector)
 {
   if ( !this->ClipFunction)
-    {
+  {
     vtkErrorMacro(<<"As HyperOctree does not support point data yet, a clip function has to be provided.");
     return 1;
-    }
+  }
 
   if ( !this->ClipFunction && this->GenerateClipScalars )
-    {
+  {
     vtkErrorMacro(<<"Cannot generate clip scalars if no clip function defined");
     return 1;
-    }
+  }
 
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
@@ -180,9 +180,9 @@ int vtkClipHyperOctree::RequestData(vtkInformation *vtkNotUsed(request),
   vtkIdType estimatedSize = numCells;
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024)
-    {
+  {
     estimatedSize = 1024;
-    }
+  }
   this->Conn[0] = vtkCellArray::New();
   this->Conn[0]->Allocate(estimatedSize,estimatedSize/2);
   this->Conn[0]->InitTraversal();
@@ -191,7 +191,7 @@ int vtkClipHyperOctree::RequestData(vtkInformation *vtkNotUsed(request),
   this->Locs[0] = vtkIdTypeArray::New();
   this->Locs[0]->Allocate(estimatedSize,estimatedSize/2);
   if ( this->GenerateClippedOutput )
-    {
+  {
     // numOutputs = 2;
     this->Conn[1] = vtkCellArray::New();
     this->Conn[1]->Allocate(estimatedSize,estimatedSize/2);
@@ -200,23 +200,23 @@ int vtkClipHyperOctree::RequestData(vtkInformation *vtkNotUsed(request),
     this->Types[1]->Allocate(estimatedSize,estimatedSize/2);
     this->Locs[1] = vtkIdTypeArray::New();
     this->Locs[1]->Allocate(estimatedSize,estimatedSize/2);
-    }
+  }
 
   vtkPoints *newPoints2=0;
 
   // locator used to merge potentially duplicate points
   if ( this->Locator == NULL )
-    {
+  {
     this->CreateDefaultLocator();
-    }
+  }
 
   if(this->GenerateClippedOutput)
-    {
+  {
     this->Locator2=this->Locator->NewInstance();
     newPoints2 = vtkPoints::New();
     newPoints2->Allocate(numPts,numPts/2);
     this->Locator2->InitPointInsertion (newPoints2, this->Input->GetBounds());
-    }
+  }
 
   this->Locator->InitPointInsertion (newPoints, this->Input->GetBounds());
 
@@ -224,35 +224,35 @@ int vtkClipHyperOctree::RequestData(vtkInformation *vtkNotUsed(request),
   this->OutCD[0] = this->Output->GetCellData();
   this->OutCD[0]->CopyAllocate(this->InCD,estimatedSize,estimatedSize/2);
   if ( this->GenerateClippedOutput )
-    {
+  {
     this->OutCD[1] = this->ClippedOutput->GetCellData();
     this->OutCD[1]->CopyAllocate(this->InCD,estimatedSize,estimatedSize/2);
-    }
+  }
 
   this->OutPD[0]=this->Output->GetPointData();
   if ( !this->GenerateClipScalars &&
        !this->GetInputArrayToProcess(0,inputVector))
-    {
+  {
     this->OutPD[0]->CopyScalarsOff();
-    }
+  }
   else
-    {
+  {
     this->OutPD[0]->CopyScalarsOn();
-    }
+  }
 
   if(this->GenerateClippedOutput)
-    {
+  {
     this->OutPD[1]=this->ClippedOutput->GetPointData();
     if ( !this->GenerateClipScalars &&
          !this->GetInputArrayToProcess(0,inputVector))
-      {
+    {
       this->OutPD[1]->CopyScalarsOff();
-      }
-    else
-      {
-      this->OutPD[1]->CopyScalarsOn();
-      }
     }
+    else
+    {
+      this->OutPD[1]->CopyScalarsOn();
+    }
+  }
 
   vtkHyperOctreeCursor *cursor=this->Input->NewCellCursor();
   this->Sibling=cursor->Clone();
@@ -262,7 +262,7 @@ int vtkClipHyperOctree::RequestData(vtkInformation *vtkNotUsed(request),
   this->Input->GetBounds(bounds);
 
   switch(this->Input->GetDimension())
-    {
+  {
     case 3:
       this->Tetra=vtkTetra::New();
       this->TetScalars=vtkDoubleArray::New();
@@ -280,7 +280,7 @@ int vtkClipHyperOctree::RequestData(vtkInformation *vtkNotUsed(request),
     default:
       // do nothing
       break;
-    }
+  }
   this->CellScalars=vtkDoubleArray::New();
   this->Pts=vtkPoints::New();
 
@@ -289,26 +289,26 @@ int vtkClipHyperOctree::RequestData(vtkInformation *vtkNotUsed(request),
 
   int j=0;
   while(j<65536)
-    {
+  {
     this->CellTypeCounter[j]=0; // up-to-65536 points per octant
     ++j;
-    }
+  }
   this->ClipNode(cursor,0,bounds);
 
 //  cout<<"ClipHyperOctree: "<<this->TemplateCounter<<" templates over "<<this->TotalCounter<<" octants, ratio="<<(this->TemplateCounter/static_cast<double>(this->TotalCounter))<<endl;
 
   j=0;
   while(j<65536)
-    {
+  {
     if(this->CellTypeCounter[j]>0)
-      {
+    {
 //      cout<<this->CellTypeCounter[j]<<" with "<<j+1<<"points"<<endl;
-      }
-    ++j;
     }
+    ++j;
+  }
 
   switch(this->Input->GetDimension())
-    {
+  {
     case 3:
       this->Tetra->UnRegister(this);
       this->Tetra=0;
@@ -325,7 +325,7 @@ int vtkClipHyperOctree::RequestData(vtkInformation *vtkNotUsed(request),
       break;
     default:
       break;
-    }
+  }
 
   this->CellScalars->UnRegister(this);
   this->CellScalars=0;
@@ -351,7 +351,7 @@ int vtkClipHyperOctree::RequestData(vtkInformation *vtkNotUsed(request),
   this->OutCD[0]=0;
 
   if(this->GenerateClippedOutput)
-    {
+  {
     this->ClippedOutput->SetPoints(newPoints2);
     this->ClippedOutput->SetCells(this->Types[1], this->Locs[1],this->Conn[1]);
     this->Conn[1]->Delete();
@@ -365,16 +365,16 @@ int vtkClipHyperOctree::RequestData(vtkInformation *vtkNotUsed(request),
     this->Locator2=0;
     this->OutCD[1]=0;
     this->OutPD[1]=0;
-    }
+  }
 
   this->Locator->Initialize();//release any extra memory
   this->Output->Squeeze();
   this->Output=0;
   if(this->GenerateClippedOutput)
-    {
+  {
     this->ClippedOutput->Squeeze();
     this->ClippedOutput=0;
-    }
+  }
 
   assert("post: input_is_null" && this->Input==0);
   assert("post: output_is_null" && this->Output==0);
@@ -399,9 +399,9 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
   assert("pre: positive_level" && level>=0);
 
   if(cursor->CurrentIsLeaf())
-    {
+  {
     if(cursor->CurrentIsRoot() || (this->Input->GetDimension()==1))
-      {
+    {
       // no parent=>no sibling=>no sibling which are not leaves=>easy
       // just create a voxel/pixel/line and clip it.
 
@@ -419,17 +419,17 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
       vtkLine *l;
       int coord;
       switch(this->Input->GetDimension())
-        {
+      {
         case 3:
           v=vtkVoxel::New();
           cell=v;
           numPts=8;
           coord=0;
           while(coord<3)
-            {
+          {
             pt[0]=bounds[coord*2];
             ++coord;
-            }
+          }
           v->GetPoints()->SetPoint(0,pt);
           pt[0]=bounds[1];
           v->GetPoints()->SetPoint(1,pt);
@@ -456,10 +456,10 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
           numPts=4;
           coord=0;
           while(coord<3)
-            {
+          {
             pt[0]=bounds[coord*2];
             ++coord;
-            }
+          }
           p->GetPoints()->SetPoint(0,pt);
           pt[0]=bounds[1];
           p->GetPoints()->SetPoint(1,pt);
@@ -483,46 +483,46 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
         default:
           assert("check: impossible" && 0);
           break;
-        }
+      }
 
       vtkDataArray *clipScalars=0;
 
       vtkPointData *inPD=this->Input->GetPointData();
 
       if(this->ClipFunction!=0)
-        {
+      {
         vtkDoubleArray *tmpScalars = vtkDoubleArray::New();
         tmpScalars->SetNumberOfTuples(numPts);
         tmpScalars->SetName("ClipDataSetScalars");
         inPD = vtkPointData::New();
         inPD->ShallowCopy(this->Input->GetPointData());//copies original
         if(this->GenerateClipScalars)
-          {
+        {
           inPD->SetScalars(tmpScalars);
-          }
+        }
         for ( int i=0; i < numPts; i++ )
-          {
+        {
           double s = this->ClipFunction->FunctionValue(cell->GetPoints()->GetPoint(i));
           tmpScalars->SetTuple1(i,s);
-          }
-        clipScalars = tmpScalars;
         }
+        clipScalars = tmpScalars;
+      }
 
 #if 0 // just to not break compilation
       outPD->InterpolateAllocate(inPD,estimatedSize,estimatedSize/2);
 #endif
       int i;
       for (i=0; i < numPts; i++ )
-        {
+      {
         double s = clipScalars->GetComponent(i, 0);
         cellScalars->InsertTuple(i, &s);
-        }
+      }
 
       if ( this->ClipFunction )
-        {
+      {
         clipScalars->UnRegister(this);
         inPD->UnRegister(this);
-        }
+      }
 
       // perform clipping
       int num[2]; num[0]=num[1]=0;
@@ -535,41 +535,41 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
       num[0] = this->Conn[0]->GetNumberOfCells();
 
       if(this->GenerateClippedOutput)
-        {
+      {
         cell->Clip(this->Value, cellScalars, this->Locator2, this->Conn[1],
                    inPD, this->OutPD[1], this->InCD, cellId, this->OutCD[1],
                    !this->InsideOut);
         numNew[1] = this->Conn[1]->GetNumberOfCells() - num[1];
         num[1] = this->Conn[1]->GetNumberOfCells();
-        }
+      }
 
       cellScalars->UnRegister(this);
 
       int numOutputs;
       if(this->GenerateClippedOutput)
-        {
+      {
         numOutputs=2;
-        }
+      }
       else
-        {
+      {
         numOutputs=1;
-        }
+      }
 
       vtkIdType npts=0;
       vtkIdType *pts;
       int cellType;
 
       for (i=0; i<numOutputs; i++) //for both outputs
-        {
+      {
         for (int j=0; j < numNew[i]; j++)
-          {
+        {
           this->Locs[i]->InsertNextValue(
             this->Conn[i]->GetTraversalLocation());
           this->Conn[i]->GetNextCell(npts,pts);
 
           //For each new cell added, got to set the type of the cell
           switch ( cell->GetCellDimension() )
-            {
+          {
             case 1: //lines are generated---------------------------------
               cellType = (npts > 2 ? VTK_POLY_LINE : VTK_LINE);
               break;
@@ -587,16 +587,16 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
               cellType=0; // useless, only for removing warning about
               // unitialized function.
               break;
-            } //switch
+          } //switch
 
           this->Types[i]->InsertNextValue(cellType);
-          } //for each new cell
-        } //for both outputs
+        } //for each new cell
+      } //for both outputs
       cell->UnRegister(this);
 
-      }
+    }
     else
-      {
+    {
       // some parent=>have sibling=>some sibling may have children
       // => those children may create points on some face of cursor
       // => difficult case
@@ -644,7 +644,7 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
 
       // index of the node
       if(this->Input->GetDimension()==3)
-        {
+      {
         vtkIdType nbpts=this->Input->GetMaxNumberOfPointsOnBoundary(level);
         double pbounds[6]={0,1,0,1,0,1};
 
@@ -659,15 +659,15 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
         z=0;
         pk=k;
         while(z<2)
-          {
+        {
           pj=j;
           y=0;
           while(y<2)
-            {
+          {
             pi=i;
             x=0;
             while(x<2)
-              {
+            {
               pt[0]=bounds[x];
               pt[1]=bounds[2+y];
               pt[2]=bounds[4+z];
@@ -691,42 +691,42 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
 
               s=this->ClipFunction->FunctionValue(pt);
               if(this->InsideOut)
-                {
+              {
                 clipPoint=s<=this->Value; // keep point if true
-                }
+              }
               else
-                {
+              {
                 clipPoint=s>=this->Value; // keep point if true
-                }
+              }
               if(clipPoint)
-                {
+              {
                 allOut=0;
-                }
+              }
               else
-                {
+              {
                 allIn=0;
-                }
+              }
 
               ++x;
               ++pi;
-              }
+            }
             ++y;
             ++pj;
-            }
+          }
           ++z;
           ++pk;
-          }
         }
+      }
       else
-        {
+      {
         // this->Input->GetDimension()==2
         pt[2]=this->Input->GetOrigin()[2];
         y=0;
         while(y<2)
-          {
+        {
           x=0;
           while(x<2)
-            {
+          {
             pt[0]=bounds[x];
             pt[1]=bounds[2+y];
 
@@ -737,26 +737,26 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
 
             s=this->ClipFunction->FunctionValue(pt);
             if(this->InsideOut)
-              {
+            {
               clipPoint=s<=this->Value; // keep point if true
-              }
-            else
-              {
-              clipPoint=s>=this->Value; // keep point if true
-              }
-            if(clipPoint)
-              {
-              allOut=0;
-              }
-            else
-              {
-              allIn=0;
-              }
-            ++x;
             }
-          ++y;
+            else
+            {
+              clipPoint=s>=this->Value; // keep point if true
+            }
+            if(clipPoint)
+            {
+              allOut=0;
+            }
+            else
+            {
+              allIn=0;
+            }
+            ++x;
           }
+          ++y;
         }
+      }
 
 
       // see if we got a chance to either
@@ -771,17 +771,17 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
 
 
       if(!this->GenerateClippedOutput && allOut)
-        {
+      {
 //        cout<<"this child is all out and we dont need to generate the other output"<<endl;
         return; // we've just save a lot of useless computation
-        }
+      }
 
       int lastLevelLeaf=level>=(this->Input->GetNumberOfLevels()-1);
 
       if(this->Input->GetDimension()==3)
-        {
+      {
         if(!lastLevelLeaf)
-          {
+        {
           // Ok, now ask my parent if I have sibling with children on my
           // faces and even worst, if my parent has sibling with children
           // that have children on my face, or if the parent of my parent
@@ -803,18 +803,18 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
           int inc=1;
           i=0;
           while(i<3)
-            {
+          {
             if(faces[i])
-              {
+            {
               siblings[i]=child-inc;
-              }
+            }
             else
-              {
+            {
               siblings[i]=child+inc;
-              }
+            }
             ++i;
             inc<<=1;
-            }
+          }
 
           this->Sibling->ToSameNode(cursor);
           this->Sibling->ToParent();
@@ -822,25 +822,25 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
           i=0;
           int faceOffset=0;
           while(i<3)
-            {
+          {
             this->Sibling->ToChild(siblings[i]);
             assert("check: we are not visiting ourselves" && this->Sibling->GetChildIndex()!=child);
             if(!this->Sibling->CurrentIsLeaf())
-              {
+            {
               assert("check: if the sibling is not a leaf we cannot be at the last level" && level<(this->Input->GetNumberOfLevels()-1));
 
               // get the points of this sibling on some given face
               int siblingFace=faceOffset;
               if(faces[i])
-                {
+              {
                 ++siblingFace;
-                }
-              this->Input->GetPointsOnFace(this->Sibling,siblingFace,level,this->Grabber);
               }
+              this->Input->GetPointsOnFace(this->Sibling,siblingFace,level,this->Grabber);
+            }
             this->Sibling->ToParent();
             ++i;
             faceOffset+=2;
-            }
+          }
 
           // Get points on faces shared with the parent node.
           this->Input->GetPointsOnParentFaces(faces,level,cursor,this->Grabber);
@@ -867,49 +867,49 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
           this->Sibling->ToParent();
 
           while(axis<3)
-            {
+          {
             k=0;
             while(k<2)
-              {
+            {
               j=0;
               while(j<2)
-                {
+              {
                 if(k!=childIndices[a]&&j!=childIndices[b])
-                  {
+                {
                   this->Sibling->ToChild((k<<a)+(j<<b)+
                                          (childIndices[axis]<<axis));
                   if(!this->Sibling->CurrentIsLeaf())
-                    {
+                  {
                     this->Input->GetPointsOnEdge(this->Sibling,level,axis,!k,
                                                  !j,this->Grabber);
-                    }
-                  this->Sibling->ToParent();
                   }
+                  this->Sibling->ToParent();
+                }
                 else
-                  {
+                {
                   this->Input->GetPointsOnParentEdge(cursor,level,axis,k,j,
                     this->Grabber);
-                  }
-                ++j;
                 }
-              ++k;
+                ++j;
               }
+              ++k;
+            }
             ++axis;
             ++a;
             if(a>2)
-              {
+            {
               a-=3;
-              }
+            }
             ++b;
             if(b>2)
-              {
+            {
               b-=3;
-              }
             }
-          } // if not leaf at last level
-        }
+          }
+        } // if not leaf at last level
+      }
       else
-        {
+      {
         // this->Input->GetDimension()==2
         // counter- clockwise direction matters here.
 
@@ -920,19 +920,19 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
         this->Polygon->GetPoints()->SetNumberOfPoints(0);
 
         if(!lastLevelLeaf)
-          {
+        {
           this->Sibling->ToSameNode(cursor);
           this->Sibling->ToParent();
 
           // list the 2 edges of the parent, the current node is laying on.
           edges[0]=(child&1)==1; // false: -x, true: +x
           edges[1]=(child&2)==2; // false: -y, true: +y
-          }
+        }
         else
-          {
+        {
           edges[0]=0;
           edges[1]=0;
-          }
+        }
 
         // Insert vertex (xmin,ymin)
         pt[0]=bounds[0];
@@ -942,24 +942,24 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
         this->Polygon->GetPoints()->InsertNextPoint(pt);
 
         if(!lastLevelLeaf)
-          {
+        {
           // Process edge (-y)
           if(edges[1])
-            {
+          {
             // sibling
             this->Sibling->ToChild(child-2);
             if(!this->Sibling->CurrentIsLeaf())
-              {
-              this->Input->GetPointsOnEdge2D(this->Sibling,3,level,this->Grabber); // 3==+y
-              }
-            this->Sibling->ToParent();
-            }
-          else
             {
+              this->Input->GetPointsOnEdge2D(this->Sibling,3,level,this->Grabber); // 3==+y
+            }
+            this->Sibling->ToParent();
+          }
+          else
+          {
             // parent
             this->Input->GetPointsOnParentEdge2D(cursor,2,level,this->Grabber); // 2==-y
-            }
           }
+        }
 
         // Insert vertex (xmax,ymin)
         pt[0]=bounds[1];
@@ -968,24 +968,24 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
         this->Polygon->GetPoints()->InsertNextPoint(pt);
 
         if(!lastLevelLeaf)
-          {
+        {
           // Process edge (+x)
           if(edges[0])
-            {
+          {
             // parent
             this->Input->GetPointsOnParentEdge2D(cursor,1,level,this->Grabber); // 1==+x
-            }
+          }
           else
-            {
+          {
             // sibling
             this->Sibling->ToChild(child+1);
             if(!this->Sibling->CurrentIsLeaf())
-              {
+            {
               this->Input->GetPointsOnEdge2D(this->Sibling,0,level,this->Grabber); //0==-x
-              }
-            this->Sibling->ToParent();
             }
+            this->Sibling->ToParent();
           }
+        }
 
         // Insert vertex (xmax,ymax)
         pt[1]=bounds[3];
@@ -994,24 +994,24 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
         this->Polygon->GetPoints()->InsertNextPoint(pt);
 
         if(!lastLevelLeaf)
-          {
+        {
           // Process edge (+y)
           if(edges[1])
-            {
+          {
             // parent
             this->Input->GetPointsOnParentEdge2D(cursor,3,level,this->Grabber); // 3==+y
-            }
+          }
           else
-            {
+          {
             // sibling
             this->Sibling->ToChild(child+2);
             if(!this->Sibling->CurrentIsLeaf())
-              {
+            {
               this->Input->GetPointsOnEdge2D(this->Sibling,2,level,this->Grabber); //2==-y
-              }
-            this->Sibling->ToParent();
             }
+            this->Sibling->ToParent();
           }
+        }
 
 
         // Insert vertex (xmin,ymax)
@@ -1021,28 +1021,28 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
         this->Polygon->GetPoints()->InsertNextPoint(pt);
 
         if(!lastLevelLeaf)
-          {
+        {
           // Process edge (-x)
           if(edges[0])
-            {
+          {
             // sibling
             this->Sibling->ToChild(child-1);
             if(!this->Sibling->CurrentIsLeaf())
-              {
-              this->Input->GetPointsOnEdge2D(this->Sibling,1,level,this->Grabber); // 1==+x
-              }
-            this->Sibling->ToParent();
-            }
-          else
             {
+              this->Input->GetPointsOnEdge2D(this->Sibling,1,level,this->Grabber); // 1==+x
+            }
+            this->Sibling->ToParent();
+          }
+          else
+          {
             // parent
             this->Input->GetPointsOnParentEdge2D(cursor,0,level,this->Grabber); // 0==-x
-            }
           }
         }
+      }
 
       if(allIn || allOut)
-        {
+      {
         vtkIdType cellId=cursor->GetLeafId();
         vtkPointData *inPD=this->Input->GetPointData(); // void
 
@@ -1050,37 +1050,37 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
         // TODO
         vtkIncrementalPointLocator *locator;
         if(allIn)
-          {
+        {
           i=0;
           locator=this->Locator;
-          }
+        }
         else // allOut, because here we know allIn || allOut is true.
-          {
+        {
           i=1;
           locator=this->Locator2;
-          }
+        }
 
         if(this->Input->GetDimension()==3)
-          {
+        {
           if(this->Triangulator->GetNumberOfPoints()==8)
-            {
+          {
             // only the vertices of a voxel: fast path.
             this->Triangulator->UseTemplatesOn();
             this->Triangulator->TemplateTriangulate(VTK_VOXEL,8,12);
             ++this->TotalCounter;
             ++this->TemplateCounter;
-            }
+          }
           else
-            {
+          {
             // slow path
             this->Triangulator->UseTemplatesOff();
             this->Triangulator->Triangulate();
             ++this->TotalCounter;
             if(this->Triangulator->GetNumberOfPoints()<=65536)
-              {
+            {
               this->CellTypeCounter[this->Triangulator->GetNumberOfPoints()-1]++;
-              }
             }
+          }
 
           vtkIdType numNew=this->Triangulator->AddTetras(0,locator,
                                                          this->Conn[i],inPD,
@@ -1094,7 +1094,7 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
           int cellType;
           int numSimplices=0;
           for (j=0; j < numNew; j++)
-            {
+          {
             ++numSimplices;
             this->Locs[i]->InsertNextValue(
               this->Conn[i]->GetTraversalLocation());
@@ -1105,11 +1105,11 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
             cellType = (npts == 4 ? VTK_TETRA : VTK_WEDGE);
 
             this->Types[i]->InsertNextValue(cellType);
-            } //for each new cell
+          } //for each new cell
           assert(numSimplices==numNew);
-          }
+        }
         else
-          {
+        {
           // this->Input->GetDimension()==2
           // Add the polygon
 
@@ -1119,16 +1119,16 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
 
           int p=0;
           while(p<c)
-            {
+          {
             if(locator->InsertUniquePoint(
                  this->Polygon->GetPoints()->GetPoint(p),pts[p]))
-              {
+            {
               this->OutPD[i]->CopyData(inPD,
                                        this->Polygon->GetPointIds()->GetId(p),
                                        pts[p]);
-              }
-            ++p;
             }
+            ++p;
+          }
 
           // Insert the connectivity
           vtkIdType newCellId = this->Conn[i]->InsertNextCell(c,pts);
@@ -1143,16 +1143,16 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
                           (npts == 4 ? VTK_QUAD : VTK_POLYGON));
           this->Types[i]->InsertNextValue(cellType);
 
-          }
-        return;
         }
+        return;
+      }
 
       // Here, we have to clip the sub-tetras or polygon.
       // We have to evaluate the clipfunction on each inserted point
       // BEFORE calling Triangulate().
 
       if(this->Input->GetDimension()==3)
-        {
+      {
         int c=this->Triangulator->GetNumberOfPoints();
         double *globalPt;
 
@@ -1161,32 +1161,32 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
 
         i=0;
         while(i<c)
-          {
+        {
           globalPt=this->Triangulator->GetPointLocation(i);
           s=this->ClipFunction->FunctionValue(globalPt);
           this->CellScalars->InsertValue(i,s);
           ++i;
-          }
+        }
 
         if(c==8)
-          {
+        {
           // only the vertices of a voxel: fast path.
           this->Triangulator->UseTemplatesOn();
           this->Triangulator->TemplateTriangulate(VTK_VOXEL,8,12);
           ++this->TotalCounter;
           ++this->TemplateCounter;
-          }
+        }
         else
-          {
+        {
           // slow path
           this->Triangulator->UseTemplatesOff();
           this->Triangulator->Triangulate();
           ++this->TotalCounter;
           if(this->Triangulator->GetNumberOfPoints()<=65536)
-            {
+          {
             this->CellTypeCounter[this->Triangulator->GetNumberOfPoints()-1]++;
-            }
           }
+        }
 
         int done;
 
@@ -1195,21 +1195,21 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
         num[0]=this->Conn[0]->GetNumberOfCells();
         num[1]=0;
         if(this->GenerateClippedOutput)
-          {
+        {
           num[1]=this->Conn[1]->GetNumberOfCells();
-          }
+        }
 
         int numNew[2]; numNew[0]=numNew[1]=0;
 
         int numOutputs;
         if(this->GenerateClippedOutput)
-          {
+        {
           numOutputs=2;
-          }
+        }
         else
-          {
+        {
           numOutputs=1;
-          }
+        }
 
         vtkIdType npts=0;
         vtkIdType *pts;
@@ -1224,7 +1224,7 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
         done=this->Triangulator->GetNextTetra(0,this->Tetra,this->CellScalars,
                                               this->TetScalars)==0;
         while(!done)
-          {
+        {
           ++numTetras;
           this->Tetra->Clip(this->Value,this->TetScalars,this->Locator,
                             this->Conn[0],inPD,this->OutPD[0],this->InCD,
@@ -1234,18 +1234,18 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
           num[0] = this->Conn[0]->GetNumberOfCells();
 
           if(this->GenerateClippedOutput)
-            {
+          {
             this->Tetra->Clip(this->Value, this->TetScalars, this->Locator2,
                               this->Conn[1],inPD, this->OutPD[1], this->InCD,
                               cellId, this->OutCD[1], !this->InsideOut);
             numNew[1] = this->Conn[1]->GetNumberOfCells() - num[1];
             num[1] = this->Conn[1]->GetNumberOfCells();
-            }
+          }
 
           for (i=0; i<numOutputs; i++) //for both outputs
-            {
+          {
             for (j=0; j < numNew[i]; j++)
-              {
+            {
               this->Locs[i]->InsertNextValue(
                 this->Conn[i]->GetTraversalLocation());
               this->Conn[i]->GetNextCell(npts,pts);
@@ -1254,16 +1254,16 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
               cellType = (npts == 4 ? VTK_TETRA : VTK_WEDGE);
 
               this->Types[i]->InsertNextValue(cellType);
-              } //for each new cell
-            } //for both outputs
+            } //for each new cell
+          } //for both outputs
 
           done=this->Triangulator->GetNextTetra(0,this->Tetra,
                                                 this->CellScalars,
                                                 this->TetScalars)==0;
-          } //while
-        }
+        } //while
+      }
       else
-        {
+      {
         // this->Input->GetDimension()==2
         int c=this->Polygon->GetPoints()->GetNumberOfPoints();
         double *globalPt;
@@ -1273,33 +1273,33 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
 
         i=0;
         while(i<c)
-          {
+        {
           globalPt=this->Polygon->GetPoints()->GetPoint(i);
           s=this->ClipFunction->FunctionValue(globalPt);
           this->CellScalars->InsertValue(i,s);
           ++i;
-          }
+        }
 
         int num[2];
 
         num[0]=this->Conn[0]->GetNumberOfCells();
         num[1]=0;
         if(this->GenerateClippedOutput)
-          {
+        {
           num[1]=this->Conn[1]->GetNumberOfCells();
-          }
+        }
 
         int numNew[2]; numNew[0]=numNew[1]=0;
 
         int numOutputs;
         if(this->GenerateClippedOutput)
-          {
+        {
           numOutputs=2;
-          }
+        }
         else
-          {
+        {
           numOutputs=1;
-          }
+        }
 
         vtkIdType npts=0;
         vtkIdType *pts;
@@ -1317,18 +1317,18 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
         num[0] = this->Conn[0]->GetNumberOfCells();
 
         if(this->GenerateClippedOutput)
-          {
+        {
           this->Polygon->Clip(this->Value, this->CellScalars, this->Locator2,
                               this->Conn[1],inPD, this->OutPD[1], this->InCD,
                               cellId, this->OutCD[1], !this->InsideOut);
           numNew[1] = this->Conn[1]->GetNumberOfCells() - num[1];
           num[1] = this->Conn[1]->GetNumberOfCells();
-          }
+        }
 
         for (i=0; i<numOutputs; i++) //for both outputs
-          {
+        {
           for (j=0; j < numNew[i]; j++)
-            {
+          {
             this->Locs[i]->InsertNextValue(
               this->Conn[i]->GetTraversalLocation());
             this->Conn[i]->GetNextCell(npts,pts);
@@ -1337,26 +1337,26 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
             cellType = (npts == 3 ? VTK_TRIANGLE :
                         (npts == 4 ? VTK_QUAD : VTK_POLYGON));
             this->Types[i]->InsertNextValue(cellType);
-            } //for each new cell
-          } //for both outputs
-        }
+          } //for each new cell
+        } //for both outputs
       }
     }
+  }
   else
-    {
+  {
     // not a leaf
     // try to reject the node (and so reject all its sub-hierarchy)
     // to speed-up the process
     int clipChildren=1;
     if(!this->GenerateClippedOutput)
-      {
+    {
       // if all the corner points are outside, we are good for
       // rejection.
       vtkIdType numPts=0;
 
       double pt[3];
       switch(this->Input->GetDimension())
-        {
+      {
         case 3:
           numPts=8;
           this->Pts->SetNumberOfPoints(numPts);
@@ -1411,26 +1411,26 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
         default:
           assert("check: impossible" && 0);
           break;
-        }
+      }
 
       clipChildren=0;
       int i=0;
       while(!clipChildren && i<numPts)
-        {
+      {
         double s = this->ClipFunction->FunctionValue(this->Pts->GetPoint(i));
         if(this->InsideOut)
-          {
+        {
           clipChildren=s<=this->Value; // keep point if true
-          }
-        else
-          {
-          clipChildren=s>=this->Value; // keep point if true
-          }
-        ++i;
         }
+        else
+        {
+          clipChildren=s>=this->Value; // keep point if true
+        }
+        ++i;
       }
+    }
     if(clipChildren)
-      {
+    {
       double newBounds[6];
 
       double midx=(bounds[0]+bounds[1])*0.5;
@@ -1440,7 +1440,7 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
       int kmax=2; // initialized to avoid compiler warnings
       int jmax=2;
       switch(this->Input->GetDimension())
-        {
+      {
         case 3:
           kmax=2;
           jmax=2;
@@ -1456,59 +1456,59 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
         default:
           assert("check: impossible case" && 0);
           break;
-        }
+      }
 
       int k=0;
       while(k<kmax)
-        {
+      {
         if(k==0)
-          {
+        {
           newBounds[4]=bounds[4];
           newBounds[5]=midz;
-          }
+        }
         else
-          {
+        {
           newBounds[4]=midz;
           newBounds[5]=bounds[5];
-          }
+        }
         int j=0;
         while(j<jmax)
-          {
+        {
           if(j==0)
-            {
+          {
             newBounds[2]=bounds[2];
             newBounds[3]=midy;
-            }
+          }
           else
-            {
+          {
             newBounds[2]=midy;
             newBounds[3]=bounds[3];
-            }
+          }
           int i=0;
           while(i<2)
-            {
+          {
             int child=(((k<<1)+j)<<1)+i;
             cursor->ToChild(child);
             if(i==0)
-              {
+            {
               newBounds[0]=bounds[0];
               newBounds[1]=midx;
-              }
+            }
             else
-              {
+            {
               newBounds[0]=midx;
               newBounds[1]=bounds[1];
-              }
+            }
             this->ClipNode(cursor,level+1,newBounds);
             cursor->ToParent();
             ++i;
-            }
-          ++j;
           }
-        ++k;
+          ++j;
         }
+        ++k;
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1517,20 +1517,20 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
 void vtkClipHyperOctree::SetLocator(vtkIncrementalPointLocator *locator)
 {
   if ( this->Locator == locator)
-    {
+  {
     return;
-    }
+  }
 
   if ( this->Locator )
-    {
+  {
     this->Locator->UnRegister(this);
     this->Locator = NULL;
-    }
+  }
 
   if ( locator )
-    {
+  {
     locator->Register(this);
-    }
+  }
 
   this->Locator = locator;
   this->Modified();
@@ -1540,11 +1540,11 @@ void vtkClipHyperOctree::SetLocator(vtkIncrementalPointLocator *locator)
 void vtkClipHyperOctree::CreateDefaultLocator()
 {
   if ( this->Locator == NULL )
-    {
+  {
     this->Locator = vtkMergePoints::New();
     this->Locator->Register(this);
     this->Locator->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1560,23 +1560,23 @@ void vtkClipHyperOctree::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->ClipFunction )
-    {
+  {
     os << indent << "Clip Function: " << this->ClipFunction << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Clip Function: (none)\n";
-    }
+  }
   os << indent << "InsideOut: " << (this->InsideOut ? "On\n" : "Off\n");
   os << indent << "Value: " << this->Value << "\n";
   if ( this->Locator )
-    {
+  {
     os << indent << "Locator: " << this->Locator << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Locator: (none)\n";
-    }
+  }
 
   os << indent << "Generate Clip Scalars: "
      << (this->GenerateClipScalars ? "On\n" : "Off\n");

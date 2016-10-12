@@ -12,20 +12,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageCast -  Image Data type Casting Filter
-// .SECTION Description
-// vtkImageCast filter casts the input type to match the output type in
-// the image processing pipeline.  The filter does nothing if the input
-// already has the correct type.  To specify the "CastTo" type,
-// use "SetOutputScalarType" method.
-//
-// .SECTION Warning
-// As vtkImageCast only casts values without rescaling them, its use is not
-// recommented. vtkImageShiftScale is the recommented way to change the type
-// of an image data.
-
-// .SECTION See Also
-// vtkImageThreshold vtkImageShiftScale
+/**
+ * @class   vtkImageCast
+ * @brief    Image Data type Casting Filter
+ *
+ * vtkImageCast filter casts the input type to match the output type in
+ * the image processing pipeline.  The filter does nothing if the input
+ * already has the correct type.  To specify the "CastTo" type,
+ * use "SetOutputScalarType" method.
+ *
+ * @warning
+ * As vtkImageCast only casts values without rescaling them, its use is not
+ * recommented. vtkImageShiftScale is the recommented way to change the type
+ * of an image data.
+ *
+ * @sa
+ * vtkImageThreshold vtkImageShiftScale
+*/
 
 #ifndef vtkImageCast_h
 #define vtkImageCast_h
@@ -41,8 +44,10 @@ public:
   vtkTypeMacro(vtkImageCast,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the desired output scalar type to cast to.
+  //@{
+  /**
+   * Set the desired output scalar type to cast to.
+   */
   vtkSetMacro(OutputScalarType,int);
   vtkGetMacro(OutputScalarType,int);
   void SetOutputScalarTypeToFloat(){this->SetOutputScalarType(VTK_FLOAT);};
@@ -60,17 +65,21 @@ public:
     {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);};
   void SetOutputScalarTypeToChar()
     {this->SetOutputScalarType(VTK_CHAR);};
+  //@}
 
-  // Description:
-  // When the ClampOverflow flag is on, the data is thresholded so that
-  // the output value does not exceed the max or min of the data type.
-  // Clamping is safer because otherwise you might invoke undefined
-  // behavior (and may crash) if the type conversion is out of range
-  // of the data type.  On the other hand, clamping is slower.
-  // By default ClampOverflow is off.
+  //@{
+  /**
+   * When the ClampOverflow flag is on, the data is thresholded so that
+   * the output value does not exceed the max or min of the data type.
+   * Clamping is safer because otherwise you might invoke undefined
+   * behavior (and may crash) if the type conversion is out of range
+   * of the data type.  On the other hand, clamping is slower.
+   * By default ClampOverflow is off.
+   */
   vtkSetMacro(ClampOverflow, int);
   vtkGetMacro(ClampOverflow, int);
   vtkBooleanMacro(ClampOverflow, int);
+  //@}
 
 
 protected:
@@ -85,8 +94,8 @@ protected:
                        int ext[6], int id);
 
 private:
-  vtkImageCast(const vtkImageCast&);  // Not implemented.
-  void operator=(const vtkImageCast&);  // Not implemented.
+  vtkImageCast(const vtkImageCast&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageCast&) VTK_DELETE_FUNCTION;
 };
 
 #endif

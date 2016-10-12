@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLDataReader - Superclass for VTK XML file readers.
-// .SECTION Description
-// vtkXMLDataReader provides functionality common to all VTK XML file
-// readers.  Concrete subclasses call upon this functionality when
-// needed.
-
-// .SECTION See Also
-// vtkXMLPDataReader
+/**
+ * @class   vtkXMLDataReader
+ * @brief   Superclass for VTK XML file readers.
+ *
+ * vtkXMLDataReader provides functionality common to all file readers for
+ * <a href="http://www.vtk.org/Wiki/VTK_XML_Formats">VTK XML formats</a>.
+ * Concrete subclasses call upon this functionality when needed.
+ *
+ * @sa
+ * vtkXMLPDataReader
+*/
 
 #ifndef vtkXMLDataReader_h
 #define vtkXMLDataReader_h
@@ -41,12 +44,14 @@ public:
   vtkTypeMacro(vtkXMLDataReader,vtkXMLReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the number of points in the output.
+  /**
+   * Get the number of points in the output.
+   */
   virtual vtkIdType GetNumberOfPoints()=0;
 
-  // Description:
-  // Get the number of cells in the output.
+  /**
+   * Get the number of cells in the output.
+   */
   virtual vtkIdType GetNumberOfCells()=0;
 
   // For the specified port, copy the information this reader sets up in
@@ -135,8 +140,8 @@ protected:
   int CellDataNeedToReadTimeStep(vtkXMLDataElement *eNested);
 
 private:
-  vtkXMLDataReader(const vtkXMLDataReader&);  // Not implemented.
-  void operator=(const vtkXMLDataReader&);  // Not implemented.
+  vtkXMLDataReader(const vtkXMLDataReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLDataReader&) VTK_DELETE_FUNCTION;
 
   void ConvertGhostLevelsToGhostType(
     FieldType type, vtkAbstractArray* data, vtkIdType startIndex,

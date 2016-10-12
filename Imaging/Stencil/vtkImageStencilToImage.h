@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageStencilToImage - Convert an image stencil into an image
-// .SECTION Description
-// vtkImageStencilToImage will convert an image stencil into a binary
-// image.  The default output will be an 8-bit image with a value of 1
-// inside the stencil and 0 outside.  When used in combination with
-// vtkPolyDataToImageStencil or vtkImplicitFunctionToImageStencil, this
-// can be used to create a binary image from a mesh or a function.
-// .SECTION See Also
-// vtkImplicitModeller
+/**
+ * @class   vtkImageStencilToImage
+ * @brief   Convert an image stencil into an image
+ *
+ * vtkImageStencilToImage will convert an image stencil into a binary
+ * image.  The default output will be an 8-bit image with a value of 1
+ * inside the stencil and 0 outside.  When used in combination with
+ * vtkPolyDataToImageStencil or vtkImplicitFunctionToImageStencil, this
+ * can be used to create a binary image from a mesh or a function.
+ * @sa
+ * vtkImplicitModeller
+*/
 
 #ifndef vtkImageStencilToImage_h
 #define vtkImageStencilToImage_h
@@ -35,18 +38,26 @@ public:
   vtkTypeMacro(vtkImageStencilToImage, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // The value to use outside the stencil.  The default is 0.
+  //@{
+  /**
+   * The value to use outside the stencil.  The default is 0.
+   */
   vtkSetMacro(OutsideValue, double);
   vtkGetMacro(OutsideValue, double);
+  //@}
 
-  // Description:
-  // The value to use inside the stencil.  The default is 1.
+  //@{
+  /**
+   * The value to use inside the stencil.  The default is 1.
+   */
   vtkSetMacro(InsideValue, double);
   vtkGetMacro(InsideValue, double);
+  //@}
 
-  // Description:
-  // The desired output scalar type.  The default is unsigned char.
+  //@{
+  /**
+   * The desired output scalar type.  The default is unsigned char.
+   */
   vtkSetMacro(OutputScalarType,int);
   vtkGetMacro(OutputScalarType,int);
   void SetOutputScalarTypeToFloat(){this->SetOutputScalarType(VTK_FLOAT);};
@@ -64,6 +75,7 @@ public:
     {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);};
   void SetOutputScalarTypeToChar()
     {this->SetOutputScalarType(VTK_CHAR);};
+  //@}
 
 protected:
   vtkImageStencilToImage();
@@ -84,8 +96,8 @@ protected:
   virtual int FillInputPortInformation(int, vtkInformation*);
 
 private:
-  vtkImageStencilToImage(const vtkImageStencilToImage&);  // Not implemented.
-  void operator=(const vtkImageStencilToImage&);  // Not implemented.
+  vtkImageStencilToImage(const vtkImageStencilToImage&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageStencilToImage&) VTK_DELETE_FUNCTION;
 };
 
 #endif

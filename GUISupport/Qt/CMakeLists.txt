@@ -75,7 +75,7 @@ if(VTK_QT_VERSION VERSION_GREATER "4")
   set(QT_LIBRARIES_PRIVATE ${Qt5X11Extras_LIBRARIES})
 
   # When this module is loaded by an app, load Qt too.
-  vtk_module_export_code_find_package(Qt5Widgets)
+  vtk_module_export_code_find_package(Qt5 COMPONENTS Widgets)
 else()
   # import Qt4 build settings
   set(QT_USE_QTNETWORK 1)

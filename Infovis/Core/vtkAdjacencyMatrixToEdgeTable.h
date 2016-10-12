@@ -19,14 +19,16 @@
 
 =========================================================================*/
 
-// .NAME vtkAdjacencyMatrixToEdgeTable
-
-// .SECTION Description
-// Treats a dense 2-way array of doubles as an adacency matrix and converts it into a
-// vtkTable suitable for use as an edge table with vtkTableToGraph.
-
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+/**
+ * @class   vtkAdjacencyMatrixToEdgeTable
+ *
+ *
+ * Treats a dense 2-way array of doubles as an adacency matrix and converts it into a
+ * vtkTable suitable for use as an edge table with vtkTableToGraph.
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+*/
 
 #ifndef vtkAdjacencyMatrixToEdgeTable_h
 #define vtkAdjacencyMatrixToEdgeTable_h
@@ -41,30 +43,42 @@ public:
   vtkTypeMacro(vtkAdjacencyMatrixToEdgeTable, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specifies whether rows or columns become the "source" in the output edge table.
-  // 0 = rows, 1 = columns.  Default: 0
+  //@{
+  /**
+   * Specifies whether rows or columns become the "source" in the output edge table.
+   * 0 = rows, 1 = columns.  Default: 0
+   */
   vtkGetMacro(SourceDimension, vtkIdType);
   vtkSetMacro(SourceDimension, vtkIdType);
+  //@}
 
-  // Description:
-  // Controls the name of the output table column that contains edge weights.
-  // Default: "value"
+  //@{
+  /**
+   * Controls the name of the output table column that contains edge weights.
+   * Default: "value"
+   */
   vtkGetStringMacro(ValueArrayName);
   vtkSetStringMacro(ValueArrayName);
+  //@}
 
-  // Description:
-  // Specifies the minimum number of adjacent edges to include for each source vertex.
-  // Default: 0
+  //@{
+  /**
+   * Specifies the minimum number of adjacent edges to include for each source vertex.
+   * Default: 0
+   */
   vtkGetMacro(MinimumCount, vtkIdType);
   vtkSetMacro(MinimumCount, vtkIdType);
+  //@}
 
-  // Description:
-  // Specifies a minimum threshold that an edge weight must exceed to be included in
-  // the output.
-  // Default: 0.5
+  //@{
+  /**
+   * Specifies a minimum threshold that an edge weight must exceed to be included in
+   * the output.
+   * Default: 0.5
+   */
   vtkGetMacro(MinimumThreshold, double);
   vtkSetMacro(MinimumThreshold, double);
+  //@}
 
 protected:
   vtkAdjacencyMatrixToEdgeTable();
@@ -83,8 +97,8 @@ protected:
   double MinimumThreshold;
 
 private:
-  vtkAdjacencyMatrixToEdgeTable(const vtkAdjacencyMatrixToEdgeTable&); // Not implemented
-  void operator=(const vtkAdjacencyMatrixToEdgeTable&);   // Not implemented
+  vtkAdjacencyMatrixToEdgeTable(const vtkAdjacencyMatrixToEdgeTable&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAdjacencyMatrixToEdgeTable&) VTK_DELETE_FUNCTION;
 };
 
 #endif

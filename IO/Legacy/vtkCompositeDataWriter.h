@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCompositeDataWriter - legacy VTK file writer for vtkCompositeDataSet
-// subclasses.
-// .SECTION Description
-// vtkCompositeDataWriter is a writer for writing legacy VTK files for
-// vtkCompositeDataSet and subclasses.
-// .SECTION CAVEATS
-// This is an experimental format. Use XML-based formats for writing composite
-// datasets. Saving composite dataset in legacy VTK format is expected to change
-// in future including changes to the file layout.
+/**
+ * @class   vtkCompositeDataWriter
+ * @brief   legacy VTK file writer for vtkCompositeDataSet
+ * subclasses.
+ *
+ * vtkCompositeDataWriter is a writer for writing legacy VTK files for
+ * vtkCompositeDataSet and subclasses.
+ * @warning
+ * This is an experimental format. Use XML-based formats for writing composite
+ * datasets. Saving composite dataset in legacy VTK format is expected to change
+ * in future including changes to the file layout.
+*/
 
 #ifndef vtkCompositeDataWriter_h
 #define vtkCompositeDataWriter_h
@@ -42,19 +45,25 @@ public:
   vtkTypeMacro(vtkCompositeDataWriter, vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the input to this writer.
+  //@{
+  /**
+   * Get the input to this writer.
+   */
   vtkCompositeDataSet* GetInput();
   vtkCompositeDataSet* GetInput(int port);
+  //@}
 
 protected:
   vtkCompositeDataWriter();
   ~vtkCompositeDataWriter();
 
-  // Description:
-  // Performs the actual writing.
+  //@{
+  /**
+   * Performs the actual writing.
+   */
   virtual void WriteData();
   virtual int FillInputPortInformation(int port, vtkInformation *info);
+  //@}
 
   bool WriteCompositeData(ostream*, vtkMultiBlockDataSet*);
   bool WriteCompositeData(ostream*, vtkMultiPieceDataSet*);
@@ -64,8 +73,8 @@ protected:
   bool WriteBlock(ostream* fp, vtkDataObject* block);
 
 private:
-  vtkCompositeDataWriter(const vtkCompositeDataWriter&); // Not implemented
-  void operator=(const vtkCompositeDataWriter&); // Not implemented
+  vtkCompositeDataWriter(const vtkCompositeDataWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompositeDataWriter&) VTK_DELETE_FUNCTION;
 
 };
 

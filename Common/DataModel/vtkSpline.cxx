@@ -49,32 +49,32 @@ vtkSpline::~vtkSpline ()
 void vtkSpline::SetParametricRange(double tMin, double tMax)
 {
   if ( tMin != this->ParametricRange[0] || tMax != this->ParametricRange[1] )
-    {
+  {
     if ( tMin >= tMax )
-      {
+    {
       tMax = tMin + 1;
-      }
+    }
 
     this->ParametricRange[0] = tMin;
     this->ParametricRange[1] = tMax;
 
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkSpline::GetParametricRange(double tRange[2]) const
 {
   if ( this->ParametricRange[0] != this->ParametricRange[1] )
-    {
+  {
     tRange[0] = this->ParametricRange[0];
     tRange[1] = this->ParametricRange[1];
-    }
+  }
   else
-    {
+  {
     tRange[0] = this->PiecewiseFunction->GetRange()[0];
     tRange[1] = this->PiecewiseFunction->GetRange()[1];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -83,13 +83,13 @@ double vtkSpline::ComputeLeftDerivative()
   double *dptr = this->PiecewiseFunction->GetDataPointer();
   int size = this->PiecewiseFunction->GetSize();
   if ( dptr == NULL || size < 2 )
-    {
+  {
     return 0.0;
-    }
+  }
   else
-    {
+  {
     return (dptr[2]-dptr[0]);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -98,13 +98,13 @@ double vtkSpline::ComputeRightDerivative()
   double *dptr = this->PiecewiseFunction->GetDataPointer();
   int size = this->PiecewiseFunction->GetSize();
   if ( dptr == NULL || size < 2 )
-    {
+  {
     return 0.0;
-    }
+  }
   else
-    {
+  {
     return (dptr[(size-1)*2]-dptr[(size-2)*2]);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -119,10 +119,10 @@ int vtkSpline::GetNumberOfPoints()
 void vtkSpline::AddPoint (double t, double x)
 {
   if ( this->ParametricRange[0] != this->ParametricRange[1] )
-    {
+  {
     t = (t < this->ParametricRange[0] ? this->ParametricRange[0] :
          (t > this->ParametricRange[1] ? this->ParametricRange[1] : t));
-    }
+  }
   this->PiecewiseFunction->AddPoint (t, x);
 }
 
@@ -131,10 +131,10 @@ void vtkSpline::AddPoint (double t, double x)
 void vtkSpline::RemovePoint (double t)
 {
   if ( this->ParametricRange[0] != this->ParametricRange[1] )
-    {
+  {
     t = (t < this->ParametricRange[0] ? this->ParametricRange[0] :
          (t > this->ParametricRange[1] ? this->ParametricRange[1] : t));
-    }
+  }
   this->PiecewiseFunction->RemovePoint (t);
 }
 
@@ -151,7 +151,7 @@ void vtkSpline::DeepCopy(vtkSpline *s)
   vtkSpline *spline = vtkSpline::SafeDownCast(s);
 
   if ( spline != NULL )
-    {
+  {
     this->ClampValue = s->ClampValue;
     this->LeftConstraint = s->LeftConstraint;
     this->LeftValue = s->LeftValue;
@@ -159,22 +159,22 @@ void vtkSpline::DeepCopy(vtkSpline *s)
     this->RightValue = s->RightValue;
     this->Closed = s->Closed;
     this->PiecewiseFunction->DeepCopy(s->PiecewiseFunction);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 // Overload standard modified time function. If data is modified,
 // then this object is modified as well.
-unsigned long vtkSpline::GetMTime()
+vtkMTimeType vtkSpline::GetMTime()
 {
-  unsigned long mTime=this->vtkObject::GetMTime();
-  unsigned long DataMTime;
+  vtkMTimeType mTime=this->vtkObject::GetMTime();
+  vtkMTimeType DataMTime;
 
   if ( this->PiecewiseFunction != NULL )
-    {
+  {
     DataMTime = this->PiecewiseFunction->GetMTime();
     mTime = ( DataMTime > mTime ? DataMTime : mTime );
-    }
+  }
 
   return mTime;
 }
@@ -184,29 +184,29 @@ int vtkSpline::FindIndex(int size, double t)
 {
   int index=0;
   if ( size > 2 ) //bisection method for speed
-    {
+  {
     int rightIdx = size - 1;
     int centerIdx = rightIdx - size/2;
     for (int converged=0; !converged; )
-      {
+    {
       if ( this->Intervals[index] <= t && t <= this->Intervals[centerIdx] )
-        {
+      {
         rightIdx = centerIdx;
-        }
+      }
       else //if ( this->Intervals[centerIdx] < t && t <= this->Intervals[rightIdx] )
-        {
+      {
         index = centerIdx;
-        }
+      }
       if ( (index + 1) == rightIdx )
-        {
+      {
         converged = 1;
-        }
+      }
       else
-        {
+      {
         centerIdx = index + (rightIdx-index)/2;
-        }
-      }//while not converged
-    }
+      }
+    }//while not converged
+  }
   return index;
 }
 

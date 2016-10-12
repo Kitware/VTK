@@ -43,7 +43,7 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
     static KeyPressInteractorStyle* New();
     vtkTypeMacro(KeyPressInteractorStyle, vtkInteractorStyleTrackballCamera);
 
-    virtual void OnKeyPress()
+    void OnKeyPress() VTK_OVERRIDE
     {
       // Get the keypress
       vtkRenderWindowInteractor *rwi = this->Interactor;
@@ -51,7 +51,7 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
 
       // Handle a "normal" key
       if(key == "a")
-        {
+      {
         double *pos = this->Renderer->GetActiveCamera()->GetPosition();
         double *focal = this->Renderer->GetActiveCamera()->GetFocalPoint();
         double *clip = this->Renderer->GetActiveCamera()->GetClippingRange();
@@ -61,7 +61,7 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
         cout << "Camera focalpoint " << focal[0] << ", " << focal[1] << ", " << focal[2] << endl;
         cout << "Camera viewup " << up[0] << ", " << up[1] << ", " << up[2] << endl;
         cout << "Camera range " << clip[0] << ", " << clip[1] << endl;
-        }
+      }
 
       // Forward events
       vtkInteractorStyleTrackballCamera::OnKeyPress();
@@ -158,9 +158,9 @@ int TestHyperTreeGridTernary3DGeometryLargeMaterialBits( int argc, char* argv[] 
 
   int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 30 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

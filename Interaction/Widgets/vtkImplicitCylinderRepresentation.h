@@ -12,27 +12,29 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImplicitCylinderRepresentation - defining the representation for a vtkImplicitCylinderWidget
-// .SECTION Description
-// This class is a concrete representation for the
-// vtkImplicitCylinderWidget. It represents an infinite cylinder
-// defined by a radius, a center, and an axis. The cylinder is placed
-// within its associated bounding box and the intersection of the
-// cylinder with the bounding box is shown to visually indicate the
-// orientation and position of the representation. This cylinder
-// representation can be manipulated by using the
-// vtkImplicitCylinderWidget to adjust the cylinder radius, axis,
-// and/or center point. (Note that the bounding box is defined during
-// invocation of the superclass' PlaceWidget() method.)
-//
-// To use this representation, you normally specify a radius, center,
-// and axis. Optionally you can specify a minimum and maximum radius,
-// and a resolution for the cylinder. Finally, place the widget and
-// its representation in the scene using PlaceWidget().
-
-// .SECTION See Also
-// vtkImplicitCylinderWidget vtkImplicitPlaneWidget vtkImplicitPlaneWidget
-
+/**
+ * @class   vtkImplicitCylinderRepresentation
+ * @brief   defining the representation for a vtkImplicitCylinderWidget
+ *
+ * This class is a concrete representation for the
+ * vtkImplicitCylinderWidget. It represents an infinite cylinder
+ * defined by a radius, a center, and an axis. The cylinder is placed
+ * within its associated bounding box and the intersection of the
+ * cylinder with the bounding box is shown to visually indicate the
+ * orientation and position of the representation. This cylinder
+ * representation can be manipulated by using the
+ * vtkImplicitCylinderWidget to adjust the cylinder radius, axis,
+ * and/or center point. (Note that the bounding box is defined during
+ * invocation of the superclass' PlaceWidget() method.)
+ *
+ * To use this representation, you normally specify a radius, center,
+ * and axis. Optionally you can specify a minimum and maximum radius,
+ * and a resolution for the cylinder. Finally, place the widget and
+ * its representation in the scene using PlaceWidget().
+ *
+ * @sa
+ * vtkImplicitCylinderWidget vtkImplicitPlaneWidget vtkImplicitPlaneWidget
+*/
 
 #ifndef vtkImplicitCylinderRepresentation_h
 #define vtkImplicitCylinderRepresentation_h
@@ -63,54 +65,72 @@ class vtkLookupTable;
 class VTKINTERACTIONWIDGETS_EXPORT vtkImplicitCylinderRepresentation : public vtkWidgetRepresentation
 {
 public:
-  // Description:
-  // Instantiate the class.
+  /**
+   * Instantiate the class.
+   */
   static vtkImplicitCylinderRepresentation *New();
 
-  // Description:
-  // Standard methods for the class.
+  //@{
+  /**
+   * Standard methods for the class.
+   */
   vtkTypeMacro(vtkImplicitCylinderRepresentation,vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // Get the center of the cylinder. The center is located along the
-  // cylinder axis.
+  //@{
+  /**
+   * Get the center of the cylinder. The center is located along the
+   * cylinder axis.
+   */
   void SetCenter(double x, double y, double z);
   void SetCenter(double x[3]);
   double* GetCenter();
   void GetCenter(double xyz[3]);
+  //@}
 
-  // Description:
-  // Set/Get the axis of rotation for the cylinder. If the axis is not
-  // specified as a unit vector, it will be normalized.
+  //@{
+  /**
+   * Set/Get the axis of rotation for the cylinder. If the axis is not
+   * specified as a unit vector, it will be normalized.
+   */
   void SetAxis(double x, double y, double z);
   void SetAxis(double a[3]);
   double* GetAxis();
   void GetAxis(double a[3]);
+  //@}
 
-  // Description:
-  // Set/Get the radius of the cylinder. Note that if the radius is
-  // too big the cylinder will be outside of the bounding box.
+  //@{
+  /**
+   * Set/Get the radius of the cylinder. Note that if the radius is
+   * too big the cylinder will be outside of the bounding box.
+   */
   void SetRadius(double r);
   double GetRadius();
+  //@}
 
-  // Description:
-  // Set/Get the minimum and maximum radius of the cylinder. This
-  // helps prevent the cylinder from "disappearing" during
-  // interaction.  Note that the minimum and maximum radius is
-  // specified as a fraction of the diagonal length of the widget
-  // bounding box.
+  //@{
+  /**
+   * Set/Get the minimum and maximum radius of the cylinder. This
+   * helps prevent the cylinder from "disappearing" during
+   * interaction.  Note that the minimum and maximum radius is
+   * specified as a fraction of the diagonal length of the widget
+   * bounding box.
+   */
   vtkSetClampMacro(MinRadius,double,0.001,0.25);
   vtkGetMacro(MinRadius,double);
   vtkSetClampMacro(MaxRadius,double,0.25,VTK_FLOAT_MAX);
   vtkGetMacro(MaxRadius,double);
+  //@}
 
-  // Description:
-  // Force the cylinder widget to be aligned with one of the x-y-z axes.
-  // If one axis is set on, the other two will be set off.
-  // Remember that when the state changes, a ModifiedEvent is invoked.
-  // This can be used to snap the cylinder to the axes if it is originally
-  // not aligned.
+  //@{
+  /**
+   * Force the cylinder widget to be aligned with one of the x-y-z axes.
+   * If one axis is set on, the other two will be set off.
+   * Remember that when the state changes, a ModifiedEvent is invoked.
+   * This can be used to snap the cylinder to the axes if it is originally
+   * not aligned.
+   */
   void SetAlongXAxis(int);
   vtkGetMacro(AlongXAxis,int);
   vtkBooleanMacro(AlongXAxis,int);
@@ -120,150 +140,206 @@ public:
   void SetAlongZAxis(int);
   vtkGetMacro(AlongZAxis,int);
   vtkBooleanMacro(AlongZAxis,int);
+  //@}
 
-  // Description:
-  // Enable/disable the drawing of the cylinder. In some cases the cylinder
-  // interferes with the object that it is operating on (e.g., the
-  // cylinder interferes with the cut surface it produces resulting in
-  // z-buffer artifacts.) By default it is off.
+  //@{
+  /**
+   * Enable/disable the drawing of the cylinder. In some cases the cylinder
+   * interferes with the object that it is operating on (e.g., the
+   * cylinder interferes with the cut surface it produces resulting in
+   * z-buffer artifacts.) By default it is off.
+   */
   void SetDrawCylinder(int drawCyl);
   vtkGetMacro(DrawCylinder,int);
   vtkBooleanMacro(DrawCylinder,int);
+  //@}
 
-  // Description:
-  // Set/Get the resolution of the cylinder. This is the number of
-  // polygonal facets used to approximate the curved cylindrical
-  // surface (for rendering purposes). An vtkCylinder is used under
-  // the hood to provide an exact surface representation.
+  //@{
+  /**
+   * Set/Get the resolution of the cylinder. This is the number of
+   * polygonal facets used to approximate the curved cylindrical
+   * surface (for rendering purposes). An vtkCylinder is used under
+   * the hood to provide an exact surface representation.
+   */
   vtkSetClampMacro(Resolution,int,8,VTK_MAX_CYL_RESOLUTION);
   vtkGetMacro(Resolution,int);
+  //@}
 
-  // Description:
-  // Turn on/off tubing of the wire outline of the cylinder
-  // intersecton (against the bounding box). The tube thickens the
-  // line by wrapping with a vtkTubeFilter.
+  //@{
+  /**
+   * Turn on/off tubing of the wire outline of the cylinder
+   * intersecton (against the bounding box). The tube thickens the
+   * line by wrapping with a vtkTubeFilter.
+   */
   vtkSetMacro(Tubing,int);
   vtkGetMacro(Tubing,int);
   vtkBooleanMacro(Tubing,int);
+  //@}
 
-  // Description:
-  // Turn on/off the ability to translate the bounding box by moving it
-  // with the mouse.
+  //@{
+  /**
+   * Turn on/off the ability to translate the bounding box by moving it
+   * with the mouse.
+   */
   vtkSetMacro(OutlineTranslation,int);
   vtkGetMacro(OutlineTranslation,int);
   vtkBooleanMacro(OutlineTranslation,int);
+  //@}
 
-  // Description:
-  // Turn on/off the ability to move the widget outside of the bounds
-  // specified in the initial PlaceWidget() invocation.
+  //@{
+  /**
+   * Turn on/off the ability to move the widget outside of the bounds
+   * specified in the PlaceWidget() invocation.
+   */
   vtkSetMacro(OutsideBounds,int);
   vtkGetMacro(OutsideBounds,int);
   vtkBooleanMacro(OutsideBounds,int);
+  //@}
 
-  // Description:
-  // Set/Get the bounds of the widget representation. PlaceWidget can also be
-  // used to set the bounds of the widget but it may also have other effects
-  // on the internal state of the represenation. Use this function when only
-  // the widget bounds are needs to be modified.
+  //@{
+  /**
+   * Set/Get the bounds of the widget representation. PlaceWidget can also be
+   * used to set the bounds of the widget but it may also have other effects
+   * on the internal state of the represenation. Use this function when only
+   * the widget bounds are needs to be modified.
+   */
   vtkSetVector6Macro(WidgetBounds, double);
   vtkGetVector6Macro(WidgetBounds, double);
+  //@}
 
-  // Description:
-  // Turn on/off whether the center should be constrained to the widget bounds.
-  // If on, the center will not be allowed to move outside the set widget bounds.
-  // If off, the center can be freely moved and the widget outline will change
-  // accordingly. The default is on.
-  vtkSetMacro(ConstrainCenter, int);
-  vtkGetMacro(ConstrainCenter, int);
-  vtkBooleanMacro(ConstrainCenter, int);
+  //@{
+  /**
+   * Turn on/off whether the cylinder should be constrained to the widget bounds.
+   * If on, the center will not be allowed to move outside the set widget bounds
+   * and the radius will be limited by MinRadius and MaxRadius. This is the
+   * default behaviour.
+   * If off, the center can be freely moved and the radius can be set to
+   * arbitrary values. The widget outline will change accordingly.
+   */
+  vtkSetMacro(ConstrainToWidgetBounds, int);
+  vtkGetMacro(ConstrainToWidgetBounds, int);
+  vtkBooleanMacro(ConstrainToWidgetBounds, int);
+  //@}
 
-  // Description:
-  // Turn on/off the ability to scale the widget with the mouse.
+  //@{
+  /**
+   * Turn on/off the ability to scale the widget with the mouse.
+   */
   vtkSetMacro(ScaleEnabled,int);
   vtkGetMacro(ScaleEnabled,int);
   vtkBooleanMacro(ScaleEnabled,int);
+  //@}
 
-  // Description:
-  // Get the implicit function for the cylinder. The user must provide the
-  // instance of the class vtkCylinder. Note that vtkCylinder is a subclass of
-  // vtkImplicitFunction, meaning that it can be used by a variety of filters
-  // to perform clipping, cutting, and selection of data.
+  /**
+   * Get the implicit function for the cylinder. The user must provide the
+   * instance of the class vtkCylinder. Note that vtkCylinder is a subclass of
+   * vtkImplicitFunction, meaning that it can be used by a variety of filters
+   * to perform clipping, cutting, and selection of data.
+   */
   void GetCylinder(vtkCylinder *cyl);
 
-  // Description:
-  // Grab the polydata that defines the cylinder. The polydata contains
-  // polygons that are clipped by the bounding box.
+  /**
+   * Grab the polydata that defines the cylinder. The polydata contains
+   * polygons that are clipped by the bounding box.
+   */
   void GetPolyData(vtkPolyData *pd);
 
-  // Description:
-  // Satisfies the superclass API.  This will change the state of the widget
-  // to match changes that have been made to the underlying PolyDataSource.
+  /**
+   * Satisfies the superclass API.  This will change the state of the widget
+   * to match changes that have been made to the underlying PolyDataSource.
+   */
   void UpdatePlacement(void);
 
-  // Description:
-  // Get the properties on the axis (line and cone).
+  //@{
+  /**
+   * Get the properties on the axis (line and cone).
+   */
   vtkGetObjectMacro(AxisProperty,vtkProperty);
   vtkGetObjectMacro(SelectedAxisProperty,vtkProperty);
+  //@}
 
-  // Description:
-  // Get the cylinder properties. The properties of the cylinder when selected
-  // and unselected can be manipulated.
+  //@{
+  /**
+   * Get the cylinder properties. The properties of the cylinder when selected
+   * and unselected can be manipulated.
+   */
   vtkGetObjectMacro(CylinderProperty,vtkProperty);
   vtkGetObjectMacro(SelectedCylinderProperty,vtkProperty);
+  //@}
 
-  // Description:
-  // Get the property of the outline.
+  //@{
+  /**
+   * Get the property of the outline.
+   */
   vtkGetObjectMacro(OutlineProperty,vtkProperty);
   vtkGetObjectMacro(SelectedOutlineProperty,vtkProperty);
+  //@}
 
-  // Description:
-  // Get the property of the intersection edges. (This property also
-  // applies to the edges when tubed.)
+  //@{
+  /**
+   * Get the property of the intersection edges. (This property also
+   * applies to the edges when tubed.)
+   */
   vtkGetObjectMacro(EdgesProperty,vtkProperty);
-  // Description
-  // Set color to the edge
+  //@}
+  //@{
+  /**
+   * Set color to the edge
+   */
   void SetEdgeColor(vtkLookupTable*);
   void SetEdgeColor(double, double, double);
   void SetEdgeColor(double x[3]);
+  //@}
 
-  // Description:
-  // Methods to interface with the vtkImplicitCylinderWidget.
+  //@{
+  /**
+   * Methods to interface with the vtkImplicitCylinderWidget.
+   */
   virtual int ComputeInteractionState(int X, int Y, int modify=0);
   virtual void PlaceWidget(double bounds[6]);
   virtual void BuildRepresentation();
   virtual void StartWidgetInteraction(double eventPos[2]);
   virtual void WidgetInteraction(double newEventPos[2]);
   virtual void EndWidgetInteraction(double newEventPos[2]);
+  //@}
 
-  // Decsription:
-  // Methods supporting the rendering process.
+  //@{
+  /**
+   * Methods supporting the rendering process.
+   */
   virtual double *GetBounds();
   virtual void GetActors(vtkPropCollection *pc);
   virtual void ReleaseGraphicsResources(vtkWindow*);
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int HasTranslucentPolygonalGeometry();
+  //@}
 
-  // Description:
-  // Specify a translation distance used by the BumpCylinder() method. Note that the
-  // distance is normalized; it is the fraction of the length of the bounding
-  // box of the wire outline.
+  //@{
+  /**
+   * Specify a translation distance used by the BumpCylinder() method. Note that the
+   * distance is normalized; it is the fraction of the length of the bounding
+   * box of the wire outline.
+   */
   vtkSetClampMacro(BumpDistance,double,0.000001,1);
   vtkGetMacro(BumpDistance,double);
+  //@}
 
-  // Description:
-  // Translate the cylinder in the direction of the view vector by the
-  // specified BumpDistance. The dir parameter controls which
-  // direction the pushing occurs, either in the same direction as the
-  // view vector, or when negative, in the opposite direction.  The factor
-  // controls what percentage of the bump is used.
+  /**
+   * Translate the cylinder in the direction of the view vector by the
+   * specified BumpDistance. The dir parameter controls which
+   * direction the pushing occurs, either in the same direction as the
+   * view vector, or when negative, in the opposite direction.  The factor
+   * controls what percentage of the bump is used.
+   */
   void BumpCylinder(int dir, double factor);
 
-  // Description:
-  // Push the cylinder the distance specified along the view
-  // vector. Positive values are in the direction of the view vector;
-  // negative values are in the opposite direction. The distance value
-  // is expressed in world coordinates.
+  /**
+   * Push the cylinder the distance specified along the view
+   * vector. Positive values are in the direction of the view vector;
+   * negative values are in the opposite direction. The distance value
+   * is expressed in world coordinates.
+   */
   void PushCylinder(double distance);
 
   // Manage the state of the widget
@@ -279,21 +355,27 @@ public:
     TranslatingCenter
   };
 
-  // Description:
-  // The interaction state may be set from a widget (e.g.,
-  // vtkImplicitCylinderWidget) or other object. This controls how the
-  // interaction with the widget proceeds. Normally this method is used as
-  // part of a handshaking process with the widget: First
-  // ComputeInteractionState() is invoked that returns a state based on
-  // geometric considerations (i.e., cursor near a widget feature), then
-  // based on events, the widget may modify this further.
+  //@{
+  /**
+   * The interaction state may be set from a widget (e.g.,
+   * vtkImplicitCylinderWidget) or other object. This controls how the
+   * interaction with the widget proceeds. Normally this method is used as
+   * part of a handshaking process with the widget: First
+   * ComputeInteractionState() is invoked that returns a state based on
+   * geometric considerations (i.e., cursor near a widget feature), then
+   * based on events, the widget may modify this further.
+   */
   vtkSetClampMacro(InteractionState,int,Outside,TranslatingCenter);
+  //@}
 
-  // Description:
-  // Sets the visual appearance of the representation based on the
-  // state it is in. This state is usually the same as InteractionState.
+  //@{
+  /**
+   * Sets the visual appearance of the representation based on the
+   * state it is in. This state is usually the same as InteractionState.
+   */
   virtual void SetRepresentationState(int);
   vtkGetMacro(RepresentationState, int);
+  //@}
 
 protected:
   vtkImplicitCylinderRepresentation();
@@ -332,7 +414,7 @@ protected:
   int  ScaleEnabled; //whether the widget can be scaled
   int  OutsideBounds; //whether the widget can be moved outside input's bounds
   double WidgetBounds[6];
-  int ConstrainCenter;
+  int ConstrainToWidgetBounds;
 
   // The cut cylinder is produced with a vtkCutter
   vtkPolyData       *Cyl;
@@ -413,8 +495,8 @@ protected:
   vtkBox *BoundingBox;
 
 private:
-  vtkImplicitCylinderRepresentation(const vtkImplicitCylinderRepresentation&);  //Not implemented
-  void operator=(const vtkImplicitCylinderRepresentation&);  //Not implemented
+  vtkImplicitCylinderRepresentation(const vtkImplicitCylinderRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImplicitCylinderRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

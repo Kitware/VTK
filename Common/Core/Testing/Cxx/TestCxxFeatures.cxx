@@ -120,18 +120,18 @@ int TestFullySpecializedFunction()
   int result = 1;
   int should_be_0 = FullySpecializedFunction(static_cast<float*>(0));
   if(should_be_0 != 0)
-    {
+  {
     cerr << "FullySpecializedFunction<float*>() returned "
          << should_be_0 << ", not 0.\n";
     result = 0;
-    }
+  }
   int should_be_1 = FullySpecializedFunction(static_cast<int*>(0));
   if(should_be_1 != 1)
-    {
+  {
     cerr << "FullySpecializedFunction(int*) returned "
          << should_be_1 << ", not 1.\n";
     result = 0;
-    }
+  }
   return result;
 }
 
@@ -203,9 +203,9 @@ int TestFullySpecializedClassTrait(T*)
 {
   typedef VTK_TYPENAME FullySpecializedClass<T>::Type Type;
   if(static_cast<Type>(3.1) == 3.1)
-    {
+  {
     return 0;
-    }
+  }
   return 1;
 }
 
@@ -214,23 +214,23 @@ int TestFullySpecializedClass()
   int result = 1;
   int should_be_0 = FullySpecializedClass<int>::Method();
   if(should_be_0 != 0)
-    {
+  {
     cerr << "FullySpecializedClass<int>::Method() returned "
          << should_be_0 << ", not 0.\n";
     result = 0;
-    }
+  }
   int should_be_1 = FullySpecializedClass<float>::Method();
   if(should_be_1 != 1)
-    {
+  {
     cerr << "FullySpecializedClass<float>::Method() returned "
          << should_be_1 << ", not 1.\n";
     result = 0;
-    }
+  }
   if(!TestFullySpecializedClassTrait(static_cast<float*>(0)))
-    {
+  {
     cerr << "Trait lookup of float didn't produce int.";
     result = 0;
-    }
+  }
   return result;
 }
 
@@ -242,21 +242,21 @@ int TestIfScopeHelper(int i)
 {
   int result = 1;
   if(int x = i)
-    {
+  {
     if(x != i)
-      {
+    {
       cerr << "TestIfScope: x != " << i << "\n";
       result = 0;
-      }
     }
+  }
   else
-    {
+  {
     if(x != i)
-      {
+    {
       cerr << "TestIfScope: x != " << i << "\n";
       result = 0;
-      }
     }
+  }
   int x = result;
   return x;
 }
@@ -265,13 +265,13 @@ int TestIfScope()
 {
   int result = 1;
   if(!TestIfScopeHelper(1))
-    {
+  {
     result = 0;
-    }
+  }
   if(!TestIfScopeHelper(0))
-    {
+  {
     result = 0;
-    }
+  }
   return result;
 }
 
@@ -289,20 +289,20 @@ int TestNonTypeTemplate()
 {
   int result = 1;
   if(NonTypeTemplate<0>::GetValue() != 0)
-    {
+  {
     cerr << "NonTypeTemplate<0>::GetValue() != 0\n";
     result = 0;
-    }
+  }
   if(NonTypeTemplate<1>::GetValue() != 1)
-    {
+  {
     cerr << "NonTypeTemplate<1>::GetValue() != 1\n";
     result = 0;
-    }
+  }
   if(NonTypeTemplate<2>::GetValue() != 2)
-    {
+  {
     cerr << "NonTypeTemplate<2>::GetValue() != 2\n";
     result = 0;
-    }
+  }
   return result;
 }
 
@@ -323,15 +323,15 @@ int TestMixedTypeTemplate()
   float x3[3];
   int result = 1;
   if(TestMixedTypeTemplateFunction(&x2) != 2)
-    {
+  {
     cerr << "TestMixedTypeTemplateFunction(&x2) != 2\n";
     result = 0;
-    }
+  }
   if(TestMixedTypeTemplateFunction(&x3) != 3)
-    {
+  {
     cerr << "TestMixedTypeTemplateFunction(&x3) != 3\n";
     result = 0;
-    }
+  }
   return result;
 }
 #endif
@@ -346,13 +346,13 @@ private:
 public:
   SafeBoolIdiomClass(int x): Value(x) {}
   operator SafeBool()
-    {
+  {
     return this->Value? &SafeBoolDummy::Dummy : 0;
-    }
+  }
   SafeBool operator !()
-    {
+  {
     return this->Value? 0 : &SafeBoolDummy::Dummy;
-    }
+  }
 protected:
   int Value;
 };
@@ -364,26 +364,26 @@ int TestSafeBoolIdiom()
   SafeBoolIdiomClass cFalse(0);
   if(cTrue) {}
   else
-    {
+  {
     cerr << "if(cTrue) evaluates to false.\n";
     result = 0;
-    }
+  }
   if(!cTrue)
-    {
+  {
     cerr << "if(!cTrue) evaluates to true.\n";
     result = 0;
-    }
+  }
   if(cFalse)
-    {
+  {
     cerr << "if(cFalse) evaluates to true.\n";
     result = 0;
-    }
+  }
   if(!cFalse) {}
   else
-    {
+  {
     cerr << "if(!cFalse) evaluates to false.\n";
     result = 0;
-    }
+  }
   return result;
 }
 
@@ -418,26 +418,26 @@ int TestException()
 {
   int value = 0;
   try
-    {
+  {
     TestThrowException(&value);
-    }
+  }
   catch(ExceptionClass&)
-    {
+  {
     if(value)
-      {
+    {
       return 1;
-      }
+    }
     else
-      {
+    {
       cerr << "TestExceptionUnwind object not destroyed!" << endl;
       return 0;
-      }
     }
+  }
   catch(...)
-    {
+  {
     cerr << "ExceptionClass not caught!" << endl;
     return 0;
-    }
+  }
   cerr << "No exception caught!" << endl;
   return 0;
 }
@@ -514,11 +514,11 @@ int TestSetLocale()
 
   // restore the local
   if (oldLocale)
-    {
+  {
     setlocale(LC_NUMERIC,oldLocale);
     free(oldLocale);
     return 1;
-    }
+  }
   return 0;
 }
 
@@ -548,12 +548,12 @@ int main()
   // just call the code to shut up a linker warning
   int retVal = 0;
   if (result)
-    {
+  {
     // really shouldn't be called unless something else failed
     // just want to make the compiler think it might get called
     // all this will be yanked once I see the results of this test
     TestDriverDebugReport(0, "a temp test", &retVal);
-    }
+  }
 #endif
   return result;
 }

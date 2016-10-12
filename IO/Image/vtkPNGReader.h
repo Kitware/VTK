@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPNGReader - read PNG files
-// .SECTION Description
-// vtkPNGReader is a source object that reads PNG files.
-// It should be able to read most any PNG file
-//
-// .SECTION See Also
-// vtkPNGWriter
+/**
+ * @class   vtkPNGReader
+ * @brief   read PNG files
+ *
+ * vtkPNGReader is a source object that reads PNG files.
+ * It should be able to read most any PNG file
+ *
+ * @sa
+ * vtkPNGWriter
+*/
 
 #ifndef vtkPNGReader_h
 #define vtkPNGReader_h
@@ -31,44 +34,51 @@ class VTKIOIMAGE_EXPORT vtkPNGReader : public vtkImageReader2
 public:
   static vtkPNGReader *New();
   vtkTypeMacro(vtkPNGReader,vtkImageReader2);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Is the given file a PNG file?
+  /**
+   * Is the given file a PNG file?
+   */
   virtual int CanReadFile(const char* fname);
 
-  // Description:
-  // Get the file extensions for this format.
-  // Returns a string with a space separated list of extensions in
-  // the format .extension
+  /**
+   * Get the file extensions for this format.
+   * Returns a string with a space separated list of extensions in
+   * the format .extension
+   */
   virtual const char* GetFileExtensions()
-    {
+  {
       return ".png";
-    }
+  }
 
-  // Description:
-  // Return a descriptive name for the file format that might be useful in a GUI.
+  /**
+   * Return a descriptive name for the file format that might be useful in a GUI.
+   */
   virtual const char* GetDescriptiveName()
-    {
+  {
       return "PNG";
-    }
+  }
 
-  // Description:
-  // Given a 'key' for the text chunks, fills in 'beginEndIndex'
-  // with the begin and end indexes. Values are stored between
-  // [begin, end) indexes.
+  /**
+   * Given a 'key' for the text chunks, fills in 'beginEndIndex'
+   * with the begin and end indexes. Values are stored between
+   * [begin, end) indexes.
+   */
   void GetTextChunks(const char* key, int beginEndIndex[2]);
-  // Description:
-  // Returns the text key stored at 'index'.
+  /**
+   * Returns the text key stored at 'index'.
+   */
   const char* GetTextKey(int index);
-  // Description:
-  // Returns the text value stored at 'index'. A range of indexes
-  // that store values for a certain key can be obtained by calling
-  // GetTextChunks.
+  /**
+   * Returns the text value stored at 'index'. A range of indexes
+   * that store values for a certain key can be obtained by calling
+   * GetTextChunks.
+   */
   const char* GetTextValue(int index);
-  // Description:
-  // Return the number of text chunks in the PNG file.
-  // Note that we don't process compressed or international text entries
+  /**
+   * Return the number of text chunks in the PNG file.
+   * Note that we don't process compressed or international text entries
+   */
   size_t GetNumberOfTextChunks();
 
 protected:
@@ -85,8 +95,8 @@ protected:
 
 
 private:
-  vtkPNGReader(const vtkPNGReader&);  // Not implemented.
-  void operator=(const vtkPNGReader&);  // Not implemented.
+  vtkPNGReader(const vtkPNGReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPNGReader&) VTK_DELETE_FUNCTION;
 
   class vtkInternals;
   vtkInternals* Internals;

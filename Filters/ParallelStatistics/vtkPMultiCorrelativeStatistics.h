@@ -17,14 +17,17 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
-// .NAME vtkPMultiCorrelativeStatistics - A class for parallel bivariate correlative statistics
-// .SECTION Description
-// vtkPMultiCorrelativeStatistics is vtkMultiCorrelativeStatistics subclass for parallel datasets.
-// It learns and derives the global statistical model on each node, but assesses each
-// individual data points on the node that owns it.
-
-// .SECTION Thanks
-// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories for implementing this class.
+/**
+ * @class   vtkPMultiCorrelativeStatistics
+ * @brief   A class for parallel bivariate correlative statistics
+ *
+ * vtkPMultiCorrelativeStatistics is vtkMultiCorrelativeStatistics subclass for parallel datasets.
+ * It learns and derives the global statistical model on each node, but assesses each
+ * individual data points on the node that owns it.
+ *
+ * @par Thanks:
+ * Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories for implementing this class.
+*/
 
 #ifndef vtkPMultiCorrelativeStatistics_h
 #define vtkPMultiCorrelativeStatistics_h
@@ -41,14 +44,18 @@ public:
   vtkTypeMacro(vtkPMultiCorrelativeStatistics, vtkMultiCorrelativeStatistics);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get/Set the multiprocess controller. If no controller is set,
-  // single process is assumed.
+  //@{
+  /**
+   * Get/Set the multiprocess controller. If no controller is set,
+   * single process is assumed.
+   */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
 
-  // Description:
-  // Performs Reduction
+  /**
+   * Performs Reduction
+   */
   static void GatherStatistics( vtkMultiProcessController *curController,
                                 vtkTable *sparseCov );
 
@@ -66,8 +73,8 @@ protected:
   virtual vtkOrderStatistics* CreateOrderStatisticsInstance();
 
 private:
-  vtkPMultiCorrelativeStatistics(const vtkPMultiCorrelativeStatistics&); // Not implemented.
-  void operator=(const vtkPMultiCorrelativeStatistics&); // Not implemented.
+  vtkPMultiCorrelativeStatistics(const vtkPMultiCorrelativeStatistics&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPMultiCorrelativeStatistics&) VTK_DELETE_FUNCTION;
 };
 
 #endif

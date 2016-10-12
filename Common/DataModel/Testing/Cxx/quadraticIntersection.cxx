@@ -108,24 +108,24 @@ void IntersectWithCell(unsigned nTest,
   vtkSmartPointer<vtkCellArray> vertices = vtkSmartPointer<vtkCellArray>::New();
 
   for (unsigned i=0;i<nTest;i++)
-    {
+  {
     if (threeDimensional)
-      {
+    {
       RandomSphere(sequence,radius,offset,p[0]);
       RandomSphere(sequence,radius,offset,p[1]);
-      }
+    }
     else
-      {
+    {
       RandomCircle(sequence,radius,offset,p[0]);
       RandomCircle(sequence,radius,offset,p[1]);
-      }
+    }
 
     if (cell->IntersectWithLine(p[0],p[1],tol,t,intersect,pcoords,subId))
-      {
+    {
       vtkIdType pid = points->InsertNextPoint(intersect);
       vertices->InsertNextCell(1,&pid);
-      }
     }
+  }
 
   vtkSmartPointer<vtkCamera> camera = vtkSmartPointer<vtkCamera>::New();
   camera->SetPosition(2, 2, 2);
@@ -162,6 +162,7 @@ int TestIntersectWithLine(int argc, char* argv[])
 
   vtkSmartPointer<vtkRenderWindow> renderWindow =
     vtkSmartPointer<vtkRenderWindow>::New();
+  renderWindow->SetMultiSamples(0);
   renderWindow->SetSize(500,300);
 
   vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
@@ -320,13 +321,13 @@ int TestIntersectWithLine(int argc, char* argv[])
   vtkQuadraticWedge* wedge = vtkQuadraticWedge::New();
   double *pcoords = wedge->GetParametricCoords();
   for (int i = 0; i < wedge->GetNumberOfPoints(); ++i)
-    {
+  {
     wedge->GetPointIds()->SetId(i, i);
     wedge->GetPoints()->SetPoint(i,
                                  *(pcoords + 3 * i),
                                  *(pcoords + 3 * i + 1),
                                  *(pcoords + 3 * i + 2));
-    }
+  }
 
   IntersectWithCell(nTest,sequence,true,radius,center,wedge,renderWindow);
 
@@ -496,10 +497,10 @@ int TestIntersectWithLine(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(renderWindow.GetPointer());
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renderWindowInteractor->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
   return (retVal == vtkRegressionTester::PASSED) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 

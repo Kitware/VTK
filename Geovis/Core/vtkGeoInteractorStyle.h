@@ -17,15 +17,18 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGeoInteractorStyle - Interaction for a globe
-//
-// .SECTION Description
-// vtkGeoInteractorStyle contains interaction capabilities for a geographic
-// view including orbit, zoom, and tilt. It also includes a compass widget
-// for changing view parameters.
-//
-// .SECTION See Also
-// vtkCompassWidget vtkInteractorStyle
+/**
+ * @class   vtkGeoInteractorStyle
+ * @brief   Interaction for a globe
+ *
+ *
+ * vtkGeoInteractorStyle contains interaction capabilities for a geographic
+ * view including orbit, zoom, and tilt. It also includes a compass widget
+ * for changing view parameters.
+ *
+ * @sa
+ * vtkCompassWidget vtkInteractorStyle
+*/
 
 #ifndef vtkGeoInteractorStyle_h
 #define vtkGeoInteractorStyle_h
@@ -49,8 +52,10 @@ public:
                        vtkInteractorStyleTrackballCamera);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Event bindings
+  //@{
+  /**
+   * Event bindings
+   */
   virtual void OnEnter();
   virtual void OnLeave();
   virtual void OnMouseMove();
@@ -61,6 +66,7 @@ public:
   virtual void OnMiddleButtonDown();
   virtual void OnRightButtonDown();
   virtual void OnChar();
+  //@}
 
   virtual void RubberBandZoom();
   virtual void Pan();
@@ -75,16 +81,18 @@ public:
   // Used for updating the terrain.
   vtkGeoCamera* GetGeoCamera();
 
-  // Description:
-  // This can be used to set the camera to the standard view of the earth.
+  /**
+   * This can be used to set the camera to the standard view of the earth.
+   */
   void ResetCamera();
 
   //! Called when the sub widgets have an interaction
   void WidgetInteraction(vtkObject *caller);
 
-  // Description:
-  // Set/Get the Interactor wrapper being controlled by this object.
-  // (Satisfy superclass API.)
+  /**
+   * Set/Get the Interactor wrapper being controlled by this object.
+   * (Satisfy superclass API.)
+   */
   virtual void SetInteractor(vtkRenderWindowInteractor *interactor);
 
   int ViewportToWorld(double x, double y,
@@ -97,18 +105,23 @@ public:
                          double direction[3],
                          double intersection[3]);
 
-  // Description:
-  // Override to make the renderer use this camera subclass
+  /**
+   * Override to make the renderer use this camera subclass
+   */
   virtual void SetCurrentRenderer(vtkRenderer*);
 
-  // Description:
-  // Whether to lock the heading a particular value during pan.
+  //@{
+  /**
+   * Whether to lock the heading a particular value during pan.
+   */
   vtkGetMacro(LockHeading, bool);
   vtkSetMacro(LockHeading, bool);
   vtkBooleanMacro(LockHeading, bool);
+  //@}
 
-  // Description:
-  // Called after camera properties are modified
+  /**
+   * Called after camera properties are modified
+   */
   void ResetCameraClippingRange();
 
 protected:
@@ -151,8 +164,8 @@ protected:
   vtkSmartPointer<vtkCommand> EventCommand;
 
 private:
-  vtkGeoInteractorStyle(const vtkGeoInteractorStyle&);  // Not implemented.
-  void operator=(const vtkGeoInteractorStyle&);  // Not implemented.
+  vtkGeoInteractorStyle(const vtkGeoInteractorStyle&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoInteractorStyle&) VTK_DELETE_FUNCTION;
 };
 
 #endif

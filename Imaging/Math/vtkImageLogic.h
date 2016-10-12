@@ -12,12 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageLogic - And, or, xor, nand, nor, not.
-// .SECTION Description
-// vtkImageLogic implements basic logic operations.
-// SetOperation is used to select the filter's behavior.
-// The filter can take two or one input. Inputs must have the same type.
-
+/**
+ * @class   vtkImageLogic
+ * @brief   And, or, xor, nand, nor, not.
+ *
+ * vtkImageLogic implements basic logic operations.
+ * SetOperation is used to select the filter's behavior.
+ * The filter can take two or one input. Inputs must have the same type.
+*/
 
 #ifndef vtkImageLogic_h
 #define vtkImageLogic_h
@@ -44,8 +46,10 @@ public:
   vtkTypeMacro(vtkImageLogic,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set/Get the Operation to perform.
+  //@{
+  /**
+   * Set/Get the Operation to perform.
+   */
   vtkSetMacro(Operation,int);
   vtkGetMacro(Operation,int);
   void SetOperationToAnd() {this->SetOperation(VTK_AND);};
@@ -54,18 +58,24 @@ public:
   void SetOperationToNand() {this->SetOperation(VTK_NAND);};
   void SetOperationToNor() {this->SetOperation(VTK_NOR);};
   void SetOperationToNot() {this->SetOperation(VTK_NOT);};
+  //@}
 
-  // Description:
-  // Set the value to use for true in the output.
+  //@{
+  /**
+   * Set the value to use for true in the output.
+   */
   vtkSetMacro(OutputTrueValue, double);
   vtkGetMacro(OutputTrueValue, double);
+  //@}
 
-    // Description:
-  // Set the Input1 of this filter.
+    /**
+     * Set the Input1 of this filter.
+     */
   virtual void SetInput1Data(vtkDataObject *input) { this->SetInputData(0,input);};
 
-  // Description:
-  // Set the Input2 of this filter.
+  /**
+   * Set the Input2 of this filter.
+   */
   virtual void SetInput2Data(vtkDataObject *input) { this->SetInputData(1,input);};
 
 protected:
@@ -83,8 +93,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkImageLogic(const vtkImageLogic&);  // Not implemented.
-  void operator=(const vtkImageLogic&);  // Not implemented.
+  vtkImageLogic(const vtkImageLogic&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageLogic&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -12,9 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWebGLWidget
-// .SECTION Description
-// Widget representation for WebGL.
+/**
+ * @class   vtkWebGLWidget
+ *
+ * Widget representation for WebGL.
+*/
 
 #ifndef vtkWebGLWidget_h
 #define vtkWebGLWidget_h
@@ -56,8 +58,8 @@ protected:
     std::vector <double*>colors;      //x, r, g, b
 
 private:
-  vtkWebGLWidget(const vtkWebGLWidget&); // Not implemented
-  void operator=(const vtkWebGLWidget&); // Not implemented
+  vtkWebGLWidget(const vtkWebGLWidget&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWebGLWidget&) VTK_DELETE_FUNCTION;
 
 };
 

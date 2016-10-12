@@ -78,15 +78,15 @@ int TestGL2PSTextMapper(int, char *[])
   anchors->GetCellData()->SetScalars(colors.GetPointer());
 
   for (size_t row = 0; row < 4; ++row)
-    {
+  {
     for (size_t col = 0; col < 3; ++col)
-      {
+    {
       vtkNew<vtkTextMapper> mapper;
       vtkNew<vtkActor2D> actor;
       actor->SetMapper(mapper.GetPointer());
 
       switch (row)
-        {
+      {
         case 0:
           mapper->GetTextProperty()->SetOrientation(45);
           break;
@@ -98,9 +98,9 @@ int TestGL2PSTextMapper(int, char *[])
         case 3:
           mapper->GetTextProperty()->SetOrientation(90);
           break;
-        }
+      }
       switch (col)
-        {
+      {
         case 0:
           mapper->GetTextProperty()->SetJustificationToRight();
           mapper->GetTextProperty()->SetVerticalJustificationToTop();
@@ -113,7 +113,7 @@ int TestGL2PSTextMapper(int, char *[])
           mapper->GetTextProperty()->SetJustificationToLeft();
           mapper->GetTextProperty()->SetVerticalJustificationToBottom();
           break;
-        }
+      }
       mapper->GetTextProperty()->SetColor(0.75, .2 + col * .26, .2 + row * .2);
       mapper->GetTextProperty()->SetBackgroundColor(0.0,
                                                     0.8 - col * .26,
@@ -123,8 +123,8 @@ int TestGL2PSTextMapper(int, char *[])
       setupTextMapper(mapper.GetPointer(), actor.GetPointer(),
                       anchors.GetPointer());
       ren->AddActor2D(actor.GetPointer());
-      }
     }
+  }
 
   vtkNew<vtkPolyDataMapper2D> anchorMapper;
   anchorMapper->SetInputData(anchors.GetPointer());

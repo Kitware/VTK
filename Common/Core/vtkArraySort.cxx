@@ -79,11 +79,11 @@ bool vtkArraySort::operator!=(const vtkArraySort& rhs) const
 ostream& operator<<(ostream& stream, const vtkArraySort& rhs)
 {
   for(vtkArraySort::DimensionT i = 0; i != rhs.GetDimensions(); ++i)
-    {
+  {
     if(i)
       stream << ",";
     stream << rhs[i];
-    }
+  }
 
   return stream;
 }

@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkClosedSurfacePointPlacer - PointPlacer to constrain validity within a set of convex planes
-// .SECTION Description
-// This placer takes a set of boudning planes and constraints the validity
-// within the supplied convex planes. It is used by the
-// ParallelopPipedRepresentation to place constraints on the motion the
-// handles within the parallelopiped.
-//
-// .SECTION See Also
-// vtkParallelopipedRepresentation
+/**
+ * @class   vtkClosedSurfacePointPlacer
+ * @brief   PointPlacer to constrain validity within a set of convex planes
+ *
+ * This placer takes a set of boudning planes and constraints the validity
+ * within the supplied convex planes. It is used by the
+ * ParallelopPipedRepresentation to place constraints on the motion the
+ * handles within the parallelopiped.
+ *
+ * @sa
+ * vtkParallelopipedRepresentation
+*/
 
 #ifndef vtkClosedSurfacePointPlacer_h
 #define vtkClosedSurfacePointPlacer_h
@@ -36,67 +39,77 @@ class vtkRenderer;
 class VTKINTERACTIONWIDGETS_EXPORT vtkClosedSurfacePointPlacer : public vtkPointPlacer
 {
 public:
-  // Description:
-  // Instantiate this class.
+  /**
+   * Instantiate this class.
+   */
   static vtkClosedSurfacePointPlacer *New();
 
-  // Description:
-  // Standard methods for instances of this class.
+  //@{
+  /**
+   * Standard methods for instances of this class.
+   */
   vtkTypeMacro(vtkClosedSurfacePointPlacer,vtkPointPlacer);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // A collection of plane equations used to bound the position of the point.
-  // This is in addition to confining the point to a plane - these constraints
-  // are meant to, for example, keep a point within the extent of an image.
-  // Using a set of plane equations allows for more complex bounds (such as
-  // bounding a point to an oblique reliced image that has hexagonal shape)
-  // than a simple extent.
+  //@{
+  /**
+   * A collection of plane equations used to bound the position of the point.
+   * This is in addition to confining the point to a plane - these constraints
+   * are meant to, for example, keep a point within the extent of an image.
+   * Using a set of plane equations allows for more complex bounds (such as
+   * bounding a point to an oblique reliced image that has hexagonal shape)
+   * than a simple extent.
+   */
   void AddBoundingPlane(vtkPlane *plane);
   void RemoveBoundingPlane(vtkPlane *plane);
   void RemoveAllBoundingPlanes();
   virtual void SetBoundingPlanes(vtkPlaneCollection*);
   vtkGetObjectMacro(BoundingPlanes,vtkPlaneCollection);
   void SetBoundingPlanes(vtkPlanes *planes);
+  //@}
 
-  // Description:
-  // Given a renderer and a display position, compute the
-  // world position and world orientation for this point.
-  // A plane is defined by a combination of the
-  // ProjectionNormal, ProjectionOrigin, and ObliquePlane
-  // ivars. The display position is projected onto this
-  // plane to determine a world position, and the
-  // orientation is set to the normal of the plane. If
-  // the point cannot project onto the plane or if it
-  // falls outside the bounds imposed by the
-  // BoundingPlanes, then 0 is returned, otherwise 1 is
-  // returned to indicate a valid return position and
-  // orientation.
+  /**
+   * Given a renderer and a display position, compute the
+   * world position and world orientation for this point.
+   * A plane is defined by a combination of the
+   * ProjectionNormal, ProjectionOrigin, and ObliquePlane
+   * ivars. The display position is projected onto this
+   * plane to determine a world position, and the
+   * orientation is set to the normal of the plane. If
+   * the point cannot project onto the plane or if it
+   * falls outside the bounds imposed by the
+   * BoundingPlanes, then 0 is returned, otherwise 1 is
+   * returned to indicate a valid return position and
+   * orientation.
+   */
   int ComputeWorldPosition( vtkRenderer *ren,
                             double displayPos[2],
                             double worldPos[3],
                             double worldOrient[9] );
 
-  // Description:
-  // Given a renderer, a display position and a reference position, "worldPos"
-  // is calculated as :
-  //   Consider the line "L" that passes through the supplied "displayPos" and
-  // is parallel to the direction of projection of the camera. Clip this line
-  // segment with the parallelopiped, let's call it "L_segment". The computed
-  // world position, "worldPos" will be the point on "L_segment" that is
-  // closest to refWorldPos.
-  // NOTE: Note that a set of bounding planes must be supplied. The Oblique
-  //       plane, if supplied is ignored.
+  /**
+   * Given a renderer, a display position and a reference position, "worldPos"
+   * is calculated as :
+   * Consider the line "L" that passes through the supplied "displayPos" and
+   * is parallel to the direction of projection of the camera. Clip this line
+   * segment with the parallelopiped, let's call it "L_segment". The computed
+   * world position, "worldPos" will be the point on "L_segment" that is
+   * closest to refWorldPos.
+   * NOTE: Note that a set of bounding planes must be supplied. The Oblique
+   * plane, if supplied is ignored.
+   */
   int ComputeWorldPosition( vtkRenderer *ren,
                             double displayPos[2],
                             double refWorldPos[2],
                             double worldPos[3],
                             double worldOrient[9] );
 
-  // Description:
-  // Give a world position check if it is valid - does
-  // it lie on the plane and within the bounds? Returns
-  // 1 if it is valid, 0 otherwise.
+  /**
+   * Give a world position check if it is valid - does
+   * it lie on the plane and within the bounds? Returns
+   * 1 if it is valid, 0 otherwise.
+   */
   int ValidateWorldPosition( double worldPos[3] );
 
   // Descrption:
@@ -132,8 +145,8 @@ protected:
   vtkPlaneCollection * InnerBoundingPlanes;
 
 private:
-  vtkClosedSurfacePointPlacer(const vtkClosedSurfacePointPlacer&);  //Not implemented
-  void operator=(const vtkClosedSurfacePointPlacer&);  //Not implemented
+  vtkClosedSurfacePointPlacer(const vtkClosedSurfacePointPlacer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkClosedSurfacePointPlacer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

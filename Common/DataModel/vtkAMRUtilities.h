@@ -12,14 +12,16 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkAMRUtilities -- Support for serial AMR operations
-//
-// .SECTION Description
-//  A concrete instance of vtkObject that employs a singleton design
-//  pattern and implements functionality for AMR specific operations.
-//
-// .SECTION See Also
-//  vtkOverlappingAMR, vtkAMRBox
+/**
+ * @class   vtkAMRUtilities
+ *
+ *
+ *  A concrete instance of vtkObject that employs a singleton design
+ *  pattern and implements functionality for AMR specific operations.
+ *
+ * @sa
+ *  vtkOverlappingAMR, vtkAMRBox
+*/
 
 #ifndef vtkAMRUtilities_h
 #define vtkAMRUtilities_h
@@ -38,55 +40,61 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAMRUtilities : public vtkObject
 public:
   // Standard Routines
   vtkTypeMacro(vtkAMRUtilities,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent );
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // This method detects and strips partially overlapping cells from a
-  // given AMR dataset. If ghost layers are detected, they are removed and
-  // new grid instances are created to represent the stripped
-  // data-set otherwise, each block is shallow-copied.
-  //
-  // .SECTION Assumptions
-  // 1) The ghosted AMR data must have complete metadata information.
+  /**
+   * This method detects and strips partially overlapping cells from a
+   * given AMR dataset. If ghost layers are detected, they are removed and
+   * new grid instances are created to represent the stripped
+   * data-set otherwise, each block is shallow-copied.
+
+   * .SECTION Assumptions
+   * 1) The ghosted AMR data must have complete metadata information.
+   */
   static void StripGhostLayers(
       vtkOverlappingAMR *ghostedAMRData,
       vtkOverlappingAMR *strippedAMRData);
 
-  // Description:
-  // A quick test of whether partially overlapping ghost cells exist. This test
-  // starts from the highest-res boxes and checks if they have partially
-  // overlapping cells. The code returns with true once partially overlapping
-  // cells are detected. Otherwise, false is returned.
+  /**
+   * A quick test of whether partially overlapping ghost cells exist. This test
+   * starts from the highest-res boxes and checks if they have partially
+   * overlapping cells. The code returns with true once partially overlapping
+   * cells are detected. Otherwise, false is returned.
+   */
   static bool HasPartiallyOverlappingGhostCells(vtkOverlappingAMR *amr);
 
-  // Description:
-  // Blank cells in overlapping AMR
+  /**
+   * Blank cells in overlapping AMR
+   */
   static void BlankCells(vtkOverlappingAMR* amr);
 
 protected:
   vtkAMRUtilities() {}
-  ~vtkAMRUtilities() {}
+  ~vtkAMRUtilities() VTK_OVERRIDE {}
 
-  // Description:
-  // Given the real-extent w.r.t. the ghosted grid, this method copies the
-  // field data (point/cell) data on the stripped grid.
+  /**
+   * Given the real-extent w.r.t. the ghosted grid, this method copies the
+   * field data (point/cell) data on the stripped grid.
+   */
   static void CopyFieldsWithinRealExtent(
       int realExtent[6],
       vtkUniformGrid *ghostedGrid,
       vtkUniformGrid *strippedGrid);
 
-  // Description:
-  // Copies the fields from the given source to the given target.
+  /**
+   * Copies the fields from the given source to the given target.
+   */
   static void CopyFieldData(
       vtkFieldData *target, vtkIdType targetIdx,
       vtkFieldData *source, vtkIdType sourceIdx );
 
-  // Description:
-  // Strips ghost layers from the given grid according to the given ghost
-  // vector which encodes the number of cells to remote from each of the
-  // 6 sides {imin,imax,jmin,jmax,kmin,kmax}. For example, a ghost vector
-  // of {0,2,0,2,0,0} would indicate that there exist 2 ghost cells on the
-  // imax and jmax side.
+  /**
+   * Strips ghost layers from the given grid according to the given ghost
+   * vector which encodes the number of cells to remote from each of the
+   * 6 sides {imin,imax,jmin,jmax,kmin,kmax}. For example, a ghost vector
+   * of {0,2,0,2,0,0} would indicate that there exist 2 ghost cells on the
+   * imax and jmax side.
+   */
   static vtkUniformGrid* StripGhostLayersFromGrid(
       vtkUniformGrid* grid, int ghost[6]);
 
@@ -94,8 +102,8 @@ protected:
                           std::vector<std::vector<unsigned int> >& children,
                           const std::vector<int>& processMap);
 private:
-  vtkAMRUtilities(const vtkAMRUtilities&); // Not implemented
-  void operator=(const vtkAMRUtilities&); // Not implemented
+  vtkAMRUtilities(const vtkAMRUtilities&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAMRUtilities&) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkAMRUtilities_h */

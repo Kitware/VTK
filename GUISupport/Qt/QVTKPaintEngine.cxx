@@ -58,17 +58,17 @@ void QVTKPaintEngine::updateState(const QPaintEngineState&)
 void QVTKPaintEngine::drawPixmap(const QRectF& r, const QPixmap& pm, const QRectF& sr)
 {
   if(!this->Widget)
-    {
+  {
     return;
-    }
+  }
   QRect ri = r.toRect();
   QRect sri = sr.toRect();
 
   QPixmap pix = pm.copy(sri);
   if(sri.size() != ri.size())
-    {
+  {
     pix = pix.scaled(ri.size());
-    }
+  }
 
   QImage img = pix.toImage().mirrored().rgbSwapped();
 

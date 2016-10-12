@@ -46,11 +46,11 @@ int TestSQLGraphReader(int argc, char* argv[])
 
   bool ok = database->Open("");
   if (!ok)
-    {
+  {
     cerr << "Could not open database!" << endl;
     cerr << database->GetLastErrorText() << endl;
     return 1;
-    }
+  }
 
   // Build a graph
   vtkSmartPointer<vtkSQLQuery> q;
@@ -63,14 +63,14 @@ int TestSQLGraphReader(int argc, char* argv[])
   q->SetQuery("CREATE TABLE vertices (id INTEGER, x FLOAT, y FLOAT)");
   q->Execute();
   for (int i = 0; i < vertices; i++)
-    {
+  {
     oss.str("");
     oss << "INSERT INTO vertices VALUES(" << i << ", "
       << 0.5*cos(i*2.0*vtkMath::Pi()/vertices) << ", "
       << 0.5*sin(i*2.0*vtkMath::Pi()/vertices) << ")" << endl;
     q->SetQuery(oss.str().c_str());
     q->Execute();
-    }
+  }
 
   q->SetQuery("DROP TABLE IF EXISTS edges");
   q->Execute();
@@ -78,7 +78,7 @@ int TestSQLGraphReader(int argc, char* argv[])
   q->SetQuery("CREATE TABLE edges (id INTEGER, source INTEGER, target INTEGER)");
   q->Execute();
   for (int i = 0; i < vertices; i++)
-    {
+  {
     oss.str("");
     oss << "INSERT INTO edges VALUES(" << 2*i+0 << ", "
       << i << ", " << (i+1)%vertices << ")" << endl;
@@ -89,7 +89,7 @@ int TestSQLGraphReader(int argc, char* argv[])
       << (i+3)%vertices << ", " << i << ")" << endl;
     q->SetQuery(oss.str().c_str());
     q->Execute();
-    }
+  }
 
   // Set up graph reader
   VTK_CREATE(vtkSQLGraphReader, reader);
@@ -127,12 +127,12 @@ int TestSQLGraphReader(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Initialize();
     iren->Start();
 
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   return !retVal;
 }

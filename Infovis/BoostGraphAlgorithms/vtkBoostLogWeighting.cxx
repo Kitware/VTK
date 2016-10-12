@@ -66,7 +66,7 @@ int vtkBoostLogWeighting::RequestData(
   vtkInformationVector* outputVector)
 {
   try
-    {
+  {
     vtkArrayData* const input_data = vtkArrayData::GetData(inputVector[0]);
     if(!input_data)
       throw std::runtime_error("Missing input vtkArrayData on port 0.");
@@ -84,64 +84,64 @@ int vtkBoostLogWeighting::RequestData(
 
     const vtkIdType value_count = input_array->GetNonNullSize();
     switch(this->Base)
-      {
+    {
       case BASE_E:
-        {
+      {
         if(this->EmitProgress)
-          {
+        {
           for(vtkIdType i = 0; i != value_count; ++i)
-            {
+          {
             output_array->SetValueN(i, boost::math::log1p(output_array->GetValueN(i)));
 
             double progress = static_cast<double>(i) / static_cast<double>(value_count);
             this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
-            }
           }
-        else
-          {
-          for(vtkIdType i = 0; i != value_count; ++i)
-            {
-            output_array->SetValueN(i, boost::math::log1p(output_array->GetValueN(i)));
-            }
-          }
-        break;
         }
-      case BASE_2:
+        else
         {
+          for(vtkIdType i = 0; i != value_count; ++i)
+          {
+            output_array->SetValueN(i, boost::math::log1p(output_array->GetValueN(i)));
+          }
+        }
+        break;
+      }
+      case BASE_2:
+      {
         const double ln2 = log(2.0);
         if(this->EmitProgress)
-          {
+        {
           for(vtkIdType i = 0; i != value_count; ++i)
-            {
+          {
             output_array->SetValueN(i, 1.0 + log(output_array->GetValueN(i)) / ln2);
 
             double progress = static_cast<double>(i) / static_cast<double>(value_count);
             this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
-            }
           }
-        else
-          {
-          for(vtkIdType i = 0; i != value_count; ++i)
-            {
-            output_array->SetValueN(i, 1.0 + log(output_array->GetValueN(i)) / ln2);
-            }
-          }
-        break;
         }
+        else
+        {
+          for(vtkIdType i = 0; i != value_count; ++i)
+          {
+            output_array->SetValueN(i, 1.0 + log(output_array->GetValueN(i)) / ln2);
+          }
+        }
+        break;
+      }
       default:
         throw std::runtime_error("Unknown Base type.");
-      }
     }
+  }
   catch(std::exception& e)
-    {
+  {
     vtkErrorMacro(<< "unhandled exception: " << e.what());
     return 0;
-    }
+  }
   catch(...)
-    {
+  {
     vtkErrorMacro(<< "unknown exception");
     return 0;
-    }
+  }
 
   return 1;
 }

@@ -17,17 +17,20 @@ PURPOSE.  See the above copyright notice for more information.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
-// .NAME vtkBoostKruskalMinimumSpanningTree - Contructs a minimum spanning
-//    tree from a graph and the weighting array
-//
-// .SECTION Description
-//
-// This vtk class uses the Boost Kruskal Minimum Spanning Tree
-// generic algorithm to perform a minimum spanning tree creation given
-// a weighting value for each of the edges in the input graph.
-//
-// .SECTION See Also
-// vtkGraph vtkBoostGraphAdapter
+/**
+ * @class   vtkBoostKruskalMinimumSpanningTree
+ * @brief   Contructs a minimum spanning
+ *    tree from a graph and the weighting array
+ *
+ *
+ *
+ * This vtk class uses the Boost Kruskal Minimum Spanning Tree
+ * generic algorithm to perform a minimum spanning tree creation given
+ * a weighting value for each of the edges in the input graph.
+ *
+ * @sa
+ * vtkGraph vtkBoostGraphAdapter
+*/
 
 #ifndef vtkBoostKruskalMinimumSpanningTree_h
 #define vtkBoostKruskalMinimumSpanningTree_h
@@ -45,29 +48,38 @@ public:
   vtkTypeMacro(vtkBoostKruskalMinimumSpanningTree, vtkSelectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the name of the edge-weight input array, which must name an
-  // array that is part of the edge data of the input graph and
-  // contains numeric data. If the edge-weight array is not of type
-  // vtkDoubleArray, the array will be copied into a temporary
-  // vtkDoubleArray.
+  //@{
+  /**
+   * Set the name of the edge-weight input array, which must name an
+   * array that is part of the edge data of the input graph and
+   * contains numeric data. If the edge-weight array is not of type
+   * vtkDoubleArray, the array will be copied into a temporary
+   * vtkDoubleArray.
+   */
   vtkSetStringMacro(EdgeWeightArrayName);
+  //@}
 
-  // Description:
-  // Set the output selection type. The default is to use the
-  // the set of minimum spanning tree edges "MINIMUM_SPANNING_TREE_EDGES". No
-  // other options are defined.
+  //@{
+  /**
+   * Set the output selection type. The default is to use the
+   * the set of minimum spanning tree edges "MINIMUM_SPANNING_TREE_EDGES". No
+   * other options are defined.
+   */
   vtkSetStringMacro(OutputSelectionType);
+  //@}
 
-  // Description:
-  // Whether to negate the edge weights. By negating the edge
-  // weights this algorithm will give you the 'maximal' spanning
-  // tree (i.e. the algorithm will try to create a spanning tree
-  // with the highest weighted edges). Defaulted to Off.
-  // FIXME: put a real definition in...
+  //@{
+  /**
+   * Whether to negate the edge weights. By negating the edge
+   * weights this algorithm will give you the 'maximal' spanning
+   * tree (i.e. the algorithm will try to create a spanning tree
+   * with the highest weighted edges). Defaulted to Off.
+   * FIXME: put a real definition in...
+   */
   void SetNegateEdgeWeights(bool value);
   vtkGetMacro(NegateEdgeWeights, bool);
   vtkBooleanMacro(NegateEdgeWeights, bool);
+  //@}
 
 protected:
   vtkBoostKruskalMinimumSpanningTree();
@@ -90,8 +102,8 @@ private:
   bool NegateEdgeWeights;
   float EdgeWeightMultiplier;
 
-  vtkBoostKruskalMinimumSpanningTree(const vtkBoostKruskalMinimumSpanningTree&);  // Not implemented.
-  void operator=(const vtkBoostKruskalMinimumSpanningTree&);  // Not implemented.
+  vtkBoostKruskalMinimumSpanningTree(const vtkBoostKruskalMinimumSpanningTree&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBoostKruskalMinimumSpanningTree&) VTK_DELETE_FUNCTION;
 };
 
 #endif

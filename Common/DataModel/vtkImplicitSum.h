@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImplicitSum - implicit sum of other implicit functions
-// .SECTION Description
-// vtkImplicitSum produces a linear combination of other implicit functions.
-// The contribution of each function is weighted by a scalar coefficient.
-// The NormalizeByWeight option normalizes the output so that the
-// scalar weights add up to 1. Note that this function gives accurate
-// sums and gradients only if the input functions are linear.
+/**
+ * @class   vtkImplicitSum
+ * @brief   implicit sum of other implicit functions
+ *
+ * vtkImplicitSum produces a linear combination of other implicit functions.
+ * The contribution of each function is weighted by a scalar coefficient.
+ * The NormalizeByWeight option normalizes the output so that the
+ * scalar weights add up to 1. Note that this function gives accurate
+ * sums and gradients only if the input functions are linear.
+*/
 
 #ifndef vtkImplicitSum_h
 #define vtkImplicitSum_h
@@ -35,54 +38,66 @@ public:
   static vtkImplicitSum *New();
 
   vtkTypeMacro(vtkImplicitSum,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Evaluate implicit function using current functions and weights.
-  double EvaluateFunction(double x[3]);
+  //@{
+  /**
+   * Evaluate implicit function using current functions and weights.
+   */
+  double EvaluateFunction(double x[3]) VTK_OVERRIDE;
   double EvaluateFunction(double x, double y, double z)
     {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
+  //@}
 
-  // Description:
-  // Evaluate gradient of the weighted sum of functions.  Input functions
-  // should be linear.
-  void EvaluateGradient(double x[3], double g[3]);
+  /**
+   * Evaluate gradient of the weighted sum of functions.  Input functions
+   * should be linear.
+   */
+  void EvaluateGradient(double x[3], double g[3]) VTK_OVERRIDE;
 
-  // Description:
-  // Override modified time retrieval because of object dependencies.
-  unsigned long GetMTime();
+  /**
+   * Override modified time retrieval because of object dependencies.
+   */
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
-  // Description:
-  // Add another implicit function to the list of functions, along with a
-  // weighting factor.
+  /**
+   * Add another implicit function to the list of functions, along with a
+   * weighting factor.
+   */
   void AddFunction(vtkImplicitFunction *in, double weight);
 
-  // Description:
-  // Add another implicit function to the list of functions, weighting it by
-  // a factor of 1.
+  /**
+   * Add another implicit function to the list of functions, weighting it by
+   * a factor of 1.
+   */
   void AddFunction(vtkImplicitFunction *in) { this->AddFunction(in, 1.0); }
 
-  // Description:
-  // Remove all functions from the list.
+  /**
+   * Remove all functions from the list.
+   */
   void RemoveAllFunctions();
 
-  // Description:
-  // Set the weight (coefficient) of the given function to be weight.
+  /**
+   * Set the weight (coefficient) of the given function to be weight.
+   */
   void SetFunctionWeight(vtkImplicitFunction *f, double weight);
 
-  // Description:
-  // When calculating the function and gradient values of the
-  // composite function, setting NormalizeByWeight on will divide the
-  // final result by the total weight of the component functions.
-  // This process does not otherwise normalize the gradient vector.
-  // By default, NormalizeByWeight is off.
+  //@{
+  /**
+   * When calculating the function and gradient values of the
+   * composite function, setting NormalizeByWeight on will divide the
+   * final result by the total weight of the component functions.
+   * This process does not otherwise normalize the gradient vector.
+   * By default, NormalizeByWeight is off.
+   */
   vtkSetMacro(NormalizeByWeight, int);
   vtkGetMacro(NormalizeByWeight, int);
   vtkBooleanMacro(NormalizeByWeight, int);
+  //@}
 
 protected:
   vtkImplicitSum();
-  ~vtkImplicitSum();
+  ~vtkImplicitSum() VTK_OVERRIDE;
 
   vtkImplicitFunctionCollection *FunctionList;
   vtkDoubleArray *Weights;
@@ -92,8 +107,8 @@ protected:
   int NormalizeByWeight;
 
 private:
-  vtkImplicitSum(const vtkImplicitSum&);  // Not implemented.
-  void operator=(const vtkImplicitSum&);  // Not implemented.
+  vtkImplicitSum(const vtkImplicitSum&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImplicitSum&) VTK_DELETE_FUNCTION;
 };
 
 #endif

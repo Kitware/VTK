@@ -3,6 +3,23 @@
 set(VTK_WRAP_PYTHON_FIND_LIBS ON)
 include(vtkWrapPython)
 
+# Check minimum versions of Python
+set(_message "Python ${PYTHON_MAJOR_VERSION}.${PYTHON_MINOR_VERSION} is too old, use Python 2.7 or 3.3+")
+set(_warning "Python ${PYTHON_MAJOR_VERSION}.${PYTHON_MINOR_VERSION} support is deprecated, use Python 2.7 or 3.3+")
+if(PYTHON_MAJOR_VERSION EQUAL 3)
+  if(PYTHON_MINOR_VERSION LESS 2)
+    message(FATAL_ERROR ${_message})
+  elseif(NOT VTK_LEGACY_SILENT AND PYTHON_MINOR_VERSION LESS 3)
+    message(WARNING ${_warning})
+  endif()
+else()
+  if(PYTHON_MINOR_VERSION LESS 6)
+    message(FATAL_ERROR ${_message})
+  elseif(NOT VTK_LEGACY_SILENT AND PYTHON_MINOR_VERSION LESS 7)
+    message(WARNING ${_warning})
+  endif()
+endif()
+
 set(${vtk-module}_LIBRARIES ${PYTHON_LIBRARIES})
 set(${vtk-module}_SYSTEM_INCLUDE_DIRS "${PYTHON_INCLUDE_DIRS}")
 set(${vtk-module}_NO_Header_Test 1)

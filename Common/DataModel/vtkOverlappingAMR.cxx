@@ -42,9 +42,9 @@ void vtkOverlappingAMR::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   if(this->AMRInfo)
-    {
+  {
     this->AMRInfo->PrintSelf(os,indent);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -66,9 +66,9 @@ void vtkOverlappingAMR::SetRefinementRatio(unsigned int level,
 int vtkOverlappingAMR::GetRefinementRatio(unsigned int level)
 {
   if(!AMRInfo->HasRefinementRatio())
-    {
+  {
     AMRInfo->GenerateRefinementRatio();
-    }
+  }
   return this->AMRInfo->GetRefinementRatio(level);
 }
 
@@ -128,9 +128,9 @@ const vtkAMRBox& vtkOverlappingAMR::GetAMRBox(unsigned int level, unsigned int i
 {
   const vtkAMRBox& box = this->AMRInfo->GetAMRBox(level,id);
   if(box.IsInvalid())
-    {
+  {
     vtkErrorMacro("Invalid AMR box");
-    }
+  }
   return box;
 }
 
@@ -196,17 +196,17 @@ void vtkOverlappingAMR::Audit()
 
   int emptyDimension(-1);
   switch (this->GetGridDescription())
-    {
+  {
     case VTK_YZ_PLANE: emptyDimension = 0; break;
     case VTK_XZ_PLANE: emptyDimension = 1; break;
     case VTK_XY_PLANE: emptyDimension = 2; break;
-    }
+  }
 
   vtkSmartPointer<vtkUniformGridAMRDataIterator> iter;
   iter.TakeReference(vtkUniformGridAMRDataIterator::SafeDownCast(this->NewIterator()));
   iter->SetSkipEmptyNodes(1);
   for(iter->GoToFirstItem(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-    {
+  {
     vtkUniformGrid* grid = vtkUniformGrid::SafeDownCast(iter->GetCurrentDataObject());
     int hasGhost  = grid->HasAnyGhostCells();
 
@@ -223,24 +223,24 @@ void vtkOverlappingAMR::Audit()
     this->GetOrigin(level,id,origin);
 
     for(int d = 0; d<3; d++)
-      {
+    {
       if(d==emptyDimension)
-        {
+      {
         if(grid->GetSpacing()[d]!=spacing[d])
-          {
+        {
           vtkErrorMacro("The grid spacing does not match AMRInfo at ("<<level<<", "<<id<<")");
-          }
+        }
         if(!hasGhost && grid->GetOrigin()[d]!=origin[d])
-          {
+        {
           vtkErrorMacro("The grid origin does not match AMRInfo at ("<<level<<", "<<id<<")");
-          }
+        }
         if(!hasGhost && grid->GetDimensions()[d]!=dims[d])
-          {
+        {
           vtkErrorMacro("The grid dimensions does not match AMRInfo at ("<<level<<", "<<id<<")");
-          }
         }
       }
     }
+  }
 }
 
 

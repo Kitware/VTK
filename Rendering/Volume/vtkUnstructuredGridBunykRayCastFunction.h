@@ -13,46 +13,49 @@
 
 =========================================================================*/
 
-// .NAME vtkUnstructuredGridBunykRayCastFunction - a superclass for ray casting functions
-
-// .SECTION Description
-// vtkUnstructuredGridBunykRayCastFunction is a concrete implementation of a
-// ray cast function for unstructured grid data. This class was based on the
-// paper "Simple, Fast, Robust Ray Casting of Irregular Grids" by Paul Bunyk,
-// Arie Kaufmna, and Claudio Silva. This method is quite memory intensive
-// (with extra explicit copies of the data) and therefore should not be used
-// for very large data. This method assumes that the input data is composed
-// entirely of tetras - use vtkDataSetTriangleFilter before setting the input
-// on the mapper.
-//
-// The basic idea of this method is as follows:
-//
-//   1) Enumerate the triangles. At each triangle have space for some
-//      information that will be used during rendering. This includes
-//      which tetra the triangles belong to, the plane equation and the
-//      Barycentric coefficients.
-//
-//   2) Keep a reference to all four triangles for each tetra.
-//
-//   3) At the beginning of each render, do the precomputation. This
-//      includes creating an array of transformed points (in view
-//      coordinates) and computing the view dependent info per triangle
-//      (plane equations and barycentric coords in view space)
-//
-//   4) Find all front facing boundary triangles (a triangle is on the
-//      boundary if it belongs to only one tetra). For each triangle,
-//      find all pixels in the image that intersect the triangle, and
-//      add this to the sorted (by depth) intersection list at each
-//      pixel.
-//
-//   5) For each ray cast, traverse the intersection list. At each
-//      intersection, accumulate opacity and color contribution
-//      per tetra along the ray until you reach an exiting triangle
-//      (on the boundary).
-//
-
-// .SECTION See Also
-// vtkUnstructuredGridVolumeRayCastMapper
+/**
+ * @class   vtkUnstructuredGridBunykRayCastFunction
+ * @brief   a superclass for ray casting functions
+ *
+ *
+ * vtkUnstructuredGridBunykRayCastFunction is a concrete implementation of a
+ * ray cast function for unstructured grid data. This class was based on the
+ * paper "Simple, Fast, Robust Ray Casting of Irregular Grids" by Paul Bunyk,
+ * Arie Kaufmna, and Claudio Silva. This method is quite memory intensive
+ * (with extra explicit copies of the data) and therefore should not be used
+ * for very large data. This method assumes that the input data is composed
+ * entirely of tetras - use vtkDataSetTriangleFilter before setting the input
+ * on the mapper.
+ *
+ * The basic idea of this method is as follows:
+ *
+ *   1) Enumerate the triangles. At each triangle have space for some
+ *      information that will be used during rendering. This includes
+ *      which tetra the triangles belong to, the plane equation and the
+ *      Barycentric coefficients.
+ *
+ *   2) Keep a reference to all four triangles for each tetra.
+ *
+ *   3) At the beginning of each render, do the precomputation. This
+ *      includes creating an array of transformed points (in view
+ *      coordinates) and computing the view dependent info per triangle
+ *      (plane equations and barycentric coords in view space)
+ *
+ *   4) Find all front facing boundary triangles (a triangle is on the
+ *      boundary if it belongs to only one tetra). For each triangle,
+ *      find all pixels in the image that intersect the triangle, and
+ *      add this to the sorted (by depth) intersection list at each
+ *      pixel.
+ *
+ *   5) For each ray cast, traverse the intersection list. At each
+ *      intersection, accumulate opacity and color contribution
+ *      per tetra along the ray until you reach an exiting triangle
+ *      (on the boundary).
+ *
+ *
+ * @sa
+ * vtkUnstructuredGridVolumeRayCastMapper
+*/
 
 #ifndef vtkUnstructuredGridBunykRayCastFunction_h
 #define vtkUnstructuredGridBunykRayCastFunction_h
@@ -82,16 +85,19 @@ class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridBunykRayCastFunction : public
 public:
   static vtkUnstructuredGridBunykRayCastFunction *New();
   vtkTypeMacro(vtkUnstructuredGridBunykRayCastFunction,vtkUnstructuredGridVolumeRayCastFunction);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Called by the ray cast mapper at the start of rendering
+  /**
+   * Called by the ray cast mapper at the start of rendering
+   */
   virtual void Initialize( vtkRenderer *ren, vtkVolume   *vol );
 
-  // Description:
-  // Called by the ray cast mapper at the end of rendering
+  /**
+   * Called by the ray cast mapper at the end of rendering
+   */
   virtual void Finalize();
 
+  VTK_NEWINSTANCE
   virtual vtkUnstructuredGridVolumeRayCastIterator *NewIterator();
 
   // Used to store each triangle - made public because of the
@@ -116,35 +122,48 @@ public:
     Intersection *Next;
   };
 
-  // Description:
-  // Is the point x, y, in the given triangle? Public for
-  // access from the templated function.
+  /**
+   * Is the point x, y, in the given triangle? Public for
+   * access from the templated function.
+   */
   int  InTriangle( double x, double y,
                    Triangle *triPtr );
 
 
-  // Description:
-  // Access to an internal structure for the templated method.
+  /**
+   * Access to an internal structure for the templated method.
+   */
   double *GetPoints() {return this->Points;}
 
-  // Description:
-  // Access to an internal structure for the templated method.
+  //@{
+  /**
+   * Access to an internal structure for the templated method.
+   */
   vtkGetObjectMacro( ViewToWorldMatrix, vtkMatrix4x4 );
+  //@}
 
-  // Description:
-  // Access to an internal structure for the templated method.
+  //@{
+  /**
+   * Access to an internal structure for the templated method.
+   */
   vtkGetVectorMacro( ImageOrigin, int, 2 );
+  //@}
 
-  // Description:
-  // Access to an internal structure for the templated method.
+  //@{
+  /**
+   * Access to an internal structure for the templated method.
+   */
   vtkGetVectorMacro( ImageViewportSize, int, 2 );
+  //@}
 
-  // Description:
-  // Access to an internal structure for the templated method.
+  /**
+   * Access to an internal structure for the templated method.
+   */
   Triangle **GetTetraTriangles () {return this->TetraTriangles;}
 
-  // Description:
-  // Access to an internal structure for the templated method.
+  /**
+   * Access to an internal structure for the templated method.
+   */
   Intersection *GetIntersectionList( int x, int y ) { return this->Image[y*this->ImageSize[0] + x]; }
 
 protected:
@@ -251,8 +270,8 @@ protected:
   void          ComputePixelIntersections();
 
 private:
-  vtkUnstructuredGridBunykRayCastFunction(const vtkUnstructuredGridBunykRayCastFunction&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridBunykRayCastFunction&);  // Not implemented.
+  vtkUnstructuredGridBunykRayCastFunction(const vtkUnstructuredGridBunykRayCastFunction&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnstructuredGridBunykRayCastFunction&) VTK_DELETE_FUNCTION;
 };
 
 #endif

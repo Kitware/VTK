@@ -12,110 +12,177 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCompositePolyDataMapper2 - mapper for composite dataset
-// .SECTION Description
-// vtkCompositePolyDataMapper2 is similar to
-// vtkGenericCompositePolyDataMapper2 but requires that its inputs all have the
-// same properties (normals, tcoord, scalars, etc) It will only draw
-// polys and it does not support edge flags. The advantage to using
-// this class is that it generally should be faster
+/**
+ * @class   vtkCompositePolyDataMapper2
+ * @brief   mapper for composite dataset consisting
+ * of polygonal data.
+ *
+ * vtkCompositePolyDataMapper2 is similar to vtkCompositePolyDataMapper except
+ * that instead of creating individual mapper for each block in the composite
+ * dataset, it iterates over the blocks internally.
+*/
 
 #ifndef vtkCompositePolyDataMapper2_h
 #define vtkCompositePolyDataMapper2_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkGenericCompositePolyDataMapper2.h"
+#include "vtkSmartPointer.h" // for vtkSmartPointer
+#include "vtkOpenGLPolyDataMapper.h"
 
-class VTKRENDERINGOPENGL2_EXPORT vtkCompositePolyDataMapper2 : public vtkGenericCompositePolyDataMapper2
+#include "vtkColor.h" // used for ivars
+#include <map> // use for ivars
+#include <stack> // used for ivars
+
+class vtkCompositeDataDisplayAttributes;
+class vtkCompositeMapperHelper2;
+class vtkCompositeMapperHelperData;
+
+class VTKRENDERINGOPENGL2_EXPORT vtkCompositePolyDataMapper2 : public vtkOpenGLPolyDataMapper
 {
 public:
   static vtkCompositePolyDataMapper2* New();
-  vtkTypeMacro(vtkCompositePolyDataMapper2, vtkGenericCompositePolyDataMapper2);
+  vtkTypeMacro(vtkCompositePolyDataMapper2, vtkOpenGLPolyDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // This calls RenderPiece (in a for loop if streaming is necessary).
-  virtual void Render(vtkRenderer *ren, vtkActor *act);
+  /**
+   * Returns if the mapper does not expect to have translucent geometry. This
+   * may happen when using ScalarMode is set to not map scalars i.e. render the
+   * scalar array directly as colors and the scalar array has opacity i.e. alpha
+   * component. Note that even if this method returns true, an actor may treat
+   * the geometry as translucent since a constant translucency is set on the
+   * property, for example.
+   * Overridden to use the actual data and ScalarMode to determine if we have
+   * opaque geometry.
+   */
+  virtual bool GetIsOpaque();
 
-  virtual void RenderPiece(vtkRenderer *ren, vtkActor *act);
-  virtual void RenderPieceDraw(vtkRenderer *ren, vtkActor *act);
-  virtual void RenderEdges(vtkRenderer *ren, vtkActor *act);
+  //@{
+  /**
+   * Set/get the composite data set attributes.
+   */
+  void SetCompositeDataDisplayAttributes(vtkCompositeDataDisplayAttributes *attributes);
+  vtkCompositeDataDisplayAttributes* GetCompositeDataDisplayAttributes();
+  //@}
+
+  //@{
+  /**
+   * Set/get the visibility for a block given its flat index.
+   */
+  void SetBlockVisibility(unsigned int index, bool visible);
+  bool GetBlockVisibility(unsigned int index) const;
+  void RemoveBlockVisibility(unsigned int index);
+  void RemoveBlockVisibilites();
+  //@}
+
+  //@{
+  /**
+   * Set/get the color for a block given its flat index.
+   */
+  void SetBlockColor(unsigned int index, double color[3]);
+  void SetBlockColor(unsigned int index, double r, double g, double b)
+  {
+    double color[3] = {r, g, b};
+    this->SetBlockColor(index, color);
+  }
+  double* GetBlockColor(unsigned int index);
+  void RemoveBlockColor(unsigned int index);
+  void RemoveBlockColors();
+  //@}
+
+  //@{
+  /**
+   * Set/get the opacity for a block given its flat index.
+   */
+  void SetBlockOpacity(unsigned int index, double opacity);
+  double GetBlockOpacity(unsigned int index);
+  void RemoveBlockOpacity(unsigned int index);
+  void RemoveBlockOpacities();
+  //@}
+
+  /**
+   * Release any graphics resources that are being consumed by this mapper.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
+  void ReleaseGraphicsResources(vtkWindow *);
+
+  /**
+   * This calls RenderPiece (in a for loop if streaming is necessary).
+   */
+  virtual void Render(vtkRenderer *ren, vtkActor *act);
 
 protected:
   vtkCompositePolyDataMapper2();
   ~vtkCompositePolyDataMapper2();
 
-  // Description:
-  // Perform string replacments on the shader templates, called from
-  // ReplaceShaderValues
-  virtual void ReplaceShaderColor(
-    std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *ren, vtkActor *act);
+  /**
+   * We need to override this method because the standard streaming
+   * demand driven pipeline is not what we want - we are expecting
+   * hierarchical data as input
+   */
+  vtkExecutive* CreateDefaultExecutive();
 
-  // Description:
-  // Build the VBO/IBO, called by UpdateBufferObjects
-  virtual void BuildBufferObjects(vtkRenderer *ren, vtkActor *act);
-  virtual void AppendOneBufferObject(vtkRenderer *ren,
-    vtkActor *act, vtkPolyData *pd, unsigned int flat_index,
-    std::vector<unsigned char> &colors,
-    std::vector<float> &norms);
+  /**
+   * Need to define the type of data handled by this mapper.
+   */
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
 
-  std::vector<unsigned int> VertexOffsets;
-  std::vector<unsigned int> IndexOffsets;
-  std::vector<unsigned int> IndexArray;
-  std::vector<unsigned int> EdgeIndexArray;
-  std::vector<unsigned int> EdgeIndexOffsets;
-  unsigned int MaximumFlatIndex;
+  /**
+   * Need to loop over the hierarchy to compute bounds
+   */
+  virtual void ComputeBounds();
 
-  class RenderValue
-    {
+  /**
+   * Time stamp for computation of bounds.
+   */
+  vtkTimeStamp BoundsMTime;
+
+  // what "index" are we currently rendering, -1 means none
+  int CurrentFlatIndex;
+  std::map<const std::string, vtkCompositeMapperHelper2 *> Helpers;
+  std::map<vtkPolyData *, vtkCompositeMapperHelperData *> HelperDataMap;
+  vtkTimeStamp HelperMTime;
+
+  // copy values to the helpers
+  void CopyMapperValuesToHelper(vtkCompositeMapperHelper2 *helper);
+
+  class RenderBlockState
+  {
     public:
-      unsigned int StartVertex;
-      unsigned int StartIndex;
-      unsigned int StartEdgeIndex;
-      unsigned int EndVertex;
-      unsigned int EndIndex;
-      unsigned int EndEdgeIndex;
-      double Opacity;
-      bool OverridesColor;
-      bool Visibility;
-      vtkColor3d AmbientColor;
-      vtkColor3d DiffuseColor;
-      unsigned int PickId;
-    };
-
-  std::vector<RenderValue> RenderValues;
-  vtkTimeStamp RenderValuesBuildTime;
-
-  bool UseGeneric;  // use the generic render
-  vtkTimeStamp GenericTestTime;
-
-  // free up memory
-  void FreeStructures();
+      std::stack<bool> Visibility;
+      std::stack<double> Opacity;
+      std::stack<vtkColor3d> AmbientColor;
+      std::stack<vtkColor3d> DiffuseColor;
+      std::stack<vtkColor3d> SpecularColor;
+  };
 
   void BuildRenderValues(vtkRenderer *renderer,
     vtkActor *actor,
     vtkDataObject *dobj,
-    unsigned int &flat_index,
-    unsigned int &lastVertex,
-    unsigned int &lastIndex,
-    unsigned int &lastEdgeIndex);
+    unsigned int &flat_index);
+  vtkTimeStamp RenderValuesBuildTime;
 
-  // Description:
-  // Returns if we can use texture maps for scalar coloring. Note this doesn't
-  // say we "will" use scalar coloring. It says, if we do use scalar coloring,
-  // we will use a texture.
-  // When rendering multiblock datasets, if any 2 blocks provide different
-  // lookup tables for the scalars, then also we cannot use textures. This case
-  // can be handled if required.
-  virtual int CanUseTextureMapForColoring(vtkDataObject* input);
-  bool CanUseTextureMapForColoringSet;
-  int CanUseTextureMapForColoringValue;
+  RenderBlockState BlockState;
+  void RenderBlock(vtkRenderer *renderer,
+                   vtkActor *actor,
+                   vtkDataObject *dobj,
+                   unsigned int &flat_index);
+
+  /**
+   * Composite data set attributes.
+   */
+  vtkSmartPointer<vtkCompositeDataDisplayAttributes> CompositeAttributes;
+
+  friend class vtkCompositeMapperHelper2;
 
 private:
-  vtkCompositePolyDataMapper2(
-    const vtkCompositePolyDataMapper2&); // Not implemented.
-  void operator=(const vtkCompositePolyDataMapper2&); // Not implemented.
+  vtkMTimeType LastOpaqueCheckTime;
+  bool LastOpaqueCheckValue;
+  double ColorResult[3];
+
+  vtkCompositePolyDataMapper2(const vtkCompositePolyDataMapper2&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompositePolyDataMapper2&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

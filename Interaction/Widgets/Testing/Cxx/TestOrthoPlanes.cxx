@@ -339,7 +339,7 @@ public:
   { return new vtkOrthoPlanesCallback; }
 
   void Execute( vtkObject *caller, unsigned long vtkNotUsed( event ),
-                void *callData )
+                void *callData ) VTK_OVERRIDE
   {
     vtkImagePlaneWidget* self =
       reinterpret_cast< vtkImagePlaneWidget* >( caller );
@@ -348,20 +348,20 @@ public:
     double* wl = static_cast<double*>( callData );
 
     if ( self == this->WidgetX )
-      {
+    {
       this->WidgetY->SetWindowLevel(wl[0],wl[1],1);
       this->WidgetZ->SetWindowLevel(wl[0],wl[1],1);
-      }
+    }
     else if( self == this->WidgetY )
-      {
+    {
       this->WidgetX->SetWindowLevel(wl[0],wl[1],1);
       this->WidgetZ->SetWindowLevel(wl[0],wl[1],1);
-      }
+    }
     else if (self == this->WidgetZ)
-      {
+    {
       this->WidgetX->SetWindowLevel(wl[0],wl[1],1);
       this->WidgetY->SetWindowLevel(wl[0],wl[1],1);
-      }
+    }
   }
 
   vtkOrthoPlanesCallback():WidgetX( 0 ), WidgetY( 0 ), WidgetZ ( 0 ) {}

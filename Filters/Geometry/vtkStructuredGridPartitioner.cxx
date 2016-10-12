@@ -86,11 +86,11 @@ vtkPoints* vtkStructuredGridPartitioner::ExtractSubGridPoints(
   double p[3];
   int dataDescription = vtkStructuredData::GetDataDescriptionFromExtent(subext);
   for( int i=subext[0]; i <= subext[1]; ++i )
-    {
+  {
     for( int j=subext[2]; j <= subext[3]; ++j )
-      {
+    {
       for( int k=subext[4]; k <= subext[5]; ++k )
-        {
+      {
         wholeGrid->GetPoint(i,j,k,p,false);
 
         ijk[0]=i; ijk[1]=j; ijk[2]=k;
@@ -100,9 +100,9 @@ vtkPoints* vtkStructuredGridPartitioner::ExtractSubGridPoints(
         assert("pre: point index is out-of-bounds!" &&
                 (pntIdx >= 0) && (pntIdx < numNodes) );
         pnts->SetPoint(pntIdx,p);
-        } // END for all k
-      } // END for all j
-    } // END for all i
+      } // END for all k
+    } // END for all j
+  } // END for all i
   return( pnts );
 }
 
@@ -137,13 +137,13 @@ int vtkStructuredGridPartitioner::RequestData(
   extentPartitioner->SetNumberOfGhostLayers( this->NumberOfGhostLayers );
 
   if(this->DuplicateNodes == 1)
-    {
+  {
     extentPartitioner->DuplicateNodesOn();
-    }
+  }
   else
-    {
+  {
     extentPartitioner->DuplicateNodesOff();
-    }
+  }
 
   // STEP 4: Partition
   extentPartitioner->Partition();
@@ -158,7 +158,7 @@ int vtkStructuredGridPartitioner::RequestData(
   int subext[6];
   unsigned int blockIdx = 0;
   for( ; blockIdx < multiblock->GetNumberOfBlocks(); ++blockIdx )
-    {
+  {
     extentPartitioner->GetPartitionExtent( blockIdx, subext );
 
     vtkStructuredGrid *subgrid = vtkStructuredGrid::New();
@@ -175,7 +175,7 @@ int vtkStructuredGridPartitioner::RequestData(
 
     multiblock->SetBlock( blockIdx, subgrid );
     subgrid->Delete();
-    } // END for all blocks
+  } // END for all blocks
 
   extentPartitioner->Delete();
   return 1;

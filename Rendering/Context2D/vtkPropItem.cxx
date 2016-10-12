@@ -54,18 +54,18 @@ void vtkPropItem::ResetTransforms()
 bool vtkPropItem::Paint(vtkContext2D *)
 {
   if (!this->PropObject)
-    {
+  {
     return false;
-    }
+  }
 
   this->UpdateTransforms();
 
   int result = this->PropObject->RenderOpaqueGeometry(this->Scene->GetRenderer());
   if (this->PropObject->HasTranslucentPolygonalGeometry())
-    {
+  {
     result += this->PropObject->RenderTranslucentPolygonalGeometry(
           this->Scene->GetRenderer());
-    }
+  }
   result += this->PropObject->RenderOverlay(this->Scene->GetRenderer());
 
   this->ResetTransforms();
@@ -77,10 +77,10 @@ bool vtkPropItem::Paint(vtkContext2D *)
 void vtkPropItem::ReleaseGraphicsResources()
 {
   if (this->PropObject && this->Scene && this->Scene->GetRenderer())
-    {
+  {
     this->PropObject->ReleaseGraphicsResources(
           this->Scene->GetRenderer()->GetVTKWindow());
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -89,12 +89,12 @@ void vtkPropItem::PrintSelf(std::ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Prop:";
   if (this->PropObject)
-    {
+  {
     os << "\n";
     this->PropObject->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(NULL)\n";
-    }
+  }
 }

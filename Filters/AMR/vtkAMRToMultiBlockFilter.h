@@ -12,14 +12,16 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkAMRToMultiBlockFilter.h -- Converts an AMR instance to multiblock
-//
-// .SECTION Description
-// A filter that accepts as input an AMR dataset and produces a corresponding
-// vtkMultiBlockDataset as output.
-//
-// .SECTION See Also
-// vtkOverlappingAMR vtkMultiBlockDataSet
+/**
+ * @class   vtkAMRToMultiBlockFilter
+ *
+ *
+ * A filter that accepts as input an AMR dataset and produces a corresponding
+ * vtkMultiBlockDataset as output.
+ *
+ * @sa
+ * vtkOverlappingAMR vtkMultiBlockDataSet
+*/
 
 #ifndef vtkAMRToMultiBlockFilter_h
 #define vtkAMRToMultiBlockFilter_h
@@ -42,11 +44,14 @@ public:
   vtkTypeMacro(vtkAMRToMultiBlockFilter, vtkMultiBlockDataSetAlgorithm );
   void PrintSelf(ostream &oss, vtkIndent indent );
 
-  // Description:
-  // Set/Get a multiprocess controller for paralle processing.
-  // By default this parameter is set to NULL by the constructor.
+  //@{
+  /**
+   * Set/Get a multiprocess controller for paralle processing.
+   * By default this parameter is set to NULL by the constructor.
+   */
   vtkSetMacro( Controller, vtkMultiProcessController* );
   vtkGetMacro( Controller, vtkMultiProcessController* );
+  //@}
 
   // Standard pipeline routines
 
@@ -59,15 +64,18 @@ protected:
   vtkAMRToMultiBlockFilter();
   virtual ~vtkAMRToMultiBlockFilter();
 
-  // Description:
-  // Copies the AMR data to the output multi-block datastructure.
+  //@{
+  /**
+   * Copies the AMR data to the output multi-block datastructure.
+   */
   void CopyAMRToMultiBlock(
       vtkOverlappingAMR *amr, vtkMultiBlockDataSet *mbds);
   vtkMultiProcessController *Controller;
+  //@}
 
 private:
-  vtkAMRToMultiBlockFilter(const vtkAMRToMultiBlockFilter& ); // Not implemented
-  void operator=(const vtkAMRToMultiBlockFilter& ); // Not implemented
+  vtkAMRToMultiBlockFilter(const vtkAMRToMultiBlockFilter& ) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAMRToMultiBlockFilter& ) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkAMRToMultiBlockFilter_h */

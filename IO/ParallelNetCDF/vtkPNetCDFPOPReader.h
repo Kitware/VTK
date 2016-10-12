@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPNetCDFPOPReader - read NetCDF files in parallel with MPI
-// .Author Ross Miller 03.14.2011
-// .SECTION Description
-// vtkNetCDFPOPReader is a source object that reads NetCDF files.
-// It should be able to read most any NetCDF file that wants to output a
-// rectilinear grid.  The ordering of the variables is changed such that
-// the NetCDF x, y, z directions correspond to the vtkRectilinearGrid
-// z, y, x directions, respectively.  The striding is done with
-// respect to the vtkRectilinearGrid ordering.  Additionally, the
-// z coordinates of the vtkRectilinearGrid are negated so that the
-// first slice/plane has the highest z-value and the last slice/plane
-// has the lowest z-value.
+/**
+ * @class   vtkPNetCDFPOPReader
+ * @brief   read NetCDF files in parallel with MPI
+ * .Author Ross Miller 03.14.2011
+ *
+ * vtkNetCDFPOPReader is a source object that reads NetCDF files.
+ * It should be able to read most any NetCDF file that wants to output a
+ * rectilinear grid.  The ordering of the variables is changed such that
+ * the NetCDF x, y, z directions correspond to the vtkRectilinearGrid
+ * z, y, x directions, respectively.  The striding is done with
+ * respect to the vtkRectilinearGrid ordering.  Additionally, the
+ * z coordinates of the vtkRectilinearGrid are negated so that the
+ * first slice/plane has the highest z-value and the last slice/plane
+ * has the lowest z-value.
+*/
 
 #ifndef vtkPNetCDFPOPReader_h
 #define vtkPNetCDFPOPReader_h
@@ -43,26 +46,36 @@ public:
   static vtkPNetCDFPOPReader *New();
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //Description:
-  //The file to open
+  //@{
+  /**
+   * The file to open
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  //Description:
-  //Enable subsampling in i,j and k dimensions in the vtkRectilinearGrid
+  //@{
+  /**
+   * Enable subsampling in i,j and k dimensions in the vtkRectilinearGrid
+   */
   vtkSetVector3Macro(Stride, int);
   vtkGetVector3Macro(Stride, int);
+  //@}
 
-  // Description:
-  // Variable array selection.
+  //@{
+  /**
+   * Variable array selection.
+   */
   virtual int GetNumberOfVariableArrays();
   virtual const char *GetVariableArrayName(int idx);
   virtual int GetVariableArrayStatus(const char *name);
   virtual void SetVariableArrayStatus(const char *name, int status);
+  //@}
 
-  // Description:
-  // Set ranks that will actually open and read the netCDF files.  Pass in
-  // null to chose reasonable defaults)
+  /**
+   * Set ranks that will actually open and read the netCDF files.  Pass in
+   * null to chose reasonable defaults)
+   */
   void SetReaderRanks(vtkIdList*);
 
   // Set/Get the vtkMultiProcessController which will handle communications
@@ -109,8 +122,8 @@ protected:
   vtkMPIController *Controller;
 
 private:
-  vtkPNetCDFPOPReader(const vtkPNetCDFPOPReader&);  // Not implemented.
-  void operator=(const vtkPNetCDFPOPReader&);  // Not implemented.
+  vtkPNetCDFPOPReader(const vtkPNetCDFPOPReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPNetCDFPOPReader&) VTK_DELETE_FUNCTION;
 
   vtkPNetCDFPOPReaderInternal* Internals;
 };

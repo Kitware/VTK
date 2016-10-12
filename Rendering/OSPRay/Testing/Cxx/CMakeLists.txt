@@ -1,4 +1,5 @@
 vtk_add_test_cxx(${vtk-module}CxxTests tests
+  # Surface rendering tests
   TestOSPRayCompositePolyDataMapper2.cxx,
   TestOSPRayDynamicObject.cxx,
   TestOSPRayDynamicScene.cxx,
@@ -7,12 +8,28 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestOSPRayLights.cxx,
   TestOSPRayMultiBlock.cxx
   TestOSPRayMultiBlockPartialArrayFieldData.cxx,
+  TestOSPRayOrthographic.cxx,
   TestOSPRayPass.cxx,
   TestOSPRayRenderMesh.cxx,
+  TestOSPRayRendererType.cxx,
   TestOSPRayScalarBar.cxx
   TestOSPRayTime.cxx,
   TestOSPRayWindow.cxx
-  #TODO: interaction, pure offscreen, volumes
+  # Volume rendering tests
+  TestGPURayCastCameraInside.cxx
+  TestGPURayCastCellData.cxx
+  TestGPURayCastCameraInsideSmallSpacing.cxx
+  TestGPURayCastMapperBenchmark.cxx
+  TestGPURayCastMapperSampleDistance.cxx
+  TestGPURayCastPerspectiveParallel.cxx
+  #TestGPURayCastPositionalLights.cxx
+  TestGPURayCastVolumeLightKit.cxx
+  TestGPURayCastVolumePolyData.cxx
+  TestGPURayCastVolumeScale.cxx
+  TestGPURayCastVolumeUpdate.cxx
+  TestGPUVolumeRayCastMapper.cxx
+  TestOSPRayVolumeRenderer.cxx
+  TestSmartVolumeMapper.cxx
   )
 vtk_test_cxx_executable(${vtk-module}CxxTests tests RENDERING_FACTORY
   vtkOSPRayTestInteractor.cxx

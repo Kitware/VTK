@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAMRInformation - Meta data that describes the structure of an AMR data set
-//
-// .SECTION Description
-// vtkAMRInformation encaspulates the following meta information for an AMR data set
-// - a list of vtkAMRBox objects
-// - Refinement ratio between AMR levels
-// - Grid spacing for each level
-// - The file block index for each block
-// - parent child information, if requested
-//
-// .SECTION See Also
-// vtkOverlappingAMR, vtkAMRBox
+/**
+ * @class   vtkAMRInformation
+ * @brief   Meta data that describes the structure of an AMR data set
+ *
+ *
+ * vtkAMRInformation encaspulates the following meta information for an AMR data set
+ * - a list of vtkAMRBox objects
+ * - Refinement ratio between AMR levels
+ * - Grid spacing for each level
+ * - The file block index for each block
+ * - parent child information, if requested
+ *
+ * @sa
+ * vtkOverlappingAMR, vtkAMRBox
+*/
 
 #ifndef vtkAMRInformation_h
 #define vtkAMRInformation_h
@@ -48,158 +51,196 @@ public:
   static vtkAMRInformation* New();
   vtkTypeMacro(vtkAMRInformation, vtkObject);
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   bool operator==(const vtkAMRInformation& other);
 
-  //Description
-  //Initialize the meta information
-  // numLevels is the number of levels
-  // blocksPerLevel[i] is the number of blocks at level i
+  /**
+   * Initialize the meta information
+   * numLevels is the number of levels
+   * blocksPerLevel[i] is the number of blocks at level i
+   */
   void Initialize(int numLevels, const int* blocksPerLevel);
 
-  // Description:
-  // returns the value of vtkUniformGrid::GridDescription() of any block
+  //@{
+  /**
+   * returns the value of vtkUniformGrid::GridDescription() of any block
+   */
   vtkGetMacro( GridDescription, int );
   void SetGridDescription(int description);
+  //@}
 
-  // Description:
-  // Get the AMR dataset origin
-  // The origin is essentially the minimum of all the grids.
+  //@{
+  /**
+   * Get the AMR dataset origin
+   * The origin is essentially the minimum of all the grids.
+   */
   void GetOrigin( double origin[3] );
   double* GetOrigin();
   void SetOrigin(const double* origin);
+  //@}
 
-  // Description:
-  // Return the number of levels
+  /**
+   * Return the number of levels
+   */
   unsigned int GetNumberOfLevels() const
   { return static_cast<unsigned int>(this->NumBlocks.size()-1);}
 
-  // Description:
-  // Returns the number of datasets at the given levelx
+  /**
+   * Returns the number of datasets at the given levelx
+   */
   unsigned int GetNumberOfDataSets(unsigned int level) const;
 
-  // Description:
-  // Returns total number of datasets
+  /**
+   * Returns total number of datasets
+   */
   unsigned int GetTotalNumberOfBlocks()
   { return this->NumBlocks.back();}
 
-  // Description:
-  // Returns the single index from a pair of indices
+  /**
+   * Returns the single index from a pair of indices
+   */
   int GetIndex(unsigned int level, unsigned int id) const
   { return this->NumBlocks[level] + id;}
 
-  // Description:
-  // Returns the an index pair given a single index
+  /**
+   * Returns the an index pair given a single index
+   */
   void ComputeIndexPair(unsigned int index, unsigned int& level, unsigned int& id);
 
-  // Description
-  // Returns the bounds of the entire domain
+  /**
+   * Returns the bounds of the entire domain
+   */
   const double* GetBounds();
 
-  // Description
-  // Returns the bounding box of a given box
+  /**
+   * Returns the bounding box of a given box
+   */
   void GetBounds(unsigned int level, unsigned int id, double* bb);
 
-  // Description
-  // Returns the origin of the grid at (level,id)
+  /**
+   * Returns the origin of the grid at (level,id)
+   */
   bool GetOrigin(unsigned int level, unsigned int id, double* origin);
 
-  //Description
-  //Return the spacing at the given fiven
+  /**
+   * Return the spacing at the given fiven
+   */
   void GetSpacing(unsigned int level, double spacing[3]);
 
   bool HasSpacing(unsigned int level);
 
-  // Description:
-  // Methods to set and get the AMR box at a given position
+  //@{
+  /**
+   * Methods to set and get the AMR box at a given position
+   */
   void SetAMRBox(unsigned int level, unsigned int id, const vtkAMRBox& box);
   const vtkAMRBox& GetAMRBox(unsigned int level, unsigned int id) const;
+  //@}
 
-  // Description
-  // return the amr box coarsened to the previous level
+  /**
+   * return the amr box coarsened to the previous level
+   */
   bool GetCoarsenedAMRBox(unsigned int level, unsigned int id, vtkAMRBox& box) const;
 
-  // Description:
-  // Get/Set the SourceIndex of a block. Typically, this is a file-type specific index
-  // that can be used by a reader to load a particular file block
+  //@{
+  /**
+   * Get/Set the SourceIndex of a block. Typically, this is a file-type specific index
+   * that can be used by a reader to load a particular file block
+   */
   int GetAMRBlockSourceIndex(int index);
   void SetAMRBlockSourceIndex(int index, int sourceId);
+  //@}
 
-  // Description:
-  // This method computes the refinement ratio at each level.
-  // At each level, l, the refinement ratio r_l is computed by
-  // r_l = D_{l} / D_{l+1}, where D_{l+1} and D_{l} are the grid
-  // spacings at the next and current level respectively.
-  //
-  // .SECTION Assumptions
-  // 1) Within each level, the refinement ratios are the same for all blocks.
-  // 2) The refinement ratio is uniform along each dimension of the block.
+  /**
+   * This method computes the refinement ratio at each level.
+   * At each level, l, the refinement ratio r_l is computed by
+   * r_l = D_{l} / D_{l+1}, where D_{l+1} and D_{l} are the grid
+   * spacings at the next and current level respectively.
+
+   * .SECTION Assumptions
+   * 1) Within each level, the refinement ratios are the same for all blocks.
+   * 2) The refinement ratio is uniform along each dimension of the block.
+   */
   void GenerateRefinementRatio();
 
-  // Description:
-  // Returns Wether refinement ratio has been set (either by calling
-  // GenerateRefinementRatio() or by calling SetRefinementRatio()
+  /**
+   * Returns Wether refinement ratio has been set (either by calling
+   * GenerateRefinementRatio() or by calling SetRefinementRatio()
+   */
   bool HasRefinementRatio();
 
-  // Description:
-  // Set the refinement ratio at a level. This method should be
-  // called for all levels, if called at all.
+  /**
+   * Set the refinement ratio at a level. This method should be
+   * called for all levels, if called at all.
+   */
   void SetRefinementRatio(unsigned int level, int ratio);
 
-  // Description:
-  // Returns the refinement of a given level.
+  /**
+   * Returns the refinement of a given level.
+   */
   int GetRefinementRatio(unsigned int level) const;
 
-  // Description:
-  // Set the spacing at a given level
+  /**
+   * Set the spacing at a given level
+   */
   void SetSpacing(unsigned int level,const double* h);
 
-  //Description:
-  //Return whether parent child information has been generated
+  /**
+   * Return whether parent child information has been generated
+   */
   bool HasChildrenInformation();
 
-  // Description:
-  // Return a pointer to Parents of a block.  The first entry is the number
-  // of parents the block has followed by its parent ids in level-1.
-  // If none exits it returns NULL.
+  /**
+   * Return a pointer to Parents of a block.  The first entry is the number
+   * of parents the block has followed by its parent ids in level-1.
+   * If none exits it returns NULL.
+   */
   unsigned int *GetParents(unsigned int level, unsigned int index, unsigned int& numParents);
 
-  // Description:
-  // Return a pointer to Children of a block.  The first entry is the number
-  // of children the block has followed by its childern ids in level+1.
-  // If none exits it returns NULL.
+  /**
+   * Return a pointer to Children of a block.  The first entry is the number
+   * of children the block has followed by its childern ids in level+1.
+   * If none exits it returns NULL.
+   */
   unsigned int *GetChildren(unsigned int level, unsigned int index, unsigned int& numChildren);
 
-  // Description:
-  // Prints the parents and children of a requested block (Debug Routine)
+  /**
+   * Prints the parents and children of a requested block (Debug Routine)
+   */
   void PrintParentChildInfo(unsigned int level, unsigned int index);
 
-  //Description:
-  // Generate the parent/child relationships - needed to be called
-  // before GetParents or GetChildren can be used!
+  /**
+   * Generate the parent/child relationships - needed to be called
+   * before GetParents or GetChildren can be used!
+   */
   void GenerateParentChildInformation();
 
-  // Description:
-  // Checks whether the meta data is internally consistent.
+  /**
+   * Checks whether the meta data is internally consistent.
+   */
   bool Audit();
 
-  // Description:
-  //Given a point q, find whether q is bounded by the data set at
-  //(level,index).  If it is, set cellIdx to the cell index and return
-  //true; otherwise return false
+  /**
+   * Given a point q, find whether q is bounded by the data set at
+   * (level,index).  If it is, set cellIdx to the cell index and return
+   * true; otherwise return false
+   */
   bool FindCell(double q[3],unsigned int level, unsigned int index,int &cellIdx);
 
-  // Description:
-  //find the grid that contains the point q at the specified level
+  /**
+   * find the grid that contains the point q at the specified level
+   */
   bool FindGrid(double q[3], int level, unsigned int& gridId);
 
-  //Description
-  //Given a point q, find the highest level grid that contains it.
+  /**
+   * Given a point q, find the highest level grid that contains it.
+   */
   bool FindGrid(double q[3], unsigned int& level, unsigned int& gridId);
 
-  // Description:
-  // Returns internal arrays.
+  /**
+   * Returns internal arrays.
+   */
   const std::vector<int>& GetNumBlocks() const
   { return this->NumBlocks;}
 
@@ -210,9 +251,9 @@ public:
 
  private:
   vtkAMRInformation();
-  ~vtkAMRInformation();
-  vtkAMRInformation(const vtkAMRInformation&); // Not implemented.
-  void operator=(const vtkAMRInformation&); // Not implemented.
+  ~vtkAMRInformation() VTK_OVERRIDE;
+  vtkAMRInformation(const vtkAMRInformation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAMRInformation&) VTK_DELETE_FUNCTION;
 
   bool HasValidOrigin();
   bool HasValidBounds();

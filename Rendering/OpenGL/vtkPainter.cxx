@@ -51,13 +51,13 @@ public:
 
   virtual void Execute(vtkObject *caller,
     unsigned long event, void* vtkNotUsed(v))
-    {
+  {
     vtkPainter* delegate = vtkPainter::SafeDownCast(caller);
     if (delegate && event == vtkCommand::ProgressEvent && this->Self)
-      {
+    {
       this->Self->UpdateDelegateProgress(delegate, delegate->GetProgress());
-      }
     }
+  }
 
   vtkPainter* Self;
 };
@@ -100,10 +100,10 @@ vtkPainter::~vtkPainter()
   this->SetInformation(NULL);
 
   if (this->LastWindow)
-    {
+  {
     this->ReleaseGraphicsResources(this->LastWindow);
     this->LastWindow = 0;
-    }
+  }
 
   this->Timer->Delete();
 }
@@ -130,18 +130,18 @@ double vtkPainter::GetTimeToDraw()
 {
   double time = this->TimeToDraw;
   if (this->DelegatePainter)
-    {
+  {
     time += this->DelegatePainter->GetTimeToDraw();
-    }
+  }
   return time;
 }
 //-----------------------------------------------------------------------------
 void vtkPainter::ReleaseGraphicsResources(vtkWindow *w)
 {
   if (this->DelegatePainter)
-    {
+  {
     this->DelegatePainter->ReleaseGraphicsResources(w);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -160,16 +160,16 @@ void vtkPainter::UnRegister(vtkObjectBase *o)
 void vtkPainter::SetDelegatePainter(vtkPainter* delegate)
 {
   if (this->DelegatePainter)
-    {
+  {
     this->DelegatePainter->RemoveObserver(this->Observer);
-    }
+  }
 
   vtkSetObjectBodyMacro(DelegatePainter, vtkPainter, delegate);
 
   if (this->DelegatePainter)
-    {
+  {
     this->ObserverPainterProgress(this->DelegatePainter);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -193,12 +193,12 @@ void vtkPainter::Render(vtkRenderer* renderer, vtkActor* actor,
 {
   this->TimeToDraw = 0.0;
   if (renderer->GetRenderWindow()->CheckAbortStatus())
-    {
+  {
     return;
-    }
+  }
 
   if (this->InformationProcessTime < this->Information->GetMTime())
-    {
+  {
     // If the information object was modified, some subclass may
     // want to get the modified information.
     // Using ProcessInformation avoids the need to access the Information
@@ -206,7 +206,7 @@ void vtkPainter::Render(vtkRenderer* renderer, vtkActor* actor,
     // expensive information key accesses.
     this->ProcessInformation(this->Information);
     this->InformationProcessTime.Modified();
-    }
+  }
 
   this->PrepareForRendering(renderer, actor);
   this->RenderInternal(renderer, actor, typeflags,forceCompileOnly);
@@ -217,10 +217,10 @@ void vtkPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor,
                                 unsigned long typeflags, bool forceCompileOnly)
 {
   if (this->DelegatePainter)
-    {
+  {
     this->UpdateDelegatePainter();
     this->DelegatePainter->Render(renderer, actor, typeflags,forceCompileOnly);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -245,18 +245,18 @@ void vtkPainter::PassInformation(vtkPainter* toPainter)
   // TODO: I can't decide if the information must be copied
   // or referenced.
   if (this->Information !=  toPainter->GetInformation())
-    {
+  {
     // We have updated information, pass it on to
     // the delegate.
     toPainter->SetInformation(this->Information);
-    }
+  }
 
   // Propagate the data object through the painter chain.
   vtkDataObject* myoutput = this->GetOutput();
   if (myoutput != toPainter->GetInput())
-    {
+  {
     toPainter->SetInput(myoutput);
-    }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -266,10 +266,10 @@ void vtkPainter::UpdateBounds(double bounds[6])
   vtkPainter *painter = this->GetDelegatePainter();
 
   if(painter)
-    {
+  {
     // delegate the task of updating the bounds
     painter->UpdateBounds(bounds);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -281,28 +281,28 @@ vtkAbstractArray* vtkPainter::GetInputArrayToProcess(int fieldAssociation,
   bool *use_cell_data)
 {
   if (use_cell_data)
-    {
+  {
     *use_cell_data = false;
-    }
+  }
   if (fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS)
-    {
+  {
     return inputDS->GetPointData()->GetAbstractAttribute(fieldAttributeType);
-    }
+  }
 
   if (fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS)
-    {
+  {
     vtkAbstractArray* array =
       inputDS->GetPointData()->GetAbstractAttribute(fieldAttributeType);
     if (array)
-      {
+    {
       return array;
-      }
     }
+  }
 
   if (use_cell_data)
-    {
+  {
     *use_cell_data = true;
-    }
+  }
   return inputDS->GetCellData()->GetAbstractAttribute(fieldAttributeType);
 }
 
@@ -313,28 +313,28 @@ vtkAbstractArray* vtkPainter::GetInputArrayToProcess(int fieldAssociation,
   const char* name, vtkDataSet* inputDS, bool *use_cell_data)
 {
   if (use_cell_data)
-    {
+  {
     *use_cell_data = false;
-    }
+  }
   if (fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS)
-    {
+  {
     return inputDS->GetPointData()->GetAbstractArray(name);
-    }
+  }
 
   if (fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS)
-    {
+  {
     vtkAbstractArray* array =
       inputDS->GetPointData()->GetAbstractArray(name);
     if (array)
-      {
+    {
       return array;
-      }
     }
+  }
 
   if (use_cell_data)
-    {
+  {
     *use_cell_data = true;
-    }
+  }
   return inputDS->GetCellData()->GetAbstractArray(name);
 }
 
@@ -347,23 +347,23 @@ void vtkPainter::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "Progress: " << this->Progress << endl;
   os << indent << "Information: " ;
   if (this->Information)
-    {
+  {
     os << endl;
     this->Information->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(none)" << endl;
-    }
+  }
 
   os << indent << "DelegatePainter: " ;
   if (this->DelegatePainter)
-    {
+  {
     os << endl;
     this->DelegatePainter->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(none)" << endl;
-    }
+  }
 }

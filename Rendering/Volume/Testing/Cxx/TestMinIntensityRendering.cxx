@@ -81,9 +81,9 @@ int TestMinIntensityRendering( int argc, char *argv[] )
   int retVal = vtkRegressionTestImageThreshold( renWin, 70 );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   volume->Delete();
   mapper->Delete();

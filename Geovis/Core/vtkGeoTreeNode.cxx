@@ -56,9 +56,9 @@ void vtkGeoTreeNode::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "LongitudeRange: [" << this->LongitudeRange[0] << "," << this->LongitudeRange[1] << "]\n";
   os << indent << "Children:";
   for ( int i = 0; i < 4; ++ i )
-    {
+  {
     os << " " << this->Children[i];
-    }
+  }
   os << "\n";
 }
 
@@ -66,10 +66,10 @@ void vtkGeoTreeNode::PrintSelf(ostream& os, vtkIndent indent)
 void vtkGeoTreeNode::SetChild(vtkGeoTreeNode* node, int idx)
 {
   if (idx < 0 || idx > 3)
-    {
+  {
     vtkErrorMacro("Index out of range.");
     return;
-    }
+  }
   this->Children[idx] = node;
 }
 
@@ -77,10 +77,10 @@ void vtkGeoTreeNode::SetChild(vtkGeoTreeNode* node, int idx)
 int vtkGeoTreeNode::GetWhichChildAreYou()
 {
   if (this->Level == 0)
-    {
+  {
     vtkErrorMacro("Node does not have a parent.");
     return 0;
-    }
+  }
 
   unsigned long id = this->Id;
   id = id >> (this->Level*2-1);
@@ -92,20 +92,20 @@ int vtkGeoTreeNode::GetWhichChildAreYou()
 bool vtkGeoTreeNode::IsDescendantOf(vtkGeoTreeNode* elder)
 {
   if (elder == 0)
-    {
+  {
     return false;
-    }
+  }
   if (this->Level <= elder->GetLevel())
-    {
+  {
     return false;
-    }
+  }
   // All descendants will have the same first N bits in their Id.
   int N = ((elder->GetLevel() * 2) + 1);
   unsigned long mask = (1 << N) - 1;
   if ((this->Id & mask) == elder->GetId())
-    {
+  {
     return true;
-    }
+  }
   return false;
 }
 
@@ -114,30 +114,30 @@ int vtkGeoTreeNode::CreateChildren()
 {
   // Create the four children.
   if (this->Children[0])
-    { // This node is already has children.
+  { // This node is already has children.
     return VTK_OK;
-    }
+  }
   int childLevel = this->GetLevel()+1;
 
   // Where the child index get coded in the node id.
   unsigned long idBit0 = 0;
   unsigned long idBit1 = 0;
   if (childLevel <= 15)
-    {
+  {
     idBit0 = 1 << (2*childLevel - 1);
     idBit1 = 1 << (2*childLevel);
-    }
+  }
   else
-    {
+  {
     // if (childLevel > ((sizeof(unsigned long)*8) - 1) / 2)
     // this particular message gets printed too much and clutters the console...
     static bool msg_printed = false;
     if (!msg_printed)
-      {
+    {
       vtkWarningMacro("Level too high to be encoded in node id. (this warning only emitted once)");
       msg_printed = true;
-      }
     }
+  }
   unsigned long id = this->GetId();
   double longitudeRange[2];
   double latitudeRange[2];

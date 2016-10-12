@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTrivialConsumer - Consumer to consume data off of a pipeline.
-// .SECTION Description
-// vtkTrivialConsumer caps off a pipeline so that no output data is left
-// hanging around when a pipeline executes when data is set to be released (see
-// vtkDataObject::SetGlobalReleaseDataFlag). This is intended to be used for
-// tools such as Catalyst and not end users.
+/**
+ * @class   vtkTrivialConsumer
+ * @brief   Consumer to consume data off of a pipeline.
+ *
+ * vtkTrivialConsumer caps off a pipeline so that no output data is left
+ * hanging around when a pipeline executes when data is set to be released (see
+ * vtkDataObject::SetGlobalReleaseDataFlag). This is intended to be used for
+ * tools such as Catalyst and not end users.
+*/
 
 #ifndef vtkTrivialConsumer_h
 #define vtkTrivialConsumer_h
@@ -30,17 +33,17 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkTrivialConsumer : public vtkAlgorithm
 public:
   static vtkTrivialConsumer *New();
   vtkTypeMacro(vtkTrivialConsumer,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkTrivialConsumer();
-  ~vtkTrivialConsumer();
+  ~vtkTrivialConsumer() VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int, vtkInformation*);
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 private:
-  vtkTrivialConsumer(const vtkTrivialConsumer&);  // Not implemented.
-  void operator=(const vtkTrivialConsumer&);  // Not implemented.
+  vtkTrivialConsumer(const vtkTrivialConsumer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTrivialConsumer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

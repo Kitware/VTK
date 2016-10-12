@@ -95,11 +95,11 @@ int TestHyperTreeGridTernary2DBiMaterial( int argc, char* argv[] )
   pd2->GetBounds( bd2 );
   double bd[4];
   for ( int i = 0; i < 3; ++ i )
-    {
+  {
     bd[i] = bd1[i] < bd2[i] ? bd1[i] : bd2[i];
     ++ i;
     bd[i] = bd1[i] > bd2[i] ? bd1[i] : bd2[i];
-    }
+  }
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange( 1., 100. );
   double xc = .5 * ( bd[0] + bd[1] );
@@ -129,9 +129,9 @@ int TestHyperTreeGridTernary2DBiMaterial( int argc, char* argv[] )
 
   int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 20 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

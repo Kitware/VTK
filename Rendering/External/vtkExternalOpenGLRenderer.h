@@ -12,20 +12,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExternalOpenGLRenderer - OpenGL renderer
-// .SECTION Description
-// vtkExternalOpenGLRenderer is a secondary implementation of the class
-// vtkOpenGLRenderer. vtkExternalOpenGLRenderer interfaces to the
-// OpenGL graphics library. This class provides API to preserve the color and
-// depth buffers, thereby allowing external applications to manage the OpenGL
-// buffers. This becomes very useful when there are multiple OpenGL applications
-// sharing the same OpenGL context.
-//
-// vtkExternalOpenGLRenderer makes sure that the camera used in the scene if of
-// type vtkExternalOpenGLCamera. It manages light and camera transformations for
-// VTK objects in the OpenGL context.
-//
-// \sa vtkExternalOpenGLCamera
+/**
+ * @class   vtkExternalOpenGLRenderer
+ * @brief   OpenGL renderer
+ *
+ * vtkExternalOpenGLRenderer is a secondary implementation of the class
+ * vtkOpenGLRenderer. vtkExternalOpenGLRenderer interfaces to the
+ * OpenGL graphics library. This class provides API to preserve the color and
+ * depth buffers, thereby allowing external applications to manage the OpenGL
+ * buffers. This becomes very useful when there are multiple OpenGL applications
+ * sharing the same OpenGL context.
+ *
+ * vtkExternalOpenGLRenderer makes sure that the camera used in the scene if of
+ * type vtkExternalOpenGLCamera. It manages light and camera transformations for
+ * VTK objects in the OpenGL context.
+ *
+ * \sa vtkExternalOpenGLCamera
+*/
 
 #ifndef vtkExternalOpenGLRenderer_h
 #define vtkExternalOpenGLRenderer_h
@@ -45,28 +48,32 @@ public:
   vtkTypeMacro(vtkExternalOpenGLRenderer, vtkOpenGLRenderer);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Synchronize camera and light parameters
+  /**
+   * Synchronize camera and light parameters
+   */
   void Render(void);
 
-  // Description:
-  // Create a new Camera sutible for use with this type of Renderer.
-  // This function creates the vtkExternalOpenGLCamera.
+  /**
+   * Create a new Camera sutible for use with this type of Renderer.
+   * This function creates the vtkExternalOpenGLCamera.
+   */
   vtkCamera* MakeCamera();
 
-  // Description:
-  // Add an external light to the list of external lights.
+  /**
+   * Add an external light to the list of external lights.
+   */
   virtual void AddExternalLight(vtkExternalLight *);
 
-  // Description:
-  // Remove an external light from the list of external lights.
+  /**
+   * Remove an external light from the list of external lights.
+   */
   virtual void RemoveExternalLight(vtkExternalLight *);
 
-  // Description:
-  // Remove all external lights
+  /**
+   * Remove all external lights
+   */
   virtual void RemoveAllExternalLights();
 
-  // Description:
 
 protected:
   vtkExternalOpenGLRenderer();
@@ -75,8 +82,8 @@ protected:
   vtkLightCollection *ExternalLights;
 
 private:
-  vtkExternalOpenGLRenderer(const vtkExternalOpenGLRenderer&);  // Not implemented.
-  void operator=(const vtkExternalOpenGLRenderer&);  // Not implemented.
+  vtkExternalOpenGLRenderer(const vtkExternalOpenGLRenderer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExternalOpenGLRenderer&) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkExternalOpenGLRenderer_h

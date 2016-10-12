@@ -13,10 +13,13 @@
 
 =========================================================================*/
 
-// .NAME vtkOpenGLGL2PSExporter - OpenGL2 implementation of GL2PS exporter.
-//
-// .SECTION Description
-// Implementation of vtkGL2PSExporter for the OpenGL2 backend.
+/**
+ * @class   vtkOpenGLGL2PSExporter
+ * @brief   OpenGL2 implementation of GL2PS exporter.
+ *
+ *
+ * Implementation of vtkGL2PSExporter for the OpenGL2 backend.
+*/
 
 #ifndef vtkOpenGLGL2PSExporter_h
 #define vtkOpenGLGL2PSExporter_h
@@ -43,8 +46,8 @@ protected:
   bool CaptureVectorProps();
 
 private:
-  vtkOpenGLGL2PSExporter(const vtkOpenGLGL2PSExporter &); // Not implemented.
-  void operator=(const vtkOpenGLGL2PSExporter &);   // Not implemented.
+  vtkOpenGLGL2PSExporter(const vtkOpenGLGL2PSExporter &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLGL2PSExporter &) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkOpenGLGL2PSExporter_h

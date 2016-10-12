@@ -17,15 +17,18 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkPBGLVertexColoring - Compute a vertex coloring for a distributed,
-// undirected vtkGraph, where each vertex has a color distinct from the
-// colors of its adjacent vertices.
-//
-// .SECTION Description
-// This VTK class uses the Parallel BGL's implementation of Boman et al's
-// parallel vertex coloring algorithm.
-//
-// @deprecated Not maintained as of VTK 6.2 and will be removed eventually.
+/**
+ * @class   vtkPBGLVertexColoring
+ * @brief   Compute a vertex coloring for a distributed,
+ * undirected vtkGraph, where each vertex has a color distinct from the
+ * colors of its adjacent vertices.
+ *
+ *
+ * This VTK class uses the Parallel BGL's implementation of Boman et al's
+ * parallel vertex coloring algorithm.
+ *
+ * @deprecated Not maintained as of VTK 6.2 and will be removed eventually.
+*/
 
 #ifndef vtkPBGLVertexColoring_h
 #define vtkPBGLVertexColoring_h
@@ -46,21 +49,30 @@ public:
   vtkTypeMacro(vtkPBGLVertexColoring, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Sets the block size of the algorithm, which is the number of
-  // vertices whose colors will be assigned before the processes
-  // resynchronize.
+  //@{
+  /**
+   * Sets the block size of the algorithm, which is the number of
+   * vertices whose colors will be assigned before the processes
+   * resynchronize.
+   */
   vtkSetMacro(BlockSize,vtkIdType);
+  //@}
 
-  // Description:
-  // Retrieve the block size of the algorithm.
+  //@{
+  /**
+   * Retrieve the block size of the algorithm.
+   */
   vtkGetMacro(BlockSize,vtkIdType);
+  //@}
 
-  // Description:
-  // Set the name of the vertex color output array, which contains the
-  // color of each vertex (a non-negative value). If no color
-  // array name is set then the name 'Color' is used.
+  //@{
+  /**
+   * Set the name of the vertex color output array, which contains the
+   * color of each vertex (a non-negative value). If no color
+   * array name is set then the name 'Color' is used.
+   */
   vtkSetStringMacro(ColorArrayName);
+  //@}
 
 protected:
   vtkPBGLVertexColoring();
@@ -82,8 +94,8 @@ private:
   vtkIdType BlockSize;
   char* ColorArrayName;
 
-  vtkPBGLVertexColoring(const vtkPBGLVertexColoring&);  // Not implemented.
-  void operator=(const vtkPBGLVertexColoring&);  // Not implemented.
+  vtkPBGLVertexColoring(const vtkPBGLVertexColoring&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPBGLVertexColoring&) VTK_DELETE_FUNCTION;
 };
 
 #endif //VTK_LEGACY_REMOVE

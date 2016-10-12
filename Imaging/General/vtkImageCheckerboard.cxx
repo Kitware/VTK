@@ -93,26 +93,26 @@ void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
 
   // Loop through output pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
-    {
+  {
     selectZ = (((idxZ + threadOffsetZ) / divZ) % 2) << 2;
     for (idxY = 0; idxY <= maxY; idxY++)
-      {
+    {
       if (!id)
-        {
+      {
         if (!(count%target))
-          {
+        {
           self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
         }
+        count++;
+      }
       selectY = (((idxY + threadOffsetY) / divY) % 2) << 1;
       for (idxR = 0; idxR < rowLength; idxR++)
-        {
+      {
 
         selectX = ((idxR + threadOffsetX) / divX) % 2;
         which = selectZ + selectY + selectX;
         switch (which)
-          {
+        {
           case 0:
             *outPtr = *in1Ptr;
             break;
@@ -137,19 +137,19 @@ void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
           case 7:
             *outPtr = *in2Ptr;
             break;
-          }
+        }
         outPtr++;
         in1Ptr++;
         in2Ptr++;
-        }
+      }
       outPtr += outIncY;
       in1Ptr += inIncY;
       in2Ptr += in2IncY;
-      }
+    }
     outPtr += outIncZ;
     in1Ptr += inIncZ;
     in2Ptr += in2IncZ;
-    }
+  }
 }
 
 
@@ -169,47 +169,47 @@ void vtkImageCheckerboard::ThreadedRequestData(
   void *outPtr;
 
   if (inData[0][0] == NULL)
-    {
+  {
     vtkErrorMacro(<< "Input " << 0 << " must be specified.");
     return;
-    }
+  }
   in1Ptr = inData[0][0]->GetScalarPointerForExtent(outExt);
   if (!in1Ptr)
-    {
+  {
     vtkErrorMacro(<< "Input " << 0 << " cannot be empty.");
     return;
-    }
+  }
 
   outPtr = outData[0]->GetScalarPointerForExtent(outExt);
 
   if (inData[1][0] == NULL)
-    {
+  {
     vtkErrorMacro(<< "Input " << 1 << " must be specified.");
     return;
-    }
+  }
   in2Ptr = inData[1][0]->GetScalarPointerForExtent(outExt);
   if (!in2Ptr)
-    {
+  {
     vtkErrorMacro(<< "Input " << 1 << " cannot be empty.");
     return;
-    }
+  }
 
   // this filter expects that inputs that have the same number of components
   if (inData[0][0]->GetNumberOfScalarComponents() !=
       inData[1][0]->GetNumberOfScalarComponents())
-    {
+  {
     vtkErrorMacro(<< "Execute: input1 NumberOfScalarComponents, "
                   << inData[0][0]->GetNumberOfScalarComponents()
                   << ", must match out input2 NumberOfScalarComponents "
                   << inData[1][0]->GetNumberOfScalarComponents());
     return;
-    }
+  }
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   int wholeExtent[6];
   outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
   switch (inData[0][0]->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageCheckerboardExecute2(this, inData[0][0],
                                    static_cast<VTK_TT *>(in1Ptr),
@@ -221,7 +221,7 @@ void vtkImageCheckerboard::ThreadedRequestData(
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
-    }
+  }
 }
 
 void vtkImageCheckerboard::PrintSelf(ostream& os, vtkIndent indent)

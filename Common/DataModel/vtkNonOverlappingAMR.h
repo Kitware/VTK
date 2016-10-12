@@ -12,14 +12,16 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkNonOverlappingAMR.h -- Non-Overlapping AMR
-//
-// .SECTION Description
-//  A concrete instance of vtkUniformGridAMR to store uniform grids at different
-//  levels of resolution that do not overlap with each other.
-//
-// .SECTION See Also
-// vtkUniformGridAMR
+/**
+ * @class   vtkNonOverlappingAMR
+ *
+ *
+ *  A concrete instance of vtkUniformGridAMR to store uniform grids at different
+ *  levels of resolution that do not overlap with each other.
+ *
+ * @sa
+ * vtkUniformGridAMR
+*/
 
 #ifndef vtkNonOverlappingAMR_h
 #define vtkNonOverlappingAMR_h
@@ -32,14 +34,16 @@ class VTKCOMMONDATAMODEL_EXPORT vtkNonOverlappingAMR : public vtkUniformGridAMR
  public:
   static vtkNonOverlappingAMR* New();
   vtkTypeMacro(vtkNonOverlappingAMR,vtkUniformGridAMR);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Returns object type (see vtkType.h for definitions).
-  virtual int GetDataObjectType() {return VTK_NON_OVERLAPPING_AMR; }
+  /**
+   * Returns object type (see vtkType.h for definitions).
+   */
+  int GetDataObjectType() VTK_OVERRIDE {return VTK_NON_OVERLAPPING_AMR; }
 
-  // Description:
-  // Retrieve an instance of this class from an information object.
+  /**
+   * Retrieve an instance of this class from an information object.
+   */
   static vtkNonOverlappingAMR* GetData(vtkInformation* info)
   { return vtkNonOverlappingAMR::SafeDownCast(Superclass::GetData(info)); }
   static vtkNonOverlappingAMR* GetData(vtkInformationVector* v, int i=0)
@@ -47,11 +51,11 @@ class VTKCOMMONDATAMODEL_EXPORT vtkNonOverlappingAMR : public vtkUniformGridAMR
 
  protected:
   vtkNonOverlappingAMR();
-  virtual ~vtkNonOverlappingAMR();
+  ~vtkNonOverlappingAMR() VTK_OVERRIDE;
 
  private:
-  vtkNonOverlappingAMR(const vtkNonOverlappingAMR&); // Not implemented
-  void operator=(const vtkNonOverlappingAMR&); // Not implemented
+  vtkNonOverlappingAMR(const vtkNonOverlappingAMR&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkNonOverlappingAMR&) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkNonOverlappingAMR_h */

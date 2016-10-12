@@ -128,10 +128,10 @@ void vtkQtListView::SetFieldType(int type)
 {
   this->DataObjectToTable->SetFieldType(type);
   if(this->FieldType != type)
-    {
+  {
     this->FieldType = type;
     this->Modified();
-    }
+  }
 }
 
 void vtkQtListView::SetIconSheet(QImage sheet)
@@ -206,9 +206,9 @@ void vtkQtListView::AddRepresentationInternal(vtkDataRepresentation* rep)
   this->DataObjectToTable->SetInputConnection(0, conn);
 
   if(annConn)
-    {
+  {
     this->ApplyColors->SetInputConnection(1, annConn);
-    }
+  }
 }
 
 void vtkQtListView::RemoveRepresentationInternal(vtkDataRepresentation* rep)
@@ -234,9 +234,9 @@ void vtkQtListView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1),
   const QModelIndexList selectedRows = this->ListView->selectionModel()->selectedRows();
   QModelIndexList origRows;
   for(int i=0; i<selectedRows.size(); ++i)
-    {
+  {
     origRows.push_back(this->TableSorter->mapToSource(selectedRows[i]));
-    }
+  }
 
   vtkSelection *VTKIndexSelectList =
     this->TableAdapter->QModelIndexListToVTKIndexSelection(origRows);
@@ -270,12 +270,12 @@ void vtkQtListView::SetVTKSelection()
     s, d, vtkSelectionNode::INDICES, 0, vtkSelectionNode::ROW));
 
   if(!selection.GetPointer() || selection->GetNumberOfNodes() == 0)
-    {
+  {
     return;
-    }
+  }
 
   if(selection->GetNode(0)->GetSelectionList()->GetNumberOfTuples())
-    {
+  {
     QItemSelection qisList = this->TableAdapter->
       VTKIndexSelectionToQItemSelection(selection);
     QItemSelection sortedSel = this->TableSorter->mapSelectionFromSource(qisList);
@@ -292,7 +292,7 @@ void vtkQtListView::SetVTKSelection()
     QObject::connect(this->ListView->selectionModel(),
      SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
      this, SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -300,12 +300,12 @@ void vtkQtListView::Update()
 {
   vtkDataRepresentation* rep = this->GetRepresentation();
   if (!rep)
-    {
+  {
     // Remove VTK data from the adapter
     this->TableAdapter->SetVTKDataObject(0);
     this->ListView->update();
     return;
-    }
+  }
   rep->Update();
 
   // Make the data current
@@ -318,11 +318,11 @@ void vtkQtListView::Update()
   selConn->GetProducer()->Update();
 
   vtkDataObject *d = conn->GetProducer()->GetOutputDataObject(0);
-  unsigned long atime = rep->GetAnnotationLink()->GetMTime();
+  vtkMTimeType atime = rep->GetAnnotationLink()->GetMTime();
   if (d->GetMTime() > this->LastInputMTime ||
       this->GetMTime() > this->LastMTime  ||
       atime > this->LastSelectionMTime)
-    {
+  {
     this->DataObjectToTable->Update();
     this->ApplyColors->Update();
     this->TableAdapter->SetVTKDataObject(0);
@@ -332,16 +332,16 @@ void vtkQtListView::Update()
     this->TableAdapter->SetIconIndexColumnName(this->IconIndexArrayNameInternal);
 
     if (atime > this->LastSelectionMTime)
-      {
+    {
       this->SetVTKSelection();
-      }
+    }
 
     this->ListView->setModelColumn(this->VisibleColumn);
 
     this->LastSelectionMTime = atime;
     this->LastInputMTime = d->GetMTime();
     this->LastMTime = this->GetMTime();
-    }
+  }
 
   this->ListView->update();
 }

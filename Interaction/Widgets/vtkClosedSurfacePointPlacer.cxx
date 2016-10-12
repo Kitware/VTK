@@ -66,9 +66,9 @@ vtkClosedSurfacePointPlacer::~vtkClosedSurfacePointPlacer()
 {
   this->RemoveAllBoundingPlanes();
   if (this->BoundingPlanes)
-    {
+  {
     this->BoundingPlanes->UnRegister(this);
-    }
+  }
   this->InnerBoundingPlanes->Delete();
 }
 
@@ -76,11 +76,11 @@ vtkClosedSurfacePointPlacer::~vtkClosedSurfacePointPlacer()
 void vtkClosedSurfacePointPlacer::AddBoundingPlane(vtkPlane *plane)
 {
   if (this->BoundingPlanes == NULL)
-    {
+  {
     this->BoundingPlanes = vtkPlaneCollection::New();
     this->BoundingPlanes->Register(this);
     this->BoundingPlanes->Delete();
-    }
+  }
 
   this->BoundingPlanes->AddItem(plane);
 }
@@ -89,41 +89,41 @@ void vtkClosedSurfacePointPlacer::AddBoundingPlane(vtkPlane *plane)
 void vtkClosedSurfacePointPlacer::RemoveBoundingPlane(vtkPlane *plane)
 {
   if (this->BoundingPlanes )
-    {
+  {
     this->BoundingPlanes->RemoveItem(plane);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
 void vtkClosedSurfacePointPlacer::RemoveAllBoundingPlanes()
 {
   if ( this->BoundingPlanes )
-    {
+  {
     this->BoundingPlanes->RemoveAllItems();
     this->BoundingPlanes->Delete();
     this->BoundingPlanes = NULL;
-    }
+  }
 }
 //----------------------------------------------------------------------
 
 void vtkClosedSurfacePointPlacer::SetBoundingPlanes(vtkPlanes *planes)
 {
   if (!planes)
-    {
+  {
     return;
-    }
+  }
 
   vtkPlane *plane;
   int numPlanes = planes->GetNumberOfPlanes();
 
   this->RemoveAllBoundingPlanes();
   for (int i=0; i<numPlanes ; i++)
-    {
+  {
     plane = vtkPlane::New();
     planes->GetPlane(i, plane);
     this->AddBoundingPlane(plane);
     plane->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -131,9 +131,9 @@ void vtkClosedSurfacePointPlacer::BuildPlanes()
 {
   if (this->InnerBoundingPlanes->GetMTime() > this->GetMTime() &&
       this->InnerBoundingPlanes->GetMTime() > this->BoundingPlanes->GetMTime())
-    {
+  {
     return;
-    }
+  }
 
   // Need to build planes.. Bring them all in front by MinimumDistance.
   // Find the Inner bounding planes.
@@ -144,20 +144,20 @@ void vtkClosedSurfacePointPlacer::BuildPlanes()
   vtkPlane *p;
   for (this->BoundingPlanes->InitTraversal();
       (p = this->BoundingPlanes->GetNextItem());  )
-    {
+  {
     p->GetNormal(normal);
     p->GetOrigin(origin);
     for (int i = 0; i<3; i++)
-      {
+    {
       origin[i] += this->MinimumDistance * normal[i];
-      }
+    }
 
     vtkPlane * plane = vtkPlane::New();
     plane->SetOrigin(origin);
     plane->SetNormal(normal);
     this->InnerBoundingPlanes->AddItem(plane);
     plane->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -178,9 +178,9 @@ int vtkClosedSurfacePointPlacer::ComputeWorldPosition(
   this->BuildPlanes();
 
   if (!this->BoundingPlanes)
-    {
+  {
     return 0;
-    }
+  }
 
   double directionOfProjection[3], t, d[3],
          currentWorldPos[4], ls[2][3], fp[4];
@@ -216,7 +216,7 @@ int vtkClosedSurfacePointPlacer::ComputeWorldPosition(
 
   // Loop over each plane.
   for ( int n = 0; n < nPlanes; n++ )
-    {
+  {
     vtkPlane * plane = static_cast< vtkPlane * >(pc->GetItemAsObject(n));
     vtkClosedSurfacePointPlacerNode node;
 
@@ -225,7 +225,7 @@ int vtkClosedSurfacePointPlacer::ComputeWorldPosition(
 
     // The IF below insures that the line and the plane aren't parallel.
     if (t != VTK_DOUBLE_MAX)
-      {
+    {
       node.Plane    = plane;
       node.Distance = this->GetDistanceFromObject(
                          node.p, this->InnerBoundingPlanes, d);
@@ -235,8 +235,8 @@ int vtkClosedSurfacePointPlacer::ComputeWorldPosition(
         << plane->GetNormal()[2] << ")" );
       vtkDebugMacro( << "Size of inersections = " << intersections.size()
         << " Distance: " << node.Distance << " Plane: " << plane );
-      }
     }
+  }
 
   std::sort( intersections.begin(),
                 intersections.end(),
@@ -251,7 +251,7 @@ int vtkClosedSurfacePointPlacer::ComputeWorldPosition(
   if ( intersections.size() < 2 ||
          it ->Distance < (-1.0 * this->WorldTolerance) ||
       (++it)->Distance < (-1.0 * this->WorldTolerance))
-    {
+  {
     // The display point points to a location outside the object. Just
     // return 0. In actuality, I'd like to return the closest point in the
     // object. For this I require an algorithm that can, given a point "p" and
@@ -259,15 +259,15 @@ int vtkClosedSurfacePointPlacer::ComputeWorldPosition(
     // "O" that is closest to "p"
 
     return 0;
-    }
+  }
 
   it = intersections.begin();
   for (int i = 0; i < 2; i++, ++it)
-    {
+  {
     ls[i][0] = it->p[0];
     ls[i][1] = it->p[1];
     ls[i][2] = it->p[2];
-    }
+  }
 
   vtkLine::DistanceToLine( refWorldPos, ls[0], ls[1], t, worldPos );
   t = (t < 0.0 ? 0.0 : (t > 1.0 ? 1.0 : t));
@@ -315,19 +315,19 @@ int vtkClosedSurfacePointPlacer::ValidateWorldPosition( double worldPos[3] )
 
   // Now check against the bounding planes
   if ( this->InnerBoundingPlanes )
-    {
+  {
     vtkPlane *p;
 
     this->InnerBoundingPlanes->InitTraversal();
 
     while ( (p = this->InnerBoundingPlanes->GetNextItem()) )
-      {
+    {
       if ( p->EvaluateFunction( worldPos ) < this->WorldTolerance )
-        {
+      {
         return 0;
-        }
       }
     }
+  }
   return 1;
 }
 
@@ -345,14 +345,14 @@ double vtkClosedSurfacePointPlacer
 
   pc->InitTraversal();
   while ( vtkPlane * p = pc->GetNextItem() )
-    {
+  {
     const double d = p->EvaluateFunction( pos );
     if (d < minD)
-      {
+    {
       minD = d;
       minPlane = p;
-      }
     }
+  }
 
   vtkPlane::ProjectPoint( pos, minPlane->GetOrigin(),
                           minPlane->GetNormal(), closestPt );
@@ -366,13 +366,13 @@ void vtkClosedSurfacePointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Bounding Planes:\n";
   if ( this->BoundingPlanes )
-    {
+  {
     this->BoundingPlanes->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << " (none)\n";
-    }
+  }
 
   os << indent << "Minimum Distance: " << this->MinimumDistance << "\n";
 }

@@ -20,10 +20,6 @@
 
 #include <string>
 
-#if defined(_MSC_VER) && (_MSC_VER < 1900)
-#define snprintf _snprintf
-#endif
-
 static const char *vtkDebugLeaksIgnoreClasses[] = {
   0
 };
@@ -34,13 +30,13 @@ static int vtkDebugLeaksIgnoreClassesCheck(const char* s)
 {
   int i = 0;
   while(vtkDebugLeaksIgnoreClasses[i])
-    {
+  {
     if(strcmp(s, vtkDebugLeaksIgnoreClasses[i]) == 0)
-      {
+    {
       return 1;
-      }
-    i++;
     }
+    i++;
+  }
   return 0;
 }
 
@@ -52,9 +48,9 @@ static inline size_t vtkHashString(const char* s)
 {
   unsigned long h = 0;
   for ( ; *s; ++s)
-    {
+  {
     h = 5*h + *s;
-    }
+  }
   return static_cast<size_t>(h);
 }
 
@@ -63,28 +59,28 @@ class vtkDebugLeaksHashNode
 {
 public:
   vtkDebugLeaksHashNode()
-    {
+  {
       this->Count = 1; // if it goes in, then there is one of them
       this->Key = 0;
       this->Next = 0;
-    }
+  }
   void Print(std::string& os)
-    {
+  {
       if(this->Count)
-        {
+      {
         char tmp[256];
         snprintf(tmp, 256, "\" has %i %s still around.\n",this->Count,
                  (this->Count == 1) ? "instance" : "instances");
         os += "Class \"";
         os += this->Key;
         os += tmp;
-        }
-    }
+      }
+  }
   ~vtkDebugLeaksHashNode()
-    {
+  {
       delete [] this->Key;
       delete this->Next;
-    }
+  }
 public:
   vtkDebugLeaksHashNode *Next;
   char *Key;
@@ -103,13 +99,13 @@ public:
   void PrintTable(std::string &os);
   int IsEmpty();
   ~vtkDebugLeaksHashTable()
-    {
+  {
       for (int i = 0; i < 64; i++)
-        {
+      {
         vtkDebugLeaksHashNode *pos = this->Nodes[i];
         delete pos;
-        }
-    }
+      }
+  }
 
 private:
   vtkDebugLeaksHashNode* Nodes[64];
@@ -119,9 +115,9 @@ private:
 vtkDebugLeaksHashTable::vtkDebugLeaksHashTable()
 {
   for (int i = 0; i < 64; i++)
-    {
+  {
     this->Nodes[i] = NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -129,10 +125,10 @@ void vtkDebugLeaksHashTable::IncrementCount(const char * name)
 {
   vtkDebugLeaksHashNode *pos = this->GetNode(name);
   if(pos)
-    {
+  {
     pos->Count++;
     return;
-    }
+  }
 
   vtkDebugLeaksHashNode *newpos = new vtkDebugLeaksHashNode;
   newpos->Key = strcpy(new char[strlen(name)+1], name);
@@ -141,14 +137,14 @@ void vtkDebugLeaksHashTable::IncrementCount(const char * name)
 
   pos = this->Nodes[loc];
   if (!pos)
-    {
+  {
     this->Nodes[loc] = newpos;
     return;
-    }
+  }
   while (pos->Next)
-    {
+  {
     pos = pos->Next;
-    }
+  }
   pos->Next = newpos;
 }
 
@@ -160,13 +156,13 @@ vtkDebugLeaksHashNode* vtkDebugLeaksHashTable::GetNode(const char* key)
   vtkDebugLeaksHashNode *pos = this->Nodes[loc];
 
   if (!pos)
-    {
+  {
     return NULL;
-    }
+  }
   while ((pos) && (strcmp(pos->Key, key) != 0) )
-    {
+  {
     pos = pos->Next;
-    }
+  }
   return pos;
 }
 
@@ -178,17 +174,17 @@ unsigned int vtkDebugLeaksHashTable::GetCount(const char* key)
   vtkDebugLeaksHashNode *pos = this->Nodes[loc];
 
   if (!pos)
-    {
+  {
     return 0;
-    }
+  }
   while ((pos)&&(pos->Key != key))
-    {
+  {
     pos = pos->Next;
-    }
+  }
   if (pos)
-    {
+  {
     return pos->Count;
-    }
+  }
   return 0;
 }
 
@@ -197,24 +193,24 @@ int vtkDebugLeaksHashTable::IsEmpty()
 {
   int count = 0;
   for(int i =0; i < 64; i++)
-    {
+  {
     vtkDebugLeaksHashNode *pos = this->Nodes[i];
     if(pos)
-      {
+    {
       if(!vtkDebugLeaksIgnoreClassesCheck(pos->Key))
-        {
+      {
         count += pos->Count;
-        }
+      }
       while(pos->Next)
-        {
+      {
         pos = pos->Next;
         if(!vtkDebugLeaksIgnoreClassesCheck(pos->Key))
-          {
+        {
           count += pos->Count;
-          }
         }
       }
     }
+  }
   return !count;
 }
 
@@ -223,38 +219,38 @@ int vtkDebugLeaksHashTable::DecrementCount(const char *key)
 {
   vtkDebugLeaksHashNode *pos = this->GetNode(key);
   if(pos)
-    {
+  {
     pos->Count--;
     return 1;
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkDebugLeaksHashTable::PrintTable(std::string &os)
 {
   for(int i =0; i < 64; i++)
-    {
+  {
     vtkDebugLeaksHashNode *pos = this->Nodes[i];
     if(pos)
-      {
+    {
       if(!vtkDebugLeaksIgnoreClassesCheck(pos->Key))
-        {
+      {
         pos->Print(os);
-        }
+      }
       while(pos->Next)
-        {
+      {
         pos = pos->Next;
         if(!vtkDebugLeaksIgnoreClassesCheck(pos->Key))
-          {
+        {
           pos->Print(os);
-          }
         }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -280,14 +276,14 @@ void vtkDebugLeaks::DestructClass(const char* p)
   // been deleted.
   if(vtkDebugLeaks::MemoryTable &&
      !vtkDebugLeaks::MemoryTable->DecrementCount(p))
-    {
+  {
     vtkDebugLeaks::CriticalSection->Unlock();
     vtkGenericWarningMacro("Deleting unknown object: " << p);
-    }
+  }
   else
-    {
+  {
     vtkDebugLeaks::CriticalSection->Unlock();
-    }
+  }
 }
 #else
 void vtkDebugLeaks::DestructClass(const char*)
@@ -311,18 +307,18 @@ vtkDebugLeaksObserver* vtkDebugLeaks::GetDebugLeaksObserver()
 void vtkDebugLeaks::ConstructingObject(vtkObjectBase* object)
 {
   if (vtkDebugLeaks::Observer)
-    {
+  {
     vtkDebugLeaks::Observer->ConstructingObject(object);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkDebugLeaks::DestructingObject(vtkObjectBase* object)
 {
   if (vtkDebugLeaks::Observer)
-    {
+  {
     vtkDebugLeaks::Observer->DestructingObject(object);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -330,11 +326,11 @@ int vtkDebugLeaks::PrintCurrentLeaks()
 {
 #ifdef VTK_DEBUG_LEAKS
   if(vtkDebugLeaks::MemoryTable->IsEmpty())
-    {
+  {
     // Log something anyway, so users know vtkDebugLeaks is active/working.
     cout << "vtkDebugLeaks has found no leaks.\n";
     return 0;
-    }
+  }
 
   // we must not use stringstream ior strstream due to problems with
   // finalizers in MSVC
@@ -346,40 +342,40 @@ int vtkDebugLeaks::PrintCurrentLeaks()
   int cancel=0;
   if(getenv("DASHBOARD_TEST_FROM_CTEST") ||
      getenv("DART_TEST_FROM_DART"))
-    {
+  {
     // Skip dialogs when running on dashboard.
     return 1;
-    }
+  }
   std::string::size_type myPos = 0;
   int count = 0;
   std::string msg;
   msg = "vtkDebugLeaks has detected LEAKS!\n";
   while(!cancel && myPos != leaks.npos)
-    {
+  {
     std::string::size_type newPos = leaks.find('\n',myPos);
     if (newPos != leaks.npos)
-      {
+    {
       msg += leaks.substr(myPos,newPos-myPos);
       msg += "\n";
       myPos = newPos;
       myPos++;
-      }
+    }
     else
-      {
+    {
       myPos = newPos;
-      }
+    }
     count++;
     if (count == 10)
-      {
+    {
       count = 0;
       cancel = vtkDebugLeaks::DisplayMessageBox(msg.c_str());
       msg = "";
-      }
     }
+  }
   if (!cancel && count > 0)
-    {
+  {
     vtkDebugLeaks::DisplayMessageBox(msg.c_str());
-    }
+  }
 #else
   cout << "vtkDebugLeaks has detected LEAKS!\n";
   cout << leaks.c_str() << endl;
@@ -461,9 +457,9 @@ void vtkDebugLeaks::ClassFinalize()
 
   // Exit with error if leaks occurred and error mode is on.
   if(leaked && vtkDebugLeaks::ExitError)
-    {
+  {
     exit(1);
-    }
+  }
 #endif
 }
 

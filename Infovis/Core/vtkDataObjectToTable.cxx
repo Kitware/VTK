@@ -71,58 +71,58 @@ int vtkDataObjectToTable::RequestData(
 
   // If the input is a table, just copy it into the output.
   if (vtkTable::SafeDownCast(input))
-    {
+  {
     output->ShallowCopy(input);
     return 1;
-    }
+  }
 
   vtkDataSetAttributes* data = vtkDataSetAttributes::New();
 
   switch(this->FieldType)
-    {
+  {
     case FIELD_DATA:
       if(input->GetFieldData())
-        {
+      {
         data->ShallowCopy(input->GetFieldData());
-        }
+      }
       break;
     case POINT_DATA:
       if(vtkDataSet* const dataset = vtkDataSet::SafeDownCast(input))
-        {
+      {
         if(dataset->GetPointData())
-          {
+        {
           data->ShallowCopy(dataset->GetPointData());
-          }
         }
+      }
       break;
     case CELL_DATA:
       if(vtkDataSet* const dataset = vtkDataSet::SafeDownCast(input))
-        {
+      {
         if(dataset->GetCellData())
-          {
+        {
           data->ShallowCopy(dataset->GetCellData());
-          }
         }
+      }
       break;
     case VERTEX_DATA:
       if(vtkGraph* const graph = vtkGraph::SafeDownCast(input))
-        {
+      {
         if(graph->GetVertexData())
-          {
+        {
           data->ShallowCopy(graph->GetVertexData());
-          }
         }
+      }
       break;
     case EDGE_DATA:
       if(vtkGraph* const graph = vtkGraph::SafeDownCast(input))
-        {
+      {
         if(graph->GetEdgeData())
-          {
+        {
           data->ShallowCopy(graph->GetEdgeData());
-          }
         }
+      }
       break;
-    }
+  }
 
   output->SetRowData(data);
   data->Delete();

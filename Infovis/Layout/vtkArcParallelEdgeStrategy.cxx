@@ -54,19 +54,19 @@ void vtkArcParallelEdgeStrategy::Layout()
   this->Graph->GetEdges(it);
   double avgEdgeLength = 0.0;
   while (it->HasNext())
-    {
+  {
     vtkEdgeType e = it->Next();
     vtkIdType src, tgt;
     if (directed || e.Source < e.Target)
-      {
+    {
       src = e.Source;
       tgt = e.Target;
-      }
+    }
     else
-      {
+    {
       src = e.Target;
       tgt = e.Source;
-      }
+    }
     edgeCount[std::pair<vtkIdType, vtkIdType>(src, tgt)]++;
     edgeVector[e.Id] = e;
 
@@ -77,32 +77,32 @@ void vtkArcParallelEdgeStrategy::Layout()
     this->Graph->GetPoint(e.Target, targetPt);
     avgEdgeLength +=
       sqrt(vtkMath::Distance2BetweenPoints(sourcePt, targetPt));
-    }
+  }
   vtkIdType numEdges = this->Graph->GetNumberOfEdges();
   if (numEdges > 0)
-    {
+  {
     avgEdgeLength /= numEdges;
-    }
+  }
   else
-    {
+  {
     avgEdgeLength = 1.0;
-    }
+  }
   double maxLoopHeight = avgEdgeLength / 10.0;
   double* pts = new double[this->NumberOfSubdivisions*3];
   for (vtkIdType eid = 0; eid < numEdges; ++eid)
-    {
+  {
     vtkEdgeType e = edgeVector[eid];
     vtkIdType src, tgt;
     if (directed || e.Source < e.Target)
-      {
+    {
       src = e.Source;
       tgt = e.Target;
-      }
+    }
     else
-      {
+    {
       src = e.Target;
       tgt = e.Source;
-      }
+    }
     // Lookup the total number of edges with this source
     // and target, as well as how many times this pair
     // has been found so far.
@@ -121,7 +121,7 @@ void vtkArcParallelEdgeStrategy::Layout()
     // If only one edge between source and target,
     // just draw a straight line.
     if (total + revTotal == 1)
-      {
+    {
       double pt[6];
       pt[0] = sourcePt[0];
       pt[1] = sourcePt[1];
@@ -131,19 +131,19 @@ void vtkArcParallelEdgeStrategy::Layout()
       pt[5] = targetPt[2];
       this->Graph->SetEdgePoints(e.Id, 2, pt);
       continue;
-      }
+    }
 
     // Find vector from source to target
     double delta[3];
     for (int c = 0; c < 3; ++c)
-      {
+    {
       delta[c] = targetPt[c] - sourcePt[c];
-      }
+    }
     double dist = vtkMath::Norm(delta);
 
     // If the distance is zero, draw a loop.
     if (dist == 0)
-      {
+    {
       double radius = maxLoopHeight*cur/total;
       double u[3] = {1.0, 0.0, 0.0};
       double v[3] = {0.0, 1.0, 0.0};
@@ -151,19 +151,19 @@ void vtkArcParallelEdgeStrategy::Layout()
       // Use the general equation for a circle in three dimensions
       // to draw a loop.
       for (int s = 0; s < this->NumberOfSubdivisions; ++s)
-        {
+      {
         double angle = 2.0*vtkMath::Pi()
           *s/(this->NumberOfSubdivisions-1);
         for (int c = 0; c < 3; ++c)
-          {
+        {
           pts[3*s + c] = center[c]
             + radius*cos(angle)*u[c]
             + radius/2.0*sin(angle)*v[c];
-          }
         }
+      }
       this->Graph->SetEdgePoints(e.Id, this->NumberOfSubdivisions, pts);
       continue;
-      }
+    }
 
     // Find vector perpendicular to delta
     // and (0,0,1).
@@ -193,39 +193,39 @@ void vtkArcParallelEdgeStrategy::Layout()
     double height;
     int sign = 1;
     if (directed)
-      {
+    {
       // Directed edges will go on one side or the other
       // automatically based on the order of source and target.
       height = (static_cast<double>(cur)/total)*maxHeight;
-      }
+    }
     else
-      {
+    {
       // For undirected edges, place every other edge on one
       // side or the other.
       height = (static_cast<double>((cur+1)/2)/(total/2))*maxHeight;
       if (cur % 2)
-        {
+      {
         sign = -1;
-        }
       }
+    }
     // This formula computes offset given dist and height.
     // You can pull out your trig formulas and verify it :)
     double offset = (dist*dist/4.0 - height*height)/(2.0*height);
     double center[3];
     for (int c = 0; c < 3; ++c)
-      {
+    {
       center[c] = (targetPt[c] + sourcePt[c])/2.0 + sign*offset*w[c];
-      }
+    }
 
     // The vectors u and x are unit vectors pointing from the
     // center of the circle to the two endpoints of the arc,
     // sourcePt and targetPt, respectively.
     double u[3], x[3];
     for (int c = 0; c < 3; ++c)
-      {
+    {
       u[c] = sourcePt[c] - center[c];
       x[c] = targetPt[c] - center[c];
-      }
+    }
     double radius = vtkMath::Norm(u);
     vtkMath::Normalize(u);
     vtkMath::Normalize(x);
@@ -248,22 +248,22 @@ void vtkArcParallelEdgeStrategy::Layout()
     // Use the general equation for a circle in three dimensions
     // to draw an arc from the last point to the current point.
     for (int s = 0; s < this->NumberOfSubdivisions; ++s)
-      {
+    {
       double angle = -sign*s*theta/(this->NumberOfSubdivisions - 1.0);
       for (int c = 0; c < 3; ++c)
-        {
+      {
         pts[3*s + c] = center[c]
           + radius*cos(angle)*u[c]
           + radius*sin(angle)*v[c];
-        }
-      }
-    this->Graph->SetEdgePoints(e.Id, this->NumberOfSubdivisions, pts);
-    if (eid % 1000 == 0)
-      {
-      double progress = eid / static_cast<double>(numEdges);
-      this->InvokeEvent(vtkCommand::ProgressEvent, static_cast<void*>(&progress));
       }
     }
+    this->Graph->SetEdgePoints(e.Id, this->NumberOfSubdivisions, pts);
+    if (eid % 1000 == 0)
+    {
+      double progress = eid / static_cast<double>(numEdges);
+      this->InvokeEvent(vtkCommand::ProgressEvent, static_cast<void*>(&progress));
+    }
+  }
   double progress = 1.0;
   this->InvokeEvent(vtkCommand::ProgressEvent, static_cast<void*>(&progress));
   delete [] pts;

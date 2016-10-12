@@ -56,13 +56,13 @@ public:
   void SetGLCapability(GLenum capability, GLboolean state)
   {
     if (state)
-      {
+    {
       glEnable(capability);
-      }
+    }
     else
-      {
+    {
       glDisable(capability);
-      }
+    }
     vtkOpenGLStaticCheckErrorMacro("failed after SetGLCapability");
   }
 
@@ -92,16 +92,16 @@ public:
   void SetLineType(int type)
   {
     if (type == vtkPen::SOLID_LINE)
-      {
+    {
       glDisable(GL_LINE_STIPPLE);
-      }
+    }
     else
-      {
+    {
       glEnable(GL_LINE_STIPPLE);
-      }
+    }
     GLushort pattern = 0x0000;
     switch (type)
-      {
+    {
       case vtkPen::NO_PEN:
         pattern = 0x0000;
         break;
@@ -119,7 +119,7 @@ public:
         break;
       default:
         pattern = 0x0000;
-      }
+    }
     glLineStipple(1, pattern);
   }
 
@@ -158,22 +158,22 @@ void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
   glLineWidth(this->Pen->GetWidth());
 
   if (colors)
-    {
+  {
     glEnableClientState(GL_COLOR_ARRAY);
     glColorPointer(nc, GL_UNSIGNED_BYTE, 0, colors);
-    }
+  }
   else
-    {
+  {
     glColor4ubv(this->Pen->GetColor());
-    }
+  }
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_FLOAT, 0, verts);
   glDrawArrays(GL_LINE_STRIP, 0, n);
   glDisableClientState(GL_VERTEX_ARRAY);
   if (colors)
-    {
+  {
     glDisableClientState(GL_COLOR_ARRAY);
-    }
+  }
 
   this->DisableDepthBuffer();
 
@@ -195,22 +195,22 @@ void vtkOpenGLContextDevice3D::DrawLines(const float *verts, int n,
   glLineWidth(this->Pen->GetWidth());
 
   if (colors)
-    {
+  {
     glEnableClientState(GL_COLOR_ARRAY);
     glColorPointer(nc, GL_UNSIGNED_BYTE, 0, colors);
-    }
+  }
   else
-    {
+  {
     glColor4ubv(this->Pen->GetColor());
-    }
+  }
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_FLOAT, 0, verts);
   glDrawArrays(GL_LINE, 0, n);
   glDisableClientState(GL_VERTEX_ARRAY);
   if (colors)
-    {
+  {
     glDisableClientState(GL_COLOR_ARRAY);
-    }
+  }
 
   this->DisableDepthBuffer();
 
@@ -230,21 +230,21 @@ void vtkOpenGLContextDevice3D::DrawPoints(const float *verts, int n,
   glPointSize(this->Pen->GetWidth());
   glEnableClientState(GL_VERTEX_ARRAY);
   if (colors && nc)
-    {
+  {
     glEnableClientState(GL_COLOR_ARRAY);
     glColorPointer(nc, GL_UNSIGNED_BYTE, 0, colors);
-    }
+  }
   else
-    {
+  {
     glColor4ubv(this->Pen->GetColor());
-    }
+  }
   glVertexPointer(3, GL_FLOAT, 0, verts);
   glDrawArrays(GL_POINTS, 0, n);
   glDisableClientState(GL_VERTEX_ARRAY);
   if (colors && nc)
-    {
+  {
     glDisableClientState(GL_COLOR_ARRAY);
-    }
+  }
 
   this->DisableDepthBuffer();
 
@@ -265,21 +265,21 @@ void vtkOpenGLContextDevice3D::DrawTriangleMesh(const float *mesh, int n,
   glPointSize(this->Pen->GetWidth());
   glEnableClientState(GL_VERTEX_ARRAY);
   if (colors && nc)
-    {
+  {
     glEnableClientState(GL_COLOR_ARRAY);
     glColorPointer(nc, GL_UNSIGNED_BYTE, 0, colors);
-    }
+  }
   else
-    {
+  {
     glColor4ubv(this->Pen->GetColor());
-    }
+  }
   glVertexPointer(3, GL_FLOAT, 0, mesh);
   glDrawArrays(GL_TRIANGLES, 0, n);
   glDisableClientState(GL_VERTEX_ARRAY);
   if (colors && nc)
-    {
+  {
     glDisableClientState(GL_COLOR_ARRAY);
-    }
+  }
 
   this->DisableDepthBuffer();
 
@@ -344,21 +344,21 @@ void vtkOpenGLContextDevice3D::SetClipping(const vtkRecti &rect)
                   this->Storage->Dim.GetX(), this->Storage->Dim.GetY()};
 
   if (rect.GetX() > 0 && rect.GetX() < vp[2] )
-    {
+  {
     vp[0] += rect.GetX();
-    }
+  }
   if (rect.GetY() > 0 && rect.GetY() < vp[3])
-    {
+  {
     vp[1] += rect.GetY();
-    }
+  }
   if (rect.GetWidth() > 0 && rect.GetWidth() < vp[2])
-    {
+  {
     vp[2] = rect.GetWidth();
-    }
+  }
   if (rect.GetHeight() > 0 && rect.GetHeight() < vp[3])
-    {
+  {
     vp[3] = rect.GetHeight();
-    }
+  }
 
   glScissor(vp[0], vp[1], vp[2], vp[3]);
 }
@@ -366,13 +366,13 @@ void vtkOpenGLContextDevice3D::SetClipping(const vtkRecti &rect)
 void vtkOpenGLContextDevice3D::EnableClipping(bool enable)
 {
   if (enable)
-    {
+  {
     glEnable(GL_SCISSOR_TEST);
-    }
+  }
   else
-    {
+  {
     glDisable(GL_SCISSOR_TEST);
-    }
+  }
 }
 
 void vtkOpenGLContextDevice3D::EnableClippingPlane(int i, double *planeEquation)

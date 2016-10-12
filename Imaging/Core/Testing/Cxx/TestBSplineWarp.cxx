@@ -181,9 +181,9 @@ int TestBSplineWarp(int argc, char *argv[])
   vtkRenderWindow *renWin = viewer->GetRenderWindow();
   int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

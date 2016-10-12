@@ -12,13 +12,16 @@
   PURPOSE.  See the above copyright notice for more information.
 
   =========================================================================*/
-// .NAME vtkPSystemTools - System tools for file system introspection
-// .SECTION Description
-// A class with only static methods for doing parallel file system
-// introspection. It limits doing file stats on process 0 and
-// broadcasting the results to other processes. It is built on VTK's
-// SystemTools class and uses the global controller for communication.
-// It uses blocking collective communication operations.
+/**
+ * @class   vtkPSystemTools
+ * @brief   System tools for file system introspection
+ *
+ * A class with only static methods for doing parallel file system
+ * introspection. It limits doing file stats on process 0 and
+ * broadcasting the results to other processes. It is built on VTK's
+ * SystemTools class and uses the global controller for communication.
+ * It uses blocking collective communication operations.
+*/
 
 #ifndef vtkPSystemTools_h
 #define vtkPSystemTools_h
@@ -34,50 +37,57 @@ class VTKPARALLELCORE_EXPORT vtkPSystemTools : public vtkObject
   vtkTypeMacro(vtkPSystemTools,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Given a string on process proc, broadcast that string to
-  // all of the other processes. This method does not have a
-  // correspondence to anything in SystemTools.
+  /**
+   * Given a string on process proc, broadcast that string to
+   * all of the other processes. This method does not have a
+   * correspondence to anything in SystemTools.
+   */
 
   static void BroadcastString(std::string&, int proc);
 
-  // Description:
-  // Given a path to a file or directory, convert it to a full path.
-  // This collapses away relative paths relative to the cwd argument
-  // (which defaults to the current working directory).  The full path
-  // is returned.
+  /**
+   * Given a path to a file or directory, convert it to a full path.
+   * This collapses away relative paths relative to the cwd argument
+   * (which defaults to the current working directory).  The full path
+   * is returned.
+   */
 
   static std::string CollapseFullPath(const std::string& in_relative);
   static std::string CollapseFullPath(const std::string& in_relative,
                                       const char* in_base);
 
-  // Description:
-  // Return true if a file exists in the current directory.
-  // If isFile = true, then make sure the file is a file and
-  // not a directory.  If isFile = false, then return true
-  // if it is a file or a directory.  Note that the file will
-  // also be checked for read access.  (Currently, this check
-  // for read access is only done on POSIX systems.)
+  //@{
+  /**
+   * Return true if a file exists in the current directory.
+   * If isFile = true, then make sure the file is a file and
+   * not a directory.  If isFile = false, then return true
+   * if it is a file or a directory.  Note that the file will
+   * also be checked for read access.  (Currently, this check
+   * for read access is only done on POSIX systems.)
+   */
   static bool FileExists(const char* filename, bool isFile);
   static bool FileExists(const std::string& filename, bool isFile);
   static bool FileExists(const char* filename);
   static bool FileExists(const std::string& filename);
+  //@}
 
-  // Description:
-  // Return true if the file is a directory
+  /**
+   * Return true if the file is a directory
+   */
   static bool FileIsDirectory(const std::string& name);
 
-  // Description:
-  // Given argv[0] for a unix program find the full path to a running
-  // executable.  argv0 can be null for windows WinMain programs
-  // in this case GetModuleFileName will be used to find the path
-  // to the running executable.  If argv0 is not a full path,
-  // then this will try to find the full path.  If the path is not
-  // found false is returned, if found true is returned.  An error
-  // message of the attempted paths is stored in errorMsg.
-  // exeName is the name of the executable.
-  // buildDir is a possibly null path to the build directory.
-  // installPrefix is a possibly null pointer to the install directory.
+  /**
+   * Given argv[0] for a unix program find the full path to a running
+   * executable.  argv0 can be null for windows WinMain programs
+   * in this case GetModuleFileName will be used to find the path
+   * to the running executable.  If argv0 is not a full path,
+   * then this will try to find the full path.  If the path is not
+   * found false is returned, if found true is returned.  An error
+   * message of the attempted paths is stored in errorMsg.
+   * exeName is the name of the executable.
+   * buildDir is a possibly null path to the build directory.
+   * installPrefix is a possibly null pointer to the install directory.
+   */
   static bool FindProgramPath(const char* argv0,
                               std::string& pathOut,
                               std::string& errorMsg,
@@ -85,14 +95,16 @@ class VTKPARALLELCORE_EXPORT vtkPSystemTools : public vtkObject
                               const char* buildDir = 0,
                               const char* installPrefix = 0);
 
-  // Description:
-  // Get current working directory CWD
+  /**
+   * Get current working directory CWD
+   */
   static std::string GetCurrentWorkingDirectory(bool collapse =true);
 
-  // Description:
-  // Given the path to a program executable, get the directory part of
-  // the path with the file stripped off.  If there is no directory
-  // part, the empty string is returned.
+  /**
+   * Given the path to a program executable, get the directory part of
+   * the path with the file stripped off.  If there is no directory
+   * part, the empty string is returned.
+   */
   static std::string GetProgramPath(const std::string&);
 
 protected:
@@ -100,8 +112,8 @@ protected:
   ~vtkPSystemTools() {}
 
 private:
-  vtkPSystemTools(const vtkPSystemTools&);  // Not implemented.
-  void operator=(const vtkPSystemTools&);  // Not implemented.
+  vtkPSystemTools(const vtkPSystemTools&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPSystemTools&) VTK_DELETE_FUNCTION;
 };
 
 #endif

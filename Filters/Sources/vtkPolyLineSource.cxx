@@ -37,36 +37,36 @@ vtkPolyLineSource::vtkPolyLineSource()
 vtkPolyLineSource::~vtkPolyLineSource()
 {
   if (this->Points)
-    {
+  {
     this->Points->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkPolyLineSource::SetNumberOfPoints(vtkIdType numPoints)
 {
   if (!this->Points)
-    {
+  {
     vtkPoints* pts = vtkPoints::New(VTK_DOUBLE);
     this->SetPoints(pts);
     this->Points = pts;
     pts->Delete();
-    }
+  }
 
   if (numPoints != this->GetNumberOfPoints())
-    {
+  {
     this->Points->SetNumberOfPoints(numPoints);
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkPolyLineSource::GetNumberOfPoints()
 {
   if (this->Points)
-    {
+  {
     return this->Points->GetNumberOfPoints();
-    }
+  }
 
   return 0;
 }
@@ -75,30 +75,30 @@ vtkIdType vtkPolyLineSource::GetNumberOfPoints()
 void vtkPolyLineSource::Resize(vtkIdType numPoints)
 {
   if (!this->Points)
-    {
+  {
     this->SetNumberOfPoints(numPoints);
-    }
+  }
 
   if (numPoints != this->GetNumberOfPoints())
-    {
+  {
     this->Points->Resize(numPoints);
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkPolyLineSource::SetPoint(vtkIdType id, double x, double y, double z)
 {
   if (!this->Points)
-    {
+  {
     return;
-    }
+  }
 
   if (id >= this->Points->GetNumberOfPoints())
-    {
+  {
     vtkErrorMacro(<< "point id " << id << " is larger than the number of points");
     return;
-    }
+  }
 
   this->Points->SetPoint(id, x, y, z);
   this->Modified();
@@ -108,18 +108,18 @@ void vtkPolyLineSource::SetPoint(vtkIdType id, double x, double y, double z)
 void vtkPolyLineSource::SetPoints(vtkPoints* points)
 {
   if ( points != this->Points )
-    {
+  {
     if ( this->Points != NULL )
-      {
+    {
       this->Points->Delete();
-      }
+    }
     this->Points = points;
     if ( this->Points != NULL )
-      {
+    {
       this->Points->Register(this);
-      }
-    this->Modified();
     }
+    this->Modified();
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -139,13 +139,13 @@ int vtkPolyLineSource::RequestData(
   vtkSmartPointer<vtkIdList> pointIds = vtkSmartPointer<vtkIdList>::New();
   pointIds->SetNumberOfIds(this->Closed ? numPoints + 1 : numPoints);
   for (vtkIdType i = 0; i < numPoints; ++i)
-    {
+  {
     pointIds->SetId(i, i);
-    }
+  }
   if (this->Closed)
-    {
+  {
     pointIds->SetId(numPoints, 0);
-    }
+  }
 
   vtkSmartPointer<vtkCellArray> polyLine = vtkSmartPointer<vtkCellArray>::New();
   polyLine->InsertNextCell(pointIds.GetPointer());

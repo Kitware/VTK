@@ -32,9 +32,9 @@ vtkAssemblyPath::~vtkAssemblyPath()
 {
   this->Transform->Delete();
   if ( this->TransformedProp != NULL )
-    {
+  {
     this->TransformedProp->Delete();
-    }
+  }
 }
 
 void vtkAssemblyPath::AddNode(vtkProp *p, vtkMatrix4x4 *m)
@@ -55,10 +55,10 @@ void vtkAssemblyPath::AddNode(vtkAssemblyNode *n)
   this->Transform->Push(); //keep in synch with list of nodes
   vtkMatrix4x4 *matrix;
   if ((matrix = n->GetMatrix()) != NULL)
-    {
+  {
     this->Transform->Concatenate(matrix);
     this->Transform->GetMatrix(matrix); //replace previous matrix
-    }
+  }
 }
 
 vtkAssemblyNode *vtkAssemblyPath::GetNextNode()
@@ -91,24 +91,24 @@ void vtkAssemblyPath::ShallowCopy(vtkAssemblyPath *path)
 
   vtkAssemblyNode *node;
   for (path->InitTraversal(); (node = path->GetNextNode());)
-    {
+  {
     this->vtkCollection::AddItem(node);
-    }
+  }
 }
 
-unsigned long vtkAssemblyPath::GetMTime()
+vtkMTimeType vtkAssemblyPath::GetMTime()
 {
-  unsigned long mtime = this->vtkCollection::GetMTime();
+  vtkMTimeType mtime = this->vtkCollection::GetMTime();
 
   vtkAssemblyNode *node;
   for (this->InitTraversal(); (node = this->GetNextNode());)
-    {
-    unsigned long nodeMTime = node->GetMTime();
+  {
+    vtkMTimeType nodeMTime = node->GetMTime();
     if (nodeMTime > mtime)
-      {
+    {
       mtime = nodeMTime;
-      }
     }
+  }
   return mtime;
 }
 

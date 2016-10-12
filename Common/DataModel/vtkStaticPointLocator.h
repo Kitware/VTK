@@ -12,35 +12,40 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkStaticPointLocator - quickly locate points in 3-space
-// .SECTION Description
-// vtkStaticPointLocator is a spatial search object to quickly locate points
-// in 3D.  vtkStaticPointLocator works by dividing a specified region of
-// space into a regular array of cuboid buckets, and then keeping a
-// list of points that lie in each bucket. Typical operation involves giving
-// a position in 3D and finding the closest point; or finding the N closest
-// points.
-//
-// vtkStaticPointLocator is an accelerated version of vtkPointLocator. It is
-// threaded (via vtkSMPTools), and supports one-time static construction
-// (i.e., incremental point insertion is not supported). If you need to
-// incrementally insert points, use the vtkPointLocator or its kin to do so.
-
-// .SECTION Caveats
-// This class is templated. It may run slower than serial execution if the code
-// is not optimized during compilation. Build in Release or ReleaseWithDebugInfo.
-//
-// Make sure that you review the documentation for the superclasses
-// vtkAbstactPointLocator and vtkLocator. In particular the Automatic
-// data member can be used to automatically determine divisions based
-// on the average number of points per bucket.
-//
-// Other types of spatial locators have been developed such as octrees and
-// kd-trees. These are often more efficient for the operations described
-// here.
-
-// .SECTION See Also
-// vtkPointLocator vtkCellLocator vtkLocator vtkAbstractPointLocator
+/**
+ * @class   vtkStaticPointLocator
+ * @brief   quickly locate points in 3-space
+ *
+ * vtkStaticPointLocator is a spatial search object to quickly locate points
+ * in 3D.  vtkStaticPointLocator works by dividing a specified region of
+ * space into a regular array of cuboid buckets, and then keeping a
+ * list of points that lie in each bucket. Typical operation involves giving
+ * a position in 3D and finding the closest point; or finding the N closest
+ * points.
+ *
+ * vtkStaticPointLocator is an accelerated version of vtkPointLocator. It is
+ * threaded (via vtkSMPTools), and supports one-time static construction
+ * (i.e., incremental point insertion is not supported). If you need to
+ * incrementally insert points, use the vtkPointLocator or its kin to do so.
+ *
+ * @warning
+ * This class is templated. It may run slower than serial execution if the code
+ * is not optimized during compilation. Build in Release or ReleaseWithDebugInfo.
+ *
+ * @warning
+ * Make sure that you review the documentation for the superclasses
+ * vtkAbstactPointLocator and vtkLocator. In particular the Automatic
+ * data member can be used to automatically determine divisions based
+ * on the average number of points per bucket.
+ *
+ * @warning
+ * Other types of spatial locators have been developed such as octrees and
+ * kd-trees. These are often more efficient for the operations described
+ * here.
+ *
+ * @sa
+ * vtkPointLocator vtkCellLocator vtkLocator vtkAbstractPointLocator
+*/
 
 #ifndef vtkStaticPointLocator_h
 #define vtkStaticPointLocator_h
@@ -56,29 +61,39 @@ class VTKCOMMONDATAMODEL_EXPORT vtkStaticPointLocator : public vtkAbstractPointL
 {
 friend class vtkBucketList;
 public:
-  // Description:
-  // Construct with automatic computation of divisions, averaging
-  // 5 points per bucket.
+  /**
+   * Construct with automatic computation of divisions, averaging
+   * 5 points per bucket.
+   */
   static vtkStaticPointLocator *New();
 
-  // Description:
-  // Standard type and print methods.
+  //@{
+  /**
+   * Standard type and print methods.
+   */
   vtkTypeMacro(vtkStaticPointLocator,vtkAbstractPointLocator);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  //@}
 
-  // Description:
-  // Specify the average number of points in each bucket. This data member is
-  // used in conjunction with the Automatic data member (if enabled) to
-  // determine the number of locator x-y-z divisions.
+  //@{
+  /**
+   * Specify the average number of points in each bucket. This data member is
+   * used in conjunction with the Automatic data member (if enabled) to
+   * determine the number of locator x-y-z divisions.
+   */
   vtkSetClampMacro(NumberOfPointsPerBucket,int,1,VTK_INT_MAX);
   vtkGetMacro(NumberOfPointsPerBucket,int);
+  //@}
 
-  // Description:
-  // Set the number of divisions in x-y-z directions. If the Automatic data
-  // member is enabled, the Divisions are set according to the
-  // NumberOfPointsPerBucket data member.
+  //@{
+  /**
+   * Set the number of divisions in x-y-z directions. If the Automatic data
+   * member is enabled, the Divisions are set according to the
+   * NumberOfPointsPerBucket data member.
+   */
   vtkSetVector3Macro(Divisions,int);
   vtkGetVectorMacro(Divisions,int,3);
+  //@}
 
   // Re-use any superclass signatures that we don't override.
   using vtkAbstractPointLocator::FindClosestPoint;
@@ -86,72 +101,84 @@ public:
   using vtkAbstractPointLocator::FindPointsWithinRadius;
   using vtkAbstractPointLocator::GetBounds;
 
-  // Description:
-  // Given a position x, return the id of the point closest to it. An
-  // alternative method (defined in the superclass) requires separate x-y-z
-  // values. These methods are thread safe if BuildLocator() is directly or
-  // indirectly called from a single thread first.
-  virtual vtkIdType FindClosestPoint(const double x[3]);
+  /**
+   * Given a position x, return the id of the point closest to it. An
+   * alternative method (defined in the superclass) requires separate x-y-z
+   * values. These methods are thread safe if BuildLocator() is directly or
+   * indirectly called from a single thread first.
+   */
+  vtkIdType FindClosestPoint(const double x[3]) VTK_OVERRIDE;
 
-  // Description:
-  // Given a position x and a radius r, return the id of the point closest to
-  // the point in that radius.  These methods are thread safe if
-  // BuildLocator() is directly or indirectly called from a single thread
-  // first. dist2 returns the squared distance to the point. Note that if multiple
-  // points are located the same distance away, the actual point returned is a
-  // function in which order the points are processed (i.e., indeterminate).
-  virtual vtkIdType FindClosestPointWithinRadius(
-    double radius, const double x[3], double& dist2);
+  //@{
+  /**
+   * Given a position x and a radius r, return the id of the point closest to
+   * the point in that radius.  These methods are thread safe if
+   * BuildLocator() is directly or indirectly called from a single thread
+   * first. dist2 returns the squared distance to the point. Note that if multiple
+   * points are located the same distance away, the actual point returned is a
+   * function in which order the points are processed (i.e., indeterminate).
+   */
+  vtkIdType FindClosestPointWithinRadius(
+    double radius, const double x[3], double& dist2) VTK_OVERRIDE;
   virtual vtkIdType FindClosestPointWithinRadius(double radius, const double x[3],
                                                  double inputDataLength,
                                                  double& dist2);
+  //@}
 
-  // Description:
-  // Find the closest N points to a position. This returns the closest N
-  // points to a position. A faster method could be created that returned N
-  // close points to a position, but necessarily the exact N closest.  The
-  // returned points are sorted from closest to farthest.  These methods are
-  // thread safe if BuildLocator() is directly or indirectly called from a
-  // single thread first.
-  virtual void FindClosestNPoints(int N, const double x[3], vtkIdList *result);
+  /**
+   * Find the closest N points to a position. This returns the closest N
+   * points to a position. A faster method could be created that returned N
+   * close points to a position, but necessarily the exact N closest.  The
+   * returned points are sorted from closest to farthest.  These methods are
+   * thread safe if BuildLocator() is directly or indirectly called from a
+   * single thread first.
+   */
+  void FindClosestNPoints(int N, const double x[3], vtkIdList *result) VTK_OVERRIDE;
 
-  // Description:
-  // Find all points within a specified radius R of position x.
-  // The result is not sorted in any specific manner.
-  // These methods are thread safe if BuildLocator() is directly or
-  // indirectly called from a single thread first.
-  virtual void FindPointsWithinRadius(double R, const double x[3],
-                                      vtkIdList *result);
+  /**
+   * Find all points within a specified radius R of position x.
+   * The result is not sorted in any specific manner.
+   * These methods are thread safe if BuildLocator() is directly or
+   * indirectly called from a single thread first.
+   */
+  void FindPointsWithinRadius(double R, const double x[3],
+                              vtkIdList *result) VTK_OVERRIDE;
 
-  // Description:
-  // See vtkLocator and vtkAbstractPointLocator interface documentation.
-  // These methods are not thread safe.
-  virtual void Initialize();
-  virtual void FreeSearchStructure();
-  virtual void BuildLocator();
-  virtual void GenerateRepresentation(int level, vtkPolyData *pd);
+  //@{
+  /**
+   * See vtkLocator and vtkAbstractPointLocator interface documentation.
+   * These methods are not thread safe.
+   */
+  void Initialize() VTK_OVERRIDE;
+  void FreeSearchStructure() VTK_OVERRIDE;
+  void BuildLocator() VTK_OVERRIDE;
+  void GenerateRepresentation(int level, vtkPolyData *pd) VTK_OVERRIDE;
+  //@}
 
-  // Description:
-  // Given a bucket number bNum between 0 <= bNum < this->GetNumberOfBuckets(),
-  // return the number of points found in the bucket.
+  /**
+   * Given a bucket number bNum between 0 <= bNum < this->GetNumberOfBuckets(),
+   * return the number of points found in the bucket.
+   */
   vtkIdType GetNumberOfPointsInBucket(vtkIdType bNum);
 
-  // Description:
-  // Given a bucket number bNum between 0 <= bNum < this->GetNumberOfBuckets(),
-  // return a list of point ids contained within the bucket. The user must
-  // provide an instance of vtkIdList to contain the result.
+  /**
+   * Given a bucket number bNum between 0 <= bNum < this->GetNumberOfBuckets(),
+   * return a list of point ids contained within the bucket. The user must
+   * provide an instance of vtkIdList to contain the result.
+   */
   void GetBucketIds(vtkIdType bNum, vtkIdList *bList);
 
-  // Description:
-  // Inform the user as to whether large ids are being used. This flag only
-  // has meaning after the locator has been built. Large ids are used when the
-  // number of binned points, or the number of bins, is >= the signed integer
-  // max value.
+  /**
+   * Inform the user as to whether large ids are being used. This flag only
+   * has meaning after the locator has been built. Large ids are used when the
+   * number of binned points, or the number of bins, is >= the signed integer
+   * max value.
+   */
   bool GetLargeIds() {return this->LargeIds;}
 
 protected:
   vtkStaticPointLocator();
-  virtual ~vtkStaticPointLocator();
+  ~vtkStaticPointLocator() VTK_OVERRIDE;
 
   int NumberOfPointsPerBucket; // Used with AutomaticOn to control subdivide
   int Divisions[3]; // Number of sub-divisions in x-y-z directions
@@ -160,8 +187,8 @@ protected:
   bool LargeIds; //indicate whether integer ids are small or large
 
 private:
-  vtkStaticPointLocator(const vtkStaticPointLocator&);  // Not implemented.
-  void operator=(const vtkStaticPointLocator&);  // Not implemented.
+  vtkStaticPointLocator(const vtkStaticPointLocator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStaticPointLocator&) VTK_DELETE_FUNCTION;
 
 };
 

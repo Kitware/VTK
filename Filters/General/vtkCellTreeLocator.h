@@ -12,26 +12,27 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCellTreeLocator - This class implements the data structures, construction
-// algorithms for fast cell location presented in "Fast, Memory-Efficient Cell
-// location in Unstructured Grids for Visualization" by Christop Garth and Kenneth
-// I. Joy in VisWeek, 2011.
-
-// .SECTION Description
-// Cell Tree is a bounding interval hierarchy based data structure, where child boxes
-// do not form an exact split of the parent boxes along a dimension.  Therefore two axis-
-// aligned bounding planes (left max and right min) are stored for each node along a
-// dimension. This class implements the data structure (Cell Tree Node) and its build
-// and traversal algorithms described in the paper.
-// Some methods in building and traversing the cell tree in this class were derived
-// avtCellLocatorBIH class in the VisIT Visualization Tool
-
-// .SECTION Caveats
-//
-
-// .SECTION See Also
-// vtkLocator vtkCellLocator vtkModifiedBSPTree
-
+/**
+ * @class   vtkCellTreeLocator
+ * @brief   This class implements the data structures, construction
+ * algorithms for fast cell location presented in "Fast, Memory-Efficient Cell
+ * location in Unstructured Grids for Visualization" by Christop Garth and Kenneth
+ * I. Joy in VisWeek, 2011.
+ *
+ *
+ * Cell Tree is a bounding interval hierarchy based data structure, where child boxes
+ * do not form an exact split of the parent boxes along a dimension.  Therefore two axis-
+ * aligned bounding planes (left max and right min) are stored for each node along a
+ * dimension. This class implements the data structure (Cell Tree Node) and its build
+ * and traversal algorithms described in the paper.
+ * Some methods in building and traversing the cell tree in this class were derived
+ * avtCellLocatorBIH class in the VisIT Visualization Tool
+ *
+ *
+ *
+ * @sa
+ * vtkLocator vtkCellLocator vtkModifiedBSPTree
+*/
 
 #ifndef vtkCellTreeLocator_h
 #define vtkCellTreeLocator_h
@@ -51,32 +52,36 @@ class VTKFILTERSGENERAL_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocato
     class vtkCellTreeNode;
 
     vtkTypeMacro(vtkCellTreeLocator,vtkAbstractCellLocator);
-    void PrintSelf(ostream& os, vtkIndent indent);
+    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-    // Description:
-    // Constructor sets the maximum number of cells in a leaf to 8
-    // and number of buckets to 5.  Buckets are used in building the cell tree as described in the paper
+    /**
+     * Constructor sets the maximum number of cells in a leaf to 8
+     * and number of buckets to 5.  Buckets are used in building the cell tree as described in the paper
+     */
     static vtkCellTreeLocator *New();
 
-     // Description:
-    // Test a point to find if it is inside a cell. Returns the cellId if inside
-    // or -1 if not.
-    virtual vtkIdType FindCell(double pos[3], double vtkNotUsed, vtkGenericCell *cell,  double pcoords[3],
-                                       double* weights );
+     /**
+      * Test a point to find if it is inside a cell. Returns the cellId if inside
+      * or -1 if not.
+      */
+    vtkIdType FindCell(double pos[3], double vtkNotUsed, vtkGenericCell *cell,  double pcoords[3],
+                       double* weights ) VTK_OVERRIDE;
 
-    // Description:
-    // Return intersection point (if any) AND the cell which was intersected by
-    // the finite line. The cell is returned as a cell id and as a generic cell.
-    virtual int IntersectWithLine(double a0[3], double a1[3], double tol,
-                                      double& t, double x[3], double pcoords[3],
-                                      int &subId, vtkIdType &cellId,
-                                      vtkGenericCell *cell);
+    /**
+     * Return intersection point (if any) AND the cell which was intersected by
+     * the finite line. The cell is returned as a cell id and as a generic cell.
+     */
+    int IntersectWithLine(double a0[3], double a1[3], double tol,
+                          double& t, double x[3], double pcoords[3],
+                          int &subId, vtkIdType &cellId,
+                          vtkGenericCell *cell) VTK_OVERRIDE;
 
-    // Description:
-    // Return a list of unique cell ids inside of a given bounding box. The
-    // user must provide the vtkIdList to populate. This method returns data
-    // only after the locator has been built.
-    virtual void FindCellsWithinBounds(double *bbox, vtkIdList *cells);
+    /**
+     * Return a list of unique cell ids inside of a given bounding box. The
+     * user must provide the vtkIdList to populate. This method returns data
+     * only after the locator has been built.
+     */
+    void FindCellsWithinBounds(double *bbox, vtkIdList *cells) VTK_OVERRIDE;
 
     /*
       if the borland compiler is ever removed, we can use these declarations
@@ -86,50 +91,59 @@ class VTKFILTERSGENERAL_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocato
       using vtkAbstractCellLocator::FindClosestPointWithinRadius;
     */
 
-    // Description:
-    // reimplemented from vtkAbstractCellLocator to support bad compilers
-    virtual int IntersectWithLine(
+    /**
+     * reimplemented from vtkAbstractCellLocator to support bad compilers
+     */
+    int IntersectWithLine(
       double p1[3], double p2[3], double tol, double& t, double x[3],
-      double pcoords[3], int &subId)
+      double pcoords[3], int &subId) VTK_OVERRIDE
     {
       return this->Superclass::IntersectWithLine(p1, p2, tol, t, x, pcoords, subId);
     }
 
-    // Description:
-    // Return intersection point (if any) AND the cell which was intersected by
-    // the finite line. The cell is returned as a cell id and as a generic cell.
-    // This function is a modification from the vtkModifiedBSPTree class using the
-    // data structures in the paper to find intersections.
-    virtual int IntersectWithLine(
+    /**
+     * Return intersection point (if any) AND the cell which was intersected by
+     * the finite line. The cell is returned as a cell id and as a generic cell.
+     * This function is a modification from the vtkModifiedBSPTree class using the
+     * data structures in the paper to find intersections.
+     */
+    int IntersectWithLine(
       double p1[3], double p2[3], double tol, double &t, double x[3],
-      double pcoords[3], int &subId, vtkIdType &cellId);
+      double pcoords[3], int &subId, vtkIdType &cellId) VTK_OVERRIDE;
 
-    // Description:
-    // reimplemented from vtkAbstractCellLocator to support bad compilers
-    virtual int IntersectWithLine(
+    /**
+     * reimplemented from vtkAbstractCellLocator to support bad compilers
+     */
+    int IntersectWithLine(
       const double p1[3], const double p2[3],
-      vtkPoints *points, vtkIdList *cellIds)
+      vtkPoints *points, vtkIdList *cellIds) VTK_OVERRIDE
     {
       return this->Superclass::IntersectWithLine(p1, p2, points, cellIds);
     }
 
-    // Description:
-    // reimplemented from vtkAbstractCellLocator to support bad compilers
-    virtual vtkIdType FindCell(double x[3])
+    /**
+     * reimplemented from vtkAbstractCellLocator to support bad compilers
+     */
+    vtkIdType FindCell(double x[3]) VTK_OVERRIDE
     { return this->Superclass::FindCell(x); }
 
-    // Description:
-    // Satisfy vtkLocator abstract interface.
-    virtual void FreeSearchStructure();
-    virtual void GenerateRepresentation(int level, vtkPolyData *pd);
+    //@{
+    /**
+     * Satisfy vtkLocator abstract interface.
+     */
+    void FreeSearchStructure() VTK_OVERRIDE;
+    void GenerateRepresentation(int level, vtkPolyData *pd) VTK_OVERRIDE;
     virtual void BuildLocatorInternal();
     virtual void BuildLocatorIfNeeded();
     virtual void ForceBuildLocator();
-    virtual void BuildLocator();
+    void BuildLocator() VTK_OVERRIDE;
+    //@}
 
-    // Description:
-    // Internal classes made public to allow subclasses to create
-    // customized some traversal algorithms
+    //@{
+    /**
+     * Internal classes made public to allow subclasses to create
+     * customized some traversal algorithms
+     */
     class VTKFILTERSGENERAL_EXPORT vtkCellTree
     {
       public:
@@ -138,20 +152,22 @@ class VTKFILTERSGENERAL_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocato
         friend class vtkCellPointTraversal;
         friend class vtkCellTreeNode;
         friend class vtkCellTreeBuilder;
+    //@}
 
       public:
         float DataBBox[6]; // This store the bounding values of the dataset
     };
 
-    // Description:
-    // This class is the basic building block of the cell tree.
-    // Nodes consist of two split planes, LeftMax and RightMin,
-    // one which holds all cells assigned to the left, one for the right.
-    // The planes may overlap in the box, but cells are only assigned
-    // to one side, so some searches must traverse both leaves until they have eliminated
-    // candidates.
-    // start is the location in the cell tree. e.g. for root node start is zero.
-    // size is the number of the nodes under the (sub-)tree
+    /**
+     * This class is the basic building block of the cell tree.
+     * Nodes consist of two split planes, LeftMax and RightMin,
+     * one which holds all cells assigned to the left, one for the right.
+     * The planes may overlap in the box, but cells are only assigned
+     * to one side, so some searches must traverse both leaves until they have eliminated
+     * candidates.
+     * start is the location in the cell tree. e.g. for root node start is zero.
+     * size is the number of the nodes under the (sub-)tree
+     */
     class VTKFILTERSGENERAL_EXPORT vtkCellTreeNode
     {
       public:
@@ -185,7 +201,7 @@ class VTKFILTERSGENERAL_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocato
 
 protected:
      vtkCellTreeLocator();
-    ~vtkCellTreeLocator();
+    ~vtkCellTreeLocator() VTK_OVERRIDE;
 
    // Test ray against node BBox : clip t values to extremes
   bool RayMinMaxT(const double origin[3],
@@ -231,8 +247,8 @@ protected:
     friend class vtkCellTreeBuilder;
 
 private:
-  vtkCellTreeLocator(const vtkCellTreeLocator&);  // Not implemented.
-  void operator=(const vtkCellTreeLocator&);      // Not implemented.
+  vtkCellTreeLocator(const vtkCellTreeLocator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCellTreeLocator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

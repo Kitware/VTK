@@ -19,12 +19,15 @@
 
 =========================================================================*/
 
-// .NAME vtkNormalizeMatrixVectors - given a sparse input matrix, produces
-// a sparse output matrix with each vector normalized to unit length with respect
-// to a p-norm (default p=2).
-//
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+/**
+ * @class   vtkNormalizeMatrixVectors
+ * @brief   given a sparse input matrix, produces
+ * a sparse output matrix with each vector normalized to unit length with respect
+ * to a p-norm (default p=2).
+ *
+ * @par Thanks:
+ * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+*/
 
 #ifndef vtkNormalizeMatrixVectors_h
 #define vtkNormalizeMatrixVectors_h
@@ -37,33 +40,39 @@ class VTKFILTERSGENERAL_EXPORT vtkNormalizeMatrixVectors : public vtkArrayDataAl
 public:
   static vtkNormalizeMatrixVectors* New();
   vtkTypeMacro(vtkNormalizeMatrixVectors, vtkArrayDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Controls whether to normalize row-vectors or column-vectors.  0 = rows, 1 = columns.
+  //@{
+  /**
+   * Controls whether to normalize row-vectors or column-vectors.  0 = rows, 1 = columns.
+   */
   vtkGetMacro(VectorDimension, int);
   vtkSetMacro(VectorDimension, int);
+  //@}
 
-  // Description:
-  // Value of p in p-norm normalization, subject to p >= 1.  Default is p=2 (Euclidean norm).
+  //@{
+  /**
+   * Value of p in p-norm normalization, subject to p >= 1.  Default is p=2 (Euclidean norm).
+   */
   vtkGetMacro(PValue, double);
   vtkSetMacro(PValue, double);
+  //@}
 
 protected:
   vtkNormalizeMatrixVectors();
-  ~vtkNormalizeMatrixVectors();
+  ~vtkNormalizeMatrixVectors() VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
   int VectorDimension;
   double PValue;
 
 private:
-  vtkNormalizeMatrixVectors(const vtkNormalizeMatrixVectors&); // Not implemented
-  void operator=(const vtkNormalizeMatrixVectors&);   // Not implemented
+  vtkNormalizeMatrixVectors(const vtkNormalizeMatrixVectors&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkNormalizeMatrixVectors&) VTK_DELETE_FUNCTION;
 };
 
 #endif

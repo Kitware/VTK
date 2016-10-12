@@ -13,9 +13,11 @@
 
 =========================================================================*/
 
-// .NAME vtkPiecewiseFunctionShiftScale -
-//
-// .SECTION Description
+/**
+ * @class   vtkPiecewiseFunctionShiftScale
+ *
+ *
+*/
 
 #ifndef vtkPiecewiseFunctionShiftScale_h
 #define vtkPiecewiseFunctionShiftScale_h
@@ -30,7 +32,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkPiecewiseFunctionShiftScale : public vtk
 public:
   static vtkPiecewiseFunctionShiftScale *New();
   vtkTypeMacro(vtkPiecewiseFunctionShiftScale, vtkPiecewiseFunctionAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkSetMacro(PositionShift, double);
   vtkSetMacro(PositionScale, double);
@@ -44,10 +46,10 @@ public:
 
 protected:
   vtkPiecewiseFunctionShiftScale();
-  ~vtkPiecewiseFunctionShiftScale();
+  ~vtkPiecewiseFunctionShiftScale() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *) VTK_OVERRIDE;
 
   double PositionShift;
   double PositionScale;
@@ -55,8 +57,8 @@ protected:
   double ValueScale;
 
 private:
-  vtkPiecewiseFunctionShiftScale(const vtkPiecewiseFunctionShiftScale&);  // Not implemented
-  void operator=(const vtkPiecewiseFunctionShiftScale&);  // Not implemented
+  vtkPiecewiseFunctionShiftScale(const vtkPiecewiseFunctionShiftScale&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPiecewiseFunctionShiftScale&) VTK_DELETE_FUNCTION;
 };
 
 #endif

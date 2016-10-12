@@ -24,14 +24,17 @@
 #ifndef XDMFCOREITEMFACTORY_HPP_
 #define XDMFCOREITEMFACTORY_HPP_
 
+#ifdef __cplusplus
+
 // Forward Declarations
 class XdmfItem;
 
 // Includes
 #include <map>
 #include <vector>
-#include <string>
 #include "XdmfCore.hpp"
+#include "XdmfHeavyDataController.hpp"
+#include "XdmfHeavyDataWriter.hpp"
 #include "XdmfSharedPtr.hpp"
 
 /**
@@ -72,7 +75,34 @@ public:
              const std::map<std::string, std::string> & itemProperties,
              const std::vector<shared_ptr<XdmfItem> > & childItems) const;
 
+  virtual std::vector<shared_ptr<XdmfHeavyDataController> >
+  generateHeavyDataControllers(const std::map<std::string, std::string> & itemProperties,
+                               const std::vector<unsigned int> & passedDimensions = std::vector<unsigned int>(),
+                               shared_ptr<const XdmfArrayType> passedArrayType = shared_ptr<const XdmfArrayType>(),
+                               const std::string & passedFormat = std::string()) const;
+
+  virtual shared_ptr<XdmfHeavyDataWriter>
+  generateHeavyDataWriter(std::string typeName, std::string path) const;
+
+  virtual bool isArrayTag(char * tag) const;
+
+  /**
+   * Extracts the pointer from the provided shared pointer. Primarily used for C interface.
+   *
+   * @param     original        The source shared pointer that the pointer will be pulled from.
+   * @return                    A duplicate of the object contained in the pointer.
+   */
+  virtual XdmfItem *
+  DuplicatePointer(shared_ptr<XdmfItem> original) const;
+
 protected:
+
+  shared_ptr<const XdmfArrayType>
+  getArrayType(const std::map<std::string, std::string> & itemProperties) const;
+
+  std::string
+  getFullHeavyDataPath(const std::string & filePath,
+                       const std::map<std::string, std::string> & itemProperties) const;
 
   XdmfCoreItemFactory();
 
@@ -82,5 +112,7 @@ private:
   void operator=(const XdmfCoreItemFactory &);  // Not implemented.
 
 };
+
+#endif
 
 #endif /* XDMFCOREITEMFACTORY_HPP_ */

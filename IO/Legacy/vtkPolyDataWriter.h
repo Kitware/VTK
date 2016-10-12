@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPolyDataWriter - write vtk polygonal data
-// .SECTION Description
-// vtkPolyDataWriter is a source object that writes ASCII or binary
-// polygonal data files in vtk format. See text for format details.
-// .SECTION Caveats
-// Binary files written on one system may not be readable on other systems.
+/**
+ * @class   vtkPolyDataWriter
+ * @brief   write vtk polygonal data
+ *
+ * vtkPolyDataWriter is a source object that writes ASCII or binary
+ * polygonal data files in vtk format. See text for format details.
+ * @warning
+ * Binary files written on one system may not be readable on other systems.
+*/
 
 #ifndef vtkPolyDataWriter_h
 #define vtkPolyDataWriter_h
@@ -34,10 +37,13 @@ public:
   vtkTypeMacro(vtkPolyDataWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the input to this writer.
+  //@{
+  /**
+   * Get the input to this writer.
+   */
   vtkPolyData* GetInput();
   vtkPolyData* GetInput(int port);
+  //@}
 
 protected:
   vtkPolyDataWriter() {}
@@ -48,8 +54,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkPolyDataWriter(const vtkPolyDataWriter&);  // Not implemented.
-  void operator=(const vtkPolyDataWriter&);  // Not implemented.
+  vtkPolyDataWriter(const vtkPolyDataWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPolyDataWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

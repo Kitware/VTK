@@ -45,13 +45,13 @@ int vtkPropPicker::Pick(double selectionX, double selectionY,
                         double vtkNotUsed(z), vtkRenderer *renderer)
 {
   if ( this->PickFromList )
-    {
+  {
     return this->PickProp(selectionX, selectionY, renderer, this->PickList);
-    }
+  }
   else
-    {
+  {
     return this->PickProp(selectionX, selectionY, renderer);
-    }
+  }
 }
 
 
@@ -89,24 +89,24 @@ int vtkPropPicker::PickProp(double selectionX, double selectionY,
   // If there was a pick then find the world x,y,z for the pick, and invoke
   // its pick method.
   if ( this->Path )
-    {
+  {
     this->WorldPointPicker->Pick(selectionX, selectionY, 0, renderer);
     this->WorldPointPicker->GetPickPosition(this->PickPosition);
     this->Path->GetLastNode()->GetViewProp()->Pick();
     this->InvokeEvent(vtkCommand::PickEvent,NULL);
-    }
+  }
 
   this->InvokeEvent(vtkCommand::EndPickEvent,NULL);
 
   // Call Pick on the Prop that was picked, and return 1 for success
   if ( this->Path )
-    {
+  {
     return 1;
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 void vtkPropPicker::PrintSelf(ostream& os, vtkIndent indent)
@@ -114,12 +114,12 @@ void vtkPropPicker::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   if (this->PickFromProps)
-    {
+  {
     os << indent << "PickFrom List: " << this->PickFromProps << endl;
-    }
+  }
   else
-    {
+  {
     os << indent << "PickFrom List: (none)" << endl;
-    }
+  }
 
 }

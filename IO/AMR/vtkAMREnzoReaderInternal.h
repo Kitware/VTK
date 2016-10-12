@@ -12,13 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAMREnzoReaderInternal.h -- Low-level Enzo Reader
-//
-// .SECTION Description
-// Consists of the low-level Enzo Reader used by the vtkAMREnzoReader.
-//
-// .SECTION See Also
-// vtkAMREnzoReader vtkAMREnzoParticlesReader
+/**
+ * @class   vtkAMREnzoReaderInternal
+ *
+ *
+ * Consists of the low-level Enzo Reader used by the vtkAMREnzoReader.
+ *
+ * @sa
+ * vtkAMREnzoReader vtkAMREnzoParticlesReader
+*/
 
 #ifndef vtkAMREnzoReaderInternal_h
 #define vtkAMREnzoReaderInternal_h

@@ -84,13 +84,13 @@ int volProt( int argc, char *argv[] )
   vtkVolumeProperty *prop[16];
   int index = 0;
   for ( l = 0; l < 2; l++ )
-    {
+  {
     for ( k = 0; k < 2; k++ )
-      {
+    {
       for ( j = 0; j < 2; j++ )
-        {
+      {
         for ( i = 0; i < 2; i++ )
-          {
+        {
           prop[index] = vtkVolumeProperty::New();
           prop[index]->SetShade(k);
           prop[index]->SetAmbient(0.3);
@@ -100,65 +100,65 @@ int volProt( int argc, char *argv[] )
           prop[index]->SetScalarOpacity(oTFun);
 
           if ( l )
-            {
+          {
             prop[index]->SetGradientOpacity( goTFun );
-            }
+          }
 
           if ( j )
-            {
+          {
             prop[index]->SetColor( cTFun );
-            }
+          }
           else
-            {
+          {
             prop[index]->SetColor( gTFun );
-            }
+          }
 
           if ( i )
-            {
+          {
             prop[index]->SetInterpolationTypeToNearest();
-            }
+          }
           else
-            {
+          {
             prop[index]->SetInterpolationTypeToLinear();
-            }
+          }
 
           index++;
-          }
         }
       }
     }
+  }
 
   // Create a set of properties for mip
   vtkVolumeProperty *mipprop[4];
   index = 0;
   for ( j = 0; j < 2; j++ )
-    {
+  {
     for ( i = 0; i < 2; i++ )
-      {
+    {
       mipprop[index] = vtkVolumeProperty::New();
       mipprop[index]->SetScalarOpacity(oTFun2);
 
       if ( j )
-        {
+      {
         mipprop[index]->SetColor( cTFun );
-        }
+      }
       else
-        {
+      {
         mipprop[index]->SetColor( gTFun );
-        }
+      }
 
       if ( i )
-        {
+      {
         mipprop[index]->SetInterpolationTypeToNearest();
-        }
+      }
       else
-        {
+      {
         mipprop[index]->SetInterpolationTypeToLinear();
-        }
+      }
 
       index++;
-      }
     }
+  }
 
 
 
@@ -193,65 +193,65 @@ int volProt( int argc, char *argv[] )
   vtkVolume *volume[56];
   index = 0;
   for ( j = 0; j < 7; j++ )
-    {
+  {
     for ( i = 0; i < 8; i++ )
-      {
+    {
       volume[index] = vtkVolume::New();
       volume[index]->AddPosition( i*70, j*70, 0 );
       ren->AddViewProp(volume[index]);
       index++;
-      }
     }
+  }
 
 
   // Create 48 ray cast mappers - 32 composite, 8 mip, 8 isosurface
   vtkVolumeRayCastMapper *raycastMapper[48];
   for ( i = 0; i < 48; i++ )
-    {
+  {
     raycastMapper[i] = vtkVolumeRayCastMapper::New();
     raycastMapper[i]->SetInputConnection(reader->GetOutputPort());
     raycastMapper[i]->SetGradientEstimator(gradest);
     volume[i]->SetMapper( raycastMapper[i] );
 
     if ( i < 16 )
-      {
+    {
       volume[i]->SetProperty( prop[i] );
       raycastMapper[i]->SetVolumeRayCastFunction( compositeFunction1 );
-      }
+    }
     else if ( i < 32 )
-      {
+    {
       volume[i]->SetProperty( prop[i-16] );
       raycastMapper[i]->SetVolumeRayCastFunction( compositeFunction2 );
-      }
+    }
     else
-      {
+    {
       if ( i < 36 )
-        {
+      {
         raycastMapper[i]->SetVolumeRayCastFunction( MIPFunction1 );
         volume[i]->SetProperty( mipprop[i-32] );
-        }
+      }
       else if ( i < 40 )
-        {
+      {
         raycastMapper[i]->SetVolumeRayCastFunction( MIPFunction2 );
         volume[i]->SetProperty( mipprop[i-36] );
-        }
+      }
       else
-        {
+      {
         raycastMapper[i]->SetVolumeRayCastFunction( isosurfaceFunction );
         volume[i]->SetProperty( prop[i-40] );
-        }
       }
     }
+  }
 
   // Create 8 texture mappers
   vtkVolumeTextureMapper2D *textureMapper[8];
   for ( i = 0; i < 8; i++ )
-    {
+  {
     textureMapper[i] = vtkVolumeTextureMapper2D::New();
     textureMapper[i]->SetInputConnection( reader->GetOutputPort() );
     volume[i+48]->SetMapper( textureMapper[i] );
     volume[i+48]->SetProperty( prop[i*2] );
-    }
+  }
 
 
   renWin->SetSize(400,350);
@@ -268,9 +268,9 @@ int volProt( int argc, char *argv[] )
   iren->SetStillUpdateRate(0.001);
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Clean up
   reader->Delete();
@@ -280,31 +280,31 @@ int volProt( int argc, char *argv[] )
   cTFun->Delete();
   goTFun->Delete();
   for ( i = 0; i < 16; i++ )
-    {
+  {
     prop[i]->Delete();
-    }
+  }
   for ( i = 0; i < 4; i++ )
-    {
+  {
     mipprop[i]->Delete();
-    }
+  }
   compositeFunction1->Delete();
   compositeFunction2->Delete();
   isosurfaceFunction->Delete();
   MIPFunction1->Delete();
   MIPFunction2->Delete();
   for ( i = 0; i < 56; i++ )
-    {
+  {
     volume[i]->Delete();
-    }
+  }
   gradest->Delete();
   for ( i = 0; i < 48; i++ )
-    {
+  {
     raycastMapper[i]->Delete();
-    }
+  }
   for ( i = 0; i < 8; i++ )
-    {
+  {
     textureMapper[i]->Delete();
-    }
+  }
   ren->Delete();
   iren->Delete();
   renWin->Delete();

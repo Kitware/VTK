@@ -24,6 +24,7 @@
 class vtkOpenGLCamera;
 class vtkShaderProgram;
 class vtkTextureObject;
+class vtkGenericOpenGLResourceFreeCallback;
 
 //----------------------------------------------------------------------------
 class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLGPUVolumeRayCastMapper :
@@ -80,6 +81,7 @@ protected:
   // Delete OpenGL objects.
   // \post done: this->OpenGLObjectsCreated==0
   virtual void ReleaseGraphicsResources(vtkWindow *window);
+  vtkGenericOpenGLResourceFreeCallback *ResourceCallback;
 
   // Description:
   // Build vertex and fragment shader for the volume rendering
@@ -136,18 +138,18 @@ protected:
   // Description:
   // Empty implementation.
   void GetReductionRatio(double* ratio)
-    {
+  {
     ratio[0] = ratio[1] = ratio[2] = 1.0;
-    }
+  }
 
 
   // Description:
   // Empty implementation.
   virtual int IsRenderSupported(vtkRenderWindow *vtkNotUsed(window),
                                 vtkVolumeProperty *vtkNotUsed(property))
-    {
+  {
     return 1;
-    }
+  }
 
   double ReductionFactor;
   int    CurrentPass;
@@ -157,8 +159,8 @@ private:
   vtkInternal* Impl;
 
   vtkOpenGLGPUVolumeRayCastMapper(
-    const vtkOpenGLGPUVolumeRayCastMapper&); // Not implemented.
-  void operator=(const vtkOpenGLGPUVolumeRayCastMapper&); // Not implemented.
+    const vtkOpenGLGPUVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLGPUVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkOpenGLGPUVolumeRayCastMapper_h

@@ -28,6 +28,8 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestPolygon.cxx
   TestPolyhedron0.cxx
   TestPolyhedron1.cxx
+  TestPolyhedron3.cxx
+  TestPolyhedronConvexity.cxx
   TestQuadraticPolygon.cxx
   TestRect.cxx
   TestSelectionSubtract.cxx
@@ -57,6 +59,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   UnitTestCells.cxx
   UnitTestImplicitDataSet.cxx
   UnitTestImplicitVolume.cxx
+  UnitTestLine.cxx
   UnitTestPlanesIntersection.cxx
   )
 vtk_add_test_cxx(${vtk-module}CxxTests data_tests
@@ -68,8 +71,16 @@ vtk_add_test_cxx(${vtk-module}CxxTests data_tests
   TestSmoothErrorMetric.cxx
   TestQuadraticPolygonFilters.cxx
   )
+# add to the list but don't define a test
+list(APPEND data_tests TestPolyhedron2.cxx)
+
 vtk_add_test_cxx(${vtk-module}CxxTests output_tests
   TestKdTreeRepresentation.cxx,NO_DATA
+  )
+ExternalData_add_test(VTKData
+  NAME TestPolyhedron2
+  COMMAND ${vtk-module}CxxTests TestPolyhedron2
+  -D DATA{../Data/polyhedron_mesh.vtu}
   )
 set(all_tests
   ${tests}

@@ -3,7 +3,7 @@ get_filename_component(_VTKModuleMacros_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 set(_VTKModuleMacros_DEFAULT_LABEL "VTKModular")
 
 include(${_VTKModuleMacros_DIR}/vtkModuleAPI.cmake)
-include(GenerateExportHeader)
+include(VTKGenerateExportHeader)
 include(vtkWrapping)
 if(VTK_MAKE_INSTANTIATORS)
   include(vtkMakeInstantiator)
@@ -160,6 +160,14 @@ endfunction()
 macro(vtk_module_impl)
   include(module.cmake OPTIONAL) # Load module meta-data
 
+  list(APPEND ${vtk-module}_INCLUDE_DIRS
+    ${${vtk-module}_BINARY_DIR}
+    ${${vtk-module}_SOURCE_DIR})
+  list(REMOVE_DUPLICATES ${vtk-module}_INCLUDE_DIRS)
+  if(${vtk-module}_INCLUDE_DIRS)
+    include_directories(${${vtk-module}_INCLUDE_DIRS})
+  endif()
+
   vtk_module_config(_dep ${${vtk-module}_DEPENDS})
   if(_dep_INCLUDE_DIRS)
     include_directories(${_dep_INCLUDE_DIRS})
@@ -179,14 +187,6 @@ macro(vtk_module_impl)
     endif()
   endif()
 
-  list(APPEND ${vtk-module}_INCLUDE_DIRS
-    ${${vtk-module}_BINARY_DIR}
-    ${${vtk-module}_SOURCE_DIR})
-  list(REMOVE_DUPLICATES ${vtk-module}_INCLUDE_DIRS)
-
-  if(${vtk-module}_INCLUDE_DIRS)
-    include_directories(${${vtk-module}_INCLUDE_DIRS})
-  endif()
   if(${vtk-module}_SYSTEM_INCLUDE_DIRS)
     include_directories(${${vtk-module}_SYSTEM_INCLUDE_DIRS})
   endif()
@@ -211,7 +211,14 @@ endmacro()
 # The VTK_INSTALL_FIND_PACKAGE_<name>_DIR variable may be set
 # to an alternative location for the install tree to reference,
 # or to a false value to remove any default location.
+#
+# Additional arguments for find_package() call added to the module config
+# can be provided as extra arguments to this macro e.g.
+#
+#     vtk_module_export_code_find_package(Qt5 COMPONENTS Widgets)
+#
 macro(vtk_module_export_code_find_package _name)
+  string(REPLACE ";" " " _argn "${ARGN}")
   if(${_name}_DIR)
     if(DEFINED VTK_INSTALL_FIND_PACKAGE_${_name}_DIR)
       set(_dir "${VTK_INSTALL_FIND_PACKAGE_${_name}_DIR}")
@@ -225,13 +232,13 @@ if(NOT ${_name}_DIR)
 endif()")
     endif()
     set(${vtk-module}_EXPORT_CODE_INSTALL "${${vtk-module}_EXPORT_CODE_INSTALL}
-find_package(${_name} REQUIRED QUIET)
+find_package(${_name} REQUIRED QUIET ${_argn})
 ")
     set(${vtk-module}_EXPORT_CODE_BUILD "${${vtk-module}_EXPORT_CODE_BUILD}
 if(NOT ${_name}_DIR)
   set(${_name}_DIR \"${${_name}_DIR}\")
 endif()
-find_package(${_name} REQUIRED QUIET)
+find_package(${_name} REQUIRED QUIET ${_argn})
 ")
   endif()
 endmacro()
@@ -638,7 +645,7 @@ function(vtk_module_library name)
           COMPILE_DEFINITIONS ${${vtk-module}_KIT}_EXPORTS)
       set_target_properties(${vtk-module}Objects
         PROPERTIES
-          # Tell generate_export_header what kit-wide export symbol we use.
+          # Tell vtk_generate_export_header what kit-wide export symbol we use.
           DEFINE_SYMBOL ${${vtk-module}_KIT}_EXPORTS
           POSITION_INDEPENDENT_CODE TRUE)
     endif()
@@ -704,15 +711,22 @@ VTK_AUTOINIT(${vtk-module})
     set(${vtk-module}${target_suffix}_EXPORT_CODE
       ${${vtk-module}_EXPORT_CODE})
   endif()
-  generate_export_header(${vtk-module}${export_symbol_object} EXPORT_FILE_NAME ${vtk-module}Module.h)
+  vtk_generate_export_header(${vtk-module}${export_symbol_object} EXPORT_FILE_NAME ${vtk-module}Module.h)
   if (BUILD_SHARED_LIBS)
     # export flags are only added when building shared libs, they cause
     # mismatched visibility warnings when building statically since not all
     # libraries that VTK builds don't set visibility flags. Until we get a
     # time to do that, we skip visibility flags for static libraries.
-    add_compiler_export_flags(my_abi_flags)
-    set_property(TARGET ${vtk-module}${target_suffix} APPEND
-      PROPERTY COMPILE_FLAGS "${my_abi_flags}")
+    if(CMAKE_VERSION VERSION_LESS 3.3)
+      #CMake 3.3 deprecates add_compiler_export_flags and also has policy
+      #CMP0063 which properly propagates visibility flags to OBJECT libs
+      vtk_add_compiler_export_flags(my_abi_flags)
+      set_property(TARGET ${vtk-module}${target_suffix} APPEND
+        PROPERTY COMPILE_FLAGS "${my_abi_flags}")
+    else()
+      set_property(TARGET ${vtk-module}${target_suffix}
+        PROPERTY CXX_VISIBILITY_PRESET "hidden")
+    endif()
   endif()
 
   if(BUILD_TESTING AND PYTHON_EXECUTABLE AND NOT ${vtk-module}_NO_HeaderTest AND VTK_SOURCE_DIR)

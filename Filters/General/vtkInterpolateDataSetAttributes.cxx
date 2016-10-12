@@ -41,10 +41,10 @@ vtkInterpolateDataSetAttributes::vtkInterpolateDataSetAttributes()
 vtkInterpolateDataSetAttributes::~vtkInterpolateDataSetAttributes()
 {
   if (this->InputList)
-    {
+  {
     this->InputList->Delete();
     this->InputList = NULL;
-    }
+  }
 }
 
 vtkDataSetCollection *vtkInterpolateDataSetAttributes::GetInputList()
@@ -53,9 +53,9 @@ vtkDataSetCollection *vtkInterpolateDataSetAttributes::GetInputList()
   this->InputList->RemoveAllItems();
 
   for (i = 0; i < this->GetNumberOfInputConnections(0); i++)
-    {
+  {
       this->InputList->AddItem(static_cast<vtkDataSet *>(this->GetExecutive()->GetInputData(0, i)));
-    }
+  }
   return this->InputList;
 }
 
@@ -83,33 +83,33 @@ int vtkInterpolateDataSetAttributes::RequestData(
   double t;
 
   if ( numInputs < 2 )
-    {
+  {
     vtkErrorMacro(<< "Need at least two inputs to interpolate!");
     return 1;
-    }
+  }
 
   vtkDebugMacro(<<"Interpolating data...");
 
   // Check input and determine between which data sets the interpolation
   // is to occur.
   if ( this->T > static_cast<double>(numInputs) )
-    {
+  {
     vtkErrorMacro(<<"Bad interpolation parameter");
     return 1;
-    }
+  }
 
   lowDS = static_cast<int>(this->T);
   if ( lowDS >= (numInputs-1) )
-    {
+  {
     lowDS = numInputs - 2;
-    }
+  }
 
   highDS = lowDS + 1;
   t = this->T - static_cast<double>(lowDS);
   if (t > 1.0)
-    {
+  {
     t =1.0;
-    }
+  }
 
   vtkInformation *dsInfo = inputVector[0]->GetInformationObject(lowDS);
   vtkInformation *ds2Info = inputVector[0]->GetInformationObject(highDS);
@@ -121,10 +121,10 @@ int vtkInterpolateDataSetAttributes::RequestData(
 
   if ( numPts != ds2->GetNumberOfPoints() ||
        numCells != ds2->GetNumberOfCells() )
-    {
+  {
     vtkErrorMacro(<<"Data sets not consistent!");
     return 1;
-    }
+  }
 
   output->CopyStructure(ds);
   inputPD = ds->GetPointData();
@@ -135,25 +135,25 @@ int vtkInterpolateDataSetAttributes::RequestData(
   // Allocate the data set attributes
   outputPD->CopyAllOff();
   if ( inputPD->GetScalars() && input2PD->GetScalars() )
-    {
+  {
     outputPD->CopyScalarsOn();
-    }
+  }
   if ( inputPD->GetVectors() && input2PD->GetVectors() )
-    {
+  {
     outputPD->CopyVectorsOn();
-    }
+  }
   if ( inputPD->GetNormals() && input2PD->GetNormals() )
-    {
+  {
     outputPD->CopyNormalsOn();
-    }
+  }
   if ( inputPD->GetTCoords() && input2PD->GetTCoords() )
-    {
+  {
     outputPD->CopyTCoordsOn();
-    }
+  }
   if ( inputPD->GetTensors() && input2PD->GetTensors() )
-    {
+  {
     outputPD->CopyTensorsOn();
-    }
+  }
   // *TODO* Fix
   // if ( inputPD->GetFieldData() && input2PD->GetFieldData() )
   //{
@@ -163,25 +163,25 @@ int vtkInterpolateDataSetAttributes::RequestData(
 
   outputCD->CopyAllOff();
   if ( inputCD->GetScalars() && input2CD->GetScalars() )
-    {
+  {
     outputCD->CopyScalarsOn();
-    }
+  }
   if ( inputCD->GetVectors() && input2CD->GetVectors() )
-    {
+  {
     outputCD->CopyVectorsOn();
-    }
+  }
   if ( inputCD->GetNormals() && input2CD->GetNormals() )
-    {
+  {
     outputCD->CopyNormalsOn();
-    }
+  }
   if ( inputCD->GetTCoords() && input2CD->GetTCoords() )
-    {
+  {
     outputCD->CopyTCoordsOn();
-    }
+  }
   if ( inputCD->GetTensors() && input2CD->GetTensors() )
-    {
+  {
     outputCD->CopyTensorsOn();
-    }
+  }
   // *TODO* Fix
   //if ( inputCD->GetFieldData() && input2CD->GetFieldData() )
   //{
@@ -192,33 +192,33 @@ int vtkInterpolateDataSetAttributes::RequestData(
 
   // Interpolate point data. We'll assume that it takes 50% of the time
   for ( i=0; i < numPts; i++ )
-    {
+  {
     if ( ! (i % 10000) )
-      {
+    {
       this->UpdateProgress(static_cast<double>(i)/numPts * 0.50);
       if (this->GetAbortExecute())
-        {
+      {
         break;
-        }
       }
+    }
 
     outputPD->InterpolateTime(inputPD, input2PD, i, t);
-    }
+  }
 
   // Interpolate cell data. We'll assume that it takes 50% of the time
   for ( i=0; i < numCells; i++ )
-    {
+  {
     if ( ! (i % 10000) )
-      {
+    {
       this->UpdateProgress (0.5 + static_cast<double>(i)/numCells * 0.50);
       if (this->GetAbortExecute())
-        {
+      {
         break;
-        }
       }
+    }
 
     outputCD->InterpolateTime(inputCD, input2CD, i, t);
-    }
+  }
 
   return 1;
 }
@@ -227,9 +227,9 @@ int vtkInterpolateDataSetAttributes::FillInputPortInformation(
   int port, vtkInformation *info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
-    {
+  {
     return 0;
-    }
+  }
   info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
   return 1;
 }

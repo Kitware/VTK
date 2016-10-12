@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageWriter - Writes images to files.
-// .SECTION Description
-// vtkImageWriter writes images to files with any data type. The data type of
-// the file is the same scalar type as the input.  The dimensionality
-// determines whether the data will be written in one or multiple files.
-// This class is used as the superclass of most image writing classes
-// such as vtkBMPWriter etc. It supports streaming.
+/**
+ * @class   vtkImageWriter
+ * @brief   Writes images to files.
+ *
+ * vtkImageWriter writes images to files with any data type. The data type of
+ * the file is the same scalar type as the input.  The dimensionality
+ * determines whether the data will be written in one or multiple files.
+ * This class is used as the superclass of most image writing classes
+ * such as vtkBMPWriter etc. It supports streaming.
+*/
 
 #ifndef vtkImageWriter_h
 #define vtkImageWriter_h
@@ -33,38 +36,52 @@ public:
   vtkTypeMacro(vtkImageWriter,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify file name for the image file. You should specify either
-  // a FileName or a FilePrefix. Use FilePrefix if the data is stored
-  // in multiple files.
+  //@{
+  /**
+   * Specify file name for the image file. You should specify either
+   * a FileName or a FilePrefix. Use FilePrefix if the data is stored
+   * in multiple files.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Specify file prefix for the image file(s).You should specify either
-  // a FileName or FilePrefix. Use FilePrefix if the data is stored
-  // in multiple files.
+  //@{
+  /**
+   * Specify file prefix for the image file(s).You should specify either
+   * a FileName or FilePrefix. Use FilePrefix if the data is stored
+   * in multiple files.
+   */
   vtkSetStringMacro(FilePrefix);
   vtkGetStringMacro(FilePrefix);
+  //@}
 
-  // Description:
-  // The sprintf format used to build filename from FilePrefix and number.
+  //@{
+  /**
+   * The sprintf format used to build filename from FilePrefix and number.
+   */
   vtkSetStringMacro(FilePattern);
   vtkGetStringMacro(FilePattern);
+  //@}
 
-  // Description:
-  // What dimension are the files to be written. Usually this is 2, or 3.
-  // If it is 2 and the input is a volume then the volume will be
-  // written as a series of 2d slices.
+  //@{
+  /**
+   * What dimension are the files to be written. Usually this is 2, or 3.
+   * If it is 2 and the input is a volume then the volume will be
+   * written as a series of 2d slices.
+   */
   vtkSetMacro(FileDimensionality, int);
   vtkGetMacro(FileDimensionality, int);
+  //@}
 
-  // Description:
-  // Set/Get the input object from the image pipeline.
+  /**
+   * Set/Get the input object from the image pipeline.
+   */
   vtkImageData *GetInput();
 
-  // Description:
-  // The main interface which triggers the writer to start.
+  /**
+   * The main interface which triggers the writer to start.
+   */
   virtual void Write();
 
   void DeleteFiles();
@@ -106,8 +123,8 @@ protected:
   int FilesDeleted;
 
 private:
-  vtkImageWriter(const vtkImageWriter&);  // Not implemented.
-  void operator=(const vtkImageWriter&);  // Not implemented.
+  vtkImageWriter(const vtkImageWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

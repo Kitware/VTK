@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCompositer - Super class for composite algorthms.
-//
-// .SECTION Description
-// vtkCompositer operates in multiple processes.  Each compositer has
-// a render window.  They use vtkMultiProcessControllers to communicate
-// the color and depth buffer to process 0's render window.
-// It will not handle transparency well.
-//
-// .SECTION See Also
-// vtkCompositeManager.
+/**
+ * @class   vtkCompositer
+ * @brief   Super class for composite algorthms.
+ *
+ *
+ * vtkCompositer operates in multiple processes.  Each compositer has
+ * a render window.  They use vtkMultiProcessControllers to communicate
+ * the color and depth buffer to process 0's render window.
+ * It will not handle transparency well.
+ *
+ * @sa
+ * vtkCompositeManager.
+*/
 
 #ifndef vtkCompositer_h
 #define vtkCompositer_h
@@ -42,29 +45,39 @@ public:
   vtkTypeMacro(vtkCompositer,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // This method gets called on every process.  The final image gets
-  // put into pBuf and zBuf.
+  /**
+   * This method gets called on every process.  The final image gets
+   * put into pBuf and zBuf.
+   */
   virtual void CompositeBuffer(vtkDataArray *pBuf, vtkFloatArray *zBuf,
                                vtkDataArray *pTmp, vtkFloatArray *zTmp);
 
-  // Description:
-  // Access to the controller.
+  //@{
+  /**
+   * Access to the controller.
+   */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller,vtkMultiProcessController);
+  //@}
 
-  // Description:
-  // A hack to get a sub world until I can get communicators working.
+  //@{
+  /**
+   * A hack to get a sub world until I can get communicators working.
+   */
   vtkSetMacro(NumberOfProcesses, int);
   vtkGetMacro(NumberOfProcesses, int);
+  //@}
 
-  // Description:
-  // Methods that allocate and delete memory with special MPIPro calls.
+  //@{
+  /**
+   * Methods that allocate and delete memory with special MPIPro calls.
+   */
   static void DeleteArray(vtkDataArray* da);
   static void ResizeFloatArray(vtkFloatArray* fa, int numComp,
                                vtkIdType size);
   static void ResizeUnsignedCharArray(vtkUnsignedCharArray* uca,
                                       int numComp, vtkIdType size);
+  //@}
 
 protected:
   vtkCompositer();
@@ -74,8 +87,8 @@ protected:
   int NumberOfProcesses;
 
 private:
-  vtkCompositer(const vtkCompositer&); // Not implemented
-  void operator=(const vtkCompositer&); // Not implemented
+  vtkCompositer(const vtkCompositer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompositer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

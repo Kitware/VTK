@@ -28,10 +28,10 @@ vtkSQLDatabase * MySQLCreateFunction(const char* URL)
 
   if (vtksys::SystemTools::ParseURLProtocol(urlstr, protocol, unused) &&
       protocol == "mysql")
-    {
+  {
     db = vtkMySQLDatabase::New();
     db->ParseURL(URL);
-    }
+  }
 
   return db;
 }
@@ -41,15 +41,15 @@ static unsigned int vtkIOMySQLCount;
 VTKIOMYSQL_EXPORT void vtkIOMySQL_AutoInit_Construct()
 {
   if (++vtkIOMySQLCount == 1)
-    {
+  {
     vtkSQLDatabase::RegisterCreateFromURLCallback(MySQLCreateFunction);
-    }
+  }
 }
 
 VTKIOMYSQL_EXPORT void vtkIOMySQL_AutoInit_Destruct()
 {
   if (--vtkIOMySQLCount == 0)
-    {
+  {
     vtkSQLDatabase::UnRegisterCreateFromURLCallback(MySQLCreateFunction);
-    }
+  }
 }

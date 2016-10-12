@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWindBladeReader - class for reading WindBlade data files
-// .SECTION Description
-// vtkWindBladeReader is a source object that reads WindBlade files
-// which are block binary files with tags before and after each block
-// giving the number of bytes within the block.  The number of data
-// variables dumped varies.  There are 3 output ports with the first
-// being a structured grid with irregular spacing in the Z dimension.
-// The second is an unstructured grid only read on on process 0 and
-// used to represent the blade.  The third is also a structured grid
-// with irregular spacing on the Z dimension.  Only the first and
-// second output ports have time dependent data.
+/**
+ * @class   vtkWindBladeReader
+ * @brief   class for reading WindBlade data files
+ *
+ * vtkWindBladeReader is a source object that reads WindBlade files
+ * which are block binary files with tags before and after each block
+ * giving the number of bytes within the block.  The number of data
+ * variables dumped varies.  There are 3 output ports with the first
+ * being a structured grid with irregular spacing in the Z dimension.
+ * The second is an unstructured grid only read on on process 0 and
+ * used to represent the blade.  The third is also a structured grid
+ * with irregular spacing on the Z dimension.  Only the first and
+ * second output ports have time dependent data.
+*/
 
 #ifndef vtkWindBladeReader_h
 #define vtkWindBladeReader_h
@@ -58,18 +61,22 @@ public:
   vtkSetVector6Macro(SubExtent, int);
   vtkGetVector6Macro(SubExtent, int);
 
-  // Description:
-  // Get the reader's output
+  /**
+   * Get the reader's output
+   */
   vtkStructuredGrid *GetFieldOutput();    // Output port 0
   vtkUnstructuredGrid *GetBladeOutput();  // Output port 1
   vtkStructuredGrid *GetGroundOutput();   // Output port 2
 
-  // Description:
-  // The following methods allow selective reading of solutions fields.
-  // By default, ALL data fields on the nodes are read, but this can
-  // be modified.
+  //@{
+  /**
+   * The following methods allow selective reading of solutions fields.
+   * By default, ALL data fields on the nodes are read, but this can
+   * be modified.
+   */
   int GetNumberOfPointArrays();
   const char* GetPointArrayName(int index);
+  //@}
 
   int  GetPointArrayStatus(const char* name);
   void SetPointArrayStatus(const char* name, int status);
@@ -138,8 +145,8 @@ protected:
   int* VariableBasicType;  // FLOAT or INTEGER
   int* VariableByteCount;  // Number of bytes in basic type
   long int* VariableOffset;  // Offset into data file
-  unsigned int BlockSize;   // Size of every data block
-  int GBlockSize;  // Size of every data block
+  size_t BlockSize;   // Size of every data block
+  size_t GBlockSize;  // Size of every data block
 
   vtkFloatArray** Data;   // Actual data arrays
   vtkStdString RootDirectory; // Directory where the .wind file is.
@@ -247,18 +254,21 @@ protected:
     void* clientdata, void* calldata);
 
   virtual int FillOutputPortInformation(int, vtkInformation*);
-  // Description:
-  // We intercept the requests to check for which port
-  // information is being requested for and if there is
-  // a REQUEST_DATA_NOT_GENERATED request then we mark
-  // which ports won't have data generated for that request.
+
+  /**
+   * We intercept the requests to check for which port
+   * information is being requested for and if there is
+   * a REQUEST_DATA_NOT_GENERATED request then we mark
+   * which ports won't have data generated for that request.
+   */
   int ProcessRequest(vtkInformation *request,
                      vtkInformationVector **inInfo,
                      vtkInformationVector *outInfo);
+
 private:
   WindBladeReaderInternal * Internal;
 
-  vtkWindBladeReader(const vtkWindBladeReader&);  // Not implemented.
-  void operator=(const vtkWindBladeReader&);  // Not implemented.
+  vtkWindBladeReader(const vtkWindBladeReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWindBladeReader&) VTK_DELETE_FUNCTION;
 };
 #endif

@@ -40,10 +40,10 @@ vtkImageVariance3D::vtkImageVariance3D()
 vtkImageVariance3D::~vtkImageVariance3D()
 {
   if (this->Ellipse)
-    {
+  {
     this->Ellipse->Delete();
     this->Ellipse = NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -60,26 +60,26 @@ void vtkImageVariance3D::SetKernelSize(int size0, int size1, int size2)
   int modified = 0;
 
   if (this->KernelSize[0] != size0)
-    {
+  {
     modified = 1;
     this->KernelSize[0] = size0;
     this->KernelMiddle[0] = size0 / 2;
-    }
+  }
   if (this->KernelSize[1] != size1)
-    {
+  {
     modified = 1;
     this->KernelSize[1] = size1;
     this->KernelMiddle[1] = size1 / 2;
-    }
+  }
   if (this->KernelSize[2] != size2)
-    {
+  {
     modified = 1;
     this->KernelSize[2] = size2;
     this->KernelMiddle[2] = size2 / 2;
-    }
+  }
 
   if (modified)
-    {
+  {
     this->Modified();
     this->Ellipse->SetWholeExtent(0, this->KernelSize[0]-1,
                                   0, this->KernelSize[1]-1,
@@ -99,7 +99,7 @@ void vtkImageVariance3D::SetKernelSize(int size0, int size1, int size2)
                         0, this->KernelSize[1]-1,
                         0, this->KernelSize[2]-1);
     this->Ellipse->Update();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -193,29 +193,29 @@ void vtkImageVariance3DExecute(vtkImageVariance3D *self,
 
   // loop through components
   for (outIdxC = 0; outIdxC < numComps; ++outIdxC)
-    {
+  {
     // loop through pixels of output
     outPtr2 = outPtr;
     inPtr2 = inPtr;
     for (outIdx2 = outMin2; outIdx2 <= outMax2; ++outIdx2)
-      {
+    {
       outPtr1 = outPtr2;
       inPtr1 = inPtr2;
       for (outIdx1 = outMin1; !self->AbortExecute && outIdx1 <= outMax1;
            ++outIdx1)
-        {
+      {
         if (!id)
-          {
+        {
           if (!(count%target))
-            {
+          {
             self->UpdateProgress(count/(50.0*target));
-            }
-          count++;
           }
+          count++;
+        }
         outPtr0 = outPtr1;
         inPtr0 = inPtr1;
         for (outIdx0 = outMin0; outIdx0 <= outMax0; ++outIdx0)
-          {
+        {
 
           // Find variance
           sum = 0.0;
@@ -227,15 +227,15 @@ void vtkImageVariance3DExecute(vtkImageVariance3D *self,
             - kernelMiddle[1] * inInc1 - kernelMiddle[2] * inInc2;
           maskPtr2 = maskPtr;
           for (hoodIdx2 = hoodMin2; hoodIdx2 <= hoodMax2; ++hoodIdx2)
-            {
+          {
             hoodPtr1 = hoodPtr2;
             maskPtr1 = maskPtr2;
             for (hoodIdx1 = hoodMin1; hoodIdx1 <= hoodMax1; ++hoodIdx1)
-              {
+            {
               hoodPtr0 = hoodPtr1;
               maskPtr0 = maskPtr1;
               for (hoodIdx0 = hoodMin0; hoodIdx0 <= hoodMax0; ++hoodIdx0)
-                {
+              {
                 // A quick but rather expensive way to handle boundaries
                 if ( outIdx0 + hoodIdx0 >= inImageMin0 &&
                      outIdx0 + hoodIdx0 <= inImageMax0 &&
@@ -243,39 +243,39 @@ void vtkImageVariance3DExecute(vtkImageVariance3D *self,
                      outIdx1 + hoodIdx1 <= inImageMax1 &&
                      outIdx2 + hoodIdx2 >= inImageMin2 &&
                      outIdx2 + hoodIdx2 <= inImageMax2)
-                  {
+                {
                   if (*maskPtr0)
-                    {
+                  {
                     diff = static_cast<float>(*hoodPtr0)
                       - static_cast<float>(*inPtr0);
                     sum += diff * diff;
                     ++icount;
-                    }
                   }
+                }
 
                 hoodPtr0 += inInc0;
                 maskPtr0 += maskInc0;
-                }
+              }
               hoodPtr1 += inInc1;
               maskPtr1 += maskInc1;
-              }
+            }
             hoodPtr2 += inInc2;
             maskPtr2 += maskInc2;
-            }
+          }
           *outPtr0 = sum / static_cast<float>(icount);
 
           inPtr0 += inInc0;
           outPtr0 += outInc0;
-          }
+        }
         inPtr1 += inInc1;
         outPtr1 += outInc1;
-        }
+      }
       inPtr2 += inInc2;
       outPtr2 += outInc2;
-      }
+    }
     ++inPtr;
     ++outPtr;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -301,22 +301,22 @@ void vtkImageVariance3D::ThreadedRequestData(
   // Error checking on mask
   mask = this->Ellipse->GetOutput();
   if (mask->GetScalarType() != VTK_UNSIGNED_CHAR)
-    {
+  {
     vtkErrorMacro(<< "Execute: mask has wrong scalar type");
     return;
-    }
+  }
 
   // this filter expects the output to be float
   if (outData[0]->GetScalarType() != VTK_FLOAT)
-    {
+  {
     vtkErrorMacro(<< "Execute: output ScalarType, "
       << vtkImageScalarTypeNameMacro(outData[0]->GetScalarType())
       << " must be float");
     return;
-    }
+  }
 
   switch (inData[0][0]->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageVariance3DExecute(this, mask, inData[0][0],
                                 static_cast<VTK_TT *>(inPtr), outData[0],
@@ -325,7 +325,7 @@ void vtkImageVariance3D::ThreadedRequestData(
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

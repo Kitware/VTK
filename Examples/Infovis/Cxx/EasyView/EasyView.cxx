@@ -8,6 +8,7 @@
 #include "ui_EasyView.h"
 #include "EasyView.h"
 
+// VTK includes
 #include <vtkAnnotationLink.h>
 #include <vtkDataObjectToTable.h>
 #include <vtkDataRepresentation.h>
@@ -24,8 +25,7 @@
 #include <vtkViewUpdater.h>
 #include <vtkXMLTreeReader.h>
 
-
-
+// Qt includes
 #include <QDir>
 #include <QFileDialog>
 #include <QTreeView>
@@ -125,10 +125,10 @@ void EasyView::slotOpenXMLFile()
     "XML Files (*.xml);;All Files (*.*)");
 
   if (fileName.isNull())
-    {
+  {
     cerr << "Could not open file" << endl;
     return;
-    }
+  }
 
   // Create XML reader
   this->XMLReader->SetFileName( fileName.toLatin1() );

@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTestDataArray - An implementation of vtkGenericDataArray for testing
-// fallback algorithms.
-//
-// .SECTION Description
-// vtkTestDataArray is derived from vtkGenericDataArray, and is deliberately
-// omitted from VTK's whitelist of dispatchable data arrays. It is used to test
-// the fallback mechanisms of algorithms in the case that array dispatch fails.
-//
-// .SECTION See Also
-// vtkGenericDataArray
+/**
+ * @class   vtkTestDataArray
+ * @brief   An implementation of vtkGenericDataArray for testing
+ * fallback algorithms.
+ *
+ *
+ * vtkTestDataArray is derived from vtkGenericDataArray, and is deliberately
+ * omitted from VTK's whitelist of dispatchable data arrays. It is used to test
+ * the fallback mechanisms of algorithms in the case that array dispatch fails.
+ *
+ * @sa
+ * vtkGenericDataArray
+*/
 
 #ifndef vtkTestDataArray_h
 #define vtkTestDataArray_h
@@ -47,7 +50,7 @@ public:
   static vtkTestDataArray<ArrayType>* New()
   { VTK_STANDARD_NEW_BODY(vtkTestDataArray<ArrayType>); }
 
-  virtual void PrintSelf(ostream &os, vtkIndent indent)
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE
   { GenericDataArrayType::PrintSelf(os,indent); }
 
   ValueType GetValue(vtkIdType valueIdx) const
@@ -80,9 +83,8 @@ protected:
 private:
   ArrayType* Array;
 
-  // Not implemented.
-  vtkTestDataArray(const vtkTestDataArray &); // Not implemented.
-  void operator=(const vtkTestDataArray &); // Not implemented.
+  vtkTestDataArray(const vtkTestDataArray &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTestDataArray &) VTK_DELETE_FUNCTION;
 };
 
 #endif

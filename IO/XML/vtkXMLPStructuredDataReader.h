@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPStructuredDataReader - Superclass for parallel structured data XML readers.
-// .SECTION Description
-// vtkXMLPStructuredDataReader provides functionality common to all
-// parallel structured data format readers.
-
-// .SECTION See Also
-// vtkXMLPImageDataReader vtkXMLPStructuredGridReader
-// vtkXMLPRectilinearGridReader
+/**
+ * @class   vtkXMLPStructuredDataReader
+ * @brief   Superclass for parallel structured data XML readers.
+ *
+ * vtkXMLPStructuredDataReader provides functionality common to all
+ * parallel structured data format readers.
+ *
+ * @sa
+ * vtkXMLPImageDataReader vtkXMLPStructuredGridReader
+ * vtkXMLPRectilinearGridReader
+*/
 
 #ifndef vtkXMLPStructuredDataReader_h
 #define vtkXMLPStructuredDataReader_h
@@ -94,8 +97,8 @@ protected:
                                  vtkInformationVector *outputVector);
 
 private:
-  vtkXMLPStructuredDataReader(const vtkXMLPStructuredDataReader&);  // Not implemented.
-  void operator=(const vtkXMLPStructuredDataReader&);  // Not implemented.
+  vtkXMLPStructuredDataReader(const vtkXMLPStructuredDataReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLPStructuredDataReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

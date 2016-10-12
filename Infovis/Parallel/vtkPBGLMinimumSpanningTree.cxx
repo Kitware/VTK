@@ -101,54 +101,54 @@ int vtkPBGLMinimumSpanningTree::RequestData(
 
   vtkDistributedGraphHelper *helper = output->GetDistributedGraphHelper();
   if (!helper)
-    {
+  {
     vtkErrorMacro("Distributed vtkGraph is required.");
     return 1;
-    }
+  }
 
   // We can only deal with Parallel BGL-distributed graphs.
   vtkPBGLDistributedGraphHelper *pbglHelper
     = vtkPBGLDistributedGraphHelper::SafeDownCast(helper);
   if (!pbglHelper)
-    {
+  {
     vtkErrorMacro("Can only perform parallel breadth-first-search on a Parallel BGL distributed graph");
     return 1;
-    }
+  }
 
   // Retrieve the edge-weight array.
   if (!this->EdgeWeightArrayName)
-    {
+  {
     vtkErrorMacro("Edge-weight array name is required");
     return 1;
-    }
+  }
   vtkAbstractArray* abstractEdgeWeightArray
     = input->GetEdgeData()->GetAbstractArray(this->EdgeWeightArrayName);
 
   // Does the edge-weight array exist at all?
   if (abstractEdgeWeightArray == NULL)
-    {
+  {
     vtkErrorMacro("Could not find edge-weight array named "
                   << this->EdgeWeightArrayName);
     return 1;
-    }
+  }
 
   // Does the edge-weight array have enough values in it?
   if (abstractEdgeWeightArray->GetNumberOfTuples() < output->GetNumberOfEdges())
-    {
+  {
     vtkErrorMacro("Edge-weight array named " << this->EdgeWeightArrayName
                   << " has too few values in it.");
     return 1;
-    }
+  }
 
   bool edgeWeightArrayIsTemporary = false;
   vtkDoubleArray *edgeWeightArray
     = vtkArrayDownCast<vtkDoubleArray>(abstractEdgeWeightArray);
   if (edgeWeightArray == 0)
-    {
+  {
     // Edge-weight array does not contain "double" values. We will
     // need to build a temporary array, or fail.
       if (abstractEdgeWeightArray->IsNumeric())
-        {
+      {
         // Allocate a new edge-weight array.
         edgeWeightArray = vtkDoubleArray::New();
         edgeWeightArray->SetNumberOfTuples(output->GetNumberOfEdges());
@@ -156,22 +156,22 @@ int vtkPBGLMinimumSpanningTree::RequestData(
 
         // Convert the values in the given array into doubles.
         for (vtkIdType i = 0; i < output->GetNumberOfEdges(); ++i)
-          {
+        {
           vtkVariant value = abstractEdgeWeightArray->GetVariantValue(i);
           edgeWeightArray->SetTuple1(i, value.ToDouble());
-          }
         }
+      }
       else
-        {
+      {
         vtkErrorMacro("Edge-weight array named " << this->EdgeWeightArrayName
                       << " does not contain numeric values.")
         return 1;
-        }
-    }
+      }
+  }
 
   // Execute the algorithm
   if (vtkUndirectedGraph::SafeDownCast(output))
-    {
+  {
     vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(output);
 
     // Distributed edge-weight map
@@ -202,7 +202,7 @@ int vtkPBGLMinimumSpanningTree::RequestData(
 
     // Select the minimum spanning tree edges.
     if (!strcmp(OutputSelectionType,"MINIMUM_SPANNING_TREE_EDGES"))
-      {
+    {
       vtkSelection* sel = vtkSelection::GetData(outputVector, 1);
       vtkSmartPointer<vtkIdTypeArray> ids =
         vtkSmartPointer<vtkIdTypeArray>::New();
@@ -212,9 +212,9 @@ int vtkPBGLMinimumSpanningTree::RequestData(
       // Add the ids of each MST edge.
       for (std::vector<vtkEdgeType>::iterator i = mstEdges.begin();
            i != mstEdges.end(); ++i)
-        {
+      {
         ids->InsertNextValue(i->Id);
-        }
+      }
 
       node->SetSelectionList(ids);
       node->GetProperties()->Set(vtkSelectionNode::CONTENT_TYPE(),
@@ -222,13 +222,13 @@ int vtkPBGLMinimumSpanningTree::RequestData(
       node->GetProperties()->Set(vtkSelectionNode::FIELD_TYPE(),
                                  vtkSelectionNode::EDGE);
       sel->AddNode(node);
-      }
     }
+  }
   else
-    {
+  {
     vtkErrorMacro("Minimum spanning tree can only be computed on an undirected vtkGraph");
     return 1;
-    }
+  }
 
   return 1;
 }
@@ -251,9 +251,9 @@ int vtkPBGLMinimumSpanningTree::FillInputPortInformation(
 {
   // now add our info
   if (port == 0)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
-    }
+  }
   return 1;
 }
 
@@ -263,13 +263,13 @@ int vtkPBGLMinimumSpanningTree::FillOutputPortInformation(
 {
   // now add our info
   if (port == 0)
-    {
+  {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkGraph");
-    }
+  }
   else if (port == 1)
-    {
+  {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkSelection");
-    }
+  }
   return 1;
 }
 

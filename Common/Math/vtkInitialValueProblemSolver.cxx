@@ -39,19 +39,19 @@ vtkInitialValueProblemSolver::~vtkInitialValueProblemSolver()
 void vtkInitialValueProblemSolver::SetFunctionSet(vtkFunctionSet* fset)
 {
   if (this->FunctionSet != fset)
-    {
+  {
     if (this->FunctionSet != 0) { this->FunctionSet->UnRegister(this); }
     if (fset != 0 && (fset->GetNumberOfFunctions() !=
                       fset->GetNumberOfIndependentVariables() - 1))
-      {
+    {
       vtkErrorMacro("Invalid function set!");
       this->FunctionSet = 0;
       return;
-      }
+    }
     this->FunctionSet = fset;
     if (this->FunctionSet != 0) { this->FunctionSet->Register(this); }
     this->Modified();
-    }
+  }
   this->Initialize();
 }
 
@@ -66,12 +66,14 @@ void vtkInitialValueProblemSolver::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkInitialValueProblemSolver::Initialize()
 {
-  if (!this->FunctionSet || this->Initialized)
-    {
+  if (!this->FunctionSet)
+  {
     return;
-    }
+  }
+  delete[] this->Vals;
   this->Vals =
     new double[this->FunctionSet->GetNumberOfIndependentVariables()];
+  delete[] this->Derivs;
   this->Derivs =
     new double[this->FunctionSet->GetNumberOfFunctions()];
   this->Initialized = 1;

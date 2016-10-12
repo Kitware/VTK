@@ -250,9 +250,9 @@ void vtkSliderRepresentation3D::SetTitleText(const char* label)
 {
   this->TitleText->SetText(label);
   if ( this->TitleText->GetMTime() > this->GetMTime() )
-    {
+  {
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -274,37 +274,37 @@ void vtkSliderRepresentation3D::StartWidgetInteraction(double eventPos[2])
                                                  this->Picker);
 
   if ( path != NULL )
-    {
+  {
     vtkActor *prop = static_cast<vtkActor*>(path->GetLastNode()->GetViewProp());
 
     if ( prop == this->SliderActor )
-      {
+    {
       this->InteractionState = vtkSliderRepresentation::Slider;
       this->PickedT = this->CurrentT;
-      }
+    }
     else
-      {
+    {
       if ( prop == this->TubeActor )
-        {
+      {
         this->InteractionState = vtkSliderRepresentation::Tube;
         this->PickedT = this->ComputePickPosition(eventPos);
-        }
+      }
       else if ( prop == this->LeftCapActor )
-        {
+      {
         this->InteractionState = vtkSliderRepresentation::LeftCap;
         this->PickedT = 0.0;
-        }
+      }
       else if ( prop == this->RightCapActor )
-        {
+      {
         this->InteractionState = vtkSliderRepresentation::RightCap;
         this->PickedT = 1.0;
-        }
       }
     }
+  }
   else
-    {
+  {
     this->InteractionState = vtkSliderRepresentation::Outside;
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -333,9 +333,9 @@ void vtkSliderRepresentation3D::PlaceWidget(double bds[6])
   this->PlaceFactor = placeFactor;
 
   for (i=0; i<6; i++)
-    {
+  {
     this->InitialBounds[i] = bounds[i];
-    }
+  }
   this->InitialLength = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
                              (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
                              (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
@@ -347,15 +347,15 @@ void vtkSliderRepresentation3D::PlaceWidget(double bds[6])
   // intersect the bounding box.
   double *p1, *p2, r[3], o[3], t, placedP1[3], placedP2[3];
   if ( this->Renderer )
-    {
+  {
     p1 = this->Point1Coordinate->GetComputedWorldValue(this->Renderer);
     p2 = this->Point2Coordinate->GetComputedWorldValue(this->Renderer);
-    }
+  }
   else
-    {
+  {
     p1 = this->Point1Coordinate->GetValue();
     p2 = this->Point2Coordinate->GetValue();
-    }
+  }
 
   // Okay, this looks really weird, we are shooting rays from OUTSIDE
   // the bounding box back towards it. This is because the IntersectBox()
@@ -392,9 +392,9 @@ double vtkSliderRepresentation3D::ComputePickPosition(double eventPos[2])
   // widget coordinates. This requires a camera.
   vtkCamera *camera = this->Renderer->GetActiveCamera();
   if ( !camera )
-    {
+  {
     return 0.0;
-    }
+  }
 
   // The pick ray is defined by the camera position and the (X,Y)
   // pick position in the renderer. The depth of the (X,Y) pick is
@@ -421,23 +421,23 @@ double vtkSliderRepresentation3D::ComputePickPosition(double eventPos[2])
 void vtkSliderRepresentation3D::Highlight(int highlight)
 {
   if ( highlight )
-    {
+  {
     this->SliderActor->SetProperty(this->SelectedProperty);
-    }
+  }
   else
-    {
+  {
     this->SliderActor->SetProperty(this->SliderProperty);
-    }
+  }
 }
 
 
 //----------------------------------------------------------------------
 // Description:
 // Override GetMTime to include point coordinates
-unsigned long vtkSliderRepresentation3D::GetMTime()
+vtkMTimeType vtkSliderRepresentation3D::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
-  unsigned long p1Time, p2Time;
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  vtkMTimeType p1Time, p2Time;
 
   p1Time = this->Point1Coordinate->GetMTime();
   mTime = ( p1Time > mTime ? p1Time : mTime );
@@ -453,7 +453,7 @@ void vtkSliderRepresentation3D::BuildRepresentation()
   if ( this->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
-    {
+  {
     double sx, sy;
     double t = (this->Value-this->MinimumValue) / (this->MaximumValue-this->MinimumValue);
 
@@ -470,19 +470,19 @@ void vtkSliderRepresentation3D::BuildRepresentation()
     double *p2 = this->Point2Coordinate->GetComputedWorldValue(this->Renderer);
     this->Length = sqrt (vtkMath::Distance2BetweenPoints(p1,p2));
     if ( this->Length <= 0.0 )
-      {
+    {
       this->Length = 1.0;
-      }
+    }
 
     // Update the canonical shape of the widget
     if ( this->SliderShape == vtkSliderRepresentation3D::SphereShape )
-      {
+    {
       this->SliderMapper->SetInputConnection(this->SliderSource->GetOutputPort());
-      }
+    }
     else
-      {
+    {
       this->SliderMapper->SetInputConnection(this->Cylinder->GetOutputPort());
-      }
+    }
 
     this->TubeActor->SetScale(this->TubeWidth, 1.0-(2.0*this->EndCapLength), this->TubeWidth);
     this->LeftCapActor->SetPosition(-0.5+(this->EndCapLength/2.0),0,0);
@@ -490,15 +490,15 @@ void vtkSliderRepresentation3D::BuildRepresentation()
     this->RightCapActor->SetPosition(0.5-(this->EndCapLength/2.0),0,0);
     this->RightCapActor->SetScale(this->EndCapWidth, this->EndCapLength, this->EndCapWidth);
     if ( this->EndCapLength <= 0.0 )
-      {
+    {
       this->RightCapActor->VisibilityOff();
       this->LeftCapActor->VisibilityOff();
-      }
+    }
     else
-      {
+    {
       this->RightCapActor->VisibilityOn();
       this->LeftCapActor->VisibilityOn();
-      }
+    }
 
     // Position the slider (sphere)
     //
@@ -514,11 +514,11 @@ void vtkSliderRepresentation3D::BuildRepresentation()
     // Place the title
     if ( this->TitleText->GetText() == NULL ||
          *(this->TitleText->GetText()) == '\0' )
-      {
+    {
       this->TitleActor->VisibilityOff();
-      }
+    }
     else
-      {
+    {
       double bounds[6];
       this->TitleActor->VisibilityOn();
       this->TitleText->Update();
@@ -543,15 +543,15 @@ void vtkSliderRepresentation3D::BuildRepresentation()
       this->TitleActor->SetOrigin(c1[0], c1[1], c1[2]);
       this->TitleActor->SetScale(sx,sy,1.0);
       this->TitleActor->SetPosition(c2[0]-c1[0], c2[1]-c1[1], c2[2]-c1[2]);
-      }
+    }
 
     // Place the slider label
     if ( ! this->ShowSliderLabel )
-      {
+    {
       this->LabelActor->VisibilityOff();
-      }
+    }
     else
-      {
+    {
       char label[256];
       sprintf(label, this->LabelFormat, this->Value);
       double bounds[6];
@@ -580,7 +580,7 @@ void vtkSliderRepresentation3D::BuildRepresentation()
       this->LabelActor->SetOrigin(c1[0], c1[1], c1[2]);
       this->LabelActor->SetScale(sx,sy,1.0);
       this->LabelActor->SetPosition(c2[0]-c1[0], c2[1]-c1[1], c2[2]-c1[2]);
-      }
+    }
 
     // Compute the rotation of the widget. Note that the widget as constructed
     // is oriented in the x-direction. Here we rotate the whole assembly.
@@ -595,14 +595,14 @@ void vtkSliderRepresentation3D::BuildRepresentation()
     vtkMath::Cross(v,x,axis);
     double theta, axisLen = vtkMath::Norm(axis);
     if ( axisLen != 0.0 )
-      {
+    {
       theta = vtkMath::DegreesFromRadians( asin( axisLen ) );
-      }
+    }
     else
-      {
+    {
       theta = 0.0;
       axis[0] = 0.0; axis[1] = 1.0; axis[2] = 0.0;
-      }
+    }
     this->WidgetAssembly->SetOrientation(0.0,0.0,0.0);
     this->WidgetAssembly->RotateX(this->Rotation);
     this->WidgetAssembly->RotateWXYZ(theta,axis[0],axis[1],axis[2]);
@@ -620,7 +620,7 @@ void vtkSliderRepresentation3D::BuildRepresentation()
     this->Transform->Inverse();
 
     this->BuildTime.Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -701,61 +701,61 @@ void vtkSliderRepresentation3D::PrintSelf(ostream& os, vtkIndent indent)
   this->Point2Coordinate->PrintSelf(os, indent.GetNextIndent());
 
   if ( this->SliderProperty )
-    {
+  {
     os << indent << "Slider Property:\n";
     this->SliderProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Slider Property: (none)\n";
-    }
+  }
 
   if ( this->SelectedProperty )
-    {
+  {
     os << indent << "SelectedProperty:\n";
     this->SelectedProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "SelectedProperty: (none)\n";
-    }
+  }
 
   if ( this->TubeProperty )
-    {
+  {
     os << indent << "TubeProperty:\n";
     this->TubeProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "TubeProperty: (none)\n";
-    }
+  }
 
   if ( this->CapProperty )
-    {
+  {
     os << indent << "CapProperty:\n";
     this->CapProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "CapProperty: (none)\n";
-    }
+  }
 
   if ( this->SelectedProperty )
-    {
+  {
     os << indent << "SelectedProperty:\n";
     this->SelectedProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "SelectedProperty: (none)\n";
-    }
+  }
 
   if ( this->SliderShape == vtkSliderRepresentation3D::SphereShape )
-    {
+  {
     os << indent << "Slider Shape: Sphere\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Slider Shape: Cylinder\n";
-    }
+  }
 }

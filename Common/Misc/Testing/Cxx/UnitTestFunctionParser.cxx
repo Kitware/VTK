@@ -28,7 +28,7 @@
 
 #define SCALAR_FUNC(proc,function,math) \
   static int proc(double low, double hi)          \
-{ \
+  { \
   std::cout << "Testing " << #function << "...";\
   vtkSmartPointer<vtkFunctionParser> parser = \
     vtkSmartPointer<vtkFunctionParser>::New(); \
@@ -37,7 +37,7 @@
   parser->SetFunction(_fun.c_str());    \
  \
   for (unsigned int i = 0; i < 1000; ++i) \
-    { \
+  { \
     double value = vtkMath::Random(low, hi); \
     parser->SetScalarVariableValue("x", value); \
     double result = parser->GetScalarResult(); \
@@ -45,7 +45,7 @@
     if (!vtkMathUtilities::FuzzyCompare( \
           result, expected, \
           std::numeric_limits<double>::epsilon() * 1.0)) \
-      { \
+    { \
       std::cout << "\n";                                       \
       std::cout << #function " Expected " << expected \
                 << " but got " << result \
@@ -53,29 +53,29 @@
       std::cout << "eps ratio is: " << (result - expected) \
         / std::numeric_limits<double>::epsilon() << std::endl; \
       return EXIT_FAILURE; \
-      } \
-    }  \
+    } \
+  }  \
  \
   std::cout << "PASSED\n"; \
   return EXIT_SUCCESS; \
-}
+  }
 #define CHECK_ERROR_MSG(msg) \
   { \
   std::string expectedMsg(msg); \
   if (!errorObserver->GetError()) \
-    { \
+  { \
     std::cout << "Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
     status++; \
-    } \
+  } \
   else \
-    { \
+  { \
     std::string gotMsg(errorObserver->GetErrorMessage()); \
     if (gotMsg.find(expectedMsg) == std::string::npos) \
-      { \
+    { \
       std::cout << "Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
       status++; \
-      } \
     } \
+  } \
   } \
   errorObserver->Clear()
 
@@ -137,9 +137,9 @@ int UnitTestFunctionParser(int,char *[])
   status += TestMiscFunctions();
   status += TestErrors();
   if (status != 0)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   // Test printing of an uninitialized parser
   std::ostringstream functionPrint;
@@ -165,17 +165,17 @@ int TestUnaryOperations()
   parser->SetScalarVariableValue("x", 1.0);
   parser->SetScalarVariableValue("y", 2.0);
   for (unsigned i=0;i<4;i++)
-    {
+  {
     parser->SetFunction(&formula[i][0]);
     double result = parser->GetScalarResult();
     if (!vtkMathUtilities::FuzzyCompare(
           result, expected[i],
           std::numeric_limits<double>::epsilon() * 1.0))
-      {
+    {
       std::cout << "FAILED\n";
       return 1;
-      }
     }
+  }
 
   parser->SetScalarVariableValue("x", 3);
   parser->SetScalarVariableValue("y", 2);
@@ -183,18 +183,18 @@ int TestUnaryOperations()
   int result = parser->GetScalarResult();
   std::cout<<"result: "<<result<<std::endl;
   if (result != 9)
-    {
+  {
     std::cout << "FAILED\n";
     return 1;
-    }
+  }
 
   parser->SetFunction("(-x)");
   result = parser->GetScalarResult();
   if (result != -3)
-    {
+  {
     std::cout << "FAILED\n";
     return 1;
-    }
+  }
 
   std::cout << "PASSED\n";
   return 0;
@@ -210,15 +210,15 @@ int TestScalars()
   parser->SetFunction( "+(x-y)/(x-y) * -(x-y)/(x-y) + (x - x)");
   double result = parser->GetScalarResult();
   if (result != -1.0)
-    {
+  {
     std::cout << "FAILED\n";
     return 1;
-    }
+  }
   else
-    {
+  {
     std::cout << "PASSED\n";
     return 0;
-    }
+  }
 }
 
 int TestScientificNotation()
@@ -232,19 +232,19 @@ int TestScientificNotation()
   if (!vtkMathUtilities::FuzzyCompare(
         result, expected,
         std::numeric_limits<double>::epsilon() * 1.0))
-    {
+  {
     std::cout << " Scientific notation expected " << expected
               << " but got " << result;
     std::cout << "eps ratio is: " << (result - expected)
       / std::numeric_limits<double>::epsilon() << std::endl;
     std::cout << "FAILED\n";
     return 1;
-    }
+  }
   else
-    {
+  {
     std::cout << "PASSED\n";
     return 0;
-    }
+  }
 }
 
 int TestVectors()
@@ -261,7 +261,7 @@ int TestVectors()
 
   // Cross
   for (unsigned int i = 0; i < 10; ++i)
-    {
+  {
     double x0 = vtkMath::Random(-1.0, 1.0);
     double x1 = vtkMath::Random(-1.0, 1.0);
     double x2 = vtkMath::Random(-1.0, 1.0);
@@ -291,32 +291,32 @@ int TestVectors()
 
     // a x b = -b x a
     for (int j = 0; j < 3; ++j)
-      {
+    {
       if (!vtkMathUtilities::FuzzyCompare(
             axb[j], minusBxa[j],
             std::numeric_limits<double>::epsilon() * 1.0))
-        {
+      {
         std::cout << " Cross expected " << minusBxa[j]
                   << " but got " << axb[j];
         std::cout << "eps ratio is: " << (axb[j] - minusBxa[j])
           / std::numeric_limits<double>::epsilon() << std::endl;
         ++status1;
-        }
       }
     }
+  }
   if (status1 == 0)
-    {
+  {
     std::cout << "PASSED\n";
-    }
+  }
   else
-    {
+  {
     std::cout << "FAILED\n";
-    }
+  }
 
   // Add / Subtract / Multiply / Unary / Dot / Mag / Norm
   std::cout << "Testing Add / Subtract / Multiply / Unary / Dot" << "...";
   for (unsigned int i = 0; i < 10; ++i)
-    {
+  {
     double x0 = vtkMath::Random(-1.0, 1.0);
     double x1 = vtkMath::Random(-1.0, 1.0);
     double x2 = vtkMath::Random(-1.0, 1.0);
@@ -345,18 +345,18 @@ int TestVectors()
 
     // 2.0 * ((x + y - (x + y)) / 2.0 = x * 0.0
     for (int j = 0; j < 3; ++j)
-      {
+    {
       if (!vtkMathUtilities::FuzzyCompare(
             a[j], b[j],
             std::numeric_limits<double>::epsilon() * 1.0))
-        {
+      {
         std::cout << " Cross expected " << a[j]
                   << " but got " << b[j];
         std::cout << "eps ratio is: " << (a[j] - b[j])
           / std::numeric_limits<double>::epsilon() << std::endl;
         ++status2;
-        }
       }
+    }
     // Test Dot / Mag / Norm
     // a x b dot a = 0
     parser->SetFunction("cross(x, y).x");
@@ -364,13 +364,13 @@ int TestVectors()
     if (!vtkMathUtilities::FuzzyCompare(
           dot, 0.0,
           std::numeric_limits<double>::epsilon() * 1.0))
-      {
+    {
       std::cout << " Dot " << 0.0
                 << " but got " << dot;
       std::cout << "eps ratio is: " << (dot - 0.0)
         / std::numeric_limits<double>::epsilon() << std::endl;
       ++status3;
-      }
+    }
 
     // Test Mag and Norm
     // max(norm(x) == 1
@@ -379,14 +379,14 @@ int TestVectors()
     if (!vtkMathUtilities::FuzzyCompare(
           mag, 1.0,
           std::numeric_limits<double>::epsilon() * 2.0))
-      {
+    {
       std::cout << " Mag expected" << 1.0
                 << " but got " << mag;
       std::cout << " eps ratio is: " << (mag - 1.0)
         / std::numeric_limits<double>::epsilon() << std::endl;
       ++status4;
-      }
     }
+  }
 
   // x *iHat + y * jHat + z * zHat
   parser->SetScalarVariableValue("x", 1.0);
@@ -397,7 +397,7 @@ int TestVectors()
   if (xyz[0] != 1.0 ||
       xyz[1] != 2.0 ||
       xyz[2] != 3.0)
-    {
+  {
     std::cout << "x*iHat + y*jHat + z*kHat expected "
               << "(" << 1.0
               << "," << 2.0
@@ -406,7 +406,7 @@ int TestVectors()
               << "," << xyz[1]
               << "," << xyz[2] << ")" << std::endl;
     ++status5;
-    }
+  }
 
   // Test printing of an initialized parser
   std::ostringstream parserPrint;
@@ -416,26 +416,26 @@ int TestVectors()
   parser->RemoveAllVariables();
   if (parser->GetNumberOfScalarVariables() != 0 ||
       parser->GetNumberOfVectorVariables() != 0)
-    {
+  {
     std::cout << "RemoveAllVariables failed" << std::endl;
     ++status1;
-    }
+  }
 
   // Invalidate function should change the function's mtime
-  unsigned long int before = parser->GetMTime();
+  vtkMTimeType before = parser->GetMTime();
   parser->InvalidateFunction();
-  unsigned long int after = parser->GetMTime();
+  vtkMTimeType after = parser->GetMTime();
 
   if (before >= after)
-    {
+  {
     std::cout << "InvalidateFunction() failed. MTime should have been modified" << std::endl;
     ++status5;
-    }
+  }
 
   if (status1 + status2 + status3 + status4 + status5 == 0)
-    {
+  {
     std::cout << "PASSED\n";
-    }
+  }
   return status1 + status2 + status3 + status4 + status5;
 }
 
@@ -449,7 +449,7 @@ int TestMinMax()
 
   int status = 0;
   for (unsigned int i = 0; i < 1000; ++i)
-    {
+  {
     double value = vtkMath::Random(-1000.0, 1000.0);
     parser->SetScalarVariableValue("x", value);
     parser->SetScalarVariableValue("y", -value);
@@ -459,7 +459,7 @@ int TestMinMax()
     if (!vtkMathUtilities::FuzzyCompare(
           result, expected,
           std::numeric_limits<double>::epsilon() * 1.0))
-      {
+    {
       std::cout << "\n";
       std::cout << "Min Expected " << expected
                 << " but got " << result
@@ -467,13 +467,13 @@ int TestMinMax()
       std::cout << "eps ratio is: " << (result - expected)
         / std::numeric_limits<double>::epsilon() << std::endl;
       status++;
-      }
     }
+  }
 
   parser->SetFunction("max(x,y)");
 
   for (unsigned int i = 0; i < 1000; ++i)
-    {
+  {
     double value = vtkMath::Random(-1000.0, 1000.0);
     parser->SetScalarVariableValue("x", value);
     parser->SetScalarVariableValue("y", -value);
@@ -483,7 +483,7 @@ int TestMinMax()
     if (!vtkMathUtilities::FuzzyCompare(
           result, expected,
           std::numeric_limits<double>::epsilon() * 1.0))
-      {
+    {
       std::cout << "\n";
       std::cout << "Max Expected " << expected
                 << " but got " << result
@@ -491,13 +491,13 @@ int TestMinMax()
       std::cout << "eps ratio is: " << (result - expected)
         / std::numeric_limits<double>::epsilon() << std::endl;
       status++;
-      }
     }
+  }
 
   if (status== 0)
-    {
+  {
     std::cout << "PASSED\n";
-    }
+  }
   return status;
 }
 
@@ -511,7 +511,7 @@ int TestScalarLogic()
 
   parser->SetFunction("if(x < y, x, y)");
   for (unsigned int i = 0; i < 1000; ++i)
-    {
+  {
     double x = vtkMath::Random(-1000.0, 1000.0);
     double y = vtkMath::Random(-1000.0, 1000.0);
     parser->SetScalarVariableValue("x", x);
@@ -520,16 +520,16 @@ int TestScalarLogic()
     double result = parser->GetScalarResult();
     double expected = x < y ? x : y;
     if (result != expected)
-      {
+    {
       std::cout << "\n";
       std::cout << x << " < " << y << " Expected " << expected << " but got " << result << std::endl;
       status++;
-      }
     }
+  }
 
   parser->SetFunction("if(x > y, x, y)");
   for (unsigned int i = 0; i < 1000; ++i)
-    {
+  {
     double x = vtkMath::Random(-1000.0, 1000.0);
     double y = vtkMath::Random(-1000.0, 1000.0);
     parser->SetScalarVariableValue("x", x);
@@ -538,16 +538,16 @@ int TestScalarLogic()
     double result = parser->GetScalarResult();
     double expected = x > y ? x : y;
     if (result != expected)
-      {
+    {
       std::cout << "\n";
       std::cout << x << " > " << y << " Expected " << expected << " but got " << result << std::endl;
       status++;
-      }
     }
+  }
 
   parser->SetFunction("if(x = y, x, 0.0)");
   for (unsigned int i = 0; i < 1000; ++i)
-    {
+  {
     double x = vtkMath::Random(-1000.0, 1000.0);
     double y = x;
     parser->SetScalarVariableValue("x", x);
@@ -556,12 +556,12 @@ int TestScalarLogic()
     double result = parser->GetScalarResult();
     double expected = x == y ? x : 0.0;
     if (result != expected)
-      {
+    {
       std::cout << "\n";
       std::cout << x << " == " << y << " Expected " << expected << " but got " << result << std::endl;
       status++;
-      }
     }
+  }
 
   double ii[] = {0.0, 0.0, 1.0, 1.0};
   double jj[] = {0.0, 1.0, 0.0, 1.0};
@@ -570,44 +570,44 @@ int TestScalarLogic()
 
   parser->SetFunction("i | j");
   for (int i = 0; i < 3; ++i)
-    {
+  {
     parser->SetScalarVariableValue("i", ii[i]);
     parser->SetScalarVariableValue("j", jj[i]);
     double result = parser->GetScalarResult();
     if (result != expectedOr[i])
-      {
+    {
       std::cout << "i | j expected "
                 << expectedOr[i]
                 << " but got "
                 << result << std::endl;
       ++status;
-      }
     }
+  }
 
   parser->SetFunction("i & j");
   for (int i = 0; i < 3; ++i)
-    {
+  {
     parser->SetScalarVariableValue("i", ii[i]);
     parser->SetScalarVariableValue("j", jj[i]);
     double result = parser->GetScalarResult();
     if (result != expectedAnd[i])
-      {
+    {
       std::cout << "i | j expected "
                 << expectedAnd[i]
                 << " but got "
                 << result << std::endl;
       ++status;
-      }
     }
+  }
 
   if (status== 0)
-    {
+  {
     std::cout << "PASSED\n";
-    }
+  }
   else
-    {
+  {
     std::cout << "FAILED\n";
-    }
+  }
   return status;
 }
 
@@ -621,7 +621,7 @@ int TestVectorLogic()
 
   parser->SetFunction("if(x < y, v, w)");
   for (unsigned int i = 0; i < 1000; ++i)
-    {
+  {
 
     double x = vtkMath::Random(-1000.0, 1000.0);
     double y = vtkMath::Random(-1000.0, 1000.0);
@@ -640,16 +640,16 @@ int TestVectorLogic()
     double result = parser->GetVectorResult()[0];
     double expected = x < y ? v1 : w1;
     if (result != expected)
-      {
+    {
       std::cout << "\n";
       std::cout << x << " < " << y << " Expected " << expected << " but got " << result << std::endl;
       status++;
-      }
     }
+  }
 
   parser->SetFunction("if(x > y, v, w)");
   for (unsigned int i = 0; i < 1000; ++i)
-    {
+  {
 
     double x = vtkMath::Random(-1000.0, 1000.0);
     double y = vtkMath::Random(-1000.0, 1000.0);
@@ -668,16 +668,16 @@ int TestVectorLogic()
     double result = parser->GetVectorResult()[0];
     double expected = x > y ? v1 : w1;
     if (result != expected)
-      {
+    {
       std::cout << "\n";
       std::cout << x << " > " << y << " Expected " << expected << " but got " << result << std::endl;
       status++;
-      }
     }
+  }
 
   parser->SetFunction("if(x = y, w, v * 0.0)");
   for (unsigned int i = 0; i < 1000; ++i)
-    {
+  {
 
     double x = vtkMath::Random(-1000.0, 1000.0);
     double y = x;
@@ -696,21 +696,21 @@ int TestVectorLogic()
     double result = parser->GetVectorResult()[0];
     double expected = x > y ? v1 : w1;
     if (result != expected)
-      {
+    {
       std::cout << "\n";
       std::cout << x << " == " << y << " Expected " << expected << " but got " << result << std::endl;
       status++;
-      }
     }
+  }
 
   if (status== 0)
-    {
+  {
     std::cout << "PASSED\n";
-    }
+  }
   else
-    {
+  {
     std::cout << "FAILED\n";
-    }
+  }
   return status;
 }
 
@@ -727,31 +727,31 @@ int TestMiscFunctions()
 
   int status = 0;
   for (unsigned int i = 0; i < 3; ++i)
-    {
+  {
     parser->SetScalarVariableValue("x", values[i]);
     double result = parser->GetScalarResult();
     if (result != expecteds[i])
-      {
+    {
       std::cout << "Sign expected " << expecteds[i]
                 << " but got " << result << ". ";
       ++status;
-      }
     }
+  }
 
   if (status== 0)
-    {
+  {
     std::cout << "PASSED\n";
-    }
+  }
   else
-    {
+  {
     ++statusAll;
     std::cout << "FAILED\n";
-    }
+  }
 
   std::cout << "Testing Pow" << "...";
   status = 0;
   for (unsigned int i = 0; i < 1000; ++i)
-    {
+  {
     double x = vtkMath::Random(0.0, 10.0);
     double y = vtkMath::Random(0.0, 2.0);
     parser->SetScalarVariableValue("x", x);
@@ -762,7 +762,7 @@ int TestMiscFunctions()
     if (!vtkMathUtilities::FuzzyCompare(
           result, expected,
           std::numeric_limits<double>::epsilon() * 128.0))
-      {
+    {
       std::cout << "\n";
       std::cout <<  " pow Expected " << expected
                 << " but got " << result
@@ -770,22 +770,22 @@ int TestMiscFunctions()
       std::cout << "eps ratio is: " << (result - expected)
         / std::numeric_limits<double>::epsilon() << std::endl;
       ++status;
-      }
     }
+  }
   if (status== 0)
-    {
+  {
     std::cout << "PASSED\n";
-    }
+  }
   else
-    {
+  {
     ++statusAll;
     std::cout << "FAILED\n";
-    }
+  }
 
   std::cout << "Testing Scalar divide" << "...";
   status = 0;
   for (unsigned int i = 0; i < 1000; ++i)
-    {
+  {
     double x = vtkMath::Random(-10.0, 10.0);
     double y = vtkMath::Random(-10.0, 10.0);
     parser->SetScalarVariableValue("x", x);
@@ -796,7 +796,7 @@ int TestMiscFunctions()
     if (!vtkMathUtilities::FuzzyCompare(
           result, expected,
           std::numeric_limits<double>::epsilon() * 256.0))
-      {
+    {
       std::cout << "\n";
       std::cout <<  " x / y Expected " << expected
                 << " but got " << result
@@ -804,30 +804,30 @@ int TestMiscFunctions()
       std::cout << "eps ratio is: " << (result - expected)
         / std::numeric_limits<double>::epsilon() << std::endl;
       ++status;
-      }
     }
+  }
   if (status== 0)
-    {
+  {
     std::cout << "PASSED\n";
-    }
+  }
   else
-    {
+  {
     ++statusAll;
     std::cout << "FAILED\n";
-    }
+  }
 
   // SetScalarVariableValue
   std::cout << "Testing SetScalarVariableValue...";
   parser->SetScalarVariableValue(parser->GetScalarVariableName(0), 123.456);
   if (parser->GetScalarVariableValue(parser->GetScalarVariableName(0)) != 123.456)
-    {
+  {
     ++statusAll;
     std::cout << "FAILED\n";
-    }
+  }
   else
-    {
+  {
     std::cout << "PASSED\n";
-    }
+  }
   parser->SetScalarVariableValue(0, 123.45);
   parser->GetScalarVariableValue("x");
 
@@ -855,14 +855,14 @@ int TestMiscFunctions()
   parser->SetScalarVariableValue("zero", 0.0);
 
   for (size_t f = 0; f < testFuncs.size(); ++f)
-    {
+  {
     parser->SetFunction(testFuncs[f].c_str());
     if (parser->GetScalarResult() != 1234.5)
-      {
+    {
       std::cout << testFuncs[f] << " failed to return a replacement value when ReplaceInvaliValues was On" << std::endl;
       ++statusAll;
-      }
     }
+  }
   parser->GetScalarResult();
   return statusAll;
 }
@@ -1075,12 +1075,12 @@ int TestErrors()
 #endif
 
   if (status== 0)
-    {
+  {
     std::cout << "PASSED\n";
-    }
+  }
   else
-    {
+  {
     std::cout << "FAILED\n";
-    }
+  }
   return status;
 }

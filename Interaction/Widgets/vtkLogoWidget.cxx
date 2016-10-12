@@ -34,9 +34,9 @@ vtkLogoWidget::~vtkLogoWidget()
 void vtkLogoWidget::CreateDefaultRepresentation()
 {
   if ( ! this->WidgetRep )
-    {
+  {
     this->WidgetRep = vtkLogoRepresentation::New();
-    }
+  }
 }
 
 //-------------------------------------------------------------------------

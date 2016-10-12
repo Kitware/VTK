@@ -38,11 +38,11 @@ vtkRenderWindowInteractor* vtkInteractorStyleSwitchBase::GetInteractor()
   static bool warned = false;
   if (!warned &&
       strcmp(this->GetClassName(), "vtkInteractorStyleSwitchBase") == 0)
-    {
+  {
     vtkWarningMacro(
       "Warning: Link to vtkInteractionStyle for default style selection.");
     warned = true;
-    }
+  }
   return NULL;
 }
 

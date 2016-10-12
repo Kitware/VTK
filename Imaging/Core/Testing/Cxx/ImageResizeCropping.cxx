@@ -81,27 +81,27 @@ int ImageResizeCropping(int argc, char *argv[])
   actor->GetProperty()->SetColor(1.0, 0.0, 0.0);
 
   for (int i = 0; i < 4; i++)
-    {
+  {
     vtkSmartPointer<vtkImageResize> resize =
       vtkSmartPointer<vtkImageResize>::New();
     resize->SetNumberOfThreads(1);
     resize->SetInputConnection(reader->GetOutputPort());
     resize->SetOutputDimensions(256, 256, 1);
     if ((i & 1) == 1)
-      {
+    {
       resize->CroppingOn();
       resize->SetCroppingRegion(cropping[i]);
-      }
+    }
 
     vtkSmartPointer<vtkImageSliceMapper> imageMapper =
       vtkSmartPointer<vtkImageSliceMapper>::New();
     imageMapper->SetInputConnection(resize->GetOutputPort());
 
     if ((i & 2) == 2)
-      {
+    {
       resize->BorderOn();
       imageMapper->BorderOn();
-      }
+    }
 
     vtkSmartPointer<vtkImageSlice> image =
       vtkSmartPointer<vtkImageSlice>::New();
@@ -114,9 +114,9 @@ int ImageResizeCropping(int argc, char *argv[])
       vtkSmartPointer<vtkRenderer>::New();
     renderer->AddViewProp(image);
     if (i == 0)
-      {
+    {
       renderer->AddViewProp(actor);
-      }
+    }
     renderer->SetBackground(0.0,0.0,0.0);
     renderer->SetViewport(0.5*(i&1), 0.25*(i&2),
                           0.5 + 0.5*(i&1), 0.5 + 0.25*(i&2));
@@ -132,7 +132,7 @@ int ImageResizeCropping(int argc, char *argv[])
     camera->ParallelProjectionOn();
     camera->SetParallelScale(100);
 
-    }
+  }
 
   renWin->SetSize(512,512);
 

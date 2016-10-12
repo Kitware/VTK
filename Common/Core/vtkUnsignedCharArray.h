@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkUnsignedCharArray - dynamic, self-adjusting array of unsigned char
-// .SECTION Description
-// vtkUnsignedCharArray is an array of values of type unsigned char.
-// It provides methods for insertion and retrieval of values and will
-// automatically resize itself to hold new data.
+/**
+ * @class   vtkUnsignedCharArray
+ * @brief   dynamic, self-adjusting array of unsigned char
+ *
+ * vtkUnsignedCharArray is an array of values of type unsigned char.
+ * It provides methods for insertion and retrieval of values and will
+ * automatically resize itself to hold new data.
+*/
 
 #ifndef vtkUnsignedCharArray_h
 #define vtkUnsignedCharArray_h
@@ -37,7 +40,7 @@ public:
 #undef vtkDataArray
 #endif
   static vtkUnsignedCharArray* New();
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // This macro expands to the set of method declarations that
   // make up the interface of vtkAOSDataArrayTemplate, which is ignored
@@ -46,31 +49,34 @@ public:
   vtkCreateWrappedArrayInterface(unsigned char);
 #endif
 
-  // Description:
-  // A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+  /**
+   * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+   */
   static vtkUnsignedCharArray* FastDownCast(vtkAbstractArray *source)
   {
     return static_cast<vtkUnsignedCharArray*>(Superclass::FastDownCast(source));
   }
 
-  // Description:
-  // Get the minimum data value in its native type.
+  /**
+   * Get the minimum data value in its native type.
+   */
   static unsigned char GetDataTypeValueMin() { return VTK_UNSIGNED_CHAR_MIN; }
 
-  // Description:
-  // Get the maximum data value in its native type.
+  /**
+   * Get the maximum data value in its native type.
+   */
   static unsigned char GetDataTypeValueMax() { return VTK_UNSIGNED_CHAR_MAX; }
 
 protected:
   vtkUnsignedCharArray();
-  ~vtkUnsignedCharArray();
+  ~vtkUnsignedCharArray() VTK_OVERRIDE;
 
 private:
 
   typedef vtkAOSDataArrayTemplate<unsigned char> RealSuperclass;
 
-  vtkUnsignedCharArray(const vtkUnsignedCharArray&);  // Not implemented.
-  void operator=(const vtkUnsignedCharArray&);  // Not implemented.
+  vtkUnsignedCharArray(const vtkUnsignedCharArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnsignedCharArray&) VTK_DELETE_FUNCTION;
 };
 
 // Define vtkArrayDownCast implementation:

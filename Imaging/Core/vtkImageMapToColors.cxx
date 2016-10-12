@@ -50,25 +50,25 @@ vtkImageMapToColors::vtkImageMapToColors()
 vtkImageMapToColors::~vtkImageMapToColors()
 {
   if (this->LookupTable != NULL)
-    {
+  {
     this->LookupTable->UnRegister(this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkImageMapToColors::GetMTime()
+vtkMTimeType vtkImageMapToColors::GetMTime()
 {
-  unsigned long t1, t2;
+  vtkMTimeType t1, t2;
 
   t1 = this->Superclass::GetMTime();
   if (this->LookupTable)
-    {
+  {
     t2 = this->LookupTable->GetMTime();
     if (t2 > t1)
-      {
+    {
       t1 = t2;
-      }
     }
+  }
   return t1;
 }
 
@@ -88,26 +88,26 @@ int vtkImageMapToColors::RequestData(vtkInformation *request,
 
   // If LookupTable is null, just pass the data
   if (this->LookupTable == NULL)
-    {
+  {
     vtkDebugMacro("RequestData: LookupTable not set, "\
                   "passing input to output.");
 
     outData->SetExtent(inData->GetExtent());
     outData->GetPointData()->PassData(inData->GetPointData());
     this->DataWasPassed = 1;
-    }
+  }
   else // normal behaviour
-    {
+  {
     this->LookupTable->Build(); //make sure table is built
 
     if (this->DataWasPassed)
-      {
+    {
       outData->GetPointData()->SetScalars(NULL);
       this->DataWasPassed = 0;
-      }
+    }
 
     return this->Superclass::RequestData(request, inputVector, outputVector);
-    }
+  }
 
   return 1;
 }
@@ -125,7 +125,7 @@ int vtkImageMapToColors::RequestInformation (
   int numComponents = 4;
 
   switch (this->OutputFormat)
-    {
+  {
     case VTK_RGBA:
       numComponents = 4;
       break;
@@ -141,29 +141,29 @@ int vtkImageMapToColors::RequestInformation (
     default:
       vtkErrorMacro("RequestInformation: Unrecognized color format.");
       break;
-    }
+  }
 
   if (this->LookupTable == NULL)
-    {
+  {
     vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo,
       vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
     if ( scalarInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()) != VTK_UNSIGNED_CHAR )
-      {
+    {
       vtkErrorMacro(
         "RequestInformation: No LookupTable was set but input data is not "
         "VTK_UNSIGNED_CHAR, therefore input can't be passed through!");
       return 1;
-      }
+    }
     else if ( numComponents !=
       scalarInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()) )
-      {
+    {
       vtkErrorMacro(
         "RequestInformation: No LookupTable was set but number of components "
         "in input doesn't match OutputFormat, therefore input can't be passed"
         " through!");
       return 1;
-      }
     }
+  }
 
   vtkDataObject::
     SetPointDataActiveScalarInfo(outInfo, VTK_UNSIGNED_CHAR, numComponents);
@@ -216,9 +216,9 @@ static void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
   inData->GetContinuousIncrements(inArray, outExt, inIncX, inIncY, inIncZ);
   inMaskIncX = inMaskIncY = inMaskIncZ = 0;
   if(maskArray)
-    {
+  {
     inData->GetContinuousIncrements(maskArray, outExt, inMaskIncX, inMaskIncY, inMaskIncZ);
-    }
+  }
   // because we are using void * and char * we must take care
   // of the scalar size in the increments
   inIncY *= scalarSize;
@@ -234,30 +234,30 @@ static void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
   inPtr1 = static_cast<void *>(
     static_cast<char *>(inPtr) + self->GetActiveComponent()*scalarSize);
   for (idxZ = 0; idxZ < extZ; idxZ++)
-    {
+  {
     for (idxY = 0; !self->AbortExecute && idxY < extY; idxY++)
-      {
+    {
       if (!id)
-        {
+      {
         if (!(count%target))
-          {
+        {
           self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
         }
+        count++;
+      }
       lookupTable->MapScalarsThroughTable2(inPtr1,outPtr1,
                                            dataType,extX,numberOfComponents,
                                            outputFormat);
       // Handle NaN color when mask
       if(inMask != NULL)
-        {
+      {
         unsigned char *outPtr2 = outPtr1;
         for(vtkIdType idx = 0; idx < extX; ++idx, outPtr2 += outputFormat)
-          {
+        {
           if(!inMask[idx])
-            {
+          {
             switch(outputFormat)
-              {
+            {
             case 4:
               outPtr2[3] = nanColor[3];
               VTK_FALLTHROUGH;
@@ -269,37 +269,37 @@ static void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
               VTK_FALLTHROUGH;
             case 1:
               outPtr2[0] = nanColor[0];
-              }
             }
           }
         }
+      }
       if (self->GetPassAlphaToOutput() &&
           dataType == VTK_UNSIGNED_CHAR && numberOfComponents > 1 &&
           (outputFormat == VTK_RGBA || outputFormat == VTK_LUMINANCE_ALPHA))
-        {
+      {
         unsigned char *outPtr2 = outPtr1 + numberOfOutputComponents - 1;
         unsigned char *inPtr2 = static_cast<unsigned char *>(inPtr1)
           - self->GetActiveComponent()*scalarSize + numberOfComponents - 1;
         for (int i = 0; i < extX; i++)
-          {
+        {
           *outPtr2 = (*outPtr2 * *inPtr2)/255;
           outPtr2 += numberOfOutputComponents;
           inPtr2 += numberOfComponents;
-          }
         }
+      }
       outPtr1 += outIncY + extX*numberOfOutputComponents;
       inPtr1 = static_cast<void *>(
         static_cast<char *>(inPtr1) + inIncY + rowLength);
 
       // Just move pointer if not NULL
       inMask += inMask ? inMaskIncY + extX : 0;
-      }
+    }
     outPtr1 += outIncZ;
     inPtr1 = static_cast<void *>(static_cast<char *>(inPtr1) + inIncZ);
 
     // Just move pointer if not NULL
     inMask += inMask ? inMaskIncZ : 0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -339,13 +339,13 @@ void vtkImageMapToColors::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PassAlphaToOutput: " << this->PassAlphaToOutput << "\n";
   os << indent << "LookupTable: ";
   if (this->LookupTable)
-    {
+  {
     this->LookupTable->PrintSelf(os << endl,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
 }
 
 

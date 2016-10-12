@@ -17,21 +17,25 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkPExtractHistogram2D - compute a 2D histogram between two columns
-//  of an input vtkTable in parallel.
-//
-// .SECTION Description
-//  This class does exactly the same this as vtkExtractHistogram2D,
-//  but does it in a multi-process environment.  After each node
-//  computes their own local histograms, this class does an AllReduce
-//  that distributes the sum of all local histograms onto each node.
-//
-// .SECTION See Also
-//  vtkExtractHistogram2D
-//
-// .SECTION Thanks
-//  Developed by David Feng and Philippe Pebay at Sandia National Laboratories
-//------------------------------------------------------------------------------
+/**
+ * @class   vtkPExtractHistogram2D
+ * @brief   compute a 2D histogram between two columns
+ *  of an input vtkTable in parallel.
+ *
+ *
+ *  This class does exactly the same this as vtkExtractHistogram2D,
+ *  but does it in a multi-process environment.  After each node
+ *  computes their own local histograms, this class does an AllReduce
+ *  that distributes the sum of all local histograms onto each node.
+ *
+ * @sa
+ *  vtkExtractHistogram2D
+ *
+ * @par Thanks:
+ *  Developed by David Feng and Philippe Pebay at Sandia National Laboratories
+ *------------------------------------------------------------------------------
+*/
+
 #ifndef vtkPExtractHistogram2D_h
 #define vtkPExtractHistogram2D_h
 
@@ -65,8 +69,8 @@ protected:
                       vtkMultiBlockDataSet* outMeta );
 
 private:
-  vtkPExtractHistogram2D(const vtkPExtractHistogram2D&); // Not implemented
-  void operator=(const vtkPExtractHistogram2D&);   // Not implemented
+  vtkPExtractHistogram2D(const vtkPExtractHistogram2D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPExtractHistogram2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

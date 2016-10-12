@@ -40,13 +40,13 @@ vtkInEdgeIterator::vtkInEdgeIterator()
 vtkInEdgeIterator::~vtkInEdgeIterator()
 {
   if (this->Graph)
-    {
+  {
     this->Graph->Delete();
-    }
+  }
   if (this->GraphEdge)
-    {
+  {
     this->GraphEdge->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -61,17 +61,17 @@ void vtkInEdgeIterator::Initialize(vtkGraph *graph, vtkIdType v)
 
 //----------------------------------------------------------------------------
 vtkGraphEdge *vtkInEdgeIterator::NextGraphEdge()
-  {
+{
   vtkInEdgeType e = this->Next();
   if (!this->GraphEdge)
-    {
+  {
     this->GraphEdge = vtkGraphEdge::New();
-    }
+  }
   this->GraphEdge->SetSource(e.Source);
   this->GraphEdge->SetTarget(this->Vertex);
   this->GraphEdge->SetId(e.Id);
   return this->GraphEdge;
-  }
+}
 
 //----------------------------------------------------------------------------
 void vtkInEdgeIterator::PrintSelf(ostream& os, vtkIndent indent)
@@ -79,8 +79,8 @@ void vtkInEdgeIterator::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Graph: " << (this->Graph ? "" : "(null)") << endl;
   if (this->Graph)
-    {
+  {
     this->Graph->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   os << indent << "Vertex: " << this->Vertex << endl;
 }

@@ -1,14 +1,15 @@
 vtk_module(vtkFiltersParallelStatistics
-  DEPENDS
-    vtkCommonMath
-    vtkCommonDataModel
-    vtkCommonSystem
-    vtkalglib
-    vtkFiltersStatistics
-    vtkParallelCore
   TEST_DEPENDS
     vtkParallelMPI
     vtkTestingCore
   KIT
     vtkParallel
+  DEPENDS
+    vtkFiltersStatistics
+    vtkalglib
+  PRIVATE_DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonSystem
+    vtkParallelCore
   )

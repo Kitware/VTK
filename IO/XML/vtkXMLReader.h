@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLReader - Superclass for VTK's XML format readers.
-// .SECTION Description
-// vtkXMLReader uses vtkXMLDataParser to parse a VTK XML input file.
-// Concrete subclasses then traverse the parsed file structure and
-// extract data.
+/**
+ * @class   vtkXMLReader
+ * @brief   Superclass for VTK's XML format readers.
+ *
+ * vtkXMLReader uses vtkXMLDataParser to parse a
+ * <a href="http://www.vtk.org/Wiki/VTK_XML_Formats">VTK XML</a> input file.
+ * Concrete subclasses then traverse the parsed file structure and extract data.
+*/
 
 #ifndef vtkXMLReader_h
 #define vtkXMLReader_h
@@ -43,75 +46,104 @@ public:
   vtkTypeMacro(vtkXMLReader, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get/Set the name of the input file.
+  //@{
+  /**
+   * Get/Set the name of the input file.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Enable reading from an InputString instead of the default, a file.
+  //@{
+  /**
+   * Enable reading from an InputString instead of the default, a file.
+   */
   vtkSetMacro(ReadFromInputString, int);
   vtkGetMacro(ReadFromInputString, int);
   vtkBooleanMacro(ReadFromInputString, int);
   void SetInputString(std::string s) { this->InputString = s; }
+  //@}
 
-  // Description:
-  // Test whether the file (type) with the given name can be read by this
-  // reader. If the file has a newer version than the reader, we still say
-  // we can read the file type and we fail later, when we try to read the file.
-  // This enables clients (ParaView) to distinguish between failures when we
-  // need to look for another reader and failures when we don't.
+  /**
+   * Test whether the file (type) with the given name can be read by this
+   * reader. If the file has a newer version than the reader, we still say
+   * we can read the file type and we fail later, when we try to read the file.
+   * This enables clients (ParaView) to distinguish between failures when we
+   * need to look for another reader and failures when we don't.
+   */
   virtual int CanReadFile(const char* name);
 
-  // Description:
-  // Get the output as a vtkDataSet pointer.
+  //@{
+  /**
+   * Get the output as a vtkDataSet pointer.
+   */
   vtkDataSet* GetOutputAsDataSet();
   vtkDataSet* GetOutputAsDataSet(int index);
+  //@}
 
-  // Description:
-  // Get the data array selection tables used to configure which data
-  // arrays are loaded by the reader.
+  //@{
+  /**
+   * Get the data array selection tables used to configure which data
+   * arrays are loaded by the reader.
+   */
   vtkGetObjectMacro(PointDataArraySelection, vtkDataArraySelection);
   vtkGetObjectMacro(CellDataArraySelection, vtkDataArraySelection);
+  //@}
 
-  // Description:
-  // Get the number of point or cell arrays available in the input.
+  //@{
+  /**
+   * Get the number of point or cell arrays available in the input.
+   */
   int GetNumberOfPointArrays();
   int GetNumberOfCellArrays();
+  //@}
 
-  // Description:
-  // Get the name of the point or cell array with the given index in
-  // the input.
+  //@{
+  /**
+   * Get the name of the point or cell array with the given index in
+   * the input.
+   */
   const char* GetPointArrayName(int index);
   const char* GetCellArrayName(int index);
+  //@}
 
-  // Description:
-  // Get/Set whether the point or cell array with the given name is to
-  // be read.
+  //@{
+  /**
+   * Get/Set whether the point or cell array with the given name is to
+   * be read.
+   */
   int GetPointArrayStatus(const char* name);
   int GetCellArrayStatus(const char* name);
   void SetPointArrayStatus(const char* name, int status);
   void SetCellArrayStatus(const char* name, int status);
+  //@}
 
   // For the specified port, copy the information this reader sets up in
   // SetupOutputInformation to outInfo
   virtual void CopyOutputInformation(vtkInformation *vtkNotUsed(outInfo),
                                    int vtkNotUsed(port)) {}
 
-  // Description:
-  // Which TimeStep to read.
+  //@{
+  /**
+   * Which TimeStep to read.
+   */
   vtkSetMacro(TimeStep, int);
   vtkGetMacro(TimeStep, int);
+  //@}
 
   vtkGetMacro(NumberOfTimeSteps, int);
-  // Description:
-  // Which TimeStepRange to read
+  //@{
+  /**
+   * Which TimeStepRange to read
+   */
   vtkGetVector2Macro(TimeStepRange, int);
   vtkSetVector2Macro(TimeStepRange, int);
+  //@}
 
-  // Description:
-  // Returns the internal XML parser. This can be used to access
-  // the XML DOM after RequestInformation() was called.
+  /**
+   * Returns the internal XML parser. This can be used to access
+   * the XML DOM after RequestInformation() was called.
+   */
   vtkXMLDataParser* GetXMLParser()
   {
     return this->XMLParser;
@@ -121,17 +153,23 @@ public:
                              vtkInformationVector **inputVector,
                              vtkInformationVector *outputVector);
 
-  // Description:
-  // Set/get the ErrorObserver for the internal reader
-  // This is useful for applications that want to catch error messages.
+  //@{
+  /**
+   * Set/get the ErrorObserver for the internal reader
+   * This is useful for applications that want to catch error messages.
+   */
   void SetReaderErrorObserver(vtkCommand *);
   vtkGetObjectMacro(ReaderErrorObserver, vtkCommand);
+  //@}
 
-  // Description:
-  // Set/get the ErrorObserver for the internal xml parser
-  // This is useful for applications that want to catch error messages.
+  //@{
+  /**
+   * Set/get the ErrorObserver for the internal xml parser
+   * This is useful for applications that want to catch error messages.
+   */
   void SetParserErrorObserver(vtkCommand *);
   vtkGetObjectMacro(ParserErrorObserver, vtkCommand);
+  //@}
 
 protected:
   vtkXMLReader();
@@ -174,6 +212,10 @@ protected:
   // Stores it in the instance of vtkInformationProvided. Does not allocate.
   int CreateInformationKey(vtkXMLDataElement *eInfoKey, vtkInformation *info);
 
+  // Populates the info object with the InformationKey children in infoRoot.
+  // Returns false if errors occur.
+  bool ReadInformation(vtkXMLDataElement *infoRoot, vtkInformation *info);
+
   // Internal utility methods.
   virtual int OpenStream();
   virtual void CloseStream();
@@ -186,10 +228,11 @@ protected:
   void SetupCompressor(const char* type);
   int CanReadFileVersionString(const char* version);
 
-  // Description:
-  // This method is used by CanReadFile() to check if the reader can read an XML
-  // with the primary element with the given name. Default implementation
-  // compares the name with the text returned by this->GetDataSetName().
+  /**
+   * This method is used by CanReadFile() to check if the reader can read an XML
+   * with the primary element with the given name. Default implementation
+   * compares the name with the text returned by this->GetDataSetName().
+   */
   virtual int CanReadFileWithDataType(const char* dsname);
 
   // Returns the major version for the file being read. -1 when invalid.
@@ -328,8 +371,8 @@ private:
   vtkInformation* CurrentOutputInformation;
 
 private:
-  vtkXMLReader(const vtkXMLReader&);  // Not implemented.
-  void operator=(const vtkXMLReader&);  // Not implemented.
+  vtkXMLReader(const vtkXMLReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLReader&) VTK_DELETE_FUNCTION;
 
   vtkCommand *ReaderErrorObserver;
   vtkCommand *ParserErrorObserver;

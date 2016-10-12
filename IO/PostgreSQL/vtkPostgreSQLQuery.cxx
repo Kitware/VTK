@@ -57,10 +57,10 @@ template<typename T>
 void ConvertFromNetworkOrder(T &target, const char *rawBytes)
 {
   for (unsigned int i = 0; i < sizeof(T); ++i)
-    {
+  {
     int targetByte = sizeof(T) - (i+1);
     target |= (rawBytes[i] << (8*targetByte));
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -73,17 +73,17 @@ class vtkPostgreSQLQueryPrivate
 {
 public:
   vtkPostgreSQLQueryPrivate()
-    {
+  {
       this->QueryResults = NULL;
       this->CurrentRow = -1;
-    }
+  }
   ~vtkPostgreSQLQueryPrivate()
-    {
+  {
       if (this->QueryResults)
-        {
+      {
         PQclear(this->QueryResults);
-        }
-    }
+      }
+  }
 
   PGresult *QueryResults;
   int CurrentRow;
@@ -94,34 +94,34 @@ public:
 vtkVariant vtkPostgreSQLQuery::DataValue( vtkIdType column )
 {
   if ( this->IsActive() == false )
-    {
+  {
     vtkWarningMacro( "DataValue() called on inactive query" );
     return vtkVariant();
-    }
+  }
   else if ( column < 0 || column >= this->GetNumberOfFields() )
-    {
+  {
     vtkWarningMacro( "DataValue() called with out-of-range column index " << column );
     return vtkVariant();
-    }
+  }
   else if (this->QueryInternals->CurrentRow < 0)
-    {
+  {
     vtkWarningMacro( "DataValue() cannot be called before advancing to the first row with NextRow()." );
     return vtkVariant();
-    }
+  }
 
   // Since null is independent of data type, check that next
   if (PQgetisnull(this->QueryInternals->QueryResults,
                   this->QueryInternals->CurrentRow,
                   column))
-    {
+  {
     return vtkVariant();
-    }
+  }
 
   int colType = this->GetFieldType( column );
   bool isBinary = this->IsColumnBinary(column);
   const char *rawData = this->GetColumnRawData(column);
   switch ( colType )
-    {
+  {
     case VTK_VOID:
       return vtkVariant();
     case VTK_BIT:
@@ -189,7 +189,7 @@ vtkVariant vtkPostgreSQLQuery::DataValue( vtkIdType column )
     {
     return vtkVariant();
     }
-    } // end of switch on column type
+  } // end of switch on column type
 } // end of DataValue(int column)
 
 
@@ -220,13 +220,13 @@ void vtkPostgreSQLQuery::PrintSelf( ostream& os, vtkIndent indent )
      << "\n";
   os << indent << "Internals: ";
   if (this->QueryInternals)
-    {
+  {
     os << this->QueryInternals;
-    }
+  }
   else
-    {
+  {
     os << "(null)";
-    }
+  }
   os << "\n";
 }
 
@@ -234,10 +234,10 @@ void vtkPostgreSQLQuery::PrintSelf( ostream& os, vtkIndent indent )
 bool vtkPostgreSQLQuery::Execute()
 {
   if ( this->Query == 0 )
-    {
+  {
     vtkErrorMacro( "Cannot execute before a query has been set." );
     return false;
-    }
+  }
 
   vtkPostgreSQLDatabase* db = vtkPostgreSQLDatabase::SafeDownCast( this->Database );
   assert( db );
@@ -245,18 +245,18 @@ bool vtkPostgreSQLQuery::Execute()
   // If a query is already in progress clear out its results so we can
   // begin anew.
   if (this->QueryInternals)
-    {
+  {
     this->DeleteQueryResults();
-    }
+  }
 
 
   if (!db->IsOpen())
-    {
+  {
     this->SetLastErrorText("Cannot execute query.  Database connection is closed.");
     vtkErrorMacro(<<"Cannot execute query.  Database connection is closed.");
     this->Active = false;
     return false;
-    }
+  }
 
   this->QueryInternals = new vtkPostgreSQLQueryPrivate;
   this->QueryInternals->QueryResults = PQexec(db->Connection->Connection,
@@ -264,7 +264,7 @@ bool vtkPostgreSQLQuery::Execute()
 
   bool returnStatus;
   switch (PQresultStatus(this->QueryInternals->QueryResults))
-    {
+  {
     case PGRES_EMPTY_QUERY:
     {
     returnStatus = true;
@@ -319,7 +319,7 @@ bool vtkPostgreSQLQuery::Execute()
                   << this->GetLastErrorText());
     this->DeleteQueryResults();
     }; break;
-    }
+  }
 
   return returnStatus;
 }
@@ -328,10 +328,10 @@ bool vtkPostgreSQLQuery::Execute()
 int vtkPostgreSQLQuery::GetNumberOfFields()
 {
   if ( ! this->Active || ! this->QueryInternals )
-    {
+  {
     vtkErrorMacro( "Query is not active!" );
     return 0;
-    }
+  }
 
   return PQnfields(this->QueryInternals->QueryResults);
 }
@@ -340,15 +340,15 @@ int vtkPostgreSQLQuery::GetNumberOfFields()
 const char* vtkPostgreSQLQuery::GetFieldName( int column )
 {
   if ( ! this->Active || ! this->QueryInternals->QueryResults )
-    {
+  {
     vtkErrorMacro( "Query is not active!" );
     return 0;
-    }
+  }
   else if ( column < 0 || column >= this->GetNumberOfFields() )
-    {
+  {
     vtkErrorMacro( "Illegal field index " << column );
     return 0;
-    }
+  }
   return PQfname(this->QueryInternals->QueryResults, column);
 }
 
@@ -356,23 +356,23 @@ const char* vtkPostgreSQLQuery::GetFieldName( int column )
 int vtkPostgreSQLQuery::GetFieldType( int column )
 {
   if ( ! this->Active || ! this->QueryInternals )
-    {
+  {
     vtkErrorMacro( "Query is not active!" );
     return -1;
-    }
+  }
   else if ( column < 0 || column >= this->GetNumberOfFields() )
-    {
+  {
     vtkErrorMacro( "Illegal field index " << column );
     return -1;
-    }
+  }
 
   vtkPostgreSQLDatabase *db =
     vtkPostgreSQLDatabase::SafeDownCast(this->Database);
   if (!db)
-    {
+  {
     vtkErrorMacro(<<"No database!  How did this happen?");
     return -1;
-    }
+  }
   return db->Connection->GetVTKTypeFromOID(PQftype(this->QueryInternals->QueryResults,
                                                   column));
 }
@@ -381,29 +381,29 @@ int vtkPostgreSQLQuery::GetFieldType( int column )
 bool vtkPostgreSQLQuery::NextRow()
 {
   if ( ! this->IsActive() || ! this->QueryInternals )
-    {
+  {
     vtkErrorMacro( "Query is not active!" );
     return false;
-    }
+  }
 
   if (this->QueryInternals->CurrentRow < (this->GetNumberOfRows() - 1))
-    {
+  {
     ++ this->QueryInternals->CurrentRow;
     return true;
-    }
+  }
   else
-    {
+  {
     return false;
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
 const char * vtkPostgreSQLQuery::GetLastErrorText()
 {
   if ( ! this->Database )
-    {
+  {
     return "No database";
-    }
+  }
   return this->LastErrorText;
 }
 
@@ -413,14 +413,14 @@ vtkStdString vtkPostgreSQLQuery::EscapeString( vtkStdString s, bool addSurroundi
 {
   vtkStdString retval;
   if ( addSurroundingQuotes )
-    {
+  {
     retval = "'";
-    }
+  }
 
   vtkPostgreSQLDatabase* db = static_cast<vtkPostgreSQLDatabase*>( this->Database );
 
   if ( db && db->Connection )
-    {
+  {
     char *escaped = new char[2 * s.size() + 1];
     int error;
     PQescapeStringConn(db->Connection->Connection,
@@ -431,19 +431,19 @@ vtkStdString vtkPostgreSQLQuery::EscapeString( vtkStdString s, bool addSurroundi
     retval.append(escaped);
     delete [] escaped;
     if (error)
-      {
-      vtkErrorMacro(<<"Error while escaping string.  Expect the result to be unusable.");
-      }
-    }
-  else
     {
-    retval.append( this->Superclass::EscapeString( s, false ) );
+      vtkErrorMacro(<<"Error while escaping string.  Expect the result to be unusable.");
     }
+  }
+  else
+  {
+    retval.append( this->Superclass::EscapeString( s, false ) );
+  }
 
   if ( addSurroundingQuotes )
-    {
+  {
     retval += "'";
-    }
+  }
 
   return retval;
 }
@@ -452,9 +452,9 @@ vtkStdString vtkPostgreSQLQuery::EscapeString( vtkStdString s, bool addSurroundi
 bool vtkPostgreSQLQuery::HasError()
 {
   if ( ! this->Database )
-    {
+  {
     return false;
-    }
+  }
   return this->LastErrorText != 0;
 }
 
@@ -462,17 +462,17 @@ bool vtkPostgreSQLQuery::HasError()
 bool vtkPostgreSQLQuery::BeginTransaction()
 {
   if (this->TransactionInProgress)
-    {
+  {
     vtkErrorMacro(<<"Cannot start a transaction.  One is already in progress.");
     return false;
-    }
+  }
 
   vtkPostgreSQLDatabase* db = vtkPostgreSQLDatabase::SafeDownCast( this->Database );
   assert( db );
   bool status;
   PGresult *result = PQexec(db->Connection->Connection, BEGIN_TRANSACTION);
   switch (PQresultStatus(result))
-    {
+  {
     case PGRES_COMMAND_OK:
     {
     this->SetLastErrorText(0);
@@ -497,7 +497,7 @@ bool vtkPostgreSQLQuery::BeginTransaction()
                         : "(null)"));
     status = false;
     }; break;
-    }
+  }
   PQclear(result);
   return status;
 }
@@ -506,10 +506,10 @@ bool vtkPostgreSQLQuery::BeginTransaction()
 bool vtkPostgreSQLQuery::CommitTransaction()
 {
   if (!this->TransactionInProgress)
-    {
+  {
     vtkErrorMacro(<<"Cannot commit: no transaction is in progress.");
     return false;
-    }
+  }
 
   vtkPostgreSQLDatabase *db = vtkPostgreSQLDatabase::SafeDownCast(this->Database);
   assert(db);
@@ -517,7 +517,7 @@ bool vtkPostgreSQLQuery::CommitTransaction()
   PGresult *result = PQexec(db->Connection->Connection, COMMIT_TRANSACTION);
   bool status;
   switch (PQresultStatus(result))
-    {
+  {
     case PGRES_COMMAND_OK:
     {
     this->SetLastErrorText(0);
@@ -544,7 +544,7 @@ bool vtkPostgreSQLQuery::CommitTransaction()
     this->TransactionInProgress = false;
     status = false;
     }; break;
-    }
+  }
   PQclear(result);
   return status;
 }
@@ -553,10 +553,10 @@ bool vtkPostgreSQLQuery::CommitTransaction()
 bool vtkPostgreSQLQuery::RollbackTransaction()
 {
   if (!this->TransactionInProgress)
-    {
+  {
     vtkErrorMacro(<<"Cannot rollback: no transaction is in progress.");
     return false;
-    }
+  }
 
   vtkPostgreSQLDatabase *db = vtkPostgreSQLDatabase::SafeDownCast(this->Database);
   assert(db);
@@ -564,7 +564,7 @@ bool vtkPostgreSQLQuery::RollbackTransaction()
   PGresult *result = PQexec(db->Connection->Connection, ROLLBACK_TRANSACTION);
   bool status;
   switch (PQresultStatus(result))
-    {
+  {
     case PGRES_COMMAND_OK:
     {
     this->SetLastErrorText(0);
@@ -591,7 +591,7 @@ bool vtkPostgreSQLQuery::RollbackTransaction()
     this->TransactionInProgress = false;
     status = false;
     }; break;
-    }
+  }
   PQclear(result);
   return status;
 }
@@ -613,16 +613,16 @@ vtkVariant ConvertStringToBoolean(bool, const char *rawData)
   // Since there are only a few possibilities I'm going to check
   // them all by hand.
   switch (rawData[0])
-    {
+  {
     case 'T':
     case 't':
     case 'Y':
     case 'y':
     case '1':
     case 1:
-      {
+    {
       return vtkVariant(true);
-      }
+    }
 
     case 'F':
     case 'f':
@@ -630,18 +630,18 @@ vtkVariant ConvertStringToBoolean(bool, const char *rawData)
     case 'n':
     case '0':
     case 0:
-      {
+    {
       return vtkVariant(false);
-      }
+    }
 
     default:
-      {
+    {
       vtkGenericWarningMacro(<<"Unable to convert raw data to boolean.  Data length is "
                              << strlen(rawData) << " and string is '"
                              << rawData << "'");
       return vtkVariant();
-      }
     }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -649,14 +649,14 @@ vtkVariant ConvertStringToBoolean(bool, const char *rawData)
 vtkVariant ConvertStringToSignedChar(bool isBinary, const char *rawData)
 {
   if (isBinary)
-    {
+  {
     return vtkVariant(rawData[0]);
-    }
+  }
   else
-    {
+  {
     vtkVariant converter(rawData);
     return vtkVariant(converter.ToChar());
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -664,14 +664,14 @@ vtkVariant ConvertStringToSignedChar(bool isBinary, const char *rawData)
 vtkVariant ConvertStringToUnsignedChar(bool isBinary, const char *rawData)
 {
   if (isBinary)
-    {
+  {
     return vtkVariant(static_cast<unsigned char>(rawData[0]));
-    }
+  }
   else
-    {
+  {
     vtkVariant converter(rawData);
     return vtkVariant(converter.ToUnsignedChar());
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -679,16 +679,16 @@ vtkVariant ConvertStringToUnsignedChar(bool isBinary, const char *rawData)
 vtkVariant ConvertStringToSignedShort(bool isBinary, const char *rawData)
 {
   if (isBinary)
-    {
+  {
     short result = 0;
     ConvertFromNetworkOrder(result, rawData);
     return vtkVariant(result);
-    }
+  }
   else
-    {
+  {
     vtkVariant converter(rawData);
     return vtkVariant(converter.ToShort());
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -696,16 +696,16 @@ vtkVariant ConvertStringToSignedShort(bool isBinary, const char *rawData)
 vtkVariant ConvertStringToUnsignedShort(bool isBinary, const char *rawData)
 {
   if (isBinary)
-    {
+  {
     unsigned short result = 0;
     ConvertFromNetworkOrder(result, rawData);
     return vtkVariant(result);
-    }
+  }
   else
-    {
+  {
     vtkVariant converter(rawData);
     return vtkVariant(converter.ToUnsignedShort());
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -713,16 +713,16 @@ vtkVariant ConvertStringToUnsignedShort(bool isBinary, const char *rawData)
 vtkVariant ConvertStringToSignedInt(bool isBinary, const char *rawData)
 {
   if (isBinary)
-    {
+  {
     int result = 0;
     ConvertFromNetworkOrder(result, rawData);
     return vtkVariant(result);
-    }
+  }
   else
-    {
+  {
     vtkVariant converter(rawData);
     return vtkVariant(converter.ToInt());
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -730,16 +730,16 @@ vtkVariant ConvertStringToSignedInt(bool isBinary, const char *rawData)
 vtkVariant ConvertStringToUnsignedInt(bool isBinary, const char *rawData)
 {
   if (isBinary)
-    {
+  {
     unsigned int result = 0;
     ConvertFromNetworkOrder(result, rawData);
     return vtkVariant(result);
-    }
+  }
   else
-    {
+  {
     vtkVariant converter(rawData);
     return vtkVariant(converter.ToUnsignedInt());
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -748,16 +748,16 @@ vtkVariant ConvertStringToUnsignedInt(bool isBinary, const char *rawData)
 vtkVariant ConvertStringToSignedLong(bool isBinary, const char *rawData)
 {
   if (isBinary)
-    {
+  {
     signed long result = 0;
     ConvertFromNetworkOrder(result, rawData);
     return vtkVariant(result);
-    }
+  }
   else
-    {
+  {
     vtkVariant converter(rawData);
     return vtkVariant(converter.ToLong());
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -765,16 +765,16 @@ vtkVariant ConvertStringToSignedLong(bool isBinary, const char *rawData)
 vtkVariant ConvertStringToUnsignedLong(bool isBinary, const char *rawData)
 {
   if (isBinary)
-    {
+  {
     unsigned long result = 0;
     ConvertFromNetworkOrder(result, rawData);
     return vtkVariant(result);
-    }
+  }
   else
-    {
+  {
     vtkVariant converter(rawData);
     return vtkVariant(converter.ToLong());
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -782,16 +782,16 @@ vtkVariant ConvertStringToUnsignedLong(bool isBinary, const char *rawData)
 vtkVariant ConvertStringToSignedLongLong(bool isBinary, const char *rawData)
 {
   if (isBinary)
-    {
+  {
     long long result = 0;
     ConvertFromNetworkOrder(result, rawData);
     return vtkVariant(result);
-    }
+  }
   else
-    {
+  {
     vtkVariant converter(rawData);
     return vtkVariant(converter.ToLongLong());
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -799,16 +799,16 @@ vtkVariant ConvertStringToSignedLongLong(bool isBinary, const char *rawData)
 vtkVariant ConvertStringToUnsignedLongLong(bool isBinary, const char *rawData)
 {
   if (isBinary)
-    {
+  {
     unsigned long long result = 0;
     ConvertFromNetworkOrder(result, rawData);
     return vtkVariant(result);
-    }
+  }
   else
-    {
+  {
     vtkVariant converter(rawData);
     return vtkVariant(converter.ToUnsignedLongLong());
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -816,7 +816,7 @@ vtkVariant ConvertStringToUnsignedLongLong(bool isBinary, const char *rawData)
 vtkVariant ConvertStringToFloat(bool isBinary, const char *rawData)
 {
   if (isBinary)
-    {
+  {
     // As of PostgreSQL version 8.3.0, libpq transmits a float in network
     // byte order -- that is, it reinterprets the bits as an unsigned int
     // and then transmits them that way.  This... frightens me.  It assumes
@@ -835,21 +835,21 @@ vtkVariant ConvertStringToFloat(bool isBinary, const char *rawData)
     float floatResult = swap.f;
 
     return vtkVariant(floatResult);
-    }
+  }
   else
-    {
+  {
     vtkStdString rawString(rawData);
     float finalResult;
 
     // Catch NaN
     if (rawData[0] == 'N' || rawData[0] == 'n')
-      {
+    {
       if (std::numeric_limits<float>::has_quiet_NaN)
-        {
+      {
         finalResult = std::numeric_limits<float>::quiet_NaN();
-        }
+      }
       else
-        {
+      {
         // C99 defines a NAN macro.  If it's there, that solves our problem.
 #if defined(NAN)
         finalResult = NAN;
@@ -857,38 +857,38 @@ vtkVariant ConvertStringToFloat(bool isBinary, const char *rawData)
         float zero = 0.0;
         finalResult = zero / zero;
 #endif
-        }
       }
+    }
     else if (rawString == "Infinity")
-      {
+    {
       if (std::numeric_limits<float>::has_infinity)
-        {
+      {
         finalResult = std::numeric_limits<float>::infinity();
-        }
+      }
       else
-        {
+      {
         finalResult = VTK_FLOAT_MAX;
-        }
       }
+    }
     else if (rawString == "-Infinity")
-      {
+    {
       if (std::numeric_limits<float>::has_infinity)
-        {
-        finalResult = - std::numeric_limits<float>::infinity();
-        }
-      else
-        {
-        finalResult = -VTK_FLOAT_MAX;
-        }
-      }
-    else
       {
+        finalResult = - std::numeric_limits<float>::infinity();
+      }
+      else
+      {
+        finalResult = -VTK_FLOAT_MAX;
+      }
+    }
+    else
+    {
       // hurray, it's an ordinary float
       vtkVariant converter(rawData);
       finalResult = converter.ToFloat();
-      }
+    }
     return vtkVariant(finalResult);
-    } // end of handling string representation
+  } // end of handling string representation
 
 }
 
@@ -897,19 +897,19 @@ vtkVariant ConvertStringToFloat(bool isBinary, const char *rawData)
 vtkVariant ConvertStringToVtkIdType(bool isBinary, const char *rawData)
 {
   if (isBinary)
-    {
+  {
     vtkIdType result = 0;
     ConvertFromNetworkOrder(result, rawData);
     return vtkVariant(result);
-    }
+  }
   else
-    {
+  {
     std::stringstream convertStream;
     convertStream.str(rawData);
     vtkIdType result;
     convertStream >> result;
     return vtkVariant(result);
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -917,7 +917,7 @@ vtkVariant ConvertStringToVtkIdType(bool isBinary, const char *rawData)
 vtkVariant ConvertStringToDouble(bool isBinary, const char *rawData)
 {
   if (isBinary)
-    {
+  {
     // As of PostgreSQL version 8.3.0, libpq transmits a float in network
     // byte order -- that is, it reinterprets the bits as an unsigned int
     // and then transmits them that way.  This... frightens me.  It assumes
@@ -933,21 +933,21 @@ vtkVariant ConvertStringToDouble(bool isBinary, const char *rawData)
     } swap;
     swap.i = intResult;
     return vtkVariant(swap.d);
-    }
+  }
   else
-    {
+  {
     double finalResult;
     vtkStdString rawString(rawData);
 
     // Catch NaN
     if (rawData[0] == 'N' || rawData[0] == 'n')
-      {
+    {
       if (std::numeric_limits<double>::has_quiet_NaN)
-        {
+      {
         finalResult = std::numeric_limits<double>::quiet_NaN();
-        }
+      }
       else
-        {
+      {
         // C99 defines a NAN macro.  If it's there, that solves our problem.
 #if defined(NAN)
         finalResult = NAN;
@@ -955,38 +955,38 @@ vtkVariant ConvertStringToDouble(bool isBinary, const char *rawData)
         double zero = 0.0;
         finalResult = zero / zero;
 #endif
-        }
       }
+    }
     else if (rawString == "Infinity")
-      {
+    {
       if (std::numeric_limits<double>::has_infinity)
-        {
+      {
         finalResult = std::numeric_limits<double>::infinity();
-        }
+      }
       else
-        {
+      {
         finalResult = VTK_DOUBLE_MAX;
-        }
       }
+    }
     else if (rawString == "-Infinity")
-      {
+    {
       if (std::numeric_limits<double>::has_infinity)
-        {
-        finalResult = - std::numeric_limits<double>::infinity();
-        }
-      else
-        {
-        finalResult = -VTK_DOUBLE_MAX;
-        }
-      }
-    else
       {
+        finalResult = - std::numeric_limits<double>::infinity();
+      }
+      else
+      {
+        finalResult = -VTK_DOUBLE_MAX;
+      }
+    }
+    else
+    {
       // hurray, it's an ordinary double
       vtkVariant converter(rawData);
       finalResult = converter.ToDouble();
-      }
+    }
     return vtkVariant(finalResult);
-    } // end of handling string representation
+  } // end of handling string representation
 }
 
 // ----------------------------------------------------------------------
@@ -997,19 +997,19 @@ vtkPostgreSQLQuery::IsColumnBinary(int whichColumn)
   if ((!this->Active) ||
       (!this->Database) ||
       (!this->QueryInternals->QueryResults))
-    {
+  {
     vtkWarningMacro(<<"No active query!");
     return false;
-    }
+  }
   else if (whichColumn < 0 || whichColumn >= this->GetNumberOfFields())
-    {
+  {
     vtkWarningMacro(<<"Illegal column index " << whichColumn);
     return false;
-    }
+  }
   else
-    {
+  {
     return (PQfformat(this->QueryInternals->QueryResults, whichColumn) == 1);
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -1020,21 +1020,21 @@ vtkPostgreSQLQuery::GetColumnRawData(int whichColumn)
   if ((!this->Active) ||
       (!this->Database) ||
       (!this->QueryInternals->QueryResults))
-    {
+  {
     vtkWarningMacro(<<"No active query!");
     return NULL;
-    }
+  }
   else if (whichColumn < 0 || whichColumn >= this->GetNumberOfFields())
-    {
+  {
     vtkWarningMacro(<<"Illegal column index " << whichColumn);
     return NULL;
-    }
+  }
   else
-    {
+  {
     return PQgetvalue(this->QueryInternals->QueryResults,
                       this->QueryInternals->CurrentRow,
                       whichColumn);
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -1046,13 +1046,13 @@ vtkPostgreSQLQuery::GetNumberOfRows()
       !this->Database->IsOpen() ||
       !this->QueryInternals ||
       !this->Active)
-    {
+  {
     vtkWarningMacro(<<"No active query.  Cannot retrieve number of rows.");
     return 0;
-    }
+  }
   else
-    {
+  {
     return PQntuples(this->QueryInternals->QueryResults);
-    }
+  }
 }
 

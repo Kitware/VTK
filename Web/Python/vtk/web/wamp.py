@@ -3,7 +3,7 @@ WAMP related class for the purpose of vtkWeb.
 
 """
 
-import inspect, types, string, random, logging, six, json, re, base64
+import inspect, types, string, random, logging, six, json, re, base64, time
 
 from threading import Timer
 
@@ -27,9 +27,9 @@ from autobahn.twisted.websocket import WebSocketServerProtocol
 from vtk.web import protocols
 
 try:
+    from vtk.vtkWebCore import vtkWebApplication
+except ImportError:
     from vtkWebCore import vtkWebApplication
-except:
-    from vtkWebCorePython import vtkWebApplication
 
 # =============================================================================
 salt = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
@@ -351,9 +351,11 @@ class ImagePushBinaryWebSocketServerProtocol(WebSocketServerProtocol):
         global imageCapture
         self.helper = imageCapture
         self.app = imageCapture.getApplication()
-        self.deltaT = 0.015
         self.viewToCapture = {}
-        self.renderLoop = False
+        self.lastStaleTime = 0
+        self.staleHandlerCount = 0
+        self.deltaStaleTimeBeforeRender = 0.5 # 0.5s
+        self.subscription = self.app.AddObserver('PushRender', lambda obj, event: reactor.callLater(0.0, lambda: self.render()))
 
     def onMessage(self, msg, isBinary):
         request = json.loads(msg)
@@ -362,29 +364,37 @@ class ImagePushBinaryWebSocketServerProtocol(WebSocketServerProtocol):
             if viewId not in self.viewToCapture:
                 self.viewToCapture[viewId] = { 'quality': 100, 'enabled': True, 'view': self.helper.getView(viewId), 'view_id': viewId, 'mtime': 0 }
 
-            # Update fields
-            objToUpdate = self.viewToCapture[viewId]
-            for key in request:
-                objToUpdate[key] = request[key]
-
-            # Trigger new render loop if needed
-            self.startRenderLoop()
+            if 'invalidate_cache' in request:
+                if self.viewToCapture[viewId]['view']:
+                    self.app.InvalidateCache(self.viewToCapture[viewId]['view'].SMProxy)
+                    self.render()
+            else:
+                # Update fields
+                objToUpdate = self.viewToCapture[viewId]
+                for key in request:
+                    objToUpdate[key] = request[key]
 
     def onClose(self, wasClean, code, reason):
         self.viewToCapture = {}
-        self.renderLoop = False
+        self.app.RemoveObserver(self.subscription)
 
     def connectionLost(self, reason):
         self.viewToCapture = {}
-        self.renderLoop = False
+        self.app.RemoveObserver(self.subscription)
 
-    def startRenderLoop(self):
-        if self.renderLoop:
-            return
-        self.renderLoop = True
-        reactor.callLater(self.deltaT, lambda: self.processNextRender())
+    def renderStaleImage(self):
+        self.staleHandlerCount -= 1
 
-    def processNextRender(self):
+        if self.lastStaleTime != 0:
+            delta = (time.time() - self.lastStaleTime)
+            if delta >= self.deltaStaleTimeBeforeRender:
+                self.render()
+            else:
+                self.staleHandlerCount += 1
+                reactor.callLater(self.deltaStaleTimeBeforeRender - delta + 0.001, lambda: self.renderStaleImage())
+
+
+    def render(self):
         keepGoing = False
         for k, v in self.viewToCapture.iteritems():
             if v['enabled']:
@@ -395,6 +405,7 @@ class ImagePushBinaryWebSocketServerProtocol(WebSocketServerProtocol):
                 quality = v['quality']
                 mtime = v['mtime']
                 base64Image = self.app.StillRenderToString(view, mtime, quality)
+                stale = self.app.GetHasImagesBeingProcessed(view)
                 if base64Image:
                     v['mtime'] = self.app.GetLastStillRenderToStringMTime()
                     meta = {
@@ -403,7 +414,12 @@ class ImagePushBinaryWebSocketServerProtocol(WebSocketServerProtocol):
                     }
                     self.sendMessage(json.dumps(meta), False)
                     self.sendMessage(base64.standard_b64decode(base64Image), True)
+                if stale:
+                    self.lastStaleTime = time.time()
+                    if self.staleHandlerCount == 0:
+                        self.staleHandlerCount += 1
+                        reactor.callLater(self.deltaStaleTimeBeforeRender, lambda: self.renderStaleImage())
+                else:
+                    self.lastStaleTime = 0
 
-        self.renderLoop = keepGoing
-        if self.renderLoop:
-            reactor.callLater(self.deltaT, lambda: self.processNextRender())
+        return keepGoing

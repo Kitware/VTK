@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkParticleTracerBase - A particle tracer for vector fields
-// .SECTION Description
-// vtkParticleTracerBase is the base class for filters that advect particles
-// in a vector field. Note that the input vtkPointData structure must
-// be identical on all datasets.
-//
-// .SECTION See Also
-// vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver
-// vtkRungeKutta2 vtkRungeKutta4 vtkRungeKutta45 vtkStreamTracer
+/**
+ * @class   vtkParticleTracerBase
+ * @brief   A particle tracer for vector fields
+ *
+ * vtkParticleTracerBase is the base class for filters that advect particles
+ * in a vector field. Note that the input vtkPointData structure must
+ * be identical on all datasets.
+ *
+ * @sa
+ * vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver
+ * vtkRungeKutta2 vtkRungeKutta4 vtkRungeKutta45 vtkStreamTracer
+*/
 
 #ifndef vtkParticleTracerBase_h
 #define vtkParticleTracerBase_h
@@ -105,49 +108,67 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   void PrintParticleHistories();
 
-  // Description
-  // Turn on/off vorticity computation at streamline points
-  // (necessary for generating proper stream-ribbons using the
-  // vtkRibbonFilter.
+  //@{
+  /**
+   * Turn on/off vorticity computation at streamline points
+   * (necessary for generating proper stream-ribbons using the
+   * vtkRibbonFilter.
+   */
   vtkGetMacro(ComputeVorticity, bool);
   void SetComputeVorticity(bool);
+  //@}
 
-  // Description
-  // Specify the terminal speed value, below which integration is terminated.
+  //@{
+  /**
+   * Specify the terminal speed value, below which integration is terminated.
+   */
   vtkGetMacro(TerminalSpeed, double);
   void SetTerminalSpeed(double);
+  //@}
 
-  // Description
-  // This can be used to scale the rate with which the streamribbons
-  // twist. The default is 1.
+  //@{
+  /**
+   * This can be used to scale the rate with which the streamribbons
+   * twist. The default is 1.
+   */
   vtkGetMacro(RotationScale, double);
   void SetRotationScale(double);
+  //@}
 
-  // Description:
-  // To get around problems with the Paraview Animation controls
-  // we can just animate the time step and ignore the TIME_ requests
+  //@{
+  /**
+   * To get around problems with the Paraview Animation controls
+   * we can just animate the time step and ignore the TIME_ requests
+   */
   vtkSetMacro(IgnorePipelineTime, int);
   vtkGetMacro(IgnorePipelineTime, int);
   vtkBooleanMacro(IgnorePipelineTime, int);
+  //@}
 
-  // Description:
-  // When animating particles, it is nice to inject new ones every Nth step
-  // to produce a continuous flow. Setting ForceReinjectionEveryNSteps to a
-  // non zero value will cause the particle source to reinject particles
-  // every Nth step even if it is otherwise unchanged.
-  // Note that if the particle source is also animated, this flag will be
-  // redundant as the particles will be reinjected whenever the source changes
-  // anyway
+  //@{
+  /**
+   * When animating particles, it is nice to inject new ones every Nth step
+   * to produce a continuous flow. Setting ForceReinjectionEveryNSteps to a
+   * non zero value will cause the particle source to reinject particles
+   * every Nth step even if it is otherwise unchanged.
+   * Note that if the particle source is also animated, this flag will be
+   * redundant as the particles will be reinjected whenever the source changes
+   * anyway
+   */
   vtkGetMacro(ForceReinjectionEveryNSteps,int);
   void SetForceReinjectionEveryNSteps(int);
+  //@}
 
-  // Description:
-  // Setting TerminationTime to a positive value will cause particles
-  // to terminate when the time is reached. Use a vlue of zero to
-  // diable termination. The units of time should be consistent with the
-  // primary time variable.
+  //@{
+  /**
+   * Setting TerminationTime to a positive value will cause particles
+   * to terminate when the time is reached. Use a vlue of zero to
+   * diable termination. The units of time should be consistent with the
+   * primary time variable.
+   */
   void SetTerminationTime(double t);
   vtkGetMacro(TerminationTime,double);
+  //@}
 
   void SetIntegrator(vtkInitialValueProblemSolver *);
   vtkGetObjectMacro ( Integrator, vtkInitialValueProblemSolver );
@@ -155,75 +176,99 @@ public:
   void SetIntegratorType(int type);
   int GetIntegratorType();
 
-  // Description:
-  // Setting TerminationTime to a positive value will cause particles
-  // to terminate when the time is reached. Use a vlue of zero to
-  // diable termination. The units of time should be consistent with the
-  // primary time variable.
+  //@{
+  /**
+   * Set the time value for particle tracing to begin. The units of time should
+   * be consistent with the primary time variable.
+   */
   vtkGetMacro(StartTime, double);
   void SetStartTime(double t);
+  //@}
 
-  // Description:
-  // if StaticSeeds is set and the mesh is static,
-  // then every time particles are injected we can re-use the same
-  // injection information. We classify particles according to
-  // processor just once before start.
-  // If StaticSeeds is set and a moving seed source is specified
-  // the motion will be ignored and results will not be as expected.
-  // The default is that StaticSeeds is 0.
+  //@{
+  /**
+   * if StaticSeeds is set and the mesh is static,
+   * then every time particles are injected we can re-use the same
+   * injection information. We classify particles according to
+   * processor just once before start.
+   * If StaticSeeds is set and a moving seed source is specified
+   * the motion will be ignored and results will not be as expected.
+   * The default is that StaticSeeds is 0.
+   */
   vtkSetMacro(StaticSeeds,int);
   vtkGetMacro(StaticSeeds,int);
+  //@}
 
-  // Description:
-  // if StaticMesh is set, many optimizations for cell caching
-  // can be assumed. if StaticMesh is not set, the algorithm
-  // will attempt to find out if optimizations can be used, but
-  // setting it to true will force all optimizations.
-  // Do not Set StaticMesh to true if a dynamic mesh is being used
-  // as this will invalidate all results.
-  // The default is that StaticMesh is 0.
+  //@{
+  /**
+   * if StaticMesh is set, many optimizations for cell caching
+   * can be assumed. if StaticMesh is not set, the algorithm
+   * will attempt to find out if optimizations can be used, but
+   * setting it to true will force all optimizations.
+   * Do not Set StaticMesh to true if a dynamic mesh is being used
+   * as this will invalidate all results.
+   * The default is that StaticMesh is 0.
+   */
   vtkSetMacro(StaticMesh,int);
   vtkGetMacro(StaticMesh,int);
+  //@}
 
-  // Description:
-  // Set/Get the Writer associated with this Particle Tracer
-  // Ideally a parallel IO capable vtkH5PartWriter should be used
-  // which will collect particles from all parallel processes
-  // and write them to a single HDF5 file.
+  //@{
+  /**
+   * Set/Get the Writer associated with this Particle Tracer
+   * Ideally a parallel IO capable vtkH5PartWriter should be used
+   * which will collect particles from all parallel processes
+   * and write them to a single HDF5 file.
+   */
   virtual void SetParticleWriter(vtkAbstractParticleWriter *pw);
   vtkGetObjectMacro(ParticleWriter, vtkAbstractParticleWriter);
+  //@}
 
-  // Description:
-  // Set/Get the filename to be used with the particle writer when
-  // dumping particles to disk
+  //@{
+  /**
+   * Set/Get the filename to be used with the particle writer when
+   * dumping particles to disk
+   */
   vtkSetStringMacro(ParticleFileName);
   vtkGetStringMacro(ParticleFileName);
+  //@}
 
-  // Description:
-  // Set/Get the filename to be used with the particle writer when
-  // dumping particles to disk
+  //@{
+  /**
+   * Set/Get the filename to be used with the particle writer when
+   * dumping particles to disk
+   */
   vtkSetMacro(EnableParticleWriting,int);
   vtkGetMacro(EnableParticleWriting,int);
   vtkBooleanMacro(EnableParticleWriting,int);
+  //@}
 
-  // Description:
-  // Set/Get the flag to disable cache
-  // This is off by default and turned on in special circumstances
-  // such as in a coprocessing workflow
+  //@{
+  /**
+   * Set/Get the flag to disable cache
+   * This is off by default and turned on in special circumstances
+   * such as in a coprocessing workflow
+   */
   vtkSetMacro(DisableResetCache,int);
   vtkGetMacro(DisableResetCache,int);
   vtkBooleanMacro(DisableResetCache,int);
+  //@}
 
-  // Description:
-  // Provide support for multiple seed sources
+  //@{
+  /**
+   * Provide support for multiple seed sources
+   */
   void AddSourceConnection(vtkAlgorithmOutput* input);
   void RemoveAllSources();
+  //@}
 
  protected:
   vtkSmartPointer<vtkPolyData> Output; //managed by child classes
-  // Description:
-  // ProtoPD is used just to keep track of the input array names and number of components
-  // for copy allocating from other vtkPointDatas where the data is really stored
+  //@{
+  /**
+   * ProtoPD is used just to keep track of the input array names and number of components
+   * for copy allocating from other vtkPointDatas where the data is really stored
+   */
   vtkSmartPointer<vtkPointData> ProtoPD;
   vtkIdType UniqueIdCounter;// global Id counter used to give particles a stamp
   vtkParticleTracerBaseNamespace::ParticleDataList  ParticleHistories;
@@ -232,6 +277,7 @@ public:
   //Everything related to time
   int IgnorePipelineTime; //whether to use the pipeline time for termination
   int DisableResetCache; //whether to enable ResetCache() method
+  //@}
 
   vtkParticleTracerBase();
   virtual ~vtkParticleTracerBase();
@@ -288,9 +334,10 @@ public:
   virtual int OutputParticles(vtkPolyData* poly)=0; //every iteration
   virtual void Finalize(){} //the last iteration
 
-  // Description:
-  // Method to get the data set seed sources.
-  // For in situ we want to override how the seed sources are made available.
+  /**
+   * Method to get the data set seed sources.
+   * For in situ we want to override how the seed sources are made available.
+   */
   virtual std::vector<vtkDataSet*> GetSeedSources(vtkInformationVector* inputVector, int timeStep);
 
   //
@@ -299,9 +346,10 @@ public:
   int InitializeInterpolator();
   int UpdateDataCache(vtkDataObject *td);
 
-  // Description : Test the list of particles to see if they are
-  // inside our data. Add good ones to passed list and set count to the
-  // number that passed
+  /**
+   * inside our data. Add good ones to passed list and set count to the
+   * number that passed
+   */
   void TestParticles(
     vtkParticleTracerBaseNamespace::ParticleVector &candidates,
     vtkParticleTracerBaseNamespace::ParticleVector &passed,
@@ -310,36 +358,41 @@ public:
   void TestParticles(
     vtkParticleTracerBaseNamespace::ParticleVector &candidates, std::vector<int> &passed);
 
-  // Description : Before starting the particle trace, classify
-  // all the injection/seed points according to which processor
-  // they belong to. This saves us retesting at every injection time
-  // providing 1) The volumes are static, 2) the seed points are static
-  // If either are non static, then this step is skipped.
+  /**
+   * all the injection/seed points according to which processor
+   * they belong to. This saves us retesting at every injection time
+   * providing 1) The volumes are static, 2) the seed points are static
+   * If either are non static, then this step is skipped.
+   */
   virtual void AssignSeedsToProcessors(
     double time, vtkDataSet *source, int sourceID, int ptId,
     vtkParticleTracerBaseNamespace::ParticleVector &localSeedPoints,
     int &localAssignedCount);
 
-  // Description : once seeds have been assigned to a process, we
-  // give each one a uniqu ID. We need to use MPI to find out
-  // who is using which numbers.
+  /**
+   * give each one a uniqu ID. We need to use MPI to find out
+   * who is using which numbers.
+   */
   virtual void AssignUniqueIds(
     vtkParticleTracerBaseNamespace::ParticleVector &localSeedPoints);
 
-  // Description : copy list of particles from a vector used for testing particles
-  // and sending between processors, into a list, which is used as the master
-  // list on this processor
+  /**
+   * and sending between processors, into a list, which is used as the master
+   * list on this processor
+   */
   void UpdateParticleList(
     vtkParticleTracerBaseNamespace::ParticleVector &candidates);
 
-  // Description : Perform a GatherV operation on a vector of particles
-  // this is used during classification of seed points and also between iterations
-  // of the main loop as particles leave each processor domain. Returns true
-  // if particles moved between processes and false otherwise.
+  /**
+   * this is used during classification of seed points and also between iterations
+   * of the main loop as particles leave each processor domain. Returns true
+   * if particles moved between processes and false otherwise.
+   */
   virtual bool UpdateParticleListFromOtherProcesses(){return false;}
 
-  // Description : The main loop performing Runge-Kutta integration of a single
-  // particle between the two times supplied.
+  /**
+   * particle between the two times supplied.
+   */
   void IntegrateParticle(
     vtkParticleTracerBaseNamespace::ParticleListIterator &it,
     double currenttime, double terminationtime,
@@ -354,11 +407,12 @@ public:
     return true;
   }
 
-  // Description:
-  // This is an old routine kept for possible future use.
-  // In dynamic meshes, particles might leave the domain and need to be extrapolated across
-  // a gap between the meshes before they re-renter another domain
-  // dodgy rotating meshes need special care....
+  /**
+   * This is an old routine kept for possible future use.
+   * In dynamic meshes, particles might leave the domain and need to be extrapolated across
+   * a gap between the meshes before they re-renter another domain
+   * dodgy rotating meshes need special care....
+   */
   bool ComputeDomainExitLocation(
     double pos[4], double p2[4], double intersection[4],
     vtkGenericCell *cell);
@@ -393,44 +447,51 @@ public:
   virtual void ResetCache();
   void AddParticle(vtkParticleTracerBaseNamespace::ParticleInformation &info, double* velocity);
 
-  // Description:
-  // Methods that check that the input arrays are ordered the
-  // same on all data sets. This needs to be true for all
-  // blocks in a composite data set as well as across all processes.
+  //@{
+  /**
+   * Methods that check that the input arrays are ordered the
+   * same on all data sets. This needs to be true for all
+   * blocks in a composite data set as well as across all processes.
+   */
   virtual bool IsPointDataValid(vtkDataObject* input);
   bool IsPointDataValid(vtkCompositeDataSet* input, std::vector<std::string>& arrayNames);
   void GetPointDataArrayNames(vtkDataSet* input, std::vector<std::string>& names);
+  //@}
 
   vtkGetMacro(ReinjectionCounter, int);
   vtkGetMacro(CurrentTimeValue, double);
 
-  // Description:
-  // Methods to append values to existing point data arrays that may
-  // only be desired on specific concrete derived classes.
+  /**
+   * Methods to append values to existing point data arrays that may
+   * only be desired on specific concrete derived classes.
+   */
   virtual void InitializeExtraPointDataArrays(vtkPointData* vtkNotUsed(outputPD)) {}
 
   virtual void AppendToExtraPointDataArrays(vtkParticleTracerBaseNamespace::ParticleInformation &) {}
 
   vtkTemporalInterpolatedVelocityField* GetInterpolator();
 
-  // Description:
-  // For restarts of particle paths, we add in the ability to add in
-  // particles from a previous computation that we will still advect.
+  /**
+   * For restarts of particle paths, we add in the ability to add in
+   * particles from a previous computation that we will still advect.
+   */
   virtual void AddRestartSeeds(vtkInformationVector** /*inputVector*/) {}
 
  private:
-  // Description:
-  // Hide this because we require a new interpolator type
+  /**
+   * Hide this because we require a new interpolator type
+   */
   void SetInterpolatorPrototype(vtkAbstractInterpolatedVelocityField*) {}
 
-  // Description:
-  // When particles leave the domain, they must be collected
-  // and sent to the other processes for possible continuation.
-  // These routines manage the collection and sending after each main iteration.
-  // RetryWithPush adds a small push to a particle along it's current velocity
-  // vector, this helps get over cracks in dynamic/rotating meshes. This is a
-  // first order integration though so it may introduce a bit extra error compared
-  // to the integrator that is used.
+  /**
+   * When particles leave the domain, they must be collected
+   * and sent to the other processes for possible continuation.
+   * These routines manage the collection and sending after each main iteration.
+   * RetryWithPush adds a small push to a particle along it's current velocity
+   * vector, this helps get over cracks in dynamic/rotating meshes. This is a
+   * first order integration though so it may introduce a bit extra error compared
+   * to the integrator that is used.
+   */
   bool RetryWithPush(
     vtkParticleTracerBaseNamespace::ParticleInformation &info, double* point1,double delT, int subSteps);
 
@@ -506,8 +567,8 @@ public:
   vtkSmartPointer<vtkDataSet>       DataReferenceT[2];
   vtkSmartPointer<vtkCellArray>     ParticleCells;
 
-  vtkParticleTracerBase(const vtkParticleTracerBase&);  // Not implemented.
-  void operator=(const vtkParticleTracerBase&);  // Not implemented.
+  vtkParticleTracerBase(const vtkParticleTracerBase&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkParticleTracerBase&) VTK_DELETE_FUNCTION;
   vtkTimeStamp ExecuteTime;
 
   unsigned int NumberOfParticles();

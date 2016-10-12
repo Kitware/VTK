@@ -13,14 +13,17 @@
 
 =========================================================================*/
 
-// .NAME vtkCPExodusIIInSituReader - Read an Exodus II file into data structures
-// that map the raw arrays returned by the Exodus II library into a multi-block
-// data set containing vtkUnstructuredGridBase subclasses.
-//
-// .SECTION Description
-// This class can be used to import Exodus II files into VTK without repacking
-// the data into the standard VTK memory layout, avoiding the cost of a deep
-// copy.
+/**
+ * @class   vtkCPExodusIIInSituReader
+ * @brief   Read an Exodus II file into data structures
+ * that map the raw arrays returned by the Exodus II library into a multi-block
+ * data set containing vtkUnstructuredGridBase subclasses.
+ *
+ *
+ * This class can be used to import Exodus II files into VTK without repacking
+ * the data into the standard VTK memory layout, avoiding the cost of a deep
+ * copy.
+*/
 
 #ifndef vtkCPExodusIIInSituReader_h
 #define vtkCPExodusIIInSituReader_h
@@ -43,23 +46,33 @@ public:
   vtkTypeMacro(vtkCPExodusIIInSituReader, vtkMultiBlockDataSetAlgorithm)
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Get/Set the name of the Exodus file to read.
+  //@{
+  /**
+   * Get/Set the name of the Exodus file to read.
+   */
   vtkSetStringMacro(FileName)
   vtkGetStringMacro(FileName)
+  //@}
 
-  // Description:
-  // Get/Set the current timestep to read as a zero-based index.
+  //@{
+  /**
+   * Get/Set the current timestep to read as a zero-based index.
+   */
   vtkGetMacro(CurrentTimeStep, int)
   vtkSetMacro(CurrentTimeStep, int)
+  //@}
 
-  // Description:
-  // Get the range of timesteps, represented as [0, numTimeSteps - 1]. Call
-  // UpdateInformation first to set this without reading any timestep data.
+  //@{
+  /**
+   * Get the range of timesteps, represented as [0, numTimeSteps - 1]. Call
+   * UpdateInformation first to set this without reading any timestep data.
+   */
   vtkGetVector2Macro(TimeStepRange, int)
+  //@}
 
-  // Description:
-  // Get the floating point tag associated with the timestep at 'step'.
+  /**
+   * Get the floating point tag associated with the timestep at 'step'.
+   */
   double GetTimeStepValue(int step)
   {
     return TimeSteps.at(step);
@@ -78,8 +91,8 @@ protected:
                          vtkInformationVector *);
 
 private:
-  vtkCPExodusIIInSituReader(const vtkCPExodusIIInSituReader &); // Not implemented.
-  void operator=(const vtkCPExodusIIInSituReader &);   // Not implemented.
+  vtkCPExodusIIInSituReader(const vtkCPExodusIIInSituReader &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCPExodusIIInSituReader &) VTK_DELETE_FUNCTION;
 
   bool ExOpen();
   char *FileName;

@@ -176,29 +176,29 @@ vtkIdType vtkBoostBreadthFirstSearchTree::GetVertexIndex(
 
   // Okay now what type of array is it
   if (abstract->IsNumeric())
-    {
+  {
     vtkDataArray *dataArray = vtkArrayDownCast<vtkDataArray>(abstract);
     int intValue = value.ToInt();
     for(int i=0; i<dataArray->GetNumberOfTuples(); ++i)
-      {
+    {
       if (intValue == static_cast<int>(dataArray->GetTuple1(i)))
-        {
+      {
         return i;
-        }
       }
     }
+  }
   else
-    {
+  {
     vtkStringArray *stringArray = vtkArrayDownCast<vtkStringArray>(abstract);
     vtkStdString stringValue(value.ToString());
     for(int i=0; i<stringArray->GetNumberOfTuples(); ++i)
-      {
+    {
       if (stringValue == stringArray->GetValue(i))
-        {
+      {
         return i;
-        }
       }
     }
+  }
 
   // Failed
   vtkErrorMacro("Did not find a valid vertex index...");
@@ -228,18 +228,18 @@ int vtkBoostBreadthFirstSearchTree::RequestData(
   // Now figure out the origin vertex of the
   // breadth first search
   if (this->ArrayNameSet)
-    {
+  {
     vtkAbstractArray* abstract = input->GetVertexData()->GetAbstractArray(this->ArrayName);
 
     // Does the array exist at all?
     if (abstract == NULL)
-      {
+    {
       vtkErrorMacro("Could not find array named " << this->ArrayName);
       return 0;
-      }
+    }
 
     this->OriginVertexIndex = this->GetVertexIndex(abstract,this->OriginValue);
-   }
+  }
 
   // Create tree to graph id map array
   vtkIdTypeArray* treeToGraphIdMap = vtkIdTypeArray::New();
@@ -267,10 +267,10 @@ int vtkBoostBreadthFirstSearchTree::RequestData(
 
   // Run the algorithm
   if (vtkDirectedGraph::SafeDownCast(input))
-    {
+  {
     vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(input);
     if (this->ReverseEdges)
-      {
+    {
 #if BOOST_VERSION < 104100      // Boost 1.41.x
       vtkErrorMacro("ReverseEdges requires Boost 1.41.x or higher");
       return 0;
@@ -278,33 +278,33 @@ int vtkBoostBreadthFirstSearchTree::RequestData(
       boost::reverse_graph<vtkDirectedGraph*> r(g);
       breadth_first_search(r, this->OriginVertexIndex, q, builder, color);
 #endif
-      }
-    else
-      {
-      breadth_first_search(g, this->OriginVertexIndex, q, builder, color);
-      }
     }
-  else
+    else
     {
+      breadth_first_search(g, this->OriginVertexIndex, q, builder, color);
+    }
+  }
+  else
+  {
     vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(input);
     breadth_first_search(g, this->OriginVertexIndex, q, builder, color);
-    }
+  }
 
   // If the user wants it, store the mapping back to graph vertices
   if (this->CreateGraphVertexIdArray)
-    {
+  {
     treeToGraphIdMap->SetName("GraphVertexId");
     temp->GetVertexData()->AddArray(treeToGraphIdMap);
-    }
+  }
 
   // Copy the builder graph structure into the output tree
   vtkTree *output = vtkTree::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!output->CheckedShallowCopy(temp))
-    {
+  {
     vtkErrorMacro(<<"Invalid tree.");
     return 0;
-    }
+  }
 
   // Clean up
   output->Squeeze();

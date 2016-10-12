@@ -103,9 +103,9 @@ int TestGPURayCastReleaseResources(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage( renWin2.GetPointer() );
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

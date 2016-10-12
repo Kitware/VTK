@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWidgetCallbackMapper - map widget events into callbacks
-// .SECTION Description
-// vtkWidgetCallbackMapper maps widget events (defined in vtkWidgetEvent.h)
-// into static class methods, and provides facilities to invoke the methods.
-// This class is templated and meant to be used as an internal helper class
-// by the widget classes. The class works in combination with the class
-// vtkWidgetEventTranslator, which translates VTK events into widget events.
-//
-// .SECTION See Also
-// vtkWidgetEvent vtkWidgetEventTranslator
+/**
+ * @class   vtkWidgetCallbackMapper
+ * @brief   map widget events into callbacks
+ *
+ * vtkWidgetCallbackMapper maps widget events (defined in vtkWidgetEvent.h)
+ * into static class methods, and provides facilities to invoke the methods.
+ * This class is templated and meant to be used as an internal helper class
+ * by the widget classes. The class works in combination with the class
+ * vtkWidgetEventTranslator, which translates VTK events into widget events.
+ *
+ * @sa
+ * vtkWidgetEvent vtkWidgetEventTranslator
+*/
 
 #ifndef vtkWidgetCallbackMapper_h
 #define vtkWidgetCallbackMapper_h
@@ -38,33 +41,43 @@ class vtkCallbackMap; // PIMPL encapsulation of STL map
 class VTKINTERACTIONWIDGETS_EXPORT vtkWidgetCallbackMapper : public vtkObject
 {
 public:
-  // Description:
-  // Instantiate the class.
+  /**
+   * Instantiate the class.
+   */
   static vtkWidgetCallbackMapper *New();
 
-  // Description:
-  // Standard macros.
+  //@{
+  /**
+   * Standard macros.
+   */
   vtkTypeMacro(vtkWidgetCallbackMapper,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // Specify the vtkWidgetEventTranslator to coordinate with.
+  //@{
+  /**
+   * Specify the vtkWidgetEventTranslator to coordinate with.
+   */
   void SetEventTranslator(vtkWidgetEventTranslator *t);
   vtkGetObjectMacro(EventTranslator,vtkWidgetEventTranslator);
+  //@}
 
-  // Description:
-  // Convenient typedef for working with callbacks.
+  /**
+   * Convenient typedef for working with callbacks.
+   */
   typedef void (*CallbackType)(vtkAbstractWidget*);
 
-  // Description:
-  // This class works with the class vtkWidgetEventTranslator to set up the
-  // initial coorespondence between VTK events, widget events, and callbacks.
-  // Different flavors of the SetCallbackMethod() are available depending on
-  // what sort of modifiers are to be associated with a particular event.
-  // Typically the widgets should use this method to set up their event
-  // callbacks. If modifiers are not provided (i.e., the VTKEvent is a
-  // unsigned long eventId) then modifiers are ignored. Otherwise, a vtkEvent
-  // instance is used to fully quality the events.
+  //@{
+  /**
+   * This class works with the class vtkWidgetEventTranslator to set up the
+   * initial coorespondence between VTK events, widget events, and callbacks.
+   * Different flavors of the SetCallbackMethod() are available depending on
+   * what sort of modifiers are to be associated with a particular event.
+   * Typically the widgets should use this method to set up their event
+   * callbacks. If modifiers are not provided (i.e., the VTKEvent is a
+   * unsigned long eventId) then modifiers are ignored. Otherwise, a vtkEvent
+   * instance is used to fully quality the events.
+   */
   void SetCallbackMethod(unsigned long VTKEvent, unsigned long widgetEvent,
                          vtkAbstractWidget *w, CallbackType f);
   void SetCallbackMethod(unsigned long VTKEvent, int modifiers, char keyCode,
@@ -73,10 +86,12 @@ public:
                          vtkAbstractWidget *w, CallbackType f);
   //void SetCallbackMethod(vtkWidgetEvent *vtkEvent, unsigned long widgetEvent,
   //                       vtkAbstractWidget *w, CallbackType f);
+  //@}
 
-  // Description:
-  // This method invokes the callback given a widget event. A non-zero value
-  // is returned if the listed event is registered.
+  /**
+   * This method invokes the callback given a widget event. A non-zero value
+   * is returned if the listed event is registered.
+   */
   void InvokeCallback(unsigned long widgetEvent);
 
 protected:
@@ -89,17 +104,18 @@ protected:
   // Invoke the method associated with a particular widget event
   vtkCallbackMap *CallbackMap;
 
-  // Description:
-  // This method is used to assign a callback (implemented as a static class
-  // method) to a particular widget event. This is an internal method used by
-  // widgets to map widget events into invocations of class methods.
+  /**
+   * This method is used to assign a callback (implemented as a static class
+   * method) to a particular widget event. This is an internal method used by
+   * widgets to map widget events into invocations of class methods.
+   */
   void SetCallbackMethod(unsigned long widgetEvent,
                          vtkAbstractWidget *w, CallbackType f);
 
 
 private:
-  vtkWidgetCallbackMapper(const vtkWidgetCallbackMapper&);  //Not implemented
-  void operator=(const vtkWidgetCallbackMapper&);  //Not implemented
+  vtkWidgetCallbackMapper(const vtkWidgetCallbackMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWidgetCallbackMapper&) VTK_DELETE_FUNCTION;
 
 };
 

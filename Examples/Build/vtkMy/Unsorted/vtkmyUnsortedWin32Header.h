@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkmyUnsortedWin32Header - manage Windows system differences
-// .SECTION Description
-// The vtkmyUnsortedWin32Header captures some system differences between Unix
-// and Windows operating systems.
+/**
+ * @class   vtkmyUnsortedWin32Header
+ * @brief   manage Windows system differences
+ *
+ * The vtkmyUnsortedWin32Header captures some system differences between Unix
+ * and Windows operating systems.
+*/
 
 #ifndef vtkmyUnsortedWin32Header_h
 #define vtkmyUnsortedWin32Header_h

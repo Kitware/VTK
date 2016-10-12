@@ -29,9 +29,9 @@
 int vtkWrap_IsVoid(ValueInfo *val)
 {
   if (val == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   return ((val->Type & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_VOID);
 }
@@ -41,16 +41,16 @@ int vtkWrap_IsVoidFunction(ValueInfo *val)
   unsigned int t = (val->Type & VTK_PARSE_UNQUALIFIED_TYPE);
 
   if (t == VTK_PARSE_FUNCTION_PTR || t == VTK_PARSE_FUNCTION)
-    {
+  {
     /* check for signature "void (*func)(void *)" */
     if (val->Function->NumberOfParameters == 1 &&
         val->Function->Parameters[0]->Type == VTK_PARSE_VOID_PTR &&
         val->Function->Parameters[0]->NumberOfDimensions == 0 &&
         val->Function->ReturnValue->Type == VTK_PARSE_VOID)
-      {
+    {
       return 1;
-      }
     }
+  }
 
   return 0;
 }
@@ -101,9 +101,9 @@ int vtkWrap_IsQtObject(ValueInfo *val)
   unsigned int t = (val->Type & VTK_PARSE_BASE_TYPE);
   if (t == VTK_PARSE_QOBJECT &&
       val->Class[0] == 'Q' && isupper(val->Class[1]))
-    {
+  {
     return 1;
-    }
+  }
   return 0;
 }
 
@@ -112,9 +112,9 @@ int vtkWrap_IsQtEnum(ValueInfo *val)
   unsigned int t = (val->Type & VTK_PARSE_UNQUALIFIED_TYPE);
   if ((t == VTK_PARSE_QOBJECT || t == VTK_PARSE_QOBJECT_REF) &&
       val->Class[0] == 'Q' && strncmp("Qt::", val->Class, 4) == 0)
-    {
+  {
     return 1;
-    }
+  }
   return 0;
 }
 
@@ -148,7 +148,7 @@ int vtkWrap_IsNumeric(ValueInfo *val)
 
   t = (t & ~VTK_PARSE_UNSIGNED);
   switch (t)
-    {
+  {
     case VTK_PARSE_FLOAT:
     case VTK_PARSE_DOUBLE:
     case VTK_PARSE_CHAR:
@@ -162,7 +162,7 @@ int vtkWrap_IsNumeric(ValueInfo *val)
     case VTK_PARSE_SSIZE_T:
     case VTK_PARSE_BOOL:
       return 1;
-    }
+  }
 
   return 0;
 }
@@ -194,11 +194,11 @@ int vtkWrap_IsInteger(ValueInfo *val)
   unsigned int t = (val->Type & VTK_PARSE_BASE_TYPE);
 
   if (t != VTK_PARSE_UNSIGNED_CHAR)
-    {
+  {
     t = (t & ~VTK_PARSE_UNSIGNED);
-    }
+  }
   switch (t)
-    {
+  {
     case VTK_PARSE_SHORT:
     case VTK_PARSE_INT:
     case VTK_PARSE_LONG:
@@ -209,7 +209,7 @@ int vtkWrap_IsInteger(ValueInfo *val)
     case VTK_PARSE_SIGNED_CHAR:
     case VTK_PARSE_SSIZE_T:
       return 1;
-    }
+  }
 
   return 0;
 }
@@ -248,16 +248,16 @@ int vtkWrap_IsNArray(ValueInfo *val)
   int j = 0;
   unsigned int i = (val->Type & VTK_PARSE_POINTER_MASK);
   if (i != VTK_PARSE_ARRAY || val->NumberOfDimensions <= 1)
-    {
+  {
     return 0;
-    }
+  }
   for (j = 0; j < val->NumberOfDimensions; j++)
-    {
+  {
     if (val->Dimensions[j] == NULL || val->Dimensions[j][0] == '\0')
-      {
+    {
       return 0;
-      }
     }
+  }
   return 1;
 }
 
@@ -294,17 +294,17 @@ int vtkWrap_IsEnumMember(ClassInfo *data, ValueInfo *arg)
   int i;
 
   if (arg->Class)
-    {
+  {
     /* check if the enum is a member of the class */
     for (i = 0; i < data->NumberOfEnums; i++)
-      {
+    {
       EnumInfo *info = data->Enums[i];
       if (info->Name && strcmp(arg->Class, info->Name) == 0)
-        {
+      {
         return 1;
-        }
       }
     }
+  }
 
   return 0;
 }
@@ -327,24 +327,24 @@ int vtkWrap_IsConstructor(ClassInfo *c, FunctionInfo *f)
   const char *cp = c->Name;
 
   if (cp && f->Name && !vtkWrap_IsDestructor(c, f))
-    {
+  {
     /* remove namespaces and template parameters from the name */
     m = vtkParse_UnscopedNameLength(cp);
     while (cp[m] == ':' && cp[m+1] == ':')
-      {
+    {
       cp += m + 2;
       m = vtkParse_UnscopedNameLength(cp);
-      }
+    }
     for (i = 0; i < m; i++)
-      {
+    {
       if (cp[i] == '<')
-        {
+      {
         break;
-        }
       }
+    }
 
     return (i == strlen(f->Name) && strncmp(cp, f->Name, i) == 0);
-    }
+  }
 
   return 0;
 }
@@ -355,16 +355,16 @@ int vtkWrap_IsDestructor(ClassInfo *c, FunctionInfo *f)
   const char *cp;
 
   if (c->Name && f->Name)
-    {
+  {
     cp = f->Signature;
     for (i = 0; cp[i] != '\0' && cp[i] != '('; i++)
-      {
+    {
       if (cp[i] == '~')
-        {
+      {
         return 1;
-        }
       }
     }
+  }
 
   return 0;
 }
@@ -372,9 +372,9 @@ int vtkWrap_IsDestructor(ClassInfo *c, FunctionInfo *f)
 int vtkWrap_IsSetVectorMethod(FunctionInfo *f)
 {
   if (f->Macro && strncmp(f->Macro, "vtkSetVector", 12) == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   return 0;
 }
@@ -382,9 +382,9 @@ int vtkWrap_IsSetVectorMethod(FunctionInfo *f)
 int vtkWrap_IsGetVectorMethod(FunctionInfo *f)
 {
   if (f->Macro && strncmp(f->Macro, "vtkGetVector", 12) == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   return 0;
 }
@@ -399,15 +399,15 @@ int vtkWrap_CountWrappedParameters(FunctionInfo *f)
   if (totalArgs > 0 &&
       (f->Parameters[0]->Type & VTK_PARSE_BASE_TYPE)
        == VTK_PARSE_FUNCTION)
-    {
+  {
     totalArgs = 1;
-    }
+  }
   else if (totalArgs == 1 &&
            (f->Parameters[0]->Type & VTK_PARSE_UNQUALIFIED_TYPE)
             == VTK_PARSE_VOID)
-    {
+  {
     totalArgs = 0;
-    }
+  }
 
   return totalArgs;
 }
@@ -421,13 +421,13 @@ int vtkWrap_CountRequiredArguments(FunctionInfo *f)
   totalArgs = vtkWrap_CountWrappedParameters(f);
 
   for (i = 0; i < totalArgs; i++)
-    {
+  {
     if (f->Parameters[i]->Value == NULL ||
         vtkWrap_IsNArray(f->Parameters[i]))
-      {
+    {
       requiredArgs = i+1;
-      }
     }
+  }
 
   return requiredArgs;
 }
@@ -441,24 +441,24 @@ int vtkWrap_IsVTKObjectBaseType(
   HierarchyEntry *entry;
 
   if (hinfo)
-    {
+  {
     entry = vtkParseHierarchy_FindEntry(hinfo, classname);
     if (entry)
-      {
+    {
       if (vtkParseHierarchy_IsTypeOf(hinfo, entry, "vtkObjectBase"))
-        {
+      {
         return 1;
-        }
-      return 0;
       }
+      return 0;
     }
+  }
 
   /* fallback if no HierarchyInfo, but skip smart pointers */
   if (strncmp("vtk", classname, 3) == 0 &&
       strncmp("vtkSmartPointer", classname, 15) != 0)
-    {
+  {
     return 1;
-    }
+  }
 
   return 0;
 }
@@ -472,23 +472,23 @@ int vtkWrap_IsSpecialType(
   HierarchyEntry *entry;
 
   if (hinfo)
-    {
+  {
     entry = vtkParseHierarchy_FindEntry(hinfo, classname);
     if (entry)
-      {
+    {
       if (!vtkParseHierarchy_IsTypeOf(hinfo, entry, "vtkObjectBase"))
-        {
+      {
         return 1;
-        }
       }
-    return 0;
     }
+    return 0;
+  }
 
   /* fallback if no HierarchyInfo */
   if (strncmp("vtk", classname, 3) == 0)
-    {
+  {
     return -1;
-    }
+  }
 
   return 0;
 }
@@ -502,18 +502,18 @@ int vtkWrap_IsTypeOf(
   HierarchyEntry *entry;
 
   if (strcmp(classname, superclass) == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   if (hinfo)
-    {
+  {
     entry = vtkParseHierarchy_FindEntry(hinfo, classname);
     if (entry && vtkParseHierarchy_IsTypeOf(hinfo, entry, superclass))
-      {
+    {
       return 1;
-      }
     }
+  }
 
   return 0;
 }
@@ -525,22 +525,22 @@ int vtkWrap_IsClassWrapped(
   HierarchyInfo *hinfo, const char *classname)
 {
   if (hinfo)
-    {
+  {
     HierarchyEntry *entry;
     entry = vtkParseHierarchy_FindEntry(hinfo, classname);
 
     if (entry)
-      {
+    {
       if (!vtkParseHierarchy_GetProperty(entry, "WRAP_EXCLUDE_PYTHON"))
-        {
+      {
         return 1;
-        }
       }
     }
+  }
   else if (strncmp("vtk", classname, 3) == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   return 0;
 }
@@ -553,15 +553,15 @@ int vtkWrap_HasPublicDestructor(ClassInfo *data)
   int i;
 
   for (i = 0; i < data->NumberOfFunctions; i++)
-    {
+  {
     func = data->Functions[i];
 
     if (vtkWrap_IsDestructor(data, func) &&
         func->Access != VTK_ACCESS_PUBLIC)
-      {
+    {
       return 0;
-      }
     }
+  }
 
   return 1;
 }
@@ -574,7 +574,7 @@ int vtkWrap_HasPublicCopyConstructor(ClassInfo *data)
   int i;
 
   for (i = 0; i < data->NumberOfFunctions; i++)
-    {
+  {
     func = data->Functions[i];
 
     if (vtkWrap_IsConstructor(data, func) &&
@@ -582,10 +582,10 @@ int vtkWrap_HasPublicCopyConstructor(ClassInfo *data)
         func->Parameters[0]->Class &&
         strcmp(func->Parameters[0]->Class, data->Name) == 0 &&
         func->Access != VTK_ACCESS_PUBLIC)
-      {
+    {
       return 0;
-      }
     }
+  }
 
   return 1;
 }
@@ -602,20 +602,20 @@ int vtkWrap_GetTupleSize(ClassInfo *data, HierarchyInfo *hinfo)
   entry = vtkParseHierarchy_FindEntry(hinfo, data->Name);
   if (entry && vtkParseHierarchy_IsTypeOfTemplated(
         hinfo, entry, data->Name, "vtkTuple", &classname))
-    {
+  {
     /* attempt to get count from template parameter */
     if (classname)
-      {
+    {
       m = strlen(classname);
       if (m > 2 && classname[m - 1] == '>' &&
           isdigit(classname[m-2]) && (classname[m-3] == ' ' ||
           classname[m-3] == ',' || classname[m-3] == '<'))
-        {
+      {
         size = classname[m-2] - '0';
-        }
-      free((char *)classname);
       }
+      free((char *)classname);
     }
+  }
 
   return size;
 }
@@ -633,11 +633,11 @@ void vtkWrap_FindCountHints(
 
   /* add hints for vtkInformation get methods */
   if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkInformation"))
-    {
+  {
     countMethod = "Length(temp0)";
 
     for (i = 0; i < data->NumberOfFunctions; i++)
-      {
+    {
       theFunc = data->Functions[i];
 
       if (strcmp(theFunc->Name, "Get") == 0 &&
@@ -647,23 +647,24 @@ void vtkWrap_FindCountHints(
                   "vtkInformationIntegerVectorKey") == 0 ||
            strcmp(theFunc->Parameters[0]->Class,
                   "vtkInformationDoubleVectorKey") == 0))
-        {
+      {
         if (theFunc->ReturnValue && theFunc->ReturnValue->Count == 0 &&
             theFunc->NumberOfParameters == 1)
-          {
+        {
           theFunc->ReturnValue->CountHint = countMethod;
-          }
         }
       }
     }
+  }
 
   /* add hints for array GetTuple methods */
-  if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkDataArray"))
-    {
+  if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkDataArray") ||
+      vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArrayIterator"))
+  {
     countMethod = "GetNumberOfComponents()";
 
     for (i = 0; i < data->NumberOfFunctions; i++)
-      {
+    {
       theFunc = data->Functions[i];
 
       if ((strcmp(theFunc->Name, "GetTuple") == 0 ||
@@ -671,9 +672,9 @@ void vtkWrap_FindCountHints(
           theFunc->ReturnValue && theFunc->ReturnValue->Count == 0 &&
           theFunc->NumberOfParameters == 1 &&
           theFunc->Parameters[0]->Type == VTK_PARSE_ID_TYPE)
-        {
+      {
         theFunc->ReturnValue->CountHint = countMethod;
-        }
+      }
       else if ((strcmp(theFunc->Name, "SetTuple") == 0 ||
                 strcmp(theFunc->Name, "SetTypedTuple") == 0 ||
                 strcmp(theFunc->Name, "GetTuple") == 0 ||
@@ -683,26 +684,26 @@ void vtkWrap_FindCountHints(
                theFunc->NumberOfParameters == 2 &&
                theFunc->Parameters[0]->Type == VTK_PARSE_ID_TYPE &&
                theFunc->Parameters[1]->Count == 0)
-        {
+      {
         theFunc->Parameters[1]->CountHint = countMethod;
-        }
+      }
       else if ((strcmp(theFunc->Name, "InsertNextTuple") == 0 ||
                 strcmp(theFunc->Name, "InsertNextTypedTuple") == 0) &&
                theFunc->NumberOfParameters == 1 &&
                theFunc->Parameters[0]->Count == 0)
-        {
+      {
         theFunc->Parameters[0]->CountHint = countMethod;
-        }
       }
     }
+  }
 
   /* add hints for interpolator Interpolate methods */
   if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkAbstractImageInterpolator"))
-    {
+  {
     countMethod = "GetNumberOfComponents()";
 
     for (i = 0; i < data->NumberOfFunctions; i++)
-      {
+    {
       theFunc = data->Functions[i];
 
       if (strcmp(theFunc->Name, "Interpolate") == 0 &&
@@ -711,14 +712,14 @@ void vtkWrap_FindCountHints(
            theFunc->Parameters[0]->Count == 3 &&
            theFunc->Parameters[1]->Type == VTK_PARSE_DOUBLE_PTR &&
            theFunc->Parameters[1]->Count == 0)
-        {
+      {
         theFunc->Parameters[1]->CountHint = countMethod;
-        }
       }
     }
+  }
 
   for (i = 0; i < data->NumberOfFunctions; i++)
-    {
+  {
     theFunc = data->Functions[i];
 
     /* hints for constructors that take arrays */
@@ -728,10 +729,10 @@ void vtkWrap_FindCountHints(
         vtkWrap_IsNumeric(theFunc->Parameters[0]) &&
         theFunc->Parameters[0]->Count == 0 &&
         hinfo)
-      {
+    {
       count = vtkWrap_GetTupleSize(data, hinfo);
       if (count)
-        {
+      {
         char counttext[24];
         sprintf(counttext, "%d", count);
         theFunc->Parameters[0]->Count = count;
@@ -739,30 +740,30 @@ void vtkWrap_FindCountHints(
           &theFunc->Parameters[0]->Dimensions,
           &theFunc->Parameters[0]->NumberOfDimensions,
           vtkParse_CacheString(finfo->Strings, counttext, strlen(counttext)));
-        }
       }
+    }
 
     /* hints for operator[] index range */
     if (theFunc->IsOperator && theFunc->Name &&
         strcmp(theFunc->Name, "operator[]") == 0)
-      {
+    {
       if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkTuple"))
-        {
+      {
         theFunc->SizeHint = "GetSize()";
-        }
+      }
       else if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArrayCoordinates") ||
                vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArrayExtents") ||
                vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArraySort"))
-        {
+      {
         theFunc->SizeHint = "GetDimensions()";
-        }
+      }
       else if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArrayExtentsList") ||
                vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArrayWeights"))
-        {
+      {
         theFunc->SizeHint = "GetCount()";
-        }
       }
     }
+  }
 }
 
 /* -------------------------------------------------------------------- */
@@ -775,26 +776,27 @@ void vtkWrap_FindNewInstanceMethods(
   OptionInfo *options;
 
   for (i = 0; i < data->NumberOfFunctions; i++)
-    {
+  {
     theFunc = data->Functions[i];
     if (theFunc->Name && theFunc->ReturnValue &&
         vtkWrap_IsVTKObject(theFunc->ReturnValue) &&
         vtkWrap_IsVTKObjectBaseType(hinfo, theFunc->ReturnValue->Class))
-      {
+    {
       if (strcmp(theFunc->Name, "NewInstance") == 0 ||
+          strcmp(theFunc->Name, "NewIterator") == 0 ||
           strcmp(theFunc->Name, "CreateInstance") == 0)
-        {
+      {
         if ((theFunc->ReturnValue->Type & VTK_PARSE_NEWINSTANCE) == 0)
-          {
+        {
           /* get the command-line options */
           options = vtkParse_GetCommandLineOptions();
           fprintf(stderr, "Warning: %s without VTK_NEWINSTANCE hint in %s\n",
             theFunc->Name, options->InputFileName);
           theFunc->ReturnValue->Type |= VTK_PARSE_NEWINSTANCE;
-          }
         }
       }
     }
+  }
 }
 
 
@@ -809,35 +811,35 @@ void vtkWrap_ExpandTypedefs(
 
   n = data->NumberOfSuperClasses;
   for (i = 0; i < n; i++)
-    {
+  {
     newclass = vtkParseHierarchy_ExpandTypedefsInName(
       hinfo, data->SuperClasses[i], NULL);
     if (newclass != data->SuperClasses[i])
-      {
+    {
       data->SuperClasses[i] =
         vtkParse_CacheString(finfo->Strings, newclass, strlen(newclass));
       free((char *)newclass);
-      }
     }
+  }
 
   n = data->NumberOfFunctions;
   for (i = 0; i < n; i++)
-    {
+  {
     funcInfo = data->Functions[i];
     if (funcInfo->Access == VTK_ACCESS_PUBLIC)
-      {
+    {
       for (j = 0; j < funcInfo->NumberOfParameters; j++)
-        {
+      {
         vtkParseHierarchy_ExpandTypedefsInValue(
           hinfo, funcInfo->Parameters[j], finfo->Strings, data->Name);
-        }
+      }
       if (funcInfo->ReturnValue)
-        {
+      {
         vtkParseHierarchy_ExpandTypedefsInValue(
           hinfo, funcInfo->ReturnValue, finfo->Strings, data->Name);
-        }
       }
     }
+  }
 }
 
 /* -------------------------------------------------------------------- */
@@ -850,23 +852,23 @@ void vtkWrap_ApplyUsingDeclarations(
   /* first, check if there are any declarations to apply */
   n = data->NumberOfUsings;
   for (i = 0; i < n; i++)
-    {
+  {
     if (data->Usings[i]->Name)
-      {
+    {
       break;
-      }
     }
+  }
   /* if using declarations found, read superclass headers */
   if (i < n)
-    {
+  {
     n = data->NumberOfSuperClasses;
     for (i = 0; i < n; i++)
-      {
+    {
       vtkParseMerge_MergeHelper(
         finfo, finfo->Contents, hinfo, data->SuperClasses[i],
         0, NULL, NULL, data);
-      }
     }
+  }
 }
 
 /* -------------------------------------------------------------------- */
@@ -879,7 +881,7 @@ const char *vtkWrap_GetTypeName(ValueInfo *val)
 
   /* print the type itself */
   switch (aType & VTK_PARSE_BASE_TYPE)
-    {
+  {
     case VTK_PARSE_FLOAT:          return "float";
     case VTK_PARSE_DOUBLE:         return "double";
     case VTK_PARSE_INT:            return "int";
@@ -901,7 +903,7 @@ const char *vtkWrap_GetTypeName(ValueInfo *val)
     case VTK_PARSE_UNICODE_STRING: return "vtkUnicodeString";
     case VTK_PARSE_SSIZE_T:        return "ssize_t";
     case VTK_PARSE_SIZE_T:         return "size_t";
-    }
+  }
 
   return aClass;
 }
@@ -919,79 +921,79 @@ void vtkWrap_DeclareVariable(
   char *newTypeName = NULL;
 
   if (val == NULL)
-    {
+  {
     return;
-    }
+  }
 
   aType = (val->Type & VTK_PARSE_UNQUALIFIED_TYPE);
 
   /* do nothing for void */
   if (aType == VTK_PARSE_VOID ||
       (aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_FUNCTION)
-    {
+  {
     return;
-    }
+  }
 
   typeName = vtkWrap_GetTypeName(val);
 
   if (vtkWrap_IsEnumMember(data, val))
-    {
+  {
     /* use a typedef to work around compiler issues when someone used
        the same name for the enum type as for a variable or method */
     newTypeName = (char *)malloc(strlen(name) + 16);
     if (i >= 0)
-      {
+    {
       sprintf(newTypeName, "%s%i_type", name, i);
-      }
+    }
     else
-      {
+    {
       sprintf(newTypeName, "%s_type", name);
-      }
+    }
     fprintf(fp, "  typedef %s::%s %s;\n",
             data->Name, typeName, newTypeName);
     typeName = newTypeName;
-    }
+  }
 
   /* add a couple spaces for indentation*/
   fprintf(fp,"  ");
 
   /* for const * return types, prepend with const */
   if ((flags & VTK_WRAP_RETURN) != 0)
-    {
+  {
     if ((val->Type & VTK_PARSE_CONST) != 0 &&
         (aType & VTK_PARSE_INDIRECT) != 0)
-      {
+    {
       fprintf(fp,"const ");
-      }
     }
+  }
   /* do the same for "const char *" with initializer */
   else
-    {
+  {
     if ((val->Type & VTK_PARSE_CONST) != 0 &&
         aType == VTK_PARSE_CHAR_PTR &&
         val->Value &&
         strcmp(val->Value, "0") != 0 &&
         strcmp(val->Value, "NULL") != 0)
-      {
+    {
       fprintf(fp,"const ");
-      }
     }
+  }
 
   /* print the type name */
   fprintf(fp, "%s ", typeName);
 
   /* indirection */
   if ((flags & VTK_WRAP_RETURN) != 0)
-    {
+  {
     /* ref and pointer return values are stored as pointers */
     if ((aType & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER ||
         (aType & VTK_PARSE_INDIRECT) == VTK_PARSE_REF)
-      {
-      fprintf(fp, "*");
-      }
-    }
-  else
     {
+      fprintf(fp, "*");
+    }
+  }
+  else
+  {
     /* objects refs and pointers are always handled via pointers,
      * other refs are passed by value */
     if (aType == VTK_PARSE_CHAR_PTR ||
@@ -1000,29 +1002,29 @@ void vtkWrap_DeclareVariable(
         aType == VTK_PARSE_OBJECT_REF ||
         aType == VTK_PARSE_OBJECT ||
         vtkWrap_IsQtObject(val))
-      {
+    {
       fprintf(fp, "*");
-      }
+    }
     /* arrays of unknown size are handled via pointers */
     else if (val->CountHint || vtkWrap_IsPODPointer(val) ||
              (vtkWrap_IsArray(val) && val->Value))
-      {
+    {
       fprintf(fp, "*");
-      }
     }
+  }
 
   /* the variable name */
   if (i >= 0)
-    {
+  {
     fprintf(fp,"%s%i", name, i);
-    }
+  }
   else
-    {
+  {
     fprintf(fp,"%s", name);
-    }
+  }
 
   if ((flags & VTK_WRAP_ARG) != 0)
-    {
+  {
     /* print the array decorators */
     if (((aType & VTK_PARSE_POINTER_MASK) != 0) &&
         aType != VTK_PARSE_CHAR_PTR &&
@@ -1032,49 +1034,49 @@ void vtkWrap_DeclareVariable(
         val->CountHint == NULL &&
         !vtkWrap_IsPODPointer(val) &&
         !(vtkWrap_IsArray(val) && val->Value))
-      {
+    {
       if (val->NumberOfDimensions == 1 && val->Count > 0)
-        {
+      {
         fprintf(fp, "[%d]", val->Count);
-        }
+      }
       else
-        {
+      {
         for (j = 0; j < val->NumberOfDimensions; j++)
-          {
+        {
           fprintf(fp, "[%s]", val->Dimensions[j]);
-          }
         }
       }
+    }
 
     /* add a default value */
     else if (val->Value)
-      {
+    {
       fprintf(fp, " = %s", val->Value);
-      }
+    }
     else if (aType == VTK_PARSE_CHAR_PTR ||
              aType == VTK_PARSE_VOID_PTR ||
              aType == VTK_PARSE_OBJECT_PTR ||
              aType == VTK_PARSE_OBJECT_REF ||
              aType == VTK_PARSE_OBJECT ||
              vtkWrap_IsQtObject(val))
-      {
+    {
       fprintf(fp, " = NULL");
-      }
-    else if (val->CountHint || vtkWrap_IsPODPointer(val))
-      {
-      fprintf(fp, " = NULL");
-      }
-    else if (aType == VTK_PARSE_BOOL)
-      {
-      fprintf(fp, " = false");
-      }
     }
+    else if (val->CountHint || vtkWrap_IsPODPointer(val))
+    {
+      fprintf(fp, " = NULL");
+    }
+    else if (aType == VTK_PARSE_BOOL)
+    {
+      fprintf(fp, " = false");
+    }
+  }
 
   /* finish off with a semicolon */
   if ((flags & VTK_WRAP_NOSEMI) == 0)
-    {
+  {
     fprintf(fp, ";\n");
-    }
+  }
 
   free(newTypeName);
 }
@@ -1087,36 +1089,36 @@ void vtkWrap_DeclareVariableSize(
 
   idx[0] = '\0';
   if (i >= 0)
-    {
+  {
     sprintf(idx, "%d", i);
-    }
+  }
 
   if (val->NumberOfDimensions > 1)
-    {
+  {
     fprintf(fp,
             "  static int %s%s[%d] = ",
             name, idx, val->NumberOfDimensions);
 
     for (j = 0; j < val->NumberOfDimensions; j++)
-      {
+    {
       fprintf(fp, "%c %s", ((j == 0) ? '{' : ','), val->Dimensions[j]);
-      }
+    }
 
     fprintf(fp, " };\n");
-    }
+  }
   else if (val->Count != 0 || val->CountHint || vtkWrap_IsPODPointer(val))
-    {
+  {
     fprintf(fp,
             "  %sint %s%s = %d;\n",
             ((val->Count == 0 || val->Value != 0) ? "" : "const "),
             name, idx, (val->Count == 0 ? 0 : val->Count));
-    }
+  }
   else if (val->NumberOfDimensions == 1)
-    {
+  {
     fprintf(fp,
             "  const int %s%s = %s;\n",
             name, idx, val->Dimensions[0]);
-    }
+  }
 }
 
 char *vtkWrap_SafeSuperclassName(const char *name)
@@ -1132,20 +1134,20 @@ char *vtkWrap_SafeSuperclassName(const char *name)
   {
     char c = name[i];
     if (c == '<' || c == '>')
-      {
+    {
       safe_name[i] = '_';
       template_class = 1;
-      }
+    }
     if  (c == ',' || c == ' ')
-      {
+    {
       safe_name[i] = '_';
-      }
+    }
   }
 
   if (!template_class)
-    {
+  {
     free(safe_name);
     return NULL;
-    }
+  }
   return safe_name;
 }

@@ -1,19 +1,19 @@
 vtk_module(vtkIOXdmf2
   TCL_NAME vtkIOXdmfII
   GROUPS
-  DEPENDS
-    vtkCommonCore
-    vtkCommonDataModel
-    vtkCommonExecutionModel
-    vtkFiltersExtraction
-    vtkIOLegacy
-    vtkIOXML
-  PRIVATE_DEPENDS
-    vtksys
-    vtkxdmf2
   TEST_DEPENDS
     vtkFiltersGeneral
     vtkTestingCore
   KIT
     vtkIO
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkIOLegacy
+  PRIVATE_DEPENDS
+    vtkFiltersExtraction
+    vtkIOXMLParser
+    vtksys
+    vtkxdmf2
   )

@@ -12,16 +12,39 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDebugLeaks - identify memory leaks at program termination
-// .SECTION Description
-// vtkDebugLeaks is used to report memory leaks at the exit of the program.
-// It uses the vtkObjectFactory to intercept the construction of all VTK
-// objects. It uses the UnRegister method of vtkObject to intercept the
-// destruction of all objects. A table of object name to number of instances
-// is kept. At the exit of the program if there are still VTK objects around
-// it will print them out.  To enable this class add the flag
-// -DVTK_DEBUG_LEAKS to the compile line, and rebuild vtkObject and
-// vtkObjectFactory.
+/**
+ * @class vtkDebugLeaks
+ * @brief identify memory leaks at program termination
+ * vtkDebugLeaks is used to report memory leaks at the exit of the program. It
+ * uses vtkObjectBase::InitializeObjectBase() (called via vtkObjectFactory
+ * macros) to intercept the construction of all VTK objects. It uses the
+ * UnRegisterInternal method of vtkObjectBase to intercept the destruction of
+ * all objects.
+ *
+ * If not using the vtkObjectFactory macros to implement New(), be sure to call
+ * vtkObjectBase::InitializeObjectBase() explicitly on the constructed
+ * instance. The rule of thumb is that wherever "new [some vtkObjectBase
+ * subclass]" is called, vtkObjectBase::InitializeObjectBase() must be called
+ * as well.
+ *
+ * There are exceptions to this:
+ *
+ * - vtkCommand subclasses traditionally do not fully participate in
+ * vtkDebugLeaks registration, likely because they typically do not use
+ * vtkTypeMacro to configure GetClassName. InitializeObjectBase should not be
+ * called on vtkCommand subclasses, and all such classes will be automatically
+ * registered with vtkDebugLeaks as "vtkCommand or subclass".
+ *
+ * - vtkInformationKey subclasses are not reference counted. They are allocated
+ * statically and registered automatically with a singleton "manager" instance.
+ * The manager ensures that all keys are cleaned up before exiting, and
+ * registration/deregistration with vtkDebugLeaks is bypassed.
+ *
+ * A table of object name to number of instances is kept. At the exit of the
+ * program if there are still VTK objects around it will print them out. To
+ * enable this class add the flag -DVTK_DEBUG_LEAKS to the compile line, and
+ * rebuild vtkObject and vtkObjectFactory.
+ */
 
 #ifndef vtkDebugLeaks_h
 #define vtkDebugLeaks_h
@@ -42,31 +65,37 @@ public:
   static vtkDebugLeaks *New();
   vtkTypeMacro(vtkDebugLeaks,vtkObject);
 
-  // Description:
-  // Call this when creating a class of a given name.
+  /**
+   * Call this when creating a class of a given name.
+   */
   static void ConstructClass(const char* classname);
 
-  // Description:
-  // Call this when deleting a class of a given name.
+  /**
+   * Call this when deleting a class of a given name.
+   */
   static void DestructClass(const char* classname);
 
-  // Description:
-  // Print all the values in the table.  Returns non-zero if there
-  // were leaks.
+  /**
+   * Print all the values in the table.  Returns non-zero if there
+   * were leaks.
+   */
   static int PrintCurrentLeaks();
 
-  // Description:
-  // Get/Set flag for exiting with an error when leaks are present.
-  // Default is on when VTK_DEBUG_LEAKS is on and off otherwise.
+  //@{
+  /**
+   * Get/Set flag for exiting with an error when leaks are present.
+   * Default is on when VTK_DEBUG_LEAKS is on and off otherwise.
+   */
   static int GetExitError();
   static void SetExitError(int);
+  //@}
 
   static void SetDebugLeaksObserver(vtkDebugLeaksObserver* observer);
   static vtkDebugLeaksObserver* GetDebugLeaksObserver();
 
 protected:
   vtkDebugLeaks(){}
-  virtual ~vtkDebugLeaks(){}
+  ~vtkDebugLeaks() VTK_OVERRIDE{}
 
   static int DisplayMessageBox(const char*);
 
@@ -85,8 +114,8 @@ private:
   static vtkDebugLeaksObserver* Observer;
   static int ExitError;
 
-  vtkDebugLeaks(const vtkDebugLeaks&);  // Not implemented.
-  void operator=(const vtkDebugLeaks&);  // Not implemented.
+  vtkDebugLeaks(const vtkDebugLeaks&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDebugLeaks&) VTK_DELETE_FUNCTION;
 };
 
 // This class defines callbacks for debugging tools. The callbacks are not for general use.

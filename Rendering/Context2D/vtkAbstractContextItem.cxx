@@ -78,13 +78,13 @@ bool vtkAbstractContextItem::RemoveItem(unsigned int index)
 vtkAbstractContextItem* vtkAbstractContextItem::GetItem(unsigned int index)
 {
   if (index < this->Children->size())
-    {
+  {
     return this->Children->at(index);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -93,9 +93,9 @@ unsigned int vtkAbstractContextItem::GetItemIndex(vtkAbstractContextItem* item)
   vtkContextScenePrivate::const_iterator it =
     std::find(this->Children->begin(), this->Children->end(), item);
   if (it == this->Children->end())
-    {
+  {
     return static_cast<unsigned int>(-1);
-    }
+  }
   return it - this->Children->begin();
 }
 
@@ -123,33 +123,33 @@ unsigned int vtkAbstractContextItem::StackAbove(unsigned int index,
 {
   unsigned int res = index;
   if (index == under)
-    {
+  {
     return res;
-    }
+  }
   unsigned int start = 0;
   unsigned int middle = 0;
   unsigned int end = 0;
   if (under == static_cast<unsigned int>(-1))
-    {
+  {
     start = 0;
     middle = index;
     end = index + 1;
     res = 0;
-    }
+  }
   else if (index > under)
-    {
+  {
     start = under + 1;
     middle = index;
     end = index + 1;
     res = start;
-    }
+  }
   else // if (index < under)
-    {
+  {
     start = index;
     middle = index + 1;
     end = under + 1;
     res = end - 1;
-    }
+  }
   std::rotate(this->Children->begin() + start,
               this->Children->begin() + middle,
               this->Children->begin() + end);
@@ -238,13 +238,13 @@ vtkAbstractContextItem* vtkAbstractContextItem::GetPickedItem(
   childMouse.SetLastPos(this->MapFromParent(mouse.GetLastPos()));
   for(vtkContextScenePrivate::const_reverse_iterator it =
       this->Children->rbegin(); it != this->Children->rend(); ++it)
-    {
+  {
     vtkAbstractContextItem* item = (*it)->GetPickedItem(childMouse);
     if (item)
-      {
+    {
       return item;
-      }
     }
+  }
   return this->Hit(mouse) ? this : NULL;
 }
 
@@ -253,9 +253,9 @@ void vtkAbstractContextItem::ReleaseGraphicsResources()
 {
   for(vtkContextScenePrivate::const_iterator it = this->Children->begin();
     it != this->Children->end(); ++it)
-    {
+  {
     (*it)->ReleaseGraphicsResources();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -287,30 +287,30 @@ vtkVector2f vtkAbstractContextItem::MapFromParent(const vtkVector2f& point)
 vtkVector2f vtkAbstractContextItem::MapToScene(const vtkVector2f& point)
 {
   if (this->Parent)
-    {
+  {
     vtkVector2f p = this->MapToParent(point);
     p = this->Parent->MapToScene(p);
     return p;
-    }
+  }
   else
-    {
+  {
     return this->MapToParent(point);
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
 vtkVector2f vtkAbstractContextItem::MapFromScene(const vtkVector2f& point)
 {
   if (this->Parent)
-    {
+  {
     vtkVector2f p = this->Parent->MapFromScene(point);
     p = this->MapFromParent(p);
     return p;
-    }
+  }
   else
-    {
+  {
     return this->MapFromParent(point);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------

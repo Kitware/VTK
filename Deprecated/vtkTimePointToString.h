@@ -17,20 +17,23 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkTimePointToString - Converts a timestamp array to a string array
-//
-// .SECTION Description
-//
-// vtkTimePointToString is a filter for converting a timestamp array
-// into string array using one of the formats defined in vtkTimePointUtility.h.
-//
-// Use SetInputArrayToProcess to indicate the array to process.
-// This array must be an unsigned 64-bit integer array for
-// DATETIME formats, and may be either an unsigned 32-bit or
-// unsigned 64-bit array for DATE and TIME formats.
-//
-// If the new array name is not specified, the array name will be
-// the old name appended by " [to string]".
+/**
+ * @class   vtkTimePointToString
+ * @brief   Converts a timestamp array to a string array
+ *
+ *
+ *
+ * vtkTimePointToString is a filter for converting a timestamp array
+ * into string array using one of the formats defined in vtkTimePointUtility.h.
+ *
+ * Use SetInputArrayToProcess to indicate the array to process.
+ * This array must be an unsigned 64-bit integer array for
+ * DATETIME formats, and may be either an unsigned 32-bit or
+ * unsigned 64-bit array for DATE and TIME formats.
+ *
+ * If the new array name is not specified, the array name will be
+ * the old name appended by " [to string]".
+*/
 
 #ifndef vtkTimePointToString_h
 #define vtkTimePointToString_h
@@ -44,20 +47,27 @@ public:
   vtkTypeMacro(vtkTimePointToString,vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // The format to use when converting the timestamp to a string.
+  //@{
+  /**
+   * The format to use when converting the timestamp to a string.
+   */
   vtkSetMacro(ISO8601Format, int);
   vtkGetMacro(ISO8601Format, int);
+  //@}
 
-  // Description:
-  // The name of the output array.
-  // If this is not specified, the name will be the input array name with
-  // " [to string]" appended to it.
+  //@{
+  /**
+   * The name of the output array.
+   * If this is not specified, the name will be the input array name with
+   * " [to string]" appended to it.
+   */
   vtkSetStringMacro(OutputArrayName);
   vtkGetStringMacro(OutputArrayName);
+  //@}
 
-  // Description:
-  // This is required to capture REQUEST_DATA_OBJECT requests.
+  /**
+   * This is required to capture REQUEST_DATA_OBJECT requests.
+   */
   virtual int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector);
@@ -66,8 +76,9 @@ protected:
   vtkTimePointToString();
   ~vtkTimePointToString();
 
-  // Description:
-  // Creates the same output type as the input type.
+  /**
+   * Creates the same output type as the input type.
+   */
   virtual int RequestDataObject(vtkInformation* request,
                                 vtkInformationVector** inputVector,
                                 vtkInformationVector* outputVector);
@@ -81,8 +92,8 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkTimePointToString(const vtkTimePointToString&); // Not implemented
-  void operator=(const vtkTimePointToString&);   // Not implemented
+  vtkTimePointToString(const vtkTimePointToString&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTimePointToString&) VTK_DELETE_FUNCTION;
 };
 
 #endif

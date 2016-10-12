@@ -38,9 +38,9 @@ bool vtkGraphWeightEuclideanDistanceFilter::CheckRequirements(vtkGraph* const gr
 {
   vtkPoints* points = graph->GetPoints();
   if(!points)
-    {
+  {
     return false;
-    }
+  }
   return true;
 }
 

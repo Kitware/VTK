@@ -55,13 +55,13 @@ vtkImageViewer::~vtkImageViewer()
   this->Renderer->Delete();
 
   if (this->Interactor)
-    {
+  {
     this->Interactor->Delete();
-    }
+  }
   if (this->InteractorStyle)
-    {
+  {
     this->InteractorStyle->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -99,33 +99,33 @@ public:
 
   void Execute(vtkObject *caller,
                unsigned long event,
-               void *vtkNotUsed(callData))
-    {
+               void *vtkNotUsed(callData)) VTK_OVERRIDE
+  {
       if (this->IV->GetInput() == NULL)
-        {
+      {
         return;
-        }
+      }
 
       // Reset
 
       if (event == vtkCommand::ResetWindowLevelEvent)
-        {
+      {
         this->IV->GetInputAlgorithm()->UpdateWholeExtent();
         double *range = this->IV->GetInput()->GetScalarRange();
         this->IV->SetColorWindow(range[1] - range[0]);
         this->IV->SetColorLevel(0.5 * (range[1] + range[0]));
         this->IV->Render();
         return;
-        }
+      }
 
       // Start
 
       if (event == vtkCommand::StartWindowLevelEvent)
-        {
+      {
         this->InitialWindow = this->IV->GetColorWindow();
         this->InitialLevel = this->IV->GetColorLevel();
         return;
-        }
+      }
 
       // Adjust the window level here
 
@@ -146,32 +146,32 @@ public:
       // Scale by current values
 
       if (fabs(window) > 0.01)
-        {
+      {
         dx = dx * window;
-        }
+      }
       else
-        {
+      {
         dx = dx * (window < 0 ? -0.01 : 0.01);
-        }
+      }
       if (fabs(level) > 0.01)
-        {
+      {
         dy = dy * level;
-        }
+      }
       else
-        {
+      {
         dy = dy * (level < 0 ? -0.01 : 0.01);
-        }
+      }
 
       // Abs so that direction does not flip
 
       if (window < 0.0)
-        {
+      {
         dx = -1*dx;
-        }
+      }
       if (level < 0.0)
-        {
+      {
         dy = -1*dy;
-        }
+      }
 
       // Compute new window level
 
@@ -182,18 +182,18 @@ public:
       // Stay away from zero and really
 
       if (fabs(newWindow) < 0.01)
-        {
+      {
         newWindow = 0.01*(newWindow < 0 ? -1 : 1);
-        }
+      }
       if (fabs(newLevel) < 0.01)
-        {
+      {
         newLevel = 0.01*(newLevel < 0 ? -1 : 1);
-        }
+      }
 
       this->IV->SetColorWindow(newWindow);
       this->IV->SetColorLevel(newLevel);
       this->IV->Render();
-    }
+  }
 
   vtkImageViewer *IV;
   double InitialWindow;
@@ -204,11 +204,11 @@ public:
 void vtkImageViewer::SetupInteractor(vtkRenderWindowInteractor *rwi)
 {
   if (this->Interactor && rwi != this->Interactor)
-    {
+  {
     this->Interactor->Delete();
-    }
+  }
   if (!this->InteractorStyle)
-    {
+  {
     this->InteractorStyle = vtkInteractorStyleImage::New();
     vtkImageViewerCallback *cbk = vtkImageViewerCallback::New();
     cbk->IV = this;
@@ -216,13 +216,13 @@ void vtkImageViewer::SetupInteractor(vtkRenderWindowInteractor *rwi)
     this->InteractorStyle->AddObserver(vtkCommand::StartWindowLevelEvent, cbk);
     this->InteractorStyle->AddObserver(vtkCommand::ResetWindowLevelEvent, cbk);
     cbk->Delete();
-    }
+  }
 
   if (!this->Interactor)
-    {
+  {
     this->Interactor = rwi;
     rwi->Register(this);
-    }
+  }
   this->Interactor->SetInteractorStyle(this->InteractorStyle);
   this->Interactor->SetRenderWindow(this->RenderWindow);
 }
@@ -231,10 +231,10 @@ void vtkImageViewer::SetupInteractor(vtkRenderWindowInteractor *rwi)
 void vtkImageViewer::Render()
 {
   if (this->FirstRender)
-    {
+  {
     // initialize the size if not set yet
     if (this->RenderWindow->GetSize()[0] == 0 && this->ImageMapper->GetInput())
-      {
+    {
       // get the size from the mappers input
       this->ImageMapper->GetInputAlgorithm()->UpdateInformation();
       int *ext = this->ImageMapper->GetInputInformation()->Get(
@@ -244,9 +244,9 @@ void vtkImageViewer::Render()
       int ys = ext[3] - ext[2] + 1;
       this->RenderWindow->SetSize(xs < 150 ? 150 : xs,
                                   ys < 100 ? 100 : ys);
-      }
-    this->FirstRender = 0;
     }
+    this->FirstRender = 0;
+  }
   this->RenderWindow->Render();
 }
 

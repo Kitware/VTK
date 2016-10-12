@@ -45,12 +45,12 @@ int TestValuePass(int argc, char *argv[])
 {
   bool interactive = false;
   for (int i = 0; i < argc; ++i)
-    {
+  {
     if (!strcmp(argv[i], "-I"))
-      {
+    {
       interactive = true;
-      }
     }
+  }
 
   // 0. Prep data
   const char *fileName =
@@ -75,9 +75,9 @@ int TestValuePass(int argc, char *argv[])
   array->SetName("TestArray");
   array->SetNumberOfComponents(1);
   for (int i = 0; i < polyData->GetNumberOfPoints(); ++i)
-    {
+  {
     array->InsertNextValue(i);
-    }
+  }
   polyData->GetPointData()->AddArray(array);
   array->Delete();
 
@@ -134,22 +134,22 @@ int TestValuePass(int argc, char *argv[])
 
   // 3. Render image and compare against baseline
   for (int i = 0; i < 3; ++i)
-    {
+  {
     if (i % 2 == 0)
-      {
+    {
       glRenderer->SetPass(NULL);
-      }
-    else
-      {
-      glRenderer->SetPass(cameraPass);
-      }
-    window->Render();
     }
+    else
+    {
+      glRenderer->SetPass(cameraPass);
+    }
+    window->Render();
+  }
 
   if (interactive)
-    {
+  {
     interactor->Start();
-    }
+  }
 
   return 0;
 }

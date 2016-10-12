@@ -59,10 +59,10 @@ int vtkMaskPolyData::RequestData(
   numCells = input->GetNumberOfCells();
 
   if ( numCells < 1 )
-    {
+  {
     vtkErrorMacro (<<"No PolyData to mask!");
     return 1;
-    }
+  }
 
   output->Allocate(input,numCells);
   input->BuildCells();
@@ -71,15 +71,15 @@ int vtkMaskPolyData::RequestData(
   //
   vtkIdType tenth = numCells/10 + 1;
   for (id=this->Offset; id < numCells && !abortExecute; id+=this->OnRatio)
-    {
+  {
     if ( ! (id % tenth) )
-      {
+    {
       this->UpdateProgress ((float)id/numCells);
       abortExecute = this->GetAbortExecute();
-      }
+    }
     input->GetCellPoints(id, npts, pts);
     output->InsertNextCell(input->GetCellType(id), npts, pts);
-    }
+  }
 
   // Update ourselves and release memory
   //

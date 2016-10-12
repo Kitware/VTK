@@ -26,7 +26,7 @@ static vtkAtomicInt64 TotalAtomic64(0);
 static const int Target = 1000000;
 static int Values32[Target+1];
 static int Values64[Target+1];
-static unsigned long MTimeValues[Target];
+static vtkMTimeType MTimeValues[Target];
 static int NumThreads = 5;
 
 
@@ -34,7 +34,7 @@ VTK_THREAD_RETURN_TYPE MyFunction(void *)
 {
   vtkNew<vtkObject> AnObject;
   for (int i=0; i<Target/NumThreads; i++)
-    {
+  {
     Total++;
     int idx = ++TotalAtomic;
     Values32[idx] = 1;
@@ -45,7 +45,7 @@ VTK_THREAD_RETURN_TYPE MyFunction(void *)
 
     AnObject->Modified();
     MTimeValues[idx - 1] = AnObject->GetMTime();
-    }
+  }
 
   return VTK_THREAD_RETURN_VALUE;
 }
@@ -53,11 +53,11 @@ VTK_THREAD_RETURN_TYPE MyFunction(void *)
 VTK_THREAD_RETURN_TYPE MyFunction2(void *)
 {
   for (int i=0; i<Target/NumThreads; i++)
-    {
+  {
     --TotalAtomic;
 
     --TotalAtomic64;
-    }
+  }
 
   return VTK_THREAD_RETURN_VALUE;
 }
@@ -65,13 +65,13 @@ VTK_THREAD_RETURN_TYPE MyFunction2(void *)
 VTK_THREAD_RETURN_TYPE MyFunction3(void *)
 {
   for (int i=0; i<Target/NumThreads; i++)
-    {
+  {
     int idx = TotalAtomic += 1;
     Values32[idx]++;
 
     idx = TotalAtomic64 += 1;
     Values64[idx]++;
-    }
+  }
 
   return VTK_THREAD_RETURN_VALUE;
 }
@@ -79,7 +79,7 @@ VTK_THREAD_RETURN_TYPE MyFunction3(void *)
 VTK_THREAD_RETURN_TYPE MyFunction4(void *)
 {
   for (int i=0; i<Target/NumThreads; i++)
-    {
+  {
     TotalAtomic++;
     TotalAtomic += 1;
     TotalAtomic--;
@@ -89,7 +89,7 @@ VTK_THREAD_RETURN_TYPE MyFunction4(void *)
     TotalAtomic64 += 1;
     TotalAtomic64--;
     TotalAtomic64 -= 1;
-    }
+  }
 
   return VTK_THREAD_RETURN_VALUE;
 }
@@ -102,10 +102,10 @@ int TestAtomic(int, char*[])
   TotalAtomic64 = 0;
 
   for (int i=0; i<=Target; i++)
-    {
+  {
     Values32[i] = 0;
     Values64[i] = 0;
-    }
+  }
 
   vtkNew<vtkMultiThreader> mt;
   mt->SetSingleMethod(MyFunction, NULL);
@@ -122,40 +122,40 @@ int TestAtomic(int, char*[])
   // values each time. We expect all numbers from
   // 1 to Target to be 2.
   if (Values32[0] != 0)
-    {
+  {
       cout << "Expecting Values32[0] to be 0. Got "
            << Values32[0] << endl;
       return 1;
-    }
+  }
   if (Values64[0] != 0)
-    {
+  {
       cout << "Expecting Values64[0] to be 0. Got "
            << Values64[0] << endl;
       return 1;
-    }
+  }
   for (int i=1; i<=Target; i++)
-    {
+  {
     if (Values32[i] != 2)
-      {
+    {
       cout << "Expecting Values32[" << i << "] to be 2. Got "
            << Values32[i] << endl;
       return 1;
-      }
+    }
     if (Values64[i] != 2)
-      {
+    {
       cout << "Expecting Values64[" << i << "] to be 2. Got "
            << Values64[i] << endl;
       return 1;
-      }
     }
+  }
 
-  unsigned long *from = MTimeValues, *to = MTimeValues + Target;
+  vtkMTimeType *from = MTimeValues, *to = MTimeValues + Target;
   std::sort(from, to);
   if (std::unique(from, to) != to)
-    {
+  {
     cout << "Found duplicate MTime Values" << endl;
     return 1;
-    }
+  }
 
   mt->SetSingleMethod(MyFunction4, NULL);
   mt->SingleMethodExecute();
@@ -164,14 +164,14 @@ int TestAtomic(int, char*[])
   cout << Total64 << " " << TotalAtomic64.load() << endl;
 
   if (TotalAtomic.load() != Target)
-    {
+  {
     return 1;
-    }
+  }
 
   if (TotalAtomic64.load() != Target)
-    {
+  {
     return 1;
-    }
+  }
 
   return 0;
 }

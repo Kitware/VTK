@@ -46,37 +46,37 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *prob,
   vtkIdType id, mostProbableId=0;
 
   if ( p ) // return the point in the neighborhood with the highest probability
-    {
+  {
     for (int i=0; i<numPts; ++i)
-      {
+    {
       if ( p[i] > highestProbability )
-        {
+      {
         mostProbableId = pIds->GetId(i);
         highestProbability = p[i];
-        }
       }
     }
+  }
 
   else //return the closest point in the footprint provided
-    {
+  {
     double y[3], d, minD=VTK_FLOAT_MAX;
     for (int i=0; i<numPts; ++i)
-      {
+    {
       id = pIds->GetId(i);
       this->DataSet->GetPoint(id,y);
       d = vtkMath::Distance2BetweenPoints(x,y);
       if ( vtkMathUtilities::FuzzyCompare(d, 0.0, std::numeric_limits<double>::epsilon()*256.0 )) //precise hit on existing point
-        {
+      {
         mostProbableId = id;
         break;
-        }
+      }
       else if ( d <= minD )
-        {
+      {
         mostProbableId = id;
         minD = d;
-        }
-      }//over all points
-    }
+      }
+    }//over all points
+  }
 
   // Okay let's get out
   pIds->SetNumberOfIds(1);

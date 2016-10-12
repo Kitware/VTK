@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkNetCDFPOPReader - read NetCDF files
-// .Author Joshua Wu 09.15.2009
-// .SECTION Description
-// vtkNetCDFPOPReader is a source object that reads NetCDF files.
-// It should be able to read most any NetCDF file that wants to output a
-// rectilinear grid.  The ordering of the variables is changed such that
-// the NetCDF x, y, z directions correspond to the vtkRectilinearGrid
-// z, y, x directions, respectively.  The striding is done with
-// respect to the vtkRectilinearGrid ordering.  Additionally, the
-// z coordinates of the vtkRectilinearGrid are negated so that the
-// first slice/plane has the highest z-value and the last slice/plane
-// has the lowest z-value.
+/**
+ * @class   vtkNetCDFPOPReader
+ * @brief   read NetCDF files
+ * .Author Joshua Wu 09.15.2009
+ *
+ * vtkNetCDFPOPReader is a source object that reads NetCDF files.
+ * It should be able to read most any NetCDF file that wants to output a
+ * rectilinear grid.  The ordering of the variables is changed such that
+ * the NetCDF x, y, z directions correspond to the vtkRectilinearGrid
+ * z, y, x directions, respectively.  The striding is done with
+ * respect to the vtkRectilinearGrid ordering.  Additionally, the
+ * z coordinates of the vtkRectilinearGrid are negated so that the
+ * first slice/plane has the highest z-value and the last slice/plane
+ * has the lowest z-value.
+*/
 
 #ifndef vtkNetCDFPOPReader_h
 #define vtkNetCDFPOPReader_h
@@ -42,22 +45,31 @@ public:
   static vtkNetCDFPOPReader *New();
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //Description:
-  //The file to open
+  //@{
+  /**
+   * The file to open
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  //Description:
-  //Enable subsampling in i,j and k dimensions in the vtkRectilinearGrid
+  //@{
+  /**
+   * Enable subsampling in i,j and k dimensions in the vtkRectilinearGrid
+   */
   vtkSetVector3Macro(Stride, int);
   vtkGetVector3Macro(Stride, int);
+  //@}
 
-  // Description:
-  // Variable array selection.
+  //@{
+  /**
+   * Variable array selection.
+   */
   virtual int GetNumberOfVariableArrays();
   virtual const char *GetVariableArrayName(int idx);
   virtual int GetVariableArrayStatus(const char *name);
   virtual void SetVariableArrayStatus(const char *name, int status);
+  //@}
 
 protected:
   vtkNetCDFPOPReader();
@@ -79,12 +91,14 @@ protected:
 
   char *FileName;
 
-  // Description:
-  // The NetCDF file descriptor.
+  /**
+   * The NetCDF file descriptor.
+   */
   int NCDFFD;
 
-  // Description:
-  // The file name of the opened file.
+  /**
+   * The file name of the opened file.
+   */
   char* OpenedFileName;
 
   vtkSetStringMacro(OpenedFileName);
@@ -92,8 +106,8 @@ protected:
   int Stride[3];
 
 private:
-  vtkNetCDFPOPReader(const vtkNetCDFPOPReader&);  // Not implemented.
-  void operator=(const vtkNetCDFPOPReader&);  // Not implemented.
+  vtkNetCDFPOPReader(const vtkNetCDFPOPReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkNetCDFPOPReader&) VTK_DELETE_FUNCTION;
 
   vtkNetCDFPOPReaderInternal* Internals;
 };

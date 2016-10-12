@@ -111,9 +111,9 @@ int TestTStripsNormalsColorsTCoords(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImageThreshold(renWin,18);
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     interactor->Start();
-    }
+  }
 
   renderer->Delete();
   renWin->Delete();

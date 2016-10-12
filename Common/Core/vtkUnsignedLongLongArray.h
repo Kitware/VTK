@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkUnsignedLongLongArray - dynamic, self-adjusting array of unsigned long long
-// .SECTION Description
-// vtkUnsignedLongLongArray is an array of values of type unsigned long long.
-// It provides methods for insertion and retrieval of values and will
-// automatically resize itself to hold new data.
-//
-// This class should not be used directly, as it only exists on systems
-// where the unsigned long long type is defined.  If you need an unsigned
-// 64 bit integer data array, use vtkTypeUInt64Array instead.
+/**
+ * @class   vtkUnsignedLongLongArray
+ * @brief   dynamic, self-adjusting array of unsigned long long
+ *
+ * vtkUnsignedLongLongArray is an array of values of type unsigned long long.
+ * It provides methods for insertion and retrieval of values and will
+ * automatically resize itself to hold new data.
+ *
+ * This class should not be used directly, as it only exists on systems
+ * where the unsigned long long type is defined.  If you need an unsigned
+ * 64 bit integer data array, use vtkTypeUInt64Array instead.
+*/
 
 #ifndef vtkUnsignedLongLongArray_h
 #define vtkUnsignedLongLongArray_h
@@ -41,7 +44,7 @@ public:
 #undef vtkDataArray
 #endif
   static vtkUnsignedLongLongArray* New();
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // This macro expands to the set of method declarations that
   // make up the interface of vtkAOSDataArrayTemplate, which is ignored
@@ -50,32 +53,35 @@ public:
   vtkCreateWrappedArrayInterface(unsigned long long);
 #endif
 
-  // Description:
-  // A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+  /**
+   * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+   */
   static vtkUnsignedLongLongArray* FastDownCast(vtkAbstractArray *source)
   {
     return static_cast<vtkUnsignedLongLongArray*>(
           Superclass::FastDownCast(source));
   }
 
-  // Description:
-  // Get the minimum data value in its native type.
+  /**
+   * Get the minimum data value in its native type.
+   */
   static unsigned long long GetDataTypeValueMin() {return VTK_UNSIGNED_LONG_LONG_MIN;}
 
-  // Description:
-  // Get the maximum data value in its native type.
+  /**
+   * Get the maximum data value in its native type.
+   */
   static unsigned long long GetDataTypeValueMax() {return VTK_UNSIGNED_LONG_LONG_MAX;}
 
 protected:
   vtkUnsignedLongLongArray();
-  ~vtkUnsignedLongLongArray();
+  ~vtkUnsignedLongLongArray() VTK_OVERRIDE;
 
 private:
 
   typedef vtkAOSDataArrayTemplate<unsigned long long> RealSuperclass;
 
-  vtkUnsignedLongLongArray(const vtkUnsignedLongLongArray&);  // Not implemented.
-  void operator=(const vtkUnsignedLongLongArray&);  // Not implemented.
+  vtkUnsignedLongLongArray(const vtkUnsignedLongLongArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnsignedLongLongArray&) VTK_DELETE_FUNCTION;
 };
 
 // Define vtkArrayDownCast implementation:

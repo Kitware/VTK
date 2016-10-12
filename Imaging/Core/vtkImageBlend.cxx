@@ -52,21 +52,21 @@ void vtkImageBlend::ReplaceNthInputConnection(int idx,
                                               vtkAlgorithmOutput *input)
 {
   if (idx < 0 || idx >= this->GetNumberOfInputConnections(0))
-    {
+  {
     vtkErrorMacro("Attempt to replace connection idx " << idx
                   << " of input port " << 0 << ", which has only "
                   << this->GetNumberOfInputConnections(0)
                   << " connections.");
     return;
-    }
+  }
 
   if (!input || !input->GetProducer())
-    {
+  {
     vtkErrorMacro("Attempt to replace connection index " << idx
                   << " for input port " << 0 << " with " <<
                   (!input ? "a null input." : "an input with no producer."));
     return;
-    }
+  }
 
   this->SetNthInputConnection(0, idx, input);
 }
@@ -84,9 +84,9 @@ void vtkImageBlend::SetInputData(int idx, vtkDataObject *input)
 vtkDataObject *vtkImageBlend::GetInput(int idx)
 {
   if (this->GetNumberOfInputConnections(0) <= idx)
-    {
+  {
     return 0;
-    }
+  }
   return vtkImageData::SafeDownCast(
     this->GetExecutive()->GetInputData(0, idx));
 }
@@ -107,9 +107,9 @@ void vtkImageBlend::SetStencilData(vtkImageStencilData *stencil)
 vtkImageStencilData *vtkImageBlend::GetStencil()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
-    {
+  {
     return 0;
-    }
+  }
   return vtkImageStencilData::SafeDownCast(
     this->GetExecutive()->GetInputData(1, 0));
 }
@@ -122,45 +122,45 @@ void vtkImageBlend::SetOpacity(int idx, double opacity)
   double *newArray;
 
   if (opacity < 0.0)
-    {
+  {
     opacity = 0.0;
-    }
+  }
   if (opacity > 1.0)
-    {
+  {
     opacity = 1.0;
-    }
+  }
 
   if (idx >= this->OpacityArrayLength)
-    {
+  {
     newLength = idx + 1;
     newArray = new double[newLength];
     for (i = 0; i < this->OpacityArrayLength; i++)
-      {
+    {
       newArray[i] = this->Opacity[i];
-      }
+    }
     for (; i < newLength; i++)
-      {
+    {
       newArray[i] = 1.0;
-      }
+    }
     delete [] this->Opacity;
     this->Opacity = newArray;
     this->OpacityArrayLength = newLength;
-    }
+  }
 
   if (this->Opacity[idx] != opacity)
-    {
+  {
     this->Opacity[idx] = opacity;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 double vtkImageBlend::GetOpacity(int idx)
 {
   if (idx >= this->OpacityArrayLength)
-    {
+  {
     return 1.0;
-    }
+  }
   return this->Opacity[idx];
 }
 
@@ -181,16 +181,16 @@ void vtkImageBlend::InternalComputeInputUpdateExtent(int inExt[6],
 
   // clip with the whole extent
   for (i = 0; i < 3; i++)
-    {
+  {
     if (inExt[2*i] < wholeExtent[2*i])
-      {
+    {
       inExt[2*i] = wholeExtent[2*i];
-      }
-    if (inExt[2*i+1] > wholeExtent[2*i+1])
-      {
-      inExt[2*i+1] = wholeExtent[2*i+1];
-      }
     }
+    if (inExt[2*i+1] > wholeExtent[2*i+1])
+    {
+      inExt[2*i+1] = wholeExtent[2*i+1];
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -210,13 +210,13 @@ int vtkImageBlend::RequestUpdateExtent(
   int whichInput;
   for (whichInput = 0; whichInput < this->GetNumberOfInputConnections(0);
        whichInput++)
-    {
+  {
     int *inWextent;
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(whichInput);
     inWextent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
     this->InternalComputeInputUpdateExtent(inExt, outExt, inWextent);
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt,6);
-    }
+  }
 
   return 1;
 }
@@ -229,7 +229,7 @@ int vtkImageBlend::RequestData(
 {
   // check to see if we have more than one input
   if (this->GetNumberOfInputConnections(0) == 1)
-    {
+  {
     vtkDebugMacro("RequestData: single input, passing data");
 
     vtkInformation* info = outputVector->GetInformationObject(0);
@@ -242,19 +242,19 @@ int vtkImageBlend::RequestData(
     outData->SetExtent(inData->GetExtent());
     outData->GetPointData()->PassData(inData->GetPointData());
     this->DataWasPassed = 1;
-    }
+  }
   else // multiple inputs
-    {
+  {
     vtkInformation* info = outputVector->GetInformationObject(0);
     vtkImageData *outData = static_cast<vtkImageData *>(
       info->Get(vtkDataObject::DATA_OBJECT()));
     if (this->DataWasPassed)
-      {
+    {
       outData->GetPointData()->SetScalars(NULL);
       this->DataWasPassed = 0;
-      }
-    return this->Superclass::RequestData(request,inputVector,outputVector);
     }
+    return this->Superclass::RequestData(request,inputVector,outputVector);
+  }
 
   return 1;
 }
@@ -267,29 +267,27 @@ void vtkImageBlendExecute(vtkImageBlend *self, int extent[6],
                           vtkImageData *outData, T *,
                           double opacity, int id)
 {
-  int inC, outC;
   double minA, maxA;
-  double r, f;
 
   if (inData->GetScalarType() == VTK_DOUBLE ||
       inData->GetScalarType() == VTK_FLOAT)
-    {
+  {
     minA = 0.0;
     maxA = 1.0;
-    }
+  }
   else
-    {
+  {
     minA = inData->GetScalarTypeMin();
     maxA = inData->GetScalarTypeMax();
-    }
+  }
 
-  r = opacity;
-  f = 1.0 - r;
+  double r = opacity;
+  double f = 1.0 - r;
 
   opacity = opacity/(maxA-minA);
 
-  inC = inData->GetNumberOfScalarComponents();
-  outC = outData->GetNumberOfScalarComponents();
+  int inC = inData->GetNumberOfScalarComponents();
+  int outC = outData->GetNumberOfScalarComponents();
 
   vtkImageStencilData *stencil = self->GetStencil();
   vtkImageStencilIterator<T> outIter(outData, stencil, extent, self, id);
@@ -298,97 +296,121 @@ void vtkImageBlendExecute(vtkImageBlend *self, int extent[6],
   T *inPtr = inIter.BeginSpan();
   T *inSpanEndPtr = inIter.EndSpan();
   while (!outIter.IsAtEnd())
-    {
+  {
     T* outPtr = outIter.BeginSpan();
     T* outSpanEndPtr = outIter.EndSpan();
     if (outIter.IsInStencil())
-      {
-      if (outC >= 3 && inC >= 4)
-        { // RGB(A) blended with RGBA
-        while (outPtr != outSpanEndPtr)
-          {
-          r = opacity*(inPtr[3]-minA);
-          f = 1.0-r;
-          outPtr[0] = T(outPtr[0]*f + inPtr[0]*r);
-          outPtr[1] = T(outPtr[1]*f + inPtr[1]*r);
-          outPtr[2] = T(outPtr[2]*f + inPtr[2]*r);
-          outPtr += outC;
-          inPtr += inC;
-          }
+    {
+      if (outC == 4 && inC == 4)
+      { // RGBA blended with RGBA
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0; i < steps; i += 4)
+        {
+          double rLocal = opacity*(inPtr[i+3]-minA);
+          double fLocal = 1.0-rLocal;
+          outPtr[i+0] = T(outPtr[i+0]*fLocal + inPtr[i+0]*rLocal);
+          outPtr[i+1] = T(outPtr[i+1]*fLocal + inPtr[i+1]*rLocal);
+          outPtr[i+2] = T(outPtr[i+2]*fLocal + inPtr[i+2]*rLocal);
         }
-      else if (outC >= 3 && inC == 3)
-        { // RGB(A) blended with RGB
-        while (outPtr != outSpanEndPtr)
-          {
-          outPtr[0] = T(outPtr[0]*f + inPtr[0]*r);
-          outPtr[1] = T(outPtr[1]*f + inPtr[1]*r);
-          outPtr[2] = T(outPtr[2]*f + inPtr[2]*r);
-          outPtr += outC;
-          inPtr += inC;
-          }
-        }
-      else if (outC >= 3 && inC == 2)
-        { // RGB(A) blended with luminance+alpha
-        while (outPtr != outSpanEndPtr)
-          {
-          r = opacity*(inPtr[1]-minA);
-          f = 1.0-r;
-          outPtr[0] = T(outPtr[0]*f + (*inPtr)*r);
-          outPtr[1] = T(outPtr[1]*f + (*inPtr)*r);
-          outPtr[2] = T(outPtr[2]*f + (*inPtr)*r);
-          outPtr += outC;
-          inPtr += 2;
-          }
-        }
-      else if (outC >= 3 && inC == 1)
-        { // RGB(A) blended with luminance
-        while (outPtr != outSpanEndPtr)
-          {
-          outPtr[0] = T(outPtr[0]*f + (*inPtr)*r);
-          outPtr[1] = T(outPtr[1]*f + (*inPtr)*r);
-          outPtr[2] = T(outPtr[2]*f + (*inPtr)*r);
-          outPtr += outC;
-          inPtr++;
-          }
-        }
-      else if (inC == 2)
-        { // luminance(+alpha) blended with luminance+alpha
-        while (outPtr != outSpanEndPtr)
-          {
-          r = opacity*(inPtr[1]-minA);
-          f = 1.0-r;
-          *outPtr = T((*outPtr)*f + (*inPtr)*r);
-          outPtr += outC;
-          inPtr += 2;
-          }
-        }
-      else
-        { // luminance(+alpha) blended with luminance
-        while (outPtr != outSpanEndPtr)
-          {
-          *outPtr = T((*outPtr)*f + (*inPtr)*r);
-          outPtr += outC;
-          inPtr++;
-          }
-        }
+        inPtr += inC * (steps / 4);
       }
+      else if (outC >= 3 && inC >= 4)
+      { // RGB(A) blended with RGBA
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0, j = 0; i < steps; i += outC, j += inC)
+        {
+          double rLocal = opacity*(inPtr[j+3]-minA);
+          double fLocal = 1.0-rLocal;
+          outPtr[i+0] = T(outPtr[i+0]*fLocal + inPtr[j+0]*rLocal);
+          outPtr[i+1] = T(outPtr[i+1]*fLocal + inPtr[j+1]*rLocal);
+          outPtr[i+2] = T(outPtr[i+2]*fLocal + inPtr[j+2]*rLocal);
+        }
+        inPtr += inC * (steps / outC);
+      }
+      else if (outC == 3 && inC == 3)
+      { // RGB blended with RGB
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0; i < steps; i += 3)
+        {
+          outPtr[i+0] = T(outPtr[i+0]*f + inPtr[i+0]*r);
+          outPtr[i+1] = T(outPtr[i+1]*f + inPtr[i+1]*r);
+          outPtr[i+2] = T(outPtr[i+2]*f + inPtr[i+2]*r);
+        }
+        inPtr += inC * (steps / 3);
+      }
+      else if (outC >= 3 && inC == 3)
+      { // RGB(A) blended with RGB
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0, j = 0; i < steps; i += outC, j += inC)
+        {
+          outPtr[i+0] = T(outPtr[i+0]*f + inPtr[j+0]*r);
+          outPtr[i+1] = T(outPtr[i+1]*f + inPtr[j+1]*r);
+          outPtr[i+2] = T(outPtr[i+2]*f + inPtr[j+2]*r);
+        }
+        inPtr += inC * (steps / outC);
+      }
+      else if (outC >= 3 && inC == 2)
+      { // RGB(A) blended with luminance+alpha
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0, j = 0; i < steps; i += outC, j += inC)
+        {
+          double rLocal = opacity*(inPtr[j+1]-minA);
+          double fLocal = 1.0-rLocal;
+          outPtr[i+0] = T(outPtr[i+0]*fLocal + (inPtr[j])*rLocal);
+          outPtr[i+1] = T(outPtr[i+1]*fLocal + (inPtr[j])*rLocal);
+          outPtr[i+2] = T(outPtr[i+2]*fLocal + (inPtr[j])*rLocal);
+        }
+        inPtr += inC * (steps / outC);
+      }
+      else if (outC >= 3 && inC == 1)
+      { // RGB(A) blended with luminance
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0, j = 0; i < steps; i += outC, j += inC)
+        {
+          outPtr[i+0] = T(outPtr[i+0]*f + (inPtr[j])*r);
+          outPtr[i+1] = T(outPtr[i+1]*f + (inPtr[j])*r);
+          outPtr[i+2] = T(outPtr[i+2]*f + (inPtr[j])*r);
+        }
+        inPtr += inC * (steps / outC);
+      }
+      else if (inC == 2)
+      { // luminance(+alpha) blended with luminance+alpha
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0, j = 0; i < steps; i += outC, j += inC)
+        {
+          double rLocal = opacity*(inPtr[j+1]-minA);
+          double fLocal = 1.0-rLocal;
+          outPtr[i] = T((outPtr[i])*fLocal + (inPtr[j])*rLocal);
+        }
+        inPtr += inC * (steps / outC);
+      }
+      else
+      { // luminance(+alpha) blended with luminance
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0, j = 0; i < steps; i += outC, j += inC)
+        {
+          outPtr[i] = T((outPtr[i])*f + (inPtr[j])*r);
+        }
+        inPtr += inC * (steps / outC);
+      }
+    }
     // else !IsInStencil()
     else
-      {
+    {
       vtkIdType outSpanSize = static_cast<vtkIdType>(outSpanEndPtr - outPtr);
       vtkIdType inSpanSize = outSpanSize/outC*inC;
       inPtr += inSpanSize;
-      }
+    }
 
     // go to the next span
     outIter.NextSpan();
     if (inPtr == inSpanEndPtr)
-      {
+    {
       inIter.NextSpan();
       inPtr = inIter.BeginSpan();
       inSpanEndPtr = inIter.EndSpan();
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -399,18 +421,14 @@ void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6],
                               vtkImageData *outData, T *,
                               double opacity, int id)
 {
-  int inC, outC;
-  unsigned short r, f, o;
-  int v0, v1, v2;
-
   // round opacity to a value in the range [0,256], because division
   // by 256 can be efficiently achieved by bit-shifting by 8 bits
-  o = static_cast<unsigned short>(256*opacity + 0.5);
-  r = o;
-  f = 256 - o;
+  unsigned short o = static_cast<unsigned short>(256*opacity + 0.5);
+  unsigned short r = o;
+  unsigned short f = 256 - o;
 
-  inC = inData->GetNumberOfScalarComponents();
-  outC = outData->GetNumberOfScalarComponents();
+  int inC = inData->GetNumberOfScalarComponents();
+  int outC = outData->GetNumberOfScalarComponents();
 
   vtkImageStencilData *stencil = self->GetStencil();
   vtkImageStencilIterator<T> outIter(outData, stencil, extent, self, id);
@@ -419,122 +437,155 @@ void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6],
   T *inPtr = inIter.BeginSpan();
   T *inSpanEndPtr = inIter.EndSpan();
   while (!outIter.IsAtEnd())
-    {
+  {
     T* outPtr = outIter.BeginSpan();
     T* outSpanEndPtr = outIter.EndSpan();
     if (outIter.IsInStencil())
-      {
-      if (outC >= 3 && inC >= 4)
-        { // RGB(A) blended with RGBA
-        while (outPtr != outSpanEndPtr)
-          {
+    {
+      if (outC == 4 && inC == 4)
+      { // RGBA blended with RGBA
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0; i < steps; i += 4)
+        {
           // multiply to get a number in the range [0,65280]
           // where 65280 = 255*256 = range of inPtr[3] * range of o
-          r = inPtr[3]*o;
-          f = 65280 - r;
-          v0 = outPtr[0]*f + inPtr[0]*r;
-          v1 = outPtr[1]*f + inPtr[1]*r;
-          v2 = outPtr[2]*f + inPtr[2]*r;
+          unsigned short rLocal = inPtr[i+3]*o;
+          unsigned short fLocal = 65280 - rLocal;
+          int v0 = outPtr[i+0]*fLocal + inPtr[i+0]*rLocal;
+          int v1 = outPtr[i+1]*fLocal + inPtr[i+1]*rLocal;
+          int v2 = outPtr[i+2]*fLocal + inPtr[i+2]*rLocal;
           // do some math tricks to achieve division by 65280:
           // this is not an approximation, it gives exactly the
           // same result as an integer division by 65280
-          outPtr[0] = (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
-          outPtr[1] = (v1 + (v1 >> 8) + (v1 >> 16) + 1) >> 16;
-          outPtr[2] = (v2 + (v2 >> 8) + (v2 >> 16) + 1) >> 16;
-          inPtr += inC;
-          outPtr += outC;
-          }
+          outPtr[i+0] = (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
+          outPtr[i+1] = (v1 + (v1 >> 8) + (v1 >> 16) + 1) >> 16;
+          outPtr[i+2] = (v2 + (v2 >> 8) + (v2 >> 16) + 1) >> 16;
         }
-      else if (outC >= 3 && inC == 3)
-        { // RGB(A) blended with RGB
-        while (outPtr != outSpanEndPtr)
-          {
-          // the bit-shift achieves a division by 256
-          outPtr[0] = (outPtr[0]*f + inPtr[0]*r) >> 8;
-          outPtr[1] = (outPtr[1]*f + inPtr[1]*r) >> 8;
-          outPtr[2] = (outPtr[2]*f + inPtr[2]*r) >> 8;
-          inPtr += 3;
-          outPtr += outC;
-          }
-        }
-      else if (outC >= 3 && inC == 2)
-        { // RGB(A) blended with luminance+alpha
-        while (outPtr != outSpanEndPtr)
-          {
-          // multiply to get a number in the range [0,65280]
-          // where 65280 = 255*256 = range of inPtr[1] * range of o
-          r = inPtr[1]*o;
-          f = 65280 - r;
-          v0 = outPtr[0]*f + inPtr[0]*r;
-          v1 = outPtr[1]*f + inPtr[0]*r;
-          v2 = outPtr[2]*f + inPtr[0]*r;
-          // do some math tricks to achieve division by 65280:
-          // this is not an approximation, it gives exactly the
-          // same result as an integer division by 65280
-          outPtr[0] = (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
-          outPtr[1] = (v1 + (v1 >> 8) + (v1 >> 16) + 1) >> 16;
-          outPtr[2] = (v2 + (v2 >> 8) + (v2 >> 16) + 1) >> 16;
-          inPtr += 2;
-          outPtr += outC;
-          }
-        }
-      else if (outC >= 3 && inC == 1)
-        { // RGB(A) blended with luminance
-        while (outPtr != outSpanEndPtr)
-          {
-          // the bit-shift achieves a division by 256
-          outPtr[0] = (outPtr[0]*f + inPtr[0]*r) >> 8;
-          outPtr[1] = (outPtr[1]*f + inPtr[0]*r) >> 8;
-          outPtr[2] = (outPtr[2]*f + inPtr[0]*r) >> 8;
-          inPtr++;
-          outPtr += outC;
-          }
-        }
-      else if (inC == 2)
-        { // luminance(+alpha) blended with luminance+alpha
-        while (outPtr != outSpanEndPtr)
-          {
-          // multiply to get a number in the range [0,65280]
-          // where 65280 = 255*256 = range of inPtr[1] * range of o
-          r = inPtr[1]*o;
-          f = 65280 - r;
-          v0 = outPtr[0]*f + inPtr[0]*r;
-          // do some math tricks to achieve division by 65280:
-          // this is not an approximation, it gives exactly the
-          // same result as an integer division by 65280
-          outPtr[0] = (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
-          inPtr += 2;
-          outPtr += outC;
-          }
-        }
-      else
-        { // luminance(+alpha) blended with luminance
-        while (outPtr != outSpanEndPtr)
-          {
-          // the bit-shift achieves a division by 256
-          outPtr[0] = (outPtr[0]*f + inPtr[0]*r) >> 8;
-          inPtr++;
-          outPtr += outC;
-          }
-        }
+        inPtr += inC * (steps / 4);
       }
+      else if (outC >= 3 && inC >= 4)
+      { // RGB(A) blended with RGBA
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0, j = 0; i < steps; i += outC, j += inC)
+        {
+          // multiply to get a number in the range [0,65280]
+          // where 65280 = 255*256 = range of inPtr[3] * range of o
+          unsigned short rLocal = inPtr[j+3]*o;
+          unsigned short fLocal = 65280 - rLocal;
+          int v0 = outPtr[i+0]*fLocal + inPtr[j+0]*rLocal;
+          int v1 = outPtr[i+1]*fLocal + inPtr[j+1]*rLocal;
+          int v2 = outPtr[i+2]*fLocal + inPtr[j+2]*rLocal;
+          // do some math tricks to achieve division by 65280:
+          // this is not an approximation, it gives exactly the
+          // same result as an integer division by 65280
+          outPtr[i+0] = (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
+          outPtr[i+1] = (v1 + (v1 >> 8) + (v1 >> 16) + 1) >> 16;
+          outPtr[i+2] = (v2 + (v2 >> 8) + (v2 >> 16) + 1) >> 16;
+        }
+        inPtr += inC * (steps / outC);
+      }
+      else if (outC == 3 && inC == 3)
+      { // RGB blended with RGB
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0; i < steps; i += 3)
+        {
+          // the bit-shift achieves a division by 256
+          outPtr[i+0] = (outPtr[i+0]*f + inPtr[i+0]*r) >> 8;
+          outPtr[i+1] = (outPtr[i+1]*f + inPtr[i+1]*r) >> 8;
+          outPtr[i+2] = (outPtr[i+2]*f + inPtr[i+2]*r) >> 8;
+        }
+        inPtr += inC * (steps / 3);
+      }
+      else if (outC >= 3 && inC == 3)
+      { // RGB(A) blended with RGB
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0, j = 0; i < steps; i += outC, j += inC)
+        {
+          // the bit-shift achieves a division by 256
+          outPtr[i+0] = (outPtr[i+0]*f + inPtr[j+0]*r) >> 8;
+          outPtr[i+1] = (outPtr[i+1]*f + inPtr[j+1]*r) >> 8;
+          outPtr[i+2] = (outPtr[i+2]*f + inPtr[j+2]*r) >> 8;
+        }
+        inPtr += inC * (steps / outC);
+      }
+      else if (outC >= 3 && inC == 2)
+      { // RGB(A) blended with luminance+alpha
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0, j = 0; i < steps; i += outC, j += inC)
+        {
+          // multiply to get a number in the range [0,65280]
+          // where 65280 = 255*256 = range of inPtr[1] * range of o
+          unsigned short rLocal = inPtr[j+1]*o;
+          unsigned short fLocal = 65280 - rLocal;
+          int v0 = outPtr[i+0]*fLocal + inPtr[j]*rLocal;
+          int v1 = outPtr[i+1]*fLocal + inPtr[j]*rLocal;
+          int v2 = outPtr[i+2]*fLocal + inPtr[j]*rLocal;
+          // do some math tricks to achieve division by 65280:
+          // this is not an approximation, it gives exactly the
+          // same result as an integer division by 65280
+          outPtr[i+0] = (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
+          outPtr[i+1] = (v1 + (v1 >> 8) + (v1 >> 16) + 1) >> 16;
+          outPtr[i+2] = (v2 + (v2 >> 8) + (v2 >> 16) + 1) >> 16;
+        }
+        inPtr += inC * (steps / outC);
+      }
+      else if (outC >= 3 && inC == 1)
+      { // RGB(A) blended with luminance
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0, j = 0; i < steps; i += outC, j += inC)
+        {
+          // the bit-shift achieves a division by 256
+          outPtr[i+0] = (outPtr[i+0]*f + inPtr[j]*r) >> 8;
+          outPtr[i+1] = (outPtr[i+1]*f + inPtr[j]*r) >> 8;
+          outPtr[i+2] = (outPtr[i+2]*f + inPtr[j]*r) >> 8;
+        }
+        inPtr += inC * (steps / outC);
+      }
+      else if (inC == 2)
+      { // luminance(+alpha) blended with luminance+alpha
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0, j = 0; i < steps; i += outC, j += inC)
+        {
+          // multiply to get a number in the range [0,65280]
+          // where 65280 = 255*256 = range of inPtr[1] * range of o
+          unsigned short rLocal = inPtr[j+1]*o;
+          unsigned short fLocal = 65280 - rLocal;
+          int v0 = outPtr[i]*fLocal + inPtr[j]*rLocal;
+          // do some math tricks to achieve division by 65280:
+          // this is not an approximation, it gives exactly the
+          // same result as an integer division by 65280
+          outPtr[i] = (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
+        }
+        inPtr += inC * (steps / outC);
+      }
+      else
+      { // luminance(+alpha) blended with luminance
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0, j = 0; i < steps; i += outC, j += inC)
+        {
+          // the bit-shift achieves a division by 256
+          outPtr[i] = (outPtr[i]*f + inPtr[j]*r) >> 8;
+        }
+        inPtr += inC * (steps / outC);
+      }
+    }
     // else !IsInStencil()
     else
-      {
+    {
       vtkIdType outSpanSize = static_cast<vtkIdType>(outSpanEndPtr - outPtr);
       vtkIdType inSpanSize = outSpanSize/outC*inC;
       inPtr += inSpanSize;
-      }
+    }
 
     // go to the next span
     outIter.NextSpan();
     if (inPtr == inSpanEndPtr)
-      {
+    {
       inIter.NextSpan();
       inPtr = inIter.BeginSpan();
       inSpanEndPtr = inIter.EndSpan();
-      }
     }
+  }
 }
 
 
@@ -569,16 +620,16 @@ static void vtkImageBlendCopyData(vtkImageData *inData, vtkImageData *outData,
   outIncZ *= outData->GetScalarSize();
   // Loop through outData pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
-    {
+  {
     inPtr1 = inPtr + idxZ*inIncZ;
     outPtr1 = outPtr + idxZ*outIncZ;
     for (idxY = 0; idxY <= maxY; idxY++)
-      {
+    {
       memcpy(outPtr1,inPtr1,rowLength);
       inPtr1 += inIncY;
       outPtr1 += outIncY;
-      }
     }
+  }
 }
 
 
@@ -599,15 +650,15 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
 
   if (inData->GetScalarType() == VTK_DOUBLE ||
       inData->GetScalarType() == VTK_FLOAT)
-    {
+  {
     minA = 0.0;
     maxA = 1.0;
-    }
+  }
   else
-    {
+  {
     minA = static_cast<double>(inData->GetScalarTypeMin());
     maxA = static_cast<double>(inData->GetScalarTypeMax());
-    }
+  }
 
   r = opacity;
   opacity = opacity/(maxA-minA);
@@ -616,9 +667,9 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
   int tmpC = tmpData->GetNumberOfScalarComponents();
 
   if ((inC == 3 || inC == 1) && r <= threshold)
-    {
+  {
     return;
-    }
+  }
 
   // Loop through output pixels
   vtkImageStencilData *stencil = self->GetStencil();
@@ -628,124 +679,124 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
   T *inPtr = inIter.BeginSpan();
   T *inSpanEndPtr = inIter.EndSpan();
   while (!tmpIter.IsAtEnd())
-    {
+  {
     double *tmpPtr = tmpIter.BeginSpan();
     double *tmpSpanEndPtr = tmpIter.EndSpan();
 
     if (tmpIter.IsInStencil())
-      {
+    {
       if (tmpC >= 3)
-        {
+      {
         // RGB(A) blended with RGBA
         if (inC >= 4)
-          {
+        {
           while (tmpPtr != tmpSpanEndPtr)
-            {
+          {
             r = opacity * (static_cast<double>(inPtr[3]) - minA);
             if (r > threshold)
-              {
+            {
               tmpPtr[0] += static_cast<double>(inPtr[0]) * r;
               tmpPtr[1] += static_cast<double>(inPtr[1]) * r;
               tmpPtr[2] += static_cast<double>(inPtr[2]) * r;
               tmpPtr[3] += r;
-              }
+            }
             tmpPtr += 4;
             inPtr += inC;
-            }
           }
+        }
 
         // RGB(A) blended with RGB
         else if (inC == 3)
-          {
+        {
           while (tmpPtr != tmpSpanEndPtr)
-            {
+          {
             tmpPtr[0] += static_cast<double>(inPtr[0]) * r;
             tmpPtr[1] += static_cast<double>(inPtr[1]) * r;
             tmpPtr[2] += static_cast<double>(inPtr[2]) * r;
             tmpPtr[3] += r;
             tmpPtr += 4;
             inPtr += inC;
-            }
           }
+        }
 
         // RGB(A) blended with luminance+alpha
         else if (inC == 2)
-          {
+        {
           while (tmpPtr != tmpSpanEndPtr)
-            {
+          {
             r = opacity * (static_cast<double>(inPtr[1]) - minA);
             if (r > threshold)
-              {
+            {
               tmpPtr[0] += static_cast<double>(*inPtr) * r;
               tmpPtr[1] += static_cast<double>(*inPtr) * r;
               tmpPtr[2] += static_cast<double>(*inPtr) * r;
               tmpPtr[3] += r;
-              }
+            }
             tmpPtr += 4;
             inPtr += 2;
-            }
           }
+        }
 
         // RGB(A) blended with luminance
         else if (inC == 1)
-          {
+        {
           while (tmpPtr != tmpSpanEndPtr)
-            {
+          {
             tmpPtr[0] += static_cast<double>(*inPtr) * r;
             tmpPtr[1] += static_cast<double>(*inPtr) * r;
             tmpPtr[2] += static_cast<double>(*inPtr) * r;
             tmpPtr[3] += r;
             tmpPtr += 4;
             inPtr++;
-            }
           }
         }
+      }
 
       // luminance(+alpha) blended with luminance+alpha
       else if (inC == 2)
-        {
+      {
         while (tmpPtr != tmpSpanEndPtr)
-          {
+        {
           r = opacity * (static_cast<double>(inPtr[1]) - minA);
           if (r > threshold)
-            {
+          {
             tmpPtr[0] = static_cast<double>(*inPtr) * r;
             tmpPtr[1] += r;
-            }
+          }
           tmpPtr += 2;
           inPtr += 2;
-          }
         }
+      }
 
       // luminance(+alpha) blended with luminance
       else
-        {
+      {
         while (tmpPtr != tmpSpanEndPtr)
-          {
+        {
           tmpPtr[0] = static_cast<double>(*inPtr) * r;
           tmpPtr[1] += r;
           tmpPtr += 2;
           inPtr++;
-          }
         }
       }
+    }
     // else !IsInStencil()
     else
-      {
+    {
       vtkIdType tmpSpanSize = static_cast<vtkIdType>(tmpSpanEndPtr - tmpPtr);
       vtkIdType inSpanSize = tmpSpanSize/tmpC*inC;
       inPtr += inSpanSize;
-      }
+    }
 
     // go to the next span
     tmpIter.NextSpan();
     if (inPtr == inSpanEndPtr)
-      {
+    {
       inIter.NextSpan();
       inPtr = inIter.BeginSpan();
       inSpanEndPtr = inIter.EndSpan();
-      }
     }
+  }
 }
 
 
@@ -769,60 +820,60 @@ void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
   double *tmpPtr = tmpIter.BeginSpan();
   double *tmpSpanEndPtr = tmpIter.EndSpan();
   while (!outIter.IsAtEnd())
-    {
+  {
     T *outPtr = outIter.BeginSpan();
     T *outSpanEndPtr = outIter.EndSpan();
 
     if (outIter.IsInStencil())
-      {
+    {
       if (tmpC >= 3)
-        {
+      {
         while (outPtr != outSpanEndPtr)
-          {
+        {
           double factor = 0.0;
           if (tmpPtr[3] != 0)
-            {
+          {
             factor = 1.0/tmpPtr[3];
-            }
+          }
           outPtr[0] = T(tmpPtr[0]*factor);
           outPtr[1] = T(tmpPtr[1]*factor);
           outPtr[2] = T(tmpPtr[2]*factor);
           tmpPtr += 4;
           outPtr += outC;
-          }
         }
+      }
       else
-        {
+      {
         while (outPtr != outSpanEndPtr)
-          {
+        {
           double factor = 0.0;
           if (tmpPtr[1] != 0)
-            {
+          {
             factor = 1.0/tmpPtr[1];
-            }
+          }
           outPtr[0] = T(tmpPtr[0]*factor);
           tmpPtr += 2;
           outPtr += outC;
-          }
         }
       }
+    }
     // else !IsInStencil()
     else
-      {
+    {
       vtkIdType outSpanSize = static_cast<vtkIdType>(outSpanEndPtr - outPtr);
       vtkIdType tmpSpanSize = outSpanSize/outC*tmpC;
       tmpPtr += tmpSpanSize;
-      }
+    }
 
     // go to the next span
     outIter.NextSpan();
     if (tmpPtr == tmpSpanEndPtr)
-      {
+    {
       tmpIter.NextSpan();
       tmpPtr = tmpIter.BeginSpan();
       tmpSpanEndPtr = tmpIter.EndSpan();
-      }
     }
+  }
 }
 
 
@@ -849,14 +900,14 @@ void vtkImageBlend::ThreadedRequestData (
 
   // check
   if (inData[0][0]->GetNumberOfScalarComponents() > 4)
-    {
+  {
     vtkErrorMacro("The first input can have a maximum of four components");
     return;
-    }
+  }
 
   // init
   switch (this->BlendMode)
-    {
+  {
     case VTK_IMAGE_BLEND_MODE_NORMAL:
       // copy the first image directly to the output
       vtkDebugMacro("Execute: copy input 0 to the output.");
@@ -866,10 +917,10 @@ void vtkImageBlend::ThreadedRequestData (
     case VTK_IMAGE_BLEND_MODE_COMPOUND:
       tmpData = vtkImageData::New();
       if (tmpData == NULL)
-        {
+      {
         vtkErrorMacro(<< "Execute: Unable to allocate memory");
         return;
-        }
+      }
       tmpData->SetExtent(outExt);
       tmpData->AllocateScalars(
         VTK_DOUBLE,
@@ -885,34 +936,34 @@ void vtkImageBlend::ThreadedRequestData (
     default:
       vtkErrorMacro(<< "Execute: Unknown blending mode");
       return;
-    }
+  }
 
   // process each input
   int first_index = (this->BlendMode == VTK_IMAGE_BLEND_MODE_NORMAL ? 1 : 0);
   for (int idx1 = first_index;
        idx1 < this->GetNumberOfInputConnections(0); ++idx1)
-    {
+  {
     if (inData[0][idx1] != NULL)
-      {
+    {
 
       // RGB with RGB, greyscale with greyscale
       if ((inData[0][idx1]->GetNumberOfScalarComponents()+1)/2 == 2 &&
           (inData[0][0]->GetNumberOfScalarComponents()+1)/2 == 1)
-        {
+      {
         vtkErrorMacro("input has too many components, can't blend RGB data \
                        into greyscale data");
         continue;
-        }
+      }
 
       // this filter expects that input is the same type as output.
       if (inData[0][idx1]->GetScalarType() != outData[0]->GetScalarType())
-        {
+      {
         vtkErrorMacro(<< "Execute: input" << idx1 << " ScalarType (" <<
         inData[0][idx1]->GetScalarType() <<
         "), must match output ScalarType (" << outData[0]->GetScalarType()
         << ")");
         continue;
-        }
+      }
 
       // input extents
       vtkInformation *inInfo =
@@ -923,19 +974,19 @@ void vtkImageBlend::ThreadedRequestData (
 
       bool skip = false;
       for (int i = 0; i < 3; i++)
-        {
+      {
         if (outExt[2*i+1] < extent[2*i] || outExt[2*i] > extent[2*i+1])
-          {
+        {
           // extents don't overlap, skip this input
           skip = true;
-          }
         }
+      }
 
       if (skip)
-        {
+      {
         vtkDebugMacro("Execute: skipping input.");
         continue;
-        }
+      }
 
       opacity = this->GetOpacity(idx1);
 
@@ -944,23 +995,23 @@ void vtkImageBlend::ThreadedRequestData (
       // vtkDebugMacro("Execute: " << idx1 << "=>" << extent[0] << ", " << extent[1] << " / " << extent[2] << ", " << extent[3] << " / " << extent[4] << ", " << extent[5]);
 
       switch (this->BlendMode)
-        {
+      {
         case VTK_IMAGE_BLEND_MODE_NORMAL:
           outPtr = outData[0]->GetScalarPointerForExtent(extent);
           // for performance reasons, use a special method for unsigned char
           if (inData[0][idx1]->GetScalarType() == VTK_UNSIGNED_CHAR)
-            {
+          {
             vtkImageBlendExecuteChar(this, extent,
                                      inData[0][idx1],
                                      static_cast<unsigned char *>(inPtr),
                                      outData[0],
                                      static_cast<unsigned char *>(outPtr),
                                      opacity, id);
-            }
+          }
           else
-            {
+          {
             switch (inData[0][idx1]->GetScalarType())
-              {
+            {
               vtkTemplateMacro(
                 vtkImageBlendExecute(this, extent,
                                      inData[0][idx1],
@@ -971,13 +1022,13 @@ void vtkImageBlend::ThreadedRequestData (
               default:
                 vtkErrorMacro(<< "Execute: Unknown ScalarType");
                 return;
-              }
             }
+          }
           break;
 
         case VTK_IMAGE_BLEND_MODE_COMPOUND:
           switch (inData[0][idx1]->GetScalarType())
-            {
+          {
             vtkTemplateMacro(
               vtkImageBlendCompoundExecute(this,
                                            extent,
@@ -989,25 +1040,25 @@ void vtkImageBlend::ThreadedRequestData (
             default:
               vtkErrorMacro(<< "Execute: Unknown ScalarType");
               return;
-            }
+          }
           break;
 
         default:
           vtkErrorMacro(<< "Execute: Unknown blending mode");
-        }
       }
     }
+  }
 
   // conclude
   switch (this->BlendMode)
-    {
+  {
     case VTK_IMAGE_BLEND_MODE_NORMAL:
       break;
 
     case VTK_IMAGE_BLEND_MODE_COMPOUND:
       outPtr = outData[0]->GetScalarPointerForExtent(outExt);
       switch (outData[0]->GetScalarType())
-        {
+      {
         vtkTemplateMacro(
           vtkImageBlendCompoundTransferExecute(this,
                                                outExt,
@@ -1017,13 +1068,13 @@ void vtkImageBlend::ThreadedRequestData (
         default:
           vtkErrorMacro(<< "Execute: Unknown ScalarType");
           return;
-        }
+      }
       tmpData->Delete();
       break;
 
     default:
       vtkErrorMacro(<< "Execute: Unknown blending mode");
-    }
+  }
 }
 
 
@@ -1033,9 +1084,9 @@ void vtkImageBlend::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   int i;
   for (i = 0; i < this->OpacityArrayLength; i++)
-    {
+  {
     os << indent << "Opacity(" << i << "): " << this->GetOpacity(i) << endl;
-    }
+  }
   os << indent << "Stencil: " << this->GetStencil() << endl;
   os << indent << "BlendMode: " << this->GetBlendModeAsString() << endl
      << indent << "CompoundThreshold: " << this->CompoundThreshold << endl;
@@ -1045,15 +1096,15 @@ void vtkImageBlend::PrintSelf(ostream& os, vtkIndent indent)
 int vtkImageBlend::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
     info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
-    }
+  }
   if (port == 1)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageStencilData");
     // the stencil input is optional
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
-    }
+  }
   return 1;
 }

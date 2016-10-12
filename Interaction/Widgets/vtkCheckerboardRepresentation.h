@@ -12,20 +12,22 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCheckerboardRepresentation - represent the vtkCheckerboardWidget
-// .SECTION Description
-// The vtkCheckerboardRepresentation is used to implement the representation of
-// the vtkCheckerboardWidget. The user can adjust the number of divisions in
-// each of the i-j directions in a 2D image. A frame appears around the
-// vtkImageActor with sliders along each side of the frame. The user can
-// interactively adjust the sliders to the desired number of checkerboard
-// subdivisions. The representation uses four instances of
-// vtkSliderRepresentation3D to implement itself.
-
-// .SECTION See Also
-// vtkCheckerboardWidget vtkImageCheckerboard vtkImageActor vtkSliderWidget
-// vtkRectilinearWipeWidget
-
+/**
+ * @class   vtkCheckerboardRepresentation
+ * @brief   represent the vtkCheckerboardWidget
+ *
+ * The vtkCheckerboardRepresentation is used to implement the representation of
+ * the vtkCheckerboardWidget. The user can adjust the number of divisions in
+ * each of the i-j directions in a 2D image. A frame appears around the
+ * vtkImageActor with sliders along each side of the frame. The user can
+ * interactively adjust the sliders to the desired number of checkerboard
+ * subdivisions. The representation uses four instances of
+ * vtkSliderRepresentation3D to implement itself.
+ *
+ * @sa
+ * vtkCheckerboardWidget vtkImageCheckerboard vtkImageActor vtkSliderWidget
+ * vtkRectilinearWipeWidget
+*/
 
 #ifndef vtkCheckerboardRepresentation_h
 #define vtkCheckerboardRepresentation_h
@@ -41,31 +43,44 @@ class vtkSliderRepresentation3D;
 class VTKINTERACTIONWIDGETS_EXPORT vtkCheckerboardRepresentation : public vtkWidgetRepresentation
 {
 public:
-  // Description:
-  // Instantiate class.
+  /**
+   * Instantiate class.
+   */
   static vtkCheckerboardRepresentation *New();
 
-  // Description:
-  // Standard VTK methods.
+  //@{
+  /**
+   * Standard VTK methods.
+   */
   vtkTypeMacro(vtkCheckerboardRepresentation,vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // Specify an instance of vtkImageCheckerboard to manipulate.
+  //@{
+  /**
+   * Specify an instance of vtkImageCheckerboard to manipulate.
+   */
   void SetCheckerboard(vtkImageCheckerboard *chkrbrd);
   vtkGetObjectMacro(Checkerboard,vtkImageCheckerboard);
+  //@}
 
-  // Description:
-  // Specify an instance of vtkImageActor to decorate.
+  //@{
+  /**
+   * Specify an instance of vtkImageActor to decorate.
+   */
   void SetImageActor(vtkImageActor *imageActor);
   vtkGetObjectMacro(ImageActor,vtkImageActor);
+  //@}
 
-  // Description:
-  // Specify the offset of the ends of the sliders (on the boundary edges of
-  // the image) from the corner of the image. The offset is expressed as a
-  // normalized fraction of the border edges.
+  //@{
+  /**
+   * Specify the offset of the ends of the sliders (on the boundary edges of
+   * the image) from the corner of the image. The offset is expressed as a
+   * normalized fraction of the border edges.
+   */
   vtkSetClampMacro(CornerOffset,double,0.0,0.4);
   vtkGetMacro(CornerOffset,double);
+  //@}
 
   enum {
     TopSlider=0,
@@ -74,15 +89,18 @@ public:
     LeftSlider
   };
 
-  // Description:
-  // This method is invoked by the vtkCheckerboardWidget() when a value of some
-  // slider has changed.
+  /**
+   * This method is invoked by the vtkCheckerboardWidget() when a value of some
+   * slider has changed.
+   */
   void SliderValueChanged(int sliderNum);
 
-  // Description:
-  // Set and get the instances of vtkSliderRepresention used to implement this
-  // representation. Normally default representations are created, but you can
-  // specify the ones you want to use.
+  //@{
+  /**
+   * Set and get the instances of vtkSliderRepresention used to implement this
+   * representation. Normally default representations are created, but you can
+   * specify the ones you want to use.
+   */
   void SetTopRepresentation(vtkSliderRepresentation3D*);
   void SetRightRepresentation(vtkSliderRepresentation3D*);
   void SetBottomRepresentation(vtkSliderRepresentation3D*);
@@ -91,9 +109,12 @@ public:
   vtkGetObjectMacro(RightRepresentation,vtkSliderRepresentation3D);
   vtkGetObjectMacro(BottomRepresentation,vtkSliderRepresentation3D);
   vtkGetObjectMacro(LeftRepresentation,vtkSliderRepresentation3D);
+  //@}
 
-  // Description:
-  // Methods required by superclass.
+  //@{
+  /**
+   * Methods required by superclass.
+   */
   virtual void BuildRepresentation();
   virtual void GetActors(vtkPropCollection*);
   virtual void ReleaseGraphicsResources(vtkWindow *w);
@@ -101,6 +122,7 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport *viewport);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
   virtual int HasTranslucentPolygonalGeometry();
+  //@}
 
 protected:
   vtkCheckerboardRepresentation();
@@ -123,8 +145,8 @@ protected:
   int OrthoAxis;
 
 private:
-  vtkCheckerboardRepresentation(const vtkCheckerboardRepresentation&);  //Not implemented
-  void operator=(const vtkCheckerboardRepresentation&);  //Not implemented
+  vtkCheckerboardRepresentation(const vtkCheckerboardRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCheckerboardRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

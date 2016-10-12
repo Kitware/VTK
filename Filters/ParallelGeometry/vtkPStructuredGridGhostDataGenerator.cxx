@@ -61,10 +61,10 @@ void vtkPStructuredGridGhostDataGenerator::RegisterGrids(
   this->GridConnectivity->Initialize();
 
   for( unsigned int i=0; i < in->GetNumberOfBlocks(); ++i )
-    {
+  {
     vtkStructuredGrid *grid = vtkStructuredGrid::SafeDownCast(in->GetBlock(i));
     if( grid != NULL )
-      {
+    {
       vtkInformation *info = in->GetMetaData( i );
       assert("pre: NULL meta-data" && (info != NULL) );
       assert("pre: No piece meta-data" &&
@@ -77,8 +77,8 @@ void vtkPStructuredGridGhostDataGenerator::RegisterGrids(
           grid->GetPointData(),
           grid->GetCellData(),
           grid->GetPoints() );
-      } // END if the grid is not NULL
-    } // END for all blocks
+    } // END if the grid is not NULL
+  } // END for all blocks
 }
 
 //------------------------------------------------------------------------------
@@ -97,9 +97,9 @@ void vtkPStructuredGridGhostDataGenerator::CreateGhostedDataSet(
 
   int ghostedExtent[6];
   for( unsigned int i=0; i < out->GetNumberOfBlocks(); ++i )
-    {
+  {
     if( in->GetBlock(i) != NULL )
-      {
+    {
       // STEP 0: Get the computed ghosted grid extent
       this->GridConnectivity->GetGhostedGridExtent( i, ghostedExtent );
 
@@ -121,12 +121,12 @@ void vtkPStructuredGridGhostDataGenerator::CreateGhostedDataSet(
 
       out->SetBlock(i,ghostedGrid);
       ghostedGrid->Delete();
-      }
+    }
     else
-      {
+    {
       out->SetBlock( i, NULL );
-      }
-    } // END for all blocks
+    }
+  } // END for all blocks
 }
 
 //------------------------------------------------------------------------------

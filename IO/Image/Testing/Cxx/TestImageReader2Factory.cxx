@@ -35,10 +35,10 @@ int TestImageReader2Factory(int argc, char *argv[])
   vtkDebugLeaks::SetExitError(true);
 
   if ( argc <= 1 )
-    {
+  {
     cout << "Usage: " << argv[0] << " <meta image file>" << endl;
     return 1;
-    }
+  }
 
   int error = 0;
 

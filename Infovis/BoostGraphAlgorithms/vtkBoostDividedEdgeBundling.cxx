@@ -46,14 +46,14 @@ class vtkBundlingMetadata
 public:
   vtkBundlingMetadata(vtkBoostDividedEdgeBundling *alg, vtkDirectedGraph *g)
     : Outer(alg), Graph(g)
-    {
+  {
     this->Nodes = reinterpret_cast<vtkVector3f*>(
       vtkArrayDownCast<vtkFloatArray>(g->GetPoints()->GetData())->GetPointer(0));
     this->Edges.resize(g->GetNumberOfEdges());
     for (vtkIdType e = 0; e < g->GetNumberOfEdges(); ++e)
-      {
+    {
       this->Edges[e] = std::make_pair(g->GetSourceVertex(e), g->GetTargetVertex(e));
-      }
+    }
     this->VelocityDamping = 0.1f;
     this->EdgeCoulombConstant = 0.5f;
     //this->EdgeCoulombConstant = 50.0f;
@@ -62,7 +62,7 @@ public:
     //this->EdgeSpringConstant = 0.0005f;
     this->EdgeLaneWidth = 25.0f;
     this->UseNewForce = true;
-    }
+  }
 
   void ProjectOnto(vtkIdType e1, vtkIdType e2, vtkVector3f& s, vtkVector3f& t);
   void NormalizeNodePositions();
@@ -114,7 +114,7 @@ void vtkBundlingMetadata::NormalizeNodePositions()
   this->YRange = vtkVector2f(VTK_FLOAT_MAX, VTK_FLOAT_MIN);
   this->ZRange = vtkVector2f(VTK_FLOAT_MAX, VTK_FLOAT_MIN);
   for (vtkIdType i = 0; i < this->Graph->GetNumberOfVertices(); ++i)
-    {
+  {
     vtkVector3f p = this->Nodes[i];
     this->XRange[0] = std::min(this->XRange[0], p[0]);
     this->XRange[1] = std::max(this->XRange[1], p[0]);
@@ -122,42 +122,42 @@ void vtkBundlingMetadata::NormalizeNodePositions()
     this->YRange[1] = std::max(this->YRange[1], p[1]);
     this->ZRange[0] = std::min(this->ZRange[0], p[2]);
     this->ZRange[1] = std::max(this->ZRange[1], p[2]);
-    }
+  }
   float dx = this->XRange[1] - this->XRange[0];
   float dy = this->YRange[1] - this->YRange[0];
   float dz = this->ZRange[1] - this->ZRange[0];
   this->Scale = std::max(dx, std::max(dy, dz));
   for (vtkIdType i = 0; i < this->Graph->GetNumberOfVertices(); ++i)
-    {
+  {
     vtkVector3f p = this->Nodes[i];
     this->Nodes[i] = vtkVector3f(
       (p[0] - this->XRange[0])/this->Scale * 1000.0f,
       (p[1] - this->YRange[0])/this->Scale * 1000.0f,
       (p[2] - this->ZRange[0])/this->Scale * 1000.0f);
-    }
+  }
 }
 
 void vtkBundlingMetadata::DenormalizeNodePositions()
 {
   for (vtkIdType i = 0; i < this->Graph->GetNumberOfVertices(); ++i)
-    {
+  {
     vtkVector3f p = this->Nodes[i];
     this->Nodes[i] = vtkVector3f(
       p[0] / 1000.0f * this->Scale + this->XRange[0],
       p[1] / 1000.0f * this->Scale + this->YRange[0],
       p[2] / 1000.0f * this->Scale + this->ZRange[0]);
-    }
+  }
   for (vtkIdType i = 0; i < (int)this->EdgeMesh.size(); ++i)
-    {
+  {
     for (vtkIdType j = 0; j < (int)this->EdgeMesh[i].size(); ++j)
-      {
+    {
       vtkVector3f p = this->EdgeMesh[i][j];
       this->EdgeMesh[i][j] = vtkVector3f(
         p[0] / 1000.0f * this->Scale + this->XRange[0],
         p[1] / 1000.0f * this->Scale + this->YRange[0],
         p[2] / 1000.0f * this->Scale + this->ZRange[0]);
-      }
     }
+  }
 }
 
 void vtkBundlingMetadata::CalculateNodeDistances()
@@ -169,9 +169,9 @@ void vtkBundlingMetadata::CalculateNodeDistances()
   vtkNew<vtkFloatArray> weightMap;
   weightMap->SetNumberOfTuples(numEdges);
   for (vtkIdType e = 0; e < numEdges; ++e)
-    {
+  {
     weightMap->SetValue(e, 1.0f);
-    }
+  }
   boost::vtkGraphEdgePropertyMapHelper<vtkFloatArray*> weightProp(weightMap.GetPointer());
   boost::johnson_all_pairs_shortest_paths(
     this->Graph, this->NodeDistances,
@@ -181,9 +181,9 @@ void vtkBundlingMetadata::CalculateNodeDistances()
 float vtkBundlingMetadata::AngleCompatibility(vtkIdType e1, vtkIdType e2)
 {
   if (this->EdgeLengths[e1] == 0.0f || this->EdgeLengths[e2] == 0.0f)
-    {
+  {
     return 0.0f;
-    }
+  }
   vtkVector3f s1 = this->Nodes[this->Edges[e1].first];
   vtkVector3f t1 = this->Nodes[this->Edges[e1].second];
   vtkVector3f s2 = this->Nodes[this->Edges[e2].first];
@@ -200,9 +200,9 @@ float vtkBundlingMetadata::ScaleCompatibility(vtkIdType e1, vtkIdType e2)
   float len2 = this->EdgeLengths[e2];
   float average = (len1 + len2) / 2.0f;
   if (average == 0.0f)
-    {
+  {
     return 0.0f;
-    }
+  }
   return 2.0f / (average / std::min(len1, len2) + std::max(len1, len2) / average);
 }
 
@@ -212,9 +212,9 @@ float vtkBundlingMetadata::PositionCompatibility(vtkIdType e1, vtkIdType e2)
   float len2 = this->EdgeLengths[e2];
   float average = (len1 + len2) / 2.0f;
   if (average == 0.0f)
-    {
+  {
     return 0.0f;
-    }
+  }
   vtkVector3f s1 = this->Nodes[this->Edges[e1].first];
   vtkVector3f t1 = this->Nodes[this->Edges[e1].second];
   vtkVector3f s2 = this->Nodes[this->Edges[e2].first];
@@ -251,9 +251,9 @@ float vtkBundlingMetadata::VisibilityCompatibility(vtkIdType e1, vtkIdType e2)
   float ilen = (is - it).Norm();
   float jlen = (js - jt).Norm();
   if (ilen == 0.0f || jlen == 0.0f)
-    {
+  {
     return 0.0f;
-    }
+  }
   vtkVector3f s1 = this->Nodes[this->Edges[e1].first];
   vtkVector3f t1 = this->Nodes[this->Edges[e1].second];
   vtkVector3f s2 = this->Nodes[this->Edges[e2].first];
@@ -277,9 +277,9 @@ float vtkBundlingMetadata::ConnectivityCompatibility(vtkIdType e1, vtkIdType e2)
   vtkIdType s2 = this->Edges[e2].first;
   vtkIdType t2 = this->Edges[e2].second;
   if (s1 == s2 || s1 == t2 || t1 == s2 || t1 == t2)
-    {
+  {
     return 1.0f;
-    }
+  }
   float minPath = std::min(this->NodeDistances[s1][s2], std::min(this->NodeDistances[s1][t2],
     std::min(this->NodeDistances[t1][s2], this->NodeDistances[t1][t2])));
   return 1.0f / (minPath + 1.0f);
@@ -290,11 +290,11 @@ void vtkBundlingMetadata::CalculateEdgeLengths()
   vtkIdType numEdges = this->Graph->GetNumberOfEdges();
   this->EdgeLengths.resize(numEdges);
   for (vtkIdType e = 0; e < numEdges; ++e)
-    {
+  {
     vtkVector3f s = this->Nodes[this->Edges[e].first];
     vtkVector3f t = this->Nodes[this->Edges[e].second];
     this->EdgeLengths[e] = (s - t).Norm();
-    }
+  }
 }
 
 void vtkBundlingMetadata::CalculateEdgeCompatibilities()
@@ -303,13 +303,13 @@ void vtkBundlingMetadata::CalculateEdgeCompatibilities()
   this->EdgeCompatibilities.resize(numEdges, std::vector<float>(numEdges, 1.0f));
   this->EdgeDots.resize(numEdges, std::vector<float>(numEdges, 1.0f));
   for (vtkIdType e1 = 0; e1 < numEdges; ++e1)
-    {
+  {
     vtkVector3f s1 = this->Nodes[this->Edges[e1].first];
     vtkVector3f t1 = this->Nodes[this->Edges[e1].second];
     vtkVector3f r1 = s1 - t1;
     r1.Normalize();
     for (vtkIdType e2 = e1 + 1; e2 < numEdges; ++e2)
-      {
+    {
       float compatibility = 1.0f;
       compatibility *= this->AngleCompatibility(e1, e2);
       compatibility *= this->ScaleCompatibility(e1, e2);
@@ -326,8 +326,8 @@ void vtkBundlingMetadata::CalculateEdgeCompatibilities()
       float dot = r1.Dot(r2);
       this->EdgeDots[e1][e2] = dot;
       this->EdgeDots[e2][e1] = dot;
-      }
     }
+  }
 }
 
 void vtkBundlingMetadata::InitializeEdgeMesh()
@@ -339,10 +339,10 @@ void vtkBundlingMetadata::InitializeEdgeMesh()
   this->EdgeMeshAccelerations.resize(numEdges, std::vector<vtkVector3f>(2));
   //this->EdgeMeshGroupCounts.resize(numEdges, std::vector<float>(2, 1.0f));
   for (vtkIdType e = 0; e < numEdges; ++e)
-    {
+  {
     this->EdgeMesh[e][0] = this->Nodes[this->Edges[e].first];
     this->EdgeMesh[e][1] = this->Nodes[this->Edges[e].second];
-    }
+  }
 }
 
 void vtkBundlingMetadata::DoubleEdgeMeshResolution()
@@ -358,24 +358,24 @@ void vtkBundlingMetadata::DoubleEdgeMeshResolution()
   //std::vector<std::vector<float> > newEdgeMeshGroupCounts(
   //    numEdges, std::vector<float>(newMeshCount, 1.0f));
   for (vtkIdType e = 0; e < numEdges; ++e)
-    {
+  {
     for (int m = 0; m < newMeshCount; ++m)
-      {
+    {
       float indexFloat = (this->MeshCount - 1.0f)*m/(newMeshCount - 1.0f);
       int index = static_cast<int>(indexFloat);
       float alpha = indexFloat - index;
       vtkVector3f before = this->EdgeMesh[e][index];
       if (alpha > 0)
-        {
+      {
         vtkVector3f after = this->EdgeMesh[e][index+1];
         newEdgeMesh[e][m] = before + alpha*(after - before);
-        }
+      }
       else
-        {
+      {
         newEdgeMesh[e][m] = before;
-        }
       }
     }
+  }
   this->MeshCount = newMeshCount;
   this->EdgeMesh = newEdgeMesh;
   this->EdgeMeshVelocities = newEdgeMeshVelocities;
@@ -388,15 +388,15 @@ void vtkBundlingMetadata::SimulateEdgeStep()
   vtkIdType numEdges = this->Graph->GetNumberOfEdges();
 
   for (vtkIdType e1 = 0; e1 < numEdges; ++e1)
-    {
+  {
     float weight1 = 1.0f;
     for (int m1 = 0; m1 < this->MeshCount; ++m1)
-      {
+    {
       // Immovable
       if (m1 <= 0 || m1 >= this->MeshCount - 1)
-        {
+      {
         continue;
-        }
+      }
 
       // Move the point according to dynamics
       vtkVector3f position = this->EdgeMesh[e1][m1];
@@ -428,46 +428,46 @@ void vtkBundlingMetadata::SimulateEdgeStep()
       float normalizedEdgeCoulombConstant = this->EdgeCoulombConstant / sqrt(static_cast<float>(numEdges));
 
       for (vtkIdType e2 = 0; e2 < numEdges; ++e2)
-        {
+      {
         if (e1 == e2)
-          {
+        {
           continue;
-          }
+        }
 
         float compatibility = this->EdgeCompatibilities[e1][e2];
         if (compatibility <= 0.05)
-          {
+        {
           continue;
-          }
+        }
 
         float dot = this->EdgeDots[e1][e2];
         float weight2 = 1.0f;
 
         int m2;
         if (dot >= 0.0f)
-          {
+        {
           m2 = m1;
-          }
+        }
         else
-          {
+        {
           m2 = this->MeshCount - 1 - m1;
-          }
+        }
 
         vtkVector3f position2;
         // If we're going the same direction is edge1, then the potential minimum is at the point.
         if (dot >= 0.0f)
-          {
+        {
           position2 = this->EdgeMesh[e2][m2];
-          }
+        }
         // If we're going the opposite direction, the potential minimum is edgeLaneWidth to the "right."
         else
-          {
+        {
           vtkVector3f tangent = this->EdgeMesh[e2][m2+1] - this->EdgeMesh[e2][m2-1];
           tangent.Normalize();
           // This assumes 2D
           vtkVector3f normal(-tangent[1], tangent[0], 0.0f);
           position2 = this->EdgeMesh[e2][m2] + normal*this->EdgeLaneWidth;
-          }
+        }
 
         vtkVector3f direction = position2 - position;
         float distance = direction.Norm();
@@ -475,22 +475,22 @@ void vtkBundlingMetadata::SimulateEdgeStep()
         // Inverse force.
         float force;
         if (!this->UseNewForce)
-          {
+        {
           force = normalizedEdgeCoulombConstant * 30.0f / (this->MeshCount - 1) / (distance + 0.01f);
-          }
+        }
         // New force.
         else
-          {
+        {
           force = 4.0f * 10000.0f / (this->MeshCount - 1) * this->EdgeCoulombDecay * normalizedEdgeCoulombConstant * distance / (3.1415926f * pow(this->EdgeCoulombDecay * this->EdgeCoulombDecay + distance * distance, 2));
-          }
+        }
         force *= weight2;
         force *= compatibility;
 
         if (distance > 0.0f)
-          {
+        {
           direction.Normalize();
           acceleration = acceleration + force * direction;
-          }
+        }
       }
 
       velocity = velocity + acceleration * this->SimulationStep * 0.5f;
@@ -510,21 +510,21 @@ void vtkBundlingMetadata::SmoothEdges()
   std::vector<std::vector<vtkVector3f> > smoothedEdgeMesh(
       numEdges, std::vector<vtkVector3f>(this->MeshCount));
   for (vtkIdType e = 0; e < numEdges; ++e)
-    {
+  {
     for (int m = 1; m < this->MeshCount - 1; ++m)
-      {
+    {
       vtkVector3f smoothed(0.0f, 0.0f, 0.0f);
       for (int kernelIndex = 0; kernelIndex < kernelSize * 2 + 1; kernelIndex++)
-        {
+      {
         int m2 = m + kernelIndex - kernelSize;
         m2 = std::max(0, std::min(this->MeshCount - 1, m2));
 
         vtkVector3f pt = this->EdgeMesh[e][m2];
         smoothed = smoothed + gaussianKernel[kernelIndex] * pt;
-        }
-      smoothedEdgeMesh[e][m] = smoothed;
       }
+      smoothedEdgeMesh[e][m] = smoothed;
     }
+  }
   this->EdgeMesh = smoothedEdgeMesh;
 }
 
@@ -534,17 +534,17 @@ void vtkBundlingMetadata::LayoutEdgePoints()
   this->SimulationStep = 40.0f;
   this->CycleIterations = 30;
   for (int i = 0; i < 5; ++i)
-    {
+  {
     vtkDebugWithObjectMacro(this->Outer, "vtkBoostDividedEdgeBundling cycle " << i);
     this->CycleIterations = this->CycleIterations * 2 / 3;
     this->SimulationStep = 0.85f*this->SimulationStep;
     this->DoubleEdgeMeshResolution();
     for (int j = 0; j < this->CycleIterations; ++j)
-      {
+    {
       vtkDebugWithObjectMacro(this->Outer, "vtkBoostDividedEdgeBundling iteration " << j);
       this->SimulateEdgeStep();
-      }
     }
+  }
   this->SmoothEdges();
 }
 
@@ -575,14 +575,14 @@ int vtkBoostDividedEdgeBundling::RequestData(
   output->ShallowCopy(g);
 
   for (vtkIdType e = 0; e < g->GetNumberOfEdges(); ++e)
-    {
+  {
     output->ClearEdgePoints(e);
     for (int m = 1; m < meta->MeshCount-1; ++m)
-      {
+    {
       vtkVector3f edgePoint = meta->EdgeMesh[e][m];
       output->AddEdgePoint(e, edgePoint[0], edgePoint[1], edgePoint[2]);
-      }
     }
+  }
 
   delete meta;
 

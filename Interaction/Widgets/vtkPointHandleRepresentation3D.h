@@ -12,15 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPointHandleRepresentation3D - represent the position of a point in 3D space
-// .SECTION Description
-// This class is used to represent a vtkHandleWidget. It represents a position
-// in 3D world coordinates using a x-y-z cursor. The cursor can be configured to
-// show a bounding box and/or shadows.
-
-// .SECTION See Also
-// vtkHandleRepresentation vtkHandleWidget vtkCursor3D
-
+/**
+ * @class   vtkPointHandleRepresentation3D
+ * @brief   represent the position of a point in 3D space
+ *
+ * This class is used to represent a vtkHandleWidget. It represents a position
+ * in 3D world coordinates using a x-y-z cursor. The cursor can be configured to
+ * show a bounding box and/or shadows.
+ *
+ * @sa
+ * vtkHandleRepresentation vtkHandleWidget vtkCursor3D
+*/
 
 #ifndef vtkPointHandleRepresentation3D_h
 #define vtkPointHandleRepresentation3D_h
@@ -38,26 +40,34 @@ class vtkCellPicker;
 class VTKINTERACTIONWIDGETS_EXPORT vtkPointHandleRepresentation3D : public vtkHandleRepresentation
 {
 public:
-  // Description:
-  // Instantiate this class.
+  /**
+   * Instantiate this class.
+   */
   static vtkPointHandleRepresentation3D *New();
 
-  // Description:
-  // Standard methods for instances of this class.
+  //@{
+  /**
+   * Standard methods for instances of this class.
+   */
   vtkTypeMacro(vtkPointHandleRepresentation3D,vtkHandleRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // Set the position of the point in world and display coordinates. Note
-  // that if the position is set outside of the bounding box, it will be
-  // clamped to the boundary of the bounding box. This method overloads
-  // the superclasses' SetWorldPosition() and SetDisplayPosition() in
-  // order to set the focal point of the cursor properly.
+  //@{
+  /**
+   * Set the position of the point in world and display coordinates. Note
+   * that if the position is set outside of the bounding box, it will be
+   * clamped to the boundary of the bounding box. This method overloads
+   * the superclasses' SetWorldPosition() and SetDisplayPosition() in
+   * order to set the focal point of the cursor properly.
+   */
   virtual void SetWorldPosition(double p[3]);
   virtual void SetDisplayPosition(double p[3]);
+  //@}
 
-  // Description:
-  // Turn on/off the wireframe bounding box.
+  /**
+   * Turn on/off the wireframe bounding box.
+   */
   void SetOutline(int o)
     {this->Cursor3D->SetOutline(o);}
   int GetOutline()
@@ -67,8 +77,9 @@ public:
   void OutlineOff()
     {this->Cursor3D->OutlineOff();}
 
-  // Description:
-  // Turn on/off the wireframe x-shadows.
+  /**
+   * Turn on/off the wireframe x-shadows.
+   */
   void SetXShadows(int o)
     {this->Cursor3D->SetXShadows(o);}
   int GetXShadows()
@@ -78,8 +89,9 @@ public:
   void XShadowsOff()
     {this->Cursor3D->XShadowsOff();}
 
-  // Description:
-  // Turn on/off the wireframe y-shadows.
+  /**
+   * Turn on/off the wireframe y-shadows.
+   */
   void SetYShadows(int o)
     {this->Cursor3D->SetYShadows(o);}
   int GetYShadows()
@@ -89,8 +101,9 @@ public:
   void YShadowsOff()
     {this->Cursor3D->YShadowsOff();}
 
-  // Description:
-  // Turn on/off the wireframe z-shadows.
+  /**
+   * Turn on/off the wireframe z-shadows.
+   */
   void SetZShadows(int o)
     {this->Cursor3D->SetZShadows(o);}
   int GetZShadows()
@@ -100,67 +113,85 @@ public:
   void ZShadowsOff()
     {this->Cursor3D->ZShadowsOff();}
 
-  // Description:
-  // If translation mode is on, as the widget is moved the bounding box,
-  // shadows, and cursor are all translated and sized simultaneously as the
-  // point moves (i.e., the left and middle mouse buttons act the same). If
-  // translation mode is off, the cursor does not scale itself (based on the
-  // specified handle size), and the bounding box and shadows do not move or
-  // size themselves as the cursor focal point moves, which is constrained by
-  // the bounds of the point representation. (Note that the bounds can be
-  // scaled up using the right mouse button, and the bounds can be manually
-  // set with the SetBounds() method.)
+  //@{
+  /**
+   * If translation mode is on, as the widget is moved the bounding box,
+   * shadows, and cursor are all translated and sized simultaneously as the
+   * point moves (i.e., the left and middle mouse buttons act the same). If
+   * translation mode is off, the cursor does not scale itself (based on the
+   * specified handle size), and the bounding box and shadows do not move or
+   * size themselves as the cursor focal point moves, which is constrained by
+   * the bounds of the point representation. (Note that the bounds can be
+   * scaled up using the right mouse button, and the bounds can be manually
+   * set with the SetBounds() method.)
+   */
   void SetTranslationMode(int mode);
   vtkGetMacro(TranslationMode,int);
   vtkBooleanMacro(TranslationMode,int);
+  //@}
 
-  // Description:
-  // Convenience methods to turn outline and shadows on and off.
+  //@{
+  /**
+   * Convenience methods to turn outline and shadows on and off.
+   */
   void AllOn()
-    {
+  {
       this->OutlineOn();
       this->XShadowsOn();
       this->YShadowsOn();
       this->ZShadowsOn();
-    }
+  }
   void AllOff()
-    {
+  {
       this->OutlineOff();
       this->XShadowsOff();
       this->YShadowsOff();
       this->ZShadowsOff();
-    }
+  }
+  //@}
 
-  // Description:
-  // Set/Get the handle properties when unselected and selected.
+  //@{
+  /**
+   * Set/Get the handle properties when unselected and selected.
+   */
   void SetProperty(vtkProperty*);
   void SetSelectedProperty(vtkProperty*);
   vtkGetObjectMacro(Property,vtkProperty);
   vtkGetObjectMacro(SelectedProperty,vtkProperty);
+  //@}
 
-  // Description:
-  // Set the "hot spot" size; i.e., the region around the focus, in which the
-  // motion vector is used to control the constrained sliding action. Note the
-  // size is specified as a fraction of the length of the diagonal of the
-  // point widget's bounding box.
+  //@{
+  /**
+   * Set the "hot spot" size; i.e., the region around the focus, in which the
+   * motion vector is used to control the constrained sliding action. Note the
+   * size is specified as a fraction of the length of the diagonal of the
+   * point widget's bounding box.
+   */
   vtkSetClampMacro(HotSpotSize,double,0.0,1.0);
   vtkGetMacro(HotSpotSize,double);
+  //@}
 
-  // Description:
-  // Overload the superclasses SetHandleSize() method to update internal variables.
+  /**
+   * Overload the superclasses SetHandleSize() method to update internal variables.
+   */
   virtual void SetHandleSize(double size);
 
-  // Description:
-  // Methods to make this class properly act like a vtkWidgetRepresentation.
+  //@{
+  /**
+   * Methods to make this class properly act like a vtkWidgetRepresentation.
+   */
   virtual double *GetBounds();
   virtual void BuildRepresentation();
   virtual void StartWidgetInteraction(double eventPos[2]);
   virtual void WidgetInteraction(double eventPos[2]);
   virtual int ComputeInteractionState(int X, int Y, int modify=0);
   virtual void PlaceWidget(double bounds[6]);
+  //@}
 
-  // Description:
-  // Methods to make this class behave as a vtkProp.
+  //@{
+  /**
+   * Methods to make this class behave as a vtkProp.
+   */
   virtual void ShallowCopy(vtkProp *prop);
   virtual void DeepCopy(vtkProp *prop);
   virtual void GetActors(vtkPropCollection *);
@@ -168,22 +199,26 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport *viewport);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
   virtual int HasTranslucentPolygonalGeometry();
+  //@}
 
   void Highlight(int highlight);
 
-  // Description:
-  // Turn on/off smooth motion of the handle. See the documentation of
-  // MoveFocusRequest for details. By default, SmoothMotion is ON. However,
-  // in certain applications the user may want to turn it off. For instance
-  // when using certain specific PointPlacer's with the representation such
-  // as the vtkCellCentersPointPlacer, which causes the representation to
-  // snap to the center of cells, or using a vtkPolygonalSurfacePointPlacer
-  // which constrains the widget to the surface of a mesh. In such cases,
-  // inherent restrictions on handle placement might conflict with a request
-  // for smooth motion of the handles.
+  //@{
+  /**
+   * Turn on/off smooth motion of the handle. See the documentation of
+   * MoveFocusRequest for details. By default, SmoothMotion is ON. However,
+   * in certain applications the user may want to turn it off. For instance
+   * when using certain specific PointPlacer's with the representation such
+   * as the vtkCellCentersPointPlacer, which causes the representation to
+   * snap to the center of cells, or using a vtkPolygonalSurfacePointPlacer
+   * which constrains the widget to the surface of a mesh. In such cases,
+   * inherent restrictions on handle placement might conflict with a request
+   * for smooth motion of the handles.
+   */
   vtkSetMacro( SmoothMotion, int );
   vtkGetMacro( SmoothMotion, int );
   vtkBooleanMacro( SmoothMotion, int );
+  //@}
 
 protected:
   vtkPointHandleRepresentation3D();
@@ -243,8 +278,8 @@ protected:
   int SmoothMotion;
 
 private:
-  vtkPointHandleRepresentation3D(const vtkPointHandleRepresentation3D&);  //Not implemented
-  void operator=(const vtkPointHandleRepresentation3D&);  //Not implemented
+  vtkPointHandleRepresentation3D(const vtkPointHandleRepresentation3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPointHandleRepresentation3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

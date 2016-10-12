@@ -146,7 +146,7 @@ int TestMultiTexturingGLSL(int argc, char *argv[])
     vtkOpenGLRenderWindow::SafeDownCast(renWin)->GetHardwareSupport();
 
   if(hardware->GetSupportsMultiTexturing() && hardware->GetNumberOfTextureUnits() > 2)
-    {
+  {
     mapper->MapDataArrayToMultiTextureAttribute(
       vtkProperty::VTK_TEXTURE_UNIT_0, "MultTCoords", vtkDataObject::FIELD_ASSOCIATION_POINTS);
     mapper->MapDataArrayToMultiTextureAttribute(
@@ -157,12 +157,12 @@ int TestMultiTexturingGLSL(int argc, char *argv[])
     actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_0,textureRed);
     actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_1,textureBlue);
     actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_2,textureGreen);
-    }
+  }
   else
-    {
+  {
     // no multitexturing just show the green texture.
     actor->SetTexture(textureGreen);
-    }
+  }
 
   actor->SetMapper(mapper);
 
@@ -178,9 +178,9 @@ int TestMultiTexturingGLSL(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   polyData->Delete();
   mapper->Delete();

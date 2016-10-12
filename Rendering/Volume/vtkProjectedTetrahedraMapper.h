@@ -22,19 +22,22 @@
  * statement of authorship are reproduced on all copies.
  */
 
-// .NAME vtkProjectedTetrahedraMapper - Unstructured grid volume renderer.
-//
-// .SECTION Description
-// vtkProjectedTetrahedraMapper is an implementation of the classic
-// Projected Tetrahedra algorithm presented by Shirley and Tuchman in "A
-// Polygonal Approximation to Direct Scalar Volume Rendering" in Computer
-// Graphics, December 1990.
-//
-// .SECTION Bugs
-// This mapper relies highly on the implementation of the OpenGL pipeline.
-// A typical hardware driver has lots of options and some settings can
-// cause this mapper to produce artifacts.
-//
+/**
+ * @class   vtkProjectedTetrahedraMapper
+ * @brief   Unstructured grid volume renderer.
+ *
+ *
+ * vtkProjectedTetrahedraMapper is an implementation of the classic
+ * Projected Tetrahedra algorithm presented by Shirley and Tuchman in "A
+ * Polygonal Approximation to Direct Scalar Volume Rendering" in Computer
+ * Graphics, December 1990.
+ *
+ * @bug
+ * This mapper relies highly on the implementation of the OpenGL pipeline.
+ * A typical hardware driver has lots of options and some settings can
+ * cause this mapper to produce artifacts.
+ *
+*/
 
 #ifndef vtkProjectedTetrahedraMapper_h
 #define vtkProjectedTetrahedraMapper_h
@@ -68,9 +71,10 @@ public:
                               const float modelview_mat[16],
                               vtkFloatArray *outPoints);
 
-  // Description:
-  // Return true if the rendering context provides
-  // the nececessary functionality to use this class.
+  /**
+   * Return true if the rendering context provides
+   * the nececessary functionality to use this class.
+   */
   virtual bool IsSupported(vtkRenderWindow *)
     { return false; }
 
@@ -80,14 +84,15 @@ protected:
 
   vtkVisibilitySort *VisibilitySort;
 
-  // Description:
-  // The visibility sort will probably make a reference loop by holding a
-  // reference to the input.
-  virtual void ReportReferences(vtkGarbageCollector *collector);
+  /**
+   * The visibility sort will probably make a reference loop by holding a
+   * reference to the input.
+   */
+  void ReportReferences(vtkGarbageCollector *collector) VTK_OVERRIDE;
 
 private:
-  vtkProjectedTetrahedraMapper(const vtkProjectedTetrahedraMapper &);  // Not Implemented.
-  void operator=(const vtkProjectedTetrahedraMapper &);  // Not Implemented.
+  vtkProjectedTetrahedraMapper(const vtkProjectedTetrahedraMapper &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkProjectedTetrahedraMapper &) VTK_DELETE_FUNCTION;
 };
 
 #endif

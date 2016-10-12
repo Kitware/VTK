@@ -31,9 +31,9 @@ void vtkPSystemTools::BroadcastString(std::string& str, int proc)
 
   str.resize(size);
   if(size)
-    {
+  {
     controller->Broadcast(&str[0], size, proc);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -43,9 +43,9 @@ std::string vtkPSystemTools::CollapseFullPath(const std::string& in_relative)
     vtkMultiProcessController::GetGlobalController();
   std::string returnString;
   if(controller->GetLocalProcessId() == 0)
-    {
+  {
     returnString = vtksys::SystemTools::CollapseFullPath(in_relative, 0);
-    }
+  }
   vtkPSystemTools::BroadcastString(returnString, 0);
 
   return returnString;
@@ -59,9 +59,9 @@ std::string vtkPSystemTools::CollapseFullPath(const std::string& in_path,
     vtkMultiProcessController::GetGlobalController();
   std::string returnString;
   if(controller->GetLocalProcessId() == 0)
-    {
+  {
     returnString = vtksys::SystemTools::CollapseFullPath(in_path, in_base);
-    }
+  }
   vtkPSystemTools::BroadcastString(returnString, 0);
 
   return returnString;
@@ -71,9 +71,9 @@ std::string vtkPSystemTools::CollapseFullPath(const std::string& in_path,
 bool vtkPSystemTools::FileExists(const char* filename)
 {
   if(!filename)
-    {
+  {
     return false;
-    }
+  }
   return vtkPSystemTools::FileExists(std::string(filename));
 }
 
@@ -81,16 +81,16 @@ bool vtkPSystemTools::FileExists(const char* filename)
 bool vtkPSystemTools::FileExists(const std::string& filename)
 {
   if(filename.empty())
-    {
+  {
     return false;
-    }
+  }
   vtkMultiProcessController* controller =
     vtkMultiProcessController::GetGlobalController();
   int exists = 0;
   if(controller->GetLocalProcessId() == 0)
-    {
+  {
     exists = vtksys::SystemTools::FileExists(filename);
-    }
+  }
   controller->Broadcast(&exists, 1, 0);
   return exists != 0;
 }
@@ -99,9 +99,9 @@ bool vtkPSystemTools::FileExists(const std::string& filename)
 bool vtkPSystemTools::FileExists(const char* filename, bool isFile)
 {
   if(!filename)
-    {
+  {
     return false;
-    }
+  }
   return vtkPSystemTools::FileExists(std::string(filename), isFile);
 }
 
@@ -112,9 +112,9 @@ bool vtkPSystemTools::FileExists(const std::string& filename, bool isFile)
     vtkMultiProcessController::GetGlobalController();
   int exists = 0;
   if(controller->GetLocalProcessId() == 0)
-    {
+  {
     exists = vtksys::SystemTools::FileExists(filename, isFile);
-    }
+  }
   controller->Broadcast(&exists, 1, 0);
   return exists != 0;
 }
@@ -126,9 +126,9 @@ bool vtkPSystemTools::FileIsDirectory(const std::string& inName)
     vtkMultiProcessController::GetGlobalController();
   int isDirectory = 0;
   if(controller->GetLocalProcessId() == 0)
-    {
+  {
     isDirectory = vtksys::SystemTools::FileIsDirectory(inName);
-    }
+  }
   controller->Broadcast(&isDirectory, 1, 0);
   return isDirectory != 0;
 }
@@ -145,22 +145,22 @@ bool vtkPSystemTools::FindProgramPath(const char* argv0,
     vtkMultiProcessController::GetGlobalController();
   int retVal = 1;
   if(controller->GetLocalProcessId() == 0)
-    {
+  {
     retVal = static_cast<int>(
       vtksys::SystemTools::FindProgramPath(
         argv0, pathOut, errorMsg, exeName, buildDir, installPrefix));
-    }
+  }
   controller->Broadcast(&retVal, 1, 0);
   // if the retVal on proc 0 is non-zero then only information is
   // put in pathOut. Otherwise information is put in errorMsg.
   if(retVal)
-    {
+  {
     vtkPSystemTools::BroadcastString(pathOut, 0);
-    }
+  }
   else
-    {
+  {
     vtkPSystemTools::BroadcastString(errorMsg, 0);
-    }
+  }
   return retVal != 0;
 }
 
@@ -171,9 +171,9 @@ std::string vtkPSystemTools::GetCurrentWorkingDirectory(bool collapse)
     vtkMultiProcessController::GetGlobalController();
   std::string returnString;
   if(controller->GetLocalProcessId() == 0)
-    {
+  {
     returnString = vtksys::SystemTools::GetCurrentWorkingDirectory(collapse);
-    }
+  }
   vtkPSystemTools::BroadcastString(returnString, 0);
   return returnString;
 }
@@ -185,9 +185,9 @@ std::string vtkPSystemTools::GetProgramPath(const std::string& path)
     vtkMultiProcessController::GetGlobalController();
   std::string programPath;
   if(controller->GetLocalProcessId() == 0)
-    {
+  {
     programPath = vtksys::SystemTools::GetProgramPath(path);
-    }
+  }
   vtkPSystemTools::BroadcastString(programPath, 0);
 
   return programPath;

@@ -24,13 +24,14 @@
 #ifndef XDMFATTRIBUTE_HPP_
 #define XDMFATTRIBUTE_HPP_
 
-// Forward Declarations
-class XdmfAttributeCenter;
-class XdmfAttributeType;
-
-// Includes
+// C Compatible Includes
 #include "Xdmf.hpp"
 #include "XdmfArray.hpp"
+#include "XdmfAttributeCenter.hpp"
+#include "XdmfAttributeType.hpp"
+#include "XdmfTime.hpp"
+
+#ifdef __cplusplus
 
 /**
  * @brief Holds values located at specific parts of an XdmfGrid.
@@ -237,6 +238,8 @@ public:
    */
   void setType(const shared_ptr<const XdmfAttributeType> type);
 
+  XdmfAttribute(XdmfAttribute &);
+
 protected:
 
   XdmfAttribute();
@@ -255,5 +258,33 @@ private:
   std::string mName;
   shared_ptr<const XdmfAttributeType> mType;
 };
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// C wrappers go here
+
+struct XDMFATTRIBUTE; // Simply as a typedef to ensure correct typing
+typedef struct XDMFATTRIBUTE XDMFATTRIBUTE;
+
+XDMF_EXPORT XDMFATTRIBUTE * XdmfAttributeNew();
+
+XDMF_EXPORT int XdmfAttributeGetCenter(XDMFATTRIBUTE * attribute);
+
+XDMF_EXPORT int XdmfAttributeGetType(XDMFATTRIBUTE * attribute);
+
+XDMF_EXPORT void XdmfAttributeSetCenter(XDMFATTRIBUTE * attribute, int center, int * status);
+
+XDMF_EXPORT void XdmfAttributeSetType(XDMFATTRIBUTE * attribute, int type, int * status);
+
+XDMF_ITEM_C_CHILD_DECLARE(XdmfAttribute, XDMFATTRIBUTE, XDMF)
+XDMF_ARRAY_C_CHILD_DECLARE(XdmfAttribute, XDMFATTRIBUTE, XDMF)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XDMFATTRIBUTE_HPP_ */

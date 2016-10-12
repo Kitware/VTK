@@ -51,14 +51,14 @@ void vtkBoxLayoutStrategy::Layout(
     vtkDataArray* vtkNotUsed(sizeArray))
 {
   if (!inputTree)
-    {
+  {
     return;
-    }
+  }
   if (!coordsArray)
-    {
+  {
     vtkErrorMacro("Area array not defined.");
     return;
-    }
+  }
   vtkSmartPointer<vtkTreeDFSIterator> dfs =
     vtkSmartPointer<vtkTreeDFSIterator>::New();
   dfs->SetTree(inputTree);
@@ -66,23 +66,23 @@ void vtkBoxLayoutStrategy::Layout(
   vtkSmartPointer<vtkAdjacentVertexIterator> children =
     vtkSmartPointer<vtkAdjacentVertexIterator>::New();
   while (dfs->HasNext())
-    {
+  {
     vtkIdType vertex = dfs->Next();
     if (vertex == inputTree->GetRoot())
-      {
+    {
       coords[0] = 0; coords[1] = 1; coords[2] = 0; coords[3] = 1;
       coordsArray->SetTuple(vertex, coords);
       inputTree->GetPoints()->SetPoint(vertex,
         (coords[0] + coords[1])/2.0,
         (coords[2] + coords[3])/2.0,
         0.0);
-      }
+    }
     double doubleCoords[4];
     coordsArray->GetTuple(vertex, doubleCoords);
     for (int i = 0; i < 4; i++)
-      {
+    {
       coords[i] = doubleCoords[i];
-      }
+    }
     this->AddBorder(coords);
     float parentMinX = coords[0];
     float parentMaxX = coords[1];
@@ -93,7 +93,7 @@ void vtkBoxLayoutStrategy::Layout(
 
     vtkIdType nchildren = inputTree->GetNumberOfChildren(vertex);
     if (!inputTree->IsLeaf(vertex))
-      {
+    {
       // Divide the available space with simple algo
       int xDivisions =
         static_cast<int>(sqrt(static_cast<double>(nchildren))+1); // Ceiling
@@ -112,14 +112,14 @@ void vtkBoxLayoutStrategy::Layout(
       float xDelta = xSpace / xDivisions;
       float yDelta = ySpace / yDivisions;
       for (int i = 0; i < yDivisions; i++)
-        {
+      {
         for (int j = 0; j < xDivisions; j++)
-          {
+        {
           // Check to see if we have more children
           if (!children->HasNext())
-            {
+          {
             break;
-            }
+          }
           vtkIdType child = children->Next();
 
           // Give children their positions
@@ -137,10 +137,10 @@ void vtkBoxLayoutStrategy::Layout(
             (coords[0] + coords[1])/2.0,
             (coords[2] + coords[3])/2.0,
             0.0);
-          }
         }
       }
     }
+  }
 }
 
 void vtkBoxLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)

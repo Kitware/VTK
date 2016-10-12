@@ -420,7 +420,7 @@ class vtkTIPWCallback : public vtkCommand
 public:
   static vtkTIPWCallback *New()
   { return new vtkTIPWCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
   {
     vtkImplicitPlaneWidget *planeWidget =
       reinterpret_cast<vtkImplicitPlaneWidget*>(caller);

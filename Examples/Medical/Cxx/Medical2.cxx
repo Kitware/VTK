@@ -35,10 +35,10 @@
 int main (int argc, char *argv[])
 {
   if (argc < 2)
-    {
+  {
     cout << "Usage: " << argv[0] << " DATADIR/headsq/quarter" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Create the renderer, the render window, and the interactor. The renderer
   // draws into the render window, the interactor enables mouse- and

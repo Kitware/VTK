@@ -13,20 +13,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXdmfReader - Reads <tt>eXtensible Data Model and Format</tt> files
-// .SECTION Description
-// vtkXdmfReader reads XDMF data files so that they can be visualized using
-// VTK. The output data produced by this reader depends on the number of grids
-// in the data file. If the data file has a single domain with a single grid,
-// then the output type is a vtkDataSet subclass of the appropriate type,
-// otherwise it's a vtkMultiBlockDataSet.
-//
-// Refer to vtkDataReader which provides many methods for controlling the
-// reading of the data file.
-// .SECTION Caveats
-// Uses the XDMF API (http://www.xdmf.org)
-// .SECTION See Also
-// vtkDataReader
+/**
+ * @class   vtkXdmfReader
+ * @brief   Reads <tt>eXtensible Data Model and Format</tt> files
+ *
+ * vtkXdmfReader reads XDMF data files so that they can be visualized using
+ * VTK. The output data produced by this reader depends on the number of grids
+ * in the data file. If the data file has a single domain with a single grid,
+ * then the output type is a vtkDataSet subclass of the appropriate type,
+ * otherwise it's a vtkMultiBlockDataSet.
+ *
+ * Refer to vtkDataReader which provides many methods for controlling the
+ * reading of the data file.
+ * @warning
+ * Uses the XDMF API (http://www.xdmf.org)
+ * @sa
+ * vtkDataReader
+*/
 
 #ifndef vtkXdmfReader_h
 #define vtkXdmfReader_h
@@ -53,89 +56,115 @@ public:
   //// RequestInformation pipeline pass has happened.
   //unsigned int GetNumberOfDomains();
 
-  // Description:
-  // Set the active domain. Only one domain can be selected at a time. By
-  // default the first domain in the datafile is chosen. Setting this to null
-  // results in the domain being automatically chosen. Note that if the domain
-  // name is changed, you should explicitly call UpdateInformation() before
-  // accessing information about grids, data arrays etc.
+  //@{
+  /**
+   * Set the active domain. Only one domain can be selected at a time. By
+   * default the first domain in the datafile is chosen. Setting this to null
+   * results in the domain being automatically chosen. Note that if the domain
+   * name is changed, you should explicitly call UpdateInformation() before
+   * accessing information about grids, data arrays etc.
+   */
   vtkSetStringMacro(DomainName);
   vtkGetStringMacro(DomainName);
+  //@}
 
   //// Description:
   //// Returns the name for the active domain. Note that this may be different
   //// from what GetDomainName() returns if DomainName is NULL or invalid.
   // vtkGetStringMacro(ActiveDomainName);
 
-  // Description:
-  // Get information about point-based arrays. As is typical with readers this
-  // in only valid after the filename is set and UpdateInformation() has been
-  // called.
+  /**
+   * Get information about point-based arrays. As is typical with readers this
+   * in only valid after the filename is set and UpdateInformation() has been
+   * called.
+   */
   int GetNumberOfPointArrays();
 
-  // Description:
-  // Returns the name of point array at the give index. Returns NULL if index is
-  // invalid.
+  /**
+   * Returns the name of point array at the give index. Returns NULL if index is
+   * invalid.
+   */
   const char* GetPointArrayName(int index);
 
-  // Description:
-  // Get/Set the point array status.
+  //@{
+  /**
+   * Get/Set the point array status.
+   */
   int GetPointArrayStatus(const char* name);
   void SetPointArrayStatus(const char* name, int status);
+  //@}
 
-  // Description:
-  // Get information about cell-based arrays.  As is typical with readers this
-  // in only valid after the filename is set and UpdateInformation() has been
-  // called.
+  //@{
+  /**
+   * Get information about cell-based arrays.  As is typical with readers this
+   * in only valid after the filename is set and UpdateInformation() has been
+   * called.
+   */
   int GetNumberOfCellArrays();
   const char* GetCellArrayName(int index);
   void SetCellArrayStatus(const char* name, int status);
   int GetCellArrayStatus(const char* name);
+  //@}
 
-  // Description:
-  // Get/Set information about grids. As is typical with readers this is valid
-  // only after the filename as been set and UpdateInformation() has been
-  // called.
+  //@{
+  /**
+   * Get/Set information about grids. As is typical with readers this is valid
+   * only after the filename as been set and UpdateInformation() has been
+   * called.
+   */
   int GetNumberOfGrids();
   const char* GetGridName(int index);
   void SetGridStatus(const char* gridname, int status);
   int GetGridStatus(const char* gridname);
+  //@}
 
-  // Description:
-  // Get/Set information about sets. As is typical with readers this is valid
-  // only after the filename as been set and UpdateInformation() has been
-  // called. Note that sets with non-zero Ghost value are not treated as sets
-  // that the user can select using this API.
+  //@{
+  /**
+   * Get/Set information about sets. As is typical with readers this is valid
+   * only after the filename as been set and UpdateInformation() has been
+   * called. Note that sets with non-zero Ghost value are not treated as sets
+   * that the user can select using this API.
+   */
   int GetNumberOfSets();
   const char* GetSetName(int index);
   void SetSetStatus(const char* gridname, int status);
   int GetSetStatus(const char* gridname);
+  //@}
 
-  // Description:
-  // These methods are provided to make it easier to use the Sets in ParaView.
+  /**
+   * These methods are provided to make it easier to use the Sets in ParaView.
+   */
   int GetNumberOfSetArrays() { return this->GetNumberOfSets(); }
   const char* GetSetArrayName(int index)
     { return this->GetSetName(index); }
   int GetSetArrayStatus(const char* name)
     { return this->GetSetStatus(name); }
 
-  // Description:
-  // Get/Set the stride used to skip points when reading structured datasets.
-  // This affects all grids being read.
+  //@{
+  /**
+   * Get/Set the stride used to skip points when reading structured datasets.
+   * This affects all grids being read.
+   */
   vtkSetVector3Macro(Stride, int);
   vtkGetVector3Macro(Stride, int);
+  //@}
 
-  // Description:
-  // Determine if the file can be read with this reader.
+  /**
+   * Determine if the file can be read with this reader.
+   */
   virtual int CanReadFile(const char* filename);
 
-  // Description:
-  // Every time the SIL is updated a this will return a different value.
+  //@{
+  /**
+   * Every time the SIL is updated a this will return a different value.
+   */
   vtkGetMacro(SILUpdateStamp, int);
+  //@}
 
-  // Description:
-  // SIL describes organization of/relationships between classifications
-  // eg. blocks/materials/hierarchies.
+  /**
+   * SIL describes organization of/relationships between classifications
+   * eg. blocks/materials/hierarchies.
+   */
   virtual vtkGraph* GetSIL();
 
   class XdmfDataSetTopoGeoPath
@@ -149,8 +178,9 @@ public:
 
   typedef std::map<int, XdmfDataSetTopoGeoPath> XdmfReaderCachedData;
 
-  // Description
-  // Get the data set cache
+  /**
+   * Get the data set cache
+   */
   XdmfReaderCachedData& GetDataSetCache();
 
 protected:
@@ -199,20 +229,22 @@ protected:
   XdmfReaderCachedData DataSetCache;
 
 private:
-  // Description:
-  // Prepares the XdmfDocument.
+  /**
+   * Prepares the XdmfDocument.
+   */
   bool PrepareDocument();
 
   void ClearDataSetCache();
 
-  // Description:
-  // Returns the time-step index requested using the UPDATE_TIME_STEPS from the
-  // information.
+  /**
+   * Returns the time-step index requested using the UPDATE_TIME_STEPS from the
+   * information.
+   */
   int ChooseTimeStep(vtkInformation* outInfo);
 
 private:
-  vtkXdmfReader(const vtkXdmfReader&); // Not implemented
-  void operator=(const vtkXdmfReader&); // Not implemented
+  vtkXdmfReader(const vtkXdmfReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXdmfReader&) VTK_DELETE_FUNCTION;
 
 };
 

@@ -46,26 +46,26 @@ vtkPointsPainter::~vtkPointsPainter()
   glInitFuncs \
   device->BeginPrimitive(VTK_POLY_VERTEX);\
   while (ptIds < endPtIds) \
-    { \
+  { \
     nPts = *ptIds; \
     ++ptIds; \
     while (nPts > 0) \
-      { \
+    { \
       glVertFuncs \
       ++ptIds; \
       --nPts; \
-      } \
+    } \
     if (++count == 10000) \
-      { \
+    { \
       cellNum += 10000; \
       count = 0; \
       this->UpdateProgress(static_cast<double>(cellNum)/totalCells);    \
       if (ren->GetRenderWindow()->CheckAbortStatus()) \
-        { \
+      { \
         break; \
-        } \
       } \
     } \
+  } \
   cellNum += count; \
   device->EndPrimitive();\
 }
@@ -85,17 +85,17 @@ int vtkPointsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
   void *normals = 0;
   unsigned char *colors = 0;
   if (ca->GetNumberOfCells() == 0)
-    {
+  {
     return 1;
-    }
+  }
   if (n)
-    {
+  {
     normals = n->GetVoidPointer(0);
-    }
+  }
   if (c)
-    {
+  {
     colors = c->GetPointer(0);
-    }
+  }
 
   vtkIdType *ptIds = ca->GetPointer();
   vtkIdType *endPtIds = ptIds + ca->GetNumberOfConnectivityEntries();
@@ -111,7 +111,7 @@ int vtkPointsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
   idx &= (~VTK_PDM_EDGEFLAGS);
 
   switch (idx)
-    {
+  {
   case 0://no cell/point attribs are present.
     vtkDrawPointsMacro(
       device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
@@ -162,7 +162,7 @@ int vtkPointsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
     break;
   default:
     return 0; // let the delegate painter handle it.
-    }
+  }
   return 1;
 }
 

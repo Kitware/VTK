@@ -64,25 +64,25 @@ vtkDataArray *Magnitude(vtkDataArray *V)
   vtkDataArray *magV = V->NewInstance();
   magV->SetNumberOfTuples(nTups);
   switch (V->GetDataType())
-    {
+  {
     vtkFloatingPointTemplateMacro(
       VTK_TT *pV = (VTK_TT*)V->GetVoidPointer(0);
       VTK_TT *pMagV = (VTK_TT*)magV->GetVoidPointer(0);
       for (vtkIdType i=0; i<nTups; ++i)
-        {
+      {
         VTK_TT mag = VTK_TT(0);
         for (vtkIdType j=0; j<nComps; ++j)
-          {
+        {
           VTK_TT v = pV[i*nComps+j];
           mag += v*v;
-          }
-        pMagV[i] = sqrt(mag);
         }
+        pMagV[i] = sqrt(mag);
+      }
       );
   default:
     cerr << "ERROR: vectors must be float or double" << endl;
     break;
-    }
+  }
   return magV;
 }
 
@@ -94,10 +94,10 @@ vtkDataArray *Magnitude(vtkDataSet *ds, std::string &vectors)
   vtkDataArray *V = NULL;
   V = ds->GetPointData()->GetArray(vectors.c_str());
   if (V == NULL)
-    {
+  {
     cerr << "ERROR: point vectors " << vectors << " not found" << endl;
     return NULL;
-    }
+  }
   vtkDataArray *magV = Magnitude(V);
   std::string magVName = "mag"+vectors;
   magV->SetName(magVName.c_str());
@@ -155,28 +155,28 @@ int vtkSurfaceLICTestDriver(
   iren->SetRenderWindow(renWin);
 
   if (camera_config == 1)
-    {
+  {
     renWin->SetSize(300, 300);
-    }
+  }
   else
   if (camera_config == 2)
-    {
+  {
     renWin->SetSize(300, 270);
-    }
+  }
   else
   if (camera_config == 3)
-    {
+  {
     renWin->SetSize(400, 340);
-    }
+  }
   else
   if (camera_config == 4)
-    {
+  {
     renWin->SetSize(364, 256);
-    }
+  }
   renWin->Render();
 
   if (!vtkSurfaceLICPainter::IsSupported(renWin))
-    {
+  {
     cerr
       << "WARNING: The rendering context does not support required extensions."
       << endl;
@@ -186,7 +186,7 @@ int vtkSurfaceLICTestDriver(
     iren = NULL;
     vtkAlgorithm::SetDefaultExecutivePrototype(NULL);
     return 0;
-    }
+  }
 
   // Create a mapper and insert the vtkSurfaceLICPainter painter into the
   // painter chain. This is essential since the entire logic of performin the
@@ -223,64 +223,64 @@ int vtkSurfaceLICTestDriver(
 
   // If user chose a vector field, select it.
   if (vectors != "")
-    {
+  {
     painter->SetInputArrayToProcess(
       vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS,
       vectors.c_str());
-    }
+  }
   else
-    {
+  {
     cerr << "ERROR: vectors must be set using --vectors." << endl;
     return 1;
-    }
+  }
 
   // Set the mapper input
   mapper->SetInputDataObject(dataObj);
 
   if (color_by_mag)
-    {
+  {
     if ( vectors.empty() )
-      {
+    {
       cerr << "ERROR: color by mag requires using --vectors." << endl;
       vtkAlgorithm::SetDefaultExecutivePrototype(NULL);
       return 1;
-      }
+    }
 
     const char *magVName = NULL;
     double range[2] = {VTK_FLOAT_MAX, -VTK_FLOAT_MAX};
     vtkCompositeDataSet *cd = dynamic_cast<vtkCompositeDataSet*>(dataObj);
     if (cd)
-      {
+    {
       vtkCompositeDataIterator* iter = cd->NewIterator();
       for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-        {
+      {
         vtkDataSet* ds = dynamic_cast<vtkDataSet*>(iter->GetCurrentDataObject());
         if (ds && ds->GetNumberOfCells())
-          {
+        {
           vtkDataArray *magV = Magnitude(ds, vectors);
           magVName = magV->GetName();
           Range(magV, range);
           ds->GetPointData()->SetScalars(magV);
           magV->Delete();
-          }
         }
-      iter->Delete();
       }
+      iter->Delete();
+    }
     vtkDataSet* ds = dynamic_cast<vtkDataSet*>(dataObj);
     if (ds && ds->GetNumberOfCells())
-      {
+    {
       vtkDataArray *magV = Magnitude(ds, vectors);
       magVName = magV->GetName();
       Range(magV, range);
       ds->GetPointData()->SetScalars(magV);
       magV->Delete();
-      }
+    }
     if (!magVName)
-      {
+    {
       cerr << "ERROR: color by mag could not generate magV." << endl;
       vtkAlgorithm::SetDefaultExecutivePrototype(NULL);
       return 1;
-      }
+    }
     vtkColorTransferFunction *lut = vtkColorTransferFunction::New();
     lut->SetColorSpaceToRGB();
     lut->AddRGBPoint(range[0], 0.0, 0.0, 1.0);
@@ -294,7 +294,7 @@ int vtkSurfaceLICTestDriver(
     mapper->SetUseLookupTableScalarRange(1);
     mapper->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA);
     lut->Delete();
-    }
+  }
 
   // Pass parameters.
   painter->SetNumberOfSteps(num_steps);
@@ -337,7 +337,7 @@ int vtkSurfaceLICTestDriver(
   vtkCamera *camera = renderer->GetActiveCamera();
 
   if (camera_config == 1)
-    {
+  {
     renWin->SetSize(300, 300);
     renderer->SetBackground(0.3216, 0.3412, 0.4314);
     renderer->SetBackground2(0.0, 0.0, 0.1647);
@@ -347,10 +347,10 @@ int vtkSurfaceLICTestDriver(
     camera->SetViewAngle(30);
     camera->SetViewUp(0.41, 0.83, 0.35);
     renderer->ResetCamera();
-    }
+  }
   else
   if (camera_config == 2)
-    {
+  {
     renWin->SetSize(300, 270);
     camera->SetFocalPoint(0.0, 0.0, 0.0);
     camera->SetPosition(1.0, 0.0, 0.0);
@@ -358,10 +358,10 @@ int vtkSurfaceLICTestDriver(
     camera->SetViewUp(0.0, 0.0, 1.0);
     renderer->ResetCamera();
     camera->Zoom(1.2);
-    }
+  }
   else
   if (camera_config == 3)
-    {
+  {
     renWin->SetSize(400, 340);
     camera->SetFocalPoint(0.0, 0.0, 0.0);
     camera->SetPosition(1.0, 0.0, 0.0);
@@ -369,10 +369,10 @@ int vtkSurfaceLICTestDriver(
     camera->SetViewUp(0.0, 0.0, 1.0);
     renderer->ResetCamera();
     camera->Zoom(1.4);
-    }
+  }
   else
   if (camera_config == 4)
-    {
+  {
     renWin->SetSize(364, 256);
     renderer->SetBackground(0.3216, 0.3412, 0.4314);
     renderer->SetBackground2(0.0, 0.0, 0.1647);
@@ -383,23 +383,23 @@ int vtkSurfaceLICTestDriver(
     camera->SetViewUp(0.25, 0.5, 0.8);
     //renderer->ResetCamera();
     camera->Zoom(1.09);
-    }
+  }
 
   int retVal = vtkTesting::Test(argc, argv, renWin, 75);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renWin->Render();
     iren->Start();
-    }
+  }
 
   renderer = NULL;
   renWin = NULL;
   iren = NULL;
 
   if ((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR))
-    {
+  {
     return 0;
-    }
+  }
   // test failed.
   return 1;
 }

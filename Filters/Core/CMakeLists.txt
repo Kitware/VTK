@@ -5,6 +5,7 @@ set(Module_SRCS
   vtkArrayCalculator.cxx
   vtkAssignAttribute.cxx
   vtkAttributeDataToFieldDataFilter.cxx
+  vtkBinCellDataFilter.cxx
   vtkCellDataToPointData.cxx
   vtkCleanPolyData.cxx
   vtkClipPolyData.cxx
@@ -50,6 +51,7 @@ set(Module_SRCS
   vtkQuadricDecimation.cxx
   vtkRearrangeFields.cxx
   vtkResampleToImage.cxx
+  vtkResampleWithDataSet.cxx
   vtkReverseSense.cxx
   vtkSimpleElevationFilter.cxx
   vtkSmoothPolyDataFilter.cxx
@@ -64,6 +66,7 @@ set(Module_SRCS
   vtkTransposeTable.cxx
   vtkTriangleFilter.cxx
   vtkTubeFilter.cxx
+  vtkUnstructuredGridQuadricDecimation.cxx
   vtkVectorDot.cxx
   vtkVectorNorm.cxx
   vtkWindowedSincPolyDataFilter.cxx

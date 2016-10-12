@@ -412,21 +412,21 @@ class vtkSeedCallback : public vtkCommand
 public:
   static vtkSeedCallback *New()
   { return new vtkSeedCallback; }
-  virtual void Execute(vtkObject*, unsigned long event, void *calldata)
+  void Execute(vtkObject*, unsigned long event, void *calldata) VTK_OVERRIDE
   {
     if (event == vtkCommand::PlacePointEvent)
-      {
+    {
       std::cout << "Point placed, total of: "
                 << this->SeedRepresentation->GetNumberOfSeeds() << std::endl;
-      }
+    }
     if (event == vtkCommand::InteractionEvent)
-      {
+    {
       if (calldata)
-        {
+      {
         std::cout << "Interacting with seed : "
                   << *(static_cast< int * >(calldata)) << std::endl;
-        }
       }
+    }
   }
   vtkSeedCallback() : SeedRepresentation(0) {}
   vtkSeedRepresentation *SeedRepresentation;
@@ -500,28 +500,28 @@ int TestSeedWidget(int argc, char *argv[])
   // test removing seeds
   const int startNumSeeds = rep->GetNumberOfSeeds();
   for (int s = 0; s < startNumSeeds; s++)
-    {
+  {
     widget->DeleteSeed(0);
-    }
+  }
 
   const int endNumSeeds = rep->GetNumberOfSeeds();
   if (endNumSeeds != 0)
-    {
+  {
     std::cerr << "After deleting " << startNumSeeds << ", now have "
               << endNumSeeds << std::endl;
     retVal = EXIT_FAILURE;
 
     if (widget->GetSeed(0) != NULL)
-      {
+    {
       vtkSeedRepresentation *seedRep =  vtkSeedRepresentation::SafeDownCast(
         widget->GetRepresentation());
       const int widgetStartNumSeeds = seedRep->GetNumberOfSeeds();
       std::cerr << "Still have a seed 0 after deleting all seeds, "
                 << "widget thinks it's rep has " << widgetStartNumSeeds <<
                   std::endl;
-      }
-
     }
+
+  }
 
   return retVal;
 }

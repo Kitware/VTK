@@ -12,8 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMPIPixelView -- Templated helper function for creating
-// MPI datatypes that describe a vtkPixelExtent.
+/**
+ * @class   vtkMPIPixelView
+ * MPI datatypes that describe a vtkPixelExtent.
+*/
 
 #ifndef vtkMPIPixelView_h
 #define vtkMPIPixelView_h
@@ -35,10 +37,10 @@ int vtkMPIPixelViewNew(
   int mpiOk=0;
   MPI_Initialized(&mpiOk);
   if (!mpiOk)
-    {
+  {
     std::cerr << "This class requires the MPI runtime." << std::endl;
     return -1;
-    }
+  }
   #endif
 
   int iErr;
@@ -49,9 +51,9 @@ int vtkMPIPixelViewNew(
         vtkMPIPixelTT<T>::MPIType,
         &nativeType);
   if (iErr)
-    {
+  {
     return -2;
-    }
+  }
 
   int domainDims[2];
   domain.Size(domainDims);
@@ -67,17 +69,17 @@ int vtkMPIPixelViewNew(
 
   // use a contiguous type when possible.
   if (domain==decomp)
-    {
+  {
     unsigned long long nCells=decomp.Size();
     iErr=MPI_Type_contiguous((int)nCells, nativeType, &view);
     if (iErr)
-      {
+    {
       MPI_Type_free(&nativeType);
       return -3;
-      }
     }
+  }
   else
-    {
+  {
     iErr=MPI_Type_create_subarray(
         2,
         domainDims,
@@ -87,17 +89,17 @@ int vtkMPIPixelViewNew(
         nativeType,
         &view);
     if (iErr)
-      {
+    {
       MPI_Type_free(&nativeType);
       return -4;
-      }
     }
+  }
   iErr=MPI_Type_commit(&view);
   if (iErr)
-    {
+  {
     MPI_Type_free(&nativeType);
     return -5;
-    }
+  }
 
   MPI_Type_free(&nativeType);
 

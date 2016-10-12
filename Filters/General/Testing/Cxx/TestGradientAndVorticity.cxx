@@ -41,24 +41,24 @@ namespace
   bool ArePointsWithinTolerance(double v1, double v2)
   {
     if(v1 == v2 || fabs(v1)+fabs(v2) < Tolerance)
-      {
+    {
       return true;
-      }
+    }
 
     if(v1 == 0.0)
-      {
+    {
       if(fabs(v2) < Tolerance)
-        {
+      {
         return true;
-        }
+      }
       std::cout << fabs(v2) << " (fabs(v2)) should be less than "
            << Tolerance << std::endl;
       return false;
-      }
+    }
     if(fabs(v1/v2) < Tolerance)
-      {
+    {
       return true;
-      }
+    }
     std::cout << fabs(v1/v2) << " (fabs(v1/v2)) should be less than "
          << Tolerance << std::endl;
     return false;
@@ -75,17 +75,17 @@ namespace
     std::vector<double> tupleValues(numberOfComponents);
     double point[3], parametricCenter[3], weights[100];
     for(vtkIdType i=0;i<numberOfCells;i++)
-      {
+    {
       vtkCell* cell = grid->GetCell(i);
       cell->GetParametricCenter(parametricCenter);
       int subId = 0;
       cell->EvaluateLocation(subId, parametricCenter, point, weights);
       for(int j=0;j<numberOfComponents;j++)
-        {// +offset makes the curl/vorticity nonzero
+      {// +offset makes the curl/vorticity nonzero
         tupleValues[j] = point[(j+offset)%3];
-        }
-      array->SetTypedTuple(i, &tupleValues[0]);
       }
+      array->SetTypedTuple(i, &tupleValues[0]);
+    }
     array->SetName(arrayName);
     grid->GetCellData()->AddArray(array);
   }
@@ -101,14 +101,14 @@ namespace
     std::vector<double> tupleValues(numberOfComponents);
     double point[3];
     for(vtkIdType i=0;i<numberOfPoints;i++)
-      {
+    {
       grid->GetPoint(i, point);
       for(int j=0;j<numberOfComponents;j++)
-        {// +offset makes the curl/vorticity nonzero
+      {// +offset makes the curl/vorticity nonzero
         tupleValues[j] = point[(j+offset)%3];
-        }
-      array->SetTypedTuple(i, &tupleValues[0]);
       }
+      array->SetTypedTuple(i, &tupleValues[0]);
+    }
     array->SetName(arrayName);
     grid->GetPointData()->AddArray(array);
   }
@@ -118,30 +118,30 @@ namespace
   {
     int numberOfComponents = gradients->GetNumberOfComponents();
     for(vtkIdType i=0;i<gradients->GetNumberOfTuples();i++)
-      {
+    {
       double* values = gradients->GetTuple(i);
       for(int origComp=0;origComp<numberOfComponents/3;origComp++)
-        {
+      {
         for(int gradDir=0;gradDir<3;gradDir++)
-          {
+        {
           if((origComp-gradDir+offset)%3 == 0)
-            {
+          {
             if(fabs(values[origComp*3+gradDir]-1.) > Tolerance)
-              {
+            {
               vtkGenericWarningMacro("Gradient value should be one but is "
                                      << values[origComp*3+gradDir]);
               return 0;
-              }
             }
+          }
           else if(fabs(values[origComp*3+gradDir]) > Tolerance)
-            {
+          {
             vtkGenericWarningMacro("Gradient value should be zero but is "
                                    << values[origComp*3+gradDir]);
             return 0;
-            }
           }
         }
       }
+    }
     return 1;
   }
 
@@ -152,33 +152,33 @@ namespace
   {
     if(gradients->GetNumberOfComponents() != 9 ||
        vorticity->GetNumberOfComponents() != 3)
-      {
+    {
       vtkGenericWarningMacro("Bad number of components.");
       return 0;
-      }
+    }
     for(vtkIdType i=0;i<gradients->GetNumberOfTuples();i++)
-      {
+    {
       double* g = gradients->GetTuple(i);
       double* v = vorticity->GetTuple(i);
       if(!ArePointsWithinTolerance(v[0], g[7]-g[5]))
-        {
+      {
         vtkGenericWarningMacro("Bad vorticity[0] value " << v[0] << " " <<
                                g[7]-g[5] << " difference is " << (v[0]-g[7]+g[5]));
         return 0;
-        }
+      }
       else if(!ArePointsWithinTolerance(v[1], g[2]-g[6]))
-        {
+      {
         vtkGenericWarningMacro("Bad vorticity[1] value " << v[1] << " " <<
                                g[2]-g[6] << " difference is " << (v[1]-g[2]+g[6]));
         return 0;
-        }
+      }
       else if(!ArePointsWithinTolerance(v[2], g[3]-g[1]))
-        {
+      {
         vtkGenericWarningMacro("Bad vorticity[2] value " << v[2] << " " <<
                                g[3]-g[1] << " difference is " << (v[2]-g[3]+g[1]));
         return 0;
-        }
       }
+    }
 
     return 1;
   }
@@ -190,12 +190,12 @@ namespace
   {
     if(gradients->GetNumberOfComponents() != 9 ||
        qCriterion->GetNumberOfComponents() != 1)
-      {
+    {
       vtkGenericWarningMacro("Bad number of components.");
       return 0;
-      }
+    }
     for(vtkIdType i=0;i<gradients->GetNumberOfTuples();i++)
-      {
+    {
       double* g = gradients->GetTuple(i);
       double qc = qCriterion->GetValue(i);
 
@@ -210,12 +210,12 @@ namespace
                            (g[7]+g[5])*(g[7]+g[5]) ) );
 
       if(!ArePointsWithinTolerance(qc, t1 - t2))
-        {
+      {
         vtkGenericWarningMacro("Bad Q-criterion value " << qc << " " <<
                                t1-t2 << " difference is " << (qc-t1+t2));
         return 0;
-        }
       }
+    }
 
     return 1;
   }
@@ -227,23 +227,23 @@ namespace
   {
     if(gradients->GetNumberOfComponents() != 9 ||
        divergence->GetNumberOfComponents() != 1)
-      {
+    {
       vtkGenericWarningMacro("Bad number of components.");
       return 0;
-      }
+    }
     for(vtkIdType i=0;i<gradients->GetNumberOfTuples();i++)
-      {
+    {
       double* g = gradients->GetTuple(i);
       double div = divergence->GetValue(i);
       double gValue = g[0]+g[4]+g[8];
 
       if(!ArePointsWithinTolerance(div, gValue))
-        {
+      {
         vtkGenericWarningMacro("Bad divergence value " << div << " " <<
                                gValue << " difference is " << (div-gValue));
         return 0;
-        }
       }
+    }
 
     return 1;
   }
@@ -282,23 +282,23 @@ namespace
         cellGradients->GetOutput())->GetCellData()->GetArray(resultName));
 
     if(!grid->IsA("vtkUnstructuredGrid"))
-      {
+    {
       // ignore cell gradients if this is an unstructured grid
       // because the accuracy is so lousy
       if(!IsGradientCorrect(gradCellArray, offset))
-        {
+      {
         return EXIT_FAILURE;
-        }
       }
+    }
 
     vtkDoubleArray* gradPointArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
         pointGradients->GetOutput())->GetPointData()->GetArray(resultName));
 
     if(!IsGradientCorrect(gradPointArray, offset))
-      {
+    {
       return EXIT_FAILURE;
-      }
+    }
 
     // now check on the vorticity calculations
     VTK_CREATE(vtkGradientFilter, cellVorticity);
@@ -325,9 +325,9 @@ namespace
         cellVorticity->GetOutput())->GetCellData()->GetArray("Vorticity"));
 
     if(!IsVorticityCorrect(gradCellArray, vorticityCellArray))
-      {
+    {
       return EXIT_FAILURE;
-      }
+    }
 
     // point stuff
     vtkDoubleArray* vorticityPointArray = vtkArrayDownCast<vtkDoubleArray>(
@@ -335,24 +335,24 @@ namespace
         pointVorticity->GetOutput())->GetPointData()->GetArray("Vorticity"));
 
     if(!IsVorticityCorrect(gradPointArray, vorticityPointArray))
-      {
+    {
       return EXIT_FAILURE;
-      }
+    }
     vtkDoubleArray* divergencePointArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
         pointVorticity->GetOutput())->GetPointData()->GetArray("Divergence"));
 
     if(!IsDivergenceCorrect(gradPointArray, divergencePointArray))
-      {
+    {
       return EXIT_FAILURE;
-      }
+    }
     vtkDoubleArray* qCriterionPointArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
         pointVorticity->GetOutput())->GetPointData()->GetArray("Q-criterion"));
     if(!IsQCriterionCorrect(gradPointArray, qCriterionPointArray))
-      {
+    {
       return EXIT_FAILURE;
-      }
+    }
 
     return EXIT_SUCCESS;
   }
@@ -365,19 +365,19 @@ int TestGradientAndVorticity(int argc, char *argv[])
   // Need to get the data root.
   const char *data_root = NULL;
   for (i = 0; i < argc-1; i++)
-    {
+  {
     if (strcmp("-D", argv[i]) == 0)
-      {
+    {
       data_root = argv[i+1];
       break;
-      }
     }
+  }
   if (!data_root)
-    {
+  {
     vtkGenericWarningMacro(
       "Need to specify the directory to VTK_DATA_ROOT with -D <dir>.");
     return EXIT_FAILURE;
-    }
+  }
 
   vtkStdString filename;
   filename = data_root;
@@ -389,19 +389,19 @@ int TestGradientAndVorticity(int argc, char *argv[])
     structuredGridReader->GetOutput());
 
   if(PerformTest(grid))
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   // convert the structured grid to an unstructured grid
   VTK_CREATE(vtkUnstructuredGrid, ug);
   ug->SetPoints(vtkStructuredGrid::SafeDownCast(grid)->GetPoints());
   ug->Allocate(grid->GetNumberOfCells());
   for(vtkIdType id=0;id<grid->GetNumberOfCells();id++)
-    {
+  {
     vtkCell* cell = grid->GetCell(id);
     ug->InsertNextCell(cell->GetCellType(), cell->GetPointIds());
-    }
+  }
 
   return PerformTest(ug);
 }

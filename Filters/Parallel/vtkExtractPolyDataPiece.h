@@ -12,8 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractPolyDataPiece - Return specified piece, including specified
-// number of ghost levels.
+/**
+ * @class   vtkExtractPolyDataPiece
+ * @brief   Return specified piece, including specified
+ * number of ghost levels.
+*/
 
 #ifndef vtkExtractPolyDataPiece_h
 #define vtkExtractPolyDataPiece_h
@@ -31,11 +34,14 @@ public:
   vtkTypeMacro(vtkExtractPolyDataPiece, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Turn on/off creating ghost cells (on by default).
+  //@{
+  /**
+   * Turn on/off creating ghost cells (on by default).
+   */
   vtkSetMacro(CreateGhostCells, int);
   vtkGetMacro(CreateGhostCells, int);
   vtkBooleanMacro(CreateGhostCells, int);
+  //@}
 
 protected:
   vtkExtractPolyDataPiece();
@@ -53,8 +59,8 @@ protected:
 
   int CreateGhostCells;
 private:
-  vtkExtractPolyDataPiece(const vtkExtractPolyDataPiece&);  // Not implemented.
-  void operator=(const vtkExtractPolyDataPiece&);  // Not implemented.
+  vtkExtractPolyDataPiece(const vtkExtractPolyDataPiece&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExtractPolyDataPiece&) VTK_DELETE_FUNCTION;
 };
 
 #endif

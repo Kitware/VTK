@@ -69,43 +69,43 @@ void vtkOpenGLLightingPainter::RenderInternal(vtkRenderer *renderer,
   int interpolation = prop->GetInterpolation();
 
   if (interpolation == VTK_FLAT)
-    {
+  {
     n = 0;
-    }
+  }
 
   if (n == 0)
-    {
+  {
     n = input->GetCellData()->GetNormals();
-    }
+  }
 
   unsigned long enable_flags = typeflags;
   unsigned long disable_flags = 0x0;
 
   if (rep == VTK_POINTS && !n)
-    {
+  {
     disable_flags = typeflags;
     enable_flags = 0;
-    }
+  }
   else if (!n &&
     ((typeflags & vtkPainter::VERTS) || (typeflags & vtkPainter::LINES)))
-    {
+  {
     disable_flags = typeflags & (vtkPainter::VERTS | vtkPainter::LINES);
     enable_flags = typeflags & (~disable_flags);
-    }
+  }
 
   int total_cells =
     vtkOpenGLLightingPainterGetTotalCells(input, typeflags);
 
   if (total_cells == 0)
-    {
+  {
     // nothing to render.
     return;
-    }
+  }
 
   this->ProgressOffset = 0.0;
   double time_to_draw = 0.0;
   if (disable_flags)
-    {
+  {
     int disabled_cells = vtkOpenGLLightingPainterGetTotalCells(input,
       disable_flags);
     this->ProgressScaleFactor =
@@ -120,29 +120,29 @@ void vtkOpenGLLightingPainter::RenderInternal(vtkRenderer *renderer,
     glEnable(GL_LIGHTING);
 
     this->ProgressOffset += this->ProgressScaleFactor;
-    }
+  }
 
   if (enable_flags)
-    {
+  {
     int enabled_cells = vtkOpenGLLightingPainterGetTotalCells(input,
       enable_flags);
     this->ProgressScaleFactor =
       static_cast<double>(enabled_cells) / total_cells;
 
     if(actor->GetProperty()->GetLighting()) // fixed-pipeline
-      {
+    {
       glEnable(GL_LIGHTING);
-      }
+    }
     else
-      {
+    {
       glDisable(GL_LIGHTING);
-      }
+    }
     this->Superclass::RenderInternal(renderer, actor, enable_flags,
                                       forceCompileOnly);
 
     time_to_draw += this->DelegatePainter?
       this->DelegatePainter->GetTimeToDraw() : 0;
-    }
+  }
 
   this->TimeToDraw = time_to_draw;
 }

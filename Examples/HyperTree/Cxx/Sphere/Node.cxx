@@ -62,7 +62,7 @@ void Node::replaceBy (Node * n)
 {
   vector<Cell*> tmpCells = _cells;
   for (vector<Cell*>::iterator it = tmpCells.begin(); it != tmpCells.end(); it++)
-    {
+  {
     (*it)->replaceNode (this, n);
-    }
+  }
 }

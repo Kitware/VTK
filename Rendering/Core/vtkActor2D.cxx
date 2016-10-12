@@ -50,25 +50,25 @@ vtkActor2D::vtkActor2D()
 vtkActor2D::~vtkActor2D()
 {
   if (this->Property)
-    {
+  {
     this->Property->UnRegister(this);
     this->Property = NULL;
-    }
+  }
   if (this->PositionCoordinate)
-    {
+  {
     this->PositionCoordinate->Delete();
     this->PositionCoordinate = NULL;
-    }
+  }
   if (this->Position2Coordinate)
-    {
+  {
     this->Position2Coordinate->Delete();
     this->Position2Coordinate = NULL;
-    }
+  }
   if (this->Mapper != NULL)
-    {
+  {
     this->Mapper->UnRegister(this);
     this->Mapper = NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -76,9 +76,9 @@ void vtkActor2D::ReleaseGraphicsResources(vtkWindow *win)
 {
   // pass this information onto the mapper
   if (this->Mapper)
-    {
+  {
     this->Mapper->ReleaseGraphicsResources(win);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -90,35 +90,35 @@ int vtkActor2D::RenderOverlay(vtkViewport* viewport)
   // Is the viewport's RenderWindow capturing GL2PS-special prop, and does this
   // actor represent text or mathtext?
   if (vtkRenderer *renderer = vtkRenderer::SafeDownCast(viewport))
-    {
+  {
     if (vtkRenderWindow *renderWindow = renderer->GetRenderWindow())
-      {
+    {
       if (renderWindow->GetCapturingGL2PSSpecialProps())
-        {
+      {
         if (this->IsA("vtkTextActor") ||
             (this->Mapper && (this->Mapper->IsA("vtkTextMapper") ||
                               this->Mapper->IsA("vtkLabeledDataMapper"))))
-          {
+        {
           renderer->CaptureGL2PSSpecialProp(this);
-          }
         }
       }
     }
+  }
 
   if (!this->Property)
-    {
+  {
     vtkDebugMacro(<< "vtkActor2D::Render - Creating Property2D");
     // Force creation of default property
     this->GetProperty();
-    }
+  }
 
   this->Property->Render(viewport);
 
   if (!this->Mapper)
-    {
+  {
     vtkErrorMacro(<< "vtkActor2D::Render - No mapper set");
     return 0;
-    }
+  }
 
   this->Mapper->RenderOverlay(viewport, this);
 
@@ -132,19 +132,19 @@ int vtkActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
   vtkDebugMacro(<< "vtkActor2D::RenderOpaqueGeometry");
 
   if (!this->Property)
-    {
+  {
     vtkDebugMacro(<< "vtkActor2D::Render - Creating Property2D");
     // Force creation of default property
     this->GetProperty();
-    }
+  }
 
   this->Property->Render(viewport);
 
   if (!this->Mapper)
-    {
+  {
     vtkErrorMacro(<< "vtkActor2D::Render - No mapper set");
     return 0;
-    }
+  }
 
   this->Mapper->RenderOpaqueGeometry(viewport, this);
 
@@ -158,19 +158,19 @@ int vtkActor2D::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
   vtkDebugMacro(<< "vtkActor2D::RenderTranslucentPolygonalGeometry");
 
   if (!this->Property)
-    {
+  {
     vtkDebugMacro(<< "vtkActor2D::Render - Creating Property2D");
     // Force creation of default property
     this->GetProperty();
-    }
+  }
 
   this->Property->Render(viewport);
 
   if (!this->Mapper)
-    {
+  {
     vtkErrorMacro(<< "vtkActor2D::Render - No mapper set");
     return 0;
-    }
+  }
 
   this->Mapper->RenderTranslucentPolygonalGeometry(viewport, this);
 
@@ -182,22 +182,22 @@ int vtkActor2D::HasTranslucentPolygonalGeometry()
 {
   int result;
   if(this->Mapper)
-    {
+  {
     result=this->Mapper->HasTranslucentPolygonalGeometry();
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro(<< "vtkActor2D::HasTranslucentPolygonalGeometry - No mapper set");
     result=0;
-    }
+  }
   return result;
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkActor2D::GetMTime()
+vtkMTimeType vtkActor2D::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   time  = this->PositionCoordinate->GetMTime();
   mTime = ( time > mTime ? time : mTime );
@@ -205,10 +205,10 @@ unsigned long int vtkActor2D::GetMTime()
   mTime = ( time > mTime ? time : mTime );
 
   if ( this->Property != NULL )
-    {
+  {
     time = this->Property->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
 
   return mTime;
 }
@@ -260,12 +260,12 @@ double vtkActor2D::GetHeight()
 vtkProperty2D *vtkActor2D::GetProperty()
 {
   if (this->Property == NULL)
-    {
+  {
     this->Property = vtkProperty2D::New();
     this->Property->Register(this);
     this->Property->Delete();
     this->Modified();
-    }
+  }
   return this->Property;
 }
 
@@ -280,13 +280,13 @@ void vtkActor2D::ShallowCopy(vtkProp *prop)
 {
   vtkActor2D *a = vtkActor2D::SafeDownCast(prop);
   if ( a != NULL )
-    {
+  {
     this->SetMapper(a->GetMapper());
     this->SetLayerNumber(a->GetLayerNumber());
     this->SetProperty(a->GetProperty());
     this->SetPosition(a->GetPosition());
     this->SetPosition2(a->GetPosition2());
-    }
+  }
 
   // Now do superclass
   this->vtkProp::ShallowCopy(prop);
@@ -306,13 +306,13 @@ void vtkActor2D::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Property: " << this->Property << "\n";
   if (this->Property)
-    {
+  {
     this->Property->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   os << indent << "Mapper: " << this->Mapper << "\n";
   if (this->Mapper)
-    {
+  {
     this->Mapper->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
 }
 

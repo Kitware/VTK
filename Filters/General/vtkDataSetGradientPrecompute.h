@@ -12,18 +12,20 @@
   PURPOSE.  See the above copyright notice for more information.
 
   =========================================================================*/
-// .NAME vtkDataSetGradientPrecompute
-//
-// .SECTION Description
-// Computes a geometry based vector field that the DataSetGradient filter uses to accelerate
-// gradient computation. This vector field is added to FieldData since it has a different
-// value for each vertex of each cell (a vertex shared by two cell has two differents values).
-//
-// .SECTION Thanks
-// This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
-// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
-// BP12, F-91297 Arpajon, France. <br>
-// Implementation by Thierry Carrard (CEA)
+/**
+ * @class   vtkDataSetGradientPrecompute
+ *
+ *
+ * Computes a geometry based vector field that the DataSetGradient filter uses to accelerate
+ * gradient computation. This vector field is added to FieldData since it has a different
+ * value for each vertex of each cell (a vertex shared by two cell has two differents values).
+ *
+ * @par Thanks:
+ * This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
+ * CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
+ * BP12, F-91297 Arpajon, France. <br>
+ * Implementation by Thierry Carrard (CEA)
+*/
 
 #ifndef vtkDataSetGradientPrecompute_h
 #define vtkDataSetGradientPrecompute_h
@@ -36,19 +38,19 @@ class VTKFILTERSGENERAL_EXPORT vtkDataSetGradientPrecompute : public vtkDataSetA
  public:
   static vtkDataSetGradientPrecompute* New();
   vtkTypeMacro(vtkDataSetGradientPrecompute,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static int GradientPrecompute(vtkDataSet* ds);
 
  protected:
   vtkDataSetGradientPrecompute ();
-  ~vtkDataSetGradientPrecompute ();
+  ~vtkDataSetGradientPrecompute () VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
  private:
-  vtkDataSetGradientPrecompute(const vtkDataSetGradientPrecompute&); // Not implemented
-  void operator=(const vtkDataSetGradientPrecompute&); // Not implemented
+  vtkDataSetGradientPrecompute(const vtkDataSetGradientPrecompute&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataSetGradientPrecompute&) VTK_DELETE_FUNCTION;
 };
 
 #endif /* VTK_DATA_SET_GRADIENT_PRECOMPUTE_H */

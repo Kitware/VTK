@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHyperOctreeDepth - Assign tree depth attribute to each cell.
-// .SECTION Description
-// This filter returns a shallow copy of its input HyperOctree with a new
-// data attribute field containing the depth of each cell.
-
-// .SECTION See Also
-// vtkHyperOctree
+/**
+ * @class   vtkHyperOctreeDepth
+ * @brief   Assign tree depth attribute to each cell.
+ *
+ * This filter returns a shallow copy of its input HyperOctree with a new
+ * data attribute field containing the depth of each cell.
+ *
+ * @sa
+ * vtkHyperOctree
+*/
 
 #ifndef vtkHyperOctreeDepth_h
 #define vtkHyperOctreeDepth_h
@@ -53,8 +56,8 @@ protected:
   int NumChildren;
 
 private:
-  vtkHyperOctreeDepth(const vtkHyperOctreeDepth&);  // Not implemented.
-  void operator=(const vtkHyperOctreeDepth&);  // Not implemented.
+  vtkHyperOctreeDepth(const vtkHyperOctreeDepth&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHyperOctreeDepth&) VTK_DELETE_FUNCTION;
 };
 
 #endif

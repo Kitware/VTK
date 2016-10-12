@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLStructuredGridReader - Read VTK XML StructuredGrid files.
-// .SECTION Description
-// vtkXMLStructuredGridReader reads the VTK XML StructuredGrid file
-// format.  One structured grid file can be read to produce one
-// output.  Streaming is supported.  The standard extension for this
-// reader's file format is "vts".  This reader is also used to read a
-// single piece of the parallel file format.
-
-// .SECTION See Also
-// vtkXMLPStructuredGridReader
+/**
+ * @class   vtkXMLStructuredGridReader
+ * @brief   Read VTK XML StructuredGrid files.
+ *
+ * vtkXMLStructuredGridReader reads the VTK XML StructuredGrid file
+ * format.  One structured grid file can be read to produce one
+ * output.  Streaming is supported.  The standard extension for this
+ * reader's file format is "vts".  This reader is also used to read a
+ * single piece of the parallel file format.
+ *
+ * @sa
+ * vtkXMLPStructuredGridReader
+*/
 
 #ifndef vtkXMLStructuredGridReader_h
 #define vtkXMLStructuredGridReader_h
@@ -38,10 +41,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLStructuredGridReader *New();
 
-  // Description:
-  // Get the reader's output.
+  //@{
+  /**
+   * Get the reader's output.
+   */
   vtkStructuredGrid *GetOutput();
   vtkStructuredGrid *GetOutput(int idx);
+  //@}
 
 protected:
   vtkXMLStructuredGridReader();
@@ -62,8 +68,8 @@ protected:
   vtkXMLDataElement** PointElements;
 
 private:
-  vtkXMLStructuredGridReader(const vtkXMLStructuredGridReader&);  // Not implemented.
-  void operator=(const vtkXMLStructuredGridReader&);  // Not implemented.
+  vtkXMLStructuredGridReader(const vtkXMLStructuredGridReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLStructuredGridReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

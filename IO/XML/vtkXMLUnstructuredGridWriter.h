@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLUnstructuredGridWriter - Write VTK XML UnstructuredGrid files.
-// .SECTION Description
-// vtkXMLUnstructuredGridWriter writes the VTK XML UnstructuredGrid
-// file format.  One unstructured grid input can be written into one
-// file in any number of streamed pieces (if supported by the rest of
-// the pipeline).  The standard extension for this writer's file
-// format is "vtu".  This writer is also used to write a single piece
-// of the parallel file format.
-
-// .SECTION See Also
-// vtkXMLPUnstructuredGridWriter
+/**
+ * @class   vtkXMLUnstructuredGridWriter
+ * @brief   Write VTK XML UnstructuredGrid files.
+ *
+ * vtkXMLUnstructuredGridWriter writes the VTK XML UnstructuredGrid
+ * file format.  One unstructured grid input can be written into one
+ * file in any number of streamed pieces (if supported by the rest of
+ * the pipeline).  The standard extension for this writer's file
+ * format is "vtu".  This writer is also used to write a single piece
+ * of the parallel file format.
+ *
+ * @sa
+ * vtkXMLPUnstructuredGridWriter
+*/
 
 #ifndef vtkXMLUnstructuredGridWriter_h
 #define vtkXMLUnstructuredGridWriter_h
@@ -40,12 +43,14 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLUnstructuredGridWriter* New();
 
-  // Description:
-  // Get/Set the writer's input.
+  /**
+   * Get/Set the writer's input.
+   */
   vtkUnstructuredGridBase* GetInput();
 
-  // Description:
-  // Get the default file extension for files written by this writer.
+  /**
+   * Get the default file extension for files written by this writer.
+   */
   const char* GetDefaultFileExtension();
 
 protected:
@@ -75,8 +80,8 @@ protected:
   OffsetsManagerArray *CellsOM; //one per piece
 
 private:
-  vtkXMLUnstructuredGridWriter(const vtkXMLUnstructuredGridWriter&);  // Not implemented.
-  void operator=(const vtkXMLUnstructuredGridWriter&);  // Not implemented.
+  vtkXMLUnstructuredGridWriter(const vtkXMLUnstructuredGridWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLUnstructuredGridWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

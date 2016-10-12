@@ -66,7 +66,7 @@ vtkCurveRepresentation::vtkCurveRepresentation()
   this->HandleGeometry = new vtkSphereSource* [this->NumberOfHandles];
 
   for ( int i = 0; i < this->NumberOfHandles; ++i )
-    {
+  {
     this->HandleGeometry[i] = vtkSphereSource::New();
     this->HandleGeometry[i]->SetThetaResolution(16);
     this->HandleGeometry[i]->SetPhiResolution(8);
@@ -76,7 +76,7 @@ vtkCurveRepresentation::vtkCurveRepresentation()
     this->Handle[i] = vtkActor::New();
     this->Handle[i]->SetMapper(handleMapper);
     handleMapper->Delete();
-    }
+  }
 
   this->LineActor = vtkActor::New();
 
@@ -92,9 +92,9 @@ vtkCurveRepresentation::vtkCurveRepresentation()
   this->HandlePicker->SetTolerance(0.005);
 
   for ( int i = 0; i < this->NumberOfHandles; ++i )
-    {
+  {
     this->HandlePicker->AddPickList(this->Handle[i]);
-    }
+  }
   this->HandlePicker->PickFromListOn();
 
   this->LinePicker = vtkCellPicker::New();
@@ -129,10 +129,10 @@ vtkCurveRepresentation::~vtkCurveRepresentation()
   this->LineActor->Delete();
 
   for ( int i = 0; i < this->NumberOfHandles; ++i )
-    {
+  {
     this->HandleGeometry[i]->Delete();
     this->Handle[i]->Delete();
-    }
+  }
   delete [] this->Handle;
   delete [] this->HandleGeometry;
 
@@ -140,21 +140,21 @@ vtkCurveRepresentation::~vtkCurveRepresentation()
   this->LinePicker->Delete();
 
   if ( this->HandleProperty )
-    {
+  {
     this->HandleProperty->Delete();
-    }
+  }
   if ( this->SelectedHandleProperty )
-    {
+  {
     this->SelectedHandleProperty->Delete();
-    }
+  }
   if ( this->LineProperty )
-    {
+  {
     this->LineProperty->Delete();
-    }
+  }
   if ( this->SelectedLineProperty )
-    {
+  {
     this->SelectedLineProperty->Delete();
-    }
+  }
 
   this->Transform->Delete();
 }
@@ -163,9 +163,9 @@ vtkCurveRepresentation::~vtkCurveRepresentation()
 void vtkCurveRepresentation::SetClosed(int closed)
 {
   if ( this->Closed == closed )
-    {
+  {
     return;
-    }
+  }
   this->Closed = closed;
 
   this->BuildRepresentation();
@@ -185,16 +185,16 @@ void vtkCurveRepresentation::SetHandlePosition(int handle, double x,
                                         double y, double z)
 {
   if ( handle < 0 || handle >= this->NumberOfHandles )
-    {
+  {
     vtkErrorMacro(<<"vtkCurveRepresentation: handle index out of range.");
     return;
-    }
+  }
   this->HandleGeometry[handle]->SetCenter(x,y,z);
   this->HandleGeometry[handle]->Update();
   if ( this->ProjectToPlane )
-    {
+  {
     this->ProjectPointsToPlane();
-    }
+  }
   this->BuildRepresentation();
 }
 
@@ -208,10 +208,10 @@ void vtkCurveRepresentation::SetHandlePosition(int handle, double xyz[3])
 void vtkCurveRepresentation::GetHandlePosition(int handle, double xyz[3])
 {
   if ( handle < 0 || handle >= this->NumberOfHandles )
-    {
+  {
     vtkErrorMacro(<<"vtkCurveRepresentation: handle index out of range.");
     return;
-    }
+  }
 
   this->HandleGeometry[handle]->GetCenter(xyz);
 }
@@ -220,10 +220,10 @@ void vtkCurveRepresentation::GetHandlePosition(int handle, double xyz[3])
 double* vtkCurveRepresentation::GetHandlePosition(int handle)
 {
   if ( handle < 0 || handle >= this->NumberOfHandles )
-    {
+  {
     vtkErrorMacro(<<"vtkCurveRepresentation: handle index out of range.");
     return NULL;
-    }
+  }
 
   return this->HandleGeometry[handle]->GetCenter();
 }
@@ -232,20 +232,20 @@ double* vtkCurveRepresentation::GetHandlePosition(int handle)
 void vtkCurveRepresentation::ProjectPointsToPlane()
 {
   if ( this->ProjectionNormal == VTK_PROJECTION_OBLIQUE )
-    {
+  {
     if ( this->PlaneSource != NULL )
-      {
-      this->ProjectPointsToObliquePlane();
-      }
-    else
-      {
-      vtkGenericWarningMacro(<<"Set the plane source for oblique projections...");
-      }
-    }
-  else
     {
-    this->ProjectPointsToOrthoPlane();
+      this->ProjectPointsToObliquePlane();
     }
+    else
+    {
+      vtkGenericWarningMacro(<<"Set the plane source for oblique projections...");
+    }
+  }
+  else
+  {
+    this->ProjectPointsToOrthoPlane();
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -261,10 +261,10 @@ void vtkCurveRepresentation::ProjectPointsToObliquePlane()
 
   int i;
   for ( i = 0; i < 3; ++i )
-    {
+  {
     u[i] = u[i] - o[i];
     v[i] = v[i] - o[i];
-    }
+  }
   vtkMath::Normalize(u);
   vtkMath::Normalize(v);
 
@@ -274,7 +274,7 @@ void vtkCurveRepresentation::ProjectPointsToObliquePlane()
   double fac2;
   double ctr[3];
   for ( i = 0; i < this->NumberOfHandles; ++i )
-    {
+  {
     this->HandleGeometry[i]->GetCenter(ctr);
     fac1 = vtkMath::Dot(ctr,u) - o_dot_u;
     fac2 = vtkMath::Dot(ctr,v) - o_dot_v;
@@ -283,7 +283,7 @@ void vtkCurveRepresentation::ProjectPointsToObliquePlane()
     ctr[2] = o[2] + fac1*u[2] + fac2*v[2];
     this->HandleGeometry[i]->SetCenter(ctr);
     this->HandleGeometry[i]->Update();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -291,12 +291,12 @@ void vtkCurveRepresentation::ProjectPointsToOrthoPlane()
 {
   double ctr[3];
   for ( int i = 0; i < this->NumberOfHandles; ++i )
-    {
+  {
     this->HandleGeometry[i]->GetCenter(ctr);
     ctr[this->ProjectionNormal] = this->ProjectionPosition;
     this->HandleGeometry[i]->SetCenter(ctr);
     this->HandleGeometry[i]->Update();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -304,23 +304,23 @@ int vtkCurveRepresentation::HighlightHandle(vtkProp *prop)
 {
   // First unhighlight anything picked
   if ( this->CurrentHandle )
-    {
+  {
     this->CurrentHandle->SetProperty(this->HandleProperty);
-    }
+  }
 
   this->CurrentHandle = static_cast<vtkActor *>(prop);
 
   if ( this->CurrentHandle )
-    {
+  {
     for ( int i = 0; i < this->NumberOfHandles; ++i ) // find handle
-      {
+    {
       if ( this->CurrentHandle == this->Handle[i] )
-        {
+      {
         this->CurrentHandle->SetProperty(this->SelectedHandleProperty);
         return i;
-        }
       }
     }
+  }
   return -1;
 }
 
@@ -328,23 +328,23 @@ int vtkCurveRepresentation::HighlightHandle(vtkProp *prop)
 void vtkCurveRepresentation::HighlightLine(int highlight)
 {
   if ( highlight )
-    {
+  {
     this->LineActor->SetProperty(this->SelectedLineProperty);
-    }
+  }
   else
-    {
+  {
     this->LineActor->SetProperty(this->LineProperty);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkCurveRepresentation::MovePoint(double *p1, double *p2)
 {
   if ( this->CurrentHandleIndex < 0 || this->CurrentHandleIndex >= this->NumberOfHandles )
-    {
+  {
     vtkGenericWarningMacro(<<"Poly line handle index out of range.");
     return;
-    }
+  }
   // Get the motion vector
   double v[3];
   v[0] = p2[0] - p1[0];
@@ -373,15 +373,15 @@ void vtkCurveRepresentation::Translate(double *p1, double *p2)
 
   double newCtr[3];
   for ( int i = 0; i < this->NumberOfHandles; ++i )
-    {
+  {
     double* ctr =  this->HandleGeometry[i]->GetCenter();
     for ( int j = 0; j < 3; ++j )
-      {
+    {
       newCtr[j] = ctr[j] + v[j];
-      }
+    }
      this->HandleGeometry[i]->SetCenter(newCtr);
      this->HandleGeometry[i]->Update();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -404,14 +404,14 @@ void vtkCurveRepresentation::Scale(double *p1, double *p2, int vtkNotUsed(X), in
 
   int i;
   for ( i = 1; i < this->NumberOfHandles; ++i )
-    {
+  {
     ctr = this->HandleGeometry[i]->GetCenter();
     center[0] += ctr[0];
     center[1] += ctr[1];
     center[2] += ctr[2];
     avgdist += sqrt(vtkMath::Distance2BetweenPoints(ctr,prevctr));
     prevctr = ctr;
-    }
+  }
 
   avgdist /= this->NumberOfHandles;
 
@@ -422,26 +422,26 @@ void vtkCurveRepresentation::Scale(double *p1, double *p2, int vtkNotUsed(X), in
   // Compute the scale factor
   double sf = vtkMath::Norm(v) / avgdist;
   if ( Y > this->LastEventPosition[1] )
-    {
+  {
     sf = 1.0 + sf;
-    }
+  }
   else
-    {
+  {
     sf = 1.0 - sf;
-    }
+  }
 
   // Move the handle points
   double newCtr[3];
   for ( i = 0; i < this->NumberOfHandles; ++i )
-    {
+  {
     ctr = this->HandleGeometry[i]->GetCenter();
     for ( int j = 0; j < 3; ++j )
-      {
+    {
       newCtr[j] = sf * (ctr[j] - center[j]) + center[j];
-      }
+    }
     this->HandleGeometry[i]->SetCenter(newCtr);
     this->HandleGeometry[i]->Update();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -457,36 +457,36 @@ void vtkCurveRepresentation::Spin(double *p1, double *p2, double *vpn)
   double axis[3] = {0.0,0.0,0.0};
 
   if ( this->ProjectToPlane )
-    {
+  {
     if ( this->ProjectionNormal == VTK_PROJECTION_OBLIQUE)
-      {
+    {
       if (this->PlaneSource != NULL )
-        {
+      {
         double* normal = this->PlaneSource->GetNormal();
         axis[0] = normal[0];
         axis[1] = normal[1];
         axis[2] = normal[2];
         vtkMath::Normalize( axis );
-        }
-      else
-        {
-        axis[0] = 1.;
-        }
       }
-    else
+      else
       {
-      axis[ this->ProjectionNormal ] = 1.;
+        axis[0] = 1.;
       }
     }
-  else
+    else
     {
+      axis[ this->ProjectionNormal ] = 1.;
+    }
+  }
+  else
+  {
   // Create axis of rotation and angle of rotation
     vtkMath::Cross(vpn,v,axis);
     if ( vtkMath::Normalize(axis) == 0.0 )
-      {
+    {
       return;
-      }
     }
+  }
 
   // Radius vector (from mean center to cursor position)
   double rv[3] = {p2[0] - this->Centroid[0],
@@ -513,12 +513,12 @@ void vtkCurveRepresentation::Spin(double *p1, double *p2, double *vpn)
   double newCtr[3];
   double ctr[3];
   for ( int i = 0; i < this->NumberOfHandles; ++i )
-    {
+  {
     this->HandleGeometry[i]->GetCenter(ctr);
     this->Transform->TransformPoint(ctr,newCtr);
     this->HandleGeometry[i]->SetCenter(newCtr);
     this->HandleGeometry[i]->Update();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -548,9 +548,9 @@ void vtkCurveRepresentation::SetProjectionPosition(double position)
 {
   this->ProjectionPosition = position;
   if ( this->ProjectToPlane )
-    {
+  {
     this->ProjectPointsToPlane();
-    }
+  }
   this->BuildRepresentation();
 }
 
@@ -558,9 +558,9 @@ void vtkCurveRepresentation::SetProjectionPosition(double position)
 void vtkCurveRepresentation::SetPlaneSource(vtkPlaneSource* plane)
 {
   if (this->PlaneSource == plane)
-    {
+  {
     return;
-    }
+  }
   this->PlaneSource = plane;
 }
 
@@ -569,11 +569,11 @@ void vtkCurveRepresentation::Initialize(void)
 {
   int i;
   for ( i = 0; i < this->NumberOfHandles; ++i )
-    {
+  {
     this->HandlePicker->DeletePickList(this->Handle[i]);
     this->HandleGeometry[i]->Delete();
     this->Handle[i]->Delete();
-    }
+  }
 
   this->NumberOfHandles = 0;
 
@@ -585,15 +585,15 @@ void vtkCurveRepresentation::Initialize(void)
 void vtkCurveRepresentation::SizeHandles()
 {
   if (this->NumberOfHandles > 0)
-    {
+  {
     double radius = this->SizeHandlesInPixels(1.5,
       this->HandleGeometry[0]->GetCenter());
     //cout << "Raduis: " << radius << endl;
     for ( int i = 0; i < this->NumberOfHandles; ++i )
-      {
+    {
       this->HandleGeometry[i]->SetRadius(radius);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -605,12 +605,12 @@ void vtkCurveRepresentation::CalculateCentroid()
 
   double ctr[3];
   for ( int i = 0; i < this->NumberOfHandles; ++i )
-    {
+  {
     this->HandleGeometry[i]->GetCenter(ctr);
     this->Centroid[0] += ctr[0];
     this->Centroid[1] += ctr[1];
     this->Centroid[2] += ctr[2];
-    }
+  }
 
   this->Centroid[0] /= this->NumberOfHandles;
   this->Centroid[1] /= this->NumberOfHandles;
@@ -635,16 +635,16 @@ void vtkCurveRepresentation::InsertHandleOnLine(double* pos)
   int count = 0;
   int i;
   for ( i = 0; i <= istart; ++i )
-    {
+  {
     newpoints->SetPoint(count++,this->HandleGeometry[i]->GetCenter());
-    }
+  }
 
   newpoints->SetPoint(count++,pos);
 
   for ( i = istop; i < this->NumberOfHandles; ++i )
-    {
+  {
     newpoints->SetPoint(count++,this->HandleGeometry[i]->GetCenter());
-    }
+  }
 
   this->InitializeHandles(newpoints);
   newpoints->Delete();
@@ -654,20 +654,20 @@ void vtkCurveRepresentation::InsertHandleOnLine(double* pos)
 void vtkCurveRepresentation::EraseHandle(const int& index)
 {
   if ( this->NumberOfHandles < 3 || index < 0 || index >= this->NumberOfHandles )
-    {
+  {
     return;
-    }
+  }
 
   vtkPoints* newpoints = vtkPoints::New(VTK_DOUBLE);
   newpoints->SetNumberOfPoints(this->NumberOfHandles-1);
   int count = 0;
   for (int i = 0; i < this->NumberOfHandles; ++i )
-    {
+  {
     if ( i != index )
-      {
+    {
       newpoints->SetPoint(count++,this->HandleGeometry[i]->GetCenter());
-      }
     }
+  }
 
   this->InitializeHandles(newpoints);
   newpoints->Delete();
@@ -681,18 +681,18 @@ int vtkCurveRepresentation::IsClosed()
   vtkPolyData* lineData = vtkPolyData::New();
   this->GetPolyData(lineData);
   if ( !lineData || !(lineData->GetPoints()) )
-    {
+  {
     vtkErrorMacro(<<"No line data to query geometric closure");
     return 0;
-    }
+  }
 
   vtkPoints *points = lineData->GetPoints();
   int numPoints = points->GetNumberOfPoints();
 
   if ( numPoints < 3 )
-    {
+  {
     return 0;
-    }
+  }
 
   int numEntries = lineData->GetLines()->GetNumberOfConnectivityEntries();
 
@@ -704,13 +704,13 @@ int vtkCurveRepresentation::IsClosed()
   int minusNth = ( p0[0] == p1[0] && p0[1] == p1[1] && p0[2] == p1[2] ) ? 1 : 0;
   int result;
   if ( minusNth ) //definitely closed
-    {
+  {
     result = 1;
-    }
+  }
   else       // not physically closed, check connectivity
-    {
+  {
     result = ( ( numEntries - numPoints ) == 2 ) ? 1 : 0;
-    }
+  }
 
   return result;
 }
@@ -720,9 +720,9 @@ void vtkCurveRepresentation::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->LineActor->ReleaseGraphicsResources(win);
   for (int cc=0; cc < this->NumberOfHandles; cc++)
-    {
+  {
     this->Handle[cc]->ReleaseGraphicsResources(win);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -733,9 +733,9 @@ int vtkCurveRepresentation::RenderOpaqueGeometry(vtkViewport* win)
   int count = 0;
   count += this->LineActor->RenderOpaqueGeometry(win);
   for (int cc=0; cc < this->NumberOfHandles; cc++)
-    {
+  {
     count+= this->Handle[cc]->RenderOpaqueGeometry(win);
-    }
+  }
   return count;
 }
 
@@ -746,9 +746,9 @@ int vtkCurveRepresentation::RenderTranslucentPolygonalGeometry(
   int count = 0;
   count += this->LineActor->RenderTranslucentPolygonalGeometry(win);
   for (int cc=0; cc < this->NumberOfHandles; cc++)
-    {
+  {
     count += this->Handle[cc]->RenderTranslucentPolygonalGeometry(win);
-    }
+  }
   return count;
 }
 
@@ -758,9 +758,9 @@ int vtkCurveRepresentation::RenderOverlay(vtkViewport* win)
   int count = 0;
   count += this->LineActor->RenderOverlay(win);
   for (int cc=0; cc < this->NumberOfHandles; cc++)
-    {
+  {
     count += this->Handle[cc]->RenderOverlay(win);
-    }
+  }
   return count;
 }
 
@@ -771,9 +771,9 @@ int vtkCurveRepresentation::HasTranslucentPolygonalGeometry()
   int count = 0;
   count |= this->LineActor->HasTranslucentPolygonalGeometry();
   for (int cc=0; cc < this->NumberOfHandles; cc++)
-    {
+  {
     count |= this->Handle[cc]->HasTranslucentPolygonalGeometry();
-    }
+  }
   return count;
 }
 
@@ -783,9 +783,9 @@ int vtkCurveRepresentation::ComputeInteractionState(int X, int Y,
 {
   this->InteractionState = vtkCurveRepresentation::Outside;
   if (!this->Renderer || !this->Renderer->IsInViewport(X, Y))
-    {
+  {
     return this->InteractionState;
-    }
+  }
 
   // Try and pick a handle first. This allows the picking of the handle even
   // if it is "behind" the poly line.
@@ -794,39 +794,39 @@ int vtkCurveRepresentation::ComputeInteractionState(int X, int Y,
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
 
   if ( path != NULL )
-    {
+  {
     this->ValidPick = 1;
     this->InteractionState = vtkCurveRepresentation::OnHandle;
     this->CurrentHandleIndex =
       this->HighlightHandle(path->GetFirstNode()->GetViewProp());
     this->HandlePicker->GetPickPosition(this->LastPickPosition);
     handlePicked = 1;
-    }
+  }
   else
-    {
+  {
     this->CurrentHandleIndex = this->HighlightHandle(NULL);
-    }
+  }
 
   if (!handlePicked)
-    {
+  {
     path = this->GetAssemblyPath(X, Y, 0., this->LinePicker);
 
     if ( path != NULL )
-      {
+    {
       this->ValidPick = 1;
       this->LinePicker->GetPickPosition(this->LastPickPosition);
       this->HighlightLine(1);
       this->InteractionState = vtkCurveRepresentation::OnLine;
-      }
+    }
     else
-      {
-      this->HighlightLine(0);
-      }
-    }
-  else
     {
-    this->HighlightLine(0);
+      this->HighlightLine(0);
     }
+  }
+  else
+  {
+    this->HighlightLine(0);
+  }
 
   return this->InteractionState;
 }
@@ -853,9 +853,9 @@ void vtkCurveRepresentation::WidgetInteraction(double e[2])
   // Convert events to appropriate coordinate systems
   vtkCamera *camera = this->Renderer->GetActiveCamera();
   if ( !camera )
-    {
+  {
     return;
-    }
+  }
   double focalPoint[4], pickPoint[4], prevPickPoint[4];
   double z, vpn[3];
 
@@ -870,31 +870,31 @@ void vtkCurveRepresentation::WidgetInteraction(double e[2])
 
   // Process the motion
   if (this->InteractionState == vtkCurveRepresentation::Moving)
-    {
+  {
     if (this->CurrentHandleIndex != -1)
-      {
-      this->MovePoint(prevPickPoint, pickPoint);
-      }
-    else
-      {
-       this->Translate(prevPickPoint, pickPoint);
-      }
-    }
-  else if (this->InteractionState == vtkCurveRepresentation::Scaling)
     {
+      this->MovePoint(prevPickPoint, pickPoint);
+    }
+    else
+    {
+       this->Translate(prevPickPoint, pickPoint);
+    }
+  }
+  else if (this->InteractionState == vtkCurveRepresentation::Scaling)
+  {
     this->Scale(prevPickPoint, pickPoint,
       static_cast<int>(e[0]), static_cast<int>(e[1]));
-    }
+  }
   else if (this->InteractionState == vtkCurveRepresentation::Spinning)
-    {
+  {
     camera->GetViewPlaneNormal(vpn);
     this->Spin(prevPickPoint, pickPoint, vpn);
-    }
+  }
 
   if (this->ProjectToPlane)
-    {
+  {
     this->ProjectPointsToPlane();
-    }
+  }
 
   this->BuildRepresentation();
 
@@ -908,19 +908,19 @@ void vtkCurveRepresentation::WidgetInteraction(double e[2])
 void vtkCurveRepresentation::EndWidgetInteraction(double[2])
 {
   switch (this->InteractionState)
-    {
+  {
   case vtkCurveRepresentation::Inserting:
     this->InsertHandleOnLine(this->LastPickPosition);
     break;
 
   case vtkCurveRepresentation::Erasing:
     if (this->CurrentHandleIndex)
-      {
+    {
       int index = this->CurrentHandleIndex;
       this->CurrentHandleIndex = this->HighlightHandle(NULL);
       this->EraseHandle(index);
-      }
     }
+  }
 
   this->HighlightLine(0);
   this->InteractionState = vtkCurveRepresentation::Outside;
@@ -934,9 +934,9 @@ double* vtkCurveRepresentation::GetBounds()
   vtkBoundingBox bbox;
   bbox.AddBounds(this->LineActor->GetBounds());
   for (int cc=0; cc < this->NumberOfHandles; cc++)
-    {
+  {
     bbox.AddBounds(this->HandleGeometry[cc]->GetOutput()->GetBounds());
-    }
+  }
   bbox.GetBounds(this->Bounds);
   return this->Bounds;
 }
@@ -954,39 +954,39 @@ void vtkCurveRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->HandleProperty )
-    {
+  {
     os << indent << "Handle Property: " << this->HandleProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Handle Property: (none)\n";
-    }
+  }
   if ( this->SelectedHandleProperty )
-    {
+  {
     os << indent << "Selected Handle Property: "
        << this->SelectedHandleProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Selected Handle Property: (none)\n";
-    }
+  }
   if ( this->LineProperty )
-    {
+  {
     os << indent << "Line Property: " << this->LineProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Line Property: (none)\n";
-    }
+  }
   if ( this->SelectedLineProperty )
-    {
+  {
     os << indent << "Selected Line Property: "
        << this->SelectedLineProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Selected Line Property: (none)\n";
-    }
+  }
 
   os << indent << "Project To Plane: "
      << (this->ProjectToPlane ? "On" : "Off") << "\n";

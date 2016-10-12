@@ -35,11 +35,11 @@ ExternalVTKWidget::~ExternalVTKWidget()
 vtkExternalOpenGLRenderWindow* ExternalVTKWidget::GetRenderWindow()
 {
   if (!this->RenderWindow)
-    {
+  {
     vtkExternalOpenGLRenderWindow * win = vtkExternalOpenGLRenderWindow::New();
     this->SetRenderWindow(win);
     win->Delete();
-    }
+  }
   return this->RenderWindow;
 }
 
@@ -63,16 +63,16 @@ void ExternalVTKWidget::SetRenderWindow(vtkExternalOpenGLRenderWindow * w)
 {
   // Do nothing if we don't have to
   if (this->RenderWindow == w)
-    {
+  {
     return;
-    }
+  }
 
   // Swap the renderers from the old window to the new one
   vtkRendererCollection* renderers = 0;
 
   // Unregister the previous window
   if (this->RenderWindow)
-    {
+  {
     renderers = this->RenderWindow->GetRenderers();
     // Increase reference count of the renderer collection to
     // make sure the reference exists for the new render window
@@ -80,34 +80,34 @@ void ExternalVTKWidget::SetRenderWindow(vtkExternalOpenGLRenderWindow * w)
     this->RenderWindow->Finalize();
     this->RenderWindow->SetMapped(0);
     this->RenderWindow->UnRegister(this);
-    }
+  }
 
   // Now, set the new window
   this->RenderWindow = w;
 
   if (this->RenderWindow)
-    {
+  {
     // If it is mapped somewhere else, unmap it.
     this->RenderWindow->Finalize();
     this->RenderWindow->SetMapped(1);
     this->RenderWindow->Register(this);
 
     if (renderers)
-      {
+    {
       // Add the renderers
       vtkRenderer * aren;
       vtkCollectionSimpleIterator rsit;
 
       for (renderers->InitTraversal(rsit);
          (aren = renderers->GetNextRenderer(rsit)); )
-        {
+      {
         this->RenderWindow->AddRenderer(aren);
-        }
       }
     }
+  }
   if (renderers)
-    {
+  {
     // Decrease reference count of the renderer collection
     renderers->UnRegister(this);
-    }
+  }
 }

@@ -46,7 +46,7 @@ void vtkOSPRayCameraNode::PrintSelf(ostream& os, vtkIndent indent)
 void vtkOSPRayCameraNode::Render(bool prepass)
 {
   if (prepass)
-    {
+  {
     vtkOSPRayRendererNode *orn =
       static_cast<vtkOSPRayRendererNode *>(
         this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
@@ -54,24 +54,32 @@ void vtkOSPRayCameraNode::Render(bool prepass)
     vtkRenderer *ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
     int tiledSize[2];
     int tiledOrigin[2];
-    ren->GetTiledSizeAndOrigin(&tiledSize[0], &tiledSize[1],
-                            &tiledOrigin[0], &tiledOrigin[1]);
-
-
-    OSPCamera ospCamera = ospNewCamera("perspective");
-    ospSetObject(orn->GetORenderer(),"camera", ospCamera);
+    ren->GetTiledSizeAndOrigin(
+      &tiledSize[0], &tiledSize[1], &tiledOrigin[0], &tiledOrigin[1]);
 
     vtkCamera *cam = static_cast<vtkCamera *>(this->Renderable);
-    ospSetf(ospCamera,"aspect", float(tiledSize[0])/float(tiledSize[1]));
-    ospSetf(ospCamera,"fovy",cam->GetViewAngle());
-    double *pos = cam->GetPosition();
-    ospSet3f(ospCamera,"pos",pos[0], pos[1], pos[2]);
-    ospSet3f(ospCamera,"up",
-      cam->GetViewUp()[0], cam->GetViewUp()[1], cam->GetViewUp()[2]);
-    double *dop = cam->GetDirectionOfProjection();
-    ospSet3f(ospCamera,"dir", dop[0], dop[1], dop[2]);
 
+    OSPCamera ospCamera;
+    if (cam->GetParallelProjection())
+    {
+      ospCamera = ospNewCamera("orthographic");
+      ospSetf(ospCamera, "height", cam->GetParallelScale() * 2);
+    }
+    else
+    {
+      ospCamera = ospNewCamera("perspective");
+      ospSetf(ospCamera, "fovy", cam->GetViewAngle());
+    }
+
+    ospSetObject(orn->GetORenderer(), "camera", ospCamera);
+    ospSetf(ospCamera, "aspect", float(tiledSize[0]) / float(tiledSize[1]));
+    double *pos = cam->GetPosition();
+    ospSet3f(ospCamera, "pos", pos[0], pos[1], pos[2]);
+    double *up = cam->GetViewUp();
+    ospSet3f(ospCamera, "up", up[0], up[1], up[2]);
+    double *dop = cam->GetDirectionOfProjection();
+    ospSet3f(ospCamera, "dir", dop[0], dop[1], dop[2]);
     ospCommit(ospCamera);
     ospRelease(ospCamera);
-    }
+  }
 }

@@ -67,7 +67,7 @@ vtkXMLWriter* vtkXMLDataSetWriter::NewWriter(int dataset_type)
 {
   // Create a writer based on the data set type.
   switch (dataset_type)
-    {
+  {
     case VTK_UNIFORM_GRID:
     case VTK_IMAGE_DATA:
     case VTK_STRUCTURED_POINTS:
@@ -82,7 +82,7 @@ vtkXMLWriter* vtkXMLDataSetWriter::NewWriter(int dataset_type)
       return vtkXMLPolyDataWriter::New();
     case VTK_HYPER_OCTREE:
       return vtkXMLHyperOctreeWriter::New();
-    }
+  }
   return NULL;
 }
 
@@ -93,7 +93,7 @@ int vtkXMLDataSetWriter::WriteInternal()
   vtkXMLWriter* writer =
     vtkXMLDataSetWriter::NewWriter(this->GetInput()->GetDataObjectType());
   if (writer)
-    {
+  {
     writer->SetInputConnection(this->GetInputConnection(0, 0));
 
     // Copy the settings to the writer.
@@ -115,7 +115,7 @@ int vtkXMLDataSetWriter::WriteInternal()
     writer->RemoveObserver(this->ProgressObserver);
     writer->Delete();
     return result;
-    }
+  }
 
   // Make sure we got a valid writer for the data set.
   vtkErrorMacro("Cannot write dataset type: "
@@ -143,9 +143,9 @@ void vtkXMLDataSetWriter::ProgressCallbackFunction(vtkObject* caller,
 {
   vtkAlgorithm* w = vtkAlgorithm::SafeDownCast(caller);
   if (w)
-    {
+  {
     reinterpret_cast<vtkXMLDataSetWriter*>(clientdata)->ProgressCallback(w);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -156,9 +156,9 @@ void vtkXMLDataSetWriter::ProgressCallback(vtkAlgorithm* w)
   float progress = this->ProgressRange[0] + internalProgress*width;
   this->UpdateProgressDiscrete(progress);
   if (this->AbortExecute)
-    {
+  {
     w->SetAbortExecute(1);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

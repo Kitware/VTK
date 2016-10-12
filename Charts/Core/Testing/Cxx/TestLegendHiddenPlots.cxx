@@ -60,12 +60,12 @@ int TestLegendHiddenPlots(int , char * [])
   float inc = 7.5 / (numPoints-1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
-    {
+  {
     table->SetValue(i, 0, i * inc);
     table->SetValue(i, 1, cos(i * inc) + 0.0);
     table->SetValue(i, 2, sin(i * inc) + 0.0);
     table->SetValue(i, 3, tan(i * inc) + 0.5);
-    }
+  }
 
   // Add multiple line plots, setting the colors etc
   vtkPlot *points = chart->AddPlot(vtkChart::POINTS);

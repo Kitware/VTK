@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLUnstructuredDataReader - Superclass for unstructured data XML readers.
-// .SECTION Description
-// vtkXMLUnstructuredDataReader provides functionality common to all
-// unstructured data format readers.
-
-// .SECTION See Also
-// vtkXMLPolyDataReader vtkXMLUnstructuredGridReader
+/**
+ * @class   vtkXMLUnstructuredDataReader
+ * @brief   Superclass for unstructured data XML readers.
+ *
+ * vtkXMLUnstructuredDataReader provides functionality common to all
+ * unstructured data format readers.
+ *
+ * @sa
+ * vtkXMLPolyDataReader vtkXMLUnstructuredGridReader
+*/
 
 #ifndef vtkXMLUnstructuredDataReader_h
 #define vtkXMLUnstructuredDataReader_h
@@ -37,23 +40,27 @@ public:
   vtkTypeMacro(vtkXMLUnstructuredDataReader,vtkXMLDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the number of points in the output.
+  /**
+   * Get the number of points in the output.
+   */
   virtual vtkIdType GetNumberOfPoints();
 
-  // Description:
-  // Get the number of cells in the output.
+  /**
+   * Get the number of cells in the output.
+   */
   virtual vtkIdType GetNumberOfCells();
 
-  // Description:
-  // Get the number of pieces in the file
+  /**
+   * Get the number of pieces in the file
+   */
   virtual vtkIdType GetNumberOfPieces();
 
-  // Description:
-  // Setup the reader as if the given update extent were requested by
-  // its output.  This can be used after an UpdateInformation to
-  // validate GetNumberOfPoints() and GetNumberOfCells() without
-  // actually reading data.
+  /**
+   * Setup the reader as if the given update extent were requested by
+   * its output.  This can be used after an UpdateInformation to
+   * validate GetNumberOfPoints() and GetNumberOfCells() without
+   * actually reading data.
+   */
   void SetupUpdateExtent(int piece, int numberOfPieces, int ghostLevel);
 
   // For the specified port, copy the information this reader sets up in
@@ -127,8 +134,8 @@ protected:
 
 
 private:
-  vtkXMLUnstructuredDataReader(const vtkXMLUnstructuredDataReader&);  // Not implemented.
-  void operator=(const vtkXMLUnstructuredDataReader&);  // Not implemented.
+  vtkXMLUnstructuredDataReader(const vtkXMLUnstructuredDataReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLUnstructuredDataReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -18,19 +18,21 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// .NAME vtkMatlabEngineFilter
-//
-// .SECTION Description
-//
-// This VTK uses the vtkMatlabEngineInterface class to perform calculations on
-// VTK array input using the Matlab Engine.
-//
-// .SECTION See Also
-//  vtkMatlabMexAdapter vtkMatlabMexInterface
-//
-// .SECTION Thanks
-//  Developed by Thomas Otahal at Sandia National Laboratories.
-//
+/**
+ * @class   vtkMatlabEngineFilter
+ *
+ *
+ *
+ * This VTK uses the vtkMatlabEngineInterface class to perform calculations on
+ * VTK array input using the Matlab Engine.
+ *
+ * @sa
+ *  vtkMatlabMexAdapter vtkMatlabMexInterface
+ *
+ * @par Thanks:
+ *  Developed by Thomas Otahal at Sandia National Laboratories.
+ *
+*/
 
 #ifndef vtkMatlabEngineFilter_h
 #define vtkMatlabEngineFilter_h
@@ -53,69 +55,92 @@ public:
   vtkTypeMacro(vtkMatlabEngineFilter, vtkDataObjectAlgorithm );
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Copies vtkDataArray named NameOfVTKArray to the Matlab engine with Matlab variable
-  // name NameOfMatVar.  The array must exist in the input data set.
-  //
-  // Note: for vtkArray use "0","1","2",... for NameOfVTKArray to specify the index of
-  // the vtkArray to pass to the Matlab Engine.
+  /**
+   * Copies vtkDataArray named NameOfVTKArray to the Matlab engine with Matlab variable
+   * name NameOfMatVar.  The array must exist in the input data set.
+
+   * Note: for vtkArray use "0","1","2",... for NameOfVTKArray to specify the index of
+   * the vtkArray to pass to the Matlab Engine.
+   */
   void PutArray(const char* NameOfVTKArray, const char* NameOfMatVar);
 
-  // Description:
-  // Copies Matlab variable NameOfMatVar from the Matlab Engine to the vtkDataArray named
-  // NameOfVTKArray.  Will replace existing vtkDataArray with the same name.
-  //
-  // Note: for vtkArray use any string for NameOfVTKArray.  The array will be appended
-  // to the list of vtkArrays on the output.
+  /**
+   * Copies Matlab variable NameOfMatVar from the Matlab Engine to the vtkDataArray named
+   * NameOfVTKArray.  Will replace existing vtkDataArray with the same name.
+
+   * Note: for vtkArray use any string for NameOfVTKArray.  The array will be appended
+   * to the list of vtkArrays on the output.
+   */
   void GetArray(const char* NameOfVTKArray, const char* NameOfMatVar);
 
-  // Description:
-  // Clears the list of variables to be copied to the Matlab engine.
+  /**
+   * Clears the list of variables to be copied to the Matlab engine.
+   */
   void RemoveAllPutVariables();
 
-  // Description:
-  // Clears the list of variables to be copied from the Matlab engine.
+  /**
+   * Clears the list of variables to be copied from the Matlab engine.
+   */
   void RemoveAllGetVariables();
 
-  // Description:
-  // Matlab script executed by the Matlab Engine.  Can also be set from a file.
+  //@{
+  /**
+   * Matlab script executed by the Matlab Engine.  Can also be set from a file.
+   */
   vtkSetStringMacro(MatlabScript);
   vtkGetStringMacro(MatlabScript);
+  //@}
 
-  // Description:
-  // Provide Matlab script executed by the Matlab Engine from an input file.
+  //@{
+  /**
+   * Provide Matlab script executed by the Matlab Engine from an input file.
+   */
   vtkSetStringMacro(ScriptFname);
   vtkGetStringMacro(ScriptFname);
+  //@}
 
-  // Description:
-  // Make Matlab Engine console visible.  Default is off.
+  //@{
+  /**
+   * Make Matlab Engine console visible.  Default is off.
+   */
   vtkSetMacro(EngineVisible,int);
   vtkGetMacro(EngineVisible,int);
+  //@}
 
-  // Description:
-  // Write Matlab Engine text output to standard output.
+  //@{
+  /**
+   * Write Matlab Engine text output to standard output.
+   */
   vtkSetMacro(EngineOutput,int);
   vtkGetMacro(EngineOutput,int);
+  //@}
 
-  // Description:
-  // Pass VTK time information to Matlab.
-  // If turned turned on, the filter will create three variables on the
-  // Matlab engine.  The variables will be update automatically as time
-  // changes in the VTK pipeline.
-  // VTK_TIME_STEPS - array of all available time values.
-  // VTK_TIME_RANGE- array of minimum and maximum time values.
-  // VTK_CURRENT_TIME - floating point time value at the current time index.
+  //@{
+  /**
+   * Pass VTK time information to Matlab.
+   * If turned turned on, the filter will create three variables on the
+   * Matlab engine.  The variables will be update automatically as time
+   * changes in the VTK pipeline.
+   * VTK_TIME_STEPS - array of all available time values.
+   * VTK_TIME_RANGE- array of minimum and maximum time values.
+   * VTK_CURRENT_TIME - floating point time value at the current time index.
+   */
   vtkSetMacro(TimeOutput,int);
   vtkGetMacro(TimeOutput,int);
+  //@}
 
-  // Description:
-  // Create VTK_BLOCK_ID and VTK_NUMBER_OF_BLOCKS variables in Matlab
-  // when processing composite data sets.
+  //@{
+  /**
+   * Create VTK_BLOCK_ID and VTK_NUMBER_OF_BLOCKS variables in Matlab
+   * when processing composite data sets.
+   */
   vtkSetMacro(BlockInfoOutput,int);
   vtkGetMacro(BlockInfoOutput,int);
+  //@}
 
-  // Description:
-  // This is required to capture REQUEST_DATA_OBJECT requests.
+  /**
+   * This is required to capture REQUEST_DATA_OBJECT requests.
+   */
   virtual int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector);
@@ -128,8 +153,9 @@ protected:
                           vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector);
 
-  // Description:
-  // Creates the same output type as the input type.
+  /**
+   * Creates the same output type as the input type.
+   */
   virtual int RequestDataObject(vtkInformation* request,
                                 vtkInformationVector** inputVector,
                                 vtkInformationVector* outputVector);
@@ -139,8 +165,8 @@ protected:
 
 private:
 
-  vtkMatlabEngineFilter(const vtkMatlabEngineFilter&);  // Not implemented.
-  void operator=(const vtkMatlabEngineFilter&);  // Not implemented.
+  vtkMatlabEngineFilter(const vtkMatlabEngineFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMatlabEngineFilter&) VTK_DELETE_FUNCTION;
 
   // Implementation details
   vtkMatlabEngineFilterInternals* mefi;

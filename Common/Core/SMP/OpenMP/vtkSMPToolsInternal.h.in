@@ -42,9 +42,9 @@ void ExecuteFunctor(void *functor, vtkIdType from, vtkIdType grain,
 {
   vtkIdType to = from + grain;
   if (to > last)
-    {
+  {
     to = last;
-    }
+  }
 
   FunctorInternal &fi = *reinterpret_cast<FunctorInternal*>(functor);
   fi.Execute(from, to);
@@ -56,19 +56,19 @@ static void vtkSMPTools_Impl_For(vtkIdType first, vtkIdType last,
 {
   vtkIdType n = last - first;
   if (n <= 0)
-    {
+  {
     return;
-    }
+  }
 
   if (grain >= n)
-    {
+  {
     fi.Execute(first, last);
-    }
+  }
   else
-    {
+  {
     vtkSMPTools_Impl_For_OpenMP(first, last, grain,
                                 ExecuteFunctor<FunctorInternal>, &fi);
-    }
+  }
 }
 
 //--------------------------------------------------------------------------------

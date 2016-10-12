@@ -17,14 +17,17 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkTreeRingToPolyData - converts a tree to a polygonal data
-// representing radial space filling tree.
-//
-// .SECTION Description
-// This algorithm requires that the vtkTreeRingLayout filter has already
-// been applied to the data in order to create the quadruple array
-// (start angle, end angle, inner radius, outer radius) of bounds
-// for each vertex of the tree.
+/**
+ * @class   vtkTreeRingToPolyData
+ * @brief   converts a tree to a polygonal data
+ * representing radial space filling tree.
+ *
+ *
+ * This algorithm requires that the vtkTreeRingLayout filter has already
+ * been applied to the data in order to create the quadruple array
+ * (start angle, end angle, inner radius, outer radius) of bounds
+ * for each vertex of the tree.
+*/
 
 #ifndef vtkTreeRingToPolyData_h
 #define vtkTreeRingToPolyData_h
@@ -40,19 +43,23 @@ public:
   vtkTypeMacro(vtkTreeRingToPolyData,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // The field containing quadruples of the form (start angle, end angle,
-  // inner radius, outer radius)
-  // representing the bounds of the rectangles for each vertex.
-  // This field may be added to the tree using vtkTreeRingLayout.
-  // This array must be set.
+  /**
+   * The field containing quadruples of the form (start angle, end angle,
+   * inner radius, outer radius)
+   * representing the bounds of the rectangles for each vertex.
+   * This field may be added to the tree using vtkTreeRingLayout.
+   * This array must be set.
+   */
   virtual void SetSectorsArrayName(const char* name)
     { this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name); }
 
-  // Description:
-  // Define a shrink percentage for each of the sectors.
+  //@{
+  /**
+   * Define a shrink percentage for each of the sectors.
+   */
   vtkSetMacro(ShrinkPercentage, double);
   vtkGetMacro(ShrinkPercentage, double);
+  //@}
 
   int FillInputPortInformation(int port, vtkInformation* info);
 
@@ -64,8 +71,8 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
-  vtkTreeRingToPolyData(const vtkTreeRingToPolyData&);  // Not implemented.
-  void operator=(const vtkTreeRingToPolyData&);  // Not implemented.
+  vtkTreeRingToPolyData(const vtkTreeRingToPolyData&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTreeRingToPolyData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

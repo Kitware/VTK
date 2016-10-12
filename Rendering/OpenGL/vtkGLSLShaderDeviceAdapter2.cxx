@@ -56,7 +56,7 @@ vtkGLSLShaderDeviceAdapter2::~vtkGLSLShaderDeviceAdapter2()
 static inline GLenum VTK2SignedOpenGLType(int type)
 {
   switch (type)
-    {
+  {
 #if VTK_SIZEOF_CHAR == 1
     case VTK_CHAR:              return GL_BYTE;
     case VTK_UNSIGNED_CHAR:     return GL_BYTE;
@@ -106,7 +106,7 @@ static inline GLenum VTK2SignedOpenGLType(int type)
 #endif
 
     default:                    return GL_FALSE;
-    }
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -132,38 +132,38 @@ void vtkGLSLShaderDeviceAdapter2::SendAttribute(const char *attrname,
   vtkInternal::MapOfStringToInt::iterator iter =
     this->Internal->AttributeIndicesCache.find(attrname);
   if (iter == this->Internal->AttributeIndicesCache.end())
-    {
+  {
     index = this->GetAttributeLocation(attrname);
     if (index < 0)
-      {
+    {
       // failed.
       return;
-      }
+    }
     this->Internal->AttributeIndicesCache[attrname]=index;
-    }
+  }
   else
-    {
+  {
     index = iter->second;
-    }
+  }
 
   if (!attribute)
-    {
+  {
     return;
-    }
+  }
 
   if (components <=0 || components > 4)
-    {
+  {
     vtkErrorMacro(<< components<< " components not supported.");
     return;
-    }
+  }
 
   if (index >= 0)
-    {
+  {
     switch (VTK2SignedOpenGLType(type))
-      {
+    {
     case GL_SHORT:
       switch (components)
-        {
+      {
         case 1:
           vtkgl::VertexAttrib1sv(index, static_cast<const GLshort *>(attribute)
                                  + offset);
@@ -180,11 +180,11 @@ void vtkGLSLShaderDeviceAdapter2::SendAttribute(const char *attrname,
           vtkgl::VertexAttrib4sv(index, static_cast<const GLshort *>(attribute)
                                  + offset);
           break;
-        }
+      }
       break;
       case GL_FLOAT:
         switch(components)
-          {
+        {
           case 1:
             GLSL_SHADER_DEVICE_ADAPTER( "SENDING " << components << " ATTRIBUTES "
                                         << static_cast<const float*>(attribute)[offset] );
@@ -210,9 +210,9 @@ void vtkGLSLShaderDeviceAdapter2::SendAttribute(const char *attrname,
           default:
             GLSL_SHADER_DEVICE_ADAPTER( "SENDING " << components << " ATTRIBUTES "
                                         << static_cast<const float*>(attribute)[offset] << " UNSUPPORTED NUMBER OF COMPONENTS");
-          }
+        }
         switch (components)
-          {
+        {
           case 1:
             vtkgl::VertexAttrib1fv(index,
                                    static_cast<const GLfloat *>(attribute)
@@ -233,18 +233,18 @@ void vtkGLSLShaderDeviceAdapter2::SendAttribute(const char *attrname,
                                    static_cast<const GLfloat *>(attribute)
                                    + offset);
             break;
-          }
+        }
         break;
       case GL_DOUBLE:
         if(components == 3)
-          {
+        {
           GLSL_SHADER_DEVICE_ADAPTER("SendingAttribute index " << index << " ["
                                      << static_cast<const GLdouble *>(attribute)[offset] << " "
                                      << static_cast<const GLdouble *>(attribute)[offset+1] << " "
                                      << static_cast<const GLdouble *>(attribute)[offset+2] << "]");
-          }
+        }
         switch (components)
-          {
+        {
           case 1:
             vtkgl::VertexAttrib1dv(index,
                                    static_cast<const GLdouble *>(attribute)
@@ -265,17 +265,17 @@ void vtkGLSLShaderDeviceAdapter2::SendAttribute(const char *attrname,
                                    static_cast<const GLdouble *>(attribute)
                                    + offset);
             break;
-          }
+        }
         break;
       default:
         vtkErrorMacro("Unsupported type for vertex attribute: " << type);
         return;
-      }
     }
+  }
   else
-    {
+  {
     vtkErrorMacro("Unsupported attribute index: " << index);
-    }
+  }
 
   return;
 };

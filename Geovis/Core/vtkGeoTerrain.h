@@ -17,15 +17,18 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGeoTerrain - A 3D terrain model for the globe.
-//
-// .SECTION Description
-// vtkGeoTerrain contains a multi-resolution tree of geometry representing
-// the globe. It uses a vtkGeoSource subclass to generate the terrain, such
-// as vtkGeoGlobeSource. This source must be set before using the terrain in
-// a vtkGeoView. The terrain also contains an AddActors() method which
-// will update the set of actors representing the globe given the current
-// camera position.
+/**
+ * @class   vtkGeoTerrain
+ * @brief   A 3D terrain model for the globe.
+ *
+ *
+ * vtkGeoTerrain contains a multi-resolution tree of geometry representing
+ * the globe. It uses a vtkGeoSource subclass to generate the terrain, such
+ * as vtkGeoGlobeSource. This source must be set before using the terrain in
+ * a vtkGeoView. The terrain also contains an AddActors() method which
+ * will update the set of actors representing the globe given the current
+ * camera position.
+*/
 
 #ifndef vtkGeoTerrain_h
 #define vtkGeoTerrain_h
@@ -47,38 +50,47 @@ class VTKGEOVISCORE_EXPORT vtkGeoTerrain : public vtkObject
 public:
   static vtkGeoTerrain *New();
   vtkTypeMacro(vtkGeoTerrain,vtkObject);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // The source used to obtain geometry patches.
+  /**
+   * The source used to obtain geometry patches.
+   */
   virtual vtkGeoSource* GetSource()
     { return this->GeoSource; }
   virtual void SetSource(vtkGeoSource* source);
 
-  // Description:
-  // Save the set of patches up to a given maximum depth.
+  /**
+   * Save the set of patches up to a given maximum depth.
+   */
   void SaveDatabase(const char* path, int depth);
 
-  // Description:
-  // Update the actors in an assembly used to render the globe.
-  // ren is the current renderer, and imageReps holds the collection of
-  // vtkGeoAlignedImageRepresentations that will be blended together to
-  // form the image on the globe.
+  /**
+   * Update the actors in an assembly used to render the globe.
+   * ren is the current renderer, and imageReps holds the collection of
+   * vtkGeoAlignedImageRepresentations that will be blended together to
+   * form the image on the globe.
+   */
   void AddActors(
     vtkRenderer* ren,
     vtkAssembly* assembly,
     vtkCollection* imageReps);
 
-  // Description:
-  // The world-coordinate origin offset used to eliminate precision errors
-  // when zoomed in to a particular region of the globe.
+  //@{
+  /**
+   * The world-coordinate origin offset used to eliminate precision errors
+   * when zoomed in to a particular region of the globe.
+   */
   vtkSetVector3Macro(Origin, double);
   vtkGetVector3Macro(Origin, double);
+  //@}
 
-  // Description:
-  // The maximum level of the terrain tree.
+  //@{
+  /**
+   * The maximum level of the terrain tree.
+   */
   vtkSetClampMacro(MaxLevel, int, 0, VTK_INT_MAX);
   vtkGetMacro(MaxLevel, int);
+  //@}
 
 protected:
   vtkGeoTerrain();
@@ -89,26 +101,31 @@ protected:
   vtkGeoTerrainNode* Root;
   vtkGeoTreeNodeCache* Cache;
 
-  // Description:
-  // Initialize the terrain with a new source.
+  /**
+   * Initialize the terrain with a new source.
+   */
   void Initialize();
 
-  // Description:
-  // AddActors() calls this to setup parameters for evaluating nodes.
+  /**
+   * AddActors() calls this to setup parameters for evaluating nodes.
+   */
   virtual void InitializeNodeAnalysis(vtkRenderer* ren);
 
-  // Description:
-  // AddActors() calls this to determine if a node is in the current
-  // viewport.
+  /**
+   * AddActors() calls this to determine if a node is in the current
+   * viewport.
+   */
   virtual bool NodeInViewport(vtkGeoTerrainNode* node);
 
-  // Description:
-  // AddActors() calls to to evaluate whether a node should be
-  // refined (1), coarsened (-1), or remain at the same level (0).
+  /**
+   * AddActors() calls to to evaluate whether a node should be
+   * refined (1), coarsened (-1), or remain at the same level (0).
+   */
   virtual int EvaluateNode(vtkGeoTerrainNode* node);
 
-  // Description:
-  // Print the tree of terrain nodes.
+  /**
+   * Print the tree of terrain nodes.
+   */
   void PrintTree(ostream & os, vtkIndent indent, vtkGeoTerrainNode* node);
 
   double Origin[3];
@@ -118,8 +135,8 @@ protected:
   int MaxLevel;
 
 private:
-  vtkGeoTerrain(const vtkGeoTerrain&); // Not implemented
-  void operator=(const vtkGeoTerrain&); // Not implemented
+  vtkGeoTerrain(const vtkGeoTerrain&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoTerrain&) VTK_DELETE_FUNCTION;
 };
 
 #endif

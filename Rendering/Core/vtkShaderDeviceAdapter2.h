@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkShaderDeviceAdapter2 - an adapter to pass generic vertex attributes
-// to the rendering pipeline.
-// .SECTION
-// This class is an adapter used to pass generic vertex attributes to the
-// rendering pipeline. Since this changes based on the shading language used,
-// this class merely defines the API and subclasses provide implementations for
-// Cg and GL.
+/**
+ * @class   vtkShaderDeviceAdapter2
+ * @brief   an adapter to pass generic vertex attributes
+ * to the rendering pipeline.
+ * .SECTION
+ * This class is an adapter used to pass generic vertex attributes to the
+ * rendering pipeline. Since this changes based on the shading language used,
+ * this class merely defines the API and subclasses provide implementations for
+ * Cg and GL.
+*/
 
 #ifndef vtkShaderDeviceAdapter2_h
 #define vtkShaderDeviceAdapter2_h
@@ -34,25 +37,27 @@ public:
   vtkTypeMacro(vtkShaderDeviceAdapter2, vtkObject);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Sends a single attribute to the graphics card.
-  // The attrname parameter identifies the name of attribute.
-  // The components parameter gives the number of
-  // components in the attribute.  In general, components must be between
-  // 1-4, but a rendering system may impose even more constraints.  The
-  // type parameter is a VTK type enumeration (VTK_FLOAT, VTK_INT, etc.).
-  // Again, a rendering system may not support all types for all
-  // attributes.  The attribute parameter is the actual data for the
-  // attribute.
-  // If offset is specified, it is added to attribute pointer \c after
-  // it has been casted to the proper type.
+  /**
+   * Sends a single attribute to the graphics card.
+   * The attrname parameter identifies the name of attribute.
+   * The components parameter gives the number of
+   * components in the attribute.  In general, components must be between
+   * 1-4, but a rendering system may impose even more constraints.  The
+   * type parameter is a VTK type enumeration (VTK_FLOAT, VTK_INT, etc.).
+   * Again, a rendering system may not support all types for all
+   * attributes.  The attribute parameter is the actual data for the
+   * attribute.
+   * If offset is specified, it is added to attribute pointer \c after
+   * it has been casted to the proper type.
+   */
   virtual void SendAttribute(const char* attrname, int components, int type,
                              const void* attribute,
                              unsigned long offset = 0) = 0;
 
-  // Description:
-  // Set the shader program which is being updated by this device adapter.
-  // The shader program is not reference counted to avoid reference loops.
+  /**
+   * Set the shader program which is being updated by this device adapter.
+   * The shader program is not reference counted to avoid reference loops.
+   */
   void SetShaderProgram(vtkShaderProgram2* program)
     { this->ShaderProgram = program; }
   vtkGetObjectMacro(ShaderProgram, vtkShaderProgram2)
@@ -70,8 +75,8 @@ protected:
   vtkShaderProgram2* ShaderProgram;
 
 private:
-  vtkShaderDeviceAdapter2(const vtkShaderDeviceAdapter2&); // Not implemented
-  void operator=(const vtkShaderDeviceAdapter2&); // Not implemented
+  vtkShaderDeviceAdapter2(const vtkShaderDeviceAdapter2&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkShaderDeviceAdapter2&) VTK_DELETE_FUNCTION;
 
 };
 

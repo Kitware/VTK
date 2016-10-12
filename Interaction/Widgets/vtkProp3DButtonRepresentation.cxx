@@ -38,11 +38,11 @@ struct vtkScaledProp
   double Scale;
   double Translation[3];
   vtkScaledProp()
-    {
+  {
       this->Origin[0] = this->Origin[1] = this->Origin[2] = 0.0;
       this->Scale = 1.0;
       this->Translation[0] = this->Translation[1] = this->Translation[2] = 0.0;
-    }
+  }
 };
 
 // Map of textures
@@ -87,9 +87,9 @@ void vtkProp3DButtonRepresentation::SetState(int state)
 
   this->Picker->InitializePickList();
   if ( this->CurrentProp )
-    {
+  {
     this->Picker->AddPickList(this->CurrentProp);
-    }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -97,13 +97,13 @@ void vtkProp3DButtonRepresentation::
 SetButtonProp(int i, vtkProp3D *prop)
 {
   if ( i < 0 )
-    {
+  {
     i = 0;
-    }
+  }
   if ( i >= this->NumberOfStates )
-    {
+  {
     i = this->NumberOfStates - 1;
-    }
+  }
 
   vtkScaledProp sprop;
   sprop.Prop = prop;
@@ -117,23 +117,23 @@ vtkProp3D *vtkProp3DButtonRepresentation::
 GetButtonProp(int i)
 {
   if ( i < 0 )
-    {
+  {
     i = 0;
-    }
+  }
   if ( i >= this->NumberOfStates )
-    {
+  {
     i = this->NumberOfStates - 1;
-    }
+  }
 
   vtkPropArrayIterator iter = this->PropArray->find(i);
   if ( iter != this->PropArray->end() )
-    {
+  {
     return (*iter).second.Prop;
-    }
+  }
   else
-    {
+  {
     return NULL;
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -150,9 +150,9 @@ void vtkProp3DButtonRepresentation::PlaceWidget(double bds[6])
 
   this->AdjustBounds(bds, bounds, center);
   for (int i=0; i<6; i++)
-    {
+  {
     this->InitialBounds[i] = bounds[i];
-    }
+  }
   this->InitialLength = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
                              (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
                              (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
@@ -162,7 +162,7 @@ void vtkProp3DButtonRepresentation::PlaceWidget(double bds[6])
   vtkProp3D *prop;
   vtkPropArrayIterator iter;
   for ( iter=this->PropArray->begin(); iter != this->PropArray->end(); ++iter )
-    {
+  {
     prop = (*iter).second.Prop;
 
     prop->GetBounds(aBds);
@@ -182,20 +182,20 @@ void vtkProp3DButtonRepresentation::PlaceWidget(double bds[6])
 
     double s[3], sMin;
     for (int i=0; i < 3; ++i)
-      {
+    {
       if ( (bounds[2*i+1]-bounds[2*i]) <= 0.0 || (aBds[2*i+1]-aBds[2*i]) <= 0.0 )
-        {
+      {
         s[i] = VTK_FLOAT_MAX;
-        }
-      else
-        {
-        s[i] = (bounds[2*i+1]-bounds[2*i]) / (aBds[2*i+1]-aBds[2*i]);
-        }
       }
+      else
+      {
+        s[i] = (bounds[2*i+1]-bounds[2*i]) / (aBds[2*i+1]-aBds[2*i]);
+      }
+    }
     sMin = (s[0]<s[1] ? (s[0]<s[2] ? s[0] : s[2]) : (s[1]<s[2] ? s[1] : s[2]) );
 
     (*iter).second.Scale = sMin;
-    }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -205,17 +205,17 @@ int vtkProp3DButtonRepresentation
   this->InteractionState = vtkButtonRepresentation::Outside;
   if (!this->Renderer ||
       !this->Renderer->GetRenderWindow()->GetMapped())
-    {
+  {
     return this->InteractionState;
-    }
+  }
   this->VisibilityOn(); //actor must be on to be picked
 
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->Picker);
 
   if ( path != NULL )
-    {
+  {
     this->InteractionState = vtkButtonRepresentation::Inside;
-    }
+  }
 
   return this->InteractionState;
 }
@@ -227,32 +227,32 @@ void vtkProp3DButtonRepresentation::BuildRepresentation()
   if ( this->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
-    {
+  {
     this->SetState(this->State); //side effect sets CurrentProp
     vtkPropArrayIterator iter = this->PropArray->find(this->State);
     if ( this->CurrentProp == NULL || iter == this->PropArray->end() )
-      {
+    {
       return;
-      }
+    }
 
     // In case follower is being used
     if ( this->FollowCamera )
-      {
+    {
       this->Follower->SetCamera(this->Renderer->GetActiveCamera());
       this->Follower->SetProp3D(this->CurrentProp);
       this->Follower->SetOrigin((*iter).second.Origin);
       this->Follower->SetPosition((*iter).second.Translation);
       this->Follower->SetScale((*iter).second.Scale);
-      }
+    }
     else
-      {
+    {
       this->CurrentProp->SetOrigin((*iter).second.Origin);
       this->CurrentProp->SetPosition((*iter).second.Translation);
       this->CurrentProp->SetScale((*iter).second.Scale);
-      }
+    }
 
     this->BuildTime.Modified();
-    }
+  }
 }
 
 
@@ -262,15 +262,15 @@ void vtkProp3DButtonRepresentation::ShallowCopy(vtkProp *prop)
   vtkProp3DButtonRepresentation *rep =
     vtkProp3DButtonRepresentation::SafeDownCast(prop);
   if ( rep )
-    {
+  {
     vtkPropArrayIterator iter;
     for ( iter=rep->PropArray->begin();
           iter != rep->PropArray->end(); ++iter )
-      {
+    {
       (*this->PropArray)[(*iter).first] = (*iter).second;
-      }
-    this->FollowCamera = rep->FollowCamera;
     }
+    this->FollowCamera = rep->FollowCamera;
+  }
 
   this->Superclass::ShallowCopy(prop);
 }
@@ -289,18 +289,18 @@ RenderVolumetricGeometry(vtkViewport *viewport)
   this->BuildRepresentation();
 
   if ( !this->CurrentProp )
-    {
+  {
     return 0;
-    }
+  }
 
   if ( this->FollowCamera )
-    {
+  {
     return this->Follower->RenderVolumetricGeometry(viewport);
-    }
+  }
   else
-    {
+  {
     return this->CurrentProp->RenderVolumetricGeometry(viewport);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -310,18 +310,18 @@ RenderOpaqueGeometry(vtkViewport *viewport)
   this->BuildRepresentation();
 
   if ( !this->CurrentProp )
-    {
+  {
     return 0;
-    }
+  }
 
   if ( this->FollowCamera )
-    {
+  {
     return this->Follower->RenderOpaqueGeometry(viewport);
-    }
+  }
   else
-    {
+  {
     return this->CurrentProp->RenderOpaqueGeometry(viewport);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -331,18 +331,18 @@ RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
   this->BuildRepresentation();
 
   if ( !this->CurrentProp )
-    {
+  {
     return 0;
-    }
+  }
 
   if ( this->FollowCamera )
-    {
+  {
     return this->Follower->RenderTranslucentPolygonalGeometry(viewport);
-    }
+  }
   else
-    {
+  {
     return this->CurrentProp->RenderTranslucentPolygonalGeometry(viewport);
-    }
+  }
 }
 //-----------------------------------------------------------------------------
 int vtkProp3DButtonRepresentation::
@@ -351,13 +351,13 @@ HasTranslucentPolygonalGeometry()
   this->BuildRepresentation();
 
   if ( this->CurrentProp )
-    {
+  {
     return this->CurrentProp->HasTranslucentPolygonalGeometry();
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 
@@ -365,27 +365,27 @@ HasTranslucentPolygonalGeometry()
 double *vtkProp3DButtonRepresentation::GetBounds()
 {
   if ( !this->CurrentProp )
-    {
+  {
     return NULL;
-    }
+  }
 
   if ( this->FollowCamera )
-    {
+  {
     return this->Follower->GetBounds();
-    }
+  }
   else
-    {
+  {
     return this->CurrentProp->GetBounds();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
 void vtkProp3DButtonRepresentation::GetActors(vtkPropCollection *pc)
 {
   if ( this->CurrentProp )
-    {
+  {
     this->CurrentProp->GetActors(pc);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -401,7 +401,7 @@ void vtkProp3DButtonRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   int i;
   for ( i=0, iter=this->PropArray->begin();
         iter != this->PropArray->end(); ++iter, ++i )
-    {
+  {
     os << indent << "  (" << i << "): " << (*iter).second.Prop << "\n";
-    }
+  }
 }

@@ -23,29 +23,29 @@ int TestSampleFunction(int, char *[])
 
   // Check for model bounds error
   if (errorObserver->GetError())
-    {
+  {
     std::cout << "Caught expected error: "
               << errorObserver->GetErrorMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected error regarding model bounds" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   errorObserver->Clear();
 
   // Check for missing implicit function error
   sf1->Update();
   if (errorObserver->GetError())
-    {
+  {
     std::cout << "Caught expected error: "
               << errorObserver->GetErrorMessage();
-    }
+  }
   else
-    {
+  {
     std::cout << "Failed to catch expected error regarding missing implicit function" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   sf1->Print(std::cout);
 
@@ -118,21 +118,21 @@ int TestSampleFunction(int, char *[])
   int i, j, k;
   double *sPtr = s5;
   for (k=extent[4]; k<=extent[5]; ++k)
-    {
+  {
     for (j=extent[2]; j<=extent[3]; ++j)
-      {
+    {
       for (i=extent[0]; i<=extent[1]; ++i)
-        {
+      {
         sWE = *(s4 + i + j*dims[0] + k*dims[0]*dims[1]);
         sUE = *sPtr++;
         if ( (sWE-sUE) != 0.0 )
-          {
+        {
           std::cout << "Inconsistent update extent computation" << std::endl;
           return EXIT_FAILURE;
-          }
         }
       }
     }
+  }
 
   // Now exercise the Set/Get methods
   int dimensions[3];

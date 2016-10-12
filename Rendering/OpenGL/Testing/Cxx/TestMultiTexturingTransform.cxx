@@ -137,11 +137,11 @@ int TestMultiTexturingTransform(int argc, char *argv[])
   bool supported=hardware->GetSupportsMultiTexturing();
   int tu=0;
   if(supported)
-    {
+  {
     tu=hardware->GetNumberOfFixedTextureUnits();
-    }
+  }
   if(supported && tu > 2)
-    {
+  {
     mapper->MapDataArrayToMultiTextureAttribute(
       vtkProperty::VTK_TEXTURE_UNIT_0, "MultTCoords",
       vtkDataObject::FIELD_ASSOCIATION_POINTS);
@@ -158,17 +158,17 @@ int TestMultiTexturingTransform(int argc, char *argv[])
                                      textureBlue);
     actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_2,
                                      textureGreen);
-    }
+  }
   else
-    {
+  {
     if(supported)
-      {
+    {
       textureGreen->SetBlendingMode(
         vtkTexture::VTK_TEXTURE_BLENDING_MODE_REPLACE);
-      }
+    }
     // no multitexturing just show the green texture.
     actor->SetTexture(textureGreen);
-    }
+  }
 
   actor->SetMapper(mapper);
 
@@ -181,9 +181,9 @@ int TestMultiTexturingTransform(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   polyData->Delete();
   mapper->Delete();

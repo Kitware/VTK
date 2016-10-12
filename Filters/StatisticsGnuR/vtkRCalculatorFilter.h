@@ -19,19 +19,21 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// .NAME vtkRCalculatorFilter
-//
-// .SECTION Description
-//
-// This class functions as an array calculator for vtkDataArrays and VTKarray objects,
-// using GNU R as the calculation engine.
-//
-// .SECTION See Also
-//  vtkRInterface vtkRadapter
-//
-// .SECTION Thanks
-//  Developed by Thomas Otahal at Sandia National Laboratories.
-//
+/**
+ * @class   vtkRCalculatorFilter
+ *
+ *
+ *
+ * This class functions as an array calculator for vtkDataArrays and VTKarray objects,
+ * using GNU R as the calculation engine.
+ *
+ * @sa
+ *  vtkRInterface vtkRadapter
+ *
+ * @par Thanks:
+ *  Developed by Thomas Otahal at Sandia National Laboratories.
+ *
+*/
 
 #ifndef vtkRCalculatorFilter_h
 #define vtkRCalculatorFilter_h
@@ -60,100 +62,130 @@ public:
   vtkTypeMacro(vtkRCalculatorFilter, vtkDataObjectAlgorithm );
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Copies vtkDataArray named NameOfVTKArray to R with variable
-  // name NameOfRvar.  The array must exist in the input data set.
-  //
-  // Note: for vtkArray use "0","1","2",... for NameOfVTKArray to specify the index of
-  // the vtkArray to pass to R.
+  /**
+   * Copies vtkDataArray named NameOfVTKArray to R with variable
+   * name NameOfRvar.  The array must exist in the input data set.
+
+   * Note: for vtkArray use "0","1","2",... for NameOfVTKArray to specify the index of
+   * the vtkArray to pass to R.
+   */
   void PutArray(const char* NameOfVTKArray, const char* NameOfRvar);
 
-  // Description:
-  // Copies R variable NameOfRvar from R to the vtkDataArray named
-  // NameOfVTKArray.  Will replace existing vtkDataArray with the same name.
-  //
-  // Note: for vtkArray use any string for NameOfVTKArray.  The array will be appended
-  // to the list of vtkArrays on the output.
+  /**
+   * Copies R variable NameOfRvar from R to the vtkDataArray named
+   * NameOfVTKArray.  Will replace existing vtkDataArray with the same name.
+
+   * Note: for vtkArray use any string for NameOfVTKArray.  The array will be appended
+   * to the list of vtkArrays on the output.
+   */
   void GetArray(const char* NameOfVTKArray, const char* NameOfRvar);
 
-  // Description:
-  // Clears the list of variables to be copied to R.
+  /**
+   * Clears the list of variables to be copied to R.
+   */
   void RemoveAllPutVariables();
 
-  // Description:
-  // Clears the list of variables to be copied from R.
+  /**
+   * Clears the list of variables to be copied from R.
+   */
   void RemoveAllGetVariables();
 
-  // Description:
-  // For vtkTable input to the filter.  An R list variable is created for the
-  // vtkTable input using PutTable().  The output of the filter can be set from
-  // a list variable in R using GetTable()
+  //@{
+  /**
+   * For vtkTable input to the filter.  An R list variable is created for the
+   * vtkTable input using PutTable().  The output of the filter can be set from
+   * a list variable in R using GetTable()
+   */
   void PutTable(const char* NameOfRvar);
   void GetTable(const char* NameOfRvar);
+  //@}
 
-  // Description:
-  // For vtkTable input to the filter. An R list variable is created for each name
-  // in the array provided using the vtkTables from the input to the filter.
+  /**
+   * For vtkTable input to the filter. An R list variable is created for each name
+   * in the array provided using the vtkTables from the input to the filter.
+   */
   void PutTables(vtkStringArray* NamesOfRVars);
 
-  // Description:
-  // For vtkTable output of the filter. If more the one name is provided a composite
-  // dataset is created for the output of the filter and a vtkTable is added
-  // for each R list variable in the array provided.
+  /**
+   * For vtkTable output of the filter. If more the one name is provided a composite
+   * dataset is created for the output of the filter and a vtkTable is added
+   * for each R list variable in the array provided.
+   */
   void GetTables(vtkStringArray* NamesOfRVars);
 
-  // Description:
-  // For vtkTree input to the filter.  An R phylo tree variable is created for the
-  // vtkTree input using PutTree().  The output of the filter can be set from
-  // a phylo tree variable in R using GetTree()
+  //@{
+  /**
+   * For vtkTree input to the filter.  An R phylo tree variable is created for the
+   * vtkTree input using PutTree().  The output of the filter can be set from
+   * a phylo tree variable in R using GetTree()
+   */
   void PutTree(const char* NameOfRvar);
   void GetTree(const char* NameOfRvar);
+  //@}
 
-  // Description:
-  // For vtkTree input to the filter.  An R phylo tree variable is created for each
-  // name in the array provided using the vtkTrees from the input to the filter.
+  /**
+   * For vtkTree input to the filter.  An R phylo tree variable is created for each
+   * name in the array provided using the vtkTrees from the input to the filter.
+   */
   void PutTrees(vtkStringArray* NamesOfRvars);
 
-  // Description:
-  // For vtkTree output of the filter. If more than one name is provided a composite
-  // dataset is created for the output of the filter and a vtkTree is added for
-  // each R phylo tree variable in the array provided.
+  /**
+   * For vtkTree output of the filter. If more than one name is provided a composite
+   * dataset is created for the output of the filter and a vtkTree is added for
+   * each R phylo tree variable in the array provided.
+   */
   void GetTrees(vtkStringArray* NamesOfRvars);
 
 
-  // Description:
-  // Script executed by R.  Can also be set from a file.
+  //@{
+  /**
+   * Script executed by R.  Can also be set from a file.
+   */
   vtkSetStringMacro(Rscript);
   vtkGetStringMacro(Rscript);
+  //@}
 
-  // Description:
-  // Provide the R script executed by R from an input file.
+  //@{
+  /**
+   * Provide the R script executed by R from an input file.
+   */
   vtkSetStringMacro(ScriptFname);
   vtkGetStringMacro(ScriptFname);
+  //@}
 
-  // Description:
-  // Write R output to standard output.
+  //@{
+  /**
+   * Write R output to standard output.
+   */
   vtkSetMacro(Routput,int);
   vtkGetMacro(Routput,int);
+  //@}
 
-  // Description:
-  // Pass VTK time information to R.
-  // If turned turned on, the filter will create three variables in R.
-  // The variables will be update automatically as time
-  // changes in the VTK pipeline.
-  // VTK_TIME_STEPS - array of all available time values.
-  // VTK_TIME_RANGE- array of minimum and maximum time values.
-  // VTK_CURRENT_TIME - floating point time value at the current time index.
+  //@{
+  /**
+   * Pass VTK time information to R.
+   * If turned turned on, the filter will create three variables in R.
+   * The variables will be update automatically as time
+   * changes in the VTK pipeline.
+   * VTK_TIME_STEPS - array of all available time values.
+   * VTK_TIME_RANGE- array of minimum and maximum time values.
+   * VTK_CURRENT_TIME - floating point time value at the current time index.
+   */
   vtkSetMacro(TimeOutput,int);
   vtkGetMacro(TimeOutput,int);
+  //@}
 
-  // Description:
-  // Create VTK_BLOCK_ID variable in R when processing composite data sets.
+  //@{
+  /**
+   * Create VTK_BLOCK_ID variable in R when processing composite data sets.
+   */
   vtkSetMacro(BlockInfoOutput,int);
   vtkGetMacro(BlockInfoOutput,int);
+  //@}
 
-  // Description:
-  // This is required to capture REQUEST_DATA_OBJECT requests.
+  /**
+   * This is required to capture REQUEST_DATA_OBJECT requests.
+   */
   virtual int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector);
@@ -166,8 +198,9 @@ protected:
                           vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector);
 
-  // Description:
-  // Creates the same output type as the input type.
+  /**
+   * Creates the same output type as the input type.
+   */
   virtual int RequestDataObject(vtkInformation* request,
                                 vtkInformationVector** inputVector,
                                 vtkInformationVector* outputVector);
@@ -177,8 +210,8 @@ protected:
 
 private:
 
-  vtkRCalculatorFilter(const vtkRCalculatorFilter&);  // Not implemented.
-  void operator=(const vtkRCalculatorFilter&);  // Not implemented.
+  vtkRCalculatorFilter(const vtkRCalculatorFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRCalculatorFilter&) VTK_DELETE_FUNCTION;
 
   // Implementation details
   vtkRCalculatorFilterInternals* rcfi;

@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSplineWidget2 - widget for vtkSplineRepresentation.
-// .SECTION Description
-// vtkSplineWidget2 is the vtkAbstractWidget subclass for
-// vtkSplineRepresentation which manages the interactions with
-// vtkSplineRepresentation. This is based on vtkSplineWidget.
-// .SECTION See Also
-// vtkSplineRepresentation, vtkSplineWidget2
+/**
+ * @class   vtkSplineWidget2
+ * @brief   widget for vtkSplineRepresentation.
+ *
+ * vtkSplineWidget2 is the vtkAbstractWidget subclass for
+ * vtkSplineRepresentation which manages the interactions with
+ * vtkSplineRepresentation. This is based on vtkSplineWidget.
+ * @sa
+ * vtkSplineRepresentation, vtkSplineWidget2
+*/
 
 #ifndef vtkSplineWidget2_h
 #define vtkSplineWidget2_h
@@ -35,19 +38,21 @@ public:
   vtkTypeMacro(vtkSplineWidget2, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify an instance of vtkWidgetRepresentation used to represent this
-  // widget in the scene. Note that the representation is a subclass of
-  // vtkProp so it can be added to the renderer independent of the widget.
+  /**
+   * Specify an instance of vtkWidgetRepresentation used to represent this
+   * widget in the scene. Note that the representation is a subclass of
+   * vtkProp so it can be added to the renderer independent of the widget.
+   */
   void SetRepresentation(vtkSplineRepresentation *r)
-    {
+  {
     this->Superclass::SetWidgetRepresentation(
       reinterpret_cast<vtkWidgetRepresentation*>(r));
-    }
+  }
 
-  // Description:
-  // Create the default widget representation if one is not set. By default,
-  // this is an instance of the vtkSplineRepresentation class.
+  /**
+   * Create the default widget representation if one is not set. By default,
+   * this is an instance of the vtkSplineRepresentation class.
+   */
   void CreateDefaultRepresentation();
 
 protected:
@@ -65,8 +70,8 @@ protected:
   static void MoveAction(vtkAbstractWidget*);
 
 private:
-  vtkSplineWidget2(const vtkSplineWidget2&); // Not implemented.
-  void operator=(const vtkSplineWidget2&); // Not implemented.
+  vtkSplineWidget2(const vtkSplineWidget2&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSplineWidget2&) VTK_DELETE_FUNCTION;
 
 };
 

@@ -90,30 +90,30 @@ size_t vtkParse_SkipComment(const char *text)
   const char *cp = text;
 
   if (cp[0] == '/')
-    {
+  {
     if (cp[1] == '/')
-      {
+    {
       cp += 2;
       while (*cp != '\n' && *cp != '\0')
-        {
+      {
         if (cp[0] == '\\')
-          {
+        {
           if (cp[1] == '\n') { cp++; }
           else if (cp[1] == '\r' && cp[2] == '\n') { cp += 2; }
-          }
-        cp++;
         }
-      }
-    else if (cp[1] == '*')
-      {
-      cp += 2;
-      while (*cp != '\0')
-        {
-        if (cp[0] == '*' && cp[1] == '/') { cp += 2; break; }
         cp++;
-        }
       }
     }
+    else if (cp[1] == '*')
+    {
+      cp += 2;
+      while (*cp != '\0')
+      {
+        if (cp[0] == '*' && cp[1] == '/') { cp += 2; break; }
+        cp++;
+      }
+    }
+  }
 
   return cp - text;
 }
@@ -124,46 +124,46 @@ size_t vtkParse_SkipWhitespace(const char *text, parse_space_t spacetype)
   const char *cp = text;
 
   for (;;)
-    {
+  {
     if (parse_chartype(*cp, spacetype))
-      {
+    {
       do
-        {
+      {
         cp++;
-        }
+      }
       while (parse_chartype(*cp, spacetype));
-      }
+    }
     if (cp[0] == '\\')
-      {
+    {
       if (cp[1] == '\n')
-        {
+      {
         cp += 2;
-        }
+      }
       else if (cp[1] == '\r' && cp[2] == '\n')
-        {
+      {
         cp += 3;
-        }
-      else
-        {
-        break;
-        }
       }
-    else if (cp[0] == '/' && (spacetype & WS_COMMENT) != WS_COMMENT)
-      {
-      if (cp[1] == '/' || cp[1] == '*')
-        {
-        cp += vtkParse_SkipComment(cp);
-        }
       else
-        {
-        break;
-        }
-      }
-    else
       {
-      break;
+        break;
       }
     }
+    else if (cp[0] == '/' && (spacetype & WS_COMMENT) != WS_COMMENT)
+    {
+      if (cp[1] == '/' || cp[1] == '*')
+      {
+        cp += vtkParse_SkipComment(cp);
+      }
+      else
+      {
+        break;
+      }
+    }
+    else
+    {
+      break;
+    }
+  }
 
   return cp - text;
 }
@@ -175,21 +175,21 @@ size_t vtkParse_SkipQuotes(const char *text)
   const char qc = *cp;
 
   if (parse_chartype(*cp, CPRE_QUOTE))
-    {
+  {
     cp++;
     while (*cp != qc && *cp != '\n' && *cp != '\0')
-      {
+    {
       if (*cp++ == '\\')
-        {
+      {
         if (cp[0] == '\r' && cp[1] == '\n') { cp += 2; }
         else if (*cp != '\0') { cp++; }
-        }
       }
     }
+  }
   if (*cp == qc)
-    {
+  {
     cp++;
-    }
+  }
 
   return cp - text;
 }
@@ -201,19 +201,19 @@ size_t vtkParse_SkipNumber(const char *text)
 
   if (parse_chartype(cp[0], CPRE_DIGIT) ||
       (cp[0] == '.' && parse_chartype(cp[1], CPRE_DIGIT)))
-    {
+  {
     if (cp[0] == '.') { cp++; }
     do
-      {
+    {
       char c = *cp++;
       if ((*cp == '\'' && parse_chartype(cp[1], CPRE_XDIGIT)) ||
           (parse_chartype(*cp, CPRE_SIGN) && (c == 'e' || c == 'E')))
-        {
+      {
         cp++;
-        }
       }
-    while (parse_chartype(*cp, CPRE_XID) || *cp == '.');
     }
+    while (parse_chartype(*cp, CPRE_XID) || *cp == '.');
+  }
 
   return cp - text;
 }
@@ -224,13 +224,13 @@ size_t vtkParse_SkipId(const char *text)
   const char *cp = text;
 
   if (parse_chartype(*cp, CPRE_ID))
-    {
+  {
     do
-      {
+    {
       cp++;
-      }
-    while (parse_chartype(*cp, CPRE_XID));
     }
+    while (parse_chartype(*cp, CPRE_XID));
+  }
 
   return cp - text;
 }
@@ -246,9 +246,9 @@ unsigned int vtkParse_HashId(const char *cp)
   unsigned int h = 0;
 
   if (parse_chartype(*cp, CPRE_ID))
-    {
+  {
     parse_hash_name(cp, h);
-    }
+  }
 
   return h;
 }
@@ -263,19 +263,19 @@ unsigned int vtkParse_DecodeUtf8(const char **cpp, int *error_flag)
   int good = 1;
 
   if ((code & 0x80) != 0)
-    {
+  {
     good = 0;
     if ((code & 0xE0) == 0xC0)
-      {
+    {
       code &= 0x1F;
       code <<= 6;
       s = *cp;
       good = ((s & 0xC0) == 0x80);
       cp += good;
       code |= (s & 0x3F);
-      }
+    }
     else if ((code & 0xF0) == 0xE0)
-      {
+    {
       code &= 0x0F;
       code <<= 6;
       s = *cp;
@@ -287,9 +287,9 @@ unsigned int vtkParse_DecodeUtf8(const char **cpp, int *error_flag)
       good = ((s & 0xC0) == 0x80);
       cp += good;
       code |= (s & 0x3F);
-      }
+    }
     else if ((code & 0xF8) == 0xF0)
-      {
+    {
       code &= 0x07;
       code <<= 6;
       s = *cp;
@@ -306,19 +306,19 @@ unsigned int vtkParse_DecodeUtf8(const char **cpp, int *error_flag)
       good = ((s & 0xC0) == 0x80);
       cp += good;
       code |= (s & 0x3F);
-      }
+    }
 
     if (!good)
-      {
+    {
       cp = (const unsigned char *)(*cpp);
       code = *cp++;
-      }
     }
+  }
 
   if (error_flag)
-    {
+  {
     *error_flag = !good;
-    }
+  }
   *cpp = (const char *)(cp);
   return code;
 }
@@ -328,9 +328,9 @@ size_t parse_skip_quotes_with_suffix(const char *cp)
 {
   size_t l = vtkParse_SkipQuotes(cp);
   if (l && cp[l] == '_')
-    {
+  {
     l += vtkParse_SkipId(cp + l);
-    }
+  }
   return l;
 }
 
@@ -341,17 +341,17 @@ int vtkParse_NextToken(StringTokenizer *tokens)
 
   /* avoid extra function call for simple whitespace */
   if (parse_chartype(*cp, tokens->ws))
-    {
+  {
     do { cp++; } while (parse_chartype(*cp, tokens->ws));
-    }
+  }
   /* function call is necessary if slash encountered */
   if (*cp == '/' || *cp == '\\')
-    {
+  {
     cp += vtkParse_SkipWhitespace(cp, tokens->ws);
-    }
+  }
 
   if (parse_chartype(*cp, CPRE_ID))
-    {
+  {
     const char *ep = cp;
     unsigned int h;
 
@@ -368,13 +368,13 @@ int vtkParse_NextToken(StringTokenizer *tokens)
         ((*ep == '\'' || *ep == '\"') &&
          ((tokens->len == 1 && (*cp == 'U' || *cp == 'u' || *cp == 'L')) ||
           (tokens->len == 2 && cp[0] == 'u' && cp[1] == '8'))))
-      {
+    {
       tokens->tok = (*ep == '\"' ? TOK_STRING : TOK_CHAR);
       tokens->hash = 0;
       tokens->len += parse_skip_quotes_with_suffix(ep);
-      }
+    }
     else
-      {
+    {
       /* check if this ID is a named operator */
       static const char *op_str_array[32] = {
         "compl", 0, 0, 0, 0, "bitor", "or", 0, 0, 0, 0, "not_eq",
@@ -393,41 +393,41 @@ int vtkParse_NextToken(StringTokenizer *tokens)
       ep = op_str_array[h];
       if (ep && tokens->len == op_len_array[h] &&
           strncmp(cp, ep, tokens->len) == 0)
-        {
+      {
         tokens->tok = op_tok_array[h];
         tokens->hash = 0;
-        }
       }
     }
+  }
   else if (parse_chartype(*cp, CPRE_QUOTE))
-    {
+  {
     tokens->tok = (*cp == '\"' ? TOK_STRING : TOK_CHAR);
     tokens->hash = 0;
     tokens->text = cp;
     tokens->len = parse_skip_quotes_with_suffix(cp);
-    }
+  }
   else if (parse_chartype(*cp, CPRE_DIGIT) ||
            (cp[0] == '.' && parse_chartype(cp[1], CPRE_DIGIT)))
-    {
+  {
     tokens->tok = TOK_NUMBER;
     tokens->hash = 0;
     tokens->text = cp;
     tokens->len = vtkParse_SkipNumber(cp);
-    }
+  }
   else if (cp[0] == '/' && (cp[1] == '/' || cp[1] == '*'))
-    {
+  {
     tokens->tok = TOK_COMMENT;
     tokens->hash = 0;
     tokens->text = cp;
     tokens->len = vtkParse_SkipComment(cp);
-    }
+  }
   else
-    {
+  {
     int t = cp[0];
     size_t l = 1;
 
     switch (cp[0])
-      {
+    {
       case ':':
         if (cp[1] == ':') { l = 2; t = TOK_SCOPE; }
         else if (cp[1] == '>') { l = 2; t = ']'; }
@@ -495,13 +495,13 @@ int vtkParse_NextToken(StringTokenizer *tokens)
       case '\0':
         { l = 0; t = 0; }
         break;
-      }
+    }
 
     tokens->tok = t;
     tokens->hash = 0;
     tokens->text = cp;
     tokens->len = l;
-    }
+  }
 
   return tokens->tok;
 }
@@ -543,38 +543,38 @@ char *vtkParse_NewString(StringCache *cache, size_t n)
   char *cp;
 
   if (cache->ChunkSize == 0)
-    {
+  {
     cache->ChunkSize = 8176;
-    }
+  }
 
   // align next start position on an 8-byte boundary
   nextPosition = (((cache->Position + n + 8) | 7 ) - 7);
 
   if (cache->NumberOfChunks == 0 || nextPosition > cache->ChunkSize)
-    {
+  {
     if (n + 1 > cache->ChunkSize)
-      {
+    {
       cache->ChunkSize = n + 1;
-      }
+    }
     cp = (char *)malloc(cache->ChunkSize);
 
     /* if empty, alloc for the first time */
     if (cache->NumberOfChunks == 0)
-      {
+    {
       cache->Chunks = (char **)malloc(sizeof(char *));
-      }
+    }
     /* if count is power of two, reallocate with double size */
     else if ((cache->NumberOfChunks & (cache->NumberOfChunks-1)) == 0)
-      {
+    {
       cache->Chunks = (char **)realloc(
         cache->Chunks, (2*cache->NumberOfChunks)*sizeof(char *));
-      }
+    }
 
     cache->Chunks[cache->NumberOfChunks++] = cp;
 
     cache->Position = 0;
     nextPosition = (((n + 8) | 7) - 7);
-    }
+  }
 
   cp = &cache->Chunks[cache->NumberOfChunks-1][cache->Position];
   cp[0] = '\0';
@@ -590,13 +590,13 @@ void vtkParse_FreeStringCache(StringCache *cache)
   unsigned long i;
 
   for (i = 0; i < cache->NumberOfChunks; i++)
-    {
+  {
     free(cache->Chunks[i]);
-    }
+  }
   if (cache->Chunks)
-    {
+  {
     free(cache->Chunks);
-    }
+  }
 
   cache->Chunks = NULL;
   cache->NumberOfChunks = 0;

@@ -51,18 +51,18 @@ int vtkSimplePointsReader::RequestData(vtkInformation*,
 {
   // Make sure we have a file to read.
   if(!this->FileName)
-    {
+  {
     vtkErrorMacro("A FileName must be specified.");
     return 0;
-    }
+  }
 
   // Open the input file.
   ifstream fin(this->FileName);
   if(!fin)
-    {
+  {
     vtkErrorMacro("Error opening file " << this->FileName);
     return 0;
-    }
+  }
 
   // Allocate objects to hold points and vertex cells.
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -72,10 +72,10 @@ int vtkSimplePointsReader::RequestData(vtkInformation*,
   vtkDebugMacro("Reading points from file " << this->FileName);
   double x[3];
   while(fin >> x[0] >> x[1] >> x[2])
-    {
+  {
     vtkIdType id = points->InsertNextPoint(x);
     verts->InsertNextCell(1, &id);
-    }
+  }
   vtkDebugMacro("Read " << points->GetNumberOfPoints() << " points.");
 
   // Store the points and cells in the output data object.

@@ -53,7 +53,7 @@ void vtkRTXMLPolyDataReader::SetLocation(const char* dataLocation)
 void vtkRTXMLPolyDataReader::UpdateToNextFile()
 {
   if (this->Internal->AvailableDataFileList.size() > 0)
-    {
+  {
     // set the Reader to read the new available data file
     char* fullname = const_cast<char*> (
       this->Internal->AvailableDataFileList[0].c_str()
@@ -67,20 +67,20 @@ void vtkRTXMLPolyDataReader::UpdateToNextFile()
       );
     this->Update();
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 const char* vtkRTXMLPolyDataReader::GetNextFileName()
 {
   if (this->Internal->AvailableDataFileList.size() > 0)
-    {
+  {
     return this->Internal->AvailableDataFileList[0].c_str();
-    }
+  }
   else
-    {
+  {
     return NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -94,16 +94,16 @@ int vtkRTXMLPolyDataReader::NewDataAvailable()
 
   // no data directory is specified, use the current dir
   if (!this->DataLocation)
-    {
+  {
     this->InitializeToCurrentDir();
     return VTK_ERROR;
-    }
+  }
 
   // now the reader should be initialized already
   if (this->Internal->AvailableDataFileList.size() > 0)
-    {
+  {
     return VTK_OK;
-    }
+  }
 
   vtkDirectory *dataDir = vtkDirectory::New();
   dataDir->Open(this->DataLocation);
@@ -114,27 +114,27 @@ int vtkRTXMLPolyDataReader::NewDataAvailable()
   int processed = static_cast<int>(this->Internal->ProcessedFileList.size());
 
   if (current > processed)
-    {
+  {
     for (int i=0; i<current; i++)
-      {
+    {
       char* file = this->GetDataFileFullPathName(dataDir->GetFile(i));
       if ( ! IsProcessed(file) )
-        {
+      {
         this->Internal->AvailableDataFileList.push_back(file);
-        }
-      else
-        {
-        delete [] file;
-        }
       }
+      else
+      {
+        delete [] file;
+      }
+    }
     dataDir->Delete();
     return VTK_OK;
-    }
+  }
   else
-    {
+  {
     dataDir->Delete();
     return VTK_ERROR;
-    }
+  }
 }
 
 // Description:
@@ -151,18 +151,18 @@ char* vtkRTXMLPolyDataReader::GetDataFileFullPathName(const char* name)
   strcpy(fullpath,this->DataLocation);
 #if defined (_WIN32) // WINDOW style path
   if (fullpath[n-1] != '/' && fullpath[n-1] != '\\')
-    {
+  {
 #if !defined(__CYGWIN__)
     fullpath[n++] = '\\';
 #else
     fullpath[n++] = '/';
 #endif
-    }
+  }
 #else // POSIX style path
   if (fullpath[n-1] != '/')
-    {
+  {
     fullpath[n++] = '/';
-    }
+  }
 #endif //
   strcpy(&fullpath[n],name);
 
@@ -181,13 +181,13 @@ int vtkRTXMLPolyDataReader::IsProcessed(const char* fname)
 {
   int size = static_cast<int>(this->Internal->ProcessedFileList.size());
   for (int i=0 ; i<size ; i++)
-    {
+  {
     const char* aFile = this->Internal->ProcessedFileList[i].c_str();
     if ( strcmp(fname,aFile) == 0 )
-      {
+    {
       return 1;
-      }
     }
+  }
   return 0;
 }
 
@@ -202,16 +202,16 @@ void vtkRTXMLPolyDataReader::ResetReader()
   vtkDirectory *dataDir = vtkDirectory::New();
   dataDir->Open(this->DataLocation);
   for (int i=0; i< dataDir->GetNumberOfFiles();i++)
-    {
+  {
     this->Internal->ProcessedFileList.push_back(
       this->GetDataFileFullPathName(dataDir->GetFile(i))
       );
-    }
+  }
   // initialize with an empty filename if filename is not set
   if (!this->GetFileName())
-    {
+  {
     this->SetFileName("");
-    }
+  }
   dataDir->Delete();
 }
 

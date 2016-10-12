@@ -111,7 +111,7 @@ void vtkHyperTreeGridGeometry::ProcessTrees()
   vtkHyperTreeGrid::vtkHyperTreeIterator it;
   this->Input->InitializeTreeIterator( it );
   while ( it.GetNextTree( index ) )
-    {
+  {
     // Storage for super cursors
     vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor superCursor;
 
@@ -120,18 +120,18 @@ void vtkHyperTreeGridGeometry::ProcessTrees()
 
     // Traverse and populate dual recursively
     this->RecursiveProcessTree( &superCursor );
-    } // it
+  } // it
 
   // Set output geometry and topology
   this->Output->SetPoints( this->Points );
   if ( this->Input->GetDimension() == 1  )
-    {
+  {
     this->Output->SetLines( this->Cells );
-    }
+  }
   else
-    {
+  {
     this->Output->SetPolys( this->Cells );
-    }
+  }
 
   this->Points->UnRegister( this );
   this->Points = 0;
@@ -147,9 +147,9 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( void* sc )
     static_cast<vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor*>( sc );
   vtkHyperTreeGrid::vtkHyperTreeSimpleCursor* cursor0 = superCursor->GetCursor( 0 );
   if ( cursor0->IsLeaf() )
-    {
+  {
     switch ( this->Input->GetDimension() )
-      {
+    {
       case 1:
         ProcessLeaf1D( sc );
         break;
@@ -159,19 +159,19 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( void* sc )
       case 3:
         ProcessLeaf3D( sc );
         break;
-      }
     }
+  }
   else
-    {
+  {
     // If cursor 0 is not at leaf, recurse to all children
     int numChildren = this->Input->GetNumberOfChildren();
     for ( int child = 0; child < numChildren; ++ child )
-      {
+    {
       vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor newSuperCursor;
       this->Input->InitializeSuperCursorChild( superCursor, &newSuperCursor, child );
       this->RecursiveProcessTree( &newSuperCursor );
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -203,9 +203,9 @@ void vtkHyperTreeGridGeometry::ProcessLeaf2D( void* sc )
   vtkIdType id0 = cursor0->GetGlobalNodeIndex();
   // In 2D all unmasked faces are generated
   if ( id0 >= 0 && ! this->Input->GetMaterialMask()->GetValue( id0 ) )
-    {
+  {
     this->AddFace( id0, superCursor->Origin, superCursor->Size, 0, 2 );
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -225,10 +225,10 @@ void vtkHyperTreeGridGeometry::ProcessLeaf3D( void* sc )
   int masked = matMask->GetValue( id0 );
   // In 3D masked and unmasked cells are handles differently
   for ( unsigned int f = 0; f < 3; ++ f, neighborIdx *= 3 )
-    {
+  {
     // For each plane, check both orientations
     for ( unsigned int o = 0; o < 2; ++ o, neighborIdx *= -1 )
-      {
+    {
       // Retrieve face neighbor cursor
       vtkHyperTreeGrid::vtkHyperTreeSimpleCursor* cursor =
         superCursor->GetCursor( neighborIdx );
@@ -236,31 +236,31 @@ void vtkHyperTreeGridGeometry::ProcessLeaf3D( void* sc )
 
       // Cell is masked, check if any of the face neighbors are unmasked
       if ( masked )
-        {
+      {
         // Generate faces shared by an unmasked cell, break ties at same level
         if ( cursor->GetTree()
           && cursor->IsLeaf()
           && cursor->GetLevel() < cursor0->GetLevel() )
-          {
+        {
 
           if ( id >=0 && ! matMask->GetValue( id ) )
-            {
+          {
             this->AddFace( id0, superCursor->Origin, superCursor->Size, o, f );
-            }
           }
         }
+      }
       else
-        {
+      {
         // Boundary faces, or faces shared by a masked cell, must be created
         if ( ! cursor->GetTree()
           ||
           ( cursor->IsLeaf() && matMask->GetValue( id ) ) )
-          {
+        {
           this->AddFace( id0, superCursor->Origin, superCursor->Size, o, f );
-          }
         }
-      } // o
-    } // f
+      }
+    } // o
+  } // f
 }
 
 //----------------------------------------------------------------------------
@@ -273,9 +273,9 @@ void vtkHyperTreeGridGeometry::AddFace( vtkIdType inId,
   memcpy( pt, origin, 3 * sizeof(double) );
 
   if ( offset )
-    {
+  {
     pt[orientation] += size[orientation];
-    }
+  }
 
   // Storage for face vertices
   vtkIdType ids[4];

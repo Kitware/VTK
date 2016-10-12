@@ -33,10 +33,10 @@ class vtkCaptionAnchorCallback : public vtkCommand
 public:
   static vtkCaptionAnchorCallback *New()
     { return new vtkCaptionAnchorCallback; }
-  virtual void Execute(vtkObject*, unsigned long eventId, void*)
-    {
+  void Execute(vtkObject*, unsigned long eventId, void*) VTK_OVERRIDE
+  {
       switch (eventId)
-        {
+      {
         case vtkCommand::StartInteractionEvent:
           this->CaptionWidget->StartAnchorInteraction();
           break;
@@ -46,8 +46,8 @@ public:
         case vtkCommand::EndInteractionEvent:
           this->CaptionWidget->EndAnchorInteraction();
           break;
-        }
-    }
+      }
+  }
   vtkCaptionAnchorCallback():CaptionWidget(0) {}
   vtkCaptionWidget *CaptionWidget;
 };
@@ -88,26 +88,26 @@ vtkCaptionWidget::~vtkCaptionWidget()
 void vtkCaptionWidget::SetEnabled(int enabling)
 {
   if ( this->Interactor )
-    {
+  {
     this->Interactor->Disable(); //avoid extra renders
-    }
+  }
 
   if ( enabling )
-    {
+  {
     this->CreateDefaultRepresentation();
     this->HandleWidget->SetRepresentation(reinterpret_cast<vtkCaptionRepresentation*>
                                           (this->WidgetRep)->GetAnchorRepresentation());
     this->HandleWidget->SetInteractor(this->Interactor);
     this->HandleWidget->SetEnabled(1);
-    }
+  }
   else
-    {
+  {
     this->HandleWidget->SetEnabled(0);
-    }
+  }
   if ( this->Interactor )
-    {
+  {
     this->Interactor->Enable();
-    }
+  }
 
   this->Superclass::SetEnabled(enabling);
 }
@@ -116,9 +116,9 @@ void vtkCaptionWidget::SetEnabled(int enabling)
 void vtkCaptionWidget::CreateDefaultRepresentation()
 {
   if ( ! this->WidgetRep )
-    {
+  {
     this->WidgetRep = vtkCaptionRepresentation::New();
-    }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -126,16 +126,16 @@ void vtkCaptionWidget::SetCaptionActor2D(vtkCaptionActor2D *capActor)
 {
   vtkCaptionRepresentation *capRep = reinterpret_cast<vtkCaptionRepresentation*>(this->WidgetRep);
   if ( ! capRep )
-    {
+  {
     this->CreateDefaultRepresentation();
     capRep = reinterpret_cast<vtkCaptionRepresentation*>(this->WidgetRep);
-    }
+  }
 
   if ( capRep->GetCaptionActor2D() != capActor )
-    {
+  {
     capRep->SetCaptionActor2D(capActor);
     this->Modified();
-    }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -143,13 +143,13 @@ vtkCaptionActor2D *vtkCaptionWidget::GetCaptionActor2D()
 {
   vtkCaptionRepresentation *capRep = reinterpret_cast<vtkCaptionRepresentation*>(this->WidgetRep);
   if ( ! capRep )
-    {
+  {
     return NULL;
-    }
+  }
   else
-    {
+  {
     return capRep->GetCaptionActor2D();
-    }
+  }
 }
 
 //----------------------------------------------------------------------

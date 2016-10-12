@@ -22,6 +22,7 @@ set (GenericVolumeCxxTests
   TestGPURayCastMIPToComposite.cxx
   TestGPURayCastNearestDataTypesMIP.cxx
   TestGPURayCastPerspectiveParallel.cxx
+  TestGPURayCastVolumeOrientation.cxx
   TestGPURayCastVolumeUpdate.cxx
   TestGPUVolumeRayCastMapper.cxx
   TestMinIntensityRendering.cxx
@@ -52,20 +53,27 @@ endif()
 
 # These tests are only built for the OpenGL2 backend
 set (VolumeOpenGL2CxxTests
+  TestGPURayCastAverageIP.cxx
   TestGPURayCastCameraInside.cxx
   TestGPURayCastCameraInsideSmallSpacing.cxx
+  TestGPURayCastCameraInsideTransformation.cxx
   TestGPURayCastCellData.cxx
   TestGPURayCastClipping.cxx
-  TestGPURayCastClippingUserTransform.cxx
   TestGPURayCastClippingPolyData.cxx
+  TestGPURayCastClippingUserTransform.cxx
+  TestGPURayCastDependentComponentsLightParameters.cxx
   TestGPURayCastFourComponentsDependentGradient.cxx
   TestGPURayCastGradientOpacity.cxx
   TestGPURayCastGradientOpacityLight.cxx
+  TestGPURayCastIndependentComponentsLightParameters.cxx
+  TestGPURayCastIndependentVectorMode.cxx
+  TestGPURayCastLargeColorTransferFunction.cxx
   TestGPURayCastPositionalLights.cxx
   TestGPURayCastReleaseResources.cxx
   TestGPURayCastRenderDepthToImage.cxx
   TestGPURayCastRenderDepthToImage2.cxx
   TestGPURayCastRenderToTexture.cxx
+  TestGPURayCastThreeComponentsAdditive.cxx
   TestGPURayCastThreeComponentsIndependent.cxx
   TestGPURayCastTwoComponentsDependent.cxx
   TestGPURayCastTwoComponentsDependentGradient.cxx
@@ -73,11 +81,13 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastTwoComponentsIndependent.cxx
   TestGPURayCastVolumeDepthPass.cxx
   TestGPURayCastVolumeLightKit.cxx
+  TestGPURayCastVolumePicking.cxx
   TestGPURayCastVolumePolyData.cxx
   TestGPURayCastVolumeRotation.cxx
   TestGPURayCastVolumeScale.cxx
+  TestProjectedTetrahedraOffscreen.cxx
   TestProjectedTetrahedraTransform.cxx
-  TestGPURayCastVolumePicking.cxx
+  TestRemoveVolumeNonCurrentContext.cxx
   )
 
 # everyone gets these tests

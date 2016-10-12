@@ -12,22 +12,25 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMFIXReader - reads a dataset in MFIX file format
-// .SECTION Description
-// vtkMFIXReader creates an unstructured grid dataset. It reads a restart
-// file and a set of sp files.  The restart file contains the mesh
-// information.  MFIX meshes are either cylindrical or rectilinear, but
-// this reader will convert them to an unstructured grid.  The sp files
-// contain transient data for the cells.  Each sp file has one or more
-// variables stored inside it.
-
-// .SECTION Thanks
-// Thanks to Phil Nicoletti and Brian Dotson at the National Energy
-// Technology Laboratory who developed this class.
-// Please address all comments to Brian Dotson (brian.dotson@netl.doe.gov)
-
-// .SECTION See Also
-// vtkGAMBITReader
+/**
+ * @class   vtkMFIXReader
+ * @brief   reads a dataset in MFIX file format
+ *
+ * vtkMFIXReader creates an unstructured grid dataset. It reads a restart
+ * file and a set of sp files.  The restart file contains the mesh
+ * information.  MFIX meshes are either cylindrical or rectilinear, but
+ * this reader will convert them to an unstructured grid.  The sp files
+ * contain transient data for the cells.  Each sp file has one or more
+ * variables stored inside it.
+ *
+ * @par Thanks:
+ * Thanks to Phil Nicoletti and Brian Dotson at the National Energy
+ * Technology Laboratory who developed this class.
+ * Please address all comments to Brian Dotson (brian.dotson@netl.doe.gov)
+ *
+ * @sa
+ * vtkGAMBITReader
+*/
 
 #ifndef vtkMFIXReader_h
 #define vtkMFIXReader_h
@@ -54,61 +57,91 @@ public:
   vtkTypeMacro(vtkMFIXReader,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify the file name of the MFIX Restart data file to read.
+  //@{
+  /**
+   * Specify the file name of the MFIX Restart data file to read.
+   */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
 
-  // Description:
-  // Get the total number of cells. The number of cells is only valid after a
-  // successful read of the data file is performed.
+  //@{
+  /**
+   * Get the total number of cells. The number of cells is only valid after a
+   * successful read of the data file is performed.
+   */
   vtkGetMacro(NumberOfCells,int);
+  //@}
 
-  // Description:
-  // Get the total number of nodes. The number of nodes is only valid after a
-  // successful read of the data file is performed.
+  //@{
+  /**
+   * Get the total number of nodes. The number of nodes is only valid after a
+   * successful read of the data file is performed.
+   */
   vtkGetMacro(NumberOfPoints,int);
+  //@}
 
-  // Description:
-  // Get the number of data components at the nodes and cells.
+  //@{
+  /**
+   * Get the number of data components at the nodes and cells.
+   */
   vtkGetMacro(NumberOfCellFields,int);
+  //@}
 
-  // Description:
-  // Which TimeStep to read.
+  //@{
+  /**
+   * Which TimeStep to read.
+   */
   vtkSetMacro(TimeStep, int);
   vtkGetMacro(TimeStep, int);
+  //@}
 
-  // Description:
-  // Returns the number of timesteps.
+  //@{
+  /**
+   * Returns the number of timesteps.
+   */
   vtkGetMacro(NumberOfTimeSteps, int);
+  //@}
 
-  // Description:
-  // Which TimeStepRange to read
+  //@{
+  /**
+   * Which TimeStepRange to read
+   */
   vtkGetVector2Macro(TimeStepRange, int);
   vtkSetVector2Macro(TimeStepRange, int);
+  //@}
 
-  // Description
-  // Get the number of cell arrays available in the input.
+  /**
+   * Get the number of cell arrays available in the input.
+   */
   int GetNumberOfCellArrays(void);
 
-  // Description:
-  // Get the name of the  cell array with the given index in
-  // the input.
+  /**
+   * Get the name of the  cell array with the given index in
+   * the input.
+   */
   const char* GetCellArrayName(int index);
 
-  // Description:
-  // Get/Set whether the cell array with the given name is to
-  // be read.
+  //@{
+  /**
+   * Get/Set whether the cell array with the given name is to
+   * be read.
+   */
   int GetCellArrayStatus(const char* name);
   void SetCellArrayStatus(const char* name, int status);
+  //@}
 
-  // Description:
-  // Turn on/off all cell arrays.
+  //@{
+  /**
+   * Turn on/off all cell arrays.
+   */
   void DisableAllCellArrays();
   void EnableAllCellArrays();
+  //@}
 
-  // Description:
-  // Get the range of cell data.
+  /**
+   * Get the range of cell data.
+   */
   void GetCellDataRange(int cellComp, float *min, float *max);
 
 protected:
@@ -230,8 +263,8 @@ protected:
                               //  into a file for a certain variable.
 
 private:
-  vtkMFIXReader(const vtkMFIXReader&);  // Not implemented.
-  void operator=(const vtkMFIXReader&);  // Not implemented.
+  vtkMFIXReader(const vtkMFIXReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMFIXReader&) VTK_DELETE_FUNCTION;
 
   void MakeMesh(vtkUnstructuredGrid *output);
   void SwapDouble(double &value);

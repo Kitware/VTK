@@ -42,22 +42,22 @@ vtkImageThreshold::vtkImageThreshold()
 void vtkImageThreshold::SetInValue(double val)
 {
   if (val != this->InValue || this->ReplaceIn != 1)
-    {
+  {
     this->InValue = val;
     this->ReplaceIn = 1;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkImageThreshold::SetOutValue(double val)
 {
   if (val != this->OutValue || this->ReplaceOut != 1)
-    {
+  {
     this->OutValue = val;
     this->ReplaceOut = 1;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -65,11 +65,11 @@ void vtkImageThreshold::SetOutValue(double val)
 void vtkImageThreshold::ThresholdByUpper(double thresh)
 {
   if (this->LowerThreshold != thresh || this->UpperThreshold < VTK_FLOAT_MAX)
-    {
+  {
     this->LowerThreshold = thresh;
     this->UpperThreshold = VTK_FLOAT_MAX;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -77,11 +77,11 @@ void vtkImageThreshold::ThresholdByUpper(double thresh)
 void vtkImageThreshold::ThresholdByLower(double thresh)
 {
   if (this->UpperThreshold != thresh || this->LowerThreshold > -VTK_FLOAT_MAX)
-    {
+  {
     this->UpperThreshold = thresh;
     this->LowerThreshold = -VTK_FLOAT_MAX;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -89,11 +89,11 @@ void vtkImageThreshold::ThresholdByLower(double thresh)
 void vtkImageThreshold::ThresholdBetween(double lower, double upper)
 {
   if (this->LowerThreshold != lower || this->UpperThreshold != upper)
-    {
+  {
     this->LowerThreshold = lower;
     this->UpperThreshold = upper;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -107,21 +107,21 @@ int vtkImageThreshold::RequestInformation (
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
   if (this->OutputScalarType == -1)
-    {
+  {
     vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo,
       vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
     if (!inScalarInfo)
-      {
+    {
       vtkErrorMacro("Missing scalar field on input information!");
       return 0;
-      }
+    }
     vtkDataObject::SetPointDataActiveScalarInfo(outInfo,
       inScalarInfo->Get( vtkDataObject::FIELD_ARRAY_TYPE() ), -1 );
-    }
+  }
   else
-    {
+  {
     vtkDataObject::SetPointDataActiveScalarInfo(outInfo, this->OutputScalarType, -1);
-    }
+  }
   return 1;
 }
 
@@ -146,111 +146,111 @@ void vtkImageThresholdExecute(vtkImageThreshold *self,
   // Make sure the thresholds are valid for the input scalar range
   if (static_cast<double>(self->GetLowerThreshold())
       < inData->GetScalarTypeMin())
-    {
+  {
     lowerThreshold = static_cast<IT>(inData->GetScalarTypeMin());
-    }
+  }
   else
-    {
+  {
     if (static_cast<double>(self->GetLowerThreshold()) >
         inData->GetScalarTypeMax())
-      {
+    {
       lowerThreshold = static_cast<IT>(inData->GetScalarTypeMax());
-      }
-    else
-      {
-      lowerThreshold = static_cast<IT>(self->GetLowerThreshold());
-      }
     }
+    else
+    {
+      lowerThreshold = static_cast<IT>(self->GetLowerThreshold());
+    }
+  }
   if (static_cast<double>(self->GetUpperThreshold())
       > inData->GetScalarTypeMax())
-    {
+  {
     upperThreshold = static_cast<IT>(inData->GetScalarTypeMax());
-    }
+  }
   else
-    {
+  {
     if (static_cast<double>(self->GetUpperThreshold())
         < inData->GetScalarTypeMin())
-      {
+    {
       upperThreshold = static_cast<IT>(inData->GetScalarTypeMin());
-      }
-    else
-      {
-      upperThreshold = static_cast<IT>(self->GetUpperThreshold());
-      }
     }
+    else
+    {
+      upperThreshold = static_cast<IT>(self->GetUpperThreshold());
+    }
+  }
 
   // Make sure the replacement values are within the output scalar range
   if (static_cast<double>(self->GetInValue()) < outData->GetScalarTypeMin())
-    {
+  {
     inValue = static_cast<OT>(outData->GetScalarTypeMin());
-    }
+  }
   else
-    {
+  {
     if (static_cast<double>(self->GetInValue()) > outData->GetScalarTypeMax())
-      {
+    {
       inValue = static_cast<OT>(outData->GetScalarTypeMax());
-      }
+    }
     else
-      {
+    {
       inValue = static_cast<OT>(self->GetInValue());
-      }
     }
+  }
   if (static_cast<double>(self->GetOutValue()) > outData->GetScalarTypeMax())
-    {
+  {
     outValue = static_cast<OT>(outData->GetScalarTypeMax());
-    }
+  }
   else
-    {
+  {
     if (static_cast<double>(self->GetOutValue()) < outData->GetScalarTypeMin())
-      {
+    {
       outValue = static_cast<OT>(outData->GetScalarTypeMin());
-      }
-    else
-      {
-      outValue = static_cast<OT>(self->GetOutValue());
-      }
     }
+    else
+    {
+      outValue = static_cast<OT>(self->GetOutValue());
+    }
+  }
 
   // Loop through output pixels
   while (!outIt.IsAtEnd())
-    {
+  {
     IT* inSI = inIt.BeginSpan();
     OT* outSI = outIt.BeginSpan();
     OT* outSIEnd = outIt.EndSpan();
     while (outSI != outSIEnd)
-      {
+    {
       // Pixel operation
       temp = (*inSI);
       if (lowerThreshold <= temp && temp <= upperThreshold)
-        {
+      {
         // match
         if (replaceIn)
-          {
-          *outSI = inValue;
-          }
-        else
-          {
-          *outSI = static_cast<OT>(temp);
-          }
-        }
-      else
         {
+          *outSI = inValue;
+        }
+        else
+        {
+          *outSI = static_cast<OT>(temp);
+        }
+      }
+      else
+      {
         // not match
         if (replaceOut)
-          {
+        {
           *outSI = outValue;
-          }
-        else
-          {
-          *outSI = static_cast<OT>(temp);
-          }
         }
+        else
+        {
+          *outSI = static_cast<OT>(temp);
+        }
+      }
       ++inSI;
       ++outSI;
-      }
+    }
     inIt.NextSpan();
     outIt.NextSpan();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -261,7 +261,7 @@ void vtkImageThresholdExecute1(vtkImageThreshold *self,
                                int outExt[6], int id, T *)
 {
   switch (outData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageThresholdExecute(self, inData,
                                outData, outExt, id,
@@ -270,7 +270,7 @@ void vtkImageThresholdExecute1(vtkImageThreshold *self,
     default:
       vtkGenericWarningMacro("Execute: Unknown input ScalarType");
       return;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -287,7 +287,7 @@ void vtkImageThreshold::ThreadedRequestData(
   int outExt[6], int id)
 {
   switch (inData[0][0]->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageThresholdExecute1(this,
                                 inData[0][0],
@@ -298,7 +298,7 @@ void vtkImageThreshold::ThreadedRequestData(
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

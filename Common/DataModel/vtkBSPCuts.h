@@ -17,18 +17,21 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// .NAME vtkBSPCuts - This class represents an axis-aligned Binary Spatial
-//    Partitioning of a 3D space.
-//
-// .SECTION Description
-//    This class converts between the vtkKdTree
-//    representation of a tree of vtkKdNodes (used by vtkDistributedDataFilter)
-//    and a compact array representation that might be provided by a
-//    graph partitioning library like Zoltan.  Such a representation
-//    could be used in message passing.
-//
-// .SECTION See Also
-//      vtkKdTree vtkKdNode vtkDistributedDataFilter
+/**
+ * @class   vtkBSPCuts
+ * @brief   This class represents an axis-aligned Binary Spatial
+ *    Partitioning of a 3D space.
+ *
+ *
+ *    This class converts between the vtkKdTree
+ *    representation of a tree of vtkKdNodes (used by vtkDistributedDataFilter)
+ *    and a compact array representation that might be provided by a
+ *    graph partitioning library like Zoltan.  Such a representation
+ *    could be used in message passing.
+ *
+ * @sa
+ *      vtkKdTree vtkKdNode vtkDistributedDataFilter
+*/
 
 #ifndef vtkBSPCuts_h
 #define vtkBSPCuts_h
@@ -43,23 +46,24 @@ class VTKCOMMONDATAMODEL_EXPORT vtkBSPCuts : public vtkDataObject
 public:
   static vtkBSPCuts *New();
   vtkTypeMacro(vtkBSPCuts, vtkDataObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  //   Initialize the cuts with arrays of information.  This type of
-  //   information would be obtained from a graph partitioning software
-  //   package like Zoltan.
-  //
-  //   bounds - the bounds (xmin, xmax, ymin, ymax, zmin, zmax) of the
-  //             space being partitioned
-  //   ncuts - the number cuts, also the size of the following arrays
-  //   dim   - the dimension along which the cut is made (x/y/z - 0/1/2)
-  //   coord - the location of the cut along the axis
-  //   lower - array index for the lower region bounded by the cut
-  //   upper - array index for the upper region bounded by the cut
-  //   lowerDataCoord - optional upper bound of the data in the lower region
-  //   upperDataCoord - optional lower bound of the data in the upper region
-  //   npoints - optional number of points in the spatial region
+  /**
+   * Initialize the cuts with arrays of information.  This type of
+   * information would be obtained from a graph partitioning software
+   * package like Zoltan.
+
+   * bounds - the bounds (xmin, xmax, ymin, ymax, zmin, zmax) of the
+   * space being partitioned
+   * ncuts - the number cuts, also the size of the following arrays
+   * dim   - the dimension along which the cut is made (x/y/z - 0/1/2)
+   * coord - the location of the cut along the axis
+   * lower - array index for the lower region bounded by the cut
+   * upper - array index for the upper region bounded by the cut
+   * lowerDataCoord - optional upper bound of the data in the lower region
+   * upperDataCoord - optional lower bound of the data in the upper region
+   * npoints - optional number of points in the spatial region
+   */
 
   void CreateCuts(double *bounds,
                   int ncuts, int *dim, double *coord,
@@ -67,56 +71,68 @@ public:
                   double *lowerDataCoord, double *upperDataCoord,
                   int *npoints);
 
-  // Description:
-  //   Initialize the cuts from a tree of vtkKdNode's
+  /**
+   * Initialize the cuts from a tree of vtkKdNode's
+   */
 
   void CreateCuts(vtkKdNode *kd);
 
-  // Description:
-  //   Return a tree of vtkKdNode's representing the cuts specified
-  //   in this object.  This is our copy, don't delete it.
+  /**
+   * Return a tree of vtkKdNode's representing the cuts specified
+   * in this object.  This is our copy, don't delete it.
+   */
 
   vtkKdNode *GetKdNodeTree(){return this->Top;}
 
-  // Description:
-  //   Get the number of cuts in the partitioning, which also the size of
-  //   the arrays in the array representation of the partitioning.
+  /**
+   * Get the number of cuts in the partitioning, which also the size of
+   * the arrays in the array representation of the partitioning.
+   */
 
   vtkGetMacro(NumberOfCuts, int);
 
-  // Description:
-  //   Get the arrays representing the cuts in the partitioning.
+  /**
+   * Get the arrays representing the cuts in the partitioning.
+   */
 
   int GetArrays(int len, int *dim, double *coord, int *lower, int *upper,
                 double *lowerDataCoord, double *upperDataCoord, int *npoints);
 
-  // Description:
-  // Compare these cuts with those of the other tree.  Returns true if
-  // the two trees are the same.
+  /**
+   * Compare these cuts with those of the other tree.  Returns true if
+   * the two trees are the same.
+   */
   int Equals(vtkBSPCuts *other, double tolerance = 0.0);
 
   void PrintTree();
   void PrintArrays();
 
-  // Description:
-  // Retrieve an instance of this class from an information object.
+  //@{
+  /**
+   * Retrieve an instance of this class from an information object.
+   */
   static vtkBSPCuts* GetData(vtkInformation* info);
   static vtkBSPCuts* GetData(vtkInformationVector* v, int i=0);
+  //@}
 
-  // Description:
-  // Restore data object to initial state,
-  virtual void Initialize();
+  /**
+   * Restore data object to initial state,
+   */
+  void Initialize() VTK_OVERRIDE;
 
-  // Description:
-  // Shallow copy.  These copy the data, but not any of the
-  // pipeline connections.
-  virtual void ShallowCopy(vtkDataObject *src);
-  virtual void DeepCopy(vtkDataObject *src);
+  //@{
+  /**
+   * Shallow copy.  These copy the data, but not any of the
+   * pipeline connections.
+   */
+  void ShallowCopy(vtkDataObject *src) VTK_OVERRIDE;
+  void DeepCopy(vtkDataObject *src) VTK_OVERRIDE;
+  //@}
 
 protected:
 
   vtkBSPCuts();
-  ~vtkBSPCuts();
+  ~vtkBSPCuts() VTK_OVERRIDE;
 
   static void DeleteAllDescendants(vtkKdNode *kd);
 
@@ -148,8 +164,8 @@ protected:
 
   double Bounds[6];
 
-  vtkBSPCuts(const vtkBSPCuts&); // Not implemented
-  void operator=(const vtkBSPCuts&); // Not implemented
+  vtkBSPCuts(const vtkBSPCuts&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBSPCuts&) VTK_DELETE_FUNCTION;
 };
 
 #endif

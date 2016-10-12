@@ -35,24 +35,24 @@ LSDynaMetaData::LSDynaMetaData()
   std::vector<std::string> blankNames;
   std::vector<int> blankNumbers;
   for ( int cellType = 0; cellType < LSDynaMetaData::NUM_CELL_TYPES; ++cellType )
-    {
+  {
     this->NumberOfCells[cellType] = 0;
     this->CellArrayNames[cellType] = blankNames;
     this->CellArrayComponents[cellType] = blankNumbers;
     this->CellArrayStatus[cellType] = blankNumbers;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 bool LSDynaMetaData::AddPointArray( std::string name, int numComponents, int status )
 {
   for ( unsigned i = 0; i < this->PointArrayNames.size(); ++i )
-    {
+  {
     if ( this->PointArrayNames[i] == name )
-      {
+    {
       return false;
-      }
     }
+  }
   this->PointArrayNames.push_back( name );
   this->PointArrayComponents.push_back( numComponents );
   this->PointArrayStatus.push_back( status );
@@ -62,20 +62,20 @@ bool LSDynaMetaData::AddPointArray( std::string name, int numComponents, int sta
 
 //-----------------------------------------------------------------------------
   bool LSDynaMetaData::AddCellArray( int cellType, std::string name, int numComponents, int status )
-{
+  {
   for ( unsigned i = 0; i < this->CellArrayNames[cellType].size(); ++i )
-    {
+  {
     if ( this->CellArrayNames[cellType][i] == name )
-      {
+    {
       return false;
-      }
     }
+  }
   this->CellArrayNames[cellType].push_back( name );
   this->CellArrayComponents[cellType].push_back( numComponents );
   this->CellArrayStatus[cellType].push_back( status );
 
   return true;
-}
+  }
 
 //-----------------------------------------------------------------------------
 int LSDynaMetaData::GetTotalMaterialCount()
@@ -109,11 +109,11 @@ void LSDynaMetaData::Reset()
   this->PointArrayStatus.clear();
 
   for ( int cellType = 0; cellType < LSDynaMetaData::NUM_CELL_TYPES; ++cellType )
-    {
+  {
     this->CellArrayNames[cellType].clear();
     this->CellArrayComponents[cellType].clear();
     this->CellArrayStatus[cellType].clear();
-    }
+  }
 
   this->PartNames.clear();
   this->PartIds.clear();

@@ -53,36 +53,36 @@ void vtkRendererNode::PrintSelf(ostream& os, vtkIndent indent)
 void vtkRendererNode::Synchronize(bool prepass)
 {
   if (prepass)
-    {
+  {
     vtkRenderer *mine = vtkRenderer::SafeDownCast
       (this->GetRenderable());
     if (!mine)
-      {
+    {
       return;
-      }
+    }
     int *tmp = mine->GetSize();
     this->Size[0] = tmp[0];
     this->Size[1] = tmp[1];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkRendererNode::Build(bool prepass)
 {
   if (prepass)
-    {
+  {
     vtkRenderer *mine = vtkRenderer::SafeDownCast
       (this->GetRenderable());
     if (!mine)
-      {
+    {
       return;
-      }
+    }
 
     this->PrepareNodes();
     this->AddMissingNodes(mine->GetLights());
     this->AddMissingNodes(mine->GetActors());
-    //this->AddMissingNodes(mine->GetVolumes());
+    this->AddMissingNodes(mine->GetVolumes());
     this->AddMissingNode(mine->GetActiveCamera());
     this->RemoveUnusedNodes();
-    }
+  }
 }

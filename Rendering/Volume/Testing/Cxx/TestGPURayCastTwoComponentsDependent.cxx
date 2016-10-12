@@ -773,17 +773,17 @@ int TestGPURayCastTwoComponentsDependent(int argc, char *argv[])
 
 
   for (int z = 0; z < dims[2]; ++z)
-    {
+  {
     for (int y = 0; y < dims[1]; ++y)
-      {
+    {
       for (int x = 0; x < dims[0]; ++x)
-        {
+      {
         double itr = floor(x / 5.0);
         *ptr++ = itr;
         *ptr++ = itr / 5.0;
-        }
       }
     }
+  }
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(301, 300); // Intentional NPOT size

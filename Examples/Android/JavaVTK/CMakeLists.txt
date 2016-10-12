@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.7)
 project(JavaVTK)
 
 if (CMAKE_BINARY_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
@@ -12,7 +12,7 @@ find_package(VTK COMPONENTS
 )
 include(${VTK_USE_FILE})
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/libs/${ANDROID_NDK_ABI_NAME})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/libs/${CMAKE_ANDROID_ARCH_ABI})
 message(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 add_subdirectory(jni)
 
@@ -39,7 +39,7 @@ add_custom_target(JavaVTK-ant-configure ALL
           update project
           --name JavaVTK
           --path "${CMAKE_CURRENT_SOURCE_DIR}"
-          --target "android-${ANDROID_NATIVE_API_LEVEL}"
+          --target "android-${CMAKE_SYSTEM_VERSION}"
   COMMAND "${CMAKE_COMMAND}" -E copy_if_different
           "${CMAKE_CURRENT_SOURCE_DIR}/build.xml"
           "${CMAKE_CURRENT_BINARY_DIR}/build.xml"

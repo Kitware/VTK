@@ -63,7 +63,7 @@ void vtkROIStencilSource::PrintSelf(ostream& os, vtkIndent indent)
 const char *vtkROIStencilSource::GetShapeAsString()
 {
   switch (this->Shape)
-    {
+  {
     case vtkROIStencilSource::BOX:
       return "Box";
     case vtkROIStencilSource::ELLIPSOID:
@@ -74,7 +74,7 @@ const char *vtkROIStencilSource::GetShapeAsString()
       return "CylinderY";
     case vtkROIStencilSource::CYLINDERZ:
       return "CylinderZ";
-    }
+  }
   return "";
 }
 
@@ -96,14 +96,14 @@ static void vtkROIStencilSourceSubExtent(
   self->GetBounds(bounds);
 
   for (int i = 0; i < 3; i++)
-    {
+  {
     icenter[i] = (0.5*(bounds[2*i] + bounds[2*i+1]) - origin[i])/spacing[i];
     iradius[i] = 0.5*(bounds[2*i+1] - bounds[2*i])/spacing[i];
 
     if (iradius[i] < 0)
-      {
+    {
       iradius[i] = -iradius[i];
-      }
+    }
     iradius[i] += VTK_STENCIL_TOL;
 
     double emin = icenter[i] - iradius[i];
@@ -113,23 +113,23 @@ static void vtkROIStencilSourceSubExtent(
     subextent[2*i+1] = extent[2*i+1];
 
     if (extent[2*i] < emin)
-      {
+    {
       subextent[2*i] = VTK_INT_MAX;
       if (extent[2*i+1] >= emin)
-        {
-        subextent[2*i] = vtkMath::Floor(emin) + 1;
-        }
-      }
-
-    if (extent[2*i+1] > emax)
       {
-      subextent[2*i+1] = VTK_INT_MIN;
-      if (extent[2*i] <= emax)
-        {
-        subextent[2*i+1] = vtkMath::Floor(emax);
-        }
+        subextent[2*i] = vtkMath::Floor(emin) + 1;
       }
     }
+
+    if (extent[2*i+1] > emax)
+    {
+      subextent[2*i+1] = VTK_INT_MIN;
+      if (extent[2*i] <= emax)
+      {
+        subextent[2*i+1] = vtkMath::Floor(emax);
+      }
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -152,24 +152,24 @@ static int vtkROIStencilSourceBox(
   target++;
 
   for (int idZ = subextent[4]; idZ <= subextent[5]; idZ++)
-    {
+  {
     for (int idY = subextent[2]; idY <= subextent[3]; idY++)
-      {
+    {
       if (count%target == 0)
-        {
+      {
         self->UpdateProgress(count/(50.0*target));
-        }
+      }
       count++;
 
       int r1 = subextent[0];
       int r2 = subextent[1];
 
       if (r2 >= r1)
-        {
+      {
         data->InsertNextExtent(r1, r2, idY, idZ);
-        }
-      } // for idY
-    } // for idZ
+      }
+    } // for idY
+  } // for idZ
 
   return 1;
 }
@@ -194,23 +194,23 @@ static int vtkROIStencilSourceEllipsoid(
   target++;
 
   for (int idZ = subextent[4]; idZ <= subextent[5]; idZ++)
-    {
+  {
     double z = (idZ - icenter[2])/iradius[2];
 
     for (int idY = subextent[2]; idY <= subextent[3]; idY++)
-      {
+    {
       if (count%target == 0)
-        {
+      {
         self->UpdateProgress(count/(50.0*target));
-        }
+      }
       count++;
 
       double y = (idY - icenter[1])/iradius[1];
       double x2 = 1.0 - y*y - z*z;
       if (x2 < 0)
-        {
+      {
         continue;
-        }
+      }
       double x = sqrt(x2);
 
       int r1 = subextent[0];
@@ -219,20 +219,20 @@ static int vtkROIStencilSourceEllipsoid(
       double xmax = icenter[0] + x*iradius[0];
 
       if (r1 < xmin)
-        {
+      {
         r1 = vtkMath::Floor(xmin) + 1;
-        }
+      }
       if (r2 > xmax)
-        {
+      {
         r2 = vtkMath::Floor(xmax);
-        }
+      }
 
       if (r2 >= r1)
-        {
+      {
         data->InsertNextExtent(r1, r2, idY, idZ);
-        }
-      } // for idY
-    } // for idZ
+      }
+    } // for idY
+  } // for idZ
 
   return 1;
 }
@@ -257,32 +257,32 @@ static int vtkROIStencilSourceCylinderX(
   target++;
 
   for (int idZ = subextent[4]; idZ <= subextent[5]; idZ++)
-    {
+  {
     double z = (idZ - icenter[2])/iradius[2];
 
     for (int idY = subextent[2]; idY <= subextent[3]; idY++)
-      {
+    {
       if (count%target == 0)
-        {
+      {
         self->UpdateProgress(count/(50.0*target));
-        }
+      }
       count++;
 
       double y = (idY - icenter[1])/iradius[1];
       if (y*y + z*z > 1.0)
-        {
+      {
         continue;
-        }
+      }
 
       int r1 = subextent[0];
       int r2 = subextent[1];
 
       if (r2 >= r1)
-        {
+      {
         data->InsertNextExtent(r1, r2, idY, idZ);
-        }
-      } // for idY
-    } // for idZ
+      }
+    } // for idY
+  } // for idZ
 
   return 1;
 }
@@ -307,22 +307,22 @@ static int vtkROIStencilSourceCylinderY(
   target++;
 
   for (int idZ = subextent[4]; idZ <= subextent[5]; idZ++)
-    {
+  {
     double z = (idZ - icenter[2])/iradius[2];
 
     for (int idY = subextent[2]; idY <= subextent[3]; idY++)
-      {
+    {
       if (count%target == 0)
-        {
+      {
         self->UpdateProgress(count/(50.0*target));
-        }
+      }
       count++;
 
       double x2 = 1.0 - z*z;
       if (x2 < 0)
-        {
+      {
         continue;
-        }
+      }
       double x = sqrt(x2);
 
       int r1 = subextent[0];
@@ -331,20 +331,20 @@ static int vtkROIStencilSourceCylinderY(
       double xmax = icenter[0] + x*iradius[0];
 
       if (r1 < xmin)
-        {
+      {
         r1 = vtkMath::Floor(xmin) + 1;
-        }
+      }
       if (r2 > xmax)
-        {
+      {
         r2 = vtkMath::Floor(xmax);
-        }
+      }
 
       if (r2 >= r1)
-        {
+      {
         data->InsertNextExtent(r1, r2, idY, idZ);
-        }
-      } // for idY
-    } // for idZ
+      }
+    } // for idY
+  } // for idZ
 
   return 1;
 }
@@ -369,21 +369,21 @@ static int vtkROIStencilSourceCylinderZ(
   target++;
 
   for (int idZ = subextent[4]; idZ <= subextent[5]; idZ++)
-    {
+  {
     for (int idY = subextent[2]; idY <= subextent[3]; idY++)
-      {
+    {
       if (count%target == 0)
-        {
+      {
         self->UpdateProgress(count/(50.0*target));
-        }
+      }
       count++;
 
       double y = (idY - icenter[1])/iradius[1];
       double x2 = 1.0 - y*y;
       if (x2 < 0)
-        {
+      {
         continue;
-        }
+      }
       double x = sqrt(x2);
 
       int r1 = subextent[0];
@@ -392,20 +392,20 @@ static int vtkROIStencilSourceCylinderZ(
       double xmax = icenter[0] + x*iradius[0];
 
       if (r1 < xmin)
-        {
+      {
         r1 = vtkMath::Floor(xmin) + 1;
-        }
+      }
       if (r2 > xmax)
-        {
+      {
         r2 = vtkMath::Floor(xmax);
-        }
+      }
 
       if (r2 >= r1)
-        {
+      {
         data->InsertNextExtent(r1, r2, idY, idZ);
-        }
-      } // for idY
-    } // for idZ
+      }
+    } // for idY
+  } // for idZ
 
   return 1;
 }
@@ -433,7 +433,7 @@ int vtkROIStencilSource::RequestData(
   outInfo->Get(vtkDataObject::SPACING(), spacing);
 
   switch (this->Shape)
-    {
+  {
     case vtkROIStencilSource::BOX:
       result = vtkROIStencilSourceBox(
         this, data, extent, origin, spacing);
@@ -454,7 +454,7 @@ int vtkROIStencilSource::RequestData(
       result = vtkROIStencilSourceCylinderZ(
         this, data, extent, origin, spacing);
       break;
-    }
+  }
 
   return result;
 }

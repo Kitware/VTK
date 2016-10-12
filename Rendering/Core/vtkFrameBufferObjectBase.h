@@ -12,9 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkFrameBufferObjectBase - abstract interface to OpenGL FBOs
-// .SECTION Description
-// API for classes that encapsulate an OpenGL Frame Buffer Object.
+/**
+ * @class   vtkFrameBufferObjectBase
+ * @brief   abstract interface to OpenGL FBOs
+ *
+ * API for classes that encapsulate an OpenGL Frame Buffer Object.
+*/
 
 #ifndef vtkFrameBufferObjectBase_h
 #define vtkFrameBufferObjectBase_h
@@ -32,17 +35,22 @@ class VTKRENDERINGCORE_EXPORT vtkFrameBufferObjectBase : public vtkObject
   vtkTypeMacro(vtkFrameBufferObjectBase, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  //@{
+  /**
+   * Dimensions in pixels of the framebuffer.
+   */
   virtual int *GetLastSize() = 0;
   virtual void GetLastSize (int &_arg1, int &_arg2) = 0;
   virtual void GetLastSize (int _arg[2]) = 0;
+  //@}
 
 protected:
   vtkFrameBufferObjectBase(); // no default constructor.
   ~vtkFrameBufferObjectBase();
 
 private:
-  vtkFrameBufferObjectBase(const vtkFrameBufferObjectBase &);  // Not implemented.
-  void operator=(const vtkFrameBufferObjectBase &);  // Not implemented.
+  vtkFrameBufferObjectBase(const vtkFrameBufferObjectBase &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFrameBufferObjectBase &) VTK_DELETE_FUNCTION;
 };
 
 #endif

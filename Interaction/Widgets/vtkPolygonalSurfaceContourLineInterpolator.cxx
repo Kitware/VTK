@@ -63,9 +63,9 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
   vtkPolygonalSurfacePointPlacer *placer =
     vtkPolygonalSurfacePointPlacer::SafeDownCast(rep->GetPointPlacer());
   if (!placer)
-    {
+  {
     return 1;
-    }
+  }
 
   double p1[3], p2[3], p[3];
   rep->GetNthNodeWorldPosition( idx1, p1 );
@@ -75,64 +75,64 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
   NodeType *nodeBegin = placer->GetNodeAtWorldPosition(p1);
   NodeType *nodeEnd   = placer->GetNodeAtWorldPosition(p2);
   if (nodeBegin->PolyData != nodeEnd->PolyData)
-    {
+  {
     return 1;
-    }
+  }
 
   // Find the starting and ending point id's
   vtkIdType beginVertId = -1, endVertId = -1;
   double minDistance;
   if (nodeBegin->CellId == -1)
-    {
+  {
     // If no cell is specified, use the pointid instead
     beginVertId = nodeBegin->PointId;
-    }
+  }
   else
-    {
+  {
     vtkCell *cellBegin = nodeBegin->PolyData->GetCell(nodeBegin->CellId);
     vtkPoints *cellBeginPoints = cellBegin->GetPoints();
 
     minDistance = VTK_DOUBLE_MAX;
     for (int i = 0; i < cellBegin->GetNumberOfPoints(); i++)
-      {
+    {
       cellBeginPoints->GetPoint(i, p);
       double distance = vtkMath::Distance2BetweenPoints( p, p1 );
       if (distance < minDistance)
-        {
+      {
         beginVertId = cellBegin->GetPointId(i);
         minDistance = distance;
-        }
       }
     }
+  }
 
     if (nodeEnd->CellId == -1)
-      {
+    {
       // If no cell is specified, use the pointid instead
       endVertId = nodeEnd->PointId;
-      }
+    }
     else
-      {
+    {
       vtkCell *cellEnd   = nodeEnd->PolyData->GetCell(nodeEnd->CellId);
       vtkPoints *cellEndPoints   = cellEnd->GetPoints();
 
       minDistance = VTK_DOUBLE_MAX;
       for (int i = 0; i < cellEnd->GetNumberOfPoints(); i++)
-        {
+      {
         cellEndPoints->GetPoint(i, p);
         double distance = vtkMath::Distance2BetweenPoints( p, p2 );
         if (distance < minDistance)
-          {
+        {
           endVertId = cellEnd->GetPointId(i);
           minDistance = distance;
-          }
         }
       }
+    }
 
   if (beginVertId == -1 || endVertId == -1)
-    {
+  {
     // Could not find the starting and ending cells. We can't interpolate.
     return 0;
-    }
+  }
 
 
   // Now compute the shortest path through the surface mesh along its
@@ -157,12 +157,12 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
   double vertexNormal[3];
   vtkDataArray *vertexNormals = NULL;
   if (this->DistanceOffset != 0.0)
-    {
+  {
     vertexNormals = nodeBegin->PolyData->GetPointData()->GetNormals();
-    }
+  }
 
   for (int n = 0; n < npts; n++)
-    {
+  {
     pd->GetPoint( pts[n], p );
 
     // This is the id of the point on the polygonal surface.
@@ -171,17 +171,17 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
     // Offset the point in the direction of the normal, if a distance
     // offset is specified.
     if (vertexNormals)
-      {
+    {
       vertexNormals->GetTuple( ptId, vertexNormal );
       p[0] += vertexNormal[0] * this->DistanceOffset;
       p[1] += vertexNormal[1] * this->DistanceOffset;
       p[2] += vertexNormal[2] * this->DistanceOffset;
-      }
+    }
 
     // Add this point as an intermediate node of the contour. Store tehe
     // ptId if necessary.
     rep->AddIntermediatePointWorldPosition( idx1, p, ptId );
-    }
+  }
 
   this->LastInterpolatedVertexIds[0] = beginVertId;
   this->LastInterpolatedVertexIds[1] = endVertId;
@@ -203,10 +203,10 @@ void vtkPolygonalSurfaceContourLineInterpolator
 
   vtkIdType nPoints = 0;
   for (int i = 0; i < nNodes; i++)
-    {
+  {
     // 1 for the node and then the number of points.
     nPoints += (rep->GetNthNode(i)->Points.size() + 1);
-    }
+  }
 
   ids->SetNumberOfIds(nPoints);
 
@@ -214,16 +214,16 @@ void vtkPolygonalSurfaceContourLineInterpolator
 
   int idx = 0;
   for (int i = 0; i < nNodes; i++)
-    {
+  {
     vtkContourRepresentationNode *node = rep->GetNthNode(i);
     ids->SetId(idx++, node->PointId);
     const int nIntermediatePts = static_cast< int >(node->Points.size());
 
     for (int j = 0; j < nIntermediatePts; j++)
-      {
+    {
       ids->SetId(idx++, node->Points[j]->PointId);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------

@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPPolyDataReader - Read PVTK XML PolyData files.
-// .SECTION Description
-// vtkXMLPPolyDataReader reads the PVTK XML PolyData file format.
-// This reads the parallel format's summary file and then uses
-// vtkXMLPolyDataReader to read data from the individual PolyData
-// piece files.  Streaming is supported.  The standard extension for
-// this reader's file format is "pvtp".
-
-// .SECTION See Also
-// vtkXMLPolyDataReader
+/**
+ * @class   vtkXMLPPolyDataReader
+ * @brief   Read PVTK XML PolyData files.
+ *
+ * vtkXMLPPolyDataReader reads the PVTK XML PolyData file format.
+ * This reads the parallel format's summary file and then uses
+ * vtkXMLPolyDataReader to read data from the individual PolyData
+ * piece files.  Streaming is supported.  The standard extension for
+ * this reader's file format is "pvtp".
+ *
+ * @sa
+ * vtkXMLPolyDataReader
+*/
 
 #ifndef vtkXMLPPolyDataReader_h
 #define vtkXMLPPolyDataReader_h
@@ -38,10 +41,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLPPolyDataReader *New();
 
-  // Description:
-  // Get the reader's output.
+  //@{
+  /**
+   * Get the reader's output.
+   */
   vtkPolyData *GetOutput();
   vtkPolyData *GetOutput(int idx);
+  //@}
 
 protected:
   vtkXMLPPolyDataReader();
@@ -75,8 +81,8 @@ protected:
   vtkIdType StartPoly;
 
 private:
-  vtkXMLPPolyDataReader(const vtkXMLPPolyDataReader&);  // Not implemented.
-  void operator=(const vtkXMLPPolyDataReader&);  // Not implemented.
+  vtkXMLPPolyDataReader(const vtkXMLPPolyDataReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLPPolyDataReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -39,13 +39,13 @@ vtkInformationIterator::vtkInformationIterator()
 vtkInformationIterator::~vtkInformationIterator()
 {
   if (this->ReferenceIsWeak)
-    {
+  {
     this->Information = 0;
-    }
+  }
   if (this->Information)
-    {
+  {
     this->Information->Delete();
-    }
+  }
   delete this->Internal;
 }
 
@@ -53,9 +53,9 @@ vtkInformationIterator::~vtkInformationIterator()
 void vtkInformationIterator::SetInformation(vtkInformation* inf)
 {
   if (this->ReferenceIsWeak)
-    {
+  {
     this->Information = 0;
-    }
+  }
   this->ReferenceIsWeak = false;
   vtkSetObjectBodyMacro(Information, vtkInformation, inf);
 }
@@ -64,17 +64,17 @@ void vtkInformationIterator::SetInformation(vtkInformation* inf)
 void vtkInformationIterator::SetInformationWeak(vtkInformation* inf)
 {
   if (!this->ReferenceIsWeak)
-    {
+  {
     this->SetInformation(0);
-    }
+  }
 
   this->ReferenceIsWeak = true;
 
   if (this->Information != inf)
-    {
+  {
     this->Information = inf;
     this->Modified();
-    }
+  }
 
 }
 
@@ -82,10 +82,10 @@ void vtkInformationIterator::SetInformationWeak(vtkInformation* inf)
 void vtkInformationIterator::GoToFirstItem()
 {
   if (!this->Information)
-    {
+  {
     vtkErrorMacro("No information has been set.");
     return;
-    }
+  }
   this->Internal->Iterator = this->Information->Internal->Map.begin();
 }
 
@@ -93,10 +93,10 @@ void vtkInformationIterator::GoToFirstItem()
 void vtkInformationIterator::GoToNextItem()
 {
   if (!this->Information)
-    {
+  {
     vtkErrorMacro("No information has been set.");
     return;
-    }
+  }
 
   ++this->Internal->Iterator;
 }
@@ -105,15 +105,15 @@ void vtkInformationIterator::GoToNextItem()
 int vtkInformationIterator::IsDoneWithTraversal()
 {
   if (!this->Information)
-    {
+  {
     vtkErrorMacro("No information has been set.");
     return 1;
-    }
+  }
 
   if(this->Internal->Iterator == this->Information->Internal->Map.end())
-    {
+  {
     return 1;
-    }
+  }
   return 0;
 }
 
@@ -121,9 +121,9 @@ int vtkInformationIterator::IsDoneWithTraversal()
 vtkInformationKey* vtkInformationIterator::GetCurrentKey()
 {
   if (this->IsDoneWithTraversal())
-    {
+  {
     return 0;
-    }
+  }
 
   return this->Internal->Iterator->first;
 }
@@ -135,13 +135,13 @@ void vtkInformationIterator::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Information: ";
   if (this->Information)
-    {
+  {
     os << endl;
     this->Information->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(none)" << endl;
-    }
+  }
 }
 

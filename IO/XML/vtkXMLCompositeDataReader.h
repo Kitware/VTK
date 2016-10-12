@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLCompositeDataReader - Reader for multi-group datasets
-// .SECTION Description
-// vtkXMLCompositeDataReader reads the VTK XML multi-group data file
-// format. XML multi-group data files are meta-files that point to a list
-// of serial VTK XML files. When reading in parallel, it will distribute
-// sub-blocks among processor. If the number of sub-blocks is less than
-// the number of processors, some processors will not have any sub-blocks
-// for that group. If the number of sub-blocks is larger than the
-// number of processors, each processor will possibly have more than
-// 1 sub-block.
+/**
+ * @class   vtkXMLCompositeDataReader
+ * @brief   Reader for multi-group datasets
+ *
+ * vtkXMLCompositeDataReader reads the VTK XML multi-group data file
+ * format. XML multi-group data files are meta-files that point to a list
+ * of serial VTK XML files. When reading in parallel, it will distribute
+ * sub-blocks among processor. If the number of sub-blocks is less than
+ * the number of processors, some processors will not have any sub-blocks
+ * for that group. If the number of sub-blocks is larger than the
+ * number of processors, each processor will possibly have more than
+ * 1 sub-block.
+*/
 
 #ifndef vtkXMLCompositeDataReader_h
 #define vtkXMLCompositeDataReader_h
@@ -41,10 +44,13 @@ public:
   vtkTypeMacro(vtkXMLCompositeDataReader,vtkXMLReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the output data object for a port on this algorithm.
+  //@{
+  /**
+   * Get the output data object for a port on this algorithm.
+   */
   vtkCompositeDataSet* GetOutput();
   vtkCompositeDataSet* GetOutput(int);
+  //@}
 
 protected:
   vtkXMLCompositeDataReader();
@@ -92,14 +98,15 @@ protected:
   // Counts "DataSet" elements in the subtree.
   unsigned int CountLeaves(vtkXMLDataElement* elem);
 
-  // Description:
-  // Given the inorder index for a leaf node, this method tells if the current
-  // process should read the dataset.
+  /**
+   * Given the inorder index for a leaf node, this method tells if the current
+   * process should read the dataset.
+   */
   int ShouldReadDataSet(unsigned int datasetIndex);
 
 private:
-  vtkXMLCompositeDataReader(const vtkXMLCompositeDataReader&);  // Not implemented.
-  void operator=(const vtkXMLCompositeDataReader&);  // Not implemented.
+  vtkXMLCompositeDataReader(const vtkXMLCompositeDataReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLCompositeDataReader&) VTK_DELETE_FUNCTION;
 
   vtkXMLCompositeDataReaderInternals* Internal;
 };

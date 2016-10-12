@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPImageWriter - Writes images to files.
-// .SECTION Description
-// vtkPImageWriter writes images to files with any data type. The data type of
-// the file is the same scalar type as the input.  The dimensionality
-// determines whether the data will be written in one or multiple files.
-// This class is used as the superclass of most image writing classes
-// such as vtkBMPWriter etc. It supports streaming.
+/**
+ * @class   vtkPImageWriter
+ * @brief   Writes images to files.
+ *
+ * vtkPImageWriter writes images to files with any data type. The data type of
+ * the file is the same scalar type as the input.  The dimensionality
+ * determines whether the data will be written in one or multiple files.
+ * This class is used as the superclass of most image writing classes
+ * such as vtkBMPWriter etc. It supports streaming.
+*/
 
 #ifndef vtkPImageWriter_h
 #define vtkPImageWriter_h
@@ -34,11 +37,14 @@ public:
   vtkTypeMacro(vtkPImageWriter,vtkImageWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set / Get the memory limit in kibibytes (1024 bytes). The writer will
-  // stream to attempt to keep the pipeline size within this limit
+  //@{
+  /**
+   * Set / Get the memory limit in kibibytes (1024 bytes). The writer will
+   * stream to attempt to keep the pipeline size within this limit
+   */
   vtkSetMacro(MemoryLimit, unsigned long);
   vtkGetMacro(MemoryLimit, unsigned long);
+  //@}
 
 protected:
   vtkPImageWriter();
@@ -53,8 +59,8 @@ protected:
 
   vtkPipelineSize *SizeEstimator;
 private:
-  vtkPImageWriter(const vtkPImageWriter&);  // Not implemented.
-  void operator=(const vtkPImageWriter&);  // Not implemented.
+  vtkPImageWriter(const vtkPImageWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPImageWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPropPicker - pick an actor/prop using graphics hardware
-// .SECTION Description
-// vtkPropPicker is used to pick an actor/prop given a selection
-// point (in display coordinates) and a renderer. This class uses
-// graphics hardware/rendering system to pick rapidly (as compared
-// to using ray casting as does vtkCellPicker and vtkPointPicker).
-// This class determines the actor/prop and pick position in world
-// coordinates; point and cell ids are not determined.
-
-// .SECTION See Also
-// vtkPicker vtkWorldPointPicker vtkCellPicker vtkPointPicker
+/**
+ * @class   vtkPropPicker
+ * @brief   pick an actor/prop using graphics hardware
+ *
+ * vtkPropPicker is used to pick an actor/prop given a selection
+ * point (in display coordinates) and a renderer. This class uses
+ * graphics hardware/rendering system to pick rapidly (as compared
+ * to using ray casting as does vtkCellPicker and vtkPointPicker).
+ * This class determines the actor/prop and pick position in world
+ * coordinates; point and cell ids are not determined.
+ *
+ * @sa
+ * vtkPicker vtkWorldPointPicker vtkCellPicker vtkPointPicker
+*/
 
 #ifndef vtkPropPicker_h
 #define vtkPropPicker_h
@@ -41,21 +44,24 @@ public:
   vtkTypeMacro(vtkPropPicker, vtkAbstractPropPicker);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Perform the pick and set the PickedProp ivar. If something is picked, a
-  // 1 is returned, otherwise 0 is returned.  Use the GetViewProp() method
-  // to get the instance of vtkProp that was picked.  Props are picked from
-  // the renderers list of pickable Props.
+  /**
+   * Perform the pick and set the PickedProp ivar. If something is picked, a
+   * 1 is returned, otherwise 0 is returned.  Use the GetViewProp() method
+   * to get the instance of vtkProp that was picked.  Props are picked from
+   * the renderers list of pickable Props.
+   */
   int PickProp(double selectionX, double selectionY, vtkRenderer *renderer);
 
-  // Description:
-  // Perform a pick from the user-provided list of vtkProps and not from the
-  // list of vtkProps that the render maintains.
+  /**
+   * Perform a pick from the user-provided list of vtkProps and not from the
+   * list of vtkProps that the render maintains.
+   */
   int PickProp(double selectionX, double selectionY, vtkRenderer *renderer,
                vtkPropCollection* pickfrom);
 
-  // Description:
-  // Overide superclasses' Pick() method.
+  /**
+   * Overide superclasses' Pick() method.
+   */
   int Pick(double selectionX, double selectionY, double selectionZ,
            vtkRenderer *renderer);
   int Pick(double selectionPt[3], vtkRenderer *renderer)
@@ -73,8 +79,8 @@ protected:
   // Used to get x-y-z pick position
   vtkWorldPointPicker *WorldPointPicker;
 private:
-  vtkPropPicker(const vtkPropPicker&);  // Not implemented.
-  void operator=(const vtkPropPicker&);  // Not implemented.
+  vtkPropPicker(const vtkPropPicker&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPropPicker&) VTK_DELETE_FUNCTION;
 };
 
 #endif

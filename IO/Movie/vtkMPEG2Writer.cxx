@@ -91,9 +91,9 @@ vtkMPEG2WriterInternal::~vtkMPEG2WriterInternal()
 int vtkMPEG2WriterInternal::StoreImage(const char* name, vtkImageData* iid)
 {
   if ( !name )
-    {
+  {
     return 0;
-    }
+  }
 
   // We need to flip the image vertically
 
@@ -103,15 +103,15 @@ int vtkMPEG2WriterInternal::StoreImage(const char* name, vtkImageData* iid)
 
   vtkInformation *pipelineInfo = id->GetPipelineInformation();
   if (pipelineInfo)
-    {
+  {
     vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(
       pipelineInfo, vtkDataObject::FIELD_ASSOCIATION_POINTS,
       vtkDataSetAttributes::SCALARS);
     if (scalarInfo)
-      {
+    {
       scalarInfo->Set(vtkDataObject::FIELD_ARRAY_TYPE(), iid->GetScalarType());
-      }
     }
+  }
 
   int dims[3];
   id->GetDimensions(dims);
@@ -128,11 +128,11 @@ int vtkMPEG2WriterInternal::StoreImage(const char* name, vtkImageData* iid)
   // We assume there is only one slice
 
   for (int j = 0; j < dims[1]; j++)
-    {
+  {
     memcpy(dest_ptr, src_ptr, row_length);
     dest_ptr += row_length;
     src_ptr -= row_length;
-    }
+  }
 
   this->ImagesMap[name] = id;
   id->Delete();
@@ -144,15 +144,15 @@ int vtkMPEG2WriterInternal::StoreImage(const char* name, vtkImageData* iid)
 unsigned char* vtkMPEG2WriterInternal::GetImagePtr(const char* fname)
 {
   if ( !fname )
-    {
+  {
     return 0;
-    }
+  }
   vtkMPEG2WriterInternal::StringToImageMap::iterator it
     = this->ImagesMap.find(fname);
   if ( it == this->ImagesMap.end() )
-    {
+  {
     return 0;
-    }
+  }
   vtkImageData* id = it->second.GetPointer();
   return static_cast<unsigned char*>(id->GetScalarPointer());
 }
@@ -161,15 +161,15 @@ unsigned char* vtkMPEG2WriterInternal::GetImagePtr(const char* fname)
 int vtkMPEG2WriterInternal::RemoveImage(const char* fname)
 {
   if ( !fname )
-    {
+  {
     return 0;
-    }
+  }
   vtkMPEG2WriterInternal::StringToImageMap::iterator it
     = this->ImagesMap.find(fname);
   if ( it == this->ImagesMap.end() )
-    {
+  {
     return 0;
-    }
+  }
   this->ImagesMap.erase(it);
   return 0;
 }
@@ -200,23 +200,23 @@ void vtkMPEG2Writer::Start()
   this->Error = 1;
 
   if ( this->Internals )
-    {
+  {
     vtkErrorMacro("Movie already started");
     this->SetErrorCode(vtkGenericMovieWriter::InitError);
     return;
-    }
+  }
   if ( this->GetInput() == NULL )
-    {
+  {
     vtkErrorMacro(<<"Write:Please specify an input!");
     this->SetErrorCode(vtkGenericMovieWriter::NoInputError);
     return;
-    }
+  }
   if (!this->FileName)
-    {
+  {
     vtkErrorMacro(<<"Write:Please specify a FileName");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return;
-    }
+  }
 
   this->Internals = new vtkMPEG2WriterInternal;
 
@@ -231,12 +231,12 @@ void vtkMPEG2Writer::Start()
 void vtkMPEG2Writer::Write()
 {
   if ( !this->Internals )
-    {
+  {
     vtkErrorMacro("Movie not started");
     this->Error = 1;
     this->SetErrorCode(vtkGenericMovieWriter::InitError);
     return;
-    }
+  }
 
   // get the data
   vtkImageData* input = this->GetImageDataInput(0);
@@ -245,22 +245,22 @@ void vtkMPEG2Writer::Write()
   int dim[4];
   input->GetDimensions(dim);
   if ( this->Internals->Dim[0] == 0 && this->Internals->Dim[1] == 0 )
-    {
+  {
     this->Internals->Dim[0] = dim[0];
     this->Internals->Dim[1] = dim[1];
-    }
+  }
 
   if ( this->Internals->Dim[0] != dim[0] || this->Internals->Dim[1] != dim[1] )
-    {
+  {
     vtkErrorMacro("Image not of the same size");
     this->SetErrorCode(vtkGenericMovieWriter::ChangedResolutionError);
     return;
-    }
+  }
 
   if ( !this->Initialized )
-    {
+  {
     this->Initialize();
-    }
+  }
 
 
   MPEG2_structure* str = this->Internals->GetMPEG2Structure();
@@ -270,11 +270,11 @@ void vtkMPEG2Writer::Write()
 
   int last = MPEG2_putseq_one(this->ActualWrittenTime, this->Time,str);
   if ( last >= 0 )
-    {
+  {
     sprintf(buffer, str->tplorg, last + str->frame0);
     this->Internals->RemoveImage(buffer);
     this->ActualWrittenTime ++;
-    }
+  }
   this->Time++;
 }
 
@@ -297,11 +297,11 @@ void vtkMPEG2Writer::Initialize()
 
   /* open output file */
   if (!(str->outfile=fopen(this->FileName,"wb")))
-    {
+  {
     sprintf(str->errortext,"Couldn't create output file %s",this->FileName);
     (*(str->report_error))(str->errortext);
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
-    }
+  }
 
   this->Internals->Init();
 
@@ -310,10 +310,10 @@ void vtkMPEG2Writer::Initialize()
   /* sequence header, sequence extension and sequence display extension */
   MPEG2_putseqhdr(str);
   if (!str->mpeg1)
-    {
+  {
     MPEG2_putseqext(str);
     MPEG2_putseqdispext(str);
-    }
+  }
 
   /* optionally output some text data (description, copyright or whatever) */
   if (strlen(str->id_string) > 1)
@@ -329,20 +329,20 @@ void vtkMPEG2Writer::End()
   MPEG2_structure* str = this->Internals->GetMPEG2Structure();
   int last;
   while ( (last = MPEG2_putseq_one(this->ActualWrittenTime, this->Time-1,str)) >= 0 )
-    {
+  {
     char buffer[1024];
     sprintf(buffer, str->tplorg, last + str->frame0);
     this->Internals->RemoveImage(buffer);
     this->ActualWrittenTime ++;
-    }
+  }
 
   MPEG2_putseqend(str);
 
   fclose(str->outfile);
   if ( str->statfile )
-    {
+  {
     fclose(str->statfile);
-    }
+  }
 
   delete this->Internals;
   this->Internals = 0;
@@ -381,18 +381,18 @@ void vtkMPEG2WriterInternal::Init()
 
   /* clip table */
   if (!(this->Structure->clp = (unsigned char *)malloc(1024)))
-    {
+  {
     (*(this->Structure->report_error))("malloc failed\n");
-    }
+  }
   this->Structure->clp+= 384;
 
   for (i=-384; i<640; i++)
-    {
+  {
     this->Structure->clp[i] = (i<0) ? 0 : ((i>255) ? 255 : i);
-    }
+  }
 
   for (i=0; i<3; i++)
-    {
+  {
     size = (i==0) ? this->Structure->width*this->Structure->height :
       this->Structure->chrom_width*this->Structure->chrom_height;
 
@@ -410,7 +410,7 @@ void vtkMPEG2WriterInternal::Init()
       (*(this->Structure->report_error))("malloc failed\n");
     if (!(this->Structure->predframe[i] = (unsigned char *)malloc(size)))
       (*(this->Structure->report_error))("malloc failed\n");
-    }
+  }
 
   this->Structure->mbinfo = (struct mbinfo *)malloc(this->Structure->mb_width*this->Structure->mb_height2*sizeof(struct mbinfo));
 
@@ -427,10 +427,10 @@ void vtkMPEG2WriterInternal::Init()
   if (this->Structure->statname[0]=='-')
     this->Structure->statfile = 0;
   else if (!(this->Structure->statfile = fopen(this->Structure->statname,"w")))
-    {
+  {
     sprintf(this->Structure->errortext,"Couldn't create statistics output file %s",this->Structure->statname);
     (*(this->Structure->report_error))(this->Structure->errortext);
-    }
+  }
 }
 
 void vtkMPEG2WriterInternal::ReadParmFile( )
@@ -857,58 +857,58 @@ void vtkMPEG2WriterInternal::ReadQuantMat()
   FILE *fd;
 
   if (this->Structure->iqname[0]=='-')
-    {
+  {
     /* use default intra matrix */
     this->Structure->load_iquant = 0;
     for (i=0; i<64; i++)
       this->Structure->intra_q[i] = MPEG2_default_intra_quantizer_matrix[i];
-    }
+  }
   else
-    {
+  {
     /* read customized intra matrix */
     this->Structure->load_iquant = 1;
     if (!(fd = fopen(this->Structure->iqname,"r")))
-      {
+    {
       sprintf(this->Structure->errortext,"Couldn't open quant matrix file %s",this->Structure->iqname);
       (*(this->Structure->report_error))(this->Structure->errortext);
-      }
+    }
 
     for (i=0; i<64; i++)
-      {
+    {
       fscanf(fd,"%d",&v);
       if (v<1 || v>255)
         (*(this->Structure->report_error))("invalid value in quant matrix");
       this->Structure->intra_q[i] = v;
-      }
-
-    fclose(fd);
     }
 
+    fclose(fd);
+  }
+
   if (this->Structure->niqname[0]=='-')
-    {
+  {
     /* use default non-intra matrix */
     this->Structure->load_niquant = 0;
     for (i=0; i<64; i++)
       this->Structure->inter_q[i] = 16;
-    }
+  }
   else
-    {
+  {
     /* read customized non-intra matrix */
     this->Structure->load_niquant = 1;
     if (!(fd = fopen(this->Structure->niqname,"r")))
-      {
+    {
       sprintf(this->Structure->errortext,"Couldn't open quant matrix file %s",this->Structure->niqname);
       (*(this->Structure->report_error))(this->Structure->errortext);
-      }
+    }
 
     for (i=0; i<64; i++)
-      {
+    {
       fscanf(fd,"%d",&v);
       if (v<1 || v>255)
         (*(this->Structure->report_error))("invalid value in quant matrix");
       this->Structure->inter_q[i] = v;
-      }
+    }
 
     fclose(fd);
-    }
+  }
 }

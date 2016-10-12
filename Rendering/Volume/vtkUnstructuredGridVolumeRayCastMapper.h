@@ -13,12 +13,15 @@
 
 =========================================================================*/
 
-// .NAME vtkUnstructuredGridVolumeRayCastMapper - A software mapper for unstructured volumes
-// .SECTION Description
-// This is a software ray caster for rendering volumes in vtkUnstructuredGrid.
-
-// .SECTION see also
-// vtkVolumeMapper
+/**
+ * @class   vtkUnstructuredGridVolumeRayCastMapper
+ * @brief   A software mapper for unstructured volumes
+ *
+ * This is a software ray caster for rendering volumes in vtkUnstructuredGrid.
+ *
+ * @sa
+ * vtkVolumeMapper
+*/
 
 #ifndef vtkUnstructuredGridVolumeRayCastMapper_h
 #define vtkUnstructuredGridVolumeRayCastMapper_h
@@ -44,68 +47,94 @@ public:
   vtkTypeMacro(vtkUnstructuredGridVolumeRayCastMapper,vtkUnstructuredGridVolumeMapper);
   void PrintSelf( ostream& os, vtkIndent indent );
 
-  // Description:
-  // Sampling distance in the XY image dimensions. Default value of 1 meaning
-  // 1 ray cast per pixel. If set to 0.5, 4 rays will be cast per pixel. If
-  // set to 2.0, 1 ray will be cast for every 4 (2 by 2) pixels.
+  //@{
+  /**
+   * Sampling distance in the XY image dimensions. Default value of 1 meaning
+   * 1 ray cast per pixel. If set to 0.5, 4 rays will be cast per pixel. If
+   * set to 2.0, 1 ray will be cast for every 4 (2 by 2) pixels.
+   */
   vtkSetClampMacro( ImageSampleDistance, float, 0.1f, 100.0f );
   vtkGetMacro( ImageSampleDistance, float );
+  //@}
 
-  // Description:
-  // This is the minimum image sample distance allow when the image
-  // sample distance is being automatically adjusted
+  //@{
+  /**
+   * This is the minimum image sample distance allow when the image
+   * sample distance is being automatically adjusted
+   */
   vtkSetClampMacro( MinimumImageSampleDistance, float, 0.1f, 100.0f );
   vtkGetMacro( MinimumImageSampleDistance, float );
+  //@}
 
-  // Description:
-  // This is the maximum image sample distance allow when the image
-  // sample distance is being automatically adjusted
+  //@{
+  /**
+   * This is the maximum image sample distance allow when the image
+   * sample distance is being automatically adjusted
+   */
   vtkSetClampMacro( MaximumImageSampleDistance, float, 0.1f, 100.0f );
   vtkGetMacro( MaximumImageSampleDistance, float );
+  //@}
 
-  // Description:
-  // If AutoAdjustSampleDistances is on, the the ImageSampleDistance
-  // will be varied to achieve the allocated render time of this
-  // prop (controlled by the desired update rate and any culling in
-  // use).
+  //@{
+  /**
+   * If AutoAdjustSampleDistances is on, the the ImageSampleDistance
+   * will be varied to achieve the allocated render time of this
+   * prop (controlled by the desired update rate and any culling in
+   * use).
+   */
   vtkSetClampMacro( AutoAdjustSampleDistances, int, 0, 1 );
   vtkGetMacro( AutoAdjustSampleDistances, int );
   vtkBooleanMacro( AutoAdjustSampleDistances, int );
+  //@}
 
-  // Description:
-  // Set/Get the number of threads to use. This by default is equal to
-  // the number of available processors detected.
+  //@{
+  /**
+   * Set/Get the number of threads to use. This by default is equal to
+   * the number of available processors detected.
+   */
   vtkSetMacro( NumberOfThreads, int );
   vtkGetMacro( NumberOfThreads, int );
+  //@}
 
-  // Description:
-  // If IntermixIntersectingGeometry is turned on, the zbuffer will be
-  // captured and used to limit the traversal of the rays.
+  //@{
+  /**
+   * If IntermixIntersectingGeometry is turned on, the zbuffer will be
+   * captured and used to limit the traversal of the rays.
+   */
   vtkSetClampMacro( IntermixIntersectingGeometry, int, 0, 1 );
   vtkGetMacro( IntermixIntersectingGeometry, int );
   vtkBooleanMacro( IntermixIntersectingGeometry, int );
+  //@}
 
-  // Description:
-  // Set/Get the helper class for casting rays.
+  //@{
+  /**
+   * Set/Get the helper class for casting rays.
+   */
   virtual void SetRayCastFunction(vtkUnstructuredGridVolumeRayCastFunction *f);
   vtkGetObjectMacro(RayCastFunction, vtkUnstructuredGridVolumeRayCastFunction);
+  //@}
 
-  // Description:
-  // Set/Get the helper class for integrating rays.  If set to NULL, a
-  // default integrator will be assigned.
+  //@{
+  /**
+   * Set/Get the helper class for integrating rays.  If set to NULL, a
+   * default integrator will be assigned.
+   */
   virtual void SetRayIntegrator(vtkUnstructuredGridVolumeRayIntegrator *ri);
   vtkGetObjectMacro(RayIntegrator, vtkUnstructuredGridVolumeRayIntegrator);
+  //@}
 
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // Initialize rendering for this volume.
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * Initialize rendering for this volume.
+   */
   void Render( vtkRenderer *, vtkVolume * );
 
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // Release any graphics resources that are being consumed by this mapper.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * Release any graphics resources that are being consumed by this mapper.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
   void ReleaseGraphicsResources(vtkWindow *);
 
   vtkGetVectorMacro( ImageInUseSize, int, 2 );
@@ -190,8 +219,8 @@ protected:
   int           CellScalars;
 
 private:
-  vtkUnstructuredGridVolumeRayCastMapper(const vtkUnstructuredGridVolumeRayCastMapper&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridVolumeRayCastMapper&);  // Not implemented.
+  vtkUnstructuredGridVolumeRayCastMapper(const vtkUnstructuredGridVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnstructuredGridVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -1,15 +1,6 @@
 vtk_module(vtkInteractionWidgets
   GROUPS
     Rendering
-  DEPENDS
-    vtkRenderingAnnotation
-    vtkRenderingFreeType
-    vtkRenderingVolume
-    vtkFiltersModeling
-    vtkFiltersHybrid
-    vtkImagingGeneral
-    vtkImagingHybrid
-    vtkInteractionStyle
   TEST_DEPENDS
     vtkIOLegacy
     vtkIOXML
@@ -26,4 +17,27 @@ vtk_module(vtkInteractionWidgets
     vtkImagingStencil
   KIT
     vtkInteraction
+  DEPENDS
+    vtkCommonCore
+    vtkCommonExecutionModel
+    vtkFiltersGeneral
+    vtkFiltersSources
+    vtkRenderingCore
+  PRIVATE_DEPENDS
+    vtkCommonComputationalGeometry
+    vtkCommonDataModel
+    vtkCommonMath
+    vtkCommonSystem
+    vtkCommonTransforms
+    vtkFiltersCore
+    vtkFiltersHybrid
+    vtkFiltersModeling
+    vtkImagingColor
+    vtkImagingCore
+    vtkImagingGeneral
+    vtkImagingHybrid
+    vtkInteractionStyle
+    vtkRenderingAnnotation
+    vtkRenderingFreeType
+    vtkRenderingVolume
   )

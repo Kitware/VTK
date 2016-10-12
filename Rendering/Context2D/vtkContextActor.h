@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkContextActor - provides a vtkProp derived object.
-// .SECTION Description
-// This object provides the entry point for the vtkContextScene to be rendered
-// in a vtkRenderer. Uses the RenderOverlay pass to render the 2D
-// vtkContextScene.
+/**
+ * @class   vtkContextActor
+ * @brief   provides a vtkProp derived object.
+ *
+ * This object provides the entry point for the vtkContextScene to be rendered
+ * in a vtkRenderer. Uses the RenderOverlay pass to render the 2D
+ * vtkContextScene.
+*/
 
 #ifndef vtkContextActor_h
 #define vtkContextActor_h
@@ -38,34 +41,42 @@ public:
 
   static vtkContextActor* New();
 
-  // Description:
-  // We only render in the overlay for the context scene.
+  /**
+   * We only render in the overlay for the context scene.
+   */
   virtual int RenderOverlay(vtkViewport *viewport);
 
-  // Description:
-  // Get the vtkContext2D for the actor.
+  //@{
+  /**
+   * Get the vtkContext2D for the actor.
+   */
   vtkGetNewMacro(Context, vtkContext2D);
+  //@}
 
-  // Description:
-  // Get the chart object for the actor.
+  /**
+   * Get the chart object for the actor.
+   */
   vtkContextScene * GetScene();
 
-  // Description:
-  // Set the scene for the actor.
+  /**
+   * Set the scene for the actor.
+   */
   void SetScene(vtkContextScene *scene);
 
-  // Description:
-  // Release any graphics resources that are being consumed by this actor.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
+  /**
+   * Release any graphics resources that are being consumed by this actor.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
   virtual void ReleaseGraphicsResources(vtkWindow *window);
 
 protected:
   vtkContextActor();
   ~vtkContextActor();
 
-  // Description:
-  // Initialize the actor - right now we just decide which device to initialize.
+  /**
+   * Initialize the actor - right now we just decide which device to initialize.
+   */
   virtual void Initialize(vtkViewport* viewport);
 
   vtkSmartPointer<vtkContextScene> Scene;
@@ -74,8 +85,8 @@ protected:
   bool Initialized;
 
 private:
-  vtkContextActor(const vtkContextActor&);  // Not implemented.
-  void operator=(const vtkContextActor&);  // Not implemented.
+  vtkContextActor(const vtkContextActor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkContextActor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

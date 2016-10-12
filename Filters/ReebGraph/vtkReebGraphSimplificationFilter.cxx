@@ -39,10 +39,10 @@ void vtkReebGraphSimplificationFilter::SetSimplificationMetric(
   vtkReebGraphSimplificationMetric *simplificationMetric)
 {
   if (simplificationMetric != this->SimplificationMetric)
-    {
+  {
     this->SimplificationMetric = simplificationMetric;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

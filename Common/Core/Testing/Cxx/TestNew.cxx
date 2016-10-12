@@ -31,58 +31,58 @@ int TestNew(int,char *[])
   // This one should be cleaned up when the main function ends.
   vtkNew<vtkIntArray> a;
   if (a->GetReferenceCount() != 1)
-    {
+  {
     error = true;
     cerr << "Error, reference count should be 1, was " << a->GetReferenceCount()
          << endl;
-    }
+  }
   cout << "vtkNew streaming " << a << endl;
 
   vtkWeakPointer<vtkFloatArray> wf;
   // Test scoping, and deletion.
   if (wf == 0)
-    {
+  {
     vtkNew<vtkFloatArray> f;
     wf = f.GetPointer();
-    }
+  }
   if (wf != 0)
-    {
+  {
     error = true;
     cerr << "Error, vtkNew failed to delete the object it contained."
          << endl;
-    }
+  }
 
   // Now test interaction with the smart pointer.
   vtkSmartPointer<vtkIntArray> si;
   if (si == 0)
-    {
+  {
     vtkNew<vtkIntArray> i;
     si = i.Get();
-    }
+  }
   if (si->GetReferenceCount() != 1)
-    {
+  {
     error = true;
     cerr << "Error, vtkNew failed to delete the object it contained, "
          << "or the smart pointer failed to increment it. Reference count: "
          << si->GetReferenceCount() << endl;
-    }
+  }
 
   vtkNew<vtkTestNewVar> newVarObj;
   if (newVarObj->GetPointsRefCount() != 1)
-    {
+  {
     error = true;
     cerr << "The mmeber pointer failed to set the correct reference count: "
          << newVarObj->GetPointsRefCount() << endl;
-    }
+  }
 
   vtkSmartPointer<vtkObject> points = newVarObj->GetPoints();
   if (points->GetReferenceCount() != 2)
-    {
+  {
     error = true;
     cerr << "Error, vtkNew failed to keep the object it contained, "
          << "or the smart pointer failed to increment it. Reference count: "
          << points->GetReferenceCount() << endl;
-    }
+  }
 
   return error ? 1 : 0;
 }

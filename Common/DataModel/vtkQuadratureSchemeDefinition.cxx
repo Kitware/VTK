@@ -138,10 +138,10 @@ int vtkQuadratureSchemeDefinition::SecureResources()
 {
   if ((this->NumberOfQuadraturePoints<=0)
       || (this->NumberOfNodes<=0))
-    {
+  {
     vtkWarningMacro("Failed to allocate. Invalid buffer size.");
     return 0;
-    }
+  }
 
   // Delete weights if they have been allocated
   this->ReleaseResources();
@@ -151,17 +151,17 @@ int vtkQuadratureSchemeDefinition::SecureResources()
     new double [this->NumberOfQuadraturePoints*this->NumberOfNodes];
   for (int i = 0;
        i < this->NumberOfQuadraturePoints*this->NumberOfNodes; i++)
-    {
+  {
     this->ShapeFunctionWeights[i] = 0.0;
-    }
+  }
 
  // Quadrature weights, one double for each quad point
   this->QuadratureWeights =
     new double [this->NumberOfQuadraturePoints];
   for (int i = 0; i < this->NumberOfQuadraturePoints; i++)
-    {
+  {
     this->QuadratureWeights[i] = 0.0;
-    }
+  }
   return 1;
 }
 
@@ -172,15 +172,15 @@ void vtkQuadratureSchemeDefinition::SetShapeFunctionWeights(const double *W)
       || (this->NumberOfNodes<=0)
       || (this->ShapeFunctionWeights==0)
       || !W)
-    {
+  {
     return;
-    }
+  }
   // Copy
   int n=this->NumberOfQuadraturePoints*this->NumberOfNodes;
   for (int i=0; i<n; ++i)
-    {
+  {
     this->ShapeFunctionWeights[i]=W[i];
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -190,14 +190,14 @@ void vtkQuadratureSchemeDefinition::SetQuadratureWeights(const double *W)
       || (this->NumberOfNodes<=0)
       || (this->QuadratureWeights==0)
       || !W)
-    {
+  {
     return;
-    }
+  }
   // Copy
   for (int i=0; i<this->NumberOfQuadraturePoints; ++i)
-    {
+  {
     this->QuadratureWeights[i]=W[i];
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -209,16 +209,16 @@ void vtkQuadratureSchemeDefinition::PrintSelf(ostream &sout, vtkIndent indent)
   double *pSfWt=this->ShapeFunctionWeights;
 
   for (int ptId=0; ptId<this->NumberOfQuadraturePoints; ++ptId)
-    {
+  {
     sout << indent << "(" << pSfWt[0];
     ++pSfWt;
     for (int nodeId=1; nodeId<this->NumberOfNodes; ++nodeId)
-      {
+    {
       sout << indent << ", " << pSfWt[0];
       ++pSfWt;
-      }
-    sout << ")" << endl;
     }
+    sout << ")" << endl;
+  }
   return;
 }
 
@@ -242,7 +242,7 @@ ostream &operator<<(ostream &sout, const vtkQuadratureSchemeDefinition &def)
        << " " << nQuadPts;
 
   if ((nNodes>0) && (nQuadPts>0))
-    {
+  {
     sout.setf(ios::floatfield, ios::scientific);
     sout.precision(16);
 
@@ -250,25 +250,25 @@ ostream &operator<<(ostream &sout, const vtkQuadratureSchemeDefinition &def)
     // Write shape function weights
     pWt=def.GetShapeFunctionWeights();
     for (int ptId=0; ptId<nQuadPts; ++ptId)
-      {
+    {
       for (int nodeId=0; nodeId<nNodes; ++nodeId)
-        {
+      {
         sout << " " << pWt[0];
         ++pWt;
-        }
       }
+    }
     // Write quadrature weights
     pWt=def.GetQuadratureWeights();
     for (int nodeId=0; nodeId<nNodes; ++nodeId)
-      {
+    {
       sout << " " << pWt[0];
       ++pWt;
-      }
     }
+  }
   else
-    {
+  {
     vtkGenericWarningMacro("Empty definition written to stream.");
-    }
+  }
   return sout;
 }
 
@@ -288,31 +288,31 @@ istream &operator>>(istream &sin, vtkQuadratureSchemeDefinition &def)
 
   double *SfWt=0,*QWt=0,*pWt=0;
   if ((nNodes>0) && (nQuadPts>0))
-    {
+  {
     // read shape function weights
     SfWt=new double [nQuadPts*nNodes];
     pWt=SfWt;
     for (int ptId=0; ptId<nQuadPts; ++ptId)
-      {
+    {
       for (int nodeId=0; nodeId<nNodes; ++nodeId)
-        {
+      {
         sin >> pWt[0];
         ++pWt;
-        }
       }
+    }
     // Write quadrature weights
     QWt=new double [nQuadPts];
     pWt=QWt;
     for (int nodeId=0; nodeId<nNodes; ++nodeId)
-      {
+    {
       sin >> pWt[0];
       ++pWt;
-      }
     }
+  }
   else
-    {
+  {
     vtkGenericWarningMacro("Empty definition found in stream.");
-    }
+  }
 
   // intialize the object
   def.Initialize(cellType,nNodes,nQuadPts,SfWt,QWt);
@@ -331,10 +331,10 @@ int vtkQuadratureSchemeDefinition::SaveState(vtkXMLDataElement *root)
   // this as a root, to be nested by the caller as needed.
   if (root->GetName()!=NULL
       || root->GetNumberOfNestedElements()>0)
-    {
+  {
     vtkWarningMacro("Can't save state to non-empty element.");
     return 0;
-    }
+  }
 
   root->SetName("vtkQuadratureSchemeDefinition");
 
@@ -371,7 +371,7 @@ int vtkQuadratureSchemeDefinition::SaveState(vtkXMLDataElement *root)
 
   if ((this->NumberOfNodes>0)
       && (this->NumberOfQuadraturePoints>0))
-    {
+  {
     // Write shape function weights
     ostringstream ssShapeWts;
     ssShapeWts.setf(ios::floatfield, ios::scientific);
@@ -379,9 +379,9 @@ int vtkQuadratureSchemeDefinition::SaveState(vtkXMLDataElement *root)
     ssShapeWts << this->ShapeFunctionWeights[0];
     int nIds=this->NumberOfNodes*this->NumberOfQuadraturePoints;
     for (int id=1; id<nIds; ++id)
-      {
+    {
       ssShapeWts << " " << this->ShapeFunctionWeights[id];
-      }
+    }
     string sShapeWts=ssShapeWts.str();
     eShapeWts->SetCharacterData(sShapeWts.c_str(),static_cast<int>(sShapeWts.size()));
 
@@ -391,17 +391,17 @@ int vtkQuadratureSchemeDefinition::SaveState(vtkXMLDataElement *root)
     ssQuadWts.precision(16);
     ssQuadWts << this->QuadratureWeights[0];
     for (int id=1; id<this->NumberOfQuadraturePoints; ++id)
-      {
+    {
       ssQuadWts << " " << this->QuadratureWeights[id];
-      }
+    }
     string sQuadWts=ssQuadWts.str();
     eQuadWts->SetCharacterData(sQuadWts.c_str(),static_cast<int>(sQuadWts.size()));
-    }
+  }
   else
-    {
+  {
     vtkGenericWarningMacro("Empty definition written to stream.");
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -411,103 +411,103 @@ int vtkQuadratureSchemeDefinition::RestoreState(vtkXMLDataElement *root)
 {
   // A quick sanity check to be sure we have the correct tag.
   if (strcmp(root->GetName(),"vtkQuadratureSchemeDefinition")!=0)
-    {
+  {
     vtkWarningMacro("Attempting to restore the state in "
                     << root->GetName() <<
                     " into vtkQuadratureSchemeDefinition.");
     return 0;
-    }
+  }
 
   vtkXMLDataElement *e;
   const char *value;
   // Transfer state from XML hierarchy.
   e=root->FindNestedElementWithName("CellType");
   if (e==NULL)
-    {
+  {
     vtkWarningMacro("Expected nested element \"CellType\" "
                     "is not present.");
     return 0;
-    }
+  }
   value=e->GetAttribute("value");
   this->CellType=atoi(value);
   //
   e=root->FindNestedElementWithName("NumberOfNodes");
   if (e==NULL)
-    {
+  {
     vtkWarningMacro("Expected nested element \"NumberOfNodes\" "
                     "is not present.");
     return 0;
-    }
+  }
   value=e->GetAttribute("value");
   this->NumberOfNodes=atoi(value);
   //
   e=root->FindNestedElementWithName("NumberOfQuadraturePoints");
   if (e==NULL)
-    {
+  {
     vtkWarningMacro("Expected nested element \"NumberOfQuadraturePoints\" "
                     "is not present.");
     return 0;
-    }
+  }
   value=e->GetAttribute("value");
   this->NumberOfQuadraturePoints=atoi(value);
   // Extract the weights.
   if (this->SecureResources())
-    {
+  {
     istringstream issWts;
     //
     e=root->FindNestedElementWithName("ShapeFunctionWeights");
     if (e==NULL)
-      {
+    {
       vtkWarningMacro("Expected nested element \"ShapeFunctionWeights\" "
                       "is not present.");
       return 0;
-      }
+    }
     value=e->GetCharacterData();
     if (value==NULL)
-      {
+    {
       vtkWarningMacro("Character data in nested element"
                       " \"ShapeFunctionWeights\" is not present.");
       return 0;
-      }
+    }
     issWts.str(value);
     int nWts=this->NumberOfNodes*this->NumberOfQuadraturePoints;
     for (int id=0; id<nWts; ++id)
-      {
+    {
       if (!issWts.good())
-        {
+      {
         vtkWarningMacro("Character data for \"ShapeFunctionWeights\" "
                         "is short.");
         return 0;
-        }
-      issWts >> this->ShapeFunctionWeights[id];
       }
+      issWts >> this->ShapeFunctionWeights[id];
+    }
     //
     e=root->FindNestedElementWithName("QuadratureWeights");
     if (e==NULL)
-      {
+    {
       vtkWarningMacro("Expected element \"QuadratureWeights\" "
                       "is not present.");
       return 0;
-      }
+    }
     value=e->GetCharacterData();
     if (value==NULL)
-      {
+    {
       vtkWarningMacro("Character data in expected nested element"
                       " \"QuadratureWeights\" is not present.");
       return 0;
-      }
+    }
     issWts.str(value);
     for (int id=0; id<this->NumberOfQuadraturePoints; ++id)
-      {
+    {
       if (!issWts.good())
-        {
+      {
         vtkWarningMacro("Character data for \"QuadratureWeights\" "
                         "is short.");
         return 0;
-        }
-      issWts >> this->QuadratureWeights[id];
       }
+      issWts >> this->QuadratureWeights[id];
     }
+  }
 
   return 1;
 }

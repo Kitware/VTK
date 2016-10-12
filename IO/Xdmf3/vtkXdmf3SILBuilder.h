@@ -13,16 +13,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXdmf3SILBuilder - helper to allow block selection
-// .SECTION Description
-// vtkXdmf3Reader uses this to build up a datastructure that represents
-// block trees that correspond to the file. ParaView builds a GUI from
-// that to let the user select from the various block and types of blocks
-// that should or should not be loaded.
-//
-// This file is a helper for the vtkXdmf3Reader and vtkXdmf3Writer and
-// not intended to be part of VTK public API
-// VTK-HeaderTest-Exclude: vtkXdmf3SILBuilder.h
+/**
+ * @class   vtkXdmf3SILBuilder
+ * @brief   helper to allow block selection
+ *
+ * vtkXdmf3Reader uses this to build up a datastructure that represents
+ * block trees that correspond to the file. ParaView builds a GUI from
+ * that to let the user select from the various block and types of blocks
+ * that should or should not be loaded.
+ *
+ * This file is a helper for the vtkXdmf3Reader and vtkXdmf3Writer and
+ * not intended to be part of VTK public API
+*/
 
 #ifndef vtkXdmf3SILBuilder_h
 #define vtkXdmf3SILBuilder_h
@@ -45,21 +47,28 @@ public:
   vtkIdType HierarchyRoot;
   vtkIdType VertexCount;
 
-  // Description:
-  // Initializes the data-structures.
+  /**
+   * Initializes the data-structures.
+   */
   void Initialize();
 
-  // Description:
-  // Add vertex, child-edge or cross-edge to the graph.
+  //@{
+  /**
+   * Add vertex, child-edge or cross-edge to the graph.
+   */
   vtkIdType AddVertex(const char* name);
   vtkIdType AddChildEdge(vtkIdType parent, vtkIdType child);
   vtkIdType AddCrossEdge(vtkIdType src, vtkIdType dst);
+  //@}
 
-  // Description:
-  // Returns the vertex id for the root vertex.
+  //@{
+  /**
+   * Returns the vertex id for the root vertex.
+   */
   vtkIdType GetRootVertex();
   vtkIdType GetBlocksRoot();
   vtkIdType GetHierarchyRoot();
+  //@}
 
   bool IsMaxedOut();
 
@@ -68,3 +77,4 @@ public:
 };
 
 #endif //vtkXdmf3SILBuilder_h
+// VTK-HeaderTest-Exclude: vtkXdmf3SILBuilder.h

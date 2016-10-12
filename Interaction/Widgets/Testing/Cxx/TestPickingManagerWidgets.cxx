@@ -76,15 +76,15 @@ class vtkBalloonPickCallback : public vtkCommand
 {
 public:
   static vtkBalloonPickCallback* New() { return new vtkBalloonPickCallback; }
-  virtual void Execute(vtkObject* caller, unsigned long, void*)
-    {
+  void Execute(vtkObject* caller, unsigned long, void*) VTK_OVERRIDE
+  {
     vtkPropPicker* picker = reinterpret_cast<vtkPropPicker*>(caller);
     vtkProp* prop = picker->GetViewProp();
     if ( prop != NULL )
-      {
+    {
       this->BalloonWidget->UpdateBalloonString(prop, "Picked");
-      }
     }
+  }
 
   vtkBalloonWidget* BalloonWidget;
 };
@@ -98,7 +98,7 @@ class vtkTIPW2Callback : public vtkCommand
 public:
   static vtkTIPW2Callback *New()
   { return new vtkTIPW2Callback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
   {
     vtkImplicitPlaneWidget2 *planeWidget =
       reinterpret_cast<vtkImplicitPlaneWidget2*>(caller);
@@ -124,42 +124,42 @@ public:
   static vtkEnableManagerCallback *New()
     {return new vtkEnableManagerCallback;}
 
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
-    {
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  {
     vtkRenderWindowInteractor *iren =
       static_cast<vtkRenderWindowInteractor*>(caller);
 
     if((vtkStdString(iren->GetKeySym()) == "Control_L" ||
        vtkStdString(iren->GetKeySym()) == "Control_R") &&
        iren->GetPickingManager())
-      {
+    {
       if(!iren->GetPickingManager()->GetEnabled())
-        {
+      {
         std::cout << "PickingManager ON !" << std::endl;
         iren->GetPickingManager()->EnabledOn();
-        }
+      }
       else
-        {
+      {
         std::cout << "PickingManager OFF !" << std::endl;
         iren->GetPickingManager()->EnabledOff();
-        }
       }
+    }
     // Enable/Disable the Optimization on render events.
     else if (vtkStdString(iren->GetKeySym()) == "o" &&
              iren->GetPickingManager())
-      {
+    {
       if(!iren->GetPickingManager()->GetOptimizeOnInteractorEvents())
-        {
+      {
         std::cout << "Optimization on Interactor events ON !" << std::endl;
         iren->GetPickingManager()->SetOptimizeOnInteractorEvents(1);
-        }
+      }
       else
-        {
+      {
         std::cout << "Optimization on Interactor events OFF !" << std::endl;
         iren->GetPickingManager()->SetOptimizeOnInteractorEvents(0);
-        }
       }
     }
+  }
 
   vtkEnableManagerCallback() {}
 };

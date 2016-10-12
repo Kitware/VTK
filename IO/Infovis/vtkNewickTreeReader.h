@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkNewickTreeReader - read vtkTree from Newick formatted file
-// .SECTION Description
-// vtkNewickTreeReader is a source object that reads Newick tree format
-// files.
-// The output of this reader is a single vtkTree data object.
-// The superclass of this class, vtkDataReader, provides many methods for
-// controlling the reading of the data file, see vtkDataReader for more
-// information.
-// .SECTION Thanks
-// This class is adapted from code originally written by Yu-Wei Wu.
-// .SECTION See Also
-// vtkTree vtkDataReader
+/**
+ * @class   vtkNewickTreeReader
+ * @brief   read vtkTree from Newick formatted file
+ *
+ * vtkNewickTreeReader is a source object that reads Newick tree format
+ * files.
+ * The output of this reader is a single vtkTree data object.
+ * The superclass of this class, vtkDataReader, provides many methods for
+ * controlling the reading of the data file, see vtkDataReader for more
+ * information.
+ * @par Thanks:
+ * This class is adapted from code originally written by Yu-Wei Wu.
+ * @sa
+ * vtkTree vtkDataReader
+*/
 
 #ifndef vtkNewickTreeReader_h
 #define vtkNewickTreeReader_h
@@ -43,12 +46,15 @@ public:
   vtkTypeMacro(vtkNewickTreeReader,vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the output of this reader.
+  //@{
+  /**
+   * Get the output of this reader.
+   */
   vtkTree *GetOutput();
   vtkTree *GetOutput(int idx);
   void SetOutput(vtkTree *output);
   int ReadNewickTree(const char * buffer, vtkTree & tree);
+  //@}
 
 protected:
   vtkNewickTreeReader();
@@ -68,8 +74,8 @@ protected:
   vtkIdType BuildTree(char *buffer, vtkMutableDirectedGraph *g,
     vtkDoubleArray *weights, vtkStringArray *names, vtkIdType parent);
 private:
-  vtkNewickTreeReader(const vtkNewickTreeReader&);  // Not implemented.
-  void operator=(const vtkNewickTreeReader&);  // Not implemented.
+  vtkNewickTreeReader(const vtkNewickTreeReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkNewickTreeReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

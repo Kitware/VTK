@@ -37,18 +37,18 @@ static vtkCommonInformationKeyManagerKeysType* vtkCommonInformationKeyManagerKey
 vtkCommonInformationKeyManager::vtkCommonInformationKeyManager()
 {
   if(++vtkCommonInformationKeyManagerCount == 1)
-    {
+  {
     vtkCommonInformationKeyManager::ClassInitialize();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 vtkCommonInformationKeyManager::~vtkCommonInformationKeyManager()
 {
   if(--vtkCommonInformationKeyManagerCount == 0)
-    {
+  {
     vtkCommonInformationKeyManager::ClassFinalize();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -76,15 +76,15 @@ void vtkCommonInformationKeyManager::ClassInitialize()
 void vtkCommonInformationKeyManager::ClassFinalize()
 {
   if(vtkCommonInformationKeyManagerKeys)
-    {
+  {
     // Delete information keys.
     for(vtkCommonInformationKeyManagerKeysType::iterator i =
           vtkCommonInformationKeyManagerKeys->begin();
         i != vtkCommonInformationKeyManagerKeys->end(); ++i)
-      {
+    {
       vtkInformationKey* key = *i;
       delete key;
-      }
+    }
 
     // Delete the singleton storing pointers to information keys.  See
     // ClassInitialize above for why this is a free instead of a
@@ -92,5 +92,5 @@ void vtkCommonInformationKeyManager::ClassFinalize()
     vtkCommonInformationKeyManagerKeys->~vtkCommonInformationKeyManagerKeysType();
     free(vtkCommonInformationKeyManagerKeys);
     vtkCommonInformationKeyManagerKeys = 0;
-    }
+  }
 }

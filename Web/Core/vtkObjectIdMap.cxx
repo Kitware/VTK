@@ -47,10 +47,10 @@ struct ObjectId
   ObjectId& operator=(const ObjectId &other)
   {
     if (this == &other)
-      {
+    {
       // Same object?
       return *this;
-      }
+    }
 
     this->GlobalId = other.GlobalId;
     this->Object = other.Object;
@@ -60,22 +60,22 @@ struct ObjectId
    bool operator<(const ObjectId &other) const
    {
      if (this == &other)
-       {
+     {
        // Same object?
        return false;
-       }
+     }
 
      if( this->GlobalId != 0 && other.GlobalId != 0
          && this->GlobalId != other.GlobalId)
-       {
+     {
        return (this->GlobalId < other.GlobalId);
-       }
+     }
 
      if( this->Object.GetPointer() != NULL && other.Object.GetPointer() != NULL
          && this->Object.GetPointer() != other.Object.GetPointer())
-       {
+     {
        return (this->Object.GetPointer() < other.Object.GetPointer());
-       }
+     }
 
      return false;
    }
@@ -121,18 +121,18 @@ void vtkObjectIdMap::PrintSelf(ostream& os, vtkIndent indent)
 vtkTypeUInt32 vtkObjectIdMap::GetGlobalId(vtkObject* obj)
 {
   if(obj == NULL)
-    {
+  {
     return 0;
-    }
+  }
 
   ObjectId key(obj, 0);
   std::set<ObjectId>::iterator iter = this->Internals->RegisteredObjects.find(key);
   if(iter == this->Internals->RegisteredObjects.end())
-    {
+  {
     key.GlobalId = this->Internals->NextAvailableId++;
     this->Internals->RegisteredObjects.insert(key);
     return key.GlobalId;
-    }
+  }
   return iter->GlobalId;
 }
 
@@ -142,9 +142,9 @@ vtkObject* vtkObjectIdMap::GetVTKObject(vtkTypeUInt32 globalId)
   ObjectId key(globalId);
   std::set<ObjectId>::iterator iter = this->Internals->RegisteredObjects.find(key);
   if(iter == this->Internals->RegisteredObjects.end())
-    {
+  {
     return NULL;
-    }
+  }
   return iter->Object.GetPointer();
 }
 
@@ -152,10 +152,10 @@ vtkObject* vtkObjectIdMap::GetVTKObject(vtkTypeUInt32 globalId)
 vtkTypeUInt32 vtkObjectIdMap::SetActiveObject(const char* objectType, vtkObject* obj)
 {
   if(objectType)
-    {
+  {
     this->Internals->ActiveObjects[objectType] = obj;
     return this->GetGlobalId(obj);
-    }
+  }
   return 0;
 }
 
@@ -163,9 +163,9 @@ vtkTypeUInt32 vtkObjectIdMap::SetActiveObject(const char* objectType, vtkObject*
 vtkObject* vtkObjectIdMap::GetActiveObject(const char* objectType)
 {
   if(objectType)
-    {
+  {
     return this->Internals->ActiveObjects[objectType].GetPointer();
-    }
+  }
   return NULL;
 }
 

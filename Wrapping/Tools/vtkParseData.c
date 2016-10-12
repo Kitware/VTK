@@ -48,14 +48,14 @@ void vtkParse_FreeFile(FileInfo *file_info)
 
   n = file_info->NumberOfIncludes;
   for (i = 0; i < n; i++)
-    {
+  {
     vtkParse_FreeFile(file_info->Includes[i]);
     free(file_info->Includes[i]);
-    }
+  }
   if (file_info->Includes)
-    {
+  {
     free(file_info->Includes);
-    }
+  }
 
   vtkParse_FreeNamespace(file_info->Contents);
   file_info->Contents = NULL;
@@ -100,10 +100,10 @@ void vtkParse_CopyTemplate(TemplateInfo *info, const TemplateInfo *orig)
   info->Parameters = (ValueInfo **)malloc(n*sizeof(ValueInfo *));
 
   for (i = 0; i < n; i++)
-    {
+  {
     info->Parameters[i] = (ValueInfo *)malloc(sizeof(ValueInfo));
     vtkParse_CopyValue(info->Parameters[i], orig->Parameters[i]);
-    }
+  }
 }
 
 /* Free a TemplateInfo struct */
@@ -113,9 +113,9 @@ void vtkParse_FreeTemplate(TemplateInfo *template_info)
 
   m = template_info->NumberOfParameters;
   for (j = 0; j < m; j++)
-    {
+  {
     vtkParse_FreeValue(template_info->Parameters[j]);
-    }
+  }
 
   free(template_info);
 }
@@ -164,11 +164,11 @@ void vtkParse_InitFunction(FunctionInfo *func)
   func->IsProtected = 0;
 
   for (i = 0; i < MAX_ARGS; i++)
-    {
+  {
     func->ArgTypes[i] = 0;
     func->ArgClasses[i] = 0;
     func->ArgCounts[i] = 0;
-    }
+  }
 #endif
 }
 
@@ -186,29 +186,29 @@ void vtkParse_CopyFunction(FunctionInfo *func, const FunctionInfo *orig)
   func->Template = NULL;
 
   if (orig->Template)
-    {
+  {
     func->Template = (TemplateInfo *)malloc(sizeof(TemplateInfo));
     vtkParse_CopyTemplate(func->Template, orig->Template);
-    }
+  }
 
   n = orig->NumberOfParameters;
   func->NumberOfParameters = n;
   if (n)
-    {
+  {
     func->Parameters = (ValueInfo **)malloc(n*sizeof(ValueInfo *));
     for (i = 0; i < n; i++)
-      {
+    {
       func->Parameters[i] = (ValueInfo *)malloc(sizeof(ValueInfo));
       vtkParse_CopyValue(func->Parameters[i], orig->Parameters[i]);
-      }
     }
+  }
 
   func->ReturnValue = NULL;
   if (orig->ReturnValue)
-    {
+  {
     func->ReturnValue = (ValueInfo *)malloc(sizeof(ValueInfo));
     vtkParse_CopyValue(func->ReturnValue, orig->ReturnValue);
-    }
+  }
 
   func->Macro = orig->Macro;
   func->SizeHint = orig->SizeHint;
@@ -236,11 +236,11 @@ void vtkParse_CopyFunction(FunctionInfo *func, const FunctionInfo *orig)
   func->IsProtected = orig->IsProtected;
 
   for (i = 0; i < MAX_ARGS; i++)
-    {
+  {
     func->ArgTypes[i] = orig->ArgTypes[i];
     func->ArgClasses[i] = orig->ArgClasses[i];
     func->ArgCounts[i] = orig->ArgCounts[i];
-    }
+  }
 #endif
 }
 
@@ -250,18 +250,18 @@ void vtkParse_FreeFunction(FunctionInfo *function_info)
   int j, m;
 
   if (function_info->Template)
-    {
+  {
     vtkParse_FreeTemplate(function_info->Template);
-    }
+  }
 
   m = function_info->NumberOfParameters;
   for (j = 0; j < m; j++) { vtkParse_FreeValue(function_info->Parameters[j]); }
   if (m > 0) { free(function_info->Parameters); }
 
   if (function_info->ReturnValue)
-    {
+  {
     vtkParse_FreeValue(function_info->ReturnValue);
-    }
+  }
 
   free(function_info);
 }
@@ -306,27 +306,27 @@ void vtkParse_CopyValue(ValueInfo *val, const ValueInfo *orig)
   n = orig->NumberOfDimensions;
   val->NumberOfDimensions = n;
   if (n)
-    {
+  {
     val->Dimensions = (const char **)malloc(n*sizeof(char *));
     for (i = 0; i < n; i++)
-      {
+    {
       val->Dimensions[i] = orig->Dimensions[i];
-      }
     }
+  }
 
   val->Function = NULL;
   if (orig->Function)
-    {
+  {
     val->Function = (FunctionInfo *)malloc(sizeof(FunctionInfo));
     vtkParse_CopyFunction(val->Function, orig->Function);
-    }
+  }
 
   val->Template = NULL;
   if (orig->Template)
-    {
+  {
     val->Template = (TemplateInfo *)malloc(sizeof(TemplateInfo));
     vtkParse_CopyTemplate(val->Template, orig->Template);
-    }
+  }
 
   val->IsStatic = orig->IsStatic;
   val->IsEnum = orig->IsEnum;
@@ -337,17 +337,17 @@ void vtkParse_CopyValue(ValueInfo *val, const ValueInfo *orig)
 void vtkParse_FreeValue(ValueInfo *value_info)
 {
   if (value_info->NumberOfDimensions)
-    {
+  {
     free((char **)value_info->Dimensions);
-    }
+  }
   if (value_info->Function)
-    {
+  {
     vtkParse_FreeFunction(value_info->Function);
-    }
+  }
   if (value_info->Template)
-    {
+  {
     vtkParse_FreeTemplate(value_info->Template);
-    }
+  }
 
   free(value_info);
 }
@@ -447,141 +447,141 @@ void vtkParse_CopyClass(ClassInfo *cls, const ClassInfo *orig)
   cls->Template = NULL;
 
   if (orig->Template)
-    {
+  {
     cls->Template = (TemplateInfo *)malloc(sizeof(TemplateInfo));
     vtkParse_CopyTemplate(cls->Template, orig->Template);
-    }
+  }
 
   n = orig->NumberOfSuperClasses;
   cls->NumberOfSuperClasses = n;
   if (n)
-    {
+  {
     cls->SuperClasses = (const char **)malloc(n*sizeof(char *));
     for (i = 0; i < n; i++)
-      {
+    {
       cls->SuperClasses[i] = orig->SuperClasses[i];
-      }
     }
+  }
 
   n = orig->NumberOfItems;
   cls->NumberOfItems = n;
   if (n)
-    {
+  {
     cls->Items = (ItemInfo *)malloc(n*sizeof(ItemInfo));
     for (i = 0; i < n; i++)
-      {
+    {
       cls->Items[i].Type = orig->Items[i].Type;
       cls->Items[i].Index = orig->Items[i].Index;
-      }
     }
+  }
 
   n = orig->NumberOfClasses;
   cls->NumberOfClasses = n;
   if (n)
-    {
+  {
     cls->Classes = (ClassInfo **)malloc(n*sizeof(ClassInfo *));
     for (i = 0; i < n; i++)
-      {
+    {
       cls->Classes[i] = (ClassInfo *)malloc(sizeof(ClassInfo));
       vtkParse_CopyClass(cls->Classes[i], orig->Classes[i]);
-      }
     }
+  }
 
   n = orig->NumberOfFunctions;
   cls->NumberOfFunctions = n;
   if (n)
-    {
+  {
     cls->Functions = (FunctionInfo **)malloc(n*sizeof(FunctionInfo *));
     for (i = 0; i < n; i++)
-      {
+    {
       cls->Functions[i] = (FunctionInfo *)malloc(sizeof(FunctionInfo));
       vtkParse_CopyFunction(cls->Functions[i], orig->Functions[i]);
-      }
     }
+  }
 
   n = orig->NumberOfConstants;
   cls->NumberOfConstants = n;
   if (n)
-    {
+  {
     cls->Constants = (ValueInfo **)malloc(n*sizeof(ValueInfo *));
     for (i = 0; i < n; i++)
-      {
+    {
       cls->Constants[i] = (ValueInfo *)malloc(sizeof(ValueInfo));
       vtkParse_CopyValue(cls->Constants[i], orig->Constants[i]);
-      }
     }
+  }
 
   n = orig->NumberOfVariables;
   cls->NumberOfVariables = n;
   if (n)
-    {
+  {
     cls->Variables = (ValueInfo **)malloc(n*sizeof(ValueInfo *));
     for (i = 0; i < n; i++)
-      {
+    {
       cls->Variables[i] = (ValueInfo *)malloc(sizeof(ValueInfo));
       vtkParse_CopyValue(cls->Variables[i], orig->Variables[i]);
-      }
     }
+  }
 
   n = orig->NumberOfEnums;
   cls->NumberOfEnums = n;
   if (n)
-    {
+  {
     cls->Enums = (EnumInfo **)malloc(n*sizeof(EnumInfo *));
     for (i = 0; i < n; i++)
-      {
+    {
       cls->Enums[i] = (EnumInfo *)malloc(sizeof(EnumInfo));
       vtkParse_CopyEnum(cls->Enums[i], orig->Enums[i]);
-      }
     }
+  }
 
   n = orig->NumberOfTypedefs;
   cls->NumberOfTypedefs = n;
   if (n)
-    {
+  {
     cls->Typedefs = (ValueInfo **)malloc(n*sizeof(ValueInfo *));
     for (i = 0; i < n; i++)
-      {
+    {
       cls->Typedefs[i] = (ValueInfo *)malloc(sizeof(ValueInfo));
       vtkParse_CopyValue(cls->Typedefs[i], orig->Typedefs[i]);
-      }
     }
+  }
 
   n = orig->NumberOfUsings;
   cls->NumberOfUsings = n;
   if (n)
-    {
+  {
     cls->Usings = (UsingInfo **)malloc(n*sizeof(UsingInfo *));
     for (i = 0; i < n; i++)
-      {
+    {
       cls->Usings[i] = (UsingInfo *)malloc(sizeof(UsingInfo));
       vtkParse_CopyUsing(cls->Usings[i], orig->Usings[i]);
-      }
     }
+  }
 
   n = orig->NumberOfNamespaces;
   cls->NumberOfNamespaces = n;
   if (n)
-    {
+  {
     cls->Namespaces = (NamespaceInfo **)malloc(n*sizeof(NamespaceInfo *));
     for (i = 0; i < n; i++)
-      {
+    {
       cls->Namespaces[i] = (NamespaceInfo *)malloc(sizeof(NamespaceInfo));
       vtkParse_CopyNamespace(cls->Namespaces[i], orig->Namespaces[i]);
-      }
     }
+  }
 
   n = orig->NumberOfComments;
   cls->NumberOfComments = n;
   if (n)
-    {
+  {
     cls->Comments = (CommentInfo **)malloc(n*sizeof(CommentInfo *));
     for (i = 0; i < n; i++)
-      {
+    {
       cls->Comments[i] = (CommentInfo *)malloc(sizeof(CommentInfo));
       vtkParse_CopyComment(cls->Comments[i], orig->Comments[i]);
-      }
     }
+  }
 
   cls->IsAbstract = orig->IsAbstract;
   cls->IsFinal = orig->IsFinal;
@@ -668,14 +668,14 @@ static void *array_size_check(
 {
   /* if empty, alloc for the first time */
   if (n == 0)
-    {
+  {
     return malloc(size);
-    }
+  }
   /* if count is power of two, reallocate with double size */
   else if ((n & (n-1)) == 0)
-    {
+  {
     return realloc(arraymem, (n << 1)*size);
-    }
+  }
 
   /* no reallocation, just return the original array */
   return arraymem;
@@ -693,9 +693,9 @@ void vtkParse_AddIncludeToFile(
   file_info->Includes[file_info->NumberOfIncludes++] = include_file;
 
   if (!include_file->Strings)
-    {
+  {
     include_file->Strings = file_info->Strings;
-    }
+  }
 }
 
 /* Utility method to add a const char pointer to an array */
@@ -892,33 +892,33 @@ void vtkParse_AddDefaultConstructors(ClassInfo *cls, StringCache *cache)
   const char *ccname;
 
   if (cls == NULL || cls->Name == NULL)
-    {
+  {
     return;
-    }
+  }
 
   n = cls->NumberOfFunctions;
   for (i = 0; i < n; i++)
-    {
+  {
     func = cls->Functions[i];
     if (func->Name && strcmp(func->Name, cls->Name) == 0)
-      {
+    {
       default_constructor = 0;
 
       if (func->NumberOfParameters == 1)
-        {
+      {
         param = func->Parameters[0];
         if (param->Class &&
             strcmp(param->Class, cls->Name) == 0 &&
             (param->Type & VTK_PARSE_POINTER_MASK) == 0)
-          {
+        {
           copy_constructor = 0;
-          }
         }
       }
     }
+  }
 
   if (default_constructor)
-    {
+  {
     func = (FunctionInfo *)malloc(sizeof(FunctionInfo));
     vtkParse_InitFunction(func);
     func->Class = cls->Name;
@@ -929,46 +929,46 @@ void vtkParse_AddDefaultConstructors(ClassInfo *cls, StringCache *cache)
     strcpy(&tname[k], "()");
     func->Signature = tname;
     vtkParse_AddFunctionToClass(cls, func);
-    }
+  }
 
   if (copy_constructor)
-    {
+  {
     ccname = cls->Name;
 
     if (cls->Template)
-      {
+    {
       /* specialize the name */
       n = cls->Template->NumberOfParameters;
 
       k = strlen(cls->Name) + 2;
       for (i = 0; i < n; i++)
-        {
+      {
         if (cls->Template->Parameters[i]->Name)
-          {
+        {
           k += strlen(cls->Template->Parameters[i]->Name) + 2;
-          }
         }
+      }
       tname = vtkParse_NewString(cache, k);
       strcpy(tname, cls->Name);
       k = strlen(tname);
       tname[k++] = '<';
       for (i = 0; i < n; i++)
-        {
+      {
         if (cls->Template->Parameters[i]->Name)
-          {
+        {
           strcpy(&tname[k], cls->Template->Parameters[i]->Name);
           k += strlen(cls->Template->Parameters[i]->Name);
-          }
+        }
         if (i+1 < n)
-          {
+        {
           tname[k++] = ',';
           tname[k++] = ' ';
-          }
         }
+      }
       tname[k++] = '>';
       tname[k] = '\0';
       ccname = tname;
-      }
+    }
 
     func = (FunctionInfo *)malloc(sizeof(FunctionInfo));
     vtkParse_InitFunction(func);
@@ -988,5 +988,5 @@ void vtkParse_AddDefaultConstructors(ClassInfo *cls, StringCache *cache)
     param->Class = ccname;
     vtkParse_AddParameterToFunction(func, param);
     vtkParse_AddFunctionToClass(cls, func);
-    }
+  }
 }

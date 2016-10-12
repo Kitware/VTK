@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSimplePointsWriter - write a file of xyz coordinates
-// .SECTION Description
-// vtkSimplePointsWriter writes a simple file of xyz coordinates
-
-// .SECTION See Also
-// vtkSimplePointsReader
+/**
+ * @class   vtkSimplePointsWriter
+ * @brief   write a file of xyz coordinates
+ *
+ * vtkSimplePointsWriter writes a simple file of xyz coordinates
+ *
+ * @sa
+ * vtkSimplePointsReader
+*/
 
 #ifndef vtkSimplePointsWriter_h
 #define vtkSimplePointsWriter_h
@@ -44,8 +47,8 @@ protected:
   int DecimalPrecision;
 
 private:
-  vtkSimplePointsWriter(const vtkSimplePointsWriter&);  // Not implemented.
-  void operator=(const vtkSimplePointsWriter&);  // Not implemented.
+  vtkSimplePointsWriter(const vtkSimplePointsWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSimplePointsWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

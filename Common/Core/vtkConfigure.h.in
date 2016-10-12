@@ -37,12 +37,12 @@
 
 #elif defined(__clang__)
 /* Check for clang before GCC, as clang says it is GNUC since it has ABI
- * compliance. */
+ * compliance and supports many of the same extensions. */
 #define VTK_COMPILER_CLANG
 
 #elif defined(__GNUC__)
-/* Several compilers pretend to be GCC but have minor differences. Try to
- * compensate for that, by checking for those compilers first. */
+/* Several compilers pretend to be GCC but have minor differences. To
+ * compensate for that, we checked for those compilers first above. */
 #define VTK_COMPILER_GCC
 #define VTK_COMPILER_GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + \
                                   __GNUC_PATCHLEVEL__)
@@ -129,11 +129,6 @@
 # define VTK_USE_ANSI_STDLIB
 #endif
 
-/* Setup vtkstd, a portable namespace for std.  */
-#ifndef VTK_LEGACY_REMOVE
-# define vtkstd std
-#endif
-
 /* Define a "vtkstd_bool" for backwards compatibility.  Only use bool
    if this file is included by a c++ file. */
 #ifndef VTK_LEGACY_REMOVE
@@ -155,8 +150,7 @@
 # define VTK_MAXPATH 32767 // Possible with Windows "extended paths"
 #endif
 
-#cmakedefine VTK_USE_CXX11_FEATURES
-#ifdef VTK_USE_CXX11_FEATURES
+#if (__cplusplus >= 201103L) || ( defined(_MSC_VER) && _MSC_VER >= 1700 )
 # define VTK_OVERRIDE override
 # define VTK_FINAL final
 #else
@@ -164,4 +158,32 @@
 # define VTK_FINAL
 #endif
 
+#if (__cplusplus >= 201103L) || ( defined(_MSC_VER) && _MSC_VER >= 1800 )
+# define VTK_DELETE_FUNCTION =delete
+#else
+# define VTK_DELETE_FUNCTION
 #endif
+
+/** extern template declarations for C++11
+ */
+#if __cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1700)
+#define VTK_USE_EXTERN_TEMPLATE
+#endif
+
+/** std::auto_ptr is deprecated in C++11 and will be removed in C++17
+ *  use std::unique_ptr in C++11 and later compilers.
+ */
+#if __cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >=1700)\
+ || (defined(_CPPLIB_VER) && _CPPLIB_VER >= 520)
+# define VTK_HAS_STD_UNIQUE_PTR
+#endif
+
+/* MS Visual Studio 2015 finally supports C99/C++11's snprintf but
+ * for older versions, use _snprintf instead. Annoyingly, its semantics
+ * are slightly different, but still better than using sprintf.
+ */
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
+# define snprintf _snprintf
+#endif
+
+#endif // vtkConfigure_h

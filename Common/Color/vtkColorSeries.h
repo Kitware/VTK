@@ -13,27 +13,30 @@
 
 =========================================================================*/
 
-// .NAME vtkColorSeries - stores a list of colors.
-//
-// .SECTION Description
-// The vtkColorSeries stores palettes of colors. There are several default
-// palettes (or schemes) available and functions to control several aspects
-// of what colors are returned. In essence a color scheme is set and then
-// the number of colors and individual color values may be requested.
-//
-// It is also possible to add schemes beyond the default palettes.
-// Whenever \a SetColorScheme is called with a string for which no palette
-// already exists, a new, empty palette is created.
-// You may then use \a SetNumberOfColors and \a SetColor to populate the
-// palette.
-// You may not extend default palettes by calling functions that alter
-// a scheme; if called while a predefined palette is in use, they
-// will create a new non-default scheme and populate it with the current
-// palette before continuing.
-//
-// The "Brewer" palettes are courtesy of
-// Cynthia A. Brewer (Dept. of Geography, Pennsylvania State University)
-// and present under the Apache License. See the source code for details.
+/**
+ * @class   vtkColorSeries
+ * @brief   stores a list of colors.
+ *
+ *
+ * The vtkColorSeries stores palettes of colors. There are several default
+ * palettes (or schemes) available and functions to control several aspects
+ * of what colors are returned. In essence a color scheme is set and then
+ * the number of colors and individual color values may be requested.
+ *
+ * It is also possible to add schemes beyond the default palettes.
+ * Whenever \a SetColorScheme is called with a string for which no palette
+ * already exists, a new, empty palette is created.
+ * You may then use \a SetNumberOfColors and \a SetColor to populate the
+ * palette.
+ * You may not extend default palettes by calling functions that alter
+ * a scheme; if called while a predefined palette is in use, they
+ * will create a new non-default scheme and populate it with the current
+ * palette before continuing.
+ *
+ * The "Brewer" palettes are courtesy of
+ * Cynthia A. Brewer (Dept. of Geography, Pennsylvania State University)
+ * and present under the Apache License. See the source code for details.
+*/
 
 #ifndef vtkColorSeries_h
 #define vtkColorSeries_h
@@ -49,14 +52,16 @@ class VTKCOMMONCOLOR_EXPORT vtkColorSeries : public vtkObject
 {
 public:
   vtkTypeMacro(vtkColorSeries, vtkObject);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Create a new vtkColorSeries with the SPECTRUM color scheme.
+  /**
+   * Create a new vtkColorSeries with the SPECTRUM color scheme.
+   */
   static vtkColorSeries* New();
 
-  // Description:
-  // Enum of the available color schemes
+  /**
+   * Enum of the available color schemes
+   */
   enum ColorSchemes {
     /// 7 different hues.
     SPECTRUM = 0,
@@ -184,12 +189,13 @@ public:
     BREWER_QUALITATIVE_SET3,
     /// User specified color scheme.
     CUSTOM
-    };
+  };
 
-// Description:
-// An enum defining how lookup tables should be used: either as a
-// list of discrete colors to choose from (categorical), or as an
-// ordered list of color set - points to interpolate among (ordinal).
+/**
+ * An enum defining how lookup tables should be used: either as a
+ * list of discrete colors to choose from (categorical), or as an
+ * ordered list of color set - points to interpolate among (ordinal).
+ */
 enum LUTMode {
   /// indexed lookup is off
   ORDINAL = 0,
@@ -197,119 +203,143 @@ enum LUTMode {
   CATEGORICAL
 };
 
-  // Description:
-  // Set the color scheme that should be used.
-  // The variant of this function that takes an integer should pass a
-  // number from those in the enum, or a value returned by the string variant.
-  // The variant that accepts a string returns the integer index
-  // of the resulting palette (whether it already existed or is newly-created).
+  //@{
+  /**
+   * Set the color scheme that should be used.
+   * The variant of this function that takes an integer should pass a
+   * number from those in the enum, or a value returned by the string variant.
+   * The variant that accepts a string returns the integer index
+   * of the resulting palette (whether it already existed or is newly-created).
+   */
   virtual void SetColorScheme(int scheme);
   virtual int SetColorSchemeByName(const vtkStdString& schemeName);
+  //@}
 
-  // Description:
-  // Return the number of schemes currently defined.
+  /**
+   * Return the number of schemes currently defined.
+   */
   int GetNumberOfColorSchemes() const;
 
-  // Description:
-  // Get the color scheme that is currently being used.
+  /**
+   * Get the color scheme that is currently being used.
+   */
   virtual vtkStdString GetColorSchemeName() const;
 
-  // Description:
-  // Set the name of the current color scheme
+  /**
+   * Set the name of the current color scheme
+   */
   virtual void SetColorSchemeName(const vtkStdString& scheme);
 
-  // Description:
-  // Return the ID of the color scheme currently in use.
+  /**
+   * Return the ID of the color scheme currently in use.
+   */
   virtual int GetColorScheme() const;
 
-  // Description:
-  // Get the number of colors available in the current color scheme.
+  /**
+   * Get the number of colors available in the current color scheme.
+   */
   virtual int GetNumberOfColors() const;
 
-  // Description:
-  // Set the number of colors to be stored in a non-default color scheme.
-  // Calling this function on a predefined color scheme will cause the scheme
-  // to be duplicated to a new custom scheme.
+  /**
+   * Set the number of colors to be stored in a non-default color scheme.
+   * Calling this function on a predefined color scheme will cause the scheme
+   * to be duplicated to a new custom scheme.
+   */
   virtual void SetNumberOfColors(int numColors);
 
-  // Description:
-  // Get the color at the specified index. If the index is out of range then
-  // black will be returned.
+  /**
+   * Get the color at the specified index. If the index is out of range then
+   * black will be returned.
+   */
   vtkColor3ub GetColor(int index) const;
 
-  // Description:
-  // Get the color at the specified index. If the index is out of range then
-  // the call wraps around, i.e. uses the mod operator.
+  /**
+   * Get the color at the specified index. If the index is out of range then
+   * the call wraps around, i.e. uses the mod operator.
+   */
   vtkColor3ub GetColorRepeating(int index) const;
 
-  // Description:
-  // Set the color at the specified index. Does nothing if the index is out of
-  // range.
+  /**
+   * Set the color at the specified index. Does nothing if the index is out of
+   * range.
+   */
   virtual void SetColor(int index, const vtkColor3ub &color);
 
-  // Description:
-  // Adds the color to the end of the list.
+  /**
+   * Adds the color to the end of the list.
+   */
   virtual void AddColor(const vtkColor3ub &color);
 
-  // Description:
-  // Inserts the color at the specified index in the list.
+  /**
+   * Inserts the color at the specified index in the list.
+   */
   virtual void InsertColor(int index, const vtkColor3ub &color);
 
-  // Description:
-  // Removes the color at the specified index in the list.
+  /**
+   * Removes the color at the specified index in the list.
+   */
   virtual void RemoveColor(int index);
 
-  // Description:
-  // Clears the list of colors.
+  /**
+   * Clears the list of colors.
+   */
   virtual void ClearColors();
 
-  // Description:
-  // Make a deep copy of the supplied object.
+  /**
+   * Make a deep copy of the supplied object.
+   */
   virtual void DeepCopy(vtkColorSeries *chartColors);
 
-  // Description:
-  // Populate a lookup table with all the colors in the current scheme.
-  //
-  // The default behavior is to return categorical data. Set lutIndexing
-  // to ORDINAL to return ordinal data. Any other value for lutIndexing
-  // is treated as CATEGORICAL.
+  /**
+   * Populate a lookup table with all the colors in the current scheme.
+
+   * The default behavior is to return categorical data. Set lutIndexing
+   * to ORDINAL to return ordinal data. Any other value for lutIndexing
+   * is treated as CATEGORICAL.
+   */
   void BuildLookupTable(vtkLookupTable* lkup, int lutIndexing = CATEGORICAL);
 
-  // Description:
-  // Create a new lookup table with all the colors in the current scheme.
-  //
-  // The caller is responsible for deleting the table after use.
-  //
-  // The default behavior is to return categorical data. Set lutIndexing
-  // to ORDINAL to return ordinal data. Any other value for lutIndexing
-  // is treated as CATEGORICAL.
+  /**
+   * Create a new lookup table with all the colors in the current scheme.
+
+   * The caller is responsible for deleting the table after use.
+
+   * The default behavior is to return categorical data. Set lutIndexing
+   * to ORDINAL to return ordinal data. Any other value for lutIndexing
+   * is treated as CATEGORICAL.
+   */
   VTK_NEWINSTANCE
   vtkLookupTable* CreateLookupTable(int lutIndexing = CATEGORICAL);
 
 protected:
   vtkColorSeries();
-  virtual ~vtkColorSeries();
+  ~vtkColorSeries() VTK_OVERRIDE;
 
-  // Description:
-  // If the current scheme is a predefined (read-only) scheme,
-  // copy the current colors to a new scheme and modify the new scheme instead.
+  /**
+   * If the current scheme is a predefined (read-only) scheme,
+   * copy the current colors to a new scheme and modify the new scheme instead.
+   */
   virtual void CopyOnWrite();
 
-  // Description:
-  // Private data pointer of the class, stores the color list.
+  //@{
+  /**
+   * Private data pointer of the class, stores the color list.
+   */
   class Private;
   Private* Storage;
+  //@}
 
-  // Description:
-  // The color scheme being used.
+  /**
+   * The color scheme being used.
+   */
   int ColorScheme;
 
   /// The color scheme being used.
   vtkStdString ColorSchemeName;
 
 private:
-  vtkColorSeries(const vtkColorSeries &); // Not implemented.
-  void operator=(const vtkColorSeries &);   // Not implemented.
+  vtkColorSeries(const vtkColorSeries &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkColorSeries &) VTK_DELETE_FUNCTION;
 
 };
 

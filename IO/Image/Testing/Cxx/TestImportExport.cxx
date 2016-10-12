@@ -44,10 +44,10 @@ int TestImportExport(int argc, char* argv[])
             << retval2 << std::endl;
 
   if ( (retval1 == EXIT_SUCCESS) && (retval2 == EXIT_SUCCESS) )
-    {
+  {
     std::cout <<"Test Passed" << std::endl;
     return EXIT_SUCCESS;
-    }
+  }
 
   std::cout <<"Test Failed" << std::endl;
   return EXIT_FAILURE;
@@ -141,10 +141,10 @@ int ImportExportWithPipeline( int vtkNotUsed(argc), char *vtkNotUsed(argv) [] )
   bool isSame = compareVtkImages(imageBefore, imageAfter);
 
   if (!isSame)
-    {
+  {
     std::cout << "ERROR: Images are different" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   source->SetInValue(99);
   source->SetOutValue(10);
@@ -162,10 +162,10 @@ int ImportExportWithPipeline( int vtkNotUsed(argc), char *vtkNotUsed(argv) [] )
   isSame = compareVtkImages(imageBefore, imageAfter);
 
   if (!isSame)
-    {
+  {
     std::cout << "ERROR: Images are different" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }
@@ -236,10 +236,10 @@ int ImportExportNoPipeline( int vtkNotUsed(argc), char *vtkNotUsed(argv) [] )
   bool isSame = compareVtkImages(imageBefore2, imageAfter);
 
   if (!isSame)
-    {
+  {
     std::cout << "ERROR: Images are different" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Switch input
   exporter->SetInputData(imageBefore3);
@@ -251,10 +251,10 @@ int ImportExportNoPipeline( int vtkNotUsed(argc), char *vtkNotUsed(argv) [] )
   isSame = compareVtkImages(imageBefore3, imageAfter);
 
   if (!isSame)
-    {
+  {
     std::cout << "ERROR: Images are different" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Switch back to first Data.
   exporter->SetInputData(imageBefore1);
@@ -266,10 +266,10 @@ int ImportExportNoPipeline( int vtkNotUsed(argc), char *vtkNotUsed(argv) [] )
   isSame = compareVtkImages(imageBefore1, imageAfter);
 
   if (!isSame)
-    {
+  {
     std::cout << "ERROR: Images are different" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }
@@ -280,64 +280,64 @@ int ImportExportNoPipeline( int vtkNotUsed(argc), char *vtkNotUsed(argv) [] )
 bool compareVtkImages( vtkImageData* leftImg, vtkImageData* rightImg)
 {
   if ( leftImg == rightImg )
-    {
+  {
     std::cerr << "Got same pointers." << std::endl;
     return true;  // This also implies NULL == NULL is ok.
-    }
+  }
 
   if (!leftImg)
-    {
+  {
     std::cerr << "Left image is NULL" << std::endl;
     return false;
-    }
+  }
 
   if (!rightImg)
-    {
+  {
     std::cerr << "Right image is NULL" << std::endl;
     return false;
-    }
+  }
 
   bool isSame = true;
   const int numComp = leftImg->GetNumberOfScalarComponents();
   if ( numComp != rightImg->GetNumberOfScalarComponents())
-    {
+  {
     std::cerr << "Number of components differs" << std::endl;
     isSame = false;
-    }
+  }
 
   double origin1[3], origin2[3];
   leftImg->GetOrigin(origin1);
   rightImg->GetOrigin(origin2);
   if (!std::equal(origin1, origin1+3, origin2))
-    {
+  {
     std::cerr << "Origins are different" << std::endl;
     std::cerr << "Left: " << origin1[0] << "," << origin1[1] << ","
               << origin1[2] << std::endl;
     std::cerr << "Right: " << origin2[0] << "," << origin2[1] << ","
               << origin2[2] << std::endl;
     isSame = false;
-    }
+  }
 
   double spacing1[3], spacing2[3];
   leftImg->GetSpacing(spacing1);
   rightImg->GetSpacing(spacing2);
 
   if (!std::equal(spacing1, spacing1+3, spacing2))
-    {
+  {
     std::cerr << "Spacings are different" << std::endl;
     std::cerr << "Left: " << spacing1[0] << "," << spacing1[1] << ","
               << spacing1[2] << std::endl;
     std::cerr << "Right: " << spacing2[0] << "," << spacing2[1] << ","
               << spacing2[2] << std::endl;
     isSame = false;
-    }
+  }
 
   int p1Extent[6], p2Extent[6];
   leftImg->GetExtent(p1Extent);
   rightImg->GetExtent(p2Extent);
 
   if (!std::equal(p1Extent, p1Extent+6, p2Extent))
-    {
+  {
     std::cerr << "Extents are different" << std::endl;
     std::cerr << "Left: " << p1Extent[0] << "," << p1Extent[1] << ","
               << p1Extent[2] << "," << p1Extent[3] << ","
@@ -346,13 +346,13 @@ bool compareVtkImages( vtkImageData* leftImg, vtkImageData* rightImg)
               << p2Extent[2] << "," << p2Extent[3] << ","
               << p2Extent[4] << "," << p2Extent[5] << std::endl;
     isSame = false;
-    }
+  }
 
 
   const int p1ScalarType = leftImg->GetScalarType();
   const int p2ScalarType = rightImg->GetScalarType();
   if (p1ScalarType != p2ScalarType)
-    {
+  {
     std::cerr << "Scalar types differ " << std::endl
               << "Left: " << leftImg->GetScalarTypeAsString() << " ("
               << p1ScalarType << ")" << std::endl
@@ -360,38 +360,38 @@ bool compareVtkImages( vtkImageData* leftImg, vtkImageData* rightImg)
               << p2ScalarType << ")" << std::endl;
     // Tolerate different types if the values (cast to double) are the same.
     // isSame = false;
-    }
+  }
 
   if (!isSame)
-    {
+  {
     // Cannot check pixel values because array size is different.
     return false;
-    }
+  }
 
   // We know both extents are the same here.
   for (int k=p1Extent[4]; k<=p1Extent[5]; ++k)
-    {
+  {
     for (int j=p1Extent[2]; j<=p1Extent[3]; ++j)
-      {
+    {
       for (int i=p1Extent[0]; i<p1Extent[1]; ++i)
-        {
+      {
         for (int c=0; c<numComp; ++c)
-          {
+        {
           const double v1 = leftImg->GetScalarComponentAsDouble(i,j,k,c);
           const double v2 = rightImg->GetScalarComponentAsDouble(i,j,k,c);
           if (v1 != v2)
-            {
+          {
             std::cerr << "Data value mismatch at"
                       << " i="<< i << " j=" << j << " k=" << k << " c=" << c
                       << std::endl
                       << "Left: " << v1
                       << " Right: " << v2;
             return false;
-            }
           }
         }
       }
     }
+  }
 
   // OK if we got here.
   return true;

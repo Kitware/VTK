@@ -12,19 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkObserverMediator - manage contention for cursors and other resources
-// .SECTION Description
-// The vtkObserverMediator is a helper class that manages requests for
-// cursor changes from multiple interactor observers (e.g. widgets). It keeps
-// a list of widgets (and their priorities) and their current requests for
-// cursor shape. It then satisfies requests based on widget priority and the
-// relative importance of the request (e.g., a lower priority widget
-// requesting a particular cursor shape will overrule a higher priority
-// widget requesting a default shape).
-
-// .SECTION See Also
-// vtkAbstractWidget vtkWidgetRepresentation
-
+/**
+ * @class   vtkObserverMediator
+ * @brief   manage contention for cursors and other resources
+ *
+ * The vtkObserverMediator is a helper class that manages requests for
+ * cursor changes from multiple interactor observers (e.g. widgets). It keeps
+ * a list of widgets (and their priorities) and their current requests for
+ * cursor shape. It then satisfies requests based on widget priority and the
+ * relative importance of the request (e.g., a lower priority widget
+ * requesting a particular cursor shape will overrule a higher priority
+ * widget requesting a default shape).
+ *
+ * @sa
+ * vtkAbstractWidget vtkWidgetRepresentation
+*/
 
 #ifndef vtkObserverMediator_h
 #define vtkObserverMediator_h
@@ -40,29 +42,38 @@ class vtkObserverMap;
 class VTKRENDERINGCORE_EXPORT vtkObserverMediator : public vtkObject
 {
 public:
-  // Description:
-  // Instantiate the class.
+  /**
+   * Instantiate the class.
+   */
   static vtkObserverMediator *New();
 
-  // Description:
-  // Standard macros.
+  //@{
+  /**
+   * Standard macros.
+   */
   vtkTypeMacro(vtkObserverMediator,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
+  //@}
 
-  // Description:
-  // Specify the instance of vtkRenderWindow whose cursor shape is
-  // to be managed.
+  //@{
+  /**
+   * Specify the instance of vtkRenderWindow whose cursor shape is
+   * to be managed.
+   */
   void SetInteractor(vtkRenderWindowInteractor* iren);
   vtkGetObjectMacro(Interactor, vtkRenderWindowInteractor);
+  //@}
 
-  // Description:
-  // Method used to request a cursor shape. Note that the shape is specified
-  // using one of the integral values determined in vtkRenderWindow.h. The
-  // method returns a non-zero value if the shape was successfully changed.
+  /**
+   * Method used to request a cursor shape. Note that the shape is specified
+   * using one of the integral values determined in vtkRenderWindow.h. The
+   * method returns a non-zero value if the shape was successfully changed.
+   */
   int RequestCursorShape(vtkInteractorObserver*, int cursorShape);
 
-  // Description:
-  // Remove all requests for cursor shape from a given interactor.
+  /**
+   * Remove all requests for cursor shape from a given interactor.
+   */
   void RemoveAllCursorShapeRequests(vtkInteractorObserver*);
 
 protected:
@@ -82,8 +93,8 @@ protected:
   int                    CurrentCursorShape;
 
 private:
-  vtkObserverMediator(const vtkObserverMediator&);  //Not implemented
-  void operator=(const vtkObserverMediator&);  //Not implemented
+  vtkObserverMediator(const vtkObserverMediator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkObserverMediator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

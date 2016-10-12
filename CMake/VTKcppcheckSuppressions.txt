@@ -13,7 +13,7 @@
 //=========================================================================
 
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on Mac OS X with cppcheck 1.72.
+// at least on Mac OS X with cppcheck 1.75.
 
 // To run:
 // cd /path/to/VTK/
@@ -52,8 +52,6 @@ invalidscanf
 unreadVariable
 // 60 warnings
 redundantAssignment
-// 46 warnings
-operatorEqVarError
 // 34 warnings
 noCopyConstructor
 // 20 warnings
@@ -63,12 +61,21 @@ useInitializationList
 assertWithSideEffect
 argumentSize
 
+// A regression between 1.73 and 1.74 results in lots of false positives for this warning
+// <https://sourceforge.net/p/cppcheck/discussion/general/thread/21296d8f/?limit=25#6cab>
+clarifyCondition:Filters/General/vtkContourTriangulator.cxx
+clarifyCondition:Imaging/Core/vtkImageStencilData.cxx
+clarifyCondition:Imaging/Stencil/vtkPolyDataToImageStencil.cxx
+clarifyCondition:IO/ODBC/vtkODBCQuery.cxx
+clarifyCondition:Rendering/OSPRay/Testing/Cxx/TestOSPRayRenderMesh.cxx
+
 // False positives.
 argumentSize:Common/DataModel/vtkAMRBox.cxx
 argumentSize:Common/DataModel/vtkStructuredGrid.h
 arrayIndexOutOfBounds:Common/DataModel/vtkCell.h
 assignBoolToPointer:Common/Math/vtkMatrix4x4.h
 AssignmentAddressToInteger:Common/Math/vtkPolynomialSolversUnivariate.cxx
+CastIntegerToAddressAtReturn:Geovis/Core/vtkGeoTreeNode.h
 clarifyCondition:Rendering/Core/Testing/Cxx/TestInteractorStyleImageProperty.cxx
 comparisonOfBoolWithInvalidComparator:Rendering/Label/vtkLabeledTreeMapDataMapper.cxx
 copyCtorPointerCopying:IO/NetCDF/vtkSLACReader.cxx
@@ -76,6 +83,7 @@ deallocDealloc:Wrapping/Tools/vtkParseMerge.c
 duplicateExpression:Common/Math/Testing/Cxx/TestPolynomialSolversUnivariate.cxx
 duplicateExpression:Filters/General/vtkContourTriangulator.cxx
 duplicateExpression:Filters/General/vtkVoxelContoursToSurfaceFilter.cxx
+duplicateExpression:Rendering/Annotation/vtkScalarBarActor.cxx
 invalidPrintfArgType_int:Wrapping/PythonCore/vtkPythonUtil.cxx
 knownConditionTrueFalse:Common/Core/Testing/Cxx/TestDataArrayIterators.cxx
 memleak:Common/Core/Testing/Cxx/TestGarbageCollector.cxx
@@ -88,6 +96,7 @@ nullPointer:Interaction/Style/vtkInteractorStyleJoystickActor.cxx
 nullPointer:Interaction/Style/vtkInteractorStyleTrackballActor.cxx
 nullPointer:IO/Exodus/vtkExodusIIReaderParser.cxx
 nullPointerRedundantCheck:Filters/General/vtkMultiThreshold.cxx
+operatorEqVarError:Filters/General/vtkHyperStreamline.cxx
 oppositeInnerCondition:Rendering/VolumeOpenGL/vtkOpenGLVolumeTextureMapper3D.cxx
 pointerPositive:Common/DataModel/vtkUnstructuredGridCellIterator.cxx
 redundantAssignInSwitch:Wrapping/Tools/vtkWrapPythonOverload.c
@@ -98,6 +107,7 @@ redundantAssignment:Rendering/OpenGL2/vtkRenderbuffer.cxx
 redundantAssignment:Rendering/OpenGL2/vtkTextureObject.cxx
 redundantAssignment:Rendering/VolumeOpenGL2/vtkOpenGLGPUVolumeRayCastMapper.cxx
 stlIfStrFind:Infovis/Core/vtkPipelineGraphSource.cxx
+stlIfStrFind:Rendering/OpenGL2/vtkOpenGLRenderer.cxx
 unassignedVariable:Common/Transforms/vtkHomogeneousTransform.cxx
 unassignedVariable:Filters/Core/vtkFlyingEdges3D.cxx
 unassignedVariable:Rendering/Core/vtkCamera.cxx
@@ -115,20 +125,21 @@ unsafeClassCanLeak:Filters/General/vtkDensifyPolyData.cxx
 unsafeClassCanLeak:GUISupport/Qt/QVTKInteractorInternal.h
 unsafeClassCanLeak:Interaction/Widgets/vtkBiDimensionalRepresentation.h
 unusedAllocatedMemory:IO/Legacy/vtkDataWriter.cxx
+unusedLabelSwitch:IO/Exodus/vtkCPExodusIINodalCoordinatesTemplate.txx
+unusedStructMember:Common/Core/vtkTypeList.txx
 unusedStructMember:Common/Misc/vtkHeap.cxx
 unusedStructMember:IO/Image/vtkMRCReader.cxx
+unusedStructMember:IO/Infovis/vtkTulipReader.cxx
 uselessAssignmentArg:Common/DataModel/vtkReebGraph.cxx
 uselessAssignmentPtrArg:Filters/General/vtkYoungsMaterialInterface.cxx
 uselessAssignmentPtrArg:IO/Parallel/vtkPImageWriter.cxx
 uselessAssignmentPtrArg:Wrapping/Tools/vtkParse.tab.c
 zerodiv:Filters/ParallelFlowPaths/Testing/Cxx/TestPStreamGeometry.cxx
-unusedStructMember:Common/Core/vtkTypeList.txx
-CastIntegerToAddressAtReturn:Geovis/Core/vtkGeoTreeNode.h
 
 // Not worth fixing, but not actually false positives.
-passedByValue:Filters/General/vtkYoungsMaterialInterface.cxx
-knownConditionTrueFalse:Rendering/OpenGL/vtkXGPUInfoList.cxx
 knownConditionTrueFalse:GUISupport/Qt/QVTKWidget.cxx
+knownConditionTrueFalse:Rendering/OpenGL/vtkXGPUInfoList.cxx
+passedByValue:Filters/General/vtkYoungsMaterialInterface.cxx
 
 // There are a fair number of these, but they are probably worth working through.
 // 217 warnings
@@ -143,6 +154,6 @@ noConstructor
 // To investigate further...
 memleak:Wrapping/Tools/vtkParsePreprocess.c
 nullPointerRedundantCheck:IO/Exodus/vtkExodusIIReaderParser.cxx
-redundantAssignment:Rendering/Volume/vtkGPUVolumeRayCastMapper.cxx:
-redundantAssignment:Rendering/Volume/vtkFixedPointVolumeRayCastMapper.cxx
 redundantAssignment:Filters/General/vtkBoxClipDataSet.cxx
+redundantAssignment:Rendering/Volume/vtkFixedPointVolumeRayCastMapper.cxx
+redundantAssignment:Rendering/Volume/vtkGPUVolumeRayCastMapper.cxx:

@@ -24,16 +24,30 @@
 #ifndef XDMFHDF5WRITER_HPP_
 #define XDMFHDF5WRITER_HPP_
 
+// C Compatible includes
+#include "XdmfCore.hpp"
+#include "XdmfHeavyDataWriter.hpp"
+#include "XdmfHeavyDataController.hpp"
+
+// So that hdf5 does not need to be included in the header files
+// It would add a dependancy to programs that use Xdmf
+#ifndef _H5Ipublic_H
+  #ifndef XDMF_HID_T
+  #define XDMF_HID_T
+    typedef int hid_t;
+  #endif
+#endif
+
+#ifdef __cplusplus
+
 // Forward Declarations
 class XdmfArray;
 class XdmfArrayType;
 class XdmfHDF5Controller;
 
 // Includes
-#include "XdmfCore.hpp"
-#include "XdmfHeavyDataWriter.hpp"
-#include "XdmfHeavyDataController.hpp"
 #include <list>
+#include <set>
 
 /**
  * @brief Traverse the Xdmf graph and write heavy data stored in
@@ -106,6 +120,59 @@ public:
    */
   unsigned int getChunkSize() const;
 
+  virtual int getDataSetSize(const std::string & fileName,
+                             const std::string & dataSetName);
+
+  /**
+   * Gets the factor that Deflate uses to compress data.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfHDF5Writer.cpp
+   * @skipline //#initialization
+   * @until //#initialization
+   * @skipline //#getDeflateFactor
+   * @until //#getDeflateFactor
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleHDF5Writer.py
+   * @skipline #//initialization
+   * @until #//initialization
+   * @skipline #//getDeflateFactor
+   * @until #//getDeflateFactor
+   *
+   * @return    The factor Deflate uses.
+   */
+  int getDeflateFactor() const;
+
+  /**
+   * Gets whether Deflate is enabled.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfHDF5Writer.cpp
+   * @skipline //#initialization
+   * @until //#initialization
+   * @skipline //#getUseDeflate
+   * @until //#getUseDeflate
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleHDF5Writer.py
+   * @skipline #//initialization
+   * @until #//initialization
+   * @skipline #//getUseDeflate
+   * @until #//getUseDeflate
+   *
+   * @return    Whether Deflate is in use.
+   */
+  bool getUseDeflate() const;
+
   virtual void openFile();
 
   /**
@@ -133,12 +200,64 @@ public:
    */
   void setChunkSize(const unsigned int chunkSize);
 
+  /**
+   * Sets the factor that Deflate will use to compress data.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfHDF5Writer.cpp
+   * @skipline //#initialization
+   * @until //#initialization
+   * @skipline //#setDeflateFactor
+   * @until //#setDeflateFactor
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleHDF5Writer.py
+   * @skipline #//initialization
+   * @until #//initialization
+   * @skipline #//setDeflateFactor
+   * @until #//setDeflateFactor
+   *
+   * @param     factor  The factor Deflate will use.
+   */
+  void setDeflateFactor(int factor);
+
+  /**
+   * Sets whether HDF5 will use Deflate compression
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfHDF5Writer.cpp
+   * @skipline //#initialization
+   * @until //#initialization
+   * @skipline //#setUseDeflate
+   * @until //#setUseDeflate
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleHDF5Writer.py
+   * @skipline #//initialization
+   * @until #//initialization
+   * @skipline #//setUseDeflate
+   * @until #//setUseDeflate
+   *
+   * @param     status  Whether Deflate will be used.
+   */
+  void setUseDeflate(bool status);
+
   using XdmfHeavyDataWriter::visit;
   virtual void visit(XdmfArray & array,
                      const shared_ptr<XdmfBaseVisitor> visitor);
 
   virtual void visit(XdmfItem & item,
                      const shared_ptr<XdmfBaseVisitor> visitor);
+
+  XdmfHDF5Writer(const XdmfHDF5Writer &);
 
 protected:
 
@@ -165,55 +284,71 @@ protected:
    */
   virtual shared_ptr<XdmfHeavyDataController>
   createController(const std::string & hdf5FilePath,
-                   const std::string & dataSetPath,
+                   const std::string & descriptor,
                    const shared_ptr<const XdmfArrayType> type,
                    const std::vector<unsigned int> & start,
                    const std::vector<unsigned int> & stride,
                    const std::vector<unsigned int> & dimensions,
                    const std::vector<unsigned int> & dataspaceDimensions);
 
-  virtual shared_ptr<XdmfHeavyDataController>
-  createController(const shared_ptr<XdmfHeavyDataController> & refController);
-
-  virtual int getDataSetSize(const std::string & fileName, const std::string & dataSetName, const int fapl);
-
-  /**
-   * Open hdf5 file with a fapl.
-   *
-   * @param     fapl    The file access property list for the hdf5 file.
-   */
-  void openFile(const int fapl);
+  virtual int getDataSetSize(shared_ptr<XdmfHeavyDataController> descriptionController);
 
   /**
    * Write the XdmfArray to a hdf5 file.
    *
    * @param     array   An XdmfArray to write to hdf5.
-   * @param     fapl    The file access property list for the hdf5 file on disk.
    */
-  void write(XdmfArray & array, const int fapl);
-
-private:
+  virtual void write(XdmfArray & array);
 
   /**
    * PIMPL
    */
-  class XdmfHDF5WriterImpl;
+  class XdmfHDF5WriterImpl
+  {
+  public:
 
-  XdmfHDF5Writer(const XdmfHDF5Writer &);  // Not implemented.
+    XdmfHDF5WriterImpl();
+
+    virtual ~XdmfHDF5WriterImpl();
+
+    virtual void
+    closeFile();
+
+    virtual int
+    openFile(const std::string & filePath,
+             const int mDataSetId);
+
+    hid_t mHDF5Handle;
+    int mFapl;
+    unsigned int mChunkSize;
+    std::string mOpenFile;
+    int mDepth;
+    std::set<const XdmfItem *> mWrittenItems;
+  };
+
+  XdmfHDF5WriterImpl * mImpl;
+
+  bool mUseDeflate;
+  int mDeflateFactor;
+
+private:
+
   void operator=(const XdmfHDF5Writer &);  // Not implemented.
 
   virtual void controllerSplitting(XdmfArray & array,
-                                   const int & fapl,
                                    int & controllerIndexOffset,
                                    shared_ptr<XdmfHeavyDataController> heavyDataController,
                                    const std::string & checkFileName,
                                    const std::string & checkFileExt,
                                    const std::string & dataSetPath,
+                                   int dataSetId,
                                    const std::vector<unsigned int> & dimensions,
                                    const std::vector<unsigned int> & dataspaceDimensions,
                                    const std::vector<unsigned int> & start,
                                    const std::vector<unsigned int> & stride,
                                    std::list<std::string> & filesWritten,
+                                   std::list<std::string> & datasetsWritten,
+                                   std::list<int> & datasetIdsWritten,
                                    std::list<void *> & arraysWritten,
                                    std::list<std::vector<unsigned int> > & startsWritten,
                                    std::list<std::vector<unsigned int> > & stridesWritten,
@@ -221,8 +356,65 @@ private:
                                    std::list<std::vector<unsigned int> > & dataSizesWritten,
                                    std::list<unsigned int> & arrayOffsetsWritten);
 
-  XdmfHDF5WriterImpl * mImpl;
-
 };
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// C wrappers go here
+
+struct XDMFHDF5WRITER; // Simply as a typedef to ensure correct typing
+typedef struct XDMFHDF5WRITER XDMFHDF5WRITER;
+
+XDMFCORE_EXPORT XDMFHDF5WRITER * XdmfHDF5WriterNew(char * fileName, int clobberFile);
+
+XDMFCORE_EXPORT void XdmfHDF5WriterCloseFile(XDMFHDF5WRITER * writer, int * status);
+
+XDMFCORE_EXPORT unsigned int XdmfHDF5WriterGetChunkSize(XDMFHDF5WRITER * writer, int * status);
+
+XDMFCORE_EXPORT void XdmfHDF5WriterOpenFile(XDMFHDF5WRITER * writer, int * status);
+
+XDMFCORE_EXPORT void XdmfHDF5WriterSetChunkSize(XDMFHDF5WRITER * writer, unsigned int chunkSize, int * status);
+
+#define XDMF_HDF5WRITER_C_CHILD_DECLARE(ClassName, CClassName, Level)                                    \
+                                                                                                         \
+Level##_EXPORT void ClassName##CloseFile( CClassName * writer, int * status);                            \
+Level##_EXPORT unsigned int ClassName##GetChunkSize( CClassName * writer, int * status);                 \
+Level##_EXPORT void ClassName##OpenFile( CClassName * writer, int * status);                             \
+Level##_EXPORT void ClassName##SetChunkSize( CClassName * writer, unsigned int chunkSize, int * status);
+
+#define XDMF_HDF5WRITER_C_CHILD_WRAPPER(ClassName, CClassName)                                           \
+                                                                                                         \
+void ClassName##CloseFile( CClassName * writer, int * status)                                            \
+{                                                                                                        \
+  XdmfHDF5WriterCloseFile((XDMFHDF5WRITER *)((void *)writer), status);                                   \
+}                                                                                                        \
+                                                                                                         \
+unsigned int ClassName##GetChunkSize( CClassName * writer, int * status)                                 \
+{                                                                                                        \
+  return XdmfHDF5WriterGetChunkSize((XDMFHDF5WRITER *)((void *)writer), status);                         \
+}                                                                                                        \
+                                                                                                         \
+void ClassName##OpenFile( CClassName * writer, int * status)                                             \
+{                                                                                                        \
+  XdmfHDF5WriterOpenFile((XDMFHDF5WRITER *)((void *)writer), status);                                    \
+}                                                                                                        \
+                                                                                                         \
+void ClassName##SetChunkSize( CClassName * writer, unsigned int chunkSize, int * status)                 \
+{                                                                                                        \
+  XdmfHDF5WriterSetChunkSize((XDMFHDF5WRITER *)((void *)writer), chunkSize, status);                     \
+}
+
+
+// C Wrappers for parent classes are generated by macros
+
+XDMF_HEAVYWRITER_C_CHILD_DECLARE(XdmfHDF5Writer, XDMFHDF5WRITER, XDMFCORE)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XDMFHDF5WRITER_HPP_ */

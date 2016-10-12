@@ -82,9 +82,9 @@ int vtkAxes::RequestData(
   x[1] = this->Origin[1];
   x[2] = this->Origin[2];
   if (this->Symmetric)
-    {
+  {
     x[0] = this->Origin[0] - this->ScaleFactor;
-    }
+  }
   n[0] = 0.0; n[1] = 1.0; n[2] = 0.0;
   ptIds[0] = newPts->InsertNextPoint(x);
   newScalars->InsertNextValue(0.0);
@@ -102,9 +102,9 @@ int vtkAxes::RequestData(
   x[1] = this->Origin[1];
   x[2] = this->Origin[2];
   if (this->Symmetric)
-    {
+  {
     x[1] = this->Origin[1] - this->ScaleFactor;
-    }
+  }
   n[0] = 0.0; n[1] = 0.0; n[2] = 1.0;
   ptIds[0] = newPts->InsertNextPoint(x);
   newScalars->InsertNextValue(0.25);
@@ -122,9 +122,9 @@ int vtkAxes::RequestData(
   x[1] = this->Origin[1];
   x[2] = this->Origin[2];
   if (this->Symmetric)
-    {
+  {
     x[2] = this->Origin[2] - this->ScaleFactor;
-    }
+  }
   n[0] = 1.0; n[1] = 0.0; n[2] = 0.0;
   ptIds[0] = newPts->InsertNextPoint(x);
   newScalars->InsertNextValue(0.5);
@@ -148,9 +148,9 @@ int vtkAxes::RequestData(
   newScalars->Delete();
 
   if (this->ComputeNormals)
-    {
+  {
     output->GetPointData()->SetNormals(newNormals);
-    }
+  }
   newNormals->Delete();
 
   output->SetLines(newLines);
@@ -165,15 +165,15 @@ int vtkAxes::ComputeDivisionExtents(vtkDataObject *vtkNotUsed(output),
                                       int idx, int numDivisions)
 {
   if (idx == 0 && numDivisions == 1)
-    {
+  {
     // I will give you the whole thing
     return 1;
-    }
+  }
   else
-    {
+  {
     // I have nothing to give you for this piece.
     return 0;
-    }
+  }
 }
 
 

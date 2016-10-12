@@ -12,16 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLHyperOctreeWriter - Write VTK XML HyperOctree files.
-// .SECTION Description
-// vtkXMLHyperOctreeWriter writes the VTK XML HyperOctree file
-// format.  One HyperOctree input can be written into one file in
-// any number of streamed pieces.  The standard extension for this
-// writer's file format is "vto".  This writer is also used to write a
-// single piece of the parallel file format.
-
-// .SECTION See Also
-// vtkXMLPHyperOctreeWriter
+/**
+ * @class   vtkXMLHyperOctreeWriter
+ * @brief   Write VTK XML HyperOctree files.
+ *
+ * vtkXMLHyperOctreeWriter writes the VTK XML HyperOctree file
+ * format.  One HyperOctree input can be written into one file in
+ * any number of streamed pieces.  The standard extension for this
+ * writer's file format is "vto".  This writer is also used to write a
+ * single piece of the parallel file format.
+ *
+ * @sa
+ * vtkXMLPHyperOctreeWriter
+*/
 
 #ifndef vtkXMLHyperOctreeWriter_h
 #define vtkXMLHyperOctreeWriter_h
@@ -40,12 +43,14 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLHyperOctreeWriter* New();
 
-  // Description:
-  // Get/Set the writer's input.
+  /**
+   * Get/Set the writer's input.
+   */
   vtkHyperOctree* GetInput();
 
-  // Description:
-  // Get the default file extension for files written by this writer.
+  /**
+   * Get the default file extension for files written by this writer.
+   */
   const char* GetDefaultFileExtension();
 
 protected:
@@ -86,8 +91,8 @@ protected:
   OffsetsManagerGroup * CellDataOM;
 
 private:
-  vtkXMLHyperOctreeWriter(const vtkXMLHyperOctreeWriter&);  // Not implemented.
-  void operator=(const vtkXMLHyperOctreeWriter&);  // Not implemented.
+  vtkXMLHyperOctreeWriter(const vtkXMLHyperOctreeWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLHyperOctreeWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

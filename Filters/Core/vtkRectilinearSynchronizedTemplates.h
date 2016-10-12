@@ -12,18 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkRectilinearSynchronizedTemplates - generate isosurface from rectilinear grid
-
-// .SECTION Description
-// vtkRectilinearSynchronizedTemplates is a 3D implementation (for rectilinear
-// grids) of the synchronized template algorithm. Note that vtkContourFilter
-// will automatically use this class when appropriate.
-
-// .SECTION Caveats
-// This filter is specialized to rectilinear grids.
-
-// .SECTION See Also
-// vtkContourFilter vtkSynchronizedTemplates2D vtkSynchronizedTemplates3D
+/**
+ * @class   vtkRectilinearSynchronizedTemplates
+ * @brief   generate isosurface from rectilinear grid
+ *
+ *
+ * vtkRectilinearSynchronizedTemplates is a 3D implementation (for rectilinear
+ * grids) of the synchronized template algorithm. Note that vtkContourFilter
+ * will automatically use this class when appropriate.
+ *
+ * @warning
+ * This filter is specialized to rectilinear grids.
+ *
+ * @sa
+ * vtkContourFilter vtkSynchronizedTemplates2D vtkSynchronizedTemplates3D
+*/
 
 #ifndef vtkRectilinearSynchronizedTemplates_h
 #define vtkRectilinearSynchronizedTemplates_h
@@ -41,104 +44,129 @@ public:
   static vtkRectilinearSynchronizedTemplates *New();
 
   vtkTypeMacro(vtkRectilinearSynchronizedTemplates,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Because we delegate to vtkContourValues
-  unsigned long int GetMTime();
+  /**
+   * Because we delegate to vtkContourValues
+   */
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
-  // Description:
-  // Set/Get the computation of normals. Normal computation is fairly
-  // expensive in both time and storage. If the output data will be
-  // processed by filters that modify topology or geometry, it may be
-  // wise to turn Normals and Gradients off.
+  //@{
+  /**
+   * Set/Get the computation of normals. Normal computation is fairly
+   * expensive in both time and storage. If the output data will be
+   * processed by filters that modify topology or geometry, it may be
+   * wise to turn Normals and Gradients off.
+   */
   vtkSetMacro(ComputeNormals,int);
   vtkGetMacro(ComputeNormals,int);
   vtkBooleanMacro(ComputeNormals,int);
+  //@}
 
-  // Description:
-  // Set/Get the computation of gradients. Gradient computation is
-  // fairly expensive in both time and storage. Note that if
-  // ComputeNormals is on, gradients will have to be calculated, but
-  // will not be stored in the output dataset.  If the output data
-  // will be processed by filters that modify topology or geometry, it
-  // may be wise to turn Normals and Gradients off.
+  //@{
+  /**
+   * Set/Get the computation of gradients. Gradient computation is
+   * fairly expensive in both time and storage. Note that if
+   * ComputeNormals is on, gradients will have to be calculated, but
+   * will not be stored in the output dataset.  If the output data
+   * will be processed by filters that modify topology or geometry, it
+   * may be wise to turn Normals and Gradients off.
+   */
   vtkSetMacro(ComputeGradients,int);
   vtkGetMacro(ComputeGradients,int);
   vtkBooleanMacro(ComputeGradients,int);
+  //@}
 
-  // Description:
-  // Set/Get the computation of scalars.
+  //@{
+  /**
+   * Set/Get the computation of scalars.
+   */
   vtkSetMacro(ComputeScalars,int);
   vtkGetMacro(ComputeScalars,int);
   vtkBooleanMacro(ComputeScalars,int);
+  //@}
 
-  // Description:
-  // Set a particular contour value at contour number i. The index i ranges
-  // between 0<=i<NumberOfContours.
+  /**
+   * Set a particular contour value at contour number i. The index i ranges
+   * between 0<=i<NumberOfContours.
+   */
   void SetValue(int i, double value) {this->ContourValues->SetValue(i,value);}
 
-  // Description:
-  // Get the ith contour value.
+  /**
+   * Get the ith contour value.
+   */
   double GetValue(int i) {return this->ContourValues->GetValue(i);}
 
-  // Description:
-  // Get a pointer to an array of contour values. There will be
-  // GetNumberOfContours() values in the list.
+  /**
+   * Get a pointer to an array of contour values. There will be
+   * GetNumberOfContours() values in the list.
+   */
   double *GetValues() {return this->ContourValues->GetValues();}
 
-  // Description:
-  // Fill a supplied list with contour values. There will be
-  // GetNumberOfContours() values in the list. Make sure you allocate
-  // enough memory to hold the list.
+  /**
+   * Fill a supplied list with contour values. There will be
+   * GetNumberOfContours() values in the list. Make sure you allocate
+   * enough memory to hold the list.
+   */
   void GetValues(double *contourValues) {
     this->ContourValues->GetValues(contourValues);}
 
-  // Description:
-  // Set the number of contours to place into the list. You only really
-  // need to use this method to reduce list size. The method SetValue()
-  // will automatically increase list size as needed.
+  /**
+   * Set the number of contours to place into the list. You only really
+   * need to use this method to reduce list size. The method SetValue()
+   * will automatically increase list size as needed.
+   */
   void SetNumberOfContours(int number) {
     this->ContourValues->SetNumberOfContours(number);}
 
-  // Description:
-  // Get the number of contours in the list of contour values.
+  /**
+   * Get the number of contours in the list of contour values.
+   */
   int GetNumberOfContours() {
     return this->ContourValues->GetNumberOfContours();}
 
-  // Description:
-  // Generate numContours equally spaced contour values between specified
-  // range. Contour values will include min/max range values.
+  /**
+   * Generate numContours equally spaced contour values between specified
+   * range. Contour values will include min/max range values.
+   */
   void GenerateValues(int numContours, double range[2]) {
     this->ContourValues->GenerateValues(numContours, range);}
 
-  // Description:
-  // Generate numContours equally spaced contour values between specified
-  // range. Contour values will include min/max range values.
+  /**
+   * Generate numContours equally spaced contour values between specified
+   * range. Contour values will include min/max range values.
+   */
   void GenerateValues(int numContours, double rangeStart, double rangeEnd)
     {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
 
-  // Description:
-  // Set/get which component of the scalar array to contour on; defaults to 0.
+  //@{
+  /**
+   * Set/get which component of the scalar array to contour on; defaults to 0.
+   */
   vtkSetMacro(ArrayComponent, int);
   vtkGetMacro(ArrayComponent, int);
+  //@}
 
- // Description:
-  // If this is enabled (by default), the output will be triangles
-  // otherwise, the output will be the intersection polygons
+ //@{
+ /**
+  * If this is enabled (by default), the output will be triangles
+  * otherwise, the output will be the intersection polygons
+  */
   vtkSetMacro(GenerateTriangles,int);
   vtkGetMacro(GenerateTriangles,int);
   vtkBooleanMacro(GenerateTriangles,int);
+ //@}
 
-  // Description:
-  // Compute the spacing between this point and its 6 neighbors.  This method
-  // needs to be public so it can be accessed from a templated function.
+  /**
+   * Compute the spacing between this point and its 6 neighbors.  This method
+   * needs to be public so it can be accessed from a templated function.
+   */
   void ComputeSpacing(vtkRectilinearGrid *data, int i, int j, int k,
                       int extent[6], double spacing[6]);
 
 protected:
   vtkRectilinearSynchronizedTemplates();
-  ~vtkRectilinearSynchronizedTemplates();
+  ~vtkRectilinearSynchronizedTemplates() VTK_OVERRIDE;
 
   int ComputeNormals;
   int ComputeGradients;
@@ -147,9 +175,9 @@ protected:
 
   vtkContourValues *ContourValues;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   int ArrayComponent;
 
@@ -157,8 +185,8 @@ protected:
                             vtkRectilinearGrid *input);
 
 private:
-  vtkRectilinearSynchronizedTemplates(const vtkRectilinearSynchronizedTemplates&);  // Not implemented.
-  void operator=(const vtkRectilinearSynchronizedTemplates&);  // Not implemented.
+  vtkRectilinearSynchronizedTemplates(const vtkRectilinearSynchronizedTemplates&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRectilinearSynchronizedTemplates&) VTK_DELETE_FUNCTION;
 };
 
 // template table.

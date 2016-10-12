@@ -37,53 +37,53 @@ int SelectionCompare(
   vtkIdTypeArray* blist = vtkArrayDownCast<vtkIdTypeArray>(
     b->GetSelectionList());
   if (a->GetContentType() != b->GetContentType())
-    {
+  {
     cerr << "ERROR: Content type does not match." << endl;
     errors++;
-    }
+  }
   if (a->GetContentType() == vtkSelectionNode::VALUES)
-    {
+  {
     if (!alist->GetName() ||
         !blist->GetName() ||
         strcmp(alist->GetName(), blist->GetName()))
-      {
-      cerr << "ERROR: The array names do not match." << endl;
-      }
-    }
-  if (a->GetFieldType() != b->GetFieldType())
     {
+      cerr << "ERROR: The array names do not match." << endl;
+    }
+  }
+  if (a->GetFieldType() != b->GetFieldType())
+  {
     cerr << "ERROR: Field type does not match." << endl;
     errors++;
-    }
+  }
   if ((alist && !blist) || (!alist && blist))
-    {
+  {
     cerr << "ERROR: One has a selection list while the other does not." << endl;
     errors++;
-    }
+  }
   if (alist && blist)
-    {
+  {
     int numComps = alist->GetNumberOfComponents();
     vtkIdType numTuples = alist->GetNumberOfTuples();
     int bnumComps = blist->GetNumberOfComponents();
     vtkIdType bnumTuples = blist->GetNumberOfTuples();
     if (numTuples != bnumTuples)
-      {
+    {
       cerr << "ERROR: The number of tuples in the selection list do not match ("
            << numTuples << "!=" << bnumTuples << ")." << endl;
       errors++;
-      }
+    }
     else if (numComps != bnumComps)
-      {
+    {
       cerr << "ERROR: The number of components in the selection list do not match ("
            << numComps << "!=" << bnumComps << ")." << endl;
       errors++;
-      }
+    }
     else
-      {
+    {
       for (vtkIdType i = 0; i < numComps*numTuples; i++)
-        {
+      {
         if (alist->GetValue(i) != blist->GetValue(i))
-          {
+        {
           cerr << "ERROR: Selection lists do not match at sel "
                << i
                << "("
@@ -94,10 +94,10 @@ int SelectionCompare(
                << endl;
           errors++;
           break;
-          }
         }
       }
     }
+  }
   return errors;
 }
 
@@ -107,17 +107,17 @@ int SelectionCompare(
 {
   int errors = 0;
   if (a->GetNumberOfNodes() != b->GetNumberOfNodes())
-    {
+  {
     cerr << "ERROR: Number of nodes do not match." << endl;
     errors++;
-    }
+  }
   else
-    {
+  {
     for (unsigned int cc=0; cc < a->GetNumberOfNodes(); cc++)
-      {
+    {
       errors += SelectionCompare(a->GetNode(cc), b->GetNode(cc));
-      }
     }
+  }
   return errors;
 }
 

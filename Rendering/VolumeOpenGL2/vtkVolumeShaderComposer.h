@@ -40,69 +40,71 @@ namespace vtkvolume
   //--------------------------------------------------------------------------
   std::string replace(std::string source, const std::string &search,
                       const std::string &replace, bool all)
-    {
+  {
     if (replace.empty())
-      {
+    {
       return source;
-      }
+    }
 
     std::string::size_type pos = 0;
     bool first = true;
     while ((pos = source.find(search, 0)) != std::string::npos)
-      {
+    {
       source.replace(pos, search.length(), replace);
       pos += search.length();
       if (first)
-        {
+      {
         first = false;
         if (!all)
-          {
+        {
           return source;
-          }
         }
       }
-    return source;
     }
+    return source;
+  }
 
   //--------------------------------------------------------------------------
   std::string ComputeClipPositionImplementation(vtkRenderer* vtkNotUsed(ren),
                                                 vtkVolumeMapper* vtkNotUsed(mapper),
                                                 vtkVolume* vtkNotUsed(vol))
-    {
+  {
     return std::string("\
       \n  vec4 pos = in_projectionMatrix * in_modelViewMatrix *\
       \n             in_volumeMatrix * vec4(in_vertexPos.xyz, 1.0);\
       \n  gl_Position = pos;"
     );
-    }
+  }
 
   //--------------------------------------------------------------------------
   std::string ComputeTextureCoordinates(vtkRenderer* vtkNotUsed(ren),
                                         vtkVolumeMapper* vtkNotUsed(mapper),
                                         vtkVolume* vtkNotUsed(vol))
-    {
+  {
     return std::string(
       "\n  // For point dataset, we offset the texture coordinate\
        \n  // to account for OpenGL treating voxel at the center of the cell.\
        \n  vec3 uvx = sign(in_cellSpacing) * (in_vertexPos - in_volumeExtentsMin) /\
        \n               (in_volumeExtentsMax - in_volumeExtentsMin);\
+       \n\
        \n  if (in_cellFlag)\
        \n    {\
        \n    ip_textureCoords = uvx;\
+       \n    ip_inverseTextureDataAdjusted = in_inverseTextureDatasetMatrix;\
        \n    }\
        \n  else\
        \n    {\
-       \n    vec3 delta = in_textureExtentsMax - in_textureExtentsMin;\
-       \n    ip_textureCoords = (uvx * (delta - vec3(1.0)) + vec3(0.5)) / delta;\
-       \n    }"
-    );
-    }
+       \n    // Transform cell tex-coordinates to point tex-coordinates\
+       \n    ip_textureCoords = (in_cellToPoint * vec4(uvx, 1.0)).xyz;\
+       \n    ip_inverseTextureDataAdjusted = in_cellToPoint * in_inverseTextureDatasetMatrix;\
+       \n    }");
+  }
 
   //--------------------------------------------------------------------------
   std::string BaseDeclarationVertex(vtkRenderer* vtkNotUsed(ren),
                                     vtkVolumeMapper* vtkNotUsed(mapper),
                                     vtkVolume* vtkNotUsed(vol))
-    {
+  {
     return std::string("\
       \n  uniform bool in_cellFlag;\
       \n  uniform vec3 in_cellSpacing;\
@@ -113,10 +115,15 @@ namespace vtkvolume
       \n  uniform vec3 in_volumeExtentsMin;\
       \n  uniform vec3 in_volumeExtentsMax;\
       \n\
+      \n  uniform mat4 in_inverseTextureDatasetMatrix;\
+      \n  uniform mat4 in_cellToPoint;\
       \n  uniform vec3 in_textureExtentsMax;\
-      \n  uniform vec3 in_textureExtentsMin;"
-    );
-    }
+      \n  uniform vec3 in_textureExtentsMin;\
+      \n\
+      \n  //This variable could be 'invariant varying' but it is declared\
+      \n  //as 'varying' to avoid compiler compatibility issues.\
+      \n  varying mat4 ip_inverseTextureDataAdjusted;");
+  }
 
   //--------------------------------------------------------------------------
   std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren),
@@ -127,7 +134,7 @@ namespace vtkvolume
                                       bool hasGradientOpacity,
                                       int noOfComponents,
                                       int independentComponents)
-    {
+  {
     std::string shaderStr = std::string("\
       \n// Volume dataset\
       \nuniform sampler3D in_volume;\
@@ -151,6 +158,9 @@ namespace vtkvolume
       \nuniform mat4 in_inverseModelViewMatrix;\
       \nuniform mat4 in_textureDatasetMatrix;\
       \nuniform mat4 in_inverseTextureDatasetMatrix;\
+      \nvarying mat4 ip_inverseTextureDataAdjusted;\
+      \nuniform vec3 in_texMin;\
+      \nuniform vec3 in_texMax;\
       \nuniform mat4 in_texureToEyeIt;\
       \n\
       \n// Ray step size\
@@ -170,36 +180,38 @@ namespace vtkvolume
       \nuniform vec3 in_textureExtentsMin;\
       \n\
       \n// Material and lighting\
-      \nuniform vec3 in_diffuse;\
-      \nuniform vec3 in_ambient;\
-      \nuniform vec3 in_specular;\
-      \nuniform float in_shininess;\
+      \nuniform vec3 in_diffuse[4];\
+      \nuniform vec3 in_ambient[4];\
+      \nuniform vec3 in_specular[4];\
+      \nuniform float in_shininess[4];\
       \n\
       \n// Others\
       \nuniform bool in_cellFlag;\
       \n uniform bool in_useJittering;\
       \n uniform bool in_clampDepthToBackface;\
-      ");
+      \n\
+      \nuniform vec2 in_averageIPRange;"
+      );
 
     if (lightingComplexity > 0 || hasGradientOpacity)
-      {
+    {
       shaderStr += std::string("\
         \nuniform bool in_twoSidedLighting;\
         \nvec3 g_xvec;\
         \nvec3 g_yvec;\
         \nvec3 g_zvec;");
-      }
+    }
 
     if (hasGradientOpacity)
-      {
+    {
       shaderStr += std::string("\
         \nvec3 g_aspect;\
         \nvec3 g_cellSpacing;\
         \nfloat g_avgSpacing;");
-      }
+    }
 
     if (lightingComplexity == 3)
-      {
+    {
       shaderStr += std::string("\
         \nvec4 g_fragWorldPos;\
         \nuniform int in_numberOfLights;\
@@ -213,9 +225,9 @@ namespace vtkvolume
         \nuniform float in_lightExponent[6];\
         \nuniform int in_lightPositional[6];\
       ");
-      }
+    }
     else if (lightingComplexity == 2)
-      {
+    {
       shaderStr += std::string("\
         \nvec4 g_fragWorldPos;\
         \nuniform int in_numberOfLights;\
@@ -224,9 +236,9 @@ namespace vtkvolume
         \nuniform vec3 in_lightSpecularColor[6];\
         \nuniform vec3 in_lightDirection[6];\
       ");
-      }
+    }
     else
-      {
+    {
       shaderStr += std::string("\
         \nuniform vec3 in_lightAmbientColor[1];\
         \nuniform vec3 in_lightDiffuseColor[1];\
@@ -235,32 +247,32 @@ namespace vtkvolume
         \nvec3 g_ldir;\
         \nvec3 g_vdir;\
         \nvec3 g_h;");
-      }
+    }
 
     if (noOfComponents > 1 && independentComponents)
-      {
+    {
       shaderStr += std::string("\
         \nuniform vec4 in_componentWeight;");
-      }
+    }
 
     vtkOpenGLGPUVolumeRayCastMapper* glMapper
       = vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
     if (glMapper->GetCurrentPass() != vtkOpenGLGPUVolumeRayCastMapper::DepthPass &&
         glMapper->GetUseDepthPass())
-      {
+    {
       shaderStr += std::string("\
         \nuniform sampler2D in_depthPassSampler;");
-      }
+    }
 
     return shaderStr;
-    }
+  }
 
   //--------------------------------------------------------------------------
   std::string BaseInit(vtkRenderer* vtkNotUsed(ren),
                        vtkVolumeMapper* mapper,
                        vtkVolume* vol,
                        int lightingComplexity)
-    {
+  {
     vtkOpenGLGPUVolumeRayCastMapper* glMapper
       = vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
 
@@ -271,7 +283,7 @@ namespace vtkvolume
     if (glMapper->GetCurrentPass() != vtkOpenGLGPUVolumeRayCastMapper::DepthPass &&
         glMapper->GetUseDepthPass() && glMapper->GetBlendMode() ==
         vtkVolumeMapper::COMPOSITE_BLEND)
-      {
+    {
       shaderStr += std::string("\
         \n  //\
         \n  vec2 fragTexCoord2 = (gl_FragCoord.xy - in_windowLowerLeftCorner) *\
@@ -298,14 +310,14 @@ namespace vtkvolume
         \n  g_dataPos = dataPos.xyz;\
         \n  l_adjustTextureExtents = true;"
       );
-      }
+    }
     else
-      {
+    {
       shaderStr += std::string("\
         \n  // Get the 3D texture coordinates for lookup into the in_volume dataset\
         \n  g_dataPos = ip_textureCoords.xyz;"
       );
-      }
+    }
 
       shaderStr += std::string("\
         \n\
@@ -324,7 +336,7 @@ namespace vtkvolume
         \n\
         \n  // Multiply the raymarching direction with the step size to get the\
         \n  // sub-step size we need to take at each raymarching step\
-        \n  g_dirStep = (in_inverseTextureDatasetMatrix *\
+        \n  g_dirStep = (ip_inverseTextureDataAdjusted *\
         \n              vec4(rayDir, 0.0)).xyz * in_sampleDistance;\
         \n\
         \n  float jitterValue = (texture2D(in_noiseSampler, g_dataPos.xy).x);\
@@ -341,7 +353,7 @@ namespace vtkvolume
         \n  bool l_skip = false;");
 
     if (vol->GetProperty()->GetShade() && lightingComplexity == 1)
-      {
+    {
         shaderStr += std::string("\
           \n  // Light position in dataset space\
           \n  g_lightPosObj = (in_inverseVolumeMatrix *\
@@ -357,20 +369,20 @@ namespace vtkvolume
           \n  g_vdir = normalize(g_eyePosObj.xyz - ip_vertexPos);\
           \n  g_h = normalize(g_ldir + g_vdir);"
         );
-      }
+    }
     if ( (vol->GetProperty()->GetShade() ||
           vol->GetProperty()->HasGradientOpacity()) &&
          glMapper->GetCurrentPass() != vtkOpenGLGPUVolumeRayCastMapper::DepthPass)
-      {
+    {
       shaderStr += std::string("\
         \n  g_xvec = vec3(in_cellStep[0], 0.0, 0.0);\
         \n  g_yvec = vec3(0.0, in_cellStep[1], 0.0);\
         \n  g_zvec = vec3(0.0, 0.0, in_cellStep[2]);"
       );
-      }
+    }
 
     if (vol->GetProperty()->HasGradientOpacity())
-      {
+    {
       shaderStr += std::string("\
         \n  g_cellSpacing = vec3(in_cellSpacing[0],\
         \n                       in_cellSpacing[1],\
@@ -383,28 +395,28 @@ namespace vtkvolume
         \n  g_aspect.y = g_cellSpacing[1] * 2.0 / g_avgSpacing;\
         \n  g_aspect.z = g_cellSpacing[2] * 2.0 / g_avgSpacing;"
       );
-      }
+    }
 
       return shaderStr;
-    }
+  }
 
   //--------------------------------------------------------------------------
   std::string BaseImplementation(vtkRenderer* vtkNotUsed(ren),
                                  vtkVolumeMapper* vtkNotUsed(mapper),
                                  vtkVolume* vtkNotUsed(vol))
-    {
+  {
     return std::string("\
       \n    l_skip = false;"
     );
-    }
+  }
 
   //--------------------------------------------------------------------------
   std::string BaseExit(vtkRenderer* vtkNotUsed(ren),
                        vtkVolumeMapper* vtkNotUsed(mapper),
                        vtkVolume* vtkNotUsed(vol))
-    {
+  {
     return std::string();
-    }
+  }
 
   //--------------------------------------------------------------------------
   std::string ComputeGradientDeclaration(vtkRenderer* vtkNotUsed(ren),
@@ -418,7 +430,7 @@ namespace vtkvolume
     std::string shaderStr;
     if (vol->GetProperty()->HasGradientOpacity() &&
         (noOfComponents == 1 || !independentComponents))
-      {
+    {
       shaderStr += std::string("\
         \nuniform sampler2D in_gradientTransferFunc;\
         \nfloat computeGradientOpacity(vec4 grad)\
@@ -426,23 +438,23 @@ namespace vtkvolume
         \n  return texture2D("+gradientTableMap[0]+", vec2(grad.w, 0.0)).r;\
         \n  }"
       );
-      }
+    }
     else if (noOfComponents > 1 && independentComponents &&
              vol->GetProperty()->HasGradientOpacity())
-      {
+    {
       std::ostringstream toString;
       for (int i = 0; i < noOfComponents; ++i)
-        {
+      {
         shaderStr += std::string("\n uniform sampler2D ") +
                      gradientTableMap[i] + std::string(";");
-        }
+      }
 
       shaderStr += std::string("\
         \nfloat computeGradientOpacity(vec4 grad, int component)\
         \n  {");
 
       for (int i = 0; i < noOfComponents; ++i)
-        {
+      {
         toString << i;
         shaderStr += std::string("\
           \n  if (component == " + toString.str() + ")");
@@ -456,15 +468,15 @@ namespace vtkvolume
         // Reset
         toString.str("");
         toString.clear();
-        }
+      }
 
       shaderStr += std::string("\
         \n  }");
-      }
+    }
 
     if (vol->GetProperty()->GetShade() &&
         !vol->GetProperty()->HasGradientOpacity())
-      {
+    {
       shaderStr += std::string("\
         \n// c is short for component\
         \nvec4 computeGradient(int c)\
@@ -484,7 +496,7 @@ namespace vtkvolume
       );
     }
     else if (vol->GetProperty()->HasGradientOpacity())
-      {
+    {
       shaderStr += std::string("\
         \n// c is short for component\
         \nvec4 computeGradient(int c)\
@@ -534,28 +546,28 @@ namespace vtkvolume
         \n  return g2;\
         \n  }"
       );
-      }
+    }
     else
-      {
+    {
       shaderStr += std::string("\
         \nvec4 computeGradient(int component)\
         \n  {\
         \n  return vec4(0.0);\
         \n  }");
-      }
+    }
 
     return shaderStr;
   }
 
   //--------------------------------------------------------------------------
   std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren),
-                                         vtkVolumeMapper* vtkNotUsed(mapper),
+                                         vtkVolumeMapper* mapper,
                                          vtkVolume* vol,
                                          int noOfComponents,
                                          int independentComponents,
                                          int vtkNotUsed(numberOfLights),
                                          int lightingComplexity)
-    {
+  {
     vtkVolumeProperty* volProperty = vol->GetProperty();
     std::string shaderStr = std::string("\
       \nvec4 computeLighting(vec4 color, int component)\
@@ -563,18 +575,23 @@ namespace vtkvolume
       \n  vec4 finalColor = vec4(0.0);"
     );
 
-    if (volProperty->GetShade() || volProperty->HasGradientOpacity())
-      {
+    // Shading for composite blending only
+    int shadeReqd = volProperty->GetShade() &&
+                    (mapper->GetBlendMode() ==
+                     vtkVolumeMapper::COMPOSITE_BLEND);
+
+    if (shadeReqd || volProperty->HasGradientOpacity())
+    {
       shaderStr += std::string("\
         \n  // Compute gradient function only once\
         \n  vec4 gradient = computeGradient(component);"
       );
-      }
+    }
 
-    if (volProperty->GetShade())
-      {
+    if (shadeReqd)
+    {
       if (lightingComplexity == 1)
-        {
+      {
         shaderStr += std::string("\
           \n  vec3 diffuse = vec3(0.0);\
           \n  vec3 specular = vec3(0.0);\
@@ -600,18 +617,20 @@ namespace vtkvolume
           \n     }\
           \n   if (nDotL > 0.0)\
           \n     {\
-          \n     diffuse = nDotL * in_diffuse * in_lightDiffuseColor[0]\
-          \n                 * color.rgb;\
+          \n     diffuse = nDotL * in_diffuse[component] *\
+          \n               in_lightDiffuseColor[0] * color.rgb;\
           \n     }\
-          \n    specular = pow(nDotH, in_shininess) * in_specular *\
+          \n    specular = pow(nDotH, in_shininess[component]) *\
+          \n                 in_specular[component] *\
           \n                 in_lightSpecularColor[0];\
           \n  // For the headlight, ignore the light's ambient color\
           \n  // for now as it is causing the old mapper tests to fail\
-          \n  finalColor.xyz = in_ambient * color.rgb + diffuse + specular;"
+          \n  finalColor.xyz = in_ambient[component] * color.rgb +\
+          \n                   diffuse + specular;"
           );
-        }
+      }
       else if (lightingComplexity == 2)
-        {
+      {
         shaderStr += std::string("\
           \n  g_fragWorldPos = in_modelViewMatrix * in_volumeMatrix *\
           \n                      in_textureDatasetMatrix * vec4(-g_dataPos, 1.0);\
@@ -653,17 +672,18 @@ namespace vtkvolume
           \n    }\
           \n  if (nDotH > 0.0)\
           \n    {\
-          \n    specular = in_lightSpecularColor[lightNum] * pow(nDotH, in_shininess);\
+          \n    specular = in_lightSpecularColor[lightNum] *\
+          \n               pow(nDotH, in_shininess[component]);\
           \n    }\
           \n  ambient += in_lightAmbientColor[lightNum];\
           \n  }\
-          \n  finalColor.xyz = in_ambient * ambient +\
-          \n                   in_diffuse * diffuse * color.rgb +\
-          \n                   in_specular * specular;"
+          \n  finalColor.xyz = in_ambient[component] * ambient +\
+          \n                   in_diffuse[component] * diffuse * color.rgb +\
+          \n                   in_specular[component] * specular;"
           );
-        }
+      }
       else if (lightingComplexity == 3)
-        {
+      {
         shaderStr += std::string("\
           \n  g_fragWorldPos = in_modelViewMatrix * in_volumeMatrix *\
           \n                      in_textureDatasetMatrix * vec4(g_dataPos, 1.0);\
@@ -730,26 +750,27 @@ namespace vtkvolume
           \n    }\
           \n  if (nDotH > 0.0)\
           \n    {\
-          \n    float sf = attenuation * pow(nDotH, in_shininess);\
+          \n    float sf = attenuation * pow(nDotH, in_shininess[component]);\
           \n    specular += (sf * in_lightSpecularColor[lightNum]);\
           \n    }\
           \n    ambient += in_lightAmbientColor[lightNum];\
           \n  }\
-          \n  finalColor.xyz = in_ambient * ambient + in_diffuse *\
-          \n                   diffuse * color.rgb + in_specular * specular;\
+          \n  finalColor.xyz = in_ambient[component] * ambient +\
+          \n                   in_diffuse[component] * diffuse * color.rgb +\
+          \n                   in_specular[component] * specular;\
         ");
-        }
       }
+    }
     else
-      {
+    {
       shaderStr += std::string(
         "\n  finalColor = vec4(color.rgb, 0.0);"
       );
-      }
+    }
 
     if (volProperty->HasGradientOpacity() &&
         (noOfComponents == 1 || !independentComponents))
-      {
+    {
       shaderStr += std::string("\
         \n  if (gradient.w >= 0.0)\
         \n    {\
@@ -757,10 +778,10 @@ namespace vtkvolume
         \n              computeGradientOpacity(gradient);\
         \n    }"
       );
-      }
+    }
      else if (noOfComponents > 1 && independentComponents &&
              volProperty->HasGradientOpacity())
-      {
+     {
       shaderStr += std::string("\
       \n  if (gradient.w >= 0.0)\
       \n    {\
@@ -771,7 +792,7 @@ namespace vtkvolume
       \n      }\
       \n    }"
       );
-      }
+     }
 
     shaderStr += std::string("\
       \n  finalColor.a = color.a;\
@@ -780,24 +801,24 @@ namespace vtkvolume
     );
 
     return shaderStr;
-    }
+  }
 
   //--------------------------------------------------------------------------
   std::string ComputeRayDirectionDeclaration(vtkRenderer* ren,
                                              vtkVolumeMapper* vtkNotUsed(mapper),
                                              vtkVolume* vtkNotUsed(vol),
                                              int vtkNotUsed(noOfComponents))
-    {
+  {
     if (!ren->GetActiveCamera()->GetParallelProjection())
-      {
+    {
       return std::string("\
         \nvec3 computeRayDirection()\
         \n  {\
         \n  return normalize(ip_vertexPos.xyz - g_eyePosObj.xyz);\
         \n  }");
-      }
+    }
     else
-      {
+    {
       return std::string("\
         \nuniform vec3 in_projectionDirection;\
         \nvec3 computeRayDirection()\
@@ -805,8 +826,8 @@ namespace vtkvolume
         \n  return normalize((in_inverseVolumeMatrix *\
         \n                   vec4(in_projectionDirection, 0.0)).xyz);\
         \n  }");
-      }
     }
+  }
 
   //--------------------------------------------------------------------------
   std::string ComputeColorDeclaration(vtkRenderer* vtkNotUsed(ren),
@@ -815,9 +836,9 @@ namespace vtkvolume
                                       int noOfComponents,
                                       int independentComponents,
                                       std::map<int, std::string> colorTableMap)
-    {
+  {
       if (noOfComponents == 1)
-        {
+      {
         return std::string("\
           \nuniform sampler2D in_colorTransferFunc;\
           \nvec4 computeColor(vec4 scalar, float opacity)\
@@ -825,23 +846,23 @@ namespace vtkvolume
           \n  return computeLighting(vec4(texture2D(in_colorTransferFunc,\
           \n                         vec2(scalar.w, 0.0)).xyz, opacity), 0);\
           \n  }");
-        }
+      }
       else if (noOfComponents > 1 && independentComponents)
-        {
+      {
         std::string shaderStr;
         std::ostringstream toString;
         for (int i = 0; i < noOfComponents; ++i)
-          {
+        {
           shaderStr += std::string("\n uniform sampler2D ") +
                        colorTableMap[i] + std::string(";");
-          }
+        }
 
         shaderStr += std::string("\
           \nvec4 computeColor(vec4 scalar, float opacity, int component)\
           \n  {");
 
         for (int i = 0; i < noOfComponents; ++i)
-          {
+        {
           toString << i;
           shaderStr += std::string("\
             \n  if (component == " + toString.str() + ")");
@@ -858,13 +879,13 @@ namespace vtkvolume
           // Reset
           toString.str("");
           toString.clear();
-          }
+        }
 
           shaderStr += std::string("\n  }");
           return shaderStr;
-        }
+      }
       else if (noOfComponents == 2 && !independentComponents)
-        {
+      {
         return std::string("\
           \nuniform sampler2D in_colorTransferFunc;\
           \nvec4 computeColor(vec4 scalar, float opacity)\
@@ -873,16 +894,16 @@ namespace vtkvolume
           \n                                        vec2(scalar.x, 0.0)).xyz,\
           \n                              opacity), 0);\
           \n  }");
-        }
+      }
       else
-        {
+      {
         return std::string("\
           \nvec4 computeColor(vec4 scalar, float opacity)\
           \n  {\
           \n  return computeLighting(vec4(scalar.xyz, opacity), 0);\
           \n  }");
-        }
-    }
+      }
+  }
 
   //--------------------------------------------------------------------------
   std::string ComputeOpacityDeclaration(vtkRenderer* vtkNotUsed(ren),
@@ -891,25 +912,25 @@ namespace vtkvolume
                                         int noOfComponents,
                                         int independentComponents,
                                         std::map<int, std::string> opacityTableMap)
-    {
+  {
     if (noOfComponents > 1 && independentComponents)
-      {
+    {
       std::string shaderStr;
       std::ostringstream toString;
 
       for (int i = 0; i < noOfComponents; ++i)
-        {
+      {
         shaderStr += std::string("\n uniform sampler2D ") +
                      opacityTableMap[i] + std::string(";");
 
-        }
+      }
 
         shaderStr += std::string("\
           \nfloat computeOpacity(vec4 scalar, int component)\
           \n  {");
 
         for (int i = 0; i < noOfComponents; ++i)
-          {
+        {
           toString << i;
           shaderStr += std::string("\
             \n  if (component == " + toString.str() + ")");
@@ -924,81 +945,90 @@ namespace vtkvolume
            // Reset
            toString.str("");
            toString.clear();
-           }
+        }
 
         shaderStr += std::string("\n  }");
         return shaderStr;
-      }
+    }
     else if (noOfComponents == 2 && !independentComponents)
-      {
+    {
       return std::string("\
         \nuniform sampler2D in_opacityTransferFunc;\
         \nfloat computeOpacity(vec4 scalar)\
         \n  {\
         \n  return texture2D(in_opacityTransferFunc, vec2(scalar.y, 0)).r;\
         \n  }");
-      }
+    }
     else
-      {
+    {
       return std::string("\
         \nuniform sampler2D in_opacityTransferFunc;\
         \nfloat computeOpacity(vec4 scalar)\
         \n  {\
         \n  return texture2D(in_opacityTransferFunc, vec2(scalar.w, 0)).r;\
         \n  }");
-      }
     }
+  }
 
   //--------------------------------------------------------------------------
   std::string ShadingDeclarationVertex(vtkRenderer* vtkNotUsed(ren),
                                        vtkVolumeMapper* vtkNotUsed(mapper),
                                        vtkVolume* vtkNotUsed(vol))
-    {
+  {
     return std::string();
-    }
+  }
 
   //--------------------------------------------------------------------------
   std::string ShadingDeclarationFragment(vtkRenderer* vtkNotUsed(ren),
                                          vtkVolumeMapper* vtkNotUsed(mapper),
                                          vtkVolume* vtkNotUsed(vol))
-    {
+  {
     return std::string();
-    }
+  }
 
   //--------------------------------------------------------------------------
   std::string ShadingInit(vtkRenderer* vtkNotUsed(ren),
                           vtkVolumeMapper* mapper,
                           vtkVolume* vtkNotUsed(vol))
-    {
+  {
     if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
-      {
+    {
       return std::string("\
         \n  // We get data between 0.0 - 1.0 range\
         \n  bool l_firstValue = true;\
         \n  vec4 l_maxValue = vec4(0.0);"
       );
-      }
+    }
     else if (mapper->GetBlendMode() ==
              vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)
-      {
+    {
       return std::string("\
         \n  //We get data between 0.0 - 1.0 range\
         \n  bool l_firstValue = true;\
         \n  vec4 l_minValue = vec4(1.0);"
       );
-      }
-    else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
-      {
+    }
+    else if (mapper->GetBlendMode() == vtkVolumeMapper::AVERAGE_INTENSITY_BLEND)
+    {
       return std::string("\
         \n  //We get data between 0.0 - 1.0 range\
-        \n  float l_sumValue = 0.0;"
+        \n  vec4 l_avgValue = vec4(0.0);\
+        \n  // Keep track of number of samples\
+        \n  uvec4 l_numSamples = uvec4(0);"
       );
-      }
-    else
-      {
-      return std::string();
-      }
     }
+    else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
+    {
+      return std::string("\
+        \n  //We get data between 0.0 - 1.0 range\
+        \n  vec4 l_sumValue = vec4(0.0);"
+      );
+    }
+    else
+    {
+      return std::string();
+    }
+  }
 
   //--------------------------------------------------------------------------
   std::string ShadingImplementation(vtkRenderer* vtkNotUsed(ren),
@@ -1008,7 +1038,7 @@ namespace vtkvolume
                                     vtkVolumeMask* mask, int maskType,
                                     int noOfComponents,
                                     int independentComponents = 0)
-    {
+  {
     vtkOpenGLGPUVolumeRayCastMapper* glMapper =
       vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
     std::string shaderStr = std::string("\
@@ -1019,26 +1049,26 @@ namespace vtkvolume
 
     // simulate old intensity textures
     if (noOfComponents == 1)
-      {
+    {
       shaderStr += std::string("\
         \n      scalar.r = scalar.r*in_volume_scale.r + in_volume_bias.r;\
         \n      scalar = vec4(scalar.r,scalar.r,scalar.r,scalar.r);"
         );
-      }
+    }
     else
-      {
+    {
       // handle bias and scale
       shaderStr += std::string("\
         \n      scalar = scalar*in_volume_scale + in_volume_bias;"
         );
-      }
+    }
 
     if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
-      {
+    {
       if (noOfComponents > 1)
-        {
+      {
         if (!independentComponents)
-          {
+        {
           shaderStr += std::string("\
             \n      if (l_maxValue.w < scalar.w || l_firstValue)\
             \n        {\
@@ -1050,9 +1080,9 @@ namespace vtkvolume
             \n        l_firstValue = false;\
             \n        }"
           );
-          }
+        }
         else
-          {
+        {
           shaderStr += std::string("\
            \n      for (int i = 0; i < in_noOfComponents; ++i)\
            \n        {\
@@ -1066,10 +1096,10 @@ namespace vtkvolume
            \n        l_firstValue = false;\
            \n        }"
           );
-          }
         }
+      }
       else
-        {
+      {
         shaderStr += std::string("\
           \n      if (l_maxValue.w < scalar.x || l_firstValue)\
           \n        {\
@@ -1081,14 +1111,14 @@ namespace vtkvolume
           \n        l_firstValue = false;\
           \n        }"
         );
-        }
       }
+    }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)
-      {
+    {
       if (noOfComponents > 1)
-        {
+      {
         if (!independentComponents)
-          {
+        {
           shaderStr += std::string("\
             \n      if (l_minValue.w > scalar.w || l_firstValue)\
             \n        {\
@@ -1100,9 +1130,9 @@ namespace vtkvolume
             \n        l_firstValue = false;\
             \n        }"
           );
-          }
+        }
         else
-          {
+        {
           shaderStr += std::string("\
           \n      for (int i = 0; i < in_noOfComponents; ++i)\
           \n        {\
@@ -1116,10 +1146,10 @@ namespace vtkvolume
           \n        l_firstValue = false;\
           \n        }"
           );
-          }
         }
+      }
       else
-        {
+      {
         shaderStr += std::string("\
           \n      if (l_minValue.w > scalar.x || l_firstValue)\
           \n        {\
@@ -1131,21 +1161,58 @@ namespace vtkvolume
           \n        l_firstValue = false;\
           \n        }"
         );
-        }
       }
-    else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
+    }
+    else if (mapper->GetBlendMode() == vtkVolumeMapper::AVERAGE_INTENSITY_BLEND)
+    {
+      if (noOfComponents > 1  && independentComponents)
       {
+        shaderStr += std::string("\
+        \n       for (int i = 0; i < in_noOfComponents; ++i)\
+        \n         {\
+        \n         // Get the intensity in volume scalar range\
+        \n         float intensity = in_scalarsRange[i][0] +\
+        \n                           (in_scalarsRange[i][1] -\
+        \n                            in_scalarsRange[i][0]) * scalar[i];\
+        \n         if (in_averageIPRange.x <= intensity &&\
+        \n             intensity <= in_averageIPRange.y)\
+        \n           {\
+        \n           float opacity = computeOpacity(scalar, i);\
+        \n           l_avgValue[i] += scalar[i];\
+        \n           ++l_numSamples[i];\
+        \n           }\
+        \n         }"
+        );
+      }
+      else
+      {
+        shaderStr += std::string("\
+        \n      // Get the intensity in volume scalar range\
+        \n      float intensity = in_scalarsRange[0][0] +\
+        \n                        (in_scalarsRange[0][1] -\
+        \n                         in_scalarsRange[0][0]) * scalar.x;\
+        \n      if (in_averageIPRange.x <= intensity &&\
+        \n          intensity <= in_averageIPRange.y)\
+        \n        {\
+        \n        l_avgValue.w += scalar.x;\
+        \n        ++l_numSamples.w;\
+        \n        }"
+        );
+      }
+    }
+    else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
+    {
       if (noOfComponents > 1)
-       {
+      {
        if (!independentComponents)
-         {
+       {
          shaderStr += std::string("\
            \n      float opacity = computeOpacity(scalar);\
-           \n      l_sumValue = l_sumValue + opacity * scalar.x;"
+           \n      l_sumValue.x = l_sumValue.x + opacity * scalar.x;"
          );
-         }
+       }
        else
-         {
+       {
          shaderStr += std::string("\
          \n       for (int i = 0; i < in_noOfComponents; ++i)\
          \n         {\
@@ -1153,20 +1220,20 @@ namespace vtkvolume
          \n         l_sumValue[i] = l_sumValue[i] + opacity * scalar[i];\
          \n         }"
          );
-         }
        }
-       else
-         {
-         shaderStr += std::string("\
-           \n      float opacity = computeOpacity(scalar);\
-           \n      l_sumValue = l_sumValue + opacity * scalar.x;"
-         );
-         }
       }
-    else if (mapper->GetBlendMode() == vtkVolumeMapper::COMPOSITE_BLEND)
+      else
       {
+        shaderStr += std::string("\
+          \n      float opacity = computeOpacity(scalar);\
+          \n      l_sumValue.x = l_sumValue.x + opacity * scalar.x;"
+        );
+      }
+    }
+    else if (mapper->GetBlendMode() == vtkVolumeMapper::COMPOSITE_BLEND)
+    {
       if (noOfComponents > 1 && independentComponents)
-        {
+      {
         shaderStr += std::string("\
           \n      vec4 color[4]; vec4 tmp = vec4(0.0);\
           \n      float totalAlpha = 0.0;\
@@ -1175,7 +1242,7 @@ namespace vtkvolume
         ");
         if (glMapper->GetUseDepthPass() && glMapper->GetCurrentPass() ==
             vtkOpenGLGPUVolumeRayCastMapper::DepthPass)
-          {
+        {
           shaderStr += std::string("\
             \n        // Data fetching from the red channel of volume texture\
             \n        float opacity = computeOpacity(scalar, i);\
@@ -1185,10 +1252,10 @@ namespace vtkvolume
             \n          }\
             \n       }"
           );
-          }
+        }
         else if (!mask || !maskInput ||
             maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
-          {
+        {
           shaderStr += std::string("\
           \n        // Data fetching from the red channel of volume texture\
           \n        color[i][3] = computeOpacity(scalar, i);\
@@ -1199,6 +1266,9 @@ namespace vtkvolume
           \n        {\
           \n        for (int i = 0; i < in_noOfComponents; ++i)\
           \n          {\
+          \n          // Only let visible components contribute to the final color\
+          \n          if (in_componentWeight[i] <= 0) continue;\
+          \n\
           \n          tmp.x += color[i].x * color[i].w * in_componentWeight[i];\
           \n          tmp.y += color[i].y * color[i].w * in_componentWeight[i];\
           \n          tmp.z += color[i].z * color[i].w * in_componentWeight[i];\
@@ -1207,21 +1277,21 @@ namespace vtkvolume
           \n        }\
           \n      g_fragColor = (1.0f - g_fragColor.a) * tmp + g_fragColor;"
           );
-          }
         }
+      }
       else if (glMapper->GetUseDepthPass() && glMapper->GetCurrentPass() ==
                vtkOpenGLGPUVolumeRayCastMapper::DepthPass)
-        {
+      {
         shaderStr += std::string("\
           \n      g_srcColor = vec4(0.0);\
           \n      g_srcColor.a = computeOpacity(scalar);"
         );
-        }
+      }
       else
-        {
+      {
          if (!mask || !maskInput ||
              maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
-           {
+         {
            shaderStr += std::string("\
              \n      g_srcColor = vec4(0.0);\
              \n      g_srcColor.a = computeOpacity(scalar);\
@@ -1229,7 +1299,7 @@ namespace vtkvolume
              \n        {\
              \n        g_srcColor = computeColor(scalar, g_srcColor.a);"
            );
-           }
+         }
 
          shaderStr += std::string("\
            \n        // Opacity calculation using compositing:\
@@ -1248,28 +1318,28 @@ namespace vtkvolume
 
          if (!mask || !maskInput ||
            maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
-           {
+         {
            shaderStr += std::string("\
              \n        }"
            );
-           }
-        }
+         }
       }
+    }
      else
-        {
+     {
         shaderStr += std::string();
-        }
+     }
 
       shaderStr += std::string("\
         \n      }"
       );
       return shaderStr;
-    }
+  }
 
   //--------------------------------------------------------------------------
   std::string PickingActorPassExit(vtkRenderer* vtkNotUsed(ren),
     vtkVolumeMapper* vtkNotUsed(mapper), vtkVolume* vtkNotUsed(vol))
-    {
+  {
     return std::string("\
     \n  // Special coloring mode which renders the Prop Id in fragments that\
     \n  // have accumulated certain level of opacity. Used during the selection\
@@ -1283,7 +1353,7 @@ namespace vtkvolume
     \n    gl_FragData[0] = vec4(0.0);\
     \n    }\
     \n  return;");
-    };
+  };
 
   //--------------------------------------------------------------------------
   std::string PickingIdLow24PassExit(vtkRenderer* vtkNotUsed(ren),
@@ -1344,20 +1414,20 @@ namespace vtkvolume
                           vtkVolume* vtkNotUsed(vol),
                           int noOfComponents,
                           int independentComponents = 0)
-    {
+  {
     vtkOpenGLGPUVolumeRayCastMapper* glMapper =
       vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
 
     if (glMapper->GetUseDepthPass() && glMapper->GetCurrentPass() ==
         vtkOpenGLGPUVolumeRayCastMapper::DepthPass &&
         mapper->GetBlendMode() == vtkVolumeMapper::COMPOSITE_BLEND)
-      {
+    {
       return std::string();
-      }
+    }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
-      {
+    {
       if (noOfComponents > 1 && independentComponents)
-        {
+      {
         return std::string("\
           \n   g_srcColor = vec4(0);\
           \n   for (int i = 0; i < in_noOfComponents; ++i)\
@@ -1370,21 +1440,21 @@ namespace vtkvolume
           \n     }\
           \n   g_fragColor = g_srcColor;"
         );
-        }
+      }
       else
-        {
+      {
         return std::string("\
          \n  g_srcColor = computeColor(l_maxValue,\
          \n                            computeOpacity(l_maxValue));\
          \n  g_fragColor.rgb = g_srcColor.rgb * g_srcColor.a;\
          \n  g_fragColor.a = g_srcColor.a;"
         );
-        }
       }
+    }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)
-      {
+    {
       if (noOfComponents > 1 && independentComponents)
-        {
+      {
         return std::string("\
           \n  g_srcColor = vec4(0);\
           \n  for (int i = 0; i < in_noOfComponents; ++i)\
@@ -1397,55 +1467,102 @@ namespace vtkvolume
           \n    }\
           \n  g_fragColor = g_srcColor;"
         );
-        }
+      }
       else
-        {
+      {
         return std::string("\
           \n  g_srcColor = computeColor(l_minValue,\
           \n                            computeOpacity(l_minValue));\
           \n  g_fragColor.rgb = g_srcColor.rgb * g_srcColor.a;\
           \n  g_fragColor.a = g_srcColor.a;"
         );
-        }
       }
-    else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
-      {
+    }
+    else if (mapper->GetBlendMode() == vtkVolumeMapper::AVERAGE_INTENSITY_BLEND)
+    {
       if (noOfComponents > 1 && independentComponents)
-        {
-        return std::string("\
-          \n  l_sumValue = clamp(l_sumValue, 0.0, 1.0);\
-          \n  g_fragColor = vec4(l_sumValue);"
-        );
-        }
-      else
-        {
-        return std::string("\
-          \n  l_sumValue = clamp(l_sumValue, 0.0, 1.0);\
-          \n  g_fragColor = vec4(vec3(l_sumValue), 1.0);"
-        );
-        }
-      }
-    else
       {
-      return std::string();
+        return std::string("\
+          \n  g_srcColor = vec4(0);\
+          \n  for (int i = 0; i < in_noOfComponents; ++i)\
+          \n    {\
+          \n    if (l_numSamples[i] == uint(0))\
+          \n      {\
+          \n      continue;\
+          \n      }\
+          \n    l_avgValue[i] /= l_numSamples[i];\
+          \n    vec4 tmp = computeColor(l_avgValue,\
+          \n                            computeOpacity(l_avgValue, i), i);\
+          \n    g_srcColor[0] += tmp[0] * tmp[3] * in_componentWeight[i];\
+          \n    g_srcColor[1] += tmp[1] * tmp[3] * in_componentWeight[i];\
+          \n    g_srcColor[2] += tmp[2] * tmp[3] * in_componentWeight[i];\
+          \n    g_srcColor[3] += tmp[3] * in_componentWeight[i];\
+          \n    }\
+          \n  g_fragColor = g_srcColor;"
+        );
       }
+      else
+      {
+        return std::string("\
+         \n  if (l_numSamples.w == uint(0))\
+         \n    {\
+         \n    g_fragColor = vec4(0);\
+         \n    }\
+         \n  else\
+         \n    {\
+         \n    l_avgValue.w /= l_numSamples.w;\
+         \n    g_srcColor = computeColor(l_avgValue,\
+         \n                              computeOpacity(l_avgValue));\
+         \n    g_fragColor.rgb = g_srcColor.rgb * g_srcColor.a;\
+         \n    g_fragColor.a = g_srcColor.a;\
+         \n    }"
+        );
+      }
+    }
+    else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
+    {
+      if (noOfComponents > 1 && independentComponents)
+      {
+        // Add all the components to get final color
+        return std::string("\
+          \n  l_sumValue.x *= in_componentWeight.x;\
+          \n  for (int i = 1; i < in_noOfComponents; ++i)\
+          \n    {\
+          \n    l_sumValue.x += l_sumValue[i] * in_componentWeight[i];\
+          \n    }\
+          \n  l_sumValue.x = clamp(l_sumValue.x, 0.0, 1.0);\
+          \n  g_fragColor = vec4(vec3(l_sumValue.x), 1.0);"
+        );
+      }
+      else
+      {
+        return std::string("\
+          \n  l_sumValue.x = clamp(l_sumValue.x, 0.0, 1.0);\
+          \n  g_fragColor = vec4(vec3(l_sumValue.x), 1.0);"
+        );
+      }
+    }
+    else
+    {
+      return std::string();
+    }
   }
 
   //--------------------------------------------------------------------------
   std::string TerminationDeclarationVertex(vtkRenderer* vtkNotUsed(ren),
                                            vtkVolumeMapper* vtkNotUsed(mapper),
                                            vtkVolume* vtkNotUsed(vol))
-    {
+  {
     return std::string();
-    }
+  }
 
   //--------------------------------------------------------------------------
   std::string TerminationDeclarationFragment(vtkRenderer* vtkNotUsed(ren),
                                              vtkVolumeMapper* vtkNotUsed(mapper),
                                              vtkVolume* vtkNotUsed(vol))
-    {
+  {
     return std::string();
-    }
+  }
 
   //--------------------------------------------------------------------------
   std::string PickingActorPassDeclaration(vtkRenderer* vtkNotUsed(ren),
@@ -1459,18 +1576,8 @@ namespace vtkvolume
   std::string TerminationInit(vtkRenderer* vtkNotUsed(ren),
                               vtkVolumeMapper* vtkNotUsed(mapper),
                               vtkVolume* vtkNotUsed(vol))
-    {
+  {
     return std::string("\
-      \n  // Minimum texture access coordinate\
-      \n  vec3 l_texMin = vec3(0.0);\
-      \n  vec3 l_texMax = vec3(1.0);\
-      \n  if (l_adjustTextureExtents)\
-      \n    {\
-      \n    vec3 delta = in_textureExtentsMax - in_textureExtentsMin;\
-      \n    l_texMin = vec3(0.5) / delta;\
-      \n    l_texMax = (delta - vec3(0.5)) / delta;\
-      \n    }\
-      \n\
       \n  // Flag to indicate if the raymarch loop should terminate \
       \n  bool stop = false;\
       \n\
@@ -1517,7 +1624,7 @@ namespace vtkvolume
       \n  // From normalized device coordinates to eye coordinates.\
       \n  // in_projectionMatrix is inversed because of way VT\
       \n  // From eye coordinates to texture coordinates\
-      \n  terminatePoint = in_inverseTextureDatasetMatrix *\
+      \n  terminatePoint = ip_inverseTextureDataAdjusted *\
       \n                   in_inverseVolumeMatrix *\
       \n                   in_inverseModelViewMatrix *\
       \n                   in_inverseProjectionMatrix *\
@@ -1527,16 +1634,16 @@ namespace vtkvolume
       \n  l_terminatePointMax = length(terminatePoint.xyz - g_dataPos.xyz) /\
       \n                        length(g_dirStep);\
       \n  float l_currentT = 0.0;");
-    }
+  }
 
   //--------------------------------------------------------------------------
   std::string TerminationImplementation(vtkRenderer* vtkNotUsed(ren),
                                         vtkVolumeMapper* vtkNotUsed(mapper),
                                         vtkVolume* vtkNotUsed(vol))
-    {
+  {
     return std::string("\
-      \n    if(any(greaterThan(g_dataPos, l_texMax)) ||\
-      \n      any(lessThan(g_dataPos, l_texMin)))\
+      \n    if(any(greaterThan(g_dataPos, in_texMax)) ||\
+      \n      any(lessThan(g_dataPos, in_texMin)))\
       \n      {\
       \n      break;\
       \n      }\
@@ -1552,15 +1659,15 @@ namespace vtkvolume
       \n      }\
       \n    ++l_currentT;"
     );
-    }
+  }
 
   //--------------------------------------------------------------------------
   std::string TerminationExit(vtkRenderer* vtkNotUsed(ren),
                               vtkVolumeMapper* vtkNotUsed(mapper),
                               vtkVolume* vtkNotUsed(vol))
-   {
+  {
     return std::string();
-   }
+  }
 
   //--------------------------------------------------------------------------
   std::string CroppingDeclarationVertex(vtkRenderer* vtkNotUsed(ren),
@@ -1731,13 +1838,13 @@ namespace vtkvolume
                            vtkVolume* vtkNotUsed(vol))
   {
     if (!mapper->GetClippingPlanes())
-      {
+    {
       return std::string();
-      }
+    }
 
     std::string shaderStr;
     if (!ren->GetActiveCamera()->GetParallelProjection())
-      {
+    {
       shaderStr = std::string("\
         vec4 temp = in_volumeMatrix * vec4(rayDir, 0.0);\
         \n    if (temp.w != 0.0)\
@@ -1746,12 +1853,12 @@ namespace vtkvolume
         \n      temp.w = 1.0;\
         \n      }\
         vec3 objRayDir = temp.xyz;");
-      }
+    }
     else
-      {
+    {
       shaderStr = std::string("\
         vec3 objRayDir = normalize(in_projectionDirection);");
-      }
+    }
 
     shaderStr += std::string("\
       \n  int clippingPlanesSize = int(in_clippingPlanes[0]);\
@@ -1815,7 +1922,8 @@ namespace vtkvolume
       \n        g_dataPos = newObjDataPos.xyz + g_dirStep;\
       \n        }\
       \n\
-      \n      bool stop = any(greaterThan(g_dataPos, l_texMax)) || any(lessThan(g_dataPos, l_texMin));\
+      \n      bool stop = any(greaterThan(g_dataPos, in_texMax)) ||\
+      \n        any(lessThan(g_dataPos, in_texMin));\
       \n      if (stop)\
       \n        {\
       \n        // The ray exits the bounding box before ever intersecting the plane (only\
@@ -1847,11 +1955,11 @@ namespace vtkvolume
                                      vtkVolume* vtkNotUsed(vol))
   {
     if (!mapper->GetClippingPlanes())
-      {
+    {
       return std::string();
-      }
+    }
     else
-      {
+    {
       return std::string("\
         \n    for (int i = 0; i < clippingPlanesSize && !l_skip; i = i + 6)\
         \n      {\
@@ -1873,7 +1981,7 @@ namespace vtkvolume
         \n        }\
         \n      }"
       );
-      }
+    }
   }
 
   //--------------------------------------------------------------------------
@@ -1893,13 +2001,13 @@ namespace vtkvolume
                                             int vtkNotUsed(maskType))
   {
     if (!mask || !maskInput)
-      {
+    {
       return std::string();
-      }
+    }
     else
-      {
+    {
       return std::string("uniform sampler3D in_mask;");
-      }
+    }
   }
 
   //--------------------------------------------------------------------------
@@ -1912,11 +2020,11 @@ namespace vtkvolume
   {
     if (!mask || !maskInput ||
         maskType == vtkGPUVolumeRayCastMapper::LabelMapMaskType)
-      {
+    {
       return std::string();
-      }
+    }
     else
-      {
+    {
       return std::string("\
         \nvec4 maskValue = texture3D(in_mask, g_dataPos);\
         \nif(maskValue.r <= 0.0)\
@@ -1924,7 +2032,7 @@ namespace vtkvolume
         \n  l_skip = true;\
         \n  }"
       );
-      }
+    }
   }
 
   //--------------------------------------------------------------------------
@@ -1937,17 +2045,17 @@ namespace vtkvolume
   {
     if (!mask || !maskInput ||
         maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
-      {
+    {
       return std::string();
-      }
+    }
     else
-      {
+    {
       return std::string("\
         \nuniform float in_maskBlendFactor;\
         \nuniform sampler2D in_mask1;\
         \nuniform sampler2D in_mask2;"
       );
-      }
+    }
   }
 
   //--------------------------------------------------------------------------
@@ -1961,29 +2069,29 @@ namespace vtkvolume
   {
     if (!mask || !maskInput ||
         maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
-      {
+    {
       return std::string();
-      }
+    }
     else
-      {
+    {
       std::string shaderStr = std::string("\
         \nvec4 scalar = texture3D(in_volume, g_dataPos);");
 
       // simulate old intensity textures
       if (noOfComponents == 1)
-        {
+      {
         shaderStr += std::string("\
           \n      scalar.r = scalar.r*in_volume_scale.r + in_volume_bias.r;\
           \n      scalar = vec4(scalar.r,scalar.r,scalar.r,scalar.r);"
           );
-        }
+      }
       else
-        {
+      {
         // handle bias and scale
         shaderStr += std::string("\
           \n      scalar = scalar*in_volume_scale + in_volume_bias;"
           );
-        }
+      }
 
       return shaderStr + std::string("\
         \nif (in_maskBlendFactor == 0.0)\
@@ -2021,7 +2129,7 @@ namespace vtkvolume
         \n    g_srcColor.a = opacity;\
         \n  }"
       );
-      }
+    }
   }
 
   //--------------------------------------------------------------------------

@@ -151,17 +151,17 @@ int UnitTestCells(int, char*[])
   std::cout << "----- Unit Test Summary -----" << std::endl;
   std::map <std::string, int>::iterator it;
   for (it = results.begin(); it != results.end(); ++it)
-    {
+  {
     std:: cout << std::setw(25) << it->first << " "  << (it->second ? " FAILED" : " OK") << std::endl;
     if (it->second != 0)
-      {
-      ++status;
-      }
-    }
-  if (status)
     {
-    return EXIT_FAILURE;
+      ++status;
     }
+  }
+  if (status)
+  {
+    return EXIT_FAILURE;
+  }
   return EXIT_SUCCESS;
 }
 
@@ -380,9 +380,9 @@ vtkSmartPointer<vtkQuadraticPyramid> MakeQuadraticPyramid()
   vtkSmartPointer<vtkQuadraticPyramid> aPyramid =
     vtkSmartPointer<vtkQuadraticPyramid>::New();
   for (int i = 0; i < 13; ++i)
-    {
+  {
     aPyramid->GetPointIds()->SetId(i, i);
-    }
+  }
 
   aPyramid->GetPoints()->SetPoint(0, 0, 0, 0);
   aPyramid->GetPoints()->SetPoint(1, 1, 0, 0);
@@ -408,9 +408,9 @@ vtkSmartPointer<vtkQuadraticEdge> MakeQuadraticEdge()
   vtkSmartPointer<vtkQuadraticEdge> anEdge =
     vtkSmartPointer<vtkQuadraticEdge>::New();
   for (int i = 0; i < 3; ++i)
-    {
+  {
     anEdge->GetPointIds()->SetId(i, i);
-    }
+  }
 
   anEdge->GetPoints()->SetPoint(0, 0, 0, 0);
   anEdge->GetPoints()->SetPoint(1, 1, 0, 0);
@@ -425,13 +425,13 @@ vtkSmartPointer<vtkQuadraticHexahedron> MakeQuadraticHexahedron()
     vtkSmartPointer<vtkQuadraticHexahedron>::New();
   double *pcoords = aHexahedron->GetParametricCoords();
   for (int i = 0; i < aHexahedron->GetNumberOfPoints(); ++i)
-    {
+  {
     aHexahedron->GetPointIds()->SetId(i, i);
     aHexahedron->GetPoints()->SetPoint(i,
                                        *(pcoords + 3 * i) + vtkMath::Random(-.1,.1),
                                        *(pcoords + 3 * i + 1) + vtkMath::Random(-.1,.1),
                                        *(pcoords + 3 * i + 2) + vtkMath::Random(-.1,.1));
-         }
+  }
   return aHexahedron;
 }
 
@@ -441,13 +441,13 @@ vtkSmartPointer<vtkBiQuadraticQuadraticHexahedron> MakeBiQuadraticQuadraticHexah
     vtkSmartPointer<vtkBiQuadraticQuadraticHexahedron>::New();
   double *pcoords = aHexahedron->GetParametricCoords();
   for (int i = 0; i < aHexahedron->GetNumberOfPoints(); ++i)
-    {
+  {
     aHexahedron->GetPointIds()->SetId(i, i);
     aHexahedron->GetPoints()->SetPoint(i,
                                        *(pcoords + 3 * i) + vtkMath::Random(-.1,.1),
                                        *(pcoords + 3 * i + 1) + vtkMath::Random(-.1,.1),
                                        *(pcoords + 3 * i + 2) + vtkMath::Random(-.1,.1));
-         }
+  }
   return aHexahedron;
 }
 
@@ -457,13 +457,13 @@ vtkSmartPointer<vtkTriQuadraticHexahedron> MakeTriQuadraticHexahedron()
     vtkSmartPointer<vtkTriQuadraticHexahedron>::New();
   double *pcoords = aHexahedron->GetParametricCoords();
   for (int i = 0; i < aHexahedron->GetNumberOfPoints(); ++i)
-    {
+  {
     aHexahedron->GetPointIds()->SetId(i, i);
     aHexahedron->GetPoints()->SetPoint(i,
                                        *(pcoords + 3 * i) + vtkMath::Random(-.1,.1),
                                        *(pcoords + 3 * i + 1) + vtkMath::Random(-.1,.1),
                                        *(pcoords + 3 * i + 2) + vtkMath::Random(-.1,.1));
-         }
+  }
   return aHexahedron;
 }
 
@@ -501,13 +501,13 @@ vtkSmartPointer<vtkQuadraticLinearQuad> MakeQuadraticLinearQuad()
     vtkSmartPointer<vtkQuadraticLinearQuad>::New();
   double *pcoords = aLinearQuad->GetParametricCoords();
   for (int i = 0; i < aLinearQuad->GetNumberOfPoints(); ++i)
-    {
+  {
     aLinearQuad->GetPointIds()->SetId(i, i);
     aLinearQuad->GetPoints()->SetPoint(i,
                                        *(pcoords + 3 * i),
                                        *(pcoords + 3 * i + 1),
                                        *(pcoords + 3 * i + 2));
-    }
+  }
   return aLinearQuad;
 }
 
@@ -517,13 +517,13 @@ vtkSmartPointer<vtkQuadraticLinearWedge> MakeQuadraticLinearWedge()
     vtkSmartPointer<vtkQuadraticLinearWedge>::New();
   double *pcoords = aLinearWedge->GetParametricCoords();
   for (int i = 0; i < 12; ++i)
-    {
+  {
     aLinearWedge->GetPointIds()->SetId(i, i);
     aLinearWedge->GetPoints()->SetPoint(i,
                                        *(pcoords + 3 * i),
                                        *(pcoords + 3 * i + 1),
                                        *(pcoords + 3 * i + 2));
-    }
+  }
   return aLinearWedge;
 }
 
@@ -533,13 +533,13 @@ vtkSmartPointer<vtkQuadraticQuad> MakeQuadraticQuad()
     vtkSmartPointer<vtkQuadraticQuad>::New();
   double *pcoords = aQuad->GetParametricCoords();
   for (int i = 0; i < 8; ++i)
-    {
+  {
     aQuad->GetPointIds()->SetId(i, i);
     aQuad->GetPoints()->SetPoint(i,
                                  *(pcoords + 3 * i) + vtkMath::Random(-.1, .1),
                                  *(pcoords + 3 * i + 1) + vtkMath::Random(-.1, .1),
                                  *(pcoords + 3 * i + 2));
-         }
+  }
   return aQuad;
 }
 
@@ -549,13 +549,13 @@ vtkSmartPointer<vtkQuadraticTetra> MakeQuadraticTetra()
     vtkSmartPointer<vtkQuadraticTetra>::New();
   double *pcoords = aTetra->GetParametricCoords();
   for (int i = 0; i < 10; ++i)
-    {
+  {
     aTetra->GetPointIds()->SetId(i, i);
     aTetra->GetPoints()->SetPoint(i,
                                   *(pcoords + 3 * i) + vtkMath::Random(-.1, .1),
                                  *(pcoords + 3 * i + 1) + vtkMath::Random(-.1, .1),
                                  *(pcoords + 3 * i + 2) + vtkMath::Random(-.1, .1));
-         }
+  }
   return aTetra;
 }
 
@@ -565,13 +565,13 @@ vtkSmartPointer<vtkQuadraticTriangle> MakeQuadraticTriangle()
     vtkSmartPointer<vtkQuadraticTriangle>::New();
   double *pcoords = aTriangle->GetParametricCoords();
   for (int i = 0; i < aTriangle->GetNumberOfPoints(); ++i)
-    {
+  {
     aTriangle->GetPointIds()->SetId(i, i);
     aTriangle->GetPoints()->SetPoint(i,
                                      *(pcoords + 3 * i),
                                      *(pcoords + 3 * i + 1),
                                      *(pcoords + 3 * i + 2));
-    }
+  }
   return aTriangle;
 }
 
@@ -581,13 +581,13 @@ vtkSmartPointer<vtkBiQuadraticTriangle> MakeBiQuadraticTriangle()
     vtkSmartPointer<vtkBiQuadraticTriangle>::New();
   double *pcoords = aTriangle->GetParametricCoords();
   for (int i = 0; i < aTriangle->GetNumberOfPoints(); ++i)
-    {
+  {
     aTriangle->GetPointIds()->SetId(i, i);
     aTriangle->GetPoints()->SetPoint(i,
                                      *(pcoords + 3 * i),
                                      *(pcoords + 3 * i + 1),
                                      *(pcoords + 3 * i + 2));
-    }
+  }
   return aTriangle;
 }
 
@@ -597,13 +597,13 @@ vtkSmartPointer<vtkBiQuadraticQuad> MakeBiQuadraticQuad()
     vtkSmartPointer<vtkBiQuadraticQuad>::New();
   double *pcoords = aQuad->GetParametricCoords();
   for (int i = 0; i < aQuad->GetNumberOfPoints(); ++i)
-    {
+  {
     aQuad->GetPointIds()->SetId(i, i);
     aQuad->GetPoints()->SetPoint(i,
                                  *(pcoords + 3 * i) + vtkMath::Random(-.1, .1),
                                  *(pcoords + 3 * i + 1) + vtkMath::Random(-.1, .1),
                                  *(pcoords + 3 * i + 2));
-         }
+  }
   return aQuad;
 }
 
@@ -613,13 +613,13 @@ vtkSmartPointer<vtkCubicLine> MakeCubicLine()
     vtkSmartPointer<vtkCubicLine>::New();
   double *pcoords = aLine->GetParametricCoords();
   for (int i = 0; i < aLine->GetNumberOfPoints(); ++i)
-    {
+  {
     aLine->GetPointIds()->SetId(i, i);
     aLine->GetPoints()->SetPoint(i,
                                  *(pcoords + 3 * i),
                                  *(pcoords + 3 * i + 1),
                                  *(pcoords + 3 * i + 2));
-    }
+  }
   return aLine;
 }
 
@@ -629,13 +629,13 @@ vtkSmartPointer<vtkQuadraticWedge> MakeQuadraticWedge()
     vtkSmartPointer<vtkQuadraticWedge>::New();
   double *pcoords = aWedge->GetParametricCoords();
   for (int i = 0; i < aWedge->GetNumberOfPoints(); ++i)
-    {
+  {
     aWedge->GetPointIds()->SetId(i, i);
     aWedge->GetPoints()->SetPoint(i,
                                   *(pcoords + 3 * i),
                                   *(pcoords + 3 * i + 1),
                                   *(pcoords + 3 * i + 2));
-    }
+  }
   return aWedge;
 }
 
@@ -645,13 +645,13 @@ vtkSmartPointer<vtkBiQuadraticQuadraticWedge> MakeBiQuadraticQuadraticWedge()
     vtkSmartPointer<vtkBiQuadraticQuadraticWedge>::New();
   double *pcoords = aWedge->GetParametricCoords();
   for (int i = 0; i < aWedge->GetNumberOfPoints(); ++i)
-    {
+  {
     aWedge->GetPointIds()->SetId(i, i);
     aWedge->GetPoints()->SetPoint(i,
                                   *(pcoords + 3 * i),
                                   *(pcoords + 3 * i + 1),
                                   *(pcoords + 3 * i + 2));
-    }
+  }
   return aWedge;
 }
 
@@ -743,9 +743,9 @@ vtkSmartPointer<vtkPolyhedron>MakeDodecahedron()
     vtkSmartPointer<vtkPoints>::New();
 
   for (int i = 0; i < 20; ++i)
-    {
+  {
     aDodecahedron->GetPointIds()->InsertNextId(i);
-    }
+  }
 
   aDodecahedron->GetPoints()->InsertNextPoint(1.21412,    0,          1.58931);
   aDodecahedron->GetPoints()->InsertNextPoint(0.375185,   1.1547,     1.58931);
@@ -866,16 +866,16 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
 
   std::cout << "  Testing GetCellType...";
   if (cellType != aCell->GetCellType())
-    {
+  {
     std::cout << "Expected " << cellType
               << " but got " << aCell->GetCellType()
               << " FAILED" << std::endl;
     ++status;
-    }
+  }
   else
-    {
+  {
     std::cout << "PASSED" << std::endl;
-    }
+  }
 
   std::cout << "  Testing GetCellDimension...";
   std::cout << aCell->GetCellDimension();
@@ -883,14 +883,14 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
 
   std::cout << "  Testing IsLinear...";
   if (aCell->IsLinear() != 1 && linear)
-    {
+  {
     ++status;
     std::cout << "...FAILED" << std::endl;
-    }
+  }
   else
-    {
+  {
     std::cout << "...PASSED" << std::endl;
-    }
+  }
 
   std::cout << "  Testing IsPrimaryCell...";
   std::cout << aCell->IsPrimaryCell();
@@ -909,9 +909,9 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
   std::cout << "...PASSED" << std::endl;
 
   if (aCell->RequiresInitialization())
-    {
+  {
     aCell->Initialize();
-    }
+  }
   std::cout << "  Testing GetNumberOfPoints...";
   std::cout << aCell->GetNumberOfPoints();
   std::cout << "...PASSED" << std::endl;
@@ -927,20 +927,20 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
   if (std::string(aCell->GetClassName()) != "vtkEmptyCell" &&
       std::string(aCell->GetClassName()) != "vtkVertex" &&
       std::string(aCell->GetClassName()) != "vtkPolyhedron")
-    {
+  {
     std::cout << "  Testing GetParametricCoords...";
     double *parametricCoords = aCell->GetParametricCoords();
     if (aCell->IsPrimaryCell() && parametricCoords == NULL)
-      {
+    {
       ++status;
       std::cout << "...FAILED" << std::endl;
-      }
+    }
     else if (parametricCoords)
-      {
+    {
       std::vector<double> pweights(aCell->GetNumberOfPoints());
       // The pcoords should correspond to the cell points
       for (int p = 0; p < aCell->GetNumberOfPoints(); ++p)
-        {
+      {
         double vertex[3];
         aCell->GetPoints()->GetPoint(p, vertex);
         int subId = 0;
@@ -952,7 +952,7 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
               x[1], vertex[1], 1.e-3) ||
             !vtkMathUtilities::FuzzyCompare(
               x[2], vertex[2], 1.e-3))
-          {
+        {
           std::cout << "EvaluateLocation failed...";
           std::cout << "pcoords[" << p << "]: "
                     << parametricCoords[3 * p] << " "
@@ -962,11 +962,11 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
                     << x[0] << " " << x[1] << " " << x[2] << std::endl;
           std::cout << "...FAILED" << std::endl;
           ++status;
-          }
         }
-      std::cout << "...PASSED" << std::endl;
       }
+      std::cout << "...PASSED" << std::endl;
     }
+  }
   std::cout << "  Testing GetBounds...";
   double bounds[6];
   aCell->GetBounds(bounds);
@@ -976,7 +976,7 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
   std::cout << "...PASSED" << std::endl;
 
   if (aCell->GetNumberOfPoints() > 0)
-    {
+  {
     std::cout << "  Testing GetParametricCenter...";
     double pcenter[3], center[3];
     pcenter[0] = pcenter[1] = pcenter[2] = -12345.0;
@@ -989,7 +989,7 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
     if (center[0] < bounds[0] || center[0] > bounds[1] ||
         center[1] < bounds[2] || center[1] > bounds[3] ||
         center[2] < bounds[4] || center[2] > bounds[5])
-      {
+    {
       std::cout << " The computed center is not within the bounds of the cell" << std::endl;
       std::cout << "bounds: "
                 << bounds[0] << "," << bounds[1] << " "
@@ -1002,91 +1002,91 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
                 << center[0] << ", " << center[1] << ", " << center[2]
                 << std::endl;
       std::cout << "...FAILED" << std::endl;
-      }
-    else
-      {
-      std::cout << "...PASSED" << std::endl;
-      }
     }
+    else
+    {
+      std::cout << "...PASSED" << std::endl;
+    }
+  }
 
   std::cout << "  Testing GetParametricDistance...";
   double pcenter[3];
   aCell->GetParametricCenter(pcenter);
   double pd = aCell->GetParametricDistance(pcenter);
   if (pd == 0.0)
-    {
+  {
     std::cout << "...PASSED" << std::endl;
-    }
+  }
   else
-    {
+  {
     ++status;
     std::cout << "...FAILED" << std::endl;
-    }
+  }
 
   std::cout << "  Testing CellBoundaries...";
   vtkSmartPointer<vtkIdList> cellIds =
     vtkSmartPointer<vtkIdList>::New();
   int cellStatus = aCell->CellBoundary(0, pcenter, cellIds);
   if (aCell->GetCellDimension() > 0 && cellStatus != 1)
-    {
+  {
     ++status;
     std::cout << "FAILED" << std::endl;
-    }
+  }
   else
-    {
+  {
     for (int c = 0; c < cellIds->GetNumberOfIds(); ++c)
-      {
+    {
       std::cout << " " << cellIds->GetId(c) << ", ";
-      }
-    std::cout << "PASSED" << std::endl;
     }
+    std::cout << "PASSED" << std::endl;
+  }
 
   if (aCell->GetNumberOfPoints() > 0 &&
       strcmp(aCell->GetClassName(), "vtkQuadraticEdge") != 0 )
-    {
+  {
     std::cout << "  Testing Derivatives...";
     // Create scalars and set first scalar to 1.0
     std::vector<double> scalars(aCell->GetNumberOfPoints());
     scalars[0] = 1.0;
     for (int s = 1; s < aCell->GetNumberOfPoints(); ++s)
-      {
+    {
       scalars[s] = 0.0;
-      }
+    }
     std::vector<double> derivs(3, -12345.0);
     aCell->Derivatives(0, pcenter, &(*scalars.begin()), 1, &(*derivs.begin()));
     if (derivs[0] == -12345. && derivs[1] == -12345. && derivs[2] == -12345.)
-      {
+    {
       std::cout << " not computed";
-      }
+    }
     else
-      {
+    {
       std::cout << " "
                 << derivs[0] << " "
                 << derivs[1] << " "
                 << derivs[2] << " ";
-      }
-    std::cout << "...PASSED" << std::endl;
     }
+    std::cout << "...PASSED" << std::endl;
+  }
 
   std::cout << "  Testing EvaluateLocation vertex matches pcoord...";
   int status5 = 0;
   double *locations = aCell->GetParametricCoords();
   if (locations)
-    {
+  {
     std::vector<double> lweights(aCell->GetNumberOfPoints());
     for (int l = 0; l < aCell->GetNumberOfPoints(); ++l)
-      {
+    {
       double point[3];
       double vertex[3];
       aCell->GetPoints()->GetPoint(l, vertex);
       int subId = 0;
       aCell->EvaluateLocation(subId, locations + 3 * l, point, &(*lweights.begin()));
       for (int v = 0; v < 3; ++v)
-        {
+      {
         if (!vtkMathUtilities::FuzzyCompare(
               point[v], vertex[v],
               1.e-3))
-          {
+        {
           std::cout << " " << point[0] << ", " << point[1] << ", " << point[2] << " != "
                     << vertex[0] << ", " << vertex[1] << ", " << vertex[2] << " " ;
           std::cout << "eps ratio is: " << (point[v] - vertex[v])
@@ -1094,19 +1094,19 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
 
           ++status5;
           break;
-          }
         }
       }
     }
+  }
   if (status5)
-    {
+  {
     std::cout << "...FAILED" << std::endl;
     ++status;
-    }
+  }
   else
-    {
+  {
     std::cout << "...PASSED"<< std::endl;
-    }
+  }
 
   std::cout << "  Testing EvaluatePosition pcoord matches vertex...";
   // Each vertex should corrrespond to a pcoord.
@@ -1115,9 +1115,9 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
   std::vector<double> weights(aCell->GetNumberOfPoints());
   double *vlocations = aCell->GetParametricCoords();
   if (vlocations)
-    {
+  {
     for (int i = 0; i < aCell->GetNumberOfPoints(); ++i)
-      {
+    {
       int status61 = 0;
       double closestPoint[3];
       double point[3];
@@ -1126,16 +1126,16 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
       aCell->GetPoints()->GetPoint(i, point);
       aCell->EvaluatePosition( point, closestPoint, subId, pcoords, dist2, &(*weights.begin()));
       for (int v = 0; v < 3; ++v)
-        {
+      {
         if (!vtkMathUtilities::FuzzyCompare(
               *(vlocations + 3 * i + v) ,pcoords[v],
               1.e-3))
-          {
-          ++status61;
-          }
-        }
-      if (status61)
         {
+          ++status61;
+        }
+      }
+      if (status61)
+      {
         std::cout << std::endl
                   << *(vlocations + 3 * i + 0) << ", "
                   << *(vlocations + 3 * i + 1) << ", "
@@ -1145,18 +1145,18 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
                   << pcoords[1] << ", "
                   << pcoords[2] << " " ;
         ++status6;
-        }
       }
     }
+  }
   if (status6)
-    {
+  {
     ++status;
     std::cout << "...FAILED" << std::endl;
-    }
+  }
   else
-    {
+  {
     std::cout << "...PASSED" << std::endl;
-    }
+  }
 
   std::cout << "  Testing EvaluatePosition in/out test...";
 
@@ -1167,16 +1167,16 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
 
   // First test cell points
   for (int i = 0; i < aCell->GetNumberOfPoints(); ++i)
-    {
+  {
     std::vector<double> point(3);
     aCell->GetPoints()->GetPoint(i, &(*point.begin()));
     testPoints.push_back(point);
     inOuts.push_back(1);
     typePoint.push_back("cell point");
-    }
+  }
   // Then test center of cell
   if (aCell->GetNumberOfPoints() > 0)
-    {
+  {
     std::vector<double> tCenter(3);
     aCell->EvaluateLocation(subId, pcenter, &(*tCenter.begin()), &(*weights.begin()));
     testPoints.push_back(tCenter);
@@ -1184,19 +1184,19 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
     typePoint.push_back("cell center");
     // Test a point above the cell
     if (aCell->GetCellDimension() == 2)
-      {
+    {
       std::vector<double> above(3);
       above[0] = tCenter[0]; above[1] = tCenter[1];
       above[2] = tCenter[2] + aCell->GetLength2();
       testPoints.push_back(above);
       inOuts.push_back(0);
       typePoint.push_back("point above cell");
-      }
     }
+  }
 
   // Test points at the center of each edge
   for (int e = 0; e < aCell->GetNumberOfEdges(); ++e)
-    {
+  {
     std::vector<double> eCenter(3);
     vtkCell *c = aCell->GetEdge(e);
     c->GetParametricCenter(pcenter);
@@ -1204,11 +1204,11 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
     testPoints.push_back(eCenter);
     typePoint.push_back("edge center");
     inOuts.push_back(1);
-    }
+  }
 
   // Test points at the center of each face
   for (int f = 0; f < aCell->GetNumberOfFaces(); ++f)
-    {
+  {
     std::vector<double> fCenter(3);
     vtkCell *c = aCell->GetFace(f);
     c->GetParametricCenter(pcenter);
@@ -1216,35 +1216,35 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
     testPoints.push_back(fCenter);
     inOuts.push_back(1);
     typePoint.push_back("face center");
-    }
+  }
 
   // Test a point outside the cell
   if (aCell->GetNumberOfPoints() > 0)
-    {
+  {
     std::vector<double> outside(3, -12345.0);
     testPoints.push_back(outside);
     inOuts.push_back(0);
     typePoint.push_back("outside point");
-    }
+  }
   for (size_t p = 0; p < testPoints.size(); ++p)
-    {
+  {
     double closestPoint[3], pcoords[3], dist2;
     int inOut = aCell->EvaluatePosition( &(*testPoints[p].begin()),
                                          closestPoint, subId,
                                          pcoords, dist2,
                                          &(*weights.begin()));
     if ((inOut == 0 || inOut == -1) && inOuts[p] == 0)
-      {
+    {
       continue;
-      }
+    }
     else if (inOut == 1 && dist2 == 0.0 && inOuts[p] == 1)
-      {
+    {
       continue;
-      }
+    }
     else if (inOut == 1 && dist2 != 0.0 && inOuts[p] == 0)
-      {
+    {
       continue;
-      }
+    }
     // inOut failed
     std::cout << typePoint[p] << " failed inOut: " << inOut << " "
               << "point: " <<testPoints[p][0] << ", " << testPoints[p][1] << ", " << testPoints[p][2] << "-> "
@@ -1253,25 +1253,25 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
               << "dist2: " << dist2;
     std::cout << " weights: ";
     for (int w = 0; w < aCell->GetNumberOfPoints(); ++w)
-      {
+    {
       std::cout << weights[w] << " ";
-      }
+    }
     std::cout << std::endl;
     status2 += 1;
-    }
+  }
   if (status2)
-    {
+  {
     ++status;
     std::cout << "FAILED" << std::endl;
-    }
+  }
   else
-    {
+  {
     std::cout << "PASSED" << std::endl;
-    }
+  }
 
   if (aCell->GetNumberOfPoints() > 0 &&
       aCell->GetCellDimension() > 0)
-    {
+  {
     std::cout << "  Testing IntersectWithLine...";
     double tol = 1.e-5;
     double t;
@@ -1294,13 +1294,13 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
         pintersection,
         subId);
     if (result == 0)
-      {
+    {
       ++status3;
-      }
+    }
     else
-      {
+    {
       std::cout << " t: " << t << " ";
-      }
+    }
     startPoint[2] = endPoint[2] + aCell->GetLength2();
     result =
       aCell->IntersectWithLine(
@@ -1311,20 +1311,20 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
         pintersection,
         subId);
     if (result == 1)
-      {
+    {
       ++status3;
-      }
+    }
 
     if (status3 != 0)
-      {
+    {
       ++status;
       std::cout << "...FAILED" << std::endl;
-      }
-    else
-      {
-      std::cout << "...PASSED" << std::endl;
-      }
     }
+    else
+    {
+      std::cout << "...PASSED" << std::endl;
+    }
+  }
 
   // Triangulate
   std::cout << "  Testing Triangulate...";
@@ -1337,30 +1337,30 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
   aCell->Triangulate(index, ptIds, triPoints);
   int pts = ptIds->GetNumberOfIds();
   if (aCell->GetCellDimension() == 0)
-    {
+  {
     std::cout << "Generated " << pts << " Points";
-    }
+  }
   else if (aCell->GetCellDimension() == 1)
-    {
+  {
     std::cout << "Generated " << pts / 2 << " Lines";
-    }
+  }
   else if (aCell->GetCellDimension() == 2)
-    {
+  {
     std::cout << "Generated " << pts / 3 << " Triangles";
-    }
+  }
   else if (aCell->GetCellDimension() == 3)
-    {
+  {
     std::cout << "Generated " << pts / 4 << " Tetra";
-    }
+  }
   std::cout << "...PASSED" << std::endl;
 
   if (status)
-    {
+  {
     std::cout << aCell->GetClassName() << " FAILED" << std::endl;
-    }
+  }
   else
-    {
+  {
     std::cout << aCell->GetClassName() << " PASSED" << std::endl;
-    }
+  }
   return status;
 }

@@ -1,13 +1,5 @@
 if(NOT VTK_LEGACY_REMOVE)
   vtk_module(vtkAcceleratorsPiston
-    DEPENDS
-      vtkCommonCore
-      vtkCommonDataModel
-      vtkCommonExecutionModel
-      vtkRenderingCore
-      vtkRenderingOpenGL
-      vtkIOImage #from piston
-      vtkImagingHybrid #from piston
     TEST_DEPENDS
       vtkTestingRendering
       vtkInteractionStyle
@@ -17,5 +9,11 @@ if(NOT VTK_LEGACY_REMOVE)
       vtkParallelMPI
       vtkRenderingParallel
     EXCLUDE_FROM_ALL
+    DEPENDS
+      vtkCommonCore
+      vtkCommonDataModel
+      vtkCommonExecutionModel
+      vtkRenderingCore
+      vtkRenderingOpenGL
     )
 endif()

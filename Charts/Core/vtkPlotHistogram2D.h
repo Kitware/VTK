@@ -13,10 +13,13 @@
 
 =========================================================================*/
 
-// .NAME vtk2DHistogramItem - 2D histogram item.
-//
-// .SECTION Description
-//
+/**
+ * @class   vtk2DHistogramItem
+ * @brief   2D histogram item.
+ *
+ *
+ *
+*/
 
 #ifndef vtkPlotHistogram2D_h
 #define vtkPlotHistogram2D_h
@@ -35,39 +38,46 @@ public:
   vtkTypeMacro(vtkPlotHistogram2D, vtkPlot);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Creates a new object.
+  /**
+   * Creates a new object.
+   */
   static vtkPlotHistogram2D *New();
 
-  // Description:
-  // Perform any updates to the item that may be necessary before rendering.
-  // The scene should take care of calling this on all items before their
-  // Paint function is invoked.
+  /**
+   * Perform any updates to the item that may be necessary before rendering.
+   * The scene should take care of calling this on all items before their
+   * Paint function is invoked.
+   */
   virtual void Update();
 
-  // Description:
-  // Paint event for the item, called whenever it needs to be drawn.
+  /**
+   * Paint event for the item, called whenever it needs to be drawn.
+   */
   virtual bool Paint(vtkContext2D *painter);
 
-  // Description:
-  // Set the input, we are expecting a vtkImageData with just one component,
-  // this would normally be a float or a double. It will be passed to the other
-  // functions as a double to generate a color.
+  /**
+   * Set the input, we are expecting a vtkImageData with just one component,
+   * this would normally be a float or a double. It will be passed to the other
+   * functions as a double to generate a color.
+   */
   virtual void SetInputData(vtkImageData *data, vtkIdType z = 0);
   virtual void SetInputData(vtkTable*) { }
   virtual void SetInputData(vtkTable*, const vtkStdString&, const vtkStdString&) { }
 
-  // Description:
-  // Get the input table used by the plot.
+  /**
+   * Get the input table used by the plot.
+   */
   vtkImageData * GetInputImageData();
 
-  // Description:
-  // Set the color transfer function that will be used to generate the 2D
-  // histogram.
+  /**
+   * Set the color transfer function that will be used to generate the 2D
+   * histogram.
+   */
   void SetTransferFunction(vtkScalarsToColors *transfer);
 
-  // Description:
-  // Get the color transfer function that is used to generate the histogram.
+  /**
+   * Get the color transfer function that is used to generate the histogram.
+   */
   vtkScalarsToColors * GetTransferFunction();
 
   virtual void GetBounds(double bounds[4]);
@@ -75,34 +85,36 @@ public:
   virtual void SetPosition(const vtkRectf& pos);
   virtual vtkRectf GetPosition();
 
-  // Description:
-  // Generate and return the tooltip label string for this plot
-  // The segmentIndex parameter is ignored.
-  // The member variable TooltipLabelFormat can be set as a
-  // printf-style string to build custom tooltip labels from,
-  // and may contain:
-  // An empty string generates the default tooltip labels.
-  // The following case-sensitive format tags (without quotes) are recognized:
-  //   '%x' The X position of the histogram cell
-  //   '%y' The Y position of the histogram cell
-  //   '%v' The scalar value of the histogram cell
-  //   Note: the %i and %j tags are valid only if there is a 1:1 correspondence
-  //         between individual histogram cells and axis tick marks
-  //   '%i' The X axis tick label for the histogram cell
-  //   '%j' The Y axis tick label for the histogram cell
-  // Any other characters or unrecognized format tags are printed in the
-  // tooltip label verbatim.
+  /**
+   * Generate and return the tooltip label string for this plot
+   * The segmentIndex parameter is ignored.
+   * The member variable TooltipLabelFormat can be set as a
+   * printf-style string to build custom tooltip labels from,
+   * and may contain:
+   * An empty string generates the default tooltip labels.
+   * The following case-sensitive format tags (without quotes) are recognized:
+   * '%x' The X position of the histogram cell
+   * '%y' The Y position of the histogram cell
+   * '%v' The scalar value of the histogram cell
+   * Note: the %i and %j tags are valid only if there is a 1:1 correspondence
+   * between individual histogram cells and axis tick marks
+   * '%i' The X axis tick label for the histogram cell
+   * '%j' The Y axis tick label for the histogram cell
+   * Any other characters or unrecognized format tags are printed in the
+   * tooltip label verbatim.
+   */
   virtual vtkStdString GetTooltipLabel(const vtkVector2d &plotPos,
                                        vtkIdType seriesIndex,
                                        vtkIdType segmentIndex);
 
-  // Description:
-  // Function to query a plot for the nearest point to the specified coordinate.
-  // Returns an index between 0 and (number of histogram cells - 1), or -1.
-  // The index 0 is at cell x=0, y=0 of the histogram, and the index increases
-  // in a minor fashon with x and in a major fashon with y.
-  // The referent of "location" is set to the x and y integer indices of the
-  // histogram cell.
+  /**
+   * Function to query a plot for the nearest point to the specified coordinate.
+   * Returns an index between 0 and (number of histogram cells - 1), or -1.
+   * The index 0 is at cell x=0, y=0 of the histogram, and the index increases
+   * in a minor fashon with x and in a major fashon with y.
+   * The referent of "location" is set to the x and y integer indices of the
+   * histogram cell.
+   */
   virtual vtkIdType GetNearestPoint(const vtkVector2f& point,
                                     const vtkVector2f& tolerance,
                                     vtkVector2f* location);
@@ -111,8 +123,9 @@ protected:
   vtkPlotHistogram2D();
   ~vtkPlotHistogram2D();
 
-  // Description:
-  // Where all the magic happens...
+  /**
+   * Where all the magic happens...
+   */
   void GenerateHistogram();
 
   vtkSmartPointer<vtkImageData> Input;
@@ -121,8 +134,8 @@ protected:
   vtkRectf Position;
 
 private:
-  vtkPlotHistogram2D(const vtkPlotHistogram2D &); // Not implemented.
-  void operator=(const vtkPlotHistogram2D &); // Not implemented.
+  vtkPlotHistogram2D(const vtkPlotHistogram2D &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPlotHistogram2D &) VTK_DELETE_FUNCTION;
 
 };
 

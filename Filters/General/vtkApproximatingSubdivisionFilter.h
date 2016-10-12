@@ -12,14 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkApproximatingSubdivisionFilter - generate a subdivision surface using an Approximating Scheme
-// .SECTION Description
-// vtkApproximatingSubdivisionFilter is an abstract class that defines
-// the protocol for Approximating subdivision surface filters.
-
-// .SECTION Thanks
-// This work was supported by PHS Research Grant No. 1 P41 RR13218-01
-// from the National Center for Research Resources.
+/**
+ * @class   vtkApproximatingSubdivisionFilter
+ * @brief   generate a subdivision surface using an Approximating Scheme
+ *
+ * vtkApproximatingSubdivisionFilter is an abstract class that defines
+ * the protocol for Approximating subdivision surface filters.
+ *
+ * @par Thanks:
+ * This work was supported by PHS Research Grant No. 1 P41 RR13218-01
+ * from the National Center for Research Resources.
+*/
 
 #ifndef vtkApproximatingSubdivisionFilter_h
 #define vtkApproximatingSubdivisionFilter_h
@@ -38,18 +41,21 @@ class VTKFILTERSGENERAL_EXPORT vtkApproximatingSubdivisionFilter : public vtkPol
 {
 public:
   vtkTypeMacro(vtkApproximatingSubdivisionFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Set/get the number of subdivisions.
+  //@{
+  /**
+   * Set/get the number of subdivisions.
+   */
   vtkSetMacro(NumberOfSubdivisions,int);
   vtkGetMacro(NumberOfSubdivisions,int);
+  //@}
 
 protected:
   vtkApproximatingSubdivisionFilter();
-  ~vtkApproximatingSubdivisionFilter() {}
+  ~vtkApproximatingSubdivisionFilter() VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   virtual int GenerateSubdivisionPoints (vtkPolyData *inputDS,
                                           vtkIntArray *edgeData,
                                           vtkPoints *outputPts,
@@ -63,8 +69,8 @@ protected:
                                  vtkIdList *stencil, double *weights);
   int NumberOfSubdivisions;
 private:
-  vtkApproximatingSubdivisionFilter(const vtkApproximatingSubdivisionFilter&);  // Not implemented.
-  void operator=(const vtkApproximatingSubdivisionFilter&);  // Not implemented.
+  vtkApproximatingSubdivisionFilter(const vtkApproximatingSubdivisionFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkApproximatingSubdivisionFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

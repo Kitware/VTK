@@ -51,10 +51,10 @@ int TestPieChart(int , char * [])
 
   arrData->SetName("2008 Circulation");
   for (int i = 0; i < NUM_ITEMS; i++)
-    {
+  {
     arrData->InsertNextValue(data[i]);
     labelArray->InsertNextValue(labels[i]);
-    }
+  }
 
   table->AddColumn(arrData.GetPointer());
 

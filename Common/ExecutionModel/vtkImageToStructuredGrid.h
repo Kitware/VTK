@@ -12,12 +12,14 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkImageToStructuredGrid.h -- A filter to convert image data to
-// a structured grid instance.
-//
-// .SECTION Description
-// A concrete instance of vtkStructuredGridAlgorithm which provides
-// functionality for converting instances of vtkImageData to vtkStructuredGrid.
+/**
+ * @class   vtkImageToStructuredGrid
+ * a structured grid instance.
+ *
+ *
+ * A concrete instance of vtkStructuredGridAlgorithm which provides
+ * functionality for converting instances of vtkImageData to vtkStructuredGrid.
+*/
 
 #ifndef vtkImageToStructuredGrid_h
 #define vtkImageToStructuredGrid_h
@@ -36,29 +38,32 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageToStructuredGrid:
   public:
     static vtkImageToStructuredGrid* New();
     vtkTypeMacro(vtkImageToStructuredGrid,vtkStructuredGridAlgorithm);
-    void PrintSelf(ostream &oss, vtkIndent indent );
+    void PrintSelf(ostream &oss, vtkIndent indent ) VTK_OVERRIDE;
 
   protected:
     vtkImageToStructuredGrid();
-    virtual ~vtkImageToStructuredGrid();
+    ~vtkImageToStructuredGrid() VTK_OVERRIDE;
 
-    virtual int RequestData(
+    int RequestData(
         vtkInformation* request,
         vtkInformationVector** inputVector,
-        vtkInformationVector* outputVector );
+        vtkInformationVector* outputVector ) VTK_OVERRIDE;
 
-    // Description:
-    // Helper function to copy point/cell data from image to grid
+    //@{
+    /**
+     * Helper function to copy point/cell data from image to grid
+     */
     void CopyPointData( vtkImageData*, vtkStructuredGrid* );
     void CopyCellData( vtkImageData*, vtkStructuredGrid*  );
+    //@}
 
-    virtual int FillInputPortInformation(int, vtkInformation* info);
-    virtual int FillOutputPortInformation(int, vtkInformation* info );
+    int FillInputPortInformation(int, vtkInformation* info) VTK_OVERRIDE;
+    int FillOutputPortInformation(int, vtkInformation* info ) VTK_OVERRIDE;
 
   private:
     vtkImageToStructuredGrid(
-        const vtkImageToStructuredGrid& ); //Not implemented
-    void operator=(const vtkImageToStructuredGrid&);//Not implemented
+        const vtkImageToStructuredGrid& ) VTK_DELETE_FUNCTION;
+    void operator=(const vtkImageToStructuredGrid&) VTK_DELETE_FUNCTION;
 
 
 };

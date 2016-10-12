@@ -35,16 +35,16 @@ int TestNewickTreeReader(int argc, char* argv[])
 
 
   if (tree1->GetNumberOfVertices() != 836)
-    {
+  {
     cerr << "Wrong number of Vertices: "<< tree1->GetNumberOfVertices() << endl;
     return 1;
-    }
+  }
 
   if (tree1->GetNumberOfEdges() != 835)
-    {
+  {
     cerr << "Wrong number of Edges: "<< tree1->GetNumberOfEdges() << endl;
     return 1;
-    }
+  }
 
 
   //reading from a string
@@ -59,16 +59,16 @@ int TestNewickTreeReader(int argc, char* argv[])
   vtkTree *tree2 = reader2->GetOutput();
 
   if (tree2->GetNumberOfVertices() != 10)
-    {
+  {
     cerr << "Wrong number of Vertices: "<< tree2->GetNumberOfVertices() << endl;
     return 1;
-    }
+  }
 
   if (tree2->GetNumberOfEdges() != 9)
-    {
+  {
     cerr << "Wrong number of Edges: "<< tree2->GetNumberOfEdges() << endl;
     return 1;
-    }
+  }
 
   return 0;
 }

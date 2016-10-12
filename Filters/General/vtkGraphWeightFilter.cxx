@@ -53,10 +53,10 @@ int vtkGraphWeightFilter::RequestData(vtkInformation *vtkNotUsed(request),
   output->ShallowCopy(input);
 
   if(!this->CheckRequirements(input))
-    {
+  {
     vtkErrorMacro(<< "Requirements are not met!");
     return 0;
-    }
+  }
 
   // Create the edge weight array
   vtkSmartPointer<vtkFloatArray> weights =
@@ -71,13 +71,13 @@ int vtkGraphWeightFilter::RequestData(vtkInformation *vtkNotUsed(request),
   input->GetEdges(edgeListIterator);
 
   while(edgeListIterator->HasNext())
-    {
+  {
     vtkEdgeType edge = edgeListIterator->Next();
 
     float w = this->ComputeWeight(input, edge);
 
     weights->SetValue(edge.Id, w);
-    }
+  }
 
   output->SetPoints(input->GetPoints());
   output->GetEdgeData()->AddArray(weights);

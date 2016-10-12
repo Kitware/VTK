@@ -12,15 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBridgeCellIteratorStrategy - Interface used by vtkBridgeCellIterator
-// vtkBridgeCellIterator has different behaviors depending on the way it is
-// initialized. vtkBridgeCellIteratorStrategy is the interface for one of those
-// behaviors. Concrete classes are vtkBridgeCellIteratorOnDataSet,
-// vtkBridgeCellIteratorOnDataSetBoundaries,
-// vtkBridgeCellIteratorOnCellBoundaries,
-// vtkBridgeCellIteratorOnCellNeighbors,
-// .SECTION See Also
-// vtkGenericCellIterator, vtkBridgeCellIterator, vtkBridgeDataSet, vtkBridgeCellIteratorOnDataSet, vtkBridgeCellIteratorOnDataSetBoundaries, vtkBridgeCellIteratorOnCellBoundaries, vtkBridgeCellIteratorOnCellNeighbors
+/**
+ * @class   vtkBridgeCellIteratorStrategy
+ * @brief   Interface used by vtkBridgeCellIterator
+ * vtkBridgeCellIterator has different behaviors depending on the way it is
+ * initialized. vtkBridgeCellIteratorStrategy is the interface for one of those
+ * behaviors. Concrete classes are vtkBridgeCellIteratorOnDataSet,
+ * vtkBridgeCellIteratorOnDataSetBoundaries,
+ * vtkBridgeCellIteratorOnCellBoundaries,
+ * vtkBridgeCellIteratorOnCellNeighbors,
+ * @sa
+ * vtkGenericCellIterator, vtkBridgeCellIterator, vtkBridgeDataSet, vtkBridgeCellIteratorOnDataSet, vtkBridgeCellIteratorOnDataSetBoundaries, vtkBridgeCellIteratorOnCellBoundaries, vtkBridgeCellIteratorOnCellNeighbors
+*/
 
 #ifndef vtkBridgeCellIteratorStrategy_h
 #define vtkBridgeCellIteratorStrategy_h
@@ -39,9 +42,10 @@ public:
   vtkTypeMacro(vtkBridgeCellIteratorStrategy,vtkGenericCellIterator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Create an empty cell. NOT USED
-  // \post result_exists: result!=0
+  /**
+   * Create an empty cell. NOT USED
+   * \post result_exists: result!=0
+   */
   vtkGenericAdaptorCell *NewCell();
 
 protected:
@@ -49,8 +53,8 @@ protected:
   virtual ~vtkBridgeCellIteratorStrategy() {}
 
 private:
-  vtkBridgeCellIteratorStrategy(const vtkBridgeCellIteratorStrategy&); // Not implemented
-  void operator=(const vtkBridgeCellIteratorStrategy&); // Not implemented
+  vtkBridgeCellIteratorStrategy(const vtkBridgeCellIteratorStrategy&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBridgeCellIteratorStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

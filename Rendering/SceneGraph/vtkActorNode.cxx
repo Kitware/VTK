@@ -42,18 +42,22 @@ vtkActorNode::~vtkActorNode()
 void vtkActorNode::Build(bool prepass)
 {
   if (prepass)
-    {
+  {
     vtkActor *mine = vtkActor::SafeDownCast
       (this->GetRenderable());
     if (!mine)
-      {
+    {
       return;
-      }
+    }
+    if (!mine->GetMapper())
+    {
+      return;
+    }
 
     this->PrepareNodes();
     this->AddMissingNode(mine->GetMapper());
     this->RemoveUnusedNodes();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

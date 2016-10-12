@@ -30,11 +30,11 @@
 #define test_expression(expression) \
 { \
   if(!(expression)) \
-    { \
+  { \
     std::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
     throw std::runtime_error(buffer.str()); \
-    } \
+  } \
 }
 
 class UserType
@@ -75,14 +75,14 @@ inline vtkVariant vtkVariantCreate<UserType>(const UserType& value)
 int TestArrayUserTypes(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     vtkSmartPointer<vtkDenseArray<UserType> > dense = vtkSmartPointer<vtkDenseArray<UserType> >::New();
     dense->Resize(3, 4);
     dense->Fill(UserType("red"));
     for(vtkArray::SizeT n = 0; n != dense->GetNonNullSize(); ++n)
-      {
+    {
       test_expression(dense->GetValueN(n) == UserType("red"));
-      }
+    }
 
     dense->SetValue(1, 2, UserType("green"));
     test_expression(dense->GetValue(1, 2) == UserType("green"));
@@ -108,10 +108,10 @@ int TestArrayUserTypes(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(sparse->GetVariantValue(2, 3) == vtkVariant("slate"));
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }

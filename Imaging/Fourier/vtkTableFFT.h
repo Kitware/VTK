@@ -20,18 +20,21 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// .NAME vtkTableFFT - FFT for table columns
-//
-// .SECTION Description
-//
-// vtkTableFFT performs the Fast Fourier Transform on the columns of a table.
-// Internally, it shoves each column into an image data and then uses
-// vtkImageFFT to perform the actual FFT.
-//
-// .SECTION See Also
-//
-// vtkImageFFT
-//
+/**
+ * @class   vtkTableFFT
+ * @brief   FFT for table columns
+ *
+ *
+ *
+ * vtkTableFFT performs the Fast Fourier Transform on the columns of a table.
+ * Internally, it shoves each column into an image data and then uses
+ * vtkImageFFT to perform the actual FFT.
+ *
+ *
+ * @sa
+ * vtkImageFFT
+ *
+*/
 
 #ifndef vtkTableFFT_h
 #define vtkTableFFT_h
@@ -45,23 +48,24 @@ class VTKIMAGINGFOURIER_EXPORT vtkTableFFT : public vtkTableAlgorithm
 public:
   vtkTypeMacro(vtkTableFFT, vtkTableAlgorithm);
   static vtkTableFFT *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkTableFFT();
-  ~vtkTableFFT();
+  ~vtkTableFFT() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *request,
+  int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+                          vtkInformationVector *outputVector) VTK_OVERRIDE;
 
-  // Description:
-  // Perform the FFT on the given data array.
+  /**
+   * Perform the FFT on the given data array.
+   */
   virtual vtkSmartPointer<vtkDataArray> DoFFT(vtkDataArray *input);
 
 private:
-  vtkTableFFT(const vtkTableFFT &);     // Not implemented
-  void operator=(const vtkTableFFT &);  // Not implemented
+  vtkTableFFT(const vtkTableFFT &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTableFFT &) VTK_DELETE_FUNCTION;
 };
 
 

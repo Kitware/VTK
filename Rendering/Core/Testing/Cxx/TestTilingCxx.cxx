@@ -54,9 +54,9 @@ void colorCells(void *arg)
   colors->SetNumberOfTuples(numCells);
 
   for(int i = 0; i < numCells; i++)
-    {
+  {
     colors->SetValue(i, randomColorGenerator->Random(0 ,1));
-    }
+  }
 
   output->GetCellData()->CopyScalarsOff();
   output->GetCellData()->PassData(input->GetCellData());
@@ -156,9 +156,9 @@ int TestTilingCxx(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   outputData->Delete();
   return !retVal;

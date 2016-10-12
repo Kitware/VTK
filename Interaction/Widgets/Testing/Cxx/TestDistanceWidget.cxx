@@ -814,7 +814,7 @@ class vtkDistanceCallback : public vtkCommand
 public:
   static vtkDistanceCallback *New()
     { return new vtkDistanceCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*);
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE;
   vtkDistanceCallback():Renderer(0),RenderWindow(0),DistanceWidget(0),Distance(0) {}
   vtkRenderer *Renderer;
   vtkRenderWindow *RenderWindow;
@@ -828,7 +828,7 @@ void vtkDistanceCallback::Execute(vtkObject*, unsigned long eid, void* callData)
 {
   if ( eid == vtkCommand::InteractionEvent ||
        eid == vtkCommand::EndInteractionEvent )
-    {
+  {
         double pos1[3], pos2[3];
     // Modify the measure axis
     this->Distance->GetPoint1WorldPosition(pos1);
@@ -839,9 +839,9 @@ void vtkDistanceCallback::Execute(vtkObject*, unsigned long eid, void* callData)
     this->Distance->GetAxis()->SetRange(0.0,dist);
     sprintf(title,"%-#6.3g",dist);
     this->Distance->GetAxis()->SetTitle(title);
-    }
+  }
   else
-    {
+  {
     int pid = *(reinterpret_cast<int*>(callData));
 
     //From the point id, get the display coordinates
@@ -849,20 +849,20 @@ void vtkDistanceCallback::Execute(vtkObject*, unsigned long eid, void* callData)
     this->Distance->GetPoint1DisplayPosition(pos1);
     this->Distance->GetPoint2DisplayPosition(pos2);
     if ( pid == 0 )
-      {
+    {
       pos = pos1;
-      }
+    }
     else
-      {
+    {
       pos = pos2;
-      }
+    }
 
     // Okay, render without the widget, and get the color buffer
     int enabled = this->DistanceWidget->GetEnabled();
     if ( enabled )
-      {
+    {
       this->DistanceWidget->SetEnabled(0); //does a Render() as a side effect
-      }
+    }
 
     // Pretend we are doing something serious....just randomly bump the
     // location of the point.
@@ -873,20 +873,20 @@ void vtkDistanceCallback::Execute(vtkObject*, unsigned long eid, void* callData)
 
     // Set the new position
     if ( pid == 0 )
-      {
+    {
       this->Distance->SetPoint1DisplayPosition(p);
-      }
+    }
     else
-      {
+    {
       this->Distance->SetPoint2DisplayPosition(p);
-      }
+    }
 
     // Side effect of a render here
     if ( enabled )
-      {
+    {
       this->DistanceWidget->SetEnabled(1);
-      }
     }
+  }
 }
 
 // The actual test function
@@ -916,27 +916,27 @@ int TestDistanceWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   rep->SetHandleRepresentation(handle);
   vtkAxisActor2D *axis = rep->GetAxis();
   if (!axis)
-    {
+  {
     std::cerr << "Error getting representation's axis" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   axis->SetNumberOfMinorTicks(4);
   axis->SetTickLength(9);
   axis->SetTitlePosition(0.2);
   rep->RulerModeOn();
   rep->SetRulerDistance(0.25);
   if (rep->GetRulerDistance() != 0.25)
-    {
+  {
     std::cerr << "Error setting ruler distance to 0.25, get returned " << rep->GetRulerDistance() << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   vtkProperty2D *prop2D = rep->GetAxisProperty();
   if (!prop2D)
-    {
+  {
     std::cerr << "Error getting widget axis property" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   prop2D->SetColor(1.0, 0.0, 1.0);
 
   VTK_CREATE(vtkDistanceWidget, widget);
@@ -944,13 +944,13 @@ int TestDistanceWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   widget->CreateDefaultRepresentation();
   widget->SetRepresentation(rep);
 
-
-
   VTK_CREATE(vtkDistanceCallback, mcbk);
   mcbk->Renderer = ren1;
   mcbk->RenderWindow = renWin;
   mcbk->Distance = rep;
   mcbk->DistanceWidget = widget;
+
+  rep->SetScale(0.5);
 
   // Add the actors to the renderer, set the background and size
   //
@@ -984,66 +984,66 @@ int TestDistanceWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
   double *p1w = rep->GetPoint1WorldPosition();
   if (p1w)
-    {
+  {
     std::cout << "Point 1 World Position: " << p1w[0] << ", " << p1w[1] << ", " << p1w[2] << std::endl;
-    }
+  }
   else
-    {
+  {
     std::cout << "Error getting point 1 world position" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   double *p2w = rep->GetPoint2WorldPosition();
   if (p2w)
-    {
+  {
     std::cout << "Point 2 World Position: " << p2w[0] << ", " << p2w[1] << ", " << p2w[2] << std::endl;
-    }
+  }
   else
-    {
+  {
     std::cout << "Error getting point 2 world position" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   double distance = rep->GetDistance();
   std::cout << "Distance: " << distance << std::endl;
   double pointDistance = vtkMath::Distance2BetweenPoints(p1w, p2w);
   pointDistance = sqrt(pointDistance);
   if (fabs(pointDistance - distance) > 0.01)
-    {
+  {
     std::cerr << "Error: distance between the world positions of the end points = " << pointDistance << ", while the representation's distance is " << distance << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   // now set it and test again
   double p1wSet[3] = {10.0, 10.0, 10.0};
   double p2wSet[3] = {-10.0, -10.0, -10.0};
   rep->SetPoint1WorldPosition(p1wSet);
   p1w = rep->GetPoint1WorldPosition();
   if (p1w)
-    {
+  {
     std::cout << "Point 1 World Position: " << p1w[0] << ", " << p1w[1] << ", " << p1w[2] << std::endl;
-    }
+  }
   else
-    {
+  {
     std::cout << "Error getting point 1 world position" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   rep->SetPoint2WorldPosition(p2wSet);
   p2w = rep->GetPoint2WorldPosition();
   if (p2w)
-    {
+  {
     std::cout << "Point 2 World Position: " << p2w[0] << ", " << p2w[1] << ", " << p2w[2] << std::endl;
-    }
+  }
   else
-    {
+  {
     std::cout << "Error getting point 2 world position" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   distance = rep->GetDistance();
   pointDistance = vtkMath::Distance2BetweenPoints(p1wSet, p2wSet);
   pointDistance = sqrt(pointDistance);
   if (fabs(pointDistance - distance) > 0.01)
-    {
+  {
     std::cerr << "Error: distance between the new world positions of the end points = " << pointDistance << ", while the representation's distance is " << distance << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   std::cout << "New distance = " << distance << std::endl;
 
   double p1d[3];
@@ -1052,5 +1052,13 @@ int TestDistanceWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   double p2d[3];
   rep->GetPoint2DisplayPosition(p2d);
   std::cout << "Point 2 Display Position: " << p2d[0] << ", " << p2d[1] << ", " << p2d[2] << std::endl;
+
+  rep->SetScale(0.75);
+  if (rep->GetScale() != 0.75)
+  {
+    std::cerr << "Error: GetScale() did not return value set by SetScale()\n";
+    return EXIT_FAILURE;
+  }
+
   return EXIT_SUCCESS;
 }

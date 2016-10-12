@@ -78,10 +78,10 @@ public:
   void examine_vertex(Vertex v, const Graph& vtkNotUsed(g))
   {
     if (get(d, v) > far_dist)
-      {
+    {
       *far_vertex = v;
       far_dist = get(d, v);
-      }
+    }
   }
 
   template <typename Edge, typename Graph>
@@ -118,13 +118,13 @@ public:
         || (x.second == y.second
             && helper->GetVertexOwner(x.first) == helper->GetVertexOwner(y.first)
             && helper->GetVertexIndex(x.first) < helper->GetVertexIndex(y.first)))
-      {
+    {
       return x;
-      }
+    }
     else
-      {
+    {
       return y;
-      }
+    }
   }
 
 private:
@@ -196,29 +196,29 @@ vtkIdType vtkPBGLBreadthFirstSearch::GetVertexIndex(
 
   // Okay now what type of array is it
   if (abstract->IsNumeric())
-    {
+  {
     vtkDataArray *dataArray = vtkArrayDownCast<vtkDataArray>(abstract);
     int intValue = value.ToInt();
     for(int i=0; i<dataArray->GetNumberOfTuples(); ++i)
-      {
+    {
       if (intValue == static_cast<int>(dataArray->GetTuple1(i)))
-        {
+      {
         return i;
-        }
       }
     }
+  }
   else
-    {
+  {
     vtkStringArray *stringArray = vtkArrayDownCast<vtkStringArray>(abstract);
     vtkStdString stringValue(value.ToString());
     for(int i=0; i<stringArray->GetNumberOfTuples(); ++i)
-      {
+    {
       if (stringValue == stringArray->GetValue(i))
-        {
+      {
         return i;
-        }
       }
     }
+  }
 
   // Failed
   vtkErrorMacro("Did not find a valid vertex index...");
@@ -247,65 +247,65 @@ int vtkPBGLBreadthFirstSearch::RequestData(
   // Sanity check
   // The Boost BFS likes to crash on empty datasets
   if (input->GetNumberOfVertices() == 0)
-    {
+  {
     //vtkWarningMacro("Empty input into " << this->GetClassName());
     return 1;
-    }
+  }
 
   if (this->OriginFromSelection)
-    {
+  {
     vtkSelection* selection = vtkSelection::GetData(inputVector[1], 0);
     if (selection == NULL)
-      {
+    {
       vtkErrorMacro("OriginFromSelection set but selection input undefined.");
       return 0;
-      }
+    }
     vtkSmartPointer<vtkIdTypeArray> idArr =
       vtkSmartPointer<vtkIdTypeArray>::New();
     vtkConvertSelection::GetSelectedVertices(selection, input, idArr);
     if (idArr->GetNumberOfTuples() == 0)
-      {
+    {
       vtkErrorMacro("Origin selection is empty.");
       return 0;
-      }
-    this->OriginVertexIndex = idArr->GetValue(0);
     }
+    this->OriginVertexIndex = idArr->GetValue(0);
+  }
   else
-    {
+  {
     // Now figure out the origin vertex of the
     // breadth first search
     if (this->InputArrayName)
-      {
+    {
       vtkAbstractArray* abstract = input->GetVertexData()->GetAbstractArray(this->InputArrayName);
 
       // Does the array exist at all?
       if (abstract == NULL)
-        {
+      {
         vtkErrorMacro("Could not find array named " << this->InputArrayName);
         return 0;
-        }
+      }
 
       this->OriginVertexIndex = this->GetVertexIndex(abstract,this->OriginValue);
-      }
     }
+  }
 
   // Create the attribute array
   vtkIntArray* BFSArray = vtkIntArray::New();
   if (this->OutputArrayName)
-    {
+  {
     BFSArray->SetName(this->OutputArrayName);
-    }
+  }
   else
-    {
+  {
     BFSArray->SetName("BFS");
-    }
+  }
   BFSArray->SetNumberOfTuples(output->GetNumberOfVertices());
 
   // Initialize the BFS array to all 0's
   for(int i=0;i< BFSArray->GetNumberOfTuples(); ++i)
-    {
+  {
       BFSArray->SetValue(i, VTK_INT_MAX);
-    }
+  }
 
   vtkIdType maxFromRootVertex = this->OriginVertexIndex;
 
@@ -314,27 +314,27 @@ int vtkPBGLBreadthFirstSearch::RequestData(
 
   vtkDistributedGraphHelper *helper = output->GetDistributedGraphHelper();
   if (!helper)
-    {
+  {
     vtkErrorMacro("Distributed vtkGraph is required.");
     return 1;
-    }
+  }
 
   // We can only deal with Parallel BGL-distributed graphs.
   vtkPBGLDistributedGraphHelper *pbglHelper
     = vtkPBGLDistributedGraphHelper::SafeDownCast(helper);
   if (!pbglHelper)
-    {
+  {
     vtkErrorMacro("Can only perform parallel breadth-first-search on a Parallel BGL distributed graph");
     return 1;
-    }
+  }
 
   // Set the distance to the source vertex to zero
   int myRank = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
 
   if (helper->GetVertexOwner(this->OriginVertexIndex) == myRank)
-    {
+  {
     BFSArray->SetValue(helper->GetVertexIndex(this->OriginVertexIndex), 0);
-    }
+  }
 
   // Distributed color map
   typedef boost::parallel::distributed_property_map<
@@ -361,30 +361,30 @@ int vtkPBGLBreadthFirstSearch::RequestData(
   // vtkGraph (and its descendents) will not be viewed as a
   // distributed graph by the Parallel BGL.
   if (vtkDirectedGraph::SafeDownCast(output))
-    {
+  {
     vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(output);
     boost::detail::parallel_bfs_helper(g, this->OriginVertexIndex,
                                        distribColor,
                                        bfsVisitor,
                                        boost::detail::error_property_not_found(),
                                        get(vertex_index, g));
-    }
+  }
   else
-    {
+  {
     vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(output);
     boost::detail::parallel_bfs_helper(g, this->OriginVertexIndex,
                                        distribColor, bfsVisitor,
                                        boost::detail::error_property_not_found(),
                                        get(vertex_index, g));
-    }
+  }
 
   // Compute maxFromRootVertex globally
   using boost::parallel::all_reduce;
   int maxDistance = 0;
   if (helper->GetVertexOwner(maxFromRootVertex) == myRank)
-    {
+  {
     maxDistance = BFSArray->GetValue(helper->GetVertexIndex(maxFromRootVertex));
-    }
+  }
   maxFromRootVertex = all_reduce(pbglHelper->GetProcessGroup(),
                                  std::make_pair(maxFromRootVertex,
                                                    maxDistance),
@@ -395,15 +395,15 @@ int vtkPBGLBreadthFirstSearch::RequestData(
   BFSArray->Delete();
 
   if (this->OutputSelection)
-    {
+  {
     vtkSelection* sel = vtkSelection::GetData(outputVector, 1);
     vtkIdTypeArray* ids = vtkIdTypeArray::New();
 
     // Set the output based on the output selection type
     if (!strcmp(OutputSelectionType,"MAX_DIST_FROM_ROOT"))
-      {
+    {
       ids->InsertNextValue(maxFromRootVertex);
-      }
+    }
 
     vtkSmartPointer<vtkSelectionNode> node = vtkSmartPointer<vtkSelectionNode>::New();
     sel->AddNode(node);
@@ -411,7 +411,7 @@ int vtkPBGLBreadthFirstSearch::RequestData(
     node->GetProperties()->Set(vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::INDICES);
     node->GetProperties()->Set(vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::POINT);
     ids->Delete();
-    }
+  }
 
   return 1;
 }
@@ -446,14 +446,14 @@ int vtkPBGLBreadthFirstSearch::FillInputPortInformation(
 {
   // now add our info
   if (port == 0)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
-    }
+  }
   else if (port == 1)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
-    }
+  }
   return 1;
 }
 
@@ -463,13 +463,13 @@ int vtkPBGLBreadthFirstSearch::FillOutputPortInformation(
 {
   // now add our info
   if (port == 0)
-    {
+  {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkGraph");
-    }
+  }
   else if (port == 1)
-    {
+  {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkSelection");
-    }
+  }
   return 1;
 }
 

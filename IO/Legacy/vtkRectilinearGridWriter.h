@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkRectilinearGridWriter - write vtk rectilinear grid data file
-// .SECTION Description
-// vtkRectilinearGridWriter is a source object that writes ASCII or binary
-// rectilinear grid data files in vtk format. See text for format details.
-
-// .SECTION Caveats
-// Binary files written on one system may not be readable on other systems.
+/**
+ * @class   vtkRectilinearGridWriter
+ * @brief   write vtk rectilinear grid data file
+ *
+ * vtkRectilinearGridWriter is a source object that writes ASCII or binary
+ * rectilinear grid data files in vtk format. See text for format details.
+ *
+ * @warning
+ * Binary files written on one system may not be readable on other systems.
+*/
 
 #ifndef vtkRectilinearGridWriter_h
 #define vtkRectilinearGridWriter_h
@@ -35,10 +38,13 @@ public:
   vtkTypeMacro(vtkRectilinearGridWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the input to this writer.
+  //@{
+  /**
+   * Get the input to this writer.
+   */
   vtkRectilinearGrid* GetInput();
   vtkRectilinearGrid* GetInput(int port);
+  //@}
 
 protected:
   vtkRectilinearGridWriter() {}
@@ -49,8 +55,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkRectilinearGridWriter(const vtkRectilinearGridWriter&);  // Not implemented.
-  void operator=(const vtkRectilinearGridWriter&);  // Not implemented.
+  vtkRectilinearGridWriter(const vtkRectilinearGridWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRectilinearGridWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

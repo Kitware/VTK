@@ -46,7 +46,7 @@ public:
     for (int k=begin; k<end; k++)
       for (int j=0; j<resolution; j++)
         for (int i=0; i<resolution; i++)
-          {
+        {
           *itr = i*spacing;
           itr++;
           *itr = j*spacing;
@@ -60,7 +60,7 @@ public:
           ditr++;
           *ditr = 10;
           ditr++;
-          }
+        }
   }
 };
 
@@ -68,13 +68,13 @@ int TestSMPTransform(int argc, char* argv[])
 {
   int numThreads = 2;
   for(int argi=1; argi<argc; argi++)
-    {
+  {
     if(std::string(argv[argi])=="--numThreads")
-      {
+    {
       numThreads=atoi(argv[++argi]);
       break;
-      }
     }
+  }
   cout << "Num. threads: " << numThreads << endl;
   vtkSMPTools::Initialize(numThreads);
 

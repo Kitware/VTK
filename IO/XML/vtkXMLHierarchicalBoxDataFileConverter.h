@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLHierarchicalBoxDataFileConverter - converts older *.vth, *.vthb
-// files to newer format.
-// .SECTION Description
-// vtkXMLHierarchicalBoxDataFileConverter is a utility class to convert v0.1 and
-// v1.0 of the VTK XML hierarchical file format to the v1.1. Users can then use
-// vtkXMLUniformGridAMRReader to read the dataset into VTK.
+/**
+ * @class   vtkXMLHierarchicalBoxDataFileConverter
+ * @brief   converts older *.vth, *.vthb
+ * files to newer format.
+ *
+ * vtkXMLHierarchicalBoxDataFileConverter is a utility class to convert v0.1 and
+ * v1.0 of the VTK XML hierarchical file format to the v1.1. Users can then use
+ * vtkXMLUniformGridAMRReader to read the dataset into VTK.
+*/
 
 #ifndef vtkXMLHierarchicalBoxDataFileConverter_h
 #define vtkXMLHierarchicalBoxDataFileConverter_h
@@ -34,18 +37,25 @@ public:
   vtkTypeMacro(vtkXMLHierarchicalBoxDataFileConverter, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the input filename.
+  //@{
+  /**
+   * Set the input filename.
+   */
   vtkSetStringMacro(InputFileName);
   vtkGetStringMacro(InputFileName);
+  //@}
 
-  // Description:
-  // Set the output filename.
+  //@{
+  /**
+   * Set the output filename.
+   */
   vtkSetStringMacro(OutputFileName);
   vtkGetStringMacro(OutputFileName);
+  //@}
 
-  // Description:
-  // Converts the input file to new format and writes out the output file.
+  /**
+   * Converts the input file to new format and writes out the output file.
+   */
   bool Convert();
 
 protected:
@@ -64,8 +74,8 @@ protected:
   vtkSetStringMacro(FilePath);
 
 private:
-  vtkXMLHierarchicalBoxDataFileConverter(const vtkXMLHierarchicalBoxDataFileConverter&); // Not implemented.
-  void operator=(const vtkXMLHierarchicalBoxDataFileConverter&); // Not implemented.
+  vtkXMLHierarchicalBoxDataFileConverter(const vtkXMLHierarchicalBoxDataFileConverter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLHierarchicalBoxDataFileConverter&) VTK_DELETE_FUNCTION;
 
 };
 

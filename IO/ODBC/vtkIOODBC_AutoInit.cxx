@@ -28,10 +28,10 @@ vtkSQLDatabase * ODBCCreateFunction(const char* URL)
 
   if (vtksys::SystemTools::ParseURLProtocol(urlstr, protocol, unused) &&
       protocol == "odbc")
-    {
+  {
     db = vtkODBCDatabase::New();
     db->ParseURL(URL);
-    }
+  }
 
   return db;
 }
@@ -41,15 +41,15 @@ static unsigned int vtkIOODBCCount;
 VTKIOODBC_EXPORT void vtkIOODBC_AutoInit_Construct()
 {
   if (++vtkIOODBCCount == 1)
-    {
+  {
     vtkSQLDatabase::RegisterCreateFromURLCallback(ODBCCreateFunction);
-    }
+  }
 }
 
 VTKIOODBC_EXPORT void vtkIOODBC_AutoInit_Destruct()
 {
   if (--vtkIOODBCCount == 0)
-    {
+  {
     vtkSQLDatabase::UnRegisterCreateFromURLCallback(ODBCCreateFunction);
-    }
+  }
 }

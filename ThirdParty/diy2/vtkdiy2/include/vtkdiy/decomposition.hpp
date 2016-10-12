@@ -76,9 +76,13 @@ namespace detail
     typedef         std::vector<Coordinate>                         CoordinateVector;
     typedef         std::vector<int>                                DivisionsVector;
 
-    /// @param wrap:      indicates dimensions on which to wrap the boundary
-    /// @param ghosts:    indicates how many ghosts to use in each dimension
-    /// @param divisions: indicates how many cuts to make along each dimension
+    /// @param dim:        dimensionality of the decomposition
+    /// @param domain:     bounds of global domain
+    /// @param nblocks:    total number of global blocks
+    /// @param share_face: indicates dimensions on which to share block faces
+    /// @param wrap:       indicates dimensions on which to wrap the boundary
+    /// @param ghosts:     indicates how many ghosts to use in each dimension
+    /// @param divisions:  indicates how many cuts to make along each dimension
     ///                   (0 means "no constraint," i.e., leave it up to the algorithm)
                     RegularDecomposer(int               dim_,
                                       const Bounds&     domain_,
@@ -297,7 +301,7 @@ namespace detail
                  typename RegularDecomposer<Bounds>::DivisionsVector  divs       =
                  typename RegularDecomposer<Bounds>::DivisionsVector())
   {
-      RegularDecomposer<Bounds>(dim, domain, share_face, wrap, ghosts, divs).
+      RegularDecomposer<Bounds>(dim, domain, assigner.nblocks(), share_face, wrap, ghosts, divs).
           decompose(rank, assigner, master, update);
   }
 

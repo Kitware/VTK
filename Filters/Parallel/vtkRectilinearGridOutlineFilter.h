@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkRectilinearGridOutlineFilter - create wireframe outline for a rectilinear grid.
-// .SECTION Description
-// vtkRectilinearGridOutlineFilter works in parallel.  There is no reason.
-// to use this filter if you are not breaking the processing into pieces.
-// With one piece you can simply use vtkOutlineFilter.  This filter
-// ignores internal edges when the extent is not the whole extent.
+/**
+ * @class   vtkRectilinearGridOutlineFilter
+ * @brief   create wireframe outline for a rectilinear grid.
+ *
+ * vtkRectilinearGridOutlineFilter works in parallel.  There is no reason.
+ * to use this filter if you are not breaking the processing into pieces.
+ * With one piece you can simply use vtkOutlineFilter.  This filter
+ * ignores internal edges when the extent is not the whole extent.
+*/
 
 #ifndef vtkRectilinearGridOutlineFilter_h
 #define vtkRectilinearGridOutlineFilter_h
@@ -30,7 +33,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkRectilinearGridOutlineFilter : public vtkPoly
 public:
   static vtkRectilinearGridOutlineFilter *New();
   vtkTypeMacro(vtkRectilinearGridOutlineFilter,vtkPolyDataAlgorithm);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkRectilinearGridOutlineFilter() {}
@@ -40,8 +43,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkRectilinearGridOutlineFilter(const vtkRectilinearGridOutlineFilter&);  // Not implemented.
-  void operator=(const vtkRectilinearGridOutlineFilter&);  // Not implemented.
+  vtkRectilinearGridOutlineFilter(const vtkRectilinearGridOutlineFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRectilinearGridOutlineFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

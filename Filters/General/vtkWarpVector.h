@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWarpVector - deform geometry with vector data
-// .SECTION Description
-// vtkWarpVector is a filter that modifies point coordinates by moving
-// points along vector times the scale factor. Useful for showing flow
-// profiles or mechanical deformation.
-//
-// The filter passes both its point data and cell data to its output.
+/**
+ * @class   vtkWarpVector
+ * @brief   deform geometry with vector data
+ *
+ * vtkWarpVector is a filter that modifies point coordinates by moving
+ * points along vector times the scale factor. Useful for showing flow
+ * profiles or mechanical deformation.
+ *
+ * The filter passes both its point data and cell data to its output.
+*/
 
 #ifndef vtkWarpVector_h
 #define vtkWarpVector_h
@@ -31,30 +34,33 @@ class VTKFILTERSGENERAL_EXPORT vtkWarpVector : public vtkPointSetAlgorithm
 public:
   static vtkWarpVector *New();
   vtkTypeMacro(vtkWarpVector,vtkPointSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Specify value to scale displacement.
+  //@{
+  /**
+   * Specify value to scale displacement.
+   */
   vtkSetMacro(ScaleFactor,double);
   vtkGetMacro(ScaleFactor,double);
+  //@}
 
-  int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 protected:
   vtkWarpVector();
-  ~vtkWarpVector();
+  ~vtkWarpVector() VTK_OVERRIDE;
 
   int RequestDataObject(vtkInformation *request,
                         vtkInformationVector **inputVector,
-                        vtkInformationVector *outputVector);
+                        vtkInformationVector *outputVector) VTK_OVERRIDE;
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) VTK_OVERRIDE;
   double ScaleFactor;
 
 private:
-  vtkWarpVector(const vtkWarpVector&);  // Not implemented.
-  void operator=(const vtkWarpVector&);  // Not implemented.
+  vtkWarpVector(const vtkWarpVector&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWarpVector&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -12,8 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkLightingPainter - abstract class defining interface for painter
-// that can handle lightin.
+/**
+ * @class   vtkLightingPainter
+ * @brief   abstract class defining interface for painter
+ * that can handle lightin.
+*/
 
 #ifndef vtkLightingPainter_h
 #define vtkLightingPainter_h
@@ -33,8 +36,8 @@ protected:
   ~vtkLightingPainter();
 
 private:
-  vtkLightingPainter(const vtkLightingPainter&); // Not implemented.
-  void operator=(const vtkLightingPainter&); // Not implemented.
+  vtkLightingPainter(const vtkLightingPainter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLightingPainter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

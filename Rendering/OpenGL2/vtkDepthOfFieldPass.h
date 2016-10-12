@@ -12,24 +12,27 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDepthOfFieldPass - Implement a post-processing DOF blur pass.
-// .SECTION Description
-// Currently only does behind the focal plane
-//
-// This pass expects an initialized depth buffer and color buffer.
-// Initialized buffers means they have been cleared with farest z-value and
-// background color/gradient/transparent color.
-//
-// The delegate is used once.
-//
-// Its delegate is usually set to a vtkCameraPass or to a post-processing pass.
-//
-// .SECTION Implementation
-// As the filter is separable, it first blurs the image horizontally and then
-// vertically. This reduces the number of texture samples
-
-// .SECTION See Also
-// vtkRenderPass
+/**
+ * @class   vtkDepthOfFieldPass
+ * @brief   Implement a post-processing DOF blur pass.
+ *
+ * Currently only does behind the focal plane
+ *
+ * This pass expects an initialized depth buffer and color buffer.
+ * Initialized buffers means they have been cleared with farest z-value and
+ * background color/gradient/transparent color.
+ *
+ * The delegate is used once.
+ *
+ * Its delegate is usually set to a vtkCameraPass or to a post-processing pass.
+ *
+ * @par Implementation:
+ * As the filter is separable, it first blurs the image horizontally and then
+ * vertically. This reduces the number of texture samples
+ *
+ * @sa
+ * vtkRenderPass
+*/
 
 #ifndef vtkDepthOfFieldPass_h
 #define vtkDepthOfFieldPass_h
@@ -50,36 +53,44 @@ public:
   vtkTypeMacro(vtkDepthOfFieldPass,vtkDepthImageProcessingPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Use automatic focal distance calculation, this is on by default
-  // When on the center of the viewport will always be in focus
-  // regardless of where the focal point is.
+  //@{
+  /**
+   * Use automatic focal distance calculation, this is on by default
+   * When on the center of the viewport will always be in focus
+   * regardless of where the focal point is.
+   */
   vtkSetMacro(AutomaticFocalDistance,bool);
   vtkGetMacro(AutomaticFocalDistance,bool);
   vtkBooleanMacro(AutomaticFocalDistance,bool);
+  //@}
 
-  // Description:
-  // Perform rendering according to a render state \p s.
-  // \pre s_exists: s!=0
+  /**
+   * Perform rendering according to a render state \p s.
+   * \pre s_exists: s!=0
+   */
   virtual void Render(const vtkRenderState *s);
 
-  // Description:
-  // Release graphics resources and ask components to release their own
-  // resources.
-  // \pre w_exists: w!=0
+  /**
+   * Release graphics resources and ask components to release their own
+   * resources.
+   * \pre w_exists: w!=0
+   */
   void ReleaseGraphicsResources(vtkWindow *w);
 
  protected:
-  // Description:
-  // Default constructor. DelegatePass is set to NULL.
+  /**
+   * Default constructor. DelegatePass is set to NULL.
+   */
   vtkDepthOfFieldPass();
 
-  // Description:
-  // Destructor.
+  /**
+   * Destructor.
+   */
   virtual ~vtkDepthOfFieldPass();
 
-  // Description:
-  // Graphics resources.
+  /**
+   * Graphics resources.
+   */
   vtkFrameBufferObject *FrameBufferObject;
   vtkTextureObject *Pass1; // render target for the scene
   vtkTextureObject *Pass1Depth; // render target for the depth
@@ -93,8 +104,8 @@ public:
   bool AutomaticFocalDistance;
 
  private:
-  vtkDepthOfFieldPass(const vtkDepthOfFieldPass&);  // Not implemented.
-  void operator=(const vtkDepthOfFieldPass&);  // Not implemented.
+  vtkDepthOfFieldPass(const vtkDepthOfFieldPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDepthOfFieldPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -45,10 +45,10 @@ void vtkCylindricalTransform::InternalDeepCopy(vtkAbstractTransform *transform)
 
   // copy the inverse flag, which is used
   if (this->InverseFlag != cylindricalTransform->InverseFlag)
-    {
+  {
     this->InverseFlag = cylindricalTransform->InverseFlag;
     this->Modified();
-    }
+  }
 }
 
 vtkAbstractTransform *vtkCylindricalTransform::MakeTransform()
@@ -70,7 +70,7 @@ void vtkCylindricalToRectangular(const T inPoint[3], T outPoint[3],
   outPoint[2] = z;
 
   if (derivative)
-    {
+  {
     derivative[0][0] =    costheta;
     derivative[0][1] = -r*sintheta;
     derivative[0][2] =           0;
@@ -82,7 +82,7 @@ void vtkCylindricalToRectangular(const T inPoint[3], T outPoint[3],
     derivative[2][0] =           0;
     derivative[2][1] =           0;
     derivative[2][2] =           1;
-    }
+  }
 }
 
 template<class T>
@@ -96,14 +96,14 @@ void vtkRectangularToCylindrical(const T inPoint[3], T outPoint[3])
 
   outPoint[0] = static_cast<T>(sqrt(rr));
   if (rr == 0)
-    {
+  {
     outPoint[1] = 0;
-    }
+  }
   else
-    {
+  {
     // Change range to [0, 2*Pi], otherwise the same as atan2(y, x)
     outPoint[1] = T(vtkMath::Pi()) + atan2(-y, -x);
-    }
+  }
   outPoint[2] = z;
 }
 

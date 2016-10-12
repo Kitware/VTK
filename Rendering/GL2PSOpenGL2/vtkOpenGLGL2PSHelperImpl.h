@@ -13,8 +13,11 @@
 
 =========================================================================*/
 
-// .NAME vtkOpenGLGL2PSHelperImpl - vtkOpenGLGL2PSHelper override
-// implementation.
+/**
+ * @class   vtkOpenGLGL2PSHelperImpl
+ * @brief   vtkOpenGLGL2PSHelper override
+ * implementation.
+*/
 
 #ifndef vtkOpenGLGL2PSHelperImpl_h
 #define vtkOpenGLGL2PSHelperImpl_h
@@ -61,24 +64,29 @@ protected:
   vtkOpenGLGL2PSHelperImpl();
   ~vtkOpenGLGL2PSHelperImpl();
 
-  // Description:
-  // Translate the tprop's fontname into a Postscript font name.
+  /**
+   * Translate the tprop's fontname into a Postscript font name.
+   */
   static const char* TextPropertyToPSFontName(vtkTextProperty *tprop);
 
-  // Description:
-  // Convert the alignment hint in tprop to a GL2PS text alignment constant.
+  /**
+   * Convert the alignment hint in tprop to a GL2PS text alignment constant.
+   */
   static int TextPropertyToGL2PSAlignment(vtkTextProperty *tprop);
 
-  // Description:
-  // Extracts the information needed for transforming and projecting points
-  // from a renderer.
+  /**
+   * Extracts the information needed for transforming and projecting points
+   * from a renderer.
+   */
   static void GetTransformParameters(vtkRenderer *ren,
                                      vtkMatrix4x4 *actorMatrix,
                                      vtkMatrix4x4 *xform, double vpOrigin[2],
                                      double halfSize[2], double zfact[2]);
 
-  // Description:
-  // Project the point from world coordinates into device coordinates.
+  //@{
+  /**
+   * Project the point from world coordinates into device coordinates.
+   */
   static void ProjectPoint(double point[3], vtkRenderer *ren,
                            vtkMatrix4x4 *actorMatrix = NULL);
   static void ProjectPoint(double point[4], vtkMatrix4x4 *transformMatrix,
@@ -86,16 +94,20 @@ protected:
                            double halfHeight, double zfact1, double zfact2);
   static void ProjectPoints(vtkPoints *points, vtkRenderer *ren,
                             vtkMatrix4x4 *actorMatrix = NULL);
+  //@}
 
-  // Description:
-  // Unproject the point from device coordinates into world coordinates.
-  // Input Z coordinate should be in NDC space.
+  //@{
+  /**
+   * Unproject the point from device coordinates into world coordinates.
+   * Input Z coordinate should be in NDC space.
+   */
   static void UnprojectPoint(double point[4], vtkMatrix4x4 *invTransformMatrix,
                              double viewportOrigin[2], double halfWidth,
                              double halfHeight, double zfact1, double zfact2);
   static void UnprojectPoints(double *points3D, vtkIdType numPoints,
                               vtkRenderer *ren,
                               vtkMatrix4x4 *actorMatrix = NULL);
+  //@}
 
   void DrawPathPS(vtkPath *path, double rasterPos[3], double windowPos[2],
                   unsigned char rgba[4], double scale[2], double rotateAngle,
@@ -108,8 +120,8 @@ protected:
                    float strokeWidth, const std::string &label);
 
 private:
-  vtkOpenGLGL2PSHelperImpl(const vtkOpenGLGL2PSHelperImpl &); // Not implemented.
-  void operator=(const vtkOpenGLGL2PSHelperImpl &);   // Not implemented.
+  vtkOpenGLGL2PSHelperImpl(const vtkOpenGLGL2PSHelperImpl &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLGL2PSHelperImpl &) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkOpenGLGL2PSHelperImpl_h

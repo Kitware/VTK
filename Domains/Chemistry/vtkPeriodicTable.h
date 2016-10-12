@@ -12,13 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPeriodicTable - Access to information about the elements.
-//
-// .SECTION Description
-// Sourced from the Blue Obelisk Data Repository
-//
-// .SECTION See Also
-// vtkBlueObeliskData vtkBlueObeliskDataParser
+/**
+ * @class   vtkPeriodicTable
+ * @brief   Access to information about the elements.
+ *
+ *
+ * Sourced from the Blue Obelisk Data Repository
+ *
+ * @sa
+ * vtkBlueObeliskData vtkBlueObeliskDataParser
+*/
 
 #ifndef vtkPeriodicTable_h
 #define vtkPeriodicTable_h
@@ -39,52 +42,66 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkPeriodicTable * New();
 
-  // Description:
-  // Access the static vtkBlueObeliskData object for raw access to
-  // BODR data.
+  //@{
+  /**
+   * Access the static vtkBlueObeliskData object for raw access to
+   * BODR data.
+   */
   vtkGetNewMacro(BlueObeliskData, vtkBlueObeliskData);
+  //@}
 
-  // Description:
-  // Returns the number of elements in the periodic table.
+  /**
+   * Returns the number of elements in the periodic table.
+   */
   unsigned short GetNumberOfElements();
 
-  // Description:
-  // Given an atomic number, returns the symbol associated with the
-  // element
+  /**
+   * Given an atomic number, returns the symbol associated with the
+   * element
+   */
   const char * GetSymbol(const unsigned short atomicNum);
 
-  // Description:
-  // Given an atomic number, returns the name of the element
+  /**
+   * Given an atomic number, returns the name of the element
+   */
   const char * GetElementName(const unsigned short atomicNum);
 
-  // Description:
-  // Given a case-insensitive string that contains the symbol or name
-  // of an element, return the corresponding atomic number.
+  //@{
+  /**
+   * Given a case-insensitive string that contains the symbol or name
+   * of an element, return the corresponding atomic number.
+   */
   unsigned short GetAtomicNumber(const vtkStdString &str);
   unsigned short GetAtomicNumber(const char *str);
+  //@}
 
-  // Description:
-  // Given an atomic number, return the covalent radius of the atom
+  /**
+   * Given an atomic number, return the covalent radius of the atom
+   */
   float GetCovalentRadius(const unsigned short atomicNum);
 
-  // Description:
-  // Given an atomic number, returns the van der Waals radius of the
-  // atom
+  /**
+   * Given an atomic number, returns the van der Waals radius of the
+   * atom
+   */
   float GetVDWRadius(const unsigned short atomicNum);
 
-  // Description:
-  // Fill the given vtkLookupTable to map atomic numbers to the
-  // familiar RGB tuples provided by the Blue Obelisk Data Repository
+  /**
+   * Fill the given vtkLookupTable to map atomic numbers to the
+   * familiar RGB tuples provided by the Blue Obelisk Data Repository
+   */
   void GetDefaultLUT(vtkLookupTable *);
 
-  // Description:
-  // Given an atomic number, return the familiar RGB tuple provided by
-  // the Blue Obelisk Data Repository
+  /**
+   * Given an atomic number, return the familiar RGB tuple provided by
+   * the Blue Obelisk Data Repository
+   */
   void GetDefaultRGBTuple(unsigned short atomicNum, float rgb[3]);
 
-  // Description:
-  // Given an atomic number, return the familiar RGB tuple provided by
-  // the Blue Obelisk Data Repository
+  /**
+   * Given an atomic number, return the familiar RGB tuple provided by
+   * the Blue Obelisk Data Repository
+   */
   vtkColor3f GetDefaultRGBTuple(unsigned short atomicNum);
 
 protected:
@@ -94,8 +111,8 @@ protected:
   static vtkNew<vtkBlueObeliskData> BlueObeliskData;
 
 private:
-  vtkPeriodicTable(const vtkPeriodicTable&);   // Not implemented
-  void operator=(const vtkPeriodicTable&); // Not implemented
+  vtkPeriodicTable(const vtkPeriodicTable&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPeriodicTable&) VTK_DELETE_FUNCTION;
 };
 
 #endif

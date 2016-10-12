@@ -12,19 +12,22 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkResliceCursor - Geometry for a reslice cursor
-// .SECTION Description
-// This class represents a reslice cursor. It consists of two cross
-// sectional hairs, with an optional thickness. The crosshairs
-// hairs may have a hole in the center. These may be translated or rotated
-// independent of each other in the view. The result is used to reslice
-// the data along these cross sections. This allows the user to perform
-// multi-planar thin or thick reformat of the data on an image view, rather
-// than a 3D view.
-// .SECTION See Also
-// vtkResliceCursorWidget vtkResliceCursor vtkResliceCursorPolyDataAlgorithm
-// vtkResliceCursorRepresentation vtkResliceCursorThickLineRepresentation
-// vtkResliceCursorActor vtkImagePlaneWidget
+/**
+ * @class   vtkResliceCursor
+ * @brief   Geometry for a reslice cursor
+ *
+ * This class represents a reslice cursor. It consists of two cross
+ * sectional hairs, with an optional thickness. The crosshairs
+ * hairs may have a hole in the center. These may be translated or rotated
+ * independent of each other in the view. The result is used to reslice
+ * the data along these cross sections. This allows the user to perform
+ * multi-planar thin or thick reformat of the data on an image view, rather
+ * than a 3D view.
+ * @sa
+ * vtkResliceCursorWidget vtkResliceCursor vtkResliceCursorPolyDataAlgorithm
+ * vtkResliceCursorRepresentation vtkResliceCursorThickLineRepresentation
+ * vtkResliceCursorActor vtkImagePlaneWidget
+*/
 
 #ifndef vtkResliceCursor_h
 #define vtkResliceCursor_h
@@ -42,55 +45,73 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursor : public vtkObject
 public:
   vtkTypeMacro(vtkResliceCursor,vtkObject);
 
-  // Description:
   static vtkResliceCursor *New();
 
-  // Description:
-  // Set the image (3D) that we are slicing
+  //@{
+  /**
+   * Set the image (3D) that we are slicing
+   */
   virtual void SetImage(vtkImageData * );
   vtkGetObjectMacro( Image, vtkImageData );
+  //@}
 
-  // Description:
-  // Set/Get the cente of the reslice cursor.
+  //@{
+  /**
+   * Set/Get the cente of the reslice cursor.
+   */
   virtual void SetCenter( double, double, double );
   virtual void SetCenter( double center[3] );
   vtkGetVector3Macro( Center, double );
+  //@}
 
-  // Description:
-  // Set/Get the thickness of the cursor
+  //@{
+  /**
+   * Set/Get the thickness of the cursor
+   */
   vtkSetVector3Macro( Thickness, double );
   vtkGetVector3Macro( Thickness, double );
+  //@}
 
-  // Description:
-  // Enable disable thick mode. Default is to enable it.
+  //@{
+  /**
+   * Enable disable thick mode. Default is to enable it.
+   */
   vtkSetMacro( ThickMode, int );
   vtkGetMacro( ThickMode, int );
   vtkBooleanMacro( ThickMode, int );
+  //@}
 
-  // Description:
-  // Get the 3D PolyData representation
+  /**
+   * Get the 3D PolyData representation
+   */
   virtual vtkPolyData * GetPolyData();
 
-  // Description:
-  // Get the slab and centerline polydata along an axis
+  /**
+   * Get the slab and centerline polydata along an axis
+   */
   virtual vtkPolyData * GetCenterlineAxisPolyData( int axis );
 
-  // Description:
-  // Printself method.
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  /**
+   * Printself method.
+   */
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Get the planes that represent normals along the X, Y and Z. The argument
-  // passed to this method must be an integer in the range 0-2 (corresponding
-  // to the X, Y and Z axes.
+  /**
+   * Get the planes that represent normals along the X, Y and Z. The argument
+   * passed to this method must be an integer in the range 0-2 (corresponding
+   * to the X, Y and Z axes.
+   */
   virtual vtkPlane * GetPlane( int n );
 
-  // Description:
-  // Build the polydata
+  /**
+   * Build the polydata
+   */
   virtual void Update();
 
-  // Description:
-  // Get the computed axes directions
+  //@{
+  /**
+   * Get the computed axes directions
+   */
   vtkGetVector3Macro( XAxis, double );
   vtkGetVector3Macro( YAxis, double );
   vtkGetVector3Macro( ZAxis, double );
@@ -98,32 +119,44 @@ public:
   vtkSetVector3Macro( YAxis, double );
   vtkSetVector3Macro( ZAxis, double );
   virtual double * GetAxis( int i );
+  //@}
 
-  // Description:
-  // Show a hole in the center of the cursor, so its easy to see the pixels
-  // within the hole. ON by default
+  //@{
+  /**
+   * Show a hole in the center of the cursor, so its easy to see the pixels
+   * within the hole. ON by default
+   */
   vtkSetMacro( Hole, int );
   vtkGetMacro( Hole, int );
+  //@}
 
-  // Description:
-  // Set the width of the hole in mm
+  //@{
+  /**
+   * Set the width of the hole in mm
+   */
   vtkSetMacro( HoleWidth, double );
   vtkGetMacro( HoleWidth, double );
+  //@}
 
-  // Description:
-  // Set the width of the hole in pixels. If set, this will override the
-  // hole with in mm.
+  //@{
+  /**
+   * Set the width of the hole in pixels. If set, this will override the
+   * hole with in mm.
+   */
   vtkSetMacro( HoleWidthInPixels, double );
   vtkGetMacro( HoleWidthInPixels, double );
+  //@}
 
-  // Description:
-  // Get the MTime. Check the MTime of the internal planes as well.
-  virtual unsigned long int GetMTime();
+  /**
+   * Get the MTime. Check the MTime of the internal planes as well.
+   */
+  virtual vtkMTimeType GetMTime();
 
-  // Description:
-  // Reset the cursor to the default position, ie with the axes, normal
-  // to each other and axis aligned and with the cursor pointed at the
-  // center of the image.
+  /**
+   * Reset the cursor to the default position, ie with the axes, normal
+   * to each other and axis aligned and with the cursor pointed at the
+   * center of the image.
+   */
   virtual void Reset();
 
 protected:
@@ -157,8 +190,8 @@ protected:
   vtkTimeStamp  PolyDataBuildTime;
 
 private:
-  vtkResliceCursor(const vtkResliceCursor&);  // Not implemented.
-  void operator=(const vtkResliceCursor&);  // Not implemented.
+  vtkResliceCursor(const vtkResliceCursor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkResliceCursor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

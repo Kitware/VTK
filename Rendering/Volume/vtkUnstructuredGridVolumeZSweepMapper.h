@@ -12,22 +12,25 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkUnstructuredGridVolumeZSweepMapper - Unstructured grid volume mapper based the ZSweep Algorithm
-
-// .SECTION Description
-// This is a volume mapper for unstructured grid implemented with the ZSweep
-// algorithm. This is a software projective method.
-
-// .SECTION see also
-// vtkVolumetMapper
-
-// .SECTION Background
-// The algorithm is described in the following paper:
-// Ricardo Farias, Joseph S. B. Mitchell and Claudio T. Silva.
-// ZSWEEP: An Efficient and Exact Projection Algorithm for Unstructured Volume
-// Rendering. In 2000 Volume Visualization Symposium, pages 91--99.
-// October 2000.
-// http://www.cse.ogi.edu/~csilva/papers/volvis2000.pdf
+/**
+ * @class   vtkUnstructuredGridVolumeZSweepMapper
+ * @brief   Unstructured grid volume mapper based the ZSweep Algorithm
+ *
+ *
+ * This is a volume mapper for unstructured grid implemented with the ZSweep
+ * algorithm. This is a software projective method.
+ *
+ * @sa
+ * vtkVolumetMapper
+ *
+ * @par Background:
+ * The algorithm is described in the following paper:
+ * Ricardo Farias, Joseph S. B. Mitchell and Claudio T. Silva.
+ * ZSWEEP: An Efficient and Exact Projection Algorithm for Unstructured Volume
+ * Rendering. In 2000 Volume Visualization Symposium, pages 91--99.
+ * October 2000.
+ * http://www.cse.ogi.edu/~csilva/papers/volvis2000.pdf
+*/
 
 #ifndef vtkUnstructuredGridVolumeZSweepMapper_h
 #define vtkUnstructuredGridVolumeZSweepMapper_h
@@ -69,68 +72,90 @@ public:
   vtkTypeMacro(vtkUnstructuredGridVolumeZSweepMapper,vtkUnstructuredGridVolumeMapper);
   void PrintSelf( ostream& os, vtkIndent indent );
 
-  // Description:
-  // Set MaxPixelListSize to 32.
+  /**
+   * Set MaxPixelListSize to 32.
+   */
   static vtkUnstructuredGridVolumeZSweepMapper *New();
 
-  // Description:
-  // Sampling distance in the XY image dimensions. Default value of 1 meaning
-  // 1 ray cast per pixel. If set to 0.5, 4 rays will be cast per pixel. If
-  // set to 2.0, 1 ray will be cast for every 4 (2 by 2) pixels.
+  //@{
+  /**
+   * Sampling distance in the XY image dimensions. Default value of 1 meaning
+   * 1 ray cast per pixel. If set to 0.5, 4 rays will be cast per pixel. If
+   * set to 2.0, 1 ray will be cast for every 4 (2 by 2) pixels.
+   */
   vtkSetClampMacro( ImageSampleDistance, float, 0.1f, 100.0f );
   vtkGetMacro( ImageSampleDistance, float );
+  //@}
 
-  // Description:
-  // This is the minimum image sample distance allow when the image
-  // sample distance is being automatically adjusted
+  //@{
+  /**
+   * This is the minimum image sample distance allow when the image
+   * sample distance is being automatically adjusted
+   */
   vtkSetClampMacro( MinimumImageSampleDistance, float, 0.1f, 100.0f );
   vtkGetMacro( MinimumImageSampleDistance, float );
+  //@}
 
-  // Description:
-  // This is the maximum image sample distance allow when the image
-  // sample distance is being automatically adjusted
+  //@{
+  /**
+   * This is the maximum image sample distance allow when the image
+   * sample distance is being automatically adjusted
+   */
   vtkSetClampMacro( MaximumImageSampleDistance, float, 0.1f, 100.0f );
   vtkGetMacro( MaximumImageSampleDistance, float );
+  //@}
 
-  // Description:
-  // If AutoAdjustSampleDistances is on, the the ImageSampleDistance
-  // will be varied to achieve the allocated render time of this
-  // prop (controlled by the desired update rate and any culling in
-  // use).
+  //@{
+  /**
+   * If AutoAdjustSampleDistances is on, the the ImageSampleDistance
+   * will be varied to achieve the allocated render time of this
+   * prop (controlled by the desired update rate and any culling in
+   * use).
+   */
   vtkSetClampMacro( AutoAdjustSampleDistances, int, 0, 1 );
   vtkGetMacro( AutoAdjustSampleDistances, int );
   vtkBooleanMacro( AutoAdjustSampleDistances, int );
+  //@}
 
-  // Description:
-  // If IntermixIntersectingGeometry is turned on, the zbuffer will be
-  // captured and used to limit the traversal of the rays.
+  //@{
+  /**
+   * If IntermixIntersectingGeometry is turned on, the zbuffer will be
+   * captured and used to limit the traversal of the rays.
+   */
   vtkSetClampMacro( IntermixIntersectingGeometry, int, 0, 1 );
   vtkGetMacro( IntermixIntersectingGeometry, int );
   vtkBooleanMacro( IntermixIntersectingGeometry, int );
+  //@}
 
-  // Description:
-  // Maximum size allowed for a pixel list. Default is 32.
-  // During the rendering, if a list of pixel is full, incremental compositing
-  // is performed. Even if it is a user setting, it is an advanced parameter.
-  // You have to understand how the algorithm works to change this value.
+  /**
+   * Maximum size allowed for a pixel list. Default is 32.
+   * During the rendering, if a list of pixel is full, incremental compositing
+   * is performed. Even if it is a user setting, it is an advanced parameter.
+   * You have to understand how the algorithm works to change this value.
+   */
   int GetMaxPixelListSize();
 
-  // Description:
-  // Change the maximum size allowed for a pixel list. It is an advanced
-  // parameter.
-  // \pre positive_size: size>1
+  /**
+   * Change the maximum size allowed for a pixel list. It is an advanced
+   * parameter.
+   * \pre positive_size: size>1
+   */
   void SetMaxPixelListSize(int size);
 
-  // Description:
-  // Set/Get the helper class for integrating rays.  If set to NULL, a
-  // default integrator will be assigned.
+  //@{
+  /**
+   * Set/Get the helper class for integrating rays.  If set to NULL, a
+   * default integrator will be assigned.
+   */
   virtual void SetRayIntegrator(vtkUnstructuredGridVolumeRayIntegrator *ri);
   vtkGetObjectMacro(RayIntegrator, vtkUnstructuredGridVolumeRayIntegrator);
+  //@}
 
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
-  // Render the volume
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+   * Render the volume
+   */
   void Render(vtkRenderer *ren,
               vtkVolume *vol);
 
@@ -142,71 +167,82 @@ protected:
   vtkUnstructuredGridVolumeZSweepMapper();
   ~vtkUnstructuredGridVolumeZSweepMapper();
 
-  // Description:
-  // For each vertex, find the list of incident faces.
+  /**
+   * For each vertex, find the list of incident faces.
+   */
   void BuildUseSets();
 
-  // Description:
-  // Reorder vertices `v' in increasing order in `w'. Return if the orientation
-  // has changed.
+  /**
+   * Reorder vertices `v' in increasing order in `w'. Return if the orientation
+   * has changed.
+   */
   int ReorderTriangle(vtkIdType v[3],
                       vtkIdType w[3]);
 
-  // Description:
-  // Project and sort the vertices by z-coordinates in view space in the
-  // "event list" (an heap).
-  // \pre empty_list: this->EventList->GetNumberOfItems()==0
+  /**
+   * Project and sort the vertices by z-coordinates in view space in the
+   * "event list" (an heap).
+   * \pre empty_list: this->EventList->GetNumberOfItems()==0
+   */
   void ProjectAndSortVertices(vtkRenderer *ren,
                               vtkVolume *vol);
 
-  // Description:
-  // Create an empty "pixel list" for each pixel of the screen.
+  /**
+   * Create an empty "pixel list" for each pixel of the screen.
+   */
   void CreateAndCleanPixelList();
 
-  // Description:
-  // MainLoop of the Zsweep algorithm.
-  // \post empty_list: this->EventList->GetNumberOfItems()==0
+  /**
+   * MainLoop of the Zsweep algorithm.
+   * \post empty_list: this->EventList->GetNumberOfItems()==0
+   */
   void MainLoop(vtkRenderWindow *renWin);
 
-  // Description:
-  // Do delayed compositing from back to front, stopping at zTarget for each
-  // pixel inside the bounding box.
+  /**
+   * Do delayed compositing from back to front, stopping at zTarget for each
+   * pixel inside the bounding box.
+   */
   void CompositeFunction(double zTarget);
 
-  // Description:
-  // Convert and clamp a float color component into a unsigned char.
+  /**
+   * Convert and clamp a float color component into a unsigned char.
+   */
   unsigned char ColorComponentRealToByte(float color);
 
-  // Description:
-  // Perform scan conversion of a triangle face.
+  /**
+   * Perform scan conversion of a triangle face.
+   */
   void RasterizeFace(vtkIdType faceIds[3], int externalSide);
 
-  // Description:
-  // Perform scan conversion of a triangle defined by its vertices.
-  // \pre ve0_exists: ve0!=0
-  // \pre ve1_exists: ve1!=0
-  // \pre ve2_exists: ve2!=0
+  /**
+   * Perform scan conversion of a triangle defined by its vertices.
+   * \pre ve0_exists: ve0!=0
+   * \pre ve1_exists: ve1!=0
+   * \pre ve2_exists: ve2!=0
+   */
   void RasterizeTriangle(
             vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *ve0,
             vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *ve1,
             vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *ve2,
             bool exitFace);
 
-  // Description:
-  // Perform scan conversion of an horizontal span from left ro right at line
-  // y.
-  // \pre left_exists: left!=0
-  // \pre right_exists: right!=0
+  /**
+   * Perform scan conversion of an horizontal span from left ro right at line
+   * y.
+   * \pre left_exists: left!=0
+   * \pre right_exists: right!=0
+   */
   void RasterizeSpan(int y,
            vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkScreenEdge *left,
            vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkScreenEdge *right,
            bool exitFace);
 
-  // Description:
-  // Scan conversion of a straight line defined by endpoints v0 and v1.
-  // \pre v0_exists: v0!=0
-  // \pre v1_exists: v1!=0
-  // \pre y_ordered v0->GetScreenY()<=v1->GetScreenY()
+  /**
+   * Scan conversion of a straight line defined by endpoints v0 and v1.
+   * \pre v0_exists: v0!=0
+   * \pre v1_exists: v1!=0
+   * \pre y_ordered v0->GetScreenY()<=v1->GetScreenY()
+   */
   void RasterizeLine(
              vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *v0,
              vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *v1,
@@ -219,26 +255,30 @@ protected:
   float RetrieveRenderTime(vtkRenderer *ren,
                            vtkVolume *vol);
 
-  // Description:
-  // Return the value of the z-buffer at screen coordinates (x,y).
+  /**
+   * Return the value of the z-buffer at screen coordinates (x,y).
+   */
   double GetZBufferValue(int x,
                          int y);
 
   double GetMinimumBoundsDepth(vtkRenderer *ren,
                                vtkVolume *vol);
 
-  // Description:
-  // Allocate an array of usesets of size `size' only if the current one is not
-  // large enough. Otherwise clear each use set of each vertex.
+  /**
+   * Allocate an array of usesets of size `size' only if the current one is not
+   * large enough. Otherwise clear each use set of each vertex.
+   */
   void AllocateUseSet(vtkIdType size);
 
-  // Description:
-  // Allocate a vertex array of size `size' only if the current one is not
-  // large enough.
+  /**
+   * Allocate a vertex array of size `size' only if the current one is not
+   * large enough.
+   */
   void AllocateVertices(vtkIdType size);
 
-  // Description:
-  // For debugging purpose, save the pixel list frame as a dataset.
+  /**
+   * For debugging purpose, save the pixel list frame as a dataset.
+   */
   void SavePixelListFrame();
 
   int MaxPixelListSize;
@@ -335,8 +375,8 @@ protected:
   vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkPixelListEntryMemory *MemoryManager;
 
 private:
-  vtkUnstructuredGridVolumeZSweepMapper(const vtkUnstructuredGridVolumeZSweepMapper&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridVolumeZSweepMapper&);  // Not implemented.
+  vtkUnstructuredGridVolumeZSweepMapper(const vtkUnstructuredGridVolumeZSweepMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnstructuredGridVolumeZSweepMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

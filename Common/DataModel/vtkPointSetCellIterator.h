@@ -12,8 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPointSetCellIterator - Implementation of vtkCellIterator using
-// vtkPointSet API.
+/**
+ * @class   vtkPointSetCellIterator
+ * @brief   Implementation of vtkCellIterator using
+ * vtkPointSet API.
+*/
 
 #ifndef vtkPointSetCellIterator_h
 #define vtkPointSetCellIterator_h
@@ -30,20 +33,20 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPointSetCellIterator: public vtkCellIterator
 public:
   static vtkPointSetCellIterator *New();
   vtkTypeMacro(vtkPointSetCellIterator, vtkCellIterator)
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  bool IsDoneWithTraversal();
-  vtkIdType GetCellId();
+  bool IsDoneWithTraversal() VTK_OVERRIDE;
+  vtkIdType GetCellId() VTK_OVERRIDE;
 
 protected:
   vtkPointSetCellIterator();
-  ~vtkPointSetCellIterator();
+  ~vtkPointSetCellIterator() VTK_OVERRIDE;
 
-  void ResetToFirstCell();
-  void IncrementToNextCell();
-  void FetchCellType();
-  void FetchPointIds();
-  void FetchPoints();
+  void ResetToFirstCell() VTK_OVERRIDE;
+  void IncrementToNextCell() VTK_OVERRIDE;
+  void FetchCellType() VTK_OVERRIDE;
+  void FetchPointIds() VTK_OVERRIDE;
+  void FetchPoints() VTK_OVERRIDE;
 
   friend class vtkPointSet;
   void SetPointSet(vtkPointSet *ds);
@@ -53,8 +56,8 @@ protected:
   vtkIdType CellId;
 
 private:
-  vtkPointSetCellIterator(const vtkPointSetCellIterator &); // Not implemented.
-  void operator=(const vtkPointSetCellIterator &);   // Not implemented.
+  vtkPointSetCellIterator(const vtkPointSetCellIterator &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPointSetCellIterator &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkPointSetCellIterator_h

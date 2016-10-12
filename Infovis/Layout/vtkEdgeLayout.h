@@ -16,12 +16,15 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkEdgeLayout - layout graph edges
-//
-// .SECTION Description
-// This class is a shell for many edge layout strategies which may be set
-// using the SetLayoutStrategy() function.  The layout strategies do the
-// actual work.
+/**
+ * @class   vtkEdgeLayout
+ * @brief   layout graph edges
+ *
+ *
+ * This class is a shell for many edge layout strategies which may be set
+ * using the SetLayoutStrategy() function.  The layout strategies do the
+ * actual work.
+*/
 
 #ifndef vtkEdgeLayout_h
 #define vtkEdgeLayout_h
@@ -39,14 +42,18 @@ public:
   vtkTypeMacro(vtkEdgeLayout, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // The layout strategy to use during graph layout.
+  //@{
+  /**
+   * The layout strategy to use during graph layout.
+   */
   void SetLayoutStrategy(vtkEdgeLayoutStrategy *strategy);
   vtkGetObjectMacro(LayoutStrategy, vtkEdgeLayoutStrategy);
+  //@}
 
-  // Description:
-  // Get the modification time of the layout algorithm.
-  virtual unsigned long GetMTime();
+  /**
+   * Get the modification time of the layout algorithm.
+   */
+  virtual vtkMTimeType GetMTime();
 
 protected:
   vtkEdgeLayout();
@@ -54,11 +61,14 @@ protected:
 
   vtkEdgeLayoutStrategy* LayoutStrategy;
 
-  // Description:
-  // This intercepts events from the strategy object and re-emits them
-  // as if they came from the layout engine itself.
+  //@{
+  /**
+   * This intercepts events from the strategy object and re-emits them
+   * as if they came from the layout engine itself.
+   */
   vtkEventForwarderCommand *EventForwarder;
   unsigned long ObserverTag;
+  //@}
 
   int RequestData(
     vtkInformation *,
@@ -69,8 +79,8 @@ private:
 
   vtkGraph *InternalGraph;
 
-  vtkEdgeLayout(const vtkEdgeLayout&);  // Not implemented.
-  void operator=(const vtkEdgeLayout&);  // Not implemented.
+  vtkEdgeLayout(const vtkEdgeLayout&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkEdgeLayout&) VTK_DELETE_FUNCTION;
 };
 
 #endif

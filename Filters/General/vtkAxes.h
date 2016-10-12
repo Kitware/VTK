@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAxes - create an x-y-z axes
-// .SECTION Description
-// vtkAxes creates three lines that form an x-y-z axes. The origin of the
-// axes is user specified (0,0,0 is default), and the size is specified with
-// a scale factor. Three scalar values are generated for the three lines and
-// can be used (via color map) to indicate a particular coordinate axis.
+/**
+ * @class   vtkAxes
+ * @brief   create an x-y-z axes
+ *
+ * vtkAxes creates three lines that form an x-y-z axes. The origin of the
+ * axes is user specified (0,0,0 is default), and the size is specified with
+ * a scale factor. Three scalar values are generated for the three lines and
+ * can be used (via color map) to indicate a particular coordinate axis.
+*/
 
 #ifndef vtkAxes_h
 #define vtkAxes_h
@@ -31,35 +34,47 @@ public:
   static vtkAxes *New();
 
   vtkTypeMacro(vtkAxes,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Set the origin of the axes.
+  //@{
+  /**
+   * Set the origin of the axes.
+   */
   vtkSetVector3Macro(Origin,double);
   vtkGetVectorMacro(Origin,double,3);
+  //@}
 
-  // Description:
-  // Set the scale factor of the axes. Used to control size.
+  //@{
+  /**
+   * Set the scale factor of the axes. Used to control size.
+   */
   vtkSetMacro(ScaleFactor,double);
   vtkGetMacro(ScaleFactor,double);
+  //@}
 
-  // Description:
-  // If Symetric is on, the the axis continue to negative values.
+  //@{
+  /**
+   * If Symetric is on, the the axis continue to negative values.
+   */
   vtkSetMacro(Symmetric,int);
   vtkGetMacro(Symmetric,int);
   vtkBooleanMacro(Symmetric,int);
+  //@}
 
-  // Description:
-  // Option for computing normals.  By default they are computed.
+  //@{
+  /**
+   * Option for computing normals.  By default they are computed.
+   */
   vtkSetMacro(ComputeNormals, int);
   vtkGetMacro(ComputeNormals, int);
   vtkBooleanMacro(ComputeNormals, int);
+  //@}
 
 protected:
   vtkAxes();
-  ~vtkAxes() {}
+  ~vtkAxes() VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   // This source does not know how to generate pieces yet.
   int ComputeDivisionExtents(vtkDataObject *output,
                              int idx, int numDivisions);
@@ -70,8 +85,8 @@ protected:
   int Symmetric;
   int ComputeNormals;
 private:
-  vtkAxes(const vtkAxes&);  // Not implemented.
-  void operator=(const vtkAxes&);  // Not implemented.
+  vtkAxes(const vtkAxes&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAxes&) VTK_DELETE_FUNCTION;
 };
 
 #endif

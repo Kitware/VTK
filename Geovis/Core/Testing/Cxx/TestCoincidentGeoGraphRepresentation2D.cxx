@@ -114,53 +114,53 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
   vtkIdType v;
 
   for (v = 0; v < 20; ++v)
-    {
+  {
     latArr->SetValue(v, 0.0);
     lonArr->SetValue(v, 0.0);
     graph->AddVertex();
-    }
+  }
 
   for (v = 20; v < 40; ++v)
-    {
+  {
     latArr->SetValue(v, 42);
     lonArr->SetValue(v, -73);
     graph->AddVertex();
-    }
+  }
 
   for (v = 40; v < 49; ++v)
-    {
+  {
     latArr->SetValue(v, 35);
     lonArr->SetValue(v, -106);
     graph->AddVertex();
-    }
+  }
 
   for (v = 49; v < 66; ++v)
-    {
+  {
     latArr->SetValue(v, 39);
     lonArr->SetValue(v, 116);
     graph->AddVertex();
-    }
+  }
 
    for (v = 66; v < 80; ++v)
-    {
+   {
     latArr->SetValue(v, -31);
     lonArr->SetValue(v, 115);
     graph->AddVertex();
-    }
+   }
 
   for (v = 80; v < 105; ++v)
-    {
+  {
     latArr->SetValue(v, 48.87);
     lonArr->SetValue(v, 2.29);
     graph->AddVertex();
-    }
+  }
 
   for (v = 105; v < 122; ++v)
-    {
+  {
     latArr->SetValue(v, -34.44);
     lonArr->SetValue(v, -59.20);
     graph->AddVertex();
-    }
+  }
 
   // SANTAREM
   latArr->SetValue(122, -2.26);
@@ -196,39 +196,39 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
   graph->GetVertexData()->AddArray(lonArr);
 
   for (v = 1; v < 20; ++v)
-    {
+  {
     graph->AddEdge(0, v);
-    }
+  }
 
   for (v = 21; v < 40; ++v)
-    {
+  {
     graph->AddEdge(20, v);
-    }
+  }
 
   for (v = 41; v < 49; ++v)
-    {
+  {
     graph->AddEdge(40, v);
-    }
+  }
 
   for (v = 50; v < 66; ++v)
-    {
+  {
     graph->AddEdge(49, v);
-    }
+  }
 
   for (v = 67; v < 80; ++v)
-    {
+  {
     graph->AddEdge(66, v);
-    }
+  }
 
   for (v = 81; v < 105; ++v)
-    {
+  {
     graph->AddEdge(80, v);
-    }
+  }
 
   for (v = 106; v < 122; ++v)
-    {
+  {
     graph->AddEdge(105, v);
-    }
+  }
 
   graph->AddEdge(122, 123);
   graph->AddEdge(122, 20);
@@ -245,10 +245,10 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
 
   vtkMath::RandomSeed(123456);
   for(int i = 0; i < 128; i++)
-    {
+  {
     colorScalars->InsertNextValue(
       static_cast<vtkIdType>(vtkMath::Random(0, 1024)));
-    }
+  }
   graph->GetVertexData()->AddArray(colorScalars);
 
   vtkSmartPointer<vtkRenderedGraphRepresentation> graphRep =
@@ -271,10 +271,10 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
   view->Render();
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();
-    }
+  }
 
   terrainSource->ShutDown();
   imageSource->ShutDown();

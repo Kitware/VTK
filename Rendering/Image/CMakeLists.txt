@@ -1,4 +1,5 @@
 set(Module_SRCS
+  vtkDepthImageToPointCloud.cxx
   vtkImageResliceMapper.cxx
   vtkImageSliceCollection.cxx
   vtkImageStack.cxx

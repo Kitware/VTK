@@ -61,6 +61,8 @@ void main()
   // rotate 90 degrees
   normal = vec2(-1.0*normal.y,normal.x);
 
+  //VTK::Normal::Start
+
   for (int j = 0; j < 4; j++)
     {
     int i = j/2;

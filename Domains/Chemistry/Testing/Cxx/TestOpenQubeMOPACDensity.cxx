@@ -54,14 +54,14 @@ int TestOpenQubeMOPACDensity(int argc, char *argv[])
 
   // If there aren't any bonds, attempt to perceive them
   if (mol->GetNumberOfBonds() == 0)
-    {
+  {
     cout << "No bonds found. Running simple bond perception...\n";
     vtkNew<vtkSimpleBondPerceiver> bonder;
     bonder->SetInputData(mol);
     bonder->Update();
     mol = bonder->GetOutput();
     cout << "Bonds found: " << mol->GetNumberOfBonds() << "\n";
-    }
+  }
 
   vtkNew<vtkMoleculeMapper> molMapper;
   molMapper->SetInputData(mol);
@@ -74,21 +74,21 @@ int TestOpenQubeMOPACDensity(int argc, char *argv[])
 
   vtkAbstractElectronicData *edata = oq->GetOutput()->GetElectronicData();
   if (!edata)
-    {
+  {
     cout << "NULL vtkAbstractElectronicData returned from "
             "vtkOpenQubeElectronicData.\n";
     return EXIT_FAILURE;
-    }
+  }
 
   cout << "Num electrons: " << edata->GetNumberOfElectrons() << "\n";
 
   vtkSmartPointer<vtkImageData> data = vtkSmartPointer<vtkImageData>::New();
   data = edata->GetElectronDensity();
   if (!data)
-    {
+  {
     cout << "NULL vtkImageData returned from vtkOpenQubeElectronicData.\n";
     return EXIT_FAILURE;
-    }
+  }
 
   double range[2];
   data->GetScalarRange(range);

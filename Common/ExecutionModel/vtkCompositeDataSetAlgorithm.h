@@ -12,12 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCompositeDataSetAlgorithm - Superclass for algorithms that produce only vtkCompositeDataSet as output
-// .SECTION Description
-// Algorithms that take any type of data object (including composite dataset)
-// and produce a vtkCompositeDataSet in the output can subclass from this
-// class.
-
+/**
+ * @class   vtkCompositeDataSetAlgorithm
+ * @brief   Superclass for algorithms that produce only vtkCompositeDataSet as output
+ *
+ * Algorithms that take any type of data object (including composite dataset)
+ * and produce a vtkCompositeDataSet in the output can subclass from this
+ * class.
+*/
 
 #ifndef vtkCompositeDataSetAlgorithm_h
 #define vtkCompositeDataSetAlgorithm_h
@@ -32,73 +34,86 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkCompositeDataSetAlgorithm : public vtkAl
 public:
   static vtkCompositeDataSetAlgorithm *New();
   vtkTypeMacro(vtkCompositeDataSetAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Description:
-  // Get the output data object for a port on this algorithm.
+  //@{
+  /**
+   * Get the output data object for a port on this algorithm.
+   */
   vtkCompositeDataSet* GetOutput();
   vtkCompositeDataSet* GetOutput(int);
+  //@}
 
-  // Description:
-  // Assign a data object as input. Note that this method does not
-  // establish a pipeline connection. Use SetInputConnection() to
-  // setup a pipeline connection.
+  //@{
+  /**
+   * Assign a data object as input. Note that this method does not
+   * establish a pipeline connection. Use SetInputConnection() to
+   * setup a pipeline connection.
+   */
   void SetInputData(vtkDataObject*);
   void SetInputData(int, vtkDataObject*);
+  //@}
 
-  // Description:
-  // see vtkAlgorithm for details
-  virtual int ProcessRequest(vtkInformation* request,
+  /**
+   * see vtkAlgorithm for details
+   */
+  int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector);
+                             vtkInformationVector* outputVector) VTK_OVERRIDE;
 
 protected:
   vtkCompositeDataSetAlgorithm();
-  ~vtkCompositeDataSetAlgorithm() {}
+  ~vtkCompositeDataSetAlgorithm() VTK_OVERRIDE {}
 
-  // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
+  /**
+   * This is called by the superclass.
+   * This is the method you should override.
+   */
   virtual int RequestDataObject(vtkInformation*,
                                 vtkInformationVector**,
                                 vtkInformationVector*) {return 1;};
 
-  // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
+  /**
+   * This is called by the superclass.
+   * This is the method you should override.
+   */
   virtual int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
                                  vtkInformationVector*) {return 1;};
 
-  // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
+  /**
+   * This is called by the superclass.
+   * This is the method you should override.
+   */
   virtual int RequestData(vtkInformation*,
                           vtkInformationVector**,
                           vtkInformationVector*) {return 1;};
 
-  // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
+  //@{
+  /**
+   * This is called by the superclass.
+   * This is the method you should override.
+   */
   virtual int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*)
-    {
+  {
       return 1;
-    };
+  };
+  //@}
 
   // Create a default executive.
-  virtual vtkExecutive* CreateDefaultExecutive();
+  vtkExecutive* CreateDefaultExecutive() VTK_OVERRIDE;
 
   // see algorithm for more info
-  virtual int FillOutputPortInformation(int port, vtkInformation* info);
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   vtkDataObject *GetInput(int port);
 
 private:
-  vtkCompositeDataSetAlgorithm(const vtkCompositeDataSetAlgorithm&);  // Not implemented.
-  void operator=(const vtkCompositeDataSetAlgorithm&);  // Not implemented.
+  vtkCompositeDataSetAlgorithm(const vtkCompositeDataSetAlgorithm&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompositeDataSetAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

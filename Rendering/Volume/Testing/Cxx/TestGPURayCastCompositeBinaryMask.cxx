@@ -69,13 +69,13 @@ int TestGPURayCastCompositeBinaryMask(int argc, char *argv[])
   // in the data.
   double distance=spacing[0];
   if(distance>spacing[1])
-    {
+  {
     distance=spacing[1];
-    }
+  }
   if(distance>spacing[2])
-    {
+  {
     distance=spacing[2];
-    }
+  }
   distance=distance/2.0;
 
   // This does not take the screen size of a cell into account.
@@ -129,16 +129,16 @@ int TestGPURayCastCompositeBinaryMask(int argc, char *argv[])
   // Create a simple mask that's split along the X axis
   unsigned char *ptr = static_cast< unsigned char * >(mask->GetScalarPointer());
   for (int z = 0; z < dim[2]; z++)
-    {
+  {
     for (int y = 0; y < dim[1]; y++)
-      {
+    {
       for (int x = 0; x < dim[0]; x++)
-        {
+      {
         *ptr = (x < dim[0]/2 ? 255 : 0);
         ++ptr;
-        }
       }
     }
+  }
 
   mapper->SetMaskInput(mask);
 
@@ -157,10 +157,10 @@ int TestGPURayCastCompositeBinaryMask(int argc, char *argv[])
 
   int valid = mapper->IsRenderSupported(renWin,property);
   if (!valid)
-    {
+  {
     cout << "Required extensions not supported." << endl;
     return EXIT_SUCCESS;
-    }
+  }
 
   ren->AddViewProp(volume);
   iren->Initialize();

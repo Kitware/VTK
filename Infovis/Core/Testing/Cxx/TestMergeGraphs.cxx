@@ -35,45 +35,45 @@ template <typename T, size_t Cols>
 void BuildTable(vtkTable* table, T values[][Cols], int rows)
 {
   for (size_t c = 0; c < Cols; ++c)
-    {
+  {
     vtkSmartPointer<vtkStringArray> arr = vtkSmartPointer<vtkStringArray>::New();
     arr->SetName(vtkVariant(values[0][c]).ToString());
     for (int r = 0; r < rows; ++r)
-      {
+    {
       arr->InsertNextValue(values[r+1][c]);
-      }
-    table->AddColumn(arr);
     }
+    table->AddColumn(arr);
+  }
 }
 
 bool CheckTable(vtkTable* expected, vtkTable* output)
 {
   bool ok = true;
   for (vtkIdType col = 0; col < expected->GetNumberOfColumns(); ++col)
-    {
+  {
     vtkStringArray* exp_arr = vtkArrayDownCast<vtkStringArray>(expected->GetColumn(col));
     vtkStringArray* out_arr = vtkArrayDownCast<vtkStringArray>(output->GetColumnByName(exp_arr->GetName()));
     if (!out_arr)
-      {
+    {
       cerr << "Output array " << exp_arr->GetName() << " does not exist" << endl;
       ok = false;
       continue;
-      }
+    }
     if (out_arr->GetNumberOfTuples() != exp_arr->GetNumberOfTuples())
-      {
+    {
       cerr << "Output array " << exp_arr->GetName() << " has " << out_arr->GetNumberOfTuples() << " tuples when " << exp_arr->GetNumberOfTuples() << " were expected." << endl;
       ok = false;
       continue;
-      }
+    }
     for (vtkIdType row = 0; row < exp_arr->GetNumberOfTuples(); ++row)
-      {
+    {
       if (exp_arr->GetValue(row) != out_arr->GetValue(row))
-        {
+      {
         cerr << "Output array " << exp_arr->GetName() << " has " << out_arr->GetValue(row) << " at position " << row << " when " << exp_arr->GetValue(row) << " was expected." << endl;
         ok = false;
-        }
       }
     }
+  }
   return ok;
 }
 
@@ -166,15 +166,15 @@ int TestMergeGraphs(int, char*[])
   vtkSmartPointer<vtkTable> expected_vert_table = vtkSmartPointer<vtkTable>::New();
   BuildTable(expected_vert_table, expected_vert_data, 4);
   if (!CheckTable(expected_vert_table, output_vert_table))
-    {
+  {
     ret = 1;
-    }
+  }
   vtkSmartPointer<vtkTable> expected_edge_table = vtkSmartPointer<vtkTable>::New();
   BuildTable(expected_edge_table, expected_edge_data, 6);
   if (!CheckTable(expected_edge_table, output_edge_table))
-    {
+  {
     ret = 1;
-    }
+  }
 
   return ret;
 }

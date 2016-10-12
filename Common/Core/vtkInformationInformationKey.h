@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInformationInformationKey - Key for vtkInformation values.
-// .SECTION Description
-// vtkInformationInformationKey is used to represent keys in vtkInformation
-// for other information objects.
+/**
+ * @class   vtkInformationInformationKey
+ * @brief   Key for vtkInformation values.
+ *
+ * vtkInformationInformationKey is used to represent keys in vtkInformation
+ * for other information objects.
+*/
 
 #ifndef vtkInformationInformationKey_h
 #define vtkInformationInformationKey_h
@@ -29,41 +32,47 @@ class VTKCOMMONCORE_EXPORT vtkInformationInformationKey : public vtkInformationK
 {
 public:
   vtkTypeMacro(vtkInformationInformationKey,vtkInformationKey);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkInformationInformationKey(const char* name, const char* location);
-  ~vtkInformationInformationKey();
+  ~vtkInformationInformationKey() VTK_OVERRIDE;
 
-  // Description:
-  // This method simply returns a new vtkInformationInformationKey, given a
-  // name and a location. This method is provided for wrappers. Use the
-  // constructor directly from C++ instead.
+  /**
+   * This method simply returns a new vtkInformationInformationKey, given a
+   * name and a location. This method is provided for wrappers. Use the
+   * constructor directly from C++ instead.
+   */
   static vtkInformationInformationKey* MakeKey(const char* name, const char* location)
-    {
+  {
     return new vtkInformationInformationKey(name, location);
-    }
+  }
 
-  // Description:
-  // Get/Set the value associated with this key in the given
-  // information object.
+  //@{
+  /**
+   * Get/Set the value associated with this key in the given
+   * information object.
+   */
   void Set(vtkInformation* info, vtkInformation*);
   vtkInformation* Get(vtkInformation* info);
+  //@}
 
-  // Description:
-  // Copy the entry associated with this key from one information
-  // object to another.  If there is no entry in the first information
-  // object for this key, the value is removed from the second.
-  virtual void ShallowCopy(vtkInformation* from, vtkInformation* to);
+  /**
+   * Copy the entry associated with this key from one information
+   * object to another.  If there is no entry in the first information
+   * object for this key, the value is removed from the second.
+   */
+  void ShallowCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
 
-  // Description:
-  // Duplicate (new instance created) the entry associated with this key from
-  // one information object to another (new instances of any contained
-  // vtkInformation and vtkInformationVector objects are created).
-  virtual void DeepCopy(vtkInformation* from, vtkInformation* to);
+  /**
+   * Duplicate (new instance created) the entry associated with this key from
+   * one information object to another (new instances of any contained
+   * vtkInformation and vtkInformationVector objects are created).
+   */
+  void DeepCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
 
 private:
-  vtkInformationInformationKey(const vtkInformationInformationKey&);  // Not implemented.
-  void operator=(const vtkInformationInformationKey&);  // Not implemented.
+  vtkInformationInformationKey(const vtkInformationInformationKey&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInformationInformationKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

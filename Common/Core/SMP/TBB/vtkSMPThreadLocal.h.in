@@ -91,16 +91,16 @@ public:
   // Description:
   // Default constructor. Creates a default exemplar.
   vtkSMPThreadLocal()
-    {
-    }
+  {
+  }
 
   // Description:
   // Constructor that allows the specification of an exemplar object
   // which is used when constructing objects when Local() is first called.
   // Note that a copy of the exemplar is created using its copy constructor.
   explicit vtkSMPThreadLocal(const T& exemplar) : Internal(exemplar)
-    {
-    }
+  {
+  }
 
   // Description:
   // Returns an object of type T that is local to the current thread.
@@ -111,16 +111,16 @@ public:
   // the first time it is called. After the first time, it will return
   // the same object.
   T& Local()
-    {
+  {
       return this->Internal.local();
-    }
+  }
 
   // Description:
   // Return the number of thread local objects that have been initialized
   size_t size() const
-    {
+  {
       return this->Internal.size();
-    }
+  }
 
   // Description:
   // Subset of the standard iterator API.
@@ -134,37 +134,37 @@ public:
   {
   public:
     iterator& operator++()
-      {
+    {
         ++this->Iter;
         return *this;
-      }
+    }
 
     iterator operator++(int)
-      {
+    {
         iterator copy = *this;
         ++this->Iter;
         return copy;
-      }
+    }
 
     bool operator==(const iterator& other)
-      {
+    {
         return this->Iter == other.Iter;
-      }
+    }
 
     bool operator!=(const iterator& other)
-      {
+    {
         return this->Iter != other.Iter;
-      }
+    }
 
     T& operator*()
-      {
+    {
         return *this->Iter;
-      }
+    }
 
     T* operator->()
-      {
+    {
         return &*this->Iter;
-      }
+    }
 
   private:
     TLSIter Iter;
@@ -176,21 +176,21 @@ public:
   // Returns a new iterator pointing to the beginning of
   // the local storage container. Thread safe.
   iterator begin()
-    {
+  {
       iterator iter;
       iter.Iter = this->Internal.begin();
       return iter;
-    };
+  };
 
   // Description:
   // Returns a new iterator pointing to past the end of
   // the local storage container. Thread safe.
   iterator end()
-    {
+  {
       iterator iter;
       iter.Iter = this->Internal.end();
       return iter;
-    }
+  }
 
 private:
   TLS Internal;

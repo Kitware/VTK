@@ -53,10 +53,10 @@ int TestZoomAxis(int, char * [])
   float inc = 9.5f / (numPoints-1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
-    {
+  {
     table->SetValue(i, 0, i * inc);
     table->SetValue(i, 1, sin(i * inc));
-    }
+  }
 
   // Add multiple line plots, setting the colors etc
   vtkPlot *plot = chart->AddPlot(vtkChart::POINTS);
