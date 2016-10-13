@@ -1,4 +1,5 @@
 vtk_add_test_python(
+  TestDensifyPointCloudFilter2.py
   TestEllipsoidalGaussianKernel.py
   TestPointInterpolator.py
   TestPointInterpolator2.py
@@ -10,6 +11,7 @@ vtk_add_test_python(
 
 if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
   vtk_add_test_python(
+    TestDensifyPointCloudFilter.py
     TestEuclideanClusterExtraction.py
     TestEuclideanClusterExtraction2.py
     TestExtractPoints.py

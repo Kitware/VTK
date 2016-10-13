@@ -1,5 +1,6 @@
 set(Module_SRCS
   vtkBoundedPointSource.cxx
+  vtkDensifyPointCloudFilter.cxx
   vtkEllipsoidalGaussianKernel.cxx
   vtkEuclideanClusterExtraction.cxx
   vtkExtractHierarchicalBins.cxx

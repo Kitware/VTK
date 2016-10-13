@@ -181,4 +181,37 @@ AddArrays(vtkIdType numOutPts, vtkDataSetAttributes *inPD, vtkDataSetAttributes 
   }//for each candidate array
 }
 
+//----------------------------------------------------------------------------
+// Add the arrays to interpolate here. This presumes that vtkDataSetAttributes::CopyData() or
+// vtkDataSetAttributes::InterpolateData() has been called. This special version creates an
+// array pair that interpolates from itself.
+inline void ArrayList::
+AddSelfInterpolatingArrays(vtkIdType numOutPts, vtkDataSetAttributes *attr, double nullValue)
+{
+  // Build the vector of interpolation pairs. Note that CopyAllocate/InterpolateAllocate should have
+  // been called at this point (output arrays created and allocated).
+  vtkDataArray *iArray;
+  int iType, iNumComp;
+  void *iD;
+  int i, numArrays = attr->GetNumberOfArrays();
+
+  for (i=0; i < numArrays; ++i)
+  {
+    iArray = attr->GetArray(i);
+    if ( iArray && ! this->IsExcluded(iArray) )
+    {
+      iType = iArray->GetDataType();
+      iNumComp = iArray->GetNumberOfComponents();
+      iArray->WriteVoidPointer(0,numOutPts*iNumComp); //allocates memory, preserves data
+      iD = iArray->GetVoidPointer(0);
+      switch (iType)
+      {
+        vtkTemplateMacro(CreateArrayPair(this, static_cast<VTK_TT *>(iD),
+                         static_cast<VTK_TT *>(iD),numOutPts,iNumComp,
+                         iArray,static_cast<VTK_TT>(nullValue)));
+      }//over all VTK types
+    }//if not excluded
+  }//for each candidate array
+}
+
 #endif
