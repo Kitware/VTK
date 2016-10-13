@@ -62,8 +62,9 @@ public:
   /**
    * Set/Get the blend mode.
    * The default mode is Composite where the scalar values are sampled through
-   * the volume and composited in a front-to-back scheme. The final color and
-   * opacity is determined using the color and opacity transfer functions.
+   * the volume and composited in a front-to-back scheme through alpha blending.
+   * The final color and opacity is determined using the color and opacity
+   * transfer functions.
    *
    * Maximum and minimum intensity blend modes use the maximum and minimum
    * scalar values, respectively,  along the sampling ray. The final color and
@@ -191,12 +192,12 @@ public:
    */
   virtual void ReleaseGraphicsResources(vtkWindow *) {}
 
-  //@{
   /**
    * Blend modes.
    * The default mode is Composite where the scalar values are sampled through
-   * the volume and composited in a front-to-back scheme. The final color and
-   * opacity is determined using the color and opacity transfer functions.
+   * the volume and composited in a front-to-back scheme through alpha blending.
+   * The final color and opacity is determined using the color and opacity
+   * transfer functions.
    *
    * Maximum and minimum intensity blend modes use the maximum and minimum
    * scalar values, respectively,  along the sampling ray. The final color and
@@ -224,7 +225,7 @@ public:
    * \note vtkVolumeMapper::AVERAGE_INTENSITY_BLEND is only supported by the
    * vtkGPUVolumeRayCastMapper with the OpenGL2 backend.
    */
-  enum
+  enum BlendModes
   {
     COMPOSITE_BLEND,
     MAXIMUM_INTENSITY_BLEND,
