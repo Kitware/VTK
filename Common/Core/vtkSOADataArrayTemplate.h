@@ -118,6 +118,11 @@ public:
   }
 
   /**
+   * Set component @a comp of all tuples to @a value.
+   */
+  void FillTypedComponent(int compIdx, ValueType value) VTK_OVERRIDE;
+
+  /**
    * Use this API to pass externally allocated memory to this instance. Since
    * vtkSOADataArrayTemplate uses separate contiguous regions for each
    * component, use this API to add arrays for each of the component.

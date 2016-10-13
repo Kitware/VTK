@@ -1388,6 +1388,14 @@ void vtkDataArray::FillComponent(int compIdx, double value)
   }
 }
 
+//----------------------------------------------------------------------------
+void vtkDataArray::Fill(double value)
+{
+  for (int i = 0; i < this->GetNumberOfComponents(); ++i)
+  {
+    this->FillComponent(i, value);
+  }
+}
 
 //----------------------------------------------------------------------------
 void vtkDataArray::CopyComponent(int dstComponent, vtkDataArray *src,

@@ -180,6 +180,15 @@ void vtkSOADataArrayTemplate<ValueType>::InsertTuples(
 
 //-----------------------------------------------------------------------------
 template<class ValueType>
+void vtkSOADataArrayTemplate<ValueType>::FillTypedComponent(int compIdx,
+                                                            ValueType value)
+{
+  ValueType *buffer = this->Data[compIdx]->GetBuffer();
+  std::fill(buffer, buffer + this->GetNumberOfTuples(), value);
+}
+
+//-----------------------------------------------------------------------------
+template<class ValueType>
 void vtkSOADataArrayTemplate<ValueType>::SetArray(int comp, ValueType* array,
                                                   vtkIdType size,
                                                   bool updateMaxId,
