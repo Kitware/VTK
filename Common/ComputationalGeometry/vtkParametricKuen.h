@@ -29,6 +29,7 @@
 
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"
+#include "vtkMath.h" // for vtkMath::Pi()
 
 class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricKuen : public
   vtkParametricFunction
@@ -40,8 +41,8 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricKuen : public
 
     /**
      * Construct Kuen's surface with the following parameters:
-     * (MinimumU, MaximumU) = (-3*pi, 3*pi),
-     * (MinimumV, MaximumV) = (0., pi),
+     * (MinimumU, MaximumU) = (-4.5, 4.5),
+     * (MinimumV, MaximumV) = (DeltaV0, pi),
      * JoinU = 0, JoinV = 0,
      * TwistU = 0, TwistV = 0;
      * ClockwiseOrdering = 0,
@@ -53,6 +54,18 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricKuen : public
      * Return the parametric dimension of the class.
      */
     int GetDimension() VTK_OVERRIDE {return 2;}
+
+    //@{
+    /**
+    * Set/Get the value to use when V == 0.
+    * Default is 0.05, giving the best appearance with the default settings.
+    * Setting it to a value less than 0.05 extrapolates the surface
+    * towards a pole in the -z direction.
+    * Setting it to 0 retains the pole whose z-value is -inf.
+    */
+    vtkSetMacro(DeltaV0, double);
+    vtkGetMacro(DeltaV0, double);
+    //@}
 
     /**
      * Kuen's surface.
@@ -78,6 +91,8 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricKuen : public
   private:
     vtkParametricKuen(const vtkParametricKuen&) VTK_DELETE_FUNCTION;
     void operator=(const vtkParametricKuen&) VTK_DELETE_FUNCTION;
+
+    double DeltaV0;
 };
 
 #endif
