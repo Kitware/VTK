@@ -2309,6 +2309,32 @@ void vtkAxisActor::SetTitle(const char *t)
   this->Modified();
 }
 
+//-----------------------------------------------------------------------------**
+void vtkAxisActor::SetTitleAlignLocation(int location)
+{
+  if (location != this->TitleAlignLocation)
+  {
+    switch (location)
+    {
+      case VTK_ALIGN_TOP:
+      case VTK_ALIGN_BOTTOM:
+      case VTK_ALIGN_POINT1:
+      case VTK_ALIGN_POINT2:
+      {
+        this->TitleAlignLocation = location;
+        this->TitleTextTime.Modified();
+        this->Modified();
+        break;
+      }
+      default:
+      {
+        break;
+      }
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------**
 void vtkAxisActor::SetExponent(const char *t)
 {
   if (this->Exponent == NULL && t == NULL)
@@ -2331,6 +2357,31 @@ void vtkAxisActor::SetExponent(const char *t)
   }
   this->ExponentTextTime.Modified();
   this->Modified();
+}
+
+//-----------------------------------------------------------------------------**
+void vtkAxisActor::SetExponentLocation(int location)
+{
+  if (location != this->ExponentLocation)
+  {
+    switch (location)
+    {
+      case VTK_ALIGN_TOP:
+      case VTK_ALIGN_BOTTOM:
+      case VTK_ALIGN_POINT1:
+      case VTK_ALIGN_POINT2:
+      {
+        this->ExponentLocation = location;
+        this->ExponentTextTime.Modified();
+        this->Modified();
+        break;
+      }
+      default:
+      {
+        break;
+      }
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
