@@ -33,6 +33,8 @@
 #include "vtkUnstructuredGridAlgorithm.h"
 
 class NcFile;
+class vtkCallbackCommand;
+class vtkDataArraySelection;
 
 class VTKIONETCDF_EXPORT vtkNetCDFCAMReader : public vtkUnstructuredGridAlgorithm
 {
@@ -64,11 +66,53 @@ public:
    * a volumetric grid will be created (if lev > 1) and the variables
    * with dimensions of (time, lev, ncols) will be read in.
    * By default, SingleLevel = 0.
+   * @deprecated in VTK 7.1 use SetVerticalDimension or
+   *             GetVerticalDimension instead.
    */
-  vtkBooleanMacro(SingleLevel,int);
-  vtkSetClampMacro(SingleLevel, int, 0, 1);
-  vtkGetMacro(SingleLevel, int);
+  VTK_LEGACY(virtual void SingleLevelOn ());
+  VTK_LEGACY(virtual void SingleLevelOff ());
+  VTK_LEGACY(virtual void SetSingleLevel (int level));
+  VTK_LEGACY(virtual int GetSingleLevel ());
   //@}
+
+  //@{
+  /**
+   * Set whether to read a single level, layer midpoints or layer
+   * interface levels.
+   * VERTICAL_DIMENSION_SINGLE_LAYER (0) indicates that only a single
+   * layer will be read in. The NetCDF variables loaded will be the
+   * ones with dimensions (time, ncols).
+   * VERTICAL_DIMENSION_LAYER_MIDPOINTS (1) indicates that variables defined
+   * on layer midpoints will be read in. These are variables with dimensions
+   * (time, lev, ncols).
+   * VERTICAL_DIMENSION_LAYER_INTERFACE (2) indicates that variables
+   * defined on layer interfaces will be read in. These are variables with
+   * dimensions (time, ilev, ncols).
+   */
+  enum VerticalDimension
+  {
+    VERTICAL_DIMENSION_SINGLE_LEVEL,
+    VERTICAL_DIMENSION_LAYER_MIDPOINTS,
+    VERTICAL_DIMENSION_LAYER_INTERFACE,
+    VERTICAL_DIMENSION_COUNT
+  };
+  vtkSetClampMacro(VerticalDimension, int, 0, 2);
+  vtkGetMacro(VerticalDimension, int);
+  //@}
+
+  //@{
+  /**
+   * The following methods allow selective reading of variables.
+   * By default, ALL data variables on the nodes are read.
+   */
+  int GetNumberOfPointArrays();
+  const char* GetPointArrayName(int index);
+  int GetPointArrayStatus(const char* name);
+  void SetPointArrayStatus(const char* name, int status);
+  void DisableAllPointArrays();
+  void EnableAllPointArrays();
+  //@}
+
 
   //@{
   /**
@@ -104,6 +148,11 @@ protected:
     int piece, int numPieces,int numCellLevels, int numCellsPerLevel,
     int & beginCellLevel, int & endCellLevel, int & beginCell, int & endCell);
 
+  void BuildVarArray();
+  static void SelectionCallback(vtkObject* caller, unsigned long eid,
+                                void* clientdata, void* calldata);
+
+
 private:
   vtkNetCDFCAMReader(const vtkNetCDFCAMReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkNetCDFCAMReader&) VTK_DELETE_FUNCTION;
@@ -127,11 +176,11 @@ private:
   vtkSetStringMacro(CurrentConnectivityFileName);
   //@}
 
-  int SingleLevel;
-
+  int VerticalDimension;
   double * TimeSteps;
-
   long NumberOfTimeSteps;
+  vtkDataArraySelection* PointDataArraySelection;
+  vtkCallbackCommand* SelectionObserver;
 
   //@{
   /**
