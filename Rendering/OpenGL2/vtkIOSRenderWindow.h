@@ -365,6 +365,9 @@ protected:
   int OffScreenInitialized;
   int OnScreenInitialized;
 
+  // IOS seems to have issues with getting RGB data
+  virtual int GetPixelData(int x, int y, int x2, int y2, int front, unsigned char* data);
+
 private:
   vtkIOSRenderWindow(const vtkIOSRenderWindow&) VTK_DELETE_FUNCTION;
   void operator=(const vtkIOSRenderWindow&) VTK_DELETE_FUNCTION;
