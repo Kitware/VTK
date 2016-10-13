@@ -1201,25 +1201,15 @@ namespace vtkvolume
     }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
     {
-      if (noOfComponents > 1)
+      if (noOfComponents > 1 && independentComponents)
       {
-       if (!independentComponents)
-       {
-         shaderStr += std::string("\
-           \n      float opacity = computeOpacity(scalar);\
-           \n      l_sumValue.x = l_sumValue.x + opacity * scalar.x;"
-         );
-       }
-       else
-       {
-         shaderStr += std::string("\
-         \n       for (int i = 0; i < in_noOfComponents; ++i)\
-         \n         {\
-         \n         float opacity = computeOpacity(scalar, i);\
-         \n         l_sumValue[i] = l_sumValue[i] + opacity * scalar[i];\
-         \n         }"
-         );
-       }
+        shaderStr += std::string("\
+        \n       for (int i = 0; i < in_noOfComponents; ++i)\
+        \n         {\
+        \n         float opacity = computeOpacity(scalar, i);\
+        \n         l_sumValue[i] = l_sumValue[i] + opacity * scalar[i];\
+        \n         }"
+        );
       }
       else
       {
