@@ -238,7 +238,7 @@ int vtkVoxelGrid::RequestData(
   vtkPointData *outPD = output->GetPointData();
   outPD->InterpolateAllocate(inPD,numOutPts);
 
-  // Finally run over all of the bins, and those that are not emoty are
+  // Finally run over all of the bins, and those that are not empty are
   // processed. The processing consists of averaging all of the points found
   // in the bin, and setting the average point position in the output points.
   vtkPoints *points = input->GetPoints()->NewInstance();
