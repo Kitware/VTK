@@ -261,6 +261,9 @@ public:
    * of mapper, turning shading off is generally the same as setting
    * ambient=1, diffuse=0, specular=0. Shading can be independently
    * turned on/off per component.
+   *
+   * \note Shading is supported for vtkVolumeMapper::COMPOSITE_BLEND mode
+   * \b only as the gradient computations will not be valid in the other cases.
    */
   void SetShade(int index, int value);
   void SetShade(int value)
