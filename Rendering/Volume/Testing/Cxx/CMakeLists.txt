@@ -62,6 +62,8 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastClippingPolyData.cxx
   TestGPURayCastClippingUserTransform.cxx
   TestGPURayCastDependentComponentsLightParameters.cxx
+  TestGPURayCastFourComponentsAdditive.cxx
+  TestGPURayCastFourComponentsAverage.cxx
   TestGPURayCastFourComponentsDependentGradient.cxx
   TestGPURayCastGradientOpacity.cxx
   TestGPURayCastGradientOpacityLight.cxx
