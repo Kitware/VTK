@@ -43,9 +43,10 @@
 #include "vtkDataSetAttributes.h" // needed for vtkDataSetAttributes::FieldList
 
 class vtkIdTypeArray;
+class vtkCell;
 class vtkCharArray;
-class vtkMaskPoints;
 class vtkImageData;
+class vtkPointData;
 
 class VTKFILTERSCORE_EXPORT vtkProbeFilter : public vtkDataSetAlgorithm
 {
@@ -94,7 +95,7 @@ public:
    * Get the list of point ids in the output that contain attribute data
    * interpolated from the source.
    */
-  vtkGetObjectMacro(ValidPoints, vtkIdTypeArray);
+  vtkIdTypeArray *GetValidPoints();
   //@}
 
   //@{
@@ -200,6 +201,7 @@ protected:
    * Initializes output and various arrays which keep track for probing status.
    */
   virtual void InitializeForProbing(vtkDataSet *input, vtkDataSet *output);
+  virtual void InitializeOutputArrays(vtkPointData *outPD, vtkIdType numPts);
 
   /**
    * Probe appropriate points
@@ -211,13 +213,7 @@ protected:
   char* ValidPointMaskArrayName;
   vtkIdTypeArray *ValidPoints;
   vtkCharArray* MaskPoints;
-  int NumberOfValidPoints;
 
-  // Agreed, this is sort of a hack to allow subclasses to override the default
-  // behavior of this filter to call NullPoint() for every point that is
-  // not-a-hit when probing. This makes it possible for subclasses to initialize
-  // the arrays with different defaults.
-  bool UseNullPoint;
 
   vtkDataSetAttributes::FieldList* CellList;
   vtkDataSetAttributes::FieldList* PointList;
@@ -229,13 +225,18 @@ private:
   // array.
   void ProbeEmptyPoints(vtkDataSet *input, int srcIdx, vtkDataSet *source,
     vtkDataSet *output);
+
   // A faster implementation for vtkImageData input.
   void ProbePointsImageData(vtkImageData *input, int srcIdx, vtkDataSet *source,
     vtkImageData *output);
+  void ProbeImagePointsInCell(vtkCell *cell, vtkIdType cellId, vtkDataSet *source,
+    int srcBlockId, const double start[3], const double spacing[3],
+    const int dim[3], vtkPointData *outPD, char *maskArray, double *wtsBuff);
+
+  class ProbeImageDataWorklet;
 
   class vtkVectorOfArrays;
   vtkVectorOfArrays* CellArrays;
-
 };
 
 #endif

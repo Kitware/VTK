@@ -64,7 +64,7 @@ int vtkPProbeFilter::RequestData(vtkInformation *request,
     numProcs = this->Controller->GetNumberOfProcesses();
   }
 
-  vtkIdType numPoints = this->NumberOfValidPoints;
+  vtkIdType numPoints = this->GetValidPoints()->GetNumberOfTuples();
   if ( procid )
   {
     // Satellite node
