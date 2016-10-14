@@ -850,6 +850,7 @@ int vtkPSurfaceLICComposite::MakeDecompDisjoint(
 
   // move from flat order back to rank indexed order and remove
   // empty extents
+  pRem = ne ? &rem[0] : NULL;
   out.resize(this->CommSize);
   for (size_t e=0; e<ne; ++e, pRem+=4)
   {
