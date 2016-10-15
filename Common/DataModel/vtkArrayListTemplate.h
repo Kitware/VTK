@@ -226,6 +226,10 @@ struct ArrayList
                  vtkDataSetAttributes *outPD, double nullValue=0.0,
                  bool promote=true);
 
+  // Add an array that interpolates from its own attribute values
+  void AddSelfInterpolatingArrays(vtkIdType numOutPts, vtkDataSetAttributes *attr,
+                                  double nullValue=0.0);
+
   // Add a pair of arrays (manual insertion). Returns the output array created,
   // if any. No array may be created if \c inArray was previously marked as
   // excluded using ExcludeArray().
