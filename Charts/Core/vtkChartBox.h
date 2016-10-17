@@ -40,7 +40,7 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   /**
-   * Creates a parallel coordinates chart
+   * Creates a box chart
    */
   static vtkChartBox* New();
 
