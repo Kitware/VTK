@@ -19,6 +19,7 @@ set(module_SRCS
   vtkMarkerUtilities.cxx
   vtkPen.cxx
 #  vtkPiecewisePointHandleItem.cxx
+  vtkPolyDataItem.cxx
   vtkPropItem.cxx
   vtkTooltipItem.cxx
   )

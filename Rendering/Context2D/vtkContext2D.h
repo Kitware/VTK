@@ -45,6 +45,7 @@ class vtkContextDevice2D;
 class vtkPen;
 class vtkBrush;
 class vtkImageData;
+class vtkPolyData;
 class vtkTransform2D;
 class vtkAbstractContextBufferId;
 
@@ -333,6 +334,13 @@ public:
    * will be drawn scaled to that size.
    */
   void DrawImage(const vtkRectf& pos, vtkImageData *image);
+
+  /**
+   * Draw the supplied polyData at the given x, y position (bottom corner).
+   * \note Supports only 2D meshes.
+   */
+  void DrawPolyData(float x, float y, vtkPolyData* polyData,
+    vtkUnsignedCharArray* colors, int scalarMode);
 
   //@{
   /**

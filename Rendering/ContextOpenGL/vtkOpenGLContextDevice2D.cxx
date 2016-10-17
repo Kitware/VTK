@@ -1646,3 +1646,12 @@ void vtkOpenGLContextDevice2D::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "MarkerCache: " << this->MarkerCache.size()
      << " entries." << endl;
 }
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawPolyData(float vtkNotUsed(p)[2],
+  float vtkNotUsed(scale), vtkPolyData* vtkNotUsed(polyData),
+  vtkUnsignedCharArray* vtkNotUsed(colors), int vtkNotUsed(scalarMode))
+{
+  vtkWarningMacro("This functionality is not supported with the legacy OpenGL "
+    "backend!");
+}

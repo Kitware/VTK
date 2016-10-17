@@ -38,6 +38,7 @@
 #include "vtkPen.h"
 #include "vtkPoints2D.h"
 #include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkRect.h"
 #include "vtkShaderProgram.h"
 #include "vtkSmartPointer.h"
@@ -228,6 +229,7 @@ vtkOpenGLContextDevice2D::vtkOpenGLContextDevice2D()
   this->InRender = false;
   this->TextRenderer = vtkTextRendererStringToImage::New();
   this->Storage = new vtkOpenGLContextDevice2D::Private;
+  this->PolyDataImpl = new vtkOpenGLContextDevice2D::CellArrayHelper(this);
   this->RenderWindow = NULL;
   this->MaximumMarkerCacheSize = 20;
   this->ProjectionMatrix = vtkTransform::New();
@@ -270,6 +272,7 @@ vtkOpenGLContextDevice2D::~vtkOpenGLContextDevice2D()
   this->ProjectionMatrix->Delete();
   this->ModelMatrix->Delete();
   delete this->Storage;
+  delete this->PolyDataImpl;
 }
 
 vtkMatrix4x4 *vtkOpenGLContextDevice2D::GetProjectionMatrix()
@@ -1215,8 +1218,8 @@ void vtkOpenGLContextDevice2D::DrawQuad(float *f, int n)
   this->CoreDrawTriangles(tverts);
 }
 
-void vtkOpenGLContextDevice2D::CoreDrawTriangles(
-  std::vector<float> &tverts)
+void vtkOpenGLContextDevice2D::CoreDrawTriangles(std::vector<float> &tverts,
+  unsigned char* colors, int numComp)
 {
   if (SkipDraw())
   {
@@ -1239,6 +1242,11 @@ void vtkOpenGLContextDevice2D::CoreDrawTriangles(
     int tunit = vtkOpenGLTexture::SafeDownCast(this->Storage->Texture)->GetTextureUnit();
     cbo->Program->SetUniformi("texture1", tunit);
   }
+  else if (colors && numComp > 0)
+  {
+    this->ReadyVCBOProgram();
+    cbo = this->VCBO;
+  }
   else
   {
     // Skip transparent elements.
@@ -1249,10 +1257,13 @@ void vtkOpenGLContextDevice2D::CoreDrawTriangles(
     this->ReadyVBOProgram();
     cbo = this->VBO;
   }
+
   cbo->Program->SetUniform4uc("vertexColor",
       this->Brush->GetColor());
 
-  this->BuildVBO(cbo, &(tverts[0]), tverts.size()/2, NULL, 0, texCoord);
+  this->BuildVBO(cbo, &(tverts[0]), tverts.size()/2, colors, numComp,
+    texCoord);
+
   this->SetMatrices(cbo->Program);
 
   PreDraw(*cbo, GL_TRIANGLES, tverts.size() / 2);
@@ -1949,6 +1960,44 @@ void vtkOpenGLContextDevice2D::DrawImage(float p[2], float scale,
   this->Storage->Texture->PostRender(this->Renderer);
 
   vtkOpenGLCheckErrorMacro("failed after DrawImage");
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawPolyData(float p[2], float scale,
+  vtkPolyData* polyData, vtkUnsignedCharArray* colors, int scalarMode)
+{
+  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+  if (gl2ps)
+  {
+    switch (gl2ps->GetActiveState())
+    {
+      case vtkOpenGLGL2PSHelper::Capture:
+        // TODO Implement PolyDataGL2PS
+        // this->DrawPolyDataGL2PS(pos, image);
+        return;
+      case vtkOpenGLGL2PSHelper::Background:
+        return; // Do nothing.
+      case vtkOpenGLGL2PSHelper::Inactive:
+        break; // Draw as normal.
+    }
+  }
+
+  if (SkipDraw())
+  {
+    return;
+  }
+
+  if (polyData->GetLines()->GetNumberOfCells() > 0)
+  {
+    this->PolyDataImpl->Draw(CellArrayHelper::LINE, polyData->GetLines(),
+    polyData->GetPoints(), p[0], p[1], scale, scalarMode, colors);
+  }
+
+  if (polyData->GetPolys()->GetNumberOfCells() > 0)
+  {
+    this->PolyDataImpl->Draw(CellArrayHelper::POLYGON, polyData->GetPolys(),
+      polyData->GetPoints(), p[0], p[1], scale, scalarMode, colors);
+  }
 }
 
 //-----------------------------------------------------------------------------
