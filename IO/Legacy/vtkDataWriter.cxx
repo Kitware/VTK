@@ -1675,11 +1675,18 @@ int vtkDataWriter::WriteTensorData(ostream *fp, vtkDataArray *tensors, int num)
     this->EncodeString(tensorsName, this->TensorsName, true);
   }
 
-  *fp << "TENSORS ";
+  *fp << "TENSORS";
+  int numComp = 9;
+  if (tensors->GetNumberOfComponents() == 6)
+    {
+    *fp << "6";
+    numComp = 6;
+    }
+  *fp << " ";
   sprintf(format, "%s %s\n", tensorsName, "%s");
   delete[] tensorsName;
 
-  return this->WriteArray(fp, tensors->GetDataType(), tensors, format, num, 9);
+  return this->WriteArray(fp, tensors->GetDataType(), tensors, format, num, numComp);
 }
 
 int vtkDataWriter::WriteGlobalIdData(ostream *fp, vtkDataArray *globalIds, int num)

@@ -143,15 +143,27 @@ int vtkMatrixMathFilter::RequestData
     {
       case DETERMINANT :
       {
+        double tensor[9];
+        inTensors->GetTuple(i, tensor);
+        if (inTensors->GetNumberOfComponents() == 6)
+        {
+          vtkMath::TensorFromSymmetricTensor(tensor);
+        }
         double const q = vtkMath::Determinant3x3(
-          reinterpret_cast<double(*)[3]>(inTensors->GetTuple(i)));
+          reinterpret_cast<double(*)[3]>(tensor));
         quality->SetTuple(i, &q);
         break;
       }
       case EIGENVALUE :
       case EIGENVECTOR :
       {
-        double* d = inTensors->GetTuple(i);
+        double d[9];
+        inTensors->GetTuple(i, d);
+        if (inTensors->GetNumberOfComponents() == 6)
+        {
+          vtkMath::TensorFromSymmetricTensor(d);
+        }
+
         double  w[3]={0}, v[9]={0}, t[]={d[1]-d[3], d[2]-d[6], d[5]-d[7]};
 
         // Use Jacobi iterative method only if the matrix is real symmetric.
@@ -178,8 +190,15 @@ int vtkMatrixMathFilter::RequestData
       }
       case INVERSE :
       {
+        double tensor[9];
+        inTensors->GetTuple(i, tensor);
+        if (inTensors->GetNumberOfComponents() == 6)
+        {
+          vtkMath::TensorFromSymmetricTensor(tensor);
+        }
+
         double AI [3][3] = {{0}}, (*A) [3]
-          = reinterpret_cast<double(*)[3]>(inTensors->GetTuple(i));
+          = reinterpret_cast<double(*)[3]>(tensor);
 
         // vtkMath::Invert3x3 should quite fit here, unfortunately, it does not
         // check for matrix singularity which in the worest case leads to divide

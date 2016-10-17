@@ -269,8 +269,12 @@ int vtkTensorGlyph::RequestData(
     ptIncr = numDirs * inPtId * numSourcePts;
 
     // Translation is postponed
-
+    // Symmetric tensor support
     inTensors->GetTuple(inPtId, tensor);
+    if (inTensors->GetNumberOfComponents() == 6)
+    {
+      vtkMath::TensorFromSymmetricTensor(tensor);
+    }
 
     // compute orientation vectors and scale factors from tensor
     if ( this->ExtractEigenvalues ) // extract appropriate eigenfunctions

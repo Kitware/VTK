@@ -122,8 +122,12 @@ void vtkEllipsoidTensorProbeRepresentation
   {
     tensors->GetTuple( this->ProbeCellId, t1 );
     tensors->GetTuple( this->ProbeCellId+1, t2 );
+    if (tensors->GetNumberOfComponents() == 6)
+    {
+      vtkMath::TensorFromSymmetricTensor(t1);
+      vtkMath::TensorFromSymmetricTensor(t2);
+    }
   }
-
 
   // NN interpolation ?
   // if ( r < 0.5 )

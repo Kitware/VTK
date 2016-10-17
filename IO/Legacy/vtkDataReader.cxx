@@ -647,6 +647,16 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, int numCells)
       }
     }
     //
+    // read 3x2 symmetric tensor data
+    //
+    else if ( ! strncmp(line, "tensors6", 8) )
+    {
+      if ( ! this->ReadTensorData(a, numCells, 6) )
+      {
+        return 0;
+      }
+    }
+    //
     // read 3x3 tensor data
     //
     else if ( ! strncmp(line, "tensors", 7) )
@@ -790,6 +800,16 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
     else if ( ! strncmp(line, "vectors", 7) )
     {
       if ( ! this->ReadVectorData(a, numPts) )
+      {
+        return 0;
+      }
+    }
+    //
+    // read 3x2 symmetric tensor data
+    //
+    else if ( ! strncmp(line, "tensors6", 8) )
+    {
+      if ( ! this->ReadTensorData(a, numPts, 6) )
       {
         return 0;
       }
@@ -953,6 +973,16 @@ int vtkDataReader::ReadVertexData(vtkGraph *g, int numVertices)
       }
     }
     //
+    // read 3x2 symmetric tensor data
+    //
+    else if ( ! strncmp(line, "tensors6", 8) )
+    {
+      if ( ! this->ReadTensorData(a, numVertices, 6) )
+      {
+        return 0;
+      }
+    }
+    //
     // read 3x3 tensor data
     //
     else if ( ! strncmp(line, "tensors", 7) )
@@ -1100,6 +1130,16 @@ int vtkDataReader::ReadEdgeData(vtkGraph *g, int numEdges)
       }
     }
     //
+    // read 3x2 symmetric tensor data
+    //
+    else if ( ! strncmp(line, "tensors6", 8) )
+    {
+      if ( ! this->ReadTensorData(a, numEdges, 6) )
+      {
+        return 0;
+      }
+    }
+    //
     // read 3x3 tensor data
     //
     else if ( ! strncmp(line, "tensors", 7) )
@@ -1240,6 +1280,16 @@ int vtkDataReader::ReadRowData(vtkTable *t, int numEdges)
     else if ( ! strncmp(line, "vectors", 7) )
     {
       if ( ! this->ReadVectorData(a, numEdges) )
+      {
+        return 0;
+      }
+    }
+    //
+    // read 3x2 symmetric tensor data
+    //
+    else if ( ! strncmp(line, "tensors6", 8) )
+    {
+      if ( ! this->ReadTensorData(a, numEdges, 6) )
       {
         return 0;
       }
@@ -2300,7 +2350,7 @@ int vtkDataReader::ReadNormalData(vtkDataSetAttributes *a, int numPts)
 }
 
 // Read tensor point attributes. Return 0 if error.
-int vtkDataReader::ReadTensorData(vtkDataSetAttributes *a, int numPts)
+int vtkDataReader::ReadTensorData(vtkDataSetAttributes *a, int numPts, int numComp)
 {
   int skipTensor=0;
   char line[256], name[256];
@@ -2323,7 +2373,7 @@ int vtkDataReader::ReadTensorData(vtkDataSetAttributes *a, int numPts)
   }
 
   data = vtkArrayDownCast<vtkDataArray>(
-    this->ReadArray(line, numPts, 9));
+    this->ReadArray(line, numPts, numComp));
   if ( data != NULL )
   {
     data->SetName(name);

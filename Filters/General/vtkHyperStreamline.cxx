@@ -437,6 +437,10 @@ int vtkHyperStreamline::RequestData(
     for (k=0; k < cell->GetNumberOfPoints(); k++)
     {
       cellTensors->GetTuple(k, tensor);
+      if (cellTensors->GetNumberOfComponents() == 6)
+      {
+        vtkMath::TensorFromSymmetricTensor(tensor);
+      }
       for (j=0; j<3; j++)
       {
         for (i=0; i<3; i++)
@@ -522,6 +526,10 @@ int vtkHyperStreamline::RequestData(
       for (k=0; k < cell->GetNumberOfPoints(); k++)
       {
         cellTensors->GetTuple(k, tensor);
+        if (cellTensors->GetNumberOfComponents() == 6)
+        {
+          vtkMath::TensorFromSymmetricTensor(tensor);
+        }
         for (j=0; j<3; j++)
         {
           for (i=0; i<3; i++)
@@ -602,6 +610,10 @@ int vtkHyperStreamline::RequestData(
         for (k=0; k < cell->GetNumberOfPoints(); k++)
         {
           cellTensors->GetTuple(k, tensor);
+          if (cellTensors->GetNumberOfComponents() == 6)
+          {
+            vtkMath::TensorFromSymmetricTensor(tensor);
+          }
           for (j=0; j<3; j++)
           {
             for (i=0; i<3; i++)

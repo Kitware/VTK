@@ -85,8 +85,14 @@ class TestTensorGlyph(Testing.vtkTest):
         g4.Update()
         g4.SetPosition((2.0, 2.0, 0.0))
 
+        # 6Components symetric tensor
+        g5 = SimpleGlyph(reader)
+        g5.glyph.SetInputArrayToProcess(0, 0, 0, 0, "symTensors1")
+        g5.SetPosition((4.0, 2.0, 0.0))
+        g5.Update()
+
         ren = vtk.vtkRenderer()
-        for i in (g1, g2, g3, g4):
+        for i in (g1, g2, g3, g4, g5):
             for j in i.GetActors():
                 ren.AddActor(j)
 
@@ -95,7 +101,7 @@ class TestTensorGlyph(Testing.vtkTest):
         cam = ren.GetActiveCamera()
         cam.Azimuth(-20)
         cam.Elevation(20)
-        cam.Zoom(1.5)
+        cam.Zoom(1.1)
 
         ren.SetBackground(0.5, 0.5, 0.5)
 

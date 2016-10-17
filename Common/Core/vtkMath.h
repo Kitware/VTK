@@ -910,7 +910,6 @@ public:
   static int SolveHomogeneousLeastSquares(int numberOfSamples, double **xt, int xOrder,
                                 double **mt);
 
-
   /**
    * Solves for the least squares best fit matrix for the equation X'M' = Y'.
    * Uses pseudoinverse to get the ordinary least squares.
@@ -1096,6 +1095,21 @@ public:
                                        const double range[2]);
 
   /**
+   * Convert a 6-Component symmetric tensor into a 9-Component tensor, no allocation performed.
+   * Symmetric tensor is expected to have the following order : XX, YY, ZZ, XY, YZ, XZ
+   */
+  template<class T1, class T2>
+  static void TensorFromSymmetricTensor(T1 symmTensor[6], T2 tensor[9]);
+
+    /**
+   * Convert a 6-Component symmetric tensor into a 9-Component tensor, overwriting
+   * the tensor input.
+   * Symmetric tensor is expected to have the following order : XX, YY, ZZ, XY, YZ, XZ
+   */
+  template<class T>
+  static void TensorFromSymmetricTensor(T tensor[9]);
+
+  /**
    * Return the scalar type that is most likely to have enough precision
    * to store a given range of data once it has been scaled and shifted
    * (i.e. [range_min * scale + shift, range_max * scale + shift].
@@ -1178,7 +1192,6 @@ public:
    * Test if a number has finite value i.e. it is normal, subnormal or zero, but not infinite or Nan.
    */
   static bool IsFinite(double x);
-
 protected:
   vtkMath() {}
   ~vtkMath() VTK_OVERRIDE {}
@@ -1504,6 +1517,32 @@ inline double vtkMath::ClampAndNormalizeValue(double value,
   assert("post: valid_result" && result>=0.0 && result<=1.0);
 
   return result;
+}
+
+//-----------------------------------------------------------------------------
+template<class T1, class T2>
+inline void vtkMath::TensorFromSymmetricTensor(T1 symmTensor[9], T2 tensor[9])
+{
+  for (int i = 0; i < 3; i++)
+  {
+    tensor[4*i] = symmTensor[i];
+  }
+  tensor[1] = tensor[3] = symmTensor[3];
+  tensor[2] = tensor[6] = symmTensor[5];
+  tensor[5] = tensor[7] = symmTensor[4];
+}
+
+//-----------------------------------------------------------------------------
+template<class T>
+inline void vtkMath::TensorFromSymmetricTensor(T tensor[9])
+{
+  tensor[6] = tensor[5]; // XZ
+  tensor[7] = tensor[4]; // YZ
+  tensor[8] = tensor[2]; // ZZ
+  tensor[4] = tensor[1]; // YY
+  tensor[5] = tensor[7]; // YZ
+  tensor[2] = tensor[6]; // XZ
+  tensor[1] = tensor[3]; // XY
 }
 
 namespace vtk_detail
