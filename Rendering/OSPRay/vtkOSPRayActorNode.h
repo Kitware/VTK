@@ -24,6 +24,8 @@
 
 #include "vtkRenderingOSPRayModule.h" // For export macro
 #include "vtkActorNode.h"
+#include "vtkTimeStamp.h" //for mapper changed time
+#include "vtkWeakPointer.h" //also for mapper changed time
 
 class vtkActor;
 class vtkCompositeDataDisplayAttributes;
@@ -31,8 +33,11 @@ class vtkDataArray;
 class vtkInformationIntegerKey;
 class vtkInformationObjectBaseKey;
 class vtkInformationStringKey;
+class vtkMapper;
 class vtkPiecewiseFunction;
 class vtkPolyData;
+class vtkTimeStamp;
+
 
 class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayActorNode :
   public vtkActorNode
@@ -93,5 +98,8 @@ protected:
 private:
   vtkOSPRayActorNode(const vtkOSPRayActorNode&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOSPRayActorNode&) VTK_DELETE_FUNCTION;
+
+  vtkWeakPointer<vtkMapper> LastMapper;
+  vtkTimeStamp MapperChangedTime;
 };
 #endif

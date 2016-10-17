@@ -40,6 +40,7 @@ vtkStandardNewMacro(vtkOSPRayActorNode);
 //----------------------------------------------------------------------------
 vtkOSPRayActorNode::vtkOSPRayActorNode()
 {
+  this->LastMapper = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -144,6 +145,12 @@ vtkMTimeType vtkOSPRayActorNode::GetMTime()
     if (mapper->GetInformation()->GetMTime() > mtime)
     {
       mtime = mapper->GetInformation()->GetMTime();
+    }
+    if (mapper != this->LastMapper)
+    {
+      this->MapperChangedTime.Modified();
+      mtime = this->MapperChangedTime;
+      this->LastMapper = mapper;
     }
     vtkPiecewiseFunction *pwf = vtkPiecewiseFunction::SafeDownCast
       (mapper->GetInformation()->Get(vtkOSPRayActorNode::SCALE_FUNCTION()));
