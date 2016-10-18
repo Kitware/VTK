@@ -579,16 +579,17 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
     double bounds[6];
     if (orientArray)
     {
+      vtkBoundingBox bbox2(bbox);
+      bbox2.Scale(-1.0,-1.0,-1.0);
+      bbox.AddBox(bbox2);
       // bounding sphere.
-      double c[3];
-      bbox.GetCenter(c);
       double l=bbox.GetDiagonalLength()/2.0;
-      bounds[0]=c[0]-l;
-      bounds[1]=c[0]+l;
-      bounds[2]=c[1]-l;
-      bounds[3]=c[1]+l;
-      bounds[4]=c[2]-l;
-      bounds[5]=c[2]+l;
+      bounds[0] = -l;
+      bounds[1] = l;
+      bounds[2] = -l;
+      bounds[3] = l;
+      bounds[4] = -l;
+      bounds[5] = l;
     }
     else
     {
