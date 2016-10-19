@@ -223,12 +223,7 @@ void vtkPNGReader::ExecuteInformation()
     png_uint_32 x_pixels_per_meter, y_pixels_per_meter;
     x_pixels_per_meter = png_get_x_pixels_per_meter(png_ptr, info_ptr);
     y_pixels_per_meter = png_get_y_pixels_per_meter(png_ptr, info_ptr);
-    if (x_pixels_per_meter == 0 || y_pixels_per_meter == 0)
-    {
-      vtkErrorMacro("The png header has invalid pixels_per_meter: " << this->InternalFileName);
-      this->SetDataSpacing(1.0, 1.0, 1.0);
-    }
-    else
+    if (x_pixels_per_meter > 0 && y_pixels_per_meter > 0)
     {
       this->SetDataSpacing(1000.0/x_pixels_per_meter, 1000.0/y_pixels_per_meter, 1);
     }

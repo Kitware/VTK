@@ -84,6 +84,7 @@ public:
   //@{
   /**
    * Set/Get if data spacing should be calculated from the PNG file.
+   * Use default spacing if the PNG file don't have valid pixel per meter parameters.
    * Default is false.
    */
   vtkSetMacro(ReadSpacingFromFile, bool);
