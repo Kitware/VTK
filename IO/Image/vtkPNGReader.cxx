@@ -92,6 +92,7 @@ public:
 vtkPNGReader::vtkPNGReader()
 {
   this->Internals = new vtkInternals();
+  this->ReadSpacingFromFile = false;
 }
 
 //----------------------------------------------------------------------------
@@ -216,6 +217,17 @@ void vtkPNGReader::ExecuteInformation()
   this->DataExtent[1] = width - 1;
   this->DataExtent[2] = 0;
   this->DataExtent[3] = height - 1;
+
+  if(ReadSpacingFromFile)
+  {
+    png_uint_32 x_pixels_per_meter, y_pixels_per_meter;
+    x_pixels_per_meter = png_get_x_pixels_per_meter(png_ptr, info_ptr);
+    y_pixels_per_meter = png_get_y_pixels_per_meter(png_ptr, info_ptr);
+    if (x_pixels_per_meter > 0 && y_pixels_per_meter > 0)
+    {
+      this->SetDataSpacing(1000.0/x_pixels_per_meter, 1000.0/y_pixels_per_meter, 1);
+    }
+  }
 
   if (bit_depth <= 8)
   {
@@ -494,6 +506,9 @@ int vtkPNGReader::CanReadFile(const char* fname)
 void vtkPNGReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Read Spacing From File: " <<
+    (this->ReadSpacingFromFile ? "On\n" : "Off\n");
 }
 
 //----------------------------------------------------------------------------
