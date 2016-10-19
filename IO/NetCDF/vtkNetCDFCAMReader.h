@@ -16,14 +16,13 @@
  * @class   vtkNetCDFCAMReader
  * @brief   Read unstructured NetCDF CAM files.
  *
- * Reads in a NetCDF CAM (Community Atmospheric Model) file and produces
- * and unstructured grid.  The grid is actually unstructured in the
- * X and Y directions and rectilinear in the Z direction with all
- * hex cells.  The reader requires 2 NetCDF files.  The first is the
- * cell connectivity file which has the quad connectivity in the plane.
- * The other connectivity file has all of the point and field information.
- * Currently this reader ignores time that may exist in the points
- * file.
+ * Reads in a NetCDF CAM (Community Atmospheric Model) file and
+ * produces and unstructured grid.  The grid is actually unstructured
+ * in the X and Y directions and rectilinear in the Z direction. If we
+ * read one layer we produce quad cells otherwise we produce hex
+ * cells.  The reader requires 2 NetCDF files: the main file has all
+ * attributes, the connectivity file has point positions and cell
+ * connectivity information.
 */
 
 #ifndef vtkNetCDFCAMReader_h
@@ -62,9 +61,9 @@ public:
    * Set whether or not to read a single level.  A
    * value of one indicates that only a single level will be read in.
    * The NetCDF variables loaded will then be ones with dimensions
-   * of (time, ncols).  This will result in a surface grid. Otherwise
+   * of (time, ncol).  This will result in a surface grid. Otherwise
    * a volumetric grid will be created (if lev > 1) and the variables
-   * with dimensions of (time, lev, ncols) will be read in.
+   * with dimensions of (time, lev, ncol) will be read in.
    * By default, SingleLevel = 0.
    * @deprecated in VTK 7.1 use SetVerticalDimension or
    *             GetVerticalDimension instead.
@@ -77,27 +76,48 @@ public:
 
   //@{
   /**
-   * Set whether to read a single level, layer midpoints or layer
-   * interface levels.
+   * Set whether to read a single layer, midpoint layers or interface layers.
    * VERTICAL_DIMENSION_SINGLE_LAYER (0) indicates that only a single
    * layer will be read in. The NetCDF variables loaded will be the
-   * ones with dimensions (time, ncols).
-   * VERTICAL_DIMENSION_LAYER_MIDPOINTS (1) indicates that variables defined
-   * on layer midpoints will be read in. These are variables with dimensions
-   * (time, lev, ncols).
-   * VERTICAL_DIMENSION_LAYER_INTERFACE (2) indicates that variables
-   * defined on layer interfaces will be read in. These are variables with
-   * dimensions (time, ilev, ncols).
+   * ones with dimensions (time, ncol).
+   * VERTICAL_DIMENSION_MIDPOINT_LAYERS (1) indicates that variables defined
+   * on midpoint layers will be read in. These are variables with dimensions
+   * (time, lev, ncol).
+   * VERTICAL_DIMENSION_INTERFACE_LAYERS (2) indicates that variables
+   * defined on interface layers will be read in. These are variables with
+   * dimensions (time, ilev, ncol).
    */
   enum VerticalDimension
   {
-    VERTICAL_DIMENSION_SINGLE_LEVEL,
-    VERTICAL_DIMENSION_LAYER_MIDPOINTS,
-    VERTICAL_DIMENSION_LAYER_INTERFACE,
+    VERTICAL_DIMENSION_SINGLE_LAYER,
+    VERTICAL_DIMENSION_MIDPOINT_LAYERS,
+    VERTICAL_DIMENSION_INTERFACE_LAYERS,
     VERTICAL_DIMENSION_COUNT
   };
   vtkSetClampMacro(VerticalDimension, int, 0, 2);
   vtkGetMacro(VerticalDimension, int);
+  //@}
+
+  //@{
+  /**
+   * If SingleXXXLayer is 1, we'll load only the layer specified by
+   * XXXLayerIndex.  Otherwise, we load all layers. We do that for
+   * midpoint layer variables ( which have dimension 'lev') or for
+   * interface layer variables (which have dimension 'ilev').
+   */
+  vtkBooleanMacro(SingleMidpointLayer, int);
+  vtkSetMacro(SingleMidpointLayer, int);
+  vtkGetMacro(SingleMidpointLayer, int);
+  vtkSetMacro(MidpointLayerIndex, int);
+  vtkGetMacro(MidpointLayerIndex, int);
+  vtkGetVector2Macro(MidpointLayersRange, int);
+
+  vtkBooleanMacro(SingleInterfaceLayer, int);
+  vtkSetMacro(SingleInterfaceLayer, int);
+  vtkGetMacro(SingleInterfaceLayer, int);
+  vtkSetMacro(InterfaceLayerIndex, int);
+  vtkGetMacro(InterfaceLayerIndex, int);
+  vtkGetVector2Macro(InterfaceLayersRange, int);
   //@}
 
   //@{
@@ -181,6 +201,15 @@ private:
   long NumberOfTimeSteps;
   vtkDataArraySelection* PointDataArraySelection;
   vtkCallbackCommand* SelectionObserver;
+
+  int SingleMidpointLayer;
+  int MidpointLayerIndex;
+  int MidpointLayersRange[2];
+
+  int SingleInterfaceLayer;
+  int InterfaceLayerIndex;
+  int InterfaceLayersRange[2];
+
 
   //@{
   /**
