@@ -605,24 +605,32 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
     if (!wglChoosePixelFormatARB(hDC, attrib, 0, 1, &pixelFormat, &numFormats)
       || numFormats == 0)
     {
-      // If the requested number of multisamples does not work, try
-      // scaling down the number of multisamples
-      if (multiSampleAttributeIndex)
+      // if we are trying for stereo and multisamples
+      // then drop stereo first if we cannot get a context
+      if (stereoAttributeIndex && multiSampleAttributeIndex)
       {
-        attrib[multiSampleAttributeIndex] /= 2;
-        if (!wglChoosePixelFormatARB(hDC, attrib, 0, 1,
-              &pixelFormat, &numFormats) || numFormats == 0)
+        attrib[stereoAttributeIndex] = FALSE;
+        wglChoosePixelFormatARB(hDC, attrib, 0, 1, &pixelFormat, &numFormats);
+      }
+      // Next try dropping multisamples if requested
+      if (multiSampleAttributeIndex && numFormats == 0)
+      {
+        while (numFormats == 0 && attrib[multiSampleAttributeIndex] > 0)
         {
-          // try disabling multisampling altogether
-          if (multiSampleBuffersIndex)
+          attrib[multiSampleAttributeIndex] /= 2;
+          if (attrib[multiSampleAttributeIndex] < 2)
           {
-            attrib[multiSampleBuffersIndex] = 0;
+            // try disabling multisampling altogether
             attrib[multiSampleAttributeIndex] = 0;
-            wglChoosePixelFormatARB(hDC, attrib, 0, 1, &pixelFormat, &numFormats);
+            if (multiSampleBuffersIndex)
+            {
+              attrib[multiSampleBuffersIndex] = 0;
+            }
           }
+          wglChoosePixelFormatARB(hDC, attrib, 0, 1, &pixelFormat, &numFormats);
         }
       }
-      // try dropping stereo
+      // finally try dropping stereo when requested without multisamples
       if (stereoAttributeIndex && numFormats == 0)
       {
         attrib[stereoAttributeIndex] = FALSE;
