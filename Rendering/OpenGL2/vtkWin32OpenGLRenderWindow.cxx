@@ -1071,12 +1071,12 @@ void vtkWin32OpenGLRenderWindow::Finalize (void)
 
 void vtkWin32OpenGLRenderWindow::DestroyWindow()
 {
-  this->Clean();
   if(this->WindowIdReferenceCount > 0)
   {
     --this->WindowIdReferenceCount;
     if(this->WindowIdReferenceCount == 0)
     {
+      this->Clean();
       if (this->WindowId)
       {
         ReleaseDC(this->WindowId, this->DeviceContext);
