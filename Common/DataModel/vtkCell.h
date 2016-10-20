@@ -66,6 +66,14 @@ public:
   void Initialize(int npts, vtkIdType *pts, vtkPoints *p);
 
   /**
+   * Initialize the cell with point coordinates specified. Note that this
+   * simplified version of Initialize() assumes that the point ids are simply
+   * the indices into the supplied points array. Make sure that the ordering
+   * of the points is consistent with the definition of the cell.
+   */
+  void Initialize(int npts, vtkPoints *p);
+
+  /**
    * Copy this cell by reference counting the internal data structures.
    * This is safe if you want a "read-only" copy. If you modify the cell
    * you might wish to use DeepCopy().
@@ -364,5 +372,3 @@ private:
 };
 
 #endif
-
-
