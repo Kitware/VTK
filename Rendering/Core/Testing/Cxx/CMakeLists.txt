@@ -13,6 +13,7 @@ if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
     TestTranslucentLUTTextureAlphaBlending.cxx
     TestAreaSelections.cxx
     TestValuePassFloatingPoint.cxx
+    TestToggleOSWithInteractor.cxx,NO_DATA
     )
 else()
   set(extra_opengl2_tests
