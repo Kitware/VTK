@@ -377,7 +377,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
   // have opngl 3.2 to be safe
   // this is because it seems that GLEW_ARB_vertex_array_object
   // does not always handle the attributes for GLEW_ARB_instanced_arrays
-  this->Tris.VAO->SetForceEmulation(
+  this->Primitives[PrimitiveTris].VAO->SetForceEmulation(
     !vtkOpenGLRenderWindow::GetContextSupportsOpenGL32());
 
   this->CurrentInput = this->GetInput();
@@ -422,13 +422,13 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
     if (!primed)
     {
       this->RenderPieceStart(ren,actor);
-      this->UpdateShaders(this->Tris, ren, actor);
-      this->Tris.IBO->Bind();
+      this->UpdateShaders(this->Primitives[PrimitiveTris], ren, actor);
+      this->Primitives[PrimitiveTris].IBO->Bind();
       primed = true;
     }
 
     // handle the middle
-    vtkShaderProgram *program = this->Tris.Program;
+    vtkShaderProgram *program = this->Primitives[PrimitiveTris].Program;
 
     // Apply the extra transform
     program->SetUniformMatrix4x4("GCMCMatrix", &(matrices[inPtId*16]));
@@ -449,13 +449,13 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
 
     glDrawRangeElements(mode, 0,
                         static_cast<GLuint>(this->VBO->VertexCount - 1),
-                        static_cast<GLsizei>(this->Tris.IBO->IndexCount),
+                        static_cast<GLsizei>(this->Primitives[PrimitiveTris].IBO->IndexCount),
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
   }
   if (primed)
   {
-    this->Tris.IBO->Release();
+    this->Primitives[PrimitiveTris].IBO->Release();
     this->RenderPieceFinish(ren,actor);
   }
 }
@@ -520,19 +520,20 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
 {
   this->UsingInstancing = true;
   this->RenderPieceStart(ren,actor);
-  this->UpdateShaders(this->Tris, ren, actor);
+  this->UpdateShaders(this->Primitives[PrimitiveTris], ren, actor);
 
   // do the superclass and then reset a couple values
-  if (this->Tris.IBO->IndexCount &&   // we have points and one of
+  if (this->Primitives[PrimitiveTris].IBO->IndexCount &&   // we have points and one of
       (this->VBOBuildTime > this->InstanceBuffersLoadTime ||
-      this->Tris.ShaderSourceTime > this->InstanceBuffersLoadTime ||
+      this->Primitives[PrimitiveTris].ShaderSourceTime > this->InstanceBuffersLoadTime ||
       pointMTime > this->InstanceBuffersLoadTime.GetMTime()))
   {
-    this->Tris.VAO->Bind();
+    this->Primitives[PrimitiveTris].VAO->Bind();
     // add 3 new BOs?
     this->MatrixBuffer->Bind();
     this->MatrixBuffer->Upload(matrices, vtkOpenGLBufferObject::ArrayBuffer);
-    if (!this->Tris.VAO->AddAttributeMatrixWithDivisor(this->Tris.Program, this->MatrixBuffer,
+    if (!this->Primitives[PrimitiveTris].VAO->AddAttributeMatrixWithDivisor(
+      this->Primitives[PrimitiveTris].Program, this->MatrixBuffer,
         "GCMCMatrix", 0, 16*sizeof(float), VTK_FLOAT, 4, false, 1))
     {
       vtkErrorMacro(<< "Error setting 'GCMCMatrix' in shader VAO.");
@@ -544,8 +545,8 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
       this->NormalMatrixBuffer->Bind();
       this->NormalMatrixBuffer->Upload(
         normalMatrices, vtkOpenGLBufferObject::ArrayBuffer);
-      if (!this->Tris.VAO->AddAttributeMatrixWithDivisor(
-            this->Tris.Program, this->NormalMatrixBuffer,
+      if (!this->Primitives[PrimitiveTris].VAO->AddAttributeMatrixWithDivisor(
+            this->Primitives[PrimitiveTris].Program, this->NormalMatrixBuffer,
             "glyphNormalMatrix", 0, 9*sizeof(float), VTK_FLOAT, 3, false, 1))
       {
         vtkErrorMacro(<< "Error setting 'glyphNormalMatrix' in shader VAO.");
@@ -555,8 +556,8 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
 
     this->ColorBuffer->Bind();
     this->ColorBuffer->Upload(colors, vtkOpenGLBufferObject::ArrayBuffer);
-    if (!this->Tris.VAO->AddAttributeArrayWithDivisor(
-          this->Tris.Program, this->ColorBuffer,
+    if (!this->Primitives[PrimitiveTris].VAO->AddAttributeArrayWithDivisor(
+          this->Primitives[PrimitiveTris].Program, this->ColorBuffer,
           "glyphColor", 0, 4*sizeof(unsigned char), VTK_UNSIGNED_CHAR, 4, true, 1, false))
     {
       vtkErrorMacro(<< "Error setting 'diffuse color' in shader VAO.");
@@ -566,26 +567,26 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
     this->InstanceBuffersLoadTime.Modified();
   }
 
-  this->Tris.IBO->Bind();
+  this->Primitives[PrimitiveTris].IBO->Bind();
 #if GL_ES_VERSION_3_0 == 1
   glDrawElementsInstanced(GL_TRIANGLES,
-                        static_cast<GLsizei>(this->Tris.IBO->IndexCount),
-                        GL_UNSIGNED_INT,
-                        reinterpret_cast<const GLvoid *>(NULL),
-                        numPts);
+    static_cast<GLsizei>(this->Tris.IBO->IndexCount),
+    GL_UNSIGNED_INT,
+    reinterpret_cast<const GLvoid *>(NULL),
+    numPts);
 #else
   if (GLEW_ARB_instanced_arrays)
   {
     glDrawElementsInstancedARB(GL_TRIANGLES,
-                          static_cast<GLsizei>(this->Tris.IBO->IndexCount),
-                          GL_UNSIGNED_INT,
-                          reinterpret_cast<const GLvoid *>(NULL),
-                          numPts);
+      static_cast<GLsizei>(this->Primitives[PrimitiveTris].IBO->IndexCount),
+      GL_UNSIGNED_INT,
+      reinterpret_cast<const GLvoid *>(NULL),
+      numPts);
   }
 #endif
   vtkOpenGLCheckErrorMacro("failed after Render");
 
-  this->Tris.IBO->Release();
+  this->Primitives[PrimitiveTris].IBO->Release();
   this->RenderPieceFinish(ren, actor);
 }
 #endif

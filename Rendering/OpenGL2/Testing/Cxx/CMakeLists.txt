@@ -3,6 +3,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestBlurAndSobelPasses.cxx
   TestCoincident.cxx
   TestCompositePolyDataMapper2Spheres.cxx,NO_DATA
+  TestCompositePolyDataMapper2Vertices.cxx,NO_DATA
   TestCubeMap.cxx
   TestDepthOfFieldPass.cxx
   TestDepthPeelingPass.cxx
@@ -22,6 +23,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestShadowMapPass.cxx
   TestSobelGradientMagnitudePass.cxx
   TestSpherePoints.cxx
+  TestSphereVertex.cxx
   TestUserShader.cxx
   TestUserShader2.cxx
   TestVBOPLYMapper.cxx

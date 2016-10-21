@@ -61,7 +61,6 @@ public:
   virtual void RenderPieceStart(vtkRenderer *ren, vtkActor *act);
   virtual void RenderPieceDraw(vtkRenderer *ren, vtkActor *act);
   virtual void RenderPieceFinish(vtkRenderer *ren, vtkActor *act);
-  virtual void RenderEdges(vtkRenderer *ren, vtkActor *act);
   //@}
 
   /**
@@ -214,6 +213,18 @@ public:
     */
   void SetVBOShiftScaleMethod(int m);
 
+  enum PrimitiveTypes {
+    PrimitiveStart = 0,
+    PrimitivePoints = 0,
+    PrimitiveLines,
+    PrimitiveTris,
+    PrimitiveTriStrips,
+    PrimitiveTrisEdges,
+    PrimitiveTriStripsEdges,
+    PrimitiveVertices,
+    PrimitiveEnd
+  };
+
 protected:
   vtkOpenGLPolyDataMapper();
   ~vtkOpenGLPolyDataMapper();
@@ -360,12 +371,7 @@ protected:
   vtkOpenGLVertexBufferObject *VBO;
 
   // Structures for the various cell types we render.
-  vtkOpenGLHelper Points;
-  vtkOpenGLHelper Lines;
-  vtkOpenGLHelper Tris;
-  vtkOpenGLHelper TriStrips;
-  vtkOpenGLHelper TrisEdges;
-  vtkOpenGLHelper TriStripsEdges;
+  vtkOpenGLHelper Primitives[PrimitiveEnd];
   vtkOpenGLHelper *LastBoundBO;
   bool DrawingEdges;
 
@@ -494,6 +500,13 @@ protected:
   // are we currently drawing spheres/tubes
   bool DrawingSpheres(vtkOpenGLHelper &cellBO, vtkActor *actor);
   bool DrawingTubes(vtkOpenGLHelper &cellBO, vtkActor *actor);
+
+  // get why opengl mode to use to draw the primitive
+  int GetOpenGLMode(int representation, int primType);
+
+  // get how big to make the points when doing point picking
+  // typically 2 for points, 4 for lines, 6 for surface
+  int GetPointPickingPrimitiveSize(int primType);
 
 private:
   vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&) VTK_DELETE_FUNCTION;

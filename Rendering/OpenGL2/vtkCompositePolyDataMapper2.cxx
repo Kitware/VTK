@@ -64,8 +64,8 @@ public:
   unsigned int NextVertex;
 
   // point line poly strip edge stripedge
-  unsigned int StartIndex[6];
-  unsigned int NextIndex[6];
+  unsigned int StartIndex[vtkOpenGLPolyDataMapper::PrimitiveEnd];
+  unsigned int NextIndex[vtkOpenGLPolyDataMapper::PrimitiveEnd];
 
   // Point Line Poly Strip end
   size_t PrimOffsets[5];
@@ -167,10 +167,9 @@ protected:
   std::vector<unsigned int> VertexOffsets;
 
   // vert line poly strip edge stripedge
-  std::vector<unsigned int> IndexArray[6];
+  std::vector<unsigned int> IndexArray[PrimitiveEnd];
 
   virtual void RenderPieceDraw(vtkRenderer *ren, vtkActor *act);
-  virtual void RenderEdges(vtkRenderer *ren, vtkActor *act);
 
   bool PrimIDUsed;
   bool OverideColorUsed;
@@ -367,7 +366,6 @@ void vtkCompositeMapperHelper2::RenderPiece(vtkRenderer* ren, vtkActor *actor)
 
   this->RenderPieceStart(ren, actor);
   this->RenderPieceDraw(ren, actor);
-  this->RenderEdges(ren,actor);
   this->RenderPieceFinish(ren, actor);
 }
 
@@ -472,15 +470,21 @@ void vtkCompositeMapperHelper2::RenderPieceDraw(
 
   this->PrimitiveIDOffset = 0;
 
-  GLenum mode = (representation == VTK_POINTS) ? GL_POINTS :
-    (representation == VTK_WIREFRAME) ? GL_LINES : GL_TRIANGLES;
+  vtkProperty *prop = actor->GetProperty();
+  bool draw_surface_with_edges =
+    (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
 
   // draw IBOs
-  this->DrawIBO(ren, actor, 0, this->Points, GL_POINTS, pointPicking ? 2 : 0);
-  this->DrawIBO(ren, actor, 1, this->Lines,
-   representation == VTK_POINTS ? GL_POINTS : GL_LINES, pointPicking ? 4 : 0);
-  this->DrawIBO(ren, actor, 2, this->Tris, mode, pointPicking ? 6 : 0);
-  this->DrawIBO(ren, actor, 3, this->TriStrips, mode, pointPicking ? 6 : 0);
+  for (int i = PrimitiveStart;
+    i < (this->CurrentSelector ? PrimitiveTriStrips + 1 : PrimitiveEnd); i++)
+  {
+    this->DrawingEdges =
+      draw_surface_with_edges && (i == PrimitiveTrisEdges
+          || i == PrimitiveTriStripsEdges);
+    GLenum mode = this->GetOpenGLMode(representation, i);
+    this->DrawIBO(ren, actor, i, this->Primitives[i], mode,
+      pointPicking ? this->GetPointPickingPrimitiveSize(i) : 0);
+  }
 
   if (this->CurrentSelector && (
         this->CurrentSelector->GetCurrentPass() == vtkHardwareSelector::ID_LOW24 ||
@@ -490,27 +494,6 @@ void vtkCompositeMapperHelper2::RenderPieceDraw(
     this->CurrentSelector->RenderAttributeId(this->PrimitiveIDOffset);
   }
 
-}
-
-//-----------------------------------------------------------------------------
-void vtkCompositeMapperHelper2::RenderEdges(
-  vtkRenderer* ren, vtkActor *actor)
-{
-  vtkProperty *prop = actor->GetProperty();
-  bool draw_surface_with_edges =
-    (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
-
-  if (!draw_surface_with_edges || this->CurrentSelector)
-  {
-    return;
-  }
-
-  this->DrawingEdges = true;
-
-  this->DrawIBO(ren, actor, 4, this->TrisEdges, GL_LINES, 0);
-  this->DrawIBO(ren, actor, 5, this->TriStripsEdges, GL_LINES, 0);
-
-  this->DrawingEdges = false;
 }
 
 vtkCompositeMapperHelperData *vtkCompositeMapperHelper2::AddData(
@@ -578,7 +561,7 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(
     vtkCompositeMapperHelperData *hdata = iter->second;
     hdata->StartVertex =
       static_cast<unsigned int>(this->VBO->VertexCount);
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < PrimitiveEnd; i++)
     {
       hdata->StartIndex[i] =
         static_cast<unsigned int>(this->IndexArray[i].size());
@@ -588,7 +571,7 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(
     hdata->NextVertex =
       static_cast<unsigned int>(this->VBO->VertexCount);
     voffset = static_cast<unsigned int>(this->VBO->VertexCount);
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < PrimitiveEnd; i++)
     {
       hdata->NextIndex[i] =
         static_cast<unsigned int>(this->IndexArray[i].size());
@@ -598,47 +581,15 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(
   this->VBO->Upload(this->VBO->PackedVBO, vtkOpenGLBufferObject::ArrayBuffer);
   this->VBO->PackedVBO.resize(0);
 
-  this->Points.IBO->IndexCount = this->IndexArray[0].size();
-  if (this->Points.IBO->IndexCount)
+  for (int i = PrimitiveStart; i < PrimitiveEnd; i++)
   {
-    this->Points.IBO->Upload(this->IndexArray[0],
-      vtkOpenGLBufferObject::ElementArrayBuffer);
-    this->IndexArray[0].resize(0);
-  }
-  this->Lines.IBO->IndexCount = this->IndexArray[1].size();
-  if (this->Lines.IBO->IndexCount)
-  {
-    this->Lines.IBO->Upload(this->IndexArray[1],
-      vtkOpenGLBufferObject::ElementArrayBuffer);
-    this->IndexArray[1].resize(0);
-  }
-  this->Tris.IBO->IndexCount = this->IndexArray[2].size();
-  if (this->Tris.IBO->IndexCount)
-  {
-    this->Tris.IBO->Upload(this->IndexArray[2],
-      vtkOpenGLBufferObject::ElementArrayBuffer);
-    this->IndexArray[2].resize(0);
-  }
-  this->TriStrips.IBO->IndexCount = this->IndexArray[3].size();
-  if (this->TriStrips.IBO->IndexCount)
-  {
-    this->TriStrips.IBO->Upload(this->IndexArray[3],
-      vtkOpenGLBufferObject::ElementArrayBuffer);
-    this->IndexArray[3].resize(0);
-  }
-  this->TrisEdges.IBO->IndexCount = this->IndexArray[4].size();
-  if (this->TrisEdges.IBO->IndexCount)
-  {
-    this->TrisEdges.IBO->Upload(this->IndexArray[4],
-      vtkOpenGLBufferObject::ElementArrayBuffer);
-    this->IndexArray[4].resize(0);
-  }
-  this->TriStripsEdges.IBO->IndexCount = this->IndexArray[5].size();
-  if (this->TriStripsEdges.IBO->IndexCount)
-  {
-    this->TriStripsEdges.IBO->Upload(this->IndexArray[5],
-      vtkOpenGLBufferObject::ElementArrayBuffer);
-    this->IndexArray[5].resize(0);
+    this->Primitives[i].IBO->IndexCount = this->IndexArray[i].size();
+    if (this->Primitives[i].IBO->IndexCount)
+    {
+      this->Primitives[i].IBO->Upload(this->IndexArray[i],
+       vtkOpenGLBufferObject::ElementArrayBuffer);
+      this->IndexArray[i].resize(0);
+    }
   }
 
   // allocate as needed
@@ -1000,6 +951,12 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
     }
     vtkOpenGLIndexBufferObject::AppendStripIndexBuffer(
       this->IndexArray[5], prims[3], voffset, false);
+  }
+
+  if (prop->GetVertexVisibility())
+  {
+    vtkOpenGLIndexBufferObject::AppendVertexIndexBuffer(
+      this->IndexArray[PrimitiveVertices], prims, voffset);
   }
 
   // free up polydata if allocated due to apple bug

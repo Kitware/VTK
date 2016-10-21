@@ -591,11 +591,12 @@ void vtkOpenGLStickMapper::BuildBufferObjects(vtkRenderer *ren,
     this->VBO);
 
   // create the IBO
-  this->Points.IBO->IndexCount = 0;
-  this->Lines.IBO->IndexCount = 0;
-  this->TriStrips.IBO->IndexCount = 0;
-  this->Tris.IBO->IndexCount =
-    vtkOpenGLStickMapperCreateTriangleIndexBuffer(this->Tris.IBO,
+  this->Primitives[PrimitivePoints].IBO->IndexCount = 0;
+  this->Primitives[PrimitiveLines].IBO->IndexCount = 0;
+  this->Primitives[PrimitiveTriStrips].IBO->IndexCount = 0;
+  this->Primitives[PrimitiveTris].IBO->IndexCount =
+    vtkOpenGLStickMapperCreateTriangleIndexBuffer(
+      this->Primitives[PrimitiveTris].IBO,
       poly->GetPoints()->GetNumberOfPoints());
   this->VBOBuildTime.Modified();
 }
@@ -604,16 +605,16 @@ void vtkOpenGLStickMapper::BuildBufferObjects(vtkRenderer *ren,
 void vtkOpenGLStickMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
 {
   // draw polygons
-  if (this->Tris.IBO->IndexCount)
+  if (this->Primitives[PrimitiveTris].IBO->IndexCount)
   {
     // First we do the triangles, update the shader, set uniforms, etc.
-    this->UpdateShaders(this->Tris, ren, actor);
-    this->Tris.IBO->Bind();
+    this->UpdateShaders(this->Primitives[PrimitiveTris], ren, actor);
+    this->Primitives[PrimitiveTris].IBO->Bind();
     glDrawRangeElements(GL_TRIANGLES, 0,
                         static_cast<GLuint>(this->VBO->VertexCount - 1),
-                        static_cast<GLsizei>(this->Tris.IBO->IndexCount),
+                        static_cast<GLsizei>(this->Primitives[PrimitiveTris].IBO->IndexCount),
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
-    this->Tris.IBO->Release();
+    this->Primitives[PrimitiveTris].IBO->Release();
   }
 }

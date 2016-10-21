@@ -116,6 +116,17 @@ public:
     int representation,
     vtkPoints *points);
 
+  // Description:
+  // used to create an IBO for cell Vertices as points
+  size_t CreateVertexIndexBuffer(vtkCellArray **cells);
+
+  // Description:
+  // used to create an IBO for primatives as points
+  static void AppendVertexIndexBuffer(
+    std::vector<unsigned int> &indexArray,
+    vtkCellArray **cells,
+    vtkIdType vertexOffset);
+
 protected:
   vtkOpenGLIndexBufferObject();
   ~vtkOpenGLIndexBufferObject();
