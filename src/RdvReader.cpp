@@ -39,5 +39,9 @@ bool RdvReader::Read(string path, vtkPolyData *polyData)
 
     polyData->SetPoints(points);
     polyData->GetPointData()->SetScalars(values);
+
+    points->Delete();
+    values->Delete();
+
     return true;
 }
