@@ -233,6 +233,12 @@ void demo2D()
         //actor->SetTexture(texture);
 
         renderer->AddActor(actor);
+
+        vtkCamera* camera = renderer->GetActiveCamera();
+        camera->SetViewUp(0, 0, 1.);
+        camera->SetPosition(1, 0, 0);
+        camera->SetFocalPoint(-1, 0, 0);
+        renderer->ResetCamera();
     }
 
 
