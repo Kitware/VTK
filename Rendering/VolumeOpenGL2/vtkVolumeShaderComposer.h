@@ -1478,8 +1478,8 @@ namespace vtkvolume
           \n      {\
           \n      continue;\
           \n      }\
-          \n    l_avgValue[i] /= l_numSamples[i];\
-          \n    l_avgValue[i] *= n_componentWeight[i];\
+          \n    l_avgValue[i] = l_avgValue[i] * in_componentWeight[i] /\
+          \n                    l_numSamples[i];\
           \n    if (i > 0)\
           \n      {\
           \n      l_avgValue[0] += l_avgValue[i];\

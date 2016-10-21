@@ -86,7 +86,7 @@ int TestGPURayCastFourComponentsAverage(int argc,
     ren1->ResetCamera();
     renWin->Render();
 
-    retVal = vtkTesting::Test(argc, argv, renWin, 75);
+    retVal = vtkTesting::Test(argc, argv, renWin, 10);
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
       iren->Start();
