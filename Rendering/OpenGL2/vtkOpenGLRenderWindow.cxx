@@ -1119,6 +1119,12 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 
   this->DrawPixels(x1, y1, x2, y2, 3, VTK_UNSIGNED_CHAR, data);
 
+  // This seems to be necessary for the image to show up
+  if (front)
+  {
+    glFlush();
+  }
+
   glDrawBuffer(buffer);
 
   if (glGetError() != GL_NO_ERROR)
@@ -1369,6 +1375,12 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   else
   {
     this->DrawPixels(x1, y1, x2, y2, 4, VTK_FLOAT, data);
+  }
+
+  // This seems to be necessary for the image to show up
+  if (front)
+  {
+    glFlush();
   }
 
   glDrawBuffer(buffer);
