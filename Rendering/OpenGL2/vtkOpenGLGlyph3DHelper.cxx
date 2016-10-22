@@ -570,7 +570,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
   this->Primitives[PrimitiveTris].IBO->Bind();
 #if GL_ES_VERSION_3_0 == 1
   glDrawElementsInstanced(GL_TRIANGLES,
-    static_cast<GLsizei>(this->Tris.IBO->IndexCount),
+    static_cast<GLsizei>(this->Primitives[PrimitiveTris].IBO->IndexCount),
     GL_UNSIGNED_INT,
     reinterpret_cast<const GLvoid *>(NULL),
     numPts);
