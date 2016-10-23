@@ -60,7 +60,7 @@ int TestGPURayCastBlendModes(int argc, char *argv[])
         }
         else
         {
-          *ptr++;
+          *ptr++ = 0;
         }
       }
     }
