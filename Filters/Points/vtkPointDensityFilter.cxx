@@ -15,6 +15,7 @@
 #include "vtkPointDensityFilter.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkPointSet.h"
@@ -201,6 +202,113 @@ struct ComputeWeightedDensity : public ComputePointDensity
   }
 }; //ComputeWeightedDensity
 
+//----------------------------------------------------------------------------
+// Optional kernel to compute gradient of density function. Also the gradient
+// magnitude and function classification is computed.
+struct ComputeGradients
+{
+  int Dims[3];
+  double Origin[3];
+  double Spacing[3];
+  float *Density;
+  float *Gradients;
+  float *GradientMag;
+  unsigned char *FuncClassification;
+
+  ComputeGradients(int dims[3], double origin[3], double spacing[3], float *dens,
+                   float *grad, float *mag, unsigned char *fclass) :
+    Density(dens), Gradients(grad), GradientMag(mag), FuncClassification(fclass)
+
+  {
+    for (int i=0; i < 3; ++i)
+    {
+      this->Dims[i] = dims[i];
+      this->Origin[i] = origin[i];
+      this->Spacing[i] = spacing[i];
+    }
+  }
+
+  void operator() (vtkIdType slice, vtkIdType sliceEnd)
+  {
+    double *spacing=this->Spacing;
+    int *dims=this->Dims;
+    vtkIdType sliceSize=dims[0]*dims[1];
+    float *d = this->Density + slice*sliceSize;
+    float *grad = this->Gradients + 3*slice*sliceSize;
+    float *mag = this->GradientMag + slice*sliceSize;
+    unsigned char *fclass = this->FuncClassification + slice*sliceSize;
+    float f, dp, dm;
+    bool nonZeroComp;
+    int idx[3], incs[3];
+    incs[0] = 1;
+    incs[1] = dims[0];
+    incs[2] = sliceSize;
+
+    for ( ; slice < sliceEnd; ++slice )
+    {
+      idx[2] = slice;
+      for ( int j=0;  j < dims[1]; ++j)
+      {
+        idx[1] = j;
+        for ( int i=0; i < dims[0]; ++i)
+        {
+          idx[0] = i;
+          nonZeroComp = (d[0] != 0.0 || d[1] != 0.0 || d[2] != 0.0 ? true : false);
+          for (int ii=0; ii < 3; ++ii)
+          {
+            if ( idx[ii] == 0 )
+            {
+              dm = *d;
+              dp = *(d + incs[ii]);
+              f = 1.0;
+            }
+            else if ( idx[ii] == dims[ii]-1 )
+            {
+              dm = *(d - incs[ii]);
+              dp = *d;
+              f = 1.0;
+            }
+            else
+            {
+              dm = *(d - incs[ii]);
+              dp = *(d + incs[ii]);
+              f = 0.5;
+            }
+            grad[ii] = f * (dp-dm) / spacing[ii];
+            nonZeroComp = ( dp != 0.0 || dm != 0.0 ? true : nonZeroComp );
+          }
+
+          // magnitude
+          if ( nonZeroComp )
+          {
+            *mag++ = vtkMath::Norm(grad);
+            *fclass++ = vtkPointDensityFilter::NON_ZERO;
+          }
+          else
+          {
+            *mag++ = 0.0;
+            *fclass++ = vtkPointDensityFilter::ZERO;
+          }
+          d++;
+          grad += 3;
+
+        }//over i
+      }//over j
+    }//over slices
+  }
+
+  void Reduce()
+  {
+  }
+
+  static void Execute(int dims[3], double origin[3], double spacing[3],
+                      float *density, float *grad, float *mag,
+                      unsigned char *fclass)
+  {
+    ComputeGradients compGrad(dims, origin, spacing, density, grad, mag, fclass);
+    vtkSMPTools::For(0, dims[2], compGrad);
+  }
+}; //ComputeGradients
 
 } //anonymous namespace
 
@@ -232,6 +340,8 @@ vtkPointDensityFilter::vtkPointDensityFilter()
   this->RelativeRadius = 1.0;
 
   this->ScalarWeighting = false;
+
+  this->ComputeGradient = false;
 
   this->Locator = vtkStaticPointLocator::New();
 
@@ -500,6 +610,43 @@ int vtkPointDensityFilter::RequestData(
     }
   }
 
+  // If the gradient is requested, compute the vector gradient and magnitude.
+  // Also compute the classification of the gradient value.
+  if ( this->ComputeGradient )
+  {
+    //Allocate space
+    vtkIdType num = density->GetNumberOfTuples();
+
+    vtkFloatArray *gradients = vtkFloatArray::New();
+    gradients->SetNumberOfComponents(3);
+    gradients->SetNumberOfTuples(num);
+    gradients->SetName("Gradient");
+    output->GetPointData()->AddArray(gradients);
+    float *grad = static_cast<float*>(gradients->GetVoidPointer(0));
+    gradients->Delete();
+
+    vtkFloatArray *magnitude = vtkFloatArray::New();
+    magnitude->SetNumberOfComponents(1);
+    magnitude->SetNumberOfTuples(num);
+    magnitude->SetName("Gradient Magnitude");
+    output->GetPointData()->AddArray(magnitude);
+    float *mag = static_cast<float*>(magnitude->GetVoidPointer(0));
+    magnitude->Delete();
+
+    vtkUnsignedCharArray *fclassification =
+      vtkUnsignedCharArray::New();
+    fclassification->SetNumberOfComponents(1);
+    fclassification->SetNumberOfTuples(num);
+    fclassification->SetName("Classification");
+    output->GetPointData()->AddArray(fclassification);
+    unsigned char *fclass =
+      static_cast<unsigned char*>(fclassification->GetVoidPointer(0));
+    fclassification->Delete();
+
+    //Thread the computation over slices
+    ComputeGradients::Execute(dims,origin,spacing,d,grad,mag,fclass);
+  }
+
   return 1;
 }
 
@@ -560,6 +707,9 @@ void vtkPointDensityFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Scalar Weighting: "
      << (this->ScalarWeighting ? "On\n" : "Off\n");
+
+  os << indent << "Compute Gradient: "
+     << (this->ComputeGradient ? "On\n" : "Off\n");
 
   os << indent << "Locator: " << this->Locator << "\n";
 }

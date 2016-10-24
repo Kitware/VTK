@@ -35,6 +35,11 @@
  * weighting scalar array will affect both of these results if provided and
  * enabled.)
  *
+ * An optional capability of the filter is to compute the gradients of the
+ * resulting density function (a 3-component vector), which also includes the
+ * gradient magnitude (single component scalar) and classification (regions
+ * of zero function, a scalar with single unsigned char value per voxel).
+
  * @warning
  * A point locator is used to speed up searches. By default a fast
  * vtkStaticPointLocator is used; however the user may specify an alternative
@@ -196,6 +201,19 @@ public:
 
   //@{
   /**
+   * Turn on/off the generation of the gradient vector, gradient magnitude
+   * scalar, and function classification scalar. By default this is off. Note
+   * that this will increase execution time and the size of the output. (The
+   * names of these point data arrays are: "Gradient", "Gradient Magnitude",
+   * and "Classification".)
+   */
+  vtkSetMacro(ComputeGradient,bool);
+  vtkGetMacro(ComputeGradient,bool);
+  vtkBooleanMacro(ComputeGradient,bool);
+  //@}
+
+  //@{
+  /**
    * Specify a point locator. By default a vtkStaticPointLocator is
    * used. The locator performs efficient searches to locate near a
    * specified interpolation position.
@@ -203,6 +221,18 @@ public:
   void SetLocator(vtkAbstractPointLocator *locator);
   vtkGetObjectMacro(Locator,vtkAbstractPointLocator);
   //@}
+
+  /**
+   * This enum is used to classify the behavior of the function gradient. Regions
+   * where all density values used in the calculation of the gradient are zero
+   * are referred to as ZERO regions. Otherwise NON_ZERO. This can be used to
+   * differentiate between regions where data is available and where it is not.
+   */
+  enum FunctionClass
+  {
+    ZERO=0,
+    NON_ZERO=1
+  };
 
 protected:
   vtkPointDensityFilter();
@@ -217,6 +247,7 @@ protected:
   double RelativeRadius; // Radius factor for estimating density
   double Radius; // Actually radius used
   bool ScalarWeighting; // Are point densities weighted or not?
+  bool ComputeGradient; // Compute the gradient vector and magnitude
   vtkAbstractPointLocator *Locator; //accelerate point searches
 
   virtual int FillInputPortInformation(int port, vtkInformation* info);
