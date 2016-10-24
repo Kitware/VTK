@@ -9,6 +9,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   ImageResize.cxx
   ImageResize3D.cxx
   ImageResizeCropping.cxx
+  ImageReslice.cxx
   ImageWeightedSum.cxx,NO_VALID
   ImportExport.cxx,NO_VALID
   TestBSplineWarp.cxx
