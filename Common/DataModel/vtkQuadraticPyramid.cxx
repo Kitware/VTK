@@ -665,7 +665,7 @@ void vtkQuadraticPyramid::Clip(double value, vtkDataArray* cellScalars,
       this->Scalars->SetValue(j,this->CellScalars->GetValue(LinearPyramids[i][j]));
     }
     this->Pyramid->Clip(value,this->Scalars,locator,tets,this->PointData,outPd,
-                    this->CellData,cellId,outCd,insideOut);
+                    this->CellData,i,outCd,insideOut);
   }
 
   this->Scalars->SetNumberOfTuples(4);  //num of vertices
@@ -678,7 +678,7 @@ void vtkQuadraticPyramid::Clip(double value, vtkDataArray* cellScalars,
       this->Scalars->SetValue(j,this->CellScalars->GetValue(LinearPyramids[i][j]));
     }
     this->Tetra->Clip(value,this->Scalars,locator,tets,this->PointData,outPd,
-                    this->CellData,cellId,outCd,insideOut);
+                    this->CellData,i,outCd,insideOut);
   }
 }
 

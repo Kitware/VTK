@@ -587,7 +587,7 @@ void vtkQuadraticWedge::Clip(double value, vtkDataArray* cellScalars,
       this->Scalars->SetValue(j,this->CellScalars->GetValue(LinearWedges[i][j]));
     }
     this->Wedge->Clip(value,this->Scalars,locator,tets,this->PointData,outPd,
-                    this->CellData,cellId,outCd,insideOut);
+                    this->CellData,i,outCd,insideOut);
   }
 
 }
