@@ -256,6 +256,60 @@ void vtkBillboardTextActor3D::SetInput(const char *in)
 }
 
 //------------------------------------------------------------------------------
+void vtkBillboardTextActor3D::SetForceOpaque(bool opaque)
+{
+  this->QuadActor->SetForceOpaque(opaque);
+}
+
+//------------------------------------------------------------------------------
+bool vtkBillboardTextActor3D::GetForceOpaque()
+{
+  return this->QuadActor->GetForceOpaque();
+}
+
+//------------------------------------------------------------------------------
+void vtkBillboardTextActor3D::ForceOpaqueOn()
+{
+  this->QuadActor->ForceOpaqueOn();
+}
+
+//------------------------------------------------------------------------------
+void vtkBillboardTextActor3D::ForceOpaqueOff()
+{
+  this->QuadActor->ForceOpaqueOff();
+}
+
+//------------------------------------------------------------------------------
+void vtkBillboardTextActor3D::SetForceTranslucent(bool trans)
+{
+  this->QuadActor->SetForceTranslucent(trans);
+}
+
+//------------------------------------------------------------------------------
+bool vtkBillboardTextActor3D::GetForceTranslucent()
+{
+  return this->QuadActor->GetForceTranslucent();
+}
+
+//------------------------------------------------------------------------------
+void vtkBillboardTextActor3D::ForceTranslucentOn()
+{
+  this->QuadActor->ForceTranslucentOn();
+}
+
+//------------------------------------------------------------------------------
+void vtkBillboardTextActor3D::ForceTranslucentOff()
+{
+  this->QuadActor->ForceTranslucentOff();
+}
+
+//------------------------------------------------------------------------------
+int vtkBillboardTextActor3D::HasTranslucentPolygonalGeometry()
+{
+  return this->QuadActor->HasTranslucentPolygonalGeometry();
+}
+
+//------------------------------------------------------------------------------
 int vtkBillboardTextActor3D::RenderOpaqueGeometry(vtkViewport *vp)
 {
   if (!this->InputIsValid())
@@ -288,7 +342,8 @@ int vtkBillboardTextActor3D::RenderOpaqueGeometry(vtkViewport *vp)
     this->GenerateQuad(ren);
   }
 
-  return 0;
+  this->PreRender();
+  return this->QuadActor->RenderOpaqueGeometry(vp);
 }
 
 //------------------------------------------------------------------------------

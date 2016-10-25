@@ -17,6 +17,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestTextActor3DDepthPeeling.cxx
   TestTextActorScaleModeProp.cxx
   TestTextMapper.cxx
+  TestTextOpaquePass.cxx
   )
 
 # Check for vtkErrorMacro calls in these tests (mainly for empty inputs):

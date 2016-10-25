@@ -99,6 +99,20 @@ public:
    */
   virtual void ReleaseGraphicsResources(vtkWindow *);
 
+  /**
+   * Force the actor to render during the opaque or translucent pass.
+   * @{
+   */
+  virtual void SetForceOpaque(bool opaque);
+  virtual bool GetForceOpaque();
+  virtual void ForceOpaqueOn();
+  virtual void ForceOpaqueOff();
+  virtual void SetForceTranslucent(bool trans);
+  virtual bool GetForceTranslucent();
+  virtual void ForceTranslucentOn();
+  virtual void ForceTranslucentOff();
+  /**@}*/
+
   //@{
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE

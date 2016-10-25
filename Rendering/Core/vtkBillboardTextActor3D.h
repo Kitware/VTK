@@ -66,9 +66,23 @@ public:
   /** @} */
 
   /**
-   * Always returns true, as we're rendering an RGBA texture.
+   * Force the actor to render during the opaque or translucent pass.
+   * @{
    */
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE { return 1; }
+  virtual void SetForceOpaque(bool opaque);
+  virtual bool GetForceOpaque();
+  virtual void ForceOpaqueOn();
+  virtual void ForceOpaqueOff();
+  virtual void SetForceTranslucent(bool trans);
+  virtual bool GetForceTranslucent();
+  virtual void ForceTranslucentOn();
+  virtual void ForceTranslucentOff();
+  /**@}*/
+
+  /**
+   * Defers to internal actor.
+   */
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
 
   /**
    * Check/update geometry/texture in opaque pass, since it only happens once.
