@@ -22,6 +22,7 @@ if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
     TestPCANormalEstimation.py
     TestPCANormalEstimation2.py
     TestPointDensityFilter.py
+    TestPointDensityGradient.py
     TestRadiusOutlierRemoval.py
     TestSignedDistanceFilter.py
     TestStatisticalOutlierRemoval.py
