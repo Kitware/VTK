@@ -661,6 +661,8 @@ void vtkFreeTypeTools::MapTextPropertyToId(vtkTextProperty *tprop,
   hash = vtkFreeTypeTools::HashBuffer(&dValue, sizeof(double), hash);
   dValue = tprop->GetLineOffset();
   hash = vtkFreeTypeTools::HashBuffer(&dValue, sizeof(double), hash);
+  iValue = tprop->GetUseTightBoundingBox();
+  hash = vtkFreeTypeTools::HashBuffer(&iValue, sizeof(int), hash);
 
   // Set the first bit to avoid id = 0
   // (the id will be mapped to a pointer, FTC_FaceID, so let's avoid NULL)
