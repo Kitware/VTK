@@ -205,7 +205,6 @@ protected:
 
   int ScreenSize[2];
   int OwnWindow;
-  int DeviceIndex;
   bool IsPointSpriteBugTested;
   bool IsPointSpriteBugPresent_;
   class vtkInternals;
