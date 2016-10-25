@@ -282,6 +282,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->PolarAxis->SetTitleOffset(10);
   this->PolarAxis->SetLabelOffset(2);
   this->PolarAxis->SetExponentOffset(5);
+  this->PolarAxis->LastMajorTickPointCorrectionOn();
 
   // Default distance LOD settings
   this->EnableDistanceLOD = 1;
@@ -1275,8 +1276,9 @@ void vtkPolarAxesActor::CreateRadialAxes(int axisCount)
     axis->SetTitleOffset(2);
     axis->SetLabelVisibility(0);
     axis->SetUse2DMode(this->PolarAxis->GetUse2DMode());
+    axis->LastMajorTickPointCorrectionOn();
     }
-
+  }
   this->Modified();
 }
 
@@ -1687,7 +1689,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
   while (currentValue < axis->GetRange()[1])
     {
     currentValue =
-      (valueRange > axis->GetRange()[1]) ? axis->GetRange()[1]: valueRange;
+      (valueRange + (deltaRange / 2) > axis->GetRange()[1]) ? axis->GetRange()[1]: valueRange;
     deltaArc = (currentValue - axis->GetRange()[0]) * rangeScale;
 
     isInnerArc =
@@ -2387,7 +2389,7 @@ void vtkPolarAxesActor::SetNumberOfPolarAxisTicks(int tickCountRequired)
 //-----------------------------------------------------------------------------
 void vtkPolarAxesActor::SetNumberOfRadialAxes(vtkIdType n)
 {
-  if (n == 0)
+  if (n <= 1)
     {
     if (this->DeltaAngleRadialAxes != 45.)
       {
@@ -2410,7 +2412,7 @@ void vtkPolarAxesActor::SetNumberOfRadialAxes(vtkIdType n)
   double step = this->ComputeIdealStep(n - 1, angleSection);
   if (step == 0.0)
     {
-    step = angleSection / n;
+    step = angleSection / (n - 1);
     }
 
   if (this->DeltaAngleRadialAxes != step)
@@ -2435,6 +2437,10 @@ double vtkPolarAxesActor::ComputeIdealStep(
   if (subDivsRequired <= 1)
     {
     return rangeLength;
+    }
+  if (subDivsRequired <= 4)
+    {
+    return rangeLength / subDivsRequired;
     }
 
   // range step, if axis range is strictly subdivided by the number of ticks wished

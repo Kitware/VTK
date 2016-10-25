@@ -250,6 +250,15 @@ public:
   vtkBooleanMacro(ExponentVisibility, bool);
   //@}
 
+  //@{
+  /**
+   * Set/Get visibility of the axis detached exponent.
+   */
+  vtkSetMacro(LastMajorTickPointCorrection, bool);
+  vtkGetMacro(LastMajorTickPointCorrection, bool);
+  vtkBooleanMacro(LastMajorTickPointCorrection, bool);
+  //@}
+
   enum AlignLocation
   {
     VTK_ALIGN_TOP = 0,
@@ -738,6 +747,7 @@ protected:
   int    LabelVisibility;
   int    TitleVisibility;
   bool   ExponentVisibility;
+  bool   LastMajorTickPointCorrection;
 
   bool   Log;
   int    AxisType;

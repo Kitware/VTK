@@ -76,6 +76,7 @@ vtkAxisActor::vtkAxisActor()
   this->ExponentOffset = 20.;
   this->TitleAlignLocation = VTK_ALIGN_BOTTOM;
   this->ExponentLocation = VTK_ALIGN_POINT2;
+  this->LastMajorTickPointCorrection = false;
 
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1;
@@ -3043,7 +3044,7 @@ void vtkAxisActor::BuildMajorTicks(double p1[3], double p2[3],
   double tickPoint[3];
   while (currentStep < axisLength)
   {
-    currentStep = (step > axisLength) ?  axisLength : step;
+    currentStep = (step + (this->LastMajorTickPointCorrection * this->DeltaRangeMajor / 2) > axisLength) ? axisLength : step;
 
     // axis/u side
     for (int i = 0;i<3;i++)
