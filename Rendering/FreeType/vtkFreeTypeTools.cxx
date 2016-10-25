@@ -2007,7 +2007,7 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
       unsigned char *glyphPtrRow = bitmap->buffer;
       unsigned char *glyphPtr;
       const unsigned char *fgRGB = iMetaData->rgba;
-      const float fgA = iMetaData->rgba[3] / 255.f;
+      const float fgA = static_cast<float>(metaData.textProperty->GetOpacity());
 
       for (int j = 0; j < static_cast<int>(bitmap->rows); ++j)
       {
@@ -2015,26 +2015,30 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
 
         for (int i = 0; i < static_cast<int>(bitmap->width); ++i)
         {
-          if (*glyphPtr == 0)
+          if (*glyphPtr == 0) // Pixel is not drawn
           {
             ptr += 4;
           }
-          else if (ptr[3] > 0)
+          else if (ptr[3] > 0) // Need to overblend
           {
             // This is a pixel we've drawn before since it has non-zero alpha.
             // We must therefore blend the colors.
-            const float val = *glyphPtr / 255.f;
-            const float bgA = ptr[3] / 255.0;
+            const float glyphA = *glyphPtr / 255.f;
+            const float bgA = ptr[3] / 255.f;
 
-            const float fg_blend = fgA * val;
-            const float bg_blend = 1.f - fg_blend;
+            const float fg_blend = fgA * glyphA;
+            const float bg_blend = bgA * (1.f - fg_blend);
 
-            float r(bg_blend * ptr[0] + fg_blend * fgRGB[0]);
-            float g(bg_blend * ptr[1] + fg_blend * fgRGB[1]);
-            float b(bg_blend * ptr[2] + fg_blend * fgRGB[2]);
-            float a(255 * (fg_blend + bgA * bg_blend));
+            // src_a + dst_a ( 1 - src_a )
+            const float a = 255.f * (fg_blend + bg_blend);
+            const float invA = 1.f / (fg_blend + bg_blend);
 
-            // Figure out the color.
+            // (src_c * src_a + dst_c * dst_a * (1 - src_a)) / out_a
+            const float r = (bg_blend * ptr[0] + fg_blend * fgRGB[0]) * invA;
+            const float g = (bg_blend * ptr[1] + fg_blend * fgRGB[1]) * invA;
+            const float b = (bg_blend * ptr[2] + fg_blend * fgRGB[2]) * invA;
+
+            // Update the buffer:
             ptr[0] = static_cast<unsigned char>(r);
             ptr[1] = static_cast<unsigned char>(g);
             ptr[2] = static_cast<unsigned char>(b);
@@ -2042,7 +2046,7 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
 
             ptr += 4;
           }
-          else
+          else // No existing color
           {
             *ptr = fgRGB[0];
             ++ptr;
