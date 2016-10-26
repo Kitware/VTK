@@ -605,7 +605,7 @@ void vtkBiQuadraticQuadraticHexahedron::Clip(double value,
       this->Scalars->SetValue(j,this->CellScalars->GetValue(LinearHexs[i][j]));
     }
     this->Hex->Clip(value,this->Scalars,locator,tets,this->PointData,outPd,
-                    this->CellData,cellId,outCd,insideOut);
+                    this->CellData,i,outCd,insideOut);
   }
 }
 

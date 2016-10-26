@@ -322,7 +322,7 @@ void vtkQuadraticQuad::Clip(double value, vtkDataArray* cellScalars,
     }
 
     this->Quad->Clip(value,this->Scalars,locator,polys,this->PointData,
-                     outPd,this->CellData,cellId,outCd,insideOut);
+                     outPd,this->CellData,i,outCd,insideOut);
   }
 }
 
