@@ -488,6 +488,9 @@ void vtkTIFFReader::ExecuteInformation()
         this->DataSpacing[0] = 10.0 / this->InternalImage->XResolution;
         this->DataSpacing[1] = 10.0 / this->InternalImage->YResolution;
       }
+    // Somewhat arbitrary choice of using the X spacing as also the
+    // Z spacing. Used only with image stacks.
+    this->DataSpacing[2] = this->DataSpacing[0];
     }
   }
 
@@ -495,6 +498,7 @@ void vtkTIFFReader::ExecuteInformation()
   {
     this->DataOrigin[0] = 0.0;
     this->DataOrigin[1] = 0.0;
+    this->DataOrigin[2] = 0.0;
   }
 
   // Pull out the width/height, etc.
@@ -570,15 +574,6 @@ void vtkTIFFReader::ExecuteInformation()
     {
       this->DataExtent[4] = 0;
       this->DataExtent[5] = this->InternalImage->NumberOfPages - 1;
-    }
-
-    if (!SpacingSpecifiedFlag)
-    {
-      this->DataSpacing[2] = this->DataSpacing[0];
-    }
-    if (!OriginSpecifiedFlag)
-    {
-      this->DataOrigin[2]  = 0.0;
     }
   }
 
