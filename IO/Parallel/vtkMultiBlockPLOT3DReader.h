@@ -378,6 +378,8 @@ protected:
   // the XYZ file.
   void ClearGeometryCache();
 
+  double GetGamma(vtkIdType idx, vtkDataArray* gamma);
+
   //plot3d FileNames
   char *XYZFileName;
   char *QFileName;
@@ -400,6 +402,7 @@ protected:
   //parameters used in computing derived functions
   double R;
   double Gamma;
+  double GammaInf;
   double Uvinf;
   double Vvinf;
   double Wvinf;

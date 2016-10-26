@@ -44,11 +44,6 @@ vtkCxxSetObjectMacro(vtkMultiBlockPLOT3DReader,
                      Controller,
                      vtkMultiProcessController);
 
-#define VTK_RHOINF 1.0
-#define VTK_CINF 1.0
-#define VTK_PINF ((VTK_RHOINF*VTK_CINF) * (VTK_RHOINF*VTK_CINF) / this->Gamma)
-#define VTK_CV (this->R / (this->Gamma-1.0))
-
 namespace
 {
 // helper class used to keep a FILE handle to close when the instance goes out
@@ -203,6 +198,7 @@ vtkMultiBlockPLOT3DReader::vtkMultiBlockPLOT3DReader()
 
   this->R = 1.0;
   this->Gamma = 1.4;
+  this->GammaInf = this->Gamma;
 
   this->FunctionList = vtkIntArray::New();
 
@@ -230,6 +226,16 @@ vtkMultiBlockPLOT3DReader::~vtkMultiBlockPLOT3DReader()
   delete this->Internal;
 
   this->SetController(0);
+}
+
+double vtkMultiBlockPLOT3DReader::GetGamma(vtkIdType idx, vtkDataArray* gamma)
+{
+  if (gamma)
+  {
+    return gamma->GetComponent(idx, 0);
+  }
+
+  return this->GammaInf;
 }
 
 void vtkMultiBlockPLOT3DReader::ClearGeometryCache()
@@ -1556,7 +1562,8 @@ int vtkMultiBlockPLOT3DReader::RequestData(
         }
       }
       mp->Broadcast(&numProperties, 1, 0);
-      properties->SetNumberOfTuples(numProperties);
+      properties->SetNumberOfTuples(numProperties + 1);
+      properties->SetTuple1(numProperties, this->Gamma);
 
       error = 0;
       if (rank == 0)
@@ -1588,6 +1595,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
               properties->Delete();
               throw Plot3DException();
             }
+            properties->SetTuple1(numProperties, dummyArray->GetTuple1(0));
 
             // igam is an int
             int igam;
@@ -1617,12 +1625,16 @@ int vtkMultiBlockPLOT3DReader::RequestData(
       mp->Broadcast(&error, 1, 0);
       if (error)
       {
-        vtkErrorMacro("Error reading file " << this->XYZFileName);
+        vtkErrorMacro("Error reading file " << this->QFileName);
         this->ClearGeometryCache();
         return 0;
       }
 
       mp->Broadcast(properties, 0);
+
+      // We don't support different GammaInf values for blocks.
+      // The value from the last block is used across.
+      this->GammaInf = properties->GetTuple1(numProperties);
 
       nthOutput->GetFieldData()->AddArray(properties);
       properties->Delete();
@@ -2144,6 +2156,7 @@ void vtkMultiBlockPLOT3DReader::ComputeTemperature(vtkStructuredGrid* output)
   vtkDataArray* density = outputPD->GetArray("Density");
   vtkDataArray* momentum = outputPD->GetArray("Momentum");
   vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
+  vtkDataArray* gamma = outputPD->GetArray("Gamma");
 
   if ( density == NULL || momentum == NULL ||
        energy == NULL )
@@ -2170,7 +2183,7 @@ void vtkMultiBlockPLOT3DReader::ComputeTemperature(vtkStructuredGrid* output)
     v = m[1] * rr;
     w = m[2] * rr;
     v2 = u*u + v*v + w*w;
-    p = (this->Gamma-1.) * (e - 0.5 * d * v2);
+    p = (this->GetGamma(i, gamma)-1.) * (e - 0.5 * d * v2);
     temperature->SetTuple1(i, p*rr*rrgas);
   }
 
@@ -2193,6 +2206,7 @@ void vtkMultiBlockPLOT3DReader::ComputePressure(vtkStructuredGrid* output)
   vtkDataArray* density = outputPD->GetArray("Density");
   vtkDataArray* momentum = outputPD->GetArray("Momentum");
   vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
+  vtkDataArray* gamma = outputPD->GetArray("Gamma");
   if ( density == NULL || momentum == NULL ||
        energy == NULL )
   {
@@ -2217,7 +2231,7 @@ void vtkMultiBlockPLOT3DReader::ComputePressure(vtkStructuredGrid* output)
     v = m[1] * rr;
     w = m[2] * rr;
     v2 = u*u + v*v + w*w;
-    p = (this->Gamma-1.) * (e - 0.5 * d * v2);
+    p = (this->GetGamma(i, gamma)-1.) * (e - 0.5 * d * v2);
     pressure->SetTuple1(i, p);
   }
 
@@ -2239,6 +2253,7 @@ void vtkMultiBlockPLOT3DReader::ComputeEnthalpy(vtkStructuredGrid* output)
   vtkDataArray* density = outputPD->GetArray("Density");
   vtkDataArray* momentum = outputPD->GetArray("Momentum");
   vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
+  vtkDataArray* gamma = outputPD->GetArray("Gamma");
   if ( density == NULL || momentum == NULL ||
        energy == NULL )
   {
@@ -2263,7 +2278,7 @@ void vtkMultiBlockPLOT3DReader::ComputeEnthalpy(vtkStructuredGrid* output)
     v = m[1] * rr;
     w = m[2] * rr;
     v2 = u*u + v*v + w*w;
-    enthalpy->SetTuple1(i, this->Gamma*(e*rr - 0.5*v2));
+    enthalpy->SetTuple1(i, this->GetGamma(i, gamma)*(e*rr - 0.5*v2));
   }
   enthalpy->SetName("Enthalpy");
   outputPD->AddArray(enthalpy);
@@ -2367,6 +2382,7 @@ void vtkMultiBlockPLOT3DReader::ComputeEntropy(vtkStructuredGrid* output)
   vtkDataArray* density = outputPD->GetArray("Density");
   vtkDataArray* momentum = outputPD->GetArray("Momentum");
   vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
+  vtkDataArray* gamma = outputPD->GetArray("Gamma");
   if ( density == NULL || momentum == NULL ||
        energy == NULL )
   {
@@ -2380,6 +2396,9 @@ void vtkMultiBlockPLOT3DReader::ComputeEntropy(vtkStructuredGrid* output)
 
   //  Compute the entropy
   //
+  double rhoinf = 1.0;
+  double cinf = 1.0;
+  double pinf = ((rhoinf*cinf) * (rhoinf*cinf) / this->GammaInf);
   for (i=0; i < numPts; i++)
   {
     d = density->GetComponent(i,0);
@@ -2391,8 +2410,9 @@ void vtkMultiBlockPLOT3DReader::ComputeEntropy(vtkStructuredGrid* output)
     v = m[1] * rr;
     w = m[2] * rr;
     v2 = u*u + v*v + w*w;
-    p = (this->Gamma-1.)*(e - 0.5*d*v2);
-    s = VTK_CV * log((p/VTK_PINF)/pow((double)d/VTK_RHOINF,(double)this->Gamma));
+    p = (this->GetGamma(i, gamma)-1.)*(e - 0.5*d*v2);
+    double cv = this->R / (this->GetGamma(i, gamma)-1.0);
+    s = cv * log((p/pinf)/pow(d/rhoinf, this->GetGamma(i, gamma)));
     entropy->SetTuple1(i,s);
   }
   entropy->SetName("Entropy");
@@ -2980,7 +3000,7 @@ void vtkMultiBlockPLOT3DReader::ComputePressureCoefficient(vtkStructuredGrid* ou
   vtkDataArray* gamma = outputPD->GetArray("Gamma");
   vtkDataArray* props = outputFD->GetArray("Properties");
   if ( density == NULL || momentum == NULL ||
-       energy == NULL  || gamma == NULL || props == NULL)
+       energy == NULL || props == NULL)
   {
     vtkErrorMacro(<<"Cannot compute pressure coefficient");
     return;
@@ -3000,7 +3020,7 @@ void vtkMultiBlockPLOT3DReader::ComputePressureCoefficient(vtkStructuredGrid* ou
     d = (d != 0.0 ? d : 1.0);
     m = momentum->GetTuple(i);
     e = energy->GetComponent(i,0);
-    g = gamma->GetComponent(i,0);
+    g = this->GetGamma(i, gamma);
     pi = 1.0 / gi;
     rr = 1.0 / d;
     u = m[0] * rr;
@@ -3036,7 +3056,7 @@ void vtkMultiBlockPLOT3DReader::ComputeMachNumber(vtkStructuredGrid* output)
   vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
   vtkDataArray* gamma = outputPD->GetArray("Gamma");
   if ( density == NULL || momentum == NULL ||
-       energy == NULL  || gamma == NULL)
+       energy == NULL)
   {
     vtkErrorMacro(<<"Cannot compute mach number");
     return;
@@ -3054,7 +3074,7 @@ void vtkMultiBlockPLOT3DReader::ComputeMachNumber(vtkStructuredGrid* output)
     d = (d != 0.0 ? d : 1.0);
     m = momentum->GetTuple(i);
     e = energy->GetComponent(i,0);
-    g = gamma->GetComponent(i,0);
+    g = this->GetGamma(i, gamma);
     rr = 1.0 / d;
     u = m[0] * rr;
     v = m[1] * rr;
@@ -3088,7 +3108,7 @@ void vtkMultiBlockPLOT3DReader::ComputeSoundSpeed(vtkStructuredGrid* output)
   vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
   vtkDataArray* gamma = outputPD->GetArray("Gamma");
   if ( density == NULL || momentum == NULL ||
-       energy == NULL  || gamma == NULL)
+       energy == NULL)
   {
     vtkErrorMacro(<<"Cannot compute sound speed");
     return;
@@ -3106,7 +3126,7 @@ void vtkMultiBlockPLOT3DReader::ComputeSoundSpeed(vtkStructuredGrid* output)
     d = (d != 0.0 ? d : 1.0);
     m = momentum->GetTuple(i);
     e = energy->GetComponent(i,0);
-    g = gamma->GetComponent(i,0);
+    g = this->GetGamma(i, gamma);
     rr = 1.0 / d;
     u = m[0] * rr;
     v = m[1] * rr;
