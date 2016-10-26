@@ -78,19 +78,22 @@ void expandBounds(double* bounds)
 
 void render(vtkImageData* id)
 {
-    vtkSmartPointer<vtkPiecewiseFunction> opacityTransferFunction = vtkPiecewiseFunction::New();
+    vtkSmartPointer<vtkPiecewiseFunction> opacityTransferFunction =
+      vtkSmartPointer<vtkPiecewiseFunction>::New();
     opacityTransferFunction->AddPoint(0,1.0);
     opacityTransferFunction->AddPoint(50, 0.1);
     opacityTransferFunction->AddPoint(220,0.0);
 
-    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction= vtkColorTransferFunction::New();
+    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
+      vtkSmartPointer<vtkColorTransferFunction>::New();
     colorTransferFunction->AddRGBPoint(0.0, 0.0, 0.0, 1.0);
     colorTransferFunction->AddRGBPoint(64.0, 1.0, 0.0, 0.0);
     colorTransferFunction->AddRGBPoint(128.0, 0.0, 0.0, 1.0);
     colorTransferFunction->AddRGBPoint(192.0, 0.0, 1.0, 0.0);
     colorTransferFunction->AddRGBPoint(255.0, 0.0, 0.2, 0.0);
 
-    vtkSmartPointer<vtkVolumeProperty> volumeProperty = vtkVolumeProperty::New();
+    vtkSmartPointer<vtkVolumeProperty> volumeProperty =
+      vtkSmartPointer<vtkVolumeProperty>::New();
     volumeProperty->SetColor(colorTransferFunction);
     //volumeProperty->SetScalarOpacity(opacityTransferFunction);
     volumeProperty->SetInterpolationTypeToLinear();
@@ -100,25 +103,31 @@ void render(vtkImageData* id)
     volumeProperty->SetSpecularPower(70.0);
 
 
-    vtkSmartPointer<vtkGPUVolumeRayCastMapper> volumeMapper = vtkGPUVolumeRayCastMapper::New();
+    vtkSmartPointer<vtkGPUVolumeRayCastMapper> volumeMapper =
+      vtkSmartPointer<vtkGPUVolumeRayCastMapper>::New();
     volumeMapper->SetInputData(id);
 
-    vtkVolume *volume=vtkVolume::New();
+    vtkSmartPointer<vtkVolume> volume =
+      vtkSmartPointer<vtkVolume>::New();
     volume->SetMapper(volumeMapper);
     volume->SetProperty(volumeProperty);
 
 
-    vtkRenderer* renderer =vtkRenderer::New();
+    vtkSmartPointer<vtkRenderer> renderer =
+      vtkSmartPointer<vtkRenderer>::New();
 
-    vtkRenderWindow* renwin=vtkRenderWindow::New();
+    vtkSmartPointer<vtkRenderWindow> renwin =
+      vtkSmartPointer<vtkRenderWindow>::New();
     renwin->AddRenderer(renderer);
 
-    vtkSmartPointer<vtkRenderWindowInteractor> interactor = vtkRenderWindowInteractor::New();
+    vtkSmartPointer<vtkRenderWindowInteractor> interactor =
+      vtkSmartPointer<vtkRenderWindowInteractor>::New();
     interactor->SetRenderWindow(renwin);
 
 
     // Cube Axes
-    vtkSmartPointer<vtkCubeAxesActor> cubeAxesActor = vtkCubeAxesActor::New();
+    vtkSmartPointer<vtkCubeAxesActor> cubeAxesActor =
+      vtkSmartPointer<vtkCubeAxesActor>::New();
     cubeAxesActor->SetXTitle("X /m");
     cubeAxesActor->SetYTitle("Y /m");
     cubeAxesActor->SetZTitle("Z /m");
@@ -137,7 +146,8 @@ void render(vtkImageData* id)
 
 
 
-    vtkSmartPointer<vtkSeismicSliceWidget> sliceWidgetX = vtkSeismicSliceWidget::New();
+    vtkSmartPointer<vtkSeismicSliceWidget> sliceWidgetX =
+      vtkSmartPointer<vtkSeismicSliceWidget>::New();
     sliceWidgetX->SetInteractor(renwin->GetInteractor());
     sliceWidgetX->SetPlaceFactor(1.25);
     sliceWidgetX->SetInputData(id);
@@ -145,7 +155,8 @@ void render(vtkImageData* id)
     sliceWidgetX->SetPlaneOrientationToXAxes();
     sliceWidgetX->On();
 
-    vtkSmartPointer<vtkSeismicSliceWidget> sliceWidgetY = vtkSeismicSliceWidget::New();
+    vtkSmartPointer<vtkSeismicSliceWidget> sliceWidgetY =
+      vtkSmartPointer<vtkSeismicSliceWidget>::New();
     sliceWidgetY->SetInteractor(renwin->GetInteractor());
     sliceWidgetY->SetPlaceFactor(1.25);
     sliceWidgetY->SetInputData(id);
@@ -155,13 +166,15 @@ void render(vtkImageData* id)
 
 
 
-    vtkSeismicSliceCallback* callback = vtkSeismicSliceCallback::New();
+    vtkSmartPointer<vtkSeismicSliceCallback> callback =
+      vtkSmartPointer<vtkSeismicSliceCallback>::New();
     sliceWidgetX->AddObserver(vtkCommand::InteractionEvent, callback);
     sliceWidgetY->AddObserver(vtkCommand::InteractionEvent, callback);
 
 
     // Legend
-    vtkSmartPointer<vtkScalarBarActor> scalarBar = vtkScalarBarActor::New();
+    vtkSmartPointer<vtkScalarBarActor> scalarBar =
+      vtkSmartPointer<vtkScalarBarActor>::New();
     scalarBar->SetLookupTable(colorTransferFunction);
     renderer->AddActor(scalarBar);
 
@@ -175,7 +188,8 @@ void render(vtkImageData* id)
 
 void demo2D()
 {
-    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction= vtkColorTransferFunction::New();
+    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
+      vtkSmartPointer<vtkColorTransferFunction>::New();
     colorTransferFunction->AddRGBPoint(0.0, 0.0, 0.0, 1.0);
     colorTransferFunction->AddRGBPoint(64.0, 1.0, 0.0, 0.0);
     colorTransferFunction->AddRGBPoint(128.0, 0.0, 0.0, 1.0);
@@ -201,7 +215,8 @@ void demo2D()
     auto file = files[0];
     //for(auto file : files)
     {
-        vtkSmartPointer<vtkSegy2DReader> reader = vtkSmartPointer<vtkSegy2DReader>::New();
+        vtkSmartPointer<vtkSegy2DReader> reader =
+          vtkSmartPointer<vtkSegy2DReader>::New();
         reader->SetFileName(file.c_str());
         reader->Update();
 
@@ -218,6 +233,12 @@ void demo2D()
         //actor->SetTexture(texture);
 
         renderer->AddActor(actor);
+
+        vtkCamera* camera = renderer->GetActiveCamera();
+        camera->SetViewUp(0, 0, 1.);
+        camera->SetPosition(1, 0, 0);
+        camera->SetFocalPoint(-1, 0, 0);
+        renderer->ResetCamera();
     }
 
 
@@ -227,7 +248,8 @@ void demo2D()
 
 void demo3D()
 {
-    vtkSmartPointer<vtkSegy3DReader> reader = vtkSmartPointer<vtkSegy3DReader>::New();
+    vtkSmartPointer<vtkSegy3DReader> reader =
+      vtkSmartPointer<vtkSegy3DReader>::New();
     reader->SetFileName("data/waha8.sgy");
     vtkSmartPointer<vtkImageData> imageData = reader->GetImage(0);
     render(imageData);
@@ -236,7 +258,8 @@ void demo3D()
 void demoRDV()
 {
 
-    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction= vtkColorTransferFunction::New();
+    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
+      vtkSmartPointer<vtkColorTransferFunction>::New();
     colorTransferFunction->AddRGBPoint(300.0, 0.0, 0.0, 1.0);
     colorTransferFunction->AddRGBPoint(600.0, 1.0, 0.0, 0.0);
     colorTransferFunction->AddRGBPoint(900.0, 0.0, 0.0, 1.0);
@@ -246,7 +269,8 @@ void demoRDV()
 
     RdvReader reader;
 
-    auto polyData = vtkPolyData::New();
+    auto polyData =
+      vtkSmartPointer<vtkPolyData>::New();
     reader.Read("data/Events.rdv", polyData);
 
     vtkSmartPointer<vtkGlyph3D> glyph3D =
@@ -263,23 +287,29 @@ void demoRDV()
     glyph3D->SetSourceConnection(cellSource->GetOutputPort());
     glyph3D->Update();
 
-    auto mapper = vtkPolyDataMapper::New();
+    auto mapper =
+      vtkSmartPointer<vtkPolyDataMapper>::New();
     mapper->SetInputData(glyph3D->GetOutput());
     mapper->SetLookupTable(colorTransferFunction);
 
-    auto actor = vtkActor::New();
+    auto actor =
+      vtkSmartPointer<vtkActor>::New();
     actor->SetMapper(mapper);
 
-    auto renderer = vtkRenderer::New();
+    auto renderer =
+      vtkSmartPointer<vtkRenderer>::New();
     renderer->AddActor(actor);
 
-    auto window = vtkRenderWindow::New();
+    auto window =
+      vtkSmartPointer<vtkRenderWindow>::New();
     window->AddRenderer(renderer);
 
-    auto interactor = vtkRenderWindowInteractor::New();
+    auto interactor =
+      vtkSmartPointer<vtkRenderWindowInteractor>::New();
     interactor->SetRenderWindow(window);
 
-    vtkSmartPointer<vtkCubeAxesActor> cubeAxesActor = vtkCubeAxesActor::New();
+    vtkSmartPointer<vtkCubeAxesActor> cubeAxesActor =
+      vtkSmartPointer<vtkCubeAxesActor>::New();
     cubeAxesActor->SetXTitle("X /m");
     cubeAxesActor->SetYTitle("Y /m");
     cubeAxesActor->SetZTitle("Z /m");
@@ -293,7 +323,8 @@ void demoRDV()
     camera->SetFocalPoint( polyData->GetCenter() );
     camera->SetPosition(0, 0, -50);
 
-    vtkSmartPointer<vtkScalarBarActor> scalarBar = vtkScalarBarActor::New();
+    vtkSmartPointer<vtkScalarBarActor> scalarBar =
+      vtkSmartPointer<vtkScalarBarActor>::New();
     scalarBar->SetLookupTable(colorTransferFunction);
     renderer->AddActor(scalarBar);
 
