@@ -334,8 +334,10 @@ void vtkAngularPeriodicFilter::ComputeAngularPeriodicData(
     int attribute = data->IsArrayAnAttribute(i);
     vtkDataArray* array = data->GetArray(i);
     vtkDataArray* transformedArray;
-    // Perdiodic copy of vector (3 components) or tensor (9 components) data
-    if (array->GetNumberOfComponents() == 3 || array->GetNumberOfComponents() == 9)
+    // Perdiodic copy of vector (3 components) or symmectric tensor (6 component, converted to 9 )
+    // or tensor (9 components) data
+    int numComp = array->GetNumberOfComponents();
+    if (numComp == 3 || numComp == 6 || numComp == 9)
     {
       transformedArray = this->TransformDataArray(array, angle, false,
         attribute == vtkDataSetAttributes::NORMALS);

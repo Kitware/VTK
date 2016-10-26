@@ -49,7 +49,8 @@ template <class Scalar> void vtkAngularPeriodicDataArray<Scalar>
     return;
   }
 
-  if (data->GetNumberOfComponents() != 3 && data->GetNumberOfComponents() != 9)
+  if (data->GetNumberOfComponents() != 3 && data->GetNumberOfComponents() != 6 &&
+    data->GetNumberOfComponents() != 9)
   {
     vtkWarningMacro(<< "Original data has " << data->GetNumberOfComponents() <<
                     " components, Expecting 3 or 9.");
@@ -130,13 +131,18 @@ Transform(Scalar* pos) const
       vtkMath::Normalize(pos);
     }
   }
-  else if (this->NumberOfComponents == 9)
+  else if (this->NumberOfComponents == 9 || this->NumberOfComponents == 6)
   {
     // Template type force a copy to a double array for tensor
-    double localPos [9];
-    double tmpMat [9];
-    double tmpMat2 [9];
-    std::copy(pos, pos + 9, localPos);
+    double localPos[9];
+    double tmpMat[9];
+    double tmpMat2[9];
+    std::copy(pos, pos + this->NumberOfComponents, localPos);
+    if (this->NumberOfComponents == 6)
+    {
+      vtkMath::TensorFromSymmetricTensor(localPos);
+    }
+
     vtkMatrix3x3::Transpose(this->RotationMatrix->GetData(), tmpMat);
     vtkMatrix3x3::Multiply3x3(this->RotationMatrix->GetData(), localPos, tmpMat2);
     vtkMatrix3x3::Multiply3x3(tmpMat2, tmpMat, localPos);

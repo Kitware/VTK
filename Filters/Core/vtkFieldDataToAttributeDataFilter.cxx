@@ -893,9 +893,16 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
                                                          int normalize[9])
 {
   int i, normalizeAny, updated=0;
+  int numComp = 9;
   vtkDataArray *fieldArray[9];
 
-  for (i=0; i<9; i++)
+  // Check for symmetric tensor input
+  if (arrayComp[6] == -1 || arrays[6] == NULL)
+  {
+    numComp = 6;
+  }
+
+  for (i = 0; i < numComp; i++)
   {
     if ( arrays[i] == NULL )
     {
@@ -903,7 +910,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
     }
   }
 
-  for ( i=0; i < 9; i++ )
+  for ( i=0; i < numComp; i++ )
   {
     fieldArray[i] = this->GetFieldArray(fd, arrays[i], arrayComp[i]);
 
@@ -914,7 +921,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
     }
   }
 
-  for (normalizeAny=i=0; i < 9; i++)
+  for (normalizeAny = i = 0; i < numComp; i++)
   {
     updated |= this->UpdateComponentRange(fieldArray[i], componentRange[i]);
     if ( num != (componentRange[i][1] - componentRange[i][0] + 1) )
@@ -926,7 +933,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
   }
 
   vtkDataArray *newTensors;
-  for (i=1; i < 9; i++) //see whether all the data is from the same array
+  for (i = 1; i < numComp; i++) //see whether all the data is from the same array
   {
     if ( fieldArray[i] != fieldArray[i-1] )
     {
@@ -935,7 +942,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
   }
 
   // see whether we can reuse the data array from the field
-  if ( i >= 9 && fieldArray[0]->GetNumberOfComponents() == 9 &&
+  if ( i >= numComp && fieldArray[0]->GetNumberOfComponents() == numComp &&
        fieldArray[0]->GetNumberOfTuples() == num && !normalizeAny )
   {
     newTensors = fieldArray[0];
@@ -943,11 +950,11 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
   }
   else //have to copy data into created array
   {
-    newTensors = vtkDataArray::CreateDataArray(this->GetComponentsType(9, fieldArray));
-    newTensors->SetNumberOfComponents(9);
+    newTensors = vtkDataArray::CreateDataArray(this->GetComponentsType(numComp, fieldArray));
+    newTensors->SetNumberOfComponents(numComp);
     newTensors->SetNumberOfTuples(num);
 
-    for ( i=0; i < 9; i++ )
+    for ( i=0; i < numComp; i++ )
     {
       if ( this->ConstructArray(newTensors, i, fieldArray[i], arrayComp[i],
                                 componentRange[i][0], componentRange[i][1],
@@ -963,7 +970,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
   newTensors->Delete();
   if ( updated ) //reset for next execution pass
   {
-    for (i=0; i < 9; i++)
+    for (i=0; i < numComp; i++)
     {
       componentRange[i][0] = componentRange[i][1] = -1;
     }

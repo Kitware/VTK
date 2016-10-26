@@ -475,7 +475,7 @@ protected:
   int ReadScalarData(vtkDataSetAttributes *a, int num);
   int ReadVectorData(vtkDataSetAttributes *a, int num);
   int ReadNormalData(vtkDataSetAttributes *a, int num);
-  int ReadTensorData(vtkDataSetAttributes *a, int num);
+  int ReadTensorData(vtkDataSetAttributes *a, int num, int numComp = 9);
   int ReadCoScalarData(vtkDataSetAttributes *a, int num);
   int ReadLutData(vtkDataSetAttributes *a);
   int ReadTCoordsData(vtkDataSetAttributes *a, int num);

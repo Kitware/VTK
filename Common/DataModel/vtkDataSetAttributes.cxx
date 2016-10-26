@@ -1263,14 +1263,15 @@ int vtkDataSetAttributes::CheckNumberOfComponents(vtkAbstractArray* aa,
   }
   else if ( vtkDataSetAttributes::AttributeLimits[attributeType] == EXACT )
   {
-    if ( numComp !=
-         vtkDataSetAttributes::NumberOfAttributeComponents[attributeType] )
+    if (numComp ==
+         vtkDataSetAttributes::NumberOfAttributeComponents[attributeType] ||
+         (numComp == 6 && attributeType == TENSORS)) // TENSORS6 support
     {
-      return 0;
+      return 1;
     }
     else
     {
-      return 1;
+      return 0;
     }
   }
   else if ( vtkDataSetAttributes::AttributeLimits[attributeType] == NOLIMIT )
@@ -1632,7 +1633,6 @@ void vtkDataSetAttributes::InternalCopyAllocate(
       {
         newDA->SetLookupTable(list.LUT[i]);
       }
-
 
       // If attribute data, do something extra
       if ( i < NUM_ATTRIBUTES )

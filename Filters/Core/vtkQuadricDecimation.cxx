@@ -1405,15 +1405,17 @@ void vtkQuadricDecimation::ComputeNumberOfComponents(void)
   // Tensors attributes
   if (pd->GetTensors() != NULL && this->TensorsAttribute)
   {
-    for (j = 0; j < 9; j++)
+    vtkDataArray* inTensors = pd->GetTensors();
+    int nComp = inTensors->GetNumberOfComponents();
+    for (j = 0; j < nComp; j++)
     {
-      pd->GetTensors()->GetRange(range, j);
+      inTensors->GetRange(range, j);
       maxRange = (maxRange < (range[1] - range[0]) ?
                   (range[1] - range[0]) : maxRange);
     }
     if (maxRange != 0.0)
     {
-      this->NumberOfComponents += 9;
+      this->NumberOfComponents += nComp;
       pd->CopyTensorsOn();
       this->AttributeScale[4] = this->TensorsWeight/maxRange;
     }

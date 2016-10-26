@@ -146,6 +146,10 @@ int vtkExtractTensorComponents::RequestData(
   for (ptId=0; ptId < numPts; ptId++)
   {
     inTensors->GetTuple(ptId, tensor);
+    if (inTensors->GetNumberOfComponents() == 6)
+    {
+      vtkMath::TensorFromSymmetricTensor(tensor);
+    }
 
     if ( this->ExtractScalars )
     {
