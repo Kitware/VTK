@@ -97,6 +97,8 @@ void vtkTextProperty::ShallowCopy(vtkTextProperty *tprop)
   this->SetJustification(tprop->GetJustification());
   this->SetVerticalJustification(tprop->GetVerticalJustification());
 
+  this->SetUseTightBoundingBox(tprop->GetUseTightBoundingBox());
+
   this->SetLineOffset(tprop->GetLineOffset());
   this->SetLineSpacing(tprop->GetLineSpacing());
 
@@ -159,8 +161,8 @@ void vtkTextProperty::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Vertical justification: "
      << this->GetVerticalJustificationAsString() << "\n";
 
+  os << indent << "UseTightBoundingBox: " << this->UseTightBoundingBox << "\n";
   os << indent << "Orientation: " << this->Orientation << "\n";
-
   os << indent << "Line Offset: " << this->LineOffset << "\n";
   os << indent << "Line Spacing: " << this->LineSpacing << "\n";
 }

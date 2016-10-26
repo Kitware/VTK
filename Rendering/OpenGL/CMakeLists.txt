@@ -79,6 +79,7 @@ set(Module_SRCS
   vtkPolygonsPainter.cxx
   vtkPrimitivePainter.cxx
   vtkRenderPassCollection.cxx
+  vtkRenderStepsPass.cxx
   vtkRenderbuffer.cxx
   vtkRepresentationPainter.cxx
   vtkScalarsToColorsPainter.cxx
