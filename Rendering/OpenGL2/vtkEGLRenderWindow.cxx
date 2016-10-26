@@ -15,17 +15,18 @@
 
 #include "vtkEGLRenderWindow.h"
 
-
+#include "vtkAtomicTypes.h"
 #include "vtkCommand.h"
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderer.h"
-#include "vtkRendererCollection.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtksys/SystemTools.hxx"
+#include "vtkRendererCollection.h"
 #include "vtkToolkits.h"
 #include "vtk_glew.h"
+#include "vtksys/SystemTools.hxx"
 
+#include <cassert>
 #include <sstream>
 #include <EGL/egl.h>
 
@@ -40,6 +41,37 @@ namespace
   typedef EGLBoolean (*EGLQueryDevicesType)(EGLint,EGLDeviceEXT*,EGLint*);
   typedef EGLDisplay (*EGLGetPlatformDisplayType)(EGLenum, void *, const EGLint *);
   const EGLenum EGL_PLATFORM_DEVICE_EXT = 0x313F;
+
+  /**
+   * EGLDisplay provided by eglGetDisplay() call can be same handle for multiple
+   * instances of vtkEGLRenderWindow. In which case, while it's safe to call
+   * eglInitialize() repeatedly, eglTerminate() should only be called once after
+   * the final instance of the window is destroyed. This class helps us do
+   * that. See paraview/paraview#16928.
+   */
+  class vtkEGLDisplayInitializationHelper
+  {
+    static std::map<EGLDisplay, vtkAtomicInt64> DisplayUsageCounts;
+public:
+    static EGLBoolean Initialize(EGLDisplay dpy, EGLint *major, EGLint *minor)
+    {
+      ++DisplayUsageCounts[dpy];
+      return eglInitialize(dpy, major, minor);
+    }
+    static EGLBoolean Terminate(EGLDisplay dpy)
+    {
+      assert(DisplayUsageCounts.find(dpy) != DisplayUsageCounts.end());
+      if (--DisplayUsageCounts[dpy] == 0)
+      {
+        DisplayUsageCounts.erase(dpy);
+        return eglTerminate(dpy);
+      }
+      return EGL_TRUE;
+    }
+  };
+
+  std::map<EGLDisplay, vtkAtomicInt64>
+    vtkEGLDisplayInitializationHelper::DisplayUsageCounts;
 
   struct vtkEGLDeviceExtensions
   {
@@ -300,7 +332,7 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
         impl->Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
       }
     EGLint major = 0, minor = 0;
-    eglInitialize(impl->Display, &major, &minor);
+    vtkEGLDisplayInitializationHelper::Initialize(impl->Display, &major, &minor);
     if (this->OffScreenRendering)
     {
       if (major <= 1 && minor < 4)
@@ -379,7 +411,7 @@ void vtkEGLRenderWindow::DestroyWindow()
       eglDestroySurface(impl->Display, impl->Surface);
       impl->Surface = EGL_NO_SURFACE;
     }
-    eglTerminate(impl->Display);
+    vtkEGLDisplayInitializationHelper::Terminate(impl->Display);
     impl->Display = EGL_NO_DISPLAY;
   }
 }
