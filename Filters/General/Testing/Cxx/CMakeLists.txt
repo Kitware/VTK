@@ -33,6 +33,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestIntersectionPolyDataFilter.cxx
   TestRectilinearGridToPointSet.cxx,NO_VALID
   TestReflectionFilter.cxx,NO_VALID
+  TestSplitByCellScalarFilter.cxx,NO_VALID
   TestTableSplitColumnComponents.cxx,NO_VALID
   TestTransformFilter.cxx,NO_VALID
   TestTransformPolyDataFilter.cxx,NO_VALID
