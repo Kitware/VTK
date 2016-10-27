@@ -9,5 +9,6 @@ if(NOT VTK_OPENGL_HAS_OSMESA AND NOT VTK_USE_OFFSCREEN_EGL)
     TestStyleTerrain.py,NO_RT
     TestStyleTrackballActor.py,NO_RT
     TestStyleTrackballCamera.py,NO_RT
+    TestStyleUser.py
     )
 endif()
