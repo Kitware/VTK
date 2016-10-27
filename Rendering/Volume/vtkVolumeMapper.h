@@ -61,10 +61,40 @@ public:
   //@{
   /**
    * Set/Get the blend mode.
-   * Additive blend mode adds scalars along the ray and multiply them by
-   * their opacity mapping value.
-   * Average blend mode averages scalars and determines the final color by
-   * passing the average through the color and opacity transfer functions.
+   * The default mode is Composite where the scalar values are sampled through
+   * the volume and composited in a front-to-back scheme through alpha blending.
+   * The final color and opacity is determined using the color and opacity
+   * transfer functions.
+   *
+   * Maximum and minimum intensity blend modes use the maximum and minimum
+   * scalar values, respectively,  along the sampling ray. The final color and
+   * opacity is determined by passing the resultant value through the color and
+   * opacity transfer functions.
+   *
+   * Additive blend mode accumulates scalar values by passing each value through
+   * the opacity transfer function and then adding up the product of the value
+   * and its opacity. In other words, the scalar values are scaled using the
+   * opacity transfer function and summed to derive the final color. Note that
+   * the resulting image is always grayscale i.e. aggregated values are not
+   * passed through the color transfer function. This is because the final
+   * value is a derived value and not a real data value along the sampling ray.
+   *
+   * Average intensity blend mode works similar to the additive blend mode where
+   * the scalar values are multiplied by opacity calculated from the opacity
+   * transfer function and then added. The additional step here is to
+   * divide the sum by the number of samples taken through the volume.
+   * One can control the scalar range by setting the AverageIPScalarRange ivar
+   * to disregard scalar values, not in the range of interest, from the average
+   * computation.
+   * As is the case with the additive intensity projection, the final
+   * image will always be grayscale i.e. the aggregated values are not
+   * passed through the color transfer function. This is because the
+   * resultant value is a derived value and not a real data value along
+   * the sampling ray.
+   *
+   * \note vtkVolumeMapper::AVERAGE_INTENSITY_BLEND is only supported by the
+   * vtkGPUVolumeRayCastMapper with the OpenGL2 backend.
+   * \sa SetAverageIPScalarRange()
    */
   vtkSetMacro( BlendMode, int );
   void SetBlendModeToComposite()
@@ -162,7 +192,40 @@ public:
    */
   virtual void ReleaseGraphicsResources(vtkWindow *) {}
 
-  enum
+  /**
+   * Blend modes.
+   * The default mode is Composite where the scalar values are sampled through
+   * the volume and composited in a front-to-back scheme through alpha blending.
+   * The final color and opacity is determined using the color and opacity
+   * transfer functions.
+   *
+   * Maximum and minimum intensity blend modes use the maximum and minimum
+   * scalar values, respectively,  along the sampling ray. The final color and
+   * opacity is determined by passing the resultant value through the color and
+   * opacity transfer functions.
+   *
+   * Additive blend mode accumulates scalar values by passing each value through
+   * the opacity transfer function and then adding up the product of the value
+   * and its opacity. In other words, the scalar values are scaled using the
+   * opacity transfer function and summed to derive the final color. Note that
+   * the resulting image is always grayscale i.e. aggregated values are not
+   * passed through the color transfer function. This is because the final
+   * value is a derived value and not a real data value along the sampling ray.
+   *
+   * Average intensity blend mode works similar to the additive blend mode where
+   * the scalar values are multiplied by opacity calculated from the opacity
+   * transfer function and then added. The additional step here is to
+   * divide the sum by the number of samples taken through the volume.
+   * As is the case with the additive intensity projection, the final
+   * image will always be grayscale i.e. the aggregated values are not
+   * passed through the color transfer function. This is because the
+   * resultant value is a derived value and not a real data value along
+   * the sampling ray.
+   *
+   * \note vtkVolumeMapper::AVERAGE_INTENSITY_BLEND is only supported by the
+   * vtkGPUVolumeRayCastMapper with the OpenGL2 backend.
+   */
+  enum BlendModes
   {
     COMPOSITE_BLEND,
     MAXIMUM_INTENSITY_BLEND,
@@ -175,24 +238,32 @@ protected:
   vtkVolumeMapper();
   ~vtkVolumeMapper();
 
-  // Compute a sample distance from the data spacing. When the number of
-  // voxels is 8, the sample distance will be roughly 1/200 the average voxel
-  // size. The distance will grow proportionally to numVoxels^(1/3).
+  /**
+   * Compute a sample distance from the data spacing. When the number of
+   * voxels is 8, the sample distance will be roughly 1/200 the average voxel
+   * size. The distance will grow proportionally to numVoxels^(1/3).
+   */
   double SpacingAdjustedSampleDistance(double inputSpacing[3],
-    int inputExtent[6]);
+                                       int inputExtent[6]);
 
   int   BlendMode;
 
-  // Threshold range for average intensity projection
+  /**
+   * Threshold range for average intensity projection
+   */
   double AverageIPScalarRange[2];
 
-  // Cropping variables, and a method for converting the world
-  // coordinate cropping region planes to voxel coordinates
+  //@{
+  /**
+   * Cropping variables, and a method for converting the world
+   * coordinate cropping region planes to voxel coordinates
+   */
   int                  Cropping;
   double               CroppingRegionPlanes[6];
   double               VoxelCroppingRegionPlanes[6];
   int                  CroppingRegionFlags;
   void ConvertCroppingRegionPlanesToVoxels();
+  //@}
 
   virtual int FillInputPortInformation(int, vtkInformation*);
 
