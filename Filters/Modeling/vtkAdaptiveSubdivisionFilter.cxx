@@ -365,8 +365,11 @@ int vtkAdaptiveSubdivisionFilter::RequestData(
   newPointData->Delete();
 
   output->SetPolys(inTris);
+  inTris->Delete();
   newTris->Delete();
   output->GetCellData()->ShallowCopy(inCellData);
+  inCellData->Delete();
+  inPointData->Delete();
   newCellData->Delete();
 
   return 1;
