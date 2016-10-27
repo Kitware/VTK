@@ -760,26 +760,18 @@ int vtkTRUCHASReader::RequestData(
       (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     reqTime = reqTS;
   }
-  std::map<double, std::string>::iterator tit;
-  std::map<double, std::string>::iterator tit2;
-  bool done = false;
-  for (tit = this->Internals->tmap.begin();
-       tit != this->Internals->tmap.end() && !done;
-       )
+  std::map<double, std::string>::iterator tit
+    = this->Internals->tmap.begin();
+
+  for (std::map<double, std::string>::iterator ttit =
+         this->Internals->tmap.begin();
+       ttit != this->Internals->tmap.end();)
   {
-    if (tit->first < reqTime)
+    if (ttit->first < reqTime)
     {
-      tit2=tit;
-      tit2++;
-      if (tit2 != this->Internals->tmap.end())
-      {
-        tit++;
-      }
+      tit = ttit;
     }
-    else
-    {
-      done = true;
-    }
+    ttit++;
   }
   //open the corresponding section in the hdf5 file to get arrays from
   std::string time_group_name ="/Simulations/MAIN/Series Data/" + tit->second;
