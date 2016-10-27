@@ -70,6 +70,7 @@ set(Module_SRCS
   vtkShrinkPolyData.cxx
   vtkSpatialRepresentationFilter.cxx
   vtkSplineFilter.cxx
+  vtkSplitByCellScalarFilter.cxx
   vtkSplitField.cxx
   vtkStructuredGridClip.cxx
   vtkSubPixelPositionEdgels.cxx
