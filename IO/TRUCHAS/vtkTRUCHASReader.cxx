@@ -823,7 +823,10 @@ int vtkTRUCHASReader::RequestData(
         //prevent stale (deselected) arrays from sticking around
         for (unsigned b = 0; b < totalNumBlocks; b++)
         {
-          grid[b]->GetCellData()->RemoveArray(name.c_str());
+          if (grid[b])
+          {
+            grid[b]->GetCellData()->RemoveArray(name.c_str());
+          }
         }
         continue;
       }
@@ -835,7 +838,10 @@ int vtkTRUCHASReader::RequestData(
         //prevent stale (deselected) arrays from sticking around
         for (unsigned b = 0; b < totalNumBlocks; b++)
         {
-          grid[b]->GetPointData()->RemoveArray(name.c_str());
+          if (grid[b])
+          {
+            grid[b]->GetPointData()->RemoveArray(name.c_str());
+          }
         }
         continue;
       }

@@ -51,14 +51,13 @@ int TestTRUCHASReader(int argc, char *argv[])
   reader->UpdateInformation();
   reader->SetCellArrayStatus("dTdt", 0);
   int nb = reader->GetNumberOfBlockArrays();
-  const int expectedNumBlocks = 2;
   for (int b = 0; b < nb; b++)
   {
-    cerr << reader->GetBlockArrayName(b) << endl;
+    cerr << "BLOCK ID " << b
+         << " named " << reader->GetBlockArrayName(b) << endl;
   }
-  //reader->SetBlockArrayStatus("1", 0); //TODO: crashed on mac
+  reader->SetBlockArrayStatus("2", 0); //block nums start at 1
   reader->Update();
-
   vtkUnstructuredGrid *grid = vtkUnstructuredGrid::SafeDownCast
     (reader->GetOutput()->GetBlock(0));
   if (!grid)
@@ -66,14 +65,24 @@ int TestTRUCHASReader(int argc, char *argv[])
     cerr << "Could not open first block of known good file" << endl;
     return EXIT_FAILURE;
   }
-  if (reader->GetOutput()->GetNumberOfBlocks() != 1)
+  int rnb = 0; //we produce empty blocks when deselected
+  for (int b = 0; b < nb; b++)
+  {
+  if (reader->GetOutput()->GetBlock(b))
+    {
+    rnb++;
+    }
+  }
+  if ( (rnb != 1) ||
+       (reader->GetOutput()->GetNumberOfBlocks() != 2) )
   {
     cerr << "Got unexpected number of blocks, found "
-         << reader->GetOutput()->GetNumberOfBlocks()
+         << rnb << "/" << reader->GetOutput()->GetNumberOfBlocks()
          << " instead of "
-         << expectedNumBlocks
+         << 1 << "/" << 2
          << endl;
   }
+
   const int expectedNumArrays = 6;
   if (grid->GetCellData()->GetNumberOfArrays() != 6)
   {
