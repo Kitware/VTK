@@ -104,6 +104,10 @@ protected:
   int Bin;
   vtkHierarchicalBinningFilter *BinningFilter;
 
+  // for the binning filter
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
+
+
   // All derived classes must implement this method. Note that a side effect of
   // the class is to populate the PointMap. Zero is returned if there is a failure.
   virtual int FilterPoints(vtkPointSet *input);
