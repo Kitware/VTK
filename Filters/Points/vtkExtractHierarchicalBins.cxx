@@ -19,6 +19,7 @@
 #include "vtkPoints.h"
 #include "vtkDataArray.h"
 #include "vtkHierarchicalBinningFilter.h"
+#include "vtkGarbageCollector.h"
 
 vtkStandardNewMacro(vtkExtractHierarchicalBins);
 vtkCxxSetObjectMacro(vtkExtractHierarchicalBins,BinningFilter,vtkHierarchicalBinningFilter);
@@ -52,6 +53,13 @@ vtkExtractHierarchicalBins::vtkExtractHierarchicalBins()
 vtkExtractHierarchicalBins::~vtkExtractHierarchicalBins()
 {
   this->SetBinningFilter(NULL);
+}
+
+ void vtkExtractHierarchicalBins::ReportReferences(vtkGarbageCollector* collector)
+{
+  // Report references held by this object that may be in a loop.
+  this->Superclass::ReportReferences(collector);
+  vtkGarbageCollectorReport(collector, this->BinningFilter, "Binning Filter");
 }
 
 //----------------------------------------------------------------------------
