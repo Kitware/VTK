@@ -50,8 +50,8 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkAxisActor_h
 #define vtkAxisActor_h
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor.h"
+#include "vtkRenderingAnnotationModule.h" // For export macro
 
 class vtkAxisFollower;
 class vtkCamera;
@@ -77,28 +77,26 @@ public:
   /**
    * Instantiate object.
    */
-  static vtkAxisActor *New();
+  static vtkAxisActor* New();
 
   //@{
   /**
    * Specify the position of the first point defining the axis.
    */
-  virtual vtkCoordinate *GetPoint1Coordinate();
-  virtual void SetPoint1(double x[3])
-    { this->SetPoint1(x[0], x[1], x[2]); }
+  virtual vtkCoordinate* GetPoint1Coordinate();
+  virtual void SetPoint1(double x[3]) { this->SetPoint1(x[0], x[1], x[2]); }
   virtual void SetPoint1(double x, double y, double z);
-  virtual double *GetPoint1();
+  virtual double* GetPoint1();
   //@}
 
   //@{
   /**
    * Specify the position of the second point defining the axis.
    */
-  virtual vtkCoordinate *GetPoint2Coordinate();
-  virtual void SetPoint2(double x[3])
-    { this->SetPoint2(x[0], x[1], x[2]); }
+  virtual vtkCoordinate* GetPoint2Coordinate();
+  virtual void SetPoint2(double x[3]) { this->SetPoint2(x[0], x[1], x[2]); }
   virtual void SetPoint2(double x, double y, double z);
-  virtual double *GetPoint2();
+  virtual double* GetPoint2();
   //@}
 
   //@{
@@ -114,10 +112,10 @@ public:
   /**
    * Set or get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
    */
-  void   SetBounds(const double bounds[6]);
-  void   SetBounds(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
-  double *GetBounds(void);
-  void   GetBounds(double bounds[6]);
+  void SetBounds(const double bounds[6]);
+  void SetBounds(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
+  double* GetBounds(void);
+  void GetBounds(double bounds[6]);
   //@}
 
   //@{
@@ -153,7 +151,7 @@ public:
   /**
    * Set/Get the title of the axis actor,
    */
-  void SetTitle(const char *t);
+  void SetTitle(const char* t);
   vtkGetStringMacro(Title);
   //@}
 
@@ -161,7 +159,7 @@ public:
   /**
    * Set/Get the common exponent of the labels values
    */
-  void SetExponent(const char *t);
+  void SetExponent(const char* t);
   vtkGetStringMacro(Exponent);
   //@}
 
@@ -198,12 +196,9 @@ public:
   vtkGetMacro(TickLocation, int);
   //@}
 
-  void SetTickLocationToInside(void)
-    { this->SetTickLocation(VTK_TICKS_INSIDE); };
-  void SetTickLocationToOutside(void)
-    { this->SetTickLocation(VTK_TICKS_OUTSIDE); };
-  void SetTickLocationToBoth(void)
-    { this->SetTickLocation(VTK_TICKS_BOTH); };
+  void SetTickLocationToInside(void) { this->SetTickLocation(VTK_TICKS_INSIDE); };
+  void SetTickLocationToOutside(void) { this->SetTickLocation(VTK_TICKS_OUTSIDE); };
+  void SetTickLocationToBoth(void) { this->SetTickLocation(VTK_TICKS_BOTH); };
 
   //@{
   /**
@@ -289,7 +284,7 @@ public:
   /**
    * Set/Get the axis title text property.
    */
-  virtual void SetTitleTextProperty(vtkTextProperty *p);
+  virtual void SetTitleTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(TitleTextProperty, vtkTextProperty);
   //@}
 
@@ -297,7 +292,7 @@ public:
   /**
    * Set/Get the axis labels text property.
    */
-  virtual void SetLabelTextProperty(vtkTextProperty *p);
+  virtual void SetLabelTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(LabelTextProperty, vtkTextProperty);
   //@}
 
@@ -305,7 +300,7 @@ public:
   /**
    * Get/Set axis actor property (axis and its ticks) (kept for compatibility)
    */
-  void SetAxisLinesProperty(vtkProperty *);
+  void SetAxisLinesProperty(vtkProperty*);
   vtkProperty* GetAxisLinesProperty();
   //@}
 
@@ -313,7 +308,7 @@ public:
   /**
    * Get/Set main line axis actor property
    */
-  void SetAxisMainLineProperty(vtkProperty *);
+  void SetAxisMainLineProperty(vtkProperty*);
   vtkProperty* GetAxisMainLineProperty();
   //@}
 
@@ -321,7 +316,7 @@ public:
   /**
    * Get/Set axis actor property (axis and its ticks)
    */
-  void SetAxisMajorTicksProperty(vtkProperty *);
+  void SetAxisMajorTicksProperty(vtkProperty*);
   vtkProperty* GetAxisMajorTicksProperty();
   //@}
 
@@ -329,7 +324,7 @@ public:
   /**
    * Get/Set axis actor property (axis and its ticks)
    */
-  void SetAxisMinorTicksProperty(vtkProperty *);
+  void SetAxisMinorTicksProperty(vtkProperty*);
   vtkProperty* GetAxisMinorTicksProperty();
   //@}
 
@@ -337,7 +332,7 @@ public:
   /**
    * Get/Set gridlines actor property (outer grid lines)
    */
-  void SetGridlinesProperty(vtkProperty *);
+  void SetGridlinesProperty(vtkProperty*);
   vtkProperty* GetGridlinesProperty();
   //@}
 
@@ -345,7 +340,7 @@ public:
   /**
    * Get/Set inner gridlines actor property
    */
-  void SetInnerGridlinesProperty(vtkProperty *);
+  void SetInnerGridlinesProperty(vtkProperty*);
   vtkProperty* GetInnerGridlinesProperty();
   //@}
 
@@ -353,7 +348,7 @@ public:
   /**
    * Get/Set gridPolys actor property (grid quads)
    */
-  void SetGridpolysProperty(vtkProperty *);
+  void SetGridpolysProperty(vtkProperty*);
   vtkProperty* GetGridpolysProperty();
   //@}
 
@@ -457,14 +452,10 @@ public:
   vtkGetMacro(AxisPosition, int);
   //@}
 
-  void SetAxisPositionToMinMin(void)
-    { this->SetAxisPosition(VTK_AXIS_POS_MINMIN); };
-  void SetAxisPositionToMinMax(void)
-    { this->SetAxisPosition(VTK_AXIS_POS_MINMAX); };
-  void SetAxisPositionToMaxMax(void)
-    { this->SetAxisPosition(VTK_AXIS_POS_MAXMAX); };
-  void SetAxisPositionToMaxMin(void)
-    { this->SetAxisPosition(VTK_AXIS_POS_MAXMIN); };
+  void SetAxisPositionToMinMin(void) { this->SetAxisPosition(VTK_AXIS_POS_MINMIN); };
+  void SetAxisPositionToMinMax(void) { this->SetAxisPosition(VTK_AXIS_POS_MINMAX); };
+  void SetAxisPositionToMaxMax(void) { this->SetAxisPosition(VTK_AXIS_POS_MAXMAX); };
+  void SetAxisPositionToMaxMin(void) { this->SetAxisPosition(VTK_AXIS_POS_MAXMIN); };
 
   //@{
   /**
@@ -491,10 +482,10 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow*);
 
-  double ComputeMaxLabelLength(const double [3]);
-  double ComputeTitleLength(const double [3]);
+  double ComputeMaxLabelLength(const double[3]);
+  double ComputeTitleLength(const double[3]);
 
   void SetLabelScale(const double scale);
   void SetLabelScale(int labelIndex, const double scale);
@@ -509,14 +500,14 @@ public:
   vtkGetMacro(MinorStart, double);
   double GetMajorStart(int axis);
   void SetMajorStart(int axis, double value);
-  //vtkSetMacro(MajorStart, double);
-  //vtkGetMacro(MajorStart, double);
+  // vtkSetMacro(MajorStart, double);
+  // vtkGetMacro(MajorStart, double);
   vtkSetMacro(DeltaMinor, double);
   vtkGetMacro(DeltaMinor, double);
   double GetDeltaMajor(int axis);
   void SetDeltaMajor(int axis, double value);
-  //vtkSetMacro(DeltaMajor, double);
-  //vtkGetMacro(DeltaMajor, double);
+  // vtkSetMacro(DeltaMajor, double);
+  // vtkGetMacro(DeltaMajor, double);
   //@}
 
   //@{
@@ -536,9 +527,9 @@ public:
   vtkGetMacro(DeltaRangeMajor, double);
   //@}
 
-  void SetLabels(vtkStringArray *labels);
+  void SetLabels(vtkStringArray* labels);
 
-  void BuildAxis(vtkViewport *viewport, bool);
+  void BuildAxis(vtkViewport* viewport, bool);
 
   //@{
   /**
@@ -558,10 +549,7 @@ public:
   /**
    * Get label actors responsigle for drawing label text.
    */
-  inline vtkAxisFollower** GetLabelActors()
-  {
-    return this->LabelActors;
-  }
+  inline vtkAxisFollower** GetLabelActors() { return this->LabelActors; }
 
   //@{
   /**
@@ -574,10 +562,7 @@ public:
   /**
    * Get label actors responsigle for drawing label text.
    */
-  inline vtkProp3DAxisFollower** GetLabelProps3D()
-  {
-    return this->LabelProps3D;
-  }
+  inline vtkProp3DAxisFollower** GetLabelProps3D() { return this->LabelProps3D; }
 
   //@{
   /**
@@ -697,22 +682,22 @@ protected:
   vtkAxisActor();
   ~vtkAxisActor();
 
-  char  *Title;
-  char  *Exponent;
-  double  Range[2];
-  double  LastRange[2];
-  char  *LabelFormat;
-  int    UseTextActor3D;
-  int    NumberOfLabelsBuilt;
-  int    MinorTicksVisible;
-  int    LastMinorTicksVisible;
+  char* Title;
+  char* Exponent;
+  double Range[2];
+  double LastRange[2];
+  char* LabelFormat;
+  int UseTextActor3D;
+  int NumberOfLabelsBuilt;
+  int MinorTicksVisible;
+  int LastMinorTicksVisible;
 
   /**
    * The location of the ticks.
    * Inside: tick end toward positive direction of perpendicular axes.
    * Outside: tick end toward negative direction of perpendicular axes.
    */
-  int    TickLocation;
+  int TickLocation;
 
   /**
    * Hold the alignement property of the title related to the axis.
@@ -726,32 +711,32 @@ protected:
    */
   int ExponentLocation;
 
-  int    DrawGridlines;
-  int    DrawGridlinesOnly;
-  int    LastDrawGridlines;
-  int    DrawGridlinesLocation; // 0: all | 1: closest | 2: farest
-  int    LastDrawGridlinesLocation; // 0: all | 1: closest | 2: farest
+  int DrawGridlines;
+  int DrawGridlinesOnly;
+  int LastDrawGridlines;
+  int DrawGridlinesLocation;     // 0: all | 1: closest | 2: farest
+  int LastDrawGridlinesLocation; // 0: all | 1: closest | 2: farest
   double GridlineXLength;
   double GridlineYLength;
   double GridlineZLength;
 
-  int    DrawInnerGridlines;
-  int    LastDrawInnerGridlines;
+  int DrawInnerGridlines;
+  int LastDrawInnerGridlines;
 
-  int    DrawGridpolys;
-  int    LastDrawGridpolys;
+  int DrawGridpolys;
+  int LastDrawGridpolys;
 
-  int    AxisVisibility;
-  int    TickVisibility;
-  int    LastTickVisibility;
-  int    LabelVisibility;
-  int    TitleVisibility;
-  bool   ExponentVisibility;
-  bool   LastMajorTickPointCorrection;
+  int AxisVisibility;
+  int TickVisibility;
+  int LastTickVisibility;
+  int LabelVisibility;
+  int TitleVisibility;
+  bool ExponentVisibility;
+  bool LastMajorTickPointCorrection;
 
-  bool   Log;
-  int    AxisType;
-  int    AxisPosition;
+  bool Log;
+  int AxisType;
+  int AxisPosition;
   double Bounds[6];
 
   // coordinate system for axisAxtor, relative to world coordinates
@@ -763,15 +748,16 @@ private:
   vtkAxisActor(const vtkAxisActor&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAxisActor&) VTK_DELETE_FUNCTION;
 
-  void TransformBounds(vtkViewport *, double bnds[6]);
+  void TransformBounds(vtkViewport*, double bnds[6]);
 
-  void BuildLabels(vtkViewport *, bool);
-  void BuildLabels2D(vtkViewport *, bool);
-  void SetLabelPositions(vtkViewport *, bool);
-  void SetLabelPositions2D(vtkViewport *, bool);
+  void BuildLabels(vtkViewport*, bool);
+  void BuildLabels2D(vtkViewport*, bool);
+  void SetLabelPositions(vtkViewport*, bool);
+  void SetLabelPositions2D(vtkViewport*, bool);
 
   /**
-   * Set orientation of the actor 2D (follower) to keep the axis orientation and stay on the right size
+   * Set orientation of the actor 2D (follower) to keep the axis orientation and stay on the right
+   * size
    */
   void RotateActor2DFromAxisProjection(vtkTextActor* pActor2D);
 
@@ -787,19 +773,21 @@ private:
 
   /**
    * This methdod set the text and set the base position of the follower from the axis
-   * The position will be modified in vtkAxisFollower::Render() sub-functions according to the camera position
+   * The position will be modified in vtkAxisFollower::Render() sub-functions according to the
+   * camera position
    * for convenience purpose.
    */
   void BuildTitle(bool);
 
   /**
-   * Build the actor to display the exponent in case it should appear next to the title or next to p2 coordinate.
+   * Build the actor to display the exponent in case it should appear next to the title or next to
+   * p2 coordinate.
    */
   void BuildExponent(bool force);
 
-  void BuildExponent2D(vtkViewport *viewport, bool force);
+  void BuildExponent2D(vtkViewport* viewport, bool force);
 
-  void BuildTitle2D(vtkViewport *viewport, bool);
+  void BuildTitle2D(vtkViewport* viewport, bool);
 
   void SetAxisPointsAndLines(void);
 
@@ -820,128 +808,128 @@ private:
   void BuildAxisGridLines(double p1[3], double p2[3], double localCoordSys[3][3]);
 
   bool TickVisibilityChanged(void);
-  vtkProperty *NewTitleProperty();
-  vtkProperty2D *NewTitleProperty2D();
-  vtkProperty *NewLabelProperty();
+  vtkProperty* NewTitleProperty();
+  vtkProperty2D* NewTitleProperty2D();
+  vtkProperty* NewLabelProperty();
 
-  bool BoundsDisplayCoordinateChanged(vtkViewport *viewport);
+  bool BoundsDisplayCoordinateChanged(vtkViewport* viewport);
 
-  vtkCoordinate *Point1Coordinate;
-  vtkCoordinate *Point2Coordinate;
+  vtkCoordinate* Point1Coordinate;
+  vtkCoordinate* Point2Coordinate;
 
-  double  MajorTickSize;
-  double  MinorTickSize;
+  double MajorTickSize;
+  double MinorTickSize;
 
   // For each axis (for the inner gridline generation)
-  double  MajorStart[3];
-  double  DeltaMajor[3];
-  double  MinorStart;
-  double  DeltaMinor;
+  double MajorStart[3];
+  double DeltaMajor[3];
+  double MinorStart;
+  double DeltaMinor;
 
   // For the ticks, w.r.t to the set range
-  double  MajorRangeStart;
-  double  MinorRangeStart;
+  double MajorRangeStart;
+  double MinorRangeStart;
 
   /**
    * step between 2 minor ticks, in range value (values displayed on the axis)
    */
-  double  DeltaRangeMinor;
+  double DeltaRangeMinor;
 
   /**
    * step between 2 major ticks, in range value (values displayed on the axis)
    */
-  double  DeltaRangeMajor;
+  double DeltaRangeMajor;
 
-  int    LastAxisPosition;
-  int    LastAxisType;
-  int    LastTickLocation;
+  int LastAxisPosition;
+  int LastAxisType;
+  int LastTickLocation;
   double LastLabelStart;
 
-  vtkPoints         *MinorTickPts;
-  vtkPoints         *MajorTickPts;
-  vtkPoints         *GridlinePts;
-  vtkPoints         *InnerGridlinePts;
-  vtkPoints         *GridpolyPts;
+  vtkPoints* MinorTickPts;
+  vtkPoints* MajorTickPts;
+  vtkPoints* GridlinePts;
+  vtkPoints* InnerGridlinePts;
+  vtkPoints* GridpolyPts;
 
-  vtkVectorText     *TitleVector;
-  vtkPolyDataMapper *TitleMapper;
-  vtkAxisFollower   *TitleActor;
-  vtkTextActor      *TitleActor2D;
-  vtkProp3DAxisFollower *TitleProp3D;
-  vtkTextActor3D    *TitleActor3D;
-  vtkTextProperty   *TitleTextProperty;
+  vtkVectorText* TitleVector;
+  vtkPolyDataMapper* TitleMapper;
+  vtkAxisFollower* TitleActor;
+  vtkTextActor* TitleActor2D;
+  vtkProp3DAxisFollower* TitleProp3D;
+  vtkTextActor3D* TitleActor3D;
+  vtkTextProperty* TitleTextProperty;
 
   //@{
   /**
    * Mapper/Actor used to display a common exponent of the label values
    */
-  vtkVectorText     *ExponentVector;
-  vtkPolyDataMapper *ExponentMapper;
-  vtkAxisFollower   *ExponentActor;
-  vtkTextActor      *ExponentActor2D;
-  vtkProp3DAxisFollower *ExponentProp3D;
-  vtkTextActor3D    *ExponentActor3D;
+  vtkVectorText* ExponentVector;
+  vtkPolyDataMapper* ExponentMapper;
+  vtkAxisFollower* ExponentActor;
+  vtkTextActor* ExponentActor2D;
+  vtkProp3DAxisFollower* ExponentProp3D;
+  vtkTextActor3D* ExponentActor3D;
   //@}
 
-  vtkVectorText     **LabelVectors;
-  vtkPolyDataMapper **LabelMappers;
-  vtkAxisFollower   **LabelActors;
-  vtkProp3DAxisFollower **LabelProps3D;
-  vtkTextActor      **LabelActors2D;
-  vtkTextActor3D    **LabelActors3D;
-  vtkTextProperty    *LabelTextProperty;
+  vtkVectorText** LabelVectors;
+  vtkPolyDataMapper** LabelMappers;
+  vtkAxisFollower** LabelActors;
+  vtkProp3DAxisFollower** LabelProps3D;
+  vtkTextActor** LabelActors2D;
+  vtkTextActor3D** LabelActors3D;
+  vtkTextProperty* LabelTextProperty;
 
   // Main line axis
-  vtkPolyData        *AxisLines;
-  vtkPolyDataMapper  *AxisLinesMapper;
-  vtkActor           *AxisLinesActor;
+  vtkPolyData* AxisLines;
+  vtkPolyDataMapper* AxisLinesMapper;
+  vtkActor* AxisLinesActor;
 
   // Ticks of the axis
-  vtkPolyData        *AxisMajorTicks, *AxisMinorTicks;
-  vtkPolyDataMapper  *AxisMajorTicksMapper, *AxisMinorTicksMapper;
-  vtkActor           *AxisMajorTicksActor, *AxisMinorTicksActor;
+  vtkPolyData *AxisMajorTicks, *AxisMinorTicks;
+  vtkPolyDataMapper *AxisMajorTicksMapper, *AxisMinorTicksMapper;
+  vtkActor *AxisMajorTicksActor, *AxisMinorTicksActor;
 
-  vtkPolyData        *Gridlines;
-  vtkPolyDataMapper  *GridlinesMapper;
-  vtkActor           *GridlinesActor;
-  vtkPolyData        *InnerGridlines;
-  vtkPolyDataMapper  *InnerGridlinesMapper;
-  vtkActor           *InnerGridlinesActor;
-  vtkPolyData        *Gridpolys;
-  vtkPolyDataMapper  *GridpolysMapper;
-  vtkActor           *GridpolysActor;
+  vtkPolyData* Gridlines;
+  vtkPolyDataMapper* GridlinesMapper;
+  vtkActor* GridlinesActor;
+  vtkPolyData* InnerGridlines;
+  vtkPolyDataMapper* InnerGridlinesMapper;
+  vtkActor* InnerGridlinesActor;
+  vtkPolyData* Gridpolys;
+  vtkPolyDataMapper* GridpolysMapper;
+  vtkActor* GridpolysActor;
 
-  vtkCamera          *Camera;
-  vtkTimeStamp        BuildTime;
-  vtkTimeStamp        BuildTickPointsTime;
-  vtkTimeStamp        BoundsTime;
-  vtkTimeStamp        LabelBuildTime;
-  vtkTimeStamp        TitleTextTime;
-  vtkTimeStamp        ExponentTextTime;
+  vtkCamera* Camera;
+  vtkTimeStamp BuildTime;
+  vtkTimeStamp BuildTickPointsTime;
+  vtkTimeStamp BoundsTime;
+  vtkTimeStamp LabelBuildTime;
+  vtkTimeStamp TitleTextTime;
+  vtkTimeStamp ExponentTextTime;
 
-  int                 AxisOnOrigin;
+  int AxisOnOrigin;
 
-  int                 AxisHasZeroLength;
+  int AxisHasZeroLength;
 
-  int                 CalculateTitleOffset;
-  int                 CalculateLabelOffset;
+  int CalculateTitleOffset;
+  int CalculateLabelOffset;
 
   /**
    * Use xy-axis only when Use2DMode=1:
    */
-  int                 Use2DMode;
+  int Use2DMode;
 
   /**
    * Vertical offset in display coordinates for X axis title (used in 2D mode only)
    * Default: -40
    */
-  double              VerticalOffsetXTitle2D;
+  double VerticalOffsetXTitle2D;
 
   /**
    * Vertical offset in display coordinates for X axis title (used in 2D mode only)
    * Default: -50
    */
-  double              HorizontalOffsetYTitle2D;
+  double HorizontalOffsetYTitle2D;
 
   /**
    * Save title position (used in 2D mode only):
@@ -949,31 +937,31 @@ private:
    * val = 1 : positions have to be saved during the next render pass
    * val = 2 : positions are saved; use them
    */
-  int                 SaveTitlePosition;
+  int SaveTitlePosition;
 
   /**
    * Constant position for the title (used in 2D mode only)
    */
-  double              TitleConstantPosition[2];
+  double TitleConstantPosition[2];
 
   /**
    * True if the 2D title has to be built, false otherwise
    */
-  bool                NeedBuild2D;
+  bool NeedBuild2D;
 
-  double              LastMinDisplayCoordinate[3];
-  double              LastMaxDisplayCoordinate[3];
-  double              TickVector[3];
+  double LastMinDisplayCoordinate[3];
+  double LastMaxDisplayCoordinate[3];
+  double TickVector[3];
 
   //@{
   /**
    * Offsets used to position text.
    */
-  double              ScreenSize;
-  double              LabelOffset;
-  double              TitleOffset;
-  double              ExponentOffset;
+  double ScreenSize;
+  double LabelOffset;
+  double TitleOffset;
+  double ExponentOffset;
 };
-  //@}
+//@}
 
 #endif
