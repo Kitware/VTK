@@ -391,6 +391,11 @@ bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
     vtkDataArray* c =
       vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(this->ColorArrayName));
     // TODO: Should add support for categorical coloring & try enum lookup
+    if (this->Colors)
+    {
+      this->Colors->UnRegister(this);
+      this->Colors = 0;
+    }
     if (c)
     {
       if (!this->LookupTable)
@@ -401,11 +406,6 @@ bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
       // Consistent register and unregisters
       this->Colors->Register(this);
       this->Colors->Delete();
-    }
-    else
-    {
-      this->Colors->UnRegister(this);
-      this->Colors = 0;
     }
   }
 
