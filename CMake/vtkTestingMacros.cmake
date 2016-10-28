@@ -128,6 +128,8 @@ function(vtk_add_test_mpi exename _tests)
   _vtk_test_parse_args("${mpi_options}" "cxx" ${ARGN})
   _vtk_test_set_options("${mpi_options}" "" ${options})
 
+  set(_vtk_fail_regex "(\n|^)ERROR: " "instance(s)? still around")
+
   set(default_numprocs ${VTK_MPI_MAX_NUMPROCS})
   if(${exename}_NUMPROCS)
     set(default_numprocs ${${exename}_NUMPROCS})
@@ -186,7 +188,7 @@ function(vtk_add_test_mpi exename _tests)
       PROPERTIES
         LABELS "${${vtk-module}_TEST_LABELS}"
         PROCESSORS ${numprocs}
-        FAIL_REGULAR_EXPRESSION "(\n|^)ERROR: "
+        FAIL_REGULAR_EXPRESSION "${_vtk_fail_regex}"
       )
     list(APPEND ${_tests} "${test_file}")
 
@@ -236,6 +238,8 @@ function(vtk_add_test_cxx exename _tests)
     )
   _vtk_test_parse_args("${cxx_options}" "cxx" ${ARGN})
   _vtk_test_set_options("${cxx_options}" "" ${options})
+
+  set(_vtk_fail_regex "(\n|^)ERROR: " "instance(s)? still around")
 
   if(VTK_BASELINE_DIR)
     if(vtk-module)
@@ -298,7 +302,7 @@ function(vtk_add_test_cxx exename _tests)
     set_tests_properties(${prefix}Cxx-${vtk_test_prefix}${test_name}
       PROPERTIES
         LABELS "${${prefix}_TEST_LABELS}"
-        FAIL_REGULAR_EXPRESSION "(\n|^)ERROR: "
+        FAIL_REGULAR_EXPRESSION "${_vtk_fail_regex}"
       )
 
     list(APPEND ${_tests} "${test_file}")
@@ -391,6 +395,8 @@ function(vtk_add_test_python)
   _vtk_test_parse_args("${python_options}" "py" ${ARGN})
   _vtk_test_set_options("${python_options}" "" ${options})
 
+  set(_vtk_fail_regex "(\n|^)ERROR: " "instance(s)? still around")
+
   set(data_dir "${VTK_TEST_DATA_DIR}")
   if(${vtk-module}_DATA_DIR)
     set(data_dir "${${vtk-module}_DATA_DIR}")
@@ -450,7 +456,7 @@ function(vtk_add_test_python)
     set_tests_properties(${vtk-module}Python${_vtk_test_python_suffix}-${vtk_test_prefix}${test_name}
       PROPERTIES
         LABELS "${${vtk-module}_TEST_LABELS}"
-        FAIL_REGULAR_EXPRESSION "(\n|^)ERROR: "
+        FAIL_REGULAR_EXPRESSION "${_vtk_fail_regex}"
       )
   endforeach()
 endfunction()
@@ -509,6 +515,8 @@ function(vtk_add_test_tcl)
   _vtk_test_parse_args("${tcl_options}" "tcl" ${ARGN})
   _vtk_test_set_options("${tcl_options}" "" ${options})
 
+  set(_vtk_fail_regex "(\n|^)ERROR: " "instance(s)? still around")
+
   set(data_dir "${VTK_TEST_DATA_DIR}")
   if(${vtk-module}_DATA_DIR)
     set(data_dir "${${vtk-module}_DATA_DIR}")
@@ -562,7 +570,7 @@ function(vtk_add_test_tcl)
     set_tests_properties(${vtk-module}Tcl-${vtk_test_prefix}${test_name}
       PROPERTIES
         LABELS "${${vtk-module}_TEST_LABELS}"
-        FAIL_REGULAR_EXPRESSION "(\n|^)ERROR: "
+        FAIL_REGULAR_EXPRESSION "${_vtk_fail_regex}"
       )
   endforeach()
 
