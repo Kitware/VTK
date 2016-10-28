@@ -36,12 +36,18 @@
 //----------------------------------------------------------------------------
 int TestVBOPLYMapper(int argc, char *argv[])
 {
+  bool timeit = false;
+  if (argc > 1 && argv[1] && !strcmp(argv[1], "-timeit"))
+  {
+    timeit = true;
+  }
+
   vtkNew<vtkActor> actor;
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkPolyDataMapper> mapper;
   renderer->SetBackground(0.0, 0.0, 0.0);
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->SetSize(300, 300);
+  renderWindow->SetSize(timeit ? 800 : 300, timeit ? 800 : 300);
   renderWindow->AddRenderer(renderer.Get());
   renderer->AddActor(actor.Get());
   vtkNew<vtkRenderWindowInteractor>  iren;
@@ -93,11 +99,11 @@ int TestVBOPLYMapper(int argc, char *argv[])
   cerr << "opengl version " << major << "." << minor << "\n";
 
   timer->StartTimer();
-  int numRenders = 8;
+  int numRenders = timeit ? 600 : 8;
   for (int i = 0; i < numRenders; ++i)
   {
-    renderer->GetActiveCamera()->Azimuth(10);
-    renderer->GetActiveCamera()->Elevation(10);
+    renderer->GetActiveCamera()->Azimuth(80.0/numRenders);
+    renderer->GetActiveCamera()->Elevation(80.0/numRenders);
     renderWindow->Render();
   }
   timer->StopTimer();
