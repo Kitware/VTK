@@ -175,6 +175,8 @@ public:
   /**
    * Set/Get the value of the ParallelProjection instance variable. This
    * determines if the camera should do a perspective or parallel projection.
+   * @note This setting is ignored when UseExplicitProjectionTransformMatrix
+   * is true.
    */
   void SetParallelProjection(int flag);
   vtkGetMacro(ParallelProjection, int);
@@ -189,6 +191,8 @@ public:
    * uses a display device which whose specs indicate a particular horizontal
    * view angle, or if the application varies the window height but wants to
    * keep the perspective transform unchanges.
+   * @note This setting is ignored when UseExplicitProjectionTransformMatrix
+   * is true.
    */
   void SetUseHorizontalViewAngle(int flag);
   vtkGetMacro(UseHorizontalViewAngle, int);
@@ -204,6 +208,8 @@ public:
    * is: angle = 2*atan((h/2)/d) where h is the height of the RenderWindow
    * (measured by holding a ruler up to your screen) and d is the
    * distance from your eyes to the screen.
+   * @note This setting is ignored when UseExplicitProjectionTransformMatrix
+   * is true.
    */
   void SetViewAngle(double angle);
   vtkGetMacro(ViewAngle, double);
@@ -216,6 +222,8 @@ public:
    * Note that the "scale" parameter works as an "inverse scale" ---
    * larger numbers produce smaller images.
    * This method has no effect in perspective projection mode.
+   * @note This setting is ignored when UseExplicitProjectionTransformMatrix
+   * is true.
    */
   void SetParallelScale(double scale);
   vtkGetMacro(ParallelScale ,double);
@@ -225,6 +233,8 @@ public:
    * In perspective mode, decrease the view angle by the specified factor.
    * In parallel mode, decrease the parallel scale by the specified factor.
    * A value greater than 1 is a zoom-in, a value less than 1 is a zoom-out.
+   * @note This setting is ignored when UseExplicitProjectionTransformMatrix
+   * is true.
    */
   void Zoom(double factor);
 
@@ -239,6 +249,8 @@ public:
    * farther away.  The default clipping range is (0.1,1000).
    * Clipping distance is measured in world coordinate unless a scale factor
    * exists in camera's ModelTransformMatrix.
+   * @note This setting is ignored when UseExplicitProjectionTransformMatrix
+   * is true.
    */
   void SetClippingRange(double dNear, double dFar);
   void SetClippingRange(const double a[2])
@@ -251,6 +263,8 @@ public:
    * Set the distance between clipping planes.  This method adjusts the
    * far clipping plane to be set a distance 'thickness' beyond the
    * near clipping plane.
+   * @note This setting is ignored when UseExplicitProjectionTransformMatrix
+   * is true.
    */
   void SetThickness(double);
   vtkGetMacro(Thickness, double);
@@ -263,6 +277,8 @@ public:
    * is for if you have one window which consists of several viewports,
    * or if you have several screens which you want to act together as
    * one large screen.
+   * @note This setting is ignored when UseExplicitProjectionTransformMatrix
+   * is true.
    */
   void SetWindowCenter(double x, double y);
   vtkGetVector2Macro(WindowCenter, double);
@@ -278,6 +294,8 @@ public:
    * where dz is the distance of the point from the focal plane.
    * The angles are (45,90) by default.  Oblique projections
    * commonly use (30,63.435).
+   * @note This setting is ignored when UseExplicitProjectionTransformMatrix
+   * is true.
    */
   void SetObliqueAngles(double alpha, double beta);
 
@@ -303,6 +321,8 @@ public:
    * dx/dz, dy/dz, and center.  center is a factor that describes where
    * to shear around. The distance dshear from the camera where
    * no shear occurs is given by (dshear = center * FocalDistance).
+   * @note This setting is ignored when UseExplicitProjectionTransformMatrix
+   * is true.
    */
   void SetViewShear(double dxdz, double dydz, double center);
   void SetViewShear(double d[3]);
@@ -336,6 +356,8 @@ public:
    * for stereo rendering.
    * For reference see "High Resolution Virtual Reality", in Proc.
    * SIGGRAPH '92, Computer Graphics, pages 195-202, 1992.
+   * @note This setting is ignored when UseExplicitProjectionTransformMatrix
+   * is true.
    */
   vtkSetMacro(UseOffAxisProjection, int);
   vtkGetMacro(UseOffAxisProjection, int);
@@ -466,12 +488,33 @@ public:
   virtual vtkTransform *GetViewTransformObject();
 
   /**
+   * Set/get an explicit 4x4 projection matrix to use, rather than computing
+   * one from other state variables. Only used when
+   * UseExplicitProjectionTransformMatrix is true.
+   * @{
+   */
+  virtual void SetExplicitProjectionTransformMatrix(vtkMatrix4x4*);
+  vtkGetObjectMacro(ExplicitProjectionTransformMatrix, vtkMatrix4x4)
+  /**@}*/
+
+  /**
+   * If true, the ExplicitProjectionTransformMatrix is used for the projection
+   * transformation, rather than computing a transform from internal state.
+   * @{
+   */
+  vtkSetMacro(UseExplicitProjectionTransformMatrix, bool)
+  vtkGetMacro(UseExplicitProjectionTransformMatrix, bool)
+  vtkBooleanMacro(UseExplicitProjectionTransformMatrix, bool)
+  /**@}*/
+
+  /**
    * Return the projection transform matrix, which converts from camera
    * coordinates to viewport coordinates.  The 'aspect' is the
    * width/height for the viewport, and the nearz and farz are the
    * Z-buffer values that map to the near and far clipping planes.
    * The viewport coordinates of a point located inside the frustum are in the
    * range ([-1,+1],[-1,+1],[nearz,farz]).
+   * @sa ExplicitProjectionTransformMatrix
    */
    virtual vtkMatrix4x4 *GetProjectionTransformMatrix(double aspect,
                                                       double nearz,
@@ -484,6 +527,7 @@ public:
    * Z-buffer values that map to the near and far clipping planes.
    * The viewport coordinates of a point located inside the frustum are in the
    * range ([-1,+1],[-1,+1],[nearz,farz]).
+   * @sa ExplicitProjectionTransformMatrix
    */
   virtual vtkPerspectiveTransform *GetProjectionTransformObject(double aspect,
                                                                 double nearz,
@@ -497,6 +541,7 @@ public:
    * Z-buffer values that map to the near and far clipping planes.
    * The viewport coordinates of a point located inside the frustum are in the
    * range ([-1,+1],[-1,+1],[nearz,farz]).
+   * @sa ExplicitProjectionTransformMatrix
    */
   virtual vtkMatrix4x4 *GetCompositeProjectionTransformMatrix(double aspect,
                                                               double nearz,
@@ -507,6 +552,7 @@ public:
    * coordinates to viewport coordinates. This method computes
    * the aspect, nearz and farz, then calls the more specific
    * signature of GetCompositeProjectionTransformMatrix
+   * @sa ExplicitProjectionTransformMatrix
    */
   virtual vtkMatrix4x4 *GetProjectionTransformMatrix(vtkRenderer *ren);
 
@@ -724,6 +770,9 @@ protected:
 
   vtkHomogeneousTransform *UserTransform;
   vtkHomogeneousTransform *UserViewTransform;
+
+  vtkMatrix4x4 *ExplicitProjectionTransformMatrix;
+  bool UseExplicitProjectionTransformMatrix;
 
   vtkTransform *ViewTransform;
   vtkPerspectiveTransform *ProjectionTransform;
