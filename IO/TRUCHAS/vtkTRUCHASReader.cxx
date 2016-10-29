@@ -55,7 +55,7 @@ public:
 
     this->TopoFileIndx = this->FileIndx;
     this->cells_out = NULL;
-    this->totalNumCells = -1;
+    this->totalNumCells = 0;
 
     this->ArrayNameFileIndx = this->FileIndx;
     this->PointData = vtkPointData::New();
@@ -111,12 +111,12 @@ public:
   }
 
   //----------------------------------------------------------------------------
-  void ReadTimeSteps(int &numSteps, double **outSteps)
+  void ReadTimeSteps(unsigned int &numSteps, double **outSteps)
   {
     if (this->TimeFileIndx == this->FileIndx)
     {
       *outSteps = this->Steps;
-      numSteps = this->tmap.size();
+      numSteps = static_cast<unsigned int>(this->tmap.size());
       return;
     }
 
@@ -159,7 +159,7 @@ public:
     }
     H5Gclose(gid);
 
-    numSteps = this->tmap.size();
+    numSteps = static_cast<unsigned int>(this->tmap.size());
     this->Steps = new double[numSteps];
     std::map<double, std::string>::iterator it = this->tmap.begin();
     int i = 0;
@@ -404,9 +404,9 @@ public:
       return false;
     }
 
-    int totalNumBlocks = this->blockmap.size();
+    unsigned int totalNumBlocks = static_cast<unsigned int>(this->blockmap.size());
     grid.resize(totalNumBlocks);
-    for(int b = 0; b < totalNumBlocks; b++)
+    for(unsigned int b = 0; b < totalNumBlocks; b++)
     {
       if (self->BlockChoices->GetArraySetting(b) != 0)
       {
@@ -482,7 +482,7 @@ public:
       cptr+=8;
     }
 
-    for(int b = 0; b < totalNumBlocks; b++)
+    for(unsigned int b = 0; b < totalNumBlocks; b++)
     {
       if (self->BlockChoices->GetArraySetting(b) != 0)
       {
@@ -673,7 +673,7 @@ int vtkTRUCHASReader::RequestInformation(
   //tell it what range of times I can deal with
   double *steps;
   double tRange[2];
-  int numSteps;
+  unsigned int numSteps;
   this->Internals->ReadTimeSteps(numSteps, &steps);
   tRange[0] = steps[0];
   tRange[1] = steps[numSteps-1];
@@ -746,7 +746,7 @@ int vtkTRUCHASReader::RequestData(
   }
 
   std::vector< vtkUnstructuredGrid * > &grid = this->Internals->grid;
-  unsigned int totalNumBlocks = grid.size();
+  unsigned int totalNumBlocks = static_cast<unsigned int>(grid.size());
   output->SetNumberOfBlocks(totalNumBlocks);
   unsigned int totalNumCells = this->Internals->totalNumCells;
   unsigned int totalNumPoints = this->Internals->Points->GetNumberOfPoints();
@@ -860,8 +860,8 @@ int vtkTRUCHASReader::RequestData(
 
 
     bool isFloat = this->Internals->array_isFloat[array_name];
-    double **vals_out;
-    int **ivals_out;
+    double **vals_out = NULL;;
+    int **ivals_out = NULL;;
     if (isFloat)
     {
       vals_out = new double *[dims[0]];
@@ -984,8 +984,8 @@ int vtkTRUCHASReader::RequestData(
     }
 
     //now move the array contents into place, element by element
-    double *ptr;
-    int *iptr;
+    double *ptr = NULL;
+    int *iptr = NULL;
     if (isFloat)
     {
       ptr = vals_out[0];
