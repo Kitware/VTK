@@ -36,7 +36,7 @@ public:
   static vtkImagePermute *New();
   vtkTypeMacro(vtkImagePermute,vtkImageReslice);
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**

@@ -34,7 +34,7 @@ class VTKRENDERINGCORE_EXPORT vtkTextProperty : public vtkObject
 {
 public:
   vtkTypeMacro(vtkTextProperty,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Creates a new text property with font size 12, bold off, italic off,

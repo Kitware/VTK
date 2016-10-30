@@ -34,7 +34,7 @@ class VTKIMAGINGCORE_EXPORT vtkImageChangeInformation : public vtkImageAlgorithm
 public:
   static vtkImageChangeInformation *New();
   vtkTypeMacro(vtkImageChangeInformation, vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -141,16 +141,16 @@ protected:
 
   virtual int RequestUpdateExtent (vtkInformation *,
                                    vtkInformationVector **,
-                                   vtkInformationVector *);
+                                   vtkInformationVector *) VTK_OVERRIDE;
   virtual int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
-                                  vtkInformationVector *);
+                                  vtkInformationVector *) VTK_OVERRIDE;
 
   virtual int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *);
+                          vtkInformationVector *) VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  virtual int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 private:
   vtkImageChangeInformation(const vtkImageChangeInformation&) VTK_DELETE_FUNCTION;

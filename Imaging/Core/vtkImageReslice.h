@@ -425,7 +425,7 @@ public:
    * When determining the modified time of the filter,
    * this check the modified time of the transform and matrix.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   /**
    * Report object referenced by instances of this class.
@@ -555,21 +555,21 @@ protected:
                          count, idX, idY, idZ, threadId); }
 
   void GetAutoCroppedOutputBounds(vtkInformation *inInfo, double bounds[6]);
-  virtual void AllocateOutputData(vtkImageData *output, vtkInformation *outInfo, int *uExtent);
-  virtual vtkImageData *AllocateOutputData(vtkDataObject *, vtkInformation *);
+  virtual void AllocateOutputData(vtkImageData *output, vtkInformation *outInfo, int *uExtent) VTK_OVERRIDE;
+  virtual vtkImageData *AllocateOutputData(vtkDataObject *, vtkInformation *) VTK_OVERRIDE;
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *);
+                                 vtkInformationVector *) VTK_OVERRIDE;
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *);
+                                  vtkInformationVector *) VTK_OVERRIDE;
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+                          vtkInformationVector *) VTK_OVERRIDE;
   virtual void ThreadedRequestData(vtkInformation *request,
                                    vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector,
                                    vtkImageData ***inData,
-                                   vtkImageData **outData, int ext[6], int id);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
-  virtual int FillOutputPortInformation(int port, vtkInformation *info);
+                                   vtkImageData **outData, int ext[6], int id) VTK_OVERRIDE;
+  virtual int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  virtual int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   vtkMatrix4x4 *GetIndexMatrix(vtkInformation *inInfo,
                                vtkInformation *outInfo);

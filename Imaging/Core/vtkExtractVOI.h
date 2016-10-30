@@ -49,7 +49,7 @@ class VTKIMAGINGCORE_EXPORT vtkExtractVOI : public vtkImageAlgorithm
 {
 public:
   vtkTypeMacro(vtkExtractVOI,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object to extract all of the input data.
@@ -97,13 +97,13 @@ protected:
 
   virtual int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*);
+                                  vtkInformationVector*) VTK_OVERRIDE;
   virtual int RequestInformation (vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*);
+                                  vtkInformationVector*) VTK_OVERRIDE;
   virtual int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+                          vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   /**
    * Implementation for RequestData using a specified VOI. This is because the

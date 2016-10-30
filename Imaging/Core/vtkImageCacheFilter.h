@@ -52,8 +52,8 @@ protected:
   ~vtkImageCacheFilter();
 
   // Create a default executive.
-  virtual vtkExecutive* CreateDefaultExecutive();
-  virtual void ExecuteData(vtkDataObject *);
+  virtual vtkExecutive* CreateDefaultExecutive() VTK_OVERRIDE;
+  virtual void ExecuteData(vtkDataObject *) VTK_OVERRIDE;
 
 private:
   vtkImageCacheFilter(const vtkImageCacheFilter&) VTK_DELETE_FUNCTION;
