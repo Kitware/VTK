@@ -24,6 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationStringKey.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkOSPRayActorNode.h"
 #include "vtkOSPRayCameraNode.h"
@@ -121,7 +122,7 @@ namespace ospray {
       {
         const double z_n = 2.0 * glDepthBuffer[i] - 1.0;
         ospDepthBuffer[i] = 2.0 * zNear * zFar / (zFar + zNear - z_n * (zFar - zNear));
-        if (isnan(ospDepthBuffer[i]))
+        if (vtkMath::IsNan(ospDepthBuffer[i]))
         {
           ospDepthBuffer[i] = FLT_MAX;
         }
