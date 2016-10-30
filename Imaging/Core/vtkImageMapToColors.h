@@ -40,7 +40,7 @@ class VTKIMAGINGCORE_EXPORT vtkImageMapToColors : public vtkThreadedImageAlgorit
 public:
   static vtkImageMapToColors *New();
   vtkTypeMacro(vtkImageMapToColors,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -83,7 +83,7 @@ public:
   /**
    * We need to check the modified time of the lookup table too.
    */
-  virtual vtkMTimeType GetMTime();
+  virtual vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -98,17 +98,19 @@ protected:
   vtkImageMapToColors();
   ~vtkImageMapToColors();
 
-  virtual int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *,
+                                 vtkInformationVector **,
+                                 vtkInformationVector *) VTK_OVERRIDE;
 
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
-                           int extent[6], int id);
+                           int extent[6], int id) VTK_OVERRIDE;
 
   virtual int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+                          vtkInformationVector *outputVector) VTK_OVERRIDE;
 
   vtkScalarsToColors *LookupTable;
   int OutputFormat;

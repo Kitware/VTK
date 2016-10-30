@@ -39,7 +39,7 @@ class VTKRENDERINGCORE_EXPORT vtkTexturedActor2D : public vtkActor2D
 {
 public:
   static vtkTexturedActor2D* New();
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   vtkTypeMacro(vtkTexturedActor2D, vtkActor2D);
 
   //@{
@@ -57,26 +57,26 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow* win);
+  virtual void ReleaseGraphicsResources(vtkWindow* win) VTK_OVERRIDE;
 
   //@{
   /**
    * Support the standard render methods.
    */
-  virtual int RenderOverlay(vtkViewport* viewport);
-  virtual int RenderOpaqueGeometry(vtkViewport* viewport);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport* viewport);
+  virtual int RenderOverlay(vtkViewport* viewport) VTK_OVERRIDE;
+  virtual int RenderOpaqueGeometry(vtkViewport* viewport) VTK_OVERRIDE;
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) VTK_OVERRIDE;
   //@}
 
   /**
    * Return this object's modified time.
    */
-  virtual vtkMTimeType GetMTime();
+  virtual vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   /**
    * Shallow copy of this vtkTexturedActor2D. Overrides vtkActor2D method.
    */
-  virtual void ShallowCopy(vtkProp* prop);
+  virtual void ShallowCopy(vtkProp* prop) VTK_OVERRIDE;
 
 protected:
   vtkTexturedActor2D();
