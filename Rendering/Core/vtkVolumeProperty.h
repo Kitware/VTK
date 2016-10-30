@@ -109,7 +109,8 @@ public:
 
   //@{
   /**
-   * Set/Get the scalar component weights
+   * Set/Get the scalar component weights.
+   * Clamped between the range of (0.0, 1.0)
    */
   virtual void SetComponentWeight(int index, double value);
   virtual double GetComponentWeight(int index);
