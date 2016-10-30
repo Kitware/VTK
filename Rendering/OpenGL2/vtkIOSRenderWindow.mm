@@ -40,6 +40,12 @@ vtkIOSRenderWindow::vtkIOSRenderWindow()
   this->Capabilities = 0;
   this->OnScreenInitialized = 0;
   this->OffScreenInitialized = 0;
+  // it seems that LEFT/RIGHT cause issues on IOS so we just use
+  // generic BACK/FRONT
+  this->BackLeftBuffer = static_cast<unsigned int>(GL_BACK);
+  this->BackRightBuffer = static_cast<unsigned int>(GL_BACK);
+  this->FrontLeftBuffer = static_cast<unsigned int>(GL_FRONT);
+  this->FrontRightBuffer = static_cast<unsigned int>(GL_FRONT);
 }
 
 //----------------------------------------------------------------------------
@@ -101,6 +107,93 @@ void vtkIOSRenderWindow::DestroyWindow()
   this->SetParentId(NULL);
   this->SetRootWindow(NULL);
 }
+
+
+int vtkIOSRenderWindow::GetPixelData(int x1, int y1,
+                                     int x2, int y2,
+                                     int front, unsigned char* data)
+{
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+
+  // set the current window
+  this->MakeCurrent();
+
+  if (y1 < y2)
+  {
+    y_low = y1;
+    y_hi  = y2;
+  }
+  else
+  {
+    y_low = y2;
+    y_hi  = y1;
+  }
+
+  if (x1 < x2)
+  {
+    x_low = x1;
+    x_hi  = x2;
+  }
+  else
+  {
+    x_low = x2;
+    x_hi  = x1;
+  }
+
+  // Must clear previous errors first.
+  while(glGetError() != GL_NO_ERROR)
+  {
+    ;
+  }
+
+  if (front)
+  {
+    glReadBuffer(static_cast<GLenum>(this->GetFrontLeftBuffer()));
+  }
+  else
+  {
+    glReadBuffer(static_cast<GLenum>(this->GetBackLeftBuffer()));
+  }
+
+  glDisable( GL_SCISSOR_TEST );
+
+  // Calling pack alignment ensures that we can grab the any size window
+  glPixelStorei( GL_PACK_ALIGNMENT, 1 );
+
+  // iOS has issues with getting RGB so we get RGBA
+  int width = x_hi-x_low + 1;
+  int height = y_hi-y_low+1;
+  unsigned char *localData = new unsigned char[width*height*4];
+  glReadPixels(x_low, y_low, width, height, GL_RGBA,
+               GL_UNSIGNED_BYTE, localData);
+
+  unsigned char *dPtr = data;
+  unsigned char *lPtr = localData;
+  for (int i = 0; i < height; i++)
+  {
+    for (int j = 0; j < width; j++)
+    {
+      *(dPtr++) = *(lPtr++);
+      *(dPtr++) = *(lPtr++);
+      *(dPtr++) = *(lPtr++);
+      lPtr++;
+    }
+  }
+
+  delete [] localData;
+
+  if (glGetError() != GL_NO_ERROR)
+  {
+    return VTK_ERROR;
+  }
+  else
+  {
+    return VTK_OK;
+  }
+
+}
+
 
 //----------------------------------------------------------------------------
 void vtkIOSRenderWindow::SetWindowName( const char * _arg )
