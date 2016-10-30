@@ -1177,8 +1177,7 @@ namespace vtkvolume
         \n         if (in_averageIPRange.x <= intensity &&\
         \n             intensity <= in_averageIPRange.y)\
         \n           {\
-        \n           float opacity = computeOpacity(scalar, i);\
-        \n           l_avgValue[i] += scalar[i];\
+        \n           l_avgValue[i] += computeOpacity(scalar, i) * scalar[i];\
         \n           ++l_numSamples[i];\
         \n           }\
         \n         }"
@@ -1194,33 +1193,23 @@ namespace vtkvolume
         \n      if (in_averageIPRange.x <= intensity &&\
         \n          intensity <= in_averageIPRange.y)\
         \n        {\
-        \n        l_avgValue.w += scalar.x;\
-        \n        ++l_numSamples.w;\
+        \n        l_avgValue.x += computeOpacity(scalar) * scalar.x;\
+        \n        ++l_numSamples.x;\
         \n        }"
         );
       }
     }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
     {
-      if (noOfComponents > 1)
+      if (noOfComponents > 1 && independentComponents)
       {
-       if (!independentComponents)
-       {
-         shaderStr += std::string("\
-           \n      float opacity = computeOpacity(scalar);\
-           \n      l_sumValue.x = l_sumValue.x + opacity * scalar.x;"
-         );
-       }
-       else
-       {
-         shaderStr += std::string("\
-         \n       for (int i = 0; i < in_noOfComponents; ++i)\
-         \n         {\
-         \n         float opacity = computeOpacity(scalar, i);\
-         \n         l_sumValue[i] = l_sumValue[i] + opacity * scalar[i];\
-         \n         }"
-         );
-       }
+        shaderStr += std::string("\
+        \n       for (int i = 0; i < in_noOfComponents; ++i)\
+        \n         {\
+        \n         float opacity = computeOpacity(scalar, i);\
+        \n         l_sumValue[i] = l_sumValue[i] + opacity * scalar[i];\
+        \n         }"
+        );
       }
       else
       {
@@ -1483,38 +1472,35 @@ namespace vtkvolume
       if (noOfComponents > 1 && independentComponents)
       {
         return std::string("\
-          \n  g_srcColor = vec4(0);\
           \n  for (int i = 0; i < in_noOfComponents; ++i)\
           \n    {\
           \n    if (l_numSamples[i] == uint(0))\
           \n      {\
           \n      continue;\
           \n      }\
-          \n    l_avgValue[i] /= l_numSamples[i];\
-          \n    vec4 tmp = computeColor(l_avgValue,\
-          \n                            computeOpacity(l_avgValue, i), i);\
-          \n    g_srcColor[0] += tmp[0] * tmp[3] * in_componentWeight[i];\
-          \n    g_srcColor[1] += tmp[1] * tmp[3] * in_componentWeight[i];\
-          \n    g_srcColor[2] += tmp[2] * tmp[3] * in_componentWeight[i];\
-          \n    g_srcColor[3] += tmp[3] * in_componentWeight[i];\
+          \n    l_avgValue[i] = l_avgValue[i] * in_componentWeight[i] /\
+          \n                    l_numSamples[i];\
+          \n    if (i > 0)\
+          \n      {\
+          \n      l_avgValue[0] += l_avgValue[i];\
+          \n      }\
           \n    }\
-          \n  g_fragColor = g_srcColor;"
+          \n  l_avgValue[0] = clamp(l_avgValue[0], 0.0, 1.0);\
+          \n  g_fragColor = vec4(vec3(l_avgValue[0]), 1.0);"
         );
       }
       else
       {
         return std::string("\
-         \n  if (l_numSamples.w == uint(0))\
+         \n  if (l_numSamples.x == uint(0))\
          \n    {\
-         \n    g_fragColor = vec4(0);\
+         \n    discard;\
          \n    }\
          \n  else\
          \n    {\
-         \n    l_avgValue.w /= l_numSamples.w;\
-         \n    g_srcColor = computeColor(l_avgValue,\
-         \n                              computeOpacity(l_avgValue));\
-         \n    g_fragColor.rgb = g_srcColor.rgb * g_srcColor.a;\
-         \n    g_fragColor.a = g_srcColor.a;\
+         \n    l_avgValue.x /= l_numSamples.x;\
+         \n    l_avgValue.x = clamp(l_avgValue.x, 0.0, 1.0);\
+         \n    g_fragColor = vec4(vec3(l_avgValue.x), 1.0);\
          \n    }"
         );
       }

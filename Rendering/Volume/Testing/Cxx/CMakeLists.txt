@@ -53,6 +53,7 @@ endif()
 
 # These tests are only built for the OpenGL2 backend
 set (VolumeOpenGL2CxxTests
+  TestGPURayCastBlendModes.cxx
   TestGPURayCastAverageIP.cxx
   TestGPURayCastCameraInside.cxx
   TestGPURayCastCameraInsideSmallSpacing.cxx
@@ -62,6 +63,8 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastClippingPolyData.cxx
   TestGPURayCastClippingUserTransform.cxx
   TestGPURayCastDependentComponentsLightParameters.cxx
+  TestGPURayCastFourComponentsAdditive.cxx
+  TestGPURayCastFourComponentsAverage.cxx
   TestGPURayCastFourComponentsDependentGradient.cxx
   TestGPURayCastGradientOpacity.cxx
   TestGPURayCastGradientOpacityLight.cxx

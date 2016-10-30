@@ -4209,6 +4209,17 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
   int shadeMethod=vtkOpenGLGPUVolumeRayCastMapperShadeNotUsed;
   int componentMethod=vtkOpenGLGPUVolumeRayCastMapperComponentNotUsed;
 
+  if(this->GetBlendMode()!=vtkVolumeMapper::COMPOSITE_BLEND &&
+     this->GetBlendMode()!=vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND &&
+     this->GetBlendMode()!=vtkVolumeMapper::MINIMUM_INTENSITY_BLEND &&
+     this->GetBlendMode()!=vtkVolumeMapper::ADDITIVE_BLEND)
+  {
+    vtkErrorMacro(<< "Selected blend mode not supported. "
+                  << "Only Composite, MIP, MinIP and additive modes "
+                  << "are supported by this implementation.");
+    return;
+  }
+
   switch(this->BlendMode)
   {
     case vtkVolumeMapper::COMPOSITE_BLEND:
