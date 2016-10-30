@@ -334,10 +334,10 @@ public:
   };
 
   vtkSetClampMacro(VectorMode, int, -1, 1);
-  vtkSetClampMacro(VectorComponent, int, 0, 3);
+  vtkGetMacro(VectorMode, int);
 
-  int VectorMode;
-  int VectorComponent;
+  vtkSetClampMacro(VectorComponent, int, 0, 3);
+  vtkGetMacro(VectorComponent, int);
   //@}
 
 protected:
@@ -358,32 +358,52 @@ protected:
    */
   void ConnectFilterInput(vtkImageResample *f);
 
-  // Window / level ivars
+  //@{
+  /**
+   * Window / level ivars
+   */
   float   FinalColorWindow;
   float   FinalColorLevel;
+  //@}
 
-  // GPU mapper-specific memory ivars.
+  //@{
+  /**
+   * GPU mapper-specific memory ivars.
+   */
   vtkIdType MaxMemoryInBytes;
   float MaxMemoryFraction;
+  //@}
 
-  // Used for downsampling.
+  /**
+   * Used for downsampling.
+   */
   int InterpolationMode;
 
-  // The requested render mode is used to compute the current render mode. Note
-  // that the current render mode can be invalid if the requested mode is not
-  // supported.
+  //@{
+  /**
+   * The requested render mode is used to compute the current render mode. Note
+   * that the current render mode can be invalid if the requested mode is not
+   * supported.
+   */
   int     RequestedRenderMode;
   int     CurrentRenderMode;
+  //@}
 
-  // Initialization variables.
+  //@{
+  /**
+   * Initialization variables.
+   */
   int          Initialized;
   vtkTimeStamp SupportStatusCheckTime;
   int          GPUSupported;
   int          RayCastSupported;
   int          LowResGPUNecessary;
+  //@}
 
-  // This is the resample filter that may be used if we need to
-  // create a low resolution version of the volume for GPU rendering
+  /**
+   * This is the resample filter that may be used if we need to
+   * create a low resolution version of the volume for GPU rendering
+   */
   vtkImageResample* GPUResampleFilter;
 
   //@{
@@ -400,45 +420,75 @@ protected:
   vtkImageData* InputDataMagnitude;
   //@}
 
-  // The initialize method. Called from ComputeRenderMode whenever something
-  // relevant has changed.
+  /**
+   * The initialize method. Called from ComputeRenderMode whenever something
+   * relevant has changed.
+   */
   void  Initialize(vtkRenderer *ren,
                    vtkVolume *vol);
 
-  // The method that computes the render mode from the requested render mode
-  // based on the support status for each render method.
+  /**
+   * The method that computes the render mode from the requested render mode
+   * based on the support status for each render method.
+   */
   void  ComputeRenderMode(vtkRenderer *ren,
                           vtkVolume *vol);
 
-  // The three potential mappers
+  //@{
+  /**
+   * The three potential mappers
+   */
   vtkGPUVolumeRayCastMapper      *GPULowResMapper;
   vtkGPUVolumeRayCastMapper      *GPUMapper;
   vtkFixedPointVolumeRayCastMapper  *RayCastMapper;
+  //@}
 
 
-  // We need to keep track of the blend mode we had when we initialized
-  // because we need to reinitialize (and recheck hardware support) if
-  // it changes
+  /**
+   * We need to keep track of the blend mode we had when we initialized
+   * because we need to reinitialize (and recheck hardware support) if
+   * it changes
+   */
   int  InitializedBlendMode;
 
-  // The distance between sample points along the ray
+  /**
+   * The distance between sample points along the ray
+   */
   float  SampleDistance;
 
-  // Set whether or not the sample distance should be automatically calculated
-  // within the internal volume mapper
+  /**
+   * Set whether or not the sample distance should be automatically calculated
+   * within the internal volume mapper
+   */
   int    AutoAdjustSampleDistances;
 
-  // If the DesiredUpdateRate of the vtkRenderWindow causing the Render is at
-  // or above this value, the render is considered interactive. Otherwise it is
-  // considered still.
+  /**
+   * If the DesiredUpdateRate of the vtkRenderWindow causing the Render is at
+   * or above this value, the render is considered interactive. Otherwise it is
+   * considered still.
+   */
   double InteractiveUpdateRate;
 
-  // If the InteractiveAdjustSampleDistances flag is enabled,
-  // vtkSmartVolumeMapper interactively sets and resets the
-  // AutoAdjustSampleDistances flag on the internal volume mapper. This flag
-  // along with InteractiveUpdateRate is useful to adjust volume mapper sample
-  // distance based on whether the render is interactive or still.
+  /**
+   * If the InteractiveAdjustSampleDistances flag is enabled,
+   * vtkSmartVolumeMapper interactively sets and resets the
+   * AutoAdjustSampleDistances flag on the internal volume mapper. This flag
+   * along with InteractiveUpdateRate is useful to adjust volume mapper sample
+   * distance based on whether the render is interactive or still.
+   */
   int InteractiveAdjustSampleDistances;
+
+  //@{
+  /**
+   * VectorMode is a special rendering mode for 3-component vectors which makes
+   * use of GPURayCastMapper's independent-component capabilities. In this mode,
+   * a single component in the vector can be selected for rendering. In addition,
+   * the mapper can compute a scalar field representing the magnitude of this vector
+   * using a vtkImageMagnitude object (MAGNITUDE mode).
+   */
+  int VectorMode;
+  int VectorComponent;
+  //@}
 
 private:
   /**

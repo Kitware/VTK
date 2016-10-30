@@ -284,6 +284,7 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
   vtkSMPTools::For(0, numPts, probe);
 
   // Clean up
+  projSource->Delete();
   if ( mask )
   {
     this->ValidPointsMask->SetName(this->ValidPointsMaskArrayName);

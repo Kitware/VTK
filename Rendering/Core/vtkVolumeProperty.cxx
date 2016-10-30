@@ -475,13 +475,12 @@ void vtkVolumeProperty::SetComponentWeight(int index, double value)
     return;
   }
 
-  if (this->ComponentWeight[index] == value)
+  double val = value < 0.0 ? 0.0 : (value > 1.0 ? 1.0 : value);
+  if (this->ComponentWeight[index] != val)
   {
-    return;
+    this->ComponentWeight[index] = val;
+    this->Modified();
   }
-
-  this->ComponentWeight[index] = value;
-  this->Modified();
 }
 
 double vtkVolumeProperty::GetComponentWeight(int index)

@@ -97,13 +97,11 @@ public:
   void Initialize() VTK_OVERRIDE;
 
   /**
-   * \deprecated{This is for backward compatibility only - use SetExtent().}
    * Same as SetExtent(0, i-1, 0, j-1, 0, k-1)
    */
   virtual void SetDimensions(int i, int j, int k);
 
   /**
-   * \deprecated{This is for backward compatibility only - use SetExtent().}
    * Same as SetExtent(0, dims[0]-1, 0, dims[1]-1, 0, dims[2]-1)
    */
   virtual void SetDimensions(const int dims[3]);

@@ -109,7 +109,8 @@ public:
 
   //@{
   /**
-   * Set/Get the scalar component weights
+   * Set/Get the scalar component weights.
+   * Clamped between the range of (0.0, 1.0)
    */
   virtual void SetComponentWeight(int index, double value);
   virtual double GetComponentWeight(int index);
@@ -261,6 +262,15 @@ public:
    * of mapper, turning shading off is generally the same as setting
    * ambient=1, diffuse=0, specular=0. Shading can be independently
    * turned on/off per component.
+   *
+   * \note Shading is \b only supported for vtkVolumeMapper::COMPOSITE_BLEND.
+   * For minimum and maximum intensity blend modes, there is not necessarily one
+   * unique location along the ray through the volume where that minimum or
+   * maximum occurs. For average and additive blend modes, the value being
+   * visualized does not represent a location in the volume but rather a
+   * statistical measurement along the ray traversing through the volume, and
+   * hence shading is not applicable.
+   * \sa vtkVolumeMapper::BlendModes
    */
   void SetShade(int index, int value);
   void SetShade(int value)
