@@ -22,6 +22,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkRenderer.h"
 
+#include <cassert>
 #include <cmath>
 
 //----------------------------------------------------------------------------
@@ -30,6 +31,7 @@ vtkAbstractObjectFactoryNewMacro(vtkCamera)
 
 vtkCxxSetObjectMacro(vtkCamera, EyeTransformMatrix, vtkMatrix4x4);
 vtkCxxSetObjectMacro(vtkCamera, ModelTransformMatrix, vtkMatrix4x4);
+vtkCxxSetObjectMacro(vtkCamera, ExplicitProjectionTransformMatrix, vtkMatrix4x4)
 
 //-----------------------------------------------------------------------------
 class vtkCameraCallbackCommand : public vtkCommand
@@ -128,6 +130,8 @@ vtkCamera::vtkCamera()
   this->ProjectionTransform = vtkPerspectiveTransform::New();
   this->CameraLightTransform = vtkTransform::New();
   this->ModelViewTransform = vtkTransform::New();
+  this->ExplicitProjectionTransformMatrix = NULL;
+  this->UseExplicitProjectionTransformMatrix = false;
   this->UserTransform = NULL;
   this->UserViewTransform = NULL;
   this->UserViewTransformCallbackCommand = NULL;
@@ -158,6 +162,11 @@ vtkCamera::~vtkCamera()
   this->ProjectionTransform->Delete();
   this->CameraLightTransform->Delete();
   this->ModelViewTransform->Delete();
+  if (this->ExplicitProjectionTransformMatrix)
+  {
+    this->ExplicitProjectionTransformMatrix->UnRegister(this);
+    this->ExplicitProjectionTransformMatrix = NULL;
+  }
   if (this->UserTransform)
   {
     this->UserTransform->UnRegister(this);
@@ -997,6 +1006,14 @@ void vtkCamera::ComputeProjectionTransform(double aspect,
   if ( this->UserTransform )
   {
     this->ProjectionTransform->Concatenate( this->UserTransform->GetMatrix() );
+  }
+
+  if (this->UseExplicitProjectionTransformMatrix)
+  {
+    assert(this->ExplicitProjectionTransformMatrix != NULL);
+    this->ProjectionTransform->Concatenate(
+          this->ExplicitProjectionTransformMatrix);
+    return;
   }
 
   // adjust Z-buffer range

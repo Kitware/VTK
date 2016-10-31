@@ -35,7 +35,6 @@ vtkStandardNewMacro(vtkExternalOpenGLCamera);
 //----------------------------------------------------------------------------
 vtkExternalOpenGLCamera::vtkExternalOpenGLCamera()
 {
-  this->UserProvidedProjectionTransform = false;
   this->UserProvidedViewTransform = false;
 }
 
@@ -226,25 +225,10 @@ void vtkExternalOpenGLCamera::SetProjectionTransformMatrix(
   vtkMatrix4x4* matrix = vtkMatrix4x4::New();
   matrix->DeepCopy(elements);
   matrix->Transpose();
-  this->ProjectionTransform->SetMatrix(matrix);
-  this->UserProvidedProjectionTransform = true;
-  matrix->Delete();
-}
 
-//----------------------------------------------------------------------------
-void vtkExternalOpenGLCamera::ComputeProjectionTransform(double aspect,
-                                                         double nearz,
-                                                         double farz)
-{
-  if (this->UserProvidedProjectionTransform)
-  {
-    // Do not do anything
-    return;
-  }
-  else
-  {
-    this->Superclass::ComputeProjectionTransform(aspect, nearz, farz);
-  }
+  this->SetExplicitProjectionTransformMatrix(matrix);
+  this->SetUseExplicitProjectionTransformMatrix(true);
+  matrix->Delete();
 }
 
 //----------------------------------------------------------------------------

@@ -57,20 +57,11 @@ protected:
 
   /**
    * These methods should only be used within vtkCamera.cxx.
-   * Bypass computation if user provided the projection transform
-   */
-  void ComputeProjectionTransform(double aspect,
-                                  double nearz,
-                                  double farz);
-
-  /**
-   * These methods should only be used within vtkCamera.cxx.
    * Bypass computation if user provided the view transform
    */
   void ComputeViewTransform();
 
 private:
-  bool UserProvidedProjectionTransform;
   bool UserProvidedViewTransform;
 
   vtkExternalOpenGLCamera(const vtkExternalOpenGLCamera&) VTK_DELETE_FUNCTION;
