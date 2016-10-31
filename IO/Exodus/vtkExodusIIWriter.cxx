@@ -49,11 +49,22 @@
 #include <cctype>
 #include <map>
 #include <ctime>
-
-
+#include <sstream>
 
 vtkObjectFactoryNewMacro (vtkExodusIIWriter);
 vtkCxxSetObjectMacro (vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
+
+namespace
+{
+unsigned int GetNumberOfDigits(unsigned int i)
+{
+  if (i<10)
+  {
+    return 1;
+  }
+  return GetNumberOfDigits(i/10)+1;
+}
+}
 
 //----------------------------------------------------------------------------
 
@@ -595,24 +606,25 @@ int vtkExodusIIWriter::CreateNewExodusFile()
   }
   else
   {
-    char *myFileName = new char [VTK_MAXPATH];
-    if (this->CurrentTimeIndex == 0)
+    std::ostringstream myFileName;
+    myFileName << this->FileName << ".";
+    if (this->CurrentTimeIndex != 0)
     {
-      sprintf(myFileName, "%s.%d.%d", this->FileName, this->NumberOfProcesses, this->MyRank);
+      myFileName << "_" << std::setfill('0') << std::setw(6) <<
+        this->CurrentTimeIndex << std::setw(0) << ".";
     }
-    else
-    {
-      sprintf(myFileName, "%s_%06d.%d.%d",
-          this->FileName, this->CurrentTimeIndex, this->NumberOfProcesses, this->MyRank);
-    }
-    this->fid = ex_create(myFileName, EX_CLOBBER, &compWordSize, &IOWordSize);
+    unsigned int numDigits = GetNumberOfDigits(
+      static_cast<unsigned int>(this->NumberOfProcesses-1));
+    myFileName << this->NumberOfProcesses << "." << std::setfill('0')
+               << std::setw(numDigits) << this->MyRank;
+    this->fid = ex_create(myFileName.str().c_str(), EX_CLOBBER,
+                          &compWordSize, &IOWordSize);
     if (fid <= 0)
     {
       vtkErrorMacro (
         << "vtkExodusIIWriter: CreateNewExodusFile can't create "
-        << myFileName);
+        << myFileName.str());
     }
-    delete [] myFileName;
   }
 
   // FileTimeOffset makes the time in the file relative
