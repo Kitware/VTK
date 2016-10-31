@@ -554,16 +554,18 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
       this->NormalMatrixBuffer->Release();
     }
 
-    this->ColorBuffer->Bind();
-    this->ColorBuffer->Upload(colors, vtkOpenGLBufferObject::ArrayBuffer);
-    if (!this->Primitives[PrimitiveTris].VAO->AddAttributeArrayWithDivisor(
-          this->Primitives[PrimitiveTris].Program, this->ColorBuffer,
-          "glyphColor", 0, 4*sizeof(unsigned char), VTK_UNSIGNED_CHAR, 4, true, 1, false))
+    if (this->Primitives[PrimitiveTris].Program->IsAttributeUsed("glyphColor"))
     {
-      vtkErrorMacro(<< "Error setting 'diffuse color' in shader VAO.");
+      this->ColorBuffer->Bind();
+      this->ColorBuffer->Upload(colors, vtkOpenGLBufferObject::ArrayBuffer);
+      if (!this->Primitives[PrimitiveTris].VAO->AddAttributeArrayWithDivisor(
+            this->Primitives[PrimitiveTris].Program, this->ColorBuffer,
+            "glyphColor", 0, 4*sizeof(unsigned char), VTK_UNSIGNED_CHAR, 4, true, 1, false))
+      {
+        vtkErrorMacro(<< "Error setting 'diffuse color' in shader VAO.");
+      }
+      this->ColorBuffer->Release();
     }
-    this->ColorBuffer->Release();
-
     this->InstanceBuffersLoadTime.Modified();
   }
 
