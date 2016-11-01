@@ -312,7 +312,7 @@ void vtkValuePass::BeginPass(vtkRenderer* ren)
   }
 
   // Clear buffers
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
   glClearDepth(1.0);
 #else
   glClearDepthf(1.0f);
@@ -441,7 +441,7 @@ bool vtkValuePass::IsFloatingPointModeSupported(vtkRenderWindow *renWin)
     return false;
   }
 
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
   bool contextSupport = vtkOpenGLRenderWindow::GetContextSupportsOpenGL32();
   if (!contextSupport)
   {
@@ -500,7 +500,7 @@ void vtkValuePass::GetFloatImageData(int const format, int const width,
 
   // Calling pack alignment ensures any window size can be grabbed.
   glPixelStorei(GL_PACK_ALIGNMENT, 1);
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
   glClampColor(GL_CLAMP_READ_COLOR, GL_FALSE);
 #endif
 

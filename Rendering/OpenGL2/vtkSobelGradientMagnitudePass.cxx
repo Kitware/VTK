@@ -123,7 +123,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
 
     vtkOpenGLClearErrorMacro();
 
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
     GLint savedDrawBuffer;
     glGetIntegerv(GL_DRAW_BUFFER,&savedDrawBuffer);
 #endif
@@ -285,7 +285,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
 
       // restore some state.
       this->FrameBufferObject->UnBind();
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
       glDrawBuffer(savedDrawBuffer);
 #endif
       return;
@@ -417,7 +417,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
     if(this->Program2->Program->GetCompiled() != true)
     {
       vtkErrorMacro("Couldn't build the shader program. At this point , it can be an error in a shader or a driver bug.");
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
       glDrawBuffer(savedDrawBuffer);
 #endif
       return;

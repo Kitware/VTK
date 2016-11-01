@@ -514,7 +514,10 @@ void vtkOpenGLRenderWindow::InitializeTextureInternalFormats()
 
   bool haveFloatTextures = false;
   bool haveIntTextures = false;
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 == 1
+  haveFloatTextures = true;
+  haveIntTextures = true;
+#else
   if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
   {
     haveFloatTextures = true;
@@ -526,11 +529,6 @@ void vtkOpenGLRenderWindow::InitializeTextureInternalFormats()
      && glewIsSupported("GL_ARB_texture_rg") != 0);
     haveIntTextures= (glewIsSupported("GL_EXT_texture_integer") != 0);
   }
-#else
-  haveFloatTextures = true;
-#if GL_ES_VERSION_3_0 == 1
-  haveIntTextures = true;
-#endif
 #endif
 
   if (haveIntTextures)
@@ -567,7 +565,7 @@ void vtkOpenGLRenderWindow::InitializeTextureInternalFormats()
 
   // on mesa we may not have float textures even though we think we do
   // this is due to Mesa being iompacted by a patent issue with SGI
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
   if (haveFloatTextures)
   {
     const char *glVersion =
@@ -608,10 +606,8 @@ void vtkOpenGLRenderWindow::GetOpenGLVersion(int &major, int &minor)
 
   if (this->Initialized)
   {
-#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
     glGetIntegerv(GL_MAJOR_VERSION, & glMajorVersion);
     glGetIntegerv(GL_MINOR_VERSION, & glMinorVersion);
-#endif
   }
 
   major = glMajorVersion;
@@ -708,7 +704,6 @@ int vtkOpenGLRenderWindow::GetDepthBufferSize()
   {
     this->MakeCurrent();
     size = 0;
-#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
     if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
     {
       glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
@@ -716,7 +711,6 @@ int vtkOpenGLRenderWindow::GetDepthBufferSize()
         GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &size);
     }
     else
-#endif
     {
       glGetIntegerv( GL_DEPTH_BITS, &size );
     }
@@ -745,7 +739,6 @@ int vtkOpenGLRenderWindow::GetColorBufferSizes(int *rgba)
   if ( this->Mapped)
   {
     this->MakeCurrent();
-#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
     if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
     {
       GLint fboBind = 0;
@@ -796,7 +789,6 @@ int vtkOpenGLRenderWindow::GetColorBufferSizes(int *rgba)
       }
     }
     else
-#endif
     {
       glGetIntegerv( GL_RED_BITS, &size );
       rgba[0] = static_cast<int>(size);
@@ -1940,7 +1932,7 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenBuffers(int width, int height,
   this->HardwareBufferSize[1] = 0;
 
   int glMajorVersion = 2;
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
   glGetIntegerv(GL_MAJOR_VERSION, & glMajorVersion);
   if (glMajorVersion < 3 &&
     !glewIsSupported("GL_EXT_framebuffer_object") &&

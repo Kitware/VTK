@@ -21,25 +21,7 @@
 
 #include "vtk_glew.h"
 
-// Many of the OpenGL features used here are available in ES3, but not ES2.
-// All non-embedded OpenGL versions for this backend should support this class.
-#if !defined(GL_ES_VERSION_2_0) || defined(GL_ES_VERSION_3_0)
-#define GL_SUPPORTED // Not on an embedded system, or ES >= 3.0
-#endif
-
-#ifdef GL_SUPPORTED
 vtkStandardNewMacro(vtkTransformFeedback)
-#else // GL_SUPPORTED
-vtkTransformFeedback* vtkTransformFeedback::New()
-{
-  // We return null on non-supported platforms. Since we only instantiate
-  // this class when an instance of vtkOpenGLGL2PSHelper exists and no valid
-  // implementation of that class exists on embedded systems, this shouldn't
-  // cause problems.
-  vtkGenericWarningMacro("TransformFeedback is unsupported on this platform.");
-  return NULL;
-}
-#endif // GL_SUPPORTED
 
 //------------------------------------------------------------------------------
 void vtkTransformFeedback::PrintSelf(std::ostream &os,
@@ -82,7 +64,6 @@ void vtkTransformFeedback::AddVarying(VaryingRole role,
 void vtkTransformFeedback::SetNumberOfVertices(int drawMode,
                                                size_t inputVerts)
 {
-#ifdef GL_SUPPORTED
   switch (static_cast<GLenum>(drawMode))
   {
     case GL_POINTS:
@@ -118,10 +99,6 @@ void vtkTransformFeedback::SetNumberOfVertices(int drawMode,
   vtkErrorMacro("Unknown draw mode enum value: " << drawMode);
   this->SetNumberOfVertices(0);
   this->SetPrimitiveMode(GL_POINTS);
-#else // GL_SUPPORTED
-  (void)drawMode;
-  (void)inputVerts;
-#endif // GL_SUPPORTED
 }
 
 //------------------------------------------------------------------------------
@@ -133,7 +110,6 @@ size_t vtkTransformFeedback::GetBufferSize() const
 //------------------------------------------------------------------------------
 void vtkTransformFeedback::BindVaryings(vtkShaderProgram *prog)
 {
-#ifdef GL_SUPPORTED
   if (this->Varyings.empty())
   {
     vtkErrorMacro(<<"No capture varyings specified.");
@@ -157,15 +133,11 @@ void vtkTransformFeedback::BindVaryings(vtkShaderProgram *prog)
 
   vtkOpenGLCheckErrorMacro("OpenGL errors detected after "
                            "glTransformFeedbackVaryings.");
-#else // GL_SUPPORTED
-  (void)prog;
-#endif // GL_SUPPORTED
 }
 
 //------------------------------------------------------------------------------
 void vtkTransformFeedback::BindBuffer()
 {
-#ifdef GL_SUPPORTED
   if (!this->VaryingsBound)
   {
     vtkErrorMacro("Varyings not yet bound!");
@@ -185,13 +157,11 @@ void vtkTransformFeedback::BindBuffer()
   glBeginTransformFeedback(static_cast<GLenum>(this->PrimitiveMode));
 
   vtkOpenGLCheckErrorMacro("OpenGL errors detected.");
-#endif // GL_SUPPORTED
 }
 
 //------------------------------------------------------------------------------
 void vtkTransformFeedback::ReadBuffer()
 {
-#ifdef GL_SUPPORTED
   if (this->BufferHandle == 0)
   {
     vtkErrorMacro("BufferHandle not set by BindBuffer().");
@@ -214,20 +184,17 @@ void vtkTransformFeedback::ReadBuffer()
   this->ReleaseGraphicsResources();
 
   vtkOpenGLCheckErrorMacro("OpenGL errors detected.");
-#endif // GL_SUPPORTED
 }
 
 //------------------------------------------------------------------------------
 void vtkTransformFeedback::ReleaseGraphicsResources()
 {
-#ifdef GL_SUPPORTED
   if (this->BufferHandle)
   {
     GLuint tbo = static_cast<GLuint>(this->BufferHandle);
     glDeleteBuffers(1, &tbo);
     this->BufferHandle = 0;
   }
-#endif // GL_SUPPORTED
 }
 
 //------------------------------------------------------------------------------
@@ -245,11 +212,7 @@ vtkTransformFeedback::vtkTransformFeedback()
   : VaryingsBound(false),
     Varyings(),
     NumberOfVertices(0),
-#ifdef GL_SUPPORTED
     BufferMode(GL_INTERLEAVED_ATTRIBS),
-#else // GL_SUPPORTED
-    BufferMode(0),
-#endif // GL_SUPPORTED
     BufferHandle(0),
     PrimitiveMode(GL_POINTS),
     BufferData(NULL)

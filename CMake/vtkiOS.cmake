@@ -10,10 +10,6 @@ file(REMOVE_RECURSE ${PREFIX_DIR})
 file(REMOVE_RECURSE ${BUILD_DIR})
 file(REMOVE_RECURSE ${INSTALL_DIR})
 
-# Options for iOS
-set(OPENGL_ES_VERSION "2.0" CACHE STRING "OpenGL ES version (2.0 or 3.0)")
-set_property(CACHE OPENGL_ES_VERSION PROPERTY STRINGS 2.0 3.0)
-
 set(IOS_SIMULATOR_ARCHITECTURES "i386;x86_64"
     CACHE STRING "iOS Simulator Architectures")
 set(IOS_DEVICE_ARCHITECTURES "arm64;armv7;armv7s"
@@ -99,12 +95,8 @@ option(Module_vtkIOImage "Turn on or off this module" OFF)
 option(Module_vtkIOPLY "Turn on or off this module" OFF)
 option(Module_vtkIOInfovis "Turn on or off this module" OFF)
 option(Module_vtkRenderingFreeType "Turn on or off this module" OFF)
+option(Module_vtkRenderingVolumeOpenGL2 "Include Volume Rendering Support" ON)
 
-
-# add volume rendering option for ES 3.0
-if (OPENGL_ES_VERSION STREQUAL "3.0" AND Module_vtkRenderingOpenGL2)
-  option(Module_vtkRenderingVolumeOpenGL2 "Include Volume Rendering Support" ON)
-endif()
 
 mark_as_advanced(Module_${vtk-module})
 
@@ -113,7 +105,6 @@ set(ios_cmake_flags
   -DBUILD_SHARED_LIBS:BOOL=OFF
   -DBUILD_TESTING:BOOL=OFF
   -DBUILD_EXAMPLES:BOOL=${BUILD_EXAMPLES}
-  -DOPENGL_ES_VERSION:STRING=${OPENGL_ES_VERSION}
   -DVTK_Group_Rendering:BOOL=OFF
   -DVTK_Group_StandAlone:BOOL=OFF
   -DVTK_Group_Imaging:BOOL=OFF

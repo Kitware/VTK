@@ -19,10 +19,6 @@
 #include "vtkObjectFactory.h"
 
 
-#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
-#include "vtkPixelBufferObject.h"
-#endif
-
 #include "vtkNew.h"
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
@@ -32,6 +28,7 @@
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVertexArrayObject.h"
+#include "vtkPixelBufferObject.h"
 #include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
 
@@ -79,7 +76,7 @@ static const char *DepthTextureCompareFunctionAsString[8]=
 };
 
 // Mapping from Wrap values to OpenGL values
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
   //--------------------------------------------------------------------------
   static GLint OpenGLWrap[4]=
   {
@@ -284,7 +281,9 @@ bool vtkTextureObject::IsSupported(vtkOpenGLRenderWindow* vtkNotUsed(win),
       bool requireDepthFloat,
       bool requireTexInt)
 {
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 == 1
+  return true;
+#else
   if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
   {
     return true;
@@ -308,24 +307,18 @@ bool vtkTextureObject::IsSupported(vtkOpenGLRenderWindow* vtkNotUsed(win),
     texInt = (glewIsSupported("GL_EXT_texture_integer") != 0);
   }
 
-#else
-  bool texFloat = true;
-  bool depthFloat = !requireDepthFloat;
-  bool texInt = !requireTexInt;
-#if GL_ES_VERSION_3_0 == 1
-  texFloat = true;
-  depthFloat = true;  // I think this is the case
-  texInt = true;
-#endif
-#endif
-
   return texFloat && depthFloat && texInt;
+#endif
 }
 
 //----------------------------------------------------------------------------
 bool vtkTextureObject::LoadRequiredExtensions(vtkOpenGLRenderWindow *renWin)
 {
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 == 1
+  this->SupportsTextureInteger = true;
+  this->SupportsTextureFloat = true;
+  this->SupportsDepthBufferFloat = true;
+#else
   if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
   {
     this->SupportsTextureInteger = true;
@@ -344,17 +337,6 @@ bool vtkTextureObject::LoadRequiredExtensions(vtkOpenGLRenderWindow *renWin)
     this->SupportsDepthBufferFloat =
       (glewIsSupported("GL_ARB_depth_buffer_float") != 0);
   }
-#else
-  // some of these may have extensions etc for ES 2.0
-  // setting to false right now as I do not know
-  this->SupportsTextureInteger = false;
-  this->SupportsTextureFloat = true;
-  this->SupportsDepthBufferFloat = false;
-#if GL_ES_VERSION_3_0 == 1
-  this->SupportsTextureInteger = true;
-  this->SupportsTextureFloat = true;
-  this->SupportsDepthBufferFloat = true;
-#endif
 #endif
 
   return this->IsSupported(renWin,
@@ -650,7 +632,6 @@ void vtkTextureObject::SendParameters()
         GL_TEXTURE_MAG_FILTER,
         OpenGLMagFilter[this->MagnificationFilter]);
 
-#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
 #if GL_ES_VERSION_3_0 != 1
   glTexParameterfv(this->Target, GL_TEXTURE_BORDER_COLOR, this->BorderColor);
 
@@ -679,7 +660,6 @@ void vtkTextureObject::SendParameters()
         this->Target,
         GL_TEXTURE_COMPARE_FUNC,
         OpenGLDepthTextureCompareFunction[this->DepthTextureCompareFunction]);
-#endif
 
   vtkOpenGLCheckErrorMacro("failed after SendParameters");
   this->SendParametersTime.Modified();
@@ -873,7 +853,7 @@ unsigned int vtkTextureObject::GetDefaultFormat(int vtktype, int numComps,
     return GL_DEPTH_COMPONENT;
   }
 
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
   if(this->SupportsTextureInteger && shaderSupportsTextureInt
      && (vtktype==VTK_SIGNED_CHAR||vtktype==VTK_UNSIGNED_CHAR||
          vtktype==VTK_SHORT||vtktype==VTK_UNSIGNED_SHORT||vtktype==VTK_INT||
@@ -1074,7 +1054,7 @@ unsigned int vtkTextureObject::GetWrapRMode(int vtktype)
 }
 
 // 1D  textures are not supported in ES 2.0 or 3.0
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
 
 //----------------------------------------------------------------------------
 bool vtkTextureObject::Create1D(int numComps,
@@ -1287,8 +1267,6 @@ bool vtkTextureObject::CreateTextureBuffer(unsigned int numValues, int numComps,
 }
 
 #endif // not ES 2.0 or 3.0
-
-#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
 
 //----------------------------------------------------------------------------
 bool vtkTextureObject::Create2D(unsigned int width, unsigned int height,
@@ -1506,7 +1484,7 @@ vtkPixelBufferObject* vtkTextureObject::Download()
   pbo->Bind(vtkPixelBufferObject::PACKED_BUFFER);
   this->Bind();
 
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
   glGetTexImage(this->Target, 0, this->Format, this->Type, BUFFER_OFFSET(0));
 #else
   // you can do something with glReadPixels and binding a texture as a FBO
@@ -1573,8 +1551,6 @@ bool vtkTextureObject::Create3DFromRaw(unsigned int width, unsigned int height,
   return true;
 }
 
-
-#endif
 
 //----------------------------------------------------------------------------
 bool vtkTextureObject::Create2DFromRaw(unsigned int width, unsigned int height,

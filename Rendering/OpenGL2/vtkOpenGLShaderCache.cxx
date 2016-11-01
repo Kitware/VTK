@@ -125,7 +125,10 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
 
   std::string version = "#version 120\n";
   bool needFragDecls = false;
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 == 1
+  version = "#version 300 es\n";
+  needFragDecls = true;
+#else
   int glMajorVersion = 2;
   int glMinorVersion = 0;
   glGetIntegerv(GL_MAJOR_VERSION, & glMajorVersion);
@@ -142,13 +145,6 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
       needFragDecls = true;
     }
   }
-#else
-#if GL_ES_VERSION_3_0 == 1
-  version = "#version 300 es\n";
-  needFragDecls = true;
-#else
-  version = "#version 100\n";
-#endif
 #endif
 
   vtkShaderProgram::Substitute(VSSource,"//VTK::System::Dec",

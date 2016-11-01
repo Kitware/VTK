@@ -137,7 +137,7 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
       this->FrameBufferObject->SetActiveBuffer(0);
       this->FrameBufferObject->SetDepthBufferNeeded(true);
 
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
       GLint savedCurrentDrawBuffer;
       glGetIntegerv(GL_DRAW_BUFFER,&savedCurrentDrawBuffer);
 #endif
@@ -149,7 +149,7 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
       else
       {
         this->FrameBufferObject->UnBind();
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
         glDrawBuffer(static_cast<GLenum>(savedCurrentDrawBuffer));
 #endif
       }
@@ -166,7 +166,7 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
     return;
   }
 
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
   GLint savedDrawBuffer;
   glGetIntegerv(GL_DRAW_BUFFER,&savedDrawBuffer);
 #endif
@@ -277,7 +277,7 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
 
     // restore some state.
     this->FrameBufferObject->UnBind();
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
     glDrawBuffer(static_cast<GLenum>(savedDrawBuffer));
 #endif
     return;
@@ -305,7 +305,7 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
 
   this->FrameBufferObject->UnBind();
 
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
   glDrawBuffer(static_cast<GLenum>(savedDrawBuffer));
 #endif
 

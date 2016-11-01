@@ -155,25 +155,11 @@ if (ANDROID OR APPLE_IOS)
   SET( KWSYS_LFS_WORKS__TRYRUN_OUTPUT ""
      CACHE STRING "Output from TRY_RUN" FORCE)
 
-  # need int version for CPP
-  if (OPENGL_ES_VERSION STREQUAL "2.0")
-    set(OPENGL_ES_VERSION_INT 20)
-  endif()
-  if (OPENGL_ES_VERSION STREQUAL "3.0")
-    set(OPENGL_ES_VERSION_INT 30)
-  endif()
-
   if (APPLE_IOS)
     unset(OPENGL_INCLUDE_DIR CACHE)
-    if (OPENGL_ES_VERSION STREQUAL "2.0")
-      find_path(OPENGL_INCLUDE_DIR ES2/gl.h
-                ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks/OpenGLES.framework/Headers
-                ${_OPENGL_INCLUDE_DIR})
-    elseif (OPENGL_ES_VERSION STREQUAL "3.0")
-      find_path(OPENGL_INCLUDE_DIR ES3/gl.h
-                ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks/OpenGLES.framework/Headers
-                ${_OPENGL_INCLUDE_DIR})
-    endif()
+    find_path(OPENGL_INCLUDE_DIR ES3/gl.h
+              ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks/OpenGLES.framework/Headers
+              ${_OPENGL_INCLUDE_DIR})
     find_library(OPENGL_gl_LIBRARY
        NAMES OpenGLES
        PATHS
@@ -185,13 +171,8 @@ if (ANDROID OR APPLE_IOS)
     unset(OPENGL_gl_LIBRARY CACHE)
     unset(OPENGL_egl_LIBRARY CACHE)
 
-    if (OPENGL_ES_VERSION STREQUAL "2.0")
-      find_path(OPENGL_INCLUDE_DIR GLES2/gl2.h)
-      find_library(OPENGL_gl_LIBRARY NAMES GLESv2)
-    elseif (OPENGL_ES_VERSION STREQUAL "3.0")
-      find_path(OPENGL_INCLUDE_DIR GLES3/gl3.h)
-      find_library(OPENGL_gl_LIBRARY NAMES GLESv3)
-    endif()
+    find_path(OPENGL_INCLUDE_DIR GLES3/gl3.h)
+    find_library(OPENGL_gl_LIBRARY NAMES GLESv3)
     find_library(OPENGL_egl_LIBRARY NAMES EGL)
   endif()
 else()

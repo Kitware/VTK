@@ -98,7 +98,7 @@ bool vtkFrameBufferObject::IsSupported(vtkOpenGLRenderWindow *)
     return true;
   }
 
-#if GL_ES_VERSION_2_0 == 1
+#if GL_ES_VERSION_3_0 == 1
   bool fbo = true;
   bool fboBlit = true;
 #else
@@ -117,7 +117,7 @@ bool vtkFrameBufferObject::LoadRequiredExtensions(vtkOpenGLRenderWindow *)
     return true;
    }
 
-#if GL_ES_VERSION_2_0 == 1
+#if GL_ES_VERSION_3_0 == 1
   bool fbo = true;
   bool fboBlit = true;
 #else
@@ -263,12 +263,6 @@ void vtkFrameBufferObject::SetActiveBuffers(int num, unsigned int indices[])
 //----------------------------------------------------------------------------
 void vtkFrameBufferObject::ActivateBuffers()
 {
-#if GL_ES_VERSION_2_0 == 1 && GL_ES_VERSION_3_0 != 1
-  if (this->ActiveBuffers.size() > 1)
-  {
-    vtkErrorMacro("OpenGL ES2 only supports one FBO destinaiton");
-  }
-#else
   GLint maxbuffers;
   glGetIntegerv(GL_MAX_DRAW_BUFFERS, &maxbuffers);
 
@@ -285,7 +279,6 @@ void vtkFrameBufferObject::ActivateBuffers()
   vtkOpenGLCheckErrorMacro("failed at glDrawBuffers");
 
   delete[] buffers;
-#endif
 }
 
 //----------------------------------------------------------------------------
@@ -344,19 +337,11 @@ void vtkFrameBufferObject::CreateDepthBuffer(
     vtkOpenGLCheckErrorMacro("failed at glBindRenderbuffer");
 
     // Assign storage to this depth buffer.
-#if GL_ES_VERSION_2_0 == 1 && GL_ES_VERSION_3_0 != 1
     glRenderbufferStorage(
           GL_RENDERBUFFER,
           GL_DEPTH_COMPONENT,
           width,
           height);
-#else
-    glRenderbufferStorage(
-          GL_RENDERBUFFER,
-          GL_DEPTH_COMPONENT24,
-          width,
-          height);
-#endif
 
     vtkOpenGLCheckErrorMacro("failed at glRenderbufferStorage");
 
@@ -461,7 +446,7 @@ void vtkFrameBufferObject::CreateColorBuffers(
     if (colorBuffer->GetNumberOfDimensions() == 3)
     {
       assert(this->UserZSlices[cc]<colorBuffer->GetDepth());
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
       glFramebufferTexture3D(
             (GLenum)mode,
             GL_COLOR_ATTACHMENT0 + cc,
@@ -502,13 +487,9 @@ unsigned int vtkFrameBufferObject::GetMaximumNumberOfActiveTargets()
   unsigned int result = 0;
   if (this->Context)
   {
-#if GL_ES_VERSION_2_0 == 1 && GL_ES_VERSION_3_0 != 1
-    result = 1;
-#else
     GLint maxbuffers;
     glGetIntegerv(GL_MAX_DRAW_BUFFERS, &maxbuffers);
     result = static_cast<unsigned int>(maxbuffers);
-#endif
   }
   return result;
 }
@@ -519,13 +500,9 @@ unsigned int vtkFrameBufferObject::GetMaximumNumberOfRenderTargets()
   unsigned int result = 0;
   if (this->Context)
   {
-#if GL_ES_VERSION_2_0 == 1 && GL_ES_VERSION_3_0 != 1
-    result = 1;
-#else
     GLint maxColorAttachments;
     glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS,&maxColorAttachments);
     result = static_cast<unsigned int>(maxColorAttachments);
-#endif
   }
   return result;
 }
@@ -617,9 +594,6 @@ void vtkFrameBufferObject::DisplayFrameBufferAttachments()
     cout<<"Current framebuffer is bind to framebuffer object "
         <<framebufferBinding<<endl;
 
-#if GL_ES_VERSION_2_0 == 1 && GL_ES_VERSION_3_0 != 1
-    this->DisplayFrameBufferAttachment(GL_COLOR_ATTACHMENT0);
-#else
     GLint maxColorAttachments;
     glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS,&maxColorAttachments);
     vtkOpenGLCheckErrorMacro("after getting MAX_COLOR_ATTACHMENTS");
@@ -630,7 +604,6 @@ void vtkFrameBufferObject::DisplayFrameBufferAttachments()
       this->DisplayFrameBufferAttachment(GL_COLOR_ATTACHMENT0+i);
       ++i;
     }
-#endif
     cout<<"depth attachement :"<<endl;
     this->DisplayFrameBufferAttachment(GL_DEPTH_ATTACHMENT);
     cout<<"stencil attachement :"<<endl;
@@ -774,7 +747,6 @@ void vtkFrameBufferObject::DisplayFrameBufferAttachment(
 // Display the draw buffers.
 void vtkFrameBufferObject::DisplayDrawBuffers()
 {
-#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
   GLint ivalue = 1;
   glGetIntegerv(GL_MAX_DRAW_BUFFERS,&ivalue);
 
@@ -805,9 +777,6 @@ void vtkFrameBufferObject::DisplayDrawBuffers()
     cout << endl;
     ++i;
   }
-#else
-  cout << "there is 1 draw buffer." << endl;
-#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -815,13 +784,11 @@ void vtkFrameBufferObject::DisplayDrawBuffers()
 // Display the read buffer.
 void vtkFrameBufferObject::DisplayReadBuffer()
 {
-#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
   GLint ivalue;
   glGetIntegerv(GL_READ_BUFFER,&ivalue);
   cout << "read buffer=";
   this->DisplayBuffer(ivalue);
   cout<<endl;
-#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -836,7 +803,7 @@ void vtkFrameBufferObject::DisplayBuffer(int value)
   }
   else
   {
-#if GL_ES_VERSION_2_0 == 1
+#if GL_ES_VERSION_3_0 == 1
       vtkErrorMacro("Attempt to use bad display destintation");
 #else
     if(value>=GL_AUX0)

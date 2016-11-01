@@ -17,9 +17,6 @@ directory in vtkios ala cd vtkios; mkdir install
 
 * Change the VTK_INSTALL_PREFIX to where you want the framework written.
 
-* If you want OpenGL ES 3.0 support make sure to change the setting of
-* OPENGL_ES_VERSION to 3.0. Volume Rendering requires ES 3.0.
-
 * configure and generate as usual
 
 * Once done build your framework using make or ninja for the build process.

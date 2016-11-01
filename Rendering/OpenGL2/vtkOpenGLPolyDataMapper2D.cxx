@@ -832,7 +832,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     }
 
     // Set the PointSize
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
     glPointSize(actor->GetProperty()->GetPointSize()); // not on ES2
 #endif
     this->Points.IBO->Bind();

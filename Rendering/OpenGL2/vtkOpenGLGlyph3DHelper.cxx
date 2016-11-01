@@ -390,7 +390,6 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
   int representation = actor->GetProperty()->GetRepresentation();
 
 
-#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
   if (actor->GetProperty()->GetRepresentation() == VTK_SURFACE &&
       !selector && GLEW_ARB_instanced_arrays)
   {
@@ -398,7 +397,6 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
       colors, matrices, normalMatrices, pointMTime);
     return;
   }
-#endif
 
   bool primed = false;
 
@@ -407,7 +405,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
     (representation == VTK_WIREFRAME) ? GL_LINES : GL_TRIANGLES;
   if (selecting_points)
   {
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
     glPointSize(6.0);
 #endif
     mode = GL_POINTS;
@@ -511,7 +509,6 @@ void vtkOpenGLGlyph3DHelper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
   }
 }
 
-#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
 void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
     vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
     std::vector<unsigned char> &colors, std::vector<float> &matrices,
@@ -589,7 +586,6 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
   this->Primitives[PrimitiveTris].IBO->Release();
   this->RenderPieceFinish(ren, actor);
 }
-#endif
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLGlyph3DHelper::PrintSelf(ostream& os, vtkIndent indent)

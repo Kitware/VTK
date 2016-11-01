@@ -46,26 +46,18 @@ bool vtkRenderbuffer::IsSupported(vtkRenderWindow *win)
   vtkOpenGLRenderWindow *glwin = dynamic_cast<vtkOpenGLRenderWindow*>(win);
   if (glwin)
   {
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 == 1
+    return true;
+#else
     if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
     {
       return true;
     }
     bool floatTex = (glewIsSupported("GL_ARB_texture_float") != 0);
     bool floatDepth = (glewIsSupported("GL_ARB_depth_buffer_float") != 0);
-#else
-  // some of these may have extensions etc for ES 2.0
-  // setting to false right now as I do not know
-  bool floatTex = false;
-  bool floatDepth = false;
-#if GL_ES_VERSION_3_0 == 1
-  floatTex = true;
-  floatDepth = true;
-#endif
-#endif
-    bool fbo = true;
 
-    supported = floatTex && floatDepth && fbo;
+    supported = floatTex && floatDepth;
+#endif
   }
 
   return supported;
@@ -79,22 +71,16 @@ bool vtkRenderbuffer::LoadRequiredExtensions(vtkRenderWindow *win)
   vtkOpenGLRenderWindow *glwin = dynamic_cast<vtkOpenGLRenderWindow*>(win);
   if (glwin)
   {
-    bool fbo = true;
-
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 == 1
+    bool floatTex = true;
+    this->DepthBufferFloat = true;
+#else
     bool floatTex = (glewIsSupported("GL_ARB_texture_float") != 0);
     this->DepthBufferFloat =
       (glewIsSupported("GL_ARB_depth_buffer_float") != 0);
-#else
-    bool floatTex = false;
-    this->DepthBufferFloat = false;
-#if GL_ES_VERSION_3_0 == 1
-    floatTex = false;
-    this->DepthBufferFloat = true;
-#endif
 #endif
 
-    supported = floatTex && fbo;
+    supported = floatTex;
   }
 
   return supported;
