@@ -50,6 +50,7 @@ class TestTkRenderWindowInteractor(Testing.vtkTest):
         img_file = "TestTkRenderWindowInteractor.png"
         Testing.compareImage(self.rw, Testing.getAbsImagePath(img_file))
         Testing.interact()
+        self.tkrw.destroy()
 
     # These are useful blackbox tests (not dummy ones!)
     def testParse(self):

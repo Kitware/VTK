@@ -26,8 +26,7 @@ class TestTkRenderWidget(Testing.vtkTest):
     ren = vtk.vtkRenderer()
     tkrw = vtkTkRenderWidget(root, width=300, height=300)
     tkrw.pack()
-    rw = tkrw.GetRenderWindow()
-    rw.AddRenderer(ren)
+    tkrw.GetRenderWindow().AddRenderer(ren)
 
     # create an actor and give it cone geometry
     cs = vtk.vtkConeSource()
@@ -42,11 +41,13 @@ class TestTkRenderWidget(Testing.vtkTest):
 
     def testvtkTkRenderWidget(self):
         "Test if vtkTkRenderWidget works."
-        self.rw.Render()
+        self.tkrw.Render()
         self.root.update()
         img_file = "TestTkRenderWidget.png"
-        Testing.compareImage(self.rw, Testing.getAbsImagePath(img_file))
+        Testing.compareImage(self.tkrw.GetRenderWindow(),
+                             Testing.getAbsImagePath(img_file))
         Testing.interact()
+        self.root.destroy()
 
     # Dummy tests to demonstrate how the blackbox tests can be done.
     def testParse(self):

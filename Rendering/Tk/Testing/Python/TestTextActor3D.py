@@ -49,9 +49,8 @@ class TestTextActor3DViewer(Testing.vtkTest):
     Provide a testing framework for for TestTextActor3D.
 
     Note:
-        root, the top-level widget for Tk,
-        tkrw, the vtkTkRenderWidget and
-        renWin, the vtkRenderindow
+        root, the top-level widget for Tk, and
+        tkrw, the vtkTkRenderWidget
         are accessible from any function in this class
         after SetUp() has run.
     '''
@@ -128,12 +127,12 @@ class TestTextActor3DViewer(Testing.vtkTest):
                 tprop.SetOrientation(orientation)
                 tprop.SetOpacity(opacity)
 
-            self.renWin.Render()
+            self.tkrw.Render()
 
         ren = vtk.vtkRenderer()
         ren.SetBackground(0.1, 0.2, 0.4)
-        self.renWin = vtk.vtkRenderWindow()
-        self.renWin.AddRenderer(ren)
+        renWin = vtk.vtkRenderWindow()
+        renWin.AddRenderer(ren)
         #self.renWin.SetSize(600, 600)
 
         self.root = tkinter.Tk()
@@ -143,9 +142,9 @@ class TestTextActor3DViewer(Testing.vtkTest):
 
         # The Tk render widget.
         self.tkrw = vtkTkRenderWidget(
-                        self.root, width=450, height=450, rw=self.renWin)
+                        self.root, width=450, height=450, rw=renWin)
         self.tkrw.BindTkRenderWidget()
-        #self.renWin.GetInteractor().GetInteractorStyle().SetCurrentStyleToTrackballCamera()
+        #renWin.GetInteractor().GetInteractorStyle().SetCurrentStyleToTrackballCamera()
         self.tkrw.pack(side=LEFT, fill=BOTH, expand=YES)
 
         # Base text property
@@ -233,15 +232,16 @@ class TestTextActor3DViewer(Testing.vtkTest):
 
     def DoIt(self):
         self.SetUp()
-        self.renWin.Render()
         self.tkrw.Render()
         self.root.update()
         # If you want to interact and use the sliders etc,
         # uncomment the following line.
         #self.root.mainloop()
         img_file = "TestTextActor3D.png"
-        Testing.compareImage(self.renWin, Testing.getAbsImagePath(img_file))
+        Testing.compareImage(self.tkrw.GetRenderWindow(),
+                             Testing.getAbsImagePath(img_file))
         Testing.interact()
+        self.tkrw.destroy()
 
 if __name__ == '__main__':
     cases = [(TestTextActor3DViewer, 'DoIt')]
