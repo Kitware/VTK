@@ -14,7 +14,10 @@
 #include "vtkOpenGLIndexBufferObject.h"
 #include "vtkObjectFactory.h"
 
+#include "vtkArrayDispatch.h"
+#include "vtkAssume.h"
 #include "vtkCellArray.h"
+#include "vtkDataArrayAccessor.h"
 #include "vtkPoints.h"
 #include "vtkPolygon.h"
 #include "vtkProperty.h"
@@ -36,6 +39,100 @@ vtkOpenGLIndexBufferObject::~vtkOpenGLIndexBufferObject()
 {
 }
 
+namespace
+{
+// A worker functor. The calculation is implemented in the function template
+// for operator().
+struct AppendTrianglesWorker
+{
+  std::vector<unsigned int> *indexArray;
+  vtkCellArray *cells;
+  vtkIdType vOffset;
+
+  // AoS fast path
+  template <typename ValueType>
+  void operator()(vtkAOSDataArrayTemplate<ValueType> *src)
+  {
+    vtkIdType *idPtr = cells->GetPointer();
+    vtkIdType *idEnd = idPtr + cells->GetNumberOfConnectivityEntries();
+
+    ValueType *points = src->Begin();
+    while (idPtr < idEnd)
+    {
+      if (*idPtr >= 3)
+      {
+        vtkIdType id1 = *(idPtr+1);
+        ValueType* p1 = points + id1*3;
+        for (int i = 2; i < *idPtr; i++)
+        {
+          vtkIdType id2 = *(idPtr+i);
+          vtkIdType id3 = *(idPtr+i+1);
+          ValueType* p2 = points + id2*3;
+          ValueType* p3 = points + id3*3;
+          if ((p1[0] != p2[0] || p1[1] != p2[1] || p1[2] != p2[2]) &&
+            (p3[0] != p2[0] || p3[1] != p2[1] || p3[2] != p2[2]) &&
+            (p3[0] != p1[0] || p3[1] != p1[1] || p3[2] != p1[2]))
+          {
+            indexArray->push_back(static_cast<unsigned int>(id1+vOffset));
+            indexArray->push_back(static_cast<unsigned int>(id2+vOffset));
+            indexArray->push_back(static_cast<unsigned int>(id3+vOffset));
+          }
+        }
+      }
+    idPtr += (*idPtr + 1);
+    }
+  }
+
+  // Generic API, on VS13 Rel this is about 80% slower than
+  // the AOS template above.
+  template <typename PointArray>
+  void operator()(PointArray *points)
+  {
+    // This allows the compiler to optimize for the AOS array stride.
+    VTK_ASSUME(points->GetNumberOfComponents() == 3);
+
+    // These allow this single worker function to be used with both
+    // the vtkDataArray 'double' API and the more efficient
+    // vtkGenericDataArray APIs, depending on the template parameters:
+    vtkDataArrayAccessor<PointArray> pt(points);
+
+    vtkIdType *idPtr = cells->GetPointer();
+    vtkIdType *idEnd = idPtr + cells->GetNumberOfConnectivityEntries();
+
+    while (idPtr < idEnd)
+    {
+      if (*idPtr >= 3)
+      {
+        vtkIdType id1 = *(idPtr+1);
+        for (int i = 2; i < *idPtr; i++)
+        {
+          vtkIdType id2 = *(idPtr+i);
+          vtkIdType id3 = *(idPtr+i+1);
+          if (
+            (pt.Get(id1, 0) != pt.Get(id2, 0) ||
+              pt.Get(id1, 1) != pt.Get(id2, 1) ||
+              pt.Get(id1, 2) != pt.Get(id2, 2)) &&
+            (pt.Get(id1, 0) != pt.Get(id3, 0) ||
+              pt.Get(id1, 1) != pt.Get(id3, 1) ||
+              pt.Get(id1, 2) != pt.Get(id3, 2)) &&
+            (pt.Get(id3, 0) != pt.Get(id2, 0) ||
+              pt.Get(id3, 1) != pt.Get(id2, 1) ||
+              pt.Get(id3, 2) != pt.Get(id2, 2)))
+          {
+            indexArray->push_back(static_cast<unsigned int>(id1+vOffset));
+            indexArray->push_back(static_cast<unsigned int>(id2+vOffset));
+            indexArray->push_back(static_cast<unsigned int>(id3+vOffset));
+          }
+        }
+      }
+    idPtr += (*idPtr + 1);
+    }
+  }
+};
+
+} // end anon namespace
+
+
 // used to create an IBO for triangle primatives
 void vtkOpenGLIndexBufferObject::AppendTriangleIndexBuffer(
   std::vector<unsigned int> &indexArray,
@@ -43,9 +140,6 @@ void vtkOpenGLIndexBufferObject::AppendTriangleIndexBuffer(
   vtkPoints *points,
   vtkIdType vOffset)
 {
-  vtkIdType* indices(NULL);
-  vtkIdType npts(0);
-
   if (cells->GetNumberOfConnectivityEntries() >
       cells->GetNumberOfCells()*3)
   {
@@ -62,32 +156,26 @@ void vtkOpenGLIndexBufferObject::AppendTriangleIndexBuffer(
     }
   }
 
-  for (cells->InitTraversal(); cells->GetNextCell(npts, indices); )
-  {
-    // ignore degenerate triangles
-    if (npts < 3)
-    {
-      continue;
-    }
+  // Create our worker functor:
+  AppendTrianglesWorker worker;
+  worker.indexArray = &indexArray;
+  worker.cells = cells;
+  worker.vOffset = vOffset;
 
-    for (int i = 2; i < npts; i++)
+  // Define our dispatcher on float/double
+  typedef vtkArrayDispatch::DispatchByValueType
+    <
+      vtkArrayDispatch::Reals
+    > Dispatcher;
+
+  // Execute the dispatcher:
+  if (!Dispatcher::Execute(points->GetData(), worker))
     {
-      double p1[3];
-      points->GetPoint(indices[0], p1);
-      double p2[3];
-      points->GetPoint(indices[i - 1], p2);
-      double p3[3];
-      points->GetPoint(indices[i], p3);
-      if ((p1[0] != p2[0] || p1[1] != p2[1] || p1[2] != p2[2]) &&
-        (p3[0] != p2[0] || p3[1] != p2[1] || p3[2] != p2[2]) &&
-        (p3[0] != p1[0] || p3[1] != p1[1] || p3[2] != p1[2]))
-      {
-        indexArray.push_back(static_cast<unsigned int>(indices[0]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[i-1]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[i]+vOffset));
-      }
+    // If Execute() fails, it means the dispatch failed due to an
+    // unsupported array type this falls back to using the
+    // vtkDataArray double API:
+    worker(points->GetData());
     }
-  }
 }
 
 // used to create an IBO for triangle primatives
