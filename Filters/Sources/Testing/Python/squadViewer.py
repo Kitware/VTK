@@ -33,9 +33,8 @@ class SuperQuadricViewer(Testing.vtkTest):
     Provide a testing framework for squadViewer.
 
     Note:
-        root, the top-level widget for Tk,
-        tkrw, the vtkTkRenderWidget and
-        renWin, the vtkRenderindow
+        root, the top-level widget for Tk, and
+        tkrw, the vtkTkRenderWidget
         are accessible from any function in this class
         after SetUp() has run.
     '''
@@ -82,7 +81,7 @@ class SuperQuadricViewer(Testing.vtkTest):
         # Create render window
         self.tkrw = vtkTkRenderWidget(self.root, width=550, height=450)
         self.tkrw.BindTkRenderWidget()
-        self.renWin = self.tkrw.GetRenderWindow()
+        renWin = self.tkrw.GetRenderWindow()
 
         # Create parameter sliders
         #
@@ -152,13 +151,13 @@ class SuperQuadricViewer(Testing.vtkTest):
         squad.SetToroidal(toroid.get())
         squad.SetThickness(thicks.get())
         squad.SetScale(1, 1, 1)
-        SetTexture(actor, atext, self.renWin)
+        SetTexture(actor, atext, renWin)
 
         # Create renderer stuff
         #
         ren = vtk.vtkRenderer()
         ren.SetAmbient(1.0, 1.0, 1.0)
-        self.renWin.AddRenderer(ren)
+        renWin.AddRenderer(ren)
 
 
         # Add the actors to the renderer, set the background and size
@@ -172,23 +171,24 @@ class SuperQuadricViewer(Testing.vtkTest):
 
         # Associate the functions with the sliders and check buttons.
         #
-        prs.config(command=partial(SetPhi, squad, self.renWin))
-        trs.config(command=partial(SetTheta, squad, self.renWin))
-        thicks.config(command=partial(SetThickness,squad, self.renWin))
-        torbut.config(command=partial(SetToroid, squad, thicks, self.renWin))
-        texbut.config(command=partial(SetTexture, actor, atext, self.renWin))
+        prs.config(command=partial(SetPhi, squad, self.tkrw))
+        trs.config(command=partial(SetTheta, squad, self.tkrw))
+        thicks.config(command=partial(SetThickness,squad, self.tkrw))
+        torbut.config(command=partial(SetToroid, squad, thicks, self.tkrw))
+        texbut.config(command=partial(SetTexture, actor, atext, self.tkrw))
 
     def DoIt(self):
         self.SetUp()
-        self.renWin.Render()
         self.tkrw.Render()
         self.root.update()
         # If you want to interact and use the sliders etc,
         # uncomment the following line.
         #self.root.mainloop()
         img_file = "squadViewer.png"
-        Testing.compareImage(self.renWin, Testing.getAbsImagePath(img_file))
+        Testing.compareImage(self.tkrw.GetRenderWindow(),
+                             Testing.getAbsImagePath(img_file))
         Testing.interact()
+        self.tkrw.destroy()
 
 if __name__ == '__main__':
     cases = [(SuperQuadricViewer, 'DoIt')]
