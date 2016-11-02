@@ -140,7 +140,7 @@ bool vtkOpenGLProjectedTetrahedraMapper::IsSupported(vtkRenderWindow *rwin)
   this->CanDoFloatingPointFrameBuffer = false;
   if (this->UseFloatingPointFrameBuffer)
   {
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
     if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
     {
       this->CanDoFloatingPointFrameBuffer = true;
@@ -149,7 +149,7 @@ bool vtkOpenGLProjectedTetrahedraMapper::IsSupported(vtkRenderWindow *rwin)
 #endif
 
     this->CanDoFloatingPointFrameBuffer
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
       = (glewIsSupported("GL_EXT_framebuffer_object") != 0)
         && (glewIsSupported("GL_ARB_texture_float") != 0);
 #else

@@ -32,13 +32,11 @@ class vtkOpenGLBufferObject;
 class vtkOpenGLHelper;
 class vtkOpenGLRenderWindow;
 class vtkOpenGLVertexArrayObject;
+class vtkPixelBufferObject;
 class vtkShaderProgram;
 class vtkWindow;
 class vtkGenericOpenGLResourceFreeCallback;
 
-#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
-class vtkPixelBufferObject;
-#endif
 
 class VTKRENDERINGOPENGL2_EXPORT vtkTextureObject : public vtkObject
 {
@@ -60,7 +58,7 @@ public:
 
 // ClampToBorder is not supported in ES 2.0
 // Wrap values.
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
   enum
   {
     ClampToEdge=0,
@@ -248,7 +246,7 @@ public:
                          int numComps, int dataType, void *data[6]);
 
 // 1D  textures are not supported in ES 2.0 or 3.0
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
 
   /**
    * Create a 1D texture using the PBO.
@@ -278,9 +276,6 @@ public:
                           int rawType,
                           void *raw);
 #endif
-
-// PBO's, and 3D textures are not supported in ES 2.0
-#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
 
   /**
    * Create a 2D texture using the PBO.
@@ -326,8 +321,6 @@ public:
                    unsigned int height,
                    int internalFormat,
                    vtkPixelBufferObject *pbo);
-
-#endif
 
   /**
    * Create a 2D depth texture but does not initialize its values.

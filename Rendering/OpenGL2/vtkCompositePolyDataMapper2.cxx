@@ -383,8 +383,8 @@ void vtkCompositeMapperHelper2::DrawIBO(
 
     if (pointSize > 0)
     {
-#if GL_ES_VERSION_2_0 != 1
-      glPointSize(pointSize);
+#if GL_ES_VERSION_3_0 != 1
+      glPointSize(pointSize); // need to use shader value
 #endif
     }
     // First we do the triangles, update the shader, set uniforms, etc.

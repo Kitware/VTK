@@ -659,16 +659,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
     scalarType, noOfComponents,false);
   type = this->VolumeTextureObject->GetDefaultDataType(scalarType);
 
-  bool supportsFloat = false;
-#if GL_ES_VERSION_2_0 != 1
-  if (glewIsSupported("GL_ARB_texture_float") ||
-      vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
-  {
-    supportsFloat = true;
-  }
-#elif GL_ES_VERSION_3_0 == 1
-  supportsFloat = true;
-#endif
+  bool supportsFloat = true;
 
   // scale and bias
   // NP = P*scale + bias
@@ -1213,7 +1204,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
   this->RGBTables->GetTable(component)->Update(
     volumeProperty->GetRGBTransferFunction(component),
     scalarRange,
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
     filterVal,
 #else
     vtkTextureObject::Nearest,
@@ -1280,7 +1271,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
     this->ActualSampleDistance,
     scalarRange,
     volumeProperty->GetScalarOpacityUnitDistance(component),
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
     filterVal,
 #else
     vtkTextureObject::Nearest,
@@ -1339,7 +1330,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
     this->ActualSampleDistance,
     scalarRange,
     volumeProperty->GetScalarOpacityUnitDistance(component),
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
     filterVal,
 #else
     vtkTextureObject::Nearest,
@@ -1454,7 +1445,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CaptureDepthTexture(
                                             4);
   }
 
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
   // currently broken on ES
   this->DepthTextureObject->CopyFromFrameBuffer(this->WindowLowerLeft[0],
                                                 this->WindowLowerLeft[1],
@@ -2148,7 +2139,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
   this->ExtensionsStringStream.str("");
   this->ExtensionsStringStream.clear();
 
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
   // Check for float texture support. This extension became core
   // in 3.0
   if (!glewIsSupported("GL_ARB_texture_float"))
@@ -2157,11 +2148,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
       << " GL_ARB_texture_float is not supported";
     return;
   }
-#else
-#if GL_ES_VERSION_3_0 != 1
-  this->ExtensionsStringStream << "Requires ES version 3.0 or later";
-  return;
-#endif
 #endif
 
   // NOTE: Support for depth sampler texture made into the core since version
@@ -3544,7 +3530,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
     this->Impl->NoiseTextureObject->GetTextureUnit());
 
 // currently broken on ES
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
   this->Impl->DepthTextureObject->Activate();
   prog->SetUniformi("in_depthSampler",
     this->Impl->DepthTextureObject->GetTextureUnit());

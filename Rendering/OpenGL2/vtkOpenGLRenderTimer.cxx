@@ -20,7 +20,7 @@
 #include "vtk_glew.h"
 
 // glQueryCounter unavailable in OpenGL ES:
-#if defined(GL_ES_VERSION_3_0) || defined(GL_ES_VERSION_2_0)
+#if defined(GL_ES_VERSION_3_0)
 #define NO_TIMESTAMP_QUERIES
 #endif
 

@@ -79,7 +79,7 @@ const char *vtkOpenGLStrError(unsigned int code)
       return "Invalid operation";
     case GL_OUT_OF_MEMORY:
       return "Out of memory";
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
     case GL_STACK_OVERFLOW:
       return "Stack overflow";
     case GL_STACK_UNDERFLOW:

@@ -251,7 +251,7 @@ void vtkOpenGLFXAAFilter::CreateGLObjects()
 
   // ES doesn't support GL_RGB8, and OpenGL 3 doesn't support GL_RGB.
   // What a world.
-#if defined(GL_ES_VERSION_3_0) || defined(GL_ES_VERSION_2_0)
+#if defined(GL_ES_VERSION_3_0)
   this->Input->SetInternalFormat(GL_RGB);
 #else // OpenGL ES
   this->Input->SetInternalFormat(GL_RGB8);

@@ -18,6 +18,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkCellArray.h"
 #include "vtkDepthPeelingPass.h"
+#include "vtkDualDepthPeelingPass.h"
 #include "vtkFloatArray.h"
 #include "vtkHardwareSelector.h"
 #include "vtkHiddenLineRemovalPass.h"
@@ -45,10 +46,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTrivialProducer.h"
 #include "vtkUnsignedCharArray.h"
 
-// Dual depth peeling requires GL_MAX blending, which is unavailable on ES2.
-#if GL_ES_VERSION_2_0 != 1
-#include "vtkDualDepthPeelingPass.h"
-#endif
 
 #include <cmath>
 #include <cassert>
@@ -327,12 +324,12 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       // - RG textures (ARB_texture_rg)
       // - MAX blending (not available in ES2, but added in ES3).
       bool dualDepthPeelingSupported = false;
-#if GL_ES_VERSION_2_0 != 1
-      dualDepthPeelingSupported = context->GetContextSupportsOpenGL32() ||
-          (GLEW_ARB_texture_float && GLEW_ARB_texture_rg);
-#elif GL_ES_VERSION_3_0 == 1
+#if GL_ES_VERSION_3_0 == 1
       // ES3 is supported:
       dualDepthPeelingSupported = true;
+#else
+      dualDepthPeelingSupported = context->GetContextSupportsOpenGL32() ||
+          (GLEW_ARB_texture_float && GLEW_ARB_texture_rg);
 #endif
 
       // There's a bug on current mesa master that prevents dual depth peeling
@@ -373,10 +370,8 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
 
       if (dualDepthPeelingSupported)
       {
-#if GL_ES_VERSION_2_0 != 1 // vtkDualDepthPeelingPass is not built on ES2
         vtkDebugMacro("Using dual depth peeling.");
         this->DepthPeelingPass = vtkDualDepthPeelingPass::New();
-#endif
       }
       else
       {
@@ -436,7 +431,7 @@ void vtkOpenGLRenderer::Clear(void)
 
   if (!this->GetPreserveDepthBuffer())
   {
-#if GL_ES_VERSION_2_0 == 1
+#if GL_ES_VERSION_3_0 == 1
     glClearDepthf(static_cast<GLclampf>(1.0));
 #else
     glClearDepth(static_cast<GLclampf>(1.0));

@@ -314,7 +314,7 @@ bool vtkShaderProgram::Link()
   // clear out the list of uniforms used
   this->ClearMaps();
 
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
   // bind the outputs if specified
   if (this->NumberOfOutputs)
   {

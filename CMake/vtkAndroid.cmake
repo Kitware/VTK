@@ -15,9 +15,6 @@ set(PREFIX_DIR ${CMAKE_BINARY_DIR}/CMakeExternals/Prefix)
 set(BUILD_DIR ${CMAKE_BINARY_DIR}/CMakeExternals/Build)
 set(INSTALL_DIR ${CMAKE_BINARY_DIR}/CMakeExternals/Install)
 
-set(OPENGL_ES_VERSION "2.0" CACHE STRING "OpenGL ES version (2.0 or 3.0)")
-set_property(CACHE OPENGL_ES_VERSION PROPERTY STRINGS 2.0 3.0)
-
 # Android options
 # Android options
 if (DEFINED ENV{ANDROID_NDK})
@@ -90,7 +87,6 @@ set(android_cmake_flags
   -DBUILD_TESTING:BOOL=OFF
   -DBUILD_EXAMPLES:BOOL=${BUILD_EXAMPLES}
   -DVTK_RENDERING_BACKEND:STRING=OpenGL2
-  -DOPENGL_ES_VERSION:STRING=${OPENGL_ES_VERSION}
   -DVTK_Group_Rendering:BOOL=OFF
   -DVTK_Group_StandAlone:BOOL=OFF
   -DVTK_Group_Imaging:BOOL=OFF
@@ -115,14 +111,8 @@ set(android_cmake_flags
   -DModule_vtkRenderingFreeType:BOOL=ON
   -DModule_vtkTestingCore:BOOL=ON
   -DModule_vtkTestingRendering:BOOL=ON
+  -DModule_vtkRenderingVolumeOpenGL2:BOOL=ON
 )
-
-# add volume rendering for ES 3.0
-if (OPENGL_ES_VERSION STREQUAL "3.0")
-  set(android_cmake_flags ${android_cmake_flags}
-    -DModule_vtkRenderingVolumeOpenGL2:BOOL=ON
-    )
-endif()
 
 macro(crosscompile target api abi out_build_dir)
   set(_ANDROID_API "${api}")

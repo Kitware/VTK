@@ -602,7 +602,7 @@ bool vtkEDLShading::EDLCompose(const vtkRenderState *,
   //
   // Prepare blitting
   glClearColor(1., 1., 1., 1.);
-#if GL_ES_VERSION_2_0 == 1
+#if GL_ES_VERSION_3_0 == 1
   glClearDepthf(static_cast<GLclampf>(1.0));
 #else
   glClearDepth(static_cast<GLclampf>(1.0));
@@ -652,7 +652,7 @@ void vtkEDLShading::Render(const vtkRenderState *s)
 
   if (this->DelegatePass != 0)
   {
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
     GLint savedCurrentDrawBuffer;
     glGetIntegerv(GL_DRAW_BUFFER,&savedCurrentDrawBuffer);
 #endif
@@ -717,7 +717,7 @@ void vtkEDLShading::Render(const vtkRenderState *s)
 #if EDL_LOW_RESOLUTION_ON
     if(! this->EDLShadeLow(s2, renWin) )
     {
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
       glDrawBuffer(static_cast<GLenum>(savedCurrentDrawBuffer));
 #endif
     }
@@ -735,7 +735,7 @@ void vtkEDLShading::Render(const vtkRenderState *s)
     {
       vtkFrameBufferObject::SafeDownCast(s->GetFrameBuffer())->Bind();
     }
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
     glDrawBuffer(static_cast<GLenum>(savedCurrentDrawBuffer));
 #endif
 

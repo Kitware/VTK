@@ -89,7 +89,7 @@ public:
   {
     if (this->MultisampleSupport)
     {
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
       if (mode)
       {
         glEnable(GL_MULTISAMPLE);
@@ -106,7 +106,7 @@ public:
   // Check if multisample is enabled.
   bool QueryMultisampling()
   {
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_3_0 != 1
     if (this->MultisampleSupport && glIsEnabled(GL_MULTISAMPLE))
     {
       return true;

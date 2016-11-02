@@ -493,7 +493,7 @@ protected:
   char *GeometryShaderCode;
   unsigned int TimerQuery;
 
-#if GL_ES_VERSION_2_0 != 1 && GL_ES_VERSION_3_0 != 1
+#if GL_ES_VERSION_3_0 != 1
   vtkSmartPointer<vtkValuePassHelper> ValuePassHelper;
 #endif
 
