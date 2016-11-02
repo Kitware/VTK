@@ -107,7 +107,7 @@ void Revolve<VTK_VERTEX>(vtkIdList* pointIds, vtkIdType n2DPoints,
     newPtIds[1] = (pointIds->GetId(0) +
                    ((i+1)%(resolution + partialSweep))*n2DPoints);
     newCellId = connectivity->InsertNextCell(2, newPtIds);
-    locations->InsertNextValue(connectivity->GetTraversalLocation());
+    locations->InsertNextValue(connectivity->GetInsertLocation(0));
     types->InsertNextValue(VTK_LINE);
     outCd->CopyData(inCd, cellId, newCellId);
     newPtIds[0] = newPtIds[1];
@@ -156,7 +156,7 @@ void Revolve<VTK_LINE>(vtkIdList* pointIds, vtkIdType n2DPoints, int resolution,
         pointIds->GetId(j) + ((i+1)%(resolution + partialSweep))*n2DPoints;
     }
     newCellId = connectivity->InsertNextCell(2*nPoints, newPtIds);
-    locations->InsertNextValue(connectivity->GetTraversalLocation());
+    locations->InsertNextValue(connectivity->GetInsertLocation(0));
     types->InsertNextValue(VTK_QUAD);
     outCd->CopyData(inCd, cellId, newCellId);
     for (vtkIdType j=0;j<nPoints;j++)
@@ -212,7 +212,7 @@ void Revolve<VTK_TRIANGLE>(vtkIdList* pointIds, vtkIdType n2DPoints,
         pointIds->GetId(j) + ((i+1)%(resolution + partialSweep))*n2DPoints;
     }
     newCellId = connectivity->InsertNextCell(2*nPoints, newPtIds);
-    locations->InsertNextValue(connectivity->GetTraversalLocation());
+    locations->InsertNextValue(connectivity->GetInsertLocation(0));
     types->InsertNextValue(VTK_WEDGE);
     outCd->CopyData(inCd, cellId, newCellId);
     for (vtkIdType j=0;j<nPoints;j++)
@@ -268,7 +268,7 @@ void Revolve<VTK_QUAD>(vtkIdList* pointIds, vtkIdType n2DPoints, int resolution,
         pointIds->GetId(j) + ((i+1)%(resolution + partialSweep))*n2DPoints;
     }
     newCellId = connectivity->InsertNextCell(2*nPoints, newPtIds);
-    locations->InsertNextValue(connectivity->GetTraversalLocation());
+    locations->InsertNextValue(connectivity->GetInsertLocation(0));
     types->InsertNextValue(VTK_HEXAHEDRON);
     outCd->CopyData(inCd, cellId, newCellId);
     for (vtkIdType j=0; j<nPoints; j++)
@@ -302,7 +302,7 @@ void Revolve<VTK_PIXEL>(vtkIdList* pointIds, vtkIdType n2DPoints,
         pointIds->GetId(j) + ((i+1)%(resolution + partialSweep))*n2DPoints;
     }
     newCellId = connectivity->InsertNextCell(2*nPoints, newPtIds);
-    locations->InsertNextValue(connectivity->GetTraversalLocation());
+    locations->InsertNextValue(connectivity->GetInsertLocation(0));
     types->InsertNextValue(VTK_HEXAHEDRON);
     outCd->CopyData(inCd, cellId, newCellId);
     for (vtkIdType j=0; j<nPoints; j++)
@@ -367,7 +367,7 @@ void Revolve<VTK_POLYGON>(vtkIdList* pointIds, vtkIdType n2DPoints,
       newFacePtIds[j+2][3] = newFacePtIds[1][nPoly-1-j];
     }
     newCellId = connectivity->InsertNextCell(7*nPoly+3, &newPtIds[0]);
-    locations->InsertNextValue(connectivity->GetTraversalLocation());
+    locations->InsertNextValue(connectivity->GetInsertLocation(0));
     types->InsertNextValue(VTK_POLYHEDRON);
     outCd->CopyData(inCd, cellId, newCellId);
     for (vtkIdType j=0; j<nPoly; j++)

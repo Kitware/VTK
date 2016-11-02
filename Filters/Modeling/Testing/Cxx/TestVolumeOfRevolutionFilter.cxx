@@ -41,6 +41,9 @@
 #include <vtkPolygon.h>
 #include <vtkTriangleStrip.h>
 
+#include <vtkCellIterator.h>
+#include <vtkUnstructuredGrid.h>
+
 #include <vtkCharArray.h>
 #include <vtkIntArray.h>
 #include <vtkDataArray.h>
@@ -243,6 +246,32 @@ int TestVolumeOfRevolutionFilter( int argc, char * argv [] )
   revolve->SetAxisPosition(position);
   revolve->SetAxisDirection(direction);
   revolve->SetInputData(pd);
+  revolve->Update();
+
+  // test that the auxiliary arrays in vtkUnstructuredGrid output are correct
+  {
+    vtkUnstructuredGrid* ug = revolve->GetOutput();
+    vtkCellIterator *it = ug->NewCellIterator();
+    for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
+    {
+      vtkIdType npts, *ptIds;
+      ug->GetCellPoints(it->GetCellId(), npts, ptIds);
+      vtkIdType numberOfPoints = it->GetNumberOfPoints();
+      if (npts != numberOfPoints)
+      {
+        return 1;
+      }
+      vtkIdList *pointIds = it->GetPointIds();
+      for (vtkIdType i=0;i<numberOfPoints;i++)
+      {
+        if (ptIds[i] != pointIds->GetId(i))
+        {
+          return 1;
+        }
+      }
+    }
+    it->Delete();
+  }
 
   vtkNew<vtkDataSetSurfaceFilter> surfaceFilter;
   surfaceFilter->SetInputConnection(revolve->GetOutputPort());
