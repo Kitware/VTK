@@ -73,6 +73,7 @@ set(Module_SRCS
   vtkSplitByCellScalarFilter.cxx
   vtkSplitField.cxx
   vtkStructuredGridClip.cxx
+  vtkSubdivisionFilter.cxx
   vtkSubPixelPositionEdgels.cxx
   vtkTableBasedClipDataSet.cxx
   vtkTableToPolyData.cxx
@@ -121,6 +122,7 @@ set_source_files_properties(
   vtkDicer
   vtkGraphWeightFilter
   vtkInterpolatingSubdivisionFilter
+  vtkSubdivisionFilter
   ABSTRACT
   )
 

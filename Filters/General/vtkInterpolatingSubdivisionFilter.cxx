@@ -26,14 +26,19 @@
 // Construct object with number of subdivisions set to 1.
 vtkInterpolatingSubdivisionFilter::vtkInterpolatingSubdivisionFilter()
 {
-  this->NumberOfSubdivisions = 1;
 }
 
 int vtkInterpolatingSubdivisionFilter::RequestData(
-  vtkInformation *vtkNotUsed(request),
+  vtkInformation *request,
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
+  if (!this->Superclass::RequestData(request, inputVector,
+                                     outputVector))
+  {
+    return 0;
+  }
+
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
@@ -44,7 +49,7 @@ int vtkInterpolatingSubdivisionFilter::RequestData(
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkIdType numPts, numCells;
+  vtkIdType numCells;
   int level;
   vtkPoints *outputPts;
   vtkCellArray *outputPolys;
@@ -52,14 +57,6 @@ int vtkInterpolatingSubdivisionFilter::RequestData(
   vtkCellData *outputCD;
   vtkIntArray *edgeData;
 
-  numPts=input->GetNumberOfPoints();
-  numCells=input->GetNumberOfCells();
-
-  if (numPts < 1 || numCells < 1)
-  {
-    vtkDebugMacro(<<"No data to interpolate!");
-    return 1;
-  }
 
   //
   // Initialize and check input
@@ -69,32 +66,6 @@ int vtkInterpolatingSubdivisionFilter::RequestData(
   inputDS->CopyStructure (input);
   inputDS->GetPointData()->PassData(input->GetPointData());
   inputDS->GetCellData()->PassData(input->GetCellData());
-
-  // check for triangles in input; if none, stop execution
-  inputDS->BuildLinks();
-  vtkCellArray *polys = inputDS->GetPolys();
-  int hasTris = 0;
-  vtkIdType numCellPts = 0, *pts = 0;
-  polys->InitTraversal();
-
-  while(polys->GetNextCell(numCellPts, pts))
-  {
-    if (numCellPts == 3)
-    {
-      if (inputDS->IsTriangle(pts[0], pts[1], pts[2]))
-      {
-        hasTris = 1;
-        break;
-      }
-    }
-  }
-
-  if (!hasTris)
-  {
-    vtkWarningMacro( << this->GetClassName() << " only operates on triangles, but this data set has no triangles to operate on.");
-    inputDS->Delete();
-    return 1;
-  }
 
   for (level = 0; level < this->NumberOfSubdivisions; level++)
   {
@@ -163,6 +134,7 @@ int vtkInterpolatingSubdivisionFilter::FindEdge (vtkPolyData *mesh,
                                                  vtkIdType p1, vtkIdType p2,
                                                  vtkIntArray *edgeData,
                                                  vtkIdList *cellIds)
+
 {
   int edgeId = 0;
   int currentCellId = 0;
@@ -277,8 +249,6 @@ void vtkInterpolatingSubdivisionFilter::GenerateSubdivisionCells (vtkPolyData *i
 void vtkInterpolatingSubdivisionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
-  os << indent << "Number of subdivisions: " << this->NumberOfSubdivisions << endl;
 }
 
 

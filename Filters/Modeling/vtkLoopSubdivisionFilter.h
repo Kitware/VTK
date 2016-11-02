@@ -69,12 +69,10 @@ protected:
   vtkLoopSubdivisionFilter () {}
   ~vtkLoopSubdivisionFilter () {}
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-
   int GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData,
                                  vtkPoints *outputPts,
                                  vtkPointData *outputPD);
-  void GenerateEvenStencil (vtkIdType p1, vtkPolyData *polys,
+  int  GenerateEvenStencil (vtkIdType p1, vtkPolyData *polys,
                             vtkIdList *stencilIds, double *weights);
   void GenerateOddStencil (vtkIdType p1, vtkIdType p2, vtkPolyData *polys,
                            vtkIdList *stencilIds, double *weights);

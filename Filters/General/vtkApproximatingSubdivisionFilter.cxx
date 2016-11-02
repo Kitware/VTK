@@ -30,14 +30,19 @@
 // Construct object with number of subdivisions set to 1.
 vtkApproximatingSubdivisionFilter::vtkApproximatingSubdivisionFilter()
 {
-  this->NumberOfSubdivisions = 1;
 }
 
 int vtkApproximatingSubdivisionFilter::RequestData(
-  vtkInformation *vtkNotUsed(request),
+  vtkInformation *request,
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
+  if (!this->Superclass::RequestData(request, inputVector,
+                                     outputVector))
+  {
+    return 0;
+  }
+
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
@@ -60,12 +65,6 @@ int vtkApproximatingSubdivisionFilter::RequestData(
   vtkDebugMacro(<< "Generating subdivision surface using approximating scheme");
   numPts=input->GetNumberOfPoints();
   numCells=input->GetNumberOfCells();
-
-  if (numPts < 1 || numCells < 1)
-  {
-    vtkErrorMacro(<<"No data to approximate!");
-    return 1;
-  }
 
   //
   // Initialize and check input
@@ -265,9 +264,4 @@ void vtkApproximatingSubdivisionFilter::GenerateSubdivisionCells (
 void vtkApproximatingSubdivisionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
-  os << indent << "Number of subdivisions: "
-     << this->NumberOfSubdivisions << endl;
 }
-
-

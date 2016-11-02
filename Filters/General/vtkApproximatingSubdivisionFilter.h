@@ -28,7 +28,7 @@
 #define vtkApproximatingSubdivisionFilter_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
-#include "vtkPolyDataAlgorithm.h"
+#include "vtkSubdivisionFilter.h"
 
 class vtkCellArray;
 class vtkCellData;
@@ -37,19 +37,11 @@ class vtkIntArray;
 class vtkPoints;
 class vtkPointData;
 
-class VTKFILTERSGENERAL_EXPORT vtkApproximatingSubdivisionFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkApproximatingSubdivisionFilter : public vtkSubdivisionFilter
 {
 public:
-  vtkTypeMacro(vtkApproximatingSubdivisionFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkApproximatingSubdivisionFilter, vtkSubdivisionFilter);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
-
-  //@{
-  /**
-   * Set/get the number of subdivisions.
-   */
-  vtkSetMacro(NumberOfSubdivisions,int);
-  vtkGetMacro(NumberOfSubdivisions,int);
-  //@}
 
 protected:
   vtkApproximatingSubdivisionFilter();
@@ -67,7 +59,6 @@ protected:
                 vtkIdType p2, vtkIntArray *edgeData, vtkIdList *cellIds);
   vtkIdType InterpolatePosition (vtkPoints *inputPts, vtkPoints *outputPts,
                                  vtkIdList *stencil, double *weights);
-  int NumberOfSubdivisions;
 private:
   vtkApproximatingSubdivisionFilter(const vtkApproximatingSubdivisionFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkApproximatingSubdivisionFilter&) VTK_DELETE_FUNCTION;
