@@ -18,6 +18,7 @@
 #include "vtkMath.h"
 #include "vtkCell.h"
 #include "vtkCellArray.h"
+#include "vtkCellIterator.h"
 #include "vtkEdgeTable.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
@@ -345,29 +346,26 @@ int vtkLoopSubdivisionFilter::RequestData(
 
   vtkPolyData *input = vtkPolyData::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkCellArray *polys = input->GetPolys();
-  int hasTris = 0;
-  vtkIdType numPts = 0, *pts = 0;
 
-  input->BuildLinks();
-
-  polys->InitTraversal();
-  while (polys->GetNextCell(numPts, pts))
+  // Superclass checks for empty cell array, so let's just make sure that the
+  // cells present, if any, are triangles.
+  bool hasOnlyTris = true;
+  vtkCellIterator *it = input->NewCellIterator();
+  for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
   {
-    if (numPts == 3)
+    if (it->GetCellType() != VTK_TRIANGLE)
     {
-      if (input->IsTriangle(pts[0], pts[1], pts[2]))
-      {
-        hasTris = 1;
-        break;
-      }
+      hasOnlyTris = false;
+      break;
     }
   }
+  it->Delete();
 
-  if (!hasTris)
+  if (!hasOnlyTris)
   {
-    vtkWarningMacro("vtkLoopSubdivisionFilter only operates on triangles, but this data set has no triangles to operate on.")
-    return 0;
+    vtkErrorMacro("vtkLoopSubdivisionFilter only operates on triangles, but "
+                  "this data set has other cell types present.")
+    return 1;
   }
 
   return this->Superclass::RequestData(request, inputVector, outputVector);
