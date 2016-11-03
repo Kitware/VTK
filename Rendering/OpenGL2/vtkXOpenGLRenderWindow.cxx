@@ -542,18 +542,20 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
     if (!this->Internal->FBConfig)
     {
       int fbcount = 0;
-      GLXFBConfig* fbc =
-        glXGetFBConfigs(this->DisplayId, matcher.screen, &fbcount);
-      int i;
-      for (i=0; i<fbcount; ++i)
+      GLXFBConfig* fbc = glXGetFBConfigs(this->DisplayId, matcher.screen, &fbcount);
+      if ( fbc )
       {
-        XVisualInfo *vi = glXGetVisualFromFBConfig( this->DisplayId, fbc[i] );
-        if ( vi && vi->visualid == matcher.visualid)
+        int i;
+        for (i=0; i<fbcount; ++i)
         {
-          this->Internal->FBConfig = fbc[i];
+          XVisualInfo *vi = glXGetVisualFromFBConfig( this->DisplayId, fbc[i] );
+          if ( vi && vi->visualid == matcher.visualid)
+          {
+            this->Internal->FBConfig = fbc[i];
+          }
         }
+        XFree(fbc);
       }
-      XFree(fbc);
     }
 
   }
