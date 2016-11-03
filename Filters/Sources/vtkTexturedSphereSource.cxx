@@ -102,7 +102,7 @@ int vtkTexturedSphereSource::RequestData(
   for (i=0; i <= this->ThetaResolution; i++)
   {
     theta = i * deltaTheta;
-    tc[0] = 2.0 * theta/vtkMath::Pi();
+    tc[0] = theta/(2.0 * vtkMath::Pi());
     for (j=0; j <= this->PhiResolution; j++)
     {
       phi = j * deltaPhi;
