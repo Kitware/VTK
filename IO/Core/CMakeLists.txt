@@ -11,6 +11,7 @@ SET(Module_SRCS
   vtkGlobFileNames.cxx
   vtkInputStream.cxx
   vtkJavaScriptDataWriter.cxx
+  vtkLZ4DataCompressor.cxx
   vtkOutputStream.cxx
   vtkSortFileNames.cxx
   vtkTextCodec.cxx

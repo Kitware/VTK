@@ -14,9 +14,9 @@
 =========================================================================*/
 #include "vtkXMLWriter.h"
 
+#include "vtkAOSDataArrayTemplate.h"
 #include "vtkArrayDispatch.h"
 #include "vtkArrayIteratorIncludes.h"
-#include "vtkAOSDataArrayTemplate.h"
 #include "vtkBase64OutputStream.h"
 #include "vtkByteSwap.h"
 #include "vtkCellData.h"
@@ -36,6 +36,7 @@
 #include "vtkInformationStringVectorKey.h"
 #include "vtkInformationUnsignedLongKey.h"
 #include "vtkInformationVector.h"
+#include "vtkLZ4DataCompressor.h"
 #include "vtkNew.h"
 #include "vtkOutputStream.h"
 #include "vtkPointData.h"
@@ -468,22 +469,31 @@ void vtkXMLWriter::SetCompressorType(int compressorType)
     if (this->Compressor)
     {
       this->Compressor->Delete();
-      this->Compressor = 0;
+      this->Compressor = NULL;
       this->Modified();
     }
-    return;
   }
-
-  if (compressorType == ZLIB)
+  else if (compressorType == ZLIB)
   {
     if (this->Compressor && !this->Compressor->IsTypeOf("vtkZLibDataCompressor"))
     {
       this->Compressor->Delete();
     }
-
     this->Compressor = vtkZLibDataCompressor::New();
     this->Modified();
-    return;
+  }
+  else if (compressorType == LZ4)
+  {
+    if (this->Compressor &&
+        !this->Compressor->IsTypeOf("vtkLZ4DataCompressor")) {
+      this->Compressor->Delete();
+    }
+    this->Compressor = vtkLZ4DataCompressor::New();
+    this->Modified();
+  }
+  else
+  {
+    vtkWarningMacro("Invalid compressorType:" << compressorType);
   }
 }
 

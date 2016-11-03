@@ -12,16 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME Test of vtkZLibDataCompressor
+// .NAME Test of vtkLZ4DataCompressor
 // .SECTION Description
 //
 
-#include "vtkZLibDataCompressor.h"
+#include "vtkLZ4DataCompressor.h"
 #include "vtkOutputWindow.h"
 #include "vtkObjectFactory.h"
 
 
-int TestCompress(int argc, char *argv[])
+int TestCompressLZ4(int argc, char *argv[])
 {
   int res = 1;
   const unsigned int start_size = 100024;
@@ -32,7 +32,7 @@ int TestCompress(int argc, char *argv[])
   size_t nlen;
   size_t rlen;
 
-  vtkZLibDataCompressor* compressor = vtkZLibDataCompressor::New();
+  vtkLZ4DataCompressor* compressor = vtkLZ4DataCompressor::New();
   for ( cc = 0; cc < start_size; cc ++ )
   {
     buffer[cc] = static_cast<unsigned char>(cc % sizeof(unsigned char));
