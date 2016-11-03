@@ -23,7 +23,10 @@
 #include "vtkTransformFeedback.h"
 #include "vtkTypeTraits.h"
 
-# include <sstream>
+#include <cassert>
+#include <iostream>
+#include <sstream>
+#include <vtksys/SystemTools.hxx>
 
 namespace {
 
@@ -87,6 +90,8 @@ vtkShaderProgram::vtkShaderProgram()
   this->GeometryShaderHandle = 0;
   this->Linked = false;
   this->Bound = false;
+
+  this->FileNamePrefixForDebugging = NULL;
 }
 
 vtkShaderProgram::~vtkShaderProgram()
@@ -112,6 +117,7 @@ vtkShaderProgram::~vtkShaderProgram()
     this->TransformFeedback->Delete();
     this->TransformFeedback = NULL;
   }
+  this->SetFileNamePrefixForDebugging(NULL);
 }
 
 // Process the string, and return a version with replacements.
@@ -352,6 +358,29 @@ bool vtkShaderProgram::Link()
 
 bool vtkShaderProgram::Bind()
 {
+  if (this->FileNamePrefixForDebugging != NULL && this->FileNamePrefixForDebugging[0] != 0)
+  {
+    const char* exts[3] = { "VS.glsl", "FS.glsl", "GS.glsl" };
+    vtkShader* shaders[3] = { this->VertexShader, this->FragmentShader, this->GeometryShader };
+    for (int cc = 0; cc < 3; cc++)
+    {
+      std::string fname = this->FileNamePrefixForDebugging;
+      fname += exts[cc];
+      if (vtksys::SystemTools::FileExists(fname))
+      {
+        std::ifstream ifp(fname.c_str());
+        assert(ifp);
+        std::string source((std::istreambuf_iterator<char>(ifp)), std::istreambuf_iterator<char>());
+        shaders[cc]->SetSource(source);
+      }
+      else
+      {
+        std::ofstream ofp(fname.c_str());
+        ofp << shaders[cc]->GetSource().c_str();
+      }
+    }
+    this->CompileShader();
+  }
   if (!this->Linked && !this->Link())
   {
     return false;
@@ -880,4 +909,6 @@ bool vtkShaderProgram::IsAttributeUsed(const char *cname)
 void vtkShaderProgram::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "FileNamePrefixForDebugging: "
+     << (this->FileNamePrefixForDebugging ? this->FileNamePrefixForDebugging : "(null)") << endl;
 }
