@@ -5,6 +5,7 @@
   * [kwiml](../Utilities/KWIML/update.sh)
   * [kwsys](../Utilities/KWSys/update.sh)
   * [libproj4](libproj4/update.sh)
+  * [lz4](lz4/update.sh)
   * [metaio](../Utilities/MetaIO/update.sh)
   * [png](png/update.sh)
   * [tiff](tiff/update.sh)
