@@ -50,7 +50,7 @@ vtkGPUVolumeRayCastMapper::vtkGPUVolumeRayCastMapper()
   this->RenderToImage              = 0;
   this->DepthImageScalarType       = VTK_FLOAT;
   this->ClampDepthToBackface       = 0;
-  this->UseJittering               = 1;
+  this->UseJittering               = 0;
   this->UseDepthPass               = 0;
   this->DepthPassContourValues     = NULL;
   this->SampleDistance             = 1.0;
