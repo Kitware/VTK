@@ -137,7 +137,7 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
                                                      callDataTypeLiteral);
 
   PyObject *arglist = NULL;
-  if (callDataTypeObj)
+  if (callData && callDataTypeObj)
   {
     if (PyInt_Check(callDataTypeObj))
     {
