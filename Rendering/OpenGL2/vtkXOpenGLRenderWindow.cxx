@@ -204,7 +204,7 @@ GLXFBConfig vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
   int tmp;
   GLXFBConfig* fb = glXChooseFBConfig(DisplayId, XDefaultScreen(DisplayId),
                                       attributes, &tmp);
-  if (tmp > 0)
+  if (fb && tmp > 0)
   {
     GLXFBConfig result = fb[0];
     XFree(fb);
@@ -495,6 +495,11 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
   if (!this->WindowId)
   {
     v = this->GetDesiredVisualInfo();
+    if (!v)
+    {
+      vtkErrorMacro(<< "Could not find a decent visual\n");
+      abort();
+    }
     this->ColorMap = XCreateColormap(this->DisplayId,
                                      XRootWindow(this->DisplayId,v->screen),
                                      v->visual, AllocNone);
@@ -537,18 +542,20 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
     if (!this->Internal->FBConfig)
     {
       int fbcount = 0;
-      GLXFBConfig* fbc =
-        glXGetFBConfigs(this->DisplayId, matcher.screen, &fbcount);
-      int i;
-      for (i=0; i<fbcount; ++i)
+      GLXFBConfig* fbc = glXGetFBConfigs(this->DisplayId, matcher.screen, &fbcount);
+      if ( fbc )
       {
-        XVisualInfo *vi = glXGetVisualFromFBConfig( this->DisplayId, fbc[i] );
-        if ( vi && vi->visualid == matcher.visualid)
+        int i;
+        for (i=0; i<fbcount; ++i)
         {
-          this->Internal->FBConfig = fbc[i];
+          XVisualInfo *vi = glXGetVisualFromFBConfig( this->DisplayId, fbc[i] );
+          if ( vi && vi->visualid == matcher.visualid)
+          {
+            this->Internal->FBConfig = fbc[i];
+          }
         }
+        XFree(fbc);
       }
-      XFree(fbc);
     }
 
   }
