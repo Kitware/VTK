@@ -204,7 +204,7 @@ GLXFBConfig vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
   int tmp;
   GLXFBConfig* fb = glXChooseFBConfig(DisplayId, XDefaultScreen(DisplayId),
                                       attributes, &tmp);
-  if (tmp > 0)
+  if (fb && tmp > 0)
   {
     GLXFBConfig result = fb[0];
     XFree(fb);
@@ -495,6 +495,11 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
   if (!this->WindowId)
   {
     v = this->GetDesiredVisualInfo();
+    if (!v)
+    {
+      vtkErrorMacro(<< "Could not find a decent visual\n");
+      abort();
+    }
     this->ColorMap = XCreateColormap(this->DisplayId,
                                      XRootWindow(this->DisplayId,v->screen),
                                      v->visual, AllocNone);
