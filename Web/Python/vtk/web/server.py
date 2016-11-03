@@ -79,7 +79,7 @@ def add_arguments(parser):
     parser.add_argument("--no-lp-endpoint", action="store_true", dest='nolp',
         help="If provided, disables the longpoll endpoint")
     parser.add_argument("--fs-endpoints", default='', dest='fsEndpoints',
-        help="add another fs location to a specific endpoint (i.e: data:/Users/seb/Download|images:/Users/seb/Pictures)")
+        help="add another fs location to a specific endpoint (i.e: data=/Users/seb/Download|images=/Users/seb/Pictures)")
 
     # Hook to extract any testing arguments we need
     testing.add_arguments(parser)
@@ -233,7 +233,7 @@ def start_webserver(options, protocol=vtk_wamp.ServerProtocol, disableLogging=Fa
 
     if len(options.fsEndpoints) > 3:
         for fsResourceInfo in options.fsEndpoints.split('|'):
-            infoSplit = fsResourceInfo.split(':')
+            infoSplit = fsResourceInfo.split('=')
             handle_complex_resource_path(infoSplit[0], root, File(infoSplit[1]))
 
     site = Site(root)
