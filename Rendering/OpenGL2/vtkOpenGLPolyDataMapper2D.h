@@ -35,6 +35,7 @@
 #include <vector> //for ivars
 
 class vtkActor2D;
+class vtkGenericOpenGLResourceFreeCallback;
 class vtkMatrix4x4;
 class vtkOpenGLBufferObject;
 class vtkOpenGLHelper;
@@ -69,6 +70,8 @@ public:
 protected:
   vtkOpenGLPolyDataMapper2D();
   ~vtkOpenGLPolyDataMapper2D();
+
+  vtkGenericOpenGLResourceFreeCallback *ResourceCallback;
 
   // the following is all extra stuff to work around the
   // fact that gl_PrimitiveID does not work correctly on
