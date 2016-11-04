@@ -511,15 +511,16 @@ int vtkStructuredGridLIC2D::RequestData(
 
   vtkFrameBufferObject *fbo = vtkFrameBufferObject::New();
   fbo->SetContext(renWin);
-  fbo->SetColorBuffer(0,vector2);
-  fbo->SetNumberOfRenderTargets(1);
-  fbo->SetActiveBuffer(0);
+  fbo->Bind();
+  fbo->AddColorAttachment(fbo->GetBothMode(), 0,vector2);
+  fbo->ActivateDrawBuffer(0);
+  fbo->ActivateReadBuffer(0);
 
   // TODO --
   // step size is incorrect here
   // guard pixels are needed for parallel operations
 
-  if (  !fbo->Start( magWidth, magHeight, false )  )
+  if (  !fbo->Start( magWidth, magHeight )  )
   {
     fbo->Delete();
     vector2->Delete();

@@ -132,17 +132,14 @@ void vtkOpenGLImageAlgorithmHelper::Execute(
   fbo->SetContext(this->RenderWindow);
 
   outputTex->Create2D(outDims[0], outDims[1], 4, VTK_FLOAT, false);
-  fbo->SetNumberOfRenderTargets(1);
-  fbo->SetColorBuffer(0,outputTex.Get());
+  fbo->AddColorAttachment(fbo->GetDrawMode(), 0, outputTex.Get());
 
   // because the same FBO can be used in another pass but with several color
   // buffers, force this pass to use 1, to avoid side effects from the
   // render of the previous frame.
-  fbo->SetActiveBuffer(0);
+  fbo->ActivateDrawBuffer(0);
 
-//  fbo->SetDepthBufferNeeded(true);
-  fbo->SetDepthBufferNeeded(false);
-  fbo->StartNonOrtho(outDims[0], outDims[1], false);
+  fbo->StartNonOrtho(outDims[0], outDims[1]);
   glViewport(0, 0, outDims[0], outDims[1]);
   glScissor(0, 0, outDims[0], outDims[1]);
   glDisable(GL_DEPTH_TEST);

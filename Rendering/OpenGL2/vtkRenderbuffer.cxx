@@ -93,19 +93,19 @@ void vtkRenderbuffer::Alloc()
   vtkOpenGLCheckErrorMacro("failed at glGenRenderbuffers");
 }
 
-//----------------------------------------------------------------------------
-void vtkRenderbuffer::Free()
+void vtkRenderbuffer::ReleaseGraphicsResources(vtkWindow *)
 {
-  // because we don't hold a reference to the render
-  // context we don't have any control on when it is
-  // destroyed. In fact it may be destroyed before
-  // we are(eg smart pointers), in which case we should
-  // do nothing.
   if (this->Context && this->Handle)
   {
     glDeleteRenderbuffers(1, &this->Handle);
     vtkOpenGLCheckErrorMacro("failed at glDeleteRenderBuffers");
   }
+}
+
+//----------------------------------------------------------------------------
+void vtkRenderbuffer::Free()
+{
+  this->ReleaseGraphicsResources(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -188,7 +188,27 @@ int vtkRenderbuffer::Create(
   glRenderbufferStorage(GL_RENDERBUFFER, (GLenum)format, width, height);
   vtkOpenGLCheckErrorMacro("failed at glRenderbufferStorage");
 
+  this->Width = width;
+  this->Height = height;
+  this->Format = format;
+
   return 1;
+}
+
+void vtkRenderbuffer::Resize(unsigned int width, unsigned int height)
+{
+  if (this->Width == width && this->Height == height)
+  {
+    return;
+  }
+
+  if (this->Context && this->Handle)
+  {
+    glBindRenderbuffer(GL_RENDERBUFFER, (GLuint)this->Handle);
+    glRenderbufferStorage(GL_RENDERBUFFER, (GLenum)this->Format, width, height);
+  }
+  this->Width = width;
+  this->Height = height;
 }
 
 // ----------------------------------------------------------------------------

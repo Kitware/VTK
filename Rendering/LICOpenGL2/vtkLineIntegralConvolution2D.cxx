@@ -20,7 +20,7 @@
 
 
 #include "vtkFloatArray.h"
-#include "vtkFrameBufferObject2.h"
+#include "vtkFrameBufferObject.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
@@ -110,7 +110,7 @@ class vtkLICPingPongBufferManager
 {
 public:
   vtkLICPingPongBufferManager(
-      vtkFrameBufferObject2 *fbo,
+      vtkFrameBufferObject *fbo,
       unsigned int *bufSize,
       vtkTextureObject *vectorTexture,
       vtkTextureObject *maskVectorTexture,
@@ -257,7 +257,7 @@ public:
   // Description:
   // Clear all the buffers used for writing.
   void ClearBuffers(
-        vtkFrameBufferObject2 *fbo,
+        vtkFrameBufferObject *fbo,
         const vtkPixelExtent &viewExt,
         const deque<vtkPixelExtent> &extents,
         int clearEETex = 0)
@@ -312,7 +312,7 @@ public:
   // Description:
   // Clear the given buffer
   void ClearBuffer(
-        vtkFrameBufferObject2 *fbo,
+        vtkFrameBufferObject *fbo,
         vtkTextureObject *tex,
         const vtkPixelExtent &viewExt,
         const deque<vtkPixelExtent> &extents)
@@ -429,7 +429,7 @@ public:
   // Description:
   // Setup read/write from/to the active lic/seed buffer texture pair
   // for LIC pass.
-  void AttachLICBuffers(vtkFrameBufferObject2 *vtkNotUsed(fbo))
+  void AttachLICBuffers(vtkFrameBufferObject *vtkNotUsed(fbo))
   {
     // activate read textures
     vtkTextureObject **readTex = this->Textures[this->ReadIndex];
@@ -465,7 +465,7 @@ public:
 
   // Description:
   // Remove input/output bufers used for computing the LIC.
-  void DettachLICBuffers(vtkFrameBufferObject2 *vtkNotUsed(fbo))
+  void DettachLICBuffers(vtkFrameBufferObject *vtkNotUsed(fbo))
   {
     vtkOpenGLStaticCheckErrorMacro("failed at glDrawBuffers");
     glFramebufferTexture2D(
@@ -494,7 +494,7 @@ public:
 
   // Description:
   // Attach read/write buffers for transform pass.
-  void AttachImageVectorBuffer(vtkFrameBufferObject2 *vtkNotUsed(fbo))
+  void AttachImageVectorBuffer(vtkFrameBufferObject *vtkNotUsed(fbo))
   {
     this->VectorTexture->Activate();
 
@@ -513,7 +513,7 @@ public:
 
   // Description:
   // Attach read/write buffers for transform pass.
-  void DettachImageVectorBuffer(vtkFrameBufferObject2 *vtkNotUsed(fbo))
+  void DettachImageVectorBuffer(vtkFrameBufferObject *vtkNotUsed(fbo))
   {
     this->VectorTexture->Deactivate();
 
@@ -531,7 +531,7 @@ public:
 
   // Description:
   // Attach read/write buffers for EE pass.
-  void AttachEEBuffer(vtkFrameBufferObject2 *vtkNotUsed(fbo))
+  void AttachEEBuffer(vtkFrameBufferObject *vtkNotUsed(fbo))
   {
     vtkTextureObject **readTex = this->Textures[this->ReadIndex];
     readTex[0]->Activate();
@@ -553,7 +553,7 @@ public:
 
   // Description:
   // Attach read/write buffers for EE pass.
-  void DettachEEBuffer(vtkFrameBufferObject2 *vtkNotUsed(fbo))
+  void DettachEEBuffer(vtkFrameBufferObject *vtkNotUsed(fbo))
   {
     vtkTextureObject **readTex = this->Textures[this->ReadIndex];
     readTex[0]->Deactivate();
@@ -573,7 +573,7 @@ public:
   // Description:
   // Deactivates and removes all read/write buffers that were in
   // use during the run, restoring a pristine FBO/texture unit state.
-  void DettachBuffers(vtkFrameBufferObject2 *vtkNotUsed(fbo))
+  void DettachBuffers(vtkFrameBufferObject *vtkNotUsed(fbo))
   {
     glFramebufferTexture2D(
           GL_DRAW_FRAMEBUFFER,
@@ -915,7 +915,7 @@ void FindMinMax(
 // find min/max of unmasked fragments across all regions
 // download each search each region individually
 void StreamingFindMinMax(
-      vtkFrameBufferObject2 *fbo,
+      vtkFrameBufferObject *fbo,
       vtkTextureObject *tex,
       const deque<vtkPixelExtent> &extents,
       float &min,
@@ -983,7 +983,7 @@ vtkLineIntegralConvolution2D::vtkLineIntegralConvolution2D()
   this->Comm = NULL;
 
   this->Context = NULL;
-  this->FBO = vtkFrameBufferObject2::New();
+  this->FBO = vtkFrameBufferObject::New();
 
   this->ShadersNeedBuild = 1;
   this->VTShader = NULL;
@@ -1097,7 +1097,7 @@ bool vtkLineIntegralConvolution2D::IsSupported(vtkRenderWindow *renWin)
   }
 
   return vtkTextureObject::IsSupported(context, true, false, false)
-     && vtkFrameBufferObject2::IsSupported(context)
+     && vtkFrameBufferObject::IsSupported(context)
      && vtkPixelBufferObject::IsSupported(context);
 }
 

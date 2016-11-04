@@ -131,7 +131,6 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState *s,
     {
       large=newHeight;
       small=height;
-
     }
     double angle=vtkMath::RadiansFromDegrees(newCamera->GetViewAngle());
 
@@ -153,19 +152,19 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState *s,
   if(target->GetWidth()!=static_cast<unsigned int>(newWidth) ||
        target->GetHeight()!=static_cast<unsigned int>(newHeight))
   {
-      target->Create2D(newWidth,newHeight,4,VTK_UNSIGNED_CHAR,false);
+    target->Create2D(newWidth,newHeight,4,VTK_UNSIGNED_CHAR,false);
   }
 
-  fbo->SetNumberOfRenderTargets(1);
-  fbo->SetColorBuffer(0,target);
+  fbo->AddColorAttachment(
+    fbo->GetBothMode(), 0, target);
 
   // because the same FBO can be used in another pass but with several color
   // buffers, force this pass to use 1, to avoid side effects from the
   // render of the previous frame.
-  fbo->SetActiveBuffer(0);
+  fbo->ActivateBuffer(0);
 
-  fbo->SetDepthBufferNeeded(true);
-  fbo->StartNonOrtho(newWidth,newHeight,false);
+  fbo->AddDepthAttachment(fbo->GetBothMode());
+  fbo->StartNonOrtho(newWidth,newHeight);
   glViewport(0, 0, newWidth, newHeight);
   glScissor(0, 0, newWidth, newHeight);
 

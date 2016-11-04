@@ -100,9 +100,6 @@ public:
   // Structures for the various cell types we render.
   vtkOpenGLHelper *BlurProgram;
 
-  bool Supported;
-  bool SupportProbed;
-
   float CandidatePointRatio;
   float MinimumCandidateAngle;
 

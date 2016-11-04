@@ -96,9 +96,6 @@ public:
   // Structures for the various cell types we render.
   vtkOpenGLHelper *SSAAProgram;
 
-  bool Supported;
-  bool SupportProbed;
-
   vtkRenderPass *DelegatePass;
 
  private:

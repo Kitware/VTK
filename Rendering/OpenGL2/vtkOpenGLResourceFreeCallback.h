@@ -66,7 +66,10 @@ public:
       this->Release();
     }
     this->VTKWindow = rw;
-    this->VTKWindow->RegisterGraphicsResources(this);
+    if (this->VTKWindow)
+    {
+      this->VTKWindow->RegisterGraphicsResources(this);
+    }
   }
 
   // Called when the event is invoked

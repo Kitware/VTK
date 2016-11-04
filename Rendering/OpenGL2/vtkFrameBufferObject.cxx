@@ -24,10 +24,196 @@
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLResourceFreeCallback.h"
+#include "vtkRenderbuffer.h"
 
 #include <cassert>
 #include <vector>
 using std::vector;
+
+class vtkFOInfo
+{
+public:
+  unsigned int Attachment;
+  bool Attached;
+  unsigned int Mode;
+  vtkTextureObject *Texture;
+  vtkRenderbuffer *Renderbuffer;
+  bool CreatedByFO;
+  unsigned int ZSlice;
+
+  vtkFOInfo() {
+    this->Attachment = 0;
+    this->Texture = NULL;
+    this->Renderbuffer = NULL;
+    this->CreatedByFO = false;
+    this->ZSlice = 0;
+    this->Attached = false;
+  }
+
+  ~vtkFOInfo() {
+    this->Clear();
+  }
+
+  void Clear()
+  {
+    if (this->Texture)
+    {
+      this->Texture->Delete();
+      this->Texture = NULL;
+    }
+    if (this->Renderbuffer)
+    {
+      this->Renderbuffer->Delete();
+      this->Renderbuffer = NULL;
+    }
+    this->Attachment = 0;
+    this->CreatedByFO = false;
+    this->ZSlice = 0;
+    this->Attached = false;
+  }
+
+  bool IsSet() {
+    return this->Texture || this->Renderbuffer; }
+
+  void ReleaseGraphicsResources(vtkWindow *win) {
+    if (this->Texture)
+    {
+      this->Texture->ReleaseGraphicsResources(win);
+    }
+    if (this->Renderbuffer)
+    {
+      this->Renderbuffer->ReleaseGraphicsResources(win);
+    }
+  }
+
+  void Attach() {
+    if (this->Attached)
+    {
+      return;
+    }
+    if (this->Texture)
+    {
+      if (this->Texture->GetNumberOfDimensions() == 3)
+      {
+  #if GL_ES_VERSION_3_0 != 1
+        glFramebufferTexture3D(
+              (GLenum)this->Mode,
+              this->Attachment,
+              GL_TEXTURE_3D,
+              this->Texture->GetHandle(),
+              0,
+              this->ZSlice);
+        this->Attached = true;
+  #else
+         vtkErrorMacro("Attempt to use 3D frame buffer texture in OpenGL ES 2 or 3");
+  #endif
+      }
+      else
+      {
+        glFramebufferTexture2D(
+            (GLenum)this->Mode,
+            this->Attachment,
+            GL_TEXTURE_2D,
+            this->Texture->GetHandle(),
+            0);
+        this->Attached = true;
+      }
+    }
+    else if (this->Renderbuffer)
+    {
+      glFramebufferRenderbuffer(
+        (GLenum)this->Mode,
+        this->Attachment,
+        GL_RENDERBUFFER,
+        this->Renderbuffer->GetHandle());
+      this->Attached = true;
+    }
+  }
+
+  void SetTexture(vtkTextureObject *val,
+    unsigned int mode, unsigned int attachment) {
+
+    // always reset to false
+    this->CreatedByFO = false;
+
+    if (this->Texture == val &&
+        this->Mode == mode &&
+        this->Attachment == attachment)
+    {
+      return;
+    }
+    this->Attached = false;
+    val->Register(0);
+    if (this->Texture)
+    {
+      this->Texture->Delete();
+      this->Texture = NULL;
+    }
+    if (this->Renderbuffer)
+    {
+      this->Renderbuffer->Delete();
+      this->Renderbuffer = NULL;
+    }
+    this->Texture = val;
+    this->Mode = mode;
+    this->Attachment = attachment;
+  }
+
+  void SetRenderbuffer(vtkRenderbuffer *val,
+    unsigned int mode, unsigned int attachment) {
+
+    // always reset to false
+    this->CreatedByFO = false;
+
+    if (this->Renderbuffer == val &&
+        this->Mode == mode &&
+        this->Attachment == attachment)
+    {
+      return;
+    }
+    this->Attached = false;
+    val->Register(0);
+    if (this->Texture)
+    {
+      this->Texture->Delete();
+      this->Texture = NULL;
+    }
+    if (this->Renderbuffer)
+    {
+      this->Renderbuffer->Delete();
+      this->Renderbuffer = NULL;
+    }
+    this->Renderbuffer = val;
+    this->Mode = mode;
+    this->Attachment = attachment;
+  }
+
+  void GetSize(int (&size)[2])
+  {
+    if (this->Texture)
+    {
+      size[0] = this->Texture->GetWidth();
+      size[1] = this->Texture->GetHeight();
+      return;
+    }
+    if (this->Renderbuffer)
+    {
+      size[0] = this->Renderbuffer->GetWidth();
+      size[1] = this->Renderbuffer->GetHeight();
+      return;
+    }
+  }
+
+  void Resize(int size[2])
+  {
+    if (this->Renderbuffer)
+    {
+      this->Renderbuffer->Resize(size[0], size[1]);
+    }
+  }
+};
+
+typedef std::map<unsigned int, vtkFOInfo *>::iterator foIter;
 
 // #define VTK_FBO_DEBUG // display info on RenderQuad()
 
@@ -37,14 +223,23 @@ vtkStandardNewMacro(vtkFrameBufferObject);
 //----------------------------------------------------------------------------
 vtkFrameBufferObject::vtkFrameBufferObject()
 {
-  this->ColorBuffersDirty = true;
-  this->DepthBufferNeeded = true;
   this->FBOIndex = 0;
-  this->PreviousFBOIndex = -1;
-  this->DepthBuffer = 0;
+
+  this->PreviousDrawFBO = 0;
+  this->PreviousReadFBO = 0;
+  this->DrawBindingSaved = false;
+  this->ReadBindingSaved = false;
+
+  this->PreviousDrawBuffer = GL_NONE;
+  this->PreviousReadBuffer = GL_NONE;
+  this->DrawBufferSaved= false;
+  this->ReadBufferSaved= false;
+
   this->LastSize[0] = this->LastSize[1] = -1;
-  this->SetActiveBuffer(0);
-  this->NumberOfRenderTargets = 1;
+
+  this->DrawDepthBuffer = new vtkFOInfo;
+  this->ReadDepthBuffer = new vtkFOInfo;
+
   this->ResourceCallback = new vtkOpenGLResourceFreeCallback<vtkFrameBufferObject>(this,
     &vtkFrameBufferObject::ReleaseGraphicsResources);
 }
@@ -58,9 +253,62 @@ vtkFrameBufferObject::~vtkFrameBufferObject()
     delete this->ResourceCallback;
     this->ResourceCallback = NULL;
   }
-  this->DestroyFBO();
-  this->DestroyDepthBuffer();
-  this->DestroyColorBuffers();
+  delete this->DrawDepthBuffer;
+  delete this->ReadDepthBuffer;
+  for (foIter i = this->DrawColorBuffers.begin();
+    i != this->DrawColorBuffers.end(); i++)
+  {
+    delete i->second;
+  }
+  for (foIter i = this->ReadColorBuffers.begin();
+    i != this->ReadColorBuffers.end(); i++)
+  {
+    delete i->second;
+  }
+  this->DrawColorBuffers.clear();
+  this->ReadColorBuffers.clear();
+}
+
+//-----------------------------------------------------------------------------
+int vtkFrameBufferObject::GetOpenGLType(int vtkType)
+{
+  // convert vtk type to open gl type
+  int oglType = 0;
+  switch (vtkType)
+  {
+    case VTK_FLOAT:
+      oglType = GL_FLOAT;
+      break;
+    case VTK_INT:
+      oglType = GL_INT;
+      break;
+    case VTK_UNSIGNED_INT:
+      oglType = GL_UNSIGNED_INT;
+      break;
+    case VTK_CHAR:
+      oglType = GL_BYTE;
+      break;
+    case VTK_UNSIGNED_CHAR:
+      oglType = GL_UNSIGNED_BYTE;
+      break;
+    default:
+      vtkErrorMacro("Unsupported type");
+      return 0;
+  }
+  return oglType;
+}
+
+unsigned int vtkFrameBufferObject::GetDrawMode()
+{
+  return GL_DRAW_FRAMEBUFFER;
+}
+unsigned int vtkFrameBufferObject::GetReadMode()
+{
+  return GL_READ_FRAMEBUFFER;
+}
+unsigned int vtkFrameBufferObject::GetBothMode()
+{
+  return GL_FRAMEBUFFER;
 }
 
 //----------------------------------------------------------------------------
@@ -90,45 +338,7 @@ void vtkFrameBufferObject::DestroyFBO()
   }
 }
 
-//----------------------------------------------------------------------------
-bool vtkFrameBufferObject::IsSupported(vtkOpenGLRenderWindow *)
-{
-  if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
-  {
-    return true;
-  }
-
-#if GL_ES_VERSION_3_0 == 1
-  bool fbo = true;
-  bool fboBlit = true;
-#else
-  bool fbo = (glewIsSupported("GL_EXT_framebuffer_object") != 0);
-  bool fboBlit = (glewIsSupported("GL_EXT_framebuffer_blit") != 0);
-#endif
-
-  return fbo && fboBlit;
-}
-
-//----------------------------------------------------------------------------
-bool vtkFrameBufferObject::LoadRequiredExtensions(vtkOpenGLRenderWindow *)
-{
-   if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
-   {
-    return true;
-   }
-
-#if GL_ES_VERSION_3_0 == 1
-  bool fbo = true;
-  bool fboBlit = true;
-#else
-  bool fbo = (glewIsSupported("GL_EXT_framebuffer_object") != 0);
-  bool fboBlit = (glewIsSupported("GL_EXT_framebuffer_blit") != 0);
-#endif
-
-  return fbo && fboBlit;
-}
-
-void vtkFrameBufferObject::ReleaseGraphicsResources(vtkWindow *)
+void vtkFrameBufferObject::ReleaseGraphicsResources(vtkWindow *win)
 {
   if (!this->ResourceCallback->IsReleasing())
   {
@@ -137,16 +347,18 @@ void vtkFrameBufferObject::ReleaseGraphicsResources(vtkWindow *)
   }
 
   // free previous resources
-  this->DestroyDepthBuffer();
-  this->DestroyColorBuffers();
+  this->DestroyDepthBuffer(win);
+  this->DestroyColorBuffers(win);
   this->DestroyFBO();
   this->Context = NULL;
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
-void vtkFrameBufferObject::SetContext(vtkOpenGLRenderWindow *renWin)
+void vtkFrameBufferObject::SetContext(vtkRenderWindow *rw)
 {
+  vtkOpenGLRenderWindow *renWin = static_cast<vtkOpenGLRenderWindow *>(rw);
+
   // avoid pointless re-assignment
   if (this->Context==renWin)
   {
@@ -179,40 +391,37 @@ vtkOpenGLRenderWindow *vtkFrameBufferObject::GetContext()
 }
 
 //----------------------------------------------------------------------------
-bool vtkFrameBufferObject::StartNonOrtho(int width,
-                                         int height,
-                                         bool shaderSupportsTextureInt)
+void vtkFrameBufferObject::InitializeViewport(int width, int height)
+{
+  glDisable(GL_BLEND);
+  glDisable(GL_DEPTH_TEST);
+  glDisable(GL_SCISSOR_TEST);
+
+  // Viewport transformation for 1:1 'pixel=texel=data' mapping.
+  // Note this is not enough for 1:1 mapping, because depending on the
+  // primitive displayed (point,line,polygon), the rasterization rules
+  // are different.
+  glViewport(0, 0, width, height);
+
+  vtkOpenGLStaticCheckErrorMacro("failed after InitializeViewport");
+}
+
+bool vtkFrameBufferObject::StartNonOrtho(int width, int height)
 {
   this->Bind();
 
-  // If width/height changed since last render, we need to resize the
-  // buffers.
-  if (this->LastSize[0] != width || this->LastSize[1] != height ||
-    (this->DepthBuffer && !this->DepthBufferNeeded) ||
-    (this->DepthBufferNeeded && !this->DepthBuffer))
+  // make sure sizes are consistent for all attachments
+  // this will adjust the depth buffer size if we
+  // created it.
+  this->UpdateSize();
+
+  // If width/height does not match attachments error
+  if (this->LastSize[0] != width || this->LastSize[1] != height)
   {
-    this->DestroyDepthBuffer();
-    this->DestroyColorBuffers();
+    vtkErrorMacro("FBO size does not match the size of its attachments!.");
   }
 
-  if (this->LastSize[0] != width || this->LastSize[1] != height
-    || this->ColorBuffersDirty
-    || this->DepthBufferNeeded)
-  {
-    this->CreateDepthBuffer(
-          width,
-          height,
-          GL_DRAW_FRAMEBUFFER);
-
-    this->CreateColorBuffers(
-          width,
-          height,
-          GL_DRAW_FRAMEBUFFER,
-          shaderSupportsTextureInt);
-  }
-
-  this->LastSize[0] = width;
-  this->LastSize[1] = height;
+  this->Attach();
 
   this->ActivateBuffers();
 
@@ -230,34 +439,132 @@ bool vtkFrameBufferObject::StartNonOrtho(int width,
   return true;
 }
 
+void vtkFrameBufferObject::UpdateSize()
+{
+  bool foundSize = false;
+  int size[2];
+  bool mismatch = false;
+
+  // loop through all attachments and
+  // verify they are of the same size.
+  for (foIter i = this->DrawColorBuffers.begin();
+    i != this->DrawColorBuffers.end(); i++)
+  {
+    if (!i->second->CreatedByFO && i->second->IsSet())
+    {
+      int aSize[2];
+      i->second->GetSize(aSize);
+      if (!foundSize)
+      {
+        size[0] = aSize[0];
+        size[1] = aSize[1];
+        foundSize = true;
+      }
+      else
+      {
+        if (aSize[0] != size[0] || aSize[1] != size[1])
+        {
+          mismatch = true;
+        }
+      }
+    }
+  }
+  for (foIter i = this->ReadColorBuffers.begin();
+    i != this->ReadColorBuffers.end(); i++)
+  {
+    if (!i->second->CreatedByFO && i->second->IsSet())
+    {
+      int aSize[2];
+      i->second->GetSize(aSize);
+      if (!foundSize)
+      {
+        size[0] = aSize[0];
+        size[1] = aSize[1];
+        foundSize = true;
+      }
+      else
+      {
+        if (aSize[0] != size[0] || aSize[1] != size[1])
+        {
+          mismatch = true;
+        }
+      }
+    }
+  }
+
+  if (!this->DrawDepthBuffer->CreatedByFO
+      && this->DrawDepthBuffer->IsSet())
+  {
+    int aSize[2];
+    this->DrawDepthBuffer->GetSize(aSize);
+    if (!foundSize)
+    {
+      size[0] = aSize[0];
+      size[1] = aSize[1];
+      foundSize = true;
+    }
+    else
+    {
+      if (aSize[0] != size[0] || aSize[1] != size[1])
+      {
+        mismatch = true;
+      }
+    }
+  }
+  if (!this->ReadDepthBuffer->CreatedByFO
+      && this->ReadDepthBuffer->IsSet())
+  {
+    int aSize[2];
+    this->ReadDepthBuffer->GetSize(aSize);
+    if (!foundSize)
+    {
+      size[0] = aSize[0];
+      size[1] = aSize[1];
+      foundSize = true;
+    }
+    else
+    {
+      if (aSize[0] != size[0] || aSize[1] != size[1])
+      {
+        mismatch = true;
+      }
+    }
+  }
+
+  if (mismatch)
+  {
+    vtkErrorMacro("The framebuffer has mismatched attachments.");
+  }
+
+  // resize any FO created items
+  this->LastSize[0] = size[0];
+  this->LastSize[1] = size[1];
+
+  // now resize any buffers we created that are the wrong size
+  if (this->DrawDepthBuffer->IsSet()
+      && this->DrawDepthBuffer->CreatedByFO)
+  {
+    this->DrawDepthBuffer->Resize(this->LastSize);
+  }
+  if (this->ReadDepthBuffer->IsSet()
+      && this->ReadDepthBuffer->CreatedByFO)
+  {
+    this->ReadDepthBuffer->Resize(this->LastSize);
+  }
+
+}
+
 //----------------------------------------------------------------------------
 bool vtkFrameBufferObject::Start(int width,
-                                 int height,
-                                 bool shaderSupportsTextureInt)
+                                 int height)
 {
-  if (!this->StartNonOrtho(width, height, shaderSupportsTextureInt))
+  if (!this->StartNonOrtho(width, height))
   {
     return false;
   }
 
-  glDisable(GL_BLEND);
-  glDisable(GL_DEPTH_TEST);
-  glDisable(GL_SCISSOR_TEST);
-
-  glViewport(0, 0, width, height);
-
+  this->InitializeViewport(width, height);
   return true;
-}
-
-//----------------------------------------------------------------------------
-void vtkFrameBufferObject::SetActiveBuffers(int num, unsigned int indices[])
-{
-  this->ActiveBuffers.clear();
-  for (int cc=0; cc < num; cc++)
-  {
-    this->ActiveBuffers.push_back(indices[cc]);
-  }
-  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -281,205 +588,315 @@ void vtkFrameBufferObject::ActivateBuffers()
   delete[] buffers;
 }
 
+void vtkFrameBufferObject::ActivateDrawBuffer(unsigned int num)
+{
+  this->ActivateDrawBuffers(&num, 1);
+}
+
+//----------------------------------------------------------------------------
+void vtkFrameBufferObject::ActivateReadBuffer(
+      unsigned int colorAtt)
+{
+  colorAtt += GL_COLOR_ATTACHMENT0;
+  glReadBuffer((GLenum)colorAtt);
+  vtkOpenGLCheckErrorMacro("failed at glReadBuffer");
+}
+
+//----------------------------------------------------------------------------
+void vtkFrameBufferObject::ActivateDrawBuffers(unsigned int num)
+{
+  this->ActiveBuffers.clear();
+  for (unsigned int cc=0; cc < num; cc++)
+  {
+    this->ActiveBuffers.push_back(cc);
+  }
+  this->Modified();
+  this->ActivateBuffers();
+}
+
+//----------------------------------------------------------------------------
+void vtkFrameBufferObject::ActivateDrawBuffers(unsigned int *ids, int num)
+{
+  this->ActiveBuffers.clear();
+  for (int cc=0; cc < num; cc++)
+  {
+    this->ActiveBuffers.push_back(ids[cc]);
+  }
+  this->Modified();
+  this->ActivateBuffers();
+}
+
+//----------------------------------------------------------------------------
+void vtkFrameBufferObject::DeactivateDrawBuffers()
+{
+  GLenum att = GL_NONE;
+  glDrawBuffers(1, &att);
+  vtkOpenGLCheckErrorMacro("failed at glDrawBuffers(GL_NONE)");
+}
+
+//----------------------------------------------------------------------------
+void vtkFrameBufferObject::DeactivateReadBuffer()
+{
+  glReadBuffer(GL_NONE);
+  vtkOpenGLCheckErrorMacro("failed at glReadBuffer(GL_NONE)");
+}
+
+//----------------------------------------------------------------------------
+void vtkFrameBufferObject::SaveCurrentBindings(unsigned int mode)
+{
+  if (mode == GL_FRAMEBUFFER || mode == GL_DRAW_FRAMEBUFFER)
+  {
+    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, (int*)&this->PreviousDrawFBO);
+    this->DrawBindingSaved = true;
+  }
+  if (mode == GL_FRAMEBUFFER || mode == GL_READ_FRAMEBUFFER)
+  {
+    glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, (int*)&this->PreviousReadFBO);
+    this->ReadBindingSaved = true;
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkFrameBufferObject::SaveCurrentBindings()
+{
+  this->SaveCurrentBindings(GL_FRAMEBUFFER);
+}
+
+//----------------------------------------------------------------------------
+void vtkFrameBufferObject::SaveCurrentBuffers(unsigned int mode)
+{
+  if (mode == GL_FRAMEBUFFER || mode == GL_DRAW_FRAMEBUFFER)
+  {
+#ifdef GL_DRAW_BUFFER
+    glGetIntegerv(GL_DRAW_BUFFER, (int*)&this->PreviousDrawBuffer);
+    this->DrawBufferSaved = true;
+#endif
+  }
+  if (!this->ReadBufferSaved)
+  {
+    glGetIntegerv(GL_READ_BUFFER, (int*)&this->PreviousReadBuffer);
+    this->ReadBufferSaved = true;
+  }
+  if (mode == GL_FRAMEBUFFER || mode == GL_READ_FRAMEBUFFER)
+  {
+    glGetIntegerv(GL_READ_BUFFER, (int*)&this->PreviousReadBuffer);
+    this->ReadBufferSaved = true;
+  }
+}
+
+void vtkFrameBufferObject::SaveCurrentBuffers()
+{
+  this->SaveCurrentBuffers(GL_FRAMEBUFFER);
+}
+
+void vtkFrameBufferObject::RestorePreviousBindings()
+{
+  this->RestorePreviousBindings(GL_FRAMEBUFFER);
+}
+
+void vtkFrameBufferObject::RestorePreviousBindings(unsigned int mode)
+{
+  if ((mode == GL_FRAMEBUFFER || mode == GL_DRAW_FRAMEBUFFER) &&
+      this->DrawBindingSaved)
+  {
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->PreviousDrawFBO);
+    this->DrawBindingSaved = false;
+  }
+  if ((mode == GL_FRAMEBUFFER || mode == GL_READ_FRAMEBUFFER) &&
+       this->ReadBindingSaved)
+  {
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, this->PreviousReadFBO);
+    this->ReadBindingSaved = false;
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkFrameBufferObject::RestorePreviousBuffers()
+{
+  this->RestorePreviousBuffers(GL_FRAMEBUFFER);
+}
+
+//----------------------------------------------------------------------------
+void vtkFrameBufferObject::RestorePreviousBuffers(unsigned int mode)
+{
+  if (this->DrawBufferSaved &&
+      (mode == GL_FRAMEBUFFER || mode == GL_DRAW_FRAMEBUFFER))
+  {
+    glDrawBuffer((GLenum)this->PreviousDrawBuffer);
+    this->DrawBufferSaved = false;
+    vtkOpenGLCheckErrorMacro("failed at glDrawBuffer");
+  }
+  if (this->ReadBufferSaved &&
+      (mode == GL_FRAMEBUFFER || mode == GL_READ_FRAMEBUFFER))
+  {
+    glReadBuffer((GLenum)this->PreviousReadBuffer);
+    this->ReadBufferSaved = false;
+    vtkOpenGLCheckErrorMacro("failed at glReadBuffer");
+  }
+}
+
 //----------------------------------------------------------------------------
 void vtkFrameBufferObject::Bind()
 {
-  if(this->FBOIndex!=0 && this->PreviousFBOIndex==-1)
+  this->Bind(GL_FRAMEBUFFER);
+}
+
+void vtkFrameBufferObject::Bind(unsigned int mode)
+{
+  if(this->FBOIndex != 0)
   {
-    this->Context->MakeCurrent();
-    GLint framebufferBinding;
-    glGetIntegerv(GL_FRAMEBUFFER_BINDING,&framebufferBinding);
-    this->PreviousFBOIndex=framebufferBinding;
-    glBindFramebuffer(GL_FRAMEBUFFER, this->FBOIndex);
+    glBindFramebuffer(mode, this->FBOIndex);
+    this->Attach();
+  }
+}
+
+void vtkFrameBufferObject::Attach()
+{
+  if(this->FBOIndex != 0)
+  {
+    // attach all buffers if not already attached
+    for (foIter i = this->DrawColorBuffers.begin();
+      i != this->DrawColorBuffers.end(); i++)
+    {
+      i->second->Attach();
+    }
+    for (foIter i = this->ReadColorBuffers.begin();
+      i != this->ReadColorBuffers.end(); i++)
+    {
+      i->second->Attach();
+    }
+    this->DrawDepthBuffer->Attach();
+    this->ReadDepthBuffer->Attach();
+  }
+}
+
+void vtkFrameBufferObject::AttachColorBuffer(
+  unsigned int mode, unsigned int index)
+{
+  if(this->FBOIndex != 0)
+  {
+    if (mode == GL_FRAMEBUFFER || mode == GL_DRAW_FRAMEBUFFER)
+    {
+      foIter i = this->DrawColorBuffers.find(index);
+      if (i != this->DrawColorBuffers.end())
+      {
+        i->second->Attach();
+      }
+    }
+    if (mode == GL_FRAMEBUFFER || mode == GL_READ_FRAMEBUFFER)
+    {
+      foIter i = this->ReadColorBuffers.find(index);
+      if (i != this->ReadColorBuffers.end())
+      {
+        i->second->Attach();
+      }
+    }
+  }
+}
+
+void vtkFrameBufferObject::AttachDepthBuffer(
+  unsigned int mode)
+{
+  if(this->FBOIndex != 0)
+  {
+    if (mode == GL_FRAMEBUFFER || mode == GL_DRAW_FRAMEBUFFER)
+    {
+      this->DrawDepthBuffer->Attach();
+    }
+    if (mode == GL_FRAMEBUFFER || mode == GL_READ_FRAMEBUFFER)
+    {
+      this->ReadDepthBuffer->Attach();
+    }
   }
 }
 
 //----------------------------------------------------------------------------
 void vtkFrameBufferObject::UnBind()
 {
-  if (this->FBOIndex!=0 && this->PreviousFBOIndex!=-1)
+  if (this->FBOIndex!=0)
   {
-    glBindFramebuffer(GL_FRAMEBUFFER,this->PreviousFBOIndex);
-    this->PreviousFBOIndex=-1;
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    // glDrawBuffer(GL_NONE);
+    // glReadBuffer(GL_NONE);
+  }
+}
+
+void vtkFrameBufferObject::UnBind(unsigned int mode)
+{
+  if (this->FBOIndex!=0)
+  {
+    glBindFramebuffer(mode, 0);
+    if (mode == GL_FRAMEBUFFER || mode == GL_DRAW_FRAMEBUFFER)
+    {
+      glDrawBuffer(GL_NONE);
+    }
+    if (mode == GL_FRAMEBUFFER || mode == GL_READ_FRAMEBUFFER)
+    {
+      glReadBuffer(GL_NONE);
+    }
+  }
+}
+
+void vtkFrameBufferObject::AddDepthAttachment(unsigned int mode)
+{
+  // create as needed
+  if (!this->DrawDepthBuffer->IsSet() && mode == GL_FRAMEBUFFER)
+  {
+    // create a renderbuffer
+    vtkRenderbuffer *rb = vtkRenderbuffer::New();
+    rb->SetContext(this->Context);
+    rb->CreateDepthAttachment(this->LastSize[0], this->LastSize[1]);
+
+    this->AddDepthAttachment(GL_FRAMEBUFFER, rb);
+    this->DrawDepthBuffer->CreatedByFO = true;
+    this->ReadDepthBuffer->CreatedByFO = true;
+    rb->Delete();
+  }
+  if (!this->DrawDepthBuffer->IsSet() && mode == GL_DRAW_FRAMEBUFFER)
+  {
+    // create a renderbuffer
+    vtkRenderbuffer *rb = vtkRenderbuffer::New();
+    rb->SetContext(this->Context);
+    rb->CreateDepthAttachment(this->LastSize[0], this->LastSize[1]);
+
+    this->AddDepthAttachment(GL_DRAW_FRAMEBUFFER, rb);
+    this->DrawDepthBuffer->CreatedByFO = true;
+    rb->Delete();
+  }
+  if (!this->ReadDepthBuffer->IsSet() && mode == GL_DRAW_FRAMEBUFFER)
+  {
+    // create a renderbuffer
+    vtkRenderbuffer *rb = vtkRenderbuffer::New();
+    rb->SetContext(this->Context);
+    rb->CreateDepthAttachment(this->LastSize[0], this->LastSize[1]);
+
+    this->AddDepthAttachment(GL_READ_FRAMEBUFFER, rb);
+    this->ReadDepthBuffer->CreatedByFO = true;
+    rb->Delete();
   }
 }
 
 //----------------------------------------------------------------------------
-void vtkFrameBufferObject::CreateDepthBuffer(
-        int width,
-        int height,
-        unsigned int mode)
+void vtkFrameBufferObject::DestroyDepthBuffer(vtkWindow *)
 {
-  this->DestroyDepthBuffer();
-
-  if (this->UserDepthBuffer)
-  {
-    // Attach the depth buffer to the FBO.
-    glFramebufferTexture2D(
-          (GLenum)mode,
-          GL_DEPTH_ATTACHMENT,
-          GL_TEXTURE_2D,
-          this->UserDepthBuffer->GetHandle(),
-          0);
-
-    vtkOpenGLCheckErrorMacro("failed at glFramebufferTexture2D");
-  }
-  else
-  if (this->DepthBufferNeeded)
-  {
-    // Create render buffers which are independent of render targets.
-    GLuint temp;
-    glGenRenderbuffers(1, &temp);
-    vtkOpenGLCheckErrorMacro("failed at glGenRenderbuffers");
-
-    this->DepthBuffer = temp;
-    glBindRenderbuffer(GL_RENDERBUFFER, this->DepthBuffer);
-    vtkOpenGLCheckErrorMacro("failed at glBindRenderbuffer");
-
-    // Assign storage to this depth buffer.
-    glRenderbufferStorage(
-          GL_RENDERBUFFER,
-          GL_DEPTH_COMPONENT,
-          width,
-          height);
-
-    vtkOpenGLCheckErrorMacro("failed at glRenderbufferStorage");
-
-    // Attach the depth buffer to the FBO.
-    glFramebufferRenderbuffer(
-          (GLenum)mode,
-          GL_DEPTH_ATTACHMENT,
-          GL_RENDERBUFFER,
-          this->DepthBuffer);
-
-    vtkOpenGLCheckErrorMacro("failed at glFramebufferRenderbuffer");
-  }
+  this->DrawDepthBuffer->Clear();
+  this->ReadDepthBuffer->Clear();
 }
 
 //----------------------------------------------------------------------------
-void vtkFrameBufferObject::DestroyDepthBuffer()
+void vtkFrameBufferObject::DestroyColorBuffers(vtkWindow *)
 {
-  // because we don't hold a reference to the render
-  // context we don't have any control on when it is
-  // destroyed. In fact it may be destroyed before
-  // we are(eg smart pointers), in which case we should
-  // do nothing.
-  if(this->Context && this->DepthBuffer)
+  for (foIter i = this->DrawColorBuffers.begin();
+    i != this->DrawColorBuffers.end(); i++)
   {
-    GLuint temp = static_cast<GLuint>(this->DepthBuffer);
-    glDeleteRenderbuffers(1, &temp);
-    vtkOpenGLCheckErrorMacro("failed at glDeleteRenderbuffers");
-    this->DepthBuffer = 0;
+    i->second->Clear();
+  }
+  for (foIter i = this->ReadColorBuffers.begin();
+    i != this->ReadColorBuffers.end(); i++)
+  {
+    i->second->Clear();
   }
 }
-
-//----------------------------------------------------------------------------
-void vtkFrameBufferObject::DestroyColorBuffers()
-{
-  this->ColorBuffers.clear();
-  this->ColorBuffersDirty = true;
-}
-
-//----------------------------------------------------------------------------
-void vtkFrameBufferObject::CreateColorBuffers(
-    int iwidth,
-    int iheight,
-    unsigned int mode,
-    bool shaderSupportsTextureInt)
-{
-  unsigned int width = static_cast<unsigned int>(iwidth);
-  unsigned int height = static_cast <unsigned int>(iheight);
-
-  unsigned int nUserColorBuffers
-    = static_cast<unsigned int>(this->UserColorBuffers.size());
-
-  this->ColorBuffers.resize(this->NumberOfRenderTargets);
-  unsigned int cc;
-  for (cc=0; cc<this->NumberOfRenderTargets && cc<nUserColorBuffers; cc++)
-  {
-    vtkTextureObject *userBuffer=this->UserColorBuffers[cc];
-    if (userBuffer)
-    {
-      assert(userBuffer->GetWidth()==width);
-      assert(userBuffer->GetHeight()==height);
-      this->ColorBuffers[cc] = this->UserColorBuffers[cc];
-    }
-  }
-
-  for (cc=0; cc < this->NumberOfRenderTargets; cc++)
-  {
-    vtkSmartPointer<vtkTextureObject> colorBuffer = this->ColorBuffers[cc];
-    if (!colorBuffer)
-    {
-      // create a new color buffer for the user.
-      colorBuffer = vtkSmartPointer<vtkTextureObject>::New();
-      colorBuffer->SetContext(this->Context);
-      colorBuffer->SetMinificationFilter(vtkTextureObject::Nearest);
-      colorBuffer->SetLinearMagnification(false);
-      colorBuffer->SetWrapS(vtkTextureObject::ClampToEdge);
-      colorBuffer->SetWrapT(vtkTextureObject::ClampToEdge);
-      if (!colorBuffer->Create2D(
-                width,
-                height,
-                4,
-                VTK_UNSIGNED_CHAR,
-                shaderSupportsTextureInt))
-      {
-        vtkErrorMacro("Failed to create texture for color buffer.");
-        return;
-      }
-    }
-
-    // attach the buffer
-    if (colorBuffer->GetNumberOfDimensions() == 2)
-    {
-      glFramebufferTexture2D(
-            (GLenum)mode,
-            GL_COLOR_ATTACHMENT0 + cc,
-            GL_TEXTURE_2D,
-            colorBuffer->GetHandle(),
-            0);
-
-      vtkOpenGLCheckErrorMacro("failed at glFramebufferTexture2D");
-    }
-    else
-    if (colorBuffer->GetNumberOfDimensions() == 3)
-    {
-      assert(this->UserZSlices[cc]<colorBuffer->GetDepth());
-#if GL_ES_VERSION_3_0 != 1
-      glFramebufferTexture3D(
-            (GLenum)mode,
-            GL_COLOR_ATTACHMENT0 + cc,
-            GL_TEXTURE_3D,
-            colorBuffer->GetHandle(),
-            0,
-            this->UserZSlices[cc]);
-#else
-     vtkErrorMacro("Attempt to use 3D frame buffer texture in OpenGL ES 2 or 3");
-#endif
-      vtkOpenGLCheckErrorMacro("failed at glFramebufferTexture3D");
-    }
-    this->ColorBuffers[cc] = colorBuffer;
-  }
-
-  // unbind the remainder
-  unsigned int attachments=this->GetMaximumNumberOfRenderTargets();
-  while(cc<attachments)
-  {
-    glFramebufferRenderbuffer(
-          (GLenum)mode,
-          GL_COLOR_ATTACHMENT0 + cc,
-          GL_RENDERBUFFER,
-          0);
-
-    vtkOpenGLCheckErrorMacro("failed at glFramebufferRenderbuffer");
-    ++cc;
-  }
-
-  // color buffers are allocated and attached
-  this->ColorBuffersDirty = false;
-}
-
 
 //----------------------------------------------------------------------------
 unsigned int vtkFrameBufferObject::GetMaximumNumberOfActiveTargets()
@@ -508,73 +925,95 @@ unsigned int vtkFrameBufferObject::GetMaximumNumberOfRenderTargets()
 }
 
 //----------------------------------------------------------------------------
-void vtkFrameBufferObject::SetNumberOfRenderTargets(unsigned int num)
+void vtkFrameBufferObject::RemoveDepthAttachment(unsigned int mode)
 {
-  assert(num>0);
-  this->NumberOfRenderTargets = num;
-  this->ColorBuffersDirty = true;
-}
-
-//----------------------------------------------------------------------------
-void vtkFrameBufferObject::SetDepthBuffer(vtkTextureObject* tex)
-{
-  if (this->UserDepthBuffer != tex)
+  if (mode == GL_FRAMEBUFFER || mode == GL_DRAW_FRAMEBUFFER)
   {
-    this->UserDepthBuffer = tex;
-    this->DepthBufferDirty = true;
+    delete this->DrawDepthBuffer;
+    this->DrawDepthBuffer = new vtkFOInfo;
+  }
+  if (mode == GL_FRAMEBUFFER || mode == GL_READ_FRAMEBUFFER)
+  {
+    delete this->ReadDepthBuffer;
+    this->ReadDepthBuffer = new vtkFOInfo;
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkFrameBufferObject::RemoveDepthBuffer()
+void vtkFrameBufferObject::AddDepthAttachment(
+  unsigned int mode,
+  vtkTextureObject* tex)
 {
-  this->SetDepthBuffer(0);
+  this->SetDepthBuffer(mode, tex);
+  this->Bind();
+  this->AttachDepthBuffer(mode);
+}
+
+void vtkFrameBufferObject::AddDepthAttachment(
+  unsigned int mode,
+  vtkRenderbuffer* tex)
+{
+  this->SetDepthBuffer(mode, tex);
+  this->Bind();
+  this->AttachDepthBuffer(mode);
+}
+
+void vtkFrameBufferObject::AddColorAttachment(
+  unsigned int mode,
+  unsigned int index,
+  vtkTextureObject* tex,
+  unsigned int zslice)
+{
+  this->SetColorBuffer(mode, index, tex, zslice);
+  this->Bind(mode);
+  this->AttachColorBuffer(mode, index);
+}
+
+void vtkFrameBufferObject::AddColorAttachment(
+  unsigned int mode,
+  unsigned int index,
+  vtkRenderbuffer* tex)
+{
+  this->SetColorBuffer(mode, index, tex);
+  this->Bind(mode);
+  this->AttachColorBuffer(mode, index);
 }
 
 //----------------------------------------------------------------------------
-void vtkFrameBufferObject::SetColorBuffer(
-        unsigned int index,
-        vtkTextureObject* tex,
-        unsigned int zslice/*=0*/)
+void vtkFrameBufferObject::RemoveColorAttachments(
+      unsigned int mode,
+      unsigned int num)
 {
-  if (this->UserColorBuffers.size() <= index)
+  for (unsigned int i=0; i<num; ++i)
   {
-    this->UserColorBuffers.resize(index+1);
-    this->UserZSlices.resize(index+1);
+    this->RemoveColorAttachment(mode, i);
   }
-  if (this->UserColorBuffers[index] != tex ||
-    this->UserZSlices[index] != zslice)
+}
+
+void vtkFrameBufferObject::RemoveColorAttachment(
+  unsigned int mode,
+  unsigned int index)
+{
+  if (mode == GL_FRAMEBUFFER || mode == GL_DRAW_FRAMEBUFFER)
   {
-    this->UserColorBuffers[index] = tex;
-    this->UserZSlices[index] = zslice;
-    this->ColorBuffersDirty = true;
+    foIter i = this->DrawColorBuffers.find(index);
+    if (i != this->DrawColorBuffers.end())
+    {
+      delete i->second;
+      i->second = NULL;
+      this->DrawColorBuffers.erase(i);
+    }
   }
-}
 
-//----------------------------------------------------------------------------
-vtkTextureObject* vtkFrameBufferObject::GetColorBuffer(unsigned int index)
-{
-  assert(this->UserColorBuffers.size()>index);
-  return this->UserColorBuffers[index];
-}
-
-//----------------------------------------------------------------------------
-void vtkFrameBufferObject::RemoveColorBuffer(unsigned int index)
-{
-  if (index < this->UserColorBuffers.size())
+  if (mode == GL_FRAMEBUFFER || mode == GL_READ_FRAMEBUFFER)
   {
-    this->UserColorBuffers[index] = 0;
-    this->UserZSlices[index] = 0;
-    this->ColorBuffersDirty = true;
+    foIter i = this->ReadColorBuffers.find(index);
+    if (i != this->ReadColorBuffers.end())
+    {
+      delete i->second;
+      i->second = NULL;
+      this->ReadColorBuffers.erase(i);
+    }
   }
-}
-
-//----------------------------------------------------------------------------
-void vtkFrameBufferObject::RemoveAllColorBuffers()
-{
-  this->UserColorBuffers.clear();
-  this->UserZSlices.clear();
-  this->ColorBuffersDirty = true;
 }
 
 // ----------------------------------------------------------------------------
@@ -932,19 +1371,65 @@ void vtkFrameBufferObject::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "LastSize : " << this->LastSize[0] << this->LastSize[1]
      << endl;
-  os << indent << "DepthBufferNeeded:";
-  if(this->DepthBufferNeeded)
-  {
-      os << "true";
-  }
-  else
-  {
-      os << "false";
-  }
-  os <<endl;
-  os << indent << "NumberOfRenderTargets:" << this->NumberOfRenderTargets
-     << endl;
+  os << indent << "PreviousDrawFBO=" << this->PreviousDrawFBO << endl
+     << indent << "PreviousReadFBO=" << this->PreviousReadFBO << endl
+     << indent << "PreviousDrawBuffer=" << this->PreviousDrawBuffer << endl
+     << indent << "PreviousReadBuffer=" << this->PreviousReadBuffer << endl;
 }
+
+// ----------------------------------------------------------------------------
+bool vtkFrameBufferObject::GetFrameBufferStatus(
+      unsigned int mode,
+      const char *&desc)
+{
+  bool ok = false;
+  desc = "error";
+  GLenum status = glCheckFramebufferStatus((GLenum)mode);
+  switch(status)
+  {
+    case GL_FRAMEBUFFER_COMPLETE:
+      desc = "FBO complete";
+      ok = true;
+      break;
+    case GL_FRAMEBUFFER_UNSUPPORTED:
+      desc = "FRAMEBUFFER_UNSUPPORTED";
+      break;
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+      desc = "FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+      break;
+    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+      desc = "FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
+      break;
+#ifdef GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS
+    case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
+      desc = "FRAMEBUFFER_INCOMPLETE_DIMENSIONS";
+      break;
+#endif
+#ifdef GL_FRAMEBUFFER_INCOMPLETE_FORMATS
+    case GL_FRAMEBUFFER_INCOMPLETE_FORMATS:
+      desc = "FRAMEBUFFER_INCOMPLETE_FORMATS";
+      break;
+#endif
+#ifdef GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER
+    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+      desc = "FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
+      break;
+#endif
+#ifdef GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER
+    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+      desc = "FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
+      break;
+#endif
+    default:
+      desc = "Unknown status";
+  }
+  if (!ok)
+  {
+    return false;
+  }
+  return true;
+}
+
 
 // ----------------------------------------------------------------------------
 int vtkFrameBufferObject::CheckFrameBufferStatus(unsigned int mode)
@@ -998,3 +1483,403 @@ int vtkFrameBufferObject::CheckFrameBufferStatus(unsigned int mode)
   }
   return 1;
 }
+
+//----------------------------------------------------------------------------
+int vtkFrameBufferObject::Blit(
+        int srcExt[4],
+        int destExt[4],
+        unsigned int bits,
+        unsigned int mapping)
+{
+  glBlitFramebuffer(
+        (GLint)srcExt[0],
+        (GLint)srcExt[2],
+        (GLint)srcExt[1],
+        (GLint)srcExt[3],
+        (GLint)destExt[0],
+        (GLint)destExt[2],
+        (GLint)destExt[1],
+        (GLint)destExt[3],
+        (GLbitfield)bits,
+        (GLenum)mapping);
+
+  vtkOpenGLStaticCheckErrorMacro("failed at glBlitFramebuffer");
+
+  return 1;
+}
+
+//-----------------------------------------------------------------------------
+vtkPixelBufferObject *vtkFrameBufferObject::DownloadDepth(
+      int extent[4],
+      int vtkType)
+{
+  assert(this->Context);
+
+  return this->Download(
+      extent,
+      vtkType,
+      1,
+      this->GetOpenGLType(vtkType),
+      GL_DEPTH_COMPONENT);
+}
+
+//-----------------------------------------------------------------------------
+vtkPixelBufferObject *vtkFrameBufferObject::DownloadColor4(
+      int extent[4],
+      int vtkType)
+{
+  assert(this->Context);
+
+  return this->Download(
+      extent,
+      vtkType,
+      4,
+      this->GetOpenGLType(vtkType),
+      GL_RGBA);
+}
+
+//-----------------------------------------------------------------------------
+vtkPixelBufferObject *vtkFrameBufferObject::DownloadColor3(
+      int extent[4],
+      int vtkType)
+{
+  assert(this->Context);
+
+  return this->Download(
+      extent,
+      vtkType,
+      3,
+      this->GetOpenGLType(vtkType),
+      GL_RGB);
+}
+
+//-----------------------------------------------------------------------------
+vtkPixelBufferObject *vtkFrameBufferObject::DownloadColor1(
+      int extent[4],
+      int vtkType,
+      int channel)
+{
+  assert(this->Context);
+  GLenum oglChannel = 0;
+  switch (channel)
+  {
+    case 0:
+      oglChannel = GL_RED;
+      break;
+    case 1:
+      oglChannel = GL_GREEN;
+      break;
+    case 2:
+      oglChannel = GL_BLUE;
+      break;
+    default:
+      vtkErrorMacro("Inavlid channel");
+      return NULL;
+  }
+
+  return this->Download(
+      extent,
+      vtkType,
+      1,
+      this->GetOpenGLType(vtkType),
+      oglChannel);
+}
+
+//-----------------------------------------------------------------------------
+vtkPixelBufferObject *vtkFrameBufferObject::Download(
+      int extent[4],
+      int vtkType,
+      int nComps,
+      int oglType,
+      int oglFormat)
+{
+  vtkPixelBufferObject *pbo = vtkPixelBufferObject::New();
+  pbo->SetContext(this->Context);
+
+  this->Download(
+        extent,
+        vtkType,
+        nComps,
+        oglType,
+        oglFormat,
+        pbo);
+
+  return pbo;
+}
+//-----------------------------------------------------------------------------
+void vtkFrameBufferObject::Download(
+      int extent[4],
+      int vtkType,
+      int nComps,
+      int oglType,
+      int oglFormat,
+      vtkPixelBufferObject *pbo)
+{
+  unsigned int extentSize[2] = {
+        static_cast<unsigned int>(extent[1] - extent[0] + 1),
+        static_cast<unsigned int>(extent[3] - extent[2] + 1)
+        };
+
+  unsigned int nTups = extentSize[0]*extentSize[1];
+
+  pbo->Allocate(
+        vtkType,
+        nTups,
+        nComps,
+        vtkPixelBufferObject::PACKED_BUFFER);
+
+  pbo->Bind(vtkPixelBufferObject::PACKED_BUFFER);
+
+  glPixelStorei(GL_PACK_ALIGNMENT, 1);
+  glReadPixels(
+        extent[0],
+        extent[2],
+        extentSize[0],
+        extentSize[1],
+        oglFormat,
+        oglType,
+        NULL);
+
+  vtkOpenGLStaticCheckErrorMacro("failed at glReadPixels");
+
+  pbo->UnBind();
+}
+
+void vtkFrameBufferObject::SetColorBuffer(
+  unsigned int mode,
+  unsigned int index,
+  vtkRenderbuffer* tex)
+{
+  // is the fbo size is not set do it here
+  if (this->LastSize[0] == -1)
+  {
+    this->LastSize[0] = tex->GetWidth();
+    this->LastSize[1] = tex->GetHeight();
+  }
+
+  if (mode == GL_FRAMEBUFFER)
+  {
+    foIter i = this->DrawColorBuffers.find(index);
+    if (i == this->DrawColorBuffers.end())
+    {
+      vtkFOInfo *foinfo = new vtkFOInfo;
+      i = this->DrawColorBuffers.insert(std::make_pair(index, foinfo)).first;
+    }
+    i->second->SetRenderbuffer(tex, mode, GL_COLOR_ATTACHMENT0 + index);
+
+    i = this->ReadColorBuffers.find(index);
+    if (i == this->ReadColorBuffers.end())
+    {
+      vtkFOInfo *foinfo = new vtkFOInfo;
+      i = this->ReadColorBuffers.insert(std::make_pair(index, foinfo)).first;
+    }
+    i->second->SetRenderbuffer(tex, mode, GL_COLOR_ATTACHMENT0 + index);
+  }
+  else if (mode == GL_DRAW_FRAMEBUFFER)
+  {
+    foIter i = this->DrawColorBuffers.find(index);
+    if (i == this->DrawColorBuffers.end())
+    {
+      vtkFOInfo *foinfo = new vtkFOInfo;
+      i = this->DrawColorBuffers.insert(std::make_pair(index, foinfo)).first;
+    }
+    i->second->SetRenderbuffer(tex, mode, GL_COLOR_ATTACHMENT0 + index);
+  }
+  else if (mode == GL_READ_FRAMEBUFFER)
+  {
+    foIter i = this->ReadColorBuffers.find(index);
+    if (i == this->ReadColorBuffers.end())
+    {
+      vtkFOInfo *foinfo = new vtkFOInfo;
+      i = this->ReadColorBuffers.insert(std::make_pair(index, foinfo)).first;
+    }
+    i->second->SetRenderbuffer(tex, mode, GL_COLOR_ATTACHMENT0 + index);
+  }
+}
+
+void vtkFrameBufferObject::SetColorBuffer(
+  unsigned int mode,
+  unsigned int index,
+  vtkTextureObject* tex,
+  unsigned int zslice)
+{
+  // is the fbo size is not set do it here
+  if (this->LastSize[0] == -1)
+  {
+    this->LastSize[0] = tex->GetWidth();
+    this->LastSize[1] = tex->GetHeight();
+  }
+
+  if (mode == GL_FRAMEBUFFER)
+  {
+    foIter i = this->DrawColorBuffers.find(index);
+    if (i == this->DrawColorBuffers.end())
+    {
+      vtkFOInfo *foinfo = new vtkFOInfo;
+      i = this->DrawColorBuffers.insert(std::make_pair(index, foinfo)).first;
+    }
+    i->second->SetTexture(tex, mode, GL_COLOR_ATTACHMENT0 + index);
+    i->second->ZSlice = zslice;
+
+    i = this->ReadColorBuffers.find(index);
+    if (i == this->ReadColorBuffers.end())
+    {
+      vtkFOInfo *foinfo = new vtkFOInfo;
+      i = this->ReadColorBuffers.insert(std::make_pair(index, foinfo)).first;
+    }
+    i->second->SetTexture(tex, mode, GL_COLOR_ATTACHMENT0 + index);
+    i->second->ZSlice = zslice;
+  }
+  else if (mode == GL_DRAW_FRAMEBUFFER)
+  {
+    foIter i = this->DrawColorBuffers.find(index);
+    if (i == this->DrawColorBuffers.end())
+    {
+      vtkFOInfo *foinfo = new vtkFOInfo;
+      i = this->DrawColorBuffers.insert(std::make_pair(index, foinfo)).first;
+    }
+    i->second->SetTexture(tex, mode, GL_COLOR_ATTACHMENT0 + index);
+    i->second->ZSlice = zslice;
+  }
+  else if (mode == GL_READ_FRAMEBUFFER)
+  {
+    foIter i = this->ReadColorBuffers.find(index);
+    if (i == this->ReadColorBuffers.end())
+    {
+      vtkFOInfo *foinfo = new vtkFOInfo;
+      i = this->ReadColorBuffers.insert(std::make_pair(index, foinfo)).first;
+    }
+    i->second->SetTexture(tex, mode, GL_COLOR_ATTACHMENT0 + index);
+    i->second->ZSlice = zslice;
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkFrameBufferObject::SetDepthBuffer(
+  unsigned int mode,
+  vtkTextureObject* tex)
+{
+  if (mode == GL_FRAMEBUFFER)
+  {
+    this->DrawDepthBuffer->SetTexture(tex, mode, GL_DEPTH_ATTACHMENT);
+    this->ReadDepthBuffer->SetTexture(tex, mode, GL_DEPTH_ATTACHMENT);
+  }
+  else if (mode == GL_DRAW_FRAMEBUFFER)
+  {
+    this->DrawDepthBuffer->SetTexture(tex, mode, GL_DEPTH_ATTACHMENT);
+  }
+  else if (mode == GL_READ_FRAMEBUFFER)
+  {
+    this->ReadDepthBuffer->SetTexture(tex, mode, GL_DEPTH_ATTACHMENT);
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkFrameBufferObject::SetDepthBuffer(
+  unsigned int mode,
+  vtkRenderbuffer* val)
+{
+  if (mode == GL_FRAMEBUFFER)
+  {
+    this->DrawDepthBuffer->SetRenderbuffer(val, mode, GL_DEPTH_ATTACHMENT);
+    this->ReadDepthBuffer->SetRenderbuffer(val, mode, GL_DEPTH_ATTACHMENT);
+  }
+  else if (mode == GL_DRAW_FRAMEBUFFER)
+  {
+    this->DrawDepthBuffer->SetRenderbuffer(val, mode, GL_DEPTH_ATTACHMENT);
+  }
+  else if (mode == GL_READ_FRAMEBUFFER)
+  {
+    this->ReadDepthBuffer->SetRenderbuffer(val, mode, GL_DEPTH_ATTACHMENT);
+  }
+}
+
+#if 0
+//----------------------------------------------------------------------------
+void vtkFrameBufferObject::SetActiveBuffers(int num, unsigned int indices[])
+{
+  this->ActiveBuffers.clear();
+  for (int cc=0; cc < num; cc++)
+  {
+    this->ActiveBuffers.push_back(indices[cc]);
+  }
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkFrameBufferObject::SetDepthBuffer(vtkTextureObject* tex)
+{
+  this->SetDepthBuffer(GL_FRAMEBUFFER, tex);
+}
+
+//----------------------------------------------------------------------------
+void vtkFrameBufferObject::SetColorBuffer(
+        unsigned int index,
+        vtkTextureObject* tex,
+        unsigned int zslice/*=0*/)
+{
+  this->SetColorBuffer(GL_FRAMEBUFFER, index, tex, zslice);
+}
+
+//----------------------------------------------------------------------------
+void vtkFrameBufferObject::RemoveDepthBuffer()
+{
+  this->RemoveDepthAttachment(GL_FRAMEBUFFER);
+}
+
+//----------------------------------------------------------------------------
+void vtkFrameBufferObject::RemoveColorBuffer(unsigned int index)
+{
+  this->RemoveColorAttachment(GL_FRAMEBUFFER, index);
+}
+
+//----------------------------------------------------------------------------
+void vtkFrameBufferObject::RemoveAllColorBuffers()
+{
+  for (foIter i = this->DrawColorBuffers.begin();
+    i != this->DrawColorBuffers.end(); i++)
+  {
+    delete i->second;
+    this->DrawColorBuffers.erase(i++);
+  }
+
+  for (foIter i = this->ReadColorBuffers.begin();
+    i != this->ReadColorBuffers.end(); i++)
+  {
+    delete i->second;
+    this->ReadColorBuffers.erase(i++);
+  }
+}
+
+//----------------------------------------------------------------------------
+vtkTextureObject* vtkFrameBufferObject::GetColorBuffer(unsigned int index)
+{
+  return this->GetColorBuffer(GL_DRAW_FRAMEBUFFER, index);
+}
+
+vtkTextureObject* vtkFrameBufferObject::GetColorBuffer(
+  unsigned int mode,
+  unsigned int index)
+{
+  if (mode == GL_FRAMEBUFFER || mode == GL_DRAW_FRAMEBUFFER)
+  {
+    foIter i = this->DrawColorBuffers.find(index);
+    if (i != this->DrawColorBuffers.end())
+    {
+      return i->second->Texture;
+    }
+  }
+
+  if (mode == GL_FRAMEBUFFER || mode == GL_READ_FRAMEBUFFER)
+  {
+    foIter i = this->ReadColorBuffers.find(index);
+    if (i != this->ReadColorBuffers.end())
+    {
+      return i->second->Texture;
+    }
+  }
+
+  return NULL;
+}
+
+#endif

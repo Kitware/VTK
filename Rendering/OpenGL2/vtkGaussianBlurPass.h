@@ -99,9 +99,6 @@ public:
   // Structures for the various cell types we render.
   vtkOpenGLHelper *BlurProgram;
 
-  bool Supported;
-  bool SupportProbed;
-
  private:
   vtkGaussianBlurPass(const vtkGaussianBlurPass&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGaussianBlurPass&) VTK_DELETE_FUNCTION;

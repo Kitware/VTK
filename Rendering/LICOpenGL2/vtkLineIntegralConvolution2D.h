@@ -97,7 +97,7 @@
 #include "vtkRenderingLICOpenGL2Module.h" // for export macro
 #include <deque> // for deque
 
-class vtkFrameBufferObject2;
+class vtkFrameBufferObject;
 class vtkOpenGLHelper;
 class vtkOpenGLRenderWindow;
 class vtkPainterCommunicator;
@@ -409,7 +409,7 @@ protected:
 
 protected:
   vtkWeakPointer<vtkOpenGLRenderWindow> Context;
-  vtkFrameBufferObject2 *FBO;
+  vtkFrameBufferObject *FBO;
 
   int ShadersNeedBuild;
   vtkOpenGLHelper *FinalBlendProgram;

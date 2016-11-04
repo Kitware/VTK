@@ -27,6 +27,7 @@
 #include "vtkWeakPointer.h" // for render context
 
 class vtkRenderWindow;
+class vtkWindow;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkRenderbuffer : public vtkObject
 {
@@ -85,6 +86,20 @@ public:
         unsigned int width,
         unsigned int height);
 
+  void ReleaseGraphicsResources(vtkWindow *win);
+
+  // resizes an existing renderbuffer
+  void Resize(unsigned int width, unsigned int height);
+
+  //@{
+  /**
+   * Get the buffer dimensions.
+   * These are the properties of the OpenGL texture this instance represents.
+   */
+  vtkGetMacro(Width, unsigned int);
+  vtkGetMacro(Height, unsigned int);
+  //@}
+
 protected:
   vtkRenderbuffer();
   ~vtkRenderbuffer();
@@ -94,6 +109,10 @@ protected:
   void Free();
 
   int DepthBufferFloat;
+
+  unsigned int Width;
+  unsigned int Height;
+  unsigned int Format;
 
 private:
   unsigned int Handle;

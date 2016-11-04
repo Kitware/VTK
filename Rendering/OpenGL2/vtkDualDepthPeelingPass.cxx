@@ -15,7 +15,7 @@
 
 #include "vtkDualDepthPeelingPass.h"
 
-#include "vtkFrameBufferObject2.h"
+#include "vtkFrameBufferObject.h"
 #include "vtkInformation.h"
 #include "vtkInformationKey.h"
 #include "vtkNew.h"
@@ -454,7 +454,7 @@ void vtkDualDepthPeelingPass::Initialize(const vtkRenderState *s)
   // Allocate new textures if needed:
   if (!this->Framebuffer)
   {
-    this->Framebuffer = vtkFrameBufferObject2::New();
+    this->Framebuffer = vtkFrameBufferObject::New();
 
     std::generate(this->Textures,
                   this->Textures + static_cast<int>(NumberOfTextures),
@@ -513,7 +513,7 @@ void vtkDualDepthPeelingPass::InitFramebuffer(const vtkRenderState *s)
                                   s->GetRenderer()->GetRenderWindow()));
 
   // Save the current FBO bindings to restore them later.
-  this->Framebuffer->SaveCurrentBindings();
+  this->Framebuffer->SaveCurrentBindingsAndBuffers(GL_DRAW_FRAMEBUFFER);
   this->Framebuffer->Bind(GL_DRAW_FRAMEBUFFER);
 
   this->Framebuffer->AddColorAttachment(GL_DRAW_FRAMEBUFFER, BackTemp,
@@ -561,7 +561,7 @@ void vtkDualDepthPeelingPass::Prepare()
   this->RenderCount = 0;
 
   // Save the current FBO bindings to restore them later.
-  this->Framebuffer->SaveCurrentBindings();
+  this->Framebuffer->SaveCurrentBindingsAndBuffers(GL_DRAW_FRAMEBUFFER);
   this->Framebuffer->Bind(GL_DRAW_FRAMEBUFFER);
 
   // The source front buffer must be initialized, since it simply uses additive
@@ -607,10 +607,11 @@ void vtkDualDepthPeelingPass::CopyOpaqueDepthBuffer()
   // glBlendEquation = GL_MAX to be used during peeling.
 
   // Copy from the current (default) framebuffer's depth buffer into a texture:
-  this->Framebuffer->UnBind(GL_DRAW_FRAMEBUFFER);
+  this->Framebuffer->RestorePreviousBindingsAndBuffers(GL_DRAW_FRAMEBUFFER);
   this->Textures[OpaqueDepth]->CopyFromFrameBuffer(
         this->ViewportX, this->ViewportY, 0, 0,
         this->ViewportWidth, this->ViewportHeight);
+  this->Framebuffer->SaveCurrentBindingsAndBuffers(GL_DRAW_FRAMEBUFFER);
   this->Framebuffer->Bind(GL_DRAW_FRAMEBUFFER);
 
   // Fill both depth buffers with the opaque fragment depths. InitializeDepth
@@ -911,6 +912,7 @@ void vtkDualDepthPeelingPass::Finalize()
       this->TranslucentPass->GetNumberOfRenderedProps();
 
   this->Framebuffer->UnBind(GL_DRAW_FRAMEBUFFER);
+  this->Framebuffer->RestorePreviousBindingsAndBuffers(GL_DRAW_FRAMEBUFFER);
   this->BlendFinalImage();
 
   // Restore blending parameters:
