@@ -53,6 +53,7 @@ namespace @KWSYS_NAMESPACE@
 
 class SystemToolsTranslationMap;
 class SystemToolsPathCaseMap;
+class SystemToolsEnvMap;
 
 /** \class SystemToolsManager
  * \brief Use to make sure SystemTools is initialized before it is used
@@ -305,6 +306,11 @@ public:
   static std::string ConvertToWindowsOutputPath(const std::string&);
 
   /**
+   * Return true if a path with the given name exists in the current directory.
+   */
+  static bool PathExists(const std::string& path);
+
+  /**
    * Return true if a file exists in the current directory.
    * If isFile = true, then make sure the file is a file and
    * not a directory.  If isFile = false, then return true
@@ -368,10 +374,11 @@ public:
   static const char* GetExecutableExtension();
 
   /**
-   *  Given a path that exists on a windows machine, return the
-   *  actuall case of the path as it was created.  If the file
-   *  does not exist path is returned unchanged.  This does nothing
-   *  on unix but return path.
+   * Given a path on a Windows machine, return the actual case of
+   * the path as it exists on disk.  Path components that do not
+   * exist on disk are returned unchanged.  Relative paths are always
+   * returned unchanged.  Drive letters are always made upper case.
+   * This does nothing on non-Windows systems but return the path.
    */
   static std::string GetActualCaseForPath(const std::string& path);
 
@@ -843,6 +850,8 @@ public:
   static const char* GetEnv(const std::string& key);
   static bool GetEnv(const char* key, std::string& result);
   static bool GetEnv(const std::string& key, std::string& result);
+  static bool HasEnv(const char* key);
+  static bool HasEnv(const std::string& key);
 
   /** Put a string into the environment
       of the form var=value */
@@ -981,6 +990,7 @@ private:
     std::vector<std::string>(),
     bool no_system_path = false);
 
+  static const char* GetEnvImpl(const char* key);
 
   /**
    * Path translation table from dir to refdir
@@ -989,6 +999,7 @@ private:
   static SystemToolsTranslationMap *TranslationMap;
 #ifdef _WIN32
   static SystemToolsPathCaseMap *PathCaseMap;
+  static SystemToolsEnvMap *EnvMap;
 #endif
 #ifdef __CYGWIN__
   static SystemToolsTranslationMap *Cyg2Win32Map;

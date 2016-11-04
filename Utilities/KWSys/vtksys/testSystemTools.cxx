@@ -204,6 +204,14 @@ static bool CheckFileOperations()
       << testNewDir << std::endl;
     res = false;
     }
+  // check existence
+  if (!kwsys::SystemTools::PathExists(testNewDir))
+    {
+    std::cerr
+      << "Problem with PathExists for: "
+      << testNewDir << std::endl;
+    res = false;
+    }
   // remove it
   if (!kwsys::SystemTools::RemoveADirectory(testNewDir))
     {
@@ -218,6 +226,15 @@ static bool CheckFileOperations()
     std::cerr
       << "After RemoveADirectory: "
       << "Problem with FileExists as C string and not file for: "
+      << testNewDir << std::endl;
+    res = false;
+    }
+  // check existence
+  if (kwsys::SystemTools::PathExists(testNewDir))
+    {
+    std::cerr
+      << "After RemoveADirectory: "
+      << "Problem with PathExists for: "
       << testNewDir << std::endl;
     res = false;
     }
@@ -325,6 +342,31 @@ static bool CheckFileOperations()
     {
     std::cerr
       << "Problem with FileExists as C string and file for: "
+      << testNewDir << std::endl;
+    res = false;
+    }
+
+  // calling with an empty string should return false
+  if (kwsys::SystemTools::PathExists(std::string()))
+    {
+    std::cerr
+      << "Problem with PathExists(std::string())"
+      << std::endl;
+    res = false;
+    }
+  // PathExists(x) should return true on a directory
+  if (!kwsys::SystemTools::PathExists(testNewDir))
+    {
+    std::cerr
+      << "Problem with PathExists for: "
+      << testNewDir << std::endl;
+    res = false;
+    }
+  // should work, was created as new file before
+  if (!kwsys::SystemTools::PathExists(testNewFile))
+    {
+    std::cerr
+      << "Problem with PathExists for: "
       << testNewDir << std::endl;
     res = false;
     }
@@ -848,9 +890,9 @@ static bool CheckPutEnv(const std::string& env, const char* name, const char* va
                     << "\") failed!" << std::endl;
     return false;
     }
-  const char* v = kwsys::SystemTools::GetEnv(name);
-  v = v? v : "(null)";
-  if(strcmp(v, value) != 0)
+  std::string v = "(null)";
+  kwsys::SystemTools::GetEnv(name, v);
+  if(v != value)
     {
     std::cerr << "GetEnv(\"" << name << "\") returned \""
                     << v << "\", not \"" << value << "\"!" << std::endl;
@@ -867,7 +909,8 @@ static bool CheckUnPutEnv(const char* env, const char* name)
                     << std::endl;
     return false;
     }
-  if(const char* v = kwsys::SystemTools::GetEnv(name))
+  std::string v;
+  if(kwsys::SystemTools::GetEnv(name, v))
     {
     std::cerr << "GetEnv(\"" << name << "\") returned \""
                     << v << "\", not (null)!" << std::endl;
@@ -897,7 +940,7 @@ static bool CheckRelativePath(
   const std::string& expected)
 {
   std::string result = kwsys::SystemTools::RelativePath(local, remote);
-  if(expected != result)
+  if (!kwsys::SystemTools::ComparePath(expected, result))
     {
     std::cerr << "RelativePath(" << local << ", " << remote
       << ")  yielded " << result << " instead of " << expected << std::endl;
@@ -922,7 +965,7 @@ static bool CheckCollapsePath(
   const std::string& expected)
 {
   std::string result = kwsys::SystemTools::CollapseFullPath(path);
-  if(expected != result)
+  if (!kwsys::SystemTools::ComparePath(expected, result))
     {
     std::cerr << "CollapseFullPath(" << path
       << ")  yielded " << result << " instead of " << expected << std::endl;
