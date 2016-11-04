@@ -1853,7 +1853,8 @@ public:
   }
 
   vtkTypeInt64 ReadIntValue();
-  float ReadFloatValue();
+  template <typename FloatType>
+  FloatType ReadFloatValue();
 };
 
 int vtkFoamFile::ReadNext()
@@ -1931,7 +1932,8 @@ vtkTypeInt64 vtkFoamFile::ReadIntValue()
 // extreamely simplified high-performing string to floating point
 // conversion code based on
 // ParaView3/VTK/Utilities/vtksqlite/vtk_sqlite3.c
-float vtkFoamFile::ReadFloatValue()
+template <typename FloatType>
+FloatType vtkFoamFile::ReadFloatValue()
 {
   // skip prepending invalid chars
   // expanded the outermost loop in nextTokenHead() for performance
@@ -2053,7 +2055,7 @@ float vtkFoamFile::ReadFloatValue()
   }
   this->PutBack(c);
 
-  return static_cast<float>(nonNegative ? num : -num);
+  return static_cast<FloatType>(nonNegative ? num : -num);
 }
 
 // hacks to keep exception throwing code out-of-line to make
@@ -2341,7 +2343,13 @@ vtkTypeInt64 vtkFoamReadValue<vtkTypeInt64>::ReadValue(vtkFoamIOobject& io)
 template<> inline
 float vtkFoamReadValue<float>::ReadValue(vtkFoamIOobject& io)
 {
-  return io.ReadFloatValue();
+  return io.ReadFloatValue<float>();
+}
+
+template<> inline
+double vtkFoamReadValue<double>::ReadValue(vtkFoamIOobject& io)
+{
+  return io.ReadFloatValue<double>();
 }
 
 //-----------------------------------------------------------------------------
@@ -5127,28 +5135,71 @@ vtkFloatArray* vtkOpenFOAMReaderPrivate::ReadPointsFile()
   const vtkStdString pointPath =
       this->CurrentTimeRegionMeshPath(this->PolyMeshPointsDir) + "points";
 
-  vtkFoamIOobject io(this->CasePath, this->Parent);
-  if (!(io.Open(pointPath) || io.Open(pointPath + ".gz")))
-  {
-    vtkErrorMacro(<<"Error opening " << io.GetFileName().c_str() << ": "
-        << io.GetError().c_str());
-    return NULL;
-  }
+  // These pointers are updated in the try blocks below:
+  vtkFoamEntryValue *dict = NULL;
+  vtkFoamIOobject *io = NULL;
 
-  vtkFoamEntryValue dict(NULL);
+  // OpenFOAM is hardcoded to expect a float array for its data, so if we end
+  // up reading doubles, we'll need to cast the array.
+  vtkFloatArray *pointArray = NULL;
+
+  // Try to read the values as 32-bit floats
   try
   {
-    dict.ReadNonuniformList<vtkFoamToken::VECTORLIST,
-    vtkFoamEntryValue::vectorListTraits<vtkFloatArray, float, 3, false> >(io);
+    vtkFoamEntryValue dictFlt(NULL);
+    dict = &dictFlt;
+
+    vtkFoamIOobject ioFlt(this->CasePath, this->Parent);
+    if (!(ioFlt.Open(pointPath) || ioFlt.Open(pointPath + ".gz")))
+    {
+      vtkErrorMacro(<<"Error opening " << ioFlt.GetFileName().c_str() << ": "
+          << ioFlt.GetError().c_str());
+      return NULL;
+    }
+    io = &ioFlt;
+
+    dict->ReadNonuniformList<vtkFoamToken::VECTORLIST,
+    vtkFoamEntryValue::vectorListTraits<vtkFloatArray, float, 3, false> >(*io);
+
+    pointArray = static_cast<vtkFloatArray *>(dict->Ptr());
   }
-  catch(vtkFoamError& e)
+  catch(vtkFoamError &)
   {
-    vtkErrorMacro(<<"Error reading line " << io.GetLineNumber()
-        << " of " << io.GetFileName().c_str() << ": " << e.c_str());
-    return NULL;
+    try
+    { // Failed to read as float -- try double?
+      vtkFoamEntryValue dictDbl(NULL);
+      dict = &dictDbl;
+
+      vtkFoamIOobject ioDbl(this->CasePath, this->Parent);
+      if (!(ioDbl.Open(pointPath) || ioDbl.Open(pointPath + ".gz")))
+      {
+        vtkErrorMacro(<<"Error opening " << ioDbl.GetFileName().c_str() << ": "
+            << ioDbl.GetError().c_str());
+        return NULL;
+      }
+      io = &ioDbl;
+
+      dict->ReadNonuniformList<vtkFoamToken::VECTORLIST,
+          vtkFoamEntryValue::vectorListTraits<vtkDoubleArray, double, 3, false>
+          >(*io);
+
+      // Cast the double array to a float array:
+      vtkDoubleArray *tmpArray = static_cast<vtkDoubleArray *>(dict->Ptr());
+      pointArray = vtkFloatArray::New();
+      pointArray->DeepCopy(tmpArray);
+      tmpArray->Delete(); // this isn't freed by dict once Ptr() is called.
+    }
+    catch(vtkFoamError& e)
+    { // Something is horribly wrong.
+      vtkErrorMacro("Binary float data is neither 32 nor 64 bit, or some other "
+                    "parse error occurred while reading points. Failed at line "
+                    << io->GetLineNumber() << " of "
+                    << io->GetFileName().c_str() << ": " << e.c_str());
+      return NULL;
+    }
   }
 
-  vtkFloatArray *pointArray = static_cast<vtkFloatArray *>(dict.Ptr());
+  assert(pointArray);
 
   // set the number of points
   this->NumPoints = pointArray->GetNumberOfTuples();
