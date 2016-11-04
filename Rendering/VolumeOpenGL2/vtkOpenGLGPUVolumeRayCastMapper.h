@@ -25,6 +25,7 @@ class vtkOpenGLCamera;
 class vtkShaderProgram;
 class vtkTextureObject;
 class vtkGenericOpenGLResourceFreeCallback;
+class vtkImplicitFunction;
 
 //----------------------------------------------------------------------------
 class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLGPUVolumeRayCastMapper :
@@ -72,6 +73,17 @@ public:
   // but can be set indirectly depending on the options set by
   // the user.
   vtkGetMacro(CurrentPass, int);
+
+  //@{
+  /**
+   * Sets a user defined function to generate the ray jittering noise.
+   * vtkPerlinNoise is used by default with a texture size equivlent to
+   * the window size. These settings will have no effect when UseJittering
+   * is Off.
+   */
+  void SetNoiseGenerator(vtkImplicitFunction* generator);
+  vtkSetVector2Macro(NoiseTextureSize, int);
+  //@}
 
 protected:
   vtkOpenGLGPUVolumeRayCastMapper();
@@ -157,6 +169,9 @@ protected:
 private:
   class vtkInternal;
   vtkInternal* Impl;
+
+  vtkImplicitFunction* NoiseGenerator;
+  int NoiseTextureSize[2];
 
   vtkOpenGLGPUVolumeRayCastMapper(
     const vtkOpenGLGPUVolumeRayCastMapper&) VTK_DELETE_FUNCTION;

@@ -17,7 +17,6 @@ set (GenericVolumeCxxTests
   TestGPURayCastFourComponentsMinIP.cxx
   TestGPURayCastFourComponentsMIP.cxx
   TestGPURayCastMapperBenchmark.cxx
-  TestGPURayCastMapperSampleDistance.cxx
   TestGPURayCastMIPBinaryMask.cxx
   TestGPURayCastMIPToComposite.cxx
   TestGPURayCastNearestDataTypesMIP.cxx
@@ -70,7 +69,10 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastGradientOpacityLight.cxx
   TestGPURayCastIndependentComponentsLightParameters.cxx
   TestGPURayCastIndependentVectorMode.cxx
+  TestGPURayCastJittering.cxx
+  TestGPURayCastJitteringCustom.cxx
   TestGPURayCastLargeColorTransferFunction.cxx
+  TestGPURayCastMapperSampleDistance.cxx
   TestGPURayCastPositionalLights.cxx
   TestGPURayCastReleaseResources.cxx
   TestGPURayCastRenderDepthToImage.cxx
