@@ -66,6 +66,10 @@
 #include <sys/stat.h>
 #include <time.h>
 
+#if defined(_WIN32) && !defined(_MSC_VER) && defined(__GNUC__)
+# include <strings.h> /* for strcasecmp */
+#endif
+
 #ifdef _MSC_VER
 # define umask _umask // Note this is still umask on Borland
 #endif
@@ -388,6 +392,72 @@ class SystemToolsTranslationMap :
 {
 };
 
+/* Type of character storing the environment.  */
+#if defined(_WIN32)
+typedef wchar_t envchar;
+#else
+typedef char envchar;
+#endif
+
+/* Order by environment key only (VAR from VAR=VALUE).  */
+struct kwsysEnvCompare
+{
+  bool operator() (const envchar* l, const envchar* r) const
+    {
+#if defined(_WIN32)
+    const wchar_t* leq = wcschr(l, L'=');
+    const wchar_t* req = wcschr(r, L'=');
+    size_t llen = leq? (leq-l) : wcslen(l);
+    size_t rlen = req? (req-r) : wcslen(r);
+    if(llen == rlen)
+      {
+      return wcsncmp(l,r,llen) < 0;
+      }
+    else
+      {
+      return wcscmp(l,r) < 0;
+      }
+#else
+    const char* leq = strchr(l, '=');
+    const char* req = strchr(r, '=');
+    size_t llen = leq? (leq-l) : strlen(l);
+    size_t rlen = req? (req-r) : strlen(r);
+    if(llen == rlen)
+      {
+      return strncmp(l,r,llen) < 0;
+      }
+    else
+      {
+      return strcmp(l,r) < 0;
+      }
+#endif
+    }
+};
+
+class kwsysEnvSet: public std::set<const envchar*, kwsysEnvCompare>
+{
+public:
+  class Free
+  {
+    const envchar* Env;
+  public:
+    Free(const envchar* env): Env(env) {}
+    ~Free() { free(const_cast<envchar*>(this->Env)); }
+  };
+
+  const envchar* Release(const envchar* env)
+    {
+    const envchar* old = 0;
+    iterator i = this->find(env);
+    if(i != this->end())
+      {
+      old = *i;
+      this->erase(i);
+      }
+    return old;
+    }
+};
+
 #ifdef _WIN32
 struct SystemToolsPathCaseCmp
 {
@@ -406,6 +476,9 @@ struct SystemToolsPathCaseCmp
 class SystemToolsPathCaseMap:
   public std::map<std::string, std::string,
                         SystemToolsPathCaseCmp> {};
+
+class SystemToolsEnvMap :
+    public std::map<std::string,std::string> {};
 #endif
 
 // adds the elements of the env variable path to the arg passed in
@@ -421,13 +494,11 @@ void SystemTools::GetPath(std::vector<std::string>& path, const char* env)
     {
     env = "PATH";
     }
-  const char* cpathEnv = SystemTools::GetEnv(env);
-  if ( !cpathEnv )
+  std::string pathEnv;
+  if ( !SystemTools::GetEnv(env, pathEnv) )
     {
     return;
     }
-
-  std::string pathEnv = cpathEnv;
 
   // A hack to make the below algorithm work.
   if(!pathEnv.empty() && *pathEnv.rbegin() != pathSep)
@@ -456,28 +527,52 @@ void SystemTools::GetPath(std::vector<std::string>& path, const char* env)
     }
 }
 
+const char* SystemTools::GetEnvImpl(const char* key)
+{
+  const char *v = 0;
+#if defined(_WIN32)
+  std::string env;
+  if (SystemTools::GetEnv(key, env))
+    {
+    std::string& menv = (*SystemTools::EnvMap)[key];
+    menv = env;
+    v = menv.c_str();
+    }
+#else
+  v = getenv(key);
+#endif
+  return v;
+}
+
 const char* SystemTools::GetEnv(const char* key)
 {
-  return getenv(key);
+  return SystemTools::GetEnvImpl(key);
 }
 
 const char* SystemTools::GetEnv(const std::string& key)
 {
-  return SystemTools::GetEnv(key.c_str());
+  return SystemTools::GetEnvImpl(key.c_str());
 }
 
 bool SystemTools::GetEnv(const char* key, std::string& result)
 {
+#if defined(_WIN32)
+  const std::wstring wkey = Encoding::ToWide(key);
+  const wchar_t* wv = _wgetenv(wkey.c_str());
+  if (wv)
+    {
+    result = Encoding::ToNarrow(wv);
+    return true;
+    }
+#else
   const char* v = getenv(key);
   if(v)
     {
     result = v;
     return true;
     }
-  else
-    {
-    return false;
-    }
+#endif
+  return false;
 }
 
 bool SystemTools::GetEnv(const std::string& key, std::string& result)
@@ -485,13 +580,23 @@ bool SystemTools::GetEnv(const std::string& key, std::string& result)
   return SystemTools::GetEnv(key.c_str(), result);
 }
 
-//----------------------------------------------------------------------------
-
-#if defined(__CYGWIN__) || defined(__GLIBC__)
-# define KWSYS_PUTENV_NAME  /* putenv("A")  removes A.  */
-#elif defined(_WIN32)
-# define KWSYS_PUTENV_EMPTY /* putenv("A=") removes A. */
+bool SystemTools::HasEnv(const char* key)
+{
+#if defined(_WIN32)
+  const std::wstring wkey = Encoding::ToWide(key);
+  const wchar_t* v = _wgetenv(wkey.c_str());
+#else
+  const char* v = getenv(key);
 #endif
+  return v != 0;
+}
+
+bool SystemTools::HasEnv(const std::string& key)
+{
+  return SystemTools::HasEnv(key.c_str());
+}
+
+//----------------------------------------------------------------------------
 
 #if KWSYS_CXX_HAS_UNSETENV
 /* unsetenv("A") removes A from the environment.
@@ -511,18 +616,15 @@ static int kwsysUnPutEnv(const std::string& env)
   return 0;
 }
 
-#elif defined(KWSYS_PUTENV_EMPTY) || defined(KWSYS_PUTENV_NAME)
-/* putenv("A=") or putenv("A") removes A from the environment.  */
+#elif defined(__CYGWIN__) || defined(__GLIBC__)
+/* putenv("A") removes A from the environment.  It must not put the
+   memory in the environment because it does not have any "=" syntax.  */
 static int kwsysUnPutEnv(const std::string& env)
 {
   int err = 0;
   size_t pos = env.find('=');
   size_t const len = pos == env.npos ? env.size() : pos;
-# ifdef KWSYS_PUTENV_EMPTY
-  size_t const sz = len + 2;
-# else
   size_t const sz = len + 1;
-# endif
   char local_buf[256];
   char* buf = sz > sizeof(local_buf) ? (char*)malloc(sz) : local_buf;
   if(!buf)
@@ -530,20 +632,11 @@ static int kwsysUnPutEnv(const std::string& env)
     return -1;
     }
   strncpy(buf, env.c_str(), len);
-# ifdef KWSYS_PUTENV_EMPTY
-  buf[len] = '=';
-  buf[len+1] = 0;
-  if(putenv(buf) < 0)
-    {
-    err = errno;
-    }
-# else
   buf[len] = 0;
   if(putenv(buf) < 0 && errno != EINVAL)
     {
     err = errno;
     }
-# endif
   if(buf != local_buf)
     {
     free(buf);
@@ -554,6 +647,30 @@ static int kwsysUnPutEnv(const std::string& env)
     return -1;
     }
   return 0;
+}
+
+#elif defined(_WIN32)
+/* putenv("A=") places "A=" in the environment, which is as close to
+   removal as we can get with the putenv API.  We have to leak the
+   most recent value placed in the environment for each variable name
+   on program exit in case exit routines access it.  */
+
+static kwsysEnvSet kwsysUnPutEnvSet;
+
+static int kwsysUnPutEnv(std::string const& env)
+{
+  std::wstring wEnv = Encoding::ToWide(env);
+  size_t const pos = wEnv.find('=');
+  size_t const len = pos == wEnv.npos ? wEnv.size() : pos;
+  wEnv.resize(len+1, L'=');
+  wchar_t* newEnv = _wcsdup(wEnv.c_str());
+  if(!newEnv)
+    {
+    return -1;
+    }
+  kwsysEnvSet::Free oldEnv(kwsysUnPutEnvSet.Release(newEnv));
+  kwsysUnPutEnvSet.insert(newEnv);
+  return _wputenv(newEnv);
 }
 
 #else
@@ -623,68 +740,46 @@ bool SystemTools::UnPutEnv(const std::string& env)
 #  pragma warning disable 444 /* base has non-virtual destructor */
 # endif
 
-/* Order by environment key only (VAR from VAR=VALUE).  */
-struct kwsysEnvCompare
+class kwsysEnv: public kwsysEnvSet
 {
-  bool operator() (const char* l, const char* r) const
-    {
-    const char* leq = strchr(l, '=');
-    const char* req = strchr(r, '=');
-    size_t llen = leq? (leq-l) : strlen(l);
-    size_t rlen = req? (req-r) : strlen(r);
-    if(llen == rlen)
-      {
-      return strncmp(l,r,llen) < 0;
-      }
-    else
-      {
-      return strcmp(l,r) < 0;
-      }
-    }
-};
-
-class kwsysEnv: public std::set<const char*, kwsysEnvCompare>
-{
-  class Free
-  {
-    const char* Env;
-  public:
-    Free(const char* env): Env(env) {}
-    ~Free() { free(const_cast<char*>(this->Env)); }
-  };
 public:
-  typedef std::set<const char*, kwsysEnvCompare> derived;
   ~kwsysEnv()
     {
-    for(derived::iterator i = this->begin(); i != this->end(); ++i)
+    for(iterator i = this->begin(); i != this->end(); ++i)
       {
+#if defined(_WIN32)
+      const std::string s = Encoding::ToNarrow(*i);
+      kwsysUnPutEnv(s.c_str());
+#else
       kwsysUnPutEnv(*i);
-      free(const_cast<char*>(*i));
+#endif
+      free(const_cast<envchar*>(*i));
       }
-    }
-  const char* Release(const char* env)
-    {
-    const char* old = 0;
-    derived::iterator i = this->find(env);
-    if(i != this->end())
-      {
-      old = *i;
-      this->erase(i);
-      }
-    return old;
     }
   bool Put(const char* env)
     {
-    Free oldEnv(this->Release(env));
-    static_cast<void>(oldEnv);
+#if defined(_WIN32)
+    const std::wstring wEnv = Encoding::ToWide(env);
+    wchar_t* newEnv = _wcsdup(wEnv.c_str());
+#else
     char* newEnv = strdup(env);
+#endif
+    Free oldEnv(this->Release(newEnv));
     this->insert(newEnv);
+#if defined(_WIN32)
+    return _wputenv(newEnv) == 0;
+#else
     return putenv(newEnv) == 0;
+#endif
     }
   bool UnPut(const char* env)
     {
+#if defined(_WIN32)
+    const std::wstring wEnv = Encoding::ToWide(env);
+    Free oldEnv(this->Release(wEnv.c_str()));
+#else
     Free oldEnv(this->Release(env));
-    static_cast<void>(oldEnv);
+#endif
     return kwsysUnPutEnv(env) == 0;
     }
 };
@@ -1201,6 +1296,32 @@ bool SystemTools::SameFile(const std::string& file1, const std::string& file2)
 }
 
 //----------------------------------------------------------------------------
+bool SystemTools::PathExists(const std::string& path)
+{
+  if(path.empty())
+    {
+    return false;
+    }
+#if defined(__CYGWIN__)
+  // Convert path to native windows path if possible.
+  char winpath[MAX_PATH];
+  if(SystemTools::PathCygwinToWin32(path.c_str(), winpath))
+    {
+    return (GetFileAttributesA(winpath) != INVALID_FILE_ATTRIBUTES);
+    }
+  struct stat st;
+  return lstat(path.c_str(), &st) == 0;
+#elif defined(_WIN32)
+  return (GetFileAttributesW(
+            SystemTools::ConvertToWindowsExtendedPath(path).c_str())
+          != INVALID_FILE_ATTRIBUTES);
+#else
+  struct stat st;
+  return lstat(path.c_str(), &st) == 0;
+#endif
+}
+
+//----------------------------------------------------------------------------
 bool SystemTools::FileExists(const char* filename)
 {
   if(!filename)
@@ -1230,7 +1351,12 @@ bool SystemTools::FileExists(const std::string& filename)
             SystemTools::ConvertToWindowsExtendedPath(filename).c_str())
           != INVALID_FILE_ATTRIBUTES);
 #else
+// SCO OpenServer 5.0.7/3.2's command has 711 permission.
+#if defined(_SCO_DS)
+  return access(filename.c_str(), F_OK) == 0;
+#else
   return access(filename.c_str(), R_OK) == 0;
+#endif
 #endif
 }
 
@@ -2044,8 +2170,8 @@ void SystemTools::ConvertToUnixSlashes(std::string& path)
     pathCString = path.c_str();
     if(pathCString[0] == '~' && (pathCString[1] == '/' || pathCString[1] == '\0'))
       {
-      const char* homeEnv = SystemTools::GetEnv("HOME");
-      if (homeEnv)
+      std::string homeEnv;
+      if (SystemTools::GetEnv("HOME", homeEnv))
         {
         path.replace(0,1,homeEnv);
         }
@@ -2590,17 +2716,15 @@ unsigned long SystemTools::FileLength(const std::string& filename)
   return length;
 }
 
-int SystemTools::Strucmp(const char *s1, const char *s2)
+int SystemTools::Strucmp(const char* l, const char* r)
 {
-  // lifted from Graphvis http://www.graphviz.org
-  while ((*s1 != '\0')
-         && (tolower(*s1) == tolower(*s2)))
-    {
-      s1++;
-      s2++;
-    }
-
-  return tolower(*s1) - tolower(*s2);
+  int lc;
+  int rc;
+  do {
+    lc = tolower(*l++);
+    rc = tolower(*r++);
+  } while(lc == rc && lc);
+  return lc - rc;
 }
 
 // return file's modified time
@@ -3860,16 +3984,16 @@ std::string SystemTools::RelativePath(const std::string& local, const std::strin
 }
 
 #ifdef _WIN32
-static int GetCasePathName(const std::string & pathIn,
-                            std::string & casePath)
+static std::string GetCasePathName(std::string const& pathIn)
 {
+  std::string casePath;
   std::vector<std::string> path_components;
   SystemTools::SplitPath(pathIn, path_components);
   if(path_components[0].empty()) // First component always exists.
     {
     // Relative paths cannot be converted.
-    casePath = "";
-    return 0;
+    casePath = pathIn;
+    return casePath;
     }
 
   // Start with root component.
@@ -3893,38 +4017,45 @@ static int GetCasePathName(const std::string & pathIn,
     sep = "/";
     }
 
+  // Convert case of all components that exist.
+  bool converting = true;
   for(; idx < path_components.size(); idx++)
     {
     casePath += sep;
     sep = "/";
-    std::string test_str = casePath;
-    test_str += path_components[idx];
 
-    // If path component contains wildcards, we skip matching
-    // because these filenames are not allowed on windows,
-    // and we do not want to match a different file.
-    if(path_components[idx].find('*') != std::string::npos ||
-       path_components[idx].find('?') != std::string::npos)
+    if (converting)
       {
-      casePath = "";
-      return 0;
+      // If path component contains wildcards, we skip matching
+      // because these filenames are not allowed on windows,
+      // and we do not want to match a different file.
+      if(path_components[idx].find('*') != std::string::npos ||
+         path_components[idx].find('?') != std::string::npos)
+        {
+        converting = false;
+        }
+      else
+        {
+        std::string test_str = casePath;
+        test_str += path_components[idx];
+        WIN32_FIND_DATAW findData;
+        HANDLE hFind = ::FindFirstFileW(Encoding::ToWide(test_str).c_str(),
+          &findData);
+        if (INVALID_HANDLE_VALUE != hFind)
+          {
+          path_components[idx] = Encoding::ToNarrow(findData.cFileName);
+          ::FindClose(hFind);
+          }
+        else
+          {
+          converting = false;
+          }
+        }
       }
 
-    WIN32_FIND_DATAW findData;
-    HANDLE hFind = ::FindFirstFileW(Encoding::ToWide(test_str).c_str(),
-      &findData);
-    if (INVALID_HANDLE_VALUE != hFind)
-      {
-      casePath += Encoding::ToNarrow(findData.cFileName);
-      ::FindClose(hFind);
-      }
-    else
-      {
-      casePath = "";
-      return 0;
-      }
+    casePath += path_components[idx];
     }
-  return (int)casePath.size();
+  return casePath;
 }
 #endif
 
@@ -3943,11 +4074,10 @@ std::string SystemTools::GetActualCaseForPath(const std::string& p)
     {
     return i->second;
     }
-  std::string casePath;
-  int len = GetCasePathName(p, casePath);
-  if(len == 0 || len > MAX_PATH+1)
+  std::string casePath = GetCasePathName(p);
+  if (casePath.size() > MAX_PATH)
     {
-    return p;
+    return casePath;
     }
   (*SystemTools::PathCaseMap)[p] = casePath;
   return casePath;
@@ -4061,16 +4191,9 @@ void SystemTools::SplitPath(const std::string& p,
     if(root.size() == 1)
       {
 #if defined(_WIN32) && !defined(__CYGWIN__)
-      if(const char* userp = getenv("USERPROFILE"))
-        {
-        homedir = userp;
-        }
-      else
+      if (!SystemTools::GetEnv("USERPROFILE", homedir))
 #endif
-      if(const char* h = getenv("HOME"))
-        {
-        homedir = h;
-        }
+      SystemTools::GetEnv("HOME", homedir);
       }
 #ifdef HAVE_GETPWNAM
     else if(passwd* pw = getpwnam(root.c_str()+1))
@@ -4610,8 +4733,11 @@ bool SystemTools::GetShortPath(const std::string& path, std::string& shortPath)
   std::wstring wtempPath = Encoding::ToWide(tempPath);
   DWORD ret = GetShortPathNameW(wtempPath.c_str(), NULL, 0);
   std::vector<wchar_t> buffer(ret);
-  ret = GetShortPathNameW(wtempPath.c_str(),
-                          &buffer[0], static_cast<DWORD>(buffer.size()));
+  if (ret != 0)
+    {
+    ret = GetShortPathNameW(wtempPath.c_str(),
+                            &buffer[0], static_cast<DWORD>(buffer.size()));
+    }
 
   if (ret == 0)
     {
@@ -4811,7 +4937,7 @@ int SystemTools::GetTerminalWidth()
   int width = -1;
 #ifdef HAVE_TTY_INFO
   struct winsize ws;
-  char *columns; /* Unix98 environment variable */
+  std::string columns; /* Unix98 environment variable */
   if(ioctl(1, TIOCGWINSZ, &ws) != -1 && ws.ws_col>0 && ws.ws_row>0)
     {
     width = ws.ws_col;
@@ -4820,12 +4946,11 @@ int SystemTools::GetTerminalWidth()
     {
     width = -1;
     }
-  columns = getenv("COLUMNS");
-  if(columns && *columns)
+  if(SystemTools::GetEnv("COLUMNS", columns) && !columns.empty())
     {
     long t;
     char *endptr;
-    t = strtol(columns, &endptr, 0);
+    t = strtol(columns.c_str(), &endptr, 0);
     if(endptr && !*endptr && (t>0) && (t<1000))
       {
       width = static_cast<int>(t);
@@ -5371,6 +5496,7 @@ static unsigned int SystemToolsManagerCount;
 SystemToolsTranslationMap *SystemTools::TranslationMap;
 #ifdef _WIN32
 SystemToolsPathCaseMap *SystemTools::PathCaseMap;
+SystemToolsEnvMap *SystemTools::EnvMap;
 #endif
 #ifdef __CYGWIN__
 SystemToolsTranslationMap *SystemTools::Cyg2Win32Map;
@@ -5421,6 +5547,7 @@ void SystemTools::ClassInitialize()
   SystemTools::TranslationMap = new SystemToolsTranslationMap;
 #ifdef _WIN32
   SystemTools::PathCaseMap = new SystemToolsPathCaseMap;
+  SystemTools::EnvMap = new SystemToolsEnvMap;
 #endif
 #ifdef __CYGWIN__
   SystemTools::Cyg2Win32Map = new SystemToolsTranslationMap;
@@ -5435,7 +5562,8 @@ void SystemTools::ClassInitialize()
 
   // If the current working directory is a logical path then keep the
   // logical name.
-  if(const char* pwd = getenv("PWD"))
+  std::string pwd_str;
+  if(SystemTools::GetEnv("PWD", pwd_str))
     {
     char buf[2048];
     if(const char* cwd = Getcwd(buf, 2048))
@@ -5447,10 +5575,9 @@ void SystemTools::ClassInitialize()
       std::string pwd_changed;
 
       // Test progressively shorter logical-to-physical mappings.
-      std::string pwd_str = pwd;
       std::string cwd_str = cwd;
       std::string pwd_path;
-      Realpath(pwd, pwd_path);
+      Realpath(pwd_str.c_str(), pwd_path);
       while(cwd_str == pwd_path && cwd_str != pwd_str)
         {
         // The current pair of paths is a working logical mapping.
@@ -5480,6 +5607,7 @@ void SystemTools::ClassFinalize()
   delete SystemTools::TranslationMap;
 #ifdef _WIN32
   delete SystemTools::PathCaseMap;
+  delete SystemTools::EnvMap;
 #endif
 #ifdef __CYGWIN__
   delete SystemTools::Cyg2Win32Map;
@@ -5505,8 +5633,8 @@ static int SystemToolsDebugReport(int, char* message, int*)
 
 void SystemTools::EnableMSVCDebugHook()
 {
-  if (getenv("DART_TEST_FROM_DART") ||
-      getenv("DASHBOARD_TEST_FROM_CTEST"))
+  if (SystemTools::HasEnv("DART_TEST_FROM_DART") ||
+      SystemTools::HasEnv("DASHBOARD_TEST_FROM_CTEST"))
     {
     _CrtSetReportHook(SystemToolsDebugReport);
     }
