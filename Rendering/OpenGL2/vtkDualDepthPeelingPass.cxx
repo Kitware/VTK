@@ -115,6 +115,12 @@ bool vtkDualDepthPeelingPass::ReplaceShaderValues(std::string &,
   switch (this->CurrentStage)
   {
     case vtkDualDepthPeelingPass::InitializingDepth:
+      // Set gl_FragDepth if it isn't set already. It may have already been
+      // replaced by the mapper, in which case the substitution will fail and
+      // the previously set depth value will be used.
+      vtkShaderProgram::Substitute(
+            fragmentShader, "//VTK::Depth::Impl",
+            "gl_FragDepth = gl_FragCoord.z;");
       vtkShaderProgram::Substitute(
             fragmentShader, "//VTK::DepthPeeling::Dec",
             "uniform sampler2D opaqueDepth;\n");
@@ -136,6 +142,12 @@ bool vtkDualDepthPeelingPass::ReplaceShaderValues(std::string &,
       break;
 
     case vtkDualDepthPeelingPass::Peeling:
+      // Set gl_FragDepth if it isn't set already. It may have already been
+      // replaced by the mapper, in which case the substitution will fail and
+      // the previously set depth value will be used.
+      vtkShaderProgram::Substitute(
+            fragmentShader, "//VTK::Depth::Impl",
+            "gl_FragDepth = gl_FragCoord.z;");
       vtkShaderProgram::Substitute(
             fragmentShader, "//VTK::DepthPeeling::Dec",
             "uniform sampler2D lastFrontPeel;\n"
@@ -239,6 +251,12 @@ bool vtkDualDepthPeelingPass::ReplaceShaderValues(std::string &,
       break;
 
     case vtkDualDepthPeelingPass::AlphaBlending:
+      // Set gl_FragDepth if it isn't set already. It may have already been
+      // replaced by the mapper, in which case the substitution will fail and
+      // the previously set depth value will be used.
+      vtkShaderProgram::Substitute(
+            fragmentShader, "//VTK::Depth::Impl",
+            "gl_FragDepth = gl_FragCoord.z;");
       vtkShaderProgram::Substitute(
             fragmentShader, "//VTK::DepthPeeling::Dec",
             "uniform sampler2D lastDepthPeel;\n");
