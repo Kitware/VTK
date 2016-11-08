@@ -17,6 +17,7 @@
 #include "vtk_glew.h"
 
 #include "vtkCellData.h"
+#include "vtkColorTransferFunction.h"
 #include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
@@ -220,21 +221,73 @@ void vtkCompositeMapperHelper2::SetShaderValues(
     }
     return;
   }
+
+  // If requested, color partial / missing arrays with NaN color.
+  bool useNanColor = false;
+  double nanColor[4] = { -1., -1., -1., -1 };
+  if (this->Parent->GetColorMissingArraysWithNanColor() &&
+      this->GetScalarVisibility())
+  {
+    int cellFlag = 0;
+    vtkAbstractArray *scalars = vtkAbstractMapper::GetAbstractScalars(
+          hdata->Data, this->ScalarMode, this->ArrayAccessMode, this->ArrayId,
+          this->ArrayName, cellFlag);
+    if (scalars == NULL)
+    {
+      vtkLookupTable *lut = vtkLookupTable::SafeDownCast(this->GetLookupTable());
+      vtkColorTransferFunction *ctf = lut ? NULL :
+           vtkColorTransferFunction::SafeDownCast(this->GetLookupTable());
+      if (lut)
+      {
+        lut->GetNanColor(nanColor);
+        useNanColor = true;
+      }
+      else if (ctf)
+      {
+        ctf->GetNanColor(nanColor);
+        useNanColor = true;
+      }
+    }
+  }
+
   // override the opacity and color
   prog->SetUniformf("opacityUniform", hdata->Opacity);
-  vtkColor3d &aColor = hdata->AmbientColor;
-  float ambientColor[3] = {static_cast<float>(aColor[0] * this->CurrentAmbientIntensity),
-    static_cast<float>(aColor[1] * this->CurrentAmbientIntensity),
-    static_cast<float>(aColor[2] * this->CurrentAmbientIntensity)};
-  vtkColor3d &dColor = hdata->DiffuseColor;
-  float diffuseColor[3] = {static_cast<float>(dColor[0] * this->CurrentDiffuseIntensity),
-    static_cast<float>(dColor[1] * this->CurrentDiffuseIntensity),
-    static_cast<float>(dColor[2] * this->CurrentDiffuseIntensity)};
-  prog->SetUniform3f("ambientColorUniform", ambientColor);
-  prog->SetUniform3f("diffuseColorUniform", diffuseColor);
-  if (this->OverideColorUsed)
+
+  if (useNanColor)
   {
-    prog->SetUniformi("OverridesColor", hdata->OverridesColor);
+    float nanAmbient[3] = {
+      static_cast<float>(nanColor[0] * this->CurrentAmbientIntensity),
+      static_cast<float>(nanColor[1] * this->CurrentAmbientIntensity),
+      static_cast<float>(nanColor[2] * this->CurrentAmbientIntensity)
+    };
+    float nanDiffuse[3] = {
+      static_cast<float>(nanColor[0] * this->CurrentDiffuseIntensity),
+      static_cast<float>(nanColor[1] * this->CurrentDiffuseIntensity),
+      static_cast<float>(nanColor[2] * this->CurrentDiffuseIntensity)
+    };
+    prog->SetUniform3f("ambientColorUniform", nanAmbient);
+    prog->SetUniform3f("diffuseColorUniform", nanDiffuse);
+  }
+  else
+  {
+    vtkColor3d &aColor = hdata->AmbientColor;
+    float ambientColor[3] = {
+      static_cast<float>(aColor[0] * this->CurrentAmbientIntensity),
+      static_cast<float>(aColor[1] * this->CurrentAmbientIntensity),
+      static_cast<float>(aColor[2] * this->CurrentAmbientIntensity)
+    };
+    vtkColor3d &dColor = hdata->DiffuseColor;
+    float diffuseColor[3] = {
+      static_cast<float>(dColor[0] * this->CurrentDiffuseIntensity),
+      static_cast<float>(dColor[1] * this->CurrentDiffuseIntensity),
+      static_cast<float>(dColor[2] * this->CurrentDiffuseIntensity)
+    };
+    prog->SetUniform3f("ambientColorUniform", ambientColor);
+    prog->SetUniform3f("diffuseColorUniform", diffuseColor);
+    if (this->OverideColorUsed)
+    {
+      prog->SetUniformi("OverridesColor", hdata->OverridesColor);
+    }
   }
 }
 
@@ -977,6 +1030,7 @@ vtkCompositePolyDataMapper2::vtkCompositePolyDataMapper2()
   this->LastOpaqueCheckTime = 0;
   this->CurrentFlatIndex = 0;
   this->LastOpaqueCheckValue = true;
+  this->ColorMissingArraysWithNanColor = false;
 }
 
 //----------------------------------------------------------------------------

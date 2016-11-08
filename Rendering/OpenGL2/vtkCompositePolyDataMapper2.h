@@ -100,6 +100,17 @@ public:
   //@}
 
   /**
+   * If the current 'color by' array is missing on some datasets, color these
+   * dataset by the LookupTable's NaN color, if the lookup table supports it.
+   * Default is false.
+   * @{
+   */
+  vtkSetMacro(ColorMissingArraysWithNanColor, bool)
+  vtkGetMacro(ColorMissingArraysWithNanColor, bool)
+  vtkBooleanMacro(ColorMissingArraysWithNanColor, bool)
+  /**@}*/
+
+  /**
    * Release any graphics resources that are being consumed by this mapper.
    * The parameter window could be used to determine which graphic
    * resources to release.
@@ -174,6 +185,12 @@ protected:
   vtkSmartPointer<vtkCompositeDataDisplayAttributes> CompositeAttributes;
 
   friend class vtkCompositeMapperHelper2;
+
+  /**
+   * If the current 'color by' array is missing on some datasets, color these
+   * dataset by the LookupTable's NaN color, if the lookup table supports it.
+   */
+  bool ColorMissingArraysWithNanColor;
 
 private:
   vtkMTimeType LastOpaqueCheckTime;
