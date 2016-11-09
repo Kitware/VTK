@@ -30,7 +30,7 @@
 #include "vtkFloatArray.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLRenderWindow.h"
-#include "vtkFrameBufferObject.h"
+#include "vtkOpenGLFramebufferObject.h"
 
 #include <cassert>
 
@@ -65,7 +65,7 @@ public:
 
   // Description:
   // FLOATING_POINT mode resources. FBO, attachments and other control variables.
-  vtkFrameBufferObject* ValueFrameBO;
+  vtkOpenGLFramebufferObject* ValueFrameBO;
   vtkRenderbuffer* ValueRenderBO;
   vtkRenderbuffer* DepthRenderBO;
   bool ValuePassResourcesAllocated;
@@ -382,7 +382,7 @@ bool vtkValuePass::InitializeFloatingPointMode(vtkRenderer* ren)
   this->Internals->DepthRenderBO->CreateDepthAttachment(size[0], size[1]);
 
   // Initialize the FBO into which the float value pass is rendered.
-  this->Internals->ValueFrameBO = vtkFrameBufferObject::New();
+  this->Internals->ValueFrameBO = vtkOpenGLFramebufferObject::New();
   this->Internals->ValueFrameBO->SetContext(renWin);
   this->Internals->ValueFrameBO->SaveCurrentBindings();
   this->Internals->ValueFrameBO->Bind(GL_FRAMEBUFFER);

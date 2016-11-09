@@ -37,7 +37,7 @@
 #include <vtkDataArray.h>
 #include <vtkDensifyPolyData.h>
 #include <vtkFloatArray.h>
-#include <vtkFrameBufferObject.h>
+#include <vtkOpenGLFramebufferObject.h>
 #include <vtkImageData.h>
 #include <vtkLightCollection.h>
 #include <vtkLight.h>
@@ -454,13 +454,13 @@ public:
   vtkShaderProgram* ShaderProgram;
   vtkOpenGLShaderCache* ShaderCache;
 
-  vtkFrameBufferObject* FBO;
+  vtkOpenGLFramebufferObject* FBO;
   vtkTextureObject* RTTDepthBufferTextureObject;
   vtkTextureObject* RTTDepthTextureObject;
   vtkTextureObject* RTTColorTextureObject;
   int RTTDepthTextureType;
 
-  vtkFrameBufferObject* DPFBO;
+  vtkOpenGLFramebufferObject* DPFBO;
   vtkTextureObject* DPDepthBufferTextureObject;
   vtkTextureObject* DPColorTextureObject;
 
@@ -2280,7 +2280,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupRenderToTexture(
 
     if (!this->FBO)
     {
-      this->FBO = vtkFrameBufferObject::New();
+      this->FBO = vtkOpenGLFramebufferObject::New();
     }
 
     this->FBO->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
@@ -2410,7 +2410,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupDepthPass(
 
   if (!this->DPFBO)
   {
-    this->DPFBO = vtkFrameBufferObject::New();
+    this->DPFBO = vtkOpenGLFramebufferObject::New();
   }
 
   this->DPFBO->SetContext(vtkOpenGLRenderWindow::SafeDownCast(

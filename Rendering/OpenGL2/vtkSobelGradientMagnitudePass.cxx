@@ -19,7 +19,7 @@
 
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
-#include "vtkFrameBufferObject.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkTextureObject.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
@@ -102,7 +102,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
       = vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
 
     // Test for Hardware support. If not supported, just render the delegate.
-    bool fbo_support = vtkFrameBufferObject::IsSupported(context)!=0;
+    bool fbo_support = vtkOpenGLFramebufferObject::IsSupported(context)!=0;
     bool texture_support = vtkTextureObject::IsSupported(context)!=0;
 
     bool supported = fbo_support && texture_support;
@@ -144,7 +144,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
 
     if(this->FrameBufferObject==0)
     {
-      this->FrameBufferObject=vtkFrameBufferObject::New();
+      this->FrameBufferObject=vtkOpenGLFramebufferObject::New();
       this->FrameBufferObject->SetContext(context);
     }
 

@@ -14,7 +14,7 @@
 #include "vtkSurfaceLICInterface.h"
 
 #include "vtkFloatArray.h"
-#include "vtkFrameBufferObject.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkImageData.h"
 #include "vtkLineIntegralConvolution2D.h"
 #include "vtkObjectFactory.h"
@@ -189,7 +189,7 @@ void vtkSurfaceLICInterface::PrepareForGeometry()
 
   // ------------------------------------------- render geometry, project vectors onto screen, etc
   // setup our fbo
-  vtkFrameBufferObject *fbo = this->Internals->FBO;
+  vtkOpenGLFramebufferObject *fbo = this->Internals->FBO;
   fbo->SaveCurrentBindings();
   fbo->Bind(GL_FRAMEBUFFER);
   fbo->AddDepthAttachment(GL_DRAW_FRAMEBUFFER, this->Internals->DepthImage);
@@ -211,7 +211,7 @@ void vtkSurfaceLICInterface::PrepareForGeometry()
 
 void vtkSurfaceLICInterface::CompletedGeometry()
 {
-  vtkFrameBufferObject *fbo = this->Internals->FBO;
+  vtkOpenGLFramebufferObject *fbo = this->Internals->FBO;
   fbo->RemoveRenDepthAttachment(GL_DRAW_FRAMEBUFFER);
   fbo->RemoveTexColorAttachment(GL_DRAW_FRAMEBUFFER, 0U);
   fbo->RemoveTexColorAttachment(GL_DRAW_FRAMEBUFFER, 1U);
@@ -500,7 +500,7 @@ void vtkSurfaceLICInterface::CombineColorsAndLIC()
         this->Internals->Viewsize[0],
         this->Internals->Viewsize[1]);
 
-  vtkFrameBufferObject *fbo = this->Internals->FBO;
+  vtkOpenGLFramebufferObject *fbo = this->Internals->FBO;
   fbo->SaveCurrentBindings();
   fbo->Bind(GL_FRAMEBUFFER);
   fbo->InitializeViewport(this->Internals->Viewsize[0], this->Internals->Viewsize[1]);
@@ -672,7 +672,7 @@ void vtkSurfaceLICInterface::CopyToScreen()
 
   glBindFramebuffer(GL_FRAMEBUFFER, this->PrevFbo);
   glDrawBuffer(this->PrevDrawBuf);
-  vtkFrameBufferObject::InitializeViewport(
+  vtkOpenGLFramebufferObject::InitializeViewport(
         this->Internals->Viewsize[0],
         this->Internals->Viewsize[1]);
   glEnable(GL_DEPTH_TEST);
@@ -1152,7 +1152,7 @@ void vtkSurfaceLICInterface::InitializeResources()
   {
     initialized = false;
 
-    vtkFrameBufferObject * fbo = vtkFrameBufferObject::New();
+    vtkOpenGLFramebufferObject * fbo = vtkOpenGLFramebufferObject::New();
     fbo->SetContext(this->Internals->Context);
     this->Internals->FBO = fbo;
     fbo->Delete();

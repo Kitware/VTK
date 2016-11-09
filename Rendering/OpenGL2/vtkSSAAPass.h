@@ -40,7 +40,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderPass.h"
 
-class vtkFrameBufferObject;
+class vtkOpenGLFramebufferObject;
 class vtkOpenGLHelper;
 class vtkTextureObject;
 
@@ -89,7 +89,7 @@ public:
   /**
    * Graphics resources.
    */
-  vtkFrameBufferObject *FrameBufferObject;
+  vtkOpenGLFramebufferObject *FrameBufferObject;
   vtkTextureObject *Pass1; // render target for the scene
   vtkTextureObject *Pass2; // render target for the horizontal pass
 

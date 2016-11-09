@@ -56,7 +56,7 @@ Ph.D. thesis of Christian BOUCHENY.
 
 class vtkOpenGLRenderWindow;
 class vtkDepthPeelingPassLayerList; // Pimpl
-class vtkFrameBufferObject;
+class vtkOpenGLFramebufferObject;
 class vtkTextureObject;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkDepthImageProcessingPass : public vtkImageProcessingPass
@@ -108,7 +108,7 @@ public:
                       int height,
                       int newWidth,
                       int newHeight,
-                      vtkFrameBufferObject *fbo,
+                      vtkOpenGLFramebufferObject *fbo,
                       vtkTextureObject *colortarget,
                       vtkTextureObject *depthtarget);
 

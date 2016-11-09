@@ -18,7 +18,7 @@
 #include <cassert>
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
-#include "vtkFrameBufferObject.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkTextureObject.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
@@ -124,7 +124,7 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
 
   if(this->FrameBufferObject==0)
   {
-    this->FrameBufferObject=vtkFrameBufferObject::New();
+    this->FrameBufferObject=vtkOpenGLFramebufferObject::New();
     this->FrameBufferObject->SetContext(renWin);
   }
 

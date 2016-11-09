@@ -44,7 +44,7 @@ class vtkPPixelExtentOps;
 
 #ifdef VTK_OPENGL2
 class vtkOpenGLHelper;
-class vtkFrameBufferObject;
+class vtkOpenGLFramebufferObject;
 #else
 class vtkShaderProgram2;
 class vtkFrameBufferObject2;
@@ -205,7 +205,7 @@ private:
   vtkWeakPointer<vtkOpenGLRenderWindow> Context; // rendering context
 
 #ifdef VTK_OPENGL2
-  vtkFrameBufferObject *FBO;                    // buffer object
+  vtkOpenGLFramebufferObject *FBO;               // Framebuffer object
   vtkOpenGLHelper *CompositeShader;
 #else
   vtkFrameBufferObject2 *FBO;                    // buffer object

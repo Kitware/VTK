@@ -18,7 +18,7 @@
 
 #include "vtkAbstractTransform.h" // for helper classes stack and concatenation
 #include "vtkCamera.h"
-#include "vtkFrameBufferObject.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkImageData.h"
 #include "vtkImplicitSum.h"
 #include "vtkInformation.h"
@@ -148,7 +148,7 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
      this->OpaqueSequence != 0)
   {
      // Test for Hardware support. If not supported, just render the delegate.
-    bool supported=vtkFrameBufferObject::IsSupported(context);
+    bool supported=vtkOpenGLFramebufferObject::IsSupported(context);
 
     if(!supported)
     {

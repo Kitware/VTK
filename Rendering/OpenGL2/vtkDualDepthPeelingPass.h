@@ -50,7 +50,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkDepthPeelingPass.h"
 
-class vtkFrameBufferObject;
+class vtkOpenGLFramebufferObject;
 class vtkOpenGLBufferObject;
 class vtkOpenGLVertexArrayObject;
 class vtkShaderProgram;
@@ -186,7 +186,7 @@ protected:
   vtkOpenGLVertexArrayObject *BlendVAO;
   vtkOpenGLBufferObject *BlendVBO;
 
-  vtkFrameBufferObject *Framebuffer;
+  vtkOpenGLFramebufferObject *Framebuffer;
   vtkTextureObject *Textures[NumberOfTextures];
 
   TextureName FrontSource; // The current front source buffer

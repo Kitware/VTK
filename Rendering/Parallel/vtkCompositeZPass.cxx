@@ -18,7 +18,6 @@
 #include <cassert>
 #include "vtkRenderState.h"
 #include "vtkOpenGLRenderer.h"
-#include "vtkFrameBufferObject.h"
 #include "vtkTextureObject.h"
 #include "vtkOpenGLRenderWindow.h"
 
@@ -26,6 +25,7 @@
 // only for vtkCompositeZPass developers.
 //#define VTK_COMPOSITE_ZPASS_DEBUG
 
+#include "vtkFrameBufferObjectBase.h"
 #include "vtkPNGWriter.h"
 #include "vtkImageImport.h"
 #include "vtkImageShiftScale.h"
@@ -53,6 +53,7 @@
 # include "vtkCompositeZPassFS.h"
 # include "vtk_glew.h"
 #else
+# include "vtkFrameBufferObject.h"
 # include "vtkgl.h"
 # include "vtkShaderProgram2.h"
 # include "vtkShader2.h"
@@ -200,7 +201,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
   int w=0;
   int h=0;
 
-  vtkFrameBufferObject *fbo=(vtkFrameBufferObject*)s->GetFrameBuffer();
+  vtkFrameBufferObjectBase *fbo = s->GetFrameBuffer();
   if(fbo==0)
   {
     r->GetTiledSize(&w,&h);

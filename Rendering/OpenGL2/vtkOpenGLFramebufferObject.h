@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkFrameBufferObject.h
+  Module:    vtkOpenGLFramebufferObject.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,7 +13,7 @@
 
 =========================================================================*/
 /**
- * @class   vtkFrameBufferObject
+ * @class   vtkOpenGLFramebufferObject
  * @brief   Internal class which encapsulates OpenGL FramebufferObject
  *
  * Before delving into this class it is best to have some background
@@ -121,8 +121,8 @@
  * vtkTextureObject, vtkRenderbufferObject
 */
 
-#ifndef vtkFrameBufferObject_h
-#define vtkFrameBufferObject_h
+#ifndef vtkOpenGLFramebufferObject_h
+#define vtkOpenGLFramebufferObject_h
 
 /**
  * A variant of vtkErrorMacro that is used to verify framebuffer
@@ -137,7 +137,7 @@
 # define vtkCheckFrameBufferStatusMacroImpl(macro, mode)           \
 {                                                                  \
 const char *eStr;                                                  \
-bool ok = vtkFrameBufferObject::GetFrameBufferStatus(mode, eStr); \
+bool ok = vtkOpenGLFramebufferObject::GetFrameBufferStatus(mode, eStr); \
 if (!ok)                                                           \
 {                                                                \
   macro(                                                           \
@@ -168,11 +168,11 @@ class vtkShaderProgram;
 class vtkTextureObject;
 class vtkWindow;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkFrameBufferObject : public vtkFrameBufferObjectBase
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLFramebufferObject : public vtkFrameBufferObjectBase
 {
 public:
-  static vtkFrameBufferObject* New();
-  vtkTypeMacro(vtkFrameBufferObject, vtkFrameBufferObjectBase);
+  static vtkOpenGLFramebufferObject* New();
+  vtkTypeMacro(vtkOpenGLFramebufferObject, vtkFrameBufferObjectBase);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   //@{
@@ -461,88 +461,6 @@ protected:
   void SetDepthBuffer(unsigned int mode, vtkTextureObject *depthTexture);
   void SetDepthBuffer(unsigned int mode, vtkRenderbuffer *depthBuffer);
 
-
-#if 0
-protected:
-  // old methods deprecated
-  bool Start(int width, int height, bool ) {
-    return this->Start(width, height); }
-
-  bool StartNonOrtho(int width, int height, bool ) {
-    return this->StartNonOrtho(width, height); }
-
-  //@{
-  /**
-   * Set/Remove the texture/renderbuffer to use as depth buffer.
-   */
-  void SetDepthBuffer(vtkTextureObject *depthTexture);
-  void RemoveDepthBuffer();
-  void RemoveDepthBuffer(unsigned int mode);
-  //@}
-
-  /**
-   * Choose the buffers to render into.
-   */
-  void SetActiveBuffer(unsigned int index)
-  {
-    this->SetActiveBuffers(1, &index);
-  }
-
-  /**
-   * User provided color buffers are attached by index
-   * to color buffers. This command lets you select which
-   * attachments are written to. See set color buffer.
-   * This call overwrites what the previous list of active
-   * buffers.
-   */
-  void SetActiveBuffers(int numbuffers, unsigned int indices[]);
-
-  /**
-   * Insert a color buffer into the list of available color buffers.
-   * All user specified texture objects must match the FBO dimensions
-   * and must have been created by the time Start() gets called.
-   * If texture is a 3D texture, zslice identifies the zslice that will be
-   * attached to the color buffer.
-   * .SECTION Caveat
-   * 1D textures are not supported.
-   */
-  void SetColorBuffer(
-        unsigned int index,
-        vtkTextureObject *texture,
-        unsigned int zslice=0);
-  void SetColorBuffer(
-        unsigned int mode,
-        unsigned int index,
-        vtkTextureObject *texture,
-        unsigned int zslice=0);
-  void SetColorBuffer(
-        unsigned int mode,
-        unsigned int index,
-        vtkRenderbuffer *rb);
-
-  // if a texture is set return it
-  vtkTextureObject *GetColorBuffer(unsigned int index);
-  vtkTextureObject *GetColorBuffer(unsigned int mode, unsigned int index);
-
-  void RemoveColorBuffer(unsigned int index);
-  void RemoveColorBuffer(unsigned int mode, unsigned int index) {
-    this->RemoveColorAttachment(mode, index); }
-  void RemoveAllColorBuffers();
-
-  //@{
-  /**
-   * Set/Get the number of render targets to render into at once.
-   * Textures (user supplied or generated internally) are attached
-   * to color attachment 0 to NumberOfRenderTargets. You can use
-   * SetActiveBuffer to specify which of these are actually written to.
-   * If zero then all of the user provided color buffers are used.
-   */
-  void SetNumberOfRenderTargets(unsigned int);
-  vtkGetMacro(NumberOfRenderTargets,unsigned int);
-  //@}
-#endif
-
-protected:
   /**
    * Attach all buffers to the FO if not already done so
    */
@@ -609,8 +527,8 @@ protected:
    */
   int GetOpenGLType(int vtkType);
 
-  vtkFrameBufferObject();
-  ~vtkFrameBufferObject();
+  vtkOpenGLFramebufferObject();
+  ~vtkOpenGLFramebufferObject();
 
   vtkWeakPointer<vtkOpenGLRenderWindow> Context;
 
@@ -634,8 +552,8 @@ protected:
   std::map<unsigned int, vtkFOInfo *> ReadColorBuffers;
 
 private:
-  vtkFrameBufferObject(const vtkFrameBufferObject&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFrameBufferObject&) VTK_DELETE_FUNCTION;
+  vtkOpenGLFramebufferObject(const vtkOpenGLFramebufferObject&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLFramebufferObject&) VTK_DELETE_FUNCTION;
 };
 
 #endif

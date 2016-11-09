@@ -20,7 +20,7 @@
 #include <cassert>
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
-#include "vtkFrameBufferObject.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkTextureObject.h"
 #include "vtkOpenGLRenderWindow.h"
 
@@ -79,7 +79,7 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState *s,
                                             int height,
                                             int newWidth,
                                             int newHeight,
-                                            vtkFrameBufferObject *fbo,
+                                            vtkOpenGLFramebufferObject *fbo,
                                             vtkTextureObject *target)
 {
   assert("pre: s_exists" && s!=0);

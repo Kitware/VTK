@@ -16,7 +16,7 @@
 //#include "vtkAbstractTransform.h" // for helper classes stack and concatenation
 #include "vtkCamera.h"
 #include "vtkCameraPass.h"
-#include "vtkFrameBufferObject.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkLight.h"
@@ -265,7 +265,7 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
     glDisable(GL_SCISSOR_TEST);
 
     // Test for Hardware support. If not supported, just render the delegate.
-    bool supported=vtkFrameBufferObject::IsSupported(context);
+    bool supported=vtkOpenGLFramebufferObject::IsSupported(context);
 
     if(!supported)
     {
@@ -376,7 +376,7 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
 
       if(this->FrameBufferObject==0)
       {
-        this->FrameBufferObject=vtkFrameBufferObject::New();
+        this->FrameBufferObject=vtkOpenGLFramebufferObject::New();
         this->FrameBufferObject->SetContext(context);
       }
       this->FrameBufferObject->SaveCurrentBindingsAndBuffers();

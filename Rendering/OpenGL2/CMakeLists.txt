@@ -23,8 +23,6 @@ set(Module_SRCS
   vtkDepthPeelingPass.cxx
   vtkDualDepthPeelingPass.cxx
   vtkEDLShading.cxx
-  vtkFrameBufferObject.cxx
-  vtkFrameBufferObject2.cxx
   vtkGaussianBlurPass.cxx
   vtkGenericOpenGLRenderWindow.cxx
   vtkHiddenLineRemovalPass.cxx
@@ -37,6 +35,7 @@ set(Module_SRCS
   vtkOpenGLBufferObject.cxx
   vtkOpenGLCamera.cxx
   vtkOpenGLFXAAFilter.cxx
+  vtkOpenGLFramebufferObject.cxx
   vtkOpenGLGL2PSHelper.cxx
   vtkOpenGLGlyph3DHelper.cxx
   vtkOpenGLGlyph3DMapper.cxx
@@ -103,7 +102,7 @@ set(${vtk-module}_HDRS
 
 set_source_files_properties(
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
-  vtkFrameBufferObject
+  vtkOpenGLFramebufferObject
   vtkOpenGLBufferObject
   vtkOpenGLGL2PSHelper
   vtkOpenGLGlyph3DHelper

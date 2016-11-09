@@ -39,7 +39,7 @@ Ph.D. thesis of Christian BOUCHENY.
 #include "vtkEDLShading.h"
 
 #include "vtkCamera.h"
-#include "vtkFrameBufferObject.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
@@ -174,7 +174,7 @@ void vtkEDLShading::EDLInitializeFramebuffers(vtkRenderState &s)
   //
   if (this->ProjectionFBO == 0)
   {
-    this->ProjectionFBO = vtkFrameBufferObject::New();
+    this->ProjectionFBO = vtkOpenGLFramebufferObject::New();
     this->ProjectionFBO->SetContext(renWin);
   }
   s.SetFrameBuffer(this->ProjectionFBO);
@@ -228,7 +228,7 @@ void vtkEDLShading::EDLInitializeFramebuffers(vtkRenderState &s)
   //
   if (this->EDLHighFBO == 0)
   {
-    this->EDLHighFBO = vtkFrameBufferObject::New();
+    this->EDLHighFBO = vtkOpenGLFramebufferObject::New();
     this->EDLHighFBO->SetContext(renWin);
   }
   s.SetFrameBuffer(EDLHighFBO);
@@ -257,7 +257,7 @@ void vtkEDLShading::EDLInitializeFramebuffers(vtkRenderState &s)
   //
   if (this->EDLLowFBO == 0)
   {
-    this->EDLLowFBO = vtkFrameBufferObject::New();
+    this->EDLLowFBO = vtkOpenGLFramebufferObject::New();
     this->EDLLowFBO->SetContext(renWin);
   }
   s.SetFrameBuffer(EDLLowFBO);
@@ -744,7 +744,7 @@ void vtkEDLShading::Render(const vtkRenderState *s)
     //
     if(s->GetFrameBuffer() != NULL)
     {
-      vtkFrameBufferObject::SafeDownCast(s->GetFrameBuffer())->Bind();
+      vtkOpenGLFramebufferObject::SafeDownCast(s->GetFrameBuffer())->Bind();
     }
     this->ProjectionFBO->RestorePreviousBindingsAndBuffers();
 

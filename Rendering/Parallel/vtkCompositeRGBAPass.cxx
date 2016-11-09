@@ -18,7 +18,7 @@
 #include <cassert>
 #include "vtkRenderState.h"
 #include "vtkOpenGLRenderer.h"
-#include "vtkFrameBufferObject.h"
+#include "vtkFrameBufferObjectBase.h"
 #include "vtkTextureObject.h"
 #include "vtkOpenGLRenderWindow.h"
 
@@ -51,6 +51,7 @@
 #ifdef VTK_OPENGL2
 # include "vtk_glew.h"
 #else
+# include "vtkFrameBufferObject.h"
 # include "vtkgl.h"
 # include "vtkOpenGLExtensionManager.h"
 #endif
@@ -191,7 +192,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
   int w=0;
   int h=0;
 
-  vtkFrameBufferObject *fbo=(vtkFrameBufferObject*)s->GetFrameBuffer();
+  vtkFrameBufferObjectBase *fbo = s->GetFrameBuffer();
   if(fbo==0)
   {
     r->GetTiledSize(&w,&h);

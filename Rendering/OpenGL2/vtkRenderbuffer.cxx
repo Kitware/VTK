@@ -39,51 +39,17 @@ vtkRenderbuffer::~vtkRenderbuffer()
 }
 
 //----------------------------------------------------------------------------
-bool vtkRenderbuffer::IsSupported(vtkRenderWindow *win)
+bool vtkRenderbuffer::IsSupported(vtkRenderWindow *)
 {
-  bool supported = false;
-
-  vtkOpenGLRenderWindow *glwin = dynamic_cast<vtkOpenGLRenderWindow*>(win);
-  if (glwin)
-  {
-#if GL_ES_VERSION_3_0 == 1
-    return true;
-#else
-    if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
-    {
-      return true;
-    }
-    bool floatTex = (glewIsSupported("GL_ARB_texture_float") != 0);
-    bool floatDepth = (glewIsSupported("GL_ARB_depth_buffer_float") != 0);
-
-    supported = floatTex && floatDepth;
-#endif
-  }
-
-  return supported;
+  return true;
 }
 
 //----------------------------------------------------------------------------
-bool vtkRenderbuffer::LoadRequiredExtensions(vtkRenderWindow *win)
+bool vtkRenderbuffer::LoadRequiredExtensions(vtkRenderWindow *)
 {
-  bool supported = false;
-
-  vtkOpenGLRenderWindow *glwin = dynamic_cast<vtkOpenGLRenderWindow*>(win);
-  if (glwin)
-  {
-#if GL_ES_VERSION_3_0 == 1
-    bool floatTex = true;
-    this->DepthBufferFloat = true;
-#else
-    bool floatTex = (glewIsSupported("GL_ARB_texture_float") != 0);
-    this->DepthBufferFloat =
-      (glewIsSupported("GL_ARB_depth_buffer_float") != 0);
-#endif
-
-    supported = floatTex;
-  }
-
-  return supported;
+  // both texture float and depth float are part of OpenGL 3.0 and later
+  this->DepthBufferFloat = true;
+  return true;
 }
 
 //----------------------------------------------------------------------------

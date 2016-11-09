@@ -32,7 +32,7 @@
 
 class vtkOpenGLRenderWindow;
 class vtkDepthPeelingPassLayerList; // Pimpl
-class vtkFrameBufferObject;
+class vtkOpenGLFramebufferObject;
 class vtkTextureObject;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkImageProcessingPass : public vtkRenderPass
@@ -84,7 +84,7 @@ public:
                       int height,
                       int newWidth,
                       int newHeight,
-                      vtkFrameBufferObject *fbo,
+                      vtkOpenGLFramebufferObject *fbo,
                       vtkTextureObject *target);
 
 

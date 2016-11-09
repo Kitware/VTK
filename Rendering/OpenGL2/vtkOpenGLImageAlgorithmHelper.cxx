@@ -20,7 +20,7 @@
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkNew.h"
-#include "vtkFrameBufferObject.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtk_glew.h"
 #include "vtkPixelTransfer.h"
@@ -128,7 +128,7 @@ void vtkOpenGLImageAlgorithmHelper::Execute(
   vtkNew<vtkTextureObject> outputTex;
   outputTex->SetContext(this->RenderWindow);
 
-  vtkNew<vtkFrameBufferObject> fbo;
+  vtkNew<vtkOpenGLFramebufferObject> fbo;
   fbo->SetContext(this->RenderWindow);
 
   outputTex->Create2D(outDims[0], outDims[1], 4, VTK_FLOAT, false);

@@ -15,7 +15,7 @@
 
 #include "vtkDualDepthPeelingPass.h"
 
-#include "vtkFrameBufferObject.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkInformation.h"
 #include "vtkInformationKey.h"
 #include "vtkNew.h"
@@ -454,7 +454,7 @@ void vtkDualDepthPeelingPass::Initialize(const vtkRenderState *s)
   // Allocate new textures if needed:
   if (!this->Framebuffer)
   {
-    this->Framebuffer = vtkFrameBufferObject::New();
+    this->Framebuffer = vtkOpenGLFramebufferObject::New();
 
     std::generate(this->Textures,
                   this->Textures + static_cast<int>(NumberOfTextures),

@@ -22,7 +22,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkDataTransferHelper.h"
-#include "vtkFrameBufferObject.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkLineIntegralConvolution2D.h"
 #include "vtkStructuredExtent.h"
 #include "vtkTextureObject.h"
@@ -509,7 +509,7 @@ int vtkStructuredGridLIC2D::RequestData(
   vtkDebugMacro( << "Vector field in image space (target) textureId = "
                  << vector2->GetHandle() << endl );
 
-  vtkFrameBufferObject *fbo = vtkFrameBufferObject::New();
+  vtkOpenGLFramebufferObject *fbo = vtkOpenGLFramebufferObject::New();
   fbo->SetContext(renWin);
   fbo->Bind();
   fbo->AddColorAttachment(fbo->GetBothMode(), 0,vector2);

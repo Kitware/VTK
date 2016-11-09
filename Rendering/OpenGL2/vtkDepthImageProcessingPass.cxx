@@ -41,7 +41,7 @@ Ph.D. thesis of Christian BOUCHENY.
 #include <cassert>
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
-#include "vtkFrameBufferObject.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkTextureObject.h"
 #include "vtkOpenGLRenderWindow.h"
 
@@ -101,7 +101,7 @@ void vtkDepthImageProcessingPass::RenderDelegate(const vtkRenderState *s,
                                             int height,
                                             int newWidth,
                                             int newHeight,
-                                            vtkFrameBufferObject *fbo,
+                                            vtkOpenGLFramebufferObject *fbo,
                                             vtkTextureObject *colortarget,
                                             vtkTextureObject *depthtarget)
 {
@@ -184,7 +184,7 @@ void vtkDepthImageProcessingPass::ReadWindowSize(const vtkRenderState* s)
 {
     assert("pre: s_exists" && s!=0);
 
-    vtkFrameBufferObject *fbo=vtkFrameBufferObject::SafeDownCast
+    vtkOpenGLFramebufferObject *fbo=vtkOpenGLFramebufferObject::SafeDownCast
       (s->GetFrameBuffer());
     vtkRenderer *r = s->GetRenderer();
     if(fbo==0)

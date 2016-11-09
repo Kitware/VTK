@@ -29,7 +29,7 @@
 
 
 #ifdef VTK_OPENGL2
-# include "vtkFrameBufferObject.h"
+# include "vtkOpenGLFramebufferObject.h"
 # include "vtkOpenGLRenderUtilities.h"
 # include "vtkOpenGLHelper.h"
 # include "vtkOpenGLShaderCache.h"
@@ -403,7 +403,7 @@ void vtkPSurfaceLICComposite::SetContext(vtkOpenGLRenderWindow *rwin)
                                             GSSource.c_str());
 
     // setup a FBO for rendering
-    this->FBO = vtkFrameBufferObject::New();
+    this->FBO = vtkOpenGLFramebufferObject::New();
 #else
     vtkShader2 *compositeShaderSrc = vtkShader2::New();
     compositeShaderSrc->SetContext(this->Context);
