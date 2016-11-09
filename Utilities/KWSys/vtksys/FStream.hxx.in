@@ -3,9 +3,11 @@
 #ifndef @KWSYS_NAMESPACE@_FStream_hxx
 #define @KWSYS_NAMESPACE@_FStream_hxx
 
-#include <fstream>
 #include <@KWSYS_NAMESPACE@/Configure.hxx>
+
 #include <@KWSYS_NAMESPACE@/Encoding.hxx>
+
+#include <fstream>
 #if defined(_WIN32)
 #if !defined(_MSC_VER) && @KWSYS_NAMESPACE@_CXX_HAS_EXT_STDIO_FILEBUF_H
 #include <ext/stdio_filebuf.h>
