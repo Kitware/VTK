@@ -1564,7 +1564,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderDepth(
 #if GL_ES_VERSION_3_0 != 1
   bool multisampling = glIsEnabled(GL_MULTISAMPLE) == GL_TRUE;
 #else
-  bool multisample = false;
+  bool multisampling = false;
 #endif
 
   if (!multisampling)
