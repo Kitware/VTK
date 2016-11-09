@@ -33,6 +33,7 @@ class vtkAbstractMapper;
 class vtkInformationObjectBaseVectorKey;
 class vtkProp;
 class vtkShaderProgram;
+class vtkOpenGLVertexArrayObject;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderPass: public vtkRenderPass
 {
@@ -67,7 +68,8 @@ public:
    * Return false on error.
    */
   virtual bool SetShaderParameters(vtkShaderProgram *program,
-                                   vtkAbstractMapper *mapper, vtkProp *prop);
+                                   vtkAbstractMapper *mapper, vtkProp *prop,
+                                   vtkOpenGLVertexArrayObject *VAO = NULL);
 
   /**
    * For multi-stage render passes that need to change shader code during a

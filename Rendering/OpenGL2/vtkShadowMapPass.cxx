@@ -292,7 +292,8 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
 
 //------------------------------------------------------------------------------
 bool vtkShadowMapPass::SetShaderParameters(vtkShaderProgram *program,
-                                           vtkAbstractMapper*, vtkProp*)
+                                   vtkAbstractMapper*, vtkProp*,
+                                   vtkOpenGLVertexArrayObject* vtkNotUsed(VAO))
 {
   size_t numLights = this->ShadowTextureUnits.size();
 

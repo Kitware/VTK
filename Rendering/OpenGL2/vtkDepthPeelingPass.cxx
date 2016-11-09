@@ -594,7 +594,8 @@ bool vtkDepthPeelingPass::PostReplaceShaderValues(std::string &,
 
 //------------------------------------------------------------------------------
 bool vtkDepthPeelingPass::SetShaderParameters(vtkShaderProgram *program,
-                                              vtkAbstractMapper*, vtkProp*)
+                                   vtkAbstractMapper*, vtkProp*,
+                                   vtkOpenGLVertexArrayObject* vtkNotUsed(VAO))
 {
   program->SetUniformi("opaqueZTexture",
                        this->OpaqueZTexture->GetTextureUnit());

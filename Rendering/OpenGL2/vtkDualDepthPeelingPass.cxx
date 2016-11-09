@@ -291,8 +291,8 @@ bool vtkDualDepthPeelingPass::PostReplaceShaderValues(
 
 //------------------------------------------------------------------------------
 bool vtkDualDepthPeelingPass::SetShaderParameters(vtkShaderProgram *program,
-                                                  vtkAbstractMapper *,
-                                                  vtkProp *)
+                                   vtkAbstractMapper *, vtkProp *,
+                                   vtkOpenGLVertexArrayObject *vtkNotUsed(VAO))
 {
   switch (this->CurrentStage)
   {
