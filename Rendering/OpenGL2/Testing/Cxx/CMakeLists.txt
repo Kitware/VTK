@@ -2,6 +2,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestAppleBug.cxx
   TestBlurAndSobelPasses.cxx
   TestCoincident.cxx
+  TestCompositePolyDataMapper2NaNPartial.cxx,NO_DATA
   TestCompositePolyDataMapper2Spheres.cxx,NO_DATA
   TestCompositePolyDataMapper2Vertices.cxx,NO_DATA
   TestCubeMap.cxx
