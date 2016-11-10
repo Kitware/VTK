@@ -356,6 +356,7 @@ class ImagePushBinaryWebSocketServerProtocol(WebSocketServerProtocol):
         self.staleHandlerCount = 0
         self.deltaStaleTimeBeforeRender = 0.5 # 0.5s
         self.subscription = self.app.AddObserver('PushRender', lambda obj, event: reactor.callLater(0.0, lambda: self.render()))
+        self.subscriptionReset = self.app.AddObserver('ResetActiveView', lambda obj, event: reactor.callLater(0.0, lambda: self.resetActiveView()))
 
     def onMessage(self, msg, isBinary):
         request = json.loads(msg)
@@ -377,10 +378,12 @@ class ImagePushBinaryWebSocketServerProtocol(WebSocketServerProtocol):
     def onClose(self, wasClean, code, reason):
         self.viewToCapture = {}
         self.app.RemoveObserver(self.subscription)
+        self.app.RemoveObserver(self.subscriptionReset)
 
     def connectionLost(self, reason):
         self.viewToCapture = {}
         self.app.RemoveObserver(self.subscription)
+        self.app.RemoveObserver(self.subscriptionReset)
 
     def renderStaleImage(self):
         self.staleHandlerCount -= 1
@@ -393,6 +396,12 @@ class ImagePushBinaryWebSocketServerProtocol(WebSocketServerProtocol):
                 self.staleHandlerCount += 1
                 reactor.callLater(self.deltaStaleTimeBeforeRender - delta + 0.001, lambda: self.renderStaleImage())
 
+    def resetActiveView(self):
+        activeViewReq = self.viewToCapture['-1']
+        if activeViewReq:
+            previousSize = tuple(activeViewReq['view'].ViewSize)
+            activeViewReq['view'] = self.helper.getView('-1')
+            activeViewReq['view'].ViewSize = previousSize
 
     def render(self):
         keepGoing = False
