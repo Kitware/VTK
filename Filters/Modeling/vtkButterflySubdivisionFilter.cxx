@@ -312,11 +312,19 @@ void vtkButterflySubdivisionFilter::GenerateBoundaryStencil(
       }
     }
   }
-  stencilIds->SetNumberOfIds (4);
+  if (p3 == -1)
+  {
+    stencilIds->SetNumberOfIds (3);
+  }
+  else
+  {
+    stencilIds->SetNumberOfIds (4);
+    stencilIds->SetId (3, p3);
+  }
   stencilIds->SetId (0, p0);
   stencilIds->SetId (1, p1);
   stencilIds->SetId (2, p2);
-  stencilIds->SetId (3, p3);
+
   weights[0] = -.0625;
   weights[1] = .5625;
   weights[2] = .5625;
