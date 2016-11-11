@@ -29,6 +29,7 @@
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLResourceFreeCallback.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVertexArrayObject.h"
@@ -64,11 +65,20 @@ vtkOpenGLPolyDataMapper2D::vtkOpenGLPolyDataMapper2D()
   this->HaveCellScalars = false;
   this->PrimitiveIDOffset = 0;
   this->LastPickState = 0;
+
+  this->ResourceCallback = new vtkOpenGLResourceFreeCallback<vtkOpenGLPolyDataMapper2D>(this,
+    &vtkOpenGLPolyDataMapper2D::ReleaseGraphicsResources);
 }
 
 //-----------------------------------------------------------------------------
 vtkOpenGLPolyDataMapper2D::~vtkOpenGLPolyDataMapper2D()
 {
+  if (this->ResourceCallback)
+  {
+    this->ResourceCallback->Release();
+    delete this->ResourceCallback;
+    this->ResourceCallback = NULL;
+  }
   if (this->TransformedPoints)
   {
     this->TransformedPoints->UnRegister(this);
@@ -96,6 +106,12 @@ vtkOpenGLPolyDataMapper2D::~vtkOpenGLPolyDataMapper2D()
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper2D::ReleaseGraphicsResources(vtkWindow* win)
 {
+  if (!this->ResourceCallback->IsReleasing())
+  {
+    this->ResourceCallback->Release();
+    return;
+  }
+
   this->VBO->ReleaseGraphicsResources();
   this->Points.ReleaseGraphicsResources(win);
   this->Lines.ReleaseGraphicsResources(win);
@@ -788,6 +804,10 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   }
 
   vtkRenderWindow *renWin = vtkRenderWindow::SafeDownCast(viewport->GetVTKWindow());
+
+  this->ResourceCallback->RegisterGraphicsResources(
+    static_cast<vtkOpenGLRenderWindow *>(renWin));
+
   int picking = renWin->GetIsPicking();
   if (picking != this->LastPickState)
   {

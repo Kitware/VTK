@@ -104,7 +104,8 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
 
 
   PyObject * obj2 = NULL;
-  if (ptr && ptr->GetReferenceCount() > 0)
+  if (eventtype != vtkCommand::DeleteEvent &&
+      ptr && ptr->GetReferenceCount() > 0)
   {
     obj2 = vtkPythonUtil::GetObjectFromPointer(ptr);
   }
@@ -136,7 +137,7 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
                                                      callDataTypeLiteral);
 
   PyObject *arglist = NULL;
-  if (callDataTypeObj)
+  if (callData && callDataTypeObj)
   {
     if (PyInt_Check(callDataTypeObj))
     {

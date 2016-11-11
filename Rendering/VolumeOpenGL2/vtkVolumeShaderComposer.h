@@ -339,9 +339,20 @@ namespace vtkvolume
         \n  g_dirStep = (ip_inverseTextureDataAdjusted *\
         \n              vec4(rayDir, 0.0)).xyz * in_sampleDistance;\
         \n\
-        \n  float jitterValue = (texture2D(in_noiseSampler, g_dataPos.xy).x);\
+        \n  // 2D Texture fragment coordinates [0,1] from fragment coordinates.\
+        \n  // The frame buffer texture has the size of the plain buffer but \
+        \n  // we use a fraction of it. The texture coordinate is less than 1 if\
+        \n  // the reduction factor is less than 1.\
+        \n  // Device coordinates are between -1 and 1. We need texture\
+        \n  // coordinates between 0 and 1. The in_noiseSampler and in_depthSampler\
+        \n  // buffers have the original size buffer.\
+        \n  vec2 fragTexCoord = (gl_FragCoord.xy - in_windowLowerLeftCorner) *\
+        \n                      in_inverseWindowSize;\
+        \n\
+        \n  float jitterValue = 0;\
         \n  if (in_useJittering)\
         \n    {\
+        \n    jitterValue = texture2D(in_noiseSampler, fragTexCoord).x;\
         \n    g_dataPos += g_dirStep * jitterValue;\
         \n    }\
         \n  else\
@@ -1567,15 +1578,6 @@ namespace vtkvolume
       \n  // Flag to indicate if the raymarch loop should terminate \
       \n  bool stop = false;\
       \n\
-      \n  // 2D Texture fragment coordinates [0,1] from fragment coordinates \
-      \n  // the frame buffer texture has the size of the plain buffer but \
-      \n  // we use a fraction of it. The texture coordinates is less than 1 if \
-      \n  // the reduction factor is less than 1. \
-      \n  // Device coordinates are between -1 and 1. We need texture \
-      \n  // coordinates between 0 and 1 the in_depthSampler buffer has the \
-      \n  // original size buffer. \
-      \n  vec2 fragTexCoord = (gl_FragCoord.xy - in_windowLowerLeftCorner) *\
-      \n                      in_inverseWindowSize;\
       \n  float l_terminatePointMax = 0.0;\
       \n\
       \n#ifdef GL_ES\

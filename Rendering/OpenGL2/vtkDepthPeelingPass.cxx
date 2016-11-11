@@ -564,6 +564,13 @@ bool vtkDepthPeelingPass::ReplaceShaderValues(std::string &,
         "uniform sampler2D translucentZTexture;\n"
         );
 
+  // Set gl_FragDepth if it isn't set already. It may have already been replaced
+  // by the mapper, in which case the substitution will fail and the previously
+  // set depth value will be used.
+  vtkShaderProgram::Substitute(
+        fragmentShader, "//VTK::Depth::Impl",
+        "gl_FragDepth = gl_FragCoord.z;");
+
   // the .0000001 below is an epsilon.  It turns out that
   // graphics cards can render the same polygon two times
   // in a row with different z values. I suspect it has to

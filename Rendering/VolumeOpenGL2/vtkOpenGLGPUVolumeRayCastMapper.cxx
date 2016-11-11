@@ -103,7 +103,7 @@ public:
     this->CubeIndicesId = 0;
     this->InterpolationType = vtkTextureObject::Linear;
     this->VolumeTextureObject = 0;
-    this->NoiseTextureObject = 0;
+    this->NoiseTextureObject = NULL;
     this->DepthTextureObject = 0;
     this->TextureWidth = 1024;
     this->ActualSampleDistance = 1.0;
@@ -127,7 +127,7 @@ public:
     this->CurrentSelectionPass = vtkHardwareSelector::MIN_KNOWN_PASS - 1;
 
     this->CellScale[0] = this->CellScale[1] = this->CellScale[2] = 0.0;
-    this->NoiseTextureData = 0;
+    this->NoiseTextureData = NULL;
 
     this->NumberOfLights = 0;
     this->LightComplexity = 0;
@@ -173,37 +173,37 @@ public:
     if (this->NoiseTextureObject)
     {
       this->NoiseTextureObject->Delete();
-      this->NoiseTextureObject = 0;
+      this->NoiseTextureObject = NULL;
     }
 
     if (this->DepthTextureObject)
     {
       this->DepthTextureObject->Delete();
-      this->DepthTextureObject = 0;
+      this->DepthTextureObject = NULL;
     }
 
     if (this->FBO)
     {
       this->FBO->Delete();
-      this->FBO = 0;
+      this->FBO = NULL;
     }
 
     if (this->RTTDepthBufferTextureObject)
     {
       this->RTTDepthBufferTextureObject->Delete();
-      this->RTTDepthBufferTextureObject = 0;
+      this->RTTDepthBufferTextureObject = NULL;
     }
 
     if (this->RTTDepthTextureObject)
     {
       this->RTTDepthTextureObject->Delete();
-      this->RTTDepthTextureObject = 0;
+      this->RTTDepthTextureObject = NULL;
     }
 
     if (this->RTTColorTextureObject)
     {
       this->RTTColorTextureObject->Delete();
-      this->RTTColorTextureObject = 0;
+      this->RTTColorTextureObject = NULL;
     }
 
     this->DeleteTransferFunctions();
@@ -382,7 +382,6 @@ public:
   std::vector<double> Bias;
 
   float* NoiseTextureData;
-  GLint NoiseTextureSize;
 
   float ActualSampleDistance;
 
@@ -1353,64 +1352,82 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CreateNoiseTexture(
   vtkRenderer* ren)
 {
+  vtkOpenGLRenderWindow* glWindow = vtkOpenGLRenderWindow::SafeDownCast(
+    ren->GetRenderWindow());
+
   if (!this->NoiseTextureObject)
   {
     this->NoiseTextureObject = vtkTextureObject::New();
   }
+  this->NoiseTextureObject->SetContext(glWindow);
 
-  this->NoiseTextureObject->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
-                                         ren->GetRenderWindow()));
-
-  if (!this->NoiseTextureObject->GetHandle())
+  bool updateSize = false;
+  bool useUserSize = this->Parent->NoiseTextureSize[0] > 0 &&
+    this->Parent->NoiseTextureSize[1] > 0;
+  if (useUserSize)
   {
-    GLsizei size = 128;
-    GLint maxSize;
+    int const twidth = this->NoiseTextureObject->GetWidth();
+    int const theight = this->NoiseTextureObject->GetHeight();
+    updateSize = this->Parent->NoiseTextureSize[0] != twidth ||
+      this->Parent->NoiseTextureSize[1] != theight;
+  }
 
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxSize);
-    if (size > maxSize)
+  if (!this->NoiseTextureObject->GetHandle() || updateSize ||
+    this->NoiseTextureObject->GetMTime() < this->Parent->NoiseGenerator->GetMTime())
+  {
+    int* winSize = ren->GetRenderWindow()->GetSize();
+    int sizeX = useUserSize ? this->Parent->NoiseTextureSize[0] : winSize[0];
+    int sizeY = useUserSize ? this->Parent->NoiseTextureSize[1] : winSize[1];
+
+    int const maxSize = vtkTextureObject::GetMaximumTextureSize(glWindow);
+    if (sizeX > maxSize || sizeY > maxSize)
     {
-      size = maxSize;
+      sizeX = vtkMath::Max(sizeX, maxSize);
+      sizeY = vtkMath::Max(sizeY, maxSize);
     }
 
-    if (this->NoiseTextureSize != size)
+    // Allocate buffer. After controlling for the maximum supported size sizeX/Y
+    // might have changed, so an additional check is needed.
+    int const twidth = this->NoiseTextureObject->GetWidth();
+    int const theight = this->NoiseTextureObject->GetHeight();
+    bool sizeChanged = sizeX != twidth || sizeY != theight;
+    if (sizeChanged || !this->NoiseTextureData)
     {
       delete[] this->NoiseTextureData;
-      this->NoiseTextureData = 0;
+      this->NoiseTextureData = NULL;
+      this->NoiseTextureData = new float[sizeX * sizeY];
     }
 
-    if (this->NoiseTextureData == 0)
+    // Generate jitter noise
+    if (!this->Parent->NoiseGenerator)
     {
-      this->NoiseTextureData = new float[size * size];
-      this->NoiseTextureSize = size;
-      vtkNew<vtkPerlinNoise> noiseGenerator;
-      noiseGenerator->SetFrequency(size, 1.0, 1.0);
-      noiseGenerator->SetPhase(0.0, 0.0, 0.0);
-      // -0.5 and 0.5 range
-      noiseGenerator->SetAmplitude(0.1);
-      int j = 0;
-      while(j < size)
-      {
-        int i = 0;
-        while(i < size)
-        {
-          this->NoiseTextureData[j * size + i] =
-            static_cast<float>(noiseGenerator->EvaluateFunction(i, j, 0.0) + 0.1);
-          ++i;
-        }
-        ++j;
-      }
+      // Use default settings
+      vtkPerlinNoise* perlinNoise = vtkPerlinNoise::New();
+      perlinNoise->SetPhase(0.0, 0.0, 0.0);
+      perlinNoise->SetFrequency(sizeX, sizeY, 1.0);
+      perlinNoise->SetAmplitude(0.5); /* [-n, n] */
+      this->Parent->NoiseGenerator = perlinNoise;
     }
 
-    this->NoiseTextureObject->Create2DFromRaw(size,
-                                              size,
-                                              1,
-                                              VTK_FLOAT,
-                                              this->NoiseTextureData);
+    int const bufferSize = sizeX * sizeY;
+    for (int i = 0; i < bufferSize; i++)
+    {
+      int const x = i % sizeX;
+      int const y = i / sizeY;
+      this->NoiseTextureData[i] = static_cast<float>(
+        this->Parent->NoiseGenerator->EvaluateFunction(x, y, 0.0) + 0.1);
+    }
+
+    // Prepare texture
+    this->NoiseTextureObject->Create2DFromRaw(sizeX, sizeY, 1, VTK_FLOAT,
+      this->NoiseTextureData);
+
     this->NoiseTextureObject->SetWrapS(vtkTextureObject::Repeat);
     this->NoiseTextureObject->SetWrapT(vtkTextureObject::Repeat);
     this->NoiseTextureObject->SetMagnificationFilter(vtkTextureObject::Nearest);
     this->NoiseTextureObject->SetMinificationFilter(vtkTextureObject::Nearest);
     this->NoiseTextureObject->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
+    this->NoiseTextureObject->Modified();
   }
 }
 
@@ -2558,6 +2575,8 @@ vtkOpenGLGPUVolumeRayCastMapper::vtkOpenGLGPUVolumeRayCastMapper() :
   this->Impl = new vtkInternal(this);
   this->ReductionFactor = 1.0;
   this->CurrentPass = RenderPass;
+  this->NoiseTextureSize[0] = this->NoiseTextureSize[1] = -1;
+  this->NoiseGenerator = NULL;
 
   this->ResourceCallback = new vtkOpenGLResourceFreeCallback<vtkOpenGLGPUVolumeRayCastMapper>(this,
     &vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources);
@@ -2572,6 +2591,13 @@ vtkOpenGLGPUVolumeRayCastMapper::~vtkOpenGLGPUVolumeRayCastMapper()
     delete this->ResourceCallback;
     this->ResourceCallback = NULL;
   }
+
+  if (this->NoiseGenerator)
+  {
+    this->NoiseGenerator->Delete();
+    this->NoiseGenerator = NULL;
+  }
+
   delete this->Impl;
   this->Impl = 0;
 }
@@ -3287,7 +3313,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   }
 
   // Update noise sampler texture
-  this->Impl->CreateNoiseTexture(ren);
+  if (this->UseJittering)
+  {
+    this->Impl->CreateNoiseTexture(ren);
+  }
 
   // Grab depth sampler buffer (to handle cases when we are rendering geometry
   // and in_volume together
@@ -3539,9 +3568,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
     }
   }
 
-  this->Impl->NoiseTextureObject->Activate();
-  prog->SetUniformi("in_noiseSampler",
-    this->Impl->NoiseTextureObject->GetTextureUnit());
+  if (this->Impl->NoiseTextureObject)
+  {
+    this->Impl->NoiseTextureObject->Activate();
+    prog->SetUniformi("in_noiseSampler",
+      this->Impl->NoiseTextureObject->GetTextureUnit());
+  }
 
 // currently broken on ES
 #if GL_ES_VERSION_2_0 != 1
@@ -3806,7 +3838,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
   // Undo binds and de-activate buffers
   //--------------------------------------------------------------------------
   this->Impl->VolumeTextureObject->Deactivate();
-  this->Impl->NoiseTextureObject->Deactivate();
+  if (this->Impl->NoiseTextureObject)
+  {
+    this->Impl->NoiseTextureObject->Deactivate();
+  }
   this->Impl->DepthTextureObject->Deactivate();
 
   for (int i = 0; i < numberOfSamplers; ++i)
@@ -3839,3 +3874,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
+
+//----------------------------------------------------------------------------
+vtkCxxSetObjectMacro(vtkOpenGLGPUVolumeRayCastMapper, NoiseGenerator,
+  vtkImplicitFunction);
