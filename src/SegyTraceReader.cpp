@@ -42,7 +42,7 @@ bool SegyTraceReader::readTrace(int &startPos, ifstream &in, int formatCode, Tra
     trace->yCoordinate = IOUtil::Instance()->readLongInteger(startPos + traceHeaderBytesPos.YCoordinate, in);
 
 
-
+    std::cerr << "numberof samples " << numSamples << std::endl;
     in.seekg(startPos + 240, in.beg);
     for (int i = 0; i < numSamples; i++) {
         float value;

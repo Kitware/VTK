@@ -18,6 +18,12 @@ public:
     void PrintSelf(ostream& os, vtkIndent indent);
 
     vtkSetStringMacro(FileName);
+
+    bool GetImageData(vtkImageData *imageData)
+    {
+      return reader.GetImageData(imageData);
+    }
+
     vtkSegy2DReader();
     ~vtkSegy2DReader();
 protected:

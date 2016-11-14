@@ -60,6 +60,8 @@ using namespace std;
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
 
+#include "SegyReader.h"
+
 void expandBounds(double* bounds)
 {
     double xRange = bounds[1] - bounds[0];
@@ -84,16 +86,21 @@ void render(vtkImageData* id)
     opacityTransferFunction->AddPoint(220,0.0);
 
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction= vtkColorTransferFunction::New();
-    colorTransferFunction->AddRGBPoint(0.0, 0.0, 0.0, 1.0);
-    colorTransferFunction->AddRGBPoint(64.0, 1.0, 0.0, 0.0);
-    colorTransferFunction->AddRGBPoint(128.0, 0.0, 0.0, 1.0);
-    colorTransferFunction->AddRGBPoint(192.0, 0.0, 1.0, 0.0);
-    colorTransferFunction->AddRGBPoint(255.0, 0.0, 0.2, 0.0);
+//    colorTransferFunction->AddRGBPoint(0.0, 0.0, 0.0, 1.0);
+//    colorTransferFunction->AddRGBPoint(64.0, 1.0, 0.0, 0.0);
+//    colorTransferFunction->AddRGBPoint(128.0, 0.0, 0.0, 1.0);
+//    colorTransferFunction->AddRGBPoint(192.0, 0.0, 1.0, 0.0);
+//    colorTransferFunction->AddRGBPoint(255.0, 0.0, 0.2, 0.0);
+
+    colorTransferFunction->AddRGBPoint(0.000,  1.00, 0.00, 0.00);
+    colorTransferFunction->AddRGBPoint(255.0,  0.00, 0.00, 1.00);
+
+
 
     vtkSmartPointer<vtkVolumeProperty> volumeProperty = vtkVolumeProperty::New();
     volumeProperty->SetColor(colorTransferFunction);
-    //volumeProperty->SetScalarOpacity(opacityTransferFunction);
-    volumeProperty->SetInterpolationTypeToLinear();
+    volumeProperty->SetScalarOpacity(opacityTransferFunction);
+    volumeProperty->SetInterpolationTypeToNearest();
     volumeProperty->SetDiffuse(0.4);
     volumeProperty->SetAmbient(0.6);
     volumeProperty->SetSpecular(0.2);
@@ -176,11 +183,8 @@ void render(vtkImageData* id)
 void demo2D()
 {
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction= vtkColorTransferFunction::New();
-    colorTransferFunction->AddRGBPoint(0.0, 0.0, 0.0, 1.0);
-    colorTransferFunction->AddRGBPoint(64.0, 1.0, 0.0, 0.0);
-    colorTransferFunction->AddRGBPoint(128.0, 0.0, 0.0, 1.0);
-    colorTransferFunction->AddRGBPoint(192.0, 0.0, 1.0, 0.0);
-    colorTransferFunction->AddRGBPoint(255.0, 0.0, 0.2, 0.0);
+    colorTransferFunction->AddRGBPoint(0.000,  1.00, 0.00, 0.00);
+    colorTransferFunction->AddRGBPoint(255.0,  0.00, 1.00, 0.00);
 
     vtkSmartPointer<vtkRenderer> renderer =
             vtkSmartPointer<vtkRenderer>::New();
@@ -193,10 +197,10 @@ void demo2D()
 
     vector<string> files;
     files.push_back("data/lineA.sgy");
-    files.push_back("data/lineB.sgy");
-    files.push_back("data/lineC.sgy");
-    files.push_back("data/lineD.sgy");
-    files.push_back("data/lineE.sgy");
+//    files.push_back("data/lineB.sgy");
+//    files.push_back("data/lineC.sgy");
+//    files.push_back("data/lineD.sgy");
+//    files.push_back("data/lineE.sgy");
 
     auto file = files[0];
     //for(auto file : files)
@@ -212,10 +216,14 @@ void demo2D()
 
 
         mapper->SetInputConnection(reader->GetOutputPort());
-        mapper->ScalarVisibilityOn();
-        mapper->SetLookupTable(colorTransferFunction);
+        mapper->ScalarVisibilityOff();
         actor->SetMapper(mapper);
-        //actor->SetTexture(texture);
+
+        vtkNew<vtkImageData> imageData;
+        reader->GetImageData(imageData.GetPointer());
+        vtkNew<vtkTexture> texture;
+        texture->SetInputData(imageData.GetPointer());
+        actor->SetTexture(texture.GetPointer());
 
         renderer->AddActor(actor);
     }

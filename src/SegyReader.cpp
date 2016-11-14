@@ -20,6 +20,7 @@
 #include <set>
 #include <vtkInformationVector.h>
 #include <vtkInformation.h>
+#include <vtkCellData.h>
 
 
 SegyReader::~SegyReader()
@@ -63,89 +64,205 @@ bool SegyReader::readHeader(ifstream &in) {
 
 bool SegyReader::ExportData3D(vtkImageData *imageData)
 {
+  set<int> crosslineNumbers, inlineNumbers;
+  for(auto trace : data)
+  {
+      crosslineNumbers.insert(trace->crosslineNumber);
+      inlineNumbers.insert(trace->inlineNumber);
+  }
 
-    set<int> crosslineNumbers, inlineNumbers;
-    for(auto trace : data)
-    {
-        crosslineNumbers.insert(trace->crosslineNumber);
-        inlineNumbers.insert(trace->inlineNumber);
-    }
+  if(crosslineNumbers.size() < 3 || inlineNumbers.size() < 3)
+  {
+      return false;
+  }
 
-    if(crosslineNumbers.size() < 3 || inlineNumbers.size() < 3)
-    {
-        return false;
-    }
+  map<int, vector<Trace*> > cross_inline_map;
 
-    map<int, vector<Trace*> > cross_inline_map;
+  float min_data = INT_MAX;
+  float max_data = INT_MIN;
 
-    float min_data = INT_MAX;
-    float max_data = INT_MIN;
+  for(auto trace : data)
+  {
+      int cross = trace->crosslineNumber;
+      auto pair = cross_inline_map.find(cross);
+      if( pair == cross_inline_map.end() )
+      {
+          cross_inline_map.insert(make_pair(cross, vector<Trace*>()));
+      }
+      pair = cross_inline_map.find(cross);
+      pair->second.push_back(trace);
 
-    for(auto trace : data)
-    {
-        int cross = trace->crosslineNumber;
-        auto pair = cross_inline_map.find(cross);
-        if( pair == cross_inline_map.end() )
+      for(auto m : trace->data)
+      {
+          if(m < min_data)
+              min_data = m;
+          if(m > max_data )
+              max_data = m;
+      }
+  }
+
+  int crossLineCount = cross_inline_map.size();
+
+  int inlineCount = INT_MAX;
+  for(auto pair : cross_inline_map)
+  {
+      int count = pair.second.size();
+      if(count < 3)
+          return false;
+
+      if(count < inlineCount)
+          inlineCount = count;
+  }
+
+  imageData->SetDimensions(inlineCount, crossLineCount, sampleCountPerTrace);
+
+  int type = VTK_FLOAT;
+  imageData->SetScalarType(type, imageData->GetInformation());
+  imageData->SetNumberOfScalarComponents(1, imageData->GetInformation());
+  imageData->AllocateScalars(type, 1);
+  float *ptr=(float *)imageData->GetScalarPointer();
+
+  int i = 0;
+  for(auto crossIter = cross_inline_map.begin(); crossIter != cross_inline_map.end(); crossIter++)
+  {
+      for (int j = 0; j < inlineCount; j++)
+      {
+          for (int k = 0; k < sampleCountPerTrace; k++)
+          {
+              float normalizedData = (crossIter->second[j]->data[k] - min_data) * 255.0 / (max_data - min_data) ;
+
+              *(ptr + k * crossLineCount * inlineCount + i * inlineCount + j) = normalizedData;
+          }
+      }
+      i++;
+  }
+
+  return true;
+}
+
+
+bool SegyReader::GetImageData(vtkImageData *imageData)
+{
+  int crosslineNum;
+  int minCrossLineNumber = INT_MAX;
+  int maxCrossLineNumber = INT_MIN;
+
+  for(auto trace : data)
+  {
+      crosslineNum = trace->crosslineNumber;
+      if (crosslineNum == 0)
+                  break;
+      minCrossLineNumber = minCrossLineNumber < crosslineNum ? minCrossLineNumber : crosslineNum;
+      maxCrossLineNumber = maxCrossLineNumber > crosslineNum ? maxCrossLineNumber : crosslineNum;
+  }
+
+  int crossLineNumberStep = 1;
+  int crosslineNumberCount = (maxCrossLineNumber - minCrossLineNumber) / crossLineNumberStep + 1;
+
+  int type = VTK_FLOAT;
+  imageData->SetDimensions(sampleCountPerTrace, crosslineNumberCount, 1 );
+  imageData->SetScalarType(type, imageData->GetInformation());
+  imageData->SetNumberOfScalarComponents(1, imageData->GetInformation());
+  imageData->AllocateScalars(type, 1);
+
+  float min_data = INT_MAX;
+  float max_data = INT_MIN;
+
+  for(auto trace : data)
+  {
+      for(auto m : trace->data)
+      {
+          if(m < min_data)
+              min_data = m;
+          if(m > max_data )
+              max_data = m;
+      }
+  }
+
+  float *ptr=(float *)imageData->GetScalarPointer();
+
+  int index = 0;
+  int diff;
+  int remainder = 0;
+  int dataSize = 0;
+
+  for (int k = 0; k < sampleCountPerTrace; k++)
+  {
+      for (int i = 0; i < crosslineNumberCount; i++)
+      {
+        int aggIndex = i * sampleCountPerTrace + k;
+
+        index = 0;
+        remainder = 0;
+
+        for(auto trace : data)
         {
-            cross_inline_map.insert(make_pair(cross, vector<Trace*>()));
-        }
-        pair = cross_inline_map.find(cross);
-        pair->second.push_back(trace);
+          dataSize = trace->data.size();
+          diff = aggIndex - dataSize;
 
-        for(auto m : trace->data)
+          if (diff > 0)
+          {
+            ++index;
+            aggIndex = diff;
+          }
+          else
+          {
+            remainder = aggIndex % dataSize;
+            break;
+          }
+        }
+
+        *(ptr + i * sampleCountPerTrace + k) = 256.0 * (data[index]->data[remainder] - min_data)/(max_data - min_data);
+      }
+  }
+
+  return true;
+}
+
+
+bool SegyReader::AddScalars(vtkPolyData* polyData)
+{
+
+  vtkSmartPointer<vtkFloatArray> cellData =
+    vtkSmartPointer<vtkFloatArray>::New();
+  cellData->SetName("trace");
+  cellData->SetNumberOfComponents(1);
+
+  int crossLineCount = data.size();
+
+  cellData->Allocate(crossLineCount * sampleCountPerTrace);
+
+  float min_data = INT_MAX;
+  float max_data = INT_MIN;
+
+  for(auto trace : data)
+  {
+      for(auto m : trace->data)
+      {
+          if(m < min_data)
+              min_data = m;
+          if(m > max_data )
+              max_data = m;
+      }
+  }
+
+      for (int k = 0; k < sampleCountPerTrace; k++)
+      {
+        for (int i = 0; i < data.size(); i++)
         {
-            if(m < min_data)
-                min_data = m;
-            if(m > max_data )
-                max_data = m;
+        cellData->InsertValue( i * sampleCountPerTrace + k, 256.0 * (data[i]->data[k] - min_data)/(max_data-min_data) );
         }
-    }
+      }
 
-    int crossLineCount = cross_inline_map.size();
+    polyData->GetCellData()->SetScalars(cellData);
+    polyData->GetCellData()->SetActiveScalars("trace");
 
-    int inlineCount = INT_MAX;
-    for(auto pair : cross_inline_map)
-    {
-        int count = pair.second.size();
-        if(count < 3)
-            return false;
-
-        if(count < inlineCount)
-            inlineCount = count;
-    }
-
-    imageData->SetDimensions(inlineCount, crossLineCount, sampleCountPerTrace);
-
-    int type = VTK_FLOAT;
-    imageData->SetScalarType(type, imageData->GetInformation());
-    imageData->SetNumberOfScalarComponents(1, imageData->GetInformation());
-    imageData->AllocateScalars(type, 1);
-    float *ptr=(float *)imageData->GetScalarPointer();
-
-    cout << "sample count per trace : " << sampleCountPerTrace << endl;
-    cout << "cross line count: " << crossLineCount << endl;
-    cout << "inline count: " << inlineCount << endl;
-
-    cout << "min_data" << min_data << endl;
-    cout << "max_data" << max_data << endl;
-
-    int i = 0;
-    for(auto crossIter = cross_inline_map.begin(); crossIter != cross_inline_map.end(); crossIter++)
-    {
-        for (int j = 0; j < inlineCount; j++)
-        {
-            for (int k = 0; k < sampleCountPerTrace; k++)
-            {
-                float normalizedData = (crossIter->second[j]->data[k] - min_data) * 255.0 / (max_data - min_data) ;
-
-                *(ptr + k * crossLineCount * inlineCount + i * inlineCount + j) = normalizedData;
-            }
-        }
-        i++;
-    }
 
     return true;
 }
+
+
+//#include <vtkXMLPolyDataWriter.h>
 
 bool SegyReader::ExportData2D(vtkPolyData * polyData)
 {
@@ -197,17 +314,23 @@ bool SegyReader::ExportData2D(vtkPolyData * polyData)
         }
     }
 
-    //vtkSmartPointer<vtkTexture> texture =
+    // vtkSmartPointer<vtkTexture> texture =
     //        vtkSmartPointer<vtkTexture>::New();
 
-    //vtkSmartPointer<vtkImageData> imageData = vtkSmartPointer<vtkImageData>::New();
-    //ExportData3D(imageData);
-    //texture->SetInputDataObject(imageData);
+    // vtkSmartPointer<vtkImageData> imageData = vtkSmartPointer<vtkImageData>::New();
+    // ExportData3D(imageData);
+    // std::cerr << "imageData " << imageData << std::endl;
+    // texture->SetInputDataObject(imageData);
 
     polyData->SetPoints(points);
     polyData->SetPolys(quads);
-    //polyData->GetPointData()->SetTCoords(textureCoordinates);
+    this->AddScalars(polyData);
+     polyData->GetPointData()->SetTCoords(textureCoordinates);
 
+//    vtkNew<vtkXMLPolyDataWriter> writer;
+//    writer->SetInputData(polyData);
+//    writer->SetFileName("test.vtp");
+//    writer->Write();
     return polyData;
 }
 
