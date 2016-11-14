@@ -408,12 +408,6 @@ protected:
   float BarWidthFraction;
 
   /**
-   * Indicate if the layout has changed in some way that would require layout
-   * code to be called.
-   */
-  bool LayoutChanged;
-
-  /**
    * Property to force the axes to have their Minimum and Maximum properties
    * inside the plot boundaries. It constrains pan and zoom interaction.
    * False by default.
