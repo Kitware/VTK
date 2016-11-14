@@ -15,7 +15,6 @@ set( verdict_BUILD_VERSION "0")
 set( verdict_VERSION_FLAT "${verdict_MAJOR_VERSION}${verdict_MINOR_VERSION}${verdict_BUILD_VERSION}" )
 set( verdict_VERSION "${verdict_MAJOR_VERSION}.${verdict_MINOR_VERSION}.${verdict_BUILD_VERSION}" )
 
-option(BUILD_SHARED_LIBS "Build Verdict with shared libraries." OFF)
 option(VERDICT_BUILD_DOC "Build the 2007 Verdict User Manual" OFF)
 option(VERDICT_MANGLE "Mangle verdict names for inclusion in a larger library?" OFF)
 if ( VERDICT_MANGLE )
