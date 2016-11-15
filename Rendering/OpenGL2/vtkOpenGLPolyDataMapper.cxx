@@ -76,7 +76,7 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->CurrentInput = 0;
   this->TempMatrix4 = vtkMatrix4x4::New();
   this->TempMatrix3 = vtkMatrix3x3::New();
-  this->DrawingEdges = false;
+  this->DrawingEdgesOrVertices = false;
   this->ForceTextureCoordinates = false;
 
   this->PrimitiveIDOffset = 0;
@@ -528,7 +528,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
     "uniform vec3 ambientColorUniform; // intensity weighted color\n"
     "uniform vec3 diffuseColorUniform; // intensity weighted color\n";
   // add some if we have a backface property
-  if (actor->GetBackfaceProperty() && !this->DrawingEdges)
+  if (actor->GetBackfaceProperty() && !this->DrawingEdgesOrVertices)
   {
     colorDec +=
       "uniform float opacityUniformBF; // the fragment opacity\n"
@@ -549,7 +549,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
     }
   }
   // add scalar vertex coloring
-  if (this->VBO->ColorComponents != 0 && !this->DrawingEdges)
+  if (this->VBO->ColorComponents != 0 && !this->DrawingEdgesOrVertices)
   {
     colorDec += "varying vec4 vertexColorVSOutput;\n";
     vtkShaderProgram::Substitute(VSSource,"//VTK::Color::Dec",
@@ -565,7 +565,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
       "//VTK::Color::Impl",
       "vertexColorGSOutput = vertexColorVSOutput[i];");
   }
-  if (this->HaveCellScalars && !this->HavePickScalars && !this->DrawingEdges)
+  if (this->HaveCellScalars && !this->HavePickScalars && !this->DrawingEdgesOrVertices)
   {
     colorDec += "uniform samplerBuffer textureC;\n";
   }
@@ -591,7 +591,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
       "  vec3 specularColor;\n"
       "  float specularPower;\n";
   }
-  if (actor->GetBackfaceProperty() && !this->DrawingEdges)
+  if (actor->GetBackfaceProperty() && !this->DrawingEdgesOrVertices)
   {
     if (this->LastLightComplexity[this->LastBoundBO])
     {
@@ -637,7 +637,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
   }
 
   // now handle scalar coloring
-  if (this->VBO->ColorComponents != 0 && !this->DrawingEdges)
+  if (this->VBO->ColorComponents != 0 && !this->DrawingEdgesOrVertices)
   {
     if (this->ScalarMaterialMode == VTK_MATERIALMODE_AMBIENT ||
         (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT &&
@@ -669,7 +669,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
     // are we doing scalar coloring by texture?
     if (this->InterpolateScalarsBeforeMapping &&
         this->ColorCoordinates &&
-        !this->DrawingEdges)
+        !this->DrawingEdgesOrVertices)
     {
       if (this->ScalarMaterialMode == VTK_MATERIALMODE_AMBIENT ||
           (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT &&
@@ -703,7 +703,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
     }
     else
     {
-      if (this->HaveCellScalars && !this->DrawingEdges)
+      if (this->HaveCellScalars && !this->DrawingEdgesOrVertices)
       {
         if (this->ScalarMaterialMode == VTK_MATERIALMODE_AMBIENT ||
             (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT &&
@@ -947,7 +947,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
   std::map<vtkShader::Type, vtkShader *> shaders,
   vtkRenderer *, vtkActor *actor)
 {
-  if (this->DrawingEdges)
+  if (this->DrawingEdgesOrVertices)
   {
     return;
   }
@@ -1598,12 +1598,23 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
   //cout << "FS: " << shaders[vtkShader::Fragment]->GetSource() << endl;
 }
 
+bool vtkOpenGLPolyDataMapper::DrawingTubesOrSpheres(
+  vtkOpenGLHelper &cellBO, vtkActor *actor)
+{
+  unsigned int mode =
+    this->GetOpenGLMode(actor->GetProperty()->GetRepresentation(),
+      cellBO.PrimitiveType);
+  vtkProperty*prop=actor->GetProperty();
+
+  return (prop->GetRenderPointsAsSpheres() && mode == GL_POINTS) ||
+     (prop->GetRenderLinesAsTubes() && mode == GL_LINES);
+}
+
 bool vtkOpenGLPolyDataMapper::DrawingSpheres(vtkOpenGLHelper &cellBO, vtkActor *actor)
 {
   return (actor->GetProperty()->GetRenderPointsAsSpheres() &&
     this->GetOpenGLMode(actor->GetProperty()->GetRepresentation(),
-      cellBO.PrimitiveType) == GL_POINTS &&
-      !this->DrawingEdges);
+      cellBO.PrimitiveType) == GL_POINTS);
 }
 
 bool vtkOpenGLPolyDataMapper::DrawingTubes(vtkOpenGLHelper &cellBO, vtkActor *actor)
@@ -1638,7 +1649,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
   }
 
   // we sphering or tubing? Yes I made sphere into a verb
-  if (this->DrawingTubes(cellBO, actor) || this->DrawingSpheres(cellBO, actor))
+  if (this->DrawingTubesOrSpheres(cellBO, actor))
   {
     needLighting = true;
   }
@@ -1804,7 +1815,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
         vtkErrorMacro(<< "Error setting 'normalMC' in shader VAO.");
       }
     }
-    if (this->VBO->TCoordComponents && !this->DrawingEdges &&
+    if (this->VBO->TCoordComponents && !this->DrawingEdgesOrVertices &&
         cellBO.Program->IsAttributeUsed("tcoordMC"))
     {
       if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
@@ -1814,7 +1825,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
         vtkErrorMacro(<< "Error setting 'tcoordMC' in shader VAO.");
       }
     }
-    if (this->VBO->ColorComponents != 0 && !this->DrawingEdges &&
+    if (this->VBO->ColorComponents != 0 && !this->DrawingEdgesOrVertices &&
         cellBO.Program->IsAttributeUsed("scalarColor"))
     {
       if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
@@ -1994,8 +2005,7 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(
   vtkActor *actor)
 {
   // for unlit and headlight there are no lighting parameters
-  if (this->LastLightComplexity[&cellBO] < 2 ||
-      (this->DrawingEdges && !this->DrawingTubes(cellBO, actor)))
+  if (this->LastLightComplexity[&cellBO] < 2)
   {
     return;
   }
@@ -2245,28 +2255,30 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(vtkOpenGLHelper &cellB
   {
   // Query the property for some of the properties that can be applied.
   float opacity = static_cast<float>(ppty->GetOpacity());
-  double *aColor = this->DrawingEdges ?
+  double *aColor = this->DrawingEdgesOrVertices ?
     ppty->GetEdgeColor() : ppty->GetAmbientColor();
   aColor = cellBO.PrimitiveType == PrimitiveVertices ?
     ppty->GetVertexColor() : aColor;
-  double aIntensity = (this->DrawingEdges && !this->DrawingTubes(cellBO, actor))
+  double aIntensity = (this->DrawingEdgesOrVertices
+    && !this->DrawingTubesOrSpheres(cellBO, actor))
     ? 1.0 : ppty->GetAmbient();
   float ambientColor[3] = {static_cast<float>(aColor[0] * aIntensity),
     static_cast<float>(aColor[1] * aIntensity),
     static_cast<float>(aColor[2] * aIntensity)};
 
-  double *dColor = this->DrawingEdges ?
+  double *dColor = this->DrawingEdgesOrVertices ?
     ppty->GetEdgeColor() : ppty->GetDiffuseColor();
   dColor = cellBO.PrimitiveType == PrimitiveVertices ?
     ppty->GetVertexColor() : dColor;
-  double dIntensity = (this->DrawingEdges && !this->DrawingTubes(cellBO, actor))
+  double dIntensity = (this->DrawingEdgesOrVertices
+    && !this->DrawingTubesOrSpheres(cellBO, actor))
     ? 0.0 : ppty->GetDiffuse();
   float diffuseColor[3] = {static_cast<float>(dColor[0] * dIntensity),
     static_cast<float>(dColor[1] * dIntensity),
     static_cast<float>(dColor[2] * dIntensity)};
 
   double *sColor = ppty->GetSpecularColor();
-  double sIntensity = (this->DrawingEdges && !this->DrawingTubes(cellBO, actor))
+  double sIntensity = (this->DrawingEdgesOrVertices && !this->DrawingTubes(cellBO, actor))
     ? 0.0 : ppty->GetSpecular();
   float specularColor[3] = {static_cast<float>(sColor[0] * sIntensity),
     static_cast<float>(sColor[1] * sIntensity),
@@ -2286,7 +2298,7 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(vtkOpenGLHelper &cellB
   }
 
   // now set the backface properties if we have them
-  if (actor->GetBackfaceProperty() && !this->DrawingEdges)
+  if (actor->GetBackfaceProperty() && !this->DrawingEdgesOrVertices)
   {
     ppty = actor->GetBackfaceProperty();
 
@@ -2513,16 +2525,10 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
     pointPicking = true;
   }
 
-  vtkProperty *prop = actor->GetProperty();
-  bool draw_surface_with_edges =
-    (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
-
   for (int i = PrimitiveStart;
        i < (selector ? PrimitiveTriStrips + 1 :  PrimitiveEnd); i++)
   {
-    this->DrawingEdges =
-      draw_surface_with_edges && (i == PrimitiveTrisEdges
-          || i == PrimitiveTriStripsEdges);
+    this->DrawingEdgesOrVertices = (i > PrimitiveTriStrips ? true : false);
     if (this->Primitives[i].IBO->IndexCount)
     {
       if (pointPicking)

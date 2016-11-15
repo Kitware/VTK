@@ -452,18 +452,18 @@ void vtkCompositeMapperHelper2::DrawIBO(
       glLineWidth(actor->GetProperty()->GetLineWidth());
     }
 
-    if (this->DrawingEdges && !this->DrawingTubes(CellBO, actor))
-    {
-      vtkProperty *ppty = actor->GetProperty();
-      float diffuseColor[3] = {0.0, 0.0, 0.0};
-      float ambientColor[3];
-      double *acol = ppty->GetEdgeColor();
-      ambientColor[0] = acol[0];
-      ambientColor[1] = acol[1];
-      ambientColor[2] = acol[2];
-      prog->SetUniform3f("diffuseColorUniform", diffuseColor);
-      prog->SetUniform3f("ambientColorUniform", ambientColor);
-    }
+    // if (this->DrawingEdgesOrVetices && !this->DrawingTubes(CellBO, actor))
+    // {
+    //   vtkProperty *ppty = actor->GetProperty();
+    //   float diffuseColor[3] = {0.0, 0.0, 0.0};
+    //   float ambientColor[3];
+    //   double *acol = ppty->GetEdgeColor();
+    //   ambientColor[0] = acol[0];
+    //   ambientColor[1] = acol[1];
+    //   ambientColor[2] = acol[2];
+    //   prog->SetUniform3f("diffuseColorUniform", diffuseColor);
+    //   prog->SetUniform3f("ambientColorUniform", ambientColor);
+    // }
 
     for (dataIter it = this->Data.begin(); it != this->Data.end(); )
     {
@@ -483,7 +483,7 @@ void vtkCompositeMapperHelper2::DrawIBO(
       {
         //compilers think this can exceed the bounds so we also
         // test against primType even though we should not need to
-        if (!this->DrawingEdges && primType < 4)
+        if (primType <= PrimitiveTriStrips)
         {
           this->SetShaderValues(prog, starthdata,
             starthdata->PrimOffsets[primType]);
@@ -523,17 +523,12 @@ void vtkCompositeMapperHelper2::RenderPieceDraw(
 
   this->PrimitiveIDOffset = 0;
 
-  vtkProperty *prop = actor->GetProperty();
-  bool draw_surface_with_edges =
-    (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
-
   // draw IBOs
   for (int i = PrimitiveStart;
     i < (this->CurrentSelector ? PrimitiveTriStrips + 1 : PrimitiveEnd); i++)
   {
-    this->DrawingEdges =
-      draw_surface_with_edges && (i == PrimitiveTrisEdges
-          || i == PrimitiveTriStripsEdges);
+    this->DrawingEdgesOrVertices =
+     (i > PrimitiveTriStrips ? true :false);
     GLenum mode = this->GetOpenGLMode(representation, i);
     this->DrawIBO(ren, actor, i, this->Primitives[i], mode,
       pointPicking ? this->GetPointPickingPrimitiveSize(i) : 0);

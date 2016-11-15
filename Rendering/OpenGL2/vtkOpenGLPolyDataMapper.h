@@ -373,7 +373,7 @@ protected:
   // Structures for the various cell types we render.
   vtkOpenGLHelper Primitives[PrimitiveEnd];
   vtkOpenGLHelper *LastBoundBO;
-  bool DrawingEdges;
+  bool DrawingEdgesOrVertices;
 
   // do we have wide lines that require special handling
   virtual bool HaveWideLines(vtkRenderer *, vtkActor *);
@@ -500,6 +500,7 @@ protected:
   // are we currently drawing spheres/tubes
   bool DrawingSpheres(vtkOpenGLHelper &cellBO, vtkActor *actor);
   bool DrawingTubes(vtkOpenGLHelper &cellBO, vtkActor *actor);
+  bool DrawingTubesOrSpheres(vtkOpenGLHelper &cellBO, vtkActor *actor);
 
   // get why opengl mode to use to draw the primitive
   int GetOpenGLMode(int representation, int primType);
