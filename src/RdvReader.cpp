@@ -37,10 +37,10 @@ bool RdvReader::Read(string path, vtkPolyData *polyData)
     while(in.getline(s, 1000))
     {
         char time[20];
-        sscanf(s, "%s", &time);
+        sscanf(s, "%s", time);
 
         float f, x, y, z, v;
-        sscanf(s, "%s%f%f%f%f%f%f", &time, &f, &f, &x, &y, &z, &v);
+        sscanf(s, "%s%f%f%f%f%f%f", time, &f, &f, &x, &y, &z, &v);
 
         points->InsertNextPoint(x, y, z);
 
@@ -50,5 +50,9 @@ bool RdvReader::Read(string path, vtkPolyData *polyData)
 
     polyData->SetPoints(points);
     polyData->GetPointData()->SetScalars(values);
+
+    points->Delete();
+    values->Delete();
+
     return true;
 }

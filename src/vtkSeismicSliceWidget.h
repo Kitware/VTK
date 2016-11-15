@@ -37,8 +37,11 @@ public:
 
     void SetSlicePosition(double position);
 
-private:
+protected:
     vtkSeismicSliceWidget();
+    ~vtkSeismicSliceWidget();
+
+private:
     vtkPlane* plane;
 };
 

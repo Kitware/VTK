@@ -16,21 +16,21 @@
 #ifndef SEGYVISUALIZER_SEGYREADER_H
 #define SEGYVISUALIZER_SEGYREADER_H
 
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <map>
+#include "BinaryHeaderBytesPositions.h"
+#include "TraceHeaderBytesPositions.h"
+#include "SegyTraceReader.h"
+#include "IOUtil.h"
+#include "Trace.h"
 
 #include <vtkImageData.h>
 #include <vtkActor.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataAlgorithm.h>
 
-#include "BinaryHeaderBytesPositions.h"
-#include "TraceHeaderBytesPositions.h"
-#include "SegyTraceReader.h"
-#include "IOUtil.h"
-#include "Trace.h"
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <map>
 
 using namespace std;
 

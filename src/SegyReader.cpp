@@ -36,6 +36,7 @@
 #include <vtkInformationVector.h>
 #include <vtkInformation.h>
 #include <vtkCellData.h>
+//#include <vtkXMLPolyDataWriter.h>
 
 
 SegyReader::~SegyReader()
@@ -276,8 +277,6 @@ bool SegyReader::AddScalars(vtkPolyData* polyData)
     return true;
 }
 
-
-//#include <vtkXMLPolyDataWriter.h>
 
 bool SegyReader::ExportData2D(vtkPolyData * polyData)
 {

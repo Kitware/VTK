@@ -20,6 +20,14 @@ vtkSeismicSliceWidget::vtkSeismicSliceWidget()
     plane = vtkPlane::New();
 }
 
+vtkSeismicSliceWidget::~vtkSeismicSliceWidget()
+{
+    if (plane)
+    {
+        plane->Delete();
+        plane = NULL;
+    }
+}
 
 void vtkSeismicSliceWidget::SetPlaneOrientationToXAxes()
 {
