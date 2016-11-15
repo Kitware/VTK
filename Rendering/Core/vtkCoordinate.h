@@ -28,9 +28,17 @@
  * The coordinate systems in vtk are as follows:
  * <PRE>
  *   DISPLAY -             x-y pixel values in window
+ *      0, 0 is the lower left of the first pixel,
+ *      size, size is the upper right of the last pixel
  *   NORMALIZED DISPLAY -  x-y (0,1) normalized values
+ *      0, 0 is the lower left of the first pixel,
+ *      1, 1 is the upper right of the last pixel
  *   VIEWPORT -            x-y pixel values in viewport
+ *      0, 0 is the lower left of the first pixel,
+ *      size, size is the upper right of the last pixel
  *   NORMALIZED VIEWPORT - x-y (0,1) normalized value in viewport
+ *      0, 0 is the lower left of the first pixel,
+ *      1, 1 is the upper right of the last pixel
  *   VIEW -                x-y-z (-1,1) values in camera coordinates. (z is depth)
  *   WORLD -               x-y-z global coordinate values
  *   USERDEFINED -         x-y-z in User defined space
