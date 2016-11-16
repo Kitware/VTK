@@ -30,7 +30,7 @@
 #include "vtkFloatArray.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLRenderWindow.h"
-#include "vtkFrameBufferObject2.h"
+#include "vtkOpenGLFramebufferObject.h"
 
 #include <cassert>
 
@@ -65,7 +65,7 @@ public:
 
   // Description:
   // FLOATING_POINT mode resources. FBO, attachments and other control variables.
-  vtkFrameBufferObject2* ValueFrameBO;
+  vtkOpenGLFramebufferObject* ValueFrameBO;
   vtkRenderbuffer* ValueRenderBO;
   vtkRenderbuffer* DepthRenderBO;
   bool ValuePassResourcesAllocated;
@@ -347,7 +347,7 @@ bool vtkValuePass::HasWindowSizeChanged(vtkRenderer* ren)
   }
 
   int* size = ren->GetSize();
-  int* fboSize = this->Internals->ValueFrameBO->GetLastSize(false);
+  int* fboSize = this->Internals->ValueFrameBO->GetLastSize();
 
   return (fboSize[0] != size[0] || fboSize[1] != size[1]);
 }
@@ -382,12 +382,12 @@ bool vtkValuePass::InitializeFloatingPointMode(vtkRenderer* ren)
   this->Internals->DepthRenderBO->CreateDepthAttachment(size[0], size[1]);
 
   // Initialize the FBO into which the float value pass is rendered.
-  this->Internals->ValueFrameBO = vtkFrameBufferObject2::New();
+  this->Internals->ValueFrameBO = vtkOpenGLFramebufferObject::New();
   this->Internals->ValueFrameBO->SetContext(renWin);
   this->Internals->ValueFrameBO->SaveCurrentBindings();
   this->Internals->ValueFrameBO->Bind(GL_FRAMEBUFFER);
   this->Internals->ValueFrameBO->InitializeViewport(size[0], size[1]);
-  this->Internals->ValueFrameBO->GetLastSize(true); /*force a cached size update*/
+  // this->Internals->ValueFrameBO->GetLastSize(); /*force a cached size update*/
   /* GL_COLOR_ATTACHMENT0 */
   this->Internals->ValueFrameBO->AddColorAttachment(GL_FRAMEBUFFER, 0, this->Internals->ValueRenderBO);
   this->Internals->ValueFrameBO->AddDepthAttachment(GL_FRAMEBUFFER, this->Internals->DepthRenderBO);
@@ -475,7 +475,7 @@ vtkFloatArray* vtkValuePass::GetFloatImageDataArray(vtkRenderer* ren)
   renWin->MakeCurrent();
 
   //Allocate output array.
-  int* size = this->Internals->ValueFrameBO->GetLastSize(false);
+  int* size = this->Internals->ValueFrameBO->GetLastSize();
   this->Internals->Values->SetNumberOfTuples(size[0] * size[1]);
 
   // RGB channels are equivalent in the FBO (they all contain the rendered
@@ -516,7 +516,7 @@ void vtkValuePass::GetFloatImageData(int const format, int const width,
 //-------------------------------------------------------------------------------
 int* vtkValuePass::GetFloatImageExtents()
 {
-  int* size = this->Internals->ValueFrameBO->GetLastSize(false);
+  int* size = this->Internals->ValueFrameBO->GetLastSize();
 
   this->Internals->FloatImageExt[0] = 0; this->Internals->FloatImageExt[1] = size[0] - 1;
   this->Internals->FloatImageExt[2] = 0; this->Internals->FloatImageExt[3] = size[1] - 1;

@@ -27,7 +27,7 @@
 #include "vtkStructuredExtent.h"
 #include "vtkObjectFactory.h"
 #include "vtkLineIntegralConvolution2D.h"
-#include "vtkFrameBufferObject2.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkRenderbuffer.h"
 #include "vtkPixelBufferObject.h"
 #include "vtkTextureObject.h"
@@ -124,7 +124,7 @@ int vtkImageDataLIC2D::SetContext(vtkRenderWindow * renWin)
     bool featureSupport
       = vtkLineIntegralConvolution2D::IsSupported(context)
       && vtkPixelBufferObject::IsSupported(context)
-      && vtkFrameBufferObject2::IsSupported(context)
+      && vtkOpenGLFramebufferObject::IsSupported(context)
       && vtkRenderbuffer::IsSupported(context)
       && vtkTextureObject::IsSupported(context);
 
@@ -443,7 +443,7 @@ int vtkImageDataLIC2D::RequestData(
     magVectorTex->Create2D(magVectorSize[0], magVectorSize[1], 4, VTK_FLOAT, false);
     vtkLineIntegralConvolution2D::SetVectorTexParameters(magVectorTex);
 
-    vtkFrameBufferObject2 *drawFbo = vtkFrameBufferObject2::New();
+    vtkOpenGLFramebufferObject *drawFbo = vtkOpenGLFramebufferObject::New();
     drawFbo->SetContext(this->Context);
     drawFbo->SaveCurrentBindings();
     drawFbo->Bind(GL_FRAMEBUFFER);

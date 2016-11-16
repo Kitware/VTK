@@ -50,7 +50,7 @@ class vtkOpenGLRenderWindow;
 class vtkInformationIntegerKey;
 class vtkCamera;
 class vtkLight;
-class vtkFrameBufferObject;
+class vtkOpenGLFramebufferObject;
 class vtkTextureObject;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkShadowMapBakerPass : public vtkRenderPass
@@ -221,7 +221,7 @@ public:
   /**
    * Graphics resources.
    */
-  vtkFrameBufferObject *FrameBufferObject;
+  vtkOpenGLFramebufferObject *FrameBufferObject;
 
   std::vector<vtkSmartPointer<vtkTextureObject> > *ShadowMaps;
   std::vector<vtkSmartPointer<vtkCamera> > *LightCameras;

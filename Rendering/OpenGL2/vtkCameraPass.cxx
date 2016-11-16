@@ -21,7 +21,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkMatrix4x4.h"
 #include "vtkCamera.h"
-#include "vtkFrameBufferObject.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLError.h"
 
 vtkStandardNewMacro(vtkCameraPass);
@@ -104,7 +104,7 @@ void vtkCameraPass::Render(const vtkRenderState *s)
   int lowerLeft[2];
   int usize;
   int vsize;
-  vtkFrameBufferObject *fbo=vtkFrameBufferObject::SafeDownCast(s->GetFrameBuffer());
+  vtkOpenGLFramebufferObject *fbo=vtkOpenGLFramebufferObject::SafeDownCast(s->GetFrameBuffer());
 
   vtkOpenGLRenderWindow *win=vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
   win->MakeCurrent();

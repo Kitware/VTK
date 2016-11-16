@@ -65,7 +65,7 @@ Ph.D. thesis of Christian BOUCHENY.
 #include "vtkOpenGLHelper.h" // used for ivars
 
 class vtkOpenGLRenderWindow;
-class vtkFrameBufferObject;
+class vtkOpenGLFramebufferObject;
 class vtkTextureObject;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkEDLShading : public vtkDepthImageProcessingPass
@@ -133,7 +133,7 @@ public:
   /**
    * Framebuffer object and textures for initial projection
    */
-  vtkFrameBufferObject  *ProjectionFBO;
+  vtkOpenGLFramebufferObject  *ProjectionFBO;
                         // used to record scene data
   vtkTextureObject      *ProjectionColorTexture;
                         // color render target for projection pass
@@ -142,11 +142,11 @@ public:
   //@}
 
   // Framebuffer objects and textures for EDL
-  vtkFrameBufferObject *EDLHighFBO;
+  vtkOpenGLFramebufferObject *EDLHighFBO;
                        // for EDL full res shading
   vtkTextureObject     *EDLHighShadeTexture;
                        // color render target for EDL full res pass
-  vtkFrameBufferObject *EDLLowFBO;
+  vtkOpenGLFramebufferObject *EDLLowFBO;
                        // for EDL low res shading (image size/4)
   vtkTextureObject     *EDLLowShadeTexture;
                        // color render target for EDL low res pass

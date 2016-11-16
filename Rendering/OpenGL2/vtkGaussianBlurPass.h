@@ -53,7 +53,7 @@
 #include "vtkImageProcessingPass.h"
 
 class vtkDepthPeelingPassLayerList; // Pimpl
-class vtkFrameBufferObject;
+class vtkOpenGLFramebufferObject;
 class vtkOpenGLHelper;
 class vtkOpenGLRenderWindow;
 class vtkTextureObject;
@@ -92,15 +92,12 @@ public:
   /**
    * Graphics resources.
    */
-  vtkFrameBufferObject *FrameBufferObject;
+  vtkOpenGLFramebufferObject *FrameBufferObject;
   vtkTextureObject *Pass1; // render target for the scene
   vtkTextureObject *Pass2; // render target for the horizontal pass
 
   // Structures for the various cell types we render.
   vtkOpenGLHelper *BlurProgram;
-
-  bool Supported;
-  bool SupportProbed;
 
  private:
   vtkGaussianBlurPass(const vtkGaussianBlurPass&) VTK_DELETE_FUNCTION;

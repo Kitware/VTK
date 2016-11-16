@@ -21,24 +21,23 @@
 #include "vtkPPainterCommunicator.h"
 #include "vtkRenderingOpenGLConfigure.h"
 #include "vtkRenderWindow.h"
-#ifdef VTK_OPENGL2
-# include "vtkOpenGLRenderUtilities.h"
-#endif
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkTextureObject.h"
 #include "vtkPixelBufferObject.h"
-#include "vtkFrameBufferObject2.h"
 #include "vtkRenderbuffer.h"
 #include "vtkMPI.h"
 
 
 #ifdef VTK_OPENGL2
+# include "vtkOpenGLFramebufferObject.h"
+# include "vtkOpenGLRenderUtilities.h"
 # include "vtkOpenGLHelper.h"
 # include "vtkOpenGLShaderCache.h"
 # include "vtkShaderProgram.h"
 # include "vtkTextureObjectVS.h"
 # include "vtkPSurfaceLICComposite_CompFS.h"
 #else
+# include "vtkFrameBufferObject2.h"
 # include "vtkShader2.h"
 # include "vtkShaderProgram2.h"
 # include "vtkUniformVariables.h"
@@ -402,6 +401,9 @@ void vtkPSurfaceLICComposite::SetContext(vtkOpenGLRenderWindow *rwin)
         rwin->GetShaderCache()->ReadyShaderProgram(vtkTextureObjectVS,
                                           vtkPSurfaceLICComposite_CompFS,
                                             GSSource.c_str());
+
+    // setup a FBO for rendering
+    this->FBO = vtkOpenGLFramebufferObject::New();
 #else
     vtkShader2 *compositeShaderSrc = vtkShader2::New();
     compositeShaderSrc->SetContext(this->Context);
@@ -414,10 +416,11 @@ void vtkPSurfaceLICComposite::SetContext(vtkOpenGLRenderWindow *rwin)
     this->CompositeShader->Build();
 
     compositeShaderSrc->Delete();
-#endif
 
     // setup a FBO for rendering
     this->FBO = vtkFrameBufferObject2::New();
+#endif
+
     this->FBO->SetContext(this->Context);
   }
 }

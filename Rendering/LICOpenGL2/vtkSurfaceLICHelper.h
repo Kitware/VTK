@@ -30,7 +30,7 @@
 
 #include <deque> // for methods
 
-class vtkFrameBufferObject2;
+class vtkOpenGLFramebufferObject;
 class vtkOpenGLRenderWindow;
 class vtkPainterCommunicator;
 class vtkImageData;
@@ -213,7 +213,7 @@ public:
   void GetPixelBounds(float *rgba, int ni, std::deque<vtkPixelExtent> &blockExts);
 
   static void StreamingFindMinMax(
-    vtkFrameBufferObject2 *fbo,
+    vtkOpenGLFramebufferObject *fbo,
     std::deque<vtkPixelExtent> &blockExts,
     float &min, float &max);
 
@@ -238,7 +238,7 @@ public:
 
   int Viewsize[2];
   vtkSmartPointer<vtkSurfaceLICComposite> Compositor;
-  vtkSmartPointer<vtkFrameBufferObject2> FBO;
+  vtkSmartPointer<vtkOpenGLFramebufferObject> FBO;
 
   vtkSmartPointer<vtkLineIntegralConvolution2D> LICer;
   vtkPainterCommunicator *Communicator;

@@ -14,7 +14,7 @@
 #include "vtkSurfaceLICHelper.h"
 
 #include "vtk_glew.h"
-#include "vtkFrameBufferObject2.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkPixelBufferObject.h"
 #include "vtkPainterCommunicator.h"
 #include "vtkLineIntegralConvolution2D.h"
@@ -39,7 +39,7 @@
 // find min/max of unmasked fragments across all regions
 // download each search each region individually
 void vtkSurfaceLICHelper::StreamingFindMinMax(
-      vtkFrameBufferObject2 *fbo,
+      vtkOpenGLFramebufferObject *fbo,
       std::deque<vtkPixelExtent> &blockExts,
       float &min,
       float &max)

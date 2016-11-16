@@ -22,7 +22,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkDataTransferHelper.h"
-#include "vtkFrameBufferObject.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkLineIntegralConvolution2D.h"
 #include "vtkStructuredExtent.h"
 #include "vtkTextureObject.h"
@@ -509,17 +509,18 @@ int vtkStructuredGridLIC2D::RequestData(
   vtkDebugMacro( << "Vector field in image space (target) textureId = "
                  << vector2->GetHandle() << endl );
 
-  vtkFrameBufferObject *fbo = vtkFrameBufferObject::New();
+  vtkOpenGLFramebufferObject *fbo = vtkOpenGLFramebufferObject::New();
   fbo->SetContext(renWin);
-  fbo->SetColorBuffer(0,vector2);
-  fbo->SetNumberOfRenderTargets(1);
-  fbo->SetActiveBuffer(0);
+  fbo->Bind();
+  fbo->AddColorAttachment(fbo->GetBothMode(), 0,vector2);
+  fbo->ActivateDrawBuffer(0);
+  fbo->ActivateReadBuffer(0);
 
   // TODO --
   // step size is incorrect here
   // guard pixels are needed for parallel operations
 
-  if (  !fbo->Start( magWidth, magHeight, false )  )
+  if (  !fbo->Start( magWidth, magHeight )  )
   {
     fbo->Delete();
     vector2->Delete();

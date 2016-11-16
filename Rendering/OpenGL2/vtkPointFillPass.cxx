@@ -20,7 +20,7 @@
 #include "vtkCamera.h"
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
-#include "vtkFrameBufferObject.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkTextureObject.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
@@ -42,8 +42,6 @@ vtkPointFillPass::vtkPointFillPass()
   this->FrameBufferObject=0;
   this->Pass1=0;
   this->Pass1Depth=0;
-  this->Supported=false;
-  this->SupportProbed=false;
   this->BlurProgram = NULL;
   this->MinimumCandidateAngle = 1.5*3.1415926;
   this->CandidatePointRatio = 0.99;
@@ -93,69 +91,6 @@ void vtkPointFillPass::Render(const vtkRenderState *s)
     return;
   }
 
-  if(!this->SupportProbed)
-  {
-    this->SupportProbed=true;
-    // Test for Hardware support. If not supported, just render the delegate.
-    bool supported=vtkFrameBufferObject::IsSupported(renWin);
-
-    if(!supported)
-    {
-      vtkErrorMacro("FBOs are not supported by the context. Cannot blur the image.");
-    }
-
-    if(supported)
-    {
-      // FBO extension is supported. Is the specific FBO format supported?
-      if(this->FrameBufferObject==0)
-      {
-        this->FrameBufferObject=vtkFrameBufferObject::New();
-        this->FrameBufferObject->SetContext(renWin);
-      }
-      if(this->Pass1==0)
-      {
-        this->Pass1=vtkTextureObject::New();
-        this->Pass1->SetContext(renWin);
-      }
-      this->Pass1->Create2D(64,64,4,VTK_UNSIGNED_CHAR,false);
-      this->FrameBufferObject->SetColorBuffer(0,this->Pass1);
-      this->FrameBufferObject->SetNumberOfRenderTargets(1);
-      this->FrameBufferObject->SetActiveBuffer(0);
-      this->FrameBufferObject->SetDepthBufferNeeded(true);
-
-#if GL_ES_VERSION_3_0 != 1
-      GLint savedCurrentDrawBuffer;
-      glGetIntegerv(GL_DRAW_BUFFER,&savedCurrentDrawBuffer);
-#endif
-      supported=this->FrameBufferObject->StartNonOrtho(64,64,false);
-      if(!supported)
-      {
-        vtkErrorMacro("The requested FBO format is not supported by the context. Cannot blur the image.");
-      }
-      else
-      {
-        this->FrameBufferObject->UnBind();
-#if GL_ES_VERSION_3_0 != 1
-        glDrawBuffer(static_cast<GLenum>(savedCurrentDrawBuffer));
-#endif
-      }
-    }
-    this->Supported=supported;
-  }
-
-  if(!this->Supported)
-  {
-    this->DelegatePass->Render(s);
-    this->NumberOfRenderedProps+=
-      this->DelegatePass->GetNumberOfRenderedProps();
-    return;
-  }
-
-#if GL_ES_VERSION_3_0 != 1
-  GLint savedDrawBuffer;
-  glGetIntegerv(GL_DRAW_BUFFER,&savedDrawBuffer);
-#endif
-
   // 1. Create a new render state with an FBO.
 
   int width;
@@ -198,18 +133,16 @@ void vtkPointFillPass::Render(const vtkRenderState *s)
 
   if(this->FrameBufferObject==0)
   {
-    this->FrameBufferObject=vtkFrameBufferObject::New();
+    this->FrameBufferObject=vtkOpenGLFramebufferObject::New();
     this->FrameBufferObject->SetContext(renWin);
   }
 
+  this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
   this->RenderDelegate(s,width,height,w,h,this->FrameBufferObject,
                        this->Pass1, this->Pass1Depth);
 
   this->FrameBufferObject->UnBind();
-
-#if GL_ES_VERSION_3_0 != 1
-  glDrawBuffer(static_cast<GLenum>(savedDrawBuffer));
-#endif
+  this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
 
   // has something changed that would require us to recreate the shader?
   if (!this->BlurProgram)

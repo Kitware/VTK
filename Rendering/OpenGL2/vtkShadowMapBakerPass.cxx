@@ -16,7 +16,7 @@
 //#include "vtkAbstractTransform.h" // for helper classes stack and concatenation
 #include "vtkCamera.h"
 #include "vtkCameraPass.h"
-#include "vtkFrameBufferObject.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkLight.h"
@@ -265,7 +265,7 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
     glDisable(GL_SCISSOR_TEST);
 
     // Test for Hardware support. If not supported, just render the delegate.
-    bool supported=vtkFrameBufferObject::IsSupported(context);
+    bool supported=vtkOpenGLFramebufferObject::IsSupported(context);
 
     if(!supported)
     {
@@ -365,11 +365,6 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
       cout << "update the shadow maps" << endl;
 #endif
 
-#ifdef GL_DRAW_BUFFER
-      GLint savedDrawBuffer;
-      glGetIntegerv(GL_DRAW_BUFFER,&savedDrawBuffer);
-#endif
-
       realCamera->Register(this);
 
       // 1. Create a new render state with an FBO.
@@ -381,9 +376,11 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
 
       if(this->FrameBufferObject==0)
       {
-        this->FrameBufferObject=vtkFrameBufferObject::New();
+        this->FrameBufferObject=vtkOpenGLFramebufferObject::New();
         this->FrameBufferObject->SetContext(context);
       }
+      this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
+      this->FrameBufferObject->Bind();
       s2.SetFrameBuffer(this->FrameBufferObject);
 
       lights->InitTraversal();
@@ -495,11 +492,11 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
 //              vtkTextureObject::Native);
           }
           map->Activate();
-          this->FrameBufferObject->SetDepthBufferNeeded(true);
-          this->FrameBufferObject->SetDepthBuffer(map);
+          this->FrameBufferObject->AddDepthAttachment(
+            this->FrameBufferObject->GetBothMode(), map);
           this->FrameBufferObject->StartNonOrtho(
             static_cast<int>(this->Resolution),
-            static_cast<int>(this->Resolution),false);
+            static_cast<int>(this->Resolution));
 
           vtkCamera *lightCamera = (*this->LightCameras)[lightIndex];
           if(lightCamera==0)
@@ -546,9 +543,8 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
 
       // back to the original frame buffer.
       this->FrameBufferObject->UnBind();
-#ifdef GL_DRAW_BUFFER
-      glDrawBuffer(static_cast<GLenum>(savedDrawBuffer));
-#endif
+      this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
+
       // Restore real camera.
       r->SetActiveCamera(realCamera);
       realCamera->UnRegister(this);

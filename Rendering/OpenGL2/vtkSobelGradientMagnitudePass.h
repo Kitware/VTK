@@ -64,7 +64,7 @@
 #include "vtkImageProcessingPass.h"
 
 class vtkDepthPeelingPassLayerList; // Pimpl
-class vtkFrameBufferObject;
+class vtkOpenGLFramebufferObject;
 class vtkOpenGLHelper;
 class vtkOpenGLRenderWindow;
 class vtkTextureObject;
@@ -104,7 +104,7 @@ public:
   /**
    * Graphics resources.
    */
-  vtkFrameBufferObject *FrameBufferObject;
+  vtkOpenGLFramebufferObject *FrameBufferObject;
   vtkTextureObject *Pass1; // render target for the scene
   vtkTextureObject *Gx1; // render target 0 for the first shader
   vtkTextureObject *Gy1; // render target 1 for the first shader

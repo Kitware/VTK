@@ -37,7 +37,7 @@
 #include <vtkDataArray.h>
 #include <vtkDensifyPolyData.h>
 #include <vtkFloatArray.h>
-#include <vtkFrameBufferObject2.h>
+#include <vtkOpenGLFramebufferObject.h>
 #include <vtkImageData.h>
 #include <vtkLightCollection.h>
 #include <vtkLight.h>
@@ -454,13 +454,13 @@ public:
   vtkShaderProgram* ShaderProgram;
   vtkOpenGLShaderCache* ShaderCache;
 
-  vtkFrameBufferObject2* FBO;
+  vtkOpenGLFramebufferObject* FBO;
   vtkTextureObject* RTTDepthBufferTextureObject;
   vtkTextureObject* RTTDepthTextureObject;
   vtkTextureObject* RTTColorTextureObject;
   int RTTDepthTextureType;
 
-  vtkFrameBufferObject2* DPFBO;
+  vtkOpenGLFramebufferObject* DPFBO;
   vtkTextureObject* DPDepthBufferTextureObject;
   vtkTextureObject* DPColorTextureObject;
 
@@ -2280,12 +2280,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupRenderToTexture(
 
     if (!this->FBO)
     {
-      this->FBO = vtkFrameBufferObject2::New();
+      this->FBO = vtkOpenGLFramebufferObject::New();
     }
 
     this->FBO->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
                           ren->GetRenderWindow()));
 
+    this->FBO->SaveCurrentBindingsAndBuffers();
     this->FBO->Bind(GL_FRAMEBUFFER);
     this->FBO->InitializeViewport(this->WindowSize[0], this->WindowSize[1]);
 
@@ -2358,15 +2359,15 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupRenderToTexture(
     }
 
     this->FBO->Bind(GL_FRAMEBUFFER);
-    this->FBO->AddTexDepthAttachment(
+    this->FBO->AddDepthAttachment(
       GL_DRAW_FRAMEBUFFER,
-      this->RTTDepthBufferTextureObject->GetHandle());
-    this->FBO->AddTexColorAttachment(
+      this->RTTDepthBufferTextureObject);
+    this->FBO->AddColorAttachment(
       GL_DRAW_FRAMEBUFFER, 0U,
-      this->RTTColorTextureObject->GetHandle());
-    this->FBO->AddTexColorAttachment(
+      this->RTTColorTextureObject);
+    this->FBO->AddColorAttachment(
       GL_DRAW_FRAMEBUFFER, 1U,
-      this->RTTDepthTextureObject->GetHandle());
+      this->RTTDepthTextureObject);
     this->FBO->ActivateDrawBuffers(2);
 
     this->FBO->CheckFrameBufferStatus(GL_FRAMEBUFFER);
@@ -2387,6 +2388,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ExitRenderToTexture(
     this->FBO->RemoveTexColorAttachment(GL_DRAW_FRAMEBUFFER, 1U);
     this->FBO->DeactivateDrawBuffers();
     this->FBO->UnBind(GL_FRAMEBUFFER);
+    this->FBO->RestorePreviousBuffers();
 
     this->RTTDepthBufferTextureObject->Deactivate();
     this->RTTColorTextureObject->Deactivate();
@@ -2408,12 +2410,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupDepthPass(
 
   if (!this->DPFBO)
   {
-    this->DPFBO = vtkFrameBufferObject2::New();
+    this->DPFBO = vtkOpenGLFramebufferObject::New();
   }
 
   this->DPFBO->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
                         ren->GetRenderWindow()));
 
+  this->DPFBO->SaveCurrentBindingsAndBuffers();
   this->DPFBO->Bind(GL_FRAMEBUFFER);
   this->DPFBO->InitializeViewport(this->WindowSize[0], this->WindowSize[1]);
 
@@ -2449,13 +2452,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupDepthPass(
       vtkTextureObject::Nearest);
     this->DPColorTextureObject->SetAutoParameters(0);
 
-    this->DPFBO->AddTexDepthAttachment(
+    this->DPFBO->AddDepthAttachment(
       GL_DRAW_FRAMEBUFFER,
-      this->DPDepthBufferTextureObject->GetHandle());
+      this->DPDepthBufferTextureObject);
 
-    this->DPFBO->AddTexColorAttachment(
+    this->DPFBO->AddColorAttachment(
       GL_DRAW_FRAMEBUFFER, 0U,
-      this->DPColorTextureObject->GetHandle());
+      this->DPColorTextureObject);
   }
 
 
@@ -2477,6 +2480,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ExitDepthPass(
 {
   this->DPFBO->DeactivateDrawBuffers();
   this->DPFBO->UnBind(GL_FRAMEBUFFER);
+  this->DPFBO->RestorePreviousBuffers();
 
   this->DPDepthBufferTextureObject->Deactivate();
   this->DPColorTextureObject->Deactivate();
