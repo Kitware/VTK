@@ -310,6 +310,13 @@ class VTKArray(numpy.ndarray):
                                  (self.__class__.__name__, name))
         return getattr(o, name)
 
+    def __array_wrap__(self, out_arr, context=None):
+        if out_arr.shape == ():
+            # Convert to scalar value
+            return out_arr[()]
+        else:
+            return numpy.ndarray.__array_wrap__(self, out_arr, context)
+
 class VTKNoneArrayMetaClass(type):
     def __new__(mcs, name, parent, attr):
         """Simplify the implementation of the numeric/logical sequence API."""
