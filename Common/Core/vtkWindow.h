@@ -57,6 +57,7 @@ public:
   //@{
   /**
    * Set/Get the position in screen coordinates of the rendering window.
+   * Measured in pixels.
    */
   virtual int *GetPosition();
   virtual void SetPosition(int,int);
@@ -74,7 +75,7 @@ public:
 
   /**
    * GetSize() returns the size * this->TileScale, whereas this method returns
-   * the size without multiplying with the tile scale.
+   * the size without multiplying with the tile scale. Measured in pixels.
    */
   int *GetActualSize();
 
