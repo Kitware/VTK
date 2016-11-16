@@ -3,7 +3,7 @@
 #--  All rights reserved.
 #--  BSD License: http://www.opensource.org/licenses/bsd-license.html
 #--////////////////////////////////////////////////////////////////////////////
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.5 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12 FATAL_ERROR)
 if(POLICY CMP0025)
   cmake_policy(SET CMP0025 NEW) # CMake 3.0
 endif()
@@ -28,18 +28,27 @@ set (SimpleCocoaVTK_SRCS
   ${SimpleCocoaVTK_SOURCE_DIR}/main.mm
   ${SimpleCocoaVTK_SOURCE_DIR}/BasicVTKView.mm
   ${SimpleCocoaVTK_SOURCE_DIR}/MyDocument.mm
+  ${SimpleCocoaVTK_SOURCE_DIR}/MyWindowController.mm
 )
+
+# Build all Objective-C as ARC.
+set_source_files_properties(main.mm
+                            BasicVTKView.mm
+                            MyDocument.mm
+                            MyWindowController.mm
+                            PROPERTIES COMPILE_FLAGS "-fobjc-arc")
 
 # The Headers
 set (SimpleCocoaVTK_HDRS
   ${SimpleCocoaVTK_SOURCE_DIR}/BasicVTKView.h
   ${SimpleCocoaVTK_SOURCE_DIR}/MyDocument.h
+  ${SimpleCocoaVTK_SOURCE_DIR}/MyWindowController.h
 )
 
 # these are the OS X Interface Builder Files
 set (SimpleCocoaVTK_XIBS
   MainMenu
-  MyDocument
+  MyWindow
 )
 
 # Set the OS X Bundle specific CMake variables which will be used to populate the plist for
@@ -56,7 +65,7 @@ add_executable(SimpleCocoaVTK MACOSX_BUNDLE ${SimpleCocoaVTK_SRCS} ${SimpleCocoa
 
 # Probably a better way to set the framework link libraries.
 target_link_libraries(SimpleCocoaVTK "-framework Cocoa -framework OpenGL"
-                      vtkRenderingOpenGL vtkInteractionStyle )
+                      vtkRenderingOpenGL2 vtkInteractionStyle vtkRenderingFreeType vtkFiltersSources vtkRenderingGL2PSOpenGL2 )
 
 # Set a custom plist file for the app bundle
 set_target_properties(SimpleCocoaVTK PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${SimpleCocoaVTK_SOURCE_DIR}/Info-CMake.plist)
