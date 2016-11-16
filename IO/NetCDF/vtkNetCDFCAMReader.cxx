@@ -876,7 +876,7 @@ int vtkNetCDFCAMReader::RequestData(
         }
       }
     }
-    else if(this->VerticalDimension == VERTICAL_DIMENSION_SINGLE_LAYER)
+    else
     {
       variable->set_cur(timeStep, 0);
       if(doubleArray)
