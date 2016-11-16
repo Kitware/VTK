@@ -75,8 +75,8 @@ void vtkCompositeLICHelper::SetPropertyShaderParameters(vtkOpenGLHelper &cellBO,
 
   // override the opacity
   cellBO.Program->SetUniformf("opacityUniform", this->Parent->BlockState.Opacity.top());
-  double aIntensity = this->DrawingEdges ? 1.0 : ppty->GetAmbient();  // ignoring renderer ambient
-  double dIntensity = this->DrawingEdges ? 0.0 : ppty->GetDiffuse();
+  double aIntensity = this->DrawingEdgesOrVertices ? 1.0 : ppty->GetAmbient();  // ignoring renderer ambient
+  double dIntensity = this->DrawingEdgesOrVertices ? 0.0 : ppty->GetDiffuse();
 
   vtkColor3d &aColor = this->Parent->BlockState.AmbientColor.top();
   float ambientColor[3] = {static_cast<float>(aColor[0] * aIntensity),
