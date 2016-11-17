@@ -41,6 +41,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPath.h"
 #include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkProp.h"
 #include "vtkProp3DCollection.h"
 #include "vtkOpenGLRenderWindow.h"
@@ -54,6 +55,7 @@
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 #include "vtkTextRenderer.h"
+#include "vtkTexturedActor2D.h"
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 #include "vtkVolume.h"
@@ -253,6 +255,7 @@ void vtkOpenGLGL2PSExporter::WriteData()
         this->RestorePropVisibility(renCol, volVis.GetPointer(),
                                     actVis.GetPointer(), act2dVis.GetPointer());
         this->Turn3DPropsOff(renCol);
+        TurnSpecialPropsOff(specialPropCol.GetPointer(), renCol);
         this->RenderWindow->Render();
       }
     }
@@ -539,6 +542,23 @@ void vtkOpenGLGL2PSExporter::DrawSpecialProps(vtkCollection *specialPropCol,
   vtkOpenGLCheckErrorMacro("failed after DrawSpecialProps");
 }
 
+void vtkOpenGLGL2PSExporter::TurnSpecialPropsOff(vtkCollection *specialPropCol,
+                                                 vtkRendererCollection *renCol)
+{
+  assert("renderers and special prop collections match" &&
+         renCol->GetNumberOfItems() == specialPropCol->GetNumberOfItems());
+  for (int i = 0; i < renCol->GetNumberOfItems(); ++i)
+  {
+    vtkPropCollection *propCol = vtkPropCollection::SafeDownCast(
+          specialPropCol->GetItemAsObject(i));
+    vtkProp *prop = 0;
+    for (propCol->InitTraversal(); (prop = propCol->GetNextProp());)
+    {
+      prop->SetVisibility(0);
+    }
+  }
+}
+
 void vtkOpenGLGL2PSExporter::HandleSpecialProp(vtkProp *prop, vtkRenderer *ren)
 {
   // What sort of special prop is it?
@@ -547,6 +567,10 @@ void vtkOpenGLGL2PSExporter::HandleSpecialProp(vtkProp *prop, vtkRenderer *ren)
     if (vtkTextActor *textAct = vtkTextActor::SafeDownCast(act2d))
     {
       this->DrawTextActor(textAct, ren);
+    }
+    else if (vtkTexturedActor2D *act = vtkTexturedActor2D::SafeDownCast(act2d))
+    {
+      this->DrawTexturedActor2D(act, ren);
     }
     else if (vtkMapper2D *map2d = act2d->GetMapper())
     {
@@ -798,6 +822,30 @@ void vtkOpenGLGL2PSExporter::DrawScalarBarActor(vtkScalarBarActor *bar,
   bar->GetScalarBarRect(rect, ren);
   this->CopyPixels(rect, ren);
 }
+
+void vtkOpenGLGL2PSExporter::DrawTexturedActor2D(vtkTexturedActor2D *act,
+                                                 vtkRenderer *ren)
+{
+  int rect[4];
+
+  vtkCoordinate *origin = act->GetPositionCoordinate();
+  int * vpPos = origin->GetComputedViewportValue(ren);
+  rect[0] = vpPos[0];
+  rect[1] = vpPos[1];
+
+  vtkMapper2D* mapper = act->GetMapper();
+  vtkPolyData* poly = vtkPolyData::SafeDownCast(mapper->GetInputDataObject(0, 0));
+  if (poly)
+  {
+    double *bounds = poly->GetBounds();
+    rect[0] += static_cast<int>(bounds[0] + 0.5);
+    rect[1] += static_cast<int>(bounds[2] + 0.5);
+    rect[2] = static_cast<int>(bounds[1] - bounds[0] + 0.5);
+    rect[3] = static_cast<int>(bounds[3] - bounds[2] + 0.5);
+    this->CopyPixels(rect, ren);
+  }
+}
+
 
 void vtkOpenGLGL2PSExporter::DrawViewportTextOverlay(const char *string,
                                                vtkTextProperty *tprop,
