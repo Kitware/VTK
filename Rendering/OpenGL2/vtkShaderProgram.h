@@ -245,6 +245,28 @@ public:
      }
   };
 
+  //@{
+  /**
+   * When developing shaders, it's often convenient to tweak the shader and
+   * re-render incrementally. This provides a mechanism to do the same. To debug
+   * any shader program, set `FileNamePrefixForDebugging` to a file path e.g.
+   * `/tmp/myshaders`. Subsequently, when `Bind()` is called on the shader
+   * program, it will check for files named `<FileNamePrefixForDebugging>VS.glsl`,
+   * `<FileNamePrefixForDebugging>GS.glsl` and `<FileNamePrefixForDebugging>FS.glsl` for
+   * vertex shader, geometry shader and fragment shader codes respectively. If
+   * a file doesn't exist, then it dumps out the current code to that file.
+   * If the file exists, then the shader is recompiled to use the contents of that file.
+   * Thus, after the files have been dumped in the first render, you can open the files
+   * in a text editor and update as needed. On following render, the modified
+   * contexts from  the file will be used.
+   *
+   * This is only intended for debugging during development and should not be
+   * used in production.
+   */
+  vtkSetStringMacro(FileNamePrefixForDebugging);
+  vtkGetStringMacro(FileNamePrefixForDebugging);
+  //@}
+
 protected:
   vtkShaderProgram();
   ~vtkShaderProgram();
@@ -338,6 +360,7 @@ private:
   vtkShaderProgram(const vtkShaderProgram&) VTK_DELETE_FUNCTION;
   void operator=(const vtkShaderProgram&) VTK_DELETE_FUNCTION;
 
+  char* FileNamePrefixForDebugging;
 };
 
 
