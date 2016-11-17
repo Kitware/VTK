@@ -137,40 +137,30 @@ int vtkCompositeDataProbeFilter::RequestData(
 }
 
 //----------------------------------------------------------------------------
-void vtkCompositeDataProbeFilter::InitializeForProbing(vtkDataSet *input, vtkDataSet *output)
+void vtkCompositeDataProbeFilter::InitializeOutputArrays(vtkPointData *outPD,
+                                                         vtkIdType numPts)
 {
-  this->Superclass::InitializeForProbing(input, output);
-
   if (!this->PassPartialArrays)
   {
-    return;
+    this->Superclass::InitializeOutputArrays(outPD, numPts);
   }
-
-  vtkPointData* outPD = output->GetPointData();
-  vtkIdType numPts = input->GetNumberOfPoints();
-  outPD->SetNumberOfTuples(numPts);
-
-  // Initialize the arrays.
-  for (int cc=0; cc < outPD->GetNumberOfArrays(); cc++)
+  else
   {
-    vtkDataArray* da = outPD->GetArray(cc);
-    if (da)
+    for (int cc=0; cc < outPD->GetNumberOfArrays(); cc++)
     {
-      double null_value = 0.0;
-      if (da->IsA("vtkDoubleArray") || da->IsA("vtkFloatArray"))
+      vtkDataArray* da = outPD->GetArray(cc);
+      if (da)
       {
-        null_value = vtkMath::Nan();
-      }
-      for (int kk=0; kk < da->GetNumberOfComponents(); kk++)
-      {
-        da->FillComponent(kk, null_value);
+        da->SetNumberOfTuples(numPts);
+        double null_value = 0.0;
+        if (da->IsA("vtkDoubleArray") || da->IsA("vtkFloatArray"))
+        {
+          null_value = vtkMath::Nan();
+        }
+        da->Fill(null_value);
       }
     }
   }
-
-  // Override superclass's default behavior to call NullPoint() on every point
-  // that is does not hit since we already initialized arrays with NaNs.
-  this->UseNullPoint = false;
 }
 
 //----------------------------------------------------------------------------

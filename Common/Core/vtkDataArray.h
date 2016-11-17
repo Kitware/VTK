@@ -279,6 +279,11 @@ public:
   virtual void FillComponent(int compIdx, double value);
 
   /**
+   * Fill all values of a data array with a specified value.
+   */
+  virtual void Fill(double value);
+
+  /**
    * Copy a component from one data array into a component on this data array.
    * This method copies the specified component ("srcComponent") from the
    * specified data array ("src") to the specified component ("dstComponent")

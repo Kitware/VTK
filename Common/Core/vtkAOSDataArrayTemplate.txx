@@ -175,6 +175,37 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::InsertTuples(
 
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
+void vtkAOSDataArrayTemplate<ValueTypeT>::FillTypedComponent(int compIdx,
+                                                             ValueType value)
+{
+  if (this->NumberOfComponents <= 1)
+  {
+    this->FillValue(value);
+  }
+  else
+  {
+    this->Superclass::FillTypedComponent(compIdx, value);
+  }
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+void vtkAOSDataArrayTemplate<ValueTypeT>::FillValue(ValueType value)
+{
+  std::fill(this->Buffer->GetBuffer(),
+            this->Buffer->GetBuffer() + this->MaxId + 1,
+            value);
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+void vtkAOSDataArrayTemplate<ValueTypeT>::Fill(double value)
+{
+  this->FillValue(static_cast<ValueType>(value));
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
 typename vtkAOSDataArrayTemplate<ValueTypeT>::ValueType*
 vtkAOSDataArrayTemplate<ValueTypeT>
 ::WritePointer(vtkIdType valueIdx, vtkIdType numValues)

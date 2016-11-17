@@ -881,6 +881,42 @@ vtkGenericDataArray<DerivedT, ValueTypeT>::GetValueRange(int comp)
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT>
+void vtkGenericDataArray<DerivedT, ValueTypeT>
+::FillTypedComponent(int compIdx, ValueType value)
+{
+  if (compIdx < 0 || compIdx >= this->NumberOfComponents)
+  {
+    vtkErrorMacro(<< "Specified component " << compIdx << " is not in [0, "
+    << this->NumberOfComponents << ")" );
+    return;
+  }
+  for (vtkIdType i = 0; i < this->GetNumberOfTuples(); ++i)
+  {
+    this->SetTypedComponent(i, compIdx, value);
+  }
+}
+
+//-----------------------------------------------------------------------------
+template <class DerivedT, class ValueTypeT>
+void vtkGenericDataArray<DerivedT, ValueTypeT>
+::FillValue(ValueType value)
+{
+  for (int i = 0; i < this->NumberOfComponents; ++i)
+  {
+    this->FillTypedComponent(i, value);
+  }
+}
+
+//-----------------------------------------------------------------------------
+template <class DerivedT, class ValueTypeT>
+void vtkGenericDataArray<DerivedT, ValueTypeT>
+::FillComponent(int compIdx, double value)
+{
+  this->FillTypedComponent(compIdx, static_cast<ValueType>(value));
+}
+
+//-----------------------------------------------------------------------------
+template <class DerivedT, class ValueTypeT>
 vtkGenericDataArray<DerivedT, ValueTypeT>::vtkGenericDataArray()
 {
   // Initialize internal data structures:

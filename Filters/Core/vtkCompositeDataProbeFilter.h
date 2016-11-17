@@ -85,7 +85,7 @@ protected:
   /**
    * Initializes output and various arrays which keep track for probing status.
    */
-  void InitializeForProbing(vtkDataSet *input, vtkDataSet *output) VTK_OVERRIDE;
+  void InitializeOutputArrays(vtkPointData *outPD, vtkIdType numPts) VTK_OVERRIDE;
 
   /**
    * Handle composite input.

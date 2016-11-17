@@ -118,6 +118,21 @@ public:
 
   //@{
   /**
+   * Set component @a comp of all tuples to @a value.
+   */
+  void FillTypedComponent(int compIdx, ValueType value) VTK_OVERRIDE;
+  //@}
+
+  //@{
+  /**
+   * Set all the values in array to @a value.
+   */
+  void FillValue(ValueType value) VTK_OVERRIDE;
+  void Fill(double value) VTK_OVERRIDE;
+  //@}
+
+  //@{
+  /**
    * Get the address of a particular data index. Make sure data is allocated
    * for the number of items requested. Set MaxId according to the number of
    * data values requested.
