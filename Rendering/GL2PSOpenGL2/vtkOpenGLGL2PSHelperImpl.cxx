@@ -213,6 +213,9 @@ void vtkOpenGLGL2PSHelperImpl::ProcessTransformFeedback(
   assert("In bounds." && data == dataEnd);
 }
 
+
+#include <vtkRendererCollection.h>
+#include <vtkCollectionSimpleIterator.h>
 //------------------------------------------------------------------------------
 void vtkOpenGLGL2PSHelperImpl::DrawString(const std::string &str,
                                           vtkTextProperty *tprop,
@@ -220,6 +223,20 @@ void vtkOpenGLGL2PSHelperImpl::DrawString(const std::string &str,
                                           double backgroundDepth,
                                           vtkRenderer *ren)
 {
+
+  vtkNew<vtkRenderWindow> renwin;
+
+  vtkRendererCollection* coll = renwin->GetRenderers();
+  rens->InitTraversal();
+  ren = rens->GetNextItem();
+  if (ren)
+    {
+    ren->GetViewProps()
+    }
+
+
+
+
   if (str.empty())
   {
     return;

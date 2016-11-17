@@ -495,7 +495,7 @@ void vtkGL2PSUtilities::DrawPathPS(vtkPath *path, double rasterPos[3],
   out << "grestore" << endl;
 
   glRasterPos3dv(rasterPos);
-  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str());
+  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str(), NULL);
 }
 
 void vtkGL2PSUtilities::DrawPathPDF(vtkPath *path, double rasterPos[3],
@@ -544,8 +544,8 @@ void vtkGL2PSUtilities::DrawPathPDF(vtkPath *path, double rasterPos[3],
          static_cast<float>(rgba[2])/255.f <<
          (strokeWidth > 1e-5 ? " RG" : " rg") << endl;
   // opacity
-  out << static_cast<float>(rgba[3])/255.f
-      << (strokeWidth > 1e-5 ? " CA" : " ca") << endl;
+//  out << static_cast<float>(rgba[3])/255.f
+//      << (strokeWidth > 1e-5 ? " CA" : " ca") << endl;
   // translate
   out << 1.f << " " << 0.f << " " << 0.f << " " << 1.f << " "
       << windowPos[0] << " " << windowPos[1] << " cm" << endl;
@@ -644,7 +644,13 @@ void vtkGL2PSUtilities::DrawPathPDF(vtkPath *path, double rasterPos[3],
   out << "Q" << endl; // Pop state
 
   glRasterPos3dv(rasterPos);
-  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str());
+  GL2PSrgba colorRgba;
+  colorRgba[0] = rgba[0]/255.0;
+  colorRgba[1] = rgba[1]/255.0;
+  colorRgba[2] = rgba[2]/255.0;
+  colorRgba[3] = rgba[3]/255.0;
+
+  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str(), colorRgba);
 }
 
 void vtkGL2PSUtilities::DrawPathSVG(vtkPath *path, double rasterPos[3],
@@ -805,7 +811,7 @@ void vtkGL2PSUtilities::DrawPathSVG(vtkPath *path, double rasterPos[3],
       << "</g>" << endl;
 
   glRasterPos3dv(rasterPos);
-  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str());
+  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str(), NULL);
 }
 
 
@@ -823,7 +829,6 @@ inline void vtkGL2PSUtilities::ProjectPoint(double point[4],
   vtkNew<vtkMatrix4x4> modelviewMatrix;
   modelviewMatrix->DeepCopy(glMatrix);
   modelviewMatrix->Transpose();
-
   vtkNew<vtkMatrix4x4> transformMatrix;
   vtkMatrix4x4::Multiply4x4(projectionMatrix.GetPointer(),
                             modelviewMatrix.GetPointer(),
