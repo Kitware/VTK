@@ -213,3 +213,7 @@ if(APPLE)
 endif()
 
 vtk_module_library(vtkRenderingCore ${Module_SRCS})
+
+if (VTK_USE_OFFSCREEN)
+  target_compile_definitions(vtkRenderingCore PRIVATE -DVTK_USE_OFFSCREEN)
+endif()
