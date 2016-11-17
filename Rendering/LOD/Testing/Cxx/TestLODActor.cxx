@@ -413,5 +413,5 @@ int TestLODActor( int argc, char* argv[])
   points->Delete();
   iren->Delete();
 
-  return EXIT_SUCCESS;
+  return !retVal;
 }

@@ -120,5 +120,5 @@ int TestUserShader(int argc, char *argv[])
     iren->Start();
   }
 
-  return EXIT_SUCCESS;
+  return !retVal;
 }
