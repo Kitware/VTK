@@ -62,7 +62,7 @@ static inline void generatePixelData(std::vector<float> &data,
 int TestGL2PSAddPolyPrimitive(int , char * [])
 {
   std::string filename = vtkTestingInteractor::TempDirectory +
-      std::string("/TestGL2PSAddPolyPrimitive.ps");
+      std::string("/TestGL2PSAddPolyPrimitive.pdf");
   FILE *stream = fopen(filename.c_str(), "wb");
   if (stream == NULL)
   {
@@ -72,7 +72,7 @@ int TestGL2PSAddPolyPrimitive(int , char * [])
 
   GLint viewport[4] = { 0, 0, 400, 400 };
   GLint result = gl2psBeginPage("AddPolyPrimitive Test", "VTK", viewport,
-                                GL2PS_PS, GL2PS_SIMPLE_SORT,
+                                GL2PS_PDF, GL2PS_SIMPLE_SORT,
                                 GL2PS_NO_OPENGL_CONTEXT | GL2PS_NO_BLENDING,
                                 GL_RGBA, 0, NULL, 0, 0, 0, 0, stream, 0);
   if (result != GL2PS_SUCCESS)
