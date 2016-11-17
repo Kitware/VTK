@@ -81,12 +81,15 @@ void vtkProjectSphereFilter::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
+  double center[3];
+  this->GetCenter(center);
+
   os << indent << "Center: ("
-     << this->Center[0] << ", "
-     << this->Center[1] << ", "
-     << this->Center[2] << ")\n";
-  os << indent << "KeepPolePoints " << this->KeepPolePoints << "\n";
-  os << indent << "TranslateZ " << this->TranslateZ << "\n";
+     << center[0] << ", "
+     << center[1] << ", "
+     << center[2] << ")\n";
+  os << indent << "KeepPolePoints " << this->GetKeepPolePoints() << "\n";
+  os << indent << "TranslateZ " << this->GetTranslateZ() << "\n";
 }
 
 //-----------------------------------------------------------------------------
@@ -140,8 +143,11 @@ void vtkProjectSphereFilter::TransformPointInformation(
   vtkPointSet* input, vtkPointSet* output, vtkIdList* polePointIds)
 {
   polePointIds->Reset();
-  output->GetPointData()->CopyAllOn();
-  output->GetPointData()->PassData(input->GetPointData());
+
+  // Deep copy point data since TransformPointInformation modifies
+  // the point data
+  output->GetPointData()->DeepCopy(input->GetPointData());
+
   vtkNew<vtkPoints> points;
   points->SetDataTypeToDouble();
   points->SetNumberOfPoints(input->GetNumberOfPoints());
