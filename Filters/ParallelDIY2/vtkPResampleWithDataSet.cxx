@@ -15,6 +15,7 @@
 #include "vtkPResampleWithDataSet.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkBoundingBox.h"
 #include "vtkCharArray.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataProbeFilter.h"
@@ -22,6 +23,7 @@
 #include "vtkDataArrayAccessor.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
+#include "vtkImageData.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -44,6 +46,8 @@ VTKDIY2_POST_INCLUDE
 
 #include <algorithm>
 #include <cmath>
+#include <map>
+#include <string>
 #include <vector>
 
 
@@ -105,7 +109,7 @@ struct Point
 {
   double Position[3];
   vtkIdType PointId;
-  int BlockID;
+  int BlockId;
 };
 
 
@@ -208,7 +212,7 @@ public:
 
         Node n;
         n.BinId = bin[0] + this->NumBins[0]*bin[1] + this->NumBins[0]*this->NumBins[1]*bin[2];
-        n.Pt.BlockID = i;
+        n.Pt.BlockId = i;
         n.Pt.PointId = j;
         std::copy(pos, pos + 3, n.Pt.Position);
         this->Nodes.push_back(n);
@@ -351,7 +355,7 @@ public:
 
         Point pt;
         pt.PointId = j;
-        pt.BlockID = i;
+        pt.BlockId = i;
         std::copy(pos, pos + 3, pt.Position);
         this->Nodes.push_back(pt);
 
@@ -559,21 +563,6 @@ void CopyDataSetStructure(vtkDataObject *input, vtkDataObject *output)
   }
 }
 
-inline bool CheckBoundsIntersect(const double b1[6], const double b2[6])
-{
-  double intersection[6];
-  for (int i = 0; i < 3; ++i)
-  {
-    intersection[2*i] = std::max(b1[2*i], b2[2*i]);
-    intersection[2*i + 1] = std::min(b1[2*i + 1], b2[2*i + 1]);
-    if ((intersection[2*i + 1] - intersection[2*i]) < 0.0)
-    {
-      return false;
-    }
-  }
-  return true;
-}
-
 // Find all the neighbors that this rank will need to send to and recv from.
 // Based on the intersection of this rank's input bounds with remote's source
 // bounds.
@@ -600,7 +589,7 @@ void FindNeighbors(diy::mpi::communicator comm,
         if (ds)
         {
           double *ibounds = ds->GetBounds();
-          if ((intersects = CheckBoundsIntersect(sbounds, ibounds)) == true)
+          if ((intersects = vtkBoundingBox(sbounds).Intersects(ibounds)) == true)
           {
             break;
           }
@@ -642,26 +631,104 @@ struct DiyBlock
   Partition *PointsLookup;
 };
 
+
+struct ImplicitPoints
+{
+  int Extents[6];
+  double Origin[3];
+  double Spacing[3];
+
+  int BlockStart[3];
+  int BlockDim[3];
+  int BlockId;
+};
+
+struct PointsList
+{
+  std::vector<Point> Explicit;
+  std::vector<ImplicitPoints> Implicit;
+};
+
+inline void ComputeExtentsForBounds(const double origin[3], const double spacing[3],
+                                    const int extents[6], const double bounds[6],
+                                    int result[6])
+{
+  for (int i = 0; i < 3; ++i)
+  {
+    if (spacing[i] == 0.0)
+    {
+      result[2*i] = result[2*i + 1] = 0;
+    }
+    else
+    {
+      result[2*i] = std::min(extents[2*i], static_cast<int>(std::floor(
+                      (bounds[2*i] - origin[i])/spacing[i])));
+      result[2*i + 1] = std::max(extents[2*i + 1], static_cast<int>(std::ceil(
+                          (bounds[2*i + 1] - origin[i])/spacing[i])));
+    }
+  }
+}
+
+inline bool ComparePointsByBlockId(const Point &p1, const Point &p2)
+{
+  return p1.BlockId < p2.BlockId;
+}
+
 // Send input points that overlap remote's source bounds
 void FindPointsToSend(DiyBlock *block, const diy::Master::ProxyWithLink& cp,
                       void*)
 {
   diy::Link *link = cp.link();
-
-  for (int i = 0; i < link->size(); ++i)
+  for (int l = 0; l < link->size(); ++l)
   {
-    diy::BlockID neighbor = link->target(i);
-    std::vector<Point> points;
+    diy::BlockID neighbor = link->target(l);
+    PointsList points;
+
+    vtkBoundingBox fullBounds;
     std::vector<double> &boundsArray = block->SourceBlocksBounds[neighbor.proc];
     for (size_t next = 0; next < boundsArray.size(); next += 6)
     {
       double *sbounds = &boundsArray[next];
-      block->PointsLookup->FindPointsInBounds(sbounds, points);
+      block->PointsLookup->FindPointsInBounds(sbounds, points.Explicit);
+      fullBounds.AddBounds(sbounds);
     }
-    if (!points.empty())
+    // group the points by BlockId
+    std::sort(points.Explicit.begin(), points.Explicit.end(), ComparePointsByBlockId);
+
+    for (size_t i = 0; i < block->InputBlocks.size(); ++i)
     {
-      cp.enqueue(neighbor, points);
+      vtkImageData *img = vtkImageData::SafeDownCast(block->InputBlocks[i]);
+      if (img)
+      {
+        vtkBoundingBox imgBounds(img->GetBounds());
+        if (imgBounds.IntersectBox(fullBounds))
+        {
+          int *inExtents = img->GetExtent();
+          double *inOrigin = img->GetOrigin();
+          double *inSpacing = img->GetSpacing();
+
+          double sendBounds[6];
+          imgBounds.GetBounds(sendBounds);
+          int sendExtents[6];
+          ComputeExtentsForBounds(inOrigin, inSpacing, inExtents,
+                                  sendBounds, sendExtents);
+
+          ImplicitPoints pts;
+          std::copy(sendExtents, sendExtents + 6, pts.Extents);
+          std::copy(inOrigin, inOrigin + 3, pts.Origin);
+          std::copy(inSpacing, inSpacing + 3, pts.Spacing);
+          for (int j = 0; j < 3; ++j)
+          {
+            pts.BlockStart[j] = inExtents[2*j];
+            pts.BlockDim[j] = inExtents[2*j + 1] - inExtents[2*j] + 1;
+          }
+          pts.BlockId = static_cast<int>(i);
+          points.Implicit.push_back(pts);
+        }
+      }
     }
+
+    cp.enqueue(neighbor, points);
   }
 }
 
@@ -669,10 +736,21 @@ void FindPointsToSend(DiyBlock *block, const diy::Master::ProxyWithLink& cp,
 class EnqueueDataArray
 {
 public:
-  EnqueueDataArray(const diy::Master::ProxyWithLink& cp, const diy::BlockID &dest,
-                   const char *masks)
-    : Proxy(&cp), Dest(dest), Masks(masks)
-  { }
+  EnqueueDataArray(const diy::Master::ProxyWithLink& cp, const diy::BlockID &dest)
+    : Proxy(&cp), Dest(dest), Masks(NULL), RBegin(0), REnd(0)
+  {
+  }
+
+  void SetMaskArray(const char *masks)
+  {
+    this->Masks = masks;
+  }
+
+  void SetRange(vtkIdType begin, vtkIdType end)
+  {
+    this->RBegin = begin;
+    this->REnd = end;
+  }
 
   template <typename ArrayType>
   void operator()(ArrayType *array) const
@@ -683,11 +761,10 @@ public:
     this->Proxy->enqueue(this->Dest, array->GetDataType());
     this->Proxy->enqueue(this->Dest, array->GetNumberOfComponents());
 
-    vtkIdType numTuples = array->GetNumberOfTuples();
     int numComponents = array->GetNumberOfComponents();
-    for (vtkIdType i = 0; i < numTuples; ++i)
+    for (vtkIdType i = this->RBegin; i < this->REnd; ++i)
     {
-      if (Masks[i])
+      if (this->Masks[i])
       {
         for (int j = 0; j < numComponents; ++j)
         {
@@ -701,6 +778,7 @@ private:
   const diy::Master::ProxyWithLink *Proxy;
   diy::BlockID Dest;
   const char *Masks;
+  vtkIdType RBegin, REnd;
 };
 
 // Perform resampling of local and remote input points
@@ -721,6 +799,7 @@ void PerformResampling(DiyBlock *block, const diy::Master::ProxyWithLink& cp,
       block->OutputBlocks[i]->DeepCopy(prober->GetOutput());
     }
   }
+
   // remote points
   for (int i = 0; i < link->size(); ++i)
   {
@@ -730,87 +809,170 @@ void PerformResampling(DiyBlock *block, const diy::Master::ProxyWithLink& cp,
       continue;
     }
 
-    std::vector<Point> points;
-    cp.dequeue(bid.gid, points);
+    PointsList plist;
+    cp.dequeue(bid.gid, plist);
 
-    vtkNew<vtkPoints> pts;
-    pts->SetDataTypeToDouble();
-    pts->Allocate(points.size());
-    for (size_t j = 0; j < points.size(); ++j)
+    EnqueueDataArray enqueuer(cp, bid);
+    if (!plist.Explicit.empty())
     {
-      pts->InsertNextPoint(points[j].Position);
-    }
+      std::vector<Point> &points = plist.Explicit;
+      vtkIdType totalPoints = static_cast<vtkIdType>(points.size());
 
-    vtkNew<vtkUnstructuredGrid> ds;
-    ds->SetPoints(pts.GetPointer());
-    prober->SetInputData(ds.GetPointer());
-    prober->Update();
-    vtkDataSet *result = prober->GetOutput();
-
-
-    vtkIdType numberOfValidPoints = prober->GetValidPoints()->GetNumberOfTuples();
-    if (numberOfValidPoints == 0)
-    {
-      continue;
-    }
-
-    const char *maskArrayName = prober->GetValidPointMaskArrayName();
-    vtkPointData *resPD = result->GetPointData();
-    const char *masks = vtkCharArray::SafeDownCast(resPD->GetArray(maskArrayName))->GetPointer(0);
-
-    std::vector<int> blockIds;
-    std::vector<vtkIdType> pointIds;
-    blockIds.reserve(numberOfValidPoints);
-    pointIds.reserve(numberOfValidPoints);
-    for (size_t j = 0; j < points.size(); ++j)
-    {
-      if (masks[j]) // send only valid points
+      vtkNew<vtkPoints> pts;
+      pts->SetDataTypeToDouble();
+      pts->Allocate(totalPoints);
+      for (vtkIdType j = 0; j < totalPoints; ++j)
       {
-        blockIds.push_back(points[j].BlockID);
-        pointIds.push_back(points[j].PointId);
+        pts->InsertNextPoint(points[j].Position);
+      }
+      vtkNew<vtkUnstructuredGrid> ds;
+      ds->SetPoints(pts.GetPointer());
+
+      prober->SetInputData(ds.GetPointer());
+      prober->Update();
+      vtkIdType numberOfValidPoints = prober->GetValidPoints()->GetNumberOfTuples();
+      if (numberOfValidPoints == 0)
+      {
+        continue;
+      }
+
+      vtkDataSet *result = prober->GetOutput();
+      const char *maskArrayName = prober->GetValidPointMaskArrayName();
+      vtkPointData *resPD = result->GetPointData();
+      const char *masks = vtkCharArray::SafeDownCast(resPD->GetArray(maskArrayName))->GetPointer(0);
+
+      // blockwise send
+      std::vector<vtkIdType> pointIds;
+      vtkIdType blockBegin = 0;
+      vtkIdType blockEnd = blockBegin;
+      while (blockEnd < totalPoints)
+      {
+        int blockId = points[blockBegin].BlockId;
+
+        pointIds.clear();
+        while (points[blockEnd].BlockId == blockId)
+        {
+          if (masks[blockEnd])
+          {
+            pointIds.push_back(points[blockEnd].PointId);
+          }
+          ++blockEnd;
+        }
+
+        cp.enqueue(bid, blockId);
+        cp.enqueue(bid, static_cast<vtkIdType>(pointIds.size())); // send valid points only
+        cp.enqueue(bid, resPD->GetNumberOfArrays());
+        cp.enqueue(bid, &pointIds[0], pointIds.size());
+
+        enqueuer.SetMaskArray(masks);
+        enqueuer.SetRange(blockBegin, blockEnd);
+        for (vtkIdType j = 0; j < resPD->GetNumberOfArrays(); ++j)
+        {
+          vtkDataArray *field = resPD->GetArray(j);
+          if (!vtkArrayDispatch::Dispatch::Execute(field, enqueuer))
+          {
+            vtkGenericWarningMacro(<< "Dispatch failed, fallback to vtkDataArray Get/Set");
+            enqueuer(field);
+          }
+        }
+
+        blockBegin = blockEnd;
       }
     }
-
-    cp.enqueue(bid, blockIds);
-    cp.enqueue(bid, pointIds);
-
-    EnqueueDataArray enqueuer(cp, bid, masks);
-    for (vtkIdType j = 0; j < resPD->GetNumberOfArrays(); ++j)
+    if (!plist.Implicit.empty())
     {
-      vtkDataArray *field = resPD->GetArray(j);
-      if (!vtkArrayDispatch::Dispatch::Execute(field, enqueuer))
+      for (size_t j = 0; j < plist.Implicit.size(); ++j)
       {
-        vtkGenericWarningMacro(<< "Dispatch failed, fallback to vtkDataArray Get/Set");
-        enqueuer(field);
+        ImplicitPoints &points = plist.Implicit[j];
+
+        vtkNew<vtkImageData> ds;
+        ds->SetExtent(points.Extents);
+        ds->SetOrigin(points.Origin);
+        ds->SetSpacing(points.Spacing);
+
+        prober->SetInputData(ds.GetPointer());
+        prober->Update();
+        vtkIdType numberOfValidPoints = prober->GetValidPoints()->GetNumberOfTuples();
+        if (numberOfValidPoints == 0)
+        {
+          continue;
+        }
+
+        vtkDataSet *result = prober->GetOutput();
+        const char *maskArrayName = prober->GetValidPointMaskArrayName();
+        vtkPointData *resPD = result->GetPointData();
+        const char *masks = vtkCharArray::SafeDownCast(resPD->GetArray(maskArrayName))->GetPointer(0);
+
+        cp.enqueue(bid, points.BlockId);
+        cp.enqueue(bid, numberOfValidPoints); // send valid points only
+        cp.enqueue(bid, resPD->GetNumberOfArrays());
+
+        vtkIdType ptId = 0;
+        for (int z = points.Extents[4]; z <= points.Extents[5]; ++z)
+        {
+          for (int y = points.Extents[2]; y <= points.Extents[3]; ++y)
+          {
+            for (int x = points.Extents[0]; x <= points.Extents[1]; ++x, ++ptId)
+            {
+              if (masks[ptId])
+              {
+                vtkIdType pointId = (x - points.BlockStart[0]) +
+                                    (y - points.BlockStart[1]) * points.BlockDim[0] +
+                                    (z - points.BlockStart[2]) * points.BlockDim[0] * points.BlockDim[1];
+                cp.enqueue(bid, pointId);
+              }
+            }
+          }
+        }
+
+        enqueuer.SetMaskArray(masks);
+        enqueuer.SetRange(0, result->GetNumberOfPoints());
+        for (vtkIdType k = 0; k < resPD->GetNumberOfArrays(); ++k)
+        {
+          vtkDataArray *field = resPD->GetArray(k);
+          if (!vtkArrayDispatch::Dispatch::Execute(field, enqueuer))
+          {
+            vtkGenericWarningMacro(<< "Dispatch failed, fallback to vtkDataArray Get/Set");
+            enqueuer(field);
+          }
+        }
       }
     }
   }
 }
 
-class DequeueDataArrayTuple
+class DequeueDataArray
 {
 public:
-  DequeueDataArrayTuple(const diy::Master::ProxyWithLink &proxy, int sourceGID,
-                        vtkIdType tuple)
-    : Proxy(&proxy), SourceGID(sourceGID), Tuple(tuple)
+  DequeueDataArray(const diy::Master::ProxyWithLink &proxy, int sourceGID)
+    : Proxy(&proxy), SourceGID(sourceGID), PointIds(NULL)
   { }
+
+  void SetPointIds(const std::vector<vtkIdType> &pointIds)
+  {
+    this->PointIds = &pointIds;
+  }
 
   template <typename ArrayType>
   void operator()(ArrayType *array) const
   {
     vtkDataArrayAccessor<ArrayType> accessor(array);
-    for (int i = 0; i < array->GetNumberOfComponents(); ++i)
+    for (size_t i = 0; i < this->PointIds->size(); ++i)
     {
-      typename vtkDataArrayAccessor<ArrayType>::APIType val;
-      this->Proxy->dequeue(this->SourceGID, val);
-      accessor.Set(this->Tuple, i, val);
+      for (int j = 0; j < array->GetNumberOfComponents(); ++j)
+      {
+        typename vtkDataArrayAccessor<ArrayType>::APIType val;
+        this->Proxy->dequeue(this->SourceGID, val);
+        accessor.Set((*this->PointIds)[i], j, val);
+      }
     }
   }
 
 private:
   const diy::Master::ProxyWithLink *Proxy;
   int SourceGID;
-  vtkIdType Tuple;
+
+  const std::vector<vtkIdType> *PointIds;
 };
 
 // receive resampled points
@@ -821,7 +983,6 @@ void ReceiveResampledPoints(DiyBlock *block, const diy::Master::ProxyWithLink &c
 
   int numBlocks = block->InputBlocks.size();
   std::vector<std::map<std::string, int> > arrayReceiveCounts(numBlocks);
-  std::vector<int> receiveFlags(numBlocks);
 
   diy::Master::IncomingQueues &in = *cp.incoming();
   for (diy::Master::IncomingQueues::iterator i = in.begin(); i != in.end(); ++i)
@@ -831,27 +992,34 @@ void ReceiveResampledPoints(DiyBlock *block, const diy::Master::ProxyWithLink &c
       continue;
     }
 
-    std::vector<int> blockIds;
     std::vector<vtkIdType> pointIds;
-    cp.dequeue(i->first, blockIds);
-    cp.dequeue(i->first, pointIds);
-    size_t tuplesToRecv = pointIds.size();
 
+    DequeueDataArray dequeuer(cp, i->first);
     while (i->second)
     {
-      std::string name;
-      int type;
-      int numComponents;
-      cp.dequeue(i->first, name);
-      cp.dequeue(i->first, type);
-      cp.dequeue(i->first, numComponents);
+      int blockId;
+      vtkIdType numberOfPoints;
+      int numberOfArrays;
 
-      std::fill(receiveFlags.begin(), receiveFlags.end(), 0);
+      cp.dequeue(i->first, blockId);
+      cp.dequeue(i->first, numberOfPoints);
+      cp.dequeue(i->first, numberOfArrays);
+      vtkDataSet *ds = block->OutputBlocks[blockId];
 
-      for (size_t j = 0; j < tuplesToRecv; ++j)
+      pointIds.resize(numberOfPoints);
+      cp.dequeue(i->first, &pointIds[0], numberOfPoints);
+
+      dequeuer.SetPointIds(pointIds);
+      for (int j = 0; j < numberOfArrays; ++j)
       {
-        receiveFlags[blockIds[j]] = 1; // mark the blocks that have received this array
-        vtkDataSet *ds = block->OutputBlocks[blockIds[j]];
+        std::string name;
+        int type;
+        int numComponents;
+        cp.dequeue(i->first, name);
+        cp.dequeue(i->first, type);
+        cp.dequeue(i->first, numComponents);
+        ++arrayReceiveCounts[blockId][name];
+
         vtkDataArray *da = ds->GetPointData()->GetArray(name.c_str());
         if (!da)
         {
@@ -862,29 +1030,15 @@ void ReceiveResampledPoints(DiyBlock *block, const diy::Master::ProxyWithLink &c
           if (name == maskArrayName)
           {
             vtkCharArray *maskArray = vtkCharArray::SafeDownCast(da);
-            for (vtkIdType k = 0; k < maskArray->GetNumberOfTuples(); ++k)
-            {
-              maskArray->SetTypedComponent(k, 0, 0);
-            }
+            maskArray->FillValue(0);
           }
           ds->GetPointData()->AddArray(da);
         }
 
-        DequeueDataArrayTuple dequeuer(cp, i->first, pointIds[j]);
         if (!vtkArrayDispatch::Dispatch::Execute(da, dequeuer))
         {
           vtkGenericWarningMacro(<< "Dispatch failed, fallback to vtkDataArray Get/Set");
           dequeuer(da);
-        }
-      }
-
-      for (int j = 0; j < numBlocks; ++j)
-      {
-        if (receiveFlags[j])
-        {
-          // track the number of different sources an array was received from
-          // for each block.
-          ++arrayReceiveCounts[j][name];
         }
       }
     }
@@ -895,12 +1049,7 @@ void ReceiveResampledPoints(DiyBlock *block, const diy::Master::ProxyWithLink &c
   for (int i = 0; i < numBlocks; ++i)
   {
     std::map<std::string, int> &recvCnt = arrayReceiveCounts[i];
-    int maxCount = 0;
-    for (std::map<std::string, int>::iterator it = recvCnt.begin();
-         it != recvCnt.end(); ++it)
-    {
-      maxCount = std::max(maxCount, it->second);
-    }
+    int maxCount = recvCnt[maskArrayName]; // maskArray is always received
     for (std::map<std::string, int>::iterator it = recvCnt.begin();
          it != recvCnt.end(); ++it)
     {
@@ -971,7 +1120,18 @@ int vtkPResampleWithDataSet::RequestData(vtkInformation *request,
   {
     block.PointsLookup = &regular;
   }
-  block.PointsLookup->CreatePartition(block.InputBlocks);
+  // We dont want ImageData points in the lookup structure
+  {
+    std::vector<vtkDataSet*> dsblocks = block.InputBlocks;
+    for (size_t i = 0; i < dsblocks.size(); ++i)
+    {
+      if (vtkImageData::SafeDownCast(dsblocks[i]))
+      {
+        dsblocks[i] = NULL;
+      }
+    }
+    block.PointsLookup->CreatePartition(dsblocks);
+  }
 
   // find the neighbors of this rank for communication purposes
   std::vector<int> neighbors;
@@ -1012,3 +1172,24 @@ int vtkPResampleWithDataSet::RequestData(vtkInformation *request,
 
   return 1;
 }
+
+//----------------------------------------------------------------------------
+namespace diy {
+
+template<>
+struct Serialization<PointsList>
+{
+  static void save(BinaryBuffer& bb, const PointsList& plist)
+  {
+    diy::save(bb, plist.Implicit);
+    diy::save(bb, plist.Explicit);
+  }
+
+  static void load(BinaryBuffer& bb, PointsList& plist)
+  {
+    diy::load(bb, plist.Implicit);
+    diy::load(bb, plist.Explicit);
+  }
+};
+
+} // namespace diy
