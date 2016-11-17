@@ -1,3 +1,18 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkPlane.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
 #include "SegyTraceReader.h"
 #include <iostream>
 
@@ -5,27 +20,27 @@
 
 void SegyTraceReader::printTraceHeader(ifstream &in, int startPos) {
 
-    cout << "Position:" << startPos << endl;
+//    cout << "Position:" << startPos << endl;
 
     int traceSequenceNumberInLine = IOUtil::Instance()->readLongInteger(startPos + traceHeaderBytesPos.TraceNumber, in);
-    cout << "Trace sequence number in line : " << traceSequenceNumberInLine << endl;
+//    cout << "Trace sequence number in line : " << traceSequenceNumberInLine << endl;
 
-// Get number_of_samples from trace header position 115-116
+  // Get number_of_samples from trace header position 115-116
     int numSamples = IOUtil::Instance()->readShortInteger(startPos + traceHeaderBytesPos.NumberSamples, in);
-    cout << "number of samples: " << numSamples << endl;
+//    cout << "number of samples: " << numSamples << endl;
 
 // Get inline number from trace header position 189-192
     int inlineNum = IOUtil::Instance()->readLongInteger(startPos + traceHeaderBytesPos.InlineNumber, in);
-    cout << "in-line number : " << inlineNum << endl;
+//    cout << "in-line number : " << inlineNum << endl;
 
     int crosslineNum = IOUtil::Instance()->readLongInteger(startPos + traceHeaderBytesPos.CrosslineNumber, in);
-    cout << "cross-line number : " << crosslineNum << endl;
+//    cout << "cross-line number : " << crosslineNum << endl;
 
     int xCoordinate = IOUtil::Instance()->readLongInteger(startPos + traceHeaderBytesPos.XCoordinate, in);
-    cout << "X coordinate for ensemble position of the trace : " << xCoordinate << endl;
+//    cout << "X coordinate for ensemble position of the trace : " << xCoordinate << endl;
 
     int yCoordinate = IOUtil::Instance()->readLongInteger(startPos + traceHeaderBytesPos.YCoordinate, in);
-    cout << "Y coordinate for ensemble position of the trace : " << yCoordinate << endl;
+//    cout << "Y coordinate for ensemble position of the trace : " << yCoordinate << endl;
 }
 
 bool SegyTraceReader::readTrace(int &startPos, ifstream &in, int formatCode, Trace* trace) {
@@ -40,8 +55,6 @@ bool SegyTraceReader::readTrace(int &startPos, ifstream &in, int formatCode, Tra
     int numSamples = IOUtil::Instance()->readShortInteger(startPos + traceHeaderBytesPos.NumberSamples, in);
     trace->xCoordinate = IOUtil::Instance()->readLongInteger(startPos + traceHeaderBytesPos.XCoordinate, in);
     trace->yCoordinate = IOUtil::Instance()->readLongInteger(startPos + traceHeaderBytesPos.YCoordinate, in);
-
-
 
     in.seekg(startPos + 240, in.beg);
     for (int i = 0; i < numSamples; i++) {

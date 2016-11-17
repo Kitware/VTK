@@ -1,6 +1,17 @@
-//
-// Created by jia chen on 9/2/15.
-//
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkPlane.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
 
 #ifndef SEGYVISUALIZER2D_VTKSEGY2DREADER_H
 #define SEGYVISUALIZER2D_VTKSEGY2DREADER_H
@@ -18,6 +29,12 @@ public:
     void PrintSelf(ostream& os, vtkIndent indent);
 
     vtkSetStringMacro(FileName);
+
+    bool GetImageData(vtkImageData *imageData)
+    {
+      return reader.GetImageData(imageData);
+    }
+
     vtkSegy2DReader();
     ~vtkSegy2DReader();
 protected:
