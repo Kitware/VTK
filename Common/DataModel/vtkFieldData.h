@@ -115,24 +115,36 @@ public:
   //@}
 
   /**
+   * Not recommended for use. Use GetAbstractArray(int i) instead.
+   *
    * Return the ith array in the field. A NULL is returned if the
-   * index i is out of range. A NULL is returned if the array at the given
-   * index is not a vtkDataArray.
+   * index i is out of range, or if the array at the given
+   * index is not a vtkDataArray. To access vtkStringArray,
+   * vtkUnicodeStringArray, or vtkVariantArray, use GetAbstractArray(int i).
    */
   vtkDataArray *GetArray(int i);
 
   /**
-   * Return the array with the name given. Returns NULL is array not found.
+   * Not recommended for use. Use
+   * GetAbstractArray(const char *arrayName, int &index) instead.
+   *
+   * Return the array with the name given. Returns NULL if array not found.
    * A NULL is also returned if the array with the given name is not a
-   * vtkDataArray. Also returns index of array if found, -1 otherwise.
+   * vtkDataArray. To access vtkStringArray, vtkUnicodeStringArray, or
+   * vtkVariantArray, use GetAbstractArray(const char* arrayName, int &index).
+   * Also returns the index of the array if found, -1 otherwise.
    */
   vtkDataArray *GetArray(const char *arrayName, int &index);
 
   //@{
   /**
-   * Return the array with the name given. Returns NULL is array not found.
+   * Not recommended for use. Use GetAbstractArray(const char *arrayName)
+   * instead.
+   *
+   * Return the array with the name given. Returns NULL if array not found.
    * A NULL is also returned if the array with the given name is not a
-   * vtkDataArray.
+   * vtkDataArray. To access vtkStringArray, vtkUnicodeStringArray, or
+   * vtkVariantArray, use GetAbstractArray(const char *arrayName).
    */
   vtkDataArray *GetArray(const char *arrayName)
   {
@@ -143,22 +155,24 @@ public:
 
   /**
    * Returns the ith array in the field. Unlike GetArray(), this method returns
-   * a vtkAbstractArray. A NULL is returned only if the index i is
-   * out of range.
+   * a vtkAbstractArray and can be used to access any array type. A NULL is
+   * returned only if the index i is out of range.
    */
   vtkAbstractArray* GetAbstractArray(int i);
 
   /**
-   * Return the array with the name given. Returns NULL is array not found.
-   * Unlike GetArray(), this method returns a vtkAbstractArray.
-   * Also returns index of array if found, -1 otherwise.
+   * Return the array with the name given. Returns NULL if array not found.
+   * Unlike GetArray(), this method returns a vtkAbstractArray and can be used
+   * to access any array type. Also returns index of array if found, -1
+   * otherwise.
    */
   vtkAbstractArray* GetAbstractArray(const char* arrayName, int &index);
 
   //@{
   /**
-   * Return the array with the name given. Returns NULL is array not found.
-   * Unlike GetArray(), this method returns a vtkAbstractArray.
+   * Return the array with the name given. Returns NULL if array not found.
+   * Unlike GetArray(), this method returns a vtkAbstractArray and can be used
+   * to access any array type.
    */
   vtkAbstractArray* GetAbstractArray(const char* arrayName)
   {
