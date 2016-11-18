@@ -556,19 +556,26 @@ class CellStorage
 public:
   CellStorage()
   {
-    vtkGenericCell *null = NULL;
-    std::fill(this->Cells, this->Cells + VTK_NUMBER_OF_CELL_TYPES, null);
+    this->Initialize();
   }
 
   ~CellStorage()
   {
-    for (int i = 0; i < VTK_NUMBER_OF_CELL_TYPES; ++i)
-    {
-      if (this->Cells[i])
-      {
-        this->Cells[i]->Delete();
-      }
-    }
+    this->Clear();
+  }
+
+  // Copying does not make sense for this class but vtkSMPThreadLocal needs
+  // these functions to compile. Just initialize the object.
+  CellStorage(const CellStorage&)
+  {
+    this->Initialize();
+  }
+
+  const CellStorage& operator=(const CellStorage&)
+  {
+    this->Clear();
+    this->Initialize();
+    return *this;
   }
 
   vtkCell* GetCell(vtkDataSet *dataset, vtkIdType cellId)
@@ -584,6 +591,23 @@ public:
   }
 
 private:
+  void Initialize()
+  {
+    vtkGenericCell *null = NULL;
+    std::fill(this->Cells, this->Cells + VTK_NUMBER_OF_CELL_TYPES, null);
+  }
+
+  void Clear()
+  {
+    for (int i = 0; i < VTK_NUMBER_OF_CELL_TYPES; ++i)
+    {
+      if (this->Cells[i])
+      {
+        this->Cells[i]->Delete();
+      }
+    }
+  }
+
   vtkGenericCell *Cells[VTK_NUMBER_OF_CELL_TYPES];
 };
 
