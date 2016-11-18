@@ -1033,6 +1033,46 @@ namespace boost {
   }
 
   //===========================================================================
+  // Helper for vtkGraph vertex property maps
+  // Automatically converts boost vertex ids to vtkGraph vertex ids.
+
+  template<typename PMap>
+  class vtkGraphVertexPropertyMapHelper
+  {
+  public:
+    vtkGraphVertexPropertyMapHelper(PMap m) : pmap(m) { }
+    PMap pmap;
+    typedef typename property_traits<PMap>::value_type value_type;
+    typedef typename property_traits<PMap>::reference reference;
+    typedef vtkIdType key_type;
+    typedef typename property_traits<PMap>::category category;
+
+    reference operator[] (const key_type& key) const
+    {
+      return get(pmap, key);
+    }
+  };
+
+  template<typename PMap>
+  inline typename property_traits<PMap>::reference
+  get(
+    vtkGraphVertexPropertyMapHelper<PMap> helper,
+    vtkIdType key)
+  {
+    return get(helper.pmap, key);
+  }
+
+  template<typename PMap>
+  inline void
+  put(
+    vtkGraphVertexPropertyMapHelper<PMap> helper,
+    vtkIdType key,
+    const typename property_traits<PMap>::value_type & value)
+  {
+    put(helper.pmap, key, value);
+  }
+
+  //===========================================================================
   // An index map for vtkGraph
   // This is a common input needed for algorithms
 
