@@ -1006,6 +1006,11 @@ namespace boost {
     typedef typename property_traits<PMap>::reference reference;
     typedef vtkEdgeType key_type;
     typedef typename property_traits<PMap>::category category;
+
+    reference operator[] (const key_type& key) const
+    {
+      return get(pmap, key.Id);
+    }
   };
 
   template<typename PMap>
