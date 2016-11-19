@@ -15,6 +15,10 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
 
 # Each of these most be added in a separate vtk_add_test_cxx
 vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestDICOMImageReader.cxx,NO_OUTPUT
+    "DATA{${VTK_TEST_INPUT_DIR}/dicom/prostate.IMG}")
+
+vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestTIFFReaderMultipleMulti,TestTIFFReaderMultiple.cxx,NO_VALID,NO_OUTPUT
     "DATA{${VTK_TEST_INPUT_DIR}/libtiff/multipage_tiff_example.tif}")
 
