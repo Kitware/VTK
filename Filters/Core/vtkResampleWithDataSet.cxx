@@ -107,21 +107,42 @@ vtkMTimeType vtkResampleWithDataSet::GetMTime()
   return std::max(this->Superclass::GetMTime(), this->Prober->GetMTime());
 }
 
+//----------------------------------------------------------------------------
+int vtkResampleWithDataSet::RequestInformation(vtkInformation *,
+                                               vtkInformationVector **inputVector,
+                                               vtkInformationVector *outputVector)
+{
+  // get the info objects
+  vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  outInfo->CopyEntry(sourceInfo, vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  outInfo->CopyEntry(sourceInfo, vtkStreamingDemandDrivenPipeline::TIME_RANGE());
+
+  return 1;
+}
+
 //-----------------------------------------------------------------------------
 int vtkResampleWithDataSet::RequestUpdateExtent(vtkInformation *,
                                                 vtkInformationVector **inputVector,
                                                 vtkInformationVector *)
 {
-  // This filter always asks for whole extent downstream. To resample
-  // a subset of a structured input, you need to use ExtractVOI.
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  inInfo->Remove(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
-  if (inInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
+  vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
+
+  sourceInfo->Remove(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  if (sourceInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
   {
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
-                6);
+    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+                    sourceInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
+                    6);
   }
+
+  sourceInfo->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
+  sourceInfo->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
+  sourceInfo->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
 
   return 1;
 }

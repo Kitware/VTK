@@ -71,8 +71,10 @@ protected:
   vtkPResampleWithDataSet();
   ~vtkPResampleWithDataSet();
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *) VTK_OVERRIDE;
 
   vtkMultiProcessController *Controller;
   bool UseBalancedPartitionForPointsLookup;
