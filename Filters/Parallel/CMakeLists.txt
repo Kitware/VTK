@@ -1,4 +1,5 @@
 set(Module_SRCS
+  vtkAggregateDataSetFilter.cxx
   vtkAngularPeriodicFilter.cxx
   vtkCollectGraph.cxx
   vtkCollectPolyData.cxx
