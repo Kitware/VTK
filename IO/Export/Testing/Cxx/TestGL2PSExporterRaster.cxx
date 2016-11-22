@@ -21,7 +21,9 @@
 #include "vtkCamera.h"
 #include "vtkCubeAxesActor2D.h"
 #include "vtkConeSource.h"
+#include "vtkLogoRepresentation.h"
 #include "vtkNew.h"
+#include "vtkPNGReader.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkProperty2D.h"
@@ -35,7 +37,7 @@
 
 #include <string>
 
-int TestGL2PSExporterRaster( int, char *[] )
+int TestGL2PSExporterRaster(int argc, char * argv[])
 {
   vtkNew<vtkConeSource> coneSource;
   vtkNew<vtkPolyDataMapper> coneMapper;
@@ -90,6 +92,26 @@ int TestGL2PSExporterRaster( int, char *[] )
   ren->AddActor(text2.GetPointer());
   ren->AddActor(text3.GetPointer());
   ren->SetBackground(0.8, 0.8, 0.8);
+
+  // logo
+  char* fname = vtkTestUtilities::ExpandDataFileName(
+    argc, argv, "Data/vtk-transparent.png");
+
+  vtkNew<vtkPNGReader> reader;
+  reader->SetFileName(fname);
+  reader->Update();
+
+  vtkNew<vtkLogoRepresentation> logo;
+  logo->SetImage(reader->GetOutput());
+  logo->ProportionalResizeOn();
+  logo->SetPosition(0.8, 0.0);
+  logo->SetPosition2(0.1, 0.1);
+  logo->GetImageProperty()->SetOpacity(0.8);
+  logo->GetImageProperty()->SetDisplayLocationToBackground();
+  logo->SetRenderer(ren.GetPointer());
+  ren->AddActor(logo.GetPointer());
+
+
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->AddRenderer(ren.GetPointer());

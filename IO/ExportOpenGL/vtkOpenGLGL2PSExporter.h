@@ -103,6 +103,7 @@ class vtkTextActor;
 class vtkTextActor3D;
 class vtkTextMapper;
 class vtkTextProperty;
+class vtkTexturedActor2D;
 
 class VTKIOEXPORTOPENGL_EXPORT vtkOpenGLGL2PSExporter : public vtkGL2PSExporter
 {
@@ -125,6 +126,9 @@ protected:
                              vtkIntArray *act2dVis);
   void Turn3DPropsOff(vtkRendererCollection *renCol);
   void Turn2DPropsOff(vtkRendererCollection *renCol);
+  static void TurnSpecialPropsOff(vtkCollection *specialPropCol,
+                           vtkRendererCollection *renCol);
+
   void GetVisibleContextActors(vtkPropCollection *contextActors,
                                vtkRendererCollection *renCol);
   void SetPropVisibilities(vtkPropCollection *col, int vis);
@@ -146,6 +150,7 @@ protected:
   void DrawLabeledContourMapper(vtkActor *act, vtkLabeledContourMapper *mapper,
                                 vtkRenderer *ren);
   void DrawScalarBarActor(vtkScalarBarActor *bar, vtkRenderer *ren);
+  void DrawTexturedActor2D(vtkTexturedActor2D *act, vtkRenderer *ren);
   void DrawViewportTextOverlay(const char *string, vtkTextProperty *tprop,
                                vtkCoordinate *coord, vtkRenderer *ren);
   //@}
