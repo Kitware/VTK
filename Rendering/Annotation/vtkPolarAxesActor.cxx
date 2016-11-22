@@ -431,6 +431,7 @@ vtkPolarAxesActor::vtkPolarAxesActor()
   this->RadialAxesOriginToPolarAxis = 1;
   this->DeltaAngleRadialAxes = 45.0;
   this->NumberOfRadialAxes = 0;
+  this->RequestedNumberOfRadialAxes = 0;
 
   // By default all radial axes features are visible
   this->RadialAxesVisibility = 1;
@@ -1323,6 +1324,7 @@ void vtkPolarAxesActor::BuildRadialAxes()
     angleSection = 360.0;
   }
 
+  this->ComputeDeltaAngleRadialAxes(this->RequestedNumberOfRadialAxes);
   bool positiveSection = false;
   double dAlpha = this->DeltaAngleRadialAxes;
   double alphaDeg, currentAlpha;
@@ -1338,30 +1340,25 @@ void vtkPolarAxesActor::BuildRadialAxes()
     : std::floor(this->MinimumAngle / dAlpha) * dAlpha + dAlpha;
   double alphaStop = angleSection + this->MinimumAngle + dAlpha;
 
-  int n = (angleSection == 360.0) ? 0 : 1;
-  double intPart, fractPart;
-  fractPart = modf((alphaStop - alphaStart) / dAlpha, &intPart);
+  int nAxes;
 
-  n += intPart;
-
-  if (fractPart == 0.0)
-  {
-    n--;
-  }
-
-  if (n > VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES)
-  {
-    this->DeltaAngleRadialAxes = angleSection / n;
-    dAlpha = this->DeltaAngleRadialAxes;
-  }
-  if (this->DeltaAngleRadialAxes >= angleSection || n == 0)
-  {
-    n = 1;
-    alphaStart = angleSection + this->MinimumAngle;
-  }
+  // Delta angle to big, only last radial axis
+   if (this->DeltaAngleRadialAxes >= angleSection)
+   {
+     nAxes = 1;
+     alphaStart = angleSection + this->MinimumAngle;
+   }
+   else if (this->RequestedNumberOfRadialAxes == 0)
+   {
+     nAxes = std::ceil(angleSection / dAlpha);
+   }
+   else
+   {
+     nAxes = this->RequestedNumberOfRadialAxes - 1;
+   }
 
   // init radial axis. Does nothing if number of radial axes doesn't change
-  this->CreateRadialAxes(n);
+  this->CreateRadialAxes(nAxes);
 
   char titleValue[64];
   for (alphaDeg = alphaStart; alphaDeg <= alphaStop && i < this->NumberOfRadialAxes;
@@ -1369,7 +1366,8 @@ void vtkPolarAxesActor::BuildRadialAxes()
   {
     currentAlpha = alphaDeg;
 
-    if (currentAlpha > angleSection + this->MinimumAngle)
+    if (currentAlpha > angleSection + this->MinimumAngle ||
+      (i == this->NumberOfRadialAxes - 1))
     {
       currentAlpha = angleSection + this->MinimumAngle;
     }
@@ -2419,7 +2417,7 @@ void vtkPolarAxesActor::SetNumberOfPolarAxisTicks(int tickCountRequired)
 }
 
 //-----------------------------------------------------------------------------
-void vtkPolarAxesActor::SetNumberOfRadialAxes(vtkIdType n)
+void vtkPolarAxesActor::ComputeDeltaAngleRadialAxes(vtkIdType n)
 {
   if (n <= 1)
   {

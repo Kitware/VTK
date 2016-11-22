@@ -95,8 +95,8 @@ public:
   /**
    * Gets/Sets the number of radial axes
    */
-  virtual void SetNumberOfRadialAxes(vtkIdType);
-  vtkGetMacro(NumberOfRadialAxes, vtkIdType);
+  vtkSetClampMacro(RequestedNumberOfRadialAxes, vtkIdType, 0, VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES);
+  vtkGetMacro(RequestedNumberOfRadialAxes, vtkIdType);
   //@}
 
   //@{
@@ -805,6 +805,10 @@ protected:
   static double ComputeEllipseAngle(double angleInDegrees, double ratio);
 
   /**
+   * Compute delta angle of radial axes.
+   */
+  virtual void ComputeDeltaAngleRadialAxes(vtkIdType);
+  /**
    * Coordinates of the pole
    * Default: (0,0,0).
    */
@@ -814,6 +818,11 @@ protected:
    * Number of radial axes
    */
   int NumberOfRadialAxes;
+
+  /**
+   * Requested Number of radial axes
+   */
+  int RequestedNumberOfRadialAxes;
 
   /**
    * Whether the number of polar axis ticks and arcs should be automatically calculated.
