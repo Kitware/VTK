@@ -957,6 +957,12 @@ void vtkOrientationMarkerWidget::UpdateViewport()
 }
 
 //-------------------------------------------------------------------------
+void vtkOrientationMarkerWidget::Modified()
+{
+  this->Renderer->SetViewport( this->Viewport );
+  this->vtkInteractorObserver::Modified() ;
+}
+//-------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
