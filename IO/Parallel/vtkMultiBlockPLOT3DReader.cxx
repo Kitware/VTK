@@ -12,6 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include <sstream>
+
 #include "vtkMultiBlockPLOT3DReader.h"
 
 #include "vtkByteSwap.h"
@@ -1931,9 +1933,11 @@ int vtkMultiBlockPLOT3DReader::RequestData(
       {
         vtkDataArray* functionArray = this->NewFloatArray();
         functionArray->SetNumberOfTuples(npts);
-        char functionName[20];
-        sprintf(functionName, "Function%d", j);
-        functionArray->SetName(functionName);
+        std::ostringstream stream;
+        (j < this->FunctionNames.size())
+            ? stream << this->FunctionNames[j] : stream << "Function" << j;
+        const std::string functionName = stream.str();
+        functionArray->SetName(functionName.c_str());
         if (this->ReadScalar(fFp2, extent, wextent, functionArray, offset, record) == 0)
         {
           vtkErrorMacro("Encountered premature end-of-file while reading "

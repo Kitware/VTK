@@ -104,6 +104,8 @@ vtkPlot3DMetaReader::vtkPlot3DMetaReader()
     &vtkPlot3DMetaReader::SetFileNames;
   this->Internal->FunctionMap["functions"] =
     &vtkPlot3DMetaReader::AddFunctions;
+  this->Internal->FunctionMap["function-names"] =
+    &vtkPlot3DMetaReader::SetFunctionNames;
 }
 
 //-----------------------------------------------------------------------------
@@ -329,6 +331,16 @@ void vtkPlot3DMetaReader::SetFileNames(Json::Value* val)
     {
       this->Internal->TimeSteps.push_back(aTime);
     }
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlot3DMetaReader::SetFunctionNames(Json::Value* val)
+{
+  const Json::Value& functionNames = *val;
+  for ( size_t index = 0; index < functionNames.size(); ++index )
+  {
+    this->Reader->AddFunctionName(functionNames[(int)index].asString());
   }
 }
 
