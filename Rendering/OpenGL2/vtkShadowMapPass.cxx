@@ -250,20 +250,8 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
     // build the shader code
     this->BuildShaderCode();
 
-    // set the prop keys
-    int c = s->GetPropArrayCount();
-    for (int i = 0; i < c; i++)
-    {
-      vtkProp *p=s->GetPropArray()[i];
-      vtkInformation *info = p->GetPropertyKeys();
-      if (!info)
-      {
-        info = vtkInformation::New();
-        p->SetPropertyKeys(info);
-        info->Delete();
-      }
-      info->Set(vtkShadowMapPass::ShadowMapPass(), this);
-    }
+    // Setup property keys for actors:
+    this->PreRender(s);
 
     viewCamera_Inv->Delete();
     transform->Delete();
@@ -292,6 +280,7 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
       }
     }
 
+    this->PostRender(s);
   }
   else
   {
@@ -301,7 +290,9 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
-void vtkShadowMapPass::SetUniforms(vtkShaderProgram *program)
+//------------------------------------------------------------------------------
+bool vtkShadowMapPass::SetShaderParameters(vtkShaderProgram *program,
+                                           vtkAbstractMapper*, vtkProp*)
 {
   size_t numLights = this->ShadowTextureUnits.size();
 
@@ -333,6 +324,45 @@ void vtkShadowMapPass::SetUniforms(vtkShaderProgram *program)
       numSMT++;
     }
   }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkShadowMapPass::PreReplaceShaderValues(
+  std::string &,
+  std::string &,
+  std::string &fragmentShader,
+  vtkAbstractMapper *,
+  vtkProp *)
+{
+  //build the values
+  this->BuildShaderCode();
+
+  vtkShaderProgram::Substitute(fragmentShader,"//VTK::Light::Dec",
+    this->GetFragmentDeclaration(), false);
+  vtkShaderProgram::Substitute(fragmentShader,"//VTK::Light::Impl",
+    this->GetFragmentImplementation(), false);
+
+  return true;
+}
+
+bool vtkShadowMapPass::PostReplaceShaderValues(
+  std::string &,
+  std::string &,
+  std::string &fragmentShader,
+  vtkAbstractMapper *,
+  vtkProp *)
+{
+  vtkShaderProgram::Substitute(fragmentShader,
+    "diffuse += (df * lightColor[lightNum]);",
+    "diffuse += (df * factors[lightNum] * lightColor[lightNum]);",
+    false);
+  vtkShaderProgram::Substitute(fragmentShader,
+    "specular += (sf * lightColor[lightNum]);",
+    "specular += (sf * factors[lightNum] * lightColor[lightNum]);",
+    false);
+  return true;
 }
 
 void vtkShadowMapPass::BuildShaderCode()
@@ -354,7 +384,8 @@ void vtkShadowMapPass::BuildShaderCode()
   toString.clear();
   toString << this->ShadowMapBakerPass->GetResolution();
 
-  std::string fdec = "//VTK::Light::Dec\n"
+  std::string fdec =
+    "//VTK::Light::Dec\n"
     "float calcShadow(in vec4 vert,\n"
     "                  in sampler2D shadowMap,\n"
     "                  in mat4 shadowTransform,\n"

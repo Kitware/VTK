@@ -50,7 +50,6 @@
 #include "vtkTextureObject.h"
 #include "vtkTransform.h"
 #include "vtkUnsignedIntArray.h"
-#include "vtkShadowMapPass.h"
 #include "vtkValuePass.h"
 #include "vtkValuePassHelper.h"
 
@@ -485,7 +484,7 @@ void vtkOpenGLPolyDataMapper::GetShaderTemplate(
 //------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ReplaceShaderRenderPass(
     std::map<vtkShader::Type, vtkShader *> shaders, vtkRenderer *,
-    vtkActor *act)
+    vtkActor *act, bool prePass)
 {
   std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
   std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
@@ -499,10 +498,23 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderRenderPass(
     {
       vtkObjectBase *rpBase = info->Get(vtkOpenGLRenderPass::RenderPasses(), i);
       vtkOpenGLRenderPass *rp = static_cast<vtkOpenGLRenderPass*>(rpBase);
-      if (!rp->ReplaceShaderValues(VSSource, GSSource, FSSource, this, act))
+      if (prePass)
       {
-        vtkErrorMacro("vtkOpenGLRenderPass::ReplaceShaderValues failed for "
-                      << rp->GetClassName());
+        if (!rp->PreReplaceShaderValues(VSSource, GSSource, FSSource,
+           this, act))
+        {
+          vtkErrorMacro("vtkOpenGLRenderPass::ReplaceShaderValues failed for "
+                        << rp->GetClassName());
+        }
+      }
+      else
+      {
+        if (!rp->PostReplaceShaderValues(VSSource, GSSource, FSSource,
+           this, act))
+        {
+          vtkErrorMacro("vtkOpenGLRenderPass::ReplaceShaderValues failed for "
+                        << rp->GetClassName());
+        }
       }
     }
   }
@@ -766,22 +778,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
       return;
   }
 
-  // check for shadow maps
-  std::string shadowFactor = "";
-  if (info && info->Has(vtkShadowMapPass::ShadowMapPass()))
-  {
-    vtkShadowMapPass *smp = vtkShadowMapPass::SafeDownCast(
-      info->Get(vtkShadowMapPass::ShadowMapPass()));
-    if (smp)
-    {
-      vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Dec",
-        smp->GetFragmentDeclaration(), false);
-      vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Impl",
-        smp->GetFragmentImplementation(), false);
-      shadowFactor = "*factors[lightNum]";
-    }
-  }
-
   // If rendering, set diffuse and specular colors to pure white
   if (info && info->Has(vtkLightingMapPass::RENDER_LUMINANCE()))
   {
@@ -838,11 +834,13 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
         "  for (int lightNum = 0; lightNum < numberOfLights; lightNum++)\n"
         "    {\n"
         "    float df = max(0.0, dot(normalVCVSOutput, -lightDirectionVC[lightNum]));\n"
-        "    diffuse += ((df" + shadowFactor + ") * lightColor[lightNum]);\n"
+        // if you change the next line also change vtkShadowMapPass
+        "    diffuse += (df * lightColor[lightNum]);\n"
         "    if (dot(normalVCVSOutput, lightDirectionVC[lightNum]) < 0.0)\n"
         "      {\n"
         "      float sf = pow( max(0.0, dot(lightHalfAngleVC[lightNum],normalVCVSOutput)), specularPower);\n"
-        "      specular += ((sf" + shadowFactor + ") * lightColor[lightNum]);\n"
+        // if you change the next line also change vtkShadowMapPass
+        "      specular += (sf * lightColor[lightNum]);\n"
         "      }\n"
         "    }\n"
         "  diffuse = diffuse * diffuseColor;\n"
@@ -903,11 +901,13 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
         "        }\n"
         "      }\n"
         "    float df = max(0.0, attenuation*dot(normalVCVSOutput, -vertLightDirectionVC));\n"
-        "    diffuse += ((df" + shadowFactor + ") * lightColor[lightNum]);\n"
+        // if you change the next line also change vtkShadowMapPass
+        "    diffuse += (df * lightColor[lightNum]);\n"
         "    if (dot(normalVCVSOutput, vertLightDirectionVC) < 0.0)\n"
         "      {\n"
         "      float sf = attenuation*pow( max(0.0, dot(lightHalfAngleVC[lightNum],normalVCVSOutput)), specularPower);\n"
-        "      specular += ((sf" + shadowFactor + ") * lightColor[lightNum]);\n"
+        // if you change the next line also change vtkShadowMapPass
+        "      specular += (sf * lightColor[lightNum]);\n"
         "      }\n"
         "    }\n"
         "  diffuse = diffuse * diffuseColor;\n"
@@ -1581,6 +1581,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
   std::map<vtkShader::Type, vtkShader *> shaders,
   vtkRenderer *ren, vtkActor *actor)
 {
+  this->ReplaceShaderRenderPass(shaders, ren, actor, true);
   this->ReplaceShaderColor(shaders, ren, actor);
   this->ReplaceShaderNormal(shaders, ren, actor);
   this->ReplaceShaderLight(shaders, ren, actor);
@@ -1591,7 +1592,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
   this->ReplaceShaderPositionVC(shaders, ren, actor);
   this->ReplaceShaderCoincidentOffset(shaders, ren, actor);
   this->ReplaceShaderDepth(shaders, ren, actor);
-  this->ReplaceShaderRenderPass(shaders, ren, actor);
+  this->ReplaceShaderRenderPass(shaders, ren, actor, false);
 
   //cout << "VS: " << shaders[vtkShader::Vertex]->GetSource() << endl;
   //cout << "GS: " << shaders[vtkShader::Geometry]->GetSource() << endl;
@@ -2012,18 +2013,6 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(
 
   vtkShaderProgram *program = cellBO.Program;
 
-  // check for shadow maps
-  vtkInformation *info = actor->GetPropertyKeys();
-  if (info && info->Has(vtkShadowMapPass::ShadowMapPass()))
-  {
-    vtkShadowMapPass *smp = vtkShadowMapPass::SafeDownCast(
-      info->Get(vtkShadowMapPass::ShadowMapPass()));
-    if (smp)
-    {
-      smp->SetUniforms(program);
-    }
-  }
-
   // for lightkit case there are some parameters to set
   vtkCamera *cam = ren->GetActiveCamera();
   vtkTransform* viewTF = cam->GetModelViewTransformObject();
@@ -2033,6 +2022,7 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(
   vtkLightCollection *lc = ren->GetLights();
   vtkLight *light;
 
+  vtkInformation *info = actor->GetPropertyKeys();
   bool renderLuminance = info &&
     info->Has(vtkLightingMapPass::RENDER_LUMINANCE());
 

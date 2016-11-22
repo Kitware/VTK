@@ -42,7 +42,7 @@
 #define vtkShadowMapPass_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkRenderPass.h"
+#include "vtkOpenGLRenderPass.h"
 #include <vector>  // STL Header
 #include <string> // For member variables.
 
@@ -57,11 +57,11 @@ class vtkShadowMapBakerPass;
 class vtkInformationObjectBaseKey;
 class vtkShaderProgram;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkShadowMapPass : public vtkRenderPass
+class VTKRENDERINGOPENGL2_EXPORT vtkShadowMapPass : public vtkOpenGLRenderPass
 {
 public:
   static vtkShadowMapPass *New();
-  vtkTypeMacro(vtkShadowMapPass,vtkRenderPass);
+  vtkTypeMacro(vtkShadowMapPass,vtkOpenGLRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   /**
@@ -127,11 +127,19 @@ public:
   std::string GetFragmentImplementation() {
     return this->FragmentImplementation; }
 
-  /**
-   * A mapper can call this to set the uniforms that this
-   * pass uses
-   */
-  void SetUniforms(vtkShaderProgram *program);
+  // vtkOpenGLRenderPass virtuals:
+  virtual bool PreReplaceShaderValues(std::string &vertexShader,
+                                   std::string &geometryShader,
+                                   std::string &fragmentShader,
+                                   vtkAbstractMapper *mapper,
+                                   vtkProp *prop);
+  virtual bool PostReplaceShaderValues(std::string &vertexShader,
+                                   std::string &geometryShader,
+                                   std::string &fragmentShader,
+                                   vtkAbstractMapper *mapper,
+                                   vtkProp *prop);
+  virtual bool SetShaderParameters(vtkShaderProgram *program,
+                                   vtkAbstractMapper *mapper, vtkProp *prop);
 
  protected:
   /**

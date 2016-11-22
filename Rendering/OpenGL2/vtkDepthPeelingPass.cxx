@@ -551,7 +551,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
 }
 
 //------------------------------------------------------------------------------
-bool vtkDepthPeelingPass::ReplaceShaderValues(std::string &,
+bool vtkDepthPeelingPass::PostReplaceShaderValues(std::string &,
                                               std::string &,
                                               std::string &fragmentShader,
                                               vtkAbstractMapper *,

@@ -117,7 +117,7 @@ public:
    */
 
   // vtkOpenGLRenderPass virtuals:
-  virtual bool ReplaceShaderValues(std::string &vertexShader,
+  virtual bool PostReplaceShaderValues(std::string &vertexShader,
                                    std::string &geometryShader,
                                    std::string &fragmentShader,
                                    vtkAbstractMapper *mapper,
