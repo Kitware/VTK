@@ -323,10 +323,10 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
 
   if (impl->Display == EGL_NO_DISPLAY)
   {
-      if (this->DeviceIndex > 0)
-      {
-        this->SetDeviceAsDisplay(this->DeviceIndex);
-      }
+      // eglGetDisplay(EGL_DEFAULT_DISPLAY) does not seem to work
+      // if there are several cards on a system.
+      this->SetDeviceAsDisplay(this->DeviceIndex);
+      // try to use the default display
       if (impl->Display == EGL_NO_DISPLAY)
       {
         impl->Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
