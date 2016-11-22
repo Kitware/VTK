@@ -397,8 +397,8 @@ class ImagePushBinaryWebSocketServerProtocol(WebSocketServerProtocol):
                 reactor.callLater(self.deltaStaleTimeBeforeRender - delta + 0.001, lambda: self.renderStaleImage())
 
     def resetActiveView(self):
-        activeViewReq = self.viewToCapture['-1']
-        if activeViewReq:
+        if '-1' in self.viewToCapture and self.viewToCapture['-1']:
+            activeViewReq = self.viewToCapture['-1']
             previousSize = tuple(activeViewReq['view'].ViewSize)
             activeViewReq['view'] = self.helper.getView('-1')
             activeViewReq['view'].ViewSize = previousSize
