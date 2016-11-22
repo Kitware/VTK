@@ -181,7 +181,7 @@ else()
 endif()
 
 # default to not using the system GLEW as ours has fixes in it right now
-set(VTK_USE_SYSTEM_GLEW OFF CACHE BOOL "do not use a system glew" FORCE)
+set(VTK_USE_SYSTEM_GLEW OFF CACHE BOOL "do not use a system glew")
 
 set(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 
