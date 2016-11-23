@@ -94,6 +94,26 @@ void vtkXMLStructuredDataWriter::SetInputUpdateExtent(int piece)
   inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
 }
 
+vtkIdType vtkXMLStructuredDataWriter::GetNumberOfValues(vtkDataSet* input)
+{
+  vtkIdType dataSetValues = 0;
+  vtkPointData *pointData = input->GetPointData();
+  int pdArrays = pointData->GetNumberOfArrays();
+  for (int i = 0; i < pdArrays; ++i)
+  {
+    vtkAbstractArray *array = pointData->GetAbstractArray(i);
+    dataSetValues += array->GetNumberOfValues();
+  }
+  vtkCellData *cellData = input->GetCellData();
+  int cdArrays = cellData->GetNumberOfArrays();
+  for (int i = 0; i < cdArrays; ++i)
+  {
+    vtkAbstractArray * array = cellData->GetAbstractArray(i);
+    dataSetValues += array->GetNumberOfValues();
+  }
+  return dataSetValues;
+}
+
 //----------------------------------------------------------------------------
 int vtkXMLStructuredDataWriter::ProcessRequest(
   vtkInformation* request,
@@ -134,11 +154,23 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
     // UpdateProgressDiscrete because we want a 0 progress callback the
     // first time.
     this->UpdateProgress(0);
-
+    this->SetProgressText("vtkXMLStructuredDataWriter");
     // Initialize progress range to entire 0..1 range.
-    float wholeProgressRange[2] = {0,1};
-    this->SetProgressRange(wholeProgressRange, 0, 1);
-
+    float wholeProgressRange[] = {0.0f, 1.0f};
+    vtkIdType fieldDataValues = 0;
+    vtkFieldData *fieldData = this->GetInput()->GetFieldData();
+    for (int i = 0; i < fieldData->GetNumberOfArrays(); ++i)
+    {
+      vtkAbstractArray *array = fieldData->GetAbstractArray(i);
+      fieldDataValues += array->GetNumberOfValues();
+    }
+    vtkIdType dataSetValues = fieldDataValues + GetNumberOfValues(this->GetInputAsDataSet());
+    if (dataSetValues == 0)
+    {
+      dataSetValues = 1;
+    }
+    float fraction[] = {0.0f, static_cast<float>(fieldDataValues)/dataSetValues, 1.0f};
+    this->SetProgressRange(wholeProgressRange, 0, fraction);
     int result = 1;
     if ((this->CurrentPiece == 0 || this->WritePiece >= 0) && this->CurrentTimeIndex == 0 )
     {
@@ -180,6 +212,7 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
 
     if (!(this->UserContinueExecuting == 0)) //if user ask to stop do not try to write a piece
     {
+      this->SetProgressRange(wholeProgressRange, 1, fraction);
       result = this->WriteAPiece();
     }
 

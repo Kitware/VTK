@@ -102,6 +102,8 @@ protected:
 
   vtkSetVector6Macro(InternalWriteExtent, int);
 
+  static vtkIdType GetNumberOfValues(vtkDataSet* input);
+
   // The extent of the input to write, as specified by user
   int WriteExtent[6];
 
