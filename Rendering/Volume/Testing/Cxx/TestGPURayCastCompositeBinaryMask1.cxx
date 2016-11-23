@@ -40,9 +40,6 @@ int TestGPURayCastCompositeBinaryMask1(int argc, char *argv[])
   // Full scale value for data
   const double fullScale = 100.0;
 
-  // Total scalar array size
-  const int nTotal = cx * cy * cz;
-
   // Create the image data and mask objects
   vtkNew<vtkImageData> imageData;
   imageData->SetDimensions(cx, cy, cz);
