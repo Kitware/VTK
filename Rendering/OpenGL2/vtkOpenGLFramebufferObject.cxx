@@ -105,7 +105,7 @@ public:
               this->ZSlice);
         this->Attached = true;
   #else
-         vtkErrorMacro("Attempt to use 3D frame buffer texture in OpenGL ES 2 or 3");
+         vtkGenericWarningMacro("Attempt to use 3D frame buffer texture in OpenGL ES 2 or 3");
   #endif
       }
       else
