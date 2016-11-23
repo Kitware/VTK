@@ -39,10 +39,10 @@ All rights reserve
 #define VTK_MAXIMUM_RATIO 1000.0
 #define VTK_POLAR_ARC_RESOLUTION_PER_DEG 0.2
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor.h"
-#include "vtkAxisActor.h" // access to enum values
-#include <list> // To process exponent list as reference
+#include "vtkAxisActor.h"                 // access to enum values
+#include "vtkRenderingAnnotationModule.h" // For export macro
+#include <list>                           // To process exponent list as reference
 
 class vtkCamera;
 class vtkPolyData;
@@ -61,7 +61,7 @@ public:
    * Instantiate object with label format "6.3g" and the number of labels
    * per axis set to 3.
    */
-  static vtkPolarAxesActor *New();
+  static vtkPolarAxesActor* New();
 
   //@{
   /**
@@ -69,7 +69,7 @@ public:
    */
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderOverlay(vtkViewport*);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport*) {return 0;};
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport*) { return 0; };
   //@}
 
   //@{
@@ -95,8 +95,8 @@ public:
   /**
    * Gets/Sets the number of radial axes
    */
-  virtual void SetNumberOfRadialAxes(vtkIdType);
-  vtkGetMacro(NumberOfRadialAxes, vtkIdType);
+  vtkSetClampMacro(RequestedNumberOfRadialAxes, vtkIdType, 0, VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES);
+  vtkGetMacro(RequestedNumberOfRadialAxes, vtkIdType);
   //@}
 
   //@{
@@ -359,7 +359,8 @@ public:
   //@{
   /**
    * If On, the ticks are drawn from the angle of the polarAxis (i.e. this->MinimalRadius)
-   * and continue counterclockwise with the step DeltaAngle Major/Minor. if Off, the start angle is 0.0, i.e.
+   * and continue counterclockwise with the step DeltaAngle Major/Minor. if Off, the start angle is
+   * 0.0, i.e.
    * the angle on the major radius of the ellipse.
    */
   vtkSetMacro(ArcTicksOriginToPolarAxis, int);
@@ -370,7 +371,8 @@ public:
   //@{
   /**
    * If On, the radial axes are drawn from the angle of the polarAxis (i.e. this->MinimalRadius)
-   * and continue counterclockwise with the step DeltaAngleRadialAxes. if Off, the start angle is 0.0, i.e.
+   * and continue counterclockwise with the step DeltaAngleRadialAxes. if Off, the start angle is
+   * 0.0, i.e.
    * the angle on the major radius of the ellipse.
    */
   vtkSetMacro(RadialAxesOriginToPolarAxis, int);
@@ -600,7 +602,7 @@ public:
   /**
    * Set/Get the polar axis title text property.
    */
-  virtual void SetPolarAxisTitleTextProperty(vtkTextProperty *p);
+  virtual void SetPolarAxisTitleTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(PolarAxisTitleTextProperty, vtkTextProperty);
   //@}
 
@@ -608,7 +610,7 @@ public:
   /**
    * Set/Get the polar axis labels text property.
    */
-  virtual void SetPolarAxisLabelTextProperty(vtkTextProperty *p);
+  virtual void SetPolarAxisLabelTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(PolarAxisLabelTextProperty, vtkTextProperty);
   //@}
 
@@ -616,23 +618,23 @@ public:
   /**
    * Set/Get the last radial axis text property.
    */
-  virtual void SetLastRadialAxisTextProperty(vtkTextProperty *p);
+  virtual void SetLastRadialAxisTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(LastRadialAxisTextProperty, vtkTextProperty);
   //@}
 
-   //@{
-   /**
-    * Set/Get the secondary radial axes text property.
-    */
-  virtual void SetSecondaryRadialAxesTextProperty(vtkTextProperty *p);
+  //@{
+  /**
+   * Set/Get the secondary radial axes text property.
+   */
+  virtual void SetSecondaryRadialAxesTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(SecondaryRadialAxesTextProperty, vtkTextProperty);
-   //@}
+  //@}
 
   //@{
   /**
    * Get/Set polar axis actor properties.
    */
-  virtual void SetPolarAxisProperty(vtkProperty *);
+  virtual void SetPolarAxisProperty(vtkProperty*);
   vtkGetObjectMacro(PolarAxisProperty, vtkProperty);
   //@}
 
@@ -676,9 +678,9 @@ public:
    * sure that the min's are less than the max's.
    */
   vtkSetVector6Macro(Bounds, double);
-  double *GetBounds();
-  void GetBounds(double& xmin, double& xmax, double& ymin, double& ymax,
-                 double& zmin, double& zmax);
+  double* GetBounds();
+  void GetBounds(
+    double& xmin, double& xmax, double& ymin, double& ymax, double& zmin, double& zmax);
   void GetBounds(double bounds[6]);
   //@}
 
@@ -703,7 +705,7 @@ protected:
    * Build the axes.
    * Determine coordinates, position, etc.
    */
-  void BuildAxes(vtkViewport *);
+  void BuildAxes(vtkViewport*);
 
   /**
    * Calculate bounds based on maximum radius and angular sector
@@ -732,7 +734,8 @@ protected:
 
   /**
    * Set Range and PolarAxis members value to build axis ticks
-   * this fonction doesn't actually build PolarAxis ticks, it set the DeltaRangeMajor and DeltaMajor attributes
+   * this fonction doesn't actually build PolarAxis ticks, it set the DeltaRangeMajor and DeltaMajor
+   * attributes
    * then PolarAxis itself is in charge of ticks drawing
    */
   void AutoComputeTicksProperties();
@@ -748,9 +751,11 @@ protected:
   void BuildArcTicks();
 
   /**
-   * Init tick point located on an ellipse at angleEllipseRad angle and according to "a" major radius
+   * Init tick point located on an ellipse at angleEllipseRad angle and according to "a" major
+   * radius
    */
-  void StoreTicksPtsFromParamEllipse(double a, double angleEllipseRad, double tickSize, vtkPoints* tickPts);
+  void StoreTicksPtsFromParamEllipse(
+    double a, double angleEllipseRad, double tickSize, vtkPoints* tickPts);
 
   /**
    * Build polar axis labels and arcs with respect to specified pole.
@@ -800,6 +805,10 @@ protected:
   static double ComputeEllipseAngle(double angleInDegrees, double ratio);
 
   /**
+   * Compute delta angle of radial axes.
+   */
+  virtual void ComputeDeltaAngleRadialAxes(vtkIdType);
+  /**
    * Coordinates of the pole
    * Default: (0,0,0).
    */
@@ -809,6 +818,11 @@ protected:
    * Number of radial axes
    */
   int NumberOfRadialAxes;
+
+  /**
+   * Requested Number of radial axes
+   */
+  int RequestedNumberOfRadialAxes;
 
   /**
    * Whether the number of polar axis ticks and arcs should be automatically calculated.
@@ -897,23 +911,23 @@ protected:
   double Bounds[6];
 
   // Structures for principal polar arc
-  vtkPolyData        *PolarArcs;
-  vtkPolyDataMapper  *PolarArcsMapper;
-  vtkActor           *PolarArcsActor;
+  vtkPolyData* PolarArcs;
+  vtkPolyDataMapper* PolarArcsMapper;
+  vtkActor* PolarArcsActor;
 
   //@{
   /**
    * Structures for secondary polar arcs
    */
-  vtkPolyData        *SecondaryPolarArcs;
-  vtkPolyDataMapper  *SecondaryPolarArcsMapper;
-  vtkActor           *SecondaryPolarArcsActor;
+  vtkPolyData* SecondaryPolarArcs;
+  vtkPolyDataMapper* SecondaryPolarArcsMapper;
+  vtkActor* SecondaryPolarArcsActor;
   //@}
 
   /**
    * Camera attached to the polar axes system
    */
-  vtkCamera *Camera;
+  vtkCamera* Camera;
 
   /**
    * Control variables for polar axis
@@ -930,14 +944,14 @@ protected:
    * Title to be used for the polar axis
    * NB: Non-polar radial axes use the polar angle as title and have no labels
    */
-  char *PolarAxisTitle;
-  char  *PolarLabelFormat;
+  char* PolarAxisTitle;
+  char* PolarLabelFormat;
   //@}
 
   /**
    * String to format angle values displayed on the radial axes.
    */
-  char *RadialAngleFormat;
+  char* RadialAngleFormat;
 
   /**
    * Display angle units (degrees) to label radial axes
@@ -980,7 +994,8 @@ protected:
 
   /**
    * Describes the tick orientation for the graph elements involved by this property.
-   * The ticks are drawn according to the direction of the 2 orthogonal axes, of the axisBase defined for a vtkAxisActor.
+   * The ticks are drawn according to the direction of the 2 orthogonal axes, of the axisBase
+   * defined for a vtkAxisActor.
    * For an ellipse, tick directions are defined from ellipse center to tick origin and
    * the orthogonal direction of the ellipse plane.
    */
@@ -993,16 +1008,18 @@ protected:
 
   /**
    * If On, the ticks are drawn from the angle of the polarAxis (i.e. this->MinimumAngle)
-   * and continue counterclockwise with the step DeltaAngle Major/Minor. if Off, the start angle is 0.0, i.e.
+   * and continue counterclockwise with the step DeltaAngle Major/Minor. if Off, the start angle is
+   * 0.0, i.e.
    * the angle on the major radius of the ellipse.
    */
   int ArcTicksOriginToPolarAxis;
 
-   /**
-    * If On, the radial axes are drawn from the angle of the polarAxis (i.e. this->MinimalRadius)
-    * and continue counterclockwise with the step DeltaAngleRadialAxes. if Off, the start angle is 0.0, i.e.
-    * the angle on the major radius of the ellipse.
-    */
+  /**
+   * If On, the radial axes are drawn from the angle of the polarAxis (i.e. this->MinimalRadius)
+   * and continue counterclockwise with the step DeltaAngleRadialAxes. if Off, the start angle is
+   * 0.0, i.e.
+   * the angle on the major radius of the ellipse.
+   */
   int RadialAxesOriginToPolarAxis;
 
   /**
@@ -1100,19 +1117,19 @@ protected:
   /**
    * Text properties of polar axis title and labels
    */
-  vtkTextProperty   *PolarAxisTitleTextProperty;
-  vtkTextProperty   *PolarAxisLabelTextProperty;
+  vtkTextProperty* PolarAxisTitleTextProperty;
+  vtkTextProperty* PolarAxisLabelTextProperty;
   //@}
 
   /**
    * Text properties of last radial axis
    */
-  vtkTextProperty   *LastRadialAxisTextProperty;
+  vtkTextProperty* LastRadialAxisTextProperty;
 
   /**
    * Text properties of secondary radial axes
    */
-  vtkTextProperty   *SecondaryRadialAxesTextProperty;
+  vtkTextProperty* SecondaryRadialAxesTextProperty;
 
   /**
    * General properties of polar axis

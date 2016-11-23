@@ -84,7 +84,7 @@ int TestPolarAxes(int argc, char* argv[])
   polaxes->SetMaximumRadius(3.);
   polaxes->SetMinimumAngle(-60.);
   polaxes->SetMaximumAngle(210.);
-  polaxes->SetNumberOfRadialAxes(10);
+  polaxes->SetRequestedNumberOfRadialAxes(10);
   polaxes->SetCamera(renderer->GetActiveCamera());
   polaxes->SetPolarLabelFormat("%6.1f");
   polaxes->GetLastRadialAxisProperty()->SetColor(.0, .0, 1.);
