@@ -1004,22 +1004,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::DeleteTransferFunctions()
 
   delete this->GradientOpacityTables;
   this->GradientOpacityTables = NULL;
-
-  if (this->MaskTextures != NULL)
-  {
-    if (!this->MaskTextures->Map.empty())
-    {
-      std::map<vtkImageData*,vtkVolumeMask*>::iterator it =
-        this->MaskTextures->Map.begin();
-      while(it != this->MaskTextures->Map.end())
-      {
-        vtkVolumeMask* texture = (*it).second;
-        delete texture;
-        ++it;
-      }
-      this->MaskTextures->Map.clear();
-    }
-  }
 }
 
 //----------------------------------------------------------------------------
