@@ -106,11 +106,12 @@ void vtkDualDepthPeelingPass::ReleaseGraphicsResources(vtkWindow *)
 }
 
 //------------------------------------------------------------------------------
-bool vtkDualDepthPeelingPass::ReplaceShaderValues(std::string &,
-                                                  std::string &,
-                                                  std::string &fragmentShader,
-                                                  vtkAbstractMapper *,
-                                                  vtkProp *)
+bool vtkDualDepthPeelingPass::PostReplaceShaderValues(
+  std::string &,
+  std::string &,
+  std::string &fragmentShader,
+  vtkAbstractMapper *,
+  vtkProp *)
 {
   switch (this->CurrentStage)
   {

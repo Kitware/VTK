@@ -294,7 +294,7 @@ protected:
    */
   virtual void ReplaceShaderRenderPass(
     std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *ren, vtkActor *act);
+    vtkRenderer *ren, vtkActor *act, bool prePass);
   virtual void ReplaceShaderColor(
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *act);
