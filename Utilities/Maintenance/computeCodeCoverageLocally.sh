@@ -58,7 +58,7 @@ echo -n "Please wait while lcov captures the coverage data..."
 #
 # Some compilers (e.g. clang) place the .gcda files in the wrong directory
 #
-lcov --quiet --directory . --capture --output-file app.info
+lcov --quiet --directory . --capture --output-file app.info 2>&1 | grep -v "WARNING: no data found for /usr/include" | grep -v 'Argument "====="'
 echo "Done"
 echo -n "Please wait while lcov removes coverage for some files..."
 lcov --quiet --remove app.info '*ThirdParty*' '*Instantiator.*' 'vtkType*Array.*'  '*Tcl.cxx' '*TCLInit.cxx' '*Python.cxx' '*Wrapping*' '*Examples*' '*Testing*'  '*Utilities*' '*_s.cxx' '*_vs*.cxx' '*_fs*.cxx' '*GS.cxx' '*VS.cxx' '*FS.cxx' '*FP*.cxx' '*VP*.cxx' 'vtkgl.cxx' '/usr/*' --output-file  app.info2
