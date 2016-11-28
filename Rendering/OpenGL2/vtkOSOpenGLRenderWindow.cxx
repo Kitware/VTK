@@ -212,9 +212,6 @@ void vtkOSOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
 
   this->MakeCurrent();
 
-  const GLubyte *str = glGetString(GL_VERSION);
-  cout << "GL_Version: " << reinterpret_cast<const char*>(str) << endl;
-
   // tell our renderers about us
   vtkRenderer* ren;
   for (this->Renderers->InitTraversal();
