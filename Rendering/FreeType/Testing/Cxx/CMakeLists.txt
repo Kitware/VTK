@@ -20,6 +20,13 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestTextOpaquePass.cxx
   )
 
+vtk_add_test_cxx(${vtk-module}CxxTests no_data_tests
+  NO_DATA NO_VALID NO_OUTPUT
+  TestTextBoundingBox.cxx
+  )
+list(APPEND tests
+  ${no_data_tests})
+
 # Check for vtkErrorMacro calls in these tests (mainly for empty inputs):
 set_tests_properties(
   ${vtk-module}Cxx-TestTextActor
