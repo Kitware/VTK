@@ -32,7 +32,7 @@ vtkTimeStamp* vtkTimeStamp::New()
 //-------------------------------------------------------------------------
 void vtkTimeStamp::Modified()
 {
-#if VTK_SIZEOF_VOID_P == 8
+#ifdef VTK_USE_64BIT_TIMESTAMPS
   static vtkAtomicUInt64 GlobalTimeStamp(0);
 #else
   static vtkAtomicUInt32 GlobalTimeStamp(0);
