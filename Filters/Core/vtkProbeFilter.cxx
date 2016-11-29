@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkProbeFilter.h"
 
+#include "vtkBoundingBox.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
@@ -305,6 +306,13 @@ void vtkProbeFilter::InitializeOutputArrays(vtkPointData *outPD, vtkIdType numPt
 void vtkProbeFilter::DoProbing(vtkDataSet *input, int srcIdx, vtkDataSet *source,
                                vtkDataSet *output)
 {
+  vtkBoundingBox sbox(source->GetBounds());
+  vtkBoundingBox ibox(input->GetBounds());
+  if (!sbox.Intersects(ibox))
+  {
+    return;
+  }
+
   if (vtkImageData::SafeDownCast(input))
   {
     vtkImageData *inImage = vtkImageData::SafeDownCast(input);

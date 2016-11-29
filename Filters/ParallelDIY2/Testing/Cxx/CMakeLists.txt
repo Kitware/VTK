@@ -6,6 +6,7 @@ vtk_add_test_mpi(${vtk-module}CxxTests-MPI tests
   TestPResampleToImage.cxx
   TestPResampleToImageCompositeDataSet.cxx
   TestPResampleWithDataSet.cxx
+  TestPResampleWithDataSet2.cxx
 )
 
 vtk_test_mpi_executable(${vtk-module}CxxTests-MPI tests)

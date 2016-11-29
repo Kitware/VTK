@@ -28,6 +28,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
+#include "vtkSMPTools.h"
+#include "vtkSMPThreadLocalObject.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
@@ -148,6 +150,74 @@ const char* vtkResampleWithDataSet::GetMaskArrayName() const
 }
 
 //-----------------------------------------------------------------------------
+namespace
+{
+
+class MarkHiddenPoints
+{
+public:
+  MarkHiddenPoints(char *maskArray, vtkUnsignedCharArray *pointGhostArray)
+    : MaskArray(maskArray), PointGhostArray(pointGhostArray)
+  {
+  }
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    for (vtkIdType i = begin; i < end; ++i)
+    {
+      if (!this->MaskArray[i])
+      {
+        this->PointGhostArray->SetValue(i, this->PointGhostArray->GetValue(i) |
+                                           vtkDataSetAttributes::HIDDENPOINT);
+      }
+    }
+  }
+
+private:
+  char *MaskArray;
+  vtkUnsignedCharArray *PointGhostArray;
+};
+
+class MarkHiddenCells
+{
+public:
+  MarkHiddenCells(vtkDataSet *data, char *maskArray,
+                  vtkUnsignedCharArray *cellGhostArray)
+    : Data(data), MaskArray(maskArray), CellGhostArray(cellGhostArray)
+  {
+  }
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    vtkIdList *cellPoints = this->PointIds.Local();
+
+    for (vtkIdType i = begin; i < end; ++i)
+    {
+      this->Data->GetCellPoints(i, cellPoints);
+      vtkIdType npts = cellPoints->GetNumberOfIds();
+      for (vtkIdType j = 0; j < npts; ++j)
+      {
+        vtkIdType ptid = cellPoints->GetId(j);
+        if (!this->MaskArray[ptid])
+        {
+          this->CellGhostArray->SetValue(i, this->CellGhostArray->GetValue(i) |
+                                            vtkDataSetAttributes::HIDDENPOINT);
+          break;
+        }
+      }
+    }
+  }
+
+private:
+  vtkDataSet *Data;
+  char *MaskArray;
+  vtkUnsignedCharArray *CellGhostArray;
+
+  vtkSMPThreadLocalObject<vtkIdList> PointIds;
+};
+
+} // anonymous namespace
+
 void vtkResampleWithDataSet::SetBlankPointsAndCells(vtkDataSet *dataset)
 {
   if (dataset->GetNumberOfPoints() <= 0)
@@ -162,35 +232,23 @@ void vtkResampleWithDataSet::SetBlankPointsAndCells(vtkDataSet *dataset)
 
   dataset->AllocatePointGhostArray();
   vtkUnsignedCharArray *pointGhostArray = dataset->GetPointGhostArray();
+
   vtkIdType numPoints = dataset->GetNumberOfPoints();
-  for (vtkIdType i = 0; i < numPoints; ++i)
-  {
-    if (!mask[i])
-    {
-      pointGhostArray->SetValue(i, pointGhostArray->GetValue(i) |
-                                   vtkDataSetAttributes::HIDDENPOINT);
-    }
-  }
+  MarkHiddenPoints pointWorklet(mask, pointGhostArray);
+  vtkSMPTools::For(0, numPoints, pointWorklet);
+
 
   dataset->AllocateCellGhostArray();
   vtkUnsignedCharArray *cellGhostArray = dataset->GetCellGhostArray();
-  vtkNew<vtkIdList> cellPoints;
+
   vtkIdType numCells = dataset->GetNumberOfCells();
-  for (vtkIdType i = 0; i < numCells; ++i)
-  {
-    dataset->GetCellPoints(i, cellPoints.GetPointer());
-    vtkIdType npts = cellPoints->GetNumberOfIds();
-    for (vtkIdType j = 0; j < npts; ++j)
-    {
-      vtkIdType ptid = cellPoints->GetId(j);
-      if (!mask[ptid])
-      {
-        cellGhostArray->SetValue(i, cellGhostArray->GetValue(i) |
-                                    vtkDataSetAttributes::HIDDENPOINT);
-        break;
-      }
-    }
-  }
+  // GetCellPoints needs to be called once from a single thread for safe
+  // multi-threaded calls
+  vtkNew<vtkIdList> cpts;
+  dataset->GetCellPoints(0, cpts.GetPointer());
+
+  MarkHiddenCells cellWorklet(dataset, mask, cellGhostArray);
+  vtkSMPTools::For(0, numCells, cellWorklet);
 }
 
 //-----------------------------------------------------------------------------
