@@ -67,6 +67,7 @@ macro(compile_vtk_tools)
       -DBUILD_SHARED_LIBS:BOOL=ON
       -DBUILD_EXAMPLES:BOOL=OFF
       -DBUILD_TESTING:BOOL=OFF
+      -DCMAKE_MAKE_PROGRAM:FILEPATH=${CMAKE_MAKE_PROGRAM}
   )
 endmacro()
 compile_vtk_tools()
@@ -151,6 +152,7 @@ macro(crosscompile target toolchain_file archs)
       -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${toolchain_file}
       -DVTKCompileTools_DIR:PATH=${CMAKE_BINARY_DIR}/CompileTools
       -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_DIR}/${target}
+      -DCMAKE_MAKE_PROGRAM:FILEPATH=${CMAKE_MAKE_PROGRAM}
       ${ios_cmake_flags}
   )
   #

@@ -66,6 +66,7 @@ macro(compile_vtk_tools)
       -DBUILD_SHARED_LIBS:BOOL=ON
       -DBUILD_EXAMPLES:BOOL=OFF
       -DBUILD_TESTING:BOOL=OFF
+      -DCMAKE_MAKE_PROGRAM:FILEPATH=${CMAKE_MAKE_PROGRAM}
   )
 endmacro()
 compile_vtk_tools()
@@ -134,6 +135,7 @@ macro(crosscompile target api abi out_build_dir)
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
       -DCMAKE_TOOLCHAIN_FILE:PATH=${_ANDROID_TOOLCHAIN}
       -DVTKCompileTools_DIR:PATH=${CMAKE_BINARY_DIR}/CompileTools
+      -DCMAKE_MAKE_PROGRAM:FILEPATH=${CMAKE_MAKE_PROGRAM}
       ${android_cmake_flags}
   )
   set(${out_build_dir} "${BUILD_DIR}/${_ANDROID_DIR}")
