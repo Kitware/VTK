@@ -6,6 +6,7 @@ vtk_module(vtkFiltersCore
     vtkInteractionStyle
     vtkIOLegacy
     vtkIOXML
+    vtkIOExodus
     vtkImagingCore
     vtkFiltersGeneral
     vtkRendering${VTK_RENDERING_BACKEND}

@@ -101,8 +101,8 @@ protected:
   // Usual data generation method
   int RequestData(vtkInformation *, vtkInformationVector **,
                   vtkInformationVector *) VTK_OVERRIDE;
-  //virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-  //                               vtkInformationVector *);
+  int RequestInformation(vtkInformation *, vtkInformationVector **,
+                         vtkInformationVector *) VTK_OVERRIDE;
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *) VTK_OVERRIDE;
   int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;

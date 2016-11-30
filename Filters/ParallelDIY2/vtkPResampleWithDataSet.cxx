@@ -34,6 +34,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
 #include "vtk_diy2.h"   // must include this before any diy header
@@ -99,6 +100,30 @@ void vtkPResampleWithDataSet::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Points lookup partitioning: "
      << (this->UseBalancedPartitionForPointsLookup ? "Balanced" : "Regular")
      << endl;
+}
+
+//-----------------------------------------------------------------------------
+int vtkPResampleWithDataSet::RequestUpdateExtent(vtkInformation *request,
+                                                 vtkInformationVector **inputVector,
+                                                 vtkInformationVector *outputVector)
+{
+  vtkMPIController *mpiCont = vtkMPIController::SafeDownCast(this->Controller);
+  if (!mpiCont || mpiCont->GetNumberOfProcesses() == 1)
+  {
+    return this->Superclass::RequestUpdateExtent(request, inputVector, outputVector);
+  }
+
+  vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
+
+  sourceInfo->Remove(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  if (sourceInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
+  {
+    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+                    sourceInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
+                    6);
+  }
+
+  return 1;
 }
 
 
