@@ -832,11 +832,37 @@ void vtkWrap_ExpandTypedefs(
       {
         vtkParseHierarchy_ExpandTypedefsInValue(
           hinfo, funcInfo->Parameters[j], finfo->Strings, data->Name);
+#ifndef VTK_PARSE_LEGACY_REMOVE
+        if (j < MAX_ARGS)
+        {
+          if (vtkWrap_IsFunction(funcInfo->Parameters[j]))
+          {
+            // legacy args only allow "void func(void *)" functions
+            if (vtkWrap_IsVoidFunction(funcInfo->Parameters[j]))
+            {
+              funcInfo->ArgTypes[j] = VTK_PARSE_FUNCTION;
+              funcInfo->ArgClasses[j] = funcInfo->Parameters[j]->Class;
+            }
+          }
+          else
+          {
+            funcInfo->ArgTypes[j] = funcInfo->Parameters[j]->Type;
+            funcInfo->ArgClasses[j] = funcInfo->Parameters[j]->Class;
+          }
+        }
+#endif
       }
       if (funcInfo->ReturnValue)
       {
         vtkParseHierarchy_ExpandTypedefsInValue(
           hinfo, funcInfo->ReturnValue, finfo->Strings, data->Name);
+#ifndef VTK_PARSE_LEGACY_REMOVE
+        if (!vtkWrap_IsFunction(funcInfo->ReturnValue))
+        {
+          funcInfo->ReturnType = funcInfo->ReturnValue->Type;
+          funcInfo->ReturnClass = funcInfo->ReturnValue->Class;
+        }
+#endif
       }
     }
   }
