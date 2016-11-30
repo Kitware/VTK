@@ -1474,9 +1474,9 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
           *it, &metaData.unrotatedScaler, glyphIndex, bitmapGlyph);
     if (bitmap)
     {
-      metaData.ascent = std::max(bitmapGlyph->top - 1, metaData.ascent);
+      metaData.ascent = std::max(bitmapGlyph->top, metaData.ascent);
       metaData.descent = std::min(-static_cast<int>((bitmap->rows -
-                                                     bitmapGlyph->top)),
+                                                     bitmapGlyph->top - 1)),
                                   metaData.descent);
     }
     ++it;
@@ -1991,11 +1991,7 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
   if (bitmap->width && bitmap->rows)
   {
     // Starting position given the bearings.
-    // Subtract 1 to the bearing Y, because this is the vertical distance
-    // from the glyph origin (0,0) to the topmost pixel of the glyph bitmap
-    // (more precisely, to the pixel just above the bitmap). This distance is
-    // expressed in integer pixels, and is positive for upwards y.
-    vtkVector2i pen(x + bitmapGlyph->left, y + bitmapGlyph->top - 1);
+    vtkVector2i pen(x + bitmapGlyph->left, y + bitmapGlyph->top);
 
     // Render the current glyph into the image
     unsigned char *ptr = static_cast<unsigned char *>(
@@ -2557,9 +2553,9 @@ void vtkFreeTypeTools::GetLineMetrics(T begin, T end, MetaData &metaData,
     if (bitmap)
     {
       bbox[0] = std::min(bbox[0], pen[0] + bitmapGlyph->left);
-      bbox[1] = std::max(bbox[1], pen[0] + bitmapGlyph->left + static_cast<int>(bitmap->width));
-      bbox[2] = std::min(bbox[2], pen[1] + bitmapGlyph->top - 1 - static_cast<int>(bitmap->rows));
-      bbox[3] = std::max(bbox[3], pen[1] + bitmapGlyph->top - 1);
+      bbox[1] = std::max(bbox[1], pen[0] + bitmapGlyph->left + static_cast<int>(bitmap->width) - 1);
+      bbox[2] = std::min(bbox[2], pen[1] + bitmapGlyph->top + 1 - static_cast<int>(bitmap->rows));
+      bbox[3] = std::max(bbox[3], pen[1] + bitmapGlyph->top);
     }
     else
     {
