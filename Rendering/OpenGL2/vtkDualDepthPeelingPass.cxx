@@ -534,7 +534,7 @@ void vtkDualDepthPeelingPass::InitFramebuffer(const vtkRenderState *s)
   this->Framebuffer->AddColorAttachment(GL_DRAW_FRAMEBUFFER, DepthB,
                                         this->Textures[DepthB]);
 
-  this->Framebuffer->UnBind(GL_DRAW_FRAMEBUFFER);
+  this->Framebuffer->RestorePreviousBindingsAndBuffers(GL_DRAW_FRAMEBUFFER);
 }
 
 //------------------------------------------------------------------------------
