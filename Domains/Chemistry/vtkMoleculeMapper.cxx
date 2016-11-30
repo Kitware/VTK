@@ -580,7 +580,7 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
   // Normalized vector pointing along bond from begin->end atom
   vtkVector3f bondVec;
   // Unit z vector -- used for multicylinder orientation
-  const static vtkVector3f unitZ (0.0, 0.0, 1.0);
+  static const vtkVector3f unitZ (0.0, 0.0, 1.0);
   // Can't use InsertNextTuple(unsigned char *) in a
   // vtkUnsignedCharArray. This float array is used instead.
   // Initialize with bondColor for SingleColor mode

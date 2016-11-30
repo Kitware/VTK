@@ -86,11 +86,11 @@ int vtkMoleculeToBondStickFilter::RequestData(
   double bondCenter[3];
   double pos1[3], pos2[3];
   // Normalized vector pointing along the cylinder (y axis);
-  const static double cylVec[3] = {0.0, 1.0, 0.0};
+  static const double cylVec[3] = {0.0, 1.0, 0.0};
   // Normalized vector pointing along bond
   double bondVec[3];
   // Unit z vector
-  const static double unitZ[3] = {0.0, 0.0, 1.0};
+  static const double unitZ[3] = {0.0, 0.0, 1.0};
 
   // Build a sphere for each atom and append it's data to the output
   // arrays.

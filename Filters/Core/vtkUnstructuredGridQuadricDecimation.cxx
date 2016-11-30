@@ -614,11 +614,11 @@ class vtkUnstructuredGridQuadricDecimationFaceHash
 {
 public:
   // This is the average load that the hash table tries to maintain.
-  const static size_t bucket_size = 4;
+  static const size_t bucket_size = 4;
 
   // This is the minimum number of buckets in the hash table.  It must be
   // a positive power of two.
-  const static size_t min_buckets = 8;
+  static const size_t min_buckets = 8;
 
   // This method must define an ordering on two faces.  It is used to compare
   // faces that has to the same bucket.

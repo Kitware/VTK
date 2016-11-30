@@ -101,7 +101,7 @@ struct vtkTulipReaderCluster
 {
   int clusterId;
   int parentId;
-  const static int NO_PARENT = -1;
+  static const int NO_PARENT = -1;
   vtkStdString name;
   vtkSmartPointer<vtkIdTypeArray> nodes;
 };
