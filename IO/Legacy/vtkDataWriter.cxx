@@ -47,10 +47,13 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkShortArray.h"
+#include "vtkSignedCharArray.h"
+#include "vtkSOADataArrayTemplate.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkTypeInt64Array.h"
 #include "vtkTypeTraits.h"
-#include "vtkSignedCharArray.h"
+#include "vtkTypeUInt64Array.h"
 #include "vtkUnicodeStringArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
@@ -963,6 +966,8 @@ int vtkDataWriter::WriteRowData(ostream *fp, vtkTable *t)
   return 1;
 }
 
+namespace
+{
 // Template to handle writing data in ascii or binary
 // We could change the format into C++ io standard ...
 template <class T>
@@ -1017,6 +1022,25 @@ void vtkWriteDataArray(ostream *fp, T *data, int fileType,
   *fp << "\n";
 }
 
+// Returns a pointer to the data ordered in original VTK style ordering
+// of the data. If this is an SOA array it has to allocate the memory
+// for that in which case the calling function must delete it.
+template <class T>
+T* GetArrayRawPointer(vtkAbstractArray* array, T* ptr, int isAOSArray)
+{
+  if (isAOSArray)
+  {
+    return ptr;
+  }
+  T* data = new T[array->GetNumberOfComponents()*array->GetNumberOfTuples()];
+  vtkSOADataArrayTemplate<T>* typedArray =
+    vtkSOADataArrayTemplate<T>::SafeDownCast(array);
+  typedArray->ExportToVoidPointer(data);
+  return data;
+}
+
+} // end anonymous namespace
+
 // Write out data to file specified.
 int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
                               const char *format, int num, int numComp)
@@ -1024,11 +1048,13 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
   int i, j, idx;
   char str[1024];
 
+  bool isAOSArray = data->HasStandardMemoryLayout();
+
   char* outputFormat = new char[10];
   switch (dataType)
   {
     case VTK_BIT:
-    {
+    { // assume that bit array is always in original AOS ordering
       sprintf (str, format, "bit"); *fp << str;
       if ( this->FileType == VTK_ASCII )
       {
@@ -1066,133 +1092,209 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
     case VTK_CHAR:
     {
       sprintf (str, format, "char"); *fp << str;
-      char *s=static_cast<vtkCharArray *>(data)->GetPointer(0);
+      char *s=GetArrayRawPointer(
+        data, static_cast<vtkCharArray *>(data)->GetPointer(0), isAOSArray);
 #if VTK_TYPE_CHAR_IS_SIGNED
       vtkWriteDataArray(fp, s, this->FileType, "%hhd ", num, numComp);
 #else
       vtkWriteDataArray(fp, s, this->FileType, "%hhu ", num, numComp);
 #endif
+      if (!isAOSArray)
+      {
+        delete [] s;
+      }
     }
     break;
 
     case VTK_SIGNED_CHAR:
     {
       sprintf (str, format, "signed_char"); *fp << str;
-      signed char *s=
-        static_cast<vtkSignedCharArray *>(data)->GetPointer(0);
+      signed char *s=GetArrayRawPointer(
+        data, static_cast<vtkSignedCharArray *>(data)->GetPointer(0), isAOSArray);
       vtkWriteDataArray(fp, s, this->FileType, "%hhd ", num, numComp);
+      if (!isAOSArray)
+      {
+        delete [] s;
+      }
     }
     break;
 
     case VTK_UNSIGNED_CHAR:
     {
       sprintf (str, format, "unsigned_char"); *fp << str;
-      unsigned char *s=
-        static_cast<vtkUnsignedCharArray *>(data)->GetPointer(0);
+      unsigned char *s=GetArrayRawPointer(
+        data, static_cast<vtkUnsignedCharArray *>(data)->GetPointer(0), isAOSArray);
       vtkWriteDataArray(fp, s, this->FileType, "%hhu ", num, numComp);
+      if (!isAOSArray)
+      {
+        delete [] s;
+      }
     }
     break;
 
     case VTK_SHORT:
     {
       sprintf (str, format, "short"); *fp << str;
-      short *s=static_cast<vtkShortArray *>(data)->GetPointer(0);
+      short *s=GetArrayRawPointer(
+        data, static_cast<vtkShortArray *>(data)->GetPointer(0), isAOSArray);
       vtkWriteDataArray(fp, s, this->FileType, "%hd ", num, numComp);
+      if (!isAOSArray)
+      {
+        delete [] s;
+      }
     }
     break;
 
     case VTK_UNSIGNED_SHORT:
     {
       sprintf (str, format, "unsigned_short"); *fp << str;
-      unsigned short *s=
-        static_cast<vtkUnsignedShortArray *>(data)->GetPointer(0);
+      unsigned short *s=GetArrayRawPointer(
+        data, static_cast<vtkUnsignedShortArray *>(data)->GetPointer(0), isAOSArray);
       vtkWriteDataArray(fp, s, this->FileType, "%hu ", num, numComp);
+      if (!isAOSArray)
+      {
+        delete [] s;
+      }
     }
     break;
 
     case VTK_INT:
     {
       sprintf (str, format, "int"); *fp << str;
-      int *s=static_cast<vtkIntArray *>(data)->GetPointer(0);
+      int *s=GetArrayRawPointer(
+        data, static_cast<vtkIntArray *>(data)->GetPointer(0), isAOSArray);
       vtkWriteDataArray(fp, s, this->FileType, "%d ", num, numComp);
+      if (!isAOSArray)
+      {
+        delete [] s;
+      }
     }
     break;
 
     case VTK_UNSIGNED_INT:
     {
       sprintf (str, format, "unsigned_int"); *fp << str;
-      unsigned int *s=static_cast<vtkUnsignedIntArray *>(data)->GetPointer(0);
+      unsigned int *s=GetArrayRawPointer(
+        data, static_cast<vtkUnsignedIntArray *>(data)->GetPointer(0), isAOSArray);
       vtkWriteDataArray(fp, s, this->FileType, "%u ", num, numComp);
+      if (!isAOSArray)
+      {
+        delete [] s;
+      }
     }
     break;
 
     case VTK_LONG:
     {
       sprintf (str, format, "long"); *fp << str;
-      long *s=static_cast<vtkLongArray *>(data)->GetPointer(0);
+      long *s=GetArrayRawPointer(
+        data, static_cast<vtkLongArray *>(data)->GetPointer(0), isAOSArray);
       vtkWriteDataArray(fp, s, this->FileType, "%ld ", num, numComp);
+      if (!isAOSArray)
+      {
+        delete [] s;
+      }
     }
     break;
 
     case VTK_UNSIGNED_LONG:
     {
       sprintf (str, format, "unsigned_long"); *fp << str;
-      unsigned long *s=
-        static_cast<vtkUnsignedLongArray *>(data)->GetPointer(0);
+      unsigned long *s=GetArrayRawPointer(
+        data, static_cast<vtkUnsignedLongArray *>(data)->GetPointer(0), isAOSArray);
       vtkWriteDataArray(fp, s, this->FileType, "%lu ", num, numComp);
+      if (!isAOSArray)
+      {
+        delete [] s;
+      }
     }
     break;
 
     case VTK_LONG_LONG:
     {
       sprintf (str, format, "vtktypeint64"); *fp << str;
-      long long *s= static_cast<long long*>(data->GetVoidPointer(0));
+      long long *s=GetArrayRawPointer(
+        data, static_cast<vtkTypeInt64Array *>(data)->GetPointer(0), isAOSArray);
       strcpy(outputFormat, vtkTypeTraits<long long>::ParseFormat());
       strcat(outputFormat, " ");
       vtkWriteDataArray(fp, s, this->FileType, outputFormat, num, numComp);
+      if (!isAOSArray)
+      {
+        delete [] s;
+      }
     }
     break;
 
     case VTK_UNSIGNED_LONG_LONG:
     {
       sprintf (str, format, "vtktypeuint64"); *fp << str;
-      unsigned long long *s=
-        static_cast<unsigned long long*>(data->GetVoidPointer(0));
+      unsigned long long *s=GetArrayRawPointer(
+        data, static_cast<vtkTypeUInt64Array *>(data)->GetPointer(0), isAOSArray);
       strcpy(outputFormat, vtkTypeTraits<unsigned long long>::ParseFormat());
       strcat(outputFormat, " ");
       vtkWriteDataArray(fp, s, this->FileType, outputFormat, num, numComp);
+      if (!isAOSArray)
+      {
+        delete [] s;
+      }
     }
     break;
 
     case VTK_FLOAT:
     {
       sprintf (str, format, "float"); *fp << str;
-      float *s=static_cast<vtkFloatArray *>(data)->GetPointer(0);
+      float *s=GetArrayRawPointer(
+        data, static_cast<vtkFloatArray *>(data)->GetPointer(0), isAOSArray);
       vtkWriteDataArray(fp, s, this->FileType, "%g ", num, numComp);
+      if (!isAOSArray)
+      {
+        delete [] s;
+      }
     }
     break;
 
     case VTK_DOUBLE:
     {
       sprintf (str, format, "double"); *fp << str;
-      double *s=static_cast<vtkDoubleArray *>(data)->GetPointer(0);
+      double *s=GetArrayRawPointer(
+        data, static_cast<vtkDoubleArray *>(data)->GetPointer(0), isAOSArray);
       vtkWriteDataArray(fp, s, this->FileType, "%.11lg ", num, numComp);
+      if (!isAOSArray)
+      {
+        delete [] s;
+      }
     }
     break;
 
     case VTK_ID_TYPE:
     {
       // currently writing vtkIdType as int.
-      int size = data->GetNumberOfTuples();
-      int *intArray = new int[size*numComp];
+      vtkIdType size = data->GetNumberOfTuples();
+      std::vector<int> intArray(size*numComp);
       sprintf (str, format, "vtkIdType"); *fp << str;
-      vtkIdType *s=static_cast<vtkIdTypeArray *>(data)->GetPointer(0);
-      for (i = 0; i < size*numComp; i++)
+      if (isAOSArray)
       {
-        intArray[i] = s[i];
+        vtkIdType *s=static_cast<vtkIdTypeArray *>(data)->GetPointer(0);
+        for (vtkIdType jj = 0; jj < size*numComp; jj++)
+        {
+          intArray[jj] = s[jj];
+        }
       }
-      vtkWriteDataArray(fp, intArray, this->FileType, "%d ", num, numComp);
-      delete [] intArray;
+      else
+      {
+        vtkSOADataArrayTemplate<vtkIdType>* data2=
+          static_cast<vtkSOADataArrayTemplate<vtkIdType> *>(data);
+        std::vector<vtkIdType> vals(numComp);
+        for (vtkIdType jj = 0; jj < size; jj++)
+        {
+          data2->GetTypedTuple(jj, &vals[0]);
+          for (i = 0; i < numComp; i++)
+          {
+            intArray[jj*numComp+i] = vals[i];
+          }
+        }
+      }
+      vtkWriteDataArray(fp, &intArray[0], this->FileType, "%d ", num, numComp);
     }
     break;
 
