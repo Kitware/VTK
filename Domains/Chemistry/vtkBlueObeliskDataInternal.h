@@ -4,7 +4,7 @@
 
 namespace _vtkBlueObeliskData {
 
-const static unsigned int numberOfElements = 118;
+static const unsigned int numberOfElements = 118;
 
 static const char *Symbols[119] = {
   "Xx",

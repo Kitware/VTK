@@ -88,8 +88,8 @@ protected:
 
    static float DRY_AIR_CONSTANT;
    static int   NUM_PART_SIDES;  // Blade parts rhombus
-   const static int   NUM_BASE_SIDES;  // Base pyramid
-   const static int   LINE_SIZE;
+   static const int   NUM_BASE_SIDES;  // Base pyramid
+   static const int   LINE_SIZE;
    static int   DIMENSION;
    static int   BYTES_PER_DATA;
    static int   SCALAR;

@@ -73,10 +73,10 @@ public:
    * Constants for offsets of special colors (e.g., NanColor, BelowRangeColor,
    * AboveRangeColor) from the maximum index in the lookup table.
    */
-  const static vtkIdType BELOW_RANGE_COLOR_INDEX;
-  const static vtkIdType ABOVE_RANGE_COLOR_INDEX;
-  const static vtkIdType NAN_COLOR_INDEX;
-  const static vtkIdType NUMBER_OF_SPECIAL_COLORS;
+  static const vtkIdType BELOW_RANGE_COLOR_INDEX;
+  static const vtkIdType ABOVE_RANGE_COLOR_INDEX;
+  static const vtkIdType NAN_COLOR_INDEX;
+  static const vtkIdType NUMBER_OF_SPECIAL_COLORS;
   //@}
 
   /**

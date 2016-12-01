@@ -3014,7 +3014,7 @@ void vtkOpenGLContextDevice2D::AddEllipseToPath(
   }
 
   // method based on http://www.tinaja.com/glib/ellipse4.pdf
-  const static float MAGIC = (4.f/3.f) * (sqrt(2.f) - 1.f);
+  static const float MAGIC = (4.f/3.f) * (sqrt(2.f) - 1.f);
 
   if (!reverse)
   {

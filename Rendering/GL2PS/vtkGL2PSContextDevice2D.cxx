@@ -644,7 +644,7 @@ void vtkGL2PSContextDevice2D::AddEllipseToPath(vtkPath *path, float x, float y,
   }
 
   // method based on http://www.tinaja.com/glib/ellipse4.pdf
-  const static float MAGIC = (4.0/3.0) * (sqrt(2.0) - 1);
+  static const float MAGIC = (4.0/3.0) * (sqrt(2.0) - 1);
 
   if (!reverse)
   {
