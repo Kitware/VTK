@@ -151,6 +151,13 @@ public:
   vtkGetMacro(Tolerance,int);
   //@}
 
+  //@{
+  /**
+   * Need to reimplement this->Modified() because of the vtkSetVector4Macro/vtkGetVector4Macro use
+   */
+  void Modified();
+  //@}
+
 protected:
   vtkOrientationMarkerWidget();
   ~vtkOrientationMarkerWidget();
