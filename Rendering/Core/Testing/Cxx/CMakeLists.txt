@@ -25,6 +25,10 @@ else()
     )
 endif()
 
+if (VTK_USE_OFFSCREEN)
+  list(APPEND extra_opengl2_tests TestOffscreenIsOffscreen.cxx,NO_DATA,NO_VALID)
+endif()
+
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   ${extra_opengl2_tests}
   otherCoordinate.cxx,NO_DATA,NO_VALID
