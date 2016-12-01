@@ -588,13 +588,13 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
   // Compute some information for progress methods
   //
   cell = vtkGenericCell::New();
-  vtkIdType numCuts = numContours*numCells;
-  vtkIdType progressInterval = numCuts/20 + 1;
-  int cut=0;
-
   vtkContourHelper helper(this->Locator, newVerts, newLines, newPolys,inPD, inCD, outPD,outCD, estimatedSize,this->GenerateTriangles!=0);
   if ( this->SortBy == VTK_SORT_BY_CELL )
   {
+    vtkIdType numCuts = numContours*numCells;
+    vtkIdType progressInterval = numCuts/20 + 1;
+    int cut=0;
+
     // Loop over all contour values.  Then for each contour value,
     // loop over all cells.
     //
@@ -653,6 +653,9 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
     unsigned char cellTypeDimensions[VTK_NUMBER_OF_CELL_TYPES];
     vtkCutter::GetCellTypeDimensions(cellTypeDimensions);
     int dimensionality;
+
+    vtkIdType progressInterval = numCells/20 + 1;
+
     // We skip 0d cells (points), because they cannot be cut (generate no data).
     for (dimensionality = 1; dimensionality <= 3; ++dimensionality)
     {
@@ -661,6 +664,13 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
       //
       for (cellId=0; cellId < numCells && !abortExecute; cellId++)
       {
+        if (!(cellId % progressInterval) )
+        {
+          vtkDebugMacro(<<"Cutting #" << cellId);
+          this->UpdateProgress (static_cast<double>(cellId)/numCells);
+          abortExecute = this->GetAbortExecute();
+        }
+
         // I assume that "GetCellType" is fast.
         cellType = input->GetCellType(cellId);
         if (cellType >= VTK_NUMBER_OF_CELL_TYPES)
@@ -687,12 +697,6 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
         // Loop over all contour values.
         for (iter=0; iter < numContours && !abortExecute; iter++)
         {
-          if (dimensionality == 3 && !(++cut % progressInterval) )
-          {
-            vtkDebugMacro(<<"Cutting #" << cut);
-            this->UpdateProgress (static_cast<double>(cut)/numCuts);
-            abortExecute = this->GetAbortExecute();
-          }
           value = this->ContourValues->GetValue(iter);
           helper.Contour(cell,value, cellScalars, cellId);
         } // for all contour values
@@ -835,12 +839,6 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
     cutScalars->SetComponent(i,0,s);
   }
 
-  // Compute some information for progress methods
-  //
-  vtkIdType numCuts = numContours*numCells;
-  vtkIdType progressInterval = numCuts/20 + 1;
-  int cut=0;
-
   vtkSmartPointer<vtkCellIterator> cellIter =
       vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
   vtkNew<vtkGenericCell> cell;
@@ -854,6 +852,12 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
   vtkContourHelper helper(this->Locator, newVerts, newLines, newPolys,inPD, inCD, outPD,outCD, estimatedSize,this->GenerateTriangles!=0);
   if ( this->SortBy == VTK_SORT_BY_CELL )
   {
+    // Compute some information for progress methods
+    //
+    vtkIdType numCuts = numContours*numCells;
+    vtkIdType progressInterval = numCuts/20 + 1;
+    int cut=0;
+
     // Loop over all contour values.  Then for each contour value,
     // loop over all cells.
     //
@@ -902,14 +906,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
           // Loop over all contour values.
           for (iter=0; iter < numContours && !abortExecute; iter++)
           {
-            if ( !(++cut % progressInterval) )
-            {
-              vtkDebugMacro(<<"Cutting #" << cut);
-              this->UpdateProgress (static_cast<double>(cut)/numCuts);
-              abortExecute = this->GetAbortExecute();
-            }
             value = this->ContourValues->GetValue(iter);
-
             helper.Contour(cell.GetPointer(), value, cellScalars,
                            cellIter->GetCellId());
           }
@@ -938,6 +935,12 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
     unsigned char cellTypeDimensions[VTK_NUMBER_OF_CELL_TYPES];
     vtkCutter::GetCellTypeDimensions(cellTypeDimensions);
     int dimensionality;
+
+    // Compute some information for progress methods
+    //
+    vtkIdType progressInterval = numCells/20 + 1;
+    int cellId=0;
+
     // We skip 0d cells (points), because they cannot be cut (generate no data).
     for (dimensionality = 1; dimensionality <= 3; ++dimensionality)
     {
@@ -948,6 +951,13 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
            !cellIter->IsDoneWithTraversal() && !abortExecute;
            cellIter->GoToNextCell())
       {
+        if (!(++cellId % progressInterval) )
+        {
+          vtkDebugMacro(<<"Cutting #" << cellId);
+          this->UpdateProgress (static_cast<double>(cellId)/numCells);
+          abortExecute = this->GetAbortExecute();
+        }
+
         // Just fetch the cell type -- least expensive.
         cellType = cellIter->GetCellType();
 
@@ -1000,12 +1010,6 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
           for (contourIter = contourValues; contourIter != contourValuesEnd;
                ++contourIter)
           {
-            if (dimensionality == 3 && !(++cut % progressInterval) )
-            {
-              vtkDebugMacro(<<"Cutting #" << cut);
-              this->UpdateProgress (static_cast<double>(cut)/numCuts);
-              abortExecute = this->GetAbortExecute();
-            }
             helper.Contour(cell.GetPointer(), *contourIter, cellScalars,
                            cellIter->GetCellId());
           } // for all contour values
