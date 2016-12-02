@@ -1701,25 +1701,55 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
     this->LastLightComplexity[&cellBO] = lightComplexity;
   }
 
+  // has something changed that would require us to recreate the shader?
+  // candidates are
+  // -- property modified (representation interpolation and lighting)
+  // -- input modified if it changes the presence of normals/tcoords
+  // -- light complexity changed
+  // -- any render pass that requires it
+  // -- some selection state changes
+  // we do some quick simple tests first
+
   // Have the renderpasses changed?
   vtkMTimeType renderPassMTime = this->GetRenderPassStageMTime(actor);
 
-  // has something changed that would require us to recreate the shader?
-  // candidates are
-  // property modified (representation interpolation and lighting)
-  // input modified
-  // light complexity changed
+  // shape of input data changed?
+  unsigned int scv
+    = (this->CurrentInput->GetPointData()->GetNormals() ? 0x01 : 0)
+    + (this->VBO->TCoordComponents ? 0x02 : 0)
+    + (this->HaveCellScalars ? 0x04 : 0)
+    + (this->HaveCellNormals ? 0x08 : 0)
+    + (this->HavePickScalars ? 0x10 : 0)
+    + (this->VBO->ColorComponents ? 0x20 : 0)
+    + ((this->VBO->TCoordComponents % 4) << 6);
+
   if (cellBO.Program == 0 ||
       cellBO.ShaderSourceTime < this->GetMTime() ||
-      cellBO.ShaderSourceTime < actor->GetMTime() ||
-      cellBO.ShaderSourceTime < this->CurrentInput->GetMTime() ||
+      cellBO.ShaderSourceTime < actor->GetProperty()->GetMTime() ||
+      cellBO.ShaderSourceTime < this->LightComplexityChanged[&cellBO] ||
       cellBO.ShaderSourceTime < this->SelectionStateChanged ||
       cellBO.ShaderSourceTime < renderPassMTime ||
-      cellBO.ShaderSourceTime < this->LightComplexityChanged[&cellBO]
-      || this->ValuePassHelper->RequiresShaderRebuild()
-      )
+      this->ValuePassHelper->RequiresShaderRebuild() ||
+      cellBO.ShaderChangeValue != scv)
   {
+    cellBO.ShaderChangeValue = scv;
     return true;
+  }
+
+  // if texturing then texture componets/blend funcs may have changed
+  if (this->VBO->TCoordComponents)
+  {
+    vtkMTimeType texMTime = 0;
+    std::vector<vtkTexture *> textures = this->GetTextures(actor);
+    for (size_t i = 0; i < textures.size(); ++i)
+    {
+      vtkTexture *texture = textures[i];
+      texMTime = (texture->GetMTime() > texMTime ? texture->GetMTime() : texMTime);
+      if (cellBO.ShaderSourceTime < texMTime)
+      {
+        return true;
+      }
+    }
   }
 
   return false;
