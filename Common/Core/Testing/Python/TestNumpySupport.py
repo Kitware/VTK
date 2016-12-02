@@ -128,11 +128,11 @@ class TestNumpySupport(Testing.vtkTest):
         numpy_vtk_array = dsa.vtkDataArrayToVTKArray(vtk_array)
         s = numpy_vtk_array.sum()
         self.assertEqual(s, 45)
-        self.assertEqual(type(s), numpy.int64)
+        self.assertTrue(isinstance(s, numpy.signedinteger))
 
         m = numpy_vtk_array.mean()
         self.assertEqual(m, 4.5)
-        self.assertEqual(type(m), numpy.float64)
+        self.assertTrue(isinstance(m, numpy.floating))
 
 if __name__ == "__main__":
     Testing.main([(TestNumpySupport, 'test')])
