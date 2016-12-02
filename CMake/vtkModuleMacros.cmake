@@ -130,6 +130,9 @@ macro(vtk_module _name)
   endforeach()
   list(SORT ${vtk-module}_DEPENDS) # Deterministic order.
   set(${vtk-module}_LINK_DEPENDS "${${vtk-module}_DEPENDS}")
+  set(${vtk-module}_WRAP_DEPENDS
+    ${${vtk-module}_DEPENDS}
+    ${${vtk-module}_PRIVATE_DEPENDS})
   list(APPEND ${vtk-module}_DEPENDS
     ${${vtk-module}_COMPILE_DEPENDS}
     ${${vtk-module}_PRIVATE_DEPENDS})

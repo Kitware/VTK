@@ -89,7 +89,7 @@ function(vtk_add_python_wrapping_library module srcs)
 
   # Figure out the dependent PythonXYD libraries for the module
   set(extra_links)
-  foreach(dep IN LISTS ${module}_DEPENDS)
+  foreach(dep IN LISTS ${module}_WRAP_DEPENDS)
     if(NOT "${module}" STREQUAL "${dep}" AND TARGET ${dep}PythonD)
       list(APPEND extra_links ${dep}PythonD)
     endif()
