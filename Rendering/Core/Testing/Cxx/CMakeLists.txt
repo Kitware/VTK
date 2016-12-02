@@ -57,9 +57,11 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestGlyph3DMapper.cxx
   TestGlyph3DMapper2.cxx,NO_VALID,NO_RT,NO_DATA
   TestGlyph3DMapperArrow.cxx
+  TestGlyph3DMapperIndexing.cxx,NO_DATA
   TestGlyph3DMapperMasking.cxx
   TestGlyph3DMapperOrientationArray.cxx
   TestGlyph3DMapperPicking.cxx
+  TestGlyph3DMapperTreeIndexing.cxx,NO_DATA
   TestGradientBackground.cxx
   TestHiddenLineRemovalPass.cxx
   TestHomogeneousTransformOfActor.cxx

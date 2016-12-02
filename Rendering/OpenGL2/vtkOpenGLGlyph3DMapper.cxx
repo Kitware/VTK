@@ -18,6 +18,8 @@
 #include "vtkBitArray.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkDataObjectTree.h"
+#include "vtkDataObjectTreeIterator.h"
 #include "vtkHardwareSelector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -30,6 +32,42 @@
 #include "vtkSmartPointer.h"
 
 #include <map>
+
+namespace {
+int getNumberOfChildren(vtkDataObjectTree *tree)
+{
+  int result = 0;
+  if (tree)
+  {
+    vtkDataObjectTreeIterator *it = tree->NewTreeIterator();
+    it->SetTraverseSubTree(false);
+    for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
+    {
+      ++result;
+    }
+    it->Delete();
+  }
+  return result;
+}
+
+vtkDataObject* getChildDataObject(vtkDataObjectTree *tree, int child)
+{
+  vtkDataObject *result = NULL;
+  if (tree)
+  {
+    vtkDataObjectTreeIterator *it = tree->NewTreeIterator();
+    it->SetTraverseSubTree(false);
+    it->InitTraversal();
+    for (int i = 0; i < child; ++i)
+    {
+      it->GoToNextItem();
+    }
+    result = it->GetCurrentDataObject();
+    it->Delete();
+  }
+  return result;
+}
+}
 
 class vtkOpenGLGlyph3DMappervtkColorMapper : public vtkMapper
 {
@@ -190,7 +228,7 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
   // Check input for consistency
   //
   // Create a default source, if no source is specified.
-  if (this->GetSource(0) == 0)
+  if (!this->UseSourceTableTree && this->GetSource(0) == 0)
   {
     vtkPolyData *defaultSource = vtkPolyData::New();
     defaultSource->Allocate();
@@ -208,6 +246,50 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
     defaultSource = NULL;
     defaultPoints->Delete();
     defaultPoints = NULL;
+  }
+
+  // Check that source configuration is sane:
+  vtkDataObjectTree *sourceTableTree = this->GetSourceTableTree();
+  int numSourceDataSets = this->GetNumberOfInputConnections(1);
+  if (this->UseSourceTableTree)
+  {
+    if (numSourceDataSets > 1)
+    {
+      vtkErrorMacro("UseSourceTableTree is true, but multiple source datasets "
+                    "are set.");
+      return;
+    }
+    if (!sourceTableTree)
+    {
+      vtkErrorMacro("UseSourceTableTree is true, but the source dataset is "
+                    "not a vtkDataObjectTree.");
+      return;
+    }
+    vtkDataObjectTreeIterator *it = sourceTableTree->NewTreeIterator();
+    it->SetTraverseSubTree(false);
+    for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
+    {
+      vtkDataObject *node = it->GetCurrentDataObject();
+      if (!node->IsA("vtkPolyData"))
+      {
+        vtkErrorMacro("The source table tree must only contain vtkPolyData "
+                      "children.");
+        return;
+      }
+    }
+    it->Delete();
+  }
+  else
+  {
+    for (int i = 0; i < numSourceDataSets; ++i)
+    {
+      if (!this->GetSource(i))
+      {
+        vtkErrorMacro("Source input at index " << i << " not set, or not "
+                      "vtkPolyData.");
+        return;
+      }
+    }
   }
 
   // Render the input dataset or every dataset in the input composite dataset.
@@ -279,7 +361,11 @@ void vtkOpenGLGlyph3DMapper::Render(
   }
 
   // make sure we have a subentry for each source
-  unsigned int numberOfSources = this->GetNumberOfInputConnections(1);
+  vtkDataObjectTree *sourceTableTree = this->GetSourceTableTree();
+  int sTTSize = getNumberOfChildren(sourceTableTree);
+  int numSourceDataSets = this->GetNumberOfInputConnections(1);
+  size_t numberOfSources = this->UseSourceTableTree ? sTTSize
+                                                    : numSourceDataSets;
   bool numberOfSourcesChanged = false;
   if (numberOfSources != subarray->Entries.size())
   {
@@ -293,9 +379,18 @@ void vtkOpenGLGlyph3DMapper::Render(
   }
 
   // make sure sources are up to date
+  vtkDataObjectTreeIterator *sTTIter = NULL;
+  if (sourceTableTree)
+  {
+    sTTIter = sourceTableTree->NewTreeIterator();
+    sTTIter->SetTraverseSubTree(false);
+    sTTIter->InitTraversal();
+  }
   for (size_t cc = 0; cc < subarray->Entries.size(); cc++)
   {
-    vtkPolyData *s = this->GetSource(static_cast<int>(cc));
+    vtkPolyData *s = this->UseSourceTableTree
+        ? vtkPolyData::SafeDownCast(sTTIter->GetCurrentDataObject())
+        : this->GetSource(static_cast<int>(cc));
     vtkOpenGLGlyph3DHelper *gh = subarray->Entries[cc]->Mapper;
     vtkPolyData *ss = gh->GetInput();
     if (s->GetMTime() > ss->GetMTime() || numberOfSourcesChanged)
@@ -304,6 +399,15 @@ void vtkOpenGLGlyph3DMapper::Render(
       // Copy mapper ivar to sub-mapper
       this->CopyInformationToSubMapper(gh);
     }
+    if (sTTIter)
+    {
+      sTTIter->GoToNextItem();
+    }
+  }
+  if (sTTIter)
+  {
+    sTTIter->Delete();
+    sTTIter = NULL;
   }
 
   vtkHardwareSelector* selector = ren->GetSelector();
@@ -506,6 +610,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
 
   // loop over every point and fill structures
   int index = 0;
+  vtkDataObjectTree *sourceTableTree = this->GetSourceTableTree();
   for (vtkIdType inPtId = 0; inPtId < numPts; inPtId++)
   {
     if (!(inPtId % 10000))
@@ -533,7 +638,9 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
     }
 
     // source can be null.
-    vtkPolyData *source = this->GetSource(index);
+    vtkPolyData *source = this->UseSourceTableTree
+        ? vtkPolyData::SafeDownCast(getChildDataObject(sourceTableTree, index))
+        : this->GetSource(index);
 
     // Make sure we're not indexing into empty glyph
     if (source)

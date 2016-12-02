@@ -33,6 +33,8 @@
 #include "vtkGlyph3D.h" // for the constants (VTK_SCALE_BY_SCALAR, ...).
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
 
+class vtkDataObjectTree;
+
 class VTKRENDERINGCORE_EXPORT vtkGlyph3DMapper : public vtkMapper
 {
 public:
@@ -71,6 +73,15 @@ public:
   void SetSourceData(int idx, vtkPolyData *pd);
 
   /**
+   * Specify a data object tree that will be used for the source table. Requires
+   * UseSourceTableTree to be true. The top-level nodes of the tree are mapped
+   * to the source data inputs.
+   *
+   * Must only contain vtkPolyData instances.
+   */
+  void SetSourceTableTree(vtkDataObjectTree *tree);
+
+  /**
    * Set the source to use for he glyph.
    * Note that this method does not connect the pipeline. The algorithm will
    * work on the input data as it is without updating the producer of the data.
@@ -82,6 +93,11 @@ public:
    * Get a pointer to a source object at a specified table location.
    */
   vtkPolyData *GetSource(int idx = 0);
+
+  /**
+   * Convenience method to get the source table tree, if it exists.
+   */
+  vtkDataObjectTree* GetSourceTableTree();
 
   //@{
   /**
@@ -189,6 +205,16 @@ public:
   vtkGetMacro(SourceIndexing, bool);
   vtkBooleanMacro(SourceIndexing, bool);
   //@}
+
+  //@{
+  /**
+   * If true, and the glyph source dataset is a subclass of vtkDataObjectTree,
+   * the top-level members of the tree will be mapped to the glyph source table
+   * used for SourceIndexing.
+   */
+  vtkSetMacro(UseSourceTableTree, bool)
+  vtkGetMacro(UseSourceTableTree, bool)
+  vtkBooleanMacro(UseSourceTableTree, bool)
 
   //@{
   /**
@@ -394,6 +420,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   vtkPolyData *GetSource(int idx, vtkInformationVector *sourceInfo);
+  vtkPolyData *GetSourceTable(int idx, vtkInformationVector *sourceInfo);
 
   //@{
   /**
@@ -419,6 +446,8 @@ protected:
   bool Masking; // Enable/disable masking.
   int OrientationMode;
   bool NestedDisplayLists; // boolean
+
+  bool UseSourceTableTree; // Map DataObjectTree glyph source into table
 
   unsigned int SelectionColorId;
   int SelectMode;

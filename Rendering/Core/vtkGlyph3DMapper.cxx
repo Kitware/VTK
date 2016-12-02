@@ -20,11 +20,13 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
+#include "vtkDataObjectTree.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkProperty.h"
@@ -58,6 +60,7 @@ vtkGlyph3DMapper::vtkGlyph3DMapper()
   this->Orient = true;
   this->Clamping = false;
   this->SourceIndexing = false;
+  this->UseSourceTableTree = false;
   this->UseSelectionIds = false;
   this->OrientationMode = vtkGlyph3DMapper::DIRECTION;
 
@@ -288,6 +291,15 @@ void vtkGlyph3DMapper::SetSourceData(int idx, vtkPolyData *pd)
 }
 
 // ---------------------------------------------------------------------------
+void vtkGlyph3DMapper::SetSourceTableTree(vtkDataObjectTree *tree)
+{
+  vtkNew<vtkTrivialProducer> tp;
+  tp->SetOutput(tree);
+  this->SetNumberOfInputConnections(1, 1);
+  this->SetInputConnection(1, tp->GetOutputPort());
+}
+
+// ---------------------------------------------------------------------------
 void vtkGlyph3DMapper::SetSourceData(vtkPolyData *pd)
 {
   this->SetSourceData(0,pd);
@@ -303,7 +315,16 @@ vtkPolyData *vtkGlyph3DMapper::GetSource(int idx)
   }
 
   return vtkPolyData::SafeDownCast(
-    this->GetExecutive()->GetInputData(1, idx));
+        this->GetExecutive()->GetInputData(1, idx));
+}
+
+// ---------------------------------------------------------------------------
+vtkDataObjectTree *vtkGlyph3DMapper::GetSourceTableTree()
+{
+  return this->UseSourceTableTree
+      ? vtkDataObjectTree::SafeDownCast(
+          this->GetExecutive()->GetInputData(1, 0))
+      : NULL;
 }
 
 // ---------------------------------------------------------------------------
@@ -336,21 +357,28 @@ void vtkGlyph3DMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  if ( this->GetNumberOfInputConnections(1) < 2 )
+  if (this->UseSourceTableTree)
   {
-    if ( this->GetSource(0) != NULL )
+    if ( this->GetNumberOfInputConnections(1) < 2 )
     {
-      os << indent << "Source: (" << this->GetSource(0) << ")\n";
+      if ( this->GetSource(0) != NULL )
+      {
+        os << indent << "Source: (" << this->GetSource(0) << ")\n";
+      }
+      else
+      {
+        os << indent << "Source: (none)\n";
+      }
     }
     else
     {
-      os << indent << "Source: (none)\n";
+      os << indent << "A table of " << this->GetNumberOfInputConnections(1)
+         << " glyphs has been defined\n";
     }
   }
   else
   {
-    os << indent << "A table of " << this->GetNumberOfInputConnections(1)
-      << " glyphs has been defined\n";
+    os << indent << "SourceTableTree: (" << this->GetSourceTableTree() << ")\n";
   }
 
   os << indent << "Scaling: " << (this->Scaling ? "On\n" : "Off\n");
@@ -364,6 +392,8 @@ void vtkGlyph3DMapper::PrintSelf(ostream& os, vtkIndent indent)
     << this->GetOrientationModeAsString() << "\n";
   os << indent << "SourceIndexing: "
     << (this->SourceIndexing? "On" : "Off") << endl;
+  os << indent << "UseSourceTableTree: "
+     << (this->UseSourceTableTree ? "On" : "Off") << endl;
   os << indent << "UseSelectionIds: "
      << (this->UseSelectionIds? "On" : "Off") << endl;
   os << indent << "SelectMode: " << this->SelectMode << endl;
@@ -410,7 +440,8 @@ int vtkGlyph3DMapper::FillInputPortInformation(int port,
   {
     info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObjectTree");
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
     return 1;
   }
   return 0;
@@ -467,7 +498,7 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
     den=1.0;
   }
 
-  if(this->GetSource(0)==0)
+  if(!this->UseSourceTableTree && this->GetSource(0)==0)
   {
     vtkPolyData *defaultSource = vtkPolyData::New();
     defaultSource->Allocate();
