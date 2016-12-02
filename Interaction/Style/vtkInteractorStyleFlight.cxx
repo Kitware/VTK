@@ -17,6 +17,7 @@
 #include "vtkCamera.h"
 #include "vtkPerspectiveTransform.h"
 #include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
@@ -111,6 +112,8 @@ vtkInteractorStyleFlight::vtkInteractorStyleFlight()
   this->DefaultUpVector[0] = 0;
   this->DefaultUpVector[1] = 0;
   this->DefaultUpVector[2] = 1;
+
+  this->MotionFactor   = 10.0;
   //
   PID_Yaw     = new CPIDControl(-0.05, 0.0, -0.0008);
   PID_Pitch   = new CPIDControl(-0.05, 0.0, -0.0008);
@@ -131,6 +134,9 @@ void vtkInteractorStyleFlight::ForwardFly()
     {
     return;
     }
+
+  vtkRenderWindowInteractor *rwi = this->Interactor;
+
   vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
   //
   if (this->KeysDown)
@@ -144,6 +150,8 @@ void vtkInteractorStyleFlight::ForwardFly()
     }
   //
   this->FinishCamera(camera);
+
+  rwi->Render();
 }
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::ReverseFly()
@@ -277,11 +285,27 @@ void vtkInteractorStyleFlight::OnLeftButtonUp()
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::OnMiddleButtonDown()
 {
+	cout << "OnMiddleButtonDown" << endl;
+	
 }
 
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::OnMiddleButtonUp()
 {
+	cout << "OnMiddleButtonUp" << endl;
+	
+}
+
+void vtkInteractorStyleFlight::OnMouseWheelBackward()
+{
+	cout << "OnMouseWheelBackward" << endl;
+	
+}
+
+void vtkInteractorStyleFlight::OnMouseWheelForward()
+{
+	cout << "OnMouseWheelForward" << endl;
+	
 }
 
 //---------------------------------------------------------------------------
@@ -339,27 +363,21 @@ void vtkInteractorStyleFlight::OnKeyDown()
 #ifdef _WIN32
   switch (this->Interactor->GetKeyCode())
     {
-    case VK_LEFT        : this->KeysDown |=1;  break;
-    case VK_RIGHT       : this->KeysDown |=2;  break;
-    case VK_UP          : this->KeysDown |=4;  break;
-    case VK_DOWN        : this->KeysDown |=8;  break;
     case 'a':
     case 'A'            : this->KeysDown |=16; break;
     case 'z':
     case 'Z'            : this->KeysDown |=32; break;
     }
-  if ((this->KeysDown & (32+16)) == (32+16))
-    {
-    if (this->State==VTKIS_FORWARDFLY)
-      {
-      this->EndForwardFly();
-      }
-    if (this->State==VTKIS_REVERSEFLY)
-      {
-      this->EndReverseFly();
-      }
-    }
-  else if ((this->KeysDown & 32) == 32)
+
+    vtkRenderWindowInteractor *rwi = this->Interactor;
+    std::string key = rwi->GetKeySym();
+    
+    if(key == "Left") {this->KeysDown |=1;}
+    if(key == "Right"){this->KeysDown |=2;}
+    if(key == "Up")   {this->KeysDown |=4;}
+    if(key == "Down") {this->KeysDown |=8;}
+    
+  if ((this->KeysDown & 32) == 32)
     {
     if (this->State==VTKIS_FORWARDFLY)
       {
@@ -391,15 +409,20 @@ void vtkInteractorStyleFlight::OnKeyUp()
 #ifdef _WIN32
   switch (this->Interactor->GetKeyCode())
     {
-    case VK_LEFT        : this->KeysDown &= ~1;  break;
-    case VK_RIGHT       : this->KeysDown &= ~2;  break;
-    case VK_UP          : this->KeysDown &= ~4;  break;
-    case VK_DOWN        : this->KeysDown &= ~8;  break;
     case 'a':
     case 'A'            : this->KeysDown &= ~16; break;
     case 'z':
     case 'Z'            : this->KeysDown &= ~32; break;
     }
+
+	 vtkRenderWindowInteractor *rwi = this->Interactor;
+    std::string key = rwi->GetKeySym();
+    
+    if(key == "Left") {this->KeysDown &= ~1;}
+    if(key == "Right"){this->KeysDown &= ~2;}
+    if(key == "Up")   {this->KeysDown &= ~4;}
+    if(key == "Down") {this->KeysDown &= ~8;}
+    
   switch (this->State)
     {
     case VTKIS_FORWARDFLY:
@@ -432,9 +455,11 @@ void vtkInteractorStyleFlight::OnChar()
     {
     case '+' :
       this->MotionUserScale *= 2.0;
+      cout << "MotionUserScale " << MotionUserScale << endl;
       break;
     case '-' :
       this->MotionUserScale *= 0.5;
+      cout << "MotionUserScale " << MotionUserScale << endl;
       break;
     default:
       this->Superclass::OnChar();
@@ -677,7 +702,7 @@ void vtkInteractorStyleFlight::FlyByMouse(vtkCamera* cam)
     if (this->DeltaYaw!=0.0)
       {
       this->GetLRVector(a_vector, cam);
-      this->MotionAlongVector(a_vector,-this->DeltaYaw*speed/2.0, cam);
+      this->MotionAlongVector(a_vector, this->DeltaYaw*speed/2.0, cam);
       }
     if (this->DeltaPitch!=0.0)
       {
@@ -727,11 +752,11 @@ void vtkInteractorStyleFlight::FlyByKey(vtkCamera* cam)
     this->GetLRVector(a_vector, cam);
     if (this->KeysDown & 1)
       {
-      this->MotionAlongVector(a_vector,-speed, cam);
+      this->MotionAlongVector(a_vector, speed, cam);
       }
     if (this->KeysDown & 2)
       {
-      this->MotionAlongVector(a_vector, speed, cam);
+      this->MotionAlongVector(a_vector,-speed, cam);
       }
     }
   else
@@ -763,11 +788,11 @@ void vtkInteractorStyleFlight::FlyByKey(vtkCamera* cam)
     {
     if (this->KeysDown & 4)
       {
-      cam->Pitch(-aspeed);
+      cam->Pitch( aspeed);
       }
     if (this->KeysDown & 8)
       {
-      cam->Pitch( aspeed);
+      cam->Pitch(-aspeed);
       }
     }
 
@@ -775,11 +800,11 @@ void vtkInteractorStyleFlight::FlyByKey(vtkCamera* cam)
   cam->GetDirectionOfProjection(a_vector);
   if (this->KeysDown & 16)
     {
-    this->MotionAlongVector(a_vector, speed, cam);
+    this->MotionAlongVector(a_vector,-speed, cam);
     }
   if (this->KeysDown & 32)
     {
-    this->MotionAlongVector(a_vector,-speed, cam);
+    this->MotionAlongVector(a_vector, speed, cam);
     }
 }
 

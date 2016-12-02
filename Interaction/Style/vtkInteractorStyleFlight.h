@@ -40,6 +40,7 @@ class vtkPerspectiveTransform;
 
 class CPIDControl;
 
+
 class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleFlight : public vtkInteractorStyle
 {
 public:
@@ -99,6 +100,8 @@ public:
   virtual void OnLeftButtonUp();
   virtual void OnMiddleButtonDown();
   virtual void OnMiddleButtonUp();
+  virtual void OnMouseWheelForward();
+  virtual void OnMouseWheelBackward();
   virtual void OnRightButtonDown();
   virtual void OnRightButtonUp();
 
@@ -151,6 +154,8 @@ protected:
   double        DeltaPitch;
   double        lPitch;
 
+  double MotionFactor;
+	
   CPIDControl  *PID_Yaw;
   CPIDControl  *PID_Pitch;
 
