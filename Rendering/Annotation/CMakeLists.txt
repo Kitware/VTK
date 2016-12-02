@@ -15,6 +15,7 @@ set(Module_SRCS
   vtkLeaderActor2D.cxx
   vtkLegendBoxActor.cxx
   vtkLegendScaleActor.cxx
+  vtkParallelCoordinatesActor.cxx
   vtkPieChartActor.cxx
   vtkPolarAxesActor.cxx
   vtkProp3DAxisFollower.cxx

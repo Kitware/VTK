@@ -15,7 +15,7 @@ vtk_add_test_python(
   TestCameraInterpolator.py
   TestMapperLUT.py,NO_VALID
   TestOnePoint.py
-  # TestParallelCoordinates.py) # disabled in TCL too
+  TestParallelCoordinates.py
   TestRotate.py
   TestTransformInterpolator.py
   TransformConcatenation.py
