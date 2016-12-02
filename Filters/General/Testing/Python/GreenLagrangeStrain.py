@@ -24,10 +24,10 @@ points.InsertPoint(4, 0, 0, 1)
 points.InsertPoint(5, 1, 0, 1)
 points.InsertPoint(6, 1, 1, 1)
 points.InsertPoint(7, 0, 1, 1)
-#for k_point in xrange(8): print points.GetPoint(k_point)
+#for k_point in range(8): print points.GetPoint(k_point)
 
 hexahedron = vtk.vtkHexahedron()
-for k_point in xrange(8):
+for k_point in range(8):
     hexahedron.GetPointIds().SetId(k_point, k_point)
 
 cell_array = vtk.vtkCellArray()
@@ -91,7 +91,7 @@ for F in F_lst:
     GU = F - numpy.eye(3)
     print("GU = " + str(GU))
 
-    for k_point in xrange(8):
+    for k_point in range(8):
         farray_disp.SetTuple(k_point, numpy.dot(GU, points.GetPoint(k_point)))
         #print farray_disp.GetTuple(k_point)
 
