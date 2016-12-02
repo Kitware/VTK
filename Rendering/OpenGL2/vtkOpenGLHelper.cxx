@@ -23,6 +23,7 @@ vtkOpenGLHelper::vtkOpenGLHelper()
   this->Program = NULL;
   this->IBO = vtkOpenGLIndexBufferObject::New();
   this->VAO = vtkOpenGLVertexArrayObject::New();
+  this->ShaderChangeValue = 0;
 }
 
 vtkOpenGLHelper::~vtkOpenGLHelper()
