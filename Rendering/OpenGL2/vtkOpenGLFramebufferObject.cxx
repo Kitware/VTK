@@ -48,6 +48,7 @@ public:
     this->CreatedByFO = false;
     this->ZSlice = 0;
     this->Attached = false;
+    this->Mode = GL_FRAMEBUFFER;
   }
 
   ~vtkFOInfo() {
@@ -99,7 +100,7 @@ public:
         glFramebufferTexture3D(
               (GLenum)this->Mode,
               this->Attachment,
-              GL_TEXTURE_3D,
+              this->Texture->GetTarget(),
               this->Texture->GetHandle(),
               0,
               this->ZSlice);
@@ -113,7 +114,7 @@ public:
         glFramebufferTexture2D(
             (GLenum)this->Mode,
             this->Attachment,
-            GL_TEXTURE_2D,
+            this->Texture->GetTarget(),
             this->Texture->GetHandle(),
             0);
         this->Attached = true;
@@ -206,6 +207,10 @@ public:
 
   void Resize(int size[2])
   {
+    if (this->Texture)
+    {
+      this->Texture->Resize(size[0], size[1]);
+    }
     if (this->Renderbuffer)
     {
       this->Renderbuffer->Resize(size[0], size[1]);
@@ -554,6 +559,36 @@ void vtkOpenGLFramebufferObject::UpdateSize()
     this->ReadDepthBuffer->Resize(this->LastSize);
   }
 
+}
+
+void vtkOpenGLFramebufferObject::Resize(int width, int height)
+{
+  // resize all items
+  this->LastSize[0] = width;
+  this->LastSize[1] = height;
+
+  // loop through all attachments and
+  // verify they are of the same size.
+  for (foIter i = this->DrawColorBuffers.begin();
+    i != this->DrawColorBuffers.end(); i++)
+  {
+    i->second->Resize(this->LastSize);
+  }
+  for (foIter i = this->ReadColorBuffers.begin();
+    i != this->ReadColorBuffers.end(); i++)
+  {
+    i->second->Resize(this->LastSize);
+  }
+
+  // now resize any buffers we created that are the wrong size
+  if (this->DrawDepthBuffer->IsSet())
+  {
+    this->DrawDepthBuffer->Resize(this->LastSize);
+  }
+  if (this->ReadDepthBuffer->IsSet())
+  {
+    this->ReadDepthBuffer->Resize(this->LastSize);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1422,6 +1457,12 @@ bool vtkOpenGLFramebufferObject::GetFrameBufferStatus(
       desc = "FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
       break;
 #endif
+#ifdef GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE
+    case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+      desc = "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
+      break;
+#endif
+
     default:
       desc = "Unknown status";
   }
@@ -1473,6 +1514,11 @@ int vtkOpenGLFramebufferObject::CheckFrameBufferStatus(unsigned int mode)
 #ifdef GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER
     case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
       str = "FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
+      break;
+#endif
+#ifdef GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE
+    case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+      str = "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
       break;
 #endif
     default:
@@ -1794,4 +1840,147 @@ void vtkOpenGLFramebufferObject::SetDepthBuffer(
   {
     this->ReadDepthBuffer->SetRenderbuffer(val, mode, GL_DEPTH_ATTACHMENT);
   }
+}
+
+bool vtkOpenGLFramebufferObject::PopulateFramebuffer(
+  int width, int height)
+{
+  return this->PopulateFramebuffer(width, height,
+    true,
+    1,
+    VTK_UNSIGNED_CHAR,
+    true,
+    24,
+    0);
+}
+
+bool vtkOpenGLFramebufferObject::PopulateFramebuffer(
+    int width,
+    int height,
+    bool useTextures,
+    int numberOfColorAttachments,
+    int colorDataType,
+    bool wantDepthAttachment,
+    int depthBitplanes,
+    int multisamples)
+{
+  // MAX_DEPTH_TEXTURE_SAMPLES
+  this->Bind();
+  this->LastSize[0] = width;
+  this->LastSize[1] = height;
+
+  if (useTextures)
+  {
+    for (int i = 0; i < numberOfColorAttachments; i++)
+    {
+      vtkTextureObject *color = vtkTextureObject::New();
+      color->SetContext(this->Context);
+      color->SetSamples(multisamples);
+      color->SetWrapS(vtkTextureObject::Repeat);
+      color->SetWrapT(vtkTextureObject::Repeat);
+      color->SetMinificationFilter(vtkTextureObject::Nearest);
+      color->SetMagnificationFilter(vtkTextureObject::Nearest);
+      color->Allocate2D(this->LastSize[0],this->LastSize[1],
+        4, colorDataType);
+      this->AddColorAttachment(this->GetBothMode(), i, color);
+      color->Delete();
+    }
+
+    if (wantDepthAttachment)
+    {
+      vtkTextureObject *depth = vtkTextureObject::New();
+      depth->SetContext(this->Context);
+      depth->SetSamples(multisamples);
+      depth->SetWrapS(vtkTextureObject::Repeat);
+      depth->SetWrapT(vtkTextureObject::Repeat);
+      depth->SetMinificationFilter(vtkTextureObject::Nearest);
+      depth->SetMagnificationFilter(vtkTextureObject::Nearest);
+      switch (depthBitplanes)
+      {
+        case 16:
+          depth->AllocateDepth(this->LastSize[0], this->LastSize[1],
+            vtkTextureObject::Fixed16);
+          break;
+        case 32:
+          depth->AllocateDepth(this->LastSize[0], this->LastSize[1],
+            vtkTextureObject::Float32);
+          break;
+        case 24:
+        default:
+          depth->AllocateDepth(this->LastSize[0], this->LastSize[1],
+            vtkTextureObject::Fixed24);
+          break;
+      }
+      this->AddDepthAttachment(this->GetBothMode(), depth);
+      depth->Delete();
+    }
+  }
+  else
+  {
+    for (int i = 0; i < numberOfColorAttachments; i++)
+    {
+      vtkRenderbuffer *color = vtkRenderbuffer::New();
+      color->SetContext(this->Context);
+      switch (colorDataType)
+      {
+        case VTK_UNSIGNED_CHAR:
+          color->Create(GL_RGBA8,
+            this->LastSize[0], this->LastSize[1], multisamples);
+          break;
+        case VTK_FLOAT:
+          color->Create(GL_RGBA32F,
+            this->LastSize[0], this->LastSize[1], multisamples);
+          break;
+      }
+      this->AddColorAttachment(this->GetBothMode(), i, color);
+      color->Delete();
+    }
+
+    if (wantDepthAttachment)
+    {
+      vtkRenderbuffer *depth = vtkRenderbuffer::New();
+      depth->SetContext(this->Context);
+      switch (depthBitplanes)
+      {
+        case 16:
+          depth->Create(GL_DEPTH_COMPONENT16,
+            this->LastSize[0], this->LastSize[1], multisamples);
+          break;
+        case 32:
+          depth->Create(GL_DEPTH_COMPONENT32,
+            this->LastSize[0], this->LastSize[1], multisamples);
+          break;
+        case 24:
+        default:
+          depth->Create(GL_DEPTH_COMPONENT24,
+            this->LastSize[0], this->LastSize[1], multisamples);
+          break;
+      }
+      this->AddDepthAttachment(this->GetBothMode(), depth);
+      depth->Delete();
+    }
+  }
+
+  const char *desc;
+  if (this->GetFrameBufferStatus(this->GetBothMode(), desc))
+  {
+    this->ActivateDrawBuffer(0);
+    this->ActivateReadBuffer(0);
+    return true;
+  }
+  return false;
+}
+
+int vtkOpenGLFramebufferObject::GetNumberOfColorAttachments(unsigned int mode)
+{
+  if (mode == GL_DRAW_FRAMEBUFFER)
+  {
+    return static_cast<int>(this->DrawColorBuffers.size());
+  }
+  if (mode == GL_READ_FRAMEBUFFER)
+  {
+    return static_cast<int>(this->ReadColorBuffers.size());
+  }
+  return static_cast<int>(
+    this->DrawColorBuffers.size() + this->ReadColorBuffers.size());
 }

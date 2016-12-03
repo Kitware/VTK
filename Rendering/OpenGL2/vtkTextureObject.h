@@ -146,12 +146,16 @@ public:
   vtkGetMacro(Width, unsigned int);
   vtkGetMacro(Height, unsigned int);
   vtkGetMacro(Depth, unsigned int);
+  vtkGetMacro(Samples, unsigned int);
   vtkGetMacro(Components, int);
   unsigned int GetTuples()
   { return this->Width*this->Height*this->Depth; }
   //@}
 
   vtkGetMacro(NumberOfDimensions, int);
+
+  //for MSAA textures set the number of samples
+  vtkSetMacro(Samples, unsigned int);
 
   //@{
   /**
@@ -355,9 +359,11 @@ public:
    * Create texture without uploading any data.
    */
   bool Create2D(unsigned int width, unsigned int height, int numComps,
-                int vtktype, bool shaderSupportsTextureInt);
+                int vtktype, bool ){
+    return this->Allocate2D(width, height, numComps, vtktype); }
   bool Create3D(unsigned int width, unsigned int height, unsigned int depth,
-                int numComps, int vtktype, bool shaderSupportsTextureInt);
+                int numComps, int vtktype, bool ) {
+    return this->Allocate3D(width, height, depth, numComps, vtktype); }
   //@}
 
   /**
@@ -728,6 +734,10 @@ public:
    */
   void GetShiftAndScale(float &shift, float &scale);
 
+  // resizes an existing texture, any existing
+  // data values are lost
+  void Resize(unsigned int width, unsigned int height);
+
 protected:
   vtkTextureObject();
   ~vtkTextureObject();
@@ -753,6 +763,7 @@ protected:
   unsigned int Width;
   unsigned int Height;
   unsigned int Depth;
+  unsigned int Samples;
 
   unsigned int Target; // GLenum
   unsigned int Format; // GLenum

@@ -43,7 +43,6 @@ vtkCxxSetObjectMacro(vtkDepthPeelingPass,TranslucentPass,vtkRenderPass);
 vtkDepthPeelingPass::vtkDepthPeelingPass()
 {
   this->TranslucentPass=0;
-  this->IsSupported=false;
 
   this->OcclusionRatio=0.0;
   this->MaximumNumberOfPeels=4;

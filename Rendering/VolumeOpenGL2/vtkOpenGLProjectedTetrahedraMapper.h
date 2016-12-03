@@ -45,6 +45,7 @@ class vtkVisibilitySort;
 class vtkUnsignedCharArray;
 class vtkFloatArray;
 class vtkRenderWindow;
+class vtkOpenGLFramebufferObject;
 class vtkOpenGLRenderWindow;
 class vtkOpenGLVertexBufferObject;
 
@@ -84,7 +85,7 @@ protected:
   void Initialize(vtkRenderer *ren);
   bool Initialized;
   int  CurrentFBOWidth, CurrentFBOHeight;
-  bool AllocateFBOResources(vtkRenderer *ren);
+  bool AllocateFOResources(vtkRenderer *ren);
   bool CanDoFloatingPointFrameBuffer;
   bool FloatingPointFrameBufferResourcesAllocated;
   bool UseFloatingPointFrameBuffer;
@@ -108,6 +109,8 @@ protected:
   int GaveError;
 
   vtkVolumeProperty *LastProperty;
+
+  vtkOpenGLFramebufferObject *Framebuffer;
 
   float *SqrtTable;
   float SqrtTableBias;

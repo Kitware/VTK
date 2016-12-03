@@ -700,15 +700,27 @@ int vtkOpenGLRenderWindow::GetDepthBufferSize()
 {
   GLint size;
 
-  if ( this->Mapped )
+  if ( this->Initialized )
   {
     this->MakeCurrent();
     size = 0;
     if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
     {
-      glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
-        GL_DEPTH,
-        GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &size);
+      GLint fboBind = 0;
+      glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &fboBind);
+
+      if (fboBind == 0)
+      {
+        glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
+          GL_DEPTH,
+          GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &size);
+      }
+      else
+      {
+        glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
+          GL_DEPTH_ATTACHMENT,
+          GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &size);
+      }
     }
     else
     {
@@ -718,7 +730,7 @@ int vtkOpenGLRenderWindow::GetDepthBufferSize()
   }
   else
   {
-    vtkDebugMacro(<< "Window is not mapped yet!" );
+    vtkDebugMacro(<< "OpenGL is not initialized yet!" );
     return 24;
   }
 }
