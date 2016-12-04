@@ -55,7 +55,21 @@
  *  - deactivate the texture obj and then render with the texture obj
  *    as a texture passed into the shader
  *
- * Typical use case:
+ * Typical use cases:
+ * The simplest example
+ *\code{.cpp}
+ * fbo->SetContext(renWin);
+ * fbo->SaveCurrentBindingsAndBuffers();
+ * fbo->PopulateFramebuffer(width, height);
+ * fbo->Start();
+ *
+ * ...
+ *
+ * fbo->RestorePreviousBindingsAndBuffers();
+ *\endcode
+ *
+ * If you wish to use a texture you created
+ *
  *\code{.cpp}
  * fbo->SetContext(renWin);
  * fbo->SaveCurrentBindingsAndBuffers();
@@ -67,7 +81,6 @@
  *
  * ...
  *
- * fbo->UnBind();
  * fbo->RestorePreviousBindingsAndBuffers();
  *\endcode
  *
@@ -82,7 +95,6 @@
  * fbo->Bind();
  * fbo->AddColorAttachment(0, vtkTextureObj);
  * fbo->AddDepthAttachment(); // auto create depth buffer
- * fbo->UnBind();
  * fbo->RestorePreviousBindingsAndBuffers();
  *
  * // use it many times
@@ -91,7 +103,6 @@
  * fbo->ActivateBuffer(0);
  * fbo->Start();
  * ... // render here etc
- * fbo->UnBind()
  * fbo->RestorePreviousBindingsAndBuffers();
  *\endcode
  *
@@ -307,6 +318,11 @@ public:
   void RemoveColorAttachments(unsigned int mode, unsigned int num);
   //@}
 
+  /**
+   * Return the number of color attachments for the given mode
+   */
+  int GetNumberOfColorAttachments(unsigned int mode);
+
   //@{
   /**
    * Directly assign/remove a texture/renderbuffer to depth attachments.
@@ -317,6 +333,24 @@ public:
   void AddDepthAttachment(unsigned int mode, vtkTextureObject* tex);
   void AddDepthAttachment(unsigned int mode, vtkRenderbuffer* tex);
   void RemoveDepthAttachment(unsigned int mode);
+  //@}
+
+  //@{
+  /**
+   * Convenience method to populate a framebuffer with
+   * attachments created as well. Returns true if a
+   * complete valid Frambuffer was created
+   */
+  bool PopulateFramebuffer(int width, int height);
+  bool PopulateFramebuffer(
+    int width,
+    int height,
+    bool useTextures,
+    int numberOfColorAttachments,
+    int colorDataType,
+    bool wantDepthAttachment,
+    int depthBitplanes,
+    int multisamples);
   //@}
 
   /**
@@ -441,6 +475,11 @@ public:
   static unsigned int GetDrawMode();
   static unsigned int GetReadMode();
   static unsigned int GetBothMode();
+
+  /**
+   * Resize all FO attachments
+   */
+  void Resize(int width, int height);
 
   // Deprecated
   void RemoveTexColorAttachments(unsigned int mode, unsigned int num)

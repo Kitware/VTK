@@ -30,6 +30,8 @@ vtkRenderbuffer::vtkRenderbuffer()
   this->Context = NULL;
   this->Handle = 0U;
   this->DepthBufferFloat = 0;
+  this->Samples = 0;
+  this->Format = GL_RGBA;
 }
 
 //----------------------------------------------------------------------------
@@ -146,17 +148,37 @@ int vtkRenderbuffer::Create(
       unsigned int width,
       unsigned int height)
 {
+  return this->Create(format, width, height, 0);
+}
+
+int vtkRenderbuffer::Create(
+      unsigned int format,
+      unsigned int width,
+      unsigned int height,
+      unsigned int samples)
+{
   assert(this->Context);
 
   glBindRenderbuffer(GL_RENDERBUFFER, (GLuint)this->Handle);
   vtkOpenGLCheckErrorMacro("failed at glBindRenderBuffer");
 
-  glRenderbufferStorage(GL_RENDERBUFFER, (GLenum)format, width, height);
+  if (samples)
+  {
+    glRenderbufferStorageMultisample(
+      GL_RENDERBUFFER,
+      samples, (GLenum)format,
+      width, height);
+  }
+  else
+  {
+    glRenderbufferStorage(GL_RENDERBUFFER, (GLenum)format, width, height);
+  }
   vtkOpenGLCheckErrorMacro("failed at glRenderbufferStorage");
 
   this->Width = width;
   this->Height = height;
   this->Format = format;
+  this->Samples = samples;
 
   return 1;
 }
@@ -171,7 +193,18 @@ void vtkRenderbuffer::Resize(unsigned int width, unsigned int height)
   if (this->Context && this->Handle)
   {
     glBindRenderbuffer(GL_RENDERBUFFER, (GLuint)this->Handle);
-    glRenderbufferStorage(GL_RENDERBUFFER, (GLenum)this->Format, width, height);
+    if (this->Samples)
+    {
+    glRenderbufferStorageMultisample(
+      GL_RENDERBUFFER,
+      this->Samples, (GLenum)this->Format,
+      width, height);
+    }
+    else
+    {
+      glRenderbufferStorage(GL_RENDERBUFFER,
+        (GLenum)this->Format, width, height);
+    }
   }
   this->Width = width;
   this->Height = height;

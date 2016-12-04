@@ -85,6 +85,11 @@ public:
         unsigned int format,
         unsigned int width,
         unsigned int height);
+  int Create(
+        unsigned int format,
+        unsigned int width,
+        unsigned int height,
+        unsigned int samples);
 
   void ReleaseGraphicsResources(vtkWindow *win);
 
@@ -94,10 +99,11 @@ public:
   //@{
   /**
    * Get the buffer dimensions.
-   * These are the properties of the OpenGL texture this instance represents.
+   * These are the properties of the OpenGL renderbuffer this instance represents.
    */
   vtkGetMacro(Width, unsigned int);
   vtkGetMacro(Height, unsigned int);
+  vtkGetMacro(Samples, unsigned int);
   //@}
 
 protected:
@@ -113,6 +119,7 @@ protected:
   unsigned int Width;
   unsigned int Height;
   unsigned int Format;
+  unsigned int Samples;
 
 private:
   unsigned int Handle;

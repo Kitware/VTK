@@ -138,7 +138,6 @@ public:
 
   vtkRenderPass *TranslucentPass;
   vtkTimeStamp CheckTime;
-  bool IsSupported;
 
   //@{
   /**
