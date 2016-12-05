@@ -2970,7 +2970,7 @@ void vtkParsePreprocess_AddStandardMacros(
      * miscellaneous type-related macros
      */
 #ifdef _WCHAR_T_DEFINED
-    PREPROC_ADD_MACRO(info, _WCHAR_T_DEFINED);
+    preproc_add_macro_definition(info, "_WCHAR_T_DEFINED", NULL);
 #endif
 #ifdef _NATIVE_WCHAR_T_DEFINED
     PREPROC_ADD_MACRO(info, _NATIVE_WCHAR_T_DEFINED);
