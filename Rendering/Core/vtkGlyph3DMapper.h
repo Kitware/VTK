@@ -77,7 +77,8 @@ public:
    * UseSourceTableTree to be true. The top-level nodes of the tree are mapped
    * to the source data inputs.
    *
-   * Must only contain vtkPolyData instances.
+   * Must only contain vtkPolyData instances on the OpenGL backend. May contain
+   * vtkCompositeDataSets with vtkPolyData leaves on OpenGL2.
    */
   void SetSourceTableTree(vtkDataObjectTree *tree);
 

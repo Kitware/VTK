@@ -6,6 +6,8 @@ if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
     TestCompositePolyDataMapper2CellScalars.cxx,NO_DATA
     TestCompositePolyDataMapper2MixedGeometryCellScalars.cxx,NO_DATA
     TestCompositePolyDataMapper2MixedGeometryEdges.cxx,NO_DATA
+    # composite glyphs are only supported on OpenGL2.
+    TestGlyph3DMapperTreeIndexingCompositeGlyphs.cxx,NO_DATA
     TestMultiBlockPartialArrayPointData.cxx
     TestMultiBlockPartialArrayFieldData.cxx
     # the following produce incorrect results in OpenGL
