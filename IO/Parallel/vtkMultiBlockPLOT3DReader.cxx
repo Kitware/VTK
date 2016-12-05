@@ -1929,12 +1929,12 @@ int vtkMultiBlockPLOT3DReader::RequestData(
 
       offset += this->GetByteCountSize();
 
-      for (unsigned int j=0; j<nFunctions[i]; j++)
+      for (int j=0; j<nFunctions[i]; j++)
       {
         vtkDataArray* functionArray = this->NewFloatArray();
         functionArray->SetNumberOfTuples(npts);
         std::ostringstream stream;
-        (j < this->FunctionNames.size())
+        (j < static_cast<int>(this->FunctionNames.size()))
             ? stream << this->FunctionNames[j] : stream << "Function" << j;
         const std::string functionName = stream.str();
         functionArray->SetName(functionName.c_str());
