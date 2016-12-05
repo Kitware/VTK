@@ -174,13 +174,6 @@ public:
   virtual int GetEventPending() { return 0;};
 
   int GetOwnWindow() { return this->OwnWindow; };
-  //@{
-  /**
-   * Render without displaying the window.
-   */
-  virtual void SetOffScreenRendering (int value);
-  virtual int GetOffScreenRendering ();
-  //@}
 
   /**
    * Returns the width and height of the allocated EGL surface.
@@ -209,6 +202,7 @@ protected:
   bool IsPointSpriteBugPresent_;
   class vtkInternals;
   vtkInternals* Internals;
+  bool UsePBuffer;
 
   void CreateAWindow();
   void DestroyWindow();

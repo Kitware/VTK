@@ -226,9 +226,7 @@ vtkCocoaRenderWindow::vtkCocoaRenderWindow()
   this->SetWindowName("Visualization Toolkit - Cocoa");
   this->CursorHidden = 0;
   this->ForceMakeCurrent = 0;
-  this->Capabilities = 0;
   this->OnScreenInitialized = 0;
-  this->OffScreenInitialized = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -248,9 +246,6 @@ vtkCocoaRenderWindow::~vtkCocoaRenderWindow()
     ren->SetRenderWindow(NULL);
   }
 
-  delete[] this->Capabilities;
-  this->Capabilities = 0;
-
   this->SetContextId(NULL);
   this->SetPixelFormat(NULL);
   this->SetCocoaServer(NULL);
@@ -265,11 +260,6 @@ vtkCocoaRenderWindow::~vtkCocoaRenderWindow()
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::Finalize()
 {
-  if(this->OffScreenInitialized)
-  {
-    this->OffScreenInitialized = 0;
-    this->DestroyOffScreenWindow();
-  }
   if(this->OnScreenInitialized)
   {
     this->OnScreenInitialized = 0;
@@ -876,6 +866,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
     {
       [theWindow makeKeyAndOrderFront:nil];
       [theWindow setAcceptsMouseMovedEvents:YES];
+      this->Mapped = 1;
     }
   }
 
@@ -986,7 +977,6 @@ void vtkCocoaRenderWindow::CreateAWindow()
     renderer->SetRenderWindow(this);
   }
   this->OpenGLInit();
-  this->Mapped = 1;
 
   // Now that the NSView and NSWindow exist, the vtkCocoaServer can start its observations.
   vtkCocoaServer *server = [[vtkCocoaServer alloc] initWithRenderWindow:this];
@@ -1094,40 +1084,11 @@ void vtkCocoaRenderWindow::CreateGLContext()
 // Initialize the rendering window.
 void vtkCocoaRenderWindow::Initialize ()
 {
-  if(this->OffScreenRendering)
+  // create on screen
+  if(!this->OnScreenInitialized)
   {
-    // destroy on screen
-    if(this->OnScreenInitialized)
-    {
-      this->DestroyWindow();
-      this->OnScreenInitialized = 0;
-    }
-    // create off screen
-    if(!this->OffScreenInitialized)
-    {
-      int width=((this->Size[0]>0) ? this->Size[0] : 300);
-      int height=((this->Size[1]>0) ? this->Size[1] : 300);
-      if(!this->CreateHardwareOffScreenWindow(width,height))
-      {
-        // no other offscreen mode available, do on screen rendering
-        this->CreateAWindow();
-      }
-      this->OffScreenInitialized = 1;
-    }
-  }
-  else
-  {
-    // destroy off screen
-    if(this->OffScreenInitialized)
-    {
-      this->DestroyOffScreenWindow();
-    }
-    // create on screen
-    if(!this->OnScreenInitialized)
-    {
-      this->OnScreenInitialized = 1;
-      this->CreateAWindow();
-    }
+    this->OnScreenInitialized = 1;
+    this->CreateAWindow();
   }
   if((this->OnScreenInitialized) && (this->Mapped))
   {
@@ -1139,20 +1100,6 @@ void vtkCocoaRenderWindow::Initialize ()
     [context setView:(NSView*)this->GetWindowId()];
 
     [context update];
-  }
-}
-
-//-----------------------------------------------------------------------------
-void vtkCocoaRenderWindow::DestroyOffScreenWindow()
-{
-  if(this->OffScreenUseFrameBuffer)
-  {
-    this->DestroyHardwareOffScreenWindow();
-  }
-  else
-  {
-    // on screen
-    this->DestroyWindow();
   }
 }
 
