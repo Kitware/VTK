@@ -34,7 +34,7 @@ class VTKIMAGINGCORE_EXPORT vtkImageResample : public vtkImageReslice
 public:
   static vtkImageResample *New();
   vtkTypeMacro(vtkImageResample,vtkImageReslice);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Set desired spacing.
@@ -70,7 +70,9 @@ protected:
   double OutputSpacing[3];
   int Dimensionality;
 
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *,
+                                 vtkInformationVector **,
+                                 vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   vtkImageResample(const vtkImageResample&) VTK_DELETE_FUNCTION;

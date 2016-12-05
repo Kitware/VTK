@@ -47,7 +47,7 @@ protected:
                             vtkInformationVector** inputVector,
                             vtkInformationVector* outputVector,
                             vtkImageData ***inData, vtkImageData **outData,
-                            int ext[6], int id);
+                            int ext[6], int id) VTK_OVERRIDE;
 private:
   vtkImageWrapPad(const vtkImageWrapPad&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageWrapPad&) VTK_DELETE_FUNCTION;

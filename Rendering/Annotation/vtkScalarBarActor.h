@@ -78,7 +78,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkScalarBarActor : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkScalarBarActor, vtkActor2D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Instantiate object with 64 maximum colors; 5 labels; %%-#6.3g label
@@ -91,22 +91,22 @@ public:
   /**
    * Draw the scalar bar and annotation text to the screen.
    */
-  int RenderOpaqueGeometry(vtkViewport* viewport);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport*) { return 0; };
-  int RenderOverlay(vtkViewport* viewport);
+  int RenderOpaqueGeometry(vtkViewport* viewport) VTK_OVERRIDE;
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport*) VTK_OVERRIDE { return 0; };
+  int RenderOverlay(vtkViewport* viewport) VTK_OVERRIDE;
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  virtual int HasTranslucentPolygonalGeometry();
+  virtual int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by this actor.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow*);
+  virtual void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
 
   /**
    * Fills rect with the dimensions of the scalar bar in viewport coordinates.
@@ -220,7 +220,7 @@ public:
   /**
    * Shallow copy of a scalar bar actor. Overloads the virtual vtkProp method.
    */
-  void ShallowCopy(vtkProp* prop);
+  void ShallowCopy(vtkProp* prop) VTK_OVERRIDE;
 
   //@{
   /**

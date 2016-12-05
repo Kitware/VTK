@@ -36,23 +36,23 @@ class VTKIMAGINGCORE_EXPORT vtkImageStencilData : public vtkDataObject
 public:
   static vtkImageStencilData *New();
   vtkTypeMacro(vtkImageStencilData, vtkDataObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  void Initialize();
-  void DeepCopy(vtkDataObject *o);
-  void ShallowCopy(vtkDataObject *f);
+  void Initialize() VTK_OVERRIDE;
+  void DeepCopy(vtkDataObject *o) VTK_OVERRIDE;
+  void ShallowCopy(vtkDataObject *f) VTK_OVERRIDE;
   void InternalImageStencilDataCopy(vtkImageStencilData *s);
 
   /**
    * Get the data type as an integer (this will return VTK_DATA_OBJECT
    * for now, maybe a proper type constant will be reserved later).
    */
-  int GetDataObjectType() { return VTK_DATA_OBJECT; }
+  int GetDataObjectType() VTK_OVERRIDE { return VTK_DATA_OBJECT; }
 
   /**
    * The extent type is 3D, just like vtkImageData.
    */
-  int GetExtentType() { return VTK_3D_EXTENT; };
+  int GetExtentType() VTK_OVERRIDE { return VTK_3D_EXTENT; };
 
   /**
    * Given the total output x extent [xMin,xMax] and the current y, z indices,
@@ -147,8 +147,8 @@ public:
    * Override these to handle origin, spacing, scalar type, and scalar
    * number of components.  See vtkDataObject for details.
    */
-  virtual void CopyInformationFromPipeline(vtkInformation *info);
-  virtual void CopyInformationToPipeline(vtkInformation *info);
+  virtual void CopyInformationFromPipeline(vtkInformation *info) VTK_OVERRIDE;
+  virtual void CopyInformationToPipeline(vtkInformation *info) VTK_OVERRIDE;
   //@}
 
   //@{

@@ -39,7 +39,7 @@ public:
   static vtkImageStencilAlgorithm *New();
   vtkTypeMacro(vtkImageStencilAlgorithm, vtkAlgorithm);
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -54,7 +54,7 @@ public:
    */
   virtual int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*);
+                             vtkInformationVector*) VTK_OVERRIDE;
 
 protected:
   vtkImageStencilAlgorithm();
@@ -68,7 +68,7 @@ protected:
                                   vtkInformationVector *);
   vtkImageStencilData *AllocateOutputData(vtkDataObject *out, int* updateExt);
 
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  virtual int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
 private:
   vtkImageStencilAlgorithm(const vtkImageStencilAlgorithm&) VTK_DELETE_FUNCTION;
