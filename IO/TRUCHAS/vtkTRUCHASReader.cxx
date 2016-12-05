@@ -290,8 +290,7 @@ public:
     //bids_out is a list of possible block ids
     //every cell in the data says which block it is part of
 
-    //Make sure there are no duplicates
-    //TODO: is this necessary?
+    //Reduce to a unique list of blocks
     std::set<int> unique_blocks;
     int *block = bids_out[0];
     for (unsigned int i = 0; i < dims[0]; i++)
@@ -329,6 +328,7 @@ public:
     }
     this->TopoFileIndx = this->FileIndx;
 
+    //read the cell connectivity
     hid_t elements = H5Dopen
       (this->FileIndx, "/Meshes/DEFAULT/Element Connectivity", H5P_DEFAULT );
     if( elements < 0 )
@@ -367,6 +367,58 @@ public:
     }
 
     H5Dclose(elements);
+
+
+    //read the part ids if present
+    int partnum=1;
+    bool done = false;
+    while (!done)
+    {
+      std::string nextpartname = "/Simulations/MAIN/Non-series Data/part" +
+        to_string(partnum);
+      htri_t exists = H5Lexists(this->FileIndx, nextpartname.c_str(),
+                                H5P_DEFAULT);
+      if( !exists )
+      {
+        //no (more) moving part info
+        done = true;
+      }
+      else
+      {
+        hid_t nextpart = H5Dopen
+        (this->FileIndx, nextpartname.c_str(), H5P_DEFAULT );
+
+        dataspace = H5Dget_space(nextpart);
+        H5Sget_simple_extent_ndims(dataspace);
+        status  = H5Sget_simple_extent_dims(dataspace, dims, NULL);
+        if( status < 0 )
+        {
+          H5Dclose(nextpart);
+          return false;
+        }
+
+        int *blocksinpart = new int[dims[0]];
+        status = H5Dread(nextpart, H5T_NATIVE_INT, H5S_ALL, H5S_ALL,
+                         H5P_DEFAULT, blocksinpart);
+        if( status < 0 )
+        {
+          H5Dclose(nextpart);
+          delete[] blocksinpart;
+          return false;
+        }
+
+        this->part_to_blocks[partnum-1] = std::vector<int>(dims[0]);
+        for (unsigned int i = 0; i < dims[0]; i++)
+        {
+          this->part_to_blocks[partnum-1][i] = blocksinpart[i];
+        }
+        delete[] blocksinpart;
+
+        H5Dclose(nextpart);
+
+        partnum++;
+      }
+    }
     return true;
   }
 
@@ -405,19 +457,19 @@ public:
     }
 
     unsigned int totalNumBlocks = static_cast<unsigned int>(this->blockmap.size());
-    grid.resize(totalNumBlocks);
+    this->grid.resize(totalNumBlocks);
     for(unsigned int b = 0; b < totalNumBlocks; b++)
     {
       if (self->BlockChoices->GetArraySetting(b) != 0)
       {
-        grid[b] = vtkUnstructuredGrid::New();
-        grid[b]->Initialize();
-        grid[b]->SetPoints(this->Points);
-        grid[b]->Allocate();
+        this->grid[b] = vtkUnstructuredGrid::New();
+        this->grid[b]->Initialize();
+        this->grid[b]->SetPoints(this->Points);
+        this->grid[b]->Allocate();
       }
       else
       {
-        grid[b] = NULL;
+        this->grid[b] = NULL;
       }
     }
 
@@ -443,7 +495,7 @@ public:
           {
             list[i] = list[1+i]-1;
           }
-          grid[blockidx]->InsertNextCell(VTK_TETRA, 4, &list[0]);
+          this->grid[blockidx]->InsertNextCell(VTK_TETRA, 4, &list[0]);
         }
         else if (list[4] == list[5])
         { /* pyramid element */
@@ -452,7 +504,7 @@ public:
           {
             list[i] = list[i]-1;
           }
-          grid[blockidx]->InsertNextCell(VTK_PYRAMID, 5, &list[0]);
+          this->grid[blockidx]->InsertNextCell(VTK_PYRAMID, 5, &list[0]);
         }
         else if (list[5] == list[6])
         { /* wedge element */
@@ -466,7 +518,7 @@ public:
           {
             list[i] = list[i]-1;
           }
-          grid[blockidx]->InsertNextCell(VTK_WEDGE, 6, &list[0]);
+          this->grid[blockidx]->InsertNextCell(VTK_WEDGE, 6, &list[0]);
         }
         else
         { /* hex element */
@@ -475,7 +527,7 @@ public:
           {
             list[i] = list[i]-1;
           }
-          grid[blockidx]->InsertNextCell(VTK_HEXAHEDRON, 8, &list[0]);
+          this->grid[blockidx]->InsertNextCell(VTK_HEXAHEDRON, 8, &list[0]);
         }
       }
       blockptr++;
@@ -486,8 +538,54 @@ public:
     {
       if (self->BlockChoices->GetArraySetting(b) != 0)
       {
-        grid[b]->Squeeze();
+        this->grid[b]->Squeeze();
       }
+    }
+
+    return true;
+  }
+
+  //----------------------------------------------------------------------------
+  bool MoveVTKBlocks(vtkTRUCHASReader *self, hid_t now_gid)
+  {
+
+    if (this->part_to_blocks.size() == 0)
+    {
+      return true;
+    }
+
+    for (unsigned int i = 0; i < this->part_to_blocks.size(); i++)
+    {
+      std::string nextpartname = "translate_part" + to_string(i+1);
+      hid_t att = H5Aopen(now_gid, nextpartname.c_str(), H5P_DEFAULT);
+      double transform[3];
+      H5Aread(att, H5T_NATIVE_DOUBLE, &transform);
+
+      double nextpt[3];
+      for (unsigned int b = 0; b < this->part_to_blocks[i].size(); b++)
+      {
+        int gblockid = this->part_to_blocks[i][b];
+        int blockidx = this->mapblock[gblockid];
+        if (self->BlockChoices->GetArraySetting(blockidx) == 0)
+        {
+          continue;
+        }
+
+        vtkPoints *pts = vtkPoints::New();
+        unsigned int npts = this->Points->GetNumberOfPoints();
+        pts->SetNumberOfPoints(npts);
+        for (unsigned int p = 0; p < npts; p++)
+        {
+          this->Points->GetPoint(p, nextpt);
+          nextpt[0] = nextpt[0]+transform[0];
+          nextpt[1] = nextpt[1]+transform[1];
+          nextpt[2] = nextpt[2]+transform[2];
+          pts->SetPoint(p, nextpt);
+        }
+        this->grid[blockidx]->SetPoints(pts);
+        pts->Delete();
+      }
+      H5Aclose(att);
     }
 
     return true;
@@ -601,6 +699,8 @@ public:
   std::map<std::string, int> array_names;
   std::map<std::string, bool> array_isFloat;
   vtkPointData *PointData;
+
+  std::map<int, std::vector<int> > part_to_blocks; //part id to list of blocks
 
 private:
   hid_t FileIndx;
@@ -797,6 +897,14 @@ int vtkTRUCHASReader::RequestData(
     {
       gBlockToEnabled[gblockid] = false;
     }
+  }
+
+  //move any moving blocks accordingly
+  ret = this->Internals->MoveVTKBlocks(this, now_gid);
+  if (!ret)
+  {
+    H5Gclose(now_gid);
+    return 0;
   }
 
   #define MAX_NAME 1024
@@ -1085,6 +1193,12 @@ int vtkTRUCHASReader::CanReadFile(const char *filename)
 
   for (int i = 0; i < 3; i++)
   {
+    htri_t exists = H5Lexists(fileIndx, needful_things[i], H5P_DEFAULT);
+    if( !exists )
+    {
+      H5Fclose(fileIndx);
+      return 0;
+    }
     hid_t dset = H5Dopen
       (fileIndx, needful_things[i], H5P_DEFAULT );
     if( dset < 0 )
@@ -1097,6 +1211,12 @@ int vtkTRUCHASReader::CanReadFile(const char *filename)
 
   for (int i = 3; i < 5; i++)
   {
+    htri_t exists = H5Lexists(fileIndx, needful_things[i], H5P_DEFAULT);
+    if( !exists )
+    {
+      H5Fclose(fileIndx);
+      return 0;
+    }
     hid_t gid = H5Gopen
       (fileIndx, needful_things[i], H5P_DEFAULT);
     if( gid < 0 )
