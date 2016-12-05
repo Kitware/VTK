@@ -1946,10 +1946,12 @@ bool vtkOpenGLFramebufferObject::PopulateFramebuffer(
           depth->Create(GL_DEPTH_COMPONENT16,
             this->LastSize[0], this->LastSize[1], multisamples);
           break;
+#ifdef GL_DEPTH_COMPONENT32
         case 32:
           depth->Create(GL_DEPTH_COMPONENT32,
             this->LastSize[0], this->LastSize[1], multisamples);
           break;
+#endif
         case 24:
         default:
           depth->Create(GL_DEPTH_COMPONENT24,
