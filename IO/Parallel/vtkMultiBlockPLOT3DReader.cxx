@@ -1929,7 +1929,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
 
       offset += this->GetByteCountSize();
 
-      for (int j=0; j<nFunctions[i]; j++)
+      for (unsigned int j=0; j<nFunctions[i]; j++)
       {
         vtkDataArray* functionArray = this->NewFloatArray();
         functionArray->SetNumberOfTuples(npts);
