@@ -2373,13 +2373,23 @@ void vtkParsePreprocess_AddStandardMacros(
   int save_external = info->IsExternal;
   info->IsExternal = 1;
 
-  /* a special macro to indicate that this is the wrapper */
+  /*------------------------------
+   * a special macro to indicate that this is the wrapper
+   */
   preproc_add_macro_definition(info, "__WRAP__", "1");
 
-  /* language macros - assume that we are wrapping C++ code */
+  /*------------------------------
+   * language macros - assume that we are wrapping C++ code
+   */
+#ifdef __cplusplus
+  PREPROC_ADD_MACRO(info, __cplusplus);
+#else
   preproc_add_macro_definition(info, "__cplusplus", "1");
+#endif
 
-  /* stdc version macros */
+  /*------------------------------
+   * stdc version macros
+   */
 #ifdef __STDC__
   PREPROC_ADD_MACRO(info, __STDC__);
 #endif
@@ -2389,38 +2399,491 @@ void vtkParsePreprocess_AddStandardMacros(
 #ifdef __STDC_HOSTED__
   PREPROC_ADD_MACRO(info, __STDC_HOSTED__);
 #endif
+#ifdef __STDC_UTF_16__
+  PREPROC_ADD_MACRO(info, __STDC_UTF_16__);
+#endif
+#ifdef __STDC_UTF_32__
+  PREPROC_ADD_MACRO(info, __STDC_UTF_32__);
+#endif
+#ifdef __STDC_ISO_10646__
+  PREPROC_ADD_MACRO(info, __STDC_ISO_10646__);
+#endif
+#ifdef __STDC_MB_MIGHT_NEQ_WC__
+  PREPROC_ADD_MACRO(info, __STDC_MB_MIGHT_NEQ_WC__);
+#endif
 
+  /* define _DEBUG if it was set */
+#ifdef _DEBUG
+  PREPROC_ADD_MACRO(info, _DEBUG);
+#endif
+
+  /*------------------------------
+   * Currently, only the "native" platform is fully supported, which
+   * means that cross-compilation of the wrappers might not work.
+   * For native, we define the same macros as the native compiler.
+   */
   if (platform == VTK_PARSE_NATIVE)
   {
-#ifdef WIN32
-    PREPROC_ADD_MACRO(info, WIN32);
+    /* macros that declare the pointer size */
+#ifdef _SIZE_PTR
+    PREPROC_ADD_MACRO(info, _SIZE_PTR);
 #endif
-#ifdef _WIN32
-    PREPROC_ADD_MACRO(info, _WIN32);
+#ifdef __SIZEOF_POINTER__
+    PREPROC_ADD_MACRO(info, __SIZEOF_POINTER__);
 #endif
+#ifdef __POINTER_WIDTH__
+    PREPROC_ADD_MACRO(info, __POINTER_WIDTH__);
+#endif
+#ifdef __BIGGEST_ALIGNMENT__
+    PREPROC_ADD_MACRO(info, __BIGGEST_ALIGNMENT__);
+#endif
+#ifdef _ILP32
+    PREPROC_ADD_MACRO(info, _ILP32);
+#endif
+#ifdef __ILP32__
+    PREPROC_ADD_MACRO(info, __ILP32__);
+#endif
+#ifdef _LP64
+    PREPROC_ADD_MACRO(info, _LP64);
+#endif
+#ifdef __LP64__
+    PREPROC_ADD_MACRO(info, __LP64__);
+#endif
+#ifdef __64BIT__
+    PREPROC_ADD_MACRO(info, __64BIT__);
+#endif
+
+    /*------------------------------
+     * macros for the signedness of the char type
+     */
+#ifdef _CHAR_IS_UNSIGNED
+    PREPROC_ADD_MACRO(info, _CHAR_IS_UNSIGNED);
+#endif
+#ifdef _CHAR_IS_SIGNED
+    PREPROC_ADD_MACRO(info, _CHAR_IS_SIGNED);
+#endif
+#ifdef _CHAR_UNSIGNED
+    PREPROC_ADD_MACRO(info, _CHAR_UNSIGNED);
+#endif
+#ifdef _CHAR_SIGNED
+    PREPROC_ADD_MACRO(info, _CHAR_SIGNED);
+#endif
+#ifdef __CHAR_UNSIGNED__
+    PREPROC_ADD_MACRO(info, __CHAR_UNSIGNED__);
+#endif
+#ifdef __CHAR_SIGNED__
+    PREPROC_ADD_MACRO(info, __CHAR_SIGNED__);
+#endif
+#ifdef __SIGNED_CHARS__
+    PREPROC_ADD_MACRO(info, __SIGNED_CHARS__);
+#endif
+#ifdef __WCHAR_UNSIGNED__
+    PREPROC_ADD_MACRO(info, __WCHAR_UNSIGNED__);
+#endif
+#ifdef __WCHAR_SIGNED__
+    PREPROC_ADD_MACRO(info, __WCHAR_SIGNED__);
+#endif
+
+    /*------------------------------
+     * macros that declare the endianness
+     */
+#ifdef _BIG_ENDIAN
+    PREPROC_ADD_MACRO(info, _BIG_ENDIAN);
+#endif
+#ifdef _LITTLE_ENDIAN
+    PREPROC_ADD_MACRO(info, _LITTLE_ENDIAN);
+#endif
+#ifdef __BIG_ENDIAN__
+    PREPROC_ADD_MACRO(info, __BIG_ENDIAN__);
+#endif
+#ifdef __LITTLE_ENDIAN__
+    PREPROC_ADD_MACRO(info, __LITTLE_ENDIAN__);
+#endif
+#ifdef __ORDER_BIG_ENDIAN__
+    PREPROC_ADD_MACRO(info, __ORDER_BIG_ENDIAN__);
+#endif
+#ifdef __ORDER_LITTLE_ENDIAN__
+    PREPROC_ADD_MACRO(info, __ORDER_LITTLE_ENDIAN__);
+#endif
+#ifdef __ORDER_PDP_ENDIAN__
+    PREPROC_ADD_MACRO(info, __ORDER_PDP_ENDIAN__);
+#endif
+#ifdef __BYTE_ORDER__
+    PREPROC_ADD_MACRO(info, __BYTE_ORDER__);
+#endif
+#ifdef __FLOAT_WORD_ORDER__
+    PREPROC_ADD_MACRO(info, __FLOAT_WORD_ORDER__);
+#endif
+
+    /*------------------------------
+     * endianness for specific architectures
+     */
+#ifdef __AARCH64EB__
+    PREPROC_ADD_MACRO(info, __AARCH64EB__);
+#endif
+#ifdef __AARCH64EL__
+    PREPROC_ADD_MACRO(info, __AARCH64EL__);
+#endif
+#ifdef __XTENSA_EB__
+    PREPROC_ADD_MACRO(info, __XTENSA_EB__);
+#endif
+#ifdef __XTENSA_EL__
+    PREPROC_ADD_MACRO(info, __XTENSA_EL__);
+#endif
+#ifdef __ARMEB__
+    PREPROC_ADD_MACRO(info, __ARMEB__);
+#endif
+#ifdef __ARMEL__
+    PREPROC_ADD_MACRO(info, __ARMEL__);
+#endif
+#ifdef __THUMBEB__
+    PREPROC_ADD_MACRO(info, __THUMBEB__);
+#endif
+#ifdef __THUMBEL__
+    PREPROC_ADD_MACRO(info, __THUMBEL__);
+#endif
+#ifdef __MIPSEB__
+    PREPROC_ADD_MACRO(info, __MIPSEB__);
+#endif
+#ifdef __MIPSEL__
+    PREPROC_ADD_MACRO(info, __MIPSEL__);
+#endif
+#ifdef __MIPSEB
+    PREPROC_ADD_MACRO(info, __MIPSEB);
+#endif
+#ifdef __MIPSEL
+    PREPROC_ADD_MACRO(info, __MIPSEL);
+#endif
+#ifdef _MIPSEB
+    PREPROC_ADD_MACRO(info, _MIPSEB);
+#endif
+#ifdef _MIPSEL
+    PREPROC_ADD_MACRO(info, _MIPSEL);
+#endif
+
+    /*------------------------------
+     * architecture macros
+     */
+#ifdef _M_ALPHA
+    PREPROC_ADD_MACRO(info, _M_ALPHA);
+#endif
+#ifdef _M_IX86
+    PREPROC_ADD_MACRO(info, _M_IX86);
+#endif
+#ifdef _M_IX86_FP
+    PREPROC_ADD_MACRO(info, _M_IX86_FP);
+#endif
+#ifdef _M_X64
+    PREPROC_ADD_MACRO(info, _M_X64);
+#endif
+#ifdef _M_AMD64
+    PREPROC_ADD_MACRO(info, _M_AMD64);
+#endif
+#ifdef _M_ARM
+    PREPROC_ADD_MACRO(info, _M_ARM);
+#endif
+#ifdef _M_ARM_ARMV7VE
+    PREPROC_ADD_MACRO(info, _M_ARM_ARMV7VE);
+#endif
+#ifdef _M_ARM_FP
+    PREPROC_ADD_MACRO(info, _M_ARM_FP);
+#endif
+#ifdef _M_ARM64
+    PREPROC_ADD_MACRO(info, _M_ARM64);
+#endif
+
+#ifdef _X86_
+    PREPROC_ADD_MACRO(info, _X86_);
+#endif
+#ifdef __I86__
+    PREPROC_ADD_MACRO(info, __I86__);
+#endif
+#ifdef __i386
+    PREPROC_ADD_MACRO(info, __i386);
+#endif
+#ifdef __i386__
+    PREPROC_ADD_MACRO(info, __i386__);
+#endif
+#ifdef __i686
+    PREPROC_ADD_MACRO(info, __i686);
+#endif
+#ifdef __i686__
+    PREPROC_ADD_MACRO(info, __i686__);
+#endif
+#ifdef __amd64
+    PREPROC_ADD_MACRO(info, __amd64);
+#endif
+#ifdef __amd64__
+    PREPROC_ADD_MACRO(info, __amd64__);
+#endif
+#ifdef __x86_64
+    PREPROC_ADD_MACRO(info, __x86_64);
+#endif
+#ifdef __x86_64__
+    PREPROC_ADD_MACRO(info, __x86_64__);
+#endif
+#ifdef __ia64
+    PREPROC_ADD_MACRO(info, __ia64);
+#endif
+#ifdef __ia64__
+    PREPROC_ADD_MACRO(info, __ia64__);
+#endif
+#ifdef __IA64
+    PREPROC_ADD_MACRO(info, __IA64);
+#endif
+#ifdef __IA64__
+    PREPROC_ADD_MACRO(info, __IA64__);
+#endif
+#ifdef __arm
+    PREPROC_ADD_MACRO(info, __arm);
+#endif
+#ifdef __arm__
+    PREPROC_ADD_MACRO(info, __arm__);
+#endif
+#ifdef __mips
+    PREPROC_ADD_MACRO(info, __mips);
+#endif
+#ifdef __mips__
+    PREPROC_ADD_MACRO(info, __mips__);
+#endif
+#ifdef __MIPS__
+    PREPROC_ADD_MACRO(info, __MIPS__);
+#endif
+#ifdef __sparc
+    PREPROC_ADD_MACRO(info, __sparc);
+#endif
+#ifdef __sparc__
+    PREPROC_ADD_MACRO(info, __sparc__);
+#endif
+#ifdef __sparcv8
+    PREPROC_ADD_MACRO(info, __sparcv8);
+#endif
+#ifdef __sparc_v8__
+    PREPROC_ADD_MACRO(info, __sparc_v8__);
+#endif
+#ifdef __sparcv9
+    PREPROC_ADD_MACRO(info, __sparcv9);
+#endif
+#ifdef __sparc_v9__
+    PREPROC_ADD_MACRO(info, __sparc_v9__);
+#endif
+#ifdef __alpha
+    PREPROC_ADD_MACRO(info, __alpha);
+#endif
+#ifdef __alpha__
+    PREPROC_ADD_MACRO(info, __alpha__);
+#endif
+#ifdef __hppa
+    PREPROC_ADD_MACRO(info, __hppa);
+#endif
+#ifdef __hppa__
+    PREPROC_ADD_MACRO(info, __hppa__);
+#endif
+#ifdef __ppc
+    PREPROC_ADD_MACRO(info, __ppc);
+#endif
+#ifdef __ppc__
+    PREPROC_ADD_MACRO(info, __ppc__);
+#endif
+#ifdef __ppc64__
+    PREPROC_ADD_MACRO(info, __ppc64__);
+#endif
+#ifdef __powerpc
+    PREPROC_ADD_MACRO(info, __powerpc);
+#endif
+#ifdef __powerpc__
+    PREPROC_ADD_MACRO(info, __powerpc__);
+#endif
+#ifdef __powerpc64__
+    PREPROC_ADD_MACRO(info, __powerpc64__);
+#endif
+#ifdef __POWERPC__
+    PREPROC_ADD_MACRO(info, __POWERPC__);
+#endif
+#ifdef __aarch64__
+    PREPROC_ADD_MACRO(info, __aarch64__);
+#endif
+#ifdef __xtensa__
+    PREPROC_ADD_MACRO(info, __xtensa__);
+#endif
+
+    /*------------------------------
+     * compiler macros
+     */
 #ifdef _MSC_VER
     PREPROC_ADD_MACRO(info, _MSC_VER);
 #endif
-
-#ifdef __BORLAND__
-    PREPROC_ADD_MACRO(info, __BORLAND__);
+#ifdef _MSC_FULL_VER
+    PREPROC_ADD_MACRO(info, _MSC_FULL_VER);
+#endif
+#ifdef _MSC_BUILD
+    PREPROC_ADD_MACRO(info, _MSC_BUILD);
+#endif
+#ifdef _MSC_EXTENSIONS
+    PREPROC_ADD_MACRO(info, _MSC_EXTENSIONS);
 #endif
 
-#ifdef __CYGWIN__
-    PREPROC_ADD_MACRO(info, __CYGWIN__);
+#ifdef _COMPILER_VERSION
+    PREPROC_ADD_MACRO(info, _COMPILER_VERSION);
 #endif
-#ifdef MINGW
-    PREPROC_ADD_MACRO(info, MINGW);
+#ifdef _SGI_COMPILER_VERSION
+    PREPROC_ADD_MACRO(info, _SGI_COMPILER_VERSION);
 #endif
+
+#ifdef __llvm__
+    PREPROC_ADD_MACRO(info, __llvm__);
+#endif
+#ifdef __clang__
+    PREPROC_ADD_MACRO(info, __clang__);
+#endif
+#ifdef __clang_major__
+    PREPROC_ADD_MACRO(info, __clang_major__);
+#endif
+#ifdef __clang_minor__
+    PREPROC_ADD_MACRO(info, __clang_minor__);
+#endif
+#ifdef __clang_patchlevel__
+    PREPROC_ADD_MACRO(info, __clang_patchlevel__);
+#endif
+#ifdef __clang_version__
+    PREPROC_ADD_MACRO(info, __clang_version__);
+#endif
+
+#ifdef __GNUC__
+    PREPROC_ADD_MACRO(info, __GNUC__);
+#endif
+#ifdef __GNUC_MINOR__
+    PREPROC_ADD_MACRO(info, __GNUC_MINOR__);
+#endif
+#ifdef __GNUC_PATCHLEVEL__
+    PREPROC_ADD_MACRO(info, __GNUC_PATCHLEVEL__);
+#endif
+#ifdef __GNUC_STDC_INLINE__
+    PREPROC_ADD_MACRO(info, __GNUC_STDC_INLINE__);
+#endif
+#ifdef __VERSION__
+    PREPROC_ADD_MACRO(info, __VERSION__);
+#endif
+
+#ifdef __GLIBC__
+    PREPROC_ADD_MACRO(info, __GLIBC__);
+#endif
+#ifdef __GLIBC_MINOR__
+    PREPROC_ADD_MACRO(info, __GLIBC_MINOR__);
+#endif
+
 #ifdef __MINGW32__
     PREPROC_ADD_MACRO(info, __MINGW32__);
 #endif
-
-#ifdef __linux__
-    PREPROC_ADD_MACRO(info, __linux__);
+#ifdef __MINGW32_MAJOR_VERSION
+    PREPROC_ADD_MACRO(info, __MINGW32_MAJOR_VERSION);
 #endif
-#ifdef __LINUX__
-    PREPROC_ADD_MACRO(info, __LINUX__);
+#ifdef __MINGW32_MINOR_VERSION
+    PREPROC_ADD_MACRO(info, __MINGW32_MINOR_VERSION);
+#endif
+#ifdef __MINGW64__
+    PREPROC_ADD_MACRO(info, __MINGW64__);
+#endif
+#ifdef __MINGW64_MAJOR_VERSION
+    PREPROC_ADD_MACRO(info, __MINGW64_MAJOR_VERSION);
+#endif
+#ifdef __MINGW64_MINOR_VERSION
+    PREPROC_ADD_MACRO(info, __MINGW64_MINOR_VERSION);
+#endif
+
+#ifdef __THW_BLUEGENE__
+    PREPROC_ADD_MACRO(info, __THW_BLUEGENE__);
+#endif
+#ifdef __THW_INTEL__
+    PREPROC_ADD_MACRO(info, __THW_INTEL__);
+#endif
+#ifdef __THW_RS6000
+    PREPROC_ADD_MACRO(info, __THW_RS6000);
+#endif
+
+#ifdef __APPLE_CC__
+    PREPROC_ADD_MACRO(info, __APPLE_CC__);
+#endif
+
+#ifdef __xlc__
+    PREPROC_ADD_MACRO(info, __xlc__);
+#endif
+#ifdef __xlC__
+    PREPROC_ADD_MACRO(info, __xlC__);
+#endif
+#ifdef __xlC_ver__
+    PREPROC_ADD_MACRO(info, __xlC_ver__);
+#endif
+#ifdef __IBMC__
+    PREPROC_ADD_MACRO(info, __IBMC__);
+#endif
+#ifdef __IBMCPP__
+    PREPROC_ADD_MACRO(info, __IBMCPP__);
+#endif
+#ifdef __HP_cc
+    PREPROC_ADD_MACRO(info, __HP_cc);
+#endif
+#ifdef __HP_aCC
+    PREPROC_ADD_MACRO(info, __HP_aCC);
+#endif
+#ifdef __PGIC__
+    PREPROC_ADD_MACRO(info, __PGIC__);
+#endif
+#ifdef __EDG__
+    PREPROC_ADD_MACRO(info, __EDG__);
+#endif
+#ifdef __EDG_VERSION__
+    PREPROC_ADD_MACRO(info, __EDG_VERSION__);
+#endif
+#ifdef __WATCOMC__
+    PREPROC_ADD_MACRO(info, __WATCOMC__);
+#endif
+#ifdef __BORLANDC__
+    PREPROC_ADD_MACRO(info, __BORLANDC__);
+#endif
+#ifdef __KCC
+    PREPROC_ADD_MACRO(info, __KCC);
+#endif
+#ifdef __KCC_VERSION
+    PREPROC_ADD_MACRO(info, __KCC_VERSION);
+#endif
+#ifdef __SUNPRO_C
+    PREPROC_ADD_MACRO(info, __SUNPRO_C);
+#endif
+#ifdef __SUNPRO_CC
+    PREPROC_ADD_MACRO(info, __SUNPRO_CC);
+#endif
+#ifdef __INTEL_COMPILER
+    PREPROC_ADD_MACRO(info, __INTEL_COMPILER);
+#endif
+#ifdef __INTEL_COMPILER_BUILD_DATE
+    PREPROC_ADD_MACRO(info, __INTEL_COMPILER_BUILD_DATE);
+#endif
+#ifdef __ECC
+    PREPROC_ADD_MACRO(info, __ECC);
+#endif
+#ifdef __ICC
+    PREPROC_ADD_MACRO(info, __ICC);
+#endif
+#ifdef __ICL
+    PREPROC_ADD_MACRO(info, __ICL);
+#endif
+
+    /*------------------------------
+     * platform macros
+     */
+#ifdef _WIN32
+    PREPROC_ADD_MACRO(info, _WIN32);
+#endif
+#ifdef _WIN64
+    PREPROC_ADD_MACRO(info, _WIN64);
+#endif
+
+#ifdef _CRAY
+    PREPROC_ADD_MACRO(info, _CRAY);
+#endif
+#ifdef _UNICOS
+    PREPROC_ADD_MACRO(info, _UNICOS);
 #endif
 
 #ifdef __APPLE__
@@ -2432,18 +2895,908 @@ void vtkParsePreprocess_AddStandardMacros(
 #ifdef __DARWIN__
     PREPROC_ADD_MACRO(info, __DARWIN__);
 #endif
+#ifdef __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__
+    PREPROC_ADD_MACRO(info, __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__);
+#endif
+#ifdef __apple_build_version__
+    PREPROC_ADD_MACRO(info, __apple_build_version__);
+#endif
 
-#ifdef __GNUC__
-    PREPROC_ADD_MACRO(info, __GNUC__);
+#ifdef __ANDROID__
+    PREPROC_ADD_MACRO(info, __ANDROID__);
 #endif
-#ifdef __LP64__
-    PREPROC_ADD_MACRO(info, __LP64__);
+#ifdef __ANDROID_API__
+    PREPROC_ADD_MACRO(info, __ANDROID_API__);
 #endif
-#ifdef __BIG_ENDIAN__
-    PREPROC_ADD_MACRO(info, __BIG_ENDIAN__);
+#ifdef __bg__
+    PREPROC_ADD_MACRO(info, __bg__);
 #endif
-#ifdef __LITTLE_ENDIAN__
-    PREPROC_ADD_MACRO(info, __LITTLE_ENDIAN__);
+#ifdef __bgq__
+    PREPROC_ADD_MACRO(info, __bgq__);
+#endif
+#ifdef __TOS_BGQ__
+    PREPROC_ADD_MACRO(info, __TOS_BGQ__);
+#endif
+#ifdef __FreeBSD__
+    PREPROC_ADD_MACRO(info, __FreeBSD__);
+#endif
+#ifdef __NetBSD__
+    PREPROC_ADD_MACRO(info, __NetBSD__);
+#endif
+#ifdef __OpenBSD__
+    PREPROC_ADD_MACRO(info, __OpenBSD__);
+#endif
+#ifdef __bsdi__
+    PREPROC_ADD_MACRO(info, __bsdi__);
+#endif
+#ifdef __DragonFly__
+    PREPROC_ADD_MACRO(info, __DragonFly__);
+#endif
+#ifdef __CYGWIN__
+    PREPROC_ADD_MACRO(info, __CYGWIN__);
+#endif
+#ifdef __GNU__
+    PREPROC_ADD_MACRO(info, __GNU__);
+#endif
+#ifdef __QNX__
+    PREPROC_ADD_MACRO(info, __QNX__);
+#endif
+#ifdef __QNXTO__
+    PREPROC_ADD_MACRO(info, __QNXTO__);
+#endif
+#ifdef __hpux
+    PREPROC_ADD_MACRO(info, __hpux);
+#endif
+#ifdef __sgi
+    PREPROC_ADD_MACRO(info, __sgi);
+#endif
+#ifdef __unix
+    PREPROC_ADD_MACRO(info, __unix);
+#endif
+#ifdef __unix__
+    PREPROC_ADD_MACRO(info, __unix__);
+#endif
+#ifdef __linux
+    PREPROC_ADD_MACRO(info, __linux);
+#endif
+#ifdef __linux__
+    PREPROC_ADD_MACRO(info, __linux__);
+#endif
+#ifdef __gnu_linux__
+    PREPROC_ADD_MACRO(info, __gnu_linux__);
+#endif
+
+    /*------------------------------
+     * miscellaneous type-related macros
+     */
+#ifdef _WCHAR_T_DEFINED
+    PREPROC_ADD_MACRO(info, _WCHAR_T_DEFINED);
+#endif
+#ifdef _NATIVE_WCHAR_T_DEFINED
+    PREPROC_ADD_MACRO(info, _NATIVE_WCHAR_T_DEFINED);
+#endif
+#ifdef _LONG_LONG
+    PREPROC_ADD_MACRO(info, _LONG_LONG);
+#endif
+#ifdef __NO_LONG_LONG
+    PREPROC_ADD_MACRO(info, __NO_LONG_LONG);
+#endif
+#ifdef __CHAR16_TYPE__
+    PREPROC_ADD_MACRO(info, __CHAR16_TYPE__);
+#endif
+#ifdef __CHAR32_TYPE__
+    PREPROC_ADD_MACRO(info, __CHAR32_TYPE__);
+#endif
+#ifdef __CHAR_BIT__
+    PREPROC_ADD_MACRO(info, __CHAR_BIT__);
+#endif
+#ifdef __SCHAR_MAX__
+    PREPROC_ADD_MACRO(info, __SCHAR_MAX__);
+#endif
+#ifdef __SHRT_MAX__
+    PREPROC_ADD_MACRO(info, __SHRT_MAX__);
+#endif
+
+    /*------------------------------
+     * type macros for gcc-compatible compilers
+     */
+#ifdef __DBL_DENORM_MIN__
+    PREPROC_ADD_MACRO(info, __DBL_DENORM_MIN__);
+#endif
+#ifdef __DBL_DIG__
+    PREPROC_ADD_MACRO(info, __DBL_DIG__);
+#endif
+#ifdef __DBL_DECIMAL_DIG__
+    PREPROC_ADD_MACRO(info, __DBL_DECIMAL_DIG__);
+#endif
+#ifdef __DBL_EPSILON__
+    PREPROC_ADD_MACRO(info, __DBL_EPSILON__);
+#endif
+#ifdef __DBL_HAS_DENORM__
+    PREPROC_ADD_MACRO(info, __DBL_HAS_DENORM__);
+#endif
+#ifdef __DBL_HAS_INFINITY__
+    PREPROC_ADD_MACRO(info, __DBL_HAS_INFINITY__);
+#endif
+#ifdef __DBL_HAS_QUIET_NAN__
+    PREPROC_ADD_MACRO(info, __DBL_HAS_QUIET_NAN__);
+#endif
+#ifdef __DBL_MANT_DIG__
+    PREPROC_ADD_MACRO(info, __DBL_MANT_DIG__);
+#endif
+#ifdef __DBL_MAX_10_EXP__
+    PREPROC_ADD_MACRO(info, __DBL_MAX_10_EXP__);
+#endif
+#ifdef __DBL_MAX_EXP__
+    PREPROC_ADD_MACRO(info, __DBL_MAX_EXP__);
+#endif
+#ifdef __DBL_MAX__
+    PREPROC_ADD_MACRO(info, __DBL_MAX__);
+#endif
+#ifdef __DBL_MIN_10_EXP__
+    PREPROC_ADD_MACRO(info, __DBL_MIN_10_EXP__);
+#endif
+#ifdef __DBL_MIN_EXP__
+    PREPROC_ADD_MACRO(info, __DBL_MIN_EXP__);
+#endif
+#ifdef __DBL_MIN__
+    PREPROC_ADD_MACRO(info, __DBL_MIN__);
+#endif
+#ifdef __DEC128_EPSILON__
+    PREPROC_ADD_MACRO(info, __DEC128_EPSILON__);
+#endif
+#ifdef __DEC128_MANT_DIG__
+    PREPROC_ADD_MACRO(info, __DEC128_MANT_DIG__);
+#endif
+#ifdef __DEC128_MAX_EXP__
+    PREPROC_ADD_MACRO(info, __DEC128_MAX_EXP__);
+#endif
+#ifdef __DEC128_MAX__
+    PREPROC_ADD_MACRO(info, __DEC128_MAX__);
+#endif
+#ifdef __DEC128_MIN_EXP__
+    PREPROC_ADD_MACRO(info, __DEC128_MIN_EXP__);
+#endif
+#ifdef __DEC128_MIN__
+    PREPROC_ADD_MACRO(info, __DEC128_MIN__);
+#endif
+#ifdef __DEC128_SUBNORMAL_MIN__
+    PREPROC_ADD_MACRO(info, __DEC128_SUBNORMAL_MIN__);
+#endif
+#ifdef __DEC32_EPSILON__
+    PREPROC_ADD_MACRO(info, __DEC32_EPSILON__);
+#endif
+#ifdef __DEC32_MANT_DIG__
+    PREPROC_ADD_MACRO(info, __DEC32_MANT_DIG__);
+#endif
+#ifdef __DEC32_MAX_EXP__
+    PREPROC_ADD_MACRO(info, __DEC32_MAX_EXP__);
+#endif
+#ifdef __DEC32_MAX__
+    PREPROC_ADD_MACRO(info, __DEC32_MAX__);
+#endif
+#ifdef __DEC32_MIN_EXP__
+    PREPROC_ADD_MACRO(info, __DEC32_MIN_EXP__);
+#endif
+#ifdef __DEC32_MIN__
+    PREPROC_ADD_MACRO(info, __DEC32_MIN__);
+#endif
+#ifdef __DEC32_SUBNORMAL_MIN__
+    PREPROC_ADD_MACRO(info, __DEC32_SUBNORMAL_MIN__);
+#endif
+#ifdef __DEC64_EPSILON__
+    PREPROC_ADD_MACRO(info, __DEC64_EPSILON__);
+#endif
+#ifdef __DEC64_MANT_DIG__
+    PREPROC_ADD_MACRO(info, __DEC64_MANT_DIG__);
+#endif
+#ifdef __DEC64_MAX_EXP__
+    PREPROC_ADD_MACRO(info, __DEC64_MAX_EXP__);
+#endif
+#ifdef __DEC64_MAX__
+    PREPROC_ADD_MACRO(info, __DEC64_MAX__);
+#endif
+#ifdef __DEC64_MIN_EXP__
+    PREPROC_ADD_MACRO(info, __DEC64_MIN_EXP__);
+#endif
+#ifdef __DEC64_MIN__
+    PREPROC_ADD_MACRO(info, __DEC64_MIN__);
+#endif
+#ifdef __DEC64_SUBNORMAL_MIN__
+    PREPROC_ADD_MACRO(info, __DEC64_SUBNORMAL_MIN__);
+#endif
+#ifdef __DECIMAL_BID_FORMAT__
+    PREPROC_ADD_MACRO(info, __DECIMAL_BID_FORMAT__);
+#endif
+#ifdef __DECIMAL_DIG__
+    PREPROC_ADD_MACRO(info, __DECIMAL_DIG__);
+#endif
+#ifdef __DEC_EVAL_METHOD__
+    PREPROC_ADD_MACRO(info, __DEC_EVAL_METHOD__);
+#endif
+#ifdef __FLT_DECIMAL_DIG__
+    PREPROC_ADD_MACRO(info, __FLT_DECIMAL_DIG__);
+#endif
+#ifdef __FLT_DENORM_MIN__
+    PREPROC_ADD_MACRO(info, __FLT_DENORM_MIN__);
+#endif
+#ifdef __FLT_DIG__
+    PREPROC_ADD_MACRO(info, __FLT_DIG__);
+#endif
+#ifdef __FLT_EPSILON__
+    PREPROC_ADD_MACRO(info, __FLT_EPSILON__);
+#endif
+#ifdef __FLT_EVAL_METHOD__
+    PREPROC_ADD_MACRO(info, __FLT_EVAL_METHOD__);
+#endif
+#ifdef __FLT_HAS_DENORM__
+    PREPROC_ADD_MACRO(info, __FLT_HAS_DENORM__);
+#endif
+#ifdef __FLT_HAS_INFINITY__
+    PREPROC_ADD_MACRO(info, __FLT_HAS_INFINITY__);
+#endif
+#ifdef __FLT_HAS_QUIET_NAN__
+    PREPROC_ADD_MACRO(info, __FLT_HAS_QUIET_NAN__);
+#endif
+#ifdef __FLT_MANT_DIG__
+    PREPROC_ADD_MACRO(info, __FLT_MANT_DIG__);
+#endif
+#ifdef __FLT_MAX_10_EXP__
+    PREPROC_ADD_MACRO(info, __FLT_MAX_10_EXP__);
+#endif
+#ifdef __FLT_MAX_EXP__
+    PREPROC_ADD_MACRO(info, __FLT_MAX_EXP__);
+#endif
+#ifdef __FLT_MAX__
+    PREPROC_ADD_MACRO(info, __FLT_MAX__);
+#endif
+#ifdef __FLT_MIN_10_EXP__
+    PREPROC_ADD_MACRO(info, __FLT_MIN_10_EXP__);
+#endif
+#ifdef __FLT_MIN_EXP__
+    PREPROC_ADD_MACRO(info, __FLT_MIN_EXP__);
+#endif
+#ifdef __FLT_MIN__
+    PREPROC_ADD_MACRO(info, __FLT_MIN__);
+#endif
+#ifdef __FLT_RADIX__
+    PREPROC_ADD_MACRO(info, __FLT_RADIX__);
+#endif
+#ifdef __INT16_C_SUFFIX__
+    PREPROC_ADD_MACRO(info, __INT16_C_SUFFIX__);
+#endif
+#ifdef __INT16_FMTd__
+    PREPROC_ADD_MACRO(info, __INT16_FMTd__);
+#endif
+#ifdef __INT16_FMTi__
+    PREPROC_ADD_MACRO(info, __INT16_FMTi__);
+#endif
+#ifdef __INT16_MAX__
+    PREPROC_ADD_MACRO(info, __INT16_MAX__);
+#endif
+#ifdef __INT16_TYPE__
+    PREPROC_ADD_MACRO(info, __INT16_TYPE__);
+#endif
+#ifdef __INT32_C_SUFFIX__
+    PREPROC_ADD_MACRO(info, __INT32_C_SUFFIX__);
+#endif
+#ifdef __INT32_FMTd__
+    PREPROC_ADD_MACRO(info, __INT32_FMTd__);
+#endif
+#ifdef __INT32_FMTi__
+    PREPROC_ADD_MACRO(info, __INT32_FMTi__);
+#endif
+#ifdef __INT32_MAX__
+    PREPROC_ADD_MACRO(info, __INT32_MAX__);
+#endif
+#ifdef __INT32_MAX__
+    PREPROC_ADD_MACRO(info, __INT32_MAX__);
+#endif
+#ifdef __INT32_TYPE__
+    PREPROC_ADD_MACRO(info, __INT32_TYPE__);
+#endif
+#ifdef __INT64_C_SUFFIX__
+    PREPROC_ADD_MACRO(info, __INT64_C_SUFFIX__);
+#endif
+#ifdef __INT64_FMTd__
+    PREPROC_ADD_MACRO(info, __INT64_FMTd__);
+#endif
+#ifdef __INT64_FMTi__
+    PREPROC_ADD_MACRO(info, __INT64_FMTi__);
+#endif
+#ifdef __INT64_MAX__
+    PREPROC_ADD_MACRO(info, __INT64_MAX__);
+#endif
+#ifdef __INT64_MAX__
+    PREPROC_ADD_MACRO(info, __INT64_MAX__);
+#endif
+#ifdef __INT64_TYPE__
+    PREPROC_ADD_MACRO(info, __INT64_TYPE__);
+#endif
+#ifdef __INT8_C_SUFFIX__
+    PREPROC_ADD_MACRO(info, __INT8_C_SUFFIX__);
+#endif
+#ifdef __INT8_FMTd__
+    PREPROC_ADD_MACRO(info, __INT8_FMTd__);
+#endif
+#ifdef __INT8_FMTi__
+    PREPROC_ADD_MACRO(info, __INT8_FMTi__);
+#endif
+#ifdef __INT8_MAX__
+    PREPROC_ADD_MACRO(info, __INT8_MAX__);
+#endif
+#ifdef __INT8_MAX__
+    PREPROC_ADD_MACRO(info, __INT8_MAX__);
+#endif
+#ifdef __INT8_TYPE__
+    PREPROC_ADD_MACRO(info, __INT8_TYPE__);
+#endif
+#ifdef __INTMAX_C_SUFFIX__
+    PREPROC_ADD_MACRO(info, __INTMAX_C_SUFFIX__);
+#endif
+#ifdef __INTMAX_FMTd__
+    PREPROC_ADD_MACRO(info, __INTMAX_FMTd__);
+#endif
+#ifdef __INTMAX_FMTi__
+    PREPROC_ADD_MACRO(info, __INTMAX_FMTi__);
+#endif
+#ifdef __INTMAX_MAX__
+    PREPROC_ADD_MACRO(info, __INTMAX_MAX__);
+#endif
+#ifdef __INTMAX_TYPE__
+    PREPROC_ADD_MACRO(info, __INTMAX_TYPE__);
+#endif
+#ifdef __INTMAX_WIDTH__
+    PREPROC_ADD_MACRO(info, __INTMAX_WIDTH__);
+#endif
+#ifdef __INTPTR_FMTd__
+    PREPROC_ADD_MACRO(info, __INTPTR_FMTd__);
+#endif
+#ifdef __INTPTR_FMTi__
+    PREPROC_ADD_MACRO(info, __INTPTR_FMTi__);
+#endif
+#ifdef __INTPTR_MAX__
+    PREPROC_ADD_MACRO(info, __INTPTR_MAX__);
+#endif
+#ifdef __INTPTR_TYPE__
+    PREPROC_ADD_MACRO(info, __INTPTR_TYPE__);
+#endif
+#ifdef __INTPTR_WIDTH__
+    PREPROC_ADD_MACRO(info, __INTPTR_WIDTH__);
+#endif
+#ifdef __INT_FAST16_FMTd__
+    PREPROC_ADD_MACRO(info, __INT_FAST16_FMTd__);
+#endif
+#ifdef __INT_FAST16_FMTi__
+    PREPROC_ADD_MACRO(info, __INT_FAST16_FMTi__);
+#endif
+#ifdef __INT_FAST16_MAX__
+    PREPROC_ADD_MACRO(info, __INT_FAST16_MAX__);
+#endif
+#ifdef __INT_FAST16_MAX__
+    PREPROC_ADD_MACRO(info, __INT_FAST16_MAX__);
+#endif
+#ifdef __INT_FAST16_TYPE__
+    PREPROC_ADD_MACRO(info, __INT_FAST16_TYPE__);
+#endif
+#ifdef __INT_FAST16_TYPE__
+    PREPROC_ADD_MACRO(info, __INT_FAST16_TYPE__);
+#endif
+#ifdef __INT_FAST32_FMTd__
+    PREPROC_ADD_MACRO(info, __INT_FAST32_FMTd__);
+#endif
+#ifdef __INT_FAST32_FMTi__
+    PREPROC_ADD_MACRO(info, __INT_FAST32_FMTi__);
+#endif
+#ifdef __INT_FAST32_MAX__
+    PREPROC_ADD_MACRO(info, __INT_FAST32_MAX__);
+#endif
+#ifdef __INT_FAST32_TYPE__
+    PREPROC_ADD_MACRO(info, __INT_FAST32_TYPE__);
+#endif
+#ifdef __INT_FAST64_FMTd__
+    PREPROC_ADD_MACRO(info, __INT_FAST64_FMTd__);
+#endif
+#ifdef __INT_FAST64_FMTi__
+    PREPROC_ADD_MACRO(info, __INT_FAST64_FMTi__);
+#endif
+#ifdef __INT_FAST64_MAX__
+    PREPROC_ADD_MACRO(info, __INT_FAST64_MAX__);
+#endif
+#ifdef __INT_FAST64_TYPE__
+    PREPROC_ADD_MACRO(info, __INT_FAST64_TYPE__);
+#endif
+#ifdef __INT_FAST8_FMTd__
+    PREPROC_ADD_MACRO(info, __INT_FAST8_FMTd__);
+#endif
+#ifdef __INT_FAST8_FMTi__
+    PREPROC_ADD_MACRO(info, __INT_FAST8_FMTi__);
+#endif
+#ifdef __INT_FAST8_MAX__
+    PREPROC_ADD_MACRO(info, __INT_FAST8_MAX__);
+#endif
+#ifdef __INT_FAST8_MAX__
+    PREPROC_ADD_MACRO(info, __INT_FAST8_MAX__);
+#endif
+#ifdef __INT_FAST8_TYPE__
+    PREPROC_ADD_MACRO(info, __INT_FAST8_TYPE__);
+#endif
+#ifdef __INT_LEAST16_FMTd__
+    PREPROC_ADD_MACRO(info, __INT_LEAST16_FMTd__);
+#endif
+#ifdef __INT_LEAST16_FMTi__
+    PREPROC_ADD_MACRO(info, __INT_LEAST16_FMTi__);
+#endif
+#ifdef __INT_LEAST16_MAX__
+    PREPROC_ADD_MACRO(info, __INT_LEAST16_MAX__);
+#endif
+#ifdef __INT_LEAST16_TYPE__
+    PREPROC_ADD_MACRO(info, __INT_LEAST16_TYPE__);
+#endif
+#ifdef __INT_LEAST32_FMTd__
+    PREPROC_ADD_MACRO(info, __INT_LEAST32_FMTd__);
+#endif
+#ifdef __INT_LEAST32_FMTi__
+    PREPROC_ADD_MACRO(info, __INT_LEAST32_FMTi__);
+#endif
+#ifdef __INT_LEAST32_MAX__
+    PREPROC_ADD_MACRO(info, __INT_LEAST32_MAX__);
+#endif
+#ifdef __INT_LEAST32_TYPE__
+    PREPROC_ADD_MACRO(info, __INT_LEAST32_TYPE__);
+#endif
+#ifdef __INT_LEAST64_FMTd__
+    PREPROC_ADD_MACRO(info, __INT_LEAST64_FMTd__);
+#endif
+#ifdef __INT_LEAST64_FMTi__
+    PREPROC_ADD_MACRO(info, __INT_LEAST64_FMTi__);
+#endif
+#ifdef __INT_LEAST64_MAX__
+    PREPROC_ADD_MACRO(info, __INT_LEAST64_MAX__);
+#endif
+#ifdef __INT_LEAST64_TYPE__
+    PREPROC_ADD_MACRO(info, __INT_LEAST64_TYPE__);
+#endif
+#ifdef __INT_LEAST8_FMTd__
+    PREPROC_ADD_MACRO(info, __INT_LEAST8_FMTd__);
+#endif
+#ifdef __INT_LEAST8_FMTi__
+    PREPROC_ADD_MACRO(info, __INT_LEAST8_FMTi__);
+#endif
+#ifdef __INT_LEAST8_MAX__
+    PREPROC_ADD_MACRO(info, __INT_LEAST8_MAX__);
+#endif
+#ifdef __INT_LEAST8_TYPE__
+    PREPROC_ADD_MACRO(info, __INT_LEAST8_TYPE__);
+#endif
+#ifdef __INT_MAX__
+    PREPROC_ADD_MACRO(info, __INT_MAX__);
+#endif
+#ifdef __LDBL_DECIMAL_DIG__
+    PREPROC_ADD_MACRO(info, __LDBL_DECIMAL_DIG__);
+#endif
+#ifdef __LDBL_DENORM_MIN__
+    PREPROC_ADD_MACRO(info, __LDBL_DENORM_MIN__);
+#endif
+#ifdef __LDBL_DIG__
+    PREPROC_ADD_MACRO(info, __LDBL_DIG__);
+#endif
+#ifdef __LDBL_EPSILON__
+    PREPROC_ADD_MACRO(info, __LDBL_EPSILON__);
+#endif
+#ifdef __LDBL_HAS_DENORM__
+    PREPROC_ADD_MACRO(info, __LDBL_HAS_DENORM__);
+#endif
+#ifdef __LDBL_HAS_INFINITY__
+    PREPROC_ADD_MACRO(info, __LDBL_HAS_INFINITY__);
+#endif
+#ifdef __LDBL_HAS_QUIET_NAN__
+    PREPROC_ADD_MACRO(info, __LDBL_HAS_QUIET_NAN__);
+#endif
+#ifdef __LDBL_MANT_DIG__
+    PREPROC_ADD_MACRO(info, __LDBL_MANT_DIG__);
+#endif
+#ifdef __LDBL_MAX_10_EXP__
+    PREPROC_ADD_MACRO(info, __LDBL_MAX_10_EXP__);
+#endif
+#ifdef __LDBL_MAX_EXP__
+    PREPROC_ADD_MACRO(info, __LDBL_MAX_EXP__);
+#endif
+#ifdef __LDBL_MAX__
+    PREPROC_ADD_MACRO(info, __LDBL_MAX__);
+#endif
+#ifdef __LDBL_MIN_10_EXP__
+    PREPROC_ADD_MACRO(info, __LDBL_MIN_10_EXP__);
+#endif
+#ifdef __LDBL_MIN_EXP__
+    PREPROC_ADD_MACRO(info, __LDBL_MIN_EXP__);
+#endif
+#ifdef __LDBL_MIN__
+    PREPROC_ADD_MACRO(info, __LDBL_MIN__);
+#endif
+#ifdef __LONG_LONG_MAX__
+    PREPROC_ADD_MACRO(info, __LONG_LONG_MAX__);
+#endif
+#ifdef __LONG_MAX__
+    PREPROC_ADD_MACRO(info, __LONG_MAX__);
+#endif
+#ifdef __PTRDIFF_FMTd__
+    PREPROC_ADD_MACRO(info, __PTRDIFF_FMTd__);
+#endif
+#ifdef __PTRDIFF_FMTi__
+    PREPROC_ADD_MACRO(info, __PTRDIFF_FMTi__);
+#endif
+#ifdef __PTRDIFF_MAX__
+    PREPROC_ADD_MACRO(info, __PTRDIFF_MAX__);
+#endif
+#ifdef __PTRDIFF_TYPE__
+    PREPROC_ADD_MACRO(info, __PTRDIFF_TYPE__);
+#endif
+#ifdef __PTRDIFF_WIDTH__
+    PREPROC_ADD_MACRO(info, __PTRDIFF_WIDTH__);
+#endif
+#ifdef __SIZEOF_DOUBLE__
+    PREPROC_ADD_MACRO(info, __SIZEOF_DOUBLE__);
+#endif
+#ifdef __SIZEOF_FLOAT128__
+    PREPROC_ADD_MACRO(info, __SIZEOF_FLOAT128__);
+#endif
+#ifdef __SIZEOF_FLOAT80__
+    PREPROC_ADD_MACRO(info, __SIZEOF_FLOAT80__);
+#endif
+#ifdef __SIZEOF_FLOAT__
+    PREPROC_ADD_MACRO(info, __SIZEOF_FLOAT__);
+#endif
+#ifdef __SIZEOF_INT128__
+    PREPROC_ADD_MACRO(info, __SIZEOF_INT128__);
+#endif
+#ifdef __SIZEOF_INT__
+    PREPROC_ADD_MACRO(info, __SIZEOF_INT__);
+#endif
+#ifdef __SIZEOF_LONG_DOUBLE__
+    PREPROC_ADD_MACRO(info, __SIZEOF_LONG_DOUBLE__);
+#endif
+#ifdef __SIZEOF_LONG_LONG__
+    PREPROC_ADD_MACRO(info, __SIZEOF_LONG_LONG__);
+#endif
+#ifdef __SIZEOF_LONG__
+    PREPROC_ADD_MACRO(info, __SIZEOF_LONG__);
+#endif
+#ifdef __SIZEOF_PTRDIFF_T__
+    PREPROC_ADD_MACRO(info, __SIZEOF_PTRDIFF_T__);
+#endif
+#ifdef __SIZEOF_SHORT__
+    PREPROC_ADD_MACRO(info, __SIZEOF_SHORT__);
+#endif
+#ifdef __SIZEOF_SIZE_T__
+    PREPROC_ADD_MACRO(info, __SIZEOF_SIZE_T__);
+#endif
+#ifdef __SIZEOF_WCHAR_T__
+    PREPROC_ADD_MACRO(info, __SIZEOF_WCHAR_T__);
+#endif
+#ifdef __SIZEOF_WINT_T__
+    PREPROC_ADD_MACRO(info, __SIZEOF_WINT_T__);
+#endif
+#ifdef __SIZE_FMTX__
+    PREPROC_ADD_MACRO(info, __SIZE_FMTX__);
+#endif
+#ifdef __SIZE_FMTo__
+    PREPROC_ADD_MACRO(info, __SIZE_FMTo__);
+#endif
+#ifdef __SIZE_FMTu__
+    PREPROC_ADD_MACRO(info, __SIZE_FMTu__);
+#endif
+#ifdef __SIZE_FMTx__
+    PREPROC_ADD_MACRO(info, __SIZE_FMTx__);
+#endif
+#ifdef __SIZE_MAX__
+    PREPROC_ADD_MACRO(info, __SIZE_MAX__);
+#endif
+#ifdef __SIZE_TYPE__
+    PREPROC_ADD_MACRO(info, __SIZE_TYPE__);
+#endif
+#ifdef __SIZE_WIDTH__
+    PREPROC_ADD_MACRO(info, __SIZE_WIDTH__);
+#endif
+#ifdef __UINT16_C_SUFFIX__
+    PREPROC_ADD_MACRO(info, __UINT16_C_SUFFIX__);
+#endif
+#ifdef __UINT16_FMTX__
+    PREPROC_ADD_MACRO(info, __UINT16_FMTX__);
+#endif
+#ifdef __UINT16_FMTo__
+    PREPROC_ADD_MACRO(info, __UINT16_FMTo__);
+#endif
+#ifdef __UINT16_FMTu__
+    PREPROC_ADD_MACRO(info, __UINT16_FMTu__);
+#endif
+#ifdef __UINT16_FMTx__
+    PREPROC_ADD_MACRO(info, __UINT16_FMTx__);
+#endif
+#ifdef __UINT16_MAX__
+    PREPROC_ADD_MACRO(info, __UINT16_MAX__);
+#endif
+#ifdef __UINT16_MAX__
+    PREPROC_ADD_MACRO(info, __UINT16_MAX__);
+#endif
+#ifdef __UINT16_TYPE__
+    PREPROC_ADD_MACRO(info, __UINT16_TYPE__);
+#endif
+#ifdef __UINT32_C_SUFFIX__
+    PREPROC_ADD_MACRO(info, __UINT32_C_SUFFIX__);
+#endif
+#ifdef __UINT32_FMTX__
+    PREPROC_ADD_MACRO(info, __UINT32_FMTX__);
+#endif
+#ifdef __UINT32_FMTo__
+    PREPROC_ADD_MACRO(info, __UINT32_FMTo__);
+#endif
+#ifdef __UINT32_FMTu__
+    PREPROC_ADD_MACRO(info, __UINT32_FMTu__);
+#endif
+#ifdef __UINT32_FMTx__
+    PREPROC_ADD_MACRO(info, __UINT32_FMTx__);
+#endif
+#ifdef __UINT32_MAX__
+    PREPROC_ADD_MACRO(info, __UINT32_MAX__);
+#endif
+#ifdef __UINT32_TYPE__
+    PREPROC_ADD_MACRO(info, __UINT32_TYPE__);
+#endif
+#ifdef __UINT64_C_SUFFIX__
+    PREPROC_ADD_MACRO(info, __UINT64_C_SUFFIX__);
+#endif
+#ifdef __UINT64_FMTX__
+    PREPROC_ADD_MACRO(info, __UINT64_FMTX__);
+#endif
+#ifdef __UINT64_FMTo__
+    PREPROC_ADD_MACRO(info, __UINT64_FMTo__);
+#endif
+#ifdef __UINT64_FMTu__
+    PREPROC_ADD_MACRO(info, __UINT64_FMTu__);
+#endif
+#ifdef __UINT64_FMTx__
+    PREPROC_ADD_MACRO(info, __UINT64_FMTx__);
+#endif
+#ifdef __UINT64_MAX__
+    PREPROC_ADD_MACRO(info, __UINT64_MAX__);
+#endif
+#ifdef __UINT64_TYPE__
+    PREPROC_ADD_MACRO(info, __UINT64_TYPE__);
+#endif
+#ifdef __UINT8_C_SUFFIX__
+    PREPROC_ADD_MACRO(info, __UINT8_C_SUFFIX__);
+#endif
+#ifdef __UINT8_FMTX__
+    PREPROC_ADD_MACRO(info, __UINT8_FMTX__);
+#endif
+#ifdef __UINT8_FMTo__
+    PREPROC_ADD_MACRO(info, __UINT8_FMTo__);
+#endif
+#ifdef __UINT8_FMTu__
+    PREPROC_ADD_MACRO(info, __UINT8_FMTu__);
+#endif
+#ifdef __UINT8_FMTx__
+    PREPROC_ADD_MACRO(info, __UINT8_FMTx__);
+#endif
+#ifdef __UINT8_MAX__
+    PREPROC_ADD_MACRO(info, __UINT8_MAX__);
+#endif
+#ifdef __UINT8_TYPE__
+    PREPROC_ADD_MACRO(info, __UINT8_TYPE__);
+#endif
+#ifdef __UINTMAX_C_SUFFIX__
+    PREPROC_ADD_MACRO(info, __UINTMAX_C_SUFFIX__);
+#endif
+#ifdef __UINTMAX_FMTX__
+    PREPROC_ADD_MACRO(info, __UINTMAX_FMTX__);
+#endif
+#ifdef __UINTMAX_FMTo__
+    PREPROC_ADD_MACRO(info, __UINTMAX_FMTo__);
+#endif
+#ifdef __UINTMAX_FMTu__
+    PREPROC_ADD_MACRO(info, __UINTMAX_FMTu__);
+#endif
+#ifdef __UINTMAX_FMTx__
+    PREPROC_ADD_MACRO(info, __UINTMAX_FMTx__);
+#endif
+#ifdef __UINTMAX_MAX__
+    PREPROC_ADD_MACRO(info, __UINTMAX_MAX__);
+#endif
+#ifdef __UINTMAX_TYPE__
+    PREPROC_ADD_MACRO(info, __UINTMAX_TYPE__);
+#endif
+#ifdef __UINTMAX_WIDTH__
+    PREPROC_ADD_MACRO(info, __UINTMAX_WIDTH__);
+#endif
+#ifdef __UINTPTR_FMTX__
+    PREPROC_ADD_MACRO(info, __UINTPTR_FMTX__);
+#endif
+#ifdef __UINTPTR_FMTo__
+    PREPROC_ADD_MACRO(info, __UINTPTR_FMTo__);
+#endif
+#ifdef __UINTPTR_FMTu__
+    PREPROC_ADD_MACRO(info, __UINTPTR_FMTu__);
+#endif
+#ifdef __UINTPTR_FMTx__
+    PREPROC_ADD_MACRO(info, __UINTPTR_FMTx__);
+#endif
+#ifdef __UINTPTR_MAX__
+    PREPROC_ADD_MACRO(info, __UINTPTR_MAX__);
+#endif
+#ifdef __UINTPTR_TYPE__
+    PREPROC_ADD_MACRO(info, __UINTPTR_TYPE__);
+#endif
+#ifdef __UINTPTR_WIDTH__
+    PREPROC_ADD_MACRO(info, __UINTPTR_WIDTH__);
+#endif
+#ifdef __UINT_FAST16_FMTX__
+    PREPROC_ADD_MACRO(info, __UINT_FAST16_FMTX__);
+#endif
+#ifdef __UINT_FAST16_FMTo__
+    PREPROC_ADD_MACRO(info, __UINT_FAST16_FMTo__);
+#endif
+#ifdef __UINT_FAST16_FMTu__
+    PREPROC_ADD_MACRO(info, __UINT_FAST16_FMTu__);
+#endif
+#ifdef __UINT_FAST16_FMTx__
+    PREPROC_ADD_MACRO(info, __UINT_FAST16_FMTx__);
+#endif
+#ifdef __UINT_FAST16_MAX__
+    PREPROC_ADD_MACRO(info, __UINT_FAST16_MAX__);
+#endif
+#ifdef __UINT_FAST16_TYPE__
+    PREPROC_ADD_MACRO(info, __UINT_FAST16_TYPE__);
+#endif
+#ifdef __UINT_FAST32_FMTX__
+    PREPROC_ADD_MACRO(info, __UINT_FAST32_FMTX__);
+#endif
+#ifdef __UINT_FAST32_FMTo__
+    PREPROC_ADD_MACRO(info, __UINT_FAST32_FMTo__);
+#endif
+#ifdef __UINT_FAST32_FMTu__
+    PREPROC_ADD_MACRO(info, __UINT_FAST32_FMTu__);
+#endif
+#ifdef __UINT_FAST32_FMTx__
+    PREPROC_ADD_MACRO(info, __UINT_FAST32_FMTx__);
+#endif
+#ifdef __UINT_FAST32_MAX__
+    PREPROC_ADD_MACRO(info, __UINT_FAST32_MAX__);
+#endif
+#ifdef __UINT_FAST32_TYPE__
+    PREPROC_ADD_MACRO(info, __UINT_FAST32_TYPE__);
+#endif
+#ifdef __UINT_FAST64_FMTX__
+    PREPROC_ADD_MACRO(info, __UINT_FAST64_FMTX__);
+#endif
+#ifdef __UINT_FAST64_FMTo__
+    PREPROC_ADD_MACRO(info, __UINT_FAST64_FMTo__);
+#endif
+#ifdef __UINT_FAST64_FMTu__
+    PREPROC_ADD_MACRO(info, __UINT_FAST64_FMTu__);
+#endif
+#ifdef __UINT_FAST64_FMTx__
+    PREPROC_ADD_MACRO(info, __UINT_FAST64_FMTx__);
+#endif
+#ifdef __UINT_FAST64_MAX__
+    PREPROC_ADD_MACRO(info, __UINT_FAST64_MAX__);
+#endif
+#ifdef __UINT_FAST64_TYPE__
+    PREPROC_ADD_MACRO(info, __UINT_FAST64_TYPE__);
+#endif
+#ifdef __UINT_FAST8_FMTX__
+    PREPROC_ADD_MACRO(info, __UINT_FAST8_FMTX__);
+#endif
+#ifdef __UINT_FAST8_FMTo__
+    PREPROC_ADD_MACRO(info, __UINT_FAST8_FMTo__);
+#endif
+#ifdef __UINT_FAST8_FMTu__
+    PREPROC_ADD_MACRO(info, __UINT_FAST8_FMTu__);
+#endif
+#ifdef __UINT_FAST8_FMTx__
+    PREPROC_ADD_MACRO(info, __UINT_FAST8_FMTx__);
+#endif
+#ifdef __UINT_FAST8_MAX__
+    PREPROC_ADD_MACRO(info, __UINT_FAST8_MAX__);
+#endif
+#ifdef __UINT_FAST8_TYPE__
+    PREPROC_ADD_MACRO(info, __UINT_FAST8_TYPE__);
+#endif
+#ifdef __UINT_LEAST16_FMTX__
+    PREPROC_ADD_MACRO(info, __UINT_LEAST16_FMTX__);
+#endif
+#ifdef __UINT_LEAST16_FMTo__
+    PREPROC_ADD_MACRO(info, __UINT_LEAST16_FMTo__);
+#endif
+#ifdef __UINT_LEAST16_FMTu__
+    PREPROC_ADD_MACRO(info, __UINT_LEAST16_FMTu__);
+#endif
+#ifdef __UINT_LEAST16_FMTx__
+    PREPROC_ADD_MACRO(info, __UINT_LEAST16_FMTx__);
+#endif
+#ifdef __UINT_LEAST16_MAX__
+    PREPROC_ADD_MACRO(info, __UINT_LEAST16_MAX__);
+#endif
+#ifdef __UINT_LEAST16_TYPE__
+    PREPROC_ADD_MACRO(info, __UINT_LEAST16_TYPE__);
+#endif
+#ifdef __UINT_LEAST32_FMTX__
+    PREPROC_ADD_MACRO(info, __UINT_LEAST32_FMTX__);
+#endif
+#ifdef __UINT_LEAST32_FMTo__
+    PREPROC_ADD_MACRO(info, __UINT_LEAST32_FMTo__);
+#endif
+#ifdef __UINT_LEAST32_FMTu__
+    PREPROC_ADD_MACRO(info, __UINT_LEAST32_FMTu__);
+#endif
+#ifdef __UINT_LEAST32_FMTx__
+    PREPROC_ADD_MACRO(info, __UINT_LEAST32_FMTx__);
+#endif
+#ifdef __UINT_LEAST32_MAX__
+    PREPROC_ADD_MACRO(info, __UINT_LEAST32_MAX__);
+#endif
+#ifdef __UINT_LEAST32_TYPE__
+    PREPROC_ADD_MACRO(info, __UINT_LEAST32_TYPE__);
+#endif
+#ifdef __UINT_LEAST64_FMTX__
+    PREPROC_ADD_MACRO(info, __UINT_LEAST64_FMTX__);
+#endif
+#ifdef __UINT_LEAST64_FMTo__
+    PREPROC_ADD_MACRO(info, __UINT_LEAST64_FMTo__);
+#endif
+#ifdef __UINT_LEAST64_FMTu__
+    PREPROC_ADD_MACRO(info, __UINT_LEAST64_FMTu__);
+#endif
+#ifdef __UINT_LEAST64_FMTx__
+    PREPROC_ADD_MACRO(info, __UINT_LEAST64_FMTx__);
+#endif
+#ifdef __UINT_LEAST64_MAX__
+    PREPROC_ADD_MACRO(info, __UINT_LEAST64_MAX__);
+#endif
+#ifdef __UINT_LEAST64_TYPE__
+    PREPROC_ADD_MACRO(info, __UINT_LEAST64_TYPE__);
+#endif
+#ifdef __UINT_LEAST8_FMTX__
+    PREPROC_ADD_MACRO(info, __UINT_LEAST8_FMTX__);
+#endif
+#ifdef __UINT_LEAST8_FMTo__
+    PREPROC_ADD_MACRO(info, __UINT_LEAST8_FMTo__);
+#endif
+#ifdef __UINT_LEAST8_FMTu__
+    PREPROC_ADD_MACRO(info, __UINT_LEAST8_FMTu__);
+#endif
+#ifdef __UINT_LEAST8_FMTx__
+    PREPROC_ADD_MACRO(info, __UINT_LEAST8_FMTx__);
+#endif
+#ifdef __UINT_LEAST8_MAX__
+    PREPROC_ADD_MACRO(info, __UINT_LEAST8_MAX__);
+#endif
+#ifdef __UINT_LEAST8_TYPE__
+    PREPROC_ADD_MACRO(info, __UINT_LEAST8_TYPE__);
+#endif
+#ifdef __WCHAR_MAX__
+    PREPROC_ADD_MACRO(info, __WCHAR_MAX__);
+#endif
+#ifdef __WCHAR_MIN__
+    PREPROC_ADD_MACRO(info, __WCHAR_MIN__);
+#endif
+#ifdef __WCHAR_TYPE__
+    PREPROC_ADD_MACRO(info, __WCHAR_TYPE__);
+#endif
+#ifdef __WCHAR_WIDTH__
+    PREPROC_ADD_MACRO(info, __WCHAR_WIDTH__);
+#endif
+#ifdef __WINT_MAX__
+    PREPROC_ADD_MACRO(info, __WINT_MAX__);
+#endif
+#ifdef __WINT_MIN__
+    PREPROC_ADD_MACRO(info, __WINT_MIN__);
+#endif
+#ifdef __WINT_TYPE__
+    PREPROC_ADD_MACRO(info, __WINT_TYPE__);
+#endif
+#ifdef __WINT_WIDTH__
+    PREPROC_ADD_MACRO(info, __WINT_WIDTH__);
 #endif
   }
 
