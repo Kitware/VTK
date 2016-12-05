@@ -561,16 +561,21 @@ public:
       double transform[3];
       H5Aread(att, H5T_NATIVE_DOUBLE, &transform);
 
-      double nextpt[3];
+      bool needed = false;
       for (unsigned int b = 0; b < this->part_to_blocks[i].size(); b++)
       {
         int gblockid = this->part_to_blocks[i][b];
         int blockidx = this->mapblock[gblockid];
-        if (self->BlockChoices->GetArraySetting(blockidx) == 0)
+        if (self->BlockChoices->GetArraySetting(blockidx) != 0)
         {
-          continue;
+          needed = true;
+          break;
         }
+      }
 
+      if (needed)
+      {
+        double nextpt[3];
         vtkPoints *pts = vtkPoints::New();
         unsigned int npts = this->Points->GetNumberOfPoints();
         pts->SetNumberOfPoints(npts);
@@ -582,7 +587,18 @@ public:
           nextpt[2] = nextpt[2]+transform[2];
           pts->SetPoint(p, nextpt);
         }
-        this->grid[blockidx]->SetPoints(pts);
+
+        for (unsigned int b = 0; b < this->part_to_blocks[i].size(); b++)
+        {
+          int gblockid = this->part_to_blocks[i][b];
+          int blockidx = this->mapblock[gblockid];
+          if (self->BlockChoices->GetArraySetting(blockidx) == 0)
+          {
+            continue;
+          }
+
+          this->grid[blockidx]->SetPoints(pts);
+        }
         pts->Delete();
       }
       H5Aclose(att);
