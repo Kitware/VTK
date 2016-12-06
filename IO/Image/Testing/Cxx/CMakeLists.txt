@@ -28,6 +28,14 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
     "collection")
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestBMPReader.cxx,NO_OUTPUT
+    "DATA{${VTK_TEST_INPUT_DIR}/masonry.bmp}")
+
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestBMPReaderDoNotAllow8BitBMP.cxx,NO_OUTPUT
+    "DATA{${VTK_TEST_INPUT_DIR}/masonry.bmp}")
+
+vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestTIFFReaderMultipleMulti,TestTIFFReaderMultiple.cxx,NO_VALID,NO_OUTPUT
     "DATA{${VTK_TEST_INPUT_DIR}/libtiff/multipage_tiff_example.tif}")
 
