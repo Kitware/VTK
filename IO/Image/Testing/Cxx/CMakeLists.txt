@@ -1,3 +1,8 @@
+# Tell ExternalData to fetch test input at build time.
+  ExternalData_Expand_Arguments(VTKData _
+    "DATA{${VTK_TEST_INPUT_DIR}/dicom/collection/,REGEX:.*}"
+    )
+
 vtk_add_test_cxx(${vtk-module}CxxTests data_tests
   # TestImageReader2Factory.cxx   # fixme (deps not satisfied)
   TestNrrdReader.cxx
@@ -13,10 +18,14 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestImportExport.cxx
   )
 
-# Each of these most be added in a separate vtk_add_test_cxx
+# Each of these must be added in a separate vtk_add_test_cxx
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestDICOMImageReader.cxx,NO_OUTPUT
     "DATA{${VTK_TEST_INPUT_DIR}/dicom/prostate.IMG}")
+
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestDICOMImageReaderFileCollection.cxx,NO_OUTPUT
+    "collection")
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestTIFFReaderMultipleMulti,TestTIFFReaderMultiple.cxx,NO_VALID,NO_OUTPUT
