@@ -86,6 +86,7 @@
 #ifndef vtkMultiBlockPLOT3DReader_h
 #define vtkMultiBlockPLOT3DReader_h
 
+#include <vector>  // For holding function-names
 #include "vtkIOParallelModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
@@ -297,6 +298,8 @@ public:
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
   //@}
 
+  void AddFunctionName(const std::string &name) {FunctionNames.push_back(name);}
+
   enum
   {
     FILE_BIG_ENDIAN=0,
@@ -406,6 +409,9 @@ protected:
   double Uvinf;
   double Vvinf;
   double Wvinf;
+
+  //named functions from meta data
+  std::vector<std::string> FunctionNames;
 
   //functions to read that are not scalars or vectors
   vtkIntArray *FunctionList;

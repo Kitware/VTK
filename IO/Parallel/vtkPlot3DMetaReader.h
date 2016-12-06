@@ -59,7 +59,9 @@
  *                     // if they don't change over time. The reader will not read files unnecessarily.
  *  { "time" : 3.5, "xyz" : "combxyz.bin", "q" : "combq.1.bin", "function" : "combf.1.bin" },
  *  { "time" : 4.5, "xyz" : "combxyz.bin", "q" : "combq.2.bin", "function" : "combf.2.bin" }
- * ]
+ * ],
+ * "function-names" : ["density", "velocity_x", "temperature"]
+ *                   // list of names of functions in function files
  * }
  * \endverbatim
  *
@@ -130,6 +132,7 @@ protected:
   void SetFileNames(Json::Value* val);
   void SetLanguage(Json::Value* val);
   void AddFunctions(Json::Value* val);
+  void SetFunctionNames(Json::Value* val);
 
 private:
   vtkPlot3DMetaReader(const vtkPlot3DMetaReader&) VTK_DELETE_FUNCTION;
