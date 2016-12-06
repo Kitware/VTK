@@ -113,7 +113,9 @@ vtkOrientationMarkerWidget::vtkOrientationMarkerWidget()
 vtkOrientationMarkerWidget::~vtkOrientationMarkerWidget()
 {
   this->Observer->Delete();
+  this->Observer = NULL;
   this->Renderer->Delete();
+  this->Renderer = NULL;
   this->SetOrientationMarker( NULL );
   this->OutlineActor->Delete();
   this->Outline->Delete();
@@ -959,7 +961,10 @@ void vtkOrientationMarkerWidget::UpdateViewport()
 //-------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::Modified()
 {
-  this->Renderer->SetViewport( this->Viewport );
+  if (this->Renderer)
+  {
+    this->Renderer->SetViewport(this->Viewport);
+  }
   this->vtkInteractorObserver::Modified() ;
 }
 //-------------------------------------------------------------------------
