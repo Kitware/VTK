@@ -1,4 +1,4 @@
-find_package(ADIOS REQUIRED)
+find_package(ADIOS 1.11 REQUIRED)
 include_directories(SYSTEM ${ADIOS_INCLUDE_DIRS})
 
 find_package(MPI REQUIRED)
