@@ -435,7 +435,9 @@ void vtkTextureObject::CreateTexture()
       // See: http://www.opengl.org/wiki/Common_Mistakes#Creating_a_complete_texture
       // turn off mip map filter or set the base and max level correctly. here
       // both are done.
+#ifdef GL_TEXTURE_2D_MULTISAMPLE
       if (this->Target != GL_TEXTURE_2D_MULTISAMPLE)
+#endif
       {
         glTexParameteri(this->Target, GL_TEXTURE_MIN_FILTER,
                         this->GetMinificationFilterMode(this->MinificationFilter));
@@ -578,9 +580,11 @@ bool vtkTextureObject::IsBound()
       case GL_TEXTURE_2D:
         target=GL_TEXTURE_BINDING_2D;
         break;
+#if defined(GL_TEXTURE_2D_MULTISAMPLE) && defined(GL_TEXTURE_BINDING_2D_MULTISAMPLE)
       case  GL_TEXTURE_2D_MULTISAMPLE:
         target=GL_TEXTURE_BINDING_2D_MULTISAMPLE;
         break;
+#endif
 #if defined(GL_TEXTURE_3D) && defined(GL_TEXTURE_BINDING_3D)
       case GL_TEXTURE_3D:
         target=GL_TEXTURE_BINDING_3D;
@@ -619,10 +623,12 @@ void vtkTextureObject::SendParameters()
   }
 #endif
 
+#ifdef GL_TEXTURE_2D_MULTISAMPLE
   if (this->Target == GL_TEXTURE_2D_MULTISAMPLE)
   {
     return;
   }
+#endif
 
   glTexParameteri(this->Target,GL_TEXTURE_WRAP_S, OpenGLWrap[this->WrapS]);
   glTexParameteri(this->Target,GL_TEXTURE_WRAP_T, OpenGLWrap[this->WrapT]);
@@ -1728,8 +1734,12 @@ bool vtkTextureObject::AllocateDepth(unsigned int width, unsigned int height,
   assert("pre: valid_internalFormat" && internalFormat>=0
          && internalFormat<NumberOfDepthFormats);
 
+#ifdef GL_TEXTURE_2D_MULTISAMPLE
   this->Target =
     (this->Samples ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D);
+#else
+  this->Target = GL_TEXTURE_2D;
+#endif
 
   this->Format = GL_DEPTH_COMPONENT;
 
@@ -1754,6 +1764,7 @@ bool vtkTextureObject::AllocateDepth(unsigned int width, unsigned int height,
   this->CreateTexture();
   this->Bind();
 
+#ifdef GL_TEXTURE_2D_MULTISAMPLE
   if (this->Samples)
   {
     glTexImage2DMultisample(this->Target,
@@ -1764,6 +1775,7 @@ bool vtkTextureObject::AllocateDepth(unsigned int width, unsigned int height,
       GL_TRUE);
   }
   else
+#endif
   {
     glTexImage2D(this->Target,
       0,
@@ -1824,8 +1836,12 @@ bool vtkTextureObject::Allocate2D(unsigned int width,unsigned int height,
 {
   assert(this->Context);
 
+#ifdef GL_TEXTURE_2D_MULTISAMPLE
   this->Target =
     (this->Samples ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D);
+#else
+  this->Target = GL_TEXTURE_2D;
+#endif
 
   this->GetDataType(vtkType);
   this->GetInternalFormat(vtkType, numComps, false);
@@ -1840,6 +1856,8 @@ bool vtkTextureObject::Allocate2D(unsigned int width,unsigned int height,
   this->Context->ActivateTexture(this);
   this->CreateTexture();
   this->Bind();
+
+#ifdef GL_TEXTURE_2D_MULTISAMPLE
   if (this->Samples)
   {
     glTexImage2DMultisample(this->Target,
@@ -1850,6 +1868,7 @@ bool vtkTextureObject::Allocate2D(unsigned int width,unsigned int height,
       GL_TRUE);
   }
   else
+#endif
   {
     glTexImage2D(this->Target,
       0,
@@ -2121,6 +2140,7 @@ void vtkTextureObject::Resize(
 
   if (this->NumberOfDimensions== 2)
   {
+#ifdef GL_TEXTURE_2D_MULTISAMPLE
     if (this->Samples)
     {
       glTexImage2DMultisample( this->Target, this->Samples,
@@ -2130,6 +2150,7 @@ void vtkTextureObject::Resize(
         GL_TRUE);
     }
     else
+#endif
     {
       glTexImage2D(this->Target, 0, static_cast<GLint>(this->InternalFormat),
                  static_cast<GLsizei>(this->Width),
