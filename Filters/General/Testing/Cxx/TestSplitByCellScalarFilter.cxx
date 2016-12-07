@@ -35,9 +35,11 @@ int TestSplitByCellScalarFilter(int argc, char* argv[])
   if (!reader->CanReadFile(fname))
   {
     std::cerr << "Error: Could not read " << fname << ".\n";
+    delete [] fname;
     return EXIT_FAILURE;
   }
   reader->Update();
+  delete [] fname;
 
   vtkImageData* image = reader->GetOutput();
 
