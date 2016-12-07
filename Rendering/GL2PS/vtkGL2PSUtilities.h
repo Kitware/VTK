@@ -156,6 +156,7 @@ private:
   static bool TextAsPath;
   static float PointSizeFactor;
   static float LineWidthFactor;
+  static float* TextAsPathOpacities;
 
   //@{
   /**
