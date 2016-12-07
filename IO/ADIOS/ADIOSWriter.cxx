@@ -217,7 +217,7 @@ Writer::Writer(ADIOS::TransportMethod transport,
 {
   int err;
 
-  err = adios_declare_group(&this->Impl->Group, "VTK", "", adios_flag_yes);
+  err = adios_declare_group(&this->Impl->Group, "VTK", "", adios_stat_full);
   WriteError::TestEq(0, err);
 
   err = adios_select_method(this->Impl->Group,
@@ -454,8 +454,7 @@ void Writer::Commit(const std::string& fName, bool app)
   // Step 2. Set the buffer size in MB with the full knowledge of the dynamic
   // group size.  Ask for 10% over the group size to account for extra metadata
   int bufSize = (groupSize * 1.1)/(1024*1024) + 1;
-  err = adios_allocate_buffer(ADIOS_BUFFER_ALLOC_LATER, bufSize);
-  WriteError::TestEq(0, err);
+  adios_set_max_buffer_size(bufSize);
 
   // Step 3. Open the file for writing
   int64_t file;
