@@ -6045,7 +6045,8 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
       }
 
       vtkTypeInt64 faceOwnerVal =
-          GetLabelValue(this->FaceOwner, cellOppositeFaceI,
+          GetLabelValue(this->FaceOwner,
+                        static_cast<vtkIdType>(cellOppositeFaceI),
                         use64BitLabels);
       if (faceOwnerVal == cellId)
       {
@@ -6153,12 +6154,16 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
           // pivot point; use point 2 otherwise
           faceOwnerValue = GetLabelValue(this->FaceOwner, cellAdjacentFaceId,
                                          use64BitLabels);
-          cellPoints->SetId(
-                baseFacePoints.size(),
-                (adjacentFacePoints[2] == cellPoints->GetId((faceOwnerValue
-                      == cellId ? (j + 1) : (baseFacePoints.size() + j - 1))
-                      % baseFacePoints.size())) ? adjacentFacePoints[0]
-                  : adjacentFacePoints[2]);
+          vtkIdType value =
+              (adjacentFacePoints[2] == cellPoints->GetId(
+                faceOwnerValue == cellId
+                ? static_cast<vtkIdType>(j + 1)
+                : static_cast<vtkIdType>(baseFacePoints.size() + j - 1) %
+                                         baseFacePoints.size()))
+              ? static_cast<vtkIdType>(adjacentFacePoints[0])
+              : static_cast<vtkIdType>(adjacentFacePoints[2]);
+          cellPoints->SetId(static_cast<vtkIdType>(baseFacePoints.size()),
+                            value);
           foundDup = true;
           break;
         }
@@ -6167,11 +6172,14 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
       // the base face, it's the pivot point
       if (!foundDup)
       {
-        cellPoints->SetId(baseFacePoints.size(), adjacentFacePoint1);
+        cellPoints->SetId(static_cast<vtkIdType>(baseFacePoints.size()),
+                          static_cast<vtkIdType>(adjacentFacePoint1));
       }
 
       // create the tetra cell and insert it into the mesh
-      internalMesh->InsertNextCell(cellType, nPoints, cellPoints->GetPointer(0));
+      internalMesh->InsertNextCell(cellType,
+                                   static_cast<vtkIdType>(nPoints),
+                                   cellPoints->GetPointer(0));
     }
 
     // erroneous cells
@@ -6284,8 +6292,11 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
             }
           }
 
-          cellPoints->SetId(0, faceJPoints[vertI == 2 ? 0 : faceJPoints.size() - 1]);
-          cellPoints->SetId(4, this->NumPoints + nAdditionalPoints);
+          cellPoints->SetId(0, faceJPoints[ (vertI == 2)
+              ? static_cast<vtkIdType>(0)
+              : static_cast<vtkIdType>(faceJPoints.size() - 1)]);
+          cellPoints->SetId(4, static_cast<vtkIdType>(
+                              this->NumPoints + nAdditionalPoints));
 
           // decompose a face into quads in order (flipping the
           // decomposed face if owner)
@@ -6325,7 +6336,8 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
               cellPoints->SetId(1, faceJPoints[vertI - 1]);
               cellPoints->SetId(2, faceJPoints[vertI]);
             }
-            cellPoints->SetId(3, this->NumPoints + nAdditionalPoints);
+            cellPoints->SetId(3, static_cast<vtkIdType>(
+                                this->NumPoints + nAdditionalPoints));
 
             if (insertDecomposedCell)
             {
@@ -6363,7 +6375,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
           polyPoints->Delete();
           return;
         }
-        polyPoints->SetId(0, baseFacePoints.size());
+        polyPoints->SetId(0, static_cast<vtkIdType>(baseFacePoints.size()));
         vtkTypeInt64 faceOwnerValue =
             GetLabelValue(this->FaceOwner, cellFaces0, use64BitLabels);
         if (faceOwnerValue == cellId)
@@ -6372,8 +6384,10 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
           for (size_t j = 0; j < baseFacePoints.size(); j++)
           {
             vtkTypeInt64 pointJ = baseFacePoints[j];
-            cellPoints->SetId(j, static_cast<vtkIdType>(pointJ));
-            polyPoints->SetId(j + 1, static_cast<vtkIdType>(pointJ));
+            cellPoints->SetId(static_cast<vtkIdType>(j),
+                              static_cast<vtkIdType>(pointJ));
+            polyPoints->SetId(static_cast<vtkIdType>(j + 1),
+                              static_cast<vtkIdType>(pointJ));
           }
         }
         else
@@ -6382,8 +6396,10 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
           for (size_t j = 0; j < baseFacePoints.size(); j++)
           {
             vtkTypeInt64 pointJ = baseFacePoints[baseFacePoints.size() - 1 - j];
-            cellPoints->SetId(j, static_cast<vtkIdType>(pointJ));
-            polyPoints->SetId(j + 1, static_cast<vtkIdType>(pointJ));
+            cellPoints->SetId(static_cast<vtkIdType>(j),
+                              static_cast<vtkIdType>(pointJ));
+            polyPoints->SetId(static_cast<vtkIdType>(j + 1),
+                              static_cast<vtkIdType>(pointJ));
           }
         }
 
@@ -6402,7 +6418,8 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
             polyPoints->Delete();
             return;
           }
-          polyPoints->SetId(nPolyPoints++, faceJPoints.size());
+          polyPoints->SetId(static_cast<vtkIdType>(nPolyPoints++),
+                            static_cast<vtkIdType>(faceJPoints.size()));
           int pointI, delta; // must be signed
           faceOwnerValue = GetLabelValue(this->FaceOwner, cellFacesJ,
                                          use64BitLabels);
@@ -6438,7 +6455,8 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
                 polyPoints->Delete();
                 return;
               }
-              cellPoints->SetId(nPoints++, faceJPointK);
+              cellPoints->SetId(static_cast<vtkIdType>(nPoints++),
+                                static_cast<vtkIdType>(faceJPointK));
             }
             if (nPolyPoints >= static_cast<size_t>(maxNPolyPoints))
             {
@@ -6447,13 +6465,17 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
                 polyPoints->Delete();
                 return;
             }
-            polyPoints->SetId(nPolyPoints++, faceJPointK);
+            polyPoints->SetId(static_cast<vtkIdType>(nPolyPoints++),
+                              static_cast<vtkIdType>(faceJPointK));
           }
         }
 
         // create the poly cell and insert it into the mesh
-        internalMesh->InsertNextCell(VTK_POLYHEDRON, nPoints,
-            cellPoints->GetPointer(0), cellFaces.size(), polyPoints->GetPointer(0));
+        internalMesh->InsertNextCell(
+              VTK_POLYHEDRON, static_cast<vtkIdType>(nPoints),
+              cellPoints->GetPointer(0),
+              static_cast<vtkIdType>(cellFaces.size()),
+              polyPoints->GetPointer(0));
       }
     }
   }
