@@ -1191,6 +1191,12 @@ int vtkTRUCHASReader::RequestData(
 //----------------------------------------------------------------------------
 int vtkTRUCHASReader::CanReadFile(const char *filename)
 {
+  int len = strlen(filename);
+  if (len < 3 || strcmp(filename+len-3, ".h5"))
+  {
+    return 0;
+  }
+
   hid_t fileIndx = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT );
   if( fileIndx < 0 )
   {
