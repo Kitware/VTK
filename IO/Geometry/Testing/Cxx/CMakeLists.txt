@@ -15,6 +15,11 @@ ExternalData_Expand_Arguments(VTKData _
   "DATA{${VTK_TEST_INPUT_DIR}/OpenFOAM/cavity/constant/,REGEX:.*}"
   "DATA{${VTK_TEST_INPUT_DIR}/OpenFOAM/cavity/constant/polyMesh/,REGEX:.*}"
   "DATA{${VTK_TEST_INPUT_DIR}/OpenFOAM/cavity/system/,REGEX:.*}"
+  "DATA{${VTK_TEST_INPUT_DIR}/OpenFOAM/64BitFloats/,REGEX:.*}"
+  "DATA{${VTK_TEST_INPUT_DIR}/OpenFOAM/64BitFloats/0/,REGEX:.*}"
+  "DATA{${VTK_TEST_INPUT_DIR}/OpenFOAM/64BitFloats/constant/,REGEX:.*}"
+  "DATA{${VTK_TEST_INPUT_DIR}/OpenFOAM/64BitFloats/constant/polyMesh/,REGEX:.*}"
+  "DATA{${VTK_TEST_INPUT_DIR}/OpenFOAM/64BitFloats/system/,REGEX:.*}"
   )
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestDataObjectIO.cxx,NO_VALID
@@ -25,6 +30,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestOBJReaderRelative.cxx,NO_VALID
   TestOBJReaderNormalsTCoords.cxx,NO_VALID
   TestOpenFOAMReader.cxx
+  TestOpenFOAMReader64BitFloats.cxx
   TestProStarReader.cxx
   TestTecplotReader.cxx
   TestAMRReadWrite.cxx,NO_VALID
