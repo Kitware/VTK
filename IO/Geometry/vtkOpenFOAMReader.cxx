@@ -61,6 +61,7 @@
 #include <sstream>
 #include "vtk_zlib.h"
 
+#include "vtkAssume.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
@@ -2459,13 +2460,15 @@ public:
     }
     void ReadAsciiList(vtkFoamIOobject& io, const vtkIdType size)
     {
+      typedef typename listT::ValueType ListValueType;
       for (vtkIdType i = 0; i < size; i++)
       {
         io.ReadExpecting('(');
-        primitiveT *vectorTupleI = this->Ptr->GetPointer(nComponents * i);
+        ListValueType *vectorTupleI = this->Ptr->GetPointer(nComponents * i);
         for (int j = 0; j < nComponents; j++)
         {
-          vectorTupleI[j] = vtkFoamReadValue<primitiveT>::ReadValue(io);
+          vectorTupleI[j] = static_cast<ListValueType>(
+                vtkFoamReadValue<primitiveT>::ReadValue(io));
         }
         io.ReadExpecting(')');
         if (isPositions)
@@ -2504,6 +2507,11 @@ public:
       }
       else
       {
+        typedef typename listT::ValueType ListValueType;
+
+        // Compiler hint for better unrolling:
+        VTK_ASSUME(this->Ptr->GetNumberOfComponents() == nComponents);
+
         for (int i = 0; i < size; i++)
         {
           int tupleLength = sizeof(primitiveT) * nComponents;
@@ -2516,7 +2524,11 @@ public:
                                  << size << ": Expected " << tupleLength
                                  << " bytes, got " << readLength << " bytes.";
           }
-          this->Ptr->SetTypedTuple(i, buffer);
+          for (int c = 0; c < nComponents; ++c)
+          {
+            this->Ptr->SetTypedComponent(i, c,
+                                         static_cast<ListValueType>(buffer[c]));
+          }
         }
       }
     }
@@ -2881,30 +2893,71 @@ public:
 
       else if(io.GetClassName() == "scalarField")
       {
-        this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray, float> >(
-            io);
+        if (io.GetReader()->GetUse64BitFloats())
+        {
+          this->ReadNonuniformList
+              <SCALARLIST, listTraits<vtkFloatArray, double> >(io);
+        }
+        else
+        {
+          this->ReadNonuniformList
+              <SCALARLIST, listTraits<vtkFloatArray, float> >(io);
+        }
+
       }
       else if(io.GetClassName() == "sphericalTensorField")
       {
-        this->ReadNonuniformList<VECTORLIST,
-        vectorListTraits<vtkFloatArray, float, 1, false> >(io);
+        if (io.GetReader()->GetUse64BitFloats())
+        {
+          this->ReadNonuniformList<VECTORLIST,
+              vectorListTraits<vtkFloatArray, double, 1, false> >(io);
+        }
+        else
+        {
+          this->ReadNonuniformList<VECTORLIST,
+              vectorListTraits<vtkFloatArray, float, 1, false> >(io);
+        }
       }
       // polyMesh/points, lagrangian vectors
 
       else if(io.GetClassName() == "vectorField")
       {
-        this->ReadNonuniformList<VECTORLIST,
-        vectorListTraits<vtkFloatArray, float, 3, false> >(io);
+        if (io.GetReader()->GetUse64BitFloats())
+        {
+          this->ReadNonuniformList<VECTORLIST,
+              vectorListTraits<vtkFloatArray, double, 3, false> >(io);
+        }
+        else
+        {
+          this->ReadNonuniformList<VECTORLIST,
+              vectorListTraits<vtkFloatArray, float, 3, false> >(io);
+        }
       }
       else if(io.GetClassName() == "symmTensorField")
       {
-        this->ReadNonuniformList<VECTORLIST,
-        vectorListTraits<vtkFloatArray, float, 6, false> >(io);
+        if (io.GetReader()->GetUse64BitFloats())
+        {
+          this->ReadNonuniformList<VECTORLIST,
+              vectorListTraits<vtkFloatArray, double, 6, false> >(io);
+        }
+        else
+        {
+          this->ReadNonuniformList<VECTORLIST,
+              vectorListTraits<vtkFloatArray, float, 6, false> >(io);
+        }
       }
       else if(io.GetClassName() == "tensorField")
       {
-        this->ReadNonuniformList<VECTORLIST,
-        vectorListTraits<vtkFloatArray, float, 9, false> >(io);
+        if (io.GetReader()->GetUse64BitFloats())
+        {
+          this->ReadNonuniformList<VECTORLIST,
+              vectorListTraits<vtkFloatArray, double, 9, false> >(io);
+        }
+        else
+        {
+          this->ReadNonuniformList<VECTORLIST,
+              vectorListTraits<vtkFloatArray, float, 9, false> >(io);
+        }
       }
       else
       {
@@ -3988,27 +4041,68 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
     this->IsUniform = false;
     if (currToken == "List<scalar>")
     {
-      this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray, float> >(io);
+      if (io.GetReader()->GetUse64BitFloats())
+      {
+        this->ReadNonuniformList
+            <SCALARLIST, listTraits<vtkFloatArray, double> >(io);
+      }
+      else
+      {
+        this->ReadNonuniformList
+            <SCALARLIST, listTraits<vtkFloatArray, float> >(io);
+      }
     }
     else if (currToken == "List<sphericalTensor>")
     {
-      this->ReadNonuniformList<VECTORLIST,
-      vectorListTraits<vtkFloatArray, float, 1, false> >(io);
+      if (io.GetReader()->GetUse64BitFloats())
+      {
+        this->ReadNonuniformList<VECTORLIST,
+            vectorListTraits<vtkFloatArray, double, 1, false> >(io);
+      }
+      else
+      {
+        this->ReadNonuniformList<VECTORLIST,
+            vectorListTraits<vtkFloatArray, float, 1, false> >(io);
+      }
     }
     else if (currToken == "List<vector>")
     {
-      this->ReadNonuniformList<VECTORLIST,
-      vectorListTraits<vtkFloatArray, float, 3, false> >(io);
+      if (io.GetReader()->GetUse64BitFloats())
+      {
+        this->ReadNonuniformList<VECTORLIST,
+            vectorListTraits<vtkFloatArray, double, 3, false> >(io);
+      }
+      else
+      {
+        this->ReadNonuniformList<VECTORLIST,
+            vectorListTraits<vtkFloatArray, float, 3, false> >(io);
+      }
     }
     else if (currToken == "List<symmTensor>")
     {
-      this->ReadNonuniformList<VECTORLIST,
-      vectorListTraits<vtkFloatArray, float, 6, false> >(io);
+      if (io.GetReader()->GetUse64BitFloats())
+      {
+        this->ReadNonuniformList<VECTORLIST,
+            vectorListTraits<vtkFloatArray, double, 6, false> >(io);
+      }
+      else
+      {
+        this->ReadNonuniformList<VECTORLIST,
+            vectorListTraits<vtkFloatArray, float, 6, false> >(io);
+      }
     }
     else if (currToken == "List<tensor>")
     {
-      this->ReadNonuniformList<VECTORLIST,
-      vectorListTraits<vtkFloatArray, float, 9, false> >(io);
+      if (io.GetReader()->GetUse64BitFloats())
+      {
+        this->ReadNonuniformList<VECTORLIST,
+            vectorListTraits<vtkFloatArray, double, 9, false> >(io);
+      }
+      else
+      {
+        this->ReadNonuniformList<VECTORLIST,
+            vectorListTraits<vtkFloatArray, float, 9, false> >(io);
+      }
     }
     // List<bool> is read as List<label>
     else if (currToken =="List<label>" || currToken == "List<bool>")
@@ -5143,6 +5237,12 @@ vtkFloatArray* vtkOpenFOAMReaderPrivate::ReadPointsFile()
   // up reading doubles, we'll need to cast the array.
   vtkFloatArray *pointArray = NULL;
 
+  // We now have a Use64BitFloats flag on the reader, but let's keep the
+  // try/catch pattern below. We can get away with this here because it's
+  // easy to rebuild the io object if we need to restart the read, and if the
+  // points data doesn't match the requested float size, we can warn the user
+  // so they'll know why reading e.g. attribute data fails later.
+
   // Try to read the values as 32-bit floats
   try
   {
@@ -5160,6 +5260,13 @@ vtkFloatArray* vtkOpenFOAMReaderPrivate::ReadPointsFile()
 
     dict->ReadNonuniformList<vtkFoamToken::VECTORLIST,
     vtkFoamEntryValue::vectorListTraits<vtkFloatArray, float, 3, false> >(*io);
+
+    if (this->Parent->GetUse64BitFloats())
+    {
+      vtkWarningMacro("Detected 32-bit floats in the point file, but "
+                      "Use64BitFloats is true. Reading may fail for other "
+                      "arrays.")
+    }
 
     pointArray = static_cast<vtkFloatArray *>(dict->Ptr());
   }
@@ -5180,14 +5287,18 @@ vtkFloatArray* vtkOpenFOAMReaderPrivate::ReadPointsFile()
       io = &ioDbl;
 
       dict->ReadNonuniformList<vtkFoamToken::VECTORLIST,
-          vtkFoamEntryValue::vectorListTraits<vtkDoubleArray, double, 3, false>
+          vtkFoamEntryValue::vectorListTraits<vtkFloatArray, double, 3, false>
           >(*io);
 
+      if (!this->Parent->GetUse64BitFloats())
+      {
+        vtkWarningMacro("Detected 64-bit floats in the point file, but "
+                        "Use64BitFloats is false. Reading may fail for other "
+                        "arrays.")
+      }
+
       // Cast the double array to a float array:
-      vtkDoubleArray *tmpArray = static_cast<vtkDoubleArray *>(dict->Ptr());
-      pointArray = vtkFloatArray::New();
-      pointArray->DeepCopy(tmpArray);
-      tmpArray->Delete(); // this isn't freed by dict once Ptr() is called.
+      pointArray = static_cast<vtkFloatArray *>(dict->Ptr());
     }
     catch(vtkFoamError& e)
     { // Something is horribly wrong.
@@ -8979,6 +9090,9 @@ vtkOpenFOAMReader::vtkOpenFOAMReader()
   this->CurrentReaderIndex = 0;
   this->NumberOfReaders = 0;
   this->Use64BitLabels = false;
+  this->Use64BitLabelsOld = false;
+  this->Use64BitFloats = false;
+  this->Use64BitFloatsOld = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -9004,6 +9118,28 @@ vtkOpenFOAMReader::~vtkOpenFOAMReader()
 int vtkOpenFOAMReader::CanReadFile(const char *vtkNotUsed(fileName))
 {
   return 1; // so far CanReadFile does nothing.
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenFOAMReader::SetUse64BitLabels(bool val)
+{
+  if (this->Use64BitLabels != val)
+  {
+    this->Use64BitLabels = val;
+    this->Refresh = true; // Need to reread everything
+    this->Modified();
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenFOAMReader::SetUse64BitFloats(bool val)
+{
+  if (this->Use64BitFloats != val)
+  {
+    this->Use64BitFloats = val;
+    this->Refresh = true; // Need to reread everything
+    this->Modified();
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -9173,12 +9309,15 @@ int vtkOpenFOAMReader::RequestData(vtkInformation *vtkNotUsed(request), vtkInfor
       || this->Parent->DecomposePolyhedra
           != this->Parent->DecomposePolyhedraOld || this->Parent->ReadZones
       != this->Parent->ReadZonesOld || this->Parent->ListTimeStepsByControlDict
-      != this->Parent->ListTimeStepsByControlDictOld;
+      != this->Parent->ListTimeStepsByControlDictOld
+      || this->Parent->Use64BitLabels != this->Parent->Use64BitLabelsOld
+      || this->Parent->Use64BitFloats != this->Parent->Use64BitFloatsOld;
   const bool recreateBoundaryMesh =
       this->Parent->PatchDataArraySelection->GetMTime()
           != this->Parent->PatchSelectionMTimeOld
-          || this->Parent->CreateCellToPoint
-              != this->Parent->CreateCellToPointOld;
+      || this->Parent->CreateCellToPoint != this->Parent->CreateCellToPointOld
+      || this->Parent->Use64BitLabels != this->Parent->Use64BitLabelsOld
+      || this->Parent->Use64BitFloats != this->Parent->Use64BitFloatsOld;
   const bool updateVariables = this->Parent->CellDataArraySelection->GetMTime()
       != this->Parent->CellSelectionMTimeOld
       || this->Parent->PointDataArraySelection->GetMTime()
@@ -9188,7 +9327,9 @@ int vtkOpenFOAMReader::RequestData(vtkInformation *vtkNotUsed(request), vtkInfor
       || this->Parent->PositionsIsIn13Format
           != this->Parent->PositionsIsIn13FormatOld
       || this->Parent->AddDimensionsToArrayNames
-          != this->Parent->AddDimensionsToArrayNamesOld;
+          != this->Parent->AddDimensionsToArrayNamesOld
+      || this->Parent->Use64BitLabels != this->Parent->Use64BitLabelsOld
+      || this->Parent->Use64BitFloats != this->Parent->Use64BitFloatsOld;
 
   // create dataset
   int ret = 1;
@@ -9482,6 +9623,8 @@ void vtkOpenFOAMReader::UpdateStatus()
   this->ReadZonesOld = this->ReadZones;
   this->ListTimeStepsByControlDictOld = this->ListTimeStepsByControlDict;
   this->AddDimensionsToArrayNamesOld = this->AddDimensionsToArrayNames;
+  this->Use64BitLabelsOld = this->Use64BitLabels;
+  this->Use64BitFloatsOld = this->Use64BitFloats;
 }
 
 //-----------------------------------------------------------------------------

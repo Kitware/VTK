@@ -267,9 +267,20 @@ public:
   /**
    * If true, labels are expected to be 64-bit, rather than 32.
    */
-  vtkSetMacro(Use64BitLabels, bool)
+  virtual void SetUse64BitLabels(bool val);
   vtkGetMacro(Use64BitLabels, bool)
   vtkBooleanMacro(Use64BitLabels, bool)
+  //@}
+
+  //@{
+  /**
+   * If true, floats are expected to be 64-bit, rather than 32. Note that
+   * vtkFloatArrays may still be used in the output if this is true. This flag
+   * is only used to ensure that binary data is correctly parsed.
+   */
+  virtual void SetUse64BitFloats(bool val);
+  vtkGetMacro(Use64BitFloats, bool)
+  vtkBooleanMacro(Use64BitFloats, bool)
   //@}
 
   void SetRefresh() { this->Refresh = true; this->Modified(); }
@@ -310,6 +321,11 @@ protected:
   // Expect label size to be 64-bit integers instead of the default 32.
   bool Use64BitLabels;
 
+  // Expect float data to be 64-bit floats instead of the default 32. Note that
+  // vtkFloatArrays may still be used -- this just tells the reader how to
+  // parse the binary data.
+  bool Use64BitFloats;
+
   char *FileName;
   vtkCharArray *CasePath;
   vtkCollection *Readers;
@@ -334,6 +350,8 @@ protected:
   int PositionsIsIn13FormatOld;
   int AddDimensionsToArrayNamesOld;
   int ReadZonesOld;
+  bool Use64BitLabelsOld;
+  bool Use64BitFloatsOld;
 
   // paths to Lagrangians
   vtkStringArray *LagrangianPaths;
