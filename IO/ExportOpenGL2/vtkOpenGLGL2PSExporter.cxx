@@ -60,7 +60,7 @@ void vtkOpenGLGL2PSExporter::WriteData()
 
   std::ostringstream fname;
   fname << this->FilePrefix << "." << this->GetFileExtension();
-  if (this->Compress)
+  if (this->Compress && this->FileFormat != PDF_FILE)
   {
     fname << ".gz";
   }
