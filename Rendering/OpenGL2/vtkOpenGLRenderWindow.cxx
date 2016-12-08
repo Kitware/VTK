@@ -684,17 +684,6 @@ void vtkOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 }
 
-void vtkOpenGLRenderWindow::Render()
-{
-  // Query current GL state and store them
-  this->SaveGLState();
-
-  this->Superclass::Render();
-
-  // Restore state to previous known value
-  this->RestoreGLState();
-}
-
 int vtkOpenGLRenderWindow::GetDepthBufferSize()
 {
   GLint size;
