@@ -91,6 +91,7 @@
 #include "vtkTriangle.h"
 #include "vtkTypeInt32Array.h"
 #include "vtkTypeInt64Array.h"
+#include "vtkTypeTraits.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVertex.h"
 #include "vtkWedge.h"
@@ -107,6 +108,7 @@
 // for isalnum() / isspace() / isdigit()
 #include <cctype>
 
+#include <typeinfo>
 #include <vector>
 
 #if VTK_FOAMFILE_OMIT_CRCCHECK
@@ -2406,8 +2408,23 @@ public:
     }
     void ReadBinaryList(vtkFoamIOobject& io, const int size)
     {
-      io.Read(reinterpret_cast<unsigned char *>(this->Ptr->GetPointer(0)),
-              static_cast<int>(size * sizeof(primitiveT)));
+      typedef typename listT::ValueType ListValueType;
+      if (typeid(ListValueType) == typeid(primitiveT))
+      {
+        io.Read(reinterpret_cast<unsigned char *>(this->Ptr->GetPointer(0)),
+                static_cast<int>(size * sizeof(primitiveT)));
+      }
+      else
+      {
+        vtkDataArray *fileData = vtkDataArray::CreateDataArray(
+              vtkTypeTraits<primitiveT>::VTKTypeID());
+        fileData->SetNumberOfComponents(this->Ptr->GetNumberOfComponents());
+        fileData->SetNumberOfTuples(this->Ptr->GetNumberOfTuples());
+        io.Read(reinterpret_cast<unsigned char *>(fileData->GetVoidPointer(0)),
+                static_cast<int>(size * sizeof(primitiveT)));
+        this->Ptr->DeepCopy(fileData);
+        fileData->Delete();
+      }
     }
     void ReadValue(vtkFoamIOobject&, vtkFoamToken& currToken)
     {

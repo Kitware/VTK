@@ -49,6 +49,7 @@ int TestOpenFOAMReader64BitFloats(int argc, char* argv[])
 
   vtkNew<vtkCompositePolyDataMapper> mapper;
   mapper->SetInputConnection(polyFilter->GetOutputPort());
+  mapper->SetScalarRange(1, 2);
 
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper.GetPointer());
