@@ -50,12 +50,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   /**
-   * Overridden to release resources that would interfere with an external
-   * application's rendering.
-   */
-  void Render();
-
-  /**
    * What rendering backend has the user requested
    */
   virtual const char *GetRenderingBackend();

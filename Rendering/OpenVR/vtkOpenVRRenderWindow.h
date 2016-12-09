@@ -236,7 +236,6 @@ protected:
   std::string m_strDisplay;
   vr::IVRSystem *HMD;
   vr::IVRRenderModels *OpenVRRenderModels;
-  bool VBlank;
 
   struct FramebufferDesc
   {
