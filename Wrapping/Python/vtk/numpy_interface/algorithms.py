@@ -144,7 +144,11 @@ def _lookup_mpi_type(ntype):
         typecode = 'b'
     else:
         typecode = numpy.dtype(ntype).char
-    return MPI.__TypeDict__[typecode]
+    try:
+        return MPI.__TypeDict__[typecode]
+    except AttributeError:
+        # handle mpi4py 2.0.0
+        return MPI._typedict[typecode]
 
 def _reduce_dims(array, comm):
     from mpi4py import MPI
