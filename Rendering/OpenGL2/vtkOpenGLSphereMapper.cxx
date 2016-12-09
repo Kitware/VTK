@@ -15,6 +15,7 @@
 
 #include "vtkOpenGLHelper.h"
 
+#include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkOpenGLActor.h"
@@ -22,11 +23,13 @@
 #include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObject.h"
+#include "vtkOpenGLVertexBufferObjectGroup.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
 #include "vtkShaderProgram.h"
 
 #include "vtkSphereMapperVS.h"
@@ -192,19 +195,6 @@ void vtkOpenGLSphereMapper::SetMapperShaderParameters(
   vtkOpenGLHelper &cellBO,
   vtkRenderer *ren, vtkActor *actor)
 {
-  if (cellBO.IBO->IndexCount && (this->VBOBuildTime > cellBO.AttributeUpdateTime ||
-      cellBO.ShaderSourceTime > cellBO.AttributeUpdateTime) &&
-      cellBO.Program->IsAttributeUsed("offsetMC"))
-  {
-    cellBO.VAO->Bind();
-    if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
-                                    "offsetMC", this->VBO->ColorOffset+sizeof(float),
-                                    this->VBO->Stride, VTK_FLOAT, 2, false))
-    {
-      vtkErrorMacro(<< "Error setting 'offsetMC' in shader VAO.");
-    }
-  }
-
   if (cellBO.Program->IsUniformUsed("invertedDepth"))
   {
     cellBO.Program->SetUniformf("invertedDepth", this->Invert ? -1.0 : 1.0);
@@ -221,32 +211,27 @@ void vtkOpenGLSphereMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Radius: " << this->Radius << "\n";
 }
 
-namespace
-{
 // internal function called by CreateVBO
-void vtkOpenGLSphereMapperCreateVBO(float * points, vtkIdType numPts,
-              unsigned char *colors, int colorComponents,
-              vtkIdType nc,
-              float *sizes, vtkIdType ns,
-              vtkOpenGLVertexBufferObject *VBO)
+void vtkOpenGLSphereMapper::CreateVBO(
+  float * points, vtkIdType numPts,
+  unsigned char *colors, int colorComponents,
+  vtkIdType nc,
+  float *sizes, vtkIdType ns, vtkRenderer *ren)
 {
-  // Figure out how big each block will be, currently 6 or 7 floats.
-  int blockSize = 3;
-  VBO->VertexOffset = 0;
-  VBO->NormalOffset = 0;
-  VBO->TCoordOffset = 0;
-  VBO->TCoordComponents = 0;
-  VBO->ColorComponents = colorComponents;
-  VBO->ColorOffset = sizeof(float) * blockSize;
-  ++blockSize;
+  vtkFloatArray *verts = vtkFloatArray::New();
+  verts->SetNumberOfComponents(3);
+  verts->SetNumberOfTuples(numPts*3);
+  float *vPtr = static_cast<float *>(verts->GetVoidPointer(0));
 
-  // two more floats
-  blockSize += 2;
-  VBO->Stride = sizeof(float) * blockSize;
+  vtkFloatArray *offsets = vtkFloatArray::New();
+  offsets->SetNumberOfComponents(2);
+  offsets->SetNumberOfTuples(numPts*3);
+  float *oPtr = static_cast<float *>(offsets->GetVoidPointer(0));
 
-  // Create a buffer, and copy the data over.
-  VBO->PackedVBO.resize(blockSize * numPts*3);
-  std::vector<float>::iterator it = VBO->PackedVBO.begin();
+  vtkUnsignedCharArray *ucolors = vtkUnsignedCharArray::New();
+  ucolors->SetNumberOfComponents(4);
+  ucolors->SetNumberOfTuples(numPts*3);
+  unsigned char *cPtr = static_cast<unsigned char *>(ucolors->GetVoidPointer(0));
 
   float *pointPtr;
   unsigned char *colorPtr;
@@ -260,31 +245,46 @@ void vtkOpenGLSphereMapperCreateVBO(float * points, vtkIdType numPts,
     float radius = (ns == numPts ? sizes[i] : sizes[0]);
 
     // Vertices
-    *(it++) = pointPtr[0];
-    *(it++) = pointPtr[1];
-    *(it++) = pointPtr[2];
-    *(it++) = *reinterpret_cast<float *>(colorPtr);
-    *(it++) = -2.0f*radius*cos30;
-    *(it++) = -radius;
+    *(vPtr++) = pointPtr[0];
+    *(vPtr++) = pointPtr[1];
+    *(vPtr++) = pointPtr[2];
+    *(cPtr++) = colorPtr[0];
+    *(cPtr++) = colorPtr[1];
+    *(cPtr++) = colorPtr[2];
+    *(cPtr++) = colorPtr[3];
+    *(oPtr++) = -2.0f*radius*cos30;
+    *(oPtr++) = -radius;
 
-    *(it++) = pointPtr[0];
-    *(it++) = pointPtr[1];
-    *(it++) = pointPtr[2];
-    *(it++) = *reinterpret_cast<float *>(colorPtr);
-    *(it++) = 2.0f*radius*cos30;
-    *(it++) = -radius;
+    *(vPtr++) = pointPtr[0];
+    *(vPtr++) = pointPtr[1];
+    *(vPtr++) = pointPtr[2];
+    *(cPtr++) = colorPtr[0];
+    *(cPtr++) = colorPtr[1];
+    *(cPtr++) = colorPtr[2];
+    *(cPtr++) = colorPtr[3];
+    *(oPtr++) = 2.0f*radius*cos30;
+    *(oPtr++) = -radius;
 
-    *(it++) = pointPtr[0];
-    *(it++) = pointPtr[1];
-    *(it++) = pointPtr[2];
-    *(it++) = *reinterpret_cast<float *>(colorPtr);
-    *(it++) = 0.0f;
-    *(it++) = 2.0f*radius;
+    *(vPtr++) = pointPtr[0];
+    *(vPtr++) = pointPtr[1];
+    *(vPtr++) = pointPtr[2];
+    *(cPtr++) = colorPtr[0];
+    *(cPtr++) = colorPtr[1];
+    *(cPtr++) = colorPtr[2];
+    *(cPtr++) = colorPtr[3];
+    *(oPtr++) = 0.0f;
+    *(oPtr++) = 2.0f*radius;
   }
-  VBO->Upload(VBO->PackedVBO, vtkOpenGLBufferObject::ArrayBuffer);
-  VBO->VertexCount = numPts*3;
+
+  this->VBOs->CacheDataArray("vertexMC", verts, ren, VTK_FLOAT);
+  verts->Delete();
+  this->VBOs->CacheDataArray("offsetMC", offsets, ren, VTK_FLOAT);
+  offsets->Delete();
+  this->VBOs->CacheDataArray("scalarColor", ucolors, ren, VTK_UNSIGNED_CHAR);
+  ucolors->Delete();
+  VBOs->BuildAllVBOs(ren);
+
   return;
-}
 }
 
 //-------------------------------------------------------------------------
@@ -304,7 +304,7 @@ bool vtkOpenGLSphereMapper::GetNeedToRebuildBufferObjects(
 
 //-------------------------------------------------------------------------
 void vtkOpenGLSphereMapper::BuildBufferObjects(
-  vtkRenderer *vtkNotUsed(ren),
+  vtkRenderer *ren,
   vtkActor *act)
 {
   vtkPolyData *poly = this->CurrentInput;
@@ -357,15 +357,14 @@ void vtkOpenGLSphereMapper::BuildBufferObjects(
     ns = 1;
   }
 
-
   // Iterate through all of the different types in the polydata, building OpenGLs
   // and IBOs as appropriate for each type.
-  vtkOpenGLSphereMapperCreateVBO(
+  this->CreateVBO(
     static_cast<float *>(poly->GetPoints()->GetVoidPointer(0)),
     numPts,
     c, cc, nc,
     scales, ns,
-    this->VBO);
+    ren);
 
   if (!this->Colors)
   {
@@ -376,7 +375,7 @@ void vtkOpenGLSphereMapper::BuildBufferObjects(
   this->Primitives[PrimitivePoints].IBO->IndexCount = 0;
   this->Primitives[PrimitiveLines].IBO->IndexCount = 0;
   this->Primitives[PrimitiveTriStrips].IBO->IndexCount = 0;
-  this->Primitives[PrimitiveTris].IBO->IndexCount = this->VBO->VertexCount;
+  this->Primitives[PrimitiveTris].IBO->IndexCount = numPts*3;
   this->VBOBuildTime.Modified();
 }
 
@@ -405,7 +404,8 @@ void vtkOpenGLSphereMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
   {
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShaders(this->Primitives[PrimitiveTris], ren, actor);
+    int numVerts = this->VBOs->GetNumberOfTuples("vertexMC");
     glDrawArrays(GL_TRIANGLES, 0,
-                static_cast<GLuint>(this->VBO->VertexCount));
+                static_cast<GLuint>(numVerts));
   }
 }

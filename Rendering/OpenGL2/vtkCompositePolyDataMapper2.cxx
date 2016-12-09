@@ -36,6 +36,7 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVertexBufferObject.h"
+#include "vtkOpenGLVertexBufferObjectGroup.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
@@ -160,7 +161,7 @@ protected:
   void BuildBufferObjects(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
   virtual void AppendOneBufferObject(vtkRenderer *ren,
     vtkActor *act, vtkCompositeMapperHelperData *hdata,
-    unsigned int flat_index,
+    unsigned int &flat_index,
     std::vector<unsigned char> &colors,
     std::vector<float> &norms);
 
@@ -592,7 +593,6 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(
   vtkActor *act)
 {
   // render using the composite data attributes
-  this->VBO->VertexCount = 0;
 
   // create the cell scalar array adjusted for ogl Cells
   std::vector<unsigned char> newColors;
@@ -613,11 +613,13 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(
 
   dataIter iter;
   unsigned int voffset = 0;
-  for (iter = this->Data.begin(); iter != this->Data.end(); ++iter)
+  this->VBOs->ClearAllVBOs();
+  this->VBOs->ClearAllDataArrays();
+
+  for (iter = this->Data.begin(); iter != this->Data.end(); iter++)
   {
     vtkCompositeMapperHelperData *hdata = iter->second;
-    hdata->StartVertex =
-      static_cast<unsigned int>(this->VBO->VertexCount);
+    hdata->StartVertex = voffset;
     for (int i = 0; i < PrimitiveEnd; i++)
     {
       hdata->StartIndex[i] =
@@ -625,9 +627,7 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(
     }
     this->AppendOneBufferObject(ren, act, hdata,
       voffset, newColors, newNorms);
-    hdata->NextVertex =
-      static_cast<unsigned int>(this->VBO->VertexCount);
-    voffset = static_cast<unsigned int>(this->VBO->VertexCount);
+    hdata->NextVertex = voffset;
     for (int i = 0; i < PrimitiveEnd; i++)
     {
       hdata->NextIndex[i] =
@@ -635,8 +635,7 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(
     }
   }
 
-  this->VBO->Upload(this->VBO->PackedVBO, vtkOpenGLBufferObject::ArrayBuffer);
-  this->VBO->PackedVBO.resize(0);
+  this->VBOs->BuildAllVBOs(ren);
 
   for (int i = PrimitiveStart; i < PrimitiveEnd; i++)
   {
@@ -740,7 +739,7 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
   vtkRenderer *ren,
   vtkActor *act,
   vtkCompositeMapperHelperData *hdata,
-  unsigned int voffset,
+  unsigned int &voffset,
   std::vector<unsigned char> &newColors,
   std::vector<float> &newNorms
   )
@@ -908,11 +907,11 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
   }
 
   // Build the VBO
-  this->VBO->AppendVBO(poly->GetPoints(),
-            poly->GetPoints()->GetNumberOfPoints(),
-            n, tcoords,
-            c ? (unsigned char *)c->GetVoidPointer(0) : NULL,
-            c ? c->GetNumberOfComponents() : 0);
+  this->VBOs->AppendDataArray(
+    "vertexMC", poly->GetPoints()->GetData(), VTK_FLOAT);
+  this->VBOs->AppendDataArray("normalMC", n, VTK_FLOAT);
+  this->VBOs->AppendDataArray("scalarColor", c, VTK_UNSIGNED_CHAR);
+  this->VBOs->AppendDataArray("tcoordMC", tcoords, VTK_FLOAT);
 
   // now create the IBOs
   vtkOpenGLIndexBufferObject::AppendPointIndexBuffer(
@@ -1021,6 +1020,8 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
   {
     poly->Delete();
   }
+
+  voffset += poly->GetPoints()->GetNumberOfPoints();
 }
 
 

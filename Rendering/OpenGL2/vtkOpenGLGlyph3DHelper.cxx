@@ -32,6 +32,7 @@
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObject.h"
+#include "vtkOpenGLVertexBufferObjectGroup.h"
 #include "vtkProperty.h"
 #include "vtkShader.h"
 #include "vtkShaderProgram.h"
@@ -286,7 +287,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderNormal(
   std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
 
   // new code for normal matrix if we have normals
-  if (this->VBO->NormalOffset)
+  if (this->VBOs->GetNumberOfComponents("normalMC") == 3)
   {
     if (this->UsingInstancing)
     {
@@ -432,7 +433,8 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
     program->SetUniformMatrix4x4("GCMCMatrix", &(matrices[inPtId*16]));
 
     // for lit shaders set normal matrix
-    if (this->LastLightComplexity[this->LastBoundBO] > 0 && this->VBO->NormalOffset &&
+    if (this->LastLightComplexity[this->LastBoundBO] > 0 &&
+        this->VBOs->GetNumberOfComponents("normalMC") == 3 &&
         !this->UsingInstancing)
     {
       program->SetUniformMatrix3x3("glyphNormalMatrix", &(normalMatrices[inPtId*9]));
@@ -446,7 +448,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
     }
 
     glDrawRangeElements(mode, 0,
-                        static_cast<GLuint>(this->VBO->VertexCount - 1),
+                        static_cast<GLuint>(this->VBOs->GetNumberOfTuples("vertexMC") - 1),
                         static_cast<GLsizei>(this->Primitives[PrimitiveTris].IBO->IndexCount),
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
@@ -474,8 +476,10 @@ void vtkOpenGLGlyph3DHelper::SetCameraShaderParameters(vtkOpenGLHelper &cellBO,
   }
 
   // for lit shaders set normal matrix
-  if (this->LastLightComplexity[&cellBO] > 0 && this->ModelNormalMatrix &&
-     this->VBO->NormalOffset && !this->UsingInstancing)
+  if (this->LastLightComplexity[&cellBO] > 0 &&
+      this->ModelNormalMatrix &&
+      this->VBOs->GetNumberOfComponents("normalMC") == 3 &&
+      !this->UsingInstancing)
   {
     program->SetUniformMatrix3x3("glyphNormalMatrix", this->ModelNormalMatrix);
   }
@@ -537,7 +541,8 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
     }
     this->MatrixBuffer->Release();
 
-    if (this->VBO->NormalOffset && this->LastLightComplexity[this->LastBoundBO] > 0)
+    if (this->VBOs->GetNumberOfComponents("normalMC") == 3 &&
+        this->LastLightComplexity[this->LastBoundBO] > 0)
     {
       this->NormalMatrixBuffer->Bind();
       this->NormalMatrixBuffer->Upload(

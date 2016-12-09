@@ -31,6 +31,7 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLVertexArrayObject.h"
+#include "vtkOpenGLVertexBufferObjectCache.h"
 #include "vtkOutputWindow.h"
 #include "vtkRendererCollection.h"
 #include "vtkShaderProgram.h"
@@ -104,6 +105,7 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->Initialized = false;
 
   this->ShaderCache = vtkOpenGLShaderCache::New();
+  this->VBOCache = vtkOpenGLVertexBufferObjectCache::New();
 
   this->TextureUnitManager = 0;
 
@@ -168,6 +170,8 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
 
   delete [] this->Capabilities;
   this->Capabilities = 0;
+
+  this->VBOCache->UnRegister(this);
 }
 
 const char* vtkOpenGLRenderWindow::ReportCapabilities()
@@ -240,6 +244,7 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
   }
 
   this->ShaderCache->ReleaseGraphicsResources(renWin);
+  //this->VBOCache->ReleaseGraphicsResources(renWin);
 
   if (this->TextureResourceIds.size())
   {

@@ -32,15 +32,16 @@
 #include <map> //for methods
 
 class vtkCellArray;
+class vtkGenericOpenGLResourceFreeCallback;
 class vtkMatrix4x4;
 class vtkMatrix3x3;
 class vtkOpenGLTexture;
 class vtkOpenGLBufferObject;
 class vtkOpenGLVertexBufferObject;
+class vtkOpenGLVertexBufferObjectGroup;
 class vtkPoints;
 class vtkTextureObject;
 class vtkTransform;
-class vtkGenericOpenGLResourceFreeCallback;
 
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
@@ -206,8 +207,8 @@ public:
    */
   bool GetHaveAppleBug() { return this->HaveAppleBug; }
 
-  /// Return the mapper's vertex buffer object.
-  vtkGetObjectMacro(VBO,vtkOpenGLVertexBufferObject);
+  /// Return the mapper's vertex buffer objects.
+  vtkGetObjectMacro(VBOs, vtkOpenGLVertexBufferObjectGroup);
 
   /**\brief A convenience method for enabling/disabling
     *   the VBO's shift+scale transform.
@@ -378,7 +379,7 @@ protected:
   virtual void BuildIBO(vtkRenderer *ren, vtkActor *act, vtkPolyData *poly);
 
   // The VBO and its layout.
-  vtkOpenGLVertexBufferObject *VBO;
+  vtkOpenGLVertexBufferObjectGroup *VBOs;
 
   // Structures for the various cell types we render.
   vtkOpenGLHelper Primitives[PrimitiveEnd];
@@ -434,6 +435,7 @@ protected:
   vtkMatrix3x3* TempMatrix3;
   vtkNew<vtkTransform> VBOInverseTransform;
   vtkNew<vtkMatrix4x4> VBOShiftScale;
+  int ShiftScaleMethod; // for points
 
   // if set to true, tcoords will be passed to the
   // VBO even if the mapper knows of no texture maps

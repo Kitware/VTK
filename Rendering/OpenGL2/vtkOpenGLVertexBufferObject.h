@@ -17,6 +17,7 @@
 #include "vtkRenderingOpenGL2Module.h" // for export macro
 #include "vtkOpenGLBufferObject.h"
 
+class vtkOpenGLVertexBufferObjectCache;
 
 /**
  * @brief OpenGL vertex buffer object
@@ -27,9 +28,10 @@
 
 
 // useful union for stuffing colors into a float
-union vtkucfloat
+union vtkFourByteUnion
 {
   unsigned char c[4];
+  short s[2];
   float f;
 };
 
@@ -41,19 +43,30 @@ public:
   vtkTypeMacro(vtkOpenGLVertexBufferObject, vtkOpenGLBufferObject);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  // Take the points, and pack them into this VBO. This currently
-  // takes whatever the input type might be and packs them into a VBO using
-  // floats for the vertices and normals, and unsigned char for the colors (if
-  // the array is non-null).
-  void CreateVBO(vtkPoints *points, unsigned int numPoints,
-      vtkDataArray *normals,
-      vtkDataArray *tcoords,
-      unsigned char *colors, int colorComponents);
+  // set the VBOs data to the provided data array and upload
+  // this can use a fast path of just passing the
+  // data array pointer to OpenGL if it is suitable
+  void UploadDataArray(vtkDataArray *array);
 
-  void AppendVBO(vtkPoints *points, unsigned int numPoints,
-      vtkDataArray *normals,
-      vtkDataArray *tcoords,
-      unsigned char *colors, int colorComponents);
+  // append a data array to this VBO, always
+  // copies the data from the data array
+  void AppendDataArray(vtkDataArray *array);
+
+  /**
+   * Checks that array attributes conform to VBO
+   * attributes, like data type, number of components,
+   * number of tuples.
+   */
+  bool DoesArrayConformToVBO(vtkDataArray * array);
+
+  /**
+   * Initialize the VBO attributes based on the given
+   * array attributes.
+   */
+  void InitVBO(vtkDataArray * array, int destType);
+
+  void UploadVBO();
+  vtkGetMacro(UploadTime,vtkTimeStamp);
 
   /**\brief Methods for VBO coordinate shift+scale-computation.
     *
@@ -111,33 +124,33 @@ public:
   // additional transform (if any) to apply to the rendering transform.
   vtkGetMacro(CoordShiftAndScaleEnabled,bool);
   vtkGetMacro(CoordShiftAndScaleMethod,ShiftScaleMethod);
-  vtkGetVector3Macro(CoordShift,double);
-  vtkGetVector3Macro(CoordScale,double);
   virtual void SetCoordShiftAndScaleMethod(ShiftScaleMethod meth);
-  virtual void SetCoordShift(double x, double y, double z);
-  virtual void SetCoordShift(const double s[3]);
-  virtual void SetCoordScale(double sx, double sy, double sz);
-  virtual void SetCoordScale(const double s[3]);
+  virtual void SetShift(const std::vector<double>& shift);
+  virtual void SetScale(const std::vector<double>& scale);
+  virtual const std::vector<double>& GetShift();
+  virtual const std::vector<double>& GetScale();
 
-  // Sizes/offsets are all in bytes as OpenGL API expects them.
-  size_t VertexCount; // Number of vertices in the VBO
-  int Stride;       // The size of a complete vertex + attributes
-  int VertexOffset; // Offset of the vertex
-  int NormalOffset; // Offset of the normal
-  int TCoordOffset; // Offset of the texture coordinates
-  int TCoordComponents; // Number of texture dimensions
-  int ColorOffset;  // Offset of the color
-  int ColorComponents; // Number of color components
   std::vector<float> PackedVBO; // the data
+  vtkTimeStamp UploadTime;
+  unsigned int Stride;             // The size of a complete tuple
+  unsigned int NumberOfComponents;
+  unsigned int NumberOfTuples;
+  int DataType;
+  unsigned int DataTypeSize;
+
+  // VBOs may hold onto the cache, never the other way around
+  void SetCache(vtkOpenGLVertexBufferObjectCache *cache);
 
 protected:
   vtkOpenGLVertexBufferObject();
   ~vtkOpenGLVertexBufferObject() VTK_OVERRIDE;
 
-  double CoordShift[3];
-  double CoordScale[3];
   ShiftScaleMethod CoordShiftAndScaleMethod;
   bool CoordShiftAndScaleEnabled;
+  std::vector<double> Shift;
+  std::vector<double> Scale;
+
+  vtkOpenGLVertexBufferObjectCache *Cache;
 
 private:
   vtkOpenGLVertexBufferObject(const vtkOpenGLVertexBufferObject&) VTK_DELETE_FUNCTION;

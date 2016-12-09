@@ -147,8 +147,8 @@ void vtkSurfaceLICMapper::SetMapperShaderParameters(
   {
     cellBO.VAO->Bind();
     if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VectorVBO,
-        "vecsMC", this->VectorVBO->TCoordOffset,
-         this->VectorVBO->Stride, VTK_FLOAT, this->VectorVBO->TCoordComponents,
+        "vecsMC", 0,
+         this->VectorVBO->Stride, VTK_FLOAT, this->VectorVBO->NumberOfComponents,
          false))
     {
       vtkErrorMacro(<< "Error setting 'vecsMC' in shader VAO.");
@@ -268,10 +268,9 @@ void vtkSurfaceLICMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act)
   vtkDataArray *vectors = this->GetInputArrayToProcess(0, this->CurrentInput);
 
   int numComp = vectors->GetNumberOfComponents();
-  this->VectorVBO->VertexCount = vectors->GetNumberOfTuples();
-  this->VectorVBO->TCoordComponents = numComp;
-  this->VectorVBO->TCoordOffset = 0;
-  this->VectorVBO->Stride = this->VectorVBO->TCoordComponents*sizeof(float);
+  this->VectorVBO->NumberOfTuples = vectors->GetNumberOfTuples();
+  this->VectorVBO->NumberOfComponents = numComp;
+  this->VectorVBO->Stride = this->VectorVBO->NumberOfComponents*sizeof(float);
 
   if (vectors->GetDataType() != VTK_FLOAT)
   {

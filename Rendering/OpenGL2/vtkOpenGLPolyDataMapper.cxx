@@ -42,6 +42,8 @@
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObject.h"
+#include "vtkOpenGLVertexBufferObjectCache.h"
+#include "vtkOpenGLVertexBufferObjectGroup.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
@@ -77,6 +79,8 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->ForceTextureCoordinates = false;
 
   this->PrimitiveIDOffset = 0;
+  this->ShiftScaleMethod =
+    vtkOpenGLVertexBufferObject::DISABLE_SHIFT_SCALE;
 
   this->CellScalarTexture = NULL;
   this->CellScalarBuffer = NULL;
@@ -91,7 +95,7 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->CellIdArrayName = NULL;
   this->ProcessIdArrayName = NULL;
   this->CompositeIdArrayName = NULL;
-  this->VBO = vtkOpenGLVertexBufferObject::New();
+  this->VBOs = vtkOpenGLVertexBufferObjectGroup::New();
 
   this->AppleBugPrimIDBuffer = 0;
   this->HaveAppleBug = false;
@@ -156,8 +160,8 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
   this->SetCellIdArrayName(NULL);
   this->SetProcessIdArrayName(NULL);
   this->SetCompositeIdArrayName(NULL);
-  this->VBO->Delete();
-  this->VBO = 0;
+  this->VBOs->Delete();
+  this->VBOs = 0;
 
   if (this->AppleBugPrimIDBuffer)
   {
@@ -178,7 +182,7 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
     return;
   }
 
-  this->VBO->ReleaseGraphicsResources();
+  this->VBOs->ReleaseGraphicsResources(win);
   for (int i = PrimitiveStart; i < PrimitiveEnd; i++)
   {
     this->Primitives[i].ReleaseGraphicsResources(win);
@@ -554,8 +558,10 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
         "uniform float specularPowerUniformBF;\n";
     }
   }
+
   // add scalar vertex coloring
-  if (this->VBO->ColorComponents != 0 && !this->DrawingEdgesOrVertices)
+  if (this->VBOs->GetNumberOfComponents("scalarColor") != 0 &&
+      !this->DrawingEdgesOrVertices)
   {
     colorDec += "varying vec4 vertexColorVSOutput;\n";
     vtkShaderProgram::Substitute(VSSource,"//VTK::Color::Dec",
@@ -638,7 +644,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
   }
 
   // now handle scalar coloring
-  if (this->VBO->ColorComponents != 0 && !this->DrawingEdgesOrVertices)
+  if(this->VBOs->GetNumberOfComponents("scalarColor") != 0 &&
+     !this->DrawingEdgesOrVertices)
   {
     if (this->ScalarMaterialMode == VTK_MATERIALMODE_AMBIENT ||
         (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT &&
@@ -940,6 +947,13 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
     return;
   }
 
+  // do not have 1 or 2 text coordinates?
+  int tcoordComps = this->VBOs->GetNumberOfComponents("tcoordMC");
+  if(tcoordComps != 1 && tcoordComps != 2)
+  {
+    return;
+  }
+
   std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
   std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
   std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
@@ -952,7 +966,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
       "//VTK::TCoord::Dec\n"
       "uniform mat4 tcMatrix;",
       false);
-    if (this->VBO->TCoordComponents == 1)
+    if (tcoordComps == 1)
     {
       vtkShaderProgram::Substitute(VSSource, "//VTK::TCoord::Impl",
         "vec4 tcoordTmp = tcMatrix*vec4(tcoordMC,0.0,0.0,1.0);\n"
@@ -975,7 +989,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
   std::string tCoordType;
   std::string tCoordImpFSPre;
   std::string tCoordImpFSPost;
-  if (this->VBO->TCoordComponents == 1)
+  if (tcoordComps == 1)
   {
     tCoordType = "float";
     tCoordImpFSPre = "vec2(";
@@ -1280,7 +1294,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
     std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
 
     // if we have point normals provided
-    if (this->VBO->NormalOffset)
+    if (this->VBOs->GetNumberOfComponents("normalMC") == 3)
     {
       vtkShaderProgram::Substitute(VSSource,
         "//VTK::Normal::Dec",
@@ -1699,12 +1713,11 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
   // shape of input data changed?
   unsigned int scv
     = (this->CurrentInput->GetPointData()->GetNormals() ? 0x01 : 0)
-    + (this->VBO->TCoordComponents ? 0x02 : 0)
-    + (this->HaveCellScalars ? 0x04 : 0)
-    + (this->HaveCellNormals ? 0x08 : 0)
-    + (this->HavePickScalars ? 0x10 : 0)
-    + (this->VBO->ColorComponents ? 0x20 : 0)
-    + ((this->VBO->TCoordComponents % 4) << 6);
+    + (this->HaveCellScalars ? 0x02 : 0)
+    + (this->HaveCellNormals ? 0x04 : 0)
+    + (this->HavePickScalars ? 0x08 : 0)
+    + (this->VBOs->GetNumberOfComponents("scalarColor") ? 0x10 : 0)
+    + ((this->VBOs->GetNumberOfComponents("tcoordMC") % 4) << 5);
 
   if (cellBO.Program == 0 ||
       cellBO.ShaderSourceTime < this->GetMTime() ||
@@ -1719,7 +1732,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
   }
 
   // if texturing then texture componets/blend funcs may have changed
-  if (this->VBO->TCoordComponents)
+  if (this->VBOs->GetNumberOfComponents("tcoordMC"))
   {
     vtkMTimeType texMTime = 0;
     std::vector<vtkTexture *> textures = this->GetTextures(actor);
@@ -1800,6 +1813,7 @@ void vtkOpenGLPolyDataMapper::UpdateShaders(
 void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
                                                       vtkRenderer* ren, vtkActor *actor)
 {
+
   // Now to update the VAO too, if necessary.
   cellBO.Program->SetUniformi("PrimitiveIDOffset",
     this->PrimitiveIDOffset);
@@ -1808,47 +1822,9 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
       cellBO.ShaderSourceTime > cellBO.AttributeUpdateTime))
   {
     cellBO.VAO->Bind();
-    if (cellBO.Program->IsAttributeUsed("vertexMC"))
-    {
-      if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
-                                         "vertexMC", this->VBO->VertexOffset,
-                                         this->VBO->Stride, VTK_FLOAT, 3,
-                                         false))
-      {
-        vtkErrorMacro(<< "Error setting 'vertexMC' in shader VAO.");
-      }
-    }
-    if (this->VBO->NormalOffset && this->LastLightComplexity[&cellBO] > 0 &&
-        cellBO.Program->IsAttributeUsed("normalMC"))
-    {
-      if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
-                                      "normalMC", this->VBO->NormalOffset,
-                                      this->VBO->Stride, VTK_FLOAT, 3, false))
-      {
-        vtkErrorMacro(<< "Error setting 'normalMC' in shader VAO.");
-      }
-    }
-    if (this->VBO->TCoordComponents && !this->DrawingEdgesOrVertices &&
-        cellBO.Program->IsAttributeUsed("tcoordMC"))
-    {
-      if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
-                                      "tcoordMC", this->VBO->TCoordOffset,
-                                      this->VBO->Stride, VTK_FLOAT, this->VBO->TCoordComponents, false))
-      {
-        vtkErrorMacro(<< "Error setting 'tcoordMC' in shader VAO.");
-      }
-    }
-    if (this->VBO->ColorComponents != 0 && !this->DrawingEdgesOrVertices &&
-        cellBO.Program->IsAttributeUsed("scalarColor"))
-    {
-      if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
-                                      "scalarColor", this->VBO->ColorOffset,
-                                      this->VBO->Stride, VTK_UNSIGNED_CHAR,
-                                      this->VBO->ColorComponents, true))
-      {
-        vtkErrorMacro(<< "Error setting 'scalarColor' in shader VAO.");
-      }
-    }
+
+    this->VBOs->AddAllAttributesToVAO(cellBO.Program, cellBO.VAO);
+
     if (this->AppleBugPrimIDs.size() &&
         cellBO.Program->IsAttributeUsed("appleBugPrimID"))
     {
@@ -2159,7 +2135,10 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(vtkOpenGLHelper &cellBO,
     }
   }
 
-  if (this->VBO->GetCoordShiftAndScaleEnabled())
+  // If the VBO coordinates were shifted and scaled, apply the inverse transform
+  // to the model->view matrix:
+  vtkOpenGLVertexBufferObject *vvbo = this->VBOs->GetVBO("vertexMC");
+  if (vvbo && vvbo->GetCoordShiftAndScaleEnabled())
   {
     if (!actor->GetIsIdentity())
     {
@@ -2492,7 +2471,8 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
   }
 
   // Bind the OpenGL, this is shared between the different primitive/cell types.
-  this->VBO->Bind();
+  //this->VBOs->Bind();
+
   this->LastBoundBO = NULL;
 }
 
@@ -2512,6 +2492,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
     pointPicking = true;
   }
 
+  int numVerts = this->VBOs->GetNumberOfTuples("vertexMC");
   for (int i = PrimitiveStart;
        i < (selector ? PrimitiveTriStrips + 1 :  PrimitiveEnd); i++)
   {
@@ -2536,7 +2517,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
 
       this->Primitives[i].IBO->Bind();
       glDrawRangeElements(mode, 0,
-                          static_cast<GLuint>(this->VBO->VertexCount - 1),
+                          static_cast<GLuint>(numVerts - 1),
                           static_cast<GLsizei>(this->Primitives[i].IBO->IndexCount),
                           GL_UNSIGNED_INT,
                           reinterpret_cast<const GLvoid *>(NULL));
@@ -2577,7 +2558,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceFinish(vtkRenderer* ren,
     this->LastBoundBO->VAO->Release();
   }
 
-  this->VBO->Release();
+  // this->VBOs->Release();
 
   vtkProperty *prop = actor->GetProperty();
   bool surface_offset =
@@ -3079,7 +3060,7 @@ vtkPolyData *vtkOpenGLPolyDataMapper::HandleAppleBug(
       for (prims[j]->InitTraversal(); prims[j]->GetNextCell(npts, indices); )
       {
         ca->InsertNextCell(npts);
-        vtkucfloat c;
+        vtkFourByteUnion c;
         c.c[0] = newCellCount&0xff;
         c.c[1] = (newCellCount >> 8)&0xff;
         c.c[2] = (newCellCount >> 16)&0xff;
@@ -3263,43 +3244,33 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
       }
     }
 
-  // rebuild the VBO if the data has changed we create a string for the VBO what
-  // can change the VBO? points normals tcoords colors so what can change those?
-  // the input data is clearly one as it can change all four items tcoords may
-  // haveTextures or not colors may change based on quite a few mapping
-  // parameters in the mapper
-  toString.str("");
-  toString.clear();
-  toString << poly->GetMTime() <<
-    'A' << (c ? c->GetMTime() : 1) <<
-    'B' << (n ? n->GetMTime() : 1) <<
-    'C' << (tcoords ? tcoords->GetMTime() : 1);
+  vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  vtkOpenGLVertexBufferObjectCache *cache = renWin->GetVBOCache();
 
-  if (this->VBOBuildString != toString.str())
+  this->VBOs->CacheDataArray("vertexMC", poly->GetPoints()->GetData(), cache, VTK_FLOAT);
+  vtkOpenGLVertexBufferObject *posVBO = this->VBOs->GetVBO("vertexMC");
+  if (posVBO)
   {
-    // Build the VBO
-    this->VBO->CreateVBO(poly->GetPoints(),
-        poly->GetPoints()->GetNumberOfPoints(),
-        n, tcoords,
-        c ? (unsigned char *)c->GetVoidPointer(0) : NULL,
-        c ? c->GetNumberOfComponents() : 0);
-
+    posVBO->SetCoordShiftAndScaleMethod(
+      static_cast<vtkOpenGLVertexBufferObject::ShiftScaleMethod>(this->ShiftScaleMethod));
     // If the VBO coordinates were shifted and scaled, prepare the inverse transform
     // for application to the model->view matrix:
-    if (this->VBO->GetCoordShiftAndScaleEnabled())
+    if (posVBO->GetCoordShiftAndScaleEnabled())
     {
-      double shift[3];
-      double scale[3];
-      this->VBO->GetCoordShift(shift);
-      this->VBO->GetCoordScale(scale);
+      std::vector<double> shift = posVBO->GetShift();
+      std::vector<double> scale = posVBO->GetScale();
       this->VBOInverseTransform->Identity();
       this->VBOInverseTransform->Translate(shift[0], shift[1], shift[2]);
       this->VBOInverseTransform->Scale(1.0/scale[0], 1.0/scale[1], 1.0/scale[2]);
       this->VBOInverseTransform->GetTranspose(this->VBOShiftScale.GetPointer());
     }
-    this->VBOBuildTime.Modified();
-    this->VBOBuildString = toString.str();
   }
+
+  this->VBOs->CacheDataArray("normalMC", n, cache, VTK_FLOAT);
+  this->VBOs->CacheDataArray("scalarColor", c, cache, VTK_UNSIGNED_CHAR);
+  this->VBOs->CacheDataArray("tcoordMC", tcoords, cache, VTK_FLOAT);
+  this->VBOs->BuildAllVBOs(cache);
+  this->VBOBuildTime.Modified(); // need to call all the time or GetNeedToRebuild will always return true;
 
   // now create the IBOs
   this->BuildIBO(ren, act, poly);
@@ -3503,8 +3474,7 @@ void vtkOpenGLPolyDataMapper::ShallowCopy(vtkAbstractMapper *mapper)
 
 void vtkOpenGLPolyDataMapper::SetVBOShiftScaleMethod(int m)
 {
-  this->VBO->SetCoordShiftAndScaleMethod(
-    static_cast<vtkOpenGLVertexBufferObject::ShiftScaleMethod>(m));
+  this->ShiftScaleMethod = m;
 }
 
 int vtkOpenGLPolyDataMapper::GetOpenGLMode(

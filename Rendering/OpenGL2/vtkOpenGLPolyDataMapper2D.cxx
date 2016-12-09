@@ -34,6 +34,8 @@
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObject.h"
+#include "vtkOpenGLVertexBufferObjectCache.h"
+#include "vtkOpenGLVertexBufferObjectGroup.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty2D.h"
@@ -58,13 +60,13 @@ vtkOpenGLPolyDataMapper2D::vtkOpenGLPolyDataMapper2D()
   this->TransformedPoints = NULL;
   this->CellScalarTexture = NULL;
   this->CellScalarBuffer = NULL;
-  this->VBO = vtkOpenGLVertexBufferObject::New();
   this->AppleBugPrimIDBuffer = 0;
   this->HaveAppleBug = false;
   this->LastBoundBO = 0;
   this->HaveCellScalars = false;
   this->PrimitiveIDOffset = 0;
   this->LastPickState = 0;
+  this->VBOs = vtkOpenGLVertexBufferObjectGroup::New();
 
   this->ResourceCallback = new vtkOpenGLResourceFreeCallback<vtkOpenGLPolyDataMapper2D>(this,
     &vtkOpenGLPolyDataMapper2D::ReleaseGraphicsResources);
@@ -94,13 +96,12 @@ vtkOpenGLPolyDataMapper2D::~vtkOpenGLPolyDataMapper2D()
     this->CellScalarBuffer = 0;
   }
   this->HaveCellScalars = false;
-  this->VBO->Delete();
-  this->VBO = 0;
   if (this->AppleBugPrimIDBuffer)
   {
     this->AppleBugPrimIDBuffer->Delete();
   }
-
+  this->VBOs->Delete();
+  this->VBOs = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -112,7 +113,7 @@ void vtkOpenGLPolyDataMapper2D::ReleaseGraphicsResources(vtkWindow* win)
     return;
   }
 
-  this->VBO->ReleaseGraphicsResources();
+  this->VBOs->ReleaseGraphicsResources(win);
   this->Points.ReleaseGraphicsResources(win);
   this->Lines.ReleaseGraphicsResources(win);
   this->Tris.ReleaseGraphicsResources(win);
@@ -218,9 +219,10 @@ void vtkOpenGLPolyDataMapper2D::BuildShaders(
     }
   }
 
-  if (this->VBO->TCoordComponents)
+  int numTCoordComps = this->VBOs->GetNumberOfComponents("tcoordMC");
+  if (numTCoordComps == 1 || numTCoordComps == 2)
   {
-    if (this->VBO->TCoordComponents == 1)
+    if (numTCoordComps == 1)
     {
       vtkShaderProgram::Substitute(VSSource,
         "//VTK::TCoord::Dec",
@@ -352,32 +354,11 @@ void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
       cellBO.ShaderSourceTime > cellBO.AttributeUpdateTime)
   {
     cellBO.VAO->Bind();
-    if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
-                                    "vertexWC", this->VBO->VertexOffset,
-                                    this->VBO->Stride, VTK_FLOAT, 3, false))
-    {
-      vtkErrorMacro(<< "Error setting 'vertexWC' in shader program.");
-    }
-    if (this->VBO->TCoordComponents && cellBO.Program->IsAttributeUsed("tcoordMC"))
-    {
-      if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
-                                      "tcoordMC", this->VBO->TCoordOffset,
-                                      this->VBO->Stride, VTK_FLOAT, this->VBO->TCoordComponents, false))
-      {
-        vtkErrorMacro(<< "Error setting 'tcoordMC' in shader VAO.");
-      }
-    }
-    if (this->VBO->ColorComponents && cellBO.Program->IsAttributeUsed("diffuseColor"))
-    {
-      if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
-                                      "diffuseColor", this->VBO->ColorOffset,
-                                      this->VBO->Stride, VTK_UNSIGNED_CHAR,
-                                      this->VBO->ColorComponents, true))
-      {
-        vtkErrorMacro(<< "Error setting 'diffuseColor' in shader program.");
-      }
-    }
-    if (this->AppleBugPrimIDs.size())
+
+    this->VBOs->AddAllAttributesToVAO(cellBO.Program, cellBO.VAO);
+
+    if (this->AppleBugPrimIDs.size() &&
+        cellBO.Program->IsAttributeUsed("appleBugPrimID"))
     {
       this->AppleBugPrimIDBuffer->Bind();
       if (!cellBO.VAO->AddAttributeArray(cellBO.Program,
@@ -399,7 +380,7 @@ void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
     cellBO.Program->SetUniformi("textureC", tunit);
   }
 
-  if (this->VBO->TCoordComponents)
+  if (this->VBOs->GetNumberOfComponents("tcoordMC"))
   {
     vtkInformation *info = actor->GetPropertyKeys();
     if (info && info->Has(vtkProp::GeneralTextureUnit()))
@@ -549,6 +530,7 @@ void vtkOpenGLPolyDataMapper2D::SetCameraShaderParameters(
   // XXX(cppcheck): possible division by zero
   tmpMat->SetElement(2,3,-1.0*(farV+nearV)/(farV-nearV));
   tmpMat->Transpose();
+/*
   if (this->VBO->GetCoordShiftAndScaleEnabled())
   {
     this->VBOTransformInverse->GetTranspose(this->VBOShiftScale.GetPointer());
@@ -556,7 +538,7 @@ void vtkOpenGLPolyDataMapper2D::SetCameraShaderParameters(
     vtkMatrix4x4::Multiply4x4(
       this->VBOShiftScale.GetPointer(), tmpMat, tmpMat);
   }
-
+*/
   program->SetUniformMatrix("WCVCMatrix", tmpMat);
 
   tmpMat->Delete();
@@ -714,28 +696,16 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
     p = this->TransformedPoints;
   }
 
-  // Iterate through all of the different types in the polydata, building VBOs
-  // and IBOs as appropriate for each type.
-  this->VBO->CreateVBO(p,
-    poly->GetPoints()->GetNumberOfPoints(),
-    NULL,
-    haveTextures ? poly->GetPointData()->GetTCoords() : NULL,
-    c ? (unsigned char *) c->GetVoidPointer(0) : NULL,
-    c ? c->GetNumberOfComponents() : 0);
+  vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(viewport->GetVTKWindow());
+  vtkOpenGLVertexBufferObjectCache *cache = renWin->GetVBOCache();
 
-  if (this->VBO->GetCoordShiftAndScaleEnabled())
-  {
-    // The poly points are far from the origin relative to their
-    // variations so the VBO removed their mean coordinate and scaled...
-    // Generate an inverse of the VBO's transform:
-    double shift[3];
-    double scale[3];
-    this->VBO->GetCoordShift(shift);
-    this->VBO->GetCoordScale(scale);
-    this->VBOTransformInverse->Identity();
-    this->VBOTransformInverse->Translate(shift[0], shift[1], shift[2]);
-    this->VBOTransformInverse->Scale(1.0/scale[0], 1.0/scale[1], 1.0/scale[2]);
-  }
+  this->VBOs->CacheDataArray("vertexWC", p->GetData(), cache, VTK_FLOAT);
+  this->VBOs->CacheDataArray("tcoordMC",
+    (haveTextures ? poly->GetPointData()->GetTCoords() : NULL), cache, VTK_FLOAT);
+  this->VBOs->CacheDataArray("diffuseColor", c, cache, VTK_UNSIGNED_CHAR);
+
+  this->VBOs->BuildAllVBOs(cache);
+  this->VBOUpdateTime.Modified(); // need to call all the time or GetNeedToRebuild will always return true;
 
   this->Points.IBO->IndexCount =
     this->Points.IBO->CreatePointIndexBuffer(prims[0]);
@@ -832,7 +802,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     this->VBOUpdateTime.Modified();
   }
 
-  this->VBO->Bind();
+  // this->VBOs->Bind();
   this->LastBoundBO = NULL;
 
   if (this->HaveCellScalars)
@@ -842,6 +812,8 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
 
   // Figure out and build the appropriate shader for the mapped geometry.
   this->PrimitiveIDOffset = 0;
+
+  int numVerts = this->VBOs->GetNumberOfTuples("vertexWC");
 
   if (this->Points.IBO->IndexCount)
   {
@@ -857,7 +829,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
 #endif
     this->Points.IBO->Bind();
     glDrawRangeElements(GL_POINTS, 0,
-                        static_cast<GLuint>(this->VBO->VertexCount - 1),
+                        static_cast<GLuint>(numVerts - 1),
                         static_cast<GLsizei>(this->Points.IBO->IndexCount),
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
@@ -878,7 +850,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
       }
       this->Lines.IBO->Bind();
       glDrawRangeElements(GL_LINES, 0,
-                          static_cast<GLuint>(this->VBO->VertexCount - 1),
+                          static_cast<GLuint>(numVerts - 1),
                           static_cast<GLsizei>(this->Lines.IBO->IndexCount),
                           GL_UNSIGNED_INT,
                           reinterpret_cast<const GLvoid *>(NULL));
@@ -896,7 +868,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
       this->Tris.Program->SetUniformi("PrimitiveIDOffset",this->PrimitiveIDOffset);
       this->Tris.IBO->Bind();
       glDrawRangeElements(GL_TRIANGLES, 0,
-                          static_cast<GLuint>(this->VBO->VertexCount - 1),
+                          static_cast<GLuint>(numVerts - 1),
                           static_cast<GLsizei>(this->Tris.IBO->IndexCount),
                           GL_UNSIGNED_INT,
                           reinterpret_cast<const GLvoid *>(NULL));
@@ -913,7 +885,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
       this->TriStrips.Program->SetUniformi("PrimitiveIDOffset",this->PrimitiveIDOffset);
       this->TriStrips.IBO->Bind();
       glDrawRangeElements(GL_TRIANGLES, 0,
-                          static_cast<GLuint>(this->VBO->VertexCount - 1),
+                          static_cast<GLuint>(numVerts - 1),
                           static_cast<GLsizei>(this->TriStrips.IBO->IndexCount),
                           GL_UNSIGNED_INT,
                           reinterpret_cast<const GLvoid *>(NULL));
@@ -930,7 +902,8 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   {
     this->LastBoundBO->VAO->Release();
   }
-  this->VBO->Release();
+
+  // this->VBOs->Release();
 
   vtkOpenGLCheckErrorMacro("failed after RenderOverlay");
 }

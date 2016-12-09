@@ -33,13 +33,14 @@
 #include "vtkOpenGLHelper.h" // used for ivars
 #include <string> // For API.
 #include <vector> //for ivars
+#include <map> //for used data arrays & vbos
 
 class vtkActor2D;
 class vtkGenericOpenGLResourceFreeCallback;
 class vtkMatrix4x4;
 class vtkOpenGLBufferObject;
 class vtkOpenGLHelper;
-class vtkOpenGLVertexBufferObject;
+class vtkOpenGLVertexBufferObjectGroup;
 class vtkPoints;
 class vtkRenderer;
 class vtkTextureObject;
@@ -63,9 +64,6 @@ public:
    * resources to release.
    */
   void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
-
-  /// Return the mapper's vertex buffer object.
-  vtkGetObjectMacro(VBO,vtkOpenGLVertexBufferObject);
 
 protected:
   vtkOpenGLPolyDataMapper2D();
@@ -131,7 +129,7 @@ protected:
   void UpdateVBO(vtkActor2D *act, vtkViewport *viewport);
 
   // The VBO and its layout.
-  vtkOpenGLVertexBufferObject *VBO;
+  vtkOpenGLVertexBufferObjectGroup *VBOs;
 
   // Structures for the various cell types we render.
   vtkOpenGLHelper Points;
